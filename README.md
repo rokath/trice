@@ -81,7 +81,6 @@ Use `-color off` switch for piping output in a file or `-color alternate` for a 
 ### Project structure
    name        | info                                                    |
 ---------------|---------------------------------------------------------|
-.vscode/       | visual studio code configuration                        |
 cmd/           | the `trice` sources                                     |
 pkg/           | the internal `trice`packages                            |
 README.media   | images for this README                                  |
