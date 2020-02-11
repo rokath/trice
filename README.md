@@ -1,4 +1,4 @@
-# **trice** - **tr**ace **I**Ds **C** **e**mbedded 
+# **trice** - **TR**ace **I**ds **C** **E**mbedded 
 embedded device C printf-like trace code and real-time PC logging (trace ID visualization)
 
 ## About
