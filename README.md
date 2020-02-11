@@ -123,7 +123,7 @@ testdata/      | example target projects                                 |
 - You can consider this also as a kind of intelligent data compression what could
     be interesting for IoT things, especially NB-IoT, where you have very low data rates.
 - Also it is possible to encrypt the 8 byte transfer packets to get a reasonable protection for many cases.
-  - Treyfer is a recommendation and planned as a comming option.
+  - Treyfer is a recommendation and planned as a coming option.
 - You can even translate the til.json in different languages, so changing a 
     language is just changing the til.json file.
 - traceLog has intentionally no timestamps for performance reasons. But you can add own timestamps as parameters. Having several devices with traceLog timestamps, network timing measurements are possible.
