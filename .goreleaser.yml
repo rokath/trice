@@ -18,7 +18,6 @@ builds: # https://goreleaser.com/customization/#Builds
       - amd64
     env:
       - CGO_ENABLED=0
-      - export GITHUB_TOKEN=
 archives:
 - replacements:
     darwin: Darwin
