@@ -1,0 +1,23 @@
+[
+	{
+		"id": 10000,
+		"fmtType": "TL32_2",
+		"fmtStrg": "rd_:  A { (uint32_t*) 0x%08x, 0x%08xu  },\\r\\n",
+		"created": 0,
+		"removed": 0
+	},
+	{
+		"id": 43255,
+		"fmtType": "TL32_2",
+		"fmtStrg": "rd_:  B { (uint32_t*) 0x%08x, 0x%08xu  },\\r\\n",
+		"created": 0,
+		"removed": 0
+	},
+	{
+		"id": 9070,
+		"fmtType": "TL32_2",
+		"fmtStrg": "rd_:  C { (uint32_t*) 0x%08x, 0x%08xu  },\\r\\n",
+		"created": 0,
+		"removed": 0
+	}
+]

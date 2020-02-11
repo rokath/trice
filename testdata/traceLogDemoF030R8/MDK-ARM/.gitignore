@@ -1,0 +1,6 @@
+*.lst
+/EventriceorderStub.scvd
+*.uvguix.ms
+traceLogDemoF030R8/*
+RTE/*
+DebugConfig/*

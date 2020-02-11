@@ -1,0 +1,30 @@
+
+# TODO list
+- implement langCtoGoFmtStingConverter()
+      - add %u support inside format string
+          - needs format string patch
+      - add %x support (now ok but with forced -sign for "negative" numbers)
+          - needs format string patch
+          - add switch for signed|unsigned %x handling
+- Doxygen
+- lint
+- add random number test for serial input
+- handle duplicate IDs inside the ID list (after a version control checkout)
+- implement 'the `newer` ID is replaced' (right now no timestamp evaluation)
+- implement the removed and restored ID and tests (not implemented yet)
+- automatic sort of idlist and binary search for better performance on PC
+- improved random number method from unused IDs
+- improve logging colors, and design alternate color set
+- check if %f works properly inside format string
+- add running example with TCP/IP port
+- add functionality for auto updating parameter count 
+  - Write only TL8(...) and let trice add _3 to TL8 automatically as example
+    - include parameter count consistency check
+- ExampleHandleArgs_logNoParam does not work (timing?)
+- add bidirectional ReCal software
+- Open separate windows for traceLogs (https://github.com/nanomsg/mangos)
+  - add a command interface
+- add crypto (Treyfer will do) for transmission
+- find a way for Treyfer-key management
+  - key into til.json is a possible but not so good way
+- add automatic reload of til.json if it changed during logging

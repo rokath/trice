@@ -1,0 +1,387 @@
+[
+	{
+		"id": 6842,
+		"fmtType": "TL16_1",
+		"fmtStrg": "msg:Hello from MCU! SysTickVal now %d\\n",
+		"created": 1581440105,
+		"removed": 0
+	},
+	{
+		"id": 20077,
+		"fmtType": "TL32_1",
+		"fmtStrg": "ISR:alive time %d milliseconds\\n",
+		"created": 1581440105,
+		"removed": 0
+	},
+	{
+		"id": 65261,
+		"fmtType": "TL0",
+		"fmtStrg": "--------------------------------------------------------------------------------------------------------------------------------------------------\\n",
+		"created": 1581440105,
+		"removed": 0
+	},
+	{
+		"id": 51789,
+		"fmtType": "TL8_4",
+		"fmtStrg": "tst:TL8  %%03x -\u003e  %03x  %03x  %03x  %03x\\n",
+		"created": 1581440105,
+		"removed": 0
+	},
+	{
+		"id": 30364,
+		"fmtType": "TL8_4",
+		"fmtStrg": "tst:TL8   %%4d -\u003e %4d %4d %4d %4d\\n",
+		"created": 1581440105,
+		"removed": 0
+	},
+	{
+		"id": 4648,
+		"fmtType": "TL8_4",
+		"fmtStrg": "tst:TL8   %%4o -\u003e %4o %4o %4o %4o\\n",
+		"created": 1581440105,
+		"removed": 0
+	},
+	{
+		"id": 36667,
+		"fmtType": "TL16_4",
+		"fmtStrg": "tst:TL16  %%05x -\u003e   %05x   %05x   %05x   %05x\\n",
+		"created": 1581440105,
+		"removed": 0
+	},
+	{
+		"id": 39908,
+		"fmtType": "TL16_4",
+		"fmtStrg": "tst:TL16   %%6d -\u003e  %6d  %6d  %6d  %6d\\n",
+		"created": 1581440105,
+		"removed": 0
+	},
+	{
+		"id": 60212,
+		"fmtType": "TL16_4",
+		"fmtStrg": "tst:TL16   %%7o -\u003e %7o %7o %7o %7o\\n",
+		"created": 1581440105,
+		"removed": 0
+	},
+	{
+		"id": 60059,
+		"fmtType": "TL32_2",
+		"fmtStrg": "tst:TL32   %%09x -\u003e     %09x     %09x",
+		"created": 1581440105,
+		"removed": 0
+	},
+	{
+		"id": 50464,
+		"fmtType": "TL32_2",
+		"fmtStrg": "tst:     %09x     %09x\\n",
+		"created": 1581440105,
+		"removed": 0
+	},
+	{
+		"id": 30279,
+		"fmtType": "TL32_2",
+		"fmtStrg": "tst:TL32   %%11d -\u003e   %11d   %11d",
+		"created": 1581440105,
+		"removed": 0
+	},
+	{
+		"id": 40670,
+		"fmtType": "TL32_2",
+		"fmtStrg": "tst:   %11d   %11d\\n",
+		"created": 1581440105,
+		"removed": 0
+	},
+	{
+		"id": 40127,
+		"fmtType": "TL32_2",
+		"fmtStrg": "tst:TL32   %%12o -\u003e  %12o  %12o",
+		"created": 1581440105,
+		"removed": 0
+	},
+	{
+		"id": 4479,
+		"fmtType": "TL32_2",
+		"fmtStrg": "tst:  %12o  %12o\\n",
+		"created": 1581440105,
+		"removed": 0
+	},
+	{
+		"id": 37890,
+		"fmtType": "TL8_1",
+		"fmtStrg": "tst:TL8 %d\\n",
+		"created": 1581440105,
+		"removed": 0
+	},
+	{
+		"id": 29394,
+		"fmtType": "TL8_2",
+		"fmtStrg": "tst:TL8 %d %d\\n",
+		"created": 1581440105,
+		"removed": 0
+	},
+	{
+		"id": 28923,
+		"fmtType": "TL8_3",
+		"fmtStrg": "tst:TL8 %d %d %d\\n",
+		"created": 1581440105,
+		"removed": 0
+	},
+	{
+		"id": 38460,
+		"fmtType": "TL8_4",
+		"fmtStrg": "tst:TL8 %d %d %d %d\\n",
+		"created": 1581440105,
+		"removed": 0
+	},
+	{
+		"id": 52346,
+		"fmtType": "TL8_5",
+		"fmtStrg": "tst:TL8 %d %d %d %d %d\\n",
+		"created": 1581440105,
+		"removed": 0
+	},
+	{
+		"id": 8503,
+		"fmtType": "TL8_6",
+		"fmtStrg": "tst:TL8 %d %d %d %d %d %d \\n",
+		"created": 1581440105,
+		"removed": 0
+	},
+	{
+		"id": 6807,
+		"fmtType": "TL8_7",
+		"fmtStrg": "tst:TL8 %d %d %d %d %d %d %d\\n",
+		"created": 1581440105,
+		"removed": 0
+	},
+	{
+		"id": 51953,
+		"fmtType": "TL8_8",
+		"fmtStrg": "tst:TL8 %d %d %d %d %d %d %d %d\\n",
+		"created": 1581440105,
+		"removed": 0
+	},
+	{
+		"id": 18564,
+		"fmtType": "TL16_1",
+		"fmtStrg": "tst:TL16 %d\\n",
+		"created": 1581440105,
+		"removed": 0
+	},
+	{
+		"id": 44341,
+		"fmtType": "TL16_2",
+		"fmtStrg": "tst:TL16 %d %d\\n",
+		"created": 1581440105,
+		"removed": 0
+	},
+	{
+		"id": 28620,
+		"fmtType": "TL16_3",
+		"fmtStrg": "tst:TL16 %d %d %d\\n",
+		"created": 1581440105,
+		"removed": 0
+	},
+	{
+		"id": 43473,
+		"fmtType": "TL16_4",
+		"fmtStrg": "tst:TL16 %d %d %d %d\\n",
+		"created": 1581440105,
+		"removed": 0
+	},
+	{
+		"id": 23722,
+		"fmtType": "TL32_1",
+		"fmtStrg": "tst:TL32 %d\\n",
+		"created": 1581440105,
+		"removed": 0
+	},
+	{
+		"id": 31973,
+		"fmtType": "TL32_2",
+		"fmtStrg": "tst:TL32 %d %d\\n",
+		"created": 1581440105,
+		"removed": 0
+	},
+	{
+		"id": 33281,
+		"fmtType": "TL16_1",
+		"fmtStrg": "ERR:error       message, SysTick is %d\\n",
+		"created": 1581440105,
+		"removed": 0
+	},
+	{
+		"id": 3505,
+		"fmtType": "TL16_1",
+		"fmtStrg": "WRN:warning     message, SysTick is %d\\n",
+		"created": 1581440105,
+		"removed": 0
+	},
+	{
+		"id": 32166,
+		"fmtType": "TL16_1",
+		"fmtStrg": "ATT:attension   message, SysTick is %d\\n",
+		"created": 1581440105,
+		"removed": 0
+	},
+	{
+		"id": 63852,
+		"fmtType": "TL16_1",
+		"fmtStrg": "DIA:diagnostics message, SysTick is %d\\n",
+		"created": 1581440105,
+		"removed": 0
+	},
+	{
+		"id": 55914,
+		"fmtType": "TL16_1",
+		"fmtStrg": "TIM:timing      message, SysTick is %d\\n",
+		"created": 1581440105,
+		"removed": 0
+	},
+	{
+		"id": 58892,
+		"fmtType": "TL16_1",
+		"fmtStrg": "DBG:debug       message, SysTick is %d\\n",
+		"created": 1581440105,
+		"removed": 0
+	},
+	{
+		"id": 15483,
+		"fmtType": "TL16_1",
+		"fmtStrg": "SIG:signal      message, SysTick is %d\\n",
+		"created": 1581440105,
+		"removed": 0
+	},
+	{
+		"id": 12965,
+		"fmtType": "TL16_1",
+		"fmtStrg": "RD_:read        message, SysTick is %d\\n",
+		"created": 1581440105,
+		"removed": 0
+	},
+	{
+		"id": 2082,
+		"fmtType": "TL16_1",
+		"fmtStrg": "WR_:write       message, SysTick is %d\\n",
+		"created": 1581440105,
+		"removed": 0
+	},
+	{
+		"id": 19036,
+		"fmtType": "TL16_1",
+		"fmtStrg": "TST:test        message, SysTick is %d\\n",
+		"created": 1581440105,
+		"removed": 0
+	},
+	{
+		"id": 60603,
+		"fmtType": "TL16_1",
+		"fmtStrg": "MSG:normal      message, SysTick is %d\\n",
+		"created": 1581440105,
+		"removed": 0
+	},
+	{
+		"id": 27740,
+		"fmtType": "TL16_1",
+		"fmtStrg": "err:error       message, SysTick is %d\\n",
+		"created": 1581440105,
+		"removed": 0
+	},
+	{
+		"id": 31710,
+		"fmtType": "TL16_1",
+		"fmtStrg": "wrn:warning     message, SysTick is %d\\n",
+		"created": 1581440105,
+		"removed": 0
+	},
+	{
+		"id": 7075,
+		"fmtType": "TL16_1",
+		"fmtStrg": "att:attension   message, SysTick is %d\\n",
+		"created": 1581440105,
+		"removed": 0
+	},
+	{
+		"id": 59999,
+		"fmtType": "TL16_1",
+		"fmtStrg": "dia:diagnostics message, SysTick is %d\\n",
+		"created": 1581440105,
+		"removed": 0
+	},
+	{
+		"id": 54975,
+		"fmtType": "TL16_1",
+		"fmtStrg": "tim:timing      message, SysTick is %d\\n",
+		"created": 1581440105,
+		"removed": 0
+	},
+	{
+		"id": 22076,
+		"fmtType": "TL16_1",
+		"fmtStrg": "dbg:debug       message, SysTick is %d\\n",
+		"created": 1581440105,
+		"removed": 0
+	},
+	{
+		"id": 64486,
+		"fmtType": "TL16_1",
+		"fmtStrg": "sig:signal      message, SysTick is %d\\n",
+		"created": 1581440105,
+		"removed": 0
+	},
+	{
+		"id": 35724,
+		"fmtType": "TL16_1",
+		"fmtStrg": "rd_:read        message, SysTick is %d\\n",
+		"created": 1581440105,
+		"removed": 0
+	},
+	{
+		"id": 56849,
+		"fmtType": "TL16_1",
+		"fmtStrg": "wr_:write       message, SysTick is %d\\n",
+		"created": 1581440105,
+		"removed": 0
+	},
+	{
+		"id": 24657,
+		"fmtType": "TL16_1",
+		"fmtStrg": "tst:test        message, SysTick is %d\\n",
+		"created": 1581440105,
+		"removed": 0
+	},
+	{
+		"id": 52618,
+		"fmtType": "TL16_1",
+		"fmtStrg": "msg:normal      message, SysTick is %d\\n",
+		"created": 1581440105,
+		"removed": 0
+	},
+	{
+		"id": 9866,
+		"fmtType": "TL0",
+		"fmtStrg": "wrn:A",
+		"created": 1581440105,
+		"removed": 0
+	},
+	{
+		"id": 45246,
+		"fmtType": "TL0",
+		"fmtStrg": "wr_:B",
+		"created": 1581440105,
+		"removed": 0
+	},
+	{
+		"id": 61952,
+		"fmtType": "TL0",
+		"fmtStrg": "tim:C\\n",
+		"created": 1581440105,
+		"removed": 0
+	},
+	{
+		"id": 43853,
+		"fmtType": "TL0",
+		"fmtStrg": "--------------------------------------------------------------------------------------------------------------------------------------------------\\n",
+		"created": 1581440105,
+		"removed": 0
+	}
+]

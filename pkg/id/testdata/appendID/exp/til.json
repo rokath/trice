@@ -1,0 +1,23 @@
+[
+	{
+		"ID": 123,
+		"FmtType": "TL0",
+		"FmtStrg": "some logstring",
+		"Created": 0,
+		"Removed": 0
+	},
+	{
+		"ID": 4444,
+		"FmtType": "TL32_1",
+		"FmtStrg": "some other %d logstring",
+		"Created": 0,
+		"Removed": 0
+	},
+	{
+		"ID": 55,
+		"FmtType": "TL8_7",
+		"FmtStrg": "some more %d %d %d %d %d %d %d logstring",
+		"Created": 0,
+		"Removed": 0
+	}
+]

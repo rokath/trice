@@ -1,0 +1,534 @@
+[
+	{
+		"id": 18690,
+		"fmtType": "TL0",
+		"fmtStrg": "\\r\\n\\n\\nwrn:a",
+		"created": 0,
+		"removed": 0
+	},
+	{
+		"id": 53234,
+		"fmtType": "TL0",
+		"fmtStrg": "wrn:A",
+		"created": 0,
+		"removed": 0
+	},
+	{
+		"id": 29569,
+		"fmtType": "TL0",
+		"fmtStrg": "rd_:b",
+		"created": 0,
+		"removed": 0
+	},
+	{
+		"id": 49981,
+		"fmtType": "TL0",
+		"fmtStrg": "wr_:B",
+		"created": 0,
+		"removed": 0
+	},
+	{
+		"id": 51730,
+		"fmtType": "TL0",
+		"fmtStrg": "msg:c",
+		"created": 0,
+		"removed": 0
+	},
+	{
+		"id": 40270,
+		"fmtType": "TL0",
+		"fmtStrg": "tim:C\\n",
+		"created": 0,
+		"removed": 0
+	},
+	{
+		"id": 45144,
+		"fmtType": "TL8_1",
+		"fmtStrg": "WRN: TL8-1 %d\\n",
+		"created": 0,
+		"removed": 0
+	},
+	{
+		"id": 13094,
+		"fmtType": "TL8_2",
+		"fmtStrg": "ERR: TL8-2 %d +%d\\n",
+		"created": 0,
+		"removed": 0
+	},
+	{
+		"id": 32194,
+		"fmtType": "TL8_3",
+		"fmtStrg": "TIM: TL8-3 +%d %d +%d\\n",
+		"created": 0,
+		"removed": 0
+	},
+	{
+		"id": 19018,
+		"fmtType": "TL8_4",
+		"fmtStrg": "RD_: TL8-4 %d +%d %d +%d\\n",
+		"created": 0,
+		"removed": 0
+	},
+	{
+		"id": 2853,
+		"fmtType": "TL8_5",
+		"fmtStrg": "WR_: TL8-5 +%d %d +%d %d +%d\\n",
+		"created": 0,
+		"removed": 0
+	},
+	{
+		"id": 18558,
+		"fmtType": "TL8_6",
+		"fmtStrg": "ATT: TL8-6 %d %d +%d +%d %d %d \\n",
+		"created": 0,
+		"removed": 0
+	},
+	{
+		"id": 54164,
+		"fmtType": "TL8_7",
+		"fmtStrg": "DBG: TL8-7 +%d +%d %d %d +%d +%d %d\\n",
+		"created": 0,
+		"removed": 0
+	},
+	{
+		"id": 33825,
+		"fmtType": "TL8_8",
+		"fmtStrg": "DIA: TL8-8 %d %d +%d +%d +%d +%d %d %d\\n",
+		"created": 0,
+		"removed": 0
+	},
+	{
+		"id": 44545,
+		"fmtType": "TL16_1",
+		"fmtStrg": "ISR: TL16-1 %x\\n",
+		"created": 0,
+		"removed": 0
+	},
+	{
+		"id": 38079,
+		"fmtType": "TL16_1",
+		"fmtStrg": "SIG: TL16-1 %d\\n",
+		"created": 0,
+		"removed": 0
+	},
+	{
+		"id": 18353,
+		"fmtType": "TL16_2",
+		"fmtStrg": "TST: TL16-2 +%d %d\\n",
+		"created": 0,
+		"removed": 0
+	},
+	{
+		"id": 36387,
+		"fmtType": "TL16_3",
+		"fmtStrg": "MSG: TL16-3 %d +%d %d\\n",
+		"created": 0,
+		"removed": 0
+	},
+	{
+		"id": 9025,
+		"fmtType": "TL16_4",
+		"fmtStrg": "MSG: TL16-4 +%d %d %d +%d\\n",
+		"created": 0,
+		"removed": 0
+	},
+	{
+		"id": 39973,
+		"fmtType": "TL32_1",
+		"fmtStrg": "DBG: TL32-1 %x\\r\\n",
+		"created": 0,
+		"removed": 0
+	},
+	{
+		"id": 28810,
+		"fmtType": "TL32_2",
+		"fmtStrg": "DBG: TL32-2 %d +0x%x\\r\\n",
+		"created": 0,
+		"removed": 0
+	},
+	{
+		"id": 62156,
+		"fmtType": "TL32_1",
+		"fmtStrg": "DBG: TL32-1 %x\\r\\n",
+		"created": 0,
+		"removed": 0
+	},
+	{
+		"id": 16546,
+		"fmtType": "TL32_2",
+		"fmtStrg": "att:TL32-2 %08x%08x\\r\\n",
+		"created": 0,
+		"removed": 0
+	},
+	{
+		"id": 21425,
+		"fmtType": "TL32_1",
+		"fmtStrg": "DBG: TL32-1 %x\\r\\n",
+		"created": 0,
+		"removed": 0
+	},
+	{
+		"id": 4392,
+		"fmtType": "TL8_1",
+		"fmtStrg": "SIG:BZA %X you can write a very long message here...\\n",
+		"created": 0,
+		"removed": 0
+	},
+	{
+		"id": 23107,
+		"fmtType": "TL0",
+		"fmtStrg": "\\r\\n\\n\\nwrn:a",
+		"created": 0,
+		"removed": 0
+	},
+	{
+		"id": 15348,
+		"fmtType": "TL0",
+		"fmtStrg": "wrn:A",
+		"created": 0,
+		"removed": 0
+	},
+	{
+		"id": 28203,
+		"fmtType": "TL0",
+		"fmtStrg": "rd_:b",
+		"created": 0,
+		"removed": 0
+	},
+	{
+		"id": 22066,
+		"fmtType": "TL0",
+		"fmtStrg": "wr_:B",
+		"created": 0,
+		"removed": 0
+	},
+	{
+		"id": 27329,
+		"fmtType": "TL0",
+		"fmtStrg": "msg:c",
+		"created": 0,
+		"removed": 0
+	},
+	{
+		"id": 50779,
+		"fmtType": "TL0",
+		"fmtStrg": "tim:C\\n",
+		"created": 0,
+		"removed": 0
+	},
+	{
+		"id": 39428,
+		"fmtType": "TL8_1",
+		"fmtStrg": "WRN: TL8-1 %d\\n",
+		"created": 0,
+		"removed": 0
+	},
+	{
+		"id": 6986,
+		"fmtType": "TL8_2",
+		"fmtStrg": "ERR: TL8-2 %d +%d\\n",
+		"created": 0,
+		"removed": 0
+	},
+	{
+		"id": 51423,
+		"fmtType": "TL8_3",
+		"fmtStrg": "TIM: TL8-3 +%d %d +%d\\n",
+		"created": 0,
+		"removed": 0
+	},
+	{
+		"id": 13482,
+		"fmtType": "TL8_4",
+		"fmtStrg": "RD_: TL8-4 %d +%d %d +%d\\n",
+		"created": 0,
+		"removed": 0
+	},
+	{
+		"id": 6849,
+		"fmtType": "TL8_5",
+		"fmtStrg": "WR_: TL8-5 +%d %d +%d %d +%d\\n",
+		"created": 0,
+		"removed": 0
+	},
+	{
+		"id": 65463,
+		"fmtType": "TL8_6",
+		"fmtStrg": "ATT: TL8-6 %d %d +%d +%d %d %d \\n",
+		"created": 0,
+		"removed": 0
+	},
+	{
+		"id": 12650,
+		"fmtType": "TL8_7",
+		"fmtStrg": "DBG: TL8-7 +%d +%d %d %d +%d +%d %d\\n",
+		"created": 0,
+		"removed": 0
+	},
+	{
+		"id": 26552,
+		"fmtType": "TL8_8",
+		"fmtStrg": "DIA: TL8-8 %d %d +%d +%d +%d +%d %d %d\\n",
+		"created": 0,
+		"removed": 0
+	},
+	{
+		"id": 10890,
+		"fmtType": "TL16_1",
+		"fmtStrg": "ISR: TL16-1 %x\\n",
+		"created": 0,
+		"removed": 0
+	},
+	{
+		"id": 31907,
+		"fmtType": "TL16_1",
+		"fmtStrg": "SIG: TL16-1 %d\\n",
+		"created": 0,
+		"removed": 0
+	},
+	{
+		"id": 53641,
+		"fmtType": "TL16_2",
+		"fmtStrg": "TST: TL16-2 +%d %d\\n",
+		"created": 0,
+		"removed": 0
+	},
+	{
+		"id": 17541,
+		"fmtType": "TL16_3",
+		"fmtStrg": "MSG: TL16-3 %d +%d %d\\n",
+		"created": 0,
+		"removed": 0
+	},
+	{
+		"id": 32398,
+		"fmtType": "TL16_4",
+		"fmtStrg": "MSG: TL16-4 +%d %d %d +%d\\n",
+		"created": 0,
+		"removed": 0
+	},
+	{
+		"id": 30143,
+		"fmtType": "TL32_1",
+		"fmtStrg": "DBG: TL32-1 %x\\r\\n",
+		"created": 0,
+		"removed": 0
+	},
+	{
+		"id": 51472,
+		"fmtType": "TL32_2",
+		"fmtStrg": "DBG: TL32-2 %d +0x%x\\r\\n",
+		"created": 0,
+		"removed": 0
+	},
+	{
+		"id": 6259,
+		"fmtType": "TL32_1",
+		"fmtStrg": "DBG: TL32-1 %x\\r\\n",
+		"created": 0,
+		"removed": 0
+	},
+	{
+		"id": 17746,
+		"fmtType": "TL32_2",
+		"fmtStrg": "att:TL32-2 %08x%08x\\r\\n",
+		"created": 0,
+		"removed": 0
+	},
+	{
+		"id": 44438,
+		"fmtType": "TL32_1",
+		"fmtStrg": "DBG: TL32-1 %x\\r\\n",
+		"created": 0,
+		"removed": 0
+	},
+	{
+		"id": 60563,
+		"fmtType": "TL8_1",
+		"fmtStrg": "SIG:BZA %X you can write a very long message here...\\n",
+		"created": 0,
+		"removed": 0
+	},
+	{
+		"id": 64429,
+		"fmtType": "TL0",
+		"fmtStrg": "dbg:Shortest ",
+		"created": 0,
+		"removed": 0
+	},
+	{
+		"id": 2363,
+		"fmtType": "TL0",
+		"fmtStrg": "msg:Trace ",
+		"created": 0,
+		"removed": 0
+	},
+	{
+		"id": 11612,
+		"fmtType": "TL0",
+		"fmtStrg": "dbg:takes ",
+		"created": 0,
+		"removed": 0
+	},
+	{
+		"id": 60761,
+		"fmtType": "TL0",
+		"fmtStrg": "sig:                      ",
+		"created": 0,
+		"removed": 0
+	},
+	{
+		"id": 59664,
+		"fmtType": "TL0",
+		"fmtStrg": "err:         ",
+		"created": 0,
+		"removed": 0
+	},
+	{
+		"id": 5793,
+		"fmtType": "TL32_2",
+		"fmtStrg": "tim:%3u SysTicks =%2u us\\r\\n",
+		"created": 0,
+		"removed": 0
+	},
+	{
+		"id": 55287,
+		"fmtType": "TL0",
+		"fmtStrg": "dbg:Longest ",
+		"created": 0,
+		"removed": 0
+	},
+	{
+		"id": 60013,
+		"fmtType": "TL32_2",
+		"fmtStrg": "msg:Trace (%x %x) ",
+		"created": 0,
+		"removed": 0
+	},
+	{
+		"id": 14653,
+		"fmtType": "TL0",
+		"fmtStrg": "dbg:takes ",
+		"created": 0,
+		"removed": 0
+	},
+	{
+		"id": 58124,
+		"fmtType": "TL0",
+		"fmtStrg": "dia:     ",
+		"created": 0,
+		"removed": 0
+	},
+	{
+		"id": 1370,
+		"fmtType": "TL0",
+		"fmtStrg": "isr:       ",
+		"created": 0,
+		"removed": 0
+	},
+	{
+		"id": 61684,
+		"fmtType": "TL32_2",
+		"fmtStrg": "tim:%3u SysTicks =%2u us\\r\\n",
+		"created": 0,
+		"removed": 0
+	},
+	{
+		"id": 26731,
+		"fmtType": "TL32_2",
+		"fmtStrg": "tim:1000 SysTicks Delay duration: %u SysTicks = %u us\\r\\n",
+		"created": 0,
+		"removed": 0
+	},
+	{
+		"id": 63326,
+		"fmtType": "TL32_1",
+		"fmtStrg": "tim:100us Delay duration: = %u us\\r\\n",
+		"created": 0,
+		"removed": 0
+	},
+	{
+		"id": 13419,
+		"fmtType": "TL32_2",
+		"fmtStrg": "tim:500us Delay duration: %u us = %u SysTicks\\r\\n",
+		"created": 0,
+		"removed": 0
+	},
+	{
+		"id": 47462,
+		"fmtType": "TL32_2",
+		"fmtStrg": "tim:500us Delay duration: %u us = %u SysTicks\\r\\n",
+		"created": 0,
+		"removed": 0
+	},
+	{
+		"id": 5193,
+		"fmtType": "TL32_2",
+		"fmtStrg": "tim:500us Delay duration: %u us = %u SysTicks\\r\\n",
+		"created": 0,
+		"removed": 0
+	},
+	{
+		"id": 33504,
+		"fmtType": "TL32_2",
+		"fmtStrg": "tim:500us Delay duration: %u us = %u SysTicks\\r\\n",
+		"created": 0,
+		"removed": 0
+	},
+	{
+		"id": 22706,
+		"fmtType": "TL32_1",
+		"fmtStrg": "tim:100ms Delay duration: %u ms\\r\\n",
+		"created": 0,
+		"removed": 0
+	},
+	{
+		"id": 60244,
+		"fmtType": "TL32_2",
+		"fmtStrg": "msg:    // BaseAddress=0x%08x, RegCount=%2u, ",
+		"created": 0,
+		"removed": 0
+	},
+	{
+		"id": 58546,
+		"fmtType": "TL0",
+		"fmtStrg": "\\r\\n",
+		"created": 0,
+		"removed": 0
+	},
+	{
+		"id": 14506,
+		"fmtType": "TL32_2",
+		"fmtStrg": "wr_:    {  (uint32_t*) 0x%08x, 0x%08xu  },",
+		"created": 0,
+		"removed": 0
+	},
+	{
+		"id": 57851,
+		"fmtType": "TL8_2",
+		"fmtStrg": "msg: // %3u = 0x%02x  ",
+		"created": 0,
+		"removed": 0
+	},
+	{
+		"id": 12212,
+		"fmtType": "TL0",
+		"fmtStrg": "\\r\\n",
+		"created": 0,
+		"removed": 0
+	},
+	{
+		"id": 33518,
+		"fmtType": "TL32_2",
+		"fmtStrg": "att:    // Memory Dump: Address=0x%08x, Count=%2u\\r\\n",
+		"created": 0,
+		"removed": 0
+	},
+	{
+		"id": 25130,
+		"fmtType": "TL32_2",
+		"fmtStrg": "rd_:    {  (uint32_t*) 0x%08x, 0x%08xu  },\\r\\n",
+		"created": 0,
+		"removed": 0
+	}
+]
