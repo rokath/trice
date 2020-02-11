@@ -8,9 +8,9 @@ package com
 import (
 	"fmt"
 
+	"github.com/rokath/trice/pkg/emit"
+	"github.com/rokath/trice/pkg/id"
 	"github.com/tarm/serial"
-	"gitlab.com/teaage/got/trice/pkg/emit"
-	"gitlab.com/teaage/got/trice/pkg/id"
 )
 
 func readHeader(s *serial.Port) []byte {

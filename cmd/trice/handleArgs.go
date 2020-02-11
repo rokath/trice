@@ -13,10 +13,10 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/rokath/trice/pkg/com"
+	"github.com/rokath/trice/pkg/emit"
+	"github.com/rokath/trice/pkg/id"
 	"github.com/tarm/serial"
-	"gitlab.com/teaage/got/trice/pkg/com"
-	"gitlab.com/teaage/got/trice/pkg/emit"
-	"gitlab.com/teaage/got/trice/pkg/id"
 )
 
 // HandleArgs evaluates the arguments slice of strings und uses wd as working directory

@@ -13,7 +13,7 @@ import (
 	"unicode"
 
 	"github.com/fatih/color"
-	"gitlab.com/teaage/got/trice/pkg/id"
+	"github.com/rokath/trice/pkg/id"
 )
 
 // checkValuePosition is a consistency check for positive values and their position

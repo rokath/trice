@@ -14,7 +14,7 @@ import (
 	"strings"
 	"testing"
 
-	"gitlab.com/teaage/got/trice/pkg/id"
+	"github.com/rokath/trice/pkg/id"
 )
 
 func TestPositionDez(t *testing.T) {

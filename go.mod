@@ -1,4 +1,4 @@
-module gitlab.com/teaage/got/trice
+module github.com/rokath/trice
 
 go 1.13
 
