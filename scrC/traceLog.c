@@ -1,6 +1,6 @@
 /*! \file TraceAll.c
 \brief tracelogs to ReCal buffers
-\details The tracelogs are dumped as 32bit values into a 23 bit fifo.
+\details The tracelogs are dumped as 32bit values into a 32 bit fifo.
 That is the time critical part. 
 \li a tracelog is a 16 bit ID with a 16 bit data value
 \li tracelogs with more data are split into several 32bit basic tracelog values with following IDs = 0.
