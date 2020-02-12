@@ -44,9 +44,9 @@
 
   ![](README.media/F030R8DirCompare.PNG)
 
-  [traceLogConfig.h](../examples/traceLogDemoF030R8/inc/traceLogConfig.h)
+  [traceLogConfig.h](../examples/traceLogDemoF030R8/Inc/traceLogConfig.h)
 
-  [traceLogCheck.h](../examples/traceLogDemoF030R8/inc/traceLogCheck.h)
+  [traceLogCheck.h](../examples/traceLogDemoF030R8/Inc/traceLogCheck.h)
   [traceLogCheck.c](../examples/traceLogDemoF030R8/Src/traceLogCheck.c)
 
   [til.json](../examples/traceLogDemoF030R8/MDK-ARM/til.json)

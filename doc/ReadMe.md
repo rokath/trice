@@ -117,11 +117,11 @@ doc/           | documentation                                           |
 - If the format string was modified, the ID goes into the `Removed` state and a 
   new ID is generated.
 - Keeping obsolete IDs makes it more comfortable during development to deal with 
-  dfferent firmware variants at the same time.
+  different firmware variants at the same time.
 - This way you can simply copy a TL* statement and modify it without dealing with
   the ID. The trice tool will do for you.
-- The ID list should go into the version control repository.
-- For a firmware release it makes sense to remove all unused IDs from 
+- The ID list should go into the version control repository of your project.
+- For a firmware release it makes sense to remove all unused IDs (development garbage) from 
     til.json.
   - This could be done by deleting til.json, getting the legacy til.json from the former firmware release 
       from the source control system and enhance it with the actual release
