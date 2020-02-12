@@ -81,7 +81,7 @@ doc/           | documentation                                           |
 - Add `#include "traceLog.h"` to your main.c[pp] and put `TL0( Id(0), "msg:Hello world!\n" );` after your initialization code.
 - Run `trice u` at the root of your source code. Afterwards:
     - The `Id(0)` should have changed into `Id(12345)` as example. (The `12345` stays here for a 16bit non-zero random number).
-    - A file til.json (**t**race **i**d **l**ist) should be generated.
+    - A file [til.json](../examples/traceLogDemoF030R8/MDK-ARM/til.json)  (**t**race **i**d **l**ist) should be generated.
     - Running `trice check` should show your message, indicating everything is fine so far.
 - `trice help` is your friend if something fails.
 - For help have a look at the differences between these 2 projects:
