@@ -50,11 +50,11 @@ Executing `trice update` at the root of your project source updates the TL* stat
 With `trice log -port COM12 -baud 115200` you can visualize the traceLogs on the PC, 
 if for example `COM12` is receiving the data from the embedded device.
 
-The following capture output comes from an example project inside`../testdata`
+The following capture output comes from an example project inside`../examples`
 
-![](README.media/life.gif)
+![](ReadMe.media/life.gif)
 
-See [traceLogCheck.c](../testdata/traceLogDemoF030R8/Src/traceLogCheck.c) for reference.
+See [traceLogCheck.c](../examples/traceLogDemoF030R8/Src/traceLogCheck.c) for reference.
 The traceLogs can come mixed from inside interrupts (white `ISR:...`) or from normal code. For usage with a RTOS protect TL* against breaks. Regard the differences in the read SysTick values. These differeces are the MCU clocks needed for one tracelog (~0,25µs@48MHz).
 
 Use `-color off` switch for piping output in a file or `-color alternate` for a different color set. *(color set designs are welcome, see func colorSetAlternate() in [emit.go](../pkg/emit/emit.go))*
@@ -66,25 +66,16 @@ Use `-color off` switch for piping output in a file or `-color alternate` for a 
 ---------------|---------------------------------------------------------|
 cmd/           | the `trice` sources                                     |
 pkg/           | the internal `trice`packages                            |
-README.media   | images for this README                                  |
 srcC/          | C sources for your embedded project                     | 
-testdata/      | example target projects                                 |
+examples/      | example target projects                                 |
+doc/           | documentation                                           |
 
 ### Check the `trice` binary
 - Copy command trice into a path directory.
 - Run inside a shell `trice check -list path/to/til.json`. You should see output like this:
-![](./README.media/Check.PNG)
+![](./ReadMe.media/Check.PNG)
 
 ### Instrument a target source code project (How to use tracelog in your project)
-#### Short version
-- #include [traceLog.h](../scrC/traceLog.h) in your source file to use tracelog
-- add [traceLog.c](../scrC/traceLog.c) to your project
-- copy [proj_traceLogConfig.h](../scrC/proj_traceLogConfig.h), rename to `trceLogConfig.h` and adapt to your ompiler
-- copy [proj_traceLogInterface.h](../scrC/proj_traceLogInterface.h), rename to `traceLogInterface.h` and adapt
- to your hardware
-- [traceLogCheck.c](../testdata/traceLogDemoF030R8/Src/traceLogCheck.c) 
-is example code and for testing
-#### Long version
 - Copy [proj_traceLogConfig.h](../scrC/proj_traceLogConfig.h) into your C|C++ source project, rename it to `traceLogConfig.h` and adapt it to your needs.
   - You may need to define the compiler specific stuff for your compiler.
   - If you short of RAM reduce the TL_FIFO_SIZE value - beware: it must be a power of 2! For many cases 64 bytes will do.
@@ -95,10 +86,10 @@ is example code and for testing
     - A file til.json (**t**race **i**d **l**ist) should be generated.
     - Running `trice check` should show your message, indicating everything is fine so far.
 - `trice help` is your friend if something fails.
-- Next step is the adaption to your hardware. Copy [proj_traceLogInterface.h](../scrC/proj_traceLogInterface.h) into your project, rename it to `traceLogInterface.h` and adapt it according to your needs. If you are using an STM32 device you can probably use the file [../testdata/traceLogDemoF030R8/Inc/traceLogInterface.h](../testdata/traceLogDemoF030R8/Inc/traceLogInterface.h) as a starting point and nearly unchanged, just the UART number may be different.
+- Next step is the adaption to your hardware. Copy [proj_traceLogInterface.h](../scrC/proj_traceLogInterface.h) into your project, rename it to `traceLogInterface.h` and adapt it according to your needs. If you are using an STM32 device you can probably use the file [../examples/traceLogDemoF030R8/Inc/traceLogInterface.h](../examples/traceLogDemoF030R8/Inc/traceLogInterface.h) as a starting point and nearly unchanged, just the UART number may be different.
 - For help have a look at the differences between these 2 projects:
-  - `../testdata/generatedDemoF030R8` - It is just the STM32 CubeMX generated code.
-  - `../testdata/traceLDemoF030R8` - It is a copy of the above enhanced with traceLog check code.
+  - `../examples/generatedDemoF030R8` - It is just the STM32 CubeMX generated code.
+  - `../examples/traceLDemoF030R8` - It is a copy of the above enhanced with traceLog check code.
 - After compiling and flashing run `trice -port COMn -baud m` with n and m set to correct values
 - Now start your device and you should see the hello world message coming from your target.
 - If you use a legacy project containing `printf()` statements you can  simply transform them to **TL*** statements.

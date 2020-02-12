@@ -20,12 +20,12 @@ void TraceLogCheckSet( void )
     TL8_4( Id(51789), "tst:TL8  %%03x ->  %03x  %03x  %03x  %03x\n", 1, 0x7f, 0x80, 0xff ); // 4
     TL8_4( Id(30364), "tst:TL8   %%4d -> %4d %4d %4d %4d\n", 1, 0x7f, 0x80, 0xff ); // 4
     TL8_4( Id( 4648), "tst:TL8   %%4o -> %4o %4o %4o %4o\n", 1, 0x7f, 0x80, 0xff ); // 4
-    // 12 subtraces
+    // 3 * 2 subtraces
 
     TL16_4( Id(36667), "tst:TL16  %%05x ->   %05x   %05x   %05x   %05x\n", 1, 0x7fff, 0x8000, 0xffff ); // 4
     TL16_4( Id(39908), "tst:TL16   %%6d ->  %6d  %6d  %6d  %6d\n", 1, 0x7fff, 0x8000, 0xffff ); // 4
     TL16_4( Id(60212), "tst:TL16   %%7o -> %7o %7o %7o %7o\n", 1, 0x7fff, 0x8000, 0xffff ); // 4
-    // 12 subtraces
+    // 3 * 4 subtraces
 
     TL32_2( Id(60059), "tst:TL32   %%09x ->     %09x     %09x", 1, 0x7fffffff ); // 4
     TL32_2( Id(50464), "tst:     %09x     %09x\n", 0x80000000, 0xffffffff ); // 4
@@ -33,7 +33,7 @@ void TraceLogCheckSet( void )
     TL32_2( Id(40670), "tst:   %11d   %11d\n", 0x80000000, 0xffffffff  ); // 4
     TL32_2( Id(40127), "tst:TL32   %%12o ->  %12o  %12o", 1, 0x7fffffff ); // 4
     TL32_2( Id( 4479), "tst:  %12o  %12o\n", 0x80000000, 0xffffffff ); // 4
-    // 24 subtraces
+    // 6 * 4 subtraces
 
     TL8_1( Id(37890), "tst:TL8 %d\n", 1 ); // 1
     TL8_2( Id(29394), "tst:TL8 %d %d\n", 1, 2 ); // 1
@@ -43,7 +43,7 @@ void TraceLogCheckSet( void )
     TL8_6( Id( 8503), "tst:TL8 %d %d %d %d %d %d \n", 1, 2, 3, 4, 5, 6 ); // 3
     TL8_7( Id( 6807), "tst:TL8 %d %d %d %d %d %d %d\n", 1, 2, 3, 4, 5, 6, 7 ); // 4
     TL8_8( Id(51953), "tst:TL8 %d %d %d %d %d %d %d %d\n", 1, 2, 3, 4, 5, 6, 7, 8 ); // 4
-    // 20 subtraces
+    // 18 subtraces
     
     TL16_1( Id(18564), "tst:TL16 %d\n", 1 ); // 1
     TL16_2( Id(44341), "tst:TL16 %d %d\n", 1, 2 ); // 2
