@@ -3,6 +3,7 @@ embedded device C printf-like trace code and real-time PC logging (trace ID visu
 
 ## About
 - C trace (`traceLog`) code and real-time PC logging with `trice` (Go sources).
+- Communication over serial port
 - "log in (a) trice"
 
 ## `traceLog`

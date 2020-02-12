@@ -52,7 +52,7 @@ if for example `COM12` is receiving the data from the embedded device.
 
 The following capture output comes from an example project inside`../testdata`
 
-![](README.media/Capture.PNG)
+![](README.media/life.gif)
 
 See [traceLogCheck.c](../testdata/traceLogDemoF030R8/Src/traceLogCheck.c) for reference.
 The traceLogs can come mixed from inside interrupts (white `ISR:...`) or from normal code. For usage with a RTOS protect TL* against breaks. Regard the differences in the read SysTick values. These differeces are the MCU clocks needed for one tracelog (~0,25µs@48MHz).
