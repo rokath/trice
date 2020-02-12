@@ -16,7 +16,7 @@ When performing  ```trice update``` this line changes to
 ```
 TL8_3( Id(12345), "time is %d:%d:%du\n", hour, min, sec);
 ```
-where ```12345``` is an as ID generated random number not used so far. Automatically
+where ```12345``` is an as ID generated 16 bit random number not used so far. Automatically
 the ID is added to an ID list together with the appropriate format string 
 information. The TL`8_3` means 3 bytes as parameters in
 this example and allows efficient code and a compile time check.
