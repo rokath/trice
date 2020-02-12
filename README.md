@@ -18,4 +18,4 @@ embedded device C printf-like trace code and real-time PC logging (trace ID visu
 - Displays traceLogs in realtime during target runtime.
 
 ## Documentation
-- see [./doc/ReadMe.md](./doc/ReadMe.md)
+- see [./doc/README.md](./doc/README.md)
