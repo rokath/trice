@@ -1,5 +1,5 @@
 # **trice** - **TR**ace **I**ds **C** **E**mbedded 
-embedded device C printf-like trace code and real-time PC logging (trace ID visualization)
+embedded device C printf-like trace code and real-time PC logging (trace ID visualization) over serial port
 
 ## About
 - C trace (`traceLog`) code and real-time PC logging with `trice` (Go sources).
