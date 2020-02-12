@@ -107,7 +107,6 @@ testdata/      | example target projects                                 |
 - For help have a look at the differences between these 2 projects:
   - `./testdata/generatedDemoF030R8` - It is just the STM32 CubeMX generated code.
   - `./testdata/traceLDemoF030R8` - It is a copy of the above enhanced with traceLog check code.
-- Copy [./scrC/proj_traceLogConfig.h](./scrC/proj_traceLogConfig.h) into your project, rename it to `traceLogConfig.h` and adapt it if needed.
 - After compiling and flashing run `trice -port COMn -baud m` with n and m set to correct values
 - Now start your device and you should see the hello world message coming from your target.
 - If you use a legacy project containing `printf()` statements you can  simply transform them to **TL*** statements.
