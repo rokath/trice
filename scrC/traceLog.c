@@ -74,7 +74,8 @@ Also it should be called cyclically to trigger transmission start.
 void traceLogTxHandler( void ){
     if( traceLogTxDataRegisterEmpty() ){ 
         if( traceLogMsgDepth() ){
-            traceLogTransmitData8( traceLogMsgNextByte());
+            uint8_t x = traceLogMsgNextByte();
+            traceLogTransmitData8( x );
             traceLogEableTxEmptyInterrupt(); 
         }else{
             traceLogDisableTxEmptyInterrupt();
