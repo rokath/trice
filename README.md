@@ -111,7 +111,7 @@ testdata/      | example target projects                                 |
 - Now start your device and you should see the hello world message coming from your target.
 - If you use a legacy project containing `printf()` statements you can  simply transform them to **TL*** statements.
 - It could be helpful to add `trice u ...` as prebuild step into your toolchain for each file or for the project as a whole. 
-  This way you cannot forget the update step. it performs automatically.
+  This way you cannot forget the update step, it performs automatically.
 
 ## Notes
 - Using traceLog not only for dynamic debugging but also as logging technique
