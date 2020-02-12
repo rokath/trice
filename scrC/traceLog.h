@@ -60,7 +60,7 @@ typedef PACKED struct{
     uint8_t start; // tracelog message header start value
     uint8_t cad;   // client address
     uint8_t sad;   // server address
-    uint8_t crc8;  // ab^cad^sad
+    uint8_t crc8;  // ab^cad^sad^load[0]^load[1]^load[2]^load[3]
 }PACKED_END traceLogMsgHeader_t; //!< tracelog message header for routing, syncing and conistency check
 
 typedef PACKED union {
