@@ -84,7 +84,7 @@ doc/           | documentation                                           |
     - A file [til.json](../examples/traceLogDemoF030R8/MDK-ARM/til.json)  (**t**race **i**d **l**ist) should be generated.
     - Running `trice check` should show your message, indicating everything is fine so far.
 - `trice help` is your friend if something fails.
-- For help have a look at the differences between these 2 projects:
+- For help have a look at the differences between these 2 projects or into [ReadMeDemoF030R8.md](./ReadMeDemoF030R8.md)
   - `../examples/generatedDemoF030R8` - It is just the STM32 CubeMX generated code.
   - `../examples/traceLDemoF030R8` - It is a copy of the above enhanced with traceLog check code.
 - After compiling and flashing run `trice -port COMn -baud m` with n and m set to correct values
