@@ -16,7 +16,7 @@ embedded device C printf-like trace code and real-time PC logging (trace ID visu
 - Displays traceLogs in realtime during target runtime.
 
 
-## `tracelog`
+## `traceLog`
 It is avoiding all the internal overhead (space and time) of a `printf()` 
 statement. For example instead of writing 
 
