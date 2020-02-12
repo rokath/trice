@@ -55,7 +55,7 @@ The following capture output comes from an example project inside`../examples`
 ![](README.media/life.gif)
 
 See [traceLogCheck.c](../examples/traceLogDemoF030R8/Src/traceLogCheck.c) for reference.
-The traceLogs can come mixed from inside interrupts (white `ISR:...`) or from normal code. For usage with a RTOS protect TL* against breaks. Regard the differences in the read SysTick values. These differeces are the MCU clocks needed for one tracelog (~0,25µs@48MHz).
+The traceLogs can come mixed from inside interrupts (white `ISR:...`) or from normal code. For usage with a RTOS protect TL* against breaks. Regard the differences in the read SysTick values inside the GIF above These differeces are the MCU clocks needed for one tracelog (~0,25µs@48MHz).
 
 Use `-color off` switch for piping output in a file or `-color alternate` for a different color set. *(color set designs are welcome, see func colorSetAlternate() in [emit.go](../pkg/emit/emit.go))*
 
