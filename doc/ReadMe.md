@@ -77,12 +77,6 @@ doc/           | documentation                                           |
 
 ### Instrument a target source code project (How to use tracelog in your project)
 
-#### The part with the details
-- Copy [proj_traceLogConfig.h](../scrC/proj_traceLogConfig.h) into your C|C++ source project, rename it to `traceLogConfig.h` and adapt it to your needs.
-  - You may need to define the compiler specific stuff for your compiler.
-  - If you short of RAM reduce the TL_FIFO_SIZE value - beware: it must be a power of 2! For many cases 64 bytes will do.
-  - Next step is the adaption to your hardware. If you are using an STM32 device you can probably use the file [../examples/traceLogDemoF030R8/Inc/traceLogConfig.h](../examples/traceLogDemoF030R8/Inc/traceLogConfig.h) as a starting point and nearly unchanged, just the UART number may be different.
-#### The easy going part
   - Include [traceLog.c](../scrC/traceLog.c) unchanged into your project and make sure the [traceLog.h](../scrC/traceLog.h) header file is found by your compiler.
 - Add `#include "traceLog.h"` to your main.c[pp] and put `TL0( Id(0), "msg:Hello world!\n" );` after your initialization code.
 - Run `trice u` at the root of your source code. Afterwards:
