@@ -10,7 +10,7 @@ you can write
 ```
 TL8("time is %d:%d:%d\n", hour, min, sec);
 ```
-into a source file of your project. The `8` stays here for 8 bit values (`0`, `16` and `32` also possibe)
+into a source file of your project. The `8` stays here for 8 bit values (`0`, `16` and `32` also possibe). Only values of the same size are allowed in one TL* statement.
 
 When performing  ```trice update``` this line changes to
 ```
