@@ -1,11 +1,11 @@
 /*! \file TraceAll.c
-\brief tracelogs to ReCal buffers
+\brief tracelogs to transfer buffers
 \details The tracelogs are dumped as 32bit values into a 32 bit fifo.
 That is the time critical part. 
 \li a tracelog is a 16 bit ID with a 16 bit data value
 \li tracelogs with more data are split into several 32bit basic tracelog values with following IDs = 0.
 \li So a basic tracelog consists always of 4 byte.
-\li for tracelog transmission eache basic tracelog gets a header of additional 4 bytes.
+\li for tracelog transmission each basic tracelog gets a header of additional 4 bytes.
 \li The header contains a startbyte, client and server address and a crc8 exOr checksum.
 \author thomas.hoehenleitner [at] seerose.net
 *******************************************************************************/
@@ -32,7 +32,7 @@ uint32_t wrIndexTlFifo = 0; //!< tracelog fifo write index
 
 //! partial prefilled tracelog message buffer 
 ALIGN4 static traceLogMsg_t traceLogMsg ALIGN4_END = {
-    { TL_START_BYTE,  TL_LOCAL_ADDR,  TL_DISPL_ADDR, 0 }, // crc8 prefill
+    { TL_START_BYTE,  TL_LOCAL_ADDR,  TL_DISPL_ADDR, 0 }, // crc8
     { 0, 0 } // 16bit ID, 16bit data
 };
 
