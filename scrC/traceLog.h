@@ -50,7 +50,6 @@ TL_INLINE void TraceSrcLocation(char *file, int line){}
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "traceLogInterface.h" // hardware dependencies
 
 ///////////////////////////////////////////////////////////////////////////////
 // TL message struct
