@@ -1,6 +1,10 @@
 /*! \file traceConfig.h
 \brief This file is for tracelog specific project settings
-\details adapt needed fifo size and add your compiler settings
+\details adapt needed fifo size, compiler settings and 4 hardware access functions
+- traceLogTxDataRegisterEmpty()
+- traceLogTransmitData8()
+- traceLogEableTxEmptyInterrupt()
+- traceLogDisableTxEmptyInterrupt()
 \author Thomas.Hoehenleitner [at] seerose.net
 *******************************************************************************/
 
@@ -13,11 +17,16 @@ extern "C" {
 
 #include "main.h" // hardware specific stuff
 
-#define TL_FIFO_SIZE 2048 //!< a byte count for buffering traces, must be power of 2, one basic trace needs 4 bytes
+///////////////////////////////////////////////////////////////////////////////
+// user adaption
+//
+
+//!< a byte count for buffering traces, must be power of 2, one basic trace needs 4 bytes
+#define TL_FIFO_SIZE 512 
 #define TL_START_BYTE (0xeb) //!< tracelog header start (chose any unusual byte)
 #define TL_LOCAL_ADDR (0x60) //!< tracelog addess of this device (choose free)
 #define TL_DISPL_ADDR (0x61) //!< tracelog terminal address for this device (choose free)
-//#define TRACELOG_OFF
+//#define TRACELOG_OFF //!< enable this line to disable traceLog code generation
 
 #define SYSTICKVAL16 SysTick->VAL //!< STM32 specific
 
@@ -71,7 +80,42 @@ you can leave this macro pair empty for more speed.
 
 // some other compliler
 
-#endif // compiler adaptions
+#endif // compiler adaptions ##################################################
+
+///////////////////////////////////////////////////////////////////////////////
+// hardware specific interface functions tested on NUCLEO-STM32F030
+//
+
+/*! Check if a new byte can be written into tracelog transmit register.
+\retval false == not empty
+\retval true == epmty
+User must provide this function.
+*/
+TL_INLINE uint32_t traceLogTxDataRegisterEmpty( void ){
+    return LL_USART_IsActiveFlag_TXE( USART2 );
+}
+
+/*! Write value d into tracelog transmit register.
+\param d byte to transmit
+User must provide this function.
+*/
+TL_INLINE void traceLogTransmitData8( uint8_t d ){
+    LL_USART_TransmitData8( USART2, d);
+}
+
+/*! Allow interrupt for empty tracelog data transmit register.
+User must provide this function.
+*/
+TL_INLINE void traceLogEableTxEmptyInterrupt( void ){
+    //LL_USART_EnableIT_TXE( USART2 ); // In STM32 done imlizit by writing data
+}
+
+/*! Disallow interrupt for empty tracelog data transmit register.
+User must provide this function.
+*/
+TL_INLINE void traceLogDisableTxEmptyInterrupt( void ){
+    LL_USART_DisableIT_TXE( USART2 );
+}
 
 #ifdef __cplusplus
 }

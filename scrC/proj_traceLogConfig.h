@@ -13,7 +13,11 @@ extern "C" {
 
 #include "main.h" // hardware specific stuff
 
-#define TL_FIFO_SIZE 512 //!< a byte count for buffering traces, must be power of 2, one basic trace needs 4 bytes
+///////////////////////////////////////////////////////////////////////////////
+// user adaption
+//
+
+#define TL_FIFO_SIZE 512 //!< byte count for buffering traces, must be power of 2, one basic trace needs 4 bytes
 #define TL_START_BYTE (0xeb) //!< tracelog header start (chose any unusual byte)
 #define TL_LOCAL_ADDR (0x60) //!< tracelog addess of this device (choose free)
 #define TL_DISPL_ADDR (0x61) //!< tracelog terminal address for this device (choose free)
@@ -69,7 +73,43 @@ you can leave this macro pair empty for more speed.
 
 // some other compliler
 
-#endif // compiler adaptions
+#endif // compiler adaptions ##################################################
+
+///////////////////////////////////////////////////////////////////////////////
+// hardware specific interface functions tested on NUCLEO-STM32F030
+//
+
+/*! Check if a new byte can be written into tracelog transmit register.
+\retval 0 == not empty
+\retval !0 == epmty
+User must provide this function.
+*/
+TL_INLINE uint32_t traceLogTxDataRegisterEmpty( void ){
+    return 1;
+}
+
+/*! Write value d into tracelog transmit register.
+\param d byte to transmit
+User must provide this function.
+*/
+TL_INLINE void traceLogTransmitData8( uint8_t d ){
+    d = d;
+}
+
+/*! Allow interrupt for empty tracelog data transmit register.
+User must provide this function.
+*/
+TL_INLINE void traceLogEableTxEmptyInterrupt( void ){
+    
+}
+
+/*! Disallow interrupt for empty tracelog data transmit register.
+User must provide this function.
+*/
+TL_INLINE void traceLogDisableTxEmptyInterrupt( void ){
+    
+}
+
 
 #ifdef __cplusplus
 }

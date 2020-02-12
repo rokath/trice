@@ -76,17 +76,20 @@ doc/           | documentation                                           |
 ![](./README.media/Check.PNG)
 
 ### Instrument a target source code project (How to use tracelog in your project)
+
+#### The part with the details
 - Copy [proj_traceLogConfig.h](../scrC/proj_traceLogConfig.h) into your C|C++ source project, rename it to `traceLogConfig.h` and adapt it to your needs.
   - You may need to define the compiler specific stuff for your compiler.
   - If you short of RAM reduce the TL_FIFO_SIZE value - beware: it must be a power of 2! For many cases 64 bytes will do.
-- Include [traceLog.c](../scrC/traceLog.c) unchanged into your project and make sure the [traceLog.h](../scrC/traceLog.h) header file is found by your compiler.
+  - Next step is the adaption to your hardware. If you are using an STM32 device you can probably use the file [../examples/traceLogDemoF030R8/Inc/traceLogConfig.h](../examples/traceLogDemoF030R8/Inc/traceLogConfig.h) as a starting point and nearly unchanged, just the UART number may be different.
+#### The easy going part
+  - Include [traceLog.c](../scrC/traceLog.c) unchanged into your project and make sure the [traceLog.h](../scrC/traceLog.h) header file is found by your compiler.
 - Add `#include "traceLog.h"` to your main.c[pp] and put `TL0( Id(0), "msg:Hello world!\n" );` after your initialization code.
 - Run `trice u` at the root of your source code. Afterwards:
     - The `Id(0)` should have changed into `Id(12345)` as example. (The `12345` stays here for a 16bit non-zero random number).
     - A file til.json (**t**race **i**d **l**ist) should be generated.
     - Running `trice check` should show your message, indicating everything is fine so far.
 - `trice help` is your friend if something fails.
-- Next step is the adaption to your hardware. Copy [proj_traceLogInterface.h](../scrC/proj_traceLogInterface.h) into your project, rename it to `traceLogInterface.h` and adapt it according to your needs. If you are using an STM32 device you can probably use the file [../examples/traceLogDemoF030R8/Inc/traceLogInterface.h](../examples/traceLogDemoF030R8/Inc/traceLogInterface.h) as a starting point and nearly unchanged, just the UART number may be different.
 - For help have a look at the differences between these 2 projects:
   - `../examples/generatedDemoF030R8` - It is just the STM32 CubeMX generated code.
   - `../examples/traceLDemoF030R8` - It is a copy of the above enhanced with traceLog check code.
