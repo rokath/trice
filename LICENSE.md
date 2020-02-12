@@ -1,6 +1,6 @@
-Copyright 2020 Thomas.Hoehenleitner [at] seerose.net
-
 The MIT License
+
+Copyright 2020 Thomas.Hoehenleitner [at] seerose.net
 
 Begin license text.
 
