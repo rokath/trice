@@ -52,7 +52,7 @@ if for example `COM12` is receiving the data from the embedded device.
 
 The following capture output comes from an example project inside`../examples`
 
-![](ReadMe.media/life.gif)
+![](README.media/life.gif)
 
 See [traceLogCheck.c](../examples/traceLogDemoF030R8/Src/traceLogCheck.c) for reference.
 The traceLogs can come mixed from inside interrupts (white `ISR:...`) or from normal code. For usage with a RTOS protect TL* against breaks. Regard the differences in the read SysTick values. These differeces are the MCU clocks needed for one tracelog (~0,25µs@48MHz).
@@ -73,7 +73,7 @@ doc/           | documentation                                           |
 ### Check the `trice` binary
 - Copy command trice into a path directory.
 - Run inside a shell `trice check -list path/to/til.json`. You should see output like this:
-![](./ReadMe.media/Check.PNG)
+![](./README.media/Check.PNG)
 
 ### Instrument a target source code project (How to use tracelog in your project)
 - Copy [proj_traceLogConfig.h](../scrC/proj_traceLogConfig.h) into your C|C++ source project, rename it to `traceLogConfig.h` and adapt it to your needs.
