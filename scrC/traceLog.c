@@ -1,11 +1,11 @@
-/*! \file TraceAll.c
-\brief tracelogs to transfer buffers
+/*! \file traceLog.c
+\brief tracelogs to transfer buffer functionality
 \details The tracelogs are dumped as 32bit values into a 32 bit fifo.
 That is the time critical part. 
-\li a tracelog is a 16 bit ID with a 16 bit data value
-\li tracelogs with more data are split into several 32bit basic tracelog values with following IDs = 0.
-\li So a basic tracelog consists always of 4 byte.
-\li for tracelog transmission each basic tracelog gets a header of additional 4 bytes.
+\li a traceLog is a 16 bit ID with a 16 bit data value
+\li traceLogs with more data are split into several 32bit basic traceLog values with IDs = 0 in front.
+\li So a basic traceLog (subtrace) consists always of 4 byte.
+\li for traceLog transmission each basic traceLog gets a header of additional 4 bytes.
 \li The header contains a startbyte, client and server address and a crc8 exOr checksum.
 \author thomas.hoehenleitner [at] seerose.net
 *******************************************************************************/
@@ -27,10 +27,10 @@ void traceLogTxHandler( void ){}
 //! tracelog fifo instance
 ALIGN4 uint32_t tlFifo[ TL_FIFO_SIZE>>2 ] ALIGN4_END;
 
-uint32_t rdIndexTlFifo = 0; //!< tracelog fifo read index
-uint32_t wrIndexTlFifo = 0; //!< tracelog fifo write index
+uint32_t rdIndexTlFifo = 0; //!< traceLog fifo read index
+uint32_t wrIndexTlFifo = 0; //!< traceLog fifo write index
 
-//! partial prefilled tracelog message buffer 
+//! partial prefilled tracelog message transmit buffer 
 ALIGN4 static traceLogMsg_t traceLogMsg ALIGN4_END = {
     { TL_START_BYTE,  TL_LOCAL_ADDR,  TL_DISPL_ADDR, 0 }, // crc8
     { 0, 0 } // 16bit ID, 16bit data
@@ -39,7 +39,7 @@ ALIGN4 static traceLogMsg_t traceLogMsg ALIGN4_END = {
 static uint8_t const * const limit = (uint8_t*)(&traceLogMsg + 1); //!< tracelog message buffer limit
 static uint8_t       *       pRead = (uint8_t*)(&traceLogMsg + 1); //!< tracelog message buffer read pointer
 
-/*! get next tracelog byte for transmission from tracelog message buffer, no depth check here
+/*! get next traceLog byte for transmission from traceLog message buffer, no depth check here
 \retval data byte
 */
 TL_INLINE uint8_t traceLogMsgNextByte( void ){
