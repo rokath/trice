@@ -1,6 +1,10 @@
 /*! \file traceConfig.h
 \brief This file is for traceLog specific project settings
-\details adapt needed fifo size and add your compiler settings
+\details adapt needed fifo size, compiler settings and 4 hardware access functions
+- traceLogTxDataRegisterEmpty()
+- traceLogTransmitData8()
+- traceLogEableTxEmptyInterrupt()
+- traceLogDisableTxEmptyInterrupt()
 \author Thomas.Hoehenleitner [at] seerose.net
 *******************************************************************************/
 
@@ -17,11 +21,15 @@ extern "C" {
 // user adaption
 //
 
-#define TL_FIFO_SIZE 512 //!< byte count for buffering traces, must be power of 2, one basic trace needs 4 bytes
+//!< a byte count for buffering traces, must be power of 2, one basic trace needs 4 bytes
+#define TL_FIFO_SIZE 512 
 #define TL_START_BYTE (0xeb) //!< traceLog header start (chose any unusual byte)
 #define TL_LOCAL_ADDR (0x60) //!< traceLog addess of this device (choose free)
 #define TL_DISPL_ADDR (0x61) //!< traceLog terminal address for this device (choose free)
-//#define TRACELOG_OFF
+#define SPEED_OVER_MEMORY 1 //!< 0 means less Flash needed but slower, set compiler switch "optimize for time" accordingly!
+//#define TRACELOG_OFF //!< enable this line to disable traceLog code generation
+
+#define SYSTICKVAL16 SysTick->VAL //!< STM32 specific
 
 ///////////////////////////////////////////////////////////////////////////////
 // compiler adaptions
@@ -31,10 +39,10 @@ extern "C" {
 
 #define TL_INLINE static inline // todo
 
-#define ALIGN4
-#define ALIGN4_END __attribute__ ((aligned(4)))
-#define PACKED
-#define PACKED_END __attribute__ ((packed))
+#define ALIGN4                                  //!< align to 4 byte boundary preamble
+#define ALIGN4_END __attribute__ ((aligned(4))) //!< align to 4 byte boundary post declaration
+#define PACKED                                  //!< pack data preamble
+#define PACKED_END __attribute__ ((packed))      //!< pack data post declaration
 
 //! Save interrupt state and disable Interrupts
 #define TL_ENTER_CRITICAL_SECTION { // todo
@@ -42,14 +50,14 @@ extern "C" {
 //! Restore interrupt state
 #define TL_LEAVE_CRITICAL_SECTIO } // todo
 
-#elif defined(__arm__) // ARMkeil IDE
+#elif defined(__arm__) // ARMkeil IDE #########################################
 
-#define TL_INLINE static inline
+#define TL_INLINE static inline //! used for traceLog code if SPEED_OVER_MEMORY==1
 
-#define ALIGN4 __align(4) //!< ARM Keil syntax ################################
-#define ALIGN4_END
-#define PACKED __packed
-#define PACKED_END
+#define ALIGN4 __align(4) //!< align to 4 byte boundary preamble
+#define ALIGN4_END        //!< align to 4 byte boundary post declaration
+#define PACKED __packed   //!< pack data preamble
+#define PACKED_END        //!< pack data post declaration
 
 /*! Save interrupt state and disable Interrupts
 \details Workaround for ARM Cortex M0 and M0+

@@ -14,6 +14,7 @@ embedded device C printf-like trace code and real-time PC logging (trace ID visu
 - The needed code instrumentation is minimal:
   - Adapt a config file (hardware specific).
   - Add one small C-file to your project and include a C-header where traceLogs are used.
+  - Core instrumentation needs less 150 bytes FLASH and about 100 bytes RAM.
 
 ## `trice`
 - PC tool written in Go

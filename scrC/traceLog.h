@@ -76,7 +76,7 @@ typedef PACKED struct {
 }PACKED_END traceLogMsg_t; //! traceLog message
 
 ///////////////////////////////////////////////////////////////////////////////
-// fifo functions
+// fifo functionality
 //
 
 #define TL_FIFO_MASK ((TL_FIFO_SIZE>>2)-1) //!< max possible count of items in fifo
@@ -85,9 +85,9 @@ extern uint32_t tlFifo[];
 extern uint32_t rdIndexTlFifo;
 extern uint32_t wrIndexTlFifo;
 
-/*! put one traceLog into traceLog fifo
-\param v traceLog id with 2 byte data
-traceLog time critical part
+/*! put one tracelog into tracelog fifo
+\param v tracelog id with 2 byte data
+tracelog time critical part
 */
 TL_INLINE void tlFifoPush( uint32_t v ){
     tlFifo[wrIndexTlFifo++] = v;
@@ -109,191 +109,434 @@ TL_INLINE size_t tlFifoDepth( void ){
     return (wrIndexTlFifo - rdIndexTlFifo) & TL_FIFO_MASK;
 }
 
+#if 0 == TL_SHORT_MEMORY // #################################################
+
 ///////////////////////////////////////////////////////////////////////////////
 // TL macros
 //
 
-//! basic traceLog macro, assumes d16 to be a 16 bit value
-//! TODO: assemler code here
-#define TRACELOG( id, pFmt, d16 ) do{ \
+//! basic tracelog macro, assumes d16 to be 
+//! id traceLog identifier
+//! \param d16 a 16 bit value
+#define TRACELOG( id, d16 ) do{ \
     tlFifoPush( (((uint32_t)(d16))<<16) | (id)); \
 } while(0)
 
+//! basic tracelog macro, assumes d16 to be a 16 bit value
+//! id is 0
+//! \param d16 a 16 bit value
+#define TRACELOG0( d16 ) do{ \
+    tlFifoPush( ((uint32_t)(d16))<<16); \
+} while(0)
+
+//! trace Id protected (outside critical section)
+//! \param Id tracelog identifier
+//! \param pFmt formatstring for trice
 #define TL0( Id, pFmt ) do{ \
     TL_ENTER_CRITICAL_SECTION \
-    TRACELOG( Id, pFmt, 0 ); \
+    tlFifoPush( Id ); \
     TL_LEAVE_CRITICAL_SECTION \
 } while(0)
 
+//! trace Id protected (outside critical section)
+//! \param Id tracelog identifier
+//! \param pFmt formatstring for trice
+//! \param 8-bit payload
 #define TL8_1( Id, pFmt, d0 ) do{ \
     TL_ENTER_CRITICAL_SECTION \
-    TRACELOG( Id, pFmt, d0 ); \
+    TRACELOG( Id, d0 ); \
     TL_LEAVE_CRITICAL_SECTION \
 } while(0)
 
+//! trace Id and 8-bit values protected (outside critical section)
+//! \param Id tracelog identifier
+//! \param pFmt formatstring for trice
+//! \param d0 payload
+//! \param d1 payload
 #define TL8_2( Id, pFmt, d0, d1 ) do{ \
     TL_ENTER_CRITICAL_SECTION \
-    TRACELOG( Id, pFmt, (((uint16_t)(d1))<<8) | (uint8_t)(d0) ) ; \
+    TRACELOG( Id, (((uint16_t)(d1))<<8) | (uint8_t)(d0) ) ; \
     TL_LEAVE_CRITICAL_SECTION \
 } while(0)
 
+//! trace Id and 8-bit values protected (outside critical section)
+//! \param Id tracelog identifier
+//! \param pFmt formatstring for trice
+//! \param d0 payload
+//! \param d1 payload
+//! \param d2 payload
 #define TL8_3( Id, pFmt, d0, d1, d2 ) do{ \
     TL_ENTER_CRITICAL_SECTION \
-    TRACELOG(  0, pFmt, (((uint16_t)(d1))<<8) | (uint8_t)(d0) ) ; \
-    TRACELOG( Id, pFmt, d2 ); \
+    TRACELOG0( (((uint16_t)(d1))<<8) | (uint8_t)(d0) ) ; \
+    TRACELOG( Id, d2 ); \
     TL_LEAVE_CRITICAL_SECTION \
 } while(0)
 
+//! trace Id and 8-bit values protected (outside critical section)
+//! \param Id tracelog identifier
+//! \param pFmt formatstring for trice
+//! \param d0 payload
+//! \param d1 payload
+//! \param d2 payload
+//! \param d3 payload
 #define TL8_4( Id, pFmt, d0, d1, d2, d3 ) do{ \
     TL_ENTER_CRITICAL_SECTION \
-    TRACELOG(  0, pFmt, (((uint16_t)(d1))<<8) | (uint8_t)(d0) ) ; \
-    TRACELOG( Id, pFmt, (((uint16_t)(d3))<<8) | (uint8_t)(d2) ) ; \
+    TRACELOG0(    (((uint16_t)(d1))<<8) | (uint8_t)(d0) ) ; \
+    TRACELOG( Id, (((uint16_t)(d3))<<8) | (uint8_t)(d2) ) ; \
     TL_LEAVE_CRITICAL_SECTION \
 } while(0)
 
+//! trace Id and 8-bit values protected (outside critical section)
+//! \param Id tracelog identifier
+//! \param pFmt formatstring for trice
+//! \param d0 payload
+//! \param d1 payload
+//! \param d2 payload
+//! \param d3 payload
+//! \param d4 payload
 #define TL8_5( Id, pFmt, d0, d1, d2, d3, d4 ) do{ \
     TL_ENTER_CRITICAL_SECTION \
-    TRACELOG(  0, pFmt, (((uint16_t)(d1))<<8) | (uint8_t)(d0) ) ; \
-    TRACELOG(  0, pFmt, (((uint16_t)(d3))<<8) | (uint8_t)(d2) ) ; \
-    TRACELOG( Id, pFmt, d4 ); \
+    TRACELOG0( (((uint16_t)(d1))<<8) | (uint8_t)(d0) ) ; \
+    TRACELOG0( (((uint16_t)(d3))<<8) | (uint8_t)(d2) ) ; \
+    TRACELOG( Id, d4 ); \
     TL_LEAVE_CRITICAL_SECTION \
 } while(0)
 
+//! trace Id and 8-bit values protected (outside critical section)
+//! \param Id tracelog identifier
+//! \param pFmt formatstring for trice
+//! \param d0 payload
+//! \param d1 payload
+//! \param d2 payload
+//! \param d3 payload
+//! \param d4 payload
+//! \param d5 payload
 #define TL8_6( Id, pFmt, d0, d1, d2, d3, d4, d5 ) do{ \
     TL_ENTER_CRITICAL_SECTION \
-    TRACELOG(  0, pFmt, (((uint16_t)(d1))<<8) | (uint8_t)(d0) ) ; \
-    TRACELOG(  0, pFmt, (((uint16_t)(d3))<<8) | (uint8_t)(d2) ) ; \
-    TRACELOG( Id, pFmt, (((uint16_t)(d5))<<8) | (uint8_t)(d4) ) ; \
+    TRACELOG0(    (((uint16_t)(d1))<<8) | (uint8_t)(d0) ) ; \
+    TRACELOG0(    (((uint16_t)(d3))<<8) | (uint8_t)(d2) ) ; \
+    TRACELOG( Id, (((uint16_t)(d5))<<8) | (uint8_t)(d4) ) ; \
     TL_LEAVE_CRITICAL_SECTION \
 } while(0)
 
+//! trace Id and 8-bit values protected (outside critical section)
+//! \param Id tracelog identifier
+//! \param pFmt formatstring for trice
+//! \param d0 payload
+//! \param d1 payload
+//! \param d2 payload
+//! \param d3 payload
+//! \param d4 payload
+//! \param d5 payload
+//! \param d6 payload
 #define TL8_7( Id, pFmt, d0, d1, d2, d3, d4, d5, d6 ) do{ \
     TL_ENTER_CRITICAL_SECTION \
-    TRACELOG(  0, pFmt, (((uint16_t)(d1))<<8) | (uint8_t)(d0) ) ; \
-    TRACELOG(  0, pFmt, (((uint16_t)(d3))<<8) | (uint8_t)(d2) ) ; \
-    TRACELOG(  0, pFmt, (((uint16_t)(d5))<<8) | (uint8_t)(d4) ) ; \
-    TRACELOG( Id, pFmt, d5 ); \
+    TRACELOG0( (((uint16_t)(d1))<<8) | (uint8_t)(d0) ) ; \
+    TRACELOG0( (((uint16_t)(d3))<<8) | (uint8_t)(d2) ) ; \
+    TRACELOG0( (((uint16_t)(d5))<<8) | (uint8_t)(d4) ) ; \
+    TRACELOG( Id, d5 ); \
     TL_LEAVE_CRITICAL_SECTION \
 } while(0)
 
+//! trace Id and 8-bit values protected (outside critical section)
+//! \param Id tracelog identifier
+//! \param pFmt formatstring for trice
+//! \param d0 payload
+//! \param d1 payload
+//! \param d2 payload
+//! \param d3 payload
+//! \param d4 payload
+//! \param d5 payload
+//! \param d6 payload
+//! \param d7 payload
 #define TL8_8( Id, pFmt, d0, d1, d2, d3, d4, d5, d6, d7 ) do{ \
     TL_ENTER_CRITICAL_SECTION \
-    TRACELOG(  0, pFmt, (((uint16_t)(d1))<<8) | (uint8_t)(d0) ) ; \
-    TRACELOG(  0, pFmt, (((uint16_t)(d3))<<8) | (uint8_t)(d2) ) ; \
-    TRACELOG(  0, pFmt, (((uint16_t)(d5))<<8) | (uint8_t)(d4) ) ; \
-    TRACELOG( Id, pFmt, (((uint16_t)(d7))<<8) | (uint8_t)(d6) ) ; \
+    TRACELOG0( (((uint16_t)(d1))<<8) | (uint8_t)(d0) ) ; \
+    TRACELOG0( (((uint16_t)(d3))<<8) | (uint8_t)(d2) ) ; \
+    TRACELOG0( (((uint16_t)(d5))<<8) | (uint8_t)(d4) ) ; \
+    TRACELOG( Id, (((uint16_t)(d7))<<8) | (uint8_t)(d6) ) ; \
     TL_LEAVE_CRITICAL_SECTION \
 } while(0)
 
+//! trace Id and 16-bit value protected (outside critical section)
+//! \param Id tracelog identifier
+//! \param pFmt formatstring for trice
+//! \param d0 payload
 #define TL16_1( Id, pFmt, d0 ) do{ \
-    TRACELOG( Id, pFmt, d0 ); \
+    TRACELOG( Id, d0 ); \
 } while(0)
 
+//! trace Id and 16-bit values protected (outside critical section)
+//! \param Id tracelog identifier
+//! \param pFmt formatstring for trice
+//! \param d0 payload
+//! \param d1 payload
 #define TL16_2( Id, pFmt, d0, d1 ) do{ \
     TL_ENTER_CRITICAL_SECTION \
-    TRACELOG(  0, pFmt, d0 ); \
-    TRACELOG( Id, pFmt, d1 ); \
+    TRACELOG0(    d0 ); \
+    TRACELOG( Id, d1 ); \
     TL_LEAVE_CRITICAL_SECTION \
 } while(0)
 
+//! trace Id and 16-bit values protected (outside critical section)
+//! \param Id tracelog identifier
+//! \param pFmt formatstring for trice
+//! \param d0 payload
+//! \param d1 payload
+//! \param d2 payload
 #define TL16_3( Id, pFmt, d0, d1, d2 ) do{ \
     TL_ENTER_CRITICAL_SECTION \
-    TRACELOG(  0, pFmt, d0 ); \
-    TRACELOG(  0, pFmt, d1 ); \
-    TRACELOG( Id, pFmt, d2 ); \
+    TRACELOG0( d0 ); \
+    TRACELOG0( d1 ); \
+    TRACELOG( Id, d2 ); \
     TL_LEAVE_CRITICAL_SECTION \
 } while(0)
 
+//! trace Id and 16-bit values protected (outside critical section)
+//! \param Id tracelog identifier
+//! \param pFmt formatstring for trice
+//! \param d0 payload
+//! \param d1 payload
+//! \param d2 payload
+//! \param d3 payload
 #define TL16_4( Id, pFmt, d0, d1, d2, d3 ) do{ \
     TL_ENTER_CRITICAL_SECTION \
-    TRACELOG(  0, pFmt, d0 ); \
-    TRACELOG(  0, pFmt, d1 ); \
-    TRACELOG(  0, pFmt, d2 ); \
-    TRACELOG( Id, pFmt, d3 ); \
+    TRACELOG0( d0 ); \
+    TRACELOG0( d1 ); \
+    TRACELOG0( d2 ); \
+    TRACELOG( Id, d3 ); \
     TL_LEAVE_CRITICAL_SECTION \
 } while(0)
 
+//! trace Id and 32-bit value protected (outside critical section)
+//! \param Id tracelog identifier
+//! \param pFmt formatstring for trice
+//! \param d0 payload
 #define TL32_1( Id, pFmt, d0 ) do{ \
     TL_ENTER_CRITICAL_SECTION \
-    TRACELOG(  0, pFmt, d0 ); \
-    TRACELOG( Id, pFmt, d0>>16 ); \
+    TRACELOG0( d0 ); \
+    TRACELOG( Id, d0>>16 ); \
     TL_LEAVE_CRITICAL_SECTION \
 } while(0)
 
+//! trace Id and 32-bit values protected (outside critical section)
+//! \param Id tracelog identifier
+//! \param pFmt formatstring for trice
+//! \param d0 payload
+//! \param d1 payload
 #define TL32_2( Id, pFmt, d0, d1 ) do{ \
     TL_ENTER_CRITICAL_SECTION \
-    TRACELOG(  0, pFmt, d0 ); \
-    TRACELOG(  0, pFmt, d0>>16 ); \
-    TRACELOG(  0, pFmt, d1 ); \
-    TRACELOG( Id, pFmt, d1>>16 ); \
+    TRACELOG0( d0 ); \
+    TRACELOG0( d0>>16 ); \
+    TRACELOG0( d1 ); \
+    TRACELOG( Id, d1>>16 ); \
     TL_LEAVE_CRITICAL_SECTION \
 } while(0)
 
+#else // #if 0 == TL_SHORT_MEMORY // ########################################
+
+void tl_0_ics( uint16_t Id );
+void tl_0_ocs( uint16_t Id );
+void tl_8_1_ics( uint16_t Id, uint32_t d0 );
+void tl_8_1_ocs( uint16_t Id, uint32_t d0 );
+void tl_8_02_ics( uint32_t d0, uint32_t d1 );
+void tl_8_2_ics( uint16_t Id, uint32_t d0, uint32_t d1 );
+void tl_8_2_ocs( uint16_t Id, uint32_t d0, uint32_t d1 );
+void tl_8_3_ics( uint16_t Id, uint32_t d0, uint32_t d1, uint32_t d2 );
+void tl_8_3_ocs( uint16_t Id, uint32_t d0, uint32_t d1, uint32_t d2 );
+void tl_8_4_ics( uint16_t Id, uint32_t d0, uint32_t d1, uint32_t d2, uint32_t d3 );
+void tl_8_04_ics( uint32_t d0, uint32_t d1, uint32_t d2, uint32_t d3 );
+void tl_8_4_ocs( uint16_t Id, uint32_t d0, uint32_t d1, uint32_t d2, uint32_t d3 );
+void tl_8_5_ics( uint16_t Id, uint32_t d0, uint32_t d1, uint32_t d2, uint32_t d3, uint32_t d4 );
+void tl_8_5_ocs( uint16_t Id, uint32_t d0, uint32_t d1, uint32_t d2, uint32_t d3, uint32_t d4 );
+void tl_8_6_ics( uint16_t Id, uint32_t d0, uint32_t d1, uint32_t d2, uint32_t d3, uint32_t d4, uint32_t d5 );
+void tl_8_06_ics( uint32_t d0, uint32_t d1, uint32_t d2, uint32_t d3, uint32_t d4, uint32_t d5 );
+void tl_8_6_ocs( uint16_t Id, uint32_t d0, uint32_t d1, uint32_t d2, uint32_t d3, uint32_t d4, uint32_t d5 );
+void tl_8_7_ics( uint16_t Id, uint32_t d0, uint32_t d1, uint32_t d2, uint32_t d3, uint32_t d4, uint32_t d5, uint32_t d6 );
+void tl_8_7_ocs( uint16_t Id, uint32_t d0, uint32_t d1, uint32_t d2, uint32_t d3, uint32_t d4, uint32_t d5, uint32_t d6 );
+void tl_8_8_ics( uint16_t Id, uint32_t d0, uint32_t d1, uint32_t d2, uint32_t d3, uint32_t d4, uint32_t d5, uint32_t d6, uint32_t d7 );
+void tl_8_08_ics( uint32_t d0, uint32_t d1, uint32_t d2, uint32_t d3, uint32_t d4, uint32_t d5, uint32_t d6, uint32_t d7 );
+void tl_8_8_ocs( uint16_t Id, uint32_t d0, uint32_t d1, uint32_t d2, uint32_t d3, uint32_t d4, uint32_t d5, uint32_t d6, uint32_t d7 );
+#define tl_16_1_ics tl_8_1_ics //!< same code
+#define tl_16_1_ocs tl_8_1_ocs //!< same code
+void tl_16_01_ics( uint32_t d0 );
+void tl_16_02_ics( uint32_t d0, uint32_t d1 );
+void tl_16_2_ics( uint16_t Id, uint32_t d0, uint32_t d1 );
+void tl_16_2_ocs( uint16_t Id, uint32_t d0, uint32_t d1 );
+void tl_16_3_ics( uint16_t Id, uint32_t d0, uint32_t d1, uint32_t d2 );
+void tl_16_3_ocs( uint16_t Id, uint32_t d0, uint32_t d1, uint32_t d2 );
+void tl_16_4_ics( uint16_t Id, uint32_t d0, uint32_t d1, uint32_t d2, uint32_t d3 );
+void tl_16_4_ocs( uint16_t Id, uint32_t d0, uint32_t d1, uint32_t d2, uint32_t d3 );
+void tl_32_1_ics( uint16_t Id, uint32_t d0 );
+void tl_32_1_ocs( uint16_t Id, uint32_t d0 );
+void tl_32_2_ics( uint16_t Id, uint32_t d0, uint32_t d1 );
+void tl_32_2_ocs( uint16_t Id, uint32_t d0, uint32_t d1 );
+
 ///////////////////////////////////////////////////////////////////////////////
-// little helper for traceLog usage
+// TL macros
 //
 
-/*! trace log a string
-\details not very effective but better than no strings
-This function could also be useful, if the string is generated dynamically.
-\param s 0-terminated string
-*/
-TL_INLINE void TraceString( char* s )
-{
-    while( *s )
-    {
-        TL8_1( Id(3), "%c", *s );
-        s++;
-    }
-}
+//! trace Id protected (outside critical section)
+//! \param Id tracelog identifier
+//! \param pFmt formatstring for trice
+#define TL0( Id, pFmt ) do{ \
+    tl_0_ocs( Id ); \
+} while(0)
 
-/*! Report name and line number over trace log
-\param pFileName pointer to 0-terminated filename or function name
-\param Line line number
-\param Value for context display
-*/
-TL_INLINE void ReportLocation( const char* const pFileName, int Line, int Value )
-{
-    TL0( Id(7), "sig:" );
-    if( pFileName )
-    {
-        TraceString( (char*)pFileName );
-    }
-    TL32_2( Id(5), " line %d (Value = %d)\n", Line, Value );
-}
+//! trace Id protected (outside critical section)
+//! \param Id tracelog identifier
+//! \param pFmt formatstring for trice
+//! \param 8-bit payload
+#define TL8_1( Id, pFmt, d0 ) do{ \
+    tl_8_1_ocs( Id, d0 ); \
+} while(0)
 
-/*! Report name and line number over trace log as Failure
-\param pName pointer to 0-terminated filename or function name
-\param Line line number
-\param Value for context display
-*/
-TL_INLINE void ReportFailure( const char* const pName, int Line, int Value )
-{
-    TL0( Id(6), "err: Failure in " );
-    ReportLocation( pName, Line, Value );
-}
+//! trace Id and 8-bit values protected (outside critical section)
+//! \param Id tracelog identifier
+//! \param pFmt formatstring for trice
+//! \param d0 payload
+//! \param d1 payload
+#define TL8_2( Id, pFmt, d0, d1 ) do{ \
+    tl_8_2_ocs( Id, d0, d1 ); \
+} while(0)
 
-/*! Report filename and line number over trace log
-\param pFileName pointer to 0-terminated filename
-\param Line line number
-\param Value for context display
-*/
-TL_INLINE void ReportPassage( char *pFileName, int Line, int Value )
-{
-    TL0( Id(4), "att: Passage in " );
-    if( pFileName )
-    {
-        TraceString( pFileName );
-    }
-    TL32_2( Id(5), " line %d (Value = %d)\n", Line, Value );
-}
+//! trace Id and 8-bit values protected (outside critical section)
+//! \param Id tracelog identifier
+//! \param pFmt formatstring for trice
+//! \param d0 payload
+//! \param d1 payload
+//! \param d2 payload
+#define TL8_3( Id, pFmt, d0, d1, d2 ) do{ \
+    tl_8_3_ocs( Id, d0, d1, d2 ); \
+} while(0)
 
-TL_INLINE void TraceSrcLocation(char *file, int line)
-{
-      TL0( Id(31976), "err: Error in file " );
-      TraceString( file );
-      TL16_1( Id(8272), " at line %d\n", line );
-}
+//! trace Id and 8-bit values protected (outside critical section)
+//! \param Id tracelog identifier
+//! \param pFmt formatstring for trice
+//! \param d0 payload
+//! \param d1 payload
+//! \param d2 payload
+//! \param d3 payload
+#define TL8_4( Id, pFmt, d0, d1, d2, d3 ) do{ \
+    tl_8_4_ocs( Id, d0, d1, d2, d3 ); \
+} while(0)
+
+//! trace Id and 8-bit values protected (outside critical section)
+//! \param Id tracelog identifier
+//! \param pFmt formatstring for trice
+//! \param d0 payload
+//! \param d1 payload
+//! \param d2 payload
+//! \param d3 payload
+//! \param d4 payload
+#define TL8_5( Id, pFmt, d0, d1, d2, d3, d4 ) do{ \
+    tl_8_5_ocs( Id, d0, d1, d2, d3, d4 ); \
+} while(0)
+
+//! trace Id and 8-bit values protected (outside critical section)
+//! \param Id tracelog identifier
+//! \param pFmt formatstring for trice
+//! \param d0 payload
+//! \param d1 payload
+//! \param d2 payload
+//! \param d3 payload
+//! \param d4 payload
+//! \param d5 payload
+#define TL8_6( Id, pFmt, d0, d1, d2, d3, d4, d5 ) do{ \
+    tl_8_6_ocs( Id, d0, d1, d2, d3, d4, d5 ); \
+} while(0)
+
+//! trace Id and 8-bit values protected (outside critical section)
+//! \param Id tracelog identifier
+//! \param pFmt formatstring for trice
+//! \param d0 payload
+//! \param d1 payload
+//! \param d2 payload
+//! \param d3 payload
+//! \param d4 payload
+//! \param d5 payload
+//! \param d6 payload
+#define TL8_7( Id, pFmt, d0, d1, d2, d3, d4, d5, d6 ) do{ \
+    tl_8_7_ocs( Id, d0, d1, d2, d3, d4, d5, d6 ); \
+} while(0)
+
+//! trace Id and 8-bit values protected (outside critical section)
+//! \param Id tracelog identifier
+//! \param pFmt formatstring for trice
+//! \param d0 payload
+//! \param d1 payload
+//! \param d2 payload
+//! \param d3 payload
+//! \param d4 payload
+//! \param d5 payload
+//! \param d6 payload
+//! \param d7 payload
+#define TL8_8( Id, pFmt, d0, d1, d2, d3, d4, d5, d6, d7 ) do{ \
+    tl_8_8_ocs( Id, d0, d1, d2, d3, d4, d5, d6, d7 ); \
+} while(0)
+
+//! trace Id and 16-bit value protected (outside critical section)
+//! \param Id tracelog identifier
+//! \param pFmt formatstring for trice
+//! \param d0 payload
+#define TL16_1( Id, pFmt, d0 ) do{ \
+    tl_16_1_ocs( Id, d0 ); \
+} while(0)
+
+//! trace Id and 16-bit values protected (outside critical section)
+//! \param Id tracelog identifier
+//! \param pFmt formatstring for trice
+//! \param d0 payload
+//! \param d1 payload
+#define TL16_2( Id, pFmt, d0, d1 ) do{ \
+    tl_16_2_ocs( Id, d0, d1 ); \
+} while(0)
+
+//! trace Id and 16-bit values protected (outside critical section)
+//! \param Id tracelog identifier
+//! \param pFmt formatstring for trice
+//! \param d0 payload
+//! \param d1 payload
+//! \param d2 payload
+#define TL16_3( Id, pFmt, d0, d1, d2 ) do{ \
+    tl_16_3_ocs( Id, d0, d1, d2 ); \
+} while(0)
+
+//! trace Id and 16-bit values protected (outside critical section)
+//! \param Id tracelog identifier
+//! \param pFmt formatstring for trice
+//! \param d0 payload
+//! \param d1 payload
+//! \param d2 payload
+//! \param d3 payload
+#define TL16_4( Id, pFmt, d0, d1, d2, d3 ) do{ \
+    tl_16_4_ocs( Id, d0, d1, d2, d3 ); \
+} while(0)
+
+//! trace Id and 32-bit value protected (outside critical section)
+//! \param Id tracelog identifier
+//! \param pFmt formatstring for trice
+//! \param d0 payload
+#define TL32_1( Id, pFmt, d0 ) do{ \
+    tl_32_1_ocs( Id, d0 ); \
+} while(0)
+
+//! trace Id and 32-bit values protected (outside critical section)
+//! \param Id tracelog identifier
+//! \param pFmt formatstring for trice
+//! \param d0 payload
+//! \param d1 payload
+#define TL32_2( Id, pFmt, d0, d1 ) do{ \
+    tl_32_2_ocs( Id, d0, d1 ); \
+} while(0)
+
+#endif //#else // #if 0 == TL_SHORT_MEMORY // ###############################
+
+void TraceString( char* s );
+void ReportLocation( const char* const pFileName, int Line, int Value );
+void ReportFailure( const char* const pName, int Line, int Value );
+void ReportPassage( char *pFileName, int Line, int Value );
+void TraceSrcLocation(char *file, int line);
 
 #endif // #else // #ifdef TRACELOG_OFF
 

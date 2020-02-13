@@ -28,3 +28,4 @@
 - find a way for Treyfer-key management
   - key into til.json is a possible but not so good way
 - add automatic reload of til.json if it changed during logging
+- add option to set created & removed to a value 

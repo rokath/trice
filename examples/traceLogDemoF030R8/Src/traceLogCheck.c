@@ -4,6 +4,7 @@
 \author thomas.hoehenleitner [at] seerose.net
 *******************************************************************************/
 
+//#define TRACELOG_OFF
 #include "traceLog.h"
 
 #define SYSTICKVAL16 SysTick->VAL //!< STM32 specific
@@ -87,3 +88,4 @@ void TraceLogCheckSet( void )
     TL0 (Id(43853), "--------------------------------------------------------------------------------------------------------------------------------------------------\n" );
     // 4 subtraces
 } // sum 111 sub traces (need 444 bytes Buffet space)
+
