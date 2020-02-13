@@ -22,7 +22,7 @@ embedded device C printf-like trace code and real-time PC logging (trace ID visu
 
 ## Quick setup
 - add [traceLog.c](./scrC/traceLog.c) as is to your project
-- #include [traceLog.h](./scrC/traceLog.h) as is in your source file to use tracelog
+- #include [traceLog.h](./scrC/traceLog.h) as is in your source file to use traceLog
 - copy [proj_traceLogConfig.h](./scrC/proj_traceLogConfig.h), rename to `trceLogConfig.h` and adapt to your needs
 - [traceLogCheck.c](./examples/traceLogDemoF030R8/Src/traceLogCheck.c) 
 is example code and for testing

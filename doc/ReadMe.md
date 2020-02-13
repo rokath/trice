@@ -29,7 +29,7 @@ but not the format string, what results in a smaller memory footprint.
 During TL* runtime, inside the microcontroller only the ID (together with the 
 parameters like hour, min, sec) is copied to a buffer. Execution time for a TL16_1
 (as example) on a 48 MHz ARM is about 16 systicks resulting in 250 nanoseconds duration,
-so you can use `tracelog` also inside interrupts. The needed buffer space is
+so you can use `traceLog` also inside interrupts. The needed buffer space is
 one 32 bit word per normal traceLog (for up to 2 data bytes). Just in case the internal fifo overflows, the data are still in sync, you simply loose traces.
 
 Slightly delayed in the background the trace goes to the communication port,
@@ -55,7 +55,7 @@ The following capture output comes from an example project inside`../examples`
 ![](README.media/life.gif)
 
 See [traceLogCheck.c](../examples/traceLogDemoF030R8/Src/traceLogCheck.c) for reference.
-The traceLogs can come mixed from inside interrupts (white `ISR:...`) or from normal code. For usage with a RTOS protect TL* against breaks. Regard the differences in the read SysTick values inside the GIF above These differeces are the MCU clocks needed for one tracelog (~0,25µs@48MHz).
+The traceLogs can come mixed from inside interrupts (white `ISR:...`) or from normal code. For usage with a RTOS protect TL* against breaks. Regard the differences in the read SysTick values inside the GIF above These differeces are the MCU clocks needed for one traceLog (~0,25µs@48MHz).
 
 Use `-color off` switch for piping output in a file or `-color alternate` for a different color set. *(color set designs are welcome, see func colorSetAlternate() in [emit.go](../pkg/emit/emit.go))*
 
@@ -75,7 +75,7 @@ doc/           | documentation                                           |
 - Run inside a shell `trice check -list path/to/til.json`. You should see output like this:
 ![](./README.media/Check.PNG)
 
-### Instrument a target source code project (How to use tracelog in your project)
+### Instrument a target source code project (How to use traceLog in your project)
 
   - Include [traceLog.c](../scrC/traceLog.c) unchanged into your project and make sure the [traceLog.h](../scrC/traceLog.h) header file is found by your compiler.
 - Add `#include "traceLog.h"` to your main.c[pp] and put `TL0( Id(0), "msg:Hello world!\n" );` after your initialization code.

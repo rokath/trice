@@ -1,6 +1,6 @@
 /*! \file traceLogCheck.c
 \brief traceLogs for tool evaluation
-\details The tracelogs are dumped as 32bit values into a 32 bit wide fifo.
+\details The traceLogs are dumped as 32bit values into a 32 bit wide fifo.
 \author thomas.hoehenleitner [at] seerose.net
 *******************************************************************************/
 

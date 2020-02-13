@@ -29,7 +29,7 @@ func readHeader(s *serial.Port) []byte {
 func ReadEndless(s *serial.Port, l id.List, color string) {
 	for {
 		b := readHeader(s)
-		if 0xeb == b[0] { // tracelog startbyte, no further data
+		if 0xeb == b[0] { // traceLog startbyte, no further data
 			err := emit.Trace(b, l, color)
 			if nil != err {
 				fmt.Println("trace.Log error", err, b)

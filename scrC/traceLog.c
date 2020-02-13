@@ -1,6 +1,6 @@
 /*! \file traceLog.c
-\brief tracelogs to transfer buffer functionality
-\details The tracelogs are dumped as 32bit values into a 32 bit fifo.
+\brief traceLogs to transfer buffer functionality
+\details The traceLogs are dumped as 32bit values into a 32 bit fifo.
 That is the time critical part. 
 \li a traceLog is a 16 bit ID with a 16 bit data value
 \li traceLogs with more data are split into several 32bit basic traceLog values with IDs = 0 in front.
@@ -24,20 +24,20 @@ void traceLogTxHandler( void ){}
 #include <stdint.h>
 #include "traceLog.h"
 
-//! tracelog fifo instance
+//! traceLog fifo instance
 ALIGN4 uint32_t tlFifo[ TL_FIFO_SIZE>>2 ] ALIGN4_END;
 
 uint32_t rdIndexTlFifo = 0; //!< traceLog fifo read index
 uint32_t wrIndexTlFifo = 0; //!< traceLog fifo write index
 
-//! partial prefilled tracelog message transmit buffer 
+//! partial prefilled traceLog message transmit buffer 
 ALIGN4 static traceLogMsg_t traceLogMsg ALIGN4_END = {
     { TL_START_BYTE,  TL_LOCAL_ADDR,  TL_DISPL_ADDR, 0 }, // crc8
     { 0, 0 } // 16bit ID, 16bit data
 };
 
-static uint8_t const * const limit = (uint8_t*)(&traceLogMsg + 1); //!< tracelog message buffer limit
-static uint8_t       *       pRead = (uint8_t*)(&traceLogMsg + 1); //!< tracelog message buffer read pointer
+static uint8_t const * const limit = (uint8_t*)(&traceLogMsg + 1); //!< traceLog message buffer limit
+static uint8_t       *       pRead = (uint8_t*)(&traceLogMsg + 1); //!< traceLog message buffer read pointer
 
 /*! get next traceLog byte for transmission from traceLog message buffer, no depth check here
 \retval data byte

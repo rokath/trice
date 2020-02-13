@@ -56,24 +56,24 @@ TL_INLINE void TraceSrcLocation(char *file, int line){}
 //
 
 typedef PACKED struct{
-    uint8_t start; // tracelog message header start value
+    uint8_t start; // traceLog message header start value
     uint8_t cad;   // client address
     uint8_t sad;   // server address
     uint8_t crc8;  // ab^cad^sad^load[0]^load[1]^load[2]^load[3]
-}PACKED_END traceLogMsgHeader_t; //!< tracelog message header for routing, syncing and conistency check
+}PACKED_END traceLogMsgHeader_t; //!< traceLog message header for routing, syncing and conistency check
 
 typedef PACKED union {
     PACKED struct{
-    uint16_t Id; // tracelog id
+    uint16_t Id; // traceLog id
     uint16_t d;  // 2 data byte
     }PACKED_END tl;
     uint8_t load[4]; // for crc8 computation
-}PACKED_END traceLogMsgLoad_t; //!< tracelog message payload
+}PACKED_END traceLogMsgLoad_t; //!< traceLog message payload
 
 typedef PACKED struct {
     traceLogMsgHeader_t hd; // header
     traceLogMsgLoad_t ld; // payload
-}PACKED_END traceLogMsg_t; //! tracelog message
+}PACKED_END traceLogMsg_t; //! traceLog message
 
 ///////////////////////////////////////////////////////////////////////////////
 // fifo functions
@@ -85,25 +85,25 @@ extern uint32_t tlFifo[];
 extern uint32_t rdIndexTlFifo;
 extern uint32_t wrIndexTlFifo;
 
-/*! put one tracelog into tracelog fifo
-\param v tracelog id with 2 byte data
-tracelog time critical part
+/*! put one traceLog into traceLog fifo
+\param v traceLog id with 2 byte data
+traceLog time critical part
 */
 TL_INLINE void tlFifoPush( uint32_t v ){
     tlFifo[wrIndexTlFifo++] = v;
     wrIndexTlFifo &= TL_FIFO_MASK;
 }
 
-/*! get one tracelog from tracelog fifo
-\param p address for tracelog id with 2 byte data
+/*! get one traceLog from traceLog fifo
+\param p address for traceLog id with 2 byte data
 */
 TL_INLINE void tlFifoPop( uint32_t* p ){
     *p = tlFifo[rdIndexTlFifo++];
     rdIndexTlFifo &= TL_FIFO_MASK;
 }
 
-/* tracelog item count inside tracelog fifo
-\return count of buffered tracelogs
+/* traceLog item count inside traceLog fifo
+\return count of buffered traceLogs
 */
 TL_INLINE size_t tlFifoDepth( void ){
     return (wrIndexTlFifo - rdIndexTlFifo) & TL_FIFO_MASK;
@@ -113,7 +113,7 @@ TL_INLINE size_t tlFifoDepth( void ){
 // TL macros
 //
 
-//! basic tracelog macro, assumes d16 to be a 16 bit value
+//! basic traceLog macro, assumes d16 to be a 16 bit value
 //! TODO: assemler code here
 #define TRACELOG( id, pFmt, d16 ) do{ \
     tlFifoPush( (((uint32_t)(d16))<<16) | (id)); \
@@ -230,7 +230,7 @@ TL_INLINE size_t tlFifoDepth( void ){
 } while(0)
 
 ///////////////////////////////////////////////////////////////////////////////
-// little helper for tracelog usage
+// little helper for traceLog usage
 //
 
 /*! trace log a string
