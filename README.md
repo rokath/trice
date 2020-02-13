@@ -27,7 +27,7 @@ embedded device C printf-like trace code and real-time PC logging (trace ID visu
 - copy [proj_traceLogConfig.h](./scrC/proj_traceLogConfig.h), rename to `trceLogConfig.h` and adapt to your needs
 - [traceLogCheck.c](./examples/traceLogDemoF030R8/Src/traceLogCheck.c) 
 is example code and for testing
-- run `trice u` in root of your C|Cpp source project after code instrumentation with TL* statements
+- run `trice u` in root of your C|Cpp source project after code instrumentation with TL* statements to generate a prroject specific til.json file 
 - compile, flash & run `trice log -port COMm -baud n` with correct values m and n
 
 ## Documentation
