@@ -105,6 +105,7 @@ doc/           | documentation                                           |
 - You can even translate the til.json in different languages, so changing a 
     language is just changing the til.json file.
 - traceLog has intentionally no timestamps for performance reasons. But you can add own timestamps as parameters. Having several devices with traceLog timestamps, network timing measurements are possible.
+- As example you could use a tool like https://github.com/sqshq/sampler for data visualization.
 - During `trice update` so far unknown IDs are added to the ID list 
     (case new sources added) with a `Created` utc timestamp.
 - If an ID was deleted inside the source tree (or file removal) the appropriate 
