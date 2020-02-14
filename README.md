@@ -12,8 +12,8 @@ embedded device C printf-like trace code and real-time PC logging (trace ID visu
   - as runtime logger or simply for narrow bandwidth logging in the field even with encryption.
 - Usage is similar to 'printf()', but the format strings go not into the target image.
 - The needed code instrumentation is minimal:
-  - Adapt a config file (hardware specific).
-  - Add one small C-file to your project and include a C-header where traceLogs are used.
+  - Adapt a [config file](./scrC/traceLogConfig.c) (hardware specific).
+  - Add [one small C-file](./scrC/traceLog.c) to your project and include a [C-header](./scrC/traceLog.h) where traceLogs are used.
   - Core instrumentation needs less 150 bytes FLASH and about 100 bytes RAM.
 
 ## `trice`
