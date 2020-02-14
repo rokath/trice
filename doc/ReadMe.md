@@ -72,7 +72,7 @@ doc/           | documentation                                           |
 
 ### Check the `trice` binary
 - Copy command trice into a path directory.
-- Run inside a shell `trice check -list path/to/til.json`. You should see output like this:
+- Run inside a shell `trice check -list path/to/trice/examples/traceLogDemoF030R8/MDK-ARM/`[til.json](../examples/traceLogDemoF030R8/MDK-ARM/til.json). You should see output like this:
 ![](./README.media/Check.PNG)
 
 ### Instrument a target source code project (How to use traceLog in your project)
@@ -93,17 +93,17 @@ doc/           | documentation                                           |
 - It could be helpful to add `trice u ...` as prebuild step into your toolchain for each file or for the project as a whole. 
   This way you cannot forget the update step, it performs automatically.
 
-## Memory needs (example project)
-Program Size (STM32-F030R8 demo project)       | comment
------------------------------------------------|------------------------------------------------------------------
-Code=1592 RO-data=236 RW-data= 4 ZI-data=1028  | CubeMX generated, no traceLog instrumentation
-Code=1712 RO-data=240 RW-data=24 ZI-data=1088  | traceLog code added without traceLogs, buffer size 64
-Code=3208 RO-data=240 RW-data=36 ZI-data=1540  | TraceLogCheckSet() added, buffer size 512, SPEED_OVER_MEMORY is 0
-Code=3808 RO-data=240 RW-data=36 ZI-data=1540  | TraceLogCheckSet() added, buffer size 512, SPEED_OVER_MEMORY is 1
+## Memory needs (ARM example project)
+Program Size (STM32-F030R8 demo project)     |traceLog instrumentation|buffer size|compiler optimze for time| comment
+---------------------------------------------|------------------------|-----------|-------------------------|-----------------------------
+Code=1592 RO-data=236 RW-data= 4 ZI-data=1028|        none            |        0  |         off             | CubeMX generated, no traceLog
+Code=1712 RO-data=240 RW-data=24 ZI-data=1088|        core            |       64  |         off             | core added without traceLogs
+Code=3208 RO-data=240 RW-data=36 ZI-data=1540|    TraceLogCheckSet()  |      512  |         off             | TL_SHORT_MEMORY is 1 (small)
+Code=3808 RO-data=240 RW-data=36 ZI-data=1540|    TraceLogCheckSet()  |      512  |         on              | TL_SHORT_MEMORY is 0 (fast)
 
 - The core instrumentation needs less 150 bytes FLASH and about 100 bytes RAM when buffer size is 64 bytes.
-- The about 50 traceLogs in TraceLogCheckSet() allocate roughly 2000 (1500) bytes.
-- traceLogs removable by defining `TRACELOG_OFF` on file or project level. 
+- The about 50 traceLogs in TraceLogCheckSet() allocate roughly 2100 (fast mode) or 1500 (small mode) bytes.
+- traceLogs are removable without code changes by defining `TRACELOG_OFF` on file or project level. 
 
 ## Notes
 - Using traceLog not only for dynamic debugging but also as logging technique
@@ -117,7 +117,7 @@ Code=3808 RO-data=240 RW-data=36 ZI-data=1540  | TraceLogCheckSet() added, buffe
 - You can even translate the til.json in different languages, so changing a 
     language is just changing the til.json file.
 - traceLog has intentionally no timestamps for performance reasons. But you can add own timestamps as parameters. Having several devices with traceLog timestamps, network timing measurements are possible.
-- As example you could use a tool like https://github.com/sqshq/sampler for data visualization.
+- As example you could use a tool like https://github.com/sqshq/sampler for dynamic data visualization.
 - During `trice update` so far unknown IDs are added to the ID list 
     (case new sources added) with a `Created` utc timestamp.
 - If an ID was deleted inside the source tree (or file removal) the appropriate 
