@@ -105,40 +105,29 @@ Code=3808 RO-data=240 RW-data=36 ZI-data=1540|    TraceLogCheckSet()  |      512
 - The about 50 traceLogs in TraceLogCheckSet() allocate roughly 2100 (fast mode) or 1500 (small mode) bytes.
 - traceLogs are removable without code changes by defining `TRACELOG_OFF` on file or project level. 
 
-## Notes
-- Using traceLog not only for dynamic debugging but also as logging technique
+## Possible Use Cases
+- Using traceLog not only for **dynamic debugging** but also as **logging** technique
     is possible and gives the advantage to have very short messages (no strings) for transmission, 
-    but keep in mind that the file `til.json` is the key to read all 
-    output if your devices in the field for 10 or more years.
-- You can consider this also as a kind of intelligent data compression what could
-    be interesting for IoT things, especially NB-IoT, where you have very low data rates.
-- Also it is possible to encrypt the 8 byte transfer packets to get a reasonable protection for many cases.
+    but keep in mind that the file `til.json` is the key to read all output if your devices in the field for 10 or more years.
+- You can consider Trice also as **a kind of intelligent data compression** what could be interesting for IoT things, especially NB-IoT, where you have very low data rates.
+- Also it is possible to **encrypt the 8 byte transfer packets** to get a reasonable protection for many cases.
   - Treyfer is a recommendation and planned as a coming option.
-- You can even translate the til.json in different languages, so changing a 
-    language is just changing the til.json file.
-- traceLog has intentionally no timestamps for performance reasons. But you can add own timestamps as parameters. Having several devices with traceLog timestamps, network timing measurements are possible.
-- As example you could use a tool like https://github.com/sqshq/sampler for dynamic data visualization.
-- During `trice update` so far unknown IDs are added to the ID list 
-    (case new sources added) with a `Created` utc timestamp.
-- If an ID was deleted inside the source tree (or file removal) the appropriate 
-    ID's stay inside the ID list but get a `Removed` utc timestamp. *TODO*
-- If the same ID appears again the appropriate `Removed` timestamp is deleted 
-    inside the ID list and the ID is aktive again.
-- If duplicate ID's with different format strings found inside the source tree 
-  (case several developer) the newer ID is replaced by a new ID.
-  - The probability for such case is low, because of the random ID generation.
-- If the format string was modified, the ID goes into the `Removed` state and a 
-  new ID is generated.
-- Keeping obsolete IDs makes it more comfortable during development to deal with 
-  different firmware variants at the same time.
-- This way you can simply copy a TL* statement and modify it without dealing with
-  the ID. The trice tool will do for you.
+- You can even translate the til.json in **different languages**, so changing a language is just changing the til.json file.
+- traceLog has intentionally no timestamps for performance reasons. But you can add own **timestamps as parameters**. Having several devices with traceLog timestamps, **network timing measurements** are possible.
+- Using Trice with an **RTOS** gives the option for detailed **task timing analysis**. Because of the very short execution time of a traceLog you could add `TL16( Id(0), "tim:%d us, task=%d\n", us, nexTask );` to the scheduler and vizualize the output on PC. The same is possible for **interrupt timing analysis**.
+- As graphical vizualisation you could use a tool similar to https://github.com/sqshq/sampler.
+
+## ID management internals & hints
+- During `trice update` so far unknown IDs are added to the ID list (case new sources added) with a `Created` utc timestamp.
+- If an ID was deleted inside the source tree (or file removal) the appropriate ID's stay inside the ID list but get a `Removed` utc timestamp.
+- If the same ID appears again the appropriate `Removed` timestamp is deleted inside the ID list and the ID is aktive again.
+- If duplicate ID's with different format strings found inside the source tree (case several developers) the newer ID is replaced by a new ID. The probability for such case is low, because of the random ID generation.
+- If the format string was modified, the ID goes into the `Removed` state and a new ID is generated.
+- Keeping obsolete IDs makes it more comfortable during development to deal with different firmware variants at the same time.
+- This way you can simply copy a TL* statement and modify it without dealing with the ID. The trice tool will do for you.
 - The ID list should go into the version control repository of your project.
-- For a firmware release it makes sense to remove all unused IDs (development garbage) from 
-    til.json.
-  - This could be done by deleting til.json, getting the legacy til.json from the former firmware release 
-      from the source control system and enhance it with the actual release
-      software IDs by simply calling 'trice update'.
+- For a firmware release it makes sense to remove all unused IDs (development garbage) from til.json.
+  - This could be done by deleting til.json, getting the legacy til.json from the former firmware release from the source control system and enhance it with the actual release software IDs by simply calling 'trice update'.
 
 ## Build `trice` from Go sources
 - Install Go, download the trice sources and cd into the `trice` directory
