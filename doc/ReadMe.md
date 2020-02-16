@@ -105,18 +105,6 @@ Code=3808 RO-data=240 RW-data=36 ZI-data=1540|    TraceLogCheckSet()  |      512
 - The about 50 traceLogs in TraceLogCheckSet() allocate roughly 2100 (fast mode) or 1500 (small mode) bytes.
 - traceLogs are removable without code changes by defining `TRACELOG_OFF` on file or project level. 
 
-## Possible Use Cases
-- Using traceLog not only for **dynamic debugging** but also as **logging** technique
-    is possible and gives the advantage to have very short messages (no strings) for transmission, 
-    but keep in mind that the file `til.json` is the key to read all output if your devices in the field for 10 or more years.
-- You can consider Trice also as **a kind of intelligent data compression** what could be interesting for IoT things, especially NB-IoT, where you have very low data rates.
-- Also it is possible to **encrypt the 8 byte transfer packets** to get a reasonable protection for many cases.
-  - Treyfer is a recommendation and planned as a coming option.
-- You can even translate the til.json in **different languages**, so changing a language is just changing the til.json file.
-- traceLog has intentionally no timestamps for performance reasons. But you can add own **timestamps as parameters**. Having several devices with traceLog timestamps, **network timing measurements** are possible.
-- Using Trice with an **RTOS** gives the option for detailed **task timing analysis**. Because of the very short execution time of a traceLog you could add `TL16( Id(0), "tim:%d us, task=%d\n", us, nexTask );` to the scheduler and vizualize the output on PC. The same is possible for **interrupt timing analysis**.
-- As graphical vizualisation you could use a tool similar to https://github.com/sqshq/sampler.
-
 ## ID management internals & hints
 - During `trice update` so far unknown IDs are added to the ID list (case new sources added) with a `Created` utc timestamp.
 - If an ID was deleted inside the source tree (or file removal) the appropriate ID's stay inside the ID list but get a `Removed` utc timestamp.
