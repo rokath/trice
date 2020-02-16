@@ -3,8 +3,9 @@ embedded device C printf-like trace code and real-time PC logging (trace ID visu
 
 ## About
 - C trace (`traceLog`) code and real-time PC logging with `trice` (Go sources).
-- Communication over serial port without strings
+- Communication over serial port without strings, just with IDs
 - "log in (a) trice" ![](./doc/README.media/life0.gif)
+- Main idea: Logging strings **not** into an embedded device to display them later on a PC but keep usage simple.
 
 ## `traceLog`
 - Real fast (**~16 clocks per trace!!!**) and small loggging technique, a tracer in software usable 
