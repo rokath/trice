@@ -31,5 +31,17 @@ is example code and for testing
 - run `trice u` in root of your C|Cpp source project after code instrumentation with TL* statements to generate a prroject specific til.json file 
 - compile, flash & run `trice log -port COMm -baud n` with correct values m and n
 
+## Possible Use Cases
+- Using traceLog not only for **dynamic debugging** but also as **logging** technique
+    is possible and gives the advantage to have very short messages (no strings) for transmission, 
+    but keep in mind that the file `til.json` is the key to read all output if your devices in the field for 10 or more years.
+- You can consider Trice also as **a kind of intelligent data compression** what could be interesting for IoT things, especially NB-IoT, where you have very low data rates.
+- Also it is possible to **encrypt the 8 byte transfer packets** to get a reasonable protection for many cases.
+  - Treyfer is a recommendation and planned as a coming option.
+- You can even translate the til.json in **different languages**, so changing a language is just changing the til.json file.
+- traceLog has intentionally no timestamps for performance reasons. But you can add own **timestamps as parameters**. Having several devices with traceLog timestamps, **network timing measurements** are possible.
+- Using Trice with an **RTOS** gives the option for detailed **task timing analysis**. Because of the very short execution time of a traceLog you could add `TL16( Id(0), "tim:%d us, task=%d\n", us, nexTask );` to the scheduler and vizualize the output on PC. The same is possible for **interrupt timing analysis**.
+- As graphical vizualisation you could use a tool similar to https://github.com/sqshq/sampler.
+
 ## Documentation
 - see [./doc/ReadMe.md](./doc/ReadMe.md)
