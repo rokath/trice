@@ -7,7 +7,7 @@ embedded device C printf-like trace code and real-time PC logging (trace ID visu
 - "log in (a) trice" ![](./doc/README.media/life0.gif)
 - Main idea: Logging strings **not** into an embedded device to display them later on a PC but keep usage simple.
 
-## `TRICEn` macro for C|C++ code
+## `TRICE` macros for C|C++ code
 - Real fast (**~16 clocks per trace!!!**) and small loggging technique, a tracer in software usable 
   - for debugging dynamic behaviour during development, 
   - as runtime logger or simply for narrow bandwidth logging in the field even with encryption.
