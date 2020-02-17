@@ -1,7 +1,7 @@
 
-## `trice`
+## `TRICE`
 It is avoiding all the internal overhead (space and time) of a `printf()` 
-statement. For example instead of writing 
+statement but is easy to use. For example instead of writing 
 
 ```
 printf("time is %d:%d:%d\n", hour, min, sec);
