@@ -8,8 +8,8 @@
 \author Thomas.Hoehenleitner [at] seerose.net
 *******************************************************************************/
 
-#ifndef TRACECONFIG_H_
-#define TRACECONFIG_H_
+#ifndef TRICECONFIG_H_
+#define TRICECONFIG_H_
 
 #ifdef __cplusplus
 extern "C" {
@@ -22,10 +22,10 @@ extern "C" {
 //
 
 //!< a byte count for buffering traces, must be power of 2, one basic trace needs 4 bytes
-#define TL_FIFO_SIZE 512 
-#define TL_START_BYTE (0xeb) //!< trice header start (chose any unusual byte)
-#define TL_LOCAL_ADDR (0x60) //!< trice addess of this device (choose free)
-#define TL_DISPL_ADDR (0x61) //!< trice terminal address for this device (choose free)
+#define TRICE_FIFO_SIZE 512 
+#define TRICE_START_BYTE (0xeb) //!< trice header start (chose any unusual byte)
+#define TRICE_LOCAL_ADDR (0x60) //!< trice addess of this device (choose free)
+#define TRICE_DISPL_ADDR (0x61) //!< trice terminal address for this device (choose free)
 #define SPEED_OVER_MEMORY 1 //!< 0 means less Flash needed but slower, set compiler switch "optimize for time" accordingly!
 //#define TRICE_OFF //!< enable this line to disable trice code generation
 
@@ -37,7 +37,7 @@ extern "C" {
 
 #ifdef __GNUC__ // gnu compiler ###############################################
 
-#define TL_INLINE static inline // todo
+#define TRICE_INLINE static inline // todo
 
 #define ALIGN4                                  //!< align to 4 byte boundary preamble
 #define ALIGN4_END __attribute__ ((aligned(4))) //!< align to 4 byte boundary post declaration
@@ -45,14 +45,14 @@ extern "C" {
 #define PACKED_END __attribute__ ((packed))      //!< pack data post declaration
 
 //! Save interrupt state and disable Interrupts
-#define TL_ENTER_CRITICAL_SECTION { // todo
+#define TRICE_ENTER_CRITICAL_SECTION { // todo
 
 //! Restore interrupt state
-#define TL_LEAVE_CRITICAL_SECTIO } // todo
+#define TRICE_LEAVE_CRITICAL_SECTIO } // todo
 
 #elif defined(__arm__) // ARMkeil IDE #########################################
 
-#define TL_INLINE static inline //! used for trice code if SPEED_OVER_MEMORY==1
+#define TRICE_INLINE static inline //! used for trice code if SPEED_OVER_MEMORY==1
 
 #define ALIGN4 __align(4) //!< align to 4 byte boundary preamble
 #define ALIGN4_END        //!< align to 4 byte boundary post declaration
@@ -66,7 +66,7 @@ extern "C" {
 If trices are used only outside critical sections or interrupts
 you can leave this macro pair empty for more speed.
 */
-#define TL_ENTER_CRITICAL_SECTION { uint32_t primaskstate = __get_PRIMASK(); __disable_irq(); {
+#define TRICE_ENTER_CRITICAL_SECTION { uint32_t primaskstate = __get_PRIMASK(); __disable_irq(); {
 
 /*! Restore interrupt state
 \details Workaround for ARM Cortex M0 and M0+
@@ -75,7 +75,7 @@ you can leave this macro pair empty for more speed.
 If trices are used only outside critical sections or interrupts
 you can leave this macro pair empty for more speed.
 */
-#define TL_LEAVE_CRITICAL_SECTION } __set_PRIMASK(primaskstate); }
+#define TRICE_LEAVE_CRITICAL_SECTION } __set_PRIMASK(primaskstate); }
 
 #else // ######################################################################
 
@@ -92,7 +92,7 @@ you can leave this macro pair empty for more speed.
 \retval !0 == epmty
 User must provide this function.
 */
-TL_INLINE uint32_t triceTxDataRegisterEmpty( void ){
+TRICE_INLINE uint32_t triceTxDataRegisterEmpty( void ){
     return 1;
 }
 
@@ -100,21 +100,21 @@ TL_INLINE uint32_t triceTxDataRegisterEmpty( void ){
 \param d byte to transmit
 User must provide this function.
 */
-TL_INLINE void triceTransmitData8( uint8_t d ){
+TRICE_INLINE void triceTransmitData8( uint8_t d ){
     d = d;
 }
 
 /*! Allow interrupt for empty trice data transmit register.
 User must provide this function.
 */
-TL_INLINE void triceEableTxEmptyInterrupt( void ){
+TRICE_INLINE void triceEableTxEmptyInterrupt( void ){
     
 }
 
 /*! Disallow interrupt for empty trice data transmit register.
 User must provide this function.
 */
-TL_INLINE void triceDisableTxEmptyInterrupt( void ){
+TRICE_INLINE void triceDisableTxEmptyInterrupt( void ){
     
 }
 

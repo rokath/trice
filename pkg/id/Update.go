@@ -20,14 +20,14 @@ import (
 
 var matchSourceFile = regexp.MustCompile("(\\.c|\\.h|\\.cc|\\.cpp|\\.hpp)$")
 
-// matchNbTL is a as constant used compiled regex matching any (first in line) "TL*(Id(n), "", ... );". - see https://regex101.com/r/LNlAwY/7
-var matchNbTL = regexp.MustCompile(`(\bTL0\b|\bTL8_[1-8]\b|\bTL16_[1-4]\b|\bTL32_[1-2])\s*\(\s*\bId\b\s*\(\s*.*[0-9]\s*\)\s*,\s*".*"\s*.*\)\s*;`)
+// matchNbTRICE is a as constant used compiled regex matching any (first in line) "TRICE*(Id(n), "", ... );". - see https://regex101.com/r/LNlAwY/7
+var matchNbTRICE = regexp.MustCompile(`(\bTRICE0\b|\bTRICE8_[1-8]\b|\bTRICE16_[1-4]\b|\bTRICE32_[1-2])\s*\(\s*\bId\b\s*\(\s*.*[0-9]\s*\)\s*,\s*".*"\s*.*\)\s*;`)
 
-// matchNbID is a as constant used compiled regex matching any (first in string) "Id(n)" and usable in matches of matchNbTL
+// matchNbID is a as constant used compiled regex matching any (first in string) "Id(n)" and usable in matches of matchNbTRICE
 var matchNbID = regexp.MustCompile(`\bId\s*\(\s*[0-9]*\s*\)`)
 
-// matchTypNameTL is a as constant used compiled regex matching "TL*" inside trice
-var matchTypNameTL = regexp.MustCompile(`(\bTL0\b|\bTL8_[1-8]\b|\bTL16_[1-4]\b|\bTL32_[1-2])`)
+// matchTypNameTRICE is a as constant used compiled regex matching "TRICE*" inside trice
+var matchTypNameTRICE = regexp.MustCompile(`(\bTRICE0\b|\bTRICE8_[1-8]\b|\bTRICE16_[1-4]\b|\bTRICE32_[1-2])`)
 
 // matchFmtString is a as constant used compiled regex matching the first format string inside trice
 var matchFmtString = regexp.MustCompile(`"(.*)"`)
@@ -118,14 +118,14 @@ func visitUpdate(run bool, p *List, pListModified *bool) filepath.WalkFunc {
 // - subs gets shorter
 // - s is updated
 func updateNextID(p *List, pListModified *bool, modified bool, subs, s string) (bool, bool, string, string) {
-	loc := matchNbTL.FindStringIndex(subs)
+	loc := matchNbTRICE.FindStringIndex(subs)
 	if nil == loc {
 		return false, modified, subs, s
 	}
-	nbTL := subs[loc[0]:loc[1]]
-	nbID := matchNbID.FindString(nbTL)
+	nbTRICE := subs[loc[0]:loc[1]]
+	nbID := matchNbID.FindString(nbTRICE)
 	if "" == nbID {
-		fmt.Println("No 'Id(n)' found inside " + nbTL)
+		fmt.Println("No 'Id(n)' found inside " + nbTRICE)
 		return false, modified, subs, s
 	}
 	var id int
@@ -136,7 +136,7 @@ func updateNextID(p *List, pListModified *bool, modified bool, subs, s string) (
 	}
 	if 0 == id {
 		zeroID := nbID
-		zeroTL := nbTL
+		zeroTRICE := nbTRICE
 		id, err = p.newID()
 		if nil != err {
 			fmt.Println("No new ID found")
@@ -144,28 +144,28 @@ func updateNextID(p *List, pListModified *bool, modified bool, subs, s string) (
 		}
 		nbID = fmt.Sprintf("Id(%5d)", id)
 		fmt.Println(zeroID, " -> ", nbID)
-		nbTL := strings.Replace(nbTL, zeroID, nbID, 1)
-		s = strings.Replace(s, zeroTL, nbTL, 1)
+		nbTRICE := strings.Replace(nbTRICE, zeroID, nbID, 1)
+		s = strings.Replace(s, zeroTRICE, nbTRICE, 1)
 		modified = true
 	}
 	// The replacement makes s not shorter, so next seach can start at loc[1]
 	subs = subs[loc[1]:]
-	typNameTL := matchTypNameTL.FindString(nbTL)
-	if "" == typNameTL {
-		fmt.Println("no 'TL*' found inside " + typNameTL)
+	typNameTRICE := matchTypNameTRICE.FindString(nbTRICE)
+	if "" == typNameTRICE {
+		fmt.Println("no 'TRICE*' found inside " + typNameTRICE)
 		return false, modified, subs, s
 	}
-	match := matchFmtString.FindAllStringSubmatch(nbTL, 1)
+	match := matchFmtString.FindAllStringSubmatch(nbTRICE, 1)
 	fmtString := match[0][1]
-	nID, flag := p.extend(id, typNameTL, fmtString)
+	nID, flag := p.extend(id, typNameTRICE, fmtString)
 	if flag {
 		*pListModified = true
 		if nID != id { // a new id was generated
 			oID := fmt.Sprintf("Id(%5d)", id)
 			nID := fmt.Sprintf("Id(%5d)", nID)
 			fmt.Println(oID, " -> ", nID)
-			newTL := strings.Replace(nbTL, oID, nID, 1)
-			s = strings.Replace(s, nbTL, newTL, 1)
+			newTRICE := strings.Replace(nbTRICE, oID, nID, 1)
+			s = strings.Replace(s, nbTRICE, newTRICE, 1)
 			modified = true
 		}
 	}
@@ -231,23 +231,23 @@ func visitZeroSourceTreeIds(run bool) filepath.WalkFunc {
 // - subs gets shorter
 // - s is updated
 func zeroNextID(modified bool, subs, s string) (bool, bool, string, string) {
-	loc := matchNbTL.FindStringIndex(subs)
+	loc := matchNbTRICE.FindStringIndex(subs)
 	if nil == loc {
 		return false, modified, subs, s
 	}
-	nbTL := subs[loc[0]:loc[1]]
-	nbID := matchNbID.FindString(nbTL)
+	nbTRICE := subs[loc[0]:loc[1]]
+	nbID := matchNbID.FindString(nbTRICE)
 	if "" == nbID {
-		fmt.Println("No 'Id(n)' found inside " + nbTL)
+		fmt.Println("No 'Id(n)' found inside " + nbTRICE)
 		return false, modified, subs, s
 	}
 
 	zeroID := "Id(0)"
 	fmt.Println(nbID, " -> ", zeroID)
 
-	zeroTL := strings.Replace(nbTL, nbID, zeroID, 1)
-	s = strings.Replace(s, nbTL, zeroTL, 1)
-	// 2^32 has 9 ciphers and shortest trice has 14 chars: TL0(Id(1),"");
+	zeroTRICE := strings.Replace(nbTRICE, nbID, zeroID, 1)
+	s = strings.Replace(s, nbTRICE, zeroTRICE, 1)
+	// 2^32 has 9 ciphers and shortest trice has 14 chars: TRICE0(Id(1),"");
 	// The replacement of n with 0 makes s shorter, so the next search shoud start like 10 chars earlier.
 	subs = subs[loc[1]-10:]
 	return true, true, subs, s

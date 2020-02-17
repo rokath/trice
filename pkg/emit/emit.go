@@ -22,35 +22,35 @@ func checkValuePosition(l id.List, palette string) error {
 	for i := range l {
 		it := l[i]
 		switch it.FmtType {
-		case "TL0":
+		case "TRICE0":
 			b = append(b, 0, 0) // 2 bytes padding like inside Trace()
-		case "TL8_1":
+		case "TRICE8_1":
 			b = append(b, 1, 0) // 1 byte padding like inside Trace()
-		case "TL8_2":
+		case "TRICE8_2":
 			b = append(b, 1, 2)
-		case "TL8_3":
+		case "TRICE8_3":
 			b = append(b, 1, 2, 3, 0) // 1 byte padding like inside Trace()
-		case "TL8_4":
+		case "TRICE8_4":
 			b = append(b, 1, 2, 3, 4)
-		case "TL8_5":
+		case "TRICE8_5":
 			b = append(b, 1, 2, 3, 4, 5, 0) // 1 byte padding like inside Trace()
-		case "TL8_6":
+		case "TRICE8_6":
 			b = append(b, 1, 2, 3, 4, 5, 6)
-		case "TL8_7":
+		case "TRICE8_7":
 			b = append(b, 1, 2, 3, 4, 5, 6, 7, 0) // 1 byte padding like inside Trace()
-		case "TL8_8":
+		case "TRICE8_8":
 			b = append(b, 1, 2, 3, 4, 5, 6, 7, 8)
-		case "TL16_1":
+		case "TRICE16_1":
 			b = append(b, 1, 0)
-		case "TL16_2":
+		case "TRICE16_2":
 			b = append(b, 1, 0, 2, 0)
-		case "TL16_3":
+		case "TRICE16_3":
 			b = append(b, 1, 0, 2, 0, 3, 0)
-		case "TL16_4":
+		case "TRICE16_4":
 			b = append(b, 1, 0, 2, 0, 3, 0, 4, 0)
-		case "TL32_1":
+		case "TRICE32_1":
 			b = append(b, 1, 0, 0, 0)
-		case "TL32_2":
+		case "TRICE32_2":
 			b = append(b, 1, 0, 0, 0, 2, 0, 0, 0)
 		}
 		s, err := emitter(it, b)
@@ -72,35 +72,35 @@ func checkNegativeValues(l id.List, palette string) error {
 	for i := range l {
 		it := l[i]
 		switch it.FmtType {
-		case "TL0":
+		case "TRICE0":
 			b = append(b, 0, 0) // 2 bytes padding like inside Trace()
-		case "TL8_1":
+		case "TRICE8_1":
 			b = append(b, 0x80, 0) // 1 byte padding like inside Trace()
-		case "TL8_2":
+		case "TRICE8_2":
 			b = append(b, 0x80, 0x80)
-		case "TL8_3":
+		case "TRICE8_3":
 			b = append(b, 0x80, 0x80, 0x80, 0) // 1 byte padding like inside Trace()
-		case "TL8_4":
+		case "TRICE8_4":
 			b = append(b, 0x80, 0x80, 0x80, 0x80)
-		case "TL8_5":
+		case "TRICE8_5":
 			b = append(b, 0x80, 0x80, 0x80, 0x80, 0x80, 0) // 1 byte padding like inside Trace()
-		case "TL8_6":
+		case "TRICE8_6":
 			b = append(b, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80)
-		case "TL8_7":
+		case "TRICE8_7":
 			b = append(b, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0) // 1 byte padding like inside Trace()
-		case "TL8_8":
+		case "TRICE8_8":
 			b = append(b, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80)
-		case "TL16_1":
+		case "TRICE16_1":
 			b = append(b, 0, 0x80)
-		case "TL16_2":
+		case "TRICE16_2":
 			b = append(b, 0, 0x80, 0x00, 0x80)
-		case "TL16_3":
+		case "TRICE16_3":
 			b = append(b, 0x00, 0x80, 0x00, 0x80, 0x00, 0x80)
-		case "TL16_4":
+		case "TRICE16_4":
 			b = append(b, 0x00, 0x80, 0x00, 0x80, 0x00, 0x80, 0x00, 0x80)
-		case "TL32_1":
+		case "TRICE32_1":
 			b = append(b, 0, 0, 0, 0x80)
-		case "TL32_2":
+		case "TRICE32_2":
 			b = append(b, 0, 0, 0, 0x80, 0, 0, 0, 0x80)
 		}
 		s, err := emitter(it, b)
@@ -121,27 +121,27 @@ func checkFix(l id.List, palette string) error {
 	for i := range l {
 		it := l[i]
 		switch it.FmtType {
-		case "TL0":
+		case "TRICE0":
 			fallthrough
-		case "TL8_1":
+		case "TRICE8_1":
 			fallthrough
-		case "TL8_2":
+		case "TRICE8_2":
 			fallthrough
-		case "TL16_1":
+		case "TRICE16_1":
 			b = b[:2]
-		case "TL8_3":
+		case "TRICE8_3":
 			fallthrough
-		case "TL8_4":
+		case "TRICE8_4":
 			fallthrough
-		case "TL16_2":
+		case "TRICE16_2":
 			fallthrough
-		case "TL32_1":
+		case "TRICE32_1":
 			b = b[:4]
-		case "TL8_5":
+		case "TRICE8_5":
 			fallthrough
-		case "TL8_6":
+		case "TRICE8_6":
 			fallthrough
-		case "TL16_3":
+		case "TRICE16_3":
 			b = b[:6]
 		}
 		s, err := emitter(it, b)
@@ -429,99 +429,99 @@ func emitterGo(it id.Item, b []byte) (string, error) {
 	var v0, v1, v2, v3 int16
 	var w0, w1 int32
 	switch it.FmtType {
-	case "TL0":
+	case "TRICE0":
 		if 2 != len(b) { // b has 2 padding bytes
 			fmt.Println(b)
 			return "ERR: DATA STREAM ERROR!!!", errors.New("ERR: DATA STREAM ERROR")
 		}
 		s = f
-	case "TL8_1":
+	case "TRICE8_1":
 		if 2 != len(b) {
 			fmt.Println(b)
 			return "ERR: DATA STREAM ERROR!!!", errors.New("ERR: DATA STREAM ERROR")
 		}
 		s = fmt.Sprintf(f, int8(b[0]))
-	case "TL8_2":
+	case "TRICE8_2":
 		if 2 != len(b) {
 			fmt.Println(b)
 			return "ERR: DATA STREAM ERROR!!!", errors.New("ERR: DATA STREAM ERROR")
 		}
 		s = fmt.Sprintf(f, int8(b[0]), int8(b[1]))
-	case "TL8_3":
+	case "TRICE8_3":
 		if 4 != len(b) { // b has 1 padding byte
 			fmt.Println(b)
 			return "ERR: DATA STREAM ERROR!!!", errors.New("ERR: DATA STREAM ERROR")
 		}
 		s = fmt.Sprintf(f, int8(b[0]), int8(b[1]), int8(b[2]))
-	case "TL8_4":
+	case "TRICE8_4":
 		if 4 != len(b) {
 			fmt.Println(b)
 			return "ERR: DATA STREAM ERROR!!!", errors.New("ERR: DATA STREAM ERROR")
 		}
 		s = fmt.Sprintf(f, int8(b[0]), int8(b[1]), int8(b[2]), int8(b[3]))
-	case "TL8_5":
+	case "TRICE8_5":
 		if 6 != len(b) { // b has 1 padding byte
 			fmt.Println(b)
 			return "ERR: DATA STREAM ERROR!!!", errors.New("ERR: DATA STREAM ERROR")
 		}
 		s = fmt.Sprintf(f, int8(b[0]), int8(b[1]), int8(b[2]), int8(b[3]), int8(b[4]))
-	case "TL8_6":
+	case "TRICE8_6":
 		if 6 != len(b) {
 			fmt.Println(b)
 			return "ERR: DATA STREAM ERROR!!!", errors.New("ERR: DATA STREAM ERROR")
 		}
 		s = fmt.Sprintf(f, int8(b[0]), int8(b[1]), int8(b[2]), int8(b[3]), int8(b[4]), int8(b[5]))
-	case "TL8_7":
+	case "TRICE8_7":
 		if 8 != len(b) { // b has 1 padding byte
 			fmt.Println(b)
 			return "ERR: DATA STREAM ERROR!!!", errors.New("ERR: DATA STREAM ERROR")
 		}
 		s = fmt.Sprintf(f, int8(b[0]), int8(b[1]), int8(b[2]), int8(b[3]), int8(b[4]), int8(b[5]), int8(b[6]))
-	case "TL8_8":
+	case "TRICE8_8":
 		if 8 != len(b) {
 			fmt.Println(b)
 			return "ERR: DATA STREAM ERROR!!!", errors.New("ERR: DATA STREAM ERROR")
 		}
 		s = fmt.Sprintf(f, int8(b[0]), int8(b[1]), int8(b[2]), int8(b[3]), int8(b[4]), int8(b[5]), int8(b[6]), int8(b[7]))
-	case "TL16_1":
+	case "TRICE16_1":
 		if 2 != len(b) {
-			return "TL16_1", fmt.Errorf("false len %v", b)
+			return "TRICE16_1", fmt.Errorf("false len %v", b)
 		}
 		v0 = int16(binary.LittleEndian.Uint16(b[0:2]))
 		s = fmt.Sprintf(f, v0)
-	case "TL16_2":
+	case "TRICE16_2":
 		if 4 != len(b) {
-			return "TL16_2", fmt.Errorf("false len %v", b)
+			return "TRICE16_2", fmt.Errorf("false len %v", b)
 		}
 		v0 = int16(binary.LittleEndian.Uint16(b[0:2]))
 		v1 = int16(binary.LittleEndian.Uint16(b[2:4]))
 		s = fmt.Sprintf(f, v0, v1)
-	case "TL16_3":
+	case "TRICE16_3":
 		if 6 != len(b) {
-			return "TL16_3", fmt.Errorf("false len %v", b)
+			return "TRICE16_3", fmt.Errorf("false len %v", b)
 		}
 		v0 = int16(binary.LittleEndian.Uint16(b[0:2]))
 		v1 = int16(binary.LittleEndian.Uint16(b[2:4]))
 		v2 = int16(binary.LittleEndian.Uint16(b[4:6]))
 		s = fmt.Sprintf(f, v0, v1, v2)
-	case "TL16_4":
+	case "TRICE16_4":
 		if 8 != len(b) {
-			return "TL16_4", fmt.Errorf("false len %v", b)
+			return "TRICE16_4", fmt.Errorf("false len %v", b)
 		}
 		v0 = int16(binary.LittleEndian.Uint16(b[0:2]))
 		v1 = int16(binary.LittleEndian.Uint16(b[2:4]))
 		v2 = int16(binary.LittleEndian.Uint16(b[4:6]))
 		v3 = int16(binary.LittleEndian.Uint16(b[6:8]))
 		s = fmt.Sprintf(f, v0, v1, v2, v3)
-	case "TL32_1":
+	case "TRICE32_1":
 		if 4 != len(b) {
-			return "TL32_1", fmt.Errorf("false len %v", b)
+			return "TRICE32_1", fmt.Errorf("false len %v", b)
 		}
 		w0 = int32(binary.LittleEndian.Uint32(b[0:4]))
 		s = fmt.Sprintf(f, w0)
-	case "TL32_2":
+	case "TRICE32_2":
 		if 8 != len(b) {
-			return "TL32_2", fmt.Errorf("false len %v", b)
+			return "TRICE32_2", fmt.Errorf("false len %v", b)
 		}
 		w0 = int32(binary.LittleEndian.Uint32(b[0:4]))
 		w1 = int32(binary.LittleEndian.Uint32(b[4:8]))

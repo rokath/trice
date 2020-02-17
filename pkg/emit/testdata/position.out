@@ -1,0 +1,48 @@
+--------------------------------------------------------------------------------------------------------------------------------------------------
+TRICE8  %03x ->  001  002  003  004
+TRICE8   %4d ->    1    2    3    4
+TRICE8   %4o ->    1    2    3    4
+TRICE16  %05x ->   00001   00002   00003   00004
+TRICE16   %6d ->       1       2       3       4
+TRICE16   %7o ->       1       2       3       4
+TRICE32   %09x ->     000000001     000000002     000000001     000000002
+TRICE32   %11d ->             1             2             1             2
+TRICE32   %12o ->             1             2             1             2
+TRICE8 1
+TRICE8 1 2
+TRICE8 1 2 3
+TRICE8 1 2 3 4
+TRICE8 1 2 3 4 5
+TRICE8 1 2 3 4 5 6 
+TRICE8 1 2 3 4 5 6 7
+TRICE8 1 2 3 4 5 6 7 8
+TRICE16 1
+TRICE16 1 2
+TRICE16 1 2 3
+TRICE16 1 2 3 4
+TRICE32 1
+TRICE32 1 2
+ERR:error       message, SysTick is 1
+WRN:warning     message, SysTick is 1
+ATT:attension   message, SysTick is 1
+DIA:diagnostics message, SysTick is 1
+TIM:timing      message, SysTick is 1
+DBG:debug       message, SysTick is 1
+SIG:signal      message, SysTick is 1
+RD_:read        message, SysTick is 1
+WR_:write       message, SysTick is 1
+TST:test        message, SysTick is 1
+MSG:normal      message, SysTick is 1
+error       message, SysTick is 1
+warning     message, SysTick is 1
+attension   message, SysTick is 1
+diagnostics message, SysTick is 1
+timing      message, SysTick is 1
+debug       message, SysTick is 1
+signal      message, SysTick is 1
+read        message, SysTick is 1
+write       message, SysTick is 1
+test        message, SysTick is 1
+normal      message, SysTick is 1
+ABC
+--------------------------------------------------------------------------------------------------------------------------------------------------

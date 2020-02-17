@@ -103,7 +103,7 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-    TL16_1( Id( 6842), "msg:Hello from MCU! SysTickVal now %d\n", SYSTICKVAL16 );
+    TRICE16_1( Id(51648), "msg:Hello from MCU! SysTickVal now %d\n", SYSTICKVAL16 );
     while (1)
     {
         static int32_t loopCount = 0u;

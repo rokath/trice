@@ -1,0 +1,48 @@
+--------------------------------------------------------------------------------------------------------------------------------------------------
+TRICE8  %03x ->  -80  -80  -80  -80
+TRICE8   %4d -> -128 -128 -128 -128
+TRICE8   %4o -> -200 -200 -200 -200
+TRICE16  %05x ->   -8000   -8000   -8000   -8000
+TRICE16   %6d ->  -32768  -32768  -32768  -32768
+TRICE16   %7o -> -100000 -100000 -100000 -100000
+TRICE32   %09x ->     -80000000     -80000000     -80000000     -80000000
+TRICE32   %11d ->   -2147483648   -2147483648   -2147483648   -2147483648
+TRICE32   %12o ->  -20000000000  -20000000000  -20000000000  -20000000000
+TRICE8 -128
+TRICE8 -128 -128
+TRICE8 -128 -128 -128
+TRICE8 -128 -128 -128 -128
+TRICE8 -128 -128 -128 -128 -128
+TRICE8 -128 -128 -128 -128 -128 -128 
+TRICE8 -128 -128 -128 -128 -128 -128 -128
+TRICE8 -128 -128 -128 -128 -128 -128 -128 -128
+TRICE16 -32768
+TRICE16 -32768 -32768
+TRICE16 -32768 -32768 -32768
+TRICE16 -32768 -32768 -32768 -32768
+TRICE32 -2147483648
+TRICE32 -2147483648 -2147483648
+ERR:error       message, SysTick is -32768
+WRN:warning     message, SysTick is -32768
+ATT:attension   message, SysTick is -32768
+DIA:diagnostics message, SysTick is -32768
+TIM:timing      message, SysTick is -32768
+DBG:debug       message, SysTick is -32768
+SIG:signal      message, SysTick is -32768
+RD_:read        message, SysTick is -32768
+WR_:write       message, SysTick is -32768
+TST:test        message, SysTick is -32768
+MSG:normal      message, SysTick is -32768
+error       message, SysTick is -32768
+warning     message, SysTick is -32768
+attension   message, SysTick is -32768
+diagnostics message, SysTick is -32768
+timing      message, SysTick is -32768
+debug       message, SysTick is -32768
+signal      message, SysTick is -32768
+read        message, SysTick is -32768
+write       message, SysTick is -32768
+test        message, SysTick is -32768
+normal      message, SysTick is -32768
+ABC
+--------------------------------------------------------------------------------------------------------------------------------------------------

@@ -338,7 +338,7 @@
               <MiscControls></MiscControls>
               <Define>USE_FULL_LL_DRIVER,HSE_VALUE=8000000,HSE_STARTUP_TIMEOUT=100,LSE_STARTUP_TIMEOUT=5000,LSE_VALUE=32768,HSI_VALUE=8000000,LSI_VALUE=40000,VDD_VALUE=3300,PREFETCH_ENABLE=1,INSTRUCTION_CACHE_ENABLE=0,DATA_CACHE_ENABLE=0,STM32F030x8</Define>
               <Undefine></Undefine>
-              <IncludePath>../Inc; C:/Users/ms/STM32Cube/Repository/STM32Cube_FW_F0_V1.11.0/Drivers/STM32F0xx_HAL_Driver/Inc; C:/Users/ms/STM32Cube/Repository/STM32Cube_FW_F0_V1.11.0/Drivers/CMSIS/Device/ST/STM32F0xx/Include; C:/Users/ms/STM32Cube/Repository/STM32Cube_FW_F0_V1.11.0/Drivers/CMSIS/Include; ..\..\..\scrC</IncludePath>
+              <IncludePath>../Inc;  C:/Users/ms/STM32Cube/Repository/STM32Cube_FW_F0_V1.11.0/Drivers/STM32F0xx_HAL_Driver/Inc;  C:/Users/ms/STM32Cube/Repository/STM32Cube_FW_F0_V1.11.0/Drivers/CMSIS/Device/ST/STM32F0xx/Include;  C:/Users/ms/STM32Cube/Repository/STM32Cube_FW_F0_V1.11.0/Drivers/CMSIS/Include;  ..\..\..\scrC</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>

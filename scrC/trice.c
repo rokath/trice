@@ -24,14 +24,14 @@ void triceTxHandler( void ){}
 #include <stdint.h>
 
 //! trice fifo instance
-ALIGN4 uint32_t tlFifo[ TL_FIFO_SIZE>>2 ] ALIGN4_END;
+ALIGN4 uint32_t triceFifo[ TRICE_FIFO_SIZE>>2 ] ALIGN4_END;
 
-uint32_t rdIndexTlFifo = 0; //!< trice fifo read index
-uint32_t wrIndexTlFifo = 0; //!< trice fifo write index
+uint32_t rdIndexTriceFifo = 0; //!< trice fifo read index
+uint32_t wrIndexTriceFifo = 0; //!< trice fifo write index
 
 //! partial prefilled trice message transmit buffer 
 ALIGN4 static triceMsg_t triceMsg ALIGN4_END = {
-    { TL_START_BYTE,  TL_LOCAL_ADDR,  TL_DISPL_ADDR, 0 }, // crc8
+    { TRICE_START_BYTE,  TRICE_LOCAL_ADDR,  TRICE_DISPL_ADDR, 0 }, // crc8
     { 0, 0 } // 16bit ID, 16bit data
 };
 
@@ -41,7 +41,7 @@ static uint8_t       *       pRead = (uint8_t*)(&triceMsg + 1); //!< trice messa
 /*! get next trice byte for transmission from trice message buffer, no depth check here
 \retval data byte
 */
-TL_INLINE uint8_t triceMsgNextByte( void ){
+TRICE_INLINE uint8_t triceMsgNextByte( void ){
     return *pRead++;
 }
 
@@ -53,10 +53,10 @@ static size_t triceMsgDepth( void ){
     if( count ){
         return count;
     } else {
-        if( tlFifoDepth() ){
-            tlFifoPop( (uint32_t*)(&(triceMsg.ld)) );
+        if( triceFifoDepth() ){
+            triceFifoPop( (uint32_t*)(&(triceMsg.ld)) );
             pRead = (uint8_t*)&triceMsg;
-            triceMsg.hd.crc8  = TL_START_BYTE ^ TL_LOCAL_ADDR ^ TL_DISPL_ADDR
+            triceMsg.hd.crc8  = TRICE_START_BYTE ^ TRICE_LOCAL_ADDR ^ TRICE_DISPL_ADDR
                                  ^ triceMsg.ld.load[0]
                                  ^ triceMsg.ld.load[1]
                                  ^ triceMsg.ld.load[2]

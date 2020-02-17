@@ -68,15 +68,15 @@ func Test_appendItem(t *testing.T) {
 	var lp, lq, ls, lr List
 	var p, q, s, r = &lp, &lq, &ls, &lr
 
-	s.extend(123, "TL0", "some logstring")
-	s.extend(4444, "TL32_1", "some other %d logstring")
+	s.extend(123, "TRICE0", "some logstring")
+	s.extend(4444, "TRICE32_1", "some other %d logstring")
 	err = s.write(fa)
 	ok(t, err)
 
 	err = r.Read(fa)
 
 	ok(t, err)
-	r.extend(55, "TL8_7", "some more %d %d %d %d %d %d %d logstring")
+	r.extend(55, "TRICE8_7", "some more %d %d %d %d %d %d %d logstring")
 	r.zeroTimestampCreated()
 	err = r.write(fa)
 	ok(t, err)

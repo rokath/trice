@@ -13,7 +13,7 @@ embedded device C printf-like trace code and real-time PC logging (trace ID visu
   - as runtime logger or simply for narrow bandwidth logging in the field even with encryption.
 - Usage is similar to 'printf()', but the format strings go not into the target image.
 - The needed code instrumentation is minimal:
-  - Adapt a [config file](./scrC/proj_triceConfig.h) (hardware specific).
+  - Adapt a [config file](./scrC/proj_config.h) (hardware specific).
   - Add [one small C-file](./scrC/trice.c) to your project and include a [C-header](./scrC/trice.h) where trices are used.
   - Core instrumentation needs less 150 bytes FLASH and about 100 bytes RAM.
 
@@ -25,10 +25,10 @@ embedded device C printf-like trace code and real-time PC logging (trace ID visu
 ## Quick setup
 - add [trice.c](./scrC/trice.c) as is to your project
 - #include [trice.h](./scrC/trice.h) as is in your source file to use trice
-- copy [proj_triceConfig.h](./scrC/proj_triceConfig.h), rename to `trceLogConfig.h` and adapt to your needs
+- copy [proj_config.h](./scrC/proj_config.h), rename to `config.h` and adapt to your needs
 - [triceCheck.c](./examples/triceDemoF030R8/Src/triceCheck.c) 
 is example code and for testing
-- run `trice u` in root of your C|Cpp source project after code instrumentation with TL* statements to generate a prroject specific til.json file 
+- run `trice u` in root of your C|Cpp source project after code instrumentation with TRICE* statements to generate a prroject specific til.json file 
 - compile, flash & run `trice log -port COMm -baud n` with correct values m and n
 
 ## Possible Use Cases
@@ -40,7 +40,7 @@ is example code and for testing
   - Treyfer is a recommendation and planned as a coming option.
 - You can even translate the til.json in **different languages**, so changing a language is just changing the til.json file.
 - trice has intentionally no timestamps for performance reasons. But you can add own **timestamps as parameters**. Having several devices with trice timestamps, **network timing measurements** are possible.
-- Using trice with an **RTOS** gives the option for detailed **task timing analysis**. Because of the very short execution time of a trice you could add `TL16( Id(0), "tim:%d us, task=%d\n", us, nexTask );` to the scheduler and vizualize the output on PC. The same is possible for **interrupt timing analysis**.
+- Using trice with an **RTOS** gives the option for detailed **task timing analysis**. Because of the very short execution time of a trice you could add `TRICE16( Id(0), "tim:%d us, task=%d\n", us, nexTask );` to the scheduler and vizualize the output on PC. The same is possible for **interrupt timing analysis**.
 - As graphical vizualisation you could use a tool similar to https://github.com/sqshq/sampler.
 
 ## Documentation
