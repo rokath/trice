@@ -2,12 +2,12 @@
 embedded device C printf-like trace code and real-time PC logging (trace ID visualization) over serial port
 
 ## About
-- C trace (`trice`) code and real-time PC logging with `trice` (Go sources).
+- C trace code (`TRICE` macros)  and real-time PC logging with `trice` (tool with Go sources).
 - Communication over serial port without strings, just with IDs
 - "log in (a) trice" ![](./doc/README.media/life0.gif)
 - Main idea: Logging strings **not** into an embedded device to display them later on a PC but keep usage simple.
 
-## `trice`
+## `TRICEn` macro for C|C++ code
 - Real fast (**~16 clocks per trace!!!**) and small loggging technique, a tracer in software usable 
   - for debugging dynamic behaviour during development, 
   - as runtime logger or simply for narrow bandwidth logging in the field even with encryption.
@@ -17,8 +17,8 @@ embedded device C printf-like trace code and real-time PC logging (trace ID visu
   - Add [one small C-file](./scrC/trice.c) to your project and include a [C-header](./scrC/trice.h) where trices are used.
   - Core instrumentation needs less 150 bytes FLASH and about 100 bytes RAM.
 
-## `trice`
-- PC tool written in Go
+## `trice` PC tool
+- Written in Go
 - Manages trices inside a C|C++ source tree during target compile time.
 - Displays trices in realtime during target runtime.
 
