@@ -181,7 +181,7 @@ TRICE_INLINE size_t triceFifoDepth( void ){
 //! \param d3 payload
 #define TRICE8_4( Id, pFmt, d0, d1, d2, d3 ) do{ \
     TRICE_ENTER_CRITICAL_SECTION \
-    TRICE_ID0(    (((uint16_t)(d1))<<8) | (uint8_t)(d0) ) ; \
+    TRICE_ID0( (((uint16_t)(d1))<<8) | (uint8_t)(d0) ) ; \
     TRICE( Id, (((uint16_t)(d3))<<8) | (uint8_t)(d2) ) ; \
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
@@ -213,8 +213,8 @@ TRICE_INLINE size_t triceFifoDepth( void ){
 //! \param d5 payload
 #define TRICE8_6( Id, pFmt, d0, d1, d2, d3, d4, d5 ) do{ \
     TRICE_ENTER_CRITICAL_SECTION \
-    TRICE_ID0(    (((uint16_t)(d1))<<8) | (uint8_t)(d0) ) ; \
-    TRICE_ID0(    (((uint16_t)(d3))<<8) | (uint8_t)(d2) ) ; \
+    TRICE_ID0( (((uint16_t)(d1))<<8) | (uint8_t)(d0) ) ; \
+    TRICE_ID0( (((uint16_t)(d3))<<8) | (uint8_t)(d2) ) ; \
     TRICE( Id, (((uint16_t)(d5))<<8) | (uint8_t)(d4) ) ; \
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
@@ -860,7 +860,7 @@ TRICE_INLINE void trice_32_2_ocs( uint16_t Id, uint32_t d0, uint32_t d1 ){
 #endif //#else // #if 0 == TRICE_SHORT_MEMORY // #################################
 
 ///////////////////////////////////////////////////////////////////////////////
-// littricee helper for trice usage
+// little trice helper for trice usage
 //
 
 /*! trice a string
