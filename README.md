@@ -35,7 +35,7 @@ is example code and for testing
 - Using trice not only for **dynamic debugging** but also as **logging** technique
     is possible and gives the advantage to have very short messages (no strings) for transmission, 
     but keep in mind that the file `til.json` is the key to read all output if your devices in the field for 10 or more years.
-- You can consider trice also as **a kind of intelligent data compression** what could be interesting for IoT things, especially NB-IoT, where you have very low data rates.
+- You can consider TRICE also as **a kind of intelligent data compression** what could be interesting for IoT things, especially NB-IoT, where you have very low data rates.
 - Also it is possible to **encrypt the 8 byte transfer packets** to get a reasonable protection for many cases.
   - Treyfer is a recommendation and planned as a coming option.
 - You can even translate the til.json in **different languages**, so changing a language is just changing the til.json file.
