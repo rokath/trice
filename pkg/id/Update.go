@@ -26,10 +26,10 @@ var matchNbTL = regexp.MustCompile(`(\bTL0\b|\bTL8_[1-8]\b|\bTL16_[1-4]\b|\bTL32
 // matchNbID is a as constant used compiled regex matching any (first in string) "Id(n)" and usable in matches of matchNbTL
 var matchNbID = regexp.MustCompile(`\bId\s*\(\s*[0-9]*\s*\)`)
 
-// matchTypNameTL is a as constant used compiled regex matching "TL*" inside traceLog
+// matchTypNameTL is a as constant used compiled regex matching "TL*" inside trice
 var matchTypNameTL = regexp.MustCompile(`(\bTL0\b|\bTL8_[1-8]\b|\bTL16_[1-4]\b|\bTL32_[1-2])`)
 
-// matchFmtString is a as constant used compiled regex matching the first format string inside traceLog
+// matchFmtString is a as constant used compiled regex matching the first format string inside trice
 var matchFmtString = regexp.MustCompile(`"(.*)"`)
 
 func isSourceFile(fi os.FileInfo) bool {
@@ -38,7 +38,7 @@ func isSourceFile(fi os.FileInfo) bool {
 
 // Update is parsing source tree root and performing these actions:
 // - replace FmtType( Id(0), ...) with FmtType( Id(n), ...)
-// - find duplicate FmtType( Id(n), ...) and replace one of them if traceLogs are not identical
+// - find duplicate FmtType( Id(n), ...) and replace one of them if trices are not identical
 // - extend file fnIDList
 func (p *List) Update(root, fn string, run bool) error {
 	fmt.Println("dir=", root)
@@ -247,7 +247,7 @@ func zeroNextID(modified bool, subs, s string) (bool, bool, string, string) {
 
 	zeroTL := strings.Replace(nbTL, nbID, zeroID, 1)
 	s = strings.Replace(s, nbTL, zeroTL, 1)
-	// 2^32 has 9 ciphers and shortest traceLog has 14 chars: TL0(Id(1),"");
+	// 2^32 has 9 ciphers and shortest trice has 14 chars: TL0(Id(1),"");
 	// The replacement of n with 0 makes s shorter, so the next search shoud start like 10 chars earlier.
 	subs = subs[loc[1]-10:]
 	return true, true, subs, s

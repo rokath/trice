@@ -23,8 +23,8 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "traceLog.h"
-#include "traceLogCheck.h"
+#include "trice.h"
+#include "triceCheck.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -115,7 +115,7 @@ int main(void)
         if( LOOPCOUNT == loopCount ){
           loopCount = 0;
           LL_GPIO_SetOutputPin(LD2_GPIO_Port, LD2_Pin);
-          TraceLogCheckSet();
+          triceCheckSet();
         }
     /* USER CODE END WHILE */
 

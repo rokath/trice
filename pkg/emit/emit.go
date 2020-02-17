@@ -57,7 +57,7 @@ func checkValuePosition(l id.List, palette string) error {
 		if nil != err {
 			return err
 		}
-		b = b[:0] // empty d for next traceLog
+		b = b[:0] // empty d for next trice
 		err = visualize(s, palette)
 		if nil != err {
 			return err
@@ -107,7 +107,7 @@ func checkNegativeValues(l id.List, palette string) error {
 		if nil != err {
 			return err
 		}
-		b = b[:0] // empty d for next traceLog
+		b = b[:0] // empty d for next trice
 		err = visualize(s, palette)
 		if nil != err {
 			return err
@@ -148,7 +148,7 @@ func checkFix(l id.List, palette string) error {
 		if nil != err {
 			return err
 		}
-		b = b[:0] // empty d for next traceLog
+		b = b[:0] // empty d for next trice
 		err = visualize(s, palette)
 		if nil != err {
 			return err
@@ -170,7 +170,7 @@ func Check(l id.List, dataSet, palette string) error {
 
 var d = make([]byte, 8) // param collector
 
-// Trace emits one trace to std out. The byte slice 'b' is a traceLog package.
+// Trace emits one trace to std out. The byte slice 'b' is a trice package.
 // The ID can be 0, in that case only the data payload is saved
 func Trace(b []byte, l id.List, palette string) error {
 	d = append(d, b[6:8]...)
@@ -185,7 +185,7 @@ func Trace(b []byte, l id.List, palette string) error {
 	it := l[x]
 	s, _ := emitter(it, d)
 	err = visualize(s, palette)
-	d = d[:0] // empty d for next traceLog
+	d = d[:0] // empty d for next trice
 	return nil
 }
 

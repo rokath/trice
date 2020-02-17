@@ -1,4 +1,4 @@
-# TraceLog Demo Project NUCLEO-F030R8
+# trice Demo Project NUCLEO-F030R8
 ## Prerequisites (as example)
 - ST Microelectronic evaluation board NUCLEO-F030R8 or similar
   - costs about 10 EUR
@@ -32,24 +32,24 @@
 
 ### ARMkeil IDE setup
 #### Project settings
-  - Add `traceLog.c` to the project
-  - Extend include path with traceLog folder
+  - Add `trice.c` to the project
+  - Extend include path with trice folder
   - Edit project settings: 
   
     ![](README.media/ARMkeil_8.PNG)
 #### File compare
 - `generatedDemoF030R8` - fresh empty STM32 CubMX project after CubeMX setup
-- `traceLogDemoF030R8` - the `generatedDemoF030R8` equipped with traceLog
+- `triceDemoF030R8` - the `generatedDemoF030R8` equipped with trice
 - Directories
 
   ![](README.media/F030R8DirCompare.PNG)
 
-  [traceLogConfig.h](../examples/traceLogDemoF030R8/Inc/traceLogConfig.h)
+  [triceConfig.h](../examples/triceDemoF030R8/Inc/triceConfig.h)
 
-  [traceLogCheck.h](../examples/traceLogDemoF030R8/Inc/traceLogCheck.h)
-  [traceLogCheck.c](../examples/traceLogDemoF030R8/Src/traceLogCheck.c)
+  [triceCheck.h](../examples/triceDemoF030R8/Inc/triceCheck.h)
+  [triceCheck.c](../examples/triceDemoF030R8/Src/triceCheck.c)
 
-  [til.json](../examples/traceLogDemoF030R8/MDK-ARM/til.json)
+  [til.json](../examples/triceDemoF030R8/MDK-ARM/til.json)
 
 - Changes in main.c
 

@@ -22,7 +22,7 @@
   </DaveTm>
 
   <Target>
-    <TargetName>traceLogDemoF030R8</TargetName>
+    <TargetName>triceDemoF030R8</TargetName>
     <ToolsetNumber>0x4</ToolsetNumber>
     <ToolsetName>ARM-ADS</ToolsetName>
     <TargetOption>
@@ -234,8 +234,8 @@
       <tvExp>1</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\..\scrC\traceLog.c</PathWithFileName>
-      <FilenameWithoutPath>traceLog.c</FilenameWithoutPath>
+      <PathWithFileName>..\..\..\scrC\trice.c</PathWithFileName>
+      <FilenameWithoutPath>trice.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -246,8 +246,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\Src\traceLogCheck.c</PathWithFileName>
-      <FilenameWithoutPath>traceLogCheck.c</FilenameWithoutPath>
+      <PathWithFileName>..\Src\triceCheck.c</PathWithFileName>
+      <FilenameWithoutPath>triceCheck.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>

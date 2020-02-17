@@ -51,7 +51,7 @@ func TestZeroSourceTreeIds(t *testing.T) {
 	exp, err := ioutil.ReadFile(e + "Data.c")
 	ok(t, err)
 	equals(t, exp, act)
-	os.RemoveAll(a)
+	//os.RemoveAll(a)
 }
 
 func Test_appendItem(t *testing.T) {

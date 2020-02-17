@@ -34,11 +34,11 @@
             "env": {},
             "args": ["log",
                      "-port",
-                     "COM26",
+                     "COM8",
                      "-baud",
-                     "38400",
+                     "11520000",
                      "-list",
-                     "C:/GitRepos/GoT/trice/til.json"
+                     "C:/GitRepos/trice/examples/triceDemoF030R8/MDK-ARM/til.json"
             ]
         },
         {
@@ -62,7 +62,7 @@
             "env": {},
             "args": ["update",
                     "-src",
-                    "C:/GitRepos/GoT/trice/srcC/traceLogCheck.c"
+                    "C:/GitRepos/GoT/trice/srcC/triceCheck.c"
             ]
         }
     ]

@@ -1,10 +1,10 @@
 /*! \file traceConfig.h
-\brief This file is for traceLog specific project settings
+\brief This file is for trice specific project settings
 \details adapt needed fifo size, compiler settings and 4 hardware access functions
-- traceLogTxDataRegisterEmpty()
-- traceLogTransmitData8()
-- traceLogEableTxEmptyInterrupt()
-- traceLogDisableTxEmptyInterrupt()
+- triceTxDataRegisterEmpty()
+- triceTransmitData8()
+- triceEableTxEmptyInterrupt()
+- triceDisableTxEmptyInterrupt()
 \author Thomas.Hoehenleitner [at] seerose.net
 *******************************************************************************/
 
@@ -23,11 +23,11 @@ extern "C" {
 
 //!< a byte count for buffering traces, must be power of 2, one basic trace needs 4 bytes
 #define TL_FIFO_SIZE 512 
-#define TL_START_BYTE (0xeb) //!< traceLog header start (chose any unusual byte)
-#define TL_LOCAL_ADDR (0x60) //!< traceLog addess of this device (choose free)
-#define TL_DISPL_ADDR (0x61) //!< traceLog terminal address for this device (choose free)
+#define TL_START_BYTE (0xeb) //!< trice header start (chose any unusual byte)
+#define TL_LOCAL_ADDR (0x60) //!< trice addess of this device (choose free)
+#define TL_DISPL_ADDR (0x61) //!< trice terminal address for this device (choose free)
 #define SPEED_OVER_MEMORY 1 //!< 0 means less Flash needed but slower, set compiler switch "optimize for time" accordingly!
-//#define TRACELOG_OFF //!< enable this line to disable traceLog code generation
+//#define TRICE_OFF //!< enable this line to disable trice code generation
 
 #define SYSTICKVAL16 SysTick->VAL //!< STM32 specific
 
@@ -52,7 +52,7 @@ extern "C" {
 
 #elif defined(__arm__) // ARMkeil IDE #########################################
 
-#define TL_INLINE static inline //! used for traceLog code if SPEED_OVER_MEMORY==1
+#define TL_INLINE static inline //! used for trice code if SPEED_OVER_MEMORY==1
 
 #define ALIGN4 __align(4) //!< align to 4 byte boundary preamble
 #define ALIGN4_END        //!< align to 4 byte boundary post declaration
@@ -63,7 +63,7 @@ extern "C" {
 \details Workaround for ARM Cortex M0 and M0+
 \li __get_PRIMASK() is 0 when interrupts are enabled globally
 \li __get_PRIMASK() is 1 when interrupts are disabled globally
-If traceLogs are used only outside critical sections or interrupts
+If trices are used only outside critical sections or interrupts
 you can leave this macro pair empty for more speed.
 */
 #define TL_ENTER_CRITICAL_SECTION { uint32_t primaskstate = __get_PRIMASK(); __disable_irq(); {
@@ -72,7 +72,7 @@ you can leave this macro pair empty for more speed.
 \details Workaround for ARM Cortex M0 and M0+
 \li __get_PRIMASK() is 0 when interrupts are enabled globally
 \li __get_PRIMASK() is 1 when interrupts are disabled globally
-If traceLogs are used only outside critical sections or interrupts
+If trices are used only outside critical sections or interrupts
 you can leave this macro pair empty for more speed.
 */
 #define TL_LEAVE_CRITICAL_SECTION } __set_PRIMASK(primaskstate); }
@@ -87,34 +87,34 @@ you can leave this macro pair empty for more speed.
 // hardware specific interface functions tested on NUCLEO-STM32F030
 //
 
-/*! Check if a new byte can be written into traceLog transmit register.
+/*! Check if a new byte can be written into trice transmit register.
 \retval 0 == not empty
 \retval !0 == epmty
 User must provide this function.
 */
-TL_INLINE uint32_t traceLogTxDataRegisterEmpty( void ){
+TL_INLINE uint32_t triceTxDataRegisterEmpty( void ){
     return 1;
 }
 
-/*! Write value d into traceLog transmit register.
+/*! Write value d into trice transmit register.
 \param d byte to transmit
 User must provide this function.
 */
-TL_INLINE void traceLogTransmitData8( uint8_t d ){
+TL_INLINE void triceTransmitData8( uint8_t d ){
     d = d;
 }
 
-/*! Allow interrupt for empty traceLog data transmit register.
+/*! Allow interrupt for empty trice data transmit register.
 User must provide this function.
 */
-TL_INLINE void traceLogEableTxEmptyInterrupt( void ){
+TL_INLINE void triceEableTxEmptyInterrupt( void ){
     
 }
 
-/*! Disallow interrupt for empty traceLog data transmit register.
+/*! Disallow interrupt for empty trice data transmit register.
 User must provide this function.
 */
-TL_INLINE void traceLogDisableTxEmptyInterrupt( void ){
+TL_INLINE void triceDisableTxEmptyInterrupt( void ){
     
 }
 

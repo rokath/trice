@@ -7,7 +7,7 @@
 
   <Targets>
     <Target>
-      <TargetName>traceLogDemoF030R8</TargetName>
+      <TargetName>triceDemoF030R8</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
       <pCCUsed>5060750::V5.06 update 6 (build 750)::ARMCC</pCCUsed>
@@ -48,8 +48,8 @@
             <NotGenerated>0</NotGenerated>
             <InvalidFlash>1</InvalidFlash>
           </TargetStatus>
-          <OutputDirectory>traceLogDemoF030R8\</OutputDirectory>
-          <OutputName>traceLogDemoF030R8</OutputName>
+          <OutputDirectory>triceDemoF030R8\</OutputDirectory>
+          <OutputName>triceDemoF030R8</OutputName>
           <CreateExecutable>1</CreateExecutable>
           <CreateLib>0</CreateLib>
           <CreateHexFile>1</CreateHexFile>
@@ -393,14 +393,14 @@
           <GroupName>Application/User</GroupName>
           <Files>
             <File>
-              <FileName>traceLog.c</FileName>
+              <FileName>trice.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\scrC\traceLog.c</FilePath>
+              <FilePath>..\..\..\scrC\trice.c</FilePath>
             </File>
             <File>
-              <FileName>traceLogCheck.c</FileName>
+              <FileName>triceCheck.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Src\traceLogCheck.c</FilePath>
+              <FilePath>..\Src\triceCheck.c</FilePath>
             </File>
             <File>
               <FileName>main.c</FileName>
@@ -477,7 +477,7 @@
       <component Cclass="CMSIS" Cgroup="CORE" Cvendor="ARM" Cversion="4.3.0" condition="CMSIS Core">
         <package name="CMSIS" schemaVersion="1.3" url="http://www.keil.com/pack/" vendor="ARM" version="4.5.0"/>
         <targetInfos>
-          <targetInfo name="traceLogDemoF030R8"/>
+          <targetInfo name="triceDemoF030R8"/>
         </targetInfos>
       </component>
     </components>

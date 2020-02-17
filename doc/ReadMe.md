@@ -1,5 +1,5 @@
 
-## `traceLog`
+## `trice`
 It is avoiding all the internal overhead (space and time) of a `printf()` 
 statement. For example instead of writing 
 
@@ -17,7 +17,7 @@ When performing  ```trice update``` this line changes to
 TL8_3( Id(12345), "time is %d:%d:%du\n", hour, min, sec);
 ```
 where ```12345``` is an as ID generated 16 bit random number not used so far. Automatically
-the ID is added to an [ID list](../examples/traceLogDemoF030R8/MDK-ARM/til.json) together with the appropriate format string 
+the ID is added to an [ID list](../examples/triceDemoF030R8/MDK-ARM/til.json) together with the appropriate format string 
 information. The TL`8_3` means 3 bytes as parameters in
 this example and allows efficient code and a compile time check.
 
@@ -29,13 +29,13 @@ but not the format string, what results in a smaller memory footprint.
 During TL* runtime, inside the microcontroller only the ID (together with the 
 parameters like hour, min, sec) is copied to a buffer. Execution time for a TL16_1
 (as example) on a 48 MHz ARM is about 16 systicks resulting in 250 nanoseconds duration,
-so you can use `traceLog` also inside interrupts. The needed buffer space is
-one 32 bit word per normal traceLog (for up to 2 data bytes). Just in case the internal fifo overflows, the data are still in sync, you simply loose traces.
+so you can use `trice` also inside interrupts. The needed buffer space is
+one 32 bit word per normal trice (for up to 2 data bytes). Just in case the internal fifo overflows, the data are still in sync, you simply loose traces.
 
 Slightly delayed in the background the trace goes to the communication port,
 what is also fast compared to all the actions behind a `printf()` statement.
 
-The buffered 4 byte traceLog is transmitted as an 8 byte packet allowing start byte, sender and
+The buffered 4 byte trice is transmitted as an 8 byte packet allowing start byte, sender and
 receiver addresses and CRC8 check to be used later in parallel with different
 software protocols.
 
@@ -47,15 +47,15 @@ is visible because of the stopped target.
 
 Executing `trice update` at the root of your project source updates the TL* statements inside the source code and the ID list (only where changes occured).
 
-With `trice log -port COM12 -baud 115200` you can visualize the traceLogs on the PC, 
+With `trice log -port COM12 -baud 115200` you can visualize the trices on the PC, 
 if for example `COM12` is receiving the data from the embedded device.
 
 The following capture output comes from an example project inside`../examples`
 
 ![](README.media/life.gif)
 
-See [traceLogCheck.c](../examples/traceLogDemoF030R8/Src/traceLogCheck.c) for reference.
-The traceLogs can come mixed from inside interrupts (white `ISR:...`) or from normal code. For usage with a RTOS protect TL* against breaks. Regard the differences in the read SysTick values inside the GIF above These differeces are the MCU clocks needed for one traceLog (~0,25µs@48MHz).
+See [triceCheck.c](../examples/triceDemoF030R8/Src/triceCheck.c) for reference.
+The trices can come mixed from inside interrupts (white `ISR:...`) or from normal code. For usage with a RTOS protect TL* against breaks. Regard the differences in the read SysTick values inside the GIF above These differeces are the MCU clocks needed for one trice (~0,25µs@48MHz).
 
 Use `-color off` switch for piping output in a file or `-color alternate` for a different color set. *(color set designs are welcome, see func colorSetAlternate() in [emit.go](../pkg/emit/emit.go))*
 
@@ -72,21 +72,21 @@ doc/           | documentation                                           |
 
 ### Check the `trice` binary
 - Copy command trice into a path directory.
-- Run inside a shell `trice check -list path/to/trice/examples/traceLogDemoF030R8/MDK-ARM/`[til.json](../examples/traceLogDemoF030R8/MDK-ARM/til.json). You should see output like this:
+- Run inside a shell `trice check -list path/to/trice/examples/triceDemoF030R8/MDK-ARM/`[til.json](../examples/triceDemoF030R8/MDK-ARM/til.json). You should see output like this:
 ![](./README.media/Check.PNG)
 
-### Instrument a target source code project (How to use traceLog in your project)
+### Instrument a target source code project (How to use trice in your project)
 
-  - Include [traceLog.c](../scrC/traceLog.c) unchanged into your project and make sure the [traceLog.h](../scrC/traceLog.h) header file is found by your compiler.
-- Add `#include "traceLog.h"` to your main.c[pp] and put `TL0( Id(0), "msg:Hello world!\n" );` after your initialization code.
+  - Include [trice.c](../scrC/trice.c) unchanged into your project and make sure the [trice.h](../scrC/trice.h) header file is found by your compiler.
+- Add `#include "trice.h"` to your main.c[pp] and put `TL0( Id(0), "msg:Hello world!\n" );` after your initialization code.
 - Run `trice u` at the root of your source code. Afterwards:
     - The `Id(0)` should have changed into `Id(12345)` as example. (The `12345` stays here for a 16bit non-zero random number).
-    - A file [til.json](../examples/traceLogDemoF030R8/MDK-ARM/til.json)  (**t**race **i**d **l**ist) should be generated.
+    - A file [til.json](../examples/triceDemoF030R8/MDK-ARM/til.json)  (**t**race **i**d **l**ist) should be generated.
     - Running `trice check` should show your message, indicating everything is fine so far.
 - `trice help` is your friend if something fails.
 - For help have a look at the differences between these 2 projects or into [ReadMeDemoF030R8.md](./ReadMeDemoF030R8.md)
   - `../examples/generatedDemoF030R8` - It is just the STM32 CubeMX generated code.
-  - `../examples/traceLDemoF030R8` - It is a copy of the above enhanced with traceLog check code.
+  - `../examples/traceLDemoF030R8` - It is a copy of the above enhanced with trice check code.
 - After compiling and flashing run `trice -port COMn -baud m` with n and m set to correct values
 - Now start your device and you should see the hello world message coming from your target.
 - If you use a legacy project containing `printf()` statements you can  simply transform them to **TL*** statements.
@@ -94,16 +94,16 @@ doc/           | documentation                                           |
   This way you cannot forget the update step, it performs automatically.
 
 ## Memory needs (ARM example project)
-Program Size (STM32-F030R8 demo project)     |traceLog instrumentation|buffer size|compiler optimze for time| comment
+Program Size (STM32-F030R8 demo project)     |trice instrumentation|buffer size|compiler optimze for time| comment
 ---------------------------------------------|------------------------|-----------|-------------------------|-----------------------------
-Code=1592 RO-data=236 RW-data= 4 ZI-data=1028|        none            |        0  |         off             | CubeMX generated, no traceLog
-Code=1712 RO-data=240 RW-data=24 ZI-data=1088|        core            |       64  |         off             | core added without traceLogs
-Code=3208 RO-data=240 RW-data=36 ZI-data=1540|    TraceLogCheckSet()  |      512  |         off             | TL_SHORT_MEMORY is 1 (small)
-Code=3808 RO-data=240 RW-data=36 ZI-data=1540|    TraceLogCheckSet()  |      512  |         on              | TL_SHORT_MEMORY is 0 (fast)
+Code=1592 RO-data=236 RW-data= 4 ZI-data=1028|        none            |        0  |         off             | CubeMX generated, no trice
+Code=1712 RO-data=240 RW-data=24 ZI-data=1088|        core            |       64  |         off             | core added without trices
+Code=3208 RO-data=240 RW-data=36 ZI-data=1540|    TriceCheckSet()  |      512  |         off             | TL_SHORT_MEMORY is 1 (small)
+Code=3808 RO-data=240 RW-data=36 ZI-data=1540|    TriceCheckSet()  |      512  |         on              | TL_SHORT_MEMORY is 0 (fast)
 
 - The core instrumentation needs less 150 bytes FLASH and about 100 bytes RAM when buffer size is 64 bytes.
-- The about 50 traceLogs in TraceLogCheckSet() allocate roughly 2100 (fast mode) or 1500 (small mode) bytes.
-- traceLogs are removable without code changes by defining `TRACELOG_OFF` on file or project level. 
+- The about 50 trices in TriceCheckSet() allocate roughly 2100 (fast mode) or 1500 (small mode) bytes.
+- trices are removable without code changes by defining `TRICE_OFF` on file or project level. 
 
 ## ID management internals & hints
 - During `trice update` so far unknown IDs are added to the ID list (case new sources added) with a `Created` utc timestamp.

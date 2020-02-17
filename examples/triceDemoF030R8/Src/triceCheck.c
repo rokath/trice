@@ -1,20 +1,20 @@
-/*! \file traceLogCheck.c
-\brief traceLogs for tool evaluation
-\details The traceLogs are dumped as 32bit values into a 32 bit wide fifo.
+/*! \file triceCheck.c
+\brief trices for tool evaluation
+\details The trices are dumped as 32bit values into a 32 bit wide fifo.
 \author thomas.hoehenleitner [at] seerose.net
 *******************************************************************************/
 
-//#define TRACELOG_OFF
-#include "traceLog.h"
+//#define TRICE_OFF
+#include "trice.h"
 
 #define SYSTICKVAL16 SysTick->VAL //!< STM32 specific
 
 /*! write out all types of logs with fixed values for testing
-\details One traceLog has one subtrace, if param size max 2 bytes. 
+\details One trice has one subtrace, if param size max 2 bytes. 
 Traces with more bytes as parameter consist of several subtraces.
 111 subtraces need 444 byte buffer space
 */
-void TraceLogCheckSet( void )
+void triceCheckSet( void )
 {
     TL0 (Id(65261), "--------------------------------------------------------------------------------------------------------------------------------------------------\n" );
     // 1 subtrace

@@ -22,7 +22,7 @@
   </DaveTm>
 
   <Target>
-    <TargetName>traceLogDemoF030R8</TargetName>
+    <TargetName>triceDemoF030R8</TargetName>
     <ToolsetNumber>0x4</ToolsetNumber>
     <ToolsetName>ARM-ADS</ToolsetName>
     <TargetOption>

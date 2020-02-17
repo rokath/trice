@@ -1,325 +1,91 @@
-/*! \file SoftwareChecks.c
-\copyright [BaumTec GmbH](http://www.baumtec.de/)
-\brief 
-\details 
-\author Thomas Hoehenleitner
+/*! \file triceCheck.c
+\brief trices for tool evaluation
+\details The trices are dumped as 32bit values into a 32 bit wide fifo.
+\author thomas.hoehenleitner [at] seerose.net
 *******************************************************************************/
 
+//#define TRICE_OFF
+#include "trice.h"
 
-#include "config.h" // should be first include file, at least befor other project specific files
+#define SYSTICKVAL16 SysTick->VAL //!< STM32 specific
 
-#ifdef TRACELOG
-#include <stdint.h>
-#include <stdarg.h>
-#include <stdlib.h>
-#include <CriticalSection.h>
-#include "Tr16.h"
-#include "TraceUtilities.h"
-#include "Fifo.h"
-#include "LeftRightFifo.h"
-#endif // #ifdef TRACELOG
-
-#include "DefaultMacros.h"
-#include "main.h"
-#include "msTicks.h"
-#include "MicroSeconds.h"
-#include "Os.h"
-#include "SoftwareChecks.h"
-#include "SysTicks.h"
-#include "usTicks.h"
-
-
-/*! write out all types of logs
+/*! write out all types of logs with fixed values for testing
+\details One trice has one subtrace, if param size max 2 bytes. 
+Traces with more bytes as parameter consist of several subtraces.
+111 subtraces need 444 byte buffer space
 */
-void TraceLogChecks( void )
+void triceCheckSet( void )
 {
-    #ifdef TRACELOG
-    WaitForTraceLogTransmissionDone();
-    /* test partial traces */
-    TL0   (Id(18690), "\r\n\n\nwrn:a" );
-    TL0   (Id(53234), "wrn:A" );
-    TL0   (Id(29569), "rd_:b" );
-    TL0   (Id(49981), "wr_:B" );
-    TL0   (Id(51730), "msg:c" );
-    TL0   (Id(40270), "tim:C\n" );
-    WaitForTraceLogTransmissionDone();
+    TL0 (Id(65261), "--------------------------------------------------------------------------------------------------------------------------------------------------\n" );
+    // 1 subtrace
 
-    /* test normal traces */
-    TL8_1( Id(45144), "WRN: TL8-1 %d\n", -1 );
-    TL8_2( Id(13094), "ERR: TL8-2 %d +%d\n", -1, +2 );
-    TL8_3( Id(32194), "TIM: TL8-3 +%d %d +%d\n", +1, -2, +3 );
-    TL8_4( Id(19018), "RD_: TL8-4 %d +%d %d +%d\n", -1, +2, -3, +4 );
-    TL8_5( Id(2853), "WR_: TL8-5 +%d %d +%d %d +%d\n", +1, -2, +3, -4, +5 );
-    TL8_6( Id(18558), "ATT: TL8-6 %d %d +%d +%d %d %d \n", -1, -2, +3, +4, -5, -6 );
-    TL8_7( Id(54164), "DBG: TL8-7 +%d +%d %d %d +%d +%d %d\n", +1, +2, -3, -4, +5, +6, -7 );
-    TL8_8( Id(33825), "DIA: TL8-8 %d %d +%d +%d +%d +%d %d %d\n", -1, -2, +3, +4, +5, +6, -7, -8 );
-    WaitForTraceLogTransmissionDone();
+    TL8_4( Id(51789), "tst:TL8  %%03x ->  %03x  %03x  %03x  %03x\n", 1, 0x7f, 0x80, 0xff ); // 4
+    TL8_4( Id(30364), "tst:TL8   %%4d -> %4d %4d %4d %4d\n", 1, 0x7f, 0x80, 0xff ); // 4
+    TL8_4( Id( 4648), "tst:TL8   %%4o -> %4o %4o %4o %4o\n", 1, 0x7f, 0x80, 0xff ); // 4
+    // 3 * 2 subtraces
 
-    TL16_1( Id(44545), "ISR: TL16-1 %x\n", 0x1311 );
-    TL16_1( Id(38079), "SIG: TL16-1 %d\n", -1 );
-    TL16_2( Id(18353), "TST: TL16-2 +%d %d\n", +1, -2 );
-    TL16_3( Id(36387), "MSG: TL16-3 %d +%d %d\n", -1, +2, -3 );
-    TL16_4( Id(9025), "MSG: TL16-4 +%d %d %d +%d\n", +1, -2, -3, +4 );
-    TL32_1( Id(39973), "DBG: TL32-1 %x\r\n", 0x44332211 );
-    TL32_2( Id(28810), "DBG: TL32-2 %d +0x%x\r\n", -1, +2 ); // ok
-    TL32_1( Id(62156), "DBG: TL32-1 %x\r\n", 0x88332211 );
-    TL32_2( Id(16546), "att:TL32-2 %08x%08x\r\n", 0xfedcba98, 0x76543210 ); // ok
-    TL32_1( Id(21425), "DBG: TL32-1 %x\r\n", 0xaa332211 );
-    TL8_1( Id(4392), "SIG:BZA %X you can write a very long message here...\n", 0 );
-    WaitForTraceLogTransmissionDone();
-    #endif
+    TL16_4( Id(36667), "tst:TL16  %%05x ->   %05x   %05x   %05x   %05x\n", 1, 0x7fff, 0x8000, 0xffff ); // 4
+    TL16_4( Id(39908), "tst:TL16   %%6d ->  %6d  %6d  %6d  %6d\n", 1, 0x7fff, 0x8000, 0xffff ); // 4
+    TL16_4( Id(60212), "tst:TL16   %%7o -> %7o %7o %7o %7o\n", 1, 0x7fff, 0x8000, 0xffff ); // 4
+    // 3 * 4 subtraces
+
+    TL32_2( Id(60059), "tst:TL32   %%09x ->     %09x     %09x", 1, 0x7fffffff ); // 4
+    TL32_2( Id(50464), "tst:     %09x     %09x\n", 0x80000000, 0xffffffff ); // 4
+    TL32_2( Id(30279), "tst:TL32   %%11d ->   %11d   %11d", 1, 0x7fffffff ); // 4
+    TL32_2( Id(40670), "tst:   %11d   %11d\n", 0x80000000, 0xffffffff  ); // 4
+    TL32_2( Id(40127), "tst:TL32   %%12o ->  %12o  %12o", 1, 0x7fffffff ); // 4
+    TL32_2( Id( 4479), "tst:  %12o  %12o\n", 0x80000000, 0xffffffff ); // 4
+    // 6 * 4 subtraces
+
+    TL8_1( Id(37890), "tst:TL8 %d\n", 1 ); // 1
+    TL8_2( Id(29394), "tst:TL8 %d %d\n", 1, 2 ); // 1
+    TL8_3( Id(28923), "tst:TL8 %d %d %d\n", 1, 2, 3 ); // 2
+    TL8_4( Id(38460), "tst:TL8 %d %d %d %d\n", 1, 2, 3, 4 ); // 2
+    TL8_5( Id(52346), "tst:TL8 %d %d %d %d %d\n", 1, 2, 3, 4, 5 ); // 3
+    TL8_6( Id( 8503), "tst:TL8 %d %d %d %d %d %d \n", 1, 2, 3, 4, 5, 6 ); // 3
+    TL8_7( Id( 6807), "tst:TL8 %d %d %d %d %d %d %d\n", 1, 2, 3, 4, 5, 6, 7 ); // 4
+    TL8_8( Id(51953), "tst:TL8 %d %d %d %d %d %d %d %d\n", 1, 2, 3, 4, 5, 6, 7, 8 ); // 4
+    // 18 subtraces
     
-    #ifdef TRACELOG
-    WaitForTraceLogTransmissionDone();
-    /* test partial traces */
-    TL0   (Id(23107), "\r\n\n\nwrn:a" );
-    TL0   (Id(15348), "wrn:A" );
-    TL0   (Id(28203), "rd_:b" );
-    TL0   (Id(22066), "wr_:B" );
-    TL0   (Id(27329), "msg:c" );
-    TL0   (Id(50779), "tim:C\n" );
-    WaitForTraceLogTransmissionDone();
+    TL16_1( Id(18564), "tst:TL16 %d\n", 1 ); // 1
+    TL16_2( Id(44341), "tst:TL16 %d %d\n", 1, 2 ); // 2
+    TL16_3( Id(28620), "tst:TL16 %d %d %d\n", 1, 2, 3 ); // 3
+    TL16_4( Id(43473), "tst:TL16 %d %d %d %d\n", 1, 2, 3, 4 ); // 4
+    // 10 subtraces
 
-    /* test normal traces */
-    TL8_1( Id(39428), "WRN: TL8-1 %d\n", -1 );
-    TL8_2( Id(6986), "ERR: TL8-2 %d +%d\n", -1, +2 );
-    TL8_3( Id(51423), "TIM: TL8-3 +%d %d +%d\n", +1, -2, +3 );
-    TL8_4( Id(13482), "RD_: TL8-4 %d +%d %d +%d\n", -1, +2, -3, +4 );
-    TL8_5( Id(6849), "WR_: TL8-5 +%d %d +%d %d +%d\n", +1, -2, +3, -4, +5 );
-    TL8_6( Id(65463), "ATT: TL8-6 %d %d +%d +%d %d %d \n", -1, -2, +3, +4, -5, -6 );
-    TL8_7( Id(12650), "DBG: TL8-7 +%d +%d %d %d +%d +%d %d\n", +1, +2, -3, -4, +5, +6, -7 );
-    TL8_8( Id(26552), "DIA: TL8-8 %d %d +%d +%d +%d +%d %d %d\n", -1, -2, +3, +4, +5, +6, -7, -8 );
-    WaitForTraceLogTransmissionDone();
-
-    TL16_1( Id(10890), "ISR: TL16-1 %x\n", 0x1311 );
-    TL16_1( Id(31907), "SIG: TL16-1 %d\n", -1 );
-    TL16_2( Id(53641), "TST: TL16-2 +%d %d\n", +1, -2 );
-    TL16_3( Id(17541), "MSG: TL16-3 %d +%d %d\n", -1, +2, -3 );
-    TL16_4( Id(32398), "MSG: TL16-4 +%d %d %d +%d\n", +1, -2, -3, +4 );
-    TL32_1( Id(30143), "DBG: TL32-1 %x\r\n", 0x44332211 );
-    TL32_2( Id(51472), "DBG: TL32-2 %d +0x%x\r\n", -1, +2 ); // ok
-    TL32_1( Id(6259), "DBG: TL32-1 %x\r\n", 0x88332211 );
-    TL32_2( Id(17746), "att:TL32-2 %08x%08x\r\n", 0xfedcba98, 0x76543210 ); // ok
-    TL32_1( Id(44438), "DBG: TL32-1 %x\r\n", 0xaa332211 );
-    TL8_1( Id(60563), "SIG:BZA %X you can write a very long message here...\n", 0 );
-    WaitForTraceLogTransmissionDone();
-    #endif    
+    TL32_1( Id(23722), "tst:TL32 %d\n", 1 ); // 2
+    TL32_2( Id(31973), "tst:TL32 %d %d\n", 1, 2 ); // 4
+    // 6 subtraces
     
-}
+    TL16_1( Id(33281), "ERR:error       message, SysTick is %d\n", SYSTICKVAL16 ); // 1
+    TL16_1( Id( 3505), "WRN:warning     message, SysTick is %d\n", SYSTICKVAL16 ); // 1
+    TL16_1( Id(32166), "ATT:attension   message, SysTick is %d\n", SYSTICKVAL16 ); // 1
+    TL16_1( Id(63852), "DIA:diagnostics message, SysTick is %d\n", SYSTICKVAL16 ); // 1
+    TL16_1( Id(55914), "TIM:timing      message, SysTick is %d\n", SYSTICKVAL16 ); // 1
+    TL16_1( Id(58892), "DBG:debug       message, SysTick is %d\n", SYSTICKVAL16 ); // 1
+    TL16_1( Id(15483), "SIG:signal      message, SysTick is %d\n", SYSTICKVAL16 ); // 1
+    TL16_1( Id(12965), "RD_:read        message, SysTick is %d\n", SYSTICKVAL16 ); // 1
+    TL16_1( Id( 2082), "WR_:write       message, SysTick is %d\n", SYSTICKVAL16 ); // 1
+    TL16_1( Id(19036), "TST:test        message, SysTick is %d\n", SYSTICKVAL16 ); // 1
+    TL16_1( Id(60603), "MSG:normal      message, SysTick is %d\n", SYSTICKVAL16 ); // 1
 
-
-/*! write time measurements of logs
-*/
-void TraceLogTimeChecks( void )
-{
-    #ifdef TRACELOG
-    static uint32_t Timer = 0u;
-    uint32_t s, Ticks, Ticks2, Ticks3;
-
-    // shortest trace
-    WaitForTraceLogTransmissionDone();
-    StartSysTickTimer( &Timer );
-    TL0( Id(64429), "dbg:Shortest " );
-    TL0( Id(2363), "msg:Trace " ); // <-- this one is measured
-    TL0( Id(11612), "dbg:takes " );
-    Ticks3 = ElapsedSysTicks( &Timer );
+    TL16_1( Id(27740), "err:error       message, SysTick is %d\n", SYSTICKVAL16 ); // 1
+    TL16_1( Id(31710), "wrn:warning     message, SysTick is %d\n", SYSTICKVAL16 ); // 1
+    TL16_1( Id( 7075), "att:attension   message, SysTick is %d\n", SYSTICKVAL16 ); // 1
+    TL16_1( Id(59999), "dia:diagnostics message, SysTick is %d\n", SYSTICKVAL16 ); // 1
+    TL16_1( Id(54975), "tim:timing      message, SysTick is %d\n", SYSTICKVAL16 ); // 1
+    TL16_1( Id(22076), "dbg:debug       message, SysTick is %d\n", SYSTICKVAL16 ); // 1
+    TL16_1( Id(64486), "sig:signal      message, SysTick is %d\n", SYSTICKVAL16 ); // 1
+    TL16_1( Id(35724), "rd_:read        message, SysTick is %d\n", SYSTICKVAL16 ); // 1
+    TL16_1( Id(56849), "wr_:write       message, SysTick is %d\n", SYSTICKVAL16 ); // 1
+    TL16_1( Id(24657), "tst:test        message, SysTick is %d\n", SYSTICKVAL16 ); // 1
+    TL16_1( Id(52618), "msg:normal      message, SysTick is %d\n", SYSTICKVAL16 ); // 1
+    // 22 subtraces
     
-    StartSysTickTimer( &Timer );
-    TL0( Id(60761), "sig:                      " );
-    TL0( Id(59664), "err:         " );
-    Ticks2 = ElapsedSysTicks( &Timer );
+    TL0 (Id( 9866), "wrn:A" );
+    TL0 (Id(45246), "wr_:B" );
+    TL0 (Id(61952), "tim:C\n" );
+    TL0 (Id(43853), "--------------------------------------------------------------------------------------------------------------------------------------------------\n" );
+    // 4 subtraces
+} // sum 111 sub traces (need 444 bytes Buffet space)
 
-    Ticks = SysTickDelta(Ticks3, Ticks2 );
-    s = TICKS_TO_MICROSECONDS( Ticks ); 
-    TL32_2( Id(5793), "tim:%3u SysTicks =%2u us\r\n", Ticks, s );
-
-    // longest trace
-    WaitForTraceLogTransmissionDone();
-    StartSysTickTimer( &Timer );
-    TL0( Id(55287), "dbg:Longest " );
-    TL32_2( Id(60013), "msg:Trace (%x %x) ", 0xffffeeee, 0xeeeeffff ); // <-- this one is measured
-    TL0( Id(14653), "dbg:takes " );
-    Ticks3 = ElapsedSysTicks( &Timer );
-    
-    StartSysTickTimer( &Timer );
-    TL0( Id(58124), "dia:     " );
-    TL0( Id(1370), "isr:       " );
-    Ticks2 = ElapsedSysTicks( &Timer );
-
-    Ticks = SysTickDelta(Ticks3, Ticks2 );
-    s = TICKS_TO_MICROSECONDS( Ticks ); 
-    TL32_2( Id(61684), "tim:%3u SysTicks =%2u us\r\n", Ticks, s );
-
-    WaitForTraceLogTransmissionDone();
-    #endif
-}
-
-
-/*! Check Timing functions
-*/
-void DelayChecks( void )
-{
-    #ifdef TRACELOG
-    uint32_t Timer, Ticks, s;
-
-    WaitForTraceLogTransmissionDone();
-    StartSysTickTimer( &Timer );
-    DelaySysTicks( 1000u, NoopUsTicks );
-    Ticks = ElapsedSysTicks( &Timer );
-    s = TICKS_TO_MICROSECONDS( Ticks );
-    TL32_2( Id(26731), "tim:1000 SysTicks Delay duration: %u SysTicks = %u us\r\n", Ticks, s );
-
-    WaitForTraceLogTransmissionDone();
-    StartUsTimer( &Timer );
-    DelayUs( 100u, NoopUsTicks ); // max 994 us with 1ms SysTick period
-    s = ElapsedUs( &Timer );
-    TL32_1( Id(63326), "tim:100us Delay duration: = %u us\r\n", s );
-
-    WaitForTraceLogTransmissionDone();
-    StartSysTickTimer( &Timer );
-    DelayUs( 100u, NoopUsTicks ); // 993us is the absolute maximum, but consider interrupts!
-    Ticks = ElapsedSysTicks( &Timer );
-    s = TICKS_TO_MICROSECONDS( Ticks );
-    TL32_2( Id(13419), "tim:500us Delay duration: %u us = %u SysTicks\r\n", s, Ticks );
-
-    WaitForTraceLogTransmissionDone();
-    StartSysTickTimer( &Timer );
-    DelayUs( 200u, NoopUsTicks ); // 993us is the absolute maximum, but consider interrupts!
-    Ticks = ElapsedSysTicks( &Timer );
-    s = TICKS_TO_MICROSECONDS( Ticks );
-    TL32_2( Id(47462), "tim:500us Delay duration: %u us = %u SysTicks\r\n", s, Ticks );
-
-    WaitForTraceLogTransmissionDone();
-    StartSysTickTimer( &Timer );
-    DelayUs( 400u, NoopUsTicks ); // 993us is the absolute maximum, but consider interrupts!
-    Ticks = ElapsedSysTicks( &Timer );
-    s = TICKS_TO_MICROSECONDS( Ticks );
-    TL32_2( Id(5193), "tim:500us Delay duration: %u us = %u SysTicks\r\n", s, Ticks );
-
-    WaitForTraceLogTransmissionDone();
-    StartSysTickTimer( &Timer );
-    DelayUs( 500u, NoopUsTicks ); // 993us is the absolute maximum, but consider interrupts!
-    Ticks = ElapsedSysTicks( &Timer );
-    s = TICKS_TO_MICROSECONDS( Ticks );
-    TL32_2( Id(33504), "tim:500us Delay duration: %u us = %u SysTicks\r\n", s, Ticks );
-
-    WaitForTraceLogTransmissionDone();
-    StartMsTimer( &Timer ); // works only with 1ms interrupt
-    DelayMs( 100, Pause );
-    s = ElapsedMs( &Timer );
-    TL32_1( Id(22706), "tim:100ms Delay duration: %u ms\r\n", s );
-    WaitForTraceLogTransmissionDone();
-    #endif // #ifdef TRACELOG
-}
-
-
-/*! write out all registers of a register set not containing 0
-\param pName register set name
-\param SetSize size of resister set area
-\param BaseAddress start address of register set
-*/
-void TraceRegisterSet( char* pName, uint32_t SetSize, uint32_t BaseAddress )
-{
-    #ifdef TRACELOG
-    static uint8_t n = 0;
-    int i;
-    int RegCount = SetSize>>2;
-    TL32_2( Id(60244), "msg:    // BaseAddress=0x%08x, RegCount=%2u, ", BaseAddress, RegCount );
-    TraceString( pName );
-    TL0( Id(58546), "\r\n" );
-    for( i = 0; i < RegCount; i++ )
-    {
-        uint32_t* RegisterAddress = (uint32_t*)BaseAddress + i;
-        uint32_t RegisterValue = *RegisterAddress;
-        if( RegisterValue )
-        {
-            TL32_2( Id(14506), "wr_:    {  (uint32_t*) 0x%08x, 0x%08xu  },", RegisterAddress, RegisterValue );
-            TL8_2(  Id(57851), "msg: // %3u = 0x%02x  ", n, n );
-            n++;
-            TraceString( pName );
-            TL0( Id(12212), "\r\n" );
-            WaitForTraceLogTransmissionDone();
-        }
-    }
-    #endif // #ifdef TRACELOG
-}
-
-/*! write out all configured registers (not containing 0)
-\details This output is used for filling struct RegisterInfo_t RegisterInfo ind RegisterInfo.c.
-\li some registers cannot written as DBGMCU and OB
-\li some register bits need time for initialization
-\li to reduce the initialization code amount check registers individually
-*/
-void TraceRegisterAll( void )
-{
-    TraceRegisterSet(  "TIM3",         sizeof(TIM_TypeDef),  TIM3_BASE );
-#ifdef TIM6_BASE
-    TraceRegisterSet(  "TIM6",         sizeof(TIM_TypeDef),  TIM6_BASE );
-#endif
-    TraceRegisterSet(  "TIM14",        sizeof(TIM_TypeDef),  TIM14_BASE );
-    TraceRegisterSet(  "RTC",          sizeof(RTC_TypeDef),  RTC_BASE );
-    TraceRegisterSet(  "WWDG",         sizeof(WWDG_TypeDef),  WWDG_BASE );
-    TraceRegisterSet(  "IWDG",         sizeof(IWDG_TypeDef),  IWDG_BASE );
-#ifdef USART2_BASE
-    TraceRegisterSet(  "USART2",       sizeof(USART_TypeDef),  USART2_BASE );
-#endif
-    TraceRegisterSet(  "I2C1",         sizeof(I2C_TypeDef),  I2C1_BASE );
-#ifdef I2C2_BASE
-    TraceRegisterSet(  "I2C2",         sizeof(I2C_TypeDef),  I2C2_BASE );
-#endif
-    TraceRegisterSet(  "PWR",          sizeof(PWR_TypeDef),  PWR_BASE );
-    TraceRegisterSet(  "SYSCFG",       sizeof(SYSCFG_TypeDef),  SYSCFG_BASE );
-    TraceRegisterSet(  "EXTI",         sizeof(EXTI_TypeDef),  EXTI_BASE );
-    TraceRegisterSet(  "ADC1",         sizeof(ADC_TypeDef),  ADC1_BASE );
-    TraceRegisterSet(  "ADC1_COMMON",  sizeof(ADC_Common_TypeDef),  ADC1_BASE );
-    TraceRegisterSet(  "ADC",         sizeof(ADC_Common_TypeDef),  ADC_BASE );
-    TraceRegisterSet(  "TIM1",         sizeof(TIM_TypeDef),  TIM1_BASE );
-    TraceRegisterSet(  "SPI1",         sizeof(SPI_TypeDef),  SPI1_BASE );
-#ifdef SPI2_BASE
-    TraceRegisterSet(  "SPI2",         sizeof(SPI_TypeDef),  SPI2_BASE );
-#endif
-    TraceRegisterSet(  "USART1",       sizeof(USART_TypeDef),  USART1_BASE );
-#ifdef TIM15_BASE
-    TraceRegisterSet(  "TIM15",        sizeof(TIM_TypeDef),  TIM15_BASE );
-#endif
-    TraceRegisterSet(  "TIM16",        sizeof(TIM_TypeDef),  TIM16_BASE );
-    TraceRegisterSet(  "TIM17",        sizeof(TIM_TypeDef),  TIM17_BASE );
-  //TraceRegisterSet(  "DBGMCU",       sizeof(DBGMCU_TypeDef),  DBGMCU_BASE );
-    TraceRegisterSet(  "DMA1",         sizeof(DMA_TypeDef),  DMA1_BASE );
-    TraceRegisterSet(  "DMA1_Channel1",sizeof(DMA_Channel_TypeDef),  DMA1_Channel1_BASE );
-    TraceRegisterSet(  "DMA1_Channel2",sizeof(DMA_Channel_TypeDef),  DMA1_Channel2_BASE );
-    TraceRegisterSet(  "DMA1_Channel3",sizeof(DMA_Channel_TypeDef),  DMA1_Channel3_BASE );
-    TraceRegisterSet(  "DMA1_Channel4",sizeof(DMA_Channel_TypeDef),  DMA1_Channel4_BASE );
-    TraceRegisterSet(  "DMA1_Channel5",sizeof(DMA_Channel_TypeDef),  DMA1_Channel5_BASE );
-    TraceRegisterSet(  "FLASH",        sizeof(FLASH_TypeDef),  FLASH_R_BASE );
-  //TraceRegisterSet(  "OB",           sizeof(OB_TypeDef),  OB_BASE );
-    TraceRegisterSet(  "RCC",          sizeof(RCC_TypeDef),  RCC_BASE );
-    TraceRegisterSet(  "CRC",          sizeof(CRC_TypeDef),  CRC_BASE );
-    TraceRegisterSet(  "GPIOA",        sizeof(GPIO_TypeDef),  GPIOA_BASE );
-    TraceRegisterSet(  "GPIOB",        sizeof(GPIO_TypeDef),  GPIOB_BASE );
-    TraceRegisterSet(  "GPIOC",        sizeof(GPIO_TypeDef),  GPIOC_BASE );
-    TraceRegisterSet(  "GPIOD",        sizeof(GPIO_TypeDef),  GPIOD_BASE );
-    TraceRegisterSet(  "GPIOF",        sizeof(GPIO_TypeDef),  GPIOF_BASE );
-}
-
-
-/*! dump memory
-\param Address start
-\param Size amount of bytes
-*/
-void DumpMemory( uint32_t Address, uint32_t Size )
-{
-    int i;
-    int Count = Size>>2;
-    TL32_2( Id(33518), "att:    // Memory Dump: Address=0x%08x, Count=%2u\r\n", Address, Count );
-    for( i = 0; i < Count; i++ )
-    {
-        uint32_t* pAddress = (uint32_t*)Address + i;
-        uint32_t Value = *pAddress;
-        if( Value )
-        {
-            TL32_2( Id(25130), "rd_:    {  (uint32_t*) 0x%08x, 0x%08xu  },\r\n", pAddress, Value );
-            WaitForTraceLogTransmissionDone();
-        }
-    }
-}
