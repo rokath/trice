@@ -383,5 +383,1398 @@
 		"fmtStrg": "--------------------------------------------------------------------------------------------------------------------------------------------------\\n",
 		"created": 1581957555,
 		"removed": 0
+	},
+	{
+		"id": 100,
+		"fmtType": "TRICE32_2",
+		"fmtStrg": "rd_:    { (uint32_t*) 0x%08x, 0x%08xu  },\\r\\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 10000,
+		"fmtType": "TRICE32_2",
+		"fmtStrg": "rd_:  A { (uint32_t*) 0x%08x, 0x%08xu  },\\r\\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 43255,
+		"fmtType": "TRICE32_2",
+		"fmtStrg": "rd_:  B { (uint32_t*) 0x%08x, 0x%08xu  },\\r\\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 9070,
+		"fmtType": "TRICE32_2",
+		"fmtStrg": "rd_:  C { (uint32_t*) 0x%08x, 0x%08xu  },\\r\\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 34765,
+		"fmtType": "TRICE32_2",
+		"fmtStrg": "rd_:  B { (uint32_t*) 0x%08x, 0x%08xu  },\\r\\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 1613,
+		"fmtType": "TRICE32_2",
+		"fmtStrg": "rd_:  C { (uint32_t*) 0x%08x, 0x%08xu  },\\r\\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 65261,
+		"fmtType": "TRICE0",
+		"fmtStrg": "--------------------------------------------------------------------------------------------------------------------------------------------------\\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 51789,
+		"fmtType": "TRICE8_4",
+		"fmtStrg": "tst:TRICE8  %%03x -\u003e  %03x  %03x  %03x  %03x\\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 30364,
+		"fmtType": "TRICE8_4",
+		"fmtStrg": "tst:TRICE8   %%4d -\u003e %4d %4d %4d %4d\\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 4648,
+		"fmtType": "TRICE8_4",
+		"fmtStrg": "tst:TRICE8   %%4o -\u003e %4o %4o %4o %4o\\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 36667,
+		"fmtType": "TRICE16_4",
+		"fmtStrg": "tst:TRICE16  %%05x -\u003e   %05x   %05x   %05x   %05x\\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 39908,
+		"fmtType": "TRICE16_4",
+		"fmtStrg": "tst:TRICE16   %%6d -\u003e  %6d  %6d  %6d  %6d\\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 60212,
+		"fmtType": "TRICE16_4",
+		"fmtStrg": "tst:TRICE16   %%7o -\u003e %7o %7o %7o %7o\\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 60059,
+		"fmtType": "TRICE32_2",
+		"fmtStrg": "tst:TRICE32   %%09x -\u003e     %09x     %09x",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 50464,
+		"fmtType": "TRICE32_2",
+		"fmtStrg": "tst:     %09x     %09x\\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 30279,
+		"fmtType": "TRICE32_2",
+		"fmtStrg": "tst:TRICE32   %%11d -\u003e   %11d   %11d",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 40670,
+		"fmtType": "TRICE32_2",
+		"fmtStrg": "tst:   %11d   %11d\\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 40127,
+		"fmtType": "TRICE32_2",
+		"fmtStrg": "tst:TRICE32   %%12o -\u003e  %12o  %12o",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 4479,
+		"fmtType": "TRICE32_2",
+		"fmtStrg": "tst:  %12o  %12o\\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 37890,
+		"fmtType": "TRICE8_1",
+		"fmtStrg": "tst:TRICE8 %d\\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 29394,
+		"fmtType": "TRICE8_2",
+		"fmtStrg": "tst:TRICE8 %d %d\\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 28923,
+		"fmtType": "TRICE8_3",
+		"fmtStrg": "tst:TRICE8 %d %d %d\\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 38460,
+		"fmtType": "TRICE8_4",
+		"fmtStrg": "tst:TRICE8 %d %d %d %d\\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 52346,
+		"fmtType": "TRICE8_5",
+		"fmtStrg": "tst:TRICE8 %d %d %d %d %d\\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 8503,
+		"fmtType": "TRICE8_6",
+		"fmtStrg": "tst:TRICE8 %d %d %d %d %d %d \\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 6807,
+		"fmtType": "TRICE8_7",
+		"fmtStrg": "tst:TRICE8 %d %d %d %d %d %d %d\\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 51953,
+		"fmtType": "TRICE8_8",
+		"fmtStrg": "tst:TRICE8 %d %d %d %d %d %d %d %d\\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 18564,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "tst:TRICE16 %d\\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 44341,
+		"fmtType": "TRICE16_2",
+		"fmtStrg": "tst:TRICE16 %d %d\\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 28620,
+		"fmtType": "TRICE16_3",
+		"fmtStrg": "tst:TRICE16 %d %d %d\\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 43473,
+		"fmtType": "TRICE16_4",
+		"fmtStrg": "tst:TRICE16 %d %d %d %d\\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 23722,
+		"fmtType": "TRICE32_1",
+		"fmtStrg": "tst:TRICE32 %d\\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 31973,
+		"fmtType": "TRICE32_2",
+		"fmtStrg": "tst:TRICE32 %d %d\\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 33281,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "ERR:error       message, SysTick is %d\\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 3505,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "WRN:warning     message, SysTick is %d\\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 32166,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "ATT:attension   message, SysTick is %d\\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 63852,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "DIA:diagnostics message, SysTick is %d\\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 55914,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "TIM:timing      message, SysTick is %d\\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 58892,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "DBG:debug       message, SysTick is %d\\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 15483,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "SIG:signal      message, SysTick is %d\\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 12965,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "RD_:read        message, SysTick is %d\\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 2082,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "WR_:write       message, SysTick is %d\\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 19036,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "TST:test        message, SysTick is %d\\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 60603,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "MSG:normal      message, SysTick is %d\\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 27740,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "err:error       message, SysTick is %d\\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 31710,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "wrn:warning     message, SysTick is %d\\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 7075,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "att:attension   message, SysTick is %d\\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 59999,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "dia:diagnostics message, SysTick is %d\\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 54975,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "tim:timing      message, SysTick is %d\\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 22076,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "dbg:debug       message, SysTick is %d\\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 64486,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "sig:signal      message, SysTick is %d\\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 35724,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "rd_:read        message, SysTick is %d\\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 56849,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "wr_:write       message, SysTick is %d\\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 24657,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "tst:test        message, SysTick is %d\\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 52618,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "msg:normal      message, SysTick is %d\\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 9866,
+		"fmtType": "TRICE0",
+		"fmtStrg": "wrn:A",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 45246,
+		"fmtType": "TRICE0",
+		"fmtStrg": "wr_:B",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 61952,
+		"fmtType": "TRICE0",
+		"fmtStrg": "tim:C\\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 43853,
+		"fmtType": "TRICE0",
+		"fmtStrg": "--------------------------------------------------------------------------------------------------------------------------------------------------\\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 12877,
+		"fmtType": "TRICE0",
+		"fmtStrg": "--------------------------------------------------------------------------------------------------------------------------------------------------\\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 53064,
+		"fmtType": "TRICE8_4",
+		"fmtStrg": "tst:TRICE8  %%03x -\u003e  %03x  %03x  %03x  %03x\\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 2823,
+		"fmtType": "TRICE8_4",
+		"fmtStrg": "tst:TRICE8   %%4d -\u003e %4d %4d %4d %4d\\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 6316,
+		"fmtType": "TRICE8_4",
+		"fmtStrg": "tst:TRICE8   %%4o -\u003e %4o %4o %4o %4o\\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 12660,
+		"fmtType": "TRICE16_4",
+		"fmtStrg": "tst:TRICE16  %%05x -\u003e   %05x   %05x   %05x   %05x\\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 38562,
+		"fmtType": "TRICE16_4",
+		"fmtStrg": "tst:TRICE16   %%6d -\u003e  %6d  %6d  %6d  %6d\\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 10075,
+		"fmtType": "TRICE16_4",
+		"fmtStrg": "tst:TRICE16   %%7o -\u003e %7o %7o %7o %7o\\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 1696,
+		"fmtType": "TRICE32_2",
+		"fmtStrg": "tst:TRICE32   %%09x -\u003e     %09x     %09x",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 54606,
+		"fmtType": "TRICE32_2",
+		"fmtStrg": "tst:     %09x     %09x\\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 9570,
+		"fmtType": "TRICE32_2",
+		"fmtStrg": "tst:TRICE32   %%11d -\u003e   %11d   %11d",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 38508,
+		"fmtType": "TRICE32_2",
+		"fmtStrg": "tst:   %11d   %11d\\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 41863,
+		"fmtType": "TRICE32_2",
+		"fmtStrg": "tst:TRICE32   %%12o -\u003e  %12o  %12o",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 39905,
+		"fmtType": "TRICE32_2",
+		"fmtStrg": "tst:  %12o  %12o\\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 3262,
+		"fmtType": "TRICE8_1",
+		"fmtStrg": "tst:TRICE8 %d\\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 61910,
+		"fmtType": "TRICE8_2",
+		"fmtStrg": "tst:TRICE8 %d %d\\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 44428,
+		"fmtType": "TRICE8_3",
+		"fmtStrg": "tst:TRICE8 %d %d %d\\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 4149,
+		"fmtType": "TRICE8_4",
+		"fmtStrg": "tst:TRICE8 %d %d %d %d\\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 18215,
+		"fmtType": "TRICE8_5",
+		"fmtStrg": "tst:TRICE8 %d %d %d %d %d\\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 20799,
+		"fmtType": "TRICE8_6",
+		"fmtStrg": "tst:TRICE8 %d %d %d %d %d %d \\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 19945,
+		"fmtType": "TRICE8_7",
+		"fmtStrg": "tst:TRICE8 %d %d %d %d %d %d %d\\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 50542,
+		"fmtType": "TRICE8_8",
+		"fmtStrg": "tst:TRICE8 %d %d %d %d %d %d %d %d\\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 19964,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "tst:TRICE16 %d\\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 46921,
+		"fmtType": "TRICE16_2",
+		"fmtStrg": "tst:TRICE16 %d %d\\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 57616,
+		"fmtType": "TRICE16_3",
+		"fmtStrg": "tst:TRICE16 %d %d %d\\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 17127,
+		"fmtType": "TRICE16_4",
+		"fmtStrg": "tst:TRICE16 %d %d %d %d\\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 177,
+		"fmtType": "TRICE32_1",
+		"fmtStrg": "tst:TRICE32 %d\\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 37529,
+		"fmtType": "TRICE32_2",
+		"fmtStrg": "tst:TRICE32 %d %d\\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 8037,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "ERR:error       message, SysTick is %d\\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 41778,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "WRN:warning     message, SysTick is %d\\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 4276,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "ATT:attension   message, SysTick is %d\\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 56138,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "DIA:diagnostics message, SysTick is %d\\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 7838,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "TIM:timing      message, SysTick is %d\\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 27467,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "DBG:debug       message, SysTick is %d\\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 22096,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "SIG:signal      message, SysTick is %d\\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 28298,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "RD_:read        message, SysTick is %d\\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 22785,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "WR_:write       message, SysTick is %d\\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 56912,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "TST:test        message, SysTick is %d\\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 24454,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "MSG:normal      message, SysTick is %d\\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 24676,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "err:error       message, SysTick is %d\\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 28409,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "wrn:warning     message, SysTick is %d\\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 50022,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "att:attension   message, SysTick is %d\\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 10011,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "dia:diagnostics message, SysTick is %d\\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 55027,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "tim:timing      message, SysTick is %d\\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 58671,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "dbg:debug       message, SysTick is %d\\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 53299,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "sig:signal      message, SysTick is %d\\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 442,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "rd_:read        message, SysTick is %d\\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 64358,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "wr_:write       message, SysTick is %d\\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 1527,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "tst:test        message, SysTick is %d\\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 56125,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "msg:normal      message, SysTick is %d\\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 44199,
+		"fmtType": "TRICE0",
+		"fmtStrg": "wrn:A",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 15164,
+		"fmtType": "TRICE0",
+		"fmtStrg": "wr_:B",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 6871,
+		"fmtType": "TRICE0",
+		"fmtStrg": "tim:C\\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 41453,
+		"fmtType": "TRICE0",
+		"fmtStrg": "--------------------------------------------------------------------------------------------------------------------------------------------------\\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 3,
+		"fmtType": "TRICE8_1",
+		"fmtStrg": "%c",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 27950,
+		"fmtType": "TRICE0",
+		"fmtStrg": " ",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 36152,
+		"fmtType": "TRICE8_1",
+		"fmtStrg": "%c",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 49862,
+		"fmtType": "TRICE8_2",
+		"fmtStrg": "%c%c",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 60898,
+		"fmtType": "TRICE8_3",
+		"fmtStrg": "%c%c%c",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 57970,
+		"fmtType": "TRICE8_4",
+		"fmtStrg": "%c%c%c%c",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 49813,
+		"fmtType": "TRICE8_5",
+		"fmtStrg": "%c%c%c%c%c",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 6600,
+		"fmtType": "TRICE8_6",
+		"fmtStrg": "%c%c%c%c%c%c%c%c",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 13121,
+		"fmtType": "TRICE8_7",
+		"fmtStrg": "%c%c%c%c%c%c%c%c",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 53018,
+		"fmtType": "TRICE8_8",
+		"fmtStrg": "%c%c%c%c%c%c%c%c",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 14746,
+		"fmtType": "TRICE0",
+		"fmtStrg": " ",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 32263,
+		"fmtType": "TRICE0",
+		"fmtStrg": "  ",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 41033,
+		"fmtType": "TRICE0",
+		"fmtStrg": "   ",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 500,
+		"fmtType": "TRICE0",
+		"fmtStrg": "    ",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 23151,
+		"fmtType": "TRICE0",
+		"fmtStrg": "     ",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 11628,
+		"fmtType": "TRICE0",
+		"fmtStrg": "      ",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 40825,
+		"fmtType": "TRICE0",
+		"fmtStrg": "       ",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 63581,
+		"fmtType": "TRICE0",
+		"fmtStrg": "        ",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 11347,
+		"fmtType": "TRICE0",
+		"fmtStrg": "         ",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 19819,
+		"fmtType": "TRICE0",
+		"fmtStrg": "          ",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 46519,
+		"fmtType": "TRICE0",
+		"fmtStrg": "           ",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 7,
+		"fmtType": "TRICE0",
+		"fmtStrg": "sig:",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 5,
+		"fmtType": "TRICE32_2",
+		"fmtStrg": " line %d (Value = %d)\\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 6,
+		"fmtType": "TRICE0",
+		"fmtStrg": "err: Failure in ",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 4,
+		"fmtType": "TRICE0",
+		"fmtStrg": "att: Passage in ",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 31976,
+		"fmtType": "TRICE0",
+		"fmtStrg": "err: Error in file ",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 8272,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": " at line %d\\n",
+		"created": 1582042517,
+		"removed": 0
+	},
+	{
+		"id": 48580,
+		"fmtType": "TRICE32_2",
+		"fmtStrg": "rd_:  B { (uint32_t*) 0x%08x, 0x%08xu  },\\r\\n",
+		"created": 1582044006,
+		"removed": 0
+	},
+	{
+		"id": 58061,
+		"fmtType": "TRICE32_2",
+		"fmtStrg": "rd_:  C { (uint32_t*) 0x%08x, 0x%08xu  },\\r\\n",
+		"created": 1582044006,
+		"removed": 0
+	},
+	{
+		"id": 22440,
+		"fmtType": "TRICE0",
+		"fmtStrg": "--------------------------------------------------------------------------------------------------------------------------------------------------\\n",
+		"created": 1582044006,
+		"removed": 0
+	},
+	{
+		"id": 51104,
+		"fmtType": "TRICE8_4",
+		"fmtStrg": "tst:TRICE8  %%03x -\u003e  %03x  %03x  %03x  %03x\\n",
+		"created": 1582044006,
+		"removed": 0
+	},
+	{
+		"id": 56072,
+		"fmtType": "TRICE8_4",
+		"fmtStrg": "tst:TRICE8   %%4d -\u003e %4d %4d %4d %4d\\n",
+		"created": 1582044006,
+		"removed": 0
+	},
+	{
+		"id": 57746,
+		"fmtType": "TRICE8_4",
+		"fmtStrg": "tst:TRICE8   %%4o -\u003e %4o %4o %4o %4o\\n",
+		"created": 1582044006,
+		"removed": 0
+	},
+	{
+		"id": 64964,
+		"fmtType": "TRICE16_4",
+		"fmtStrg": "tst:TRICE16  %%05x -\u003e   %05x   %05x   %05x   %05x\\n",
+		"created": 1582044006,
+		"removed": 0
+	},
+	{
+		"id": 33005,
+		"fmtType": "TRICE16_4",
+		"fmtStrg": "tst:TRICE16   %%6d -\u003e  %6d  %6d  %6d  %6d\\n",
+		"created": 1582044006,
+		"removed": 0
+	},
+	{
+		"id": 60485,
+		"fmtType": "TRICE16_4",
+		"fmtStrg": "tst:TRICE16   %%7o -\u003e %7o %7o %7o %7o\\n",
+		"created": 1582044006,
+		"removed": 0
+	},
+	{
+		"id": 60369,
+		"fmtType": "TRICE32_2",
+		"fmtStrg": "tst:TRICE32   %%09x -\u003e     %09x     %09x",
+		"created": 1582044006,
+		"removed": 0
+	},
+	{
+		"id": 10353,
+		"fmtType": "TRICE32_2",
+		"fmtStrg": "tst:     %09x     %09x\\n",
+		"created": 1582044006,
+		"removed": 0
+	},
+	{
+		"id": 47559,
+		"fmtType": "TRICE32_2",
+		"fmtStrg": "tst:TRICE32   %%11d -\u003e   %11d   %11d",
+		"created": 1582044006,
+		"removed": 0
+	},
+	{
+		"id": 6356,
+		"fmtType": "TRICE32_2",
+		"fmtStrg": "tst:   %11d   %11d\\n",
+		"created": 1582044006,
+		"removed": 0
+	},
+	{
+		"id": 37307,
+		"fmtType": "TRICE32_2",
+		"fmtStrg": "tst:TRICE32   %%12o -\u003e  %12o  %12o",
+		"created": 1582044006,
+		"removed": 0
+	},
+	{
+		"id": 16244,
+		"fmtType": "TRICE32_2",
+		"fmtStrg": "tst:  %12o  %12o\\n",
+		"created": 1582044006,
+		"removed": 0
+	},
+	{
+		"id": 51854,
+		"fmtType": "TRICE8_1",
+		"fmtStrg": "tst:TRICE8 %d\\n",
+		"created": 1582044006,
+		"removed": 0
+	},
+	{
+		"id": 57183,
+		"fmtType": "TRICE8_2",
+		"fmtStrg": "tst:TRICE8 %d %d\\n",
+		"created": 1582044006,
+		"removed": 0
+	},
+	{
+		"id": 65237,
+		"fmtType": "TRICE8_3",
+		"fmtStrg": "tst:TRICE8 %d %d %d\\n",
+		"created": 1582044006,
+		"removed": 0
+	},
+	{
+		"id": 42404,
+		"fmtType": "TRICE8_4",
+		"fmtStrg": "tst:TRICE8 %d %d %d %d\\n",
+		"created": 1582044006,
+		"removed": 0
+	},
+	{
+		"id": 64107,
+		"fmtType": "TRICE8_5",
+		"fmtStrg": "tst:TRICE8 %d %d %d %d %d\\n",
+		"created": 1582044006,
+		"removed": 0
+	},
+	{
+		"id": 6409,
+		"fmtType": "TRICE8_6",
+		"fmtStrg": "tst:TRICE8 %d %d %d %d %d %d \\n",
+		"created": 1582044006,
+		"removed": 0
+	},
+	{
+		"id": 35535,
+		"fmtType": "TRICE8_7",
+		"fmtStrg": "tst:TRICE8 %d %d %d %d %d %d %d\\n",
+		"created": 1582044006,
+		"removed": 0
+	},
+	{
+		"id": 45995,
+		"fmtType": "TRICE8_8",
+		"fmtStrg": "tst:TRICE8 %d %d %d %d %d %d %d %d\\n",
+		"created": 1582044006,
+		"removed": 0
+	},
+	{
+		"id": 64910,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "tst:TRICE16 %d\\n",
+		"created": 1582044006,
+		"removed": 0
+	},
+	{
+		"id": 63317,
+		"fmtType": "TRICE16_2",
+		"fmtStrg": "tst:TRICE16 %d %d\\n",
+		"created": 1582044006,
+		"removed": 0
+	},
+	{
+		"id": 42254,
+		"fmtType": "TRICE16_3",
+		"fmtStrg": "tst:TRICE16 %d %d %d\\n",
+		"created": 1582044006,
+		"removed": 0
+	},
+	{
+		"id": 8957,
+		"fmtType": "TRICE16_4",
+		"fmtStrg": "tst:TRICE16 %d %d %d %d\\n",
+		"created": 1582044006,
+		"removed": 0
+	},
+	{
+		"id": 36575,
+		"fmtType": "TRICE32_1",
+		"fmtStrg": "tst:TRICE32 %d\\n",
+		"created": 1582044006,
+		"removed": 0
+	},
+	{
+		"id": 24627,
+		"fmtType": "TRICE32_2",
+		"fmtStrg": "tst:TRICE32 %d %d\\n",
+		"created": 1582044006,
+		"removed": 0
+	},
+	{
+		"id": 42406,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "ERR:error       message, SysTick is %d\\n",
+		"created": 1582044006,
+		"removed": 0
+	},
+	{
+		"id": 60162,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "WRN:warning     message, SysTick is %d\\n",
+		"created": 1582044006,
+		"removed": 0
+	},
+	{
+		"id": 35917,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "ATT:attension   message, SysTick is %d\\n",
+		"created": 1582044006,
+		"removed": 0
+	},
+	{
+		"id": 2625,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "DIA:diagnostics message, SysTick is %d\\n",
+		"created": 1582044006,
+		"removed": 0
+	},
+	{
+		"id": 47949,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "TIM:timing      message, SysTick is %d\\n",
+		"created": 1582044006,
+		"removed": 0
+	},
+	{
+		"id": 4532,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "DBG:debug       message, SysTick is %d\\n",
+		"created": 1582044006,
+		"removed": 0
+	},
+	{
+		"id": 64448,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "SIG:signal      message, SysTick is %d\\n",
+		"created": 1582044006,
+		"removed": 0
+	},
+	{
+		"id": 29423,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "RD_:read        message, SysTick is %d\\n",
+		"created": 1582044006,
+		"removed": 0
+	},
+	{
+		"id": 64066,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "WR_:write       message, SysTick is %d\\n",
+		"created": 1582044006,
+		"removed": 0
+	},
+	{
+		"id": 59472,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "TST:test        message, SysTick is %d\\n",
+		"created": 1582044006,
+		"removed": 0
+	},
+	{
+		"id": 8896,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "MSG:normal      message, SysTick is %d\\n",
+		"created": 1582044006,
+		"removed": 0
+	},
+	{
+		"id": 16063,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "err:error       message, SysTick is %d\\n",
+		"created": 1582044006,
+		"removed": 0
+	},
+	{
+		"id": 6158,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "wrn:warning     message, SysTick is %d\\n",
+		"created": 1582044006,
+		"removed": 0
+	},
+	{
+		"id": 49247,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "att:attension   message, SysTick is %d\\n",
+		"created": 1582044006,
+		"removed": 0
+	},
+	{
+		"id": 46444,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "dia:diagnostics message, SysTick is %d\\n",
+		"created": 1582044006,
+		"removed": 0
+	},
+	{
+		"id": 27714,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "tim:timing      message, SysTick is %d\\n",
+		"created": 1582044006,
+		"removed": 0
+	},
+	{
+		"id": 56464,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "dbg:debug       message, SysTick is %d\\n",
+		"created": 1582044006,
+		"removed": 0
+	},
+	{
+		"id": 33046,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "sig:signal      message, SysTick is %d\\n",
+		"created": 1582044006,
+		"removed": 0
+	},
+	{
+		"id": 19949,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "rd_:read        message, SysTick is %d\\n",
+		"created": 1582044006,
+		"removed": 0
+	},
+	{
+		"id": 51433,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "wr_:write       message, SysTick is %d\\n",
+		"created": 1582044006,
+		"removed": 0
+	},
+	{
+		"id": 28843,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "tst:test        message, SysTick is %d\\n",
+		"created": 1582044006,
+		"removed": 0
+	},
+	{
+		"id": 51768,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "msg:normal      message, SysTick is %d\\n",
+		"created": 1582044006,
+		"removed": 0
+	},
+	{
+		"id": 31658,
+		"fmtType": "TRICE0",
+		"fmtStrg": "wrn:A",
+		"created": 1582044006,
+		"removed": 0
+	},
+	{
+		"id": 11083,
+		"fmtType": "TRICE0",
+		"fmtStrg": "wr_:B",
+		"created": 1582044006,
+		"removed": 0
+	},
+	{
+		"id": 59403,
+		"fmtType": "TRICE0",
+		"fmtStrg": "tim:C\\n",
+		"created": 1582044006,
+		"removed": 0
+	},
+	{
+		"id": 30917,
+		"fmtType": "TRICE0",
+		"fmtStrg": "--------------------------------------------------------------------------------------------------------------------------------------------------\\n",
+		"created": 1582044006,
+		"removed": 0
+	},
+	{
+		"id": 10201,
+		"fmtType": "TRICE8_6",
+		"fmtStrg": "%c%c%c%c%c%c",
+		"created": 1582044006,
+		"removed": 0
+	},
+	{
+		"id": 22049,
+		"fmtType": "TRICE8_7",
+		"fmtStrg": "%c%c%c%c%c%c%c",
+		"created": 1582044006,
+		"removed": 0
+	},
+	{
+		"id": 39536,
+		"fmtType": "TRICE8_7",
+		"fmtStrg": "#%c%c%c%c%c%c%c#",
+		"created": 1582044573,
+		"removed": 0
+	},
+	{
+		"id": 57439,
+		"fmtType": "TRICE8_7",
+		"fmtStrg": "%c%c%c%c%c%c%c",
+		"created": 1582046023,
+		"removed": 0
+	},
+	{
+		"id": 46732,
+		"fmtType": "TRICE0",
+		"fmtStrg": "          ",
+		"created": 1582046023,
+		"removed": 0
 	}
 ]
