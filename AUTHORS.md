@@ -1,8 +1,8 @@
 # Contributors to this project
 
-- Thomas Höhenleitner <th@seerose.net> 
+- Thomas Höhenleitner @rokath
   - idea and implementation
-- Paul Reichelt <paul@vlek.co>
+- Paul Reichelt @reicheltp
   - very helpful hints, especially to use Go for the `trice` tool
-- Sebastian Kasanzev <sebkasanzew@gmail.com>
+- Sebastian Kasanzev @Sebkasanzew
   - pointed me to [screentogif](https://www.screentogif.com/)
