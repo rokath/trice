@@ -4,5 +4,5 @@
   - idea and implementation
 - Paul Reichelt @reicheltp
   - very helpful hints, especially to use Go for the `trice` tool
-- Sebastian Kasanzev @Sebkasanzew
+- Sebastian Kasanzev [@Sebkasanzew](https://github.com/Sebkasanzew)
   - pointed me to [screentogif](https://www.screentogif.com/)
