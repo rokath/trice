@@ -15,7 +15,7 @@
 extern "C" {
 #endif
 
-#include "main.h" // hardware specific stuff
+//#include "main.h" // hardware specific stuff
 
 ///////////////////////////////////////////////////////////////////////////////
 // user adaption
@@ -28,8 +28,6 @@ extern "C" {
 #define TRICE_DISPL_ADDR (0x61) //!< trice terminal address for this device (choose free)
 #define SPEED_OVER_MEMORY 1 //!< 0 means less Flash needed but slower, set compiler switch "optimize for time" accordingly!
 //#define TRICE_OFF //!< enable this line to disable trice code generation
-
-#define SYSTICKVAL16 SysTick->VAL //!< STM32 specific
 
 ///////////////////////////////////////////////////////////////////////////////
 // compiler adaptions
@@ -48,7 +46,7 @@ extern "C" {
 #define TRICE_ENTER_CRITICAL_SECTION { // todo
 
 //! Restore interrupt state
-#define TRICE_LEAVE_CRITICAL_SECTIO } // todo
+#define TRICE_LEAVE_CRITICAL_SECTION } // todo
 
 #elif defined(__arm__) // ARMkeil IDE #########################################
 
