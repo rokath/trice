@@ -81,10 +81,28 @@ void triceCheckSet( void )
     TRICE16_1( Id(13378), "tst:test        message, SysTick is %d\n", SYSTICKVAL16 ); // 1
     TRICE16_1( Id(48476), "msg:normal      message, SysTick is %d\n", SYSTICKVAL16 ); // 1
     // 22 subtraces
-    
+
     TRICE0 (Id(12664), "wrn:A" );
     TRICE0 (Id(60989), "wr_:B" );
     TRICE0 (Id(61533), "tim:C\n" );
+/*
+    triceString( 18, "\n" );
+    triceString( 18, "1\n" );
+    triceString( 18, "12\n" );
+    triceString( 18, "123\n" );
+    triceString( 18, "1234\n" );
+    triceString( 18, "12345\n" );
+    triceString( 18, "123456\n" );
+    triceString( 18, "1234567\n" );
+    triceString( 18, "12345678\n" );
+    triceString( 18, "123456789\n" );
+    triceString( 18, "123456789a\n" );
+    triceString( 18, "123456789ab\n" );
+    triceString( 18, "123456789abc\n" );
+    triceString( 18, "Berlin\n" );
+    triceString( 18, "HonululuTown\n" );
+    triceString( 18, "Leipzig\n" );
+*/
     TRICE0 (Id(58460), "--------------------------------------------------------------------------------------------------------------------------------------------------\n" );
     // 4 subtraces
 } // sum 111 sub traces (need 444 bytes Buffet space)
