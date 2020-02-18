@@ -37,6 +37,7 @@ is example code and for testing
     but keep in mind that the file `til.json` is the key to read all output if your devices in the field for 10 or more years.
 - You can consider TRICE also as **a kind of intelligent data compression** what could be interesting for IoT things, especially NB-IoT, where you have very low data rates.
 - Also it is possible to **encrypt the 8 byte transfer packets** to get a reasonable protection for many cases.
+  - This way you can deliver firmware images with encrypted TRICE output only readable with the appropriate key and til.json.
   - Treyfer is a recommendation and planned as a coming option.
 - You can even translate the til.json in **different languages**, so changing a language is just changing the til.json file.
 - trice has intentionally no timestamps for performance reasons. But you can add own **timestamps as parameters**. Having several devices with trice timestamps, **network timing measurements** are possible.
