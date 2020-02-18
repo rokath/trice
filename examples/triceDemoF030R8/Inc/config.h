@@ -26,7 +26,7 @@ extern "C" {
 #define TRICE_START_BYTE (0xeb) //!< trice header start (chose any unusual byte)
 #define TRICE_LOCAL_ADDR (0x60) //!< trice addess of this device (choose free)
 #define TRICE_DISPL_ADDR (0x61) //!< trice terminal address for this device (choose free)
-#define TRICE_SHORT_MEMORY 0 //!< 1 means less Flash needed but slower, set compiler switch "optimize for time" accordingly!
+#define TRICE_SHORT_MEMORY 1 //!< 1 means less Flash needed but slower, set compiler switch "optimize for time" accordingly!
 //#define TRICE_OFF //!< enable this line to disable trice code generation
 
 #define SYSTICKVAL16 SysTick->VAL //!< STM32 specific
@@ -44,12 +44,6 @@ extern "C" {
 #define PACKED                                  //!< pack data preamble
 #define PACKED_END __attribute__ ((packed))      //!< pack data post declaration
 
-//! Save interrupt state and disable Interrupts
-#define TRICE_ENTER_CRITICAL_SECTION { // todo
-
-//! Restore interrupt state
-#define TRICE_LEAVE_CRITICAL_SECTIO } // todo
-
 #elif defined(__arm__) // ARMkeil IDE #########################################
 
 #define TRICE_INLINE static inline //! used for trice code
@@ -58,6 +52,16 @@ extern "C" {
 #define ALIGN4_END        //!< align to 4 byte boundary post declaration
 #define PACKED __packed   //!< pack data preamble
 #define PACKED_END        //!< pack data post declaration
+
+#else // ######################################################################
+
+// some other compliler
+
+#endif // compiler adaptions ##################################################
+
+///////////////////////////////////////////////////////////////////////////////
+// hardware specific interface functions tested on NUCLEO-STM32F030
+//
 
 /*! Save interrupt state and disable Interrupts
 \details Workaround for ARM Cortex M0 and M0+
@@ -76,16 +80,6 @@ If trices are used only outside critical sections or interrupts
 you can leave this macro pair empty for more speed.
 */
 #define TRICE_LEAVE_CRITICAL_SECTION } __set_PRIMASK(primaskstate); }
-
-#else // ######################################################################
-
-// some other compliler
-
-#endif // compiler adaptions ##################################################
-
-///////////////////////////////////////////////////////////////////////////////
-// hardware specific interface functions tested on NUCLEO-STM32F030
-//
 
 /*! Check if a new byte can be written into trice transmit register.
 \retval 0 == not empty
