@@ -868,7 +868,7 @@ TRICE_INLINE void trice_32_2_ocs( uint16_t Id, uint32_t d0, uint32_t d1 ){
 This function could also be useful, if the string is generated dynamically.
 \param s 0-terminated string
 */
-TRICE_INLINE void TraceString( char* s ){
+TRICE_INLINE void triceString( int rightBound, char* s ){
     while( *s )
     {
         TRICE8_1( Id(3), "%c", *s );
@@ -881,11 +881,11 @@ TRICE_INLINE void TraceString( char* s ){
 \param Line line number
 \param Value for context display
 */
-TRICE_INLINE void Report_Location( const char* const pFileName, int Line, int Value ){
+TRICE_INLINE void reportLocation( const char* const pFileName, int Line, int Value ){
     TRICE0( Id(7), "sig:" );
     if( pFileName )
     {
-        TraceString( (char*)pFileName );
+        triceString( 0, (char*)pFileName );
     }
     TRICE32_2( Id(5), " line %d (Value = %d)\n", Line, Value );
 }
@@ -895,9 +895,9 @@ TRICE_INLINE void Report_Location( const char* const pFileName, int Line, int Va
 \param Line line number
 \param Value for context display
 */
-TRICE_INLINE void ReportFailure( const char* const pName, int Line, int Value ){
+TRICE_INLINE void reportFailure( const char* const pName, int Line, int Value ){
     TRICE0( Id(6), "err: Failure in " );
-    Report_Location( pName, Line, Value );
+    reportLocation( pName, Line, Value );
 }
 
 /*! Report filename and line number over trice
@@ -905,18 +905,18 @@ TRICE_INLINE void ReportFailure( const char* const pName, int Line, int Value ){
 \param Line line number
 \param Value for context display
 */
-TRICE_INLINE void ReportPassage( char *pFileName, int Line, int Value ){
+TRICE_INLINE void reportPassage( char *pFileName, int Line, int Value ){
     TRICE0( Id(4), "att: Passage in " );
     if( pFileName )
     {
-        TraceString( pFileName );
+        triceString( 0, pFileName );
     }
     TRICE32_2( Id(5), " line %d (Value = %d)\n", Line, Value );
 }
 
-TRICE_INLINE void TraceSrcLocation(char *file, int line){
+TRICE_INLINE void triceSrcLocation(char *file, int line){
       TRICE0( Id(31976), "err: Error in file " );
-      TraceString( file );
+      triceString( 0, file );
       TRICE16_1( Id(8272), " at line %d\n", line );
 }
 
