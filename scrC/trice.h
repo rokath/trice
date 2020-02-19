@@ -888,9 +888,9 @@ TRICE_INLINE void triceString( int rightBound, char* s ){
 
 #else // #if 1 == TRICE_SHORT_MEMORY
 
-TRICE_INLINE void triceStringUnbound( char* s ){
+// for performance no check of strlen( s ) here (internal usage)
+TRICE_INLINE void triceStringN( size_t len, const char* s ){
     char c1, c2, c3, c4, c5, c6, c7, c8;
-    size_t len = strlen( s );
     while( len ){
         switch( len ){
             case  0: return;
@@ -915,6 +915,11 @@ TRICE_INLINE void triceStringUnbound( char* s ){
         }
     }
     return;
+}
+
+TRICE_INLINE void triceStringUnbound( const char* s ){
+    size_t len = strlen( s );
+    triceStringN( len, s );
 }
 
 TRICE_INLINE void triceSpaces( int spaces ){
@@ -945,7 +950,7 @@ TRICE_INLINE void triceSpaces( int spaces ){
 This function could be useful, if the string is generated dynamically.
 \param s 0-terminated string
 */
-TRICE_INLINE void triceString( int rightBound, char* s ){
+TRICE_INLINE void triceString( int rightBound, const char* s ){
     TRICE_ENTER_CRITICAL_SECTION
     size_t len = strlen( s );
     int spaces = rightBound - len;
@@ -1000,6 +1005,9 @@ TRICE_INLINE void triceSrcLocation(char *file, int line){
       triceString( 0, file );
       TRICE16_1( Id(8272), " at line %d\n", line );
 }
+
+//! printf replacement
+int tricePrintfAdapter( const char* pFmt, ... );
 
 #endif // #else // #ifdef TRICE_OFF
 

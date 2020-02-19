@@ -36,7 +36,7 @@
                      "-port",
                      "COM8",
                      "-baud",
-                     "11520000",
+                     "115200",
                      "-list",
                      "C:/GitRepos/trice/examples/triceDemoF030R8/MDK-ARM/til.json"
             ]

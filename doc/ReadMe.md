@@ -14,7 +14,7 @@ into a source file of your project. The `8` stays here for 8 bit values (`0`, `1
 
 When performing  ```trice update``` this line changes to
 ```
-TRICE8_3( Id(12345), "time is %d:%d:%du\n", hour, min, sec);
+TRICE8_3( Id(12345), "time is %d:%d:%d\n", hour, min, sec);
 ```
 where ```12345``` is an as ID generated 16 bit random number not used so far. Automatically
 the ID is added to an [ID list](../examples/triceDemoF030R8/MDK-ARM/til.json) together with the appropriate format string 
@@ -80,16 +80,31 @@ doc/           | documentation                                           |
   - Include [trice.c](../scrC/trice.c) unchanged into your project and make sure the [trice.h](../scrC/trice.h) header file is found by your compiler.
 - Add `#include "trice.h"` to your main.c[pp] and put `TRICE0( Id(0), "msg:Hello world!\n" );` after your initialization code.
 - Run `trice u` at the root of your source code. Afterwards:
-    - The `Id(0)` should have changed into `Id(12345)` as example. (The `12345` stays here for a 16bit non-zero random number).
+    - The `Id(0)` should have changed into `Id(12345)` as example. (The `12345` stays here for a 16-bit non-zero random number).
     - A file [til.json](../examples/triceDemoF030R8/MDK-ARM/til.json)  (**t**race **i**d **l**ist) should be generated.
     - Running `trice check` should show your message, indicating everything is fine so far.
 - `trice help` is your friend if something fails.
 - For help have a look at the differences between these 2 projects or into [ReadMeDemoF030R8.md](./ReadMeDemoF030R8.md)
   - `../examples/generatedDemoF030R8` - It is just the STM32 CubeMX generated code.
   - `../examples/traceLDemoF030R8` - It is a copy of the above enhanced with trice check code.
+```
+Quick and dirty option
+======================
+- Leave these definitions empty: 
+  - TRICE_ENTER_CRITICAL_SECTION & TRICE_LEAVE_CRITICAL_SECTION
+  - triceTxDataRegisterEmpty()
+  - triceEableTxEmptyInterrupt() & triceDisableTxEmptyInterrupt()
+- Use:
+  - void triceTransmitData8( uint8_t d ){
+    my_putchar( (char)d); // your code
+  }
+  Call triceTxHandler() cyclicylly in sufficient long intervals like 1 ms
+```
+
 - After compiling and flashing run `trice -port COMn -baud m` with n and m set to correct values
 - Now start your device and you should see the hello world message coming from your target.
-- If you use a legacy project containing `printf()` statements you can  simply transform them to **TRICE*** statements.
+- If you use a legacy project containing `printf()` statements you can  simply transform them to **TRICE\*** statements.
+- `printf(...)` statements containing string format specifier are quickly portable by simply using `tricePrintfAdapter(...)` but without speed advantage. Enable `TRICE_PRINTF_ADAPTER` in `config.h` and include [printf.c](https://github.com/mpaland/printf/blob/master/printf.c) or the like to your project for that.
 - It could be helpful to add `trice u ...` as prebuild step into your toolchain for each file or for the project as a whole. 
   This way you cannot forget the update step, it performs automatically.
 

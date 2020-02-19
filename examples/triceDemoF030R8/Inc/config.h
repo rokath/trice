@@ -26,8 +26,14 @@ extern "C" {
 #define TRICE_START_BYTE (0xeb) //!< trice header start (chose any unusual byte)
 #define TRICE_LOCAL_ADDR (0x60) //!< trice addess of this device (choose free)
 #define TRICE_DISPL_ADDR (0x61) //!< trice terminal address for this device (choose free)
-#define TRICE_SHORT_MEMORY 1 //!< 1 means less Flash needed but slower, set compiler switch "optimize for time" accordingly!
+#define TRICE_SHORT_MEMORY 0 //!< 1 means less Flash needed but slower, set compiler switch "optimize for time" accordingly!
 //#define TRICE_OFF //!< enable this line to disable trice code generation
+
+//! Enable this for legacy projects with printf( "...%s...", ... ); statements
+//! This is only for easy porting and has no advantage in time and space compared to printf
+//! But you can simply exchange 'printf(...)' with 'trice(...)' without concerning about static or dynamic strings
+#define TRICE_PRINTF_ADAPTER
+#define TRICE_PRINTF_ADAPTER_BUFFERSIZE 100 //!< longest legacy printf should fit here
 
 #define SYSTICKVAL16 SysTick->VAL //!< STM32 specific
 

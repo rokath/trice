@@ -16,6 +16,9 @@ Traces with more bytes as parameter consist of several subtraces.
 */
 void triceCheckSet( void )
 {
+    char* w ="world";
+    tricePrintfAdapter( "Hello %s! (%#b times)\n", w, 5 );
+    TRICE16_1( Id(46097), "dbg:12345 as 16bit is %#016b\n", 12345 );
     TRICE0 (Id(30265), "--------------------------------------------------------------------------------------------------------------------------------------------------\n" );
     // 1 subtrace
 
@@ -106,4 +109,3 @@ void triceCheckSet( void )
     TRICE0 (Id(58460), "--------------------------------------------------------------------------------------------------------------------------------------------------\n" );
     // 4 subtraces
 } // sum 111 sub traces (need 444 bytes Buffet space)
-

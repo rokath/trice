@@ -12,6 +12,11 @@ That is the time critical part.
 
 #include "trice.h"
 
+#ifdef TRICE_PRINTF_ADAPTER
+#include <stdarg.h>
+#include "printf.h"
+#endif // #ifdef TRICE_PRINTF_ADAPTER
+
 #ifdef TRICE_OFF
 
 /*! This function should be called inside the transmit done device interrupt.
@@ -81,5 +86,26 @@ void triceTxHandler( void ){
         }
     }
 }
+
+#ifdef TRICE_PRINTF_ADAPTER
+
+int tricePrintfAdapter( const char* pFmt, ... ){
+    va_list va;
+    int done;
+    static char buffer[100];
+    
+    va_start (va, pFmt );
+    done = vsnprintf( buffer, sizeof(buffer), pFmt, va);
+    va_end (va);
+
+    triceString( 0, buffer );
+    return done;
+}
+
+//! unused dummy definition for linker
+void _putchar(char character){
+}
+
+#endif // #ifdef TRICE_PRINTF_ADAPTER
 
 #endif // #else // #ifdef TRICE_OFF
