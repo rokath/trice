@@ -27,6 +27,20 @@ embedded device C printf-like trace code and real-time PC logging (trace ID visu
 ![GitHub search hit counter](https://img.shields.io/github/search/rokath/trice/time-measurement)
 ![GitHub search hit counter](https://img.shields.io/github/search/rokath/trice/golang)
 
+![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/rokath/trice)
+
+[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/mpaland/avl_array/master/LICENSE)
+[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/rokath/avl_array/master/LICENSE)
+
+![GitHub](https://img.shields.io/github/license/rokath/trice)
+
+![GitHub](https://img.shields.io/github/license/rokath/trice)
+
+
+
+
+
+
 
 ## About
 - C trace code (`TRICE` macros)  and real-time PC logging with `trice` (tool with Go sources).
