@@ -102,9 +102,9 @@ Quick and dirty option
 ```
 
 - After compiling and flashing run `trice -port COMn -baud m` with n and m set to correct values
-- Now start your device and you should see the hello world message coming from your target.
-- If you use a legacy project containing `printf()` statements you can  simply transform them to **TRICE\*** statements.
-- `printf(...)` statements containing string format specifier are quickly portable by simply using `tricePrintfAdapter(...)` but without speed advantage. Enable `TRICE_PRINTF_ADAPTER` in `config.h` and include [printf.c](https://github.com/mpaland/printf/blob/master/printf.c) or the like to your project for that.
+- Now start your device and you should see the hello world message coming from your target. In fact the hello-world string never went to the embedded device, only the ID comes from  there and the string is found in the til.json file.
+- If you use a legacy project containing `printf()` statements you can simply transform them to **TRICE\*** statements.
+- `printf(...)` statements containing string format specifier are quickly portable by using `tricePrintfAdapter(...)` but without the trice space and speed advantage. The tricePrintfAdapter() is intended only for the few dynamic strings in a ported  projekt.  Enable `TRICE_PRINTF_ADAPTER` in `config.h` and include [printf.c](https://github.com/mpaland/printf/blob/master/printf.c) or the like to your project for that. 
 - It could be helpful to add `trice u ...` as prebuild step into your toolchain for each file or for the project as a whole. 
   This way you cannot forget the update step, it performs automatically.
 
