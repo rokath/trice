@@ -66,7 +66,7 @@ Use `-color off` switch for piping output in a file or `-color alternate` for a 
 ---------------|---------------------------------------------------------|
 cmd/           | the `trice` sources                                     |
 pkg/           | the internal `trice`packages                            |
-srcC/          | C sources for your embedded project                     | 
+src.C/          | C sources for your embedded project                     | 
 examples/      | example target projects                                 |
 doc/           | documentation                                           |
 
@@ -77,7 +77,7 @@ doc/           | documentation                                           |
 
 ### Instrument a target source code project (How to use trice in your project)
 
-  - Include [trice.c](../scrC/trice.c) unchanged into your project and make sure the [trice.h](../scrC/trice.h) header file is found by your compiler.
+  - Include [trice.c](../src.C/trice.c) unchanged into your project and make sure the [trice.h](../src.C/trice.h) header file is found by your compiler.
 - Add `#include "trice.h"` to your project files where to use TRICE and put `TRICE0( Id(0), "msg:Hello world!\n" );` after your initialization code.
 - Run `trice u` at the root of your source code. Afterwards:
     - The `Id(0)` should have changed into `Id(12345)` as example. (The `12345` stays here for a 16-bit non-zero random number).

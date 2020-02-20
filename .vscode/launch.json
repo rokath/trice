@@ -62,7 +62,7 @@
             "env": {},
             "args": ["update",
                     "-src",
-                    "C:/GitRepos/GoT/trice/srcC/triceCheck.c"
+                    "C:/GitRepos/GoT/trice/src.C/triceCheck.c"
             ]
         }
     ]

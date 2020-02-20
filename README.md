@@ -45,8 +45,8 @@ embedded device C printf-like trace code and real-time PC logging (trace ID visu
   - as runtime logger or simply for narrow bandwidth logging in the field even with encryption.
 - Usage is similar to 'printf()', but the format strings go not into the target image.
 - The needed code instrumentation is minimal:
-  - Adapt a [config file](./scrC/proj_config.h) (hardware specific).
-  - Add [one small C-file](./scrC/trice.c) to your project and include a [C-header](./scrC/trice.h) where trices are used.
+  - Adapt a [config file](./src.C/proj_config.h) (hardware specific).
+  - Add [one small C-file](./src.C/trice.c) to your project and include a [C-header](./src.C/trice.h) where trices are used.
   - Core instrumentation needs less 150 bytes FLASH and about 100 bytes RAM.
 
 ## `trice` PC tool
@@ -55,9 +55,9 @@ embedded device C printf-like trace code and real-time PC logging (trace ID visu
 - Displays trices in realtime during target runtime.
 
 ## Quick setup
-- add [trice.c](./scrC/trice.c) as is to your project
-- #include [trice.h](./scrC/trice.h) as is in your source file to use trice
-- copy [proj_config.h](./scrC/proj_config.h), rename to `config.h` and adapt to your needs
+- add [trice.c](./src.C/trice.c) as is to your project
+- #include [trice.h](./src.C/trice.h) as is in your source file to use trice
+- copy [proj_config.h](./src.C/proj_config.h), rename to `config.h` and adapt to your needs
 - [triceCheck.c](./examples/triceDemoF030R8/Src/triceCheck.c) 
 is example code and for testing
 - run `trice u` in root of your C|Cpp source project after code instrumentation with TRICE* statements to generate a prroject specific til.json file 

@@ -64,8 +64,8 @@ archives:
     #id: my-archive
 
     # Builds reference which build instances should be archived in this archive.
-    builds:
-    - default
+    #builds:
+    #- default
 
     # Replacements for GOOS and GOARCH in the archive name.
     # Keys should be valid GOOSs or GOARCHs.
@@ -90,7 +90,7 @@ archives:
     # If format is `binary`, no archives are created and the binaries are instead
     # uploaded directly.
     # Default is `tar.gz`.
-    # format: zip
+    format: tar.gz
 
     # Can be used to change the archive formats for specific GOOSs.
     # Most common use case is to archive as zip on Windows.
@@ -106,18 +106,20 @@ archives:
       - README.md
       - CHANGELOG.md
       - doc/**/*
+      - src.C/**/*
 
 checksum:
   # You can change the name of the checksums file.
   # Default is `{{ .ProjectName }}_{{ .Version }}_checksums.txt`.
   #name_template: "{{ .ProjectName }}_checksums.txt"
+  #name_template: 'checksums.txt'
 
   # Algorithm to be used.
   # Accepted options are sha256, sha512, sha1, crc32, md5, sha224 and sha384.
   # Default is sha256.
   #algorithm: sha256
 
-#snapshot:
+snapshot:
   # Allows you to change the name of the generated snapshot
   #
   # Note that some pipes require this to be semantic version compliant (nfpm,
@@ -130,11 +132,11 @@ checksum:
 # You can customize how the changelog is generated using the changelog section in the config file
 changelog:
   # set it to true if you wish to skip the changelog generation
-  #skip: true
+  #skip: false
 
   # could either be asc, desc or empty
   # Default is empty
-  #sort: asc
+  sort: asc
 
   filters:
     # commit messages matching the regexp listed here will be removed from
