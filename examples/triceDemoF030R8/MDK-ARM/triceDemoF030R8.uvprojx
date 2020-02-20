@@ -412,11 +412,6 @@
               <FileType>1</FileType>
               <FilePath>../Src/stm32f0xx_it.c</FilePath>
             </File>
-            <File>
-              <FileName>printf.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\scrC\printf.c</FilePath>
-            </File>
           </Files>
         </Group>
         <Group>

@@ -92,7 +92,7 @@ void triceTxHandler( void ){
 int tricePrintfAdapter( const char* pFmt, ... ){
     va_list va;
     int done;
-    static char buffer[100];
+    static char buffer[TRICE_PRINTF_ADAPTER_BUFFERSIZE];
     
     va_start (va, pFmt );
     done = vsnprintf( buffer, sizeof(buffer), pFmt, va);
