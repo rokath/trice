@@ -78,7 +78,7 @@ doc/           | documentation                                           |
 ### Instrument a target source code project (How to use trice in your project)
 
   - Include [trice.c](../scrC/trice.c) unchanged into your project and make sure the [trice.h](../scrC/trice.h) header file is found by your compiler.
-- Add `#include "trice.h"` to your main.c[pp] and put `TRICE0( Id(0), "msg:Hello world!\n" );` after your initialization code.
+- Add `#include "trice.h"` to your project files where to use TRICE and put `TRICE0( Id(0), "msg:Hello world!\n" );` after your initialization code.
 - Run `trice u` at the root of your source code. Afterwards:
     - The `Id(0)` should have changed into `Id(12345)` as example. (The `12345` stays here for a 16-bit non-zero random number).
     - A file [til.json](../examples/triceDemoF030R8/MDK-ARM/til.json)  (**t**race **i**d **l**ist) should be generated.
@@ -102,9 +102,9 @@ Quick and dirty option
 ```
 
 - After compiling and flashing run `trice -port COMn -baud m` with n and m set to correct values
-- Now start your device and you should see the hello world message coming from your target. In fact the hello-world string never went to the embedded device, only the ID comes from  there and the string is found in the til.json file.
-- If you use a legacy project containing `printf()` statements you can simply transform them to **TRICE\*** statements.
-- `printf(...)` statements containing string format specifier are quickly portable by using `tricePrintfAdapter(...)` but without the trice space and speed advantage. The tricePrintfAdapter() is intended only for the few dynamic strings in a ported  projekt.  Enable `TRICE_PRINTF_ADAPTER` in `config.h` and include [printf.c](https://github.com/mpaland/printf/blob/master/printf.c) or the like to your project for that. 
+- Now start your device and you should see the hello world message coming from your target. In fact the hello-world string never went to the embedded device, only the ID comes from  there and the string is found in the [til.json](../examples/triceDemoF030R8/MDK-ARM/til.json) file of your project.
+- If you use a legacy project containing `printf()` statements you can simply transform them to **TRICE\*** statements. TRICE32 will do in most cases but for better performance take **TRCE8** or **TRICE16** where possible.
+- `printf(...)` statements containing string format specifier are quickly portable by using `tricePrintfAdapter(...)` but without the trice space and speed advantage. The tricePrintfAdapter() is intended only for the few dynamic strings in a ported  projekt.  Enable `TRICE_PRINTF_ADAPTER` in `config.h` and include [printf.c](https://github.com/mpaland/printf/blob/master/printf.c) or the like to your project for that. That increases the needed code size by a few KB.
 - It could be helpful to add `trice u ...` as prebuild step into your toolchain for each file or for the project as a whole. 
   This way you cannot forget the update step, it performs automatically.
 

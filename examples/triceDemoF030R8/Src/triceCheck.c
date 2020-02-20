@@ -16,8 +16,10 @@ Traces with more bytes as parameter consist of several subtraces.
 */
 void triceCheckSet( void )
 {
+    #ifdef TRICE_PRINTF_ADAPTER
     char* w ="world";
     tricePrintfAdapter( "Hello %s! (%#b times)\n", w, 5 );
+    #endif
     TRICE16_1( Id(46097), "dbg:12345 as 16bit is %#016b\n", 12345 );
     TRICE0 (Id(30265), "--------------------------------------------------------------------------------------------------------------------------------------------------\n" );
     // 1 subtrace

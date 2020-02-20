@@ -1006,8 +1006,10 @@ TRICE_INLINE void triceSrcLocation(char *file, int line){
       TRICE16_1( Id(8272), " at line %d\n", line );
 }
 
+#ifdef TRICE_PRINTF_ADAPTER
 //! printf replacement
 int tricePrintfAdapter( const char* pFmt, ... );
+#endif
 
 #endif // #else // #ifdef TRICE_OFF
 

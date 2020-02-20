@@ -2,11 +2,16 @@
 embedded device C printf-like trace code and real-time PC logging (trace ID visualization) over serial port
 
 
+![GitHub Workflow Status](https://img.shields.io/github/workflow/status/rokath/trice/goreleaser)
 ![GitHub issues](https://img.shields.io/github/issues/rokath/trice)
 ![GitHub All Releases](https://img.shields.io/github/downloads/rokath/trice/total)
-![GitHub Workflow Status](https://img.shields.io/github/workflow/status/rokath/trice/goreleaser)
 
-![GitHub search hit counter](https://img.shields.io/github/search/rokath/trice/c)
+![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/rokath/trice)
+![GitHub watchers](https://img.shields.io/github/watchers/rokath/trice?label=watch)
+![GitHub release (latest by date)](https://img.shields.io/github/v/release/rokath/trice)
+![GitHub commits since latest release](https://img.shields.io/github/commits-since/rokath/trice/latest)
+
+## Search counter statistics
 ![GitHub search hit counter](https://img.shields.io/github/search/rokath/trice/trace)
 ![GitHub search hit counter](https://img.shields.io/github/search/rokath/trice/instrumentation)
 ![GitHub search hit counter](https://img.shields.io/github/search/rokath/trice/embedded)
@@ -26,12 +31,7 @@ embedded device C printf-like trace code and real-time PC logging (trace ID visu
 ![GitHub search hit counter](https://img.shields.io/github/search/rokath/trice/timing-analysis)
 ![GitHub search hit counter](https://img.shields.io/github/search/rokath/trice/time-measurement)
 ![GitHub search hit counter](https://img.shields.io/github/search/rokath/trice/golang)
-
-![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/rokath/trice)
-![GitHub watchers](https://img.shields.io/github/watchers/rokath/trice?label=watch)
-![GitHub release (latest by date)](https://img.shields.io/github/v/release/rokath/trice)
-![GitHub tag (latest by date)](https://img.shields.io/github/v/tag/rokath/trice)
-![GitHub commits since latest release](https://img.shields.io/github/commits-since/rokath/trice/latest)
+![GitHub search hit counter](https://img.shields.io/github/search/rokath/trice/printf)
 
 ## About
 - C trace code (`TRICE` macros)  and real-time PC logging with `trice` (tool with Go sources).

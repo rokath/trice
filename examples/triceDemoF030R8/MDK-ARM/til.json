@@ -1776,5 +1776,12 @@
 		"fmtStrg": "          ",
 		"created": 1582046023,
 		"removed": 0
+	},
+	{
+		"id": 46097,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "dbg:12345 as 16bit is %#016b\\n",
+		"created": 1582185007,
+		"removed": 0
 	}
 ]

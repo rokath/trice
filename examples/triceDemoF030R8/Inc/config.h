@@ -32,8 +32,11 @@ extern "C" {
 //! Enable this for legacy projects with printf( "...%s...", ... ); statements
 //! This is only for easy porting and has no advantage in time and space compared to printf
 //! But you can simply exchange 'printf(...)' with 'trice(...)' without concerning about static or dynamic strings
+//! Needs internally a vsnprintf() implementation what adds a few KB code size
+//! If the output strings in the legacy project are static, consider splitting the
+//! legacy printf() into a TRICE* sequence to avoid enabling this switch.
 #define TRICE_PRINTF_ADAPTER
-#define TRICE_PRINTF_ADAPTER_BUFFERSIZE 100 //!< longest legacy printf should fit here
+#define TRICE_PRINTF_ADAPTER_BUFFERSIZE 100 //!< longest legacy printf should fit here, only neede if TRICE_PRINTF_ADAPTER is defined
 
 #define SYSTICKVAL16 SysTick->VAL //!< STM32 specific
 
