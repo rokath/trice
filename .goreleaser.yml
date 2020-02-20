@@ -42,8 +42,8 @@ builds:
     goarch:
       - 386
       - amd64
-      #- arm
-      #- arm64
+      #- arm build error on server
+      #- arm64 build error on server
 
     # GOARM to build for when GOARCH is arm.
     # For more info refer to: https://golang.org/doc/install/source#environment
@@ -147,4 +147,5 @@ changelog:
     - '^test:'
     - typo
     - minor
+    - Update
 
