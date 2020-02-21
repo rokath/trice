@@ -25,7 +25,7 @@ extern "C" {
 #define TRICE_FIFO_SIZE 2048 
 #define TRICE_START_BYTE (0xeb) //!< trice header start (chose any unusual byte)
 #define TRICE_LOCAL_ADDR (0x60) //!< trice addess of this device (choose free)
-#define TRICE_DISPL_ADDR (0x61) //!< trice terminal address for this device (choose free)
+#define TRICE_DISPL_ADDR (0x60) //!< trice terminal address for this device (choose free)
 #define TRICE_SHORT_MEMORY 0 //!< 1 means less Flash needed but slower, set compiler switch "optimize for time" accordingly!
 //#define TRICE_OFF //!< enable this line to disable trice code generation
 

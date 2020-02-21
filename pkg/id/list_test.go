@@ -24,7 +24,7 @@ func Test_write(t *testing.T) {
 	fe := wd + "/testdata/BasicFunctions/writeExp.json"
 	var la, le List
 	p, q := &la, &le
-	p.extend(12345, "TR0", "Hi")
+	p.extendIdList(12345, "TRICE0", "Hi", true)
 	p.zeroTimestampCreated()
 	p.write(fa)
 	q.Read(fe)
@@ -68,15 +68,15 @@ func Test_appendItem(t *testing.T) {
 	var lp, lq, ls, lr List
 	var p, q, s, r = &lp, &lq, &ls, &lr
 
-	s.extend(123, "TRICE0", "some logstring")
-	s.extend(4444, "TRICE32_1", "some other %d logstring")
+	s.extendIdList(123, "TRICE0", "some logstring", true)
+	s.extendIdList(4444, "TRICE32_1", "some other %d logstring", true)
 	err = s.write(fa)
 	ok(t, err)
 
 	err = r.Read(fa)
 
 	ok(t, err)
-	r.extend(55, "TRICE8_7", "some more %d %d %d %d %d %d %d logstring")
+	r.extendIdList(55, "TRICE8_7", "some more %d %d %d %d %d %d %d logstring", true)
 	r.zeroTimestampCreated()
 	err = r.write(fa)
 	ok(t, err)

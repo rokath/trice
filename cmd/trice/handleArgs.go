@@ -28,6 +28,7 @@ func HandleArgs(wd string, args []string) error {
 	pSrcU := uCmd.String("src", wd, "source dir or file (optional, default is ./)") // flag
 	pDryR := uCmd.Bool("dry-run", false, "no changes are applied (optional)")       // flag
 	pLU := uCmd.String("list", "til.json", "trice ID list path (optional)")         // flag
+	pVerb := uCmd.Bool("v", false, "verbose (optional)")                            // flag
 
 	lCmd := flag.NewFlagSet("log", flag.ExitOnError)                                // subcommand
 	pPort := lCmd.String("port", "", "subcommand (required, try COMscan)")          // flag
@@ -67,22 +68,14 @@ func HandleArgs(wd string, args []string) error {
 		fallthrough
 	case "help":
 		err = hCmd.Parse(subArgs)
-	case "v":
-		fallthrough
-	case "ver":
-		fallthrough
 	case "version":
 		err = vCmd.Parse(subArgs)
 	case "u":
-		fallthrough
-	case "upd":
 		fallthrough
 	case "update":
 		err = uCmd.Parse(subArgs)
 	case "check":
 		err = cCmd.Parse(subArgs)
-	case "l":
-		fallthrough
 	case "log":
 		err = lCmd.Parse(subArgs)
 	case "zeroSourceTreeIds":
@@ -108,7 +101,7 @@ func HandleArgs(wd string, args []string) error {
 		if nil != err {
 			return fmt.Errorf("failed to parse %s: %v", *pSrcU, err)
 		}
-		return update(*pDryR, srcU, lU, pList)
+		return update(*pDryR, srcU, lU, pList, *pVerb)
 	}
 	if cCmd.Parsed() {
 		return checkList(*pC, *pSet, pList, *pPal)
@@ -162,8 +155,8 @@ func help(hCmd *flag.FlagSet,
 }
 
 // parse source tree, update IDs and is list
-func update(dryRun bool, dir, fn string, p *id.List) error {
-	err := p.Update(dir, fn, !dryRun)
+func update(dryRun bool, dir, fn string, p *id.List, verbose bool) error {
+	err := p.Update(dir, fn, !dryRun, verbose)
 	if nil != err {
 		return fmt.Errorf("failed update on %s with %s: %v", dir, fn, err)
 	}

@@ -31,7 +31,7 @@ func doUpdate(t *testing.T, path string) {
 	var p, q, w = &lp, &lq, &lw
 
 	rand.Seed(0)
-	err = w.Update(a, fa, true)
+	err = w.Update(a, fa, true, true)
 	ok(t, err)
 	w.zeroTimestampCreated()
 	err = w.write(fa)

@@ -34,7 +34,7 @@
             "env": {},
             "args": ["log",
                      "-port",
-                     "COM8",
+                     "COM5",
                      "-baud",
                      "115200",
                      "-list",
@@ -61,8 +61,11 @@
             "program": "${workspaceFolder}/cmd/trice",
             "env": {},
             "args": ["update",
-                    "-src",
-                    "C:/GitRepos/GoT/trice/src.C/triceCheck.c"
+                    "-v",
+                    "-src"
+                    "C:/GitRepos/BTdev/STM32"
+                    "-list"
+                    "c:/GitRepos/BTdev/til.json"
             ]
         }
     ]

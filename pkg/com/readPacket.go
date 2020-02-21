@@ -16,7 +16,7 @@ import (
 func readHeader(s *serial.Port) []byte {
 	b := readAtLeastBytes(s, 8)
 	for b[1] != 0x60 || // only one receiver now
-		b[2] != 0x61 || // only one transmitter now
+		b[2] != 0x60 || // only one transmitter now
 		b[0]^b[1]^b[2]^b[4]^b[5]^b[6]^b[7] != b[3] { // crc8 check
 		fmt.Println("discarding", b[0])
 		b = append(b[1:], readAtLeastBytes(s, 1)...) // try to sync

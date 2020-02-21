@@ -54,33 +54,46 @@ func (p *List) newID() (int, error) {
 
 // appendIfMissing is appending i idItem to *p.
 // It returns true if item was missing or changed, otherwise false.
-func (p *List) appendIfMissing(i Item) (int, bool) {
+func (p *List) appendIfMissing(i Item, verbose bool) (int, bool) {
 	for _, e := range *p {
-		if e.ID == i.ID {
-			if (e.FmtType == i.FmtType) && (e.FmtStrg == i.FmtStrg) {
-				if 0 == e.Removed {
+		if e.ID == i.ID { // if id exists
+			if (e.FmtType == i.FmtType) && (e.FmtStrg == i.FmtStrg) { // identical
+				if 0 == e.Removed { // is active
 					return i.ID, false // known i, nothing todo
 				}
-				e.Removed = 0 // i exists again, clear removal
+				// id is inactive
+				e.Removed = 0 // i exists again, clear removal, so it is active again
 				return i.ID, true
 			}
-			fmt.Println("e.ID format changed, so get a new ID")
-			fmt.Println(e)
-			fmt.Println(i)
+			// arriving here means a data difference for the identical id between the actual file
+			// and the ID list. So a new ID is generated and goes with the actual file information
+			// into the ID list. Also the ID inside the file must be replaced with the new ID.
+			// The legacy ID inside the ID list can not invalidated here because it is possibly
+			// used  on a different place in unchanged form. The ID invalidation could be done
+			// globally later in a separate action.
+			if verbose {
+				fmt.Println("e.ID format changed, so get a new ID")
+				fmt.Println(e)
+				fmt.Println(i)
+			}
 			i.ID, _ = p.newID()
 			i.Created = int32(time.Now().Unix())
 			fmt.Println(i)
 			*p = append(*p, i)
+			// Need to change file! Therefore the (new) ID is delivered back.
 			return i.ID, true
 		}
-		// do not care about same format for different IDs
+		// Do not care about same format for different IDs, what could be done here.
+		// Having different IDs for identical TRICEs is more an advantage for debugging.
+		// If for some reason a huge amount of identical TRICEs should get identical
+		// IDs this could be done here.
 	}
 	*p = append(*p, i)
 	return i.ID, true
 }
 
 // return id beause it could get changed when id is in list with different typ or fmts
-func (p *List) extend(id int, typ, fmts string) (int, bool) {
+func (p *List) extendIdList(id int, typ, fmts string, verbose bool) (int, bool) {
 	i := Item{
 		ID:      id,
 		FmtType: typ,
@@ -88,7 +101,7 @@ func (p *List) extend(id int, typ, fmts string) (int, bool) {
 		Created: int32(time.Now().Unix()),
 		Removed: 0,
 	}
-	return p.appendIfMissing(i)
+	return p.appendIfMissing(i, verbose)
 }
 
 // Read is reading a JSON file fn and returning a slice
