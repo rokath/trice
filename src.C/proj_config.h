@@ -1,4 +1,4 @@
-/*! \file traceConfig.h
+/*! \file config.h
 \brief This file is for trice specific project settings
 \details adapt needed fifo size, compiler settings and 4 hardware access functions
 - triceTxDataRegisterEmpty()
@@ -8,8 +8,8 @@
 \author Thomas.Hoehenleitner [at] seerose.net
 *******************************************************************************/
 
-#ifndef TRICECONFIG_H_
-#define TRICECONFIG_H_
+#ifndef CONFIG_H_
+#define CONFIG_H_
 
 #ifdef __cplusplus
 extern "C" {
@@ -25,9 +25,20 @@ extern "C" {
 #define TRICE_FIFO_SIZE 512 
 #define TRICE_START_BYTE (0xeb) //!< trice header start (chose any unusual byte)
 #define TRICE_LOCAL_ADDR (0x60) //!< trice addess of this device (choose free)
-#define TRICE_DISPL_ADDR (0x61) //!< trice terminal address for this device (choose free)
-#define SPEED_OVER_MEMORY 1 //!< 0 means less Flash needed but slower, set compiler switch "optimize for time" accordingly!
+#define TRICE_DISPL_ADDR (0x60) //!< trice terminal address for this device (choose free)
+#define TRICE_SHORT_MEMORY 0 //!< 1 means less Flash needed but slower, set compiler switch "optimize for time" accordingly!
 //#define TRICE_OFF //!< enable this line to disable trice code generation
+
+//! Enable this for legacy projects with printf( "...%s...", ... ); statements
+//! This is only for easy porting and has no advantage in time and space compared to printf
+//! But you can simply exchange 'printf(...)' with 'trice(...)' without concerning about static or dynamic strings
+//! Needs internally a vsnprintf() implementation what adds a few KB code size
+//! If the output strings in the legacy project are static, consider splitting the
+//! legacy printf() into a TRICE* sequence to avoid enabling this switch.
+#define TRICE_PRINTF_ADAPTER
+#define TRICE_PRINTF_ADAPTER_BUFFERSIZE 100 //!< longest legacy printf should fit here, only neede if TRICE_PRINTF_ADAPTER is defined
+
+#define SYSTICKVAL16 SysTick->VAL //!< STM32 specific
 
 ///////////////////////////////////////////////////////////////////////////////
 // compiler adaptions
@@ -35,27 +46,31 @@ extern "C" {
 
 #ifdef __GNUC__ // gnu compiler ###############################################
 
-#define TRICE_INLINE static inline // todo
+#define TRICE_INLINE static inline //! used for trice code
 
 #define ALIGN4                                  //!< align to 4 byte boundary preamble
 #define ALIGN4_END __attribute__ ((aligned(4))) //!< align to 4 byte boundary post declaration
 #define PACKED                                  //!< pack data preamble
 #define PACKED_END __attribute__ ((packed))      //!< pack data post declaration
 
-//! Save interrupt state and disable Interrupts
-#define TRICE_ENTER_CRITICAL_SECTION { // todo
-
-//! Restore interrupt state
-#define TRICE_LEAVE_CRITICAL_SECTION } // todo
-
 #elif defined(__arm__) // ARMkeil IDE #########################################
 
-#define TRICE_INLINE static inline //! used for trice code if SPEED_OVER_MEMORY==1
+#define TRICE_INLINE static inline //! used for trice code
 
 #define ALIGN4 __align(4) //!< align to 4 byte boundary preamble
 #define ALIGN4_END        //!< align to 4 byte boundary post declaration
 #define PACKED __packed   //!< pack data preamble
 #define PACKED_END        //!< pack data post declaration
+
+#else // ######################################################################
+
+// some other compliler
+
+#endif // compiler adaptions ##################################################
+
+///////////////////////////////////////////////////////////////////////////////
+// hardware specific interface functions tested on NUCLEO-STM32F030
+//
 
 /*! Save interrupt state and disable Interrupts
 \details Workaround for ARM Cortex M0 and M0+
@@ -75,23 +90,13 @@ you can leave this macro pair empty for more speed.
 */
 #define TRICE_LEAVE_CRITICAL_SECTION } __set_PRIMASK(primaskstate); }
 
-#else // ######################################################################
-
-// some other compliler
-
-#endif // compiler adaptions ##################################################
-
-///////////////////////////////////////////////////////////////////////////////
-// hardware specific interface functions tested on NUCLEO-STM32F030
-//
-
 /*! Check if a new byte can be written into trice transmit register.
 \retval 0 == not empty
 \retval !0 == epmty
 User must provide this function.
 */
 TRICE_INLINE uint32_t triceTxDataRegisterEmpty( void ){
-    return 1;
+    return 1; //LL_USART_IsActiveFlag_TXE( USART2 );
 }
 
 /*! Write value d into trice transmit register.
@@ -99,21 +104,21 @@ TRICE_INLINE uint32_t triceTxDataRegisterEmpty( void ){
 User must provide this function.
 */
 TRICE_INLINE void triceTransmitData8( uint8_t d ){
-    d = d;
+    d = d; //LL_USART_TransmitData8( USART2, d);
 }
 
 /*! Allow interrupt for empty trice data transmit register.
 User must provide this function.
 */
 TRICE_INLINE void triceEableTxEmptyInterrupt( void ){
-    
+    // LL_USART_EnableIT_TXE( USART2 ); 
 }
 
 /*! Disallow interrupt for empty trice data transmit register.
 User must provide this function.
 */
 TRICE_INLINE void triceDisableTxEmptyInterrupt( void ){
-    
+    // LL_USART_DisableIT_TXE( USART2 );
 }
 
 

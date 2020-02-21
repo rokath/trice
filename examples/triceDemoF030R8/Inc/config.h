@@ -1,4 +1,4 @@
-/*! \file Config.h
+/*! \file config.h
 \brief This file is for trice specific project settings
 \details adapt needed fifo size, compiler settings and 4 hardware access functions
 - triceTxDataRegisterEmpty()
@@ -8,8 +8,8 @@
 \author Thomas.Hoehenleitner [at] seerose.net
 *******************************************************************************/
 
-#ifndef TRICECONFIG_H_
-#define TRICECONFIG_H_
+#ifndef CONFIG_H_
+#define CONFIG_H_
 
 #ifdef __cplusplus
 extern "C" {
@@ -46,7 +46,7 @@ extern "C" {
 
 #ifdef __GNUC__ // gnu compiler ###############################################
 
-#define TRICE_INLINE static inline // todo
+#define TRICE_INLINE static inline //! used for trice code
 
 #define ALIGN4                                  //!< align to 4 byte boundary preamble
 #define ALIGN4_END __attribute__ ((aligned(4))) //!< align to 4 byte boundary post declaration
