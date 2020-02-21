@@ -1,11 +1,10 @@
 // Copyright 2020 Thomas.Hoehenleitner [at] seerose.net
-// All rights reserved.
-// Use of this source code is governed by a
-// license that can be found in the LICENSE file.
+// Use of this source code is governed by a license that can be found in the LICENSE file.
 
 package com
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"time"
@@ -26,24 +25,25 @@ func readBytes(s *serial.Port, count int) (int, []byte) {
 }
 
 // export readBytes
-func readAtLeastBytes(s *serial.Port, count int) []byte {
+func readAtLeastBytes(s *serial.Port, count, msTimeout int) ([]byte, error) {
 	buf := make([]byte, count) // the buffer size limits the read count
 	var b []byte
-	var n int
+	var n, ms int
 	var err error
-	for len(b) < count {
+	for len(b) < count && ms < msTimeout {
 		n, err = s.Read(buf)
 		if err != nil {
 			log.Fatal(err)
 		}
 		b = append(b, buf[:n]...)
 		if count == len(b) {
-			return b
+			return b, nil
 		}
 		buf = buf[n:]
 		time.Sleep(50 * time.Millisecond) // has slight influence on cpu load
+		ms += 50
 	}
-	return b // never reached
+	return b, errors.New("read timeout")
 }
 
 // FindSerialPorts scans for COM ports between 0 and 100
