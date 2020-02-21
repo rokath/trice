@@ -79,7 +79,7 @@ extern "C" {
 If trices are used only outside critical sections or interrupts
 you can leave this macro pair empty for more speed.
 */
-#define TRICE_ENTER_CRITICAL_SECTION { uint32_t primaskstate = __get_PRIMASK(); __disable_irq(); {
+#define TRICE_ENTER_CRITICAL_SECTION { // uint32_t primaskstate = __get_PRIMASK(); __disable_irq(); {
 
 /*! Restore interrupt state
 \details Workaround for ARM Cortex M0 and M0+
@@ -88,7 +88,7 @@ you can leave this macro pair empty for more speed.
 If trices are used only outside critical sections or interrupts
 you can leave this macro pair empty for more speed.
 */
-#define TRICE_LEAVE_CRITICAL_SECTION } __set_PRIMASK(primaskstate); }
+#define TRICE_LEAVE_CRITICAL_SECTION } // __set_PRIMASK(primaskstate); }
 
 /*! Check if a new byte can be written into trice transmit register.
 \retval 0 == not empty
@@ -96,7 +96,7 @@ you can leave this macro pair empty for more speed.
 User must provide this function.
 */
 TRICE_INLINE uint32_t triceTxDataRegisterEmpty( void ){
-    return 1; //LL_USART_IsActiveFlag_TXE( USART2 );
+    return 1; // LL_USART_IsActiveFlag_TXE( USART2 );
 }
 
 /*! Write value d into trice transmit register.
@@ -104,7 +104,7 @@ TRICE_INLINE uint32_t triceTxDataRegisterEmpty( void ){
 User must provide this function.
 */
 TRICE_INLINE void triceTransmitData8( uint8_t d ){
-    d = d; //LL_USART_TransmitData8( USART2, d);
+    d = d; // LL_USART_TransmitData8( USART2, d);
 }
 
 /*! Allow interrupt for empty trice data transmit register.
