@@ -1,7 +1,7 @@
 [
 	{
 		"ID": 12345,
-		"FmtType": "TR0",
+		"FmtType": "TRICE0",
 		"FmtStrg": "Hi",
 		"Created": 0,
 		"Removed": 0
