@@ -118,31 +118,30 @@ func visitUpdate(run bool, p *List, pListModified *bool, verbose bool) filepath.
 // updateNextID is getting these parameters:
 //    - p = pointer to ID list
 //    - pListModified = pointer to the 'ID list modified flag', which is set true if s.th. changed in the list
-//    - pathModified = pointer to the 'file modified flag', which is set true if s.th. changed in the file
+//    - modified = the 'file modified flag', which is returned set true if s.th. changed in the file
 //    - subs = the remaining file contents
 //    - s = the full filecontents, which could be modified
 //    - verbose flag
 // updateNextID is returning these values (left to right):
-//    - flag is true if an ID was zeroed,
-//others are updated input values. if an ID waa zeroed
-// - modified gets true
-// - subs gets shorter
-// - s is updated
+//    - id flag is true if an ID was changed
+//    - modified flag is true when any id was changed in the file
+//    - subs gets shorter
+//    - s is updated
 func updateNextID(p *List, pListModified *bool, modified bool, subs, s string, verbose bool) (bool, bool, string, string) {
 	loc := matchNbTRICE.FindStringIndex(subs) // find the next TRICE location in file
 	if nil == loc {
-		return false, modified, subs, s
+		return false, modified, subs, s // done
 	}
 	nbTRICE := subs[loc[0]:loc[1]]
 	nbID := matchNbID.FindString(nbTRICE)
 	if "" == nbID {
-		fmt.Println("No 'Id(n)' found inside " + nbTRICE)
+		fmt.Println("error: No 'Id(n)' found inside " + nbTRICE)
 		return false, modified, subs, s
 	}
 	var id int
 	_, err := fmt.Sscanf(nbID, "Id(%d", &id) // closing bracket in format string omitted intensionally
 	if nil != err {                          // because spaces after id otherwise are not tolerated
-		fmt.Println("No 'Id(n)' found inside " + nbID)
+		fmt.Println("error: No 'Id(n)' found inside " + nbID)
 		return false, modified, subs, s
 	}
 	if 0 == id {
@@ -150,14 +149,14 @@ func updateNextID(p *List, pListModified *bool, modified bool, subs, s string, v
 		zeroTRICE := nbTRICE
 		id, err = p.newID()
 		if nil != err {
-			fmt.Println("No new ID found")
+			fmt.Println("error: No new ID found")
 			return false, modified, subs, s
 		}
-		nbID = fmt.Sprintf("Id(%5d)", id)
+		newID := fmt.Sprintf("Id(%5d)", id)
 		if verbose {
-			fmt.Println(zeroID, " -> ", nbID)
+			fmt.Println(zeroID, " -> ", newID)
 		}
-		nbTRICE := strings.Replace(nbTRICE, zeroID, nbID, 1)
+		nbTRICE := strings.Replace(nbTRICE, zeroID, newID, 1)
 		s = strings.Replace(s, zeroTRICE, nbTRICE, 1)
 		modified = true
 	}
@@ -165,7 +164,7 @@ func updateNextID(p *List, pListModified *bool, modified bool, subs, s string, v
 	subs = subs[loc[1]:]
 	typNameTRICE := matchTypNameTRICE.FindString(nbTRICE)
 	if "" == typNameTRICE {
-		fmt.Println("no 'TRICE*' found inside " + typNameTRICE)
+		fmt.Println("error: no 'TRICE*' found inside " + typNameTRICE)
 		return false, modified, subs, s
 	}
 	match := matchFmtString.FindAllStringSubmatch(nbTRICE, 1)
@@ -174,17 +173,17 @@ func updateNextID(p *List, pListModified *bool, modified bool, subs, s string, v
 	if flag {
 		*pListModified = true
 		if nID != id { // a new id was generated
-			oID := fmt.Sprintf("Id(%5d)", id)
-			nID := fmt.Sprintf("Id(%5d)", nID)
+			//oID := fmt.Sprintf("Id(%5d)", id)
+			newID := fmt.Sprintf("Id(%5d)", nID)
 			if verbose {
-				fmt.Println(oID, " -> ", nID)
+				fmt.Println(nbID, " -> ", newID)
 			}
-			newTRICE := strings.Replace(nbTRICE, oID, nID, 1)
+			newTRICE := strings.Replace(nbTRICE, nbID, newID, 1)
 			s = strings.Replace(s, nbTRICE, newTRICE, 1)
 			modified = true
 		}
 	}
-	return true, modified, subs, s
+	return true, modified, subs, s // next done
 }
 
 // ZeroSourceTreeIds is overwriting with 0 all id's from source code tree srcRoot. It does not touch idlist.
