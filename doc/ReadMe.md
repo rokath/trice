@@ -122,7 +122,7 @@ Code=3808 RO-data=240 RW-data=36 ZI-data=1540|    TriceCheckSet()  |      512  |
 
 ## ID management internals & hints
 - During `trice update` so far unknown IDs are added to the ID list (case new sources added) with a `Created` utc timestamp.
-- If an ID was deleted inside the source tree (or file removal) the appropriate ID's stay inside the ID list but get a `Removed` utc timestamp.
+- If an ID was deleted inside the source tree (or file removal) the appropriate ID's stays inside the ID list but gets a `Removed` utc timestamp.
 - If the same ID appears again the appropriate `Removed` timestamp is deleted inside the ID list and the ID is aktive again.
 - If duplicate ID's with different format strings found inside the source tree (case several developers) the newer ID is replaced by a new ID. The probability for such case is low, because of the random ID generation.
 - If the format string was modified, the ID goes into the `Removed` state and a new ID is generated.
