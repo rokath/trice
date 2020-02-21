@@ -51,9 +51,9 @@ embedded device C printf-like trace code and real-time PC logging (trace ID visu
   - Core instrumentation needs less 150 bytes FLASH and about 100 bytes RAM.
 
 ## `trice` PC tool
-- Written in Go
 - Manages trices inside a C|C++ source tree during target compile time.
 - Displays trices in realtime during target runtime.
+- Written in Go
 
 ## Quick setup
 - add [trice.c](./src.C/trice.c) as is to your project
