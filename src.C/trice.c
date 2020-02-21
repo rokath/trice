@@ -66,6 +66,7 @@ static size_t triceMsgDepth( void ){
                                  ^ triceMsg.ld.load[1]
                                  ^ triceMsg.ld.load[2]
                                  ^ triceMsg.ld.load[3];
+            // \todo add Treyfer here
             return 8;
         }
     }
