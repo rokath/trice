@@ -39,7 +39,7 @@ void triceTxHandler( void );
 #define TRICE32_1( id, pFmt, v0     )
 #define TRICE32_2( id, pFmt, v0, v1 )
 
-TRICE_INLINE void TraceString( char* s ){}
+TRICE_INLINE void triceString( int, char* s ){}
 TRICE_INLINE void Report_Location( const char* const pFileName, int Line, int Value ){}
 TRICE_INLINE void ReportFailure( const char* const pName, int Line, int Value ){}
 TRICE_INLINE void ReportPassage( char *pFileName, int Line, int Value ){}
@@ -315,7 +315,7 @@ TRICE_INLINE size_t triceFifoDepth( void ){
 #define TRICE32_1( Id, pFmt, d0 ) do{ \
     TRICE_ENTER_CRITICAL_SECTION \
     TRICE_ID0( d0 ); \
-    TRICE( Id, d0>>16 ); \
+    TRICE( Id, ((uint32_t)d0)>>16 ); \
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
 
@@ -327,9 +327,9 @@ TRICE_INLINE size_t triceFifoDepth( void ){
 #define TRICE32_2( Id, pFmt, d0, d1 ) do{ \
     TRICE_ENTER_CRITICAL_SECTION \
     TRICE_ID0( d0 ); \
-    TRICE_ID0( d0>>16 ); \
+    TRICE_ID0( ((uint32_t)d0)>>16 ); \
     TRICE_ID0( d1 ); \
-    TRICE( Id, d1>>16 ); \
+    TRICE( Id, ((uint32_t)d1)>>16 ); \
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
 
