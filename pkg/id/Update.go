@@ -32,6 +32,15 @@ var matchTypNameTRICE = regexp.MustCompile(`(\bTRICE0\b|\bTRICE8_[1-8]\b|\bTRICE
 // matchFmtString is a as constant used compiled regex matching the first format string inside trice
 var matchFmtString = regexp.MustCompile(`"(.*)"`)
 
+// find a TRICE* line without Id
+var matchFullTriceWithoutID = regexp.MustCompile(`(\bTRICE64|TRICE32|TRICE16|TRICE8|TRICE0\b)\s*\(\s*".*"\s*.*\)\s*;`)
+
+var matchTriceStartWithoutIDo = regexp.MustCompile(`(\bTRICE64|TRICE32|TRICE16|TRICE8|TRICE0\b)\s*\(`)
+var matchTriceStartWithoutID = regexp.MustCompile(`(\bTRICE64|TRICE32|TRICE16|TRICE8|TRICE0\b)\s*`)
+
+// find next format specifier in a string
+var matchNextFormatSpezifier = regexp.MustCompile(`\s*\%[0-9\.]*(b|d|u|x|X|o|f)`)
+
 func isSourceFile(fi os.FileInfo) bool {
 	return matchSourceFile.MatchString(fi.Name())
 }
@@ -96,8 +105,19 @@ func visitUpdate(run bool, p *List, pListModified *bool, verbose bool) filepath.
 			return err
 		}
 		s := string(read)
-		subs := s[:len(s)]
 
+		// update parameter count (TRICE* to TRICE*_n)
+		subs := s[:len(s)]
+		for {
+			var found bool
+			found, pathModified, subs, s = updateParamCount(pathModified, subs, s, verbose)
+			if false == found {
+				break
+			}
+		}
+
+		// update IDs
+		subs = s[:len(s)]
 		for {
 			var found bool
 			found, pathModified, subs, s = updateNextID(p, pListModified, pathModified, subs, s, verbose)
@@ -105,6 +125,8 @@ func visitUpdate(run bool, p *List, pListModified *bool, verbose bool) filepath.
 				break
 			}
 		}
+
+		// write out
 		if pathModified && true == run {
 			err = ioutil.WriteFile(path, []byte(s), 0)
 			if nil != err {
@@ -184,6 +206,61 @@ func updateNextID(p *List, pListModified *bool, modified bool, subs, s string, v
 		}
 	}
 	return true, modified, subs, s // next done
+}
+
+// updateParamCount is called in a loop for each file as long TRICE* statements without ID() are found
+// If a TRICE* is found it is getting an Id(0) inserted and it is also extended by _n
+// according to the format specifier count inside the formatstring
+//
+// updateParamCount is getting these parameters:
+//    - modified = the 'file modified flag', which is returned set true if s.th. changed in the file
+//    - subs = the remaining file contents
+//    - s = the full filecontents, which could be modified
+//    - verbose flag
+// updateNextID is returning these values (left to right):
+//    - modified flag is true when anything was changed in the file
+//    - subs gets shorter
+//    - s is updated
+func updateParamCount(modified bool, subs, s string, verbose bool) (bool, bool, string, string) {
+	loc := matchFullTriceWithoutID.FindStringIndex(subs) // find the next TRICE location in file
+	if nil == loc {
+		return false, modified, subs, s // done
+	}
+	modified = true
+	trice := subs[loc[0]:loc[1]]                                  // the whole TRICE*(*);
+	triceO := matchTriceStartWithoutIDo.FindString(trice)         // TRICE*( part (the trice start)
+	triceS := matchTriceStartWithoutID.FindString(trice)          // TRICE* part (the trice start)
+	triceN := strings.Replace(trice, triceO, triceO+" Id(0),", 1) // insert Id(0)
+
+	// count % format spezifier inside formatstring
+	p := "asde%77d bbbb"
+	var n int
+	xs := "any"
+	for "" != xs {
+		x := matchNextFormatSpezifier.FindStringIndex(p)
+		if nil != x { // found
+			n++
+			p = subs[loc[1]:]
+			xs = subs[x[0]:x[1]]
+		} else {
+			xs = ""
+		}
+	}
+	if n > 0 { // patch
+		newName := fmt.Sprintf(triceS+"_%d", n)              // TRICE*_n
+		triceN = strings.Replace(triceN, triceS, newName, 1) // insert _n
+	} else {
+		// todo: handle special case 0==n
+	}
+
+	if verbose {
+		fmt.Println(trice)
+		fmt.Println("->")
+		fmt.Println(triceN)
+	}
+	s = strings.Replace(s, trice, triceN, 1) // modify s
+	subs = subs[loc[1]:]                     // The replacement makes s not shorter, so next seach can start at loc[1]
+	return true, modified, subs, s           // next done
 }
 
 // ZeroSourceTreeIds is overwriting with 0 all id's from source code tree srcRoot. It does not touch idlist.
