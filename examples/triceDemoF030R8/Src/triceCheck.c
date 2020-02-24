@@ -43,8 +43,8 @@ void triceCheckSet( void )
 */
     TRICE32_3( Id(64095), "tst:                       %09x     %09x     %09x\n", 0x80000000, 0xffffffff, 0x11223344 ); // 4
     TRICE32_4( Id(28144), "tst:TRICE32   %%09x ->     %09x     %09x     %09x     %09x\n", 0x11223344, 0x55667788, 0xaabbccdd, 0xeeff0011 ); // 4
-    TRICE64_1( Id(50000), "att:64bit %x\n", 0x1122334455667788 );
-    TRICE64_1( Id(19466), "att:64bit %x\n", 0x9922334455667788 );
+    TRICE64_1( Id(35491), "att:64bit %x\n", 0x1122334455667788ull );
+    TRICE64_1( Id(64075), "att:64bit %x\n", 0x9922334455667788ull );
     // 6 * 4 subtraces
 /*
     TRICE8_1( Id(38612), "tst:TRICE8 %d\n", 1 ); // 1

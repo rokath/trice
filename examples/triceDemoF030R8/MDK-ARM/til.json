@@ -1846,5 +1846,19 @@
 		"fmtStrg": "att:64bit %x\\n",
 		"created": 1582556750,
 		"removed": 0
+	},
+	{
+		"id": 35491,
+		"fmtType": "TRICE64_1",
+		"fmtStrg": "att:64bit %x\\n",
+		"created": 1582563310,
+		"removed": 0
+	},
+	{
+		"id": 64075,
+		"fmtType": "TRICE64_1",
+		"fmtStrg": "att:64bit %x\\n",
+		"created": 1582563310,
+		"removed": 0
 	}
 ]
