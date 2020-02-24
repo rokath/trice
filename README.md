@@ -13,7 +13,7 @@ embedded device C printf-like trace code and real-time PC logging (trace ID visu
 
 ## Search counter statistics
 ![GitHub search hit counter](https://img.shields.io/github/search/rokath/trice/trace)
-![GitHub search hit counter](https://img.shields.io/github/search/rokath/trice/instrumentation)
+#![GitHub search hit counter](https://img.shields.io/github/search/rokath/trice/instrumentation)
 ![GitHub search hit counter](https://img.shields.io/github/search/rokath/trice/embedded)
 ![GitHub search hit counter](https://img.shields.io/github/search/rokath/trice/logging)
 ![GitHub search hit counter](https://img.shields.io/github/search/rokath/trice/real-time)
