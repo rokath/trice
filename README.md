@@ -1,4 +1,4 @@
-# **trice** - **TR**ace **I**ds **C** **E**mbedded 
+# **trice** - **TR**ace **I**ds **C** **E**mbedded *(printf() - replacement)*
 embedded device C printf-like trace code and real-time PC logging (trace ID visualization) over serial port
 
 
