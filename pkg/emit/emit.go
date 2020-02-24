@@ -425,7 +425,8 @@ func emitterGo(it id.Item, b []byte) (string, error) {
 	f, _, err := langCtoGoFmtStingConverter(it.FmtStrg)
 	var s string
 	var v0, v1, v2, v3 int16
-	var w0, w1 int32
+	var w0, w1, w2, w3 int32
+	var l0 int64
 	switch it.FmtType {
 	case "TRICE0":
 		if 2 != len(b) { // b has 2 padding bytes
@@ -524,6 +525,29 @@ func emitterGo(it id.Item, b []byte) (string, error) {
 		w0 = int32(binary.LittleEndian.Uint32(b[0:4]))
 		w1 = int32(binary.LittleEndian.Uint32(b[4:8]))
 		s = fmt.Sprintf(f, w0, w1)
+	case "TRICE32_3":
+		if 12 != len(b) {
+			return "TRICE32_3", fmt.Errorf("false len %v", b)
+		}
+		w0 = int32(binary.LittleEndian.Uint32(b[0:4]))
+		w1 = int32(binary.LittleEndian.Uint32(b[4:8]))
+		w2 = int32(binary.LittleEndian.Uint32(b[8:12]))
+		s = fmt.Sprintf(f, w0, w1, w2)
+	case "TRICE32_4":
+		if 16 != len(b) {
+			return "TRICE32_4", fmt.Errorf("false len %v", b)
+		}
+		w0 = int32(binary.LittleEndian.Uint32(b[0:4]))
+		w1 = int32(binary.LittleEndian.Uint32(b[4:8]))
+		w2 = int32(binary.LittleEndian.Uint32(b[8:12]))
+		w3 = int32(binary.LittleEndian.Uint32(b[12:16]))
+		s = fmt.Sprintf(f, w0, w1, w2, w3)
+	case "TRICE64_1":
+		if 8 != len(b) {
+			return "TRICE64_1", fmt.Errorf("false len %v", b)
+		}
+		l0 = int64(binary.LittleEndian.Uint64(b[0:8]))
+		s = fmt.Sprintf(f, l0)
 	default:
 		return "ERR: INTERNAL ERROR!!!", errors.New("ERR: INTERNAL ERROR")
 	}

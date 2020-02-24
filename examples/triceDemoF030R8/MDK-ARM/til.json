@@ -1783,5 +1783,68 @@
 		"fmtStrg": "dbg:12345 as 16bit is %#016b\\n",
 		"created": 1582185007,
 		"removed": 0
+	},
+	{
+		"id": 61079,
+		"fmtType": "TRICE32_3",
+		"fmtStrg": "tst:     %09x     %09x     %09x\\n",
+		"created": 1582554884,
+		"removed": 0
+	},
+	{
+		"id": 1885,
+		"fmtType": "TRICE32_4",
+		"fmtStrg": "tst:TRICE32   %%09x -\u003e     %09x     %09x     %09x     %09x",
+		"created": 1582554884,
+		"removed": 0
+	},
+	{
+		"id": 6435,
+		"fmtType": "TRICE32_3",
+		"fmtStrg": "tst:TRICE32 %d %d %d\\n",
+		"created": 1582554884,
+		"removed": 0
+	},
+	{
+		"id": 4527,
+		"fmtType": "TRICE32_4",
+		"fmtStrg": "tst:TRICE32 %d %d %d %d\\n",
+		"created": 1582554884,
+		"removed": 0
+	},
+	{
+		"id": 64095,
+		"fmtType": "TRICE32_3",
+		"fmtStrg": "tst:                       %09x     %09x     %09x\\n",
+		"created": 1582555442,
+		"removed": 0
+	},
+	{
+		"id": 28144,
+		"fmtType": "TRICE32_4",
+		"fmtStrg": "tst:TRICE32   %%09x -\u003e     %09x     %09x     %09x     %09x\\n",
+		"created": 1582555442,
+		"removed": 0
+	},
+	{
+		"id": 23900,
+		"fmtType": "TRICE64_1",
+		"fmtStrg": "64bit %x\\n",
+		"created": 1582556304,
+		"removed": 0
+	},
+	{
+		"id": 50000,
+		"fmtType": "TRICE64_1",
+		"fmtStrg": "att:64bit %x\\n",
+		"created": 1582556750,
+		"removed": 0
+	},
+	{
+		"id": 19466,
+		"fmtType": "TRICE64_1",
+		"fmtStrg": "att:64bit %x\\n",
+		"created": 1582556750,
+		"removed": 0
 	}
 ]

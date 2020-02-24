@@ -107,7 +107,7 @@ int main(void)
     while (1)
     {
         static int32_t loopCount = 0u;
-        #define LOOPCOUNT 1000000u // resonable for 48 MHz MCU
+        #define LOOPCOUNT 10000000u // resonable for 48 MHz MCU
         loopCount++;
         if( (LOOPCOUNT>>1) == loopCount ){
           LL_GPIO_ResetOutputPin(LD2_GPIO_Port, LD2_Pin);

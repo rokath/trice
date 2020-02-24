@@ -34,7 +34,7 @@
             "env": {},
             "args": ["log",
                      "-port",
-                     "COM5",
+                     "COM10",
                      "-baud",
                      "115200",
                      "-list",

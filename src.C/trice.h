@@ -333,6 +333,58 @@ TRICE_INLINE size_t triceFifoDepth( void ){
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
 
+//! trace Id and 32-bit values protected (outside critical section)
+//! \param Id trice identifier
+//! \param pFmt formatstring for trice
+//! \param d0 payload
+//! \param d1 payload
+//! \param d2 payload
+#define TRICE32_3( Id, pFmt, d0, d1, d2 ) do{ \
+    TRICE_ENTER_CRITICAL_SECTION \
+    TRICE_ID0( d0 ); \
+    TRICE_ID0( ((uint32_t)d0)>>16 ); \
+    TRICE_ID0( d1 ); \
+    TRICE_ID0( ((uint32_t)d1)>>16 ); \
+    TRICE_ID0( d2 ); \
+    TRICE( Id, ((uint32_t)d2)>>16 ); \
+    TRICE_LEAVE_CRITICAL_SECTION \
+} while(0)
+
+//! trace Id and 32-bit values protected (outside critical section)
+//! \param Id trice identifier
+//! \param pFmt formatstring for trice
+//! \param d0 payload
+//! \param d1 payload
+//! \param d2 payload
+//! \param d3 payload
+#define TRICE32_4( Id, pFmt, d0, d1, d2, d3 ) do{ \
+    TRICE_ENTER_CRITICAL_SECTION \
+    TRICE_ID0( d0 ); \
+    TRICE_ID0( ((uint32_t)d0)>>16 ); \
+    TRICE_ID0( d1 ); \
+    TRICE_ID0( ((uint32_t)d1)>>16 ); \
+    TRICE_ID0( d2 ); \
+    TRICE_ID0( ((uint32_t)d2)>>16 ); \
+    TRICE_ID0( d3 ); \
+    TRICE( Id, ((uint32_t)d3)>>16 ); \
+    TRICE_LEAVE_CRITICAL_SECTION \
+} while(0)
+
+//! trace Id and 32-bit values protected (outside critical section)
+//! \param Id trice identifier
+//! \param pFmt formatstring for trice
+//! \param d0 payload
+//! \param d1 payload
+#define TRICE64_1( Id, pFmt, d0 ) do{ \
+    TRICE_ENTER_CRITICAL_SECTION \
+    TRICE_ID0( ((uint64_t)d0)>>00 ); /*ll*/ \
+    TRICE_ID0( ((uint64_t)d0)>>16 ); /*hl*/\
+    TRICE_ID0( ((uint64_t)d0)>>32 ); /*lh*/ \
+    TRICE( Id, ((uint64_t)d0)>>48 ); /*hh*/ \
+    TRICE_LEAVE_CRITICAL_SECTION \
+} while(0)
+
+
 #else // #if 0 == TRICE_SHORT_MEMORY // ##########################################
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -699,6 +751,50 @@ TRICE_INLINE void trice_32_2_ocs( uint16_t Id, uint32_t d0, uint32_t d1 ){
     TRICE_LEAVE_CRITICAL_SECTION
 }
 
+//! trace Id and 32-bit values unprotected (inside critical section)
+//! \param Id trice identifier
+//! \param d0 payload
+//! \param d1 payload
+//! \param d2 payload
+TRICE_INLINE void trice_32_3_ics( uint16_t Id, uint32_t d0, uint32_t d1, uint32_t d2 ){
+    trice_16_02_ics( d0, d0>>16 );
+    trice_16_4_ics( Id, d1, d1>>16 , d2, d2>>16 );
+}
+
+//! trace Id and 32-bit values protected (outside critical section)
+//! \param Id trice identifier
+//! \param d0 payload
+//! \param d1 payload
+//! \param d2 payload
+TRICE_INLINE void trice_32_3_ocs( uint16_t Id, uint32_t d0, uint32_t d1, uint32_t d2 ){
+    TRICE_ENTER_CRITICAL_SECTION
+    trice_32_3_ics( Id, d0, d1, d2 );
+    TRICE_LEAVE_CRITICAL_SECTION
+}
+
+//! trace Id and 32-bit values unprotected (inside critical section)
+//! \param Id trice identifier
+//! \param d0 payload
+//! \param d1 payload
+//! \param d2 payload
+//! \param d3 payload
+TRICE_INLINE void trice_32_4_ics( uint16_t Id, uint32_t d0, uint32_t d1, uint32_t d2, uint32_t d3 ){
+    trice_16_4_ics( 0, d0, d0>>16, d1, d1>>16  );
+    trice_16_4_ics( Id, d2, d2>>16, d3, d3>>16  );
+}
+
+//! trace Id and 32-bit values protected (outside critical section)
+//! \param Id trice identifier
+//! \param d0 payload
+//! \param d1 payload
+//! \param d2 payload
+//! \param d3 payload
+TRICE_INLINE void trice_32_4_ocs( uint16_t Id, uint32_t d0, uint32_t d1, uint32_t d2, uint32_t d3 ){
+    TRICE_ENTER_CRITICAL_SECTION
+    trice_32_4_ics( Id, d0, d1, d2, d3 );
+    TRICE_LEAVE_CRITICAL_SECTION
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // TRICE macros
 //
@@ -855,6 +951,27 @@ TRICE_INLINE void trice_32_2_ocs( uint16_t Id, uint32_t d0, uint32_t d1 ){
 //! \param d1 payload
 #define TRICE32_2( Id, pFmt, d0, d1 ) do{ \
     trice_32_2_ocs( Id, d0, d1 ); \
+} while(0)
+
+//! trace Id and 32-bit values protected (outside critical section)
+//! \param Id trice identifier
+//! \param pFmt formatstring for trice
+//! \param d0 payload
+//! \param d1 payload
+//! \param d2 payload
+#define TRICE32_3( Id, pFmt, d0, d1, d2 ) do{ \
+    trice_32_3_ocs( Id, d0, d1, d2 ); \
+} while(0)
+
+//! trace Id and 32-bit values protected (outside critical section)
+//! \param Id trice identifier
+//! \param pFmt formatstring for trice
+//! \param d0 payload
+//! \param d1 payload
+//! \param d2 payload
+//! \param d3 payload
+#define TRICE32_4( Id, pFmt, d0, d1, d2, d3 ) do{ \
+    trice_32_4_ocs( Id, d0, d1, d2, d3 ); \
 } while(0)
 
 #endif //#else // #if 0 == TRICE_SHORT_MEMORY // #################################

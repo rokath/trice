@@ -48,7 +48,7 @@ func doUpdate(t *testing.T, path string) {
 	ok(t, err)
 	equals(t, exp, act)
 
-	//os.RemoveAll(a)
+	os.RemoveAll(a)
 }
 
 func TestUpdateZeroId(t *testing.T) {
@@ -64,5 +64,5 @@ func TestUpdateSameId(t *testing.T) {
 }
 
 func TestUpdatePrintfAdapter(t *testing.T) {
-	doUpdate(t, "/testdata/PrintfAdapter/")
+	doUpdate(t, "/testdata/AutoParamCount/")
 }

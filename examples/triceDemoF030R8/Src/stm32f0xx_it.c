@@ -128,9 +128,9 @@ void SysTick_Handler(void)
     static uint16_t msTick = 0;
     static uint32_t ms = 0; 
     msTick++;
-    if( 100 == msTick ){
+    if( 1000 == msTick ){
         msTick = 0;
-        ms +=100;
+        ms +=1000;
         TRICE32_1( Id(18577), "ISR:alive time %d milliseconds\n", ms );
     }
 

@@ -21,13 +21,13 @@ import (
 var matchSourceFile = regexp.MustCompile("(\\.c|\\.h|\\.cc|\\.cpp|\\.hpp)$")
 
 // matchNbTRICE is a as constant used compiled regex matching any (first in line) "TRICE*(Id(n), "", ... );". - see https://regex101.com/r/LNlAwY/7
-var matchNbTRICE = regexp.MustCompile(`(\bTRICE0\b|\bTRICE8_[1-8]\b|\bTRICE16_[1-4]\b|\bTRICE32_[1-2])\s*\(\s*\bId\b\s*\(\s*.*[0-9]\s*\)\s*,\s*".*"\s*.*\)\s*;`)
+var matchNbTRICE = regexp.MustCompile(`(\bTRICE0\b|\bTRICE8_[1-8]\b|\bTRICE16_[1-4]\b|\bTRICE32_[1-4]|\bTRICE64_[1-4])\s*\(\s*\bId\b\s*\(\s*.*[0-9]\s*\)\s*,\s*".*"\s*.*\)\s*;`)
 
 // matchNbID is a as constant used compiled regex matching any (first in string) "Id(n)" and usable in matches of matchNbTRICE
 var matchNbID = regexp.MustCompile(`\bId\s*\(\s*[0-9]*\s*\)`)
 
 // matchTypNameTRICE is a as constant used compiled regex matching "TRICE*" inside trice
-var matchTypNameTRICE = regexp.MustCompile(`(\bTRICE0\b|\bTRICE8_[1-8]\b|\bTRICE16_[1-4]\b|\bTRICE32_[1-2])`)
+var matchTypNameTRICE = regexp.MustCompile(`(\bTRICE0\b|\bTRICE8_[1-8]\b|\bTRICE16_[1-4]\b|\bTRICE32_[1-4]|\bTRICE64_[1-4])`)
 
 // matchFmtString is a as constant used compiled regex matching the first format string inside trice
 var matchFmtString = regexp.MustCompile(`"(.*)"`)
@@ -39,7 +39,10 @@ var matchTriceStartWithoutIDo = regexp.MustCompile(`(\bTRICE64|TRICE32|TRICE16|T
 var matchTriceStartWithoutID = regexp.MustCompile(`(\bTRICE64|TRICE32|TRICE16|TRICE8|TRICE0\b)\s*`)
 
 // find next format specifier in a string
-var matchNextFormatSpezifier = regexp.MustCompile(`\s*\%[0-9\.]*(b|d|u|x|X|o|f)`)
+var matchNextFormatSpezifier = regexp.MustCompile(`%[0-9\.]*(b|d|u|x|X|o|f)`)
+
+// find next format specifier in a string (exclude %%*)
+//var matchNextFormatSpezifier = regexp.MustCompile(`(?<!%)(%[0-9\.]*(b|d|u|x|X|o|f))`) // invalid or unsupported Perl syntax: `(?<`
 
 func isSourceFile(fi os.FileInfo) bool {
 	return matchSourceFile.MatchString(fi.Name())
@@ -233,15 +236,15 @@ func updateParamCount(modified bool, subs, s string, verbose bool) (bool, bool, 
 	triceN := strings.Replace(trice, triceO, triceO+" Id(0),", 1) // insert Id(0)
 
 	// count % format spezifier inside formatstring
-	p := "asde%77d bbbb"
+	p := triceN
 	var n int
 	xs := "any"
 	for "" != xs {
-		x := matchNextFormatSpezifier.FindStringIndex(p)
-		if nil != x { // found
+		lo := matchNextFormatSpezifier.FindStringIndex(p)
+		xs = matchNextFormatSpezifier.FindString(p)
+		if "" != xs { // found
 			n++
-			p = subs[loc[1]:]
-			xs = subs[x[0]:x[1]]
+			p = p[lo[1]:]
 		} else {
 			xs = ""
 		}
