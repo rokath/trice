@@ -16,21 +16,21 @@ Traces with more bytes as parameter consist of several subtraces.
 */
 void triceCheckSet( void )
 {
-    TRICE8_5( Id(43255), "tst:TRICE8  %07x ->  %03x  %03x  %03x  %03x\n", 1, 0x7f, 0x80, 0xff ); // 4
-    TRICE8_5( Id( 9070), "tst:TRICE8   %4d -> %4d %4d %4d %4d\n", 1, 0x7f, 0x80, 0xff ); // 4
+    TRICE8_4( Id(43255), "tst:TRICE8  %%07x ->  %03x  %03x  %03x  %03x\n", 1, 0x7f, 0x80, 0xff ); // 4
+    TRICE8_4( Id( 9070), "tst:TRICE8   %%4d -> %4d %4d %4d %4d\n", 1, 0x7f, 0x80, 0xff ); // 4
     TRICE8_5( Id(46064), "tst:TRICE8  %4o -> %4o %4o %4o %4o\n", 1, 0x7f, 0x80, 0xff ); // 4
     // 3 * 2 ss
 
-    TRICE16_4( Id(50207), "tst:TRICE16  %%_05x ->   %05x   %05x   %05x   %05x\n", 1, 0x7fff, 0x8000, 0xffff ); // 4
-    TRICE16_4( Id(18441), "tst:TRICE16   %%_6d ->  %6d  %6d  %6d  %6d\n", 1, 0x7fff, 0x8000, 0xffff ); // 4
-    TRICE16_4( Id(55022), "tst:TRICE16   %%_7o -> %7o %7o %7o %7o\n", 1, 0x7fff, 0x8000, 0xffff ); // 4
+    TRICE16_4( Id(50207), "tst:TRICE16  %%05x ->   %05x   %05x   %05x   %05x\n", 1, 0x7fff, 0x8000, 0xffff ); // 4
+    TRICE16_4( Id(18441), "tst:TRICE16   %%6d ->  %6d  %6d  %6d  %6d\n", 1, 0x7fff, 0x8000, 0xffff ); // 4
+    TRICE16_4( Id(55022), "tst:TRICE16   %%7o -> %7o %7o %7o %7o\n", 1, 0x7fff, 0x8000, 0xffff ); // 4
     // 3 * ss
 
-    TRICE32_2( Id(60593), "tst:TRICE32   %%_09x ->     %09x     %09x", 1, 0x7fffffff ); // 4
+    TRICE32_2( Id(60593), "tst:TRICE32   %%09x ->     %09x     %09x", 1, 0x7fffffff ); // 4
     TRICE32_2( Id(16488), "tst:     %09x     %09x\n", 0x80000000, 0xffffffff ); // 4
-    TRICE32_2( Id(59359), "tst:TRICE32   %%_11d ->   %11d   %11d", 1, 0x7fffffff ); // 4
+    TRICE32_2( Id(59359), "tst:TRICE32   %%11d ->   %11d   %11d", 1, 0x7fffffff ); // 4
     TRICE32_2( Id(62524), "tst:   %11d   %11d\n", 0x80000000, 0xffffffff  ); // 4
-    TRICE32_2( Id(34009), "tst:TRICE32   %%_12o ->  %12o  %12o", 1, 0x7fffffff ); // 4
+    TRICE32_2( Id(34009), "tst:TRICE32   %%12o ->  %12o  %12o", 1, 0x7fffffff ); // 4
     TRICE32_2( Id(  453), "tst:  %12o  %12o\n", 0x80000000, 0xffffffff ); // 4
     // 6 * 4 ss
 
