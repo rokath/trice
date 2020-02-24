@@ -7,7 +7,7 @@
 
   <Targets>
     <Target>
-      <TargetName>triceDemoF030R8</TargetName>
+      <TargetName>reCalDemoF030R8</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
       <pCCUsed>5060750::V5.06 update 6 (build 750)::ARMCC</pCCUsed>
@@ -48,8 +48,8 @@
             <NotGenerated>0</NotGenerated>
             <InvalidFlash>1</InvalidFlash>
           </TargetStatus>
-          <OutputDirectory>triceDemoF030R8\</OutputDirectory>
-          <OutputName>triceDemoF030R8</OutputName>
+          <OutputDirectory>reCalDemoF030R8\</OutputDirectory>
+          <OutputName>reCalDemoF030R8</OutputName>
           <CreateExecutable>1</CreateExecutable>
           <CreateLib>0</CreateLib>
           <CreateHexFile>1</CreateHexFile>
@@ -312,8 +312,8 @@
           </ArmAdsMisc>
           <Cads>
             <interw>1</interw>
-            <Optim>4</Optim>
-            <oTime>1</oTime>
+            <Optim>1</Optim>
+            <oTime>0</oTime>
             <SplitLS>0</SplitLS>
             <OneElfS>1</OneElfS>
             <Strict>0</Strict>
@@ -393,11 +393,6 @@
           <GroupName>Application/User</GroupName>
           <Files>
             <File>
-              <FileName>trice.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\src.C\trice.c</FilePath>
-            </File>
-            <File>
               <FileName>main.c</FileName>
               <FileType>1</FileType>
               <FilePath>../Src/main.c</FilePath>
@@ -460,12 +455,42 @@
           </Files>
         </Group>
         <Group>
+          <GroupName>Trice</GroupName>
+          <Files>
+            <File>
+              <FileName>trice.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\src.C\trice.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
           <GroupName>lib</GroupName>
           <Files>
+            <File>
+              <FileName>Fifo.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\lib\Fifo.c</FilePath>
+            </File>
+            <File>
+              <FileName>msTicks.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\lib\msTicks.c</FilePath>
+            </File>
             <File>
               <FileName>printf.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\lib\printf.c</FilePath>
+            </File>
+            <File>
+              <FileName>RcPack.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\lib\RcPack.c</FilePath>
+            </File>
+            <File>
+              <FileName>RcRegistry.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\lib\RcRegistry.c</FilePath>
             </File>
             <File>
               <FileName>triceCheck.c</FileName>
@@ -487,7 +512,7 @@
       <component Cclass="CMSIS" Cgroup="CORE" Cvendor="ARM" Cversion="4.3.0" condition="CMSIS Core">
         <package name="CMSIS" schemaVersion="1.3" url="http://www.keil.com/pack/" vendor="ARM" version="4.5.0"/>
         <targetInfos>
-          <targetInfo name="triceDemoF030R8"/>
+          <targetInfo name="reCalDemoF030R8"/>
         </targetInfos>
       </component>
     </components>

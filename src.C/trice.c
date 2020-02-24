@@ -22,7 +22,7 @@ That is the time critical part.
 /*! This function should be called inside the transmit done device interrupt.
 Also it should be called cyclically to trigger transmission start.
 */
-void triceTxHandler( void ){}
+void triceTxHandler( int* pTxState ){}
 
 #else // #ifdef TRICE_OFF
 
@@ -75,15 +75,19 @@ static size_t triceMsgDepth( void ){
 
 /*! This function should be called inside the transmit done device interrupt.
 Also it should be called cyclically to trigger transmission start.
+\param pTxState address of a transmission state variable. It is cleared if no more traceLog messages to transmit and set to 1 if a traceLog transmission was started.
+\todo handle 8==traceLogMsgDepth() to give chance to other data streams
 */
-void triceTxHandler( void ){
+void triceTxHandler( int* pTxState ){
     if( triceTxDataRegisterEmpty() ){ 
         if( triceMsgDepth() ){
             uint8_t x = triceMsgNextByte();
             triceTransmitData8( x );
+            *pTxState = 1;
             triceEableTxEmptyInterrupt(); 
         }else{
             triceDisableTxEmptyInterrupt();
+            *pTxState = 0;
         }
     }
 }

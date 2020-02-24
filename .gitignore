@@ -16,3 +16,13 @@ examples/triceDemoF030R8/MDK-ARM/*.lst
 examples/triceDemoF030R8/MDK-ARM/RTE/*
 examples/triceDemoF030R8/MDK-ARM/RTE/*/*
 examples/triceDemoF030R8/MDK-ARM/DebugConfig/*
+
+examples/reCalDemoF030R8/.mxproject
+examples/reCalDemoF030R8/MDK-ARM/EventRecorderStub.scvd
+examples/reCalDemoF030R8/MDK-ARM/*.uvguix.ms
+examples/reCalDemoF030R8/MDK-ARM/reCalDemoF030R8/*
+examples/reCalDemoF030R8/MDK-ARM/*.lst
+examples/reCalDemoF030R8/MDK-ARM/RTE/*
+examples/reCalDemoF030R8/MDK-ARM/RTE/*/*
+examples/reCalDemoF030R8/MDK-ARM/DebugConfig/*
+

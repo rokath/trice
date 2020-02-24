@@ -17,7 +17,7 @@ extern "C" {
 /*! This function should be called inside the transmit done device interrupt.
 Also it should be called cyclically to trigger transmission start.
 */
-void triceTxHandler( void );
+void triceTxHandler( int* pTxState );
 
 #define Id( n ) (n) //!< Macro for improved trice readability and better source code parsing.
 

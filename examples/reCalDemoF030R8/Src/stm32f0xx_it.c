@@ -24,6 +24,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "trice.h"
+#include "Fifo.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -53,6 +54,87 @@
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+
+///////////////////////////////////////////////////////////////////////////////
+// fifo instances
+//
+
+#define WSIZ 128 //!< must be power of 2!
+static uint8_t rcWr[ WSIZ ]; 
+#define RSIZ 512 //!< must be power of 2!
+static uint8_t rcRd[ RSIZ ];
+
+//! fifo control struct, UART transmit date are provided here
+Fifo_t wrFifo = {0, rcWr, rcWr+WSIZ, rcWr, rcWr }; 
+
+//! fifo control struct, UART received data are arriving here
+Fifo_t rdFifo = {0, rcRd, rcRd+RSIZ, rcRd, rcRd }; 
+
+/*
+///////////////////////////////////////////////////////////////////////////////
+// rx 
+//
+
+static void UartRxCheck( void ){
+    if( LL_USART_IsActiveFlag_RXNE( USART2 ) ) { // RX Data Register NOT Empty Flag
+        uint8_t value = LL_USART_ReceiveData8( USART2 );
+        LL_USART_RequestRxDataFlush( USART2 ); 
+        FifoPushUint8_InsideRxIsr( &rdFifo, value );
+    }
+}
+*/
+
+
+///////////////////////////////////////////////////////////////////////////////
+// tx 
+//
+
+enum{
+    noTx, // no transmission
+    triceTx, // trice packet in transmission
+    reCalTx // remote call packet in transmission
+};
+
+int txState = noTx;
+
+//!
+//! \param pTxState, set none when current packet done, set reCal when reCal packet transfer
+//! \todo review packets to determine packet end
+void reCalTxHandler( int* pTxState ){
+    if( LL_USART_IsActiveFlag_TXE( USART2 ) ){ // TX Data Register Empty 
+        uint8_t value;
+        size_t count = FifoReadableCount( &wrFifo );
+        if( count ){
+            *pTxState = reCalTx;
+            FifoPopUint8_InsideTxIsr( &wrFifo, &value );
+            LL_USART_TransmitData8( USART2, value );
+            count--;
+        }
+        if( 0 == count ){
+            LL_USART_DisableIT_TXE( USART2 );
+            *pTxState = 0;
+        }
+    }
+}
+
+void UartTxStartCheck( void ){
+    /*if( noTx == txState ){
+        reCalTxHandler( &txState );
+    }*/
+    if( noTx == txState ){
+        triceTxHandler( &txState );
+    }
+}
+
+void UartTxCheck( void ){
+    if( reCalTx == txState ){
+        reCalTxHandler( &txState );
+    } else if( triceTx == txState ){
+        triceTxHandler(&txState);
+    } else { // none == tsState
+        UartTxStartCheck();
+    }
+}
 
 /* USER CODE END 0 */
 
@@ -124,21 +206,20 @@ void PendSV_Handler(void)
   */
 void SysTick_Handler(void)
 {
-    int dummy;
   /* USER CODE BEGIN SysTick_IRQn 0 */
     static uint16_t msTick = 0;
     static uint32_t ms = 0; 
     msTick++;
-    if( 1000 == msTick ){
+    if( 100 == msTick ){
         msTick = 0;
-        ms +=1000;
+        ms +=100;
         TRICE32_1( Id(18577), "ISR:alive time %d milliseconds\n", ms );
     }
 
   /* USER CODE END SysTick_IRQn 0 */
   
   /* USER CODE BEGIN SysTick_IRQn 1 */
-    triceTxHandler(&dummy); // start transmission if data
+    UartTxStartCheck(); // start transmission if data
   /* USER CODE END SysTick_IRQn 1 */
 }
 
@@ -154,12 +235,12 @@ void SysTick_Handler(void)
   */
 void USART2_IRQHandler(void)
 {
-    int dummy;
   /* USER CODE BEGIN USART2_IRQn 0 */
 
   /* USER CODE END USART2_IRQn 0 */
   /* USER CODE BEGIN USART2_IRQn 1 */
-    triceTxHandler(&dummy);
+    //UartRxCheck();
+    UartTxCheck();
   /* USER CODE END USART2_IRQn 1 */
 }
 
