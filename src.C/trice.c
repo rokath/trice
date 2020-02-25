@@ -11,6 +11,7 @@ That is the time critical part.
 *******************************************************************************/
 
 #include "trice.h"
+#include "treyferCrypto.h"
 
 #ifdef TRICE_PRINTF_ADAPTER
 #include <stdarg.h>
@@ -66,7 +67,12 @@ static size_t triceMsgDepth( void ){
                                  ^ triceMsg.ld.load[1]
                                  ^ triceMsg.ld.load[2]
                                  ^ triceMsg.ld.load[3];
-            // \todo add Treyfer here
+            #ifdef TREYFER_KEY
+            {
+                static uint8_t const treyferKey[8] = TREYFER_KEY;
+                encrypt( (uint8_t*)&triceMsg, treyferKey );
+            }
+            #endif // #ifdef TREYFER_KEY
             return 8;
         }
     }

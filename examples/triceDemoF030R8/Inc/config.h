@@ -28,6 +28,7 @@ extern "C" {
 #define TRICE_DISPL_ADDR (0x60) //!< trice terminal address for this device (choose free)
 #define TRICE_SHORT_MEMORY 0 //!< 1 means less Flash needed but slower, set compiler switch "optimize for time" accordingly!
 //#define TRICE_OFF //!< enable this line to disable trice code generation
+//#define TREYFER_KEY { 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88 } //!< enable to encrypt trice transmit data (must be done in trice-tool too)
 
 //! Enable this for legacy projects with printf( "...%s...", ... ); statements
 //! This is only for easy porting and has no advantage in time and space compared to printf
