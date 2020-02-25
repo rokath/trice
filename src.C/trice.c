@@ -94,6 +94,9 @@ void triceTxHandler( int* pTxState ){
 
 #ifdef TRICE_PRINTF_ADAPTER
 
+//! trice replacement helper for printf() with %s 
+//! use only for dynamic generatd strings
+//! \param pFmt formatstring
 int tricePrintfAdapter( const char* pFmt, ... ){
     va_list va;
     int done;

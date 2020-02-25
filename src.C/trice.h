@@ -1145,7 +1145,7 @@ TRICE_INLINE void reportPassage( char *pFileName, int Line, int Value ){
     TRICE32_2( Id(5), " line %d (Value = %d)\n", Line, Value );
 }
 
-TRICE_INLINE void triceSrcLocation(char *file, int line){
+TRICE_INLINE void triceSrcLocation(char const *file, int line){
       TRICE0( Id(31976), "err: Error in file " );
       triceString( 0, file );
       TRICE16_1( Id(8272), " at line %d\n", line );
