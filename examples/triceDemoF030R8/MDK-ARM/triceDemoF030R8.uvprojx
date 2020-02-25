@@ -393,11 +393,6 @@
           <GroupName>Application/User</GroupName>
           <Files>
             <File>
-              <FileName>trice.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\src.C\trice.c</FilePath>
-            </File>
-            <File>
               <FileName>main.c</FileName>
               <FileType>1</FileType>
               <FilePath>../Src/main.c</FilePath>
@@ -471,6 +466,16 @@
               <FileName>triceCheck.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\lib\triceCheck.c</FilePath>
+            </File>
+            <File>
+              <FileName>treyferCrypto.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\src.C\treyferCrypto.c</FilePath>
+            </File>
+            <File>
+              <FileName>trice.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\src.C\trice.c</FilePath>
             </File>
           </Files>
         </Group>
