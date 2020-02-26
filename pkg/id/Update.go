@@ -180,7 +180,7 @@ func updateNextID(p *List, pListModified *bool, modified bool, subs, s string, v
 		s = strings.Replace(s, zeroTRICE, nbTRICE, 1)
 		modified = true
 	}
-	// The replacement makes s not shorter, so next seach can start at loc[1]
+	// The replacement makes s not shorter, so next search can start at loc[1]
 	subs = subs[loc[1]:]
 	typNameTRICE := matchTypNameTRICE.FindString(nbTRICE)
 	if "" == typNameTRICE {
