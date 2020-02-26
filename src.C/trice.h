@@ -39,7 +39,7 @@ void triceTxHandler( int* pTxState );
 #define TRICE32_1( id, pFmt, v0     )
 #define TRICE32_2( id, pFmt, v0, v1 )
 
-TRICE_INLINE void triceString( int, char* s ){}
+TRICE_INLINE void triceString( int x, char* s ){}
 TRICE_INLINE void Report_Location( const char* const pFileName, int Line, int Value ){}
 TRICE_INLINE void ReportFailure( const char* const pName, int Line, int Value ){}
 TRICE_INLINE void ReportPassage( char *pFileName, int Line, int Value ){}

@@ -124,8 +124,8 @@ void PendSV_Handler(void)
   */
 void SysTick_Handler(void)
 {
-    int dummy;
   /* USER CODE BEGIN SysTick_IRQn 0 */
+    int dummy;
     static uint16_t msTick = 0;
     static uint32_t ms = 0; 
     msTick++;
@@ -154,9 +154,8 @@ void SysTick_Handler(void)
   */
 void USART2_IRQHandler(void)
 {
-    int dummy;
   /* USER CODE BEGIN USART2_IRQn 0 */
-
+    int dummy;
   /* USER CODE END USART2_IRQn 0 */
   /* USER CODE BEGIN USART2_IRQn 1 */
     triceTxHandler(&dummy);

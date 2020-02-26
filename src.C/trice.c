@@ -11,13 +11,14 @@ That is the time critical part.
 *******************************************************************************/
 
 #include "trice.h"
+
+#ifdef TREYFER_KEY
 #include "treyferCrypto.h"
+#endif
 
 #ifdef TRICE_PRINTF_ADAPTER
-
 #include <stdarg.h>
-#include <stdio.h>
-
+#include <stdio.h> // #include "printf.h"
 #endif // #ifdef TRICE_PRINTF_ADAPTER
 
 #ifdef TRICE_OFF
