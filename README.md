@@ -1,21 +1,21 @@
 # **trice** - **TR**ace **I**ds **C** **E**mbedded *(printf() - replacement)*
 embedded device C printf-like trace code and real-time PC logging (trace ID visualization) over serial port
 
-
+## Info shields
 ![GitHub Workflow Status](https://img.shields.io/github/workflow/status/rokath/trice/goreleaser)
 ![GitHub issues](https://img.shields.io/github/issues/rokath/trice)
 ![GitHub All Releases](https://img.shields.io/github/downloads/rokath/trice/total)
-
 ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/rokath/trice)
 ![GitHub watchers](https://img.shields.io/github/watchers/rokath/trice?label=watch)
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/rokath/trice)
 ![GitHub commits since latest release](https://img.shields.io/github/commits-since/rokath/trice/latest)
 
+## Link shields
 [![Go Report Card](https://goreportcard.com/badge/github.com/rokath/trice)](https://goreportcard.com/report/github.com/rokath/trice) 
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 [![Coverage Status](https://coveralls.io/repos/github/rokath/trice/badge.svg)](https://coveralls.io/github/rokath/trice)
 
-## Search counter statistics
+## Search counters
 ![GitHub search hit counter](https://img.shields.io/github/search/rokath/trice/trace)
 ![GitHub search hit counter](https://img.shields.io/github/search/rokath/trice/instrumentation)
 ![GitHub search hit counter](https://img.shields.io/github/search/rokath/trice/embedded)
