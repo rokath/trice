@@ -8,8 +8,8 @@
 \author Thomas.Hoehenleitner [at] seerose.net
 *******************************************************************************/
 
-#ifndef CONFIG_H_
-#define CONFIG_H_
+#ifndef TRICE_CONFIG_H_
+#define TRICE_CONFIG_H_
 
 #include <stdint.h>
 
@@ -128,4 +128,4 @@ TRICE_INLINE void triceDisableTxEmptyInterrupt( void ){
 }
 #endif
 
-#endif /* CONFIG_H_ */
+#endif /* TRICE_CONFIG_H_ */
