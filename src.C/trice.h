@@ -8,11 +8,11 @@
 #ifndef TRICE_H_
 #define TRICE_H_
 
+#include "config.h" 
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#include "config.h" 
 
 /*! This function should be called inside the transmit done device interrupt.
 Also it should be called cyclically to trigger transmission start.

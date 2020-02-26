@@ -3,7 +3,8 @@
 \details Contains 64 bit encrypt and decrypt routines. 
 */
 #include <stdint.h>
-#include "TreyferCrypto.h"
+
+#include "treyferCrypto.h"
 
 /*! count of crypto cycli, increases en- and de-crypt time when bigger 
 count is not really important
