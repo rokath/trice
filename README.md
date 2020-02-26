@@ -10,9 +10,9 @@ embedded device C printf-like trace code and real-time PC logging (trace ID visu
 ![GitHub watchers](https://img.shields.io/github/watchers/rokath/trice?label=watch)
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/rokath/trice)
 ![GitHub commits since latest release](https://img.shields.io/github/commits-since/rokath/trice/latest)
+
 [![Go Report Card](https://goreportcard.com/badge/github.com/rokath/trice)](https://goreportcard.com/report/github.com/rokath/trice) 
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
-
 [![Coverage Status](https://coveralls.io/repos/github/rokath/trice/badge.svg)](https://coveralls.io/github/rokath/trice)
 
 ## Search counter statistics
