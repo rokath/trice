@@ -257,7 +257,7 @@ func updateParamCount(modified bool, subs, s string, verbose bool) (bool, bool, 
 		fmt.Println(triceN)
 	}
 	s = strings.Replace(s, trice, triceN, 1) // modify s
-	subs = subs[loc[1]:]                     // The replacement makes s not shorter, so next seach can start at loc[1]
+	subs = subs[loc[1]:]                     // The replacement makes s not shorter, so next search can start at loc[1]
 	return true, modified, subs, s           // next done
 }
 
