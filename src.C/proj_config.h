@@ -11,6 +11,8 @@
 #ifndef CONFIG_H_
 #define CONFIG_H_
 
+#include <stdint.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
