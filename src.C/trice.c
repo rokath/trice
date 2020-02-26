@@ -14,8 +14,10 @@ That is the time critical part.
 #include "treyferCrypto.h"
 
 #ifdef TRICE_PRINTF_ADAPTER
+
 #include <stdarg.h>
-#include "printf.h"
+#include <stdio.h>
+
 #endif // #ifdef TRICE_PRINTF_ADAPTER
 
 #ifdef TRICE_OFF
