@@ -231,11 +231,11 @@ func colorSetDefault(channel string) (*color.Color, error) {
 	case "DBG":
 		fallthrough
 	case "dbg":
-		c = color.New(color.FgBlue).Add(color.BgBlack)
+		c = color.New(color.FgCyan).Add(color.BgBlack)
 	case "DIA":
 		fallthrough
 	case "dia":
-		c = color.New(color.BgHiCyan).Add(color.BgHiBlack)
+		c = color.New(color.BgHiCyan).Add(color.BgWhite)
 	case "ISR":
 		fallthrough
 	case "isr":
@@ -290,7 +290,7 @@ func colorSetAlternate(channel string) (*color.Color, error) {
 	case "DBG":
 		fallthrough
 	case "dbg":
-		c = color.New(color.FgBlue).Add(color.BgBlack)
+		c = color.New(color.FgCyan).Add(color.BgRed)
 	case "DIA":
 		fallthrough
 	case "dia":
