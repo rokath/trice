@@ -101,12 +101,12 @@ int Write(int fd, uint8_t const * pBuf, size_t count);
 static inline void Pause( void ){}
 
 
-//#define REPORT_LINE(Value) do{ reportFile(); TRICE16_2( Id( 8986), " in line %d (0x%02x)\n", __LINE__, Value ); }while(0)
-#define REPORT_FAILURE(Value) do{ reportFile(); TRICE32_2( Id(46005), "ERR: in line %d (0x%08x)\n", __LINE__, Value ); }while(0)
-//#define REPORT_FAILURE16(a,b,c) do{ reportFile(); TRICE16_4( Id(17192), "ERR: in line %d (0x%04x,0x%04x,0x%04x)\n", __LINE__, a,b,c ); }while(0)
-//#define REPORT_VALUE(Value)   do{ reportFile(); TRICE32_2( Id(11917),  "att: line %d, value = 0x%08x\r\n", __LINE__, Value ); }while(0)
+//#define REPORT_LINE(Value) do{ REPORT_FILE(); TRICE16_2( Id( 8986), " in line %d (0x%02x)\n", __LINE__, Value ); }while(0)
+#define REPORT_FAILURE(Value) do{ REPORT_FILE(); TRICE32_2( Id(46005), "ERR: in line %d (0x%08x)\n", __LINE__, Value ); }while(0)
+//#define REPORT_FAILURE16(a,b,c) do{ REPORT_FILE(); TRICE16_4( Id(17192), "ERR: in line %d (0x%04x,0x%04x,0x%04x)\n", __LINE__, a,b,c ); }while(0)
+//#define REPORT_VALUE(Value)   do{ REPORT_FILE(); TRICE32_2( Id(11917),  "att: line %d, value = 0x%08x\r\n", __LINE__, Value ); }while(0)
 //#define REPORT_ONLY_VALUE(Value)   do{  TRICE32_2( Id(33840),  "att: line %d, value = 0x%08x\r\n", __LINE__, Value ); }while(0)
-#define ASSERTION do{ reportFile(); TRICE16_2( Id(16598), "err:local address 0x%02x:!ASSERT in line %d\n", RC_LOCAL_ADDRESS, __LINE__ ); }while(0)
+#define ASSERTION do{ REPORT_FILE(); TRICE16_2( Id(16598), "err:local address 0x%02x:!ASSERT in line %d\n", RC_LOCAL_ADDRESS, __LINE__ ); }while(0)
 //#define ASSERT( flag ) if(!(flag)) { ASSERTION; } //!< report if flag is not true
 //
 //

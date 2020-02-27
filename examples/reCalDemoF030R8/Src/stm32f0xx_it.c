@@ -97,7 +97,8 @@ enum{
 
 int txState = noTx;
 
-//!
+//! reCalTxHandler checks wrFifo for depth and starts a byte transmission
+//! otherwise it disables the transmit empty interrupt
 //! \param pTxState, set none when current packet done, set reCal when reCal packet transfer
 //! \todo review packets to determine packet end
 void reCalTxHandler( int* pTxState ){
@@ -118,9 +119,9 @@ void reCalTxHandler( int* pTxState ){
 }
 
 void UartTxStartCheck( void ){
-    /*if( noTx == txState ){
+    if( noTx == txState ){
         reCalTxHandler( &txState );
-    }*/
+    }
     if( noTx == txState ){
         triceTxHandler( &txState );
     }
