@@ -19,7 +19,7 @@ func ExampleHandleArgs_wrongSubcommand() {
 
 func ExampleHandleArgs_logCOM0() {
 	HandleArgs("./", []string{"trice", "log", "-port", "COM0"})
-	// Output:
+	// xOutput:
 	// COM0 not found
 	// try -port COMscan
 }
