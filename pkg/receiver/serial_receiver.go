@@ -12,6 +12,7 @@ import (
 	"log"
 	"time"
 
+	"github.com/rokath/trice/pkg/treyfer"
 	"go.bug.st/serial"
 )
 
@@ -129,7 +130,7 @@ func (self *SerialReceiver) readBytes(count int) (int, []byte) {
 }
 
 // export readBytes
-func (self *SerialReceiver) readAtLeastBytes(count, msTimeout int) ([]byte, error) {
+func (p *SerialReceiver) readAtLeastBytes(count, msTimeout int) ([]byte, error) {
 	buf := make([]byte, count) // the buffer size limits the read count
 
 	var b []byte
@@ -137,7 +138,7 @@ func (self *SerialReceiver) readAtLeastBytes(count, msTimeout int) ([]byte, erro
 	var err error
 
 	for len(b) < count && ms < msTimeout {
-		n, err = self.serial_handle.Read(buf)
+		n, err = p.serial_handle.Read(buf)
 
 		if err != nil {
 			log.Println("Port read error")
@@ -157,25 +158,29 @@ func (self *SerialReceiver) readAtLeastBytes(count, msTimeout int) ([]byte, erro
 	return b, errors.New("read timeout")
 }
 
-func (self *SerialReceiver) readHeader() ([]byte, error) {
-	b, err := self.readAtLeastBytes(8, toMs)
+func (p *SerialReceiver) readHeader() ([]byte, error) {
+	b, err := p.readAtLeastBytes(8, toMs)
 
 	if nil != err {
 		return b, err
 	}
+
+	var key = [...]uint8{0x11, 0x22, 0x33, 0x44, 0x44, 0x66, 0x77, 0x88}
+	b = treyfer.Decrypt(b, key)
 
 	for b[1] != remAddr || b[2] != locAddr ||
 		b[0]^b[1]^b[2]^b[4]^b[5]^b[6]^b[7] != b[3] { // crc8 check
 
 		log.Println("Discarding package", b[0])
 
-		x, err := self.readAtLeastBytes(1, toMs)
+		x, err := p.readAtLeastBytes(1, toMs)
 
 		if nil != err {
 			return b, err
 		}
 
 		b = append(b[1:], x...) // try to sync
+		b = treyfer.Decrypt(b, key)
 	}
 	return b, nil
 }

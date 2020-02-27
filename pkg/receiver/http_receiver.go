@@ -14,20 +14,22 @@ type HTTPReceiver struct {
 	port       int
 }
 
+// SetUp opens...
 func (self *HTTPReceiver) SetUp() bool {
 	return true
 }
 
-// starts receiving of serial data
+// Start starts receiving of serial data
 func (self *HTTPReceiver) Start() {
 	// start webserver
 }
 
-// Stops receiving of serial data
+// Stop stops receiving of serial data
 func (self *HTTPReceiver) Stop() {
 	// stop webserver
 }
 
+// CleanUp washes...
 func (self *HTTPReceiver) CleanUp() {
 	// clean up after closing webserver
 }
