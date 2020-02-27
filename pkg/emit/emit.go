@@ -184,7 +184,7 @@ func Trace(b []byte, l id.List, palette string) error {
 	s, _ := emitter(it, d)
 	err = visualize(s, palette)
 	d = d[:0] // empty d for next trice
-	return 
+	return err
 }
 
 func isLower(s string) bool {
