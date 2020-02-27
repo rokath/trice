@@ -9,14 +9,13 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
-	"strings"
 
-	"github.com/rokath/trice/pkg/com"
 	"github.com/rokath/trice/pkg/emit"
 	"github.com/rokath/trice/pkg/id"
-	"github.com/tarm/serial"
+	"github.com/rokath/trice/pkg/receiver"
 )
 
 // HandleArgs evaluates the arguments slice of strings und uses wd as working directory
@@ -94,6 +93,7 @@ func HandleArgs(wd string, args []string) error {
 	}
 	if uCmd.Parsed() {
 		lU, err := filepath.Abs(*pLU)
+		fmt.Errorf("%s", lU)
 		if nil != err {
 			return fmt.Errorf("failed to parse %s: %v", *pLU, err)
 		}
@@ -147,7 +147,7 @@ func help(hCmd *flag.FlagSet,
 	fmt.Println("subcommand 'version', 'ver'. 'v'")
 	vCmd.PrintDefaults()
 	fmt.Println("examples:")
-	fmt.Println("    'trice update [-dir sourcerootdir]', default sourcerootdir is ./")
+	fmt.Println("    'trice update [-src sourcerootdir]', default sourcerootdir is ./")
 	fmt.Println("    'trice log [-port COMn] [-baud m]', default port is COMscan, default m is 38400, fixed to 8N1")
 	fmt.Println("    'trice zeroSourceTreeIds -dir sourcerootdir]'")
 	fmt.Println("    'trice version'")
@@ -181,36 +181,63 @@ func logTraces(cmd *flag.FlagSet, port string, baud int, fn string, p *id.List, 
 		cmd.PrintDefaults()
 		return nil
 	}
-	if strings.Contains(port, "COM") { // true
-		var pConfig = &serial.Config{
-			Name:        port,
-			Baud:        baud,
-			ReadTimeout: 1,
-			Size:        8,
-		}
-		if port == "COMscan" {
-			com.FindSerialPorts(pConfig)
-			return nil
-		}
-		stream, err := serial.OpenPort(pConfig)
-		if err != nil {
-			fmt.Println(pConfig.Name, "not found")
-			fmt.Println("try -port COMscan")
-			return err
-		}
-		defer stream.Close()
-		err = p.Read(fn)
-		if nil != err {
-			fmt.Println("ID list " + fn + " not found, exit")
-			return nil
-		}
-		fmt.Println("using id list file", fn, "with", len(*p), "items")
-		com.ReadEndless(stream, *p, palette)
 
+	// setup ip list
+	err := p.Read(fn)
+	if nil != err {
+		fmt.Println("ID list " + fn + " not found, exit")
 		return nil
 	}
-	msg := "cannot handle -port " + port
-	return errors.New(msg)
+
+	/* TODO: Introduce new command line option for choosing between
+	   1) Serial receiver(port name, baudrate, parity bit etc. )
+	   2) TCP receiver (IP, port, Protocol (i.e JSON,XML))
+	   3) HTTP/Websocket receiver (may be the simplest form in Golang)
+	*/
+
+	if port == "COMscan" {
+		log.Println("Scan for serial ports...")
+
+		ports, err := receiver.GetSerialPorts()
+
+		if err != nil {
+			log.Fatal("Error during serial port search", err)
+		}
+
+		if len(ports) > 0 {
+			log.Println("Take serial port", ports[0])
+			port = ports[0]
+		} else {
+			log.Fatal("Could not find serial port on system")
+			return nil
+		}
+	}
+
+	serial_receiver := receiver.NewSerialReceiver(port, baud)
+
+	if serial_receiver.SetUp() == false {
+		log.Println("Could not set up serial port", port)
+		log.Println("try -port COMscan")
+		return nil
+	} else {
+		log.Println("Opened serial port", port)
+	}
+
+	log.Println("using id list file", fn, "with", len(*p), "items")
+
+	serial_receiver.Start()
+	defer serial_receiver.CleanUp()
+
+	for {
+		bytes_received := <-(*serial_receiver.GetReceiveChannel())
+
+		err := emit.Trace(bytes_received, *p, palette)
+		if nil != err {
+			fmt.Println("trace.Log error", err, bytes_received)
+		}
+	}
+
+	return nil
 }
 
 // replace all ID's in sourc tree with 0
