@@ -10,6 +10,10 @@
 
 #include "config.h" 
 
+#ifndef TRICE_LEVEL
+#define TRICE_LEVEL 100 //!< switch trices off with 0, define TRICE_LEVEL globally or on top of file (before including config.h"
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -21,7 +25,7 @@ void triceTxHandler( int* pTxState );
 
 #define Id( n ) (n) //!< Macro for improved trice readability and better source code parsing.
 
-#ifdef TRICE_OFF
+#if 0 == TRICE_LEVEL // no trice code generation
 
 #define TRICE0( id, pFmt )
 #define TRICE8_1( id, pFmt, v0                             )
@@ -38,14 +42,12 @@ void triceTxHandler( int* pTxState );
 #define TRICE16_4( id, pFmt, v0, v1, v2, v3 )
 #define TRICE32_1( id, pFmt, v0     )
 #define TRICE32_2( id, pFmt, v0, v1 )
+#define TRICE32_3( id, pFmt, v0, v1, v2 )
+#define TRICE32_4( id, pFmt, v0, v1, v2, v3 )
+#define TRICE64_1( id, pFmt, v0 )
+#define TRICE64_2( id, pFmt, v0, v1 )
 
-TRICE_INLINE void triceString( int x, char* s ){}
-TRICE_INLINE void Report_Location( const char* const pFileName, int Line, int Value ){}
-TRICE_INLINE void ReportFailure( const char* const pName, int Line, int Value ){}
-TRICE_INLINE void ReportPassage( char *pFileName, int Line, int Value ){}
-TRICE_INLINE void TraceSrcLocation(char *file, int line){}
-
-#else // #ifdef TRICE_OFF
+#else // #if 0 == TRICE_LEVEL
 
 #include <stdint.h>
 #include <stdlib.h>
