@@ -30,7 +30,7 @@ During TRICE* runtime, inside the microcontroller only the ID (together with the
 parameters like hour, min, sec) is copied to a buffer. Execution time for a TRICE16_1
 (as example) on a 48 MHz ARM is about 16 systicks resulting in 250 nanoseconds duration,
 so you can use `trice` also inside interrupts. The needed buffer space is
-one 32 bit word per normal trice (for up to 2 data bytes). Just in case the internal fifo overflows, the data are still in sync, you simply loose traces.
+one 32 bit word per normal trice (for up to 2 data bytes). Just in case the internal fifo overflows, the data are still in sync, you simply loose trices.
 
 Slightly delayed in the background the TRICE trace goes to the communication port,
 what is also fast compared to all the actions behind a `printf()` statement.
