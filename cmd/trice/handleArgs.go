@@ -93,7 +93,7 @@ func HandleArgs(wd string, args []string) error {
 	}
 	if uCmd.Parsed() {
 		lU, err := filepath.Abs(*pLU)
-		fmt.Errorf("%s", lU)
+		// @basti? fmt.Errorf("%s", lU)
 		if nil != err {
 			return fmt.Errorf("failed to parse %s: %v", *pLU, err)
 		}
@@ -237,7 +237,7 @@ func logTraces(cmd *flag.FlagSet, port string, baud int, fn string, p *id.List, 
 		}
 	}
 
-	return nil
+	//return nil // cmd\trice\handleArgs.go:240:2: unreachable code
 }
 
 // replace all ID's in sourc tree with 0

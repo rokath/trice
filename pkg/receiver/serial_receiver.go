@@ -35,7 +35,10 @@ func NewSerialReceiver(port_identifier string, baudrate int) *SerialReceiver {
 		receiver:     receiver{"SerialReceiver", false, make(chan []byte)},
 		port_name:    port_identifier,
 		read_timeout: 1,
-		serial_mode:  serial.Mode{baudrate, 8, serial.NoParity, serial.OneStopBit},
+		serial_mode: serial.Mode{BaudRate: baudrate,
+			DataBits: 8,
+			Parity:   serial.NoParity,
+			StopBits: serial.OneStopBit},
 	}
 
 	return s
