@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"go.bug.st/serial"
+	"golang.org/x/crypto/tea"
 )
 
 var locAddr = byte(0x60) // local address
@@ -31,10 +32,14 @@ type SerialReceiver struct {
 	serial_mode   serial.Mode
 }
 
-func NewSerialReceiver(port_identifier string, baudrate int) *SerialReceiver {
+var password string
+
+// NewSerialReceiver
+func NewSerialReceiver(portIdentifier string, baudrate int, pwd string) *SerialReceiver {
+	password = pwd
 	s := &SerialReceiver{
 		receiver:     receiver{"SerialReceiver", false, make(chan []byte)},
-		port_name:    port_identifier,
+		port_name:    portIdentifier,
 		read_timeout: 1,
 		serial_mode: serial.Mode{BaudRate: baudrate,
 			DataBits: 8,
@@ -45,30 +50,36 @@ func NewSerialReceiver(port_identifier string, baudrate int) *SerialReceiver {
 	return s
 }
 
-func (self *SerialReceiver) SetReadTimeOut(timeout int) {
-	self.read_timeout = timeout
+// SetReadTimeOut sets timeout
+func (p *SerialReceiver) SetReadTimeOut(timeout int) {
+	p.read_timeout = timeout
 }
 
-func (self *SerialReceiver) SetParity(parity serial.Parity) {
-	self.serial_mode.Parity = parity
+// SetParity sets transmit parity
+func (p *SerialReceiver) SetParity(parity serial.Parity) {
+	p.serial_mode.Parity = parity
 }
 
-func (self *SerialReceiver) SetDataBits(databits int) {
-	self.serial_mode.DataBits = databits
+// SetDataBits sets bit count
+func (p *SerialReceiver) SetDataBits(databits int) {
+	p.serial_mode.DataBits = databits
 }
 
-func (self *SerialReceiver) SetBaudrate(baudrate int) {
-	self.serial_mode.BaudRate = baudrate
+// SetBaudrate sets speed
+func (p *SerialReceiver) SetBaudrate(baudrate int) {
+	p.serial_mode.BaudRate = baudrate
 }
 
-func (self *SerialReceiver) SetStopBits(stopbits serial.StopBits) {
-	self.serial_mode.StopBits = stopbits
+// SetStopBits sets stop condition
+func (p *SerialReceiver) SetStopBits(stopbits serial.StopBits) {
+	p.serial_mode.StopBits = stopbits
 }
 
-func (self *SerialReceiver) SetUp() bool {
+// SetUp opens a serial port
+func (p *SerialReceiver) SetUp() bool {
 	var err error
 
-	self.serial_handle, err = serial.Open(self.port_name, &self.serial_mode)
+	p.serial_handle, err = serial.Open(p.port_name, &p.serial_mode)
 
 	if err != nil {
 		fmt.Println("Error: Could not open serial port:", err)
@@ -78,26 +89,27 @@ func (self *SerialReceiver) SetUp() bool {
 	}
 }
 
-// starts receiving of serial data
-func (self *SerialReceiver) Start() {
-	self.receiving_data = true
-	go self.receiving()
+// Start starts receiving of serial data
+func (p *SerialReceiver) Start() {
+	p.receiving_data = true
+	go p.receiving()
 }
 
-// Stops receiving of serial data
-func (self *SerialReceiver) Stop() {
-	self.receiving_data = false
+// Stop stops receiving of serial data
+func (p *SerialReceiver) Stop() {
+	p.receiving_data = false
 }
 
-func (self *SerialReceiver) CleanUp() {
-	self.Stop()
-	self.serial_handle.Close()
+// CleanUp makes clean
+func (p *SerialReceiver) CleanUp() {
+	p.Stop()
+	p.serial_handle.Close()
 }
 
-// ReadEndless expects a pointer to a filled COM port configuration
-func (self *SerialReceiver) receiving() {
-	for self.receiving_data == true {
-		b, err := self.readHeader()
+// receiving: ReadEndless expects a pointer to a filled COM port configuration
+func (p *SerialReceiver) receiving() {
+	for p.receiving_data == true {
+		b, err := p.readHeader()
 
 		if nil != err {
 			log.Println("Could not read serial header: ", err)
@@ -105,7 +117,7 @@ func (self *SerialReceiver) receiving() {
 		}
 
 		if 0xeb == b[0] { // traceLog startbyte, no further data
-			self.bytes_channel <- b // send to process trace log channel
+			p.bytes_channel <- b // send to process trace log channel
 
 		} else {
 			log.Println("Got unknown header on serial console. Discarding...", b)
@@ -113,14 +125,15 @@ func (self *SerialReceiver) receiving() {
 	}
 }
 
-func (self *SerialReceiver) ClosePort() {
-	self.serial_handle.Close()
+// ClosePort releases port
+func (p *SerialReceiver) ClosePort() {
+	p.serial_handle.Close()
 }
 
 // export readBytes
-func (self *SerialReceiver) readBytes(count int) (int, []byte) {
+func (p *SerialReceiver) readBytes(count int) (int, []byte) {
 	b := make([]byte, count) // the buffer size limits the read count
-	n, err := self.serial_handle.Read(b)
+	n, err := p.serial_handle.Read(b)
 
 	if err != nil {
 		log.Fatal(err)
@@ -165,26 +178,42 @@ func (p *SerialReceiver) readHeader() ([]byte, error) {
 		return b, err
 	}
 
-	//var key = [...]uint8{0x11, 0x22, 0x33, 0x44, 0x44, 0x66, 0x77, 0x88}
-	//b = treyfer.Decrypt(b, key)
-
-	for b[1] != remAddr || b[2] != locAddr ||
-		b[0]^b[1]^b[2]^b[4]^b[5]^b[6]^b[7] != b[3] { // crc8 check
-
-		log.Printf("discarding byte %02x\n", b[0])
-
-		x, err := p.readAtLeastBytes(1, toMs)
-
-		if nil != err {
-			return b, err
+	// https://gobyexample.com/sha1-hashes
+	if "" == password {
+		for b[1] != remAddr || b[2] != locAddr ||
+			b[0]^b[1]^b[2]^b[4]^b[5]^b[6]^b[7] != b[3] { // crc8 check
+			log.Printf("discarding byte %02x\n", b[0])
+			x, err := p.readAtLeastBytes(1, toMs)
+			if nil != err {
+				return b, err
+			}
+			b = append(b[1:], x...) // try to sync
 		}
+	} else {
+		var key = []byte{0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, 0x99, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF}
+		c, err := tea.NewCipherWithRounds(key, 64)
+		if err != nil {
+			return nil, errors.New("NewCipher returned error")
+		}
+		c.Decrypt(b, b)
+		for b[1] != remAddr || b[2] != locAddr ||
+			b[0]^b[1]^b[2]^b[4]^b[5]^b[6]^b[7] != b[3] { // crc8 check
+			c.Encrypt(b, b) // restore received data
+			log.Printf("discarding byte %02x\n", b[0])
 
-		b = append(b[1:], x...) // try to sync
-		//b = treyfer.Decrypt(b, key)
+			x, err := p.readAtLeastBytes(1, toMs)
+
+			if nil != err {
+				return b, err
+			}
+			b = append(b[1:], x...) // try to sync
+			c.Decrypt(b, b)
+		}
 	}
 	return b, nil
 }
 
+// GetSerialPorts scans for serial ports
 func GetSerialPorts() ([]string, error) {
 	ports, err := serial.GetPortsList()
 
