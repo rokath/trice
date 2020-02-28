@@ -23,11 +23,11 @@ func HandleArgs(wd string, args []string) error {
 	list := make(id.List, 0, 65536) // for 16 bit IDs enough
 	pList := &list
 
-	uCmd := flag.NewFlagSet("update", flag.ExitOnError)                             // subcommand
-	pSrcU := uCmd.String("src", wd, "source dir or file (optional, default is ./)") // flag
-	pDryR := uCmd.Bool("dry-run", false, "no changes are applied (optional)")       // flag
-	pLU := uCmd.String("list", "til.json", "trice ID list path (optional)")         // flag
-	pVerb := uCmd.Bool("v", false, "verbose (optional)")                            // flag
+	uCmd := flag.NewFlagSet("update", flag.ExitOnError)                                        // subcommand
+	pSrcU := uCmd.String("src", wd, "source dir or file (optional, default is ./)")            // flag
+	pDryR := uCmd.Bool("dry-run", false, "no changes are applied (optional)")                  // flag
+	pLU := uCmd.String("list", "til.json", "trice ID list path (optional), \"none\" possible") // flag
+	pVerb := uCmd.Bool("v", false, "verbose (optional)")                                       // flag
 
 	lCmd := flag.NewFlagSet("log", flag.ExitOnError)                                // subcommand
 	pPort := lCmd.String("port", "", "subcommand (required, try COMscan)")          // flag
@@ -182,11 +182,13 @@ func logTraces(cmd *flag.FlagSet, port string, baud int, fn string, p *id.List, 
 		return nil
 	}
 
-	// setup ip list
-	err := p.Read(fn)
-	if nil != err {
-		fmt.Println("ID list " + fn + " not found, exit")
-		return nil
+	if "none" != fn {
+		// setup ip list
+		err := p.Read(fn)
+		if nil != err {
+			fmt.Println("ID list " + fn + " not found, exit")
+			return nil
+		}
 	}
 
 	/* TODO: Introduce new command line option for choosing between
@@ -213,11 +215,11 @@ func logTraces(cmd *flag.FlagSet, port string, baud int, fn string, p *id.List, 
 		}
 	}
 
-	serial_receiver := receiver.NewSerialReceiver(port, baud)
+	serialReceiver := receiver.NewSerialReceiver(port, baud)
 
-	if serial_receiver.SetUp() == false {
-		log.Println("Could not set up serial port", port)
-		log.Println("try -port COMscan")
+	if serialReceiver.SetUp() == false {
+		fmt.Println("Could not set up serial port", port)
+		fmt.Println("try -port COMscan")
 		return nil
 	} else {
 		log.Println("Opened serial port", port)
@@ -225,15 +227,15 @@ func logTraces(cmd *flag.FlagSet, port string, baud int, fn string, p *id.List, 
 
 	log.Println("using id list file", fn, "with", len(*p), "items")
 
-	serial_receiver.Start()
-	defer serial_receiver.CleanUp()
+	serialReceiver.Start()
+	defer serialReceiver.CleanUp()
 
 	for {
-		bytes_received := <-(*serial_receiver.GetReceiveChannel())
+		bytesReceived := <-(*serialReceiver.GetReceiveChannel())
 
-		err := emit.Trace(bytes_received, *p, palette)
+		err := emit.Trice(bytesReceived, *p, palette)
 		if nil != err {
-			fmt.Println("trace.Log error", err, bytes_received)
+			fmt.Println("trice.Log error", err, bytesReceived)
 		}
 	}
 

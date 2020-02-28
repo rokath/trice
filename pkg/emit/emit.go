@@ -166,18 +166,28 @@ func Check(l id.List, dataSet, palette string) error {
 	return checkFix(l, palette)
 }
 
-var d = make([]byte, 8) // param collector
+var d = make([]byte, 1024) // param collector, usually not more than 8 bytes
 
-// Trace emits one trace to std out. The byte slice 'b' is a trice package.
+// Trice emits one trice to std out. The byte slice 'b' is a trice package.
 // The ID can be 0, in that case only the data payload is saved
-func Trace(b []byte, l id.List, palette string) error {
+func Trice(b []byte, l id.List, palette string) error {
 	d = append(d, b[6:8]...)
 	i := int(binary.LittleEndian.Uint16(b[4:6]))
 	if 0 == i {
+		if 0 == len(l) { // "none" as ID list or list empty
+			fmt.Printf("% 20x\n", b) //  show raw data
+		}
 		return nil // only params
+	}
+	if 0 == len(l) { // "none" as ID list or list empty
+		fmt.Printf("% 20x acc:", b) //  show raw data
+		fmt.Println(d)              //  show acc data
+		d = d[:0]                   // empty d for next trice
+		return nil
 	}
 	x, err := id.Index(i, l)
 	if nil != err {
+		d = d[:0]  // empty d for next trice
 		return err // i is unknown ID
 	}
 	it := l[x]

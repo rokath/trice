@@ -9,10 +9,10 @@ package receiver
 
 import (
 	"errors"
+	"fmt"
 	"log"
 	"time"
 
-	"github.com/rokath/trice/pkg/treyfer"
 	"go.bug.st/serial"
 )
 
@@ -71,7 +71,7 @@ func (self *SerialReceiver) SetUp() bool {
 	self.serial_handle, err = serial.Open(self.port_name, &self.serial_mode)
 
 	if err != nil {
-		log.Println("Error: Could not open serial port:", err)
+		fmt.Println("Error: Could not open serial port:", err)
 		return false
 	} else {
 		return true
@@ -165,13 +165,13 @@ func (p *SerialReceiver) readHeader() ([]byte, error) {
 		return b, err
 	}
 
-	var key = [...]uint8{0x11, 0x22, 0x33, 0x44, 0x44, 0x66, 0x77, 0x88}
-	b = treyfer.Decrypt(b, key)
+	//var key = [...]uint8{0x11, 0x22, 0x33, 0x44, 0x44, 0x66, 0x77, 0x88}
+	//b = treyfer.Decrypt(b, key)
 
 	for b[1] != remAddr || b[2] != locAddr ||
 		b[0]^b[1]^b[2]^b[4]^b[5]^b[6]^b[7] != b[3] { // crc8 check
 
-		log.Println("Discarding package", b[0])
+		log.Printf("discarding byte %02x\n", b[0])
 
 		x, err := p.readAtLeastBytes(1, toMs)
 
@@ -180,7 +180,7 @@ func (p *SerialReceiver) readHeader() ([]byte, error) {
 		}
 
 		b = append(b[1:], x...) // try to sync
-		b = treyfer.Decrypt(b, key)
+		//b = treyfer.Decrypt(b, key)
 	}
 	return b, nil
 }

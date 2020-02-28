@@ -47,7 +47,7 @@ extern "C" {
 
 #define ASSERT_OR_RETURN( flag )                if(!(flag)) { ERRMSG; return;              } //!< if flag is not true return result
 #define ASSERT_OR_RETURN_RESULT( flag, result ) if(!(flag)) { ERRMSG; return result;       } //!< if flag is not true return result
-#define ASSERT_OR_RETURN_RESULT_ERROR( flag )   if(!(flag)) { ERRMSG; return RESULT_ERROR; } //!< if flag is not true return result
+//#define ASSERT_OR_RETURN_RESULT_ERROR( flag )   if(!(flag)) { ERRMSG; return RESULT_ERROR; } //!< if flag is not true return result
 
 
 void WaitForTraceLogTransmissionDone( void );

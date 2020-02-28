@@ -17,10 +17,16 @@ func ExampleHandleArgs_wrongSubcommand() {
 	// try: 'trice help|h'
 }
 
+func ExampleHandleArgs_logListNotFound() {
+	HandleArgs("./", []string{"trice", "log", "-list", "xxx.json", "-port", "COMscan"})
+	// Output: ID list xxx.json not found, exit
+}
+
 func ExampleHandleArgs_logCOM0() {
-	HandleArgs("./", []string{"trice", "log", "-port", "COM0"})
-	// xOutput:
-	// COM0 not found
+	HandleArgs("./", []string{"trice", "log", "-list", "none", "-port", "COM0"})
+	// Output:
+	// Error: Could not open serial port: Serial port not found
+	// Could not set up serial port COM0
 	// try -port COMscan
 }
 
