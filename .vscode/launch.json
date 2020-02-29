@@ -34,10 +34,12 @@
             "env": {},
             "args": ["log",
                      "-port",
-                     "COM16",
+                     "COM38",
                      "-baud",
                      "115200",
                      "-list",
+                     "examples/triceDemoF030R8/MDK-ARM/til.json",
+                     "-key",
                      "none"
             ]
         },

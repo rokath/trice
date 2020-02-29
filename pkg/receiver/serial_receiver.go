@@ -14,7 +14,7 @@ import (
 	"time"
 
 	"go.bug.st/serial"
-	"golang.org/x/crypto/tea"
+	"golang.org/x/crypto/xtea"
 )
 
 var locAddr = byte(0x60) // local address
@@ -32,11 +32,8 @@ type SerialReceiver struct {
 	serial_mode   serial.Mode
 }
 
-var password string
-
 // NewSerialReceiver
-func NewSerialReceiver(portIdentifier string, baudrate int, pwd string) *SerialReceiver {
-	password = pwd
+func NewSerialReceiver(portIdentifier string, baudrate int) *SerialReceiver {
 	s := &SerialReceiver{
 		receiver:     receiver{"SerialReceiver", false, make(chan []byte)},
 		port_name:    portIdentifier,
@@ -46,7 +43,6 @@ func NewSerialReceiver(portIdentifier string, baudrate int, pwd string) *SerialR
 			Parity:   serial.NoParity,
 			StopBits: serial.OneStopBit},
 	}
-
 	return s
 }
 
@@ -171,44 +167,52 @@ func (p *SerialReceiver) readAtLeastBytes(count, msTimeout int) ([]byte, error) 
 	return b, errors.New("read timeout")
 }
 
+// evalHeader checks if b contains valid header data
+func evalHeader(b []byte) bool {
+	x := 8 == len(b) &&
+		0xeb == b[0] && // start byte
+		remAddr == b[1] &&
+		locAddr == b[2] &&
+		b[0]^b[1]^b[2]^b[4]^b[5]^b[6]^b[7] == b[3] // crc8
+	return x
+}
+
+// Cipher is a pointer to the cryptpo struct filled during initialization
+var Cipher *xtea.Cipher
+
+// Crypto set to true if a -key other than "none" was given
+var Crypto bool
+
+func encrypt(b []byte) {
+	if true == Crypto {
+		Cipher.Encrypt(b, b) // simulate encryption
+	}
+}
+
+func decrypt(b []byte) {
+	if true == Crypto {
+		Cipher.Decrypt(b, b) // simulate encryption
+	}
+}
+
+// readHeader gets next header from streaming data
 func (p *SerialReceiver) readHeader() ([]byte, error) {
 	b, err := p.readAtLeastBytes(8, toMs)
-
 	if nil != err {
 		return b, err
 	}
-
-	// https://gobyexample.com/sha1-hashes
-	if "" == password {
-		for b[1] != remAddr || b[2] != locAddr ||
-			b[0]^b[1]^b[2]^b[4]^b[5]^b[6]^b[7] != b[3] { // crc8 check
-			log.Printf("discarding byte %02x\n", b[0])
-			x, err := p.readAtLeastBytes(1, toMs)
-			if nil != err {
-				return b, err
-			}
-			b = append(b[1:], x...) // try to sync
+	for {
+		decrypt(b)
+		if true == evalHeader(b) {
+			break
 		}
-	} else {
-		var key = []byte{0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, 0x99, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF}
-		c, err := tea.NewCipherWithRounds(key, 64)
-		if err != nil {
-			return nil, errors.New("NewCipher returned error")
+		log.Printf("discarding byte %02x\n", b[0])
+		encrypt(b)
+		x, err := p.readAtLeastBytes(1, toMs)
+		if nil != err {
+			return b, err
 		}
-		c.Decrypt(b, b)
-		for b[1] != remAddr || b[2] != locAddr ||
-			b[0]^b[1]^b[2]^b[4]^b[5]^b[6]^b[7] != b[3] { // crc8 check
-			c.Encrypt(b, b) // restore received data
-			log.Printf("discarding byte %02x\n", b[0])
-
-			x, err := p.readAtLeastBytes(1, toMs)
-
-			if nil != err {
-				return b, err
-			}
-			b = append(b[1:], x...) // try to sync
-			c.Decrypt(b, b)
-		}
+		b = append(b[1:], x...) // try to sync
 	}
 	return b, nil
 }

@@ -249,7 +249,7 @@ func colorSetDefault(channel string) (*color.Color, error) {
 	case "ISR":
 		fallthrough
 	case "isr":
-		c = color.New(color.FgWhite).Add(color.BgBlack)
+		c = color.New(color.FgYellow).Add(color.BgHiBlue)
 	case "SIG":
 		fallthrough
 	case "sig":

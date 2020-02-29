@@ -6,6 +6,7 @@
 package main
 
 import (
+	"crypto/sha1"
 	"errors"
 	"flag"
 	"fmt"
@@ -16,10 +17,8 @@ import (
 	"github.com/rokath/trice/pkg/emit"
 	"github.com/rokath/trice/pkg/id"
 	"github.com/rokath/trice/pkg/receiver"
+	"golang.org/x/crypto/xtea"
 )
-
-// Key is used to decrypt trices, use empty Key for unencrypted trices
-var Key string
 
 // HandleArgs evaluates the arguments slice of strings und uses wd as working directory
 func HandleArgs(wd string, args []string) error {
@@ -37,7 +36,7 @@ func HandleArgs(wd string, args []string) error {
 	pBaud := lCmd.Int("baud", 38400, "COM baudrate (optional, default is 38400")    // flag
 	pL := lCmd.String("list", "til.json", "trice ID list path (optional)")          // flag
 	pCol := lCmd.String("color", "default", "color set (optional), off, alternate") // flag
-	pKey := lCmd.String("key", "", "decrypt passphrase, (optional)")                // flag
+	pKey := lCmd.String("key", "none", "decrypt passphrase, (optional)")            // flag
 
 	cCmd := flag.NewFlagSet("check", flag.ExitOnError)                              // subcommand
 	pSet := cCmd.String("dataset", "position", "parameters (optional), negative")   // flag
@@ -111,7 +110,6 @@ func HandleArgs(wd string, args []string) error {
 		return checkList(*pC, *pSet, pList, *pPal)
 	}
 	if lCmd.Parsed() {
-		Key = *pKey
 		return logTraces(lCmd, *pPort, *pBaud, *pL, pList, *pCol, *pKey)
 	}
 	if zCmd.Parsed() {
@@ -180,6 +178,27 @@ func checkList(fn, dataset string, p *id.List, palette string) error {
 	return nil
 }
 
+// with password "none" the encryption flag is set false, otherwise true
+func createCipher(password string) (*xtea.Cipher, bool, error) {
+	var e bool
+	h := sha1.New() // https://gobyexample.com/sha1-hashes
+	h.Write([]byte(password))
+	key := h.Sum(nil)
+	key = key[:16]
+	c, err := xtea.NewCipher(key)
+	if err != nil {
+		return nil, e, errors.New("NewCipher returned error")
+	}
+	if "none" != password {
+		fmt.Printf("% 20x is XTEA encryption key\n", key)
+		e = true
+	} else {
+		fmt.Printf("no encryption\n")
+		e = false
+	}
+	return c, e, nil
+}
+
 // connect to port and display traces
 func logTraces(cmd *flag.FlagSet, port string, baud int, fn string, p *id.List, palette, password string) error {
 	if "" == port {
@@ -194,6 +213,12 @@ func logTraces(cmd *flag.FlagSet, port string, baud int, fn string, p *id.List, 
 			fmt.Println("ID list " + fn + " not found, exit")
 			return nil
 		}
+	}
+
+	var err error
+	receiver.Cipher, receiver.Crypto, err = createCipher(password)
+	if nil != err {
+		return err
 	}
 
 	/* TODO: Introduce new command line option for choosing between
@@ -220,7 +245,7 @@ func logTraces(cmd *flag.FlagSet, port string, baud int, fn string, p *id.List, 
 		}
 	}
 
-	serialReceiver := receiver.NewSerialReceiver(port, baud, password)
+	serialReceiver := receiver.NewSerialReceiver(port, baud)
 
 	if serialReceiver.SetUp() == false {
 		fmt.Println("Could not set up serial port", port)
