@@ -136,7 +136,7 @@ Code=3808 RO-data=240 RW-data=36 ZI-data=1540|    TriceCheckSet()  |      512  |
 - You can deliver your device with encrypted trices. This way nobody is able to read the trices despite the service guy.
 - Implementd is XTEA but this is easy exchangeable.
 - The 8 byte blocks can get enrypted by enabling `#define ENRYPT...` inside *config.h*. You need to add `-key test` as **log** switch and you're done.
-- Any password is usable instead of `test`. Simply add once the `-show` switch and copy the displayed  into the *config.h* file.
+- Any password is usable instead of `test`. Simply add once the `-show` switch and copy the displayed passphrase into the *config.h* file.
 
 
 ## Build `trice` from Go sources
