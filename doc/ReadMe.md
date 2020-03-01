@@ -132,6 +132,13 @@ Code=3808 RO-data=240 RW-data=36 ZI-data=1540|    TriceCheckSet()  |      512  |
 - For a firmware release it makes sense to remove all unused IDs (development garbage) from til.json.
   - This could be done by deleting til.json, getting the legacy til.json from the former firmware release from the source control system and enhance it with the actual release software IDs by simply calling 'trice update'.
 
+## Encryption
+- You can deliver your device with encrypted trices. This way nobody is able to read the trices despite the service guy.
+- Implementd is XTEA but this is easy exchangeable.
+- The 8 byte blocks can get enrypted by enabling `#define ENRYPT...` inside *config.h*. You need to add `-key test` as **log** switch and you're done.
+- Any password is usable instead of `test`. Simply add once the `-show` switch and copy the displayed key into the *config.h* file.
+
+
 ## Build `trice` from Go sources
 - Install Go, download the trice sources and cd into the `trice` directory
 - Testing

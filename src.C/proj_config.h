@@ -32,7 +32,11 @@ extern "C" {
 #ifndef TRICE_LEVEL
 #define TRICE_LEVEL 100 //!< enable or disable trice code generation
 #endif
-//#define TREYFER_KEY { 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88 } //!< enable to encrypt trice transmit data (must be done in trice-tool too)
+
+//! enable encryption here
+//! call trice tool with log switch "-key your_password -show" and put passphrase here
+//#define ENCRYPT XTEA_KEY( a9, 4a, 8f, e5, cc, b1, 9b, a6, 1c, 4c, 08, 73, d3, 91, e9, 87 ); //!< -key test
+
 
 //! Enable this for legacy projects with printf( "...%s...", ... ); statements
 //! This is only for easy porting and has no advantage in time and space compared to printf
@@ -43,7 +47,7 @@ extern "C" {
 #define TRICE_PRINTF_ADAPTER
 #define TRICE_PRINTF_ADAPTER_BUFFERSIZE 100 //!< longest legacy printf should fit here, only neede if TRICE_PRINTF_ADAPTER is defined
 
-#define SYSTICKVAL16 SysTick->VAL //!< STM32 specific
+#define SYSTICKVAL16 0 // SysTick->VAL //!< STM32 specific
 
 ///////////////////////////////////////////////////////////////////////////////
 // compiler adaptions
