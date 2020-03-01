@@ -25,6 +25,7 @@
 /* USER CODE BEGIN Includes */
 #include "trice.h"
 #include "triceCheck.h"
+#include "xteaCrypto.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -67,7 +68,7 @@ static void MX_USART2_UART_Init(void);
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-
+    InitXteaTable();
   /* USER CODE END 1 */
   
 

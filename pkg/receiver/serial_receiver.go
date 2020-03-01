@@ -183,16 +183,27 @@ var Cipher *xtea.Cipher
 // Crypto set to true if a -key other than "none" was given
 var Crypto bool
 
-func encrypt(b []byte) {
-	if true == Crypto {
-		Cipher.Encrypt(b, b) // simulate encryption
-	}
+//! tested with little endian embedded device
+func swapBytes(b []byte) []byte {
+	return []byte{b[3], b[2], b[1], b[0], b[7], b[6], b[5], b[4]}
 }
 
-func decrypt(b []byte) {
+func encrypt(b []byte) []byte {
 	if true == Crypto {
-		Cipher.Decrypt(b, b) // simulate encryption
+		b = swapBytes(b)
+		Cipher.Encrypt(b, b)
+		b = swapBytes(b)
 	}
+	return b
+}
+
+func decrypt(b []byte) []byte {
+	if true == Crypto {
+		b = swapBytes(b)
+		Cipher.Decrypt(b, b)
+		b = swapBytes(b)
+	}
+	return b
 }
 
 // readHeader gets next header from streaming data
@@ -202,12 +213,12 @@ func (p *SerialReceiver) readHeader() ([]byte, error) {
 		return b, err
 	}
 	for {
-		decrypt(b)
+		b = decrypt(b)
 		if true == evalHeader(b) {
 			break
 		}
 		log.Printf("discarding byte %02x\n", b[0])
-		encrypt(b)
+		b = encrypt(b)
 		x, err := p.readAtLeastBytes(1, toMs)
 		if nil != err {
 			return b, err

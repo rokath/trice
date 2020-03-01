@@ -4,8 +4,9 @@
 \author thomas.hoehenleitner [at] seerose.net
 *******************************************************************************/
 
-//#define TRICE_OFF
+#define TRICE_LEVEL 100
 #include "trice.h"
+#include "xteaCrypto.h"
 
 #define SYSTICKVAL16 SysTick->VAL //!< STM32 specific
 
@@ -18,7 +19,9 @@ void triceCheckSet( void )
 {
     #ifdef TRICE_PRINTF_ADAPTER
     char* w ="world";
-    tricePrintfAdapter( "Hello %s! (%#b times)\n", w, 5 );
+    tricePrintfAdapter( "Hello %s!\n", w );
+    TRICE8_1( Id(51183), "%#b times\n", 5 );
+    TRICE8_1( Id( 2863), "%b times\n", 5 );
     #endif
     TRICE16_1( Id(46097), "dbg:12345 as 16bit is %#016b\n", 12345 );
     TRICE0 (Id(30265), "--------------------------------------------------------------------------------------------------------------------------------------------------\n" );
@@ -97,7 +100,7 @@ void triceCheckSet( void )
     TRICE0 (Id(12664), "wrn:A" );
     TRICE0 (Id(60989), "wr_:B" );
     TRICE0 (Id(61533), "tim:C\n" );
-/*
+
     triceString( 18, "\n" );
     triceString( 18, "1\n" );
     triceString( 18, "12\n" );
@@ -114,7 +117,20 @@ void triceCheckSet( void )
     triceString( 18, "Berlin\n" );
     triceString( 18, "HonululuTown\n" );
     triceString( 18, "Leipzig\n" );
-*/
+
+    {
+        uint8_t b[8] = {1,2,3,4,5,6,7,8};
+        TRICE8_8( Id(41421), "msg:1:%03x %03x %03x %03x %03x %03x %03x %03x\n", b[0], b[1], b[2], b[3], b[4], b[5], b[6], b[7] );
+        TRICE16_1( Id(51627), "tim: pre encryption SysTick=%d\n", SYSTICKVAL16 );
+        encrypt(b);
+        TRICE16_1( Id(22987), "tim: post encryption SysTick=%d\n", SYSTICKVAL16 );
+        TRICE8_8( Id(63901), "att:1:%03x %03x %03x %03x %03x %03x %03x %03x\n", b[0], b[1], b[2], b[3], b[4], b[5], b[6], b[7] );
+        TRICE16_1( Id(11300), "tim: pre decryption SysTick=%d\n", SYSTICKVAL16 );
+        decrypt(b);
+        TRICE16_1( Id(16185), "tim: post decryption SysTick=%d\n", SYSTICKVAL16 );
+        TRICE8_8( Id(43598), "msg:2:%03x %03x %03x %03x %03x %03x %03x %03x\n", b[0], b[1], b[2], b[3], b[4], b[5], b[6], b[7] );
+    }
+
     TRICE0 (Id(58460), "--------------------------------------------------------------------------------------------------------------------------------------------------\n" );
     // 4 subtraces
 } // sum 111 sub traces (need 444 bytes Buffet space)

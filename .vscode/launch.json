@@ -38,9 +38,9 @@
                      "-baud",
                      "115200",
                      "-list",
-                     "examples/triceDemoF030R8/MDK-ARM/til.json",
+                     "C:/GitRepos/trice/examples/triceDemoF030R8/MDK-ARM/til.json",
                      "-key",
-                     "none"
+                     "test"
             ]
         },
         {

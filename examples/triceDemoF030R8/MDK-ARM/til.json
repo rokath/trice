@@ -1860,5 +1860,348 @@
 		"fmtStrg": "att:64bit %x\\n",
 		"created": 1582563310,
 		"removed": 0
+	},
+	{
+		"id": 146,
+		"fmtType": "TRICE0",
+		"fmtStrg": "rd_:RcPack.c",
+		"created": 1583006833,
+		"removed": 0
+	},
+	{
+		"id": 168,
+		"fmtType": "TRICE8_1",
+		"fmtStrg": "WRN:On device %02x some data garbage received:\\n",
+		"created": 1583006833,
+		"removed": 0
+	},
+	{
+		"id": 167,
+		"fmtType": "TRICE8_1",
+		"fmtStrg": "wrn:STM32: removing received byte %02x\\n",
+		"created": 1583006833,
+		"removed": 0
+	},
+	{
+		"id": 5644,
+		"fmtType": "TRICE8_5",
+		"fmtStrg": "dbg:\\ncompareRemoteReceived %02x %02x %02x %02x %02x\\n",
+		"created": 1583006833,
+		"removed": 0
+	},
+	{
+		"id": 5645,
+		"fmtType": "TRICE8_5",
+		"fmtStrg": "dbg:compareRemoteReceived %02x %02x %02x %02x %02x\\n",
+		"created": 1583006833,
+		"removed": 0
+	},
+	{
+		"id": 5646,
+		"fmtType": "TRICE8_1",
+		"fmtStrg": "dbg:%02x:an answer for this device\\n",
+		"created": 1583006833,
+		"removed": 0
+	},
+	{
+		"id": 5647,
+		"fmtType": "TRICE8_1",
+		"fmtStrg": "dbg:%02x:a remote call received\\n",
+		"created": 1583006833,
+		"removed": 0
+	},
+	{
+		"id": 52278,
+		"fmtType": "TRICE8_1",
+		"fmtStrg": "%d times\\n",
+		"created": 1583006833,
+		"removed": 0
+	},
+	{
+		"id": 8986,
+		"fmtType": "TRICE16_2",
+		"fmtStrg": " in line %d (0x%02x)\\n",
+		"created": 1583006833,
+		"removed": 0
+	},
+	{
+		"id": 46005,
+		"fmtType": "TRICE32_2",
+		"fmtStrg": "ERR: in line %d (0x%08x)\\n",
+		"created": 1583006833,
+		"removed": 0
+	},
+	{
+		"id": 17192,
+		"fmtType": "TRICE16_4",
+		"fmtStrg": "ERR: in line %d (0x%04x,0x%04x,0x%04x)\\n",
+		"created": 1583006833,
+		"removed": 0
+	},
+	{
+		"id": 11917,
+		"fmtType": "TRICE32_2",
+		"fmtStrg": "att: line %d, value = 0x%08x\\r\\n",
+		"created": 1583006833,
+		"removed": 0
+	},
+	{
+		"id": 33840,
+		"fmtType": "TRICE32_2",
+		"fmtStrg": "att: line %d, value = 0x%08x\\r\\n",
+		"created": 1583006833,
+		"removed": 0
+	},
+	{
+		"id": 16598,
+		"fmtType": "TRICE16_2",
+		"fmtStrg": "err:local address 0x%02x:!ASSERT in line %d\\n",
+		"created": 1583006833,
+		"removed": 0
+	},
+	{
+		"id": 63908,
+		"fmtType": "TRICE8_1",
+		"fmtStrg": "%b times\\n",
+		"created": 1583006909,
+		"removed": 0
+	},
+	{
+		"id": 25957,
+		"fmtType": "TRICE8_1",
+		"fmtStrg": "%x times\\n",
+		"created": 1583006965,
+		"removed": 0
+	},
+	{
+		"id": 8022,
+		"fmtType": "TRICE8_1",
+		"fmtStrg": "%#x times\\n",
+		"created": 1583007299,
+		"removed": 0
+	},
+	{
+		"id": 42233,
+		"fmtType": "TRICE8_1",
+		"fmtStrg": "%#b times\\n",
+		"created": 1583007335,
+		"removed": 0
+	},
+	{
+		"id": 7848,
+		"fmtType": "TRICE8_1",
+		"fmtStrg": "%b times\\n",
+		"created": 1583007371,
+		"removed": 0
+	},
+	{
+		"id": 51183,
+		"fmtType": "TRICE8_1",
+		"fmtStrg": "%#b times\\n",
+		"created": 1583007404,
+		"removed": 0
+	},
+	{
+		"id": 2863,
+		"fmtType": "TRICE8_1",
+		"fmtStrg": "%b times\\n",
+		"created": 1583008482,
+		"removed": 0
+	},
+	{
+		"id": 46040,
+		"fmtType": "TRICE8_8",
+		"fmtStrg": "msg:%02x%02x%02x%02x%02x%02x%02x%02x\\n",
+		"created": 1583055895,
+		"removed": 0
+	},
+	{
+		"id": 13370,
+		"fmtType": "TRICE8_8",
+		"fmtStrg": "att:%02x%02x%02x%02x%02x%02x%02x%02x\\n",
+		"created": 1583055895,
+		"removed": 0
+	},
+	{
+		"id": 48011,
+		"fmtType": "TRICE8_8",
+		"fmtStrg": "msg:%03x %03x %03x %03x %03x %03x %03x %03x\\n",
+		"created": 1583056663,
+		"removed": 0
+	},
+	{
+		"id": 57897,
+		"fmtType": "TRICE8_8",
+		"fmtStrg": "msg:%03x %03x %03x %03x %03x %03x %03x %03x\\n",
+		"created": 1583056663,
+		"removed": 0
+	},
+	{
+		"id": 47013,
+		"fmtType": "TRICE8_8",
+		"fmtStrg": "att:%03x %03x %03x %03x %03x %03x %03x %03x\\n",
+		"created": 1583056663,
+		"removed": 0
+	},
+	{
+		"id": 36278,
+		"fmtType": "TRICE8_8",
+		"fmtStrg": "msg:0:%03x %03x %03x %03x %03x %03x %03x %03x\\n",
+		"created": 1583064287,
+		"removed": 0
+	},
+	{
+		"id": 24091,
+		"fmtType": "TRICE8_8",
+		"fmtStrg": "att:1:%03x %03x %03x %03x %03x %03x %03x %03x\\n",
+		"created": 1583064287,
+		"removed": 0
+	},
+	{
+		"id": 46341,
+		"fmtType": "TRICE8_8",
+		"fmtStrg": "msg:2:%03x %03x %03x %03x %03x %03x %03x %03x\\n",
+		"created": 1583064287,
+		"removed": 0
+	},
+	{
+		"id": 54948,
+		"fmtType": "TRICE8_8",
+		"fmtStrg": "msg:0:%03x %03x %03x %03x %03x %03x %03x %03x\\n",
+		"created": 1583067670,
+		"removed": 0
+	},
+	{
+		"id": 44402,
+		"fmtType": "TRICE8_8",
+		"fmtStrg": "att:1:%03x %03x %03x %03x %03x %03x %03x %03x\\n",
+		"created": 1583067670,
+		"removed": 0
+	},
+	{
+		"id": 54579,
+		"fmtType": "TRICE8_8",
+		"fmtStrg": "msg:2:%03x %03x %03x %03x %03x %03x %03x %03x\\n",
+		"created": 1583067670,
+		"removed": 0
+	},
+	{
+		"id": 42387,
+		"fmtType": "TRICE8_8",
+		"fmtStrg": "msg:0:%03x %03x %03x %03x %03x %03x %03x %03x\\n",
+		"created": 1583068260,
+		"removed": 0
+	},
+	{
+		"id": 24784,
+		"fmtType": "TRICE8_8",
+		"fmtStrg": "att:1:%03x %03x %03x %03x %03x %03x %03x %03x\\n",
+		"created": 1583068260,
+		"removed": 0
+	},
+	{
+		"id": 9262,
+		"fmtType": "TRICE8_8",
+		"fmtStrg": "msg:2:%03x %03x %03x %03x %03x %03x %03x %03x\\n",
+		"created": 1583068260,
+		"removed": 0
+	},
+	{
+		"id": 782,
+		"fmtType": "TRICE8_8",
+		"fmtStrg": "msg:0:%03x %03x %03x %03x %03x %03x %03x %03x\\n",
+		"created": 1583070669,
+		"removed": 0
+	},
+	{
+		"id": 63901,
+		"fmtType": "TRICE8_8",
+		"fmtStrg": "att:1:%03x %03x %03x %03x %03x %03x %03x %03x\\n",
+		"created": 1583070669,
+		"removed": 0
+	},
+	{
+		"id": 43598,
+		"fmtType": "TRICE8_8",
+		"fmtStrg": "msg:2:%03x %03x %03x %03x %03x %03x %03x %03x\\n",
+		"created": 1583070669,
+		"removed": 0
+	},
+	{
+		"id": 55568,
+		"fmtType": "TRICE32_1",
+		"fmtStrg": "elapsed %dus\\n",
+		"created": 1583080612,
+		"removed": 0
+	},
+	{
+		"id": 28426,
+		"fmtType": "TRICE8_8",
+		"fmtStrg": "msg:1:%03x %03x %03x %03x %03x %03x %03x %03x\\n",
+		"created": 1583081932,
+		"removed": 0
+	},
+	{
+		"id": 11971,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "tim: pre encryption SysTick=%d\\n",
+		"created": 1583081932,
+		"removed": 0
+	},
+	{
+		"id": 19050,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "tim: post encryption SysTick=%d\\n",
+		"created": 1583081932,
+		"removed": 0
+	},
+	{
+		"id": 46734,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "tim: pre decryption SysTick=%d\\n",
+		"created": 1583081932,
+		"removed": 0
+	},
+	{
+		"id": 11743,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "tim: post decryption SysTick=%d\\n",
+		"created": 1583081932,
+		"removed": 0
+	},
+	{
+		"id": 41421,
+		"fmtType": "TRICE8_8",
+		"fmtStrg": "msg:1:%03x %03x %03x %03x %03x %03x %03x %03x\\n",
+		"created": 1583082305,
+		"removed": 0
+	},
+	{
+		"id": 51627,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "tim: pre encryption SysTick=%d\\n",
+		"created": 1583082305,
+		"removed": 0
+	},
+	{
+		"id": 22987,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "tim: post encryption SysTick=%d\\n",
+		"created": 1583082305,
+		"removed": 0
+	},
+	{
+		"id": 11300,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "tim: pre decryption SysTick=%d\\n",
+		"created": 1583082305,
+		"removed": 0
+	},
+	{
+		"id": 16185,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "tim: post decryption SysTick=%d\\n",
+		"created": 1583082305,
+		"removed": 0
 	}
 ]

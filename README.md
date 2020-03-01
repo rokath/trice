@@ -76,10 +76,11 @@ is example code and for testing
 - You can consider TRICE also as **a kind of intelligent data compression** what could be interesting for IoT things, especially NB-IoT, where you have very low data rates.
 - Also it is possible to **encrypt the 8 byte transfer packets** to get a reasonable protection for many cases.
   - This way you can deliver firmware images with encrypted TRICE output only readable with the appropriate key and til.json.
-  - Treyfer is a recommendation and planned as a coming option.
+  - XTEA is a recommendation and implemented as option.
 - You can even translate the til.json in **different languages**, so changing a language is just changing the til.json file.
 - trice has intentionally no timestamps for performance reasons. But you can add own **timestamps as parameters**. Having several devices with trice timestamps, **network timing measurements** are possible.
 - Using trice with an **RTOS** gives the option for detailed **task timing analysis**. Because of the very short execution time of a trice you could add `TRICE16( Id(0), "tim:%d us, task=%d\n", us, nexTask );` to the scheduler and vizualize the output on PC. The same is possible for **interrupt timing analysis**.
+- `TRICE16( "%d us\n", sysTick );` before and after a function call lets you easy measure the function execution time.
 - As graphical vizualisation you could use a tool similar to https://github.com/sqshq/sampler.
 
 ## Documentation

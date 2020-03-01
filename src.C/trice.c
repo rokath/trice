@@ -12,8 +12,10 @@ That is the time critical part.
 
 #include "trice.h"
 
-#ifdef TREYFER_KEY
-#include "treyferCrypto.h"
+#ifdef ENCRYPT
+
+#include "xteaCrypto.h" // enable this for encryption
+
 #endif
 
 #ifdef TRICE_PRINTF_ADAPTER
@@ -21,14 +23,15 @@ That is the time critical part.
 #include <stdio.h> // #include "printf.h"
 #endif // #ifdef TRICE_PRINTF_ADAPTER
 
-#ifdef TRICE_OFF
+#if 0 == TRICE_LEVEL
 
-/*! This function should be called inside the transmit done device interrupt.
-Also it should be called cyclically to trigger transmission start.
-*/
-void triceTxHandler( int* pTxState ){}
+void triceTxHandler( int* pTxState ){
+}
 
-#else // #ifdef TRICE_OFF
+int tricePrintfAdapter( const char* pFmt, ... ){
+}
+
+#else // #if 0 == TRICE_LEVEL
 
 #include <stdint.h>
 
@@ -64,18 +67,22 @@ static size_t triceMsgDepth( void ){
     } else {
         if( triceFifoDepth() ){
             triceFifoPop( (uint32_t*)(&(triceMsg.ld)) );
+            //triceMsg.ld.load[0] = 0xc0;
+            //triceMsg.ld.load[1] = 0xc9; // msg:Hello from MCU! SysTickVal now %d\\n
+            //triceMsg.ld.load[2] = 0;
+            //triceMsg.ld.load[3] = 0;
             pRead = (uint8_t*)&triceMsg;
             triceMsg.hd.crc8  = TRICE_START_BYTE ^ TRICE_LOCAL_ADDR ^ TRICE_DISPL_ADDR
                                  ^ triceMsg.ld.load[0]
                                  ^ triceMsg.ld.load[1]
                                  ^ triceMsg.ld.load[2]
                                  ^ triceMsg.ld.load[3];
-            #ifdef TREYFER_KEY
-            {
-                static uint8_t const treyferKey[8] = TREYFER_KEY;
-                encrypt( (uint8_t*)&triceMsg, treyferKey );
-            }
-            #endif // #ifdef TREYFER_KEY
+            #if 1 //def ENCRYPT
+                triceMsg.hd.start = TRICE_START_BYTE;
+                triceMsg.hd.cad  = TRICE_LOCAL_ADDR;
+                triceMsg.hd.sad  = TRICE_DISPL_ADDR;
+                encrypt( (uint8_t*)&triceMsg );
+            #endif
             return 8;
         }
     }
@@ -119,10 +126,10 @@ int tricePrintfAdapter( const char* pFmt, ... ){
     return done;
 }
 
+#endif // #ifdef TRICE_PRINTF_ADAPTER
+
 //! unused dummy definition for linker
 void _putchar(char character){
 }
 
-#endif // #ifdef TRICE_PRINTF_ADAPTER
-
-#endif // #else // #ifdef TRICE_OFF
+#endif // #else // #if 0 == TRICE_LEVEL

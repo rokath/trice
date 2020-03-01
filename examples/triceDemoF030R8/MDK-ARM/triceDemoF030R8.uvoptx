@@ -157,20 +157,32 @@
         <Bp>
           <Number>0</Number>
           <Type>0</Type>
-          <LineNumber>44</LineNumber>
+          <LineNumber>31</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134225060</Address>
+          <Address>134218050</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
           <SizeOfObject>0</SizeOfObject>
           <BreakByAccess>0</BreakByAccess>
           <BreakIfRCount>1</BreakIfRCount>
-          <Filename>C:\GitRepos\trice\examples\triceDemoF030R8\Src\triceCheck.c</Filename>
+          <Filename>..\..\..\src.C\xteaCrypto.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\triceDemoF030R8\../Src/triceCheck.c\44</Expression>
+          <Expression>\\triceDemoF030R8\../../../src.C/xteaCrypto.c\31</Expression>
         </Bp>
       </Breakpoint>
+      <WatchWindow1>
+        <Ww>
+          <count>0</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>table</ItemText>
+        </Ww>
+        <Ww>
+          <count>1</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>k</ItemText>
+        </Ww>
+      </WatchWindow1>
       <Tracepoint>
         <THDelay>0</THDelay>
       </Tracepoint>
@@ -253,7 +265,7 @@
       <GroupNumber>2</GroupNumber>
       <FileNumber>2</FileNumber>
       <FileType>1</FileType>
-      <tvExp>0</tvExp>
+      <tvExp>1</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>../Src/main.c</PathWithFileName>
@@ -409,7 +421,7 @@
       <GroupNumber>5</GroupNumber>
       <FileNumber>13</FileNumber>
       <FileType>1</FileType>
-      <tvExp>1</tvExp>
+      <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\lib\triceCheck.c</PathWithFileName>
@@ -424,8 +436,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\..\src.C\treyferCrypto.c</PathWithFileName>
-      <FilenameWithoutPath>treyferCrypto.c</FilenameWithoutPath>
+      <PathWithFileName>..\..\..\src.C\trice.c</PathWithFileName>
+      <FilenameWithoutPath>trice.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -436,8 +448,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\..\src.C\trice.c</PathWithFileName>
-      <FilenameWithoutPath>trice.c</FilenameWithoutPath>
+      <PathWithFileName>..\..\..\src.C\xteaCrypto.c</PathWithFileName>
+      <FilenameWithoutPath>xteaCrypto.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>

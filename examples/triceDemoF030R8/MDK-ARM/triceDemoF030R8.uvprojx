@@ -72,7 +72,7 @@
           <BeforeMake>
             <RunUserProg1>1</RunUserProg1>
             <RunUserProg2>0</RunUserProg2>
-            <UserProg1Name>trice u -src ..</UserProg1Name>
+            <UserProg1Name>trice u -src ../..</UserProg1Name>
             <UserProg2Name></UserProg2Name>
             <UserProg1Dos16Mode>0</UserProg1Dos16Mode>
             <UserProg2Dos16Mode>0</UserProg2Dos16Mode>
@@ -468,14 +468,14 @@
               <FilePath>..\..\lib\triceCheck.c</FilePath>
             </File>
             <File>
-              <FileName>treyferCrypto.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\src.C\treyferCrypto.c</FilePath>
-            </File>
-            <File>
               <FileName>trice.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\src.C\trice.c</FilePath>
+            </File>
+            <File>
+              <FileName>xteaCrypto.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\src.C\xteaCrypto.c</FilePath>
             </File>
           </Files>
         </Group>

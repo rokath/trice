@@ -37,7 +37,7 @@ var matchTriceStartWithoutIDo = regexp.MustCompile(`(\bTRICE64|TRICE32|TRICE16|T
 var matchTriceStartWithoutID = regexp.MustCompile(`(\bTRICE64|TRICE32|TRICE16|TRICE8|TRICE0\b)\s*`)
 
 // find next format specifier in a string (exclude %%*)
-var matchNextFormatSpezifier = regexp.MustCompile(`(?:^|[^%])(%[0-9\.]*(b|d|u|x|X|o|f))`)
+var matchNextFormatSpezifier = regexp.MustCompile(`(?:^|[^%])(%[0-9\.#]*(b|d|u|x|X|o|f))`)
 
 func isSourceFile(fi os.FileInfo) bool {
 	return matchSourceFile.MatchString(fi.Name())

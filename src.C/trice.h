@@ -1,7 +1,7 @@
 /*! \file trice.h
 \brief Software tracer header file
-\details This file is included in target code files. If TRICE_OFF is defined
-(globally or file specific) the TRICE* macros generate no code. 
+\details This file is included in target code files. If TRICE_LEVEL is defined 
+as 0 (globally or file specific) the TRICE* macros generate no code. 
 \author thomas.toehenleitner [at] seerose.net
 *******************************************************************************/
 
@@ -18,10 +18,8 @@
 extern "C" {
 #endif
 
-/*! This function should be called inside the transmit done device interrupt.
-Also it should be called cyclically to trigger transmission start.
-*/
 void triceTxHandler( int* pTxState );
+int tricePrintfAdapter( const char* pFmt, ... );
 
 #define Id( n ) (n) //!< Macro for improved trice readability and better source code parsing.
 
@@ -315,9 +313,10 @@ TRICE_INLINE size_t triceFifoDepth( void ){
 //! \param pFmt formatstring for trice
 //! \param d0 payload
 #define TRICE32_1( Id, pFmt, d0 ) do{ \
+    uint32_t x = d0; \
     TRICE_ENTER_CRITICAL_SECTION \
-    TRICE_ID0( d0 ); \
-    TRICE( Id, ((uint32_t)d0)>>16 ); \
+    TRICE_ID0( x ); \
+    TRICE( Id, x>>16 ); \
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
 
@@ -1153,12 +1152,7 @@ TRICE_INLINE void triceSrcLocation(char const *file, int line){
       TRICE16_1( Id(8272), " at line %d\n", line );
 }
 
-#ifdef TRICE_PRINTF_ADAPTER
-//! printf replacement
-int tricePrintfAdapter( const char* pFmt, ... );
-#endif
-
-#endif // #else // #ifdef TRICE_OFF
+#endif // #else // #if 0 == TRICE_LEVEL
 
 #ifdef __cplusplus
 }
