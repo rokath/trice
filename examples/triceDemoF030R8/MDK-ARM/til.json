@@ -2203,5 +2203,103 @@
 		"fmtStrg": "tim: post decryption SysTick=%d\\n",
 		"created": 1583082305,
 		"removed": 0
+	},
+	{
+		"id": 10577,
+		"fmtType": "TRICE64_2",
+		"fmtStrg": "att:64bit %x\\n",
+		"created": 1583087206,
+		"removed": 0
+	},
+	{
+		"id": 39599,
+		"fmtType": "TRICE64_1",
+		"fmtStrg": "tst:TRICE64 %d\\n",
+		"created": 1583087206,
+		"removed": 0
+	},
+	{
+		"id": 5982,
+		"fmtType": "TRICE64_2",
+		"fmtStrg": "tst:TRICE64 %d %d\\n",
+		"created": 1583087206,
+		"removed": 0
+	},
+	{
+		"id": 42464,
+		"fmtType": "TRICE64_2",
+		"fmtStrg": "att:64bit %x %x\\n",
+		"created": 1583092496,
+		"removed": 0
+	},
+	{
+		"id": 11287,
+		"fmtType": "TRICE64_2",
+		"fmtStrg": "att:64bit %x %x\\n",
+		"created": 1583092746,
+		"removed": 0
+	},
+	{
+		"id": 60791,
+		"fmtType": "TRICE32_4",
+		"fmtStrg": "tst:TRICE32_4 %%09x -\u003e     %09x     %09x     %09x     %09x\\n",
+		"created": 1583093740,
+		"removed": 0
+	},
+	{
+		"id": 58549,
+		"fmtType": "TRICE32_4",
+		"fmtStrg": "tst:TRICE32_4 %%09d -\u003e     %09d     %09d     %09d     %09x\\n",
+		"created": 1583093740,
+		"removed": 0
+	},
+	{
+		"id": 51060,
+		"fmtType": "TRICE64_1",
+		"fmtStrg": "att:64bit %#b\\n",
+		"created": 1583093740,
+		"removed": 0
+	},
+	{
+		"id": 18759,
+		"fmtType": "TRICE32_4",
+		"fmtStrg": "tst:TRICE32_4 %%09x -\u003e     %010x     %010x     %010x     %010x\\n",
+		"created": 1583093918,
+		"removed": 0
+	},
+	{
+		"id": 7822,
+		"fmtType": "TRICE32_4",
+		"fmtStrg": "tst:TRICE32_4 %%10d -\u003e     %10d     %10d     %10d     %10x\\n",
+		"created": 1583093918,
+		"removed": 0
+	},
+	{
+		"id": 31611,
+		"fmtType": "TRICE32_4",
+		"fmtStrg": "tst:TRICE32_4 %%09x -\u003e      %09x      %09x      %09x      %09x\\n",
+		"created": 1583093998,
+		"removed": 0
+	},
+	{
+		"id": 52511,
+		"fmtType": "TRICE32_4",
+		"fmtStrg": "tst:TRICE32_4 %%10d -\u003e     %10d     %10d     %10d    %10x\\n",
+		"created": 1583093998,
+		"removed": 0
+	},
+	{
+		"id": 13054,
+		"fmtType": "TRICE32_4",
+		"fmtStrg": "tst:TRICE32_4 %%09x -\u003e      %09x      %09x       %09x     %09x\\n",
+		"created": 1583094062,
+		"removed": 0
+	},
+	{
+		"id": 416,
+		"fmtType": "TRICE32_4",
+		"fmtStrg": "tst:TRICE32_4 %%10d -\u003e     %10d     %10d     %10d    %10x\\n",
+		"created": 1583094062,
+		"removed": 0
 	}
 ]

@@ -55,7 +55,13 @@ void triceCheckSet( void )
 
     TRICE32_1( Id(23722), "tst:TRICE32 %d\n", 1 ); // 2
     TRICE32_2( Id(31973), "tst:TRICE32 %d %d\n", 1, 2 ); // 4
-    // 6 subtraces
+    TRICE32_3( Id(43255), "tst:TRICE32 %d %d %d\n", 1, 2, 3 ); // 6
+    TRICE32_4( Id( 9070), "tst:TRICE32 %d %d %d %d\n", 1, 2, 3, 4 ); // 8
+    // 20 subtraces
+    
+    TRICE64_1( Id(15177), "tst:TRICE64 %d\n", 1 ); // 4
+    TRICE64_2( Id(56737), "tst:TRICE64 %d %d\n", 1, 2 ); // 8
+    // 12 subtraces
     
     TRICE16_1( Id(33281), "ERR:error       message, SysTick is %d\n", SYSTICKVAL16 ); // 1
     TRICE16_1( Id( 3505), "WRN:warning     message, SysTick is %d\n", SYSTICKVAL16 ); // 1

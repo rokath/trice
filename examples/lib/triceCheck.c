@@ -37,41 +37,37 @@ void triceCheckSet( void )
     TRICE16_4( Id(25198), "tst:TRICE16   %%7o -> %7o %7o %7o %7o\n", 1, 0x7fff, 0x8000, 0xffff ); // 4
     // 3 * 4 subtraces
 
-    TRICE32_2( Id(23498), "tst:TRICE32   %%09x ->     %09x     %09x", 1, 0x7fffffff ); // 4
-    TRICE32_2( Id(45407), "tst:     %09x     %09x\n", 0x80000000, 0xffffffff ); // 4
-    TRICE32_2( Id(40995), "tst:TRICE32   %%11d ->   %11d   %11d", 1, 0x7fffffff ); // 4
-    TRICE32_2( Id(11456), "tst:   %11d   %11d\n", 0x80000000, 0xffffffff  ); // 4
-    TRICE32_2( Id(28498), "tst:TRICE32   %%12o ->  %12o  %12o", 1, 0x7fffffff ); // 4
-    TRICE32_2( Id(14429), "tst:  %12o  %12o\n", 0x80000000, 0xffffffff ); // 4
-    TRICE32_3( Id(64095), "tst:                       %09x     %09x     %09x\n", 0x80000000, 0xffffffff, 0x11223344 ); // 4
-    TRICE32_4( Id(28144), "tst:TRICE32   %%09x ->     %09x     %09x     %09x     %09x\n", 0x11223344, 0x55667788, 0xaabbccdd, 0xeeff0011 ); // 4
-    TRICE64_1( Id(35491), "att:64bit %x\n", 0x1122334455667788ull );
-    TRICE64_1( Id(64075), "att:64bit %x\n", 0x9922334455667788ull );
-    // 6 * 4 subtraces
+    TRICE32_4( Id(13054), "tst:TRICE32_4 %%09x ->      %09x      %09x       %09x     %09x\n", 1, 0x7fffffff, 0x80000000, 0xffffffff ); // 4
+    TRICE32_4( Id(  416), "tst:TRICE32_4 %%10d ->     %10d     %10d     %10d    %10x\n",      1, 0x7fffffff, 0x80000000, 0xffffffff ); // 4
+    TRICE64_1( Id(51060), "att:64bit %#b\n", 0x1122334455667788ull );
 
-    TRICE8_1( Id(38612), "tst:TRICE8 %d\n", 1 ); // 1
-    TRICE8_2( Id(44766), "tst:TRICE8 %d %d\n", 1, 2 ); // 1
-    TRICE8_3( Id(56466), "tst:TRICE8 %d %d %d\n", 1, 2, 3 ); // 2
-    TRICE8_4( Id(25269), "tst:TRICE8 %d %d %d %d\n", 1, 2, 3, 4 ); // 2
-    TRICE8_5( Id(29229), "tst:TRICE8 %d %d %d %d %d\n", 1, 2, 3, 4, 5 ); // 3
-    TRICE8_6( Id(54673), "tst:TRICE8 %d %d %d %d %d %d \n", 1, 2, 3, 4, 5, 6 ); // 3
-    TRICE8_7( Id(39003), "tst:TRICE8 %d %d %d %d %d %d %d\n", 1, 2, 3, 4, 5, 6, 7 ); // 4
-    TRICE8_8( Id(17307), "tst:TRICE8 %d %d %d %d %d %d %d %d\n", 1, 2, 3, 4, 5, 6, 7, 8 ); // 4
+    TRICE8_1( Id(38612), "tst:TRICE8 %d\n", -1 ); // 1
+    TRICE8_2( Id(44766), "tst:TRICE8 %d %d\n", -1, -2 ); // 1
+    TRICE8_3( Id(56466), "tst:TRICE8 %d %d %d\n", -1, -2, -3 ); // 2
+    TRICE8_4( Id(25269), "tst:TRICE8 %d %d %d %d\n", -1, -2, -3, -4 ); // 2
+    TRICE8_5( Id(29229), "tst:TRICE8 %d %d %d %d %d\n", -1, -2, -3, -4, -5 ); // 3
+    TRICE8_6( Id(54673), "tst:TRICE8 %d %d %d %d %d %d \n", -1, -2, -3, -4, -5, -6 ); // 3
+    TRICE8_7( Id(39003), "tst:TRICE8 %d %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6, -7 ); // 4
+    TRICE8_8( Id(17307), "tst:TRICE8 %d %d %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6, -7, -8 ); // 4
     // 18 subtraces
     
-    TRICE16_1( Id(11441), "tst:TRICE16 %d\n", 1 ); // 1
-    TRICE16_2( Id( 7354), "tst:TRICE16 %d %d\n", 1, 2 ); // 2
-    TRICE16_3( Id(32565), "tst:TRICE16 %d %d %d\n", 1, 2, 3 ); // 3
-    TRICE16_4( Id(18329), "tst:TRICE16 %d %d %d %d\n", 1, 2, 3, 4 ); // 4
+    TRICE16_1( Id(11441), "tst:TRICE16 %d\n", -1 ); // 1
+    TRICE16_2( Id( 7354), "tst:TRICE16 %d %d\n", -1, -2 ); // 2
+    TRICE16_3( Id(32565), "tst:TRICE16 %d %d %d\n", -1, -2, -3 ); // 3
+    TRICE16_4( Id(18329), "tst:TRICE16 %d %d %d %d\n", -1, -2, -3, -4 ); // 4
     // 10 subtraces
 
-    TRICE32_1( Id(21762), "tst:TRICE32 %d\n", 1 ); // 2
-    TRICE32_2( Id(41764), "tst:TRICE32 %d %d\n", 1, 2 ); // 4
-    TRICE32_3( Id( 6435), "tst:TRICE32 %d %d %d\n", 1, 2, 3 ); // 4
-    TRICE32_4( Id( 4527), "tst:TRICE32 %d %d %d %d\n", 1, 2, 3, 4 ); // 4
+    TRICE32_1( Id(21762), "tst:TRICE32 %d\n", -1 ); // 2
+    TRICE32_2( Id(41764), "tst:TRICE32 %d %d\n", -1, -2 ); // 4
+    TRICE32_3( Id( 6435), "tst:TRICE32 %d %d %d\n", -1, -2, -3 ); // 4
+    TRICE32_4( Id( 4527), "tst:TRICE32 %d %d %d %d\n", -1, -2, -3, -4 ); // 4
 
     // 6 subtraces
-    
+
+    TRICE64_1( Id(39599), "tst:TRICE64 %d\n", -1 ); // 2
+    TRICE64_2( Id( 5982), "tst:TRICE64 %d %d\n", -1, -2 ); // 4
+
+
     TRICE16_1( Id(47902), "ERR:error       message, SysTick is %d\n", SYSTICKVAL16 ); // 1
     TRICE16_1( Id(64631), "WRN:warning     message, SysTick is %d\n", SYSTICKVAL16 ); // 1
     TRICE16_1( Id(13824), "ATT:attension   message, SysTick is %d\n", SYSTICKVAL16 ); // 1

@@ -50,6 +50,14 @@ func checkValuePosition(l id.List, palette string) error {
 			b = append(b, 1, 0, 0, 0)
 		case "TRICE32_2":
 			b = append(b, 1, 0, 0, 0, 2, 0, 0, 0)
+		case "TRICE32_3":
+			b = append(b, 1, 0, 0, 0, 2, 0, 0, 0, 3, 0, 0, 0)
+		case "TRICE32_4":
+			b = append(b, 1, 0, 0, 0, 2, 0, 0, 0, 3, 0, 0, 0, 4, 0, 0, 0)
+		case "TRICE64_1":
+			b = append(b, 1, 0, 0, 0, 0, 0, 0, 0)
+		case "TRICE64_2":
+			b = append(b, 1, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0)
 		}
 		s, err := emitter(it, b)
 		if nil != err {
@@ -100,6 +108,14 @@ func checkNegativeValues(l id.List, palette string) error {
 			b = append(b, 0, 0, 0, 0x80)
 		case "TRICE32_2":
 			b = append(b, 0, 0, 0, 0x80, 0, 0, 0, 0x80)
+		case "TRICE32_3":
+			b = append(b, 0, 0, 0, 0x80, 0, 0, 0, 0x80, 0, 0, 0, 0x80)
+		case "TRICE32_4":
+			b = append(b, 0, 0, 0, 0x80, 0, 0, 0, 0x80, 0, 0, 0, 0x80, 0, 0, 0, 0x80)
+		case "TRICE64_1":
+			b = append(b, 0, 0, 0, 0, 0, 0, 0, 0x80)
+		case "TRICE64_2":
+			b = append(b, 0, 0, 0, 0, 0, 0, 0, 0x80, 0, 0, 0, 0, 0, 0, 0, 0x80)
 		}
 		s, err := emitter(it, b)
 		if nil != err {
@@ -436,7 +452,7 @@ func emitterGo(it id.Item, b []byte) (string, error) {
 	var s string
 	var v0, v1, v2, v3 int16
 	var w0, w1, w2, w3 int32
-	var l0 int64
+	var l0, l1 int64
 	switch it.FmtType {
 	case "TRICE0":
 		if 2 != len(b) { // b has 2 padding bytes
@@ -558,6 +574,13 @@ func emitterGo(it id.Item, b []byte) (string, error) {
 		}
 		l0 = int64(binary.LittleEndian.Uint64(b[0:8]))
 		s = fmt.Sprintf(f, l0)
+	case "TRICE64_2":
+		if 16 != len(b) {
+			return "TRICE64_2", fmt.Errorf("false len %v", b)
+		}
+		l0 = int64(binary.LittleEndian.Uint64(b[0:8]))
+		l1 = int64(binary.LittleEndian.Uint64(b[8:16]))
+		s = fmt.Sprintf(f, l0, l1)
 	default:
 		return "ERR: INTERNAL ERROR!!!", errors.New("ERR: INTERNAL ERROR")
 	}
