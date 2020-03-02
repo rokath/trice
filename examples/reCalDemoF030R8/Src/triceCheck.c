@@ -113,7 +113,7 @@ void triceCheckSet( void )
     triceString( 18, "Berlin\n" );
     triceString( 18, "HonululuTown\n" );
     triceString( 18, "Leipzig\n" );
-
+#ifdef ENCRYPT
     {
         uint8_t b[8] = {1,2,3,4,5,6,7,8};
         TRICE8_8( Id(41421), "msg:1:%03x %03x %03x %03x %03x %03x %03x %03x\n", b[0], b[1], b[2], b[3], b[4], b[5], b[6], b[7] );
@@ -126,7 +126,7 @@ void triceCheckSet( void )
         TRICE16_1( Id(16185), "tim: post decryption SysTick=%d\n", SYSTICKVAL16 );
         TRICE8_8( Id(43598), "msg:2:%03x %03x %03x %03x %03x %03x %03x %03x\n", b[0], b[1], b[2], b[3], b[4], b[5], b[6], b[7] );
     }
-
+#endif
     TRICE0 (Id(58460), "--------------------------------------------------------------------------------------------------------------------------------------------------\n" );
     // 4 subtraces
 } // sum 111 sub traces (need 444 bytes Buffet space)

@@ -54,7 +54,7 @@
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
+#if 0
 ///////////////////////////////////////////////////////////////////////////////
 // fifo instances
 //
@@ -136,7 +136,7 @@ void UartTxCheck( void ){
         UartTxStartCheck();
     }
 }
-
+#endif
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
@@ -208,19 +208,20 @@ void PendSV_Handler(void)
 void SysTick_Handler(void)
 {
   /* USER CODE BEGIN SysTick_IRQn 0 */
+    int dummy;
     static uint16_t msTick = 0;
     static uint32_t ms = 0; 
     msTick++;
-    if( 100 == msTick ){
+    if( 1000 == msTick ){
         msTick = 0;
-        ms +=100;
+        ms +=1000;
         TRICE32_1( Id(18577), "ISR:alive time %d milliseconds\n", ms );
     }
 
   /* USER CODE END SysTick_IRQn 0 */
   
   /* USER CODE BEGIN SysTick_IRQn 1 */
-    UartTxStartCheck(); // start transmission if data
+    triceTxHandler(&dummy); // start transmission if data
   /* USER CODE END SysTick_IRQn 1 */
 }
 
@@ -237,11 +238,10 @@ void SysTick_Handler(void)
 void USART2_IRQHandler(void)
 {
   /* USER CODE BEGIN USART2_IRQn 0 */
-
+    int dummy;
   /* USER CODE END USART2_IRQn 0 */
   /* USER CODE BEGIN USART2_IRQn 1 */
-    //UartRxCheck();
-    UartTxCheck();
+    triceTxHandler(&dummy);
   /* USER CODE END USART2_IRQn 1 */
 }
 

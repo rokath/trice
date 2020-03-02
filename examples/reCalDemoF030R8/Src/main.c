@@ -25,6 +25,9 @@
 /* USER CODE BEGIN Includes */
 #include "trice.h"
 #include "triceCheck.h"
+#ifdef ENCRYPT
+#include "xteaCrypto.h"
+#endif
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -67,7 +70,9 @@ static void MX_USART2_UART_Init(void);
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-
+#ifdef ENCRYPT
+    InitXteaTable();
+#endif
   /* USER CODE END 1 */
   
 
@@ -107,7 +112,7 @@ int main(void)
     while (1)
     {
         static int32_t loopCount = 0u;
-        #define LOOPCOUNT 1000000u // resonable for 48 MHz MCU
+        #define LOOPCOUNT 10000000u // resonable for 48 MHz MCU
         loopCount++;
         if( (LOOPCOUNT>>1) == loopCount ){
           LL_GPIO_ResetOutputPin(LD2_GPIO_Port, LD2_Pin);

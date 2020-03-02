@@ -119,7 +119,6 @@ void PendSV_Handler(void)
   /* USER CODE END PendSV_IRQn 1 */
 }
 
-
 /**
   * @brief This function handles System tick timer.
   */

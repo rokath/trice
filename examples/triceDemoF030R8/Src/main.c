@@ -25,7 +25,9 @@
 /* USER CODE BEGIN Includes */
 #include "trice.h"
 #include "triceCheck.h"
+#ifdef ENCRYPT
 #include "xteaCrypto.h"
+#endif
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/

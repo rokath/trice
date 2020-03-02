@@ -29,8 +29,13 @@ extern "C" {
 #define TRICE_LOCAL_ADDR (0x60) //!< trice addess of this device (choose free)
 #define TRICE_DISPL_ADDR (0x60) //!< trice terminal address for this device (choose free)
 #define TRICE_SHORT_MEMORY 0 //!< 1 means less Flash needed but slower, set compiler switch "optimize for time" accordingly!
-//#define TRICE_OFF //!< enable this line to disable trice code generation
-//#define TREYFER_KEY { 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88 } //!< enable to encrypt trice transmit data (must be done in trice-tool too)
+#ifndef TRICE_LEVEL
+#define TRICE_LEVEL 100 //!< enable or disable trice code generation
+#endif
+
+//! enable encryption here
+//! call trice tool with log switch "-key your_password -show" and put passphrase here
+//#define ENCRYPT XTEA_KEY( a9, 4a, 8f, e5, cc, b1, 9b, a6, 1c, 4c, 08, 73, d3, 91, e9, 87 ); //!< -key test
 
 //! Enable this for legacy projects with printf( "...%s...", ... ); statements
 //! This is only for easy porting and has no advantage in time and space compared to printf
@@ -43,7 +48,7 @@ extern "C" {
 
 #define SYSTICKVAL16 SysTick->VAL //!< STM32 specific
 
-
+#if 0
 
 
 #include <stdlib.h>
@@ -116,6 +121,7 @@ static inline void Pause( void ){}
 #define ASSERT_OR_RETURN_RESULT( flag, result ) if(!(flag)) { ASSERTION; return result;       } //!< if flag is not true return result
 #define ASSERT_OR_RETURN_RESULT_ERROR( flag )   if(!(flag)) { ASSERTION; return RESULT_ERROR; } //!< if flag is not true return result
 
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 // compiler adaptions
