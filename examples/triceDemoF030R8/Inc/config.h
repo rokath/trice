@@ -35,8 +35,7 @@ extern "C" {
 
 //! enable encryption here
 //! call trice tool with log switch "-key your_password -show" and put passphrase here
-#define ENCRYPT XTEA_KEY( a9, 4a, 8f, e5, cc, b1, 9b, a6, 1c, 4c, 08, 73, d3, 91, e9, 87 ); //!< -key test
-
+//#define ENCRYPT XTEA_KEY( a9, 4a, 8f, e5, cc, b1, 9b, a6, 1c, 4c, 08, 73, d3, 91, e9, 87 ); //!< -key test
 
 //! Enable this for legacy projects with printf( "...%s...", ... ); statements
 //! This is only for easy porting and has no advantage in time and space compared to printf
