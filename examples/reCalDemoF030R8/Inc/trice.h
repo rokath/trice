@@ -1126,10 +1126,52 @@ TRICE_INLINE void triceStringN( size_t len, const char* s ){
 }
 #else
 
+/*
+\code
+// legacy reCal packet format
+  |--------------------------------- fixed packet start0 byte 0xc0 
+  |    |---------------------------- following data package count 
+  |    |   |------------------------ packet index (2 lsb packet type and and 6 msb cycle counter)
+  |    |   |   |-------------------- local address byte
+  |    |   |   |   |---------------- server address byte (broadcast address possible for no anser calls)
+  |    |   |   |   |   |------------ type identifyer byte
+  |    |   |   |   |   |   |-------- function identifyer byte
+  |    |   |   |   |   |   |   |---- exclusive-or checksum byte
+  v    v   v   v   v   v   v   v
+0xc0  dpc pix cad sad tid fid crc8
+
+// trice format
+  |--------------------------------- fixed packet start0 byte 0xeb 
+  |    |---------------------------- client address (local address byte)
+  |    |   |------------------------ server address
+  |    |   |   |-------------------- exclusive-or checksum byte
+  |    |   |   |   |---------------- ID low part
+  |    |   |   |   |   |------------ ID high part
+  |    |   |   |   |   |   |-------- Value Low part
+  |    |   |   |   |   |   |   |---- Value High part
+  v    v   v   v   v   v   v   v
+0xeb cad sad crc8 idL idH vL  vH
+
+// reCal packet format 2
+  |--------------------------------- fixed packet start0 byte 0xc0 
+  |    |---------------------------- following data package count fixed 1 for trice strings
+  |    |   |------------------------ packet index (2 lsb packet type and and 6 msb cycle counter)
+  |    |   |   |-------------------- local address byte
+  |    |   |   |   |---------------- server address byte (broadcast address possible for no anser calls)
+  |    |   |   |   |   |------------ type identifyer byte
+  |    |   |   |   |   |   |-------- function identifyer byte
+  |    |   |   |   |   |   |   |---- exclusive-or checksum byte
+  v    v   v   v   v   v   v   v
+0xc0  dpc pix cr8 sad tid fid 
+
+
+\endcode
+*/
 
 
 TRICE_INLINE void triceStringN( size_t len, const char* s ){
-// 
+
+    
 
 }
 #endif
