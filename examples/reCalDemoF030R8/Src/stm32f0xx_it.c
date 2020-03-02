@@ -54,7 +54,7 @@
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-#if 0
+#if 1
 ///////////////////////////////////////////////////////////////////////////////
 // fifo instances
 //
@@ -70,70 +70,53 @@ Fifo_t wrFifo = {0, rcWr, rcWr+WSIZ, rcWr, rcWr };
 //! fifo control struct, UART received data are arriving here
 Fifo_t rdFifo = {0, rcRd, rcRd+RSIZ, rcRd, rcRd }; 
 
-/*
-///////////////////////////////////////////////////////////////////////////////
-// rx 
-//
-
-static void UartRxCheck( void ){
-    if( LL_USART_IsActiveFlag_RXNE( USART2 ) ) { // RX Data Register NOT Empty Flag
-        uint8_t value = LL_USART_ReceiveData8( USART2 );
-        LL_USART_RequestRxDataFlush( USART2 ); 
-        FifoPushUint8_InsideRxIsr( &rdFifo, value );
-    }
-}
-*/
-
-
 ///////////////////////////////////////////////////////////////////////////////
 // tx 
 //
 
-enum{
-    noTx, // no transmission
-    triceTx, // trice packet in transmission
-    reCalTx // remote call packet in transmission
-};
-
 int txState = noTx;
 
-//! reCalTxHandler checks wrFifo for depth and starts a byte transmission
+//! reCalTxHandler checks txe flag and wrFifo for depth and starts a byte transmission if possible
 //! otherwise it disables the transmit empty interrupt
-//! \param pTxState, set none when current packet done, set reCal when reCal packet transfer
+//! \param pTxState, set none when current packet done, set to reCalTx when reCal packet transfer active
 //! \todo review packets to determine packet end
 void reCalTxHandler( int* pTxState ){
-    if( LL_USART_IsActiveFlag_TXE( USART2 ) ){ // TX Data Register Empty 
+    if( triceTxDataRegisterEmpty() ){ // TX Data Register Empty 
         uint8_t value;
         size_t count = FifoReadableCount( &wrFifo );
         if( count ){
             *pTxState = reCalTx;
             FifoPopUint8_InsideTxIsr( &wrFifo, &value );
-            LL_USART_TransmitData8( USART2, value );
+            triceTransmitData8( value );
             count--;
         }
         if( 0 == count ){
-            LL_USART_DisableIT_TXE( USART2 );
-            *pTxState = 0;
+            triceDisableTxEmptyInterrupt();
+            *pTxState = noTx;
         }
     }
 }
 
-void UartTxStartCheck( void ){
-    if( noTx == txState ){
-        reCalTxHandler( &txState );
+//! Check for data and start a transmission, if both channes have data give priority to reCal
+//! \param PtrTxState do nothing if != noTx
+void UartTxStartCheck( int* PtrTxState ){
+    if( noTx == *PtrTxState ){
+        reCalTxHandler( PtrTxState );
     }
-    if( noTx == txState ){
-        triceTxHandler( &txState );
+    if( noTx == *PtrTxState ){
+        triceTxHandler( PtrTxState );
     }
 }
 
-void UartTxCheck( void ){
-    if( reCalTx == txState ){
-        reCalTxHandler( &txState );
-    } else if( triceTx == txState ){
-        triceTxHandler(&txState);
+//! continue ongoing transmission, otherwise check for new data transmission
+//! \param PtrTxState actual transmission state
+void UartTxCheck( int* PtrTxState ){
+    if( reCalTx == *PtrTxState ){
+        reCalTxHandler( PtrTxState );
+    } else if( triceTx == *PtrTxState ){
+        triceTxHandler(PtrTxState);
     } else { // none == tsState
-        UartTxStartCheck();
+        UartTxStartCheck(PtrTxState);
     }
 }
 #endif
@@ -208,7 +191,6 @@ void PendSV_Handler(void)
 void SysTick_Handler(void)
 {
   /* USER CODE BEGIN SysTick_IRQn 0 */
-    int dummy;
     static uint16_t msTick = 0;
     static uint32_t ms = 0; 
     msTick++;
@@ -221,7 +203,8 @@ void SysTick_Handler(void)
   /* USER CODE END SysTick_IRQn 0 */
   
   /* USER CODE BEGIN SysTick_IRQn 1 */
-    triceTxHandler(&dummy); // start transmission if data
+    //triceTxHandler(&txState); // start transmission if data
+    UartTxStartCheck(&txState);
   /* USER CODE END SysTick_IRQn 1 */
 }
 
@@ -238,10 +221,10 @@ void SysTick_Handler(void)
 void USART2_IRQHandler(void)
 {
   /* USER CODE BEGIN USART2_IRQn 0 */
-    int dummy;
+    //triceTxHandler(&txState);
+    UartTxCheck(&txState);
   /* USER CODE END USART2_IRQn 0 */
   /* USER CODE BEGIN USART2_IRQn 1 */
-    triceTxHandler(&dummy);
   /* USER CODE END USART2_IRQn 1 */
 }
 

@@ -67,7 +67,6 @@ void triceCheckSet( void )
     TRICE64_1( Id(39599), "tst:TRICE64 %d\n", -1 ); // 2
     TRICE64_2( Id( 5982), "tst:TRICE64 %d %d\n", -1, -2 ); // 4
 
-
     TRICE16_1( Id(47902), "ERR:error       message, SysTick is %d\n", SYSTICKVAL16 ); // 1
     TRICE16_1( Id(64631), "WRN:warning     message, SysTick is %d\n", SYSTICKVAL16 ); // 1
     TRICE16_1( Id(13824), "ATT:attension   message, SysTick is %d\n", SYSTICKVAL16 ); // 1

@@ -35,7 +35,7 @@ extern "C" {
 
 //! enable encryption here
 //! call trice tool with log switch "-key your_password -show" and put passphrase here
-//#define ENCRYPT XTEA_KEY( a9, 4a, 8f, e5, cc, b1, 9b, a6, 1c, 4c, 08, 73, d3, 91, e9, 87 ); //!< -key test
+#define ENCRYPT XTEA_KEY( a9, 4a, 8f, e5, cc, b1, 9b, a6, 1c, 4c, 08, 73, d3, 91, e9, 87 ); //!< -key test
 
 //! Enable this for legacy projects with printf( "...%s...", ... ); statements
 //! This is only for easy porting and has no advantage in time and space compared to printf
@@ -173,12 +173,8 @@ you can leave this macro pair empty for more speed.
 */
 #define TRICE_LEAVE_CRITICAL_SECTION } __set_PRIMASK(primaskstate); }
 
-
-    
 #define ENTER_CRITICAL_SECTION TRICE_ENTER_CRITICAL_SECTION
 #define LEAVE_CRITICAL_SECTION TRICE_LEAVE_CRITICAL_SECTION
-
-
 
 /*! Check if a new byte can be written into trice transmit register.
 \retval 0 == not empty
@@ -201,7 +197,7 @@ TRICE_INLINE void triceTransmitData8( uint8_t d ){
 User must provide this function.
 */
 TRICE_INLINE void triceEableTxEmptyInterrupt( void ){
-    //LL_USART_EnableIT_TXE( USART2 ); // In STM32 done imlizit by writing data
+    LL_USART_EnableIT_TXE( USART2 );
 }
 
 /*! Disallow interrupt for empty trice data transmit register.
@@ -210,6 +206,13 @@ User must provide this function.
 TRICE_INLINE void triceDisableTxEmptyInterrupt( void ){
     LL_USART_DisableIT_TXE( USART2 );
 }
+
+
+enum{
+    noTx, // no transmission
+    triceTx, // trice packet in transmission
+    reCalTx // remote call packet in transmission
+};
 
 #ifdef __cplusplus
 }

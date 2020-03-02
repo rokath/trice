@@ -2301,5 +2301,19 @@
 		"fmtStrg": "tst:TRICE8  %%03x -\u003e  %03x  %03x  %03x  %03x\\n",
 		"created": 1583164959,
 		"removed": 0
+	},
+	{
+		"id": 9919,
+		"fmtType": "TRICE64_2",
+		"fmtStrg": "tst:TRICE64 %d %d Hallo Andree!\\n",
+		"created": 1583170525,
+		"removed": 0
+	},
+	{
+		"id": 53977,
+		"fmtType": "TRICE64_2",
+		"fmtStrg": "tst:TRICE64 %d %d Hallo Andree!!\\n",
+		"created": 1583171148,
+		"removed": 0
 	}
 ]

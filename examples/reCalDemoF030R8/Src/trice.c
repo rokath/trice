@@ -99,11 +99,11 @@ void triceTxHandler( int* pTxState ){
         if( triceMsgDepth() ){
             uint8_t x = triceMsgNextByte();
             triceTransmitData8( x );
-            *pTxState = 1;
+            *pTxState = triceTx;
             triceEableTxEmptyInterrupt(); 
         }else{
             triceDisableTxEmptyInterrupt();
-            *pTxState = 0;
+            *pTxState = noTx;
         }
     }
 }

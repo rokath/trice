@@ -1095,7 +1095,7 @@ TRICE_INLINE void triceString( int rightBound, const char* s ){
 }
 
 #else // #if 1 == TRICE_SHORT_MEMORY
-
+#if 0 // ok
 // for performance no check of strlen( s ) here (internal usage)
 TRICE_INLINE void triceStringN( size_t len, const char* s ){
     char c1, c2, c3, c4, c5, c6, c7, c8;
@@ -1124,6 +1124,15 @@ TRICE_INLINE void triceStringN( size_t len, const char* s ){
     }
     return;
 }
+#else
+
+
+
+TRICE_INLINE void triceStringN( size_t len, const char* s ){
+// 
+
+}
+#endif
 
 TRICE_INLINE void triceStringUnbound( const char* s ){
     size_t len = strlen( s );
