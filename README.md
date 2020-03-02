@@ -66,7 +66,7 @@ embedded device C printf-like trace code and real-time PC logging (trace ID visu
 - copy [proj_config.h](./src.C/proj_config.h), rename to `config.h` and adapt to your needs
 - [triceCheck.c](./examples/triceDemoF030R8/Src/triceCheck.c) 
 is example code and for testing
-- run `trice u` in root of your C|Cpp source project after code instrumentation with TRICE* statements to generate a prroject specific til.json file 
+- run `trice u` in root of your C|Cpp source project after code instrumentation with TRICE* statements to generate a project specific til.json file 
 - compile, flash & run `trice log -port COMm -baud n` with correct values m and n
 
 ## Possible Use Cases
