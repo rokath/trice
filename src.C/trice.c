@@ -67,10 +67,6 @@ static size_t triceMsgDepth( void ){
     } else {
         if( triceFifoDepth() ){
             triceFifoPop( (uint32_t*)(&(triceMsg.ld)) );
-            //triceMsg.ld.load[0] = 0xc0;
-            //triceMsg.ld.load[1] = 0xc9; // msg:Hello from MCU! SysTickVal now %d\\n
-            //triceMsg.ld.load[2] = 0;
-            //triceMsg.ld.load[3] = 0;
             pRead = (uint8_t*)&triceMsg;
             triceMsg.hd.crc8  = TRICE_START_BYTE ^ TRICE_LOCAL_ADDR ^ TRICE_DISPL_ADDR
                                  ^ triceMsg.ld.load[0]
