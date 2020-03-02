@@ -1142,37 +1142,79 @@ TRICE_INLINE void triceStringN( size_t len, const char* s ){
 
 // trice format
   |--------------------------------- fixed packet start0 byte 0xeb 
-  |    |---------------------------- client address (local address byte)
-  |    |   |------------------------ server address
-  |    |   |   |-------------------- exclusive-or checksum byte
-  |    |   |   |   |---------------- ID low part
-  |    |   |   |   |   |------------ ID high part
-  |    |   |   |   |   |   |-------- Value Low part
-  |    |   |   |   |   |   |   |---- Value High part
-  v    v   v   v   v   v   v   v
-0xeb cad sad crc8 idL idH vL  vH
+  |   |----------------------------- client address (local address byte)
+  |   |   |------------------------- server address (destination)
+  |   |   |   |--------------------- exclusive-or checksum byte
+  |   |   |   |   |----------------- ID low part
+  |   |   |   |   |   |------------- ID high part
+  |   |   |   |   |   |   |--------- Value Low part
+  |   |   |   |   |   |   |   |----- Value High part
+  v   v   v   v   v   v   v   v
+0xeb cad sad cr8 idL idH vaL  vaH
 
 // reCal packet format 2
   |--------------------------------- fixed packet start0 byte 0xc0 
-  |    |---------------------------- following data package count fixed 1 for trice strings
-  |    |   |------------------------ packet index (2 lsb packet type and and 6 msb cycle counter)
-  |    |   |   |-------------------- local address byte
-  |    |   |   |   |---------------- server address byte (broadcast address possible for no anser calls)
-  |    |   |   |   |   |------------ type identifyer byte
-  |    |   |   |   |   |   |-------- function identifyer byte
-  |    |   |   |   |   |   |   |---- exclusive-or checksum byte
-  v    v   v   v   v   v   v   v
-0xc0  dpc pix cr8 sad tid fid 
+  |   |----------------------------- following data package count fixed 1 for trice strings
+  |   |   |------------------------- server address (destination)
+  |   |   |   |--------------------- exclusive-or checksum byte
+  |   |   |   |   |----------------- type identifyer byte
+  |   |   |   |   |   |------------- function identifyer byte
+  |   |   |   |   |   |   |--------- packet index (2 lsb packet type and and 6 msb cycle counter)
+  |   |   |   |   |   |   |   |----- data package count
+  v   v   v   v   v   v   v   v
+0xc0 cad sad cr8 tid fid pix dpc 
+
+// 0xff == tid -> pure string package with fid as string package id
+
+remote call type: (part of pix) 
+      bit1      |      bit0       | meaning
+  RC_CMD_FLAG   | RC_ANSWER_FLAG  |
+----------------|-----------------|------------------------------------------
+        1       |        1        | \b Cmd = command expecting answer
+        0       |        1        | answer to a command expecting answer
+        1       |        0        | \b Msg = command not expecting an answer (message)
+        0       |        0        | trice string package
 
 
 \endcode
 */
 
+#include "Fifo.h"
+extern Fifo_t wrFifo;
 
+
+TRICE_INLINE uint8_t Cycle( void ){
+    static uint8_t cycle = 0;
+    cycle++;
+    cycle &= 0x3F; // 0011.1111 -> 6 bit counter
+    return cycle;
+}
+
+//! transmit a short TRICE with "%s" and an index number together with a separate special reCal packet sequence
+//! \param string len, max valid value is 65536, len 0 is invalid
+//! \param s pointer to string
 TRICE_INLINE void triceStringN( size_t len, const char* s ){
-
-    
-
+    // start byte     = 0xc0
+    const uint8_t cad = 0x60;
+    const uint8_t sad = 0x60;
+          uint8_t cr8;
+    const uint8_t tid = 0xff; // not used, indicates together with 0xff fid a string package
+    const uint8_t fid = 0xff; // tid,fid values 0...0xfffe are reserved 
+          uint8_t pix = Cycle();
+    const uint8_t dpc = 1;
+    cr8 = 0xc0^cad^sad^tid^fid^dpc^pix;
+    uint8_t lenL, lenH;
+    if( 0 == len ){
+        return;
+    }
+    len--; // len-1 is transmitted in data package
+    lenL = (uint8_t)len;
+    lenH = (uint8_t)(len>>8);
+    // header is 8 byte
+    uint8_t h[10] = { 0xc0, cad, sad, cr8, tid, fid, pix, dpc, lenL, lenH }; 
+    TRICE8_1( Id(58129), "%s", pix ); // "%s" tells trice tool that a separate string package is generated, pix (cycle) is used for string identification
+    FifoPushBuffer( &wrFifo, sizeof(h), h );
+    FifoPushBuffer( &wrFifo, len, (uint8_t*)s );
 }
 #endif
 

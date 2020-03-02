@@ -2315,5 +2315,19 @@
 		"fmtStrg": "tst:TRICE64 %d %d Hallo Andree!!\\n",
 		"created": 1583171148,
 		"removed": 0
+	},
+	{
+		"id": 48929,
+		"fmtType": "TRICE8_1",
+		"fmtStrg": "%s",
+		"created": 1583183115,
+		"removed": 0
+	},
+	{
+		"id": 58129,
+		"fmtType": "TRICE8_1",
+		"fmtStrg": "%s",
+		"created": 1583183240,
+		"removed": 0
 	}
 ]
