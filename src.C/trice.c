@@ -77,7 +77,7 @@ static size_t triceMsgDepth( void ){
                                  ^ triceMsg.ld.load[1]
                                  ^ triceMsg.ld.load[2]
                                  ^ triceMsg.ld.load[3];
-            #if 1 //def ENCRYPT
+            #ifdef ENCRYPT
                 triceMsg.hd.start = TRICE_START_BYTE;
                 triceMsg.hd.cad  = TRICE_LOCAL_ADDR;
                 triceMsg.hd.sad  = TRICE_DISPL_ADDR;
