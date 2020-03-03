@@ -10,7 +10,7 @@ you can write
 ```
 TRICE8("time is %d:%d:%d\n", hour, min, sec);
 ```
-into a source file of your project. The `8` stays here for 8 bit values (`0`, `16`, `32` and `64` also possibe). Only values of the same size are allowed in one TRICE* statement, but you can use `TRICE32` consequently to match most cases.
+into a source file of your project. The `8` stands here for 8 bit values (`0`, `16`, `32` and `64` also possibe). Only values of the same size are allowed in one TRICE* statement, but you can use `TRICE32` consequently to match most cases.
 
 When performing  ```trice update``` this line changes to
 ```
@@ -23,7 +23,7 @@ this example and allows efficient code and a compile time check.
 
 *The total amount of data is currently limitated to 8 parameters for TRICE8 or 4 parameters for TRICE16 and TRICE32 and two parameters for TRICE64, but this is easy to extend.*
 
-When the embedded project is compiled, only the ID goes into the source image
+When the embedded project is compiled, only the ID goes to the binary
 but not the format string, what results in a smaller memory footprint.
 
 During TRICE* runtime, inside the microcontroller only the ID (together with the 

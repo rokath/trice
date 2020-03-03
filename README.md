@@ -40,10 +40,11 @@ embedded device C printf-like trace code and real-time PC logging (trace ID visu
 ![GitHub search hit counter](https://img.shields.io/github/search/rokath/trice/C)
 
 ## About
-- C trace code (`TRICE` macros)  and real-time PC logging with `trice` (tool with Go sources).
-- Communication over serial port without strings, just with IDs
+- C trace code (`TRICE` macros)  and real-time PC logging with `trice` (tool written in **Go**).
+- Communication without string transfer, just with IDs. Prerequisite: byte transmission to PC, low bandwidth is ok:
+  - method does'nt matter: serial port, i2c, spi, DAC->ADC, toggle pin, ...
 - "log in (a) trice" ![](./doc/README.media/life0.gif)
-- Main idea: Logging strings **not** into an embedded device to display them later on a PC but keep usage simple.
+- Main idea: Logging strings **not** into an embedded device to display them later on a PC but keep usage comfortable and simple. The `TRICE` macros look like printf() but work under the hood completely different.
 
 ## `TRICE` macros for C|C++ code
 - Real fast (**~16 CPU clocks per trace!!!**) and small loggging technique, a tracer in software usable 
@@ -56,9 +57,9 @@ embedded device C printf-like trace code and real-time PC logging (trace ID visu
   - Core instrumentation needs less 150 bytes FLASH and about 100 bytes RAM.
 
 ## `trice` PC tool
-- Manages trices inside a C|C++ source tree during target device compile time.
-- Displays trices in realtime during target device runtime.
-- Written in Go
+- Manages `TRICE` macro IDs inside a C|C++ source tree and extracts the strings in an ID-string list during target device compile time.
+- Displays `TRICE` macros like printf() output in realtime during target device runtime. The received IDs and parameters are printed out.
+- Written in Go, simply usage, no installer.
 
 ## Quick setup
 - add [trice.c](./src.C/trice.c) as is to your project
