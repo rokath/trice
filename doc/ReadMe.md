@@ -12,13 +12,12 @@ TRICE8("time is %d:%d:%d\n", hour, min, sec);
 ```
 into a source file of your project. The `8` stands here for 8 bit values (`0`, `16`, `32` and `64` also possibe). Only values of the same size are allowed in one TRICE* statement, but you can use `TRICE32` consequently to match most cases.
 
-When performing  ```trice update``` this line changes to
+When performing `trice update` the source is parsed and in result this line changes to
 ```
 TRICE8_3( Id(12345), "time is %d:%d:%d\n", hour, min, sec);
 ```
 where ```12345``` is an as ID generated 16 bit random number not used so far. Automatically
-the ID is added to an [ID list](../examples/triceDemoF030R8/MDK-ARM/til.json) together with the appropriate format string 
-information. The TRICE`8_3` means 3 bytes as parameters in
+the ID is added to an [ID list](../examples/triceDemoF030R8/MDK-ARM/til.json) together with the appropriate format string information. The TRICE`8_3` means 3 bytes as parameters in
 this example and allows efficient code and a compile time check.
 
 *The total amount of data is currently limitated to 8 parameters for TRICE8 or 4 parameters for TRICE16 and TRICE32 and two parameters for TRICE64, but this is easy to extend.*
@@ -66,7 +65,7 @@ Use `-color off` switch for piping output in a file or `-color alternate` for a 
 ---------------|---------------------------------------------------------|
 cmd/           | the `trice` sources                                     |
 pkg/           | the internal `trice`packages                            |
-src.C/          | C sources for your embedded project                     | 
+src.C/         | C sources for your embedded project                     | 
 examples/      | example target projects                                 |
 doc/           | documentation                                           |
 

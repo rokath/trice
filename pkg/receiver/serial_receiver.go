@@ -8,6 +8,7 @@
 package receiver
 
 import (
+	"encoding/binary"
 	"errors"
 	"fmt"
 	"log"
@@ -102,6 +103,10 @@ func (p *SerialReceiver) CleanUp() {
 	p.serial_handle.Close()
 }
 
+func store(i int, s string) {
+
+}
+
 // receiving: ReadEndless expects a pointer to a filled COM port configuration
 func (p *SerialReceiver) receiving() {
 	for p.receiving_data == true {
@@ -115,6 +120,27 @@ func (p *SerialReceiver) receiving() {
 		if 0xeb == b[0] { // traceLog startbyte, no further data
 			p.bytes_channel <- b // send to process trace log channel
 
+		} else if 0xc0 == b[0] {
+			switch b[6] & 0xc0 {
+			case 0xc0:
+				log.Println("reCal command expecting an answer")
+			case 0x80:
+				log.Println("reCal message (not expecting an answer)")
+			case 0x40:
+				log.Println("answer to a reCal command")
+			case 0x00:
+				log.Println("byte buffer")
+				if (0xff != b[4]) || (0xff != b[5]) || (1 != b[7]) {
+					log.Println("wrong format")
+				} else {
+					index := int(b[0])
+					l, _ := p.readAtLeastBytes(2, toMs)
+					len := int(binary.LittleEndian.Uint16(l[:2]))
+					s, _ := p.readAtLeastBytes(len, toMs)
+					str := string(s)
+					store(index, str)
+				}
+			}
 		} else {
 			log.Println("Got unknown header on serial console. Discarding...", b)
 		}
@@ -170,7 +196,7 @@ func (p *SerialReceiver) readAtLeastBytes(count, msTimeout int) ([]byte, error) 
 // evalHeader checks if b contains valid header data
 func evalHeader(b []byte) bool {
 	x := 8 == len(b) &&
-		0xeb == b[0] && // start byte
+		(0xc0 == b[0] || 0xeb == b[0]) && // start byte
 		remAddr == b[1] &&
 		locAddr == b[2] &&
 		b[0]^b[1]^b[2]^b[4]^b[5]^b[6]^b[7] == b[3] // crc8
