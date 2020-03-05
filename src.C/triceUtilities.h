@@ -1,4 +1,4 @@
-/*! \file TriceUtilities.h
+/*! \file triceUtilities.h
 \brief 
 \details 
 \author Thomas Hoehenleitner
@@ -18,7 +18,7 @@ extern "C" {
 #include "config.h" // should be first include file, at least befor other project specific files
 #include <stdint.h>
 //#include "DefaultMacros.h"
-#include "Trice.h"
+#include "trice.h"
 #endif // #ifdef AUTOMATIC_HEADER_INLUSION_
 
 

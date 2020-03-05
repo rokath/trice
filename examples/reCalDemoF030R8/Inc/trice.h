@@ -1194,6 +1194,7 @@ TRICE_INLINE uint8_t Cycle( void ){
 //! \param string len, max valid value is 65536, len 0 is invalid
 //! \param s pointer to string
 TRICE_INLINE void triceStringN( size_t len, const char* s ){
+    uint16_t len_1 = (uint16_t)(len-1); // len-1 is transmitted in data package
     // start byte     = 0xc0
     const uint8_t cad = 0x60;
     const uint8_t sad = 0x60;
@@ -1207,14 +1208,18 @@ TRICE_INLINE void triceStringN( size_t len, const char* s ){
     if( 0 == len ){
         return;
     }
-    len--; // len-1 is transmitted in data package
-    lenL = (uint8_t)len;
-    lenH = (uint8_t)(len>>8);
+    lenL = (uint8_t)len_1;
+    lenH = (uint8_t)(len_1>>8);
     // header is 8 byte
     uint8_t h[10] = { 0xc0, cad, sad, cr8, tid, fid, pix, dpc, lenL, lenH }; 
-    TRICE8_1( Id(58129), "%s", pix ); // "%s" tells trice tool that a separate string package is generated, pix (cycle) is used for string identification
+    // first send buffer data
+    // buffer data have transmission priority, so they are in place when needed
+    TRICE_ENTER_CRITICAL_SECTION
     FifoPushBuffer( &wrFifo, sizeof(h), h );
     FifoPushBuffer( &wrFifo, len, (uint8_t*)s );
+    TRICE_LEAVE_CRITICAL_SECTION
+    TRICE0( Id(42766), "wrn:runtime string!\n" );
+    TRICE8_1( Id( 8479), "%s", pix ); // "%s" tells trice tool that a separate string package is generated, pix (cycle) is used for string identification
 }
 #endif
 

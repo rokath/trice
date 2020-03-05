@@ -233,7 +233,7 @@ Thomas.Hoehenleitner [at] seerose.net
 #ifdef WINDOWS_OS
 #define TRICE_OFF
 #endif
-#include "Trice.h"
+#include "trice.h"
 
 #include <string.h> // memcpy
 //#include "CommonTypes.h"

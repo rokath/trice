@@ -120,7 +120,10 @@ int main(void)
         if( LOOPCOUNT == loopCount ){
           loopCount = 0;
           LL_GPIO_SetOutputPin(LD2_GPIO_Port, LD2_Pin);
-          triceCheckSet();
+            triceCheckSet();
+           // triceString( 0, "\n0123" );
+           // triceString( 0, "1234\n" );
+            triceString( 0, "12345\n" );
         }
     /* USER CODE END WHILE */
 

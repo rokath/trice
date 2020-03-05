@@ -17,7 +17,7 @@ Traces with more bytes as parameter consist of several subtraces.
 */
 void triceCheckSet( void )
 {
-    #ifdef TRICE_PRINTF_ADAPTER
+    #if 0 //def TRICE_PRINTF_ADAPTER
     char* w ="world";
     tricePrintfAdapter( "Hello %s!\n", w );
     TRICE8_1( Id(51183), "%#b times\n", 5 );
@@ -61,7 +61,6 @@ void triceCheckSet( void )
     TRICE32_2( Id(41764), "tst:TRICE32 %d %d\n", -1, -2 ); // 4
     TRICE32_3( Id( 6435), "tst:TRICE32 %d %d %d\n", -1, -2, -3 ); // 4
     TRICE32_4( Id( 4527), "tst:TRICE32 %d %d %d %d\n", -1, -2, -3, -4 ); // 4
-
     // 6 subtraces
 
     TRICE64_1( Id(39599), "tst:TRICE64 %d\n", -1 ); // 2
@@ -95,7 +94,7 @@ void triceCheckSet( void )
     TRICE0 (Id(12664), "wrn:A" );
     TRICE0 (Id(60989), "wr_:B" );
     TRICE0 (Id(61533), "tim:C\n" );
-
+/*
     triceString( 18, "\n" );
     triceString( 18, "1\n" );
     triceString( 18, "12\n" );
@@ -112,6 +111,7 @@ void triceCheckSet( void )
     triceString( 18, "Berlin\n" );
     triceString( 18, "HonululuTown\n" );
     triceString( 18, "Leipzig\n" );
+*/
 #ifdef ENCRYPT
     {
         uint8_t b[8] = {1,2,3,4,5,6,7,8};

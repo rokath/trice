@@ -18,7 +18,7 @@
 //#include "LeftRightFifo.h"
 #endif // #ifdef TRACELOG
 
-#include "Trice.h"
+#include "trice.h"
 
 //#include "Os.h"
 #include <string.h> // memcpy

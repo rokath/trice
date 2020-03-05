@@ -36,7 +36,7 @@ type SerialReceiver struct {
 // NewSerialReceiver
 func NewSerialReceiver(portIdentifier string, baudrate int) *SerialReceiver {
 	s := &SerialReceiver{
-		receiver:     receiver{"SerialReceiver", false, make(chan []byte)},
+		receiver:     receiver{"SerialReceiver", false, make(chan []byte), make(chan []byte)},
 		port_name:    portIdentifier,
 		read_timeout: 1,
 		serial_mode: serial.Mode{BaudRate: baudrate,
@@ -88,13 +88,13 @@ func (p *SerialReceiver) SetUp() bool {
 
 // Start starts receiving of serial data
 func (p *SerialReceiver) Start() {
-	p.receiving_data = true
+	p.receivingData = true
 	go p.receiving()
 }
 
 // Stop stops receiving of serial data
 func (p *SerialReceiver) Stop() {
-	p.receiving_data = false
+	p.receivingData = false
 }
 
 // CleanUp makes clean
@@ -103,13 +103,9 @@ func (p *SerialReceiver) CleanUp() {
 	p.serial_handle.Close()
 }
 
-func store(i int, s string) {
-
-}
-
 // receiving: ReadEndless expects a pointer to a filled COM port configuration
 func (p *SerialReceiver) receiving() {
-	for p.receiving_data == true {
+	for p.receivingData == true {
 		b, err := p.readHeader()
 
 		if nil != err {
@@ -118,9 +114,11 @@ func (p *SerialReceiver) receiving() {
 		}
 
 		if 0xeb == b[0] { // traceLog startbyte, no further data
-			p.bytes_channel <- b // send to process trace log channel
+			//fmt.Println("to trice channel:", b) // ERR: DATA STREAM BUG!!!
+			p.triceChannel <- b // send to process trace log channel
 
 		} else if 0xc0 == b[0] {
+			//fmt.Print("data", b)
 			switch b[6] & 0xc0 {
 			case 0xc0:
 				log.Println("reCal command expecting an answer")
@@ -129,16 +127,25 @@ func (p *SerialReceiver) receiving() {
 			case 0x40:
 				log.Println("answer to a reCal command")
 			case 0x00:
-				log.Println("byte buffer")
 				if (0xff != b[4]) || (0xff != b[5]) || (1 != b[7]) {
-					log.Println("wrong format")
+					log.Println("ERR:wrong format")
 				} else {
-					index := int(b[0])
-					l, _ := p.readAtLeastBytes(2, toMs)
-					len := int(binary.LittleEndian.Uint16(l[:2]))
-					s, _ := p.readAtLeastBytes(len, toMs)
-					str := string(s)
-					store(index, str)
+					// int(b[6]) contains string identificator for verification
+					d, _ := p.readAtLeastBytes(2, toMs) // len of buffer (only one buffer)
+					if nil != err {
+						log.Println("Could not read serial len: ", err)
+						continue
+					}
+					len := int(binary.LittleEndian.Uint16(d[:2]))
+					s, _ := p.readAtLeastBytes(len+1, toMs) // len is len-1 value
+					if nil != err {
+						log.Println("Could not read buffer: ", err)
+						continue
+					}
+					b = append(b, d...) // len is redundant here and usable as check
+					b = append(b, s...) // the buffer (string) data
+					//fmt.Println("to buffer channel:", b) // ERR: DATA STREAM BUG!!!
+					p.bufferChannel <- b // send to process trace log channel
 				}
 			}
 		} else {
@@ -243,7 +250,8 @@ func (p *SerialReceiver) readHeader() ([]byte, error) {
 		if true == evalHeader(b) {
 			break
 		}
-		log.Printf("discarding byte %02x\n", b[0])
+		fmt.Print(b)
+		log.Printf("discarding first byte %02x\n", b[0])
 		b = encrypt(b)
 		x, err := p.readAtLeastBytes(1, toMs)
 		if nil != err {

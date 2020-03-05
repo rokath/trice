@@ -111,7 +111,7 @@ func HandleArgs(wd string, args []string) error {
 		return checkList(*pC, *pSet, pList, *pPal)
 	}
 	if lCmd.Parsed() {
-		return logTraces(lCmd, *pPort, *pBaud, *pL, pList, *pCol, *pKey, *pShow)
+		return logTrices(lCmd, *pPort, *pBaud, *pL, pList, *pCol, *pKey, *pShow)
 	}
 	if zCmd.Parsed() {
 		return zeroIds(*pRunZ, *pSrcZ, zCmd)
@@ -203,7 +203,7 @@ func createCipher(password string, show bool) (*xtea.Cipher, bool, error) {
 }
 
 // connect to port and display traces
-func logTraces(cmd *flag.FlagSet, port string, baud int, fn string, p *id.List, palette, password string, show bool) error {
+func logTrices(cmd *flag.FlagSet, port string, baud int, fn string, p *id.List, palette, password string, show bool) error {
 	if "" == port {
 		cmd.PrintDefaults()
 		return nil
@@ -247,32 +247,43 @@ func logTraces(cmd *flag.FlagSet, port string, baud int, fn string, p *id.List, 
 			return nil
 		}
 	}
+	fmt.Println("id list file", fn, "with", len(*p), "items")
+	return doSerialReceive(port, baud, p, palette)
+}
 
+func doSerialReceive(port string, baud int, p *id.List, palette string) error {
 	serialReceiver := receiver.NewSerialReceiver(port, baud)
 
 	if serialReceiver.SetUp() == false {
 		fmt.Println("Could not set up serial port", port)
 		fmt.Println("try -port COMscan")
 		return nil
-	} else {
-		log.Println("Opened serial port", port)
 	}
-
-	log.Println("using id list file", fn, "with", len(*p), "items")
+	fmt.Println("Opened serial port", port)
 
 	serialReceiver.Start()
 	defer serialReceiver.CleanUp()
 
 	for {
-		bytesReceived := <-(*serialReceiver.GetReceiveChannel())
+		var t, b []byte
+		go func() {
+			c := <-(*serialReceiver.GetBufferChannel())
+			if len(c) > 0 {
+				//fmt.Println("from buffer channel:", c) // ERR: DATA STREAM BUG!!!
+				b = append(b, c...)
+			}
+		}()
 
-		err := emit.Trice(bytesReceived, *p, palette)
-		if nil != err {
-			fmt.Println("trice.Log error", err, bytesReceived)
-		}
+		func() {
+			t = <-(*serialReceiver.GetTriceChannel())
+			//fmt.Println("from trice channel:", t) // ERR: DATA STREAM BUG!!!
+			//fmt.Println("emit.Trice", t, b) // ERR: DATA STREAM BUG!!!
+			err := emit.Trice(t, b, *p, palette)
+			if nil != err {
+				fmt.Println("trice.Log error", err, t, b)
+			}
+		}()
 	}
-
-	//return nil // cmd\trice\handleArgs.go:240:2: unreachable code
 }
 
 // replace all ID's in sourc tree with 0

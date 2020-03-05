@@ -34,13 +34,13 @@
             "env": {},
             "args": ["log",
                      "-port",
-                     "COM38",
+                     "COM23",
                      "-baud",
                      "115200",
                      "-list",
-                     "C:/GitRepos/trice/examples/triceDemoF030R8/MDK-ARM/til.json",
+                     "C:/GitRepos/trice/examples/til.json",
                      "-key",
-                     "test"
+                     "none"
             ]
         },
         {

@@ -1,26 +1,35 @@
 //
-// Copyright 2020 Thomas.Hoehenleitner [at] seerose.net
-//                basti@blackoutcloud.de
+// Copyright 2020 basti@blackoutcloud.de
+//                Thomas.Hoehenleitner [at] seerose.net
+//
 // All rights reserved.
 // Use of this source code is governed by a
 // license that can be found in the LICENSE file.
 
 package receiver
 
+/*
 type TriceReceiver interface {
 	SetUp() bool
 	CleanUp()
 	Start()
 	Stop()
-	GetReceiveChannel() *chan []byte
+	GetTriceChannel() *chan []byte
+	GetBufferChannel() *chan []byte
 }
+*/
 
 type receiver struct {
-	name           string
-	receiving_data bool
-	bytes_channel  chan []byte
+	name          string
+	receivingData bool
+	triceChannel  chan []byte
+	bufferChannel chan []byte
 }
 
-func (self *receiver) GetReceiveChannel() *chan []byte {
-	return &self.bytes_channel
+func (p *receiver) GetTriceChannel() *chan []byte {
+	return &p.triceChannel
+}
+
+func (p *receiver) GetBufferChannel() *chan []byte {
+	return &p.bufferChannel
 }

@@ -2329,5 +2329,61 @@
 		"fmtStrg": "%s",
 		"created": 1583183240,
 		"removed": 0
+	},
+	{
+		"id": 19374,
+		"fmtType": "TRICE8_1",
+		"fmtStrg": "%s",
+		"created": 1583331913,
+		"removed": 0
+	},
+	{
+		"id": 51566,
+		"fmtType": "TRICE8_1",
+		"fmtStrg": "%s",
+		"created": 1583333013,
+		"removed": 0
+	},
+	{
+		"id": 62376,
+		"fmtType": "TRICE0",
+		"fmtStrg": "wrn:runtime string!\\n",
+		"created": 1583333030,
+		"removed": 0
+	},
+	{
+		"id": 40922,
+		"fmtType": "TRICE8_1",
+		"fmtStrg": "%s",
+		"created": 1583333030,
+		"removed": 0
+	},
+	{
+		"id": 44552,
+		"fmtType": "TRICE0",
+		"fmtStrg": "wrn:runtime string!\\n",
+		"created": 1583333092,
+		"removed": 0
+	},
+	{
+		"id": 35718,
+		"fmtType": "TRICE8_1",
+		"fmtStrg": "%s",
+		"created": 1583333092,
+		"removed": 0
+	},
+	{
+		"id": 42766,
+		"fmtType": "TRICE0",
+		"fmtStrg": "wrn:runtime string!\\n",
+		"created": 1583333176,
+		"removed": 0
+	},
+	{
+		"id": 8479,
+		"fmtType": "TRICE8_1",
+		"fmtStrg": "%s",
+		"created": 1583333176,
+		"removed": 0
 	}
 ]
