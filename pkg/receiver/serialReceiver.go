@@ -114,8 +114,8 @@ func (p *SerialReceiver) receiving() {
 		}
 
 		if 0xeb == b[0] { // traceLog startbyte, no further data
-			//fmt.Println("to trice channel:", b) // ERR: DATA STREAM BUG!!!
-			p.triceChannel <- b // send to process trace log channel
+			fmt.Println("to trice channel:", b) // ERR: DATA STREAM BUG!!!
+			p.triceChannel <- b                 // send to process trace log channel
 
 		} else if 0xc0 == b[0] {
 			//fmt.Print("data", b)
@@ -142,10 +142,10 @@ func (p *SerialReceiver) receiving() {
 						log.Println("Could not read buffer: ", err)
 						continue
 					}
-					b = append(b, d...) // len is redundant here and usable as check
-					b = append(b, s...) // the buffer (string) data
-					//fmt.Println("to buffer channel:", b) // ERR: DATA STREAM BUG!!!
-					p.bufferChannel <- b // send to process trace log channel
+					b = append(b, d...)                  // len is redundant here and usable as check
+					b = append(b, s...)                  // the buffer (string) data
+					fmt.Println("to buffer channel:", b) // ERR: DATA STREAM BUG!!!
+					p.bufferChannel <- b                 // send to process trace log channel
 				}
 			}
 		} else {

@@ -20,16 +20,29 @@ import (
 	"golang.org/x/crypto/xtea"
 )
 
+type arrayFlag []string // slice type for multi flag
+
+func (i *arrayFlag) String() string {
+	return "my string representation"
+}
+
+func (i *arrayFlag) Set(value string) error {
+	*i = append(*i, value)
+	return nil
+}
+
+var srcs arrayFlag // gets multiple files or directories
+
 // HandleArgs evaluates the arguments slice of strings und uses wd as working directory
 func HandleArgs(wd string, args []string) error {
 	list := make(id.List, 0, 65536) // for 16 bit IDs enough
 	pList := &list
 
-	uCmd := flag.NewFlagSet("update", flag.ExitOnError)                                        // subcommand
-	pSrcU := uCmd.String("src", wd, "source dir or file (optional, default is ./)")            // flag
+	uCmd := flag.NewFlagSet("update", flag.ExitOnError) // subcommand
 	pDryR := uCmd.Bool("dry-run", false, "no changes are applied (optional)")                  // flag
 	pLU := uCmd.String("list", "til.json", "trice ID list path (optional), \"none\" possible") // flag
 	pVerb := uCmd.Bool("v", false, "verbose (optional)")                                       // flag
+	uCmd.Var(&srcs, "src", "source dir or file (optional, default is ./), multi use possible") // multi flag
 
 	lCmd := flag.NewFlagSet("log", flag.ExitOnError)                                // subcommand
 	pPort := lCmd.String("port", "", "subcommand (required, try COMscan)")          // flag
@@ -101,11 +114,26 @@ func HandleArgs(wd string, args []string) error {
 		if nil != err {
 			return fmt.Errorf("failed to parse %s: %v", *pLU, err)
 		}
-		srcU, err := filepath.Abs(*pSrcU)
-		if nil != err {
-			return fmt.Errorf("failed to parse %s: %v", *pSrcU, err)
+		for i := range srcs {
+			s := srcs[i]
+			srcU, err := filepath.Abs(s)
+			if nil != err {
+				return fmt.Errorf("failed to parse %s: %v", srcU, err)
+			}
+			if _, err := os.Stat(srcU); err == nil { // path exists
+				err = update(*pDryR, srcU, lU, pList, *pVerb)
+				if nil != err {
+					return err
+				}
+			} else if os.IsNotExist(err) { // path does *not* exist
+				fmt.Println(s, " -> ", srcU, "does not exist!")
+			} else {
+				fmt.Println(s, "Schrodinger: file may or may not exist. See err for details.")
+				// Therefore, do *NOT* use !os.IsNotExist(err) to test for file existence
+				// https://stackoverflow.com/questions/12518876/how-to-check-if-a-file-exists-in-go
+			}
 		}
-		return update(*pDryR, srcU, lU, pList, *pVerb)
+		return nil
 	}
 	if cCmd.Parsed() {
 		return checkList(*pC, *pSet, pList, *pPal)
@@ -269,15 +297,15 @@ func doSerialReceive(port string, baud int, p *id.List, palette string) error {
 		go func() {
 			c := <-(*serialReceiver.GetBufferChannel())
 			if len(c) > 0 {
-				//fmt.Println("from buffer channel:", c) // ERR: DATA STREAM BUG!!!
+				fmt.Println("from buffer channel:", c) // ERR: DATA STREAM BUG!!!
 				b = append(b, c...)
 			}
 		}()
 
 		func() {
 			t = <-(*serialReceiver.GetTriceChannel())
-			//fmt.Println("from trice channel:", t) // ERR: DATA STREAM BUG!!!
-			//fmt.Println("emit.Trice", t, b) // ERR: DATA STREAM BUG!!!
+			fmt.Println("from trice channel:", t) // ERR: DATA STREAM BUG!!!
+			fmt.Println("emit.Trice", t, b)       // ERR: DATA STREAM BUG!!!
 			err := emit.Trice(t, b, *p, palette)
 			if nil != err {
 				fmt.Println("trice.Log error", err, t, b)
