@@ -38,7 +38,7 @@ func HandleArgs(wd string, args []string) error {
 	list := make(id.List, 0, 65536) // for 16 bit IDs enough
 	pList := &list
 
-	uCmd := flag.NewFlagSet("update", flag.ExitOnError) // subcommand
+	uCmd := flag.NewFlagSet("update", flag.ExitOnError)                                        // subcommand
 	pDryR := uCmd.Bool("dry-run", false, "no changes are applied (optional)")                  // flag
 	pLU := uCmd.String("list", "til.json", "trice ID list path (optional), \"none\" possible") // flag
 	pVerb := uCmd.Bool("v", false, "verbose (optional)")                                       // flag
@@ -292,25 +292,24 @@ func doSerialReceive(port string, baud int, p *id.List, palette string) error {
 	serialReceiver.Start()
 	defer serialReceiver.CleanUp()
 
+	var t, b []byte
+	var err error
 	for {
-		var t, b []byte
-		go func() {
-			c := <-(*serialReceiver.GetBufferChannel())
+		select {
+		case c := <-(*serialReceiver.GetBufferChannel()):
 			if len(c) > 0 {
-				fmt.Println("from buffer channel:", c) // ERR: DATA STREAM BUG!!!
+				//fmt.Println("from buffer channel:", c) // ERR: DATA STREAM BUG!!!
 				b = append(b, c...)
 			}
-		}()
-
-		func() {
-			t = <-(*serialReceiver.GetTriceChannel())
-			fmt.Println("from trice channel:", t) // ERR: DATA STREAM BUG!!!
-			fmt.Println("emit.Trice", t, b)       // ERR: DATA STREAM BUG!!!
-			err := emit.Trice(t, b, *p, palette)
+			//fmt.Println("b is:", b)
+		case t = <-(*serialReceiver.GetTriceChannel()):
+			//fmt.Println("from trice channel:", t) // ERR: DATA STREAM BUG!!!
+			//fmt.Println("emit.Trice", t, len(b))  // ERR: DATA STREAM BUG!!!
+			b, err = emit.Trice(t, b, *p, palette)
 			if nil != err {
 				fmt.Println("trice.Log error", err, t, b)
 			}
-		}()
+		}
 	}
 }
 

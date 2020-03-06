@@ -18,7 +18,8 @@ as 0 (globally or file specific) the TRICE* macros generate no code.
 extern "C" {
 #endif
 
-void triceTxHandler( int* pTxState );
+void triceTxStart( int* pTxState );
+void triceTxContinue( int* pTxState );
 int tricePrintfAdapter( const char* pFmt, ... );
 
 #define Id( n ) (n) //!< Macro for improved trice readability and better source code parsing.
@@ -1218,7 +1219,7 @@ TRICE_INLINE void triceStringN( size_t len, const char* s ){
     FifoPushBuffer( &wrFifo, sizeof(h), h );
     FifoPushBuffer( &wrFifo, len, (uint8_t*)s );
     TRICE_LEAVE_CRITICAL_SECTION
-    TRICE0( Id(42766), "wrn:runtime string!\n" );
+    //TRICE0( Id(42766), "wrn:runtime string!\n" );
     TRICE8_1( Id( 8479), "%s", pix ); // "%s" tells trice tool that a separate string package is generated, pix (cycle) is used for string identification
 }
 #endif

@@ -7,3 +7,5 @@ date      | version | comment
 2020-02-20|  0.4    | trice printf() adapter added
 2020-02-22|  0.5    | support for auto param count
 2020-03-01|  0.6    | encryption support, TRICE64_2 added
+2020-03-06|  0.7    | `trice u -src dir1 -src file -src dir2` now possible
+

@@ -26,7 +26,7 @@ void triceCheckSet( void )
     TRICE16_1( Id(46097), "dbg:12345 as 16bit is %#016b\n", 12345 );
     TRICE0 (Id(30265), "--------------------------------------------------------------------------------------------------------------------------------------------------\n" );
     // 1 subtrace
-
+/*
     TRICE8_4( Id( 1750), "tst:TRICE8  %%03x ->  %03x  %03x  %03x  %03x\n", 1, 0x7f, 0x80, 0xff ); // 4
     TRICE8_4( Id(65426), "tst:TRICE8   %%4d -> %4d %4d %4d %4d\n", 1, 0x7f, 0x80, 0xff ); // 4
     TRICE8_4( Id(16582), "tst:TRICE8   %%4o -> %4o %4o %4o %4o\n", 1, 0x7f, 0x80, 0xff ); // 4
@@ -94,8 +94,8 @@ void triceCheckSet( void )
     TRICE0 (Id(12664), "wrn:A" );
     TRICE0 (Id(60989), "wr_:B" );
     TRICE0 (Id(61533), "tim:C\n" );
-/*
-    triceString( 18, "\n" );
+*/
+//   triceString( 18, "\n" );
     triceString( 18, "1\n" );
     triceString( 18, "12\n" );
     triceString( 18, "123\n" );
@@ -108,10 +108,10 @@ void triceCheckSet( void )
     triceString( 18, "123456789a\n" );
     triceString( 18, "123456789ab\n" );
     triceString( 18, "123456789abc\n" );
-    triceString( 18, "Berlin\n" );
-    triceString( 18, "HonululuTown\n" );
-    triceString( 18, "Leipzig\n" );
-*/
+//    triceString( 18, "Berlin\n" );
+//    triceString( 18, "HonululuTown\n" );
+//    triceString( 18, "Leipzig\n" );
+
 #ifdef ENCRYPT
     {
         uint8_t b[8] = {1,2,3,4,5,6,7,8};

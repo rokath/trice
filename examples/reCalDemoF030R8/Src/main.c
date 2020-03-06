@@ -112,7 +112,7 @@ int main(void)
     while (1)
     {
         static int32_t loopCount = 0u;
-        #define LOOPCOUNT 10000000u // resonable for 48 MHz MCU
+        #define LOOPCOUNT 1000000u // resonable for 48 MHz MCU
         loopCount++;
         if( (LOOPCOUNT>>1) == loopCount ){
           LL_GPIO_ResetOutputPin(LD2_GPIO_Port, LD2_Pin);
@@ -121,9 +121,6 @@ int main(void)
           loopCount = 0;
           LL_GPIO_SetOutputPin(LD2_GPIO_Port, LD2_Pin);
             triceCheckSet();
-           // triceString( 0, "\n0123" );
-           // triceString( 0, "1234\n" );
-            triceString( 0, "12345\n" );
         }
     /* USER CODE END WHILE */
 

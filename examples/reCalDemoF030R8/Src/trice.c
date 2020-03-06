@@ -57,32 +57,53 @@ TRICE_INLINE uint8_t triceMsgNextByte( void ){
     return *pRead++;
 }
 
-/*! return count of bytes ready for transmission
-\retval count
-*/
-static size_t triceMsgDepth( void ){
+static size_t triceMsgBufferDepth( void ){
     size_t count = limit - pRead;
-    if( count ){
-        return count;
-    } else {
-        if( triceFifoDepth() ){
-            triceFifoPop( (uint32_t*)(&(triceMsg.ld)) );
-            pRead = (uint8_t*)&triceMsg;
-            triceMsg.hd.crc8  = TRICE_START_BYTE ^ TRICE_LOCAL_ADDR ^ TRICE_DISPL_ADDR
-                                 ^ triceMsg.ld.load[0]
-                                 ^ triceMsg.ld.load[1]
-                                 ^ triceMsg.ld.load[2]
-                                 ^ triceMsg.ld.load[3];
-            #ifdef ENCRYPT
-                triceMsg.hd.start = TRICE_START_BYTE;
-                triceMsg.hd.cad  = TRICE_LOCAL_ADDR;
-                triceMsg.hd.sad  = TRICE_DISPL_ADDR;
-                encrypt( (uint8_t*)&triceMsg );
-            #endif
-            return 8;
-        }
+    return count;
+}
+
+/*! prepare next trice for transmission
+\retval 0 no next trice
+\retval 1 next trice in message buffer
+*/
+static size_t triceNextMsg( void ){
+    if( triceFifoDepth() ){
+        triceFifoPop( (uint32_t*)(&(triceMsg.ld)) );
+        pRead = (uint8_t*)&triceMsg;
+        triceMsg.hd.crc8  = TRICE_START_BYTE ^ TRICE_LOCAL_ADDR ^ TRICE_DISPL_ADDR
+                             ^ triceMsg.ld.load[0]
+                             ^ triceMsg.ld.load[1]
+                             ^ triceMsg.ld.load[2]
+                             ^ triceMsg.ld.load[3];
+        #ifdef ENCRYPT
+            triceMsg.hd.start = TRICE_START_BYTE;
+            triceMsg.hd.cad  = TRICE_LOCAL_ADDR;
+            triceMsg.hd.sad  = TRICE_DISPL_ADDR;
+            encrypt( (uint8_t*)&triceMsg );
+        #endif
+        return 1;
     }
     return 0;
+}
+
+
+/*! This function should be called inside the transmit done device interrupt.
+Also it should be called cyclically to trigger transmission start.
+\param pTxState address of a transmission state variable. It is cleared if no more traceLog messages to transmit and set to 1 if a traceLog transmission was started.
+\todo handle 8==traceLogMsgDepth() to give chance to other data streams
+*/
+void triceTxStart( int* pTxState ){
+    //if( triceTxDataRegisterEmpty() ){ // only if tx data register is free (is probably the case)
+        if( triceNextMsg() ){ 
+            uint8_t x = triceMsgNextByte();
+            triceTransmitData8( x );
+            *pTxState = triceTx;
+            triceEableTxEmptyInterrupt(); 
+        }else{
+            triceDisableTxEmptyInterrupt();
+            *pTxState = noTx;
+        }
+    //}
 }
 
 /*! This function should be called inside the transmit done device interrupt.
@@ -90,9 +111,9 @@ Also it should be called cyclically to trigger transmission start.
 \param pTxState address of a transmission state variable. It is cleared if no more traceLog messages to transmit and set to 1 if a traceLog transmission was started.
 \todo handle 8==traceLogMsgDepth() to give chance to other data streams
 */
-void triceTxHandler( int* pTxState ){
+void triceTxContinue( int* pTxState ){
     if( triceTxDataRegisterEmpty() ){ 
-        if( triceMsgDepth() ){
+        if( triceMsgBufferDepth() ){
             uint8_t x = triceMsgNextByte();
             triceTransmitData8( x );
             *pTxState = triceTx;

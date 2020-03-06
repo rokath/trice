@@ -80,32 +80,88 @@ int txState = noTx;
 //! otherwise it disables the transmit empty interrupt
 //! \param pTxState, set none when current packet done, set to reCalTx when reCal packet transfer active
 //! \todo review packets to determine packet end
-void reCalTxHandler( int* pTxState ){
+void reCalTxStart( int* pTxState ){
     if( triceTxDataRegisterEmpty() ){ // TX Data Register Empty 
         uint8_t value;
         size_t count = FifoReadableCount( &wrFifo );
-        if( count ){
+        if( count >=8 ){ // start only if a full header already in wrFifo.
+            // This is safe, because following data will be in fifo before the first 8 bytes are transmitted
             *pTxState = reCalTx;
             FifoPopUint8_InsideTxIsr( &wrFifo, &value );
             triceTransmitData8( value );
             triceEableTxEmptyInterrupt(); 
-            count--;
+            //return 1;
+        }else {
+            //triceDisableTxEmptyInterrupt();
+            //*pTxState = noTx;
+            //return 0;
+        }
+    }
+}
+
+
+//! reCalTxHandler checks txe flag and wrFifo for depth and starts a byte transmission if possible
+//! otherwise it disables the transmit empty interrupt
+//! \param pTxState, set none when current packet done, set to reCalTx when reCal packet transfer active
+//! \todo review packets to determine packet end
+void reCalTxContinue( int* pTxState ){
+    static int packageByteCounter = 0;
+    if( triceTxDataRegisterEmpty() ){ // TX Data Register Empty 
+        uint8_t value;
+        size_t count = FifoReadableCount( &wrFifo );
+        static uint8_t sLenL = 0;
+        static uint16_t sLen = 0;
+        packageByteCounter++; // first byte was already transmitted in reCalTxStart
+        if( count ){
+            if( packageByteCounter < 7 ){ //
+                //*pTxState = reCalTx;
+                FifoPopUint8_InsideTxIsr( &wrFifo, &value );
+                triceTransmitData8( value );
+                //triceEableTxEmptyInterrupt();
+            } else if ( 7 == packageByteCounter ){
+                FifoPopUint8_InsideTxIsr( &wrFifo, &value );
+                triceTransmitData8( value );
+                if( 1 != value ){
+                    TRICE8_1( Id(57290), "dpc = %02x and not 1\n!", value );
+                }
+            } else if ( 8 == packageByteCounter ){
+                FifoPopUint8_InsideTxIsr( &wrFifo, &value );
+                triceTransmitData8( value );
+                sLenL = value;
+            } else if ( 9 == packageByteCounter ){
+                FifoPopUint8_InsideTxIsr( &wrFifo, &value );
+                triceTransmitData8( value );
+                sLen = value;
+                sLen = (sLen <<8) | sLenL;
+            } else if ( packageByteCounter < sLen + 10 ){
+                FifoPopUint8_InsideTxIsr( &wrFifo, &value );
+                triceTransmitData8( value );
+            } else {
+                FifoPopUint8_InsideTxIsr( &wrFifo, &value );
+                triceTransmitData8( value );
+                triceDisableTxEmptyInterrupt();
+                packageByteCounter = 0;
+                *pTxState = noTx;
+            }
         }
         if( 0 == count ){
             triceDisableTxEmptyInterrupt();
+            packageByteCounter = 0;
             *pTxState = noTx;
         }
     }
 }
 
+//static size_t reCalCount
+
 //! Check for data and start a transmission, if both channes have data give priority to reCal
 //! \param PtrTxState do nothing if != noTx
 void UartTxStartCheck( int* PtrTxState ){
     if( noTx == *PtrTxState ){
-        reCalTxHandler( PtrTxState );
+        reCalTxStart( PtrTxState );
     }
     if( noTx == *PtrTxState ){
-        triceTxHandler( PtrTxState );
+        triceTxStart( PtrTxState );
     }
 }
 
@@ -113,9 +169,9 @@ void UartTxStartCheck( int* PtrTxState ){
 //! \param PtrTxState actual transmission state
 void UartTxCheck( int* PtrTxState ){
     if( reCalTx == *PtrTxState ){
-        reCalTxHandler( PtrTxState );
+        reCalTxContinue( PtrTxState );
     } else if( triceTx == *PtrTxState ){
-        triceTxHandler(PtrTxState);
+        triceTxContinue(PtrTxState);
     } else { // none == tsState
         UartTxStartCheck(PtrTxState);
     }

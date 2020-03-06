@@ -2385,5 +2385,12 @@
 		"fmtStrg": "%s",
 		"created": 1583333176,
 		"removed": 0
+	},
+	{
+		"id": 57290,
+		"fmtType": "TRICE8_1",
+		"fmtStrg": "dpc = %02x and not 1\\n!",
+		"created": 1583517785,
+		"removed": 0
 	}
 ]
