@@ -298,16 +298,16 @@ func doSerialReceive(port string, baud int, p *id.List, palette string) error {
 		select {
 		case c := <-(*serialReceiver.GetBufferChannel()):
 			if len(c) > 0 {
-				//fmt.Println("from buffer channel:", c) // ERR: DATA STREAM BUG!!!
+				//log.Println("from buffer channel:", c) // ERR: DATA STREAM BUG!!!
 				b = append(b, c...)
 			}
 			//fmt.Println("b is:", b)
 		case t = <-(*serialReceiver.GetTriceChannel()):
-			//fmt.Println("from trice channel:", t) // ERR: DATA STREAM BUG!!!
-			//fmt.Println("emit.Trice", t, len(b))  // ERR: DATA STREAM BUG!!!
+			//log.Println("from trice channel:", t) // ERR: DATA STREAM BUG!!!
+			//log.Println("emit.Trice", t, len(b))  // ERR: DATA STREAM BUG!!!
 			b, err = emit.Trice(t, b, *p, palette)
 			if nil != err {
-				fmt.Println("trice.Log error", err, t, b)
+				log.Println("trice.Log error", err, t, b)
 			}
 		}
 	}

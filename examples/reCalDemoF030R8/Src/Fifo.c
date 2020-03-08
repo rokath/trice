@@ -140,6 +140,13 @@ void FifoPopUint8_InsideTxIsr( Fifo_t* f, uint8_t* pValue ){
 }
 
 
+#if 1
+void FifoPushBuffer( Fifo_t* f, size_t count, const uint8_t* pBuff ){
+    while(count-->0){
+        FifoPushUint8_InsideRxIsr( f, *pBuff++ );
+    }
+}
+#else
 /*! Push count bytes into fifo. The value count must not be bigger than FifoWritableCount() and is not checked!
 \param f pointer to fifo struct
 \param count buffer size
@@ -147,16 +154,18 @@ void FifoPopUint8_InsideTxIsr( Fifo_t* f, uint8_t* pValue ){
 */
 void FifoPushBuffer( Fifo_t* f, size_t count, const uint8_t* pBuff ){
     size_t size = FifoWritableBlockSpace(f);
-    if( size >= count ){ // all can be done in one step
+    if( size >= count ){ // 
+        TRICE0( Id(17644), "dbg:all can be done in one step\n" );
         memcpy( f->pWr, pBuff, count );
-    }else{ // need 2 steps
+    }else{ // 
+        TRICE0( Id(10766), "dbg:need 2 steps\n" );
         memcpy( f->pWr, pBuff, size );
         memcpy( f->pBuff, pBuff+size, count-size );
     }
     f->pWr += count;
     fifoLimitateWrPtr(f);
 }
-
+#endif
 
 /*! Push uint32_t value into fifo. The fifo space is not checked!
 \param f pointer to fifo struct

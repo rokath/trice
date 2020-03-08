@@ -1191,42 +1191,46 @@ TRICE_INLINE uint8_t Cycle( void ){
     return cycle;
 }
 
-//! transmit a short TRICE with "%s" and an index number together with a separate special reCal packet sequence
-//! \param string len, max valid value is 65536, len 0 is invalid
+
+//! transfer special reCal buffer "trice string buffer" to write fifo
+//! \param string len, max valid value is 65536, len 0 means no transmission at all
 //! \param s pointer to string
-TRICE_INLINE void triceStringN( size_t len, const char* s ){
+//! \return used packet index
+TRICE_INLINE uint8_t triceReCalStringBuffer( size_t len, const char* s ){
     uint16_t len_1 = (uint16_t)(len-1); // len-1 is transmitted in data package
-    // start byte     = 0xc0
-    const uint8_t cad = 0x60;
-    const uint8_t sad = 0x60;
-          uint8_t cr8;
-    const uint8_t tid = 0xff; // not used, indicates together with 0xff fid a string package
-    const uint8_t fid = 0xff; // tid,fid values 0...0xfffe are reserved 
-          uint8_t pix = Cycle();
-    const uint8_t dpc = 1;
-    cr8 = 0xc0^cad^sad^tid^fid^dpc^pix;
-    uint8_t lenL, lenH;
-    if( 0 == len ){
-        return;
+    #define CAD 0x60 // client address
+    #define SAD 0x60 // server address
+    #define TID 0xff // type ID, here fixed to 0xFF for string package identification
+    #define FID 0xff // type ID, here fixed to 0xFF for string package identification
+    #define DPC 1    // exact one data package here
+    #define CR8 (0xc0^CAD^SAD ^ TID^FID ^ DPC) // partial ex-or crc8
+    enum{                     c0,  cad, sad, cr8, tid, fid, pix, dpc, lenL, lenH }; // header plus length
+    // index                   0    1    2    3    4    5    6    7    8     9
+    static uint8_t h[10] = { 0xc0, CAD, SAD,  0,  TID, FID,  0,  DPC,  0,    0 };
+    h[pix] = Cycle(); // package index, 6 bit cycle counter, 2 msb = 0 for special package identification, TIDFID==0xffff = string package
+    h[cr8] = CR8 ^ h[pix];
+    h[lenL] = (uint8_t)len_1;
+    h[lenH] = (uint8_t)(len_1>>8);
+    
+    if( 0 == len || 65536 < len ){
+        TRICE32_1( Id( 9285), "ERR:invalid length %d, ignoring trice string package\n", len );
+        return 0;
     }
-    lenL = (uint8_t)len_1;
-    lenH = (uint8_t)(len_1>>8);
-    // header is 8 byte
-    uint8_t h[10] = { 0xc0, cad, sad, cr8, tid, fid, pix, dpc, lenL, lenH }; 
-    // first send buffer data
-    // buffer data have transmission priority, so they are in place when needed
+
+    // first send buffer data, buffer data have transmission priority, so they are in place when needed
     TRICE_ENTER_CRITICAL_SECTION
-    FifoPushBuffer( &wrFifo, sizeof(h), h );
+    FifoPushBuffer( &wrFifo, sizeof(h), h ); // header is 8 byte and we add the 2 len bytes in one shot 
     FifoPushBuffer( &wrFifo, len, (uint8_t*)s );
     TRICE_LEAVE_CRITICAL_SECTION
-    //TRICE0( Id(42766), "wrn:runtime string!\n" );
-    TRICE8_1( Id( 8479), "%s", pix ); // "%s" tells trice tool that a separate string package is generated, pix (cycle) is used for string identification
+    return h[pix];
 }
 #endif
 
 TRICE_INLINE void triceStringUnbound( const char* s ){
     size_t len = strlen( s );
-    triceStringN( len, s );
+    uint8_t pix = triceReCalStringBuffer( len, s );
+    // a short TRICE with "%s" and the index number together follows the separate special reCal packet sequence
+    TRICE8_1( Id( 8479), "%s", pix ); // "%s" tells trice tool that a separate string package was sent, pix (cycle) is used for string identification
 }
 
 TRICE_INLINE void triceSpaces( int spaces ){

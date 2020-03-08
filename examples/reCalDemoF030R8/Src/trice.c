@@ -99,9 +99,9 @@ void triceTxStart( int* pTxState ){
             triceTransmitData8( x );
             *pTxState = triceTx;
             triceEableTxEmptyInterrupt(); 
-        }else{
-            triceDisableTxEmptyInterrupt();
-            *pTxState = noTx;
+       // }else{
+       //     triceDisableTxEmptyInterrupt();
+       //     *pTxState = noTx;
         }
     //}
 }
@@ -116,8 +116,8 @@ void triceTxContinue( int* pTxState ){
         if( triceMsgBufferDepth() ){
             uint8_t x = triceMsgNextByte();
             triceTransmitData8( x );
-            *pTxState = triceTx;
-            triceEableTxEmptyInterrupt(); 
+            //*pTxState = triceTx;
+            //triceEableTxEmptyInterrupt(); 
         }else{
             triceDisableTxEmptyInterrupt();
             *pTxState = noTx;

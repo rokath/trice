@@ -25,13 +25,17 @@ extern "C" {
 
 #if 0 < TRICE_LEVEL
 
+#ifndef TRICE_FILENAME
+#define TRICE_FILENAME TRICE0( Id(39267), "wrn:unknownFilename.c " );
+#endif 
+
 #define REPORT_LINE(Value) do{ REPORT_FILE(); TRICE16_2( Id( 3340), " in line %d (0x%02x)\n", __LINE__, Value ); }while(0)
 #define REPORT_FAILURE(Value) do{ REPORT_FILE(); TRICE32_2( Id(63699), "ERR: in line %d (0x%08x)\n", __LINE__, Value ); }while(0)
 #define REPORT_FAILURE16(a,b,c) do{ REPORT_FILE(); TRICE16_4( Id(35139), "ERR: in line %d (0x%04x,0x%04x,0x%04x)\n", __LINE__, a,b,c ); }while(0)
 #define REPORT_VALUE(Value)   do{ REPORT_FILE(); TRICE32_2( Id(16048),  "att: line %d, value = 0x%08x\r\n", __LINE__, Value ); }while(0)
 #define REPORT_ONLY_VALUE(Value)   do{  TRICE32_2( Id(43582),  "att: line %d, value = 0x%08x\r\n", __LINE__, Value ); }while(0)
 
-#define ERRMSG do{ REPORT_FILE(); TRICE16_1( Id(53007), "ERR: in line %d\n", __LINE__ ); }while(0)
+#define ERRMSG do{ TRICE_FILENAME; TRICE16_1( Id(53007), "ERR: in line %d\n", __LINE__ ); }while(0)
 #define ASSERT( flag ) do{ if(!(flag)) { ERRMSG; } }while(0) //!< report if flag is not true
 
 #else // #if 0 < TRICE_LEVEL

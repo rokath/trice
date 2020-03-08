@@ -25,21 +25,21 @@ var toMs = 1000
 type SerialReceiver struct {
 	receiver
 
-	port_name    string
-	read_timeout int
+	portName    string
+	readTimeout int
 
 	// serial port configuration
-	serial_handle serial.Port
-	serial_mode   serial.Mode
+	serialHandle serial.Port
+	serialMode   serial.Mode
 }
 
 // NewSerialReceiver
 func NewSerialReceiver(portIdentifier string, baudrate int) *SerialReceiver {
 	s := &SerialReceiver{
-		receiver:     receiver{"SerialReceiver", false, make(chan []byte), make(chan []byte)},
-		port_name:    portIdentifier,
-		read_timeout: 1,
-		serial_mode: serial.Mode{BaudRate: baudrate,
+		receiver:    receiver{"SerialReceiver", false, make(chan []byte), make(chan []byte)},
+		portName:    portIdentifier,
+		readTimeout: 1,
+		serialMode: serial.Mode{BaudRate: baudrate,
 			DataBits: 8,
 			Parity:   serial.NoParity,
 			StopBits: serial.OneStopBit},
@@ -49,34 +49,34 @@ func NewSerialReceiver(portIdentifier string, baudrate int) *SerialReceiver {
 
 // SetReadTimeOut sets timeout
 func (p *SerialReceiver) SetReadTimeOut(timeout int) {
-	p.read_timeout = timeout
+	p.readTimeout = timeout
 }
 
 // SetParity sets transmit parity
 func (p *SerialReceiver) SetParity(parity serial.Parity) {
-	p.serial_mode.Parity = parity
+	p.serialMode.Parity = parity
 }
 
 // SetDataBits sets bit count
 func (p *SerialReceiver) SetDataBits(databits int) {
-	p.serial_mode.DataBits = databits
+	p.serialMode.DataBits = databits
 }
 
 // SetBaudrate sets speed
 func (p *SerialReceiver) SetBaudrate(baudrate int) {
-	p.serial_mode.BaudRate = baudrate
+	p.serialMode.BaudRate = baudrate
 }
 
 // SetStopBits sets stop condition
 func (p *SerialReceiver) SetStopBits(stopbits serial.StopBits) {
-	p.serial_mode.StopBits = stopbits
+	p.serialMode.StopBits = stopbits
 }
 
 // SetUp opens a serial port
 func (p *SerialReceiver) SetUp() bool {
 	var err error
 
-	p.serial_handle, err = serial.Open(p.port_name, &p.serial_mode)
+	p.serialHandle, err = serial.Open(p.portName, &p.serialMode)
 
 	if err != nil {
 		fmt.Println("Error: Could not open serial port:", err)
@@ -100,7 +100,7 @@ func (p *SerialReceiver) Stop() {
 // CleanUp makes clean
 func (p *SerialReceiver) CleanUp() {
 	p.Stop()
-	p.serial_handle.Close()
+	p.serialHandle.Close()
 }
 
 // receiving: ReadEndless expects a pointer to a filled COM port configuration
@@ -121,12 +121,13 @@ func (p *SerialReceiver) receiving() {
 			//fmt.Print("data", b)
 			switch b[6] & 0xc0 {
 			case 0xc0:
-				log.Println("reCal command expecting an answer")
+				log.Println("reCal command expecting an answer", b)
 			case 0x80:
-				log.Println("reCal message (not expecting an answer)")
+				log.Println("reCal message (not expecting an answer)", b)
 			case 0x40:
 				log.Println("answer to a reCal command")
 			case 0x00:
+				//log.Println("reCal special trice string buffer#####################", b)
 				if (0xff != b[4]) || (0xff != b[5]) || (1 != b[7]) {
 					log.Println("ERR:wrong format")
 				} else {
@@ -144,7 +145,7 @@ func (p *SerialReceiver) receiving() {
 					}
 					b = append(b, d...) // len is redundant here and usable as check
 					b = append(b, s...) // the buffer (string) data
-					//fmt.Println("to buffer channel:", b) // ERR: DATA STREAM BUG!!!
+					//log.Println("to buffer channel:", b) // ERR: DATA STREAM BUG!!!
 					p.bufferChannel <- b // send to process trace log channel
 				}
 			}
@@ -156,13 +157,13 @@ func (p *SerialReceiver) receiving() {
 
 // ClosePort releases port
 func (p *SerialReceiver) ClosePort() {
-	p.serial_handle.Close()
+	p.serialHandle.Close()
 }
 
 // export readBytes
 func (p *SerialReceiver) readBytes(count int) (int, []byte) {
 	b := make([]byte, count) // the buffer size limits the read count
-	n, err := p.serial_handle.Read(b)
+	n, err := p.serialHandle.Read(b)
 
 	if err != nil {
 		log.Fatal(err)
@@ -180,13 +181,13 @@ func (p *SerialReceiver) readAtLeastBytes(count, msTimeout int) ([]byte, error) 
 	var err error
 
 	for len(b) < count && ms < msTimeout {
-		n, err = p.serial_handle.Read(buf)
+		n, err = p.serialHandle.Read(buf)
 
 		if err != nil {
 			log.Println("Port read error")
 			log.Fatal(err)
 		}
-		fmt.Println("incoming:", buf[:n])
+		//log.Println("incoming:", buf[:n])
 		b = append(b, buf[:n]...)
 		if count == len(b) {
 			return b, nil
@@ -250,8 +251,8 @@ func (p *SerialReceiver) readHeader() ([]byte, error) {
 		if true == evalHeader(b) {
 			break
 		}
-		fmt.Print(b)
-		log.Printf("discarding first byte %02x\n", b[0])
+		log.Print(b)
+		log.Printf("discarding first byte 0x%02x (dez %d)\n", b[0], b[0])
 		b = encrypt(b)
 		x, err := p.readAtLeastBytes(1, toMs)
 		if nil != err {

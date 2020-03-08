@@ -7,6 +7,7 @@ import (
 	"encoding/binary"
 	"errors"
 	"fmt"
+	"runtime"
 	"strings"
 	"unicode"
 
@@ -418,6 +419,8 @@ func visualize(s, palette string) error {
 
 func printIt(s string, c *color.Color) (int, error) {
 	if nil != c {
+		//log.Print(s)
+		//return 0, nil
 		return c.Print(s)
 	}
 	return fmt.Print(s)
@@ -448,6 +451,17 @@ func langCtoGoFmtStingConverter(f string) (string, []bool, error) {
 	return s, u, err
 }
 
+func fileLine() string {
+	_, fileName, fileLine, ok := runtime.Caller(1)
+	var s string
+	if ok {
+		s = fmt.Sprintf("%s:%d", fileName, fileLine)
+	} else {
+		s = ""
+	}
+	return s
+}
+
 // emmiter wworks fine with %x, %d and %o but NOT with %u for now
 // %x is emitted in Go signed!
 // For %u a format string parsing is needed to perform the correct casts.
@@ -459,15 +473,15 @@ func emitter(it id.Item, t, b []byte) (string, []byte, error) {
 	var l0, l1 int64
 	switch it.FmtType {
 	case "TRICE0":
-		if 2 != len(t) { // b has 2 padding bytes
+		if 2 != len(t) { // t has 2 padding bytes
 			fmt.Println(t)
-			return "ERR: DATA STREAM ERROR!!!", b, errors.New("ERR: DATA STREAM ERROR")
+			return "ERR: DATA STREAM ERROR in "+fileLine(), b, errors.New("ERR: DATA STREAM ERROR")
 		}
 		s = f
 	case "TRICE8_1":
 		if 2 != len(t) {
 			fmt.Println(t)
-			return "ERR: DATA STREAM ERROR!!!", b, errors.New("ERR: DATA STREAM ERROR")
+			return "ERR: DATA STREAM ERROR in "+fileLine(), b, errors.New("ERR: DATA STREAM ERROR")
 		}
 		if "%s" != f { // normal case
 			s = fmt.Sprintf(f, int8(t[0]))
@@ -475,7 +489,7 @@ func emitter(it id.Item, t, b []byte) (string, []byte, error) {
 			t[0] != b[6] { // t[0] is parameter and b[6] pix and they must be equal
 			fmt.Print(t, b)
 			b = nil
-			return "ERR: DATA STREAM ERROR!!!\n", b, errors.New("ERR: DATA STREAM ERROR")
+			return "ERR: DATA STREAM ERROR in "+fileLine(), b, errors.New("ERR: DATA STREAM ERROR")
 		} else { // ok
 			sLen := 1 + int(binary.LittleEndian.Uint16(b[8:10])) // sLen is -1 value
 			b = b[10:]                                           // discard old header & sLen

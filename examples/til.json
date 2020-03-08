@@ -2392,5 +2392,68 @@
 		"fmtStrg": "dpc = %02x and not 1\\n!",
 		"created": 1583517785,
 		"removed": 0
+	},
+	{
+		"id": 56535,
+		"fmtType": "TRICE0",
+		"fmtStrg": "stm32f0xx_it.c",
+		"created": 1583586638,
+		"removed": 0
+	},
+	{
+		"id": 39267,
+		"fmtType": "TRICE0",
+		"fmtStrg": "wrn:unknownFilename.c ",
+		"created": 1583595208,
+		"removed": 0
+	},
+	{
+		"id": 9285,
+		"fmtType": "TRICE32_1",
+		"fmtStrg": "ERR:invalid length %d, ignoring trice string package\\n",
+		"created": 1583671972,
+		"removed": 0
+	},
+	{
+		"id": 17644,
+		"fmtType": "TRICE0",
+		"fmtStrg": "dbg:all can be done in one step\\n",
+		"created": 1583675833,
+		"removed": 0
+	},
+	{
+		"id": 10766,
+		"fmtType": "TRICE0",
+		"fmtStrg": "dbg:need 2 steps\\n",
+		"created": 1583675833,
+		"removed": 0
+	},
+	{
+		"id": 63997,
+		"fmtType": "TRICE8_1",
+		"fmtStrg": "\u003e%02x",
+		"created": 1583686822,
+		"removed": 0
+	},
+	{
+		"id": 3663,
+		"fmtType": "TRICE8_1",
+		"fmtStrg": "#%02x",
+		"created": 1583686965,
+		"removed": 0
+	},
+	{
+		"id": 46546,
+		"fmtType": "TRICE8_1",
+		"fmtStrg": "dbg:#%02x",
+		"created": 1583687310,
+		"removed": 0
+	},
+	{
+		"id": 35207,
+		"fmtType": "TRICE8_1",
+		"fmtStrg": "dbg:#%02x ",
+		"created": 1583693512,
+		"removed": 0
 	}
 ]
