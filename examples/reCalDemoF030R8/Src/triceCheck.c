@@ -24,7 +24,7 @@ void triceCheckSet( void )
     TRICE8_1( Id( 2863), "%b times\n", 5 );
     #endif
     //TRICE16_1( Id(46097), "dbg:12345 as 16bit is %#016b\n", 12345 );
-    TRICE0 (Id(30265), "--------------------------------------------------------------------------------------------------------------------------------------------------\n" );
+    TRICE0 (Id(21015), "--------------------------------------------------------------------------------------------------------------------------------------------------\r\n\n" );
     // 1 subtrace
 /*
     TRICE8_4( Id( 1750), "tst:TRICE8  %%03x ->  %03x  %03x  %03x  %03x\n", 1, 0x7f, 0x80, 0xff ); // 4
@@ -95,9 +95,50 @@ void triceCheckSet( void )
     TRICE0 (Id(60989), "wr_:B" );
     TRICE0 (Id(61533), "tim:C\n" );
 */
-triceString( 18, "123456" );
-  
+triceString( 0, "msg:01234567" );
+triceString( 0, "msg:012345678" );
+triceString( 0, "msg:0123456789" );
+/*
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ceString( 0, "msg:012345678" );
+triceString( 0, "msg:01234567" );
+triceString( 0, "msg:0123456" );
+triceString( 0, "msg:012345" );
+triceString( 0, "msg:01234" );
+triceString( 0, "msg:0123" );
+triceString( 0, "msg:012" );
+triceString( 0, "msg:01" );
+triceString( 0, "msg:0" );
+*/
+  
+/*
     triceString( 18, "\n" );
     triceString( 18, "1\n" );
     triceString( 18, "12\n" );
@@ -114,7 +155,7 @@ triceString( 18, "123456" );
     triceString( 18, "msg:Berlin\n" );
     triceString( 18, "HonululuTown\n" );
     triceString( 18, "Leipzig\n" );
-
+*/
 #ifdef ENCRYPT
     {
         uint8_t b[8] = {1,2,3,4,5,6,7,8};
@@ -129,6 +170,6 @@ triceString( 18, "123456" );
         TRICE8_8( Id(43598), "msg:2:%03x %03x %03x %03x %03x %03x %03x %03x\n", b[0], b[1], b[2], b[3], b[4], b[5], b[6], b[7] );
     }
 #endif
-    TRICE0 (Id(58460), "--------------------------------------------------------------------------------------------------------------------------------------------------\n" );
+    TRICE0 (Id(21015), "--------------------------------------------------------------------------------------------------------------------------------------------------\r\n\n" );
     // 4 subtraces
 } // sum 111 sub traces (need 444 bytes Buffet space)

@@ -1068,6 +1068,7 @@ TRICE_INLINE void trice_64_2_ocs( uint16_t Id, uint64_t d0, uint64_t d1 ){
 
 #endif //#else // #if 0 == TRICE_SHORT_MEMORY // #################################
 
+/*
 ///////////////////////////////////////////////////////////////////////////////
 // little trice helper for trice usage
 //
@@ -1096,7 +1097,7 @@ TRICE_INLINE void triceString( int rightBound, const char* s ){
 }
 
 #else // #if 1 == TRICE_SHORT_MEMORY
-#if 0 // ok
+
 // for performance no check of strlen( s ) here (internal usage)
 TRICE_INLINE void triceStringN( size_t len, const char* s ){
     char c1, c2, c3, c4, c5, c6, c7, c8;
@@ -1126,7 +1127,7 @@ TRICE_INLINE void triceStringN( size_t len, const char* s ){
     return;
 }
 #else
-
+*/
 /*
 \code
 // legacy reCal packet format
@@ -1183,139 +1184,51 @@ remote call type: (part of pix)
 #include "Fifo.h"
 extern Fifo_t wrFifo;
 
+void triceString( int rightBound, const char* s );
 
-TRICE_INLINE uint8_t Cycle( void ){
-    static uint8_t cycle = 0;
-    cycle++;
-    cycle &= 0x3F; // 0011.1111 -> 6 bit counter
-    return cycle;
-}
-
-
-//! transfer special reCal buffer "trice string buffer" to write fifo
-//! \param string len, max valid value is 65536, len 0 means no transmission at all
-//! \param s pointer to string
-//! \return used packet index
-TRICE_INLINE uint8_t triceReCalStringBuffer( size_t len, const char* s ){
-    uint16_t len_1 = (uint16_t)(len-1); // len-1 is transmitted in data package
-    #define CAD 0x60 // client address
-    #define SAD 0x60 // server address
-    #define TID 0xff // type ID, here fixed to 0xFF for string package identification
-    #define FID 0xff // type ID, here fixed to 0xFF for string package identification
-    #define DPC 1    // exact one data package here
-    #define CR8 (0xc0^CAD^SAD ^ TID^FID ^ DPC) // partial ex-or crc8
-    enum{                     c0,  cad, sad, cr8, tid, fid, pix, dpc, lenL, lenH }; // header plus length
-    // index                   0    1    2    3    4    5    6    7    8     9
-    static uint8_t h[10] = { 0xc0, CAD, SAD,  0,  TID, FID,  0,  DPC,  0,    0 };
-    h[pix] = Cycle(); // package index, 6 bit cycle counter, 2 msb = 0 for special package identification, TIDFID==0xffff = string package
-    h[cr8] = CR8 ^ h[pix];
-    h[lenL] = (uint8_t)len_1;
-    h[lenH] = (uint8_t)(len_1>>8);
-    
-    if( 0 == len || 65536 < len ){
-        TRICE32_1( Id( 9285), "ERR:invalid length %d, ignoring trice string package\n", len );
-        return 0;
-    }
-
-    // first send buffer data, buffer data have transmission priority, so they are in place when needed
-    TRICE_ENTER_CRITICAL_SECTION
-    FifoPushBuffer( &wrFifo, sizeof(h), h ); // header is 8 byte and we add the 2 len bytes in one shot 
-    FifoPushBuffer( &wrFifo, len, (uint8_t*)s );
-    TRICE_LEAVE_CRITICAL_SECTION
-    return h[pix];
-}
-#endif
-
-TRICE_INLINE void triceStringUnbound( const char* s ){
-    size_t len = strlen( s );
-    uint8_t pix = triceReCalStringBuffer( len, s );
-    // a short TRICE with "%s" and the index number together follows the separate special reCal packet sequence
-    TRICE8_1( Id( 8479), "%s", pix ); // "%s" tells trice tool that a separate string package was sent, pix (cycle) is used for string identification
-}
-
-TRICE_INLINE void triceSpaces( int spaces ){
-    while (spaces ){
-        switch( spaces ){
-            case  0: return;
-            case  1: TRICE0( Id(14746), " " ); return;
-            case  2: TRICE0( Id(32263), "  " ); return;
-            case  3: TRICE0( Id(41033), "   " ); return;
-            case  4: TRICE0( Id(  500), "    " ); return;
-            case  5: TRICE0( Id(23151), "     " ); return;
-            case  6: TRICE0( Id(11628), "      " ); return;
-            case  7: TRICE0( Id(40825), "       " ); return;
-            case  8: TRICE0( Id(63581), "        " ); return;
-            case  9: TRICE0( Id(11347), "         " ); return;
-            case 10:
-            default: TRICE0( Id(46732), "          " ); 
-                spaces -= 10;
-            break;
-        }
-    }
-    return;
-}
-
-
-/*! trice a string
-\details not very effective but better than no strings for now
-This function could be useful, if the string is generated dynamically.
-\param s 0-terminated string
-*/
-TRICE_INLINE void triceString( int rightBound, const char* s ){
-    TRICE_ENTER_CRITICAL_SECTION
-    size_t len = strlen( s );
-    int spaces = rightBound - len;
-    spaces = spaces < 0 ? 0 : spaces;
-    triceSpaces( spaces );
-    triceStringUnbound( s );
-    TRICE_LEAVE_CRITICAL_SECTION
-}
-
-#endif // #else // #if 1 == TRICE_SHORT_MEMORY
-
-/*! Report name and line number over trice
-\param pFileName pointer to 0-terminated filename or function name
-\param Line line number
-\param Value for context display
-*/
-TRICE_INLINE void reportLocation( const char* const pFileName, int Line, int Value ){
-    TRICE0( Id(7), "sig:" );
-    if( pFileName )
-    {
-        triceString( 0, (char*)pFileName );
-    }
-    TRICE32_2( Id(5), " line %d (Value = %d)\n", Line, Value );
-}
-
-/*! Report name and line number over trice as Failure
-\param pName pointer to 0-terminated filename or function name
-\param Line line number
-\param Value for context display
-*/
-TRICE_INLINE void reportFailure( const char* const pName, int Line, int Value ){
-    TRICE0( Id(6), "err: Failure in " );
-    reportLocation( pName, Line, Value );
-}
-
-/*! Report filename and line number over trice
-\param pFileName pointer to 0-terminated filename
-\param Line line number
-\param Value for context display
-*/
-TRICE_INLINE void reportPassage( char *pFileName, int Line, int Value ){
-    TRICE0( Id(4), "att: Passage in " );
-    if( pFileName )
-    {
-        triceString( 0, pFileName );
-    }
-    TRICE32_2( Id(5), " line %d (Value = %d)\n", Line, Value );
-}
-
-TRICE_INLINE void triceSrcLocation(char const *file, int line){
-      TRICE0( Id(31976), "err: Error in file " );
-      triceString( 0, file );
-      TRICE16_1( Id(8272), " at line %d\n", line );
-}
+// /*! Report name and line number over trice
+// \param pFileName pointer to 0-terminated filename or function name
+// \param Line line number
+// \param Value for context display
+// */
+// TRICE_INLINE void reportLocation( const char* const pFileName, int Line, int Value ){
+//     TRICE0( Id(7), "sig:" );
+//     if( pFileName )
+//     {
+//         triceString( 0, (char*)pFileName );
+//     }
+//     TRICE32_2( Id(5), " line %d (Value = %d)\n", Line, Value );
+// }
+// 
+// /*! Report name and line number over trice as Failure
+// \param pName pointer to 0-terminated filename or function name
+// \param Line line number
+// \param Value for context display
+// */
+// TRICE_INLINE void reportFailure( const char* const pName, int Line, int Value ){
+//     TRICE0( Id(6), "err: Failure in " );
+//     reportLocation( pName, Line, Value );
+// }
+// 
+// /*! Report filename and line number over trice
+// \param pFileName pointer to 0-terminated filename
+// \param Line line number
+// \param Value for context display
+// */
+// TRICE_INLINE void reportPassage( char *pFileName, int Line, int Value ){
+//     TRICE0( Id(4), "att: Passage in " );
+//     if( pFileName )
+//     {
+//         triceString( 0, pFileName );
+//     }
+//     TRICE32_2( Id(5), " line %d (Value = %d)\n", Line, Value );
+// }
+// 
+// TRICE_INLINE void triceSrcLocation(char const *file, int line){
+//       TRICE0( Id(31976), "err: Error in file " );
+//       triceString( 0, file );
+//       TRICE16_1( Id(8272), " at line %d\n", line );
+// }
 
 #endif // #else // #if 0 == TRICE_LEVEL
 

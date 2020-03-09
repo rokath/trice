@@ -24,7 +24,7 @@ extern "C" {
 //
 
 //!< a byte count for buffering traces, must be power of 2, one basic trace needs 4 bytes
-#define TRICE_FIFO_SIZE 2048 
+#define TRICE_FIFO_SIZE 256
 #define TRICE_START_BYTE (0xeb) //!< trice header start (chose any unusual byte)
 #define TRICE_LOCAL_ADDR (0x60) //!< trice addess of this device (choose free)
 #define TRICE_DISPL_ADDR (0x60) //!< trice terminal address for this device (choose free)
@@ -192,6 +192,8 @@ User must provide this function.
 TRICE_INLINE void triceTransmitData8( uint8_t d ){
     LL_USART_TransmitData8( USART2, d);
 }
+
+//void Dbg_triceTransmitData8( uint8_t d );
 
 /*! Allow interrupt for empty trice data transmit register.
 User must provide this function.

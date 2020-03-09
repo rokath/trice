@@ -35,8 +35,11 @@ void FifoInit( Fifo_t* f, size_t size );
 
 #if 1
 
-size_t FifoWritableCount( Fifo_t const * const f );
-size_t FifoReadableCount( Fifo_t const * const f );
+size_t FifoWritableCount_Protected( Fifo_t const * const f );
+size_t FifoReadableCount_Protected( Fifo_t const * const f );
+
+size_t FifoWritableCount_Unprotected( Fifo_t const * const f );
+size_t FifoReadableCount_Unprotected( Fifo_t const * const f );
 
 #else
 
@@ -75,15 +78,18 @@ static inline size_t FifoWritableCount( Fifo_t const * const f ){
 //int FifoWritableBlockSpace( Fifo_t* f );
 //int FifoReadableBlockSpace( Fifo_t* f );
 
-void FifoPushUint8_InsideRxIsr( Fifo_t* f, uint8_t value );
-void FifoPopUint8_InsideTxIsr( Fifo_t* f, uint8_t* pValue );
+void FifoPushUint8_Unprotected( Fifo_t* f, uint8_t value );
+void FifoPopUint8_Unprotected( Fifo_t* f, uint8_t* pValue );
+void FifoPushUint32_Unprotected( Fifo_t* f, uint32_t v );
+void FifoPushBuffer_Unprotected( Fifo_t* f, size_t count, const uint8_t* pBuff );
+void FifoPopBuffer_Unprotected( Fifo_t* f, size_t count, uint8_t* pBuff );
 
-void FifoPushUint32( Fifo_t* f, uint32_t v );
+void FifoPushUint8_Protected( Fifo_t* f, uint8_t value );
+void FifoPopUint8_Protected( Fifo_t* f, uint8_t* pValue );
+void FifoPushUint32_Protected( Fifo_t* f, uint32_t v );
+void FifoPushBuffer_Protected( Fifo_t* f, size_t count, const uint8_t* pBuff );
+void FifoPopBuffer_Protected( Fifo_t* f, size_t count, uint8_t* pBuff );
 
-void FifoPushBuffer( Fifo_t* f, size_t count, const uint8_t* pBuff );
-void FifoPopBuffer( Fifo_t* f, size_t count, uint8_t* pBuff );
-
-void FifoPushBufferInCriticalSection( Fifo_t* f, size_t count, const uint8_t* pBuff );
 
 //int FifoWaitForWritableCount(Fifo_t const * const f, size_t count );
 //int FifoWaitForReadableCount(Fifo_t const* const f, size_t count );

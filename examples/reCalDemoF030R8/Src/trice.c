@@ -11,7 +11,7 @@ That is the time critical part.
 *******************************************************************************/
 
 #include "trice.h"
-
+#include "fifo.h"
 #ifdef ENCRYPT
 
 #include "xteaCrypto.h" // enable this for encryption
@@ -93,8 +93,8 @@ Also it should be called cyclically to trigger transmission start.
 \todo handle 8==traceLogMsgDepth() to give chance to other data streams
 */
 void triceTxStart( int* pTxState ){
-    //if( triceTxDataRegisterEmpty() ){ // only if tx data register is free (is probably the case)
-        if( triceNextMsg() ){ 
+    if( triceTxDataRegisterEmpty() ){ // it is possible SysTick comes immediately after Uart ISR and the register is not empty yet
+        if( triceNextMsg() ){ // check if data in trice fifo and load them in the 8 byte transmit buffer, optionally encrypted
             uint8_t x = triceMsgNextByte();
             triceTransmitData8( x );
             *pTxState = triceTx;
@@ -103,7 +103,7 @@ void triceTxStart( int* pTxState ){
        //     triceDisableTxEmptyInterrupt();
        //     *pTxState = noTx;
         }
-    //}
+    }
 }
 
 /*! This function should be called inside the transmit done device interrupt.
@@ -145,8 +145,238 @@ int tricePrintfAdapter( const char* pFmt, ... ){
 
 #endif // #ifdef TRICE_PRINTF_ADAPTER
 
+
+
+
+
+
+
+
+
+#if 0 // 1 == TRICE_SHORT_MEMORY
+
+//TRICE_INLINE 
+void triceStringUnbound( const char* s ){
+    while( *s )
+    {
+        TRICE8_1( Id(3), "%c", *s );
+        s++;
+    }
+}
+
+//TRICE_INLINE 
+void triceString( int rightBound, const char* s ){
+    size_t len = strlen( s );
+    int spaces = rightBound - len;
+    spaces = spaces < 0 ? 0 : spaces;
+    TRICE_ENTER_CRITICAL_SECTION
+    while( spaces-->0 )
+    {
+        TRICE0( Id(27950), " " );
+    }
+    triceStringUnbound( s );
+    TRICE_LEAVE_CRITICAL_SECTION
+}
+
+// #else // #if 1 == TRICE_SHORT_MEMORY
+
+// for performance no check of strlen( s ) here (internal usage)
+//TRICE_INLINE 
+void triceStringN( size_t len, const char* s ){
+    char c1, c2, c3, c4, c5, c6, c7, c8;
+    while( len ){
+        switch( len ){
+            case  0: return;
+            case  1: c1=*s++;
+                TRICE8_1( Id(36152), "%c", c1 ); return;
+            case  2: c1=*s++; c2=*s++;
+                TRICE8_2( Id(49862), "%c%c", c1, c2 ); return;
+            case  3: c1=*s++; c2=*s++; c3=*s++;
+                TRICE8_3( Id(60898), "%c%c%c", c1, c2, c3 ); return;
+            case  4: c1=*s++; c2=*s++; c3=*s++; c4=*s++;
+                TRICE8_4( Id(57970), "%c%c%c%c", c1, c2, c3, c4 ); return;
+            case  5: c1=*s++; c2=*s++; c3=*s++; c4=*s++; c5=*s++;
+                TRICE8_5( Id(49813), "%c%c%c%c%c", c1, c2, c3, c4, c5 ); return;
+            case  6: c1=*s++; c2=*s++; c3=*s++; c4=*s++; c5=*s++; c6=*s++;
+                TRICE8_6( Id(10201), "%c%c%c%c%c%c", c1, c2, c3, c4, c5, c6 ); return;
+            case  7: c1=*s++; c2=*s++; c3=*s++; c4=*s++; c5=*s++; c6=*s++; c7=*s++;
+                TRICE8_7( Id(57439), "%c%c%c%c%c%c%c", c1, c2, c3, c4, c5, c6, c7); return;
+            case  8:
+            default: c1 = *s++; c2 = *s++; c3 = *s++; c4 = *s++; c5 = *s++; c6 = *s++; c7 = *s++; c8 = *s++; 
+                TRICE8_8( Id(53018), "%c%c%c%c%c%c%c%c", c1, c2, c3, c4, c5, c6, c7, c8 );
+                len -= 8;
+        }
+    }
+    return;
+}
+
+//TRICE_INLINE 
+void triceStringUnbound( const char* s ){
+    size_t len = strlen( s );
+    triceStringN( len, s );
+}
+
+//TRICE_INLINE 
+void triceSpaces( int spaces ){
+    while (spaces ){
+        switch( spaces ){
+            case  0: return;
+            case  1: TRICE0( Id(14746), " " ); return;
+            case  2: TRICE0( Id(32263), "  " ); return;
+            case  3: TRICE0( Id(41033), "   " ); return;
+            case  4: TRICE0( Id(  500), "    " ); return;
+            case  5: TRICE0( Id(23151), "     " ); return;
+            case  6: TRICE0( Id(11628), "      " ); return;
+            case  7: TRICE0( Id(40825), "       " ); return;
+            case  8: TRICE0( Id(63581), "        " ); return;
+            case  9: TRICE0( Id(11347), "         " ); return;
+            case 10:
+            default: TRICE0( Id(46732), "          " ); 
+                spaces -= 10;
+            break;
+        }
+    }
+    return;
+}
+
+
+/*! trice a string
+\details not very effective but better than no strings for now
+This function could be useful, if the string is generated dynamically.
+\param s 0-terminated string
+*/
+TRICE_INLINE void triceString( int rightBound, const char* s ){
+    TRICE_ENTER_CRITICAL_SECTION
+    size_t len = strlen( s );
+    int spaces = rightBound - len;
+    spaces = spaces < 0 ? 0 : spaces;
+    triceSpaces( spaces );
+    triceStringUnbound( s );
+    TRICE_LEAVE_CRITICAL_SECTION
+}
+
+#else // #if 1 == TRICE_SHORT_MEMORY
+
+
+
+
+
+
+//TRICE_INLINE 
+static uint8_t Cycle( void ){
+    static uint8_t cycle = 0;
+    cycle++;
+    cycle &= 0x3F; // 0011.1111 -> 6 bit counter
+    return cycle;
+}
+
+
+//! transfer special reCal buffer "trice string buffer" to write fifo
+//! \param string len, max valid value is 65536, len 0 means no transmission at all
+//! \param s pointer to string
+//! \return used packet index
+//TRICE_INLINE 
+static uint8_t triceReCalStringBuffer( size_t len, const char* s ){
+    uint16_t len_1 = (uint16_t)(len-1); // len-1 is transmitted in data package
+    #define CAD 0x60 // client address
+    #define SAD 0x60 // server address
+    #define TID 0xff // type ID, here fixed to 0xFF for string package identification
+    #define FID 0xff // type ID, here fixed to 0xFF for string package identification
+    #define DPC 1    // exact one data package here
+    #define CR8 (0xc0^CAD^SAD ^ TID^FID ^ DPC) // partial ex-or crc8
+    enum{                     c0,  cad, sad, cr8, tid, fid, pix, dpc, lenL, lenH }; // header plus length
+    // index                   0    1    2    3    4    5    6    7    8     9
+    static uint8_t h[10] = { 0xc0, CAD, SAD,  0,  TID, FID,  0,  DPC,  0,    0 };
+    h[pix] = Cycle(); // package index, 6 bit cycle counter, 2 msb = 0 for special package identification, TIDFID==0xffff = string package
+    h[cr8] = CR8 ^ h[pix];
+    h[lenL] = (uint8_t)len_1;
+    h[lenH] = (uint8_t)(len_1>>8);
+    
+    if( 0 == len || 65536 < len ){
+        TRICE32_1( Id( 9285), "ERR:invalid length %d, ignoring trice string package\n", len );
+        return 0;
+    }
+
+    // first send buffer data, buffer data have transmission priority, so they are in place when needed
+    TRICE_ENTER_CRITICAL_SECTION
+    FifoPushBuffer_Unprotected( &wrFifo, sizeof(h), h ); // header is 8 byte and we add the 2 len bytes in one shot 
+    FifoPushBuffer_Unprotected( &wrFifo, len, (uint8_t*)s );
+    TRICE_LEAVE_CRITICAL_SECTION
+    return h[pix];
+}
+#endif
+
+//TRICE_INLINE 
+static void triceStringUnbound( const char* s ){
+    size_t len = strlen( s );
+    uint8_t pix = triceReCalStringBuffer( len, s );
+    // a short TRICE with "%s" and the index number together follows the separate special reCal packet sequence
+    TRICE8_1( Id( 8479), "%s", pix ); // "%s" tells trice tool that a separate string package was sent, pix (cycle) is used for string identification
+}
+
+//TRICE_INLINE 
+static void triceSpaces( int spaces ){
+    while (spaces ){
+        switch( spaces ){
+            case  0: return;
+            case  1: TRICE0( Id(14746), " " ); return;
+            case  2: TRICE0( Id(32263), "  " ); return;
+            case  3: TRICE0( Id(41033), "   " ); return;
+            case  4: TRICE0( Id(  500), "    " ); return;
+            case  5: TRICE0( Id(23151), "     " ); return;
+            case  6: TRICE0( Id(11628), "      " ); return;
+            case  7: TRICE0( Id(40825), "       " ); return;
+            case  8: TRICE0( Id(63581), "        " ); return;
+            case  9: TRICE0( Id(11347), "         " ); return;
+            case 10:
+            default: TRICE0( Id(46732), "          " ); 
+                spaces -= 10;
+            break;
+        }
+    }
+    return;
+}
+
+
+/*! trice a string
+\details not very effective but better than no strings for now
+This function could be useful, if the string is generated dynamically.
+\param s 0-terminated string
+*/
+//TRICE_INLINE
+void triceString( int rightBound, const char* s ){
+    TRICE_ENTER_CRITICAL_SECTION
+    size_t len = strlen( s );
+    int spaces = rightBound - len;
+    spaces = spaces < 0 ? 0 : spaces;
+    triceSpaces( spaces );
+    triceStringUnbound( s );
+    TRICE_LEAVE_CRITICAL_SECTION
+}
+
+#endif // #else // #if 1 == TRICE_SHORT_MEMORY
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 //! unused dummy definition for linker
 void _putchar(char character){
 }
 
-#endif // #else // #if 0 == TRICE_LEVEL
+//#endif // #else // #if 0 == TRICE_LEVEL

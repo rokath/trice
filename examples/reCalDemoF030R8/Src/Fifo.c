@@ -75,7 +75,7 @@ void FifoInit( Fifo_t * const f, size_t size ){
 /*! make sure write pointer stays inside fifo range
 \param f pointer to fifo struct
 */
-static void fifoLimitateWrPtr( Fifo_t* f ){
+static void fifoLimitateWrPtr_Unprotected( Fifo_t* f ){
     f->pWr -= f->pWr < f->pLimit ? 0 : f->size;
 }
 
@@ -83,7 +83,7 @@ static void fifoLimitateWrPtr( Fifo_t* f ){
 /*! make sure read pointer stays inside fifo range
 \param f pointer to fifo struct
 */
-static void fifoLimitateRdPtr( Fifo_t* f ){
+static void fifoLimitateRdPtr_Unprotected( Fifo_t* f ){
     f->pRd -= f->pRd < f->pLimit ? 0 : f->size;
 }
 
@@ -104,8 +104,22 @@ static inline size_t adjustCount( Fifo_t const * const f, int count ){
 \param f pointer to fifo struct
 \retval Count of bytes actually in fifo
 */
-size_t FifoReadableCount( Fifo_t const * const f ){
-    return adjustCount( f, (int)(f->pWr - f->pRd) );
+size_t FifoReadableCount_Unprotected( Fifo_t const * const f ){
+    size_t n = adjustCount( f, (int)(f->pWr - f->pRd) );
+    return n;
+}
+
+/*! fifo depth
+\details a fifo of size n (n>1!) can hold only n-1 values to be able to distinct between empty and full
+\param f pointer to fifo struct
+\retval Count of bytes actually in fifo
+*/
+size_t FifoReadableCount_Protected( Fifo_t const * const f ){
+    size_t n;
+    TRICE_ENTER_CRITICAL_SECTION
+    n = adjustCount( f, (int)(f->pWr - f->pRd) );
+    TRICE_LEAVE_CRITICAL_SECTION
+    return n;
 }
 
 
@@ -114,8 +128,18 @@ size_t FifoReadableCount( Fifo_t const * const f ){
 \param f pointer to fifo struct
 \retval Count of bytes actually can be written into fifo
 */
-size_t FifoWritableCount( Fifo_t const * const f ){
-    return f->size - FifoReadableCount( f ) - 1; 
+size_t FifoWritableCount_Unprotected( Fifo_t const * const f ){
+    return f->size - FifoReadableCount_Unprotected( f ) - 1; 
+}
+
+
+/*! space left in fifo
+\details a fifo of size n (n>1!) can hold only n-1 values to be able to distinct between empty and full
+\param f pointer to fifo struct
+\retval Count of bytes actually can be written into fifo
+*/
+size_t FifoWritableCount_Protected( Fifo_t const * const f ){
+    return f->size - FifoReadableCount_Protected( f ) - 1; 
 }
 
 
@@ -123,9 +147,21 @@ size_t FifoWritableCount( Fifo_t const * const f ){
 \param f pointer to fifo struct
 \param value uint8_t value to store
 */
-void FifoPushUint8_InsideRxIsr( Fifo_t* f, uint8_t value ){
+void FifoPushUint8_Unprotected( Fifo_t* f, uint8_t value ){
     *(f->pWr++) = value;
-    fifoLimitateWrPtr(f);
+    fifoLimitateWrPtr_Unprotected(f);
+}
+
+
+/*! put value in fifo. fifo must have space for at least 1 byte.
+\param f pointer to fifo struct
+\param value uint8_t value to store
+*/
+void FifoPushUint8_Protected( Fifo_t* f, uint8_t value ){
+    TRICE_ENTER_CRITICAL_SECTION
+    *(f->pWr++) = value;
+    fifoLimitateWrPtr_Unprotected(f);
+    TRICE_LEAVE_CRITICAL_SECTION
 }
 
 
@@ -133,18 +169,38 @@ void FifoPushUint8_InsideRxIsr( Fifo_t* f, uint8_t value ){
 \param f pointer to fifo struct
 \param pValue address where to store value
 */
-void FifoPopUint8_InsideTxIsr( Fifo_t* f, uint8_t* pValue ){
+void FifoPopUint8_Unprotected( Fifo_t* f, uint8_t* pValue ){
     *pValue = *(f->pRd);
     f->pRd++;
-    fifoLimitateRdPtr(f);
+    fifoLimitateRdPtr_Unprotected(f);
+}
+
+/*! Get an uint8_t value from fifo
+\param f pointer to fifo struct
+\param pValue address where to store value
+*/
+void FifoPopUint8_Protected( Fifo_t* f, uint8_t* pValue ){
+    TRICE_ENTER_CRITICAL_SECTION
+    *pValue = *(f->pRd);
+    f->pRd++;
+    fifoLimitateRdPtr_Unprotected(f);
+    TRICE_LEAVE_CRITICAL_SECTION
 }
 
 
-#if 1
-void FifoPushBuffer( Fifo_t* f, size_t count, const uint8_t* pBuff ){
+#if 0
+void FifoPushBuffer_Unprotected( Fifo_t* f, size_t count, const uint8_t* pBuff ){
     while(count-->0){
-        FifoPushUint8_InsideRxIsr( f, *pBuff++ );
+        FifoPushUint8_Unprotected( f, *pBuff++ );
     }
+}
+
+void FifoPushBuffer_Protected( Fifo_t* f, size_t count, const uint8_t* pBuff ){
+    TRICE_ENTER_CRITICAL_SECTION
+    while(count-->0){
+        FifoPushUint8_Unprotected( f, *pBuff++ );
+    }
+    TRICE_LEAVE_CRITICAL_SECTION
 }
 #else
 /*! Push count bytes into fifo. The value count must not be bigger than FifoWritableCount() and is not checked!
@@ -152,7 +208,7 @@ void FifoPushBuffer( Fifo_t* f, size_t count, const uint8_t* pBuff ){
 \param count buffer size
 \param pBuff address of buffer to be pushed into fifo
 */
-void FifoPushBuffer( Fifo_t* f, size_t count, const uint8_t* pBuff ){
+void FifoPushBuffer_Unprotected( Fifo_t* f, size_t count, const uint8_t* pBuff ){
     size_t size = FifoWritableBlockSpace(f);
     if( size >= count ){ // 
         TRICE0( Id(17644), "dbg:all can be done in one step\n" );
@@ -163,18 +219,8 @@ void FifoPushBuffer( Fifo_t* f, size_t count, const uint8_t* pBuff ){
         memcpy( f->pBuff, pBuff+size, count-size );
     }
     f->pWr += count;
-    fifoLimitateWrPtr(f);
+    fifoLimitateWrPtr_Unprotected(f);
 }
-#endif
-
-/*! Push uint32_t value into fifo. The fifo space is not checked!
-\param f pointer to fifo struct
-\param v value to be pushed into fifo
-*/
-void FifoPushUint32( Fifo_t* f, uint32_t v ){
-    FifoPushBuffer( f, sizeof(uint32_t), (uint8_t*)&v );
-}
-
 
 /*! Push count bytes into fifo. The value count must not be bigger than FifoWritableCount() and is not checked!
 This function is protected with a critical section
@@ -182,9 +228,9 @@ This function is protected with a critical section
 \param count buffer size
 \param pBuff address of buffer to be pushed into fifo
 */
-void FifoPushBufferInCriticalSection( Fifo_t* f, size_t count, const uint8_t* pBuff ){
+void FifoPushBuffer_Protected( Fifo_t* f, size_t count, const uint8_t* pBuff ){
+    TRICE_ENTER_CRITICAL_SECTION
     size_t size = FifoWritableBlockSpace(f);
-    ENTER_CRITICAL_SECTION
     if( size >= count ){ // all can be done in one step
         memcpy( f->pWr, pBuff, count );
     }else{ // need 2 steps
@@ -192,8 +238,20 @@ void FifoPushBufferInCriticalSection( Fifo_t* f, size_t count, const uint8_t* pB
         memcpy( f->pBuff, pBuff+size, count-size );
     }
     f->pWr += count;
-    fifoLimitateWrPtr(f);
-    LEAVE_CRITICAL_SECTION
+    fifoLimitateWrPtr_Unprotected(f);
+    TRICE_LEAVE_CRITICAL_SECTION
+}
+#endif
+
+
+/*! Push uint32_t value into fifo. The fifo space is not checked!
+\param f pointer to fifo struct
+\param v value to be pushed into fifo
+*/
+void FifoPushUint32_Protected( Fifo_t* f, uint32_t v ){
+    TRICE_ENTER_CRITICAL_SECTION
+    FifoPushBuffer_Unprotected( f, sizeof(uint32_t), (uint8_t*)&v );
+    TRICE_LEAVE_CRITICAL_SECTION
 }
 
 
@@ -202,7 +260,7 @@ void FifoPushBufferInCriticalSection( Fifo_t* f, size_t count, const uint8_t* pB
 \param count buffer size
 \param pBuff address of buffer to be popped from fifo
 */
-void FifoPopBuffer( Fifo_t* f, size_t count, uint8_t* pBuff ){
+void FifoPopBuffer_Unprotected( Fifo_t* f, size_t count, uint8_t* pBuff ){
     size_t size = FifoReadableBlockSpace(f);
     if( size >= count ){ // all can be done in one step
         memcpy( pBuff, f->pRd, count );
@@ -211,5 +269,25 @@ void FifoPopBuffer( Fifo_t* f, size_t count, uint8_t* pBuff ){
         memcpy( pBuff+size, f->pBuff,       count-size );
     }
     f->pRd += count;
-    fifoLimitateRdPtr(f);
+    fifoLimitateRdPtr_Unprotected(f);
+}
+
+
+/*! Pop count bytes from fifo. The value count must not be bigger than FifoReadableCount() and is not checked!
+\param f pointer to fifo struct
+\param count buffer size
+\param pBuff address of buffer to be popped from fifo
+*/
+void FifoPopBuffer_Protected( Fifo_t* f, size_t count, uint8_t* pBuff ){
+    TRICE_ENTER_CRITICAL_SECTION
+    size_t size = FifoReadableBlockSpace(f);
+    if( size >= count ){ // all can be done in one step
+        memcpy( pBuff, f->pRd, count );
+    }else{ // need 2 steps
+        memcpy( pBuff, f->pRd,       size );
+        memcpy( pBuff+size, f->pBuff,       count-size );
+    }
+    f->pRd += count;
+    fifoLimitateRdPtr_Unprotected(f);
+    TRICE_LEAVE_CRITICAL_SECTION
 }

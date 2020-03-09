@@ -12,15 +12,26 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"runtime"
 	"time"
 
 	"go.bug.st/serial"
 	"golang.org/x/crypto/xtea"
 )
 
+func fileLine() string {
+	_, fileName, fileLine, ok := runtime.Caller(1)
+	var s string
+	if ok {
+		s = fmt.Sprintf("%s:%d", fileName, fileLine)
+	} else {
+		s = ""
+	}
+	return s
+}
+
 var locAddr = byte(0x60) // local address
 var remAddr = byte(0x60) // remote address
-var toMs = 1000
 
 type SerialReceiver struct {
 	receiver
@@ -132,13 +143,13 @@ func (p *SerialReceiver) receiving() {
 					log.Println("ERR:wrong format")
 				} else {
 					// int(b[6]) contains string identificator for verification
-					d, _ := p.readAtLeastBytes(2, toMs) // len of buffer (only one buffer)
+					d, _ := p.readAtLeastBytes(2) // len of buffer (only one buffer)
 					if nil != err {
 						log.Println("Could not read serial len: ", err)
 						continue
 					}
 					len := int(binary.LittleEndian.Uint16(d[:2]))
-					s, _ := p.readAtLeastBytes(len+1, toMs) // len is len-1 value
+					s, _ := p.readAtLeastBytes(len + 1) // len is len-1 value
 					if nil != err {
 						log.Println("Could not read buffer: ", err)
 						continue
@@ -172,31 +183,41 @@ func (p *SerialReceiver) readBytes(count int) (int, []byte) {
 	return n, b
 }
 
+/*
+func readNano() int64{
+	now := time.Now()
+	unixNano := now.UnixNano()
+	return unixNano
+}
+
+func startNano( t *int64 ){
+	*t = readNano()
+}
+
+func elapsedNano( t *time.Time )int64{
+	return time.Now() - *t
+}*/
+
 // export readBytes
-func (p *SerialReceiver) readAtLeastBytes(count, msTimeout int) ([]byte, error) {
+func (p *SerialReceiver) readAtLeastBytes(count int) ([]byte, error) {
+	//log.Println("readAtLeastBytes in "+fileLine(), count)
 	buf := make([]byte, count) // the buffer size limits the read count
-
 	var b []byte
-	var n, ms int
+	var n int
 	var err error
-
-	for len(b) < count && ms < msTimeout {
+	start := time.Now()
+	for len(b) < count {
 		n, err = p.serialHandle.Read(buf)
-
 		if err != nil {
 			log.Println("Port read error")
 			log.Fatal(err)
 		}
-		//log.Println("incoming:", buf[:n])
 		b = append(b, buf[:n]...)
-		if count == len(b) {
+		if count == len(b) { // https://stackoverflow.com/questions/45791241/correctly-measure-time-duration-in-go
+			fmt.Println("\tincoming:", b, "\t\t", time.Now().Sub(start).Nanoseconds(), "nanoseconds")
 			return b, nil
 		}
-
 		buf = buf[n:]
-		time.Sleep(50 * time.Millisecond) // has slight influence on cpu load
-
-		ms += 50
 	}
 	return b, errors.New("read timeout")
 }
@@ -242,7 +263,7 @@ func decrypt(b []byte) []byte {
 
 // readHeader gets next header from streaming data
 func (p *SerialReceiver) readHeader() ([]byte, error) {
-	b, err := p.readAtLeastBytes(8, toMs)
+	b, err := p.readAtLeastBytes(8)
 	if nil != err {
 		return b, err
 	}
@@ -254,7 +275,7 @@ func (p *SerialReceiver) readHeader() ([]byte, error) {
 		log.Print(b)
 		log.Printf("discarding first byte 0x%02x (dez %d)\n", b[0], b[0])
 		b = encrypt(b)
-		x, err := p.readAtLeastBytes(1, toMs)
+		x, err := p.readAtLeastBytes(1)
 		if nil != err {
 			return b, err
 		}

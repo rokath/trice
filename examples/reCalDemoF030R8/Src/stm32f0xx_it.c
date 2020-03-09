@@ -59,7 +59,7 @@
 // fifo instances
 //
 
-#define WSIZ 512 //!< must be power of 2!
+#define WSIZ 64 //!< must be power of 2!
 static uint8_t rcWr[ WSIZ ]; 
 #define RSIZ 512 //!< must be power of 2!
 static uint8_t rcRd[ RSIZ ];
@@ -79,12 +79,65 @@ int txState = noTx;
 
 #include "triceUtilities.h"
 
+
+
+/*
+ok:
+2020/03/09 17:30:54     incoming: [109 115 103 58 48 49 50 51 52 53 54 55 56 57]                 0 nanoseconds
+2020/03/09 17:30:54     incoming: [235 96 96 164 57 118 0 0]             0 nanoseconds
+                                    ^---------------dieses Byte fehlt
+--------------------------------------------------------------------------------------------------------------------------------------------------
+2020/03/09 17:30:54   incoming: [235 96 96 204 31 33 25 0]                0 nanoseconds
+
+2020/03/09 17:30:54     incoming: [235 96 96 83 92 228 0 0]              0 nanoseconds
+0123456789--------------------------------------------------------------------------------------------------------------------------------------------------
+2020/03/09 17:30:54         incoming: [235 96 96 231 209 221 192 192]           0 nanoseconds
+
+BUG:
+
+
+2020/03/09 17:30:55     incoming: [109 115 103 58 48 49 50 51 52 53 54 55 56 57]                 999400 nanoseconds
+2020/03/09 17:30:55     incoming: [96 96 164 57 118 0 0 235]             1000600 nanoseconds
+2020/03/09 17:30:55     incoming: [96]           0 nanoseconds
+2020/03/09 17:30:55     incoming: [96]           0 nanoseconds
+2020/03/09 17:30:55     incoming: [207]                  0 nanoseconds
+2020/03/09 17:30:55     incoming: [31]           0 nanoseconds
+2020/03/09 17:30:55     incoming: [33]           0 nanoseconds
+2020/03/09 17:30:55     incoming: [26]           0 nanoseconds
+2020/03/09 17:30:55     incoming: [0]            0 nanoseconds
+                                  <235 96 96 207 31 33 26 0>
+2020/03/09 17:30:55     incoming: [235 96 96 231 209 221 192 192]                0 nanoseconds
+01234567892020/03/09 17:30:55   incoming: [235 96 96 231 209 221 96 96]                  0 nanoseconds
+#-40(-64) 2020/03/09 17:30:55   incoming: [235 96 96 83 92 228 0 0]              0 nanoseconds
+#60(96) --------------------------------------------------------------------------------------------------------------------------------------------------2020/03/09 17:30:55   incoming: [235 96 96 231 209 221 96 96]             0 nanoseconds
+
+2020/03/09 17:30:55     incoming: [235 96 96 231 209 221 219 219]                0 nanoseconds
+
+
+*/
+
+
+
+
+
+/*! Write value d into trice transmit register.
+\param d byte to transmit
+User must provide this function.
+*/
+static void Dbg_triceTransmitData8( uint8_t d ){
+    // TRICE8_2( Id(56785), "att:#%02x(%d) ", d, d );
+    //FifoPushUint8_Protected( &rdFifo, d );
+    
+    LL_USART_TransmitData8( USART2, d);
+}
+
+
+
 static uint8_t txNextByte( void ){
     uint8_t value;
-    FifoPopUint8_InsideTxIsr( &wrFifo, &value );
-    triceTransmitData8( value );
+    FifoPopUint8_Unprotected( &wrFifo, &value );
+    Dbg_triceTransmitData8( value );
     //triceEableTxEmptyInterrupt(); // probably not needed
-    //TRICE8_1( Id(35207), "dbg:#%02x ", value );
     return value;
 }
 
@@ -94,7 +147,7 @@ static uint8_t txNextByte( void ){
 //! \todo review packets to determine packet end
 static void reCalTxStart( int* pTxState ){
     if( triceTxDataRegisterEmpty() ){ 
-        size_t count = FifoReadableCount( &wrFifo );
+        size_t count = FifoReadableCount_Unprotected( &wrFifo );
         if( count >= 8 ){ // start only if a full header already in wrFifo.
             // This is safe, because following data will be in fifo before the first 8 bytes are transmitted
             txNextByte();
@@ -115,12 +168,23 @@ static void reCalTxStart( int* pTxState ){
 //! \param pTxState, set none when current packet done, set to reCalTx when reCal packet transfer active
 //! \todo review packets to determine packet end
 static void reCalTxContinue( int* pTxState ){
-    ASSERT_OR_RETURN( FifoReadableCount( &wrFifo ) );
-    if( triceTxDataRegisterEmpty() ){ // TX Data Register Empty 
-        static uint8_t dpc = 0;    // we must transfer a complete block without trices inbetween
         static int pkgByteIdx = 0; // so some interpretation is needed
         static uint32_t len = 0;   // 1...65536 must fit
         static uint8_t lenL = 0;
+    //ASSERT_OR_RETURN( FifoReadableCount_Unprotected( &wrFifo ) );
+    size_t x = FifoReadableCount_Unprotected( &wrFifo );
+    if( 0 == x ){
+        TRICE16_2( Id(20598), "ERR:unexpected state!pkgByteIdx=%d, len=%d\n", pkgByteIdx, len );
+        pkgByteIdx = 0; // reload for next package
+        triceDisableTxEmptyInterrupt();
+        *pTxState = noTx; // BUG
+        return;
+    }
+    if( 1 == x ){
+        TRICE0( Id(26118), "wrn:last byte!" );
+    }
+    if( triceTxDataRegisterEmpty() ){ // TX Data Register Empty 
+        static uint8_t dpc = 0;    // we must transfer a complete block without trices inbetween
         pkgByteIdx++; // first byte was already transmitted in reCalTxStart
         if( pkgByteIdx < 7 ){ // 0xc0 cad sad cr8 tid fid pix dpc
             txNextByte();     //   0   1   2   3   4   5   6   7

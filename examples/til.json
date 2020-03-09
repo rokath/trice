@@ -2455,5 +2455,96 @@
 		"fmtStrg": "dbg:#%02x ",
 		"created": 1583693512,
 		"removed": 0
+	},
+	{
+		"id": 64948,
+		"fmtType": "TRICE8_2",
+		"fmtStrg": "dbg:#%02x(%d) ",
+		"created": 1583741357,
+		"removed": 0
+	},
+	{
+		"id": 56785,
+		"fmtType": "TRICE8_2",
+		"fmtStrg": "att:#%02x(%d) ",
+		"created": 1583741385,
+		"removed": 0
+	},
+	{
+		"id": 26118,
+		"fmtType": "TRICE0",
+		"fmtStrg": "wrn:last byte!",
+		"created": 1583766671,
+		"removed": 0
+	},
+	{
+		"id": 50869,
+		"fmtType": "TRICE0",
+		"fmtStrg": "ERR:unexpected state!",
+		"created": 1583767216,
+		"removed": 0
+	},
+	{
+		"id": 39248,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "ERR:unexpected state!(pkgByteIdx=%d)\\n",
+		"created": 1583769493,
+		"removed": 0
+	},
+	{
+		"id": 8192,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "ERR:unexpected state!pkgByteIdx=%d, len=%d\\n",
+		"created": 1583769603,
+		"removed": 0
+	},
+	{
+		"id": 56106,
+		"fmtType": "TRICE16_2",
+		"fmtStrg": "ERR:unexpected state!pkgByteIdx=%d, len=%d\\n",
+		"created": 1583769622,
+		"removed": 0
+	},
+	{
+		"id": 16838,
+		"fmtType": "TRICE16_2",
+		"fmtStrg": "ERR:unexpected state!pkgByteIdx=%d, len=%d\\n",
+		"created": 1583770795,
+		"removed": 0
+	},
+	{
+		"id": 40970,
+		"fmtType": "TRICE16_2",
+		"fmtStrg": "ERR:unexpected state!pkgByteIdx=%d, len=%d\\n",
+		"created": 1583771239,
+		"removed": 0
+	},
+	{
+		"id": 11577,
+		"fmtType": "TRICE16_2",
+		"fmtStrg": "ERR:unexpected state!pkgByteIdx=%d, len=%d\\n",
+		"created": 1583771338,
+		"removed": 0
+	},
+	{
+		"id": 20598,
+		"fmtType": "TRICE16_2",
+		"fmtStrg": "ERR:unexpected state!pkgByteIdx=%d, len=%d\\n",
+		"created": 1583773805,
+		"removed": 0
+	},
+	{
+		"id": 15303,
+		"fmtType": "TRICE0",
+		"fmtStrg": "--------------------------------------------------------------------------------------------------------------------------------------------------\\r\\n\\n",
+		"created": 1583774495,
+		"removed": 0
+	},
+	{
+		"id": 21015,
+		"fmtType": "TRICE0",
+		"fmtStrg": "--------------------------------------------------------------------------------------------------------------------------------------------------\\r\\n\\n",
+		"created": 1583774495,
+		"removed": 0
 	}
 ]
