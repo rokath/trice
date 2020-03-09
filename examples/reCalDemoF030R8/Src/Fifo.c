@@ -188,7 +188,7 @@ void FifoPopUint8_Protected( Fifo_t* f, uint8_t* pValue ){
 }
 
 
-#if 0
+#if 1
 void FifoPushBuffer_Unprotected( Fifo_t* f, size_t count, const uint8_t* pBuff ){
     while(count-->0){
         FifoPushUint8_Unprotected( f, *pBuff++ );

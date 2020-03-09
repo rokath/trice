@@ -96,8 +96,8 @@ void triceCheckSet( void )
     TRICE0 (Id(61533), "tim:C\n" );
 */
 triceString( 0, "msg:01234567" );
-triceString( 0, "msg:012345678" );
-triceString( 0, "msg:0123456789" );
+triceString( 0, "dbg:abcdefghi" );
+triceString( 0, "att:ABCDEFGHIJ" );
 /*
 
 
