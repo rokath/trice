@@ -29,7 +29,9 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN TD */
+#ifndef TRICE_FILENAME
 #define TRICE_FILENAME TRICE0( Id(56535), "stm32f0xx_it.c" ); // macro __FILE__ does not work here, because of pre-compile evaluation
+#endif
 /* USER CODE END TD */
 
 /* Private define ------------------------------------------------------------*/
@@ -132,7 +134,7 @@ void SysTick_Handler(void)
     if( 1000 == msTick ){
         msTick = 0;
         ms +=1000;
-        TRICE32_1( Id(18577), "ISR:alive time %d milliseconds\n", ms );
+        //TRICE32_1( Id(18577), "ISR:alive time %d milliseconds\n", ms );
     }
 
   /* USER CODE END SysTick_IRQn 0 */

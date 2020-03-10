@@ -13,9 +13,7 @@ That is the time critical part.
 #include "trice.h"
 #include "fifo.h"
 #ifdef ENCRYPT
-
 #include "xteaCrypto.h" // enable this for encryption
-
 #endif
 
 #ifdef TRICE_PRINTF_ADAPTER
@@ -24,16 +22,20 @@ That is the time critical part.
 #endif // #ifdef TRICE_PRINTF_ADAPTER
 
 #if 0 == TRICE_LEVEL
-
 void triceTxHandler( int* pTxState ){
 }
 
 int tricePrintfAdapter( const char* pFmt, ... ){
 }
-
 #else // #if 0 == TRICE_LEVEL
 
-#include <stdint.h>
+enum{
+    noTx, // no transmission
+    triceTx, // trice packet in transmission
+    reCalTx // remote call packet in transmission
+};
+
+static int txState = noTx; //!< txState, needed to not mix the channel data
 
 //! trice fifo instance
 ALIGN4 uint32_t triceFifo[ TRICE_FIFO_SIZE>>2 ] ALIGN4_END;
@@ -50,9 +52,8 @@ ALIGN4 static triceMsg_t triceMsg ALIGN4_END = {
 static uint8_t const * const limit = (uint8_t*)(&triceMsg + 1); //!< trice message buffer limit
 static uint8_t       *       pRead = (uint8_t*)(&triceMsg + 1); //!< trice message buffer read pointer
 
-/*! get next trice byte for transmission from trice message buffer, no depth check here
-\retval data byte
-*/
+//! get next trice byte for transmission from trice message buffer, no depth check here
+//!\retval data byte
 TRICE_INLINE uint8_t triceMsgNextByte( void ){
     return *pRead++;
 }
@@ -62,10 +63,9 @@ static size_t triceMsgBufferDepth( void ){
     return count;
 }
 
-/*! prepare next trice for transmission
-\retval 0 no next trice
-\retval 1 next trice in message buffer
-*/
+//! prepare next trice for transmission
+//!\retval 0 no next trice
+//!\retval 1 next trice in message buffer
 static size_t triceNextMsg( void ){
     if( triceFifoDepth() ){
         triceFifoPop( (uint32_t*)(&(triceMsg.ld)) );
@@ -118,7 +118,9 @@ void triceTxContinue( int* pTxState ){
     }
 }
 
-#ifdef TRICE_PRINTF_ADAPTER
+#ifdef TRICE_PRINTF_ADAPTER // inside #else // #if 0 == TRICE_LEVEL
+
+void triceString( int rightBound, const char* s );
 
 //! trice replacement helper for printf() with %s 
 //! use only for dynamic generatd strings
@@ -136,23 +138,44 @@ int tricePrintfAdapter( const char* pFmt, ... ){
     return done;
 }
 
+#ifdef TRICE_SHORT_MEMORY
 
+void triceSpaces( int spaces ){
+    while( spaces-->0 )
+    {
+        TRICE0( Id(27950), " " );
+    }
+}
 
+#else // #ifdef TRICE_SHORT_MEMORY
 
+void triceSpaces( int spaces ){
+    while (spaces ){
+        switch( spaces ){
+            case  0: return;
+            case  1: TRICE0( Id(14746), " " ); return;
+            case  2: TRICE0( Id(32263), "  " ); return;
+            case  3: TRICE0( Id(41033), "   " ); return;
+            case  4: TRICE0( Id(  500), "    " ); return;
+            case  5: TRICE0( Id(23151), "     " ); return;
+            case  6: TRICE0( Id(11628), "      " ); return;
+            case  7: TRICE0( Id(40825), "       " ); return;
+            case  8: TRICE0( Id(63581), "        " ); return;
+            case  9: TRICE0( Id(11347), "         " ); return;
+            case 10:
+            default: TRICE0( Id(46732), "          " ); 
+                spaces -= 10;
+            break;
+        }
+    }
+    return;
+}
+#endif // #else // #ifdef TRICE_SHORT_MEMORY
 
-#endif // #ifdef TRICE_PRINTF_ADAPTER
+#ifndef LONG_RUNTIME_STRINGS // inside #ifdef TRICE_PRINTF_ADAPTER
 
+#ifdef TRICE_SHORT_MEMORY
 
-
-
-
-
-
-
-
-#if 0 // 1 == TRICE_SHORT_MEMORY
-
-//TRICE_INLINE 
 void triceStringUnbound( const char* s ){
     while( *s )
     {
@@ -161,25 +184,10 @@ void triceStringUnbound( const char* s ){
     }
 }
 
-//TRICE_INLINE 
-void triceString( int rightBound, const char* s ){
-    size_t len = strlen( s );
-    int spaces = rightBound - len;
-    spaces = spaces < 0 ? 0 : spaces;
-    TRICE_ENTER_CRITICAL_SECTION
-    while( spaces-->0 )
-    {
-        TRICE0( Id(27950), " " );
-    }
-    triceStringUnbound( s );
-    TRICE_LEAVE_CRITICAL_SECTION
-}
+#else // #ifdef TRICE_SHORT_MEMORY
 
-// #else // #if 1 == TRICE_SHORT_MEMORY
-
-// for performance no check of strlen( s ) here (internal usage)
-//TRICE_INLINE 
-void triceStringN( size_t len, const char* s ){
+//! for performance no check of strlen( s ) here (internal usage)
+static inline void triceStringN( size_t len, const char* s ){
     char c1, c2, c3, c4, c5, c6, c7, c8;
     while( len ){
         switch( len ){
@@ -207,59 +215,29 @@ void triceStringN( size_t len, const char* s ){
     return;
 }
 
-//TRICE_INLINE 
 void triceStringUnbound( const char* s ){
     size_t len = strlen( s );
     triceStringN( len, s );
 }
-
-//TRICE_INLINE 
-void triceSpaces( int spaces ){
-    while (spaces ){
-        switch( spaces ){
-            case  0: return;
-            case  1: TRICE0( Id(14746), " " ); return;
-            case  2: TRICE0( Id(32263), "  " ); return;
-            case  3: TRICE0( Id(41033), "   " ); return;
-            case  4: TRICE0( Id(  500), "    " ); return;
-            case  5: TRICE0( Id(23151), "     " ); return;
-            case  6: TRICE0( Id(11628), "      " ); return;
-            case  7: TRICE0( Id(40825), "       " ); return;
-            case  8: TRICE0( Id(63581), "        " ); return;
-            case  9: TRICE0( Id(11347), "         " ); return;
-            case 10:
-            default: TRICE0( Id(46732), "          " ); 
-                spaces -= 10;
-            break;
-        }
-    }
-    return;
-}
+#endif // #else // #ifdef TRICE_SHORT_MEMORY
 
 
-/*! trice a string
-\details not very effective but better than no strings for now
-This function could be useful, if the string is generated dynamically.
-\param s 0-terminated string
-*/
-TRICE_INLINE void triceString( int rightBound, const char* s ){
-    TRICE_ENTER_CRITICAL_SECTION
+//! trice a string
+//!\details not very effective but better than no strings for now
+//!This function could be useful, if the string is generated dynamically.
+//!\param s 0-terminated string
+void triceString( int rightBound, const char* s ){
     size_t len = strlen( s );
     int spaces = rightBound - len;
     spaces = spaces < 0 ? 0 : spaces;
+    TRICE_ENTER_CRITICAL_SECTION
     triceSpaces( spaces );
     triceStringUnbound( s );
     TRICE_LEAVE_CRITICAL_SECTION
 }
 
-#else // #if 1 == TRICE_SHORT_MEMORY
+#else // #ifndef LONG_RUNTIME_STRINGS inside #ifdef TRICE_PRINTF_ADAPTER
 
-
-
-
-
-
-//TRICE_INLINE 
 static uint8_t Cycle( void ){
     static uint8_t cycle = 0;
     cycle++;
@@ -268,11 +246,24 @@ static uint8_t Cycle( void ){
 }
 
 
+///////////////////////////////////////////////////////////////////////////////
+// fifo instances
+//
+
+#define WSIZ RUNTIME_STRING_FIFO_SIZE //!< must not nessesaryly be power of 2!
+static uint8_t rcWr[ WSIZ ]; 
+
+//! fifo control struct, UART transmit date are provided here
+static Fifo_t wrFifo = {WSIZ, rcWr, rcWr+WSIZ, rcWr, rcWr }; 
+
+///////////////////////////////////////////////////////////////////////////////
+// tx 
+//
+
 //! transfer special reCal buffer "trice string buffer" to write fifo
 //! \param string len, max valid value is 65536, len 0 means no transmission at all
 //! \param s pointer to string
-//! \return used packet index
-//TRICE_INLINE 
+//! \return used packet index 
 static uint8_t triceReCalStringBuffer( size_t len, const char* s ){
     uint16_t len_1 = (uint16_t)(len-1); // len-1 is transmitted in data package
     #define CAD 0x60 // client address
@@ -301,9 +292,7 @@ static uint8_t triceReCalStringBuffer( size_t len, const char* s ){
     TRICE_LEAVE_CRITICAL_SECTION
     return h[pix];
 }
-#endif
 
-//TRICE_INLINE 
 static void triceStringUnbound( const char* s ){
     size_t len = strlen( s );
     uint8_t pix = triceReCalStringBuffer( len, s );
@@ -311,36 +300,10 @@ static void triceStringUnbound( const char* s ){
     TRICE8_1( Id( 8479), "%s", pix ); // "%s" tells trice tool that a separate string package was sent, pix (cycle) is used for string identification
 }
 
-//TRICE_INLINE 
-static void triceSpaces( int spaces ){
-    while (spaces ){
-        switch( spaces ){
-            case  0: return;
-            case  1: TRICE0( Id(14746), " " ); return;
-            case  2: TRICE0( Id(32263), "  " ); return;
-            case  3: TRICE0( Id(41033), "   " ); return;
-            case  4: TRICE0( Id(  500), "    " ); return;
-            case  5: TRICE0( Id(23151), "     " ); return;
-            case  6: TRICE0( Id(11628), "      " ); return;
-            case  7: TRICE0( Id(40825), "       " ); return;
-            case  8: TRICE0( Id(63581), "        " ); return;
-            case  9: TRICE0( Id(11347), "         " ); return;
-            case 10:
-            default: TRICE0( Id(46732), "          " ); 
-                spaces -= 10;
-            break;
-        }
-    }
-    return;
-}
-
-
-/*! trice a string
-\details not very effective but better than no strings for now
-This function could be useful, if the string is generated dynamically.
-\param s 0-terminated string
-*/
-//TRICE_INLINE
+//! trice a string
+//!\details not very effective but better than no strings for now
+//!This function could be useful, if the string is generated dynamically.
+//!\param s 0-terminated string
 void triceString( int rightBound, const char* s ){
     TRICE_ENTER_CRITICAL_SECTION
     size_t len = strlen( s );
@@ -351,48 +314,15 @@ void triceString( int rightBound, const char* s ){
     TRICE_LEAVE_CRITICAL_SECTION
 }
 
-#endif // #else // #if 1 == TRICE_SHORT_MEMORY
+static int pkgByteIdx = -1; //!< helper for stream interpretation
 
-
-
-
-
-
-#if 1
-///////////////////////////////////////////////////////////////////////////////
-// fifo instances
-//
-
-/*
-#define RSIZ 4 //!< must be power of 2!
-static uint8_t rcRd[ RSIZ ];
-
-//! fifo control struct, UART received data are arriving here
-Fifo_t rdFifo = {RSIZ, rcRd, rcRd+RSIZ, rcRd, rcRd }; 
-*/
-
-
-#define WSIZ RUNTIME_STRING_FIFO_SIZE //!< must not nessesaryly be power of 2!
-static uint8_t rcWr[ WSIZ ]; 
-
-//! fifo control struct, UART transmit date are provided here
-Fifo_t wrFifo = {WSIZ, rcWr, rcWr+WSIZ, rcWr, rcWr }; 
-
-///////////////////////////////////////////////////////////////////////////////
-// tx 
-//
-
-int txState = noTx; //!< txState, needed to not mix the channel data
-
-
-#include "triceUtilities.h"
-
-static int pkgByteIdx = -1; // helper for stream interpretation
-
+//! start a new package header
 static inline void resetPkgByteIndex( void ){
     pkgByteIdx = -1; 
 }
 
+//! get netx byte from package fifo and transfer it 
+//! \return transferred byte
 static uint8_t txNextByte( void ){
     uint8_t v;
     FifoPopUint8_Unprotected( &wrFifo, &v );
@@ -413,7 +343,6 @@ static void reCalTxStart( int* pTxState ){
     if( noTx == *pTxState && triceTxDataRegisterEmpty() && 8 <= FifoReadableCount_Unprotected( &wrFifo ) ){ 
         // start only if a full header already in wrFifo.
         // This is safe, because following data will be in fifo before the first 8 bytes are transmitted
-        //txNextByte();
         *pTxState = reCalTx;
         triceEableTxEmptyInterrupt(); 
     }
@@ -491,13 +420,15 @@ static void reCalTxContinue( int* pTxState ){
     }
 }
 
-#endif
+#endif // #else // #ifndef LONG_RUNTIME_STRINGS inside #ifdef TRICE_PRINTF_ADAPTER
+
+#endif // #ifdef LONG_RUNTIME_STRINGS
 
 //! Check for data and start a transmission, if both channes have data give priority to reCal.
 //! \param pTxState pointer to TxState, do nothing if not noTx
 //! should be activated cyclically for example every 1 ms for small transmit delays
 void TxStart( void ){
-#ifdef TRICE_PRINTF_ADAPTER
+#ifdef LONG_RUNTIME_STRINGS
     reCalTxStart( &txState ); // reCal transmission has priority over trices - iportand for 2 reasons: 
     // 1. runtims strings are earlier before their trigger trices.    
     // 2. reCal is more time critical than trice transmission
@@ -505,32 +436,27 @@ void TxStart( void ){
     triceTxStart( &txState );
 }
 
-
 //! continue ongoing transmission, otherwise check for new data transmission
 //! \param pTxState actual transmission state
 //! should be activated cyclically for example every 1 ms for small transmit delays
 void TxContinue( void ){
-#ifdef TRICE_PRINTF_ADAPTER
+#ifdef LONG_RUNTIME_STRINGS
     reCalTxContinue( &txState );
 #endif // #ifdef TRICE_PRINTF_ADAPTER
     triceTxContinue( &txState );
 }
 
-
-
-
-
-
-
-
-
-
-
-
+#endif // #if 0 == TRICE_LEVEL
 
 
 //! unused dummy definition for linker
 void _putchar(char character){
 }
 
-//#endif // #else // #if 0 == TRICE_LEVEL
+
+// #define RSIZ 4 //!< must be power of 2!
+// static uint8_t rcRd[ RSIZ ];
+// 
+// //! fifo control struct, UART received data are arriving here
+// Fifo_t rdFifo = {RSIZ, rcRd, rcRd+RSIZ, rcRd, rcRd }; 
+

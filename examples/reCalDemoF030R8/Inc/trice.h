@@ -9,6 +9,7 @@ as 0 (globally or file specific) the TRICE* macros generate no code.
 #define TRICE_H_
 
 #include "config.h" 
+#include <stdint.h>
 
 #ifndef TRICE_LEVEL
 #define TRICE_LEVEL 100 //!< switch trices off with 0, define TRICE_LEVEL globally or on top of file (before including config.h"
@@ -21,6 +22,10 @@ extern "C" {
 void triceTxStart( int* pTxState );
 void triceTxContinue( int* pTxState );
 int tricePrintfAdapter( const char* pFmt, ... );
+void triceString( int rightBound, const char* s );
+
+void TxStart( void );
+void TxContinue( void );
 
 #define Id( n ) (n) //!< Macro for improved trice readability and better source code parsing.
 
@@ -1181,10 +1186,10 @@ remote call type: (part of pix)
 \endcode
 */
 
-#include "Fifo.h"
-extern Fifo_t wrFifo;
-
-void triceString( int rightBound, const char* s );
+// #include "Fifo.h"
+// extern Fifo_t wrFifo;
+// 
+// 
 
 // /*! Report name and line number over trice
 // \param pFileName pointer to 0-terminated filename or function name
@@ -1230,10 +1235,72 @@ void triceString( int rightBound, const char* s );
 //       TRICE16_1( Id(8272), " at line %d\n", line );
 // }
 
+
+/*
+
+///////////////////////////////////////////////////////////////////////////////
+// REMOTE CALL
+//#define RC_ADDR_OFFSET 0x60 //!< offest for easier debugging
+//#define RC_ADDR(n) (RC_ADDR_OFFSET+(n)) //!< remote call address transformation
+#define RC_LOCAL_ADDRESS (TRICE_LOCAL_ADDR) //!< remote call addess of this device
+#define RCTX_FIFO_SIZE 0x600 //!< also tracelog messages are buffered here
+#define RCRX_FIFO_SIZE 0x200 //!< mainly for responses
+//
+///////////////////////////////////////////////////////////////////////////////
+
+#define LEFT 0
+
+// ### DefaultMacros.h
+//#define RESULT_NEXT_HEADER_IN_FIFO 0xC0
+//#define RESULT_ANSWER   1 //!< macro for a received remote call answer
+#define RESULT_OK       0 //!< macro for successful end of function
+#define RESULT_ERROR   -1 //!< macro for unsuccessful end of function
+//#define RESULT_NACK    -2 //!< macro for RBL ack answer NACK
+//#define RESULT_EMPTY   -3 //!< macro for empty channel
+#define RESULT_TIMEOUT -4 //!< see CONTROL_GEAR_ANSWER_TIMEOUT_ERROR
+#define RESULT_LOCKED  -5 //!< no reentrance allowed
+//
+#define UNUSED_PARAMETER( x ) { x = x; }
+
+
+#define DEFAULT_MS_TIMEOUT 1000
+
+// ### ReadAndWrite.h
+
+//extern uint32_t WriteTimeoutCount; //!< write error counter
+//extern uint32_t ReadTimeoutCount; //!< read error counter
+//
+//
+//
+//#define IO_NEXT_DEFAULT_MS_TIMEOUT 30
+//
+//
+int Read(int fd, uint8_t* pBuf, size_t count);
+//int Read1(int fd, uint8_t* pBuf, size_t count); // tryout code!!!!
+int Write(int fd, uint8_t const * pBuf, size_t count);
+//
+
+static inline void Pause( void ){}
+
+
+//#define REPORT_LINE(Value) do{ REPORT_FILE(); TRICE16_2( Id( 8986), " in line %d (0x%02x)\n", __LINE__, Value ); }while(0)
+#define REPORT_FAILURE(Value) do{ REPORT_FILE(); TRICE32_2( Id(46005), "ERR: in line %d (0x%08x)\n", __LINE__, Value ); }while(0)
+//#define REPORT_FAILURE16(a,b,c) do{ REPORT_FILE(); TRICE16_4( Id(17192), "ERR: in line %d (0x%04x,0x%04x,0x%04x)\n", __LINE__, a,b,c ); }while(0)
+//#define REPORT_VALUE(Value)   do{ REPORT_FILE(); TRICE32_2( Id(11917),  "att: line %d, value = 0x%08x\r\n", __LINE__, Value ); }while(0)
+//#define REPORT_ONLY_VALUE(Value)   do{  TRICE32_2( Id(33840),  "att: line %d, value = 0x%08x\r\n", __LINE__, Value ); }while(0)
+#define ASSERTION do{ REPORT_FILE(); TRICE16_2( Id(16598), "err:local address 0x%02x:!ASSERT in line %d\n", RC_LOCAL_ADDRESS, __LINE__ ); }while(0)
+//#define ASSERT( flag ) if(!(flag)) { ASSERTION; } //!< report if flag is not true
+//#define ASSERT_OR_RETURN( flag )                if(!(flag)) { ASSERTION; return;              } //!< if flag is not true return result
+#define ASSERT_OR_RETURN_RESULT( flag, result ) if(!(flag)) { ASSERTION; return result;       } //!< if flag is not true return result
+#define ASSERT_OR_RETURN_RESULT_ERROR( flag )   if(!(flag)) { ASSERTION; return RESULT_ERROR; } //!< if flag is not true return result
+
+*/
+
+
 #endif // #else // #if 0 == TRICE_LEVEL
 
-void TxStart( void );
-void TxContinue( void );
+
+#include "triceUtilities.h"
 
 #ifdef __cplusplus
 }

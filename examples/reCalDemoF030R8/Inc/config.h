@@ -24,7 +24,7 @@ extern "C" {
 //
 
 //!< a byte count for buffering traces, must be power of 2, one basic trace needs 4 bytes
-#define TRICE_FIFO_SIZE 1024
+#define TRICE_FIFO_SIZE 4096 //!< must be a power of 2, one trice needs 4 to 32 bytes, must hold trice bursts until they are transmitted, fifo is transmitted with lower priority
 #define TRICE_START_BYTE (0xeb) //!< trice header start (chose any unusual byte)
 #define TRICE_LOCAL_ADDR (0x60) //!< trice addess of this device (choose free)
 #define TRICE_DISPL_ADDR (0x60) //!< trice terminal address for this device (choose free)
@@ -45,85 +45,14 @@ extern "C" {
 //! legacy printf() into a TRICE* sequence to avoid enabling this switch.
 #define TRICE_PRINTF_ADAPTER
 #ifdef TRICE_PRINTF_ADAPTER
-#define TRICE_PRINTF_ADAPTER_BUFFERSIZE 100 //!< longest legacy printf should fit here, only neede if TRICE_PRINTF_ADAPTER is defined
+#define TRICE_PRINTF_ADAPTER_BUFFERSIZE 100 //!< longest legacy printf should fit here
 #define RUNTIME_STRING_FIFO_SIZE 500 //!< Must be able to hold all in a burst arriving strings including 10 bytes for each string. Buffer is transmitted to port with highest priority.
+#define LONG_RUNTIME_STRINGS //!< support for effective runtime string transfer, increments code size, so enable only if you need the effective string transfer 
 #endif // #ifdef TRICE_PRINTF_ADAPTER
+
 #define SYSTICKVAL16 SysTick->VAL //!< STM32 specific
 
-#if 0
 
-
-#include <stdlib.h>
-
-///////////////////////////////////////////////////////////////////////////////
-// REMOTE CALL
-//#define RC_ADDR_OFFSET 0x60 //!< offest for easier debugging
-//#define RC_ADDR(n) (RC_ADDR_OFFSET+(n)) //!< remote call address transformation
-#define RC_LOCAL_ADDRESS (TRICE_LOCAL_ADDR) //!< remote call addess of this device
-#define RCTX_FIFO_SIZE 0x600 //!< also tracelog messages are buffered here
-#define RCRX_FIFO_SIZE 0x200 //!< mainly for responses
-//
-///////////////////////////////////////////////////////////////////////////////
-
-#define LEFT 0
-
-// ### DefaultMacros.h
-//#define RESULT_NEXT_HEADER_IN_FIFO 0xC0
-//#define RESULT_ANSWER   1 //!< macro for a received remote call answer
-#define RESULT_OK       0 //!< macro for successful end of function
-#define RESULT_ERROR   -1 //!< macro for unsuccessful end of function
-//#define RESULT_NACK    -2 //!< macro for RBL ack answer NACK
-//#define RESULT_EMPTY   -3 //!< macro for empty channel
-#define RESULT_TIMEOUT -4 //!< see CONTROL_GEAR_ANSWER_TIMEOUT_ERROR
-#define RESULT_LOCKED  -5 //!< no reentrance allowed
-//
-#define UNUSED_PARAMETER( x ) { x = x; }
-
-
-#define DEFAULT_MS_TIMEOUT 1000
-
-// ### ReadAndWrite.h
-
-//extern uint32_t WriteTimeoutCount; //!< write error counter
-//extern uint32_t ReadTimeoutCount; //!< read error counter
-//
-//
-//
-//#define IO_NEXT_DEFAULT_MS_TIMEOUT 30
-//
-//
-int Read(int fd, uint8_t* pBuf, size_t count);
-//int Read1(int fd, uint8_t* pBuf, size_t count); // tryout code!!!!
-int Write(int fd, uint8_t const * pBuf, size_t count);
-//
-
-
-
-#define IO_NEXT_DEFAULT_MS_TIMEOUT 30
-
-#include "Fifo.h"
-
-
-
-static inline void Pause( void ){}
-
-
-//#define REPORT_LINE(Value) do{ REPORT_FILE(); TRICE16_2( Id( 8986), " in line %d (0x%02x)\n", __LINE__, Value ); }while(0)
-#define REPORT_FAILURE(Value) do{ REPORT_FILE(); TRICE32_2( Id(46005), "ERR: in line %d (0x%08x)\n", __LINE__, Value ); }while(0)
-//#define REPORT_FAILURE16(a,b,c) do{ REPORT_FILE(); TRICE16_4( Id(17192), "ERR: in line %d (0x%04x,0x%04x,0x%04x)\n", __LINE__, a,b,c ); }while(0)
-//#define REPORT_VALUE(Value)   do{ REPORT_FILE(); TRICE32_2( Id(11917),  "att: line %d, value = 0x%08x\r\n", __LINE__, Value ); }while(0)
-//#define REPORT_ONLY_VALUE(Value)   do{  TRICE32_2( Id(33840),  "att: line %d, value = 0x%08x\r\n", __LINE__, Value ); }while(0)
-#define ASSERTION do{ REPORT_FILE(); TRICE16_2( Id(16598), "err:local address 0x%02x:!ASSERT in line %d\n", RC_LOCAL_ADDRESS, __LINE__ ); }while(0)
-//#define ASSERT( flag ) if(!(flag)) { ASSERTION; } //!< report if flag is not true
-//
-//
-//
-//
-//#define ASSERT_OR_RETURN( flag )                if(!(flag)) { ASSERTION; return;              } //!< if flag is not true return result
-#define ASSERT_OR_RETURN_RESULT( flag, result ) if(!(flag)) { ASSERTION; return result;       } //!< if flag is not true return result
-#define ASSERT_OR_RETURN_RESULT_ERROR( flag )   if(!(flag)) { ASSERTION; return RESULT_ERROR; } //!< if flag is not true return result
-
-#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 // compiler adaptions
@@ -210,13 +139,6 @@ User must provide this function.
 TRICE_INLINE void triceDisableTxEmptyInterrupt( void ){
     LL_USART_DisableIT_TXE( USART2 );
 }
-
-
-enum{
-    noTx, // no transmission
-    triceTx, // trice packet in transmission
-    reCalTx // remote call packet in transmission
-};
 
 #ifdef __cplusplus
 }
