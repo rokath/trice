@@ -1232,6 +1232,9 @@ void triceString( int rightBound, const char* s );
 
 #endif // #else // #if 0 == TRICE_LEVEL
 
+void TxStart( void );
+void TxContinue( void );
+
 #ifdef __cplusplus
 }
 #endif

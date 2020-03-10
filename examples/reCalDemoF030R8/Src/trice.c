@@ -136,6 +136,10 @@ int tricePrintfAdapter( const char* pFmt, ... ){
     return done;
 }
 
+
+
+
+
 #endif // #ifdef TRICE_PRINTF_ADAPTER
 
 
@@ -354,6 +358,163 @@ void triceString( int rightBound, const char* s ){
 
 
 
+#if 1
+///////////////////////////////////////////////////////////////////////////////
+// fifo instances
+//
+
+/*
+#define RSIZ 4 //!< must be power of 2!
+static uint8_t rcRd[ RSIZ ];
+
+//! fifo control struct, UART received data are arriving here
+Fifo_t rdFifo = {RSIZ, rcRd, rcRd+RSIZ, rcRd, rcRd }; 
+*/
+
+
+#define WSIZ RUNTIME_STRING_FIFO_SIZE //!< must not nessesaryly be power of 2!
+static uint8_t rcWr[ WSIZ ]; 
+
+//! fifo control struct, UART transmit date are provided here
+Fifo_t wrFifo = {WSIZ, rcWr, rcWr+WSIZ, rcWr, rcWr }; 
+
+///////////////////////////////////////////////////////////////////////////////
+// tx 
+//
+
+int txState = noTx; //!< txState, needed to not mix the channel data
+
+
+#include "triceUtilities.h"
+
+static int pkgByteIdx = -1; // helper for stream interpretation
+
+static inline void resetPkgByteIndex( void ){
+    pkgByteIdx = -1; 
+}
+
+static uint8_t txNextByte( void ){
+    uint8_t v;
+    FifoPopUint8_Unprotected( &wrFifo, &v );
+    triceTransmitData8( v );
+    return v;
+}
+
+//! reCalTxHandler starts a reCal transmission if possible, otherwise it does nothing
+//! It checks these conditions:
+//! \li currently no transmission: TxState is noTx
+//! \li tx register is empty 
+//! \li wrFifo contains at least one reCal Header
+//! In that case the TxState changes from noTx to reCalTx and the first byte goes out
+//! and the transmit empty interrupt is enabled.
+//! Otherwise reCalTxStart does nothing.
+//! \param pTxState pointer to TxState
+static void reCalTxStart( int* pTxState ){
+    if( noTx == *pTxState && triceTxDataRegisterEmpty() && 8 <= FifoReadableCount_Unprotected( &wrFifo ) ){ 
+        // start only if a full header already in wrFifo.
+        // This is safe, because following data will be in fifo before the first 8 bytes are transmitted
+        //txNextByte();
+        *pTxState = reCalTx;
+        triceEableTxEmptyInterrupt(); 
+    }
+}
+
+//! reCalTxContinue checks if the tx register is empty and that the TxState is reCalTx flag and does nothing otherwise
+//! \param pTxState pointer to TxState, TxState set to noTx when current packet done
+static void reCalTxContinue( int* pTxState ){
+    static uint8_t dpc = 0;     // we must transfer a complete block without trices inbetween
+    static uint32_t len = 0;    // 0, 1...65536 must fit
+    static uint8_t lenL = 0;
+
+    if( reCalTx != *pTxState || !triceTxDataRegisterEmpty() ){
+        return;
+    }
+
+    pkgByteIdx++; // reset value is -1, so starts here with 0
+    if( pkgByteIdx < 7 ){ // 0xc0 cad sad cr8 tid fid pix dpc
+        txNextByte();     //   0   1   2   3   4   5   6   7
+        return;
+    }
+    if ( 7 == pkgByteIdx ){ // dpc
+        dpc = txNextByte(); // tx last byte of tx header 
+        if( 1 != dpc ){
+            TRICE8_1( Id( 1041), "err: dpc=%d\n", dpc );
+           resetPkgByteIndex();
+            return;
+        }
+        if( 0 == dpc ){ 
+           resetPkgByteIndex(); // reload for next package
+            triceDisableTxEmptyInterrupt();
+            *pTxState = noTx; // reCal packet done
+        }
+        return;
+    }
+
+    if ( 8 == pkgByteIdx ){ // dpc is > 0, so read len first time
+        lenL = txNextByte();
+        return;
+    }
+    if ( 9 == pkgByteIdx ){
+        len = txNextByte() << 8; // little endian
+        len |= lenL;
+        len++; // len is len-1 value
+        return;
+    }
+
+    // "loop" starts here
+    if ( pkgByteIdx < len + 9 ){ // len=1...65536
+        txNextByte(); // tx data
+        return;
+    } else if ( pkgByteIdx == len + 9 ){ // len=1...65536
+        txNextByte(); // tx last date in data package
+        dpc--;
+        if( 0 == dpc ){ 
+            resetPkgByteIndex();
+            triceDisableTxEmptyInterrupt();
+            *pTxState = noTx; // reCal packet done
+        }
+        return;
+    } 
+    
+    TRICE0( Id(62952), "ATT:this point is reached when dpc was bigger 1, read len of following data package\n" );
+    if ( len + 10 == pkgByteIdx ){ // 10 = header + sizeof(uint16_t)
+        lenL = txNextByte();
+        return;
+    } 
+    if ( len + 11 == pkgByteIdx ){
+        int len_1 = len; // keep old value
+        len = txNextByte() << 8;
+        len |= lenL;
+        len ++; // len is len-1 value
+        len = len_1 + sizeof(uint16_t) + len; // accumulate
+        return;
+    }
+}
+
+#endif
+
+//! Check for data and start a transmission, if both channes have data give priority to reCal.
+//! \param pTxState pointer to TxState, do nothing if not noTx
+//! should be activated cyclically for example every 1 ms for small transmit delays
+void TxStart( void ){
+#ifdef TRICE_PRINTF_ADAPTER
+    reCalTxStart( &txState ); // reCal transmission has priority over trices - iportand for 2 reasons: 
+    // 1. runtims strings are earlier before their trigger trices.    
+    // 2. reCal is more time critical than trice transmission
+#endif // #ifdef TRICE_PRINTF_ADAPTER
+    triceTxStart( &txState );
+}
+
+
+//! continue ongoing transmission, otherwise check for new data transmission
+//! \param pTxState actual transmission state
+//! should be activated cyclically for example every 1 ms for small transmit delays
+void TxContinue( void ){
+#ifdef TRICE_PRINTF_ADAPTER
+    reCalTxContinue( &txState );
+#endif // #ifdef TRICE_PRINTF_ADAPTER
+    triceTxContinue( &txState );
+}
 
 
 

@@ -44,8 +44,10 @@ extern "C" {
 //! If the output strings in the legacy project are static, consider splitting the
 //! legacy printf() into a TRICE* sequence to avoid enabling this switch.
 #define TRICE_PRINTF_ADAPTER
+#ifdef TRICE_PRINTF_ADAPTER
 #define TRICE_PRINTF_ADAPTER_BUFFERSIZE 100 //!< longest legacy printf should fit here, only neede if TRICE_PRINTF_ADAPTER is defined
-
+#define RUNTIME_STRING_FIFO_SIZE 500 //!< Must be able to hold all in a burst arriving strings including 10 bytes for each string. Buffer is transmitted to port with highest priority.
+#endif // #ifdef TRICE_PRINTF_ADAPTER
 #define SYSTICKVAL16 SysTick->VAL //!< STM32 specific
 
 #if 0
