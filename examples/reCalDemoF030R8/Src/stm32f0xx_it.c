@@ -59,16 +59,30 @@
 // fifo instances
 //
 
-#define WSIZ 64 //!< must be power of 2!
+#define WSIZ 1024 //!< must be power of 2!
 static uint8_t rcWr[ WSIZ ]; 
-#define RSIZ 512 //!< must be power of 2!
+#define RSIZ 4 //!< must be power of 2!
 static uint8_t rcRd[ RSIZ ];
 
+
+/*
+
+typedef struct{
+    size_t size; //!< fifo data size
+    uint8_t* pBuff; //!< start address
+    uint8_t* pLimit; //!< first address behind fifo data
+    uint8_t* pWr; //!< internal write pointer
+    uint8_t* pRd; //!< internal read pointer
+} Fifo_t; //!< first in first out struct type
+
+*/
+
+
 //! fifo control struct, UART transmit date are provided here
-Fifo_t wrFifo = {0, rcWr, rcWr+WSIZ, rcWr, rcWr }; 
+Fifo_t wrFifo = {WSIZ, rcWr, rcWr+WSIZ, rcWr, rcWr }; 
 
 //! fifo control struct, UART received data are arriving here
-Fifo_t rdFifo = {0, rcRd, rcRd+RSIZ, rcRd, rcRd }; 
+Fifo_t rdFifo = {RSIZ, rcRd, rcRd+RSIZ, rcRd, rcRd }; 
 
 ///////////////////////////////////////////////////////////////////////////////
 // tx 
@@ -80,210 +94,173 @@ int txState = noTx;
 #include "triceUtilities.h"
 
 
+    static int pkgByteIdx = -1; // some interpretation is needed
 
-/*
-ok:
-2020/03/09 17:30:54     incoming: [109 115 103 58 48 49 50 51 52 53 54 55 56 57]                 0 nanoseconds
-2020/03/09 17:30:54     incoming: [235 96 96 164 57 118 0 0]             0 nanoseconds
-                                    ^---------------dieses Byte fehlt
---------------------------------------------------------------------------------------------------------------------------------------------------
-2020/03/09 17:30:54   incoming: [235 96 96 204 31 33 25 0]                0 nanoseconds
-
-2020/03/09 17:30:54     incoming: [235 96 96 83 92 228 0 0]              0 nanoseconds
-0123456789--------------------------------------------------------------------------------------------------------------------------------------------------
-2020/03/09 17:30:54         incoming: [235 96 96 231 209 221 192 192]           0 nanoseconds
-
-BUG:
-
-
-2020/03/09 17:30:55     incoming: [109 115 103 58 48 49 50 51 52 53 54 55 56 57]                 999400 nanoseconds
-2020/03/09 17:30:55     incoming: [96 96 164 57 118 0 0 235]             1000600 nanoseconds
-2020/03/09 17:30:55     incoming: [96]           0 nanoseconds
-2020/03/09 17:30:55     incoming: [96]           0 nanoseconds
-2020/03/09 17:30:55     incoming: [207]                  0 nanoseconds
-2020/03/09 17:30:55     incoming: [31]           0 nanoseconds
-2020/03/09 17:30:55     incoming: [33]           0 nanoseconds
-2020/03/09 17:30:55     incoming: [26]           0 nanoseconds
-2020/03/09 17:30:55     incoming: [0]            0 nanoseconds
-                                  <235 96 96 207 31 33 26 0>
-2020/03/09 17:30:55     incoming: [235 96 96 231 209 221 192 192]                0 nanoseconds
-01234567892020/03/09 17:30:55   incoming: [235 96 96 231 209 221 96 96]                  0 nanoseconds
-#-40(-64) 2020/03/09 17:30:55   incoming: [235 96 96 83 92 228 0 0]              0 nanoseconds
-#60(96) --------------------------------------------------------------------------------------------------------------------------------------------------2020/03/09 17:30:55   incoming: [235 96 96 231 209 221 96 96]             0 nanoseconds
-
-2020/03/09 17:30:55     incoming: [235 96 96 231 209 221 219 219]                0 nanoseconds
-
-
-*/
-
-
-
-
-
-/*! Write value d into trice transmit register.
-\param d byte to transmit
-User must provide this function.
-*/
-static void Dbg_triceTransmitData8( uint8_t d ){
-    // TRICE8_2( Id(56785), "att:#%02x(%d) ", d, d );
-    //FifoPushUint8_Protected( &rdFifo, d );
-    
-    LL_USART_TransmitData8( USART2, d);
+static inline void resetPkgByteIndex( void ){
+    pkgByteIdx = -1; 
 }
 
+static void Debug_validateReCal( uint8_t d ){
+    //static uint8_t lo = 0;
+    switch(pkgByteIdx){
+        case 0: if( 0xc0 != d )       { TRICE8_2( Id(35279), "err: 0.d=0x%02x, pkgByteIdx=%d\n", d, pkgByteIdx );  } break;
+        case 1: if( 0x60 != d )       { TRICE8_2( Id(24932), "err: 1.d=0x%02x, pkgByteIdx=%d\n", d, pkgByteIdx );  } break;
+        case 2: if( 0x60 != d )       { TRICE8_2( Id(23748), "err: 2.d=0x%02x, pkgByteIdx=%d\n", d, pkgByteIdx );  } break;
+        
+        case 6: if( 0xc0  & d )       { TRICE8_2( Id(33873), "err: 6.d=0x%02x, pkgByteIdx=%d\n", d, pkgByteIdx );  } break;
+        case 7: if( 0x01 != d )       { TRICE8_2( Id(25447), "err: 7.d=0x%02x, pkgByteIdx=%d\n", d, pkgByteIdx );  } break;
+        //case 8: if(!(d<=11<d&&d <=13)){ TRICE8_2( Id(17145), "err: 8.d=0x%02x, pkgByteIdx=%d\n", d, pkgByteIdx );  } break;
+        case 9: if( 0x00 != d )       { TRICE8_2( Id( 2517), "err: 9.d=0x%02x, pkgByteIdx=%d\n", d, pkgByteIdx );  } break;
 
-
-static uint8_t txNextByte( void ){
-    uint8_t value;
-    FifoPopUint8_Unprotected( &wrFifo, &value );
-    Dbg_triceTransmitData8( value );
-    //triceEableTxEmptyInterrupt(); // probably not needed
-    return value;
-}
-
-//! reCalTxHandler checks txe flag and wrFifo for depth and starts a byte transmission if possible
-//! otherwise it disables the transmit empty interrupt
-//! \param pTxState, set none when current packet done, set to reCalTx when reCal packet transfer active
-//! \todo review packets to determine packet end
-static void reCalTxStart( int* pTxState ){
-    if( triceTxDataRegisterEmpty() ){ 
-        size_t count = FifoReadableCount_Unprotected( &wrFifo );
-        if( count >= 8 ){ // start only if a full header already in wrFifo.
-            // This is safe, because following data will be in fifo before the first 8 bytes are transmitted
-            txNextByte();
-            *pTxState = reCalTx;
-            triceEableTxEmptyInterrupt(); 
-            //return 1;
-        //}else {
-            //triceDisableTxEmptyInterrupt();
-            //*pTxState = noTx;
-            //return 0;
-        }
+        default: 
+            if( 23 <= pkgByteIdx) {
+                //TRICE8_3( Id(61436), "dbg: d=%d=0x%02x, pkgByteIdx=%d\n", d, d, pkgByteIdx );
+            }
+            if( 25 < pkgByteIdx ){
+                TRICE8_1( Id( 6848), "ERR:OR! pkgByteIdx=%d\n", pkgByteIdx );
+                //resetPkgByteIndex();
+            }
+        break;
     }
 }
 
 
-//! reCalTxHandler checks txe flag and wrFifo for depth and starts a byte transmission if possible
+static uint8_t txNextByte( void ){
+    uint8_t v;
+    FifoPopUint8_Unprotected( &wrFifo, &v );
+    Debug_validateReCal(v);
+    triceTransmitData8( v );
+    return v;
+}
+
+//! reCalTxHandler starts a reCal transmission if possible, otherwise it does nothing
+//! It checks these conditions:
+//! \li currently no transmission: TxState is noTx
+//! \li tx register is empty 
+//! \li wrFifo contains at least one reCal Header
+//! In that case the TxState changes from noTx to reCalTx and the first byte goes out
+//! and the transmit empty interrupt is enabled.
+//! Otherwise reCalTxStart does nothing.
+//! \param pTxState pointer to TxState
+static void reCalTxStart( int* pTxState ){
+    if( noTx == *pTxState && triceTxDataRegisterEmpty() && 8 <= FifoReadableCount_Unprotected( &wrFifo ) ){ 
+        // start only if a full header already in wrFifo.
+        // This is safe, because following data will be in fifo before the first 8 bytes are transmitted
+        //txNextByte();
+        *pTxState = reCalTx;
+        triceEableTxEmptyInterrupt(); 
+    }
+}
+
+
+    static uint32_t len = 0;   // 0, 1...65536 must fit
+    static uint8_t lenL = 0;
+    static uint8_t dpc = 0;    // we must transfer a complete block without trices inbetween
+
+
+
+//! reCalTxHandler checks if the tx register is empty and that the TxState is reCalTx flag and does nothing otherwise
+
 //! otherwise it disables the transmit empty interrupt
 //! \param pTxState, set none when current packet done, set to reCalTx when reCal packet transfer active
 //! \todo review packets to determine packet end
 static void reCalTxContinue( int* pTxState ){
-        static int pkgByteIdx = 0; // so some interpretation is needed
-        static uint32_t len = 0;   // 1...65536 must fit
-        static uint8_t lenL = 0;
-    //ASSERT_OR_RETURN( FifoReadableCount_Unprotected( &wrFifo ) );
-    size_t x = FifoReadableCount_Unprotected( &wrFifo );
-    if( 0 == x ){
-        TRICE16_2( Id(20598), "ERR:unexpected state!pkgByteIdx=%d, len=%d\n", pkgByteIdx, len );
-        pkgByteIdx = 0; // reload for next package
-        triceDisableTxEmptyInterrupt();
-        *pTxState = noTx; // BUG
+
+    if( reCalTx != *pTxState || !triceTxDataRegisterEmpty() ){
         return;
     }
-    if( 1 == x ){
-        TRICE0( Id(26118), "wrn:last byte!" );
+
+    if( 0 == FifoReadableCount_Unprotected( &wrFifo ) ){
+        TRICE16_2( Id(26366), "ERR:Bug! Unexpected state!pkgByteIdx=%d, len=%d\n", pkgByteIdx, len );
+       resetPkgByteIndex(); // reload for next package
+        triceDisableTxEmptyInterrupt();
+        *pTxState = noTx; // 
+        return;
     }
-    if( triceTxDataRegisterEmpty() ){ // TX Data Register Empty 
-        static uint8_t dpc = 0;    // we must transfer a complete block without trices inbetween
-        pkgByteIdx++; // first byte was already transmitted in reCalTxStart
-        if( pkgByteIdx < 7 ){ // 0xc0 cad sad cr8 tid fid pix dpc
-            txNextByte();     //   0   1   2   3   4   5   6   7
+    
+    pkgByteIdx++; // reset value is -1, so starts here with 0
+    
+    if( pkgByteIdx < 7 ){ // 0xc0 cad sad cr8 tid fid pix dpc
+        txNextByte();     //   0   1   2   3   4   5   6   7
+        return;
+    }
+    if ( 7 == pkgByteIdx ){ // dpc
+        dpc = txNextByte(); // tx last byte of tx header 
+        if( 1 != dpc ){
+            TRICE8_1( Id( 1041), "err: dpc=%d\n", dpc );
+           resetPkgByteIndex();
             return;
         }
-        if ( 7 == pkgByteIdx ){ // dpc
-            dpc = txNextByte(); // tx last byte of tx header 
-            if( 0 == dpc ){ 
-                pkgByteIdx = 0; // reload for next package
-                triceDisableTxEmptyInterrupt();
-                *pTxState = noTx; // reCal packet done
-            }
-            //len = 0;
-            return;
+        if( 0 == dpc ){ 
+           resetPkgByteIndex(); // reload for next package
+            triceDisableTxEmptyInterrupt();
+            *pTxState = noTx; // reCal packet done
         }
+        return;
+    }
 
-        // dpc > 0, so read len first time
-        if ( 8 == pkgByteIdx ){
-            lenL = txNextByte();
-            return;
-        }
-        if ( 9 == pkgByteIdx ){
-            len = txNextByte() << 8;
-            len |= lenL;
-            len++; // len is len-1 value
-            return;
-        }
+    // dpc is > 0, so read len first time
+    if ( 8 == pkgByteIdx ){
+        lenL = txNextByte();
+        return;
+    }
+    if ( 9 == pkgByteIdx ){
+        len = txNextByte() << 8; // little endian
+        len |= lenL;
+        len++; // len is len-1 value
+        //TRICE16_2( Id(63041), "sig:lenL=%d, len=%d\n", lenL, len );
+        return;
+    }
 
-        // "loop" starts here
-        if ( pkgByteIdx < len + 9 ){ // len=1...65536
-            txNextByte(); // tx data
-            return;
-        } else if ( pkgByteIdx == len + 9 ){ // len=1...65536
-            txNextByte(); // tx last date in data package
-            dpc--;
-            if( 0 == dpc ){ 
-                pkgByteIdx = 0;
-                triceDisableTxEmptyInterrupt();
-                *pTxState = noTx; // reCal packet done
-            }
-            return;
-        } 
-        
-        // this is reached when dpc was > 1, read len of following data package
-        if ( len + 10 == pkgByteIdx ){ // 10 = header + sizeof(uint16_t)
-            lenL = txNextByte();
-            return;
-        } 
-        if ( len + 11 == pkgByteIdx ){
-            int len_1 = len; // keep old value
-            len = txNextByte() << 8;
-            len |= lenL;
-            len ++; // len is len-1 value
-            len = len_1 + sizeof(uint16_t) + len; // accumulate
-            return;
+    // "loop" starts here
+    if ( pkgByteIdx < len + 9 ){ // len=1...65536
+        txNextByte(); // tx data
+        return;
+    } else if ( pkgByteIdx == len + 9 ){ // len=1...65536
+        txNextByte(); // tx last date in data package
+        dpc--;
+        if( 0 == dpc ){ 
+            resetPkgByteIndex();
+            triceDisableTxEmptyInterrupt();
+            *pTxState = noTx; // reCal packet done
         }
-
-        //} else {
-        //    FifoPopUint8_InsideTxIsr( &wrFifo, &value );
-        //    triceTransmitData8( value );
-        //    triceDisableTxEmptyInterrupt();
-        //    pkgByteIdx = 0;
-        //    *pTxState = noTx;
-        //}
-        //}else{
-        //    TRICE0( "ERR:Unexpected execution path 
-        //if( 0 == count ){
-        //    
-        //    pkgByteIdx = 0;
-        //    
-        //}
+        return;
+    } 
+    
+    TRICE0( Id(33480), "WRN:this is reached when dpc was bigger 1, read len of following data package\n" );
+    if ( len + 10 == pkgByteIdx ){ // 10 = header + sizeof(uint16_t)
+        lenL = txNextByte();
+        return;
+    } 
+    if ( len + 11 == pkgByteIdx ){
+        int len_1 = len; // keep old value
+        len = txNextByte() << 8;
+        len |= lenL;
+        len ++; // len is len-1 value
+        len = len_1 + sizeof(uint16_t) + len; // accumulate
+        if( !(12 <= len && len <= 14) ){
+            TRICE16_2( Id(29983), "err:len = %d, pkgByteIdx = %d\n", len, pkgByteIdx );
+        }
+        return;
     }
 }
-
-//static size_t reCalCount
 
 //! Check for data and start a transmission, if both channes have data give priority to reCal
 //! \param PtrTxState do nothing if != noTx
 //! should be activated cyclically for example every 1 ms for small transmit delays
 void UartTxStartCheck( int* PtrTxState ){
-    if( noTx == *PtrTxState ){
-        reCalTxStart( PtrTxState ); // reCal transmission has priority over trices - iportand for 2 reasons: 
-        } // 1. runtims strings are earlier befor their trigger trices. 2. reCal is more time critical than trice transmission
-    if( noTx == *PtrTxState ){
-        triceTxStart( PtrTxState );
-    }
+    reCalTxStart( PtrTxState ); // reCal transmission has priority over trices - iportand for 2 reasons: 
+    // 1. runtims strings are earlier before their trigger trices. 
+    // 2. reCal is more time critical than trice transmission
+    triceTxStart( PtrTxState );
 }
 
 //! continue ongoing transmission, otherwise check for new data transmission
 //! \param PtrTxState actual transmission state
 //! should be activated cyclically for example every 1 ms for small transmit delays
 void UartTxContinueCheck( int* PtrTxState ){
-    if( reCalTx == *PtrTxState ){
-        reCalTxContinue( PtrTxState );
-    } else if( triceTx == *PtrTxState ){
-        triceTxContinue(PtrTxState);
-    } else { // none == tsState
-        //UartTxStartCheck(PtrTxState); // start immediately next transmission if a transmission finished
-    }
+    reCalTxContinue( PtrTxState );
+    triceTxContinue( PtrTxState );
 }
 #endif
 /* USER CODE END 0 */

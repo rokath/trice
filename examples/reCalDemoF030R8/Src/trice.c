@@ -89,20 +89,15 @@ static size_t triceNextMsg( void ){
 
 /*! This function should be called inside the transmit done device interrupt.
 Also it should be called cyclically to trigger transmission start.
+        // check if data in trice fifo and load them in the 8 byte transmit buffer, optionally encrypted
+        // it is possible SysTick comes immediately after Uart ISR and the register is not empty yet
 \param pTxState address of a transmission state variable. It is cleared if no more traceLog messages to transmit and set to 1 if a traceLog transmission was started.
 \todo handle 8==traceLogMsgDepth() to give chance to other data streams
 */
 void triceTxStart( int* pTxState ){
-    if( triceTxDataRegisterEmpty() ){ // it is possible SysTick comes immediately after Uart ISR and the register is not empty yet
-        if( triceNextMsg() ){ // check if data in trice fifo and load them in the 8 byte transmit buffer, optionally encrypted
-            uint8_t x = triceMsgNextByte();
-            triceTransmitData8( x );
+    if( (noTx == *pTxState) && triceTxDataRegisterEmpty() &&  triceNextMsg() ){ 
             *pTxState = triceTx;
             triceEableTxEmptyInterrupt(); 
-       // }else{
-       //     triceDisableTxEmptyInterrupt();
-       //     *pTxState = noTx;
-        }
     }
 }
 
@@ -112,12 +107,10 @@ Also it should be called cyclically to trigger transmission start.
 \todo handle 8==traceLogMsgDepth() to give chance to other data streams
 */
 void triceTxContinue( int* pTxState ){
-    if( triceTxDataRegisterEmpty() ){ 
+    if( (triceTx == *pTxState) && triceTxDataRegisterEmpty() ){ 
         if( triceMsgBufferDepth() ){
             uint8_t x = triceMsgNextByte();
-            triceTransmitData8( x );
-            //*pTxState = triceTx;
-            //triceEableTxEmptyInterrupt(); 
+            triceTransmitData8( x ); 
         }else{
             triceDisableTxEmptyInterrupt();
             *pTxState = noTx;
@@ -282,11 +275,11 @@ static uint8_t triceReCalStringBuffer( size_t len, const char* s ){
     #define SAD 0x60 // server address
     #define TID 0xff // type ID, here fixed to 0xFF for string package identification
     #define FID 0xff // type ID, here fixed to 0xFF for string package identification
-    #define DPC 1    // exact one data package here
-    #define CR8 (0xc0^CAD^SAD ^ TID^FID ^ DPC) // partial ex-or crc8
-    enum{                     c0,  cad, sad, cr8, tid, fid, pix, dpc, lenL, lenH }; // header plus length
-    // index                   0    1    2    3    4    5    6    7    8     9
-    static uint8_t h[10] = { 0xc0, CAD, SAD,  0,  TID, FID,  0,  DPC,  0,    0 };
+    #define DPC 1    // exact one data package here  
+    #define CR8                   (0xc0  ^CAD ^SAD      ^TID ^FID      ^DPC) // partial ex-or crc8
+    enum{                            c0,  cad, sad, cr8, tid, fid, pix, dpc, lenL, lenH }; // header plus length
+    // index                          0    1    2    3    4    5    6    7    8     9
+    ALIGN4 static uint8_t h[10] = { 0xc0, CAD, SAD,  0,  TID, FID,  0,  DPC,  0,    0 } ALIGN4_END;
     h[pix] = Cycle(); // package index, 6 bit cycle counter, 2 msb = 0 for special package identification, TIDFID==0xffff = string package
     h[cr8] = CR8 ^ h[pix];
     h[lenL] = (uint8_t)len_1;

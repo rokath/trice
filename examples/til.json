@@ -2546,5 +2546,432 @@
 		"fmtStrg": "--------------------------------------------------------------------------------------------------------------------------------------------------\\r\\n\\n",
 		"created": 1583774495,
 		"removed": 0
+	},
+	{
+		"id": 32110,
+		"fmtType": "TRICE8_1",
+		"fmtStrg": "err: 0.d=%02x\\n resetting pkgByteIdx",
+		"created": 1583831960,
+		"removed": 0
+	},
+	{
+		"id": 48506,
+		"fmtType": "TRICE8_1",
+		"fmtStrg": "err: 1.d=%02x\\n resetting pkgByteIdx",
+		"created": 1583831960,
+		"removed": 0
+	},
+	{
+		"id": 19577,
+		"fmtType": "TRICE8_1",
+		"fmtStrg": "err: 2.d=%02x\\n resetting pkgByteIdx",
+		"created": 1583831960,
+		"removed": 0
+	},
+	{
+		"id": 40262,
+		"fmtType": "TRICE8_1",
+		"fmtStrg": "err: 6.d=%02x\\n resetting pkgByteIdx",
+		"created": 1583831960,
+		"removed": 0
+	},
+	{
+		"id": 21309,
+		"fmtType": "TRICE8_1",
+		"fmtStrg": "err: 7.d=%02x\\n resetting pkgByteIdx",
+		"created": 1583831960,
+		"removed": 0
+	},
+	{
+		"id": 3791,
+		"fmtType": "TRICE8_1",
+		"fmtStrg": "err: 8.d=%02x\\n resetting pkgByteIdx",
+		"created": 1583831960,
+		"removed": 0
+	},
+	{
+		"id": 9468,
+		"fmtType": "TRICE8_1",
+		"fmtStrg": "err: 9.d=%02x\\n resetting pkgByteIdx",
+		"created": 1583831960,
+		"removed": 0
+	},
+	{
+		"id": 26366,
+		"fmtType": "TRICE16_2",
+		"fmtStrg": "ERR:Bug! Unexpected state!pkgByteIdx=%d, len=%d\\n",
+		"created": 1583831960,
+		"removed": 0
+	},
+	{
+		"id": 33480,
+		"fmtType": "TRICE0",
+		"fmtStrg": "WRN:this is reached when dpc was bigger 1, read len of following data package\\n",
+		"created": 1583831960,
+		"removed": 0
+	},
+	{
+		"id": 44187,
+		"fmtType": "TRICE8_1",
+		"fmtStrg": "err: 21.d=%02x\\n",
+		"created": 1583843889,
+		"removed": 0
+	},
+	{
+		"id": 21796,
+		"fmtType": "TRICE8_1",
+		"fmtStrg": "err: 21.d=%d\\n",
+		"created": 1583844188,
+		"removed": 0
+	},
+	{
+		"id": 49716,
+		"fmtType": "TRICE8_1",
+		"fmtStrg": "err: 22.d=%d\\n",
+		"created": 1583844188,
+		"removed": 0
+	},
+	{
+		"id": 11476,
+		"fmtType": "TRICE8_1",
+		"fmtStrg": "att: 21.d=%d\\n",
+		"created": 1583844486,
+		"removed": 0
+	},
+	{
+		"id": 12890,
+		"fmtType": "TRICE16_2",
+		"fmtStrg": "lenL=%d, len=%d\\n",
+		"created": 1583844909,
+		"removed": 0
+	},
+	{
+		"id": 1041,
+		"fmtType": "TRICE8_1",
+		"fmtStrg": "err: dpc=%d\\n",
+		"created": 1583846279,
+		"removed": 0
+	},
+	{
+		"id": 63041,
+		"fmtType": "TRICE16_2",
+		"fmtStrg": "sig:lenL=%d, len=%d\\n",
+		"created": 1583846279,
+		"removed": 0
+	},
+	{
+		"id": 35066,
+		"fmtType": "TRICE8_2",
+		"fmtStrg": "sig:lo=%d, hi=%d\\n",
+		"created": 1583846312,
+		"removed": 0
+	},
+	{
+		"id": 22698,
+		"fmtType": "TRICE8_1",
+		"fmtStrg": "err: 0.d=0x%02x, resetting pkgByteIdx",
+		"created": 1583846619,
+		"removed": 0
+	},
+	{
+		"id": 7932,
+		"fmtType": "TRICE8_1",
+		"fmtStrg": "err: 1.d=0x%02x, resetting pkgByteIdx",
+		"created": 1583846619,
+		"removed": 0
+	},
+	{
+		"id": 28443,
+		"fmtType": "TRICE8_1",
+		"fmtStrg": "err: 2.d=0x%02x, resetting pkgByteIdx",
+		"created": 1583846619,
+		"removed": 0
+	},
+	{
+		"id": 29655,
+		"fmtType": "TRICE8_1",
+		"fmtStrg": "err: 6.d=0x%02x, resetting pkgByteIdx",
+		"created": 1583846619,
+		"removed": 0
+	},
+	{
+		"id": 31356,
+		"fmtType": "TRICE8_1",
+		"fmtStrg": "err: 7.d=0x%02x, resetting pkgByteIdx",
+		"created": 1583846619,
+		"removed": 0
+	},
+	{
+		"id": 34343,
+		"fmtType": "TRICE8_1",
+		"fmtStrg": "err: 8.d=0x%02x, resetting pkgByteIdx",
+		"created": 1583846619,
+		"removed": 0
+	},
+	{
+		"id": 10714,
+		"fmtType": "TRICE8_1",
+		"fmtStrg": "err: 9.d=0x%02x, resetting pkgByteIdx",
+		"created": 1583846619,
+		"removed": 0
+	},
+	{
+		"id": 34242,
+		"fmtType": "TRICE8_2",
+		"fmtStrg": "err: 0.d=0x%02x, pkgByteIdx=%d, resetting\\n",
+		"created": 1583847018,
+		"removed": 0
+	},
+	{
+		"id": 23454,
+		"fmtType": "TRICE8_2",
+		"fmtStrg": "err: 1.d=0x%02x, pkgByteIdx=%d, resetting\\n",
+		"created": 1583847018,
+		"removed": 0
+	},
+	{
+		"id": 7617,
+		"fmtType": "TRICE8_2",
+		"fmtStrg": "err: 2.d=0x%02x, pkgByteIdx=%d, resetting\\n",
+		"created": 1583847018,
+		"removed": 0
+	},
+	{
+		"id": 43179,
+		"fmtType": "TRICE8_2",
+		"fmtStrg": "err: 6.d=0x%02x, pkgByteIdx=%d, resetting\\n",
+		"created": 1583847018,
+		"removed": 0
+	},
+	{
+		"id": 6167,
+		"fmtType": "TRICE8_2",
+		"fmtStrg": "err: 7.d=0x%02x, pkgByteIdx=%d, resetting\\n",
+		"created": 1583847018,
+		"removed": 0
+	},
+	{
+		"id": 59568,
+		"fmtType": "TRICE8_2",
+		"fmtStrg": "err: 8.d=0x%02x, pkgByteIdx=%d, resetting\\n",
+		"created": 1583847018,
+		"removed": 0
+	},
+	{
+		"id": 37302,
+		"fmtType": "TRICE8_2",
+		"fmtStrg": "err: 9.d=0x%02x, pkgByteIdx=%d, resetting\\n",
+		"created": 1583847018,
+		"removed": 0
+	},
+	{
+		"id": 35541,
+		"fmtType": "TRICE8_2",
+		"fmtStrg": "err: 0.d=0x%02x, pkgByteIdx=%d, resetting\\n",
+		"created": 1583847030,
+		"removed": 0
+	},
+	{
+		"id": 18007,
+		"fmtType": "TRICE8_2",
+		"fmtStrg": "err: 1.d=0x%02x, pkgByteIdx=%d, resetting\\n",
+		"created": 1583847030,
+		"removed": 0
+	},
+	{
+		"id": 63378,
+		"fmtType": "TRICE8_2",
+		"fmtStrg": "err: 2.d=0x%02x, pkgByteIdx=%d, resetting\\n",
+		"created": 1583847030,
+		"removed": 0
+	},
+	{
+		"id": 52003,
+		"fmtType": "TRICE8_2",
+		"fmtStrg": "err: 6.d=0x%02x, pkgByteIdx=%d, resetting\\n",
+		"created": 1583847030,
+		"removed": 0
+	},
+	{
+		"id": 22866,
+		"fmtType": "TRICE8_2",
+		"fmtStrg": "err: 7.d=0x%02x, pkgByteIdx=%d, resetting\\n",
+		"created": 1583847030,
+		"removed": 0
+	},
+	{
+		"id": 54763,
+		"fmtType": "TRICE8_2",
+		"fmtStrg": "err: 8.d=0x%02x, pkgByteIdx=%d, resetting\\n",
+		"created": 1583847030,
+		"removed": 0
+	},
+	{
+		"id": 18298,
+		"fmtType": "TRICE8_2",
+		"fmtStrg": "err: 9.d=0x%02x, pkgByteIdx=%d, resetting\\n",
+		"created": 1583847030,
+		"removed": 0
+	},
+	{
+		"id": 32508,
+		"fmtType": "TRICE8_2",
+		"fmtStrg": "err: 0.d=0x%02x, pkgByteIdx=%d, resetting\\n",
+		"created": 1583847352,
+		"removed": 0
+	},
+	{
+		"id": 50703,
+		"fmtType": "TRICE8_2",
+		"fmtStrg": "err: 1.d=0x%02x, pkgByteIdx=%d, resetting\\n",
+		"created": 1583847352,
+		"removed": 0
+	},
+	{
+		"id": 25035,
+		"fmtType": "TRICE8_2",
+		"fmtStrg": "err: 2.d=0x%02x, pkgByteIdx=%d, resetting\\n",
+		"created": 1583847352,
+		"removed": 0
+	},
+	{
+		"id": 36857,
+		"fmtType": "TRICE8_2",
+		"fmtStrg": "err: 6.d=0x%02x, pkgByteIdx=%d, resetting\\n",
+		"created": 1583847352,
+		"removed": 0
+	},
+	{
+		"id": 31466,
+		"fmtType": "TRICE8_2",
+		"fmtStrg": "err: 7.d=0x%02x, pkgByteIdx=%d, resetting\\n",
+		"created": 1583847352,
+		"removed": 0
+	},
+	{
+		"id": 21608,
+		"fmtType": "TRICE8_2",
+		"fmtStrg": "err: 8.d=0x%02x, pkgByteIdx=%d, resetting\\n",
+		"created": 1583847352,
+		"removed": 0
+	},
+	{
+		"id": 4259,
+		"fmtType": "TRICE8_2",
+		"fmtStrg": "err: 9.d=0x%02x, pkgByteIdx=%d, resetting\\n",
+		"created": 1583847352,
+		"removed": 0
+	},
+	{
+		"id": 35958,
+		"fmtType": "TRICE8_1",
+		"fmtStrg": "wrn:TxState=%d, unexpected end\\n",
+		"created": 1583847352,
+		"removed": 0
+	},
+	{
+		"id": 35279,
+		"fmtType": "TRICE8_2",
+		"fmtStrg": "err: 0.d=0x%02x, pkgByteIdx=%d\\n",
+		"created": 1583847450,
+		"removed": 0
+	},
+	{
+		"id": 24932,
+		"fmtType": "TRICE8_2",
+		"fmtStrg": "err: 1.d=0x%02x, pkgByteIdx=%d\\n",
+		"created": 1583847450,
+		"removed": 0
+	},
+	{
+		"id": 23748,
+		"fmtType": "TRICE8_2",
+		"fmtStrg": "err: 2.d=0x%02x, pkgByteIdx=%d\\n",
+		"created": 1583847450,
+		"removed": 0
+	},
+	{
+		"id": 33873,
+		"fmtType": "TRICE8_2",
+		"fmtStrg": "err: 6.d=0x%02x, pkgByteIdx=%d\\n",
+		"created": 1583847450,
+		"removed": 0
+	},
+	{
+		"id": 25447,
+		"fmtType": "TRICE8_2",
+		"fmtStrg": "err: 7.d=0x%02x, pkgByteIdx=%d\\n",
+		"created": 1583847450,
+		"removed": 0
+	},
+	{
+		"id": 17145,
+		"fmtType": "TRICE8_2",
+		"fmtStrg": "err: 8.d=0x%02x, pkgByteIdx=%d\\n",
+		"created": 1583847450,
+		"removed": 0
+	},
+	{
+		"id": 2517,
+		"fmtType": "TRICE8_2",
+		"fmtStrg": "err: 9.d=0x%02x, pkgByteIdx=%d\\n",
+		"created": 1583847450,
+		"removed": 0
+	},
+	{
+		"id": 19366,
+		"fmtType": "TRICE8_2",
+		"fmtStrg": "err: d=0x%02x, pkgByteIdx=%d\\n",
+		"created": 1583850439,
+		"removed": 0
+	},
+	{
+		"id": 29983,
+		"fmtType": "TRICE16_2",
+		"fmtStrg": "err:len = %d, pkgByteIdx = %d\\n",
+		"created": 1583850439,
+		"removed": 0
+	},
+	{
+		"id": 15109,
+		"fmtType": "TRICE8_3",
+		"fmtStrg": "dbg: d=%d(0x%02x), pkgByteIdx=%d\\n",
+		"created": 1583850627,
+		"removed": 0
+	},
+	{
+		"id": 11742,
+		"fmtType": "TRICE8_3",
+		"fmtStrg": "dbg: d=%d=0x%02x, pkgByteIdx=%d\\n",
+		"created": 1583850831,
+		"removed": 0
+	},
+	{
+		"id": 61436,
+		"fmtType": "TRICE8_3",
+		"fmtStrg": "dbg: d=%d=0x%02x, pkgByteIdx=%d\\n",
+		"created": 1583850865,
+		"removed": 0
+	},
+	{
+		"id": 62358,
+		"fmtType": "TRICE0",
+		"fmtStrg": "ERR:OR!\\n",
+		"created": 1583851205,
+		"removed": 0
+	},
+	{
+		"id": 43027,
+		"fmtType": "TRICE32_1",
+		"fmtStrg": "msg:Loop %d\\n\\n\\n",
+		"created": 1583857283,
+		"removed": 0
+	},
+	{
+		"id": 6848,
+		"fmtType": "TRICE8_1",
+		"fmtStrg": "ERR:OR! pkgByteIdx=%d\\n",
+		"created": 1583858131,
+		"removed": 0
 	}
 ]

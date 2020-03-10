@@ -9,11 +9,9 @@ package receiver
 
 import (
 	"encoding/binary"
-	"errors"
 	"fmt"
 	"log"
 	"runtime"
-	"time"
 
 	"go.bug.st/serial"
 	"golang.org/x/crypto/xtea"
@@ -125,11 +123,10 @@ func (p *SerialReceiver) receiving() {
 		}
 
 		if 0xeb == b[0] { // traceLog startbyte, no further data
-			//fmt.Println("to trice channel:", b) // ERR: DATA STREAM BUG!!!
+			//fmt.Println("to trice channel:", b)
 			p.triceChannel <- b // send to process trace log channel
 
 		} else if 0xc0 == b[0] {
-			//fmt.Print("data", b)
 			switch b[6] & 0xc0 {
 			case 0xc0:
 				log.Println("reCal command expecting an answer", b)
@@ -138,7 +135,6 @@ func (p *SerialReceiver) receiving() {
 			case 0x40:
 				log.Println("answer to a reCal command")
 			case 0x00:
-				//log.Println("reCal special trice string buffer#####################", b)
 				if (0xff != b[4]) || (0xff != b[5]) || (1 != b[7]) {
 					log.Println("ERR:wrong format")
 				} else {
@@ -156,7 +152,7 @@ func (p *SerialReceiver) receiving() {
 					}
 					b = append(b, d...) // len is redundant here and usable as check
 					b = append(b, s...) // the buffer (string) data
-					//log.Println("to buffer channel:", b) // ERR: DATA STREAM BUG!!!
+					//log.Println("to buffer channel:", b)
 					p.bufferChannel <- b // send to process trace log channel
 				}
 			}
@@ -183,29 +179,13 @@ func (p *SerialReceiver) readBytes(count int) (int, []byte) {
 	return n, b
 }
 
-/*
-func readNano() int64{
-	now := time.Now()
-	unixNano := now.UnixNano()
-	return unixNano
-}
-
-func startNano( t *int64 ){
-	*t = readNano()
-}
-
-func elapsedNano( t *time.Time )int64{
-	return time.Now() - *t
-}*/
-
-// export readBytes
+// export readAtLeastBytes
 func (p *SerialReceiver) readAtLeastBytes(count int) ([]byte, error) {
-	//log.Println("readAtLeastBytes in "+fileLine(), count)
 	buf := make([]byte, count) // the buffer size limits the read count
 	var b []byte
 	var n int
 	var err error
-	start := time.Now()
+	//start := time.Now()
 	for len(b) < count {
 		n, err = p.serialHandle.Read(buf)
 		if err != nil {
@@ -214,12 +194,12 @@ func (p *SerialReceiver) readAtLeastBytes(count int) ([]byte, error) {
 		}
 		b = append(b, buf[:n]...)
 		if count == len(b) { // https://stackoverflow.com/questions/45791241/correctly-measure-time-duration-in-go
-			fmt.Println("\tincoming:", b, "\t\t", time.Now().Sub(start).Nanoseconds(), "nanoseconds")
+			//fmt.Println("\tincoming:", b, "\t\t", time.Now().Sub(start).Nanoseconds(), "nanoseconds")
 			return b, nil
 		}
 		buf = buf[n:]
 	}
-	return b, errors.New("read timeout")
+	return b, nil
 }
 
 // evalHeader checks if b contains valid header data
@@ -272,8 +252,7 @@ func (p *SerialReceiver) readHeader() ([]byte, error) {
 		if true == evalHeader(b) {
 			break
 		}
-		log.Print(b)
-		log.Printf("discarding first byte 0x%02x (dez %d)\n", b[0], b[0])
+		log.Printf("dicarding byte 0x%02x (dez %d)\n", b[0], b[0])
 		b = encrypt(b)
 		x, err := p.readAtLeastBytes(1)
 		if nil != err {

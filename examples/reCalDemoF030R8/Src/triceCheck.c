@@ -17,16 +17,16 @@ Traces with more bytes as parameter consist of several subtraces.
 */
 void triceCheckSet( void )
 {
-    #if 0 //def TRICE_PRINTF_ADAPTER
+    #ifdef TRICE_PRINTF_ADAPTER
     char* w ="world";
     tricePrintfAdapter( "Hello %s!\n", w );
     TRICE8_1( Id(51183), "%#b times\n", 5 );
     TRICE8_1( Id( 2863), "%b times\n", 5 );
     #endif
-    //TRICE16_1( Id(46097), "dbg:12345 as 16bit is %#016b\n", 12345 );
+    TRICE16_1( Id(46097), "dbg:12345 as 16bit is %#016b\n", 12345 );
     TRICE0 (Id(21015), "--------------------------------------------------------------------------------------------------------------------------------------------------\r\n\n" );
     // 1 subtrace
-/*
+
     TRICE8_4( Id( 1750), "tst:TRICE8  %%03x ->  %03x  %03x  %03x  %03x\n", 1, 0x7f, 0x80, 0xff ); // 4
     TRICE8_4( Id(65426), "tst:TRICE8   %%4d -> %4d %4d %4d %4d\n", 1, 0x7f, 0x80, 0xff ); // 4
     TRICE8_4( Id(16582), "tst:TRICE8   %%4o -> %4o %4o %4o %4o\n", 1, 0x7f, 0x80, 0xff ); // 4
@@ -94,51 +94,7 @@ void triceCheckSet( void )
     TRICE0 (Id(12664), "wrn:A" );
     TRICE0 (Id(60989), "wr_:B" );
     TRICE0 (Id(61533), "tim:C\n" );
-*/
-triceString( 0, "msg:01234567" );
-triceString( 0, "dbg:abcdefghi" );
-triceString( 0, "att:ABCDEFGHIJ" );
-/*
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-ceString( 0, "msg:012345678" );
-triceString( 0, "msg:01234567" );
-triceString( 0, "msg:0123456" );
-triceString( 0, "msg:012345" );
-triceString( 0, "msg:01234" );
-triceString( 0, "msg:0123" );
-triceString( 0, "msg:012" );
-triceString( 0, "msg:01" );
-triceString( 0, "msg:0" );
-*/
-  
-/*
     triceString( 18, "\n" );
     triceString( 18, "1\n" );
     triceString( 18, "12\n" );
@@ -153,9 +109,7 @@ triceString( 0, "msg:0" );
     triceString( 18, "123456789ab\n" );
     triceString( 18, "123456789abc\n" );
     triceString( 18, "msg:Berlin\n" );
-    triceString( 18, "HonululuTown\n" );
-    triceString( 18, "Leipzig\n" );
-*/
+
 #ifdef ENCRYPT
     {
         uint8_t b[8] = {1,2,3,4,5,6,7,8};
