@@ -24,7 +24,6 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "trice.h"
-#include "Fifo.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -128,12 +127,9 @@ void PendSV_Handler(void)
 void SysTick_Handler(void)
 {
   /* USER CODE BEGIN SysTick_IRQn 0 */
-    static uint16_t msTick = 0;
     static uint32_t ms = 0; 
-    msTick++;
-    if( 1000 == msTick ){
-        msTick = 0;
-        ms +=1000;
+    ms++;
+    if( 0 == ms % 10 ){
         TRICE32_1( Id(18577), "ISR:alive time %d milliseconds\n", ms );
     }
 

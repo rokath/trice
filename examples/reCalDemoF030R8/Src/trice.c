@@ -10,14 +10,13 @@ The trices (macros) are dumped as 32bit values into a 32 bit fifo. That is the t
 *******************************************************************************/
 
 #include "trice.h"
-#include "fifo.h"
 #ifdef ENCRYPT
 #include "xteaCrypto.h" // enable this for encryption
 #endif
 
 #if 1 == TRICE_PRINTF_ADAPTER
 #include <stdarg.h>
-#include <stdio.h> // #include "printf.h"
+#include <stdio.h> 
 #endif // #if 1 == TRICE_PRINTF_ADAPTER
 
 #if NO_CODE == TRICE_CODE
@@ -25,7 +24,7 @@ void TxStart( void ){
 }
 void TxContinue( void ){
 }
-#else // #if 0 == TRICE_LEVEL
+#else // #if NO_CODE == TRICE_CODE
 
 enum{
     noTx,    // no transmission
@@ -146,11 +145,6 @@ int tricePrintfAdapter( const char* pFmt, ... ){
 
 #endif // #if 1 == TRICE_PRINTF_ADAPTER
 
-
-//! unused dummy definition for linker
-void _putchar(char character){
-}
-
 #if NONE_RUNTIME != TRICE_STRINGS && LESS_FLASH_AND_SPEED == TRICE_CODE
 
 static void triceSpaces( int spaces ){
@@ -251,7 +245,6 @@ void triceString( int rightBound, const char* s ){
 
 #endif
 
-
 #if FULL_RUNTIME == TRICE_STRINGS
 
 static uint8_t Cycle( void ){
@@ -261,16 +254,90 @@ static uint8_t Cycle( void ){
     return cycle;
 }
 
-
 ///////////////////////////////////////////////////////////////////////////////
-// fifo instances
+// fifo instance
 //
+
+typedef struct{
+    size_t size; //!< fifo data size
+    uint8_t* pBuff; //!< start address
+    uint8_t* pLimit; //!< first address behind fifo data
+    uint8_t* pWr; //!< internal write pointer
+    uint8_t* pRd; //!< internal read pointer
+} Fifo_t; //!< first in first out struct type
 
 #define WSIZ RUNTIME_STRING_FIFO_SIZE //!< must not nessesaryly be power of 2!
 static uint8_t rcWr[ WSIZ ]; 
 
 //! fifo control struct, UART transmit date are provided here
 static Fifo_t wrFifo = {WSIZ, rcWr, rcWr+WSIZ, rcWr, rcWr }; 
+
+///////////////////////////////////////////////////////////////////////////////
+// fifo access
+//
+
+//! make sure read pointer stays inside fifo range
+//! \param f pointer to fifo struct
+static void fifoLimitateRdPtr_Unprotected( Fifo_t* f ){
+    f->pRd -= f->pRd < f->pLimit ? 0 : f->size;
+}
+
+//! make sure write pointer stays inside fifo range
+//! \param f pointer to fifo struct
+static void fifoLimitateWrPtr_Unprotected( Fifo_t* f ){
+    f->pWr -= f->pWr < f->pLimit ? 0 : f->size;
+}
+
+//! \param f pointer to fifo struct
+//! \param count a computed count (could be negative)
+//! \return count if count was positive or with size corrected value as correct count
+static inline size_t adjustCount( Fifo_t const * const f, int count ){
+    count = count < 0 ? count + (unsigned)(f->size) : count; //lint !e713 !e737
+    return (size_t)count;
+}
+
+
+//! fifo depth
+//! \details a fifo of size n (n>1!) can hold only n-1 values to be able to distinct between empty and full
+//! \param f pointer to fifo struct
+//! \retval Count of bytes actually in fifo
+static size_t FifoReadableCount_Unprotected( Fifo_t const * const f ){
+    size_t n = adjustCount( f, (int)(f->pWr - f->pRd) );
+    return n;
+}
+
+//! Get an uint8_t value from fifo
+//! \param f pointer to fifo struct
+//! \param pValue address where to store value
+static void FifoPopUint8_Unprotected( Fifo_t* f, uint8_t* pValue ){
+    *pValue = *(f->pRd);
+    f->pRd++;
+    fifoLimitateRdPtr_Unprotected(f);
+}
+
+//! return amount of bytes continuously can be written without write pointer wrap
+//! This is __not__ the free writable count! See also FifoWritableCount().
+//! \param f pointer to fifo struct
+//! \retval size of bytes which can be continuously written without write pointer wrap
+static inline size_t FifoWritableBlockSpace( const Fifo_t* f ){
+    return (size_t)(f->pLimit - f->pWr);
+}
+
+//! Push count bytes into fifo. The value count must not be bigger than FifoWritableCount() and is not checked!
+//! \param f pointer to fifo struct
+//! \param count buffer size
+//! \param pBuff address of buffer to be pushed into fifo
+static void FifoPushBuffer_Unprotected( Fifo_t* f, size_t count, const uint8_t* pBuff ){
+    size_t size = FifoWritableBlockSpace(f);
+    if( size >= count ){ // 
+        memcpy( f->pWr, pBuff, count );
+    }else{ // 
+        memcpy( f->pWr, pBuff, size );
+        memcpy( f->pBuff, pBuff+size, count-size );
+    }
+    f->pWr += count;
+    fifoLimitateWrPtr_Unprotected(f);
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 // tx 
@@ -436,7 +503,7 @@ static void comTxContinue( int* pTxState ){
     }
 }
 
-#endif // #else // #ifndef LONG_RUNTIME_STRINGS inside #if 1 == TRICE_PRINTF_ADAPTER
+#endif // #if FULL_RUNTIME == TRICE_STRINGS
 
 //! Check for data and start a transmission, if both channes have data give priority to com.
 //! \param pTxState pointer to TxState, do nothing if not noTx
@@ -460,12 +527,4 @@ void TxContinue( void ){
     triceTxContinue( &txState );
 }
 
-#endif
-
-
-// #define RSIZ 4 //!< must be power of 2!
-// static uint8_t rcRd[ RSIZ ];
-// 
-// //! fifo control struct, UART received data are arriving here
-// Fifo_t rdFifo = {RSIZ, rcRd, rcRd+RSIZ, rcRd, rcRd }; 
-
+#endif // #else // #if NO_CODE == TRICE_CODE

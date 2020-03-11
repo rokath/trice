@@ -8,7 +8,7 @@ as NO_CODE (globally or file specific) the TRICE* macros generate no code.
 #ifndef TRICE_H_
 #define TRICE_H_
 
-#include "config.h" 
+#include "triceConfig.h" 
 
 #ifdef __cplusplus
 extern "C" {
@@ -19,20 +19,26 @@ extern "C" {
 #else
 #define TRICE_LOC do{                 TRICE16_1( Id(42554), "msg: line %d ", __LINE__ ); }while(0)  //!< trice line
 #endif
-#define ASSERT( flag ) do{ if(!(flag)) { TRICE_LOC; TRICE0( Id(37710), "ERR:ASSERT failed\n" ); } }while(0) //!< report if flag is not true
-#define ASSERT_OR_RETURN( flag ) do{ if(!(flag)) { TRICE_LOC; TRICE0( Id( 5439), "ERR:ASSERT failed\n" ); return; } }while(0) //!< report if flag is not true and return
-#define ASSERT_OR_RETURN_RESULT( flag, r )( flag ) do{ if(!(flag)) { TRICE_LOC; TRICE0( Id(48065), "ERR:ASSERT failed\n" ); return r; } }while(0) //!< report if flag is not true and return
 
-#if 1 == TRICE_PRINTF_ADAPTER && NO_CODE != TRICE_CODE
-int tricePrintfAdapter( const char* pFmt, ... ); //!< used in macro expansion, use not directly
-
- //! replacement for printf, sprintf and it relatives are writing in a buffer, use TRICE_S on that buffers
-#define TRICE_P( s, ... ) tricePrintfAdapter( s, __VA_ARGS__)
+#if NO_CODE == TRICE_CODE
+#define ASSERT( flag )
 #else
-#define TRICE_P( s, ... ) 
+#define ASSERT( flag )                     do{ if(!(flag)) { TRICE_LOC; TRICE0( Id(37710), "ERR:ASSERT failed\n" ); } }while(0) //!< report if flag is not true
 #endif
 
-#if NONE_RUNTIME == TRICE_STRINGS
+#define ASSERT_OR_RETURN( flag )           do{ ASSERT( flag ); if(!(flag)) { return; } }while(0) //!< report if flag is not true and return
+#define ASSERT_OR_RETURN_RESULT( flag, r ) do{ ASSERT( flag ); if(!(flag)) { return r; } }while(0) //!< report if flag is not true and return
+
+#if 0 == TRICE_PRINTF_ADAPTER || NO_CODE == TRICE_CODE
+#define TRICE_P( s, ... )
+#else
+int tricePrintfAdapter( const char* pFmt, ... ); //!< used in macro expansion, use not directly
+
+//! replacement for printf, sprintf and it relatives are writing in a buffer, use TRICE_S on that buffers
+#define TRICE_P( s, ... ) tricePrintfAdapter( s, __VA_ARGS__)
+#endif
+
+#if NONE_RUNTIME == TRICE_STRINGS || NO_CODE == TRICE_CODE
 #define TRICE_S( n, s )
 #else
 void triceString( int rightBound, const char* s ); //!< used in macro expansion, use not directly
@@ -85,13 +91,11 @@ typedef PACKED struct {
 #define TRICE_FIFO_MASK ((TRICE_FIFO_SIZE>>2)-1) //!< max possible count of items in fifo
 
 extern uint32_t triceFifo[];
-//extern uint32_t rdIndexTriceFifo;
 extern uint32_t wrIndexTriceFifo;
 
-/*! put one trice into trice fifo
-\param v trice id with 2 byte data
-trice time critical part
-*/
+//! put one trice into trice fifo
+//! \param v trice id with 2 byte data
+//! trice time critical part
 TRICE_INLINE void triceFifoPush( uint32_t v ){
     triceFifo[wrIndexTriceFifo++] = v;
     wrIndexTriceFifo &= TRICE_FIFO_MASK;
@@ -1303,6 +1307,12 @@ static inline void Pause( void ){}
 */
 
 
+
+// #define RSIZ 4 //!< must be power of 2!
+// static uint8_t rcRd[ RSIZ ];
+// 
+// //! fifo control struct, UART received data are arriving here
+// Fifo_t rdFifo = {RSIZ, rcRd, rcRd+RSIZ, rcRd, rcRd }; 
 
 
 

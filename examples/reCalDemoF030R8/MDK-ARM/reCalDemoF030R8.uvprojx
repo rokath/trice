@@ -312,7 +312,7 @@
           </ArmAdsMisc>
           <Cads>
             <interw>1</interw>
-            <Optim>1</Optim>
+            <Optim>4</Optim>
             <oTime>0</oTime>
             <SplitLS>0</SplitLS>
             <OneElfS>1</OneElfS>
@@ -466,11 +466,6 @@
               <FileName>triceCheck.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Src\triceCheck.c</FilePath>
-            </File>
-            <File>
-              <FileName>Fifo.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Src\Fifo.c</FilePath>
             </File>
             <File>
               <FileName>xteaCrypto.c</FileName>
