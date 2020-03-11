@@ -9,20 +9,34 @@ as 0 (globally or file specific) the TRICE* macros generate no code.
 #define TRICE_H_
 
 #include "config.h" 
-#include <stdint.h>
 
 #ifndef TRICE_LEVEL
-#define TRICE_LEVEL 100 //!< switch trices off with 0, define TRICE_LEVEL globally or on top of file (before including config.h"
+#define TRICE_LEVEL 1 //!< switch trices off with 0, define TRICE_LEVEL globally or on top of file (before including config.h"
 #endif
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-void triceTxStart( int* pTxState );
-void triceTxContinue( int* pTxState );
-int tricePrintfAdapter( const char* pFmt, ... );
-void triceString( int rightBound, const char* s );
+#if 1 == TRICE_PRINTF_ADAPTER && 0 < TRICE_LEVEL
+int tricePrintfAdapter( const char* pFmt, ... ); //!< used in macro expansion, use not directly
+
+ //! replacement for printf, sprintf and it relatives are writing in a buffer, use TRICE_S on that buffers
+#define TRICE_P( s, ... ) tricePrintfAdapter( s, __VA_ARGS__)
+#else
+#define TRICE_P( s, ... ) 
+#endif
+
+#if NONE_RUNTIME == TRICE_STRINGS
+#define TRICE_S( n, s )
+#else
+void triceString( int rightBound, const char* s ); //!< used in macro expansion, use not directly
+
+//! out a runtime string, use TRICE0 for compile time strings
+//! \param n right bound position, use 0 for output in place
+//! \param s pointer to dynamic string
+#define TRICE_S( n, s ) triceString( n, s )
+#endif
 
 void TxStart( void );
 void TxContinue( void );
@@ -50,6 +64,9 @@ void TxContinue( void );
 #define TRICE32_4( id, pFmt, v0, v1, v2, v3 )
 #define TRICE64_1( id, pFmt, v0 )
 #define TRICE64_2( id, pFmt, v0, v1 )
+
+// #define TRICE_S( n, s )
+// #define TRICE_P( s, ...)
 
 #else // #if 0 == TRICE_LEVEL
 
@@ -88,7 +105,7 @@ typedef PACKED struct {
 #define TRICE_FIFO_MASK ((TRICE_FIFO_SIZE>>2)-1) //!< max possible count of items in fifo
 
 extern uint32_t triceFifo[];
-extern uint32_t rdIndexTriceFifo;
+//extern uint32_t rdIndexTriceFifo;
 extern uint32_t wrIndexTriceFifo;
 
 /*! put one trice into trice fifo
@@ -100,22 +117,7 @@ TRICE_INLINE void triceFifoPush( uint32_t v ){
     wrIndexTriceFifo &= TRICE_FIFO_MASK;
 }
 
-/*! get one trice from trice fifo
-\param p address for trice id with 2 byte data
-*/
-TRICE_INLINE void triceFifoPop( uint32_t* p ){
-    *p = triceFifo[rdIndexTriceFifo++];
-    rdIndexTriceFifo &= TRICE_FIFO_MASK;
-}
-
-/* trice item count inside trice fifo
-\return count of buffered trices
-*/
-TRICE_INLINE size_t triceFifoDepth( void ){
-    return (wrIndexTriceFifo - rdIndexTriceFifo) & TRICE_FIFO_MASK;
-}
-
-#if 0 == TRICE_SHORT_MEMORY // #################################################
+#if MORE_FLASH == TRICE_CODE // ###############################################
 
 ///////////////////////////////////////////////////////////////////////////////
 // TRICE macros
@@ -413,8 +415,7 @@ TRICE_INLINE size_t triceFifoDepth( void ){
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
 
-
-#else // #if 0 == TRICE_SHORT_MEMORY // ##########################################
+#else // #if MORE_FLASH == TRICE_CODE // ######################################
 
 ///////////////////////////////////////////////////////////////////////////////
 // internal trice functions
@@ -1070,8 +1071,17 @@ TRICE_INLINE void trice_64_2_ocs( uint16_t Id, uint64_t d0, uint64_t d1 ){
     trice_64_2_ocs( Id, (uint64_t)d0, (uint64_t)d1 ); \
 } while(0)
 
+#endif //#else // #if MORE_FLASH == TRICE_CODE // #############################
 
-#endif //#else // #if 0 == TRICE_SHORT_MEMORY // #################################
+
+#include "triceUtilities.h"
+
+
+#endif // #else // #if 0 == TRICE_LEVEL
+
+
+
+
 
 /*
 ///////////////////////////////////////////////////////////////////////////////
@@ -1135,7 +1145,7 @@ TRICE_INLINE void triceStringN( size_t len, const char* s ){
 */
 /*
 \code
-// legacy reCal packet format
+// legacy com packet format
   |--------------------------------- fixed packet start0 byte 0xc0 
   |    |---------------------------- following data package count 
   |    |   |------------------------ packet index (2 lsb packet type and and 6 msb cycle counter)
@@ -1159,7 +1169,7 @@ TRICE_INLINE void triceStringN( size_t len, const char* s ){
   v   v   v   v   v   v   v   v
 0xeb cad sad cr8 idL idH vaL  vaH
 
-// reCal packet format 2
+// com packet format 2
   |--------------------------------- fixed packet start0 byte 0xc0 
   |   |----------------------------- following data package count fixed 1 for trice strings
   |   |   |------------------------- server address (destination)
@@ -1297,10 +1307,8 @@ static inline void Pause( void ){}
 */
 
 
-#endif // #else // #if 0 == TRICE_LEVEL
 
 
-#include "triceUtilities.h"
 
 #ifdef __cplusplus
 }

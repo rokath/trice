@@ -28,30 +28,53 @@ extern "C" {
 #define TRICE_START_BYTE (0xeb) //!< trice header start (chose any unusual byte)
 #define TRICE_LOCAL_ADDR (0x60) //!< trice addess of this device (choose free)
 #define TRICE_DISPL_ADDR (0x60) //!< trice terminal address for this device (choose free)
-#define TRICE_SHORT_MEMORY 0 //!< 1 means less Flash needed but slower, set compiler switch "optimize for time" accordingly!
+
+//! used as TRICE_CODE macro option for more flash occupation, but decreases execution time
+#define MORE_FLASH 22 //!< value is only to distinguish from LESS_FLASH
+
+ //! used as TRICE_CODE macro option for less flash occupation, but increases execution time
+#define LESS_FLASH 11 //!< value is only to distinguish from MORE_FLASH
+
+#define TRICE_CODE MORE_FLASH //!< set compiler switch "optimize for time" accordingly!
+
 #ifndef TRICE_LEVEL
-#define TRICE_LEVEL 100 //!< enable or disable trice code generation
+#define TRICE_LEVEL 1 //!< enable (>0) or disable (==0) trice code generation
 #endif
+
+ //! used as TRICE_STRINGS macro option for no runtime string support at all (smallest code size)
+#define NONE_RUNTIME  100 //!< value is only to distinguish from RARE_RUNTIME and FULL_RUNTIME
+
+//! used as TRICE_STRINGS macro option for rare strings runtime support (small code size)
+//! This is fine if sometimes even long strings occur at runtime
+#define RARE_RUNTIME 200 //!< value is only to distinguish from NONE_RUNTIME and FULL_RUNTIME
+
+//! used as TRICE_STRINGS macro option for often and long strings runtime support (more code)
+//! support for effective runtime string transfer, increments code size, so enable only if you need the effective string transfer 
+#define FULL_RUNTIME  300 //!< value is only to distinguish from RARE_RUNTIME and NONE_RUNTIME
+
+#define TRICE_STRINGS FULL_RUNTIME //!< setting for string support code
 
 //! enable encryption here
 //! call trice tool with log switch "-key your_password -show" and put passphrase here
 #//define ENCRYPT XTEA_KEY( a9, 4a, 8f, e5, cc, b1, 9b, a6, 1c, 4c, 08, 73, d3, 91, e9, 87 ); //!< -key test
 
 //! Enable this for legacy projects with printf( "...%s...", ... ); statements
-//! This is only for easy porting and has no advantage in time and space compared to printf
-//! But you can simply exchange 'printf(...)' with 'trice(...)' without concerning about static or dynamic strings
+//! This is only for easy porting and has no advantage in time and space compared to printf|sprintf
+//! But you can simply exchange 'printf(...)' with 'TRICE_P(...)' without concerning about static or dynamic strings
 //! Needs internally a vsnprintf() implementation what adds a few KB code size
 //! If the output strings in the legacy project are static, consider splitting the
 //! legacy printf() into a TRICE* sequence to avoid enabling this switch.
-#define TRICE_PRINTF_ADAPTER
-#ifdef TRICE_PRINTF_ADAPTER
+#define TRICE_PRINTF_ADAPTER 1
+
+#if 1 == TRICE_PRINTF_ADAPTER
+#if TRICE_STRINGS == NONE_RUNTIME
+#error needs TRICE_STRINGS set to RARE_RUNTIME or FULL_RUNTIME
+#endif
 #define TRICE_PRINTF_ADAPTER_BUFFERSIZE 100 //!< longest legacy printf should fit here
 #define RUNTIME_STRING_FIFO_SIZE 500 //!< Must be able to hold all in a burst arriving strings including 10 bytes for each string. Buffer is transmitted to port with highest priority.
-#define LONG_RUNTIME_STRINGS //!< support for effective runtime string transfer, increments code size, so enable only if you need the effective string transfer 
-#endif // #ifdef TRICE_PRINTF_ADAPTER
+#endif // #if 1 == TRICE_PRINTF_ADAPTER
 
-#define SYSTICKVAL16 SysTick->VAL //!< STM32 specific
-
+#define SYSTICKVAL16 SysTick->VAL //!< STM32 specific, set to 0 as starting point with nonSTM MCE
 
 
 ///////////////////////////////////////////////////////////////////////////////

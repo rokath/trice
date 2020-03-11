@@ -1,11 +1,10 @@
 /*! \file trice.c
-\brief trices to transfer buffer functionality
-\details The trices are dumped as 32bit values into a 32 bit fifo.
-That is the time critical part. 
-\li a trice is a 16 bit ID with a 16 bit data value
-\li trices with more data are split into several 32bit basic trice values with IDs = 0 in front.
-\li So a basic trice (subtrace) consists always of 4 byte.
-\li for trice transmission each basic trice gets a header of additional 4 bytes.
+\details The format strings are ignored - they go not into the target binary. See trice tool doc for details.
+The trices (macros) are dumped as 32bit values into a 32 bit fifo. That is the time critical part. 
+\li A basic trice (subtrace) consists always of 4 byte: a 16 bit ID with a 16 bit data value.
+\li Trices with more data are split into several 32bit basic trice values with IDs = 0 in front.
+\li TRICE0, TRICE8_1, TRICE8_2 and TRICE16_1 have 4 bytes size, all others have 8 - 32 bytes size.
+\li For trice transmission each basic trice gets a header of additional 4 bytes.
 \li The header contains a startbyte, client and server address and a crc8 exOr checksum.
 \author thomas.hoehenleitner [at] seerose.net
 *******************************************************************************/
@@ -16,32 +15,44 @@ That is the time critical part.
 #include "xteaCrypto.h" // enable this for encryption
 #endif
 
-#ifdef TRICE_PRINTF_ADAPTER
+#if 1 == TRICE_PRINTF_ADAPTER
 #include <stdarg.h>
 #include <stdio.h> // #include "printf.h"
-#endif // #ifdef TRICE_PRINTF_ADAPTER
+#endif // #if 1 == TRICE_PRINTF_ADAPTER
 
 #if 0 == TRICE_LEVEL
-void triceTxHandler( int* pTxState ){
+void TxStart( void ){
 }
-
-int tricePrintfAdapter( const char* pFmt, ... ){
+void TxContinue( void ){
 }
 #else // #if 0 == TRICE_LEVEL
 
 enum{
-    noTx, // no transmission
+    noTx,    // no transmission
     triceTx, // trice packet in transmission
-    reCalTx // remote call packet in transmission
+    comTx    // communication packet in transmission
 };
 
-static int txState = noTx; //!< txState, needed to not mix the channel data
+static int txState = noTx; //!< txState, needed to not mix the packet data during bytes tx
 
-//! trice fifo instance
+//! trice fifo instance, here are the trices buffered. used in TRICE macro expansion
 ALIGN4 uint32_t triceFifo[ TRICE_FIFO_SIZE>>2 ] ALIGN4_END;
 
-uint32_t rdIndexTriceFifo = 0; //!< trice fifo read index
-uint32_t wrIndexTriceFifo = 0; //!< trice fifo write index
+static uint32_t rdIndexTriceFifo = 0; //!< trice fifo read index
+uint32_t wrIndexTriceFifo = 0; //!< trice fifo write index, used inside macros, so must be visible
+
+//! get one trice from trice fifo
+//! am p address for trice id with 2 byte data
+TRICE_INLINE void triceFifoPop( uint32_t* p ){
+    *p = triceFifo[rdIndexTriceFifo++];
+    rdIndexTriceFifo &= TRICE_FIFO_MASK;
+}
+
+//! trice item count inside trice fifo
+//! \return count of buffered trices
+TRICE_INLINE size_t triceFifoDepth( void ){
+    return (wrIndexTriceFifo - rdIndexTriceFifo) & TRICE_FIFO_MASK;
+}
 
 //! partial prefilled trice message transmit buffer 
 ALIGN4 static triceMsg_t triceMsg ALIGN4_END = {
@@ -86,27 +97,24 @@ static size_t triceNextMsg( void ){
     return 0;
 }
 
-
-/*! This function should be called inside the transmit done device interrupt.
-Also it should be called cyclically to trigger transmission start.
-        // check if data in trice fifo and load them in the 8 byte transmit buffer, optionally encrypted
-        // it is possible SysTick comes immediately after Uart ISR and the register is not empty yet
-\param pTxState address of a transmission state variable. It is cleared if no more traceLog messages to transmit and set to 1 if a traceLog transmission was started.
-\todo handle 8==traceLogMsgDepth() to give chance to other data streams
-*/
-void triceTxStart( int* pTxState ){
+//! This function should be called inside the transmit done device interrupt.
+//! Also it should be called cyclically to trigger transmission start.
+//!         // check if data in trice fifo and load them in the 8 byte transmit buffer, optionally encrypted
+//!         // it is possible SysTick comes immediately after Uart ISR and the register is not empty yet
+//! \param pTxState address of a transmission state variable. It is cleared if no more traceLog messages to transmit and set to 1 if a traceLog transmission was started.
+//! \todo handle 8==traceLogMsgDepth() to give chance to other data streams
+static void triceTxStart( int* pTxState ){
     if( (noTx == *pTxState) && triceTxDataRegisterEmpty() &&  triceNextMsg() ){ 
             *pTxState = triceTx;
             triceEableTxEmptyInterrupt(); 
     }
 }
 
-/*! This function should be called inside the transmit done device interrupt.
-Also it should be called cyclically to trigger transmission start.
-\param pTxState address of a transmission state variable. It is cleared if no more traceLog messages to transmit and set to 1 if a traceLog transmission was started.
-\todo handle 8==traceLogMsgDepth() to give chance to other data streams
-*/
-void triceTxContinue( int* pTxState ){
+//! This function should be called inside the transmit done device interrupt.
+//! Also it should be called cyclically to trigger transmission start.
+//! \param pTxState address of a transmission state variable. It is cleared if no more traceLog messages to transmit and set to 1 if a traceLog transmission was started.
+//! \todo handle 8==traceLogMsgDepth() to give chance to other data streams
+static void triceTxContinue( int* pTxState ){
     if( (triceTx == *pTxState) && triceTxDataRegisterEmpty() ){ 
         if( triceMsgBufferDepth() ){
             uint8_t x = triceMsgNextByte();
@@ -118,9 +126,7 @@ void triceTxContinue( int* pTxState ){
     }
 }
 
-#ifdef TRICE_PRINTF_ADAPTER // inside #else // #if 0 == TRICE_LEVEL
-
-void triceString( int rightBound, const char* s );
+#if 1 == TRICE_PRINTF_ADAPTER // inside #else // #if 0 == TRICE_LEVEL
 
 //! trice replacement helper for printf() with %s 
 //! use only for dynamic generatd strings
@@ -138,18 +144,18 @@ int tricePrintfAdapter( const char* pFmt, ... ){
     return done;
 }
 
-#ifdef TRICE_SHORT_MEMORY
+#if LESS_FLASH == TRICE_CODE
 
-void triceSpaces( int spaces ){
+static void triceSpaces( int spaces ){
     while( spaces-->0 )
     {
         TRICE0( Id(27950), " " );
     }
 }
 
-#else // #ifdef TRICE_SHORT_MEMORY
+#else // MORE_FLASH == TRICE_CODE
 
-void triceSpaces( int spaces ){
+static void triceSpaces( int spaces ){
     while (spaces ){
         switch( spaces ){
             case  0: return;
@@ -170,13 +176,13 @@ void triceSpaces( int spaces ){
     }
     return;
 }
-#endif // #else // #ifdef TRICE_SHORT_MEMORY
+#endif // #else // #if LESS_FLASH == TRICE_CODE
 
-#ifndef LONG_RUNTIME_STRINGS // inside #ifdef TRICE_PRINTF_ADAPTER
+#if RARE_RUNTIME == TRICE_STRINGS // inside #ifdef TRICE_PRINTF_ADAPTER
 
-#ifdef TRICE_SHORT_MEMORY
+#if LESS_FLASH == TRICE_CODE
 
-void triceStringUnbound( const char* s ){
+static void triceStringUnbound( const char* s ){
     while( *s )
     {
         TRICE8_1( Id(3), "%c", *s );
@@ -184,7 +190,7 @@ void triceStringUnbound( const char* s ){
     }
 }
 
-#else // #ifdef TRICE_SHORT_MEMORY
+#else // MORE_FLASH == TRICE_CODE
 
 //! for performance no check of strlen( s ) here (internal usage)
 static inline void triceStringN( size_t len, const char* s ){
@@ -215,11 +221,11 @@ static inline void triceStringN( size_t len, const char* s ){
     return;
 }
 
-void triceStringUnbound( const char* s ){
+static void triceStringUnbound( const char* s ){
     size_t len = strlen( s );
     triceStringN( len, s );
 }
-#endif // #else // #ifdef TRICE_SHORT_MEMORY
+#endif // MORE_FLASH == TRICE_CODE
 
 
 //! trice a string
@@ -236,7 +242,7 @@ void triceString( int rightBound, const char* s ){
     TRICE_LEAVE_CRITICAL_SECTION
 }
 
-#else // #ifndef LONG_RUNTIME_STRINGS inside #ifdef TRICE_PRINTF_ADAPTER
+#else // FULL_RUNTIME == TRICE_STRINGS inside #if 1 == TRICE_PRINTF_ADAPTER
 
 static uint8_t Cycle( void ){
     static uint8_t cycle = 0;
@@ -260,14 +266,14 @@ static Fifo_t wrFifo = {WSIZ, rcWr, rcWr+WSIZ, rcWr, rcWr };
 // tx 
 //
 
-//! transfer special reCal buffer "trice string buffer" to write fifo
+//! transfer special com buffer "trice string buffer" to write fifo
 //! \param string len, max valid value is 65536, len 0 means no transmission at all
 //! \param s pointer to string
 //! \return used packet index 
 static uint8_t triceReCalStringBuffer( size_t len, const char* s ){
     uint16_t len_1 = (uint16_t)(len-1); // len-1 is transmitted in data package
-    #define CAD 0x60 // client address
-    #define SAD 0x60 // server address
+    #define CAD TRICE_LOCAL_ADDR // client address
+    #define SAD TRICE_DISPL_ADDR // server address
     #define TID 0xff // type ID, here fixed to 0xFF for string package identification
     #define FID 0xff // type ID, here fixed to 0xFF for string package identification
     #define DPC 1    // exact one data package here  
@@ -296,7 +302,7 @@ static uint8_t triceReCalStringBuffer( size_t len, const char* s ){
 static void triceStringUnbound( const char* s ){
     size_t len = strlen( s );
     uint8_t pix = triceReCalStringBuffer( len, s );
-    // a short TRICE with "%s" and the index number together follows the separate special reCal packet sequence
+    // a short TRICE with "%s" and the index number together follows the separate special com packet sequence
     TRICE8_1( Id( 8479), "%s", pix ); // "%s" tells trice tool that a separate string package was sent, pix (cycle) is used for string identification
 }
 
@@ -330,32 +336,32 @@ static uint8_t txNextByte( void ){
     return v;
 }
 
-//! reCalTxHandler starts a reCal transmission if possible, otherwise it does nothing
+//! comTxHandler starts a com transmission if possible, otherwise it does nothing
 //! It checks these conditions:
 //! \li currently no transmission: TxState is noTx
 //! \li tx register is empty 
-//! \li wrFifo contains at least one reCal Header
-//! In that case the TxState changes from noTx to reCalTx and the first byte goes out
+//! \li wrFifo contains at least one com Header
+//! In that case the TxState changes from noTx to comTx and the first byte goes out
 //! and the transmit empty interrupt is enabled.
-//! Otherwise reCalTxStart does nothing.
+//! Otherwise comTxStart does nothing.
 //! \param pTxState pointer to TxState
-static void reCalTxStart( int* pTxState ){
+static void comTxStart( int* pTxState ){
     if( noTx == *pTxState && triceTxDataRegisterEmpty() && 8 <= FifoReadableCount_Unprotected( &wrFifo ) ){ 
         // start only if a full header already in wrFifo.
         // This is safe, because following data will be in fifo before the first 8 bytes are transmitted
-        *pTxState = reCalTx;
+        *pTxState = comTx;
         triceEableTxEmptyInterrupt(); 
     }
 }
 
-//! reCalTxContinue checks if the tx register is empty and that the TxState is reCalTx flag and does nothing otherwise
+//! comTxContinue checks if the tx register is empty and that the TxState is comTx flag and does nothing otherwise
 //! \param pTxState pointer to TxState, TxState set to noTx when current packet done
-static void reCalTxContinue( int* pTxState ){
+static void comTxContinue( int* pTxState ){
     static uint8_t dpc = 0;     // we must transfer a complete block without trices inbetween
     static uint32_t len = 0;    // 0, 1...65536 must fit
     static uint8_t lenL = 0;
 
-    if( reCalTx != *pTxState || !triceTxDataRegisterEmpty() ){
+    if( comTx != *pTxState || !triceTxDataRegisterEmpty() ){
         return;
     }
 
@@ -374,7 +380,7 @@ static void reCalTxContinue( int* pTxState ){
         if( 0 == dpc ){ 
            resetPkgByteIndex(); // reload for next package
             triceDisableTxEmptyInterrupt();
-            *pTxState = noTx; // reCal packet done
+            *pTxState = noTx; // com packet done
         }
         return;
     }
@@ -400,7 +406,7 @@ static void reCalTxContinue( int* pTxState ){
         if( 0 == dpc ){ 
             resetPkgByteIndex();
             triceDisableTxEmptyInterrupt();
-            *pTxState = noTx; // reCal packet done
+            *pTxState = noTx; // com packet done
         }
         return;
     } 
@@ -420,19 +426,19 @@ static void reCalTxContinue( int* pTxState ){
     }
 }
 
-#endif // #else // #ifndef LONG_RUNTIME_STRINGS inside #ifdef TRICE_PRINTF_ADAPTER
+#endif // #else // #ifndef LONG_RUNTIME_STRINGS inside #if 1 == TRICE_PRINTF_ADAPTER
 
 #endif // #ifdef LONG_RUNTIME_STRINGS
 
-//! Check for data and start a transmission, if both channes have data give priority to reCal.
+//! Check for data and start a transmission, if both channes have data give priority to com.
 //! \param pTxState pointer to TxState, do nothing if not noTx
 //! should be activated cyclically for example every 1 ms for small transmit delays
 void TxStart( void ){
-#ifdef LONG_RUNTIME_STRINGS
-    reCalTxStart( &txState ); // reCal transmission has priority over trices - iportand for 2 reasons: 
+#if FULL_RUNTIME == TRICE_STRINGS
+    comTxStart( &txState ); // com transmission has priority over trices - iportand for 2 reasons: 
     // 1. runtims strings are earlier before their trigger trices.    
-    // 2. reCal is more time critical than trice transmission
-#endif // #ifdef TRICE_PRINTF_ADAPTER
+    // 2. com is more time critical than trice transmission
+#endif
     triceTxStart( &txState );
 }
 
@@ -440,9 +446,9 @@ void TxStart( void ){
 //! \param pTxState actual transmission state
 //! should be activated cyclically for example every 1 ms for small transmit delays
 void TxContinue( void ){
-#ifdef LONG_RUNTIME_STRINGS
-    reCalTxContinue( &txState );
-#endif // #ifdef TRICE_PRINTF_ADAPTER
+#if FULL_RUNTIME == TRICE_STRINGS
+    comTxContinue( &txState );
+#endif
     triceTxContinue( &txState );
 }
 

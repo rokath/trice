@@ -12,7 +12,7 @@ extern "C" {
 #endif
 
 
-#ifdef AUTOMATIC_HEADER_INLUSION_
+#if 1 //def AUTOMATIC_HEADER_INLUSION_
 // use this for doxygen, define AUTOMATIC_HEADER_INLUSION_ in
 // .doxygen file section PREDEFINED
 #include "config.h" // should be first include file, at least befor other project specific files

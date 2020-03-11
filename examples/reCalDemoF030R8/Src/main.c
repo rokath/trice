@@ -123,10 +123,6 @@ int main(void)
         if( LOOPCOUNT == loopCount ){
           loopCount = 0;
           LL_GPIO_SetOutputPin(LD2_GPIO_Port, LD2_Pin);
-
-            triceString( 0, "msg:01234567\r\n" );
-            triceString( 0, "dbg:abcdefghi\r\n" );
-            triceString( 0, "att:ABCDEFGHIJ\r\n" );
             triceCheckSet();
         }
     /* USER CODE END WHILE */

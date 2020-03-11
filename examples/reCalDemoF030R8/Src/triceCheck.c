@@ -4,7 +4,6 @@
 \author thomas.hoehenleitner [at] seerose.net
 *******************************************************************************/
 
-#define TRICE_LEVEL 100
 #include "trice.h"
 #include "xteaCrypto.h"
 
@@ -17,11 +16,9 @@ Traces with more bytes as parameter consist of several subtraces.
 */
 void triceCheckSet( void )
 {
-    #ifdef TRICE_PRINTF_ADAPTER
+    #if 0 // 1 == TRICE_PRINTF_ADAPTER
     char* w ="world";
-    tricePrintfAdapter( "Hello %s!\n", w );
-    TRICE8_1( Id(51183), "%#b times\n", 5 );
-    TRICE8_1( Id( 2863), "%b times\n", 5 );
+    TRICE_P( "Hello binary %s! (%d times)\n", w, 5 );
     #endif
     TRICE16_1( Id(46097), "dbg:12345 as 16bit is %#016b\n", 12345 );
     TRICE0 (Id(21015), "--------------------------------------------------------------------------------------------------------------------------------------------------\r\n\n" );
@@ -94,22 +91,22 @@ void triceCheckSet( void )
     TRICE0 (Id(12664), "wrn:A" );
     TRICE0 (Id(60989), "wr_:B" );
     TRICE0 (Id(61533), "tim:C\n" );
-
-    triceString( 18, "\n" );
-    triceString( 18, "1\n" );
-    triceString( 18, "12\n" );
-    triceString( 18, "123\n" );
-    triceString( 18, "1234\n" );
-    triceString( 18, "12345\n" );
-    triceString( 18, "123456\n" );
-    triceString( 18, "1234567\n" );
-    triceString( 18, "12345678\n" );
-    triceString( 18, "123456789\n" );
-    triceString( 18, "123456789a\n" );
-    triceString( 18, "123456789ab\n" );
-    triceString( 18, "123456789abc\n" );
-    triceString( 18, "msg:Berlin\n" );
-
+/*
+    TRICE_S( 18, "\n" );
+    TRICE_S( 18, "1\n" );
+    TRICE_S( 18, "12\n" );
+    TRICE_S( 18, "123\n" );
+    TRICE_S( 18, "1234\n" );
+    TRICE_S( 18, "12345\n" );
+    TRICE_S( 18, "123456\n" );
+    TRICE_S( 18, "1234567\n" );
+    TRICE_S( 18, "12345678\n" );
+    TRICE_S( 18, "123456789\n" );
+    TRICE_S( 18, "123456789a\n" );
+    TRICE_S( 18, "123456789ab\n" );
+    TRICE_S( 18, "123456789abc\n" );
+    TRICE_S( 18, "msg:Berlin\n" );
+*/
 #ifdef ENCRYPT
     {
         uint8_t b[8] = {1,2,3,4,5,6,7,8};
