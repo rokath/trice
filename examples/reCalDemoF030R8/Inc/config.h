@@ -30,15 +30,20 @@ extern "C" {
 #define TRICE_DISPL_ADDR (0x60) //!< trice terminal address for this device (choose free)
 
 //! used as TRICE_CODE macro option for more flash occupation, but decreases execution time
-#define MORE_FLASH 22 //!< value is only to distinguish from LESS_FLASH
+#define MORE_FLASH_AND_SPEED 22 //!< value is only to distinguish from LESS_FLASH and NO_CODE
 
- //! used as TRICE_CODE macro option for less flash occupation, but increases execution time
-#define LESS_FLASH 11 //!< value is only to distinguish from MORE_FLASH
+//! used as TRICE_CODE macro option for less flash occupation, but increases execution time
+#define LESS_FLASH_AND_SPEED 11 //!< value is only to distinguish from MORE_FLASH and NO_CODE
 
-#define TRICE_CODE MORE_FLASH //!< set compiler switch "optimize for time" accordingly!
+//! used as TRICE_CODE macro option for no trice code generation
+#define NO_CODE 00 //!< value is only to distinguish from MORE_FLASH and LESS_FLASH
 
-#ifndef TRICE_LEVEL
-#define TRICE_LEVEL 1 //!< enable (>0) or disable (==0) trice code generation
+#ifndef TRICE_CODE
+//! set kind of TRICE code generation globally
+//! set compiler switch "optimize for time" accordingly!
+//! to switch of TRICE code generation file specific add `#define TRICE_CODE NO_CODE`
+//! at start of file before including trice.h
+#define TRICE_CODE LESS_FLASH_AND_SPEED 
 #endif
 
  //! used as TRICE_STRINGS macro option for no runtime string support at all (smallest code size)
@@ -54,6 +59,12 @@ extern "C" {
 
 #define TRICE_STRINGS FULL_RUNTIME //!< setting for string support code
 
+#if TRICE_STRINGS == FULL_RUNTIME
+//! Must be able to hold all in a burst arriving strings including 10 bytes for each string.
+//! Buffer is transmitted to port with highest priority.
+#define RUNTIME_STRING_FIFO_SIZE 500
+#endif
+
 //! enable encryption here
 //! call trice tool with log switch "-key your_password -show" and put passphrase here
 #//define ENCRYPT XTEA_KEY( a9, 4a, 8f, e5, cc, b1, 9b, a6, 1c, 4c, 08, 73, d3, 91, e9, 87 ); //!< -key test
@@ -64,14 +75,13 @@ extern "C" {
 //! Needs internally a vsnprintf() implementation what adds a few KB code size
 //! If the output strings in the legacy project are static, consider splitting the
 //! legacy printf() into a TRICE* sequence to avoid enabling this switch.
-#define TRICE_PRINTF_ADAPTER 1
+#define TRICE_PRINTF_ADAPTER 0
 
 #if 1 == TRICE_PRINTF_ADAPTER
 #if TRICE_STRINGS == NONE_RUNTIME
 #error needs TRICE_STRINGS set to RARE_RUNTIME or FULL_RUNTIME
 #endif
 #define TRICE_PRINTF_ADAPTER_BUFFERSIZE 100 //!< longest legacy printf should fit here
-#define RUNTIME_STRING_FIFO_SIZE 500 //!< Must be able to hold all in a burst arriving strings including 10 bytes for each string. Buffer is transmitted to port with highest priority.
 #endif // #if 1 == TRICE_PRINTF_ADAPTER
 
 #define SYSTICKVAL16 SysTick->VAL //!< STM32 specific, set to 0 as starting point with nonSTM MCE

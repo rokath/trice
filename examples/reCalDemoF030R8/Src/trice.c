@@ -20,7 +20,7 @@ The trices (macros) are dumped as 32bit values into a 32 bit fifo. That is the t
 #include <stdio.h> // #include "printf.h"
 #endif // #if 1 == TRICE_PRINTF_ADAPTER
 
-#if 0 == TRICE_LEVEL
+#if NO_CODE == TRICE_CODE
 void TxStart( void ){
 }
 void TxContinue( void ){
@@ -126,7 +126,7 @@ static void triceTxContinue( int* pTxState ){
     }
 }
 
-#if 1 == TRICE_PRINTF_ADAPTER // inside #else // #if 0 == TRICE_LEVEL
+#if 1 == TRICE_PRINTF_ADAPTER
 
 //! trice replacement helper for printf() with %s 
 //! use only for dynamic generatd strings
@@ -144,7 +144,14 @@ int tricePrintfAdapter( const char* pFmt, ... ){
     return done;
 }
 
-#if LESS_FLASH == TRICE_CODE
+#endif // #if 1 == TRICE_PRINTF_ADAPTER
+
+
+//! unused dummy definition for linker
+void _putchar(char character){
+}
+
+#if NONE_RUNTIME != TRICE_STRINGS && LESS_FLASH_AND_SPEED == TRICE_CODE
 
 static void triceSpaces( int spaces ){
     while( spaces-->0 )
@@ -153,7 +160,9 @@ static void triceSpaces( int spaces ){
     }
 }
 
-#else // MORE_FLASH == TRICE_CODE
+#endif
+
+#if NONE_RUNTIME != TRICE_STRINGS && MORE_FLASH_AND_SPEED == TRICE_CODE
 
 static void triceSpaces( int spaces ){
     while (spaces ){
@@ -176,11 +185,10 @@ static void triceSpaces( int spaces ){
     }
     return;
 }
-#endif // #else // #if LESS_FLASH == TRICE_CODE
 
-#if RARE_RUNTIME == TRICE_STRINGS // inside #ifdef TRICE_PRINTF_ADAPTER
+#endif
 
-#if LESS_FLASH == TRICE_CODE
+#if RARE_RUNTIME == TRICE_STRINGS && LESS_FLASH_AND_SPEED == TRICE_CODE
 
 static void triceStringUnbound( const char* s ){
     while( *s )
@@ -190,10 +198,13 @@ static void triceStringUnbound( const char* s ){
     }
 }
 
-#else // MORE_FLASH == TRICE_CODE
+#endif 
+
+#if RARE_RUNTIME == TRICE_STRINGS &&  MORE_FLASH_AND_SPEED == TRICE_CODE
 
 //! for performance no check of strlen( s ) here (internal usage)
-static inline void triceStringN( size_t len, const char* s ){
+static void triceStringUnbound( const char* s ){
+    size_t len = strlen( s );
     char c1, c2, c3, c4, c5, c6, c7, c8;
     while( len ){
         switch( len ){
@@ -220,13 +231,9 @@ static inline void triceStringN( size_t len, const char* s ){
     }
     return;
 }
+#endif 
 
-static void triceStringUnbound( const char* s ){
-    size_t len = strlen( s );
-    triceStringN( len, s );
-}
-#endif // MORE_FLASH == TRICE_CODE
-
+#if RARE_RUNTIME == TRICE_STRINGS
 
 //! trice a string
 //!\details not very effective but better than no strings for now
@@ -242,7 +249,10 @@ void triceString( int rightBound, const char* s ){
     TRICE_LEAVE_CRITICAL_SECTION
 }
 
-#else // FULL_RUNTIME == TRICE_STRINGS inside #if 1 == TRICE_PRINTF_ADAPTER
+#endif
+
+
+#if FULL_RUNTIME == TRICE_STRINGS
 
 static uint8_t Cycle( void ){
     static uint8_t cycle = 0;
@@ -428,8 +438,6 @@ static void comTxContinue( int* pTxState ){
 
 #endif // #else // #ifndef LONG_RUNTIME_STRINGS inside #if 1 == TRICE_PRINTF_ADAPTER
 
-#endif // #ifdef LONG_RUNTIME_STRINGS
-
 //! Check for data and start a transmission, if both channes have data give priority to com.
 //! \param pTxState pointer to TxState, do nothing if not noTx
 //! should be activated cyclically for example every 1 ms for small transmit delays
@@ -452,12 +460,7 @@ void TxContinue( void ){
     triceTxContinue( &txState );
 }
 
-#endif // #if 0 == TRICE_LEVEL
-
-
-//! unused dummy definition for linker
-void _putchar(char character){
-}
+#endif
 
 
 // #define RSIZ 4 //!< must be power of 2!

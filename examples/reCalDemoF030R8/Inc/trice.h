@@ -1,7 +1,7 @@
 /*! \file trice.h
 \brief Software tracer header file
-\details This file is included in target code files. If TRICE_LEVEL is defined 
-as 0 (globally or file specific) the TRICE* macros generate no code. 
+\details This file is included in target code files. If TRICE_CODE is defined 
+as NO_CODE (globally or file specific) the TRICE* macros generate no code. 
 \author thomas.toehenleitner [at] seerose.net
 *******************************************************************************/
 
@@ -10,15 +10,20 @@ as 0 (globally or file specific) the TRICE* macros generate no code.
 
 #include "config.h" 
 
-#ifndef TRICE_LEVEL
-#define TRICE_LEVEL 1 //!< switch trices off with 0, define TRICE_LEVEL globally or on top of file (before including config.h"
-#endif
-
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#if 1 == TRICE_PRINTF_ADAPTER && 0 < TRICE_LEVEL
+#ifdef TRICE_FILENAME
+#define TRICE_LOC do{ TRICE_FILENAME; TRICE16_1( Id(43789), "msg: line %d ", __LINE__ ); }while(0) //!< trice filename and line
+#else
+#define TRICE_LOC do{                 TRICE16_1( Id(42554), "msg: line %d ", __LINE__ ); }while(0)  //!< trice line
+#endif
+#define ASSERT( flag ) do{ if(!(flag)) { TRICE_LOC; TRICE0( Id(37710), "ERR:ASSERT failed\n" ); } }while(0) //!< report if flag is not true
+#define ASSERT_OR_RETURN( flag ) do{ if(!(flag)) { TRICE_LOC; TRICE0( Id( 5439), "ERR:ASSERT failed\n" ); return; } }while(0) //!< report if flag is not true and return
+#define ASSERT_OR_RETURN_RESULT( flag, r )( flag ) do{ if(!(flag)) { TRICE_LOC; TRICE0( Id(48065), "ERR:ASSERT failed\n" ); return r; } }while(0) //!< report if flag is not true and return
+
+#if 1 == TRICE_PRINTF_ADAPTER && NO_CODE != TRICE_CODE
 int tricePrintfAdapter( const char* pFmt, ... ); //!< used in macro expansion, use not directly
 
  //! replacement for printf, sprintf and it relatives are writing in a buffer, use TRICE_S on that buffers
@@ -43,32 +48,7 @@ void TxContinue( void );
 
 #define Id( n ) (n) //!< Macro for improved trice readability and better source code parsing.
 
-#if 0 == TRICE_LEVEL // no trice code generation
-
-#define TRICE0( id, pFmt )
-#define TRICE8_1( id, pFmt, v0                             )
-#define TRICE8_2( id, pFmt, v0, v1                         )
-#define TRICE8_3( id, pFmt, v0, v1, v2                     )
-#define TRICE8_4( id, pFmt, v0, v1, v2, v3                 )
-#define TRICE8_5( id, pFmt, v0, v1, v2, v3, v4             )
-#define TRICE8_6( id, pFmt, v0, v1, v2, v3, v4, v5         )
-#define TRICE8_7( id, pFmt, v0, v1, v2, v3, v4, v5, v6     )
-#define TRICE8_8( id, pFmt, v0, v1, v2, v3, v4, v5, v6, v7 )
-#define TRICE16_1( id, pFmt, v0             )
-#define TRICE16_2( id, pFmt, v0, v1         )
-#define TRICE16_3( id, pFmt, v0, v1, v2     )
-#define TRICE16_4( id, pFmt, v0, v1, v2, v3 )
-#define TRICE32_1( id, pFmt, v0     )
-#define TRICE32_2( id, pFmt, v0, v1 )
-#define TRICE32_3( id, pFmt, v0, v1, v2 )
-#define TRICE32_4( id, pFmt, v0, v1, v2, v3 )
-#define TRICE64_1( id, pFmt, v0 )
-#define TRICE64_2( id, pFmt, v0, v1 )
-
-// #define TRICE_S( n, s )
-// #define TRICE_P( s, ...)
-
-#else // #if 0 == TRICE_LEVEL
+#if NO_CODE != TRICE_CODE // trice code generation
 
 #include <stdint.h>
 #include <stdlib.h>
@@ -117,7 +97,33 @@ TRICE_INLINE void triceFifoPush( uint32_t v ){
     wrIndexTriceFifo &= TRICE_FIFO_MASK;
 }
 
-#if MORE_FLASH == TRICE_CODE // ###############################################
+#endif // #if NO_CODE != TRICE_CODE
+
+#if NO_CODE == TRICE_CODE // no trice code generation
+
+#define TRICE0( id, pFmt )
+#define TRICE8_1( id, pFmt, v0                             )
+#define TRICE8_2( id, pFmt, v0, v1                         )
+#define TRICE8_3( id, pFmt, v0, v1, v2                     )
+#define TRICE8_4( id, pFmt, v0, v1, v2, v3                 )
+#define TRICE8_5( id, pFmt, v0, v1, v2, v3, v4             )
+#define TRICE8_6( id, pFmt, v0, v1, v2, v3, v4, v5         )
+#define TRICE8_7( id, pFmt, v0, v1, v2, v3, v4, v5, v6     )
+#define TRICE8_8( id, pFmt, v0, v1, v2, v3, v4, v5, v6, v7 )
+#define TRICE16_1( id, pFmt, v0             )
+#define TRICE16_2( id, pFmt, v0, v1         )
+#define TRICE16_3( id, pFmt, v0, v1, v2     )
+#define TRICE16_4( id, pFmt, v0, v1, v2, v3 )
+#define TRICE32_1( id, pFmt, v0     )
+#define TRICE32_2( id, pFmt, v0, v1 )
+#define TRICE32_3( id, pFmt, v0, v1, v2 )
+#define TRICE32_4( id, pFmt, v0, v1, v2, v3 )
+#define TRICE64_1( id, pFmt, v0 )
+#define TRICE64_2( id, pFmt, v0, v1 )
+
+#endif // #if NO_CODE == TRICE_CODE // trice code generation
+
+#if MORE_FLASH_AND_SPEED == TRICE_CODE // ###############################################
 
 ///////////////////////////////////////////////////////////////////////////////
 // TRICE macros
@@ -415,7 +421,9 @@ TRICE_INLINE void triceFifoPush( uint32_t v ){
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
 
-#else // #if MORE_FLASH == TRICE_CODE // ######################################
+#endif // #if MORE_FLASH_AND_SPEED == TRICE_CODE // ######################################
+
+#if LESS_FLASH_AND_SPEED == TRICE_CODE // ################################################
 
 ///////////////////////////////////////////////////////////////////////////////
 // internal trice functions
@@ -1023,7 +1031,6 @@ TRICE_INLINE void trice_64_2_ics( uint16_t Id, uint64_t d0, uint64_t d1 ){
     trice_32_4_ocs( Id, (uint32_t)d0, (uint32_t)d1, (uint32_t)d2, (uint32_t)d3 ); \
 } while(0)
 
-
 //! trace Id and 64-bit value protected (outside critical section)
 //! \param Id trice identifier
 //! \param pFmt formatstring for trice
@@ -1050,7 +1057,6 @@ TRICE_INLINE void trice_64_1_ocs( uint16_t Id, uint64_t d0 ){
     trice_64_1_ocs( Id, (uint64_t)d0 ); \
 } while(0)
 
-
 //! trace Id and 64-bit value protected (outside critical section)
 //! \param Id trice identifier
 //! \param d0 payload
@@ -1061,7 +1067,6 @@ TRICE_INLINE void trice_64_2_ocs( uint16_t Id, uint64_t d0, uint64_t d1 ){
     TRICE_LEAVE_CRITICAL_SECTION
 }
 
-
 //! trace Id and 64-bit value protected (outside critical section)
 //! \param Id trice identifier
 //! \param pFmt formatstring for trice
@@ -1071,16 +1076,7 @@ TRICE_INLINE void trice_64_2_ocs( uint16_t Id, uint64_t d0, uint64_t d1 ){
     trice_64_2_ocs( Id, (uint64_t)d0, (uint64_t)d1 ); \
 } while(0)
 
-#endif //#else // #if MORE_FLASH == TRICE_CODE // #############################
-
-
-#include "triceUtilities.h"
-
-
-#endif // #else // #if 0 == TRICE_LEVEL
-
-
-
+#endif // #if LESS_FLASH_AND_SPEED == TRICE_CODE // #####################################
 
 
 /*
