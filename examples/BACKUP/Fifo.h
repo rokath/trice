@@ -96,11 +96,10 @@ void FifoPopBuffer_Protected( Fifo_t* f, size_t count, uint8_t* pBuff );
 //int FifoWaitForReadableCount(Fifo_t const* const f, size_t count, unsigned ms );
 
 
-/*! return amount of bytes continuously can be written without write pointer wrap
-This is __not__ the free writable count! See also FifoWritableCount().
-\param f pointer to fifo struct
-\retval size of bytes which can be continuously written without write pointer wrap
-*/
+//! return amount of bytes continuously can be written without write pointer wrap
+//! This is __not__ the free writable count! See also FifoWritableCount().
+//! \param f pointer to fifo struct
+//! \retval size of bytes which can be continuously written without write pointer wrap
 static inline size_t FifoWritableBlockSpace( const Fifo_t* f ){
     return (size_t)(f->pLimit - f->pWr);
 }
