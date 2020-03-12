@@ -28,12 +28,14 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN TD */
-
+#ifndef TRICE_FILENAME
+#define TRICE_FILENAME TRICE0( Id(56535), "stm32f0xx_it.c" ); // macro __FILE__ does not work here, because of pre-compile evaluation
+#endif
 /* USER CODE END TD */
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
- 
+
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -43,7 +45,7 @@
 
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN PV */
-
+uint32_t ms = 0; 
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -125,20 +127,15 @@ void PendSV_Handler(void)
 void SysTick_Handler(void)
 {
   /* USER CODE BEGIN SysTick_IRQn 0 */
-    int dummy;
-    static uint16_t msTick = 0;
-    static uint32_t ms = 0; 
-    msTick++;
-    if( 1000 == msTick ){
-        msTick = 0;
-        ms +=1000;
+    ms++;
+    if( 0 == ms % 10 ){
         TRICE32_1( Id(18577), "ISR:alive time %d milliseconds\n", ms );
     }
 
   /* USER CODE END SysTick_IRQn 0 */
   
   /* USER CODE BEGIN SysTick_IRQn 1 */
-    triceTxHandler(&dummy); // start transmission if data
+    TxStart();  // start transmission if data
   /* USER CODE END SysTick_IRQn 1 */
 }
 
@@ -155,10 +152,10 @@ void SysTick_Handler(void)
 void USART2_IRQHandler(void)
 {
   /* USER CODE BEGIN USART2_IRQn 0 */
-    int dummy;
+
   /* USER CODE END USART2_IRQn 0 */
   /* USER CODE BEGIN USART2_IRQn 1 */
-    triceTxHandler(&dummy);
+    TxContinue(); // end transmission if no data
   /* USER CODE END USART2_IRQn 1 */
 }
 
