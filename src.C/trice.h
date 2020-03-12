@@ -1,51 +1,60 @@
 /*! \file trice.h
 \brief Software tracer header file
-\details This file is included in target code files. If TRICE_LEVEL is defined 
-as 0 (globally or file specific) the TRICE* macros generate no code. 
+\details This file is included in target code files. If TRICE_CODE is defined 
+as NO_CODE (globally or file specific) the TRICE* macros generate no code. 
 \author thomas.toehenleitner [at] seerose.net
 *******************************************************************************/
 
 #ifndef TRICE_H_
 #define TRICE_H_
 
-#include "config.h" 
-
-#ifndef TRICE_LEVEL
-#define TRICE_LEVEL 100 //!< switch trices off with 0, define TRICE_LEVEL globally or on top of file (before including config.h"
-#endif
+#include "triceConfig.h" 
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-void triceTxHandler( int* pTxState );
-int tricePrintfAdapter( const char* pFmt, ... );
+#ifdef TRICE_FILENAME
+#define TRICE_LOC do{ TRICE_FILENAME; TRICE16_1( Id(43789), "msg: line %d ", __LINE__ ); }while(0) //!< trice filename and line
+#else
+#define TRICE_LOC do{                 TRICE16_1( Id(42554), "msg: line %d ", __LINE__ ); }while(0)  //!< trice line
+#endif
+
+#if NO_CODE == TRICE_CODE
+#define ASSERT( flag )
+#else
+#define ASSERT( flag )                     do{ if(!(flag)) { TRICE_LOC; TRICE0( Id(37710), "ERR:ASSERT failed\n" ); } }while(0) //!< report if flag is not true
+#endif
+
+#define ASSERT_OR_RETURN( flag )           do{ ASSERT( flag ); if(!(flag)) { return; } }while(0) //!< report if flag is not true and return
+#define ASSERT_OR_RETURN_RESULT( flag, r ) do{ ASSERT( flag ); if(!(flag)) { return r; } }while(0) //!< report if flag is not true and return
+
+#if 0 == TRICE_PRINTF_ADAPTER || NO_CODE == TRICE_CODE
+#define TRICE_P( s, ... )
+#else
+int tricePrintfAdapter( const char* pFmt, ... ); //!< used in macro expansion, use not directly
+
+//! replacement for printf, sprintf and it relatives are writing in a buffer, use TRICE_S on that buffers
+#define TRICE_P( s, ... ) tricePrintfAdapter( s, __VA_ARGS__)
+#endif
+
+#if NONE_RUNTIME == TRICE_STRINGS || NO_CODE == TRICE_CODE
+#define TRICE_S( n, s )
+#else
+void triceString( int rightBound, const char* s ); //!< used in macro expansion, use not directly
+
+//! out a runtime string, use TRICE0 for compile time strings
+//! \param n right bound position, use 0 for output in place
+//! \param s pointer to dynamic string
+#define TRICE_S( n, s ) triceString( n, s )
+#endif
+
+void TxStart( void );
+void TxContinue( void );
 
 #define Id( n ) (n) //!< Macro for improved trice readability and better source code parsing.
 
-#if 0 == TRICE_LEVEL // no trice code generation
-
-#define TRICE0( id, pFmt )
-#define TRICE8_1( id, pFmt, v0                             )
-#define TRICE8_2( id, pFmt, v0, v1                         )
-#define TRICE8_3( id, pFmt, v0, v1, v2                     )
-#define TRICE8_4( id, pFmt, v0, v1, v2, v3                 )
-#define TRICE8_5( id, pFmt, v0, v1, v2, v3, v4             )
-#define TRICE8_6( id, pFmt, v0, v1, v2, v3, v4, v5         )
-#define TRICE8_7( id, pFmt, v0, v1, v2, v3, v4, v5, v6     )
-#define TRICE8_8( id, pFmt, v0, v1, v2, v3, v4, v5, v6, v7 )
-#define TRICE16_1( id, pFmt, v0             )
-#define TRICE16_2( id, pFmt, v0, v1         )
-#define TRICE16_3( id, pFmt, v0, v1, v2     )
-#define TRICE16_4( id, pFmt, v0, v1, v2, v3 )
-#define TRICE32_1( id, pFmt, v0     )
-#define TRICE32_2( id, pFmt, v0, v1 )
-#define TRICE32_3( id, pFmt, v0, v1, v2 )
-#define TRICE32_4( id, pFmt, v0, v1, v2, v3 )
-#define TRICE64_1( id, pFmt, v0 )
-#define TRICE64_2( id, pFmt, v0, v1 )
-
-#else // #if 0 == TRICE_LEVEL
+#if NO_CODE != TRICE_CODE // trice code generation
 
 #include <stdint.h>
 #include <stdlib.h>
@@ -70,10 +79,46 @@ typedef PACKED union {
     uint8_t load[4]; // for crc8 computation
 }PACKED_END triceMsgLoad_t; //!< trice message payload
 
+
+//! \code
+//! trice package: header without data packages
+//!   |--------------------------------- fixed packet start0 byte 0xeb 
+//!   |   |----------------------------- client address (local address byte)
+//!   |   |   |------------------------- server address (destination)
+//!   |   |   |   |--------------------- exclusive-or checksum byte
+//!   |   |   |   |   |----------------- ID low part
+//!   |   |   |   |   |   |------------- ID high part
+//!   |   |   |   |   |   |   |--------- Value Low part
+//!   |   |   |   |   |   |   |   |----- Value High part
+//!   v   v   v   v   v   v   v   v
+//! 0xeb cad sad cr8 idL idH vaL  vaH
+//! 
+//! com packet: header followed by 0...255 data packages
+//!   |--------------------------------- fixed packet start0 byte 0xc0 
+//!   |   |----------------------------- following data package count fixed 1 for trice strings
+//!   |   |   |------------------------- server address (destination)
+//!   |   |   |   |--------------------- exclusive-or checksum byte
+//!   |   |   |   |   |----------------- type identifyer byte
+//!   |   |   |   |   |   |------------- function identifyer byte
+//!   |   |   |   |   |   |   |--------- packet index (2 lsb packet type and and 6 msb cycle counter)
+//!   |   |   |   |   |   |   |   |----- data package count
+//!   v   v   v   v   v   v   v   v
+//! 0xc0 cad sad cr8 tid fid pix dpc 
+//! 
+//! com type: (part of pix) 
+//!       bit1      |      bit0       | meaning
+//!   COM_CMD_FLAG  | COM_ANSWER_FLAG |
+//! ----------------|-----------------|------------------------------------------
+//!         1       |        1        | \b Cmd = command expecting answer
+//!         0       |        1        | \b Ans = answer to a command expecting answer
+//!         1       |        0        | \b Msg = command not expecting an answer (message)
+//!         0       |        0        | \b Buf = trice string package, when 0xffff==tidfid
+//! \endcode
+//! trice message packet
 typedef PACKED struct {
     triceMsgHeader_t hd; // header
     triceMsgLoad_t ld; // payload
-}PACKED_END triceMsg_t; //! trice message
+}PACKED_END triceMsg_t; 
 
 ///////////////////////////////////////////////////////////////////////////////
 // fifo functionality
@@ -82,34 +127,43 @@ typedef PACKED struct {
 #define TRICE_FIFO_MASK ((TRICE_FIFO_SIZE>>2)-1) //!< max possible count of items in fifo
 
 extern uint32_t triceFifo[];
-extern uint32_t rdIndexTriceFifo;
 extern uint32_t wrIndexTriceFifo;
 
-/*! put one trice into trice fifo
-\param v trice id with 2 byte data
-trice time critical part
-*/
+//! put one trice into trice fifo
+//! \param v trice id with 2 byte data
+//! trice time critical part
 TRICE_INLINE void triceFifoPush( uint32_t v ){
     triceFifo[wrIndexTriceFifo++] = v;
     wrIndexTriceFifo &= TRICE_FIFO_MASK;
 }
 
-/*! get one trice from trice fifo
-\param p address for trice id with 2 byte data
-*/
-TRICE_INLINE void triceFifoPop( uint32_t* p ){
-    *p = triceFifo[rdIndexTriceFifo++];
-    rdIndexTriceFifo &= TRICE_FIFO_MASK;
-}
+#endif // #if NO_CODE != TRICE_CODE
 
-/* trice item count inside trice fifo
-\return count of buffered trices
-*/
-TRICE_INLINE size_t triceFifoDepth( void ){
-    return (wrIndexTriceFifo - rdIndexTriceFifo) & TRICE_FIFO_MASK;
-}
+#if NO_CODE == TRICE_CODE // no trice code generation
 
-#if 0 == TRICE_SHORT_MEMORY // #################################################
+#define TRICE0( id, pFmt )
+#define TRICE8_1( id, pFmt, v0                             )
+#define TRICE8_2( id, pFmt, v0, v1                         )
+#define TRICE8_3( id, pFmt, v0, v1, v2                     )
+#define TRICE8_4( id, pFmt, v0, v1, v2, v3                 )
+#define TRICE8_5( id, pFmt, v0, v1, v2, v3, v4             )
+#define TRICE8_6( id, pFmt, v0, v1, v2, v3, v4, v5         )
+#define TRICE8_7( id, pFmt, v0, v1, v2, v3, v4, v5, v6     )
+#define TRICE8_8( id, pFmt, v0, v1, v2, v3, v4, v5, v6, v7 )
+#define TRICE16_1( id, pFmt, v0             )
+#define TRICE16_2( id, pFmt, v0, v1         )
+#define TRICE16_3( id, pFmt, v0, v1, v2     )
+#define TRICE16_4( id, pFmt, v0, v1, v2, v3 )
+#define TRICE32_1( id, pFmt, v0     )
+#define TRICE32_2( id, pFmt, v0, v1 )
+#define TRICE32_3( id, pFmt, v0, v1, v2 )
+#define TRICE32_4( id, pFmt, v0, v1, v2, v3 )
+#define TRICE64_1( id, pFmt, v0 )
+#define TRICE64_2( id, pFmt, v0, v1 )
+
+#endif // #if NO_CODE == TRICE_CODE // trice code generation
+
+#if MORE_FLASH_AND_SPEED == TRICE_CODE // ###############################################
 
 ///////////////////////////////////////////////////////////////////////////////
 // TRICE macros
@@ -407,8 +461,9 @@ TRICE_INLINE size_t triceFifoDepth( void ){
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
 
+#endif // #if MORE_FLASH_AND_SPEED == TRICE_CODE // ######################################
 
-#else // #if 0 == TRICE_SHORT_MEMORY // ##########################################
+#if LESS_FLASH_AND_SPEED == TRICE_CODE // ################################################
 
 ///////////////////////////////////////////////////////////////////////////////
 // internal trice functions
@@ -1016,7 +1071,6 @@ TRICE_INLINE void trice_64_2_ics( uint16_t Id, uint64_t d0, uint64_t d1 ){
     trice_32_4_ocs( Id, (uint32_t)d0, (uint32_t)d1, (uint32_t)d2, (uint32_t)d3 ); \
 } while(0)
 
-
 //! trace Id and 64-bit value protected (outside critical section)
 //! \param Id trice identifier
 //! \param pFmt formatstring for trice
@@ -1043,7 +1097,6 @@ TRICE_INLINE void trice_64_1_ocs( uint16_t Id, uint64_t d0 ){
     trice_64_1_ocs( Id, (uint64_t)d0 ); \
 } while(0)
 
-
 //! trace Id and 64-bit value protected (outside critical section)
 //! \param Id trice identifier
 //! \param d0 payload
@@ -1054,7 +1107,6 @@ TRICE_INLINE void trice_64_2_ocs( uint16_t Id, uint64_t d0, uint64_t d1 ){
     TRICE_LEAVE_CRITICAL_SECTION
 }
 
-
 //! trace Id and 64-bit value protected (outside critical section)
 //! \param Id trice identifier
 //! \param pFmt formatstring for trice
@@ -1064,60 +1116,7 @@ TRICE_INLINE void trice_64_2_ocs( uint16_t Id, uint64_t d0, uint64_t d1 ){
     trice_64_2_ocs( Id, (uint64_t)d0, (uint64_t)d1 ); \
 } while(0)
 
-
-#endif //#else // #if 0 == TRICE_SHORT_MEMORY // #################################
-
-///////////////////////////////////////////////////////////////////////////////
-// little trice helper for trice usage
-//
-
-
-
-/*! Report name and line number over trice
-\param pFileName pointer to 0-terminated filename or function name
-\param Line line number
-\param Value for context display
-*/
-TRICE_INLINE void reportLocation( const char* const pFileName, int Line, int Value ){
-    TRICE0( Id(7), "sig:" );
-    if( pFileName )
-    {
-        triceString( 0, (char*)pFileName );
-    }
-    TRICE32_2( Id(5), " line %d (Value = %d)\n", Line, Value );
-}
-
-/*! Report name and line number over trice as Failure
-\param pName pointer to 0-terminated filename or function name
-\param Line line number
-\param Value for context display
-*/
-TRICE_INLINE void reportFailure( const char* const pName, int Line, int Value ){
-    TRICE0( Id(6), "err: Failure in " );
-    reportLocation( pName, Line, Value );
-}
-
-/*! Report filename and line number over trice
-\param pFileName pointer to 0-terminated filename
-\param Line line number
-\param Value for context display
-*/
-TRICE_INLINE void reportPassage( char *pFileName, int Line, int Value ){
-    TRICE0( Id(4), "att: Passage in " );
-    if( pFileName )
-    {
-        triceString( 0, pFileName );
-    }
-    TRICE32_2( Id(5), " line %d (Value = %d)\n", Line, Value );
-}
-
-TRICE_INLINE void triceSrcLocation(char const *file, int line){
-      TRICE0( Id(31976), "err: Error in file " );
-      triceString( 0, file );
-      TRICE16_1( Id(8272), " at line %d\n", line );
-}
-
-#endif // #else // #if 0 == TRICE_LEVEL
+#endif // #if LESS_FLASH_AND_SPEED == TRICE_CODE // #####################################
 
 #ifdef __cplusplus
 }
