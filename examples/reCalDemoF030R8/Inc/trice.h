@@ -79,10 +79,46 @@ typedef PACKED union {
     uint8_t load[4]; // for crc8 computation
 }PACKED_END triceMsgLoad_t; //!< trice message payload
 
+
+//! \code
+//! trice package: header without data packages
+//!   |--------------------------------- fixed packet start0 byte 0xeb 
+//!   |   |----------------------------- client address (local address byte)
+//!   |   |   |------------------------- server address (destination)
+//!   |   |   |   |--------------------- exclusive-or checksum byte
+//!   |   |   |   |   |----------------- ID low part
+//!   |   |   |   |   |   |------------- ID high part
+//!   |   |   |   |   |   |   |--------- Value Low part
+//!   |   |   |   |   |   |   |   |----- Value High part
+//!   v   v   v   v   v   v   v   v
+//! 0xeb cad sad cr8 idL idH vaL  vaH
+//! 
+//! com packet: header followed by 0...255 data packages
+//!   |--------------------------------- fixed packet start0 byte 0xc0 
+//!   |   |----------------------------- following data package count fixed 1 for trice strings
+//!   |   |   |------------------------- server address (destination)
+//!   |   |   |   |--------------------- exclusive-or checksum byte
+//!   |   |   |   |   |----------------- type identifyer byte
+//!   |   |   |   |   |   |------------- function identifyer byte
+//!   |   |   |   |   |   |   |--------- packet index (2 lsb packet type and and 6 msb cycle counter)
+//!   |   |   |   |   |   |   |   |----- data package count
+//!   v   v   v   v   v   v   v   v
+//! 0xc0 cad sad cr8 tid fid pix dpc 
+//! 
+//! com type: (part of pix) 
+//!       bit1      |      bit0       | meaning
+//!   COM_CMD_FLAG  | COM_ANSWER_FLAG |
+//! ----------------|-----------------|------------------------------------------
+//!         1       |        1        | \b Cmd = command expecting answer
+//!         0       |        1        | \b Ans = answer to a command expecting answer
+//!         1       |        0        | \b Msg = command not expecting an answer (message)
+//!         0       |        0        | \b Buf = trice string package, when 0xffff==tidfid
+//! \endcode
+//! trice message packet
 typedef PACKED struct {
     triceMsgHeader_t hd; // header
     triceMsgLoad_t ld; // payload
-}PACKED_END triceMsg_t; //! trice message
+}PACKED_END triceMsg_t; 
 
 ///////////////////////////////////////////////////////////////////////////////
 // fifo functionality
@@ -1081,240 +1117,6 @@ TRICE_INLINE void trice_64_2_ocs( uint16_t Id, uint64_t d0, uint64_t d1 ){
 } while(0)
 
 #endif // #if LESS_FLASH_AND_SPEED == TRICE_CODE // #####################################
-
-
-/*
-///////////////////////////////////////////////////////////////////////////////
-// little trice helper for trice usage
-//
-
-#if 1 == TRICE_SHORT_MEMORY
-
-TRICE_INLINE void triceStringUnbound( const char* s ){
-    while( *s )
-    {
-        TRICE8_1( Id(3), "%c", *s );
-        s++;
-    }
-}
-
-TRICE_INLINE void triceString( int rightBound, const char* s ){
-    size_t len = strlen( s );
-    int spaces = rightBound - len;
-    spaces = spaces < 0 ? 0 : spaces;
-    TRICE_ENTER_CRITICAL_SECTION
-    while( spaces-->0 )
-    {
-        TRICE0( Id(27950), " " );
-    }
-    triceStringUnbound( s );
-    TRICE_LEAVE_CRITICAL_SECTION
-}
-
-#else // #if 1 == TRICE_SHORT_MEMORY
-
-// for performance no check of strlen( s ) here (internal usage)
-TRICE_INLINE void triceStringN( size_t len, const char* s ){
-    char c1, c2, c3, c4, c5, c6, c7, c8;
-    while( len ){
-        switch( len ){
-            case  0: return;
-            case  1: c1=*s++;
-                TRICE8_1( Id(36152), "%c", c1 ); return;
-            case  2: c1=*s++; c2=*s++;
-                TRICE8_2( Id(49862), "%c%c", c1, c2 ); return;
-            case  3: c1=*s++; c2=*s++; c3=*s++;
-                TRICE8_3( Id(60898), "%c%c%c", c1, c2, c3 ); return;
-            case  4: c1=*s++; c2=*s++; c3=*s++; c4=*s++;
-                TRICE8_4( Id(57970), "%c%c%c%c", c1, c2, c3, c4 ); return;
-            case  5: c1=*s++; c2=*s++; c3=*s++; c4=*s++; c5=*s++;
-                TRICE8_5( Id(49813), "%c%c%c%c%c", c1, c2, c3, c4, c5 ); return;
-            case  6: c1=*s++; c2=*s++; c3=*s++; c4=*s++; c5=*s++; c6=*s++;
-                TRICE8_6( Id(10201), "%c%c%c%c%c%c", c1, c2, c3, c4, c5, c6 ); return;
-            case  7: c1=*s++; c2=*s++; c3=*s++; c4=*s++; c5=*s++; c6=*s++; c7=*s++;
-                TRICE8_7( Id(57439), "%c%c%c%c%c%c%c", c1, c2, c3, c4, c5, c6, c7); return;
-            case  8:
-            default: c1 = *s++; c2 = *s++; c3 = *s++; c4 = *s++; c5 = *s++; c6 = *s++; c7 = *s++; c8 = *s++; 
-                TRICE8_8( Id(53018), "%c%c%c%c%c%c%c%c", c1, c2, c3, c4, c5, c6, c7, c8 );
-                len -= 8;
-        }
-    }
-    return;
-}
-#else
-*/
-/*
-\code
-// legacy com packet format
-  |--------------------------------- fixed packet start0 byte 0xc0 
-  |    |---------------------------- following data package count 
-  |    |   |------------------------ packet index (2 lsb packet type and and 6 msb cycle counter)
-  |    |   |   |-------------------- local address byte
-  |    |   |   |   |---------------- server address byte (broadcast address possible for no anser calls)
-  |    |   |   |   |   |------------ type identifyer byte
-  |    |   |   |   |   |   |-------- function identifyer byte
-  |    |   |   |   |   |   |   |---- exclusive-or checksum byte
-  v    v   v   v   v   v   v   v
-0xc0  dpc pix cad sad tid fid crc8
-
-// trice format
-  |--------------------------------- fixed packet start0 byte 0xeb 
-  |   |----------------------------- client address (local address byte)
-  |   |   |------------------------- server address (destination)
-  |   |   |   |--------------------- exclusive-or checksum byte
-  |   |   |   |   |----------------- ID low part
-  |   |   |   |   |   |------------- ID high part
-  |   |   |   |   |   |   |--------- Value Low part
-  |   |   |   |   |   |   |   |----- Value High part
-  v   v   v   v   v   v   v   v
-0xeb cad sad cr8 idL idH vaL  vaH
-
-// com packet format 2
-  |--------------------------------- fixed packet start0 byte 0xc0 
-  |   |----------------------------- following data package count fixed 1 for trice strings
-  |   |   |------------------------- server address (destination)
-  |   |   |   |--------------------- exclusive-or checksum byte
-  |   |   |   |   |----------------- type identifyer byte
-  |   |   |   |   |   |------------- function identifyer byte
-  |   |   |   |   |   |   |--------- packet index (2 lsb packet type and and 6 msb cycle counter)
-  |   |   |   |   |   |   |   |----- data package count
-  v   v   v   v   v   v   v   v
-0xc0 cad sad cr8 tid fid pix dpc 
-
-// 0xff == tid -> pure string package with fid as string package id
-
-remote call type: (part of pix) 
-      bit1      |      bit0       | meaning
-  RC_CMD_FLAG   | RC_ANSWER_FLAG  |
-----------------|-----------------|------------------------------------------
-        1       |        1        | \b Cmd = command expecting answer
-        0       |        1        | answer to a command expecting answer
-        1       |        0        | \b Msg = command not expecting an answer (message)
-        0       |        0        | trice string package
-
-
-\endcode
-*/
-
-// #include "Fifo.h"
-// extern Fifo_t wrFifo;
-// 
-// 
-
-// /*! Report name and line number over trice
-// \param pFileName pointer to 0-terminated filename or function name
-// \param Line line number
-// \param Value for context display
-// */
-// TRICE_INLINE void reportLocation( const char* const pFileName, int Line, int Value ){
-//     TRICE0( Id(7), "sig:" );
-//     if( pFileName )
-//     {
-//         triceString( 0, (char*)pFileName );
-//     }
-//     TRICE32_2( Id(5), " line %d (Value = %d)\n", Line, Value );
-// }
-// 
-// /*! Report name and line number over trice as Failure
-// \param pName pointer to 0-terminated filename or function name
-// \param Line line number
-// \param Value for context display
-// */
-// TRICE_INLINE void reportFailure( const char* const pName, int Line, int Value ){
-//     TRICE0( Id(6), "err: Failure in " );
-//     reportLocation( pName, Line, Value );
-// }
-// 
-// /*! Report filename and line number over trice
-// \param pFileName pointer to 0-terminated filename
-// \param Line line number
-// \param Value for context display
-// */
-// TRICE_INLINE void reportPassage( char *pFileName, int Line, int Value ){
-//     TRICE0( Id(4), "att: Passage in " );
-//     if( pFileName )
-//     {
-//         triceString( 0, pFileName );
-//     }
-//     TRICE32_2( Id(5), " line %d (Value = %d)\n", Line, Value );
-// }
-// 
-// TRICE_INLINE void triceSrcLocation(char const *file, int line){
-//       TRICE0( Id(31976), "err: Error in file " );
-//       triceString( 0, file );
-//       TRICE16_1( Id(8272), " at line %d\n", line );
-// }
-
-
-/*
-
-///////////////////////////////////////////////////////////////////////////////
-// REMOTE CALL
-//#define RC_ADDR_OFFSET 0x60 //!< offest for easier debugging
-//#define RC_ADDR(n) (RC_ADDR_OFFSET+(n)) //!< remote call address transformation
-#define RC_LOCAL_ADDRESS (TRICE_LOCAL_ADDR) //!< remote call addess of this device
-#define RCTX_FIFO_SIZE 0x600 //!< also tracelog messages are buffered here
-#define RCRX_FIFO_SIZE 0x200 //!< mainly for responses
-//
-///////////////////////////////////////////////////////////////////////////////
-
-#define LEFT 0
-
-// ### DefaultMacros.h
-//#define RESULT_NEXT_HEADER_IN_FIFO 0xC0
-//#define RESULT_ANSWER   1 //!< macro for a received remote call answer
-#define RESULT_OK       0 //!< macro for successful end of function
-#define RESULT_ERROR   -1 //!< macro for unsuccessful end of function
-//#define RESULT_NACK    -2 //!< macro for RBL ack answer NACK
-//#define RESULT_EMPTY   -3 //!< macro for empty channel
-#define RESULT_TIMEOUT -4 //!< see CONTROL_GEAR_ANSWER_TIMEOUT_ERROR
-#define RESULT_LOCKED  -5 //!< no reentrance allowed
-//
-#define UNUSED_PARAMETER( x ) { x = x; }
-
-
-#define DEFAULT_MS_TIMEOUT 1000
-
-// ### ReadAndWrite.h
-
-//extern uint32_t WriteTimeoutCount; //!< write error counter
-//extern uint32_t ReadTimeoutCount; //!< read error counter
-//
-//
-//
-//#define IO_NEXT_DEFAULT_MS_TIMEOUT 30
-//
-//
-int Read(int fd, uint8_t* pBuf, size_t count);
-//int Read1(int fd, uint8_t* pBuf, size_t count); // tryout code!!!!
-int Write(int fd, uint8_t const * pBuf, size_t count);
-//
-
-static inline void Pause( void ){}
-
-
-//#define REPORT_LINE(Value) do{ REPORT_FILE(); TRICE16_2( Id( 8986), " in line %d (0x%02x)\n", __LINE__, Value ); }while(0)
-#define REPORT_FAILURE(Value) do{ REPORT_FILE(); TRICE32_2( Id(46005), "ERR: in line %d (0x%08x)\n", __LINE__, Value ); }while(0)
-//#define REPORT_FAILURE16(a,b,c) do{ REPORT_FILE(); TRICE16_4( Id(17192), "ERR: in line %d (0x%04x,0x%04x,0x%04x)\n", __LINE__, a,b,c ); }while(0)
-//#define REPORT_VALUE(Value)   do{ REPORT_FILE(); TRICE32_2( Id(11917),  "att: line %d, value = 0x%08x\r\n", __LINE__, Value ); }while(0)
-//#define REPORT_ONLY_VALUE(Value)   do{  TRICE32_2( Id(33840),  "att: line %d, value = 0x%08x\r\n", __LINE__, Value ); }while(0)
-#define ASSERTION do{ REPORT_FILE(); TRICE16_2( Id(16598), "err:local address 0x%02x:!ASSERT in line %d\n", RC_LOCAL_ADDRESS, __LINE__ ); }while(0)
-//#define ASSERT( flag ) if(!(flag)) { ASSERTION; } //!< report if flag is not true
-//#define ASSERT_OR_RETURN( flag )                if(!(flag)) { ASSERTION; return;              } //!< if flag is not true return result
-#define ASSERT_OR_RETURN_RESULT( flag, result ) if(!(flag)) { ASSERTION; return result;       } //!< if flag is not true return result
-#define ASSERT_OR_RETURN_RESULT_ERROR( flag )   if(!(flag)) { ASSERTION; return RESULT_ERROR; } //!< if flag is not true return result
-
-*/
-
-
-
-// #define RSIZ 4 //!< must be power of 2!
-// static uint8_t rcRd[ RSIZ ];
-// 
-// //! fifo control struct, UART received data are arriving here
-// Fifo_t rdFifo = {RSIZ, rcRd, rcRd+RSIZ, rcRd, rcRd }; 
-
-
 
 #ifdef __cplusplus
 }

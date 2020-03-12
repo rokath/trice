@@ -347,6 +347,40 @@ static void FifoPushBuffer_Unprotected( Fifo_t* f, size_t count, const uint8_t* 
 //! \param string len, max valid value is 65536, len 0 means no transmission at all
 //! \param s pointer to string
 //! \return used packet index 
+//! \code
+//! trice package: header without data packages
+//!   |--------------------------------- fixed packet start0 byte 0xeb 
+//!   |   |----------------------------- client address (local address byte)
+//!   |   |   |------------------------- server address (destination)
+//!   |   |   |   |--------------------- exclusive-or checksum byte
+//!   |   |   |   |   |----------------- ID low part
+//!   |   |   |   |   |   |------------- ID high part
+//!   |   |   |   |   |   |   |--------- Value Low part
+//!   |   |   |   |   |   |   |   |----- Value High part
+//!   v   v   v   v   v   v   v   v
+//! 0xeb cad sad cr8 idL idH vaL  vaH
+//! 
+//! com packet: header followed by 0...255 data packages
+//!   |--------------------------------- fixed packet start0 byte 0xc0 
+//!   |   |----------------------------- following data package count fixed 1 for trice strings
+//!   |   |   |------------------------- server address (destination)
+//!   |   |   |   |--------------------- exclusive-or checksum byte
+//!   |   |   |   |   |----------------- type identifyer byte
+//!   |   |   |   |   |   |------------- function identifyer byte
+//!   |   |   |   |   |   |   |--------- packet index (2 lsb packet type and and 6 msb cycle counter)
+//!   |   |   |   |   |   |   |   |----- data package count
+//!   v   v   v   v   v   v   v   v
+//! 0xc0 cad sad cr8 tid fid pix dpc 
+//! 
+//! com type: (part of pix) 
+//!       bit1      |      bit0       | meaning
+//!   COM_CMD_FLAG  | COM_ANSWER_FLAG |
+//! ----------------|-----------------|------------------------------------------
+//!         1       |        1        | \b Cmd = command expecting answer
+//!         0       |        1        | \b Ans = answer to a command expecting answer
+//!         1       |        0        | \b Msg = command not expecting an answer (message)
+//!         0       |        0        | \b Buf = trice string package, when 0xffff==tidfid
+//! \endcode
 static uint8_t triceReCalStringBuffer( size_t len, const char* s ){
     uint16_t len_1 = (uint16_t)(len-1); // len-1 is transmitted in data package
     #define CAD TRICE_LOCAL_ADDR // client address

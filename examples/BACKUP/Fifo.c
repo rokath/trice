@@ -1,6 +1,11 @@
 /*! \file Fifo.c
 \brief dynamic data buffering
 \details
+// #define RSIZ 4 //!< must be power of 2!
+// static uint8_t rcRd[ RSIZ ];
+// 
+// //! fifo control struct, UART received data are arriving here
+// Fifo_t rdFifo = {RSIZ, rcRd, rcRd+RSIZ, rcRd, rcRd }; 
 \author Thomas.Hoehenleitner [at] seerose.net
 *******************************************************************************/
 //lint -e534 warning 534: ignoring return value of memcpy
