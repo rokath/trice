@@ -9,14 +9,18 @@ import (
 	"fmt"
 	"runtime"
 	"strings"
+	"time"
 	"unicode"
 
 	"github.com/fatih/color"
 	"github.com/rokath/trice/pkg/id"
 )
 
+var ColorPalette string
+var TimeStampFormat string = "off"
+
 // checkValuePosition is a consistency check for positive values and their position
-func checkValuePosition(l id.List, palette string) error {
+func checkValuePosition(l id.List) error {
 	var b []byte // check data
 	for i := range l {
 		it := l[i]
@@ -65,7 +69,7 @@ func checkValuePosition(l id.List, palette string) error {
 			return err
 		}
 		b = b[:0] // empty d for next trice
-		err = visualize(s, palette)
+		err = visualize(s)
 		if nil != err {
 			return err
 		}
@@ -74,7 +78,7 @@ func checkValuePosition(l id.List, palette string) error {
 }
 
 // checkNegativeValues is a consistency check for negative values
-func checkNegativeValues(l id.List, palette string) error {
+func checkNegativeValues(l id.List) error {
 	var b []byte // check data
 	for i := range l {
 		it := l[i]
@@ -123,7 +127,7 @@ func checkNegativeValues(l id.List, palette string) error {
 			return err
 		}
 		b = b[:0] // empty d for next trice
-		err = visualize(s, palette)
+		err = visualize(s)
 		if nil != err {
 			return err
 		}
@@ -131,7 +135,7 @@ func checkNegativeValues(l id.List, palette string) error {
 	return nil
 }
 
-func checkFix(l id.List, palette string) error {
+func checkFix(l id.List) error {
 	b := []byte{'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'} // dummy data
 	for i := range l {
 		it := l[i]
@@ -164,7 +168,7 @@ func checkFix(l id.List, palette string) error {
 			return err
 		}
 		b = b[:0] // empty d for next trice
-		err = visualize(s, palette)
+		err = visualize(s)
 		if nil != err {
 			return err
 		}
@@ -173,14 +177,14 @@ func checkFix(l id.List, palette string) error {
 }
 
 // Check evaluates the l output with specifiesd dataSet
-func Check(l id.List, dataSet, palette string) error {
+func Check(l id.List, dataSet string) error {
 	if "position" == dataSet {
-		return checkValuePosition(l, palette)
+		return checkValuePosition(l)
 	}
 	if "negative" == dataSet {
-		return checkNegativeValues(l, palette)
+		return checkNegativeValues(l)
 	}
-	return checkFix(l, palette)
+	return checkFix(l)
 }
 
 var d = make([]byte, 0, 32) // param collector, usually not more than 16 bytes
@@ -191,7 +195,7 @@ var buffer []byte           // container for buffer data (strings)
 // The ID can be 0, in that case only the data payload is saved
 // If b is not empty, the start byte in buffer b is 0xc0. The byte slice b contains a 8 byte header, a 2 byte len-1 value and and len buffer bytes.
 // b is used for long runtime strings, when the format string is "%s".
-func Trice(t, b []byte, l id.List, palette string) ([]byte, error) {
+func Trice(t, b []byte, l id.List) ([]byte, error) {
 	d = append(d, t[6:8]...)
 	i := int(binary.LittleEndian.Uint16(t[4:6]))
 	if 0 == i {
@@ -213,7 +217,7 @@ func Trice(t, b []byte, l id.List, palette string) ([]byte, error) {
 	}
 	it := l[x]
 	s, b, _ := emitter(it, d, b)
-	err = visualize(s, palette)
+	err = visualize(s)
 	d = d[:0] // empty d for next trice
 	return b, err
 }
@@ -352,7 +356,7 @@ func colorSetAlternate(channel string) (*color.Color, error) {
 // If lower case match it returns *color.Color and s without starting pattern "col:"
 // col options are: err, wrn, msg, ...
 // COL options are: ERR, WRN, MSG, ...
-func colorChannel(s, palette string) (*color.Color, string) {
+func colorChannel(s string) (*color.Color, string) {
 	var c *color.Color
 	var err error
 	sc := strings.SplitN(s, ":", 2)
@@ -365,7 +369,7 @@ func colorChannel(s, palette string) (*color.Color, string) {
 	} else {
 		r = s // keep channel info
 	}
-	switch palette {
+	switch ColorPalette {
 	case "off":
 		color.NoColor = true // disables colorized output
 	case "default":
@@ -399,10 +403,10 @@ func trimBackslashes(s string) string {
 }
 
 // set color and linebreaks
-func visualize(s, palette string) error {
+func visualize(s string) error {
 	var err error
 	s = trimBackslashes(s)
-	c, s := colorChannel(s, palette)
+	c, s := colorChannel(s)
 
 	// When a carriage return is executed, the whole next line gets the current background color.
 	// Therefore detect this case and set the color to a default value before the carriage return.
@@ -410,7 +414,12 @@ func visualize(s, palette string) error {
 		s := strings.TrimSuffix(s, "\n")
 		printIt(s, c)
 		b := color.New(color.FgWhite).Add(color.BgBlack) // assuming this as the default terminal color
-		_, err = b.Println()
+		_, _ = b.Println()
+		switch(TimeStampFormat){
+			case "off":
+			case "UTCmicro": _, err = b.Print(time.Now().UTC().Format(time.StampMicro),": ")
+			case "LOCmicro": _, err = b.Print(time.Now().Format(time.StampMicro),": ")
+		}
 	} else {
 		_, err = printIt(s, c)
 	}

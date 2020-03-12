@@ -25,6 +25,7 @@ func ExampleHandleArgs_logListNotFound() {
 func ExampleHandleArgs_logCOM0() {
 	HandleArgs("./", []string{"trice", "log", "-list", "none", "-port", "COM0"})
 	// Output:
+	// id list file none with 0 items
 	// Error: Could not open serial port: Serial port not found
 	// Could not set up serial port COM0
 	// try -port COMscan

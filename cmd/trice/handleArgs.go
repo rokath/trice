@@ -33,6 +33,7 @@ func (i *arrayFlag) Set(value string) error {
 
 var srcs arrayFlag // gets multiple files or directories
 
+
 // HandleArgs evaluates the arguments slice of strings und uses wd as working directory
 func HandleArgs(wd string, args []string) error {
 	list := make(id.List, 0, 65536) // for 16 bit IDs enough
@@ -47,10 +48,11 @@ func HandleArgs(wd string, args []string) error {
 	lCmd := flag.NewFlagSet("log", flag.ExitOnError)                                // subcommand
 	pPort := lCmd.String("port", "", "subcommand (required, try COMscan)")          // flag
 	pBaud := lCmd.Int("baud", 38400, "COM baudrate (optional, default is 38400")    // flag
-	pL := lCmd.String("list", "til.json", "trice ID list path (optional)")          // flag
+	pJSON := lCmd.String("list", "til.json", "trice ID list path (optional)")       // flag
 	pCol := lCmd.String("color", "default", "color set (optional), off, alternate") // flag
 	pKey := lCmd.String("key", "none", "decrypt passphrase, (optional)")            // flag
 	pShow := lCmd.Bool("show", false, "show passphrase (optional)")                 // flag
+	pTs := lCmd.String("ts", "LOCmicro", "timestamp (optional), off, UTCmicro")     // flag
 
 	cCmd := flag.NewFlagSet("check", flag.ExitOnError)                              // subcommand
 	pSet := cCmd.String("dataset", "position", "parameters (optional), negative")   // flag
@@ -139,7 +141,9 @@ func HandleArgs(wd string, args []string) error {
 		return checkList(*pC, *pSet, pList, *pPal)
 	}
 	if lCmd.Parsed() {
-		return logTrices(lCmd, *pPort, *pBaud, *pL, pList, *pCol, *pKey, *pShow)
+		emit.TimeStampFormat = *pTs
+		emit.ColorPalette = *pCol
+		return logTrices(lCmd, *pPort, *pBaud, *pJSON, pList, *pKey, *pShow)
 	}
 	if zCmd.Parsed() {
 		return zeroIds(*pRunZ, *pSrcZ, zCmd)
@@ -203,7 +207,7 @@ func checkList(fn, dataset string, p *id.List, palette string) error {
 		fmt.Println("ID list " + fn + " not found, exit")
 		return nil
 	}
-	emit.Check(*p, dataset, palette)
+	emit.Check(*p, dataset)
 	return nil
 }
 
@@ -231,7 +235,7 @@ func createCipher(password string, show bool) (*xtea.Cipher, bool, error) {
 }
 
 // connect to port and display traces
-func logTrices(cmd *flag.FlagSet, port string, baud int, fn string, p *id.List, palette, password string, show bool) error {
+func logTrices(cmd *flag.FlagSet, port string, baud int, fn string, p *id.List, password string, show bool) error {
 	if "" == port {
 		cmd.PrintDefaults()
 		return nil
@@ -276,10 +280,10 @@ func logTrices(cmd *flag.FlagSet, port string, baud int, fn string, p *id.List, 
 		}
 	}
 	fmt.Println("id list file", fn, "with", len(*p), "items")
-	return doSerialReceive(port, baud, p, palette)
+	return doSerialReceive(port, baud, p)
 }
 
-func doSerialReceive(port string, baud int, p *id.List, palette string) error {
+func doSerialReceive(port string, baud int, p *id.List) error {
 	serialReceiver := receiver.NewSerialReceiver(port, baud)
 
 	if serialReceiver.SetUp() == false {
@@ -301,11 +305,9 @@ func doSerialReceive(port string, baud int, p *id.List, palette string) error {
 				//log.Println("from buffer channel:", c)
 				b = append(b, c...)
 			}
-			//fmt.Println("b is:", b)
 		case t = <-(*serialReceiver.GetTriceChannel()):
 			//log.Println("from trice channel:", t)
-			//log.Println("emit.Trice", t, len(b))
-			b, err = emit.Trice(t, b, *p, palette)
+			b, err = emit.Trice(t, b, *p)
 			if nil != err {
 				log.Println("trice.Log error", err, t, b)
 			}

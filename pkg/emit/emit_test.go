@@ -35,7 +35,8 @@ func TestPosition(t *testing.T) {
 	r, w, _ := os.Pipe()
 	os.Stdout = w
 
-	Check(list, "position", "off") // color "off"
+	ColorPalette = "off"
+	Check(list, "position") // color "off"
 
 	outC := make(chan string)
 	// copy the output in a separate goroutine so printing can't block indefinitely
@@ -89,8 +90,8 @@ func TestNegative(t *testing.T) {
 	old := os.Stdout // keep backup of the real stdout
 	r, w, _ := os.Pipe()
 	os.Stdout = w
-
-	Check(list, "negative", "off") // color "off"
+	ColorPalette = "off"
+	Check(list, "negative") // color "off"
 
 	outC := make(chan string)
 	// copy the output in a separate goroutine so printing can't block indefinitely
