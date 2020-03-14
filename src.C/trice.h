@@ -21,13 +21,13 @@ extern "C" {
 #endif
 
 #if NO_CODE == TRICE_CODE
-#define ASSERT( flag )
+#define TRICE_ASSERT( flag )
 #else
-#define ASSERT( flag )                     do{ if(!(flag)) { TRICE_LOC; TRICE0( Id(37710), "ERR:ASSERT failed\n" ); } }while(0) //!< report if flag is not true
+#define TRICE_ASSERT( flag )               do{ if(!(flag)) { TRICE_LOC; TRICE0( Id(37710), "ERR:ASSERT failed\n" ); } }while(0) //!< report if flag is not true
 #endif
 
-#define ASSERT_OR_RETURN( flag )           do{ ASSERT( flag ); if(!(flag)) { return; } }while(0) //!< report if flag is not true and return
-#define ASSERT_OR_RETURN_RESULT( flag, r ) do{ ASSERT( flag ); if(!(flag)) { return r; } }while(0) //!< report if flag is not true and return
+#define ASSERT_OR_RETURN( flag )           do{ TRICE_ASSERT( flag ); if(!(flag)) { return; } }while(0) //!< report if flag is not true and return
+#define ASSERT_OR_RETURN_RESULT( flag, r ) do{ TRICE_ASSERT( flag ); if(!(flag)) { return r; } }while(0) //!< report if flag is not true and return
 
 #if 0 == TRICE_PRINTF_ADAPTER || NO_CODE == TRICE_CODE
 #define TRICE_P( s, ... )

@@ -121,6 +121,12 @@ void PendSV_Handler(void)
   /* USER CODE END PendSV_IRQn 1 */
 }
 
+#ifdef TRICE_QUICK_AND_DIRTY_ONLY_PUTCHAR
+#define MS_INTERVAL 100
+#else
+#define MS_INTERVAL 10
+#endif
+
 /**
   * @brief This function handles System tick timer.
   */
@@ -128,14 +134,16 @@ void SysTick_Handler(void)
 {
   /* USER CODE BEGIN SysTick_IRQn 0 */
     ms++;
-    if( 0 == ms % 10 ){
+    if( 0 == ms % MS_INTERVAL ){
         TRICE32_1( Id(18577), "ISR:alive time %d milliseconds\n", ms );
     }
 
   /* USER CODE END SysTick_IRQn 0 */
   
   /* USER CODE BEGIN SysTick_IRQn 1 */
+    #ifndef TRICE_QUICK_AND_DIRTY_ONLY_PUTCHAR
     TxStart();  // start transmission if data
+    #endif
   /* USER CODE END SysTick_IRQn 1 */
 }
 
@@ -155,7 +163,9 @@ void USART2_IRQHandler(void)
 
   /* USER CODE END USART2_IRQn 0 */
   /* USER CODE BEGIN USART2_IRQn 1 */
+    #ifndef TRICE_QUICK_AND_DIRTY_ONLY_PUTCHAR
     TxContinue(); // end transmission if no data
+    #endif
   /* USER CODE END USART2_IRQn 1 */
 }
 

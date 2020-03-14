@@ -125,6 +125,12 @@ int main(void)
           LL_GPIO_SetOutputPin(LD2_GPIO_Port, LD2_Pin);
             triceCheckSet();
         }
+        #ifdef TRICE_QUICK_AND_DIRTY_ONLY_PUTCHAR
+        if( 0 == loopCount % 10 ){
+            TxStart();
+            TxContinue();
+        }
+        #endif
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
