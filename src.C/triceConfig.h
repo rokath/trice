@@ -127,6 +127,22 @@ extern "C" {
 // hardware specific interface functions tested on NUCLEO-STM32F030
 //
 
+//#define TRICE_QUICK_AND_DIRTY_ONLY_PUTCHAR // for a quick start you can enable this line and rely only putchar
+
+#ifdef TRICE_QUICK_AND_DIRTY_ONLY_PUTCHAR
+TRICE_INLINE void tricePutchar( char c ){
+    LL_USART_TransmitData8( TRICE_USART, c); // put your putchar call here
+}
+
+#define TRICE_ENTER_CRITICAL_SECTION {
+#define TRICE_LEAVE_CRITICAL_SECTION }
+TRICE_INLINE uint32_t triceTxDataRegisterEmpty( void ){ return 1; } // would be good to implement it for better performance, otherwise you need to use a time interval for the Tx calls
+TRICE_INLINE void triceTransmitData8( uint8_t d ){ tricePutchar( d ); }
+TRICE_INLINE void triceEableTxEmptyInterrupt( void ){}
+TRICE_INLINE void triceDisableTxEmptyInterrupt( void ){}
+
+#else // #ifdef TRICE_QUICK_AND_DIRTY_ONLY_PUTCHAR
+
 //! Save interrupt state and disable Interrupts
 //! \details Workaround for ARM Cortex M0 and M0+
 //! \li __get_PRIMASK() is 0 when interrupts are enabled globally
@@ -145,30 +161,32 @@ extern "C" {
 
 //! Check if a new byte can be written into trice transmit register.
 //! \retval 0 == not empty
-//! \retval !0 == epmty
+//! \retval !0 == empty
 //! User must provide this function.
 TRICE_INLINE uint32_t triceTxDataRegisterEmpty( void ){
-    return LL_USART_IsActiveFlag_TXE( USART2 );
+    return LL_USART_IsActiveFlag_TXE( TRICE_UART );
 }
 
 //! Write value d into trice transmit register.
 //! \param d byte to transmit
 //! User must provide this function.
 TRICE_INLINE void triceTransmitData8( uint8_t d ){
-    LL_USART_TransmitData8( USART2, d);
+    LL_USART_TransmitData8( TRICE_UART, d);
 }
 
 //! Allow interrupt for empty trice data transmit register.
 //! User must provide this function.
 TRICE_INLINE void triceEableTxEmptyInterrupt( void ){
-    LL_USART_EnableIT_TXE( USART2 );
+    LL_USART_EnableIT_TXE( TRICE_UART );
 }
 
 //! Disallow interrupt for empty trice data transmit register.
 //! User must provide this function.
 TRICE_INLINE void triceDisableTxEmptyInterrupt( void ){
-    LL_USART_DisableIT_TXE( USART2 );
+    LL_USART_DisableIT_TXE( TRICE_UART );
 }
+
+#endif // #else // #ifdef TRICE_QUICK_AND_DIRTY_ONLY_PUTCHAR
 
 #define SYSTICKVAL16 SysTick->VAL //!< STM32 specific, set to 0 as starting point with nonSTM MCE
 

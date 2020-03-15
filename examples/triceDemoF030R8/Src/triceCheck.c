@@ -22,9 +22,9 @@ void triceCheckSet( void )
     #endif
     TRICE16_1( Id(46097), "dbg:12345 as 16bit is %#016b\n", 12345 );
     TRICE0 (Id( 4316), "------------------------------------------------------------------------------------------\r\n\n" );
-    ASSERT(0==0);
+    TRICE_ASSERT(0==0);
     TRICE0( Id(10084), "sig:This ASSERT error is just a demo and no real error: "); 
-    ASSERT(0==1);
+    TRICE_ASSERT(0==1);
     TRICE0 (Id(41390), "------------------------------------------------------------------------------------------\r\n\n" );
 
     TRICE8_4( Id( 1750), "tst:TRICE8  %%03x ->  %03x  %03x  %03x  %03x\n", 1, 0x7f, 0x80, 0xff );

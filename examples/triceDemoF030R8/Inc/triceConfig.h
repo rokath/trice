@@ -131,7 +131,7 @@ extern "C" {
 
 #ifdef TRICE_QUICK_AND_DIRTY_ONLY_PUTCHAR
 TRICE_INLINE void tricePutchar( char c ){
-    LL_USART_TransmitData8( USART2, c); // put your putchar call here
+    LL_USART_TransmitData8( TRICE_UART, c); // put your putchar call here
 }
 
 #define TRICE_ENTER_CRITICAL_SECTION {
@@ -164,26 +164,26 @@ TRICE_INLINE void triceDisableTxEmptyInterrupt( void ){}
 //! \retval !0 == empty
 //! User must provide this function.
 TRICE_INLINE uint32_t triceTxDataRegisterEmpty( void ){
-    return LL_USART_IsActiveFlag_TXE( USART2 );
+    return LL_USART_IsActiveFlag_TXE( TRICE_UART );
 }
 
 //! Write value d into trice transmit register.
 //! \param d byte to transmit
 //! User must provide this function.
 TRICE_INLINE void triceTransmitData8( uint8_t d ){
-    LL_USART_TransmitData8( USART2, d);
+    LL_USART_TransmitData8( TRICE_UART, d);
 }
 
 //! Allow interrupt for empty trice data transmit register.
 //! User must provide this function.
 TRICE_INLINE void triceEableTxEmptyInterrupt( void ){
-    LL_USART_EnableIT_TXE( USART2 );
+    LL_USART_EnableIT_TXE( TRICE_UART );
 }
 
 //! Disallow interrupt for empty trice data transmit register.
 //! User must provide this function.
 TRICE_INLINE void triceDisableTxEmptyInterrupt( void ){
-    LL_USART_DisableIT_TXE( USART2 );
+    LL_USART_DisableIT_TXE( TRICE_UART );
 }
 
 #endif // #else // #ifdef TRICE_QUICK_AND_DIRTY_ONLY_PUTCHAR
