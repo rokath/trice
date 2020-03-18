@@ -16,8 +16,8 @@ import (
 	"github.com/rokath/trice/pkg/id"
 )
 
-var ColorPalette string
-var TimeStampFormat string = "off"
+var ColorPalette = "default"
+var TimeStampFormat string = "LOCmicro"
 
 // checkValuePosition is a consistency check for positive values and their position
 func checkValuePosition(l id.List) error {
@@ -69,7 +69,7 @@ func checkValuePosition(l id.List) error {
 			return err
 		}
 		b = b[:0] // empty d for next trice
-		err = visualize(s)
+		err = Visualize(s)
 		if nil != err {
 			return err
 		}
@@ -127,7 +127,7 @@ func checkNegativeValues(l id.List) error {
 			return err
 		}
 		b = b[:0] // empty d for next trice
-		err = visualize(s)
+		err = Visualize(s)
 		if nil != err {
 			return err
 		}
@@ -168,7 +168,7 @@ func checkFix(l id.List) error {
 			return err
 		}
 		b = b[:0] // empty d for next trice
-		err = visualize(s)
+		err = Visualize(s)
 		if nil != err {
 			return err
 		}
@@ -217,7 +217,7 @@ func Trice(t, b []byte, l id.List) ([]byte, error) {
 	}
 	it := l[x]
 	s, b, _ := emitter(it, d, b)
-	err = visualize(s)
+	err = Visualize(s)
 	d = d[:0] // empty d for next trice
 	return b, err
 }
@@ -402,24 +402,32 @@ func trimBackslashes(s string) string {
 	return s
 }
 
-// set color and linebreaks
-func visualize(s string) error {
+var tsFlag = true
+
+// Visualize displays s and sets color and linebreaks
+// The timestamp is printed only and only after \n and with the next s
+func Visualize(s string) error {
 	var err error
 	s = trimBackslashes(s)
 	c, s := colorChannel(s)
-
+	b := color.New(color.FgWhite).Add(color.BgBlack) // assuming this as the default terminal background color
+	if true == tsFlag {
+		tsFlag = false
+		switch TimeStampFormat {
+		case "LOCmicro":
+			_, err = b.Print(time.Now().Format(time.StampMicro), ": ")
+		case "UTCmicro":
+			_, err = b.Print(time.Now().UTC().Format(time.StampMicro), ": ")
+		case "off": // do nothing
+		}
+	}
 	// When a carriage return is executed, the whole next line gets the current background color.
 	// Therefore detect this case and set the color to a default value before the carriage return.
 	if strings.HasSuffix(s, "\n") {
 		s := strings.TrimSuffix(s, "\n")
 		printIt(s, c)
-		b := color.New(color.FgWhite).Add(color.BgBlack) // assuming this as the default terminal color
 		_, _ = b.Println()
-		switch(TimeStampFormat){
-			case "off":
-			case "UTCmicro": _, err = b.Print(time.Now().UTC().Format(time.StampMicro),": ")
-			case "LOCmicro": _, err = b.Print(time.Now().Format(time.StampMicro),": ")
-		}
+		tsFlag = true
 	} else {
 		_, err = printIt(s, c)
 	}
@@ -484,13 +492,13 @@ func emitter(it id.Item, t, b []byte) (string, []byte, error) {
 	case "TRICE0":
 		if 2 != len(t) { // t has 2 padding bytes
 			fmt.Println(t)
-			return "ERR: DATA STREAM ERROR in "+fileLine(), b, errors.New("ERR: DATA STREAM ERROR")
+			return "ERR: DATA STREAM ERROR in " + fileLine(), b, errors.New("ERR: DATA STREAM ERROR")
 		}
 		s = f
 	case "TRICE8_1":
 		if 2 != len(t) {
 			fmt.Println(t)
-			return "ERR: DATA STREAM ERROR in "+fileLine(), b, errors.New("ERR: DATA STREAM ERROR")
+			return "ERR: DATA STREAM ERROR in " + fileLine(), b, errors.New("ERR: DATA STREAM ERROR")
 		}
 		if "%s" != f { // normal case
 			s = fmt.Sprintf(f, int8(t[0]))
@@ -498,7 +506,7 @@ func emitter(it id.Item, t, b []byte) (string, []byte, error) {
 			t[0] != b[6] { // t[0] is parameter and b[6] pix and they must be equal
 			fmt.Print(t, b)
 			b = nil
-			return "ERR: DATA STREAM ERROR in "+fileLine(), b, errors.New("ERR: DATA STREAM ERROR")
+			return "ERR: DATA STREAM ERROR in " + fileLine(), b, errors.New("ERR: DATA STREAM ERROR")
 		} else { // ok
 			sLen := 1 + int(binary.LittleEndian.Uint16(b[8:10])) // sLen is -1 value
 			b = b[10:]                                           // discard old header & sLen
