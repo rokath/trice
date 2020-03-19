@@ -6,6 +6,7 @@
 package main
 
 import (
+	"bufio"
 	"crypto/sha1"
 	"errors"
 	"flag"
@@ -15,6 +16,7 @@ import (
 	"net/rpc"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
 
 	"github.com/rokath/trice/pkg/emit"
@@ -342,6 +344,33 @@ func conditionalComPortScan() error {
 	}
 }
 
+func keyboardInput() {
+	/////////////////////////////////////////////////////////////////////
+	//
+	// https://tutorialedge.net/golang/reading-console-input-golang/
+	//
+
+	//var k chan []byte
+
+	reader := bufio.NewReader(os.Stdin)
+	fmt.Println("Simple Shell")
+	fmt.Println("---------------------")
+
+	go func() {
+		fmt.Print("-> ")
+		text, _ := reader.ReadString('\n')
+		// convert CRLF to LF
+		text = strings.Replace(text, "\r\n", "", -1) // Linux "\n" !
+
+		if strings.Compare("hi", text) == 0 {
+			fmt.Println("hello, Yourself")
+		}
+	}() // https://stackoverflow.com/questions/16008604/why-add-after-closure-body-in-golang
+
+	//
+	/////////////////////////////////////////////////////////////////////
+}
+
 func doSerialReceive() error {
 	err := conditionalComPortScan()
 	if err != nil {
@@ -358,6 +387,8 @@ func doSerialReceive() error {
 
 	serialReceiver.Start()
 	defer serialReceiver.CleanUp()
+
+	keyboardInput()
 
 	var t, b []byte
 	for {
