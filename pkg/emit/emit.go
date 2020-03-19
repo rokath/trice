@@ -404,9 +404,13 @@ func trimBackslashes(s string) string {
 
 var tsFlag = true
 
-// Visualize displays s and sets color and linebreaks
+// Visualize is an exported function pointer, which can be redirected for example to a client call
+var Visualize = visualize
+
+// visualize displays s and sets color and linebreaks
 // The timestamp is printed only and only after \n and with the next s
-func Visualize(s string) error {
+// todo: The timestamp should be created on client side for more accurate timings
+func visualize(s string) error {
 	var err error
 	s = trimBackslashes(s)
 	c, s := colorChannel(s)

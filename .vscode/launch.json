@@ -42,6 +42,26 @@
                      "-key",
                      "none"
             ]
+        },       
+        {
+            "name": "Launch trice remoteDisplay",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}/cmd/trice",
+            "env": {},
+            "args": ["remoteDisplay",
+                    "-ipp",
+                    "12345",
+                     "-port",
+                     "COM23",
+                     "-baud",
+                     "115200",
+                     "-list",
+                     "C:/GitRepos/trice/examples/til.json",
+                     "-key",
+                     "none"
+            ]
         },
         {
             "name": "Launch trice check",

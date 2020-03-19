@@ -15,6 +15,7 @@ import (
 	"net/rpc"
 	"os"
 	"path/filepath"
+	"sync"
 
 	"github.com/rokath/trice/pkg/emit"
 	"github.com/rokath/trice/pkg/id"
@@ -35,12 +36,15 @@ func (i *arrayFlag) Set(value string) error {
 
 var srcs arrayFlag // gets multiple files or directories
 
+// local config values
 var port string
 var baud int
 var fnJSON string
 var pList *id.List
 var ipAddr string
 var ipPort string
+var password string
+var showPassword bool
 
 // HandleArgs evaluates the arguments slice of strings und uses wd as working directory
 func HandleArgs(wd string, args []string) error {
@@ -52,15 +56,6 @@ func HandleArgs(wd string, args []string) error {
 	pLU := uCmd.String("list", "til.json", "trice ID list path (optional), \"none\" possible") // flag
 	pVerb := uCmd.Bool("v", false, "verbose (optional)")                                       // flag
 	uCmd.Var(&srcs, "src", "source dir or file (optional, default is ./), multi use possible") // multi flag
-
-	lCmd := flag.NewFlagSet("log", flag.ExitOnError)                                // subcommand
-	pPort := lCmd.String("port", "", "subcommand (required, try COMscan)")          // flag
-	pBaud := lCmd.Int("baud", 115200, "COM baudrate (optional, default is 115200")  // flag
-	pJSON := lCmd.String("list", "til.json", "trice ID list path (optional)")       // flag
-	pCol := lCmd.String("color", "default", "color set (optional), off, alternate") // flag
-	pKey := lCmd.String("key", "none", "decrypt passphrase, (optional)")            // flag
-	pShow := lCmd.Bool("show", false, "show passphrase (optional)")                 // flag
-	pTs := lCmd.String("ts", "LOCmicro", "timestamp (optional), off, UTCmicro")     // flag
 
 	cCmd := flag.NewFlagSet("check", flag.ExitOnError)                              // subcommand
 	pSet := cCmd.String("dataset", "position", "parameters (optional), negative")   // flag
@@ -75,20 +70,32 @@ func HandleArgs(wd string, args []string) error {
 
 	vCmd := flag.NewFlagSet("version", flag.ContinueOnError) // subcommand
 
+	lCmd := flag.NewFlagSet("log", flag.ExitOnError) // subcommand
+
+	pPort := lCmd.String("port", "", "subcommand (required, try COMscan)")          // flag
+	pBaud := lCmd.Int("baud", 115200, "COM baudrate (optional, default is 115200")  // flag
+	pJSON := lCmd.String("list", "til.json", "trice ID list path (optional)")       // flag
+	pTs := lCmd.String("ts", "LOCmicro", "timestamp (optional), off, UTCmicro")     // flag
+	pCol := lCmd.String("color", "default", "color set (optional), off, alternate") // flag
+	pKey := lCmd.String("key", "none", "decrypt passphrase, (optional)")            // flag
+	pShow := lCmd.Bool("show", false, "show passphrase (optional)")                 // flag
+
+	clCmd := flag.NewFlagSet("remoteDisplay", flag.ExitOnError)                               // subcommand
+	pClIPA := clCmd.String("ipa", "localhost", "ip address (optional, default is localhost)") // flag (127.0.0.1)
+	pClIPP := clCmd.String("ipp", "", "ip port number (required, a 16 bit number)")           // flag
+
+	pClPort := clCmd.String("port", "", "subcommand (required, try COMscan)")         // flag
+	pClBaud := clCmd.Int("baud", 115200, "COM baudrate (optional, default is 115200") // flag
+	pClJSON := clCmd.String("list", "til.json", "trice ID list path (optional)")      // flag
+	pClTs := clCmd.String("ts", "LOCmicro", "timestamp (optional), off, UTCmicro")    // flag
+	pClKey := clCmd.String("key", "none", "decrypt passphrase, (optional)")           // flag
+	pClShow := clCmd.Bool("show", false, "show passphrase (optional)")                // flag
+
 	svCmd := flag.NewFlagSet("displayServer", flag.ExitOnError)                               // subcommand
 	pSvIPA := svCmd.String("ipa", "localhost", "ip address (optional, default is localhost)") // flag (127.0.0.1)
 	pSvIPP := svCmd.String("ipp", "", "port number (required, a 16 bit number)")              // flag
 	pSvCol := svCmd.String("color", "default", "color set (optional), off, alternate")        // flag
 	pSvTs := svCmd.String("ts", "LOCmicro", "timestamp (optional), off, UTCmicro")            // flag
-
-	clCmd := flag.NewFlagSet("remoteDisplay", flag.ExitOnError)                               // subcommand
-	pClIPA := clCmd.String("ipa", "localhost", "ip address (optional, default is localhost)") // flag (127.0.0.1)
-	pClIPP := clCmd.String("ipp", "", "ip port number (required, a 16 bit number)")           // flag
-	pClCol := clCmd.String("color", "default", "color set (optional), off, alternate")        // flag
-	pClTs := clCmd.String("ts", "LOCmicro", "timestamp (optional), off, UTCmicro")            // flag
-	pClPort := clCmd.String("port", "", "subcommand (required, try COMscan)")                 // flag
-	pClBaud := clCmd.Int("baud", 115200, "COM baudrate (optional, default is 115200")         // flag
-	pClJSON := clCmd.String("list", "til.json", "trice ID list path (optional)")              // flag
 
 	// Verify that a subcommand has been provided
 	// os.Arg[0] is the main command
@@ -165,7 +172,7 @@ func HandleArgs(wd string, args []string) error {
 		return nil
 	}
 	if cCmd.Parsed() {
-		return checkList(*pC, *pSet /*pList,*/, *pPal)
+		return checkList(*pC, *pSet, *pPal)
 	}
 	if lCmd.Parsed() {
 		emit.TimeStampFormat = *pTs
@@ -173,7 +180,9 @@ func HandleArgs(wd string, args []string) error {
 		baud = *pBaud
 		port = *pPort
 		fnJSON = *pJSON
-		return logTrices( /*lCmd, pList,*/ *pKey, *pShow)
+		password = *pKey
+		showPassword = *pShow
+		return logTrices()
 	}
 	if zCmd.Parsed() {
 		return zeroIds(*pRunZ, *pSrcZ, zCmd)
@@ -189,16 +198,16 @@ func HandleArgs(wd string, args []string) error {
 		return displayServer()
 	}
 	if clCmd.Parsed() {
-		emit.TimeStampFormat = *pClTs
-		emit.ColorPalette = *pClCol
-		port = *pClPort
-		baud = *pClBaud
 		ipAddr = *pClIPA
 		ipPort = *pClIPP
+		port = *pClPort
+		baud = *pClBaud
 		fnJSON = *pClJSON
+		emit.TimeStampFormat = *pClTs
+		password = *pClKey
+		showPassword = *pClShow
 		return remoteDisplay()
 	}
-
 	return nil
 }
 
@@ -245,7 +254,7 @@ func help(hCmd *flag.FlagSet,
 }
 
 // parse source tree, update IDs and is list
-func update(dryRun bool, dir, fn string /*p *id.List,*/, verbose bool) error {
+func update(dryRun bool, dir, fn string, verbose bool) error {
 	err := pList.Update(dir, fn, !dryRun, verbose)
 	if nil != err {
 		return fmt.Errorf("failed update on %s with %s: %v", dir, fn, err)
@@ -266,7 +275,7 @@ func checkList(fn, dataset string /*p *id.List,*/, palette string) error {
 }
 
 // with password "none" the encryption flag is set false, otherwise true
-func createCipher(password string, show bool) (*xtea.Cipher, bool, error) {
+func createCipher() (*xtea.Cipher, bool, error) {
 	h := sha1.New() // https://gobyexample.com/sha1-hashes
 	h.Write([]byte(password))
 	key := h.Sum(nil)
@@ -279,22 +288,17 @@ func createCipher(password string, show bool) (*xtea.Cipher, bool, error) {
 	var e bool
 	if "none" != password {
 		e = true
-		if true == show {
+		if true == showPassword {
 			fmt.Printf("% 20x is XTEA encryption key\n", key)
 		}
-	} else if true == show {
+	} else if true == showPassword {
 		fmt.Printf("no encryption\n")
 	}
 	return c, e, nil
 }
 
 // connect to port and display traces
-func logTrices( /*cmd *flag.FlagSet, fn string  p *id.List, */ password string, show bool) error {
-	/*if "" == port {
-		cmd.PrintDefaults()
-		return nil
-	}*/
-
+func logTrices() error {
 	if "none" != fnJSON {
 		// setup ip list
 		err := pList.Read(fnJSON)
@@ -305,7 +309,7 @@ func logTrices( /*cmd *flag.FlagSet, fn string  p *id.List, */ password string, 
 	}
 
 	var err error
-	receiver.Cipher, receiver.Crypto, err = createCipher(password, show)
+	receiver.Cipher, receiver.Crypto, err = createCipher()
 	if nil != err {
 		return err
 	}
@@ -320,7 +324,10 @@ func logTrices( /*cmd *flag.FlagSet, fn string  p *id.List, */ password string, 
 	return doSerialReceive()
 }
 
-func comScan() error {
+func conditionalComPortScan() error {
+	if "COMscan" != port {
+		return nil
+	}
 	log.Println("Scan for serial ports...")
 	ports, err := receiver.GetSerialPorts()
 	if err != nil {
@@ -336,11 +343,9 @@ func comScan() error {
 }
 
 func doSerialReceive() error {
-	if port == "COMscan" {
-		err := comScan()
-		if err != nil {
-			return err
-		}
+	err := conditionalComPortScan()
+	if err != nil {
+		return err
 	}
 	serialReceiver := receiver.NewSerialReceiver(port, baud)
 
@@ -355,7 +360,6 @@ func doSerialReceive() error {
 	defer serialReceiver.CleanUp()
 
 	var t, b []byte
-	var err error
 	for {
 		select {
 		case c := <-(*serialReceiver.GetBufferChannel()):
@@ -383,21 +387,29 @@ func zeroIds(dryRun bool, SrcZ string, cmd *flag.FlagSet) error {
 	return nil
 }
 
-// Server may be can be unexported
+// This code was derived from the information in:
+// https://stackoverflow.com/questions/37122401/execute-another-go-program-from-within-a-golang-program/37123869#37123869
+// "4 - another way is using "net/rpc", this is best way for calling another function from another program."
+//
+
+// Server is the RPC struct for registered server dunctions
 type Server struct{}
 
-// Display is the exported server function for string display
-func (p *Server) Display(s string, reply *int64) error {
-	*reply = 7
-	return emit.Visualize(s)
+// Display is the exported server function for string display, if trice tool acts as display server.
+// By declaring is as a Server struct method it is registered as RPC destination.
+func (p *Server) Visualize(s string, reply *int64) error {
+	*reply = int64(len(s))
+	return emit.Visualize(s) // this function pointer has its default value on server side
 }
 
-/* Adder is a demo
+// Adder is a demo for a 2nd function
 func (p *Server) Adder(u [2]int64, reply *int64) error {
 	*reply = u[0] + u[1]
 	return nil
-}*/
+}
 
+// displayServer is the endless function called when trice tool acts as remote display.
+// All in Server struct registered RPC functions are reachable, when displayServer runs.
 func displayServer() error {
 	a := fmt.Sprintf("%s:%s", ipAddr, ipPort)
 	fmt.Println("displayServer @", a)
@@ -417,9 +429,58 @@ func displayServer() error {
 	}
 }
 
+var wg sync.WaitGroup
+var pRPC *rpc.Client
+
+func remoteVisualize(s string) error {
+	var result int64
+	err := pRPC.Call("Server.Visualize", s, &result)
+	if err != nil {
+		return err
+	}
+	fmt.Println("result is", result)
+	return nil
+}
+
+// client
 func remoteDisplay() error {
+	wg.Add(1)
+	//defer wg.Done()
+
 	a := fmt.Sprintf("%s:%s", ipAddr, ipPort)
-	fmt.Println("remoteDisplay @", a, "port=", port, "baud=", baud)
-	// todo
+	fmt.Println("remoteDisplay@", a)
+
+	var err error
+
+	pRPC, err = rpc.Dial("tcp", a)
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+	fmt.Println("Connected...")
+	var result int64
+
+	emit.Visualize = remoteVisualize // re-direct output
+
+	err = pRPC.Call("Server.Adder", [2]int64{10, 20}, &result)
+	if err != nil {
+		fmt.Println(err)
+	} else {
+		fmt.Println("Server.Adder(10,20) =", result)
+	}
+
+	err = pRPC.Call("Server.Visualize", "msg: hello", &result)
+	if err != nil {
+		fmt.Println(err)
+	} else {
+		fmt.Println("hello result =", result)
+	}
+
+	logTrices()
+
+	wg.Wait()
+
+	fmt.Println("...done")
+
 	return nil
 }
