@@ -206,8 +206,13 @@ func HandleArgs(wd string, args []string) error {
 		password = *pClKey
 		showPassword = *pClShow
 		if true == *pClSrv {
-			clip := "/c start trice displayServer -ipa " + ipAddr + " -ipp " + ipPort
-			cmd := exec.Command("cmd", clip)
+			var shell string
+			var clip string
+			if runtime.GOOS == "windows" {
+				shell = "cmd"
+				clip = "/c start trice displayServer -ipa " + ipAddr + " -ipp " + ipPort
+			}
+			cmd := exec.Command(shell, clip)
 			err := cmd.Run()
 			if err != nil {
 				log.Println(clip)
@@ -354,7 +359,7 @@ func conditionalComPortScan() error {
 func keyboardInput() {
 	reader := bufio.NewReader(os.Stdin)
 	fmt.Println("Simple Shell")
-	fmt.Println("---------------------")
+	fmt.Println("------------")
 
 	go func() {
 		for {
@@ -368,10 +373,6 @@ func keyboardInput() {
 			text = strings.Replace(text, e, "", -1) // Linux "\n" !
 
 			switch text {
-			case "hi":
-				fmt.Println("privet")
-			case "hallo":
-				fmt.Println("ahoi")
 			case "q", "quit":
 				os.Exit(0)
 			case "h", "help":
@@ -439,7 +440,7 @@ func zeroIds(dryRun bool, SrcZ string, cmd *flag.FlagSet) error {
 // Server is the RPC struct for registered server dunctions
 type Server struct{}
 
-// Display is the exported server function for string display, if trice tool acts as display server.
+// Visualize is the exported server function for string display, if trice tool acts as display server.
 // By declaring is as a Server struct method it is registered as RPC destination.
 func (p *Server) Visualize(s string, reply *int64) error {
 	*reply = int64(len(s))
