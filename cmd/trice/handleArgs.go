@@ -72,8 +72,7 @@ func HandleArgs(wd string, args []string) error {
 
 	vCmd := flag.NewFlagSet("version", flag.ContinueOnError) // subcommand
 
-	lCmd := flag.NewFlagSet("log", flag.ExitOnError) // subcommand
-
+	lCmd := flag.NewFlagSet("log", flag.ExitOnError)                                // subcommand
 	pPort := lCmd.String("port", "", "subcommand (required, try COMscan)")          // flag
 	pBaud := lCmd.Int("baud", 115200, "COM baudrate (optional, default is 115200")  // flag
 	pJSON := lCmd.String("list", "til.json", "trice ID list path (optional)")       // flag
@@ -84,18 +83,17 @@ func HandleArgs(wd string, args []string) error {
 
 	clCmd := flag.NewFlagSet("remoteDisplay", flag.ExitOnError)                               // subcommand
 	pClIPA := clCmd.String("ipa", "localhost", "ip address (optional, default is localhost)") // flag (127.0.0.1)
-	pClIPP := clCmd.String("ipp", "", "ip port number (required, a 16 bit number)")           // flag
-
-	pClPort := clCmd.String("port", "", "subcommand (required, try COMscan)")         // flag
-	pClBaud := clCmd.Int("baud", 115200, "COM baudrate (optional, default is 115200") // flag
-	pClJSON := clCmd.String("list", "til.json", "trice ID list path (optional)")      // flag
-	pClTs := clCmd.String("ts", "LOCmicro", "timestamp (optional), off, UTCmicro")    // flag
-	pClKey := clCmd.String("key", "none", "decrypt passphrase, (optional)")           // flag
-	pClShow := clCmd.Bool("show", false, "show passphrase (optional)")                // flag
+	pClIPP := clCmd.String("ipp", "61497", "ip port number (required, a 16 bit number)")      // flag
+	pClPort := clCmd.String("port", "", "subcommand (required, try COMscan)")                 // flag
+	pClBaud := clCmd.Int("baud", 115200, "COM baudrate (optional, default is 115200")         // flag
+	pClJSON := clCmd.String("list", "til.json", "trice ID list path (optional)")              // flag
+	pClTs := clCmd.String("ts", "LOCmicro", "timestamp (optional), off, UTCmicro")            // flag
+	pClKey := clCmd.String("key", "none", "decrypt passphrase, (optional)")                   // flag
+	pClShow := clCmd.Bool("show", false, "show passphrase (optional)")                        // flag
 
 	svCmd := flag.NewFlagSet("displayServer", flag.ExitOnError)                               // subcommand
 	pSvIPA := svCmd.String("ipa", "localhost", "ip address (optional, default is localhost)") // flag (127.0.0.1)
-	pSvIPP := svCmd.String("ipp", "", "port number (required, a 16 bit number)")              // flag
+	pSvIPP := svCmd.String("ipp", "61497", "port number (required, a 16 bit number)")         // flag
 	pSvCol := svCmd.String("color", "default", "color set (optional), off, alternate")        // flag
 	pSvTs := svCmd.String("ts", "LOCmicro", "timestamp (optional), off, UTCmicro")            // flag
 
@@ -344,31 +342,29 @@ func conditionalComPortScan() error {
 	}
 }
 
+// https://tutorialedge.net/golang/reading-console-input-golang/
 func keyboardInput() {
-	/////////////////////////////////////////////////////////////////////
-	//
-	// https://tutorialedge.net/golang/reading-console-input-golang/
-	//
-
-	//var k chan []byte
-
 	reader := bufio.NewReader(os.Stdin)
 	fmt.Println("Simple Shell")
 	fmt.Println("---------------------")
 
 	go func() {
-		fmt.Print("-> ")
-		text, _ := reader.ReadString('\n')
-		// convert CRLF to LF
-		text = strings.Replace(text, "\r\n", "", -1) // Linux "\n" !
+		for {
+			fmt.Print("-> ")
+			text, _ := reader.ReadString('\n')
+			// convert CRLF to LF
+			text = strings.Replace(text, "\r\n", "", -1) // Linux "\n" !
 
-		if strings.Compare("hi", text) == 0 {
-			fmt.Println("hello, Yourself")
+			switch text {
+			case "hi":
+				fmt.Println("privet")
+			case "hallo":
+				fmt.Println("ahoi")
+			case "ho ha":
+				fmt.Println("hu")
+			}
 		}
 	}() // https://stackoverflow.com/questions/16008604/why-add-after-closure-body-in-golang
-
-	//
-	/////////////////////////////////////////////////////////////////////
 }
 
 func doSerialReceive() error {
@@ -469,20 +465,16 @@ func remoteVisualize(s string) error {
 	if err != nil {
 		return err
 	}
-	fmt.Println("result is", result)
+	//fmt.Println("result is", result)
 	return nil
 }
 
 // client
 func remoteDisplay() error {
 	wg.Add(1)
-	//defer wg.Done()
-
 	a := fmt.Sprintf("%s:%s", ipAddr, ipPort)
 	fmt.Println("remoteDisplay@", a)
-
 	var err error
-
 	pRPC, err = rpc.Dial("tcp", a)
 	if err != nil {
 		fmt.Println(err)
@@ -490,28 +482,21 @@ func remoteDisplay() error {
 	}
 	fmt.Println("Connected...")
 	var result int64
-
 	emit.Visualize = remoteVisualize // re-direct output
-
-	err = pRPC.Call("Server.Adder", [2]int64{10, 20}, &result)
+	/*err = pRPC.Call("Server.Adder", [2]int64{10, 20}, &result)
 	if err != nil {
 		fmt.Println(err)
 	} else {
 		fmt.Println("Server.Adder(10,20) =", result)
-	}
-
+	}*/
 	err = pRPC.Call("Server.Visualize", "msg: hello", &result)
 	if err != nil {
 		fmt.Println(err)
 	} else {
-		fmt.Println("hello result =", result)
+		fmt.Println("len is", result)
 	}
-
-	logTrices()
-
+	logTrices() // does not return
 	wg.Wait()
-
 	fmt.Println("...done")
-
 	return nil
 }
