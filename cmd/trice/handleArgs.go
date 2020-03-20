@@ -15,7 +15,9 @@ import (
 	"net"
 	"net/rpc"
 	"os"
+	"os/exec"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"sync"
 
@@ -82,6 +84,7 @@ func HandleArgs(wd string, args []string) error {
 	pShow := lCmd.Bool("show", false, "show passphrase (optional)")                 // flag
 
 	clCmd := flag.NewFlagSet("remoteDisplay", flag.ExitOnError)                               // subcommand
+	pClSrv := clCmd.Bool("ds", false, "start display server (optional)")                      // flag
 	pClIPA := clCmd.String("ipa", "localhost", "ip address (optional, default is localhost)") // flag (127.0.0.1)
 	pClIPP := clCmd.String("ipp", "61497", "ip port number (required, a 16 bit number)")      // flag
 	pClPort := clCmd.String("port", "", "subcommand (required, try COMscan)")                 // flag
@@ -112,25 +115,21 @@ func HandleArgs(wd string, args []string) error {
 	subArgs := args[2:]
 	var err error
 	switch subCmd { // Check which subcommand is invoked.
-	case "h":
-		fallthrough
-	case "help":
+	case "h", "help":
 		err = hCmd.Parse(subArgs)
-	case "version":
+	case "v", "ver", "version":
 		err = vCmd.Parse(subArgs)
-	case "u":
-		fallthrough
-	case "update":
+	case "u", "update":
 		err = uCmd.Parse(subArgs)
 	case "check":
 		err = cCmd.Parse(subArgs)
-	case "log":
+	case "l", "log":
 		err = lCmd.Parse(subArgs)
 	case "zeroSourceTreeIds":
 		err = zCmd.Parse(subArgs)
-	case "displayServer":
+	case "ds", "displayServer":
 		err = svCmd.Parse(subArgs)
-	case "remoteDisplay":
+	case "rd", "remoteDisplay":
 		err = clCmd.Parse(subArgs)
 	default:
 		fmt.Println("try: 'trice help|h'")
@@ -206,6 +205,15 @@ func HandleArgs(wd string, args []string) error {
 		emit.TimeStampFormat = *pClTs
 		password = *pClKey
 		showPassword = *pClShow
+		if true == *pClSrv {
+			clip := "/c start trice displayServer -ipa " + ipAddr + " -ipp " + ipPort
+			cmd := exec.Command("cmd", clip)
+			err := cmd.Run()
+			if err != nil {
+				log.Println(clip)
+				log.Fatal(err)
+			}
+		}
 		return remoteDisplay()
 	}
 	return nil
@@ -231,19 +239,19 @@ func help(hCmd *flag.FlagSet,
 	fmt.Println("syntax: 'trice subcommand' [params]")
 	fmt.Println("subcommand 'help', 'h'")
 	hCmd.PrintDefaults()
-	fmt.Println("subcommand 'update', 'upd', 'u'")
+	fmt.Println("subcommand 'u', 'upd', 'update'")
 	u.PrintDefaults()
 	fmt.Println("subcommand 'check'")
 	c.PrintDefaults()
-	fmt.Println("subcommand 'log', 'l'")
+	fmt.Println("subcommand 'l', 'log'")
 	l.PrintDefaults()
 	fmt.Println("subcommand 'zeroSourceTreeIds' (avoid using this subcommand normally)")
 	z.PrintDefaults()
-	fmt.Println("subcommand 'version', 'ver'. 'v'")
+	fmt.Println("subcommand 'v', 'ver', 'version'")
 	v.PrintDefaults()
-	fmt.Println("subcommand 'displayServer'")
+	fmt.Println("subcommand 'ds', 'displayServer'")
 	sv.PrintDefaults()
-	fmt.Println("subcommand 'remoteDisplay'")
+	fmt.Println("subcommand 'rd', 'remoteDisplay'")
 	cl.PrintDefaults()
 	fmt.Println("examples:")
 	fmt.Println("    'trice update [-src sourcerootdir]', default sourcerootdir is ./")
@@ -353,17 +361,24 @@ func keyboardInput() {
 			fmt.Print("-> ")
 			text, _ := reader.ReadString('\n')
 			// convert CRLF to LF
-			text = strings.Replace(text, "\r\n", "", -1) // Linux "\n" !
+			e := "\n"
+			if runtime.GOOS == "windows" {
+				e = "\r\n"
+			}
+			text = strings.Replace(text, e, "", -1) // Linux "\n" !
 
 			switch text {
 			case "hi":
 				fmt.Println("privet")
 			case "hallo":
 				fmt.Println("ahoi")
-			case "ho ha":
-				fmt.Println("hu")
-			case "quit":
+			case "q", "quit":
 				os.Exit(0)
+			case "h", "help":
+				fmt.Println("h|help    - this text")
+				fmt.Println("q|quit    - end program")
+			default:
+				fmt.Printf("Unknown command '%s' - use 'help'\n", text)
 			}
 		}
 	}() // https://stackoverflow.com/questions/16008604/why-add-after-closure-body-in-golang
