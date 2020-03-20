@@ -55,50 +55,50 @@ func HandleArgs(wd string, args []string) error {
 	list := make(id.List, 0, 65536) // for 16 bit IDs enough
 	pList = &list
 
-	uCmd := flag.NewFlagSet("update", flag.ExitOnError)                                        // subcommand
-	pDryR := uCmd.Bool("dry-run", false, "no changes are applied (optional)")                  // flag
-	pLU := uCmd.String("list", "til.json", "trice ID list path (optional), \"none\" possible") // flag
-	pVerb := uCmd.Bool("v", false, "verbose (optional)")                                       // flag
-	uCmd.Var(&srcs, "src", "source dir or file (optional, default is ./), multi use possible") // multi flag
+	scUpd := flag.NewFlagSet("update", flag.ExitOnError)                               // subcommand
+	pDryR := scUpd.Bool("dry-run", false, "no changes are applied")                    // flag
+	pLU := scUpd.String("list", "til.json", "trice ID list path, \"none\" possible")   // flag
+	pVerb := scUpd.Bool("v", false, "verbose")                                         // flag
+	scUpd.Var(&srcs, "src", "source dir or file, multi use possible (default \"./\")") // multi flag
 
-	cCmd := flag.NewFlagSet("check", flag.ExitOnError)                              // subcommand
-	pSet := cCmd.String("dataset", "position", "parameters (optional), negative")   // flag
-	pC := cCmd.String("list", "til.json", "trice ID list path (optional)")          // flag
-	pPal := cCmd.String("color", "default", "color set (optional), off, alternate") // flag
+	scChk := flag.NewFlagSet("check", flag.ExitOnError)                           // subcommand
+	pSet := scChk.String("dataset", "position", "parameters, option: negative")   // flag
+	pC := scChk.String("list", "til.json", "trice ID list path")                  // flag
+	pPal := scChk.String("color", "default", "color set, options: off|alternate") // flag
 
-	zCmd := flag.NewFlagSet("zeroSourceTreeIds", flag.ContinueOnError)                  // subcommand (during development only)
-	pSrcZ := zCmd.String("src", "", "zero all Id(n) inside source tree dir (required)") // flag
-	pRunZ := zCmd.Bool("dry-run", false, "no changes are applied (optional)")           // flag
+	scZero := flag.NewFlagSet("zeroSourceTreeIds", flag.ContinueOnError)                  // subcommand (during development only)
+	pSrcZ := scZero.String("src", "", "zero all Id(n) inside source tree dir (required)") // flag
+	pRunZ := scZero.Bool("dry-run", false, "no changes are applied")                      // flag
 
 	hCmd := flag.NewFlagSet("help", flag.ContinueOnError) // subcommand
 
 	vCmd := flag.NewFlagSet("version", flag.ContinueOnError) // subcommand
 
-	lCmd := flag.NewFlagSet("log", flag.ExitOnError)                                // subcommand
-	pPort := lCmd.String("port", "", "subcommand (required, try COMscan)")          // flag
-	pBaud := lCmd.Int("baud", 115200, "COM baudrate (optional, default is 115200")  // flag
-	pJSON := lCmd.String("list", "til.json", "trice ID list path (optional)")       // flag
-	pTs := lCmd.String("ts", "LOCmicro", "timestamp (optional), off, UTCmicro")     // flag
-	pCol := lCmd.String("color", "default", "color set (optional), off, alternate") // flag
-	pKey := lCmd.String("key", "none", "decrypt passphrase, (optional)")            // flag
-	pShow := lCmd.Bool("show", false, "show passphrase (optional)")                 // flag
+	scLog := flag.NewFlagSet("log", flag.ExitOnError)                              // subcommand
+	pPort := scLog.String("port", "COMscan", "COM port, options: COM1|...|COM999") // flag
+	pBaud := scLog.Int("baud", 115200, "COM baudrate")                             // flag
+	pJSON := scLog.String("list", "til.json", "trice ID list path")                // flag
+	pTs := scLog.String("ts", "LOCmicro", "timestamp, options: off|UTCmicro")      // flag
+	pCol := scLog.String("color", "default", "color set, options: off|alternate")  // flag
+	pKey := scLog.String("key", "none", "decrypt passphrase")                      // flag
+	pShow := scLog.Bool("show", false, "show passphrase")                          // flag
 
-	clCmd := flag.NewFlagSet("remoteDisplay", flag.ExitOnError)                               // subcommand
-	pClSrv := clCmd.Bool("ds", false, "start display server (optional)")                      // flag
-	pClIPA := clCmd.String("ipa", "localhost", "ip address (optional, default is localhost)") // flag (127.0.0.1)
-	pClIPP := clCmd.String("ipp", "61497", "ip port number (required, a 16 bit number)")      // flag
-	pClPort := clCmd.String("port", "", "subcommand (required, try COMscan)")                 // flag
-	pClBaud := clCmd.Int("baud", 115200, "COM baudrate (optional, default is 115200")         // flag
-	pClJSON := clCmd.String("list", "til.json", "trice ID list path (optional)")              // flag
-	pClTs := clCmd.String("ts", "LOCmicro", "timestamp (optional), off, UTCmicro")            // flag
-	pClKey := clCmd.String("key", "none", "decrypt passphrase, (optional)")                   // flag
-	pClShow := clCmd.Bool("show", false, "show passphrase (optional)")                        // flag
+	scCl := flag.NewFlagSet("remoteDisplay", flag.ExitOnError)                      // subcommand
+	pClPort := scCl.String("port", "COMscan", "COM port, options: COM1|...|COM999") // flag
+	pClBaud := scCl.Int("baud", 115200, "COM baudrate")                             // flag
+	pClJSON := scCl.String("list", "til.json", "trice ID list path")                // flag
+	pClKey := scCl.String("key", "none", "decrypt passphrase")                      // flag
+	pClShow := scCl.Bool("show", false, "show passphrase")                          // flag
+	pClIPA := scCl.String("ipa", "localhost", "ip address")                         // flag (127.0.0.1)
+	pClIPP := scCl.String("ipp", "61497", "16 bit ip port number")                  // flag
+	pClTs := scCl.String("ts", "LOCmicro", "timestamp, options: off|UTCmicro")      // flag
+	pClSrv := scCl.Bool("ds", false, "start display server ")                       // flag
 
-	svCmd := flag.NewFlagSet("displayServer", flag.ExitOnError)                               // subcommand
-	pSvIPA := svCmd.String("ipa", "localhost", "ip address (optional, default is localhost)") // flag (127.0.0.1)
-	pSvIPP := svCmd.String("ipp", "61497", "port number (required, a 16 bit number)")         // flag
-	pSvCol := svCmd.String("color", "default", "color set (optional), off, alternate")        // flag
-	pSvTs := svCmd.String("ts", "LOCmicro", "timestamp (optional), off, UTCmicro")            // flag
+	scSv := flag.NewFlagSet("displayServer", flag.ExitOnError)                     // subcommand
+	pSvIPA := scSv.String("ipa", "localhost", "ip address")                        // flag (127.0.0.1)
+	pSvIPP := scSv.String("ipp", "61497", "16 bit port number")                    // flag
+	pSvCol := scSv.String("color", "default", "color set, options: off|alternate") // flag
+	pSvTs := scSv.String("ts", "LOCmicro", "timestampm options: off|UTCmicro")     // flag
 
 	// Verify that a subcommand has been provided
 	// os.Arg[0] is the main command
@@ -120,17 +120,17 @@ func HandleArgs(wd string, args []string) error {
 	case "v", "ver", "version":
 		err = vCmd.Parse(subArgs)
 	case "u", "update":
-		err = uCmd.Parse(subArgs)
+		err = scUpd.Parse(subArgs)
 	case "check":
-		err = cCmd.Parse(subArgs)
+		err = scChk.Parse(subArgs)
 	case "l", "log":
-		err = lCmd.Parse(subArgs)
+		err = scLog.Parse(subArgs)
 	case "zeroSourceTreeIds":
-		err = zCmd.Parse(subArgs)
+		err = scZero.Parse(subArgs)
 	case "ds", "displayServer":
-		err = svCmd.Parse(subArgs)
+		err = scSv.Parse(subArgs)
 	case "rd", "remoteDisplay":
-		err = clCmd.Parse(subArgs)
+		err = scCl.Parse(subArgs)
 	default:
 		fmt.Println("try: 'trice help|h'")
 		return nil
@@ -141,90 +141,44 @@ func HandleArgs(wd string, args []string) error {
 	// Check which subcommand was Parsed using the FlagSet.Parsed() function. Handle each case accordingly.
 	// FlagSet.Parse() will evaluate to false if no flags were parsed (i.e. the user did not provide any flags)
 	if hCmd.Parsed() {
-		return help(hCmd, uCmd, cCmd, lCmd, zCmd, vCmd, svCmd, clCmd)
+		return scHelp(hCmd, scUpd, scChk, scLog, scZero, vCmd, scSv, scCl)
 	}
-	if uCmd.Parsed() {
-		lU, err := filepath.Abs(*pLU)
-		// @basti? fmt.Errorf("%s", lU)
-		if nil != err {
-			return fmt.Errorf("failed to parse %s: %v", *pLU, err)
-		}
-		for i := range srcs {
-			s := srcs[i]
-			srcU, err := filepath.Abs(s)
-			if nil != err {
-				return fmt.Errorf("failed to parse %s: %v", srcU, err)
-			}
-			if _, err := os.Stat(srcU); err == nil { // path exists
-				err = update(*pDryR, srcU, lU /*pList, */, *pVerb)
-				if nil != err {
-					return err
-				}
-			} else if os.IsNotExist(err) { // path does *not* exist
-				fmt.Println(s, " -> ", srcU, "does not exist!")
-			} else {
-				fmt.Println(s, "Schrodinger: file may or may not exist. See err for details.")
-				// Therefore, do *NOT* use !os.IsNotExist(err) to test for file existence
-				// https://stackoverflow.com/questions/12518876/how-to-check-if-a-file-exists-in-go
-			}
-		}
-		return nil
+	if scUpd.Parsed() {
+		return scUpdate(*pDryR, *pLU, *pVerb)
 	}
-	if cCmd.Parsed() {
-		return checkList(*pC, *pSet, *pPal)
+	if scChk.Parsed() {
+		return scCheckList(*pC, *pSet, *pPal)
 	}
-	if lCmd.Parsed() {
-		emit.TimeStampFormat = *pTs
-		emit.ColorPalette = *pCol
-		baud = *pBaud
-		port = *pPort
-		fnJSON = *pJSON
-		password = *pKey
-		showPassword = *pShow
-		return logTrices()
+	if scLog.Parsed() {
+		return scLogging(*pPort, *pBaud, *pJSON, *pTs, *pCol, *pKey, *pShow)
 	}
-	if zCmd.Parsed() {
-		return zeroIds(*pRunZ, *pSrcZ, zCmd)
+	if scZero.Parsed() {
+		return zeroIds(*pRunZ, *pSrcZ, scZero)
 	}
 	if vCmd.Parsed() {
-		return ver()
+		return scVersion()
 	}
-	if svCmd.Parsed() {
-		emit.TimeStampFormat = *pSvTs
-		emit.ColorPalette = *pSvCol
-		ipAddr = *pSvIPA
-		ipPort = *pSvIPP
-		return displayServer()
+	if scSv.Parsed() {
+		return scDisplayServer(*pSvTs, *pSvCol, *pSvIPA, *pSvIPP)
 	}
-	if clCmd.Parsed() {
-		ipAddr = *pClIPA
-		ipPort = *pClIPP
-		port = *pClPort
-		baud = *pClBaud
-		fnJSON = *pClJSON
-		emit.TimeStampFormat = *pClTs
-		password = *pClKey
-		showPassword = *pClShow
-		if true == *pClSrv {
-			var shell string
-			var clip string
-			if runtime.GOOS == "windows" {
-				shell = "cmd"
-				clip = "/c start trice displayServer -ipa " + ipAddr + " -ipp " + ipPort
-			}
-			cmd := exec.Command(shell, clip)
-			err := cmd.Run()
-			if err != nil {
-				log.Println(clip)
-				log.Fatal(err)
-			}
-		}
-		return remoteDisplay()
+	if scCl.Parsed() {
+		return scRemoteDisplay(*pClIPA, *pClIPP, *pClPort, *pClBaud, *pClJSON, *pClTs, *pClKey, *pClShow, *pClSrv)
 	}
 	return nil
 }
 
-func ver() error {
+func assign(fn string) string {
+	if "none" == fn {
+		return fn
+	}
+	s, err := filepath.Abs(fn)
+	if nil != err {
+		_ = fmt.Errorf("failed to parse %s: %v", fn, err)
+	}
+	return s
+}
+
+func scVersion() error {
 	if "" != version {
 		fmt.Printf("version=%v, commit=%v, built at %v", version, commit, date)
 		return nil
@@ -233,7 +187,7 @@ func ver() error {
 	return errors.New("No goreleaser generated executable")
 }
 
-func help(hCmd *flag.FlagSet,
+func scHelp(hCmd *flag.FlagSet,
 	u *flag.FlagSet,
 	c *flag.FlagSet,
 	l *flag.FlagSet,
@@ -263,7 +217,32 @@ func help(hCmd *flag.FlagSet,
 	fmt.Println("    'trice log [-port COMn] [-baud m]', default port is COMscan, default m is 38400, fixed to 8N1")
 	fmt.Println("    'trice zeroSourceTreeIds -dir sourcerootdir]'")
 	fmt.Println("    'trice version'")
-	return ver()
+	return scVersion()
+}
+
+// scUpdate is subcommand update
+func scUpdate(dry bool, fn string, v bool) error {
+	fnJSON = assign(fn)
+	if 0 == len(srcs) {
+		srcs = append(srcs, "./") // default value
+	}
+	for i := range srcs {
+		s := srcs[i]
+		srcU := assign(s)
+		if _, err := os.Stat(srcU); err == nil { // path exists
+			err = update(dry, srcU, fnJSON, v)
+			if nil != err {
+				return err
+			}
+		} else if os.IsNotExist(err) { // path does *not* exist
+			fmt.Println(s, " -> ", srcU, "does not exist!")
+		} else {
+			fmt.Println(s, "Schrodinger: file may or may not exist. See err for details.")
+			// Therefore, do *NOT* use !os.IsNotExist(err) to test for file existence
+			// https://stackoverflow.com/questions/12518876/how-to-check-if-a-file-exists-in-go
+		}
+	}
+	return nil
 }
 
 // parse source tree, update IDs and is list
@@ -277,10 +256,11 @@ func update(dryRun bool, dir, fn string, verbose bool) error {
 }
 
 // log the id list with dataset
-func checkList(fn, dataset string /*p *id.List,*/, palette string) error {
-	err := pList.Read(fn)
+func scCheckList(fn, dataset, palette string) error {
+	fnJSON = assign(fn)
+	err := pList.Read(fnJSON)
 	if nil != err {
-		fmt.Println("ID list " + fn + " not found, exit")
+		fmt.Println("ID list " + fnJSON + " not found, exit")
 		return nil
 	}
 	emit.Check(*pList, dataset)
@@ -310,7 +290,19 @@ func createCipher() (*xtea.Cipher, bool, error) {
 	return c, e, nil
 }
 
-// connect to port and display traces
+// scLog connects to COM port and displays traces
+func scLogging(prt string, bd int, fn, ts, col, pw string, show bool) error {
+	port = prt
+	baud = bd
+	fnJSON = assign(fn)
+	emit.TimeStampFormat = ts
+	emit.ColorPalette = col
+	password = pw
+	showPassword = show
+	return logTrices()
+}
+
+// logTrices connects to COM port and displays traces
 func logTrices() error {
 	if "none" != fnJSON {
 		// setup ip list
@@ -457,7 +449,11 @@ func (p *Server) Adder(u [2]int64, reply *int64) error {
 
 // displayServer is the endless function called when trice tool acts as remote display.
 // All in Server struct registered RPC functions are reachable, when displayServer runs.
-func displayServer() error {
+func scDisplayServer(ts, pal, ipa, ipp string) error {
+	emit.TimeStampFormat = ts
+	emit.ColorPalette = pal
+	ipAddr = ipa
+	ipPort = ipp
 	a := fmt.Sprintf("%s:%s", ipAddr, ipPort)
 	fmt.Println("displayServer @", a)
 	rpc.Register(new(Server))
@@ -490,7 +486,29 @@ func remoteVisualize(s string) error {
 }
 
 // client
-func remoteDisplay() error {
+func scRemoteDisplay(ipa, ipp, prt string, bd int, fn, ts, pw string, show, sv bool) error {
+	ipAddr = ipa
+	ipPort = ipp
+	port = prt
+	baud = bd
+	fnJSON = assign(fn)
+	emit.TimeStampFormat = ts
+	password = pw
+	showPassword = show
+	if true == sv {
+		var shell string
+		var clip string
+		if runtime.GOOS == "windows" {
+			shell = "cmd"
+			clip = "/c start trice displayServer -ipa " + ipAddr + " -ipp " + ipPort
+		}
+		cmd := exec.Command(shell, clip)
+		err := cmd.Run()
+		if err != nil {
+			log.Println(clip)
+			log.Fatal(err)
+		}
+	}
 	wg.Add(1)
 	a := fmt.Sprintf("%s:%s", ipAddr, ipPort)
 	fmt.Println("remoteDisplay@", a)

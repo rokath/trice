@@ -156,3 +156,34 @@ trice help
 
 ## Demo project setup
 - see [ReadMeDemoF030R8.md](./ReadMeDemoF030R8.md)
+
+## Otions for `trice` tool
+The trice tool can be started in several modes (subcommands), each with several mantadory or optional switches. Switches can have parameters or not.
+```
+trice subcommand -switch1 -switch2 parameter -switch3 ...
+```
+### Subcommand `help` (shortcut `h`)
+- `trice help` will give you a short commandline options overview.
+
+No additional switches available.
+
+### Subcommand `update` (shortcut `u` or `upd`)
+- `trice update` will parse source tree(s) for changed TRICE macros, modify them appropirate and update/generate the JSON list
+
+The `update` subcommand has no mantadory switches. Omitted optional switches are used with their default parameters.
+You **must not** run `trice update` on the downloaded trice directory. It would modify test files resulting in failed tests later on. But you can use the `-dry-run` switch.
+
+#### `update` switch `-dry-run`
+- This is a `bool` switch. It has no parameters. Its default value is **false**. If the switch is applied its value is **true**.
+- `trice u -dry-run` will change nothing but show changes it would perform without the `-dry-run` switch.
+
+#### `update` switch `-v` (verbose)
+- This is a `bool` switch. It has no parameters. Its default value is **false**. If the switch is applied its value is **true**.
+- For example `trice u -dry-run -v` is the same as `trice u -dry-run` but with more descriptive output.
+
+#### `update` switch `-src`
+- This is a `string` switch. It has one parameter. Its default value is **./** (the actual directory). 
+- This is a multi-flag switch. It can be used several times and for directories and also for files. Right not usable yet in the form "-src *.c".
+- Example: `trice u  -dry-run -v -src ./examples/ -src src.C/trice.h`
+
+#### `update` switch `-list`
