@@ -362,6 +362,8 @@ func keyboardInput() {
 				fmt.Println("ahoi")
 			case "ho ha":
 				fmt.Println("hu")
+			case "quit":
+				os.Exit(0)
 			}
 		}
 	}() // https://stackoverflow.com/questions/16008604/why-add-after-closure-body-in-golang
@@ -429,11 +431,13 @@ func (p *Server) Visualize(s string, reply *int64) error {
 	return emit.Visualize(s) // this function pointer has its default value on server side
 }
 
+/*
 // Adder is a demo for a 2nd function
 func (p *Server) Adder(u [2]int64, reply *int64) error {
 	*reply = u[0] + u[1]
 	return nil
 }
+*/
 
 // displayServer is the endless function called when trice tool acts as remote display.
 // All in Server struct registered RPC functions are reachable, when displayServer runs.
@@ -489,7 +493,7 @@ func remoteDisplay() error {
 	} else {
 		fmt.Println("Server.Adder(10,20) =", result)
 	}*/
-	err = pRPC.Call("Server.Visualize", "msg: hello", &result)
+	err = pRPC.Call("Server.Visualize", "att:\n\n\nnew connection....\n\n\n", &result)
 	if err != nil {
 		fmt.Println(err)
 	} else {
