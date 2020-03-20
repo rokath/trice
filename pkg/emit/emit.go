@@ -483,6 +483,11 @@ func fileLine() string {
 	return s
 }
 
+func errFalseLen(it id.Item, t, b []byte) (string, []byte, error) {
+	s := fmt.Sprintln("ERR:", it, "false len", len(t), "in data stream", t, b)
+	return s, b, errors.New("data stream error")
+}
+
 // emmiter wworks fine with %x, %d and %o but NOT with %u for now
 // %x is emitted in Go signed!
 // For %u a format string parsing is needed to perform the correct casts.
@@ -495,22 +500,19 @@ func emitter(it id.Item, t, b []byte) (string, []byte, error) {
 	switch it.FmtType {
 	case "TRICE0":
 		if 2 != len(t) { // t has 2 padding bytes
-			fmt.Println(t)
-			return "ERR: DATA STREAM ERROR in " + fileLine(), b, errors.New("ERR: DATA STREAM ERROR")
+			return errFalseLen(it, t, b)
 		}
 		s = f
 	case "TRICE8_1":
 		if 2 != len(t) {
-			fmt.Println(t)
-			return "ERR: DATA STREAM ERROR in " + fileLine(), b, errors.New("ERR: DATA STREAM ERROR")
+			return errFalseLen(it, t, b)
 		}
 		if "%s" != f { // normal case
 			s = fmt.Sprintf(f, int8(t[0]))
 		} else if 11 > len(b) || // 8 byte header + 2 byte count + at least 1 byte data
 			t[0] != b[6] { // t[0] is parameter and b[6] pix and they must be equal
-			fmt.Print(t, b)
 			b = nil
-			return "ERR: DATA STREAM ERROR in " + fileLine(), b, errors.New("ERR: DATA STREAM ERROR")
+			return errFalseLen(it, t, b)
 		} else { // ok
 			sLen := 1 + int(binary.LittleEndian.Uint16(b[8:10])) // sLen is -1 value
 			b = b[10:]                                           // discard old header & sLen
@@ -519,62 +521,55 @@ func emitter(it id.Item, t, b []byte) (string, []byte, error) {
 		}
 	case "TRICE8_2":
 		if 2 != len(t) {
-			fmt.Println(t)
-			return "ERR: DATA STREAM ERROR!!!", b, errors.New("ERR: DATA STREAM ERROR")
+			return errFalseLen(it, t, b)
 		}
 		s = fmt.Sprintf(f, int8(t[0]), int8(t[1]))
 	case "TRICE8_3":
 		if 4 != len(t) { // b has 1 padding byte
-			fmt.Println(t)
-			return "ERR: DATA STREAM ERROR!!!", b, errors.New("ERR: DATA STREAM ERROR")
+			return errFalseLen(it, t, b)
 		}
 		s = fmt.Sprintf(f, int8(t[0]), int8(t[1]), int8(t[2]))
 	case "TRICE8_4":
 		if 4 != len(t) {
-			fmt.Println(t)
-			return "ERR: DATA STREAM ERROR!!!", b, errors.New("ERR: DATA STREAM ERROR")
+			return errFalseLen(it, t, b)
 		}
 		s = fmt.Sprintf(f, int8(t[0]), int8(t[1]), int8(t[2]), int8(t[3]))
 	case "TRICE8_5":
 		if 6 != len(t) { // b has 1 padding byte
-			fmt.Println(t)
-			return "ERR: DATA STREAM ERROR!!!", b, errors.New("ERR: DATA STREAM ERROR")
+			return errFalseLen(it, t, b)
 		}
 		s = fmt.Sprintf(f, int8(t[0]), int8(t[1]), int8(t[2]), int8(t[3]), int8(t[4]))
 	case "TRICE8_6":
 		if 6 != len(t) {
-			fmt.Println(t)
-			return "ERR: DATA STREAM ERROR!!!", b, errors.New("ERR: DATA STREAM ERROR")
+			return errFalseLen(it, t, b)
 		}
 		s = fmt.Sprintf(f, int8(t[0]), int8(t[1]), int8(t[2]), int8(t[3]), int8(t[4]), int8(t[5]))
 	case "TRICE8_7":
 		if 8 != len(t) { // b has 1 padding byte
-			fmt.Println(t)
-			return "ERR: DATA STREAM ERROR!!!", b, errors.New("ERR: DATA STREAM ERROR")
+			return errFalseLen(it, t, b)
 		}
 		s = fmt.Sprintf(f, int8(t[0]), int8(t[1]), int8(t[2]), int8(t[3]), int8(t[4]), int8(t[5]), int8(t[6]))
 	case "TRICE8_8":
 		if 8 != len(t) {
-			fmt.Println(t)
-			return "ERR: DATA STREAM ERROR!!!", b, errors.New("ERR: DATA STREAM ERROR")
+			return errFalseLen(it, t, b)
 		}
 		s = fmt.Sprintf(f, int8(t[0]), int8(t[1]), int8(t[2]), int8(t[3]), int8(t[4]), int8(t[5]), int8(t[6]), int8(t[7]))
 	case "TRICE16_1":
 		if 2 != len(t) {
-			return "TRICE16_1", b, fmt.Errorf("false len %v", t)
+			return errFalseLen(it, t, b)
 		}
 		v0 = int16(binary.LittleEndian.Uint16(t[0:2]))
 		s = fmt.Sprintf(f, v0)
 	case "TRICE16_2":
 		if 4 != len(t) {
-			return "TRICE16_2", b, fmt.Errorf("false len %v", t)
+			return errFalseLen(it, t, b)
 		}
 		v0 = int16(binary.LittleEndian.Uint16(t[0:2]))
 		v1 = int16(binary.LittleEndian.Uint16(t[2:4]))
 		s = fmt.Sprintf(f, v0, v1)
 	case "TRICE16_3":
 		if 6 != len(t) {
-			return "TRICE16_3", b, fmt.Errorf("false len %v", t)
+			return errFalseLen(it, t, b)
 		}
 		v0 = int16(binary.LittleEndian.Uint16(t[0:2]))
 		v1 = int16(binary.LittleEndian.Uint16(t[2:4]))
@@ -582,7 +577,7 @@ func emitter(it id.Item, t, b []byte) (string, []byte, error) {
 		s = fmt.Sprintf(f, v0, v1, v2)
 	case "TRICE16_4":
 		if 8 != len(t) {
-			return "TRICE16_4", b, fmt.Errorf("false len %v", t)
+			return errFalseLen(it, t, b)
 		}
 		v0 = int16(binary.LittleEndian.Uint16(t[0:2]))
 		v1 = int16(binary.LittleEndian.Uint16(t[2:4]))
@@ -591,20 +586,20 @@ func emitter(it id.Item, t, b []byte) (string, []byte, error) {
 		s = fmt.Sprintf(f, v0, v1, v2, v3)
 	case "TRICE32_1":
 		if 4 != len(t) {
-			return "TRICE32_1", b, fmt.Errorf("false len %v", t)
+			return errFalseLen(it, t, b)
 		}
 		w0 = int32(binary.LittleEndian.Uint32(t[0:4]))
 		s = fmt.Sprintf(f, w0)
 	case "TRICE32_2":
 		if 8 != len(t) {
-			return "TRICE32_2", b, fmt.Errorf("false len %v", t)
+			return errFalseLen(it, t, b)
 		}
 		w0 = int32(binary.LittleEndian.Uint32(t[0:4]))
 		w1 = int32(binary.LittleEndian.Uint32(t[4:8]))
 		s = fmt.Sprintf(f, w0, w1)
 	case "TRICE32_3":
 		if 12 != len(t) {
-			return "TRICE32_3", b, fmt.Errorf("false len %v", t)
+			return errFalseLen(it, t, b)
 		}
 		w0 = int32(binary.LittleEndian.Uint32(t[0:4]))
 		w1 = int32(binary.LittleEndian.Uint32(t[4:8]))
@@ -612,7 +607,7 @@ func emitter(it id.Item, t, b []byte) (string, []byte, error) {
 		s = fmt.Sprintf(f, w0, w1, w2)
 	case "TRICE32_4":
 		if 16 != len(t) {
-			return "TRICE32_4", b, fmt.Errorf("false len %v", t)
+			return errFalseLen(it, t, b)
 		}
 		w0 = int32(binary.LittleEndian.Uint32(t[0:4]))
 		w1 = int32(binary.LittleEndian.Uint32(t[4:8]))
@@ -621,13 +616,13 @@ func emitter(it id.Item, t, b []byte) (string, []byte, error) {
 		s = fmt.Sprintf(f, w0, w1, w2, w3)
 	case "TRICE64_1":
 		if 8 != len(t) {
-			return "TRICE64_1", b, fmt.Errorf("false len %v", t)
+			return errFalseLen(it, t, b)
 		}
 		l0 = int64(binary.LittleEndian.Uint64(t[0:8]))
 		s = fmt.Sprintf(f, l0)
 	case "TRICE64_2":
 		if 16 != len(t) {
-			return "TRICE64_2", b, fmt.Errorf("false len %v", t)
+			return errFalseLen(it, t, b)
 		}
 		l0 = int64(binary.LittleEndian.Uint64(t[0:8]))
 		l1 = int64(binary.LittleEndian.Uint64(t[8:16]))
