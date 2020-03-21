@@ -162,28 +162,89 @@ The trice tool can be started in several modes (subcommands), each with several 
 ```
 trice subcommand -switch1 -switch2 parameter -switch3 ...
 ```
+
+### Common subcommand switches
+
+Which subcommand switches are usable for each subcommand is shown with `trice help`. This gives also information about their default values.
+
+#### subcommand switch '-dry-run'
+- This is a `bool` switch. It has no parameters. Its default value is **false**. If the switch is applied its value is **true**.
+- `trice u -dry-run` will change nothing but show changes it would perform without the `-dry-run` switch.
+
+#### subcommand switch '-v' (verbose)
+- This is a `bool` switch. It has no parameters. Its default value is **false**. If the switch is applied its value is **true**.
+- For example `trice u -dry-run -v` is the same as `trice u -dry-run` but with more descriptive output.
+
+#### subcommand switch '-src'
+- This is a `string` switch. It has one parameter. Its default value is `./` (the actual directory). 
+- This is a multi-flag switch. It can be used several times and for directories and also for files. Right not usable yet in the form "-src *.c".
+- Example: `trice u  -dry-run -v -src ./examples/ -src src.C/trice.h` will scan all C|C++ header and source code files inside directory ./examples and scan also file trice.h inside src.C directory. It will create|extend a list file til.json in the current directory.
+
+#### subcommand switch '-list'
+- This is a `string` switch. It has one parameter. Its default value is `./til.json` (the **t**race **i**d **l**ist inside the actual directory). The with '-list' specified JSON file is the key to display the ID coded trices during runtime and should be under version control.
+
+#### subcommand switch '-color'
+- This is a `string` switch. It has one parameter. Its default value is `default`. 
+- The `alternate` value uses a different color palette.
+- 'off' suppresses all color information. Useful for redirecting in a file.
+
+#### subcommand switch '-port'
+- This is a `string` switch. It has one parameter. Its default value is `COMscan`. 
+- Using a virtual serial COM port on the PC over a FTDI USB adapter is a most likely variant. Usually trice tool needs this switch in the form `-port COM9` if for example COM port 9 is used.
+- With the default value trice scans for available COM ports.
+
+#### subcommand switch '-baud'
+- This is an `int` switch. It has one parameter. Its default value is `115200`. 
+- It is the only setup parameter. The other values default to 8N1 (8 data bits, no parity, one stopbit)
+
+#### subcommand switch '-key'
+- This is a `string` switch. It has one parameter. Its default value is `none`. If you change this value you need to compile the target with the appropriate key.
+- This option is recommended if you deliver firmware to customers and want protect the trice log output. This does not work together with the `#define TRICE_STRINGS FULL_RUNTIME` option right now.
+
+#### subcommand switch '-show'
+- This is a `bool` switch. It has no parameters. Its default value is **false**. If the switch is applied its value is **true**.
+- Use this switch for creating your own password keys. If applied together with `-key MyPwd` it shows the encryption key. Simply copy this key than into the line `#define ENCRYPT XTEA_KEY( a9, 4a, 8f, e5, cc, b1, 9b, a6, 1c, 4c, 08, 73, d3, 91, e9, 87 ); //!< -key test` inside triceConfig.h. 
+
+#### subcommand switch '-ts'
+This timestamp switch generates the timestamps on the PC only, what is goog enough for many cases. If you need precise target timestamps you need to generate them inside the target and send them as TRICE* parameters.
+- This is a `string` switch. It has one parameter. Its default value is `LOCmicro`. That means local time with microseconds.
+- `UTCmicro` shows timestamps in universal time.
+
+#### subcommand switch '-ipa'
+#### subcommand switch '-ipp'
+
 ### Subcommand `help` (shortcut `h`)
 - `trice help` will give you a short commandline options overview.
+
+No additional switches available.
+
+### Subcommand `version` (shortcut `v` or `ver`)
+- `trice v` will print the version information.
 
 No additional switches available.
 
 ### Subcommand `update` (shortcut `u` or `upd`)
 - `trice update` will parse source tree(s) for changed TRICE macros, modify them appropirate and update/generate the JSON list
 
-The `update` subcommand has no mantadory switches. Omitted optional switches are used with their default parameters.
-You **must not** run `trice update` on the downloaded trice directory. It would modify test files resulting in failed tests later on. But you can use the `-dry-run` switch.
+The `update` subcommand has no mantadory switches. Omitted optional switches are used with their default parameters. You **must not** run `trice update` on the downloaded trice directory. It would modify test files resulting in failed tests later on. But you can use the `-dry-run` switch.
 
-#### `update` switch `-dry-run`
-- This is a `bool` switch. It has no parameters. Its default value is **false**. If the switch is applied its value is **true**.
-- `trice u -dry-run` will change nothing but show changes it would perform without the `-dry-run` switch.
+### Subcommand `check` 
+- `trice check` will check the JSON list and emit all TRICE statements inside the list once with a dataset.
 
-#### `update` switch `-v` (verbose)
-- This is a `bool` switch. It has no parameters. Its default value is **false**. If the switch is applied its value is **true**.
-- For example `trice u -dry-run -v` is the same as `trice u -dry-run` but with more descriptive output.
+#### `check` switch '-dataset'
+- This is a `string` switch. It has one parameter. Its default value is `position`. That means each parameter has a different value. This is useful for testing.
+- The `negative` value is uses a dataset with negative values for testing.
 
-#### `update` switch `-src`
-- This is a `string` switch. It has one parameter. Its default value is **./** (the actual directory). 
-- This is a multi-flag switch. It can be used several times and for directories and also for files. Right not usable yet in the form "-src *.c".
-- Example: `trice u  -dry-run -v -src ./examples/ -src src.C/trice.h`
+### Subcommand `log` (shortcut `l`)
+With `trice log` the display mode is activated.
 
-#### `update` switch `-list`
+
+
+
+### Subcommand `zeroSourceTreeIds`
+
+### Subcommand `remoteDisplay` (shortcut `rd`)
+#### `remoteDisplay` switch '-ds'
+
+### Subcommand `displayServer` (shortcut `ds`)
+
