@@ -177,8 +177,8 @@ Which subcommand switches are usable for each subcommand is shown with `trice he
 
 #### subcommand switch '-src'
 - This is a `string` switch. It has one parameter. Its default value is `./` (the actual directory). 
-- This is a multi-flag switch. It can be used several times and for directories and also for files. Right not usable yet in the form "-src *.c".
-- Example: `trice u  -dry-run -v -src ./examples/ -src src.C/trice.h` will scan all C|C++ header and source code files inside directory ./examples and scan also file trice.h inside src.C directory. It will create|extend a list file til.json in the current directory.
+- This is a multi-flag switch. It can be used several times and for directories and also for files. Right now not usable yet in the form "-src *.c".
+- Example: `trice u  -dry-run -v -src ./examples/ -src src.C/trice.h` will scan all C|C++ header and source code files inside directory ./examples and scan also file trice.h inside src.C directory. It would create|extend a list file til.json in the current directory without the **-dry-run** Switch.
 
 #### subcommand switch '-list'
 - This is a `string` switch. It has one parameter. Its default value is `./til.json` (the **t**race **i**d **l**ist inside the actual directory). The with '-list' specified JSON file is the key to display the ID coded trices during runtime and should be under version control.
