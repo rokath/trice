@@ -70,7 +70,9 @@
             "env": {},
             "args": ["check",
                      "-list",
-                     "C:/GitRepos/GoT/trice/til.json"
+                     "C:/GitRepos/trice/examples/til.json",
+                     "-dataset",
+                     "xxx"
             ]
         },
         {

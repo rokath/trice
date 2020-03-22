@@ -257,6 +257,8 @@ func update(dryRun bool, dir, fn string, verbose bool) error {
 
 // log the id list with dataset
 func scCheckList(fn, dataset, palette string) error {
+	emit.TimeStampFormat = "off"
+	emit.ColorPalette = palette
 	fnJSON = assign(fn)
 	err := pList.Read(fnJSON)
 	if nil != err {

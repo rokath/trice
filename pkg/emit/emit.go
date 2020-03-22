@@ -20,7 +20,7 @@ var ColorPalette = "default"
 var TimeStampFormat string = "LOCmicro"
 
 // checkValuePosition is a consistency check for positive values and their position
-func checkValuePosition(l id.List) error {
+func checkValuePosition(l id.List, s []byte) error {
 	var b []byte // check data
 	for i := range l {
 		it := l[i]
@@ -64,7 +64,10 @@ func checkValuePosition(l id.List) error {
 		case "TRICE64_2":
 			b = append(b, 1, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0)
 		}
-		s, _, err := emitter(it, b, nil)
+		if "%s" == it.FmtStrg {
+			b[0] = s[6] // set simulated pix value equal
+		}
+		s, _, err := emitter(it, b, s)
 		if nil != err {
 			return err
 		}
@@ -78,7 +81,7 @@ func checkValuePosition(l id.List) error {
 }
 
 // checkNegativeValues is a consistency check for negative values
-func checkNegativeValues(l id.List) error {
+func checkNegativeValues(l id.List, s []byte) error {
 	var b []byte // check data
 	for i := range l {
 		it := l[i]
@@ -122,7 +125,10 @@ func checkNegativeValues(l id.List) error {
 		case "TRICE64_2":
 			b = append(b, 0, 0, 0, 0, 0, 0, 0, 0x80, 0, 0, 0, 0, 0, 0, 0, 0x80)
 		}
-		s, _, err := emitter(it, b, nil)
+		if "%s" == it.FmtStrg {
+			b[0] = s[6] // set simulated pix value equal
+		}
+		s, _, err := emitter(it, b, s)
 		if nil != err {
 			return err
 		}
@@ -135,35 +141,28 @@ func checkNegativeValues(l id.List) error {
 	return nil
 }
 
-func checkFix(l id.List) error {
-	b := []byte{'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'} // dummy data
+func checkFix(l id.List, s []byte) error {
+	b := []byte{'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'} // dummy data
 	for i := range l {
 		it := l[i]
 		switch it.FmtType {
-		case "TRICE0":
-			fallthrough
-		case "TRICE8_1":
-			fallthrough
-		case "TRICE8_2":
-			fallthrough
-		case "TRICE16_1":
+		case "TRICE0", "TRICE8_1", "TRICE8_2", "TRICE16_1":
 			b = b[:2]
-		case "TRICE8_3":
-			fallthrough
-		case "TRICE8_4":
-			fallthrough
-		case "TRICE16_2":
-			fallthrough
-		case "TRICE32_1":
+		case "TRICE8_3", "TRICE8_4", "TRICE16_2", "TRICE32_1":
 			b = b[:4]
-		case "TRICE8_5":
-			fallthrough
-		case "TRICE8_6":
-			fallthrough
-		case "TRICE16_3":
+		case "TRICE8_5", "TRICE8_6", "TRICE16_3":
 			b = b[:6]
+		case "TRICE8_7", "TRICE8_8", "TRICE16_4", "TRICE32_2", "TRICE64_1":
+			b = b[:8]
+		case "TRICE32_3":
+			b = b[:12]
+		case "TRICE32_4", "TRICE64_2":
+			b = b[:16]
 		}
-		s, _, err := emitter(it, b, nil)
+		if "%s" == it.FmtStrg {
+			b[0] = s[6] // set simulated pix value equal
+		}
+		s, _, err := emitter(it, b, s)
 		if nil != err {
 			return err
 		}
@@ -178,13 +177,16 @@ func checkFix(l id.List) error {
 
 // Check evaluates the l output with specifiesd dataSet
 func Check(l id.List, dataSet string) error {
+	s := make([]byte, 0, 12)
+	// this is a dummy buffer for a simulated runtime string "RS" with pix = 1 (for easy crc8)
+	s = append(s, 0xc0, 0, 0, 0xc0, 0xff, 0xff, 1, 1, 1, 0, 'R', 'S')
 	if "position" == dataSet {
-		return checkValuePosition(l)
+		return checkValuePosition(l, s)
 	}
 	if "negative" == dataSet {
-		return checkNegativeValues(l)
+		return checkNegativeValues(l, s)
 	}
-	return checkFix(l)
+	return checkFix(l, s)
 }
 
 var d = make([]byte, 0, 32) // param collector, usually not more than 16 bytes
@@ -235,53 +237,29 @@ func colorSetDefault(channel string) (*color.Color, error) {
 	var err error
 	var c *color.Color
 	switch channel {
-	case "ERR":
-		fallthrough
-	case "err":
+	case "ERR", "err":
 		c = color.New(color.FgYellow).Add(color.Bold).Add(color.BgRed)
-	case "WRN":
-		fallthrough
-	case "wrn":
+	case "WRN", "wrn":
 		c = color.New(color.FgRed).Add(color.BgBlack)
-	case "MSG":
-		fallthrough
-	case "msg":
+	case "MSG", "msg":
 		c = color.New(color.FgGreen).Add(color.BgBlack)
-	case "RD_":
-		fallthrough
-	case "rd_":
+	case "RD_", "rd_":
 		c = color.New(color.FgMagenta).Add(color.BgBlack)
-	case "WR_":
-		fallthrough
-	case "wr_":
+	case "WR_", "wr_":
 		c = color.New(color.FgBlack).Add(color.BgMagenta)
-	case "TIM":
-		fallthrough
-	case "tim":
+	case "TIM", "tim":
 		c = color.New(color.FgBlue).Add(color.BgYellow)
-	case "ATT":
-		fallthrough
-	case "att":
+	case "ATT", "att":
 		c = color.New(color.FgYellow).Add(color.Bold).Add(color.BgCyan)
-	case "DBG":
-		fallthrough
-	case "dbg":
+	case "DBG", "dbg":
 		c = color.New(color.FgCyan).Add(color.BgBlack)
-	case "DIA":
-		fallthrough
-	case "dia":
+	case "DIA", "dia":
 		c = color.New(color.BgHiCyan).Add(color.BgWhite)
-	case "ISR":
-		fallthrough
-	case "isr":
+	case "ISR", "isr":
 		c = color.New(color.FgYellow).Add(color.BgHiBlue)
-	case "SIG":
-		fallthrough
-	case "sig":
+	case "SIG", "sig":
 		c = color.New(color.FgYellow).Add(color.Bold).Add(color.BgGreen)
-	case "TST":
-		fallthrough
-	case "tst":
+	case "TST", "tst":
 		c = color.New(color.FgYellow).Add(color.BgBlack)
 	default:
 		c = color.New(color.FgWhite).Add(color.BgBlack)
@@ -294,54 +272,30 @@ func colorSetAlternate(channel string) (*color.Color, error) {
 	var err error
 	var c *color.Color
 	switch channel {
-	case "ERR":
-		fallthrough
-	case "err":
-		c = color.New(color.FgYellow).Add(color.Bold).Add(color.BgRed)
-	case "WRN":
-		fallthrough
-	case "wrn":
-		c = color.New(color.FgRed).Add(color.BgBlack)
-	case "MSG":
-		fallthrough
-	case "msg":
-		c = color.New(color.FgGreen).Add(color.BgBlack)
-	case "RD_":
-		fallthrough
-	case "rd_":
-		c = color.New(color.FgMagenta).Add(color.BgBlack)
-	case "WR_":
-		fallthrough
-	case "wr_":
+	case "ERR", "err":
+		c = color.New(color.FgRed).Add(color.Bold).Add(color.BgYellow)
+	case "WRN", "wrn":
+		c = color.New(color.FgBlack).Add(color.BgRed)
+	case "MSG", "msg":
+		c = color.New(color.FgBlack).Add(color.BgGreen)
+	case "RD_", "rd_":
 		c = color.New(color.FgBlack).Add(color.BgMagenta)
-	case "TIM":
-		fallthrough
-	case "tim":
-		c = color.New(color.FgBlue).Add(color.BgYellow)
-	case "ATT":
-		fallthrough
-	case "att":
-		c = color.New(color.FgYellow).Add(color.Bold).Add(color.BgCyan)
-	case "DBG":
-		fallthrough
-	case "dbg":
-		c = color.New(color.FgCyan).Add(color.BgRed)
-	case "DIA":
-		fallthrough
-	case "dia":
-		c = color.New(color.BgHiCyan).Add(color.BgHiBlack)
-	case "ISR":
-		fallthrough
-	case "isr":
-		c = color.New(color.FgWhite).Add(color.BgBlack)
-	case "SIG":
-		fallthrough
-	case "sig":
-		c = color.New(color.FgYellow).Add(color.Bold).Add(color.BgGreen)
-	case "TST":
-		fallthrough
-	case "tst":
-		c = color.New(color.FgYellow).Add(color.BgGreen)
+	case "WR_", "wr_":
+		c = color.New(color.FgMagenta).Add(color.BgBlack)
+	case "TIM", "tim":
+		c = color.New(color.FgYellow).Add(color.BgBlue)
+	case "ATT", "att":
+		c = color.New(color.FgCyan).Add(color.Bold).Add(color.BgYellow)
+	case "DBG", "dbg":
+		c = color.New(color.FgRed).Add(color.BgCyan)
+	case "DIA", "dia":
+		c = color.New(color.BgHiBlack).Add(color.BgHiCyan)
+	case "ISR", "isr":
+		c = color.New(color.FgBlack).Add(color.BgYellow)
+	case "SIG", "sig":
+		c = color.New(color.FgGreen).Add(color.Bold).Add(color.BgYellow)
+	case "TST", "tst":
+		c = color.New(color.FgRed).Add(color.BgGreen)
 	default:
 		c = color.New(color.FgWhite).Add(color.BgBlack)
 		err = errors.New("unknown channel info")
