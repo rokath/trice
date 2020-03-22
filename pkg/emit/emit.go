@@ -437,9 +437,42 @@ func fileLine() string {
 	return s
 }
 
+// errFalseLen reports an error becvause of false len
 func errFalseLen(it id.Item, t, b []byte) (string, []byte, error) {
 	s := fmt.Sprintln("ERR:", it, "false len", len(t), "in data stream", t, b)
 	return s, b, errors.New("data stream error")
+}
+
+// evalLen checks if byte buffer t has appropriate length to id.item it
+func evalLen(it id.Item, t []byte) error {
+	err := errors.New("false len")
+	switch it.FmtType {
+	case "TRICE0", "TRICE8_1", "TRICE8_2", "TRICE16_1":
+		if 2 != len(t) {
+			return err
+		}
+	case "TRICE8_3", "TRICE8_4", "TRICE16_2", "TRICE32_1":
+		if 4 != len(t) {
+			return err
+		}
+	case "TRICE8_5", "TRICE8_6", "TRICE16_3":
+		if 6 != len(t) {
+			return err
+		}
+	case "TRICE8_7", "TRICE8_8", "TRICE16_4", "TRICE32_2", "TRICE64_1":
+		if 8 != len(t) {
+			return err
+		}
+	case "TRICE32_3":
+		if 12 != len(t) {
+			return err
+		}
+	case "TRICE32_4", "TRICE64_2":
+		if 16 != len(t) {
+			return err
+		}
+	}
+	return nil
 }
 
 // emmiter wworks fine with %x, %d and %o but NOT with %u for now
@@ -451,16 +484,14 @@ func emitter(it id.Item, t, b []byte) (string, []byte, error) {
 	var v0, v1, v2, v3 int16
 	var w0, w1, w2, w3 int32
 	var l0, l1 int64
+	err = evalLen(it, t)
+	if nil != err {
+		return errFalseLen(it, t, b)
+	}
 	switch it.FmtType {
 	case "TRICE0":
-		if 2 != len(t) { // t has 2 padding bytes
-			return errFalseLen(it, t, b)
-		}
 		s = f
 	case "TRICE8_1":
-		if 2 != len(t) {
-			return errFalseLen(it, t, b)
-		}
 		if "%s" != f { // normal case
 			s = fmt.Sprintf(f, int8(t[0]))
 		} else if 11 > len(b) || // 8 byte header + 2 byte count + at least 1 byte data
@@ -474,110 +505,59 @@ func emitter(it id.Item, t, b []byte) (string, []byte, error) {
 			b = b[sLen:]                                         // discard old string
 		}
 	case "TRICE8_2":
-		if 2 != len(t) {
-			return errFalseLen(it, t, b)
-		}
 		s = fmt.Sprintf(f, int8(t[0]), int8(t[1]))
 	case "TRICE8_3":
-		if 4 != len(t) { // b has 1 padding byte
-			return errFalseLen(it, t, b)
-		}
 		s = fmt.Sprintf(f, int8(t[0]), int8(t[1]), int8(t[2]))
 	case "TRICE8_4":
-		if 4 != len(t) {
-			return errFalseLen(it, t, b)
-		}
 		s = fmt.Sprintf(f, int8(t[0]), int8(t[1]), int8(t[2]), int8(t[3]))
 	case "TRICE8_5":
-		if 6 != len(t) { // b has 1 padding byte
-			return errFalseLen(it, t, b)
-		}
 		s = fmt.Sprintf(f, int8(t[0]), int8(t[1]), int8(t[2]), int8(t[3]), int8(t[4]))
 	case "TRICE8_6":
-		if 6 != len(t) {
-			return errFalseLen(it, t, b)
-		}
 		s = fmt.Sprintf(f, int8(t[0]), int8(t[1]), int8(t[2]), int8(t[3]), int8(t[4]), int8(t[5]))
 	case "TRICE8_7":
-		if 8 != len(t) { // b has 1 padding byte
-			return errFalseLen(it, t, b)
-		}
 		s = fmt.Sprintf(f, int8(t[0]), int8(t[1]), int8(t[2]), int8(t[3]), int8(t[4]), int8(t[5]), int8(t[6]))
 	case "TRICE8_8":
-		if 8 != len(t) {
-			return errFalseLen(it, t, b)
-		}
 		s = fmt.Sprintf(f, int8(t[0]), int8(t[1]), int8(t[2]), int8(t[3]), int8(t[4]), int8(t[5]), int8(t[6]), int8(t[7]))
 	case "TRICE16_1":
-		if 2 != len(t) {
-			return errFalseLen(it, t, b)
-		}
 		v0 = int16(binary.LittleEndian.Uint16(t[0:2]))
 		s = fmt.Sprintf(f, v0)
 	case "TRICE16_2":
-		if 4 != len(t) {
-			return errFalseLen(it, t, b)
-		}
 		v0 = int16(binary.LittleEndian.Uint16(t[0:2]))
 		v1 = int16(binary.LittleEndian.Uint16(t[2:4]))
 		s = fmt.Sprintf(f, v0, v1)
 	case "TRICE16_3":
-		if 6 != len(t) {
-			return errFalseLen(it, t, b)
-		}
 		v0 = int16(binary.LittleEndian.Uint16(t[0:2]))
 		v1 = int16(binary.LittleEndian.Uint16(t[2:4]))
 		v2 = int16(binary.LittleEndian.Uint16(t[4:6]))
 		s = fmt.Sprintf(f, v0, v1, v2)
 	case "TRICE16_4":
-		if 8 != len(t) {
-			return errFalseLen(it, t, b)
-		}
 		v0 = int16(binary.LittleEndian.Uint16(t[0:2]))
 		v1 = int16(binary.LittleEndian.Uint16(t[2:4]))
 		v2 = int16(binary.LittleEndian.Uint16(t[4:6]))
 		v3 = int16(binary.LittleEndian.Uint16(t[6:8]))
 		s = fmt.Sprintf(f, v0, v1, v2, v3)
 	case "TRICE32_1":
-		if 4 != len(t) {
-			return errFalseLen(it, t, b)
-		}
 		w0 = int32(binary.LittleEndian.Uint32(t[0:4]))
 		s = fmt.Sprintf(f, w0)
 	case "TRICE32_2":
-		if 8 != len(t) {
-			return errFalseLen(it, t, b)
-		}
 		w0 = int32(binary.LittleEndian.Uint32(t[0:4]))
 		w1 = int32(binary.LittleEndian.Uint32(t[4:8]))
 		s = fmt.Sprintf(f, w0, w1)
 	case "TRICE32_3":
-		if 12 != len(t) {
-			return errFalseLen(it, t, b)
-		}
 		w0 = int32(binary.LittleEndian.Uint32(t[0:4]))
 		w1 = int32(binary.LittleEndian.Uint32(t[4:8]))
 		w2 = int32(binary.LittleEndian.Uint32(t[8:12]))
 		s = fmt.Sprintf(f, w0, w1, w2)
 	case "TRICE32_4":
-		if 16 != len(t) {
-			return errFalseLen(it, t, b)
-		}
 		w0 = int32(binary.LittleEndian.Uint32(t[0:4]))
 		w1 = int32(binary.LittleEndian.Uint32(t[4:8]))
 		w2 = int32(binary.LittleEndian.Uint32(t[8:12]))
 		w3 = int32(binary.LittleEndian.Uint32(t[12:16]))
 		s = fmt.Sprintf(f, w0, w1, w2, w3)
 	case "TRICE64_1":
-		if 8 != len(t) {
-			return errFalseLen(it, t, b)
-		}
 		l0 = int64(binary.LittleEndian.Uint64(t[0:8]))
 		s = fmt.Sprintf(f, l0)
 	case "TRICE64_2":
-		if 16 != len(t) {
-			return errFalseLen(it, t, b)
-		}
 		l0 = int64(binary.LittleEndian.Uint64(t[0:8]))
 		l1 = int64(binary.LittleEndian.Uint64(t[8:16]))
 		s = fmt.Sprintf(f, l0, l1)
