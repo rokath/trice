@@ -26,6 +26,16 @@
             ]
         },
         {
+            "name": "Launch trice ver",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}/cmd/trice",
+            "env": {},
+            "args": ["ver"
+            ]
+        },
+        {
             "name": "Launch trice log -port",
             "type": "go",
             "request": "launch",

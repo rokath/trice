@@ -11,6 +11,7 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"io"
 	"log"
 	"net"
 	"net/rpc"
@@ -49,6 +50,7 @@ var ipAddr string
 var ipPort string
 var password string
 var showPassword bool
+var logFile = "off"
 
 // HandleArgs evaluates the arguments slice of strings und uses wd as working directory
 func HandleArgs(wd string, args []string) error {
@@ -72,16 +74,18 @@ func HandleArgs(wd string, args []string) error {
 
 	hCmd := flag.NewFlagSet("help", flag.ContinueOnError) // subcommand
 
-	vCmd := flag.NewFlagSet("version", flag.ContinueOnError) // subcommand
+	vCmd := flag.NewFlagSet("version", flag.ContinueOnError)                               // subcommand
+	pVlf := vCmd.String("lf", "trice.log", "append all output to logfile, set to \"off\"") // flag
 
-	scLog := flag.NewFlagSet("log", flag.ExitOnError)                              // subcommand
-	pPort := scLog.String("port", "COMscan", "COM port, options: COM1|...|COM999") // flag
-	pBaud := scLog.Int("baud", 115200, "COM baudrate")                             // flag
-	pJSON := scLog.String("list", "til.json", "trice ID list path")                // flag
-	pTs := scLog.String("ts", "LOCmicro", "timestamp, options: off|UTCmicro")      // flag
-	pCol := scLog.String("color", "default", "color set, options: off|alternate")  // flag
-	pKey := scLog.String("key", "none", "decrypt passphrase")                      // flag
-	pShow := scLog.Bool("show", false, "show passphrase")                          // flag
+	scLog := flag.NewFlagSet("log", flag.ExitOnError)                                       // subcommand
+	pPort := scLog.String("port", "COMscan", "COM port, options: COM1|...|COM999")          // flag
+	pBaud := scLog.Int("baud", 115200, "COM baudrate")                                      // flag
+	pJSON := scLog.String("list", "til.json", "trice ID list path")                         // flag
+	pTs := scLog.String("ts", "LOCmicro", "timestamp, options: off|UTCmicro")               // flag
+	pCol := scLog.String("color", "default", "color set, options: off|alternate")           // flag
+	pKey := scLog.String("key", "none", "decrypt passphrase")                               // flag
+	pShow := scLog.Bool("show", false, "show passphrase")                                   // flag
+	pLlf := scLog.String("lf", "trice.log", "append all output to logfile, set to \"off\"") // flag
 
 	scCl := flag.NewFlagSet("remoteDisplay", flag.ExitOnError)                      // subcommand
 	pClPort := scCl.String("port", "COMscan", "COM port, options: COM1|...|COM999") // flag
@@ -150,13 +154,13 @@ func HandleArgs(wd string, args []string) error {
 		return scCheckList(*pC, *pSet, *pPal)
 	}
 	if scLog.Parsed() {
-		return scLogging(*pPort, *pBaud, *pJSON, *pTs, *pCol, *pKey, *pShow)
+		return scLogging(*pPort, *pBaud, *pJSON, *pTs, *pCol, *pKey, *pShow, *pLlf)
 	}
 	if scZero.Parsed() {
 		return zeroIds(*pRunZ, *pSrcZ, scZero)
 	}
 	if vCmd.Parsed() {
-		return scVersion()
+		return scVersion(*pVlf)
 	}
 	if scSv.Parsed() {
 		return scDisplayServer(*pSvTs, *pSvCol, *pSvIPA, *pSvIPP)
@@ -178,13 +182,120 @@ func assign(fn string) string {
 	return s
 }
 
-func scVersion() error {
+var tee io.Writer
+
+func setTee() (*os.File, *os.File) {
+	var err error
+	old := os.Stdout
+	tee = os.Stdout
+	var lfHandle *os.File
+	if "off" != logFile {
+		lfHandle, err = os.OpenFile(logFile, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+		if err != nil {
+			log.Fatalf("error opening file: %v", err)
+		}
+
+		tee = io.MultiWriter(os.Stdout, lfHandle)
+		log.SetOutput(tee)
+	}
+	return old, lfHandle
+}
+
+func resetTee(lfHandle, old *os.File) {
+	if nil != lfHandle {
+		os.Stdout = old
+		lfHandle.Close()
+	}
+}
+
+/*
+// https://medium.com/@hau12a1/golang-capturing-log-println-and-fmt-println-output-770209c791b4
+func captureOutput(f func()) string {
+	reader, writer, err := os.Pipe()
+	if err != nil {
+		panic(err)
+	}
+	stdout := os.Stdout
+	stderr := os.Stderr
+	defer func() {
+		os.Stdout = stdout
+		os.Stderr = stderr
+		log.SetOutput(os.Stderr)
+	}()
+	os.Stdout = writer
+	os.Stderr = writer
+	log.SetOutput(writer)
+	out := make(chan string)
+	wg := new(sync.WaitGroup)
+	wg.Add(1)
+	go func() {
+		var buf bytes.Buffer
+		wg.Done()
+		io.Copy(&buf, reader)
+		out <- buf.String()
+	}()
+	wg.Wait()
+	f()
+	writer.Close()
+	return <-out
+}
+
+func scVersion1(lfn string) error {
+	var err error
+	re := captureOutput(func() {
+		err = scVersion0(lfn)
+	})
+	old, lfHandle := setTee(lfn)
+	fmt.Fprint(tee, re)
+	resetTee(old, lfHandle)
+	return err
+}
+
+func scVersion0(fn string) error {
+	logFile = fn
 	if "" != version {
-		fmt.Printf("version=%v, commit=%v, built at %v", version, commit, date)
+		fmt.Printf("version=%v, commit=%v, built at %v\n", version, commit, date)
 		return nil
 	}
-	fmt.Printf("version=devel, commit=unknown, built after 2020-02-10-1800")
+	fmt.Printf("version=devel, commit=unknown, built after 2020-03-22-1815\n")
 	return errors.New("No goreleaser generated executable")
+}
+
+// this works too
+func scVersion00(fn string) error {
+	logFile = fn
+	var tee io.Writer
+	tee = os.Stdout
+	if "off" != logFile {
+		f, err := os.OpenFile(logFile, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+		if err != nil {
+			log.Fatalf("error opening file: %v", err)
+		}
+		defer f.Close()
+		tee = io.MultiWriter(os.Stdout, f)
+		log.SetOutput(tee)
+	}
+
+	if "" != version {
+		fmt.Fprintf(tee, "version=%v, commit=%v, built at %v\n", version, commit, date)
+		return nil
+	}
+	fmt.Fprintf(tee, "version=devel, commit=unknown, built after 2020-03-22-1815\n")
+	return errors.New("No goreleaser generated executable")
+}*/
+
+// this works too
+func scVersion(lfn string) error {
+	logFile = lfn
+	old, lfHandle := setTee()
+	defer resetTee(old, lfHandle)
+
+	if "" != version {
+		fmt.Fprintf(tee, "version=%v, commit=%v, built at %v\n", version, commit, date)
+	} else {
+		fmt.Fprintf(tee, "version=devel, commit=unknown, built after 2020-03-22-2305\n")
+	}
+	return nil
 }
 
 func scHelp(hCmd *flag.FlagSet,
@@ -217,7 +328,7 @@ func scHelp(hCmd *flag.FlagSet,
 	fmt.Println("    'trice log [-port COMn] [-baud m]', default port is COMscan, default m is 38400, fixed to 8N1")
 	fmt.Println("    'trice zeroSourceTreeIds -dir sourcerootdir]'")
 	fmt.Println("    'trice version'")
-	return scVersion()
+	return scVersion(logFile)
 }
 
 // scUpdate is subcommand update
@@ -293,7 +404,11 @@ func createCipher() (*xtea.Cipher, bool, error) {
 }
 
 // scLog connects to COM port and displays traces
-func scLogging(prt string, bd int, fn, ts, col, pw string, show bool) error {
+func scLogging(prt string, bd int, fn, ts, col, pw string, show bool, lfn string) error {
+	logFile = lfn
+	old, lfHandle := setTee()
+	defer resetTee(old, lfHandle)
+
 	port = prt
 	baud = bd
 	fnJSON = assign(fn)
