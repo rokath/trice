@@ -254,4 +254,5 @@ Running `trice ds` opens a display server to be used for displaying the TRICE lo
 Instead of `log`ging into the current window you can run `trice rd` to log into a remote display. This is useful for sending keyboard commands to the target device because of the empty window. An other option would be to send different trice logs to different remote displays. For both the trice tool needs source code adaption. For now the `rd` option is useful for example with an older notebook just as trice display.
 
 #### `remoteDisplay` switch '-ds'
-As example executing `trice rd -list examples/til.json  -port COM38 -ds` opens a separate display window automatically on the same PC.  
+As example executing `trice rd -list examples/til.json  -port COM38 -ds` opens a separate display window automatically on the same PC.
+![](./README.media/displayServer.gif)
