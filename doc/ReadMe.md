@@ -167,7 +167,7 @@ trice subcommand -switch1 -switch2 parameter -switch3 ...
 
 Which subcommand switches are usable for each subcommand is shown with `trice help`. This gives also information about their default values.
 
-#### subcommand switch '-dry-run'
+#### subcommand switch '-dry-run' (no changes)
 - This is a `bool` switch. It has no parameters. Its default value is **false**. If the switch is applied its value is **true**.
 - `trice u -dry-run` will change nothing but show changes it would perform without the `-dry-run` switch.
 
@@ -175,43 +175,49 @@ Which subcommand switches are usable for each subcommand is shown with `trice he
 - This is a `bool` switch. It has no parameters. Its default value is **false**. If the switch is applied its value is **true**.
 - For example `trice u -dry-run -v` is the same as `trice u -dry-run` but with more descriptive output.
 
-#### subcommand switch '-src'
+#### subcommand switch '-src' (source directory)
 - This is a `string` switch. It has one parameter. Its default value is `./` (the actual directory). 
 - This is a multi-flag switch. It can be used several times and for directories and also for files. Right now not usable yet in the form "-src *.c".
 - Example: `trice u  -dry-run -v -src ./examples/ -src src.C/trice.h` will scan all C|C++ header and source code files inside directory ./examples and scan also file trice.h inside src.C directory. It would create|extend a list file til.json in the current directory without the **-dry-run** Switch.
 
-#### subcommand switch '-list'
+#### subcommand switch '-list' (JSON ID list)
 - This is a `string` switch. It has one parameter. Its default value is `./til.json` (the **t**race **i**d **l**ist inside the actual directory). The with '-list' specified JSON file is the key to display the ID coded trices during runtime and should be under version control.
 
-#### subcommand switch '-color'
+#### subcommand switch '-color' (palette)
 - This is a `string` switch. It has one parameter. Its default value is `default`. 
 - The `alternate` value uses a different color palette.
 - 'off' suppresses all color information. Useful for redirecting in a file.
 
-#### subcommand switch '-port'
+#### subcommand switch '-port' (COM port)
 - This is a `string` switch. It has one parameter. Its default value is `COMscan`. 
 - Using a virtual serial COM port on the PC over a FTDI USB adapter is a most likely variant. Usually trice tool needs this switch in the form `-port COM9` if for example COM port 9 is used.
 - With the default value trice scans for available COM ports.
 
-#### subcommand switch '-baud'
+#### subcommand switch '-baud' (COM port baudrate)
 - This is an `int` switch. It has one parameter. Its default value is `115200`. 
 - It is the only setup parameter. The other values default to 8N1 (8 data bits, no parity, one stopbit)
 
-#### subcommand switch '-key'
+#### subcommand switch '-key' (encryption password)
 - This is a `string` switch. It has one parameter. Its default value is `none`. If you change this value you need to compile the target with the appropriate key.
 - This option is recommended if you deliver firmware to customers and want protect the trice log output. This does not work together with the `#define TRICE_STRINGS FULL_RUNTIME` option right now.
 
-#### subcommand switch '-show'
+#### subcommand switch '-show' (show passphrase)
 - This is a `bool` switch. It has no parameters. Its default value is **false**. If the switch is applied its value is **true**.
 - Use this switch for creating your own password keys. If applied together with `-key MyPwd` it shows the encryption key. Simply copy this key than into the line `#define ENCRYPT XTEA_KEY( a9, 4a, 8f, e5, cc, b1, 9b, a6, 1c, 4c, 08, 73, d3, 91, e9, 87 ); //!< -key test` inside triceConfig.h. 
 
-#### subcommand switch '-ts'
-This timestamp switch generates the timestamps on the PC only, what is goog enough for many cases. If you need precise target timestamps you need to generate them inside the target and send them as TRICE* parameters.
+#### subcommand switch '-ts' (timestamp)
+This timestamp switch generates the timestamps on the PC only, what is good enough for many cases. If you need precise target timestamps you need to generate them inside the target and send them as TRICE* parameters.
 - This is a `string` switch. It has one parameter. Its default value is `LOCmicro`. That means local time with microseconds.
 - `UTCmicro` shows timestamps in universal time.
+- `off` no timestamps
 
-#### subcommand switch '-ipa'
-#### subcommand switch '-ipp'
+#### subcommand switch '-ipa' (IP address)
+- This is a `string` switch. It has one parameter. Its default value is `localhost` (127.0.0.1).
+You can specify this swich if you intend to use the remote display option to show the output on a different PC in the network. 
+
+#### subcommand switch '-ipp' (IP port)
+- This is a `string` switch. It has one parameter. Its default value is `61497`.
+You can specify this swich if you want to change the used port number for the remote display functionality.
 
 ### Subcommand `help` (shortcut `h`)
 - `trice help` will give you a short commandline options overview.
@@ -236,15 +242,16 @@ The `update` subcommand has no mantadory switches. Omitted optional switches are
 - The `negative` value is uses a dataset with negative values for testing.
 
 ### Subcommand `log` (shortcut `l`)
-With `trice log` the display mode is activated.
-
-
-
+With `trice log` the display mode is activated. 
 
 ### Subcommand `zeroSourceTreeIds`
-
-### Subcommand `remoteDisplay` (shortcut `rd`)
-#### `remoteDisplay` switch '-ds'
+Set all Id(n) inside source tree dir to Id(0). This subcommand is mainly for testing. Avoid using this subcommand normally. The switch `-src` is mantadory and no multi-flag here - for several source directories you need several runs.
 
 ### Subcommand `displayServer` (shortcut `ds`)
+Running `trice ds` opens a display server to be used for displaying the TRICE logs remotely.
 
+### Subcommand `remoteDisplay` (shortcut `rd`)
+Instead of `log`ging into the current window you can run `trice rd` to log into a remote display. This is useful for sending keyboard commands to the target device because of the empty window. An other option would be to send different trice logs to different remote displays. For both the trice tool needs source code adaption. For now the `rd` option is useful for example with an older notebook just as trice display.
+
+#### `remoteDisplay` switch '-ds'
+As example executing `trice rd -list examples/til.json  -port COM38 -ds` opens a separate display window automatically on the same PC.  
