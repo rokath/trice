@@ -17,26 +17,13 @@ import (
 	"github.com/rokath/trice/pkg/id"
 )
 
-func TestPosition(t *testing.T) {
-	fnIDList := "./testdata/til.json"        // file with test input
-	fnIDListOut := "./testdata/position.out" // file with expected test output
-
-	list := make(id.List, 0, 65536) // for 16 bit IDs enough
-	pList := &list
-
-	err := pList.Read(fnIDList)
-	if nil != err {
-		fmt.Println("ID list " + fnIDList + " not found, exit")
-		t.Fail()
-	}
-
+func captureOutput(f func(id.List, string) error, l id.List, dataset string) string {
 	// https://stackoverflow.com/questions/10473800/in-go-how-do-i-capture-stdout-of-a-function-into-a-string
 	old := os.Stdout // keep backup of the real stdout
 	r, w, _ := os.Pipe()
 	os.Stdout = w
-
 	ColorPalette = "off"
-	Check(list, "position") // color "off"
+	f(l, dataset)
 
 	outC := make(chan string)
 	// copy the output in a separate goroutine so printing can't block indefinitely
@@ -52,17 +39,36 @@ func TestPosition(t *testing.T) {
 	out := <-outC
 
 	os.Stdout = old
+	return out
+}
 
-	// read expected output
-	b, err := ioutil.ReadFile(fnIDListOut)
+func idList(t *testing.T) id.List {
+	fnIDList := "./testdata/til.json" // file with test input
+	list := make(id.List, 0, 65536)   // for 16 bit IDs enough
+	pList := &list
+
+	err := pList.Read(fnIDList)
 	if nil != err {
-		fmt.Println("ID list " + fnIDListOut + " not found, exit")
+		fmt.Println("ID list " + fnIDList + " not found, exit")
+		t.Fail()
+	}
+	return list
+}
+
+// file with expected test output
+func expectedOutput(fn string, t *testing.T) string {
+	b, err := ioutil.ReadFile(fn)
+	if nil != err {
+		fmt.Println("ID list " + fn + " not found, exit")
 		t.Fail()
 	}
 	s := string(b)
 	s = strings.Replace(s, "\r", "", -1) // for Windows needed
 	s = strings.Replace(s, "\n", "", -1)
+	return s
+}
 
+func compareResult(s, out string, t *testing.T) {
 	if out == s {
 		return
 	}
@@ -73,57 +79,18 @@ func TestPosition(t *testing.T) {
 	t.Fail()
 }
 
-func TestNegative(t *testing.T) {
-	fnIDList := "./testdata/til.json"        // file with test input
-	fnIDListOut := "./testdata/negative.out" // file with expected test output
-
-	list := make(id.List, 0, 65536) // for 16 bit IDs enough
-	pList := &list
-
-	err := pList.Read(fnIDList)
-	if nil != err {
-		fmt.Println("ID list " + fnIDList + " not found, exit")
-		t.Fail()
-	}
-
-	// https://stackoverflow.com/questions/10473800/in-go-how-do-i-capture-stdout-of-a-function-into-a-string
-	old := os.Stdout // keep backup of the real stdout
-	r, w, _ := os.Pipe()
-	os.Stdout = w
+func TestPosition(t *testing.T) {
 	ColorPalette = "off"
-	Check(list, "negative") // color "off"
+	list := idList(t)
+	out := captureOutput(Check, list, "position")
+	s := expectedOutput("./testdata/position.out", t)
+	compareResult(s, out, t)
+}
 
-	outC := make(chan string)
-	// copy the output in a separate goroutine so printing can't block indefinitely
-	go func() {
-		var buf bytes.Buffer
-		io.Copy(&buf, r)
-		outC <- buf.String()
-	}()
-
-	// back to normal state
-	w.Close()
-	os.Stdout = old // restoring the real stdout
-	out := <-outC
-
-	os.Stdout = old
-
-	// read expected output
-	b, err := ioutil.ReadFile(fnIDListOut)
-	if nil != err {
-		fmt.Println("ID list " + fnIDListOut + " not found, exit")
-		t.Fail()
-	}
-	s := string(b)
-	s = strings.Replace(s, "\r", "", -1) // for Windows needed
-	s = strings.Replace(s, "\n", "", -1)
-
-	if out == s {
-		return
-	}
-	fmt.Println("expected:")
-	fmt.Println(s)
-	fmt.Println("got:")
-	fmt.Println(out)
-	t.Fail()
+func TestNegative(t *testing.T) {
+	ColorPalette = "off"
+	list := idList(t)
+	out := captureOutput(Check, list, "negative")
+	s := expectedOutput("./testdata/negative.out", t)
+	compareResult(s, out, t)
 }
