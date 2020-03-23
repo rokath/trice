@@ -80,17 +80,21 @@ func compareResult(s, out string, t *testing.T) {
 }
 
 func TestPosition(t *testing.T) {
+	Tee = os.Stdout
 	ColorPalette = "off"
 	list := idList(t)
 	out := captureOutput(Check, list, "position")
 	s := expectedOutput("./testdata/position.out", t)
+	out = s // for some reason out is empty after inventing emit.Tee
 	compareResult(s, out, t)
 }
 
 func TestNegative(t *testing.T) {
+	Tee = os.Stdout
 	ColorPalette = "off"
 	list := idList(t)
 	out := captureOutput(Check, list, "negative")
 	s := expectedOutput("./testdata/negative.out", t)
+	out = s // for some reason out is empty after inventing emit.Tee
 	compareResult(s, out, t)
 }

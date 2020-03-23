@@ -7,6 +7,7 @@ import (
 	"encoding/binary"
 	"errors"
 	"fmt"
+	"io"
 	"runtime"
 	"strings"
 	"time"
@@ -16,8 +17,14 @@ import (
 	"github.com/rokath/trice/pkg/id"
 )
 
+// ColorPalette is the used PC color set
 var ColorPalette = "default"
-var TimeStampFormat string = "LOCmicro"
+
+// TimeStampFormat is the PC timestamp format
+var TimeStampFormat = "LOCmicro"
+
+// Tee is the used output device
+var Tee io.Writer
 
 // checkValuePosition is a consistency check for positive values and their position
 func checkValuePosition(l id.List, s []byte) error {
@@ -202,14 +209,14 @@ func Trice(t, b []byte, l id.List) ([]byte, error) {
 	i := int(binary.LittleEndian.Uint16(t[4:6]))
 	if 0 == i {
 		if 0 == len(l) { // "none" as ID list or list empty
-			fmt.Printf("% 20x\n", t) //  show raw data
+			fmt.Fprintf(Tee, "% 20x\n", t) //  show raw data
 		}
 		return b, nil // only params
 	}
 	if 0 == len(l) { // "none" as ID list or list empty
-		fmt.Printf("% 20x acc:", t) //  show raw data
-		fmt.Println(d)              //  show acc data
-		d = d[:0]                   // empty d for next trice
+		fmt.Fprintf(Tee, "% 20x acc:", t) //  show raw data
+		fmt.Fprintln(Tee, d)              //  show acc data
+		d = d[:0]                         // empty d for next trice
 		return b, nil
 	}
 	x, err := id.Index(i, l)
@@ -373,9 +380,9 @@ func visualize(s string) error {
 		tsFlag = false
 		switch TimeStampFormat {
 		case "LOCmicro":
-			_, err = b.Print(time.Now().Format(time.StampMicro), ": ")
+			_, err = b.Fprint(Tee, time.Now().Format(time.StampMicro), ": ")
 		case "UTCmicro":
-			_, err = b.Print(time.Now().UTC().Format(time.StampMicro), ": ")
+			_, err = b.Fprint(Tee, time.Now().UTC().Format(time.StampMicro), ": ")
 		case "off": // do nothing
 		}
 	}
@@ -384,7 +391,7 @@ func visualize(s string) error {
 	if strings.HasSuffix(s, "\n") {
 		s := strings.TrimSuffix(s, "\n")
 		printIt(s, c)
-		_, _ = b.Println()
+		_, _ = b.Fprintln(Tee)
 		tsFlag = true
 	} else {
 		_, err = printIt(s, c)
@@ -394,11 +401,11 @@ func visualize(s string) error {
 
 func printIt(s string, c *color.Color) (int, error) {
 	if nil != c {
-		//log.Print(s)
+		//log.Fprint(Tee,s)
 		//return 0, nil
-		return c.Print(s)
+		return c.Fprint(Tee, s)
 	}
-	return fmt.Print(s)
+	return fmt.Fprint(Tee, s)
 }
 
 // parse lang C formatstring for %u and replace them with %d and extend the

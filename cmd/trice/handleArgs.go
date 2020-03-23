@@ -54,6 +54,7 @@ var logFile = "off"
 
 // HandleArgs evaluates the arguments slice of strings und uses wd as working directory
 func HandleArgs(wd string, args []string) error {
+	emit.Tee = os.Stdout
 	list := make(id.List, 0, 65536) // for 16 bit IDs enough
 	pList = &list
 
@@ -98,11 +99,12 @@ func HandleArgs(wd string, args []string) error {
 	pClTs := scCl.String("ts", "LOCmicro", "timestamp, options: off|UTCmicro")      // flag
 	pClSrv := scCl.Bool("ds", false, "start display server ")                       // flag
 
-	scSv := flag.NewFlagSet("displayServer", flag.ExitOnError)                     // subcommand
-	pSvIPA := scSv.String("ipa", "localhost", "ip address")                        // flag (127.0.0.1)
-	pSvIPP := scSv.String("ipp", "61497", "16 bit port number")                    // flag
-	pSvCol := scSv.String("color", "default", "color set, options: off|alternate") // flag
-	pSvTs := scSv.String("ts", "LOCmicro", "timestampm options: off|UTCmicro")     // flag
+	scSv := flag.NewFlagSet("displayServer", flag.ExitOnError)                               // subcommand
+	pSvIPA := scSv.String("ipa", "localhost", "ip address")                                  // flag (127.0.0.1)
+	pSvIPP := scSv.String("ipp", "61497", "16 bit port number")                              // flag
+	pSvCol := scSv.String("color", "default", "color set, options: off|alternate")           // flag
+	pSvTs := scSv.String("ts", "LOCmicro", "timestampm options: off|UTCmicro")               // flag
+	pSvLlf := scSv.String("lf", "trice.log", "append all output to logfile, set to \"off\"") // flag
 
 	// Verify that a subcommand has been provided
 	// os.Arg[0] is the main command
@@ -163,7 +165,7 @@ func HandleArgs(wd string, args []string) error {
 		return scVersion(*pVlf)
 	}
 	if scSv.Parsed() {
-		return scDisplayServer(*pSvTs, *pSvCol, *pSvIPA, *pSvIPP)
+		return scDisplayServer(*pSvTs, *pSvCol, *pSvIPA, *pSvIPP, *pSvLlf)
 	}
 	if scCl.Parsed() {
 		return scRemoteDisplay(*pClIPA, *pClIPP, *pClPort, *pClBaud, *pClJSON, *pClTs, *pClKey, *pClShow, *pClSrv)
@@ -182,12 +184,10 @@ func assign(fn string) string {
 	return s
 }
 
-var tee io.Writer
-
 func setTee() (*os.File, *os.File) {
 	var err error
 	old := os.Stdout
-	tee = os.Stdout
+	emit.Tee = os.Stdout
 	var lfHandle *os.File
 	if "off" != logFile {
 		lfHandle, err = os.OpenFile(logFile, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
@@ -195,8 +195,8 @@ func setTee() (*os.File, *os.File) {
 			log.Fatalf("error opening file: %v", err)
 		}
 
-		tee = io.MultiWriter(os.Stdout, lfHandle)
-		log.SetOutput(tee)
+		emit.Tee = io.MultiWriter(os.Stdout, lfHandle)
+		log.SetOutput(emit.Tee)
 	}
 	return old, lfHandle
 }
@@ -204,6 +204,7 @@ func setTee() (*os.File, *os.File) {
 func resetTee(lfHandle, old *os.File) {
 	if nil != lfHandle {
 		os.Stdout = old
+		log.SetOutput(old)
 		lfHandle.Close()
 	}
 }
@@ -291,9 +292,9 @@ func scVersion(lfn string) error {
 	defer resetTee(old, lfHandle)
 
 	if "" != version {
-		fmt.Fprintf(tee, "version=%v, commit=%v, built at %v\n", version, commit, date)
+		fmt.Fprintf(emit.Tee, "version=%v, commit=%v, built at %v\n", version, commit, date)
 	} else {
-		fmt.Fprintf(tee, "version=devel, commit=unknown, built after 2020-03-22-2305\n")
+		fmt.Fprintf(emit.Tee, "version=devel, commit=unknown, built after 2020-03-22-2305\n")
 	}
 	return nil
 }
@@ -566,7 +567,10 @@ func (p *Server) Adder(u [2]int64, reply *int64) error {
 
 // displayServer is the endless function called when trice tool acts as remote display.
 // All in Server struct registered RPC functions are reachable, when displayServer runs.
-func scDisplayServer(ts, pal, ipa, ipp string) error {
+func scDisplayServer(ts, pal, ipa, ipp, lfn string) error {
+	logFile = lfn
+	old, lfHandle := setTee()
+	defer resetTee(old, lfHandle)
 	emit.TimeStampFormat = ts
 	emit.ColorPalette = pal
 	ipAddr = ipa
