@@ -80,7 +80,7 @@ func compareResult(s, out string, t *testing.T) {
 }
 
 func TestPosition(t *testing.T) {
-	Tee = os.Stdout
+	//Tee = os.Stdout
 	ColorPalette = "off"
 	list := idList(t)
 	out := captureOutput(Check, list, "position")
@@ -90,7 +90,7 @@ func TestPosition(t *testing.T) {
 }
 
 func TestNegative(t *testing.T) {
-	Tee = os.Stdout
+	//	Tee = os.Stdout
 	ColorPalette = "off"
 	list := idList(t)
 	out := captureOutput(Check, list, "negative")

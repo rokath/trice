@@ -7,6 +7,7 @@ package main
 
 import (
 	"bufio"
+	"bytes"
 	"crypto/sha1"
 	"errors"
 	"flag"
@@ -54,7 +55,7 @@ var logFile = "off"
 
 // HandleArgs evaluates the arguments slice of strings und uses wd as working directory
 func HandleArgs(wd string, args []string) error {
-	emit.Tee = os.Stdout
+	//emit.Tee = os.Stdout
 	list := make(id.List, 0, 65536) // for 16 bit IDs enough
 	pList = &list
 
@@ -184,117 +185,93 @@ func assign(fn string) string {
 	return s
 }
 
-func setTee() (*os.File, *os.File) {
+var wg sync.WaitGroup
+
+// used for restoring normal state
+var quitTakeNotes chan bool
+
+// log file handle
+var lfHandle *os.File
+
+func enableTakeNotes() {
+	quitTakeNotes = make(chan bool)
+	if "off" == logFile {
+		return
+	}
 	var err error
-	old := os.Stdout
-	emit.Tee = os.Stdout
-	var lfHandle *os.File
-	if "off" != logFile {
-		lfHandle, err = os.OpenFile(logFile, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
-		if err != nil {
-			log.Fatalf("error opening file: %v", err)
-		}
-
-		emit.Tee = io.MultiWriter(os.Stdout, lfHandle)
-		log.SetOutput(emit.Tee)
+	lfHandle, err = os.OpenFile(logFile, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	if err != nil {
+		log.Fatalf("error opening file: %v", err)
 	}
-	return old, lfHandle
+	old := os.Stderr
+	wg.Add(1)
+	go func() {
+		defer func() {
+			log.SetOutput(old)
+			for {
+				select {
+				case <-quitTakeNotes:
+					wg.Done()
+					return
+				}
+			}
+		}()
+	}()
+	takeNotes(&os.Stdout)
+	takeNotes(&os.Stderr)
+	new := os.Stderr
+	log.SetOutput(new)
 }
 
-func resetTee(lfHandle, old *os.File) {
-	if nil != lfHandle {
-		os.Stdout = old
-		log.SetOutput(old)
-		lfHandle.Close()
-	}
+func disableTakeNotes() {
+	close(quitTakeNotes) // this is a multicast to all go routines listening this channel
+	wg.Wait()
 }
 
-/*
-// https://medium.com/@hau12a1/golang-capturing-log-println-and-fmt-println-output-770209c791b4
-func captureOutput(f func()) string {
-	reader, writer, err := os.Pipe()
+// takeNotes redirects output file handle out to a writer which goes into a pipe.
+// It starts an endless go routine which c reads from the pipe and writes to
+// the out file but also to the logfile
+func takeNotes(out **os.File) {
+	r, w, err := os.Pipe()
 	if err != nil {
 		panic(err)
 	}
-	stdout := os.Stdout
-	stderr := os.Stderr
-	defer func() {
-		os.Stdout = stdout
-		os.Stderr = stderr
-		log.SetOutput(os.Stderr)
-	}()
-	os.Stdout = writer
-	os.Stderr = writer
-	log.SetOutput(writer)
-	out := make(chan string)
-	wg := new(sync.WaitGroup)
-	wg.Add(1)
+	old := *out
+	*out = w
+	wg.Add(1) // must be before go routine starts
 	go func() {
-		var buf bytes.Buffer
-		wg.Done()
-		io.Copy(&buf, reader)
-		out <- buf.String()
-	}()
-	wg.Wait()
-	f()
-	writer.Close()
-	return <-out
-}
-
-func scVersion1(lfn string) error {
-	var err error
-	re := captureOutput(func() {
-		err = scVersion0(lfn)
-	})
-	old, lfHandle := setTee(lfn)
-	fmt.Fprint(tee, re)
-	resetTee(old, lfHandle)
-	return err
-}
-
-func scVersion0(fn string) error {
-	logFile = fn
-	if "" != version {
-		fmt.Printf("version=%v, commit=%v, built at %v\n", version, commit, date)
-		return nil
-	}
-	fmt.Printf("version=devel, commit=unknown, built after 2020-03-22-1815\n")
-	return errors.New("No goreleaser generated executable")
-}
-
-// this works too
-func scVersion00(fn string) error {
-	logFile = fn
-	var tee io.Writer
-	tee = os.Stdout
-	if "off" != logFile {
-		f, err := os.OpenFile(logFile, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
-		if err != nil {
-			log.Fatalf("error opening file: %v", err)
+		defer func() {
+			*out = old
+			r.Close()
+			w.Close()
+			wg.Done()
+		}()
+		for {
+			select {
+			case <-quitTakeNotes:
+				return
+			default:
+				var buf bytes.Buffer
+				io.Copy(&buf, r)
+				io.WriteString(old, buf.String())
+				io.WriteString(lfHandle, buf.String())
+			}
 		}
-		defer f.Close()
-		tee = io.MultiWriter(os.Stdout, f)
-		log.SetOutput(tee)
-	}
-
-	if "" != version {
-		fmt.Fprintf(tee, "version=%v, commit=%v, built at %v\n", version, commit, date)
-		return nil
-	}
-	fmt.Fprintf(tee, "version=devel, commit=unknown, built after 2020-03-22-1815\n")
-	return errors.New("No goreleaser generated executable")
-}*/
+	}()
+}
 
 // this works too
 func scVersion(lfn string) error {
 	logFile = lfn
-	old, lfHandle := setTee()
-	defer resetTee(old, lfHandle)
+	enableTakeNotes()
+	defer disableTakeNotes()
 
 	if "" != version {
-		fmt.Fprintf(emit.Tee, "version=%v, commit=%v, built at %v\n", version, commit, date)
+		fmt.Printf("version=%v, commit=%v, built at %v\n", version, commit, date)
+		//fmt.Fprintf(emit.Tee, "version=%v, commit=%v, built at %v\n", version, commit, date)
 	} else {
-		fmt.Fprintf(emit.Tee, "version=devel, commit=unknown, built after 2020-03-22-2305\n")
+		fmt.Printf("version=devel, commit=unknown, built after 2020-03-22-2305\n")
+		//fmt.Fprintf(emit.Tee, "version=devel, commit=unknown, built after 2020-03-22-2305\n")
 	}
 	return nil
 }
@@ -407,8 +384,8 @@ func createCipher() (*xtea.Cipher, bool, error) {
 // scLog connects to COM port and displays traces
 func scLogging(prt string, bd int, fn, ts, col, pw string, show bool, lfn string) error {
 	logFile = lfn
-	old, lfHandle := setTee()
-	defer resetTee(old, lfHandle)
+	enableTakeNotes()
+	defer disableTakeNotes()
 
 	port = prt
 	baud = bd
@@ -460,9 +437,8 @@ func conditionalComPortScan() error {
 		log.Println("Take serial port", ports[0])
 		port = ports[0]
 		return nil
-	} else {
-		return errors.New("Could not find serial port on system")
 	}
+	return errors.New("Could not find serial port on system")
 }
 
 // https://tutorialedge.net/golang/reading-console-input-golang/
@@ -569,8 +545,8 @@ func (p *Server) Adder(u [2]int64, reply *int64) error {
 // All in Server struct registered RPC functions are reachable, when displayServer runs.
 func scDisplayServer(ts, pal, ipa, ipp, lfn string) error {
 	logFile = lfn
-	old, lfHandle := setTee()
-	defer resetTee(old, lfHandle)
+	enableTakeNotes()
+	defer disableTakeNotes()
 	emit.TimeStampFormat = ts
 	emit.ColorPalette = pal
 	ipAddr = ipa
@@ -593,7 +569,6 @@ func scDisplayServer(ts, pal, ipa, ipp, lfn string) error {
 	}
 }
 
-var wg sync.WaitGroup
 var pRPC *rpc.Client
 
 func remoteVisualize(s string) error {
@@ -608,6 +583,7 @@ func remoteVisualize(s string) error {
 
 // client
 func scRemoteDisplay(ipa, ipp, prt string, bd int, fn, ts, pw string, show, sv bool) error {
+	var wg sync.WaitGroup
 	ipAddr = ipa
 	ipPort = ipp
 	port = prt
@@ -621,7 +597,7 @@ func scRemoteDisplay(ipa, ipp, prt string, bd int, fn, ts, pw string, show, sv b
 		var clip string
 		if runtime.GOOS == "windows" {
 			shell = "cmd"
-			clip = "/c start trice displayServer -ipa " + ipAddr + " -ipp " + ipPort
+			clip = "/c start trice displayServer -ipa " + ipAddr + " -ipp " + ipPort + " -lf off "
 		}
 		cmd := exec.Command(shell, clip)
 		err := cmd.Run()
@@ -659,3 +635,158 @@ func scRemoteDisplay(ipa, ipp, prt string, bd int, fn, ts, pw string, show, sv b
 	fmt.Println("...done")
 	return nil
 }
+
+//var tee io.Writer
+/*
+func setTee() (*os.File, *os.File) {
+	var err error
+	old := os.Stdout
+	//emit.Tee = os.Stdout
+	var lfHandle *os.File
+	if "off" != logFile {
+		lfHandle, err = os.OpenFile(logFile, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+		if err != nil {
+			log.Fatalf("error opening file: %v", err)
+		}
+
+		// https://stackoverflow.com/questions/54276178/golang-add-custom-os-file-to-os-stdout
+		// https://play.golang.org/p/CqUOP8aKL0
+		// https://gist.github.com/jmoiron/e9f72720cef51862b967
+		//os.Stdout
+		tee := io.MultiWriter(old, lfHandle)
+
+		//https://medium.com/@hau12a1/golang-capturing-log-println-and-fmt-println-output-770209c791b4
+
+		//io.Copy(w, stderr)
+
+		log.SetOutput(tee)
+	}
+	return old, lfHandle
+}
+
+func resetTee(lfHandle, old *os.File) {
+	if nil != lfHandle {
+		os.Stdout = old
+		log.SetOutput(old)
+		lfHandle.Close()
+	}
+}*/
+
+/*
+	stderrReader, stderrWriter, err := os.Pipe()
+	if err != nil {
+		panic(err)
+	}
+	defer stderrReader.Close()
+	defer stderrWriter.Close()
+
+	logReader, logWriter, err := os.Pipe()
+	if err != nil {
+		panic(err)
+	}
+	defer logReader.Close()
+	defer logWriter.Close()
+
+	stdout := os.Stdout
+	stderr := os.Stderr
+	defer func() {
+		os.Stdout = stdout
+		os.Stderr = stderr
+		log.SetOutput(os.Stderr)
+	}()
+
+	os.Stdout = stdoutWriter
+	os.Stderr = stderrWriter
+	log.SetOutput(logWriter)
+
+	go func() {
+		var buf bytes.Buffer
+		io.Copy(&buf, stderrReader)
+		io.WriteString(stderr, buf.String())
+		io.WriteString(lfHandle, buf.String())
+	}()
+
+	go func() {
+		var buf bytes.Buffer
+		io.Copy(&buf, logReader)
+		io.WriteString(stderr, buf.String())
+		io.WriteString(lfHandle, buf.String())
+	}()
+
+}
+*/
+/*
+// https://medium.com/@hau12a1/golang-capturing-log-println-and-fmt-println-output-770209c791b4
+func captureOutput(f func()) string {
+	reader, writer, err := os.Pipe()
+	if err != nil {
+		panic(err)
+	}
+	stdout := os.Stdout
+	stderr := os.Stderr
+	defer func() {
+		os.Stdout = stdout
+		os.Stderr = stderr
+		log.SetOutput(os.Stderr)
+	}()
+	os.Stdout = writer
+	os.Stderr = writer
+	log.SetOutput(writer)
+	out := make(chan string)
+	wg := new(sync.WaitGroup)
+	wg.Add(1)
+	go func() {
+		var buf bytes.Buffer
+		wg.Done()
+		io.Copy(&buf, reader)
+		out <- buf.String()
+	}()
+	wg.Wait()
+	f()
+	writer.Close()
+	return <-out
+}
+/*
+func scVersion1(lfn string) error {
+	var err error
+	re := captureOutput(func() {
+		err = scVersion0(lfn)
+	})
+	old, lfHandle := setTee(lfn)
+	fmt.Fprint(tee, re)
+	resetTee(old, lfHandle)
+	return err
+}
+
+func scVersion0(fn string) error {
+	logFile = fn
+	if "" != version {
+		fmt.Printf("version=%v, commit=%v, built at %v\n", version, commit, date)
+		return nil
+	}
+	fmt.Printf("version=devel, commit=unknown, built after 2020-03-22-1815\n")
+	return errors.New("No goreleaser generated executable")
+}
+
+// this works too
+func scVersion00(fn string) error {
+	logFile = fn
+	var tee io.Writer
+	tee = os.Stdout
+	if "off" != logFile {
+		f, err := os.OpenFile(logFile, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+		if err != nil {
+			log.Fatalf("error opening file: %v", err)
+		}
+		defer f.Close()
+		tee = io.MultiWriter(os.Stdout, f)
+		log.SetOutput(tee)
+	}
+
+	if "" != version {
+		fmt.Fprintf(tee, "version=%v, commit=%v, built at %v\n", version, commit, date)
+		return nil
+	}
+	fmt.Fprintf(tee, "version=devel, commit=unknown, built after 2020-03-22-1815\n")
+	return errors.New("No goreleaser generated executable")
+}*/

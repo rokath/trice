@@ -8,13 +8,11 @@ package main
 import (
 	"os"
 	"testing"
-
-	"github.com/rokath/trice/pkg/emit"
 )
 
 func TestMain(m *testing.M) {
 	// do stuff before tests
-	emit.Tee = os.Stdout
+	//	emit.Tee = os.Stdout
 	exitVal := m.Run()
 	// do stuff after tests
 	os.Exit(exitVal)
