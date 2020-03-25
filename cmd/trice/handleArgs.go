@@ -208,7 +208,7 @@ func enableTakeNotes() {
 	go func() {
 		for {
 			select {
-			case <-quitTakeNotes:
+			case <-quitTakeNotes: // back to normal state
 				log.SetOutput(old)
 				wg.Done()
 				return
@@ -238,45 +238,46 @@ func takeNotes(out **os.File) {
 	}
 	old := *out
 	*out = w
-	outC := make(chan string)
+	//outC := make(chan string)
 
 	wg.Add(1) // must be before go routine starts
 	go func() {
-		defer func() { // back to normal state
-			*out = old
-			w.Close()
-			wg.Done()
-		}()
 		for {
 			select {
-			case <-quitTakeNotes:
+			case <-quitTakeNotes: // back to normal state
+				*out = old
+				w.Close()
+				wg.Done()
 				return
 			default:
 				// copy the output in a separate goroutine so printing can't block indefinitely
 				var buf bytes.Buffer
-				io.Copy(&buf, r)
-				s := buf.String()
-				outC <- s
+				n, e := io.Copy(&buf, r) // ISSUE: it seems io.Copy never returns!
+				var s string
+				if(nil != e ){
+					s = fmt.Sprint("io.Copy error", e, n)
+				}
+				s = buf.String()
+				//outC <- s
 				io.WriteString(old, s)
 				io.WriteString(lfHandle, s)
 			}
 		}
 	}()
-
-	wg.Add(1) // must be before go routine starts
-	go func() {
-		for {
-			select {
-			case <-quitTakeNotes:
-				close(outC)
-				wg.Done()
-				return
-			case s := <-outC:
-				io.WriteString(old, s)
-				io.WriteString(lfHandle, s)
+	/*	wg.Add(1) // must be before go routine starts
+		go func() {
+			for {
+				select {
+				case <-quitTakeNotes:
+					close(outC)
+					wg.Done()
+					return
+				case s := <-outC:
+					io.WriteString(old, s)
+					io.WriteString(lfHandle, s)
+				}
 			}
-		}
-	}()
+		}()*/
 }
 
 // this works too
