@@ -615,12 +615,26 @@ func scRemoteDisplay(ipa, ipp, prt string, bd int, fn, ts, pw string, show, sv b
 	showPassword = show
 	if true == sv {
 		var shell string
-		var clip string
+		/*
+			var clip string
+			if runtime.GOOS == "windows" {
+				shell = "cmd"
+				clip = "/c start trice displayServer -ipa " + ipAddr + " -ipp " + ipPort + " -lf off "
+			}
+			cmd := exec.Command(shell, clip)
+		*/
+		var clip []string
 		if runtime.GOOS == "windows" {
 			shell = "cmd"
-			clip = "/c start trice displayServer -ipa " + ipAddr + " -ipp " + ipPort + " -lf off "
+			clip = append(clip, "/c start trice displayServer -ipa "+ipAddr+" -ipp "+ipPort+" -lf off")
+		} else if runtime.GOOS == "linux" {
+			shell = "gnome-terminal" // this only works for gnome based linux desktop env
+			clip = append(clip, "--", "/bin/bash", "-c", "trice displayServer -ipa "+ipAddr+" -ipp "+ipPort+" -lf off")
+		} else {
+			log.Fatal("trice is running on unknown operating system")
 		}
-		cmd := exec.Command(shell, clip)
+		cmd := exec.Command(shell, clip...)
+
 		err := cmd.Run()
 		if err != nil {
 			log.Println(clip)
