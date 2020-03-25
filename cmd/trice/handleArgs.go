@@ -207,10 +207,10 @@ func enableTakeNotes() {
 	wg.Add(1)
 	go func() {
 		defer func() {
-			log.SetOutput(old)
 			for {
 				select {
 				case <-quitTakeNotes:
+					log.SetOutput(old)
 					wg.Done()
 					return
 				}
@@ -228,6 +228,8 @@ func disableTakeNotes() {
 	wg.Wait()
 }
 
+// see also https://play.golang.org/p/PNqa5M8zo7
+
 // takeNotes redirects output file handle out to a writer which goes into a pipe.
 // It starts an endless go routine which c reads from the pipe and writes to
 // the out file but also to the logfile
@@ -238,11 +240,12 @@ func takeNotes(out **os.File) {
 	}
 	old := *out
 	*out = w
+	outC := make(chan string)
+
 	wg.Add(1) // must be before go routine starts
 	go func() {
-		defer func() {
+		defer func() { // back to normal state
 			*out = old
-			r.Close()
 			w.Close()
 			wg.Done()
 		}()
@@ -251,10 +254,28 @@ func takeNotes(out **os.File) {
 			case <-quitTakeNotes:
 				return
 			default:
+				// copy the output in a separate goroutine so printing can't block indefinitely
 				var buf bytes.Buffer
 				io.Copy(&buf, r)
-				io.WriteString(old, buf.String())
-				io.WriteString(lfHandle, buf.String())
+				s := buf.String()
+				outC <- s
+				io.WriteString(old, s)
+				io.WriteString(lfHandle, s)
+			}
+		}
+	}()
+
+	wg.Add(1) // must be before go routine starts
+	go func() {
+		for {
+			select {
+			case <-quitTakeNotes:
+				close(outC)
+				wg.Done()
+				return
+			case s := <-outC:
+				io.WriteString(old, s)
+				io.WriteString(lfHandle, s)
 			}
 		}
 	}()
@@ -270,7 +291,7 @@ func scVersion(lfn string) error {
 		fmt.Printf("version=%v, commit=%v, built at %v\n", version, commit, date)
 		//fmt.Fprintf(emit.Tee, "version=%v, commit=%v, built at %v\n", version, commit, date)
 	} else {
-		fmt.Printf("version=devel, commit=unknown, built after 2020-03-22-2305\n")
+		fmt.Printf("version=devel, commit=unknown, built after 2020-03-25-1305\n")
 		//fmt.Fprintf(emit.Tee, "version=devel, commit=unknown, built after 2020-03-22-2305\n")
 	}
 	return nil
