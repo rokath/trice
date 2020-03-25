@@ -254,7 +254,7 @@ func takeNotes(out **os.File) {
 				var buf bytes.Buffer
 				n, e := io.Copy(&buf, r) // ISSUE: it seems io.Copy never returns!
 				var s string
-				if(nil != e ){
+				if nil != e {
 					s = fmt.Sprint("io.Copy error", e, n)
 				}
 				s = buf.String()
@@ -290,7 +290,7 @@ func scVersion(lfn string) error {
 		fmt.Printf("version=%v, commit=%v, built at %v\n", version, commit, date)
 		//fmt.Fprintf(emit.Tee, "version=%v, commit=%v, built at %v\n", version, commit, date)
 	} else {
-		fmt.Printf("version=devel, commit=unknown, built after 2020-03-25-1305\n")
+		fmt.Printf("version=devel, commit=unknown, built after 2020-03-25-1751\n")
 		//fmt.Fprintf(emit.Tee, "version=devel, commit=unknown, built after 2020-03-22-2305\n")
 	}
 	return nil
@@ -304,29 +304,29 @@ func scHelp(hCmd *flag.FlagSet,
 	v *flag.FlagSet,
 	sv *flag.FlagSet,
 	cl *flag.FlagSet) error {
-	fmt.Println("syntax: 'trice subcommand' [params]")
-	fmt.Println("subcommand 'help', 'h'")
+	fmt.Fprintln(hCmd.Output(), "syntax: 'trice subcommand' [params]")
+	fmt.Fprintln(hCmd.Output(), "subcommand 'help', 'h'")
 	hCmd.PrintDefaults()
-	fmt.Println("subcommand 'u', 'upd', 'update'")
+	fmt.Fprintln(u.Output(), "subcommand 'u', 'upd', 'update'")
 	u.PrintDefaults()
-	fmt.Println("subcommand 'check'")
+	fmt.Fprintln(c.Output(), "subcommand 'check'")
 	c.PrintDefaults()
-	fmt.Println("subcommand 'l', 'log'")
+	fmt.Fprintln(l.Output(), "subcommand 'l', 'log'")
 	l.PrintDefaults()
-	fmt.Println("subcommand 'zeroSourceTreeIds' (avoid using this subcommand normally)")
+	fmt.Fprintln(z.Output(), "subcommand 'zeroSourceTreeIds' (avoid using this subcommand normally)")
 	z.PrintDefaults()
-	fmt.Println("subcommand 'v', 'ver', 'version'")
+	fmt.Fprintln(v.Output(), "subcommand 'v', 'ver', 'version'")
 	v.PrintDefaults()
-	fmt.Println("subcommand 'ds', 'displayServer'")
+	fmt.Fprintln(sv.Output(), "subcommand 'ds', 'displayServer'")
 	sv.PrintDefaults()
-	fmt.Println("subcommand 'rd', 'remoteDisplay'")
+	fmt.Fprintln(cl.Output(), "subcommand 'rd', 'remoteDisplay'")
 	cl.PrintDefaults()
-	fmt.Println("examples:")
-	fmt.Println("    'trice update [-src sourcerootdir]', default sourcerootdir is ./")
-	fmt.Println("    'trice log [-port COMn] [-baud m]', default port is COMscan, default m is 38400, fixed to 8N1")
-	fmt.Println("    'trice zeroSourceTreeIds -dir sourcerootdir]'")
-	fmt.Println("    'trice version'")
-	return scVersion(logFile)
+	fmt.Fprintln(hCmd.Output(), "examples:")
+	fmt.Fprintln(hCmd.Output(), "    'trice update [-src sourcerootdir]', default sourcerootdir is ./")
+	fmt.Fprintln(hCmd.Output(), "    'trice log [-port COMn] [-baud m]', default port is COMscan, default m is 38400, fixed to 8N1")
+	fmt.Fprintln(hCmd.Output(), "    'trice zeroSourceTreeIds -dir sourcerootdir]'")
+	fmt.Fprintln(hCmd.Output(), "    'trice version'")
+	return nil
 }
 
 // scUpdate is subcommand update
