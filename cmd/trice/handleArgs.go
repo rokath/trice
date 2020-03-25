@@ -206,13 +206,11 @@ func enableTakeNotes() {
 	old := os.Stderr
 	wg.Add(1)
 	go func() {
-		defer func() {
-			log.SetOutput(old)
-			wg.Done()
-		}()
 		for {
 			select {
 			case <-quitTakeNotes:
+				log.SetOutput(old)
+				wg.Done()
 				return
 			}
 		}
