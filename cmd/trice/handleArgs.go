@@ -615,14 +615,6 @@ func scRemoteDisplay(ipa, ipp, prt string, bd int, fn, ts, pw string, show, sv b
 	showPassword = show
 	if true == sv {
 		var shell string
-		/*
-			var clip string
-			if runtime.GOOS == "windows" {
-				shell = "cmd"
-				clip = "/c start trice displayServer -ipa " + ipAddr + " -ipp " + ipPort + " -lf off "
-			}
-			cmd := exec.Command(shell, clip)
-		*/
 		var clip []string
 		if runtime.GOOS == "windows" {
 			shell = "cmd"
