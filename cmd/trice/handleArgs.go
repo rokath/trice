@@ -217,8 +217,8 @@ func enableTakeNotes() {
 	}()
 	takeNotes(&os.Stdout)
 	takeNotes(&os.Stderr)
-	new := os.Stderr
-	log.SetOutput(new)
+	n := os.Stderr
+	log.SetOutput(n)
 }
 
 func disableTakeNotes() {
