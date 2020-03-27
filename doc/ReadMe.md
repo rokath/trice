@@ -1,5 +1,5 @@
 
-## `TRICE0` |`TRICE8` |`TRICE16` |`TRICE32` |`TRICE64` | macro
+## `TRICE0` |`TRICE8` |`TRICE16` |`TRICE32` |`TRICE64` macro
 It is avoiding all the internal overhead (space and time) of a `printf()` 
 statement but is easy to use. For example instead of writing 
 
