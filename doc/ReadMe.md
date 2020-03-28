@@ -316,7 +316,8 @@ You can specify this swich if you want to change the used port number for the re
 - This option is recommended if you deliver firmware to customers and want protect the trice log output. This does not work together with the `#define TRICE_STRINGS FULL_RUNTIME` option right now.
 
 #### subcommand switch '-lf' (logfile)
-- This is a `string` switch. It has one parameter. Its default value is `trice.log`. All trice output of the appropriate subcommands is appended per default into the logfile trice additionally to the normal output. Change the filename with `-lf myName.txt` or switch logging off with `-lf off`.
+- This is a `string` switch. It has one parameter. Its default value is `trice.log`. All trice output of the appropriate subcommands is appended per default into the logfile trice additionally to the normal output. Change the filename with `-lf myName.txt` or switch logging off with `-lf off`. See also
+[logfile viewing](#Logfile-viewing).
 
 #### subcommand switch '-list' (JSON ID list)
 - This is a `string` switch. It has one parameter. Its default value is `./til.json` (the **t**race **i**d **l**ist inside the actual directory). The with '-list' specified JSON file is the key to display the ID coded trices during runtime and should be under version control.
@@ -344,3 +345,10 @@ This timestamp switch generates the timestamps on the PC only, what is good enou
 #### subcommand switch '-v' (verbose)
 - This is a `bool` switch. It has no parameters. Its default value is **false**. If the switch is applied its value is **true**.
 - For example `trice u -dry-run -v` is the same as `trice u -dry-run` but with more descriptive output.
+
+## Additional hints
+
+### Logfile viewing
+`trice` generated logfiles with subcommand switch `-color off` are normal ASCII files. If they are with color codes, these are ANSI excape sequences.
+- One easy view option is `less -R trice.log`. The linuc command `less` is also available inside the VScode terminal. 
+- Under Windows one could also download and use [ansifilter](https://sourceforge.net/projects/ansifilter/) for logfile viewing. A monospaced font is recommended. 
