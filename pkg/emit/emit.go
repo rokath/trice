@@ -14,6 +14,7 @@ import (
 
 	"github.com/fatih/color"
 	"github.com/rokath/trice/pkg/id"
+	"github.com/rokath/trice/pkg/lgf"
 )
 
 // ColorPalette is the used PC color set
@@ -382,8 +383,8 @@ func visualize(s string) error {
 		tsFlag = false
 		switch TimeStampFormat {
 		case "LOCmicro":
-			_, err = b.Print(time.Now().Format(time.StampMicro), ": ")
-			//_, err = b.Fprint(Tee, time.Now().Format(time.StampMicro), ": ")
+			//_, err = b.Print(time.Now().Format(time.StampMicro), ": ")
+			_, err = b.Fprint(lgf.Tee, time.Now().Format(time.StampMicro), ": ")
 		case "UTCmicro":
 			_, err = b.Print(time.Now().UTC().Format(time.StampMicro), ": ")
 			//_, err = b.Fprint(Tee, time.Now().UTC().Format(time.StampMicro), ": ")
@@ -395,8 +396,9 @@ func visualize(s string) error {
 	if strings.HasSuffix(s, "\n") {
 		s := strings.TrimSuffix(s, "\n")
 		printIt(s, c)
-		_, _ = b.Println()
-		//_, _ = b.Fprintln(Tee)
+		//_, _ = b.Println()
+		//_, _ = b.Fprintln(lgf.Tee)
+		_, _ = fmt.Fprintln(lgf.Tee)
 		tsFlag = true
 	} else {
 		_, err = printIt(s, c)
@@ -408,11 +410,12 @@ func printIt(s string, c *color.Color) (int, error) {
 	if nil != c {
 		//log.Fprint(Tee,s)
 		//return 0, nil
-		return c.Print(s)
-		//return c.Fprint(Tee, s) /////////////////#########################!!!!!!!!!!!!!!
+		//return c.Print(s)
+		return c.Fprint(lgf.Tee, s) /////////////////#########################!!!!!!!!!!!!!!
+		//return fmt.Fprint(lgf.Tee, s) /////////////////#########################!!!!!!!!!!!!!!
 	}
-	return fmt.Print(s)
-	//return fmt.Fprint(Tee, s)
+	//return fmt.Print(s)
+	return fmt.Fprint(lgf.Tee, s)
 }
 
 // parse lang C formatstring for %u and replace them with %d and extend the
