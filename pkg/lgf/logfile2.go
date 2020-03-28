@@ -3,7 +3,8 @@
 // Use of this source code is governed by a
 // license that can be found in the LICENSE file.
 
-// +build ignore
+// +build lf2
+// `go build -tags lf2` does include this file
 
 package lgf // logfile
 
@@ -16,55 +17,38 @@ import (
 	"sync"
 )
 
-var wg sync.WaitGroup
-
-// used for restoring normal state
-var quitTakeNotes chan bool
-
-// Name is the filename of the logfile. "off" inhibits logfile writing.
-var Name = "off"
-
-// log file handle
-var lfHandle *os.File
-
-// Tee here only a helper for easy adaption to logfile1.go
-var Tee *os.File
+var (
+	wg            sync.WaitGroup
+	quitTakeNotes chan bool // used for restoring normal state
+)
 
 // Enable starts take notes mode, means parallel writing into a file
 func Enable() {
-	quitTakeNotes = make(chan bool)
+	prep()
 	if "off" == Name {
 		return
 	}
-	var err error
+	quitTakeNotes = make(chan bool)
 	lfHandle, err = os.OpenFile(Name, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
 		log.Fatalf("error opening file: %v", err)
 	}
-	old := os.Stderr
-	wg.Add(1)
-	go func() {
-		for {
-			select {
-			case <-quitTakeNotes: // back to normal state
-				log.SetOutput(old)
-				wg.Done()
-				return
-			}
-		}
-	}()
+
 	takeNotes(&os.Stdout)
 	Tee = os.Stdout // the new one
 	takeNotes(&os.Stderr)
-	n := os.Stderr
+	n := os.Stderr // the new one
 	log.SetOutput(n)
 }
 
 // Disable ends take notes mode, means parallel writing into a file
 func Disable() {
+	if "off" == Name {
+		return
+	}
 	close(quitTakeNotes) // this is a multicast to all go routines listening this channel
-	Tee = os.Stdout      // the old one
 	wg.Wait()
+	post()
 }
 
 // see also https://play.golang.org/p/PNqa5M8zo7

@@ -191,10 +191,10 @@ func scVersion(lfn string) error {
 
 	if "" != version {
 		//fmt.Printf("version=%v, commit=%v, built at %v\n", version, commit, date)
-		fmt.Fprintf(lgf.Tee, "version=%v, commit=%v, built at %v\n", version, commit, date)
+		fmt.Fprintf(lgf.Tee, "version=%v, commit=%v, built at %v\n", version, commit, date) // needed for -tags lf0
 	} else {
 		//fmt.Printf("version=devel, commit=unknown, built after 2020-03-25-1751\n")
-		fmt.Fprintf(lgf.Tee, "version=devel, commit=unknown, built after 2020-03-22-2305\n")
+		fmt.Fprintf(lgf.Tee, "version=devel, commit=unknown, built after 2020-03-22-2305\n") // needed for -tags lf0
 	}
 	return nil
 }
@@ -467,9 +467,9 @@ func (p *Server) Adder(u [2]int64, reply *int64) error {
 // displayServer is the endless function called when trice tool acts as remote display.
 // All in Server struct registered RPC functions are reachable, when displayServer runs.
 func scDisplayServer(ts, pal, ipa, ipp, lfn string) error {
-	lgf.Name = lfn
-	lgf.Enable()
-	defer lgf.Disable()
+	//lgf.Name = lfn
+	//lgf.Enable()
+	//defer lgf.Disable()
 
 	emit.TimeStampFormat = ts
 	emit.ColorPalette = pal

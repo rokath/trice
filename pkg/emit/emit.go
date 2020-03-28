@@ -9,12 +9,10 @@ import (
 	"fmt"
 	"runtime"
 	"strings"
-	"time"
 	"unicode"
 
 	"github.com/fatih/color"
 	"github.com/rokath/trice/pkg/id"
-	"github.com/rokath/trice/pkg/lgf"
 )
 
 // ColorPalette is the used PC color set
@@ -370,53 +368,6 @@ var tsFlag = true
 
 // Visualize is an exported function pointer, which can be redirected for example to a client call
 var Visualize = visualize
-
-// visualize displays s and sets color and linebreaks
-// The timestamp is printed only and only after \n and with the next s
-// todo: The timestamp should be created on client side for more accurate timings
-func visualize(s string) error {
-	var err error
-	s = trimBackslashes(s)
-	c, s := colorChannel(s)
-	b := color.New(color.FgWhite).Add(color.BgBlack) // assuming this as the default terminal background color
-	if true == tsFlag {
-		tsFlag = false
-		switch TimeStampFormat {
-		case "LOCmicro":
-			//_, err = b.Print(time.Now().Format(time.StampMicro), ": ")
-			_, err = b.Fprint(lgf.Tee, time.Now().Format(time.StampMicro), ": ")
-		case "UTCmicro":
-			_, err = b.Print(time.Now().UTC().Format(time.StampMicro), ": ")
-			//_, err = b.Fprint(Tee, time.Now().UTC().Format(time.StampMicro), ": ")
-		case "off": // do nothing
-		}
-	}
-	// When a carriage return is executed, the whole next line gets the current background color.
-	// Therefore detect this case and set the color to a default value before the carriage return.
-	if strings.HasSuffix(s, "\n") {
-		s := strings.TrimSuffix(s, "\n")
-		printIt(s, c)
-		//_, _ = b.Println()
-		//_, _ = b.Fprintln(lgf.Tee)
-		_, _ = fmt.Fprintln(lgf.Tee)
-		tsFlag = true
-	} else {
-		_, err = printIt(s, c)
-	}
-	return err
-}
-
-func printIt(s string, c *color.Color) (int, error) {
-	if nil != c {
-		//log.Fprint(Tee,s)
-		//return 0, nil
-		//return c.Print(s)
-		return c.Fprint(lgf.Tee, s) /////////////////#########################!!!!!!!!!!!!!!
-		//return fmt.Fprint(lgf.Tee, s) /////////////////#########################!!!!!!!!!!!!!!
-	}
-	//return fmt.Print(s)
-	return fmt.Fprint(lgf.Tee, s)
-}
 
 // parse lang C formatstring for %u and replace them with %d and extend the
 // returned slice with 0 for each %d, %c, %x and 1 for each converted %u
