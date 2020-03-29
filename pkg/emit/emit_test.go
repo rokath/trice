@@ -1,7 +1,5 @@
 // Copyright 2020 Thomas.Hoehenleitner [at] seerose.net
-// All rights reserved.
-// Use of this source code is governed by a
-// license that can be found in the LICENSE file.
+// Use of this source code is governed by a license that can be found in the LICENSE file.
 
 package emit
 
@@ -15,7 +13,6 @@ import (
 	"testing"
 
 	"github.com/rokath/trice/pkg/id"
-	"github.com/rokath/trice/pkg/lgf"
 )
 
 func captureOutput(f func(id.List, string) error, l id.List, dataset string) string {
@@ -81,7 +78,6 @@ func compareResult(s, out string, t *testing.T) {
 }
 
 func TestPosition(t *testing.T) {
-	lgf.Tee = os.Stdout
 	ColorPalette = "off"
 	list := idList(t)
 	out := captureOutput(Check, list, "position")
@@ -91,7 +87,6 @@ func TestPosition(t *testing.T) {
 }
 
 func TestNegative(t *testing.T) {
-	lgf.Tee = os.Stdout
 	ColorPalette = "off"
 	list := idList(t)
 	out := captureOutput(Check, list, "negative")

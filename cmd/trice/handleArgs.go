@@ -1,7 +1,5 @@
 // Copyright 2020 Thomas.Hoehenleitner [at] seerose.net
-// All rights reserved.
-// Use of this source code is governed by a
-// license that can be found in the LICENSE file.
+// Use of this source code is governed by a license that can be found in the LICENSE file.
 
 package main
 
@@ -21,6 +19,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/fatih/color"
 	"github.com/rokath/trice/pkg/emit"
 	"github.com/rokath/trice/pkg/id"
 	"github.com/rokath/trice/pkg/lgf"
@@ -39,21 +38,21 @@ func (i *arrayFlag) Set(value string) error {
 	return nil
 }
 
-var srcs arrayFlag // gets multiple files or directories
-
 // local config values
-var port string
-var baud int
-var fnJSON string
-var pList *id.List
-var ipAddr string
-var ipPort string
-var password string
-var showPassword bool
+var (
+	srcs         arrayFlag // gets multiple files or directories
+	port         string
+	baud         int
+	fnJSON       string
+	pList        *id.List
+	ipAddr       string
+	ipPort       string
+	password     string
+	showPassword bool
+)
 
 // HandleArgs evaluates the arguments slice of strings und uses wd as working directory
 func HandleArgs(wd string, args []string) error {
-	//emit.Tee = os.Stdout
 	list := make(id.List, 0, 65536) // for 16 bit IDs enough
 	pList = &list
 
@@ -143,6 +142,7 @@ func HandleArgs(wd string, args []string) error {
 	if nil != err {
 		return fmt.Errorf("failed to parse %s: %v", subArgs, err)
 	}
+
 	// Check which subcommand was Parsed using the FlagSet.Parsed() function. Handle each case accordingly.
 	// FlagSet.Parse() will evaluate to false if no flags were parsed (i.e. the user did not provide any flags)
 	if hCmd.Parsed() {
@@ -183,22 +183,24 @@ func assign(fn string) string {
 	return s
 }
 
-// this works too
 func scVersion(lfn string) error {
 	lgf.Name = lfn
 	lgf.Enable()
 	defer lgf.Disable()
 
 	if "" != version {
-		//fmt.Printf("version=%v, commit=%v, built at %v\n", version, commit, date)
-		fmt.Fprintf(lgf.Tee, "version=%v, commit=%v, built at %v\n", version, commit, date) // needed for -tags lf0
+		color.New().Printf("color.version=%v, commit=%v, built at %v\n", version, commit, date)
 	} else {
-		//fmt.Printf("version=devel, commit=unknown, built after 2020-03-25-1751\n")
-		fmt.Fprintf(lgf.Tee, "version=devel, commit=unknown, built after 2020-03-22-2305\n") // needed for -tags lf0
+		s := "version=devel, commit=unknown, built after 2020-03-29-1437"
+		color.New().Printf("color %s\n", s)
+		log.Printf("log %s\n", s) // starts with tab in terminal
+		log.Printf("log %s\n", s) // this is ok
+		fmt.Printf("fmt %s\n", s) // goes not into logfile!
 	}
 	return nil
 }
 
+// scHelp is subcommand help
 func scHelp(hCmd *flag.FlagSet,
 	u *flag.FlagSet,
 	c *flag.FlagSet,
@@ -257,7 +259,7 @@ func scUpdate(dry bool, fn string, v bool) error {
 	return nil
 }
 
-// parse source tree, update IDs and is list
+// update does parse source tree, update IDs and is list
 func update(dryRun bool, dir, fn string, verbose bool) error {
 	err := pList.Update(dir, fn, !dryRun, verbose)
 	if nil != err {
@@ -267,7 +269,7 @@ func update(dryRun bool, dir, fn string, verbose bool) error {
 	return nil
 }
 
-// log the id list with dataset
+// scCheckList does log the id list with a dataset
 func scCheckList(fn, dataset, palette string) error {
 	emit.TimeStampFormat = "off"
 	emit.ColorPalette = palette
@@ -281,7 +283,7 @@ func scCheckList(fn, dataset, palette string) error {
 	return nil
 }
 
-// with password "none" the encryption flag is set false, otherwise true
+// createCipher prepares decryption, with password "none" the encryption flag is set false, otherwise true
 func createCipher() (*xtea.Cipher, bool, error) {
 	h := sha1.New() // https://gobyexample.com/sha1-hashes
 	h.Write([]byte(password))
@@ -304,7 +306,7 @@ func createCipher() (*xtea.Cipher, bool, error) {
 	return c, e, nil
 }
 
-// scLog connects to COM port and displays traces
+// scLogging is the subcommand log and connects to COM port and displays traces
 func scLogging(prt string, bd int, fn, ts, col, pw string, show bool, lfn string) error {
 	lgf.Name = lfn
 	lgf.Enable()
@@ -347,6 +349,7 @@ func logTrices() error {
 	return doSerialReceive()
 }
 
+// conditionalComPortScan scans for COM ports if -port was specified as COMscan, it tries to use first found COM port.
 func conditionalComPortScan() error {
 	if "COMscan" != port {
 		return nil
@@ -364,8 +367,8 @@ func conditionalComPortScan() error {
 	return errors.New("Could not find serial port on system")
 }
 
-// https://tutorialedge.net/golang/reading-console-input-golang/
-func keyboardInput() {
+// keyboardInput expects user input from terminal
+func keyboardInput() { // https://tutorialedge.net/golang/reading-console-input-golang/
 	reader := bufio.NewReader(os.Stdin)
 	fmt.Println("Simple Shell")
 	fmt.Println("------------")
@@ -394,6 +397,7 @@ func keyboardInput() {
 	}() // https://stackoverflow.com/questions/16008604/why-add-after-closure-body-in-golang
 }
 
+// doSerialReceive is the endless loop for trice logging
 func doSerialReceive() error {
 	err := conditionalComPortScan()
 	if err != nil {
@@ -431,7 +435,7 @@ func doSerialReceive() error {
 	}
 }
 
-// replace all ID's in sourc tree with 0
+// zeroIds does replace all ID's in sourc tree with 0
 func zeroIds(dryRun bool, SrcZ string, cmd *flag.FlagSet) error {
 	if SrcZ == "" {
 		cmd.PrintDefaults()
@@ -441,6 +445,7 @@ func zeroIds(dryRun bool, SrcZ string, cmd *flag.FlagSet) error {
 	return nil
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // This code was derived from the information in:
 // https://stackoverflow.com/questions/37122401/execute-another-go-program-from-within-a-golang-program/37123869#37123869
 // "4 - another way is using "net/rpc", this is best way for calling another function from another program."
@@ -464,12 +469,12 @@ func (p *Server) Adder(u [2]int64, reply *int64) error {
 }
 */
 
-// displayServer is the endless function called when trice tool acts as remote display.
+// scDisplayServer is the endless function called when trice tool acts as remote display.
 // All in Server struct registered RPC functions are reachable, when displayServer runs.
 func scDisplayServer(ts, pal, ipa, ipp, lfn string) error {
-	//lgf.Name = lfn
-	//lgf.Enable()
-	//defer lgf.Disable()
+	lgf.Name = lfn
+	lgf.Enable()
+	defer lgf.Disable()
 
 	emit.TimeStampFormat = ts
 	emit.ColorPalette = pal
@@ -495,17 +500,19 @@ func scDisplayServer(ts, pal, ipa, ipp, lfn string) error {
 
 var pRPC *rpc.Client
 
+// remoteVisualize does send the logstring s to the displayServer
+// It is replacing emit.Visuaize when trice acts as remote
 func remoteVisualize(s string) error {
 	var result int64
 	err := pRPC.Call("Server.Visualize", s, &result)
 	if err != nil {
 		return err
 	}
-	//fmt.Println("result is", result)
+	//fmt.Println("result is", result) // not needed here
 	return nil
 }
 
-// client
+// scRemoteDisplay is the subcommand remoteDisplay and acts as client connecting to the displayServer
 func scRemoteDisplay(ipa, ipp, prt string, bd int, fn, ts, pw string, show, sv bool) error {
 	var wg sync.WaitGroup
 	ipAddr = ipa
