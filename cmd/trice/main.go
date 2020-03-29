@@ -1,7 +1,5 @@
 // Copyright 2020 Thomas.Hoehenleitner [at] seerose.net
-// All rights reserved.
-// Use of this source code is governed by a
-// license that can be found in the LICENSE file.
+// Use of this source code is governed by a license that can be found in the LICENSE file.
 
 package main
 
@@ -11,7 +9,7 @@ import (
 	"time"
 )
 
-var ( // do not initialize thes
+var ( // do not initialize these, goreleaser will handle that
 	version string
 	commit  string
 	date    string
