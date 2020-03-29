@@ -72,6 +72,7 @@ func HandleArgs(wd string, args []string) error {
 	pRunZ := scZero.Bool("dry-run", false, "no changes are applied")                      // flag
 
 	hCmd := flag.NewFlagSet("help", flag.ContinueOnError) // subcommand
+	//pHlf := hCmd.String("lf", "trice.log", "append output to logfile, set to \"off\" to avoid this") // flag
 
 	vCmd := flag.NewFlagSet("version", flag.ContinueOnError)                               // subcommand
 	pVlf := vCmd.String("lf", "trice.log", "append all output to logfile, set to \"off\"") // flag
@@ -86,7 +87,7 @@ func HandleArgs(wd string, args []string) error {
 	pShow := scLog.Bool("show", false, "show passphrase")                                   // flag
 	pLlf := scLog.String("lf", "trice.log", "append all output to logfile, set to \"off\"") // flag
 
-	scCl := flag.NewFlagSet("remoteDisplay", flag.ExitOnError)                      // subcommand
+	scCl := flag.NewFlagSet("receiver", flag.ExitOnError)                           // subcommand
 	pClPort := scCl.String("port", "COMscan", "COM port, options: COM1|...|COM999") // flag
 	pClBaud := scCl.Int("baud", 115200, "COM baudrate")                             // flag
 	pClJSON := scCl.String("list", "til.json", "trice ID list path")                // flag
@@ -94,8 +95,8 @@ func HandleArgs(wd string, args []string) error {
 	pClShow := scCl.Bool("show", false, "show passphrase")                          // flag
 	pClIPA := scCl.String("ipa", "localhost", "ip address")                         // flag (127.0.0.1)
 	pClIPP := scCl.String("ipp", "61497", "16 bit ip port number")                  // flag
-	pClTs := scCl.String("ts", "LOCmicro", "timestamp, options: off|UTCmicro")      // flag
-	pClSrv := scCl.Bool("ds", false, "start display server ")                       // flag
+	//pClTs := scCl.String("ts", "LOCmicro", "timestamp, options: off|UTCmicro")      // flag
+	pClSrv := scCl.Bool("ds", false, "start display server ") // flag
 
 	scSv := flag.NewFlagSet("displayServer", flag.ExitOnError)                               // subcommand
 	pSvIPA := scSv.String("ipa", "localhost", "ip address")                                  // flag (127.0.0.1)
@@ -133,7 +134,7 @@ func HandleArgs(wd string, args []string) error {
 		err = scZero.Parse(subArgs)
 	case "ds", "displayServer":
 		err = scSv.Parse(subArgs)
-	case "rd", "remoteDisplay":
+	case "r", "rec", "receiver":
 		err = scCl.Parse(subArgs)
 	default:
 		fmt.Println("try: 'trice help|h'")
@@ -146,7 +147,7 @@ func HandleArgs(wd string, args []string) error {
 	// Check which subcommand was Parsed using the FlagSet.Parsed() function. Handle each case accordingly.
 	// FlagSet.Parse() will evaluate to false if no flags were parsed (i.e. the user did not provide any flags)
 	if hCmd.Parsed() {
-		return scHelp(hCmd, scUpd, scChk, scLog, scZero, vCmd, scSv, scCl)
+		return scHelp( /**pHlf,*/ hCmd, scUpd, scChk, scLog, scZero, vCmd, scSv, scCl)
 	}
 	if scUpd.Parsed() {
 		return scUpdate(*pDryR, *pLU, *pVerb)
@@ -167,7 +168,7 @@ func HandleArgs(wd string, args []string) error {
 		return scDisplayServer(*pSvTs, *pSvCol, *pSvIPA, *pSvIPP, *pSvLlf)
 	}
 	if scCl.Parsed() {
-		return scRemoteDisplay(*pClIPA, *pClIPP, *pClPort, *pClBaud, *pClJSON, *pClTs, *pClKey, *pClShow, *pClSrv)
+		return scReceiver(*pClIPA, *pClIPP, *pClPort, *pClBaud, *pClJSON /**pClTs,*/, *pClKey, *pClShow, *pClSrv)
 	}
 	return nil
 }
@@ -201,7 +202,8 @@ func scVersion(lfn string) error {
 }
 
 // scHelp is subcommand help
-func scHelp(hCmd *flag.FlagSet,
+func scHelp( /*lfn string,*/
+	hCmd *flag.FlagSet,
 	u *flag.FlagSet,
 	c *flag.FlagSet,
 	l *flag.FlagSet,
@@ -209,6 +211,12 @@ func scHelp(hCmd *flag.FlagSet,
 	v *flag.FlagSet,
 	sv *flag.FlagSet,
 	cl *flag.FlagSet) error {
+
+	// flag.go uses fmt.Print, so first solve of.File = io.Writer riddle
+	// lgf.Name = lfn
+	// lgf.Enable()
+	// defer lgf.Disable()
+
 	fmt.Fprintln(hCmd.Output(), "syntax: 'trice subcommand' [params]")
 	fmt.Fprintln(hCmd.Output(), "subcommand 'help', 'h'")
 	hCmd.PrintDefaults()
@@ -224,7 +232,7 @@ func scHelp(hCmd *flag.FlagSet,
 	v.PrintDefaults()
 	fmt.Fprintln(sv.Output(), "subcommand 'ds', 'displayServer'")
 	sv.PrintDefaults()
-	fmt.Fprintln(cl.Output(), "subcommand 'rd', 'remoteDisplay'")
+	fmt.Fprintln(cl.Output(), "subcommand 'r', 'rec', 'receiver'")
 	cl.PrintDefaults()
 	fmt.Fprintln(hCmd.Output(), "examples:")
 	fmt.Fprintln(hCmd.Output(), "    'trice update [-src sourcerootdir]', default sourcerootdir is ./")
@@ -503,6 +511,8 @@ var pRPC *rpc.Client
 // remoteVisualize does send the logstring s to the displayServer
 // It is replacing emit.Visuaize when trice acts as remote
 func remoteVisualize(s string) error {
+	// for a bit more accurate timestamps they should be added
+	// here on the receiver side and not in the displayServer
 	var result int64
 	err := pRPC.Call("Server.Visualize", s, &result)
 	if err != nil {
@@ -512,15 +522,15 @@ func remoteVisualize(s string) error {
 	return nil
 }
 
-// scRemoteDisplay is the subcommand remoteDisplay and acts as client connecting to the displayServer
-func scRemoteDisplay(ipa, ipp, prt string, bd int, fn, ts, pw string, show, sv bool) error {
+// scReceiver is the subcommand remoteDisplay and acts as client connecting to the displayServer
+func scReceiver(ipa, ipp, prt string, bd int, fn /*ts,*/, pw string, show, sv bool) error {
 	var wg sync.WaitGroup
 	ipAddr = ipa
 	ipPort = ipp
 	port = prt
 	baud = bd
 	fnJSON = assign(fn)
-	emit.TimeStampFormat = ts
+	//emit.TimeStampFormat = ts
 	password = pw
 	showPassword = show
 	if true == sv {

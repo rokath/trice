@@ -220,7 +220,7 @@ subcommand 'ds', 'displayServer'
     	append all output to logfile, set to "off" (default "trice.log")
   -ts string
     	timestampm options: off|UTCmicro (default "LOCmicro")
-subcommand 'rd', 'remoteDisplay'
+subcommand 'r', 'rec', 'receiver'
   -baud int
     	COM baudrate (default 115200)
   -ds
@@ -237,8 +237,6 @@ subcommand 'rd', 'remoteDisplay'
     	COM port, options: COM1|...|COM999 (default "COMscan")
   -show
     	show passphrase
-  -ts string
-    	timestamp, options: off|UTCmicro (default "LOCmicro")
 examples:
     'trice update [-src sourcerootdir]', default sourcerootdir is ./
     'trice log [-port COMn] [-baud m]', default port is COMscan, default m is 38400, fixed to 8N1
@@ -279,8 +277,8 @@ Set all Id(n) inside source tree dir to Id(0). This subcommand is mainly for tes
 ### Subcommand `displayServer` (shortcut `ds`)
 Running `trice ds` opens a display server to be used for displaying the TRICE logs remotely.
 
-### Subcommand `remoteDisplay` (shortcut `rd`)
-Instead of `log`ging into the current window you can run `trice rd` to log into a remote display. This is useful for sending keyboard commands to the target device because of the empty window. An other option would be to send different trice logs to different remote displays. For both the trice tool needs source code adaption. For now the `rd` option is useful for example with an older notebook just as trice display.
+### Subcommand `receiver` (shortcut `r` or `rec)
+Instead of `log`ging into the current window you can run `trice r` to log into a remote display. This is useful for sending keyboard commands to the target device because of the empty window. An other option would be to send different trice logs to different remote displays. For both the trice tool needs source code adaption. For now the `r` option is useful for example with an older notebook just as trice display.
 
 #### `remoteDisplay` switch '-ds'
 As example executing `trice rd -list examples/til.json  -port COM38 -ds` opens a separate display window automatically on the same PC.
