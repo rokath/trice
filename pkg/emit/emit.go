@@ -335,11 +335,13 @@ func colorChannel(s string) (*color.Color, string) {
 	case "off":
 		color.NoColor = true // disables colorized output
 	case "default":
+		color.NoColor = false // to force color after some errors
 		c, err = colorSetDefault(sc[0])
 		if nil != err {
 			r = s // keep channel info
 		}
 	case "alternate":
+		color.NoColor = false // to force color after some errors
 		c, err = colorSetAlternate(sc[0])
 		if nil != err {
 			r = s // keep channel info
