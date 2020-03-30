@@ -350,3 +350,7 @@ This timestamp switch generates the timestamps on the PC only, what is good enou
 `trice` generated logfiles with subcommand switch `-color off` are normal ASCII files. If they are with color codes, these are ANSI excape sequences.
 - One easy view option is `less -R trice.log`. The linuc command `less` is also available inside the VScode terminal. 
 - Under Windows one could also download and use [ansifilter](https://sourceforge.net/projects/ansifilter/) for logfile viewing. A monospaced font is recommended. 
+
+### Color issues under Windows
+**Currently CMD console colors are not enabled by default in Win10**, so if you see no color but escape sequences on your powershell or cmd window, please refer to
+[Windows console with ANSI colors handling](https://superuser.com/questions/413073/windows-console-with-ansi-colors-handling/1050078#1050078) or simply use a Linux like terminal under windows, like git-bash.
