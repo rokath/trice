@@ -15,11 +15,11 @@ import (
 	"github.com/rokath/trice/pkg/id"
 )
 
-// ColorPalette is the used PC color set
-var ColorPalette = "default"
-
-// TimeStampFormat is the PC timestamp format
-var TimeStampFormat = "LOCmicro"
+var (
+	ColorPalette    = "default"  // ColorPalette is the used PC color set
+	TimeStampFormat = "LOCmicro" // TimeStampFormat is the PC timestamp format
+	Prefix          = ""
+)
 
 // Tee is the used output device
 //var Tee os.File

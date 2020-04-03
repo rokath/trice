@@ -126,7 +126,7 @@ func visitUpdate(run bool, p *List, pListModified *bool, verbose bool) filepath.
 
 		// write out
 		if pathModified && true == run {
-			err = ioutil.WriteFile(path, []byte(s), 0)
+			err = ioutil.WriteFile(path, []byte(s), fi.Mode())
 			if nil != err {
 				return fmt.Errorf("failed to change %s: %v", path, err)
 			}

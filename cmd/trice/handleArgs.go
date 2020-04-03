@@ -77,15 +77,16 @@ func HandleArgs(wd string, args []string) error {
 	vCmd := flag.NewFlagSet("version", flag.ContinueOnError)                               // subcommand
 	pVlf := vCmd.String("lf", "trice.log", "append all output to logfile, set to \"off\"") // flag
 
-	scLog := flag.NewFlagSet("log", flag.ExitOnError)                                       // subcommand
-	pPort := scLog.String("port", "COMscan", "COM port, options: COM1|...|COM999")          // flag
-	pBaud := scLog.Int("baud", 115200, "COM baudrate")                                      // flag
-	pJSON := scLog.String("list", "til.json", "trice ID list path")                         // flag
-	pTs := scLog.String("ts", "LOCmicro", "timestamp, options: off|UTCmicro")               // flag
-	pCol := scLog.String("color", "default", "color set, options: off|alternate")           // flag
-	pKey := scLog.String("key", "none", "decrypt passphrase")                               // flag
-	pShow := scLog.Bool("show", false, "show passphrase")                                   // flag
-	pLlf := scLog.String("lf", "trice.log", "append all output to logfile, set to \"off\"") // flag
+	scLog := flag.NewFlagSet("log", flag.ExitOnError)                                          // subcommand
+	pPort := scLog.String("port", "COMscan", "COM port, options: COM1|...|COM999")             // flag
+	pBaud := scLog.Int("baud", 115200, "COM baudrate")                                         // flag
+	pJSON := scLog.String("list", "til.json", "trice ID list path")                            // flag
+	pTs := scLog.String("ts", "LOCmicro", "timestamp, options: off|UTCmicro")                  // flag
+	pCol := scLog.String("color", "default", "color set, options: off|alternate")              // flag
+	pKey := scLog.String("key", "none", "decrypt passphrase")                                  // flag
+	pShow := scLog.Bool("show", false, "show passphrase")                                      // flag
+	pLlf := scLog.String("lf", "trice.log", "append all output to logfile, set to \"off\"")    // flag
+	pLpre := scLog.String("prefix", "COMport:", "prepend prefix to all lines, set to \"off\"") // flag
 
 	scCl := flag.NewFlagSet("receiver", flag.ExitOnError)                           // subcommand
 	pClPort := scCl.String("port", "COMscan", "COM port, options: COM1|...|COM999") // flag
@@ -156,7 +157,7 @@ func HandleArgs(wd string, args []string) error {
 		return scCheckList(*pC, *pSet, *pPal)
 	}
 	if scLog.Parsed() {
-		return scLogging(*pPort, *pBaud, *pJSON, *pTs, *pCol, *pKey, *pShow, *pLlf)
+		return scLogging(*pLpre, *pPort, *pBaud, *pJSON, *pTs, *pCol, *pKey, *pShow, *pLlf)
 	}
 	if scZero.Parsed() {
 		return zeroIds(*pRunZ, *pSrcZ, scZero)
@@ -315,10 +316,19 @@ func createCipher() (*xtea.Cipher, bool, error) {
 }
 
 // scLogging is the subcommand log and connects to COM port and displays traces
-func scLogging(prt string, bd int, fn, ts, col, pw string, show bool, lfn string) error {
+func scLogging(pre, prt string, bd int, fn, ts, col, pw string, show bool, lfn string) error {
 	lgf.Name = lfn
 	lgf.Enable()
 	defer lgf.Disable()
+
+	switch pre {
+	case "off":
+		emit.Prefix = ""
+	case "COMport:":
+		emit.Prefix = prt + "  "
+	default:
+		emit.Prefix = pre
+	}
 
 	port = prt
 	baud = bd
