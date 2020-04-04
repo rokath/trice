@@ -16,9 +16,17 @@ import (
 )
 
 var (
-	ColorPalette    = "default"  // ColorPalette is the used PC color set
-	TimeStampFormat = "LOCmicro" // TimeStampFormat is the PC timestamp format
-	Prefix          = ""
+	// ColorPalette is the used PC color set
+	ColorPalette = "default"
+
+	// TimeStampFormat is the PC timestamp format
+	TimeStampFormat = "LOCmicro"
+
+	// Prefix is a (configurable) string added to each line end
+	Prefix = ""
+
+	// Postfix is a (configurable) string added to each line end
+	Postfix = "\n"
 )
 
 // Tee is the used output device
@@ -77,10 +85,7 @@ func checkValuePosition(l id.List, s []byte) error {
 			return err
 		}
 		b = b[:0] // empty d for next trice
-		err = Visualize(s)
-		if nil != err {
-			return err
-		}
+		LineCollect(s)
 	}
 	return nil
 }
@@ -138,10 +143,7 @@ func checkNegativeValues(l id.List, s []byte) error {
 			return err
 		}
 		b = b[:0] // empty d for next trice
-		err = Visualize(s)
-		if nil != err {
-			return err
-		}
+		LineCollect(s)
 	}
 	return nil
 }
@@ -172,10 +174,7 @@ func checkFix(l id.List, s []byte) error {
 			return err
 		}
 		b = b[:0] // empty d for next trice
-		err = Visualize(s)
-		if nil != err {
-			return err
-		}
+		LineCollect(s)
 	}
 	return nil
 }
@@ -227,9 +226,9 @@ func Trice(t, b []byte, l id.List) ([]byte, error) {
 	}
 	it := l[x]
 	s, b, _ := emitter(it, d, b)
-	err = Visualize(s)
+	LineCollect(s)
 	d = d[:0] // empty d for next trice
-	return b, err
+	return b, nil
 }
 
 func isLower(s string) bool {
@@ -311,15 +310,17 @@ func colorSetAlternate(channel string) (*color.Color, error) {
 	return c, err
 }
 
+var noColor = color.New() // separate for performance to avoid re-allocation
+
 // check for color match and remove color info
 // expects s starting with "col:" or "COL:" and returns color and (modified) s
-// If no match occuured it returns nil and unchanged s
+// If no match occuured it returns no color and unchanged s
 // If upper case match it returns *color.Color and unchanged s
 // If lower case match it returns *color.Color and s without starting pattern "col:"
 // col options are: err, wrn, msg, ...
 // COL options are: ERR, WRN, MSG, ...
 func colorChannel(s string) (*color.Color, string) {
-	var c *color.Color
+	c := noColor
 	var err error
 	sc := strings.SplitN(s, ":", 2)
 	if 2 != len(sc) {

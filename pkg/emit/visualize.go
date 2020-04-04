@@ -5,55 +5,71 @@ package emit
 
 import (
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/fatih/color"
 )
 
-var noColor = color.New()
-
-// visualize displays s and sets color and linebreaks
-// The timestamp is printed only and only after \n and with the next s
-// todo: The timestamp should be created on client side for more accurate timings
-func visualize(s string) error {
-	var err error
-	s = trimBackslashes(s)
-	c, s := colorChannel(s)
-
-	// When a carriage return is executed, the whole next line gets the current background color.
-	// Therefore detect this case and set the color to a default value before the carriage return.
-	if strings.HasSuffix(s, "\n") {
-		s := strings.TrimSuffix(s, "\n")
-		if true == tsFlag {
-			//tsFlag = false
-			o := color.NoColor
-			color.NoColor = true // disabling colored output here reduces probabillity for additional spaces in terminal under stress
-			switch TimeStampFormat {
-			case "LOCmicro":
-				_, err = noColor.Print(time.Now().Format(time.StampMicro), ": ")
-			case "UTCmicro":
-				_, err = noColor.Print(time.Now().UTC().Format(time.StampMicro), ": ")
-			case "off": // do nothing
-			}
-			color.NoColor = o
-		}
-		noColor.Print(Prefix)
-		printIt(s, c)
-		o := color.NoColor
-		color.NoColor = true // disabling colored output here reduces probabillity for additional spaces in terminal under stress
-		_, _ = noColor.Println()
-		color.NoColor = o
-		//tsFlag = true
-	} else {
-		_, err = printIt(s, c) ////////////// NEEDS to apend string here as slice!!!
+// timestamp returns local time as string according var TimeStampFormat
+func timestamp() string {
+	var s string
+	switch TimeStampFormat {
+	case "LOCmicro":
+		s = time.Now().Format(time.StampMicro) + "  "
+	case "UTCmicro":
+		s = "UTC " + time.Now().UTC().Format(time.StampMicro) + "  "
+	case "off":
+		s = ""
 	}
-
-	return err
+	return s
 }
 
-func printIt(s string, c *color.Color) (int, error) {
-	if nil != c {
-		return c.Print(s)
+// LineCollect collects s into an internal line substring slice
+// When s ends with a newline it is trimmed and the slice goes to Visualize and is discarded afterwards
+func LineCollect(s string) {
+	s = trimBackslashes(s)
+	var ss []string
+	a := func(su string) { // this closure is needed to treat ss as surviving slice
+		ss = append(ss, su)
 	}
-	return noColor.Print(s)
+	if 0 == len(ss) {
+		a(Prefix)
+		a(timestamp())
+	}
+	if !strings.HasSuffix(s, "\n") {
+		a(s)
+		return
+	}
+	s = strings.TrimSuffix(s, "\n")
+	a(s)
+	a(Postfix)
+	Visualize(ss)
+	ss = nil
+}
+
+var mux sync.Mutex
+
+// visualize displays ss and sets color.
+// ss is a slice containing substring parts of one line.
+// Each substring inside ss is result of Trice or contains prefix,
+// timestamp or postfix and can have its own color prefix.
+// The last substring inside the slice is definitly the last in
+// the line and has already trimmed its newline.
+// Linebreaks inside the substrings are not handled separately (yet).
+func visualize(ss []string) error {
+	var c *color.Color
+	var line string
+
+	mux.Lock()
+	for _, s := range ss {
+		c, s = colorChannel(s)
+		line += c.Sprint(s)
+	}
+	o := color.NoColor
+	color.NoColor = true
+	c.Print(line)
+	color.NoColor = o
+	mux.Unlock()
+	return nil
 }

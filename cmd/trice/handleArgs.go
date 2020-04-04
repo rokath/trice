@@ -87,24 +87,27 @@ func HandleArgs(wd string, args []string) error {
 	pShow := scLog.Bool("show", false, "show passphrase")                                      // flag
 	pLlf := scLog.String("lf", "trice.log", "append all output to logfile, set to \"off\"")    // flag
 	pLpre := scLog.String("prefix", "COMport:", "prepend prefix to all lines, set to \"off\"") // flag
+	pLpost := scLog.String("postfix", "\n", "append postfix to all lines")                     // flag
 
-	scCl := flag.NewFlagSet("receiver", flag.ExitOnError)                           // subcommand
-	pClPort := scCl.String("port", "COMscan", "COM port, options: COM1|...|COM999") // flag
-	pClBaud := scCl.Int("baud", 115200, "COM baudrate")                             // flag
-	pClJSON := scCl.String("list", "til.json", "trice ID list path")                // flag
-	pClKey := scCl.String("key", "none", "decrypt passphrase")                      // flag
-	pClShow := scCl.Bool("show", false, "show passphrase")                          // flag
-	pClIPA := scCl.String("ipa", "localhost", "ip address")                         // flag (127.0.0.1)
-	pClIPP := scCl.String("ipp", "61497", "16 bit ip port number")                  // flag
-	//pClTs := scCl.String("ts", "LOCmicro", "timestamp, options: off|UTCmicro")      // flag
-	pClSrv := scCl.Bool("ds", false, "start display server ") // flag
+	scCl := flag.NewFlagSet("receiver", flag.ExitOnError)                                     // subcommand
+	pClPort := scCl.String("port", "COMscan", "COM port, options: COM1|...|COM999")           // flag
+	pClBaud := scCl.Int("baud", 115200, "COM baudrate")                                       // flag
+	pClJSON := scCl.String("list", "til.json", "trice ID list path")                          // flag
+	pClKey := scCl.String("key", "none", "decrypt passphrase")                                // flag
+	pClShow := scCl.Bool("show", false, "show passphrase")                                    // flag
+	pClIPA := scCl.String("ipa", "localhost", "ip address")                                   // flag (127.0.0.1)
+	pClIPP := scCl.String("ipp", "61497", "16 bit ip port number")                            // flag
+	pClTs := scCl.String("ts", "LOCmicro", "timestamp, options: off|UTCmicro")                // flag
+	pClSrv := scCl.Bool("ds", false, "start display server ")                                 // flag
+	pRpre := scCl.String("prefix", "COMport:", "prepend prefix to all lines, set to \"off\"") // flag
+	pRpost := scCl.String("postfix", "\n", "append postfix to all lines")                     // flag
 
 	scSv := flag.NewFlagSet("displayServer", flag.ExitOnError)                               // subcommand
 	pSvIPA := scSv.String("ipa", "localhost", "ip address")                                  // flag (127.0.0.1)
 	pSvIPP := scSv.String("ipp", "61497", "16 bit port number")                              // flag
 	pSvCol := scSv.String("color", "default", "color set, options: off|alternate")           // flag
-	pSvTs := scSv.String("ts", "LOCmicro", "timestampm options: off|UTCmicro")               // flag
 	pSvLlf := scSv.String("lf", "trice.log", "append all output to logfile, set to \"off\"") // flag
+	//pSvTs := scSv.String("ts", "LOCmicro", "timestampm options: off|UTCmicro")               // flag
 
 	// Verify that a subcommand has been provided
 	// os.Arg[0] is the main command
@@ -157,7 +160,7 @@ func HandleArgs(wd string, args []string) error {
 		return scCheckList(*pC, *pSet, *pPal)
 	}
 	if scLog.Parsed() {
-		return scLogging(*pLpre, *pPort, *pBaud, *pJSON, *pTs, *pCol, *pKey, *pShow, *pLlf)
+		return scLogging(*pLpre, *pLpost, *pPort, *pBaud, *pJSON, *pTs, *pCol, *pKey, *pShow, *pLlf)
 	}
 	if scZero.Parsed() {
 		return zeroIds(*pRunZ, *pSrcZ, scZero)
@@ -166,10 +169,10 @@ func HandleArgs(wd string, args []string) error {
 		return scVersion(*pVlf)
 	}
 	if scSv.Parsed() {
-		return scDisplayServer(*pSvTs, *pSvCol, *pSvIPA, *pSvIPP, *pSvLlf)
+		return scDisplayServer(*pSvCol, *pSvIPA, *pSvIPP, *pSvLlf)
 	}
 	if scCl.Parsed() {
-		return scReceiver(*pClIPA, *pClIPP, *pClPort, *pClBaud, *pClJSON /**pClTs,*/, *pClKey, *pClShow, *pClSrv)
+		return scReceiver(*pRpre, *pRpost, *pClIPA, *pClIPP, *pClPort, *pClBaud, *pClJSON, *pClTs, *pClKey, *pClShow, *pClSrv)
 	}
 	return nil
 }
@@ -315,23 +318,27 @@ func createCipher() (*xtea.Cipher, bool, error) {
 	return c, e, nil
 }
 
+func setPrefix(s string) {
+	switch s {
+	case "off":
+		emit.Prefix = ""
+	case "COMport:":
+		emit.Prefix = port + "  "
+	default:
+		emit.Prefix = s
+	}
+}
+
 // scLogging is the subcommand log and connects to COM port and displays traces
-func scLogging(pre, prt string, bd int, fn, ts, col, pw string, show bool, lfn string) error {
+func scLogging(pre, post, prt string, bd int, fn, ts, col, pw string, show bool, lfn string) error {
 	lgf.Name = lfn
 	lgf.Enable()
 	defer lgf.Disable()
 
-	switch pre {
-	case "off":
-		emit.Prefix = ""
-	case "COMport:":
-		emit.Prefix = prt + "  "
-	default:
-		emit.Prefix = pre
-	}
-
 	port = prt
 	baud = bd
+	setPrefix(pre)
+	emit.Postfix = post
 	fnJSON = assign(fn)
 	emit.TimeStampFormat = ts
 	emit.ColorPalette = col
@@ -474,7 +481,7 @@ type Server struct{}
 
 // Visualize is the exported server function for string display, if trice tool acts as display server.
 // By declaring is as a Server struct method it is registered as RPC destination.
-func (p *Server) Visualize(s string, reply *int64) error {
+func (p *Server) Visualize(s []string, reply *int64) error {
 	*reply = int64(len(s))
 	return emit.Visualize(s) // this function pointer has its default value on server side
 }
@@ -489,12 +496,11 @@ func (p *Server) Adder(u [2]int64, reply *int64) error {
 
 // scDisplayServer is the endless function called when trice tool acts as remote display.
 // All in Server struct registered RPC functions are reachable, when displayServer runs.
-func scDisplayServer(ts, pal, ipa, ipp, lfn string) error {
+func scDisplayServer(pal, ipa, ipp, lfn string) error {
 	lgf.Name = lfn
 	lgf.Enable()
 	defer lgf.Disable()
 
-	emit.TimeStampFormat = ts
 	emit.ColorPalette = pal
 	ipAddr = ipa
 	ipPort = ipp
@@ -520,7 +526,7 @@ var pRPC *rpc.Client
 
 // remoteVisualize does send the logstring s to the displayServer
 // It is replacing emit.Visuaize when trice acts as remote
-func remoteVisualize(s string) error {
+func remoteVisualize(s []string) error {
 	// for a bit more accurate timestamps they should be added
 	// here on the receiver side and not in the displayServer
 	var result int64
@@ -533,14 +539,16 @@ func remoteVisualize(s string) error {
 }
 
 // scReceiver is the subcommand remoteDisplay and acts as client connecting to the displayServer
-func scReceiver(ipa, ipp, prt string, bd int, fn /*ts,*/, pw string, show, sv bool) error {
+func scReceiver(pre, post, ipa, ipp, prt string, bd int, fn, ts, pw string, show, sv bool) error {
 	var wg sync.WaitGroup
 	ipAddr = ipa
 	ipPort = ipp
 	port = prt
 	baud = bd
+	setPrefix(pre)
+	emit.Postfix = post
 	fnJSON = assign(fn)
-	//emit.TimeStampFormat = ts
+	emit.TimeStampFormat = ts
 	password = pw
 	showPassword = show
 	if true == sv {
@@ -548,7 +556,8 @@ func scReceiver(ipa, ipp, prt string, bd int, fn /*ts,*/, pw string, show, sv bo
 		var clip []string
 		if runtime.GOOS == "windows" {
 			shell = "cmd"
-			clip = append(clip, "/c start trice displayServer -ipa "+ipAddr+" -ipp "+ipPort+" -lf off")
+			shellCmd := "/c start"
+			clip = append(clip, shellCmd+" trice displayServer -ipa "+ipAddr+" -ipp "+ipPort+" -lf off")
 		} else if runtime.GOOS == "linux" {
 			shell = "gnome-terminal" // this only works for gnome based linux desktop env
 			clip = append(clip, "--", "/bin/bash", "-c", "trice displayServer -ipa "+ipAddr+" -ipp "+ipPort+" -lf off")

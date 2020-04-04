@@ -116,7 +116,7 @@ func (p *SerialReceiver) receiving() {
 		b, err := p.readHeader()
 
 		if nil != err {
-			emit.Visualize(fmt.Sprintln("Could not read serial header: ", err))
+			fmt.Println("Could not read serial header: ", err)
 			continue
 		}
 
@@ -127,25 +127,25 @@ func (p *SerialReceiver) receiving() {
 		} else if 0xc0 == b[0] {
 			switch b[6] & 0xc0 {
 			case 0xc0:
-				emit.Visualize(fmt.Sprintln("reCal command expecting an answer", b))
+				fmt.Println("reCal command expecting an answer", b)
 			case 0x80:
-				emit.Visualize(fmt.Sprintln("reCal message (not expecting an answer)", b))
+				fmt.Println("reCal message (not expecting an answer)", b)
 			case 0x40:
-				emit.Visualize(fmt.Sprintln("answer to a reCal command"))
+				fmt.Println("answer to a reCal command")
 			case 0x00:
 				if (0xff != b[4]) || (0xff != b[5]) || (1 != b[7]) {
-					emit.Visualize(fmt.Sprintln("ERR:wrong format"))
+					fmt.Println("ERR:wrong format")
 				} else {
 					// int(b[6]) contains string identificator for verification
 					d, _ := p.readAtLeastBytes(2) // len of buffer (only one buffer)
 					if nil != err {
-						emit.Visualize(fmt.Sprintln("Could not read serial len: ", err))
+						fmt.Println("Could not read serial len: ", err)
 						continue
 					}
 					len := int(binary.LittleEndian.Uint16(d[:2]))
 					s, _ := p.readAtLeastBytes(len + 1) // len is len-1 value
 					if nil != err {
-						emit.Visualize(fmt.Sprintln("Could not read buffer: ", err))
+						fmt.Println("Could not read buffer: ", err)
 						continue
 					}
 					b = append(b, d...) // len is redundant here and usable as check
@@ -155,7 +155,7 @@ func (p *SerialReceiver) receiving() {
 				}
 			}
 		} else {
-			emit.Visualize(fmt.Sprintln("Got unknown header on serial console. Discarding...", b))
+			fmt.Println("Got unknown header on serial console. Discarding...", b)
 		}
 	}
 }
@@ -250,7 +250,7 @@ func (p *SerialReceiver) readHeader() ([]byte, error) {
 		if true == evalHeader(b) {
 			break
 		}
-		emit.Visualize(fmt.Sprintf("dicarding byte 0x%02x (dez %d)\n", b[0], b[0]))
+		emit.LineCollect(fmt.Sprintf("WRN:dicarding byte 0x%02x (dez %d)\n", b[0], b[0]))
 		b = encrypt(b)
 		x, err := p.readAtLeastBytes(1)
 		if nil != err {
