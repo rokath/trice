@@ -1,7 +1,7 @@
 // Copyright 2020 Thomas.Hoehenleitner [at] seerose.net
 // Use of this source code is governed by a license that can be found in the LICENSE file.
 
-// Package disp ist for dispatching and displaying trice log lines
+// Package disp is for dispatching and displaying trice log lines
 package disp
 
 import (
