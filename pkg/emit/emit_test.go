@@ -20,7 +20,6 @@ func captureOutput(f func(id.List, string) error, l id.List, dataset string) str
 	old := os.Stdout // keep backup of the real stdout
 	r, w, _ := os.Pipe()
 	os.Stdout = w
-	ColorPalette = "off"
 	f(l, dataset)
 
 	outC := make(chan string)
@@ -78,7 +77,6 @@ func compareResult(s, out string, t *testing.T) {
 }
 
 func TestPosition(t *testing.T) {
-	ColorPalette = "off"
 	list := idList(t)
 	out := captureOutput(Check, list, "position")
 	s := expectedOutput("./testdata/position.out", t)
@@ -87,7 +85,6 @@ func TestPosition(t *testing.T) {
 }
 
 func TestNegative(t *testing.T) {
-	ColorPalette = "off"
 	list := idList(t)
 	out := captureOutput(Check, list, "negative")
 	s := expectedOutput("./testdata/negative.out", t)

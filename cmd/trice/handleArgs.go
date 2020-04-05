@@ -10,16 +10,14 @@ import (
 	"flag"
 	"fmt"
 	"log"
-	"net"
-	"net/rpc"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"runtime"
 	"strings"
 	"sync"
 
 	"github.com/fatih/color"
+	"github.com/rokath/trice/pkg/disp"
 	"github.com/rokath/trice/pkg/emit"
 	"github.com/rokath/trice/pkg/id"
 	"github.com/rokath/trice/pkg/lgf"
@@ -45,8 +43,6 @@ var (
 	baud         int
 	fnJSON       string
 	pList        *id.List
-	ipAddr       string
-	ipPort       string
 	password     string
 	showPassword bool
 )
@@ -122,59 +118,35 @@ func HandleArgs(wd string, args []string) error {
 	// os.Args[2:] will be all arguments starting after the subcommand at os.Args[1]
 	subCmd := args[1]
 	subArgs := args[2:]
-	var err error
 	switch subCmd { // Check which subcommand is invoked.
 	case "h", "help":
-		err = hCmd.Parse(subArgs)
+		hCmd.Parse(subArgs)
+		return scHelp( /**pHlf,*/ hCmd, scUpd, scChk, scLog, scZero, vCmd, scSv, scCl)
 	case "v", "ver", "version":
-		err = vCmd.Parse(subArgs)
+		vCmd.Parse(subArgs)
+		return scVersion(*pVlf)
 	case "u", "update":
-		err = scUpd.Parse(subArgs)
+		scUpd.Parse(subArgs)
+		return scUpdate(*pDryR, *pLU, *pVerb)
 	case "check":
-		err = scChk.Parse(subArgs)
+		scChk.Parse(subArgs)
+		return scCheckList(*pC, *pSet, *pPal)
 	case "l", "log":
-		err = scLog.Parse(subArgs)
+		scLog.Parse(subArgs)
+		return scLogging(*pLpre, *pLpost, *pPort, *pBaud, *pJSON, *pTs, *pCol, *pKey, *pShow, *pLlf)
 	case "zeroSourceTreeIds":
-		err = scZero.Parse(subArgs)
+		scZero.Parse(subArgs)
+		return zeroIds(*pRunZ, *pSrcZ, scZero)
 	case "ds", "displayServer":
-		err = scSv.Parse(subArgs)
+		scSv.Parse(subArgs)
+		return disp.ScServer(*pSvCol, *pSvIPA, *pSvIPP, *pSvLlf)
 	case "r", "rec", "receiver":
-		err = scCl.Parse(subArgs)
+		scCl.Parse(subArgs)
+		return scReceiver(*pRpre, *pRpost, *pClIPA, *pClIPP, *pClPort, *pClBaud, *pClJSON, *pClTs, *pClKey, *pClShow, *pClSrv)
 	default:
 		fmt.Println("try: 'trice help|h'")
 		return nil
 	}
-	if nil != err {
-		return fmt.Errorf("failed to parse %s: %v", subArgs, err)
-	}
-
-	// Check which subcommand was Parsed using the FlagSet.Parsed() function. Handle each case accordingly.
-	// FlagSet.Parse() will evaluate to false if no flags were parsed (i.e. the user did not provide any flags)
-	if hCmd.Parsed() {
-		return scHelp( /**pHlf,*/ hCmd, scUpd, scChk, scLog, scZero, vCmd, scSv, scCl)
-	}
-	if scUpd.Parsed() {
-		return scUpdate(*pDryR, *pLU, *pVerb)
-	}
-	if scChk.Parsed() {
-		return scCheckList(*pC, *pSet, *pPal)
-	}
-	if scLog.Parsed() {
-		return scLogging(*pLpre, *pLpost, *pPort, *pBaud, *pJSON, *pTs, *pCol, *pKey, *pShow, *pLlf)
-	}
-	if scZero.Parsed() {
-		return zeroIds(*pRunZ, *pSrcZ, scZero)
-	}
-	if vCmd.Parsed() {
-		return scVersion(*pVlf)
-	}
-	if scSv.Parsed() {
-		return scDisplayServer(*pSvCol, *pSvIPA, *pSvIPP, *pSvLlf)
-	}
-	if scCl.Parsed() {
-		return scReceiver(*pRpre, *pRpost, *pClIPA, *pClIPP, *pClPort, *pClBaud, *pClJSON, *pClTs, *pClKey, *pClShow, *pClSrv)
-	}
-	return nil
 }
 
 func assign(fn string) string {
@@ -284,7 +256,7 @@ func update(dryRun bool, dir, fn string, verbose bool) error {
 // scCheckList does log the id list with a dataset
 func scCheckList(fn, dataset, palette string) error {
 	emit.TimeStampFormat = "off"
-	emit.ColorPalette = palette
+	disp.ColorPalette = palette
 	fnJSON = assign(fn)
 	err := pList.Read(fnJSON)
 	if nil != err {
@@ -341,7 +313,7 @@ func scLogging(pre, post, prt string, bd int, fn, ts, col, pw string, show bool,
 	emit.Postfix = post
 	fnJSON = assign(fn)
 	emit.TimeStampFormat = ts
-	emit.ColorPalette = col
+	disp.ColorPalette = col
 	password = pw
 	showPassword = show
 	return logTrices()
@@ -470,79 +442,11 @@ func zeroIds(dryRun bool, SrcZ string, cmd *flag.FlagSet) error {
 	return nil
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// This code was derived from the information in:
-// https://stackoverflow.com/questions/37122401/execute-another-go-program-from-within-a-golang-program/37123869#37123869
-// "4 - another way is using "net/rpc", this is best way for calling another function from another program."
-//
-
-// Server is the RPC struct for registered server dunctions
-type Server struct{}
-
-// Visualize is the exported server function for string display, if trice tool acts as display server.
-// By declaring is as a Server struct method it is registered as RPC destination.
-func (p *Server) Visualize(s []string, reply *int64) error {
-	*reply = int64(len(s))
-	return emit.Visualize(s) // this function pointer has its default value on server side
-}
-
-/*
-// Adder is a demo for a 2nd function
-func (p *Server) Adder(u [2]int64, reply *int64) error {
-	*reply = u[0] + u[1]
-	return nil
-}
-*/
-
-// scDisplayServer is the endless function called when trice tool acts as remote display.
-// All in Server struct registered RPC functions are reachable, when displayServer runs.
-func scDisplayServer(pal, ipa, ipp, lfn string) error {
-	lgf.Name = lfn
-	lgf.Enable()
-	defer lgf.Disable()
-
-	emit.ColorPalette = pal
-	ipAddr = ipa
-	ipPort = ipp
-	a := fmt.Sprintf("%s:%s", ipAddr, ipPort)
-	fmt.Println("displayServer @", a)
-	rpc.Register(new(Server))
-
-	ln, err := net.Listen("tcp", a)
-	if err != nil {
-		fmt.Println(err)
-		return err
-	}
-	for {
-		c, err := ln.Accept()
-		if err != nil {
-			continue
-		}
-		go rpc.ServeConn(c)
-	}
-}
-
-var pRPC *rpc.Client
-
-// remoteVisualize does send the logstring s to the displayServer
-// It is replacing emit.Visuaize when trice acts as remote
-func remoteVisualize(s []string) error {
-	// for a bit more accurate timestamps they should be added
-	// here on the receiver side and not in the displayServer
-	var result int64
-	err := pRPC.Call("Server.Visualize", s, &result)
-	if err != nil {
-		return err
-	}
-	//fmt.Println("result is", result) // not needed here
-	return nil
-}
-
 // scReceiver is the subcommand remoteDisplay and acts as client connecting to the displayServer
 func scReceiver(pre, post, ipa, ipp, prt string, bd int, fn, ts, pw string, show, sv bool) error {
 	var wg sync.WaitGroup
-	ipAddr = ipa
-	ipPort = ipp
+	disp.IpAddr = ipa
+	disp.IpPort = ipp
 	port = prt
 	baud = bd
 	setPrefix(pre)
@@ -552,45 +456,22 @@ func scReceiver(pre, post, ipa, ipp, prt string, bd int, fn, ts, pw string, show
 	password = pw
 	showPassword = show
 	if true == sv {
-		var shell string
-		var clip []string
-		if runtime.GOOS == "windows" {
-			shell = "cmd"
-			shellCmd := "/c start"
-			clip = append(clip, shellCmd+" trice displayServer -ipa "+ipAddr+" -ipp "+ipPort+" -lf off")
-		} else if runtime.GOOS == "linux" {
-			shell = "gnome-terminal" // this only works for gnome based linux desktop env
-			clip = append(clip, "--", "/bin/bash", "-c", "trice displayServer -ipa "+ipAddr+" -ipp "+ipPort+" -lf off")
-		} else {
-			log.Fatal("trice is running on unknown operating system")
-		}
-		cmd := exec.Command(shell, clip...)
-
-		err := cmd.Run()
-		if err != nil {
-			log.Println(clip)
-			log.Fatal(err)
-		}
+		disp.StartServer()
 	}
 	wg.Add(1)
-	a := fmt.Sprintf("%s:%s", ipAddr, ipPort)
-	fmt.Println("remoteDisplay@", a)
-	var err error
-	pRPC, err = rpc.Dial("tcp", a)
-	if err != nil {
-		fmt.Println(err)
+	err := disp.Connect()
+	if nil != err {
 		return err
 	}
-	fmt.Println("Connected...")
 	var result int64
-	emit.Visualize = remoteVisualize // re-direct output
+
 	/*err = pRPC.Call("Server.Adder", [2]int64{10, 20}, &result)
 	if err != nil {
 		fmt.Println(err)
 	} else {
 		fmt.Println("Server.Adder(10,20) =", result)
 	}*/
-	err = pRPC.Call("Server.Visualize", "att:\n\n\nnew connection....\n\n\n", &result)
+	err = disp.PtrRpc.Call("Server.Visualize", "att:\n\n\nnew connection....\n\n\n", &result)
 	if err != nil {
 		fmt.Println(err)
 	} else {

@@ -1,0 +1,138 @@
+// Copyright 2020 Thomas.Hoehenleitner [at] seerose.net
+// Use of this source code is governed by a license that can be found in the LICENSE file.
+
+package disp
+
+import (
+	"errors"
+	"strings"
+	"unicode"
+
+	"github.com/fatih/color"
+)
+
+var (
+	// ColorPalette is the used PC color set. It is initialized with its default value inside the appropriate subcommand.
+	ColorPalette = "off"
+
+	// separate for performance to avoid re-allocation
+	noColor = color.New()
+)
+
+func isLower(s string) bool {
+	for _, r := range s {
+		if !unicode.IsLower(r) && unicode.IsLetter(r) {
+			return false
+		}
+	}
+	return true
+}
+
+func colorSetDefault(channel string) (*color.Color, error) {
+	var err error
+	var c *color.Color
+	switch channel {
+	case "ERR", "err":
+		c = color.New(color.FgYellow).Add(color.Bold).Add(color.BgRed)
+	case "WRN", "wrn":
+		c = color.New(color.FgRed).Add(color.BgBlack)
+	case "MSG", "msg":
+		c = color.New(color.FgGreen).Add(color.BgBlack)
+	case "RD_", "rd_":
+		c = color.New(color.FgMagenta).Add(color.BgBlack)
+	case "WR_", "wr_":
+		c = color.New(color.FgBlack).Add(color.BgMagenta)
+	case "TIM", "tim":
+		c = color.New(color.FgBlue).Add(color.BgYellow)
+	case "ATT", "att":
+		c = color.New(color.FgYellow).Add(color.Bold).Add(color.BgCyan)
+	case "DBG", "dbg":
+		c = color.New(color.FgCyan).Add(color.BgBlack)
+	case "DIA", "dia":
+		c = color.New(color.BgHiCyan).Add(color.BgWhite)
+	case "ISR", "isr":
+		c = color.New(color.FgYellow).Add(color.BgHiBlue)
+	case "SIG", "sig":
+		c = color.New(color.FgYellow).Add(color.Bold).Add(color.BgGreen)
+	case "TST", "tst":
+		c = color.New(color.FgYellow).Add(color.BgBlack)
+	default:
+		c = color.New(color.FgWhite).Add(color.BgBlack)
+		err = errors.New("unknown channel info")
+	}
+	return c, err
+}
+
+func colorSetAlternate(channel string) (*color.Color, error) {
+	var err error
+	var c *color.Color
+	switch channel {
+	case "ERR", "err":
+		c = color.New(color.FgRed).Add(color.Bold).Add(color.BgYellow)
+	case "WRN", "wrn":
+		c = color.New(color.FgBlack).Add(color.BgRed)
+	case "MSG", "msg":
+		c = color.New(color.FgBlack).Add(color.BgGreen)
+	case "RD_", "rd_":
+		c = color.New(color.FgBlack).Add(color.BgMagenta)
+	case "WR_", "wr_":
+		c = color.New(color.FgMagenta).Add(color.BgBlack)
+	case "TIM", "tim":
+		c = color.New(color.FgYellow).Add(color.BgBlue)
+	case "ATT", "att":
+		c = color.New(color.FgCyan).Add(color.Bold).Add(color.BgYellow)
+	case "DBG", "dbg":
+		c = color.New(color.FgRed).Add(color.BgCyan)
+	case "DIA", "dia":
+		c = color.New(color.BgHiBlack).Add(color.BgHiCyan)
+	case "ISR", "isr":
+		c = color.New(color.FgBlack).Add(color.BgYellow)
+	case "SIG", "sig":
+		c = color.New(color.FgGreen).Add(color.Bold).Add(color.BgYellow)
+	case "TST", "tst":
+		c = color.New(color.FgRed).Add(color.BgGreen)
+	default:
+		c = color.New(color.FgWhite).Add(color.BgBlack)
+		err = errors.New("unknown channel info")
+	}
+	return c, err
+}
+
+// check for color match and remove color info
+// expects s starting with "col:" or "COL:" and returns color and (modified) s
+// If no match occuured it returns no color and unchanged s
+// If upper case match it returns *color.Color and unchanged s
+// If lower case match it returns *color.Color and s without starting pattern "col:"
+// col options are: err, wrn, msg, ...
+// COL options are: ERR, WRN, MSG, ...
+func colorChannel(s string) (*color.Color, string) {
+	c := noColor
+	var err error
+	sc := strings.SplitN(s, ":", 2)
+	if 2 != len(sc) {
+		return c, s
+	}
+	var r string
+	if isLower(sc[0]) {
+		r = sc[1] // remove channel info
+	} else {
+		r = s // keep channel info
+	}
+	switch ColorPalette {
+	case "off":
+		color.NoColor = true // disables colorized output
+	case "default":
+		color.NoColor = false // to force color after some errors
+		c, err = colorSetDefault(sc[0])
+		if nil != err {
+			r = s // keep channel info
+		}
+	case "alternate":
+		color.NoColor = false // to force color after some errors
+		c, err = colorSetAlternate(sc[0])
+		if nil != err {
+			r = s // keep channel info
+		}
+	}
+	return c, r
+}

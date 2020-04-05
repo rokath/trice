@@ -1,6 +1,10 @@
 // Copyright 2020 Thomas.Hoehenleitner [at] seerose.net
 // Use of this source code is governed by a license that can be found in the LICENSE file.
 
+// emit package is responsible for generating a string slice for each line.
+// The substrings are optionally prefix, timestamp, several content substrings and postfix.
+// Each substring can contain its own color channel as prefix ("col:").
+// The colors are converted later inside the disp.Print() function.
 package emit
 
 import (
@@ -9,16 +13,13 @@ import (
 	"fmt"
 	"runtime"
 	"strings"
-	"unicode"
+	"time"
 
-	"github.com/fatih/color"
+	"github.com/rokath/trice/pkg/disp"
 	"github.com/rokath/trice/pkg/id"
 )
 
 var (
-	// ColorPalette is the used PC color set
-	ColorPalette = "default"
-
 	// TimeStampFormat is the PC timestamp format
 	TimeStampFormat = "LOCmicro"
 
@@ -28,170 +29,6 @@ var (
 	// Postfix is a (configurable) string added to each line end
 	Postfix = "\n"
 )
-
-// Tee is the used output device
-//var Tee os.File
-
-// checkValuePosition is a consistency check for positive values and their position
-func checkValuePosition(l id.List, s []byte) error {
-	var b []byte // check data
-	for i := range l {
-		it := l[i]
-		switch it.FmtType {
-		case "TRICE0":
-			b = append(b, 0, 0) // 2 bytes padding like inside Trace()
-		case "TRICE8_1":
-			b = append(b, 1, 0) // 1 byte padding like inside Trace()
-		case "TRICE8_2":
-			b = append(b, 1, 2)
-		case "TRICE8_3":
-			b = append(b, 1, 2, 3, 0) // 1 byte padding like inside Trace()
-		case "TRICE8_4":
-			b = append(b, 1, 2, 3, 4)
-		case "TRICE8_5":
-			b = append(b, 1, 2, 3, 4, 5, 0) // 1 byte padding like inside Trace()
-		case "TRICE8_6":
-			b = append(b, 1, 2, 3, 4, 5, 6)
-		case "TRICE8_7":
-			b = append(b, 1, 2, 3, 4, 5, 6, 7, 0) // 1 byte padding like inside Trace()
-		case "TRICE8_8":
-			b = append(b, 1, 2, 3, 4, 5, 6, 7, 8)
-		case "TRICE16_1":
-			b = append(b, 1, 0)
-		case "TRICE16_2":
-			b = append(b, 1, 0, 2, 0)
-		case "TRICE16_3":
-			b = append(b, 1, 0, 2, 0, 3, 0)
-		case "TRICE16_4":
-			b = append(b, 1, 0, 2, 0, 3, 0, 4, 0)
-		case "TRICE32_1":
-			b = append(b, 1, 0, 0, 0)
-		case "TRICE32_2":
-			b = append(b, 1, 0, 0, 0, 2, 0, 0, 0)
-		case "TRICE32_3":
-			b = append(b, 1, 0, 0, 0, 2, 0, 0, 0, 3, 0, 0, 0)
-		case "TRICE32_4":
-			b = append(b, 1, 0, 0, 0, 2, 0, 0, 0, 3, 0, 0, 0, 4, 0, 0, 0)
-		case "TRICE64_1":
-			b = append(b, 1, 0, 0, 0, 0, 0, 0, 0)
-		case "TRICE64_2":
-			b = append(b, 1, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0)
-		}
-		if "%s" == it.FmtStrg {
-			b[0] = s[6] // set simulated pix value equal
-		}
-		s, _, err := emitter(it, b, s)
-		if nil != err {
-			return err
-		}
-		b = b[:0] // empty d for next trice
-		LineCollect(s)
-	}
-	return nil
-}
-
-// checkNegativeValues is a consistency check for negative values
-func checkNegativeValues(l id.List, s []byte) error {
-	var b []byte // check data
-	for i := range l {
-		it := l[i]
-		switch it.FmtType {
-		case "TRICE0":
-			b = append(b, 0, 0) // 2 bytes padding like inside Trace()
-		case "TRICE8_1":
-			b = append(b, 0x80, 0) // 1 byte padding like inside Trace()
-		case "TRICE8_2":
-			b = append(b, 0x80, 0x80)
-		case "TRICE8_3":
-			b = append(b, 0x80, 0x80, 0x80, 0) // 1 byte padding like inside Trace()
-		case "TRICE8_4":
-			b = append(b, 0x80, 0x80, 0x80, 0x80)
-		case "TRICE8_5":
-			b = append(b, 0x80, 0x80, 0x80, 0x80, 0x80, 0) // 1 byte padding like inside Trace()
-		case "TRICE8_6":
-			b = append(b, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80)
-		case "TRICE8_7":
-			b = append(b, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0) // 1 byte padding like inside Trace()
-		case "TRICE8_8":
-			b = append(b, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80)
-		case "TRICE16_1":
-			b = append(b, 0, 0x80)
-		case "TRICE16_2":
-			b = append(b, 0, 0x80, 0x00, 0x80)
-		case "TRICE16_3":
-			b = append(b, 0x00, 0x80, 0x00, 0x80, 0x00, 0x80)
-		case "TRICE16_4":
-			b = append(b, 0x00, 0x80, 0x00, 0x80, 0x00, 0x80, 0x00, 0x80)
-		case "TRICE32_1":
-			b = append(b, 0, 0, 0, 0x80)
-		case "TRICE32_2":
-			b = append(b, 0, 0, 0, 0x80, 0, 0, 0, 0x80)
-		case "TRICE32_3":
-			b = append(b, 0, 0, 0, 0x80, 0, 0, 0, 0x80, 0, 0, 0, 0x80)
-		case "TRICE32_4":
-			b = append(b, 0, 0, 0, 0x80, 0, 0, 0, 0x80, 0, 0, 0, 0x80, 0, 0, 0, 0x80)
-		case "TRICE64_1":
-			b = append(b, 0, 0, 0, 0, 0, 0, 0, 0x80)
-		case "TRICE64_2":
-			b = append(b, 0, 0, 0, 0, 0, 0, 0, 0x80, 0, 0, 0, 0, 0, 0, 0, 0x80)
-		}
-		if "%s" == it.FmtStrg {
-			b[0] = s[6] // set simulated pix value equal
-		}
-		s, _, err := emitter(it, b, s)
-		if nil != err {
-			return err
-		}
-		b = b[:0] // empty d for next trice
-		LineCollect(s)
-	}
-	return nil
-}
-
-func checkFix(l id.List, s []byte) error {
-	b := []byte{'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'} // dummy data
-	for i := range l {
-		it := l[i]
-		switch it.FmtType {
-		case "TRICE0", "TRICE8_1", "TRICE8_2", "TRICE16_1":
-			b = b[:2]
-		case "TRICE8_3", "TRICE8_4", "TRICE16_2", "TRICE32_1":
-			b = b[:4]
-		case "TRICE8_5", "TRICE8_6", "TRICE16_3":
-			b = b[:6]
-		case "TRICE8_7", "TRICE8_8", "TRICE16_4", "TRICE32_2", "TRICE64_1":
-			b = b[:8]
-		case "TRICE32_3":
-			b = b[:12]
-		case "TRICE32_4", "TRICE64_2":
-			b = b[:16]
-		}
-		if "%s" == it.FmtStrg {
-			b[0] = s[6] // set simulated pix value equal
-		}
-		s, _, err := emitter(it, b, s)
-		if nil != err {
-			return err
-		}
-		b = b[:0] // empty d for next trice
-		LineCollect(s)
-	}
-	return nil
-}
-
-// Check evaluates the l output with specifiesd dataSet
-func Check(l id.List, dataSet string) error {
-	s := make([]byte, 0, 12)
-	// this is a dummy buffer for a simulated runtime string "RS" with pix = 1 (for easy crc8)
-	s = append(s, 0xc0, 0, 0, 0xc0, 0xff, 0xff, 1, 1, 1, 0, 'R', 'S')
-	if "position" == dataSet {
-		return checkValuePosition(l, s)
-	}
-	if "negative" == dataSet {
-		return checkNegativeValues(l, s)
-	}
-	return checkFix(l, s)
-}
 
 var d = make([]byte, 0, 32) // param collector, usually not more than 16 bytes
 var buffer []byte           // container for buffer data (strings)
@@ -231,126 +68,6 @@ func Trice(t, b []byte, l id.List) ([]byte, error) {
 	return b, nil
 }
 
-func isLower(s string) bool {
-	for _, r := range s {
-		if !unicode.IsLower(r) && unicode.IsLetter(r) {
-			return false
-		}
-	}
-	return true
-}
-
-func colorSetDefault(channel string) (*color.Color, error) {
-	var err error
-	var c *color.Color
-	switch channel {
-	case "ERR", "err":
-		c = color.New(color.FgYellow).Add(color.Bold).Add(color.BgRed)
-	case "WRN", "wrn":
-		c = color.New(color.FgRed).Add(color.BgBlack)
-	case "MSG", "msg":
-		c = color.New(color.FgGreen).Add(color.BgBlack)
-	case "RD_", "rd_":
-		c = color.New(color.FgMagenta).Add(color.BgBlack)
-	case "WR_", "wr_":
-		c = color.New(color.FgBlack).Add(color.BgMagenta)
-	case "TIM", "tim":
-		c = color.New(color.FgBlue).Add(color.BgYellow)
-	case "ATT", "att":
-		c = color.New(color.FgYellow).Add(color.Bold).Add(color.BgCyan)
-	case "DBG", "dbg":
-		c = color.New(color.FgCyan).Add(color.BgBlack)
-	case "DIA", "dia":
-		c = color.New(color.BgHiCyan).Add(color.BgWhite)
-	case "ISR", "isr":
-		c = color.New(color.FgYellow).Add(color.BgHiBlue)
-	case "SIG", "sig":
-		c = color.New(color.FgYellow).Add(color.Bold).Add(color.BgGreen)
-	case "TST", "tst":
-		c = color.New(color.FgYellow).Add(color.BgBlack)
-	default:
-		c = color.New(color.FgWhite).Add(color.BgBlack)
-		err = errors.New("unknown channel info")
-	}
-	return c, err
-}
-
-func colorSetAlternate(channel string) (*color.Color, error) {
-	var err error
-	var c *color.Color
-	switch channel {
-	case "ERR", "err":
-		c = color.New(color.FgRed).Add(color.Bold).Add(color.BgYellow)
-	case "WRN", "wrn":
-		c = color.New(color.FgBlack).Add(color.BgRed)
-	case "MSG", "msg":
-		c = color.New(color.FgBlack).Add(color.BgGreen)
-	case "RD_", "rd_":
-		c = color.New(color.FgBlack).Add(color.BgMagenta)
-	case "WR_", "wr_":
-		c = color.New(color.FgMagenta).Add(color.BgBlack)
-	case "TIM", "tim":
-		c = color.New(color.FgYellow).Add(color.BgBlue)
-	case "ATT", "att":
-		c = color.New(color.FgCyan).Add(color.Bold).Add(color.BgYellow)
-	case "DBG", "dbg":
-		c = color.New(color.FgRed).Add(color.BgCyan)
-	case "DIA", "dia":
-		c = color.New(color.BgHiBlack).Add(color.BgHiCyan)
-	case "ISR", "isr":
-		c = color.New(color.FgBlack).Add(color.BgYellow)
-	case "SIG", "sig":
-		c = color.New(color.FgGreen).Add(color.Bold).Add(color.BgYellow)
-	case "TST", "tst":
-		c = color.New(color.FgRed).Add(color.BgGreen)
-	default:
-		c = color.New(color.FgWhite).Add(color.BgBlack)
-		err = errors.New("unknown channel info")
-	}
-	return c, err
-}
-
-var noColor = color.New() // separate for performance to avoid re-allocation
-
-// check for color match and remove color info
-// expects s starting with "col:" or "COL:" and returns color and (modified) s
-// If no match occuured it returns no color and unchanged s
-// If upper case match it returns *color.Color and unchanged s
-// If lower case match it returns *color.Color and s without starting pattern "col:"
-// col options are: err, wrn, msg, ...
-// COL options are: ERR, WRN, MSG, ...
-func colorChannel(s string) (*color.Color, string) {
-	c := noColor
-	var err error
-	sc := strings.SplitN(s, ":", 2)
-	if 2 != len(sc) {
-		return c, s
-	}
-	var r string
-	if isLower(sc[0]) {
-		r = sc[1] // remove channel info
-	} else {
-		r = s // keep channel info
-	}
-	switch ColorPalette {
-	case "off":
-		color.NoColor = true // disables colorized output
-	case "default":
-		color.NoColor = false // to force color after some errors
-		c, err = colorSetDefault(sc[0])
-		if nil != err {
-			r = s // keep channel info
-		}
-	case "alternate":
-		color.NoColor = false // to force color after some errors
-		c, err = colorSetAlternate(sc[0])
-		if nil != err {
-			r = s // keep channel info
-		}
-	}
-	return c, r
-}
-
 func trimBackslashes(s string) string {
 	s = strings.ReplaceAll(s, "\\a", "\a")
 	s = strings.ReplaceAll(s, "\\b", "\b")
@@ -368,9 +85,6 @@ func trimBackslashes(s string) string {
 }
 
 var tsFlag = true
-
-// Visualize is an exported function pointer, which can be redirected for example to a client call
-var Visualize = visualize
 
 // parse lang C formatstring for %u and replace them with %d and extend the
 // returned slice with 0 for each %d, %c, %x and 1 for each converted %u
@@ -536,4 +250,41 @@ func emitter(it id.Item, t, b []byte) (string, []byte, error) {
 		return "ERR: INTERNAL ERROR!!!", b, errors.New("ERR: INTERNAL ERROR")
 	}
 	return s, b, err
+}
+
+// timestamp returns local time as string according var TimeStampFormat
+func timestamp() string {
+	var s string
+	switch TimeStampFormat {
+	case "LOCmicro":
+		s = time.Now().Format(time.StampMicro) + "  "
+	case "UTCmicro":
+		s = "UTC " + time.Now().UTC().Format(time.StampMicro) + "  "
+	case "off":
+		s = ""
+	}
+	return s
+}
+
+// LineCollect collects s into an internal line substring slice
+// When s ends with a newline it is trimmed and the slice goes to Visualize and is discarded afterwards
+func LineCollect(s string) {
+	s = trimBackslashes(s)
+	var ss []string
+	a := func(su string) { // this closure is needed to treat ss as surviving slice
+		ss = append(ss, su)
+	}
+	if 0 == len(ss) {
+		a(Prefix)
+		a(timestamp())
+	}
+	if !strings.HasSuffix(s, "\n") {
+		a(s)
+		return
+	}
+	s = strings.TrimSuffix(s, "\n")
+	a(s)
+	a(Postfix)
+	disp.Visualize(ss)
+	ss = nil
 }
