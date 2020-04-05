@@ -25,7 +25,7 @@ func doUpdate(t *testing.T, path string) {
 	fa := a + "til.json"
 	fe := e + "til.json"
 
-	var lp, lq, lw List
+	var lp, lq, lw ListT
 	var p, q, w = &lp, &lq, &lw
 
 	rand.Seed(0)

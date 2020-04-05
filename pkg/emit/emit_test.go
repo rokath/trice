@@ -15,7 +15,7 @@ import (
 	"github.com/rokath/trice/pkg/id"
 )
 
-func captureOutput(f func(id.List, string) error, l id.List, dataset string) string {
+func captureOutput(f func(id.ListT, string) error, l id.ListT, dataset string) string {
 	// https://stackoverflow.com/questions/10473800/in-go-how-do-i-capture-stdout-of-a-function-into-a-string
 	old := os.Stdout // keep backup of the real stdout
 	r, w, _ := os.Pipe()
@@ -39,9 +39,9 @@ func captureOutput(f func(id.List, string) error, l id.List, dataset string) str
 	return out
 }
 
-func idList(t *testing.T) id.List {
+func idList(t *testing.T) id.ListT {
 	fnIDList := "./testdata/til.json" // file with test input
-	list := make(id.List, 0, 65536)   // for 16 bit IDs enough
+	list := make(id.ListT, 0, 65536)  // for 16 bit IDs enough
 	pList := &list
 
 	err := pList.Read(fnIDList)

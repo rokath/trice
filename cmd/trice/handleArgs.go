@@ -38,19 +38,17 @@ func (i *arrayFlag) Set(value string) error {
 
 // local config values
 var (
-	srcs         arrayFlag // gets multiple files or directories
-	port         string
-	baud         int
-	fnJSON       string
-	pList        *id.List
+	srcs   arrayFlag // gets multiple files or directories
+	fnJSON string
+	//pList        *id.ListT
 	password     string
 	showPassword bool
 )
 
 // HandleArgs evaluates the arguments slice of strings und uses wd as working directory
 func HandleArgs(wd string, args []string) error {
-	list := make(id.List, 0, 65536) // for 16 bit IDs enough
-	pList = &list
+
+	//pList = &list
 
 	scUpd := flag.NewFlagSet("update", flag.ExitOnError)                               // subcommand
 	pDryR := scUpd.Bool("dry-run", false, "no changes are applied")                    // flag
@@ -245,11 +243,11 @@ func scUpdate(dry bool, fn string, v bool) error {
 
 // update does parse source tree, update IDs and is list
 func update(dryRun bool, dir, fn string, verbose bool) error {
-	err := pList.Update(dir, fn, !dryRun, verbose)
+	err := id.List.Update(dir, fn, !dryRun, verbose)
 	if nil != err {
 		return fmt.Errorf("failed update on %s with %s: %v", dir, fn, err)
 	}
-	fmt.Println(len(*pList), "ID's in list", fn)
+	fmt.Println(len(id.List), "ID's in list", fn)
 	return nil
 }
 
@@ -258,12 +256,12 @@ func scCheckList(fn, dataset, palette string) error {
 	emit.TimeStampFormat = "off"
 	disp.ColorPalette = palette
 	fnJSON = assign(fn)
-	err := pList.Read(fnJSON)
+	err := id.List.Read(fnJSON)
 	if nil != err {
 		fmt.Println("ID list " + fnJSON + " not found, exit")
 		return nil
 	}
-	emit.Check(*pList, dataset)
+	emit.Check(id.List, dataset)
 	return nil
 }
 
@@ -295,7 +293,7 @@ func setPrefix(s string) {
 	case "off":
 		emit.Prefix = ""
 	case "COMport:":
-		emit.Prefix = port + "  "
+		emit.Prefix = receiver.Port + "  "
 	default:
 		emit.Prefix = s
 	}
@@ -307,8 +305,8 @@ func scLogging(pre, post, prt string, bd int, fn, ts, col, pw string, show bool,
 	lgf.Enable()
 	defer lgf.Disable()
 
-	port = prt
-	baud = bd
+	receiver.Port = prt
+	receiver.Baud = bd
 	setPrefix(pre)
 	emit.Postfix = post
 	fnJSON = assign(fn)
@@ -323,7 +321,7 @@ func scLogging(pre, post, prt string, bd int, fn, ts, col, pw string, show bool,
 func logTrices() error {
 	if "none" != fnJSON {
 		// setup ip list
-		err := pList.Read(fnJSON)
+		err := id.List.Read(fnJSON)
 		if nil != err {
 			fmt.Println("ID list " + fnJSON + " not found, exit")
 			return nil
@@ -342,26 +340,8 @@ func logTrices() error {
 	   3) HTTP/Websocket receiver (may be the simplest form in Golang)
 	*/
 
-	fmt.Println("id list file", fnJSON, "with", len(*pList), "items")
-	return doSerialReceive()
-}
-
-// conditionalComPortScan scans for COM ports if -port was specified as COMscan, it tries to use first found COM port.
-func conditionalComPortScan() error {
-	if "COMscan" != port {
-		return nil
-	}
-	log.Println("Scan for serial ports...")
-	ports, err := receiver.GetSerialPorts()
-	if err != nil {
-		return err
-	}
-	if len(ports) > 0 {
-		log.Println("Take serial port", ports[0])
-		port = ports[0]
-		return nil
-	}
-	return errors.New("Could not find serial port on system")
+	fmt.Println("id list file", fnJSON, "with", len(id.List), "items")
+	return receiver.DoSerial()
 }
 
 // keyboardInput expects user input from terminal
@@ -394,44 +374,6 @@ func keyboardInput() { // https://tutorialedge.net/golang/reading-console-input-
 	}() // https://stackoverflow.com/questions/16008604/why-add-after-closure-body-in-golang
 }
 
-// doSerialReceive is the endless loop for trice logging
-func doSerialReceive() error {
-	err := conditionalComPortScan()
-	if err != nil {
-		return err
-	}
-	serialReceiver := receiver.NewSerialReceiver(port, baud)
-
-	if serialReceiver.SetUp() == false {
-		fmt.Println("Could not set up serial port", port)
-		fmt.Println("try -port COMscan")
-		return nil
-	}
-	fmt.Println("Opened serial port", port)
-
-	serialReceiver.Start()
-	defer serialReceiver.CleanUp()
-
-	keyboardInput()
-
-	var t, b []byte
-	for {
-		select {
-		case c := <-(*serialReceiver.GetBufferChannel()):
-			if len(c) > 0 {
-				//log.Println("from buffer channel:", c)
-				b = append(b, c...)
-			}
-		case t = <-(*serialReceiver.GetTriceChannel()):
-			//log.Println("from trice channel:", t)
-			b, err = emit.Trice(t, b, *pList)
-			if nil != err {
-				log.Println("trice.Log error", err, t, b)
-			}
-		}
-	}
-}
-
 // zeroIds does replace all ID's in sourc tree with 0
 func zeroIds(dryRun bool, SrcZ string, cmd *flag.FlagSet) error {
 	if SrcZ == "" {
@@ -447,8 +389,8 @@ func scReceiver(pre, post, ipa, ipp, prt string, bd int, fn, ts, pw string, show
 	var wg sync.WaitGroup
 	disp.IpAddr = ipa
 	disp.IpPort = ipp
-	port = prt
-	baud = bd
+	receiver.Port = prt
+	receiver.Baud = bd
 	setPrefix(pre)
 	emit.Postfix = post
 	fnJSON = assign(fn)
@@ -459,6 +401,7 @@ func scReceiver(pre, post, ipa, ipp, prt string, bd int, fn, ts, pw string, show
 		disp.StartServer()
 	}
 	wg.Add(1)
+
 	err := disp.Connect()
 	if nil != err {
 		return err
@@ -471,12 +414,14 @@ func scReceiver(pre, post, ipa, ipp, prt string, bd int, fn, ts, pw string, show
 	} else {
 		fmt.Println("Server.Adder(10,20) =", result)
 	}*/
-	err = disp.PtrRpc.Call("Server.Visualize", "att:\n\n\nnew connection....\n\n\n", &result)
+	s := []string{"att:\n\n\nnew connection....\n\n\n"}
+	err = disp.PtrRpc.Call("Server.Visualize", s, &result)
 	if err != nil {
 		fmt.Println(err)
 	} else {
 		fmt.Println("len is", result)
 	}
+	keyboardInput()
 	logTrices() // does not return
 	wg.Wait()
 	fmt.Println("...done")

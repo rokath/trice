@@ -9,7 +9,7 @@ import (
 	"testing"
 )
 
-func (p *List) zeroTimestampCreated() {
+func (p *ListT) zeroTimestampCreated() {
 	for i := range *p {
 		(*p)[i].Created = 0
 	}
@@ -20,7 +20,7 @@ func Test_write(t *testing.T) {
 	ok(t, err)
 	fa := wd + "/testdata/BasicFunctions/writeAct.json"
 	fe := wd + "/testdata/BasicFunctions/writeExp.json"
-	var la, le List
+	var la, le ListT
 	p, q := &la, &le
 	p.extendIdList(12345, "TRICE0", "Hi", true)
 	p.zeroTimestampCreated()
@@ -63,7 +63,7 @@ func Test_appendItem(t *testing.T) {
 	os.RemoveAll(da)
 	os.Mkdir(da, 0644)
 
-	var lp, lq, ls, lr List
+	var lp, lq, ls, lr ListT
 	var p, q, s, r = &lp, &lq, &ls, &lr
 
 	s.extendIdList(123, "TRICE0", "some logstring", true)

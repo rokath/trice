@@ -9,7 +9,7 @@ import (
 
 // checkValuePosition is a consistency check for positive values and their position.
 // It should be moved to the tests.
-func checkValuePosition(l id.List, s []byte) error {
+func checkValuePosition(l id.ListT, s []byte) error {
 	var b []byte // check data
 	for i := range l {
 		it := l[i]
@@ -68,7 +68,7 @@ func checkValuePosition(l id.List, s []byte) error {
 
 // checkNegativeValues is a consistency check for negative values.
 // It should be moved to the tests.
-func checkNegativeValues(l id.List, s []byte) error {
+func checkNegativeValues(l id.ListT, s []byte) error {
 	var b []byte // check data
 	for i := range l {
 		it := l[i]
@@ -127,7 +127,7 @@ func checkNegativeValues(l id.List, s []byte) error {
 
 // checkNegativeValues is a consistency check for negative values.
 // It should NOT be moved to the tests because it is helpful for til.json checks.
-func checkFix(l id.List, s []byte) error {
+func checkFix(l id.ListT, s []byte) error {
 	b := []byte{'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'} // dummy data
 	for i := range l {
 		it := l[i]
@@ -159,7 +159,7 @@ func checkFix(l id.List, s []byte) error {
 }
 
 // Check evaluates the l output with specifiesd dataSet.
-func Check(l id.List, dataSet string) error {
+func Check(l id.ListT, dataSet string) error {
 	s := make([]byte, 0, 12)
 	// this is a dummy buffer for a simulated runtime string "RS" with pix = 1 (for easy crc8)
 	s = append(s, 0xc0, 0, 0, 0xc0, 0xff, 0xff, 1, 1, 1, 0, 'R', 'S')

@@ -38,7 +38,7 @@ var buffer []byte           // container for buffer data (strings)
 // The ID can be 0, in that case only the data payload is saved
 // If b is not empty, the start byte in buffer b is 0xc0. The byte slice b contains a 8 byte header, a 2 byte len-1 value and and len buffer bytes.
 // b is used for long runtime strings, when the format string is "%s".
-func Trice(t, b []byte, l id.List) ([]byte, error) {
+func Trice(t, b []byte, l id.ListT) ([]byte, error) {
 	d = append(d, t[6:8]...)
 	i := int(binary.LittleEndian.Uint16(t[4:6]))
 	if 0 == i {

@@ -24,11 +24,13 @@ type Item struct {
 }
 
 // List is a slice type containing the ID list
-type List []Item
+type ListT []Item
+
+var List = make(ListT, 0, 65536) // for 16 bit IDs enough
 
 // newID() gets a random ID not used so far.
 // If all IDs used, longest removed ID is reused (TODO)
-func (p *List) newID() (int, error) {
+func (p *ListT) newID() (int, error) {
 	var i, id int
 
 	for { // this is good enough if id count is less than 2/3 of total count, otherwise it will take too long
@@ -52,7 +54,7 @@ func (p *List) newID() (int, error) {
 
 // appendIfMissing is appending i idItem to *p.
 // It returns true if item was missing or changed, otherwise false.
-func (p *List) appendIfMissing(i Item, verbose bool) (int, bool) {
+func (p *ListT) appendIfMissing(i Item, verbose bool) (int, bool) {
 	for _, e := range *p {
 		if e.ID == i.ID { // if id exists
 			if (e.FmtType == i.FmtType) && (e.FmtStrg == i.FmtStrg) { // identical
@@ -91,7 +93,7 @@ func (p *List) appendIfMissing(i Item, verbose bool) (int, bool) {
 }
 
 // return id beause it could get changed when id is in list with different typ or fmts
-func (p *List) extendIdList(id int, typ, fmts string, verbose bool) (int, bool) {
+func (p *ListT) extendIdList(id int, typ, fmts string, verbose bool) (int, bool) {
 	i := Item{
 		ID:      id,
 		FmtType: typ,
@@ -103,7 +105,7 @@ func (p *List) extendIdList(id int, typ, fmts string, verbose bool) (int, bool) 
 }
 
 // Read is reading a JSON file fn and returning a slice
-func (p *List) Read(fn string) error {
+func (p *ListT) Read(fn string) error {
 	b, err := ioutil.ReadFile(fn)
 	if err != nil {
 		return fmt.Errorf("failed to read %s: %v", fn, err)
@@ -112,7 +114,7 @@ func (p *List) Read(fn string) error {
 	return err
 }
 
-func (p *List) write(filename string) error {
+func (p *ListT) write(filename string) error {
 	b, err := json.MarshalIndent(p, "", "\t")
 	if err != nil {
 		return err
@@ -121,7 +123,7 @@ func (p *List) write(filename string) error {
 }
 
 // Index returns the index of 'ID' inside 'l'. If 'ID' is not inside 'l' Index() returns 0 and an error.
-func Index(i int, l List) (int, error) {
+func Index(i int, l ListT) (int, error) {
 	for x := range l {
 		k := l[x].ID
 		if i == k {
