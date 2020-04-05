@@ -42,7 +42,7 @@ func TestZeroSourceTreeIds(t *testing.T) {
 	err = CopyDir(path+"ori/", a)
 	ok(t, err)
 
-	ZeroSourceTreeIds(a, true)
+	zeroSourceTreeIds(a, true)
 
 	act, err := ioutil.ReadFile(a + "Data.c")
 	ok(t, err)

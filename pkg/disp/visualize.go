@@ -106,15 +106,11 @@ func (p *Server) Adder(u [2]int64, reply *int64) error {
 
 // ScServer is the endless function called when trice tool acts as remote display.
 // All in Server struct registered RPC functions are reachable, when displayServer runs.
-func ScServer(pal, ipa, ipp, lfn string) error {
-	lgf.Name = lfn
+func ScServer() error {
 	lgf.Enable()
 	defer lgf.Disable()
 
-	ColorPalette = pal
-	IpAddr = ipa
-	IpPort = ipp
-	a := fmt.Sprintf("%s:%s", ipa, ipp)
+	a := fmt.Sprintf("%s:%s", IpAddr, IpPort)
 	fmt.Println("displayServer @", a)
 	rpc.Register(new(Server))
 

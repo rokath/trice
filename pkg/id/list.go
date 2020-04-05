@@ -8,10 +8,14 @@ package id
 import (
 	"encoding/json"
 	"errors"
+	"flag"
 	"fmt"
 	"io/ioutil"
 	"math/rand"
+	"os"
 	"time"
+
+	"github.com/rokath/trice/pkg/lib"
 )
 
 // Item is the basic element
@@ -26,7 +30,19 @@ type Item struct {
 // List is a slice type containing the ID list
 type ListT []Item
 
-var List = make(ListT, 0, 65536) // for 16 bit IDs enough
+var (
+	// List is the internal List instancem for 16 bit IDs enough
+	List = make(ListT, 0, 65536)
+
+	// FnJSON is the filename of the id list
+	FnJSON string
+
+	// Verbose, if set, gives more output information during update
+	Verbose bool
+
+	// DryRun, is set, inhibits real changes
+	DryRun bool
+)
 
 // newID() gets a random ID not used so far.
 // If all IDs used, longest removed ID is reused (TODO)
@@ -131,4 +147,49 @@ func Index(i int, l ListT) (int, error) {
 		}
 	}
 	return 0, errors.New("unknown ID")
+}
+
+// ZeroIds does replace all ID's in sourc tree with 0
+func ScZero(SrcZ string, cmd *flag.FlagSet) error {
+	if SrcZ == "" {
+		cmd.PrintDefaults()
+		return errors.New("no source tree root specified")
+	}
+	zeroSourceTreeIds(SrcZ, !DryRun)
+	return nil
+}
+
+// ScUpdate is subcommand update
+func ScUpdate() error {
+
+	if 0 == len(lib.Srcs) {
+		lib.Srcs = append(lib.Srcs, "./") // default value
+	}
+	for i := range lib.Srcs {
+		s := lib.Srcs[i]
+		srcU := lib.Assign(s)
+		if _, err := os.Stat(srcU); err == nil { // path exists
+			err = update(srcU, FnJSON)
+			if nil != err {
+				return err
+			}
+		} else if os.IsNotExist(err) { // path does *not* exist
+			fmt.Println(s, " -> ", srcU, "does not exist!")
+		} else {
+			fmt.Println(s, "Schrodinger: file may or may not exist. See err for details.")
+			// Therefore, do *NOT* use !os.IsNotExist(err) to test for file existence
+			// https://stackoverflow.com/questions/12518876/how-to-check-if-a-file-exists-in-go
+		}
+	}
+	return nil
+}
+
+// update does parse source tree, update IDs and is list
+func update(dir, fn string) error {
+	err := List.Update(dir, fn, !DryRun, Verbose)
+	if nil != err {
+		return fmt.Errorf("failed update on %s with %s: %v", dir, fn, err)
+	}
+	fmt.Println(len(List), "ID's in list", fn)
+	return nil
 }

@@ -21,7 +21,7 @@ import (
 
 var (
 	// TimeStampFormat is the PC timestamp format
-	TimeStampFormat = "LOCmicro"
+	TimeStampFormat = "off"
 
 	// Prefix is a (configurable) string added to each line end
 	Prefix = ""

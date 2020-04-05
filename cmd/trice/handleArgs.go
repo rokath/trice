@@ -4,45 +4,20 @@
 package main
 
 import (
-	"bufio"
-	"crypto/sha1"
 	"errors"
 	"flag"
 	"fmt"
 	"log"
 	"os"
-	"path/filepath"
-	"runtime"
-	"strings"
-	"sync"
 
 	"github.com/fatih/color"
 	"github.com/rokath/trice/pkg/disp"
 	"github.com/rokath/trice/pkg/emit"
 	"github.com/rokath/trice/pkg/id"
 	"github.com/rokath/trice/pkg/lgf"
+	"github.com/rokath/trice/pkg/lib"
 	"github.com/rokath/trice/pkg/receiver"
-	"golang.org/x/crypto/xtea"
-)
-
-type arrayFlag []string // slice type for multi flag
-
-func (i *arrayFlag) String() string {
-	return "my string representation"
-}
-
-func (i *arrayFlag) Set(value string) error {
-	*i = append(*i, value)
-	return nil
-}
-
-// local config values
-var (
-	srcs   arrayFlag // gets multiple files or directories
-	fnJSON string
-	//pList        *id.ListT
-	password     string
-	showPassword bool
+	"github.com/rokath/trice/pkg/trice"
 )
 
 // HandleArgs evaluates the arguments slice of strings und uses wd as working directory
@@ -50,15 +25,15 @@ func HandleArgs(wd string, args []string) error {
 
 	//pList = &list
 
-	scUpd := flag.NewFlagSet("update", flag.ExitOnError)                               // subcommand
-	pDryR := scUpd.Bool("dry-run", false, "no changes are applied")                    // flag
-	pLU := scUpd.String("list", "til.json", "trice ID list path, \"none\" possible")   // flag
-	pVerb := scUpd.Bool("v", false, "verbose")                                         // flag
-	scUpd.Var(&srcs, "src", "source dir or file, multi use possible (default \"./\")") // multi flag
+	scUpd := flag.NewFlagSet("update", flag.ExitOnError)                                   // subcommand
+	pDryR := scUpd.Bool("dry-run", false, "no changes are applied")                        // flag
+	pLU := scUpd.String("list", "til.json", "trice ID list path, \"none\" possible")       // flag
+	pVerb := scUpd.Bool("v", false, "verbose")                                             // flag
+	scUpd.Var(&lib.Srcs, "src", "source dir or file, multi use possible (default \"./\")") // multi flag
 
 	scChk := flag.NewFlagSet("check", flag.ExitOnError)                           // subcommand
 	pSet := scChk.String("dataset", "position", "parameters, option: negative")   // flag
-	pC := scChk.String("list", "til.json", "trice ID list path")                  // flag
+	pClist := scChk.String("list", "til.json", "trice ID list path")              // flag
 	pPal := scChk.String("color", "default", "color set, options: off|alternate") // flag
 
 	scZero := flag.NewFlagSet("zeroSourceTreeIds", flag.ContinueOnError)                  // subcommand (during development only)
@@ -117,49 +92,77 @@ func HandleArgs(wd string, args []string) error {
 	subCmd := args[1]
 	subArgs := args[2:]
 	switch subCmd { // Check which subcommand is invoked.
+
 	case "h", "help":
 		hCmd.Parse(subArgs)
 		return scHelp( /**pHlf,*/ hCmd, scUpd, scChk, scLog, scZero, vCmd, scSv, scCl)
+
 	case "v", "ver", "version":
 		vCmd.Parse(subArgs)
-		return scVersion(*pVlf)
+		lgf.Name = *pVlf
+		return scVersion()
+
 	case "u", "update":
 		scUpd.Parse(subArgs)
-		return scUpdate(*pDryR, *pLU, *pVerb)
+		id.FnJSON = lib.Assign(*pLU)
+		id.Verbose = *pVerb
+		id.DryRun = *pDryR
+		return id.ScUpdate()
+
 	case "check":
 		scChk.Parse(subArgs)
-		return scCheckList(*pC, *pSet, *pPal)
-	case "l", "log":
-		scLog.Parse(subArgs)
-		return scLogging(*pLpre, *pLpost, *pPort, *pBaud, *pJSON, *pTs, *pCol, *pKey, *pShow, *pLlf)
+		disp.ColorPalette = *pPal
+		id.FnJSON = lib.Assign(*pClist)
+		return emit.ScCheckList(*pSet)
+
 	case "zeroSourceTreeIds":
 		scZero.Parse(subArgs)
-		return zeroIds(*pRunZ, *pSrcZ, scZero)
-	case "ds", "displayServer":
-		scSv.Parse(subArgs)
-		return disp.ScServer(*pSvCol, *pSvIPA, *pSvIPP, *pSvLlf)
+		id.DryRun = *pRunZ
+		return id.ScZero(*pSrcZ, scZero)
+
+	case "l", "log":
+		scLog.Parse(subArgs)
+		setPrefix(*pLpre)
+		emit.Postfix = *pLpost
+		receiver.Port = *pPort
+		receiver.Baud = *pBaud
+		id.FnJSON = lib.Assign(*pJSON)
+		emit.TimeStampFormat = *pTs
+		disp.ColorPalette = *pCol
+		trice.Password = *pKey
+		trice.ShowPassword = *pShow
+		lgf.Name = *pLlf
+		return trice.ScLog()
+
 	case "r", "rec", "receiver":
 		scCl.Parse(subArgs)
-		return scReceiver(*pRpre, *pRpost, *pClIPA, *pClIPP, *pClPort, *pClBaud, *pClJSON, *pClTs, *pClKey, *pClShow, *pClSrv)
+		disp.IpAddr = *pClIPA
+		disp.IpPort = *pClIPP
+		receiver.Port = *pClPort
+		receiver.Baud = *pClBaud
+		setPrefix(*pRpre)
+		emit.Postfix = *pRpost
+		id.FnJSON = lib.Assign(*pClJSON)
+		emit.TimeStampFormat = *pClTs
+		trice.Password = *pClKey
+		trice.ShowPassword = *pClShow
+		return trice.ScReceive(*pClSrv)
+
+	case "ds", "displayServer":
+		scSv.Parse(subArgs)
+		disp.ColorPalette = *pSvCol
+		disp.IpAddr = *pSvIPA
+		disp.IpPort = *pSvIPP
+		lgf.Name = *pSvLlf
+		return disp.ScServer()
+
 	default:
 		fmt.Println("try: 'trice help|h'")
 		return nil
 	}
 }
 
-func assign(fn string) string {
-	if "none" == fn {
-		return fn
-	}
-	s, err := filepath.Abs(fn)
-	if nil != err {
-		_ = fmt.Errorf("failed to parse %s: %v", fn, err)
-	}
-	return s
-}
-
-func scVersion(lfn string) error {
-	lgf.Name = lfn
+func scVersion() error {
 	lgf.Enable()
 	defer lgf.Disable()
 
@@ -216,78 +219,6 @@ func scHelp( /*lfn string,*/
 	return nil
 }
 
-// scUpdate is subcommand update
-func scUpdate(dry bool, fn string, v bool) error {
-	fnJSON = assign(fn)
-	if 0 == len(srcs) {
-		srcs = append(srcs, "./") // default value
-	}
-	for i := range srcs {
-		s := srcs[i]
-		srcU := assign(s)
-		if _, err := os.Stat(srcU); err == nil { // path exists
-			err = update(dry, srcU, fnJSON, v)
-			if nil != err {
-				return err
-			}
-		} else if os.IsNotExist(err) { // path does *not* exist
-			fmt.Println(s, " -> ", srcU, "does not exist!")
-		} else {
-			fmt.Println(s, "Schrodinger: file may or may not exist. See err for details.")
-			// Therefore, do *NOT* use !os.IsNotExist(err) to test for file existence
-			// https://stackoverflow.com/questions/12518876/how-to-check-if-a-file-exists-in-go
-		}
-	}
-	return nil
-}
-
-// update does parse source tree, update IDs and is list
-func update(dryRun bool, dir, fn string, verbose bool) error {
-	err := id.List.Update(dir, fn, !dryRun, verbose)
-	if nil != err {
-		return fmt.Errorf("failed update on %s with %s: %v", dir, fn, err)
-	}
-	fmt.Println(len(id.List), "ID's in list", fn)
-	return nil
-}
-
-// scCheckList does log the id list with a dataset
-func scCheckList(fn, dataset, palette string) error {
-	emit.TimeStampFormat = "off"
-	disp.ColorPalette = palette
-	fnJSON = assign(fn)
-	err := id.List.Read(fnJSON)
-	if nil != err {
-		fmt.Println("ID list " + fnJSON + " not found, exit")
-		return nil
-	}
-	emit.Check(id.List, dataset)
-	return nil
-}
-
-// createCipher prepares decryption, with password "none" the encryption flag is set false, otherwise true
-func createCipher() (*xtea.Cipher, bool, error) {
-	h := sha1.New() // https://gobyexample.com/sha1-hashes
-	h.Write([]byte(password))
-	key := h.Sum(nil)
-	key = key[:16] // only first 16 bytes needed as key
-
-	c, err := xtea.NewCipher(key)
-	if err != nil {
-		return nil, false, errors.New("NewCipher returned error")
-	}
-	var e bool
-	if "none" != password {
-		e = true
-		if true == showPassword {
-			fmt.Printf("% 20x is XTEA encryption key\n", key)
-		}
-	} else if true == showPassword {
-		fmt.Printf("no encryption\n")
-	}
-	return c, e, nil
-}
-
 func setPrefix(s string) {
 	switch s {
 	case "off":
@@ -297,133 +228,4 @@ func setPrefix(s string) {
 	default:
 		emit.Prefix = s
 	}
-}
-
-// scLogging is the subcommand log and connects to COM port and displays traces
-func scLogging(pre, post, prt string, bd int, fn, ts, col, pw string, show bool, lfn string) error {
-	lgf.Name = lfn
-	lgf.Enable()
-	defer lgf.Disable()
-
-	receiver.Port = prt
-	receiver.Baud = bd
-	setPrefix(pre)
-	emit.Postfix = post
-	fnJSON = assign(fn)
-	emit.TimeStampFormat = ts
-	disp.ColorPalette = col
-	password = pw
-	showPassword = show
-	return logTrices()
-}
-
-// logTrices connects to COM port and displays traces
-func logTrices() error {
-	if "none" != fnJSON {
-		// setup ip list
-		err := id.List.Read(fnJSON)
-		if nil != err {
-			fmt.Println("ID list " + fnJSON + " not found, exit")
-			return nil
-		}
-	}
-
-	var err error
-	receiver.Cipher, receiver.Crypto, err = createCipher()
-	if nil != err {
-		return err
-	}
-
-	/* TODO: Introduce new command line option for choosing between
-	   1) Serial receiver(port name, baudrate, parity bit etc. )
-	   2) TCP receiver (IP, port, Protocol (i.e JSON,XML))
-	   3) HTTP/Websocket receiver (may be the simplest form in Golang)
-	*/
-
-	fmt.Println("id list file", fnJSON, "with", len(id.List), "items")
-	return receiver.DoSerial()
-}
-
-// keyboardInput expects user input from terminal
-func keyboardInput() { // https://tutorialedge.net/golang/reading-console-input-golang/
-	reader := bufio.NewReader(os.Stdin)
-	fmt.Println("Simple Shell")
-	fmt.Println("------------")
-
-	go func() {
-		for {
-			fmt.Print("-> ")
-			text, _ := reader.ReadString('\n')
-			// convert CRLF to LF
-			e := "\n"
-			if runtime.GOOS == "windows" {
-				e = "\r\n"
-			}
-			text = strings.Replace(text, e, "", -1) // Linux "\n" !
-
-			switch text {
-			case "q", "quit":
-				os.Exit(0)
-			case "h", "help":
-				fmt.Println("h|help    - this text")
-				fmt.Println("q|quit    - end program")
-			default:
-				fmt.Printf("Unknown command '%s' - use 'help'\n", text)
-			}
-		}
-	}() // https://stackoverflow.com/questions/16008604/why-add-after-closure-body-in-golang
-}
-
-// zeroIds does replace all ID's in sourc tree with 0
-func zeroIds(dryRun bool, SrcZ string, cmd *flag.FlagSet) error {
-	if SrcZ == "" {
-		cmd.PrintDefaults()
-		return errors.New("no source tree root specified")
-	}
-	id.ZeroSourceTreeIds(SrcZ, !dryRun)
-	return nil
-}
-
-// scReceiver is the subcommand remoteDisplay and acts as client connecting to the displayServer
-func scReceiver(pre, post, ipa, ipp, prt string, bd int, fn, ts, pw string, show, sv bool) error {
-	var wg sync.WaitGroup
-	disp.IpAddr = ipa
-	disp.IpPort = ipp
-	receiver.Port = prt
-	receiver.Baud = bd
-	setPrefix(pre)
-	emit.Postfix = post
-	fnJSON = assign(fn)
-	emit.TimeStampFormat = ts
-	password = pw
-	showPassword = show
-	if true == sv {
-		disp.StartServer()
-	}
-	wg.Add(1)
-
-	err := disp.Connect()
-	if nil != err {
-		return err
-	}
-	var result int64
-
-	/*err = pRPC.Call("Server.Adder", [2]int64{10, 20}, &result)
-	if err != nil {
-		fmt.Println(err)
-	} else {
-		fmt.Println("Server.Adder(10,20) =", result)
-	}*/
-	s := []string{"att:\n\n\nnew connection....\n\n\n"}
-	err = disp.PtrRpc.Call("Server.Visualize", s, &result)
-	if err != nil {
-		fmt.Println(err)
-	} else {
-		fmt.Println("len is", result)
-	}
-	keyboardInput()
-	logTrices() // does not return
-	wg.Wait()
-	fmt.Println("...done")
-	return nil
 }

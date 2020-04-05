@@ -25,7 +25,10 @@ type TriceReceiver interface {
 */
 
 var (
+	// Port is the COMport name like COM1
 	Port string
+
+	// Baud is the configured baudrate of the serial port
 	Baud int
 )
 

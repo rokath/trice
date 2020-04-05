@@ -262,7 +262,7 @@ func updateParamCount(modified bool, subs, s string, verbose bool) (bool, bool, 
 }
 
 // ZeroSourceTreeIds is overwriting with 0 all id's from source code tree srcRoot. It does not touch idlist.
-func ZeroSourceTreeIds(srcRoot string, run bool) {
+func zeroSourceTreeIds(srcRoot string, run bool) {
 	err := filepath.Walk(srcRoot, visitZeroSourceTreeIds(run))
 	if err != nil {
 		panic(err)

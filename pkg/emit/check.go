@@ -4,6 +4,8 @@
 package emit
 
 import (
+	"fmt"
+
 	"github.com/rokath/trice/pkg/id"
 )
 
@@ -170,4 +172,15 @@ func Check(l id.ListT, dataSet string) error {
 		return checkNegativeValues(l, s)
 	}
 	return checkFix(l, s)
+}
+
+// ScCheckList does log the id list with a dataset
+func ScCheckList(dataset string) error {
+	err := id.List.Read(id.FnJSON)
+	if nil != err {
+		fmt.Println("ID list " + id.FnJSON + " not found, exit")
+		return nil
+	}
+	Check(id.List, dataset)
+	return nil
 }
