@@ -1,6 +1,7 @@
 // Copyright 2020 Thomas.Hoehenleitner [at] seerose.net
 // Use of this source code is governed by a license that can be found in the LICENSE file.
 
+// Package id list is responsible for id list managing
 package id
 
 // list management

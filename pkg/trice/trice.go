@@ -2,18 +2,18 @@
 //                Thomas.Hoehenleitner [at] seerose.net
 // Use of this source code is governed by a license that can be found in the LICENSE file.
 
+// Package trice provides subcommands ScLog and ScReceive
+// It provides optional decryption and activates receiver package,
+// which in turn calls emit.Trice on every received trice.
 package trice
 
 import (
-	"bufio"
 	"crypto/sha1"
 	"errors"
 	"fmt"
-	"os"
-	"runtime"
-	"strings"
 	"sync"
 
+	"github.com/rokath/trice/pkg/cmd"
 	"github.com/rokath/trice/pkg/disp"
 	"github.com/rokath/trice/pkg/id"
 	"github.com/rokath/trice/pkg/lgf"
@@ -66,7 +66,7 @@ func ScReceive(sv bool) error {
 	} else {
 		fmt.Println("len is", result)
 	}
-	keyboardInput()
+	cmd.KeyboardInput()
 	DoReceive() // does not return
 	wg.Wait()
 	fmt.Println("...done")
@@ -98,36 +98,6 @@ func DoReceive() error {
 
 	fmt.Println("id list file", id.FnJSON, "with", len(id.List), "items")
 	return receiver.DoSerial()
-}
-
-// keyboardInput expects user input from terminal
-func keyboardInput() { // https://tutorialedge.net/golang/reading-console-input-golang/
-	reader := bufio.NewReader(os.Stdin)
-	fmt.Println("Simple Shell")
-	fmt.Println("------------")
-
-	go func() {
-		for {
-			fmt.Print("-> ")
-			text, _ := reader.ReadString('\n')
-			// convert CRLF to LF
-			e := "\n"
-			if runtime.GOOS == "windows" {
-				e = "\r\n"
-			}
-			text = strings.Replace(text, e, "", -1) // Linux "\n" !
-
-			switch text {
-			case "q", "quit":
-				os.Exit(0)
-			case "h", "help":
-				fmt.Println("h|help    - this text")
-				fmt.Println("q|quit    - end program")
-			default:
-				fmt.Printf("Unknown command '%s' - use 'help'\n", text)
-			}
-		}
-	}() // https://stackoverflow.com/questions/16008604/why-add-after-closure-body-in-golang
 }
 
 // createCipher prepares decryption, with password "none" the encryption flag is set false, otherwise true

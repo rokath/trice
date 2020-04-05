@@ -2,6 +2,9 @@
 //                Thomas.Hoehenleitner [at] seerose.net
 // Use of this source code is governed by a license that can be found in the LICENSE file.
 
+// Package receiver is responsible for getting and handling the bytes from the communication port.
+// Currently only serial port is supported.
+// It is activated by the trice package and call emit.Trice() on received bytes chunks.
 package receiver
 
 import (

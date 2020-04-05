@@ -1,7 +1,7 @@
 // Copyright 2020 Thomas.Hoehenleitner [at] seerose.net
 // Use of this source code is governed by a license that can be found in the LICENSE file.
 
-// helper functions for trice tool
+// Package lib contains helper functions for trice tool
 package lib
 
 import (

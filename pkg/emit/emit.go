@@ -1,7 +1,7 @@
 // Copyright 2020 Thomas.Hoehenleitner [at] seerose.net
 // Use of this source code is governed by a license that can be found in the LICENSE file.
 
-// emit package is responsible for generating a string slice for each line.
+// Package emit is responsible for generating a string slice for each line.
 // The substrings are optionally prefix, timestamp, several content substrings and postfix.
 // Each substring can contain its own color channel as prefix ("col:").
 // The colors are converted later inside the disp.Print() function.
@@ -33,7 +33,7 @@ var (
 var d = make([]byte, 0, 32) // param collector, usually not more than 16 bytes
 var buffer []byte           // container for buffer data (strings)
 
-// Trice emits one trice to std out. The byte slice 't' is a trice package.
+// Trice emits one trice. The byte slice 't' is a trice package.
 // The start byte is 0xeb.
 // The ID can be 0, in that case only the data payload is saved
 // If b is not empty, the start byte in buffer b is 0xc0. The byte slice b contains a 8 byte header, a 2 byte len-1 value and and len buffer bytes.
