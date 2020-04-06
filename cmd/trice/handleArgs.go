@@ -123,10 +123,10 @@ func HandleArgs(wd string, args []string) error {
 
 	case "l", "log":
 		scLog.Parse(subArgs)
-		setPrefix(*pLpre)
 		emit.Postfix = *pLpost
 		receiver.Port = *pPort
 		receiver.Baud = *pBaud
+		setPrefix(*pLpre)
 		id.FnJSON = lib.Assign(*pJSON)
 		emit.TimeStampFormat = *pTs
 		disp.ColorPalette = *pCol
