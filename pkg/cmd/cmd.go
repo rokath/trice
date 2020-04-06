@@ -10,6 +10,8 @@ import (
 	"os"
 	"runtime"
 	"strings"
+
+	"github.com/rokath/trice/pkg/disp"
 )
 
 // KeyboardInput expects user input from terminal
@@ -33,8 +35,14 @@ func KeyboardInput() { // https://tutorialedge.net/golang/reading-console-input-
 			case "q", "quit":
 				os.Exit(0)
 			case "h", "help":
-				fmt.Println("h|help    - this text")
-				fmt.Println("q|quit    - end program")
+				fmt.Println("h|help                   - this text")
+				fmt.Println("exitServer|serverExit    - kill server")
+				fmt.Println("q|quit                   - end program")
+			case "exitServer", "serverExit":
+				var result int64
+				var dummy []int64
+				err := disp.PtrRpc.Call("Server.Exit", dummy, &result)
+				fmt.Print(err)
 			default:
 				fmt.Printf("Unknown command '%s' - use 'help'\n", text)
 			}

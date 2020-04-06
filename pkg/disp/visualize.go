@@ -9,6 +9,7 @@ import (
 	"log"
 	"net"
 	"net/rpc"
+	"os"
 	"os/exec"
 	"runtime"
 	"sync"
@@ -104,6 +105,15 @@ func (p *Server) Adder(u [2]int64, reply *int64) error {
 	return nil
 }
 */
+
+// Adder is a demo for a 2nd function
+func (p *Server) Exit([]int64, *int64) error {
+	defer func() {
+		os.Exit(0)
+	}()
+
+	return nil
+}
 
 // ScServer is the endless function called when trice tool acts as remote display.
 // All in Server struct registered RPC functions are reachable, when displayServer runs.
