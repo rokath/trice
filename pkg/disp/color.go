@@ -13,7 +13,7 @@ import (
 
 var (
 	// ColorPalette is the used PC color set. It is initialized with its default value inside the appropriate subcommand.
-	ColorPalette = "off"
+	ColorPalette = "off" // default value for testing
 
 	// separate for performance to avoid re-allocation
 	noColor = color.New()
