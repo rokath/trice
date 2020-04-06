@@ -11,7 +11,6 @@ import (
 	"crypto/sha1"
 	"errors"
 	"fmt"
-	"sync"
 
 	"github.com/rokath/trice/pkg/cmd"
 	"github.com/rokath/trice/pkg/disp"
@@ -40,12 +39,12 @@ func ScLog() error {
 
 // scReceive is the subcommand remoteDisplay and acts as client connecting to the displayServer
 func ScReceive(sv bool) error {
-	var wg sync.WaitGroup
+	//var wg sync.WaitGroup
 
 	if true == sv {
 		disp.StartServer()
 	}
-	wg.Add(1)
+	//wg.Add(1)
 
 	err := disp.Connect()
 	if nil != err {
@@ -60,7 +59,7 @@ func ScReceive(sv bool) error {
 		fmt.Println("Server.Adder(10,20) =", result)
 	}*/
 	s := []string{"att:\n\n\nnew connection....\n\n\n"}
-	err = disp.PtrRpc.Call("Server.Visualize", s, &result)
+	err = disp.PtrRpc.Call("Server.Out", s, &result)
 	if err != nil {
 		fmt.Println(err)
 	} else {
@@ -68,7 +67,7 @@ func ScReceive(sv bool) error {
 	}
 	cmd.KeyboardInput()
 	DoReceive() // does not return
-	wg.Wait()
+	//wg.Wait()
 	fmt.Println("...done")
 	return nil
 }

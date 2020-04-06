@@ -1,12 +1,108 @@
-package id
+// Package tst contains no runtime code, only universal helper for tests
+package lib
 
 import (
+	"bufio"
 	"fmt"
 	"io"
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"testing"
 )
+
+// https://stackoverflow.com/questions/7424340/read-in-lines-in-a-text-file-sort-then-overwrite-file
+//
+
+// WriteLines writes string slice containing lines to file
+func ReadLines(file string) ([]string, error) {
+	var lines []string
+	f, err := os.Open(file)
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+	r := bufio.NewReader(f)
+	for {
+		const delim = '\n'
+		line, err := r.ReadString(delim)
+		if err == nil || len(line) > 0 {
+			if err != nil {
+				line += string(delim)
+			}
+			lines = append(lines, line)
+		}
+		if err != nil {
+			if err == io.EOF {
+				break
+			}
+			return nil, err
+		}
+	}
+	return lines, nil
+}
+
+// WriteLines writes string slice containing lines to file
+func WriteLines(file string, lines []string) error {
+	f, err := os.Create(file)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+	w := bufio.NewWriter(f)
+	defer w.Flush()
+	for _, line := range lines {
+		_, err := w.WriteString(line)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+/* SortLines reads inFile, sorts the lines and writes to outFile
+// inFile and outFile can be the same
+func SortLines(inFile, outFile string) {
+    lines, err := ReadLines(inFile)
+    if err != nil {
+        fmt.Println(err)
+        os.Exit(1)
+    }
+    sort.Strings(lines)
+    err = WriteLines(OutFile, lines)
+    if err != nil {
+        fmt.Println(err)
+        os.Exit(1)
+    }
+}
+*/
+
+// uniqueString removes string duplicates in string slice
+// https://www.golangprograms.com/remove-duplicate-values-from-slice.html
+func uniqueString(ss []string) []string {
+	keys := make(map[string]bool)
+	//list := []string{}
+	var list []string
+	for _, entry := range ss {
+		if _, value := keys[entry]; !value {
+			keys[entry] = true
+			list = append(list, entry)
+		}
+	}
+	return list
+}
+
+// UniqLines reads inFile, removes duplicate lines and writes to outFile
+// inFile and outFile can be the same
+// it returns count of remaining lines plus 1 (io.EOF ?)
+func UniqLines(t *testing.T, inFile, outFile string) int {
+	il, err := ReadLines(inFile)
+	Ok(t, err)
+	ol := uniqueString(il)
+	err = WriteLines(outFile, ol)
+	Ok(t, err)
+	return len(ol)
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //

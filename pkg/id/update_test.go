@@ -8,19 +8,21 @@ import (
 	"math/rand"
 	"os"
 	"testing"
+
+	"github.com/rokath/trice/pkg/lib"
 )
 
 func doUpdate(t *testing.T, path string) {
 	pwd, err := os.Getwd()
-	ok(t, err)
+	lib.Ok(t, err)
 	path = pwd + path
 	a := path + "act/"
 	e := path + "exp/"
 
 	err = os.RemoveAll(a)
-	ok(t, err)
-	err = CopyDir(path+"ori/", a)
-	ok(t, err)
+	lib.Ok(t, err)
+	err = lib.CopyDir(path+"ori/", a)
+	lib.Ok(t, err)
 
 	fa := a + "til.json"
 	fe := e + "til.json"
@@ -30,21 +32,21 @@ func doUpdate(t *testing.T, path string) {
 
 	rand.Seed(0)
 	err = w.Update(a, fa, true, true)
-	ok(t, err)
+	lib.Ok(t, err)
 	w.zeroTimestampCreated()
 	err = w.write(fa)
-	ok(t, err)
+	lib.Ok(t, err)
 
 	err = p.Read(fa)
-	ok(t, err)
+	lib.Ok(t, err)
 	err = q.Read(fe)
-	ok(t, err)
+	lib.Ok(t, err)
 
 	act, err := ioutil.ReadFile(a + "Data.c")
-	ok(t, err)
+	lib.Ok(t, err)
 	exp, err := ioutil.ReadFile(e + "Data.c")
-	ok(t, err)
-	equals(t, exp, act)
+	lib.Ok(t, err)
+	lib.Equals(t, exp, act)
 
 	os.RemoveAll(a)
 }

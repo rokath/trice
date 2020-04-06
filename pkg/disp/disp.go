@@ -20,10 +20,10 @@ import (
 
 var (
 	// IpAddr is the display server ip addr
-	IpAddr string
+	IpAddr string = "localhost" // default value for testing
 
 	// IpPort is the display server ip addr
-	IpPort string
+	IpPort string = "61497" // default value for testing
 
 	// Visualize is an exported function pointer, which can be redirected for example to a client call
 	Out = out
@@ -42,7 +42,7 @@ func StartServer() {
 	if runtime.GOOS == "windows" {
 		shell = "cmd"
 		shellCmd := "/c start"
-		clip = append(clip, shellCmd+" trice displayServer -ipa "+IpAddr+" -ipp "+IpPort+" -lf off")
+		clip = append(clip, shellCmd+" trice displayServer -ipa "+IpAddr+" -ipp "+IpPort+" -lf "+lgf.Name)
 	} else if runtime.GOOS == "linux" {
 		shell = "gnome-terminal" // this only works for gnome based linux desktop env
 		clip = append(clip, "--", "/bin/bash", "-c", "trice displayServer -ipa "+IpAddr+" -ipp "+IpPort+" -lf off")
@@ -56,6 +56,14 @@ func StartServer() {
 		log.Println(clip)
 		log.Fatal(err)
 	}
+}
+
+// StopServer sends signal to display server to quit
+func StopServer() {
+	var result int64
+	var dummy []int64
+	err := PtrRpc.Call("Server.Exit", dummy, &result)
+	fmt.Print(err)
 }
 
 // out displays ss and sets color.
@@ -72,11 +80,15 @@ func out(ss []string) error {
 	mux.Lock()
 	for _, s := range ss {
 		c, s = colorChannel(s)
-		line += c.Sprint(s)
+		if true == color.NoColor {
+			line += fmt.Sprint(s)
+		} else {
+			line += c.Sprint(s)
+		}
 	}
 	o := color.NoColor
 	color.NoColor = true
-	c.Print(line) // here better use siply fmt.Print, but then the io.Writer to os.file assignment issue must be solved
+	c.Print(line) // here better use simply fmt.Print, but then the io.Writer to os.file assignment issue must be solved
 	color.NoColor = o
 	mux.Unlock()
 	return nil
@@ -92,10 +104,18 @@ func out(ss []string) error {
 type Server struct{}
 
 // Out is the exported server function for string display, if trice tool acts as display server.
-// By declaring is as a Server struct method it is registered as RPC destination.
+// By declaring it as a Server struct method it is registered as RPC destination.
 func (p *Server) Out(s []string, reply *int64) error {
 	*reply = int64(len(s))
 	return Out(s) // this function pointer has its default value on server side
+}
+
+// Color is the exported server function for color palette, if trice tool acts as display server.
+// By declaring it as a Server struct method it is registered as RPC destination.
+func (p *Server) ColorPalette(s []string, reply *int64) error {
+	ColorPalette = s[0]
+	*reply = 0
+	return nil
 }
 
 /*
@@ -145,12 +165,7 @@ func RemoteOut(s []string) error {
 	// for a bit more accurate timestamps they should be added
 	// here on the receiver side and not in the displayServer
 	var result int64
-	err := PtrRpc.Call("Server.Out", s, &result)
-	if err != nil {
-		return err
-	}
-	//fmt.Println("result is", result) // not needed here
-	return nil
+	return PtrRpc.Call("Server.Out", s, &result)
 }
 
 // Connect is called by the client and tries to dial.
