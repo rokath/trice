@@ -26,7 +26,7 @@ var (
 	IpPort string
 
 	// Visualize is an exported function pointer, which can be redirected for example to a client call
-	Visualize = visualize
+	Out = out
 
 	// PtrRpc is a pointer
 	PtrRpc *rpc.Client
@@ -58,14 +58,14 @@ func StartServer() {
 	}
 }
 
-// visualize displays ss and sets color.
+// out displays ss and sets color.
 // ss is a slice containing substring parts of one line.
 // Each substring inside ss is result of Trice or contains prefix,
 // timestamp or postfix and can have its own color prefix.
 // The last substring inside the slice is definitly the last in
 // the line and has already trimmed its newline.
 // Linebreaks inside the substrings are not handled separately (yet).
-func visualize(ss []string) error {
+func out(ss []string) error {
 	var c *color.Color
 	var line string
 
@@ -91,11 +91,11 @@ func visualize(ss []string) error {
 // Server is the RPC struct for registered server dunctions
 type Server struct{}
 
-// Visualize is the exported server function for string display, if trice tool acts as display server.
+// Out is the exported server function for string display, if trice tool acts as display server.
 // By declaring is as a Server struct method it is registered as RPC destination.
-func (p *Server) Visualize(s []string, reply *int64) error {
+func (p *Server) Out(s []string, reply *int64) error {
 	*reply = int64(len(s))
-	return Visualize(s) // this function pointer has its default value on server side
+	return Out(s) // this function pointer has its default value on server side
 }
 
 /*
@@ -139,13 +139,13 @@ func ScServer() error {
 	}
 }
 
-// remoteVisualize does send the logstring s to the displayServer
+// RemoteOut does send the logstring s to the displayServer
 // It is replacing emit.Visuaize when trice acts as remote
-func RemoteVisualize(s []string) error {
+func RemoteOut(s []string) error {
 	// for a bit more accurate timestamps they should be added
 	// here on the receiver side and not in the displayServer
 	var result int64
-	err := PtrRpc.Call("Server.Visualize", s, &result)
+	err := PtrRpc.Call("Server.Out", s, &result)
 	if err != nil {
 		return err
 	}
@@ -165,6 +165,6 @@ func Connect() error {
 		return err
 	}
 	fmt.Println("Connected...")
-	Visualize = RemoteVisualize // re-direct output
+	Out = RemoteOut // re-direct output
 	return nil
 }

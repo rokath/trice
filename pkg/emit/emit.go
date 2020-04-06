@@ -285,6 +285,6 @@ func LineCollect(s string) {
 	s = strings.TrimSuffix(s, "\n")
 	a(s)
 	a(Postfix)
-	disp.Visualize(ss)
+	disp.Out(ss)
 	ss = nil
 }
