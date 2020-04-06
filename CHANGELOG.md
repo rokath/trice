@@ -9,4 +9,5 @@ date      | version | comment
 2020-03-01|  0.6    | encryption support, TRICE64_2 added
 2020-03-12|  0.7    | `trice u -src dir1 -src file -src dir2` any now possible, -ts added, effective runtime strings
 2020-03-29|  0.8    | autologfile, remoteDisplay added, check issues!
+2020-04-07|  0.8.2  | display server supports many receiver-clients, no line mixes, code partially restructured  
 
