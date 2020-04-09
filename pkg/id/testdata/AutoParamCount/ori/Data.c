@@ -9,6 +9,29 @@
 
 #define SYSTICKVAL16 SysTick->VAL //!< STM32 specific
 
+// with count, with id
+ TRICE8_1( Id(0), "tst: %d\n", n );
+ TRICE8_1( Id(0), "tst: %d\n", n ); TRICE8_1( Id(0), "tst: %d\n", n );
+ TRICE8_1( Id(0), "tst: %d\n", n ); TRICE8_1( Id(0), "tst: %d\n", n ); TRICE8_1( Id(0), "tst: %d\n", n );
+ TRICE8_1( Id(0), "tst: %d\n", n )
+ TRICE8_1( Id(0), "tst: %d\n", n )  TRICE8_1( Id(0), "tst: %d\n", n ) 
+ TRICE8_1( Id(0), "tst: %d\n", n )  TRICE8_1( Id(0), "tst: %d\n", n )  TRICE8_1( Id(0), "tst: %d\n", n ) 
+ TRICE8_1( Id(0), "tst: %d\n", n ); TRICE8_1( Id(0), "tst: %d\n", n ); TRICE8_1( Id(0), "tst: %d\n", n ) 
+
+// without count, without id
+ TRICE8( "tst: %d\n", n );
+ TRICE8( "tst: %d\n", n ); TRICE8( "tst: %d\n", n );
+ TRICE8( "tst: %d\n", n ); TRICE8( "tst: %d\n", n ); TRICE8( "tst: %d\n", n );
+ TRICE8( "tst: %d\n", n ) 
+ TRICE8( "tst: %d\n", n )  TRICE8( "tst: %d\n", n ) 
+ TRICE8( "tst: %d\n", n )  TRICE8( "tst: %d\n", n )  TRICE8( "tst: %d\n", n ) 
+ TRICE8( "tst: %d\n", n ); TRICE8( "tst: %d\n", n ); TRICE8( "tst: %d\n", n ) 
+
+// mixed
+ TRICE8( "tst: %d\n", n );  TRICE8_1( Id(0), "tst: %d\n", n )
+ TRICE8_1( Id(0), "tst: %d\n", n );  TRICE8( "tst: %d\n", n )
+
+
 /*! write out all types of trices with fixed values for testing
 \details One trice has one subtrace, if param size max 2 bytes. 
 Traces with more bytes as parameter consist of several subtraces.

@@ -14,30 +14,46 @@ import (
 	"strings"
 )
 
-// https://gist.github.com/tdegrunt/045f6b3377f3f7ffa408 replace strings recursively
+const (
+	// patSourceFile is a regex pattern matching any source file for patching
+	patSourceFile = "(\\.c|\\.h|\\.cc|\\.cpp|\\.hpp)$"
 
-var matchSourceFile = regexp.MustCompile("(\\.c|\\.h|\\.cc|\\.cpp|\\.hpp)$")
+	// patNbTRICE is a regex pattern matching any "TRICE*(Id(n), "", ... )". - see https://regex101.com/r/LNlAwY/7, The (?U) says non-greedy
+	patNbTRICE = `(?U)(TRICE0|TRICE8_[1-8]|TRICE16_[1-4]|TRICE32_[1-4]|TRICE64_[1-4])\s*\(\s*\bId\b\s*\(\s*.*[0-9]\s*\)\s*,\s*".*"\s*.*\)`
 
-// matchNbTRICE is a as constant used compiled regex matching any (first in line) "TRICE*(Id(n), "", ... );". - see https://regex101.com/r/LNlAwY/7
-var matchNbTRICE = regexp.MustCompile(`(\bTRICE0\b|\bTRICE8_[1-8]\b|\bTRICE16_[1-4]\b|\bTRICE32_[1-4]|\bTRICE64_[1-4])\s*\(\s*\bId\b\s*\(\s*.*[0-9]\s*\)\s*,\s*".*"\s*.*\)\s*;`)
+	// patNbID is a regex pattern matching any (first in string) "Id(n)" and usable in matches of matchNbTRICE
+	patNbID = `\bId\s*\(\s*[0-9]*\s*\)`
 
-// matchNbID is a as constant used compiled regex matching any (first in string) "Id(n)" and usable in matches of matchNbTRICE
-var matchNbID = regexp.MustCompile(`\bId\s*\(\s*[0-9]*\s*\)`)
+	// patTypNameTRICE is a regex pattern matching "TRICE*" inside trice
+	patTypNameTRICE = `(\bTRICE0\b|\bTRICE8_[1-8]\b|\bTRICE16_[1-4]\b|\bTRICE32_[1-4]|\bTRICE64_[1-4])`
 
-// matchTypNameTRICE is a as constant used compiled regex matching "TRICE*" inside trice
-var matchTypNameTRICE = regexp.MustCompile(`(\bTRICE0\b|\bTRICE8_[1-8]\b|\bTRICE16_[1-4]\b|\bTRICE32_[1-4]|\bTRICE64_[1-4])`)
+	// patFmtString is a regex matching the first format string inside trice
+	patFmtString = `"(.*)"`
 
-// matchFmtString is a as constant used compiled regex matching the first format string inside trice
-var matchFmtString = regexp.MustCompile(`"(.*)"`)
+	// patFullTriceWithoutID is a regex find a TRICE* line without Id, The (?U) says non-greedy
+	patFullTriceWithoutID = `(?U)(\bTRICE64|TRICE32|TRICE16|TRICE8|TRICE0\b)\s*\(\s*".*"\s*.*\)`
 
-// find a TRICE* line without Id
-var matchFullTriceWithoutID = regexp.MustCompile(`(\bTRICE64|TRICE32|TRICE16|TRICE8|TRICE0\b)\s*\(\s*".*"\s*.*\)\s*;`)
+	// patTriceStartWithoutIDo is a regex
+	patTriceStartWithoutIDo = `(\bTRICE64|TRICE32|TRICE16|TRICE8|TRICE0\b)\s*\(`
 
-var matchTriceStartWithoutIDo = regexp.MustCompile(`(\bTRICE64|TRICE32|TRICE16|TRICE8|TRICE0\b)\s*\(`)
-var matchTriceStartWithoutID = regexp.MustCompile(`(\bTRICE64|TRICE32|TRICE16|TRICE8|TRICE0\b)\s*`)
+	// patTriceStartWithoutID is a regex
+	patTriceStartWithoutID = `(\bTRICE64|TRICE32|TRICE16|TRICE8|TRICE0\b)\s*`
 
-// find next format specifier in a string (exclude %%*)
-var matchNextFormatSpezifier = regexp.MustCompile(`(?:^|[^%])(%[0-9\.#]*(b|d|u|x|X|o|f))`)
+	// patNextFormatSpezifier is a regex find next format specifier in a string (exclude %%*)
+	patNextFormatSpezifier = `(?:^|[^%])(%[0-9\.#]*(b|d|u|x|X|o|f))`
+)
+
+var (
+	matchSourceFile           = regexp.MustCompile(patSourceFile)
+	matchNbTRICE              = regexp.MustCompile(patNbTRICE)
+	matchNbID                 = regexp.MustCompile(patNbID)
+	matchTypNameTRICE         = regexp.MustCompile(patTypNameTRICE)
+	matchFmtString            = regexp.MustCompile(patFmtString)
+	matchFullTriceWithoutID   = regexp.MustCompile(patFullTriceWithoutID)
+	matchTriceStartWithoutIDo = regexp.MustCompile(patTriceStartWithoutIDo)
+	matchTriceStartWithoutID  = regexp.MustCompile(patTriceStartWithoutID)
+	matchNextFormatSpezifier  = regexp.MustCompile(patNextFormatSpezifier)
+)
 
 func isSourceFile(fi os.FileInfo) bool {
 	return matchSourceFile.MatchString(fi.Name())

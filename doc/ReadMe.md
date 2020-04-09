@@ -348,7 +348,7 @@ This timestamp switch generates the timestamps on the PC only, what is good enou
 
 ### Logfile viewing
 `trice` generated logfiles with subcommand switch `-color off` are normal ASCII files. If they are with color codes, these are ANSI excape sequences.
-- One easy view option is `less -R trice.log`. The linuc command `less` is also available inside the VScode terminal. 
+- One easy view option is `less -R trice.log`. The linux command `less` is also available inside the VScode terminal. 
 - Under Windows one could also download and use [ansifilter](https://sourceforge.net/projects/ansifilter/) for logfile viewing. A monospaced font is recommended. 
 
 ### Color issues under Windows
