@@ -122,10 +122,10 @@ func (p *ListT) extendIdList(id int, typ, fmts string, verbose bool) (int, bool)
 }
 
 // Read is reading a JSON file fn and returning a slice
-func (p *ListT) Read() error {
-	b, err := ioutil.ReadFile(FnJSON)
+func (p *ListT) Read(fn string) error {
+	b, err := ioutil.ReadFile(fn)
 	if err != nil {
-		return fmt.Errorf("failed to read %s: %v", FnJSON, err)
+		return fmt.Errorf("failed to read %s: %v", fn, err)
 	}
 	err = json.Unmarshal(b, p)
 	return err

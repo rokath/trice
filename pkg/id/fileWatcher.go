@@ -61,7 +61,7 @@ func (p *ListT) FileWatcher() {
 func renewIDList() {
 	if "none" != FnJSON {
 		List = List[:0]
-		List.Read()
+		List.Read(FnJSON)
 	}
 	/*
 		newList := make(ListT, 0, 65536)

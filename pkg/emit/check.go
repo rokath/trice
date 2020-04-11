@@ -177,7 +177,7 @@ func Check(l id.ListT, dataSet string) error {
 
 // ScCheckList does log the id list with a dataset
 func ScCheckList(dataset string) error {
-	err := id.List.Read()
+	err := id.List.Read(id.FnJSON)
 	if nil != err {
 		fmt.Println("ID list " + id.FnJSON + " not found, exit")
 		return nil
