@@ -67,7 +67,7 @@ func (p *ListT) Update(root, fn string, run, verbose bool) error {
 	fmt.Println("dir=", root)
 	fmt.Println("list=", fn)
 	listModified := false
-	err := p.Read(fn)
+	err := p.Read() // uses intern id.FnJSON
 	if nil != err {
 		fmt.Println(fn + " not found, creating a new one")
 		if true == run {

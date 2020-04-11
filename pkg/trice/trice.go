@@ -76,7 +76,8 @@ func ScReceive(sv bool) error {
 func DoReceive() error {
 	if "none" != id.FnJSON {
 		// setup ip list
-		err := id.List.Read(id.FnJSON)
+		err := id.List.Read()
+		go id.List.FileWatcher()
 		if nil != err {
 			fmt.Println("ID list " + id.FnJSON + " not found, exit")
 			return nil
