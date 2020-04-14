@@ -10,6 +10,7 @@ import (
 	"os"
 
 	"github.com/fatih/color"
+	"github.com/rokath/cage"
 )
 
 // some references:
@@ -21,19 +22,33 @@ import (
 // Name is the filename of the logfile. "off" inhibits logfile writing.
 var Name = "off"
 
-// Tee here only a helper for easy adaption between logfile0-2.go
-//var Tee io.Writer = os.Stdout
-
 var (
 	oldOut, oldErr, lfHandle *os.File
 	oldLog                   io.Writer
 	err                      error
+	enabled                  = false
+	rS, wS, rE, wE           *os.File
 )
 
-func prep() {
-	if "off" == Name {
+var pContainer *cage.Contsainer
+
+func Enable() {
+	pContainer = cage.Start()
+}
+
+func Disable() {
+	cage.Stop(pContainer)
+}
+
+// Enable starts take notes mode, means parallel writing into a file
+func Enable0() {
+	if "off" == Name || true == enabled {
 		return
 	}
+	defer func() {
+		enabled = true
+	}()
+
 	oldOut = os.Stdout
 	oldErr = os.Stderr
 	oldLog = log.Writer()
@@ -42,13 +57,32 @@ func prep() {
 	if err != nil {
 		log.Fatalf("error opening file %s: %v", Name, err)
 		Name = "off"
-	}
-}
-
-func post() {
-	if "off" == Name {
 		return
 	}
+
+	log.SetOutput(io.MultiWriter(oldLog, lfHandle))
+
+	color.Output = io.MultiWriter(os.Stdout, lfHandle)
+	color.Error = io.MultiWriter(os.Stderr, lfHandle)
+	//os.Stdout = io.MultiWriter(oldOut, lfHandle).(*os.File) // type assertion used but: panic: interface conversion: io.Writer is *io.multiWriter, not *os.File
+	//os.Stderr = io.MultiWriter(oldErr, lfHandle).(*os.File) // type assertion used but: panic: interface conversion: io.Writer is *io.multiWriter, not *os.File
+	/*x, ok := io.MultiWriter(oldErr, lfHandle).(*os.File)
+	if ok {
+		os.Stdout = x
+	} else {
+		fmt.Println("NNNNNNNNNNNNNNNNNNOOOOOOOOOOO")
+	}*/
+}
+
+// Disable ends take notes mode, means parallel writing into a file
+func Disable0() {
+	if false == enabled {
+		return
+	}
+	defer func() {
+		enabled = false
+	}()
+
 	os.Stdout = oldOut
 	os.Stderr = oldErr
 	log.SetOutput(oldLog)
@@ -59,25 +93,79 @@ func post() {
 	}
 }
 
-// Enable starts take notes mode, means parallel writing into a file
-func Enable() {
-	prep()
-	if "off" == Name {
+// Enable2 starts take notes mode, means parallel writing into a file
+func Enable2() {
+	if "off" == Name || true == enabled {
+		return
+	}
+	defer func() {
+		enabled = true
+	}()
+
+	oldOut = os.Stdout
+	oldErr = os.Stderr
+	oldLog = log.Writer()
+
+	lfHandle, err = os.OpenFile(Name, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	if err != nil {
+		log.Fatalf("error opening file %s: %v", Name, err)
+		Name = "off"
 		return
 	}
 
-	color.Output = io.MultiWriter(os.Stdout, lfHandle)
-	color.Error = io.MultiWriter(os.Stderr, lfHandle)
+	// tee for log
 	log.SetOutput(io.MultiWriter(oldLog, lfHandle))
 
-	// THIS IS NOT POSSIBLE: :-( *os.File is usabla as io.Writer but io.Writer is not usable as *os.File )
-	// teeOut := io.MultiWriter(os.Stdout, lfHandle)
-	// os.Stdout = teeOut
-	// TODO: quality teeOut as file interface
-	// WORKAROUND: do not used fmt directly
+	// tee for stdout
+	rS, wS, err = os.Pipe()
+	if err != nil {
+		panic(err)
+	}
+	doneS := make(chan error, 1)
+	os.Stdout = wS
+	stdout := io.MultiWriter(os.Stdout, lfHandle)
+	go func() {
+		_, err := io.Copy(stdout, rS)
+		if nil != err {
+			doneS <- err
+		}
+	}()
+
+	// tee for stderr
+	rE, wE, err = os.Pipe()
+	if err != nil {
+		panic(err)
+	}
+	doneE := make(chan error, 1)
+	os.Stderr = wE
+	stderr := io.MultiWriter(os.Stderr, lfHandle)
+	go func() {
+		_, err := io.Copy(stderr, rE)
+		if nil != err {
+			doneE <- err
+		}
+	}()
 }
 
 // Disable ends take notes mode, means parallel writing into a file
-func Disable() {
-	post()
+func Disable2() {
+	if false == enabled {
+		return
+	}
+	defer func() {
+		enabled = false
+	}()
+
+	os.Stdout = oldOut
+	os.Stderr = oldErr
+	log.SetOutput(oldLog)
+
+	if nil != lfHandle {
+		lfHandle.Close()
+		lfHandle = nil
+	}
+
+	rS.Close()
+	rE.Close()
+
 }
