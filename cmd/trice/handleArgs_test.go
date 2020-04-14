@@ -16,8 +16,10 @@ func ExampleHandleArgs_wrongSubcommand() {
 }
 
 func ExampleHandleArgs_logListNotFound() {
-	HandleArgs("./", []string{"trice", "log", "-list", "xxx.json", "-port", "COMscan"})
-	// Output: ID list C:\GitRepos\trice\cmd\trice\xxx.json not found, exit
+	HandleArgs("./", []string{"trice", "log", "-list", "xxx.json", "-port", "COMscan", "-lf", "off"})
+	// xOutput:
+	// ID list C:\GitRepos\trice\cmd\trice\xxx.json not found, exit
+	// ERROR GetFileAttributes: The system cannot find the file specified.
 }
 
 func ExampleHandleArgs_logCOM0() {

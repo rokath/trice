@@ -79,6 +79,8 @@ func HandleArgs(wd string, args []string) error {
 	pSvLlf := scSv.String("lf", "trice.log", "append all output to logfile, set to \"off\"") // flag
 	//pSvTs := scSv.String("ts", "LOCmicro", "timestampm options: off|UTCmicro")               // flag
 
+	sCmd := flag.NewFlagSet("scan", flag.ContinueOnError) // subcommand
+
 	// Verify that a subcommand has been provided
 	// os.Arg[0] is the main command
 	// os.Arg[1] will be the subcommand
@@ -97,6 +99,10 @@ func HandleArgs(wd string, args []string) error {
 	case "h", "help":
 		hCmd.Parse(subArgs)
 		return scHelp( /**pHlf,*/ hCmd, scUpd, scChk, scLog, scZero, vCmd, scSv, scCl)
+
+	case "s", "sc", "scan":
+		sCmd.Parse(subArgs)
+		return scScan()
 
 	case "v", "ver", "version":
 		vCmd.Parse(subArgs)
@@ -161,6 +167,12 @@ func HandleArgs(wd string, args []string) error {
 		fmt.Println("try: 'trice help|h'")
 		return nil
 	}
+}
+
+func scScan() error {
+	receiver.Port = "COMscan"
+	_, err := receiver.GetSerialPorts()
+	return err
 }
 
 func scVersion() error {
