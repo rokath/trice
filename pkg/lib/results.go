@@ -7,6 +7,8 @@ import (
 	"reflect"
 	"runtime"
 	"testing"
+
+	"github.com/udhos/equalfile"
 )
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -43,3 +45,19 @@ func Equals(tb testing.TB, exp, act interface{}) {
 
 //
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+func EqualFileContent(fn0, fn1 string) bool {
+	cmp := equalfile.New(nil, equalfile.Options{}) // compare using single mode
+	ok, err := cmp.CompareFile("file1", "file2")
+	if nil != err {
+		ok = false
+	}
+	return ok
+}
+
+func EqualFiles(t *testing.T, fn0, fn1 string) {
+	ok := EqualFileContent(fn0, fn1)
+	if false == ok {
+		t.FailNow()
+	}
+}

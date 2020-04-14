@@ -30,18 +30,18 @@ var (
 	rS, wS, rE, wE           *os.File
 )
 
-var pContainer *cage.Contsainer
+var pContainer *cage.Container
 
-func Enable() {
+func Enable3() {
 	pContainer = cage.Start()
 }
 
-func Disable() {
+func Disable3() {
 	cage.Stop(pContainer)
 }
 
 // Enable starts take notes mode, means parallel writing into a file
-func Enable0() {
+func Enable() {
 	if "off" == Name || true == enabled {
 		return
 	}
@@ -75,7 +75,7 @@ func Enable0() {
 }
 
 // Disable ends take notes mode, means parallel writing into a file
-func Disable0() {
+func Disable() {
 	if false == enabled {
 		return
 	}

@@ -8,6 +8,7 @@ import (
 	"os"
 	"sync"
 	"testing"
+	"time"
 
 	"github.com/rokath/trice/pkg/lgf"
 	"github.com/rokath/trice/pkg/lib"
@@ -15,9 +16,9 @@ import (
 
 func lineGenerator(t *testing.T, s string, len, count int, wg *sync.WaitGroup) {
 	var ss []string
-
+	var i int
 	// create line slice
-	for i := 0; i < len; i++ { // line length
+	for i = 0; i < len; i++ { // line length
 		var c string
 		switch i & 11 { // 11 color channels
 		case 0:
@@ -49,9 +50,10 @@ func lineGenerator(t *testing.T, s string, len, count int, wg *sync.WaitGroup) {
 	ss = append(ss, "\n") // line end
 
 	wg.Add(1)
+	i = 0
 	go func() {
 		defer wg.Done()
-		for i := 0; i < count; i++ { // line count
+		for ; i < count; i++ { // line count
 			err := Out(ss)
 			lib.Ok(t, err)
 			//time.Sleep(100 * time.Microsecond)
@@ -60,7 +62,10 @@ func lineGenerator(t *testing.T, s string, len, count int, wg *sync.WaitGroup) {
 }
 
 func TestServerMutex(t *testing.T) {
-	lgf.Name = "serverMutexTest.log"
+	lgf.Name = "./testdata/serverMutexTest.log"
+	uniqName := "./testdata/serverMutexUniq.txt"
+	os.Remove(lgf.Name)
+	os.Remove(uniqName)
 
 	var wg sync.WaitGroup
 	StartServer()
@@ -75,8 +80,8 @@ func TestServerMutex(t *testing.T) {
 	err = Out(ss)
 	lib.Ok(t, err)
 
-	ll := 210
-	lc := 1000
+	ll := 21
+	lc := 10
 	lineGenerator(t, "r", ll, lc, &wg)
 	lineGenerator(t, "s", ll, lc, &wg)
 	lineGenerator(t, "t", ll, lc, &wg)
@@ -87,9 +92,10 @@ func TestServerMutex(t *testing.T) {
 	lineGenerator(t, "y", ll, lc, &wg)
 	lineGenerator(t, "z", ll, lc, &wg)
 	wg.Wait()
+	time.Sleep(3000 * time.Microsecond)
 	StopServer()
-	n := lib.UniqLines(t, lgf.Name, "serverMutexUniq.txt")
+	n := lib.UniqLines(t, lgf.Name, uniqName)
 	lib.Equals(t, n, 11) // first line + 9 lines + last empty line
 	os.Remove(lgf.Name)
-	os.Remove("serverMutexUniq.txt")
+	os.Remove(uniqName)
 }
