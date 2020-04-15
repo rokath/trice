@@ -16,14 +16,8 @@ var ( // do not initialize these, goreleaser will handle that
 )
 
 func main() {
-	// client server test will not finisch with that
-	//lgf.Enable()
-	//defer lgf.Disable()
-
 	rand.Seed(time.Now().UnixNano())
-	wd, _ := os.Getwd() // for usage
-	wd += "/"
-	err := HandleArgs(wd, os.Args)
+	err := HandleArgs(os.Args)
 	if nil != err {
 		os.Exit(1)
 	}

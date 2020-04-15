@@ -15,7 +15,6 @@ import (
 	"github.com/rokath/trice/pkg/cmd"
 	"github.com/rokath/trice/pkg/disp"
 	"github.com/rokath/trice/pkg/id"
-	"github.com/rokath/trice/pkg/lgf"
 	"github.com/rokath/trice/pkg/receiver"
 	"golang.org/x/crypto/xtea"
 )
@@ -31,8 +30,8 @@ var (
 
 // ScLog is the subcommand log and connects to COM port and displays traces
 func ScLog() error {
-	lgf.Enable()
-	defer lgf.Disable()
+	//lgf.Enable()
+	//defer lgf.Disable()
 
 	return DoReceive()
 }

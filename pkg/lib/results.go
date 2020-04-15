@@ -46,15 +46,17 @@ func Equals(tb testing.TB, exp, act interface{}) {
 //
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+// EqualFileContent returns true if contece is equal
 func EqualFileContent(fn0, fn1 string) bool {
 	cmp := equalfile.New(nil, equalfile.Options{}) // compare using single mode
-	ok, err := cmp.CompareFile("file1", "file2")
+	ok, err := cmp.CompareFile(fn0, fn1)
 	if nil != err {
 		ok = false
 	}
 	return ok
 }
 
+// EqualFiles fails test if contence is NOT equal
 func EqualFiles(t *testing.T, fn0, fn1 string) {
 	ok := EqualFileContent(fn0, fn1)
 	if false == ok {

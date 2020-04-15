@@ -11,7 +11,6 @@ import (
 	"log"
 	"os"
 
-	"github.com/fatih/color"
 	"github.com/rokath/trice/pkg/disp"
 	"github.com/rokath/trice/pkg/emit"
 	"github.com/rokath/trice/pkg/id"
@@ -21,8 +20,8 @@ import (
 	"github.com/rokath/trice/pkg/trice"
 )
 
-// HandleArgs evaluates the arguments slice of strings und uses wd as working directory
-func HandleArgs(wd string, args []string) error {
+// HandleArgs evaluates the arguments slice of strings
+func HandleArgs(args []string) error {
 
 	//pList = &list
 
@@ -41,8 +40,8 @@ func HandleArgs(wd string, args []string) error {
 	pSrcZ := scZero.String("src", "", "zero all Id(n) inside source tree dir (required)") // flag
 	pRunZ := scZero.Bool("dry-run", false, "no changes are applied")                      // flag
 
-	hCmd := flag.NewFlagSet("help", flag.ContinueOnError) // subcommand
-	//pHlf := hCmd.String("lf", "trice.log", "append output to logfile, set to \"off\" to avoid this") // flag
+	hCmd := flag.NewFlagSet("help", flag.ContinueOnError)                                            // subcommand
+	pHlf := hCmd.String("lf", "trice.log", "append output to logfile, set to \"off\" to avoid this") // flag
 
 	vCmd := flag.NewFlagSet("version", flag.ContinueOnError)                               // subcommand
 	pVlf := vCmd.String("lf", "trice.log", "append all output to logfile, set to \"off\"") // flag
@@ -98,7 +97,8 @@ func HandleArgs(wd string, args []string) error {
 
 	case "h", "help":
 		hCmd.Parse(subArgs)
-		return scHelp( /**pHlf,*/ hCmd, scUpd, scChk, scLog, scZero, vCmd, scSv, scCl)
+		lgf.Name = *pHlf
+		return scHelp(hCmd, scUpd, scChk, scLog, scZero, vCmd, scSv, scCl)
 
 	case "s", "sc", "scan":
 		sCmd.Parse(subArgs)
@@ -178,21 +178,18 @@ func scScan() error {
 func scVersion() error {
 	lgf.Enable()
 	defer lgf.Disable()
-
+	//log.SetFlags(0)
 	if "" != version {
-		color.New().Printf("color.version=%v, commit=%v, built at %v\n", version, commit, date)
+		log.Printf("version=%v, commit=%v, built at %v\n", version, commit, date)
 	} else {
-		s := "version=devel, commit=unknown, built after 2020-03-29-1437"
-		color.New().Printf("color %s\n", s)
-		log.Printf("log %s\n", s) // starts with tab in terminal
-		log.Printf("log %s\n", s) // this is ok
-		fmt.Printf("fmt %s\n", s) // goes not into logfile!
+		s := "version=devel, commit=unknown, built after 2020-04-15-2206"
+		log.Printf("fmt %s\n", s)
 	}
 	return nil
 }
 
 // scHelp is subcommand help
-func scHelp( /*lfn string,*/
+func scHelp(
 	hCmd *flag.FlagSet,
 	u *flag.FlagSet,
 	c *flag.FlagSet,
@@ -202,11 +199,30 @@ func scHelp( /*lfn string,*/
 	sv *flag.FlagSet,
 	cl *flag.FlagSet) error {
 
-	// flag.go uses fmt.Print, so first solve of.File = io.Writer riddle
-	// lgf.Name = lfn
-	// lgf.Enable()
-	// defer lgf.Disable()
+	lgf.Enable()
+	defer lgf.Disable()
 
+	/* debug code:
+	Problem:
+	lgf.Enable() re-direkted os.Stderr und dupliziert so Ausgaben an os.Sterr in trice.log
+	hCmd.Output() usw. geben os.Stderr zurück. Das ist auch wirklich die re-directed Adresse.
+	Der Paketest von cage funktioniert, auch TestScHelp() geht fehlerfrei durch.
+	Wenn aber über die Kommandozeile "trice h" erfolgt, landen Ausgaben an os.Stderr NICHT in trice.log obwohl os.Stderr re-directed ist.
+	*/
+	/*
+		log.SetFlags(0)
+		fmt.Println("0: os.Stderr     addr:", os.Stderr) // ok not in trice.log
+		lgf.Enable()
+		defer lgf.Disable()
+		fmt.Println("1: os.Stderr     addr:", os.Stderr)     // ok in trice.log (os.Stdout)
+		fmt.Println("2: hCmd.Output() addr:", hCmd.Output()) // ok in trice.log (os.Stdout)
+
+		fmt.Fprintln(os.Stderr, "3:      OS.STDERR")       // NOT in trice.log
+		fmt.Fprintln(hCmd.Output(), "4:    hCmd.Output()") // NOT in trice.log
+		log.Println("5: TryIt")                            // ok in trice.log (log out)
+		fmt.Println("6: TryIt2")                           // ok in trice.log (os.Stdout)
+		fmt.Fprintln(os.Stdout, "7:      OS.STDOUT")       // ok in trice.log (os.Stdout)
+	*/
 	fmt.Fprintln(hCmd.Output(), "syntax: 'trice subcommand' [params]")
 	fmt.Fprintln(hCmd.Output(), "subcommand 'help', 'h'")
 	hCmd.PrintDefaults()

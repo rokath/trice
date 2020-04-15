@@ -138,8 +138,8 @@ func (p *Server) Exit([]int64, *int64) error {
 // ScServer is the endless function called when trice tool acts as remote display.
 // All in Server struct registered RPC functions are reachable, when displayServer runs.
 func ScServer() error {
-	lgf.Enable()
-	defer lgf.Disable()
+	//lgf.Enable()
+	//defer lgf.Disable()
 
 	a := fmt.Sprintf("%s:%s", IpAddr, IpPort)
 	fmt.Println("displayServer @", a)

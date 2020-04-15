@@ -42,7 +42,9 @@
             "mode": "auto",
             "program": "${workspaceFolder}/cmd/trice",
             "env": {},
-            "args": ["ds"
+            "args": ["ds",
+                    "-lf",
+                    "displayServer.log"
             ]
         },
         {
