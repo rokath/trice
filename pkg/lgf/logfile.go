@@ -5,11 +5,6 @@
 package lgf
 
 import (
-	"io"
-	"log"
-	"os"
-
-	"github.com/fatih/color"
 	"github.com/rokath/cage"
 )
 
@@ -22,6 +17,19 @@ import (
 // Name is the filename of the logfile. "off" inhibits logfile writing.
 var Name = "off"
 
+var pContainer *cage.Container
+
+// Enable starts take notes mode, means parallel writing into a file
+func Enable() {
+	pContainer = cage.Start(Name)
+}
+
+// Disable ends take notes mode, means parallel writing into a file
+func Disable() {
+	cage.Stop(pContainer)
+}
+
+/*
 var (
 	oldOut, oldErr, lfHandle *os.File
 	oldLog                   io.Writer
@@ -30,18 +38,8 @@ var (
 	rS, wS, rE, wE           *os.File
 )
 
-var pContainer *cage.Container
-
-func Enable3() {
-	pContainer = cage.Start()
-}
-
-func Disable3() {
-	cage.Stop(pContainer)
-}
-
 // Enable starts take notes mode, means parallel writing into a file
-func Enable() {
+func Enable0() {
 	if "off" == Name || true == enabled {
 		return
 	}
@@ -66,16 +64,11 @@ func Enable() {
 	color.Error = io.MultiWriter(os.Stderr, lfHandle)
 	//os.Stdout = io.MultiWriter(oldOut, lfHandle).(*os.File) // type assertion used but: panic: interface conversion: io.Writer is *io.multiWriter, not *os.File
 	//os.Stderr = io.MultiWriter(oldErr, lfHandle).(*os.File) // type assertion used but: panic: interface conversion: io.Writer is *io.multiWriter, not *os.File
-	/*x, ok := io.MultiWriter(oldErr, lfHandle).(*os.File)
-	if ok {
-		os.Stdout = x
-	} else {
-		fmt.Println("NNNNNNNNNNNNNNNNNNOOOOOOOOOOO")
-	}*/
+
 }
 
 // Disable ends take notes mode, means parallel writing into a file
-func Disable() {
+func Disable0() {
 	if false == enabled {
 		return
 	}
@@ -169,3 +162,4 @@ func Disable2() {
 	rE.Close()
 
 }
+*/
