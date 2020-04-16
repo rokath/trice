@@ -143,8 +143,8 @@ func HandleArgs(args []string) error {
 
 	case "r", "rec", "receiver":
 		scCl.Parse(subArgs)
-		disp.IpAddr = *pClIPA
-		disp.IpPort = *pClIPP
+		disp.IPAddr = *pClIPA
+		disp.IPPort = *pClIPP
 		receiver.Port = *pClPort
 		receiver.Baud = *pClBaud
 		setPrefix(*pRpre)
@@ -158,10 +158,10 @@ func HandleArgs(args []string) error {
 	case "ds", "displayServer":
 		scSv.Parse(subArgs)
 		disp.ColorPalette = *pSvCol
-		disp.IpAddr = *pSvIPA
-		disp.IpPort = *pSvIPP
+		disp.IPAddr = *pSvIPA
+		disp.IPPort = *pSvIPP
 		lgf.Name = *pSvLlf
-		return disp.ScServer()
+		return disp.ScDisplayServer()
 
 	default:
 		fmt.Println("try: 'trice help|h'")

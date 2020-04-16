@@ -62,6 +62,8 @@ func lineGenerator(t *testing.T, s string, len, count int, wg *sync.WaitGroup) {
 }
 
 func TestServerMutex(t *testing.T) {
+	//lgf.Name = "C:/GitRepos/trice/pkg/disp/testdata/serverMutexTest.log"
+	//uniqName := "C:/GitRepos/trice/pkg/disp/testdata/serverMutexUniq.txt"
 	lgf.Name = "./testdata/serverMutexTest.log"
 	uniqName := "./testdata/serverMutexUniq.txt"
 	os.Remove(lgf.Name)
@@ -73,7 +75,7 @@ func TestServerMutex(t *testing.T) {
 	lib.Ok(t, err)
 
 	var result int64
-	err = PtrRpc.Call("Server.ColorPalette", []string{"off"}, &result)
+	err = PtrRPC.Call("Server.ColorPalette", []string{"off"}, &result)
 	lib.Ok(t, err)
 
 	ss := []string{"first line", "\n"}

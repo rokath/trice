@@ -44,7 +44,7 @@
             "env": {},
             "args": ["ds",
                     "-lf",
-                    "displayServer.log"
+                    "C:/GitRepos/trice/pkg/disp/testdata/serverMutexTest.log"
             ]
         },
         {

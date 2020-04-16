@@ -4,10 +4,15 @@
 package main
 
 import (
+	"log"
 	"os"
 	"testing"
+	"time"
 
+	"github.com/rokath/trice/pkg/disp"
+	"github.com/rokath/trice/pkg/lgf"
 	"github.com/rokath/trice/pkg/lib"
+	"github.com/rokath/trice/pkg/trice"
 )
 
 func ExampleHandleArgs_none() {
@@ -59,9 +64,30 @@ func ExampleHandleArgs_logWrongParam() {
 	//        subcommand (required, try COMscan)
 }
 
+func TestScVersion(t *testing.T) {
+	afn := "testdata/actVersion.log"
+	efn := "testdata/expVersion.log"
+	os.Remove(afn)
+	args := []string{"trice", "version", "-lf", afn}
+	log.SetFlags(0)
+	err := HandleArgs(args)
+	lib.Ok(t, err)
+
+	lib.CleanFile(afn)
+	lib.CleanFile(efn)
+
+	lib.EqualFiles(t, afn+".clean", efn+".clean")
+	err = os.Remove(afn)
+	lib.Ok(t, err)
+	err = os.Remove(afn + ".clean")
+	lib.Ok(t, err)
+	err = os.Remove(efn + ".clean")
+	lib.Ok(t, err)
+}
+
 func TestScHelp(t *testing.T) {
-	afn := "testdata/acthelp.log"
-	efn := "testdata/exphelp.log"
+	afn := "testdata/actHelp.log"
+	efn := "testdata/expHelp.log"
 	os.Remove(afn)
 	args := []string{"trice", "help", "-lf", afn}
 	err := HandleArgs(args)
@@ -72,7 +98,66 @@ func TestScHelp(t *testing.T) {
 
 	lib.EqualFiles(t, afn+".clean", efn+".clean")
 	err = os.Remove(afn)
+	lib.Ok(t, err)
 	err = os.Remove(afn + ".clean")
+	lib.Ok(t, err)
 	err = os.Remove(efn + ".clean")
 	lib.Ok(t, err)
+}
+
+func xTestScDisplayServer(t *testing.T) {
+	afn := "testdata/actDisplayServer.log"
+	efn := "testdata/expDisplayServer.log"
+	os.Remove(afn)
+	//done := make(chan bool, 1)
+
+	log.SetFlags(0)
+	go func() {
+		time.Sleep(3000 * time.Millisecond)
+		err := disp.Connect()
+		lib.Ok(t, err)
+		disp.StopServer() // calls os.Exit(0)
+		//done <- true
+	}()
+
+	args := []string{"trice", "ds", "-lf", afn}
+	HandleArgs(args)
+	//<-done
+	lib.CleanFile(afn)
+	lib.CleanFile(efn)
+
+	lib.EqualFiles(t, afn+".clean", efn+".clean")
+	err := os.Remove(afn)
+	lib.Ok(t, err)
+	err = os.Remove(afn + ".clean")
+	lib.Ok(t, err)
+	err = os.Remove(efn + ".clean")
+	lib.Ok(t, err)
+}
+
+func TestScDisplayServer(t *testing.T) {
+	afn := "testdata/actDisplayServer.log"
+	efn := "testdata/expDisplayServer.log"
+	os.Remove(afn)
+
+	lgf.Name = afn
+	err := trice.NewConnection(true)
+	lib.Ok(t, err)
+
+	disp.PtrRPC.Call("Server.LogSetFlags", []int64{0}, nil)
+	disp.PtrRPC.Call("Server.Out", []string{"a", "tst:test", "dbg:line"}, nil)
+	//time.Sleep(1000 * time.Millisecond)
+
+	disp.StopServer()
+	lib.CleanFile(afn)
+	lib.CleanFile(efn)
+
+	lib.EqualFiles(t, afn+".clean", efn+".clean")
+	err = os.Remove(afn)
+	lib.Ok(t, err)
+	err = os.Remove(afn + ".clean")
+	lib.Ok(t, err)
+	err = os.Remove(efn + ".clean")
+	lib.Ok(t, err)
+	//disp.StopServer()
 }

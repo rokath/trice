@@ -36,10 +36,7 @@ func ScLog() error {
 	return DoReceive()
 }
 
-// scReceive is the subcommand remoteDisplay and acts as client connecting to the displayServer
-func ScReceive(sv bool) error {
-	//var wg sync.WaitGroup
-
+func NewConnection(sv bool) error {
 	if true == sv {
 		disp.StartServer()
 	}
@@ -58,12 +55,18 @@ func ScReceive(sv bool) error {
 		fmt.Println("Server.Adder(10,20) =", result)
 	}*/
 	s := []string{"att:\n\n\nnew connection....\n\n\n"}
-	err = disp.PtrRpc.Call("Server.Out", s, &result)
+	return disp.PtrRPC.Call("Server.Out", s, &result)
+}
+
+// scReceive is the subcommand remoteDisplay and acts as client connecting to the displayServer
+func ScReceive(sv bool) error {
+	//var wg sync.WaitGroup
+	err := NewConnection(sv)
 	if err != nil {
 		fmt.Println(err)
-	} else {
-		fmt.Println("len is", result)
+		return err
 	}
+
 	cmd.KeyboardInput()
 	DoReceive() // does not return
 	//wg.Wait()

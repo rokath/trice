@@ -9,7 +9,6 @@ import (
 	"log"
 	"net"
 	"net/rpc"
-	"os"
 	"os/exec"
 	"runtime"
 	"sync"
@@ -19,17 +18,17 @@ import (
 )
 
 var (
-	// IpAddr is the display server ip addr
-	IpAddr string = "localhost" // default value for testing
+	// IPAddr is the display server ip addr
+	IPAddr string = "localhost" // default value for testing
 
-	// IpPort is the display server ip addr
-	IpPort string = "61497" // default value for testing
+	// IPPort is the display server ip addr
+	IPPort string = "61497" // default value for testing
 
-	// Visualize is an exported function pointer, which can be redirected for example to a client call
+	// Out is an exported function pointer, which can be redirected for example to a client call
 	Out = out
 
-	// PtrRpc is a pointer
-	PtrRpc *rpc.Client
+	// PtrRPC is a pointer
+	PtrRPC *rpc.Client
 
 	// mux is for syncing line output
 	mux sync.Mutex
@@ -42,10 +41,10 @@ func StartServer() {
 	if runtime.GOOS == "windows" {
 		shell = "cmd"
 		shellCmd := "/c start"
-		clip = append(clip, shellCmd+" trice displayServer -ipa "+IpAddr+" -ipp "+IpPort+" -lf "+lgf.Name)
+		clip = append(clip, shellCmd+" trice ds -lf "+lgf.Name+" -ipa "+IPAddr+" -ipp "+IPPort)
 	} else if runtime.GOOS == "linux" {
 		shell = "gnome-terminal" // this only works for gnome based linux desktop env
-		clip = append(clip, "--", "/bin/bash", "-c", "trice displayServer -ipa "+IpAddr+" -ipp "+IpPort+" -lf off")
+		clip = append(clip, "--", "/bin/bash", "-c", "trice displayServer -ipa "+IPAddr+" -ipp "+IPPort+" -lf "+lgf.Name)
 	} else {
 		log.Fatal("trice is running on unknown operating system")
 	}
@@ -62,7 +61,7 @@ func StartServer() {
 func StopServer() {
 	var result int64
 	var dummy []int64
-	err := PtrRpc.Call("Server.Exit", dummy, &result)
+	err := PtrRPC.Call("Server.Exit", dummy, &result)
 	fmt.Print(err)
 }
 
@@ -110,7 +109,7 @@ func (p *Server) Out(s []string, reply *int64) error {
 	return Out(s) // this function pointer has its default value on server side
 }
 
-// Color is the exported server function for color palette, if trice tool acts as display server.
+// ColorPalette is the exported server function for color palette, if trice tool acts as display server.
 // By declaring it as a Server struct method it is registered as RPC destination.
 func (p *Server) ColorPalette(s []string, reply *int64) error {
 	ColorPalette = s[0]
@@ -126,22 +125,29 @@ func (p *Server) Adder(u [2]int64, reply *int64) error {
 }
 */
 
-// Adder is a demo for a 2nd function
-func (p *Server) Exit([]int64, *int64) error {
-	defer func() {
-		os.Exit(0)
-	}()
-
+// LogSetFlags is called remotely to shutdown display server
+func (p *Server) LogSetFlags(f []int64, r *int64) error {
+	flags := int(f[0])
+	log.SetFlags(flags)
+	*r = f[0]
 	return nil
 }
 
-// ScServer is the endless function called when trice tool acts as remote display.
-// All in Server struct registered RPC functions are reachable, when displayServer runs.
-func ScServer() error {
-	//lgf.Enable()
-	//defer lgf.Disable()
+var exit = false
 
-	a := fmt.Sprintf("%s:%s", IpAddr, IpPort)
+// Exit is called remotely to shutdown display server
+func (p *Server) Exit([]int64, *int64) error {
+	exit = true
+	return nil
+}
+
+// ScDisplayServer is the endless function called when trice tool acts as remote display.
+// All in Server struct registered RPC functions are reachable, when displayServer runs.
+func ScDisplayServer() error {
+	lgf.Enable()
+	defer lgf.Disable()
+
+	a := fmt.Sprintf("%s:%s", IPAddr, IPPort)
 	fmt.Println("displayServer @", a)
 	rpc.Register(new(Server))
 
@@ -150,13 +156,14 @@ func ScServer() error {
 		fmt.Println(err)
 		return err
 	}
-	for {
+	for false == exit {
 		c, err := ln.Accept()
 		if err != nil {
 			continue
 		}
 		go rpc.ServeConn(c)
 	}
+	return nil
 }
 
 // RemoteOut does send the logstring s to the displayServer
@@ -165,16 +172,16 @@ func RemoteOut(s []string) error {
 	// for a bit more accurate timestamps they should be added
 	// here on the receiver side and not in the displayServer
 	var result int64
-	return PtrRpc.Call("Server.Out", s, &result)
+	return PtrRPC.Call("Server.Out", s, &result)
 }
 
 // Connect is called by the client and tries to dial.
 // On success PtrRpc is valid afterwards and zhe output is re-directed
 func Connect() error {
 	var err error
-	a := fmt.Sprintf("%s:%s", IpAddr, IpPort)
+	a := fmt.Sprintf("%s:%s", IPAddr, IPPort)
 	fmt.Println("remoteDisplay@", a)
-	PtrRpc, err = rpc.Dial("tcp", a)
+	PtrRPC, err = rpc.Dial("tcp", a)
 	if err != nil {
 		fmt.Println(err)
 		return err
