@@ -20,7 +20,7 @@ examples/triceDemoF030R8/MDK-ARM/DebugConfig/*
 examples/triceDemo_NUCLEO-F070RB/.mxproject
 examples/triceDemo_NUCLEO-F070RB/MDK-ARM/EventRecorderStub.scvd
 examples/triceDemo_NUCLEO-F070RB/MDK-ARM/*.uvguix.ms
-examples/triceDemo_NUCLEO-F070RB/MDK-ARM/triceDemo_NUCLEO-F070R/*
+examples/triceDemo_NUCLEO-F070RB/MDK-ARM/triceDemo_NUCLEO-F070RB/*
 examples/triceDemo_NUCLEO-F070RB/MDK-ARM/*.lst
 examples/triceDemo_NUCLEO-F070RB/MDK-ARM/RTE/*
 examples/triceDemo_NUCLEO-F070RB/MDK-ARM/RTE/*/*
