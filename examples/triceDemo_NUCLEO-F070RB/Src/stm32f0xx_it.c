@@ -38,7 +38,7 @@
 #ifdef TRICE_QUICK_AND_DIRTY_ONLY_PUTCHAR
 #define MS_INTERVAL 100
 #else
-#define MS_INTERVAL 10
+#define MS_INTERVAL 100
 #endif
 /* USER CODE END PD */
 

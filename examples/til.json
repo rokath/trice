@@ -726,5 +726,278 @@
 		"fmtStrg": "tim:timing      message, SysTick is %d @ %d ms\\n",
 		"created": 1584010352,
 		"removed": 0
+	},
+	{
+		"id": 45849,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "RD:read         message, SysTick is %d\\n",
+		"created": 1587135135,
+		"removed": 0
+	},
+	{
+		"id": 9705,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "WR:write        message, SysTick is %d\\n",
+		"created": 1587135135,
+		"removed": 0
+	},
+	{
+		"id": 45747,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "INFO:informal   message, SysTick is %d\\n",
+		"created": 1587135135,
+		"removed": 0
+	},
+	{
+		"id": 14272,
+		"fmtType": "TRICE0",
+		"fmtStrg": "e:A",
+		"created": 1587135135,
+		"removed": 0
+	},
+	{
+		"id": 14772,
+		"fmtType": "TRICE0",
+		"fmtStrg": "w:B",
+		"created": 1587135135,
+		"removed": 0
+	},
+	{
+		"id": 4508,
+		"fmtType": "TRICE0",
+		"fmtStrg": "a:c",
+		"created": 1587135135,
+		"removed": 0
+	},
+	{
+		"id": 19177,
+		"fmtType": "TRICE0",
+		"fmtStrg": "wr:d",
+		"created": 1587135135,
+		"removed": 0
+	},
+	{
+		"id": 16032,
+		"fmtType": "TRICE0",
+		"fmtStrg": "rd:e",
+		"created": 1587135135,
+		"removed": 0
+	},
+	{
+		"id": 63796,
+		"fmtType": "TRICE0",
+		"fmtStrg": "diag:f",
+		"created": 1587135135,
+		"removed": 0
+	},
+	{
+		"id": 3252,
+		"fmtType": "TRICE0",
+		"fmtStrg": "d:G",
+		"created": 1587135135,
+		"removed": 0
+	},
+	{
+		"id": 46648,
+		"fmtType": "TRICE0",
+		"fmtStrg": "t:H",
+		"created": 1587135135,
+		"removed": 0
+	},
+	{
+		"id": 26015,
+		"fmtType": "TRICE0",
+		"fmtStrg": "time:i",
+		"created": 1587135135,
+		"removed": 0
+	},
+	{
+		"id": 22805,
+		"fmtType": "TRICE0",
+		"fmtStrg": "message:J",
+		"created": 1587135135,
+		"removed": 0
+	},
+	{
+		"id": 4422,
+		"fmtType": "TRICE0",
+		"fmtStrg": "inf:k\\n",
+		"created": 1587135135,
+		"removed": 0
+	},
+	{
+		"id": 29950,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "info:informal   message, SysTick is %d\\n",
+		"created": 1587135135,
+		"removed": 0
+	},
+	{
+		"id": 30373,
+		"fmtType": "TRICE0",
+		"fmtStrg": "e:A",
+		"created": 1587135135,
+		"removed": 0
+	},
+	{
+		"id": 4864,
+		"fmtType": "TRICE0",
+		"fmtStrg": "w:B",
+		"created": 1587135135,
+		"removed": 0
+	},
+	{
+		"id": 22743,
+		"fmtType": "TRICE0",
+		"fmtStrg": "a:c",
+		"created": 1587135135,
+		"removed": 0
+	},
+	{
+		"id": 25986,
+		"fmtType": "TRICE0",
+		"fmtStrg": "wr:d",
+		"created": 1587135135,
+		"removed": 0
+	},
+	{
+		"id": 53800,
+		"fmtType": "TRICE0",
+		"fmtStrg": "rd:e",
+		"created": 1587135135,
+		"removed": 0
+	},
+	{
+		"id": 21079,
+		"fmtType": "TRICE0",
+		"fmtStrg": "diag:f",
+		"created": 1587135135,
+		"removed": 0
+	},
+	{
+		"id": 47398,
+		"fmtType": "TRICE0",
+		"fmtStrg": "d:G",
+		"created": 1587135135,
+		"removed": 0
+	},
+	{
+		"id": 32350,
+		"fmtType": "TRICE0",
+		"fmtStrg": "t:H",
+		"created": 1587135135,
+		"removed": 0
+	},
+	{
+		"id": 1734,
+		"fmtType": "TRICE0",
+		"fmtStrg": "time:i",
+		"created": 1587135135,
+		"removed": 0
+	},
+	{
+		"id": 21507,
+		"fmtType": "TRICE0",
+		"fmtStrg": "message:J",
+		"created": 1587135135,
+		"removed": 0
+	},
+	{
+		"id": 44743,
+		"fmtType": "TRICE0",
+		"fmtStrg": "inf:k\\n",
+		"created": 1587135135,
+		"removed": 0
+	},
+	{
+		"id": 57868,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "ISR:interrupt   message, SysTick is %d\\n",
+		"created": 1587135238,
+		"removed": 0
+	},
+	{
+		"id": 17621,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "wr:write        message, SysTick is %d\\n",
+		"created": 1587135238,
+		"removed": 0
+	},
+	{
+		"id": 12973,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "isr:interrupt   message, SysTick is %d\\n",
+		"created": 1587135238,
+		"removed": 0
+	},
+	{
+		"id": 43088,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "ISR:interrupt   message, SysTick is %d\\n",
+		"created": 1587135721,
+		"removed": 0
+	},
+	{
+		"id": 61628,
+		"fmtType": "TRICE0",
+		"fmtStrg": "1",
+		"created": 1587135721,
+		"removed": 0
+	},
+	{
+		"id": 50867,
+		"fmtType": "TRICE0",
+		"fmtStrg": "2",
+		"created": 1587135721,
+		"removed": 0
+	},
+	{
+		"id": 46855,
+		"fmtType": "TRICE0",
+		"fmtStrg": "3",
+		"created": 1587135721,
+		"removed": 0
+	},
+	{
+		"id": 10393,
+		"fmtType": "TRICE0",
+		"fmtStrg": "4",
+		"created": 1587135721,
+		"removed": 0
+	},
+	{
+		"id": 48998,
+		"fmtType": "TRICE0",
+		"fmtStrg": "m:1",
+		"created": 1587135721,
+		"removed": 0
+	},
+	{
+		"id": 35622,
+		"fmtType": "TRICE0",
+		"fmtStrg": "m:12",
+		"created": 1587135721,
+		"removed": 0
+	},
+	{
+		"id": 22122,
+		"fmtType": "TRICE0",
+		"fmtStrg": "m:123\\n",
+		"created": 1587135722,
+		"removed": 0
+	},
+	{
+		"id": 37568,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "wr:write        message, SysTick is %d\\n",
+		"created": 1587135722,
+		"removed": 0
+	},
+	{
+		"id": 5810,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "isr:interrupt   message, SysTick is %d\\n",
+		"created": 1587135722,
+		"removed": 0
 	}
 ]

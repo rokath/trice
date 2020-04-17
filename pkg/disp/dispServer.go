@@ -10,7 +10,6 @@ import (
 	"log"
 	"net"
 	"net/rpc"
-	"sync"
 
 	"github.com/rokath/trice/pkg/lgf"
 )
@@ -22,8 +21,9 @@ var (
 	// IPPort is the display server ip addr
 	IPPort string = "61497" // default value for testing
 
-	// mux is for syncing line output
-	mux sync.Mutex
+	// ColorPalette is the used PC color set. It is initialized with its default value inside the appropriate subcommand.
+	ColorPalette = "off" // default value for testing
+
 )
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -66,6 +66,24 @@
             ]
         },       
         {
+            "name": "Launch trice receive -port",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}/cmd/trice",
+            "env": {},
+            "args": ["log",
+                     "-port",
+                     "COM7",
+                     "-baud",
+                     "115200",
+                     "-list",
+                     "C:/GitRepos/trice/examples/til.json",
+                     "-key",
+                     "none"
+            ]
+        },       
+        {
             "name": "Launch trice remoteDisplay",
             "type": "go",
             "request": "launch",

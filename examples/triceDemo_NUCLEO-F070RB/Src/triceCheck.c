@@ -68,10 +68,33 @@ void triceCheckSet( void )
     TRICE16_1( Id(15655), "TIM:timing      message, SysTick is %d\n", SYSTICKVAL16 );
     TRICE16_1( Id(29332), "DBG:debug       message, SysTick is %d\n", SYSTICKVAL16 );
     TRICE16_1( Id(52913), "SIG:signal      message, SysTick is %d\n", SYSTICKVAL16 );
-    TRICE16_1( Id(38264), "RD_:read        message, SysTick is %d\n", SYSTICKVAL16 );
-    TRICE16_1( Id(33248), "WR_:write       message, SysTick is %d\n", SYSTICKVAL16 );
+    TRICE16_1( Id(45849), "RD:read         message, SysTick is %d\n", SYSTICKVAL16 );
+    TRICE16_1( Id( 9705), "WR:write        message, SysTick is %d\n", SYSTICKVAL16 );
+    TRICE16_1( Id(43088), "ISR:interrupt   message, SysTick is %d\n", SYSTICKVAL16 );
     TRICE16_1( Id(49476), "TST:test        message, SysTick is %d\n", SYSTICKVAL16 );
     TRICE16_1( Id(36947), "MSG:normal      message, SysTick is %d\n", SYSTICKVAL16 );
+    TRICE16_1( Id(45747), "INFO:informal   message, SysTick is %d\n", SYSTICKVAL16 );
+
+    TRICE0(Id(14272), "e:A" );
+    TRICE0(Id(14772), "w:B" );
+    TRICE0(Id( 4508), "a:c" );
+    TRICE0(Id(19177), "wr:d" );
+    TRICE0(Id(16032), "rd:e" );
+    TRICE0(Id(63796), "diag:f" );
+    TRICE0(Id( 3252), "d:G" );
+    TRICE0(Id(46648), "t:H" );
+    TRICE0(Id(26015), "time:i" );
+    TRICE0(Id(22805), "message:J" );
+    TRICE0(Id( 4422), "inf:k\n" );
+ 
+    TRICE0( Id(61628), "1" );
+    TRICE0( Id(50867), "2" );
+    TRICE0( Id(46855), "3" );
+    TRICE0( Id(10393), "4" );
+    TRICE0( Id(48998), "m:1" );
+    TRICE0( Id(35622), "m:12" );
+    TRICE0( Id(22122), "m:123\n" );
+
 
     TRICE16_1( Id(56814), "err:error       message, SysTick is %d\n", SYSTICKVAL16 );
     TRICE16_1( Id(50334), "wrn:warning     message, SysTick is %d\n", SYSTICKVAL16 );
@@ -81,13 +104,23 @@ void triceCheckSet( void )
     TRICE16_1( Id(29704), "dbg:debug       message, SysTick is %d\n", SYSTICKVAL16 );
     TRICE16_1( Id(42976), "sig:signal      message, SysTick is %d\n", SYSTICKVAL16 );
     TRICE16_1( Id(51711), "rd_:read        message, SysTick is %d\n", SYSTICKVAL16 );
-    TRICE16_1( Id(57672), "wr_:write       message, SysTick is %d\n", SYSTICKVAL16 );
+    TRICE16_1( Id(37568), "wr:write        message, SysTick is %d\n", SYSTICKVAL16 );
+    TRICE16_1( Id( 5810), "isr:interrupt   message, SysTick is %d\n", SYSTICKVAL16 );
     TRICE16_1( Id(13378), "tst:test        message, SysTick is %d\n", SYSTICKVAL16 );
     TRICE16_1( Id(48476), "msg:normal      message, SysTick is %d\n", SYSTICKVAL16 );
+    TRICE16_1( Id(29950), "info:informal   message, SysTick is %d\n", SYSTICKVAL16 );
 
-    TRICE0 (Id(12664), "wrn:A" );
-    TRICE0 (Id(60989), "wr_:B" );
-    TRICE0 (Id(61533), "tim:C\n" );
+    TRICE0 (Id(30373), "e:A" );
+    TRICE0 (Id( 4864), "w:B" );
+    TRICE0 (Id(22743), "a:c" );
+    TRICE0 (Id(25986), "wr:d" );
+    TRICE0 (Id(53800), "rd:e" );
+    TRICE0 (Id(21079), "diag:f" );
+    TRICE0 (Id(47398), "d:G" );
+    TRICE0 (Id(32350), "t:H" );
+    TRICE0 (Id( 1734), "time:i" );
+    TRICE0 (Id(21507), "message:J" );
+    TRICE0 (Id(44743), "inf:k\n" );
 
     TRICE_S( 18, "\n" );
     TRICE_S( 18, "1\n" );

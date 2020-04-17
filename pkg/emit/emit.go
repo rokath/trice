@@ -266,15 +266,19 @@ func timestamp() string {
 	return s
 }
 
+// css is a collector for line substrings
+// it is used only inside LineCollect() but needs to survive from call to call
+var css []string
+
 // LineCollect collects s into an internal line substring slice
-// When s ends with a newline it is trimmed and the slice goes to Visualize and is discarded afterwards
+// When s ends with a newline it is trimmed and the slice goes to Out and is discarded afterwards
 func LineCollect(s string) {
 	s = trimBackslashes(s)
-	var ss []string
-	a := func(su string) { // this closure is needed to treat ss as surviving slice
-		ss = append(ss, su)
+
+	a := func(su string) {
+		css = append(css, su)
 	}
-	if 0 == len(ss) {
+	if 0 == len(css) {
 		a(Prefix)
 		a(timestamp())
 	}
@@ -285,6 +289,6 @@ func LineCollect(s string) {
 	s = strings.TrimSuffix(s, "\n")
 	a(s)
 	a(Postfix)
-	disp.Out(ss)
-	ss = nil
+	disp.Out(css)
+	css = nil // discard slice data
 }
