@@ -2,68 +2,19 @@
 // Use of this source code is governed by a license that can be found in the LICENSE file.
 
 // Package disp is for dispatching and displaying trice log lines
+// This file contains the common code.
 package disp
 
 import (
 	"fmt"
-	"log"
-	"net"
-	"net/rpc"
-	"os/exec"
-	"runtime"
-	"sync"
 
 	"github.com/fatih/color"
-	"github.com/rokath/trice/pkg/lgf"
 )
 
 var (
-	// IPAddr is the display server ip addr
-	IPAddr string = "localhost" // default value for testing
-
-	// IPPort is the display server ip addr
-	IPPort string = "61497" // default value for testing
-
 	// Out is an exported function pointer, which can be redirected for example to a client call
 	Out = out
-
-	// PtrRPC is a pointer
-	PtrRPC *rpc.Client
-
-	// mux is for syncing line output
-	mux sync.Mutex
 )
-
-// StartServer starts a display server (if not already running)
-func StartServer() {
-	var shell string
-	var clip []string
-	if runtime.GOOS == "windows" {
-		shell = "cmd"
-		shellCmd := "/c start"
-		clip = append(clip, shellCmd+" trice ds -lf "+lgf.Name+" -ipa "+IPAddr+" -ipp "+IPPort)
-	} else if runtime.GOOS == "linux" {
-		shell = "gnome-terminal" // this only works for gnome based linux desktop env
-		clip = append(clip, "--", "/bin/bash", "-c", "trice displayServer -ipa "+IPAddr+" -ipp "+IPPort+" -lf "+lgf.Name)
-	} else {
-		log.Fatal("trice is running on unknown operating system")
-	}
-	cmd := exec.Command(shell, clip...)
-
-	err := cmd.Run()
-	if err != nil {
-		log.Println(clip)
-		log.Fatal(err)
-	}
-}
-
-// StopServer sends signal to display server to quit
-func StopServer() {
-	var result int64
-	var dummy []int64
-	err := PtrRPC.Call("Server.Exit", dummy, &result)
-	fmt.Print(err)
-}
 
 // out displays ss and sets color.
 // ss is a slice containing substring parts of one line.
@@ -90,103 +41,5 @@ func out(ss []string) error {
 	c.Print(line) // here better use simply fmt.Print, but then the io.Writer to os.file assignment issue must be solved
 	color.NoColor = o
 	mux.Unlock()
-	return nil
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// This code was derived from the information in:
-// https://stackoverflow.com/questions/37122401/execute-another-go-program-from-within-a-golang-program/37123869#37123869
-// "4 - another way is using "net/rpc", this is best way for calling another function from another program."
-//
-
-// Server is the RPC struct for registered server dunctions
-type Server struct{}
-
-// Out is the exported server function for string display, if trice tool acts as display server.
-// By declaring it as a Server struct method it is registered as RPC destination.
-func (p *Server) Out(s []string, reply *int64) error {
-	*reply = int64(len(s))
-	return Out(s) // this function pointer has its default value on server side
-}
-
-// ColorPalette is the exported server function for color palette, if trice tool acts as display server.
-// By declaring it as a Server struct method it is registered as RPC destination.
-func (p *Server) ColorPalette(s []string, reply *int64) error {
-	ColorPalette = s[0]
-	*reply = 0
-	return nil
-}
-
-/*
-// Adder is a demo for a 2nd function
-func (p *Server) Adder(u [2]int64, reply *int64) error {
-	*reply = u[0] + u[1]
-	return nil
-}
-*/
-
-// LogSetFlags is called remotely to shutdown display server
-func (p *Server) LogSetFlags(f []int64, r *int64) error {
-	flags := int(f[0])
-	log.SetFlags(flags)
-	*r = f[0]
-	return nil
-}
-
-var exit = false
-
-// Exit is called remotely to shutdown display server
-func (p *Server) Exit([]int64, *int64) error {
-	exit = true
-	return nil
-}
-
-// ScDisplayServer is the endless function called when trice tool acts as remote display.
-// All in Server struct registered RPC functions are reachable, when displayServer runs.
-func ScDisplayServer() error {
-	lgf.Enable()
-	defer lgf.Disable()
-
-	a := fmt.Sprintf("%s:%s", IPAddr, IPPort)
-	fmt.Println("displayServer @", a)
-	rpc.Register(new(Server))
-
-	ln, err := net.Listen("tcp", a)
-	if err != nil {
-		fmt.Println(err)
-		return err
-	}
-	for false == exit {
-		c, err := ln.Accept()
-		if err != nil {
-			continue
-		}
-		go rpc.ServeConn(c)
-	}
-	return nil
-}
-
-// RemoteOut does send the logstring s to the displayServer
-// It is replacing emit.Visuaize when trice acts as remote
-func RemoteOut(s []string) error {
-	// for a bit more accurate timestamps they should be added
-	// here on the receiver side and not in the displayServer
-	var result int64
-	return PtrRPC.Call("Server.Out", s, &result)
-}
-
-// Connect is called by the client and tries to dial.
-// On success PtrRpc is valid afterwards and zhe output is re-directed
-func Connect() error {
-	var err error
-	a := fmt.Sprintf("%s:%s", IPAddr, IPPort)
-	fmt.Println("remoteDisplay@", a)
-	PtrRPC, err = rpc.Dial("tcp", a)
-	if err != nil {
-		fmt.Println(err)
-		return err
-	}
-	fmt.Println("Connected...")
-	Out = RemoteOut // re-direct output
 	return nil
 }
