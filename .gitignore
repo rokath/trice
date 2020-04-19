@@ -1,4 +1,23 @@
 
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binary, build with `go test -c`
+*.test
+
+# Output of the go coverage tool, specifically when used with LiteIDE
+*.out
+
+vendor
+go.sum
+.idea
+
+
+
 examples/generatedDemo_NUCLEO-F030R8/.mxproject
 examples/generatedDemo_NUCLEO-F030R8/MDK-ARM/EventRecorderStub.scvd
 examples/generatedDemo_NUCLEO-F030R8/MDK-ARM/*.uvguix.ms
