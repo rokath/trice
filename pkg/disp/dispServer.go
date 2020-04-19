@@ -10,6 +10,7 @@ import (
 	"log"
 	"net"
 	"net/rpc"
+	"time"
 
 	"github.com/rokath/trice/pkg/lgf"
 )
@@ -50,14 +51,6 @@ func (p *Server) ColorPalette(s []string, reply *int64) error {
 	return nil
 }
 
-/*
-// Adder is a demo for a 2nd function
-func (p *Server) Adder(u [2]int64, reply *int64) error {
-	*reply = u[0] + u[1]
-	return nil
-}
-*/
-
 // LogSetFlags is called remotely to shutdown display server
 func (p *Server) LogSetFlags(f []int64, r *int64) error {
 	flags := int(f[0])
@@ -66,13 +59,27 @@ func (p *Server) LogSetFlags(f []int64, r *int64) error {
 	return nil
 }
 
-var exit = false
+// Exit is usually false, when true thwe display server exits
+var Exit = false
 
-// Exit is called remotely to shutdown display server
-func (p *Server) Exit([]int64, *int64) error {
-	exit = true
+// Shutdown is called remotely to shutdown display server
+func (p *Server) Shutdown(ts []int64, y *int64) error {
+	timeStamp := ts[0]
+	out([]string{""})
+	out([]string{""})
+	if 1 == timeStamp {
+		out([]string{"time:" + time.Now().String(), "dbg:displayServer shutdown"})
+	} else {
+		out([]string{"dbg:displayServer shutdown"})
+	}
+	out([]string{""})
+	out([]string{""})
+	Exit = true
+	//defer conn.Close()
 	return nil
 }
+
+var conn net.Conn
 
 // ScDisplayServer is the endless function called when trice tool acts as remote display.
 // All in Server struct registered RPC functions are reachable, when displayServer runs.
@@ -89,12 +96,12 @@ func ScDisplayServer() error {
 		fmt.Println(err)
 		return err
 	}
-	for false == exit {
-		c, err := ln.Accept()
+	for false == Exit {
+		conn, err := ln.Accept()
 		if err != nil {
 			continue
 		}
-		go rpc.ServeConn(c)
+		go rpc.ServeConn(conn)
 	}
 	return nil
 }

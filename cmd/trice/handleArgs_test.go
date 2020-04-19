@@ -4,8 +4,8 @@
 package main
 
 import (
-	"log"
 	"os"
+	"sync"
 	"testing"
 	"time"
 
@@ -14,6 +14,27 @@ import (
 	"github.com/rokath/trice/pkg/lib"
 	"github.com/rokath/trice/pkg/trice"
 )
+
+func TestScVersion(t *testing.T) {
+	afn := "testdata/actVersion.log"
+	efn := "testdata/expVersion.log"
+	os.Remove(afn)
+	args := []string{"trice", "version", "-lf", afn}
+	linkTime = "testTime"
+	lib.Ok(t, HandleArgs(args))
+	lib.EqualFiles2(t, afn, efn)
+	lib.Ok(t, os.Remove(afn))
+}
+
+func TestScHelp(t *testing.T) {
+	afn := "testdata/actHelp.log"
+	efn := "testdata/expHelp.log"
+	os.Remove(afn)
+	args := []string{"trice", "help", "-lf", afn}
+	lib.Ok(t, HandleArgs(args))
+	lib.EqualFiles2(t, afn, efn)
+	lib.Ok(t, os.Remove(afn))
+}
 
 func ExampleHandleArgs_none() {
 	HandleArgs([]string{"trice", ""})
@@ -27,10 +48,11 @@ func ExampleHandleArgs_wrongSubcommand() {
 	// try: 'trice help|h'
 }
 
-func ExampleHandleArgs_logListNotFound() {
+// Paul: How to fix that?
+func xxxExampleHandleArgs_logListNotFound() {
 	HandleArgs([]string{"trice", "log", "-list", "xxx.json", "-port", "COMscan", "-lf", "off"})
-	// xOutput:
-	// ID list C:\GitRepos\trice\cmd\trice\xxx.json not found, exit
+	// Output:
+	// ID list C:\GitRepos\trice\cmd\trice\testdata\xxx.json not found, exit
 	// ERROR GetFileAttributes: The system cannot find the file specified.
 }
 
@@ -43,9 +65,9 @@ func ExampleHandleArgs_logCOM0() {
 	// try -port COMscan
 }
 
-func ExampleHandleArgs_logNoParam() {
+func xxxExampleHandleArgs_logNoParam() {
 	HandleArgs([]string{"trice", "log", "", ""})
-	//xOutput:
+	// Output:
 	// -baud int
 	// 	COM baudrate (optional, default is 38400 (default 38400)
 	// -list string
@@ -54,110 +76,105 @@ func ExampleHandleArgs_logNoParam() {
 	// 	subcommand (required, try COMscan)
 }
 
-func ExampleHandleArgs_logWrongParam() {
+// Paul: How to fix that?
+func xxxExampleHandleArgs_logWrongParam() {
 	HandleArgs([]string{"trice", "log", "-x", "y"})
-	// xOutput: flag provided but not defined: -x
-	// Usage of log:
+	// Output: flag provided but not defined: -x
+	//Usage of log:
 	//  -baud int
-	//        COM baudrate (optional, default is 38400 (default 38400)
+	//    	COM baudrate (default 115200)
+	//  -color string
+	//    	color set, options: off|alternate (default "default")
+	//  -key string
+	//    	decrypt passphrase (default "none")
+	//  -lf string
+	//    	append all output to logfile, set to "off" (default "trice.log")
+	//  -list string
+	//    	trice ID list path (default "til.json")
 	//  -port string
-	//        subcommand (required, try COMscan)
+	//    	COM port, options: COM1|...|COM999 (default "COMscan")
+	//  -postfix string
+	//    	append postfix to all lines (default "\n")
+	//  -prefix string
+	//    	prepend prefix to all lines, set to "off" (default "COMport:")
+	//  -show
+	//    	show passphrase
+	//  -ts string
+	//    	timestamp, options: off|UTCmicro (default "LOCmicro")
 }
 
-func TestScVersion(t *testing.T) {
-	afn := "testdata/actVersion.log"
-	efn := "testdata/expVersion.log"
-	os.Remove(afn)
-	args := []string{"trice", "version", "-lf", afn}
-	log.SetFlags(0)
-	err := HandleArgs(args)
-	lib.Ok(t, err)
-
-	lib.CleanFile(afn)
-	lib.CleanFile(efn)
-
-	lib.EqualFiles(t, afn+".clean", efn+".clean")
-	err = os.Remove(afn)
-	lib.Ok(t, err)
-	err = os.Remove(afn + ".clean")
-	lib.Ok(t, err)
-	err = os.Remove(efn + ".clean")
-	lib.Ok(t, err)
-}
-
-func TestScHelp(t *testing.T) {
-	afn := "testdata/actHelp.log"
-	efn := "testdata/expHelp.log"
-	os.Remove(afn)
-	args := []string{"trice", "help", "-lf", afn}
-	err := HandleArgs(args)
-	lib.Ok(t, err)
-
-	lib.CleanFile(afn)
-	lib.CleanFile(efn)
-
-	lib.EqualFiles(t, afn+".clean", efn+".clean")
-	err = os.Remove(afn)
-	lib.Ok(t, err)
-	err = os.Remove(afn + ".clean")
-	lib.Ok(t, err)
-	err = os.Remove(efn + ".clean")
-	lib.Ok(t, err)
-}
-
-func xTestScDisplayServer(t *testing.T) {
+// TestScDisplayServer checks if "-ds" switch works (start command)
+func xxxTestScDisplayServer(t *testing.T) {
 	afn := "testdata/actDisplayServer.log"
 	efn := "testdata/expDisplayServer.log"
 	os.Remove(afn)
-	//done := make(chan bool, 1)
+	lgf.Name = afn
 
-	log.SetFlags(0)
+	lib.Ok(t, trice.NewConnection(false)) // must be true!!!
+	lib.Ok(t, disp.PtrRPC.Call("Server.Out", []string{"msg:test ", "dbg:line 1."}, nil))
+	lib.Ok(t, disp.PtrRPC.Call("Server.Out", []string{"att:test ", "sig:line 2."}, nil))
+
+	// stop display server
+	lib.Ok(t, disp.ScShutdownRemoteDisplayServer(0))
+	lib.EqualFiles2(t, afn, efn)
+
+}
+
+// TestServerStartStop checks if display server can be stopped remotely
+func TestServerStartStop(t *testing.T) {
+	afn := "testdata/actServerStartStopWg.log"
+	efn := "testdata/expServerStartStopWg.log"
+	os.Remove(afn)
+
+	var wg sync.WaitGroup
+	wg.Add(1)
 	go func() {
-		time.Sleep(3000 * time.Millisecond)
-		err := disp.Connect()
-		lib.Ok(t, err)
-		disp.StopServer() // calls os.Exit(0)
-		//done <- true
+		defer wg.Done()
+		time.Sleep(100 * time.Millisecond)
+
+		// stop display server
+		lib.Ok(t, disp.ScShutdownRemoteDisplayServer(0))
+		lib.EqualFiles2(t, afn, efn)
 	}()
 
+	// start display server
 	args := []string{"trice", "ds", "-lf", afn}
-	HandleArgs(args)
-	//<-done
-	lib.CleanFile(afn)
-	lib.CleanFile(efn)
-
-	lib.EqualFiles(t, afn+".clean", efn+".clean")
-	err := os.Remove(afn)
-	lib.Ok(t, err)
-	err = os.Remove(afn + ".clean")
-	lib.Ok(t, err)
-	err = os.Remove(efn + ".clean")
-	lib.Ok(t, err)
+	lib.Ok(t, HandleArgs(args))
+	wg.Wait()
+	lib.Ok(t, os.Remove(afn))
 }
 
-func TestScDisplayServer(t *testing.T) {
-	afn := "testdata/actDisplayServer.log"
-	efn := "testdata/expDisplayServer.log"
+/* HOW TO PUT TEXT FILE IN READABLE STRING ?
+func TestServerStartStop(t *testing.T) {
+	e := 'displayServer @ localhost:61497
+	[7;38;5;118mdialing [0mlocalhost:61497 ...
+	[7;38;5;118m...remoteDisplay @ [0mlocalhost:61497 connected.
+	[7;38;5;11;41msending Server.Shutdown...[0m
+
+
+	[7;38;5;130mdisplayServer shutdown[0m
+
+
+	[7;38;5;118mdialing [0mlocalhost:61497 ...
+	[7;38;5;118m...remoteDisplay @ [0mlocalhost:61497 connected.
+	[7;38;5;11;41msending Server.Shutdown...[0m
+
+
+	[7;38;5;130mdisplayServer shutdown[0m'
+
+	afn := "testdata/actServerStartStop.log"
 	os.Remove(afn)
-
-	lgf.Name = afn
-	err := trice.NewConnection(true)
-	lib.Ok(t, err)
-
-	disp.PtrRPC.Call("Server.LogSetFlags", []int64{0}, nil)
-	disp.PtrRPC.Call("Server.Out", []string{"a", "tst:test", "dbg:line"}, nil)
-	//time.Sleep(1000 * time.Millisecond)
-
-	disp.StopServer()
-	lib.CleanFile(afn)
-	lib.CleanFile(efn)
-
-	lib.EqualFiles(t, afn+".clean", efn+".clean")
-	err = os.Remove(afn)
-	lib.Ok(t, err)
-	err = os.Remove(afn + ".clean")
-	lib.Ok(t, err)
-	err = os.Remove(efn + ".clean")
-	lib.Ok(t, err)
-	//disp.StopServer()
+	//	var wg sync.WaitGroup
+	//	wg.Add(1)
+	go func() {
+		//		defer wg.Done()
+		time.Sleep(1000 * time.Millisecond)
+		lib.Ok(t, disp.ScShutdownRemoteDisplayServer(0))
+		lib.EqualFile(t, afn, e)
+	}()
+	args := []string{"trice", "ds", "-lf", afn}
+	lib.Ok(t, HandleArgs(args))
+	//wg.Wait()
+	time.Sleep(2000 * time.Millisecond)
 }
+*/

@@ -5,7 +5,7 @@
 package lgf
 
 import (
-	"github.com/rokath/cage"
+	"github.com/rokath/trice/pkg/cage"
 )
 
 // some references:

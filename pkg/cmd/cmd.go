@@ -38,8 +38,8 @@ func KeyboardInput() { // https://tutorialedge.net/golang/reading-console-input-
 				fmt.Println("h|help                   - this text")
 				fmt.Println("exitServer|serverExit    - kill server")
 				fmt.Println("q|quit                   - end program")
-			case "stopServer", "serverStop":
-				disp.StopServer()
+			case "sd", "stopServer", "serverStop":
+				disp.StopServer(1)
 			default:
 				fmt.Printf("Unknown command '%s' - use 'help'\n", text)
 			}

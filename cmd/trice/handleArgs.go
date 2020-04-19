@@ -80,6 +80,10 @@ func HandleArgs(args []string) error {
 
 	sCmd := flag.NewFlagSet("scan", flag.ContinueOnError) // subcommand
 
+	scSdSv := flag.NewFlagSet("shutdownServer", flag.ExitOnError)   // subcommand
+	pSdSvIPA := scSdSv.String("ipa", "localhost", "ip address")     // flag (127.0.0.1)
+	pSdSvIPP := scSdSv.String("ipp", "61497", "16 bit port number") // flag
+
 	// Verify that a subcommand has been provided
 	// os.Arg[0] is the main command
 	// os.Arg[1] will be the subcommand
@@ -163,6 +167,12 @@ func HandleArgs(args []string) error {
 		lgf.Name = *pSvLlf
 		return disp.ScDisplayServer()
 
+	case "sd", "shutdownRemoteDisplayServer":
+		scSdSv.Parse(subArgs)
+		disp.IPAddr = *pSdSvIPA
+		disp.IPPort = *pSdSvIPP
+		return disp.ScShutdownRemoteDisplayServer(1)
+
 	default:
 		fmt.Println("try: 'trice help|h'")
 		return nil
@@ -178,12 +188,11 @@ func scScan() error {
 func scVersion() error {
 	lgf.Enable()
 	defer lgf.Disable()
-	//log.SetFlags(0)
+	log.SetFlags(0)
 	if "" != version {
 		log.Printf("version=%v, commit=%v, built at %v\n", version, commit, date)
 	} else {
-		s := "version=devel, commit=unknown, built after 2020-04-15-2206"
-		log.Printf("fmt %s\n", s)
+		log.Printf("version=devel, built %s\n", linkTime)
 	}
 	return nil
 }

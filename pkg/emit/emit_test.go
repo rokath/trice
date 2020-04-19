@@ -76,6 +76,7 @@ func compareResult(s, out string, t *testing.T) {
 	t.Fail()
 }
 
+// TestPosition tests the correctnes of the parameter positiond
 func TestPosition(t *testing.T) {
 	list := idList(t)
 	out := captureOutput(Check, list, "position")
@@ -84,6 +85,7 @@ func TestPosition(t *testing.T) {
 	compareResult(s, out, t)
 }
 
+// TestNegative tests the correctnes of the negative parameter printout
 func TestNegative(t *testing.T) {
 	list := idList(t)
 	out := captureOutput(Check, list, "negative")

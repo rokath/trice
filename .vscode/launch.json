@@ -48,6 +48,16 @@
             ]
         },
         {
+            "name": "Launch trice shutdownRemoteDisplayServer",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}/cmd/trice",
+            "env": {},
+            "args": ["sd",
+            ]
+        },
+        {
             "name": "Launch trice log -port",
             "type": "go",
             "request": "launch",
@@ -72,9 +82,9 @@
             "mode": "auto",
             "program": "${workspaceFolder}/cmd/trice",
             "env": {},
-            "args": ["log",
+            "args": ["receiver",
                      "-port",
-                     "COM7",
+                     "COM51",
                      "-baud",
                      "115200",
                      "-list",

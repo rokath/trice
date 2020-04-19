@@ -3,9 +3,11 @@ package lib
 
 import (
 	"fmt"
+	"io/ioutil"
 	"path/filepath"
 	"reflect"
 	"runtime"
+	"strings"
 	"testing"
 
 	"github.com/udhos/equalfile"
@@ -62,4 +64,43 @@ func EqualFiles(t *testing.T, fn0, fn1 string) {
 	if false == ok {
 		t.FailNow()
 	}
+}
+
+const replacement = "<br>\n"
+
+var replacer = strings.NewReplacer(
+	"\r\n", replacement,
+	"\r", replacement,
+	"\n", replacement,
+	"\v", replacement,
+	"\f", replacement,
+	"\u0085", replacement,
+	"\u2028", replacement,
+	"\u2029", replacement,
+)
+
+func replaceReplacer(s string) string {
+	return replacer.Replace(s)
+}
+
+// EqualFiles2 fails test if contence is NOT equal
+// Different lineendings are ignored
+func EqualFiles2(t *testing.T, fn0, fn1 string) {
+	b0, err := ioutil.ReadFile(fn0)
+	Ok(t, err)
+	b1, err := ioutil.ReadFile(fn1)
+	Ok(t, err)
+	s0 := replaceReplacer(string(b0))
+	s1 := replaceReplacer(string(b1))
+	Equals(t, s0, s1)
+}
+
+// EqualFile fails test if s is NOT equal to contence of fn
+// Different lineendings are ignored
+func EqualFile(t *testing.T, fn, s string) {
+	b, err := ioutil.ReadFile(fn)
+	Ok(t, err)
+	s0 := replaceReplacer(string(b))
+	s1 := replaceReplacer(s)
+	Equals(t, s0, s1)
 }

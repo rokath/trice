@@ -15,6 +15,7 @@ import (
 	"github.com/rokath/trice/pkg/cmd"
 	"github.com/rokath/trice/pkg/disp"
 	"github.com/rokath/trice/pkg/id"
+	"github.com/rokath/trice/pkg/lgf"
 	"github.com/rokath/trice/pkg/receiver"
 	"golang.org/x/crypto/xtea"
 )
@@ -30,12 +31,14 @@ var (
 
 // ScLog is the subcommand log and connects to COM port and displays traces
 func ScLog() error {
-	//lgf.Enable()
-	//defer lgf.Disable()
+	lgf.Enable()
+	defer lgf.Disable()
 
 	return DoReceive()
 }
 
+// NewConnection starts a display server if sv is true, otherwise it assumes a running display server
+// It connects to the display server
 func NewConnection(sv bool) error {
 	if true == sv {
 		disp.StartServer()
@@ -43,19 +46,18 @@ func NewConnection(sv bool) error {
 	//wg.Add(1)
 
 	err := disp.Connect()
+	disp.Out = disp.RemoteOut // re-direct output
 	if nil != err {
 		return err
 	}
-	var result int64
 
-	/*err = pRPC.Call("Server.Adder", [2]int64{10, 20}, &result)
-	if err != nil {
-		fmt.Println(err)
-	} else {
-		fmt.Println("Server.Adder(10,20) =", result)
-	}*/
-	s := []string{"att:\n\n\nnew connection....\n\n\n"}
-	return disp.PtrRPC.Call("Server.Out", s, &result)
+	disp.PtrRPC.Call("Server.Out", []string{""}, nil)
+	disp.PtrRPC.Call("Server.Out", []string{""}, nil)
+	disp.PtrRPC.Call("Server.Out", []string{""}, nil)
+	disp.PtrRPC.Call("Server.Out", []string{"att:new connection from ", "read:" + receiver.Port, "..."}, nil)
+	disp.PtrRPC.Call("Server.Out", []string{""}, nil)
+	disp.PtrRPC.Call("Server.Out", []string{""}, nil)
+	return nil
 }
 
 // scReceive is the subcommand remoteDisplay and acts as client connecting to the displayServer

@@ -28,6 +28,8 @@ func StartServer() {
 		shell = "cmd"
 		shellCmd := "/c start"
 		clip = append(clip, shellCmd+" trice ds -lf "+lgf.Name+" -ipa "+IPAddr+" -ipp "+IPPort)
+		//clip = append(clip, "/c", "start", "trice", "ds", "-lf", lgf.Name, "-ipa", IPAddr, "-ipp", IPPort)
+
 	} else if runtime.GOOS == "linux" {
 		shell = "gnome-terminal" // this only works for gnome based linux desktop env
 		clip = append(clip, "--", "/bin/bash", "-c", "trice displayServer -ipa "+IPAddr+" -ipp "+IPPort+" -lf "+lgf.Name)
@@ -44,20 +46,19 @@ func StartServer() {
 }
 
 // StopServer sends signal to display server to quit
-func StopServer() {
-	var result int64
-	var dummy []int64
-	err := PtrRPC.Call("Server.Exit", dummy, &result)
-	fmt.Print(err)
+func StopServer(ts int64) error {
+	out([]string{"wrn:sending Server.Shutdown..."})
+	err := PtrRPC.Call("Server.Shutdown", []int64{ts}, nil) // if 1st param nil -> gob: cannot encode nil value
+	if nil != err {
+		fmt.Println(err)
+	}
+	return err
 }
 
 // RemoteOut does send the logstring s to the displayServer
-// It is replacing emit.Visuaize when trice acts as remote
+// It is replacing emit.Out when trice acts as remote
 func RemoteOut(s []string) error {
-	// for a bit more accurate timestamps they should be added
-	// here on the receiver side and not in the displayServer
-	var result int64
-	return PtrRPC.Call("Server.Out", s, &result)
+	return PtrRPC.Call("Server.Out", s, nil)
 }
 
 // Connect is called by the client and tries to dial.
@@ -65,13 +66,21 @@ func RemoteOut(s []string) error {
 func Connect() error {
 	var err error
 	a := fmt.Sprintf("%s:%s", IPAddr, IPPort)
-	fmt.Println("remoteDisplay@", a)
+	out([]string{"sig:dialing ", a, " ..."})
 	PtrRPC, err = rpc.Dial("tcp", a)
 	if err != nil {
 		fmt.Println(err)
 		return err
 	}
-	fmt.Println("Connected...")
-	Out = RemoteOut // re-direct output
+	return out([]string{"sig:...remoteDisplay @ ", a, " connected."})
+}
+
+// ScShutdownRemoteDisplayServer starts a client to send shutdown message to display server
+// Paul: right method?
+func ScShutdownRemoteDisplayServer(ts int64) error {
+	Connect()
+	StopServer(ts)
+	Connect()
+	StopServer(ts)
 	return nil
 }

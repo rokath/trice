@@ -9,13 +9,16 @@ import (
 	"time"
 )
 
-var ( // do not initialize these, goreleaser will handle that
-	version string
-	commit  string
-	date    string
+var (
+	version  string // do not initialize, goreleaser will handle that
+	commit   string // do not initialize, goreleaser will handle that
+	date     string // do not initialize, goreleaser will handle that
+	linkTime string
 )
 
 func main() {
+	fi, _ := os.Stat(os.Args[0])
+	linkTime = fi.ModTime().String()
 	rand.Seed(time.Now().UnixNano())
 	err := HandleArgs(os.Args)
 	if nil != err {
