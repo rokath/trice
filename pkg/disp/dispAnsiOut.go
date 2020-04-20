@@ -63,7 +63,7 @@ func out(ss []string) error {
 // if COL: is begin of string add ANSI color code according to COL:
 // if col: is begin of string replace col: with ANSI color code according to col:
 func colorize(s string) string {
-	if "off" == ColorPalette {
+	if "off" == ColorPalette || "none" == ColorPalette {
 		return s
 	}
 	if "\n" == s {

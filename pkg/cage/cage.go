@@ -26,20 +26,21 @@ type Container struct {
 // Start does append all output parallel into a logfile with name fn
 func Start(fn string) *Container {
 
-	// start logging only if fn not "none"
-	if "none" == fn {
+	// start logging only if fn not "none" or "off"
+	if "none" == fn || "off" == fn {
 		log.Println("No logfile writing...")
 		return nil
 	}
 
 	// open logfile
-	lfH, err := os.OpenFile(fn, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	lFn := time.Now().Format("2006-01-02_150405_") + fn
+	lfH, err := os.OpenFile(lFn, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
 		log.Fatalf("error opening file %s: %v", fn, err)
 		fn = "off"
 		return nil
 	}
-	log.Printf("Writing to logfile %s...\n", fn)
+	log.Printf("Writing to logfile %s...\n", lFn)
 
 	// open pipes
 	rStdout, wStdout, _ := os.Pipe()
@@ -56,7 +57,7 @@ func Start(fn string) *Container {
 		writerStderr: wStderr,
 
 		lfHandle: lfH,
-		lfName:   fn,
+		lfName:   lFn,
 	}
 
 	// re-direct

@@ -13,16 +13,13 @@ import (
 	"fmt"
 	"runtime"
 	"strings"
-	"time"
 
 	"github.com/rokath/trice/pkg/disp"
 	"github.com/rokath/trice/pkg/id"
+	"github.com/rokath/trice/pkg/lib"
 )
 
 var (
-	// TimeStampFormat is the PC timestamp format
-	TimeStampFormat = "off"
-
 	// Prefix is a (configurable) string added to each line end
 	Prefix = ""
 
@@ -252,20 +249,6 @@ func emitter(it id.Item, t, b []byte) (string, []byte, error) {
 	return s, b, err
 }
 
-// timestamp returns local time as string according var TimeStampFormat
-func timestamp() string {
-	var s string
-	switch TimeStampFormat {
-	case "LOCmicro":
-		s = time.Now().Format(time.StampMicro) + "  "
-	case "UTCmicro":
-		s = "UTC " + time.Now().UTC().Format(time.StampMicro) + "  "
-	case "off":
-		s = ""
-	}
-	return s
-}
-
 // css is a collector for line substrings
 // it is used only inside LineCollect() but needs to survive from call to call
 var css []string
@@ -280,7 +263,7 @@ func LineCollect(s string) {
 	}
 	if 0 == len(css) {
 		a(Prefix)
-		a(timestamp())
+		a(lib.Timestamp())
 	}
 	if !strings.HasSuffix(s, "\n") {
 		a(s)

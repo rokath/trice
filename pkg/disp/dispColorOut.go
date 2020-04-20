@@ -145,7 +145,7 @@ func colorChannel(s string) (*color.Color, string) {
 		r = s // keep channel info
 	}
 	switch ColorPalette {
-	case "off":
+	case "off", "none":
 		color.NoColor = true // disables colorized output
 	case "default":
 		color.NoColor = false // to force color after some errors
