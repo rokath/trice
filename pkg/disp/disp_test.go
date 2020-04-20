@@ -6,6 +6,7 @@ package disp
 import (
 	"fmt"
 	"os"
+	"runtime"
 	"sync"
 	"testing"
 	"time"
@@ -66,7 +67,14 @@ func TestServerMutex(t *testing.T) {
 	os.Remove(uniqName)
 
 	var wg sync.WaitGroup
-	StartServer("C:\\Users\\ms\\go\\bin\\trice.exe")
+
+	var exe string
+	if "windows" == runtime.GOOS {
+		exe = "C:\\Users\\ms\\go\\bin\\trice.exe"
+	} else {
+		t.Fail() // todo
+	}
+	StartServer(exe)
 	err := Connect()
 	Out = RemoteOut // re-direct output
 	lib.Ok(t, err)

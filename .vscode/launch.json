@@ -58,6 +58,15 @@
             ]
         },
         {
+            "name": "Launch trice",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}/cmd/trice",
+            "env": {},
+            "args": [
+            ]
+        },               {
             "name": "Launch trice log -port",
             "type": "go",
             "request": "launch",
@@ -134,9 +143,9 @@
             "env": {},
             "args": ["update",
                     "-v",
-                    "-src"
-                    "C:/GitRepos/BTdev/STM32"
-                    "-list"
+                    "-src",
+                    "C:/GitRepos/BTdev/STM32",
+                    "-list",
                     "c:/GitRepos/BTdev/til.json"
             ]
         }

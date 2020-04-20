@@ -88,7 +88,9 @@ func HandleArgs(args []string) error {
 	// os.Arg[0] is the main command
 	// os.Arg[1] will be the subcommand
 	if len(os.Args) < 2 {
-		return errors.New("no args, try: 'trice help'")
+		msg := "no args, try: 'trice help'"
+		fmt.Println(msg)
+		return errors.New(msg)
 	}
 
 	// Switch on the subcommand
