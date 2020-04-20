@@ -17,10 +17,16 @@ var (
 )
 
 func main() {
-	fi, _ := os.Stat(os.Args[0])
-	linkTime = fi.ModTime().String()
+	fi, err := os.Stat(os.Args[0])
+	if nil == err {
+		linkTime = fi.ModTime().String()
+
+	} else {
+		//fmt.Println(err) // cmd.exe: "CreateFile trice: The system cannot find the file specified."
+		linkTime = "unknown"
+	}
 	rand.Seed(time.Now().UnixNano())
-	err := HandleArgs(os.Args)
+	err = HandleArgs(os.Args)
 	if nil != err {
 		os.Exit(1)
 	}

@@ -54,21 +54,19 @@ func lineGenerator(t *testing.T, s string, len, count int, wg *sync.WaitGroup) {
 	go func() {
 		defer wg.Done()
 		for ; i < count; i++ { // line count
-			err := Out(ss)
-			lib.Ok(t, err)
-			//time.Sleep(100 * time.Microsecond)
+			lib.Ok(t, Out(ss))
 		}
 	}()
 }
 
-func xxxTestServerMutex(t *testing.T) {
+func TestServerMutex(t *testing.T) {
 	lgf.Name = "./testdata/serverMutexTest.log"
 	uniqName := "./testdata/serverMutexUniq.txt"
 	os.Remove(lgf.Name)
 	os.Remove(uniqName)
 
 	var wg sync.WaitGroup
-	StartServer()
+	StartServer("C:\\Users\\ms\\go\\bin\\trice.exe")
 	err := Connect()
 	Out = RemoteOut // re-direct output
 	lib.Ok(t, err)
@@ -83,20 +81,17 @@ func xxxTestServerMutex(t *testing.T) {
 
 	ll := 21
 	lc := 10
-	lineGenerator(t, "r", ll, lc, &wg)
-	lineGenerator(t, "s", ll, lc, &wg)
-	lineGenerator(t, "t", ll, lc, &wg)
-	lineGenerator(t, "u", ll, lc, &wg)
-	lineGenerator(t, "v", ll, lc, &wg)
-	lineGenerator(t, "w", ll, lc, &wg)
-	lineGenerator(t, "x", ll, lc, &wg)
-	lineGenerator(t, "y", ll, lc, &wg)
-	lineGenerator(t, "z", ll, lc, &wg)
+	lv := 9
+	for i := 0; i < lv; i++ {
+		li := fmt.Sprintf("line%d", i)
+		lineGenerator(t, li, ll, lc, &wg)
+	}
+
 	wg.Wait()
-	time.Sleep(3000 * time.Millisecond)
 	lib.Ok(t, ScShutdownRemoteDisplayServer(0))
 	n := lib.UniqLines(t, lgf.Name, uniqName)
-	lib.Equals(t, n, 11) // first line + 9 lines + last empty line
-	os.Remove(lgf.Name)
+	lib.Equals(t, n, lv+4) // first line + 9 lines + server line
 	os.Remove(uniqName)
+	time.Sleep(200 * time.Millisecond) // Why to wait here? 50ms is not enough.
+	os.Remove(lgf.Name)
 }

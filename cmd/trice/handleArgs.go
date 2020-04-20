@@ -157,7 +157,10 @@ func HandleArgs(args []string) error {
 		emit.TimeStampFormat = *pClTs
 		trice.Password = *pClKey
 		trice.ShowPassword = *pClShow
-		return trice.ScReceive(*pClSrv)
+		if true == *pClSrv {
+			return trice.ScReceive(args[0])
+		}
+		return trice.ScReceive("")
 
 	case "ds", "displayServer":
 		scSv.Parse(subArgs)

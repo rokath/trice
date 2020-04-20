@@ -48,14 +48,6 @@ func ExampleHandleArgs_wrongSubcommand() {
 	// try: 'trice help|h'
 }
 
-// Paul: How to fix that?
-func xxxExampleHandleArgs_logListNotFound() {
-	HandleArgs([]string{"trice", "log", "-list", "xxx.json", "-port", "COMscan", "-lf", "off"})
-	// Output:
-	// ID list C:\GitRepos\trice\cmd\trice\testdata\xxx.json not found, exit
-	// ERROR GetFileAttributes: The system cannot find the file specified.
-}
-
 func ExampleHandleArgs_logCOM0() {
 	HandleArgs([]string{"trice", "log", "-list", "none", "-port", "COM0"})
 	// Output:
@@ -65,52 +57,14 @@ func ExampleHandleArgs_logCOM0() {
 	// try -port COMscan
 }
 
-func xxxExampleHandleArgs_logNoParam() {
-	HandleArgs([]string{"trice", "log", "", ""})
-	// Output:
-	// -baud int
-	// 	COM baudrate (optional, default is 38400 (default 38400)
-	// -list string
-	// 	ID list path (optional) (default "./idlist.json")
-	// -port string
-	// 	subcommand (required, try COMscan)
-}
-
-// Paul: How to fix that?
-func xxxExampleHandleArgs_logWrongParam() {
-	HandleArgs([]string{"trice", "log", "-x", "y"})
-	// Output: flag provided but not defined: -x
-	//Usage of log:
-	//  -baud int
-	//    	COM baudrate (default 115200)
-	//  -color string
-	//    	color set, options: off|alternate (default "default")
-	//  -key string
-	//    	decrypt passphrase (default "none")
-	//  -lf string
-	//    	append all output to logfile, set to "off" (default "trice.log")
-	//  -list string
-	//    	trice ID list path (default "til.json")
-	//  -port string
-	//    	COM port, options: COM1|...|COM999 (default "COMscan")
-	//  -postfix string
-	//    	append postfix to all lines (default "\n")
-	//  -prefix string
-	//    	prepend prefix to all lines, set to "off" (default "COMport:")
-	//  -show
-	//    	show passphrase
-	//  -ts string
-	//    	timestamp, options: off|UTCmicro (default "LOCmicro")
-}
-
 // TestScDisplayServer checks if "-ds" switch works (start command)
-func xxxTestScDisplayServer(t *testing.T) {
+func TestScDisplayServer(t *testing.T) {
 	afn := "testdata/actDisplayServer.log"
 	efn := "testdata/expDisplayServer.log"
 	os.Remove(afn)
 	lgf.Name = afn
 
-	lib.Ok(t, trice.NewConnection(false)) // must be true!!!
+	lib.Ok(t, trice.NewConnection("C:\\Users\\ms\\go\\bin\\trice.exe"))
 	lib.Ok(t, disp.PtrRPC.Call("Server.Out", []string{"msg:test ", "dbg:line 1."}, nil))
 	lib.Ok(t, disp.PtrRPC.Call("Server.Out", []string{"att:test ", "sig:line 2."}, nil))
 
@@ -178,3 +132,50 @@ func TestServerStartStop(t *testing.T) {
 	time.Sleep(2000 * time.Millisecond)
 }
 */
+
+// How to fix that?
+func xxxExampleHandleArgs_logListNotFound() {
+	HandleArgs([]string{"trice", "log", "-list", "xxx.json", "-port", "COMscan", "-lf", "off"})
+	// Output:
+	// ID list C:\GitRepos\trice\cmd\trice\testdata\xxx.json not found, exit
+	// ERROR GetFileAttributes: The system cannot find the file specified.
+}
+
+// How to fix that?
+func xxxExampleHandleArgs_logNoParam() {
+	HandleArgs([]string{"trice", "log", "", ""})
+	// Output:
+	// -baud int
+	// 	COM baudrate (optional, default is 38400 (default 38400)
+	// -list string
+	// 	ID list path (optional) (default "./idlist.json")
+	// -port string
+	// 	subcommand (required, try COMscan)
+}
+
+// How to fix that?
+func xxxExampleHandleArgs_logWrongParam() {
+	HandleArgs([]string{"trice", "log", "-x", "y"})
+	// Output: flag provided but not defined: -x
+	//Usage of log:
+	//  -baud int
+	//    	COM baudrate (default 115200)
+	//  -color string
+	//    	color set, options: off|alternate (default "default")
+	//  -key string
+	//    	decrypt passphrase (default "none")
+	//  -lf string
+	//    	append all output to logfile, set to "off" (default "trice.log")
+	//  -list string
+	//    	trice ID list path (default "til.json")
+	//  -port string
+	//    	COM port, options: COM1|...|COM999 (default "COMscan")
+	//  -postfix string
+	//    	append postfix to all lines (default "\n")
+	//  -prefix string
+	//    	prepend prefix to all lines, set to "off" (default "COMport:")
+	//  -show
+	//    	show passphrase
+	//  -ts string
+	//    	timestamp, options: off|UTCmicro (default "LOCmicro")
+}

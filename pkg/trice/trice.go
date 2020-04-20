@@ -37,13 +37,12 @@ func ScLog() error {
 	return DoReceive()
 }
 
-// NewConnection starts a display server if sv is true, otherwise it assumes a running display server
-// It connects to the display server
-func NewConnection(sv bool) error {
-	if true == sv {
-		disp.StartServer()
+// NewConnection starts a display server sy if sv is not empty, otherwise it assumes a running display server
+// It connects then to the running display server.
+func NewConnection(sv string) error {
+	if "" != sv {
+		disp.StartServer(sv)
 	}
-	//wg.Add(1)
 
 	err := disp.Connect()
 	disp.Out = disp.RemoteOut // re-direct output
@@ -60,19 +59,15 @@ func NewConnection(sv bool) error {
 	return nil
 }
 
-// scReceive is the subcommand remoteDisplay and acts as client connecting to the displayServer
-func ScReceive(sv bool) error {
-	//var wg sync.WaitGroup
+// ScReceive is the subcommand remoteDisplay and acts as client connecting to the displayServer
+func ScReceive(sv string) error {
 	err := NewConnection(sv)
 	if err != nil {
 		fmt.Println(err)
 		return err
 	}
-
 	cmd.KeyboardInput()
 	DoReceive() // does not return
-	//wg.Wait()
-	fmt.Println("...done")
 	return nil
 }
 

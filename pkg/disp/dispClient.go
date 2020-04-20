@@ -20,17 +20,17 @@ var (
 	PtrRPC *rpc.Client
 )
 
-// StartServer starts a display server (if not already running)
-func StartServer() {
+// StartServer starts a display server with the filename exe (if not already running)
+func StartServer(exe string) {
 	var shell string
 	var clip []string
 	if runtime.GOOS == "windows" {
 		shell = "cmd"
-		shellCmd := "/c start"
-		clip = append(clip, shellCmd+" trice displayServer -ipa "+IPAddr+" -ipp "+IPPort+" -lf "+lgf.Name)
+		shellCmd := "/c start " + exe
+		clip = append(clip, shellCmd, " displayServer -ipa "+IPAddr+" -ipp "+IPPort+" -lf "+lgf.Name)
 	} else if runtime.GOOS == "linux" {
 		shell = "gnome-terminal" // this only works for gnome based linux desktop env
-		clip = append(clip, "--", "/bin/bash", "-c", "trice displayServer -ipa "+IPAddr+" -ipp "+IPPort+" -lf off")
+		clip = append(clip, "--", "/bin/bash", "-c", exe+" displayServer -ipa "+IPAddr+" -ipp "+IPPort+" -lf off")
 	} else {
 		log.Fatal("trice is running on unknown operating system")
 	}
@@ -42,31 +42,6 @@ func StartServer() {
 		log.Fatal(err)
 	}
 }
-
-/* StartServer starts a display server (if not already running)
-func StartServer() {
-	var shell string
-	var clip []string
-	if runtime.GOOS == "windows" {
-		shell = "cmd"
-		shellCmd := "/c start"
-		clip = append(clip, shellCmd+" trice ds -lf "+lgf.Name+" -ipa "+IPAddr+" -ipp "+IPPort)
-		//clip = append(clip, "/c", "start", "trice", "ds", "-lf", lgf.Name, "-ipa", IPAddr, "-ipp", IPPort)
-
-	} else if runtime.GOOS == "linux" {
-		shell = "gnome-terminal" // this only works for gnome based linux desktop env
-		clip = append(clip, "--", "/bin/bash", "-c", "trice displayServer -ipa "+IPAddr+" -ipp "+IPPort+" -lf "+lgf.Name)
-	} else {
-		log.Fatal("trice is running on unknown operating system")
-	}
-	cmd := exec.Command(shell, clip...)
-
-	err := cmd.Run()
-	if err != nil {
-		log.Println(clip)
-		log.Fatal(err)
-	}
-}*/
 
 // StopServer sends signal to display server to quit
 func StopServer(ts int64) error {
