@@ -94,8 +94,7 @@ func xxxTestServerMutex(t *testing.T) {
 	lineGenerator(t, "z", ll, lc, &wg)
 	wg.Wait()
 	time.Sleep(3000 * time.Millisecond)
-	ScShutdownRemoteDisplayServer(0)
-	//lib.Ok(t, StopServer())
+	lib.Ok(t, ScShutdownRemoteDisplayServer(0))
 	n := lib.UniqLines(t, lgf.Name, uniqName)
 	lib.Equals(t, n, 11) // first line + 9 lines + last empty line
 	os.Remove(lgf.Name)
