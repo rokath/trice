@@ -11,48 +11,42 @@ import (
 )
 
 func TestStart(t *testing.T) {
-	lfn := "testdata/actCage.log"
+	afn := "testdata/actCage.log"
 	efn := "testdata/expCage.log"
-	os.Remove(lfn)
+	os.Remove(afn)
 	os.Remove(efn)
 
 	efh, err := os.OpenFile(efn, os.O_RDWR|os.O_CREATE, 0666)
 	lib.Ok(t, err)
-	_, err = fmt.Fprintln(efh, "testLog00\ntestOut01\ntestErr02")
+	_, err = fmt.Fprintln(efh, "testLog00\ntestOutOrErr01\ntestOutOrErr01")
 	lib.Ok(t, err)
 
 	log.SetFlags(0) // switch off log timestamp
 
-	c := Start(lfn)
+	c := Start(afn)
 
 	log.Println("testLog00")
-	time.Sleep(1 * time.Millisecond) // needed to avoid takeover
-	fmt.Println("testOut01")
-	time.Sleep(1 * time.Millisecond) // needed to avoid takeover
-	fmt.Fprintln(os.Stderr, "testErr02")
+	fmt.Println("testOutOrErr01")
+	fmt.Fprintln(os.Stderr, "testOutOrErr01")
 
 	Stop(c)
-	lib.EqualFiles(t, lfn, efn)
+	lib.EqualFiles(t, afn, efn)
 
 	efh, err = os.OpenFile(efn, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	lib.Ok(t, err)
-	_, err = fmt.Fprintln(efh, "testLog10\ntestOut11\ntestErr12")
+	_, err = fmt.Fprintln(efh, "testLog10\ntestOutOrErr11\ntestOutOrErr11")
 	lib.Ok(t, err)
 
-	d := Start(lfn)
+	d := Start(afn)
 
 	log.Println("testLog10")
-	time.Sleep(1 * time.Millisecond) // needed to avoid takeover
-	fmt.Println("testOut11")
-	time.Sleep(1 * time.Millisecond) // needed to avoid takeover
-	fmt.Fprintln(os.Stderr, "testErr12")
+	fmt.Println("testOutOrErr11")
+	fmt.Fprintln(os.Stderr, "testOutOrErr11")
 
 	Stop(d)
 
-	lib.EqualFiles(t, lfn, efn)
-
-	err = os.Remove(lfn)
-	lib.Ok(t, err)
-	err = os.Remove(efn)
-	lib.Ok(t, err)
+	lib.EqualFiles(t, afn, efn)
+	time.Sleep(100 * time.Millisecond)
+	lib.Ok(t, os.Remove(afn))
+	lib.Ok(t, os.Remove(efn))
 }
