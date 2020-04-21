@@ -85,6 +85,7 @@ func ScShutdownRemoteDisplayServer(ts int64) error {
 	if nil != err {
 		return err
 	}
+	// 2nd time for incorrect shutdown method
 	err = Connect()
 	if nil != err {
 		return err

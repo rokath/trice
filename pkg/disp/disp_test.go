@@ -60,7 +60,7 @@ func lineGenerator(t *testing.T, s string, len, count int, wg *sync.WaitGroup) {
 	}()
 }
 
-func TestServerMutex(t *testing.T) {
+func timingIssueOnCliTestServerMutex(t *testing.T) {
 	lgf.Name = "./testdata/serverMutexTest.log"
 	uniqName := "./testdata/serverMutexUniq.txt"
 	os.Remove(lgf.Name)
@@ -70,7 +70,7 @@ func TestServerMutex(t *testing.T) {
 
 	var exe string
 	if "windows" == runtime.GOOS {
-		exe = "C:\\Users\\ms\\go\\bin\\trice.exe"
+		exe = "C:\\Users\\ms\\go\\bin\\trice.exe" // how to solve this universal?
 	} else {
 		t.Fail() // todo
 	}

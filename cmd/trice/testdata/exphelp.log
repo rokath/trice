@@ -1,7 +1,7 @@
 syntax: 'trice subcommand' [params]
 subcommand 'help', 'h'
   -lf string
-    	append output to logfile, set to "off" to avoid this (default "trice.log")
+    	write output to logfile when set to a filename (default "off")
 subcommand 'u', 'upd', 'update'
   -dry-run
     	no changes are applied
@@ -25,7 +25,7 @@ subcommand 'l', 'log'
   -key string
     	decrypt passphrase (default "none")
   -lf string
-    	append all output to logfile, set to "off" (default "trice.log")
+    	Append all output to logfile. Set to "off" or "none" to switch off. (default "2006-01-02_150405_trice.log")
   -list string
     	trice ID list path (default "til.json")
   -port string
@@ -37,7 +37,7 @@ subcommand 'l', 'log'
   -show
     	show passphrase
   -ts string
-    	timestamp, options: off|UTCmicro (default "LOCmicro")
+    	PC timestamp for logs and logfile name, options: off|UTCmicro (default "LOCmicro")
 subcommand 'zeroSourceTreeIds' (avoid using this subcommand normally)
   -dry-run
     	no changes are applied
@@ -45,7 +45,7 @@ subcommand 'zeroSourceTreeIds' (avoid using this subcommand normally)
     	zero all Id(n) inside source tree dir (required)
 subcommand 'v', 'ver', 'version'
   -lf string
-    	append all output to logfile, set to "off" (default "trice.log")
+    	append all output to logfile, set to a filename for logging (default "off")
 subcommand 'ds', 'displayServer'
   -color string
     	color set, options: off|alternate (default "default")
@@ -54,7 +54,7 @@ subcommand 'ds', 'displayServer'
   -ipp string
     	16 bit port number (default "61497")
   -lf string
-    	append all output to logfile, set to "off" (default "trice.log")
+    	Append all output to logfile. Set to "off" or "none" to switch off. (default "2006-01-02_150405_trice.log")
 subcommand 'r', 'rec', 'receiver'
   -baud int
     	COM baudrate (default 115200)
@@ -66,6 +66,8 @@ subcommand 'r', 'rec', 'receiver'
     	16 bit ip port number (default "61497")
   -key string
     	decrypt passphrase (default "none")
+  -lf string
+    	If '-ds' append all output to logfile. Set to "off" or "none" to switch off. (default "2006-01-02_150405_trice.log")
   -list string
     	trice ID list path (default "til.json")
   -port string
@@ -77,7 +79,7 @@ subcommand 'r', 'rec', 'receiver'
   -show
     	show passphrase
   -ts string
-    	timestamp, options: off|UTCmicro (default "LOCmicro")
+    	PC timestamp for logs, options: off|UTCmicro (default "LOCmicro")
 examples:
     'trice update [-src sourcerootdir]', default sourcerootdir is ./
     'trice log [-port COMn] [-baud m]', default port is COMscan, default m is 38400, fixed to 8N1

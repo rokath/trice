@@ -59,23 +59,23 @@ func (p *Server) LogSetFlags(f []int64, r *int64) error {
 	return nil
 }
 
-// Exit is usually false, when true thwe display server exits
-var Exit = false
+// exit is usually false, when true thwe display server exits
+var exit = false
 
 // Shutdown is called remotely to shutdown display server
 func (p *Server) Shutdown(ts []int64, y *int64) error {
 	timeStamp := ts[0]
 	out([]string{""})
 	out([]string{""})
-	if 1 == timeStamp {
+	if 1 == timeStamp { // for normal usage
 		out([]string{"time:" + time.Now().String(), "dbg:displayServer shutdown"})
-	} else {
+	} else { // for testing
 		out([]string{"dbg:displayServer shutdown"})
 	}
 	out([]string{""})
 	out([]string{""})
-	Exit = true
-	//defer conn.Close()
+	exit = true // this method needs 2 times Shutdown
+	//defer conn.Close() // this works, bus results in server side panic afterwards
 	return nil
 }
 
@@ -96,7 +96,7 @@ func ScDisplayServer() error {
 		fmt.Println(err)
 		return err
 	}
-	for false == Exit {
+	for false == exit { // come to end with true == exit
 		conn, err := ln.Accept()
 		if err != nil {
 			continue

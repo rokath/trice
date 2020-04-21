@@ -17,7 +17,7 @@ func (p *ListT) FileWatcher() {
 	// creates a new file watcher
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {
-		fmt.Println("ERROR", err)
+		fmt.Println("ERROR0", err)
 	}
 	defer watcher.Close()
 
@@ -45,14 +45,14 @@ func (p *ListT) FileWatcher() {
 
 			// watch for errors
 			case err := <-watcher.Errors:
-				fmt.Println("ERROR", err)
+				fmt.Println("ERROR1", err)
 			}
 		}
 	}()
 
 	// out of the box fsnotify can watch a single file, or a single directory
 	if err := watcher.Add(FnJSON); err != nil {
-		fmt.Println("ERROR", err)
+		fmt.Println("ERROR2", err)
 	}
 	fmt.Println(FnJSON, " watched now for changes")
 	<-done

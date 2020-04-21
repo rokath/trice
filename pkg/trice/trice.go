@@ -76,11 +76,11 @@ func DoReceive() error {
 	if "none" != id.FnJSON {
 		// setup ip list
 		err := id.List.Read(id.FnJSON)
-		go id.List.FileWatcher()
 		if nil != err {
 			fmt.Println("ID list " + id.FnJSON + " not found, exit")
 			return nil
 		}
+		go id.List.FileWatcher()
 	}
 
 	var err error

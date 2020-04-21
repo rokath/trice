@@ -1,6 +1,7 @@
 package cage
 
 import (
+	"fmt"
 	"io"
 	"log"
 	"os"
@@ -28,19 +29,21 @@ func Start(fn string) *Container {
 
 	// start logging only if fn not "none" or "off"
 	if "none" == fn || "off" == fn {
-		log.Println("No logfile writing...")
+		fmt.Println("No logfile writing...")
 		return nil
 	}
 
 	// open logfile
-	lFn := time.Now().Format("2006-01-02_150405_") + fn
-	lfH, err := os.OpenFile(lFn, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	if "2006-01-02_150405_trice.log" == fn {
+		fn = time.Now().Format(fn) // replace timestamp in default logfilename
+	} // otherwise use cli defined logfilename
+	lfH, err := os.OpenFile(fn, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
 		log.Fatalf("error opening file %s: %v", fn, err)
 		fn = "off"
 		return nil
 	}
-	log.Printf("Writing to logfile %s...\n", lFn)
+	log.Printf("Writing to logfile %s...\n", fn)
 
 	// open pipes
 	rStdout, wStdout, _ := os.Pipe()
@@ -57,7 +60,7 @@ func Start(fn string) *Container {
 		writerStderr: wStderr,
 
 		lfHandle: lfH,
-		lfName:   lFn,
+		lfName:   fn,
 	}
 
 	// re-direct
@@ -98,7 +101,7 @@ func Stop(c *Container) {
 
 	// only if loggig was enabled
 	if nil == c {
-		log.Println("No logfile writing...done")
+		fmt.Println("No logfile writing...done")
 		return
 	}
 

@@ -36,29 +36,39 @@ func TestScHelp(t *testing.T) {
 	lib.Ok(t, os.Remove(afn))
 }
 
-func ExampleHandleArgs_none() {
+func ExampleHandleArgsNone() {
 	HandleArgs([]string{"trice", ""})
 	// Output:
 	// try: 'trice help|h'
 }
 
-func ExampleHandleArgs_wrongSubcommand() {
+func ExampleHandleArgsWrongSubcommand() {
 	HandleArgs([]string{"trice", "xyz"})
 	// Output:
 	// try: 'trice help|h'
 }
 
-func ExampleHandleArgs_logCOM0() {
-	HandleArgs([]string{"trice", "log", "-list", "none", "-port", "COM0"})
+func ExampleHandleArgsLogCOM0() {
+	HandleArgs([]string{"trice", "log", "-list", "none", "-port", "COM0", "-lf", "none"})
 	// Output:
+	// No logfile writing...
 	// id list file none with 0 items
 	// Error: Could not open serial port: Serial port not found
 	// Could not set up serial port COM0
 	// try -port COMscan
+	// No logfile writing...done
+}
+
+func cmdLineNotOkExampleHandleArgsLogListNotFound() {
+	HandleArgs([]string{"trice", "log", "-list", "xxx.json", "-port", "COMscan", "-lf", "off"})
+	// Output:
+	// No logfile writing...
+	// ID list c:\GitRepos\trice\cmd\trice\xxx.json not found, exit
+	// No logfile writing...done
 }
 
 // TestScDisplayServer checks if "-ds" switch works (start command)
-func TestScDisplayServer(t *testing.T) {
+func timingIssueOnCliTestScDisplayServer(t *testing.T) {
 	afn := "testdata/actDisplayServer.log"
 	efn := "testdata/expDisplayServer.log"
 	os.Remove(afn)
@@ -74,8 +84,8 @@ func TestScDisplayServer(t *testing.T) {
 
 }
 
-// TestServerStartStop checks if display server can be stopped remotely
-func TestServerStartStop(t *testing.T) {
+// TestServerStartStop checks if display server can be started and stopped remotely
+func timingIssueOnCliTestServerStartStop(t *testing.T) {
 	afn := "testdata/actServerStartStopWg.log"
 	efn := "testdata/expServerStartStopWg.log"
 	os.Remove(afn)
@@ -84,7 +94,7 @@ func TestServerStartStop(t *testing.T) {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		time.Sleep(100 * time.Millisecond)
+		time.Sleep(500 * time.Millisecond)
 
 		// stop display server
 		lib.Ok(t, disp.ScShutdownRemoteDisplayServer(0))
@@ -132,50 +142,3 @@ func TestServerStartStop(t *testing.T) {
 	time.Sleep(2000 * time.Millisecond)
 }
 */
-
-// How to fix that?
-func xxxExampleHandleArgs_logListNotFound() {
-	HandleArgs([]string{"trice", "log", "-list", "xxx.json", "-port", "COMscan", "-lf", "off"})
-	// Output:
-	// ID list C:\GitRepos\trice\cmd\trice\testdata\xxx.json not found, exit
-	// ERROR GetFileAttributes: The system cannot find the file specified.
-}
-
-// How to fix that?
-func xxxExampleHandleArgs_logNoParam() {
-	HandleArgs([]string{"trice", "log", "", ""})
-	// Output:
-	// -baud int
-	// 	COM baudrate (optional, default is 38400 (default 38400)
-	// -list string
-	// 	ID list path (optional) (default "./idlist.json")
-	// -port string
-	// 	subcommand (required, try COMscan)
-}
-
-// How to fix that?
-func xxxExampleHandleArgs_logWrongParam() {
-	HandleArgs([]string{"trice", "log", "-x", "y"})
-	// Output: flag provided but not defined: -x
-	//Usage of log:
-	//  -baud int
-	//    	COM baudrate (default 115200)
-	//  -color string
-	//    	color set, options: off|alternate (default "default")
-	//  -key string
-	//    	decrypt passphrase (default "none")
-	//  -lf string
-	//    	append all output to logfile, set to "off" (default "trice.log")
-	//  -list string
-	//    	trice ID list path (default "til.json")
-	//  -port string
-	//    	COM port, options: COM1|...|COM999 (default "COMscan")
-	//  -postfix string
-	//    	append postfix to all lines (default "\n")
-	//  -prefix string
-	//    	prepend prefix to all lines, set to "off" (default "COMport:")
-	//  -show
-	//    	show passphrase
-	//  -ts string
-	//    	timestamp, options: off|UTCmicro (default "LOCmicro")
-}
