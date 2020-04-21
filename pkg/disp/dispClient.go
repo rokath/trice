@@ -46,8 +46,12 @@ func StartServer(exe string) {
 // StopServer sends signal to display server to quit
 func StopServer(ts int64) error {
 	out([]string{"wrn:sending Server.Shutdown..."})
+
 	err := PtrRPC.Call("Server.Shutdown", []int64{ts}, nil) // if 1st param nil -> gob: cannot encode nil value
 	if nil != err {
+
+		//todo: we expect here "wsarecv: An existing connection was forcibly closed by the remote host."
+
 		fmt.Println(err)
 	}
 	return err
@@ -85,7 +89,7 @@ func ScShutdownRemoteDisplayServer(ts int64) error {
 	if nil != err {
 		return err
 	}
-	// 2nd time for incorrect shutdown method
+	/* 2nd time for incorrect shutdown method
 	err = Connect()
 	if nil != err {
 		return err
@@ -93,6 +97,6 @@ func ScShutdownRemoteDisplayServer(ts int64) error {
 	err = StopServer(ts)
 	if nil != err {
 		return err
-	}
+	}*/
 	return nil
 }

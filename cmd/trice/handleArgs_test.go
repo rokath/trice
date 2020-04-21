@@ -36,19 +36,19 @@ func TestScHelp(t *testing.T) {
 	lib.Ok(t, os.Remove(afn))
 }
 
-func ExampleHandleArgsNone() {
+func Example_handleArgsNone() {
 	HandleArgs([]string{"trice", ""})
 	// Output:
 	// try: 'trice help|h'
 }
 
-func ExampleHandleArgsWrongSubcommand() {
+func Example_wrongSubcommand() {
 	HandleArgs([]string{"trice", "xyz"})
 	// Output:
 	// try: 'trice help|h'
 }
 
-func ExampleHandleArgsLogCOM0() {
+func Example_handleArgsLogCOM0() {
 	HandleArgs([]string{"trice", "log", "-list", "none", "-port", "COM0", "-lf", "none"})
 	// Output:
 	// No logfile writing...
@@ -68,7 +68,7 @@ func cmdLineNotOkExampleHandleArgsLogListNotFound() {
 }
 
 // TestScDisplayServer checks if "-ds" switch works (start command)
-func timingIssueOnCliTestScDisplayServer(t *testing.T) {
+func TestScDisplayServer(t *testing.T) {
 	afn := "testdata/actDisplayServer.log"
 	efn := "testdata/expDisplayServer.log"
 	os.Remove(afn)
@@ -85,7 +85,7 @@ func timingIssueOnCliTestScDisplayServer(t *testing.T) {
 }
 
 // TestServerStartStop checks if display server can be started and stopped remotely
-func timingIssueOnCliTestServerStartStop(t *testing.T) {
+func TestServerStartStop(t *testing.T) {
 	afn := "testdata/actServerStartStopWg.log"
 	efn := "testdata/expServerStartStopWg.log"
 	os.Remove(afn)
@@ -94,51 +94,16 @@ func timingIssueOnCliTestServerStartStop(t *testing.T) {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		time.Sleep(500 * time.Millisecond)
+		time.Sleep(100 * time.Millisecond)
 
 		// stop display server
 		lib.Ok(t, disp.ScShutdownRemoteDisplayServer(0))
-		lib.EqualFiles2(t, afn, efn)
 	}()
 
 	// start display server
 	args := []string{"trice", "ds", "-lf", afn}
-	lib.Ok(t, HandleArgs(args))
+	HandleArgs(args)
 	wg.Wait()
+	lib.EqualFiles2(t, afn, efn)
 	lib.Ok(t, os.Remove(afn))
 }
-
-/* HOW TO PUT TEXT FILE IN READABLE STRING ?
-func TestServerStartStop(t *testing.T) {
-	e := 'displayServer @ localhost:61497
-	[7;38;5;118mdialing [0mlocalhost:61497 ...
-	[7;38;5;118m...remoteDisplay @ [0mlocalhost:61497 connected.
-	[7;38;5;11;41msending Server.Shutdown...[0m
-
-
-	[7;38;5;130mdisplayServer shutdown[0m
-
-
-	[7;38;5;118mdialing [0mlocalhost:61497 ...
-	[7;38;5;118m...remoteDisplay @ [0mlocalhost:61497 connected.
-	[7;38;5;11;41msending Server.Shutdown...[0m
-
-
-	[7;38;5;130mdisplayServer shutdown[0m'
-
-	afn := "testdata/actServerStartStop.log"
-	os.Remove(afn)
-	//	var wg sync.WaitGroup
-	//	wg.Add(1)
-	go func() {
-		//		defer wg.Done()
-		time.Sleep(1000 * time.Millisecond)
-		lib.Ok(t, disp.ScShutdownRemoteDisplayServer(0))
-		lib.EqualFile(t, afn, e)
-	}()
-	args := []string{"trice", "ds", "-lf", afn}
-	lib.Ok(t, HandleArgs(args))
-	//wg.Wait()
-	time.Sleep(2000 * time.Millisecond)
-}
-*/

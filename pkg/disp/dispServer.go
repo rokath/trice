@@ -59,8 +59,15 @@ func (p *Server) LogSetFlags(f []int64, r *int64) error {
 	return nil
 }
 
-// exit is usually false, when true thwe display server exits
-var exit = false
+var (
+	// exit is usually false, when true thwe display server exits
+	exit = false
+
+	// conn is used only inside ScDisplayServer
+	conn net.Conn
+	// ln is needed for shutdown
+	ln net.Listener
+)
 
 // Shutdown is called remotely to shutdown display server
 func (p *Server) Shutdown(ts []int64, y *int64) error {
@@ -74,12 +81,30 @@ func (p *Server) Shutdown(ts []int64, y *int64) error {
 	}
 	out([]string{""})
 	out([]string{""})
-	exit = true // this method needs 2 times Shutdown
-	//defer conn.Close() // this works, bus results in server side panic afterwards
+	defer func() {
+		err := ln.Close()
+		if nil != err {
+			fmt.Println(err)
+		}
+		//fmt.Println("exit...")
+		exit = true // do not set true before closing ln, otherwise panic!
+		/*
+			// no need for this code
+			if nil != conn {
+				fmt.Println("Calling net.Conn conn.Close()...")
+				err = conn.Close()
+				if nil != err {
+					fmt.Println(err)
+				} else {
+					fmt.Println("Calling conn.Close()...done")
+				}
+			} else {
+				fmt.Println("'conn' is nil, cannot call conn.Close()")
+			}
+		*/
+	}()
 	return nil
 }
-
-var conn net.Conn
 
 // ScDisplayServer is the endless function called when trice tool acts as remote display.
 // All in Server struct registered RPC functions are reachable, when displayServer runs.
@@ -90,18 +115,22 @@ func ScDisplayServer() error {
 	a := fmt.Sprintf("%s:%s", IPAddr, IPPort)
 	fmt.Println("displayServer @", a)
 	rpc.Register(new(Server))
-
-	ln, err := net.Listen("tcp", a)
-	if err != nil {
+	var err error
+	ln, err = net.Listen("tcp", a)
+	if nil != err {
 		fmt.Println(err)
 		return err
 	}
-	for false == exit { // come to end with true == exit
-		conn, err := ln.Accept()
-		if err != nil {
+	for {
+		conn, err = ln.Accept()
+		if nil != err {
+			if true == exit {
+				//fmt.Println("exit...done")
+				return err
+			}
+			//fmt.Println(err)
 			continue
 		}
 		go rpc.ServeConn(conn)
 	}
-	return nil
 }

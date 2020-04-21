@@ -108,15 +108,15 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-    TRICE16_1( Id(51648), "msg:Hello from MCU! SysTickVal now %d\n", SYSTICKVAL16 );
+    TRICE16_1( Id(5),  "sig:Hello from MCU! SysTickVal now %d\n", SYSTICKVAL16 );
     while (1)
     {
         static int32_t loopCount = 0u;
-        #define LOOPCOUNT 1000000u // resonable for 48 MHz MCU
+        #define LOOPCOUNT 10000000u // resonable for 48 MHz MCU
         loopCount++;
         if( (LOOPCOUNT>>1) == loopCount ){
             static int i = 0;
-            TRICE32_1( Id(43027), "msg:Loop %d\n\n\n", i );
+            TRICE32_1( Id(52309), "sig:Loops %d\n\n\n", i );
             i++;         
             LL_GPIO_ResetOutputPin(LD2_GPIO_Port, LD2_Pin);
         }

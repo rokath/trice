@@ -61,19 +61,19 @@ void triceCheckSet( void )
     TRICE64_1( Id(39599), "tst:TRICE64 %d\n", -1 ); // 2
     TRICE64_2( Id( 5982), "tst:TRICE64 %d %d\n", -1, -2 ); // 4
 
-    TRICE16_1( Id(47902), "ERR:error       message, SysTick is %d\n", SYSTICKVAL16 );
-    TRICE16_1( Id(64631), "WRN:warning     message, SysTick is %d\n", SYSTICKVAL16 );
-    TRICE16_1( Id(13824), "ATT:attension   message, SysTick is %d\n", SYSTICKVAL16 );
-    TRICE16_1( Id(64166), "DIA:diagnostics message, SysTick is %d\n", SYSTICKVAL16 );
-    TRICE16_1( Id(15655), "TIM:timing      message, SysTick is %d\n", SYSTICKVAL16 );
-    TRICE16_1( Id(29332), "DBG:debug       message, SysTick is %d\n", SYSTICKVAL16 );
-    TRICE16_1( Id(52913), "SIG:signal      message, SysTick is %d\n", SYSTICKVAL16 );
-    TRICE16_1( Id(45849), "RD:read         message, SysTick is %d\n", SYSTICKVAL16 );
-    TRICE16_1( Id( 9705), "WR:write        message, SysTick is %d\n", SYSTICKVAL16 );
-    TRICE16_1( Id(43088), "ISR:interrupt   message, SysTick is %d\n", SYSTICKVAL16 );
-    TRICE16_1( Id(49476), "TST:test        message, SysTick is %d\n", SYSTICKVAL16 );
-    TRICE16_1( Id(36947), "MSG:normal      message, SysTick is %d\n", SYSTICKVAL16 );
-    TRICE16_1( Id(45747), "INFO:informal   message, SysTick is %d\n", SYSTICKVAL16 );
+    TRICE16_1( Id( 1199), "ERR:error       message, SysTick is %6d\n", SYSTICKVAL16 );
+    TRICE16_1( Id(53009), "WRN:warning     message, SysTick is %6d\n", SYSTICKVAL16 );
+    TRICE16_1( Id(20546), "ATT:attension   message, SysTick is %6d\n", SYSTICKVAL16 );
+    TRICE16_1( Id(37799), "DIA:diagnostics message, SysTick is %6d\n", SYSTICKVAL16 );
+    TRICE16_1( Id( 2625), "TIM:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
+    TRICE16_1( Id(34597), "DBG:debug       message, SysTick is %6d\n", SYSTICKVAL16 );
+    TRICE16_1( Id(42347), "SIG:signal      message, SysTick is %6d\n", SYSTICKVAL16 );
+    TRICE16_1( Id(21521), "RD:read         message, SysTick is %6d\n", SYSTICKVAL16 );
+    TRICE16_1( Id(13658), "WR:write        message, SysTick is %6d\n", SYSTICKVAL16 );
+    TRICE16_1( Id(44042), "ISR:interrupt   message, SysTick is %6d\n", SYSTICKVAL16 );
+    TRICE16_1( Id(65508), "TST:test        message, SysTick is %6d\n", SYSTICKVAL16 );
+    TRICE16_1( Id(37949), "MSG:normal      message, SysTick is %6d\n", SYSTICKVAL16 );
+    TRICE16_1( Id(27902), "INFO:informal   message, SysTick is %6d\n", SYSTICKVAL16 );
 
     TRICE0(Id(14272), "e:A" );
     TRICE0(Id(14772), "w:B" );
@@ -96,19 +96,19 @@ void triceCheckSet( void )
     TRICE0( Id(22122), "m:123\n" );
 
 
-    TRICE16_1( Id(56814), "err:error       message, SysTick is %d\n", SYSTICKVAL16 );
-    TRICE16_1( Id(50334), "wrn:warning     message, SysTick is %d\n", SYSTICKVAL16 );
-    TRICE16_1( Id(17612), "att:attension   message, SysTick is %d\n", SYSTICKVAL16 );
-    TRICE16_1( Id( 6482), "dia:diagnostics message, SysTick is %d\n", SYSTICKVAL16 );
-    TRICE16_1( Id(54963), "tim:timing      message, SysTick is %d\n", SYSTICKVAL16 );
-    TRICE16_1( Id(29704), "dbg:debug       message, SysTick is %d\n", SYSTICKVAL16 );
-    TRICE16_1( Id(42976), "sig:signal      message, SysTick is %d\n", SYSTICKVAL16 );
-    TRICE16_1( Id(51711), "rd_:read        message, SysTick is %d\n", SYSTICKVAL16 );
-    TRICE16_1( Id(37568), "wr:write        message, SysTick is %d\n", SYSTICKVAL16 );
-    TRICE16_1( Id( 5810), "isr:interrupt   message, SysTick is %d\n", SYSTICKVAL16 );
-    TRICE16_1( Id(13378), "tst:test        message, SysTick is %d\n", SYSTICKVAL16 );
-    TRICE16_1( Id(48476), "msg:normal      message, SysTick is %d\n", SYSTICKVAL16 );
-    TRICE16_1( Id(29950), "info:informal   message, SysTick is %d\n", SYSTICKVAL16 );
+    TRICE16_1( Id(17676), "err:error       message, SysTick is %6d\n", SYSTICKVAL16 );
+    TRICE16_1( Id(32813), "wrn:warning     message, SysTick is %6d\n", SYSTICKVAL16 );
+    TRICE16_1( Id(55170), "att:attension   message, SysTick is %6d\n", SYSTICKVAL16 );
+    TRICE16_1( Id(40452), "dia:diagnostics message, SysTick is %6d\n", SYSTICKVAL16 );
+    TRICE16_1( Id(45373), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
+    TRICE16_1( Id(49101), "dbg:debug       message, SysTick is %6d\n", SYSTICKVAL16 );
+    TRICE16_1( Id( 6069), "sig:signal      message, SysTick is %6d\n", SYSTICKVAL16 );
+    TRICE16_1( Id(12226), "rd_:read        message, SysTick is %6d\n", SYSTICKVAL16 );
+    TRICE16_1( Id(26059), "wr:write        message, SysTick is %6d\n", SYSTICKVAL16 );
+    TRICE16_1( Id(34890), "isr:interrupt   message, SysTick is %6d\n", SYSTICKVAL16 );
+    TRICE16_1( Id(56024), "tst:test        message, SysTick is %6d\n", SYSTICKVAL16 );
+    TRICE16_1( Id(43841), "msg:normal      message, SysTick is %6d\n", SYSTICKVAL16 );
+    TRICE16_1( Id(46587), "info:informal   message, SysTick is %6d\n", SYSTICKVAL16 );
 
     TRICE0 (Id(30373), "e:A" );
     TRICE0 (Id( 4864), "w:B" );

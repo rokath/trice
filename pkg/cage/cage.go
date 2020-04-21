@@ -9,6 +9,8 @@ import (
 	"time"
 )
 
+const DefaultLogfileName = "2006-01-02_150405_trice.log"
+
 // Container keeps re-direction informantion
 type Container struct {
 	// old
@@ -34,7 +36,7 @@ func Start(fn string) *Container {
 	}
 
 	// open logfile
-	if "2006-01-02_150405_trice.log" == fn {
+	if DefaultLogfileName == fn {
 		fn = time.Now().Format(fn) // replace timestamp in default logfilename
 	} // otherwise use cli defined logfilename
 	lfH, err := os.OpenFile(fn, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)

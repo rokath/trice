@@ -999,5 +999,229 @@
 		"fmtStrg": "isr:interrupt   message, SysTick is %d\\n",
 		"created": 1587135722,
 		"removed": 0
+	},
+	{
+		"id": 48447,
+		"fmtType": "TRICE32_1",
+		"fmtStrg": "sig:Loops %d\\n\\n\\n",
+		"created": 1587490694,
+		"removed": 0
+	},
+	{
+		"id": 63221,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "sig:Hello from MCU! SysTickVal now %d\\n",
+		"created": 1587491147,
+		"removed": 0
+	},
+	{
+		"id": 52309,
+		"fmtType": "TRICE32_1",
+		"fmtStrg": "sig:Loops %d\\n\\n\\n",
+		"created": 1587491147,
+		"removed": 0
+	},
+	{
+		"id": 54082,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "sig:Hello from MCU! SysTickVal now %d\\n",
+		"created": 1587491204,
+		"removed": 0
+	},
+	{
+		"id": 5,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "sig:Hello from MCU! SysTickVal now %d\\n",
+		"created": 1587491298,
+		"removed": 0
+	},
+	{
+		"id": 48473,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "ERR:error       message, SysTick is %d.\\n",
+		"created": 1587492121,
+		"removed": 0
+	},
+	{
+		"id": 1199,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "ERR:error       message, SysTick is %6d\\n",
+		"created": 1587492450,
+		"removed": 0
+	},
+	{
+		"id": 53009,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "WRN:warning     message, SysTick is %6d\\n",
+		"created": 1587492450,
+		"removed": 0
+	},
+	{
+		"id": 20546,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "ATT:attension   message, SysTick is %6d\\n",
+		"created": 1587492450,
+		"removed": 0
+	},
+	{
+		"id": 37799,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "DIA:diagnostics message, SysTick is %6d\\n",
+		"created": 1587492450,
+		"removed": 0
+	},
+	{
+		"id": 2625,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "TIM:timing      message, SysTick is %6d\\n",
+		"created": 1587492450,
+		"removed": 0
+	},
+	{
+		"id": 34597,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "DBG:debug       message, SysTick is %6d\\n",
+		"created": 1587492450,
+		"removed": 0
+	},
+	{
+		"id": 42347,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "SIG:signal      message, SysTick is %6d\\n",
+		"created": 1587492450,
+		"removed": 0
+	},
+	{
+		"id": 21521,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "RD:read         message, SysTick is %6d\\n",
+		"created": 1587492450,
+		"removed": 0
+	},
+	{
+		"id": 13658,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "WR:write        message, SysTick is %6d\\n",
+		"created": 1587492450,
+		"removed": 0
+	},
+	{
+		"id": 44042,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "ISR:interrupt   message, SysTick is %6d\\n",
+		"created": 1587492450,
+		"removed": 0
+	},
+	{
+		"id": 65508,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "TST:test        message, SysTick is %6d\\n",
+		"created": 1587492450,
+		"removed": 0
+	},
+	{
+		"id": 37949,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "MSG:normal      message, SysTick is %6d\\n",
+		"created": 1587492450,
+		"removed": 0
+	},
+	{
+		"id": 27902,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "INFO:informal   message, SysTick is %6d\\n",
+		"created": 1587492450,
+		"removed": 0
+	},
+	{
+		"id": 17676,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "err:error       message, SysTick is %6d\\n",
+		"created": 1587492450,
+		"removed": 0
+	},
+	{
+		"id": 32813,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "wrn:warning     message, SysTick is %6d\\n",
+		"created": 1587492450,
+		"removed": 0
+	},
+	{
+		"id": 55170,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "att:attension   message, SysTick is %6d\\n",
+		"created": 1587492450,
+		"removed": 0
+	},
+	{
+		"id": 40452,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "dia:diagnostics message, SysTick is %6d\\n",
+		"created": 1587492450,
+		"removed": 0
+	},
+	{
+		"id": 45373,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "tim:timing      message, SysTick is %6d\\n",
+		"created": 1587492450,
+		"removed": 0
+	},
+	{
+		"id": 49101,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "dbg:debug       message, SysTick is %6d\\n",
+		"created": 1587492450,
+		"removed": 0
+	},
+	{
+		"id": 6069,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "sig:signal      message, SysTick is %6d\\n",
+		"created": 1587492450,
+		"removed": 0
+	},
+	{
+		"id": 12226,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "rd_:read        message, SysTick is %6d\\n",
+		"created": 1587492450,
+		"removed": 0
+	},
+	{
+		"id": 26059,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "wr:write        message, SysTick is %6d\\n",
+		"created": 1587492450,
+		"removed": 0
+	},
+	{
+		"id": 34890,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "isr:interrupt   message, SysTick is %6d\\n",
+		"created": 1587492450,
+		"removed": 0
+	},
+	{
+		"id": 56024,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "tst:test        message, SysTick is %6d\\n",
+		"created": 1587492450,
+		"removed": 0
+	},
+	{
+		"id": 43841,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "msg:normal      message, SysTick is %6d\\n",
+		"created": 1587492450,
+		"removed": 0
+	},
+	{
+		"id": 46587,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "info:informal   message, SysTick is %6d\\n",
+		"created": 1587492450,
+		"removed": 0
 	}
 ]
