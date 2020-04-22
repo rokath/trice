@@ -63,7 +63,7 @@ var (
 	// exit is usually false, when true thwe display server exits
 	exit = false
 
-	// conn is used only inside ScDisplayServer
+	// conn is used only inside ScDisplayServer bute here for Shutdown() trials
 	conn net.Conn
 
 	// ln is needed for shutdown
