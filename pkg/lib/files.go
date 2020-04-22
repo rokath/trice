@@ -288,3 +288,16 @@ func removeFromSlice(data []byte, indexes []int) []byte {
 	}
 	return data
 }
+
+/*
+func fileLine() string {
+	_, fileName, fileLine, ok := runtime.Caller(1)
+	var s string
+	if ok {
+		s = fmt.Sprintf("%s:%d", fileName, fileLine)
+	} else {
+		s = ""
+	}
+	return s
+}
+*/

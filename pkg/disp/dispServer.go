@@ -17,10 +17,10 @@ import (
 
 var (
 	// IPAddr is the display server ip addr
-	IPAddr string = "localhost" // default value for testing
+	IPAddr = "localhost" // default value for testing
 
 	// IPPort is the display server ip addr
-	IPPort string = "61497" // default value for testing
+	IPPort = "61497" // default value for testing
 
 	// ColorPalette is the used PC color set. It is initialized with its default value inside the appropriate subcommand.
 	ColorPalette = "off" // default value for testing
@@ -65,6 +65,7 @@ var (
 
 	// conn is used only inside ScDisplayServer
 	conn net.Conn
+
 	// ln is needed for shutdown
 	ln net.Listener
 )

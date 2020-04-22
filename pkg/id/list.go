@@ -109,7 +109,7 @@ func (p *ListT) appendIfMissing(i Item, verbose bool) (int, bool) {
 	return i.ID, true
 }
 
-// return id beause it could get changed when id is in list with different typ or fmts
+// extendIdList returns id beause it could get changed when id is in list with different typ or fmts
 func (p *ListT) extendIdList(id int, typ, fmts string, verbose bool) (int, bool) {
 	i := Item{
 		ID:      id,
@@ -150,7 +150,7 @@ func Index(i int, l ListT) (int, error) {
 	return 0, errors.New("unknown ID")
 }
 
-// ZeroIds does replace all ID's in sourc tree with 0
+// ScZero does replace all ID's in sourc tree with 0
 func ScZero(SrcZ string, cmd *flag.FlagSet) error {
 	if SrcZ == "" {
 		cmd.PrintDefaults()

@@ -2,6 +2,8 @@
 // Copyright 2020 Thomas.Hoehenleitner [at] seerose.net
 // Use of this source code is governed by a license that can be found in the LICENSE file.
 
+// OBSOLETE VARIANT - still working but now replaced by dispAnsiOut.go
+
 // Package disp is for dispatching and displaying trice log lines
 // This file contains the print code code.
 package disp

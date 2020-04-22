@@ -16,7 +16,7 @@ import (
 )
 
 var (
-	// PtrRPC is a pointer
+	// PtrRPC is a pointer for remote calls valid after a succesful rpc.Dial()
 	PtrRPC *rpc.Client
 )
 
@@ -78,7 +78,6 @@ func Connect() error {
 }
 
 // ScShutdownRemoteDisplayServer starts a client to send shutdown message to display server
-// Paul: What is right method?
 func ScShutdownRemoteDisplayServer(ts int64) error {
 	var err error
 	err = Connect()
@@ -89,14 +88,5 @@ func ScShutdownRemoteDisplayServer(ts int64) error {
 	if nil != err {
 		return err
 	}
-	/* 2nd time for incorrect shutdown method
-	err = Connect()
-	if nil != err {
-		return err
-	}
-	err = StopServer(ts)
-	if nil != err {
-		return err
-	}*/
 	return nil
 }

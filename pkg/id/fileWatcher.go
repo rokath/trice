@@ -55,17 +55,10 @@ func (p *ListT) FileWatcher() {
 	<-done
 }
 
+// renewIDList clears the internal id list and reads it again
 func renewIDList() {
 	if "none" != FnJSON {
 		List = List[:0]
 		List.Read(FnJSON)
 	}
-	/*
-		newList := make(ListT, 0, 65536)
-		newList.Read(FnJSON)
-		for i := range newList {
-			it := newList[i]
-			List.appendIfMissing(it, false)
-		}
-	*/
 }

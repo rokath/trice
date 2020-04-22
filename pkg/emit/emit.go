@@ -11,7 +11,6 @@ import (
 	"encoding/binary"
 	"errors"
 	"fmt"
-	"runtime"
 	"strings"
 
 	"github.com/rokath/trice/pkg/disp"
@@ -25,10 +24,17 @@ var (
 
 	// Postfix is a (configurable) string added to each line end
 	Postfix = "\n"
-)
 
-var d = make([]byte, 0, 32) // param collector, usually not more than 16 bytes
-var buffer []byte           // container for buffer data (strings)
+	// param collector, usually not more than 16 bytes
+	d = make([]byte, 0, 32)
+
+	// container for buffer data (strings)
+	buffer []byte
+
+	// css is a collector for line substrings
+	// it is used only inside LineCollect() but needs to survive from call to call
+	css []string
+)
 
 // Trice emits one trice. The byte slice 't' is a trice package.
 // The start byte is 0xeb.
@@ -65,6 +71,7 @@ func Trice(t, b []byte, l id.ListT) ([]byte, error) {
 	return b, nil
 }
 
+// trimBackslashes handles special chars in s
 func trimBackslashes(s string) string {
 	s = strings.ReplaceAll(s, "\\a", "\a")
 	s = strings.ReplaceAll(s, "\\b", "\b")
@@ -80,8 +87,6 @@ func trimBackslashes(s string) string {
 	//   \U followed by exactly eight hexadecimal digits.
 	return s
 }
-
-var tsFlag = true
 
 // parse lang C formatstring for %u and replace them with %d and extend the
 // returned slice with 0 for each %d, %c, %x and 1 for each converted %u
@@ -108,18 +113,7 @@ func langCtoGoFmtStingConverter(f string) (string, []bool, error) {
 	return s, u, err
 }
 
-func fileLine() string {
-	_, fileName, fileLine, ok := runtime.Caller(1)
-	var s string
-	if ok {
-		s = fmt.Sprintf("%s:%d", fileName, fileLine)
-	} else {
-		s = ""
-	}
-	return s
-}
-
-// errFalseLen reports an error becvause of false len
+// errFalseLen reports an error in case of false len, what could be caused by data garbage
 func errFalseLen(it id.Item, t, b []byte) (string, []byte, error) {
 	s := fmt.Sprintln("ERR:", it, "false len", len(t), "in data stream", t, b)
 	return s, b, errors.New("data stream error")
@@ -248,10 +242,6 @@ func emitter(it id.Item, t, b []byte) (string, []byte, error) {
 	}
 	return s, b, err
 }
-
-// css is a collector for line substrings
-// it is used only inside LineCollect() but needs to survive from call to call
-var css []string
 
 // LineCollect collects s into an internal line substring slice
 // When s ends with a newline it is trimmed and the slice goes to Out and is discarded afterwards

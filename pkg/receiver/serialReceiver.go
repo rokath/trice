@@ -8,26 +8,16 @@ import (
 	"encoding/binary"
 	"fmt"
 	"log"
-	"runtime"
 
 	"github.com/rokath/trice/pkg/emit"
 	"go.bug.st/serial"
 	"golang.org/x/crypto/xtea"
 )
 
-func fileLine() string {
-	_, fileName, fileLine, ok := runtime.Caller(1)
-	var s string
-	if ok {
-		s = fmt.Sprintf("%s:%d", fileName, fileLine)
-	} else {
-		s = ""
-	}
-	return s
-}
-
-var locAddr = byte(0x60) // local address
-var remAddr = byte(0x60) // remote address
+var (
+	locAddr = byte(0x60) // local trice address
+	remAddr = byte(0x60) // remote trice address
+)
 
 type SerialReceiver struct {
 	receiverT // inherit
@@ -40,7 +30,7 @@ type SerialReceiver struct {
 	serialMode   serial.Mode
 }
 
-// NewSerialReceiver
+// NewSerialReceiver creates an instance
 func NewSerialReceiver(portIdentifier string, baudrate int) *SerialReceiver {
 	s := &SerialReceiver{
 		receiverT:   receiverT{"SerialReceiver", false, make(chan []byte), make(chan []byte)},
