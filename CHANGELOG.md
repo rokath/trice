@@ -10,4 +10,6 @@ date      | version | comment
 2020-03-12|  0.7    | `trice u -src dir1 -src file -src dir2` any now possible, -ts added, effective runtime strings
 2020-03-29|  0.8    | autologfile, remoteDisplay added, check issues!
 2020-04-07|  0.8.2  | display server supports many receiver-clients, no line mixes, code partially restructured, line prefix
+2020-04-22|  0.9    | fileWatcher added (no need to re-load til.json anymore), now `trice s` possible for COMport scan, NUCLEO-F070 demo project added, now with ANSI color (faster), default logfilename with timestamp, remote displayServer shutdown possible
+
 
