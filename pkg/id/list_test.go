@@ -17,7 +17,7 @@ func (p *ListT) zeroTimestampCreated() {
 	}
 }
 
-func Test_write(t *testing.T) {
+func TestWrite(t *testing.T) {
 	wd, err := os.Getwd()
 	lib.Ok(t, err)
 	fa := wd + "/testdata/BasicFunctions/writeAct.json"
@@ -54,7 +54,7 @@ func TestZeroSourceTreeIds(t *testing.T) {
 	os.RemoveAll(a)
 }
 
-func Test_appendItem(t *testing.T) {
+func TestAppendItem(t *testing.T) {
 	pwd, err := os.Getwd()
 	lib.Ok(t, err)
 	path := pwd + "/testdata/appendID/"

@@ -88,9 +88,8 @@ func (p *SerialReceiver) SetUp() bool {
 	if err != nil {
 		fmt.Println("Error: Could not open serial port:", err)
 		return false
-	} else {
-		return true
 	}
+	return true
 }
 
 // Start starts receiving of serial data

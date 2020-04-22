@@ -35,6 +35,7 @@ var (
 	Baud int
 )
 
+// receiver is a type
 type receiver struct {
 	name          string
 	receivingData bool
@@ -42,11 +43,11 @@ type receiver struct {
 	bufferChannel chan []byte
 }
 
-func (p *receiver) GetTriceChannel() *chan []byte {
+func (p *receiver) getTriceChannel() *chan []byte {
 	return &p.triceChannel
 }
 
-func (p *receiver) GetBufferChannel() *chan []byte {
+func (p *receiver) getBufferChannel() *chan []byte {
 	return &p.bufferChannel
 }
 
@@ -56,30 +57,26 @@ func DoSerial() error {
 	if err != nil {
 		return err
 	}
-	serialReceiver := NewSerialReceiver(Port, Baud)
+	sR := NewSerialReceiver(Port, Baud)
 
-	if serialReceiver.SetUp() == false {
+	if sR.SetUp() == false {
 		fmt.Println("Could not set up serial port", Port)
 		fmt.Println("try -port COMscan")
 		return nil
 	}
 	fmt.Println("Opened serial port", Port)
 
-	serialReceiver.Start()
-	defer serialReceiver.CleanUp()
-
-	//keyboardInput()
+	sR.Start()
+	defer sR.CleanUp()
 
 	var t, b []byte
 	for {
 		select {
-		case c := <-(*serialReceiver.GetBufferChannel()):
+		case c := <-(*sR.getBufferChannel()):
 			if len(c) > 0 {
-				//log.Println("from buffer channel:", c)
 				b = append(b, c...)
 			}
-		case t = <-(*serialReceiver.GetTriceChannel()):
-			//log.Println("from trice channel:", t)
+		case t = <-(*sR.getTriceChannel()):
 			b, err = emit.Trice(t, b, id.List)
 			if nil != err {
 				log.Println("trice.Log error", err, t, b)

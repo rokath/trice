@@ -60,7 +60,8 @@ func lineGenerator(t *testing.T, s string, len, count int, wg *sync.WaitGroup) {
 	}()
 }
 
-func timingIssueOnCliTestServerMutex(t *testing.T) {
+// timingIssueOnCli
+func TestServerMutex(t *testing.T) {
 	lgf.Name = "./testdata/serverMutexTest.log"
 	uniqName := "./testdata/serverMutexUniq.txt"
 	os.Remove(lgf.Name)

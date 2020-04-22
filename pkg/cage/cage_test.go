@@ -5,7 +5,6 @@ import (
 	"log"
 	"os"
 	"testing"
-	"time"
 
 	"github.com/rokath/trice/pkg/lib"
 )
@@ -46,7 +45,7 @@ func TestStart(t *testing.T) {
 	Stop(d)
 
 	lib.EqualFiles(t, afn, efn)
-	time.Sleep(100 * time.Millisecond)
+
 	lib.Ok(t, os.Remove(afn))
 	lib.Ok(t, os.Remove(efn))
 }
