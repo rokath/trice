@@ -12,7 +12,7 @@ import (
 	"os/exec"
 	"runtime"
 
-	"github.com/rokath/trice/pkg/lgf"
+	"github.com/rokath/trice/pkg/cage"
 )
 
 var (
@@ -27,7 +27,7 @@ func StartServer(exe string) {
 	if runtime.GOOS == "windows" {
 		shell = "cmd"
 		shellCmd := "/c start " + exe
-		clip = append(clip, shellCmd, " displayServer -ipa "+IPAddr+" -ipp "+IPPort+" -lf "+lgf.Name)
+		clip = append(clip, shellCmd, " displayServer -ipa "+IPAddr+" -ipp "+IPPort+" -lf "+cage.Name)
 	} else if runtime.GOOS == "linux" {
 		shell = "gnome-terminal" // this only works for gnome based linux desktop env
 		clip = append(clip, "--", "/bin/bash", "-c", exe+" displayServer -ipa "+IPAddr+" -ipp "+IPPort+" -lf off")

@@ -25,7 +25,7 @@ subcommand 'l', 'log'
   -key string
     	decrypt passphrase (default "none")
   -lf string
-    	Append all output to logfile. Set to "off" or "none" to switch off. (default "2006-01-02_150405_trice.log")
+    	Append all output to logfile. Set to "off" or "none" to switch off. (default "2006-01-02_1504-05_trice.log")
   -list string
     	trice ID list path (default "til.json")
   -port string
@@ -54,7 +54,7 @@ subcommand 'ds', 'displayServer'
   -ipp string
     	16 bit port number (default "61497")
   -lf string
-    	Append all output to logfile. Set to "off" or "none" to switch off. (default "2006-01-02_150405_trice.log")
+    	Append all output to logfile. Set to "off" or "none" to switch off. (default "2006-01-02_1504-05_trice.log")
 subcommand 'r', 'rec', 'receiver'
   -baud int
     	COM baudrate (default 115200)
@@ -67,7 +67,7 @@ subcommand 'r', 'rec', 'receiver'
   -key string
     	decrypt passphrase (default "none")
   -lf string
-    	If '-ds' append all output to logfile. Set to "off" or "none" to switch off. (default "2006-01-02_150405_trice.log")
+    	If '-ds' append all output to logfile. Set to "off" or "none" to switch off. (default "2006-01-02_1504-05_trice.log")
   -list string
     	trice ID list path (default "til.json")
   -port string

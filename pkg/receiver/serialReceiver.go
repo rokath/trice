@@ -30,7 +30,7 @@ var locAddr = byte(0x60) // local address
 var remAddr = byte(0x60) // remote address
 
 type SerialReceiver struct {
-	receiver
+	receiverT // inherit
 
 	portName    string
 	readTimeout int
@@ -43,7 +43,7 @@ type SerialReceiver struct {
 // NewSerialReceiver
 func NewSerialReceiver(portIdentifier string, baudrate int) *SerialReceiver {
 	s := &SerialReceiver{
-		receiver:    receiver{"SerialReceiver", false, make(chan []byte), make(chan []byte)},
+		receiverT:   receiverT{"SerialReceiver", false, make(chan []byte), make(chan []byte)},
 		portName:    portIdentifier,
 		readTimeout: 1,
 		serialMode: serial.Mode{BaudRate: baudrate,

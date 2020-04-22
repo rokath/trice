@@ -35,19 +35,19 @@ var (
 	Baud int
 )
 
-// receiver is a type
-type receiver struct {
+// receiverT is a type
+type receiverT struct {
 	name          string
 	receivingData bool
 	triceChannel  chan []byte
 	bufferChannel chan []byte
 }
 
-func (p *receiver) getTriceChannel() *chan []byte {
+func (p *receiverT) getTriceChannel() *chan []byte {
 	return &p.triceChannel
 }
 
-func (p *receiver) getBufferChannel() *chan []byte {
+func (p *receiverT) getBufferChannel() *chan []byte {
 	return &p.bufferChannel
 }
 

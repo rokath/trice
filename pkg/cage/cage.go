@@ -9,9 +9,36 @@ import (
 	"time"
 )
 
-const DefaultLogfileName = "2006-01-02_150405_trice.log"
+// some references:
+// https://stackoverflow.com/questions/54276178/golang-add-custom-os-file-to-os-stdout
+// https://play.golang.org/p/CqUOP8aKL0
+// https://gist.github.com/jmoiron/e9f72720cef51862b967
+// https://medium.com/@hau12a1/golang-capturing-log-println-and-fmt-println-output-770209c791b4
 
-// Container keeps re-direction informantion
+// DefaultLogfileName is the pattern for default logfile name. The timestamp is replaced with the actual time.
+const DefaultLogfileName = "2006-01-02_1504-05_trice.log"
+
+var (
+	// Name is the filename of the logfile. "off" inhibits logfile writing.
+	Name = "off"
+
+	// pContainer hold the restore values
+	pContainer *Container
+)
+
+// Enable starts take notes mode, means parallel writing into a file.
+// Name has to be assigned to a value other than "off" or "none" for taking effect.
+func Enable() {
+	pContainer = Start(Name)
+}
+
+// Disable ends take notes mode, means parallel writing into a file.
+// It takes no effect when pContainer is nil, what is the case when Enable was started with "off" or "none" as 'Name'.
+func Disable() {
+	Stop(pContainer)
+}
+
+// Container keeps re-direction informantion for restoring
 type Container struct {
 	// old
 	oldLog     io.Writer
@@ -98,7 +125,7 @@ func Start(fn string) *Container {
 	return c
 }
 
-// Stop does return to normal state
+// Stop does return to normal state.
 func Stop(c *Container) {
 
 	// only if loggig was enabled

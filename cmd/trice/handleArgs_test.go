@@ -9,8 +9,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/rokath/trice/pkg/cage"
 	"github.com/rokath/trice/pkg/disp"
-	"github.com/rokath/trice/pkg/lgf"
 	"github.com/rokath/trice/pkg/lib"
 	"github.com/rokath/trice/pkg/trice"
 )
@@ -72,7 +72,7 @@ func TestScDisplayServer(t *testing.T) {
 	afn := "testdata/actDisplayServer.log"
 	efn := "testdata/expDisplayServer.log"
 	os.Remove(afn)
-	lgf.Name = afn
+	cage.Name = afn
 
 	lib.Ok(t, trice.NewConnection("C:\\Users\\ms\\go\\bin\\trice.exe"))
 	lib.Ok(t, disp.PtrRPC.Call("Server.Out", []string{"msg:test ", "dbg:line 1."}, nil))
@@ -81,7 +81,8 @@ func TestScDisplayServer(t *testing.T) {
 	// stop display server
 	lib.Ok(t, disp.ScShutdownRemoteDisplayServer(0))
 	lib.EqualFiles2(t, afn, efn)
-
+	time.Sleep(200 * time.Millisecond) // may be a wait for displaySever is down now is needed here
+	lib.Ok(t, os.Remove(afn))
 }
 
 // TestServerStartStop checks if display server can be started and stopped remotely

@@ -5,7 +5,7 @@
 package receiver
 
 type HTTPReceiver struct {
-	receiver
+	receiverT
 
 	ip_address []int
 	port       int

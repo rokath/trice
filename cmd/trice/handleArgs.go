@@ -15,7 +15,6 @@ import (
 	"github.com/rokath/trice/pkg/disp"
 	"github.com/rokath/trice/pkg/emit"
 	"github.com/rokath/trice/pkg/id"
-	"github.com/rokath/trice/pkg/lgf"
 	"github.com/rokath/trice/pkg/lib"
 	"github.com/rokath/trice/pkg/receiver"
 	"github.com/rokath/trice/pkg/trice"
@@ -105,7 +104,7 @@ func HandleArgs(args []string) error {
 
 	case "h", "help":
 		hCmd.Parse(subArgs)
-		lgf.Name = *pHlf
+		cage.Name = *pHlf
 		return scHelp(hCmd, scUpd, scChk, scLog, scZero, vCmd, scSv, scCl)
 
 	case "s", "sc", "scan":
@@ -114,7 +113,7 @@ func HandleArgs(args []string) error {
 
 	case "v", "ver", "version":
 		vCmd.Parse(subArgs)
-		lgf.Name = *pVlf
+		cage.Name = *pVlf
 		return scVersion()
 
 	case "u", "update":
@@ -146,7 +145,7 @@ func HandleArgs(args []string) error {
 		disp.ColorPalette = *pCol
 		trice.Password = *pKey
 		trice.ShowPassword = *pShow
-		lgf.Name = *pLlf
+		cage.Name = *pLlf
 		return trice.ScLog()
 
 	case "r", "rec", "receiver":
@@ -161,7 +160,7 @@ func HandleArgs(args []string) error {
 		lib.TimeStampFormat = *pClTs
 		trice.Password = *pClKey
 		trice.ShowPassword = *pClShow
-		lgf.Name = *pClLf
+		cage.Name = *pClLf
 		if true == *pClSrv {
 			return trice.ScReceive(args[0])
 		}
@@ -172,7 +171,7 @@ func HandleArgs(args []string) error {
 		disp.ColorPalette = *pSvCol
 		disp.IPAddr = *pSvIPA
 		disp.IPPort = *pSvIPP
-		lgf.Name = *pSvLlf
+		cage.Name = *pSvLlf
 		//lib.TimeStampFormat = *pSvTs
 		return disp.ScDisplayServer()
 
@@ -195,8 +194,8 @@ func scScan() error {
 }
 
 func scVersion() error {
-	lgf.Enable()
-	defer lgf.Disable()
+	cage.Enable()
+	defer cage.Disable()
 	log.SetFlags(0)
 	if "" != version {
 		log.Printf("version=%v, commit=%v, built at %v\n", version, commit, date)
@@ -217,12 +216,12 @@ func scHelp(
 	sv *flag.FlagSet,
 	cl *flag.FlagSet) error {
 
-	lgf.Enable()
-	defer lgf.Disable()
+	cage.Enable()
+	defer cage.Disable()
 
 	/* debug code:
 	Problem:
-	lgf.Enable() re-direkted os.Stderr und dupliziert so Ausgaben an os.Sterr in trice.log
+	cage.Enable() re-direkted os.Stderr und dupliziert so Ausgaben an os.Sterr in trice.log
 	hCmd.Output() usw. geben os.Stderr zurück. Das ist auch wirklich die re-directed Adresse.
 	Der Paketest von cage funktioniert, auch TestScHelp() geht fehlerfrei durch.
 	Wenn aber über die Kommandozeile "trice h" erfolgt, landen Ausgaben an os.Stderr NICHT in trice.log obwohl os.Stderr re-directed ist.
@@ -230,8 +229,8 @@ func scHelp(
 	/*
 		log.SetFlags(0)
 		fmt.Println("0: os.Stderr     addr:", os.Stderr) // ok not in trice.log
-		lgf.Enable()
-		defer lgf.Disable()
+		cage.Enable()
+		defer cage.Disable()
 		fmt.Println("1: os.Stderr     addr:", os.Stderr)     // ok in trice.log (os.Stdout)
 		fmt.Println("2: hCmd.Output() addr:", hCmd.Output()) // ok in trice.log (os.Stdout)
 

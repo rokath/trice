@@ -21,10 +21,7 @@ func (p *ListT) FileWatcher() {
 	}
 	defer watcher.Close()
 
-	//
 	done := make(chan bool)
-
-	//
 	go func() {
 		var cnt int
 		var now, last time.Time

@@ -11,7 +11,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/rokath/trice/pkg/lgf"
+	"github.com/rokath/trice/pkg/cage"
 	"github.com/rokath/trice/pkg/lib"
 )
 
@@ -62,9 +62,9 @@ func lineGenerator(t *testing.T, s string, len, count int, wg *sync.WaitGroup) {
 
 // timingIssueOnCli
 func TestServerMutex(t *testing.T) {
-	lgf.Name = "./testdata/serverMutexTest.log"
+	cage.Name = "./testdata/serverMutexTest.log"
 	uniqName := "./testdata/serverMutexUniq.txt"
-	os.Remove(lgf.Name)
+	os.Remove(cage.Name)
 	os.Remove(uniqName)
 
 	var wg sync.WaitGroup
@@ -98,9 +98,9 @@ func TestServerMutex(t *testing.T) {
 
 	wg.Wait()
 	lib.Ok(t, ScShutdownRemoteDisplayServer(0))
-	n := lib.UniqLines(t, lgf.Name, uniqName)
+	n := lib.UniqLines(t, cage.Name, uniqName)
 	lib.Equals(t, n, lv+4) // first line + 9 lines + server line
 	os.Remove(uniqName)
 	time.Sleep(200 * time.Millisecond) // Why to wait here? 50ms is not enough.
-	os.Remove(lgf.Name)
+	os.Remove(cage.Name)
 }
