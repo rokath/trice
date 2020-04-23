@@ -1,0 +1,10 @@
+# https://stackoverflow.com/questions/5533050/gitignore-exclude-folder-but-include-specific-subfolder
+# you can skip this first one if it is not already excluded by prior patterns
+#!ArduinoIDE/
+
+ArduinoIDE/*
+!ArduinoIDE/portable/
+
+ArduinoIDE/portable/*
+!ArduinoIDE/portable/preferences.txt
+!ArduinoIDE/portable/sketchbook
