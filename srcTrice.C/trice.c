@@ -59,8 +59,8 @@ ALIGN4 static triceMsg_t triceMsg ALIGN4_END = {
     { 0, 0 } // 16bit ID, 16bit data
 };
 
-static uint8_t const * const limit = (uint8_t*)(&triceMsg + 1); //!< trice message buffer limit
-static uint8_t       *       pRead = (uint8_t*)(&triceMsg + 1); //!< trice message buffer read pointer
+static uint8_t const * const limit = (uint8_t*)(&triceMsg + 1); //!< trice message buffer limit (points behind triceMsg buffer)
+static uint8_t       *       pRead = (uint8_t*)(&triceMsg + 1); //!< trice message buffer read pointer (initial set to limit for empty triceMsg buffer)
 
 //! get next trice byte for transmission from trice message buffer, no depth check here
 //!\retval data byte
@@ -73,28 +73,52 @@ static size_t triceMsgBufferDepth( void ){
     return count;
 }
 
+// pull next trice from fifo and prepare triceMsg buffer
+static void prepareNextTriceTransmission(void){
+    triceFifoPop( (uint32_t*)(&(triceMsg.ld)) );
+    pRead = (uint8_t*)&triceMsg;
+    triceMsg.hd.crc8  = TRICE_START_BYTE ^ TRICE_LOCAL_ADDR ^ TRICE_DISPL_ADDR
+                         ^ triceMsg.ld.load[0]
+                         ^ triceMsg.ld.load[1]
+                         ^ triceMsg.ld.load[2]
+                         ^ triceMsg.ld.load[3];
+    #ifdef ENCRYPT
+        triceMsg.hd.start = TRICE_START_BYTE;
+        triceMsg.hd.cad  = TRICE_LOCAL_ADDR;
+        triceMsg.hd.sad  = TRICE_DISPL_ADDR;
+        encrypt( (uint8_t*)&triceMsg );
+    #endif
+}
+
 //! prepare next trice for transmission
 //!\retval 0 no next trice
 //!\retval 1 next trice in message buffer
 static size_t triceNextMsg( void ){
     if( triceFifoDepth() ){
-        triceFifoPop( (uint32_t*)(&(triceMsg.ld)) );
-        pRead = (uint8_t*)&triceMsg;
-        triceMsg.hd.crc8  = TRICE_START_BYTE ^ TRICE_LOCAL_ADDR ^ TRICE_DISPL_ADDR
-                             ^ triceMsg.ld.load[0]
-                             ^ triceMsg.ld.load[1]
-                             ^ triceMsg.ld.load[2]
-                             ^ triceMsg.ld.load[3];
-        #ifdef ENCRYPT
-            triceMsg.hd.start = TRICE_START_BYTE;
-            triceMsg.hd.cad  = TRICE_LOCAL_ADDR;
-            triceMsg.hd.sad  = TRICE_DISPL_ADDR;
-            encrypt( (uint8_t*)&triceMsg );
-        #endif
+        prepareNextTriceTransmission();
         return 1;
     }
     return 0;
 }
+
+#ifdef TRICE_WRITE_OUT_FUNCTION
+
+void triceServeTransmit( void ){
+    size_t sent;
+    static size_t remaining = 0; // amount of not transmitted bytes inside triceMsg
+    if( remaining ){ // try to transmit rest data
+        uint8_t * rd = (uint8_t*)limit - remaining; // next read address
+        sent = triceWrite( rd, remaining ); 
+        remaining -= sent;
+        return;
+    }else if( triceFifoDepth() ){
+        prepareNextTriceTransmission();
+        sent = triceWrite( pRead, sizeof(triceMsg) ); 
+        remaining = sizeof(triceMsg) - sent;
+    }
+}
+
+#else // #ifdef TRICE_WRITE_OUT_FUNCTION
 
 //! This function should be called inside the transmit done device interrupt.
 //! Also it should be called cyclically to trigger transmission start.
@@ -124,6 +148,8 @@ static void triceTxContinue( int* pTxState ){
         }
     }
 }
+
+#endif // #else // #ifdef TRICE_WRITE_OUT_FUNCTION
 
 #if 1 == TRICE_PRINTF_ADAPTER
 
@@ -438,6 +464,8 @@ static inline void resetPkgByteIndex( void ){
     pkgByteIdx = -1; 
 }
 
+#ifndef TRICE_WRITE_OUT_FUNCTION
+
 //! get netx byte from package fifo and transfer it 
 //! \return transferred byte
 static uint8_t txNextByte( void ){
@@ -446,6 +474,8 @@ static uint8_t txNextByte( void ){
     triceTransmitData8( v );
     return v;
 }
+
+#endif // #ifndef TRICE_WRITE_OUT_FUNCTION
 
 //! comTxHandler starts a com transmission if possible, otherwise it does nothing
 //! It checks these conditions:
@@ -539,6 +569,8 @@ static void comTxContinue( int* pTxState ){
 
 #endif // #if FULL_RUNTIME == TRICE_STRINGS
 
+#ifndef TRICE_WRITE_OUT_FUNCTION
+
 //! Check for data and start a transmission, if both channes have data give priority to com.
 //! \param pTxState pointer to TxState, do nothing if not noTx
 //! should be activated cyclically for example every 1 ms for small transmit delays
@@ -560,5 +592,7 @@ void TxContinue( void ){
 #endif
     triceTxContinue( &txState );
 }
+
+#endif // #ifndef TRICE_WRITE_OUT_FUNCTION
 
 #endif // #else // #if NO_CODE == TRICE_CODE

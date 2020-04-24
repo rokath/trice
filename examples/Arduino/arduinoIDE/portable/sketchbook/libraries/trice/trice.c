@@ -59,8 +59,8 @@ ALIGN4 static triceMsg_t triceMsg ALIGN4_END = {
     { 0, 0 } // 16bit ID, 16bit data
 };
 
-static uint8_t const * const limit = (uint8_t*)(&triceMsg + sizeof(triceMsg)); //!< trice message buffer limit
-static uint8_t       *       pRead = (uint8_t*)(&triceMsg); //!< trice message buffer read pointer
+static uint8_t const * const limit = (uint8_t*)(&triceMsg + 1); //!< trice message buffer limit (points behind triceMsg buffer)
+static uint8_t       *       pRead = (uint8_t*)(&triceMsg + 1); //!< trice message buffer read pointer (initial set to limit for empty triceMsg buffer)
 
 //! get next trice byte for transmission from trice message buffer, no depth check here
 //!\retval data byte
@@ -464,14 +464,18 @@ static inline void resetPkgByteIndex( void ){
     pkgByteIdx = -1; 
 }
 
+#ifndef TRICE_WRITE_OUT_FUNCTION
+
 //! get netx byte from package fifo and transfer it 
 //! \return transferred byte
 static uint8_t txNextByte( void ){
     uint8_t v;
     FifoPopUint8_Unprotected( &wrFifo, &v );
-    triceWrite(&v,1);// triceTransmitData8( v );
+    triceTransmitData8( v );
     return v;
 }
+
+#endif // #ifndef TRICE_WRITE_OUT_FUNCTION
 
 //! comTxHandler starts a com transmission if possible, otherwise it does nothing
 //! It checks these conditions:
@@ -565,6 +569,8 @@ static void comTxContinue( int* pTxState ){
 
 #endif // #if FULL_RUNTIME == TRICE_STRINGS
 
+#ifndef TRICE_WRITE_OUT_FUNCTION
+
 //! Check for data and start a transmission, if both channes have data give priority to com.
 //! \param pTxState pointer to TxState, do nothing if not noTx
 //! should be activated cyclically for example every 1 ms for small transmit delays
@@ -574,7 +580,7 @@ void TxStart( void ){
     // 1. runtims strings are earlier before their trigger trices.    
     // 2. com is more time critical than trice transmission
 #endif
-   ///////////////////// triceTxStart( &txState );
+    triceTxStart( &txState );
 }
 
 //! continue ongoing transmission, otherwise check for new data transmission
@@ -584,7 +590,9 @@ void TxContinue( void ){
 #if FULL_RUNTIME == TRICE_STRINGS
     comTxContinue( &txState );
 #endif
-   /////////////////////////// triceTxContinue( &txState );
+    triceTxContinue( &txState );
 }
+
+#endif // #ifndef TRICE_WRITE_OUT_FUNCTION
 
 #endif // #else // #if NO_CODE == TRICE_CODE
