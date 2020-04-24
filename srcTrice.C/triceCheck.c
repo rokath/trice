@@ -8,7 +8,9 @@
 #include "trice.h"
 #include "xteaCrypto.h"
 
-#define SYSTICKVAL16 SysTick->VAL //!< STM32 specific
+#ifndef SYSTICKVAL16
+#define SYSTICKVAL16 0 //!< sys clock state
+#endif
 
 //! write out all types of trices with fixed values for testing
 //! \details One trice has one subtrace, if param size max 2 bytes. 

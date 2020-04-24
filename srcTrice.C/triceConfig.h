@@ -17,10 +17,8 @@
 extern "C" {
 #endif
 
-#include "main.h" // hardware specific stuff
-
 ///////////////////////////////////////////////////////////////////////////////
-// internal values
+// internal values (do not change)
 //
 
 //! used as TRICE_CODE macro option for more flash occupation, but decreases execution time
@@ -44,7 +42,7 @@ extern "C" {
 #define FULL_RUNTIME  300 //!< value is only to distinguish from RARE_RUNTIME and NONE_RUNTIME
 
 ///////////////////////////////////////////////////////////////////////////////
-// user adaption
+// user adaption (not hardware specific)
 //
 
 //!< a byte count for buffering traces, must be power of 2, one basic trace needs 4 bytes
@@ -96,99 +94,12 @@ extern "C" {
 #endif // #if 1 == TRICE_PRINTF_ADAPTER
 
 ///////////////////////////////////////////////////////////////////////////////
-// compiler adaptions
+// hardware specific stuff (enable only one of these header files)
 //
+#include "triceStm32InterruptConfig.h" 
+#include "triceStm32PutCharConfig.h" 
+#include "triceArduinoConfig.h" 
 
-#ifdef __GNUC__ // gnu compiler ###############################################
-
-#define TRICE_INLINE static inline //! used for trice code
-
-#define ALIGN4                                  //!< align to 4 byte boundary preamble
-#define ALIGN4_END __attribute__ ((aligned(4))) //!< align to 4 byte boundary post declaration
-#define PACKED                                  //!< pack data preamble
-#define PACKED_END __attribute__ ((packed))      //!< pack data post declaration
-
-#elif defined(__arm__) // ARMkeil IDE #########################################
-
-#define TRICE_INLINE static inline //! used for trice code
-
-#define ALIGN4 __align(4) //!< align to 4 byte boundary preamble
-#define ALIGN4_END        //!< align to 4 byte boundary post declaration
-#define PACKED __packed   //!< pack data preamble
-#define PACKED_END        //!< pack data post declaration
-
-#else // ######################################################################
-
-// some other compliler
-
-#endif // compiler adaptions ##################################################
-
-///////////////////////////////////////////////////////////////////////////////
-// hardware specific interface functions tested on NUCLEO-STM32F030
-//
-
-//#define TRICE_QUICK_AND_DIRTY_ONLY_PUTCHAR // for a quick start you can enable this line and rely only putchar
-
-#ifdef TRICE_QUICK_AND_DIRTY_ONLY_PUTCHAR
-TRICE_INLINE void tricePutchar( char c ){
-    LL_USART_TransmitData8( TRICE_UART, c); // put your putchar call here
-}
-
-#define TRICE_ENTER_CRITICAL_SECTION {
-#define TRICE_LEAVE_CRITICAL_SECTION }
-TRICE_INLINE uint32_t triceTxDataRegisterEmpty( void ){ return 1; } // would be good to implement it for better performance, otherwise you need to use a time interval for the Tx calls
-TRICE_INLINE void triceTransmitData8( uint8_t d ){ tricePutchar( d ); }
-TRICE_INLINE void triceEableTxEmptyInterrupt( void ){}
-TRICE_INLINE void triceDisableTxEmptyInterrupt( void ){}
-
-#else // #ifdef TRICE_QUICK_AND_DIRTY_ONLY_PUTCHAR
-
-//! Save interrupt state and disable Interrupts
-//! \details Workaround for ARM Cortex M0 and M0+
-//! \li __get_PRIMASK() is 0 when interrupts are enabled globally
-//! \li __get_PRIMASK() is 1 when interrupts are disabled globally
-//! If trices are used only outside critical sections or interrupts
-//! you can leave this macro pair empty for more speed.
-#define TRICE_ENTER_CRITICAL_SECTION { uint32_t primaskstate = __get_PRIMASK(); __disable_irq(); {
-
-//! Restore interrupt state
-//! \details Workaround for ARM Cortex M0 and M0+
-//! \li __get_PRIMASK() is 0 when interrupts are enabled globally
-//! \li __get_PRIMASK() is 1 when interrupts are disabled globally
-//! If trices are used only outside critical sections or interrupts
-//! you can leave this macro pair empty for more speed.
-#define TRICE_LEAVE_CRITICAL_SECTION } __set_PRIMASK(primaskstate); }
-
-//! Check if a new byte can be written into trice transmit register.
-//! \retval 0 == not empty
-//! \retval !0 == empty
-//! User must provide this function.
-TRICE_INLINE uint32_t triceTxDataRegisterEmpty( void ){
-    return LL_USART_IsActiveFlag_TXE( TRICE_UART );
-}
-
-//! Write value d into trice transmit register.
-//! \param d byte to transmit
-//! User must provide this function.
-TRICE_INLINE void triceTransmitData8( uint8_t d ){
-    LL_USART_TransmitData8( TRICE_UART, d);
-}
-
-//! Allow interrupt for empty trice data transmit register.
-//! User must provide this function.
-TRICE_INLINE void triceEableTxEmptyInterrupt( void ){
-    LL_USART_EnableIT_TXE( TRICE_UART );
-}
-
-//! Disallow interrupt for empty trice data transmit register.
-//! User must provide this function.
-TRICE_INLINE void triceDisableTxEmptyInterrupt( void ){
-    LL_USART_DisableIT_TXE( TRICE_UART );
-}
-
-#endif // #else // #ifdef TRICE_QUICK_AND_DIRTY_ONLY_PUTCHAR
-
-#define SYSTICKVAL16 SysTick->VAL //!< STM32 specific, set to 0 as starting point with nonSTM MCE
 
 #ifdef __cplusplus
 }
