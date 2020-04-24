@@ -129,7 +129,11 @@ int main(void)
         if( 0 == loopCount % 10 ){
             TxStart();
             TxContinue();
+            //tricePutchar();
         }
+        #endif
+        #ifdef TRICE_USE_WRITE_FUNCTION
+        triceServeTransmit();
         #endif
     /* USER CODE END WHILE */
 

@@ -96,9 +96,10 @@ extern "C" {
 ///////////////////////////////////////////////////////////////////////////////
 // hardware specific stuff (enable only one of these header files)
 //
-#include "triceStm32InterruptConfig.h" 
-#include "triceStm32PutCharConfig.h" 
-#include "triceArduinoConfig.h" 
+#include "triceStm32InterruptConfig.h" // ok
+//#include "triceStm32PutCharConfig.h" // does not work now
+//#include "triceStm32WriteConfig.h" // does not compile yet
+//#include "triceArduinoConfig.h" // does not work yet
 
 
 #ifdef __cplusplus

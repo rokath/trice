@@ -32,13 +32,16 @@ enum{
     comTx    // communication packet in transmission
 };
 
-static int txState = noTx; //!< txState, needed to not mix the packet data during bytes tx
 
 //! trice fifo instance, here are the trices buffered. used in TRICE macro expansion
 ALIGN4 uint32_t triceFifo[ TRICE_FIFO_SIZE>>2 ] ALIGN4_END;
 
-static uint32_t rdIndexTriceFifo = 0; //!< trice fifo read index
 uint32_t wrIndexTriceFifo = 0; //!< trice fifo write index, used inside macros, so must be visible
+
+#ifdef TRICE_INTERRUPT_CONFIG
+static int txState = noTx; //!< txState, needed to not mix the packet data during bytes tx
+
+static uint32_t rdIndexTriceFifo = 0; //!< trice fifo read index
 
 //! get one trice from trice fifo
 //! am p address for trice id with 2 byte data
@@ -59,8 +62,10 @@ ALIGN4 static triceMsg_t triceMsg ALIGN4_END = {
     { 0, 0 } // 16bit ID, 16bit data
 };
 
-static uint8_t const * const limit = (uint8_t*)(&triceMsg + 1); //!< trice message buffer limit (points behind triceMsg buffer)
+
+
 static uint8_t       *       pRead = (uint8_t*)(&triceMsg + 1); //!< trice message buffer read pointer (initial set to limit for empty triceMsg buffer)
+static uint8_t const * const limit = (uint8_t*)(&triceMsg + 1); //!< trice message buffer limit (points behind triceMsg buffer)
 
 //! get next trice byte for transmission from trice message buffer, no depth check here
 //!\retval data byte
@@ -72,6 +77,8 @@ static size_t triceMsgBufferDepth( void ){
     size_t count = limit - pRead;
     return count;
 }
+
+
 
 // pull next trice from fifo and prepare triceMsg buffer
 static void prepareNextTriceTransmission(void){
@@ -101,7 +108,9 @@ static size_t triceNextMsg( void ){
     return 0;
 }
 
-#ifdef TRICE_WRITE_OUT_FUNCTION
+#endif // #ifdef TRICE_INTERRUPT_CONFIG
+
+#ifdef TRICE_USE_WRITE_FUNCTION
 
 void triceServeTransmit( void ){
     size_t sent;
@@ -118,7 +127,9 @@ void triceServeTransmit( void ){
     }
 }
 
-#else // #ifdef TRICE_WRITE_OUT_FUNCTION
+#endif // #ifdef TRICE_USE_WRITE_FUNCTION
+
+#ifdef TRICE_INTERRUPT_CONFIG
 
 //! This function should be called inside the transmit done device interrupt.
 //! Also it should be called cyclically to trigger transmission start.
@@ -149,7 +160,7 @@ static void triceTxContinue( int* pTxState ){
     }
 }
 
-#endif // #else // #ifdef TRICE_WRITE_OUT_FUNCTION
+#endif // #ifdef TRICE_INTERRUPT_CONFIG
 
 #if 1 == TRICE_PRINTF_ADAPTER
 
@@ -302,16 +313,18 @@ static Fifo_t wrFifo = {WSIZ, rcWr, rcWr+WSIZ, rcWr, rcWr };
 // fifo access
 //
 
-//! make sure read pointer stays inside fifo range
-//! \param f pointer to fifo struct
-static void fifoLimitateRdPtr_Unprotected( Fifo_t* f ){
-    f->pRd -= f->pRd < f->pLimit ? 0 : f->size;
-}
-
 //! make sure write pointer stays inside fifo range
 //! \param f pointer to fifo struct
 static void fifoLimitateWrPtr_Unprotected( Fifo_t* f ){
     f->pWr -= f->pWr < f->pLimit ? 0 : f->size;
+}
+
+#ifdef TRICE_INTERRUPT_CONFIG
+
+//! make sure read pointer stays inside fifo range
+//! \param f pointer to fifo struct
+static void fifoLimitateRdPtr_Unprotected( Fifo_t* f ){
+    f->pRd -= f->pRd < f->pLimit ? 0 : f->size;
 }
 
 //! \param f pointer to fifo struct
@@ -340,6 +353,8 @@ static void FifoPopUint8_Unprotected( Fifo_t* f, uint8_t* pValue ){
     f->pRd++;
     fifoLimitateRdPtr_Unprotected(f);
 }
+
+#endif // #ifdef TRICE_INTERRUPT_CONFIG
 
 //! return amount of bytes continuously can be written without write pointer wrap
 //! This is __not__ the free writable count! See also FifoWritableCount().
@@ -457,6 +472,8 @@ void triceString( int rightBound, const char* s ){
     TRICE_LEAVE_CRITICAL_SECTION
 }
 
+#ifdef TRICE_INTERRUPT_CONFIG
+
 static int pkgByteIdx = -1; //!< helper for stream interpretation
 
 //! start a new package header
@@ -464,7 +481,7 @@ static inline void resetPkgByteIndex( void ){
     pkgByteIdx = -1; 
 }
 
-#ifndef TRICE_WRITE_OUT_FUNCTION
+
 
 //! get netx byte from package fifo and transfer it 
 //! \return transferred byte
@@ -475,7 +492,6 @@ static uint8_t txNextByte( void ){
     return v;
 }
 
-#endif // #ifndef TRICE_WRITE_OUT_FUNCTION
 
 //! comTxHandler starts a com transmission if possible, otherwise it does nothing
 //! It checks these conditions:
@@ -567,9 +583,11 @@ static void comTxContinue( int* pTxState ){
     }
 }
 
+#endif // #ifdef TRICE_INTERRUPT_CONFIG
+
 #endif // #if FULL_RUNTIME == TRICE_STRINGS
 
-#ifndef TRICE_WRITE_OUT_FUNCTION
+#ifdef TRICE_INTERRUPT_CONFIG
 
 //! Check for data and start a transmission, if both channes have data give priority to com.
 //! \param pTxState pointer to TxState, do nothing if not noTx
@@ -593,6 +611,6 @@ void TxContinue( void ){
     triceTxContinue( &txState );
 }
 
-#endif // #ifndef TRICE_WRITE_OUT_FUNCTION
+#endif // #ifdef TRICE_INTERRUPT_CONFIG
 
 #endif // #else // #if NO_CODE == TRICE_CODE

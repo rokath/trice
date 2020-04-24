@@ -20,13 +20,6 @@ extern "C" {
 #define TRICE_USE_WRITE_FUNCTION // for a quick start you can enable this line and rely only putchar
 
 
-TRICE_INLINE void triceWrite( char* c, int count ){
-	if( count && triceTxDataRegisterEmpty() ){
-		LL_USART_TransmitData8( TRICE_UART, c); // only one char 
-	}
-	return count - 1;
-}
-
 #define TRICE_ENTER_CRITICAL_SECTION {
 #define TRICE_LEAVE_CRITICAL_SECTION }
 
@@ -39,6 +32,14 @@ TRICE_INLINE uint32_t triceTxDataRegisterEmpty( void ){
     return LL_USART_IsActiveFlag_TXE( TRICE_UART );
 }
 
+TRICE_INLINE int triceWrite( char* c, int count ){
+	if( count && triceTxDataRegisterEmpty() ){
+		LL_USART_TransmitData8( TRICE_UART, *c); // only one char 
+	}
+	return count - 1;
+}
+
+void triceServeTransmit( void );
 
 #ifdef __cplusplus
 }
