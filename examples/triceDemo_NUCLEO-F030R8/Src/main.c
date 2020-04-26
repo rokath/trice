@@ -101,7 +101,7 @@ int main(void)
   MX_GPIO_Init();
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
-    LL_USART_EnableIT_RXNE(USART2); // enable UART2 interrupt
+   // LL_USART_EnableIT_RXNE(USART2); // enable UART2 interrupt
   /* USER CODE END 2 */
  
  
@@ -117,7 +117,8 @@ int main(void)
         if( (LOOPCOUNT>>1) == loopCount ){
             static int i = 0;
             TRICE32_1( Id(43027), "msg:Loop %d\n\n\n", i );
-            i++;         
+            TRICE_S( 30, "sig:1234567abcdefgh\n" );
+            i++;
             LL_GPIO_ResetOutputPin(LD2_GPIO_Port, LD2_Pin);
         }
         if( LOOPCOUNT == loopCount ){
@@ -125,12 +126,10 @@ int main(void)
           LL_GPIO_SetOutputPin(LD2_GPIO_Port, LD2_Pin);
             triceCheckSet();
         }
-        #ifdef TRICE_QUICK_AND_DIRTY_ONLY_PUTCHAR
-        if( 0 == loopCount % 10 ){
-            TxStart();
-            TxContinue();
-        }
+        #if TRICE_TX_CONTROL == MANUALLY
+            TriceServeTransmission();
         #endif
+        
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

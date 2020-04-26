@@ -1223,5 +1223,61 @@
 		"fmtStrg": "info:informal   message, SysTick is %6d\\n",
 		"created": 1587492450,
 		"removed": 0
+	},
+	{
+		"id": 49085,
+		"fmtType": "TRICE0",
+		"fmtStrg": "rd:e\\n",
+		"created": 1587849741,
+		"removed": 0
+	},
+	{
+		"id": 43181,
+		"fmtType": "TRICE0",
+		"fmtStrg": "dbg:k\\n",
+		"created": 1587849741,
+		"removed": 0
+	},
+	{
+		"id": 41278,
+		"fmtType": "TRICE0",
+		"fmtStrg": "diag:y\\n",
+		"created": 1587849741,
+		"removed": 0
+	},
+	{
+		"id": 59846,
+		"fmtType": "TRICE0",
+		"fmtStrg": "e:1",
+		"created": 1587849953,
+		"removed": 0
+	},
+	{
+		"id": 51305,
+		"fmtType": "TRICE0",
+		"fmtStrg": "diag:y",
+		"created": 1587849953,
+		"removed": 0
+	},
+	{
+		"id": 58530,
+		"fmtType": "TRICE0",
+		"fmtStrg": "e:7",
+		"created": 1587849994,
+		"removed": 0
+	},
+	{
+		"id": 38081,
+		"fmtType": "TRICE0",
+		"fmtStrg": "diag:y",
+		"created": 1587849994,
+		"removed": 0
+	},
+	{
+		"id": 56946,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "msg:Loop %d\\n\\n\\n",
+		"created": 1587911606,
+		"removed": 0
 	}
 ]

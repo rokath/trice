@@ -8,7 +8,7 @@ as NO_CODE (globally or file specific) the TRICE* macros generate no code.
 #ifndef TRICE_H_
 #define TRICE_H_
 
-#include "triceConfig.h" 
+#include "triceConfig_template.h" 
 
 #ifdef __cplusplus
 extern "C" {
@@ -49,8 +49,9 @@ void triceString( int rightBound, const char* s ); //!< used in macro expansion,
 #define TRICE_S( n, s ) triceString( n, s )
 #endif
 
-void TxStart( void );
-void TxContinue( void );
+//void TxStart( void );
+//void TxContinue( void );
+void TriceServeTransmission( void );
 
 #define Id( n ) (n) //!< Macro for improved trice readability and better source code parsing.
 

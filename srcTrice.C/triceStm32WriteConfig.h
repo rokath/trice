@@ -19,25 +19,7 @@ extern "C" {
 
 #define TRICE_USE_WRITE_FUNCTION // for a quick start you can enable this line and rely only putchar
 
-
-#define TRICE_ENTER_CRITICAL_SECTION {
-#define TRICE_LEAVE_CRITICAL_SECTION }
-
-
-//! Check if a new byte can be written into trice transmit register.
-//! \retval 0 == not empty
-//! \retval !0 == empty
-//! User must provide this function.
-TRICE_INLINE uint32_t triceTxDataRegisterEmpty( void ){
-    return LL_USART_IsActiveFlag_TXE( TRICE_UART );
-}
-
-TRICE_INLINE int triceWrite( char* c, int count ){
-	if( count && triceTxDataRegisterEmpty() ){
-		LL_USART_TransmitData8( TRICE_UART, *c); // only one char 
-	}
-	return count - 1;
-}
+#define TRICE_WRITE_OUT_FUNCTION STM32_LLDRV
 
 void triceServeTransmit( void );
 

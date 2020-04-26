@@ -2,8 +2,8 @@
 \author Thomas.Hoehenleitner [at] seerose.net
 *******************************************************************************/
 
-#ifndef TRICE_STM32_COMPILER_CONFIG_H_
-#define TRICE_STM32_COMPILER_CONFIG_H_
+#ifndef TRICE_COMPILER_CONFIG_H_
+#define TRICE_COMPILER_CONFIG_H_
 
 #ifdef __cplusplus
 extern "C" {
@@ -35,10 +35,8 @@ extern "C" {
 #endif // compiler adaptions ##################################################
 
 
-#define SYSTICKVAL16 SysTick->VAL //!< STM32 specific, set to 0 as starting point with nonSTM MCE
-
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* TRICE_STM32_COMPILER_CONFIG_H_ */
+#endif /* TRICE_COMPILER_CONFIG_H_ */

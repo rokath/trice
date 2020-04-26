@@ -1,4 +1,4 @@
-/*! \file triceStm32InterruptConfig.h
+/*! \file triceStm32_LLConfig.h
 \brief This file is for trice specific project settings
 \details adapt needed fifo size, compiler settings and 4 hardware access functions
 - triceTxDataRegisterEmpty()
@@ -8,22 +8,64 @@
 \author Thomas.Hoehenleitner [at] seerose.net
 *******************************************************************************/
 
-#ifndef TRICE_STM32_INTERRUPT_CONFIG_H_
-#define TRICE_STM32_INTERRUPT_CONFIG_H_
+#ifndef TRICE_STM32_LL_CONFIG_H_
+#define TRICE_STM32_LL_CONFIG_H_
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 #include <stdint.h>
-#include "triceStm32CompilerConfig.h"
+
 #include "main.h" // hardware specific stuff
 
 ///////////////////////////////////////////////////////////////////////////////
 // hardware specific interface functions tested on NUCLEO-STM32F030
 //
 
-#define TRICE_INTERRUPT_CONFIG
+//! Check if a new byte can be written into trice transmit register.
+//! \retval 0 == not empty
+//! \retval !0 == empty
+//! User must provide this function.
+TRICE_INLINE uint32_t triceTxDataRegisterEmpty( void ){
+    return LL_USART_IsActiveFlag_TXE( TRICE_UART );
+}
+
+//! Write value d into trice transmit register.
+//! \param d byte to transmit
+//! User must provide this function.
+TRICE_INLINE void triceTransmitData8( uint8_t d ){
+    LL_USART_TransmitData8( TRICE_UART, d);
+}
+
+
+#if TRICE_TX_CONTROL == MANUALLY
+
+//! Allow interrupt for empty trice data transmit register.
+//! User must provide this function.
+TRICE_INLINE void triceEableTxEmptyInterrupt( void ){
+}
+
+//! Disallow interrupt for empty trice data transmit register.
+//! User must provide this function.
+TRICE_INLINE void triceDisableTxEmptyInterrupt( void ){
+}
+
+#endif // #if TRICE_TX_CONTROL == MANUALLY
+
+#if TRICE_TX_CONTROL == INTERRUPTS
+
+//! Allow interrupt for empty trice data transmit register.
+//! User must provide this function.
+TRICE_INLINE void triceEableTxEmptyInterrupt( void ){
+    LL_USART_EnableIT_TXE( TRICE_UART );
+}
+
+//! Disallow interrupt for empty trice data transmit register.
+//! User must provide this function.
+TRICE_INLINE void triceDisableTxEmptyInterrupt( void ){
+    LL_USART_DisableIT_TXE( TRICE_UART );
+}
 
 //! Save interrupt state and disable Interrupts
 //! \details Workaround for ARM Cortex M0 and M0+
@@ -41,35 +83,10 @@ extern "C" {
 //! you can leave this macro pair empty for more speed.
 #define TRICE_LEAVE_CRITICAL_SECTION } __set_PRIMASK(primaskstate); }
 
-//! Check if a new byte can be written into trice transmit register.
-//! \retval 0 == not empty
-//! \retval !0 == empty
-//! User must provide this function.
-TRICE_INLINE uint32_t triceTxDataRegisterEmpty( void ){
-    return LL_USART_IsActiveFlag_TXE( TRICE_UART );
-}
-
-//! Write value d into trice transmit register.
-//! \param d byte to transmit
-//! User must provide this function.
-TRICE_INLINE void triceTransmitData8( uint8_t d ){
-    LL_USART_TransmitData8( TRICE_UART, d);
-}
-
-//! Allow interrupt for empty trice data transmit register.
-//! User must provide this function.
-TRICE_INLINE void triceEableTxEmptyInterrupt( void ){
-    LL_USART_EnableIT_TXE( TRICE_UART );
-}
-
-//! Disallow interrupt for empty trice data transmit register.
-//! User must provide this function.
-TRICE_INLINE void triceDisableTxEmptyInterrupt( void ){
-    LL_USART_DisableIT_TXE( TRICE_UART );
-}
+#endif // #if TRICE_TX_CONTROL == INTERRUPTS
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* TRICE_STM32_INTERRUPT_CONFIG_H_ */
+#endif /* TRICE_STM32_LL_CONFIG_H_ */

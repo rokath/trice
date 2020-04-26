@@ -38,7 +38,7 @@
 #ifdef TRICE_QUICK_AND_DIRTY_ONLY_PUTCHAR
 #define MS_INTERVAL 100
 #else
-#define MS_INTERVAL 10
+#define MS_INTERVAL 1000
 #endif
 /* USER CODE END PD */
 
@@ -139,8 +139,8 @@ void SysTick_Handler(void)
   /* USER CODE END SysTick_IRQn 0 */
   
   /* USER CODE BEGIN SysTick_IRQn 1 */
-    #ifndef TRICE_QUICK_AND_DIRTY_ONLY_PUTCHAR
-    TxStart();  // start transmission if data
+    #if TRICE_TX_CONTROL == INTERRUPTS
+        TriceServeTransmission();
     #endif
   /* USER CODE END SysTick_IRQn 1 */
 }
@@ -161,8 +161,8 @@ void USART2_IRQHandler(void)
 
   /* USER CODE END USART2_IRQn 0 */
   /* USER CODE BEGIN USART2_IRQn 1 */
-    #ifndef TRICE_QUICK_AND_DIRTY_ONLY_PUTCHAR
-    TxContinue(); // end transmission if no data
+    #if TRICE_TX_CONTROL == INTERRUPTS
+        TriceServeTransmission();
     #endif
   /* USER CODE END USART2_IRQn 1 */
 }

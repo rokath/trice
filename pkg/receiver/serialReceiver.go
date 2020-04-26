@@ -239,7 +239,7 @@ func (p *SerialReceiver) readHeader() ([]byte, error) {
 		if true == evalHeader(b) {
 			break
 		}
-		emit.LineCollect(fmt.Sprintf("WRN:dicarding byte 0x%02x (dez %d)\n", b[0], b[0]))
+		emit.LineCollect(fmt.Sprintf("wrn:trice:discarding byte 0x%02x (dez %d)\n", b[0], b[0]))
 		b = encrypt(b)
 		x, err := p.readAtLeastBytes(1)
 		if nil != err {

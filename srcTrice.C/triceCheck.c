@@ -81,19 +81,19 @@ void triceCheckSet( void )
     TRICE0(Id(14772), "w:B" );
     TRICE0(Id( 4508), "a:c" );
     TRICE0(Id(19177), "wr:d" );
-    TRICE0(Id(16032), "rd:e" );
+    TRICE0(Id(49085), "rd:e\n" );
     TRICE0(Id(63796), "diag:f" );
     TRICE0(Id( 3252), "d:G" );
     TRICE0(Id(46648), "t:H" );
     TRICE0(Id(26015), "time:i" );
     TRICE0(Id(22805), "message:J" );
-    TRICE0(Id( 4422), "inf:k\n" );
- 
+    TRICE0(Id(43181), "dbg:k\n" );
+
     TRICE0( Id(61628), "1" );
     TRICE0( Id(50867), "2" );
     TRICE0( Id(46855), "3" );
     TRICE0( Id(10393), "4" );
-    TRICE0( Id(48998), "m:1" );
+    TRICE0( Id(58530), "e:7" );
     TRICE0( Id(35622), "m:12" );
     TRICE0( Id(22122), "m:123\n" );
 
@@ -117,7 +117,7 @@ void triceCheckSet( void )
     TRICE0 (Id(22743), "a:c" );
     TRICE0 (Id(25986), "wr:d" );
     TRICE0 (Id(53800), "rd:e" );
-    TRICE0 (Id(21079), "diag:f" );
+    TRICE0 (Id(38081), "diag:y" );
     TRICE0 (Id(47398), "d:G" );
     TRICE0 (Id(32350), "t:H" );
     TRICE0 (Id( 1734), "time:i" );
@@ -135,7 +135,7 @@ void triceCheckSet( void )
     TRICE_S( 18, "12345678\n" );
     TRICE_S( 18, "123456789\n" );
     TRICE_S( 18, "123456789a\n" );
-    TRICE_S( 18, "123456789ab\n" );
+    TRICE_S( 18, "sig:123456789ab\n" );
     TRICE_S( 18, "123456789abc\n" );
     TRICE_S( 18, "MSG:Berlin\n" );
 

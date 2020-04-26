@@ -93,7 +93,7 @@
             "env": {},
             "args": ["receiver",
                      "-port",
-                     "COM51",
+                     "COM3",
                      "-baud",
                      "115200",
                      "-list",

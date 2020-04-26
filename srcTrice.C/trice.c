@@ -20,10 +20,12 @@ The trices (macros) are dumped as 32bit values into a 32 bit fifo. That is the t
 #endif // #if 1 == TRICE_PRINTF_ADAPTER
 
 #if NO_CODE == TRICE_CODE
+#error
 void TxStart( void ){
 }
 void TxContinue( void ){
 }
+
 #else // #if NO_CODE == TRICE_CODE
 
 enum{
@@ -38,7 +40,7 @@ ALIGN4 uint32_t triceFifo[ TRICE_FIFO_SIZE>>2 ] ALIGN4_END;
 
 uint32_t wrIndexTriceFifo = 0; //!< trice fifo write index, used inside macros, so must be visible
 
-#ifdef TRICE_INTERRUPT_CONFIG
+
 static int txState = noTx; //!< txState, needed to not mix the packet data during bytes tx
 
 static uint32_t rdIndexTriceFifo = 0; //!< trice fifo read index
@@ -78,8 +80,6 @@ static size_t triceMsgBufferDepth( void ){
     return count;
 }
 
-
-
 // pull next trice from fifo and prepare triceMsg buffer
 static void prepareNextTriceTransmission(void){
     triceFifoPop( (uint32_t*)(&(triceMsg.ld)) );
@@ -107,60 +107,6 @@ static size_t triceNextMsg( void ){
     }
     return 0;
 }
-
-#endif // #ifdef TRICE_INTERRUPT_CONFIG
-
-#ifdef TRICE_USE_WRITE_FUNCTION
-
-void triceServeTransmit( void ){
-    size_t sent;
-    static size_t remaining = 0; // amount of not transmitted bytes inside triceMsg
-    if( remaining ){ // try to transmit rest data
-        uint8_t * rd = (uint8_t*)limit - remaining; // next read address
-        sent = triceWrite( rd, remaining ); 
-        remaining -= sent;
-        return;
-    }else if( triceFifoDepth() ){
-        prepareNextTriceTransmission();
-        sent = triceWrite( pRead, sizeof(triceMsg) ); 
-        remaining = sizeof(triceMsg) - sent;
-    }
-}
-
-#endif // #ifdef TRICE_USE_WRITE_FUNCTION
-
-#ifdef TRICE_INTERRUPT_CONFIG
-
-//! This function should be called inside the transmit done device interrupt.
-//! Also it should be called cyclically to trigger transmission start.
-//!         // check if data in trice fifo and load them in the 8 byte transmit buffer, optionally encrypted
-//!         // it is possible SysTick comes immediately after Uart ISR and the register is not empty yet
-//! \param pTxState address of a transmission state variable. It is cleared if no more traceLog messages to transmit and set to 1 if a traceLog transmission was started.
-//! \todo handle 8==traceLogMsgDepth() to give chance to other data streams
-static void triceTxStart( int* pTxState ){
-    if( (noTx == *pTxState) && triceTxDataRegisterEmpty() &&  triceNextMsg() ){ 
-            *pTxState = triceTx;
-            triceEableTxEmptyInterrupt(); 
-    }
-}
-
-//! This function should be called inside the transmit done device interrupt.
-//! Also it should be called cyclically to trigger transmission start.
-//! \param pTxState address of a transmission state variable. It is cleared if no more traceLog messages to transmit and set to 1 if a traceLog transmission was started.
-//! \todo handle 8==traceLogMsgDepth() to give chance to other data streams
-static void triceTxContinue( int* pTxState ){
-    if( (triceTx == *pTxState) && triceTxDataRegisterEmpty() ){ 
-        if( triceMsgBufferDepth() ){
-            uint8_t x = triceMsgNextByte();
-            triceTransmitData8( x ); 
-        }else{
-            triceDisableTxEmptyInterrupt();
-            *pTxState = noTx;
-        }
-    }
-}
-
-#endif // #ifdef TRICE_INTERRUPT_CONFIG
 
 #if 1 == TRICE_PRINTF_ADAPTER
 
@@ -319,7 +265,7 @@ static void fifoLimitateWrPtr_Unprotected( Fifo_t* f ){
     f->pWr -= f->pWr < f->pLimit ? 0 : f->size;
 }
 
-#ifdef TRICE_INTERRUPT_CONFIG
+
 
 //! make sure read pointer stays inside fifo range
 //! \param f pointer to fifo struct
@@ -354,7 +300,7 @@ static void FifoPopUint8_Unprotected( Fifo_t* f, uint8_t* pValue ){
     fifoLimitateRdPtr_Unprotected(f);
 }
 
-#endif // #ifdef TRICE_INTERRUPT_CONFIG
+
 
 //! return amount of bytes continuously can be written without write pointer wrap
 //! This is __not__ the free writable count! See also FifoWritableCount().
@@ -472,7 +418,7 @@ void triceString( int rightBound, const char* s ){
     TRICE_LEAVE_CRITICAL_SECTION
 }
 
-#ifdef TRICE_INTERRUPT_CONFIG
+
 
 static int pkgByteIdx = -1; //!< helper for stream interpretation
 
@@ -493,7 +439,7 @@ static uint8_t txNextByte( void ){
 }
 
 
-//! comTxHandler starts a com transmission if possible, otherwise it does nothing
+//! comTX starts a com transmission if possible, otherwise it does nothing
 //! It checks these conditions:
 //! \li currently no transmission: TxState is noTx
 //! \li tx register is empty 
@@ -501,27 +447,28 @@ static uint8_t txNextByte( void ){
 //! In that case the TxState changes from noTx to comTx and the first byte goes out
 //! and the transmit empty interrupt is enabled.
 //! Otherwise comTxStart does nothing.
-//! \param pTxState pointer to TxState
-static void comTxStart( int* pTxState ){
-    if( noTx == *pTxState && triceTxDataRegisterEmpty() && 8 <= FifoReadableCount_Unprotected( &wrFifo ) ){ 
-        // start only if a full header already in wrFifo.
-        // This is safe, because following data will be in fifo before the first 8 bytes are transmitted
-        *pTxState = comTx;
-        triceEableTxEmptyInterrupt(); 
-    }
-}
-
-//! comTxContinue checks if the tx register is empty and that the TxState is comTx flag and does nothing otherwise
-//! \param pTxState pointer to TxState, TxState set to noTx when current packet done
-static void comTxContinue( int* pTxState ){
+//! on continue it checks if the tx register is empty and that the TxState is comTx flag and does nothing otherwise
+//! txState set to noTx when current packet done
+static void comTX( void ){
     static uint8_t dpc = 0;     // we must transfer a complete block without trices inbetween
     static uint32_t len = 0;    // 0, 1...65536 must fit
     static uint8_t lenL = 0;
-
-    if( comTx != *pTxState || !triceTxDataRegisterEmpty() ){
+    
+    if( !triceTxDataRegisterEmpty() ){ // comTX and triceTx must check that independently
         return;
     }
-
+    
+    if( noTx == txState && 10 <= FifoReadableCount_Unprotected( &wrFifo ) ){ 
+        // start only if a full header plus following len already in wrFifo.
+        // This is safe, because following data will be in fifo before the first 10 bytes are transmitted
+        txState = comTx;
+        triceEableTxEmptyInterrupt(); 
+    }
+    
+    if( comTx != txState ){
+        return;
+    }
+    // continue
     pkgByteIdx++; // reset value is -1, so starts here with 0
     if( pkgByteIdx < 7 ){ // 0xc0 cad sad cr8 tid fid pix dpc
         txNextByte();     //   0   1   2   3   4   5   6   7
@@ -529,15 +476,15 @@ static void comTxContinue( int* pTxState ){
     }
     if ( 7 == pkgByteIdx ){ // dpc
         dpc = txNextByte(); // tx last byte of tx header 
-        if( 1 != dpc ){
+        if( 1 != dpc ){ // unexpected value
             TRICE8_1( Id( 1041), "err: dpc=%d\n", dpc );
-           resetPkgByteIndex();
+            resetPkgByteIndex();
             return;
         }
         if( 0 == dpc ){ 
-           resetPkgByteIndex(); // reload for next package
+            resetPkgByteIndex(); // reload for next package
             triceDisableTxEmptyInterrupt();
-            *pTxState = noTx; // com packet done
+            txState = noTx; // com packet done
         }
         return;
     }
@@ -563,7 +510,7 @@ static void comTxContinue( int* pTxState ){
         if( 0 == dpc ){ 
             resetPkgByteIndex();
             triceDisableTxEmptyInterrupt();
-            *pTxState = noTx; // com packet done
+            txState = noTx; // com packet done
         }
         return;
     } 
@@ -583,34 +530,132 @@ static void comTxContinue( int* pTxState ){
     }
 }
 
-#endif // #ifdef TRICE_INTERRUPT_CONFIG
-
 #endif // #if FULL_RUNTIME == TRICE_STRINGS
 
-#ifdef TRICE_INTERRUPT_CONFIG
+
+
+#if defined(TRICE_WRITE_OUT_FUNCTION) &&  TRICE_WRITE_OUT_FUNCTION == STM32_LLDRV
+
+//! Check if a new byte can be written into trice transmit register.
+//! \retval 0 == not empty
+//! \retval !0 == empty
+//! User must provide this function.
+TRICE_INLINE uint32_t triceTxDataRegisterEmpty( void ){
+    return LL_USART_IsActiveFlag_TXE( TRICE_UART );
+}
+
+TRICE_INLINE int triceWrite( char* c, int count ){
+	if( count && triceTxDataRegisterEmpty() ){
+		LL_USART_TransmitData8( TRICE_UART, *c); // only one char 
+	}
+	return count - 1;
+}
+
+
+
+
+TRICE_INLINE int triceWrite( char* c, int count ){
+	if( count && triceTxDataRegisterEmpty() ){
+		LL_USART_TransmitData8( TRICE_UART, *c); // only one char 
+	}
+	return count - 1;
+}
+
+#endif // #if defined(TRICE_WRITE_OUT_FUNCTION) &&  TRICE_WRITE_OUT_FUNCTION == STM32_LLDRV
+
+
+
+#ifdef TRICE_USE_WRITE_FUNCTION
+/*
+void triceServeTransmit( void ){
+    size_t sent;
+    static size_t remaining = 0; // amount of not transmitted bytes inside triceMsg
+    if( remaining ){ // try to transmit rest data
+        uint8_t * rd = (uint8_t*)limit - remaining; // next read address
+        sent = triceWrite( rd, remaining ); 
+        remaining -= sent;
+        return;
+    }else if( triceFifoDepth() ){
+        prepareNextTriceTransmission();
+        sent = triceWrite( pRead, sizeof(triceMsg) ); 
+        remaining = sizeof(triceMsg) - sent;
+    }
+}*/
+
+void triceServeTransmit( void ){
+    size_t sent;
+    static size_t remaining = 0; // amount of not transmitted bytes inside triceMsg
+    if( remaining ){ // try to transmit rest data
+        uint8_t * rd = (uint8_t*)limit - remaining; // next read address
+        sent = triceWrite( rd, remaining ); 
+        remaining -= sent;
+        return;
+    }else if( triceFifoDepth() ){
+        prepareNextTriceTransmission();
+        sent = triceWrite( pRead, sizeof(triceMsg) ); 
+        remaining = sizeof(triceMsg) - sent;
+    }
+}
+
+
+// how to implement a non-blocking write, which usually succeeds
+
+
+//! 
+static void triceTX( void ){
+    if( (noTx == txState) &&  triceNextMsg() ){ 
+            txState = triceTx; 
+            triceWrite( &triceMsg, 8 ); // immediate return
+    }
+
+#endif // #ifdef TRICE_USE_WRITE_FUNCTION
+
+
+//! This function should be called inside the transmit done device interrupt.
+//! Also it should be called cyclically to trigger transmission start.
+//!         // check if data in trice fifo and load them in the 8 byte transmit buffer, optionally encrypted
+//!         // it is possible SysTick comes immediately after Uart ISR and the register is not empty yet
+//! internal using transmission state variable txState. It is cleared if no more traceLog messages to transmit and set to 1 if a traceLog transmission was started.
+//! \todo handle 8==traceLogMsgDepth() to give chance to other data streams
+//! transmit one trice msg byte
+//! internal using transmission state variable txState. It is cleared if no more traceLog messages to transmit and set if a traceLog transmission was started.
+//! \todo handle 8==traceLogMsgDepth() to give chance to other data streams
+static void triceTX( void ){
+    if( !triceTxDataRegisterEmpty() ){ // // comTX and triceTx must check that independently
+        return;
+    }
+    if( (noTx == txState) &&  triceNextMsg() ){ 
+            txState = triceTx; 
+    }
+    if( (triceTx == txState) ){ 
+        if( triceMsgBufferDepth() ){
+            uint8_t x = triceMsgNextByte();
+            triceTransmitData8( x );
+            triceEableTxEmptyInterrupt();
+        }else{
+            triceDisableTxEmptyInterrupt();
+            txState = noTx;
+        }
+    }
+}
+
 
 //! Check for data and start a transmission, if both channes have data give priority to com.
-//! \param pTxState pointer to TxState, do nothing if not noTx
 //! should be activated cyclically for example every 1 ms for small transmit delays
-void TxStart( void ){
-#if FULL_RUNTIME == TRICE_STRINGS
-    comTxStart( &txState ); // com transmission has priority over trices - iportand for 2 reasons: 
-    // 1. runtims strings are earlier before their trigger trices.    
-    // 2. com is more time critical than trice transmission
-#endif
-    triceTxStart( &txState );
-}
 
 //! continue ongoing transmission, otherwise check for new data transmission
-//! \param pTxState actual transmission state
 //! should be activated cyclically for example every 1 ms for small transmit delays
-void TxContinue( void ){
-#if FULL_RUNTIME == TRICE_STRINGS
-    comTxContinue( &txState );
-#endif
-    triceTxContinue( &txState );
-}
 
-#endif // #ifdef TRICE_INTERRUPT_CONFIG
+//! This function should be called inside the transmit done device interrupt.
+//! Also it should be called cyclically to trigger transmission start, for example in the sysTick interrupt.
+//! If not interrup is used it should be called cyclically. With each call max 1 byte is transmitted
+void TriceServeTransmission( void ){
+#if FULL_RUNTIME == TRICE_STRINGS
+    comTX(); // com transmission comes first to have priority over trices - iportand for 2 reasons: 
+    // 1. runtime strings are earlier before their trigger trices.
+    // 2. com is more time critical than trice transmission (in case of RPC usage)
+#endif
+    triceTX();
+}
 
 #endif // #else // #if NO_CODE == TRICE_CODE

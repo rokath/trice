@@ -96,10 +96,35 @@ extern "C" {
 ///////////////////////////////////////////////////////////////////////////////
 // hardware specific stuff (enable only one of these header files)
 //
-#include "triceStm32InterruptConfig.h" // ok
+
+#define STM32 97
+
+#define ARCH STM32
+
+#if ARCH == STM32
+#include "main.h" // hardware specific stuff
+
+#define SYSTICKVAL16 SysTick->VAL //!< STM32 specific, set to 0 as starting point with nonSTM MCE
+
+#endif
+
+#define INTERRUPTS 99
+#define MANUALLY 98
+
+#define TRICE_TX_CONTROL MANUALLY
+
+#include "triceCompilerConfig.h"
+#include "triceStm32_LLConfig.h"
+
 //#include "triceStm32PutCharConfig.h" // does not work now
 //#include "triceStm32WriteConfig.h" // does not compile yet
 //#include "triceArduinoConfig.h" // does not work yet
+
+#ifndef TRICE_ENTER_CRITICAL_SECTION
+#define TRICE_ENTER_CRITICAL_SECTION {
+#define TRICE_LEAVE_CRITICAL_SECTION }
+#endif
+
 
 
 #ifdef __cplusplus
