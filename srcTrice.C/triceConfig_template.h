@@ -3,7 +3,7 @@
 \details adapt needed fifo size, compiler settings and 4 hardware access functions
 - triceTxDataRegisterEmpty()
 - triceTransmitData8()
-- triceEableTxEmptyInterrupt()
+- triceEnableTxEmptyInterrupt()
 - triceDisableTxEmptyInterrupt()
 \author Thomas.Hoehenleitner [at] seerose.net
 *******************************************************************************/
@@ -60,7 +60,7 @@ extern "C" {
 #endif
 
 //! setting for string support code
-#define TRICE_STRINGS FULL_RUNTIME //! options: NONE_RUNTIME, RARE_RUNTIME, FULL_RUNTIME
+#define TRICE_STRINGS RARE_RUNTIME //! options: NONE_RUNTIME, RARE_RUNTIME, FULL_RUNTIME
 
 //! enable encryption here, adds about 150 bytes code
 //! call trice tool with log switch "-key your_password -show" and put passphrase here
@@ -97,7 +97,7 @@ extern "C" {
 // hardware specific stuff (enable only one of these header files)
 //
 
-#define STM32 97
+#define STM32 132
 
 #define ARCH STM32
 
@@ -108,10 +108,26 @@ extern "C" {
 
 #endif
 
-#define INTERRUPTS 99
-#define MANUALLY 98
+#define USE_INTERRUPTS 99
+#define DO_MANUALLY 98
+#define WRITE_FUNCTION 97
+#define TRICE_IMPLEMENTATION 96
+#define NO_WRITE_FUNCTION 95
 
-#define TRICE_TX_CONTROL MANUALLY
+#define TRICE_WRITE_FUNCTION NO_WRITE_FUNCTION // NO_WRITE_FUNCTION // TRICE_IMPLEMENTATION
+#define TRICE_TX_CONTROL USE_INTERRUPTS // USE_WRITE_FUNCTION // USE_INTERRUPTS // USE_WRITE_FUNCTION
+
+#if TRICE_TX_CONTROL == USE_WRITE_FUNCTION
+#define WITH_INTERRUPTS
+#endif
+
+#if TRICE_TX_CONTROL == USE_INTERRUPTS
+#define WITH_INTERRUPTS
+#endif
+
+#if TRICE_TX_CONTROL == DO_MANUALLY
+#define NO_INTERRUPTS
+#endif
 
 #include "triceCompilerConfig.h"
 #include "triceStm32_LLConfig.h"

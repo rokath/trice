@@ -29,7 +29,7 @@ TRICE_INLINE void tricePutchar( char c ){
 
 TRICE_INLINE uint32_t triceTxDataRegisterEmpty( void ){ return 1; } // would be good to implement it for better performance, otherwise you need to use a time interval for the Tx calls
 TRICE_INLINE void triceTransmitData8( uint8_t d ){ tricePutchar( d ); }
-TRICE_INLINE void triceEableTxEmptyInterrupt( void ){}
+TRICE_INLINE void triceEnableTxEmptyInterrupt( void ){}
 TRICE_INLINE void triceDisableTxEmptyInterrupt( void ){}
 
 #ifdef __cplusplus

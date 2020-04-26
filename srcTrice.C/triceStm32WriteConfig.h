@@ -17,11 +17,11 @@ extern "C" {
 // hardware specific interface functions tested on NUCLEO-STM32F030
 //
 
-#define TRICE_USE_WRITE_FUNCTION // for a quick start you can enable this line and rely only putchar
+//#define TRICE_USE_WRITE_FUNCTION // for a quick start you can enable this line and rely only putchar
 
-#define TRICE_WRITE_OUT_FUNCTION STM32_LLDRV
+//#define TRICE_WRITE_OUT_FUNCTION STM32_LLDRV
 
-void triceServeTransmit( void );
+//void triceServeTransmit( void );
 
 #ifdef __cplusplus
 }

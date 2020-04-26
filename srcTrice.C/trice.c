@@ -64,26 +64,17 @@ ALIGN4 static triceMsg_t triceMsg ALIGN4_END = {
     { 0, 0 } // 16bit ID, 16bit data
 };
 
-
-
+#if (TRICE_TX_CONTROL == DO_MANUALLY) || (TRICE_TX_CONTROL == USE_INTERRUPTS)
 static uint8_t       *       pRead = (uint8_t*)(&triceMsg + 1); //!< trice message buffer read pointer (initial set to limit for empty triceMsg buffer)
+#endif
 static uint8_t const * const limit = (uint8_t*)(&triceMsg + 1); //!< trice message buffer limit (points behind triceMsg buffer)
-
-//! get next trice byte for transmission from trice message buffer, no depth check here
-//!\retval data byte
-TRICE_INLINE uint8_t triceMsgNextByte( void ){
-    return *pRead++;
-}
-
-static size_t triceMsgBufferDepth( void ){
-    size_t count = limit - pRead;
-    return count;
-}
 
 // pull next trice from fifo and prepare triceMsg buffer
 static void prepareNextTriceTransmission(void){
     triceFifoPop( (uint32_t*)(&(triceMsg.ld)) );
+#if (TRICE_TX_CONTROL == DO_MANUALLY) || (TRICE_TX_CONTROL == USE_INTERRUPTS)
     pRead = (uint8_t*)&triceMsg;
+#endif
     triceMsg.hd.crc8  = TRICE_START_BYTE ^ TRICE_LOCAL_ADDR ^ TRICE_DISPL_ADDR
                          ^ triceMsg.ld.load[0]
                          ^ triceMsg.ld.load[1]
@@ -97,6 +88,19 @@ static void prepareNextTriceTransmission(void){
     #endif
 }
 
+#if (TRICE_TX_CONTROL == DO_MANUALLY) || (TRICE_TX_CONTROL == USE_INTERRUPTS)
+
+//! get next trice byte for transmission from trice message buffer, no depth check here
+//!\retval data byte
+TRICE_INLINE uint8_t triceMsgNextByte( void ){
+    return *pRead++;
+}
+
+static size_t triceMsgBufferDepth( void ){
+    size_t count = limit - pRead;
+    return count;
+}
+
 //! prepare next trice for transmission
 //!\retval 0 no next trice
 //!\retval 1 next trice in message buffer
@@ -107,6 +111,10 @@ static size_t triceNextMsg( void ){
     }
     return 0;
 }
+
+
+#endif // #if (TRICE_TX_CONTROL == DO_MANUALLY) || (TRICE_TX_CONTROL == USE_INTERRUPTS)
+
 
 #if 1 == TRICE_PRINTF_ADAPTER
 
@@ -300,8 +308,6 @@ static void FifoPopUint8_Unprotected( Fifo_t* f, uint8_t* pValue ){
     fifoLimitateRdPtr_Unprotected(f);
 }
 
-
-
 //! return amount of bytes continuously can be written without write pointer wrap
 //! This is __not__ the free writable count! See also FifoWritableCount().
 //! \param f pointer to fifo struct
@@ -418,16 +424,12 @@ void triceString( int rightBound, const char* s ){
     TRICE_LEAVE_CRITICAL_SECTION
 }
 
-
-
 static int pkgByteIdx = -1; //!< helper for stream interpretation
 
 //! start a new package header
 static inline void resetPkgByteIndex( void ){
     pkgByteIdx = -1; 
 }
-
-
 
 //! get netx byte from package fifo and transfer it 
 //! \return transferred byte
@@ -437,7 +439,6 @@ static uint8_t txNextByte( void ){
     triceTransmitData8( v );
     return v;
 }
-
 
 //! comTX starts a com transmission if possible, otherwise it does nothing
 //! It checks these conditions:
@@ -462,7 +463,7 @@ static void comTX( void ){
         // start only if a full header plus following len already in wrFifo.
         // This is safe, because following data will be in fifo before the first 10 bytes are transmitted
         txState = comTx;
-        triceEableTxEmptyInterrupt(); 
+        triceEnableTxEmptyInterrupt(); 
     }
     
     if( comTx != txState ){
@@ -533,7 +534,7 @@ static void comTX( void ){
 #endif // #if FULL_RUNTIME == TRICE_STRINGS
 
 
-
+/*
 #if defined(TRICE_WRITE_OUT_FUNCTION) &&  TRICE_WRITE_OUT_FUNCTION == STM32_LLDRV
 
 //! Check if a new byte can be written into trice transmit register.
@@ -562,55 +563,63 @@ TRICE_INLINE int triceWrite( char* c, int count ){
 }
 
 #endif // #if defined(TRICE_WRITE_OUT_FUNCTION) &&  TRICE_WRITE_OUT_FUNCTION == STM32_LLDRV
+*/
 
+#if TRICE_WRITE_FUNCTION == TRICE_IMPLEMENTATION
 
+static int writeCount = 0; //!< used internally by trice triceWriteServer() and triceWrite()
+static uint8_t* writeBuffer; //!< used internally by trice triceWriteServer() and triceWrite()
 
-#ifdef TRICE_USE_WRITE_FUNCTION
-/*
-void triceServeTransmit( void ){
-    size_t sent;
-    static size_t remaining = 0; // amount of not transmitted bytes inside triceMsg
-    if( remaining ){ // try to transmit rest data
-        uint8_t * rd = (uint8_t*)limit - remaining; // next read address
-        sent = triceWrite( rd, remaining ); 
-        remaining -= sent;
+//! triceWriteServer() must be called cyclically to proceed ongoing write out
+void triceWriteServer( void ){
+    if( !triceTxDataRegisterEmpty() ){ 
         return;
-    }else if( triceFifoDepth() ){
-        prepareNextTriceTransmission();
-        sent = triceWrite( pRead, sizeof(triceMsg) ); 
-        remaining = sizeof(triceMsg) - sent;
     }
-}*/
+    if( 0 == writeCount ){
+        triceDisableTxEmptyInterrupt();
+    }
+    triceTransmitData8( writeBuffer[writeCount--] );
+    triceEnableTxEmptyInterrupt();
+}
 
-void triceServeTransmit( void ){
-    size_t sent;
-    static size_t remaining = 0; // amount of not transmitted bytes inside triceMsg
-    if( remaining ){ // try to transmit rest data
-        uint8_t * rd = (uint8_t*)limit - remaining; // next read address
-        sent = triceWrite( rd, remaining ); 
-        remaining -= sent;
+//! returns immediatey
+//! \param buf address to read from, do not use address space, as long triceWriteServer() not finished transmission
+//! \param nbytes count to write
+//! \return count of written bytes
+//! triceWrite does not copy data into a separate buffer, because otherwise an additional memory buffer is needed
+int triceWrite(const void *buf, int nbytes){
+    if( writeCount ){
+        return nbytes; // do not accept new wtites as long there are writeCount bytes
+    }
+    writeBuffer = (uint8_t*)buf; // save buffer address for later
+    writeCount = nbytes; // save nBytes for later
+    return 0;
+}
+
+#endif // #if TRICE_WRITE_FUNCTION == TRICE_IMPLEMENTATION
+
+#if TRICE_TX_CONTROL == USE_WRITE_FUNCTION
+//! 
+static void triceTX( void ){
+    static int rc = 0; // reminderCount
+    if( rc ){ // some previous write not finished
+        rc = rc - triceWrite( limit - rc, rc );
+        if( 0 == rc ){
+            txState = noTx;
+        }
         return;
-    }else if( triceFifoDepth() ){
+    }
+
+    if( (noTx == txState) && triceFifoDepth() ){
+        txState = triceTx;
         prepareNextTriceTransmission();
-        sent = triceWrite( pRead, sizeof(triceMsg) ); 
-        remaining = sizeof(triceMsg) - sent;
+        rc = 8 - triceWrite( &triceMsg, 8 );
     }
 }
 
+#endif // #if TRICE_TX_CONTROL == WRITE_FUNCTION
 
-// how to implement a non-blocking write, which usually succeeds
-
-
-//! 
-static void triceTX( void ){
-    if( (noTx == txState) &&  triceNextMsg() ){ 
-            txState = triceTx; 
-            triceWrite( &triceMsg, 8 ); // immediate return
-    }
-
-#endif // #ifdef TRICE_USE_WRITE_FUNCTION
-
-
+#if (TRICE_TX_CONTROL == DO_MANUALLY) || (TRICE_TX_CONTROL == USE_INTERRUPTS)
 //! This function should be called inside the transmit done device interrupt.
 //! Also it should be called cyclically to trigger transmission start.
 //!         // check if data in trice fifo and load them in the 8 byte transmit buffer, optionally encrypted
@@ -631,7 +640,7 @@ static void triceTX( void ){
         if( triceMsgBufferDepth() ){
             uint8_t x = triceMsgNextByte();
             triceTransmitData8( x );
-            triceEableTxEmptyInterrupt();
+            triceEnableTxEmptyInterrupt();
         }else{
             triceDisableTxEmptyInterrupt();
             txState = noTx;
@@ -639,6 +648,7 @@ static void triceTX( void ){
     }
 }
 
+#endif // #if (TRICE_TX_CONTROL == DO_MANUALLY) || (TRICE_TX_CONTROL == USE_INTERRUPTS)
 
 //! Check for data and start a transmission, if both channes have data give priority to com.
 //! should be activated cyclically for example every 1 ms for small transmit delays

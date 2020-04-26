@@ -30,7 +30,7 @@ extern "C" {
 // hardware specific interface functions tested on NUCLEO-STM32F030
 //
 
-#define TRICE_WRITE_OUT_FUNCTION // for a quick start you can enable this line and rely only on a write
+//#define TRICE_WRITE_OUT_FUNCTION // for a quick start you can enable this line and rely only on a write
 
 void triceServeTransmit( void );
 int triceWrite( char* buf, int count );

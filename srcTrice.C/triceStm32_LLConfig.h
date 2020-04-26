@@ -3,7 +3,7 @@
 \details adapt needed fifo size, compiler settings and 4 hardware access functions
 - triceTxDataRegisterEmpty()
 - triceTransmitData8()
-- triceEableTxEmptyInterrupt()
+- triceEnableTxEmptyInterrupt()
 - triceDisableTxEmptyInterrupt()
 \author Thomas.Hoehenleitner [at] seerose.net
 *******************************************************************************/
@@ -38,12 +38,11 @@ TRICE_INLINE void triceTransmitData8( uint8_t d ){
     LL_USART_TransmitData8( TRICE_UART, d);
 }
 
-
-#if TRICE_TX_CONTROL == MANUALLY
+#ifdef NO_INTERRUPTS
 
 //! Allow interrupt for empty trice data transmit register.
 //! User must provide this function.
-TRICE_INLINE void triceEableTxEmptyInterrupt( void ){
+TRICE_INLINE void triceEnableTxEmptyInterrupt( void ){
 }
 
 //! Disallow interrupt for empty trice data transmit register.
@@ -51,13 +50,13 @@ TRICE_INLINE void triceEableTxEmptyInterrupt( void ){
 TRICE_INLINE void triceDisableTxEmptyInterrupt( void ){
 }
 
-#endif // #if TRICE_TX_CONTROL == MANUALLY
+#endif // #ifdef NO_INTERRUPTS
 
-#if TRICE_TX_CONTROL == INTERRUPTS
+#ifdef WITH_INTERRUPTS
 
 //! Allow interrupt for empty trice data transmit register.
 //! User must provide this function.
-TRICE_INLINE void triceEableTxEmptyInterrupt( void ){
+TRICE_INLINE void triceEnableTxEmptyInterrupt( void ){
     LL_USART_EnableIT_TXE( TRICE_UART );
 }
 
@@ -83,7 +82,7 @@ TRICE_INLINE void triceDisableTxEmptyInterrupt( void ){
 //! you can leave this macro pair empty for more speed.
 #define TRICE_LEAVE_CRITICAL_SECTION } __set_PRIMASK(primaskstate); }
 
-#endif // #if TRICE_TX_CONTROL == INTERRUPTS
+#endif // #ifdef USE_INTERRUPTS
 
 #ifdef __cplusplus
 }

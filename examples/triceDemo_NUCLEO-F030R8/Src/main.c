@@ -126,7 +126,7 @@ int main(void)
           LL_GPIO_SetOutputPin(LD2_GPIO_Port, LD2_Pin);
             triceCheckSet();
         }
-        #if TRICE_TX_CONTROL == MANUALLY
+        #if TRICE_TX_CONTROL == DO_MANUALLY
             TriceServeTransmission();
         #endif
         

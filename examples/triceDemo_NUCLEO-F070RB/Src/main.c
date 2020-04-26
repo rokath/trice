@@ -125,6 +125,7 @@ int main(void)
           LL_GPIO_SetOutputPin(LD2_GPIO_Port, LD2_Pin);
             triceCheckSet();
         }
+        /*
         #ifdef TRICE_QUICK_AND_DIRTY_ONLY_PUTCHAR
         if( 0 == loopCount % 10 ){
             TxStart();
@@ -135,6 +136,7 @@ int main(void)
         #ifdef TRICE_USE_WRITE_FUNCTION
         triceServeTransmit();
         #endif
+        */
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
