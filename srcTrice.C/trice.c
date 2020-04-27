@@ -34,14 +34,92 @@ enum{
     comTx    // communication packet in transmission
 };
 
-
 //! trice fifo instance, here are the trices buffered. used in TRICE macro expansion
 ALIGN4 uint32_t triceFifo[ TRICE_FIFO_SIZE>>2 ] ALIGN4_END;
 
 uint32_t wrIndexTriceFifo = 0; //!< trice fifo write index, used inside macros, so must be visible
 
-
 static int txState = noTx; //!< txState, needed to not mix the packet data during bytes tx
+
+#if TRICE_WRITE_FUNCTION == TRICE_IMPLEMENTATION
+
+static int writeCount = 0; //!< used internally by trice triceWriteServer() and triceWrite()
+static uint8_t* writeBuffer; //!< used internally by trice triceWriteServer() and triceWrite()
+
+//! triceWriteServer() must be called cyclically to proceed ongoing write out
+void triceWriteServer( void ){
+    uint8_t v;
+    if( !triceTxDataRegisterEmpty() ){ 
+        return;
+    }
+    if( 0 == writeCount ){
+        triceDisableTxEmptyInterrupt();
+        txState = noTx;
+        return;
+    }
+    v = *writeBuffer++;
+    triceTransmitData8( v );
+    writeCount--;
+    triceEnableTxEmptyInterrupt();
+}
+
+//! returns immediatey
+//! \param buf address to read from, do not use address space, as long triceWriteServer() not finished transmission
+//! \param nbytes count to write
+//! \return count of written bytes
+//! triceWrite does not copy data into a separate buffer, because otherwise an additional memory buffer is needed
+int triceWrite(const void *buf, int nbytes){
+    if( writeCount ){
+        return 0; // do not accept new wtites as long there are writeCount bytes
+    }
+    writeBuffer = (uint8_t*)buf; // save buffer address for later
+    writeCount = nbytes; // save nBytes for later
+    return nbytes;
+}
+
+#endif // #if TRICE_WRITE_FUNCTION == TRICE_IMPLEMENTATION
+
+
+#if  0 // TRICE_WRITE_FUNCTION == TRICE_IMPLEMENTATION
+
+static int writeCount = 0; //!< used internally by trice triceWriteServer() and triceWrite()
+static uint8_t* writeBuffer; //!< used internally by trice triceWriteServer() and triceWrite()
+
+//! triceWriteServer() must be called cyclically to proceed ongoing write out
+void triceWriteServer( void ){
+    uint8_t v;
+    if( !triceTxDataRegisterEmpty() ){ 
+        return;
+    }
+    if( 0 == writeCount ){
+        triceDisableTxEmptyInterrupt();
+        txState = noTx;
+        return;
+    }
+    v = *writeBuffer++;
+    triceTransmitData8( v );
+    writeCount--;
+    triceEnableTxEmptyInterrupt();
+}
+
+//! returns immediatey
+//! \param buf address to read from, do not use address space, as long triceWriteServer() not finished transmission
+//! \param nbytes count to write
+//! \return count of written bytes
+//! triceWrite does not copy data into a separate buffer, because otherwise an additional memory buffer is needed
+int triceWrite(const void *buf, int nbytes){
+    if( writeCount ){
+        return 0; // do not accept new wtites as long there are writeCount bytes
+    }
+    writeBuffer = (uint8_t*)buf; // save buffer address for later
+    writeCount = nbytes; // save nBytes for later
+    return nbytes;
+}
+
+#endif // #if TRICE_WRITE_FUNCTION == TRICE_IMPLEMENTATION
+
+
+
 
 static uint32_t rdIndexTriceFifo = 0; //!< trice fifo read index
 
@@ -440,6 +518,8 @@ static uint8_t txNextByte( void ){
     return v;
 }
 
+#if (TRICE_TX_CONTROL == DO_MANUALLY) || (TRICE_TX_CONTROL == USE_INTERRUPTS)
+
 //! comTX starts a com transmission if possible, otherwise it does nothing
 //! It checks these conditions:
 //! \li currently no transmission: TxState is noTx
@@ -531,6 +611,111 @@ static void comTX( void ){
     }
 }
 
+#endif // #if (TRICE_TX_CONTROL == DO_MANUALLY) || (TRICE_TX_CONTROL == USE_INTERRUPTS)
+
+#if 0 //TRICE_TX_CONTROL == USE_WRITE_FUNCTION
+todo with triceWrite()
+static void comTX( void ){
+    static uint8_t dpc = 0;     // we must transfer a complete block without trices inbetween
+    static uint32_t len = 0;    // 0, 1...65536 must fit
+    static uint8_t lenL = 0;
+
+    static int rc = 0; // reminderCount
+    if( rc ){ // some previous write not finished
+        rc = rc - triceWrite( limit - rc, rc );
+        if( 0 == rc ){
+            txState = noTx;
+        }
+        return;
+    }
+
+    if( (noTx == txState) && triceFifoDepth() ){
+        txState = triceTx;
+        prepareNextTriceTransmission();
+        rc = 8 - triceWrite( &triceMsg, 8 );
+    }
+    
+    
+
+    if( !triceTxDataRegisterEmpty() ){ // comTX and triceTx must check that independently
+        return;
+    }
+    
+    if( noTx == txState && 10 <= FifoReadableCount_Unprotected( &wrFifo ) ){ 
+        // start only if a full header plus following len already in wrFifo.
+        // This is safe, because following data will be in fifo before the first 10 bytes are transmitted
+        txState = comTx;
+        triceEnableTxEmptyInterrupt(); 
+    }
+    
+    if( comTx != txState ){
+        return;
+    }
+    // continue
+    pkgByteIdx++; // reset value is -1, so starts here with 0
+    if( pkgByteIdx < 7 ){ // 0xc0 cad sad cr8 tid fid pix dpc
+        txNextByte();     //   0   1   2   3   4   5   6   7
+        return;
+    }
+    if ( 7 == pkgByteIdx ){ // dpc
+        dpc = txNextByte(); // tx last byte of tx header 
+        if( 1 != dpc ){ // unexpected value
+            TRICE8_1( Id( 1041), "err: dpc=%d\n", dpc );
+            resetPkgByteIndex();
+            return;
+        }
+        if( 0 == dpc ){ 
+            resetPkgByteIndex(); // reload for next package
+            triceDisableTxEmptyInterrupt();
+            txState = noTx; // com packet done
+        }
+        return;
+    }
+
+    if ( 8 == pkgByteIdx ){ // dpc is > 0, so read len first time
+        lenL = txNextByte();
+        return;
+    }
+    if ( 9 == pkgByteIdx ){
+        len = txNextByte() << 8; // little endian
+        len |= lenL;
+        len++; // len is len-1 value
+        return;
+    }
+
+    // "loop" starts here
+    if ( pkgByteIdx < len + 9 ){ // len=1...65536
+        txNextByte(); // tx data
+        return;
+    } else if ( pkgByteIdx == len + 9 ){ // len=1...65536
+        txNextByte(); // tx last date in data package
+        dpc--;
+        if( 0 == dpc ){ 
+            resetPkgByteIndex();
+            triceDisableTxEmptyInterrupt();
+            txState = noTx; // com packet done
+        }
+        return;
+    } 
+    
+    TRICE0( Id(62952), "ATT:this point is reached when dpc was bigger 1, read len of following data package\n" );
+    if ( len + 10 == pkgByteIdx ){ // 10 = header + sizeof(uint16_t)
+        lenL = txNextByte();
+        return;
+    } 
+    if ( len + 11 == pkgByteIdx ){
+        int len_1 = len; // keep old value
+        len = txNextByte() << 8;
+        len |= lenL;
+        len ++; // len is len-1 value
+        len = len_1 + sizeof(uint16_t) + len; // accumulate
+        return;
+    }
+}
+
+
+#endif // #if TRICE_TX_CONTROL == USE_WRITE_FUNCTION
+
 #endif // #if FULL_RUNTIME == TRICE_STRINGS
 
 
@@ -565,38 +750,7 @@ TRICE_INLINE int triceWrite( char* c, int count ){
 #endif // #if defined(TRICE_WRITE_OUT_FUNCTION) &&  TRICE_WRITE_OUT_FUNCTION == STM32_LLDRV
 */
 
-#if TRICE_WRITE_FUNCTION == TRICE_IMPLEMENTATION
 
-static int writeCount = 0; //!< used internally by trice triceWriteServer() and triceWrite()
-static uint8_t* writeBuffer; //!< used internally by trice triceWriteServer() and triceWrite()
-
-//! triceWriteServer() must be called cyclically to proceed ongoing write out
-void triceWriteServer( void ){
-    if( !triceTxDataRegisterEmpty() ){ 
-        return;
-    }
-    if( 0 == writeCount ){
-        triceDisableTxEmptyInterrupt();
-    }
-    triceTransmitData8( writeBuffer[writeCount--] );
-    triceEnableTxEmptyInterrupt();
-}
-
-//! returns immediatey
-//! \param buf address to read from, do not use address space, as long triceWriteServer() not finished transmission
-//! \param nbytes count to write
-//! \return count of written bytes
-//! triceWrite does not copy data into a separate buffer, because otherwise an additional memory buffer is needed
-int triceWrite(const void *buf, int nbytes){
-    if( writeCount ){
-        return nbytes; // do not accept new wtites as long there are writeCount bytes
-    }
-    writeBuffer = (uint8_t*)buf; // save buffer address for later
-    writeCount = nbytes; // save nBytes for later
-    return 0;
-}
-
-#endif // #if TRICE_WRITE_FUNCTION == TRICE_IMPLEMENTATION
 
 #if TRICE_TX_CONTROL == USE_WRITE_FUNCTION
 //! 
@@ -666,6 +820,7 @@ void TriceServeTransmission( void ){
     // 2. com is more time critical than trice transmission (in case of RPC usage)
 #endif
     triceTX();
+    triceWriteServer();
 }
 
 #endif // #else // #if NO_CODE == TRICE_CODE

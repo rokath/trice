@@ -123,20 +123,11 @@ int main(void)
         if( LOOPCOUNT == loopCount ){
           loopCount = 0;
           LL_GPIO_SetOutputPin(LD2_GPIO_Port, LD2_Pin);
-            triceCheckSet();
+          triceCheckSet();
         }
-        /*
-        #ifdef TRICE_QUICK_AND_DIRTY_ONLY_PUTCHAR
-        if( 0 == loopCount % 10 ){
-            TxStart();
-            TxContinue();
-            //tricePutchar();
-        }
+        #ifdef NO_INTERRUPTS
+            TriceServeTransmission();
         #endif
-        #ifdef TRICE_USE_WRITE_FUNCTION
-        triceServeTransmit();
-        #endif
-        */
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
