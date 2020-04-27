@@ -157,34 +157,34 @@
         <Bp>
           <Number>0</Number>
           <Type>0</Type>
-          <LineNumber>618</LineNumber>
+          <LineNumber>88</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134222366</Address>
+          <Address>134223638</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
           <SizeOfObject>0</SizeOfObject>
           <BreakByAccess>0</BreakByAccess>
           <BreakIfRCount>1</BreakIfRCount>
-          <Filename>..\..\..\srcTrice.C\trice.c</Filename>
+          <Filename>..\..\..\srcTrice.C\triceWrite.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\triceDemo_NUCLEO_F070RB\../../../srcTrice.C/trice.c\618</Expression>
+          <Expression>\\triceDemo_NUCLEO_F070RB\../../../srcTrice.C/triceWrite.c\88</Expression>
         </Bp>
         <Bp>
           <Number>1</Number>
           <Type>0</Type>
-          <LineNumber>581</LineNumber>
+          <LineNumber>63</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134222238</Address>
+          <Address>134223518</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
           <SizeOfObject>0</SizeOfObject>
           <BreakByAccess>0</BreakByAccess>
           <BreakIfRCount>1</BreakIfRCount>
-          <Filename>..\..\..\srcTrice.C\trice.c</Filename>
+          <Filename>..\..\..\srcTrice.C\triceWrite.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\triceDemo_NUCLEO_F070RB\../../../srcTrice.C/trice.c\581</Expression>
+          <Expression>\\triceDemo_NUCLEO_F070RB\../../../srcTrice.C/triceWrite.c\63</Expression>
         </Bp>
       </Breakpoint>
       <WatchWindow1>
@@ -438,7 +438,7 @@
       <GroupNumber>5</GroupNumber>
       <FileNumber>12</FileNumber>
       <FileType>1</FileType>
-      <tvExp>1</tvExp>
+      <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\srcTrice.C\trice.c</PathWithFileName>
@@ -467,6 +467,18 @@
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\srcTrice.C\xteaCrypto.c</PathWithFileName>
       <FilenameWithoutPath>xteaCrypto.c</FilenameWithoutPath>
+      <RteFlg>0</RteFlg>
+      <bShared>0</bShared>
+    </File>
+    <File>
+      <GroupNumber>5</GroupNumber>
+      <FileNumber>15</FileNumber>
+      <FileType>1</FileType>
+      <tvExp>0</tvExp>
+      <tvExpOptDlg>0</tvExpOptDlg>
+      <bDave2>0</bDave2>
+      <PathWithFileName>..\..\..\srcTrice.C\triceWrite.c</PathWithFileName>
+      <FilenameWithoutPath>triceWrite.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>

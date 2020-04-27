@@ -39,48 +39,15 @@ ALIGN4 uint32_t triceFifo[ TRICE_FIFO_SIZE>>2 ] ALIGN4_END;
 
 uint32_t wrIndexTriceFifo = 0; //!< trice fifo write index, used inside macros, so must be visible
 
-static int txState = noTx; //!< txState, needed to not mix the packet data during bytes tx
+/*static */int txState = noTx; //!< txState, needed to not mix the packet data during bytes tx
 
 #if TRICE_WRITE_FUNCTION == TRICE_IMPLEMENTATION
 
-static int writeCount = 0; //!< used internally by trice triceWriteServer() and triceWrite()
-static uint8_t* writeBuffer; //!< used internally by trice triceWriteServer() and triceWrite()
+#if 1
 
-//! triceWriteServer() must be called cyclically to proceed ongoing write out
-void triceWriteServer( void ){
-    uint8_t v;
-    if( !triceTxDataRegisterEmpty() ){ 
-        return;
-    }
-    if( 0 == writeCount ){
-        triceDisableTxEmptyInterrupt();
-        txState = noTx;
-        return;
-    }
-    v = *writeBuffer++;
-    triceTransmitData8( v );
-    writeCount--;
-    triceEnableTxEmptyInterrupt();
-}
+#include "triceWrite.h"
 
-//! returns immediatey
-//! \param buf address to read from, do not use address space, as long triceWriteServer() not finished transmission
-//! \param nbytes count to write
-//! \return count of written bytes
-//! triceWrite does not copy data into a separate buffer, because otherwise an additional memory buffer is needed
-int triceWrite(const void *buf, int nbytes){
-    if( writeCount ){
-        return 0; // do not accept new wtites as long there are writeCount bytes
-    }
-    writeBuffer = (uint8_t*)buf; // save buffer address for later
-    writeCount = nbytes; // save nBytes for later
-    return nbytes;
-}
-
-#endif // #if TRICE_WRITE_FUNCTION == TRICE_IMPLEMENTATION
-
-
-#if  0 // TRICE_WRITE_FUNCTION == TRICE_IMPLEMENTATION
+#else // working code!!!! TRICE_WRITE_FUNCTION == TRICE_IMPLEMENTATION
 
 static int writeCount = 0; //!< used internally by trice triceWriteServer() and triceWrite()
 static uint8_t* writeBuffer; //!< used internally by trice triceWriteServer() and triceWrite()
@@ -115,7 +82,7 @@ int triceWrite(const void *buf, int nbytes){
     writeCount = nbytes; // save nBytes for later
     return nbytes;
 }
-
+#endif
 #endif // #if TRICE_WRITE_FUNCTION == TRICE_IMPLEMENTATION
 
 
@@ -143,9 +110,9 @@ ALIGN4 static triceMsg_t triceMsg ALIGN4_END = {
 };
 
 #if (TRICE_TX_CONTROL == DO_MANUALLY) || (TRICE_TX_CONTROL == USE_INTERRUPTS)
-static uint8_t       *       pRead = (uint8_t*)(&triceMsg + 1); //!< trice message buffer read pointer (initial set to limit for empty triceMsg buffer)
+static uint8_t*       pRead = (uint8_t*)(&triceMsg + 1); //!< trice message buffer read pointer (initial set to limit for empty triceMsg buffer)
 #endif
-static uint8_t const * const limit = (uint8_t*)(&triceMsg + 1); //!< trice message buffer limit (points behind triceMsg buffer)
+static uint8_t* const limit = (uint8_t*)(&triceMsg + 1); //!< trice message buffer limit (points behind triceMsg buffer)
 
 // pull next trice from fifo and prepare triceMsg buffer
 static void prepareNextTriceTransmission(void){
@@ -452,7 +419,7 @@ static void FifoPushBuffer_Unprotected( Fifo_t* f, size_t count, const uint8_t* 
 //!         1       |        0        | \b Msg = command not expecting an answer (message)
 //!         0       |        0        | \b Buf = trice string package, when 0xffff==tidfid
 //! \endcode
-static uint8_t triceReCalStringBuffer( size_t len, const char* s ){
+static uint8_t triceReCalStringBuffer( size_t len, const char*  s ){
     uint16_t len_1 = (uint16_t)(len-1); // len-1 is transmitted in data package
     #define CAD TRICE_LOCAL_ADDR // client address
     #define SAD TRICE_DISPL_ADDR // server address
@@ -475,8 +442,13 @@ static uint8_t triceReCalStringBuffer( size_t len, const char* s ){
 
     // first send buffer data, buffer data have transmission priority, so they are in place when needed
     TRICE_ENTER_CRITICAL_SECTION
+#if TRICE_TX_CONTROL == USE_WRITE_FUNCTION
+    triceWrite( h, sizeof(h) ); // header is 8 byte and we add the 2 len bytes in one shot 
+    triceWrite( s, len );
+#else
     FifoPushBuffer_Unprotected( &wrFifo, sizeof(h), h ); // header is 8 byte and we add the 2 len bytes in one shot 
     FifoPushBuffer_Unprotected( &wrFifo, len, (uint8_t*)s );
+#endif
     TRICE_LEAVE_CRITICAL_SECTION
     return h[pix];
 }
@@ -815,12 +787,12 @@ static void triceTX( void ){
 //! If not interrup is used it should be called cyclically. With each call max 1 byte is transmitted
 void TriceServeTransmission( void ){
 #if FULL_RUNTIME == TRICE_STRINGS
-    comTX(); // com transmission comes first to have priority over trices - iportand for 2 reasons: 
+  //  comTX(); // com transmission comes first to have priority over trices - iportand for 2 reasons: 
     // 1. runtime strings are earlier before their trigger trices.
     // 2. com is more time critical than trice transmission (in case of RPC usage)
 #endif
-    triceTX();
     triceWriteServer();
+    triceTX();
 }
 
 #endif // #else // #if NO_CODE == TRICE_CODE

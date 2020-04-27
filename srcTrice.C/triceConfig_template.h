@@ -60,7 +60,7 @@ extern "C" {
 #endif
 
 //! setting for string support code
-#define TRICE_STRINGS RARE_RUNTIME //! options: NONE_RUNTIME, RARE_RUNTIME, FULL_RUNTIME
+#define TRICE_STRINGS FULL_RUNTIME //! options: NONE_RUNTIME, RARE_RUNTIME, FULL_RUNTIME
 
 //! enable encryption here, adds about 150 bytes code
 //! call trice tool with log switch "-key your_password -show" and put passphrase here
