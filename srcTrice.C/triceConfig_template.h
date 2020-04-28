@@ -46,7 +46,7 @@ extern "C" {
 //
 
 //!< a byte count for buffering traces, must be power of 2, one basic trace needs 4 bytes
-#define TRICE_FIFO_SIZE 4096 //!< must be a power of 2, one trice needs 4 to 32 bytes, must hold trice bursts until they are transmitted, fifo is transmitted with lower priority
+#define TRICE_FIFO_SIZE 1024 //!< must be a power of 2, one trice needs 4 to 32 bytes, must hold trice bursts until they are transmitted, fifo is transmitted with lower priority
 #define TRICE_START_BYTE (0xeb) //!< trice header start (chose any unusual byte)
 #define TRICE_LOCAL_ADDR (0x60) //!< trice addess of this device (choose free)
 #define TRICE_DISPL_ADDR (0x60) //!< trice terminal address for this device (choose free)
@@ -74,7 +74,7 @@ extern "C" {
 
 //! Must be able to hold all in a burst arriving strings including 10 bytes for each string.
 //! Buffer is transmitted to port with highest priority.
-#define RUNTIME_STRING_FIFO_SIZE 1000
+//#define RUNTIME_STRING_FIFO_SIZE 1000
 #endif
 
 //! Enable this for legacy projects with printf( "...%s...", ... ); statements
@@ -84,14 +84,14 @@ extern "C" {
 //! If the output strings in the legacy project are static, consider splitting the
 //! legacy printf() into a TRICE* sequence to avoid enabling this switch.
 //! Enabling TRICE_PRINTF_ADAPTER adds a few KB code for the library.
-#define TRICE_PRINTF_ADAPTER 1 // options: 0, 1
+#define TRICE_PRINTF_ADAPTER 
 
-#if 1 == TRICE_PRINTF_ADAPTER
+#ifdef TRICE_PRINTF_ADAPTER
 #if TRICE_STRINGS == NONE_RUNTIME
 #error needs TRICE_STRINGS set to RARE_RUNTIME or FULL_RUNTIME
 #endif
 #define TRICE_PRINTF_ADAPTER_BUFFERSIZE 100 //!< longest legacy printf should fit here
-#endif // #if 1 == TRICE_PRINTF_ADAPTER
+#endif // #ifdef TRICE_PRINTF_ADAPTER
 
 ///////////////////////////////////////////////////////////////////////////////
 // hardware specific stuff (enable only one of these header files)
@@ -108,28 +108,32 @@ extern "C" {
 
 #endif
 
-#define TRICE_BYTES_PER_SECOND 800
-
-#define USE_INTERRUPTS 99
-#define DO_MANUALLY 98
-#define WRITE_FUNCTION 97
-#define TRICE_IMPLEMENTATION 96
-#define NO_WRITE_FUNCTION 95
-
-#define TRICE_WRITE_FUNCTION TRICE_IMPLEMENTATION // NO_WRITE_FUNCTION // TRICE_IMPLEMENTATION
-#define TRICE_TX_CONTROL USE_WRITE_FUNCTION // USE_WRITE_FUNCTION // USE_INTERRUPTS // USE_WRITE_FUNCTION
-
-#if TRICE_TX_CONTROL == USE_WRITE_FUNCTION
 #define WITH_INTERRUPTS
-#endif
+//#define NO_INTERRUPTS
 
-#if TRICE_TX_CONTROL == USE_INTERRUPTS
-#define WITH_INTERRUPTS
-#endif
+#define USE_OWN_TRICE_WRITE_FUNCTION
 
-#if TRICE_TX_CONTROL == DO_MANUALLY
-#define NO_INTERRUPTS
-#endif
+#ifdef USE_OWN_TRICE_WRITE_FUNCTION
+extern uint16_t writeCount;
+extern uint16_t writeCountMax;
+#define TRICE_WRITE_BUFFER_SIZE 400 //!< 
+#define TRICE_WRITE_COUNT_LIMIT 100 //!< allowed filling for trice transfer
+//#define TRICE_PAUSE triceWriteServer(); // do{ Pause(); } while(0) // put your own Pause here, if needed
+
+//! replace with your ReadTickCount() function for more accurate timing
+//#define CURRENT_TICK (tick + 1) 
+
+//! Your tick unit multiplied with this count results in a trice message count transfer rate, 
+//! for example 1 trice message per 10 ms if tick is 1ms and this value 10.
+//| That means 8byte/10ms = 800 bytes per second. Your write channel must be able to transfer this in the average.
+//! A 115200 baud serial port speed results in theroretical about 10000 bytes per second but in praxis
+//! this value is lower because of processor interaction, for example 5000 bytes per second.
+//! Than take in regard if your write channel is used by other functionality, for example 
+//! when TRICE_STRINGS == FULL_RUNTIME is configured. You have to subtract the average of this too
+//! to get the real value. The point is, that with TRICE bursts the write buffer gets not overloaded.
+//#define TRICE_OUT_INTERVAL_TICKS 1
+
+#endif //  #ifdef USE_OWN_TRICE_WRITE_FUNCTION
 
 #include "triceCompilerConfig.h"
 #include "triceStm32_LLConfig.h"

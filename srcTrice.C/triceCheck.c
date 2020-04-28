@@ -19,9 +19,7 @@ void triceCheckSet( void )
 {
     extern uint32_t ms;
     TRICE32_2( Id( 7699), "tim:timing      message, SysTick is %d @ %d ms\n", SYSTICKVAL16, ms );
-    #if 1 == TRICE_PRINTF_ADAPTER
-    TRICE_P( "Hello %s this is a %dst printf replacement.\n", "world", 1 );
-    #endif
+    TRICE_P( "Hello %s this is a %dst printf replacement.\n", "world", 1 ); // visible only with defined TRICE_PRINTF_ADAPTER
     TRICE16_1( Id(46097), "dbg:12345 as 16bit is %#016b\n", 12345 );
     TRICE0 (Id( 4316), "------------------------------------------------------------------------------------------\r\n\n" );
     TRICE_ASSERT(0==0);
@@ -124,6 +122,7 @@ void triceCheckSet( void )
     TRICE0 (Id(21507), "message:J" );
     TRICE0 (Id(44743), "inf:k\n" );
 
+    // visible only 
     TRICE_S( 18, "\n" );
     TRICE_S( 18, "1\n" );
     TRICE_S( 18, "12\n" );

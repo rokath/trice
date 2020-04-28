@@ -3,58 +3,54 @@
 \brief 
 \details 
 *******************************************************************************/
-#define TRICE_FILENAME TRICE0( Id(25337), "rd_:triceWrite.c" );
+#define TRICE_FILENAME TRICE0( Id(60411), "rd_:triceWrite.c" );
 
+#include <string.h> // memcpy
+#include "triceConfig_template.h"
+#include "triceWrite.h"
 #include "trice.h"
 
-#if TRICE_WRITE_FUNCTION == TRICE_IMPLEMENTATION
+ALIGN4 static uint8_t writeBuffer[TRICE_WRITE_BUFFER_SIZE]                  ALIGN4_END; 
+ALIGN4 static uint8_t* pNextByte = writeBuffer                              ALIGN4_END; //!< pNextByte is pointing to the next buffer space in usage
+ALIGN4 static uint8_t* const pStart = writeBuffer                           ALIGN4_END; //!< begin of write buffer
+ALIGN4 static uint8_t* const pLimit = writeBuffer + TRICE_WRITE_BUFFER_SIZE ALIGN4_END; //!< first address after write buffer
 
-#define TRICE_WRITE_BUFFER_SIZE 1000
-static uint8_t writeBuffer[TRICE_WRITE_BUFFER_SIZE]; 
-static int writeCount = 0; //!< current transfer todo
-static uint8_t* pNextByte = writeBuffer; //! location of next byte to transfer
-static uint8_t* pNextBuffer = writeBuffer; //! location of next free buffer space
-static uint8_t* const pStart = writeBuffer;
-static uint8_t* const pLimit = writeBuffer + TRICE_WRITE_BUFFER_SIZE;
+uint16_t writeCount = 0; //!< writeCount is the size of the used buffer space
+uint16_t writeCountMax = 0;
 
-
-
+//! triceWrite is copying data into a separate buffer fot transmission
 //! \param buf address to read from
 //! \param nbytes count to write
 //! \return count of written bytes
-//! triceWrite is copying data into a separate buffer
 static int triceWrite_(const void *buf, int nbytes){
-    if( 0 == writeCount ){ // all was done
-        memcpy( pStart, buf, nbytes );
-        pNextByte = pStart;
-        pNextBuffer = pStart + nbytes;
-        writeCount = nbytes;
-        return nbytes;
-    } else { // ongoing transfer
-        int cnt;
-        if( pNextBuffer < pLimit ){ // some space until end of buffer
-            cnt = pNextBuffer + nbytes - pLimit;
-            if( cnt <= 0 ) { // will fit
-                memcpy( pNextBuffer, buf, nbytes );
-                pNextBuffer += nbytes;
-                writeCount += nbytes;
-                return nbytes;
-            } 
-            // will not fit, cnt contains the not fitting count at this point
-            cnt = nbytes - cnt;
-            memcpy( pNextBuffer, buf, cnt );
-            pNextBuffer = pLimit;
-            writeCount += cnt;
-            return cnt;
-        }
-        // no space until end of buffer
-        cnt = pNextByte - pStart; // space right now
-        cnt = cnt > nbytes ? nbytes : cnt; // limitate
-        memcpy( pStart, buf, cnt );
-        pNextBuffer = pStart + cnt;
-        writeCount += cnt;
-        return cnt;
+    int cnt = nbytes < TRICE_WRITE_BUFFER_SIZE ? nbytes : TRICE_WRITE_BUFFER_SIZE; // limitate;
+    uint8_t* pNextSpace = pNextByte + writeCount; // pNextSpace is pointing to the beginning of the next free buffer space.
+    int space; // usable continuous space
+    if( pNextSpace < pLimit ){ // usable space goes from pNextSpace to pLimit
+        // |________#########_____________|
+        //                                ^---pLimit
+        //                   ^----------------pNextSpace
+        //          ^-------------------------pNextByte
+        // ^----------------------------------pStart
+        // Only the right (upper) free space is usble right now.
+        // The left (lower) free space gets used with the 2nd call of triceWrite_().
+        space = pLimit - pNextSpace;
+    } else { // wraping
+        pNextSpace -= TRICE_WRITE_BUFFER_SIZE; // usable space goes from pNextSpace to pNextByte
+        // |########_________#############|
+        //                                ^---pLimit
+        //                   ^----------------pNextByte
+        //          ^-------------------------pNextSpace
+        // ^----------------------------------pStart
+        space = pNextByte - pNextSpace; // same as TRICE_WRITE_BUFFER_SIZE - writeCount
     }
+    cnt = cnt < space ? cnt : space;
+    memcpy( pNextSpace, buf, cnt );
+    writeCount += cnt;
+    if(writeCount > writeCountMax){
+        writeCountMax = writeCount;
+    }
+    return cnt;
 }
 
 //! \param buf address to read from
@@ -80,17 +76,12 @@ void triceWriteServer( void ){
         return;
     }
     if( 0 == writeCount ){
-        extern int txState; txState = 0; // noTx; !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         triceDisableTxEmptyInterrupt();
         return;
     }
-    pNextByte = pNextByte < pLimit ? pNextByte : pStart;
+    pNextByte = pNextByte < pLimit ? pNextByte : pStart; // handle wrap
     v = *pNextByte++;
-    triceTransmitData8( v );
     writeCount--;
+    triceTransmitData8( v );
     triceEnableTxEmptyInterrupt();
 }
-
-
-#endif // #if TRICE_WRITE_FUNCTION == TRICE_IMPLEMENTATION
-

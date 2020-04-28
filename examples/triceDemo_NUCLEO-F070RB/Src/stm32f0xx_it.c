@@ -35,11 +35,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#ifdef TRICE_QUICK_AND_DIRTY_ONLY_PUTCHAR
-#define MS_INTERVAL 100
-#else
-#define MS_INTERVAL 1000
-#endif
+#define MS_INTERVAL 10
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/

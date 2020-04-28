@@ -29,7 +29,7 @@ extern "C" {
 #define ASSERT_OR_RETURN( flag )           do{ TRICE_ASSERT( flag ); if(!(flag)) { return; } }while(0) //!< report if flag is not true and return
 #define ASSERT_OR_RETURN_RESULT( flag, r ) do{ TRICE_ASSERT( flag ); if(!(flag)) { return r; } }while(0) //!< report if flag is not true and return
 
-#if 0 == TRICE_PRINTF_ADAPTER || NO_CODE == TRICE_CODE
+#if !defined(TRICE_PRINTF_ADAPTER) || NO_CODE == TRICE_CODE
 #define TRICE_P( s, ... )
 #else
 int tricePrintfAdapter( const char* pFmt, ... ); //!< used in macro expansion, use not directly
@@ -129,6 +129,7 @@ typedef PACKED struct {
 
 extern uint32_t triceFifo[];
 extern uint32_t wrIndexTriceFifo;
+extern uint32_t maxTrices;
 
 //! put one trice into trice fifo
 //! \param v trice id with 2 byte data
