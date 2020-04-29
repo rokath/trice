@@ -1,4 +1,34 @@
 # C sources (instrumentation code)
+## Files
+
+ name                              | usage
+:----------------------------------|----------------------------------------------------------------------
+trice.c                            | needed core instrumentation, add to project
+trice.h                            | needed interface, include in project files using TRICE macros
+triceConfig.h                      | needed configuration file, copy in project directory and adapt
+triceConfigCompiler.h              | needed target compiler specific definitions, extend for project compiler
+triceWrite.c                       | only needed if no write function can be used
+triceRuntimeGeneratedStringsMany.c | only needed for `triceRuntimeGeneratedString()` implementation, when `TRICE_RUNTIME_GENERATED_STRINGS_SUPPORT` is enabled
+triceRuntimeGeneratedStringsRare.c | only needed for `triceRuntimeGeneratedString()` implementation, when `TRICE_RUNTIME_GENERATED_STRINGS_SUPPORT` is enabled
+tricePrintfAdapter.c               | only needed for easy adaption of legacy projects. 
+xteaCrypto.c                       | only for trice encryption, does not work with triceRuntimeGeneratedStringsMany.c
+xteaCrypto.h                       | only internal used
+triceCheck.c                       | only demo code
+triceCheck.h                       | only demo code header
+
+### Interface
+
+- triceConfigArduino.h
+- triceConfigStm32_LL.h
+- triceConfigStm32PutChar.h
+- triceConfigStm32Write.h
+
+
+
+
+
+
+
 ## Needed stuff
 - trice.h must be included in source files using TRICE macros.
 - trice.c needs to be added to your project if trices are enabled.
@@ -37,11 +67,17 @@
       - Example: TRICE_BYTES_PER_SECOND*1000/8bytes gives a repetition rate of 10 ms for a value of 800.
       - So a read from trice fifo and the acompanying write call should happen not more often than every 10 ms in this example.
 
-### Dynamic strings (`TRICE_STRINGS == FULL_RUNTIME`)
-- The `TRICE_P` and `TRICE_S` macros both are using finally the `triceReCalStringBuffer()` function, which in turn calls also `triceWrite()`.
-- Because it is not controllable how often and fast these macros are used, the `triceWrite()` must be capable to buffer the transmit data.
-- The size of the internal `triceWrite()` buffer must have sufficient space.
+### Runtime generated strings (`#define TRICE_RUNTIME_GENERATED_STRINGS_SUPPORT`)
+- This option is used only if strings unknown at compile time are to be transfered. 
+- The `TRICE_P` and `TRICE_S` macros both are using finally the `triceRuntimeGeneratedString()` function.
+  - triceRuntimeGeneratedStringsMany.c implements this function for many such strings and transmits them buffers, what is more efficient but needs more code.
+  - triceRuntimeGeneratedStringsRare.c implements this function for few such strings and transmits them as trice messages.
+
+### `printf()` adapter
+- This option is for easy adaption of legacy projects. 
+
 #### `triceWrite()` implementation
+- The size of the internal `triceWrite()` buffer must have sufficient space.
 
 
 

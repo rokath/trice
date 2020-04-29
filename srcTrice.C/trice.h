@@ -8,11 +8,18 @@ as NO_CODE (globally or file specific) the TRICE* macros generate no code.
 #ifndef TRICE_H_
 #define TRICE_H_
 
-#include "triceConfig_template.h" 
+#include "triceConfig.h" 
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#ifdef ENCRYPT
+#include "xteaCrypto.h"
+#endif
+
+int triceWrite( const void* p, int nbytes );
+void triceWriteServer( void );
 
 #ifdef TRICE_FILENAME
 #define TRICE_LOC do{ TRICE_FILENAME; TRICE16_1( Id(43789), "msg: line %d ", __LINE__ ); }while(0) //!< trice filename and line
@@ -29,28 +36,39 @@ extern "C" {
 #define ASSERT_OR_RETURN( flag )           do{ TRICE_ASSERT( flag ); if(!(flag)) { return; } }while(0) //!< report if flag is not true and return
 #define ASSERT_OR_RETURN_RESULT( flag, r ) do{ TRICE_ASSERT( flag ); if(!(flag)) { return r; } }while(0) //!< report if flag is not true and return
 
-#if !defined(TRICE_PRINTF_ADAPTER) || NO_CODE == TRICE_CODE
-#define TRICE_P( s, ... )
-#else
+#ifdef TRICE_PRINTF_ADAPTER
+
+#ifndef TRICE_RUNTIME_GENERATED_STRINGS_SUPPORT
+#error needs TRICE_RUNTIME_GENERATED_STRINGS_SUPPORT
+#endif
+
 int tricePrintfAdapter( const char* pFmt, ... ); //!< used in macro expansion, use not directly
 
 //! replacement for printf, sprintf and it relatives are writing in a buffer, use TRICE_S on that buffers
 #define TRICE_P( s, ... ) tricePrintfAdapter( s, __VA_ARGS__)
+
+#else
+
+#define TRICE_P( s, ... )
+
 #endif
 
-#if NONE_RUNTIME == TRICE_STRINGS || NO_CODE == TRICE_CODE
-#define TRICE_S( n, s )
-#else
-void triceString( int rightBound, const char* s ); //!< used in macro expansion, use not directly
+#if TRICE_CODE && defined TRICE_RUNTIME_GENERATED_STRINGS_SUPPORT
+
+void triceRuntimeGeneratedString( int rightBound, const char* s ); //!< used in macro expansion, use not directly
 
 //! out a runtime string, use TRICE0 for compile time strings
 //! \param n right bound position, use 0 for output in place
-//! \param s pointer to dynamic string
-#define TRICE_S( n, s ) triceString( n, s )
+//! \param s pointer to runtime generated string
+#define TRICE_S( n, s ) triceRuntimeGeneratedString( n, s )
+
+#else
+
+#define TRICE_S( n, s )
+
 #endif
 
-//void TxStart( void );
-//void TxContinue( void );
+
 void TriceServeTransmission( void );
 
 #define Id( n ) (n) //!< Macro for improved trice readability and better source code parsing.

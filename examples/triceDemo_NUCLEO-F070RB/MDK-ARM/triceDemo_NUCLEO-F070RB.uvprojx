@@ -477,6 +477,16 @@
               <FileType>1</FileType>
               <FilePath>..\..\..\srcTrice.C\triceWrite.c</FilePath>
             </File>
+            <File>
+              <FileName>tricePrintfAdapter.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\srcTrice.C\tricePrintfAdapter.c</FilePath>
+            </File>
+            <File>
+              <FileName>triceRuntimeGeneratedStringsRare.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\srcTrice.C\triceRuntimeGeneratedStringsRare.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
