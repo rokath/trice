@@ -4,7 +4,7 @@
 see also https://www.emsec.ruhr-uni-bochum.de/media/crypto/veroeffentlichungen/2011/01/29/lw_speed2007.pdf
 */
 
-#include "triceConfig_template.h"
+#include "triceConfig.h"
 
 #ifdef ENCRYPT
 
