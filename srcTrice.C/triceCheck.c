@@ -4,9 +4,9 @@
 \author thomas.hoehenleitner [at] seerose.net
 *******************************************************************************/
 #define TRICE_FILENAME TRICE0( Id(25337), "rd_:triceCheck.c" );
-//#define TRICE_CODE NO_CODE // enable this line to diable trice code generation in this file object
+//#define TRICE_CODE NO_CODE // enable this line to disable trice code generation in this file object
 #include "trice.h"
-#include "xteaCrypto.h"
+
 
 #ifndef SYSTICKVAL16
 #define SYSTICKVAL16 0 //!< sys clock state
