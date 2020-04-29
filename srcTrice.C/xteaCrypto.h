@@ -1,4 +1,4 @@
-/*!\file treyferCrypto.h
+/*!\file xteaCrypto.h
 \brief 64 bit Crypto Module Code
 \details Contains 64 bit encrypt and decrypt routines dclarations
 */
