@@ -483,9 +483,9 @@
               <FilePath>..\..\..\srcTrice.C\tricePrintfAdapter.c</FilePath>
             </File>
             <File>
-              <FileName>triceRuntimeGeneratedStringsRare.c</FileName>
+              <FileName>triceRuntimeGeneratedStrings.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\srcTrice.C\triceRuntimeGeneratedStringsRare.c</FilePath>
+              <FilePath>..\..\..\srcTrice.C\triceRuntimeGeneratedStrings.c</FilePath>
             </File>
           </Files>
         </Group>

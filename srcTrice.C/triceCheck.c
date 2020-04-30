@@ -17,8 +17,7 @@
 //! Traces with more bytes as parameter consist of several subtraces.
 void triceCheckSet( void )
 {
-    extern uint32_t ms;
-    TRICE32_2( Id( 7699), "tim:timing      message, SysTick is %d @ %d ms\n", SYSTICKVAL16, ms );
+   /*
     TRICE_P( "Hello %s this is a %dst printf replacement.\n", "world", 1 ); // visible only with defined TRICE_PRINTF_ADAPTER
     TRICE16_1( Id(46097), "dbg:12345 as 16bit is %#016b\n", 12345 );
     TRICE0 (Id( 4316), "------------------------------------------------------------------------------------------\r\n\n" );
@@ -74,7 +73,7 @@ void triceCheckSet( void )
     TRICE16_1( Id(65508), "TST:test        message, SysTick is %6d\n", SYSTICKVAL16 );
     TRICE16_1( Id(37949), "MSG:normal      message, SysTick is %6d\n", SYSTICKVAL16 );
     TRICE16_1( Id(27902), "INFO:informal   message, SysTick is %6d\n", SYSTICKVAL16 );
-
+*/
     TRICE0(Id(14272), "e:A" );
     TRICE0(Id(14772), "w:B" );
     TRICE0(Id( 4508), "a:c" );
@@ -94,7 +93,7 @@ void triceCheckSet( void )
     TRICE0( Id(58530), "e:7" );
     TRICE0( Id(35622), "m:12" );
     TRICE0( Id(22122), "m:123\n" );
-
+/*
 
     TRICE16_1( Id(17676), "err:error       message, SysTick is %6d\n", SYSTICKVAL16 );
     TRICE16_1( Id(32813), "wrn:warning     message, SysTick is %6d\n", SYSTICKVAL16 );
@@ -137,7 +136,7 @@ void triceCheckSet( void )
     TRICE_S( 18, "sig:123456789ab\n" );
     TRICE_S( 18, "123456789abc\n" );
     TRICE_S( 18, "MSG:Berlin\n" );
-
+*/
 #ifdef ENCRYPT
     {
         uint8_t b[8] = {1,2,3,4,5,6,7,8};
@@ -153,5 +152,4 @@ void triceCheckSet( void )
     }
 #endif
     TRICE0 (Id(46515), "------------------------------------------------------------------------------------------\r\n\n" );
-    TRICE32_2( Id( 9329), "tim:timing      message, SysTick is %d @ %d ms\n", SYSTICKVAL16, ms );
 }

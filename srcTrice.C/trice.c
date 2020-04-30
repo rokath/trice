@@ -79,7 +79,9 @@ static void triceTX( void ){
 //! Also it should be called cyclically to trigger transmission start, for example in the sysTick interrupt.
 //! If not interrup is used it should be called cyclically. With each call max 1 byte is transmitted.
 void TriceServeTransmission( void ){
+    #ifdef USE_OWN_TRICE_WRITE_FUNCTION
     triceWriteServer();
+    #endif
     triceTX();
 }
 

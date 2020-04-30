@@ -10,7 +10,7 @@
 
 #ifndef TRICE_STM32_LL_CONFIG_H_
 #define TRICE_STM32_LL_CONFIG_H_
-
+#error xxxxxxxxxxxx
 #ifdef __cplusplus
 extern "C" {
 #endif

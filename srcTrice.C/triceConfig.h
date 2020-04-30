@@ -77,21 +77,36 @@ extern "C" {
 // hardware specific stuff (enable only one of these header files)
 //
 
-#define STM32 132
+#include "triceConfigCompiler.h"
 
-#define ARCH STM32
+#define STM32_LL 132
+#define STM32_HAL 232
 
-#if ARCH == STM32
+#define ARCH STM32_HAL
+
+#if ARCH == STM32_LL
 #include "main.h" // hardware specific stuff
 
 #define SYSTICKVAL16 SysTick->VAL //!< STM32 specific, set to 0 as starting point with nonSTM MCE
+#include "triceConfigStm32_LL.h"
 
 #endif
+
+
+#if ARCH == STM32_HAL
+
+#include "main.h" // hardware specific stuff
+
+#define SYSTICKVAL16 SysTick->VAL //!< STM32 specific, set to 0 as starting point with nonSTM MCE
+//#include "triceConfigStm32_LL.h"
+
+#endif
+
 
 #define WITH_INTERRUPTS
 //#define NO_INTERRUPTS
 
-#define USE_OWN_TRICE_WRITE_FUNCTION
+//#define USE_OWN_TRICE_WRITE_FUNCTION
 
 #ifdef USE_OWN_TRICE_WRITE_FUNCTION
 extern uint16_t writeCount;
@@ -115,8 +130,7 @@ extern uint16_t writeCountMax;
 
 #endif //  #ifdef USE_OWN_TRICE_WRITE_FUNCTION
 
-#include "triceConfigCompiler.h"
-#include "triceConfigStm32_LL.h"
+
 
 //#include "triceStm32PutCharConfig.h" // does not work now
 //#include "triceStm32WriteConfig.h" // does not compile yet
