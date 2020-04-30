@@ -7,6 +7,8 @@
 
 #include "triceConfig.h"
 
+#ifdef TRICE_PRINTF_ADAPTER
+
 void triceRuntimeGeneratedString( int rightBound, const char* s );
 
 //! trice replacement helper for printf() with %s 
@@ -24,3 +26,5 @@ int tricePrintfAdapter( const char* pFmt, ... ){
     triceRuntimeGeneratedString( 0, buffer );
     return done;
 }
+
+#endif

@@ -1,7 +1,12 @@
-//#include <trice.h>
+#include <trice.h>
 //#include <triceCheck.h>
-//#include <triceConfig.h>
+#include <triceConfig.h>
+#include <triceConfigArduino.h>
+//#include <triceConfigCompiler.h>
+//#include <triceConfigStm32PutChar.h>
+//#include <triceConfigStm32_LL.h>
 //#include <xteaCrypto.h>
+
 
 
 
