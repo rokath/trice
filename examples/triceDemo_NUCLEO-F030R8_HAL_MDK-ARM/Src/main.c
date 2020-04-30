@@ -23,7 +23,8 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "trice.h"
+#include "triceCheck.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -59,7 +60,12 @@ static void MX_USART2_UART_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
+int triceWrite( const void* buf, int nbytes ){
+    //HAL_UART_Transmit(&huart2, (uint8_t*)buf, nbytes, 0xffff); // ok
+    //HAL_UART_Transmit_IT(&huart2, (uint8_t*)buf, nbytes); // ok, needs enabled UART2 interrupt
+    HAL_UART_Transmit_DMA(&huart2, (uint8_t*)buf, nbytes); // ok, needs added DNA channel to USART2_TX
+    return nbytes;
+}
 /* USER CODE END 0 */
 
 /**
@@ -94,7 +100,9 @@ int main(void)
   MX_DMA_Init();
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
-
+  TRICE16_1( Id(11441), "tst:TRICE16 %d\n", -1 );
+  //TRICE64_1( Id(51060), "att:64bit %#b\n", 0x1122334455667788ull );
+  //TRICE8_4( Id( 1750), "tst:TRICE8  %%03x ->  %03x  %03x  %03x  %03x\n", 1, 0x7f, 0x80, 0xff );
   /* USER CODE END 2 */
  
  
@@ -106,6 +114,7 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+    TriceServeTransmission();
   }
   /* USER CODE END 3 */
 }
