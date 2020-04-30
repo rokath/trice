@@ -1,4 +1,4 @@
-/*! \file triceRuntimeGeneratedStringsRare.c
+/*! \file triceRuntimeGeneratedStrings.c
 \author thomas.hoehenleitner [at] seerose.net
 *******************************************************************************/
 
