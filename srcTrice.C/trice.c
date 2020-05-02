@@ -60,29 +60,44 @@ static void prepareNextTriceTransmission(void){
 
 uint32_t maxTrices = 0; //!< for max trices depth diagnostics
 
-static void triceTX( void ){
+void triceToWriteBuffer( void ){
     uint32_t depth = triceFifoDepth();
     if( depth ){
-        #ifdef USE_OWN_TRICE_WRITE_FUNCTION
         if( writeCount >= TRICE_WRITE_COUNT_LIMIT){
-            return; // don't transfer trices if too buffer is too full
+            return; // don't transfer trices if buffer is too full
         }
-        #endif
         prepareNextTriceTransmission();
         triceWrite( &triceMsg, sizeof(triceMsg) );
-        maxTrices = depth < maxTrices ? maxTrices : depth;
+        maxTrices = depth < maxTrices ? maxTrices : depth; // diagnostics
     }
 }
 
-
-//! This function should be called inside the transmit done device interrupt.
-//! Also it should be called cyclically to trigger transmission start, for example in the sysTick interrupt.
+//! This function should be called cyclically to trigger transmission start, for example in the sysTick interrupt.
 //! If not interrup is used it should be called cyclically. With each call max 1 byte is transmitted.
-void TriceServeTransmission( void ){
-    #ifdef USE_OWN_TRICE_WRITE_FUNCTION
-    triceWriteServer();
-    #endif
-    triceTX();
+//! \param tick current tick, timebase is users choice
+//! \param transferPeriod (in ticks) is the max allowe trace transfer rate from trice fifo to trice write buffer.
+//! A (basic) trice allocates inside trice fifo 4 byte but in the write buffer 8 bytes. Therefore in case of heavy trice bursts
+//! inside trice fifo it is recommended to transfer them not quicker as the trice write out bandwidth for trices allowas to save RAM buffer.
+//! For example with 115200 baud about 10 bytes per ms are transferrable, if no other writes go over the same physical channel.
+//! So 1 ms for the transfer period is a reasonabe value in that case.
+//! \param servePeriod (in ticks) is the time period an internal check for writing out the 
+
+void triceServeTransmission( void ){
+    unsigned tick = TRICE_SERVER_TICK;
+    static int lastTransfer = 0;
+    static int lastServe = 0;
+#if TRICE_TRANSFER_PERIOD
+    if( tick > lastTransfer + TRICE_TRANSFER_PERIOD ){
+        triceToWriteBuffer();
+        lastTransfer = tick;
+    }
+#endif
+#if TRICE_SERVE_PERIOD
+    if( tick > lastServe + TRICE_SERVE_PERIOD ){
+        triceWriteBufferOut();
+        lastServe = tick;
+    }
+#endif
 }
 
 #endif // #if TRICE_CODE

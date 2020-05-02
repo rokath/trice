@@ -86,62 +86,35 @@ extern "C" {
 
 #if ARCH == STM32_LL
 #include "main.h" // hardware specific stuff
-
 #define SYSTICKVAL16 SysTick->VAL //!< STM32 specific, set to 0 as starting point with nonSTM MCE
+#define TRICE_SERVER_TICK ms
+//#define LL_INTERFACE_NO_INTERRUPTS
+#define LL_INTERFACE_WITH_INTERRUPTS
 #include "triceConfigStm32_LL.h"
-
 #endif
-
 
 #if ARCH == STM32_HAL
-
 #include "main.h" // hardware specific stuff
-
 #define SYSTICKVAL16 SysTick->VAL //!< STM32 specific, set to 0 as starting point with nonSTM MCE
-//#include "triceConfigStm32_LL.h"
-
+extern UART_HandleTypeDef huart2;
+#define TRICE_UART_HANDLE_PTR (&huart2)
+#define TRICE_SERVER_TICK HAL_GetTick()
+//#define HAL_INTERFACE_BLOCKING_MODE
+//#define HAL_INTERFACE_INTERRUPT_MODE
+#define HAL_INTERFACE_DMA_MODE
 #endif
 
 
-#define WITH_INTERRUPTS
-//#define NO_INTERRUPTS
 
-//#define USE_OWN_TRICE_WRITE_FUNCTION
-
-#ifdef USE_OWN_TRICE_WRITE_FUNCTION
 extern uint16_t writeCount;
 extern uint16_t writeCountMax;
 #define TRICE_WRITE_BUFFER_SIZE 600 //!< 
 #define TRICE_WRITE_COUNT_LIMIT 300 //!< allowed filling for trice transfer
 //#define TRICE_PAUSE triceWriteServer(); // do{ Pause(); } while(0) // put your own Pause here, if needed
 
-//! replace with your ReadTickCount() function for more accurate timing
-//#define CURRENT_TICK (tick + 1) 
-
-//! Your tick unit multiplied with this count results in a trice message count transfer rate, 
-//! for example 1 trice message per 10 ms if tick is 1ms and this value 10.
-//| That means 8byte/10ms = 800 bytes per second. Your write channel must be able to transfer this in the average.
-//! A 115200 baud serial port speed results in theroretical about 10000 bytes per second but in praxis
-//! this value is lower because of processor interaction, for example 5000 bytes per second.
-//! Than take in regard if your write channel is used by other functionality, for example 
-//! when TRICE_STRINGS == FULL_RUNTIME is configured. You have to subtract the average of this too
-//! to get the real value. The point is, that with TRICE bursts the write buffer gets not overloaded.
-//#define TRICE_OUT_INTERVAL_TICKS 1
-
-#endif //  #ifdef USE_OWN_TRICE_WRITE_FUNCTION
-
-
-
 //#include "triceStm32PutCharConfig.h" // does not work now
 //#include "triceStm32WriteConfig.h" // does not compile yet
 //#include "triceArduinoConfig.h" // does not work yet
-
-#ifndef TRICE_ENTER_CRITICAL_SECTION
-#define TRICE_ENTER_CRITICAL_SECTION {
-#define TRICE_LEAVE_CRITICAL_SECTION }
-#endif
-
-
 
 #ifdef __cplusplus
 }

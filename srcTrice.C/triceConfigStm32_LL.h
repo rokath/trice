@@ -10,14 +10,14 @@
 
 #ifndef TRICE_STM32_LL_CONFIG_H_
 #define TRICE_STM32_LL_CONFIG_H_
-#error xxxxxxxxxxxx
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 #include <stdint.h>
-
 #include "main.h" // hardware specific stuff
+
+extern uint32_t ms; 
 
 ///////////////////////////////////////////////////////////////////////////////
 // hardware specific interface functions tested on NUCLEO-STM32F030
@@ -38,21 +38,7 @@ TRICE_INLINE void triceTransmitData8( uint8_t d ){
     LL_USART_TransmitData8( TRICE_UART, d);
 }
 
-#ifdef NO_INTERRUPTS
-
-//! Allow interrupt for empty trice data transmit register.
-//! User must provide this function.
-TRICE_INLINE void triceEnableTxEmptyInterrupt( void ){
-}
-
-//! Disallow interrupt for empty trice data transmit register.
-//! User must provide this function.
-TRICE_INLINE void triceDisableTxEmptyInterrupt( void ){
-}
-
-#endif // #ifdef NO_INTERRUPTS
-
-#ifdef WITH_INTERRUPTS
+#ifdef LL_INTERFACE_WITH_INTERRUPTS
 
 //! Allow interrupt for empty trice data transmit register.
 //! User must provide this function.
@@ -82,7 +68,7 @@ TRICE_INLINE void triceDisableTxEmptyInterrupt( void ){
 //! you can leave this macro pair empty for more speed.
 #define TRICE_LEAVE_CRITICAL_SECTION } __set_PRIMASK(primaskstate); }
 
-#endif // #ifdef USE_INTERRUPTS
+#endif // #ifdef LL_INTERFACE_WITH_INTERRUPTS
 
 #ifdef __cplusplus
 }

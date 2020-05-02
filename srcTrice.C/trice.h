@@ -18,8 +18,24 @@ extern "C" {
 #include "xteaCrypto.h"
 #endif
 
+// default values
+#ifndef TRICE_ENTER_CRITICAL_SECTION
+#define TRICE_ENTER_CRITICAL_SECTION {
+#define TRICE_LEAVE_CRITICAL_SECTION }
+#endif
+
+#ifndef TRICE_TRANSFER_PERIOD
+#define TRICE_TRANSFER_PERIOD 1
+#endif
+
+#ifndef TRICE_SERVE_PERIOD
+#define TRICE_SERVE_PERIOD 1
+#endif
+
 int triceWrite( const void* p, int nbytes );
-void triceWriteServer( void );
+void triceServeTransmission( void );
+void triceToWriteBuffer( void );
+void triceWriteBufferOut( void );
 
 #ifdef TRICE_FILENAME
 #define TRICE_LOC do{ TRICE_FILENAME; TRICE16_1( Id(43789), "msg: line %d ", __LINE__ ); }while(0) //!< trice filename and line
