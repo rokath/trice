@@ -28,14 +28,12 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN TD */
-#ifndef TRICE_FILENAME
-#define TRICE_FILENAME TRICE0( Id(56535), "stm32f0xx_it.c" );
-#endif
+
 /* USER CODE END TD */
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define MS_INTERVAL 10
+ 
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -127,18 +125,17 @@ void PendSV_Handler(void)
 void SysTick_Handler(void)
 {
   /* USER CODE BEGIN SysTick_IRQn 0 */
+    static uint32_t ms_1 = 0;
     ms++;
-    if( 0 == ms % MS_INTERVAL ){
+    if( ms >= ms_1 + 100 ){
         TRICE32_1( Id(18577), "ISR:alive time %d milliseconds\n", ms );
+        ms_1 = ms;
     }
-
   /* USER CODE END SysTick_IRQn 0 */
   
   /* USER CODE BEGIN SysTick_IRQn 1 */
-    #if TRICE_CODE
-    #ifdef WITH_INTERRUPTS
-    TriceServeTransmission();
-    #endif
+    #ifdef LL_INTERFACE_WITH_INTERRUPTS
+        triceServeTransmission();
     #endif
   /* USER CODE END SysTick_IRQn 1 */
 }
@@ -159,10 +156,8 @@ void USART2_IRQHandler(void)
 
   /* USER CODE END USART2_IRQn 0 */
   /* USER CODE BEGIN USART2_IRQn 1 */
-    #if TRICE_CODE
-    #ifdef WITH_INTERRUPTS
-    TriceServeTransmission();
-    #endif
+    #ifdef LL_INTERFACE_WITH_INTERRUPTS
+        triceServeTransmission();
     #endif
   /* USER CODE END USART2_IRQn 1 */
 }

@@ -537,6 +537,11 @@
               <FileType>1</FileType>
               <FilePath>..\..\..\srcTrice.C\xteaCrypto.c</FilePath>
             </File>
+            <File>
+              <FileName>triceWrite.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\srcTrice.C\triceWrite.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

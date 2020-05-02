@@ -24,8 +24,6 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "trice.h"
-#include "triceCheck.h"
-
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -106,32 +104,31 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-    TRICE16_1( Id(5),  "sig:Hello from MCU! SysTickVal now %d\n", SYSTICKVAL16 );
+  TRICE0( Id( 2688), "att:triceDemo_NUCLEO-F070RB_LL_MDK-ARM\n" );
     while (1)
     {
-        static int32_t loopCount = 0u;
-        #define LOOPCOUNT 1000000u // resonable for 48 MHz MCU
-        loopCount++;
-        if( (LOOPCOUNT>>1) == loopCount ){
-            extern uint16_t writeCountMax;
-            static int i = 0;
-            TRICE32_1( Id(52309), "sig:Loops %d\n\n\n", i );
-            TRICE16_2( Id(16590), "att:writCountMax: %d (from%d)\n", writeCountMax, TRICE_WRITE_BUFFER_SIZE );
-            TRICE16_2( Id( 4875), "att:maxTrices = %d (from %d)\n", maxTrices, TRICE_FIFO_SIZE>>2 );
-
-            i++;         
-            LL_GPIO_ResetOutputPin(LD2_GPIO_Port, LD2_Pin);
-        }
-        if( LOOPCOUNT == loopCount ){
-          loopCount = 0;
-          LL_GPIO_SetOutputPin(LD2_GPIO_Port, LD2_Pin);
+      //////////////////////////////////////////////////
+      // demo trices
+      //
+      static uint32_t ms_1 = 0;
+      if( ms >= ms_1 + 3000 ){ // every 3 sec
+          void triceCheckSet( void );
           triceCheckSet();
-        }
-        #if TRICE_CODE
-        #ifdef NO_INTERRUPTS
-            TriceServeTransmission();
+          TRICE32_1( Id(29200), "time:ms = %d\n", ms );
+          LL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
+          ms_1 = ms;
+      }
+      //
+      //////////////////////////////////////////////////
+
+      //////////////////////////////////////////////////
+      // needed background activity
+      //
+        #ifdef LL_INTERFACE_NO_INTERRUPTS
+        triceServeTransmission();
         #endif
-        #endif
+      //
+      //////////////////////////////////////////////////        
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

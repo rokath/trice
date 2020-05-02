@@ -1412,5 +1412,89 @@
 		"fmtStrg": "att:maxTrices = %d (from %d)\\n",
 		"created": 1588100620,
 		"removed": 0
+	},
+	{
+		"id": 7728,
+		"fmtType": "TRICE0",
+		"fmtStrg": "att:triceDemo_NUCLEO-F070RB_HAL_MDK-ARM %d\\n",
+		"created": 1588328031,
+		"removed": 0
+	},
+	{
+		"id": 46040,
+		"fmtType": "TRICE32_2",
+		"fmtStrg": "time:ms = %d, ms_1 =%d\\n",
+		"created": 1588328031,
+		"removed": 0
+	},
+	{
+		"id": 43213,
+		"fmtType": "TRICE0",
+		"fmtStrg": "att:triceDemo_NUCLEO-F070RB_HAL_MDK-ARM\\n",
+		"created": 1588328151,
+		"removed": 0
+	},
+	{
+		"id": 29200,
+		"fmtType": "TRICE32_1",
+		"fmtStrg": "time:ms = %d\\n",
+		"created": 1588328373,
+		"removed": 0
+	},
+	{
+		"id": 5732,
+		"fmtType": "TRICE0",
+		"fmtStrg": "sig:",
+		"created": 1588328591,
+		"removed": 0
+	},
+	{
+		"id": 42612,
+		"fmtType": "TRICE0",
+		"fmtStrg": "msg:\\n",
+		"created": 1588328591,
+		"removed": 0
+	},
+	{
+		"id": 51503,
+		"fmtType": "TRICE0",
+		"fmtStrg": "att:Next few lines with numbers visible only when TRICE_RUNTIME_GENERATED_STRINGS_SUPPORT is defined\\n",
+		"created": 1588328914,
+		"removed": 0
+	},
+	{
+		"id": 49229,
+		"fmtType": "TRICE0",
+		"fmtStrg": "att:Next few lines have no color and visible only when TRICE_RUNTIME_GENERATED_STRINGS_SUPPORT is defined\\n",
+		"created": 1588328970,
+		"removed": 0
+	},
+	{
+		"id": 20276,
+		"fmtType": "TRICE0",
+		"fmtStrg": "att:triceDemo_NUCLEO-F030RB_HAL_MDK-ARM\\n",
+		"created": 1588439832,
+		"removed": 0
+	},
+	{
+		"id": 28058,
+		"fmtType": "TRICE0",
+		"fmtStrg": "att:triceDemo_NUCLEO-F030RB_HAL_MDK-ARM\\n",
+		"created": 1588445518,
+		"removed": 0
+	},
+	{
+		"id": 62503,
+		"fmtType": "TRICE0",
+		"fmtStrg": "att:triceDemo_NUCLEO-F030RB_LL_MDK-ARM\\n",
+		"created": 1588446272,
+		"removed": 0
+	},
+	{
+		"id": 2688,
+		"fmtType": "TRICE0",
+		"fmtStrg": "att:triceDemo_NUCLEO-F070RB_LL_MDK-ARM\\n",
+		"created": 1588446329,
+		"removed": 0
 	}
 ]

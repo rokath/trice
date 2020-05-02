@@ -24,8 +24,6 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "trice.h"
-#include "triceCheck.h"
-
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -99,35 +97,38 @@ int main(void)
   MX_GPIO_Init();
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
-   // LL_USART_EnableIT_RXNE(USART2); // enable UART2 interrupt
+    LL_USART_EnableIT_RXNE(USART2); // enable UART2 interrupt
   /* USER CODE END 2 */
  
  
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-    TRICE16_1( Id(51648), "msg:Hello from MCU! SysTickVal now %d\n", SYSTICKVAL16 );
+  TRICE0( Id(62503), "att:triceDemo_NUCLEO-F030RB_LL_MDK-ARM\n" );
     while (1)
     {
-        static int32_t loopCount = 0u;
-        #define LOOPCOUNT 1000000u // resonable for 48 MHz MCU
-        loopCount++;
-        if( (LOOPCOUNT>>1) == loopCount ){
-            static int i = 0;
-            TRICE32_1( Id(43027), "msg:Loop %d\n\n\n", i );
-            TRICE_S( 30, "sig:1234567abcdefgh\n" );
-            i++;
-            LL_GPIO_ResetOutputPin(LD2_GPIO_Port, LD2_Pin);
-        }
-        if( LOOPCOUNT == loopCount ){
-          loopCount = 0;
-          LL_GPIO_SetOutputPin(LD2_GPIO_Port, LD2_Pin);
-            triceCheckSet();
-        }
-        #if TRICE_TX_CONTROL == DO_MANUALLY
-            TriceServeTransmission();
+      //////////////////////////////////////////////////
+      // demo trices
+      //
+      static uint32_t ms_1 = 0;
+      if( ms >= ms_1 + 3000 ){ // every 3 sec
+          void triceCheckSet( void );
+          triceCheckSet();
+          TRICE32_1( Id(29200), "time:ms = %d\n", ms );
+          LL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
+          ms_1 = ms;
+      }
+      //
+      //////////////////////////////////////////////////
+
+      //////////////////////////////////////////////////
+      // needed background activity
+      //
+        #ifdef LL_INTERFACE_NO_INTERRUPTS
+        triceServeTransmission();
         #endif
-        
+      //
+      //////////////////////////////////////////////////        
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

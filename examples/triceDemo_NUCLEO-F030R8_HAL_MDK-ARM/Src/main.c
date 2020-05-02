@@ -24,7 +24,6 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "trice.h"
-#include "triceCheck.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -60,12 +59,7 @@ static void MX_USART2_UART_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-int triceWrite( const void* buf, int nbytes ){
-    //HAL_UART_Transmit(&huart2, (uint8_t*)buf, nbytes, 0xffff); // ok
-    //HAL_UART_Transmit_IT(&huart2, (uint8_t*)buf, nbytes); // ok, needs enabled UART2 interrupt
-    HAL_UART_Transmit_DMA(&huart2, (uint8_t*)buf, nbytes); // ok, needs added DNA channel to USART2_TX
-    return nbytes;
-}
+
 /* USER CODE END 0 */
 
 /**
@@ -75,7 +69,9 @@ int triceWrite( const void* buf, int nbytes ){
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-
+#ifdef ENCRYPT
+    InitXteaTable();
+#endif
   /* USER CODE END 1 */
   
 
@@ -100,21 +96,40 @@ int main(void)
   MX_DMA_Init();
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
-  TRICE16_1( Id(11441), "tst:TRICE16 %d\n", -1 );
-  //TRICE64_1( Id(51060), "att:64bit %#b\n", 0x1122334455667788ull );
-  //TRICE8_4( Id( 1750), "tst:TRICE8  %%03x ->  %03x  %03x  %03x  %03x\n", 1, 0x7f, 0x80, 0xff );
+
   /* USER CODE END 2 */
  
  
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+  TRICE0( Id(28058), "att:triceDemo_NUCLEO-F030RB_HAL_MDK-ARM\n" );
   while (1)
   {
+      //////////////////////////////////////////////////
+      // demo trices
+      //
+      static uint32_t ms_1 = 0;
+      uint32_t ms = HAL_GetTick();
+      if( ms >= ms_1 + 3000 ){ // every 3 sec
+          void triceCheckSet( void );
+          triceCheckSet();
+          TRICE32_1( Id(29200), "time:ms = %d\n", ms );
+          HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
+          ms_1 = ms;
+      }
+      //
+      //////////////////////////////////////////////////
+
+      //////////////////////////////////////////////////
+      // needed background activity
+      //
+      triceServeTransmission();
+      //
+      //////////////////////////////////////////////////
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-    TriceServeTransmission();
   }
   /* USER CODE END 3 */
 }
