@@ -45,7 +45,7 @@ extern "C" {
 //! set compiler switch "optimize for time" accordingly!
 //! to switch of TRICE code generation file specific add `#define TRICE_CODE NO_CODE`
 //! at start of file before including trice.h
-#define TRICE_CODE LESS_FLASH_AND_SPEED // options: NO_CODE, LESS_FLASH_AND_SPEED, MORE_FLASH_AND_SPEED 
+#define TRICE_CODE MORE_FLASH_AND_SPEED // options: NO_CODE, LESS_FLASH_AND_SPEED, MORE_FLASH_AND_SPEED 
 
 //! setting for runtime generated string support code
 //! when enabling this include triceRuntimeGeneratedStingsRare.c or triceRuntimeGeneratedStingsMany.c in project
@@ -82,7 +82,7 @@ extern "C" {
 #define STM32_LL 132
 #define STM32_HAL 232
 
-#define ARCH STM32_HAL
+#define ARCH STM32_LL
 
 #if ARCH == STM32_LL
 #include "main.h" // hardware specific stuff

@@ -10,7 +10,8 @@ extern "C" {
 #endif
 
 
-#ifdef __GNUC__ // gnu compiler ###############################################
+#if defined( __GNUC__ ) /* gnu compiler ###################################### */ \
+ || defined (__IAR_SYSTEMS_ICC__) /* IAR compiler ############################ */
 
 #define TRICE_INLINE static inline //! used for trice code
 
@@ -29,9 +30,7 @@ extern "C" {
 #define PACKED_END        //!< pack data post declaration
 
 #else // ######################################################################
-
-// some other compliler
-
+#error unknown compliler
 #endif // compiler adaptions ##################################################
 
 

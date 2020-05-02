@@ -17,4 +17,6 @@ RTE_Components.h
 EventRecorderStub.scvd
 ExtDll.iex
 JLinkLog.txt
-
+*/EWARM/*/Exe/*
+*/EWARM/*/List/*
+*/EWARM/*/Obj/*

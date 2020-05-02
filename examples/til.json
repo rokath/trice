@@ -1496,5 +1496,12 @@
 		"fmtStrg": "att:triceDemo_NUCLEO-F070RB_LL_MDK-ARM\\n",
 		"created": 1588446329,
 		"removed": 0
+	},
+	{
+		"id": 20982,
+		"fmtType": "TRICE0",
+		"fmtStrg": "att:triceDemo_NUCLEO-F030RB_LL_IAR-EWARM\\n",
+		"created": 1588460902,
+		"removed": 0
 	}
 ]

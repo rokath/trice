@@ -23,7 +23,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "trice.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -66,7 +66,9 @@ static void MX_USART2_UART_Init(void);
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-
+#ifdef ENCRYPT
+    InitXteaTable();
+#endif
   /* USER CODE END 1 */
   
 
@@ -88,22 +90,45 @@ int main(void)
   SystemClock_Config();
 
   /* USER CODE BEGIN SysInit */
-
+    SysTick->CTRL |= SysTick_CTRL_TICKINT_Msk; // enable SysTick interrupt
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
-
+    LL_USART_EnableIT_RXNE(USART2); // enable UART2 interrupt
   /* USER CODE END 2 */
  
  
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  while (1)
-  {
+  TRICE0( Id(20982), "att:triceDemo_NUCLEO-F030RB_LL_IAR-EWARM\n" );
+    while (1)
+    {
+      //////////////////////////////////////////////////
+      // demo trices
+      //
+      static uint32_t ms_1 = 0;
+      if( ms >= ms_1 + 3000 ){ // every 3 sec
+          void triceCheckSet( void );
+          triceCheckSet();
+          TRICE32_1( Id(29200), "time:ms = %d\n", ms );
+          LL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
+          ms_1 = ms;
+      }
+      //
+      //////////////////////////////////////////////////
+
+      //////////////////////////////////////////////////
+      // needed background activity
+      //
+        #ifdef LL_INTERFACE_NO_INTERRUPTS
+        triceServeTransmission();
+        #endif
+      //
+      //////////////////////////////////////////////////        
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -200,7 +225,7 @@ static void MX_USART2_UART_Init(void)
   /* USER CODE BEGIN USART2_Init 1 */
 
   /* USER CODE END USART2_Init 1 */
-  USART_InitStruct.BaudRate = 11520;
+  USART_InitStruct.BaudRate = 115200;
   USART_InitStruct.DataWidth = LL_USART_DATAWIDTH_8B;
   USART_InitStruct.StopBits = LL_USART_STOPBITS_1;
   USART_InitStruct.Parity = LL_USART_PARITY_NONE;
