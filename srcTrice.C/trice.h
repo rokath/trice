@@ -622,7 +622,7 @@ TRICE_INLINE void trice_8_4_ocs( uint16_t Id, uint32_t d0, uint32_t d1, uint32_t
 //! \param d4 payload
 TRICE_INLINE void trice_8_5_ics( uint16_t Id, uint32_t d0, uint32_t d1, uint32_t d2, uint32_t d3, uint32_t d4 ){
     trice_8_04_ics( d0, d1, d2, d3 );
-    trice_8_1_ics( Id, d2 );
+    trice_8_1_ics( Id, d4 );
 }
 
 //! trace Id and 8-bit values protected (outside critical section)
