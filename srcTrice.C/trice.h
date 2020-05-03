@@ -245,7 +245,7 @@ TRICE_INLINE void triceFifoPush( uint32_t v ){
 //! \param d1 payload
 #define TRICE8_2( Id, pFmt, d0, d1 ) do{ \
     TRICE_ENTER_CRITICAL_SECTION \
-    TRICE( Id, (((uint16_t)(d1))<<8) | (uint8_t)(d0) ) ; \
+    TRICE( Id, (((uint32_t)(d1))<<8) | (uint8_t)(d0) ) ; \
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
 
@@ -257,7 +257,7 @@ TRICE_INLINE void triceFifoPush( uint32_t v ){
 //! \param d2 payload
 #define TRICE8_3( Id, pFmt, d0, d1, d2 ) do{ \
     TRICE_ENTER_CRITICAL_SECTION \
-    TRICE_ID0( (((uint16_t)(d1))<<8) | (uint8_t)(d0) ) ; \
+    TRICE_ID0( (((uint32_t)(d1))<<8) | (uint8_t)(d0) ) ; \
     TRICE( Id, d2 ); \
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
@@ -271,8 +271,8 @@ TRICE_INLINE void triceFifoPush( uint32_t v ){
 //! \param d3 payload
 #define TRICE8_4( Id, pFmt, d0, d1, d2, d3 ) do{ \
     TRICE_ENTER_CRITICAL_SECTION \
-    TRICE_ID0( (((uint16_t)(d1))<<8) | (uint8_t)(d0) ) ; \
-    TRICE( Id, (((uint16_t)(d3))<<8) | (uint8_t)(d2) ) ; \
+    TRICE_ID0( (((uint32_t)(d1))<<8) | (uint8_t)(d0) ) ; \
+    TRICE( Id, (((uint32_t)(d3))<<8) | (uint8_t)(d2) ) ; \
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
 
@@ -286,8 +286,8 @@ TRICE_INLINE void triceFifoPush( uint32_t v ){
 //! \param d4 payload
 #define TRICE8_5( Id, pFmt, d0, d1, d2, d3, d4 ) do{ \
     TRICE_ENTER_CRITICAL_SECTION \
-    TRICE_ID0( (((uint16_t)(d1))<<8) | (uint8_t)(d0) ) ; \
-    TRICE_ID0( (((uint16_t)(d3))<<8) | (uint8_t)(d2) ) ; \
+    TRICE_ID0( (((uint32_t)(d1))<<8) | (uint8_t)(d0) ) ; \
+    TRICE_ID0( (((uint32_t)(d3))<<8) | (uint8_t)(d2) ) ; \
     TRICE( Id, d4 ); \
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
@@ -303,9 +303,9 @@ TRICE_INLINE void triceFifoPush( uint32_t v ){
 //! \param d5 payload
 #define TRICE8_6( Id, pFmt, d0, d1, d2, d3, d4, d5 ) do{ \
     TRICE_ENTER_CRITICAL_SECTION \
-    TRICE_ID0( (((uint16_t)(d1))<<8) | (uint8_t)(d0) ) ; \
-    TRICE_ID0( (((uint16_t)(d3))<<8) | (uint8_t)(d2) ) ; \
-    TRICE( Id, (((uint16_t)(d5))<<8) | (uint8_t)(d4) ) ; \
+    TRICE_ID0( (((uint32_t)(d1))<<8) | (uint8_t)(d0) ) ; \
+    TRICE_ID0( (((uint32_t)(d3))<<8) | (uint8_t)(d2) ) ; \
+    TRICE( Id, (((uint32_t)(d5))<<8) | (uint8_t)(d4) ) ; \
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
 
@@ -321,9 +321,9 @@ TRICE_INLINE void triceFifoPush( uint32_t v ){
 //! \param d6 payload
 #define TRICE8_7( Id, pFmt, d0, d1, d2, d3, d4, d5, d6 ) do{ \
     TRICE_ENTER_CRITICAL_SECTION \
-    TRICE_ID0( (((uint16_t)(d1))<<8) | (uint8_t)(d0) ) ; \
-    TRICE_ID0( (((uint16_t)(d3))<<8) | (uint8_t)(d2) ) ; \
-    TRICE_ID0( (((uint16_t)(d5))<<8) | (uint8_t)(d4) ) ; \
+    TRICE_ID0( (((uint32_t)(d1))<<8) | (uint8_t)(d0) ) ; \
+    TRICE_ID0( (((uint32_t)(d3))<<8) | (uint8_t)(d2) ) ; \
+    TRICE_ID0( (((uint32_t)(d5))<<8) | (uint8_t)(d4) ) ; \
     TRICE( Id, d6 ); \
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
@@ -341,10 +341,10 @@ TRICE_INLINE void triceFifoPush( uint32_t v ){
 //! \param d7 payload
 #define TRICE8_8( Id, pFmt, d0, d1, d2, d3, d4, d5, d6, d7 ) do{ \
     TRICE_ENTER_CRITICAL_SECTION \
-    TRICE_ID0( (((uint16_t)(d1))<<8) | (uint8_t)(d0) ) ; \
-    TRICE_ID0( (((uint16_t)(d3))<<8) | (uint8_t)(d2) ) ; \
-    TRICE_ID0( (((uint16_t)(d5))<<8) | (uint8_t)(d4) ) ; \
-    TRICE( Id, (((uint16_t)(d7))<<8) | (uint8_t)(d6) ) ; \
+    TRICE_ID0( (((uint32_t)(d1))<<8) | (uint8_t)(d0) ) ; \
+    TRICE_ID0( (((uint32_t)(d3))<<8) | (uint8_t)(d2) ) ; \
+    TRICE_ID0( (((uint32_t)(d5))<<8) | (uint8_t)(d4) ) ; \
+    TRICE( Id, (((uint32_t)(d7))<<8) | (uint8_t)(d6) ) ; \
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
 
