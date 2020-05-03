@@ -50,6 +50,7 @@ extern "C" {
 //! setting for runtime generated string support code
 //! when enabling this include triceRuntimeGeneratedStingsRare.c or triceRuntimeGeneratedStingsMany.c in project
 #define TRICE_RUNTIME_GENERATED_STRINGS_SUPPORT 
+//#define TRICE_RUNTIME_GENERATED_STRINGS_SUPPORT_EXPERIMENTAL 
 
 //! enable encryption here, adds about 150 bytes code
 //! call trice tool with log switch "-key your_password -show" and put passphrase here

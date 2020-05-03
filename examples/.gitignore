@@ -20,3 +20,5 @@ JLinkLog.txt
 */EWARM/*/Exe/*
 */EWARM/*/List/*
 */EWARM/*/Obj/*
+*/Debug/*
+*/Release/*

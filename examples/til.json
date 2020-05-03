@@ -1503,5 +1503,19 @@
 		"fmtStrg": "att:triceDemo_NUCLEO-F030RB_LL_IAR-EWARM\\n",
 		"created": 1588460902,
 		"removed": 0
+	},
+	{
+		"id": 14846,
+		"fmtType": "TRICE0",
+		"fmtStrg": "att:triceDemo_NUCLEO-F030RB_LL_STM32CubeIDE\\n",
+		"created": 1588511977,
+		"removed": 0
+	},
+	{
+		"id": 7461,
+		"fmtType": "TRICE0",
+		"fmtStrg": "att:triceDemo_NUCLEO-F030RB_LL_STM32CubeIDE\\n",
+		"created": 1588521361,
+		"removed": 0
 	}
 ]

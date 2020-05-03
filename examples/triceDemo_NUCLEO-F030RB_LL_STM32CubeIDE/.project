@@ -31,6 +31,11 @@
 	</natures>
 	<linkedResources>
 		<link>
+			<name>Src/srcTrice.C</name>
+			<type>2</type>
+			<location>C:/GitRepos/trice/srcTrice.C</location>
+		</link>
+		<link>
 			<name>Drivers/STM32F0xx_HAL_Driver/stm32f0xx_ll_dma.c</name>
 			<type>1</type>
 			<locationURI>$%7BPARENT-4-PROJECT_LOC%7D/Users/ms/STM32Cube/Repository/STM32Cube_FW_F0_V1.11.0/Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_ll_dma.c</locationURI>

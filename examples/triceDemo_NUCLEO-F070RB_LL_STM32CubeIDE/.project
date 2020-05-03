@@ -65,5 +65,35 @@
 			<type>1</type>
 			<locationURI>$%7BPARENT-4-PROJECT_LOC%7D/Users/ms/STM32Cube/Repository/STM32Cube_FW_F0_V1.11.0/Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_ll_utils.c</locationURI>
 		</link>
+		<link>
+			<name>Src/Trice/trice.c</name>
+			<type>1</type>
+			<location>C:/GitRepos/trice/srcTrice.C/trice.c</location>
+		</link>
+		<link>
+			<name>Src/Trice/triceCheck.c</name>
+			<type>1</type>
+			<location>C:/GitRepos/trice/srcTrice.C/triceCheck.c</location>
+		</link>
+		<link>
+			<name>Src/Trice/tricePrintfAdapter.c</name>
+			<type>1</type>
+			<location>C:/GitRepos/trice/srcTrice.C/tricePrintfAdapter.c</location>
+		</link>
+		<link>
+			<name>Src/Trice/triceRuntimeGeneratedStrings.c</name>
+			<type>1</type>
+			<location>C:/GitRepos/trice/srcTrice.C/triceRuntimeGeneratedStrings.c</location>
+		</link>
+		<link>
+			<name>Src/Trice/triceWrite.c</name>
+			<type>1</type>
+			<location>C:/GitRepos/trice/srcTrice.C/triceWrite.c</location>
+		</link>
+		<link>
+			<name>Src/Trice/xteaCrypto.c</name>
+			<type>1</type>
+			<location>C:/GitRepos/trice/srcTrice.C/xteaCrypto.c</location>
+		</link>
 	</linkedResources>
 </projectDescription>
