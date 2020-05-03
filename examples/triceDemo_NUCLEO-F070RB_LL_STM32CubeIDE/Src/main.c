@@ -101,7 +101,7 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  TRICE0( Id(0), "att:triceDemo_NUCLEO-F070RB_LL_STM32CubeIDE\n" );
+  TRICE0( Id( 2427), "att:triceDemo_NUCLEO-F070RB_LL_STM32CubeIDE\n" );
     while (1)
     {
       //////////////////////////////////////////////////
