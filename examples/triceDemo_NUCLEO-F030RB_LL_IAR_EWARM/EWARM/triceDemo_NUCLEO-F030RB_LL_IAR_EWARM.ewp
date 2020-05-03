@@ -698,7 +698,7 @@
             <name>BUILDACTION</name>
             <archiveVersion>1</archiveVersion>
             <data>
-                <prebuild>trice u -src .. -src ../../../srcTrice.C -list ../../til.json -v</prebuild>
+                <prebuild>trice u -src ../Src -src ../../../srcTrice.C -list ../../til.json -v</prebuild>
                 <postbuild></postbuild>
             </data>
         </settings>
