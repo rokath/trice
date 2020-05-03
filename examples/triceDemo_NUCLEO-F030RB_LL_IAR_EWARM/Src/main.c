@@ -103,7 +103,7 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  TRICE0( Id(0), "att:triceDemo_NUCLEO-F030RB_LL_IAR-EWARM\n" );
+  TRICE0( Id(28009), "att:triceDemo_NUCLEO-F030RB_LL_IAR-EWARM\n" );
     while (1)
     {
       //////////////////////////////////////////////////
