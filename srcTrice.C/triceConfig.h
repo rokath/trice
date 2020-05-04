@@ -83,9 +83,12 @@ extern "C" {
 #define STM32_LL 132
 #define STM32_HAL 232
 
-#define ARCH STM32_LL
+#ifndef TRICE_VARIANT
+#error specify TRICE_VARIANT in project settings or in a copy of this file
+#endif
 
-#if ARCH == STM32_LL
+
+#if TRICE_VARIANT == STM32_LL
 #include "main.h" // hardware specific stuff
 #define SYSTICKVAL16 SysTick->VAL //!< STM32 specific, set to 0 as starting point with nonSTM MCE
 #define TRICE_SERVER_TICK ms
@@ -94,7 +97,7 @@ extern "C" {
 #include "triceConfigStm32_LL.h"
 #endif
 
-#if ARCH == STM32_HAL
+#if TRICE_VARIANT == STM32_HAL
 #include "main.h" // hardware specific stuff
 #define SYSTICKVAL16 SysTick->VAL //!< STM32 specific, set to 0 as starting point with nonSTM MCE
 extern UART_HandleTypeDef huart2;
