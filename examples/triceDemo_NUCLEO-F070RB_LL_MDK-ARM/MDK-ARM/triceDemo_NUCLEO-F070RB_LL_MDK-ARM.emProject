@@ -1,0 +1,109 @@
+<!DOCTYPE CrossStudio_Project_File>
+<solution Name="triceDemo_NUCLEO-F070RB_LL_MDK-ARM" target="8" version="2">
+  <project Name="triceDemo_NUCLEO-F070RB_LL_MDK-ARM">
+    <configuration
+      Name="Common"
+      arm_architecture="v6M"
+      arm_core_type="Cortex-M0"
+      arm_endian="Little"
+      arm_fpu_type=""
+      arm_simulator_memory_simulation_parameter="RX 08000000,00020000,FFFFFFFF;RWX 20000000,00004000,CDCDCDCD"
+      arm_target_device_name="STM32F070RB"
+      arm_target_interface_type="SWD"
+      debug_start_from_entry_point_symbol="No"
+      debug_target_connection="J-Link"
+      linker_section_placements_segments="FLASH1 RX 0x08000000 0x00020000;RAM1 RWX 0x20000000 0x00004000"
+      pre_build_command="trice u -src .. -src ../../../srcTrice.C -list ../../til.json"
+      pre_build_command_wd="$(ProjectDir)"
+      project_directory=""
+      project_type="Executable" />
+    <configuration
+      Name="Internal"
+      arm_linker_variant="SEGGER"
+      build_intermediate_directory="Output/$(ProjectName) $(Configuration)/Obj"
+      build_output_directory="Output/$(Configuration)/Exe"
+      build_output_file_name="$(OutDir)/$(ProjectName)$(EXE)"
+      link_linker_script_file="$(StudioDir)/samples/SEGGER_Flash.icf" />
+    <configuration
+      BUILD_OPTIONS="ARM CC"
+      Name="External Keil ARMCC"
+      build_generic_options_file_name="$(StudioDir)/targets/ARMCC_build_options.xml"
+      project_type="Externally Built Executable" />
+    <folder Name="Internal Files">
+      <configuration Name="Common" build_exclude_from_build="Yes" />
+      <configuration Name="Internal" build_exclude_from_build="No" />
+      <file file_name="$(StudioDir)/samples/Cortex_M_Startup.s" />
+      <file file_name="$(StudioDir)/samples/SEGGER_THUMB_Startup.s" />
+    </folder>
+    <configuration
+      CMSIS_CORE="Yes"
+      Name="triceDemo_NUCLEO-F070RB_LL_MDK-ARM"
+      arm_architecture="v6M"
+      arm_core_type="Cortex-M0"
+      arm_endian="Little"
+      arm_fpu_type=""
+      arm_simulator_memory_simulation_parameter="RX 08000000,00020000,FFFFFFFF;RWX 20000000,00004000,CDCDCDCD"
+      arm_target_device_name="STM32F070RB"
+      c_preprocessor_definitions="TRICE_VARIANT=STM32_LL;USE_FULL_LL_DRIVER;HSE_VALUE=8000000;HSE_STARTUP_TIMEOUT=100;LSE_STARTUP_TIMEOUT=5000;LSE_VALUE=32768;HSI_VALUE=8000000;LSI_VALUE=40000;VDD_VALUE=3300;PREFETCH_ENABLE=1;INSTRUCTION_CACHE_ENABLE=0;DATA_CACHE_ENABLE=0;STM32F070xB"
+      c_user_include_directories="../Inc;C:/Users/ms/STM32Cube/Repository/STM32Cube_FW_F0_V1.11.0/Drivers/STM32F0xx_HAL_Driver/Inc;C:/Users/ms/STM32Cube/Repository/STM32Cube_FW_F0_V1.11.0/Drivers/CMSIS/Device/ST/STM32F0xx/Include;C:/Users/ms/STM32Cube/Repository/STM32Cube_FW_F0_V1.11.0/Drivers/CMSIS/Include;../../../srcTrice.C"
+      linker_section_placements_segments="FLASH1 RX 0x08000000 0x00020000;RAM1 RWX 0x20000000 0x00004000" />
+    <configuration
+      Name="External Keil"
+      build_intermediate_directory="triceDemo_NUCLEO-F070RB_LL_MDK-ARM"
+      build_output_directory="triceDemo_NUCLEO-F070RB_LL_MDK-ARM"
+      build_output_file_name="triceDemo_NUCLEO-F070RB_LL_MDK-ARM/triceDemo_NUCLEO-F070RB_LL_MDK-ARM.axf" />
+    <folder Name="Application/MDK-ARM">
+      <file file_name="startup_stm32f070xb.s">
+        <configuration Name="Internal" build_exclude_from_build="Yes" />
+      </file>
+    </folder>
+    <folder Name="Application/User">
+      <file file_name="../Src/main.c" />
+      <file file_name="../Src/stm32f0xx_it.c" />
+    </folder>
+    <folder Name="Drivers/STM32F0xx_HAL_Driver">
+      <file file_name="C:/Users/ms/STM32Cube/Repository/STM32Cube_FW_F0_V1.11.0/Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_ll_gpio.c" />
+      <file file_name="C:/Users/ms/STM32Cube/Repository/STM32Cube_FW_F0_V1.11.0/Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_ll_pwr.c" />
+      <file file_name="C:/Users/ms/STM32Cube/Repository/STM32Cube_FW_F0_V1.11.0/Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_ll_exti.c" />
+      <file file_name="C:/Users/ms/STM32Cube/Repository/STM32Cube_FW_F0_V1.11.0/Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_ll_usart.c" />
+      <file file_name="C:/Users/ms/STM32Cube/Repository/STM32Cube_FW_F0_V1.11.0/Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_ll_rcc.c" />
+      <file file_name="C:/Users/ms/STM32Cube/Repository/STM32Cube_FW_F0_V1.11.0/Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_ll_dma.c" />
+      <file file_name="C:/Users/ms/STM32Cube/Repository/STM32Cube_FW_F0_V1.11.0/Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_ll_utils.c" />
+    </folder>
+    <folder Name="Drivers/CMSIS">
+      <file file_name="../Src/system_stm32f0xx.c" />
+    </folder>
+    <folder Name="Trice">
+      <file file_name="../../../srcTrice.C/trice.c" />
+      <file file_name="../../../srcTrice.C/triceCheck.c" />
+      <file file_name="../../../srcTrice.C/xteaCrypto.c" />
+      <file file_name="../../../srcTrice.C/triceWrite.c" />
+      <file file_name="../../../srcTrice.C/tricePrintfAdapter.c" />
+      <file file_name="../../../srcTrice.C/triceRuntimeGeneratedStrings.c" />
+    </folder>
+    <folder Name="::CMSIS" />
+    <configuration
+      Name="triceDemo_NUCLEO-F070RB_LL_MDK-ARM External"
+      armcc_cl_cpu="Cortex-M0"
+      armcc_cl_enable_debug_info="Yes"
+      armcc_cl_optimization_level="Level 3"
+      asm_additional_options="--pd;&quot;__MICROLIB SETA 1&quot;"
+      asm_additional_options_backup="--cpu;Cortex-M0;--pd;&quot;__MICROLIB SETA 1&quot;"
+      c_additional_options="-D__MICROLIB;--C99"
+      c_additional_options_backup="--cpu;Cortex-M0;-D__MICROLIB;--C99;-O3;-g"
+      link_additional_options_backup="--cpu;Cortex-M0;--ro_base=0x08000000;--rw_base=0x20000000;--first=__Vectors;--library_type=microlib"
+      linker_additional_options="--ro_base=0x08000000;--rw_base=0x20000000;--first=__Vectors;--library_type=microlib" />
+  </project>
+  <configuration
+    Name="External Keil ARMCC"
+    hidden="Yes"
+    macros="KEIL_TOOLKIT_DIR=C:/Keil_v5/ARM" />
+  <configuration Name="Internal" hidden="Yes" />
+  <configuration
+    Name="triceDemo_NUCLEO-F070RB_LL_MDK-ARM External"
+    inherited_configurations="External Keil ARMCC;triceDemo_NUCLEO-F070RB_LL_MDK-ARM" />
+  <configuration
+    Name="triceDemo_NUCLEO-F070RB_LL_MDK-ARM Internal"
+    inherited_configurations="Internal;triceDemo_NUCLEO-F070RB_LL_MDK-ARM" />
+  <configuration Name="triceDemo_NUCLEO-F070RB_LL_MDK-ARM" hidden="Yes" />
+</solution>

@@ -22,3 +22,4 @@ JLinkLog.txt
 */EWARM/*/Obj/*
 */Debug/*
 */Release/*
+*/MDK-ARM/Output/*
