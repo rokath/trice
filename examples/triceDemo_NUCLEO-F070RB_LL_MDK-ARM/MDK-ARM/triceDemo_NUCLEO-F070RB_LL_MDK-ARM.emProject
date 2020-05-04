@@ -44,7 +44,7 @@
       arm_fpu_type=""
       arm_simulator_memory_simulation_parameter="RX 08000000,00020000,FFFFFFFF;RWX 20000000,00004000,CDCDCDCD"
       arm_target_device_name="STM32F070RB"
-      c_preprocessor_definitions="TRICE_VARIANT=STM32_LL;USE_FULL_LL_DRIVER;HSE_VALUE=8000000;HSE_STARTUP_TIMEOUT=100;LSE_STARTUP_TIMEOUT=5000;LSE_VALUE=32768;HSI_VALUE=8000000;LSI_VALUE=40000;VDD_VALUE=3300;PREFETCH_ENABLE=1;INSTRUCTION_CACHE_ENABLE=0;DATA_CACHE_ENABLE=0;STM32F070xB"
+      c_preprocessor_definitions="XTRICE_VARIANT=STM32_LL;USE_FULL_LL_DRIVER;HSE_VALUE=8000000;HSE_STARTUP_TIMEOUT=100;LSE_STARTUP_TIMEOUT=5000;LSE_VALUE=32768;HSI_VALUE=8000000;LSI_VALUE=40000;VDD_VALUE=3300;PREFETCH_ENABLE=1;INSTRUCTION_CACHE_ENABLE=0;DATA_CACHE_ENABLE=0;STM32F070xB"
       c_user_include_directories="../Inc;C:/Users/ms/STM32Cube/Repository/STM32Cube_FW_F0_V1.11.0/Drivers/STM32F0xx_HAL_Driver/Inc;C:/Users/ms/STM32Cube/Repository/STM32Cube_FW_F0_V1.11.0/Drivers/CMSIS/Device/ST/STM32F0xx/Include;C:/Users/ms/STM32Cube/Repository/STM32Cube_FW_F0_V1.11.0/Drivers/CMSIS/Include;../../../srcTrice.C"
       linker_section_placements_segments="FLASH1 RX 0x08000000 0x00020000;RAM1 RWX 0x20000000 0x00004000" />
     <configuration
@@ -84,15 +84,9 @@
     <folder Name="::CMSIS" />
     <configuration
       Name="triceDemo_NUCLEO-F070RB_LL_MDK-ARM External"
-      armcc_cl_cpu="Cortex-M0"
-      armcc_cl_enable_debug_info="Yes"
-      armcc_cl_optimization_level="Level 3"
-      asm_additional_options="--pd;&quot;__MICROLIB SETA 1&quot;"
-      asm_additional_options_backup="--cpu;Cortex-M0;--pd;&quot;__MICROLIB SETA 1&quot;"
-      c_additional_options="-D__MICROLIB;--C99"
-      c_additional_options_backup="--cpu;Cortex-M0;-D__MICROLIB;--C99;-O3;-g"
-      link_additional_options_backup="--cpu;Cortex-M0;--ro_base=0x08000000;--rw_base=0x20000000;--first=__Vectors;--library_type=microlib"
-      linker_additional_options="--ro_base=0x08000000;--rw_base=0x20000000;--first=__Vectors;--library_type=microlib" />
+      asm_additional_options="--cpu;Cortex-M0;--pd;&quot;__MICROLIB SETA 1&quot;"
+      c_additional_options="--cpu;Cortex-M0;-D__MICROLIB;--C99;-O3;-g"
+      linker_additional_options="--cpu;Cortex-M0;--ro_base=0x08000000;--rw_base=0x20000000;--first=__Vectors;--library_type=microlib" />
   </project>
   <configuration
     Name="External Keil ARMCC"

@@ -22,6 +22,8 @@
  </Memory4>
  <Project>
   <ProjectSessionItem path="triceDemo_NUCLEO-F070RB_LL_MDK-ARM"/>
+  <ProjectSessionItem path="triceDemo_NUCLEO-F070RB_LL_MDK-ARM;triceDemo_NUCLEO-F070RB_LL_MDK-ARM"/>
+  <ProjectSessionItem path="triceDemo_NUCLEO-F070RB_LL_MDK-ARM;triceDemo_NUCLEO-F070RB_LL_MDK-ARM;Application/User"/>
  </Project>
  <Register1>
   <RegisterWindow visibleNodes="CPU - Current Context/r0;CPU - Current Context/r1;CPU - Current Context/r2;CPU - Current Context/r3;CPU - Current Context/r4;CPU - Current Context/r5;CPU - Current Context/r6;CPU - Current Context/r7;CPU - Current Context/r8;CPU - Current Context/r9;CPU - Current Context/r10;CPU - Current Context/r11;CPU - Current Context/r12;CPU - Current Context/sp(r13);CPU - Current Context/lr(r14);CPU - Current Context/pc(r15);CPU - Current Context/apsr;CPU/r0;CPU/r1;CPU/r2;CPU/r3;CPU/r4;CPU/r5;CPU/r6;CPU/r7;CPU/r8;CPU/r9;CPU/r10;CPU/r11;CPU/r12;CPU/sp(r13);CPU/lr(r14);CPU/pc(r15);CPU/xpsr;CPU/msp;CPU/psp;CPU/cfbp;CPU/internal" binaryNodes="" asciiNodes="" openNodes="CPU - Current Context" name="triceDemo_NUCLEO-F070RB_LL_MDK-ARM" decimalNodes="" octalNodes="" unsignedNodes=""/>
@@ -54,8 +56,9 @@
   <Watches active="0" update="Never"/>
  </Watch4>
  <Files>
-  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="66" useTextEdit="1" openedFrom="" useBinaryEdit="0" left="0" path="../Src/main.c" selected="1" top="36" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="66" useTextEdit="1" openedFrom="" useBinaryEdit="0" left="0" path="../Src/main.c" selected="0" top="36" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="0" y="162" useTextEdit="1" openedFrom="" useBinaryEdit="0" left="0" path="../Src/stm32f0xx_it.c" selected="0" top="132" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="1" y="86" useTextEdit="1" openedFrom="" useBinaryEdit="0" left="0" path="../../../srcTrice.C/triceConfig.h" selected="1" top="46" codecName="Default"/>
  </Files>
  <ARMCrossStudioWindow activeProject="triceDemo_NUCLEO-F070RB_LL_MDK-ARM" fileDialogDefaultFilter="*.c" autoConnectTarget="J-Link" buildConfiguration="triceDemo_NUCLEO-F070RB_LL_MDK-ARM Internal" sessionSettings="" debugSearchFileMap="" fileDialogInitialDirectory="" debugSearchPath="" autoConnectCapabilities="3199"/>
 </session>
