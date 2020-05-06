@@ -61,7 +61,7 @@ extern "C" {
 
 /* Exported macro ------------------------------------------------------------*/
 /* USER CODE BEGIN EM */
-
+#define TRICE_UART USART2
 /* USER CODE END EM */
 
 /* Exported functions prototypes ---------------------------------------------*/

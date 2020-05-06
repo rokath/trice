@@ -1531,5 +1531,12 @@
 		"fmtStrg": "att:triceDemo_NUCLEO-F030RB_LL_IAR-EWARM\\n",
 		"created": 1588524992,
 		"removed": 0
+	},
+	{
+		"id": 38587,
+		"fmtType": "TRICE0",
+		"fmtStrg": "att:triceDemo_NUCLEO-F070RB_LL_IAR_EWARM\\n",
+		"created": 1588784703,
+		"removed": 0
 	}
 ]
