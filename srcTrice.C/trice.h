@@ -353,7 +353,9 @@ TRICE_INLINE void triceFifoPush( uint32_t v ){
 //! \param pFmt formatstring for trice
 //! \param d0 payload
 #define TRICE16_1( Id, pFmt, d0 ) do{ \
+    TRICE_ENTER_CRITICAL_SECTION \
     TRICE( Id, d0 ); \
+    TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
 
 //! trace Id and 16-bit values protected (outside critical section)
