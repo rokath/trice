@@ -224,6 +224,7 @@
                 </option>
                 <option>
                     <name>CCDefines</name>
+                    <state>TRICE_VARIANT=STM32_LL</state>
                     <state>USE_FULL_LL_DRIVER</state>
                     <state>HSE_VALUE=8000000</state>
                     <state>HSE_STARTUP_TIMEOUT=100</state>

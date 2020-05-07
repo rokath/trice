@@ -9,6 +9,23 @@ import (
 	"github.com/rokath/trice/pkg/lib"
 )
 
+/*
+github.com/stretchrcom/testify
+github.com/onsi/ginko behaivioral tests
+goconvey.co view test results in browser based display
+httpexpect
+code.google.com/p/gomock
+go-sqlmock
+packagename      -> whitebox
+packagename_test -> blackbox testing
+go help test
+go help testflag
+go test -coverprofile cover.out
+go tool cover -func cover.out
+go tool cover -html cover.out makes a website
+go test -coverprofile cover.out -covermode count
+
+*/
 func TestStart(t *testing.T) {
 	afn := "testdata/actCage.log"
 	efn := "testdata/expCage.log"

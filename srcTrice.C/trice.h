@@ -18,12 +18,6 @@ extern "C" {
 #include "xteaCrypto.h"
 #endif
 
-// default values
-#ifndef TRICE_ENTER_CRITICAL_SECTION
-#define TRICE_ENTER_CRITICAL_SECTION {
-#define TRICE_LEAVE_CRITICAL_SECTION }
-#endif
-
 #ifndef TRICE_TRANSFER_PERIOD
 #define TRICE_TRANSFER_PERIOD 1
 #endif

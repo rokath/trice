@@ -28,6 +28,11 @@ extern "C" {
 
 //! used as TRICE_CODE macro option for no trice code generation
 #define NO_CODE 0 //!< value is only to distinguish from MORE_FLASH or LESS_FLASH ans must be 0
+
+#define STM32_LL 132
+
+#define STM32_HAL 232
+
 //
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -80,13 +85,12 @@ extern "C" {
 
 #include "triceConfigCompiler.h"
 
-#define STM32_LL 132
-#define STM32_HAL 232
 
 #ifndef TRICE_VARIANT
 #error specify TRICE_VARIANT in project settings or in a copy of this file
 #endif
 
+#define TRICE_INSIDE_INTERRUPTS
 
 #if TRICE_VARIANT == STM32_LL
 #include "main.h" // hardware specific stuff
@@ -94,7 +98,7 @@ extern "C" {
 #define TRICE_SERVER_TICK ms
 //#define LL_INTERFACE_NO_INTERRUPTS
 #define LL_INTERFACE_WITH_INTERRUPTS
-#include "triceConfigStm32_LL.h"
+#include "triceConfigTx.h"
 #endif
 
 #if TRICE_VARIANT == STM32_HAL
@@ -108,7 +112,8 @@ extern UART_HandleTypeDef huart2;
 #define HAL_INTERFACE_DMA_MODE
 #endif
 
-
+#include "triceConfigTxInterrupt.h"
+#include "triceConfigCriticalSection.h"
 
 extern uint16_t writeCount;
 extern uint16_t writeCountMax;
