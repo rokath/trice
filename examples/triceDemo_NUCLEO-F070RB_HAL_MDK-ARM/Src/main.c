@@ -124,7 +124,7 @@ int main(void)
       //////////////////////////////////////////////////
       // needed background activity
       //
-      triceServeTransmission();
+      triceServe();
       //
       //////////////////////////////////////////////////
     /* USER CODE END WHILE */
