@@ -30,20 +30,25 @@ TRICE_INLINE void triceFifoPop( uint32_t* p ){
     rdIndexTriceFifo &= TRICE_FIFO_MASK;
 }
 
+//uint32_t maxTrices = 0; //!< for max trices depth diagnostics
+uint32_t maxTriceDepth = 0; //!< for max trices depth diagnostics
+
 //! trice item count inside trice fifo
 //! \return count of buffered trices
-TRICE_INLINE size_t triceFifoDepth( void ){
-    return (wrIndexTriceFifo - rdIndexTriceFifo) & TRICE_FIFO_MASK;
+unsigned triceFifoDepth( void ){
+    unsigned triceDepth = (wrIndexTriceFifo - rdIndexTriceFifo) & TRICE_FIFO_MASK;
+    maxTriceDepth = triceDepth < maxTriceDepth ? maxTriceDepth : triceDepth; // diagnostics
+    return triceDepth;
 }
 
 //! partial prefilled trice message transmit buffer 
-ALIGN4 static triceMsg_t triceMsg ALIGN4_END = {
+ALIGN4 triceMsg_t triceMsg ALIGN4_END = {
     { TRICE_START_BYTE,  TRICE_LOCAL_ADDR,  TRICE_DISPL_ADDR, 0 }, // crc8
     { 0, 0 } // 16bit ID, 16bit data
 };
 
 //! pull next trice from fifo and prepare triceMsg buffer
-static void prepareNextTriceTransmission(void){
+void prepareNextTriceTransmission(void){
     triceFifoPop( (uint32_t*)(&(triceMsg.ld)) );
     triceMsg.hd.crc8  = TRICE_START_BYTE ^ TRICE_LOCAL_ADDR ^ TRICE_DISPL_ADDR
                          ^ triceMsg.ld.load[0]
@@ -58,46 +63,15 @@ static void prepareNextTriceTransmission(void){
     #endif
 }
 
-uint32_t maxTrices = 0; //!< for max trices depth diagnostics
-
 void triceToWriteBuffer( void ){
     uint32_t depth = triceFifoDepth();
-    if( depth ){
-        if( writeCount >= TRICE_WRITE_COUNT_LIMIT){
+    if( depth ){ // trice for transfer available
+        if( triceWriteSpace() < TRICE_WRITE_SPACE_MIN){ // no space in write buffer
             return; // don't transfer trices if buffer is too full
         }
         prepareNextTriceTransmission();
         triceWrite( &triceMsg, sizeof(triceMsg) );
-        maxTrices = depth < maxTrices ? maxTrices : depth; // diagnostics
     }
-}
-
-//! This function should be called cyclically to trigger transmission start, for example in the sysTick interrupt.
-//! If not interrup is used it should be called cyclically. With each call max 1 byte is transmitted.
-//! \param tick current tick, timebase is users choice
-//! \param transferPeriod (in ticks) is the max allowe trace transfer rate from trice fifo to trice write buffer.
-//! A (basic) trice allocates inside trice fifo 4 byte but in the write buffer 8 bytes. Therefore in case of heavy trice bursts
-//! inside trice fifo it is recommended to transfer them not quicker as the trice write out bandwidth for trices allowas to save RAM buffer.
-//! For example with 115200 baud about 10 bytes per ms are transferrable, if no other writes go over the same physical channel.
-//! So 1 ms for the transfer period is a reasonabe value in that case.
-//! \param servePeriod (in ticks) is the time period an internal check for writing out the 
-
-void triceServeTransmission( void ){
-    unsigned tick = TRICE_SERVER_TICK;
-    static int lastTransfer = 0;
-    static int lastServe = 0;
-#if TRICE_TRANSFER_PERIOD
-    if( tick > lastTransfer + TRICE_TRANSFER_PERIOD ){
-        triceToWriteBuffer();
-        lastTransfer = tick;
-    }
-#endif
-#if TRICE_SERVE_PERIOD
-    if( tick > lastServe + TRICE_SERVE_PERIOD ){
-        triceWriteBufferOut();
-        lastServe = tick;
-    }
-#endif
 }
 
 #endif // #if TRICE_CODE

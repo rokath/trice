@@ -33,6 +33,8 @@ extern "C" {
 
 #define STM32_HAL 232
 
+#define SERRER_RTT 333
+
 //
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -115,10 +117,11 @@ extern UART_HandleTypeDef huart2;
 #include "triceConfigTxInterrupt.h"
 #include "triceConfigCriticalSection.h"
 
-extern uint16_t writeCount;
+//extern uint16_t writeCount;
 extern uint16_t writeCountMax;
 #define TRICE_WRITE_BUFFER_SIZE 600 //!< 
 #define TRICE_WRITE_COUNT_LIMIT 300 //!< allowed filling for trice transfer
+#define TRICE_WRITE_SPACE_MIN 8 //!< 
 //#define TRICE_PAUSE triceWriteServer(); // do{ Pause(); } while(0) // put your own Pause here, if needed
 
 //#include "triceStm32PutCharConfig.h" // does not work now

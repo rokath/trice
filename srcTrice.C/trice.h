@@ -8,11 +8,12 @@ as NO_CODE (globally or file specific) the TRICE* macros generate no code.
 #ifndef TRICE_H_
 #define TRICE_H_
 
-#include "triceConfig.h" 
-
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#include "triceConfig.h" 
+#include "triceWrite.h"
 
 #ifdef ENCRYPT
 #include "xteaCrypto.h"
@@ -25,11 +26,6 @@ extern "C" {
 #ifndef TRICE_SERVE_PERIOD
 #define TRICE_SERVE_PERIOD 1
 #endif
-
-int triceWrite( const void* p, int nbytes );
-void triceServeTransmission( void );
-void triceToWriteBuffer( void );
-void triceWriteBufferOut( void );
 
 #ifdef TRICE_FILENAME
 #define TRICE_LOC do{ TRICE_FILENAME; TRICE16_1( Id(43789), "msg: line %d ", __LINE__ ); }while(0) //!< trice filename and line
@@ -1149,6 +1145,19 @@ TRICE_INLINE void trice_64_2_ocs( uint16_t Id, uint64_t d0, uint64_t d1 ){
 } while(0)
 
 #endif // #if LESS_FLASH_AND_SPEED == TRICE_CODE // #####################################
+
+void triceToWriteBuffer( void );
+
+
+
+/*
+
+unsigned triceFifoDepth( void );
+void prepareNextTriceTransmission(void);
+extern triceMsg_t triceMsg;
+
+*/
+
 
 #ifdef __cplusplus
 }
