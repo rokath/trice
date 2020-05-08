@@ -18,9 +18,8 @@ type seggerRTT struct { // ConcreteDaemonB
 
 // NewSeggerRTTReceiver creates an instance
 func newSeggerRTTReceiver() *seggerRTT {
-	a := &triceReceiver{} // AbstractDaemon
-	r := &seggerRTT{a}
-	a.triceReceiverInterface = r
+	r := &seggerRTT{}
+	r.triceReceiver = newTriceReceiver(r)
 	return r
 }
 

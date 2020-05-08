@@ -3,11 +3,12 @@
 // Use of this source code is governed by a license that can be found in the LICENSE file.
 
 // Package receiver is responsible for getting and handling the bytes from the communication port.
-// Currently only serial port is supported.
-// It is activated by the trice package and call emit.Trice() on received bytes chunks.
+// There ae different communication ports possible: COM, RTT, TCP...
+// It is activated by the trice package and calls emit.Trice() on received bytes chunks.
 package receiver
 
 import (
+	"encoding/binary"
 	"fmt"
 	"log"
 
@@ -19,12 +20,6 @@ import (
 var (
 	// Device is the trice receiver to use
 	Device string
-
-	// Port is the COMport name like COM1
-	Port string
-
-	// Baud is the configured baudrate of the serial port
-	Baud int
 )
 
 type triceReceiverInterface interface { // Daemon
@@ -48,12 +43,36 @@ type triceReceiver struct { // AbstractDaemon
 	bufferChannel          chan []byte
 }
 
+// newTriceReceiver creates an instance of the common trice receiver part for a new receiver device
+func newTriceReceiver(r triceReceiverInterface) *triceReceiver {
+	return &triceReceiver{
+		triceReceiverInterface: r,
+		name:                   "trice receiver",
+		receivingData:          false,
+		triceChannel:           make(chan []byte),
+		bufferChannel:          make(chan []byte),
+	}
+}
+
+// getTriceChannel returns pointer to trice receive channel
 func (p *triceReceiver) getTriceChannel() *chan []byte {
 	return &p.triceChannel
 }
 
+// getBufferChannel returns pointer to buffer receive channel
 func (p *triceReceiver) getBufferChannel() *chan []byte {
 	return &p.bufferChannel
+}
+
+// Start starts receiving of serial data
+func (p *triceReceiver) Start() {
+	p.receivingData = true
+	go p.receiving()
+}
+
+// Stop stops receiving of serial data
+func (p *triceReceiver) Stop() {
+	p.receivingData = false
 }
 
 func (p *triceReceiver) doReceive() {
@@ -168,4 +187,54 @@ func (p *triceReceiver) readHeader() ([]byte, error) {
 		b = append(b[1:], x...) // try to sync
 	}
 	return b, nil
+}
+
+// receiving: ReadEndless expects a pointer to a filled COM port configuration
+func (p *triceReceiver) receiving() {
+	for p.receivingData == true {
+		b, err := p.readHeader()
+
+		if nil != err {
+			fmt.Println("Could not read serial header: ", err)
+			continue
+		}
+
+		if 0xeb == b[0] { // traceLog startbyte, no further data
+			//fmt.Println("to trice channel:", b)
+			p.triceChannel <- b // send to process trace log channel
+
+		} else if 0xc0 == b[0] {
+			switch b[6] & 0xc0 {
+			case 0xc0:
+				fmt.Println("reCal command expecting an answer", b)
+			case 0x80:
+				fmt.Println("reCal message (not expecting an answer)", b)
+			case 0x40:
+				fmt.Println("answer to a reCal command")
+			case 0x00:
+				if (0xff != b[4]) || (0xff != b[5]) || (1 != b[7]) {
+					fmt.Println("ERR:wrong format")
+				} else {
+					// int(b[6]) contains string identificator for verification
+					d, _ := p.readAtLeastBytes(2) // len of buffer (only one buffer)
+					if nil != err {
+						fmt.Println("Could not read serial len: ", err)
+						continue
+					}
+					len := int(binary.LittleEndian.Uint16(d[:2]))
+					s, _ := p.readAtLeastBytes(len + 1) // len is len-1 value
+					if nil != err {
+						fmt.Println("Could not read buffer: ", err)
+						continue
+					}
+					b = append(b, d...) // len is redundant here and usable as check
+					b = append(b, s...) // the buffer (string) data
+					//log.Println("to buffer channel:", b)
+					p.bufferChannel <- b // send to process trace log channel
+				}
+			}
+		} else {
+			fmt.Println("Got unknown header on serial console. Discarding...", b)
+		}
+	}
 }

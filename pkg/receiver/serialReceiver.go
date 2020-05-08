@@ -5,7 +5,6 @@
 package receiver
 
 import (
-	"encoding/binary"
 	"errors"
 	"fmt"
 	"log"
@@ -16,6 +15,12 @@ import (
 var (
 	locAddr = byte(0x60) // local trice address
 	remAddr = byte(0x60) // remote trice address
+
+	// Port is the COMport name like COM1
+	Port string
+
+	// Baud is the configured baudrate of the serial port
+	Baud int
 )
 
 // serialReceiver is a serial device trice receiver
@@ -28,17 +33,6 @@ type serialReceiver struct {
 	// serial port configuration
 	serialHandle serial.Port
 	serialMode   serial.Mode
-}
-
-// newTriceReceiver creates an instance of the common trice receiver part for a new receiver device
-func newTriceReceiver(r triceReceiverInterface) *triceReceiver {
-	return &triceReceiver{
-		triceReceiverInterface: r,
-		name:                   "trice receiver",
-		receivingData:          false,
-		triceChannel:           make(chan []byte),
-		bufferChannel:          make(chan []byte),
-	}
 }
 
 // newSerialReceiver creates an instance of a serial device type trice receiver
@@ -70,71 +64,12 @@ func (p *serialReceiver) SetUp() bool {
 	return true
 }
 
-// Start starts receiving of serial data
-func (p *serialReceiver) Start() {
-	p.receivingData = true
-	go p.receiving()
-}
-
-// Stop stops receiving of serial data
-func (p *serialReceiver) Stop() {
-	p.receivingData = false
-}
-
 // CleanUp makes clean
+//
+// It stops reception and closes port (handle release)
 func (p *serialReceiver) CleanUp() {
 	p.Stop()
 	p.serialHandle.Close()
-}
-
-// receiving: ReadEndless expects a pointer to a filled COM port configuration
-func (p *serialReceiver) receiving() {
-	for p.receivingData == true {
-		b, err := p.readHeader()
-
-		if nil != err {
-			fmt.Println("Could not read serial header: ", err)
-			continue
-		}
-
-		if 0xeb == b[0] { // traceLog startbyte, no further data
-			//fmt.Println("to trice channel:", b)
-			p.triceChannel <- b // send to process trace log channel
-
-		} else if 0xc0 == b[0] {
-			switch b[6] & 0xc0 {
-			case 0xc0:
-				fmt.Println("reCal command expecting an answer", b)
-			case 0x80:
-				fmt.Println("reCal message (not expecting an answer)", b)
-			case 0x40:
-				fmt.Println("answer to a reCal command")
-			case 0x00:
-				if (0xff != b[4]) || (0xff != b[5]) || (1 != b[7]) {
-					fmt.Println("ERR:wrong format")
-				} else {
-					// int(b[6]) contains string identificator for verification
-					d, _ := p.readAtLeastBytes(2) // len of buffer (only one buffer)
-					if nil != err {
-						fmt.Println("Could not read serial len: ", err)
-						continue
-					}
-					len := int(binary.LittleEndian.Uint16(d[:2]))
-					s, _ := p.readAtLeastBytes(len + 1) // len is len-1 value
-					if nil != err {
-						fmt.Println("Could not read buffer: ", err)
-						continue
-					}
-					b = append(b, d...) // len is redundant here and usable as check
-					b = append(b, s...) // the buffer (string) data
-					//log.Println("to buffer channel:", b)
-					p.bufferChannel <- b // send to process trace log channel
-				}
-			}
-		} else {
-			fmt.Println("Got unknown header on serial console. Discarding...", b)
-		}
-	}
 }
 
 // ClosePort releases port
@@ -142,6 +77,11 @@ func (p *serialReceiver) ClosePort() {
 	p.serialHandle.Close()
 }
 
+// Stores data received from the serial port into the provided byte array
+// buffer. The function returns the number of bytes read.
+//
+// The Read function blocks until (at least) one byte is received from
+// the serial port or an error occurs.
 func (p *serialReceiver) Read(buf []byte) (int, error) {
 	return p.serialHandle.Read(buf)
 }
@@ -183,7 +123,7 @@ func conditionalComPortScan() error {
 	return errors.New("Could not find serial port on system")
 }
 
-// DoSerial is the endless loop for trice logging
+// DoSerial is the endless loop for trice logging over serial port
 func DoSerial() {
 	err := conditionalComPortScan()
 	if err != nil {
@@ -205,7 +145,7 @@ func DoSerial() {
 }
 
 /*
-BACKUP
+BACKUP: unsused functions
 
 // SetReadTimeOut sets timeout
 func (p *serialReceiver) SetReadTimeOut(timeout int) {
