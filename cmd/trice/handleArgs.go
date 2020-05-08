@@ -57,6 +57,7 @@ func HandleArgs(args []string) error {
 	pLlf := scLog.String("lf", cage.DefaultLogfileName, "Append all output to logfile. Set to \"off\" or \"none\" to switch off.") // flag
 	pLpre := scLog.String("prefix", "COMport:", "prepend prefix to all lines, set to \"off\"")                                     // flag
 	pLpost := scLog.String("postfix", "\n", "append postfix to all lines")                                                         // flag
+	pLdev :=  scLog.String("device", "COM", "receiver device, option \"RTT\"")                                     // flag
 
 	scCl := flag.NewFlagSet("receiver", flag.ExitOnError)                                                                                   // subcommand
 	pClPort := scCl.String("port", "COMscan", "COM port, options: COM1|...|COM999")                                                         // flag
@@ -71,6 +72,7 @@ func HandleArgs(args []string) error {
 	pRpre := scCl.String("prefix", "COMport:", "prepend prefix to all lines, set to \"off\"")                                               // flag
 	pRpost := scCl.String("postfix", "\n", "append postfix to all lines")                                                                   // flag
 	pClLf := scCl.String("lf", cage.DefaultLogfileName, "If '-ds' append all output to logfile. Set to \"off\" or \"none\" to switch off.") // flag
+	pRdev :=  scCl.String("device", "COM", "receiver device, option \"RTT\"")                                     // flag
 
 	scSv := flag.NewFlagSet("displayServer", flag.ExitOnError)                                                                      // subcommand
 	pSvIPA := scSv.String("ipa", "localhost", "ip address")                                                                         // flag (127.0.0.1)
@@ -137,6 +139,7 @@ func HandleArgs(args []string) error {
 	case "l", "log":
 		scLog.Parse(subArgs)
 		emit.Postfix = *pLpost
+		receiver.Device =*pLdev
 		receiver.Port = *pPort
 		receiver.Baud = *pBaud
 		setPrefix(*pLpre)
@@ -152,6 +155,7 @@ func HandleArgs(args []string) error {
 		scCl.Parse(subArgs)
 		disp.IPAddr = *pClIPA
 		disp.IPPort = *pClIPP
+		receiver.Device =*pRdev
 		receiver.Port = *pClPort
 		receiver.Baud = *pClBaud
 		setPrefix(*pRpre)

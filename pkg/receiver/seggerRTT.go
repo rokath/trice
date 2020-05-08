@@ -2,36 +2,44 @@ package receiver
 
 import (
 	"fmt"
+	"log"
 	"net"
 	"time"
 )
 
 const endpoint = "127.0.0.1:19021"
 
-type SeggerRTT struct {
-	receiverT // inherit
+var conn *net.TCPConn // special extension
+
+// seggerRTT may be unexported
+type seggerRTT struct { // ConcreteDaemonB
+	*triceReceiver // inherit
 }
 
 // NewSeggerRTTReceiver creates an instance
-func NewSeggerRTTReceiver() *SeggerRttReceiver {
-	s := &SeggerRttReceiver{
-		receiverT: receiverT{"SeggerRttReceiver", false, make(chan []byte), make(chan []byte)},
-	}
-	return s
+func newSeggerRTTReceiver() *seggerRTT {
+	a := &triceReceiver{} // AbstractDaemon
+	r := &seggerRTT{a}
+	a.triceReceiverInterface = r
+	return r
 }
 
 // Start starts receiving of RTT data
-func (p *SeggerRTT) Start() {
+func (p *seggerRTT) Start() {
 	p.receivingData = true
 	go p.receiving()
 }
 
 // Stop stops receiving of RTT data
-func (p *SeggerRTT) Stop() {
+func (p *seggerRTT) Stop() {
 	p.receivingData = false
 }
 
-func (p *SeggerRTT) receiving() {
+func (p *seggerRTT) Read(buf []byte) (int, error) {
+	return conn.Read(buf)
+}
+
+func (p *seggerRTT) receiving() {
 	fmt.Printf("JLinkLogViewer reading from %s\n", endpoint)
 	for {
 		jlinkExeAddr, err := net.ResolveTCPAddr("tcp4", endpoint)
@@ -40,7 +48,7 @@ func (p *SeggerRTT) receiving() {
 			continue
 		}
 
-		conn, err := net.DialTCP("tcp4", nil, jlinkExeAddr)
+		conn, err = net.DialTCP("tcp4", nil, jlinkExeAddr)
 		if err != nil {
 			<-time.After(2 * time.Second)
 			continue
@@ -58,4 +66,25 @@ func (p *SeggerRTT) receiving() {
 			fmt.Printf("%s", string(data[0:n]))
 		}
 	}
+}
+
+// DoSeggerRTT is the endless loop for trice logging
+func DoSeggerRTT() {
+	rtt := newSeggerRTTReceiver()
+
+	rtt.Start()
+	defer rtt.Stop()
+
+	rtt.doReceive()
+}
+
+// export readBytes
+func (p *seggerRTT) readBytes(count int) (int, []byte) {
+	b := make([]byte, count) // the buffer size limits the read count
+	n, err := p.Read(b)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+	return n, b
 }

@@ -6,12 +6,11 @@ package receiver
 
 import (
 	"encoding/binary"
+	"errors"
 	"fmt"
 	"log"
 
-	"github.com/rokath/trice/pkg/emit"
 	"go.bug.st/serial"
-	"golang.org/x/crypto/xtea"
 )
 
 var (
@@ -19,8 +18,9 @@ var (
 	remAddr = byte(0x60) // remote trice address
 )
 
-type SerialReceiver struct {
-	receiverT // inherit
+// serialReceiver is a serial device trice receiver
+type serialReceiver struct {
+	*triceReceiver // compose
 
 	portName    string
 	readTimeout int
@@ -30,47 +30,35 @@ type SerialReceiver struct {
 	serialMode   serial.Mode
 }
 
-// NewSerialReceiver creates an instance
-func NewSerialReceiver(portIdentifier string, baudrate int) *SerialReceiver {
-	s := &SerialReceiver{
-		receiverT:   receiverT{"SerialReceiver", false, make(chan []byte), make(chan []byte)},
+// newTriceReceiver creates an instance of the common trice receiver part for a new receiver device
+func newTriceReceiver(r triceReceiverInterface) *triceReceiver {
+	return &triceReceiver{
+		triceReceiverInterface: r,
+		name:                   "trice receiver",
+		receivingData:          false,
+		triceChannel:           make(chan []byte),
+		bufferChannel:          make(chan []byte),
+	}
+}
+
+// newSerialReceiver creates an instance of a serial device type trice receiver
+func newSerialReceiver(portIdentifier string, baudrate int) *serialReceiver {
+	r := &serialReceiver{
+		//triceReceiver: //newTriceReceiver(r),
 		portName:    portIdentifier,
 		readTimeout: 1,
-		serialMode: serial.Mode{BaudRate: baudrate,
+		serialMode: serial.Mode{
+			BaudRate: baudrate,
 			DataBits: 8,
 			Parity:   serial.NoParity,
 			StopBits: serial.OneStopBit},
 	}
-	return s
-}
-
-// SetReadTimeOut sets timeout
-func (p *SerialReceiver) SetReadTimeOut(timeout int) {
-	p.readTimeout = timeout
-}
-
-// SetParity sets transmit parity
-func (p *SerialReceiver) SetParity(parity serial.Parity) {
-	p.serialMode.Parity = parity
-}
-
-// SetDataBits sets bit count
-func (p *SerialReceiver) SetDataBits(databits int) {
-	p.serialMode.DataBits = databits
-}
-
-// SetBaudrate sets speed
-func (p *SerialReceiver) SetBaudrate(baudrate int) {
-	p.serialMode.BaudRate = baudrate
-}
-
-// SetStopBits sets stop condition
-func (p *SerialReceiver) SetStopBits(stopbits serial.StopBits) {
-	p.serialMode.StopBits = stopbits
+	r.triceReceiver = newTriceReceiver(r)
+	return r
 }
 
 // SetUp opens a serial port
-func (p *SerialReceiver) SetUp() bool {
+func (p *serialReceiver) SetUp() bool {
 	var err error
 
 	p.serialHandle, err = serial.Open(p.portName, &p.serialMode)
@@ -83,24 +71,24 @@ func (p *SerialReceiver) SetUp() bool {
 }
 
 // Start starts receiving of serial data
-func (p *SerialReceiver) Start() {
+func (p *serialReceiver) Start() {
 	p.receivingData = true
 	go p.receiving()
 }
 
 // Stop stops receiving of serial data
-func (p *SerialReceiver) Stop() {
+func (p *serialReceiver) Stop() {
 	p.receivingData = false
 }
 
 // CleanUp makes clean
-func (p *SerialReceiver) CleanUp() {
+func (p *serialReceiver) CleanUp() {
 	p.Stop()
 	p.serialHandle.Close()
 }
 
 // receiving: ReadEndless expects a pointer to a filled COM port configuration
-func (p *SerialReceiver) receiving() {
+func (p *serialReceiver) receiving() {
 	for p.receivingData == true {
 		b, err := p.readHeader()
 
@@ -150,104 +138,12 @@ func (p *SerialReceiver) receiving() {
 }
 
 // ClosePort releases port
-func (p *SerialReceiver) ClosePort() {
+func (p *serialReceiver) ClosePort() {
 	p.serialHandle.Close()
 }
 
-// export readBytes
-func (p *SerialReceiver) readBytes(count int) (int, []byte) {
-	b := make([]byte, count) // the buffer size limits the read count
-	n, err := p.serialHandle.Read(b)
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	return n, b
-}
-
-// export readAtLeastBytes
-func (p *SerialReceiver) readAtLeastBytes(count int) ([]byte, error) {
-	buf := make([]byte, count) // the buffer size limits the read count
-	var b []byte
-	var n int
-	var err error
-	//start := time.Now()
-	for len(b) < count {
-		n, err = p.serialHandle.Read(buf)
-		if err != nil {
-			log.Println("Port read error")
-			log.Fatal(err)
-		}
-		b = append(b, buf[:n]...)
-		if count == len(b) { // https://stackoverflow.com/questions/45791241/correctly-measure-time-duration-in-go
-			//fmt.Println("\tincoming:", b, "\t\t", time.Now().Sub(start).Nanoseconds(), "nanoseconds")
-			return b, nil
-		}
-		buf = buf[n:]
-	}
-	return b, nil
-}
-
-// evalHeader checks if b contains valid header data
-func evalHeader(b []byte) bool {
-	x := 8 == len(b) &&
-		(0xc0 == b[0] || 0xeb == b[0]) && // start byte
-		remAddr == b[1] &&
-		locAddr == b[2] &&
-		b[0]^b[1]^b[2]^b[4]^b[5]^b[6]^b[7] == b[3] // crc8
-	return x
-}
-
-// Cipher is a pointer to the cryptpo struct filled during initialization
-var Cipher *xtea.Cipher
-
-// Crypto set to true if a -key other than "none" was given
-var Crypto bool
-
-//! tested with little endian embedded device
-func swapBytes(b []byte) []byte {
-	return []byte{b[3], b[2], b[1], b[0], b[7], b[6], b[5], b[4]}
-}
-
-func encrypt(b []byte) []byte {
-	if true == Crypto {
-		b = swapBytes(b)
-		Cipher.Encrypt(b, b)
-		b = swapBytes(b)
-	}
-	return b
-}
-
-func decrypt(b []byte) []byte {
-	if true == Crypto {
-		b = swapBytes(b)
-		Cipher.Decrypt(b, b)
-		b = swapBytes(b)
-	}
-	return b
-}
-
-// readHeader gets next header from streaming data
-func (p *SerialReceiver) readHeader() ([]byte, error) {
-	b, err := p.readAtLeastBytes(8)
-	if nil != err {
-		return b, err
-	}
-	for {
-		b = decrypt(b)
-		if true == evalHeader(b) {
-			break
-		}
-		emit.LineCollect(fmt.Sprintf("wrn:trice:discarding byte 0x%02x (dez %d)\n", b[0], b[0]))
-		b = encrypt(b)
-		x, err := p.readAtLeastBytes(1)
-		if nil != err {
-			return b, err
-		}
-		b = append(b[1:], x...) // try to sync
-	}
-	return b, nil
+func (p *serialReceiver) Read(buf []byte) (int, error) {
+	return p.serialHandle.Read(buf)
 }
 
 // GetSerialPorts scans for serial ports
@@ -268,3 +164,72 @@ func GetSerialPorts() ([]string, error) {
 
 	return ports, err
 }
+
+// conditionalComPortScan scans for COM ports if -port was specified as COMscan, it tries to use first found COM port.
+func conditionalComPortScan() error {
+	if "COMscan" != Port {
+		return nil
+	}
+	log.Println("Scan for serial ports...")
+	ports, err := GetSerialPorts()
+	if err != nil {
+		return err
+	}
+	if len(ports) > 0 {
+		log.Println("Take serial port", ports[0])
+		Port = ports[0]
+		return nil
+	}
+	return errors.New("Could not find serial port on system")
+}
+
+// DoSerial is the endless loop for trice logging
+func DoSerial() {
+	err := conditionalComPortScan()
+	if err != nil {
+		return
+	}
+	sR := newSerialReceiver(Port, Baud)
+
+	if sR.SetUp() == false {
+		fmt.Println("Could not set up serial port", Port)
+		fmt.Println("try -port COMscan")
+		return
+	}
+	fmt.Println("Opened serial port", Port)
+
+	sR.Start()
+	defer sR.CleanUp()
+
+	sR.doReceive()
+}
+
+/*
+BACKUP
+
+// SetReadTimeOut sets timeout
+func (p *serialReceiver) SetReadTimeOut(timeout int) {
+	p.readTimeout = timeout
+}
+
+// SetParity sets transmit parity
+func (p *serialReceiver) SetParity(parity serial.Parity) {
+	p.serialMode.Parity = parity
+}
+
+// SetDataBits sets bit count
+func (p *serialReceiver) SetDataBits(databits int) {
+	p.serialMode.DataBits = databits
+}
+
+// SetBaudrate sets speed
+func (p *serialReceiver) SetBaudrate(baudrate int) {
+	p.serialMode.BaudRate = baudrate
+}
+
+// SetStopBits sets stop condition
+func (p *serialReceiver) SetStopBits(stopbits serial.StopBits) {
+	p.serialMode.StopBits = stopbits
+}
+
+*/

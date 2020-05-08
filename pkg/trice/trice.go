@@ -60,6 +60,7 @@ func NewConnection(sv string) error {
 }
 
 // ScReceive is the subcommand remoteDisplay and acts as client connecting to the displayServer
+// sv is the executable name to be started as remote display server (typically arg[0] == trice)
 func ScReceive(sv string) error {
 	err := NewConnection(sv)
 	if err != nil {
@@ -89,14 +90,22 @@ func DoReceive() error {
 		return err
 	}
 
+	fmt.Println("id list file", id.FnJSON, "with", len(id.List), "items", "on device", receiver.Device)
+
 	/* TODO: Introduce new command line option for choosing between
 	   1) Serial receiver(port name, baudrate, parity bit etc. )
 	   2) TCP receiver (IP, port, Protocol (i.e JSON,XML))
 	   3) HTTP/Websocket receiver (may be the simplest form in Golang)
 	*/
-
-	fmt.Println("id list file", id.FnJSON, "with", len(id.List), "items")
-	return receiver.DoSerial()
+	switch receiver.Device {
+	case "COM":
+		receiver.DoSerial()
+	case "RTT":
+		receiver.DoSeggerRTT()
+	default:
+		fmt.Println("Unknown receiver device", receiver.Device)
+	}
+	return nil
 }
 
 // createCipher prepares decryption, with password "none" the encryption flag is set false, otherwise true
