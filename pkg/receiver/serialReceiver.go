@@ -51,8 +51,8 @@ func newSerialReceiver(portIdentifier string, baudrate int) *serialReceiver {
 	return r
 }
 
-// SetUp opens a serial port
-func (p *serialReceiver) SetUp() bool {
+// setUp opens a serial port
+func (p *serialReceiver) setUp() bool {
 	var err error
 
 	p.serialHandle, err = serial.Open(p.portName, &p.serialMode)
@@ -64,10 +64,10 @@ func (p *serialReceiver) SetUp() bool {
 	return true
 }
 
-// CleanUp makes clean
+// cleanUp makes clean
 //
 // It stops reception and closes port (handle release)
-func (p *serialReceiver) CleanUp() {
+func (p *serialReceiver) cleanUp() {
 	p.Stop()
 	p.serialHandle.Close()
 }
@@ -131,7 +131,7 @@ func DoSerial() {
 	}
 	sR := newSerialReceiver(Port, Baud)
 
-	if sR.SetUp() == false {
+	if sR.setUp() == false {
 		fmt.Println("Could not set up serial port", Port)
 		fmt.Println("try -port COMscan")
 		return
@@ -139,7 +139,7 @@ func DoSerial() {
 	fmt.Println("Opened serial port", Port)
 
 	sR.Start()
-	defer sR.CleanUp()
+	defer sR.cleanUp()
 
 	sR.doReceive()
 }

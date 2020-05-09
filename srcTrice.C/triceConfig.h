@@ -33,7 +33,7 @@ extern "C" {
 
 #define STM32_HAL 232
 
-#define SERRER_RTT 333
+#define SEGGER_RTT 333
 
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -112,6 +112,11 @@ extern UART_HandleTypeDef huart2;
 //#define HAL_INTERFACE_BLOCKING_MODE
 //#define HAL_INTERFACE_INTERRUPT_MODE
 #define HAL_INTERFACE_DMA_MODE
+#endif
+
+#if TRICE_VARIANT == SEGGER_RTT
+#define SYSTICKVAL16 SysTick->VAL //!< STM32 specific, set to 0 as starting point with nonSTM MCE
+#define LL_INTERFACE_NO_INTERRUPTS
 #endif
 
 #include "triceConfigTxInterrupt.h"

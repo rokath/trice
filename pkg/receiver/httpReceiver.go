@@ -12,8 +12,8 @@ type HTTPReceiver struct {
 	port      int
 }
 
-// SetUp opens...
-func (p *HTTPReceiver) SetUp() bool {
+// setUp opens...
+func (p *HTTPReceiver) setUp() bool {
 	return true
 }
 
@@ -28,6 +28,6 @@ func (p *HTTPReceiver) Stop() {
 }
 
 // CleanUp washes...
-func (p *HTTPReceiver) CleanUp() {
+func (p *HTTPReceiver) cleanUp() {
 	// clean up after closing webserver
 }

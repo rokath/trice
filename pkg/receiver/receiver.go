@@ -5,6 +5,28 @@
 // Package receiver is responsible for getting and handling the bytes from the communication port.
 // There ae different communication ports possible: COM, RTT, TCP...
 // It is activated by the trice package and calls emit.Trice() on received bytes chunks.
+//
+// Implementation
+// ==============
+// - trice.DoReceive() is called when trice ist started in log or receiver mode
+// - In dependence on receiverDevice DoSerial() or DoSeggerRTT() or ... is activated (named DoDevice() from now)
+// - DoDevice()
+//   - performs device specific initialization
+//   - performs Start() which starts the go routine receiving(), responsible for raw data (see below)
+//   - and ends in device.doReceive()
+// - device is a composed type from triceReceiver (common functionality) and deviceReceiver (device specific functionality)
+// - The newDevice(...) function creates the device specific instance and links to it the triceReceiver instance created by
+// device.triceReceiver = newTriceReceiver(device). The device parameter for newTriceReceiver() is the linked device interface
+// into the triceReceiver instance so that the this way composed device instance can use the common triceReceiver parts as well.
+// - receiving()
+//  - scans the incoming data stream for valid headers,
+//  - and puts these into the triceChannel, when trice haeders
+//  - or puts them together with the following package data into the buffer channel if it is a valid package
+//  - It is up to the trice implementation to add more channels here for other protocols
+// - doReceive() is the endless loop waiting for data in the channels filled in by receiving()
+//  - All incoming buffer packets are collected into a byte slice for later usage (case `TRICE_RUNTIME_GENERATED_STRINGS_SUPPORT_EXPERIMENTAL`)
+//  - If a trice header comes out of the triceChannel emit.Trice() is called
+
 package receiver
 
 import (
@@ -178,7 +200,7 @@ func (p *triceReceiver) readHeader() ([]byte, error) {
 		if true == evalHeader(b) {
 			break
 		}
-		emit.LineCollect(fmt.Sprintf("wrn:trice:discarding byte 0x%02x (dez %d)\n", b[0], b[0]))
+		emit.LineCollect(fmt.Sprintf("wrn:trice:discarding byte 0x%02x (dez %d, char '%c')\n", b[0], b[0], b[0]))
 		b = encrypt(b)
 		x, err := p.readAtLeastBytes(1)
 		if nil != err {
