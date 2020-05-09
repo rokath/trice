@@ -101,7 +101,11 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+  TRICE16_1( Id( 2625), "TIM:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
   TRICE0( Id(62503), "att:triceDemo_NUCLEO-F030RB_LL_MDK-ARM\n" );
+  TRICE16_1( Id( 2625), "TIM:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
+  TRICE16_1( Id( 2625), "TIM:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
+  TRICE16_1( Id( 2625), "TIM:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
     while (1)
     {
       //////////////////////////////////////////////////
@@ -122,7 +126,7 @@ int main(void)
       // needed background activity
       //
         #ifdef LL_INTERFACE_NO_INTERRUPTS
-        triceServeTransmission();
+        triceServe();
         #endif
       //
       //////////////////////////////////////////////////        
@@ -171,7 +175,6 @@ void SystemClock_Config(void)
   
   }
   LL_Init1msTick(48000000);
-  LL_SYSTICK_SetClkSource(LL_SYSTICK_CLKSOURCE_HCLK);
   LL_SetSystemCoreClock(48000000);
 }
 
@@ -307,7 +310,7 @@ void Error_Handler(void)
   * @param  line: assert_param error line source number
   * @retval None
   */
-void assert_failed(char *file, uint32_t line)
+void assert_failed(uint8_t *file, uint32_t line)
 { 
   /* USER CODE BEGIN 6 */
   /* User can add his own implementation to report the file name and line number,
