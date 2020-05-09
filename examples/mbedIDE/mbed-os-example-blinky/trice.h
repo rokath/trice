@@ -33,7 +33,7 @@ extern "C" {
 #endif
 
 int triceWrite( const void* p, int nbytes );
-void triceServeTransmission( void );
+void triceServe( void );
 void triceToWriteBuffer( void );
 void triceWriteBufferOut( void );
 

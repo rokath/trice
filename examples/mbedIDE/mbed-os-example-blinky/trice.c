@@ -82,7 +82,7 @@ void triceToWriteBuffer( void ){
 //! So 1 ms for the transfer period is a reasonabe value in that case.
 //! \param servePeriod (in ticks) is the time period an internal check for writing out the 
 
-void triceServeTransmission( void ){
+void triceServe( void ){
     unsigned tick = TRICE_SERVER_TICK;
     static int lastTransfer = 0;
     static int lastServe = 0;
