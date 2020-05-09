@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<ProjectWorkspace xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="project_mpw.xsd">
+
+  <SchemaVersion>1.0</SchemaVersion>
+
+  <Header>### uVision Project, (C) Keil Software</Header>
+
+  <WorkspaceName>WorkSpace</WorkspaceName>
+
+  <project>
+    <PathAndName>.\generatedDemo_NUCLEO-F030R8_LL_MDK-ARM\MDK-ARM\generatedDemo_NUCLEO-F030R8_LL_MDK-ARM.uvprojx</PathAndName>
+    <NodeIsActive>1</NodeIsActive>
+  </project>
+
+  <project>
+    <PathAndName>.\triceDemo_NUCLEO-F030R8_HAL_MDK-ARM\MDK-ARM\triceDemo_NUCLEO-F030R8_HAL_MDK-ARM.uvprojx</PathAndName>
+  </project>
+
+  <project>
+    <PathAndName>.\triceDemo_NUCLEO-F030R8_LL_MDK-ARM\MDK-ARM\triceDemo_NUCLEO-F030R8_LL_MDK-ARM.uvprojx</PathAndName>
+  </project>
+
+  <project>
+    <PathAndName>.\triceDemo_NUCLEO-F030RB_LL_SeggerRTT_MDK-ARM\MDK-ARM\triceDemo_NUCLEO-F030RB_LL_SeggerRTT_MDK-ARM.uvprojx</PathAndName>
+  </project>
+
+  <project>
+    <PathAndName>.\triceDemo_NUCLEO-F070RB_HAL_MDK-ARM\MDK-ARM\triceDemo_NUCLEO-F070RB_HAL_MDK-ARM.uvprojx</PathAndName>
+  </project>
+
+  <project>
+    <PathAndName>.\triceDemo_NUCLEO-F070RB_LL_MDK-ARM\MDK-ARM\triceDemo_NUCLEO-F070RB_LL_MDK-ARM.uvprojx</PathAndName>
+  </project>
+
+  <project>
+    <PathAndName>.\triceDemo_NUCLEO-F070RB_LL_SeggerRTT_MDK-ARM\MDK-ARM\triceDemo_NUCLEO-F070RB_LL_SeggerRTT_MDK-ARM.uvprojx</PathAndName>
+  </project>
+
+  <project>
+    <PathAndName>.\tryout\it.uvprojx</PathAndName>
+  </project>
+
+</ProjectWorkspace>

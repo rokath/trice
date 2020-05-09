@@ -7,9 +7,13 @@ trice.c                            | needed core instrumentation, add to project
 trice.h                            | needed interface, include in project files using TRICE macros
 triceConfig.h                      | needed configuration file, copy in project directory and adapt
 triceConfigCompiler.h              | needed target compiler specific definitions, extend for project compiler
+triceCConfigriticalSection.h       | needed target specific definitions for interrupt handling
+triceConfigTx.h                    | only needed for single byte transfer
+triceConfigTxInterrupt.h           | only needed for single byte transfer with interrupts
 triceWrite.c                       | only needed if no write function can be used
-triceRuntimeGeneratedStringsMany.c | only needed for `triceRuntimeGeneratedString()` implementation, when `TRICE_RUNTIME_GENERATED_STRINGS_SUPPORT` is enabled
-triceRuntimeGeneratedStringsRare.c | only needed for `triceRuntimeGeneratedString()` implementation, when `TRICE_RUNTIME_GENERATED_STRINGS_SUPPORT` is enabled
+triceWrite.h                       | used internally
+triceWriteSeggerRTT.c              | can be used instead of normal write 
+triceRuntimeGeneratedStrings.c     | only needed for `triceRuntimeGeneratedString()` implementation, when `TRICE_RUNTIME_GENERATED_STRINGS_SUPPORT` is enabled
 tricePrintfAdapter.c               | only needed for easy adaption of legacy projects. 
 xteaCrypto.c                       | only for trice encryption, does not work with triceRuntimeGeneratedStringsMany.c
 xteaCrypto.h                       | only internal used
@@ -17,18 +21,7 @@ triceCheck.c                       | only demo code
 triceCheck.h                       | only demo code header
 
 ### Interface
-
-- triceConfigArduino.h
-- triceConfigStm32_LL.h
-- triceConfigStm32PutChar.h
-- triceConfigStm32Write.h
-
-
-
-
-
-
-
+todo
 ## Needed stuff
 - trice.h must be included in source files using TRICE macros.
 - trice.c needs to be added to your project if trices are enabled.

@@ -126,7 +126,7 @@ int main(void)
       // needed background activity
       //
         #ifdef LL_INTERFACE_NO_INTERRUPTS
-        triceServeTransmission();
+        triceServe();
         #endif
       //
       //////////////////////////////////////////////////        

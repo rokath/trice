@@ -135,7 +135,7 @@ void SysTick_Handler(void)
   
   /* USER CODE BEGIN SysTick_IRQn 1 */
     #ifdef LL_INTERFACE_WITH_INTERRUPTS
-        triceServeTransmission();
+        triceServe();
     #endif
   /* USER CODE END SysTick_IRQn 1 */
 }
