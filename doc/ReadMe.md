@@ -17,7 +17,7 @@ When performing `trice update` the source is parsed and in result this line chan
 TRICE8_3( Id(12345), "time is %d:%d:%d\n", hour, min, sec);
 ```
 where ```12345``` is an as ID generated 16 bit random number not used so far. Automatically
-the ID is added to an [ID list](../examples/triceDemoF030R8/MDK-ARM/til.json) together with the appropriate format string information. The TRICE`8_3` means 3 bytes as parameters in
+the ID is added to an [ID list](../examples/til.json) together with the appropriate format string information. The TRICE`8_3` means 3 bytes as parameters in
 this example and allows efficient code and a compile time check.
 
 *The total amount of data is currently limitated to 8 parameters for TRICE8 or 4 parameters for TRICE16 and TRICE32 and two parameters for TRICE64, but this is easy to extend.*
@@ -53,7 +53,7 @@ The following capture output comes from an example project inside`../examples`
 
 ![](README.media/life.gif)
 
-See [triceCheck.c](../examples/triceDemoF030R8/Src/triceCheck.c) for reference.
+See [triceCheck.c](../srcTrice.C/triceCheck.c) for reference.
 The trices can come mixed from inside interrupts (white `ISR:...`) or from normal code. For usage with a RTOS protect TRICE* against breaks. Regard the differences in the read SysTick values inside the GIF above These differeces are the MCU clocks needed for one trice (~0,25µs@48MHz).
 
 Use `-color off` switch for piping output in a file or `-color alternate` for a different color set. *(color set designs are welcome, see func colorSetAlternate() in [emit.go](../pkg/emit/emit.go))*
@@ -76,11 +76,11 @@ doc/           | documentation                                           |
 
 ### Instrument a target source code project (How to use trice in your project)
 
-  - Include [trice.c](../src.C/trice.c) unchanged into your project and make sure the [trice.h](../src.C/trice.h) header file is found by your compiler.
+  - Include [trice.c](../srcTrice.C/trice.c) unchanged into your project and make sure the [trice.h](../srcTrice.C/trice.h) header file is found by your compiler.
 - Add `#include "trice.h"` to your project files where to use TRICE and put `TRICE0( Id(0), "msg:Hello world!\n" );` after your initialization code.
 - Run `trice u` at the root of your source code. Afterwards:
     - The `Id(0)` should have changed into `Id(12345)` as example. (The `12345` stays here for a 16-bit non-zero random number).
-    - A file [til.json](../examples/triceDemoF030R8/MDK-ARM/til.json)  (**t**race **i**d **l**ist) should be generated.
+    - A file [til.json](../examples/til.json)  (**t**race **i**d **l**ist) should be generated.
     - Running `trice check` should show your message, indicating everything is fine so far.
 - `trice help` is your friend if something fails.
 - For help have a look at the differences between these 2 projects or into [ReadMeDemoF030R8.md](./ReadMeDemoF030R8.md)
@@ -101,7 +101,7 @@ Quick and dirty option
 ```
 
 - After compiling and flashing run `trice -port COMn -baud m` with n and m set to correct values
-- Now start your device and you should see the hello world message coming from your target. In fact the hello-world string never went to the embedded device, only the ID comes from  there and the string is found in the [til.json](../examples/triceDemoF030R8/MDK-ARM/til.json) file of your project.
+- Now start your device and you should see the hello world message coming from your target. In fact the hello-world string never went to the embedded device, only the ID comes from  there and the string is found in the [til.json](../examples/til.json) file of your project.
 - If you use a legacy project containing `printf()` statements you can simply transform them to **TRICE\*** statements. TRICE32 will do in most cases but for better performance take **TRCE8** or **TRICE16** where possible.
 - `printf(...)` statements containing string format specifier are quickly portable by using `TRICE_P(...)` but without the trice space and speed advantage. The TRICE_P() is intended only for the few dynamic strings in a ported  projekt.  Enable `TRICE_PRINTF_ADAPTER` increases the needed code size by a few KB.
 - It could be helpful to add `trice u ...` as prebuild step into your toolchain for each file or for the project as a whole. 
