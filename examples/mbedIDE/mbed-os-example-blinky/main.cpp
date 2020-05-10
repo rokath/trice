@@ -15,7 +15,7 @@ int main()
 {
     // Initialise the digital pin LED1 as an output
     DigitalOut led(LED1);
-    TRICE0( "sig:mbed-os-example-blinky\n");
+    TRICE0( Id(36769), "sig:mbed-os-example-blinky\n");
     while (true) {
         led = !led;
         thread_sleep_for(BLINKING_RATE_MS);
