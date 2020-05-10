@@ -1552,5 +1552,33 @@
 		"fmtStrg": "att:triceDemo_NUCLEO-F030RB_LL_SeggerRTT_MDK-ARM\\n",
 		"created": 1589056384,
 		"removed": 0
+	},
+	{
+		"id": 36769,
+		"fmtType": "TRICE0",
+		"fmtStrg": "sig:mbed-os-example-blinky\\n",
+		"created": 1589145669,
+		"removed": 0
+	},
+	{
+		"id": 47296,
+		"fmtType": "TRICE0",
+		"fmtStrg": "att:triceDemo_NUCLEO-F030RB_LL_SeggerRTT_IAR_EWARM\\n",
+		"created": 1589145669,
+		"removed": 0
+	},
+	{
+		"id": 5676,
+		"fmtType": "TRICE0",
+		"fmtStrg": "att:triceDemo_NUCLEO-F070RB_LL_SeggerRTT_MDK-ARM\\n",
+		"created": 1589145669,
+		"removed": 0
+	},
+	{
+		"id": 8308,
+		"fmtType": "TRICE0",
+		"fmtStrg": "att:triceDemo_NUCLEO-F030RB_LL_SeggerRTT_IAR_EWARM\\n",
+		"created": 1589146539,
+		"removed": 0
 	}
 ]
