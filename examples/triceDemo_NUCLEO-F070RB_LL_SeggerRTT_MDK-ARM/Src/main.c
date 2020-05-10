@@ -102,7 +102,7 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  TRICE0( Id(0), "att:triceDemo_NUCLEO-F070RB_LL_SeggerRTT_MDK-ARM\n" );
+  TRICE0( Id( 5676), "att:triceDemo_NUCLEO-F070RB_LL_SeggerRTT_MDK-ARM\n" );
     SEGGER_RTT_GetAvailWriteSpace(0);
     char* s = "Hi5!\n";
     SEGGER_RTT_Write(0, s, strlen(s));
