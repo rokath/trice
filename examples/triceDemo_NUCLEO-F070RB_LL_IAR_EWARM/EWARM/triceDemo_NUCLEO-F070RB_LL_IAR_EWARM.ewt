@@ -18,7 +18,7 @@
                     <analyzeTimeoutEnabled>1</analyzeTimeoutEnabled>
                     <analyzeTimeout>600</analyzeTimeout>
                     <enableParallel>1</enableParallel>
-                    <parallelThreads>8</parallelThreads>
+                    <parallelThreads>4</parallelThreads>
                     <enableFalsePositives>0</enableFalsePositives>
                     <messagesLimitEnabled>1</messagesLimitEnabled>
                     <messagesLimit>100</messagesLimit>
@@ -1416,25 +1416,25 @@
         <group>
             <name>STM32F0xx_HAL_Driver</name>
             <file>
-                <name>$PROJ_DIR$\..\Drivers\STM32F0xx_HAL_Driver\Src\stm32f0xx_ll_dma.c</name>
+                <name>$PROJ_DIR$\..\..\..\..\..\ST\CubeMX\STM32Cube_FW_F0_V1.11.0\Drivers\STM32F0xx_HAL_Driver\Src\stm32f0xx_ll_dma.c</name>
             </file>
             <file>
-                <name>$PROJ_DIR$\..\Drivers\STM32F0xx_HAL_Driver\Src\stm32f0xx_ll_exti.c</name>
+                <name>$PROJ_DIR$\..\..\..\..\..\ST\CubeMX\STM32Cube_FW_F0_V1.11.0\Drivers\STM32F0xx_HAL_Driver\Src\stm32f0xx_ll_exti.c</name>
             </file>
             <file>
-                <name>$PROJ_DIR$\..\Drivers\STM32F0xx_HAL_Driver\Src\stm32f0xx_ll_gpio.c</name>
+                <name>$PROJ_DIR$\..\..\..\..\..\ST\CubeMX\STM32Cube_FW_F0_V1.11.0\Drivers\STM32F0xx_HAL_Driver\Src\stm32f0xx_ll_gpio.c</name>
             </file>
             <file>
-                <name>$PROJ_DIR$\..\Drivers\STM32F0xx_HAL_Driver\Src\stm32f0xx_ll_pwr.c</name>
+                <name>$PROJ_DIR$\..\..\..\..\..\ST\CubeMX\STM32Cube_FW_F0_V1.11.0\Drivers\STM32F0xx_HAL_Driver\Src\stm32f0xx_ll_pwr.c</name>
             </file>
             <file>
-                <name>$PROJ_DIR$\..\Drivers\STM32F0xx_HAL_Driver\Src\stm32f0xx_ll_rcc.c</name>
+                <name>$PROJ_DIR$\..\..\..\..\..\ST\CubeMX\STM32Cube_FW_F0_V1.11.0\Drivers\STM32F0xx_HAL_Driver\Src\stm32f0xx_ll_rcc.c</name>
             </file>
             <file>
-                <name>$PROJ_DIR$\..\Drivers\STM32F0xx_HAL_Driver\Src\stm32f0xx_ll_usart.c</name>
+                <name>$PROJ_DIR$\..\..\..\..\..\ST\CubeMX\STM32Cube_FW_F0_V1.11.0\Drivers\STM32F0xx_HAL_Driver\Src\stm32f0xx_ll_usart.c</name>
             </file>
             <file>
-                <name>$PROJ_DIR$\..\Drivers\STM32F0xx_HAL_Driver\Src\stm32f0xx_ll_utils.c</name>
+                <name>$PROJ_DIR$\..\..\..\..\..\ST\CubeMX\STM32Cube_FW_F0_V1.11.0\Drivers\STM32F0xx_HAL_Driver\Src\stm32f0xx_ll_utils.c</name>
             </file>
         </group>
     </group>

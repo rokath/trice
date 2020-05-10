@@ -207,7 +207,7 @@
                 <option>
                     <name>TrustZoneModes</name>
                     <version>0</version>
-                    <state>1</state>
+                    <state>0</state>
                 </option>
             </data>
         </settings>
@@ -220,7 +220,7 @@
                 <debug>1</debug>
                 <option>
                     <name>CCOptimizationNoSizeConstraints</name>
-                    <state>1</state>
+                    <state>0</state>
                 </option>
                 <option>
                     <name>CCDefines</name>
@@ -313,7 +313,7 @@
                 </option>
                 <option>
                     <name>IExtraOptionsCheck</name>
-                    <state>1</state>
+                    <state>0</state>
                 </option>
                 <option>
                     <name>IExtraOptions</name>
@@ -362,9 +362,9 @@
                 <option>
                     <name>CCIncludePath2</name>
                     <state>$PROJ_DIR$/../Inc</state>
-                    <state>$PROJ_DIR$/../Drivers/STM32F0xx_HAL_Driver/Inc</state>
-                    <state>$PROJ_DIR$/../Drivers/CMSIS/Device/ST/STM32F0xx/Include</state>
-                    <state>$PROJ_DIR$/../Drivers/CMSIS/Include</state>
+                    <state>C:/ST/CubeMX/STM32Cube_FW_F0_V1.11.0/Drivers/STM32F0xx_HAL_Driver/Inc</state>
+                    <state>C:/ST/CubeMX/STM32Cube_FW_F0_V1.11.0/Drivers/CMSIS/Device/ST/STM32F0xx/Include</state>
+                    <state>C:/ST/CubeMX/STM32Cube_FW_F0_V1.11.0/Drivers/CMSIS/Include</state>
                     <state>$PROJ_DIR$\..\..\..\srcTrice.C</state>
                 </option>
                 <option>
@@ -386,7 +386,7 @@
                 <option>
                     <name>CCOptStrategy</name>
                     <version>0</version>
-                    <state>2</state>
+                    <state>1</state>
                 </option>
                 <option>
                     <name>CCOptLevelSlave</name>
@@ -449,7 +449,7 @@
                 <option>
                     <name>CCOptStrategySlave</name>
                     <version>0</version>
-                    <state>2</state>
+                    <state>1</state>
                 </option>
                 <option>
                     <name>CCGuardCalls</name>
@@ -547,7 +547,7 @@
                 </option>
                 <option>
                     <name>AList</name>
-                    <state>1</state>
+                    <state>0</state>
                 </option>
                 <option>
                     <name>AListHeader</name>
@@ -559,11 +559,11 @@
                 </option>
                 <option>
                     <name>Includes</name>
-                    <state>1</state>
+                    <state>0</state>
                 </option>
                 <option>
                     <name>MacDefs</name>
-                    <state>1</state>
+                    <state>0</state>
                 </option>
                 <option>
                     <name>MacExps</name>
@@ -571,11 +571,11 @@
                 </option>
                 <option>
                     <name>MacExec</name>
-                    <state>1</state>
+                    <state>0</state>
                 </option>
                 <option>
                     <name>OnlyAssed</name>
-                    <state>1</state>
+                    <state>0</state>
                 </option>
                 <option>
                     <name>MultiLine</name>
@@ -1101,25 +1101,25 @@
         <group>
             <name>STM32F0xx_HAL_Driver</name>
             <file>
-                <name>$PROJ_DIR$\..\Drivers\STM32F0xx_HAL_Driver\Src\stm32f0xx_ll_dma.c</name>
+                <name>$PROJ_DIR$\..\..\..\..\..\ST\CubeMX\STM32Cube_FW_F0_V1.11.0\Drivers\STM32F0xx_HAL_Driver\Src\stm32f0xx_ll_dma.c</name>
             </file>
             <file>
-                <name>$PROJ_DIR$\..\Drivers\STM32F0xx_HAL_Driver\Src\stm32f0xx_ll_exti.c</name>
+                <name>$PROJ_DIR$\..\..\..\..\..\ST\CubeMX\STM32Cube_FW_F0_V1.11.0\Drivers\STM32F0xx_HAL_Driver\Src\stm32f0xx_ll_exti.c</name>
             </file>
             <file>
-                <name>$PROJ_DIR$\..\Drivers\STM32F0xx_HAL_Driver\Src\stm32f0xx_ll_gpio.c</name>
+                <name>$PROJ_DIR$\..\..\..\..\..\ST\CubeMX\STM32Cube_FW_F0_V1.11.0\Drivers\STM32F0xx_HAL_Driver\Src\stm32f0xx_ll_gpio.c</name>
             </file>
             <file>
-                <name>$PROJ_DIR$\..\Drivers\STM32F0xx_HAL_Driver\Src\stm32f0xx_ll_pwr.c</name>
+                <name>$PROJ_DIR$\..\..\..\..\..\ST\CubeMX\STM32Cube_FW_F0_V1.11.0\Drivers\STM32F0xx_HAL_Driver\Src\stm32f0xx_ll_pwr.c</name>
             </file>
             <file>
-                <name>$PROJ_DIR$\..\Drivers\STM32F0xx_HAL_Driver\Src\stm32f0xx_ll_rcc.c</name>
+                <name>$PROJ_DIR$\..\..\..\..\..\ST\CubeMX\STM32Cube_FW_F0_V1.11.0\Drivers\STM32F0xx_HAL_Driver\Src\stm32f0xx_ll_rcc.c</name>
             </file>
             <file>
-                <name>$PROJ_DIR$\..\Drivers\STM32F0xx_HAL_Driver\Src\stm32f0xx_ll_usart.c</name>
+                <name>$PROJ_DIR$\..\..\..\..\..\ST\CubeMX\STM32Cube_FW_F0_V1.11.0\Drivers\STM32F0xx_HAL_Driver\Src\stm32f0xx_ll_usart.c</name>
             </file>
             <file>
-                <name>$PROJ_DIR$\..\Drivers\STM32F0xx_HAL_Driver\Src\stm32f0xx_ll_utils.c</name>
+                <name>$PROJ_DIR$\..\..\..\..\..\ST\CubeMX\STM32Cube_FW_F0_V1.11.0\Drivers\STM32F0xx_HAL_Driver\Src\stm32f0xx_ll_utils.c</name>
             </file>
         </group>
     </group>

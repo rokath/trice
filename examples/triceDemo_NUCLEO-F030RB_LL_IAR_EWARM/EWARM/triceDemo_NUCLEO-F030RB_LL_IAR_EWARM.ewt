@@ -1396,27 +1396,6 @@
             </file>
         </group>
         <group>
-            <name>Trice</name>
-            <file>
-                <name>$PROJ_DIR$\..\..\..\srcTrice.C\trice.c</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\..\..\srcTrice.C\triceCheck.c</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\..\..\srcTrice.C\tricePrintfAdapter.c</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\..\..\srcTrice.C\triceRuntimeGeneratedStrings.c</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\..\..\srcTrice.C\triceWrite.c</name>
-            </file>
-            <file>
-                <name>$PROJ_DIR$\..\..\..\srcTrice.C\xteaCrypto.c</name>
-            </file>
-        </group>
-        <group>
             <name>User</name>
             <file>
                 <name>$PROJ_DIR$\..\Src\main.c</name>
@@ -1437,26 +1416,47 @@
         <group>
             <name>STM32F0xx_HAL_Driver</name>
             <file>
-                <name>$PROJ_DIR$\..\..\..\..\..\Users\ms\STM32Cube\Repository\STM32Cube_FW_F0_V1.11.0\Drivers\STM32F0xx_HAL_Driver\Src\stm32f0xx_ll_dma.c</name>
+                <name>$PROJ_DIR$\..\..\..\..\..\ST\CubeMX\STM32Cube_FW_F0_V1.11.0\Drivers\STM32F0xx_HAL_Driver\Src\stm32f0xx_ll_dma.c</name>
             </file>
             <file>
-                <name>$PROJ_DIR$\..\..\..\..\..\Users\ms\STM32Cube\Repository\STM32Cube_FW_F0_V1.11.0\Drivers\STM32F0xx_HAL_Driver\Src\stm32f0xx_ll_exti.c</name>
+                <name>$PROJ_DIR$\..\..\..\..\..\ST\CubeMX\STM32Cube_FW_F0_V1.11.0\Drivers\STM32F0xx_HAL_Driver\Src\stm32f0xx_ll_exti.c</name>
             </file>
             <file>
-                <name>$PROJ_DIR$\..\..\..\..\..\Users\ms\STM32Cube\Repository\STM32Cube_FW_F0_V1.11.0\Drivers\STM32F0xx_HAL_Driver\Src\stm32f0xx_ll_gpio.c</name>
+                <name>$PROJ_DIR$\..\..\..\..\..\ST\CubeMX\STM32Cube_FW_F0_V1.11.0\Drivers\STM32F0xx_HAL_Driver\Src\stm32f0xx_ll_gpio.c</name>
             </file>
             <file>
-                <name>$PROJ_DIR$\..\..\..\..\..\Users\ms\STM32Cube\Repository\STM32Cube_FW_F0_V1.11.0\Drivers\STM32F0xx_HAL_Driver\Src\stm32f0xx_ll_pwr.c</name>
+                <name>$PROJ_DIR$\..\..\..\..\..\ST\CubeMX\STM32Cube_FW_F0_V1.11.0\Drivers\STM32F0xx_HAL_Driver\Src\stm32f0xx_ll_pwr.c</name>
             </file>
             <file>
-                <name>$PROJ_DIR$\..\..\..\..\..\Users\ms\STM32Cube\Repository\STM32Cube_FW_F0_V1.11.0\Drivers\STM32F0xx_HAL_Driver\Src\stm32f0xx_ll_rcc.c</name>
+                <name>$PROJ_DIR$\..\..\..\..\..\ST\CubeMX\STM32Cube_FW_F0_V1.11.0\Drivers\STM32F0xx_HAL_Driver\Src\stm32f0xx_ll_rcc.c</name>
             </file>
             <file>
-                <name>$PROJ_DIR$\..\..\..\..\..\Users\ms\STM32Cube\Repository\STM32Cube_FW_F0_V1.11.0\Drivers\STM32F0xx_HAL_Driver\Src\stm32f0xx_ll_usart.c</name>
+                <name>$PROJ_DIR$\..\..\..\..\..\ST\CubeMX\STM32Cube_FW_F0_V1.11.0\Drivers\STM32F0xx_HAL_Driver\Src\stm32f0xx_ll_usart.c</name>
             </file>
             <file>
-                <name>$PROJ_DIR$\..\..\..\..\..\Users\ms\STM32Cube\Repository\STM32Cube_FW_F0_V1.11.0\Drivers\STM32F0xx_HAL_Driver\Src\stm32f0xx_ll_utils.c</name>
+                <name>$PROJ_DIR$\..\..\..\..\..\ST\CubeMX\STM32Cube_FW_F0_V1.11.0\Drivers\STM32F0xx_HAL_Driver\Src\stm32f0xx_ll_utils.c</name>
             </file>
         </group>
+    </group>
+    <group>
+        <name>Trice</name>
+        <file>
+            <name>$PROJ_DIR$\..\..\..\srcTrice.C\trice.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\..\srcTrice.C\triceCheck.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\..\srcTrice.C\tricePrintfAdapter.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\..\srcTrice.C\triceRuntimeGeneratedStrings.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\..\srcTrice.C\triceWrite.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\..\..\..\srcTrice.C\xteaCrypto.c</name>
+        </file>
     </group>
 </project>
