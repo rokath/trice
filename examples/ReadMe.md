@@ -38,5 +38,10 @@
 - In the SeggerRTT example projects you see how to setup. 
 - Segger offers a SeggerRTT SDK which allows to use more than just channel 0 and you can develop your own tooling with it.
 - Maybe `libusb` together with `libjaylink` offer some options too.
+### Future plan
+- Avoid trice buffering inside target and write with TRICE macro directly into the RTT buffer
+  - Option 1: write the 8 bytes per trace directly (little time overhead & some space overhead, but no changes on host side)
+  - Option 2: write directly th 4 byte trices to RTT and send cyclic sync trices (faster on target side and litte extensionb on host side)
+- Option 1 should be implemented first. It gives immediately direct output during debugging.
 
 

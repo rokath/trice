@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<workspace>
+    <project>
+        <path>$WS_DIR$\triceDemo_NUCLEO-F030RB_LL_IAR_EWARM\EWARM\triceDemo_NUCLEO-F030RB_LL_IAR_EWARM.ewp</path>
+    </project>
+    <project>
+        <path>$WS_DIR$\triceDemo_NUCLEO-F030RB_LL_SeggerRTT_IAR_EWARM\EWARM\triceDemo_NUCLEO-F030RB_LL_SeggerRTT_IAR_EWARM.ewp</path>
+    </project>
+    <project>
+        <path>$WS_DIR$\triceDemo_NUCLEO-F070RB_HAL_IAR_EWARM\EWARM\triceDemo_NUCLEO-F070RB_HAL_IAR_EWARM.ewp</path>
+    </project>
+    <batchBuild>
+        <batchDefinition>
+            <name>Multi</name>
+            <member>
+                <project>triceDemo_NUCLEO-F030RB_LL_IAR_EWARM</project>
+                <configuration>triceDemo_NUCLEO-F030RB_LL_IAR_EWARM</configuration>
+            </member>
+            <member>
+                <project>triceDemo_NUCLEO-F070RB_HAL_IAR_EWARM</project>
+                <configuration>triceDemo_NUCLEO-F070RB_HAL_IAR_EWARM</configuration>
+            </member>
+            <member>
+                <project>triceDemo_NUCLEO-F030RB_LL_SeggerRTT_IAR_EWARM</project>
+                <configuration>triceDemo_NUCLEO-F030RB_LL_SeggerRTT_IAR_EWARM</configuration>
+            </member>
+        </batchDefinition>
+    </batchBuild>
+</workspace>
