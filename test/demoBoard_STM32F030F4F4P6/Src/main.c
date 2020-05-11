@@ -23,7 +23,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "trice.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -66,7 +66,9 @@ static void MX_USART1_UART_Init(void);
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-
+#ifdef ENCRYPT
+    InitXteaTable();
+#endif
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -87,20 +89,47 @@ int main(void)
   SystemClock_Config();
 
   /* USER CODE BEGIN SysInit */
-
+    SysTick->CTRL |= SysTick_CTRL_TICKINT_Msk; // enable SysTick interrupt
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
-
+    LL_USART_EnableIT_RXNE(USART1); // enable UART1 interrupt
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  while (1)
-  {
+  TRICE16_1( Id( 2625), "TIM:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
+  TRICE0( Id(62503), "att:demoBoard_STM32F030F4F4P6\n" );
+  TRICE16_1( Id( 2625), "TIM:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
+  TRICE16_1( Id( 2625), "TIM:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
+  TRICE16_1( Id( 2625), "TIM:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
+    while (1)
+    {
+      //////////////////////////////////////////////////
+      // demo trices
+      //
+      static uint32_t ms_1 = 0;
+      if( ms >= ms_1 + 3000 ){ // every 3 sec
+          void triceCheckSet( void );
+          triceCheckSet();
+          TRICE32_1( Id(29200), "time:ms = %d\n", ms );
+          LL_GPIO_TogglePin(UserLED_PA4_GPIO_Port, UserLED_PA4_Pin);
+          ms_1 = ms;
+      }
+      //
+      //////////////////////////////////////////////////
+
+      //////////////////////////////////////////////////
+      // needed background activity
+      //
+        #ifdef LL_INTERFACE_NO_INTERRUPTS
+        triceServe();
+        #endif
+      //
+      //////////////////////////////////////////////////        
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

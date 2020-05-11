@@ -15,3 +15,4 @@
 vendor
 go.sum
 .id
+_tryout/*
