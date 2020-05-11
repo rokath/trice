@@ -9,7 +9,6 @@
 
   <project>
     <PathAndName>.\generatedDemo_NUCLEO-F030R8_LL_MDK-ARM\MDK-ARM\generatedDemo_NUCLEO-F030R8_LL_MDK-ARM.uvprojx</PathAndName>
-    <NodeIsActive>1</NodeIsActive>
   </project>
 
   <project>
@@ -30,6 +29,7 @@
 
   <project>
     <PathAndName>.\triceDemo_NUCLEO-F070RB_LL_MDK-ARM\MDK-ARM\triceDemo_NUCLEO-F070RB_LL_MDK-ARM.uvprojx</PathAndName>
+    <NodeIsActive>1</NodeIsActive>
   </project>
 
   <project>

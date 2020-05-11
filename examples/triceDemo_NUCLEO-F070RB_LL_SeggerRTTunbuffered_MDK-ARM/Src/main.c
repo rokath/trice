@@ -102,10 +102,11 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  TRICE0( Id( 5676), "att:triceDemo_NUCLEO-F070RB_LL_SeggerRTT_MDK-ARM\n" );
-    SEGGER_RTT_GetAvailWriteSpace(0);
-    char* s = "Hi5!\n";
-    SEGGER_RTT_Write(0, s, strlen(s));
+    TRICE16_1( Id(45373), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
+    TRICE0( Id( 5676), "att:triceDemo_NUCLEO-F070RB_LL_SeggerRTT_MDK-ARM\n" );
+    TRICE16_1( Id(45373), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
+    TRICE16_1( Id(45373), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
+    TRICE16_1( Id(45373), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
     while (1)
     {
       //////////////////////////////////////////////////
@@ -113,7 +114,7 @@ int main(void)
       //
       static uint32_t ms_1 = 0;
       extern uint32_t ms;
-      if( ms >= ms_1 + 3000 ){ // every 3 sec
+      if( ms >= ms_1 + 20 ){ // every 3 sec
           void triceCheckSet( void );
           triceCheckSet();
           TRICE32_1( Id(29200), "time:ms = %d\n", ms );
@@ -124,13 +125,9 @@ int main(void)
       //////////////////////////////////////////////////
 
       //////////////////////////////////////////////////
-      // needed background activity
-      //
-        #ifdef LL_INTERFACE_NO_INTERRUPTS
-        triceServe();
-        #endif
-      //
-      //////////////////////////////////////////////////        
+      // no background activity needed in code
+      //////////////////////////////////////////////////
+
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

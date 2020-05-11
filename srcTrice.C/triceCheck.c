@@ -19,11 +19,11 @@ void triceCheckSet( void )
 {
     TRICE_P( "Hello %s this is a %dst printf replacement.\n", "world", 1 ); // visible only with defined TRICE_PRINTF_ADAPTER
     TRICE16_1( Id(46097), "dbg:12345 as 16bit is %#016b\n", 12345 );
-    TRICE0 (Id( 4316), "------------------------------------------------------------------------------------------\r\n\n" );
+    TRICE0 (Id(13584), "--------------------------------------------------\r\n\n" );
     TRICE_ASSERT(0==0);
     TRICE0( Id(10084), "sig:This ASSERT error is just a demo and no real error: "); 
     TRICE_ASSERT(0==1);
-    TRICE0 (Id(41390), "------------------------------------------------------------------------------------------\r\n\n" );
+    TRICE0 (Id(25340), "--------------------------------------------------\r\n\n" );
 
     TRICE8_4( Id( 1750), "tst:TRICE8  %%03x ->  %03x  %03x  %03x  %03x\n", 1, 0x7f, 0x80, 0xff );
     TRICE8_4( Id(65426), "tst:TRICE8   %%4d -> %4d %4d %4d %4d\n", 1, 0x7f, 0x80, 0xff );
@@ -154,5 +154,5 @@ void triceCheckSet( void )
         TRICE8_8( Id(43598), "msg:2:%03x %03x %03x %03x %03x %03x %03x %03x\n", b[0], b[1], b[2], b[3], b[4], b[5], b[6], b[7] );
     }
 #endif
-    TRICE0 (Id(46515), "------------------------------------------------------------------------------------------\r\n\n" );
+    TRICE0 (Id(18701), "--------------------------------------------------\r\n\n" );
 }

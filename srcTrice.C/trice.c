@@ -16,6 +16,8 @@ The trices (macros) are dumped as 32bit values into a 32 bit fifo. That is the t
 
 #if TRICE_CODE
 
+#ifdef TRICE_FIFO
+
 //! trice fifo instance, here are the trices buffered. used in TRICE macro expansion
 ALIGN4 uint32_t triceFifo[ TRICE_FIFO_SIZE>>2 ] ALIGN4_END;
 
@@ -35,21 +37,22 @@ uint32_t maxTriceDepth = 0; //!< for max trices depth diagnostics
 
 //! trice item count inside trice fifo
 //! \return count of buffered trices
-unsigned triceFifoDepth( void ){
+static unsigned triceFifoDepth( void ){
     unsigned triceDepth = (wrIndexTriceFifo - rdIndexTriceFifo) & TRICE_FIFO_MASK;
     maxTriceDepth = triceDepth < maxTriceDepth ? maxTriceDepth : triceDepth; // diagnostics
     return triceDepth;
 }
 
+#endif // #ifdef TRICE_FIFO
+
 //! partial prefilled trice message transmit buffer 
-ALIGN4 triceMsg_t triceMsg ALIGN4_END = {
+static ALIGN4 triceMsg_t triceMsg ALIGN4_END = {
     { TRICE_START_BYTE,  TRICE_LOCAL_ADDR,  TRICE_DISPL_ADDR, 0 }, // crc8
     { 0, 0 } // 16bit ID, 16bit data
 };
 
 //! pull next trice from fifo and prepare triceMsg buffer
-void prepareNextTriceTransmission(void){
-    triceFifoPop( (uint32_t*)(&(triceMsg.ld)) );
+static void prepareNextTriceTransmission(void){
     triceMsg.hd.crc8  = TRICE_START_BYTE ^ TRICE_LOCAL_ADDR ^ TRICE_DISPL_ADDR
                          ^ triceMsg.ld.load[0]
                          ^ triceMsg.ld.load[1]
@@ -63,15 +66,33 @@ void prepareNextTriceTransmission(void){
     #endif
 }
 
+#if TRICE_PUSH == tricePush
+
+//! put one trice into trice fifo
+//! \param v trice id with 2 byte data
+//! trice time critical part
+void tricePush( uint32_t v ){
+    triceMsg.ld.atomicTrice = v;
+    prepareNextTriceTransmission();
+    triceWrite( &triceMsg, sizeof(triceMsg) );
+}
+
+#endif
+
+#ifdef TRICE_FIFO
+
 void triceToWriteBuffer( void ){
     uint32_t depth = triceFifoDepth();
     if( depth ){ // trice for transfer available
         if( triceWriteSpace() < TRICE_WRITE_SPACE_MIN){ // no space in write buffer
             return; // don't transfer trices if buffer is too full
         }
+        triceFifoPop( (uint32_t*)(&(triceMsg.ld)) );
         prepareNextTriceTransmission();
         triceWrite( &triceMsg, sizeof(triceMsg) );
     }
 }
+
+#endif
 
 #endif // #if TRICE_CODE

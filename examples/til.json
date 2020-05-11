@@ -1587,5 +1587,26 @@
 		"fmtStrg": "att:triceDemo_NUCLEO-F070RB_HAL_IAR_EWARM\\n",
 		"created": 1589190397,
 		"removed": 0
+	},
+	{
+		"id": 13584,
+		"fmtType": "TRICE0",
+		"fmtStrg": "--------------------------------------------------\\r\\n\\n",
+		"created": 1589210937,
+		"removed": 0
+	},
+	{
+		"id": 25340,
+		"fmtType": "TRICE0",
+		"fmtStrg": "--------------------------------------------------\\r\\n\\n",
+		"created": 1589210937,
+		"removed": 0
+	},
+	{
+		"id": 18701,
+		"fmtType": "TRICE0",
+		"fmtStrg": "--------------------------------------------------\\r\\n\\n",
+		"created": 1589210937,
+		"removed": 0
 	}
 ]

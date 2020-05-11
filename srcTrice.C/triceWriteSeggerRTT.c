@@ -8,7 +8,6 @@
 #include "trice.h"
 #include "SEGGER_RTT.h"
 
-unsigned minWriteSpace = 0xFFFFFFFF; //!< for min write space diagnostics
 
 //! \param buf address to read from
 //! \param nbytes count to write
@@ -17,6 +16,10 @@ unsigned minWriteSpace = 0xFFFFFFFF; //!< for min write space diagnostics
 unsigned triceWrite(const void *buf, int nbytes){
     return (int)SEGGER_RTT_Write(0, buf, nbytes);
 }
+
+#ifdef TRICE_FIFO
+
+unsigned minWriteSpace = 0xFFFFFFFF; //!< for min write space diagnostics
 
 //! get available free space for writing
 //!\return writable space
@@ -40,3 +43,5 @@ unsigned triceWriteSpace( void ){
 void triceServe( void ){
     triceToWriteBuffer();
 }
+
+#endif // #ifdef TRICE_FIFO

@@ -102,6 +102,7 @@ typedef PACKED union {
     uint16_t d;  // 2 data byte
     }PACKED_END trice;
     uint8_t load[4]; // for crc8 computation
+    uint32_t atomicTrice;
 }PACKED_END triceMsgLoad_t; //!< trice message payload
 
 
@@ -149,6 +150,14 @@ typedef PACKED struct {
 // fifo functionality
 //
 
+#ifndef TRICE_PUSH
+#define TRICE_PUSH triceFifoPush
+#define TRICE_FIFO
+#endif
+
+void tricePush( uint32_t v );
+
+#ifdef TRICE_FIFO
 #define TRICE_FIFO_MASK ((TRICE_FIFO_SIZE>>2)-1) //!< max possible count of items in fifo
 
 extern uint32_t triceFifo[];
@@ -162,6 +171,8 @@ TRICE_INLINE void triceFifoPush( uint32_t v ){
     triceFifo[wrIndexTriceFifo++] = v;
     wrIndexTriceFifo &= TRICE_FIFO_MASK;
 }
+
+#endif // #ifdef TRICE_FIFO
 
 #endif // #if NO_CODE != TRICE_CODE
 
@@ -199,14 +210,14 @@ TRICE_INLINE void triceFifoPush( uint32_t v ){
 //! id trice identifier
 //! \param d16 a 16 bit value
 #define TRICE( id, d16 ) do{ \
-    triceFifoPush( (((uint32_t)(d16))<<16) | (id)); \
+    TRICE_PUSH( (((uint32_t)(d16))<<16) | (id)); \
 } while(0)
 
 //! basic trice macro, assumes d16 to be a 16 bit value
 //! id is 0
 //! \param d16 a 16 bit value
 #define TRICE_ID0( d16 ) do{ \
-    triceFifoPush( ((uint32_t)(d16))<<16); \
+    TRICE_PUSH( ((uint32_t)(d16))<<16); \
 } while(0)
 
 //! trace Id protected (outside critical section)
@@ -214,7 +225,7 @@ TRICE_INLINE void triceFifoPush( uint32_t v ){
 //! \param pFmt formatstring for trice
 #define TRICE0( Id, pFmt ) do{ \
     TRICE_ENTER_CRITICAL_SECTION \
-    triceFifoPush( Id ); \
+    TRICE_PUSH( Id ); \
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
 
@@ -500,7 +511,7 @@ TRICE_INLINE void triceFifoPush( uint32_t v ){
 //! trace Id unprotected (inside critical section)
 //! \param Id trice identifier
 TRICE_INLINE void trice_0_ics( uint16_t Id ){
-    triceFifoPush(Id);
+    TRICE_PUSH(Id);
 }
 
 //! trace Id protected (outside critical section)
@@ -515,7 +526,7 @@ TRICE_INLINE void trice_0_ocs( uint16_t Id ){
 //! \param Id trice identifier
 //! \param d0 payload
 TRICE_INLINE void trice_8_1_ics( uint16_t Id, uint32_t d0 ){
-    triceFifoPush( (d0<<16) | Id);
+    TRICE_PUSH( (d0<<16) | Id);
 }
 
 //! trace Id and 8- or 16-bit value protected (outside critical section)
@@ -531,7 +542,7 @@ TRICE_INLINE void trice_8_1_ocs( uint16_t Id, uint32_t d0 ){
 //! \param d0 payload
 //! \param d1 payload
 TRICE_INLINE void trice_8_02_ics( uint32_t d0, uint32_t d1 ){
-    triceFifoPush( (d1<<24) | (d0<<16) );
+    TRICE_PUSH( (d1<<24) | (d0<<16) );
 }
 
 //! trace Id and 8-bit values unprotected (inside critical section)
@@ -539,7 +550,7 @@ TRICE_INLINE void trice_8_02_ics( uint32_t d0, uint32_t d1 ){
 //! \param d0 payload
 //! \param d1 payload
 TRICE_INLINE void trice_8_2_ics( uint16_t Id, uint32_t d0, uint32_t d1 ){
-    triceFifoPush( (d1<<24) | (d0<<16) | Id);
+    TRICE_PUSH( (d1<<24) | (d0<<16) | Id);
 }
 
 //! trace Id and 8-bit values protected (outside critical section)
@@ -747,7 +758,7 @@ TRICE_INLINE void trice_8_8_ocs( uint16_t Id, uint32_t d0, uint32_t d1, uint32_t
 //! trace Id==0 and 16-bit value unprotected (inside critical section)
 //! \param d0 payload
 TRICE_INLINE void trice_16_01_ics( uint32_t d0 ){
-    triceFifoPush( (d0<<16) );
+    TRICE_PUSH( (d0<<16) );
 }
 
 //! trace Id==0 and 8-bit values unprotected (inside critical section)
@@ -1147,17 +1158,6 @@ TRICE_INLINE void trice_64_2_ocs( uint16_t Id, uint64_t d0, uint64_t d1 ){
 #endif // #if LESS_FLASH_AND_SPEED == TRICE_CODE // #####################################
 
 void triceToWriteBuffer( void );
-
-
-
-/*
-
-unsigned triceFifoDepth( void );
-void prepareNextTriceTransmission(void);
-extern triceMsg_t triceMsg;
-
-*/
-
 
 #ifdef __cplusplus
 }

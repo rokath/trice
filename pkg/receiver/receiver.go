@@ -200,7 +200,8 @@ func (p *triceReceiver) readHeader() ([]byte, error) {
 		if true == evalHeader(b) {
 			break
 		}
-		emit.LineCollect(fmt.Sprintf("wrn:trice:discarding byte 0x%02x (dez %d, char '%c')\n", b[0], b[0], b[0]))
+		//emit.LineCollect(fmt.Sprintf("wrn:trice:discarding byte 0x%02x (dez %d, chasr '%c')\n", b[0], b[0], b[0]))
+		emit.LineCollect(fmt.Sprintf("%c", b[0]))
 		b = encrypt(b)
 		x, err := p.readAtLeastBytes(1)
 		if nil != err {
