@@ -1,4 +1,0 @@
-load STM32F030R8Tx 
-project name STCubeGenerated 
-project toolchain "MDK-ARM V5" 
-project path "C:\GitRepos\trice\examples\tryout\RTE\Device\STM32F030R8Tx\" 

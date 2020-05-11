@@ -43,7 +43,7 @@ embedded device C printf-like trace code and real-time PC logging (trace ID visu
 - C trace code (`TRICE` macros)  and real-time PC logging with `trice` (tool written in **Go**).
 - Communication without string transfer, just with IDs. Prerequisite: byte transmission to PC, low bandwidth is ok:
   - method does'nt matter: serial port, i2c, spi, DAC->ADC, toggle pin, ...
-- "log in (a) trice" ![](./doc/README.media/life0.gif)
+- "log in (a) trice" ![](./docs/README.media/life0.gif)
 - Main idea: Logging strings **not** into an embedded device to display them later on a PC but keep usage comfortable and simple. The `TRICE` macros look like printf() but work under the hood completely different.
 
 ## `TRICE` macros for C|C++ code
@@ -85,4 +85,4 @@ is example code and for testing
 - As graphical vizualisation you could use a tool similar to https://github.com/sqshq/sampler.
 
 ## Documentation
-- see [./doc/ReadMe.md](./doc/ReadMe.md)
+- see [./docs/ReadMe.md](./docs/ReadMe.md)

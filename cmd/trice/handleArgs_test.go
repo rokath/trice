@@ -9,10 +9,10 @@ import (
 	"testing"
 	"time"
 
+	"github.com/rokath/trice/internal/disp"
+	"github.com/rokath/trice/internal/trice"
 	"github.com/rokath/trice/pkg/cage"
-	"github.com/rokath/trice/pkg/disp"
 	"github.com/rokath/trice/pkg/lib"
-	"github.com/rokath/trice/pkg/trice"
 )
 
 func TestScVersion(t *testing.T) {

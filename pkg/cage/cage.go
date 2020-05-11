@@ -15,10 +15,10 @@ import (
 // https://gist.github.com/jmoiron/e9f72720cef51862b967
 // https://medium.com/@hau12a1/golang-capturing-log-println-and-fmt-println-output-770209c791b4
 
-// DefaultLogfileName is the pattern for default logfile name. The timestamp is replaced with the actual time.
-const DefaultLogfileName = "2006-01-02_1504-05_trice.log"
-
 var (
+	// DefaultLogfileName is the pattern for default logfile name. The timestamp is replaced with the actual time.
+	DefaultLogfileName = "2006-01-02_1504-05_cage.log"
+
 	// Name is the filename of the logfile. "off" inhibits logfile writing.
 	Name = "off"
 
