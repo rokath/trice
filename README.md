@@ -53,7 +53,7 @@ embedded device C printf-like trace code and real-time PC logging (trace ID visu
 - Usage is similar to 'printf()', but the format strings go not into the target image.
 - The needed code instrumentation is minimal:
   - Adapt a [config file](./srcTrice.C/triceConfig.h) (hardware specific).
-  - Add [one small C-file](./srcTrice.C/trice.c) to your project and include a [C-header](./srcTrice.C/trice.h) where trices are used.
+  - Add [small C-files](./srcTrice.C/trice.c) to your project and include a [C-header](./srcTrice.C/trice.h) where trices are used.
   - Core instrumentation needs less 150 bytes FLASH and about 100 bytes RAM.
 
 ## `trice` PC tool
