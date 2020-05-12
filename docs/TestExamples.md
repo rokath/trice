@@ -38,6 +38,14 @@
 - Using the ST-Link izt is possible to debug step the code
 - An other option would be to download the HEX-File using the internal STM32 ROM-Bootloader over the USB/Serial converter. Then no ST-Link is needed but you can only run the code and not debug.
 - Finally: The USB connector on the demoBoard-STM32F030F4P6 ist only used for power supply if no other connections.
+### STM32F0300-DISCO_SeggerRTTunbuffered_MDK-ARM
+- Inside the SysTickISR each millisecond a TRICE message is produced and every 20 milliseconds the full test bunch runs.
+- The ISR:alive @20ms message is visible at about 2 3rd of the screen
+- SeggerRTT gets the messages every 10ms. Therefore with is traffic the internal buffer is needed to be 7KB. Normally you get away with much less RAM needs.
+
+![STM32F0300-DISCO_SeggerRTTunbuffered_MDK-ARM](./README.media/STM32F0300-DISCO_SeggerRTTunbuffered_MDK-ARM.PNG)
+
+
 ## Not yet working (please ignore)
 - triceDemo_NUCLEO-F070RB_Zephyr
 - triceDemo_NUCLEO-F070RB_mbed

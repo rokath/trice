@@ -107,7 +107,7 @@ int main(void)
       //
       static uint32_t ms_1 = 0;
       uint32_t ms = HAL_GetTick();
-      if( ms >= ms_1 + 200 ){ 
+      if( ms >= ms_1 + 20 ){ 
           void triceCheckSet( void );
           triceCheckSet();
           TRICE32_1( Id(29200), "time:ms = %d\n", ms );
