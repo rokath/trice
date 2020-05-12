@@ -11,5 +11,5 @@ date      | version | comment
 2020-03-29|  0.8    | autologfile, remoteDisplay added, check issues!
 2020-04-07|  0.8.2  | display server supports many receiver-clients, no line mixes, code partially restructured, line prefix
 2020-04-22|  0.9    | fileWatcher added (no need to re-load til.json anymore), now `trice s` possible for COMport scan, NUCLEO-F070 demo project added, now with ANSI color (faster), default logfilename with timestamp, remote displayServer shutdown possible
-
+2020-05-12|  0.91   | `SeggerRTT` & `SeggerRTTunbuffered` added, docs extended, more test examples, TRICE16_1 critical section bugfix
 
