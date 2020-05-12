@@ -83,7 +83,7 @@ doc/           | documentation                                           |
     - A file [til.json](../test/til.json)  (**t**race **i**d **l**ist) should be generated.
     - Running `trice check` should show your message, indicating everything is fine so far.
 - `trice help` is your friend if something fails.
-- For help have a look at the differences between these 2 projects or into [ReadMeDemoF030R8.md](./ReadMeDemoF030R8.md)
+- For help have a look at the differences between these 2 projects or into [DemoF030R8.md](./DemoF030R8.md)
   - `../examples/generatedDemoF030R8` - It is just the STM32 CubeMX generated code.
   - `../examples/traceLDemoF030R8` - It is a copy of the above enhanced with trice check code.
 ```
@@ -155,7 +155,7 @@ trice help
 ```
 
 ## Demo project setup
-- see [ReadMeDemoF030R8.md](./ReadMeDemoF030R8.md)
+- see [DemoF030R8.md](./DemoF030R8.md)
 
 ## Otions for `trice` tool
 The trice tool can be started in several modes (subcommands), each with several mantadory or optional switches. Switches can have parameters or not.

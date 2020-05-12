@@ -85,4 +85,9 @@ is example code and for testing
 - As graphical vizualisation you could use a tool similar to https://github.com/sqshq/sampler.
 
 ## Documentation
-- see [./docs/ReadMe.md](./docs/ReadMe.md)
+### Common
+- see [./docs/Common.md](./docs/Common.md)
+### RealTimeTransfer
+- see [./docs/SeggerRTT.md](./docs/SeggerRTT.md)
+### Examples
+- see [./test/Examples.md](./test/Examples.md) and [DemoF030R8.md](./DemoF030R8.md)
