@@ -90,4 +90,4 @@ is example code and for testing
 ### RealTimeTransfer
 - see [./docs/SeggerRTT.md](./docs/SeggerRTT.md)
 ### Examples
-- see [./test/Examples.md](./test/Examples.md) and [DemoF030R8.md](./DemoF030R8.md)
+- see [./docs/TestExamples.md](./docs/TestExamples.md) and [./docs/triceDemo_NUCLEO-F030R8_LL_MDK-ARM.md](./docs/triceDemo_NUCLEO-F030R8_LL_MDK-ARM.md)

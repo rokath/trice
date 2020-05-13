@@ -35,6 +35,7 @@
 ![demoBoard-STM32F030F4P6.PNG](./README.media/demoBoard-STM32F030F4P6a.jpeg)
 ![demoBoard-STM32F030F4P6.PNG](./README.media/demoBoard-STM32F030F4P6b.jpeg)
 ![demoBoard-STM32F030F4P6.PNG](./README.media/demoBoard-STM32F030F4P6.PNG)
+![demoBoard-STM32F030F4P6_USB.jpg](./README.media/demoBoard-STM32F030F4P6_USB.jpg)
 - Using the ST-Link izt is possible to debug step the code
 - An other option would be to download the HEX-File using the internal STM32 ROM-Bootloader over the USB/Serial converter. Then no ST-Link is needed but you can only run the code and not debug.
 - Finally: The USB connector on the demoBoard-STM32F030F4P6 ist only used for power supply if no other connections.
@@ -45,6 +46,13 @@
 
 ![STM32F0300-DISCO_SeggerRTTunbuffered_MDK-ARM](./README.media/STM32F0300-DISCO_SeggerRTTunbuffered_MDK-ARM.PNG)
 
+### LPC800
+![LPC800frontside](./README.media/LPC800frontside.jpg)
+![LPC800fbackside](./README.media/LPC800backside.jpg)
+- [https://community.nxp.com/community/general-purpose-mcus/lpc/blog/2017/03/20/lpc800-dip-schematic](https://community.nxp.com/community/general-purpose-mcus/lpc/blog/2017/03/20/lpc800-dip-schematic)
+- Device  LPC824M201JHI33  (or alternatively LPC834M101FHI33)
+- [www.silabs.com/products/mcu/Pages/USBtoUARTBridgeVCPDrivers.aspx](www.silabs.com/products/mcu/Pages/USBtoUARTBridgeVCPDrivers.aspx)
+- [https://mcuoneclipse.com/2017/05/13/mcuxpresso-ide-blinky-the-nxp-lpc800-dip-board/](https://mcuoneclipse.com/2017/05/13/mcuxpresso-ide-blinky-the-nxp-lpc800-dip-board/)
 
 ## Not yet working (please ignore)
 - triceDemo_NUCLEO-F070RB_Zephyr
