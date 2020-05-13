@@ -53,6 +53,8 @@
 - Device  LPC824M201JHI33  (or alternatively LPC834M101FHI33)
 - [www.silabs.com/products/mcu/Pages/USBtoUARTBridgeVCPDrivers.aspx](www.silabs.com/products/mcu/Pages/USBtoUARTBridgeVCPDrivers.aspx)
 - [https://mcuoneclipse.com/2017/05/13/mcuxpresso-ide-blinky-the-nxp-lpc800-dip-board/](https://mcuoneclipse.com/2017/05/13/mcuxpresso-ide-blinky-the-nxp-lpc800-dip-board/)
+- Download, install & start Xpresso
+- Press Download and install SDKs
 
 ## Not yet working (please ignore)
 - triceDemo_NUCLEO-F070RB_Zephyr

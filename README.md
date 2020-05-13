@@ -51,10 +51,23 @@ embedded device C printf-like trace code and real-time PC logging (trace ID visu
   - for debugging dynamic behaviour during development, 
   - as runtime logger or simply for narrow bandwidth logging in the field even with encryption.
 - Usage is similar to 'printf()', but the format strings go not into the target image.
+  - Using TRICE in your code reduces the needed FLASH memory.
 - The needed code instrumentation is minimal:
   - Adapt a [config file](./srcTrice.C/triceConfig.h) (hardware specific).
   - Add [small C-files](./srcTrice.C/trice.c) to your project and include a [C-header](./srcTrice.C/trice.h) where trices are used.
   - Core instrumentation needs less 150 bytes FLASH and about 100 bytes RAM.
+## How it works
+- Write `TRICE16( "msg:%d degree\n", temperature );` in source .
+- `trice update` changes this line to  `TRICE16( Id(12345), "msg:%d degree\n", temperature );` in source code and adds the *ID 12345* together with *"msg:%d degree\n"* into a trice ID list, a JSON referece file named `til.json`.
+- During compilation the TRICE16 macro is expanded only to a *12345* reference and the variable *temperature* and the format string never sees the target.
+![trice](./docs/README.media/triceBlockDiagram.svg)
+- When the programflow passes the line `TRICE16( "msg:%d degree\n", temperature );` the 16 bit ID *12345* and the 16 bit *-5* are transfered as a 32 bit value into the triceFifo, what goes really fast. This way the program flow is nearly undisturbed, so TRICE macros are usable also inside interrupts or the scheduler.
+- For visualization a background service is needed. The triceServe takes the 4 bytes trice values from the triceFifo, adds 4 bytes control information and puts that into the triceWriteBuffer, with at least 8 bytes size.
+- The bytes go from triceWriteBuffer to the PC and there the `trice` tool receives them.
+- With the help of the `til.json` file the trices get then visualized on the PC.
+- It is also possible to let the debug probe transfer the buffer to the PC (see *SeggerRTT* explanation)
+
+
 
 ## `trice` PC tool
 - Manages `TRICE` macro IDs inside a C|C++ source tree and extracts the strings in an ID-string list during target device compile time.
@@ -62,7 +75,7 @@ embedded device C printf-like trace code and real-time PC logging (trace ID visu
 - Written in Go, simply usage, no installer.
 
 ## Quick setup
-- add [trice.c](./srcTrice.C/trice.c) as is to your project
+- add [trice.c](./srcTrice.C/trice.c) and acompanying files as they are to your project
 - #include [trice.h](./srcTrice.C/trice.h) as is in your source file to use trice
 - copy [triceConfig.h](./srcTrice.C/triceConfig.h) and adapt to your needs
 - [triceCheck.c](./srcTrice.C/triceCheck.c) 
