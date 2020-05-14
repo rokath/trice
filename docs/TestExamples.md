@@ -62,6 +62,10 @@ This board has a serial port.
 - [PICkit 3 Debug Express Lessons.zip](../third_party/PICkit%203%20Debug%20Express%20Lessons.zip)
 - photo: [PICkit4Anschluss](./README.media/PICkit4Anschluss.jpeg)
 - [PIC18F45K20 overview](https://www.microchip.com/wwwproducts/en/PIC18F45K20)
+- [PIC_C-Compilervergleich](https://www.mikrocontroller.net/articles/PIC_C-Compilervergleich)
+  - [XC8 compiler](https://www.microchip.com/mplab/compilers) - FREE version will do.
+Download & install [MPLAB-X IDE](https://www.microchip.com/mplab/mplab-x-ide)
+  - install Plugin MPLAB Code-generator
 
 ## Work in progress
 
