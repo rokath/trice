@@ -1,0 +1,2 @@
+Error[1027] C:\repos\trice\test\triceDemoPIC18F45K20\src\main.c 130 : unable to locate 'xc.h'
+Error[1027] C:\repos\trice\test\triceDemoPIC18F45K20\src\main.c 132 : unable to locate 'stdint.h'
