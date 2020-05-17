@@ -22,6 +22,8 @@
 ## Segger RTT unbuffered
 - Avoid trice buffering inside target and write with TRICE macro directly into the RTT buffer
   - Option 1: Write the 8 bytes per trace directly (little time & some space overhead on target, but no changes on host side) - this is implemented as test example.
+  
+  ![triceBlockDiagramWithSeggerRTT.svg](./README.media/triceBlockDiagramWithSeggerRTT.svg)
   - Option 2: Write directly th 4 byte trices to RTT (faster and less RAM & code on target side and litte extension on host side). This is not implemented yet. Doing so leds to the question how to reliable sync the data stream. One way are sync packages every few seconds. 
 - The main advantage here is, that no `triceServe()` is needed in the background, because this job is automatically done by SeggerRTT. This way one can debug code as comfortable as with `printf()` but with all the TRICE advantages. Have a look here: ![SeggerRTTunbufferd](./README.media/SeggerRTTunbufferd.gif)
 

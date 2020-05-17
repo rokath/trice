@@ -52,7 +52,7 @@ func Example_handleArgsLogCOM0() {
 	HandleArgs([]string{"trice", "log", "-list", "none", "-port", "COM0", "-lf", "none"})
 	// Output:
 	// No logfile writing...
-	// id list file none with 0 items
+	// id list file none with 0 items on device COM
 	// Error: Could not open serial port: Serial port not found
 	// Could not set up serial port COM0
 	// try -port COMscan

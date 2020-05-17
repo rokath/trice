@@ -1,8 +1,10 @@
+// Copyright 2020 Thomas.Hoehenleitner [at] seerose.net
+// Use of this source code is governed by a license that can be found in the LICENSE file.
+
 package receiver
 
 import (
 	"fmt"
-	"log"
 	"net"
 	"time"
 )
@@ -19,27 +21,20 @@ type seggerRTT struct {
 
 // NewSeggerRTTReceiver creates an instance
 func newSeggerRTTReceiver() *seggerRTT {
-	r := &seggerRTT{}
-	r.triceReceiver = newTriceReceiver(r)
+	r := &seggerRTT{}                     // create SeggerRTT instance
+	r.triceReceiver = newTriceReceiver(r) // create triceReceiver instance and link it
 	r.name = "Segger RTT connection"
 	return r
 }
 
-// Start starts receiving of RTT data
-func (p *seggerRTT) start() {
-	p.receivingData = true
-	go p.receiving()
-}
-
-// Stop stops receiving of RTT data
-func (p *seggerRTT) stop() {
-	p.receivingData = false
-}
-
+// Read is the exported method
 func (p *seggerRTT) Read(buf []byte) (int, error) {
 	return conn.Read(buf)
 }
 
+// setUp() initializes the SeggerRTT  receiver
+//
+// It connects over TCP.
 func (p *seggerRTT) setUp() error {
 	fmt.Printf("JLinkLogViewer reading from %s\n", endpoint)
 	jlinkExeAddr, err := net.ResolveTCPAddr("tcp4", endpoint)
@@ -54,41 +49,10 @@ func (p *seggerRTT) setUp() error {
 	return nil
 }
 
+// cleanUp() de-initializes the receiver
 func (p *seggerRTT) cleanUp() {
 	conn.Close()
 }
-
-/*
-func (p *seggerRTT) receiving() {
-	fmt.Printf("JLinkLogViewer reading from %s\n", endpoint)
-	for {
-		jlinkExeAddr, err := net.ResolveTCPAddr("tcp4", endpoint)
-		if err != nil {
-			<-time.After(2 * time.Second)
-			continue
-		}
-
-		conn, err = net.DialTCP("tcp4", nil, jlinkExeAddr)
-		if err != nil {
-			<-time.After(2 * time.Second)
-			continue
-		}
-
-		data := make([]byte, 1024)
-		fmt.Printf("\n\n===============================================================================\n")
-		//DoSeggerRTT()
-		for err == nil {
-			n, err := conn.Read(data)
-			if err != nil {
-				conn.Close()
-				<-time.After(2 * time.Second)
-				break
-			}
-			fmt.Printf("%s", string(data[0:n]))
-		}
-	}
-}
-*/
 
 // DoSeggerRTT is the endless loop for trice logging
 func DoSeggerRTT() {
@@ -108,6 +72,7 @@ func DoSeggerRTT() {
 	rtt.doReceive()
 }
 
+/*
 // export readBytes
 func (p *seggerRTT) readBytes(count int) (int, []byte) {
 	b := make([]byte, count) // the buffer size limits the read count
@@ -118,3 +83,4 @@ func (p *seggerRTT) readBytes(count int) (int, []byte) {
 	}
 	return n, b
 }
+*/

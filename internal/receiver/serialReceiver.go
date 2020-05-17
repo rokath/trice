@@ -51,7 +51,18 @@ func newSerialReceiver(portIdentifier string, baudrate int) *serialReceiver {
 	return r
 }
 
-// setUp opens a serial port
+// Stores data received from the serial port into the provided byte array
+// buffer. The function returns the number of bytes read.
+//
+// The Read function blocks until (at least) one byte is received from
+// the serial port or an error occurs.
+func (p *serialReceiver) Read(buf []byte) (int, error) {
+	return p.serialHandle.Read(buf)
+}
+
+// setUp() initializes the serial receiver.
+//
+// It opens a serial port.
 func (p *serialReceiver) setUp() bool {
 	var err error
 
@@ -64,7 +75,7 @@ func (p *serialReceiver) setUp() bool {
 	return true
 }
 
-// cleanUp makes clean
+// cleanUp() de-initializes the receiver
 //
 // It stops reception and closes port (handle release)
 func (p *serialReceiver) cleanUp() {
@@ -72,18 +83,30 @@ func (p *serialReceiver) cleanUp() {
 	p.serialHandle.Close()
 }
 
-// ClosePort releases port
-func (p *serialReceiver) ClosePort() {
-	p.serialHandle.Close()
+// DoSerial is the endless loop for trice logging over serial port
+func DoSerial() {
+	err := conditionalComPortScan()
+	if err != nil {
+		return
+	}
+	sR := newSerialReceiver(Port, Baud)
+
+	if sR.setUp() == false {
+		fmt.Println("Could not set up serial port", Port)
+		fmt.Println("try -port COMscan")
+		return
+	}
+	fmt.Println("Opened serial port", Port)
+
+	sR.Start()
+	defer sR.cleanUp()
+
+	sR.doReceive()
 }
 
-// Stores data received from the serial port into the provided byte array
-// buffer. The function returns the number of bytes read.
-//
-// The Read function blocks until (at least) one byte is received from
-// the serial port or an error occurs.
-func (p *serialReceiver) Read(buf []byte) (int, error) {
-	return p.serialHandle.Read(buf)
+// closePort releases port
+func (p *serialReceiver) closePort() {
+	p.serialHandle.Close()
 }
 
 // GetSerialPorts scans for serial ports
@@ -121,27 +144,6 @@ func conditionalComPortScan() error {
 		return nil
 	}
 	return errors.New("Could not find serial port on system")
-}
-
-// DoSerial is the endless loop for trice logging over serial port
-func DoSerial() {
-	err := conditionalComPortScan()
-	if err != nil {
-		return
-	}
-	sR := newSerialReceiver(Port, Baud)
-
-	if sR.setUp() == false {
-		fmt.Println("Could not set up serial port", Port)
-		fmt.Println("try -port COMscan")
-		return
-	}
-	fmt.Println("Opened serial port", Port)
-
-	sR.Start()
-	defer sR.cleanUp()
-
-	sR.doReceive()
 }
 
 /*

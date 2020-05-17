@@ -22,6 +22,8 @@ subcommand 'l', 'log'
     	COM baudrate (default 115200)
   -color string
     	color set, options: off|alternate (default "default")
+  -device string
+    	receiver device, option "RTT" (default "COM")
   -key string
     	decrypt passphrase (default "none")
   -lf string
@@ -58,6 +60,8 @@ subcommand 'ds', 'displayServer'
 subcommand 'r', 'rec', 'receiver'
   -baud int
     	COM baudrate (default 115200)
+  -device string
+    	receiver device, option "RTT" (default "COM")
   -ds
     	start display server 
   -ipa string
