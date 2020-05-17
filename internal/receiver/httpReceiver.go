@@ -17,15 +17,6 @@ func (p *HTTPReceiver) setUp() bool {
 	return true
 }
 
-// Start starts receiving of serial data
-func (p *HTTPReceiver) Start() {
-	// start webserver
-}
-
-// Stop stops receiving of serial data
-func (p *HTTPReceiver) Stop() {
-	// stop webserver
-}
 
 // CleanUp washes...
 func (p *HTTPReceiver) cleanUp() {

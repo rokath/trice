@@ -79,7 +79,7 @@ func (p *serialReceiver) setUp() bool {
 //
 // It stops reception and closes port (handle release)
 func (p *serialReceiver) cleanUp() {
-	p.Stop()
+	p.stop()
 	p.serialHandle.Close()
 }
 
@@ -98,7 +98,7 @@ func DoSerial() {
 	}
 	fmt.Println("Opened serial port", Port)
 
-	sR.Start()
+	sR.start()
 	defer sR.cleanUp()
 
 	sR.doReceive()

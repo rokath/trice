@@ -12,7 +12,7 @@
 // - In dependence on receiverDevice DoSerial() or DoSeggerRTT() or ... is activated (named DoDevice() from now)
 // - DoDevice()
 //   - performs device specific initialization
-//   - performs Start() which starts the go routine receiving(), responsible for raw data (see below)
+//   - performs start() which starts the go routine receiving(), responsible for raw data (see below)
 //   - and ends in device.doReceive()
 // - device is a composed type from triceReceiver (common functionality) and deviceReceiver (device specific functionality)
 // - The newDevice(...) function creates the device specific instance and links to it the triceReceiver instance created by
@@ -45,10 +45,10 @@ var (
 )
 
 type triceReceiverInterface interface { // Daemon
-	getTriceChannel() *chan []byte
-	getBufferChannel() *chan []byte
-	Start()
-	Stop()
+	triceChannel() *chan []byte
+	bufferChannel() *chan []byte
+	start()
+	stop()
 	Read([]byte) (int, error)
 	doReceive()
 	readBytes(count int) (int, []byte)
@@ -61,8 +61,8 @@ type triceReceiver struct { // AbstractDaemon
 	triceReceiverInterface // interface
 	name                   string
 	receivingData          bool
-	triceChannel           chan []byte
-	bufferChannel          chan []byte
+	trices                 chan []byte
+	buffers                chan []byte
 }
 
 // newTriceReceiver creates an instance of the common trice receiver part for a new receiver device
@@ -71,29 +71,29 @@ func newTriceReceiver(r triceReceiverInterface) *triceReceiver {
 		triceReceiverInterface: r,
 		name:                   "trice receiver",
 		receivingData:          false,
-		triceChannel:           make(chan []byte),
-		bufferChannel:          make(chan []byte),
+		trices:                 make(chan []byte),
+		buffers:                make(chan []byte),
 	}
 }
 
-// getTriceChannel returns pointer to trice receive channel
-func (p *triceReceiver) getTriceChannel() *chan []byte {
-	return &p.triceChannel
+// triceChannel returns pointer to trice receive channel
+func (p *triceReceiver) triceChannel() *chan []byte {
+	return &p.trices
 }
 
-// getBufferChannel returns pointer to buffer receive channel
-func (p *triceReceiver) getBufferChannel() *chan []byte {
-	return &p.bufferChannel
+// bufferChannel returns pointer to buffer receive channel
+func (p *triceReceiver) bufferChannel() *chan []byte {
+	return &p.buffers
 }
 
-// Start starts receiving of serial data
-func (p *triceReceiver) Start() {
+// start starts receiving of serial data
+func (p *triceReceiver) start() {
 	p.receivingData = true
 	go p.receiving()
 }
 
-// Stop stops receiving of serial data
-func (p *triceReceiver) Stop() {
+// stop stops receiving of serial data
+func (p *triceReceiver) stop() {
 	p.receivingData = false
 }
 
@@ -102,11 +102,11 @@ func (p *triceReceiver) doReceive() {
 	var t, b []byte
 	for {
 		select {
-		case c := <-(*p.getBufferChannel()):
+		case c := <-(*p.bufferChannel()):
 			if len(c) > 0 {
 				b = append(b, c...)
 			}
-		case t = <-(*p.getTriceChannel()):
+		case t = <-(*p.triceChannel()):
 			b, err = emit.Trice(t, b, id.List)
 			if nil != err {
 				log.Println("trice.Log error", err, t, b)
@@ -224,7 +224,7 @@ func (p *triceReceiver) receiving() {
 
 		if 0xeb == b[0] { // traceLog startbyte, no further data
 			//fmt.Println("to trice channel:", b)
-			p.triceChannel <- b // send to process trace log channel
+			p.trices <- b // send to process trace log channel
 
 		} else if 0xc0 == b[0] {
 			switch b[6] & 0xc0 {
@@ -253,7 +253,7 @@ func (p *triceReceiver) receiving() {
 					b = append(b, d...) // len is redundant here and usable as check
 					b = append(b, s...) // the buffer (string) data
 					//log.Println("to buffer channel:", b)
-					p.bufferChannel <- b // send to process trace log channel
+					p.buffers <- b // send to process trace log channel
 				}
 			}
 		} else {

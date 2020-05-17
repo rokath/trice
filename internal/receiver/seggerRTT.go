@@ -66,8 +66,8 @@ func DoSeggerRTT() {
 	fmt.Println("Opened", rtt.name)
 	defer rtt.cleanUp()
 
-	rtt.Start()
-	defer rtt.Stop()
+	rtt.start()
+	defer rtt.stop()
 
 	rtt.doReceive()
 }
