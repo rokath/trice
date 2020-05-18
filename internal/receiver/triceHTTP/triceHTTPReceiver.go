@@ -2,11 +2,15 @@
 //                basti@blackoutcloud.de
 // Use of this source code is governed by a license that can be found in the LICENSE file.
 
-package receiver
+package triceHTTP
+
+import (
+	"github.com/rokath/trice/internal/receiver"
+)
 
 // HTTPReceiver defines ...
 type HTTPReceiver struct {
-	triceReceiver
+	receiver.TriceReceiver
 
 	IPaddress []int
 	port      int
@@ -16,7 +20,6 @@ type HTTPReceiver struct {
 func (p *HTTPReceiver) setUp() bool {
 	return true
 }
-
 
 // CleanUp washes...
 func (p *HTTPReceiver) cleanUp() {

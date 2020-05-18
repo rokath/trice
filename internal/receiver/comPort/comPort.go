@@ -2,19 +2,18 @@
 //                basti@blackoutcloud.de
 // Use of this source code is governed by a license that can be found in the LICENSE file.
 
-package receiver
+package comPort
 
 import (
 	"errors"
 	"fmt"
 	"log"
 
+	"github.com/rokath/trice/internal/receiver"
 	"go.bug.st/serial"
 )
 
 var (
-	locAddr = byte(0x60) // local trice address
-	remAddr = byte(0x60) // remote trice address
 
 	// Port is the COMport name like COM1
 	Port string
@@ -25,7 +24,7 @@ var (
 
 // serialReceiver is a serial device trice receiver
 type serialReceiver struct {
-	*triceReceiver // compose
+	*receiver.TriceReceiver // compose
 
 	portName    string
 	readTimeout int
@@ -47,7 +46,7 @@ func newSerialReceiver(portIdentifier string, baudrate int) *serialReceiver {
 			Parity:   serial.NoParity,
 			StopBits: serial.OneStopBit},
 	}
-	r.triceReceiver = newTriceReceiver(r)
+	r.TriceReceiver = receiver.NewTriceReceiver(r)
 	return r
 }
 
@@ -79,7 +78,7 @@ func (p *serialReceiver) setUp() bool {
 //
 // It stops reception and closes port (handle release)
 func (p *serialReceiver) cleanUp() {
-	p.stop()
+	p.Stop()
 	p.serialHandle.Close()
 }
 
@@ -98,10 +97,10 @@ func DoSerial() {
 	}
 	fmt.Println("Opened serial port", Port)
 
-	sR.start()
+	sR.Start()
 	defer sR.cleanUp()
 
-	sR.doReceive()
+	sR.DoReceive()
 }
 
 // closePort releases port

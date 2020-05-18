@@ -15,6 +15,7 @@ import (
 	"github.com/rokath/trice/internal/emit"
 	"github.com/rokath/trice/internal/id"
 	"github.com/rokath/trice/internal/receiver"
+	"github.com/rokath/trice/internal/receiver/comPort"
 	"github.com/rokath/trice/internal/trice"
 	"github.com/rokath/trice/pkg/cage"
 	"github.com/rokath/trice/pkg/lib"
@@ -140,8 +141,8 @@ func HandleArgs(args []string) error {
 		scLog.Parse(subArgs)
 		emit.Postfix = *pLpost
 		receiver.Device = *pLdev
-		receiver.Port = *pPort
-		receiver.Baud = *pBaud
+		comPort.Port = *pPort
+		comPort.Baud = *pBaud
 		setPrefix(*pLpre)
 		id.FnJSON = lib.Assign(*pJSON)
 		lib.TimeStampFormat = *pTs
@@ -156,8 +157,8 @@ func HandleArgs(args []string) error {
 		disp.IPAddr = *pClIPA
 		disp.IPPort = *pClIPP
 		receiver.Device = *pRdev
-		receiver.Port = *pClPort
-		receiver.Baud = *pClBaud
+		comPort.Port = *pClPort
+		comPort.Baud = *pClBaud
 		setPrefix(*pRpre)
 		emit.Postfix = *pRpost
 		id.FnJSON = lib.Assign(*pClJSON)
@@ -192,8 +193,8 @@ func HandleArgs(args []string) error {
 }
 
 func scScan() error {
-	receiver.Port = "COMscan"
-	_, err := receiver.GetSerialPorts()
+	comPort.Port = "COMscan"
+	_, err := comPort.GetSerialPorts()
 	return err
 }
 
@@ -274,7 +275,7 @@ func setPrefix(s string) {
 	case "off", "none":
 		emit.Prefix = ""
 	case "COMport:":
-		emit.Prefix = receiver.Port + "  "
+		emit.Prefix = comPort.Port + "  " // receiver.Device + " "
 	default:
 		emit.Prefix = s
 	}

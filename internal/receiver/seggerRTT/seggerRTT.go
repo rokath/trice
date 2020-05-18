@@ -1,12 +1,14 @@
 // Copyright 2020 Thomas.Hoehenleitner [at] seerose.net
 // Use of this source code is governed by a license that can be found in the LICENSE file.
 
-package receiver
+package seggerRTT
 
 import (
 	"fmt"
 	"net"
 	"time"
+
+	"github.com/rokath/trice/internal/receiver"
 )
 
 const endpoint = "127.0.0.1:19021"
@@ -15,14 +17,14 @@ var conn *net.TCPConn // special extension
 
 // seggerRTT may be unexported
 type seggerRTT struct {
-	*triceReceiver
+	*receiver.TriceReceiver
 	name string
 }
 
 // NewSeggerRTTReceiver creates an instance
 func newSeggerRTTReceiver() *seggerRTT {
-	r := &seggerRTT{}                     // create SeggerRTT instance
-	r.triceReceiver = newTriceReceiver(r) // create triceReceiver instance and link it
+	r := &seggerRTT{}                              // create SeggerRTT instance
+	r.TriceReceiver = receiver.NewTriceReceiver(r) // create triceReceiver instance and link it
 	r.name = "Segger RTT connection"
 	return r
 }
@@ -66,10 +68,10 @@ func DoSeggerRTT() {
 	fmt.Println("Opened", rtt.name)
 	defer rtt.cleanUp()
 
-	rtt.start()
-	defer rtt.stop()
+	rtt.Start()
+	defer rtt.Stop()
 
-	rtt.doReceive()
+	rtt.DoReceive()
 }
 
 /*

@@ -16,6 +16,8 @@ import (
 	"github.com/rokath/trice/internal/disp"
 	"github.com/rokath/trice/internal/id"
 	"github.com/rokath/trice/internal/receiver"
+	"github.com/rokath/trice/internal/receiver/comPort"
+	"github.com/rokath/trice/internal/receiver/seggerRTT"
 	"github.com/rokath/trice/pkg/cage"
 	"golang.org/x/crypto/xtea"
 )
@@ -53,7 +55,7 @@ func NewConnection(sv string) error {
 	disp.PtrRPC.Call("Server.Out", []string{""}, nil)
 	disp.PtrRPC.Call("Server.Out", []string{""}, nil)
 	disp.PtrRPC.Call("Server.Out", []string{""}, nil)
-	disp.PtrRPC.Call("Server.Out", []string{"att:new connection from ", "read:" + receiver.Port, "..."}, nil)
+	disp.PtrRPC.Call("Server.Out", []string{"att:new connection from ", "read:" + receiver.Device, "..."}, nil)
 	disp.PtrRPC.Call("Server.Out", []string{""}, nil)
 	disp.PtrRPC.Call("Server.Out", []string{""}, nil)
 	return nil
@@ -99,9 +101,9 @@ func DoReceive() error {
 	*/
 	switch receiver.Device {
 	case "COM":
-		receiver.DoSerial()
+		comPort.DoSerial()
 	case "RTT":
-		receiver.DoSeggerRTT()
+		seggerRTT.DoSeggerRTT()
 	default:
 		fmt.Println("Unknown receiver device", receiver.Device)
 	}

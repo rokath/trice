@@ -42,6 +42,12 @@ import (
 var (
 	// Device is the trice receiver to use
 	Device string
+
+	// local trice address, used for routing in distributed systems
+	locAddr = byte(0x60)
+
+	// remote trice address, used for routing in distributed systems
+	remAddr = byte(0x60)
 )
 
 type triceReceiverInterface interface { // Daemon
@@ -56,48 +62,48 @@ type triceReceiverInterface interface { // Daemon
 	readHeader() ([]byte, error)
 }
 
-// abstractReceiver is an abstrace type
-type triceReceiver struct { // AbstractDaemon
+// TriceReceiver is an abstrace type
+type TriceReceiver struct { // AbstractDaemon
 	triceReceiverInterface // interface
-	name                   string
-	receivingData          bool
-	trices                 chan []byte
-	buffers                chan []byte
+	//name                   string
+	receivingData bool
+	trices        chan []byte
+	buffers       chan []byte
 }
 
-// newTriceReceiver creates an instance of the common trice receiver part for a new receiver device
-func newTriceReceiver(r triceReceiverInterface) *triceReceiver {
-	return &triceReceiver{
+// NewTriceReceiver creates an instance of the common trice receiver part for a new receiver device
+func NewTriceReceiver(r triceReceiverInterface) *TriceReceiver {
+	return &TriceReceiver{
 		triceReceiverInterface: r,
-		name:                   "trice receiver",
-		receivingData:          false,
-		trices:                 make(chan []byte),
-		buffers:                make(chan []byte),
+		//Name:                   "trice receiver",
+		receivingData: false,
+		trices:        make(chan []byte),
+		buffers:       make(chan []byte),
 	}
 }
 
 // triceChannel returns pointer to trice receive channel
-func (p *triceReceiver) triceChannel() *chan []byte {
+func (p *TriceReceiver) triceChannel() *chan []byte {
 	return &p.trices
 }
 
 // bufferChannel returns pointer to buffer receive channel
-func (p *triceReceiver) bufferChannel() *chan []byte {
+func (p *TriceReceiver) bufferChannel() *chan []byte {
 	return &p.buffers
 }
 
 // start starts receiving of serial data
-func (p *triceReceiver) start() {
+func (p *TriceReceiver) Start() {
 	p.receivingData = true
 	go p.receiving()
 }
 
 // stop stops receiving of serial data
-func (p *triceReceiver) stop() {
+func (p *TriceReceiver) Stop() {
 	p.receivingData = false
 }
 
-func (p *triceReceiver) doReceive() {
+func (p *TriceReceiver) DoReceive() {
 	var err error
 	var t, b []byte
 	for {
@@ -116,7 +122,7 @@ func (p *triceReceiver) doReceive() {
 }
 
 // export readBytes
-func (p *triceReceiver) readBytes(count int) (int, []byte) {
+func (p *TriceReceiver) readBytes(count int) (int, []byte) {
 	b := make([]byte, count) // the buffer size limits the read count
 	n, err := p.Read(b)
 
@@ -128,7 +134,7 @@ func (p *triceReceiver) readBytes(count int) (int, []byte) {
 }
 
 // export readAtLeastBytes
-func (p *triceReceiver) readAtLeastBytes(count int) ([]byte, error) {
+func (p *TriceReceiver) readAtLeastBytes(count int) ([]byte, error) {
 	buf := make([]byte, count) // the buffer size limits the read count
 	var b []byte
 	var n int
@@ -190,7 +196,7 @@ func decrypt(b []byte) []byte {
 }
 
 // readHeader gets next header from streaming data
-func (p *triceReceiver) readHeader() ([]byte, error) {
+func (p *TriceReceiver) readHeader() ([]byte, error) {
 	b, err := p.readAtLeastBytes(8)
 	if nil != err {
 		return b, err
@@ -213,7 +219,7 @@ func (p *triceReceiver) readHeader() ([]byte, error) {
 }
 
 // receiving: ReadEndless expects a pointer to a filled COM port configuration
-func (p *triceReceiver) receiving() {
+func (p *TriceReceiver) receiving() {
 	for p.receivingData == true {
 		b, err := p.readHeader()
 
