@@ -51,18 +51,21 @@ var (
 )
 
 type triceReceiverInterface interface { // Daemon
-	triceChannel() *chan []byte
-	bufferChannel() *chan []byte
-	start()
-	stop()
 	Read([]byte) (int, error)
-	doReceive()
-	readBytes(count int) (int, []byte)
-	readAtLeastBytes(count int) ([]byte, error)
-	readHeader() ([]byte, error)
+	/*
+		triceChannel() *chan []byte
+		bufferChannel() *chan []byte
+		start()
+		stop()
+
+		doReceive()
+		readBytes(count int) (int, []byte)
+		readAtLeastBytes(count int) ([]byte, error)
+		readHeader() ([]byte, error)
+	*/
 }
 
-// TriceReceiver is an abstrace type
+// TriceReceiver is an abstract type
 type TriceReceiver struct { // AbstractDaemon
 	triceReceiverInterface // interface
 	//name                   string

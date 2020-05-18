@@ -94,6 +94,12 @@ func DoReceive() error {
 
 	fmt.Println("id list file", id.FnJSON, "with", len(id.List), "items", "on device", receiver.Device)
 
+	do()
+
+	return nil
+}
+
+func do() {
 	/* TODO: Introduce new command line option for choosing between
 	   1) Serial receiver(port name, baudrate, parity bit etc. )
 	   2) TCP receiver (IP, port, Protocol (i.e JSON,XML))
@@ -107,7 +113,6 @@ func DoReceive() error {
 	default:
 		fmt.Println("Unknown receiver device", receiver.Device)
 	}
-	return nil
 }
 
 // createCipher prepares decryption, with password "none" the encryption flag is set false, otherwise true
