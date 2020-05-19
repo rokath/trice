@@ -12,13 +12,9 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/rokath/trice/internal/cmd"
 	"github.com/rokath/trice/internal/disp"
 	"github.com/rokath/trice/internal/id"
 	"github.com/rokath/trice/internal/receiver"
-	"github.com/rokath/trice/internal/receiver/comPort"
-	"github.com/rokath/trice/internal/receiver/seggerRTT"
-	"github.com/rokath/trice/pkg/cage"
 	"golang.org/x/crypto/xtea"
 )
 
@@ -31,17 +27,19 @@ var (
 	ShowPassword bool
 )
 
+/*
 // ScLog is the subcommand log and connects to COM port and displays traces
 func ScLog() error {
 	cage.Enable()
 	defer cage.Disable()
 
 	return DoReceive()
-}
+}*/
 
-// NewConnection starts a display server sy if sv is not empty, otherwise it assumes a running display server
+// Connect starts a display server sy if sv is not empty, otherwise it assumes a running display server.
+//
 // It connects then to the running display server.
-func NewConnection(sv string) error {
+func Connect(sv string) error {
 	if "" != sv {
 		disp.StartServer(sv)
 	}
@@ -61,6 +59,7 @@ func NewConnection(sv string) error {
 	return nil
 }
 
+/*
 // ScReceive is the subcommand remoteDisplay and acts as client connecting to the displayServer
 // sv is the executable name to be started as remote display server (typically arg[0] == trice)
 func ScReceive(sv string) error {
@@ -73,9 +72,10 @@ func ScReceive(sv string) error {
 	DoReceive() // does not return
 	return nil
 }
+*/
 
 // DoReceive connects to COM port and displays traces
-func DoReceive() error {
+func SetUp() error {
 	if "none" != id.FnJSON {
 		// setup ip list
 		err := id.List.Read(id.FnJSON)
@@ -93,28 +93,19 @@ func DoReceive() error {
 	}
 
 	fmt.Println("id list file", id.FnJSON, "with", len(id.List), "items", "on device", receiver.Device)
+	return nil
+}
 
+/* DoReceive connects to COM port and displays traces
+func DoReceive() error {
+
+	SetUp()
 	do()
 
 	return nil
 }
 
-func do() {
-	/* TODO: Introduce new command line option for choosing between
-	   1) Serial receiver(port name, baudrate, parity bit etc. )
-	   2) TCP receiver (IP, port, Protocol (i.e JSON,XML))
-	   3) HTTP/Websocket receiver (may be the simplest form in Golang)
-	*/
-	switch receiver.Device {
-	case "COM":
-		comPort.DoSerial()
-	case "RTT":
-		seggerRTT.DoSeggerRTT()
-	default:
-		fmt.Println("Unknown receiver device", receiver.Device)
-	}
-}
-
+*/
 // createCipher prepares decryption, with password "none" the encryption flag is set false, otherwise true
 func createCipher() (*xtea.Cipher, bool, error) {
 	h := sha1.New() // https://gobyexample.com/sha1-hashes

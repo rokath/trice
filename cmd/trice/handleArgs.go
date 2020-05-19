@@ -8,14 +8,22 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"io"
+	"io/ioutil"
 	"log"
 	"os"
+	"time"
 
+	"github.com/rokath/trice/internal/cmd"
 	"github.com/rokath/trice/internal/disp"
 	"github.com/rokath/trice/internal/emit"
 	"github.com/rokath/trice/internal/id"
 	"github.com/rokath/trice/internal/receiver"
-	"github.com/rokath/trice/internal/receiver/comPort"
+	"github.com/rokath/trice/internal/receiver/com"
+	"github.com/rokath/trice/internal/receiver/http"
+	"github.com/rokath/trice/internal/receiver/random"
+	"github.com/rokath/trice/internal/receiver/segger"
+	"github.com/rokath/trice/internal/receiver/simulator"
 	"github.com/rokath/trice/internal/trice"
 	"github.com/rokath/trice/pkg/cage"
 	"github.com/rokath/trice/pkg/lib"
@@ -141,8 +149,8 @@ func HandleArgs(args []string) error {
 		scLog.Parse(subArgs)
 		emit.Postfix = *pLpost
 		receiver.Device = *pLdev
-		comPort.Port = *pPort
-		comPort.Baud = *pBaud
+		com.Port = *pPort
+		com.Baud = *pBaud
 		setPrefix(*pLpre)
 		id.FnJSON = lib.Assign(*pJSON)
 		lib.TimeStampFormat = *pTs
@@ -150,15 +158,28 @@ func HandleArgs(args []string) error {
 		trice.Password = *pKey
 		trice.ShowPassword = *pShow
 		cage.Name = *pLlf
-		return trice.ScLog()
+		/*
+		   // trice.ScLog is the subcommand log and connects to COM port and displays traces
+		   func ScLog() error {
+		   	cage.Enable()
+		   	defer cage.Disable()
+
+		   	return DoReceive()
+		   }*/
+		cage.Enable()
+		defer cage.Disable()
+		//trice.SetUp()
+		//trice.DoReceive()
+		receiving()
+		//return trice.ScLog()
 
 	case "r", "rec", "receiver":
 		scCl.Parse(subArgs)
 		disp.IPAddr = *pClIPA
 		disp.IPPort = *pClIPP
 		receiver.Device = *pRdev
-		comPort.Port = *pClPort
-		comPort.Baud = *pClBaud
+		com.Port = *pClPort
+		com.Baud = *pClBaud
 		setPrefix(*pRpre)
 		emit.Postfix = *pRpost
 		id.FnJSON = lib.Assign(*pClJSON)
@@ -166,11 +187,21 @@ func HandleArgs(args []string) error {
 		trice.Password = *pClKey
 		trice.ShowPassword = *pClShow
 		cage.Name = *pClLf
-		if true == *pClSrv {
-			return trice.ScReceive(args[0])
-		}
-		return trice.ScReceive("")
+		//if true == *pClSrv {
+		//	return trice.ScReceive(args[0])
+		//}
+		//return trice.ScReceive("")
 
+		if true == *pClSrv {
+			disp.StartServer(args[0])
+		}
+		err := trice.Connect("")
+		if err != nil {
+			fmt.Println(err)
+			return err
+		}
+		cmd.KeyboardInput()
+		receiving()
 	case "ds", "displayServer":
 		scSv.Parse(subArgs)
 		disp.ColorPalette = *pSvCol
@@ -190,11 +221,134 @@ func HandleArgs(args []string) error {
 		fmt.Println("try: 'trice help|h'")
 		return nil
 	}
+	return nil
+}
+
+/*
+
+// trice.ScLog is the subcommand log and connects to COM port and displays traces
+func ScLog() error {
+	cage.Enable()
+	defer cage.Disable()
+
+	return DoReceive()
+}
+
+
+
+//// ScReceive is the subcommand remoteDisplay and acts as client connecting to the displayServer
+//// sv is the executable name to be started as remote display server (typically arg[0] == trice)
+//func ScReceive(sv string) error {
+//	err := NewConnection(sv)
+//	if err != nil {
+//		fmt.Println(err)
+//		return err
+//	}
+//	cmd.KeyboardInput()
+//	DoReceive() // does not return
+//	return nil
+//}
+//
+//*/
+//
+///*func do() {
+//	/* TODO: Introduce new command line option for choosing between
+//	   1) Serial receiver(port name, baudrate, parity bit etc. )
+//	   2) TCP receiver (IP, port, Protocol (i.e JSON,XML))
+//	   3) HTTP/Websocket receiver (may be the simplest form in Golang)
+//	*/
+//	switch receiver.Device {
+//	case "COM":
+//		comPort.DoSerial()
+//		/*
+//// DoSerial is the endless loop for trice logging over serial port
+//func comPort.DoSerial() {
+//	err := conditionalComPortScan()
+//	if err != nil {
+//		return
+//	}
+//	sR := newSerialReceiver(Port, Baud)
+//
+//	if sR.setUp() == false {
+//		fmt.Println("Could not set up serial port", Port)
+//		fmt.Println("try -port COMscan")
+//		return
+//	}
+//	fmt.Println("Opened serial port", Port)
+//
+//	sR.Start()
+//	defer sR.cleanUp()
+//
+//	sR.DoReceive()
+//}
+//*/
+//	case "RTT":
+//		seggerRTT.DoSeggerRTT()
+///*
+//
+//// DoSeggerRTT is the endless loop for trice logging
+//func DoSeggerRTT() {
+//	rtt := NewSeggerRTTReceiver()
+//
+//	for nil != rtt.setUp() {
+//		fmt.Println("Could not set up", rtt.name, ", trying again...")
+//		<-time.After(2 * time.Second)
+//		continue
+//	}
+//	fmt.Println("Opened", rtt.name)
+//	defer rtt.cleanUp()
+//
+//	rtt.Start()
+//	defer rtt.Stop()
+//
+//	rtt.DoReceive()
+//}
+//*/
+//	default:
+//		fmt.Println("Unknown receiver device", receiver.Device)
+//	}
+//}
+//*/
+
+func receiving() {
+	trice.SetUp()
+	var r io.ReadCloser
+	switch receiver.Device {
+	case "HTTP":
+		h := http.New()
+		if false == h.Open() {
+			return
+		}
+		r = h
+	case "RND":
+		r = ioutil.NopCloser(random.New()) // https://stackoverflow.com/questions/28158990/golang-io-ioutil-nopcloser
+	case "COM":
+		c := com.New()
+		if false == c.Open() {
+			return
+		}
+		r = c
+	case "SIM":
+		r = ioutil.NopCloser(simulator.New()) // https://stackoverflow.com/questions/28158990/golang-io-ioutil-nopcloser
+	case "RTT":
+		s := segger.New()
+		if nil != s.Open() {
+			return
+		}
+		r = s
+	}
+	t := receiver.New(r)
+	t.Start()
+	go func() {
+		for {
+			time.Sleep(time.Second)
+		}
+	}()
 }
 
 func scScan() error {
-	comPort.Port = "COMscan"
-	_, err := comPort.GetSerialPorts()
+	com.Port = "COMscan"
+	_, err := com.GetSerialPorts()
 	return err
 }
 
@@ -275,7 +429,7 @@ func setPrefix(s string) {
 	case "off", "none":
 		emit.Prefix = ""
 	case "COMport:":
-		emit.Prefix = comPort.Port + "  " // receiver.Device + " "
+		emit.Prefix = com.Port + "  " // receiver.Device + " "
 	default:
 		emit.Prefix = s
 	}

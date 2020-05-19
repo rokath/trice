@@ -74,7 +74,7 @@ func TestScDisplayServer(t *testing.T) {
 	os.Remove(afn)
 	cage.Name = afn
 
-	lib.Ok(t, trice.NewConnection("C:\\Users\\ms\\go\\bin\\trice.exe"))
+	lib.Ok(t, trice.Connect("C:\\Users\\ms\\go\\bin\\trice.exe"))
 	lib.Ok(t, disp.PtrRPC.Call("Server.Out", []string{"msg:test ", "dbg:line 1."}, nil))
 	lib.Ok(t, disp.PtrRPC.Call("Server.Out", []string{"att:test ", "sig:line 2."}, nil))
 

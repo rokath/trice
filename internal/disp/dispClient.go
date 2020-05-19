@@ -64,7 +64,7 @@ func RemoteOut(s []string) error {
 }
 
 // Connect is called by the client and tries to dial.
-// On success PtrRpc is valid afterwards and zhe output is re-directed
+// On success PtrRpc is valid afterwards and the output is re-directed
 func Connect() error {
 	var err error
 	a := fmt.Sprintf("%s:%s", IPAddr, IPPort)

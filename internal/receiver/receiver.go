@@ -32,6 +32,7 @@ package receiver
 import (
 	"encoding/binary"
 	"fmt"
+	"io"
 	"log"
 
 	"github.com/rokath/trice/internal/emit"
@@ -50,90 +51,61 @@ var (
 	remAddr = byte(0x60)
 )
 
-type triceReceiverInterface interface { // Daemon
-	Read([]byte) (int, error)
-	/*
-		triceChannel() *chan []byte
-		bufferChannel() *chan []byte
-		start()
-		stop()
-
-		doReceive()
-		readBytes(count int) (int, []byte)
-		readAtLeastBytes(count int) ([]byte, error)
-		readHeader() ([]byte, error)
-	*/
+type tricer interface {
+	io.ReadCloser
 }
 
-// TriceReceiver is an abstract type
-type TriceReceiver struct { // AbstractDaemon
-	triceReceiverInterface // interface
-	//name                   string
-	receivingData bool
-	trices        chan []byte
-	buffers       chan []byte
+// TriceReceiver is a type definition
+type TriceReceiver struct {
+	tricer  // interface embedding
+	active  bool
+	trices  chan []byte
+	buffers chan []byte
 }
 
 // NewTriceReceiver creates an instance of the common trice receiver part for a new receiver device
-func NewTriceReceiver(r triceReceiverInterface) *TriceReceiver {
-	return &TriceReceiver{
-		triceReceiverInterface: r,
-		//Name:                   "trice receiver",
-		receivingData: false,
-		trices:        make(chan []byte),
-		buffers:       make(chan []byte),
+//
+// After creation the embedded io.ReadCloser interface is in an opened state.
+// The created Trice receiver is in inactive state.
+func New(r io.ReadCloser) *TriceReceiver {
+	p := &TriceReceiver{
+		tricer:  r,
+		active:  false,
+		trices:  make(chan []byte),
+		buffers: make(chan []byte),
 	}
-}
-
-// triceChannel returns pointer to trice receive channel
-func (p *TriceReceiver) triceChannel() *chan []byte {
-	return &p.trices
-}
-
-// bufferChannel returns pointer to buffer receive channel
-func (p *TriceReceiver) bufferChannel() *chan []byte {
-	return &p.buffers
+	return p
 }
 
 // start starts receiving of serial data
 func (p *TriceReceiver) Start() {
-	p.receivingData = true
-	go p.receiving()
+	p.active = true
+	go p.receiveBytes()
+	go p.receiveTrices()
 }
 
 // stop stops receiving of serial data
 func (p *TriceReceiver) Stop() {
-	p.receivingData = false
+	p.active = false
 }
 
-func (p *TriceReceiver) DoReceive() {
+func (p *TriceReceiver) receiveTrices() {
+	defer p.Close()
 	var err error
 	var t, b []byte
-	for {
+	for true == p.active {
 		select {
-		case c := <-(*p.bufferChannel()):
+		case c := <-p.buffers:
 			if len(c) > 0 {
 				b = append(b, c...)
 			}
-		case t = <-(*p.triceChannel()):
+		case t = <-p.trices:
 			b, err = emit.Trice(t, b, id.List)
 			if nil != err {
 				log.Println("trice.Log error", err, t, b)
 			}
 		}
 	}
-}
-
-// export readBytes
-func (p *TriceReceiver) readBytes(count int) (int, []byte) {
-	b := make([]byte, count) // the buffer size limits the read count
-	n, err := p.Read(b)
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	return n, b
 }
 
 // export readAtLeastBytes
@@ -222,8 +194,8 @@ func (p *TriceReceiver) readHeader() ([]byte, error) {
 }
 
 // receiving: ReadEndless expects a pointer to a filled COM port configuration
-func (p *TriceReceiver) receiving() {
-	for p.receivingData == true {
+func (p *TriceReceiver) receiveBytes() {
+	for true == p.active {
 		b, err := p.readHeader()
 
 		if nil != err {
@@ -270,3 +242,29 @@ func (p *TriceReceiver) receiving() {
 		}
 	}
 }
+
+/*
+
+// triceChannel returns pointer to trice receive channel
+func (p *TriceReceiver) triceChannel() *chan []byte {
+	return &p.trices
+}
+
+// bufferChannel returns pointer to buffer receive channel
+func (p *TriceReceiver) bufferChannel() *chan []byte {
+	return &p.buffers
+}
+
+*/
+
+//// export readBytes
+//func (p *TriceReceiver) readBytes(count int) (int, []byte) {
+//	b := make([]byte, count) // the buffer size limits the read count
+//	n, err := p.Read(b)
+//
+//	if err != nil {
+//		log.Fatal(err)
+//	}
+//
+//	return n, b
+//}
