@@ -16,7 +16,7 @@
             ]
         },
         {
-            "name": "Launch trice help",
+            "name": "trice help",
             "type": "go",
             "request": "launch",
             "mode": "auto",
@@ -44,7 +44,7 @@
             "env": {},
             "args": ["ds",
                     "-lf",
-                    "C:/GitRepos/trice/pkg/disp/testdata/serverMutexTest.log"
+                    "${workspaceFolder}/pkg/disp/testdata/serverMutexTest.log"
             ]
         },
         {
@@ -66,7 +66,24 @@
             "env": {},
             "args": [
             ]
-        },               {
+        },              
+        {
+            "name": "-device",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}/cmd/trice",
+            "env": {},
+            "args": ["log",
+                     "-device",
+                     "HTTP",
+                     "-list",
+                     "${workspaceFolder}/test/til.json",
+                     "-key",
+                     "none"
+            ]
+        },
+        {
             "name": "Launch trice log -port",
             "type": "go",
             "request": "launch",
@@ -75,11 +92,11 @@
             "env": {},
             "args": ["log",
                      "-port",
-                     "COM23",
+                     "COM7",
                      "-baud",
                      "115200",
                      "-list",
-                     "C:/GitRepos/trice/examples/til.json",
+                     "${workspaceFolder}/test/til.json",
                      "-key",
                      "none"
             ]
@@ -97,7 +114,7 @@
                      "-baud",
                      "115200",
                      "-list",
-                     "C:/GitRepos/trice/examples/til.json",
+                     "${workspaceFolder}/examples/til.json",
                      "-key",
                      "none"
             ]
@@ -115,7 +132,7 @@
                      "-baud",
                      "115200",
                      "-list",
-                     "C:/GitRepos/trice/examples/til.json",
+                     "${workspaceFolder}/examples/til.json",
                      "-key",
                      "none"
             ]
@@ -129,7 +146,7 @@
             "env": {},
             "args": ["check",
                      "-list",
-                     "C:/GitRepos/trice/examples/til.json",
+                     "${workspaceFolder}/examples/til.json",
                      "-dataset",
                      "xxx"
             ]
@@ -144,9 +161,9 @@
             "args": ["update",
                     "-v",
                     "-src",
-                    "C:/GitRepos/BTdev/STM32",
+                    "C:/repos/BTdev/STM32",
                     "-list",
-                    "c:/GitRepos/BTdev/til.json"
+                    "c:/repos/BTdev/til.json"
             ]
         }
     ]

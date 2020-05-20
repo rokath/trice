@@ -12,7 +12,7 @@
 // - In dependence on receiverDevice DoSerial() or DoSeggerRTT() or ... is activated (named DoDevice() from now)
 // - DoDevice()
 //   - performs device specific initialization
-//   - performs Start() which starts the go routine receiving(), responsible for raw data (see below)
+//   - performs start() which starts the go routine receiving(), responsible for raw data (see below)
 //   - and ends in device.doReceive()
 // - device is a composed type from triceReceiver (common functionality) and deviceReceiver (device specific functionality)
 // - The newDevice(...) function creates the device specific instance and links to it the triceReceiver instance created by
@@ -32,6 +32,7 @@ package receiver
 import (
 	"encoding/binary"
 	"fmt"
+	"io"
 	"log"
 
 	"github.com/rokath/trice/internal/emit"
@@ -42,71 +43,81 @@ import (
 var (
 	// Device is the trice receiver to use
 	Device string
+
+	// local trice address, used for routing in distributed systems
+	locAddr = byte(0x60)
+
+	// remote trice address, used for routing in distributed systems
+	remAddr = byte(0x60)
+
+	// DiscardByte is the function to execute if a data stream byte is to be discarded
+	// type DicardFunc func(byte)
+	DiscardByte = DiscardWithMessage
 )
 
-type triceReceiverInterface interface { // Daemon
-	getTriceChannel() *chan []byte
-	getBufferChannel() *chan []byte
-	Start()
-	Stop()
-	Read([]byte) (int, error)
-	doReceive()
-	readBytes(count int) (int, []byte)
-	readAtLeastBytes(count int) ([]byte, error)
-	readHeader() ([]byte, error)
+// DiscardWithMessage discards a byte with a verbose message
+func DiscardWithMessage(b byte) {
+	emit.LineCollect(fmt.Sprintf("wrn:trice:discarding byte 0x%02x (dez %d, char '%c')\n", b, b, b))
 }
 
-// abstractReceiver is an abstrace type
-type triceReceiver struct { // AbstractDaemon
-	triceReceiverInterface // interface
-	name                   string
-	receivingData          bool
-	triceChannel           chan []byte
-	bufferChannel          chan []byte
+// DiscardASCII discards a byte assuming to be printable and prints it.
+func DiscardASCII(c byte) {
+	emit.LineCollect(fmt.Sprintf("%c", c))
 }
 
-// newTriceReceiver creates an instance of the common trice receiver part for a new receiver device
-func newTriceReceiver(r triceReceiverInterface) *triceReceiver {
-	return &triceReceiver{
-		triceReceiverInterface: r,
-		name:                   "trice receiver",
-		receivingData:          false,
-		triceChannel:           make(chan []byte),
-		bufferChannel:          make(chan []byte),
+// DiscardSilent discards a byte silently
+func DiscardSilent(c byte) {
+}
+
+type tricer interface {
+	io.ReadCloser
+}
+
+// TriceReceiver is a type definition
+type TriceReceiver struct {
+	tricer  // interface embedding
+	active  bool
+	trices  chan []byte
+	buffers chan []byte
+}
+
+// NewTriceReceiver creates an instance of the common trice receiver part for a new receiver device
+//
+// After creation the embedded io.ReadCloser interface is in an opened state.
+// The created Trice receiver is in inactive state.
+func New(r io.ReadCloser) *TriceReceiver {
+	p := &TriceReceiver{
+		tricer:  r,
+		active:  false,
+		trices:  make(chan []byte),
+		buffers: make(chan []byte),
 	}
+	return p
 }
 
-// getTriceChannel returns pointer to trice receive channel
-func (p *triceReceiver) getTriceChannel() *chan []byte {
-	return &p.triceChannel
+// start starts receiving of serial data
+func (p *TriceReceiver) Start() {
+	p.active = true
+	go p.receiveBytes()
+	p.receiveTrices()
 }
 
-// getBufferChannel returns pointer to buffer receive channel
-func (p *triceReceiver) getBufferChannel() *chan []byte {
-	return &p.bufferChannel
+// stop stops receiving of serial data
+func (p *TriceReceiver) Stop() {
+	p.active = false
 }
 
-// Start starts receiving of serial data
-func (p *triceReceiver) Start() {
-	p.receivingData = true
-	go p.receiving()
-}
-
-// Stop stops receiving of serial data
-func (p *triceReceiver) Stop() {
-	p.receivingData = false
-}
-
-func (p *triceReceiver) doReceive() {
+func (p *TriceReceiver) receiveTrices() {
+	defer p.Close()
 	var err error
 	var t, b []byte
-	for {
+	for true == p.active {
 		select {
-		case c := <-(*p.getBufferChannel()):
+		case c := <-p.buffers:
 			if len(c) > 0 {
 				b = append(b, c...)
 			}
-		case t = <-(*p.getTriceChannel()):
+		case t = <-p.trices:
 			b, err = emit.Trice(t, b, id.List)
 			if nil != err {
 				log.Println("trice.Log error", err, t, b)
@@ -115,20 +126,8 @@ func (p *triceReceiver) doReceive() {
 	}
 }
 
-// export readBytes
-func (p *triceReceiver) readBytes(count int) (int, []byte) {
-	b := make([]byte, count) // the buffer size limits the read count
-	n, err := p.Read(b)
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	return n, b
-}
-
 // export readAtLeastBytes
-func (p *triceReceiver) readAtLeastBytes(count int) ([]byte, error) {
+func (p *TriceReceiver) readAtLeastBytes(count int) ([]byte, error) {
 	buf := make([]byte, count) // the buffer size limits the read count
 	var b []byte
 	var n int
@@ -190,7 +189,7 @@ func decrypt(b []byte) []byte {
 }
 
 // readHeader gets next header from streaming data
-func (p *triceReceiver) readHeader() ([]byte, error) {
+func (p *TriceReceiver) readHeader() ([]byte, error) {
 	b, err := p.readAtLeastBytes(8)
 	if nil != err {
 		return b, err
@@ -200,8 +199,7 @@ func (p *triceReceiver) readHeader() ([]byte, error) {
 		if true == evalHeader(b) {
 			break
 		}
-		//emit.LineCollect(fmt.Sprintf("wrn:trice:discarding byte 0x%02x (dez %d, chasr '%c')\n", b[0], b[0], b[0]))
-		emit.LineCollect(fmt.Sprintf("%c", b[0]))
+		DiscardByte(b[0])
 		b = encrypt(b)
 		x, err := p.readAtLeastBytes(1)
 		if nil != err {
@@ -213,8 +211,8 @@ func (p *triceReceiver) readHeader() ([]byte, error) {
 }
 
 // receiving: ReadEndless expects a pointer to a filled COM port configuration
-func (p *triceReceiver) receiving() {
-	for p.receivingData == true {
+func (p *TriceReceiver) receiveBytes() {
+	for true == p.active {
 		b, err := p.readHeader()
 
 		if nil != err {
@@ -224,7 +222,7 @@ func (p *triceReceiver) receiving() {
 
 		if 0xeb == b[0] { // traceLog startbyte, no further data
 			//fmt.Println("to trice channel:", b)
-			p.triceChannel <- b // send to process trace log channel
+			p.trices <- b // send to process trace log channel
 
 		} else if 0xc0 == b[0] {
 			switch b[6] & 0xc0 {
@@ -253,7 +251,7 @@ func (p *triceReceiver) receiving() {
 					b = append(b, d...) // len is redundant here and usable as check
 					b = append(b, s...) // the buffer (string) data
 					//log.Println("to buffer channel:", b)
-					p.bufferChannel <- b // send to process trace log channel
+					p.buffers <- b // send to process trace log channel
 				}
 			}
 		} else {
@@ -261,3 +259,5 @@ func (p *triceReceiver) receiving() {
 		}
 	}
 }
+
+

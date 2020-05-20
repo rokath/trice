@@ -102,7 +102,7 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   TRICE16_1( Id( 2625), "TIM:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
-  TRICE0( Id(62503), "att:demoBoard_STM32F030F4F4P6\n" );
+  TRICE0( Id( 3173), "att:demoBoard_STM32F030F4F4P6\n" );
   TRICE16_1( Id( 2625), "TIM:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
   TRICE16_1( Id( 2625), "TIM:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
   TRICE16_1( Id( 2625), "TIM:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
@@ -112,11 +112,8 @@ int main(void)
       // demo trices
       //
       static uint32_t ms_1 = 0;
-      if( ms >= ms_1 + 3000 ){ // every 3 sec
-          void triceCheckSet( void );
-          triceCheckSet();
+      if( ms >= ms_1 + 300 ){ // every 300 ms
           TRICE32_1( Id(29200), "time:ms = %d\n", ms );
-          LL_GPIO_TogglePin(UserLED_PA4_GPIO_Port, UserLED_PA4_Pin);
           ms_1 = ms;
       }
       //
@@ -143,31 +140,38 @@ int main(void)
   */
 void SystemClock_Config(void)
 {
-  LL_FLASH_SetLatency(LL_FLASH_LATENCY_0);
+  LL_FLASH_SetLatency(LL_FLASH_LATENCY_1);
 
-  if(LL_FLASH_GetLatency() != LL_FLASH_LATENCY_0)
+  if(LL_FLASH_GetLatency() != LL_FLASH_LATENCY_1)
   {
   Error_Handler();  
   }
-  LL_RCC_HSI_Enable();
+  LL_RCC_HSE_Enable();
 
-   /* Wait till HSI is ready */
-  while(LL_RCC_HSI_IsReady() != 1)
+   /* Wait till HSE is ready */
+  while(LL_RCC_HSE_IsReady() != 1)
   {
     
   }
-  LL_RCC_HSI_SetCalibTrimming(16);
+  LL_RCC_PLL_ConfigDomain_SYS(LL_RCC_PLLSOURCE_HSE_DIV_1, LL_RCC_PLL_MUL_6);
+  LL_RCC_PLL_Enable();
+
+   /* Wait till PLL is ready */
+  while(LL_RCC_PLL_IsReady() != 1)
+  {
+    
+  }
   LL_RCC_SetAHBPrescaler(LL_RCC_SYSCLK_DIV_1);
   LL_RCC_SetAPB1Prescaler(LL_RCC_APB1_DIV_1);
-  LL_RCC_SetSysClkSource(LL_RCC_SYS_CLKSOURCE_HSI);
+  LL_RCC_SetSysClkSource(LL_RCC_SYS_CLKSOURCE_PLL);
 
    /* Wait till System clock is ready */
-  while(LL_RCC_GetSysClkSource() != LL_RCC_SYS_CLKSOURCE_STATUS_HSI)
+  while(LL_RCC_GetSysClkSource() != LL_RCC_SYS_CLKSOURCE_STATUS_PLL)
   {
   
   }
-  LL_Init1msTick(8000000);
-  LL_SetSystemCoreClock(8000000);
+  LL_Init1msTick(48000000);
+  LL_SetSystemCoreClock(48000000);
   LL_RCC_SetUSARTClockSource(LL_RCC_USART1_CLKSOURCE_PCLK1);
 }
 

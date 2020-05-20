@@ -1608,5 +1608,19 @@
 		"fmtStrg": "--------------------------------------------------\\r\\n\\n",
 		"created": 1589210937,
 		"removed": 0
+	},
+	{
+		"id": 3173,
+		"fmtType": "TRICE0",
+		"fmtStrg": "att:demoBoard_STM32F030F4F4P6\\n",
+		"created": 1589293167,
+		"removed": 0
+	},
+	{
+		"id": 40651,
+		"fmtType": "TRICE0",
+		"fmtStrg": "att:STM32F0308-DISCO-SeggerRTTunbuffered_MDK-ARM\\n",
+		"created": 1589301190,
+		"removed": 0
 	}
 ]

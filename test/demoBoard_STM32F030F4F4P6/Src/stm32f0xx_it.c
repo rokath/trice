@@ -129,6 +129,7 @@ void SysTick_Handler(void)
     ms++;
     if( ms >= ms_1 + 100 ){
         TRICE32_1( Id(18577), "ISR:alive time %d milliseconds\n", ms );
+        LL_GPIO_TogglePin(UserLED_PA4_GPIO_Port, UserLED_PA4_Pin);
         ms_1 = ms;
     }
   /* USER CODE END SysTick_IRQn 0 */

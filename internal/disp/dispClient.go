@@ -27,10 +27,10 @@ func StartServer(exe string) {
 	if runtime.GOOS == "windows" {
 		shell = "cmd"
 		shellCmd := "/c start " + exe
-		clip = append(clip, shellCmd, " displayServer -ipa "+IPAddr+" -ipp "+IPPort+" -lf "+cage.Name)
+		clip = append(clip, shellCmd, " ds -ipa "+IPAddr+" -ipp "+IPPort+" -lf "+cage.Name)
 	} else if runtime.GOOS == "linux" {
 		shell = "gnome-terminal" // this only works for gnome based linux desktop env
-		clip = append(clip, "--", "/bin/bash", "-c", exe+" displayServer -ipa "+IPAddr+" -ipp "+IPPort+" -lf off")
+		clip = append(clip, "--", "/bin/bash", "-c", exe+" ds -ipa "+IPAddr+" -ipp "+IPPort+" -lf off")
 	} else {
 		log.Fatal("trice is running on unknown operating system")
 	}
@@ -64,7 +64,7 @@ func RemoteOut(s []string) error {
 }
 
 // Connect is called by the client and tries to dial.
-// On success PtrRpc is valid afterwards and zhe output is re-directed
+// On success PtrRpc is valid afterwards and the output is re-directed
 func Connect() error {
 	var err error
 	a := fmt.Sprintf("%s:%s", IPAddr, IPPort)
