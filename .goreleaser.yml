@@ -105,8 +105,9 @@ archives:
     files:
       - README.md
       - CHANGELOG.md
-      - doc/**/*
+      - docs/**/*
       - src.C/**/*
+      - test/**/*
 
 checksum:
   # You can change the name of the checksums file.

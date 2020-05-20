@@ -67,7 +67,7 @@ cmd/           | the `trice` sources                                     |
 pkg/           | the internal `trice`packages                            |
 src.C/         | C sources for your embedded project                     | 
 examples/      | example target projects                                 |
-doc/           | documentation                                           |
+docs/          | documentation                                           |
 
 ### Check the `trice` binary
 - Copy command trice into a path directory.
