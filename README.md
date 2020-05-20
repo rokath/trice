@@ -39,6 +39,9 @@ embedded device C printf-like trace code and real-time PC logging (trace ID visu
 ![GitHub search hit counter](https://img.shields.io/github/search/rokath/trice/serial)
 ![GitHub search hit counter](https://img.shields.io/github/search/rokath/trice/C)
 
+
+[LINK](./docs/)
+
 ## About
 - C trace code (`TRICE` macros)  and real-time PC logging with `trice` (tool written in **Go**).
 - Communication without string transfer, just with IDs. Prerequisite: byte transmission to PC, low bandwidth is ok:
