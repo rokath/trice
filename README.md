@@ -41,6 +41,8 @@ embedded device C printf-like trace code and real-time PC logging (trace ID visu
 
 
 [LINK](./docs/)
+[LINK2](https://rokath.github.io/trice/)
+[LINK3](https://rokath.github.io/trice/docs/)
 
 ## About
 - C trace code (`TRICE` macros)  and real-time PC logging with `trice` (tool written in **Go**).
