@@ -12,7 +12,6 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
-	"time"
 
 	"github.com/rokath/trice/internal/cmd"
 	"github.com/rokath/trice/internal/disp"
@@ -336,14 +335,19 @@ func receiving() {
 			return
 		}
 		r = s
+		receiver.DiscardByte = receiver.DiscardASCII
+	default:
+		fmt.Println(receiver.Device, "is unknown as device")
+		return
 	}
 	t := receiver.New(r)
+
 	t.Start()
-	go func() {
+	/*go func() {
 		for {
 			time.Sleep(time.Second)
 		}
-	}()
+	}()*/
 }
 
 func scScan() error {

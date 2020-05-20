@@ -49,7 +49,25 @@ var (
 
 	// remote trice address, used for routing in distributed systems
 	remAddr = byte(0x60)
+
+	// DiscardByte is the function to execute if a data stream byte is to be discarded
+	// type DicardFunc func(byte)
+	DiscardByte = DiscardWithMessage
 )
+
+// DiscardWithMessage discards a byte with a verbose message
+func DiscardWithMessage(b byte) {
+	emit.LineCollect(fmt.Sprintf("wrn:trice:discarding byte 0x%02x (dez %d, char '%c')\n", b, b, b))
+}
+
+// DiscardASCII discards a byte assuming to be printable and prints it.
+func DiscardASCII(c byte) {
+	emit.LineCollect(fmt.Sprintf("%c", c))
+}
+
+// DiscardSilent discards a byte silently
+func DiscardSilent(c byte) {
+}
 
 type tricer interface {
 	io.ReadCloser
@@ -81,7 +99,7 @@ func New(r io.ReadCloser) *TriceReceiver {
 func (p *TriceReceiver) Start() {
 	p.active = true
 	go p.receiveBytes()
-	go p.receiveTrices()
+	p.receiveTrices()
 }
 
 // stop stops receiving of serial data
@@ -181,8 +199,7 @@ func (p *TriceReceiver) readHeader() ([]byte, error) {
 		if true == evalHeader(b) {
 			break
 		}
-		//emit.LineCollect(fmt.Sprintf("wrn:trice:discarding byte 0x%02x (dez %d, chasr '%c')\n", b[0], b[0], b[0]))
-		emit.LineCollect(fmt.Sprintf("%c", b[0]))
+		DiscardByte(b[0])
 		b = encrypt(b)
 		x, err := p.readAtLeastBytes(1)
 		if nil != err {
@@ -243,28 +260,4 @@ func (p *TriceReceiver) receiveBytes() {
 	}
 }
 
-/*
 
-// triceChannel returns pointer to trice receive channel
-func (p *TriceReceiver) triceChannel() *chan []byte {
-	return &p.trices
-}
-
-// bufferChannel returns pointer to buffer receive channel
-func (p *TriceReceiver) bufferChannel() *chan []byte {
-	return &p.buffers
-}
-
-*/
-
-//// export readBytes
-//func (p *TriceReceiver) readBytes(count int) (int, []byte) {
-//	b := make([]byte, count) // the buffer size limits the read count
-//	n, err := p.Read(b)
-//
-//	if err != nil {
-//		log.Fatal(err)
-//	}
-//
-//	return n, b
-//}

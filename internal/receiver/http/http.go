@@ -4,6 +4,8 @@
 
 package http
 
+import "time"
+
 // HTTP defines ...
 type HTTP struct {
 	IPaddress []int
@@ -22,10 +24,17 @@ func New() *HTTP {
 // Read() is part of the exported interface io.ReadCloser. It reads a slice of bytes.
 func (p *HTTP) Read(b []byte) (int, error) {
 	var i int
+	time.Sleep(100 * time.Millisecond)
 	for i = range b {
-		b[i] = 0
+		b[i] = 'A'
 	}
-	return i, nil
+	if i >= 7 {
+		b[0] = 235                                            // valid start byte
+		b[1] = 96                                             // valid addr
+		b[2] = 96                                             // valid addr
+		b[3] = b[0] ^ b[1] ^ b[2] ^ b[4] ^ b[5] ^ b[6] ^ b[7] // compute crc
+	}
+	return i + 1, nil
 }
 
 // Close ends the connection...

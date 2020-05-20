@@ -48,24 +48,24 @@ func Example_wrongSubcommand() {
 	// try: 'trice help|h'
 }
 
-func Example_handleArgsLogCOM0() {
-	HandleArgs([]string{"trice", "log", "-list", "none", "-port", "COM0", "-lf", "none"})
-	// Output:
-	// No logfile writing...
-	// id list file none with 0 items on device COM
-	// Error: Could not open serial port: Serial port not found
-	// Could not set up serial port COM0
-	// try -port COMscan
-	// No logfile writing...done
-}
-
-func cmdLineNotOkExampleHandleArgsLogListNotFound() {
-	HandleArgs([]string{"trice", "log", "-list", "xxx.json", "-port", "COMscan", "-lf", "off"})
-	// Output:
-	// No logfile writing...
-	// ID list c:\GitRepos\trice\cmd\trice\xxx.json not found, exit
-	// No logfile writing...done
-}
+//func Example_handleArgsLogCOM0() {
+//	HandleArgs([]string{"trice", "log", "-list", "none", "-port", "COM0", "-lf", "none"})
+//	// Output:
+//	// No logfile writing...
+//	// id list file none with 0 items on device COM
+//	// Error: Could not open serial port: Serial port not found
+//	// Could not set up serial port COM0
+//	// try -port COMscan
+//	// No logfile writing...done
+//}
+//
+//func Example_HandleArgsLogListNotFound() { // cmdLineNotOk
+//	HandleArgs([]string{"trice", "log", "-list", "xxx.json", "-port", "COMscan", "-lf", "off"})
+//	// Output:
+//	// No logfile writing...
+//	// ID list c:\repos\trice\cmd\trice\xxx.json not found, exit
+//	// No logfile writing...done
+//}
 
 // TestScDisplayServer checks if "-ds" switch works (start command)
 func TestScDisplayServer(t *testing.T) {
