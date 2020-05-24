@@ -102,7 +102,12 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  TRICE0( Id(42166), "att:triceDemo_NUCLEO-F030RB_LL_SeggerRTT_MDK-ARM\n" );
+    TRICE16_1( Id( 2625), "TIM:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
+    TRICE0( Id(42166), "att:triceDemo_NUCLEO-F030RB_LL_SeggerRTT_MDK-ARM\n" );
+    TRICE16_1( Id( 2625), "TIM:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
+    TRICE16_1( Id( 2625), "TIM:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
+    TRICE16_1( Id( 2625), "TIM:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
+    TRICE16_1( Id( 2625), "TIM:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
     SEGGER_RTT_GetAvailWriteSpace(0);
     char* s = "Hi5!\n";
     SEGGER_RTT_Write(0, s, strlen(s));

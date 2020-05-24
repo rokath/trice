@@ -161,7 +161,7 @@
           <SizeOfObject>0</SizeOfObject>
           <BreakByAccess>0</BreakByAccess>
           <BreakIfRCount>1</BreakIfRCount>
-          <Filename>../Src/main.c</Filename>
+          <Filename>&lt;6&gt;../Src/main.c</Filename>
           <ExecCommand></ExecCommand>
           <Expression>\\triceDemo_NUCLEO_F030RB_LL_SeggerRTT_MDK_ARM\../Src/main.c\108</Expression>
         </Bp>
@@ -177,7 +177,7 @@
           <SizeOfObject>0</SizeOfObject>
           <BreakByAccess>0</BreakByAccess>
           <BreakIfRCount>1</BreakIfRCount>
-          <Filename>../Src/main.c</Filename>
+          <Filename>&lt;6&gt;../Src/main.c</Filename>
           <ExecCommand></ExecCommand>
           <Expression>\\triceDemo_NUCLEO_F030RB_LL_SeggerRTT_MDK_ARM\../Src/main.c\156</Expression>
         </Bp>
@@ -193,7 +193,7 @@
           <SizeOfObject>0</SizeOfObject>
           <BreakByAccess>0</BreakByAccess>
           <BreakIfRCount>0</BreakIfRCount>
-          <Filename>../Src/main.c</Filename>
+          <Filename>&lt;6&gt;../Src/main.c</Filename>
           <ExecCommand></ExecCommand>
           <Expression></Expression>
         </Bp>
