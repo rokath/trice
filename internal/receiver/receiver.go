@@ -69,6 +69,17 @@ func DiscardASCII(c byte) {
 func DiscardSilent(c byte) {
 }
 
+// ReadNextByte discards first byte in b and appends next read byte to b
+func ReadNextByte(r io.Reader, b []byte) error {
+	DiscardByte(b[0])
+	c := make([]byte, 1)
+	n, err := io.ReadFull(r, c)
+	if 1 == n {
+		b = append(b[1:], c...)
+	}
+	return err
+}
+
 type tricer interface {
 	io.ReadCloser
 }
@@ -259,5 +270,3 @@ func (p *TriceReceiver) receiveBytes() {
 		}
 	}
 }
-
-
