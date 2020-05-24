@@ -4,7 +4,7 @@
 - SEGGER_RTT_V672b referenced source code by *SeggerRTT* projects
 
 ### Compiler
-- All in the example used compilers are free of charge for firmware images up to 32 KB size. An ARMKeil-MDK license is available for STM M0/M0+ cores free of charge also for bigger firmware images (256KB) but demands generally a paid license for non M0 cores.
+- All in the example used compilers are free of charge for firmware images up to 32 KB size, if not otherwise stated. An ARMKeil-MDK license is available for STM M0/M0+ cores free of charge also for bigger firmware images (256KB) but demands generally a paid license for non M0 cores.
 - IAR works also for M4 for example but free only up to 32 KB images.
 
 ### trice configuration
@@ -13,6 +13,9 @@
 - Own projects should use a copy of `triceConfig.h` and modify it accordingly.
 
 ### Important Note for STM example projects
+- The ST evaluation boards usually com with an on-board ST-Link probe (firmware).
+- The example projects are configured for on-board J-Link firmware. 
+  - One can either re-configure the examples for ST-Link usage or reflash the own board with J-Link on-board debug firmware. The way back is always open. If the Segger flash tool does not recognize the ST-Link firmware use the ST-Link tool to reflash with the 2nd option.
 - The ST related DEMO projects are using the ST Microelectronics driver files version `STM32Cube_FW_F0_V1.11.0`.
 - The driver files are as links inside the ST example projects.
 - It is recommended to download the latet version of [STcubeMX](https://www.st.com/en/development-tools/stm32cubemx.html) and open the *.ioc files with it and generate again with the newest version.
@@ -27,9 +30,12 @@
 ### Automatic update of trice ID list
 - Before Build - User command: `trice u -src .. -src  ../../../srcTrice.C -list ../../til.json` should be counfigured with correct path locations
 
-## Specific Infos
+## Specific Infos (alphabetical order)
 
-### demoBoard-STM32F030F4P6
+### Arduino (WIP)
+- install arduino-cli
+
+### demoBoard-STM32F030F4P6 (ok)
 - See [STM32F030F4P6-DEMO-BOARD](https://stm32-base.org/boards/STM32F030F4P6-STM32F030-DEMO-BOARD-V1.1.html) (same as No logo JF-Xuan STM32F030F4P6 Cortex M0 ARM 32 Bit 48MHz Core System Development Board) for hardware information
   - The board is very sensible against electro-static influence - be careful!
 - The next 2 images show part of a NUCLEO-Board used only as ST-Link
@@ -40,21 +46,29 @@
   - ORANGE is SWDIO
   - BROWN is UART-TX out to UART-RX/RS232/USB/virtual UART (Ground cannection is over USB)
     - The small blue covered piece is s normal USB/Serial converter (FTDI)
-- photo: [demoBoard-STM32F030F4P6a.PNG](./README.media/demoBoard-STM32F030F4P6a.jpeg)
-- photo: [demoBoard-STM32F030F4P6b.PNG](./README.media/demoBoard-STM32F030F4P6b.jpeg)
-- output: [demoBoard-STM32F030F4P6.PNG](./README.media/demoBoard-STM32F030F4P6.PNG)
-- photo: [demoBoard-STM32F030F4P6_USB.jpg](./README.media/demoBoard-STM32F030F4P6_USB.jpg)
-- Using the ST-Link izt is possible to debug step the code
+- photo: ![demoBoard-STM32F030F4P6a.PNG](./README.media/demoBoard-STM32F030F4P6a.jpeg)
+- photo: ![demoBoard-STM32F030F4P6b.PNG](./README.media/demoBoard-STM32F030F4P6b.jpeg)
+- output: ![demoBoard-STM32F030F4P6.PNG](./README.media/demoBoard-STM32F030F4P6.PNG)
+- photo: ![demoBoard-STM32F030F4P6_USB.jpg](./README.media/demoBoard-STM32F030F4P6_USB.jpg)
+- Using the ST-Link it is possible to debug step the code
 - An other option would be to download the HEX-File using the internal STM32 ROM-Bootloader over the USB/Serial converter. Then no ST-Link is needed but you can only run the code and not debug.
 - Finally: The USB connector on the demoBoard-STM32F030F4P6 ist only used for power supply if no other connections.
+
+### generatedDemo_NUCLEO-F030R8_LL_MDK-ARM (ok)
+- This is *without* TRICE instrumentation and ment for easy comparing to see quickly thw intrumentation needs with
+  - triceDemo_NUCLEO-F030R8_LL_MDK-ARM
+  - triceDemo_NUCLEO-F030RB_LL_IAR_EWARM
+  - triceDemo_NUCLEO-F030RB_LL_SeggerRTT_IAR_EWARM
+  - triceDemo_NUCLEO-F030RB_LL_STM32CubeIDE
+  - triceDemo_NUCLEO-F030RB_LL_SeggerRTT_MDK-ARM
 
 ### STM32F0300-DISCO_SeggerRTTunbuffered_MDK-ARM
 - Inside the SysTickISR each millisecond a TRICE message is produced and every 20 milliseconds the full test bunch runs.
 - The ISR:alive @20ms message is visible at about 2 3rd of the screen
 - SeggerRTT gets the messages every 10ms. Therefore with is traffic the internal buffer is needed to be 7KB. Normally you get away with much less RAM needs.
-- Output: [STM32F0300-DISCO_SeggerRTTunbuffered_MDK-ARM](./README.media/STM32F0300-DISCO_SeggerRTTunbuffered_MDK-ARM.PNG)
+- Output: ![STM32F0300-DISCO_SeggerRTTunbuffered_MDK-ARM](./README.media/STM32F0300-DISCO_SeggerRTTunbuffered_MDK-ARM.PNG)
 
-### PICkit-44-Pin-DEMO-Board_PIC18F45K20
+### PICkit-44-Pin-DEMO-Board_PIC18F45K20 (WIP)
 - Download & install [MPLAB-X IDE](https://www.microchip.com/mplab/mplab-x-ide)
   - install Plugin MPLAB Code-generator [https://www.microchip.com/mplab/mplab-code-configurator](https://www.microchip.com/mplab/mplab-code-configurator)
 - [PIC_C-Compilervergleich](https://www.mikrocontroller.net/articles/PIC_C-Compilervergleich)
@@ -67,15 +81,64 @@
 - photo: ![PICkit4Anschluss](./README.media/PICkit4Anschluss.jpeg)
 - [PIC18F45K20 overview](https://www.microchip.com/wwwproducts/en/PIC18F45K20)
 
-
-## Work in progress
-
-### Arduino
-- install arduino-cli
-
-
-### STM32F4-Discovery 
+### STM32F4-Discovery (WIP)
 - Get the firmware from [STM32F4-Discovery_FW_V1.1.0](https://www.st.com/en/embedded-software/stsw-stm32068.html)
+
+### STM32F0300-DISCO_SeggerRTTunbuffered_MDK-ARM (?)
+
+### TASKING (WIP)
+- File -> New -> TASKING Arm Project -> Hello Worls C Project
+- [ ] Uncheck "Use defaault location"
+
+![TASKING_NewProject.PNG](./README.media/TASKING_NewProject.PNG)
+- Select Hardware & 
+- [x] check "Add startup file(s) to the project"
+- Right-Click on Project -> New -> Tasking Software Platform Document -> Generate Code
+- Add Software Services and Device Stacks
+- Needs ST-Link "STM32Debug+VCP" and **NOT** "STM32Debug+Mass storage+VCP" (change with ST-Link utility)
+- Needs to ignore this:
+![TASKING_NoST-LinkDrivers.PNG](./README.media/TASKING_NoST-LinkDrivers.PNG)
+
+### triceDemo_NUCLEO-F030R8_HAL_MDK-ARM
+- ~19 clocks
+
+![triceDemo_NUCLEO-F030RB_HAL_MDK-ARM.PNG](./README.media/triceDemo_NUCLEO-F030RB_HAL_MDK-ARM.PNG)
+
+### triceDemo_NUCLEO-F030R8_LL_MDK-ARM (ok)
+- ~27 clocks
+
+![triceDemo_NUCLEO-F030RB_LL_MDK-ARM.PNG](./README.media/triceDemo_NUCLEO-F030RB_LL_MDK-ARM.PNG)
+
+### triceDemo_NUCLEO-F030RB_LL_IAR_EWARM (ok)
+
+### triceDemo_NUCLEO-F030RB_LL_SeggerRTT_IAR_EWARM (ok)
+
+### triceDemo_NUCLEO-F030RB_LL_SeggerRTT_MDK-ARM (ok)
+
+### triceDemo_NUCLEO-F030RB_LL_STM32CubeIDE (ok)
+
+### triceDemo_NUCLEO-F070RB_HAL_IAR_EWARM (ok)
+
+### triceDemo_NUCLEO-F070RB_HAL_MDK-ARM (ok)
+
+### triceDemo_NUCLEO-F070RB_HAL_STM32CubeIDE (ok)
+
+### triceDemo_NUCLEO-F070RB_LL_IAR_EWARM (ok)
+
+### triceDemo_NUCLEO-F070RB_LL_MDK-ARM (ok)
+
+### triceDemo_NUCLEO-F070RB_LL_SeggerRTT_MDK-ARM (ok)
+
+### triceDemo_NUCLEO-F070RB_LL_SeggerRTTunbuffered_MDK-ARM (ok)
+
+### triceDemo_NUCLEO-F070RB_LL_STM32CubeIDE (ok)
+
+### triceDemoPIC18F45K20 (WIP)
+
+
+
+
+
 
 ### LPC800
 - [LPC800frontside](./README.media/LPC800frontside.jpg)
@@ -93,4 +156,3 @@
 ### mbedIDE
 ### tryout
 ### mbed IDE
-
