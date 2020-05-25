@@ -14,6 +14,9 @@
   - Build and flash `triceDemo_NUCLEO-F030RB_LL_SeggerRTT_MDK-ARM`
   - Download [J-Link Software and Documentation Pack](https://www.segger.com/downloads/jlink/#J-LinkSoftwareAndDocumentationPack) and install
   - Start `"C:\Program Files (x86)\SEGGER\JLink\JLinkRTTViewer.exe"` and connect to the J-Link. You only need this as a running server to connect to.
+    - Unfortunately the JLinkRTTViewer "steals" from time to time some trice data packages and display them as data garbage.
+    - It is relatively seldom. For now I have no solution despite the *Segger J-Link SDK*.
+    - May be **libusb** can help.
   - Run `trice log -list /c/GitRepos/trice/examples/til.json -device RTT`. It should now connect to JLinkLogViewer.
   - Also `trice receiver -list /c/GitRepos/trice/examples/til.json -device RTT` is possible when trice display server is active (`trice ds`).
   - Now the trice output is visible.
