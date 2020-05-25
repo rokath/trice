@@ -166,7 +166,7 @@
           <SizeOfObject>0</SizeOfObject>
           <BreakByAccess>0</BreakByAccess>
           <BreakIfRCount>1</BreakIfRCount>
-          <Filename>&lt;2&gt;..\..\..\srcTrice.C\triceCheck.c</Filename>
+          <Filename>&lt;8&gt;..\..\..\srcTrice.C\triceCheck.c</Filename>
           <ExecCommand></ExecCommand>
           <Expression>\\triceDemo_NUCLEO_F030R8_HAL_MDK_ARM\../../../srcTrice.C/triceCheck.c\63</Expression>
         </Bp>

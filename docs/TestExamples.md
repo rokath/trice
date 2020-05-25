@@ -35,7 +35,8 @@
 ### Arduino (WIP)
 - install arduino-cli
 
-### demoBoard-STM32F030F4P6 (ok)
+### demoBoard-STM32F030F4P6 
+- ~100 clocks (without time optimization)
 - See [STM32F030F4P6-DEMO-BOARD](https://stm32-base.org/boards/STM32F030F4P6-STM32F030-DEMO-BOARD-V1.1.html) (same as No logo JF-Xuan STM32F030F4P6 Cortex M0 ARM 32 Bit 48MHz Core System Development Board) for hardware information
   - The board is very sensible against electro-static influence - be careful!
 - The next 2 images show part of a NUCLEO-Board used only as ST-Link
@@ -62,11 +63,6 @@
   - triceDemo_NUCLEO-F030RB_LL_STM32CubeIDE
   - triceDemo_NUCLEO-F030RB_LL_SeggerRTT_MDK-ARM
 
-### STM32F0300-DISCO_SeggerRTTunbuffered_MDK-ARM
-- Inside the SysTickISR each millisecond a TRICE message is produced and every 20 milliseconds the full test bunch runs.
-- The ISR:alive @20ms message is visible at about 2 3rd of the screen
-- SeggerRTT gets the messages every 10ms. Therefore with is traffic the internal buffer is needed to be 7KB. Normally you get away with much less RAM needs.
-- Output: ![STM32F0300-DISCO_SeggerRTTunbuffered_MDK-ARM](./README.media/STM32F0300-DISCO_SeggerRTTunbuffered_MDK-ARM.PNG)
 
 ### PICkit-44-Pin-DEMO-Board_PIC18F45K20 (WIP)
 - Download & install [MPLAB-X IDE](https://www.microchip.com/mplab/mplab-x-ide)
@@ -81,10 +77,22 @@
 - photo: ![PICkit4Anschluss](./README.media/PICkit4Anschluss.jpeg)
 - [PIC18F45K20 overview](https://www.microchip.com/wwwproducts/en/PIC18F45K20)
 
+
+
 ### STM32F4-Discovery (WIP)
 - Get the firmware from [STM32F4-Discovery_FW_V1.1.0](https://www.st.com/en/embedded-software/stsw-stm32068.html)
+- ARM-MDK does not translate this in free verion
 
-### STM32F0300-DISCO_SeggerRTTunbuffered_MDK-ARM (?)
+
+### STM32F0300-DISCO_SeggerRTT_MDK-ARM 
+- ~250 ticks
+- Inside the SysTickISR each millisecond a TRICE message is produced and every 20 milliseconds the full test bunch runs.
+- The ISR:alive @20ms message is visible at about 2 3rd of the screen
+- SeggerRTT gets the messages every 10ms. Therefore with is traffic the internal buffer is needed to be 7KB. Normally you get away with much less RAM needs.
+- Output: ![STM32F0300-DISCO_SeggerRTTD_MDK-ARM](./README.media/STM32F0300-DISCO_SeggerRTTD_MDK-ARM.PNG)
+
+### STM32F0300-DISCO_SeggerRTTD_MDK-ARM (needs check)
+
 
 ### TASKING (WIP)
 - File -> New -> TASKING Arm Project -> Hello Worls C Project
@@ -104,7 +112,7 @@
 
 ![triceDemo_NUCLEO-F030RB_HAL_MDK-ARM.PNG](./README.media/triceDemo_NUCLEO-F030RB_HAL_MDK-ARM.PNG)
 
-### triceDemo_NUCLEO-F030R8_LL_MDK-ARM (ok)
+### triceDemo_NUCLEO-F030R8_LL_MDK-ARM
 - ~27 clocks
 
 ![triceDemo_NUCLEO-F030RB_LL_MDK-ARM.PNG](./README.media/triceDemo_NUCLEO-F030RB_LL_MDK-ARM.PNG)
@@ -129,7 +137,12 @@
 
 ### triceDemo_NUCLEO-F070RB_LL_SeggerRTT_MDK-ARM (ok)
 
-### triceDemo_NUCLEO-F070RB_LL_SeggerRTTunbuffered_MDK-ARM (ok)
+### triceDemo_NUCLEO-F070RB_LL_SeggerRTTD_MDK-ARM 
+- ~ 270 clocks: This is significant slower than with RTT but still so fast, that it is ok for many cases.
+- The main advantage here is, that the trices go directly out and need no triceServe in target code.
+- The SEGGER-write function is optimizable for speed in special cases.
+
+![triceDemo_NUCLEO-F030RB_LL_SeggerRTTD_MDK-ARM.PNG](./README.media/triceDemo_NUCLEO-F030RB_LL_SeggerRTTD_MDK-ARM.PNG)
 
 ### triceDemo_NUCLEO-F070RB_LL_STM32CubeIDE (ok)
 

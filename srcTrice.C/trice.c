@@ -79,6 +79,14 @@ void tricePush( uint32_t v ){
 
 #endif
 
+#if TRICE_PUSH == triceDirectWrite
+
+void triceDirectWrite( uint32_t v ){
+    triceWrite( &v, sizeof(v) );
+}
+
+#endif
+
 #ifdef TRICE_FIFO
 
 void triceToWriteBuffer( void ){

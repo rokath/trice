@@ -36,6 +36,13 @@ var (
 	css []string
 )
 
+// Clear removes data garbage from inner structs, accumulated during RTTD sync process
+func Clear() {
+	d = d[:0]
+	buffer = buffer[:0]
+	css = css[:0]
+}
+
 // Trice emits one trice. The byte slice 't' is a trice package.
 // The start byte is 0xeb.
 // The ID can be 0, in that case only the data payload is saved
@@ -53,10 +60,8 @@ func Trice(t, b []byte, l id.ListT) ([]byte, error) {
 	}
 	if 0 == len(l) { // "none" as ID list or list empty
 		fmt.Printf("% 20x acc:", t) //  show raw data
-		//fmt.Fprintf(Tee, "% 20x acc:", t) //  show raw data
-		fmt.Println(d) //  show acc data
-		//fmt.Fprintln(Tee, d)              //  show acc data
-		d = d[:0] // empty d for next trice
+		fmt.Println(d)              //  show acc data
+		d = d[:0]                   // empty d for next trice
 		return b, nil
 	}
 	x, err := id.Index(i, l)
@@ -263,5 +268,5 @@ func LineCollect(s string) {
 	a(s)
 	a(Postfix)
 	disp.Out(css)
-	css = nil // discard slice data
+	css = css[:0] // discard slice data
 }

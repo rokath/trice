@@ -8,7 +8,19 @@
   <WorkspaceName>WorkSpace</WorkspaceName>
 
   <project>
+    <PathAndName>.\demoBoard_STM32F030F4F4P6\MDK-ARM\demoBoard_STM32F030F4F4P6.uvprojx</PathAndName>
+  </project>
+
+  <project>
     <PathAndName>.\generatedDemo_NUCLEO-F030R8_LL_MDK-ARM\MDK-ARM\generatedDemo_NUCLEO-F030R8_LL_MDK-ARM.uvprojx</PathAndName>
+  </project>
+
+  <project>
+    <PathAndName>.\STM32F4-Discovery\MDK-ARM\STM32F4-Discovery.uvprojx</PathAndName>
+  </project>
+
+  <project>
+    <PathAndName>.\STM32F0300-DISCO_SeggerRTTD_MDK-ARM\MDK-ARM\STM32F0300-DISCO_SeggerRTTD_MDK-ARM.uvprojx</PathAndName>
   </project>
 
   <project>
@@ -21,8 +33,6 @@
 
   <project>
     <PathAndName>.\triceDemo_NUCLEO-F030RB_LL_SeggerRTT_MDK-ARM\MDK-ARM\triceDemo_NUCLEO-F030RB_LL_SeggerRTT_MDK-ARM.uvprojx</PathAndName>
-    <NodeIsActive>1</NodeIsActive>
-    <NodeIsExpanded>1</NodeIsExpanded>
   </project>
 
   <project>
@@ -38,7 +48,9 @@
   </project>
 
   <project>
-    <PathAndName>.\demoBoard_STM32F030F4F4P6\MDK-ARM\demoBoard_STM32F030F4F4P6.uvprojx</PathAndName>
+    <PathAndName>.\triceDemo_NUCLEO-F070RB_LL_SeggerRTTD_MDK-ARM\MDK-ARM\triceDemo_NUCLEO-F070RB_LL_SeggerRTTD_MDK-ARM.uvprojx</PathAndName>
+    <NodeIsActive>1</NodeIsActive>
+    <NodeIsExpanded>1</NodeIsExpanded>
   </project>
 
 </ProjectWorkspace>

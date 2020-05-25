@@ -311,7 +311,10 @@ func ScLog() error {
 //*/
 
 func receiving() {
-	trice.SetUp()
+	err := trice.SetUp()
+	if nil != err {
+		return
+	}
 	var r io.ReadCloser
 	switch receiver.Device {
 	case "HTTP":
@@ -441,7 +444,7 @@ func setPrefix(s string) {
 	case "off", "none":
 		emit.Prefix = ""
 	case "COMport:":
-		emit.Prefix = com.Port + "  " // receiver.Device + " "
+		emit.Prefix = receiver.Device + " " // com.Port + "  " //
 	default:
 		emit.Prefix = s
 	}

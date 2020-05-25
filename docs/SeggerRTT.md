@@ -19,7 +19,7 @@
   - Now the trice output is visible.
 - In the SeggerRTT example projects you see how to setup.
 
-## Segger RTT unbuffered
+## Segger RTTD
 - Avoid trice buffering inside target and write with TRICE macro directly into the RTT buffer
   - Option 1: Write the 8 bytes per trace directly (little time & some space overhead on target, but no changes on host side) - this is implemented as test example.
   

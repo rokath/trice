@@ -10,6 +10,7 @@ import (
 	"io"
 	"net"
 
+	"github.com/rokath/trice/internal/emit"
 	"github.com/rokath/trice/internal/receiver"
 )
 
@@ -27,7 +28,7 @@ func New() *RTT {
 	return r
 }
 
-var t = []byte{0xeb, 0x60, 0x60, 0} // trice slice
+var t []byte // trice slice
 
 // Read() is part of the exported interface io.ReadCloser. It reads a slice of bytes.
 //
@@ -42,30 +43,36 @@ func (p *RTT) Read(buf []byte) (int, error) {
 		return 0, nil
 	}
 
-	if 0 < len(t) { // some unfinished reads
+	if 0 < len(t) {
+		fmt.Print("some unfinished reads:")
+		fmt.Print("t:", t)
 		n = copy(buf, t)
 		t = t[n:]
+		fmt.Print("buf:", buf)
 		return n, nil
 	}
 
-	// next trice
 	r = p.conn
 	b := make([]byte, 4)
 	n, err = io.ReadFull(r, b)
 	if nil != err {
 		return 0, err
 	}
+
+	t = []byte{0xeb, 0x60, 0x60, 0}
 	t = append(t, b...)
+
 	t[3] = t[0] ^ t[1] ^ t[2] ^ t[4] ^ t[5] ^ t[6] ^ t[7] // crc
 	n = copy(buf, t)
+
 	t = t[n:]
 	return n, nil
 }
 
 // sync pattern to wait for
-// The id 28*257 = 7196 is reserved for sync packages and occures only with the 16 bit parameter 7196.
-// The target sends after reset such sync trice and should do so cyclically each second.
-var sp = []byte{28, 28, 28, 28}
+// The id 8*257 = 2056 is reserved for sync packages and occures only with the 16 bit parameter 2056.
+// The target sends after reset such sync trice and should do so cyclically (each second is a good value).
+var sp = []byte{22, 22, 22, 22}
 
 // syncMsg returns true if b matches the sync pattern
 func syncMsg(b []byte) bool {
@@ -85,16 +92,19 @@ func (p *RTT) synchronize() error {
 	var r io.Reader
 	r = p.conn
 	b := make([]byte, 4)
+	fmt.Println("synchronize...")
 	_, err := io.ReadFull(r, b)
 	if nil != err {
 		return err
 	}
 	for false == syncMsg(b) {
-		err = receiver.ReadNextByte(r, b)
+		b, err = receiver.ReadNextByte(r, b)
 		if nil != err {
 			return err
 		}
 	}
+	emit.Clear()
+	fmt.Println("synchronize...done")
 	return nil
 }
 

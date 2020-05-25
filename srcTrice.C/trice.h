@@ -27,6 +27,12 @@ extern "C" {
 #define TRICE_SERVE_PERIOD 1
 #endif
 
+//! trice sync message for RTTdirect environments. The value 2056 ('\b\b\b\b') is a reserved pattern used as ID and value.
+//! It cannot occure in the trice stream. You must not change that. Otherwise the RTTD syncing will not work.
+//! If for some reason the Id changes during 'trice u', probably when the string changed, you need to remove 
+//! the old pattern from til.json and put Id(771) manually here
+#define TRICE_RTTD_SYNC do{ TRICE16_1( Id(5654), "%d\b\b\b\b", 5654 ); }while(0) 
+
 #ifdef TRICE_FILENAME
 #define TRICE_LOC do{ TRICE_FILENAME; TRICE16_1( Id(43789), "msg: line %d ", __LINE__ ); }while(0) //!< trice filename and line
 #else
@@ -156,6 +162,7 @@ typedef PACKED struct {
 #endif
 
 void tricePush( uint32_t v );
+void triceDirectWrite( uint32_t v );
 
 #ifdef TRICE_FIFO
 #define TRICE_FIFO_MASK ((TRICE_FIFO_SIZE>>2)-1) //!< max possible count of items in fifo
