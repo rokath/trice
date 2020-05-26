@@ -48,8 +48,8 @@ static unsigned triceFifoDepth( void ){
 //! partial prefilled trice message transmit buffer 
 static ALIGN4 triceMsg_t triceMsg ALIGN4_END = {
     { TRICE_START_BYTE,  TRICE_LOCAL_ADDR,  TRICE_DISPL_ADDR, 0 }, // crc8
-    { 0, 0 } // 16bit ID, 16bit data
-};
+    {{ 0, 0 }} // 16bit ID, 16bit data
+}; // https://stackoverflow.com/questions/13746033/how-to-repair-warning-missing-braces-around-initializer
 
 //! pull next trice from fifo and prepare triceMsg buffer
 static void prepareNextTriceTransmission(void){

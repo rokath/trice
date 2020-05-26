@@ -936,5 +936,12 @@
 		"fmtStrg": "att:STM32F0308-DISCO-SeggerRTTunbuffered_MDK-ARM\\n",
 		"created": 1590419979,
 		"removed": 0
+	},
+	{
+		"id": 40356,
+		"fmtType": "TRICE0",
+		"fmtStrg": "att:TASKING_GenericSTMF030R8_RTTD\\n",
+		"created": 1590499989,
+		"removed": 0
 	}
 ]

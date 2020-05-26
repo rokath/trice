@@ -24,3 +24,5 @@ JLinkLog.txt
 */Release/*
 */MDK-ARM/Output/*
 *.uvmpw.uvgui.ms
+TASKING/*
+

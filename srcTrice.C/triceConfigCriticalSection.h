@@ -1,4 +1,4 @@
-/*! \file triceConfigStm32_HAL.h
+/*! \file triceConfigCriticalSection.h
 \author Thomas.Hoehenleitner [at] seerose.net
 *******************************************************************************/
 
@@ -9,9 +9,10 @@ extern "C" {
 #endif
 
 #include <stdint.h>
-#include "main.h" // hardware specific stuff
+//#include "main.h" // hardware specific stuff
+//#include "core_cm0.h"
 
-#ifdef TRICE_INSIDE_INTERRUPTS
+#if 1 == TRICE_INSIDE_INTERRUPTS
 
 //! Save interrupt state and disable Interrupts
 //! \details Workaround for ARM Cortex M0 and M0+
@@ -29,12 +30,12 @@ extern "C" {
 //! you can leave this macro pair empty for more speed.
 #define TRICE_LEAVE_CRITICAL_SECTION } __set_PRIMASK(primaskstate); }
 
-#else // #ifdef TRICE_INSIDE_INTERRUPTS
+#else // #if 1 == TRICE_INSIDE_INTERRUPTS
 
 #define TRICE_ENTER_CRITICAL_SECTION {
 #define TRICE_LEAVE_CRITICAL_SECTION }
 
-#endif // #else // #ifdef TRICE_INSIDE_INTERRUPTS
+#endif // #else // #if 1 == TRICE_INSIDE_INTERRUPTS
 
 
 #ifdef __cplusplus

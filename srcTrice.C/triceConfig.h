@@ -92,7 +92,9 @@ extern "C" {
 #error specify TRICE_VARIANT in project settings or in a copy of this file
 #endif
 
-#define TRICE_INSIDE_INTERRUPTS
+#ifndef TRICE_INSIDE_INTERRUPTS
+#define TRICE_INSIDE_INTERRUPTS 0
+#endif
 
 #if TRICE_VARIANT == STM32_LL
 #include "main.h" // hardware specific stuff
@@ -115,9 +117,11 @@ extern UART_HandleTypeDef huart2;
 #endif
 
 #if TRICE_VARIANT == SEGGER_RTT
-#define SYSTICKVAL16 SysTick->VAL //!< STM32 specific, set to 0 as starting point with nonSTM MCE
+//#define SYSTICKVAL16 SysTick->VAL //!< STM32 specific, set to 0 as starting point with nonSTM MCE
+#define SYSTICKVAL16 ((uint16_t)(*(volatile uint32_t*)0xE000E018UL))
 #define LL_INTERFACE_NO_INTERRUPTS
 #endif
+
 
 #include "triceConfigTxInterrupt.h"
 #include "triceConfigCriticalSection.h"

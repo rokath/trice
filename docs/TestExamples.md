@@ -95,12 +95,42 @@
 
 
 ### TASKING (WIP)
-- File -> New -> TASKING Arm Project -> Hello Worls C Project
-- [ ] Uncheck "Use defaault location"
+#### TASKING_GenericSTMF030R8_RTTD
+![TASKING_GenericSTMF070RB_RTTD_NewProject.PNG](./README.media/TASKING_GenericSTMF070RB_RTTD_NewProject.PNG)
+![TASKING_GenericsSTMF030R8_RTTD_J-Link.PNG](./README.media/TASKING_GenericsSTMF030R8_RTTD_J-Link.PNG)
+- Build and check if Debug works:
+![TASKING_GenericsSTMF030R8_RTTD_Debug.PNG](./README.media/TASKING_GenericsSTMF030R8_RTTD_Debug.PNG)
+- Add New Source Folder SeggerRTT
+- Import -> General -> Filesystem
+  - Check "Create Top-Level Folder" and Advanced -> "Create Links in Workspace")
+![TASKING_GenericsSTMF030R8_RTT_Import.PNG](./README.media/TASKING_GenericsSTMF030R8_RTT_Import.PNG)
+- Add path ![TASKING_GenericsSTMF030R8_RTT_Path.PNG](./README.media/TASKING_GenericsSTMF030R8_RTT_Path.PNG)
+- Edit 
+- Start Debug & J-Link Viewer and run:
+![TASKING_GenericsSTMF030R8_RTTD_Debug2.PNG](./README.media/TASKING_GenericsSTMF030R8_RTTD_Debug2.PNG)
+![J-LinkViewerHelloWorld.PNG](./README.media/J-LinkViewerHelloWorld.PNG)
+- Add New Source Folder srcTrice.C
+- Import -> General -> Filesystem
+  - Check "Create Top-Level Folder" and Advanced -> "Create Links in Workspace")
+![TASKING_GenericsSTMF030R8_RTTD_Trice.PNG](./README.media/TASKING_GenericsSTMF030R8_RTTD_Trice.PNG)
+- specify in project settings:
+  - TRICE_VARIANT=SEGGER_RTT
+  - TRICE_PUSH=triceDirectWrite
+![TASKING_GenericsSTMF030R8_RTTD_ok_IDE.PNG](./README.media/TASKING_GenericsSTMF030R8_RTTD_ok_IDE.PNG)
+![TASKING_GenericsSTMF030R8_RTTD_ok_log.PNG](./README.media/TASKING_GenericsSTMF030R8_RTTD_ok_log.PNG)
 
-![TASKING_NewProject.PNG](./README.media/TASKING_NewProject.PNG)
-- Select Hardware & 
+
+
+
+#### TASKING_GenericSTMF070RB_RTTD
+
+- Start TASKING ARM Eclipse IDE with some workspace
+- File -> New -> TASKING Arm Project -> Hello Worls C Project
+- [ ] Uncheck "Use default location"
+![TASKING_GenericsSTMF030R8_RTTD_NewProject.PNG](./README.media/TASKING_GenericsSTMF030R8_RTTD_NewProject.PNG)
+- -> Next, select processor hardware & 
 - [x] check "Add startup file(s) to the project"
+- Select as target "Generic STMicroelectronics. This will allow you to 
 - Right-Click on Project -> New -> Tasking Software Platform Document -> Generate Code
 - Add Software Services and Device Stacks
 - Needs ST-Link "STM32Debug+VCP" and **NOT** "STM32Debug+Mass storage+VCP" (change with ST-Link utility)

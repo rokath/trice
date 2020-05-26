@@ -29,6 +29,7 @@
 
   <project>
     <PathAndName>.\triceDemo_NUCLEO-F030R8_LL_MDK-ARM\MDK-ARM\triceDemo_NUCLEO-F030R8_LL_MDK-ARM.uvprojx</PathAndName>
+    <NodeIsActive>1</NodeIsActive>
   </project>
 
   <project>
@@ -49,8 +50,6 @@
 
   <project>
     <PathAndName>.\triceDemo_NUCLEO-F070RB_LL_SeggerRTTD_MDK-ARM\MDK-ARM\triceDemo_NUCLEO-F070RB_LL_SeggerRTTD_MDK-ARM.uvprojx</PathAndName>
-    <NodeIsActive>1</NodeIsActive>
-    <NodeIsExpanded>1</NodeIsExpanded>
   </project>
 
 </ProjectWorkspace>

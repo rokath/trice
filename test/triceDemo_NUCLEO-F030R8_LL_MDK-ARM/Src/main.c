@@ -33,6 +33,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
+uint16_t t0,t1,t2;
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -103,10 +104,13 @@ int main(void)
   /* USER CODE BEGIN WHILE */
     TRICE16_1( Id( 2625), "TIM:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
     TRICE0( Id(62503), "att:triceDemo_NUCLEO-F030RB_LL_MDK-ARM\n" );
+    t0 = *(volatile uint32_t*)0xE000E018;
+    t1 = *(volatile uint32_t*)0xE000E018;
+    t2 = *(volatile uint32_t*)0xE000E018;
     TRICE16_1( Id( 2625), "TIM:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
-    TRICE16_1( Id( 2625), "TIM:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
-    TRICE16_1( Id( 2625), "TIM:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
-    TRICE16_1( Id( 2625), "TIM:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
+    TRICE16_1( Id( 2625), "TIM:timing      message, SysTick is %6d\n", t0 );
+    TRICE16_1( Id( 2625), "TIM:timing      message, SysTick is %6d\n", t1 );
+    TRICE16_1( Id( 2625), "TIM:timing      message, SysTick is %6d\n", t2 );
     while (1)
     {
       //////////////////////////////////////////////////
