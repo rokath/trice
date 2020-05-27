@@ -1,0 +1,26 @@
+;------------------------------------------------------------
+;
+; Copyright (c) 2013-2015 Altium Limited
+;
+; This software is the proprietary, copyrighted property of
+; Altium Ltd. All Right Reserved.
+;
+; SVN revision information:
+; $Rev: 14907 $:
+; $Date: 2015-01-19 13:30:51 +0100 (Mon, 19 Jan 2015) $:
+;
+;------------------------------------------------------------
+
+[Plugin]
+Name=stm32_cmsis
+Caption=STM32 CMSIS Core
+Description=CMSIS Core for stm32 devices
+Implement=stm32_cmsis
+Require0=stm32_cmsis_variant
+GenerateData=False
+
+[Available_If0]
+Kind=ENVIRONMENT
+Object=DEVICE
+Condition=REQ
+Value=STM32.

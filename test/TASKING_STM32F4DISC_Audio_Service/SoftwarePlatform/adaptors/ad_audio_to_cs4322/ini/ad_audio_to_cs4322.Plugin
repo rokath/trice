@@ -1,0 +1,24 @@
+;------------------------------------------------------------
+;
+; Copyright (c) 2013-2015 Altium Limited
+;
+; This software is the proprietary, copyrighted property of
+; Altium Ltd. All Right Reserved.
+;
+; SVN revision information:
+; $Rev: 14907 $:
+; $Date: 2015-01-19 13:30:51 +0100 (Mon, 19 Jan 2015) $:
+;
+;------------------------------------------------------------
+
+[Plugin]
+Name=ad_cs4322_to_audio
+Description=Adapts the CS4322 driver to AUDIO platform level.
+SourceDir=$(SWP_RELPATH)\src
+Implement=ad_codec
+InitHandler=cs4322_to_audio_init
+InitHandlerPriority=16
+
+[Instance]
+Require0=drv_cs4322
+

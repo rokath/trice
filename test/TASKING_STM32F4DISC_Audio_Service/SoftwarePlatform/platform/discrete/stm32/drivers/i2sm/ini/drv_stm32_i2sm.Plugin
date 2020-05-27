@@ -1,0 +1,166 @@
+;------------------------------------------------------------
+;
+; Copyright (c) 2013-2015 Altium Limited
+;
+; This software is the proprietary, copyrighted property of
+; Altium Ltd. All Right Reserved.
+;
+; SVN revision information:
+; $Rev: 15181 $:
+; $Date: 2015-06-18 08:33:44 +0200 (Thu, 18 Jun 2015) $:
+;
+;------------------------------------------------------------
+
+[Plugin]
+Name=drv_stm32_i2sm
+Implement=drv_i2sm
+Description=Device driver for I2S master on STM32 devices
+Caption=STM32 Master I2S Driver
+FrameworkCompileOption0=-I"$(SWP_ABSPATH)\internal"
+SourceFile0=$(SWP_RELPATH)\src\drv_stm32_i2sm_common.c
+SourceFile1=$(SWP_RELPATH)\src\drv_stm32f10x_i2sm.c
+SourceFile2=$(SWP_RELPATH)\src\drv_stm32f2xx_i2sm.c
+SourceFile3=$(SWP_RELPATH)\src\drv_stm32f30x_i2sm.c
+SourceFile4=$(SWP_RELPATH)\src\drv_stm32f37x_i2sm.c
+Bitmap=drv_i2s.bmp
+UserTypeHeaderFile=drv_stm32_i2sm_internal.h
+Require0=interrupts
+
+[PluginApplicationCode]
+OpenType=i2sm_t *
+OpenFunction=i2sm_open
+
+[Instance]
+Require0=per_stm32_i2s
+
+[Instance_Option0]
+Name=DMA_Priority
+GUIName = DMA Priority
+Description=Specifies the software priority for the DMA Channel.
+Kind=ENUM
+Enum0=Veryhigh
+EnumValue0=DMA_Priority_VeryHigh
+EnumGUI0=Very High
+Enum1=High
+EnumValue1=DMA_Priority_High
+EnumGUI1=High
+Enum2=Medium
+EnumValue2=DMA_Priority_Medium
+EnumGUI2=Medium
+Enum3=Low
+EnumValue3=DMA_Priority_Low
+EnumGUI3=Low
+DefaultValue=Medium
+
+[Instance_Option1]
+Name=I2S_Mode
+Caption=I2S mode
+Description=Specifies the I2S operating mode
+Kind=ENUM
+Type=UINT16
+Enum0=Transmit
+EnumValue0=I2S_Mode_MasterTx
+EnumDescription0=Transmit in master mode, play audio
+Enum1=Receive
+EnumValue1=I2S_Mode_MasterRx
+EnumDescription1=Receive in master mode, record audio
+DefaultValue=Transmit
+
+[Instance_Option2]
+Name=I2S_Standard
+Caption=I2S Standard
+Description=Specifies the standard used for the I2S communication
+Kind=ENUM
+Type=UINT16
+Enum0=Philips
+EnumGUI0=Philips
+EnumValue0=I2S_Standard_Phillips
+EnumDescription0=Philips standard, WS is generated 1 SCK before first data bit
+Enum1=MSB
+EnumGUI1=MSB justified
+EnumValue1=I2S_Standard_MSB
+EnumDescription1=Samples are left justified, WS is generated at the same time as the first data bit
+Enum2=LSB
+EnumGUI2=LSB justified
+EnumDescription2=Samples are right justified, WS is generated at the same time as the first data bit
+EnumValue2=I2S_Standard_LSB
+Enum3=PCMshort
+EnumGUI3=PCM short
+EnumValue3=I2S_Standard_PCMShort
+EnumDescription3=PCM standard short frame, channel information is embedded in data stream
+Enum4=PCMlong
+EnumGUI4=PCM long
+EnumValue4=I2S_Standard_PCMLong
+EnumDescription4=PCM standard long frame, channel information is embedded in data stream
+DefaultValue=Philips
+
+[Instance_Option3]
+Name=I2S_DataFormat
+Caption=Data format
+Description=Specifies the data format for the I2S communication
+Kind=ENUM
+Type=UINT16
+Enum0=16bit
+EnumGUI0=16 bit
+EnumValue0=I2S_DataFormat_16b
+EnumDescription0=16-bit data packed in 16-bit frame
+Enum1=16bitext
+EnumGUI1=16 bit extended
+EnumValue1=I2S_DataFormat_16bextended
+EnumDescription1=16-bit data packed in 32-bit frame
+Enum2=24bit
+EnumGUI2=24 bit
+EnumValue2=I2S_DataFormat_24b
+EnumDescription2=24-bit data packed in 32-bit frame
+Enum3=32bit
+EnumGUI3=32 bit
+EnumValue3=I2S_DataFormat_32b
+EnumDescription3=32-bit data packed in 32-bit frame
+DefaultValue=16bit
+
+[Instance_Option4]
+Name=I2S_AudioFreq
+Caption=Audio frequency
+Description=Specifies the frequency selected for the I2S communication
+Kind=ENUM
+Type=UINT32
+Enum0=96kHz
+EnumGUI0=96 kHz
+EnumValue0=I2S_AudioFreq_96k
+Enum1=48kHz
+EnumGUI1=48 kHz
+EnumValue1=I2S_AudioFreq_48k
+Enum2=44kHz
+EnumGUI2=44.1 kHz
+EnumValue2=I2S_AudioFreq_44k
+Enum3=32kHz
+EnumGUI3=32 kHz
+EnumValue3=I2S_AudioFreq_32k
+Enum4=22kHz
+EnumGUI4=22.05 kHz
+EnumValue4=I2S_AudioFreq_22k
+Enum5=16kHz
+EnumGUI5=16 kHz
+EnumValue5=I2S_AudioFreq_16k
+Enum6=11kHz
+EnumGUI6=11.025 kHz
+EnumValue6=I2S_AudioFreq_11k
+Enum7=8kHz
+EnumGUI7=8 kHz
+EnumValue7=I2S_AudioFreq_8k
+;Enum8=Default
+;EnumValue8=I2S_AudioFreq_Default
+DefaultValue=44kHz
+
+[Instance_Option5]
+Name=I2S_CPOL
+Caption=Clock polarity
+Description=Specifies the idle state of the I2S clock
+Kind=ENUM
+Type=UINT16
+Enum0=Low
+EnumValue0=I2S_CPOL_Low
+Enum1=High
+EnumValue1=I2S_CPOL_High
+DefaultValue=Low
+

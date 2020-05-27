@@ -95,6 +95,17 @@
 
 
 ### TASKING
+#### TASKING_cpp-Example
+- Import TASKING C/C++ -> TASKING ARM Example Projects -> cpp Project
+![TASKING_cpp-Example.PNG](./README.media/TASKING_cpp-Example.PNG)
+- Next steps like first steps in [TASKING_STM32F4DISC_Audio_Service](#TASKING_STM32F4DISC_Audio_Service)
+#### TASKING_STM32F4DISC_Audio_Service
+![TASKING_STM32F4DISC_Audio_Service_0.PNG](./README.media/TASKING_STM32F4DISC_Audio_Service_0.PNG)
+![TASKING_STM32F4DISC_Audio_Service_1.PNG](./README.media/TASKING_STM32F4DISC_Audio_Service_1.PNG)
+- Project is now inside .workspace folder
+- Delete Project inside the IDE but not the project itself
+- Move the Project out of .workspace and rename it to TASKING_STM32F4DISC_Audio_Service
+- Import existin project and **do not** copy it into workspace
 #### TASKING_GenericSTMF030R8_RTTD
 ![TASKING_GenericSTMF070RB_RTTD_NewProject.PNG](./README.media/TASKING_GenericSTMF070RB_RTTD_NewProject.PNG)
 ![TASKING_GenericsSTMF030R8_RTTD_J-Link.PNG](./README.media/TASKING_GenericsSTMF030R8_RTTD_J-Link.PNG)
