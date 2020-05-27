@@ -37,7 +37,7 @@
 			</storageModule>
 			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
 			<storageModule moduleId="com.tasking.toolInfo">
-				<toolInfo>TASKING program builder v3.1r1 Build 034</toolInfo>
+				<toolInfo>TASKING program builder v5.2r1 Build 101</toolInfo>
 			</storageModule>
 		</cconfiguration>
 		<cconfiguration id="com.tasking.config.arm.abs.release.176931105">

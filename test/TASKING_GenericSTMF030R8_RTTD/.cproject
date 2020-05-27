@@ -33,6 +33,7 @@
 								</option>
 								<option id="com.tasking.arm.cc.includePaths.299526106" name="Include paths" superClass="com.tasking.arm.cc.includePaths" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;C:\repos\trice\srcTrice.C&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;C:\Program Files (x86)\TASKING\carm v5.2r1\eclipse\plugins\com.tasking.arm.vendors.stm32_1.37.0.0\cmsis\Include&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;C:\repos\trice\third_party\SEGGER_RTT_V672b\RTT&quot;"/>
 								</option>
 								<inputType id="com.tasking.arm.cppInputType.1108973904" name="C++" superClass="com.tasking.arm.cppInputType"/>
@@ -59,7 +60,10 @@
 			</storageModule>
 			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
 			<storageModule moduleId="com.tasking.toolInfo">
+				<toolInfo>TASKING VX-toolset for ARM Cortex: control program v5.2r1 Build 159</toolInfo>
 				<toolInfo>TASKING program builder v5.2r1 Build 101</toolInfo>
+				<toolInfo>TASKING VX-toolset for ARM Cortex: assembler v5.2r1 Build 182</toolInfo>
+				<toolInfo>TASKING VX-toolset for ARM Cortex: C compiler v5.2r1 Build 843 SN 08075645</toolInfo>
 			</storageModule>
 		</cconfiguration>
 		<cconfiguration id="com.tasking.config.arm.abs.release.1013769977">
