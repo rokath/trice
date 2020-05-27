@@ -943,5 +943,19 @@
 		"fmtStrg": "att:TASKING_GenericSTMF030R8_RTTD\\n",
 		"created": 1590499989,
 		"removed": 0
+	},
+	{
+		"id": 62381,
+		"fmtType": "TRICE0",
+		"fmtStrg": "attTASKING_GenericSTMF070RB_RTTD\\n",
+		"created": 1590572691,
+		"removed": 0
+	},
+	{
+		"id": 43486,
+		"fmtType": "TRICE0",
+		"fmtStrg": "att:TASKING_GenericSTMF070RB_RTTD\\n",
+		"created": 1590573516,
+		"removed": 0
 	}
 ]

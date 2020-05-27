@@ -94,7 +94,7 @@
 ### STM32F0300-DISCO_SeggerRTTD_MDK-ARM (needs check)
 
 
-### TASKING (WIP)
+### TASKING
 #### TASKING_GenericSTMF030R8_RTTD
 ![TASKING_GenericSTMF070RB_RTTD_NewProject.PNG](./README.media/TASKING_GenericSTMF070RB_RTTD_NewProject.PNG)
 ![TASKING_GenericsSTMF030R8_RTTD_J-Link.PNG](./README.media/TASKING_GenericsSTMF030R8_RTTD_J-Link.PNG)
@@ -119,11 +119,8 @@
 ![TASKING_GenericsSTMF030R8_RTTD_ok_IDE.PNG](./README.media/TASKING_GenericsSTMF030R8_RTTD_ok_IDE.PNG)
 ![TASKING_GenericsSTMF030R8_RTTD_ok_log.PNG](./README.media/TASKING_GenericsSTMF030R8_RTTD_ok_log.PNG)
 
-
-
-
 #### TASKING_GenericSTMF070RB_RTTD
-
+![TASKING_GenericSTMF070RB_RTTD.PNG](./README.media/TASKING_GenericSTMF070RB_RTTD.PNG)
 - Start TASKING ARM Eclipse IDE with some workspace
 - File -> New -> TASKING Arm Project -> Hello Worls C Project
 - [ ] Uncheck "Use default location"
