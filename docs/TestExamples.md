@@ -106,6 +106,8 @@
 - Delete Project inside the IDE but not the project itself
 - Move the Project out of .workspace and rename it to TASKING_STM32F4DISC_Audio_Service
 - Import existin project and **do not** copy it into workspace
+#### TASKING_GenericSTMF030R8_RTT
+![TASKING_GenericSTMF030R8_RTT.PNG](./README.media/TASKING_GenericSTMF030R8_RTT.PNG)
 #### TASKING_GenericSTMF030R8_RTTD
 [TASKING_GenericSTMF070RB_RTTD_NewProject.PNG](./README.media/TASKING_GenericSTMF070RB_RTTD_NewProject.PNG)
 [TASKING_GenericsSTMF030R8_RTTD_J-Link.PNG](./README.media/TASKING_GenericsSTMF030R8_RTTD_J-Link.PNG)

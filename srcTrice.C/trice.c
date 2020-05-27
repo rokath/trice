@@ -27,8 +27,9 @@ static uint32_t rdIndexTriceFifo = 0; //!< trice fifo read index
 
 //! get one trice from trice fifo
 //! am p address for trice id with 2 byte data
-TRICE_INLINE void triceFifoPop( uint32_t* p ){
-    *p = triceFifo[rdIndexTriceFifo++];
+TRICE_INLINE void triceFifoPop( void* p ){
+    uint32_t* up = p;
+    *up = triceFifo[rdIndexTriceFifo++];
     rdIndexTriceFifo &= TRICE_FIFO_MASK;
 }
 
@@ -46,7 +47,7 @@ static unsigned triceFifoDepth( void ){
 #endif // #ifdef TRICE_FIFO
 
 //! partial prefilled trice message transmit buffer 
-static ALIGN4 triceMsg_t triceMsg ALIGN4_END = {
+static ALIGN4 PACKED triceMsg_t triceMsg PACKED_END ALIGN4_END = {
     { TRICE_START_BYTE,  TRICE_LOCAL_ADDR,  TRICE_DISPL_ADDR, 0 }, // crc8
     {{ 0, 0 }} // 16bit ID, 16bit data
 }; // https://stackoverflow.com/questions/13746033/how-to-repair-warning-missing-braces-around-initializer
@@ -95,7 +96,7 @@ void triceToWriteBuffer( void ){
         if( triceWriteSpace() < TRICE_WRITE_SPACE_MIN){ // no space in write buffer
             return; // don't transfer trices if buffer is too full
         }
-        triceFifoPop( (uint32_t*)(&(triceMsg.ld)) );
+        triceFifoPop( &(triceMsg.ld) );
         prepareNextTriceTransmission();
         triceWrite( &triceMsg, sizeof(triceMsg) );
     }

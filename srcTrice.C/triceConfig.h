@@ -118,7 +118,8 @@ extern UART_HandleTypeDef huart2;
 
 #if TRICE_VARIANT == SEGGER_RTT
 //#define SYSTICKVAL16 SysTick->VAL //!< STM32 specific, set to 0 as starting point with nonSTM MCE
-#define SYSTICKVAL16 ((uint16_t)(*(volatile uint32_t*)0xE000E018UL))
+#define SYSTICKVAL32 (*(volatile uint32_t*)0xE000E018UL)
+#define SYSTICKVAL16 ((uint16_t)SYSTICKVAL32)
 #define LL_INTERFACE_NO_INTERRUPTS
 #endif
 
