@@ -21,6 +21,8 @@
 
   <project>
     <PathAndName>.\STM32F0300-DISCO_SeggerRTTD_MDK-ARM\MDK-ARM\STM32F0300-DISCO_SeggerRTTD_MDK-ARM.uvprojx</PathAndName>
+    <NodeIsActive>1</NodeIsActive>
+    <NodeIsExpanded>1</NodeIsExpanded>
   </project>
 
   <project>
@@ -45,8 +47,6 @@
 
   <project>
     <PathAndName>.\triceDemo_NUCLEO-F070RB_LL_SeggerRTT_MDK-ARM\MDK-ARM\triceDemo_NUCLEO-F070RB_LL_SeggerRTT_MDK-ARM.uvprojx</PathAndName>
-    <NodeIsActive>1</NodeIsActive>
-    <NodeIsExpanded>1</NodeIsExpanded>
   </project>
 
   <project>

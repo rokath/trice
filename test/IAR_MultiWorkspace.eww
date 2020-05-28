@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <workspace>
     <project>
+        <path>$WS_DIR$\IAR_EWARM_RTTD_DISCOVERY-STM32F407VGTx\EWARM\IAR_EWARM_RTTD_DISCOVERY-STM32F407VGTx.ewp</path>
+    </project>
+    <project>
         <path>$WS_DIR$\triceDemo_NUCLEO-F030RB_LL_IAR_EWARM\EWARM\triceDemo_NUCLEO-F030RB_LL_IAR_EWARM.ewp</path>
     </project>
     <project>

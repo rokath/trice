@@ -25,7 +25,7 @@ if not "%~1" == "" goto debugFile
 
 @echo on 
 
-"C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.4\common\bin\cspybat" -f "C:\repos\trice\test\triceDemo_NUCLEO-F070RB_HAL_IAR_EWARM\EWARM\settings\triceDemo_NUCLEO-F070RB_HAL_IAR_EWARM.triceDemo_NUCLEO-F070RB_HAL_IAR_EWARM.general.xcl" --backend -f "C:\repos\trice\test\triceDemo_NUCLEO-F070RB_HAL_IAR_EWARM\EWARM\settings\triceDemo_NUCLEO-F070RB_HAL_IAR_EWARM.triceDemo_NUCLEO-F070RB_HAL_IAR_EWARM.driver.xcl" 
+"C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.4\common\bin\cspybat" -f "C:\repos\trice\test\IAR_EWARM_RTTD_DISCOVERY-STM32F407VGTx\EWARM\settings\IAR_EWARM_RTTD_DISCOVERY-STM32F407VGTx.IAR_EWARM_RTTD_DISCOVERY-STM32F407VGTx.general.xcl" --backend -f "C:\repos\trice\test\IAR_EWARM_RTTD_DISCOVERY-STM32F407VGTx\EWARM\settings\IAR_EWARM_RTTD_DISCOVERY-STM32F407VGTx.IAR_EWARM_RTTD_DISCOVERY-STM32F407VGTx.driver.xcl" 
 
 @echo off 
 goto end 
@@ -34,7 +34,7 @@ goto end
 
 @echo on 
 
-"C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.4\common\bin\cspybat" -f "C:\repos\trice\test\triceDemo_NUCLEO-F070RB_HAL_IAR_EWARM\EWARM\settings\triceDemo_NUCLEO-F070RB_HAL_IAR_EWARM.triceDemo_NUCLEO-F070RB_HAL_IAR_EWARM.general.xcl" "--debug_file=%~1" --backend -f "C:\repos\trice\test\triceDemo_NUCLEO-F070RB_HAL_IAR_EWARM\EWARM\settings\triceDemo_NUCLEO-F070RB_HAL_IAR_EWARM.triceDemo_NUCLEO-F070RB_HAL_IAR_EWARM.driver.xcl" 
+"C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.4\common\bin\cspybat" -f "C:\repos\trice\test\IAR_EWARM_RTTD_DISCOVERY-STM32F407VGTx\EWARM\settings\IAR_EWARM_RTTD_DISCOVERY-STM32F407VGTx.IAR_EWARM_RTTD_DISCOVERY-STM32F407VGTx.general.xcl" "--debug_file=%~1" --backend -f "C:\repos\trice\test\IAR_EWARM_RTTD_DISCOVERY-STM32F407VGTx\EWARM\settings\IAR_EWARM_RTTD_DISCOVERY-STM32F407VGTx.IAR_EWARM_RTTD_DISCOVERY-STM32F407VGTx.driver.xcl" 
 
 @echo off 
 :end

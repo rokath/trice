@@ -55,6 +55,8 @@
 - An other option would be to download the HEX-File using the internal STM32 ROM-Bootloader over the USB/Serial converter. Then no ST-Link is needed but you can only run the code and not debug.
 - Finally: The USB connector on the demoBoard-STM32F030F4P6 ist only used for power supply if no other connections.
 
+
+
 ### generatedDemo_NUCLEO-F030R8_LL_MDK-ARM (ok)
 - This is *without* TRICE instrumentation and ment for easy comparing to see quickly thw intrumentation needs with
   - triceDemo_NUCLEO-F030R8_LL_MDK-ARM
@@ -63,6 +65,27 @@
   - triceDemo_NUCLEO-F030RB_LL_STM32CubeIDE
   - triceDemo_NUCLEO-F030RB_LL_SeggerRTT_MDK-ARM
 
+
+### IAR_EWARM_RTTD_DISCOVERY-STM32F407VGTx
+- Use "C:\ST\STLinkReflash_190812_Segger\STLinkReflash.exe" to convert On-board ST-Link to On-board J-Link (optional and you can undo this step)
+- Start ST CubeMX
+  - select DISCOVERY_STM32F407VGTx
+  - generate for EWARM
+- Open EWARM project & compile
+  - Add Group SeggerRTT
+  - Add all files from C:\repos\trice\third_party\SEGGER_RTT_V672b\RTT - also SEGGER_RTT_ASM_ARMv7M.S
+  - Add group Trice
+  - Add files from C:\repos\trice\srcTrice.C but not xteaCrypto.* and not triceWrite.c
+  - Add TRICE_VARIANT=SEGGER_RTTD in project settings
+  - Add include paths for RTT & Trice
+  - Add Build action "trice u -src $PROJ_DIR$/.. -src $PROJ_DIR$/../../srcTrice.C -list $PROJ_DIR$/../../til.json -v"
+  - Determine J-Link identifier (for example with J-Link-Mem)
+  - Select J-Link as debugger
+  - Switch J-Link to SWD
+- ~ 180 clocks ![IAR_EWARM_RTTD_DISCOVERY-STM32F407VGTx_0.PNG](./README.media/IAR_EWARM_RTTD_DISCOVERY-STM32F407VGTx_0.PNG)
+- ~ 80 clocks ![IAR_EWARM_RTTD_DISCOVERY-STM32F407VGTx_1.PNG](./README.media/IAR_EWARM_RTTD_DISCOVERY-STM32F407VGTx_1.PNG)
+
+ 
 
 ### PICkit-44-Pin-DEMO-Board_PIC18F45K20 (WIP)
 - Download & install [MPLAB-X IDE](https://www.microchip.com/mplab/mplab-x-ide)
