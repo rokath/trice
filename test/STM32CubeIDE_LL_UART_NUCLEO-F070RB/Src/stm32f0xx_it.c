@@ -156,9 +156,7 @@ void USART2_IRQHandler(void)
 
   /* USER CODE END USART2_IRQn 0 */
   /* USER CODE BEGIN USART2_IRQn 1 */
-    #ifdef LL_INTERFACE_WITH_INTERRUPTS
-        triceServe();
-    #endif
+
   /* USER CODE END USART2_IRQn 1 */
 }
 

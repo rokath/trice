@@ -25,4 +25,5 @@ JLinkLog.txt
 */MDK-ARM/Output/*
 *.uvmpw.uvgui.ms
 TASKING/*
+STM32CubeIDE.workspace/*
 

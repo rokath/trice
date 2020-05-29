@@ -1090,5 +1090,33 @@
 		"fmtStrg": "att:MDK-ARM_LL_RTT_NUCLEO-F070RB\\n",
 		"created": 1590752727,
 		"removed": 0
+	},
+	{
+		"id": 7461,
+		"fmtType": "TRICE0",
+		"fmtStrg": "att:STM32CubeIDE_LL_UART_NUCLEO-F030RB\\n",
+		"created": 1590758750,
+		"removed": 0
+	},
+	{
+		"id": 2427,
+		"fmtType": "TRICE0",
+		"fmtStrg": "att:STM32CubeIDE_LL_UART_NUCLEO-F070RB\\n",
+		"created": 1590759006,
+		"removed": 0
+	},
+	{
+		"id": 17177,
+		"fmtType": "TRICE0",
+		"fmtStrg": "att:STM32CubeIDE_LL_UART_NUCLEO-F030R8\\n",
+		"created": 1590761395,
+		"removed": 0
+	},
+	{
+		"id": 47756,
+		"fmtType": "TRICE0",
+		"fmtStrg": "att:STM32CubeIDE_LL_UART_NUCLEO-F030R8\\n",
+		"created": 1590763656,
+		"removed": 0
 	}
 ]
