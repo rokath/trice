@@ -4,9 +4,7 @@
 
 
 #include <string.h> // memcpy
-#include "triceConfig.h"
 #include "trice.h"
-#include "SEGGER_RTT.h"
 
 
 //! \param buf address to read from

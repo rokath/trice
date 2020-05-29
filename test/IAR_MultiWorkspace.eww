@@ -1,31 +1,42 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <workspace>
     <project>
+        <path>$WS_DIR$\IAR_EWARM_HAL_UART_NUCLEO-F070RB\EWARM\IAR_EWARM_HAL_UART_NUCLEO-F070RB.ewp</path>
+    </project>
+    <project>
+        <path>$WS_DIR$\IAR_EWARM_LL_UART_NUCLEO-F030RB\EWARM\IAR_EWARM_LL_UART_NUCLEO-F030RB.ewp</path>
+    </project>
+    <project>
+        <path>$WS_DIR$\IAR_EWARM_LL_UART_NUCLEO-F070RB\EWARM\IAR_EWARM_LL_UART_NUCLEO-F070RB.ewp</path>
+    </project>
+    <project>
+        <path>$WS_DIR$\IAR_EWARM_RTT_NUCLEO-F030R8\EWARM\IAR_EWARM_RTT_NUCLEO-F030R8.ewp</path>
+    </project>
+    <project>
         <path>$WS_DIR$\IAR_EWARM_RTTD_DISCOVERY-STM32F407VGTx\EWARM\IAR_EWARM_RTTD_DISCOVERY-STM32F407VGTx.ewp</path>
-    </project>
-    <project>
-        <path>$WS_DIR$\triceDemo_NUCLEO-F030RB_LL_IAR_EWARM\EWARM\triceDemo_NUCLEO-F030RB_LL_IAR_EWARM.ewp</path>
-    </project>
-    <project>
-        <path>$WS_DIR$\triceDemo_NUCLEO-F030RB_LL_SeggerRTT_IAR_EWARM\EWARM\triceDemo_NUCLEO-F030RB_LL_SeggerRTT_IAR_EWARM.ewp</path>
-    </project>
-    <project>
-        <path>$WS_DIR$\triceDemo_NUCLEO-F070RB_HAL_IAR_EWARM\EWARM\triceDemo_NUCLEO-F070RB_HAL_IAR_EWARM.ewp</path>
     </project>
     <batchBuild>
         <batchDefinition>
             <name>Multi</name>
             <member>
-                <project>triceDemo_NUCLEO-F030RB_LL_IAR_EWARM</project>
-                <configuration>triceDemo_NUCLEO-F030RB_LL_IAR_EWARM</configuration>
+                <project>IAR_EWARM_HAL_UART_NUCLEO-F070RB</project>
+                <configuration>IAR_EWARM_HAL_UART_NUCLEO-F070RB</configuration>
             </member>
             <member>
-                <project>triceDemo_NUCLEO-F070RB_HAL_IAR_EWARM</project>
-                <configuration>triceDemo_NUCLEO-F070RB_HAL_IAR_EWARM</configuration>
+                <project>IAR_EWARM_LL_UART_NUCLEO-F030RB</project>
+                <configuration>IAR_EWARM_LL_UART_NUCLEO-F030RB</configuration>
             </member>
             <member>
-                <project>triceDemo_NUCLEO-F030RB_LL_SeggerRTT_IAR_EWARM</project>
-                <configuration>triceDemo_NUCLEO-F030RB_LL_SeggerRTT_IAR_EWARM</configuration>
+                <project>IAR_EWARM_LL_UART_NUCLEO-F070RB</project>
+                <configuration>IAR_EWARM_LL_UART_NUCLEO-F070RB</configuration>
+            </member>
+            <member>
+                <project>IAR_EWARM_RTT_NUCLEO-F030R8</project>
+                <configuration>IAR_EWARM_RTT_NUCLEO-F030R8</configuration>
+            </member>
+            <member>
+                <project>IAR_EWARM_RTTD_DISCOVERY-STM32F407VGTx</project>
+                <configuration>IAR_EWARM_RTTD_DISCOVERY-STM32F407VGTx</configuration>
             </member>
         </batchDefinition>
     </batchBuild>

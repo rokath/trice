@@ -95,8 +95,9 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+    TRICE_RTTD_SYNC;
     TRICE16_1( Id(45373), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
-    TRICE0( Id(40651), "att:STM32F0308-DISCO-SeggerRTTunbuffered_MDK-ARM\n" );
+    TRICE0( Id( 3526), "att:MDK-ARM_RTTD_STM32F0300-DISCO\n" );
     TRICE16_1( Id(45373), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
     TRICE16_1( Id(45373), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
     TRICE16_1( Id(45373), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
@@ -109,6 +110,7 @@ int main(void)
       uint32_t ms = HAL_GetTick();
       if( ms >= ms_1 + 20 ){ 
           void triceCheckSet( void );
+          TRICE_RTTD_SYNC;
           triceCheckSet();
           TRICE32_1( Id(29200), "time:ms = %d\n", ms );
           HAL_GPIO_TogglePin(LD4_GPIO_Port, LD4_Pin);

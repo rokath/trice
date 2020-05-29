@@ -104,7 +104,7 @@ int main(void)
   /* USER CODE BEGIN WHILE */
     TRICE_RTTD_SYNC;
     TRICE16_1( Id(45373), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
-    TRICE0( Id(  749), "att:triceDemo_NUCLEO-F070RB_LL_SeggerRTTD_MDK-ARM\n" );
+    TRICE0( Id(64239), "att:MDK-ARM_LL_RTTD_NUCLEO-F070RB\n" );
     TRICE16_1( Id(45373), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
     TRICE16_1( Id(45373), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
     TRICE16_1( Id(45373), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
