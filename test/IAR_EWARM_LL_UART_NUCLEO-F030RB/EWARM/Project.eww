@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <workspace>
   <project>
-    <path>$WS_DIR$\triceDemo_NUCLEO-F030RB_LL_IAR_EWARM.ewp</path>
+    <path>$WS_DIR$\IAR_EWARM_LL_UART_NUCLEO-F030RB.ewp</path>
   </project>
   <batchBuild />
 </workspace>
