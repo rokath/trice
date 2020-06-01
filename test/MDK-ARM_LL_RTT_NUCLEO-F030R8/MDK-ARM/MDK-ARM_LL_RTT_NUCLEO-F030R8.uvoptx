@@ -22,7 +22,7 @@
   </DaveTm>
 
   <Target>
-    <TargetName>triceDemo_NUCLEO-F030RB_LL_SeggerRTT_MDK-ARM</TargetName>
+    <TargetName>MDK-ARM_LL_RTT_NUCLEO-F030R8</TargetName>
     <ToolsetNumber>0x4</ToolsetNumber>
     <ToolsetName>ARM-ADS</ToolsetName>
     <TargetOption>

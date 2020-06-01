@@ -10,18 +10,18 @@
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
-				<configuration artifactExtension="abs" artifactName="cpp" buildArtefactType="com.tasking.arm.buildArtefactType.elf" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=com.tasking.arm.buildArtefactType.elf" cleanCommand="&quot;${PRODDIR}/bin/rm&quot; -rf" description="" id="com.tasking.config.arm.abs.debug.977243869" name="Debug" parent="com.tasking.config.arm.abs.debug" prebuildStep="trice u -src .. -src ../../../srcTrice.C -list ../../til.json">
+				<configuration artifactExtension="abs" artifactName="TASKING_RTTD_cpp_Example" buildArtefactType="com.tasking.arm.buildArtefactType.elf" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=com.tasking.arm.buildArtefactType.elf" cleanCommand="&quot;${PRODDIR}/bin/rm&quot; -rf" description="" id="com.tasking.config.arm.abs.debug.977243869" name="Debug" parent="com.tasking.config.arm.abs.debug">
 					<folderInfo id="com.tasking.config.arm.abs.debug.977243869." name="/" resourcePath="">
 						<toolChain id="com.tasking.arm.abs.debug.123036571" name="TASKING VX-toolset for ARM" superClass="com.tasking.arm.abs.debug">
 							<option id="com.tasking.arm.prodDir.696892590" name="Product directory:" superClass="com.tasking.arm.prodDir" value="${eclipse_home}/.." valueType="string"/>
-							<option id="com.tasking.arm.pluginVersion.819734092" name="Plugin version" superClass="com.tasking.arm.pluginVersion" value="1.194.0.0" valueType="string"/>
+							<option id="com.tasking.arm.pluginVersion.1667608011" name="Plugin version" superClass="com.tasking.arm.pluginVersion" value="1.194.0.0" valueType="string"/>
 							<targetPlatform archList="all" binaryParser="com.tasking.managedbuilder.TASKING_ELF" id="com.tasking.arm.platform.abs.debug.1914732900" name="Debug" osList="" superClass="com.tasking.arm.platform.abs.debug"/>
-							<builder buildPath="${workspace_loc:/cpp/Debug}" id="com.tasking.arm.builder.abs.debug.841151030" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="TASKING ARM Makefile generator" parallelBuildOn="true" parallelizationNumber="unlimited" superClass="com.tasking.arm.builder.abs.debug"/>
+							<builder buildPath="${workspace_loc:/TASKING_RTTD_cpp_Example/Debug}" id="com.tasking.arm.builder.abs.debug.841151030" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="TASKING ARM Makefile generator" parallelBuildOn="true" parallelizationNumber="unlimited" superClass="com.tasking.arm.builder.abs.debug"/>
 							<tool id="com.tasking.arm.cc.abs.debug.217935682" name="C/C++ Compiler" superClass="com.tasking.arm.cc.abs.debug">
 								<option id="com.tasking.arm.cc.pr36858.137189516" name="workaround for PR36858" superClass="com.tasking.arm.cc.pr36858" value="true" valueType="string"/>
 								<option id="com.tasking.arm.cc.ioStreams.1117486453" name="Support for C++ I/O streams" superClass="com.tasking.arm.cc.ioStreams" value="true" valueType="boolean"/>
-								<option id="com.tasking.arm.cc.definedSymbols.2040406943" superClass="com.tasking.arm.cc.definedSymbols" valueType="definedSymbols">
-									<listOptionValue builtIn="false" value="TRICE_VARIANT=SEGGER_RTT"/>
+								<option id="com.tasking.arm.cc.definedSymbols.769771215" superClass="com.tasking.arm.cc.definedSymbols" valueType="definedSymbols">
+									<listOptionValue builtIn="false" value="TRICE_VARIANT=SEGGER_RTTD"/>
 								</option>
 								<inputType id="com.tasking.arm.cppInputType.1676419982" name="C++" superClass="com.tasking.arm.cppInputType"/>
 								<inputType id="com.tasking.arm.cpp.cInputType.972878064" name="C" superClass="com.tasking.arm.cpp.cInputType"/>
@@ -31,9 +31,6 @@
 								<inputType id="com.tasking.arm.asmInputType.984932585" name="ASM" superClass="com.tasking.arm.asmInputType"/>
 							</tool>
 							<tool id="com.tasking.arm.lk.abs.debug.1637272835" name="Linker" superClass="com.tasking.arm.lk.abs.debug">
-								<option id="com.tasking.arm.lk.definedSymbols.1813972923" superClass="com.tasking.arm.lk.definedSymbols" valueType="definedSymbols">
-									<listOptionValue builtIn="false" value="TRICE_VARIANT=SEGGER_RTT"/>
-								</option>
 								<inputType id="com.tasking.arm.lkObjInputType.170794081" name="OBJ" superClass="com.tasking.arm.lkObjInputType"/>
 								<inputType id="com.tasking.arm.lkLibInputType.101186411" name="LIB" superClass="com.tasking.arm.lkLibInputType"/>
 							</tool>
@@ -55,30 +52,24 @@
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
-				<configuration artifactExtension="abs" artifactName="cpp" buildArtefactType="com.tasking.arm.buildArtefactType.elf" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=com.tasking.arm.buildArtefactType.elf" cleanCommand="&quot;${PRODDIR}/bin/rm&quot; -rf" description="" id="com.tasking.config.arm.abs.release.176931105" name="Release" parent="com.tasking.config.arm.abs.release">
+				<configuration artifactExtension="abs" artifactName="TASKING_RTTD_cpp_Example" buildArtefactType="com.tasking.arm.buildArtefactType.elf" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=com.tasking.arm.buildArtefactType.elf" cleanCommand="&quot;${PRODDIR}/bin/rm&quot; -rf" description="" id="com.tasking.config.arm.abs.release.176931105" name="Release" parent="com.tasking.config.arm.abs.release">
 					<folderInfo id="com.tasking.config.arm.abs.release.176931105." name="/" resourcePath="">
 						<toolChain id="com.tasking.arm.abs.release.912745245" name="TASKING VX-toolset for ARM" superClass="com.tasking.arm.abs.release">
 							<option id="com.tasking.arm.prodDir.223404961" name="Product directory:" superClass="com.tasking.arm.prodDir" value="${eclipse_home}/.." valueType="string"/>
-							<option id="com.tasking.arm.pluginVersion.57707664" name="Plugin version" superClass="com.tasking.arm.pluginVersion" value="1.194.0.0" valueType="string"/>
+							<option id="com.tasking.arm.pluginVersion.1810660315" superClass="com.tasking.arm.pluginVersion" value="1.194.0.0" valueType="string"/>
 							<targetPlatform archList="all" binaryParser="com.tasking.managedbuilder.TASKING_ELF" id="com.tasking.arm.platform.abs.release.188698777" name="Release" osList="" superClass="com.tasking.arm.platform.abs.release"/>
-							<builder buildPath="${workspace_loc:/cpp/Release}" id="com.tasking.arm.builder.abs.debug.965611094" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="TASKING ARM Makefile generator" parallelBuildOn="true" parallelizationNumber="unlimited" superClass="com.tasking.arm.builder.abs.debug"/>
+							<builder buildPath="${workspace_loc:/TASKING_RTTD_cpp_Example/Release}" id="com.tasking.arm.builder.abs.debug.965611094" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="TASKING ARM Makefile generator" parallelBuildOn="true" parallelizationNumber="unlimited" superClass="com.tasking.arm.builder.abs.debug"/>
 							<tool id="com.tasking.arm.cc.abs.release.1343582764" name="C/C++ Compiler" superClass="com.tasking.arm.cc.abs.release">
 								<option id="com.tasking.arm.cc.pr36858.898354729" name="workaround for PR36858" superClass="com.tasking.arm.cc.pr36858" value="true" valueType="string"/>
-								<option id="com.tasking.arm.cc.definedSymbols.831661593" superClass="com.tasking.arm.cc.definedSymbols" valueType="definedSymbols">
-									<listOptionValue builtIn="false" value="TRICE_VARIANT=SEGGER_RTT"/>
-								</option>
 								<inputType id="com.tasking.arm.cppInputType.868694976" name="C++" superClass="com.tasking.arm.cppInputType"/>
 								<inputType id="com.tasking.arm.cpp.cInputType.890307256" name="C" superClass="com.tasking.arm.cpp.cInputType"/>
 								<inputType id="com.tasking.arm.cc.msInputType.469077104" name="MS" superClass="com.tasking.arm.cc.msInputType"/>
 							</tool>
 							<tool id="com.tasking.arm.as.abs.release.2134767029" name="Assembler" superClass="com.tasking.arm.as.abs.release">
-								<option id="com.tasking.arm.as.debugInfo.abs.release.1030571756" name="Generate symbolic debug:" superClass="com.tasking.arm.as.debugInfo.abs.release" value="com.tasking.arm.as.debugInfo.smart" valueType="enumerated"/>
+								<option id="com.tasking.arm.as.debugInfo.abs.release.1398640633" superClass="com.tasking.arm.as.debugInfo.abs.release" value="com.tasking.arm.as.debugInfo.smart" valueType="enumerated"/>
 								<inputType id="com.tasking.arm.asmInputType.511165725" name="ASM" superClass="com.tasking.arm.asmInputType"/>
 							</tool>
 							<tool id="com.tasking.arm.lk.abs.release.1091996368" name="Linker" superClass="com.tasking.arm.lk.abs.release">
-								<option id="com.tasking.arm.lk.definedSymbols.324875720" superClass="com.tasking.arm.lk.definedSymbols" valueType="definedSymbols">
-									<listOptionValue builtIn="false" value="TRICE_VARIANT=SEGGER_RTT"/>
-								</option>
 								<inputType id="com.tasking.arm.lkObjInputType.1852747391" name="OBJ" superClass="com.tasking.arm.lkObjInputType"/>
 								<inputType id="com.tasking.arm.lkLibInputType.1172336202" name="LIB" superClass="com.tasking.arm.lkLibInputType"/>
 							</tool>
@@ -109,6 +100,7 @@
 		</project-mappings>
 	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
+	<storageModule moduleId="refreshScope"/>
 	<storageModule moduleId="scannerConfiguration">
 		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
 		<profile id="org.eclipse.cdt.make.core.GCCStandardMakePerProjectProfile">
@@ -161,59 +153,6 @@
 				<parser enabled="true"/>
 			</scannerInfoProvider>
 		</profile>
-		<scannerConfigBuildInfo instanceId="com.tasking.config.arm.abs.release.176931105;com.tasking.config.arm.abs.release.176931105.">
-			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.tasking.arm.TskARMScannerInfo"/>
-			<profile id="org.eclipse.cdt.make.core.GCCStandardMakePerProjectProfile">
-				<buildOutputProvider>
-					<openAction enabled="true" filePath=""/>
-					<parser enabled="true"/>
-				</buildOutputProvider>
-				<scannerInfoProvider id="specsFile">
-					<runAction arguments="-E -P -v -dD ${plugin_state_location}/${specs_file}" command="gcc" useDefault="true"/>
-					<parser enabled="true"/>
-				</scannerInfoProvider>
-			</profile>
-			<profile id="org.eclipse.cdt.make.core.GCCStandardMakePerFileProfile">
-				<buildOutputProvider>
-					<openAction enabled="true" filePath=""/>
-					<parser enabled="true"/>
-				</buildOutputProvider>
-				<scannerInfoProvider id="makefileGenerator">
-					<runAction arguments="-f ${project_name}_scd.mk" command="make" useDefault="true"/>
-					<parser enabled="true"/>
-				</scannerInfoProvider>
-			</profile>
-			<profile id="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfile">
-				<buildOutputProvider>
-					<openAction enabled="true" filePath=""/>
-					<parser enabled="true"/>
-				</buildOutputProvider>
-				<scannerInfoProvider id="specsFile">
-					<runAction arguments="-E -P -v -dD ${plugin_state_location}/${specs_file}" command="gcc" useDefault="true"/>
-					<parser enabled="true"/>
-				</scannerInfoProvider>
-			</profile>
-			<profile id="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileCPP">
-				<buildOutputProvider>
-					<openAction enabled="true" filePath=""/>
-					<parser enabled="true"/>
-				</buildOutputProvider>
-				<scannerInfoProvider id="specsFile">
-					<runAction arguments="-E -P -v -dD ${plugin_state_location}/specs.cpp" command="g++" useDefault="true"/>
-					<parser enabled="true"/>
-				</scannerInfoProvider>
-			</profile>
-			<profile id="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileC">
-				<buildOutputProvider>
-					<openAction enabled="true" filePath=""/>
-					<parser enabled="true"/>
-				</buildOutputProvider>
-				<scannerInfoProvider id="specsFile">
-					<runAction arguments="-E -P -v -dD ${plugin_state_location}/specs.c" command="gcc" useDefault="true"/>
-					<parser enabled="true"/>
-				</scannerInfoProvider>
-			</profile>
-		</scannerConfigBuildInfo>
 		<scannerConfigBuildInfo instanceId="com.tasking.config.arm.abs.debug.977243869;com.tasking.config.arm.abs.debug.977243869.">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.tasking.arm.TskARMScannerInfo"/>
 			<profile id="org.eclipse.cdt.make.core.GCCStandardMakePerProjectProfile">

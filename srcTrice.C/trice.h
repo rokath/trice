@@ -15,6 +15,7 @@ extern "C" {
 #include "triceConfig.h"
 #include "triceTick.h"
 #include "triceWrite.h"
+#include "triceCheck.h"
 
 #ifdef ENCRYPT
 #include "xteaCrypto.h"

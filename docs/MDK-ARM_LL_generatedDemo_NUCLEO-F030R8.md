@@ -30,14 +30,18 @@
   
   ![](README.media/CubeMX_6.PNG)
 
-### ARMkeil IDE setup
-#### Project settings
-  - Add `trice.c` to the project
-  - Extend include path with trice folder
+- This is all about the generatedDemo, it is just the CubeMX project setup.
+- What follows are the steps to instrument the code with trice to get the MDK-ARM_LL_UART_NUCLEO-F030R8 project.
+
+## ARMkeil IDE setup
+### Project settings
+  - Add `trice.c` and acompanying files to the project.
+  - Extend include path with trice folder.
   - Edit project settings: 
   
     ![](README.media/ARMkeil_8.PNG)
-#### File compare
+    
+### File compare
 - `generatedDemoF030R8` - fresh empty STM32 CubMX project after CubeMX setup
 - `triceDemoF030R8` - the `generatedDemoF030R8` equipped with trice
 - Directories

@@ -1,8 +1,8 @@
 ///////////////////////////////////////////////////////////////////////////
 //
-//  File        :  cpp.lsl
+//  File        :  TASKING_RTTD_cpp_Example.lsl
 //
-//  Version     :  @(#)cpp.lsl	1.3
+//  Version     :  @(#)TASKING_RTTD_cpp_Example.lsl	1.3
 //
 //  Description :  Project specific Linker Script.
 //
