@@ -24,7 +24,6 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "SEGGER_RTT.h"
-#include "SEGGER_RTT_Conf.h"
 #include "string.h"
 #include "trice.h"
 /* USER CODE END Includes */

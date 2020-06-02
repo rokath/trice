@@ -1118,5 +1118,47 @@
 		"fmtStrg": "att:STM32CubeIDE_LL_UART_NUCLEO-F030R8\\n",
 		"created": 1590763656,
 		"removed": 0
+	},
+	{
+		"id": 29759,
+		"fmtType": "TRICE0",
+		"fmtStrg": "IAR_EWARM_HAL_UART_NUCLEO-F070RB\\n",
+		"created": 1591097527,
+		"removed": 0
+	},
+	{
+		"id": 24517,
+		"fmtType": "TRICE0",
+		"fmtStrg": "att:IAR_EWARM_LL_UART_NUCLEO-F030RB\\n",
+		"created": 1591097527,
+		"removed": 0
+	},
+	{
+		"id": 28520,
+		"fmtType": "TRICE0",
+		"fmtStrg": "att:IAR_EWARM_LL_UART_NUCLEO-F070RB\\n",
+		"created": 1591097527,
+		"removed": 0
+	},
+	{
+		"id": 16749,
+		"fmtType": "TRICE0",
+		"fmtStrg": "att:IAR_EWARM_RTT_NUCLEO-F030R8\\n",
+		"created": 1591097527,
+		"removed": 0
+	},
+	{
+		"id": 55544,
+		"fmtType": "TRICE0",
+		"fmtStrg": "att:STM32CubeIDE_LL_UART_NUCLEO-F070RB\\n",
+		"created": 1591097527,
+		"removed": 0
+	},
+	{
+		"id": 22337,
+		"fmtType": "TRICE0",
+		"fmtStrg": "att:atollicTrueSTUDIO_RTTD_DISCOVERY-STM32F407VGTx\\n",
+		"created": 1591097529,
+		"removed": 0
 	}
 ]

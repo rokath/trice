@@ -106,7 +106,7 @@ int main(void)
     char* s = "Hi5!\n";
     SEGGER_RTT_Write(0, s, strlen(s));
     TRICE16_1( Id( 2625), "TIM:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
-    TRICE0( Id( 0), "att:IAR_EWARM_RTT_NUCLEO-F030R8\n" );
+    TRICE0( Id(16749), "att:IAR_EWARM_RTT_NUCLEO-F030R8\n" );
     TRICE16_1( Id( 2625), "TIM:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
     TRICE16_1( Id( 2625), "TIM:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
     TRICE16_1( Id( 2625), "TIM:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
