@@ -1160,5 +1160,12 @@
 		"fmtStrg": "att:atollicTrueSTUDIO_RTTD_DISCOVERY-STM32F407VGTx\\n",
 		"created": 1591097529,
 		"removed": 0
+	},
+	{
+		"id": 14718,
+		"fmtType": "TRICE0",
+		"fmtStrg": "att:MDK-ARM_LL_RTTD_NUCLEO-F030R8\\n",
+		"created": 1591131729,
+		"removed": 0
 	}
 ]

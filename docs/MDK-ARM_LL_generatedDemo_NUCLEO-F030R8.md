@@ -1,4 +1,9 @@
 # trice Demo Project NUCLEO-F030R8
+
+## MDK-ARM_LL_generatedDemo_NUCLEO-F030R8
+- This is *without* TRICE instrumentation and ment for easy comparing to see quickly the intrumentation needs with MDK-ARM_LL_* projects.
+- Setup details: [MDK-ARM_LL_generatedDemo_NUCLEO-F030R8]
+
 ## Prerequisites (as example)
 - ST Microelectronic evaluation board NUCLEO-F030R8 or similar
   - costs about 10 EUR
