@@ -22,7 +22,7 @@
   </DaveTm>
 
   <Target>
-    <TargetName>triceDemo_NUCLEO-F070RB_LL_SeggerRTTD_MDK-ARM</TargetName>
+    <TargetName>MDK-ARM_LL_RTTD_NUCLEO-F070RB</TargetName>
     <ToolsetNumber>0x4</ToolsetNumber>
     <ToolsetName>ARM-ADS</ToolsetName>
     <TargetOption>
@@ -163,7 +163,7 @@
           <BreakIfRCount>1</BreakIfRCount>
           <Filename>&lt;1&gt;../Src/main.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\triceDemo_NUCLEO_F070RB_LL_SeggerRTTD_MDK_ARM\../Src/main.c\107</Expression>
+          <Expression>\\MDK-ARM_LL_RTTD_NUCLEO-F070RB\../Src/main.c\107</Expression>
         </Bp>
         <Bp>
           <Number>1</Number>
@@ -179,7 +179,7 @@
           <BreakIfRCount>1</BreakIfRCount>
           <Filename>&lt;1&gt;../Src/main.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\triceDemo_NUCLEO_F070RB_LL_SeggerRTTD_MDK_ARM\../Src/main.c\123</Expression>
+          <Expression>\\MDK-ARM_LL_RTTD_NUCLEO-F070RB\../Src/main.c\123</Expression>
         </Bp>
       </Breakpoint>
       <Tracepoint>

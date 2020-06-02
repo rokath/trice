@@ -8,15 +8,17 @@
   <WorkspaceName>WorkSpace</WorkspaceName>
 
   <project>
-    <PathAndName>.\MDK-ARM_LL_generatedDemo_NUCLEO-F030R8\MDK-ARM\generatedDemo_NUCLEO-F030R8_LL_MDK-ARM.uvprojx</PathAndName>
+    <PathAndName>.\MDK-ARM_LL_generatedDemo_NUCLEO-F030R8\MDK-ARM\MDK-ARM_LL_generatedDemo_NUCLEO-F030R8.uvprojx</PathAndName>
   </project>
 
   <project>
     <PathAndName>.\MDK-ARM_LL_UART_NUCLEO-F030R8\MDK-ARM\MDK-ARM_LL_UART_NUCLEO-F030R8.uvprojx</PathAndName>
+    <NodeIsActive>1</NodeIsActive>
   </project>
 
   <project>
     <PathAndName>.\MDK-ARM_HAL_UART_NUCLEO-F030R8\MDK-ARM\MDK-ARM_HAL_UART_NUCLEO-F030R8.uvprojx</PathAndName>
+    <NodeIsExpanded>1</NodeIsExpanded>
   </project>
 
   <project>
@@ -29,6 +31,7 @@
 
   <project>
     <PathAndName>.\MDK-ARM_HAL_UART_NUCLEO-F070RB\MDK-ARM\MDK-ARM_HAL_UART_NUCLEO-F070RB.uvprojx</PathAndName>
+    <NodeIsExpanded>1</NodeIsExpanded>
   </project>
 
   <project>
@@ -37,7 +40,6 @@
 
   <project>
     <PathAndName>.\MDK-ARM_LL_RTTD_NUCLEO-F070RB\MDK-ARM\MDK-ARM_LL_RTTD_NUCLEO-F070RB.uvprojx</PathAndName>
-    <NodeIsActive>1</NodeIsActive>
   </project>
 
   <project>

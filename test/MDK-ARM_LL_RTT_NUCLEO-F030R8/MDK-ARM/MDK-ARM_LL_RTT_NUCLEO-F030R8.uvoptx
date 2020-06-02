@@ -163,7 +163,7 @@
           <BreakIfRCount>1</BreakIfRCount>
           <Filename>&lt;6&gt;../Src/main.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\triceDemo_NUCLEO_F030RB_LL_SeggerRTT_MDK_ARM\../Src/main.c\108</Expression>
+          <Expression>\\MDK-ARM_LL_RTT_NUCLEO-F030R8\../Src/main.c\108</Expression>
         </Bp>
         <Bp>
           <Number>1</Number>
@@ -179,7 +179,7 @@
           <BreakIfRCount>1</BreakIfRCount>
           <Filename>&lt;6&gt;../Src/main.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\triceDemo_NUCLEO_F030RB_LL_SeggerRTT_MDK_ARM\../Src/main.c\156</Expression>
+          <Expression>\\MDK-ARM_LL_RTT_NUCLEO-F030R8\../Src/main.c\156</Expression>
         </Bp>
         <Bp>
           <Number>2</Number>

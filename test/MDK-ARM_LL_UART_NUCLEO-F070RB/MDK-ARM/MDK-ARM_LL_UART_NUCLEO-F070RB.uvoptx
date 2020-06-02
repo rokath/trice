@@ -22,7 +22,7 @@
   </DaveTm>
 
   <Target>
-    <TargetName>triceDemo_NUCLEO-F070RB_LL_MDK-ARM</TargetName>
+    <TargetName>MDK-ARM_LL_UART_NUCLEO-F070RB</TargetName>
     <ToolsetNumber>0x4</ToolsetNumber>
     <ToolsetName>ARM-ADS</ToolsetName>
     <TargetOption>
