@@ -3,18 +3,20 @@
 ## MDK-ARM_HAL_UART_NUCLEO-F030R8 (triceDemo_NUCLEO-F030R8_HAL_MDK-ARM)
 - ~19 clocks
 
-![triceDemo_NUCLEO-F030RB_HAL_MDK-ARM.PNG](./README.media/triceDemo_NUCLEO-F030RB_HAL_MDK-ARM.PNG)
+  ![triceDemo_NUCLEO-F030RB_HAL_MDK-ARM.PNG](./README.media/triceDemo_NUCLEO-F030RB_HAL_MDK-ARM.PNG)
 
-- ~10-13 clocks
-![MDK-ARM_HAL_UART_NUCLEO-F030R8.PNG](./README.media/MDK-ARM_HAL_UART_NUCLEO-F030R8.PNG)
+- ~10-13 clocks (without CRITICAL_SECTION)
+
+  ![MDK-ARM_HAL_UART_NUCLEO-F030R8.PNG](./README.media/MDK-ARM_HAL_UART_NUCLEO-F030R8.PNG)
 ## MDK-ARM_HAL_UART_NUCLEO-F070RB
+- ~10-13 clocks (without CRITICAL_SECTION)
 
+  ![MDK-ARM_HAL_UART_NUCLEO-F070RB_0.PNG](./README.media/MDK-ARM_HAL_UART_NUCLEO-F070RB_0.PNG)
 ## MDK-ARM_LL_generatedDemo_NUCLEO-F030R8 (generatedDemo_NUCLEO-F030R8_LL_MDK-ARM)
 - This is *without* TRICE instrumentation and ment for easy comparing to see quickly the intrumentation needs with MDK-ARM_LL_* projects.
 - Setup details: [MDK-ARM_LL_generatedDemo_NUCLEO-F030R8]
 
-## MDK-ARM_LL_RTT_NUCLEO-F030R8
-- About: [SeggerRTT.md](SeggerRTT.md)
+
 
 ## MDK-ARM_LL_RTT_NUCLEO-F030R8
 - About: [SeggerRTT.md](SeggerRTT.md)
@@ -25,6 +27,13 @@
 
 ![MDK-ARM_LL_RTT_NUCLEO-F030R8_2.PNG](./README.media/MDK-ARM_LL_RTT_NUCLEO-F030R8_2.PNG)
 
+## MDK-ARM_LL_RTT_NUCLEO-F070RB
+- About: [SeggerRTT.md](SeggerRTT.md)
+- ~ 300 clocks
+
+![MDK-ARM_LL_RTT_NUCLEO-F070RB_0.PNG](./README.media/MDK-ARM_LL_RTT_NUCLEO-F070RB_0.PNG)
+
+
 ## MDK-ARM_LL_RTTD_NUCLEO-F070RB
 - About: [SeggerRTT.md](SeggerRTT.md)
 - ~ 270 clocks: This is significant slower than with RTT but still so fast, that it is ok for many cases.
@@ -32,6 +41,10 @@
 - The SEGGER-write function is optimizable for speed in special cases.
 
 ![triceDemo_NUCLEO-F030RB_LL_SeggerRTTD_MDK-ARM.PNG](./README.media/triceDemo_NUCLEO-F030RB_LL_SeggerRTTD_MDK-ARM.PNG)
+
+- ~ 230 clocks
+
+  ![MDK-ARM_LL_RTTD_NUCLEO-F070RB_0.PNG](./README.media/MDK-ARM_LL_RTTD_NUCLEO-F070RB_0.PNG)
 
 ## MDK-ARM_LL_UART_demoBoard_STM32F030F4F4P6
 - ~100 clocks (without time optimization)
@@ -57,9 +70,13 @@
 - Setup details: [MDK-ARM_LL_generatedDemo_NUCLEO-F030R8.md](MDK-ARM_LL_generatedDemo_NUCLEO-F030R8)
 
 - ~14-18 clocks
-![MDK-ARM_LL_UART_NUCLEO-F030R8.PNG](./README.media/MDK-ARM_LL_UART_NUCLEO-F030R8.PNG)
-## MDK-ARM_LL_UART_NUCLEO-F070RB 
 
+  ![MDK-ARM_LL_UART_NUCLEO-F030R8.PNG](./README.media/MDK-ARM_LL_UART_NUCLEO-F030R8.PNG)
+
+## MDK-ARM_LL_UART_NUCLEO-F070RB 
+- ~14-18 clocks (with CRITICAL_SECTION)
+
+  ![MDK-ARM_LL_UART_NUCLEO-F070RB_0.PNG](./README.media/MDK-ARM_LL_UART_NUCLEO-F070RB_0.PNG)
 ## MDK-ARM_RTTD_STM32F0300-DISCO 
 - About: [SeggerRTT.md](SeggerRTT.md)
 - ~250 ticks

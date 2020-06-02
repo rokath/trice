@@ -29,10 +29,10 @@ extern "C" {
 #define TRICE_SERVE_PERIOD 1
 #endif
 
-//! trice sync message for RTTdirect environments. The value 2056 ('\b\b\b\b') is a reserved pattern used as ID and value.
+//! trice sync message for RTTdirect environments. The value 5654 is a reserved pattern used as ID and value.
 //! It cannot occure in the trice stream. You must not change that. Otherwise the RTTD syncing will not work.
 //! If for some reason the Id changes during 'trice u', probably when the string changed, you need to remove
-//! the old pattern from til.json and put Id(771) manually here
+//! the old pattern from til.json and put Id(5654) manually here
 #define TRICE_RTTD_SYNC do{ TRICE16_1( Id(5654), "%d\b\b\b\b", 5654 ); }while(0)
 
 #ifdef TRICE_FILENAME
