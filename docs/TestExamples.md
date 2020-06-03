@@ -39,9 +39,9 @@ Many in the examples used compilers are free of charge for firmware images up to
 ## Specific Infos (alphabetical order)
 - [TestExamplesARM-MDK.md](TestExamplesARM-MDK.md) (done)
 - [TestExamplesAtollicSTM32.md](TestExamplesAtollicSTM32.md) (done)
-- [TestExamplesIAR-EWARM](TestExamplesIAR-EWARM)
-- [TestExamplesSTM32CubeIDE.md](TestExamplesSTM32CubeIDE.md)
-- [TestExamplesTASKING.md](TestExamplesTASKING.md)
+- [TestExamplesIAR-EWARM.md](TestExamplesIAR-EWARM.md) (done)
+- [TestExamplesSTM32CubeIDE.md](TestExamplesSTM32CubeIDE.md) (todo)
+- [TestExamplesTASKING.md](TestExamplesTASKING.md) (half)
 
 ## TODO projects (work in progress)
 - [TestExamplesWIP.md](TestExamplesWIP.md)
