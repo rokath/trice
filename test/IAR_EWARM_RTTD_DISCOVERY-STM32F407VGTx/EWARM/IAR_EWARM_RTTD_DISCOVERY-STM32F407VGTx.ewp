@@ -226,7 +226,7 @@
                     <name>CCDefines</name>
                     <state>USE_HAL_DRIVER</state>
                     <state>STM32F407xx</state>
-                    <state>TRICE_VARIANT=SEGGER_RTTD_ASM</state>
+                    <state>TRICE_VARIANT=SEGGER_RTTD</state>
                 </option>
                 <option>
                     <name>CCPreprocFile</name>

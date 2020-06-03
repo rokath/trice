@@ -104,7 +104,7 @@ int main(void)
   MX_SPI1_Init();
   MX_USB_HOST_Init();
   /* USER CODE BEGIN 2 */
-	//SEGGER_RTT_printf( 0, "Hello world\n" );
+	SEGGER_RTT_printf( 0, "Hello world\n" );
     SEGGER_RTT_Init();
     TRICE_RTTD_SYNC;
 
