@@ -28,8 +28,7 @@
 							<tool id="com.tasking.arm.cc.abs.debug.1213400905" name="C/C++ Compiler" superClass="com.tasking.arm.cc.abs.debug">
 								<option id="com.tasking.arm.cc.pr36858.1812221630" name="workaround for PR36858" superClass="com.tasking.arm.cc.pr36858" value="true" valueType="string"/>
 								<option id="com.tasking.arm.cc.definedSymbols.406846305" name="Defined symbols" superClass="com.tasking.arm.cc.definedSymbols" valueType="definedSymbols">
-									<listOptionValue builtIn="false" value="TRICE_VARIANT=SEGGER_RTT"/>
-									<listOptionValue builtIn="false" value="TRICE_PUSH=triceDirectWrite"/>
+									<listOptionValue builtIn="false" value="TRICE_VARIANT=SEGGER_RTTD"/>
 								</option>
 								<option id="com.tasking.arm.cc.includePaths.299526106" name="Include paths" superClass="com.tasking.arm.cc.includePaths" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;C:\repos\trice\srcTrice.C&quot;"/>

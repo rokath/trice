@@ -1,6 +1,6 @@
 /*****************************************************
  *
- * TASKING_GenericSTMF030R8_RTT.c
+ * TASKING_GenericSTMF030R8_RTTB.c
  *
  * Description : Hello World in C, ANSI-style
  *
@@ -22,7 +22,7 @@ int main(void)
 
 
 	TRICE16_1( Id(45373), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
-    TRICE0( Id(35421), "att:TASKING_GenericSTMF030R8_RTT\n" );
+    TRICE0( Id(55230), "att:TASKING_GenericSTMF030R8_RTTB\n" );
     TRICE16_1( Id(45373), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
     TRICE16_1( Id(45373), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
     TRICE16_1( Id(45373), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );

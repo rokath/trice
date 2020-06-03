@@ -1167,5 +1167,12 @@
 		"fmtStrg": "att:MDK-ARM_LL_RTTD_NUCLEO-F030R8\\n",
 		"created": 1591131729,
 		"removed": 0
+	},
+	{
+		"id": 55230,
+		"fmtType": "TRICE0",
+		"fmtStrg": "att:TASKING_GenericSTMF030R8_RTTB\\n",
+		"created": 1591170819,
+		"removed": 0
 	}
 ]

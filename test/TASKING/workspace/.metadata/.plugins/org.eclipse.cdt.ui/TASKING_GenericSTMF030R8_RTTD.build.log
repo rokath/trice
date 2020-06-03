@@ -1,0 +1,18 @@
+
+**** Clean-only build of configuration Debug for project TASKING_GenericSTMF030R8_RTTD ****
+
+"C:\\Program Files (x86)\\TASKING\\carm v5.2r1\\bin\\amk" -j8 pre-build 
+Update trice IDs
+trice u -src .. -src ../../../srcTrice.C -list ../../til.json
+dir= C:\repos\trice\test\TASKING_GenericSTMF030R8_RTTD
+list= C:\repos\trice\test\til.json
+168 ID's in list C:\repos\trice\test\til.json
+dir= C:\repos\trice\srcTrice.C
+list= C:\repos\trice\test\til.json
+168 ID's in list C:\repos\trice\test\til.json
+
+"C:\\Program Files (x86)\\TASKING\\carm v5.2r1\\bin\\amk" -j8 clean 
+Cleaning
+
+Time consumed: 417 ms
+**** End of build ****

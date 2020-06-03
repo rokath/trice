@@ -4,10 +4,17 @@
 
 ![TASKING-EcliopseIDE.PNG](./README.media/TASKING-EcliopseIDE.PNG)
 
-## TASKING_GenericSTMF030R8_RTT
+## TASKING_GenericSTMF030R8_RTTB (buffered RTT)
 - About: [SeggerRTT.md](SeggerRTT.md)
+- ~ 22 clocks
 
-![TASKING_GenericSTMF030R8_RTT.PNG](./README.media/TASKING_GenericSTMF030R8_RTT.PNG)
+  ![TASKING_GenericSTMF030R8_RTTB_0.PNG](./README.media/TASKING_GenericSTMF030R8_RTTB_0.PNG)
+
+## TASKING_GenericSTMF030R8_RTT (unbuffered RTT)
+- About: [SeggerRTT.md](SeggerRTT.md)
+- It is possible to add test messages as well. Their characters get discarded but appear also on the display.
+
+![TASKING_GenericSTMF030R8_RTT_0.PNG](./README.media/TASKING_GenericSTMF030R8_RTT_0.PNG)
 
 ## TASKING_GenericSTMF030R8_RTTD
 - About: [SeggerRTT.md](SeggerRTT.md)
