@@ -1174,5 +1174,40 @@
 		"fmtStrg": "att:TASKING_GenericSTMF030R8_RTTB\\n",
 		"created": 1591170819,
 		"removed": 0
+	},
+	{
+		"id": 47010,
+		"fmtType": "TRICE0",
+		"fmtStrg": "att:MDK-ARM_LL_RTTB_NUCLEO-F030R8\\n",
+		"created": 1591184976,
+		"removed": 0
+	},
+	{
+		"id": 26926,
+		"fmtType": "TRICE0",
+		"fmtStrg": "att:MDK-ARM_LL_RTT_NUCLEO-F070RB\\n",
+		"created": 1591184993,
+		"removed": 0
+	},
+	{
+		"id": 40508,
+		"fmtType": "TRICE0",
+		"fmtStrg": "att:MDK-ARM_LL_RTTB_NUCLEO-F070RB\\n",
+		"created": 1591184995,
+		"removed": 0
+	},
+	{
+		"id": 29025,
+		"fmtType": "TRICE0",
+		"fmtStrg": "att:IAR_EWARM_HAL_UART_NUCLEO-F070RB\\n",
+		"created": 1591187982,
+		"removed": 0
+	},
+	{
+		"id": 29530,
+		"fmtType": "TRICE0",
+		"fmtStrg": "att:IAR_EWARM_HAL_UART_NUCLEO-F070RB\\n",
+		"created": 1591188045,
+		"removed": 0
 	}
 ]

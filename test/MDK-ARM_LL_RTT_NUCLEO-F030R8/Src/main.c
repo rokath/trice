@@ -129,12 +129,7 @@ int main(void)
       //////////////////////////////////////////////////
 
       //////////////////////////////////////////////////
-      // needed background activity
-      //
-        #ifdef LL_INTERFACE_NO_INTERRUPTS
-        triceServe();
-        #endif
-      //
+      // no needed background activity
       //////////////////////////////////////////////////        
     /* USER CODE END WHILE */
 

@@ -103,7 +103,7 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
     TRICE16_1( Id( 2625), "TIM:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
-    TRICE0( Id(25753), "att:MDK-ARM_LL_RTT_NUCLEO-F070RB\n" );
+    TRICE0( Id(26926), "att:MDK-ARM_LL_RTT_NUCLEO-F070RB\n" );
     TRICE16_1( Id( 2625), "TIM:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
     TRICE16_1( Id( 2625), "TIM:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
     TRICE16_1( Id( 2625), "TIM:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
@@ -129,12 +129,7 @@ int main(void)
       //////////////////////////////////////////////////
 
       //////////////////////////////////////////////////
-      // needed background activity
-      //
-        #ifdef LL_INTERFACE_NO_INTERRUPTS
-        triceServe();
-        #endif
-      //
+      // no needed background activity
       //////////////////////////////////////////////////        
     /* USER CODE END WHILE */
 

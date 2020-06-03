@@ -34,9 +34,11 @@ Many in the examples used compilers are free of charge for firmware images up to
 ### Automatic update of trice ID list
 - Before Build - User command: `trice u -src .. -src  ../../../srcTrice.C -list ../../til.json` should be counfigured with correct path locations
 
-## Specific Infos (alphabetical order)
+- The `til.json` file is the common trice ID list file for all demo projects.
 
-- [TestExamplesARM-MDK.md](TestExamplesARM-MDK.md)
+## Specific Infos (alphabetical order)
+- [TestExamplesARM-MDK.md](TestExamplesARM-MDK.md) (done)
+- [TestExamplesAtollicSTM32.md](TestExamplesAtollicSTM32.md) (done)
 - [TestExamplesIAR-EWARM](TestExamplesIAR-EWARM)
 - [TestExamplesSTM32CubeIDE.md](TestExamplesSTM32CubeIDE.md)
 - [TestExamplesTASKING.md](TestExamplesTASKING.md)

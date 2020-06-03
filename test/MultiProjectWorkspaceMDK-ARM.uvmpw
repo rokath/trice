@@ -24,8 +24,11 @@
   </project>
 
   <project>
+    <PathAndName>.\MDK-ARM_LL_RTTB_NUCLEO-F030R8\MDK-ARM\MDK-ARM_LL_RTTB_NUCLEO-F030R8.uvprojx</PathAndName>
+  </project>
+
+  <project>
     <PathAndName>.\MDK-ARM_LL_RTTD_NUCLEO-F030R8\MDK-ARM\MDK-ARM_LL_RTTD_NUCLEO-F030R8.uvprojx</PathAndName>
-    <NodeIsActive>1</NodeIsActive>
   </project>
 
   <project>
@@ -34,6 +37,12 @@
 
   <project>
     <PathAndName>.\MDK-ARM_LL_RTT_NUCLEO-F070RB\MDK-ARM\MDK-ARM_LL_RTT_NUCLEO-F070RB.uvprojx</PathAndName>
+  </project>
+
+  <project>
+    <PathAndName>.\MDK-ARM_LL_RTTB_NUCLEO-F070RB\MDK-ARM\MDK-ARM_LL_RTTB_NUCLEO-F070RB.uvprojx</PathAndName>
+    <NodeIsActive>1</NodeIsActive>
+    <NodeIsExpanded>1</NodeIsExpanded>
   </project>
 
   <project>

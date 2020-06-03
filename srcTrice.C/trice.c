@@ -16,6 +16,15 @@ The trices (macros) are dumped as 32bit values into a 32 bit fifo. That is the t
 
 #if TRICE_CODE
 
+
+//! partial prefilled trice message transmit buffer
+static ALIGN4 triceMsg_t triceMsg ALIGN4_END = {
+    { TRICE_START_BYTE,  TRICE_LOCAL_ADDR,  TRICE_DISPL_ADDR, 0 }, // crc8
+    {{ 0, 0 }} // 16bit ID, 16bit data
+}; // https://stackoverflow.com/questions/13746033/how-to-repair-warning-missing-braces-around-initializer
+
+
+
 #if TRICE_FIFO_SIZE
 
 //! trice fifo instance, here are the trices buffered. used in TRICE macro expansion
@@ -44,13 +53,21 @@ static unsigned triceFifoDepth( void ){
     return triceDepth;
 }
 
+static void prepareNextTriceTransmission(void);
 
-//! partial prefilled trice message transmit buffer
-static ALIGN4 triceMsg_t triceMsg ALIGN4_END = {
-    { TRICE_START_BYTE,  TRICE_LOCAL_ADDR,  TRICE_DISPL_ADDR, 0 }, // crc8
-    {{ 0, 0 }} // 16bit ID, 16bit data
-}; // https://stackoverflow.com/questions/13746033/how-to-repair-warning-missing-braces-around-initializer
+void triceToWriteBuffer( void ){
+    uint32_t depth = triceFifoDepth();
+    if( depth ){ // trice for transfer available
+        if( triceWriteSpace() < TRICE_WRITE_SPACE_MIN){ // no space in write buffer
+            return; // don't transfer trices if buffer is too full
+        }
+        triceFifoPop( &(triceMsg.ld) );
+        prepareNextTriceTransmission();
+        triceWrite( &triceMsg, sizeof(triceMsg) );
+    }
+}
 
+#endif
 
 //! pull next trice from fifo and prepare triceMsg buffer
 static void prepareNextTriceTransmission(void){
@@ -75,19 +92,4 @@ void tricePush( uint32_t v ){
     prepareNextTriceTransmission();
     triceWrite( &triceMsg, sizeof(triceMsg) );
 }
-
-void triceToWriteBuffer( void ){
-    uint32_t depth = triceFifoDepth();
-    if( depth ){ // trice for transfer available
-        if( triceWriteSpace() < TRICE_WRITE_SPACE_MIN){ // no space in write buffer
-            return; // don't transfer trices if buffer is too full
-        }
-        triceFifoPop( &(triceMsg.ld) );
-        prepareNextTriceTransmission();
-        triceWrite( &triceMsg, sizeof(triceMsg) );
-    }
-}
-
-#endif
-
 #endif // #if TRICE_CODE

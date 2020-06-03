@@ -14,15 +14,19 @@
 
 "--device=STM32F070RB" 
 
+"--drv_communication=USB0" 
+
+"--drv_interface_speed=auto" 
+
+"--jlink_initial_speed=1000" 
+
+"--jlink_reset_strategy=0,0" 
+
 "--drv_interface=SWD" 
-
-"--stlink_reset_strategy=0,2" 
-
-"--drv_swo_clock_setup=48000000,0,2000000" 
 
 "--drv_catch_exceptions=0x000" 
 
-"--drv_debug_ap=0" 
+"--drv_swo_clock_setup=72000000,0,2000000" 
 
 
 

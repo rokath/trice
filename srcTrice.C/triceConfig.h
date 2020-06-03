@@ -99,8 +99,8 @@ extern "C" {
 #define TRICE_PUSH(v) triceFifoPush(v)
 #define TRICE_FIFO_SIZE 256 //!< must be a power of 2, one trice needs 4 to 32 bytes, must hold trice bursts until they are transmitted, fifo is transmitted with lower priority
 #define TRICE_SERVER_TICK ms
-//#define LL_INTERFACE_NO_INTERRUPTS
-#define LL_INTERFACE_WITH_INTERRUPTS
+//#define LL_INTERFACE_NO_INTERRUPTS // a trice needs about 4 clocks less for no handling CRITICAL-SECTION
+#define LL_INTERFACE_WITH_INTERRUPTS // a trice needs about 4 clocks longer for handling CRITICAL-SECTION
 #include "triceConfigTx.h"
 
 #elif TRICE_VARIANT == STM32_HAL
@@ -117,7 +117,7 @@ extern UART_HandleTypeDef huart2;
 #elif TRICE_VARIANT == SEGGER_RTTB
 #include "SEGGER_RTT.h"
 #define TRICE_PUSH(v) triceFifoPush(v)
-#define TRICE_FIFO_SIZE 256 //!< must be a power of 2, one trice needs 4 to 32 bytes, must hold trice bursts until they are transmitted, fifo is transmitted with lower priority
+#define TRICE_FIFO_SIZE 1024 //!< must be a power of 2, one trice needs 4 to 32 bytes, must hold trice bursts until they are transmitted, fifo is transmitted with lower priority
 #define LL_INTERFACE_NO_INTERRUPTS
 
 #elif TRICE_VARIANT == SEGGER_RTT
@@ -146,7 +146,7 @@ extern uint16_t writeCountMax;
 #ifndef TRICE_WRITE_BUFFER_SIZE
 #define TRICE_WRITE_BUFFER_SIZE 600 //!< only used inside triceWrite.c
 #endif
-#define TRICE_WRITE_COUNT_LIMIT (TRICE_WRITE_BUFFER_SIZE * 2 / 3 //!< allowed filling for trice transfer 
+#define TRICE_WRITE_COUNT_LIMIT (TRICE_WRITE_BUFFER_SIZE * 2 / 3 //!< allowed filling for trice transfer
 #define TRICE_WRITE_SPACE_MIN 8 //!<
 //#define TRICE_PAUSE triceWriteServer(); // do{ Pause(); } while(0) // put your own Pause here, if needed
 

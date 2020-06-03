@@ -1,4 +1,5 @@
 # MDK-ARM_LL_RTTD_NUCLEO-F070RB
+- direct RTT
 - About: [SeggerRTT.md](SeggerRTT.md)
 - ~ 270 clocks: This is significant slower than with RTT but still so fast, that it is ok for many cases.
 - The main advantage here is, that the trices go directly out and need no triceServe in target code.

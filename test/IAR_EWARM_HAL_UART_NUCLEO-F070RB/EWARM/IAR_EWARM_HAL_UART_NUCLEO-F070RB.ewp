@@ -690,7 +690,7 @@
             <name>BUILDACTION</name>
             <archiveVersion>1</archiveVersion>
             <data>
-                <prebuild></prebuild>
+                <prebuild>trice u -src $PROJ_DIR$/.. -src $PROJ_DIR$/../../../srcTrice.C -list $PROJ_DIR$/../../til.json</prebuild>
                 <postbuild></postbuild>
             </data>
         </settings>

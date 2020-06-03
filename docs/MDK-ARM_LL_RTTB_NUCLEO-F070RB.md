@@ -1,0 +1,6 @@
+# MDK-ARM_LL_RTTB_NUCLEO-F070RB
+- buffered RTT
+- About: [SeggerRTT.md](SeggerRTT.md)
+- ~18 clocks
+
+![MDK-ARM_LL_RTTB_NUCLEO-F070RB.PNG](./README.media/MDK-ARM_LL_RTTB_NUCLEO-F070RB.PNG)

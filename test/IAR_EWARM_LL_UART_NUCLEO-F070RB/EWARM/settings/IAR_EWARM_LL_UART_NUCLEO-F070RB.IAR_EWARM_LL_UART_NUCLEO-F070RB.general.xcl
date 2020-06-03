@@ -1,6 +1,6 @@
 "C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.4\arm\bin\armproc.dll" 
 
-"C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.4\arm\bin\armstlink2.dll" 
+"C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.4\arm\bin\armjlink2.dll" 
 
 "C:\repos\trice\test\IAR_EWARM_LL_UART_NUCLEO-F070RB\EWARM\IAR_EWARM_LL_UART_NUCLEO-F070RB\Exe\IAR_EWARM_LL_UART_NUCLEO-F070RB.out" 
 
