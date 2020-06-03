@@ -24,4 +24,11 @@
   - TRICE_VARIANT=SEGGER_RTT
   - TRICE_PUSH=triceDirectWrite
 ![TASKING_GenericsSTMF030R8_RTTD_ok_IDE.PNG](./README.media/TASKING_GenericsSTMF030R8_RTTD_ok_IDE.PNG)
-![TASKING_GenericsSTMF030R8_RTTD_ok_log.PNG](./README.media/TASKING_GenericsSTMF030R8_RTTD_ok_log.PNG)
+- ~230 clocks
+
+  ![TASKING_GenericSTMF030R8_RTTD.PNG](./README.media/TASKING_GenericSTMF030R8_RTTD.PNG)
+
+- ~190 clocks with time optimization
+
+  ![TASKING_GenericSTMF030R8_RTTD_TimeOpt.PNG](./README.media/TASKING_GenericSTMF030R8_RTTD_TimeOpt.PNG)
+

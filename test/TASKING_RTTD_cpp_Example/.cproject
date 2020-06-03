@@ -20,8 +20,12 @@
 							<tool id="com.tasking.arm.cc.abs.debug.217935682" name="C/C++ Compiler" superClass="com.tasking.arm.cc.abs.debug">
 								<option id="com.tasking.arm.cc.pr36858.137189516" name="workaround for PR36858" superClass="com.tasking.arm.cc.pr36858" value="true" valueType="string"/>
 								<option id="com.tasking.arm.cc.ioStreams.1117486453" name="Support for C++ I/O streams" superClass="com.tasking.arm.cc.ioStreams" value="true" valueType="boolean"/>
-								<option id="com.tasking.arm.cc.definedSymbols.769771215" superClass="com.tasking.arm.cc.definedSymbols" valueType="definedSymbols">
+								<option id="com.tasking.arm.cc.definedSymbols.769771215" name="Defined symbols" superClass="com.tasking.arm.cc.definedSymbols" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="TRICE_VARIANT=SEGGER_RTTD"/>
+								</option>
+								<option id="com.tasking.arm.cc.includePaths.1002741270" superClass="com.tasking.arm.cc.includePaths" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;C:\repos\trice\third_party\SEGGER_RTT_V672b\RTT&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;C:\repos\trice\srcTrice.C&quot;"/>
 								</option>
 								<inputType id="com.tasking.arm.cppInputType.1676419982" name="C++" superClass="com.tasking.arm.cppInputType"/>
 								<inputType id="com.tasking.arm.cpp.cInputType.972878064" name="C" superClass="com.tasking.arm.cpp.cInputType"/>
@@ -36,11 +40,21 @@
 							</tool>
 						</toolChain>
 					</folderInfo>
+					<sourceEntries>
+						<entry excluding="trice|SeggerRTT" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="SeggerRTT"/>
+						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="trice"/>
+					</sourceEntries>
 				</configuration>
 			</storageModule>
 			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
 			<storageModule moduleId="com.tasking.toolInfo">
+				<toolInfo>TASKING VX-toolset for ARM Cortex: object linker v5.2r1 Build 186 SN 08075645</toolInfo>
+				<toolInfo>TASKING VX-toolset for ARM Cortex: control program v5.2r1 Build 159</toolInfo>
+				<toolInfo>TASKING VX-toolset for ARM Cortex: C++ compiler v5.2r1 Build 115 SN 08075645</toolInfo>
 				<toolInfo>TASKING program builder v5.2r1 Build 101</toolInfo>
+				<toolInfo>TASKING VX-toolset for ARM Cortex: assembler v5.2r1 Build 182</toolInfo>
+				<toolInfo>TASKING VX-toolset for ARM Cortex: C compiler v5.2r1 Build 843 SN 08075645</toolInfo>
 			</storageModule>
 		</cconfiguration>
 		<cconfiguration id="com.tasking.config.arm.abs.release.176931105">
@@ -56,7 +70,7 @@
 					<folderInfo id="com.tasking.config.arm.abs.release.176931105." name="/" resourcePath="">
 						<toolChain id="com.tasking.arm.abs.release.912745245" name="TASKING VX-toolset for ARM" superClass="com.tasking.arm.abs.release">
 							<option id="com.tasking.arm.prodDir.223404961" name="Product directory:" superClass="com.tasking.arm.prodDir" value="${eclipse_home}/.." valueType="string"/>
-							<option id="com.tasking.arm.pluginVersion.1810660315" superClass="com.tasking.arm.pluginVersion" value="1.194.0.0" valueType="string"/>
+							<option id="com.tasking.arm.pluginVersion.1810660315" name="Plugin version" superClass="com.tasking.arm.pluginVersion" value="1.194.0.0" valueType="string"/>
 							<targetPlatform archList="all" binaryParser="com.tasking.managedbuilder.TASKING_ELF" id="com.tasking.arm.platform.abs.release.188698777" name="Release" osList="" superClass="com.tasking.arm.platform.abs.release"/>
 							<builder buildPath="${workspace_loc:/TASKING_RTTD_cpp_Example/Release}" id="com.tasking.arm.builder.abs.debug.965611094" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="TASKING ARM Makefile generator" parallelBuildOn="true" parallelizationNumber="unlimited" superClass="com.tasking.arm.builder.abs.debug"/>
 							<tool id="com.tasking.arm.cc.abs.release.1343582764" name="C/C++ Compiler" superClass="com.tasking.arm.cc.abs.release">
@@ -66,7 +80,7 @@
 								<inputType id="com.tasking.arm.cc.msInputType.469077104" name="MS" superClass="com.tasking.arm.cc.msInputType"/>
 							</tool>
 							<tool id="com.tasking.arm.as.abs.release.2134767029" name="Assembler" superClass="com.tasking.arm.as.abs.release">
-								<option id="com.tasking.arm.as.debugInfo.abs.release.1398640633" superClass="com.tasking.arm.as.debugInfo.abs.release" value="com.tasking.arm.as.debugInfo.smart" valueType="enumerated"/>
+								<option id="com.tasking.arm.as.debugInfo.abs.release.1398640633" name="Generate symbolic debug:" superClass="com.tasking.arm.as.debugInfo.abs.release" value="com.tasking.arm.as.debugInfo.smart" valueType="enumerated"/>
 								<inputType id="com.tasking.arm.asmInputType.511165725" name="ASM" superClass="com.tasking.arm.asmInputType"/>
 							</tool>
 							<tool id="com.tasking.arm.lk.abs.release.1091996368" name="Linker" superClass="com.tasking.arm.lk.abs.release">
@@ -75,6 +89,11 @@
 							</tool>
 						</toolChain>
 					</folderInfo>
+					<sourceEntries>
+						<entry excluding="trice|SeggerRTT" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="SeggerRTT"/>
+						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="trice"/>
+					</sourceEntries>
 				</configuration>
 			</storageModule>
 			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>

@@ -15,6 +15,9 @@
 
 #include <stdio.h>
 
+#include "SEGGER_RTT.h"
+#include "trice.h"
+
 class   Complex
 {
         int     re_part;
@@ -79,6 +82,22 @@ int     main(void)
         printf( "Negate previous  : " );
         c3 = -c3;
         c3.Print();
+
+    	// initialize systick
+    	*(uint32_t*)0xE000E010 = 0;          // SysTick->CTRL = 0;   // Disable SysTick
+    	*(uint32_t*)0xE000E014 = 0x00FFFFFF; // SysTick->LOAD = 0x00ffffff; // Count down from 999 to 0
+    	*(uint32_t*)0xE000E018 = 0;          // SysTick->VAL = 0;    // Clear current value to 0
+    	*(uint32_t*)0xE000E010 = 0x5;        // SysTick->CTRL = 0x7; // Enable SysTick, and use processor clock
+    										 // no exception
+
+        TRICE_RTTD_SYNC;
+        TRICE16_1( Id(45373), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
+        TRICE0( Id(28187), "att:TASKING_RTTD_cpp_Example\n" );
+        TRICE16_1( Id(45373), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
+        TRICE16_1( Id(45373), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
+        TRICE16_1( Id(45373), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
+        TRICE16_1( Id(45373), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
+        triceCheckSet(0);
 
         printf( "End of Program\n" );
         return 0;

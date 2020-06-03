@@ -132,7 +132,7 @@ extern UART_HandleTypeDef huart2;
 #define LL_INTERFACE_NO_INTERRUPTS
 
 #elif TRICE_VARIANT == SEGGER_RTTD
-#pragma message ( "TRICE_VARIANT == SEGGER_RTTD" )
+//#pragma message ( "TRICE_VARIANT == SEGGER_RTTD" )
 #include "SEGGER_RTT.h"
 #define TRICE_FIFO_SIZE 0 //!< must be a power of 2, one trice needs 4 to 32 bytes, must hold trice bursts until they are transmitted, fifo is transmitted with lower priority
 #define TRICE_PUSH(v) do{ uint32_t y = v; SEGGER_RTT_Write( 0, &y, sizeof(uint32_t) ); }while(0)

@@ -35,6 +35,11 @@
 									<listOptionValue builtIn="false" value="&quot;C:\Program Files (x86)\TASKING\carm v5.2r1\eclipse\plugins\com.tasking.arm.vendors.stm32_1.37.0.0\cmsis\Include&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;C:\repos\trice\third_party\SEGGER_RTT_V672b\RTT&quot;"/>
 								</option>
+								<option id="com.tasking.arm.cc.optimize.480496103" name="Optimization level:" superClass="com.tasking.arm.cc.optimize" value="com.tasking.arm.cc.optimize.custom" valueType="enumerated"/>
+								<option id="com.tasking.arm.cc.tradeoff.352744854" name="Trade-off between speed and size:" superClass="com.tasking.arm.cc.tradeoff" value="com.tasking.arm.cc.tradeoff.0" valueType="enumerated"/>
+								<option id="com.tasking.arm.cc.optimize.inlining.1607860177" superClass="com.tasking.arm.cc.optimize.inlining" value="true" valueType="boolean"/>
+								<option id="com.tasking.arm.cc.optimize.unroll.194681371" superClass="com.tasking.arm.cc.optimize.unroll" value="true" valueType="boolean"/>
+								<option id="com.tasking.arm.cc.optimize.cluster.1396294038" superClass="com.tasking.arm.cc.optimize.cluster" value="true" valueType="boolean"/>
 								<inputType id="com.tasking.arm.cppInputType.1108973904" name="C++" superClass="com.tasking.arm.cppInputType"/>
 								<inputType id="com.tasking.arm.cpp.cInputType.919593580" name="C" superClass="com.tasking.arm.cpp.cInputType"/>
 								<inputType id="com.tasking.arm.cc.msInputType.850230217" name="MS" superClass="com.tasking.arm.cc.msInputType"/>
@@ -59,7 +64,11 @@
 			</storageModule>
 			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
 			<storageModule moduleId="com.tasking.toolInfo">
+				<toolInfo>TASKING VX-toolset for ARM Cortex: object linker v5.2r1 Build 186 SN 08075645</toolInfo>
+				<toolInfo>TASKING VX-toolset for ARM Cortex: control program v5.2r1 Build 159</toolInfo>
 				<toolInfo>TASKING program builder v5.2r1 Build 101</toolInfo>
+				<toolInfo>TASKING VX-toolset for ARM Cortex: assembler v5.2r1 Build 182</toolInfo>
+				<toolInfo>TASKING VX-toolset for ARM Cortex: C compiler v5.2r1 Build 843 SN 08075645</toolInfo>
 			</storageModule>
 		</cconfiguration>
 		<cconfiguration id="com.tasking.config.arm.abs.release.1013769977">
