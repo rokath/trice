@@ -15,3 +15,5 @@
 - Needs ST-Link "STM32Debug+VCP" and **NOT** "STM32Debug+Mass storage+VCP" (change with ST-Link utility)
 - Needs to ignore this:
 ![TASKING_NoST-LinkDrivers.PNG](./README.media/TASKING_NoST-LinkDrivers.PNG)
+- ~190 clocks
+  ![TASKING_GenericSTMF070RB_RTTDclocks.PNG](./README.media/TASKING_GenericSTMF070RB_RTTDclocks.PNG)

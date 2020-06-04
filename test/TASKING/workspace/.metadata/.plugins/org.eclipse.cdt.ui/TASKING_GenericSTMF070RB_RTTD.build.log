@@ -6,12 +6,12 @@ update trice IDs
 trice u -src .. -src ../../../srcTrice.C -list ../../til.json
 dir= C:\repos\trice\test\TASKING_GenericSTMF070RB_RTTD
 list= C:\repos\trice\test\til.json
-173 ID's in list C:\repos\trice\test\til.json
+431 ID's in list C:\repos\trice\test\til.json
 dir= C:\repos\trice\srcTrice.C
 list= C:\repos\trice\test\til.json
-173 ID's in list C:\repos\trice\test\til.json
+431 ID's in list C:\repos\trice\test\til.json
 
 "C:\\Program Files (x86)\\TASKING\\carm v5.2r1\\bin\\amk" -j8 all 
 
-Time consumed: 324 ms
+Time consumed: 351 ms
 **** End of build ****

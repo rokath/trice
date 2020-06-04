@@ -12,6 +12,7 @@
   - [TASKING_GenericSTMF030R8_RTTD](TASKING_GenericSTMF030R8_RTTD.md)
     - ~ 190 clocks
   - [TASKING_GenericSTMF070RB_RTTD](TASKING_GenericSTMF070RB_RTTD.md)
+    - ~190 clocks
   - [TASKING_RTTD_cpp_Example](TASKING_RTTD_cpp_Example.md)
     - ~ 190 clocks
   - [TASKING_STM32F4DISC_Audio_Service](TASKING_STM32F4DISC_Audio_Service.md)
