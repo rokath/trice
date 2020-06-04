@@ -37,7 +37,7 @@ public:
 
 void    Complex::Print(void)
 {
-        printf("re = %2d, im = %2d\n", re_part, im_part);
+	TRICE_P("re = %2d, im = %2d\n", re_part, im_part);
 }
 
 Complex operator+(Complex c1, Complex c2)
@@ -66,20 +66,22 @@ int     main(void)
         Complex c2(2);
         Complex c3;
 
-        printf( "Complex number c1: " );
+        TRICE_RTTD_SYNC;
+
+        TRICE0( Id(10341), "Complex number c1: " );
         c1.Print();
-        printf( "Complex number c2: " );
+        TRICE0( Id( 5368), "Complex number c2: " );
         c2.Print();
 
-        printf( "Calculate c1 + c2: " );
+        TRICE0( Id(41892), "Calculate c1 + c2: " );
         c3 = c1 + c2;
         c3.Print();
 
-        printf( "Calculate c2 - c1: " );
+        TRICE0( Id(62733), "Calculate c2 - c1: " );
         c3 = c2 - c1;
         c3.Print();
 
-        printf( "Negate previous  : " );
+        TRICE0( Id(48854), "Negate previous  : " );
         c3 = -c3;
         c3.Print();
 
@@ -90,9 +92,9 @@ int     main(void)
     	*(uint32_t*)0xE000E010 = 0x5;        // SysTick->CTRL = 0x7; // Enable SysTick, and use processor clock
     										 // no exception
 
-        TRICE_RTTD_SYNC;
+
         TRICE16_1( Id(45373), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
-        TRICE0( Id(28187), "att:TASKING_RTTD_cpp_Example\n" );
+        TRICE0( Id(14438), "att:TASKING_RTTD_cpp_Example\n" );
         TRICE16_1( Id(45373), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
         TRICE16_1( Id(45373), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
         TRICE16_1( Id(45373), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );

@@ -64,7 +64,7 @@ void main( void )
     	*/
         TRICE_RTTD_SYNC;
         TRICE16_1( Id(45373), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
-        TRICE0( Id(28187), "att:TASKING_STM32F4DISC_Audio_Service_RTTD\n" );
+        TRICE0( Id( 6321), "att:TASKING_STM32F4DISC_Audio_Service_RTTD\n" );
         TRICE16_1( Id(45373), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
         TRICE16_1( Id(45373), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
         TRICE16_1( Id(45373), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );

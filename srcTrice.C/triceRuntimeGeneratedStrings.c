@@ -37,22 +37,22 @@ static void triceRuntimeGeneratedStringUnbound( const char* s ){
     while( len ){
         switch( len ){
             case  0: return;
-            case  1: c1=*s;
+            case  1: c1=*s++;
                 TRICE8_1( Id(36152), "%c", c1 ); return;
-            case  2: c1=*s++; c2=*s;
+            case  2: c1=*s++; c2=*s++;
                 TRICE8_2( Id(49862), "%c%c", c1, c2 ); return;
-            case  3: c1=*s++; c2=*s++; c3=*s;
+            case  3: c1=*s++; c2=*s++; c3=*s++;
                 TRICE8_3( Id(60898), "%c%c%c", c1, c2, c3 ); return;
-            case  4: c1=*s++; c2=*s++; c3=*s++; c4=*s;
+            case  4: c1=*s++; c2=*s++; c3=*s++; c4=*s++;
                 TRICE8_4( Id(57970), "%c%c%c%c", c1, c2, c3, c4 ); return;
-            case  5: c1=*s++; c2=*s++; c3=*s++; c4=*s++; c5=*s;
+            case  5: c1=*s++; c2=*s++; c3=*s++; c4=*s++; c5=*s++;
                 TRICE8_5( Id(49813), "%c%c%c%c%c", c1, c2, c3, c4, c5 ); return;
-            case  6: c1=*s++; c2=*s++; c3=*s++; c4=*s++; c5=*s++; c6=*s;
+            case  6: c1=*s++; c2=*s++; c3=*s++; c4=*s++; c5=*s++; c6=*s++;
                 TRICE8_6( Id(10201), "%c%c%c%c%c%c", c1, c2, c3, c4, c5, c6 ); return;
-            case  7: c1=*s++; c2=*s++; c3=*s++; c4=*s++; c5=*s++; c6=*s++; c7=*s;
+            case  7: c1=*s++; c2=*s++; c3=*s++; c4=*s++; c5=*s++; c6=*s++; c7=*s++;
                 TRICE8_7( Id(57439), "%c%c%c%c%c%c%c", c1, c2, c3, c4, c5, c6, c7); return;
             case  8:
-            default: c1 = *s++; c2 = *s++; c3 = *s++; c4 = *s++; c5 = *s++; c6 = *s++; c7 = *s++; c8 = *s;
+            default: c1 = *s++; c2 = *s++; c3 = *s++; c4 = *s++; c5 = *s++; c6 = *s++; c7 = *s++; c8 = *s++;
                 TRICE8_8( Id(53018), "%c%c%c%c%c%c%c%c", c1, c2, c3, c4, c5, c6, c7, c8 );
                 len -= 8;
         }

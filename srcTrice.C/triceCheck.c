@@ -19,13 +19,15 @@ void triceCheckSet( int index )
 {
     switch(index){
         case 0:
-            TRICE_P( "Hello %s this is a %dst printf replacement.\n", "world", 1 ); // visible only with defined TRICE_PRINTF_ADAPTER
-            TRICE16_1( Id(46097), "dbg:12345 as 16bit is %#016b\n", 12345 );
-            TRICE0 (Id(13584), "--------------------------------------------------\r\n\n" );
+        	TRICE0 (Id( 1227), "--------------------------------------------------\r\n" );
+        	TRICE_P( "Hello %s, this is a %dst printf replacement.\n", "world", 1 ); // visible only with defined TRICE_PRINTF_ADAPTER
+        	TRICE0 (Id(34030), "--------------------------------------------------\r\n" );
+        	TRICE16_1( Id(46097), "dbg:12345 as 16bit is %#016b\n", 12345 );
+            TRICE0 (Id(17469), "--------------------------------------------------\r\n" );
             TRICE_ASSERT(0==0);
-            TRICE0( Id(10084), "sig:This ASSERT error is just a demo and no real error: "); 
+            TRICE0( Id(44415), "sig:This ASSERT error is just a demo and no real error:\n");
             TRICE_ASSERT(0==1);
-            TRICE0 (Id(25340), "--------------------------------------------------\r\n\n" );
+            TRICE0 (Id( 7622), "--------------------------------------------------\r\n" );
         break;
         case 1:
             TRICE16_1( Id( 1199), "ERR:error       message, SysTick is %6d\n", SYSTICKVAL16 );

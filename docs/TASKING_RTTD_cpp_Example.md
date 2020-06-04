@@ -8,3 +8,10 @@ TASKING_RTTD_cpp_Example
 - rename cpp directory in workspace to TASKING_RTTD_cpp_Example, adapt names internally and move to projects folder
 - Import existing project
 - Next steps like first steps in - [TASKING_STM32F4DISC_Audio_Service](TASKING_STM32F4DISC_Audio_Service.md)
+
+- Also:
+  ![TASKING_RTTD_cpp_ExampleP.PNG](./README.media/TASKING_RTTD_cpp_ExampleP.PNG)
+- When selecting NUCLEO, the SeggerRTT debug probe is not selectable, so going for Generic:
+  ![TASKING_RTTD_cpp_ExampleD.PNG](./README.media/TASKING_RTTD_cpp_ExampleD.PNG)
+-
+  ![TASKING_RTTD_cpp_Example.PNG](./README.media/TASKING_RTTD_cpp_Example.PNG)

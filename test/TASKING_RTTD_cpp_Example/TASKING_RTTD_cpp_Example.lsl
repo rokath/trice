@@ -10,4 +10,12 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 
+#if defined(__PROC_ARMV7_M__)
+#include "cm3.lsl"
+#elif defined(__PROC_ARMV6_M__)
+#include "cm0.lsl"
+#elif defined(__PROC_STM32F030R8__)
+#include "stm32f0xx.lsl"
+#else
 #include <device.lsl>
+#endif

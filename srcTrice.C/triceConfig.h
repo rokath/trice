@@ -97,7 +97,6 @@ extern "C" {
 #endif
 
 #if TRICE_VARIANT == STM32_LL
-#pragma message ( "TRICE_VARIANT == STM32_LL" )
 #define TRICE_PUSH(v) triceFifoPush(v)
 #define TRICE_FIFO_SIZE 256 //!< must be a power of 2, one trice needs 4 to 32 bytes, must hold trice bursts until they are transmitted, fifo is transmitted with lower priority
 #define TRICE_SERVER_TICK ms
@@ -106,7 +105,6 @@ extern "C" {
 #include "triceConfigTx.h"
 
 #elif TRICE_VARIANT == STM32_HAL
-#pragma message ( "TRICE_VARIANT == STM32_HAL" )
 #define TRICE_PUSH(v) triceFifoPush(v) // tricePush( v )
 #define TRICE_FIFO_SIZE 256 //!< must be a power of 2, one trice needs 4 to 32 bytes, must hold trice bursts until they are transmitted, fifo is transmitted with lower priority
 #include "main.h" // hardware specific stuff
@@ -118,27 +116,23 @@ extern UART_HandleTypeDef huart2;
 #define HAL_INTERFACE_DMA_MODE
 
 #elif TRICE_VARIANT == SEGGER_RTTB
-#pragma message ( "TRICE_VARIANT == SEGGER_RTTB" )
 #include "SEGGER_RTT.h"
 #define TRICE_PUSH(v) triceFifoPush(v)
 #define TRICE_FIFO_SIZE 1024 //!< must be a power of 2, one trice needs 4 to 32 bytes, must hold trice bursts until they are transmitted, fifo is transmitted with lower priority
 #define LL_INTERFACE_NO_INTERRUPTS
 
 #elif TRICE_VARIANT == SEGGER_RTT
-#pragma message ( "TRICE_VARIANT == SEGGER_RTT" )
 #include "SEGGER_RTT.h"
 #define TRICE_PUSH(v) tricePush( v )
 #define TRICE_FIFO_SIZE 0 //!< must be a power of 2, one trice needs 4 to 32 bytes, must hold trice bursts until they are transmitted, fifo is transmitted with lower priority
 #define LL_INTERFACE_NO_INTERRUPTS
 
 #elif TRICE_VARIANT == SEGGER_RTTD
-//#pragma message ( "TRICE_VARIANT == SEGGER_RTTD" )
 #include "SEGGER_RTT.h"
 #define TRICE_FIFO_SIZE 0 //!< must be a power of 2, one trice needs 4 to 32 bytes, must hold trice bursts until they are transmitted, fifo is transmitted with lower priority
 #define TRICE_PUSH(v) do{ uint32_t y = v; SEGGER_RTT_Write( 0, &y, sizeof(uint32_t) ); }while(0)
 
 #elif TRICE_VARIANT == SEGGER_RTTD_ASM
-#pragma message ( "TRICE_VARIANT == SEGGER_RTTD_ASM" )
 #include "SEGGER_RTT.h"
 #define TRICE_FIFO_SIZE 0 //!< must be a power of 2, one trice needs 4 to 32 bytes, must hold trice bursts until they are transmitted, fifo is transmitted with lower priority
 //#define RTT_USE_ASM (0)
