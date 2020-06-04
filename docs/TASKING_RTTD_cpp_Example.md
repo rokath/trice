@@ -10,8 +10,15 @@ TASKING_RTTD_cpp_Example
 - Next steps like first steps in - [TASKING_STM32F4DISC_Audio_Service](TASKING_STM32F4DISC_Audio_Service.md)
 
 - Also:
-  ![TASKING_RTTD_cpp_ExampleP.PNG](./README.media/TASKING_RTTD_cpp_ExampleP.PNG)
-- When selecting NUCLEO, the SeggerRTT debug probe is not selectable, so going for Generic:
-  ![TASKING_RTTD_cpp_ExampleD.PNG](./README.media/TASKING_RTTD_cpp_ExampleD.PNG)
--
-  ![TASKING_RTTD_cpp_Example.PNG](./README.media/TASKING_RTTD_cpp_Example.PNG)
+  - Set `Allow GNU C++ extensions`
+
+    ![LanguageDefaults.jpegG](./README.media/LanguageDefaults.jpeg)
+    ![LanguageSetting.jpeg](./README.media/LanguageSetting.jpeg)
+  - Set Hardware
+  
+    ![TASKING_RTTD_cpp_ExampleP.PNG](./README.media/TASKING_RTTD_cpp_ExampleP.PNG)
+  - When selecting NUCLEO, the SeggerRTT debug probe is not selectable, so going for Generic:
+
+    ![TASKING_RTTD_cpp_ExampleD.PNG](./README.media/TASKING_RTTD_cpp_ExampleD.PNG)
+- Output:    
+![TASKING_RTTD_cpp_Example.PNG](./README.media/TASKING_RTTD_cpp_Example.PNG)

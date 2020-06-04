@@ -9,7 +9,7 @@
 <stringAttribute key="com.tasking.debug.cdt.core.FSS_ROOT" value="${project_loc}\${build_config}"/>
 <stringAttribute key="com.tasking.debug.cdt.core.GDILOG_FILE_NAME" value=""/>
 <booleanAttribute key="com.tasking.debug.cdt.core.GOTO_MAIN" value="true"/>
-<booleanAttribute key="com.tasking.debug.cdt.core.INTERRUPT_AWARE_STEPPING" value="false"/>
+<booleanAttribute key="com.tasking.debug.cdt.core.INTERRUPT_AWARE_STEPPING" value="true"/>
 <stringAttribute key="com.tasking.debug.cdt.core.MSGLOG_FILE_NAME" value=""/>
 <booleanAttribute key="com.tasking.debug.cdt.core.RESET_TARGET" value="true"/>
 <stringAttribute key="com.tasking.debug.cdt.core.TARGET" value="STMicroelectronics STM32F4 Discovery Kit"/>

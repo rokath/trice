@@ -21,7 +21,7 @@
 							<builder buildPath="${workspace_loc:/STM32F4DISC_Audio_Service/Debug}" errorParsers="" id="com.tasking.arm.builder.abs.debug.1272560342" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="TASKING ARM Makefile generator" parallelBuildOn="true" parallelizationNumber="optimal" superClass="com.tasking.arm.builder.abs.debug"/>
 							<tool command="ccarm" commandLinePattern="${COMMAND} ${FLAGS} ${OUTPUT_FLAG} ${OUTPUT_PREFIX}${OUTPUT} ${INPUTS}" errorParsers="com.tasking.managedbuilder.TskRegexErrorParser" id="com.tasking.arm.cc.abs.debug.1160326691" name="C/C++ Compiler" superClass="com.tasking.arm.cc.abs.debug">
 								<option id="com.tasking.arm.cc.pr36858.1241286482" name="workaround for PR36858" superClass="com.tasking.arm.cc.pr36858" value="true" valueType="string"/>
-								<option id="com.tasking.arm.cc.optimize.1968255722" name="Optimization level:" superClass="com.tasking.arm.cc.optimize" value="com.tasking.arm.cc.optimize.3" valueType="enumerated"/>
+								<option id="com.tasking.arm.cc.optimize.1968255722" name="Optimization level:" superClass="com.tasking.arm.cc.optimize" value="com.tasking.arm.cc.optimize.0" valueType="enumerated"/>
 								<option id="com.tasking.arm.cc.cmsisIncludePaths.364457973" name="Add CMSIS include paths" superClass="com.tasking.arm.cc.cmsisIncludePaths" value="true" valueType="boolean"/>
 								<option id="com.tasking.arm.cc.generatedOptions.1397782020" name="Generated options:" superClass="com.tasking.arm.cc.generatedOptions" value=" -D__SWPLATFORM__ -I&quot;${workspace_loc:/${ProjName}}/SoftwarePlatform/Configuration&quot; -I&quot;${workspace_loc:/${ProjName}}/SoftwarePlatform/services/platform/audio/include&quot; -I&quot;${workspace_loc:/${ProjName}}/SoftwarePlatform/platform/external/drivers/cs4322/include&quot; -I&quot;${workspace_loc:/${ProjName}}/SoftwarePlatform/platform/generic/interfaces/gpio/include&quot; -I&quot;${workspace_loc:/${ProjName}}/SoftwarePlatform/platform/generic/interfaces/i2cm/include&quot; -I&quot;${workspace_loc:/${ProjName}}/SoftwarePlatform/platform/generic/interfaces/i2sm/include&quot; -I&quot;${workspace_loc:/${ProjName}}/SoftwarePlatform/platform/pal/interrupts/include&quot; -I&quot;${workspace_loc:/${ProjName}}/SoftwarePlatform/platform/discrete/processors/cortex/include&quot; -I&quot;${workspace_loc:/${ProjName}}/SoftwarePlatform/platform/discrete/stm32/pal_arch_cortex_variant/include&quot; -I&quot;${workspace_loc:/${ProjName}}/SoftwarePlatform/platform/discrete/stm32/firmware/cmsis/CM4/CoreSupport&quot; -I&quot;${workspace_loc:/${ProjName}}/SoftwarePlatform/platform/discrete/stm32/firmware/cmsis/CM4/DeviceSupport/ST/STM32F4xx&quot; -I&quot;${workspace_loc:/${ProjName}}/SoftwarePlatform/platform/discrete/stm32/firmware/cmsis/include&quot; -DSTM32F4XX=1 -DUSE_STDPERIPH_DRIVER=1 -I&quot;${workspace_loc:/${ProjName}}/SoftwarePlatform/platform/discrete/stm32/firmware/stm32f4xx_stdperiph_driver/inc&quot; -I&quot;${workspace_loc:/${ProjName}}/SoftwarePlatform/services/sysutils/include&quot; -I&quot;${workspace_loc:/${ProjName}}/SoftwarePlatform/platform/pal/timing/include&quot;" valueType="string"/>
 								<option id="com.tasking.arm.cc.tradeoff.2112481013" name="Trade-off between speed and size:" superClass="com.tasking.arm.cc.tradeoff" value="com.tasking.arm.cc.tradeoff.0" valueType="enumerated"/>
@@ -147,11 +147,7 @@
 			</storageModule>
 			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
 			<storageModule moduleId="com.tasking.toolInfo">
-				<toolInfo>TASKING VX-toolset for ARM Cortex: object linker v5.2r1 Build 186 SN 08075645</toolInfo>
-				<toolInfo>TASKING VX-toolset for ARM Cortex: control program v5.2r1 Build 159</toolInfo>
 				<toolInfo>TASKING program builder v5.2r1 Build 101</toolInfo>
-				<toolInfo>TASKING VX-toolset for ARM Cortex: assembler v5.2r1 Build 182</toolInfo>
-				<toolInfo>TASKING VX-toolset for ARM Cortex: C compiler v5.2r1 Build 843 SN 08075645</toolInfo>
 			</storageModule>
 			<storageModule addStartupFiles="false" moduleId="com.tasking.processor"/>
 			<storageModule moduleId="com.tasking.flash.settings"/>
@@ -178,5 +174,9 @@
 			<content-type-mapping configuration="" content-type="org.eclipse.cdt.core.cxxSource" language="com.tasking.arm.cpplanguage"/>
 		</project-mappings>
 	</storageModule>
-	<storageModule moduleId="refreshScope"/>
+	<storageModule moduleId="refreshScope" versionNumber="2">
+		<configuration configurationName="Debug">
+			<resource resourceType="PROJECT" workspacePath="/STM32F4DISC_Audio_Service"/>
+		</configuration>
+	</storageModule>
 </cproject>

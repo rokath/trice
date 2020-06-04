@@ -2987,5 +2987,33 @@
 		"fmtStrg": "Negate previous  : ",
 		"created": 1591268074,
 		"removed": 0
+	},
+	{
+		"id": 10447,
+		"fmtType": "TRICE0",
+		"fmtStrg": "Failed to initialize audio service",
+		"created": 1591270179,
+		"removed": 0
+	},
+	{
+		"id": 33334,
+		"fmtType": "TRICE0",
+		"fmtStrg": "Successfully initialized audio service\\n",
+		"created": 1591270179,
+		"removed": 0
+	},
+	{
+		"id": 25827,
+		"fmtType": "TRICE0",
+		"fmtStrg": "Play 'sound.wav'\\n-\u003e ",
+		"created": 1591270179,
+		"removed": 0
+	},
+	{
+		"id": 14691,
+		"fmtType": "TRICE0",
+		"fmtStrg": "Invalid wav file\\n",
+		"created": 1591270221,
+		"removed": 0
 	}
 ]

@@ -6,28 +6,12 @@ Update trice IDs
 trice u -src .. -src ../../../srcTrice.C -list ../../til.json
 dir= C:\repos\trice\test\TASKING_GenericSTMF030R8_RTTD
 list= C:\repos\trice\test\til.json
-173 ID's in list C:\repos\trice\test\til.json
+431 ID's in list C:\repos\trice\test\til.json
 dir= C:\repos\trice\srcTrice.C
 list= C:\repos\trice\test\til.json
-173 ID's in list C:\repos\trice\test\til.json
+431 ID's in list C:\repos\trice\test\til.json
 
-"C:\\Program Files (x86)\\TASKING\\carm v5.2r1\\bin\\amk" -j8 all -a 
-Compiling TASKING_GenericSTMF030R8_RTTD.c
-Compiling SEGGER_RTT.c
-Compiling SEGGER_RTT_printf.c
-Compiling trice.c
-Compiling triceCheck.c
-Compiling tricePrintfAdapter.c
-Compiling triceRuntimeGeneratedStrings.c
-Compiling triceWriteSeggerRTT.c
-TRICE_VARIANT == SEGGER_RTTD
-Compiling system_stm32f0xx.c
-TRICE_VARIANT == SEGGER_RTTD
-TRICE_VARIANT == SEGGER_RTTD
-TRICE_VARIANT == SEGGER_RTTD
-TRICE_VARIANT == SEGGER_RTTD
-TRICE_VARIANT == SEGGER_RTTD
-Linking to TASKING_GenericSTMF030R8_RTTD.abs
+"C:\\Program Files (x86)\\TASKING\\carm v5.2r1\\bin\\amk" -j8 all 
 
-Time consumed: 1275 ms
+Time consumed: 349 ms
 **** End of build ****

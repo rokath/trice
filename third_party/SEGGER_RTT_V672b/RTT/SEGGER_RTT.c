@@ -585,8 +585,8 @@ unsigned SEGGER_RTT_ReadUpBufferNoLock(unsigned BufferIndex, void* pData, unsign
 #else
     SEGGER_RTT_MEMCPY(pBuffer, pRing->pBuffer + RdOff, NumBytesRem);
     NumBytesRead += NumBytesRem;
-  //pBuffer      += NumBytesRem;
-  //BufferSize   -= NumBytesRem;
+    pBuffer      += NumBytesRem;
+    BufferSize   -= NumBytesRem;
     RdOff        += NumBytesRem;
 #endif
   }
@@ -679,8 +679,8 @@ unsigned SEGGER_RTT_ReadNoLock(unsigned BufferIndex, void* pData, unsigned Buffe
 #else
     SEGGER_RTT_MEMCPY(pBuffer, pRing->pBuffer + RdOff, NumBytesRem);
     NumBytesRead += NumBytesRem;
-  //pBuffer      += NumBytesRem;
-  //BufferSize   -= NumBytesRem;
+    pBuffer      += NumBytesRem;
+    BufferSize   -= NumBytesRem;
     RdOff        += NumBytesRem;
 #endif
   }

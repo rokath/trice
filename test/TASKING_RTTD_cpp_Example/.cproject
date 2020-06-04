@@ -15,7 +15,7 @@
 				<configuration artifactName="${ProjName}" buildArtefactType="com.tasking.arm.buildArtefactType.elf" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=com.tasking.arm.buildArtefactType.elf" cleanCommand="&quot;${PRODDIR}/bin/rm&quot; -rf" description="" id="com.tasking.config.arm.abs.debug.977243869" name="Debug" parent="com.tasking.config.arm.abs.debug">
 					<folderInfo id="com.tasking.config.arm.abs.debug.977243869." name="/" resourcePath="">
 						<toolChain id="com.tasking.arm.abs.debug.123036571" name="TASKING VX-toolset for ARM" superClass="com.tasking.arm.abs.debug">
-							<option id="com.tasking.arm.pluginVersion.1667608011" name="Plugin version" superClass="com.tasking.arm.pluginVersion" value="0.0.0.0" valueType="string"/>
+							<option id="com.tasking.arm.pluginVersion.1667608011" name="Plugin version" superClass="com.tasking.arm.pluginVersion" value="1.194.0.0" valueType="string"/>
 							<option id="com.tasking.arm.cpu.1257798860" name="Processor:" superClass="com.tasking.arm.cpu" value="stm32f030r8" valueType="string"/>
 							<targetPlatform archList="all" id="com.tasking.arm.platform.abs.debug.1914732900" name="Debug" osList="" superClass="com.tasking.arm.platform.abs.debug"/>
 							<builder buildPath="${workspace_loc:/TASKING_RTTD_cpp_Example/Debug}" id="com.tasking.arm.builder.abs.debug.841151030" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="TASKING ARM Makefile generator" parallelBuildOn="true" parallelizationNumber="unlimited" superClass="com.tasking.arm.builder.abs.debug"/>
