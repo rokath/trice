@@ -9,9 +9,10 @@ extern "C" {
 #endif
 
 #include <stdint.h>
-#include "main.h" // hardware specific stuff
 
 #if TRICE_VARIANT == STM32_LL
+
+#include "main.h" // hardware specific stuff
 
 //! Allow interrupt for empty trice data transmit register.
 //! User must provide this function.

@@ -19,6 +19,7 @@ import (
 	"github.com/rokath/trice/internal/id"
 	"github.com/rokath/trice/internal/receiver"
 	"github.com/rokath/trice/internal/receiver/com"
+	"github.com/rokath/trice/internal/receiver/direct"
 	"github.com/rokath/trice/internal/receiver/http"
 	"github.com/rokath/trice/internal/receiver/random"
 	"github.com/rokath/trice/internal/receiver/segger"
@@ -65,7 +66,7 @@ func HandleArgs(args []string) error {
 	pLlf := scLog.String("lf", cage.DefaultLogfileName, "Append all output to logfile. Set to \"off\" or \"none\" to switch off.") // flag
 	pLpre := scLog.String("prefix", "COMport:", "prepend prefix to all lines, set to \"off\"")                                     // flag
 	pLpost := scLog.String("postfix", "\n", "append postfix to all lines")                                                         // flag
-	pLdev := scLog.String("device", "COM", "receiver device, option \"RTT\"")                                                      // flag
+	pLdev := scLog.String("device", "COM", "receiver device, options: HTTP, RTT, RTTD, SIM, RND")                                  // flag
 
 	scCl := flag.NewFlagSet("receiver", flag.ExitOnError)                                                                                   // subcommand
 	pClPort := scCl.String("port", "COMscan", "COM port, options: COM1|...|COM999")                                                         // flag
@@ -80,7 +81,7 @@ func HandleArgs(args []string) error {
 	pRpre := scCl.String("prefix", "COMport:", "prepend prefix to all lines, set to \"off\"")                                               // flag
 	pRpost := scCl.String("postfix", "\n", "append postfix to all lines")                                                                   // flag
 	pClLf := scCl.String("lf", cage.DefaultLogfileName, "If '-ds' append all output to logfile. Set to \"off\" or \"none\" to switch off.") // flag
-	pRdev := scCl.String("device", "COM", "receiver device, option \"RTT\"")                                                                // flag
+	pRdev := scCl.String("device", "COM", "receiver device, options: HTTP, RTT, RTTD, SIM, RND")                                            // flag
 
 	scSv := flag.NewFlagSet("displayServer", flag.ExitOnError)                                                                      // subcommand
 	pSvIPA := scSv.String("ipa", "localhost", "ip address")                                                                         // flag (127.0.0.1)
@@ -310,7 +311,10 @@ func ScLog() error {
 //*/
 
 func receiving() {
-	trice.SetUp()
+	err := trice.SetUp()
+	if nil != err {
+		return
+	}
 	var r io.ReadCloser
 	switch receiver.Device {
 	case "HTTP":
@@ -330,12 +334,19 @@ func receiving() {
 	case "SIM":
 		r = ioutil.NopCloser(simulator.New()) // https://stackoverflow.com/questions/28158990/golang-io-ioutil-nopcloser
 	case "RTT":
+		receiver.DiscardByte = receiver.DiscardASCII
 		s := segger.New()
 		if nil != s.Open() {
 			return
 		}
 		r = s
+	case "RTTD":
 		receiver.DiscardByte = receiver.DiscardASCII
+		d := direct.New()
+		if nil != d.Open() {
+			return
+		}
+		r = d
 	default:
 		fmt.Println(receiver.Device, "is unknown as device")
 		return
@@ -433,7 +444,7 @@ func setPrefix(s string) {
 	case "off", "none":
 		emit.Prefix = ""
 	case "COMport:":
-		emit.Prefix = com.Port + "  " // receiver.Device + " "
+		emit.Prefix = receiver.Device + " " // com.Port + "  " //
 	default:
 		emit.Prefix = s
 	}

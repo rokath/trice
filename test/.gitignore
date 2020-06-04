@@ -24,3 +24,6 @@ JLinkLog.txt
 */Release/*
 */MDK-ARM/Output/*
 *.uvmpw.uvgui.ms
+TASKING.workspace/*
+STM32CubeIDE.workspace/*
+atollicTrueSTUDIO.workspace/*

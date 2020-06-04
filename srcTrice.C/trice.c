@@ -1,6 +1,6 @@
 /*! \file trice.c
 \details The format strings are ignored - they go not into the target binary. See trice tool doc for details.
-The trices (macros) are dumped as 32bit values into a 32 bit fifo. That is the time critical part. 
+The trices (macros) are dumped as 32bit values into a 32 bit fifo. That is the time critical part.
 \li A basic trice (subtrace) consists always of 4 byte: a 16 bit ID with a 16 bit data value.
 \li Trices with more data are split into several 32bit basic trice values with IDs = 0 in front.
 \li TRICE0, TRICE8_1, TRICE8_2 and TRICE16_1 have 4 bytes size, all others have 8 - 32 bytes size.
@@ -16,7 +16,16 @@ The trices (macros) are dumped as 32bit values into a 32 bit fifo. That is the t
 
 #if TRICE_CODE
 
-#ifdef TRICE_FIFO
+
+//! partial prefilled trice message transmit buffer
+static ALIGN4 triceMsg_t triceMsg ALIGN4_END = {
+    { TRICE_START_BYTE,  TRICE_LOCAL_ADDR,  TRICE_DISPL_ADDR, 0 }, // crc8
+    {{ 0, 0 }} // 16bit ID, 16bit data
+}; // https://stackoverflow.com/questions/13746033/how-to-repair-warning-missing-braces-around-initializer
+
+
+
+#if TRICE_FIFO_SIZE
 
 //! trice fifo instance, here are the trices buffered. used in TRICE macro expansion
 ALIGN4 uint32_t triceFifo[ TRICE_FIFO_SIZE>>2 ] ALIGN4_END;
@@ -27,8 +36,9 @@ static uint32_t rdIndexTriceFifo = 0; //!< trice fifo read index
 
 //! get one trice from trice fifo
 //! am p address for trice id with 2 byte data
-TRICE_INLINE void triceFifoPop( uint32_t* p ){
-    *p = triceFifo[rdIndexTriceFifo++];
+TRICE_INLINE void triceFifoPop( void* p ){
+    uint32_t* up = p;
+    *up = triceFifo[rdIndexTriceFifo++];
     rdIndexTriceFifo &= TRICE_FIFO_MASK;
 }
 
@@ -43,13 +53,21 @@ static unsigned triceFifoDepth( void ){
     return triceDepth;
 }
 
-#endif // #ifdef TRICE_FIFO
+static void prepareNextTriceTransmission(void);
 
-//! partial prefilled trice message transmit buffer 
-static ALIGN4 triceMsg_t triceMsg ALIGN4_END = {
-    { TRICE_START_BYTE,  TRICE_LOCAL_ADDR,  TRICE_DISPL_ADDR, 0 }, // crc8
-    { 0, 0 } // 16bit ID, 16bit data
-};
+void triceToWriteBuffer( void ){
+    uint32_t depth = triceFifoDepth();
+    if( depth ){ // trice for transfer available
+        if( triceWriteSpace() < TRICE_WRITE_SPACE_MIN){ // no space in write buffer
+            return; // don't transfer trices if buffer is too full
+        }
+        triceFifoPop( &(triceMsg.ld) );
+        prepareNextTriceTransmission();
+        triceWrite( &triceMsg, sizeof(triceMsg) );
+    }
+}
+
+#endif
 
 //! pull next trice from fifo and prepare triceMsg buffer
 static void prepareNextTriceTransmission(void){
@@ -66,8 +84,6 @@ static void prepareNextTriceTransmission(void){
     #endif
 }
 
-#if TRICE_PUSH == tricePush
-
 //! put one trice into trice fifo
 //! \param v trice id with 2 byte data
 //! trice time critical part
@@ -76,23 +92,4 @@ void tricePush( uint32_t v ){
     prepareNextTriceTransmission();
     triceWrite( &triceMsg, sizeof(triceMsg) );
 }
-
-#endif
-
-#ifdef TRICE_FIFO
-
-void triceToWriteBuffer( void ){
-    uint32_t depth = triceFifoDepth();
-    if( depth ){ // trice for transfer available
-        if( triceWriteSpace() < TRICE_WRITE_SPACE_MIN){ // no space in write buffer
-            return; // don't transfer trices if buffer is too full
-        }
-        triceFifoPop( (uint32_t*)(&(triceMsg.ld)) );
-        prepareNextTriceTransmission();
-        triceWrite( &triceMsg, sizeof(triceMsg) );
-    }
-}
-
-#endif
-
 #endif // #if TRICE_CODE

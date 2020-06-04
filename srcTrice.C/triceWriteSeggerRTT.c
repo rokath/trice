@@ -4,9 +4,7 @@
 
 
 #include <string.h> // memcpy
-#include "triceConfig.h"
 #include "trice.h"
-#include "SEGGER_RTT.h"
 
 
 //! \param buf address to read from
@@ -17,7 +15,7 @@ unsigned triceWrite(const void *buf, int nbytes){
     return (int)SEGGER_RTT_Write(0, buf, nbytes);
 }
 
-#ifdef TRICE_FIFO
+#if TRICE_FIFO_SIZE
 
 unsigned minWriteSpace = 0xFFFFFFFF; //!< for min write space diagnostics
 
@@ -44,4 +42,4 @@ void triceServe( void ){
     triceToWriteBuffer();
 }
 
-#endif // #ifdef TRICE_FIFO
+#endif // #if TRICE_FIFO_SIZE

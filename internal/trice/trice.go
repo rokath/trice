@@ -81,7 +81,7 @@ func SetUp() error {
 		err := id.List.Read(id.FnJSON)
 		if nil != err {
 			fmt.Println("ID list " + id.FnJSON + " not found, exit")
-			return nil
+			return errors.New("file not found")
 		}
 		go id.List.FileWatcher()
 	}

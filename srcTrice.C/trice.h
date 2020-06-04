@@ -1,7 +1,7 @@
 /*! \file trice.h
 \brief Software tracer header file
-\details This file is included in target code files. If TRICE_CODE is defined 
-as NO_CODE (globally or file specific) the TRICE* macros generate no code. 
+\details This file is included in target code files. If TRICE_CODE is defined
+as NO_CODE (globally or file specific) the TRICE* macros generate no code.
 \author thomas.toehenleitner [at] seerose.net
 *******************************************************************************/
 
@@ -12,8 +12,10 @@ as NO_CODE (globally or file specific) the TRICE* macros generate no code.
 extern "C" {
 #endif
 
-#include "triceConfig.h" 
+#include "triceConfig.h"
+#include "triceTick.h"
 #include "triceWrite.h"
+#include "triceCheck.h"
 
 #ifdef ENCRYPT
 #include "xteaCrypto.h"
@@ -26,6 +28,12 @@ extern "C" {
 #ifndef TRICE_SERVE_PERIOD
 #define TRICE_SERVE_PERIOD 1
 #endif
+
+//! trice sync message for RTTdirect environments. The value 5654 is a reserved pattern used as ID and value.
+//! It cannot occure in the trice stream. You must not change that. Otherwise the RTTD syncing will not work.
+//! If for some reason the Id changes during 'trice u', probably when the string changed, you need to remove
+//! the old pattern from til.json and put Id(5654) manually here
+#define TRICE_RTTD_SYNC do{ TRICE16_1( Id(5654), "%d\b\b\b\b", 5654 ); }while(0)
 
 #ifdef TRICE_FILENAME
 #define TRICE_LOC do{ TRICE_FILENAME; TRICE16_1( Id(43789), "msg: line %d ", __LINE__ ); }while(0) //!< trice filename and line
@@ -108,7 +116,7 @@ typedef PACKED union {
 
 //! \code
 //! trice package: header without data packages
-//!   |--------------------------------- fixed packet start0 byte 0xeb 
+//!   |--------------------------------- fixed packet start0 byte 0xeb
 //!   |   |----------------------------- client address (local address byte)
 //!   |   |   |------------------------- server address (destination)
 //!   |   |   |   |--------------------- exclusive-or checksum byte
@@ -118,9 +126,9 @@ typedef PACKED union {
 //!   |   |   |   |   |   |   |   |----- Value High part
 //!   v   v   v   v   v   v   v   v
 //! 0xeb cad sad cr8 idL idH vaL  vaH
-//! 
+//!
 //! com packet: header followed by 0...255 data packages
-//!   |--------------------------------- fixed packet start0 byte 0xc0 
+//!   |--------------------------------- fixed packet start0 byte 0xc0
 //!   |   |----------------------------- following data package count fixed 1 for trice strings
 //!   |   |   |------------------------- server address (destination)
 //!   |   |   |   |--------------------- exclusive-or checksum byte
@@ -129,9 +137,9 @@ typedef PACKED union {
 //!   |   |   |   |   |   |   |--------- packet index (2 lsb packet type and and 6 msb cycle counter)
 //!   |   |   |   |   |   |   |   |----- data package count
 //!   v   v   v   v   v   v   v   v
-//! 0xc0 cad sad cr8 tid fid pix dpc 
-//! 
-//! com type: (part of pix) 
+//! 0xc0 cad sad cr8 tid fid pix dpc
+//!
+//! com type: (part of pix)
 //!       bit1      |      bit0       | meaning
 //!   COM_CMD_FLAG  | COM_ANSWER_FLAG |
 //! ----------------|-----------------|------------------------------------------
@@ -144,20 +152,21 @@ typedef PACKED union {
 typedef PACKED struct {
     triceMsgHeader_t hd; // header
     triceMsgLoad_t ld; // payload
-}PACKED_END triceMsg_t; 
+}PACKED_END triceMsg_t;
 
 ///////////////////////////////////////////////////////////////////////////////
 // fifo functionality
 //
 
-#ifndef TRICE_PUSH
-#define TRICE_PUSH triceFifoPush
-#define TRICE_FIFO
-#endif
-
 void tricePush( uint32_t v );
+void triceDirectWrite( uint32_t v );
 
-#ifdef TRICE_FIFO
+TRICE_INLINE void triceDirectWriteARM7( uint32_t v ){
+    unsigned SEGGER_RTT_WriteSkipNoLock(unsigned BufferIndex, const void* pData, unsigned NumBytes);
+    SEGGER_RTT_WriteSkipNoLock(0, &v, sizeof(uint32_t) );
+}
+
+#if TRICE_FIFO_SIZE
 #define TRICE_FIFO_MASK ((TRICE_FIFO_SIZE>>2)-1) //!< max possible count of items in fifo
 
 extern uint32_t triceFifo[];
@@ -172,7 +181,7 @@ TRICE_INLINE void triceFifoPush( uint32_t v ){
     wrIndexTriceFifo &= TRICE_FIFO_MASK;
 }
 
-#endif // #ifdef TRICE_FIFO
+#endif // #if TRICE_FIFO_SIZE
 
 #endif // #if NO_CODE != TRICE_CODE
 
@@ -206,18 +215,18 @@ TRICE_INLINE void triceFifoPush( uint32_t v ){
 // TRICE macros
 //
 
-//! basic trice macro, assumes d16 to be 
+//! basic trice macro, assumes d16 to be
 //! id trice identifier
 //! \param d16 a 16 bit value
 #define TRICE( id, d16 ) do{ \
-    TRICE_PUSH( (((uint32_t)(d16))<<16) | (id)); \
+    TRICE_PUSH( (((uint32_t)(uint16_t)(d16))<<16) | (id)); \
 } while(0)
 
 //! basic trice macro, assumes d16 to be a 16 bit value
 //! id is 0
 //! \param d16 a 16 bit value
 #define TRICE_ID0( d16 ) do{ \
-    TRICE_PUSH( ((uint32_t)(d16))<<16); \
+    TRICE_PUSH( ((uint32_t)(uint16_t)(d16))<<16); \
 } while(0)
 
 //! trace Id protected (outside critical section)
@@ -246,7 +255,7 @@ TRICE_INLINE void triceFifoPush( uint32_t v ){
 //! \param d1 payload
 #define TRICE8_2( Id, pFmt, d0, d1 ) do{ \
     TRICE_ENTER_CRITICAL_SECTION \
-    TRICE( Id, (((uint32_t)(d1))<<8) | (uint8_t)(d0) ) ; \
+    TRICE( Id,((((uint32_t)((uint8_t)(d1)))<<8) | ((uint8_t)(d0)))) ; \
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
 
@@ -258,7 +267,7 @@ TRICE_INLINE void triceFifoPush( uint32_t v ){
 //! \param d2 payload
 #define TRICE8_3( Id, pFmt, d0, d1, d2 ) do{ \
     TRICE_ENTER_CRITICAL_SECTION \
-    TRICE_ID0( (((uint32_t)(d1))<<8) | (uint8_t)(d0) ) ; \
+    TRICE_ID0( (((uint32_t)((uint8_t)(d1)))<<8) | (uint8_t)(d0) ) ; \
     TRICE( Id, d2 ); \
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
@@ -272,8 +281,8 @@ TRICE_INLINE void triceFifoPush( uint32_t v ){
 //! \param d3 payload
 #define TRICE8_4( Id, pFmt, d0, d1, d2, d3 ) do{ \
     TRICE_ENTER_CRITICAL_SECTION \
-    TRICE_ID0( (((uint32_t)(d1))<<8) | (uint8_t)(d0) ) ; \
-    TRICE( Id, (((uint32_t)(d3))<<8) | (uint8_t)(d2) ) ; \
+    TRICE_ID0(((((uint32_t)(uint8_t)(d1))<<8) | (uint8_t)(d0))) ; \
+    TRICE( Id,((((uint32_t)(uint8_t)(d3))<<8) | (uint8_t)(d2))) ; \
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
 
@@ -287,8 +296,8 @@ TRICE_INLINE void triceFifoPush( uint32_t v ){
 //! \param d4 payload
 #define TRICE8_5( Id, pFmt, d0, d1, d2, d3, d4 ) do{ \
     TRICE_ENTER_CRITICAL_SECTION \
-    TRICE_ID0( (((uint32_t)(d1))<<8) | (uint8_t)(d0) ) ; \
-    TRICE_ID0( (((uint32_t)(d3))<<8) | (uint8_t)(d2) ) ; \
+    TRICE_ID0(((((uint32_t)(uint8_t)(d1))<<8) | (uint8_t)(d0))) ; \
+    TRICE_ID0(((((uint32_t)(uint8_t)(d3))<<8) | (uint8_t)(d2))) ; \
     TRICE( Id, d4 ); \
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
@@ -304,9 +313,9 @@ TRICE_INLINE void triceFifoPush( uint32_t v ){
 //! \param d5 payload
 #define TRICE8_6( Id, pFmt, d0, d1, d2, d3, d4, d5 ) do{ \
     TRICE_ENTER_CRITICAL_SECTION \
-    TRICE_ID0( (((uint32_t)(d1))<<8) | (uint8_t)(d0) ) ; \
-    TRICE_ID0( (((uint32_t)(d3))<<8) | (uint8_t)(d2) ) ; \
-    TRICE( Id, (((uint32_t)(d5))<<8) | (uint8_t)(d4) ) ; \
+    TRICE_ID0(((((uint32_t)(uint8_t)(d1))<<8) | (uint8_t)(d0))) ; \
+    TRICE_ID0(((((uint32_t)(uint8_t)(d3))<<8) | (uint8_t)(d2))) ; \
+    TRICE( Id,((((uint32_t)(uint8_t)(d5))<<8) | (uint8_t)(d4))) ; \
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
 
@@ -322,9 +331,9 @@ TRICE_INLINE void triceFifoPush( uint32_t v ){
 //! \param d6 payload
 #define TRICE8_7( Id, pFmt, d0, d1, d2, d3, d4, d5, d6 ) do{ \
     TRICE_ENTER_CRITICAL_SECTION \
-    TRICE_ID0( (((uint32_t)(d1))<<8) | (uint8_t)(d0) ) ; \
-    TRICE_ID0( (((uint32_t)(d3))<<8) | (uint8_t)(d2) ) ; \
-    TRICE_ID0( (((uint32_t)(d5))<<8) | (uint8_t)(d4) ) ; \
+    TRICE_ID0( (((uint32_t)(uint8_t)(d1))<<8) | (uint8_t)(d0) ) ; \
+    TRICE_ID0( (((uint32_t)(uint8_t)(d3))<<8) | (uint8_t)(d2) ) ; \
+    TRICE_ID0( (((uint32_t)(uint8_t)(d5))<<8) | (uint8_t)(d4) ) ; \
     TRICE( Id, d6 ); \
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
@@ -342,10 +351,10 @@ TRICE_INLINE void triceFifoPush( uint32_t v ){
 //! \param d7 payload
 #define TRICE8_8( Id, pFmt, d0, d1, d2, d3, d4, d5, d6, d7 ) do{ \
     TRICE_ENTER_CRITICAL_SECTION \
-    TRICE_ID0( (((uint32_t)(d1))<<8) | (uint8_t)(d0) ) ; \
-    TRICE_ID0( (((uint32_t)(d3))<<8) | (uint8_t)(d2) ) ; \
-    TRICE_ID0( (((uint32_t)(d5))<<8) | (uint8_t)(d4) ) ; \
-    TRICE( Id, (((uint32_t)(d7))<<8) | (uint8_t)(d6) ) ; \
+    TRICE_ID0(((((uint32_t)(uint8_t)(d1))<<8) | (uint8_t)(d0))) ; \
+    TRICE_ID0(((((uint32_t)(uint8_t)(d3))<<8) | (uint8_t)(d2))) ; \
+    TRICE_ID0(((((uint32_t)(uint8_t)(d5))<<8) | (uint8_t)(d4))) ; \
+    TRICE( Id,((((uint32_t)(uint8_t)(d7))<<8) | (uint8_t)(d6))) ; \
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
 

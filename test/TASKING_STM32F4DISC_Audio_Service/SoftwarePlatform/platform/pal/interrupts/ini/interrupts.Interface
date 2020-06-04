@@ -1,0 +1,19 @@
+;------------------------------------------------------------
+;
+; Copyright (c) 2013-2015 Altium Limited
+;
+; This software is the proprietary, copyrighted property of
+; Altium Ltd. All Right Reserved.
+;
+; SVN revision information:
+; $Rev: 14907 $:
+; $Date: 2015-01-19 13:30:51 +0100 (Mon, 19 Jan 2015) $:
+;
+;------------------------------------------------------------
+
+[Interface]
+Name=interrupts
+Category=SERVICE
+System=False
+Description=Generic interrupt services
+PublicDir=$(SWP_RELPATH)\include

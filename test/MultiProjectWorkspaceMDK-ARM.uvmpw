@@ -8,36 +8,57 @@
   <WorkspaceName>WorkSpace</WorkspaceName>
 
   <project>
-    <PathAndName>.\generatedDemo_NUCLEO-F030R8_LL_MDK-ARM\MDK-ARM\generatedDemo_NUCLEO-F030R8_LL_MDK-ARM.uvprojx</PathAndName>
+    <PathAndName>.\MDK-ARM_LL_generatedDemo_NUCLEO-F030R8\MDK-ARM\MDK-ARM_LL_generatedDemo_NUCLEO-F030R8.uvprojx</PathAndName>
   </project>
 
   <project>
-    <PathAndName>.\triceDemo_NUCLEO-F030R8_HAL_MDK-ARM\MDK-ARM\triceDemo_NUCLEO-F030R8_HAL_MDK-ARM.uvprojx</PathAndName>
+    <PathAndName>.\MDK-ARM_LL_UART_NUCLEO-F030R8\MDK-ARM\MDK-ARM_LL_UART_NUCLEO-F030R8.uvprojx</PathAndName>
   </project>
 
   <project>
-    <PathAndName>.\triceDemo_NUCLEO-F030R8_LL_MDK-ARM\MDK-ARM\triceDemo_NUCLEO-F030R8_LL_MDK-ARM.uvprojx</PathAndName>
+    <PathAndName>.\MDK-ARM_HAL_UART_NUCLEO-F030R8\MDK-ARM\MDK-ARM_HAL_UART_NUCLEO-F030R8.uvprojx</PathAndName>
   </project>
 
   <project>
-    <PathAndName>.\triceDemo_NUCLEO-F030RB_LL_SeggerRTT_MDK-ARM\MDK-ARM\triceDemo_NUCLEO-F030RB_LL_SeggerRTT_MDK-ARM.uvprojx</PathAndName>
+    <PathAndName>.\MDK-ARM_LL_RTT_NUCLEO-F030R8\MDK-ARM\MDK-ARM_LL_RTT_NUCLEO-F030R8.uvprojx</PathAndName>
   </project>
 
   <project>
-    <PathAndName>.\triceDemo_NUCLEO-F070RB_HAL_MDK-ARM\MDK-ARM\triceDemo_NUCLEO-F070RB_HAL_MDK-ARM.uvprojx</PathAndName>
+    <PathAndName>.\MDK-ARM_LL_RTTB_NUCLEO-F030R8\MDK-ARM\MDK-ARM_LL_RTTB_NUCLEO-F030R8.uvprojx</PathAndName>
   </project>
 
   <project>
-    <PathAndName>.\triceDemo_NUCLEO-F070RB_LL_MDK-ARM\MDK-ARM\triceDemo_NUCLEO-F070RB_LL_MDK-ARM.uvprojx</PathAndName>
+    <PathAndName>.\MDK-ARM_LL_RTTD_NUCLEO-F030R8\MDK-ARM\MDK-ARM_LL_RTTD_NUCLEO-F030R8.uvprojx</PathAndName>
+  </project>
+
+  <project>
+    <PathAndName>.\MDK-ARM_HAL_UART_NUCLEO-F070RB\MDK-ARM\MDK-ARM_HAL_UART_NUCLEO-F070RB.uvprojx</PathAndName>
     <NodeIsActive>1</NodeIsActive>
+    <NodeIsExpanded>1</NodeIsExpanded>
   </project>
 
   <project>
-    <PathAndName>.\triceDemo_NUCLEO-F070RB_LL_SeggerRTT_MDK-ARM\MDK-ARM\triceDemo_NUCLEO-F070RB_LL_SeggerRTT_MDK-ARM.uvprojx</PathAndName>
+    <PathAndName>.\MDK-ARM_LL_RTT_NUCLEO-F070RB\MDK-ARM\MDK-ARM_LL_RTT_NUCLEO-F070RB.uvprojx</PathAndName>
   </project>
 
   <project>
-    <PathAndName>.\demoBoard_STM32F030F4F4P6\MDK-ARM\demoBoard_STM32F030F4F4P6.uvprojx</PathAndName>
+    <PathAndName>.\MDK-ARM_LL_RTTB_NUCLEO-F070RB\MDK-ARM\MDK-ARM_LL_RTTB_NUCLEO-F070RB.uvprojx</PathAndName>
+  </project>
+
+  <project>
+    <PathAndName>.\MDK-ARM_LL_RTTD_NUCLEO-F070RB\MDK-ARM\MDK-ARM_LL_RTTD_NUCLEO-F070RB.uvprojx</PathAndName>
+  </project>
+
+  <project>
+    <PathAndName>.\MDK-ARM_LL_UART_NUCLEO-F070RB\MDK-ARM\MDK-ARM_LL_UART_NUCLEO-F070RB.uvprojx</PathAndName>
+  </project>
+
+  <project>
+    <PathAndName>.\MDK-ARM_LL_UART_demoBoard_STM32F030F4F4P6\MDK-ARM\MDK-ARM_LL_UART_demoBoard_STM32F030F4F4P6.uvprojx</PathAndName>
+  </project>
+
+  <project>
+    <PathAndName>.\MDK-ARM_RTTD_STM32F0300-DISCO\MDK-ARM\MDK-ARM_RTTD_STM32F0300-DISCO.uvprojx</PathAndName>
   </project>
 
 </ProjectWorkspace>

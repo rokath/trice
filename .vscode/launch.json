@@ -76,7 +76,7 @@
             "env": {},
             "args": ["log",
                      "-device",
-                     "HTTP",
+                     "RTTD",
                      "-list",
                      "${workspaceFolder}/test/til.json",
                      "-key",

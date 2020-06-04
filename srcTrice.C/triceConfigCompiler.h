@@ -11,7 +11,8 @@ extern "C" {
 
 
 #if defined( __GNUC__ ) /* gnu compiler ###################################### */ \
- || defined (__IAR_SYSTEMS_ICC__) /* IAR compiler ############################ */
+ || defined(__IAR_SYSTEMS_ICC__) /* IAR compiler ############################# */ \
+ || defined(__TASKING__) /* TASKING compiler (same bugs as GNU!)############## */
 
 #define TRICE_INLINE static inline //! used for trice code
 

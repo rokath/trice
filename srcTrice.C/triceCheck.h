@@ -12,7 +12,7 @@
 extern "C" {
 #endif
 
-void triceCheckSet( void );
+void triceCheckSet( int index );
 
 #ifdef __cplusplus
 }
