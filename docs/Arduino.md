@@ -1,0 +1,3 @@
+# Arduino
+
+- install arduino-cli
