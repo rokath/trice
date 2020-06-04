@@ -113,8 +113,9 @@ int main(void)
       // demo trices
       //
       static uint32_t ms_1 = 0;
-      if( ms >= ms_1 + 3000 ){ // every 3 sec
-          triceCheckSet(ms%20);
+      if( ms >= ms_1 + 1000 ){ // every sec
+          static int index = 0;
+          triceCheckSet(index++%20);
           TRICE32_1( Id(29200), "time:ms = %d\n", ms );
           LL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
           ms_1 = ms;

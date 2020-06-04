@@ -37,11 +37,11 @@ Many in the examples used compilers are free of charge for firmware images up to
 - The `til.json` file is the common trice ID list file for all demo projects.
 
 ## Specific Infos (alphabetical order)
-- [TestExamplesARM-MDK.md](TestExamplesARM-MDK.md) (done)
-- [TestExamplesAtollicSTM32.md](TestExamplesAtollicSTM32.md) (done)
-- [TestExamplesIAR-EWARM.md](TestExamplesIAR-EWARM.md) (done)
-- [TestExamplesSTM32CubeIDE.md](TestExamplesSTM32CubeIDE.md) (todo)
-- [TestExamplesTASKING.md](TestExamplesTASKING.md) (half)
+- [TestExamplesARM-MDK.md](TestExamplesARM-MDK.md)
+- [TestExamplesAtollicSTM32.md](TestExamplesAtollicSTM32.md)
+- [TestExamplesIAR-EWARM.md](TestExamplesIAR-EWARM.md)
+- [TestExamplesSTM32CubeIDE.md](TestExamplesSTM32CubeIDE.md)
+- [TestExamplesTASKING.md](TestExamplesTASKING.md)
 
 ## TODO projects (work in progress)
 - [TestExamplesWIP.md](TestExamplesWIP.md)
