@@ -3,7 +3,8 @@ TASKING_RTTD_cpp_Example
 - TASKING_cpp-Example
 - About: [SeggerRTT.md](SeggerRTT.md)
 - Import TASKING C/C++ -> TASKING ARM Example Projects -> cpp Project
-![TASKING_cpp-Example.PNG](./README.media/TASKING_cpp-Example.PNG)
+
+  ![TASKING_cpp-Example.PNG](./README.media/TASKING_cpp-Example.PNG)
 - remove new cpp Project reference from workspace
 - rename cpp directory in workspace to TASKING_RTTD_cpp_Example, adapt names internally and move to projects folder
 - Import existing project
@@ -20,5 +21,7 @@ TASKING_RTTD_cpp_Example
   - When selecting NUCLEO, the SeggerRTT debug probe is not selectable, so going for Generic:
 
     ![TASKING_RTTD_cpp_ExampleD.PNG](./README.media/TASKING_RTTD_cpp_ExampleD.PNG)
-- Output:    
-![TASKING_RTTD_cpp_Example.PNG](./README.media/TASKING_RTTD_cpp_Example.PNG)
+- Output:
+  - ~ 190 clocks 
+
+    ![TASKING_RTTD_cpp_Example.PNG](./README.media/TASKING_RTTD_cpp_Example.PNG)
