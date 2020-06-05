@@ -105,4 +105,4 @@ is example code and for testing
 ### RealTimeTransfer
 - see [./docs/SeggerRTT.md](./docs/SeggerRTT.md)
 ### Examples
-- see [./docs/TestExamples.md](./docs/TestExamples.md) and [./docs/triceDemo_NUCLEO-F030R8_LL_MDK-ARM.md](./docs/triceDemo_NUCLEO-F030R8_LL_MDK-ARM.md)
+- follow [./docs/TestExamples.md](./docs/TestExamples.md)
