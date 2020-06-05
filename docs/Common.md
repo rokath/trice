@@ -154,9 +154,6 @@ Afterwards you should find an executable `trice` inside $GOPATH/bin/
 trice help
 ```
 
-## Demo project setup
-- see [DemoF030R8.md](./DemoF030R8.md)
-
 ## Otions for `trice` tool
 The trice tool can be started in several modes (subcommands), each with several mantadory or optional switches. Switches can have parameters or not.
 ```
