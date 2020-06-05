@@ -6,7 +6,6 @@
 #define TRICE_FILENAME TRICE0( Id(60411), "rd_:triceWrite.c" );
 
 #include <string.h> // memcpy
-#include "triceConfig.h"
 #include "trice.h"
 
 ALIGN4 static uint8_t pStart[TRICE_WRITE_BUFFER_SIZE] ALIGN4_END; //!< write out buffer

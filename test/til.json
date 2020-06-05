@@ -3015,5 +3015,33 @@
 		"fmtStrg": "Invalid wav file\\n",
 		"created": 1591270221,
 		"removed": 0
+	},
+	{
+		"id": 31296,
+		"fmtType": "TRICE0",
+		"fmtStrg": "att:STM32CubeIDE_RTTD_DISCOVERY-STM32F051R8Tx\\n",
+		"created": 1591357067,
+		"removed": 0
+	},
+	{
+		"id": 32955,
+		"fmtType": "TRICE0",
+		"fmtStrg": "att:STM32CubeIDE_RTTD_NUCLEO-F091\\n",
+		"created": 1591357181,
+		"removed": 0
+	},
+	{
+		"id": 18289,
+		"fmtType": "TRICE0",
+		"fmtStrg": "att:STM32CubeIDE_RTTD_NUCLEO-G474\\n",
+		"created": 1591357193,
+		"removed": 0
+	},
+	{
+		"id": 47000,
+		"fmtType": "TRICE0",
+		"fmtStrg": "att:STM32CubeIDE_HAL_UART_NUCLEO-G474\\n",
+		"created": 1591365452,
+		"removed": 0
 	}
 ]

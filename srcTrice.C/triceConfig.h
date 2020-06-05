@@ -31,6 +31,7 @@ extern "C" {
 
 #define STM32_LL 132
 #define STM32_HAL 232
+#define STM32_HAL_G4 234
 #define SEGGER_RTT 333
 #define SEGGER_RTTB 334
 #define SEGGER_RTTD 335
@@ -110,6 +111,17 @@ extern "C" {
 #include "main.h" // hardware specific stuff
 extern UART_HandleTypeDef huart2;
 #define TRICE_UART_HANDLE_PTR (&huart2)
+#define TRICE_SERVER_TICK HAL_GetTick()
+//#define HAL_INTERFACE_BLOCKING_MODE
+//#define HAL_INTERFACE_INTERRUPT_MODE
+#define HAL_INTERFACE_DMA_MODE
+
+#elif TRICE_VARIANT == STM32_HAL_G4
+#define TRICE_PUSH(v) triceFifoPush(v) // tricePush( v )
+#define TRICE_FIFO_SIZE 256 //!< must be a power of 2, one trice needs 4 to 32 bytes, must hold trice bursts until they are transmitted, fifo is transmitted with lower priority
+#include "main.h" // hardware specific stuff
+extern UART_HandleTypeDef hlpuart1;
+#define TRICE_UART_HANDLE_PTR (&hlpuart1)
 #define TRICE_SERVER_TICK HAL_GetTick()
 //#define HAL_INTERFACE_BLOCKING_MODE
 //#define HAL_INTERFACE_INTERRUPT_MODE
