@@ -1,18 +1,23 @@
-# Segger RTT
-- Segger RTT is a technique to transfer data from target to host without using an interface despite the debug probe.
-  - This does not occupy any physical device port nedded for the app during developmemt.
-  - The transfer can be done in background without occupying the target processor despite memcopy actions.
-- If you have a compatible ST-Link (board), the Segger J-Link on-Board firmware is needed or you can use a physical Segger debug probe. This way all target communication interfaces are usable for the application during development.
+# Segger Real Time Transfer (RTT) 
+- Detailed description can be found in document [UM08001_JLink.pdf](../third_party/Manuals/UM08001_JLink.pdf) in chapter 16 which is part of [https://www.segger.com/downloads/jlink/#J-LinkSoftwareAndDocumentationPack](https://www.segger.com/downloads/jlink/#J-LinkSoftwareAndDocumentationPack).
+- `JLinkRTTClient.exe` can be used for simple text transmitting to the target, it also displays strings  from target coming over channel 0. It is not used by the trice tool but can run separately parallel to stimulate the target with any proprietary protocol.
+- `JLinkRTTViewer.exe` is not recommended anymore for trice usage because it interprets the trice data stream and therefore some trices can get lost. Anyway it was used only as a transfer bridge because the trice tool could connect to it over TCP.
+- `JLinkRTTLogger.exe` is usable for writing RTT channel N data from target into a file. The trice tool can watch this file and display them. The main advantage is that several instances can watch on different RTT chanels and all goes in parallel to debugging.
+```
+$ ./JLinkRTTLogger.exe -Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0 triceRaw.log
+```
+- If you have a compatible ST-Link (board), the Segger J-Link on-board firmware is needed or you can use a physical Segger debug probe. This way all target communication interfaces are usable for the application during development.
+- In future other debug probes will be supported as well.
 
-## Convert a NUCLEO 
-- Following steps describe the needed steps for a STM NUCLEO board and windows - adapt them to your environment.
-  - Get & install [STM32 ST-LINK utility](https://www.st.com/en/development-tools/stsw-link004.html) 
-  - Run from default install location `"C:\Program Files (x86)\STMicroelectronics\STM32 ST-LINK Utility\ST-LINK Utility\ST-LinkUpgrade.exe"`)
-  - Enable checkbox `Change Type` and select radio button `STM32 Debug+Mass storage + VCP` The `STM32 Debug+ VCP` won´t be detected by Segger reflash utility.
-  - Check [https://www.segger.com/products/debug-probes/j-link/models/other-j-links/st-link-on-board/](https://www.segger.com/products/debug-probes/j-link/models/other-j-links/st-link-on-board/)
-  - Use `STLinkReflash.exe` to convert NUCLEO from ST-Link on-board to J-Link on-board. `STM32 Debug+ VCP` won´t be detected by Segger reflash utility.
+## Convert a NUCLEO (valid for ST-Link v2 & v2.1, not for v3)
+Following steps describe the needed action for a STM NUCLEO board and windows - adapt them to your environment.
+- Get & install [STM32 ST-LINK utility](https://www.st.com/en/development-tools/stsw-link004.html) 
+- Run from default install location `"C:\Program Files (x86)\STMicroelectronics\STM32 ST-LINKUtility\ST-LINK Utility\ST-LinkUpgrade.exe"`)
+- Enable checkbox `Change Type` and select radio button `STM32 Debug+Mass storage + VCP` The `STM32Debug+ VCP` won´t be detected by Segger reflash utility.
+- Check [https://www.segger.com/products/debug-probes/j-link/models/other-j-links/st-link-on-board/(https://www.segger.com/products/debug-probes/j-link/models/other-j-links/st-link-on-board/)
+- Use `STLinkReflash.exe` to convert NUCLEO from ST-Link on-board to J-Link on-board. `STM32 Debug+ VCP` won´t be detected by Segger reflash utility.
 
-## Software Setup
+## Software Setup example
   - Build and flash `triceDemo_NUCLEO-F030RB_LL_SeggerRTT_MDK-ARM`
   - Download [J-Link Software and Documentation Pack](https://www.segger.com/downloads/jlink/#J-LinkSoftwareAndDocumentationPack) and install
   - Start `"C:\Program Files (x86)\SEGGER\JLink\JLinkRTTViewer.exe"` and connect to the J-Link. You only need this as a running server to connect to.

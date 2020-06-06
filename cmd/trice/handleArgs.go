@@ -22,6 +22,7 @@ import (
 	"github.com/rokath/trice/internal/receiver/direct"
 	"github.com/rokath/trice/internal/receiver/http"
 	"github.com/rokath/trice/internal/receiver/random"
+	"github.com/rokath/trice/internal/receiver/rttfile"
 	"github.com/rokath/trice/internal/receiver/segger"
 	"github.com/rokath/trice/internal/receiver/simulator"
 	"github.com/rokath/trice/internal/trice"
@@ -66,7 +67,7 @@ func HandleArgs(args []string) error {
 	pLlf := scLog.String("lf", cage.DefaultLogfileName, "Append all output to logfile. Set to \"off\" or \"none\" to switch off.") // flag
 	pLpre := scLog.String("prefix", "COMport:", "prepend prefix to all lines, set to \"off\"")                                     // flag
 	pLpost := scLog.String("postfix", "\n", "append postfix to all lines")                                                         // flag
-	pLdev := scLog.String("device", "COM", "receiver device, options: HTTP, RTT, RTTD, SIM, RND")                                  // flag
+	pLdev := scLog.String("device", "COM", "receiver device, options: HTTP, RTT, RTTD, SIM, RND, RTTF")                            // flag
 
 	scCl := flag.NewFlagSet("receiver", flag.ExitOnError)                                                                                   // subcommand
 	pClPort := scCl.String("port", "COMscan", "COM port, options: COM1|...|COM999")                                                         // flag
@@ -81,7 +82,7 @@ func HandleArgs(args []string) error {
 	pRpre := scCl.String("prefix", "COMport:", "prepend prefix to all lines, set to \"off\"")                                               // flag
 	pRpost := scCl.String("postfix", "\n", "append postfix to all lines")                                                                   // flag
 	pClLf := scCl.String("lf", cage.DefaultLogfileName, "If '-ds' append all output to logfile. Set to \"off\" or \"none\" to switch off.") // flag
-	pRdev := scCl.String("device", "COM", "receiver device, options: HTTP, RTT, RTTD, SIM, RND")                                            // flag
+	pRdev := scCl.String("device", "COM", "receiver device, options: HTTP, RTT, RTTD, SIM, RND, RTTF")                                      // flag
 
 	scSv := flag.NewFlagSet("displayServer", flag.ExitOnError)                                                                      // subcommand
 	pSvIPA := scSv.String("ipa", "localhost", "ip address")                                                                         // flag (127.0.0.1)
@@ -347,6 +348,15 @@ func receiving() {
 			return
 		}
 		r = d
+	case "RTTF":
+		s := rttfile.New()
+		fn := "c:/repos/trice/rttfile.bin"
+		err := s.Open(fn)
+		if nil != err {
+			fmt.Println(err)
+			return
+		}
+		r = s
 	default:
 		fmt.Println(receiver.Device, "is unknown as device")
 		return
