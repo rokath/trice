@@ -46,18 +46,21 @@ Following steps describe the needed action for a STM NUCLEO board and windows - 
     - Unfortunately it cannot run separately parallel to stimulate the target with any proprietary protocol.
 
 - `JLinkRTTViewer.exe` starts J-Link driver/server 
- - **MINUS:**
-    - `trice` connect is not recommended anymore for trice usage because it scans the trice data stream for control characters and therefore some trices can get lost. 
+  - **MINUS:**
+    - `trice` connect is not recommended anymore for trice usage because JlinkViewer scans the trice data stream for control characters and therefore some trices can get lost. 
 - `JLinkRTTLogger.exe` is usable for writing RTT channel N data from target into a file. The trice tool can watch this file and display them.
   - **PLUS:**   
     - Can use RTT up-channel 0,1,2,...
   - **MINUS:**
-    - Logs in a file, sor `trice` needs to read from that file 
+    - Logs in a file, so `trice` needs to read from that file 
   - **UNKNOWN:**
     - If several instances can watch on different RTT chanels and all goes in parallel to debugging.
+  - **TESTED:**
+    - Create file
       ```
       $ ./JLinkRTTLogger.exe -Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0 triceRaw.log
       ```
+    - Play file with *-device RTTF*
 ## Software Setup example (JLinkRTTViewer.exe is depriciated!)
   - Build and flash `triceDemo_NUCLEO-F030RB_LL_SeggerRTT_MDK-ARM`
   - Download [J-Link Software and Documentation Pack](https://www.segger.com/downloads/jlink/#J-LinkSoftwareAndDocumentationPack) and install
