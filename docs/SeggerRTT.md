@@ -61,13 +61,12 @@ Following steps describe the needed action for a STM NUCLEO board and windows - 
       $ ./JLinkRTTLogger.exe -Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0 triceRaw.log
       ```
     - Play file with *-device RTTF*
-## Software Setup example (JLinkRTTViewer.exe is depriciated!)
+## Software Setup example (JLinkRTTViewer.exe is depriciated, use JLink.exe instead!)
   - Build and flash `triceDemo_NUCLEO-F030RB_LL_SeggerRTT_MDK-ARM`
   - Download [J-Link Software and Documentation Pack](https://www.segger.com/downloads/jlink/#J-LinkSoftwareAndDocumentationPack) and install
   - Start `"C:\Program Files (x86)\SEGGER\JLink\JLinkRTTViewer.exe"` and connect to the J-Link. You only need this as a running server to connect to.
-    - Unfortunately the JLinkRTTViewer "steals" from time to time some trice data packages and display them as data garbage.
-    - It is relatively seldom. For now I have no solution despite the *Segger J-Link SDK*.
-    - May be **libusb** can help.
+    - Unfortunately the JLinkRTTViewer "steals" from time to time some trice data packages and displays them as data garbage.
+    - Better use JLink.exe or the *Segger J-Link SDK* instead.
   - Run `trice log -list /c/GitRepos/trice/examples/til.json -device RTT`. It should now connect to JLinkLogViewer.
   - Also `trice receiver -list /c/GitRepos/trice/examples/til.json -device RTT` is possible when trice display server is active (`trice ds`).
   - Now the trice output is visible.
@@ -89,9 +88,9 @@ Following steps describe the needed action for a STM NUCLEO board and windows - 
 
 - Normally no need to use that, because the unbuffered direct mode will do better.
 
-## Segger RTTD unbuffered direct mode (PC side receiver -device=RTTD)
+## Recommended: Segger RTTD unbuffered direct mode (PC side receiver -device=RTTD)
 - Write directly the 4 byte trices to RTT (faster and less RAM & code on target side and litte extension on host side). 
-- Doing so leds to the question how to reliable sync the data stream, because there is no control information in the data stream.
+- Doing so leads to the question how to reliable sync the data stream, because there is no control information in the data stream.
   - A sync package does fine here (`TRICE_RTTD_SYNC`)
     - A one time sync package after reset will do, but to re-connect to a running target a repetition every second or so is recommended.
     - The trice data stream cannot contain a 4-bytes sequence 0x16161616, when the ID 5654 is reserved for the sync package.
@@ -113,7 +112,7 @@ Following steps describe the needed action for a STM NUCLEO board and windows - 
   - "Developer pack used to write your own program for the J-Link. Please be sure you agree to the terms of the associated license found on the Licensing Information tab before purchasing this SDK. You will benefit from six months of free email support from the time that this product is ordered."
   - [https://www.segger.com/products/debug-probes/j-link/technology/j-link-sdk/](https://www.segger.com/products/debug-probes/j-link/technology/j-link-sdk/)
 
-## Additrional Notes (leftovers)
+## Additional Notes (leftovers)
 - `Downloading RTT target package` from [https://www.segger.com/products/debug-probes/j-link/technology/about-real-time-transfer/](https://www.segger.com/products/debug-probes/j-link/technology/about-real-time-transfer/).
 - Read the manual `"C:\Program Files (x86)\SEGGER\JLink\Doc\Manuals\UM08001_JLink.pdf"`.
 - Extract `"C:\Program Files (x86)\SEGGER\JLink\Samples\RTT\SEGGER_RTT_V672b.zip"` to target project. 
