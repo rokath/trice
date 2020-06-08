@@ -1,23 +1,64 @@
 # Segger Real Time Transfer (RTT) 
 - Detailed description can be found in document [UM08001_JLink.pdf](../third_party/Manuals/UM08001_JLink.pdf) in chapter 16 which is part of [https://www.segger.com/downloads/jlink/#J-LinkSoftwareAndDocumentationPack](https://www.segger.com/downloads/jlink/#J-LinkSoftwareAndDocumentationPack).
-- `JLinkRTTClient.exe` can be used for simple text transmitting to the target, it also displays strings  from target coming over channel 0. It is not used by the trice tool but can run separately parallel to stimulate the target with any proprietary protocol.
-- `JLinkRTTViewer.exe` is not recommended anymore for trice usage because it interprets the trice data stream and therefore some trices can get lost. Anyway it was used only as a transfer bridge because the trice tool could connect to it over TCP.
-- `JLinkRTTLogger.exe` is usable for writing RTT channel N data from target into a file. The trice tool can watch this file and display them. The main advantage is that several instances can watch on different RTT chanels and all goes in parallel to debugging.
-```
-$ ./JLinkRTTLogger.exe -Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0 triceRaw.log
-```
-- If you have a compatible ST-Link (board), the Segger J-Link on-board firmware is needed or you can use a physical Segger debug probe. This way all target communication interfaces are usable for the application during development.
-- In future other debug probes will be supported as well.
+- The trice tool can use the SEGGER RTT protocol in different ways.
+## J-Link option
+- Prerequisite is a SEGGER J-Link debug probe or a development board with an on-board J-Link option. 
 
-## Convert a NUCLEO (valid for ST-Link v2 & v2.1, not for v3)
+### Convert a NUCLEO (valid for ST-Link v2 & v2.1, not for v3)
 Following steps describe the needed action for a STM NUCLEO board and windows - adapt them to your environment.
+#### First step (to do if some issues occur - otherwise you can skip it)
 - Get & install [STM32 ST-LINK utility](https://www.st.com/en/development-tools/stsw-link004.html) 
 - Run from default install location `"C:\Program Files (x86)\STMicroelectronics\STM32 ST-LINKUtility\ST-LINK Utility\ST-LinkUpgrade.exe"`)
 - Enable checkbox `Change Type` and select radio button `STM32 Debug+Mass storage + VCP` The `STM32Debug+ VCP` won´t be detected by Segger reflash utility.
-- Check [https://www.segger.com/products/debug-probes/j-link/models/other-j-links/st-link-on-board/(https://www.segger.com/products/debug-probes/j-link/models/other-j-links/st-link-on-board/)
+
+  ![ST-LINK-Upgrade.PNG](./README.media/ST-LINK-Upgrade.PNG)
+#### Second step
+- Check [https://www.segger.com/products/debug-probes/j-link/models/other-j-links/st-link-on-board/](https://www.segger.com/products/debug-probes/j-link/models/other-j-links/st-link-on-board/)
 - Use `STLinkReflash.exe` to convert NUCLEO from ST-Link on-board to J-Link on-board. `STM32 Debug+ VCP` won´t be detected by Segger reflash utility.
 
-## Software Setup example
+### Some SEGGER tools in short
+
+- `JLink.exe` is the SEGGER J-Link commander. It starts the **J-Link driver/server** and the `trice` tool can connect to it:
+  - Example:
+    - Compile and flash `MDK-ARM_LL_RTT_NUCLEO-F030R8` project
+    - Open a commandline and run:
+      ```
+      "C:\Program Files (x86)\SEGGER\JLink\JLink.exe" -If SWD -Speed 4000 -AutoConnect 1 -Device STM32F030R8 -USB 773295023
+      ```
+    - Or simply doubleclick on "C:\Program Files (x86)\SEGGER\JLink\JLink.exe"
+    - Open an other commandline and run:
+      ```
+      trice log -device RTT
+      ```
+    - trice outout is visible
+    - With `h`alt and `g`o inside the Jlink window the MCU can get haltes and released
+    - It is possible in parallel to debug-step with a debugger (tested with ARM-MDK)
+  - **PLUS:** 
+    - works reliable
+  - **MINUS:** 
+    - Uses RTT up-channel 0 and therefore RTT up-channel 0 is not usable differently
+    - No down-channel usable
+
+- `JLinkRTTClient.exe` can be used for simple text transmitting to the target, it also displays strings  from target coming over channel 0. It is not used by the trice tool. 
+  - **PLUS:** 
+    - target stimulation with proprietary protocol over RTT down-channel 0 possible
+  - **MINUS:** 
+    - Unfortunately it cannot run separately parallel to stimulate the target with any proprietary protocol.
+
+- `JLinkRTTViewer.exe` starts J-Link driver/server 
+ - **MINUS:**
+    - `trice` connect is not recommended anymore for trice usage because it scans the trice data stream for control characters and therefore some trices can get lost. 
+- `JLinkRTTLogger.exe` is usable for writing RTT channel N data from target into a file. The trice tool can watch this file and display them.
+  - **PLUS:**   
+    - Can use RTT up-channel 0,1,2,...
+  - **MINUS:**
+    - Logs in a file, sor `trice` needs to read from that file 
+  - **UNKNOWN:**
+    - If several instances can watch on different RTT chanels and all goes in parallel to debugging.
+      ```
+      $ ./JLinkRTTLogger.exe -Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0 triceRaw.log
+      ```
+## Software Setup example (JLinkRTTViewer.exe is depriciated!)
   - Build and flash `triceDemo_NUCLEO-F030RB_LL_SeggerRTT_MDK-ARM`
   - Download [J-Link Software and Documentation Pack](https://www.segger.com/downloads/jlink/#J-LinkSoftwareAndDocumentationPack) and install
   - Start `"C:\Program Files (x86)\SEGGER\JLink\JLinkRTTViewer.exe"` and connect to the J-Link. You only need this as a running server to connect to.
@@ -108,3 +149,11 @@ libusb-1.0.23\examples\bin64> .\listdevs.exe
 ```  
 - In this case `1366:0105 (bus 2, device 10) path: 5` is missing, so `vid=1366`, `did=0105` as example
 - On Windows install WSL2. The real Linux kernel is needed for full USB access.
+
+
+
+## ST-Link option
+- See: [https://github.com/phryniszak/strtt](https://github.com/phryniszak/strtt)
+- Check [https://github.com/search?q=gostlink](https://github.com/search?q=gostlink)
+
+
