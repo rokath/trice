@@ -21,8 +21,7 @@
       - Flash a RTTD example, start `JLink.exe` and `trice log -device RTTD` for trice logs.
         - `trice l -device RTT` connects to a running **J-Link driver/server** over TCP localhost:19021 and displays trices.
 
-
-
+ 
 ## J-Link option
 - Prerequisite is a SEGGER J-Link debug probe or a development board with an on-board J-Link option. 
 

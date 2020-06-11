@@ -34,6 +34,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"time"
 
 	"github.com/rokath/trice/internal/emit"
 	"github.com/rokath/trice/internal/id"
@@ -137,7 +138,7 @@ func (p *TriceReceiver) receiveTrices() {
 	}
 }
 
-// export readAtLeastBytes
+// readAtLeastBytes returns not when end of file is reached and no more bytes are written
 func (p *TriceReceiver) readAtLeastBytes(count int) ([]byte, error) {
 	buf := make([]byte, count) // the buffer size limits the read count
 	var b []byte
@@ -146,7 +147,7 @@ func (p *TriceReceiver) readAtLeastBytes(count int) ([]byte, error) {
 	//start := time.Now()
 	for len(b) < count {
 		n, err = p.Read(buf)
-		if err != nil {
+		if nil != err && io.EOF != err {
 			log.Println("Port read error")
 			log.Fatal(err)
 		}
@@ -156,6 +157,7 @@ func (p *TriceReceiver) readAtLeastBytes(count int) ([]byte, error) {
 			return b, nil
 		}
 		buf = buf[n:]
+		time.Sleep(100 * time.Millisecond) // needed for file reader
 	}
 	return b, nil
 }
@@ -202,6 +204,7 @@ func decrypt(b []byte) []byte {
 // readHeader gets next header from streaming data
 func (p *TriceReceiver) readHeader() ([]byte, error) {
 	b, err := p.readAtLeastBytes(8)
+
 	if nil != err {
 		return b, err
 	}

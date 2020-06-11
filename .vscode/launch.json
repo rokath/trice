@@ -76,7 +76,7 @@
             "env": {},
             "args": ["log",
                      "-device",
-                     "RTTD",
+                     "JLinkRTTLogger",
                      "-list",
                      "${workspaceFolder}/test/til.json",
                      "-key",
