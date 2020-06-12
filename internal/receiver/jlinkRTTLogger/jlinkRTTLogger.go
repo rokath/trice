@@ -7,17 +7,21 @@ package jlinkRTTLogger
 import (
 	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
 	"os/exec"
+	"os/signal"
+	"runtime"
+	"syscall"
 )
 
 // RTTL is the Segger RealTime Transfer logger reader interface.
 type RTTL struct {
-	fN string    // tempLogFile name
-	fH *os.File  // tempLogFile handle
-	ch string    // used RTT channel
-	cN string    // JLinkRTTLogger command name
-	cH *exec.Cmd // JLinkRTTLogger command handle
+	tlfN  string    // tempLogFile name
+	tlfH  *os.File  // tempLogFile handle
+	ch    string    // used RTT channel
+	lcmdN string    // JLinkRTTLogger command name
+	lcmdH *exec.Cmd // JLinkRTTLogger command handle
 }
 
 // New creates an instance of RTT ReadCloser.
@@ -26,27 +30,39 @@ type RTTL struct {
 func New() *RTTL {
 	r := &RTTL{} // create SeggerRTT instance
 	r.ch = "-RTTChannel 0"
-	r.fH, _ = ioutil.TempFile(os.TempDir(), "trice-*.bin") // opens for read and write
-	r.fN = r.fH.Name()
-	r.fH.Close()
+	r.tlfH, _ = ioutil.TempFile(os.TempDir(), "trice-*.bin") // opens for read and write
+	r.tlfN = r.tlfH.Name()
+
+	//r.tlfN = "C:\\Users\\ms\\AppData\\Local\\Temp\\trice-428975731.bin"
+
+	r.tlfH.Close()
 	//r.cN = "/c/Program Files x86/SEGGER/JLink/JLinkRTTLogger.exe"
-	r.cN = "C:\\Program Files (x86)\\SEGGER\\JLink\\JLinkRTTLogger.exe"
+	//r.lcmdN = "C:\\Program Files (x86)\\SEGGER\\JLink\\JLinkRTTLogger.exe"
+	r.lcmdN = "C:\\repos\\trice\\third_party\\JLinkRTTLogger.exe"
 	return r
 }
 
 // Read() is part of the exported interface io.ReadCloser. It reads a slice of bytes.
 func (p *RTTL) Read(b []byte) (int, error) {
-	return p.fH.Read(b)
+	return p.tlfH.Read(b)
 }
 
 // Close is part of the exported interface io.ReadCloser. It ends the connection.
 //
 // See https://stackoverflow.com/questions/11886531/terminating-a-process-started-with-os-exec-in-golang
 func (p *RTTL) Close() error {
-	if err := p.cH.Process.Kill(); err != nil {
-		return err
+	fmt.Print("CLOSE")
+	var err error
+	if err = p.lcmdH.Process.Kill(); nil != err {
+		fmt.Print(err)
+
 	}
-	return os.Remove(p.fH.Name())
+
+	if err = os.Remove(p.tlfH.Name()); nil != err {
+		fmt.Print(err)
+	}
+
+	return err
 }
 
 // Open starts the JLinkRTTLogger command with a temporary logfile
@@ -55,15 +71,39 @@ func (p *RTTL) Close() error {
 func (p *RTTL) Open() error {
 	var err error
 	// Start a process:
-	p.cH = exec.Command(p.cN, "-Device STM32F030R8 -if SWD -Speed 4000 "+p.ch+" "+p.fN)
-	if err = p.cH.Start(); err != nil {
-		return err
+	if runtime.GOOS == "windows" {
+		//prog := p.lcmdN
+		//clip := "-Device STM32F030R8 -if SWD -Speed 4000 " + p.ch + " " + p.tlfN
+
+		prog := "cmd"
+		clip := " /c " + p.lcmdN + " -Device STM32F030R8 -if SWD -Speed 4000 " + p.ch + " " + p.tlfN
+		fmt.Println(prog, clip)
+		p.lcmdH = exec.Command(prog, clip)
+		if err = p.lcmdH.Start(); err != nil {
+			log.Fatal("start error", err)
+		}
 	}
-	fmt.Println(p.cN, "writing to", p.fN)
-	p.fH, err = os.Open(p.fN) // Open() opens a file with read only flag.
+	fmt.Println(p.lcmdN, "writing to", p.tlfN)
+	p.tlfH, err = os.Open(p.tlfN) // Open() opens a file with read only flag.
 	if nil != err {
 		return err
 	}
-	fmt.Println("trice is reading from", p.fN)
+	fmt.Println("trice is reading from", p.tlfN)
 	return nil
+}
+
+// SetupCloseHandler creates a 'listener' on a new goroutine which will notify the
+// program if it receives an interrupt from the OS. We then handle this by calling
+// our clean up procedure and exiting the program.
+func init() {
+	fmt.Println("SetupCloseHandler")
+	c := make(chan os.Signal)
+	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
+	go func() {
+		fmt.Println("SetupCloseHandler 22222222222")
+		<-c
+		fmt.Println("\n\r- Ctrl+C pressed in Terminal")
+		//DeleteFiles()
+		os.Exit(0)
+	}()
 }

@@ -321,9 +321,10 @@ func receiving() {
 	switch receiver.Device {
 	case "JLinkRTTLogger":
 		l := jlinkRTTLogger.New()
-		if nil == l.Open() {
+		if nil != l.Open() {
 			return
 		}
+		defer l.Close()
 		r = l
 	case "HTTP":
 		h := http.New()

@@ -6,4 +6,6 @@
 - Downloaded STM32F4-Discovery Demo-Firmware
 ## Manuals/
 - some descriptions
+## JLink
+- `JLinkRTTLogger.exe` and acompanying `JLinkARM.dll` copied from default install location `C:\Program Files (x86)\SEGGER\JLink`. 
 
