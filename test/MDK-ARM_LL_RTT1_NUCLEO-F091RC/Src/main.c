@@ -23,7 +23,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "trice.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -95,8 +95,29 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+    TRICE_RTTD_SYNC;
+    TRICE16_1( Id(45373), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
+    TRICE0( Id(30218), "att:MDK-ARM_RTT1_NUCLEO-F091RC\n" );
+    TRICE16_1( Id(45373), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
+    TRICE16_1( Id(45373), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
+    TRICE16_1( Id(45373), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
+    TRICE16_1( Id(45373), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
   while (1)
   {
+      //////////////////////////////////////////////////
+      // demo trices
+      //
+      static uint32_t ms_1 = 0;
+      uint32_t ms = HAL_GetTick();
+      if( ms >= ms_1 + 1000 ){ // every sec
+          TRICE_RTTD_SYNC; // for re-synchronisation the running target
+          static int index = 0;
+          triceCheckSet(index++%20);
+          TRICE32_1( Id(29200), "time:ms = %d\n", ms );
+          ms_1 = ms;
+      }
+      //
+      //////////////////////////////////////////////////
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

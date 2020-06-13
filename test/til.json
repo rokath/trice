@@ -3043,5 +3043,12 @@
 		"fmtStrg": "att:STM32CubeIDE_HAL_UART_NUCLEO-G474\\n",
 		"created": 1591365452,
 		"removed": 0
+	},
+	{
+		"id": 30218,
+		"fmtType": "TRICE0",
+		"fmtStrg": "att:MDK-ARM_RTT1_NUCLEO-F091RC\\n",
+		"created": 1592075808,
+		"removed": 0
 	}
 ]
