@@ -133,6 +133,12 @@ extern UART_HandleTypeDef hlpuart1;
 #define TRICE_FIFO_SIZE 1024 //!< must be a power of 2, one trice needs 4 to 32 bytes, must hold trice bursts until they are transmitted, fifo is transmitted with lower priority
 #define LL_INTERFACE_NO_INTERRUPTS
 
+#elif TRICE_VARIANT == SEGGER_RTT1
+#include "SEGGER_RTT.h"
+#define TRICE_PUSH(v) triceToRTT1( v )
+#define TRICE_FIFO_SIZE 0 //!< must be a power of 2, one trice needs 4 to 32 bytes, must hold trice bursts until they are transmitted, fifo is transmitted with lower priority
+#define LL_INTERFACE_NO_INTERRUPTS
+
 #elif TRICE_VARIANT == SEGGER_RTT
 #include "SEGGER_RTT.h"
 #define TRICE_PUSH(v) tricePush( v )
