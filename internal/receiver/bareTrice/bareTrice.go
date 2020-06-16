@@ -1,8 +1,8 @@
 // Copyright 2020 Thomas.Hoehenleitner [at] seerose.net
 // Use of this source code is governed by a license that can be found in the LICENSE file.
 
-// Package segger reads from SeggerRTT.
-package direct
+// Package bareTriceReader reads 4 byte atomic trices and extends them to 8 byte sure trices.
+package bareTrice
 
 import (
 	"bytes"
@@ -14,17 +14,17 @@ import (
 	"github.com/rokath/trice/internal/receiver"
 )
 
-// RTT is the Segger RealTime Transfer reader interface.
-type RTT struct {
-	endpoint string
-	conn     *net.TCPConn
+// bare contains the inner reader to read from
+type bare struct {
+	r io.Reader // inner reader
 }
 
 // New creates an instance of RTT ReadCloser.
 //
 // It is intended to be used by receiver.New() which embeds its interface.
-func New() *RTT {
-	r := &RTT{} // create SeggerRTT instance
+func NewReader(i io.Reader) *bare {
+	r := &bare{} // create bare reader instance
+	r.r = i
 	return r
 }
 
@@ -33,10 +33,26 @@ var t []byte // trice slice
 // Read() is part of the exported interface io.ReadCloser. It reads a slice of bytes.
 //
 // Usually t is empty when Read is executed, so otherwise Read returns only some or all unread bytes from t.
-func (p *RTT) Read(buf []byte) (int, error) {
+//
+// Read has an internal boolean state *inSync* which is true or false.
+// Initially inSync is true. When the method OutOfSync() is called inSync=false and Read reads until a sync package is received.
+// Then it automatically goes into the inSync==true state.
+//
+// When started first time it returns 0 bytes as long the total expected count is < 8.
+// When total expected count is 8, it tries to read 4 bytes from inner reader with ReadFull.
+// As long the inner reader does not return 4 bytes this Read fn return 0 bytes.
+// When 4 bytes came from inner reader, 8 bytes are returned.
+// The outer reader cannot detect if out of sync, because the crc is computed here.
+//
+// If some heuristic in the outer reader comes to the conclusion out-of-sync it calls the method OutOfSync.
+// Then after start Read reads until a sync package is reached and then goes backward and provides the data.
+
+
+read max 8 byte (one sure trice) and keep the 4 bare bytes
+func (p *bare) Read(buf []byte) (int, error) {
 	var n int
 	var err error
-	var r io.Reader
+	r := p.r // inner reader
 
 	if 0 == len(buf) { // formal special case
 		fmt.Println("read len 0 is not expected here")
@@ -52,7 +68,6 @@ func (p *RTT) Read(buf []byte) (int, error) {
 		return n, nil
 	}
 
-	r = p.conn
 	b := make([]byte, 4)
 	n, err = io.ReadFull(r, b)
 	if nil != err {

@@ -23,7 +23,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "trice.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -67,7 +67,8 @@ static void MX_USART2_UART_Init(void);
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-
+    void triceSeggerRTT_DoInit(void);
+    //triceSeggerRTT_DoInit();
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -95,8 +96,34 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  while (1)
-  {
+    TRICE_RTT_SYNC;
+    TRICE16_1( Id( 2625), "TIM:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
+    TRICE0( Id(39132), "att:MDK-ARM_RTT_NUCLEO-F030R8\n" );
+    TRICE16_1( Id( 2625), "TIM:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
+    TRICE16_1( Id( 2625), "TIM:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
+    TRICE16_1( Id( 2625), "TIM:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
+    TRICE16_1( Id( 2625), "TIM:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
+    while (1)
+    {
+      //////////////////////////////////////////////////
+      // demo trices
+      //
+      static uint32_t ms_1 = 0;
+      uint32_t ms = HAL_GetTick();
+      if( ms >= ms_1 + 1000 ){ // every sec
+          TRICE_RTT_SYNC; // for re-synchronisation the running target
+          static int index = 0;
+          triceCheckSet(index++%20);
+          TRICE32_1( Id(29200), "time:ms = %d\n", ms );
+          ms_1 = ms;
+      }
+      //
+      //////////////////////////////////////////////////
+
+      //////////////////////////////////////////////////
+      // no background activity needed in code
+      //////////////////////////////////////////////////
+
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

@@ -16,7 +16,6 @@ The trices (macros) are dumped as 32bit values into a 32 bit fifo. That is the t
 
 #if TRICE_CODE
 
-
 //! partial prefilled trice message transmit buffer
 static ALIGN4 triceMsg_t triceMsg ALIGN4_END = {
     { TRICE_START_BYTE,  TRICE_LOCAL_ADDR,  TRICE_DISPL_ADDR, 0 }, // crc8
@@ -92,4 +91,5 @@ void tricePush( uint32_t v ){
     prepareNextTriceTransmission();
     triceWrite( &triceMsg, sizeof(triceMsg) );
 }
+
 #endif // #if TRICE_CODE

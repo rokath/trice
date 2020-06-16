@@ -95,7 +95,7 @@ int main(void)
   /* USER CODE BEGIN WHILE */
     SEGGER_RTT_Init();
 	SEGGER_RTT_printf( 0, "Hello world\n" ); // yes this works too!
-    TRICE_RTTD_SYNC;
+    TRICE_RTT_SYNC;
 
 	TRICE16_1( Id(45373), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
 	TRICE0( Id(31296), "att:STM32CubeIDE_RTTD_DISCOVERY-STM32F051R8Tx\n" );
@@ -112,7 +112,7 @@ int main(void)
       uint32_t ms = HAL_GetTick();
       if( ms >= ms_1 + 1000 ){ // every sec
           static int index = 0;
-          TRICE_RTTD_SYNC; // helps to re-sync when connected to a running target
+          TRICE_RTT_SYNC; // helps to re-sync when connected to a running target
           triceCheckSet(index++%20);
           TRICE32_1( Id(29200), "time:ms = %d\n", ms );
           ms_1 = ms;

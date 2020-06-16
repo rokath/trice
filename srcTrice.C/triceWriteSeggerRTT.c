@@ -2,35 +2,156 @@
 \author thomas.hoehenleitner [at] seerose.net
 *******************************************************************************/
 
-
-
 #include "trice.h"
+#if 0
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// unchanged copied from SEGGER_RTT.c lines 104-230 (some values maybe not used)
+#ifndef SEGGER_RTT_BUFFER_SECTION
+  #if defined(SEGGER_RTT_SECTION)
+    #define SEGGER_RTT_BUFFER_SECTION SEGGER_RTT_SECTION
+  #endif
+#endif
+
+#ifndef   SEGGER_RTT_ALIGNMENT
+  #define SEGGER_RTT_ALIGNMENT                            0
+#endif
+
+#ifndef   SEGGER_RTT_BUFFER_ALIGNMENT
+  #define SEGGER_RTT_BUFFER_ALIGNMENT                     0
+#endif
+
+#ifndef   SEGGER_RTT_MODE_DEFAULT
+  #define SEGGER_RTT_MODE_DEFAULT                         SEGGER_RTT_MODE_NO_BLOCK_SKIP
+#endif
+
+#ifndef   SEGGER_RTT_LOCK
+  #define SEGGER_RTT_LOCK()
+#endif
+
+#ifndef   SEGGER_RTT_UNLOCK
+  #define SEGGER_RTT_UNLOCK()
+#endif
+
+#ifndef   STRLEN
+  #define STRLEN(a)                                       strlen((a))
+#endif
+
+#ifndef   STRCPY
+  #define STRCPY(pDest, pSrc, NumBytes)                   strcpy((pDest), (pSrc))
+#endif
+
+#ifndef   SEGGER_RTT_MEMCPY_USE_BYTELOOP
+  #define SEGGER_RTT_MEMCPY_USE_BYTELOOP                  0
+#endif
+
+#ifndef   SEGGER_RTT_MEMCPY
+  #ifdef  MEMCPY
+    #define SEGGER_RTT_MEMCPY(pDest, pSrc, NumBytes)      MEMCPY((pDest), (pSrc), (NumBytes))
+  #else
+    #define SEGGER_RTT_MEMCPY(pDest, pSrc, NumBytes)      memcpy((pDest), (pSrc), (NumBytes))
+  #endif
+#endif
+
+#ifndef   MIN
+  #define MIN(a, b)         (((a) < (b)) ? (a) : (b))
+#endif
+
+#ifndef   MAX
+  #define MAX(a, b)         (((a) > (b)) ? (a) : (b))
+#endif
+//
+// For some environments, NULL may not be defined until certain headers are included
+//
+#ifndef NULL
+  #define NULL 0
+#endif
+*/
+/*********************************************************************
+*
+*       Defines, fixed
+*
+**********************************************************************
+*/
+#if (defined __ICCARM__) || (defined __ICCRX__)
+  #define RTT_PRAGMA(P) _Pragma(#P)
+#endif
+
+#if SEGGER_RTT_ALIGNMENT || SEGGER_RTT_BUFFER_ALIGNMENT
+  #if (defined __GNUC__)
+    #define SEGGER_RTT_ALIGN(Var, Alignment) Var __attribute__ ((aligned (Alignment)))
+  #elif (defined __ICCARM__) || (defined __ICCRX__)
+    #define PRAGMA(A) _Pragma(#A)
+#define SEGGER_RTT_ALIGN(Var, Alignment) RTT_PRAGMA(data_alignment=Alignment) \
+                                  Var
+  #elif (defined __CC_ARM)
+    #define SEGGER_RTT_ALIGN(Var, Alignment) Var __attribute__ ((aligned (Alignment)))
+  #else
+    #error "Alignment not supported for this compiler."
+  #endif
+#else
+  #define SEGGER_RTT_ALIGN(Var, Alignment) Var
+#endif
+
+#if defined(SEGGER_RTT_SECTION) || defined (SEGGER_RTT_BUFFER_SECTION)
+  #if (defined __GNUC__)
+    #define SEGGER_RTT_PUT_SECTION(Var, Section) __attribute__ ((section (Section))) Var
+  #elif (defined __ICCARM__) || (defined __ICCRX__)
+#define SEGGER_RTT_PUT_SECTION(Var, Section) RTT_PRAGMA(location=Section) \
+                                        Var
+  #elif (defined __CC_ARM)
+    #define SEGGER_RTT_PUT_SECTION(Var, Section) __attribute__ ((section (Section), zero_init))  Var
+  #else
+    #error "Section placement not supported for this compiler."
+  #endif
+#else
+  #define SEGGER_RTT_PUT_SECTION(Var, Section) Var
+#endif
 
 
-#define TRICE_RTT_CHANNEL 1
-#define TRICE_RTT_BUFFER_SIZE 200 //!< must be a multiple of 4
+#if SEGGER_RTT_ALIGNMENT
+  #define SEGGER_RTT_CB_ALIGN(Var)  SEGGER_RTT_ALIGN(Var, SEGGER_RTT_ALIGNMENT)
+#else
+  #define SEGGER_RTT_CB_ALIGN(Var)  Var
+#endif
 
-static SEGGER_RTT_BUFFER_UP* const pRing = &_SEGGER_RTT.aUp[TRICE_RTT_CHANNEL];
+#if SEGGER_RTT_BUFFER_ALIGNMENT
+  #define SEGGER_RTT_BUFFER_ALIGN(Var)  SEGGER_RTT_ALIGN(Var, SEGGER_RTT_BUFFER_ALIGNMENT)
+#else
+  #define SEGGER_RTT_BUFFER_ALIGN(Var)  Var
+#endif
 
+
+#if defined(SEGGER_RTT_SECTION)
+  #define SEGGER_RTT_PUT_CB_SECTION(Var) SEGGER_RTT_PUT_SECTION(Var, SEGGER_RTT_SECTION)
+#else
+  #define SEGGER_RTT_PUT_CB_SECTION(Var) Var
+#endif
+
+#if defined(SEGGER_RTT_BUFFER_SECTION)
+  #define SEGGER_RTT_PUT_BUFFER_SECTION(Var) SEGGER_RTT_PUT_SECTION(Var, SEGGER_RTT_BUFFER_SECTION)
+#else
+  #define SEGGER_RTT_PUT_BUFFER_SECTION(Var) Var
+#endif
+//
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+//! compile-time selected pointer for faster access
+static SEGGER_RTT_BUFFER_UP* const pRingTrice = &_SEGGER_RTT.aUp[TRICE_RTT_CHANNEL];
+
+
+//! time critical part
 void triceToRTT( uint32_t v ){
-    uint32_t* pDest = (uint32_t*)(pRing->pBuffer);
+    uint32_t* pDest = (uint32_t*)(pRingTrice->pBuffer + pRingTrice->WrOff);
     *pDest = v;
 
-    if( (TRICE_RTT_BUFFER_SIZE - sizeof( uint32_t )) == pRing->WrOff ){
-        pRing->WrOff = 0u;
+    if( (TRICE_RTT_BUFFER_SIZE - sizeof( uint32_t )) == pRingTrice->WrOff ){
+        pRingTrice->WrOff = 0u;
     } else {
-        pRing->WrOff += sizeof( uint32_t );
+        pRingTrice->WrOff += sizeof( uint32_t );
     }
 }
 
-
-//! \param buf address to read from
-//! \param nbytes count to write
-//! \return count of written bytes
-//! triceWrite is copying data into a separate buffer
-unsigned triceWrite(const void *buf, int nbytes){
-    return (int)SEGGER_RTT_Write(0, buf, nbytes);
-}
 
 /*********************************************************************
 *
@@ -45,8 +166,12 @@ SEGGER_RTT_PUT_CB_SECTION(SEGGER_RTT_CB_ALIGN(SEGGER_RTT_CB _SEGGER_RTT));
 
 SEGGER_RTT_PUT_BUFFER_SECTION(SEGGER_RTT_BUFFER_ALIGN(static char _acUpBuffer0  [BUFFER0_SIZE_UP]));
 SEGGER_RTT_PUT_BUFFER_SECTION(SEGGER_RTT_BUFFER_ALIGN(static char _acDownBuffer0[BUFFER0_SIZE_DOWN]));
+SEGGER_RTT_PUT_BUFFER_SECTION(SEGGER_RTT_BUFFER_ALIGN(static char _acUpBuffer1  [BUFFER0_SIZE_UP]));
+SEGGER_RTT_PUT_BUFFER_SECTION(SEGGER_RTT_BUFFER_ALIGN(static char _acDownBuffer1[BUFFER0_SIZE_DOWN]));
+SEGGER_RTT_PUT_BUFFER_SECTION(SEGGER_RTT_BUFFER_ALIGN(static char _acUpBuffer2  [BUFFER0_SIZE_UP]));
+SEGGER_RTT_PUT_BUFFER_SECTION(SEGGER_RTT_BUFFER_ALIGN(static char _acDownBuffer2[BUFFER0_SIZE_DOWN]));
 
-static void _DoInit(void) {
+void triceSeggerRTT_DoInit(void) {
   SEGGER_RTT_CB* p;
   //
   // Initialize control block
@@ -58,28 +183,54 @@ static void _DoInit(void) {
   // Initialize up buffer 0
   //
   p->aUp[0].sName         = "Terminal";
-  p->aUp[0].pBuffer       = _acUpBuffer;
-  p->aUp[0].SizeOfBuffer  = sizeof(_acUpBuffer);
+  p->aUp[0].pBuffer       = _acUpBuffer0;
+  p->aUp[0].SizeOfBuffer  = sizeof(_acUpBuffer0);
   p->aUp[0].RdOff         = 0u;
   p->aUp[0].WrOff         = 0u;
-  p->aUp[0].Flags         = SEGGER_RTT_MODE_DEFAULT;  //
-  // Initialize up buffer 1
-  //
-  p->aUp[1].sName         = "Trice";
-  p->aUp[1].pBuffer       = _acUpBuffer;
-  p->aUp[1].SizeOfBuffer  = sizeof(_acUpBuffer);
-  p->aUp[1].RdOff         = 0u;
-  p->aUp[1].WrOff         = 0u;
-  p->aUp[1].Flags         = SEGGER_RTT_MODE_DEFAULT;
+  p->aUp[0].Flags         = SEGGER_RTT_MODE_DEFAULT;
   //
   // Initialize down buffer 0
   //
   p->aDown[0].sName         = "Terminal";
-  p->aDown[0].pBuffer       = _acDownBuffer;
-  p->aDown[0].SizeOfBuffer  = sizeof(_acDownBuffer);
+  p->aDown[0].pBuffer       = _acDownBuffer0;
+  p->aDown[0].SizeOfBuffer  = sizeof(_acDownBuffer0);
   p->aDown[0].RdOff         = 0u;
   p->aDown[0].WrOff         = 0u;
-  p->aDown[0].Flags         = SEGGER_RTT_MODE_DEFAULT;
+  p->aDown[0].Flags         = SEGGER_RTT_MODE_DEFAULT;  //
+  // Initialize up buffer 1
+  //
+  p->aUp[1].sName         = "Data";
+  p->aUp[1].pBuffer       = _acUpBuffer1;
+  p->aUp[1].SizeOfBuffer  = sizeof(_acUpBuffer1);
+  p->aUp[1].RdOff         = 0u;
+  p->aUp[1].WrOff         = 0u;
+  p->aUp[1].Flags         = SEGGER_RTT_MODE_DEFAULT;
+  //
+  // Initialize down buffer 1
+  //
+  p->aDown[1].sName         = "Data";
+  p->aDown[1].pBuffer       = _acDownBuffer1;
+  p->aDown[1].SizeOfBuffer  = sizeof(_acDownBuffer1);
+  p->aDown[1].RdOff         = 0u;
+  p->aDown[1].WrOff         = 0u;
+  p->aDown[1].Flags         = SEGGER_RTT_MODE_DEFAULT;  //
+  // Initialize up buffer 2
+  //
+  p->aUp[2].sName         = "Trice";
+  p->aUp[2].pBuffer       = _acUpBuffer2;
+  p->aUp[2].SizeOfBuffer  = sizeof(_acUpBuffer2);
+  p->aUp[2].RdOff         = 0u;
+  p->aUp[2].WrOff         = 0u;
+  p->aUp[2].Flags         = SEGGER_RTT_MODE_DEFAULT;
+  //
+  // Initialize down buffer 1
+  //
+  p->aDown[2].sName         = "Trice";
+  p->aDown[2].pBuffer       = _acDownBuffer2;
+  p->aDown[2].SizeOfBuffer  = sizeof(_acDownBuffer2);
+  p->aDown[2].RdOff         = 0u;
+  p->aDown[2].WrOff         = 0u;
+  p->aDown[2].Flags         = SEGGER_RTT_MODE_DEFAULT;
   //
   // Finish initialization of the control block.
   // Copy Id string in three steps to make sure "SEGGER RTT" is not found
@@ -89,10 +240,18 @@ static void _DoInit(void) {
   STRCPY(&p->acID[0], "SEGGER", 7);
   p->acID[6] = ' ';
 }
+#endif
 
 
 
 
+//! \param buf address to read from
+//! \param nbytes count to write
+//! \return count of written bytes
+//! triceWrite is copying data into a separate buffer
+unsigned triceWrite(const void *buf, int nbytes){
+    return (int)SEGGER_RTT_Write(0, buf, nbytes);
+}
 
 
 

@@ -10,9 +10,7 @@ import (
 	"log"
 	"os"
 	"os/exec"
-	"os/signal"
 	"runtime"
-	"syscall"
 )
 
 // RTTL is the Segger RealTime Transfer logger reader interface.
@@ -92,6 +90,7 @@ func (p *RTTL) Open() error {
 	return nil
 }
 
+/*
 // SetupCloseHandler creates a 'listener' on a new goroutine which will notify the
 // program if it receives an interrupt from the OS. We then handle this by calling
 // our clean up procedure and exiting the program.
@@ -107,3 +106,4 @@ func init() {
 		os.Exit(0)
 	}()
 }
+*/

@@ -3050,5 +3050,12 @@
 		"fmtStrg": "att:MDK-ARM_RTT1_NUCLEO-F091RC\\n",
 		"created": 1592075808,
 		"removed": 0
+	},
+	{
+		"id": 39132,
+		"fmtType": "TRICE0",
+		"fmtStrg": "att:MDK-ARM_RTT_NUCLEO-F030R8\\n",
+		"created": 1592300362,
+		"removed": 0
 	}
 ]

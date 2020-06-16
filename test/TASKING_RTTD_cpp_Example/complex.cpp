@@ -66,7 +66,7 @@ int     main(void)
         Complex c2(2);
         Complex c3;
 
-        TRICE_RTTD_SYNC;
+        TRICE_RTT_SYNC;
 
         TRICE0( Id(10341), "Complex number c1: " );
         c1.Print();

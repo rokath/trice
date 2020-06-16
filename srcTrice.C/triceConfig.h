@@ -140,8 +140,23 @@ extern UART_HandleTypeDef hlpuart1;
 #define LL_INTERFACE_NO_INTERRUPTS
 
 #elif TRICE_VARIANT == SEGGER_RTT
+#define TRICE_RTT_CHANNEL 0
+#define TRICE_RTT_BUFFER_SIZE 1024 //!< must be a multiple of 4
+
+#define BUFFER0_SIZE_UP   1024
+#define BUFFER0_SIZE_DOWN   16
+#define BUFFER1_SIZE_UP      4
+#define BUFFER1_SIZE_DOWN    4
+#define BUFFER2_SIZE_UP   TRICE_RTT_BUFFER_SIZE
+#define BUFFER2_SIZE_DOWN    4
+#define SEGGER_RTT_MAX_NUM_UP_BUFFERS                   (3)    // Number of up-buffers (T->H) available on this target
+#define SEGGER_RTT_MAX_NUM_DOWN_BUFFERS                 (3)    // Number of down-buffers (H->T) available on this target
+
+
 #include "SEGGER_RTT.h"
-#define TRICE_PUSH(v) tricePush( v )
+void triceToRTT( uint32_t v );
+//#define TRICE_PUSH(v) triceToRTT( v ) //tricePush( v )
+#define TRICE_PUSH(v) do{ uint32_t y = v; SEGGER_RTT_Write( 0, &y, sizeof(uint32_t) ); }while(0)
 #define TRICE_FIFO_SIZE 0 //!< must be a power of 2, one trice needs 4 to 32 bytes, must hold trice bursts until they are transmitted, fifo is transmitted with lower priority
 #define LL_INTERFACE_NO_INTERRUPTS
 
