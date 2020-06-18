@@ -140,11 +140,24 @@ func (p *ListT) write(filename string) error {
 }
 
 // Index returns the index of 'ID' inside 'l'. If 'ID' is not inside 'l' Index() returns 0 and an error.
+//
+// todo: replace it with functionality in InexEx
 func Index(i int, l ListT) (int, error) {
 	for x := range l {
 		k := l[x].ID
 		if i == k {
 			return x, nil
+		}
+	}
+	return 0, errors.New("unknown ID")
+}
+
+// IndexEx returns the index of id inside List. If is is not inside List Index returns 0 and an error.
+func IndexEx(id int) (int, error) {
+	for i := range List {
+		iD := List[i].ID
+		if id == iD {
+			return i, nil
 		}
 	}
 	return 0, errors.New("unknown ID")

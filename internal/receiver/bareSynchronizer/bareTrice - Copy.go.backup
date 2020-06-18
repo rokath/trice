@@ -1,3 +1,26 @@
+/*
+func bareReceiver(r io.Reader, w io.Writer) error {
+	b := make([]byte, 4)
+	_, err := io.ReadFull(r, b)
+	if nil != err {
+		return err
+	}
+	d = append(d, b[2:]...)
+	triceID := int(binary.LittleEndian.Uint16(b[:2]))
+	if 0 == len(id.List) { // "none" as ID list or list empty
+		fmt.Printf("% 20x\n", b) //  show raw data
+	}
+	index, err := id.IndexEx(triceID)
+	if nil != err {
+		d = d[:0]  // clear d for next trice
+		return err // triceID is unknown
+	}
+	trice := id.List[index]
+	s, b, _ := emitter(trice, d, b)
+}*/
+
+
+
 // Copyright 2020 Thomas.Hoehenleitner [at] seerose.net
 // Use of this source code is governed by a license that can be found in the LICENSE file.
 
@@ -14,10 +37,81 @@ import (
 	"github.com/rokath/trice/internal/receiver"
 )
 
-// bare contains the inner reader to read from
-type bare struct {
-	r io.Reader // inner reader
+// 
+type wrapSync struct{
+	r io.Reader // read from COM port
+	w io.Writer	// write wrap
 }
+
+func NewWrapSynchronizer( input io.Reader ) *wrapSync{
+	ws := &wrapSync{} // instance
+	ws.r = input // inner reader
+	return &ws
+}
+
+func (p *wrapSync)Read( b []byte){
+	r
+}
+
+
+
+// Simulator delivers an endless circle of bytes
+type simulator struct {
+	t []byte
+}
+
+// New creates an instance of simulator.
+func newSimulator() *simulator {
+	r := &Simulator{
+		t: []byte{1,2,3,235, 96, 96, 0, 10, 172, 0, 0},
+	}
+	return r
+}
+
+
+func (p *simulator) Read(b []byte) (int, error) {
+	var i int
+	for i = range b {
+		b[i] = p.t[i%len(p.t)]
+	}
+	return i + 1, nil
+}
+
+
+func Test(){
+	r := newSimulator()
+	ws := NewWrapSync( r)
+	b := make( []byte, 8)
+	ws.Read(b)
+}
+
+// bare contains the inner reader to read from
+type bareCOM struct {
+	r io.Reader // inner reader
+	// port
+}
+
+type wrap struct {
+	r io.Reader
+}
+
+type unWrap struct {
+	r io.Reader
+	w io.Writer
+}
+
+type emitToFile struct{
+	w io.Writer
+	fn string
+}
+
+
+func NewBareCOMReader( com io.Reader )*bareCOM{
+	r := &bareCOM{} // create bare COM reader instance
+	r.r = 
+	return r
+}
+
 
 // New creates an instance of RTT ReadCloser.
 //
@@ -27,6 +121,42 @@ func NewReader(i io.Reader) *bare {
 	r.r = i
 	return r
 }
+
+func unWrap(r io.Reader) []byte {
+	b := make([]byte, 8)
+	io.ReadFull(r, b)
+	return b[4:]
+}
+
+func unWrap1(r io.Reader) io.Writer {
+	b := make([]byte, 8)
+	io.ReadFull(r, b)
+
+	var buf bytes.Buffer
+	return &buf
+}
+
+func unWrap2(r io.Reader, w io.Writer) error {
+	b := make([]byte, 8)
+	_, err := io.ReadFull(r, b)
+	if nil != err {
+		return err
+	}
+	_, err = w.Write(b[4:])
+	return err
+}
+
+func unWrap3(r io.Reader, w io.Writer) error {
+	b := make([]byte, 8)
+	_, err := io.ReadFull(r, b)
+	if nil == err {
+		_, err = w.Write(b[4:])
+	}
+	return err
+}
+
+
+
 
 var t []byte // trice slice
 
@@ -47,8 +177,7 @@ var t []byte // trice slice
 // If some heuristic in the outer reader comes to the conclusion out-of-sync it calls the method OutOfSync.
 // Then after start Read reads until a sync package is reached and then goes backward and provides the data.
 
-
-read max 8 byte (one sure trice) and keep the 4 bare bytes
+//read max 8 byte (one sure trice) and keep the 4 bare bytes
 func (p *bare) Read(buf []byte) (int, error) {
 	var n int
 	var err error
