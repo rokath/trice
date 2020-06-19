@@ -12,6 +12,7 @@ import (
 	"github.com/rokath/trice/pkg/lib"
 )
 
+// Test1 checks if a first read works
 func Test1(t *testing.T) {
 	i := []byte{'g', 'a', 'r', 'b', 'a', 'g', 'e', 235, 96, 96, 0, 10, 172, 0, 0}
 	s := inputDummy.New(i, 0)

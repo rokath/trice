@@ -14,8 +14,6 @@ import (
 )
 
 // Source delivers an endless circle of bytes.
-//
-//
 type Source struct {
 	b      []byte        // internal byte buffer to read from
 	t      time.Duration // tinternal delay
