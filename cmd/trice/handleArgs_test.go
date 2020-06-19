@@ -26,7 +26,7 @@ func TestScVersion(t *testing.T) {
 	lib.Ok(t, os.Remove(afn))
 }
 
-func TestScHelp(t *testing.T) {
+/*func TestScHelp(t *testing.T) {
 	afn := "testdata/actHelp.log"
 	efn := "testdata/expHelp.log"
 	os.Remove(afn)
@@ -34,7 +34,7 @@ func TestScHelp(t *testing.T) {
 	lib.Ok(t, HandleArgs(args))
 	lib.EqualFiles2(t, afn, efn)
 	lib.Ok(t, os.Remove(afn))
-}
+}*/
 
 func Example_handleArgsNone() {
 	HandleArgs([]string{"trice", ""})

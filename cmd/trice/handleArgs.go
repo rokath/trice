@@ -25,7 +25,6 @@ import (
 	"github.com/rokath/trice/internal/receiver/random"
 	"github.com/rokath/trice/internal/receiver/rttfile"
 	"github.com/rokath/trice/internal/receiver/segger"
-	"github.com/rokath/trice/internal/receiver/simulator"
 	"github.com/rokath/trice/internal/trice"
 	"github.com/rokath/trice/pkg/cage"
 	"github.com/rokath/trice/pkg/lib"
