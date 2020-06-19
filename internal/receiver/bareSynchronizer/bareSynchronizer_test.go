@@ -5,45 +5,30 @@
 package bareSynchronizer_test
 
 import (
+	"fmt"
 	"testing"
 
-	"github.com/rokath/trice/internal/receiver/wrapSynchronizer"
+	"github.com/rokath/trice/internal/receiver"
+	"github.com/rokath/trice/internal/receiver/bareSynchronizer"
+	"github.com/rokath/trice/pkg/inputDummy"
 	"github.com/rokath/trice/pkg/lib"
 )
 
-// simulator delivers an endless circle of bytes
-type simulator struct {
-	t      []byte
-	offset int
-}
-
-// newSimulator creates an instance of simulator.
-//
-// It contains some false bytes at the beginning followed by valid bare packages.
-func newSimulator() *simulator {
-	r := &simulator{
-		t: []byte{1, 2, 3, 10, 172, 0, 1, 0x16, 0x16, 0x16, 0x16},
-	}
-	return r
-}
-
-// Read reads the simulation data circular.
-func (p *simulator) Read(b []byte) (int, error) {
-	var i int
-	for i = range b {
-		b[i] = p.t[(p.offset+i)%len(p.t)]
-	}
-	i++ // adjust to byte count
-	p.offset += i
-	return i, nil
-}
-
-// check if sync works
+// check if read & sync works
 func Test1(t *testing.T) {
-	s := newSimulator()
-	ws := wrapSynchronizer.New(s)
-	b := make([]byte, 8)
-	ws.Read(b)
-	c := []byte{235, 96, 96, 235, 10, 172, 10, 172}
-	lib.Equals(t, b, c)
+	i := []byte{1, 2, 3, 10, 172, 0, 1, 0x16, 0x16, 0x16, 0x16, 22, 44, 33, 11}
+	s := inputDummy.New(i, 0)
+	bs := bareSynchronizer.New(s)
+	receiver.DiscardByte = func(b byte) { fmt.Println(b) }
+	act := make([]byte, 4)
+
+	bs.Read(act)
+	exp := []byte{1, 2, 3, 10}
+	//exp := []byte{10, 172, 0, 1} // todo bareSync
+	lib.Equals(t, act, exp)
+
+	bs.Read(act)
+	exp = []byte{172, 0, 1, 0x16}
+	//exp := []byte{22, 44, 33, 11}  // todo bareSync
+	lib.Equals(t, act, exp)
 }
