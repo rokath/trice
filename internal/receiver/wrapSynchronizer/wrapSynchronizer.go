@@ -1,13 +1,12 @@
 // Copyright 2020 Thomas.Hoehenleitner [at] seerose.net
 // Use of this source code is governed by a license that can be found in the LICENSE file.
 
-// Package wrapSynchronizer reads 8 byte trice wraps and syncs internally if byte stream inconsistent
-package wrapSynchronizer
+// Package wrapsynchronizer reads 8 byte trice wraps and syncs internally if byte stream inconsistent
+package wrapsynchronizer
 
 import (
 	"errors"
 	"io"
-	"time"
 
 	"github.com/rokath/trice/internal/receiver"
 )
@@ -32,10 +31,13 @@ func New(input io.Reader) *WrapSync {
 func (p *WrapSync) Read(b []byte) (int, error) {
 	var err error
 	if len(b) < 8 {
-		return 0, errors.New("too short")
+		return 0, errors.New("too short for wrap")
 	}
 	b = b[:8] // wrap size is max
-	p.r.Read(b)
+	n,err := p.r.Read(b)
+	if( nil != err ){
+		return n, err
+	}
 	if true == evaluateWrap(b) {
 		return 8, nil
 	}
@@ -43,16 +45,12 @@ func (p *WrapSync) Read(b []byte) (int, error) {
 	// out of sync handling
 	// The primary slice b we can only use to fill the underlying memory.
 	// It is passed by value, so any changes to it will not reach the caller.
-	// Therefore reciver.ReadNextByte cannot use b directly.
+	// Therefore receiver.ReadNextByte cannot use b directly.
 	buf := make([]byte, 8) // need to work on a separate slice
 	copy(buf, b)
 	for false == evaluateWrap(buf) {
 		receiver.DiscardByte(buf[0])
 		buf, err = receiver.ReadNextByte(p.r, buf)
-		if io.EOF == err {
-			time.Sleep(10 * time.Millisecond)
-			continue
-		}
 		if nil != err {
 			return 0, err
 		}
