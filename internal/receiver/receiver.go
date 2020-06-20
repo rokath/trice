@@ -34,7 +34,6 @@ import (
 	"fmt"
 	"io"
 	"log"
-	"time"
 
 	"github.com/rokath/trice/internal/emit"
 	"github.com/rokath/trice/internal/id"
@@ -138,6 +137,7 @@ func (p *TriceReceiver) receiveTrices() {
 	}
 }
 
+/*
 // readAtLeastBytes returns not when end of file is reached and no more bytes are written
 func (p *TriceReceiver) readAtLeastBytes(count int) ([]byte, error) {
 	buf := make([]byte, count) // the buffer size limits the read count
@@ -147,8 +147,7 @@ func (p *TriceReceiver) readAtLeastBytes(count int) ([]byte, error) {
 	//start := time.Now()
 	for len(b) < count {
 		n, err = p.Read(buf)
-		if nil != err && io.EOF != err {
-			log.Println("Port read error")
+		if nil != err {
 			log.Fatal(err)
 		}
 		b = append(b, buf[:n]...)
@@ -161,6 +160,7 @@ func (p *TriceReceiver) readAtLeastBytes(count int) ([]byte, error) {
 	}
 	return b, nil
 }
+*/
 
 // evalHeader checks if b contains valid header data
 func evalHeader(b []byte) bool {
@@ -203,9 +203,14 @@ func decrypt(b []byte) []byte {
 
 // readHeader gets next header from streaming data
 func (p *TriceReceiver) readHeader() ([]byte, error) {
-	b, err := p.readAtLeastBytes(8)
+	//b, err := p.readAtLeastBytes(8)
+	var n int
+	var err error
+	b := make([]byte, 8)
+	n, err = io.ReadFull(p, b)
 
 	if nil != err {
+		b := b[:n]
 		return b, err
 	}
 	for {
@@ -215,11 +220,13 @@ func (p *TriceReceiver) readHeader() ([]byte, error) {
 		}
 		DiscardByte(b[0])
 		b = encrypt(b)
-		x, err := p.readAtLeastBytes(1)
+		//x, err := p.readAtLeastBytes(1)
+		c := make([]byte, 1)
+		_, err = io.ReadFull(p, c)
 		if nil != err {
-			return b, err
+			return b[1:], err
 		}
-		b = append(b[1:], x...) // try to sync
+		b = append(b[1:], c...) // try to sync
 	}
 	return b, nil
 }
@@ -230,7 +237,8 @@ func (p *TriceReceiver) receiveBytes() {
 		b, err := p.readHeader()
 
 		if nil != err {
-			fmt.Println("Could not read serial header: ", err)
+			//fmt.Println("Could not read serial header: ", err)
+			//log.Fatal(err)
 			continue
 		}
 
@@ -251,15 +259,19 @@ func (p *TriceReceiver) receiveBytes() {
 					fmt.Println("ERR:wrong format")
 				} else {
 					// int(b[6]) contains string identificator for verification
-					d, _ := p.readAtLeastBytes(2) // len of buffer (only one buffer)
+					//d, _ := p.readAtLeastBytes(2) // len of buffer (only one buffer)
+					d := make([]byte, 2)
+					n, err := io.ReadFull(p, d)
 					if nil != err {
-						fmt.Println("Could not read serial len: ", err)
+						fmt.Println("Could not read serial len: ", n, err)
 						continue
 					}
 					len := int(binary.LittleEndian.Uint16(d[:2]))
-					s, _ := p.readAtLeastBytes(len + 1) // len is len-1 value
+					//s, _ := p.readAtLeastBytes(len + 1) // len is len-1 value
+					s := make([]byte, len+1) // len is len-1 value
+					m, err := io.ReadFull(p, s)
 					if nil != err {
-						fmt.Println("Could not read buffer: ", err)
+						fmt.Println("Could not read buffer: ", m, err)
 						continue
 					}
 					b = append(b, d...) // len is redundant here and usable as check
