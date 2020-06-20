@@ -13,15 +13,13 @@ import (
 	"time"
 )
 
-
-const(
+const (
 	// NoDelay avoids any internal waiting.
 	NoDelay = time.Duration(0)
 
 	// NoLimit is used for limit and means endless (circular) data.
 	NoLimit = 0
 )
-
 
 // Source delivers an endless circle of bytes.
 type Source struct {
@@ -31,7 +29,7 @@ type Source struct {
 	limit  int           // max bytes count readble, 0 means endless
 }
 
-// New creates an instance of simulator.
+// New creates an instance of inputDummy.
 // b contains bytes it reads cyclically
 func New(b []byte, t time.Duration, limit int) *Source {
 	s := &Source{}
@@ -41,7 +39,7 @@ func New(b []byte, t time.Duration, limit int) *Source {
 	return s
 }
 
-// Read is the exported method.
+// Read is an exported method.
 func (p *Source) Read(b []byte) (int, error) {
 	var i int
 	time.Sleep(p.t)
@@ -61,4 +59,23 @@ func (p *Source) Read(b []byte) (int, error) {
 	i++ // adjust to byte count
 	p.offset += i
 	return i, nil
+}
+
+// ReadString is an exported method.
+func (p *Source) ReadString(delim byte) (string, error) {
+	var err error
+	var b []byte
+	c := make([]byte, 1)
+	for {
+		_, err = io.ReadFull(p, c)
+		if nil != err {
+			break
+		}
+		b = append(b, c...)
+		if delim == c[0] {
+			break
+		}
+	}
+	s := string(b)
+	return s, err
 }

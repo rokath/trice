@@ -12,8 +12,6 @@ import (
 	"github.com/rokath/trice/pkg/lib"
 )
 
-
-
 // Test1 checks if a first read works
 func Test1(t *testing.T) {
 	i := []byte{'g', 'a', 'r', 'b', 'a', 'g', 'e', 235, 96, 96, 0, 10, 172, 0, 0}
@@ -103,3 +101,25 @@ func TestLimit(t *testing.T) {
 	lib.Equals(t, 6, n)
 	lib.Equals(t, io.EOF, err)
 }
+
+/* works but ReadString not needed now
+// Test0 checks if a first read works
+func Test0(t *testing.T) {
+	i := []byte{'g', 'a', 'r', 'b', 'a', 'g', 'e', '\n', 96, 96, 0, 10, 172, 0, 0}
+	s := inputdummy.New(i, inputdummy.NoDelay, inputdummy.NoLimit)
+
+	act, err := s.ReadString('\n')
+	lib.Equals(t, "garbage\n", act)
+	lib.Equals(t, nil, err)
+}
+
+// Test01 checks if a first read works
+func Test01(t *testing.T) {
+	i := []byte{'g', 'a', 'r', 'b', 'a', 'g', 'e', '\n', 96, 96, 0, 10, 172, 0, 0}
+	s := inputdummy.New(i, inputdummy.NoDelay, 3)
+
+	act, err := s.ReadString('\n')
+	lib.Equals(t, "gar", act)
+	lib.Equals(t, io.EOF, err)
+}
+*/
