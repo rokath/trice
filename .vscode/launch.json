@@ -68,7 +68,7 @@
             ]
         },              
         {
-            "name": "-device",
+            "name": "-device Jlink",
             "type": "go",
             "request": "launch",
             "mode": "auto",
@@ -77,6 +77,22 @@
             "args": ["log",
                      "-device",
                      "JLinkRTTLogger",
+                     "-list",
+                     "${workspaceFolder}/test/til.json",
+                     "-key",
+                     "none"
+            ]
+        },
+        {
+            "name": "-device SIM",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}/cmd/trice",
+            "env": {},
+            "args": ["log",
+                     "-device",
+                     "SIM",
                      "-list",
                      "${workspaceFolder}/test/til.json",
                      "-key",
