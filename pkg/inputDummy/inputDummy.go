@@ -61,6 +61,7 @@ func (p *Source) Read(b []byte) (int, error) {
 	return i, nil
 }
 
+/* works, but not needed now
 // ReadString is an exported method.
 func (p *Source) ReadString(delim byte) (string, error) {
 	var err error
@@ -79,3 +80,4 @@ func (p *Source) ReadString(delim byte) (string, error) {
 	s := string(b)
 	return s, err
 }
+*/
