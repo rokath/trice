@@ -12,6 +12,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"time"
 
 	"github.com/rokath/trice/internal/cmd"
 	"github.com/rokath/trice/internal/disp"
@@ -22,11 +23,12 @@ import (
 	"github.com/rokath/trice/internal/receiver/direct"
 	"github.com/rokath/trice/internal/receiver/http"
 	"github.com/rokath/trice/internal/receiver/jlinkRTTLogger"
-	"github.com/rokath/trice/internal/receiver/random"
+	"github.com/rokath/trice/internal/receiver/randomdummy"
 	"github.com/rokath/trice/internal/receiver/rttfile"
 	"github.com/rokath/trice/internal/receiver/segger"
 	"github.com/rokath/trice/internal/trice"
 	"github.com/rokath/trice/pkg/cage"
+	"github.com/rokath/trice/pkg/inputdummy"
 	"github.com/rokath/trice/pkg/lib"
 )
 
@@ -312,6 +314,7 @@ func ScLog() error {
 //*/
 
 func receiving() {
+	var n int
 	err := trice.SetUp()
 	if nil != err {
 		return
@@ -332,7 +335,9 @@ func receiving() {
 		}
 		r = h
 	case "RND":
-		r = ioutil.NopCloser(random.New()) // https://stackoverflow.com/questions/28158990/golang-io-ioutil-nopcloser
+		n = 19 // you will see n-7 discarded bytes because 7 bytes are held internally to try to sync a wrap
+		innerReader := randomdummy.New(randomdummy.ZeroRandomSeed, randomdummy.ChaosMode, randomdummy.NoDelay, n)
+		r = ioutil.NopCloser(innerReader) // https://stackoverflow.com/questions/28158990/golang-io-ioutil-nopcloser
 	case "COM":
 		c := com.New()
 		if false == c.Open() {
@@ -340,7 +345,12 @@ func receiving() {
 		}
 		r = c
 	case "SIM":
-		r = ioutil.NopCloser(simulator.New()) // https://stackoverflow.com/questions/28158990/golang-io-ioutil-nopcloser
+		n = 50 // you will see about n/8 lines
+		i := []byte{'g', 'a', 'r', 'b', 'a', 'g', 'e', '\n', 235, 96, 96, 235 ^ 10 ^ 172, 10, 172, 0, 0, 235, 96, 96, 235 ^ 10 ^ 172, 10, 172, 1, 1}
+		//i := []byte{235, 96, 96, 235 ^ 10 ^ 172, 10, 172, 0, 0}
+		s := inputdummy.New(i, time.Millisecond, 50)
+		receiver.DiscardByte = receiver.DiscardASCII
+		r = ioutil.NopCloser(s) // https://stackoverflow.com/questions/28158990/golang-io-ioutil-nopcloser
 	case "RTT":
 		receiver.DiscardByte = receiver.DiscardASCII
 		s := segger.New()
