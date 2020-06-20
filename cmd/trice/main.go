@@ -20,10 +20,8 @@ func main() {
 	fi, err := os.Stat(os.Args[0])
 	if nil == err {
 		linkTime = fi.ModTime().String()
-
 	} else {
-		//fmt.Println(err) // cmd.exe: "CreateFile trice: The system cannot find the file specified."
-		linkTime = "unknown"
+		linkTime = "unknown" // on running main tests fileinfo is invalid
 	}
 	rand.Seed(time.Now().UnixNano())
 	err = HandleArgs(os.Args)
