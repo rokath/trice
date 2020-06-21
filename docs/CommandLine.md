@@ -67,8 +67,8 @@ Log trice messages from -source and display them line by line. Default destinati
   - **RND**: random data are used as input and interpreted according to -format switch. The switch -param is used as control for the random generator. Usable for testing.
   - **SIM**: inputDummy data are used as input and interpreted according to -format switch. The switch -param is used as control for the inputDummy generator. Usable for testing.
 - `[-c|color [off|alternate]]` Switch color off or use alternate color set. Ignored when switch -remote is used.
-- `[-r|remote ds|displayserver|IPaddr:IPport]` Do not show loglines and send them to a displayserver. Default is localhost:61497.
-- `[-a|autostart cmd]` Start `cmd` in background. Try `trice ds` to start displayserver automatcally.
+- `[-r|remote ds|displayserver|IPaddr:IPport]` Do not show loglines and send them to a displayserver instead. Default is localhost:61497.
+- `[-a|autostart cmd]` Start `cmd` in background. Try `trice ds` to start displayserver automatically.
 ## EXAMPLES:
 		 trice log -source COMn -destination localhost:61497
 		 trice log -soucre localhost:61497
