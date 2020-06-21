@@ -13,9 +13,10 @@
 ### `trice [...]`
 Search for config files named *trice.conf* and use the settings there. The search goes  on top down places. Last config overloads previous settings. Command line values have highest precedence. The top down search places are:
 - Directory of `trice` executable
-- /current
-- /current/path
-- /current/path/dir
+- /
+- /current/
+- /current/path/
+- /current/path/dir/
 
 ### `trice c|config filename [...]`
 Use filename as config file and ignore all config files named *trice.conf*.
