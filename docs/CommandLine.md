@@ -8,7 +8,7 @@
 - The shortcut names are more for the command line and the long names more for the config files.
 
 ## OPTIONS
-- The **trice** command accepts one and only one sub-command (which can be inside the config file) followed by optional parameters: `trice [subcommand [-parameter [value]] [...]]`
+- The **trice** command accepts one and only one sub-command (which can be inside the config file) followed by optional parameters: `trice [subcommand [-p|param [value]] [...]]`
 - The optional parameters start with a single dash and are boolean or need a value separated by space or `=`. 
 - Parameters in square brackets `[]` are optional. If omitted they have a default value. 
 - Parameter options [...] are overwriting config file values.
@@ -54,7 +54,7 @@ Start as display server which can serve as destination for several trice instanc
 Send control command to display server for self-shutdown.
 This can be handy if display server is not visible or on a remote mashine.
 
-### `trice l|log [-c|config off|filename] [-i|idlist filename] [-lg|logfile off|filename] [-color [off|alternate]] [-f|format b|bare|w|wrap] [-k|key password [-show]] [-prefix off|string][-postfix off|string] [-s|source COM|filename|RND|SIM|JLRTT|STRTT [-param string]] [-r|remote ds|displayserver|IPaddr:IPport] [-a|autostart cmd]`
+### `trice l|log [-c|config off|filename] [-i|idlist filename] [-lg|logfile off|filename] [-color [off|alternate]] [-f|format b|bare|w|wrap] [-k|key password [-show]] [-prefix off|string][-postfix off|string] [-s|source COM|filename|RND|SIM|JLRTT|STRTT [-p|param string]] [-r|remote ds|displayserver|IPaddr:IPport] [-a|autostart cmd]`
 Log trice messages from -source and display them line by line. Default destination is current display.
 - `[-c|config off|filename]` Default filename is *trice.conf*. It is searched on top down places. Last config overloads previous settings. Command line params overload config settings and "off" ignores *trice.conf* files.
 - `[-lg|logfile off|filename]` Default filename is `2006-01-02_1504-05_trice.log` with current time. To switch logging off set to "off". When -remote switch is active the default is "off", because the destination logs then.
@@ -63,7 +63,7 @@ Log trice messages from -source and display them line by line. Default destinati
 - `[-prefix off|string]` Add string as prefix to begin of each trice log line. It defaults to the source channel and can suppressed with "off".
 - `[-postfix string]` Add string as postfix to end of each trice log line. It defaults to "".
 - `[-s|source COMn|filename|JLRTT|STRTT|RND|SIM [-p|param string]]` Use source as trice input. The switch -param is accordingly to source.
-  - **COMn**: COM15 as example. -param "-baud 115200" is default value
+  - **COMn**: COM15 as example. -param 115200 is default value
   - **filename**: 
     - When filename is an executable it is started with a random temporary logfile, internally read from. -param is accordingly to the executable commandline:
     - When filename is a binary file this file is read and data interpreted according to -format switch.
