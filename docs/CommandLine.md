@@ -57,15 +57,15 @@ Log trice messages from -source and display them line by line. Default destinati
 - `[-prefix off|string]` Add string as prefix to begin of each trice log line. It defaults to the source channel and can suppressed with "off".
 - `[-postfix string]` Add string as postfix to end of each trice log line. It defaults to "".
 - `[-s|source COMn|filename|JLRTT|STRTT|RND|SIM [-param string]]` Use source as trice input. The switch -param is accordingly to source.
-  - COMn: COM15 as example. -param "-baud 115200" is default value
-  - filename: 
+  - **COMn**: COM15 as example. -param "-baud 115200" is default value
+  - **filename**: 
     - When filename is an executable it is started with a random temporary logfile, internally read from. -param is accordingly to the executable commandline:
     - When filename is a binary file this file is read and data interpreted according to -format switch.
     - When filename is an ASCII file, lines are diplayed. Can be used with logfiles. Default logging is off in that case.
-  - JLRTT Starts the *JLinkRTTLogger* executable which is expected in the trice executable directory together with acompanying libraries. The -param string is according to *JLinkRTTLogger* description.
-  - STRTT Starts the *STLinkRTTLogger* executable which is expected in the trice executable directory together with acompanying libraries. The -param string is according to *STLinkRTTLogger* description.
-  - RND: random data are used as input and interpreted according to -format switch. The switch -param is used as control for the random generator.
-  - SIM: inputDummy data are used as input and interpreted according to -format switch. The switch -param is used as control for the inputDummy generator. Usable for testing.
+  - **JLRTT** Starts the *JLinkRTTLogger* executable which is expected in the trice executable directory together with acompanying libraries. The -param string is according to *JLinkRTTLogger* description.
+  - **STRTT** Starts the *STLinkRTTLogger* executable which is expected in the trice executable directory together with acompanying libraries. The -param string is according to *STLinkRTTLogger* description.
+  - **RND**: random data are used as input and interpreted according to -format switch. The switch -param is used as control for the random generator. Usable for testing.
+  - **SIM**: inputDummy data are used as input and interpreted according to -format switch. The switch -param is used as control for the inputDummy generator. Usable for testing.
 - `[-c|color [off|alternate]]` Switch color off or use alternate color set. Ignored when switch -remote is used.
 - `[-r|remote ds|displayserver|IPaddr:IPport]` Do not show loglines and send them to a displayserver. Default is localhost:61497.
 - `[-a|autostart cmd]` Start `cmd` in background. Try `trice ds` to start displayserver automatcally.
