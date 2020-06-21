@@ -50,8 +50,8 @@ This can be handy if display server is not visible or on a remote mashine.
 
 ### `trice l|log [-c|config off|filename] [-l|list filename] [-lf|logfile off|filename] [-c|color [off|alternate]] [-format bare|wrap] [-k|key password [-show]] [-prefix off|string][-postfix off|string] [-s|source COM|filename|RND|SIM [-param string]] [-r|remote ds|displayserver|IPaddr:IPport] [-a|autostart cmd]`
 Log trice messages from -source and display them line by line. Default destination is current display.
-- `[-c|config off|filename]` Default filename is *trice.conf*. It is searched on top down places. Last config overloads previous settings. Commandline params overload config settings and "off" ignores *trice.conf* files.
-- `[-lf|logfile off|filename]` Default filename is `2006-01-02_1504-05_trice.log` with current time. To switch logging off set to "off". When -destination switch is active the default is "off", because the destination logs then.
+- `[-c|config off|filename]` Default filename is *trice.conf*. It is searched on top down places. Last config overloads previous settings. Command line params overload config settings and "off" ignores *trice.conf* files.
+- `[-lf|logfile off|filename]` Default filename is `2006-01-02_1504-05_trice.log` with current time. To switch logging off set to "off". When -remote switch is active the default is "off", because the destination logs then.
 - `[-format bare|wrap]` Default format is bare. That means a basic trice message is 4 bytes: 2 bytes ID and 2 bytes value. It is faster on the target, but cyclic sync messages are reccommended (**TRICE_SYNC**). The wrap format contains bare and 4 bytes additional control information. This allowes automatic host syncing and additional protocols on the same channel.
 - `[-k|key password [-show]]` Decrypt encrypted trice messages if password is not "none". The switch -show displays the passphrase.
 - `[-prefix off|string]` Add string as prefix to begin of each trice log line. It defaults to the source channel and can suppressed with "off".
