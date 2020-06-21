@@ -48,7 +48,7 @@ Start as display server which can serve as destination for several trice instanc
 Send control command to display server for self-shutdown.
 This can be handy if display server is not visible or on a remote mashine.
 
-### `trice l|log [-c|config off|filename] [-l|list filename] [-lf|logfile off|filename] [-c|color [off|alternate]] [-format bare|wrap] [-k|key password [-show]] [-prefix off|string][-postfix off|string] [-s|source COM|filename|RND|SIM [-param string]] [-r|remote ds|displayserver|IPaddr:IPport] [-a|autostart cmd]`
+### `trice l|log [-c|config off|filename] [-l|list filename] [-lf|logfile off|filename] [-c|color [off|alternate]] [-format bare|wrap] [-k|key password [-show]] [-prefix off|string][-postfix off|string] [-s|source COM|filename|RND|SIM|JLRTT|STRTT [-param string]] [-r|remote ds|displayserver|IPaddr:IPport] [-a|autostart cmd]`
 Log trice messages from -source and display them line by line. Default destination is current display.
 - `[-c|config off|filename]` Default filename is *trice.conf*. It is searched on top down places. Last config overloads previous settings. Command line params overload config settings and "off" ignores *trice.conf* files.
 - `[-lf|logfile off|filename]` Default filename is `2006-01-02_1504-05_trice.log` with current time. To switch logging off set to "off". When -remote switch is active the default is "off", because the destination logs then.
@@ -56,13 +56,16 @@ Log trice messages from -source and display them line by line. Default destinati
 - `[-k|key password [-show]]` Decrypt encrypted trice messages if password is not "none". The switch -show displays the passphrase.
 - `[-prefix off|string]` Add string as prefix to begin of each trice log line. It defaults to the source channel and can suppressed with "off".
 - `[-postfix string]` Add string as postfix to end of each trice log line. It defaults to "".
-- `[-s|source COMn|filename|RND|SIM [-param string]]` Use source as trice input. The switch -param is accordingly to source.
+- `[-s|source COMn|filename|JLRTT|STRTT|RND|SIM [-param string]]` Use source as trice input. The switch -param is accordingly to source.
   - COMn: COM15 as example. -param "-baud 115200" is default value
-  - filename: When filename is an executable it is started with a random temporary logfile, internally read from. -param is accordingly to the executable commadline:
+  - filename: 
+    - When filename is an executable it is started with a random temporary logfile, internally read from. -param is accordingly to the executable commandline:
     - When filename is a binary file this file is read and data interpreted according to -format switch.
     - When filename is an ASCII file, lines are diplayed. Can be used with logfiles. Default logging is off in that case.
-    - RND: random data are used as input and interpreted according to -format switch. The switch -param is used as control for the random generator.
-    - SIM: inputDummy data are used as input and interpreted according to -format switch. The switch -param is used as control for the inputDummy generator. Usable for testing.
+  - JLRTT Starts the *JLinkRTTLogger* executable which is expected in the trice executable directory together with acompanying libraries. The -param string is according to *JLinkRTTLogger* description.
+  - STRTT Starts the *STLinkRTTLogger* executable which is expected in the trice executable directory together with acompanying libraries. The -param string is according to *STLinkRTTLogger* description.
+  - RND: random data are used as input and interpreted according to -format switch. The switch -param is used as control for the random generator.
+  - SIM: inputDummy data are used as input and interpreted according to -format switch. The switch -param is used as control for the inputDummy generator. Usable for testing.
 - `[-c|color [off|alternate]]` Switch color off or use alternate color set. Ignored when switch -remote is used.
 - `[-r|remote ds|displayserver|IPaddr:IPport]` Do not show loglines and send them to a displayserver. Default is localhost:61497.
 - `[-a|autostart cmd]` Start `cmd` in background. Try `trice ds` to start displayserver automatcally.
