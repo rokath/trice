@@ -48,8 +48,9 @@ Start as display server which can serve as destination for several trice instanc
 Send control command to display server for self-shutdown.
 This can be handy if display server is not visible or on a remote mashine.
 
-### `trice l|log [-c|config off|filename] [-l|list filename] [-lf|logfile off|filename] [-c|color [off|alternate]] [-format bare|wrap] [-k|key password [-show]] [-prefix off|string][-postfix off|string] [-s|source COM|filename|RND|SIM [-param string]] [-d|destination ds|displayserver|IPaddr:IPport]`
-Receive trice messages from -source and display them on -destination. Default destination is current display.
+### `trice l|log [-c|config off|filename] [-l|list filename] [-lf|logfile off|filename] [-c|color [off|alternate]] [-format bare|wrap] [-k|key password [-show]] [-prefix off|string][-postfix off|string] [-s|source COM|filename|RND|SIM [-param string]] [-r|remote ds|displayserver|IPaddr:IPport] [-a|autostart cmd]
+`
+Log trice messages from -source and display them line by line. Default destination is current display.
 - `[-c|config off|filename]` Default filename is *trice.conf*. It is searched on top down places. Last config overloads previous settings. Commandline params overload config settings and "off" ignores *trice.conf* files.
 - `[-lf|logfile off|filename]` Default filename is `2006-01-02_1504-05_trice.log` with current time. To switch logging off set to "off". When -destination switch is active the default is "off", because the destination logs then.
 - `[-format bare|wrap]` Default format is bare. That means a basic trice message is 4 bytes: 2 bytes ID and 2 bytes value. It is faster on the target, but cyclic sync messages are reccommended (**TRICE_SYNC**). The wrap format contains bare and 4 bytes additional control information. This allowes automatic host syncing and additional protocols on the same channel.
@@ -58,14 +59,14 @@ Receive trice messages from -source and display them on -destination. Default de
 - `[-postfix off|string]` Add string as postfix to end of each trice log line. It defaults to the "\n" channel and can suppressed with "off".
 - `[-s|source COM|filename|RND|SIM [-param string]]` Use source as trice input. The switch -param is accordingly to source.
   - COMn: COM5 as example. -param "-baud 115200" is default value
-  - filename: When filename is an executable it is started with a random temporary logfile, internally read from. -param is accordingly to the executable commadline.
-    - When a binary file this file is read and data interpreted according to -format switch.
-    - When an ASCII file data direct transferred to -destination
+  - filename: When filename is an executable it is started with a random temporary logfile, internally read from. -param is accordingly to the executable commadline:
+    - When filename is a binary file this file is read and data interpreted according to -format switch.
+    - When filename is an ASCII file, lines are diplayed. Can be used with logfiles. Default logging is off in that case.
     - RND: random data are used as input and interpreted according to -format switch. The switch -param is used as control for the random generator.
-    - SIM: inputDummy data are used as input and interpreted according to -format switch. The switch -param is used as control for the inputDummy generator.
-- `[-c|color [off|alternate]]` Switch color off or use alternate color set. Ignored when switch -destination is used.
-
-
+    - SIM: inputDummy data are used as input and interpreted according to -format switch. The switch -param is used as control for the inputDummy generator. Usable for testing.
+- `[-c|color [off|alternate]]` Switch color off or use alternate color set. Ignored when switch -remote is used.
+- `[-r|remote ds|displayserver|IPaddr:IPport]` Do not show loglines and send them to a displayserver. Default is localhost:61497.
+- `[-a|autostart cmd]` Start `cmd` in background. Try `trice ds` to start displayserver automatcally.
 ## EXAMPLES:
 		 trice log -source COMn -destination localhost:61497
 		 trice log -soucre localhost:61497
