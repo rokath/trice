@@ -4,7 +4,7 @@
 - No config file implemented yet.
 - All following information about config files are just ideas.
 - The config file can contain no, one or several subcommands:
-  - One subcommand: Needs not to to be specified in the commandline.
+  - If exactly one subcommand in config file: No need to to be specified in the commandline.
 ## Options
 - The **trice** command accepts one sub-command followed by optional parameters: `trice [subcommand [-parameter [value]] [...]]`
 - Parameters in square brackets `[]` are optional. If omitted they have a default value. 
