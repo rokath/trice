@@ -56,8 +56,8 @@ Log trice messages from -source and display them line by line. Default destinati
 - `[-k|key password [-show]]` Decrypt encrypted trice messages if password is not "none". The switch -show displays the passphrase.
 - `[-prefix off|string]` Add string as prefix to begin of each trice log line. It defaults to the source channel and can suppressed with "off".
 - `[-postfix string]` Add string as postfix to end of each trice log line. It defaults to "".
-- `[-s|source COM|filename|RND|SIM [-param string]]` Use source as trice input. The switch -param is accordingly to source.
-  - COMn: COM5 as example. -param "-baud 115200" is default value
+- `[-s|source COMn|filename|RND|SIM [-param string]]` Use source as trice input. The switch -param is accordingly to source.
+  - COMn: COM15 as example. -param "-baud 115200" is default value
   - filename: When filename is an executable it is started with a random temporary logfile, internally read from. -param is accordingly to the executable commadline:
     - When filename is a binary file this file is read and data interpreted according to -format switch.
     - When filename is an ASCII file, lines are diplayed. Can be used with logfiles. Default logging is off in that case.
