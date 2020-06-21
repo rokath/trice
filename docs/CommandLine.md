@@ -1,5 +1,5 @@
 
-# trice Command Line switches
+# `trice` Command Line switches
 ## Current state
 - No config file implemented yet.
 - All following information about config files are just ideas.
@@ -14,6 +14,7 @@
 - Parameter options [...] are overwriting config file values.
 - A subcommand in the command line is the selected subcommand in config files if there is any.
 - You can place different subcommands with parameters in a config file and specify only a subcommand in the command line for selection, like `trice u` and `trice l`.
+- When adding `trice u [...]` to toolchain with a config file only `trice` needs to be started once for logging.
 
 ### `trice [...]`
 Search for config files named *trice.conf* and use the settings there. The search goes  on top down places. A parameter in a more down config overloads previous settings. Command line values have highest precedence. The top down search places are:
@@ -26,42 +27,42 @@ Search for config files named *trice.conf* and use the settings there. The searc
 ### `trice c|config filename [...]`
 Use filename as config file and ignore all config files named *trice.conf*. If filename is *[path/]trice.conf* no other *trice.conf* is evaluated and it is searched only in the current directory or the specified path location. The config file must contain one and only one subcommand or a subcommand must be inside [...].
 
-### `trice h|help [-c|config cfilename] [l|list idfilename`
+### `trice h|help [-c|config cfilename] [i|idlist idfilename`
 Display help and locations of config files named *trice.conf* and all list files *til.json* occurences in top down config search. If *-c* and|or *-l* is specified, the appropriate filenames are used instead.
 
-### `trice u|update [-dry-run] [-v|verbose] [-l|list filename] [-src dirname -src filename ...]`
+### `trice u|update [-dry-run] [-v|verbose] [-i|idlist filename] [-src dirname -src filename ...]`
 Update IDs in scource code and ID list.
 - `[-dry-run]` Do nothing, just show the output.
 - `[-v|verbose]` Show more output.
 - `[-l|list filename]` Use filename as ID listfile. Default is *til.json* first found on the config file search places.
 - `[-src dirname -src filename ...]` Scan all files in dirname and also filename. This is a multi parameter.
 
-###  `trice v|version [-lf|logfile off|filename]`
+###  `trice v|version [-lg|logfile off|filename]`
 Show trice version. To log version information in a file use -lf filename. Default is off. This can be useful for automatic logging.
 
 ### `trice s|scan`
 Scan for available COMports.
 
-### `trice ds|displayserver [-lf|logfile off|filename] [-c|color [off|alternate]] [-s|source IPaddr:IPport]`
+### `trice ds|displayserver [-lg|logfile off|filename] [-color [off|alternate]] [-s|source IPaddr:IPport]`
 Start as display server which can serve as destination for several trice instances.
-- `[-lf|logfile off|filename]`
+- `[-lg|logfile off|filename]`
     - Default filename is "2006-01-02_1504-05_trice.log" with the current time. To switch logging off set to "off".
-- `[-c|color [off|alternate]]`
+- `[-color [off|alternate]]`
   - Switch color off or use alternate color set.
 
 ### `trice sd|shutdownServer [-r|remote IPaddr:IPport]`
 Send control command to display server for self-shutdown.
 This can be handy if display server is not visible or on a remote mashine.
 
-### `trice l|log [-c|config off|filename] [-l|list filename] [-lf|logfile off|filename] [-c|color [off|alternate]] [-f|format b|bare|w|wrap] [-k|key password [-show]] [-prefix off|string][-postfix off|string] [-s|source COM|filename|RND|SIM|JLRTT|STRTT [-param string]] [-r|remote ds|displayserver|IPaddr:IPport] [-a|autostart cmd]`
+### `trice l|log [-c|config off|filename] [-i|idlist filename] [-lg|logfile off|filename] [-color [off|alternate]] [-f|format b|bare|w|wrap] [-k|key password [-show]] [-prefix off|string][-postfix off|string] [-s|source COM|filename|RND|SIM|JLRTT|STRTT [-param string]] [-r|remote ds|displayserver|IPaddr:IPport] [-a|autostart cmd]`
 Log trice messages from -source and display them line by line. Default destination is current display.
 - `[-c|config off|filename]` Default filename is *trice.conf*. It is searched on top down places. Last config overloads previous settings. Command line params overload config settings and "off" ignores *trice.conf* files.
-- `[-lf|logfile off|filename]` Default filename is `2006-01-02_1504-05_trice.log` with current time. To switch logging off set to "off". When -remote switch is active the default is "off", because the destination logs then.
+- `[-lg|logfile off|filename]` Default filename is `2006-01-02_1504-05_trice.log` with current time. To switch logging off set to "off". When -remote switch is active the default is "off", because the destination logs then.
 - `[-f|format b|bare|w|wrap]` Default format is bare. That means a basic trice message is 4 bytes: 2 bytes ID and 2 bytes value. It is faster on the target, but cyclic sync messages are reccommended (**TRICE_SYNC**). The wrap format contains bare and 4 bytes additional control information. This allowes automatic host syncing and additional protocols on the same channel.
 - `[-k|key password [-show]]` Decrypt encrypted trice messages if password is not "none". The switch -show displays the passphrase.
 - `[-prefix off|string]` Add string as prefix to begin of each trice log line. It defaults to the source channel and can suppressed with "off".
 - `[-postfix string]` Add string as postfix to end of each trice log line. It defaults to "".
-- `[-s|source COMn|filename|JLRTT|STRTT|RND|SIM [-param string]]` Use source as trice input. The switch -param is accordingly to source.
+- `[-s|source COMn|filename|JLRTT|STRTT|RND|SIM [-p|param string]]` Use source as trice input. The switch -param is accordingly to source.
   - **COMn**: COM15 as example. -param "-baud 115200" is default value
   - **filename**: 
     - When filename is an executable it is started with a random temporary logfile, internally read from. -param is accordingly to the executable commandline:
@@ -71,7 +72,7 @@ Log trice messages from -source and display them line by line. Default destinati
   - **STRTT** Starts the *STLinkRTTLogger* executable which is expected in the trice executable directory together with acompanying libraries. The -param string is according to *STLinkRTTLogger* description.
   - **RND**: random data are used as input and interpreted according to -format switch. The switch -param is used as control for the random generator. Usable for testing.
   - **SIM**: inputDummy data are used as input and interpreted according to -format switch. The switch -param is used as control for the inputDummy generator. Usable for testing.
-- `[-c|color [off|alternate]]` Switch color off or use alternate color set. Ignored when switch -remote is used.
+- `[-color [off|alternate]]` Switch color off or use alternate color set. Ignored when switch -remote is used.
 - `[-r|remote ds|displayserver|IPaddr:IPport]` Do not show loglines and send them to a displayserver instead. Default is localhost:61497.
 - `[-a|autostart cmd]` Start `cmd` in background. Try `trice ds` to start displayserver automatically.
 ## EXAMPLES:
