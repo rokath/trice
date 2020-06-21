@@ -19,8 +19,7 @@ Search for config files named *trice.conf* and use the settings there. The searc
 - /current/path/dir/
 
 ### `trice c|config filename [...]`
-Use filename as config file and ignore all config files named *trice.conf*.
-The config file must contain one and only one subcommand or a subcommand must be inside [...].
+Use filename as config file and ignore all config files named *trice.conf*. If filename is *trice.conf* no other *trice.conf* is evaluated. The config file must contain one and only one subcommand or a subcommand must be inside [...].
 
 ### `trice h|help [-c|config filename]`
 Display help and locations of config files named trice.conf or all filename occurences in top down config search.
