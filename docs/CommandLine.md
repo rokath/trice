@@ -55,7 +55,7 @@ Log trice messages from -source and display them line by line. Default destinati
 - `[-format bare|wrap]` Default format is bare. That means a basic trice message is 4 bytes: 2 bytes ID and 2 bytes value. It is faster on the target, but cyclic sync messages are reccommended (**TRICE_SYNC**). The wrap format contains bare and 4 bytes additional control information. This allowes automatic host syncing and additional protocols on the same channel.
 - `[-k|key password [-show]]` Decrypt encrypted trice messages if password is not "none". The switch -show displays the passphrase.
 - `[-prefix off|string]` Add string as prefix to begin of each trice log line. It defaults to the source channel and can suppressed with "off".
-- `[-postfix off|string]` Add string as postfix to end of each trice log line. It defaults to the "\n" channel and can suppressed with "off".
+- `[-postfix string]` Add string as postfix to end of each trice log line. It defaults to "".
 - `[-s|source COM|filename|RND|SIM [-param string]]` Use source as trice input. The switch -param is accordingly to source.
   - COMn: COM5 as example. -param "-baud 115200" is default value
   - filename: When filename is an executable it is started with a random temporary logfile, internally read from. -param is accordingly to the executable commadline:
