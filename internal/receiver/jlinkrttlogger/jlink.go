@@ -1,7 +1,10 @@
 // Copyright 2020 Thomas.Hoehenleitner [at] seerose.net
 // Use of this source code is governed by a license that can be found in the LICENSE file.
 
-// Package jlinkrttlogger reads from SeggerRTT.
+// Package jlinkrttlogger reads from SeggerRTT with the SEGGER app JLinkRTTLogger.
+//
+// It provides a ReadCloser interface and makes no assumptiona about the delivered data.
+// It is also agnostic concerning the RTT channel and other setup parameters.
 package jlinkrttlogger
 
 import (
@@ -16,51 +19,72 @@ import (
 
 // RTTL is the Segger RealTime Transfer logger reader interface.
 type RTTL struct {
-	tlfN  string    // tempLogFile name
-	tlfH  *os.File  // tempLogFile handle
-	ch    string    // used RTT channel
+	tlfN string   // tempLogFile name
+	tlfH *os.File // tempLogFile handle
+
 	lcmdN string    // jlinkrttlogger command name
 	lcmdH *exec.Cmd // jlinkrttlogger command handle
+	clip  string    // JLinkRTTLogger parameter string - see SEGGER doc
+
+	shell    string   // os calling environment
+	shellCmd []string // command line parameters
+
+	jlinkEx  string // name of JLinkRTTLogger executable
+	jlinkLib string // name of JLinkRTTLogger dynamic library
 }
 
 // New creates an instance of RTT ReadCloser.
 //
 // It is intended to be used by receiver.New() which embeds its interface.
-func New() *RTTL {
+func New(param string) *RTTL {
 	r := &RTTL{} // create SeggerRTT instance
-	r.ch = "-RTTChannel 0"
+
+	// get a temporary file name
 	r.tlfH, _ = ioutil.TempFile(os.TempDir(), "trice-*.bin") // opens for read and write
 	r.tlfN = r.tlfH.Name()
-
-	//r.tlfN = "C:\\Users\\ms\\AppData\\Local\\Temp\\trice-428975731.bin"
-
 	r.tlfH.Close()
+	r.clip = param + " " + r.tlfN // full parameter string
 
+	// get path of trice command, because JLinkRTTLogger exewcutable and library are expected there
 	ex, err := os.Executable()
 	if err != nil {
 		panic(err)
 	}
 	exPath := filepath.Dir(ex)
-	var jlinkEx, jlinkLib string
-	if runtime.GOOS == "windows" {
-		jlinkEx = "\\JLinkRTTLogger.exe"
-		jlinkLib = "\\JLinkARM.dll"
-	} else {
-		jlinkEx = "/JLinkRTTLogger" // todo: check
-		jlinkLib = "/JLinkARM.so"   // todo: check
-	}
-	//r.cN = "/c/Program Files x86/SEGGER/JLink/JLinkRTTLogger.exe"
-	//r.lcmdN = "C:\\Program Files (x86)\\SEGGER\\JLink\\JLinkRTTLogger.exe"
-	//r.lcmdN = "C:\\repos\\trice\\third_party\\JLinkRTTLogger.exe"
 
-	r.lcmdN = exPath + jlinkEx
-	libName := exPath + jlinkLib
-	if _, err := os.Stat(r.lcmdN); os.IsNotExist(err) {
-		log.Fatal(r.lcmdN, " does not exist")
+	if runtime.GOOS == "windows" {
+		r.shell = "cmd"
+		r.shellCmd = append(r.shellCmd, "/c")
+
+		r.jlinkEx = exPath + "\\JLinkRTTLogger.exe"
+		r.jlinkLib = exPath + "\\JLinkARM.dll"
+
+	} else if runtime.GOOS == "linux" {
+		r.shell = "gnome-terminal" // this only works for gnome based linux desktop env
+		r.shellCmd = append(r.shellCmd, "-- /bin/bash -c")
+
+		r.jlinkEx = "/JLinkRTTLogger" // todo: check
+		r.jlinkLib = "/JLinkARM.so"   // todo: check
+
+	} else {
+		log.Fatal("trice is running on unknown operating system")
 	}
-	if _, err := os.Stat(libName); os.IsNotExist(err) {
-		log.Fatal(libName, " does not exist")
+
+	// check environment
+	if _, err := os.Stat(r.jlinkEx); os.IsNotExist(err) {
+		log.Fatal(r.jlinkEx, " does not exist")
 	}
+	if _, err := os.Stat(r.jlinkLib); os.IsNotExist(err) {
+		log.Fatal(r.jlinkLib, " does not exist")
+	}
+	/*
+		r.cmd = exec.Command(r.shell, r.clip...)
+		err = r.cmd.Run()
+		if err != nil {
+			log.Println(clip)
+			log.Fatal(err)
+		}
+	*/
 	return r
 }
 
@@ -77,7 +101,6 @@ func (p *RTTL) Close() error {
 	var err error
 	if err = p.lcmdH.Process.Kill(); nil != err {
 		fmt.Print(err)
-
 	}
 
 	if err = os.Remove(p.tlfH.Name()); nil != err {
@@ -93,18 +116,11 @@ func (p *RTTL) Close() error {
 func (p *RTTL) Open() error {
 	var err error
 	// Start a process:
-	if runtime.GOOS == "windows" {
-		//prog := p.lcmdN
-		//clip := "-Device STM32F030R8 -if SWD -Speed 4000 " + p.ch + " " + p.tlfN
-
-		prog := "cmd"
-		clip := " /c " + p.lcmdN + " -Device STM32F030R8 -if SWD -Speed 4000 " + p.ch + " " + p.tlfN
-		fmt.Println(prog, clip)
-		p.lcmdH = exec.Command(prog, clip)
-		if err = p.lcmdH.Start(); err != nil {
-			log.Fatal("start error", err)
-		}
+	p.lcmdH = exec.Command(p.shell, p.clip)
+	if err = p.lcmdH.Start(); err != nil {
+		log.Fatal("start error", err)
 	}
+
 	fmt.Println(p.lcmdN, "writing to", p.tlfN)
 	p.tlfH, err = os.Open(p.tlfN) // Open() opens a file with read only flag.
 	if nil != err {
