@@ -38,7 +38,7 @@ Update IDs in scource code and ID list.
 - `[-src dirname -src filename ...]` Scan all files in dirname and also filename. This is a multi parameter.
 
 ###  `trice v|version [-lg|logfile off|filename]`
-Show trice version. To log version information in a file use -lf filename. Default is off. This can be useful for automatic logging.
+Show trice version. To log version information in a file use -lg filename. Default is off. This can be useful for automatic logging.
 
 ### `trice s|scan`
 Scan for available COMports.
