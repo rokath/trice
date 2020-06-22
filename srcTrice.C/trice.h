@@ -33,7 +33,7 @@ extern "C" {
 //! It cannot occure in the trice stream. You must not change that. Otherwise the RTTD syncing will not work.
 //! If for some reason the Id changes during 'trice u', probably when the string changed, you need to remove
 //! the old pattern from til.json and put Id(5654) manually here
-#define TRICE_RTT_SYNC do{ TRICE16_1( Id(5654), "%d\b\b\b\b", 5654 ); }while(0)
+#define TRICE_SYNC do{ TRICE16_1( Id(5654), "%d\b\b\b\b", 5654 ); }while(0)
 
 #ifdef TRICE_FILENAME
 #define TRICE_LOC do{ TRICE_FILENAME; TRICE16_1( Id(43789), "msg: line %d ", __LINE__ ); }while(0) //!< trice filename and line
