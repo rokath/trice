@@ -54,7 +54,7 @@ Start as display server which can serve as destination for several trice instanc
 Send control command to display server for self-shutdown.
 This can be handy if display server is not visible or on a remote mashine.
 
-### `trice l|log [-c|config off|filename] [-i|idlist filename] [-lg|logfile off|filename] [-color [off|alternate]] [-f|format b|bare|w|wrap] [-k|key password [-show]] [-prefix off|string][-postfix off|string] [-s|source COM|filename|RND|SIM|JLRTT|STRTT [-p|param string]] [-r|remote ds|displayserver|IPaddr:IPport] [-a|autostart cmd]`
+### `trice l|log [-c|config off|filename] [-i|idlist filename] [-lg|logfile off|filename] [-color [off|alternate]] [-f|format b|bare|w|wrap] [-k|key password [-show]] [-prefix off|string] [-postfix off|string] [-s|source COM|filename|RND|SIM|JLRTT|STRTT [-p|param string]] [-r|remote ds|displayserver|IPaddr:IPport] [-a|autostart cmd]`
 Log trice messages from -source and display them line by line. Default destination is current display.
 - `[-c|config off|filename]` Default filename is *trice.conf*. It is searched on top down places. Last config overloads previous settings. Command line params overload config settings and "off" ignores *trice.conf* files.
 - `[-lg|logfile off|filename]` Default filename is `2006-01-02_1504-05_trice.log` with current time. To switch logging off set to "off". When -remote switch is active the default is "off", because the destination logs then.
