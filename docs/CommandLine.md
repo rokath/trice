@@ -3,9 +3,10 @@
 ## Current state
 - No config file implemented yet.
 - All following information about config files are just ideas.
-- The config file can contain no, one or several subcommands:
+- The config file can contain one or several subcommands:
   - If exactly one subcommand in config file: No need to to be specified in the command line.
 - The shortcut names are more for the command line and the long names more for the config files.
+- Parameters need to be associated to a subcommand inside config file.
 
 ## OPTIONS
 - The **trice** command accepts one and only one sub-command (which can be inside the config file) followed by optional parameters: `trice [subcommand [-p|param [value]] [...]]`
@@ -65,7 +66,7 @@ Log trice messages from -source and display them line by line. Default destinati
 - `[-s|source COMn|filename|JLRTT|STRTT|RND|SIM [-p|param string]]` Use source as trice input. The switch -param is accordingly to source.
   - **COMn**: COM15 as example. -param 115200 is default value
   - **filename**: 
-    - When filename is an executable it is started with a random temporary logfile, internally read from. -param is accordingly to the executable command line:
+    - When filename is an executable it is started with a random temporary logfile, internally read from. -param is accordingly to the executable command line.
     - When filename is a binary file this file is read and data interpreted according to -format switch.
     - When filename is an ASCII file, lines are diplayed. Can be used with logfiles. Default logging is off in that case.
   - **JLRTT** Starts the *JLinkRTTLogger* executable which is expected in the trice executable directory together with acompanying libraries. The -param string is according to *JLinkRTTLogger* description.
@@ -78,13 +79,13 @@ Log trice messages from -source and display them line by line. Default destinati
 ## EXAMPLES:
 - Scan directories `../src`, `../lib/src` and `./` to update the IDs there and extend list file `../../../til.json`
 ```
-trice u -l ../../../til.json -src ../src -src ../lib/src -src ./
+trice u -i ../../../til.json -src ../src -src ../lib/src -src ./
 ```
 - Log bare trice messages on COM3 8N1 115200 baud
 ```
-trice log -l til.json -s=COM3
+trice log -i til.json -s=COM3
 ```
-- Log wrap trice messages on COM3 8N1 9600 baud
+- Log wrap trice messages on COM3 8N1 9600 baud ans use default til.json
 ```
 trice l -s COM3 -p="9600" -format wrap
 ```
