@@ -15,6 +15,12 @@ import (
 	"os/exec"
 	"path/filepath"
 	"runtime"
+	//"time"
+)
+
+var (
+	// Param contails the command line parameters for JLinkRTTLogger
+	Param string
 )
 
 // RTTL is the Segger RealTime Transfer logger reader interface.
@@ -29,14 +35,18 @@ type RTTL struct {
 	jlinkLib string // name of JLinkRTTLogger dynamic library
 
 	shell string // os calling environment
-	clip  string // full shell parameter string including JLinkRTTLogger and its parameters - see SEGGER UM08001_JLink.pdf
+	clip  string // full shell parameter string including JLinkRTTLogger and its parameters.
 }
+
+//var pointerToInstance *RTTL
 
 // New creates an instance of RTT ReadCloser.
 //
 // It is intended to be used by receiver.New() which embeds its interface.
+// The param string is used as JLinkRTTLogger parameter string. See SEGGER UM08001_JLink.pdf for details.
 func New(param string) *RTTL {
 	r := &RTTL{} // create SeggerRTT instance
+	//pointerToInstance = r // for cleanup
 
 	// get a temporary file name
 	r.tlfH, _ = ioutil.TempFile(os.TempDir(), "trice-*.bin") // opens for read and write
@@ -74,14 +84,6 @@ func New(param string) *RTTL {
 	if _, err := os.Stat(r.jlinkLib); os.IsNotExist(err) {
 		log.Fatal(r.jlinkLib, " does not exist")
 	}
-	/*
-		r.cmd = exec.Command(r.shell, r.clip...)
-		err = r.cmd.Run()
-		if err != nil {
-			log.Println(clip)
-			log.Fatal(err)
-		}
-	*/
 	return r
 }
 
@@ -94,16 +96,13 @@ func (p *RTTL) Read(b []byte) (int, error) {
 //
 // See https://stackoverflow.com/questions/11886531/terminating-a-process-started-with-os-exec-in-golang
 func (p *RTTL) Close() error {
-	fmt.Print("CLOSE")
 	var err error
-	if err = p.lcmdH.Process.Kill(); nil != err {
-		fmt.Print(err)
-	}
-
-	if err = os.Remove(p.tlfH.Name()); nil != err {
-		fmt.Print(err)
-	}
-
+	// if err = p.lcmdH.Process.Kill(); nil != err {
+	// 	fmt.Print(err)
+	// }
+	// if err = os.Remove(p.tlfH.Name()); nil != err {
+	// 	fmt.Print(err) // remove C:\Users\ms\AppData\Local\Temp\trice-458250371.bin: The process cannot access the file because it is being used by another process.
+	// }
 	return err
 }
 
@@ -118,7 +117,6 @@ func (p *RTTL) Open() error {
 		log.Fatal("tart error", err)
 	}
 
-	//fmt.Println(p.lcmdN, "writing to", p.tlfN)
 	p.tlfH, err = os.Open(p.tlfN) // Open() opens a file with read only flag.
 	if nil != err {
 		return err
@@ -127,20 +125,18 @@ func (p *RTTL) Open() error {
 	return nil
 }
 
-/*
+// TODO This code works but does not delete the temp file.
 // SetupCloseHandler creates a 'listener' on a new goroutine which will notify the
 // program if it receives an interrupt from the OS. We then handle this by calling
 // our clean up procedure and exiting the program.
-func init() {
-	fmt.Println("SetupCloseHandler")
-	c := make(chan os.Signal)
-	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
-	go func() {
-		fmt.Println("SetupCloseHandler 22222222222")
-		<-c
-		fmt.Println("\n\r- Ctrl+C pressed in Terminal")
-		//DeleteFiles()
-		os.Exit(0)
-	}()
-}
-*/
+// func init() {
+// 	c := make(chan os.Signal)
+// 	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
+// 	go func() {
+// 		<-c
+// 		fmt.Println("\n\r- Ctrl+C pressed in Terminal")
+// 		pointerToInstance.Close()
+// 		time.Sleep(3 * time.Second)
+// 		os.Exit(0)
+// 	}()
+// }
