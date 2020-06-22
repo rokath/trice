@@ -34,8 +34,8 @@ func (p *WrapSync) Read(b []byte) (int, error) {
 		return 0, errors.New("too short for wrap")
 	}
 	b = b[:8] // wrap size is max
-	n,err := p.r.Read(b)
-	if( nil != err ){
+	n, err := p.r.Read(b)
+	if nil != err {
 		return n, err
 	}
 	if true == evaluateWrap(b) {

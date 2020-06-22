@@ -8,29 +8,28 @@ import (
 	"errors"
 	"testing"
 
- 	"github.com/rokath/trice/internal/receiver/randomdummy"
+	"github.com/rokath/trice/internal/receiver/randomdummy"
 	"github.com/rokath/trice/pkg/lib"
 )
 
 // TestZeroMode checks Read mode 0
 func TestZeroMode(t *testing.T) {
-	s := randomdummy.New(randomdummy.ZeroRandomSeed, randomdummy.ChaosMode, randomdummy.NoDelay, randomdummy.NoLimit )
+	s := randomdummy.New(randomdummy.ZeroRandomSeed, randomdummy.ChaosMode, randomdummy.NoDelay, randomdummy.NoLimit)
 	act := make([]byte, 19)
 	s.Read(act)
 	exp := []byte{0x9f, 0x90, 0xa3, 0xe2, 0x50, 0xc4, 0x9d, 0xa7, 0xc6, 0x30, 0x5d, 0xc5, 0x77, 0xe4, 0x93, 0x33, 0x29, 0x50, 0xdc}
 	lib.Equals(t, exp, act)
 }
 
-
 // TestZeroModeLimit checks Read mode 0 with limit
 func TestZeroModeLimit(t *testing.T) {
-	s := randomdummy.New(randomdummy.ZeroRandomSeed, randomdummy.ChaosMode, randomdummy.NoDelay, 9 )
+	s := randomdummy.New(randomdummy.ZeroRandomSeed, randomdummy.ChaosMode, randomdummy.NoDelay, 9)
 	act := make([]byte, 19)
 	n, err := s.Read(act)
 	exp := []byte{0x9f, 0x90, 0xa3, 0xe2, 0x50, 0xc4, 0x9d, 0xa7, 0xc6}
 	act = act[:n]
 	lib.Equals(t, exp, act)
-	lib.Equals(t,  errors.New( "EOF"), err)
+	lib.Equals(t, errors.New("EOF"), err)
 }
 
 // TestUnknownMode checks Read mode unknown

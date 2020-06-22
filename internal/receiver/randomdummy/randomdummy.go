@@ -10,13 +10,13 @@ import (
 	"time"
 )
 
-const(
+const (
 	// NoDelay avoids any internal waiting.
 	NoDelay = time.Duration(0)
 
 	// NoLimit is used for limit and means endless (circular) data.
 	NoLimit = 0
-	
+
 	// ZeroRandomSeed makes sure generated random numbers are the same from start to start.
 	ZeroRandomSeed = 0
 
@@ -26,16 +26,16 @@ const(
 	// BareModeNoSync delivers only 4 byte groups.
 	BareModeNoSync = 1
 
-	// WrapModeWithValidCrc delivers only 8 byte wrap sequences with valid coltrol data but chaotic payload. 
+	// WrapModeWithValidCrc delivers only 8 byte wrap sequences with valid coltrol data but chaotic payload.
 	WrapModeWithValidCrc = 2
 )
 
 // Randomizer delivers an endless circle of random bytes
 type Randomizer struct {
-	mode int           // structure mode in the Read data
-	time time.Duration // artificial Read delay
-	limit int // max number of bytes, 0 means no limit
-	count int // delivered bytes
+	mode  int           // structure mode in the Read data
+	time  time.Duration // artificial Read delay
+	limit int           // max number of bytes, 0 means no limit
+	count int           // delivered bytes
 }
 
 // New creates an instance of Random.
@@ -54,17 +54,16 @@ func New(seed int64, mode int, time time.Duration, limit int) *Randomizer {
 	return r
 }
 
-
-func (p *Randomizer) fillBuffer( b []byte)(int,error){
+func (p *Randomizer) fillBuffer(b []byte) (int, error) {
 	var i int
-	for i = range b { 
-		if 0 == p.limit || p.count +i < p.limit {
+	for i = range b {
+		if 0 == p.limit || p.count+i < p.limit {
 			b[i] = byte(rand.Intn(255))
-		}else{
-			p.count +=i
-			return i, errors.New( "EOF")
+		} else {
+			p.count += i
+			return i, errors.New("EOF")
 		}
-	}	
+	}
 	i++
 	p.count += i
 	return i, nil

@@ -11,8 +11,8 @@ import (
 
 	"github.com/rokath/trice/internal/receiver"
 	"github.com/rokath/trice/internal/receiver/wrapsynchronizer"
-	"github.com/rokath/trice/pkg/lib"
 	"github.com/rokath/trice/pkg/inputdummy"
+	"github.com/rokath/trice/pkg/lib"
 )
 
 const endless = 0
@@ -66,7 +66,6 @@ func TestEOF(t *testing.T) {
 	lib.Equals(t, errors.New("EOF"), err)
 	lib.Equals(t, []byte{'g', 'a'}, b)
 }
-
 
 // TestEOF checks if read reacts right on EOF when out of sync.
 func TestOutOfSyncEOF(t *testing.T) {
