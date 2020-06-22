@@ -24,13 +24,12 @@ type RTTL struct {
 
 	lcmdN string    // jlinkrttlogger command name
 	lcmdH *exec.Cmd // jlinkrttlogger command handle
-	clip  string    // JLinkRTTLogger parameter string - see SEGGER doc
-
-	shell    string   // os calling environment
-	shellCmd []string // command line parameters
 
 	jlinkEx  string // name of JLinkRTTLogger executable
 	jlinkLib string // name of JLinkRTTLogger dynamic library
+
+	shell string // os calling environment
+	clip  string // full shell parameter string including JLinkRTTLogger and its parameters - see SEGGER UM08001_JLink.pdf
 }
 
 // New creates an instance of RTT ReadCloser.
@@ -43,7 +42,7 @@ func New(param string) *RTTL {
 	r.tlfH, _ = ioutil.TempFile(os.TempDir(), "trice-*.bin") // opens for read and write
 	r.tlfN = r.tlfH.Name()
 	r.tlfH.Close()
-	r.clip = param + " " + r.tlfN // full parameter string
+	r.clip = " " + param + " " + r.tlfN // full parameter string
 
 	// get path of trice command, because JLinkRTTLogger exewcutable and library are expected there
 	ex, err := os.Executable()
@@ -53,18 +52,16 @@ func New(param string) *RTTL {
 	exPath := filepath.Dir(ex)
 
 	if runtime.GOOS == "windows" {
-		r.shell = "cmd"
-		r.shellCmd = append(r.shellCmd, "/c")
-
 		r.jlinkEx = exPath + "\\JLinkRTTLogger.exe"
 		r.jlinkLib = exPath + "\\JLinkARM.dll"
+		r.shell = "cmd"
+		r.clip = "/c " + r.jlinkEx + r.clip // for shell
 
 	} else if runtime.GOOS == "linux" {
-		r.shell = "gnome-terminal" // this only works for gnome based linux desktop env
-		r.shellCmd = append(r.shellCmd, "-- /bin/bash -c")
-
-		r.jlinkEx = "/JLinkRTTLogger" // todo: check
-		r.jlinkLib = "/JLinkARM.so"   // todo: check
+		r.jlinkEx = "/JLinkRTTLogger"                    // todo: check
+		r.jlinkLib = "/JLinkARM.so"                      // todo: check
+		r.shell = "gnome-terminal"                       // this only works for gnome based linux desktop env
+		r.clip = "-- /bin/bash -c " + r.jlinkEx + r.clip // for shell
 
 	} else {
 		log.Fatal("trice is running on unknown operating system")
@@ -115,13 +112,13 @@ func (p *RTTL) Close() error {
 // THe temporary logfile is opened for reading.
 func (p *RTTL) Open() error {
 	var err error
-	// Start a process:
+	fmt.Println("Start a process:", p.shell, p.clip)
 	p.lcmdH = exec.Command(p.shell, p.clip)
 	if err = p.lcmdH.Start(); err != nil {
-		log.Fatal("start error", err)
+		log.Fatal("tart error", err)
 	}
 
-	fmt.Println(p.lcmdN, "writing to", p.tlfN)
+	//fmt.Println(p.lcmdN, "writing to", p.tlfN)
 	p.tlfH, err = os.Open(p.tlfN) // Open() opens a file with read only flag.
 	if nil != err {
 		return err
