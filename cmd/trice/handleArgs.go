@@ -32,6 +32,21 @@ import (
 	"github.com/rokath/trice/pkg/lib"
 )
 
+/*
+var (
+	scLog *flag.FlagSet
+)
+
+func init() {
+	// example with short version for long flag
+	flag.StringVar(scLog, "l", "dada", "short for log") // short flag
+}
+
+func init() {
+	// example with short version for long flag
+	// flag.StringVar(strFlag, "s", "", "Description")
+}
+*/
 // HandleArgs evaluates the arguments slice of strings
 func HandleArgs(args []string) error {
 
@@ -58,10 +73,12 @@ func HandleArgs(args []string) error {
 	vCmd := flag.NewFlagSet("version", flag.ContinueOnError)                                        // subcommand
 	pVlf := vCmd.String("lf", "off", "append all output to logfile, set to a filename for logging") // flag
 
-	scLog := flag.NewFlagSet("log", flag.ExitOnError)                                                                              // subcommand
+	scLog := flag.NewFlagSet("log", flag.ExitOnError) // subcommand
+
 	pPort := scLog.String("port", "COMscan", "COM port, options: COM1|...|COM999")                                                 // flag
 	pBaud := scLog.Int("baud", 115200, "COM baudrate")                                                                             // flag
-	pJSON := scLog.String("list", "til.json", "trice ID list path")                                                                // flag
+	pJSON := scLog.String("idlist", "til.json", "trice ID list path")                                                              // flag
+	scLog.StringVar(pJSON, "i", "til.json", "short for -idlist")                                                                   // short flag
 	pTs := scLog.String("ts", "LOCmicro", "PC timestamp for logs and logfile name, options: off|UTCmicro")                         // flag
 	pCol := scLog.String("color", "default", "color set, options: off|alternate")                                                  // flag
 	pKey := scLog.String("key", "none", "decrypt passphrase")                                                                      // flag
@@ -70,6 +87,7 @@ func HandleArgs(args []string) error {
 	pLpre := scLog.String("prefix", "COMport:", "prepend prefix to all lines, set to \"off\"")                                     // flag
 	pLpost := scLog.String("postfix", "\n", "append postfix to all lines")                                                         // flag
 	pLdev := scLog.String("device", "COM", "receiver device, options: JLinkRTTLogger, HTTP, RTT, RTTD, SIM, RND, RTTF")            // flag
+	//pParam := scLog.String("param", "default", "parameters: input device specific string. The \"default\" value is device specific")            // flag
 
 	scCl := flag.NewFlagSet("receiver", flag.ExitOnError)                                                                                   // subcommand
 	pClPort := scCl.String("port", "COMscan", "COM port, options: COM1|...|COM999")                                                         // flag
@@ -203,6 +221,8 @@ func HandleArgs(args []string) error {
 		trice.Password = *pKey
 		trice.ShowPassword = *pShow
 		cage.Name = *pLlf
+		jlinkrttlogger.Param = "-Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0"
+
 		/*
 		   // trice.ScLog is the subcommand log and connects to COM port and displays traces
 		   func ScLog() error {
@@ -364,7 +384,7 @@ func receiving() {
 	var r io.ReadCloser
 	switch receiver.Device {
 	case "JLinkRTTLogger":
-		l := jlinkrttlogger.New("-Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0")
+		l := jlinkrttlogger.New(jlinkrttlogger.Param) // yes
 		if nil != l.Open() {
 			return
 		}
