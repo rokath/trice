@@ -10,6 +10,7 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"runtime"
 )
 
@@ -34,9 +35,32 @@ func New() *RTTL {
 	//r.tlfN = "C:\\Users\\ms\\AppData\\Local\\Temp\\trice-428975731.bin"
 
 	r.tlfH.Close()
+
+	ex, err := os.Executable()
+	if err != nil {
+		panic(err)
+	}
+	exPath := filepath.Dir(ex)
+	var jlinkEx, jlinkLib string
+	if runtime.GOOS == "windows" {
+		jlinkEx = "\\JLinkRTTLogger.exe"
+		jlinkLib = "\\JLinkARM.dll"
+	} else {
+		jlinkEx = "/JLinkRTTLogger" // todo: check
+		jlinkLib = "/JLinkARM.so"   // todo: check
+	}
 	//r.cN = "/c/Program Files x86/SEGGER/JLink/JLinkRTTLogger.exe"
 	//r.lcmdN = "C:\\Program Files (x86)\\SEGGER\\JLink\\JLinkRTTLogger.exe"
-	r.lcmdN = "C:\\repos\\trice\\third_party\\JLinkRTTLogger.exe"
+	//r.lcmdN = "C:\\repos\\trice\\third_party\\JLinkRTTLogger.exe"
+
+	r.lcmdN = exPath + jlinkEx
+	libName := exPath + jlinkLib
+	if _, err := os.Stat(r.lcmdN); os.IsNotExist(err) {
+		log.Fatal(r.lcmdN, " does not exist")
+	}
+	if _, err := os.Stat(libName); os.IsNotExist(err) {
+		log.Fatal(libName, " does not exist")
+	}
 	return r
 }
 
