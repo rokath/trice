@@ -22,7 +22,7 @@ import (
 	"github.com/rokath/trice/internal/receiver/com"
 	"github.com/rokath/trice/internal/receiver/direct"
 	"github.com/rokath/trice/internal/receiver/http"
-	"github.com/rokath/trice/internal/receiver/jlinkRTTLogger"
+	"github.com/rokath/trice/internal/receiver/jlinkrttlogger"
 	"github.com/rokath/trice/internal/receiver/randomdummy"
 	"github.com/rokath/trice/internal/receiver/rttfile"
 	"github.com/rokath/trice/internal/receiver/segger"
@@ -363,8 +363,8 @@ func receiving() {
 	}
 	var r io.ReadCloser
 	switch receiver.Device {
-	case "JLinkRTTLogger":
-		l := jlinkRTTLogger.New()
+	case "jlinkrttlogger":
+		l := jlinkrttlogger.New()
 		if nil != l.Open() {
 			return
 		}

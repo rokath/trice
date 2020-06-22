@@ -1,8 +1,8 @@
 // Copyright 2020 Thomas.Hoehenleitner [at] seerose.net
 // Use of this source code is governed by a license that can be found in the LICENSE file.
 
-// Package jlinkRTTLogger reads from SeggerRTT.
-package jlinkRTTLogger
+// Package jlinkrttlogger reads from SeggerRTT.
+package jlinkrttlogger
 
 import (
 	"fmt"
@@ -19,8 +19,8 @@ type RTTL struct {
 	tlfN  string    // tempLogFile name
 	tlfH  *os.File  // tempLogFile handle
 	ch    string    // used RTT channel
-	lcmdN string    // JLinkRTTLogger command name
-	lcmdH *exec.Cmd // JLinkRTTLogger command handle
+	lcmdN string    // jlinkrttlogger command name
+	lcmdH *exec.Cmd // jlinkrttlogger command handle
 }
 
 // New creates an instance of RTT ReadCloser.

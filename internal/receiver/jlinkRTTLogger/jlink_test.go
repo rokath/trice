@@ -2,7 +2,7 @@
 // Use of this source code is governed by a license that can be found in the LICENSE file.
 
 // Package jlink_test is a blackbox test
-package jlinkRTTLogger_test
+package jlinkrttlogger_test
 
 import (
 	"testing"
