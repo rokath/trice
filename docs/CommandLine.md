@@ -56,7 +56,7 @@ This can be handy if display server is not visible or on a remote mashine.
 
 ### `trice l|log [-c|config off|filename] [-i|idlist filename] [-lg|logfile off|filename] [-color [off|alternate]] [-f|format b|bare|w|wrap] [-k|key password [-show]] [-prefix off|string] [-postfix off|string] [-s|source COM|filename|RND|SIM|JLRTT|STRTT [-p|param string]] [-r|remote ds|displayserver|IPaddr:IPport] [-a|autostart cmd]`
 Log trice messages from -source and display them line by line. Default destination is current display.
-- `[-c|config off|filename]` Default filename is *trice.conf*. It is searched on top down places. Last config overloads previous settings. Command line params overload config settings and "off" ignores *trice.conf* files.
+- `[-c|config off|filename]` Default filename is *trice.conf*. It is searched on top down places. Last config overloads previous settings. Command line parameters overload config settings and "off" ignores *trice.conf* files.
 - `[-lg|logfile off|filename]` Default filename is `2006-01-02_1504-05_trice.log` with current time. To switch logging off set to "off". When -remote switch is active the default is "off", because the destination logs then.
 - `[-f|format b|bare|w|wrap]` Default format is bare. That means a basic trice message is 4 bytes: 2 bytes ID and 2 bytes value. It is faster on the target, but cyclic sync messages are reccommended (**TRICE_SYNC**). The wrap format contains bare and 4 bytes additional control information. This allowes automatic host syncing and additional protocols on the same channel.
 - `[-k|key password [-show]]` Decrypt encrypted trice messages if password is not "none". The switch -show displays the passphrase.
@@ -65,7 +65,7 @@ Log trice messages from -source and display them line by line. Default destinati
 - `[-s|source COMn|filename|JLRTT|STRTT|RND|SIM [-p|param string]]` Use source as trice input. The switch -param is accordingly to source.
   - **COMn**: COM15 as example. -param 115200 is default value
   - **filename**: 
-    - When filename is an executable it is started with a random temporary logfile, internally read from. -param is accordingly to the executable commandline:
+    - When filename is an executable it is started with a random temporary logfile, internally read from. -param is accordingly to the executable command line:
     - When filename is a binary file this file is read and data interpreted according to -format switch.
     - When filename is an ASCII file, lines are diplayed. Can be used with logfiles. Default logging is off in that case.
   - **JLRTT** Starts the *JLinkRTTLogger* executable which is expected in the trice executable directory together with acompanying libraries. The -param string is according to *JLinkRTTLogger* description.
