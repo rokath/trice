@@ -363,7 +363,7 @@ func receiving() {
 	}
 	var r io.ReadCloser
 	switch receiver.Device {
-	case "jlinkrttlogger":
+	case "JLinkRTTLogger":
 		l := jlinkrttlogger.New("-Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0")
 		if nil != l.Open() {
 			return
