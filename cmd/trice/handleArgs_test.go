@@ -95,7 +95,7 @@ func TestServerStartStop(t *testing.T) {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		time.Sleep(100 * time.Millisecond)
+		time.Sleep(200 * time.Millisecond)
 
 		// stop display server
 		lib.Ok(t, disp.ScShutdownRemoteDisplayServer(0))
