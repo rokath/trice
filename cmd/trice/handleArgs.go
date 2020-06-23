@@ -78,41 +78,42 @@ func HandleArgs(args []string) error {
 	scLog := flag.NewFlagSet("log", flag.ExitOnError)                                                                                   // subcommand
 	pJSON := scLog.String("idlist", "til.json", "trice ID list path")                                                                   // flag
 	scLog.StringVar(pJSON, "i", "til.json", "short for -idlist")                                                                        // short flag
-	pTs := scLog.String("ts", "LOCmicro", "PC timestamp for logs and logfile name, options: off|UTCmicro")                              // flag
-	pCol := scLog.String("color", "default", "color set, options: off|alternate")                                                       // flag
 	pKey := scLog.String("key", "none", "decrypt passphrase")                                                                           // flag
 	scLog.StringVar(pKey, "k", "none", "short for -key")                                                                                // short flag
 	pShow := scLog.Bool("show", false, "show passphrase")                                                                               // flag
-	pLpre := scLog.String("prefix", "COMport:", "prepend prefix to all lines, set to \"off\"")                                          // flag
-	pLpost := scLog.String("postfix", "\n", "append postfix to all lines")                                                              // flag
 	pLlf := scLog.String("logfile", cage.DefaultLogfileName, "Append all output to logfile. Set to \"off\" or \"none\" to switch off.") // flag
 	scLog.StringVar(pLlf, "lg", cage.DefaultLogfileName, "short for -logfile")                                                          // short flag
+	pTs := scLog.String("ts", "LOCmicro", "PC timestamp for logs and logfile name, options: off|UTCmicro")                              // flag
+	pCol := scLog.String("color", "default", "color set, options: off|alternate")                                                       // flag
+	pLpre := scLog.String("prefix", "COMport:", "prepend prefix to all lines, set to \"off\"")                                          // flag
+	pLpost := scLog.String("postfix", "\n", "append postfix to all lines")                                                              // flag
 
 	pPort := scLog.String("port", "COMscan", "COM port, options: COM1|...|COM999")                                      // flag
 	pBaud := scLog.Int("baud", 115200, "COM baudrate")                                                                  // flag
 	pLdev := scLog.String("device", "COM", "receiver device, options: JLinkRTTLogger, HTTP, RTT, RTTD, SIM, RND, RTTF") // flag
 	//pParam := scLog.String("param", "default", "parameters: input device specific string. The \"default\" value is device specific")            // flag
 
-	scCl := flag.NewFlagSet("receiver", flag.ExitOnError)                                                                                   // subcommand
-	pClPort := scCl.String("port", "COMscan", "COM port, options: COM1|...|COM999")                                                         // flag
-	pClBaud := scCl.Int("baud", 115200, "COM baudrate")                                                                                     // flag
-	pClJSON := scCl.String("list", "til.json", "trice ID list path")                                                                        // flag
-	pClKey := scCl.String("key", "none", "decrypt passphrase")                                                                              // flag
-	pClShow := scCl.Bool("show", false, "show passphrase")                                                                                  // flag
-	pClIPA := scCl.String("ipa", "localhost", "ip address")                                                                                 // flag (127.0.0.1)
-	pClIPP := scCl.String("ipp", "61497", "16 bit ip port number")                                                                          // flag
-	pClTs := scCl.String("ts", "LOCmicro", "PC timestamp for logs, options: off|UTCmicro")                                                  // flag
-	pClSrv := scCl.Bool("ds", false, "start display server ")                                                                               // flag
-	pRpre := scCl.String("prefix", "COMport:", "prepend prefix to all lines, set to \"off\"")                                               // flag
-	pRpost := scCl.String("postfix", "\n", "append postfix to all lines")                                                                   // flag
-	pClLf := scCl.String("lf", cage.DefaultLogfileName, "If '-ds' append all output to logfile. Set to \"off\" or \"none\" to switch off.") // flag
-	pRdev := scCl.String("device", "COM", "receiver device, options: JLinkRTTLogger, HTTP, RTT, RTTD, SIM, RND, RTTF")                      // flag
+	scCl := flag.NewFlagSet("receiver", flag.ExitOnError)                           // subcommand
+	pClPort := scCl.String("port", "COMscan", "COM port, options: COM1|...|COM999") // flag
+	pClBaud := scCl.Int("baud", 115200, "COM baudrate")                             // flag
+	//pClJSON := scCl.String("list", "til.json", "trice ID list path")                                                                        // flag
+	//pClKey := scCl.String("key", "none", "decrypt passphrase")                                                                              // flag
+	//pClShow := scCl.Bool("show", false, "show passphrase")                                                                                  // flag
+	//pClIPA := scCl.String("ipa", "localhost", "ip address")                                                                                 // flag (127.0.0.1)
+	pClIPP := scCl.String("ipp", "61497", "16 bit ip port number") // flag
+	//pClTs := scCl.String("ts", "LOCmicro", "PC timestamp for logs, options: off|UTCmicro")                                                  // flag
+	pClSrv := scCl.Bool("ds", false, "start display server ") // flag
+	//pRpre := scCl.String("prefix", "COMport:", "prepend prefix to all lines, set to \"off\"")                                               // flag
+	//pRpost := scCl.String("postfix", "\n", "append postfix to all lines")                                                                   // flag
+	//pClLf := scCl.String("lf", cage.DefaultLogfileName, "If '-ds' append all output to logfile. Set to \"off\" or \"none\" to switch off.") // flag
+	pRdev := scCl.String("device", "COM", "receiver device, options: JLinkRTTLogger, HTTP, RTT, RTTD, SIM, RND, RTTF") // flag
 
-	scSv := flag.NewFlagSet("displayServer", flag.ExitOnError)                                                                      // subcommand
-	pSvIPA := scSv.String("ipa", "localhost", "ip address")                                                                         // flag (127.0.0.1)
-	pSvIPP := scSv.String("ipp", "61497", "16 bit port number")                                                                     // flag
-	pSvCol := scSv.String("color", "default", "color set, options: off|alternate")                                                  // flag
-	pSvLlf := scSv.String("lf", cage.DefaultLogfileName, "Append all output to logfile. Set to \"off\" or \"none\" to switch off.") // flag
+	scSv := flag.NewFlagSet("displayServer", flag.ExitOnError)                                                                           // subcommand
+	pSvIPA := scSv.String("ipa", "localhost", "ip address")                                                                              // flag (127.0.0.1)
+	pSvIPP := scSv.String("ipp", "61497", "16 bit port number")                                                                          // flag
+	pSvCol := scSv.String("color", "default", "color set, options: off|alternate")                                                       // flag
+	pSvLlf := scSv.String("logfile", cage.DefaultLogfileName, "Append all output to logfile. Set to \"off\" or \"none\" to switch off.") // flag
+	scLog.StringVar(pSvLlf, "lg", cage.DefaultLogfileName, "short for -logfile")                                                         // short flag
 	//pSvTs := scSv.String("ts", "LOCmicro", "timestamp for logfile name, options: off|UTCmicro") // flag
 
 	sCmd := flag.NewFlagSet("scan", flag.ContinueOnError) // subcommand
