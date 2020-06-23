@@ -106,3 +106,10 @@ is example code and for testing
 - see [./docs/SeggerRTT.md](./docs/SeggerRTT.md)
 ### Examples
 - follow [./docs/TestExamples.md](./docs/TestExamples.md)
+### Hints
+- One free GPIO-Pin is already enough for using TRICE. You can transmit each basic trice (4 bytes) as bare messages over one pin:
+  - ![manchester1.PNG](./docs/README.media/manchester1.PNG)
+  - ![manchester2.PNG](./docs/README.media/manchester2.PNG)
+  - See [https://circuitcellar.com/cc-blog/a-trace-tool-for-embedded-systems/](https://circuitcellar.com/cc-blog/a-trace-tool-for-embedded-systems/) for more information. As trace dongle you can use any spare microcontroller board with an UART together with an FTDI USB converter.
+- This slow path is usable because trice needs only few bytes for transmission.
+
