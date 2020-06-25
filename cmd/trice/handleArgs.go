@@ -22,7 +22,7 @@ import (
 	"github.com/rokath/trice/internal/receiver/com"
 	"github.com/rokath/trice/internal/receiver/direct"
 	"github.com/rokath/trice/internal/receiver/http"
-	"github.com/rokath/trice/internal/receiver/jlinkrttlogger"
+	"github.com/rokath/trice/internal/receiver/jlink"
 	"github.com/rokath/trice/internal/receiver/randomdummy"
 	"github.com/rokath/trice/internal/receiver/rttfile"
 	"github.com/rokath/trice/internal/receiver/segger"
@@ -72,6 +72,7 @@ func HandleArgs(args []string) error {
 	scCheck.StringVar(&id.FnJSON, "idlist", "til.json", "trice ID list path")                      // flag
 	scCheck.StringVar(&id.FnJSON, "i", "til.json", "trice ID list path")                           // flag
 	scCheck.StringVar(&disp.ColorPalette, "color", "default", "color set, options: off|alternate") // flag
+	scCheck.BoolVar(&id.Verbose, "v", false, "verbose")                                            // flag
 
 	scZero := flag.NewFlagSet("zeroSourceTreeIds", flag.ContinueOnError)                  // subcommand (during development only)
 	pSrcZ := scZero.String("src", "", "zero all Id(n) inside source tree dir (required)") // flag
@@ -101,10 +102,10 @@ func HandleArgs(args []string) error {
 
 	//pPort := scLog.String("port", "COMscan", "COM port, options: COM1|...|COM999") // flag
 
-	scLog.StringVar(&receiver.Source, "source", "JLINK", "receiver device, options: COMn, JLINK, STLINK, filename, SIM, RND")                                                     //HTTP, RTT, RTTD, RTTF")                                             // flag
-	scLog.StringVar(&receiver.Source, "s", "JLINK", "short for -source")                                                                                                          // short flag
-	scLog.IntVar(&com.Baud, "baud", 115200, "Only for -s COMn, COM baudrate")                                                                                                     // flag flag
-	scLog.StringVar(&jlinkrttlogger.Param, "jlink", "-Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0", "Only for -s JLRTT, see JLinkRTTLogger in SEGGER UM08001_JLink.pdf") // JLRTT flag
+	scLog.StringVar(&receiver.Source, "source", "JLINK", "receiver device, options: COMn, JLINK, STLINK, filename, SIM, RND")                                            //HTTP, RTT, RTTD, RTTF")                                             // flag
+	scLog.StringVar(&receiver.Source, "s", "JLINK", "short for -source")                                                                                                 // short flag
+	scLog.IntVar(&com.Baud, "baud", 115200, "Only for -s COMn, COM baudrate")                                                                                            // flag flag
+	scLog.StringVar(&jlink.Param, "jlink", "-Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0", "Only for -s JLRTT, see JLinkRTTLogger in SEGGER UM08001_JLink.pdf") // JLRTT flag
 	scLog.StringVar(&rndMode, "rndMode", "WrapModeWithValidCrc", "Only for -s RND, see randomdummy.go, Options are ChaosMode, BareModeNoSync")
 	scLog.IntVar(&rndLimit, "rndLimit", randomdummy.NoLimit, "Only for -s RND, see randomdummy.go, Options are count of bytes, 0 for unlimited count")
 
@@ -174,7 +175,8 @@ func HandleArgs(args []string) error {
 
 	case "l", "log":
 		scLog.Parse(subArgs)
-
+		jlink.Verbose = id.Verbose
+		cage.Verbose = id.Verbose
 		// adjust settings
 		if "source:" == emit.Prefix {
 			emit.Prefix = receiver.Source + ":"
@@ -245,7 +247,7 @@ func receiving() {
 	var r io.ReadCloser
 	switch receiver.Source {
 	case "JLINK":
-		l := jlinkrttlogger.New(jlinkrttlogger.Param) // yes
+		l := jlink.New(jlink.Param) // yes
 		if nil != l.Open() {
 			return
 		}

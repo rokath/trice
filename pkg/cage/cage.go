@@ -9,6 +9,7 @@
 package cage
 
 import (
+	"fmt"
 	"io"
 	"log"
 	"os"
@@ -31,6 +32,9 @@ var (
 
 	// pContainer hold the restore values
 	pContainer *Container
+
+	// Verbose prints additional information if set true
+	Verbose bool
 )
 
 // Enable starts take notes mode, means parallel writing into a file.
@@ -65,7 +69,9 @@ func Start(fn string) *Container {
 
 	// start logging only if fn not "none" or "off"
 	if "none" == fn || "off" == fn {
-		//fmt.Println("No logfile writing...")
+		if Verbose {
+			fmt.Println("No logfile writing...")
+		}
 		return nil
 	}
 
@@ -79,7 +85,9 @@ func Start(fn string) *Container {
 		fn = "off"
 		return nil
 	}
-	log.Printf("Writing to logfile %s...\n", fn)
+	if Verbose {
+		log.Printf("Writing to logfile %s...\n", fn)
+	}
 
 	// open pipes
 	rStdout, wStdout, _ := os.Pipe()
@@ -137,7 +145,9 @@ func Stop(c *Container) {
 
 	// only if loggig was enabled
 	if nil == c {
-		//fmt.Println("No logfile writing...done")
+		if Verbose {
+			fmt.Println("No logfile writing...done")
+		}
 		return
 	}
 
@@ -155,5 +165,7 @@ func Stop(c *Container) {
 
 	// logfile
 	c.lfHandle.Close()
-	log.Printf("Writing to logfile %s...done\n", c.lfName)
+	if Verbose {
+		log.Printf("Writing to logfile %s...done\n", c.lfName)
+	}
 }

@@ -1,11 +1,11 @@
 // Copyright 2020 Thomas.Hoehenleitner [at] seerose.net
 // Use of this source code is governed by a license that can be found in the LICENSE file.
 
-// Package jlinkrttlogger reads from SeggerRTT with the SEGGER app JLinkRTTLogger.
+// Package jlink reads from SeggerRTT with the SEGGER app JLinkRTTLogger.
 //
 // It provides a ReadCloser interface and makes no assumptiona about the delivered data.
 // It is also agnostic concerning the RTT channel and other setup parameters.
-package jlinkrttlogger
+package jlink
 
 import (
 	"fmt"
@@ -21,6 +21,9 @@ import (
 var (
 	// Param contails the command line parameters for JLinkRTTLogger
 	Param string
+
+	// Verbose prints additional information if set true
+	Verbose bool
 )
 
 // RTTL is the Segger RealTime Transfer logger reader interface.
@@ -28,8 +31,8 @@ type RTTL struct {
 	tlfN string   // tempLogFile name
 	tlfH *os.File // tempLogFile handle
 
-	lcmdN string    // jlinkrttlogger command name
-	lcmdH *exec.Cmd // jlinkrttlogger command handle
+	lcmdN string    // jlink command name
+	lcmdH *exec.Cmd // jlink command handle
 
 	jlinkEx  string // name of JLinkRTTLogger executable
 	jlinkLib string // name of JLinkRTTLogger dynamic library
@@ -111,7 +114,9 @@ func (p *RTTL) Close() error {
 // THe temporary logfile is opened for reading.
 func (p *RTTL) Open() error {
 	var err error
-	fmt.Println("Start a process:", p.shell, p.clip)
+	if Verbose {
+		fmt.Println("Start a process:", p.shell, p.clip)
+	}
 	p.lcmdH = exec.Command(p.shell, p.clip)
 	if err = p.lcmdH.Start(); err != nil {
 		log.Fatal("tart error", err)
@@ -121,7 +126,9 @@ func (p *RTTL) Open() error {
 	if nil != err {
 		return err
 	}
-	fmt.Println("trice is reading from", p.tlfN)
+	if Verbose {
+		fmt.Println("trice is reading from", p.tlfN)
+	}
 	return nil
 }
 

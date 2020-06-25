@@ -75,12 +75,13 @@
             "program": "${workspaceFolder}/cmd/trice",
             "env": {},
             "args": ["log",
+                     "-v",
                      "-source",
                      "JLINK",
                      "-idlist",
                      "${workspaceFolder}/test/til.json",
                      "-key",
-                     "none"
+                     "none",
             ]
         },
         {
