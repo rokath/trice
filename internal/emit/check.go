@@ -5,8 +5,6 @@
 package emit
 
 import (
-	"fmt"
-
 	"github.com/rokath/trice/internal/id"
 )
 
@@ -179,7 +177,8 @@ func Check(l id.ListT, dataSet string) error {
 func ScCheckList(dataset string) error {
 	err := id.List.Read(id.FnJSON)
 	if nil != err {
-		fmt.Println("ID list " + id.FnJSON + " not found, exit")
+		//fmt.Println("ID list " + path.Base(id.FnJSON) + " not found, exit")
+		id.ListNotFoundMsg(id.FnJSON)
 		return nil
 	}
 	Check(id.List, dataset)

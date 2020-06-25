@@ -13,7 +13,7 @@ var (
 	version  string // do not initialize, goreleaser will handle that
 	commit   string // do not initialize, goreleaser will handle that
 	date     string // do not initialize, goreleaser will handle that
-	linkTime string
+	linkTime = "testTime"
 )
 
 func main() {

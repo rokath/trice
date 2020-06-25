@@ -14,7 +14,7 @@ import (
 
 // TestZeroMode checks Read mode 0
 func TestZeroMode(t *testing.T) {
-	s := randomdummy.New(randomdummy.ZeroRandomSeed, randomdummy.ChaosMode, randomdummy.NoDelay, randomdummy.NoLimit)
+	s := randomdummy.New(randomdummy.ZeroRandomSeed, "ChaosMode", randomdummy.NoDelay, randomdummy.NoLimit)
 	act := make([]byte, 19)
 	s.Read(act)
 	exp := []byte{0x9f, 0x90, 0xa3, 0xe2, 0x50, 0xc4, 0x9d, 0xa7, 0xc6, 0x30, 0x5d, 0xc5, 0x77, 0xe4, 0x93, 0x33, 0x29, 0x50, 0xdc}
@@ -23,7 +23,7 @@ func TestZeroMode(t *testing.T) {
 
 // TestZeroModeLimit checks Read mode 0 with limit
 func TestZeroModeLimit(t *testing.T) {
-	s := randomdummy.New(randomdummy.ZeroRandomSeed, randomdummy.ChaosMode, randomdummy.NoDelay, 9)
+	s := randomdummy.New(randomdummy.ZeroRandomSeed, "ChaosMode", randomdummy.NoDelay, 9)
 	act := make([]byte, 19)
 	n, err := s.Read(act)
 	exp := []byte{0x9f, 0x90, 0xa3, 0xe2, 0x50, 0xc4, 0x9d, 0xa7, 0xc6}
@@ -34,7 +34,7 @@ func TestZeroModeLimit(t *testing.T) {
 
 // TestUnknownMode checks Read mode unknown
 func TestUnknownMode(t *testing.T) {
-	s := randomdummy.New(randomdummy.ZeroRandomSeed, 999, randomdummy.NoDelay, randomdummy.NoLimit)
+	s := randomdummy.New(randomdummy.ZeroRandomSeed, "unknownMode", randomdummy.NoDelay, randomdummy.NoLimit)
 	act := make([]byte, 19)
 	s.Read(act)
 	exp := []byte{0x9f, 0x90, 0xa3, 0xe2, 0x50, 0xc4, 0x9d, 0xa7, 0xc6, 0x30, 0x5d, 0xc5, 0x77, 0xe4, 0x93, 0x33, 0x29, 0x50, 0xdc}
@@ -43,7 +43,7 @@ func TestUnknownMode(t *testing.T) {
 
 // TestBareModeShort checks Read mode bare
 func TestBareModeTooShort(t *testing.T) {
-	s := randomdummy.New(randomdummy.ZeroRandomSeed, randomdummy.BareModeNoSync, randomdummy.NoDelay, randomdummy.NoLimit)
+	s := randomdummy.New(randomdummy.ZeroRandomSeed, "BareModeNoSync", randomdummy.NoDelay, randomdummy.NoLimit)
 	b := make([]byte, 3)
 	act, err := s.Read(b)
 	lib.Equals(t, 0, act)
@@ -52,7 +52,7 @@ func TestBareModeTooShort(t *testing.T) {
 
 // TestWrapModeTooShort checks Read mode wrap
 func TestWrapModeTooShort(t *testing.T) {
-	s := randomdummy.New(randomdummy.ZeroRandomSeed, randomdummy.WrapModeWithValidCrc, randomdummy.NoDelay, randomdummy.NoLimit)
+	s := randomdummy.New(randomdummy.ZeroRandomSeed, "WrapModeWithValidCrc", randomdummy.NoDelay, randomdummy.NoLimit)
 	b := make([]byte, 3)
 	act, err := s.Read(b)
 	lib.Equals(t, 0, act)
@@ -61,7 +61,7 @@ func TestWrapModeTooShort(t *testing.T) {
 
 // TestBareMode checks Read mode bare
 func TestBareMode(t *testing.T) {
-	s := randomdummy.New(randomdummy.ZeroRandomSeed, randomdummy.BareModeNoSync, randomdummy.NoDelay, randomdummy.NoLimit)
+	s := randomdummy.New(randomdummy.ZeroRandomSeed, "BareModeNoSync", randomdummy.NoDelay, randomdummy.NoLimit)
 	act := make([]byte, 19)
 	n, _ := s.Read(act)
 	act = act[:n]
@@ -75,7 +75,7 @@ func TestBareMode(t *testing.T) {
 
 // TestWrapMode checks Read mode wrap
 func TestWrapMode(t *testing.T) {
-	s := randomdummy.New(randomdummy.ZeroRandomSeed, randomdummy.WrapModeWithValidCrc, randomdummy.NoDelay, randomdummy.NoLimit)
+	s := randomdummy.New(randomdummy.ZeroRandomSeed, "WrapModeWithValidCrc", randomdummy.NoDelay, randomdummy.NoLimit)
 	act := make([]byte, 19)
 	n, _ := s.Read(act)
 	act = act[:n]

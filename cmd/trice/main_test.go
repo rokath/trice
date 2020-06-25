@@ -49,6 +49,41 @@ func TestVersionArg(t *testing.T) {
 		t.Fail()
 	}
 	act := string(out) // because out is []byte
-	exp := "No logfile writing...\nversion=devel, built unknown\nNo logfile writing...done\n"
+	exp := "version=devel, built unknown\n"
+	lib.Equals(t, exp, act)
+}
+
+// TestHRNDchaos expects installed trice compiled from actual sources.
+//
+// This kind of test does not work just with HandleArgs function, because of os.Exit(0) on io.EOF in -source RND.
+// Endless waiting there does also not work, so this apprpoach is just a quick solution.
+func TestRNDchaos(t *testing.T) {
+	cmd := exec.Command("trice", "log", "-idlist", "c:/repos/trice/test/til.json", "-source", "RND", "-rndLimit", "10", "-rndMode", "ChaosMode", "-lg", "off", "-ts", "off", "-color", "off")
+	out, err := cmd.CombinedOutput()
+	if nil != err {
+		t.Fail()
+	}
+	act := string(out)
+	exp := `RND: trice:discarding byte 0x9f (dez 159, char ' ')
+RND: trice:discarding byte 0x90 (dez 144, char ' ')
+RND: trice:discarding byte 0xa3 (dez 163, char ' ')
+`
+	lib.Equals(t, exp, act)
+}
+
+func TestSIM0(t *testing.T) {
+	cmd := exec.Command("trice", "log", "-idlist", "c:/repos/trice/test/til.json", "-source", "SIM", "-lg", "off", "-ts", "off", "-color", "off")
+	out, err := cmd.CombinedOutput()
+	if nil != err {
+		t.Fail()
+	}
+	act := string(out)
+	exp := `SIM: garbage
+SIM: ISR:interrupt   message, SysTick is      0
+SIM: ISR:interrupt   message, SysTick is    257
+SIM: garbage
+SIM: ISR:interrupt   message, SysTick is      0
+SIM: ISR:interrupt   message, SysTick is    257
+`
 	lib.Equals(t, exp, act)
 }

@@ -1,7 +1,14 @@
+// Package cage copies all output to stdout, stderr and log output in a logfile.
+//
+// Usage:
+// cage.Name = cage.DefaultLogfileName
+// cage.Enable()
+// defer cage.Disable()
+// do stuff...
+// for capturing output in a string consider "import capturer "github.com/kami-zh/go-capturer"
 package cage
 
 import (
-	"fmt"
 	"io"
 	"log"
 	"os"
@@ -58,7 +65,7 @@ func Start(fn string) *Container {
 
 	// start logging only if fn not "none" or "off"
 	if "none" == fn || "off" == fn {
-		fmt.Println("No logfile writing...")
+		//fmt.Println("No logfile writing...")
 		return nil
 	}
 
@@ -130,7 +137,7 @@ func Stop(c *Container) {
 
 	// only if loggig was enabled
 	if nil == c {
-		fmt.Println("No logfile writing...done")
+		//fmt.Println("No logfile writing...done")
 		return
 	}
 

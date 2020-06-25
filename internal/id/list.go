@@ -14,6 +14,7 @@ import (
 	"io/ioutil"
 	"math/rand"
 	"os"
+	"path/filepath"
 	"time"
 
 	"github.com/rokath/trice/pkg/lib"
@@ -28,7 +29,7 @@ type Item struct {
 	Removed int32  `json:"removed"` // utc unix time of disappearing in processed src directory
 }
 
-// List is a slice type containing the ID list
+// ListT is a slice type containing the ID list
 type ListT []Item
 
 var (
@@ -38,10 +39,10 @@ var (
 	// FnJSON is the filename of the id list
 	FnJSON string
 
-	// Verbose, if set, gives more output information during update
+	// Verbose if set, gives more output information during update
 	Verbose bool
 
-	// DryRun, is set, inhibits real changes
+	// DryRun if set, inhibits real changes
 	DryRun bool
 )
 
@@ -109,8 +110,8 @@ func (p *ListT) appendIfMissing(i Item, verbose bool) (int, bool) {
 	return i.ID, true
 }
 
-// extendIdList returns id beause it could get changed when id is in list with different typ or fmts
-func (p *ListT) extendIdList(id int, typ, fmts string, verbose bool) (int, bool) {
+// extendIDList returns id beause it could get changed when id is in list with different typ or fmts.
+func (p *ListT) extendIDList(id int, typ, fmts string, verbose bool) (int, bool) {
 	i := Item{
 		ID:      id,
 		FmtType: typ,
@@ -181,7 +182,7 @@ func ScUpdate() error {
 	}
 	for i := range lib.Srcs {
 		s := lib.Srcs[i]
-		srcU := lib.Assign(s)
+		srcU := lib.ConditinalFilePath(s)
 		if _, err := os.Stat(srcU); err == nil { // path exists
 			err = update(srcU, FnJSON)
 			if nil != err {
@@ -206,4 +207,14 @@ func update(dir, fn string) error {
 	}
 	fmt.Println(len(List), "ID's in list", fn)
 	return nil
+}
+
+// ListNotFoundMsg give an output message about not found ID list.ListNotFoundMsg.
+//
+// Base is used to avoid test issues in different operating systems.
+func ListNotFoundMsg(pathname string) {
+	if false == Verbose {
+		pathname = filepath.Base(pathname) // no path info (used for testing)
+	}
+	fmt.Println("ID list " + pathname + " not found")
 }

@@ -330,8 +330,8 @@ You can specify this swich if you want to change the used port number for the re
 - This is a `string` switch. It has one parameter. Its default value is `none`. If you change this value you need to compile the target with the appropriate key.
 - This option is recommended if you deliver firmware to customers and want protect the trice log output. This does not work together with the `#define TRICE_STRINGS FULL_RUNTIME` option right now.
 
-#### subcommand switch '-lf' (logfile)
-- This is a `string` switch. It has one parameter. Its default value is `trice.log`. All trice output of the appropriate subcommands is appended per default into the logfile trice additionally to the normal output. Change the filename with `-lf myName.txt` or switch logging off with `-lf off`. See also
+#### subcommand switch 'lg' (logfile)
+- This is a `string` switch. It has one parameter. Its default value is `trice.log`. All trice output of the appropriate subcommands is appended per default into the logfile trice additionally to the normal output. Change the filename with `-lg myName.txt` or switch logging off with `-lg off`. See also
 [logfile viewing](#Logfile-viewing).
 
 #### subcommand switch '-list' (JSON ID list)

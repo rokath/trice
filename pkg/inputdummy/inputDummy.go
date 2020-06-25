@@ -10,6 +10,7 @@ package inputdummy
 
 import (
 	"io"
+	"os"
 	"time"
 )
 
@@ -53,7 +54,8 @@ func (p *Source) Read(b []byte) (int, error) {
 		if 0 == p.limit || p.offset+i < p.limit {
 			b[i] = p.b[(p.offset+i)%len(p.b)]
 		} else {
-			return i, io.EOF
+			os.Exit(0)
+			//return i, io.EOF
 		}
 	}
 	i++ // adjust to byte count

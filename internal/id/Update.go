@@ -205,7 +205,7 @@ func updateNextID(p *ListT, pListModified *bool, modified bool, subs, s string, 
 	}
 	match := matchFmtString.FindAllStringSubmatch(nbTRICE, 1)
 	fmtString := match[0][1]
-	nID, flag := p.extendIdList(id, typNameTRICE, fmtString, verbose)
+	nID, flag := p.extendIDList(id, typNameTRICE, fmtString, verbose)
 	if flag {
 		*pListModified = true
 		if nID != id { // a new id was generated

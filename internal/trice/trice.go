@@ -53,7 +53,7 @@ func Connect(sv string) error {
 	disp.PtrRPC.Call("Server.Out", []string{""}, nil)
 	disp.PtrRPC.Call("Server.Out", []string{""}, nil)
 	disp.PtrRPC.Call("Server.Out", []string{""}, nil)
-	disp.PtrRPC.Call("Server.Out", []string{"att:new connection from ", "read:" + receiver.Device, "..."}, nil)
+	disp.PtrRPC.Call("Server.Out", []string{"att:new connection from ", "read:" + receiver.Source, "..."}, nil)
 	disp.PtrRPC.Call("Server.Out", []string{""}, nil)
 	disp.PtrRPC.Call("Server.Out", []string{""}, nil)
 	return nil
@@ -80,7 +80,8 @@ func SetUp() error {
 		// setup ip list
 		err := id.List.Read(id.FnJSON)
 		if nil != err {
-			fmt.Println("ID list " + id.FnJSON + " not found, exit")
+			//fmt.Println("ID list " + path.Base(id.FnJSON) + " not found, exit")
+			id.ListNotFoundMsg(id.FnJSON)
 			return errors.New("file not found")
 		}
 		go id.List.FileWatcher()
@@ -91,8 +92,9 @@ func SetUp() error {
 	if nil != err {
 		return err
 	}
-
-	fmt.Println("id list file", id.FnJSON, "with", len(id.List), "items", "on device", receiver.Device)
+	if true == id.Verbose {
+		fmt.Println("id list file", id.FnJSON, "with", len(id.List), "items", "on device", receiver.Source)
+	}
 	return nil
 }
 

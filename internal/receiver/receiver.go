@@ -8,7 +8,7 @@
 //
 // Implementation
 // ==============
-// - trice.DoReceive() is called when trice ist started in log or receiver mode
+// - trice.DoReceive() is called when trice ist started in log mode
 // - In dependence on receiverDevice DoSerial() or DoSeggerRTT() or ... is activated (named DoDevice() from now)
 // - DoDevice()
 //   - performs device specific initialization
@@ -35,14 +35,15 @@ import (
 	"io"
 	"log"
 
+	"github.com/rokath/trice/internal/disp"
 	"github.com/rokath/trice/internal/emit"
 	"github.com/rokath/trice/internal/id"
 	"golang.org/x/crypto/xtea"
 )
 
 var (
-	// Device is the trice receiver to use
-	Device string
+	// Source is the trice receiver to use
+	Source string
 
 	// local trice address, used for routing in distributed systems
 	locAddr = byte(0x60)
@@ -57,7 +58,17 @@ var (
 
 // DiscardWithMessage discards a byte with a verbose message
 func DiscardWithMessage(b byte) {
-	emit.LineCollect(fmt.Sprintf("wrn:trice:discarding byte 0x%02x (dez %d, char '%c')\n", b, b, b))
+	var level string
+	if "off" == disp.ColorPalette {
+		level = ""
+	} else {
+		level = "wrn:"
+	}
+	c := byte(' ')
+	if 32 <= b && b <= 127 {
+		c = b
+	}
+	emit.LineCollect(fmt.Sprintf("%strice:discarding byte 0x%02x (dez %d, char '%c')\n", level, b, b, c))
 }
 
 // DiscardASCII discards a byte assuming to be printable and prints it.

@@ -27,10 +27,10 @@ func StartServer(exe string) {
 	if runtime.GOOS == "windows" {
 		shell = "cmd"
 		shellCmd := "/c start " + exe
-		clip = append(clip, shellCmd, " ds -ipa "+IPAddr+" -ipp "+IPPort+" -lf "+cage.Name)
+		clip = append(clip, shellCmd, " ds -ipa "+IPAddr+" -ipp "+IPPort+" -lg "+cage.Name)
 	} else if runtime.GOOS == "linux" {
 		shell = "gnome-terminal" // this only works for gnome based linux desktop env
-		clip = append(clip, "--", "/bin/bash", "-c", exe+" ds -ipa "+IPAddr+" -ipp "+IPPort+" -lf off")
+		clip = append(clip, "--", "/bin/bash", "-c", exe+" ds -ipa "+IPAddr+" -ipp "+IPPort+" -lg off")
 	} else {
 		log.Fatal("trice is running on unknown operating system")
 	}

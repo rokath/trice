@@ -46,7 +46,8 @@ func idList(t *testing.T) id.ListT {
 
 	err := pList.Read(fnIDList)
 	if nil != err {
-		fmt.Println("ID list " + fnIDList + " not found, exit")
+		//fmt.Println("ID list " + path.Base(fnIDList) + " not found, exit")
+		id.ListNotFoundMsg(fnIDList)
 		t.Fail()
 	}
 	return list
@@ -56,7 +57,8 @@ func idList(t *testing.T) id.ListT {
 func expectedOutput(fn string, t *testing.T) string {
 	b, err := ioutil.ReadFile(fn)
 	if nil != err {
-		fmt.Println("ID list " + fn + " not found, exit")
+		//fmt.Println("ID list " + path.Base(fn) + " not found, exit")
+		id.ListNotFoundMsg(fn)
 		t.Fail()
 	}
 	s := string(b)
