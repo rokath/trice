@@ -38,6 +38,9 @@ var (
 
 	// rndLimit is flag vaue for byte count limit in random mode
 	rndLimit int
+
+	// displayserver if set, sends trice lines over TCP
+	displayserver bool
 )
 
 /*
@@ -55,6 +58,7 @@ func init() {
 	// flag.StringVar(strFlag, "s", "", "Description")
 }
 */
+
 // HandleArgs evaluates the arguments slice of strings
 func HandleArgs(args []string) error {
 	var vLgOff string // for default logfile=off cases (version & help)
@@ -86,34 +90,31 @@ func HandleArgs(args []string) error {
 	vCmd.StringVar(&vLgOff, "logfile", "off", "append all output to logfile, set to a filename for logging") // flag
 	vCmd.StringVar(&vLgOff, "lg", "off", "short for -logfile")                                               // short flag
 
-	scLog := flag.NewFlagSet("log", flag.ExitOnError)                                                                                          // subcommand
-	scLog.StringVar(&id.FnJSON, "idlist", "til.json", "trice ID list path")                                                                    // short flag
-	scLog.StringVar(&id.FnJSON, "i", "til.json", "short for -idlist")                                                                          // short flag
-	scLog.StringVar(&trice.Password, "key", "none", "decrypt passphrase")                                                                      // flag
-	scLog.StringVar(&trice.Password, "k", "none", "short for -key")                                                                            // short flag
-	scLog.BoolVar(&trice.ShowPassword, "show", false, "show passphrase")                                                                       // flag
-	scLog.StringVar(&cage.Name, "logfile", cage.DefaultLogfileName, "Append all output to logfile. Set to \"off\" or \"none\" to switch off.") // flag
-	scLog.StringVar(&cage.Name, "lg", cage.DefaultLogfileName, "short for -logfile")                                                           // short flag
-	scLog.StringVar(&lib.TimeStampFormat, "ts", "LOCmicro", "PC timestamp for logs and logfile name, options: off|UTCmicro")                   // flag
-	scLog.StringVar(&disp.ColorPalette, "color", "default", "color set, options: off|alternate")                                               // flag
-	scLog.StringVar(&emit.Prefix, "prefix", "source:", "prepend prefix to all lines, set to \"off\"")                                          // flag
-	scLog.StringVar(&emit.Postfix, "postfix", "\n", "append postfix to all lines")                                                             // flag
-	scLog.BoolVar(&id.Verbose, "v", false, "verbose")                                                                                          // flag
-
-	//pPort := scLog.String("port", "COMscan", "COM port, options: COM1|...|COM999") // flag
-
+	scLog := flag.NewFlagSet("log", flag.ExitOnError)                                                                                                                    // subcommand
+	scLog.StringVar(&id.FnJSON, "idlist", "til.json", "trice ID list path")                                                                                              // short flag
+	scLog.StringVar(&id.FnJSON, "i", "til.json", "short for -idlist")                                                                                                    // short flag
+	scLog.StringVar(&trice.Password, "key", "none", "decrypt passphrase")                                                                                                // flag
+	scLog.StringVar(&trice.Password, "k", "none", "short for -key")                                                                                                      // short flag
+	scLog.BoolVar(&trice.ShowPassword, "show", false, "show passphrase")                                                                                                 // flag
+	scLog.StringVar(&cage.Name, "logfile", "off" /*cage.DefaultLogfileName*/, "Append all output to logfile. Set to \"off\" or \"none\" to switch off.")                 // flag
+	scLog.StringVar(&cage.Name, "lg", "off" /*cage.DefaultLogfileName*/, "short for -logfile")                                                                           // short flag
+	scLog.StringVar(&lib.TimeStampFormat, "ts", "LOCmicro", "PC timestamp for logs and logfile name, options: off|UTCmicro")                                             // flag
+	scLog.StringVar(&disp.ColorPalette, "color", "default", "color set, options: off|alternate")                                                                         // flag
+	scLog.StringVar(&emit.Prefix, "prefix", "source:", "prepend prefix to all lines, set to \"off\"")                                                                    // flag
+	scLog.StringVar(&emit.Postfix, "postfix", "\n", "append postfix to all lines")                                                                                       // flag
+	scLog.BoolVar(&id.Verbose, "v", false, "verbose")                                                                                                                    // flag
 	scLog.StringVar(&receiver.Source, "source", "JLINK", "receiver device, options: COMn, JLINK, STLINK, filename, SIM, RND")                                            //HTTP, RTT, RTTD, RTTF")                                             // flag
 	scLog.StringVar(&receiver.Source, "s", "JLINK", "short for -source")                                                                                                 // short flag
 	scLog.IntVar(&com.Baud, "baud", 115200, "Only for -s COMn, COM baudrate")                                                                                            // flag flag
 	scLog.StringVar(&jlink.Param, "jlink", "-Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0", "Only for -s JLRTT, see JLinkRTTLogger in SEGGER UM08001_JLink.pdf") // JLRTT flag
 	scLog.StringVar(&rndMode, "rndMode", "WrapModeWithValidCrc", "Only for -s RND, see randomdummy.go, Options are ChaosMode, BareModeNoSync")
 	scLog.IntVar(&rndLimit, "rndLimit", randomdummy.NoLimit, "Only for -s RND, see randomdummy.go, Options are count of bytes, 0 for unlimited count")
-
-	scCl := flag.NewFlagSet("receiver", flag.ExitOnError) // subcommand
-	//pClPort := scCl.String("port", "COMscan", "COM port, options: COM1|...|COM999")                                    // flag
-	//pClBaud := scCl.Int("baud", 115200, "COM baudrate")                                                                // flag
-	pClSrv := scCl.Bool("ds", false, "start display server ") // flag
-	//pRdev := scCl.String("device", "COM", "receiver device, options: JLinkRTTLogger, HTTP, RTT, RTTD, SIM, RND, RTTF") // flag
+	scLog.StringVar(&cage.Name, "remote", "off" /*cage.DefaultLogfileName*/, "Append all output to logfile. Set to \"off\" or \"none\" to switch off.") // flag
+	scLog.StringVar(&cage.Name, "r", "off", "short for -remote")                                                                                        // short flag
+	scLog.BoolVar(&displayserver, "ds", false, "send trice lines to displayserver @ IPA:IPP")
+	scLog.BoolVar(&displayserver, "displayserver", false, "send trice lines to displayserver @ ipa:ipp")
+	scLog.StringVar(&disp.IPAddr, "ipa", "localhost", "ip address")     // flag (127.0.0.1)
+	scLog.StringVar(&disp.IPPort, "ipp", "61497", "16 bit port number") // flag
 
 	scSv := flag.NewFlagSet("displayServer", flag.ExitOnError)                                                                                // subcommand
 	scSv.StringVar(&disp.IPAddr, "ipa", "localhost", "ip address")                                                                            // flag (127.0.0.1)
@@ -148,7 +149,7 @@ func HandleArgs(args []string) error {
 	case "h", "help":
 		hCmd.Parse(subArgs)
 		cage.Name = vLgOff
-		return scHelp(hCmd, scUpdate, scCheck, scLog, scZero, vCmd, scSv, scCl)
+		return scHelp(hCmd, scUpdate, scCheck, scLog, scZero, vCmd, scSv)
 
 	case "s", "sc", "scan":
 		sCmd.Parse(subArgs)
@@ -188,39 +189,22 @@ func HandleArgs(args []string) error {
 		}
 		id.FnJSON = lib.ConditinalFilePath(id.FnJSON)
 
-		// go
-		cage.Enable()
-		defer cage.Disable()
-		receiving()
-	case "r", "rec", "receiver":
-		scCl.Parse(subArgs)
-		//disp.IPAddr = *pClIPA
-		//disp.IPPort = *pClIPP
-		//receiver.Source = *pRdev
-		//com.Port = *pClPort
-		//com.Baud = *pClBaud
-		//setPrefix(*pRpre)
-		//emit.Postfix = *pRpost
-		//id.FnJSON = lib.ConditinalFilePath(*pClJSON)
-		//lib.TimeStampFormat = *pClTs
-		//trice.Password = *pClKey
-		//trice.ShowPassword = *pClShow
-		//cage.Name = *pClLf
-		//if true == *pClSrv {
-		//	return trice.ScReceive(args[0])
-		//}
-		//return trice.ScReceive("")
-
-		if true == *pClSrv {
-			disp.StartServer(args[0])
+		if false == displayserver {
+			cage.Enable()
+			defer cage.Disable()
+			receiving()
+		} else {
+			//if true == *pClSrv {
+			//	disp.StartServer(args[0])
+			//}
+			err := trice.Connect("")
+			if err != nil {
+				fmt.Println(err)
+				return err
+			}
+			cmd.KeyboardInput()
+			receiving()
 		}
-		err := trice.Connect("")
-		if err != nil {
-			fmt.Println(err)
-			return err
-		}
-		cmd.KeyboardInput()
-		receiving()
 	case "ds", "displayServer":
 		scSv.Parse(subArgs)
 		return disp.ScDisplayServer()
@@ -271,7 +255,9 @@ func receiving() {
 		r = c
 	case "SIM":
 		n := 50 // you will see about n/8 lines
-		i := []byte{'g', 'a', 'r', 'b', 'a', 'g', 'e', '\n', 235, 96, 96, 235 ^ 10 ^ 172, 10, 172, 0, 0, 235, 96, 96, 235 ^ 10 ^ 172, 10, 172, 1, 1}
+		i := []byte{'g', 'a', 'r', 'b', 'a', 'g', 'e', '\n',
+			235, 96, 96, 235 ^ 10 ^ 172, 10, 172, 0, 0,
+			235, 96, 96, 235 ^ 10 ^ 172, 10, 172, 1, 1}
 		//i := []byte{235, 96, 96, 235 ^ 10 ^ 172, 10, 172, 0, 0}
 		s := inputdummy.New(i, time.Millisecond, n)
 		receiver.DiscardByte = receiver.DiscardASCII
@@ -339,8 +325,7 @@ func scHelp(
 	l *flag.FlagSet,
 	z *flag.FlagSet,
 	v *flag.FlagSet,
-	sv *flag.FlagSet,
-	cl *flag.FlagSet) error {
+	sv *flag.FlagSet) error {
 
 	cage.Enable()
 	defer cage.Disable()
@@ -381,8 +366,6 @@ func scHelp(
 	v.PrintDefaults()
 	fmt.Fprintln(sv.Output(), "subcommand 'ds', 'displayServer'")
 	sv.PrintDefaults()
-	fmt.Fprintln(cl.Output(), "subcommand 'r', 'rec', 'receiver'")
-	cl.PrintDefaults()
 	fmt.Fprintln(hCmd.Output(), "examples:")
 	fmt.Fprintln(hCmd.Output(), "    'trice update [-src sourcerootdir]', default sourcerootdir is ./")
 	fmt.Fprintln(hCmd.Output(), "    'trice log [-port COMn] [-baud m]', default port is COMscan, default m is 38400, fixed to 8N1")
