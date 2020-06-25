@@ -41,6 +41,9 @@ var (
 
 	// displayserver if set, sends trice lines over TCP
 	displayserver bool
+
+	// autostart if set, starts an additional trice instamce as displayserver
+	autostart bool
 )
 
 /*
@@ -109,12 +112,12 @@ func HandleArgs(args []string) error {
 	scLog.StringVar(&jlink.Param, "jlink", "-Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0", "Only for -s JLRTT, see JLinkRTTLogger in SEGGER UM08001_JLink.pdf") // JLRTT flag
 	scLog.StringVar(&rndMode, "rndMode", "WrapModeWithValidCrc", "Only for -s RND, see randomdummy.go, Options are ChaosMode, BareModeNoSync")
 	scLog.IntVar(&rndLimit, "rndLimit", randomdummy.NoLimit, "Only for -s RND, see randomdummy.go, Options are count of bytes, 0 for unlimited count")
-	scLog.StringVar(&cage.Name, "remote", "off" /*cage.DefaultLogfileName*/, "Append all output to logfile. Set to \"off\" or \"none\" to switch off.") // flag
-	scLog.StringVar(&cage.Name, "r", "off", "short for -remote")                                                                                        // short flag
-	scLog.BoolVar(&displayserver, "ds", false, "send trice lines to displayserver @ IPA:IPP")
+	scLog.BoolVar(&displayserver, "ds", false, "short for displaserver")
 	scLog.BoolVar(&displayserver, "displayserver", false, "send trice lines to displayserver @ ipa:ipp")
 	scLog.StringVar(&disp.IPAddr, "ipa", "localhost", "ip address")     // flag (127.0.0.1)
 	scLog.StringVar(&disp.IPPort, "ipp", "61497", "16 bit port number") // flag
+	scLog.BoolVar(&autostart, "a", false, "short for -autostart")
+	scLog.BoolVar(&autostart, "autostart", false, "autostart displayserver @ ipa:ipp (works not good with windows)")
 
 	scSv := flag.NewFlagSet("displayServer", flag.ExitOnError)                                                                                // subcommand
 	scSv.StringVar(&disp.IPAddr, "ipa", "localhost", "ip address")                                                                            // flag (127.0.0.1)
@@ -194,9 +197,9 @@ func HandleArgs(args []string) error {
 			defer cage.Disable()
 			receiving()
 		} else {
-			//if true == *pClSrv {
-			//	disp.StartServer(args[0])
-			//}
+			if true == autostart {
+				disp.StartServer(args[0])
+			}
 			err := trice.Connect("")
 			if err != nil {
 				fmt.Println(err)
