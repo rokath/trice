@@ -44,68 +44,72 @@ var (
 
 	// autostart if set, starts an additional trice instamce as displayserver
 	autostart bool
+
+	// verbose gives additional informal output
+	verbose bool
 )
 
-/*
-var (
-	scLog *flag.FlagSet
-)
-
-func init() {
-	// example with short version for long flag
-	flag.StringVar(scLog, "l", "dada", "short for log") // short flag
+func flagLogfile(p *flag.FlagSet) {
+	p.StringVar(&cage.Name, "logfile", "off", "Append all output to logfile. Set a filename or \"auto\" for \"2006-01-02_1504-05_trice.log\" with actual time.") // flag
+	p.StringVar(&cage.Name, "lg", "off", "short for -logfile")                                                                                                   // short flag
 }
 
-func init() {
-	// example with short version for long flag
-	// flag.StringVar(strFlag, "s", "", "Description")
+func flagVerbosity(p *flag.FlagSet) {
+	p.BoolVar(&verbose, "v", false, "verbose") // flag
+
+	// module inject verbose
+	id.Verbose = verbose
+	cage.Verbose = verbose
+	jlink.Verbose = verbose
 }
-*/
+
+func flagIDList(p *flag.FlagSet) {
+	p.StringVar(&id.FnJSON, "idlist", "til.json", "trice ID list path, \"none\" possible") // flag
+	p.StringVar(&id.FnJSON, "i", "til.json", "trice ID list path, \"none\" possible")      // flag
+}
+
+func flagIPAddress(p *flag.FlagSet) {
+	p.StringVar(&disp.IPAddr, "ipa", "localhost", "ip address")     // flag (127.0.0.1)
+	p.StringVar(&disp.IPPort, "ipp", "61497", "16 bit port number") // flag
+}
 
 // HandleArgs evaluates the arguments slice of strings
 func HandleArgs(args []string) error {
-	var vLgOff string // for default logfile=off cases (version & help)
 	cage.DefaultLogfileName = "2006-01-02_1504-05_trice.log"
 
-	scUpdate := flag.NewFlagSet("update", flag.ExitOnError)                                       // subcommand
-	scUpdate.BoolVar(&id.DryRun, "dry-run", false, "no changes are applied")                      // flag
-	scUpdate.StringVar(&id.FnJSON, "idlist", "til.json", "trice ID list path, \"none\" possible") // flag
-	scUpdate.StringVar(&id.FnJSON, "i", "til.json", "trice ID list path, \"none\" possible")      // flag
-	scUpdate.BoolVar(&id.Verbose, "v", false, "verbose")                                          // flag
-	scUpdate.Var(&lib.Srcs, "src", "source dir or file, multi use possible (default \"./\")")     // multi flag
+	scCheck := flag.NewFlagSet("check", flag.ExitOnError)                                     // subcommand
+	pSet := scCheck.String("dataset", "position", "parameters, option: negative")             // flag
+	scCheck.StringVar(&disp.ColorPalette, "color", "default", "color set, options: off|none") // flag
+	flagLogfile(scCheck)
+	flagVerbosity(scCheck)
+	flagIDList(scCheck)
 
-	scCheck := flag.NewFlagSet("check", flag.ExitOnError)                                          // subcommand
-	pSet := scCheck.String("dataset", "position", "parameters, option: negative")                  // flag
-	scCheck.StringVar(&id.FnJSON, "idlist", "til.json", "trice ID list path")                      // flag
-	scCheck.StringVar(&id.FnJSON, "i", "til.json", "trice ID list path")                           // flag
-	scCheck.StringVar(&disp.ColorPalette, "color", "default", "color set, options: off|alternate") // flag
-	scCheck.BoolVar(&id.Verbose, "v", false, "verbose")                                            // flag
+	scUpdate := flag.NewFlagSet("update", flag.ExitOnError)                                   // subcommand
+	scUpdate.BoolVar(&id.DryRun, "dry-run", false, "no changes are applied")                  // flag
+	scUpdate.Var(&lib.Srcs, "src", "source dir or file, multi use possible (default \"./\")") // multi flag
+	flagVerbosity(scUpdate)
+	flagIDList(scUpdate)
 
 	scZero := flag.NewFlagSet("zeroSourceTreeIds", flag.ContinueOnError)                  // subcommand (during development only)
 	pSrcZ := scZero.String("src", "", "zero all Id(n) inside source tree dir (required)") // flag
 	scZero.BoolVar(&id.DryRun, "dry-run", false, "no changes are applied")                // flag
 
-	hCmd := flag.NewFlagSet("help", flag.ContinueOnError)                                       // subcommand
-	hCmd.StringVar(&vLgOff, "logfile", "off", "write output to logfile when set to a filename") // flag
-	hCmd.StringVar(&vLgOff, "lg", "off", "short for -logfile")                                  // short flag
+	hCmd := flag.NewFlagSet("help", flag.ContinueOnError) // subcommand
+	flagLogfile(hCmd)
+	flagVerbosity(hCmd)
 
-	vCmd := flag.NewFlagSet("version", flag.ContinueOnError)                                                 // subcommand
-	vCmd.StringVar(&vLgOff, "logfile", "off", "append all output to logfile, set to a filename for logging") // flag
-	vCmd.StringVar(&vLgOff, "lg", "off", "short for -logfile")                                               // short flag
+	vCmd := flag.NewFlagSet("version", flag.ContinueOnError) // subcommand
+	flagLogfile(vCmd)
+	flagVerbosity(vCmd)
 
 	scLog := flag.NewFlagSet("log", flag.ExitOnError)                                                                                                                    // subcommand
-	scLog.StringVar(&id.FnJSON, "idlist", "til.json", "trice ID list path")                                                                                              // short flag
-	scLog.StringVar(&id.FnJSON, "i", "til.json", "short for -idlist")                                                                                                    // short flag
 	scLog.StringVar(&trice.Password, "key", "none", "decrypt passphrase")                                                                                                // flag
 	scLog.StringVar(&trice.Password, "k", "none", "short for -key")                                                                                                      // short flag
 	scLog.BoolVar(&trice.ShowPassword, "show", false, "show passphrase")                                                                                                 // flag
-	scLog.StringVar(&cage.Name, "logfile", "off" /*cage.DefaultLogfileName*/, "Append all output to logfile. Set to \"off\" or \"none\" to switch off.")                 // flag
-	scLog.StringVar(&cage.Name, "lg", "off" /*cage.DefaultLogfileName*/, "short for -logfile")                                                                           // short flag
 	scLog.StringVar(&lib.TimeStampFormat, "ts", "LOCmicro", "PC timestamp for logs and logfile name, options: off|UTCmicro")                                             // flag
-	scLog.StringVar(&disp.ColorPalette, "color", "default", "color set, options: off|alternate")                                                                         // flag
+	scLog.StringVar(&disp.ColorPalette, "color", "default", "color set, options: off|none")                                                                              // flag
 	scLog.StringVar(&emit.Prefix, "prefix", "source:", "prepend prefix to all lines, set to \"off\"")                                                                    // flag
 	scLog.StringVar(&emit.Postfix, "postfix", "\n", "append postfix to all lines")                                                                                       // flag
-	scLog.BoolVar(&id.Verbose, "v", false, "verbose")                                                                                                                    // flag
 	scLog.StringVar(&receiver.Source, "source", "JLINK", "receiver device, options: COMn, JLINK, STLINK, filename, SIM, RND")                                            //HTTP, RTT, RTTD, RTTF")                                             // flag
 	scLog.StringVar(&receiver.Source, "s", "JLINK", "short for -source")                                                                                                 // short flag
 	scLog.IntVar(&com.Baud, "baud", 115200, "Only for -s COMn, COM baudrate")                                                                                            // flag flag
@@ -114,23 +118,22 @@ func HandleArgs(args []string) error {
 	scLog.IntVar(&rndLimit, "rndLimit", randomdummy.NoLimit, "Only for -s RND, see randomdummy.go, Options are count of bytes, 0 for unlimited count")
 	scLog.BoolVar(&displayserver, "ds", false, "short for displaserver")
 	scLog.BoolVar(&displayserver, "displayserver", false, "send trice lines to displayserver @ ipa:ipp")
-	scLog.StringVar(&disp.IPAddr, "ipa", "localhost", "ip address")     // flag (127.0.0.1)
-	scLog.StringVar(&disp.IPPort, "ipp", "61497", "16 bit port number") // flag
 	scLog.BoolVar(&autostart, "a", false, "short for -autostart")
 	scLog.BoolVar(&autostart, "autostart", false, "autostart displayserver @ ipa:ipp (works not good with windows)")
+	flagLogfile(scLog)
+	flagVerbosity(scLog)
+	flagIDList(scLog)
+	flagIPAddress(scLog)
 
-	scSv := flag.NewFlagSet("displayServer", flag.ExitOnError)                                                                                // subcommand
-	scSv.StringVar(&disp.IPAddr, "ipa", "localhost", "ip address")                                                                            // flag (127.0.0.1)
-	scSv.StringVar(&disp.IPPort, "ipp", "61497", "16 bit port number")                                                                        // flag
-	scSv.StringVar(&disp.ColorPalette, "color", "default", "color set, options: off|alternate")                                               // flag
-	scSv.StringVar(&cage.Name, "logfile", cage.DefaultLogfileName, "Append all output to logfile. Set to \"off\" or \"none\" to switch off.") // flag
-	scSv.StringVar(&cage.Name, "lg", cage.DefaultLogfileName, "short for -logfile")                                                           // short flag
+	scSv := flag.NewFlagSet("displayServer", flag.ExitOnError)                             // subcommand
+	scSv.StringVar(&disp.ColorPalette, "color", "default", "color set, options: off|none") // flag
+	flagLogfile(scSv)
+	flagIPAddress(scSv)
 
 	sCmd := flag.NewFlagSet("scan", flag.ContinueOnError) // subcommand
 
-	scSdSv := flag.NewFlagSet("shutdownServer", flag.ExitOnError)        // subcommand
-	scSdSv.StringVar(&disp.IPAddr, "ipa", "localhost", "ip address")     // flag (127.0.0.1)
-	scSdSv.StringVar(&disp.IPPort, "ipp", "61497", "16 bit port number") // flag
+	scSdSv := flag.NewFlagSet("shutdownServer", flag.ExitOnError) // subcommand
+	flagIPAddress(scSdSv)
 
 	// Verify that a subcommand has been provided
 	// os.Arg[0] is the main command
@@ -151,7 +154,6 @@ func HandleArgs(args []string) error {
 
 	case "h", "help":
 		hCmd.Parse(subArgs)
-		cage.Name = vLgOff
 		return scHelp(hCmd, scUpdate, scCheck, scLog, scZero, vCmd, scSv)
 
 	case "s", "sc", "scan":
@@ -160,7 +162,6 @@ func HandleArgs(args []string) error {
 
 	case "v", "ver", "version":
 		vCmd.Parse(subArgs)
-		cage.Name = vLgOff
 		return scVersion()
 
 	case "u", "update":
@@ -171,6 +172,9 @@ func HandleArgs(args []string) error {
 	case "check":
 		scCheck.Parse(subArgs)
 		id.FnJSON = lib.ConditinalFilePath(id.FnJSON)
+		cage.Verbose = id.Verbose
+		cage.Enable()
+		defer cage.Disable()
 		return emit.ScCheckList(*pSet)
 
 	case "zeroSourceTreeIds":
@@ -224,8 +228,6 @@ func HandleArgs(args []string) error {
 }
 
 func receiving() {
-	//var n int
-
 	// prepare
 	err := trice.SetUp()
 	if nil != err {
@@ -261,7 +263,6 @@ func receiving() {
 		i := []byte{'g', 'a', 'r', 'b', 'a', 'g', 'e', '\n',
 			235, 96, 96, 235 ^ 10 ^ 172, 10, 172, 0, 0,
 			235, 96, 96, 235 ^ 10 ^ 172, 10, 172, 1, 1}
-		//i := []byte{235, 96, 96, 235 ^ 10 ^ 172, 10, 172, 0, 0}
 		s := inputdummy.New(i, time.Millisecond, n)
 		receiver.DiscardByte = receiver.DiscardASCII
 		r = ioutil.NopCloser(s) // https://stackoverflow.com/questions/28158990/golang-io-ioutil-nopcloser
@@ -295,11 +296,6 @@ func receiving() {
 	t := receiver.New(r)
 
 	t.Start()
-	/*go func() {
-		for {
-			time.Sleep(time.Second)
-		}
-	}()*/
 }
 
 func scScan() error {
@@ -311,7 +307,9 @@ func scScan() error {
 func scVersion() error {
 	cage.Enable()
 	defer cage.Disable()
-	//log.SetFlags(0) // changed to fmt, because log got not captured by
+	if verbose {
+		fmt.Println("https://github.com/rokath/trice")
+	}
 	if "" != version {
 		fmt.Printf("version=%v, commit=%v, built at %v\n", version, commit, date)
 	} else {
@@ -329,31 +327,13 @@ func scHelp(
 	z *flag.FlagSet,
 	v *flag.FlagSet,
 	sv *flag.FlagSet) error {
+	if verbose {
+		fmt.Printf("\n*** https://github.com/rokath/trice ***\n\n")
+	}
 
 	cage.Enable()
 	defer cage.Disable()
 
-	/* debug code:
-	Problem:
-	cage.Enable() re-direkted os.Stderr und dupliziert so Ausgaben an os.Sterr in trice.log
-	hCmd.Output() usw. geben os.Stderr zurück. Das ist auch wirklich die re-directed Adresse.
-	Der Paketest von cage funktioniert, auch TestScHelp() geht fehlerfrei durch.
-	Wenn aber über die Kommandozeile "trice h" erfolgt, landen Ausgaben an os.Stderr NICHT in trice.log obwohl os.Stderr re-directed ist.
-	*/
-	/*
-		log.SetFlags(0)
-		fmt.Println("0: os.Stderr     addr:", os.Stderr) // ok not in trice.log
-		cage.Enable()
-		defer cage.Disable()
-		fmt.Println("1: os.Stderr     addr:", os.Stderr)     // ok in trice.log (os.Stdout)
-		fmt.Println("2: hCmd.Output() addr:", hCmd.Output()) // ok in trice.log (os.Stdout)
-
-		fmt.Fprintln(os.Stderr, "3:      OS.STDERR")       // NOT in trice.log
-		fmt.Fprintln(hCmd.Output(), "4:    hCmd.Output()") // NOT in trice.log
-		log.Println("5: TryIt")                            // ok in trice.log (log out)
-		fmt.Println("6: TryIt2")                           // ok in trice.log (os.Stdout)
-		fmt.Fprintln(os.Stdout, "7:      OS.STDOUT")       // ok in trice.log (os.Stdout)
-	*/
 	fmt.Fprintln(hCmd.Output(), "syntax: 'trice subcommand' [params]")
 	fmt.Fprintln(hCmd.Output(), "subcommand 'help', 'h'")
 	hCmd.PrintDefaults()
@@ -387,91 +367,3 @@ func setPrefix(s string) {
 		emit.Prefix = s + " "
 	}
 }
-
-// LEFTOVERS
-
-/*
-
-// trice.ScLog is the subcommand log and connects to COM port and displays traces
-func ScLog() error {
-	cage.Enable()
-	defer cage.Disable()
-
-	return DoReceive()
-}
-
-
-
-//// ScReceive is the subcommand remoteDisplay and acts as client connecting to the displayServer
-//// sv is the executable name to be started as remote display server (typically arg[0] == trice)
-//func ScReceive(sv string) error {
-//	err := NewConnection(sv)
-//	if err != nil {
-//		fmt.Println(err)
-//		return err
-//	}
-//	cmd.KeyboardInput()
-//	DoReceive() // does not return
-//	return nil
-//}
-//
-//*/
-//
-///*func do() {
-//	/* TODO: Introduce new command line option for choosing between
-//	   1) Serial receiver(port name, baudrate, parity bit etc. )
-//	   2) TCP receiver (IP, port, Protocol (i.e JSON,XML))
-//	   3) HTTP/Websocket receiver (may be the simplest form in Golang)
-//	*/
-//	switch receiver.Device {
-//	case "COM":
-//		comPort.DoSerial()
-//		/*
-//// DoSerial is the endless loop for trice logging over serial port
-//func comPort.DoSerial() {
-//	err := conditionalComPortScan()
-//	if err != nil {
-//		return
-//	}
-//	sR := newSerialReceiver(Port, Baud)
-//
-//	if sR.setUp() == false {
-//		fmt.Println("Could not set up serial port", Port)
-//		fmt.Println("try -port COMscan")
-//		return
-//	}
-//	fmt.Println("Opened serial port", Port)
-//
-//	sR.Start()
-//	defer sR.cleanUp()
-//
-//	sR.DoReceive()
-//}
-//*/
-//	case "RTT":
-//		seggerRTT.DoSeggerRTT()
-///*
-//
-//// DoSeggerRTT is the endless loop for trice logging
-//func DoSeggerRTT() {
-//	rtt := NewSeggerRTTReceiver()
-//
-//	for nil != rtt.setUp() {
-//		fmt.Println("Could not set up", rtt.name, ", trying again...")
-//		<-time.After(2 * time.Second)
-//		continue
-//	}
-//	fmt.Println("Opened", rtt.name)
-//	defer rtt.cleanUp()
-//
-//	rtt.Start()
-//	defer rtt.Stop()
-//
-//	rtt.DoReceive()
-//}
-//*/
-//	default:
-//		fmt.Println("Unknown receiver device", receiver.Device)
-//	}
-//}
-//*/

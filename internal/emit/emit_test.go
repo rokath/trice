@@ -4,17 +4,15 @@
 package emit
 
 import (
-	"bytes"
 	"fmt"
-	"io"
 	"io/ioutil"
-	"os"
 	"strings"
 	"testing"
 
 	"github.com/rokath/trice/internal/id"
 )
 
+/*
 func captureOutput(f func(id.ListT, string) error, l id.ListT, dataset string) string {
 	// https://stackoverflow.com/questions/10473800/in-go-how-do-i-capture-stdout-of-a-function-into-a-string
 	old := os.Stdout // keep backup of the real stdout
@@ -38,7 +36,7 @@ func captureOutput(f func(id.ListT, string) error, l id.ListT, dataset string) s
 	os.Stdout = old
 	return out
 }
-
+*/
 func idList(t *testing.T) id.ListT {
 	fnIDList := "./testdata/til.json" // file with test input
 	list := make(id.ListT, 0, 65536)  // for 16 bit IDs enough
@@ -46,7 +44,6 @@ func idList(t *testing.T) id.ListT {
 
 	err := pList.Read(fnIDList)
 	if nil != err {
-		//fmt.Println("ID list " + path.Base(fnIDList) + " not found, exit")
 		id.ListNotFoundMsg(fnIDList)
 		t.Fail()
 	}
@@ -57,7 +54,6 @@ func idList(t *testing.T) id.ListT {
 func expectedOutput(fn string, t *testing.T) string {
 	b, err := ioutil.ReadFile(fn)
 	if nil != err {
-		//fmt.Println("ID list " + path.Base(fn) + " not found, exit")
 		id.ListNotFoundMsg(fn)
 		t.Fail()
 	}
