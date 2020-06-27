@@ -13,6 +13,7 @@ import (
 	"fmt"
 
 	"github.com/rokath/trice/internal/disp"
+	"github.com/rokath/trice/internal/global"
 	"github.com/rokath/trice/internal/id"
 	"github.com/rokath/trice/internal/receiver"
 	"golang.org/x/crypto/xtea"
@@ -92,7 +93,7 @@ func SetUp() error {
 	if nil != err {
 		return err
 	}
-	if true == id.Verbose {
+	if true == global.Verbose {
 		fmt.Println("id list file", id.FnJSON, "with", len(id.List), "items", "on device", receiver.Source)
 	}
 	return nil

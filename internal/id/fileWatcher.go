@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/fsnotify/fsnotify"
+	"github.com/rokath/trice/internal/global"
 )
 
 // ListFileWatcher checks id list file for changes
@@ -51,7 +52,7 @@ func (p *ListT) FileWatcher() {
 	if err := watcher.Add(FnJSON); err != nil {
 		fmt.Println("ERROR2", err)
 	}
-	if Verbose {
+	if global.Verbose {
 		fmt.Println(FnJSON, "watched now for changes")
 	}
 	<-done

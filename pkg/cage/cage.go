@@ -34,6 +34,8 @@ import (
 	"os"
 	"sync"
 	"time"
+
+	"github.com/rokath/trice/internal/global"
 )
 
 // some references:
@@ -51,9 +53,6 @@ var (
 
 	// pContainer hold the restore values
 	pContainer *Container
-
-	// Verbose prints additional information if set true
-	Verbose bool
 )
 
 // Enable starts take notes mode, means parallel writing into a file.
@@ -88,7 +87,7 @@ func Start(fn string) *Container {
 
 	// start logging only if fn not "none" or "off"
 	if "none" == fn || "off" == fn {
-		if Verbose {
+		if global.Verbose {
 			fmt.Println("No logfile writing...")
 		}
 		return nil
@@ -106,7 +105,7 @@ func Start(fn string) *Container {
 		fn = "off"
 		return nil
 	}
-	if Verbose {
+	if global.Verbose {
 		log.Printf("Writing to logfile %s...\n", fn)
 	}
 
@@ -166,7 +165,7 @@ func Stop(c *Container) {
 
 	// only if loggig was enabled
 	if nil == c {
-		if Verbose {
+		if global.Verbose {
 			fmt.Println("No logfile writing...done")
 		}
 		return
@@ -186,7 +185,7 @@ func Stop(c *Container) {
 
 	// logfile
 	c.lfHandle.Close()
-	if Verbose {
+	if global.Verbose {
 		log.Printf("Writing to logfile %s...done\n", c.lfName)
 	}
 }

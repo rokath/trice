@@ -17,6 +17,7 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/rokath/trice/internal/global"
 	"github.com/rokath/trice/pkg/lib"
 )
 
@@ -38,9 +39,6 @@ var (
 
 	// FnJSON is the filename of the id list
 	FnJSON string
-
-	// Verbose if set, gives more output information during update
-	Verbose bool
 
 	// DryRun if set, inhibits real changes
 	DryRun bool
@@ -201,7 +199,7 @@ func ScUpdate() error {
 
 // update does parse source tree, update IDs and is list
 func update(dir, fn string) error {
-	err := List.Update(dir, fn, !DryRun, Verbose)
+	err := List.Update(dir, fn, !DryRun, global.Verbose)
 	if nil != err {
 		return fmt.Errorf("failed update on %s with %s: %v", dir, fn, err)
 	}
@@ -213,7 +211,7 @@ func update(dir, fn string) error {
 //
 // Base is used to avoid test issues in different operating systems.
 func ListNotFoundMsg(pathname string) {
-	if false == Verbose {
+	if false == global.Verbose {
 		pathname = filepath.Base(pathname) // no path info (used for testing)
 	}
 	fmt.Println("ID list " + pathname + " not found")

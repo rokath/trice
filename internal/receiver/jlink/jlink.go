@@ -15,15 +15,14 @@ import (
 	"os/exec"
 	"path/filepath"
 	"runtime"
+
+	"github.com/rokath/trice/internal/global"
 	//"time"
 )
 
 var (
 	// Param contails the command line parameters for JLinkRTTLogger
 	Param string
-
-	// Verbose prints additional information if set true
-	Verbose bool
 )
 
 // RTTL is the Segger RealTime Transfer logger reader interface.
@@ -114,7 +113,7 @@ func (p *RTTL) Close() error {
 // THe temporary logfile is opened for reading.
 func (p *RTTL) Open() error {
 	var err error
-	if Verbose {
+	if global.Verbose {
 		fmt.Println("Start a process:", p.shell, p.clip)
 	}
 	p.lcmdH = exec.Command(p.shell, p.clip)
@@ -126,7 +125,7 @@ func (p *RTTL) Open() error {
 	if nil != err {
 		return err
 	}
-	if Verbose {
+	if global.Verbose {
 		fmt.Println("trice is reading from", p.tlfN)
 	}
 	return nil

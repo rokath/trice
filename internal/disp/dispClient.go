@@ -12,6 +12,7 @@ import (
 	"os/exec"
 	"runtime"
 
+	"github.com/rokath/trice/internal/global"
 	"github.com/rokath/trice/pkg/cage"
 )
 
@@ -68,13 +69,18 @@ func RemoteOut(s []string) error {
 func Connect() error {
 	var err error
 	a := fmt.Sprintf("%s:%s", IPAddr, IPPort)
-	out([]string{"sig:dialing ", a, " ..."})
+	if global.Verbose {
+		out([]string{"sig:dialing ", a, " ..."})
+	}
 	PtrRPC, err = rpc.Dial("tcp", a)
 	if err != nil {
 		fmt.Println(err)
 		return err
 	}
-	return out([]string{"sig:...remoteDisplay @ ", a, " connected."})
+	if global.Verbose {
+		err = out([]string{"sig:...remoteDisplay @ ", a, " connected."})
+	}
+	return err
 }
 
 // ScShutdownRemoteDisplayServer starts a client to send shutdown message to display server

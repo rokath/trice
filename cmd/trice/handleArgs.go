@@ -56,11 +56,6 @@ func flagLogfile(p *flag.FlagSet) {
 
 func flagVerbosity(p *flag.FlagSet) {
 	p.BoolVar(&verbose, "v", false, "verbose") // flag
-
-	// module inject verbose
-	id.Verbose = verbose
-	cage.Verbose = verbose
-	jlink.Verbose = verbose
 }
 
 func flagIDList(p *flag.FlagSet) {
@@ -172,7 +167,6 @@ func HandleArgs(args []string) error {
 	case "check":
 		scCheck.Parse(subArgs)
 		id.FnJSON = lib.ConditinalFilePath(id.FnJSON)
-		cage.Verbose = id.Verbose
 		cage.Enable()
 		defer cage.Disable()
 		return emit.ScCheckList(*pSet)
@@ -183,8 +177,6 @@ func HandleArgs(args []string) error {
 
 	case "l", "log":
 		scLog.Parse(subArgs)
-		jlink.Verbose = id.Verbose
-		cage.Verbose = id.Verbose
 		// adjust settings
 		if "source:" == emit.Prefix {
 			emit.Prefix = receiver.Source + ":"
