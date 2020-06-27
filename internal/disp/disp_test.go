@@ -1,7 +1,7 @@
 // Copyright 2020 Thomas.Hoehenleitner [at] seerose.net
 // Use of this source code is governed by a license that can be found in the LICENSE file.
 
-package disp
+package disp_test
 
 import (
 	"fmt"
@@ -11,6 +11,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/rokath/trice/internal/disp"
 	"github.com/rokath/trice/pkg/cage"
 	"github.com/rokath/trice/pkg/lib"
 )
@@ -55,13 +56,14 @@ func lineGenerator(t *testing.T, s string, len, count int, wg *sync.WaitGroup) {
 	go func() {
 		defer wg.Done()
 		for ; i < count; i++ { // line count
-			lib.Ok(t, Out(ss))
+			lib.Ok(t, disp.Out(ss))
 		}
 	}()
 }
 
-// timingIssueOnCli
+// TestServerMutex checks if several lines are displayed coreectly line by line
 func TestServerMutex(t *testing.T) {
+	disp.IPPort = "61498"
 	cage.Name = "./testdata/serverMutexTest.log"
 	uniqName := "./testdata/serverMutexUniq.txt"
 	os.Remove(cage.Name)
@@ -75,17 +77,17 @@ func TestServerMutex(t *testing.T) {
 	} else {
 		t.Fail() // todo
 	}
-	StartServer(exe)
-	err := Connect()
-	Out = RemoteOut // re-direct output
+	disp.StartServer(exe)
+	err := disp.Connect()
+	disp.Out = disp.RemoteOut // re-direct output
 	lib.Ok(t, err)
 
 	var result int64
-	err = PtrRPC.Call("Server.ColorPalette", []string{"off"}, &result)
+	err = disp.PtrRPC.Call("Server.ColorPalette", []string{"off"}, &result)
 	lib.Ok(t, err)
 
 	ss := []string{"first line", "\n"}
-	err = Out(ss)
+	err = disp.Out(ss)
 	lib.Ok(t, err)
 
 	ll := 21
@@ -97,7 +99,7 @@ func TestServerMutex(t *testing.T) {
 	}
 
 	wg.Wait()
-	lib.Ok(t, ScShutdownRemoteDisplayServer(0))
+	lib.Ok(t, disp.ScShutdownRemoteDisplayServer(0))
 	n := lib.UniqLines(t, cage.Name, uniqName)
 	lib.Equals(t, n, lv+4) // first line + 9 lines + server line
 	os.Remove(uniqName)

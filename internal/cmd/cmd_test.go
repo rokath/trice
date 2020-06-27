@@ -3,6 +3,7 @@ package cmd
 
 import (
 	"bufio"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"os/exec"
@@ -49,23 +50,31 @@ func TestHelp(t *testing.T) {
 }
 
 func TestShutdownServerWhenRunning(t *testing.T) {
+	disp.IPPort = "61496" // need a tests unique port because parallel test execution
 	cmd := exec.Command("trice")
-	//out, err := cmd.CombinedOutput()
-	//exp0 := "ggg"
-	//lib.Equals(t, nil, err)
-	//lib.Equals(t, exp0, string(out))
+
 	disp.StartServer(cmd.Path)
-	//time.Sleep(3 * time.Second)
+
 	stim := "sd\r\n"
-	exp := "->127.0.0.1:61497: wsarecv: An existing connection was forcibly closed by the remote host.\n"
+	exp := "->127.0.0.1:" + disp.IPPort + ": wsarecv: An existing connection was forcibly closed by the remote host.\n"
 	capt := helper(stim)
-	act := string(capt[len("-> read tcp 127.0.0.1:xxxxx->127.0.0.1:61497: wsarecv: An existing connection was forcibly closed by the remote host.\nread tcp 127.0.0.1:xxxxx"):]) // must remove from the beginning, because xxxxx changes all the time
+
+	// must remove some chars from the beginning, because xxxxx changes all the time
+	discardLength := len("-> read tcp 127.0.0.1:xxxxx->127.0.0.1:" + disp.IPPort + ": wsarecv: An existing connection was forcibly closed by the remote host.\nread tcp 127.0.0.1:xxxxx")
+	if discardLength >= len(capt) {
+		capts := string(capt)
+		fmt.Println(capts)
+		t.Fail()
+		return
+	}
+	act := string(capt[discardLength:])
 	lib.Equals(t, exp, act)
 }
 
 func TestShutdownServerWhenNotRunning(t *testing.T) {
+	disp.IPPort = "61495" // need a tests unique port because parallel test execution
 	stim := "sd\r\n"
-	exp := "-> dial tcp [::1]:61497: connectex: No connection could be made because the target machine actively refused it.\ndial tcp [::1]:61497: connectex: No connection could be made because the target machine actively refused it.\n"
+	exp := "-> dial tcp [::1]:" + disp.IPPort + ": connectex: No connection could be made because the target machine actively refused it.\ndial tcp [::1]:" + disp.IPPort + ": connectex: No connection could be made because the target machine actively refused it.\n"
 	capt := helper(stim)
 	act := string(capt)
 	lib.Equals(t, exp, act)

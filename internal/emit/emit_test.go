@@ -4,15 +4,18 @@
 package emit
 
 import (
+	"bytes"
 	"fmt"
+	"io"
 	"io/ioutil"
+	"os"
 	"strings"
 	"testing"
 
 	"github.com/rokath/trice/internal/id"
 )
 
-/*
+// captureOutput is a helper function only used inside package emit_test
 func captureOutput(f func(id.ListT, string) error, l id.ListT, dataset string) string {
 	// https://stackoverflow.com/questions/10473800/in-go-how-do-i-capture-stdout-of-a-function-into-a-string
 	old := os.Stdout // keep backup of the real stdout
@@ -36,7 +39,7 @@ func captureOutput(f func(id.ListT, string) error, l id.ListT, dataset string) s
 	os.Stdout = old
 	return out
 }
-*/
+
 func idList(t *testing.T) id.ListT {
 	fnIDList := "./testdata/til.json" // file with test input
 	list := make(id.ListT, 0, 65536)  // for 16 bit IDs enough
