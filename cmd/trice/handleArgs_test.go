@@ -5,7 +5,9 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
 	"os"
+	"os/exec"
 	"testing"
 
 	capturer "github.com/kami-zh/go-capturer"
@@ -227,3 +229,89 @@ func TestScHelp(t *testing.T) {
 	lib.Ok(t, os.Remove(afn))
 }
 */
+
+/* This is just tryout code but we do not reach the test aim with it:
+var flag2 bool
+
+// TestHRNDchaos expects installed trice compiled from actual sources.
+//
+// This kind of test does not work just with HandleArgs function, because of os.Exit(0) on io.EOF in -source RND.
+// Endless waiting there does also not work, so this apprpoach is just a quick solution.
+func TestRNDchaos2(t *testing.T) {
+	var act string
+	if false == flag2 { // 1st entry
+		flag2 = true
+		onExit := func(x int) {
+			e := 0 // expected value for x from call global.osExit(x)
+			lib.Equals(t, e, x)
+			TestRNDchaos2(t) // trigger 2nd entry
+		}
+
+		global.OsExit = onExit // change os.Exit() behaviour
+		cage.Name = "c:/repos/trice/flag2.txt"
+		cage.Enable()
+		defer cage.Disable()
+		func() {
+			HandleArgs([]string{"trice", "log",
+				"-idlist", "c:/repos/trice/til.json",
+				"-source", "RND",
+				"-rndLimit", "10",
+				"-rndMode", "ChaosMode",
+				"-lg", "off",
+				"-ts", "off",
+				"-color", "off"})
+		}()
+		// no return here
+
+		// This does not work either, because no return here
+		//act = capturer.CaptureOutput(fn)
+		//fmt.Print(act)
+
+	} else { // 2nd entry
+		b, _ := ioutil.ReadFile("c:/repos/trice/flag2.txt") // just pass the file name
+		act = string(b)
+		exp := `RND: trice:discarding byte 0x9f (dez 159, char ' ')
+RND: trice:discarding byte 0x90 (dez 144, char ' ')
+RND: trice:discarding byte 0xa3 (dez 163, char ' ')
+`
+		lib.Equals(t, exp, act)
+		// test goes well until here
+		// If os.Exit follows here the test ends in every case without error message even it failed.
+		// If os.Exit follows not the execution context goes back to the ReadAtLeast and the test does not end because of endless cycle.
+		os.Exit(0)
+	}
+}
+*/
+
+func TestRNDChaos(t *testing.T) {
+	// https://stackoverflow.com/questions/26225513/how-to-test-os-exit-scenarios-in-go
+	logFile := "TestRNDChaos.txt"
+	if os.Getenv("BE_EOF_CRASHER") == "1" { // here inside debug test does not stop
+		os.Remove(logFile) // secure logFile not exists already
+		HandleArgs([]string{"trice", "log",
+			"-idlist", "c:/repos/trice/til.json",
+			"-source", "RND",
+			"-rndLimit", "10", // 7 values are kept inside in hope next value makes a valid header
+			"-rndMode", "ChaosMode",
+			"-lg", logFile,
+			"-ts", "off",
+			"-color", "off"})
+		return
+	}
+	cmd := exec.Command(os.Args[0], "-test.run=TestRNDChaos") // test fn name!
+	cmd.Env = append(os.Environ(), "BE_EOF_CRASHER=1")
+	err := cmd.Run()
+	e, ok := err.(*exec.ExitError)
+	if ok && !e.Success() {
+		t.Fail()
+		return
+	}
+	b, _ := ioutil.ReadFile(logFile) // just pass the file name
+	os.Remove(logFile)               // must be before lib.Equals
+	act := string(b)
+	exp := `RND: trice:discarding byte 0x9f (dez 159, char ' ')
+RND: trice:discarding byte 0x90 (dez 144, char ' ')
+RND: trice:discarding byte 0xa3 (dez 163, char ' ')
+`
+	lib.Equals(t, exp, act)
+}

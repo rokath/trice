@@ -7,6 +7,8 @@ import (
 	"math/rand"
 	"os"
 	"time"
+
+	"github.com/rokath/trice/internal/global"
 )
 
 var (
@@ -33,7 +35,7 @@ func main() {
 	rand.Seed(time.Now().UnixNano())
 	err = HandleArgs(os.Args)
 	if nil != err {
-		os.Exit(1)
+		global.OsExit(1)
 	}
-	os.Exit(0)
+	global.OsExit(0)
 }

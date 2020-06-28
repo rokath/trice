@@ -17,15 +17,14 @@ import (
 	"github.com/rokath/trice/internal/cmd"
 	"github.com/rokath/trice/internal/disp"
 	"github.com/rokath/trice/internal/emit"
+	"github.com/rokath/trice/internal/global"
 	"github.com/rokath/trice/internal/id"
 	"github.com/rokath/trice/internal/receiver"
 	"github.com/rokath/trice/internal/receiver/com"
-	"github.com/rokath/trice/internal/receiver/direct"
 	"github.com/rokath/trice/internal/receiver/http"
 	"github.com/rokath/trice/internal/receiver/jlink"
 	"github.com/rokath/trice/internal/receiver/randomdummy"
 	"github.com/rokath/trice/internal/receiver/rttfile"
-	"github.com/rokath/trice/internal/receiver/segger"
 	"github.com/rokath/trice/internal/trice"
 	"github.com/rokath/trice/pkg/cage"
 	"github.com/rokath/trice/pkg/inputdummy"
@@ -44,9 +43,6 @@ var (
 
 	// autostart if set, starts an additional trice instamce as displayserver
 	autostart bool
-
-	// verbose gives additional informal output
-	verbose bool
 )
 
 func flagLogfile(p *flag.FlagSet) {
@@ -55,7 +51,7 @@ func flagLogfile(p *flag.FlagSet) {
 }
 
 func flagVerbosity(p *flag.FlagSet) {
-	p.BoolVar(&verbose, "v", false, "verbose") // flag
+	p.BoolVar(&global.Verbose, "v", false, "verbose") // flag
 }
 
 func flagIDList(p *flag.FlagSet) {
@@ -258,7 +254,7 @@ func receiving() {
 		s := inputdummy.New(i, time.Millisecond, n)
 		receiver.DiscardByte = receiver.DiscardASCII
 		r = ioutil.NopCloser(s) // https://stackoverflow.com/questions/28158990/golang-io-ioutil-nopcloser
-	case "RTT":
+	/*case "RTT":
 		receiver.DiscardByte = receiver.DiscardASCII
 		s := segger.New()
 		if nil != s.Open() {
@@ -271,19 +267,17 @@ func receiving() {
 		if nil != d.Open() {
 			return
 		}
-		r = d
-	case "RTTF":
+		r = d*/
+	//case "RTTF":
+	default: // assume source is a filename
 		s := rttfile.New()
-		fn := "c:/repos/trice/rttfile.bin"
-		err := s.Open(fn)
+		//fn := "c:/repos/trice/rttfile.bin"
+		err := s.Open(receiver.Source)
 		if nil != err {
 			fmt.Println(err)
 			return
 		}
 		r = s
-	default:
-		fmt.Println(receiver.Source, "is unknown as device")
-		return
 	}
 	t := receiver.New(r)
 
@@ -299,7 +293,7 @@ func scScan() error {
 func scVersion() error {
 	cage.Enable()
 	defer cage.Disable()
-	if verbose {
+	if global.Verbose {
 		fmt.Println("https://github.com/rokath/trice")
 	}
 	if "" != version {
@@ -319,7 +313,7 @@ func scHelp(
 	z *flag.FlagSet,
 	v *flag.FlagSet,
 	sv *flag.FlagSet) error {
-	if verbose {
+	if global.Verbose {
 		fmt.Printf("\n*** https://github.com/rokath/trice ***\n\n")
 	}
 

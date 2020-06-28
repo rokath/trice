@@ -10,8 +10,9 @@ package inputdummy
 
 import (
 	"io"
-	"os"
 	"time"
+
+	"github.com/rokath/trice/internal/global"
 )
 
 const (
@@ -54,7 +55,7 @@ func (p *Source) Read(b []byte) (int, error) {
 		if 0 == p.limit || p.offset+i < p.limit {
 			b[i] = p.b[(p.offset+i)%len(p.b)]
 		} else {
-			os.Exit(0)
+			global.OsExit(0)
 			//return i, io.EOF
 		}
 	}

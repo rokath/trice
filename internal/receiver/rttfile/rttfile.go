@@ -4,9 +4,14 @@
 // Package rttfile reads trice data from file.
 package rttfile
 
-import "os"
+import (
+	"io"
+	"os"
 
-// RttFile delivers
+	"github.com/rokath/trice/internal/global"
+)
+
+// RTTFile delivers
 type RTTFile struct {
 	fh *os.File
 }
@@ -19,7 +24,11 @@ func New() *RTTFile {
 
 // Read is the exported method.
 func (p *RTTFile) Read(b []byte) (int, error) {
-	return p.fh.Read(b)
+	n, err := p.fh.Read(b)
+	if io.EOF == err {
+		global.OsExit(1)
+	}
+	return n, err
 }
 
 // Close is part of the exported interface io.ReadCloser. It ends the connection.

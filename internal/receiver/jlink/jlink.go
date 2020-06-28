@@ -143,6 +143,6 @@ func (p *RTTL) Open() error {
 // 		fmt.Println("\n\r- Ctrl+C pressed in Terminal")
 // 		pointerToInstance.Close()
 // 		time.Sleep(3 * time.Second)
-// 		os.Exit(0)
+// 		global.OsExit(0)
 // 	}()
 // }

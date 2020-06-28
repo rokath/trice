@@ -12,6 +12,7 @@ import (
 	"strings"
 
 	"github.com/rokath/trice/internal/disp"
+	"github.com/rokath/trice/internal/global"
 )
 
 // KeyboardInput expects user input from terminal
@@ -44,7 +45,7 @@ func loopAction(reader *bufio.Reader) {
 
 	switch text {
 	case "q", "quit":
-		os.Exit(0)
+		global.OsExit(0)
 	case "h", "help":
 		fmt.Println("h|help                   - this text")
 		fmt.Println("exitServer|serverExit    - kill server")

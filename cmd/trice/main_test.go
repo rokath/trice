@@ -5,10 +5,10 @@ package main
 
 import (
 	"fmt"
-	"os"
 	"os/exec"
 	"testing"
 
+	"github.com/rokath/trice/internal/global"
 	"github.com/rokath/trice/pkg/lib"
 )
 
@@ -16,7 +16,7 @@ func TestMain(m *testing.M) {
 	// do stuff before tests
 	exitVal := m.Run()
 	// do stuff after tests
-	os.Exit(exitVal)
+	global.OsExit(exitVal)
 }
 
 func TestBadArgs(t *testing.T) {
@@ -50,24 +50,6 @@ func TestVersionArg(t *testing.T) {
 	}
 	act := string(out) // because out is []byte
 	exp := "version=devel, built unknown\n"
-	lib.Equals(t, exp, act)
-}
-
-// TestHRNDchaos expects installed trice compiled from actual sources.
-//
-// This kind of test does not work just with HandleArgs function, because of os.Exit(0) on io.EOF in -source RND.
-// Endless waiting there does also not work, so this apprpoach is just a quick solution.
-func TestRNDchaos(t *testing.T) {
-	cmd := exec.Command("trice", "log", "-idlist", "c:/repos/trice/test/til.json", "-source", "RND", "-rndLimit", "10", "-rndMode", "ChaosMode", "-lg", "off", "-ts", "off", "-color", "off")
-	out, err := cmd.CombinedOutput()
-	if nil != err {
-		t.Fail()
-	}
-	act := string(out)
-	exp := `RND: trice:discarding byte 0x9f (dez 159, char ' ')
-RND: trice:discarding byte 0x90 (dez 144, char ' ')
-RND: trice:discarding byte 0xa3 (dez 163, char ' ')
-`
 	lib.Equals(t, exp, act)
 }
 
