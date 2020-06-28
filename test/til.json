@@ -191,7 +191,7 @@
 	{
 		"id": 54673,
 		"fmtType": "TRICE8_6",
-		"fmtStrg": "tst:TRICE8 %d %d %d %d %d %d \\n",
+		"fmtStrg": "tst:TRICE8 %d %d %d %d %d %d\\n",
 		"created": 1590414933,
 		"removed": 0
 	},
