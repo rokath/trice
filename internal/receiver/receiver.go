@@ -33,7 +33,6 @@ import (
 	"encoding/binary"
 	"fmt"
 	"io"
-	"log"
 
 	"github.com/rokath/trice/internal/disp"
 	"github.com/rokath/trice/internal/emit"
@@ -142,7 +141,7 @@ func (p *TriceReceiver) receiveTrices() {
 		case t = <-p.trices:
 			b, err = emit.Trice(t, b, id.List)
 			if nil != err {
-				log.Println("trice.Log error", err, t, b)
+				fmt.Println("trice.Log error", err, t, b)
 			}
 		}
 	}
