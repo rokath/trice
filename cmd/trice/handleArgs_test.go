@@ -8,6 +8,8 @@ import (
 	"io/ioutil"
 	"os"
 	"os/exec"
+	"path/filepath"
+	"runtime"
 	"testing"
 
 	capturer "github.com/kami-zh/go-capturer"
@@ -283,6 +285,7 @@ RND: trice:discarding byte 0xa3 (dez 163, char ' ')
 }
 */
 
+// TestRNDChaos checks if random data are working
 func TestRNDChaos(t *testing.T) {
 	// https://stackoverflow.com/questions/26225513/how-to-test-os-exit-scenarios-in-go
 	logFile := "TestRNDChaos.txt"
@@ -314,4 +317,238 @@ RND: trice:discarding byte 0x90 (dez 144, char ' ')
 RND: trice:discarding byte 0xa3 (dez 163, char ' ')
 `
 	lib.Equals(t, exp, act)
+}
+
+// TestRTTF
+func TestRTTF(t *testing.T) {
+	pc := make([]uintptr, 10) // at least 1 entry needed
+	runtime.Callers(0, pc)    // for debugging first parameter must be 1
+	f := runtime.FuncForPC(pc[0])
+	fullName := f.Name() // full name like "github/rokath/trice/cmd/trice.TestRTTF"
+	fmt.Println("fullName:", fullName)
+	baseName := filepath.Base(fullName)
+	fmt.Println("baseName:", baseName)
+	fnName := filepath.Ext(baseName)[1:]
+	fmt.Println("fnName:", fnName)
+	logFile := baseName + ".txt"
+	fmt.Println("logfile:", logFile)
+	if os.Getenv("BE_EOF_"+fnName) == "1" { // here inside debug test does not stop
+		os.Remove(logFile) // secure logFile not exists already
+		HandleArgs([]string{"trice", "log",
+			"-idlist", "c:/repos/trice/til.json",
+			"-s", "C:\\repos\\trice\\internal\\receiver\\rttfile\\testdata\\wrapTriceMsgs.bin",
+			"-lg", logFile,
+			"-ts", "off",
+			"-prefix", "none",
+			"-color", "off"})
+		return
+	}
+	cmd := exec.Command(os.Args[0], "-test.run="+fnName) // test fn name!
+	cmd.Env = append(os.Environ(), "BE_EOF_"+fnName+"=1")
+	err := cmd.Run()
+	if nil != err {
+		//t.Fail()
+	}
+	/*e, ok := err.(*exec.ExitError)
+	ok = false
+	if ok && !e.Success() {
+		t.Fail()
+		return
+	}*/
+	b, _ := ioutil.ReadFile(logFile) // just pass the file name
+	os.Remove(logFile)               // must be before lib.Equals
+	acts := string(b)
+	exp := `ISR:alive time 5121700 milliseconds
+ISR:alive time 5121800 milliseconds
+ISR:alive time 5121900 milliseconds
+ISR:alive time 5122000 milliseconds
+ERR:error       message, SysTick is -19095
+WRN:warning     message, SysTick is -19483
+ATT:attension   message, SysTick is -19871
+DIA:diagnostics message, SysTick is -20259
+TIM:timing      message, SysTick is -20647
+DBG:debug       message, SysTick is -21035
+SIG:signal      message, SysTick is -21423
+RD:read         message, SysTick is -21811
+WR:write        message, SysTick is -22199
+ISR:interrupt   message, SysTick is -22587
+TST:test        message, SysTick is -22975
+MSG:normal      message, SysTick is -23363
+INFO:informal   message, SysTick is -23751
+time:ms = 5122000
+ISR:alive time 5122100 milliseconds
+ISR:alive time 5122200 milliseconds
+ISR:alive time 5122300 milliseconds
+ISR:alive time 5122400 milliseconds
+ISR:alive time 5122500 milliseconds
+ISR:alive time 5122600 milliseconds
+ISR:alive time 5122700 milliseconds
+ISR:alive time 5122800 milliseconds
+ISR:alive time 5122900 milliseconds
+ISR:alive time 5123000 milliseconds
+tst:TRICE8  %03x ->  001  07f  -80  -01
+tst:TRICE8   %4d ->    1  127 -128   -1
+tst:TRICE8   %4o ->    1  177 -200   -1
+tst:TRICE16  %05x ->   00001   07fff   -8000   -0001
+tst:TRICE16   %6d ->       1   32767  -32768      -1
+tst:TRICE16   %7o ->       1   77777 -100000      -1
+tst:TRICE32_4 %09x ->      000000001      07fffffff       -80000000     -00000001
+tst:TRICE32_4 %10d ->              1     2147483647     -2147483648            -1
+att:64bit 0b1000100100010001100110100010001010101011001100111011110001000
+time:ms = 5123000
+ISR:alive time 5123100 milliseconds
+ISR:alive time 5123200 milliseconds
+ISR:alive time 5123300 milliseconds
+ISR:alive time 5123400 milliseconds
+ISR:alive time 5123500 milliseconds
+ISR:alive time 5123600 milliseconds
+ISR:alive time 5123700 milliseconds
+ISR:alive time 5123800 milliseconds
+ISR:alive time 5123900 milliseconds
+ISR:alive time 5124000 milliseconds
+tst:TRICE8 -1
+tst:TRICE8 -1 -2
+tst:TRICE8 -1 -2 -3
+tst:TRICE8 -1 -2 -3 -4
+tst:TRICE8 -1 -2 -3 -4 -5
+tst:TRICE8 -1 -2 -3 -4 -5 -6
+tst:TRICE8 -1 -2 -3 -4 -5 -6 -7
+tst:TRICE8 -1 -2 -3 -4 -5 -6 -7 -8
+time:ms = 5124000
+ISR:alive time 5124100 milliseconds
+ISR:alive time 5130100 milliseconds
+` // ISR:alive time 5130200 milliseconds
+	lib.Equals(t, exp, acts)
+}
+
+func frameForOsExitTests(logFile string, parameters []string, exp string, t *testing.T) {
+	pc := make([]uintptr, 10) // at least 1 entry needed
+	runtime.Callers(2, pc)    // for debugging first parameter must be 2
+	f := runtime.FuncForPC(pc[0])
+	fullName := f.Name() // full name like "github/rokath/trice/cmd/trice.TestRTTF"
+	fmt.Println("fullName:", fullName)
+	baseName := filepath.Base(fullName)
+	fmt.Println("baseName:", baseName)
+	fnName := filepath.Ext(baseName)[1:]
+	fmt.Println("fnName:", fnName)
+	//logFile := baseName + ".txt"
+	fmt.Println("logfile:", logFile)
+	if os.Getenv("BE_EOF_"+fnName) == "1" { // here inside debug test does not stop
+		os.Remove(logFile) // secure logFile not exists already
+		HandleArgs(parameters)
+		return
+	}
+	fmt.Println(os.Args[0])
+	cmd := exec.Command(os.Args[0], "-test.run="+fnName) // test fn name!
+	cmd.Env = append(os.Environ(), "BE_EOF_"+fnName+"=1")
+	err := cmd.Run()
+	if nil != err {
+		//t.Fail()
+	}
+	/*e, ok := err.(*exec.ExitError)
+	ok = false
+	if ok && !e.Success() {
+		t.Fail()
+		return
+	}*/
+	b, _ := ioutil.ReadFile(logFile) // just pass the file name
+	os.Remove(logFile)               // must be before lib.Equals
+	act := string(b)
+	if len(act) > len(exp) { // because of os.Exit act sometimes has not always the same length
+		act = string(b[:len(exp)]) // shorten act to length of exp, exp has granted minumum length
+	}
+	lib.Equals(t, exp, act)
+}
+
+func TestRTTFX(t *testing.T) {
+	logFile := "TestRTTFX.txt" // todo: randomName
+
+	cmd := []string{"trice", "log",
+		"-idlist", "c:/repos/trice/til.json",
+		"-s", "C:\\repos\\trice\\internal\\receiver\\rttfile\\testdata\\wrapTriceMsgs.bin",
+		"-lg", logFile,
+		"-ts", "off",
+		"-prefix", "none",
+		"-color", "off"}
+
+	exp := `ISR:alive time 5121700 milliseconds
+ISR:alive time 5121800 milliseconds
+ISR:alive time 5121900 milliseconds
+ISR:alive time 5122000 milliseconds
+ERR:error       message, SysTick is -19095
+WRN:warning     message, SysTick is -19483
+ATT:attension   message, SysTick is -19871
+DIA:diagnostics message, SysTick is -20259
+TIM:timing      message, SysTick is -20647
+DBG:debug       message, SysTick is -21035
+SIG:signal      message, SysTick is -21423
+RD:read         message, SysTick is -21811
+WR:write        message, SysTick is -22199
+ISR:interrupt   message, SysTick is -22587
+TST:test        message, SysTick is -22975
+MSG:normal      message, SysTick is -23363
+INFO:informal   message, SysTick is -23751
+time:ms = 5122000
+ISR:alive time 5122100 milliseconds
+ISR:alive time 5122200 milliseconds
+ISR:alive time 5122300 milliseconds
+ISR:alive time 5122400 milliseconds
+ISR:alive time 5122500 milliseconds
+ISR:alive time 5122600 milliseconds
+ISR:alive time 5122700 milliseconds
+ISR:alive time 5122800 milliseconds
+ISR:alive time 5122900 milliseconds
+ISR:alive time 5123000 milliseconds
+tst:TRICE8  %03x ->  001  07f  -80  -01
+tst:TRICE8   %4d ->    1  127 -128   -1
+tst:TRICE8   %4o ->    1  177 -200   -1
+tst:TRICE16  %05x ->   00001   07fff   -8000   -0001
+tst:TRICE16   %6d ->       1   32767  -32768      -1
+tst:TRICE16   %7o ->       1   77777 -100000      -1
+tst:TRICE32_4 %09x ->      000000001      07fffffff       -80000000     -00000001
+tst:TRICE32_4 %10d ->              1     2147483647     -2147483648            -1
+att:64bit 0b1000100100010001100110100010001010101011001100111011110001000
+time:ms = 5123000
+ISR:alive time 5123100 milliseconds
+ISR:alive time 5123200 milliseconds
+ISR:alive time 5123300 milliseconds
+ISR:alive time 5123400 milliseconds
+ISR:alive time 5123500 milliseconds
+ISR:alive time 5123600 milliseconds
+ISR:alive time 5123700 milliseconds
+ISR:alive time 5123800 milliseconds
+ISR:alive time 5123900 milliseconds
+ISR:alive time 5124000 milliseconds
+tst:TRICE8 -1
+tst:TRICE8 -1 -2
+tst:TRICE8 -1 -2 -3
+tst:TRICE8 -1 -2 -3 -4
+tst:TRICE8 -1 -2 -3 -4 -5
+tst:TRICE8 -1 -2 -3 -4 -5 -6
+tst:TRICE8 -1 -2 -3 -4 -5 -6 -7
+tst:TRICE8 -1 -2 -3 -4 -5 -6 -7 -8
+time:ms = 5124000
+ISR:alive time 5124100 milliseconds
+ISR:alive time 5130100 milliseconds
+`
+	frameForOsExitTests(logFile, cmd, exp, t)
+}
+
+func TestRNDChaosX(t *testing.T) {
+	logFile := "TestRNDChaosX.txt" // todo: randomName
+
+	cmd := []string{"trice", "log",
+		"-idlist", "c:/repos/trice/til.json",
+		"-source", "RND",
+		"-rndLimit", "10", // 7 values are kept inside in hope next value makes a valid header
+		"-rndMode", "ChaosMode",
+		"-lg", logFile,
+		"-ts", "off",
+		"-color", "off"}
+
+	exp := `RND: trice:discarding byte 0x9f (dez 159, char ' ')
+RND: trice:discarding byte 0x90 (dez 144, char ' ')
+RND: trice:discarding byte 0xa3 (dez 163, char 'X')
+`
+	frameForOsExitTests(logFile, cmd, exp, t)
 }
