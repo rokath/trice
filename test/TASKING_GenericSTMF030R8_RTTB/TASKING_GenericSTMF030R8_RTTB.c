@@ -12,7 +12,7 @@
 int main(void)
 {
 	SEGGER_RTT_printf( 0, "Hello world\n" );
-	TRICE_RTTD_SYNC;
+	TRICE_RTT_SYNC;
 
 	// initialize systick
 	*(uint32_t*)0xE000E010 = 0;          // SysTick->CTRL = 0;   // Disable SysTick

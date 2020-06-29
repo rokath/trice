@@ -63,7 +63,7 @@ func (p *COM) Open() bool {
 	p.serialHandle, err = serial.Open(Port, &p.serialMode)
 
 	if err != nil {
-		fmt.Println("Error: Could not open serial port:", err)
+		fmt.Println(err, "try 'trice s' to check for serial ports")
 		return false
 	}
 	return true

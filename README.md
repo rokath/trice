@@ -110,4 +110,12 @@ is example code and for testing
 ### RealTimeTransfer
 - see [./docs/SeggerRTT.md](./docs/SeggerRTT.md)
 ### Examples
-- see [./docs/TestExamples.md](./docs/TestExamples.md) and [./docs/triceDemo_NUCLEO-F030R8_LL_MDK-ARM.md](./docs/triceDemo_NUCLEO-F030R8_LL_MDK-ARM.md)
+- follow [./docs/TestExamples.md](./docs/TestExamples.md)
+### Hints
+- One free GPIO-Pin is already enough for using TRICE. You can transmit each basic trice (4 bytes) as bare messages over one pin:
+  - ![manchester1.PNG](./docs/README.media/manchester1.PNG)
+  - ![manchester2.PNG](./docs/README.media/manchester2.PNG)
+  - See [https://circuitcellar.com/cc-blog/a-trace-tool-for-embedded-systems/](https://circuitcellar.com/cc-blog/a-trace-tool-for-embedded-systems/) for more information. As trace dongle you can use any spare microcontroller board with an UART together with an FTDI USB converter.
+  - This slow path is usable because trice needs only few bytes for transmission.
+- If you run tests apply the `-p=1` flag to avoid parallel execution: `go test ./... -p=1` This is slower but avoids trouble with the displayserver tests.
+

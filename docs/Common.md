@@ -154,9 +154,6 @@ Afterwards you should find an executable `trice` inside $GOPATH/bin/
 trice help
 ```
 
-## Demo project setup
-- see [DemoF030R8.md](./DemoF030R8.md)
-
 ## Otions for `trice` tool
 The trice tool can be started in several modes (subcommands), each with several mantadory or optional switches. Switches can have parameters or not.
 ```
@@ -167,81 +164,101 @@ The common subcommand switches are documented the the [subcommand switches](#com
 
 Output of `trice h`:
 ```
+ms@LAPTOP-BQDERHJS MINGW64 /c/repos/trice/test (devel)
+$ trice h
+No logfile writing...
 syntax: 'trice subcommand' [params]
 subcommand 'help', 'h'
+  -lf string
+        write output to logfile when set to a filename (default "off")
 subcommand 'u', 'upd', 'update'
   -dry-run
-    	no changes are applied
+        no changes are applied
   -list string
-    	trice ID list path, "none" possible (default "til.json")
+        trice ID list path, "none" possible (default "til.json")
   -src value
-    	source dir or file, multi use possible (default "./")
-  -v	verbose
+        source dir or file, multi use possible (default "./")
+  -v    verbose
 subcommand 'check'
   -color string
-    	color set, options: off|alternate (default "default")
+        color set, options: off|alternate (default "default")
   -dataset string
-    	parameters, option: negative (default "position")
+        parameters, option: negative (default "position")
   -list string
-    	trice ID list path (default "til.json")
+        trice ID list path (default "til.json")
 subcommand 'l', 'log'
   -baud int
-    	COM baudrate (default 115200)
+        COM baudrate (default 115200)
   -color string
-    	color set, options: off|alternate (default "default")
+        color set, options: off|alternate (default "default")
+  -device string
+        receiver device, options: HTTP, RTT, RTTD, SIM, RND (default "COM")
   -key string
-    	decrypt passphrase (default "none")
+        decrypt passphrase (default "none")
   -lf string
-    	append all output to logfile, set to "off" (default "trice.log")
+        Append all output to logfile. Set to "off" or "none" to switch off. (default "2006-01-02_1504-05_trice.log")
   -list string
-    	trice ID list path (default "til.json")
+        trice ID list path (default "til.json")
   -port string
-    	COM port, options: COM1|...|COM999 (default "COMscan")
+        COM port, options: COM1|...|COM999 (default "COMscan")
+  -postfix string
+        append postfix to all lines (default "\n")
+  -prefix string
+        prepend prefix to all lines, set to "off" (default "COMport:")
   -show
-    	show passphrase
+        show passphrase
   -ts string
-    	timestamp, options: off|UTCmicro (default "LOCmicro")
+        PC timestamp for logs and logfile name, options: off|UTCmicro (default "LOCmicro")
 subcommand 'zeroSourceTreeIds' (avoid using this subcommand normally)
   -dry-run
-    	no changes are applied
+        no changes are applied
   -src string
-    	zero all Id(n) inside source tree dir (required)
+        zero all Id(n) inside source tree dir (required)
 subcommand 'v', 'ver', 'version'
   -lf string
-    	append all output to logfile, set to "off" (default "trice.log")
+        append all output to logfile, set to a filename for logging (default "off")
 subcommand 'ds', 'displayServer'
   -color string
-    	color set, options: off|alternate (default "default")
+        color set, options: off|alternate (default "default")
   -ipa string
-    	ip address (default "localhost")
+        ip address (default "localhost")
   -ipp string
-    	16 bit port number (default "61497")
+        16 bit port number (default "61497")
   -lf string
-    	append all output to logfile, set to "off" (default "trice.log")
-  -ts string
-    	timestampm options: off|UTCmicro (default "LOCmicro")
+        Append all output to logfile. Set to "off" or "none" to switch off. (default "2006-01-02_1504-05_trice.log")
 subcommand 'r', 'rec', 'receiver'
   -baud int
-    	COM baudrate (default 115200)
+        COM baudrate (default 115200)
+  -device string
+        receiver device, options: HTTP, RTT, RTTD, SIM, RND (default "COM")
   -ds
-    	start display server 
+        start display server
   -ipa string
-    	ip address (default "localhost")
+        ip address (default "localhost")
   -ipp string
-    	16 bit ip port number (default "61497")
+        16 bit ip port number (default "61497")
   -key string
-    	decrypt passphrase (default "none")
+        decrypt passphrase (default "none")
+  -lf string
+        If '-ds' append all output to logfile. Set to "off" or "none" to switch off. (default "2006-01-02_1504-05_trice.log")
   -list string
-    	trice ID list path (default "til.json")
+        trice ID list path (default "til.json")
   -port string
-    	COM port, options: COM1|...|COM999 (default "COMscan")
+        COM port, options: COM1|...|COM999 (default "COMscan")
+  -postfix string
+        append postfix to all lines (default "\n")
+  -prefix string
+        prepend prefix to all lines, set to "off" (default "COMport:")
   -show
-    	show passphrase
+        show passphrase
+  -ts string
+        PC timestamp for logs, options: off|UTCmicro (default "LOCmicro")
 examples:
     'trice update [-src sourcerootdir]', default sourcerootdir is ./
     'trice log [-port COMn] [-baud m]', default port is COMscan, default m is 38400, fixed to 8N1
     'trice zeroSourceTreeIds -dir sourcerootdir]'
     'trice version'
+No logfile writing...done
 ```
 
 **You must not run `trice update...` inside the downloaded trice directory!** It would change files inside the test directories rsulting later in failed tests.
@@ -313,8 +330,8 @@ You can specify this swich if you want to change the used port number for the re
 - This is a `string` switch. It has one parameter. Its default value is `none`. If you change this value you need to compile the target with the appropriate key.
 - This option is recommended if you deliver firmware to customers and want protect the trice log output. This does not work together with the `#define TRICE_STRINGS FULL_RUNTIME` option right now.
 
-#### subcommand switch '-lf' (logfile)
-- This is a `string` switch. It has one parameter. Its default value is `trice.log`. All trice output of the appropriate subcommands is appended per default into the logfile trice additionally to the normal output. Change the filename with `-lf myName.txt` or switch logging off with `-lf off`. See also
+#### subcommand switch 'lg' (logfile)
+- This is a `string` switch. It has one parameter. Its default value is `trice.log`. All trice output of the appropriate subcommands is appended per default into the logfile trice additionally to the normal output. Change the filename with `-lg myName.txt` or switch logging off with `-lg off`. See also
 [logfile viewing](#Logfile-viewing).
 
 #### subcommand switch '-list' (JSON ID list)
@@ -354,3 +371,15 @@ This timestamp switch generates the timestamps on the PC only, what is good enou
 ### Color issues under Windows
 **Currently CMD console colors are not enabled by default in Win10**, so if you see no color but escape sequences on your powershell or cmd window, please refer to
 [Windows console with ANSI colors handling](https://superuser.com/questions/413073/windows-console-with-ansi-colors-handling/1050078#1050078) or simply use a Linux like terminal under windows, like git-bash. One option is also to install Microsoft *Windows Terminal (Preview)* from inside the Microsoft store and to start trice inside there. Unfortunally this can not be done automatically right now because of missing commandline switches.
+
+### trice Receiver variants
+![triceReceiver.svg](README.media/triceReceiver.svg)
+#### Simulator
+- Check functionality without hardware
+![](README.media/trice_log_-device=SIM.PNG)
+#### Random numbers
+- Check receiver against data garbage
+![](README.media/trice_log_-device=RND.PNG)
+#### HTTP receiver
+- Just a check (unimplemented)
+![](README.media/trice_log_-device=HTTP.PNG)

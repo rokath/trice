@@ -191,7 +191,7 @@
 	{
 		"id": 54673,
 		"fmtType": "TRICE8_6",
-		"fmtStrg": "tst:TRICE8 %d %d %d %d %d %d \\n",
+		"fmtStrg": "tst:TRICE8 %d %d %d %d %d %d\\n",
 		"created": 1590414933,
 		"removed": 0
 	},
@@ -3014,6 +3014,48 @@
 		"fmtType": "TRICE0",
 		"fmtStrg": "Invalid wav file\\n",
 		"created": 1591270221,
+		"removed": 0
+	},
+	{
+		"id": 31296,
+		"fmtType": "TRICE0",
+		"fmtStrg": "att:STM32CubeIDE_RTTD_DISCOVERY-STM32F051R8Tx\\n",
+		"created": 1591357067,
+		"removed": 0
+	},
+	{
+		"id": 32955,
+		"fmtType": "TRICE0",
+		"fmtStrg": "att:STM32CubeIDE_RTTD_NUCLEO-F091\\n",
+		"created": 1591357181,
+		"removed": 0
+	},
+	{
+		"id": 18289,
+		"fmtType": "TRICE0",
+		"fmtStrg": "att:STM32CubeIDE_RTTD_NUCLEO-G474\\n",
+		"created": 1591357193,
+		"removed": 0
+	},
+	{
+		"id": 47000,
+		"fmtType": "TRICE0",
+		"fmtStrg": "att:STM32CubeIDE_HAL_UART_NUCLEO-G474\\n",
+		"created": 1591365452,
+		"removed": 0
+	},
+	{
+		"id": 30218,
+		"fmtType": "TRICE0",
+		"fmtStrg": "att:MDK-ARM_RTT1_NUCLEO-F091RC\\n",
+		"created": 1592075808,
+		"removed": 0
+	},
+	{
+		"id": 39132,
+		"fmtType": "TRICE0",
+		"fmtStrg": "att:MDK-ARM_RTT_NUCLEO-F030R8\\n",
+		"created": 1592300362,
 		"removed": 0
 	}
 ]

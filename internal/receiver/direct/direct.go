@@ -39,7 +39,7 @@ func (p *RTT) Read(buf []byte) (int, error) {
 	var r io.Reader
 
 	if 0 == len(buf) { // formal special case
-		fmt.Println("read len 0 is noit expected here")
+		fmt.Println("read len 0 is not expected here")
 		return 0, nil
 	}
 

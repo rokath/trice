@@ -12,6 +12,7 @@ import (
 	"os/exec"
 	"runtime"
 
+	"github.com/rokath/trice/internal/global"
 	"github.com/rokath/trice/pkg/cage"
 )
 
@@ -27,10 +28,10 @@ func StartServer(exe string) {
 	if runtime.GOOS == "windows" {
 		shell = "cmd"
 		shellCmd := "/c start " + exe
-		clip = append(clip, shellCmd, " ds -ipa "+IPAddr+" -ipp "+IPPort+" -lf "+cage.Name)
+		clip = append(clip, shellCmd, " ds -ipa "+IPAddr+" -ipp "+IPPort+" -lg "+cage.Name)
 	} else if runtime.GOOS == "linux" {
 		shell = "gnome-terminal" // this only works for gnome based linux desktop env
-		clip = append(clip, "--", "/bin/bash", "-c", exe+" ds -ipa "+IPAddr+" -ipp "+IPPort+" -lf off")
+		clip = append(clip, "--", "/bin/bash", "-c", exe+" ds -ipa "+IPAddr+" -ipp "+IPPort+" -lg off")
 	} else {
 		log.Fatal("trice is running on unknown operating system")
 	}
@@ -68,13 +69,18 @@ func RemoteOut(s []string) error {
 func Connect() error {
 	var err error
 	a := fmt.Sprintf("%s:%s", IPAddr, IPPort)
-	out([]string{"sig:dialing ", a, " ..."})
+	if global.Verbose {
+		out([]string{"sig:dialing ", a, " ..."})
+	}
 	PtrRPC, err = rpc.Dial("tcp", a)
 	if err != nil {
 		fmt.Println(err)
 		return err
 	}
-	return out([]string{"sig:...remoteDisplay @ ", a, " connected."})
+	if global.Verbose {
+		err = out([]string{"sig:...remoteDisplay @ ", a, " connected."})
+	}
+	return err
 }
 
 // ScShutdownRemoteDisplayServer starts a client to send shutdown message to display server

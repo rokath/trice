@@ -15,6 +15,7 @@ import (
 	"github.com/rokath/trice/internal/id"
 )
 
+// captureOutput is a helper function only used inside package emit_test
 func captureOutput(f func(id.ListT, string) error, l id.ListT, dataset string) string {
 	// https://stackoverflow.com/questions/10473800/in-go-how-do-i-capture-stdout-of-a-function-into-a-string
 	old := os.Stdout // keep backup of the real stdout
@@ -46,7 +47,7 @@ func idList(t *testing.T) id.ListT {
 
 	err := pList.Read(fnIDList)
 	if nil != err {
-		fmt.Println("ID list " + fnIDList + " not found, exit")
+		id.ListNotFoundMsg(fnIDList)
 		t.Fail()
 	}
 	return list
@@ -56,7 +57,7 @@ func idList(t *testing.T) id.ListT {
 func expectedOutput(fn string, t *testing.T) string {
 	b, err := ioutil.ReadFile(fn)
 	if nil != err {
-		fmt.Println("ID list " + fn + " not found, exit")
+		id.ListNotFoundMsg(fn)
 		t.Fail()
 	}
 	s := string(b)

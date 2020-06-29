@@ -106,7 +106,7 @@ int main(void)
   /* USER CODE BEGIN 2 */
 	SEGGER_RTT_printf( 0, "Hello world\n" );
     SEGGER_RTT_Init();
-    TRICE_RTTD_SYNC;
+    TRICE_RTT_SYNC;
 
 	// initialize systick
 	*(uint32_t*)0xE000E010 = 0;          // SysTick->CTRL = 0;   // Disable SysTick

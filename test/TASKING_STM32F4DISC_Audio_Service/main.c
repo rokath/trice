@@ -35,7 +35,7 @@ void main( void )
     wav_header_t info;
     audio_t * audio;
 
-    TRICE_RTTD_SYNC;
+    TRICE_RTT_SYNC;
     // Say hello to the user
     //puts( "Audio service example, " __FILE__ " compiled " __DATE__ ", " __TIME__ );
     TRICE_P("Audio service example, %s compiled %s %s" __FILE__, __DATE__, __TIME__ );

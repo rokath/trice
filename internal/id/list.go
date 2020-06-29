@@ -14,8 +14,10 @@ import (
 	"io/ioutil"
 	"math/rand"
 	"os"
+	"path/filepath"
 	"time"
 
+	"github.com/rokath/trice/internal/global"
 	"github.com/rokath/trice/pkg/lib"
 )
 
@@ -28,7 +30,7 @@ type Item struct {
 	Removed int32  `json:"removed"` // utc unix time of disappearing in processed src directory
 }
 
-// List is a slice type containing the ID list
+// ListT is a slice type containing the ID list
 type ListT []Item
 
 var (
@@ -38,10 +40,7 @@ var (
 	// FnJSON is the filename of the id list
 	FnJSON string
 
-	// Verbose, if set, gives more output information during update
-	Verbose bool
-
-	// DryRun, is set, inhibits real changes
+	// DryRun if set, inhibits real changes
 	DryRun bool
 )
 
@@ -109,8 +108,8 @@ func (p *ListT) appendIfMissing(i Item, verbose bool) (int, bool) {
 	return i.ID, true
 }
 
-// extendIdList returns id beause it could get changed when id is in list with different typ or fmts
-func (p *ListT) extendIdList(id int, typ, fmts string, verbose bool) (int, bool) {
+// extendIDList returns id beause it could get changed when id is in list with different typ or fmts.
+func (p *ListT) extendIDList(id int, typ, fmts string, verbose bool) (int, bool) {
 	i := Item{
 		ID:      id,
 		FmtType: typ,
@@ -140,11 +139,24 @@ func (p *ListT) write(filename string) error {
 }
 
 // Index returns the index of 'ID' inside 'l'. If 'ID' is not inside 'l' Index() returns 0 and an error.
+//
+// todo: replace it with functionality in InexEx
 func Index(i int, l ListT) (int, error) {
 	for x := range l {
 		k := l[x].ID
 		if i == k {
 			return x, nil
+		}
+	}
+	return 0, errors.New("unknown ID")
+}
+
+// IndexEx returns the index of id inside List. If is is not inside List Index returns 0 and an error.
+func IndexEx(id int) (int, error) {
+	for i := range List {
+		iD := List[i].ID
+		if id == iD {
+			return i, nil
 		}
 	}
 	return 0, errors.New("unknown ID")
@@ -168,7 +180,7 @@ func ScUpdate() error {
 	}
 	for i := range lib.Srcs {
 		s := lib.Srcs[i]
-		srcU := lib.Assign(s)
+		srcU := lib.ConditinalFilePath(s)
 		if _, err := os.Stat(srcU); err == nil { // path exists
 			err = update(srcU, FnJSON)
 			if nil != err {
@@ -187,10 +199,20 @@ func ScUpdate() error {
 
 // update does parse source tree, update IDs and is list
 func update(dir, fn string) error {
-	err := List.Update(dir, fn, !DryRun, Verbose)
+	err := List.Update(dir, fn, !DryRun, global.Verbose)
 	if nil != err {
 		return fmt.Errorf("failed update on %s with %s: %v", dir, fn, err)
 	}
 	fmt.Println(len(List), "ID's in list", fn)
 	return nil
+}
+
+// ListNotFoundMsg give an output message about not found ID list.ListNotFoundMsg.
+//
+// Base is used to avoid test issues in different operating systems.
+func ListNotFoundMsg(pathname string) {
+	if false == global.Verbose {
+		pathname = filepath.Base(pathname) // no path info (used for testing)
+	}
+	fmt.Println("ID list " + pathname + " not found")
 }

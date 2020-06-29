@@ -66,13 +66,13 @@ func SortLines(inFile, outFile string) {
     lines, err := ReadLines(inFile)
     if err != nil {
         fmt.Println(err)
-        os.Exit(1)
+        global.OsExit(1)
     }
     sort.Strings(lines)
     err = WriteLines(OutFile, lines)
     if err != nil {
         fmt.Println(err)
-        os.Exit(1)
+        global.OsExit(1)
     }
 }
 */

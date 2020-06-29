@@ -5,6 +5,7 @@ go 1.13
 require (
 	github.com/fatih/color v1.9.0
 	github.com/fsnotify/fsnotify v1.4.9
+	github.com/kami-zh/go-capturer v0.0.0-20171211120116-e492ea43421d
 	github.com/mattn/go-colorable v0.1.6 // indirect
 	github.com/mgutz/ansi v0.0.0-20170206155736-9520e82c474b
 	github.com/udhos/equalfile v0.3.0

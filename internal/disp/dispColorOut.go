@@ -161,6 +161,8 @@ func colorChannel(s string) (*color.Color, string) {
 		if nil != err {
 			r = s // keep channel info
 		}
+	default:
+		fmt.Println("ignoring unknown color palette", ColorPalette)
 	}
 	return c, r
 }

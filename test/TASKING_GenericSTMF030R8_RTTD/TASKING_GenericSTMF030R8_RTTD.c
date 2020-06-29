@@ -20,7 +20,7 @@ int main(void)
 	*(uint32_t*)0xE000E010 = 0x5;        // SysTick->CTRL = 0x7; // Enable SysTick, and use processor clock
 										 // no exception
 
-    TRICE_RTTD_SYNC;
+    TRICE_RTT_SYNC;
     TRICE16_1( Id(45373), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
     TRICE0( Id(28187), "att:TASKING_GenericSTMF030R8_RTTD\n" );
     TRICE16_1( Id(45373), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );

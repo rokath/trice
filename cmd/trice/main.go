@@ -7,28 +7,35 @@ import (
 	"math/rand"
 	"os"
 	"time"
+
+	"github.com/rokath/trice/internal/global"
 )
 
 var (
-	version  string // do not initialize, goreleaser will handle that
-	commit   string // do not initialize, goreleaser will handle that
-	date     string // do not initialize, goreleaser will handle that
-	linkTime string
+	// do not initialize, goreleaser will handle that
+	version string
+
+	// do not initialize, goreleaser will handle that
+	commit string
+
+	// do not initialize, goreleaser will handle that
+	date string
+
+	// linkTime ...
+	linkTime = "testTime"
 )
 
 func main() {
 	fi, err := os.Stat(os.Args[0])
 	if nil == err {
 		linkTime = fi.ModTime().String()
-
 	} else {
-		//fmt.Println(err) // cmd.exe: "CreateFile trice: The system cannot find the file specified."
-		linkTime = "unknown"
+		linkTime = "unknown" // on running main tests fileinfo is invalid
 	}
 	rand.Seed(time.Now().UnixNano())
 	err = HandleArgs(os.Args)
 	if nil != err {
-		os.Exit(1)
+		global.OsExit(1)
 	}
-	os.Exit(0)
+	global.OsExit(0)
 }

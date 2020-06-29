@@ -14,22 +14,26 @@ import (
 type ArrayFlag []string
 
 var (
-	Srcs ArrayFlag // gets multiple files or directories
+	// Srcs gets multiple files or directories.
+	Srcs ArrayFlag
 
-	// TimeStampFormat is the PC timestamp format
+	// TimeStampFormat is the PC timestamp format.
 	TimeStampFormat = "off"
 )
 
+// String is a needed method for some reason.
 func (i *ArrayFlag) String() string {
 	return "my string representation"
 }
 
+// Set is a needed method for multi flags.
 func (i *ArrayFlag) Set(value string) error {
 	*i = append(*i, value)
 	return nil
 }
 
-func Assign(fn string) string {
+// ConditinalFilePath returns absolute file path if fn is not "off" or "none".
+func ConditinalFilePath(fn string) string {
 	if "none" == fn || "off" == fn {
 		return fn
 	}

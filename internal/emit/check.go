@@ -172,6 +172,7 @@ func Check(l id.ListT, dataSet string) error {
 	if "negative" == dataSet {
 		return checkNegativeValues(l, s)
 	}
+	fmt.Println("dataset", dataSet, "unknown, using internal values")
 	return checkFix(l, s)
 }
 
@@ -179,7 +180,7 @@ func Check(l id.ListT, dataSet string) error {
 func ScCheckList(dataset string) error {
 	err := id.List.Read(id.FnJSON)
 	if nil != err {
-		fmt.Println("ID list " + id.FnJSON + " not found, exit")
+		id.ListNotFoundMsg(id.FnJSON)
 		return nil
 	}
 	Check(id.List, dataset)

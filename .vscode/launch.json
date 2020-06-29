@@ -43,7 +43,7 @@
             "program": "${workspaceFolder}/cmd/trice",
             "env": {},
             "args": ["ds",
-                    "-lf",
+                    "-lg",
                     "${workspaceFolder}/pkg/disp/testdata/serverMutexTest.log"
             ]
         },
@@ -68,7 +68,44 @@
             ]
         },              
         {
-            "name": "-device",
+            "name": "-s JLINK",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}/cmd/trice",
+            "env": {},
+            "args": ["log",
+                     "-v",
+                     "-source",
+                     "JLINK",
+                     "-idlist",
+                     "${workspaceFolder}/test/til.json",
+                     "-key",
+                     "none",
+            ]
+        },
+        {
+            "name": "-s RND",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}/cmd/trice",
+            "env": {},
+            "args": ["log",
+                     "-source",
+                     "RND",
+                     "-rndLimit",
+                     "5",
+                     "-rndMode"
+                     "BareModeNoSync"
+                     "-idlist",
+                     "${workspaceFolder}/test/til.json",
+                     "-key",
+                     "none"
+            ]
+        },
+        {
+            "name": "-device SIM",
             "type": "go",
             "request": "launch",
             "mode": "auto",
@@ -76,8 +113,8 @@
             "env": {},
             "args": ["log",
                      "-device",
-                     "RTTD",
-                     "-list",
+                     "SIM",
+                     "-idlist",
                      "${workspaceFolder}/test/til.json",
                      "-key",
                      "none"
@@ -95,32 +132,32 @@
                      "COM7",
                      "-baud",
                      "115200",
-                     "-list",
+                     "-idlist",
                      "${workspaceFolder}/test/til.json",
                      "-key",
                      "none"
             ]
         },       
         {
-            "name": "Launch trice receive -port",
+            "name": "trice l -source COM9",
             "type": "go",
             "request": "launch",
             "mode": "auto",
             "program": "${workspaceFolder}/cmd/trice",
             "env": {},
-            "args": ["receiver",
-                     "-port",
-                     "COM3",
+            "args": ["log",
+                     "-source",
+                     "COM9",
                      "-baud",
                      "115200",
-                     "-list",
+                     "-idlist",
                      "${workspaceFolder}/examples/til.json",
                      "-key",
                      "none"
             ]
         },       
         {
-            "name": "Launch trice remoteDisplay",
+            "name": "remoteDisplay",
             "type": "go",
             "request": "launch",
             "mode": "auto",
@@ -131,28 +168,31 @@
                      "COM38",
                      "-baud",
                      "115200",
-                     "-list",
+                     "-idlist",
                      "${workspaceFolder}/examples/til.json",
                      "-key",
                      "none"
             ]
         },
         {
-            "name": "Launch trice check",
+            "name": "check",
             "type": "go",
             "request": "launch",
             "mode": "auto",
             "program": "${workspaceFolder}/cmd/trice",
             "env": {},
             "args": ["check",
-                     "-list",
-                     "${workspaceFolder}/examples/til.json",
+                     "-idlist",
+                     "${workspaceFolder}/test/til.json",
+                     "-color",
+                     "xxxxxxxxxxalternate",
+                     "-v"
                      "-dataset",
                      "xxx"
             ]
         },
         {
-            "name": "Launch trice update",
+            "name": "update",
             "type": "go",
             "request": "launch",
             "mode": "auto",
@@ -162,7 +202,7 @@
                     "-v",
                     "-src",
                     "C:/repos/BTdev/STM32",
-                    "-list",
+                    "-idlist",
                     "c:/repos/BTdev/til.json"
             ]
         }

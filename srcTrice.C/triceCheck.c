@@ -63,7 +63,7 @@ void triceCheckSet( int index )
             TRICE8_3( Id(56466), "tst:TRICE8 %d %d %d\n", -1, -2, -3 );
             TRICE8_4( Id(25269), "tst:TRICE8 %d %d %d %d\n", -1, -2, -3, -4 );
             TRICE8_5( Id(29229), "tst:TRICE8 %d %d %d %d %d\n", -1, -2, -3, -4, -5 );
-            TRICE8_6( Id(54673), "tst:TRICE8 %d %d %d %d %d %d \n", -1, -2, -3, -4, -5, -6 );
+            TRICE8_6( Id(54673), "tst:TRICE8 %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6 );
             TRICE8_7( Id(39003), "tst:TRICE8 %d %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6, -7 );
             TRICE8_8( Id(17307), "tst:TRICE8 %d %d %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );
         break;
