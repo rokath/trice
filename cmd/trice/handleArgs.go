@@ -108,7 +108,7 @@ func scHelp(
 	return nil
 }
 
-var DataType string
+var Encoding string
 
 // HandleArgs evaluates the arguments slice of strings
 func HandleArgs(args []string) error {
@@ -140,8 +140,8 @@ func HandleArgs(args []string) error {
 	flagVerbosity(vCmd)
 
 	scLog := flag.NewFlagSet("log", flag.ExitOnError)                                                                                                                                                          // subcommand
-	scLog.StringVar(&DataType, "datatype", "bare", "trice transmit data format type, options: 'ascii|wrap'")                                                                                                   // flag
-	scLog.StringVar(&DataType, "d", "bare", "short for -format")                                                                                                                                               // short flag
+	scLog.StringVar(&Encoding, "encoding", "bare", "trice transmit data format type, options: 'ascii|wrap'")                                                                                                   // flag
+	scLog.StringVar(&Encoding, "e", "bare", "short for -format")                                                                                                                                               // short flag
 	scLog.StringVar(&trice.Password, "key", "none", "decrypt passphrase")                                                                                                                                      // flag
 	scLog.StringVar(&trice.Password, "k", "none", "short for -key")                                                                                                                                            // short flag
 	scLog.BoolVar(&trice.ShowPassword, "show", false, "show passphrase")                                                                                                                                       // flag

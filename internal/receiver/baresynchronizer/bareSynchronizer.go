@@ -4,10 +4,10 @@
 // Package baresynchronizer reads 4 byte bare trices and syncs internally if byte stream inconsistent.
 //
 // The sychronisation is possible by detecting a sequence of 4 bytes equal 0x16161616.
-// 0x16161616 is a sync trice: `#define TRICE_RTT_SYNC do{ TRICE16_1( Id(5654), "%d\b\b\b\b", 5654 ); }while(0)`.
+// 0x16161616 is a sync trice: `#define TRICE_SYNC do{ TRICE16_1( Id(5654), "%d\b\b\b\b", 5654 ); }while(0)`.
 // Because 5654=0x1616 is a reserved TRICE ID and the bare trice byte stream has an ID every 2 bytes
 // it is impossible to have 0x16161616 inside the bare trice byte stream despite of the sync message.
-// On a Read the bare baresynchronizer tries to get a fair amount of bytes and scans them for 0x16161616.
+// On a read the bare baresynchronizer tries to get a fair amount of bytes and scans them for 0x16161616.
 // If the found 0x16161616 is not on a 4 byte aligned offset, the oldest 1-3 bytes are discarded to adjust the offset.
 // If the baresynchronizer does not find a 0x16161616 sequence it assumes to be in sync.
 // The target should send sync trice messages cyclically.
