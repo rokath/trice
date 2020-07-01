@@ -18,6 +18,7 @@ import (
 	"time"
 
 	"github.com/rokath/trice/internal/global"
+	"github.com/rokath/trice/internal/receiver"
 	"github.com/rokath/trice/pkg/lib"
 )
 
@@ -215,4 +216,25 @@ func ListNotFoundMsg(pathname string) {
 		pathname = filepath.Base(pathname) // no path info (used for testing)
 	}
 	fmt.Println("ID list " + pathname + " not found")
+}
+
+// ReadListFile reads idlist file in internal struct and starts a file watcher.
+//
+// Just in case the idlist file gets updated, the file watcher updates the internals struct.
+// This way trice needs not to be restarted during development process.
+func ReadListFile() error {
+	if "none" != FnJSON {
+		// setup ip list
+		err := List.Read(FnJSON)
+		if nil != err {
+			//fmt.Println("ID list " + path.Base(id.FnJSON) + " not found, exit")
+			ListNotFoundMsg(FnJSON)
+			return errors.New("file not found")
+		}
+		go List.FileWatcher()
+	}
+	if true == global.Verbose {
+		fmt.Println("id list file", id.FnJSON, "with", len(id.List), "items", "on device", receiver.Source)
+	}
+	return nil
 }

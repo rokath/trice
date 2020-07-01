@@ -1,6 +1,6 @@
 # Short overview
 ## com
-- -port COMn
+- -source COMn
 ## direct
 - device RTTD
 ## http

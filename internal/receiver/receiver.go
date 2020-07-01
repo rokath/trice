@@ -147,31 +147,6 @@ func (p *TriceReceiver) receiveTrices() {
 	}
 }
 
-/*
-// readAtLeastBytes returns not when end of file is reached and no more bytes are written
-func (p *TriceReceiver) readAtLeastBytes(count int) ([]byte, error) {
-	buf := make([]byte, count) // the buffer size limits the read count
-	var b []byte
-	var n int
-	var err error
-	//start := time.Now()
-	for len(b) < count {
-		n, err = p.Read(buf)
-		if nil != err {
-			log.Fatal(err)
-		}
-		b = append(b, buf[:n]...)
-		if count == len(b) { // https://stackoverflow.com/questions/45791241/correctly-measure-time-duration-in-go
-			//fmt.Println("\tincoming:", b, "\t\t", time.Now().Sub(start).Nanoseconds(), "nanoseconds")
-			return b, nil
-		}
-		buf = buf[n:]
-		time.Sleep(100 * time.Millisecond) // needed for file reader
-	}
-	return b, nil
-}
-*/
-
 // evalHeader checks if b contains valid header data
 func evalHeader(b []byte) bool {
 	x := 8 == len(b) &&

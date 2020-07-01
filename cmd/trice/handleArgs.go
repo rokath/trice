@@ -15,6 +15,7 @@ import (
 	"time"
 
 	"github.com/rokath/trice/internal/cmd"
+	"github.com/rokath/trice/internal/decryption"
 	"github.com/rokath/trice/internal/disp"
 	"github.com/rokath/trice/internal/emit"
 	"github.com/rokath/trice/internal/global"
@@ -141,7 +142,7 @@ func HandleArgs(args []string) error {
 
 	scLog := flag.NewFlagSet("log", flag.ExitOnError)                                                                                                                                                          // subcommand
 	scLog.StringVar(&Encoding, "encoding", "bare", "trice transmit data format type, options: 'ascii|wrap'")                                                                                                   // flag
-	scLog.StringVar(&Encoding, "e", "bare", "short for -format")                                                                                                                                               // short flag
+	scLog.StringVar(&Encoding, "e", "bare", "short for -encoding")                                                                                                                                             // short flag
 	scLog.StringVar(&trice.Password, "key", "none", "decrypt passphrase")                                                                                                                                      // flag
 	scLog.StringVar(&trice.Password, "k", "none", "short for -key")                                                                                                                                            // short flag
 	scLog.BoolVar(&trice.ShowPassword, "show", false, "show passphrase")                                                                                                                                       // flag
@@ -264,8 +265,26 @@ func HandleArgs(args []string) error {
 }
 
 func receiving() {
+	switch Encoding {
+	case "bare", "raw":
+		if "none" != trice.Password {
+			Encoding = "bareXTEACrypted"
+		}
+	case "wrap", "wrapped":
+		if "none" != trice.Password {
+			Encoding = "wrapXTEACrypted"
+		}
+	case "ascii":
+		fallthrough
+	default:
+		fmt.Println("unknown encoding:", Encoding)
+		return
+	}
+
+	id.ReadListFile()
+
 	// prepare
-	err := trice.SetUp()
+	err := decryption.SetUp()
 	if nil != err {
 		return
 	}

@@ -89,7 +89,7 @@ func TestWrapMode(t *testing.T) {
 	lib.Equals(t, exp, act)
 }
 
-// TestHRNDchaos expects installed trice compiled from actual sources.
+// TestRNDchaos expects installed trice compiled from actual sources.
 //
 // This kind of test does not work just with HandleArgs function, because of os.Exit(0) on io.EOF in -source RND.
 // Endless waiting there does also not work, so this apprpoach is just a quick solution.
