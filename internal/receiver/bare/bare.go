@@ -1,8 +1,11 @@
 // Copyright 2020 Thomas.Hoehenleitner [at] seerose.net
 // Use of this source code is governed by a license that can be found in the LICENSE file.
 
-// Package baretrice reads bare data from different byte stream inputs in different encodings
-package baretrice
+// Package bare reads bare items from differently encoded byte streams.
+//
+// To use it you need a to provide an inner byte reader like COM or FILE and information about the byte stream encoding.
+// See baretrice_test.go for examples.
+package bare
 
 import (
 	"bytes"
@@ -19,10 +22,14 @@ import (
 type encoding int
 
 const (
-	// Raw assumes byte stream source are raw trice data
+	// raw assumes byte stream source are raw trice data
 	raw encoding = iota
 
-	// Wrapped assumes byte stream source are in wrap format
+	// wrapped assumes byte stream source are in wrap format
+	//
+	// The wrap format are 4 control bytes followed by 4 bytes BareItem
+	// start (==0xC0), dest, src, crc BareItem
+	// The crc is an exOr crc over bytes 0-2&4-7
 	wrapped
 
 	// RawXTEACrypted assumes byte stream source are XTEA encrypted raw trice data
@@ -35,38 +42,22 @@ const (
 	bytesBufferCapacity int = 4096
 )
 
-// BareItem is the raw trice data type
-type BareItem struct {
+// Item is the raw trice data type
+type Item struct {
 	ID    uint16
 	Value uint16
 }
 
-//// WrapItem is the wrap trice data type
-//type WrapItem struct {
-//	typ  byte
-//	src  byte
-//	dest byte
-//	crc  byte
-//	bare BareItem
-//}
-
-// Reader is the interface that wraps the basic Read method for baretrice items.
-type Reader interface {
-	Read(p []BareItem) (int, error)
-}
-
-// Bare has a read method. Its reader uses an inner reader.
-//
-// The inner reader reads a raw byte stream.
-type Bare struct {
+// Reader uses an inner Reader to read a raw byte stream.
+type Reader struct {
 	r  io.Reader // read from any byte source (inner reader)
 	by []byte    // to hold bytes data for syncing
 	e  encoding  // the way the byte stream is encoded
 }
 
 // NewReader generates a Bare instance to read from i
-func NewReader(i io.Reader, enc string) (*Bare, error) {
-	x := &Bare{}
+func NewReader(i io.Reader, enc string) (*Reader, error) {
+	x := &Reader{}
 	x.r = i
 	x.by = make([]byte, 0, bytesBufferCapacity)
 	switch enc {
@@ -85,7 +76,7 @@ func NewReader(i io.Reader, enc string) (*Bare, error) {
 }
 
 // Read uses inner reader p.r to read byte stream and encoding p.e for interpretation.
-func (p *Bare) Read(b []BareItem) (int, error) {
+func (p *Reader) Read(b []Item) (int, error) {
 	switch p.e {
 	case raw:
 		return p.readRaw(b)
@@ -96,7 +87,7 @@ func (p *Bare) Read(b []BareItem) (int, error) {
 	case wrapXTEACrypted:
 		return p.readwrapXTEACrypted(b)
 	}
-	return 1, nil
+	return 0, errors.New("unknown encoding")
 }
 
 // findSubSliceOffset returns offset of sub inside b or negative len(sub) if not found
@@ -121,7 +112,7 @@ func min(a, b int) int {
 }
 
 // readRaw uses inner reader p.r to read byte stream and assumes encoding 'raw' for interpretation.
-func (p *Bare) readRaw(i []BareItem) (int, error) {
+func (p *Reader) readRaw(i []Item) (int, error) {
 	leftovers := len(p.by) // byte buffered in bytes buffer
 	var minBytes int       // byte count making an Item
 	if leftovers < 4 {
@@ -133,13 +124,13 @@ func (p *Bare) readRaw(i []BareItem) (int, error) {
 
 	n, err := io.ReadAtLeast(p.r, p.by[leftovers:limit], minBytes) // read to have at least 4 bytes
 
-	l := leftovers + n
+	le := leftovers + n
 
-	if l < 4 {
+	if le < 4 {
 		return 0, err
 	}
 
-	p.by = p.by[:l] // set valid length
+	p.by = p.by[:le] // set valid length
 	o := findSubSliceOffset(p.by, []byte{0x16, 0x16, 0x16, 0x16})
 	adjust := o % 4
 	p.by = p.by[adjust:] // drop 1-3 bytes if out of
@@ -171,7 +162,7 @@ func evaluateWrap(b []byte) bool {
 }
 
 // readWrapped uses inner reader p.r to read byte stream and assumes encoding 'wrapped' for interpretation.
-func (p *Bare) readWrapped(i []BareItem) (int, error) {
+func (p *Reader) readWrapped(i []Item) (int, error) {
 	leftovers := len(p.by) // byte buffered in bytes buffer
 	var minBytes int       // byte count making an Item
 	if leftovers < 8 {
@@ -183,13 +174,13 @@ func (p *Bare) readWrapped(i []BareItem) (int, error) {
 
 	n, err := io.ReadAtLeast(p.r, p.by[leftovers:limit], minBytes) // read to have at least 8 bytes
 
-	l := leftovers + n
+	le := leftovers + n
 
-	if l < 8 {
+	if le < 8 {
 		return 0, err
 	}
 
-	p.by = p.by[:l] // set valid length
+	p.by = p.by[:le] // set valid length
 
 	readCount := len(i)
 	count := 0
@@ -203,9 +194,9 @@ func (p *Bare) readWrapped(i []BareItem) (int, error) {
 
 		// at this point the first 8 bytes in b.by are a valid wrap
 		p.by = p.by[4:] // discard control information
-		k := i[:1]      // only one
+		k := i[:1]      // slice for one item (going then in underlying memory)
 
-		// now convert from bytes buffer into itemsmbuffer i
+		// now convert from bytes buffer into item buffer k
 		buf := bytes.NewReader(p.by)
 		err = binary.Read(buf, binary.LittleEndian, k) // target assumed to be little endian
 		if err != nil {
@@ -213,8 +204,8 @@ func (p *Bare) readWrapped(i []BareItem) (int, error) {
 		}
 
 		// manage
-		p.by = p.by[4:] // remove 4 read bare bytes
-		i = i[1:]       // "remove" read BareItem, it still is inside underlying memory
+		p.by = p.by[4:] // remove 4 read bytes
+		i = i[1:]       // "remove" read item, it still is inside underlying memory
 		count++
 	}
 
@@ -222,11 +213,11 @@ func (p *Bare) readWrapped(i []BareItem) (int, error) {
 }
 
 // readRawXTEACrypted uses inner reader p.r to read byte stream and assumes encoding 'bareXTEACrypted' for interpretation.
-func (p *Bare) readRawXTEACrypted(b []BareItem) (int, error) {
+func (p *Reader) readRawXTEACrypted(b []Item) (int, error) {
 	return 0, nil
 }
 
 // readwrapXTEACrypted uses inner reader p.r to read byte stream and assumes encoding 'wrapXTEACrypted' for interpretation.
-func (p *Bare) readwrapXTEACrypted(b []BareItem) (int, error) {
+func (p *Reader) readwrapXTEACrypted(b []Item) (int, error) {
 	return 0, nil
 }

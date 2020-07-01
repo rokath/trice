@@ -1,3 +1,4 @@
+// +build x
 // Copyright 2020 Thomas.Hoehenleitner [at] seerose.net
 // Use of this source code is governed by a license that can be found in the LICENSE file.
 
@@ -61,7 +62,7 @@ func (p *WrapSync) Read(b []byte) (int, error) {
 
 // evaluateWrap checks if the wrap in b contains valid header data.
 //
-// In returns true on success, otherwise false.
+// Ii returns true on success, otherwise false.
 func evaluateWrap(b []byte) bool {
 	x := 8 == len(b) &&
 		(0xc0 == b[0] || 0xeb == b[0]) && // start byte
