@@ -13,20 +13,21 @@ import (
 	"log"
 	"os"
 	"os/exec"
-	"path/filepath"
 	"runtime"
 
 	"github.com/rokath/trice/internal/global"
-	//"time"
 )
 
 var (
 	// Param contails the command line parameters for JLinkRTTLogger
 	Param string
+
+	// Location points to the installation directory JLinkRTTLogger.exe
+	Location = "C:/Program Files (x86)/SEGGER/JLink"
 )
 
-// RTTL is the Segger RealTime Transfer logger reader interface.
-type RTTL struct {
+// JLINK is the Segger RealTime Transfer logger reader interface.
+type JLINK struct {
 	tlfN string   // tempLogFile name
 	tlfH *os.File // tempLogFile handle
 
@@ -40,14 +41,14 @@ type RTTL struct {
 	clip  string // full shell parameter string including JLinkRTTLogger and its parameters.
 }
 
-//var pointerToInstance *RTTL
+//var pointerToInstance *JLINK
 
 // New creates an instance of RTT ReadCloser.
 //
 // It is intended to be used by receiver.New() which embeds its interface.
 // The param string is used as JLinkRTTLogger parameter string. See SEGGER UM08001_JLink.pdf for details.
-func New(param string) *RTTL {
-	r := &RTTL{} // create SeggerRTT instance
+func New(param string) *JLINK {
+	r := &JLINK{} // create SeggerRTT instance
 	//pointerToInstance = r // for cleanup
 
 	// get a temporary file name
@@ -56,16 +57,20 @@ func New(param string) *RTTL {
 	r.tlfH.Close()
 	r.clip = " " + param + " " + r.tlfN // full parameter string
 
-	// get path of trice command, because JLinkRTTLogger exewcutable and library are expected there
-	ex, err := os.Executable()
-	if err != nil {
-		panic(err)
-	}
-	exPath := filepath.Dir(ex)
+	/*
+		// get path of trice command, because JLinkRTTLogger exewcutable and library are expected there
+		ex, err := os.Executable()
+		if err != nil {
+			fmt.Println(err)
+			return nil
+		}
+		exPath := filepath.Dir(ex)
+	*/
+	exPath := Location
 
 	if runtime.GOOS == "windows" {
-		r.jlinkEx = exPath + "\\JLinkRTTLogger.exe"
-		r.jlinkLib = exPath + "\\JLinkARM.dll"
+		r.jlinkEx = exPath + "/JLinkRTTLogger.exe"
+		r.jlinkLib = exPath + "/JLinkARM.dll"
 		r.shell = "cmd"
 		r.clip = "/c " + r.jlinkEx + r.clip // for shell
 
@@ -76,28 +81,31 @@ func New(param string) *RTTL {
 		r.clip = "-- /bin/bash -c " + r.jlinkEx + r.clip // for shell
 
 	} else {
-		log.Fatal("trice is running on unknown operating system")
+		fmt.Println("trice is running on unknown operating system")
+		return nil
 	}
 
 	// check environment
 	if _, err := os.Stat(r.jlinkEx); os.IsNotExist(err) {
-		log.Fatal(r.jlinkEx, " does not exist")
+		fmt.Println(r.jlinkEx, " does not exist")
+		return nil
 	}
 	if _, err := os.Stat(r.jlinkLib); os.IsNotExist(err) {
-		log.Fatal(r.jlinkLib, " does not exist")
+		fmt.Println(r.jlinkLib, " does not exist")
+		return nil
 	}
 	return r
 }
 
 // Read() is part of the exported interface io.ReadCloser. It reads a slice of bytes.
-func (p *RTTL) Read(b []byte) (int, error) {
+func (p *JLINK) Read(b []byte) (int, error) {
 	return p.tlfH.Read(b)
 }
 
 // Close is part of the exported interface io.ReadCloser. It ends the connection.
 //
 // See https://stackoverflow.com/questions/11886531/terminating-a-process-started-with-os-exec-in-golang
-func (p *RTTL) Close() error {
+func (p *JLINK) Close() error {
 	var err error
 	// if err = p.lcmdH.Process.Kill(); nil != err {
 	// 	fmt.Print(err)
@@ -111,7 +119,7 @@ func (p *RTTL) Close() error {
 // Open starts the JLinkRTTLogger command with a temporary logfile
 //
 // THe temporary logfile is opened for reading.
-func (p *RTTL) Open() error {
+func (p *JLINK) Open() error {
 	var err error
 	if global.Verbose {
 		fmt.Println("Start a process:", p.shell, p.clip)

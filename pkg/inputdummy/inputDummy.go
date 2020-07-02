@@ -5,6 +5,7 @@
 //
 // On creation a byte slice with mockup data is expected.
 // When end of slice is reached reading starts from the beginning.
+// When max byte is reached an io.EOF error occures.
 // The time.Duration value can be used to delay the Read function.
 package inputdummy
 

@@ -1,3 +1,4 @@
+// -build x
 // Copyright 2020 basti@blackoutcloud.de
 //                Thomas.Hoehenleitner [at] seerose.net
 // Use of this source code is governed by a license that can be found in the LICENSE file.
@@ -34,54 +35,23 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/rokath/trice/internal/disp"
 	"github.com/rokath/trice/internal/emit"
 	"github.com/rokath/trice/internal/id"
-	"golang.org/x/crypto/xtea"
+	"github.com/rokath/trice/pkg/cipher"
 )
 
 var (
-	// Source is the trice receiver to use
-	Source string
 
 	// local trice address, used for routing in distributed systems
 	locAddr = byte(0x60)
 
 	// remote trice address, used for routing in distributed systems
 	remAddr = byte(0x60)
-
-	// DiscardByte is the function to execute if a data stream byte is to be discarded
-	// type DicardFunc func(byte)
-	DiscardByte = DiscardWithMessage
 )
-
-// DiscardWithMessage discards a byte with a verbose message
-func DiscardWithMessage(b byte) {
-	var level string
-	if "off" == disp.ColorPalette {
-		level = ""
-	} else {
-		level = "wrn:"
-	}
-	c := byte(' ')
-	if 32 <= b && b <= 127 {
-		c = b
-	}
-	emit.LineCollect(fmt.Sprintf("%strice:discarding byte 0x%02x (dez %d, char '%c')\n", level, b, b, c))
-}
-
-// DiscardASCII discards a byte assuming to be printable and prints it.
-func DiscardASCII(c byte) {
-	emit.LineCollect(fmt.Sprintf("%c", c))
-}
-
-// DiscardSilent discards a byte silently
-func DiscardSilent(c byte) {
-}
 
 // ReadNextByte discards first byte in b and appends next read byte to b
 func ReadNextByte(r io.Reader, b []byte) ([]byte, error) {
-	DiscardByte(b[0])
+	emit.DiscardByte(b[0])
 	c := make([]byte, 1)
 	n, err := io.ReadFull(r, c)
 	if 1 == n {
@@ -102,7 +72,7 @@ type TriceReceiver struct {
 	buffers chan []byte
 }
 
-// NewTriceReceiver creates an instance of the common trice receiver part for a new receiver device
+// New creates an instance of the common trice receiver part for a new receiver device
 //
 // After creation the embedded io.ReadCloser interface is in an opened state.
 // The created Trice receiver is in inactive state.
@@ -116,14 +86,14 @@ func New(r io.ReadCloser) *TriceReceiver {
 	return p
 }
 
-// start starts receiving of serial data
+// Start starts receiving of serial data
 func (p *TriceReceiver) Start() {
 	p.active = true
 	go p.receiveBytes()
 	p.receiveTrices()
 }
 
-// stop stops receiving of serial data
+// Stop stops receiving of serial data
 func (p *TriceReceiver) Stop() {
 	p.active = false
 }
@@ -157,35 +127,6 @@ func evalHeader(b []byte) bool {
 	return x
 }
 
-// Cipher is a pointer to the cryptpo struct filled during initialization
-var Cipher *xtea.Cipher
-
-// Crypto set to true if a -key other than "none" was given
-var Crypto bool
-
-//! tested with little endian embedded device
-func swapBytes(b []byte) []byte {
-	return []byte{b[3], b[2], b[1], b[0], b[7], b[6], b[5], b[4]}
-}
-
-func encrypt(b []byte) []byte {
-	if true == Crypto {
-		b = swapBytes(b)
-		Cipher.Encrypt(b, b)
-		b = swapBytes(b)
-	}
-	return b
-}
-
-func decrypt(b []byte) []byte {
-	if true == Crypto {
-		b = swapBytes(b)
-		Cipher.Decrypt(b, b)
-		b = swapBytes(b)
-	}
-	return b
-}
-
 // readHeader gets next header from streaming data
 func (p *TriceReceiver) readHeader() ([]byte, error) {
 	//b, err := p.readAtLeastBytes(8)
@@ -199,12 +140,12 @@ func (p *TriceReceiver) readHeader() ([]byte, error) {
 		return b, err
 	}
 	for {
-		b = decrypt(b)
+		b = cipher.Decrypt8(b)
 		if true == evalHeader(b) {
 			break
 		}
-		DiscardByte(b[0])
-		b = encrypt(b)
+		emit.DiscardByte(b[0])
+		b = cipher.Encrypt8(b)
 		//x, err := p.readAtLeastBytes(1)
 		c := make([]byte, 1)
 		_, err = io.ReadFull(p, c)

@@ -34,6 +34,10 @@ var (
 	// css is a collector for line substrings
 	// it is used only inside LineCollect() but needs to survive from call to call
 	css []string
+
+	// DiscardByte is the function to execute if a data stream byte is to be discarded
+	// type DicardFunc func(byte)
+	DiscardByte = DiscardWithMessage
 )
 
 // Clear removes data garbage from inner structs, accumulated during RTTD sync process
@@ -269,4 +273,28 @@ func LineCollect(s string) {
 	a(Postfix)
 	disp.Out(css)
 	css = css[:0] // discard slice data
+}
+
+// DiscardWithMessage discards a byte with a verbose message
+func DiscardWithMessage(b byte) {
+	var level string
+	if "off" == disp.ColorPalette {
+		level = ""
+	} else {
+		level = "wrn:"
+	}
+	c := byte(' ')
+	if 32 <= b && b <= 127 {
+		c = b
+	}
+	LineCollect(fmt.Sprintf("%strice:discarding byte 0x%02x (dez %d, char '%c')\n", level, b, b, c))
+}
+
+// DiscardASCII discards a byte assuming to be printable and prints it.
+func DiscardASCII(c byte) {
+	LineCollect(fmt.Sprintf("%c", c))
+}
+
+// DiscardSilent discards a byte silently
+func DiscardSilent(c byte) {
 }

@@ -1,4 +1,4 @@
-package cage
+package cage_test
 
 import (
 	"fmt"

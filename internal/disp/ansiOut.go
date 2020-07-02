@@ -63,36 +63,38 @@ func out(ss []string) error {
 // if COL: is begin of string add ANSI color code according to COL:
 // if col: is begin of string replace col: with ANSI color code according to col:
 func colorize(s string) string {
-	if "off" == ColorPalette || "none" == ColorPalette {
+	if "off" == ColorPalette { // do nothing
+		return s
+	}
+	sc := strings.SplitN(s, ":", 2)
+	if len(sc) < 2 { // no color separator
+		return s
+	}
+	if "none" == ColorPalette { // remove channel info
+		if isLower(s) {
+			switch sc[0] {
+			case "e", "err", "error",
+				"w", "wrn", "warning",
+				"m", "msg", "message",
+				"rd", "rd_",
+				"wr", "wr_",
+				"tim", "time",
+				"att", "attention",
+				"d", "db", "dbg", "debug",
+				"dia", "diag",
+				"isr", "interrupt",
+				"s", "sig", "signal",
+				"t", "tst", "test",
+				"i", "inf", "info", "informal":
+				s = sc[1] // remove channel info
+			}
+		}
 		return s
 	}
 	if "\n" == s {
 		return ansi.Reset + s
 	}
-	sc := strings.SplitN(s, ":", 2)
-	if len(sc) < 2 {
-		/*
-		   Avoid case 1 == len(sc):
-		   panic: runtime error: index out of range [1] with length 1
 
-		   goroutine 123 [running]:
-		   github.com/rokath/trice/pkg/disp.colorize(0xb521b3, 0x1, 0x1f, 0xb52160)
-		           C:/GitRepos/trice/pkg/disp/dispAnsiOut.go:126 +0x1b90
-		   github.com/rokath/trice/pkg/disp.out(0xc0004d4420, 0x15, 0x15, 0xc000477bb0, 0x413ad3)
-		           C:/GitRepos/trice/pkg/disp/dispAnsiOut.go:50 +0xa1
-		   github.com/rokath/trice/pkg/disp.(*Server).Out(0xbac7b8, 0xc0004d4420, 0x15, 0x15, 0xc0004947a0, 0x0, 0x0)
-		           C:/GitRepos/trice/pkg/disp/dispServer.go:43 +0x55
-		   reflect.Value.call(0xc00048a480, 0xc0000b2448, 0x13, 0x85f5cd, 0x4, 0xc000477f18, 0x3, 0x3, 0xc000477e88, 0xc00048fda0, ...)
-		           c:/go/src/reflect/value.go:460 +0x5fd
-		   reflect.Value.Call(0xc00048a480, 0xc0000b2448, 0x13, 0xc000477f18, 0x3, 0x3, 0xc000488450, 0x0, 0x0)
-		           c:/go/src/reflect/value.go:321 +0xbb
-		   net/rpc.(*service).call(0xc00049ca00, 0xc000126000, 0xc000088020, 0xc000088030, 0xc000120180, 0xc00007e580, 0x7c6c40, 0xc0004d2900, 0x197, 0x7ba9c0, ...)
-		           c:/go/src/net/rpc/server.go:377 +0x176
-		   created by net/rpc.(*Server).ServeCodec
-		           c:/go/src/net/rpc/server.go:474 +0x432
-		*/
-		return s
-	}
 	switch sc[0] {
 	case "e", "err", "error":
 		s = sc[1] // remove channel info

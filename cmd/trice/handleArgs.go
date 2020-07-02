@@ -15,19 +15,18 @@ import (
 	"time"
 
 	"github.com/rokath/trice/internal/cmd"
-	"github.com/rokath/trice/internal/decryption"
+	"github.com/rokath/trice/internal/com"
 	"github.com/rokath/trice/internal/disp"
 	"github.com/rokath/trice/internal/emit"
 	"github.com/rokath/trice/internal/global"
 	"github.com/rokath/trice/internal/id"
+	"github.com/rokath/trice/internal/jlink"
+	"github.com/rokath/trice/internal/randomdummy"
 	"github.com/rokath/trice/internal/receiver"
-	"github.com/rokath/trice/internal/receiver/com"
 	"github.com/rokath/trice/internal/receiver/http"
-	"github.com/rokath/trice/internal/receiver/jlink"
-	"github.com/rokath/trice/internal/receiver/randomdummy"
 	"github.com/rokath/trice/internal/receiver/rttfile"
-	"github.com/rokath/trice/internal/trice"
 	"github.com/rokath/trice/pkg/cage"
+	"github.com/rokath/trice/pkg/cipher"
 	"github.com/rokath/trice/pkg/inputdummy"
 	"github.com/rokath/trice/pkg/lib"
 )
@@ -143,17 +142,18 @@ func HandleArgs(args []string) error {
 	scLog := flag.NewFlagSet("log", flag.ExitOnError)                                                                                                                                                          // subcommand
 	scLog.StringVar(&Encoding, "encoding", "bare", "trice transmit data format type, options: 'ascii|wrap'")                                                                                                   // flag
 	scLog.StringVar(&Encoding, "e", "bare", "short for -encoding")                                                                                                                                             // short flag
-	scLog.StringVar(&trice.Password, "key", "none", "decrypt passphrase")                                                                                                                                      // flag
-	scLog.StringVar(&trice.Password, "k", "none", "short for -key")                                                                                                                                            // short flag
-	scLog.BoolVar(&trice.ShowPassword, "show", false, "show passphrase")                                                                                                                                       // flag
+	scLog.StringVar(&cipher.Password, "password", "none", "decrypt passphrase")                                                                                                                                // flag
+	scLog.StringVar(&cipher.Password, "pw", "none", "short for -password")                                                                                                                                     // short flag
+	scLog.BoolVar(&cipher.ShowKey, "key", false, "show encryption key")                                                                                                                                        // flag
 	scLog.StringVar(&lib.TimeStampFormat, "ts", "LOCmicro", "PC timestamp for logs and logfile name, options: 'off|UTCmicro'")                                                                                 // flag
-	scLog.StringVar(&disp.ColorPalette, "color", "default", "color set, options: 'off|none'")                                                                                                                  // flag
+	scLog.StringVar(&disp.ColorPalette, "color", "default", "color set, 'off' disables color handling (\"w:x\"->\"w:x\"), 'none' disables channels color (\"w:x\"->\"x\"), options: 'off|none'")               // flag
 	scLog.StringVar(&emit.Prefix, "prefix", "source:", "prepend prefix to all lines, options: 'off|none' or any string")                                                                                       // flag
 	scLog.StringVar(&emit.Postfix, "postfix", "\n", "append postfix to all lines, options: any string")                                                                                                        // flag
-	scLog.StringVar(&receiver.Source, "source", "JLINK", "receiver device, options: 'COMn|JLINK|STLINK|filename|SIM|RND|HTTP'")                                                                                //HTTP, RTT, RTTD, RTTF")                                             // flag
-	scLog.StringVar(&receiver.Source, "s", "JLINK", "short for -source")                                                                                                                                       // short flag
+	scLog.StringVar(&global.Source, "source", "JLINK", "receiver device, options: 'COMn|JLINK|STLINK|filename|SIM|RND|HTTP'")                                                                                  //HTTP, RTT, RTTD, RTTF")                                             // flag
+	scLog.StringVar(&global.Source, "s", "JLINK", "short for -source")                                                                                                                                         // short flag
 	scLog.IntVar(&com.Baud, "baud", 115200, "COM baudrate, valid only for '-source COMn'")                                                                                                                     // flag flag
 	scLog.StringVar(&jlink.Param, "jlink", "-Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0", "passed parameter string, valid only for '-source JLRTT', see JLinkRTTLogger in SEGGER UM08001_JLink.pdf") // JLRTT flag
+	scLog.StringVar(&jlink.Location, "jlinklocation", jlink.Location, "JLinkRTTLogger.exe installation directory")                                                                                             // JLRTT flag
 	scLog.StringVar(&rndMode, "rndMode", "WrapModeWithValidCrc", "valid only for '-source RND', see randomdummy.go, options: 'ChaosMode|BareModeNoSync'")
 	scLog.IntVar(&rndLimit, "rndLimit", randomdummy.NoLimit, "valid only for '-source RND', see randomdummy.go, options: 'n|0', 'n' is count of bytes, '0' for unlimited count")
 	scLog.BoolVar(&displayserver, "displayserver", false, "send trice lines to displayserver @ ipa:ipp")
@@ -224,12 +224,12 @@ func HandleArgs(args []string) error {
 		scLog.Parse(subArgs)
 		// adjust settings
 		if "source:" == emit.Prefix {
-			emit.Prefix = receiver.Source + ":"
+			emit.Prefix = global.Source + ":"
 		}
 		setPrefix(emit.Prefix)
-		if strings.HasPrefix(receiver.Source, "COM") {
-			com.Port = receiver.Source // set COM port number
-			receiver.Source = "COM"
+		if strings.HasPrefix(global.Source, "COM") {
+			com.Port = global.Source // set COM port number
+			global.Source = "COM"
 		}
 		id.FnJSON = lib.ConditinalFilePath(id.FnJSON)
 
@@ -241,7 +241,7 @@ func HandleArgs(args []string) error {
 			if true == autostart {
 				disp.StartServer(args[0])
 			}
-			err := trice.Connect("")
+			err := disp.Connect()
 			if err != nil {
 				fmt.Println(err)
 				return err
@@ -264,14 +264,37 @@ func HandleArgs(args []string) error {
 	return nil
 }
 
+// Connect starts a display server sy if sv is not empty, otherwise it assumes a running display server.
+//
+// It connects then to the running display server.
+func connect(sv string) error {
+	if "" != sv {
+		disp.StartServer(sv)
+	}
+
+	err := disp.Connect()
+	disp.Out = disp.RemoteOut // re-direct output
+	if nil != err {
+		return err
+	}
+
+	disp.PtrRPC.Call("Server.Out", []string{""}, nil)
+	disp.PtrRPC.Call("Server.Out", []string{""}, nil)
+	disp.PtrRPC.Call("Server.Out", []string{""}, nil)
+	disp.PtrRPC.Call("Server.Out", []string{"att:new connection from ", "read:" + global.Source, "..."}, nil)
+	disp.PtrRPC.Call("Server.Out", []string{""}, nil)
+	disp.PtrRPC.Call("Server.Out", []string{""}, nil)
+	return nil
+}
+
 func receiving() {
 	switch Encoding {
 	case "bare", "raw":
-		if "none" != trice.Password {
+		if "none" != cipher.Password {
 			Encoding = "bareXTEACrypted"
 		}
 	case "wrap", "wrapped":
-		if "none" != trice.Password {
+		if "none" != cipher.Password {
 			Encoding = "wrapXTEACrypted"
 		}
 	case "ascii":
@@ -284,12 +307,12 @@ func receiving() {
 	id.ReadListFile()
 
 	// prepare
-	err := decryption.SetUp()
+	err := cipher.SetUp()
 	if nil != err {
 		return
 	}
 	var r io.ReadCloser
-	switch receiver.Source {
+	switch global.Source {
 	case "JLINK":
 		l := jlink.New(jlink.Param) // yes
 		if nil != l.Open() {
@@ -319,17 +342,17 @@ func receiving() {
 			235, 96, 96, 235 ^ 10 ^ 172, 10, 172, 0, 0,
 			235, 96, 96, 235 ^ 10 ^ 172, 10, 172, 1, 1}
 		s := inputdummy.New(i, time.Millisecond, n)
-		receiver.DiscardByte = receiver.DiscardASCII
+		emit.DiscardByte = emit.DiscardASCII
 		r = ioutil.NopCloser(s) // https://stackoverflow.com/questions/28158990/golang-io-ioutil-nopcloser
 	/*case "RTT":
-		receiver.DiscardByte = receiver.DiscardASCII
+		emit.DiscardByte = emit.DiscardASCII
 		s := segger.New()
 		if nil != s.Open() {
 			return
 		}
 		r = s
 	case "RTTD":
-		receiver.DiscardByte = receiver.DiscardASCII
+		emit.DiscardByte = emit.DiscardASCII
 		d := direct.New()
 		if nil != d.Open() {
 			return
@@ -339,7 +362,7 @@ func receiving() {
 	default: // assume source is a filename
 		s := rttfile.New()
 		//fn := "c:/repos/trice/rttfile.bin"
-		err := s.Open(receiver.Source)
+		err := s.Open(global.Source)
 		if nil != err {
 			fmt.Println(err)
 			return
@@ -376,7 +399,7 @@ func setPrefix(s string) {
 	case "off", "none":
 		emit.Prefix = ""
 	case "COMport:":
-		emit.Prefix = receiver.Source + " "
+		emit.Prefix = global.Source + " "
 	default:
 		emit.Prefix = s + " "
 	}

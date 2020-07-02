@@ -66,7 +66,7 @@ func EqualFiles(t *testing.T, fn0, fn1 string) {
 	}
 }
 
-const replacement = "<br>\n"
+var replacement = "<br>\n"
 
 var replacer = strings.NewReplacer(
 	"\r\n", replacement,

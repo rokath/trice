@@ -6,9 +6,7 @@
 package com
 
 import (
-	"errors"
 	"fmt"
-	"log"
 
 	"go.bug.st/serial"
 )
@@ -54,7 +52,7 @@ func (p *COM) Close() error {
 	return p.serialHandle.Close()
 }
 
-// open() initializes the serial receiver.
+// Open initializes the serial receiver.
 //
 // It opens a serial port.
 func (p *COM) Open() bool {
@@ -74,20 +72,21 @@ func GetSerialPorts() ([]string, error) {
 	ports, err := serial.GetPortsList()
 
 	if err != nil {
-		log.Println(err)
+		fmt.Println(err)
 		return ports, err
 	}
 	if len(ports) == 0 {
-		log.Println("No serial ports found!")
+		fmt.Println("No serial ports found!")
 		return ports, err
 	}
 	for _, port := range ports {
-		log.Println("Found port: ", port)
+		fmt.Println("Found port: ", port)
 	}
 
 	return ports, err
 }
 
+/*
 // conditionalComPortScan scans for COM ports if -port was specified as COMscan, it tries to use first found COM port.
 func conditionalComPortScan() error {
 	if "COMscan" != Port {
@@ -105,3 +104,4 @@ func conditionalComPortScan() error {
 	}
 	return errors.New("Could not find serial port on system")
 }
+*/

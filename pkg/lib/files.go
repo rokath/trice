@@ -14,7 +14,7 @@ import (
 // https://stackoverflow.com/questions/7424340/read-in-lines-in-a-text-file-sort-then-overwrite-file
 //
 
-// WriteLines writes string slice containing lines to file
+// ReadLines writes string slice containing lines to file
 func ReadLines(file string) ([]string, error) {
 	var lines []string
 	f, err := os.Open(file)

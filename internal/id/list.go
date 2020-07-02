@@ -18,7 +18,6 @@ import (
 	"time"
 
 	"github.com/rokath/trice/internal/global"
-	"github.com/rokath/trice/internal/receiver"
 	"github.com/rokath/trice/pkg/lib"
 )
 
@@ -234,7 +233,7 @@ func ReadListFile() error {
 		go List.FileWatcher()
 	}
 	if true == global.Verbose {
-		fmt.Println("id list file", id.FnJSON, "with", len(id.List), "items", "on device", receiver.Source)
+		fmt.Println("id list file", FnJSON, "with", len(List), "items", "on device", global.Source)
 	}
 	return nil
 }

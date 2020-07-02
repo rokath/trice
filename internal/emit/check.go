@@ -128,7 +128,7 @@ func checkNegativeValues(l id.ListT, s []byte) error {
 	return nil
 }
 
-// checkNegativeValues is a consistency check for negative values.
+// checkFix is a consistency check for fixed values.
 // It should NOT be moved to the tests because it is helpful for til.json checks.
 func checkFix(l id.ListT, s []byte) error {
 	b := []byte{'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'} // dummy data

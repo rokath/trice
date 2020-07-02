@@ -1,13 +1,15 @@
 // Copyright 2020 Thomas.Hoehenleitner [at] seerose.net
 // Use of this source code is governed by a license that can be found in the LICENSE file.
 
-// Package global holds global values for all packages.
+// Package global holds global values and functions used in several internal packages.
 //
 // Including package main in other packages will result in aforbidden import cycle.
 // Therefore package global serves as glue.
 package global
 
-import "os"
+import (
+	"os"
+)
 
 var (
 	// Verbose gives additional informal output
@@ -21,4 +23,24 @@ var (
 	// To test code calling os.Exit() implicitely, like when log.Fatal() is used,
 	// see https://stackoverflow.com/questions/26225513/how-to-test-os-exit-scenarios-in-go.
 	OsExit func(code int) = os.Exit
+
+	// Source is the trice receiver to use
+	Source string
+
+	// DestinationAddr is local trice address, used for routing in distributed systems.
+	DestinationAddr = byte(0x60)
+
+	// SourceAddr is remote trice address, used for routing in distributed systems.
+	SourceAddr = byte(0x60)
 )
+
+// EvaluateWrap checks if the wrap in b contains valid trice header data.
+//
+// It returns true on success, otherwise false.
+func EvaluateWrap(b []byte) bool {
+	x := 0xc0 == b[0] && // start byte
+		b[1] == SourceAddr && // todo remAddr
+		b[2] == DestinationAddr && // todo locAddr
+		b[3] == b[0]^b[1]^b[2]^b[4]^b[5]^b[6]^b[7] // crc8
+	return x
+}

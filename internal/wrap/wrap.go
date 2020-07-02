@@ -1,7 +1,11 @@
 // Copyright 2020 Thomas.Hoehenleitner [at] seerose.net
 // Use of this source code is governed by a license that can be found in the LICENSE file.
 
-// Package wrap reads 8 byte trice wraps and syncs internally if byte stream inconsistent
+// Package wrap provides a Reader for wrapped trice data
+//
+// It uses any byte reader and additional encoding information.
+// It reads trice wraps and syncs internally if byte stream inconsistent.
+// Discarded Bytes are transferred to function emit.DiscardByte().
 package wrap
 
 import (
@@ -11,8 +15,9 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/rokath/trice/internal/receiver"
-	"github.com/rokath/trice/internal/receiver/bare"
+	"github.com/rokath/trice/internal/bare"
+	"github.com/rokath/trice/internal/emit"
+	"github.com/rokath/trice/internal/global"
 )
 
 // encoding is used to enumerate input bytes stream encoding
@@ -75,17 +80,6 @@ func (p *Reader) Read(b []Item) (int, error) {
 	return 0, errors.New("unknown encoding")
 }
 
-// evaluateWrap checks if the wrap in b contains valid header data.
-//
-// It returns true on success, otherwise false.
-func evaluateWrap(b []byte) bool {
-	x := 0xc0 == b[0] && // start byte - todo: cmd (|| 0xeb == b[0])
-		0x60 == b[1] && // todo remAddr
-		0x60 == b[2] && // todo locAddr
-		b[0]^b[1]^b[2]^b[4]^b[5]^b[6]^b[7] == b[3] // crc8
-	return x
-}
-
 // readWrapped uses inner reader p.r to read byte stream and assumes encoding 'wrapped' for interpretation.
 func (p *Reader) readWrapped(i []Item) (int, error) {
 	leftovers := len(p.by) // byte buffered in bytes buffer
@@ -111,8 +105,8 @@ func (p *Reader) readWrapped(i []Item) (int, error) {
 	count := 0
 
 	for len(p.by) >= 8 && count < readCount {
-		if false == evaluateWrap(p.by) {
-			receiver.DiscardByte(p.by[0])
+		if false == global.EvaluateWrap(p.by) {
+			emit.DiscardByte(p.by[0])
 			p.by = p.by[1:]
 			continue
 		}

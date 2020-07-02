@@ -9,7 +9,7 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/rokath/trice/internal/receiver/bare"
+	"github.com/rokath/trice/internal/bare"
 	"github.com/rokath/trice/pkg/lib"
 )
 

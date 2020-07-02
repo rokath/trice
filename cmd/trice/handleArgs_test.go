@@ -16,8 +16,7 @@ import (
 
 	"github.com/kami-zh/go-capturer"
 	"github.com/rokath/trice/internal/disp"
-	"github.com/rokath/trice/internal/receiver"
-	"github.com/rokath/trice/internal/trice"
+	"github.com/rokath/trice/internal/global"
 	"github.com/rokath/trice/pkg/cage"
 	"github.com/rokath/trice/pkg/lib"
 )
@@ -116,7 +115,7 @@ func frameForOsExitTests(parameters []string, exp string, t *testing.T) {
 	fmt.Println("fnName:", fnName)
 	logFile := baseName + ".log"
 	fmt.Println("logfile:", logFile)
-	par := append(parameters, "-idlist", "c:/repos/trice/test/til.json", "-color", "none", "-ts", "none", "-lg", logFile)
+	par := append(parameters, "-idlist", "c:/repos/trice/test/til.json", "-color", "off", "-ts", "none", "-lg", logFile)
 	if os.Getenv("BE_EOF_"+fnName) == "1" { // here inside debug test does not stop
 		//os.Remove(logFile) // secure logFile not exists already
 		HandleArgs(par)
@@ -281,8 +280,8 @@ func TestScDisplayServer(t *testing.T) {
 	os.Remove(afn)
 	cage.Name = afn
 	disp.IPPort = "61501"
-	receiver.Source = ""
-	lib.Ok(t, trice.Connect("C:\\Users\\ms\\go\\bin\\trice.exe"))
+	global.Source = ""
+	lib.Ok(t, connect("C:\\Users\\ms\\go\\bin\\trice.exe"))
 	lib.Ok(t, disp.PtrRPC.Call("Server.Out", []string{"msg:test ", "dbg:line 1."}, nil))
 	lib.Ok(t, disp.PtrRPC.Call("Server.Out", []string{"att:test ", "sig:line 2."}, nil))
 

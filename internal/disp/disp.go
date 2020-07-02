@@ -5,8 +5,6 @@ package disp
 
 import "unicode"
 
-var ()
-
 func isLower(s string) bool {
 	for _, r := range s {
 		if !unicode.IsLower(r) && unicode.IsLetter(r) {
