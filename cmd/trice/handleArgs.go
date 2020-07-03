@@ -147,7 +147,7 @@ func HandleArgs(args []string) error {
 	scLog.BoolVar(&cipher.ShowKey, "key", false, "show encryption key")                                                                                                                                        // flag
 	scLog.StringVar(&lib.TimeStampFormat, "ts", "LOCmicro", "PC timestamp for logs and logfile name, options: 'off|UTCmicro'")                                                                                 // flag
 	scLog.StringVar(&disp.ColorPalette, "color", "default", "color set, 'off' disables color handling (\"w:x\"->\"w:x\"), 'none' disables channels color (\"w:x\"->\"x\"), options: 'off|none'")               // flag
-	scLog.StringVar(&emit.Prefix, "prefix", "source:", "prepend prefix to all lines, options: 'off|none' or any string")                                                                                       // flag
+	scLog.StringVar(&emit.Prefix, "prefix", "source: ", "prepend prefix to all lines, options: any string or 'off|none' or 'source:' followed by 0-12 spaces, source will be replaced")                        // flag
 	scLog.StringVar(&emit.Postfix, "postfix", "\n", "append postfix to all lines, options: any string")                                                                                                        // flag
 	scLog.StringVar(&global.Source, "source", "JLINK", "receiver device, options: 'COMn|JLINK|STLINK|filename|SIM|RND|HTTP'")                                                                                  //HTTP, RTT, RTTD, RTTF")                                             // flag
 	scLog.StringVar(&global.Source, "s", "JLINK", "short for -source")                                                                                                                                         // short flag
@@ -222,10 +222,6 @@ func HandleArgs(args []string) error {
 
 	case "l", "log":
 		scLog.Parse(subArgs)
-		// adjust settings
-		if "source:" == emit.Prefix {
-			emit.Prefix = global.Source + ":"
-		}
 		setPrefix(emit.Prefix)
 		if strings.HasPrefix(global.Source, "COM") {
 			com.Port = global.Source // set COM port number
@@ -396,11 +392,35 @@ func scVersion() error {
 
 func setPrefix(s string) {
 	switch s {
+	case "source:":
+		emit.Prefix = global.Source + ":"
+	case "source: ":
+		emit.Prefix = global.Source + ": "
+	case "source:  ":
+		emit.Prefix = global.Source + ":  "
+	case "source:   ":
+		emit.Prefix = global.Source + ":   "
+	case "source:    ":
+		emit.Prefix = global.Source + ":    "
+	case "source:     ":
+		emit.Prefix = global.Source + ":     "
+	case "source:      ":
+		emit.Prefix = global.Source + ":      "
+	case "source:       ":
+		emit.Prefix = global.Source + ":       "
+	case "source:        ":
+		emit.Prefix = global.Source + ":        "
+	case "source:         ":
+		emit.Prefix = global.Source + ":         "
+	case "source:          ":
+		emit.Prefix = global.Source + ":          "
+	case "source:           ":
+		emit.Prefix = global.Source + ":           "
+	case "source:            ":
+		emit.Prefix = global.Source + ":            "
 	case "off", "none":
 		emit.Prefix = ""
-	case "COMport:":
-		emit.Prefix = global.Source + " "
 	default:
-		emit.Prefix = s + " "
+		emit.Prefix = s
 	}
 }
