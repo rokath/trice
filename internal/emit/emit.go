@@ -277,17 +277,11 @@ func LineCollect(s string) {
 
 // DiscardWithMessage discards a byte with a verbose message
 func DiscardWithMessage(b byte) {
-	var level string
-	if "off" == disp.ColorPalette {
-		level = ""
-	} else {
-		level = "wrn:"
-	}
 	c := byte(' ')
 	if 32 <= b && b <= 127 {
 		c = b
 	}
-	LineCollect(fmt.Sprintf("%strice:discarding byte 0x%02x (dez %d, char '%c')\n", level, b, b, c))
+	LineCollect(fmt.Sprintf("wrn:discarding byte 0x%02x (dez %d, char '%c')\n", b, b, c))
 }
 
 // DiscardASCII discards a byte assuming to be printable and prints it.

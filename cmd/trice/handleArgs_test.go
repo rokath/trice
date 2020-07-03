@@ -217,9 +217,9 @@ func TestRNDChaosX(t *testing.T) {
 		"-rndLimit", "10", // 7 values are kept inside in hope next value makes a valid header
 		"-rndMode", "ChaosMode",
 	}
-	exp := `RND: wrn:trice:discarding byte 0x9f (dez 159, char ' ')
-RND: wrn:trice:discarding byte 0x90 (dez 144, char ' ')
-RND: wrn:trice:discarding byte 0xa3 (dez 163, char ' ')
+	exp := `RND: wrn:discarding byte 0x9f (dez 159, char ' ')
+RND: wrn:discarding byte 0x90 (dez 144, char ' ')
+RND: wrn:discarding byte 0xa3 (dez 163, char ' ')
 `
 	frameForOsExitTests(cmd, exp, t)
 }
@@ -231,11 +231,11 @@ func TestHandleArgsRNDbare(t *testing.T) { // cmdLineNotOk
 		"-rndLimit", "190",
 		"-rndMode", "BareModeNoSync",
 	}
-	exp := `RND: wrn:trice:discarding byte 0x9f (dez 159, char ' ')
-RND: wrn:trice:discarding byte 0xc6 (dez 198, char ' ')
-RND: wrn:trice:discarding byte 0x29 (dez 41, char ')')
-RND: wrn:trice:discarding byte 0x83 (dez 131, char ' ')
-RND: wrn:trice:discarding byte 0xc8 (dez 200, char ' ')
+	exp := `RND: wrn:discarding byte 0x9f (dez 159, char ' ')
+RND: wrn:discarding byte 0xc6 (dez 198, char ' ')
+RND: wrn:discarding byte 0x29 (dez 41, char ')')
+RND: wrn:discarding byte 0x83 (dez 131, char ' ')
+RND: wrn:discarding byte 0xc8 (dez 200, char ' ')
 `
 	frameForOsExitTests(cmd, exp, t)
 }

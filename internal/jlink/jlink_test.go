@@ -7,7 +7,7 @@ package jlink_test
 import (
 	"testing"
 
-	"github.com/rokath/trice/internal/receiver/jlink"
+	"github.com/rokath/trice/internal/jlink"
 	"github.com/rokath/trice/pkg/lib"
 )
 

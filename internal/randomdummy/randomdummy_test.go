@@ -9,7 +9,7 @@ import (
 	"os/exec"
 	"testing"
 
-	"github.com/rokath/trice/internal/receiver/randomdummy"
+	"github.com/rokath/trice/internal/randomdummy"
 	"github.com/rokath/trice/pkg/lib"
 )
 
