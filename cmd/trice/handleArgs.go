@@ -153,7 +153,7 @@ func HandleArgs(args []string) error {
 	scLog.StringVar(&global.Source, "s", "JLINK", "short for -source")                                                                                                                                         // short flag
 	scLog.IntVar(&com.Baud, "baud", 115200, "COM baudrate, valid only for '-source COMn'")                                                                                                                     // flag flag
 	scLog.StringVar(&jlink.Param, "jlink", "-Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0", "passed parameter string, valid only for '-source JLRTT', see JLinkRTTLogger in SEGGER UM08001_JLink.pdf") // JLRTT flag
-	scLog.StringVar(&jlink.Location, "jlinklocation", jlink.Location, "JLinkRTTLogger.exe installation directory")                                                                                             // JLRTT flag
+	//scLog.StringVar(&jlink.Exec, "jlinkExec", jlink.Exec, "JLinkRTTLogger executable with full path")                                                                                                          // JLRTT flag
 	scLog.StringVar(&rndMode, "rndMode", "WrapModeWithValidCrc", "valid only for '-source RND', see randomdummy.go, options: 'ChaosMode|BareModeNoSync'")
 	scLog.IntVar(&rndLimit, "rndLimit", randomdummy.NoLimit, "valid only for '-source RND', see randomdummy.go, options: 'n|0', 'n' is count of bytes, '0' for unlimited count")
 	scLog.BoolVar(&displayserver, "displayserver", false, "send trice lines to displayserver @ ipa:ipp")

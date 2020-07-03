@@ -22,26 +22,61 @@ var (
 	// Param contails the command line parameters for JLinkRTTLogger
 	Param string
 
-	// Location points to the installation directory JLinkRTTLogger.exe
-	Location = "C:/Program Files (x86)/SEGGER/JLink"
+	// exe is the JLinkRTTLogger executable name
+	jcmd string
+
+	// dynLib is the JLinkRTTLogger used dynamic library name
+	dynLib string
+
+	// shell is the os specific calling environment
+	shell string
+
+	// clip is the os specific calling environment comandline beginning
+	clip string
+
+	// jlink command handle
+	lcmdH *exec.Cmd
 )
+
+func init() {
+	if runtime.GOOS == "windows" {
+		jcmd = "JLinkRTTLogger.exe"
+		dynLib = "JLinkARM.dll"
+		shell = "cmd"
+		clip = "/c "
+	} else if runtime.GOOS == "linux" {
+		jcmd = "JLinkRTTLogger"
+		dynLib = "JLinkARM.so"
+		shell = "gnome-terminal" // this only works for gnome based linux desktop env
+		clip = "-- /bin/bash -c "
+	} else {
+		if global.Verbose {
+			fmt.Println("trice is running on unknown operating system, '-source JLINK' will not work.")
+		}
+	}
+	if global.Verbose {
+		fmt.Println(shell, jcmd, "JLINK executable expected to be in path for usage")
+	}
+}
 
 // JLINK is the Segger RealTime Transfer logger reader interface.
 type JLINK struct {
 	tlfN string   // tempLogFile name
 	tlfH *os.File // tempLogFile handle
-
-	lcmdN string    // jlink command name
-	lcmdH *exec.Cmd // jlink command handle
-
-	jlinkEx  string // name of JLinkRTTLogger executable
-	jlinkLib string // name of JLinkRTTLogger dynamic library
-
-	shell string // os calling environment
-	clip  string // full shell parameter string including JLinkRTTLogger and its parameters.
 }
 
-//var pointerToInstance *JLINK
+// exists returns whether the given file or directory exists
+// https://stackoverflow.com/questions/10510691/how-to-check-whether-a-file-or-directory-exists
+func exists(path string) (bool, error) {
+	_, err := os.Stat(path)
+	if err == nil {
+		return true, nil
+	}
+	if os.IsNotExist(err) {
+		return false, nil
+	}
+	return false, err
+}
 
 // New creates an instance of RTT ReadCloser.
 //
@@ -49,51 +84,24 @@ type JLINK struct {
 // The param string is used as JLinkRTTLogger parameter string. See SEGGER UM08001_JLink.pdf for details.
 func New(param string) *JLINK {
 	r := &JLINK{} // create SeggerRTT instance
-	//pointerToInstance = r // for cleanup
+
+	// check environment
+	path, err := exec.LookPath(jcmd)
+	if nil == err {
+		if global.Verbose {
+			fmt.Println(path, "found")
+		}
+	} else {
+		fmt.Println(jcmd, "not found")
+		return nil
+	}
 
 	// get a temporary file name
 	r.tlfH, _ = ioutil.TempFile(os.TempDir(), "trice-*.bin") // opens for read and write
 	r.tlfN = r.tlfH.Name()
 	r.tlfH.Close()
-	r.clip = " " + param + " " + r.tlfN // full parameter string
+	clip += jcmd + " " + param + " " + r.tlfN // full parameter string
 
-	/*
-		// get path of trice command, because JLinkRTTLogger exewcutable and library are expected there
-		ex, err := os.Executable()
-		if err != nil {
-			fmt.Println(err)
-			return nil
-		}
-		exPath := filepath.Dir(ex)
-	*/
-	exPath := Location
-
-	if runtime.GOOS == "windows" {
-		r.jlinkEx = exPath + "/JLinkRTTLogger.exe"
-		r.jlinkLib = exPath + "/JLinkARM.dll"
-		r.shell = "cmd"
-		r.clip = "/c " + r.jlinkEx + r.clip // for shell
-
-	} else if runtime.GOOS == "linux" {
-		r.jlinkEx = "/JLinkRTTLogger"                    // todo: check
-		r.jlinkLib = "/JLinkARM.so"                      // todo: check
-		r.shell = "gnome-terminal"                       // this only works for gnome based linux desktop env
-		r.clip = "-- /bin/bash -c " + r.jlinkEx + r.clip // for shell
-
-	} else {
-		fmt.Println("trice is running on unknown operating system")
-		return nil
-	}
-
-	// check environment
-	if _, err := os.Stat(r.jlinkEx); os.IsNotExist(err) {
-		fmt.Println(r.jlinkEx, " does not exist")
-		return nil
-	}
-	if _, err := os.Stat(r.jlinkLib); os.IsNotExist(err) {
-		fmt.Println(r.jlinkLib, " does not exist")
-		return nil
-	}
 	return r
 }
 
@@ -107,12 +115,6 @@ func (p *JLINK) Read(b []byte) (int, error) {
 // See https://stackoverflow.com/questions/11886531/terminating-a-process-started-with-os-exec-in-golang
 func (p *JLINK) Close() error {
 	var err error
-	// if err = p.lcmdH.Process.Kill(); nil != err {
-	// 	fmt.Print(err)
-	// }
-	// if err = os.Remove(p.tlfH.Name()); nil != err {
-	// 	fmt.Print(err) // remove C:\Users\ms\AppData\Local\Temp\trice-458250371.bin: The process cannot access the file because it is being used by another process.
-	// }
 	return err
 }
 
@@ -122,15 +124,16 @@ func (p *JLINK) Close() error {
 func (p *JLINK) Open() error {
 	var err error
 	if global.Verbose {
-		fmt.Println("Start a process:", p.shell, p.clip)
+		fmt.Println("Start a process:", shell, clip)
 	}
-	p.lcmdH = exec.Command(p.shell, p.clip)
-	if err = p.lcmdH.Start(); err != nil {
-		log.Fatal("tart error", err)
+	lcmdH = exec.Command(shell, clip)
+	if err = lcmdH.Start(); err != nil {
+		log.Fatal("start error", err)
 	}
 
 	p.tlfH, err = os.Open(p.tlfN) // Open() opens a file with read only flag.
 	if nil != err {
+		fmt.Println(err)
 		return err
 	}
 	if global.Verbose {
@@ -138,19 +141,3 @@ func (p *JLINK) Open() error {
 	}
 	return nil
 }
-
-// TODO This code works but does not delete the temp file.
-// SetupCloseHandler creates a 'listener' on a new goroutine which will notify the
-// program if it receives an interrupt from the OS. We then handle this by calling
-// our clean up procedure and exiting the program.
-// func init() {
-// 	c := make(chan os.Signal)
-// 	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
-// 	go func() {
-// 		<-c
-// 		fmt.Println("\n\r- Ctrl+C pressed in Terminal")
-// 		pointerToInstance.Close()
-// 		time.Sleep(3 * time.Second)
-// 		global.OsExit(0)
-// 	}()
-// }
