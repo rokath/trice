@@ -48,6 +48,25 @@ func Equals(tb testing.TB, exp, act interface{}) {
 //
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+func equalTestfiles(fn0, fn1 string) bool {
+	s0, _ := ioutil.ReadFile(fn0)
+	s1, _ := ioutil.ReadFile(fn1)
+	var x = strings.NewReplacer("\r\n", "\n")
+	x0 := x.Replace(string(s0))
+	x1 := x.Replace(string(s1))
+	if strings.Compare(x0, x1) == 0 {
+		return true
+	}
+	return false
+}
+
+// EqualTextFiles compares 2 test files ignoring different line endings
+func EqualTextFiles(t *testing.T, fn0, fn1 string) {
+	if !equalTestfiles(fn0, fn1) {
+		t.Fail()
+	}
+}
+
 // EqualFileContent returns true if contece is equal
 func EqualFileContent(fn0, fn1 string) bool {
 	cmp := equalfile.New(nil, equalfile.Options{}) // compare using single mode
