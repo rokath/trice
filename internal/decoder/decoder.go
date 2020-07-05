@@ -94,7 +94,7 @@ func New(r io.Reader, encoding []string, s StringWriter, c CommandWriter) (*T, e
 	case "bare":
 		p.decode = p.bareDecode
 	case "wrap", "wrapped":
-		p.decode = p.bareDecode
+		p.decode = p.wrapDecode
 	default:
 		return nil, errors.New("unknown encoding method")
 	}
@@ -112,7 +112,7 @@ func (p *T) Start() {
 
 // asciiDecode assumes the bytes as ASCII data steam
 func (p *T) asciiDecode() {
-	b := make([]byte, 3)
+	b := make([]byte, 1024)
 	n, err := p.bytes.Read(b)
 	if nil != err {
 		fmt.Println(err)
@@ -134,16 +134,18 @@ func (p *T) asciiDecode() {
 		time.Sleep(time.Second)
 	}
 
-	var cs []Command
-	// write the decoded commands
-	p.commands.Write(cs)
-	if nil != err {
-		fmt.Println(err)
-		time.Sleep(time.Second)
-	}
-	if 1 != n {
-		fmt.Println(n)
-		time.Sleep(time.Second)
+	if nil != p.commands {
+		var cs []Command
+		// write the decoded commands
+		p.commands.Write(cs)
+		if nil != err {
+			fmt.Println(err)
+			time.Sleep(time.Second)
+		}
+		if 1 != n {
+			fmt.Println(n)
+			time.Sleep(time.Second)
+		}
 	}
 }
 
