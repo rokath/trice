@@ -36,12 +36,12 @@ var (
 )
 
 // out displays ss and sets color.
-// ss is a slice containing substring parts of one line.
-// Each substring inside ss is result of Trice or contains prefix,
-// timestamp or postfix and can have its own color prefix.
+// ss is a slice containing segments of one line.
+// Each segment can have its own color prefix.
 // The last substring inside the slice is definitly the last in
 // the line and has already trimmed its newline.
-// Linebreaks inside the substrings are not handled separately (yet).
+// Segments are assumed to not contain linebreaks.
+// It is the responsibility of the caller to handle that.
 func out(ss []string) error {
 	var line string
 

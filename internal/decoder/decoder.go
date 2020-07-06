@@ -1,24 +1,33 @@
 // Copyright 2020 Thomas.Hoehenleitner [at] seerose.net
 // Use of this source code is governed by a license that can be found in the LICENSE file.
 
-// Package decoder reads from differently encoded byte streams and writes decoded items to appropriate writers.
-//
-// To use it you need a to provide a byte reader like COM or FILE and information about the byte stream encoding.
-// Also a new decoder expects writers according the expected items.
-// decoder has a StringWriter interface where it writes decoded trices as string slice.
-// Because strings can arrive as trices but also as command messages the decoder needs to handle both in one turn
-// for correct synchronisation.
-// The decoder is extendable in a way to get additional writers for some data type.
-// Also the decoding can made be able to handle different encodings in one data stream.
-// In future a heuristic approach for auto encoding could be implemented as well.
 package decoder
 
 import (
 	"errors"
-	"fmt"
 	"io"
 	"time"
 )
+
+var (
+	// TimeStampFormat is the PC timestamp format.
+	TimeStampFormat = "off"
+)
+
+// Timestamp returns local time as string according var TimeStampFormat
+// https://www.alexedwards.net/blog/an-overview-of-go-tooling#managing-dependencies
+func Timestamp() string {
+	var s string
+	switch TimeStampFormat {
+	case "LOCmicro":
+		s = time.Now().Format(time.StampMicro) + "  "
+	case "UTCmicro":
+		s = "UTC " + time.Now().UTC().Format(time.StampMicro) + "  "
+	case "off", "none":
+		s = ""
+	}
+	return s
+}
 
 // Pkg is the command payload data structure
 type Pkg struct {
@@ -58,13 +67,12 @@ type CommandWriter interface {
 	Write(p []Command) (n int, err error)
 }
 
-/*
-// IF is the provided decoder interface.
-type IF interface {
-	Reader([]byte) (int, error)
-	StringWriter([]string) (int, error)
-	CommandWriter([]Command) (int, error)
-}*/
+// // IF is the provided decoder interface.
+// type IF interface {
+// 	Reader([]byte) (int, error)
+// 	StringWriter([]string) (int, error)
+// 	CommandWriter([]Command) (int, error)
+// }
 
 // T is the decoder type with encoding methods for the byte stream.
 // If mixed data the decoder needs to try several encoding methods
@@ -90,7 +98,7 @@ func New(r io.Reader, encoding []string, s StringWriter, c CommandWriter) (*T, e
 	}
 	switch encoding[0] {
 	case "ascii":
-		p.decode = p.asciiDecode
+		p.decode = p.stringsFromASCIIDecode
 	case "bare":
 		p.decode = p.bareDecode
 	case "wrap", "wrapped":
@@ -108,45 +116,6 @@ func (p *T) Start() {
 			p.decode()
 		}
 	}()
-}
-
-// asciiDecode assumes the bytes as ASCII data steam
-func (p *T) asciiDecode() {
-	b := make([]byte, 1024)
-	n, err := p.bytes.Read(b)
-	if nil != err {
-		fmt.Println(err)
-		time.Sleep(time.Second)
-	}
-	b = b[:n]
-	s := string(b)
-	var ss []string
-	ss = append(ss, s)
-
-	// write the decoded strings
-	n, err = p.strings.Write(ss)
-	if nil != err {
-		fmt.Println(err)
-		time.Sleep(time.Second)
-	}
-	if 1 != n {
-		fmt.Println(n)
-		time.Sleep(time.Second)
-	}
-
-	if nil != p.commands {
-		var cs []Command
-		// write the decoded commands
-		p.commands.Write(cs)
-		if nil != err {
-			fmt.Println(err)
-			time.Sleep(time.Second)
-		}
-		if 1 != n {
-			fmt.Println(n)
-			time.Sleep(time.Second)
-		}
-	}
 }
 
 // bareDecode assumes the bytes as bare data stream

@@ -9,24 +9,23 @@
 // All characters until the first colon ':' are treated as color specifier.
 // Unknown color specifiers are ignored. The string remains unchanged.
 // Known color specifiers are prefixed with an ANSI code for a color.
-// Known lowercase color specifiers are removed.
+// Known lowercase color specifiers are removed after prefixed with an ANSI code for a color.
 // The last string is postfixed with an ANSI code for default terminal color.
 // Finally a newline code `\n` is appended before the line is sent to the terminal.
 package display
 
 import "github.com/rokath/trice/internal/disp"
 
-var ()
-
-// Line is the data struct written to Display
+// Line is the data struct written to Display.
+// It contains segments which are exist as string slice.
 type Line struct {
-	Ss []string
+	Segments []string
 }
 
-// IF is the provided display interface.
-type IF interface {
-	Writer([]Line) (int, error)
-}
+// // IF is the provided display interface.
+// type IF interface {
+// 	Writer([]Line) (int, error)
+// }
 
 // T is the display type with a write method for line.
 type T struct {
@@ -42,16 +41,21 @@ func New(cp string) *T {
 }
 
 // Write is the display write method.
-// It writes all lines in ls to display using the display internals settings defined on display creation with New.
-func (d *T) Write(ls []Line) (int, error) {
-	for _, l := range ls {
+// It writes lines to display using the display internals settings defined on display creation with New.
+func (d *T) Write(lines []Line) (int, error) {
+	for i, line := range lines {
 		disp.ColorPalette = d.colorPalette
-		emitLine(l)
+		err := emit(line)
+		if nil != err {
+			return i, err
+		}
 	}
-	return len(ls), nil
+	return len(lines), nil
 }
 
-// emitLine transfers one line
-func emitLine(l Line) {
-	disp.Out(l.Ss) // legacy implementation
+// emit transfers one line to display
+//
+// todo: replace disp legacy implementation
+func emit(l Line) error {
+	return disp.Out(l.Segments)
 }

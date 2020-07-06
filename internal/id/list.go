@@ -30,7 +30,8 @@ type Item struct {
 	Removed int32  `json:"removed"` // utc unix time of disappearing in processed src directory
 }
 
-// ListT is a slice type containing the ID list
+// ListT is a slice type containing the ID list.
+// There exists only one global list.
 type ListT []Item
 
 var (

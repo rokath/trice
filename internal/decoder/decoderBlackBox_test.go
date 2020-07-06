@@ -5,8 +5,10 @@
 package decoder_test
 
 import (
+	"bufio"
 	"bytes"
 	"fmt"
+	"strings"
 	"testing"
 	"time"
 
@@ -17,7 +19,6 @@ import (
 
 var (
 	di *display.T
-	
 )
 
 // init creates a default display for some tests
@@ -44,6 +45,7 @@ func (p *strin) Write(s []string) (int, error) {
 	return i, nil
 }
 
+/*
 // dis is an empty struct to provide a Write method for dis
 type dis struct{}
 
@@ -57,18 +59,18 @@ func newStringWriter() *dis {
 // ss contains any number of strings ending with newline or not.
 // All strings are checked if a string ends with newline.
 // The newline is removed and the checked strings copied as string slice to a display line.
-// 
+//
 func (p *dis) Write(ss []string) (int, error) {
 	var i int
-	for i, s = range ss {	
-		var l display.Line 
-		l.Ss = append( l.Ss, s) // simply only one string per line here
+	for i, s = range ss {
+		var l display.Line
+		l.Segments = append( l.Segments, s) // simply only one string per line here
 
 		if "\n" != s[len(s)-1:]{ // no newline at end
 		continue
 		}
 		s = s[len(s)-1:] // remove newline char
-		ls []display.Line
+		var ls []display.Line
 		ls = append( ls, l)
 
 		di.Write(ls)
@@ -76,7 +78,7 @@ func (p *dis) Write(ss []string) (int, error) {
 	i++
 	return i, nil
 }
-
+*/
 // commands is an empty struct to provide a Write method for commands
 type commands struct{}
 
@@ -107,6 +109,7 @@ func TestAsciiOneLine(t *testing.T) {
 	//t.Fail()
 }
 
+/*
 func Test3(t *testing.T) {
 	by := bytes.NewReader([]byte{'m', ':', 'H', 'e', 'l', 'l', 'o', ' ', 'G', 'o', 'p', 'h', 'e', 'r', '!', '\n'})
 	enc := []string{"ascii"}
@@ -117,6 +120,7 @@ func Test3(t *testing.T) {
 	time.Sleep(time.Millisecond)
 	//t.Fail()
 }
+*/
 
 func Test2(t *testing.T) {
 	by := bytes.NewReader([]byte{'m', ':', 'H', 'e', 'l', 'l', 'o', ' ', 'G', 'o', 'p', 'h', 'e', 'r', '!', '\n'})
@@ -128,4 +132,48 @@ func Test2(t *testing.T) {
 	d.Start()
 	time.Sleep(time.Millisecond)
 	//t.Fail()
+}
+
+func TestX(t *testing.T) {
+	// An artificial input source.
+	const input = "msg:1234 5678\natt:12345\rdbg:\rtime:12:03\rsig:679012\r\n\nMSG:34567890"
+	scanner := bufio.NewScanner(strings.NewReader(input))
+
+	exp := []string{"msg:1234 5678", "att:12345\rdbg:\rtime:12:03\rsig:679012", "", "MSG:34567890"}
+	var act []string
+	for scanner.Scan() {
+		act = append(act, scanner.Text())
+	}
+	lib.Equals(t, exp, act)
+}
+
+func TestY(t *testing.T) {
+	const input =  []string{"msg:1234 5678", "att:12345\rdbg:\rtime:12:03\rsig:679012", "", "MSG:34567890"}
+// ScanLines is a split function for a Scanner that returns each line of
+// text, stripped of any trailing end-of-line marker. The returned line may
+// be empty. The end-of-line marker is one optional carriage return followed
+// by one mandatory newline. In regular expression notation, it is `\r?\n`.
+// The last non-empty line of input will be returned even if it has no
+// newline.
+split := func ScanCarriageReturns(data []byte, atEOF bool) (advance int, token []byte, err error) {
+	if atEOF && len(data) == 0 {
+		return 0, nil, nil
+	}
+	if i := bytes.IndexByte(data, '\n'); i >= 0 {
+		// We have a full newline-terminated line.
+		return i + 1, dropCR(data[0:i]), nil
+	}
+	// If we're at EOF, we have a final, non-terminated line. Return it.
+	if atEOF {
+		return len(data), dropCR(data), nil
+	}
+	// Request more data.
+	return 0, nil, nil
+}
+	// Set the split function for the scanning operation.
+	scanner.Split(split)
+
+	in : act
+	for range 
+
 }
