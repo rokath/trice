@@ -35,9 +35,6 @@ func newStringsFromASCIIDecoder(r io.Reader, s StringWriter) *ascii {
 	return p
 }
 
-// Unmarshal parses the JSON-encoded data and stores the result
-// in the value pointed to by v. If v is nil or not a pointer,
-// Unmarshal returns an InvalidUnmarshalError.
 func Unmarshal(data []byte) ([]string, error) {
 	var ss []string
 	if 0 == len(data) {
@@ -62,13 +59,13 @@ func (p *ascii) unmarshal() {
 	p.strings.Write(ss)
 }
 
-// stringsFromASCIIDecode assumes the bytes coming from io.Reader as ASCII data stream.
+// stringsFromASCIIDecode assumes the bytes coming from io.Reader are an ASCII data stream.
 // It writes strings using the StringWriter following these rules:
 // As newline are considered '\n' or '\r\n'.
 //
-// Start with prefix if enabled.s
+// Start with prefix if enabled.
 // Followed by timestamp if enabled.
-// Followed by any number of 0 terminated strings not containing newline.
+// Followed by any number of delimiter terminated strings not containing newline.
 // If a string contains newline it is split at the first newline and the newline is removed.
 // The first part of the string goes to StringWriter. The 2nd part is kept internally.
 // The postfix is written to StringWriter.
@@ -76,6 +73,6 @@ func (p *ascii) unmarshal() {
 //
 func (p *T) stringsFromASCIIDecode() {
 	a := newStringsFromASCIIDecoder(p.bytes, p.strings)
-	go a.unmarshal()
+	/*go*/ a.unmarshal()
 
 }
