@@ -22,10 +22,10 @@ type Line struct {
 	Segments []string
 }
 
-// // IF is the provided display interface.
-// type IF interface {
-// 	Writer([]Line) (int, error)
-// }
+// Writer is the provided display interface.
+type Writer interface {
+	Write([]Line) (int, error)
+}
 
 // T is the display type with a write method for line.
 type T struct {

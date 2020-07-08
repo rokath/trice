@@ -5,139 +5,110 @@
 package decoder
 
 import (
-	"bufio"
 	"bytes"
-	"fmt"
-	"strings"
 	"testing"
 
-	"github.com/rokath/trice/pkg/display"
+	"github.com/rokath/trice/internal/bare"
 	"github.com/rokath/trice/pkg/lib"
 )
 
-// strin is an empty struct to provide a Write method for strings
-type strin struct{}
-
-// newStringWriter creates an object with a write method for strings
-func newStringWriter() *strin {
-	p := &strin{}
-	return p
-}
-
-var (
-	act []string
-)
-
-// Write is the provided write method for strin
-func (p *strin) Write(s []string) (int, error) {
-	act = make([]string, len(s))
-	copy(act, s)
-	return len(s), nil
-}
-
-func TestAsciiOneLine(t *testing.T) {
-	//by := bytes.NewReader([]byte{'m', ':', 'H', 'e', 'l', 'l', 'o', ' ', 'G', 'o', 'p', 'h', 'e', 'r', '!', '\n'})
-	by := bytes.NewReader([]byte("m:Hello Gopher!\n"))
+func Test1_stringsFromASCIIDecode(t *testing.T) {
+	r := bytes.NewReader([]byte("m:Hello\nyou\t\a\a\asig:Gophers!\r\n"))
 	enc := []string{"ascii"}
-	s := newStringWriter()
-	d, err := New(by, enc, s, nil)
-	lib.Equals(t, nil, err)
-	d.decode()
-	//exp := []string{"PREXIX", "TS", "m:Hello Gopher!"}
-	//lib.Equals(t, exp, act)
+	var (
+		trice   chan []bare.Item
+		command chan Command
+		dropped chan byte
+		err     chan error
+	)
+	ascii := make(chan string, 2)
 
-}
-
-func TestAscii2(t *testing.T) {
-	//by := bytes.NewReader([]byte{'m', ':', 'H', 'e', 'l', 'l', 'o', ' ', 'G', 'o', 'p', 'h', 'e', 'r', '!', '\n'})
-	by := bytes.NewReader([]byte("m:Hello Gopher!\n"))
-	enc := []string{"ascii"}
-	s := newStringWriter()
-	d, err := New(by, enc, s, nil)
-	lib.Equals(t, nil, err)
-	d.decode()
-	//exp := []string{"PREXIX", "TS", "m:Hello \aatt:Gopher!"}
-	//lib.Equals(t, exp, act)
-
-}
-
-/*
-// asciiDecode uses
-func myAsciiDecoder(r io.Reader, w StringWriter)( bc, sc int, error) {
-return 0,0,nil
-}
-*/
-
-// asciiDecode converts buffer to string and splits at delimiters and returns segments without delimiter
-func asciiDecode(buffer []byte, delimiter string) []string {
-	s := string(buffer)
-	return strings.Split(s, delimiter)
-}
-
-func ExampleScanner() {
-	const input = "msg:1234 5678\r\natt:123\ndebug:456790123456789\nt:0"
-	scanner := bufio.NewScanner(strings.NewReader(input))
-	for scanner.Scan() {
-
-		fmt.Printf("%s\n", scanner.Text())
-
-	}
-	if err := scanner.Err(); err != nil {
-
-		fmt.Printf("Invalid input: %s", err)
-
-	}
-	// Output:
-	// msg:1234 5678
-	// att:123
-	// debug:456790123456789
-	// t:0
-}
-
-func Test_asciiDecode(t *testing.T) {
-	b := []byte("m:Hello\nyou\t\a\a\asig:Gophers!\n")
-	act := asciiDecode(b, "\a")
-
-	exp := []string{"m:Hello\nyou\t", "", "", "sig:Gophers!\n"}
-	lib.Equals(t, exp, act)
-}
-
-// buildLines scans all stings in s for newlines ans splits them.
-// All strings and substrings until next newline build one line which starts with prefic and timestamp and ends with postfix.
-func buildLines(ss []string, prefix, timestamp, postfix string) []display.Line {
-	var li []display.Line
-	if 0 == len(ss) {
-		return li
-	}
-
-	var line display.Line
-
-	for _, s := range ss {
-		scanner := bufio.NewScanner(strings.NewReader(s))
-		line.Segments = append(line.Segments, prefix, timestamp)
-
-		// Validate the input
-
-		for scanner.Scan() {
-			line.Segments = append(line.Segments, scanner.Text(), postfix)
+	p, e := New(r, enc, trice, command, ascii, dropped, err)
+	lib.Equals(t, nil, e)
+	p.decode()
+	var act []string
+	count := 2
+	for count > 0 {
+		select {
+		case s := <-ascii:
+			act = append(act, s)
+		case <-trice:
+			t.Fail()
+		case <-command:
+			t.Fail()
+		case <-dropped:
+			t.Fail()
+		case <-err:
+			t.Fail()
 		}
-		line.Segments = append(line.Segments, postfix)
-		li = append(li, line)
+		count--
 	}
-	return li
+	exp := []string{"m:Hello", "you\t\a\a\asig:Gophers!"}
+	lib.Equals(t, exp, act)
 }
 
-/*
-func Test_buildLines(t *testing.T) {
-	input := []string{"m:one", "a:two\nthree", "sig:four\r\n"}
-	pre := "PREFIX:"
-	ts := "time.stamp"
-	post := ""
-	act := buildLines(input, pre, ts, post)
-	exp := []display.Line{
-		{[]string{pre, ts, "m:one", "a:two", post}},
-		{[]string{pre, ts, "sig:three", post}},
+func Test1_bareDecode(t *testing.T) {
+	r := bytes.NewReader([]byte{'j', 'a', 'r', 1, 1, 1, 1, 0x16, 0x16, 0x16, 0x16, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4})
+	enc := []string{"bare"}
+	var (
+		ascii   chan string
+		command chan Command
+		dropped chan byte
+		err     chan error
+	)
+	trice := make(chan []bare.Item, 200)
+	p, e := New(r, enc, trice, command, ascii, dropped, err)
+	lib.Equals(t, nil, e)
+	p.decode()
+	var act []bare.Item
+	select {
+	case act = <-trice:
+	case <-ascii:
+		t.Fail()
+	case <-command:
+		t.Fail()
+	case <-dropped:
+		t.Fail()
+	case <-err:
+		t.Fail()
+	}
+	exp := []bare.Item{
+		{ID: 0x0101, Value: [2]byte{0x01, 0x01}},
+		{ID: 0x1616, Value: [2]byte{0x16, 0x16}},
+		{ID: 0x0202, Value: [2]byte{0x02, 0x02}},
+		{ID: 0x0303, Value: [2]byte{0x03, 0x03}},
 	}
 	lib.Equals(t, exp, act)
 }
-*/
+
+func Test1_wrapDecode(t *testing.T) {
+	r := bytes.NewReader([]byte{'j', 'a', 'r', 0xC0, 0x60, 0x60, 0xC0, 1, 1, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 0xC0, 0x60, 0x60, 0xC0, 8, 8, 5, 5})
+	enc := []string{"wrap"}
+	var (
+		ascii   chan string
+		command chan Command
+		dropped chan byte
+		err     chan error
+	)
+	trice := make(chan []bare.Item, 200)
+	p, e := New(r, enc, trice, command, ascii, dropped, err)
+	lib.Equals(t, nil, e)
+	p.decode()
+	var act []bare.Item
+	select {
+	case act = <-trice:
+	case <-ascii:
+		t.Fail()
+	case <-command:
+		t.Fail()
+	case <-dropped:
+		t.Fail()
+	case <-err:
+		t.Fail()
+	}
+	exp := []bare.Item{
+		{ID: 0x0101, Value: [2]byte{0x02, 0x02}},
+		{ID: 0x0808, Value: [2]byte{0x05, 0x05}},
+	}
+	lib.Equals(t, exp, act)
+}

@@ -74,14 +74,14 @@ func Trice(t, b []byte, l id.ListT) ([]byte, error) {
 		return b, err // i is unknown ID
 	}
 	it := l[x]
-	s, b, _ := emitter(it, d, b)
+	s, b, _ := Emitter(it, d, b)
 	LineCollect(s)
 	d = d[:0] // empty d for next trice
 	return b, nil
 }
 
-// trimBackslashes handles special chars in s
-func trimBackslashes(s string) string {
+// TrimBackslashes handles special chars in s
+func TrimBackslashes(s string) string {
 	s = strings.ReplaceAll(s, "\\a", "\a")
 	s = strings.ReplaceAll(s, "\\b", "\b")
 	s = strings.ReplaceAll(s, "\\t", "\t")
@@ -115,7 +115,7 @@ func trimBackslashes(s string) string {
 // float           %f   %f
 // char            %c   %c
 // (void *)        %p   %p
-func langCtoGoFmtStingConverter(f string) (string, []bool, error) {
+func LangCtoGoFmtStingConverter(f string) (string, []bool, error) {
 	var err error
 	var u []bool
 	s := f // TODO: parse f for %*u, replace with %*d and sett []bool values accordingly
@@ -128,8 +128,8 @@ func errFalseLen(it id.Item, t, b []byte) (string, []byte, error) {
 	return s, b, errors.New("data stream error")
 }
 
-// evalLen checks if byte buffer t has appropriate length to id.item it
-func evalLen(it id.Item, t []byte) error {
+// EvalLen checks if byte buffer t has appropriate length to id.item it
+func EvalLen(it id.Item, t []byte) error {
 	err := errors.New("false len")
 	switch it.FmtType {
 	case "TRICE0", "TRICE8_1", "TRICE8_2", "TRICE16_1":
@@ -163,13 +163,13 @@ func evalLen(it id.Item, t []byte) error {
 // emmiter wworks fine with %x, %d and %o but NOT with %u for now
 // %x is emitted in Go signed!
 // For %u a format string parsing is needed to perform the correct casts.
-func emitter(it id.Item, t, b []byte) (string, []byte, error) {
-	f, _, err := langCtoGoFmtStingConverter(it.FmtStrg)
+func Emitter(it id.Item, t, b []byte) (string, []byte, error) {
+	f, _, err := LangCtoGoFmtStingConverter(it.FmtStrg)
 	var s string
 	var v0, v1, v2, v3 int16
 	var w0, w1, w2, w3 int32
 	var l0, l1 int64
-	err = evalLen(it, t)
+	err = EvalLen(it, t)
 	if nil != err {
 		return errFalseLen(it, t, b)
 	}
@@ -255,7 +255,7 @@ func emitter(it id.Item, t, b []byte) (string, []byte, error) {
 // LineCollect collects s into an internal line substring slice
 // When s ends with a newline it is trimmed and the slice goes to Out and is discarded afterwards
 func LineCollect(s string) {
-	s = trimBackslashes(s)
+	s = TrimBackslashes(s)
 
 	a := func(su string) {
 		css = append(css, su)

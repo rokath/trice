@@ -33,7 +33,12 @@ func TestRawInputWithSync(t *testing.T) {
 	lib.Equals(t, 3, n)
 	act = act[:n]
 
-	exp := []bare.Item{{0x0101, 0x0101}, {0x1616, 0x1616}, {0x0202, 0x0202}}
+	exp := []bare.Item{
+		{ID: 0x0101, Value: [2]byte{0x01, 0x01}},
+		{ID: 0x1616, Value: [2]byte{0x16, 0x16}},
+		{ID: 0x0202, Value: [2]byte{0x02, 0x02}},
+	}
+
 	lib.Equals(t, exp, act)
 
 	// read 3 baretrice items, but get only 1
@@ -43,7 +48,7 @@ func TestRawInputWithSync(t *testing.T) {
 	lib.Equals(t, 1, n)
 	act = act[:n]
 
-	exp = []bare.Item{{0x0303, 0x0303}}
+	exp = []bare.Item{{ID: 0x0303, Value: [2]byte{0x03, 0x03}}}
 	lib.Equals(t, exp, act)
 
 	// at this point only the last 2 bytes {4,4} in the internal buffer
@@ -62,6 +67,9 @@ func TestWrapInputWithSync(t *testing.T) {
 	lib.Equals(t, 2, n)
 	act = act[:n]
 
-	exp := []bare.Item{{0x0101, 0x0202}, {0x0808, 0x0505}}
+	exp := []bare.Item{
+		{ID: 0x0101, Value: [2]byte{0x02, 0x02}},
+		{ID: 0x0808, Value: [2]byte{0x05, 0x05}},
+	}
 	lib.Equals(t, exp, act)
 }

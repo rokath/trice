@@ -46,7 +46,7 @@ const (
 // Item is the raw trice data type
 type Item struct {
 	ID    uint16
-	Value uint16
+	Value [2]byte
 }
 
 // Reader uses an inner Reader to read a raw byte stream.

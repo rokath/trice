@@ -4,7 +4,7 @@
 // Use of this source code is governed by a license that can be found in the LICENSE file.
 
 // Package receiver is responsible for getting and handling the bytes from the communication port.
-// There ae different communication ports possible: COM, RTT, TCP...
+// There are different communication ports possible: COM, RTT, TCP...
 // It is activated by the trice package and calls emit.Trice() on received bytes chunks.
 //
 // Implementation

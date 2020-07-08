@@ -59,7 +59,7 @@ func checkValuePosition(l id.ListT, s []byte) error {
 		if "%s" == it.FmtStrg {
 			b[0] = s[6] // set simulated pix value equal
 		}
-		s, _, err := emitter(it, b, s)
+		s, _, err := Emitter(it, b, s)
 		if nil != err {
 			return err
 		}
@@ -118,7 +118,7 @@ func checkNegativeValues(l id.ListT, s []byte) error {
 		if "%s" == it.FmtStrg {
 			b[0] = s[6] // set simulated pix value equal
 		}
-		s, _, err := emitter(it, b, s)
+		s, _, err := Emitter(it, b, s)
 		if nil != err {
 			return err
 		}
@@ -151,7 +151,7 @@ func checkFix(l id.ListT, s []byte) error {
 		if "%s" == it.FmtStrg {
 			b[0] = s[6] // set simulated pix value equal
 		}
-		s, _, err := emitter(it, b, s)
+		s, _, err := Emitter(it, b, s)
 		if nil != err {
 			return err
 		}

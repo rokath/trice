@@ -4,9 +4,12 @@
 package decoder
 
 import (
+	"bufio"
 	"errors"
 	"io"
 	"time"
+
+	"github.com/rokath/trice/internal/bare"
 )
 
 var (
@@ -29,10 +32,8 @@ func Timestamp() string {
 	return s
 }
 
-// Pkg is the command payload data structure
+// Pkg is the basic command payload data structure. A Pkg contains a slice of bytes.  The byte count is coded implicit in the slice len.
 type Pkg struct {
-	//uint16 Count1 // count-1 value, 0 ^= 1 value, 65535 ^= 65536 values
-	//uint32 Count // count value, 0 ^= empty payload, 65535 ^= 65535 bytes inside Payload - this allows empty packages inbetween
 	Payload []byte // package data filled with len(Payload) bytes
 }
 
@@ -77,21 +78,27 @@ type CommandWriter interface {
 // T is the decoder type with encoding methods for the byte stream.
 // If mixed data the decoder needs to try several encoding methods
 type T struct {
-	bytes    io.Reader     // reader for input data stream
-	encoding []string      // the way input data encoded
-	strings  StringWriter  // the trice string writer to use
-	commands CommandWriter // the command writer to use
-	decode   func()        // the decoding function to use
+	bytes    io.Reader          // reader for input data stream
+	encoding []string           // the way input data encoded, several encodings possible
+	decode   func()             // the decoding function to use
+	trice    chan<- []bare.Item // the trice atoms
+	ascii    chan<- string      // the ascii strings decoded
+	command  chan<- Command     // the arrived commands
+	dropped  chan<- byte        // the byte not interpreted
+	err      chan<- error       // the byte not interpreted
 }
 
 // New provides a decoder with encoding properties.
-// It expects r as reader and s & c as writers
-func New(r io.Reader, encoding []string, s StringWriter, c CommandWriter) (*T, error) {
+// It expects r as reader and send-only channels
+func New(r io.Reader, encoding []string, trice chan<- []bare.Item, command chan<- Command, ascii chan<- string, dropped chan<- byte, err chan<- error) (*T, error) {
 	p := &T{
 		bytes:    r,
 		encoding: encoding,
-		strings:  s,
-		commands: c,
+		trice:    trice,
+		command:  command,
+		ascii:    ascii,
+		dropped:  dropped,
+		err:      err,
 	}
 	if 1 != len(encoding) {
 		return nil, errors.New("only one encoding method supported yet")
@@ -101,8 +108,12 @@ func New(r io.Reader, encoding []string, s StringWriter, c CommandWriter) (*T, e
 		p.decode = p.stringsFromASCIIDecode
 	case "bare":
 		p.decode = p.bareDecode
+	case "bareXTEACrypted":
+		p.decode = p.bareXTEADecode
 	case "wrap", "wrapped":
 		p.decode = p.wrapDecode
+	case "wrapXTEACrypted":
+		p.decode = p.wrapXTEADecode
 	default:
 		return nil, errors.New("unknown encoding method")
 	}
@@ -118,10 +129,47 @@ func (p *T) Start() {
 	}()
 }
 
+// stringsFromASCIIDecode assumes the bytes coming from io.Reader are an ASCII data stream delimited by newlines.
+// As newline are considered '\n' or '\r\n'.
+// The incoming characters are split in strings also removing the newlines and transferred to the ascii channel.
+func (p *T) stringsFromASCIIDecode() {
+	scanner := bufio.NewScanner(p.bytes)
+	for scanner.Scan() {
+		p.ascii <- scanner.Text()
+	}
+	if err := scanner.Err(); err != nil {
+		p.err <- err
+	}
+}
+
 // bareDecode assumes the bytes as bare data stream
 func (p *T) bareDecode() {
+	x, _ := bare.NewReader(p.bytes, "bare")
+	bare := make([]bare.Item, 4096)
+	n, e := x.Read(bare)
+	if nil != e && io.EOF != e {
+		p.err <- e
+	}
+	bare = bare[:n]
+	p.trice <- bare
 }
 
 // wrapDecode assumes the bytes as wrapped data stream
 func (p *T) wrapDecode() {
+	x, _ := bare.NewReader(p.bytes, "wrap")
+	bare := make([]bare.Item, 4096)
+	n, e := x.Read(bare)
+	if nil != e && io.EOF != e {
+		p.err <- e
+	}
+	bare = bare[:n]
+	p.trice <- bare
+}
+
+// bareDecode assumes the bytes as bare data stream
+func (p *T) bareXTEADecode() {
+}
+
+// wrapDecode assumes the bytes as wrapped data stream
+func (p *T) wrapXTEADecode() {
 }

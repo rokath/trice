@@ -1,3 +1,4 @@
+// +build x
 // Copyright 2020 Thomas.Hoehenleitner [at] seerose.net
 // Use of this source code is governed by a license that can be found in the LICENSE file.
 
@@ -10,9 +11,7 @@ import (
 	"fmt"
 	"strings"
 	"testing"
-	"time"
 
-	"github.com/rokath/trice/internal/decoder"
 	"github.com/rokath/trice/pkg/display"
 	"github.com/rokath/trice/pkg/lib"
 )
@@ -46,110 +45,6 @@ func (p *strin) Write(s []string) (int, error) {
 	}
 	i++
 	return i, nil
-}
-
-/*
-// dis is an empty struct to provide a Write method for dis
-type dis struct{}
-
-// newStringWriter creates an object with a write method for strings
-func newStringWriter() *dis {
-	p := &dis{}
-	return p
-}
-
-// Write is the provided write method for dis
-// ss contains any number of strings ending with newline or not.
-// All strings are checked if a string ends with newline.
-// The newline is removed and the checked strings copied as string slice to a display line.
-//
-func (p *dis) Write(ss []string) (int, error) {
-	var i int
-	for i, s = range ss {
-		var l display.Line
-		l.Segments = append( l.Segments, s) // simply only one string per line here
-
-		if "\n" != s[len(s)-1:]{ // no newline at end
-		continue
-		}
-		s = s[len(s)-1:] // remove newline char
-		var ls []display.Line
-		ls = append( ls, l)
-
-		di.Write(ls)
-	}
-	i++
-	return i, nil
-}
-*/
-// commands is an empty struct to provide a Write method for commands
-type commands struct{}
-
-// newCommandWriter creates an object with a write method for commands
-func newCommandWriter() *commands {
-	p := &commands{}
-	return p
-}
-
-// Write is the provided write method for commands
-func (p *commands) Write(c []decoder.Command) (int, error) {
-	var i int
-	for i = range c {
-		fmt.Println(c[i]) // just print out
-	}
-	i++
-	return i, nil
-}
-
-func TestAsciiOneLine(t *testing.T) {
-	//by := bytes.NewReader([]byte{'m', ':', 'H', 'e', 'l', 'l', 'o', ' ', 'G', 'o', 'p', 'h', 'e', 'r', '!', '\n'})
-	by := bytes.NewReader([]byte("m:Hello\rdebug: \ratt:Gopher!\n"))
-	enc := []string{"ascii"}
-	s := newStringWriter()
-	d, err := decoder.New(by, enc, s, nil)
-	lib.Equals(t, nil, err)
-	d.Start()
-	time.Sleep(time.Millisecond)
-	//t.Fail()
-}
-
-/*
-func Test3(t *testing.T) {
-	by := bytes.NewReader([]byte{'m', ':', 'H', 'e', 'l', 'l', 'o', ' ', 'G', 'o', 'p', 'h', 'e', 'r', '!', '\n'})
-	enc := []string{"ascii"}
-	c := newCommandWriter()
-	d, err := decoder.New(by, enc, nil, c)
-	lib.Equals(t, nil, err)
-	d.Start()
-	time.Sleep(time.Millisecond)
-	//t.Fail()
-}
-*/
-
-func Test2(t *testing.T) {
-	//by := bytes.NewReader([]byte{'m', ':', 'H', 'e', 'l', 'l', 'o', ' ', 'G', 'o', 'p', 'h', 'e', 'r', '!', '\n'})
-	by := bytes.NewReader([]byte("m:Hello Gopher!\n"))
-	enc := []string{"ascii"}
-	s := newStringWriter()
-	c := newCommandWriter()
-	d, err := decoder.New(by, enc, s, c)
-	lib.Equals(t, nil, err)
-	d.Start()
-	time.Sleep(time.Millisecond)
-	//t.Fail()
-}
-
-func TestX(t *testing.T) {
-	// An artificial input source.
-	const input = "msg:1234 5678\natt:12345\rdbg:\rtime:12:03\rsig:679012\r\n\nMSG:34567890"
-	scanner := bufio.NewScanner(strings.NewReader(input))
-
-	exp := []string{"msg:1234 5678", "att:12345\rdbg:\rtime:12:03\rsig:679012", "", "MSG:34567890"}
-	var act []string
-	for scanner.Scan() {
-		act = append(act, scanner.Text())
-	}
-	lib.Equals(t, exp, act)
 }
 
 // stringsSplit splits s on each delimiter, removes d and returns all substrings

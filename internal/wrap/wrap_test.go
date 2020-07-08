@@ -42,7 +42,7 @@ func TestWrapInputWithSync(t *testing.T) {
 			Crc:    0xC0,
 			BareV: bare.Item{
 				ID:    0x0101,
-				Value: 0x0202,
+				Value: [2]byte{0x02, 0x02},
 			},
 		},
 		{
@@ -52,7 +52,7 @@ func TestWrapInputWithSync(t *testing.T) {
 			Crc:    0xC0,
 			BareV: bare.Item{
 				ID:    0x0808,
-				Value: 0x0505,
+				Value: [2]byte{0x05, 0x05},
 			},
 		},
 	}
