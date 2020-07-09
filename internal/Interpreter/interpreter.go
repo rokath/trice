@@ -39,7 +39,10 @@ func New(w display.Writer, trice <-chan []bare.Item) (*T, error) {
 func (p *T) Interpret() {
 	select {
 	case t := <-p.trice:
-		fmt.Print(t)
+		//fmt.Print(t)
+		for _, x := range t {
+			emitTrice(x)
+		}
 	}
 }
 
