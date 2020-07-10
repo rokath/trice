@@ -81,7 +81,7 @@ func compareResult(s, out string, t *testing.T) {
 func TestPosition(t *testing.T) {
 	list := idList(t)
 	out := captureOutput(Check, list, "position")
-	s := expectedOutput("./testdata/position.out", t)
+	s := expectedOutput("./testdata/position.log", t)
 	out = s // for some reason out is empty after inventing emit.Tee
 	compareResult(s, out, t)
 }
@@ -90,7 +90,7 @@ func TestPosition(t *testing.T) {
 func TestNegative(t *testing.T) {
 	list := idList(t)
 	out := captureOutput(Check, list, "negative")
-	s := expectedOutput("./testdata/negative.out", t)
+	s := expectedOutput("./testdata/negative.log", t)
 	out = s // for some reason out is empty after inventing emit.Tee
 	compareResult(s, out, t)
 }
