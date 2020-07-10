@@ -109,6 +109,7 @@ func scHelp(
 	return nil
 }
 
+// Encoding describes the way the byte stream is coded. TODO: Change to MultiArgs
 var Encoding string
 
 // HandleArgs evaluates the arguments slice of strings
