@@ -134,6 +134,7 @@ func frameForOsExitTests(parameters []string, exp string, t *testing.T) {
 		t.Fail()
 		return
 	}*/
+	time.Sleep(3 * time.Second)
 	b, _ := ioutil.ReadFile(logFile) // just pass the file name
 	os.Remove(logFile)               // must be before lib.Equals
 	act := string(b)

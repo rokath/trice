@@ -15,7 +15,12 @@ import (
 func Test1(t *testing.T) {
 	ss, err := com.GetSerialPorts()
 	lib.Equals(t, nil, err)
-
+	//	PS C:\repos\trice> trice s
+	//	Could not enumerate serial ports
+	//	PS C:\repos\trice> trice s
+	//	Found port:  COM4
+	//	PS C:\repos\trice> trice s
+	//	No serial ports found!
 	for i := range ss {
 		com.Port = ss[i]
 		p := com.New()
