@@ -9,13 +9,10 @@
 
   <project>
     <PathAndName>.\MDK-ARM_RTT0_DIRECT_BARE_NUCLEO-F030R8\MDK-ARM\MDK-ARM_RTT0_DIRECT_BARE_NUCLEO-F030R8.uvprojx</PathAndName>
-    <NodeIsExpanded>1</NodeIsExpanded>
   </project>
 
   <project>
     <PathAndName>.\MDK-ARM_LL_UART_BARE_NUCLEO-F030R8\MDK-ARM\MDK-ARM_LL_UART_BARE_NUCLEO-F030R8.uvprojx</PathAndName>
-    <NodeIsActive>1</NodeIsActive>
-    <NodeIsExpanded>1</NodeIsExpanded>
   </project>
 
   <project>
@@ -24,12 +21,10 @@
 
   <project>
     <PathAndName>.\MDK-ARM_LL_UART_NUCLEO-F030R8\MDK-ARM\MDK-ARM_LL_UART_NUCLEO-F030R8.uvprojx</PathAndName>
-    <NodeIsExpanded>1</NodeIsExpanded>
   </project>
 
   <project>
     <PathAndName>.\MDK-ARM_HAL_UART_NUCLEO-F030R8\MDK-ARM\MDK-ARM_HAL_UART_NUCLEO-F030R8.uvprojx</PathAndName>
-    <NodeIsExpanded>1</NodeIsExpanded>
   </project>
 
   <project>
@@ -62,7 +57,6 @@
 
   <project>
     <PathAndName>.\MDK-ARM_LL_UART_NUCLEO-F070RB\MDK-ARM\MDK-ARM_LL_UART_NUCLEO-F070RB.uvprojx</PathAndName>
-    <NodeIsExpanded>1</NodeIsExpanded>
   </project>
 
   <project>
@@ -75,6 +69,8 @@
 
   <project>
     <PathAndName>.\MDK-ARM_LL_RTT1_NUCLEO-F091RC\MDK-ARM\MDK-ARM_LL_RTT1_NUCLEO-F091RC.uvprojx</PathAndName>
+    <NodeIsActive>1</NodeIsActive>
+    <NodeIsExpanded>1</NodeIsExpanded>
   </project>
 
   <project>
