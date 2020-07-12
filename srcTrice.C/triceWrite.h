@@ -4,4 +4,6 @@
 
 unsigned triceWriteSpace( void );
 unsigned triceWrite(const void *buf, int nbytes);
-void triceServe( void );
+void triceServe( void ); // wrap
+void triceServeBare( void ); // bare
+

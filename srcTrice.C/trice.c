@@ -66,6 +66,21 @@ void triceToWriteBuffer( void ){
     }
 }
 
+
+void triceBareToWriteBuffer( void ){
+    uint32_t depth = triceFifoDepth();
+    if( depth ){ // trice for transfer available
+        if( triceWriteSpace() < TRICE_WRITE_SPACE_MIN){ // no space in write buffer
+            return; // don't transfer trices if buffer is too full
+        }
+        {
+            uint32_t trice;
+            triceFifoPop( &trice );
+            triceWrite( &trice, sizeof(trice) );
+        }
+    }
+}
+
 #endif
 
 //! pull next trice from fifo and prepare triceMsg buffer

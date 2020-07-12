@@ -7,7 +7,7 @@
 
   <Targets>
     <Target>
-      <TargetName>MDK-ARM_HAL_UART_NUCLEO-F030R8</TargetName>
+      <TargetName>MDK-ARM_RTT0_DIRECT_BARE_NUCLEO-F030R8</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
       <pCCUsed>5060750::V5.06 update 6 (build 750)::ARMCC</pCCUsed>
@@ -48,8 +48,8 @@
             <NotGenerated>0</NotGenerated>
             <InvalidFlash>1</InvalidFlash>
           </TargetStatus>
-          <OutputDirectory>MDK-ARM_HAL_UART_NUCLEO-F030R8\</OutputDirectory>
-          <OutputName>MDK-ARM_HAL_UART_NUCLEO-F030R8</OutputName>
+          <OutputDirectory>MDK-ARM_RTT0_DIRECT_BARE_NUCLEO-F030R8\</OutputDirectory>
+          <OutputName>MDK-ARM_RTT0_DIRECT_BARE_NUCLEO-F030R8</OutputName>
           <CreateExecutable>1</CreateExecutable>
           <CreateLib>0</CreateLib>
           <CreateHexFile>1</CreateHexFile>
@@ -72,7 +72,7 @@
           <BeforeMake>
             <RunUserProg1>1</RunUserProg1>
             <RunUserProg2>0</RunUserProg2>
-            <UserProg1Name>trice u -src .. -src  ../../../srcTrice.C -list ../../til.json -v</UserProg1Name>
+            <UserProg1Name>trice u -src .. -src ../../../srcTrice.C -i ../../til.json</UserProg1Name>
             <UserProg2Name></UserProg2Name>
             <UserProg1Dos16Mode>0</UserProg1Dos16Mode>
             <UserProg2Dos16Mode>0</UserProg2Dos16Mode>
@@ -89,7 +89,7 @@
             <nStopA1X>0</nStopA1X>
             <nStopA2X>0</nStopA2X>
           </AfterMake>
-          <SelectedForBatchBuild>1</SelectedForBatchBuild>
+          <SelectedForBatchBuild>0</SelectedForBatchBuild>
           <SVCSIdString></SVCSIdString>
         </TargetCommonOption>
         <CommonProperty>
@@ -316,7 +316,7 @@
             <Optim>4</Optim>
             <oTime>1</oTime>
             <SplitLS>0</SplitLS>
-            <OneElfS>0</OneElfS>
+            <OneElfS>1</OneElfS>
             <Strict>0</Strict>
             <EnumInt>0</EnumInt>
             <PlainCh>0</PlainCh>
@@ -337,9 +337,9 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>TRICE_VARIANT=STM32_HAL,USE_HAL_DRIVER,STM32F030x8</Define>
+              <Define>TRICE_VARIANT=SEGGER_RTT0_DIRECT_BARE,USE_HAL_DRIVER,STM32F030x8</Define>
               <Undefine></Undefine>
-              <IncludePath>../Inc;   ..\..\..\srcTrice.C;C:/ST/CubeMX/STM32Cube_FW_F0_V1.11.0/Drivers/STM32F0xx_HAL_Driver/Inc;C:/ST/CubeMX/STM32Cube_FW_F0_V1.11.0/Drivers/STM32F0xx_HAL_Driver/Inc/Legacy;C:/ST/CubeMX/STM32Cube_FW_F0_V1.11.0/Drivers/CMSIS/Device/ST/STM32F0xx/Include;C:/ST/CubeMX/STM32Cube_FW_F0_V1.11.0/Drivers/CMSIS/Include</IncludePath>
+              <IncludePath>../Inc;C:/ST/CubeMX/STM32Cube_FW_F0_V1.11.0/Drivers/STM32F0xx_HAL_Driver/Inc;C:/ST/CubeMX/STM32Cube_FW_F0_V1.11.0/Drivers/STM32F0xx_HAL_Driver/Inc/Legacy;C:/ST/CubeMX/STM32Cube_FW_F0_V1.11.0/Drivers/CMSIS/Device/ST/STM32F0xx/Include;C:/ST/CubeMX/STM32Cube_FW_F0_V1.11.0/Drivers/CMSIS/Include;..\..\..\srcTrice.C;..\..\..\third_party\SEGGER_RTT\RTT</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -352,7 +352,7 @@
             <NoWarn>0</NoWarn>
             <uSurpInc>0</uSurpInc>
             <useXO>0</useXO>
-            <ClangAsOpt>13</ClangAsOpt>
+            <ClangAsOpt>1</ClangAsOpt>
             <VariousControls>
               <MiscControls></MiscControls>
               <Define></Define>
@@ -387,41 +387,6 @@
               <FileName>startup_stm32f030x8.s</FileName>
               <FileType>2</FileType>
               <FilePath>startup_stm32f030x8.s</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>Trice</GroupName>
-          <Files>
-            <File>
-              <FileName>trice.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\srcTrice.C\trice.c</FilePath>
-            </File>
-            <File>
-              <FileName>triceCheck.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\srcTrice.C\triceCheck.c</FilePath>
-            </File>
-            <File>
-              <FileName>tricePrintfAdapter.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\srcTrice.C\tricePrintfAdapter.c</FilePath>
-            </File>
-            <File>
-              <FileName>triceRuntimeGeneratedStrings.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\srcTrice.C\triceRuntimeGeneratedStrings.c</FilePath>
-            </File>
-            <File>
-              <FileName>xteaCrypto.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\srcTrice.C\xteaCrypto.c</FilePath>
-            </File>
-            <File>
-              <FileName>triceWrite.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\srcTrice.C\triceWrite.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -546,6 +511,46 @@
           </Files>
         </Group>
         <Group>
+          <GroupName>Trice</GroupName>
+          <Files>
+            <File>
+              <FileName>trice.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\srcTrice.C\trice.c</FilePath>
+            </File>
+            <File>
+              <FileName>triceCheck.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\srcTrice.C\triceCheck.c</FilePath>
+            </File>
+            <File>
+              <FileName>triceWriteSeggerRTT.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\srcTrice.C\triceWriteSeggerRTT.c</FilePath>
+            </File>
+            <File>
+              <FileName>tricePrintfAdapter.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\srcTrice.C\tricePrintfAdapter.c</FilePath>
+            </File>
+            <File>
+              <FileName>triceRuntimeGeneratedStrings.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\srcTrice.C\triceRuntimeGeneratedStrings.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>SeggerRTT</GroupName>
+          <Files>
+            <File>
+              <FileName>SEGGER_RTT.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\third_party\SEGGER_RTT\RTT\SEGGER_RTT.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
           <GroupName>::CMSIS</GroupName>
         </Group>
       </Groups>
@@ -558,7 +563,7 @@
       <component Cclass="CMSIS" Cgroup="CORE" Cvendor="ARM" Cversion="4.3.0" condition="CMSIS Core">
         <package name="CMSIS" schemaVersion="1.3" url="http://www.keil.com/pack/" vendor="ARM" version="4.5.0"/>
         <targetInfos>
-          <targetInfo name="MDK-ARM_HAL_UART_NUCLEO-F030R8"/>
+          <targetInfo name="MDK-ARM_RTT0_DIRECT_BARE_NUCLEO-F030R8"/>
         </targetInfos>
       </component>
     </components>

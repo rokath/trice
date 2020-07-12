@@ -21,7 +21,7 @@ unsigned triceWriteSpace( void ){
 }
 
 
-//! triceWrite is copying data into a separate buffer fot transmission
+//! triceWrite is copying data into a separate buffer for transmission
 //! \param buf address to read from
 //! \param nbytes count to write
 //! \return count of written bytes
@@ -190,6 +190,24 @@ void triceServe( void ){
 #if TRICE_TRANSFER_PERIOD
     if( tick > lastTransfer + TRICE_TRANSFER_PERIOD ){
         triceToWriteBuffer();
+        lastTransfer = tick;
+    }
+#endif
+#if TRICE_SERVE_PERIOD
+    if( tick > lastServe + TRICE_SERVE_PERIOD ){
+        triceWriteBufferOut();
+        lastServe = tick;
+    }
+#endif
+}
+
+void triceServeBare( void ){
+    unsigned tick = TRICE_SERVER_TICK;
+    static int lastTransfer = 0;
+    static int lastServe = 0;
+#if TRICE_TRANSFER_PERIOD
+    if( tick > lastTransfer + TRICE_TRANSFER_PERIOD ){
+        triceBareToWriteBuffer();
         lastTransfer = tick;
     }
 #endif

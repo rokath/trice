@@ -255,6 +255,16 @@ unsigned triceWrite(const void *buf, int nbytes){
 
 
 
+//! put one trice into RTT0 buffer
+//! \param v trice
+//! trice time critical part
+void tricePushRTT0( uint32_t v ){
+    SEGGER_RTT_Write(0, &v, sizeof(v));
+}
+
+
+
+
 #if TRICE_FIFO_SIZE
 
 unsigned minWriteSpace = 0xFFFFFFFF; //!< for min write space diagnostics
@@ -269,7 +279,7 @@ unsigned triceWriteSpace( void ){
 
 
 //! This function should be called cyclically to trigger transmission start, for example in the sysTick interrupt.
-//! If not interrup is used it should be called cyclically. With each call max 1 byte is transmitted.
+//! If no interrupt is used it should be called cyclically. With each call max 1 byte is transmitted.
 //! \param tick current tick, timebase is users choice
 //! \param transferPeriod (in ticks) is the max allowe trace transfer rate from trice fifo to trice write buffer.
 //! A (basic) trice allocates inside trice fifo 4 byte but in the write buffer 8 bytes. Therefore in case of heavy trice bursts
@@ -277,7 +287,6 @@ unsigned triceWriteSpace( void ){
 //! For example with 115200 baud about 10 bytes per ms are transferrable, if no other writes go over the same physical channel.
 //! So 1 ms for the transfer period is a reasonabe value in that case.
 //! \param servePeriod (in ticks) is the time period an internal check for writing out the 
-
 void triceServe( void ){
     triceToWriteBuffer();
 }

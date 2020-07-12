@@ -101,23 +101,30 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+    TRICE_SYNC;
     TRICE16_1( Id( 2625), "TIM:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
-    TRICE0( Id(28591), "att:MDK-ARM_LL_UART_NUCLEO-F070RB\n" );
+    TRICE0( Id(24882), "att:MDK-ARM_LL_UART_BARE_NUCLEO-F030R8\n" );
     TRICE16_1( Id( 2625), "TIM:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
     TRICE16_1( Id( 2625), "TIM:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
     TRICE16_1( Id( 2625), "TIM:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
     TRICE16_1( Id( 2625), "TIM:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
-    while (1)
     {
+        char* s = "Hi5!\n";
+        triceWrite( s, strlen(s));
+    }
+  while (1)
+  {
       //////////////////////////////////////////////////
       // demo trices
       //
       static uint32_t ms_1 = 0;
+      extern uint32_t ms;
       if( ms >= ms_1 + 1000 ){ // every sec
           static int index = 0;
+          TRICE_SYNC;
           triceCheckSet(index++%20);
           TRICE32_1( Id(29200), "time:ms = %d\n", ms );
-          LL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
+          //LL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
           ms_1 = ms;
       }
       //
@@ -127,11 +134,11 @@ int main(void)
       // needed background activity
       //
         #ifdef LL_INTERFACE_NO_INTERRUPTS
-        triceServe();
+        triceServeBare();
         #endif
       //
       //////////////////////////////////////////////////
-    /* USER CODE END WHILE */
+      /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
   }
@@ -158,7 +165,7 @@ void SystemClock_Config(void)
     
   }
   LL_RCC_HSI_SetCalibTrimming(16);
-  LL_RCC_PLL_ConfigDomain_SYS(LL_RCC_PLLSOURCE_HSI, LL_RCC_PLL_MUL_6, LL_RCC_PREDIV_DIV_1);
+  LL_RCC_PLL_ConfigDomain_SYS(LL_RCC_PLLSOURCE_HSI_DIV_2, LL_RCC_PLL_MUL_12);
   LL_RCC_PLL_Enable();
 
    /* Wait till PLL is ready */
@@ -205,7 +212,7 @@ static void MX_USART2_UART_Init(void)
   */
   GPIO_InitStruct.Pin = USART_TX_Pin;
   GPIO_InitStruct.Mode = LL_GPIO_MODE_ALTERNATE;
-  GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_HIGH;
+  GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_LOW;
   GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
   GPIO_InitStruct.Pull = LL_GPIO_PULL_NO;
   GPIO_InitStruct.Alternate = LL_GPIO_AF_1;
@@ -213,7 +220,7 @@ static void MX_USART2_UART_Init(void)
 
   GPIO_InitStruct.Pin = USART_RX_Pin;
   GPIO_InitStruct.Mode = LL_GPIO_MODE_ALTERNATE;
-  GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_HIGH;
+  GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_LOW;
   GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
   GPIO_InitStruct.Pull = LL_GPIO_PULL_NO;
   GPIO_InitStruct.Alternate = LL_GPIO_AF_1;

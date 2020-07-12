@@ -127,7 +127,15 @@ extern UART_HandleTypeDef hlpuart1;
 //#define HAL_INTERFACE_INTERRUPT_MODE
 #define HAL_INTERFACE_DMA_MODE
 
+#elif TRICE_VARIANT == SEGGER_RTT0_DIRECT_BARE
+// Legycy test implementation
+// trices go directly as bare to RTT0
+#include "SEGGER_RTT.h"
+#define TRICE_PUSH(v) tricePushRTT0(v)
+
 #elif TRICE_VARIANT == SEGGER_RTTB
+// Legycy test implementation
+// trices go in trice fifo and from there as wrap to RTT0
 #include "SEGGER_RTT.h"
 #define TRICE_PUSH(v) triceFifoPush(v)
 #define TRICE_FIFO_SIZE 1024 //!< must be a power of 2, one trice needs 4 to 32 bytes, must hold trice bursts until they are transmitted, fifo is transmitted with lower priority
