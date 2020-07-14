@@ -24,7 +24,7 @@ static ALIGN4 triceMsg_t triceMsg ALIGN4_END = {
 
 
 
-#if TRICE_FIFO_SIZE
+#if defined( TRICE_FIFO_SIZE ) && TRICE_FIFO_SIZE > 0
 
 //! trice fifo instance, here are the trices buffered. used in TRICE macro expansion
 ALIGN4 uint32_t triceFifo[ TRICE_FIFO_SIZE>>2 ] ALIGN4_END;

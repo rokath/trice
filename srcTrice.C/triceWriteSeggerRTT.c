@@ -3,7 +3,7 @@
 *******************************************************************************/
 
 #include "trice.h"
-#if 0
+#if 0 // WIP
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // unchanged copied from SEGGER_RTT.c lines 104-230 (some values maybe not used)
 #ifndef SEGGER_RTT_BUFFER_SECTION
@@ -258,14 +258,14 @@ unsigned triceWrite(const void *buf, int nbytes){
 //! put one trice into RTT0 buffer
 //! \param v trice
 //! trice time critical part
-void tricePushRTT0( uint32_t v ){
-    SEGGER_RTT_Write(0, &v, sizeof(v));
+void tricePushRTT( uint32_t v ){
+    SEGGER_RTT_Write(TRICE_RTT_CHANNEL, &v, sizeof(v));
 }
 
 
 
 
-#if TRICE_FIFO_SIZE
+#if defined( TRICE_FIFO_SIZE ) && TRICE_FIFO_SIZE > 0
 
 unsigned minWriteSpace = 0xFFFFFFFF; //!< for min write space diagnostics
 
@@ -291,4 +291,4 @@ void triceServe( void ){
     triceToWriteBuffer();
 }
 
-#endif // #if TRICE_FIFO_SIZE
+#endif // #if defined( TRICE_FIFO_SIZE ) && TRICE_FIFO_SIZE > 0

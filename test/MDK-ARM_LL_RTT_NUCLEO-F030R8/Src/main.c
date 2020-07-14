@@ -23,8 +23,6 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "SEGGER_RTT.h"
-#include "SEGGER_RTT_Conf.h"
 #include "string.h"
 #include "trice.h"
 /* USER CODE END Includes */
@@ -70,7 +68,7 @@ int main(void)
 {
   /* USER CODE BEGIN 1 */
 
-    /* USER CODE END 1 */
+  /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
 
@@ -102,6 +100,7 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+    TRICE_SYNC;
     TRICE16_1( Id( 2625), "TIM:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
     TRICE0( Id(52466), "att:MDK-ARM_LL_RTT_NUCLEO-F030R8\n" );
     TRICE16_1( Id( 2625), "TIM:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
@@ -119,6 +118,7 @@ int main(void)
       static uint32_t ms_1 = 0;
       extern uint32_t ms;
       if( ms >= ms_1 + 1000 ){ // every sec
+          TRICE_SYNC; // for re-synchronisation the running target
           static int index = 0;
           triceCheckSet(index++%20);
           TRICE32_1( Id(29200), "time:ms = %d\n", ms );
@@ -129,8 +129,9 @@ int main(void)
       //////////////////////////////////////////////////
 
       //////////////////////////////////////////////////
-      // no needed background activity
-      //////////////////////////////////////////////////        
+      // no background activity needed in code
+      //////////////////////////////////////////////////
+
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

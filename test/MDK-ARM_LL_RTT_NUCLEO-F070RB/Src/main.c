@@ -23,8 +23,6 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "SEGGER_RTT.h"
-#include "SEGGER_RTT_Conf.h"
 #include "string.h"
 #include "trice.h"
 /* USER CODE END Includes */
@@ -102,15 +100,13 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-    TRICE16_1( Id( 2625), "TIM:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
-    TRICE0( Id(26926), "att:MDK-ARM_LL_RTT_NUCLEO-F070RB\n" );
-    TRICE16_1( Id( 2625), "TIM:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
-    TRICE16_1( Id( 2625), "TIM:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
-    TRICE16_1( Id( 2625), "TIM:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
-    TRICE16_1( Id( 2625), "TIM:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
-    SEGGER_RTT_GetAvailWriteSpace(0);
-    char* s = "Hi5!\n";
-    SEGGER_RTT_Write(0, s, strlen(s));
+    TRICE_SYNC;
+    TRICE16_1( Id(45373), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
+    TRICE0( Id( 3223), "att:MDK-ARM_LL_RTT_NUCLEO-F070RB\n" );
+    TRICE16_1( Id(45373), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
+    TRICE16_1( Id(45373), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
+    TRICE16_1( Id(45373), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
+    TRICE16_1( Id(45373), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
     while (1)
     {
       //////////////////////////////////////////////////
@@ -119,6 +115,7 @@ int main(void)
       static uint32_t ms_1 = 0;
       extern uint32_t ms;
       if( ms >= ms_1 + 1000 ){ // every sec
+          TRICE_SYNC; // for re-synchronisation the running target
           static int index = 0;
           triceCheckSet(index++%20);
           TRICE32_1( Id(29200), "time:ms = %d\n", ms );
@@ -129,8 +126,9 @@ int main(void)
       //////////////////////////////////////////////////
 
       //////////////////////////////////////////////////
-      // no needed background activity
-      //////////////////////////////////////////////////        
+      // no background activity needed in code
+      //////////////////////////////////////////////////
+
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

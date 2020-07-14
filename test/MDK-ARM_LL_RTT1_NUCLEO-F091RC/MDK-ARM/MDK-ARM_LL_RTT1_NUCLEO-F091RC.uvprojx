@@ -337,7 +337,7 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>TRICE_VARIANT=SEGGER_RTT,USE_HAL_DRIVER,STM32F091xC</Define>
+              <Define>TRICE_VARIANT=SEGGER_RTT,TRICE_RTT_CHANNEL=1,USE_HAL_DRIVER,STM32F091xC</Define>
               <Undefine></Undefine>
               <IncludePath>../Inc;C:/Users/ms/STM32Cube/Repository/STM32Cube_FW_F0_V1.11.0/Drivers/STM32F0xx_HAL_Driver/Inc;C:/Users/ms/STM32Cube/Repository/STM32Cube_FW_F0_V1.11.0/Drivers/STM32F0xx_HAL_Driver/Inc/Legacy;C:/Users/ms/STM32Cube/Repository/STM32Cube_FW_F0_V1.11.0/Drivers/CMSIS/Device/ST/STM32F0xx/Include;C:/Users/ms/STM32Cube/Repository/STM32Cube_FW_F0_V1.11.0/Drivers/CMSIS/Include;..\..\..\srcTrice.C;..\..\..\third_party\SEGGER_RTT\RTT</IncludePath>
             </VariousControls>

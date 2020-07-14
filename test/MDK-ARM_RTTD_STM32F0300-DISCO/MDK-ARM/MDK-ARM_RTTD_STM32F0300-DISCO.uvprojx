@@ -337,7 +337,7 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>TRICE_VARIANT=SEGGER_RTTD,BUFFER_SIZE_UP=6800,USE_HAL_DRIVER,STM32F030x8</Define>
+              <Define>TRICE_VARIANT=SEGGER_RTT,BUFFER_SIZE_UP=6800,USE_HAL_DRIVER,STM32F030x8</Define>
               <Undefine></Undefine>
               <IncludePath>../Inc;C:/ST/CubeMX/STM32Cube_FW_F0_V1.11.0/Drivers/STM32F0xx_HAL_Driver/Inc;C:/ST/CubeMX/STM32Cube_FW_F0_V1.11.0/Drivers/STM32F0xx_HAL_Driver/Inc/Legacy;C:/ST/CubeMX/STM32Cube_FW_F0_V1.11.0/Drivers/CMSIS/Device/ST/STM32F0xx/Include;C:/ST/CubeMX/STM32Cube_FW_F0_V1.11.0/Drivers/CMSIS/Include;..\..\..\third_party\SEGGER_RTT_V672b\RTT;..\..\..\srcTrice.C</IncludePath>
             </VariousControls>

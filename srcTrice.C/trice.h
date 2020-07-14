@@ -166,9 +166,9 @@ TRICE_INLINE void triceDirectWriteARM7( uint32_t v ){
     SEGGER_RTT_WriteSkipNoLock(0, &v, sizeof(uint32_t) );
 }
 
-void tricePushRTT0( uint32_t v );
+void tricePushRTT( uint32_t v );
 
-#if TRICE_FIFO_SIZE
+#if defined( TRICE_FIFO_SIZE ) && TRICE_FIFO_SIZE > 0
 #define TRICE_FIFO_MASK ((TRICE_FIFO_SIZE>>2)-1) //!< max possible count of items in fifo
 
 extern uint32_t triceFifo[];
@@ -183,7 +183,7 @@ TRICE_INLINE void triceFifoPush( uint32_t v ){
     wrIndexTriceFifo &= TRICE_FIFO_MASK;
 }
    
-#endif // #if TRICE_FIFO_SIZE
+#endif // #if defined( TRICE_FIFO_SIZE ) && TRICE_FIFO_SIZE > 0
 
 #endif // #if NO_CODE != TRICE_CODE
 

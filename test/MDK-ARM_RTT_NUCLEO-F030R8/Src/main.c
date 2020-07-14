@@ -67,8 +67,7 @@ static void MX_USART2_UART_Init(void);
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-    void triceSeggerRTT_DoInit(void);
-    //triceSeggerRTT_DoInit();
+
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -103,16 +102,19 @@ int main(void)
     TRICE16_1( Id( 2625), "TIM:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
     TRICE16_1( Id( 2625), "TIM:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
     TRICE16_1( Id( 2625), "TIM:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
-    while (1)
-    {
+
+    char* s = "Hi5!\n";
+    SEGGER_RTT_Write(0, s, strlen(s));
+  while (1)
+  {
       //////////////////////////////////////////////////
       // demo trices
       //
       static uint32_t ms_1 = 0;
       uint32_t ms = HAL_GetTick();
       if( ms >= ms_1 + 1000 ){ // every sec
-          TRICE_SYNC; // for re-synchronisation the running target
           static int index = 0;
+          TRICE_SYNC; // for re-synchronisation the running target
           triceCheckSet(index++%20);
           TRICE32_1( Id(29200), "time:ms = %d\n", ms );
           ms_1 = ms;

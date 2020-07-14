@@ -98,6 +98,7 @@ extern "C" {
 #endif
 
 #if TRICE_VARIANT == STM32_LL
+// trices go in trice fifo and from there in  background as wraps to UART
 #define TRICE_PUSH(v) triceFifoPush(v)
 #define TRICE_FIFO_SIZE 256 //!< must be a power of 2, one trice needs 4 to 32 bytes, must hold trice bursts until they are transmitted, fifo is transmitted with lower priority
 #define TRICE_SERVER_TICK ms
@@ -127,58 +128,44 @@ extern UART_HandleTypeDef hlpuart1;
 //#define HAL_INTERFACE_INTERRUPT_MODE
 #define HAL_INTERFACE_DMA_MODE
 
-#elif TRICE_VARIANT == SEGGER_RTT0_DIRECT_BARE
-// Legycy test implementation
-// trices go directly as bare to RTT0
-#include "SEGGER_RTT.h"
-#define TRICE_PUSH(v) tricePushRTT0(v)
+// #elif TRICE_VARIANT == SEGGER_RTT0_DIRECT_BARE
+// // trices go directly as bare to RTT0
+// #define USE_SEGGER_RTT
+// #define TRICE_RTT_CHANNEL 0
+// #define TRICE_PUSH(v) tricePushRTT(v)
 
 #elif TRICE_VARIANT == SEGGER_RTTB
 // Legycy test implementation
 // trices go in trice fifo and from there as wrap to RTT0
-#include "SEGGER_RTT.h"
+#define USE_SEGGER_RTT // assumes TRICE_RTT_CHANNEL=0 if not defined in project settings
 #define TRICE_PUSH(v) triceFifoPush(v)
 #define TRICE_FIFO_SIZE 1024 //!< must be a power of 2, one trice needs 4 to 32 bytes, must hold trice bursts until they are transmitted, fifo is transmitted with lower priority
 #define LL_INTERFACE_NO_INTERRUPTS
 
-#elif TRICE_VARIANT == SEGGER_RTT1
-#include "SEGGER_RTT.h"
-#define TRICE_PUSH(v) triceToRTT1( v )
-#define TRICE_FIFO_SIZE 0 //!< must be a power of 2, one trice needs 4 to 32 bytes, must hold trice bursts until they are transmitted, fifo is transmitted with lower priority
-#define LL_INTERFACE_NO_INTERRUPTS
-
 #elif TRICE_VARIANT == SEGGER_RTT
-#define TRICE_RTT_CHANNEL 0
-#define TRICE_RTT_BUFFER_SIZE 1024 //!< must be a multiple of 4
+#define USE_SEGGER_RTT // assumes TRICE_RTT_CHANNEL=0 if not defined in project settings
+#define TRICE_PUSH(v) tricePushRTT( v ) // bare format is used per default
+//#define LL_INTERFACE_NO_INTERRUPTS
 
-#define BUFFER0_SIZE_UP   1024
-#define BUFFER0_SIZE_DOWN   16
-#define BUFFER1_SIZE_UP      4
-#define BUFFER1_SIZE_DOWN    4
-#define BUFFER2_SIZE_UP   TRICE_RTT_BUFFER_SIZE
-#define BUFFER2_SIZE_DOWN    4
-#define SEGGER_RTT_MAX_NUM_UP_BUFFERS                   (3)    // Number of up-buffers (T->H) available on this target
-#define SEGGER_RTT_MAX_NUM_DOWN_BUFFERS                 (3)    // Number of down-buffers (H->T) available on this target
+// #elif TRICE_VARIANT == SEGGER_RTTD
+// #define USE_SEGGER_RTT // assumes TRICE_RTT_CHANNEL=0 if not defined in project settings
+// #define TRICE_PUSH(v) tricePushRTT( v ) // bare format is used per default
+// //#define TRICE_PUSH(v) do{ uint32_t y = v; SEGGER_RTT_Write( 0, &y, sizeof(uint32_t) ); }while(0)
 
+// #elif TRICE_VARIANT == SEGGER_RTT1
+// #error unfinished
+// #include "SEGGER_RTT.h"
+// #define TRICE_PUSH(v) triceToRTT1( v )
+// #define TRICE_FIFO_SIZE 0 //!< must be a power of 2, one trice needs 4 to 32 bytes, must hold trice bursts until they are transmitted, fifo is transmitted with lower priority
+// #define LL_INTERFACE_NO_INTERRUPTS
 
-#include "SEGGER_RTT.h"
-void triceToRTT( uint32_t v );
-//#define TRICE_PUSH(v) triceToRTT( v ) //tricePush( v )
-#define TRICE_PUSH(v) do{ uint32_t y = v; SEGGER_RTT_Write( 0, &y, sizeof(uint32_t) ); }while(0)
-#define TRICE_FIFO_SIZE 0 //!< must be a power of 2, one trice needs 4 to 32 bytes, must hold trice bursts until they are transmitted, fifo is transmitted with lower priority
-#define LL_INTERFACE_NO_INTERRUPTS
-
-#elif TRICE_VARIANT == SEGGER_RTTD
-#include "SEGGER_RTT.h"
-#define TRICE_FIFO_SIZE 0 //!< must be a power of 2, one trice needs 4 to 32 bytes, must hold trice bursts until they are transmitted, fifo is transmitted with lower priority
-#define TRICE_PUSH(v) do{ uint32_t y = v; SEGGER_RTT_Write( 0, &y, sizeof(uint32_t) ); }while(0)
-
-#elif TRICE_VARIANT == SEGGER_RTTD_ASM
-#include "SEGGER_RTT.h"
-#define TRICE_FIFO_SIZE 0 //!< must be a power of 2, one trice needs 4 to 32 bytes, must hold trice bursts until they are transmitted, fifo is transmitted with lower priority
-//#define RTT_USE_ASM (0)
-#define TRICE_PUSH(v) do{ uint32_t y = v; SEGGER_RTT_Write( 0, &y, sizeof(uint32_t) ); }while(0)
-//#define TRICE_PUSH(v) do{ uint32_t y = v; SEGGER_RTT_ASM_WriteSkipNoLock( 0, &y, sizeof(uint32_t) ); }while(0)
+// #elif TRICE_VARIANT == SEGGER_RTTD_ASM
+// #error ????????????
+// #define USE_SEGGER_RTT
+// #define TRICE_FIFO_SIZE 0 //!< must be a power of 2, one trice needs 4 to 32 bytes, must hold trice bursts until they are transmitted, fifo is transmitted with lower priority
+// //#define RTT_USE_ASM (0)
+// #define TRICE_PUSH(v) do{ uint32_t y = v; SEGGER_RTT_Write( 0, &y, sizeof(uint32_t) ); }while(0)
+// //#define TRICE_PUSH(v) do{ uint32_t y = v; SEGGER_RTT_ASM_WriteSkipNoLock( 0, &y, sizeof(uint32_t) ); }while(0)
 #endif
 
 #include "triceConfigTxInterrupt.h"
@@ -196,6 +183,37 @@ extern uint16_t writeCountMax;
 //#include "triceStm32PutCharConfig.h" // does not work now
 //#include "triceStm32WriteConfig.h" // does not compile yet
 //#include "triceArduinoConfig.h" // does not work yet
+
+
+
+#ifdef USE_SEGGER_RTT
+// predefine SEGGER constants before including "SEGGER_RTT.h" to overwrite default values
+#ifndef TRICE_RTT_CHANNEL
+#define TRICE_RTT_CHANNEL 0
+#endif
+#define TRICE_RTT_BUFFER_SIZE 1024 //!< must be a multiple of 4
+#if 0 == TRICE_RTT_CHANNEL
+#define BUFFER0_SIZE_UP   TRICE_RTT_BUFFER_SIZE
+#else
+#define BUFFER0_SIZE_UP   4
+#endif
+#if 1 == TRICE_RTT_CHANNEL
+#define BUFFER1_SIZE_UP   TRICE_RTT_BUFFER_SIZE
+#else
+#define BUFFER1_SIZE_UP   4
+#endif
+#if 2 == TRICE_RTT_CHANNEL
+#define BUFFER2_SIZE_UP   TRICE_RTT_BUFFER_SIZE
+#else
+#define BUFFER2_SIZE_UP   4
+#endif
+#define BUFFER0_SIZE_DOWN   16
+#define BUFFER1_SIZE_DOWN    4
+#define BUFFER2_SIZE_DOWN    4
+#define SEGGER_RTT_MAX_NUM_UP_BUFFERS                   (3)    // Number of up-buffers (T->H) available on this target
+#define SEGGER_RTT_MAX_NUM_DOWN_BUFFERS                 (3)    // Number of down-buffers (H->T) available on this target
+#include "SEGGER_RTT.h"
+#endif
 
 #ifdef __cplusplus
 }

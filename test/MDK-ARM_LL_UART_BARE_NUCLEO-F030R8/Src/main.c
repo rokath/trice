@@ -103,7 +103,7 @@ int main(void)
   /* USER CODE BEGIN WHILE */
     TRICE_SYNC;
     TRICE16_1( Id( 2625), "TIM:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
-    TRICE0( Id(24882), "att:MDK-ARM_LL_UART_BARE_NUCLEO-F030R8\n" );
+    TRICE0( Id(21864), "att:MDK-ARM_LL_UART_BARE_NUCLEO-F030R8\n" );
     TRICE16_1( Id( 2625), "TIM:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
     TRICE16_1( Id( 2625), "TIM:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
     TRICE16_1( Id( 2625), "TIM:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
