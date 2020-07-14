@@ -8,16 +8,27 @@
   <WorkspaceName>WorkSpace</WorkspaceName>
 
   <project>
-    <PathAndName>.\MDK-ARM_LL_UART_BARE_NUCLEO-F030R8\MDK-ARM\MDK-ARM_LL_UART_BARE_NUCLEO-F030R8.uvprojx</PathAndName>
+    <PathAndName>.\MDK-ARM_LL_RTTB_NUCLEO-F030R8\MDK-ARM\MDK-ARM_LL_RTTB_NUCLEO-F030R8.uvprojx</PathAndName>
     <NodeIsExpanded>1</NodeIsExpanded>
   </project>
 
   <project>
-    <PathAndName>.\MDK-ARM_LL_generatedDemo_NUCLEO-F030R8\MDK-ARM\MDK-ARM_LL_generatedDemo_NUCLEO-F030R8.uvprojx</PathAndName>
+    <PathAndName>.\MDK-ARM_RTT_NUCLEO-F030R8\MDK-ARM\MDK-ARM_RTT_NUCLEO-F030R8.uvprojx</PathAndName>
+  </project>
+
+  <project>
+    <PathAndName>.\MDK-ARM_LL_RTT_NUCLEO-F030R8\MDK-ARM\MDK-ARM_LL_RTT_NUCLEO-F030R8.uvprojx</PathAndName>
+  </project>
+
+  <project>
+    <PathAndName>.\MDK-ARM_LL_UART_BARE_NUCLEO-F030R8\MDK-ARM\MDK-ARM_LL_UART_BARE_NUCLEO-F030R8.uvprojx</PathAndName>
+    <NodeIsActive>1</NodeIsActive>
+    <NodeIsExpanded>1</NodeIsExpanded>
   </project>
 
   <project>
     <PathAndName>.\MDK-ARM_LL_UART_NUCLEO-F030R8\MDK-ARM\MDK-ARM_LL_UART_NUCLEO-F030R8.uvprojx</PathAndName>
+    <NodeIsExpanded>1</NodeIsExpanded>
   </project>
 
   <project>
@@ -25,12 +36,7 @@
   </project>
 
   <project>
-    <PathAndName>.\MDK-ARM_LL_RTT_NUCLEO-F030R8\MDK-ARM\MDK-ARM_LL_RTT_NUCLEO-F030R8.uvprojx</PathAndName>
-    <NodeIsExpanded>1</NodeIsExpanded>
-  </project>
-
-  <project>
-    <PathAndName>.\MDK-ARM_LL_RTTB_NUCLEO-F030R8\MDK-ARM\MDK-ARM_LL_RTTB_NUCLEO-F030R8.uvprojx</PathAndName>
+    <PathAndName>.\MDK-ARM_LL_generatedDemo_NUCLEO-F030R8\MDK-ARM\MDK-ARM_LL_generatedDemo_NUCLEO-F030R8.uvprojx</PathAndName>
   </project>
 
   <project>
@@ -59,11 +65,6 @@
 
   <project>
     <PathAndName>.\MDK-ARM_LL_RTT1_NUCLEO-F091RC\MDK-ARM\MDK-ARM_LL_RTT1_NUCLEO-F091RC.uvprojx</PathAndName>
-  </project>
-
-  <project>
-    <PathAndName>.\MDK-ARM_RTT_NUCLEO-F030R8\MDK-ARM\MDK-ARM_RTT_NUCLEO-F030R8.uvprojx</PathAndName>
-    <NodeIsActive>1</NodeIsActive>
   </project>
 
 </ProjectWorkspace>

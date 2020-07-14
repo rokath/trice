@@ -102,7 +102,7 @@ int main(void)
     TRICE16_1( Id( 2625), "TIM:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
     TRICE16_1( Id( 2625), "TIM:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
     TRICE16_1( Id( 2625), "TIM:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
-
+    SEGGER_RTT_GetAvailWriteSpace(0);
     char* s = "Hi5!\n";
     SEGGER_RTT_Write(0, s, strlen(s));
   while (1)
@@ -113,8 +113,8 @@ int main(void)
       static uint32_t ms_1 = 0;
       uint32_t ms = HAL_GetTick();
       if( ms >= ms_1 + 1000 ){ // every sec
-          static int index = 0;
           TRICE_SYNC; // for re-synchronisation the running target
+          static int index = 0;
           triceCheckSet(index++%20);
           TRICE32_1( Id(29200), "time:ms = %d\n", ms );
           ms_1 = ms;

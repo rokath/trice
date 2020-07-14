@@ -101,6 +101,7 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+    TRICE_SYNC
     TRICE16_1( Id( 2625), "TIM:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
     TRICE0( Id(22234), "att:MDK-ARM_LL_UART_NUCLEO-F030R8\n" );
     TRICE16_1( Id( 2625), "TIM:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
@@ -115,6 +116,7 @@ int main(void)
       static uint32_t ms_1 = 0;
       if( ms >= ms_1 + 1000 ){ // every sec
           static int index = 0;
+          TRICE_SYNC
           triceCheckSet(index++%20);
           TRICE32_1( Id(29200), "time:ms = %d\n", ms );
           LL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
