@@ -5,9 +5,10 @@ package decoder
 
 import (
 	"bufio"
-	"errors"
+	"encoding/binary"
 	"io"
 	"time"
+	"errors"
 
 	"github.com/rokath/trice/internal/bare"
 )
@@ -32,20 +33,132 @@ func Timestamp() string {
 	return s
 }
 
+///////////////////////////////////////////////////////////////////////////////
+// TRICE message struct
+//
+
+// trice & command message header for routing, syncing and conistency check
+type triceMsgHeader struct {
+	start byte // trice message header start value
+	cad   byte // client address
+	sad   byte // server address
+	crc8  byte // ab^cad^sad^load[0]^load[1]^load[2]^load[3]
+}
+
+// trice message payload
+type triceMsgLoad struct {
+	id   uint16 // trice id
+	data uint16 // 2 data byte
+}
+
+// command message payload
+type cmdMsgLoad struct{
+	tid uint8
+	fid uint8
+	pix uint8
+	dpc uint8
+}
+
+//! \code
+//! trice package: header without data packages
+//!   |--------------------------------- fixed packet start0 byte 0xeb
+//!   |   |----------------------------- client address (local address byte)
+//!   |   |   |------------------------- server address (destination)
+//!   |   |   |   |--------------------- exclusive-or checksum byte
+//!   |   |   |   |   |----------------- ID low part
+//!   |   |   |   |   |   |------------- ID high part
+//!   |   |   |   |   |   |   |--------- Value Low part
+//!   |   |   |   |   |   |   |   |----- Value High part
+//!   v   v   v   v   v   v   v   v
+//! 0xeb cad sad cr8 idL idH vaL  vaH
+//!
+//! com packet: header followed by 0...255 data packages
+//!   |--------------------------------- fixed packet start0 byte 0xc0
+//!   |   |----------------------------- following data package count fixed 1 for trice strings
+//!   |   |   |------------------------- server address (destination)
+//!   |   |   |   |--------------------- exclusive-or checksum byte
+//!   |   |   |   |   |----------------- type identifyer byte
+//!   |   |   |   |   |   |------------- function identifyer byte
+//!   |   |   |   |   |   |   |--------- packet index (2 lsb packet type and and 6 msb cycle counter)
+//!   |   |   |   |   |   |   |   |----- data package count
+//!   v   v   v   v   v   v   v   v
+//! 0xc0 cad sad cr8 tid fid pix dpc
+//!
+//! com type: (part of pix)
+//!       bit1      |      bit0       | meaning
+//!   COM_CMD_FLAG  | COM_ANSWER_FLAG |
+//! ----------------|-----------------|------------------------------------------
+//!         1       |        1        | \b Cmd = command expecting answer
+//!         0       |        1        | \b Ans = answer to a command expecting answer
+//!         1       |        0        | \b Msg = command not expecting an answer (message)
+//!         0       |        0        | \b Buf = trice string package, when 0xffff==tidfid
+//! \endcode
+//! trice message packet
+type triceMsg struct {
+	hd triceMsgHeader // header
+	ld triceMsgLoad   // payload
+}
+
 // Pkg is the basic command payload data structure. A Pkg contains a slice of bytes.  The byte count is coded implicit in the slice len.
 type Pkg struct {
 	Payload []byte // package data filled with len(Payload) bytes
 }
 
-// Command is the data type for commands
+// Command is the data type for commands.
+//
+// The data package count is given by len([]Pkg)
 type Command struct {
-	TID byte  // type identifyer byte
-	FID byte  // function identifyer byte
-	PIX byte  // packet index (2 lsb packet type and and 6 msb cycle counter)
-	DPC byte  // data package count as real count value, 0 ^= no package, 255 ^= 255 packages
-	PKG []Pkg // each command can have several data packages as payload
+	TID byte // type identifyer byte
+	FID byte // function identifyer byte
+	PIX byte // packet index (2 lsb packet type and and 6 msb cycle counter)
+	//DPC byte  // data package count as real count value, 0 ^= no package, 255 ^= 255 packages
+	//PID uint // package id (cycle counter)
+	//TYPE byte
+	//DATA []Pkg // each command can have several data packages as payload
+	DataPackageCount uint8
+	PKG [][]byte
+	r io.Reader
 }
 
+func (c Command)DecodeData() error {
+	var i uint8
+	for i < c.DataPackageCount{
+	var len uint16
+	if err := binary.Read(c.r, binary.LittleEndian, &len); err != nil {
+		return err
+	}
+	buf := make([]byte, len)
+	io.ReadFull(c.r, buf)
+	c.PKG = append(c.PKG,buf)
+	i++
+	}
+	return nil
+}
+
+func (p Command) setVal() {
+	/// x := &Pkg
+	/// p.PKG.Pkg[0] = make([]byte,10)
+	/// p.PKG = make([]Pkg,10)
+
+}
+
+type Book struct {
+	TID byte
+	FID byte
+	PIX byte
+	PKG [][]byte
+}
+
+func xxx() {
+
+	var Some Book
+	Some.TID = 111
+	Some.FID = 0xff
+	Some.PIX = 22
+	dat0 := []byte{1, 2, 3, 4, 5}
+	dat1 := []byte{11, 12}
+	Some.PKG = [][]byte{dat0, dat1}
+}
 // StringWriter is the interface that wraps the basic string Write method.
 //
 // Write writes len(p) strings from p to the underlying data stream. It returns the number of strings
@@ -90,7 +203,12 @@ type T struct {
 
 // New provides a decoder with encoding properties.
 // It expects r as reader and send-only channels
-func New(r io.Reader, encoding []string, trice chan<- []bare.Item, command chan<- Command, ascii chan<- string, dropped chan<- byte, err chan<- error) (*T, error) {
+func New(r io.Reader, encoding []string,
+	trice chan<- []bare.Item,
+	command chan<- Command,
+	ascii chan<- string,
+	dropped chan<- byte,
+	err chan<- error) (*T, error) {
 	p := &T{
 		bytes:    r,
 		encoding: encoding,

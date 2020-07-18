@@ -118,6 +118,9 @@ func (p *TriceReceiver) receiveTrices() {
 }
 
 // evalHeader checks if b contains valid header data
+//
+// first byte == 0xC0 & CRC8 ok -> valid trice wrap
+// first byte == 0xE0 & CRC8 ok -> valid command header
 func evalHeader(b []byte) bool {
 	x := 8 == len(b) &&
 		(0xc0 == b[0] || 0xeb == b[0]) && // start byte
