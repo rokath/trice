@@ -160,7 +160,7 @@ func EvalLen(it id.Item, t []byte) error {
 	return nil
 }
 
-// emmiter wworks fine with %x, %d and %o but NOT with %u for now
+// emmiter works fine with %x, %d and %o but NOT with %u for now
 // %x is emitted in Go signed!
 // For %u a format string parsing is needed to perform the correct casts.
 func Emitter(it id.Item, t, b []byte) (string, []byte, error) {

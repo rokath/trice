@@ -4,7 +4,7 @@
 // Package bare reads bare items from differently encoded byte streams.
 //
 // To use it you need a to provide an inner byte reader like COM or FILE and information about the byte stream encoding.
-// See baretrice_test.go for examples.
+// See bare_test.go for examples.
 package bare
 
 import (
@@ -112,7 +112,7 @@ func min(a, b int) int {
 	return b
 }
 
-// readRaw uses inner reader p.r to read byte stream and assumes encoding 'raw' for interpretation.
+// readRaw uses inner reader p.r to read byte stream and assumes encoding 'raw' (=='bare') for interpretation.
 func (p *Reader) readRaw(i []Item) (int, error) {
 	leftovers := len(p.by) // byte buffered in bytes buffer
 	var minBytes int       // byte count making an Item
