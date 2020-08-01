@@ -200,7 +200,8 @@ func HandleArgs(args []string) error {
 
 	case "s", "sc", "scan":
 		sCmd.Parse(subArgs)
-		return scScan()
+		_, err := com.GetSerialPorts()
+		return err
 
 	case "v", "ver", "version":
 		vCmd.Parse(subArgs)
@@ -226,10 +227,10 @@ func HandleArgs(args []string) error {
 		scLog.Parse(subArgs)
 		lib.TimeStampFormat = decoder.TimeStampFormat // todo
 		setPrefix(emit.Prefix)
-		if strings.HasPrefix(global.Source, "COM") {
-			com.Port = global.Source // set COM port number
-			global.Source = "COM"
-		}
+		//if strings.HasPrefix(global.Source, "COM") {
+		//com.Port = global.Source // set COM port number
+		//global.Source = "COM" // overwrite "COMn"
+		//}
 		id.FnJSON = lib.ConditinalFilePath(id.FnJSON)
 
 		if false == displayserver {
@@ -311,7 +312,13 @@ func receiving() {
 		return
 	}
 	var r io.ReadCloser
-	switch global.Source {
+
+	source := global.Source
+	if strings.HasPrefix(source, "COM") {
+		source = "COM" // overwrite "COMn"
+	}
+
+	switch source {
 	case "JLINK":
 		l := jlink.New(jlink.Param) // yes
 		if nil != l.Open() {
@@ -330,7 +337,7 @@ func receiving() {
 		innerReader := randomdummy.New(randomdummy.ZeroRandomSeed, rndMode, randomdummy.DefaultDelay, rndLimit)
 		r = ioutil.NopCloser(innerReader) // https://stackoverflow.com/questions/28158990/golang-io-ioutil-nopcloser
 	case "COM":
-		c := com.New()
+		c := com.New(global.Source)
 		if false == c.Open() {
 			return
 		}
@@ -373,11 +380,11 @@ func receiving() {
 	t.Start()
 }
 
-func scScan() error {
-	com.Port = "COMscan"
-	_, err := com.GetSerialPorts()
-	return err
-}
+//  func scScan() error {
+//  	com.Port = "COMscan"
+//  	_, err := com.GetSerialPorts()
+//  	return err
+//  }
 
 func scVersion() error {
 	cage.Enable()

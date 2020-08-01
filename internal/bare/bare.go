@@ -76,6 +76,15 @@ func NewReader(i io.Reader, enc string) (*Reader, error) {
 	return x, nil
 }
 
+// NewRawReader generates a Bare instance to read from i
+func NewRawReader(i io.Reader) (*Reader, error) {
+	x := &Reader{}
+	x.r = i
+	x.by = make([]byte, 0, bytesBufferCapacity)
+	x.e = raw
+	return x, nil
+}
+
 // Read uses inner reader p.r to read byte stream and encoding p.e for interpretation.
 func (p *Reader) Read(b []Item) (int, error) {
 	switch p.e {
@@ -91,7 +100,7 @@ func (p *Reader) Read(b []Item) (int, error) {
 	return 0, errors.New("unknown encoding")
 }
 
-// findSubSliceOffset returns offset of sub inside b or negative len(sub) if not found
+// findSubSliceOffset returns offset of sub inside b or negative len(sub) if not found.
 func findSubSliceOffset(b, sub []byte) int {
 	s := len(sub)
 	if len(b) < s {

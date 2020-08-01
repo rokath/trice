@@ -12,22 +12,24 @@ import (
 )
 
 var (
-	// Port is the COMport name like COM1
-	Port string
+	// Port is the COMport name like COM1 or COM123 is set in global.Source
+	// Port string
 
-	// Baud is the configured baudrate of the serial port
+	// Baud is the configured baudrate of the serial port. It is set as command line parameter.
 	Baud int
 )
 
 // COM is a serial device trice receiver
 type COM struct {
+	port         string
 	serialHandle serial.Port
 	serialMode   serial.Mode
 }
 
 // New creates an instance of a serial device type trice receiver
-func New() *COM {
+func New(comPort string) *COM {
 	r := &COM{
+		port: comPort,
 		serialMode: serial.Mode{
 			BaudRate: Baud,
 			DataBits: 8,
@@ -58,7 +60,7 @@ func (p *COM) Close() error {
 func (p *COM) Open() bool {
 	var err error
 
-	p.serialHandle, err = serial.Open(Port, &p.serialMode)
+	p.serialHandle, err = serial.Open(p.port, &p.serialMode)
 
 	if err != nil {
 		fmt.Println(err, "try 'trice s' to check for serial ports")

@@ -23,7 +23,8 @@ func Test1(t *testing.T) {
 // TestRawInputWithSync checks raw input data with sync package in 2 sequential reads
 func TestRawInputWithSync(t *testing.T) {
 	r := bytes.NewReader([]byte{'j', 'a', 'r', 1, 1, 1, 1, 0x16, 0x16, 0x16, 0x16, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4})
-	x, err := bare.NewReader(r, "raw")
+	//x, err := bare.NewReader(r, "raw")
+	x, err := bare.NewRawReader(r)
 	lib.Equals(t, nil, err)
 
 	// read 3 bare items

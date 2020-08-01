@@ -50,8 +50,11 @@ func Clear() {
 // Trice emits one trice. The byte slice 't' is a trice package.
 // The start byte is 0xeb.
 // The ID can be 0, in that case only the data payload is saved
-// If b is not empty, the start byte in buffer b is 0xc0. The byte slice b contains a 8 byte header, a 2 byte len-1 value and and len buffer bytes.
+// If b is not empty, the start byte in buffer b is 0xc0.
+// The byte slice b contains a 8 byte header, a 2 byte len-1 value and and len buffer bytes.
 // b is used for long runtime strings, when the format string is "%s".
+// Trice returns b unchanged usually, but when the format string is "%s" it removes the
+// first long runtime string from there and returns the remaining data in b.
 func Trice(t, b []byte, l id.ListT) ([]byte, error) {
 	d = append(d, t[6:8]...)
 	i := int(binary.LittleEndian.Uint16(t[4:6]))
@@ -264,7 +267,7 @@ func LineCollect(s string) {
 		a(Prefix)
 		a(lib.Timestamp())
 	}
-	if !strings.HasSuffix(s, "\n") {
+	if false == strings.HasSuffix(s, "\n") {
 		a(s)
 		return
 	}

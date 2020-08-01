@@ -109,7 +109,8 @@ func (p *ListT) appendIfMissing(i Item, verbose bool) (int, bool) {
 	return i.ID, true
 }
 
-// extendIDList returns id beause it could get changed when id is in list with different typ or fmts.
+// ExtendIDList returns id beause it could get changed when id is in list with different typ or fmts.
+// It is an exported function for simplyfing tests in other packets.
 func (p *ListT) extendIDList(id int, typ, fmts string, verbose bool) (int, bool) {
 	i := Item{
 		ID:      id,

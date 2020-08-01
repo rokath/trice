@@ -36,7 +36,7 @@ var (
 // Server is the RPC struct for registered server dunctions
 type Server struct{}
 
-// Out is the exported server function for string display, if trice tool acts as display server.
+// Out is the exported server method for string display, if trice tool acts as display server.
 // By declaring it as a Server struct method it is registered as RPC destination.
 func (p *Server) Out(s []string, reply *int64) error {
 	*reply = int64(len(s))

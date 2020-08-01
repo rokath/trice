@@ -45,20 +45,23 @@ var (
 func out(ss []string) error {
 	var line string
 
-	mux.Lock()
+	// The mux.Lock is needed because in display server mode several clients
+	// can write to the display server at the same time.
+	mux.Lock() // todo: probably not really needed
 	for _, s := range ss {
 		c := colorize(s)
 		line += fmt.Sprint(c)
 	}
 
 	log.SetFlags(0)
-	log.Print(line)
+	log.Print(line) // todo: why log and not fmt?
+	//fmt.Print(line)
 
 	mux.Unlock()
 	return nil
 }
 
-// colorize prefixes s with a ansi color code according to this conditions
+// colorize prefixes s with an ansi color code according to this conditions
 // if "\n" == s add ANSI reset code
 // if COL: is begin of string add ANSI color code according to COL:
 // if col: is begin of string replace col: with ANSI color code according to col:
