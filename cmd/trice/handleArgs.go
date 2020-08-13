@@ -33,6 +33,9 @@ import (
 )
 
 var (
+	// Encoding describes the way the byte stream is coded. TODO: Change to MultiArgs
+	Encoding string
+
 	// rndMode is flag value for random mode
 	rndMode string
 
@@ -44,6 +47,39 @@ var (
 
 	// autostart if set, starts an additional trice instamce as displayserver
 	autostart bool
+
+	// fsScCheck is flag set for sub command check for evaluating ID list
+	fsScCheck *flag.FlagSet
+
+	// pSet is a string pointer to the data set used for scCheck
+	pSet *string
+
+	// fsScUpdate is flag set for sub command update for updating ID list
+	fsScUpdate *flag.FlagSet
+
+	// fsScZero is flag set for sub command zero for clearing IDs in source tree
+	fsScZero *flag.FlagSet
+
+	// pSrcZ is a string pointer to the saftets string for scZero
+	pSrcZ *string
+
+	// fsScHelp is flag set for sub command 'help'
+	fsScHelp *flag.FlagSet
+
+	// fsScLog is flag set for sub command 'log'
+	fsScLog *flag.FlagSet
+
+	// fsScSv is flag set for sub command 'displayServer'
+	fsScSv *flag.FlagSet
+
+	// fsScVerseion is flag set for sub command 'version'
+	fsScVerseion *flag.FlagSet
+
+	// fsScScan is flag set for sub command 'scan'
+	fsScScan *flag.FlagSet
+
+	// fsScSdSv is flag set for sub command 'shutdownServer'
+	fsScSdSv *flag.FlagSet
 )
 
 func flagLogfile(p *flag.FlagSet) {
@@ -67,8 +103,6 @@ func flagIPAddress(p *flag.FlagSet) {
 
 // scHelp is subcommand help
 func scHelp(
-	hCmd *flag.FlagSet,
-	u *flag.FlagSet,
 	c *flag.FlagSet,
 	l *flag.FlagSet,
 	z *flag.FlagSet,
@@ -83,11 +117,11 @@ func scHelp(
 	cage.Enable()
 	defer cage.Disable()
 
-	fmt.Fprintln(hCmd.Output(), "syntax: 'trice subcommand' [params]")
-	fmt.Fprintln(hCmd.Output(), "subcommand 'help', 'h' for command line usage")
-	hCmd.PrintDefaults()
-	fmt.Fprintln(u.Output(), "subcommand 'u', 'upd', 'update' for updating ID list and source files")
-	u.PrintDefaults()
+	fmt.Fprintln(fsScHelp.Output(), "syntax: 'trice subcommand' [params]")
+	fmt.Fprintln(fsScHelp.Output(), "subcommand 'help', 'h' for command line usage")
+	fsScHelp.PrintDefaults()
+	fmt.Fprintln(fsScUpdate.Output(), "subcommand 'u', 'upd', 'update' for updating ID list and source files")
+	fsScUpdate.PrintDefaults()
 	fmt.Fprintln(c.Output(), "subcommand 'check' for dispaying the ID list in trice log format")
 	c.PrintDefaults()
 	fmt.Fprintln(l.Output(), "subcommand 'l', 'log' for displaying trice logs coming from source")
@@ -100,82 +134,102 @@ func scHelp(
 	sv.PrintDefaults()
 	fmt.Fprintln(scSdSv.Output(), "subcommand 'sd', 'shutdownServer' ends display server at IPA:IPP, works also on a remote mashine")
 	scSdSv.PrintDefaults()
-	fmt.Fprintln(hCmd.Output(), "examples:")
-	fmt.Fprintln(hCmd.Output(), "    'trice update -src ../A -src ../../B' parses ../A and ../../B with all subdirectories for TRICE IDs to update and adjusts til.json")
-	fmt.Fprintln(hCmd.Output(), "    'trice l -s COM15 -baud 38400 -d wrap display wrap data format trice log messages from COM15")
-	fmt.Fprintln(hCmd.Output(), "    'trice l display bare data format trice log messages from default source")
-	fmt.Fprintln(hCmd.Output(), "    'trice zeroSourceTreeIds -dir ../A' sets all TRICE IDs to 0 in ./A")
-	fmt.Fprintln(hCmd.Output(), "    'trice v -v' shows verbose version information")
+	fmt.Fprintln(fsScHelp.Output(), "examples:")
+	fmt.Fprintln(fsScHelp.Output(), "    'trice update -src ../A -src ../../B' parses ../A and ../../B with all subdirectories for TRICE IDs to update and adjusts til.json")
+	fmt.Fprintln(fsScHelp.Output(), "    'trice l -s COM15 -baud 38400 -d wrap display wrap data format trice log messages from COM15")
+	fmt.Fprintln(fsScHelp.Output(), "    'trice l display bare data format trice log messages from default source")
+	fmt.Fprintln(fsScHelp.Output(), "    'trice zeroSourceTreeIds -dir ../A' sets all TRICE IDs to 0 in ./A")
+	fmt.Fprintln(fsScHelp.Output(), "    'trice v -v' shows verbose version information")
 	return nil
 }
 
-// Encoding describes the way the byte stream is coded. TODO: Change to MultiArgs
-var Encoding string
+// init is executed before main in unspecified order
+func init() {
+	fsScCheck = flag.NewFlagSet("check", flag.ExitOnError)                                        // subcommand
+	pSet = fsScCheck.String("dataset", "position", "parameters, option: 'negative'")              // flag
+	fsScCheck.StringVar(&disp.ColorPalette, "color", "default", "color set, options: 'off|none'") // flag
+	flagLogfile(fsScCheck)
+	flagVerbosity(fsScCheck)
+	flagIDList(fsScCheck)
+}
+
+// init is executed before main in unspecified order
+func init() {
+	fsScUpdate = flag.NewFlagSet("update", flag.ExitOnError)                                 // subcommand
+	fsScUpdate.BoolVar(&id.DryRun, "dry-run", false, "no changes are applied")               // flag
+	fsScUpdate.Var(&lib.Srcs, "src", "source dir or file, multi use possible, default './'") // multi flag
+	flagVerbosity(fsScUpdate)
+	flagIDList(fsScUpdate)
+}
+
+// init is executed before main in unspecified order
+func init() {
+	fsScZero = flag.NewFlagSet("zeroSourceTreeIds", flag.ContinueOnError)                 // subcommand (during development only)
+	pSrcZ = fsScZero.String("src", "", "zero all Id(n) inside source tree dir, required") // flag
+	fsScZero.BoolVar(&id.DryRun, "dry-run", false, "no changes are applied")              // flag
+}
+
+// init is executed before main in unspecified order
+func init() {
+	fsScHelp = flag.NewFlagSet("help", flag.ContinueOnError) // subcommand
+	flagLogfile(fsScHelp)
+	flagVerbosity(fsScHelp)
+}
+
+// init is executed before main in unspecified order
+func init() {
+	fsScVerseion = flag.NewFlagSet("version", flag.ContinueOnError) // subcommand
+	flagLogfile(fsScVerseion)
+	flagVerbosity(fsScVerseion)
+}
+
+func init() {
+	fsScLog = flag.NewFlagSet("log", flag.ExitOnError)                                                                                                                                                           // subcommand
+	fsScLog.StringVar(&Encoding, "encoding", "bare", "trice transmit data format type, options: 'ascii|wrap'")                                                                                                   // flag
+	fsScLog.StringVar(&Encoding, "e", "bare", "short for -encoding")                                                                                                                                             // short flag
+	fsScLog.StringVar(&cipher.Password, "password", "none", "decrypt passphrase")                                                                                                                                // flag
+	fsScLog.StringVar(&cipher.Password, "pw", "none", "short for -password")                                                                                                                                     // short flag
+	fsScLog.BoolVar(&cipher.ShowKey, "key", false, "show encryption key")                                                                                                                                        // flag
+	fsScLog.StringVar(&decoder.TimeStampFormat, "ts", "LOCmicro", "PC timestamp for logs and logfile name, options: 'off|UTCmicro'")                                                                             // flag
+	fsScLog.StringVar(&disp.ColorPalette, "color", "default", "color set, 'off' disables color handling (\"w:x\"->\"w:x\"), 'none' disables channels color (\"w:x\"->\"x\"), options: 'off|none'")               // flag
+	fsScLog.StringVar(&emit.Prefix, "prefix", "source: ", "prepend prefix to all lines, options: any string or 'off|none' or 'source:' followed by 0-12 spaces, source will be replaced")                        // flag
+	fsScLog.StringVar(&emit.Postfix, "postfix", "\n", "append postfix to all lines, options: any string")                                                                                                        // flag
+	fsScLog.StringVar(&global.Source, "source", "JLINK", "receiver device, options: 'COMn|JLINK|STLINK|filename|SIM|RND|HTTP'")                                                                                  //HTTP, RTT, RTTD, RTTF")                                             // flag
+	fsScLog.StringVar(&global.Source, "s", "JLINK", "short for -source")                                                                                                                                         // short flag
+	fsScLog.IntVar(&com.Baud, "baud", 115200, "COM baudrate, valid only for '-source COMn'")                                                                                                                     // flag flag
+	fsScLog.StringVar(&jlink.Param, "jlink", "-Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0", "passed parameter string, valid only for '-source JLRTT', see JLinkRTTLogger in SEGGER UM08001_JLink.pdf") // JLRTT flag
+	//scLog.StringVar(&jlink.Exec, "jlinkExec", jlink.Exec, "JLinkRTTLogger executable with full path")                                                                                                          // JLRTT flag
+	fsScLog.StringVar(&rndMode, "rndMode", "WrapModeWithValidCrc", "valid only for '-source RND', see randomdummy.go, options: 'ChaosMode|BareModeNoSync'")
+	fsScLog.IntVar(&rndLimit, "rndLimit", randomdummy.NoLimit, "valid only for '-source RND', see randomdummy.go, options: 'n|0', 'n' is count of bytes, '0' for unlimited count")
+	fsScLog.BoolVar(&displayserver, "displayserver", false, "send trice lines to displayserver @ ipa:ipp")
+	fsScLog.BoolVar(&displayserver, "ds", false, "short for '-displayserver'")
+	fsScLog.BoolVar(&autostart, "autostart", false, "autostart displayserver @ ipa:ipp (works not good with windows, because of cmd and powershell color issues and missing cli params in wt and gitbash)")
+	fsScLog.BoolVar(&autostart, "a", false, "short for '-autostart'")
+	flagLogfile(fsScLog)
+	flagVerbosity(fsScLog)
+	flagIDList(fsScLog)
+	flagIPAddress(fsScLog)
+}
+
+func init() {
+	fsScSv = flag.NewFlagSet("displayServer", flag.ExitOnError)                                // subcommand
+	fsScSv.StringVar(&disp.ColorPalette, "color", "default", "color set, options: 'off|none'") // flag
+	flagLogfile(fsScSv)
+	flagIPAddress(fsScSv)
+}
+
+func init() {
+	fsScScan = flag.NewFlagSet("scan", flag.ContinueOnError) // subcommand
+}
+
+func init() {
+	fsScSdSv = flag.NewFlagSet("shutdownServer", flag.ExitOnError) // subcommand
+	flagIPAddress(fsScSdSv)
+}
 
 // HandleArgs evaluates the arguments slice of strings
 func HandleArgs(args []string) error {
 	cage.DefaultLogfileName = "2006-01-02_1504-05_trice.log"
-
-	scCheck := flag.NewFlagSet("check", flag.ExitOnError)                                       // subcommand
-	pSet := scCheck.String("dataset", "position", "parameters, option: 'negative'")             // flag
-	scCheck.StringVar(&disp.ColorPalette, "color", "default", "color set, options: 'off|none'") // flag
-	flagLogfile(scCheck)
-	flagVerbosity(scCheck)
-	flagIDList(scCheck)
-
-	scUpdate := flag.NewFlagSet("update", flag.ExitOnError)                                // subcommand
-	scUpdate.BoolVar(&id.DryRun, "dry-run", false, "no changes are applied")               // flag
-	scUpdate.Var(&lib.Srcs, "src", "source dir or file, multi use possible, default './'") // multi flag
-	flagVerbosity(scUpdate)
-	flagIDList(scUpdate)
-
-	scZero := flag.NewFlagSet("zeroSourceTreeIds", flag.ContinueOnError)                 // subcommand (during development only)
-	pSrcZ := scZero.String("src", "", "zero all Id(n) inside source tree dir, required") // flag
-	scZero.BoolVar(&id.DryRun, "dry-run", false, "no changes are applied")               // flag
-
-	hCmd := flag.NewFlagSet("help", flag.ContinueOnError) // subcommand
-	flagLogfile(hCmd)
-	flagVerbosity(hCmd)
-
-	vCmd := flag.NewFlagSet("version", flag.ContinueOnError) // subcommand
-	flagLogfile(vCmd)
-	flagVerbosity(vCmd)
-
-	scLog := flag.NewFlagSet("log", flag.ExitOnError)                                                                                                                                                          // subcommand
-	scLog.StringVar(&Encoding, "encoding", "bare", "trice transmit data format type, options: 'ascii|wrap'")                                                                                                   // flag
-	scLog.StringVar(&Encoding, "e", "bare", "short for -encoding")                                                                                                                                             // short flag
-	scLog.StringVar(&cipher.Password, "password", "none", "decrypt passphrase")                                                                                                                                // flag
-	scLog.StringVar(&cipher.Password, "pw", "none", "short for -password")                                                                                                                                     // short flag
-	scLog.BoolVar(&cipher.ShowKey, "key", false, "show encryption key")                                                                                                                                        // flag
-	scLog.StringVar(&decoder.TimeStampFormat, "ts", "LOCmicro", "PC timestamp for logs and logfile name, options: 'off|UTCmicro'")                                                                             // flag
-	scLog.StringVar(&disp.ColorPalette, "color", "default", "color set, 'off' disables color handling (\"w:x\"->\"w:x\"), 'none' disables channels color (\"w:x\"->\"x\"), options: 'off|none'")               // flag
-	scLog.StringVar(&emit.Prefix, "prefix", "source: ", "prepend prefix to all lines, options: any string or 'off|none' or 'source:' followed by 0-12 spaces, source will be replaced")                        // flag
-	scLog.StringVar(&emit.Postfix, "postfix", "\n", "append postfix to all lines, options: any string")                                                                                                        // flag
-	scLog.StringVar(&global.Source, "source", "JLINK", "receiver device, options: 'COMn|JLINK|STLINK|filename|SIM|RND|HTTP'")                                                                                  //HTTP, RTT, RTTD, RTTF")                                             // flag
-	scLog.StringVar(&global.Source, "s", "JLINK", "short for -source")                                                                                                                                         // short flag
-	scLog.IntVar(&com.Baud, "baud", 115200, "COM baudrate, valid only for '-source COMn'")                                                                                                                     // flag flag
-	scLog.StringVar(&jlink.Param, "jlink", "-Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0", "passed parameter string, valid only for '-source JLRTT', see JLinkRTTLogger in SEGGER UM08001_JLink.pdf") // JLRTT flag
-	//scLog.StringVar(&jlink.Exec, "jlinkExec", jlink.Exec, "JLinkRTTLogger executable with full path")                                                                                                          // JLRTT flag
-	scLog.StringVar(&rndMode, "rndMode", "WrapModeWithValidCrc", "valid only for '-source RND', see randomdummy.go, options: 'ChaosMode|BareModeNoSync'")
-	scLog.IntVar(&rndLimit, "rndLimit", randomdummy.NoLimit, "valid only for '-source RND', see randomdummy.go, options: 'n|0', 'n' is count of bytes, '0' for unlimited count")
-	scLog.BoolVar(&displayserver, "displayserver", false, "send trice lines to displayserver @ ipa:ipp")
-	scLog.BoolVar(&displayserver, "ds", false, "short for '-displayserver'")
-	scLog.BoolVar(&autostart, "autostart", false, "autostart displayserver @ ipa:ipp (works not good with windows, because of cmd and powershell color issues and missing cli params in wt and gitbash)")
-	scLog.BoolVar(&autostart, "a", false, "short for '-autostart'")
-	flagLogfile(scLog)
-	flagVerbosity(scLog)
-	flagIDList(scLog)
-	flagIPAddress(scLog)
-
-	scSv := flag.NewFlagSet("displayServer", flag.ExitOnError)                               // subcommand
-	scSv.StringVar(&disp.ColorPalette, "color", "default", "color set, options: 'off|none'") // flag
-	flagLogfile(scSv)
-	flagIPAddress(scSv)
-
-	sCmd := flag.NewFlagSet("scan", flag.ContinueOnError) // subcommand
-
-	scSdSv := flag.NewFlagSet("shutdownServer", flag.ExitOnError) // subcommand
-	flagIPAddress(scSdSv)
 
 	// Verify that a subcommand has been provided
 	// os.Arg[0] is the main command
@@ -195,36 +249,37 @@ func HandleArgs(args []string) error {
 	switch subCmd { // Check which subcommand is invoked.
 
 	case "h", "help":
-		hCmd.Parse(subArgs)
-		return scHelp(hCmd, scUpdate, scCheck, scLog, scZero, vCmd, scSv, scSdSv)
+		fsScHelp.Parse(subArgs)
+		//fsScUpdate.Parse(subArgs)
+		return scHelp(fsScCheck, fsScLog, fsScZero, fsScVerseion, fsScSv, fsScSdSv)
 
 	case "s", "sc", "scan":
-		sCmd.Parse(subArgs)
+		fsScScan.Parse(subArgs)
 		_, err := com.GetSerialPorts()
 		return err
 
 	case "v", "ver", "version":
-		vCmd.Parse(subArgs)
+		fsScVerseion.Parse(subArgs)
 		return scVersion()
 
 	case "u", "update":
-		scUpdate.Parse(subArgs)
+		fsScUpdate.Parse(subArgs)
 		id.FnJSON = lib.ConditinalFilePath(id.FnJSON)
 		return id.ScUpdate()
 
 	case "check":
-		scCheck.Parse(subArgs)
+		fsScCheck.Parse(subArgs)
 		id.FnJSON = lib.ConditinalFilePath(id.FnJSON)
 		cage.Enable()
 		defer cage.Disable()
 		return emit.ScCheckList(*pSet)
 
 	case "zeroSourceTreeIds":
-		scZero.Parse(subArgs)
-		return id.ScZero(*pSrcZ, scZero)
+		fsScZero.Parse(subArgs)
+		return id.ScZero(*pSrcZ, fsScZero)
 
 	case "l", "log":
-		scLog.Parse(subArgs)
+		fsScLog.Parse(subArgs)
 		lib.TimeStampFormat = decoder.TimeStampFormat // todo
 		setPrefix(emit.Prefix)
 		//if strings.HasPrefix(global.Source, "COM") {
@@ -250,11 +305,11 @@ func HandleArgs(args []string) error {
 			receiving()
 		}
 	case "ds", "displayServer":
-		scSv.Parse(subArgs)
+		fsScSv.Parse(subArgs)
 		return disp.ScDisplayServer()
 
 	case "sd", "shutdownRemoteDisplayServer":
-		scSdSv.Parse(subArgs)
+		fsScSdSv.Parse(subArgs)
 		return disp.ScShutdownRemoteDisplayServer(1)
 
 	default:
@@ -264,7 +319,7 @@ func HandleArgs(args []string) error {
 	return nil
 }
 
-// Connect starts a display server sy if sv is not empty, otherwise it assumes a running display server.
+// connect starts a display server sy if sv is not empty, otherwise it assumes a running display server.
 //
 // It connects then to the running display server.
 func connect(sv string) error {
@@ -287,6 +342,7 @@ func connect(sv string) error {
 	return nil
 }
 
+// receiving TODO better design
 func receiving() {
 	switch Encoding {
 	case "bare", "raw":
@@ -386,6 +442,7 @@ func receiving() {
 //  	return err
 //  }
 
+// scVersion is subcommand 'version'
 func scVersion() error {
 	cage.Enable()
 	defer cage.Disable()
@@ -400,6 +457,7 @@ func scVersion() error {
 	return nil
 }
 
+// setPrefix sets s as prefix for each trice log line
 func setPrefix(s string) {
 	switch s {
 	case "source:":

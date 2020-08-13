@@ -1,4 +1,4 @@
-// + build x
+// +build x
 // Copyright 2020 Thomas.Hoehenleitner [at] seerose.net
 // Use of this source code is governed by a license that can be found in the LICENSE file.
 
@@ -23,8 +23,10 @@ const (
 	// triceSize is the count of bytes in a byte stream used for one Trice.
 	triceSize = 4
 
+	// triceChannelCapacity is the max possible trice slice count hold in channel
 	triceChannelCapacity = 100
 
+	// ignoredChannelCapacity is the max count of ignored bytes
 	ignoredChannelCapacity = 1000
 )
 
@@ -35,7 +37,7 @@ var (
 	// syncTrice is a trice emitted regularely by the target for making sure all gets in sync again after some disruption.
 	syncTrice = []byte{0x16, 0x16, 0x16, 0x16}
 
-	// Prefix is a (configurable) string added to each line end
+	// Prefix is a (configurable) string added to each line at the beginning
 	Prefix = ""
 
 	// Postfix is a (configurable) string added to each line end
@@ -50,10 +52,10 @@ var (
 
 // Trice is the bare trice data type for a trice atom.
 //
-// A trice consists of one or several trice atoms with ID==0 carrying the trice data payload.
+// A trice starts with zero or several trice atoms with ID==0 carrying parts of the trice data payload.
 // The last trice atom of a trice contains the trice ID!=0 and the last part of the data payload.
 type Trice struct {
-	ID    uint16  // 2^16 ^= 65536 different trice IDs possible
+	ID    uint16  // 2^16 ^= more than 65500 different trice IDs possible
 	Value [2]byte // max 2 byte data payload inside a TriceAtom
 }
 
@@ -68,16 +70,17 @@ type Trice struct {
 // 	DataPackages [][]byte // DataPackageCount is len(DataPackages)
 // }
 
-// TriceReceiver is receives trices using r and decodes them according to the used methods.
-// All recognized trice atoms are going as slices into the atoms channel.
+// TriceReceiver receives trices using io.Reader r and decodes them according to the used methods.
+// All recognized trice atoms are going in groups as fetched as slices into the atoms channel.
 // Not used read bytes are sent to the ignored channel.
 type TriceReceiver struct {
 	err        error     // if some error occured it is stored here
 	r          io.Reader // interface embedding
 	syncbuffer []byte    // to hold read bytes for syncing
 	//active  bool
-	atoms   chan []Trice // the received and unprocessed trice atoms
-	ignored chan []byte  // the read bytes not usable for trice atom generation
+	atoms   chan []Trice // The received and unprocessed trice atoms.
+	ignored chan []byte  // The read bytes not usable for trice atom generation.
+	// Theses bytes could be garbage after out of sync or some different protocol.
 }
 
 // TriceInterpreter uses the 2 TriceReceiver channels and global settings to compose a complete log line.
@@ -90,30 +93,31 @@ type TriceInterpreter struct {
 	// it is used only inside LineCollect() but needs to survive from call to call.
 	css []string
 
-	// lineComplete is set 
+	// lineComplete is set
 	lineComplete bool
 }
 
-func NewTriceInterpreter(r *TriceReceiver){
-	go func(){
-		for{
-			select{
-			case atoms := <- r.atoms:
+/*
+func NewTriceInterpreter(r *TriceReceiver) {
+	go func() {
+		for {
+			select {
+			case atoms := <-r.atoms:
 				p.atoms = append(p.atoms, atoms)
-			case ignored := <- r.ignored:
-				
+			case ignored := <-r.ignored:
+
 			}
 		}
-	}
-	go func(){
+	}()
+	go func() {
 
 		for {
-			atomsSlice := <-r.atoms: // next trice atoms slice
+			atomsSlice := <-r.atoms // next trice atoms slice
 			// 			p.atomsBuffer = append(p.atomsBuffer, atomsSlice)
 			// 			p.item.ID = int(trice.ID)
 			// 			p.values = append(p.values, trice.Value[0], trice.Value[1])
 			// 			//p.values = append(p.values, trice.Value...)
-
+			fmt.Println(atomsSlice)
 
 			if 0 < len(r.atoms) {
 				atom := r.atoms[0]
@@ -123,8 +127,9 @@ func NewTriceInterpreter(r *TriceReceiver){
 				}
 			}
 		}
-	}
+	}()
 }
+*/
 
 // TrimBackslashes handles special chars in s
 func TrimBackslashes(s string) string {
@@ -167,8 +172,8 @@ func (p *TriceInterpreter) LineCollect(s string) {
 	//css = css[:0] // discard slice data
 }
 
-
 // findSubSliceOffset returns offset of slice sub inside slice b or negative len(sub) if not found.
+// This is a helper function to find sync points inside readRaw
 func findSubSliceOffset(b, sub []byte) int {
 	s := len(sub)
 	if len(b) < s {

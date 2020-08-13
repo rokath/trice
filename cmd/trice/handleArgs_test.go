@@ -322,7 +322,7 @@ func TestXXZXXZXXZXXZXXZXXZXXZXXZXXZXXZXXZXXZXXZXXZXXZXXZXXZXXZXXZXXZXXZXXZXXZXX
 	//t.Fail()
 }
 
-/* TODO: adapt to parameter set
+// TODO: adapt to parameter set
 func TestScHelp(t *testing.T) {
 	afn := "testdata/actHelp.log"
 	efn := "testdata/expHelp.log"
@@ -332,7 +332,6 @@ func TestScHelp(t *testing.T) {
 	lib.EqualFiles2(t, afn, efn)
 	lib.Ok(t, os.Remove(afn))
 }
-*/
 
 /* This is just tryout code but we do not reach the test aim with it:
 var flag2 bool
