@@ -1,4 +1,4 @@
-// +build x
+// + build x
 // Copyright 2020 Thomas.Hoehenleitner [at] seerose.net
 // Use of this source code is governed by a license that can be found in the LICENSE file.
 
@@ -12,10 +12,12 @@ package triceemit
 import (
 	"bytes"
 	"encoding/binary"
+	"fmt"
 	"io"
 	"reflect"
 	"strings"
 
+	"github.com/rokath/trice/internal/id"
 	"github.com/rokath/trice/pkg/lib"
 )
 
@@ -32,7 +34,7 @@ const (
 
 var (
 	// bytesBufferCapacity is the internal bufferered amount for sync package search.
-	bytesBufferCapacity int = 4096
+	bytesBufferCapacity = 4096
 
 	// syncTrice is a trice emitted regularely by the target for making sure all gets in sync again after some disruption.
 	syncTrice = []byte{0x16, 0x16, 0x16, 0x16}
@@ -44,57 +46,137 @@ var (
 	Postfix = "\n"
 )
 
-// // TriceReader is interface for reading trice atoms
-// type TriceReader interface {
-// 	TriceRead([]Trice) (int, error)
-//
-// }
-
-// Trice is the bare trice data type for a trice atom.
-//
-// A trice starts with zero or several trice atoms with ID==0 carrying parts of the trice data payload.
-// The last trice atom of a trice contains the trice ID!=0 and the last part of the data payload.
+// Trice is the bare Trice data type for a Trice atom.
+// A Trice starts with zero or several Trice atoms with ID==0 carrying parts of the Trice data payload.
+// The last Trice atom of a Trice contains the Trice ID!=0 and the last part of the data payload.
 type Trice struct {
 	ID    uint16  // 2^16 ^= more than 65500 different trice IDs possible
 	Value [2]byte // max 2 byte data payload inside a TriceAtom
 }
 
-// // RemoteCommand is the data type for commands.
-// //
-// // The data package count is given by len([]Pkg)
-// type RemoteCommand struct {
-// 	PackageID uint // package id (cycle counter)
-// 	PackageType byte // message, command, answer
-// 	FunctionType byte // type identifyer byte
-// 	FunctionID byte // function identifyer byte
-// 	DataPackages [][]byte // DataPackageCount is len(DataPackages)
-// }
-
-// TriceReceiver receives trices using io.Reader r and decodes them according to the used methods.
-// All recognized trice atoms are going in groups as fetched as slices into the atoms channel.
-// Not used read bytes are sent to the ignored channel.
+// TriceReceiver receives trices using io.Reader r and decodes them according to the expected coding.
+// It provides a TriceReceiver interface.
+// All recognized trice atoms as fetched are going as slices into the atoms channel.
+// Not used read bytes are sent to the ignored channel. Theses bytes could be garbage after out of sync or some different protocol.
+//  // TriceReceiverI is the interface a trice receicer has to provide for a trice interpreter.
+//  // The provided channels are read only channels
+//  type TriceReceiverI interface {
+//  	TriceAtomsChannel() <-chan []trice
+//  	IgnoredBytesChannel() <-chan []byte
+//  }
 type TriceReceiver struct {
-	err        error     // if some error occured it is stored here
-	r          io.Reader // interface embedding
-	syncbuffer []byte    // to hold read bytes for syncing
-	//active  bool
-	atoms   chan []Trice // The received and unprocessed trice atoms.
-	ignored chan []byte  // The read bytes not usable for trice atom generation.
-	// Theses bytes could be garbage after out of sync or some different protocol.
+	err        error        // if some error occured it is stored here
+	r          io.Reader    // interface embedding
+	syncbuffer []byte       // to hold read bytes for syncing
+	atoms      chan []Trice // The received and unprocessed trice atoms are sent as slices to this channel.
+	ignored    chan []byte  // The read bytes not usable for trice atom generation are sent as slices to this channel.
 }
 
-// TriceInterpreter uses the 2 TriceReceiver channels and global settings to compose a complete log line.
+// TriceAtomsChannel provides a read channel for reading trice atoms.
+func (p *TriceReceiver) TriceAtomsChannel() <-chan []Trice {
+	return p.atoms
+}
+
+// IgnoredBytesChannel provides a read channel for reading bytes the trice receiver ignored.
+func (p *TriceReceiver) IgnoredBytesChannel() <-chan []byte {
+	return p.ignored
+}
+
+// NewTriceReceiverfromBare creates a TriceReceiver using r as internal reader.
+// It assumes bare coded trices in the byte stream.
+// It creates a trices channel and and sends the received trices to it.
+// If an out of sync condition is detected 1 to (triceSize-1) bytes are ignored.
+// The ignored bytes are send to an also created ignored channel.
+// The sync condition is assumed generally. From time to time (aka every second)
+// a sync trice should be inside the byte stream. This sync trice must be on a
+// multiple of triceSice offset. If not, the appropriate count of bytes is ignored.
+func NewTriceReceiverfromBare(r io.Reader) *TriceReceiver {
+	p := &TriceReceiver{}
+	p.r = r
+	p.syncbuffer = make([]byte, 0, bytesBufferCapacity)
+	p.atoms = make(chan []Trice, triceChannelCapacity)
+	p.ignored = make(chan []byte, ignoredChannelCapacity)
+	go func() {
+		for {
+			if nil != p.err {
+				return // stop in case of an error
+			}
+			p.readRaw()
+		}
+	}()
+	return p
+}
+
+// TriceInterpreter uses the 2 TriceReceiver channels and global settings to compose a complete log line as one string.
+// The string is transferred using the io.StringWriter interface.
 type TriceInterpreter struct {
-	atoms []Trice // to hold from channel read atoms not processed so far
-	//item    id.Item      // if not 0 it is the next trice item ready for output
-	//values  []byte       // holds so far unused values for the next trice item
+	// If some error occured it is stored here. This makes error handling more handy.
+	err error
+
+	// This is the receive channel for trice atomsChannel.
+	atomsChannel <-chan []Trice
+
+	// This is the receive channel for trice receiver ignoredChannel bytes.
+	ignoredChannel <-chan []byte
+
+	// atoms holds from channel read trice atoms not processed so far.
+	atoms []Trice
+
+	// ignored holds so far unused values for the next trice item.
+	ignored []byte
+
+	// values holds so far unused values for the next trice item.
+	values []byte
+
+	// item is the next trice item ready for output, if item is not 0.
+	item id.Item
 
 	// css is a collector for line substrings.
-	// it is used only inside LineCollect() but needs to survive from call to call.
+	// It is used only inside LineCollect() but needs to survive from call to call.
 	css []string
 
-	// lineComplete is set
+	// lineComplete is set when a line is complete.
 	lineComplete bool
+
+	// sw is the interface for writing a whole line to the display.
+	// When a line is complete, its []string slice is converted to one single string for output.
+	// This simplifies the output interface and avoids partial lines to be mixed from several sources.
+	sw io.StringWriter
+}
+
+// NewSimpleTriceInterpreter uses sw to write complete log lines as one composed string to a display device.
+//
+func NewSimpleTriceInterpreter(sw io.StringWriter, tr TriceReceiver) *TriceInterpreter {
+	p := &TriceInterpreter{}
+	p.atomsChannel = tr.TriceAtomsChannel()
+	p.ignoredChannel = tr.IgnoredBytesChannel()
+	p.sw = sw
+	p.atoms = make([]Trice, 1000)
+	p.ignored = make([]byte, 1000)
+	p.values = make([]byte, 1000)
+	p.css = make([]string, 1000)
+
+	go func() {
+		for {
+			if nil != p.err {
+				return // stop on any error, TODO: stop receiver too
+			}
+			select {
+			case a, ok := <-p.atomsChannel:
+				if !ok {
+					return // stop when atoms channel was closed
+				}
+				p.atoms = append(p.atoms, a...)
+			case b := <-p.ignoredChannel:
+				p.ignored = append(p.ignored, b...)
+			}
+			s := fmt.Sprintln(p.atoms, p.ignored) // "processing"
+			_, p.err = sw.WriteString(s)
+			p.atoms = p.atoms[:0]
+			p.ignored = p.ignored[:0]
+		}
+	}()
+	return p
 }
 
 /*
@@ -167,7 +249,7 @@ func (p *TriceInterpreter) LineCollect(s string) {
 	s = strings.TrimSuffix(s, "\n")
 	a(s)
 	a(Postfix)
-	lineComplete = true
+	//lineComplete = true
 	//disp.Out(css)
 	//css = css[:0] // discard slice data
 }
@@ -196,12 +278,12 @@ func min(a, b int) int {
 }
 
 // readRaw uses inner reader p.r to read byte stream and assumes encoding 'raw' (=='bare') for interpretation.
-// It sends a number of Trice items to the internal 'trices' channel,
+// It sends a number of Trice items to the internal 'atoms' channel,
 // any ignored bytes to the internal 'ignored' channel and stores internally an error code.
 // It looks for a sync point inside the internally read byte slice and ignores 1 to(triceSize-1) bytes
 // if the sync is not on a triceSize offset. If no sync point is found sync is assumed per default.
 func (p *TriceReceiver) readRaw() {
-	leftovers := len(p.syncbuffer) // byte buffered in bytes buffer
+	leftovers := len(p.syncbuffer) // bytes buffered in bytes buffer from last call
 	var minBytes int               // needed additional byte count making a Trice
 	if leftovers < triceSize {
 		minBytes = triceSize - leftovers
@@ -212,7 +294,10 @@ func (p *TriceReceiver) readRaw() {
 	var n int
 	n, p.err = io.ReadAtLeast(p.r, p.syncbuffer[leftovers:limit], minBytes) // read to have at least triceSize bytes
 	le := leftovers + n                                                     // the valid len inside p.by
-	if le < triceSize {
+	if le < triceSize {                                                     // got not the minimum amount of expected bytes
+		if nil != p.err {
+			close(p.atoms) // this is the signal for the following interpreter to stop
+		}
 		return // s.th. went wrong
 	}
 	p.syncbuffer = p.syncbuffer[:le]                 // set valid length
@@ -229,32 +314,6 @@ func (p *TriceReceiver) readRaw() {
 	p.err = binary.Read(buf, binary.LittleEndian, atoms) // target assumed to be little endian
 	p.syncbuffer = p.syncbuffer[triceSize*atomsAvail:]   // any leftover count from 1 to (triceSize-1) is possible
 	p.atoms <- atoms                                     // send trices
-}
-
-// NewTriceReceiverfromBare creates a TriceReceiver using r as internal reader.
-// It assumes bare coded trices in the byte stream.
-// It creates a trices channel and and sends the received trices to it.
-// If an out of sync condition is detected 1 to (triceSize-1) bytes are ignored.
-// The ignored bytes are send to an also created ignored channel.
-// The sync condition is assumed generally. From time to time (aka every second)
-// a sync trice should be inside the byte stream. This sync trice must be on a
-// multiple of triceSice offset. If not, the appropriate count of bytes is ignored.
-func NewTriceReceiverfromBare(r io.Reader) *TriceReceiver {
-	p := &TriceReceiver{}
-	p.r = r
-	p.syncbuffer = make([]byte, 0, bytesBufferCapacity)
-	p.atoms = make(chan []Trice, triceChannelCapacity)
-	p.ignored = make(chan []byte, ignoredChannelCapacity)
-	go func() {
-		for {
-			if nil != p.err {
-				return
-			}
-			p.readRaw()
-		}
-	}()
-	//p.TriceItem()
-	return p
 }
 
 // // triceItem tries to create a full trice item from the receiver data.
@@ -294,7 +353,7 @@ func NewTriceReceiverfromBare(r io.Reader) *TriceReceiver {
 	)
 }*/
 
-// NewTriceReceiverFromWrap creates a TriceReceiver using r as internal reader.
+/* NewTriceReceiverFromWrap creates a TriceReceiver using r as internal reader.
 func NewTriceReceiverFromWrap(r io.Reader) *TriceReceiver {
 	p := &TriceReceiver{}
 	p.r = r
@@ -304,7 +363,7 @@ func NewTriceReceiverFromWrap(r io.Reader) *TriceReceiver {
 
 	}()
 	return p
-}
+}*/
 
 //type TriceReadFunc func Read( []Trice) (int, error)
 
@@ -355,3 +414,14 @@ func NewTriceReceiverFromWrap(r io.Reader) *TriceReceiver {
 // }
 
 // func io.WriteString(w Writer, s string) (n int, err error)
+
+// // RemoteCommand is the data type for commands.
+// //
+// // The data package count is given by len([]Pkg)
+// type RemoteCommand struct {
+// 	PackageID uint // package id (cycle counter)
+// 	PackageType byte // message, command, answer
+// 	FunctionType byte // type identifyer byte
+// 	FunctionID byte // function identifyer byte
+// 	DataPackages [][]byte // DataPackageCount is len(DataPackages)
+// }
