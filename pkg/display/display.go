@@ -57,5 +57,5 @@ func (d *T) Write(lines []Line) (int, error) {
 //
 // todo: replace disp legacy implementation
 func emit(l Line) error {
-	return disp.Out(l.Segments)
+	return disp.WriteLine(l.Segments)
 }

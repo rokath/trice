@@ -57,7 +57,7 @@ func lineGenerator(t *testing.T, s string, len, count int, wg *sync.WaitGroup) {
 	go func() {
 		defer wg.Done()
 		for ; i < count; i++ { // line count
-			lib.Ok(t, disp.Out(ss))
+			lib.Ok(t, disp.WriteLine(ss))
 		}
 	}()
 }
@@ -80,7 +80,7 @@ func TestServerMutex(t *testing.T) {
 	}
 	disp.StartServer(exe)
 	err := disp.Connect()
-	disp.Out = disp.RemoteOut // re-direct output
+	disp.WriteLine = disp.RemoteOut // re-direct output
 	lib.Ok(t, err)
 
 	var result int64
@@ -88,7 +88,7 @@ func TestServerMutex(t *testing.T) {
 	lib.Ok(t, err)
 
 	ss := []string{"first line", "\n"}
-	err = disp.Out(ss)
+	err = disp.WriteLine(ss)
 	lib.Ok(t, err)
 
 	ll := 21

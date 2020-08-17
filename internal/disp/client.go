@@ -46,7 +46,7 @@ func StartServer(exe string) {
 
 // StopServer sends signal to display server to quit
 func StopServer(ts int64) error {
-	out([]string{"wrn:sending Server.Shutdown..."})
+	writeLine([]string{"wrn:sending Server.Shutdown..."})
 
 	err := PtrRPC.Call("Server.Shutdown", []int64{ts}, nil) // if 1st param nil -> gob: cannot encode nil value
 	if nil != err {
@@ -70,7 +70,7 @@ func Connect() error {
 	var err error
 	a := fmt.Sprintf("%s:%s", IPAddr, IPPort)
 	if global.Verbose {
-		out([]string{"sig:dialing ", a, " ..."})
+		writeLine([]string{"sig:dialing ", a, " ..."})
 	}
 	PtrRPC, err = rpc.Dial("tcp", a)
 	if err != nil {
@@ -78,7 +78,7 @@ func Connect() error {
 		return err
 	}
 	if global.Verbose {
-		err = out([]string{"sig:...remoteDisplay @ ", a, " connected."})
+		err = writeLine([]string{"sig:...remoteDisplay @ ", a, " connected."})
 	}
 	return err
 }

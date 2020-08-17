@@ -136,7 +136,7 @@ func lineCollect(s string) {
 	s = strings.TrimSuffix(s, "\n")
 	a(s)
 	a(Postfix)
-	disp.Out(css)
+	disp.WriteLine(css)
 	css = css[:0] // discard slice data
 }
 

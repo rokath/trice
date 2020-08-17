@@ -36,11 +36,11 @@ var (
 // Server is the RPC struct for registered server dunctions
 type Server struct{}
 
-// Out is the exported server method for string display, if trice tool acts as display server.
+// WriteLine is the exported server method for string display, if trice tool acts as display server.
 // By declaring it as a Server struct method it is registered as RPC destination.
-func (p *Server) Out(s []string, reply *int64) error {
+func (p *Server) WriteLine(s []string, reply *int64) error {
 	*reply = int64(len(s))
-	return Out(s) // this function pointer has its default value on server side
+	return WriteLine(s) // this function pointer has its default value on server side
 }
 
 // ColorPalette is the exported server function for color palette, if trice tool acts as display server.
@@ -51,7 +51,7 @@ func (p *Server) ColorPalette(s []string, reply *int64) error {
 	return nil
 }
 
-// LogSetFlags is called remotely to shutdown display server
+// LogSetFlags is called remotely to ...
 func (p *Server) LogSetFlags(f []int64, r *int64) error {
 	flags := int(f[0])
 	log.SetFlags(flags)
@@ -73,15 +73,15 @@ var (
 // Shutdown is called remotely to shutdown display server
 func (p *Server) Shutdown(ts []int64, y *int64) error {
 	timeStamp := ts[0]
-	out([]string{""})
-	out([]string{""})
+	writeLine([]string{""})
+	writeLine([]string{""})
 	if 1 == timeStamp { // for normal usage
-		out([]string{"time:" + time.Now().String(), "dbg:displayServer shutdown"})
+		writeLine([]string{"time:" + time.Now().String(), "dbg:displayServer shutdown"})
 	} else { // for testing
-		out([]string{"dbg:displayServer shutdown"})
+		writeLine([]string{"dbg:displayServer shutdown"})
 	}
-	out([]string{""})
-	out([]string{""})
+	writeLine([]string{""})
+	writeLine([]string{""})
 	defer func() {
 		err := ln.Close()
 		if nil != err {

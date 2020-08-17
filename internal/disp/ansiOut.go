@@ -14,8 +14,8 @@ import (
 )
 
 var (
-	// Out is an exported function pointer, which can be redirected for example to a client call
-	Out = out
+	// WriteLine is an exported function pointer, which can be redirected for example to a client call
+	WriteLine = writeLine
 
 	// mux is for syncing line output
 	mux sync.Mutex
@@ -35,14 +35,14 @@ var (
 	colorizeINFO      = ansi.ColorFunc("121+i")
 )
 
-// out displays ss and sets color.
+// writeLine displays ss and sets color.
 // ss is a slice containing segments of one line.
 // Each segment can have its own color prefix.
 // The last substring inside the slice is definitly the last in
 // the line and has already trimmed its newline.
 // Segments are assumed to not contain linebreaks.
 // It is the responsibility of the caller to handle that.
-func out(ss []string) error {
+func writeLine(ss []string) error {
 	var line string
 
 	// The mux.Lock is needed because in display server mode several clients

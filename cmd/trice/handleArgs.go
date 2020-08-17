@@ -328,7 +328,7 @@ func connect(sv string) error {
 	}
 
 	err := disp.Connect()
-	disp.Out = disp.RemoteOut // re-direct output
+	disp.WriteLine = disp.RemoteOut // re-direct output
 	if nil != err {
 		return err
 	}

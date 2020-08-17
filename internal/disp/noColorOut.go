@@ -14,21 +14,21 @@ import (
 )
 
 var (
-	// Out is an exported function pointer, which can be redirected for example to a client call
-	Out = out
+	// Writeline is an exported function pointer, which can be redirected for example to a client call
+	WriteLine = writeLine
 
 	// mux is for syncing line output
 	mux sync.Mutex
 )
 
-// out displays ss and sets color.
-// ss is a slice containing substring parts of one line.
+// writeLine displays ss and sets color.
+// ss is a slice containing all substring parts of one line.
 // Each substring inside ss is result of Trice or contains prefix,
 // timestamp or postfix and can have its own color prefix.
 // The last substring inside the slice is definitly the last in
 // the line and has already trimmed its newline.
 // Linebreaks inside the substrings are not handled separately (yet).
-func out(ss []string) error {
+func writeLine(ss []string) error {
 	var line string
 
 	mux.Lock()
