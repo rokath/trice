@@ -10,9 +10,9 @@ triceConfigCompiler.h              | needed target compiler specific definitions
 triceCConfigriticalSection.h       | needed target specific definitions for interrupt handling
 triceConfigTx.h                    | only needed for single byte transfer
 triceConfigTxInterrupt.h           | only needed for single byte transfer with interrupts
-triceWrite.c                       | only needed if no write function can be used
+triceWrite.c                       | only needed if no write function can be used - do not use if `triceWriteSeggerRTT.c` is used
 triceWrite.h                       | used internally
-triceWriteSeggerRTT.c              | can be used instead of normal write 
+triceWriteSeggerRTT.c              | can be used instead of normal write - do not use if `triceWrite.c`is used
 triceRuntimeGeneratedStrings.c     | only needed for `triceRuntimeGeneratedString()` implementation, when `TRICE_RUNTIME_GENERATED_STRINGS_SUPPORT` is enabled
 tricePrintfAdapter.c               | only needed for easy adaption of legacy projects. 
 xteaCrypto.c                       | only for trice encryption, does not work with triceRuntimeGeneratedStringsMany.c
