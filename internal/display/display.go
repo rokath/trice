@@ -14,10 +14,10 @@ import (
 	"github.com/rokath/trice/internal/global"
 )
 
-// Displayer is the common interface for display devices.
+// LineWriter is the common interface for output devices.
 // string slice `line` contains all string parts of one line. The last string part is without newline char.
-type Displayer interface {
-	WriteLine(line []string)
+type LineWriter interface {
+	LineWrite(line []string)
 }
 
 // LocalDisplay is an object used for displaying.
@@ -26,8 +26,8 @@ type LocalDisplay struct {
 	err error
 }
 
-// WriteLine is implementing the Displayer interface for LocalDisplay.
-func (p *LocalDisplay) WriteLine(line []string) {
+// LineWrite is implementing the LineWriter interface for LocalDisplay.
+func (p *LocalDisplay) LineWrite(line []string) {
 	if nil == p.err {
 		_, p.err = fmt.Println(strings.Join(line, ""))
 	}
@@ -42,7 +42,7 @@ func NewLocalDisplay(properies string) *LocalDisplay {
 // RemoteDisplay is transferring to a remote display object.
 type RemoteDisplay struct {
 	err                    error
-	exe, logFile, ipa, ipp string
+	exe, logFile, ipAddr string
 	// PtrRPC is a pointer for remote calls valid after a succesful rpc.Dial()
 	PtrRPC *rpc.Client
 }
@@ -52,19 +52,20 @@ type RemoteDisplay struct {
 // If the remote server is already running or on an other machine use the empty string "" as parameter.
 // If the remote server is already running on ips:ipp and exe is not "", than a start of a 2nd instace is not is possible.
 // `logFile` ist the filename the remote server should use. This value is used only if the remote server gets started.
+// ipAddr is in "ipa:ipp" format, like "127.0.0.1:23456".
 // `ipa` is the IP address to be used to connect to the remote display.
 // `ipp` is the IP port to be used to connect to the remote display.
-func NewRemoteDisplay(exe, logFile, ipa, ipp string) (*RemoteDisplay, error) {
-	p := &RemoteDisplay{nil, exe, logFile, ipa, ipp, nil}
+func NewRemoteDisplay(exe, logFile, ipAddr string) (*RemoteDisplay, error) {
+	p := &RemoteDisplay{nil, exe, logFile, ipAddr, nil}
 	if "" != p.exe {
 		p.startServer()
 	}
-	err := p.connect()
-	return p, err
+	p.err := p.connect()
+	return p, p.err
 }
 
-// WriteLine is implementing the Displayer interface for RemoteDisplay.
-func (p *RemoteDisplay) WriteLine(line []string) {
+// LineWrite is implementing the LineWriter interface for RemoteDisplay.
+func (p *RemoteDisplay) LineWrite(line []string) {
 	if nil != p.err {
 		p.err = p.PtrRPC.Call("Server.Out", line, nil) // TODO: Change to "Server.WriteLine"
 	}
@@ -77,12 +78,12 @@ func (p *RemoteDisplay) startServer() {
 	if runtime.GOOS == "windows" {
 		shell = "cmd"
 		shellCmd := "/c start " + p.exe
-		//clip = append(clip, shellCmd, " ds -ipa "+IPAddr+" -ipp "+IPPort+" -lg "+cage.Name)
-		clip = append(clip, shellCmd, " ds -ipa "+p.ipa+" -ipp "+p.ipp+" -lg "+p.logFile)
+		//clip = append(clip, shellCmd, " ds -ip "+IPAddr+" -lg "+cage.Name)
+		clip = append(clip, shellCmd, " ds -ip "+p.ipAddr+" -lg "+p.logFile)
 	} else if runtime.GOOS == "linux" {
 		shell = "gnome-terminal" // this only works for gnome based linux desktop env
 		//clip = append(clip, "--", "/bin/bash", "-c", exe+" ds -ipa "+IPAddr+" -ipp "+IPPort+" -lg off")
-		clip = append(clip, "--", "/bin/bash", "-c", p.exe+" ds -ipa "+p.ipa+" -ipp "+p.ipp+" -lg "+p.logFile)
+		clip = append(clip, "--", "/bin/bash", "-c", p.exe+" ds -ip "+p.ipAddr+" -lg "+p.logFile)
 	} else {
 		log.Fatal("trice is running on unknown operating system")
 	}
@@ -99,9 +100,9 @@ func (p *RemoteDisplay) startServer() {
 // On success PtrRpc is valid afterwards and the output is re-directed
 func (p *RemoteDisplay) connect() error {
 	var err error
-	a := fmt.Sprintf("%s:%s", p.ipa, p.ipp)
+	addr := p.ipa+":"+p.ipp)
 	if global.Verbose {
-		p.WriteLine([]string{"sig:dialing ", a, " ..."})
+		p.WriteLine([]string{"sig:dialing ", addr, " ..."})
 	}
 	p.PtrRPC, err = rpc.Dial("tcp", a)
 	if err != nil {
