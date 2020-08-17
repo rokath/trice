@@ -26,9 +26,9 @@ type LocalDisplay struct {
 	err error
 }
 
-// WriteLine is implementing the Displayer interface for SimpleDisplay.
+// WriteLine is implementing the Displayer interface for LocalDisplay.
 func (p *LocalDisplay) WriteLine(line []string) {
-	if nil != p.err {
+	if nil == p.err {
 		_, p.err = fmt.Println(strings.Join(line, ""))
 	}
 }
@@ -50,7 +50,7 @@ type RemoteDisplay struct {
 // NewRemoteDisplay creates a connection to a remote Display.
 // `exe`, if not empty, ist a programm started to create a remote server instance if not already running.
 // If the remote server is already running or on an other machine use the empty string "" as parameter.
-// If the remote server is already running on ips:ipp and exe is not "", than a start of a 2nd instace is not is possible
+// If the remote server is already running on ips:ipp and exe is not "", than a start of a 2nd instace is not is possible.
 // `logFile` ist the filename the remote server should use. This value is used only if the remote server gets started.
 // `ipa` is the IP address to be used to connect to the remote display.
 // `ipp` is the IP port to be used to connect to the remote display.
@@ -114,7 +114,7 @@ func (p *RemoteDisplay) connect() error {
 	return err
 }
 
-// ScShutdownRemoteDisplayServer starts a client to send shutdown message to display server
+// ScShutdownRemoteDisplayServer starts a client to send shutdown message to display server.
 func (p *RemoteDisplay) ScShutdownRemoteDisplayServer(ts int64) error {
 	if nil != p.err {
 		return p.err
@@ -131,7 +131,7 @@ func (p *RemoteDisplay) ScShutdownRemoteDisplayServer(ts int64) error {
 }
 
 // StopServer sends signal to display server to quit.
-// `ts` is used as flag. If 1 shutdown message is with timestamp (default usage), if 0 shutdown message is without timestamp (for testing)
+// `ts` is used as flag. If 1 shutdown message is with timestamp (default usage), if 0 shutdown message is without timestamp (for testing).
 func (p *RemoteDisplay) StopServer(ts int64) error {
 	p.WriteLine([]string{"wrn:sending Server.Shutdown..."})
 
