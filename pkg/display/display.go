@@ -38,7 +38,7 @@ func NewLocal(colorPalette string) *LocalDisplay {
 	return p
 }
 
-// LineWrite is implementing the LineWriter interface for LocalDisplay.
+// WriteLine is implementing the LineWriter interface for LocalDisplay.
 func (p *LocalDisplay) WriteLine(line []string) {
 	if nil != p.err {
 		log.Fatal(p.err)
@@ -92,8 +92,8 @@ func NewRemote(args ...string) *RemoteDisplay {
 	return p
 }
 
-// LineWrite is implementing the LineWriter interface for RemoteDisplay.
-func (p *RemoteDisplay) LineWrite(line []string) {
+// WriteLine is implementing the LineWriter interface for RemoteDisplay.
+func (p *RemoteDisplay) WriteLine(line []string) {
 	if nil != p.err {
 		log.Fatal(p.err)
 	}
