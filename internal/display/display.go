@@ -15,7 +15,6 @@ import (
 	"github.com/rokath/trice/internal/global"
 )
 
-
 // LineWriter is the common interface for output devices.
 // string slice `line` contains all string parts of one line. The last string part is without newline char.
 type LineWriter interface {
@@ -30,13 +29,14 @@ type LocalDisplay struct {
 
 // LineWrite is implementing the LineWriter interface for LocalDisplay.
 func (p *LocalDisplay) LineWrite(line []string) {
-	if nil == p.err {
-		_, p.err = fmt.Println(strings.Join(line, ""))
+	if nil != p.err {
+		log.Fatal(p.err)
 	}
+	_, p.err = fmt.Println(strings.Join(line, ""))
 }
 
-// NewLocalDisplay creates a Display with `properties`.
-func NewLocalDisplay(properies string) *LocalDisplay {
+// NewLocal creates a LocalDisplay.
+func NewLocal() *LocalDisplay {
 	p := &LocalDisplay{}
 	return p
 }
@@ -51,14 +51,14 @@ type RemoteDisplay struct {
 	PtrRPC  *rpc.Client // PtrRPC is a pointer for remote calls valid after a succesful rpc.Dial()
 }
 
-// NewRemoteDisplay creates a connection to a remote Display. It accepts 0 to 4 string arguments. More arguments arfe ignored.
+// NewRemote creates a connection to a remote Display. It accepts 0 to 4 string arguments. More arguments arfe ignored.
 // For not given parameters default values are taken. The parameters are in the following order.
 // args[0] (ipa) is the IP address to be used to connect to the remote display.
 // args[1] (ipp) is the IP port to be used to connect to the remote display.
 // args[2] (exe), is a programm started to create a remote server instance if not already running.
 // If the remote server is already running on ips:ipp than a start of a 2nd instace is not is possible. This is silently ignored.
 // args[3] (logFile) ist the filename the remote server should use. This value is used only if the remote server gets started.
-func NewRemoteDisplay(args ...string) (*RemoteDisplay, error) {
+func NewRemote(args ...string) *RemoteDisplay {
 	args = append(args, "", "", "", "") // make sure to have at least 4 elements in ars
 	p := &RemoteDisplay{
 		err:     nil,
@@ -84,14 +84,15 @@ func NewRemoteDisplay(args ...string) (*RemoteDisplay, error) {
 		p.startServer()
 	}
 	p.err = p.connect()
-	return p, p.err
+	return p
 }
 
 // LineWrite is implementing the LineWriter interface for RemoteDisplay.
 func (p *RemoteDisplay) LineWrite(line []string) {
 	if nil != p.err {
-		p.err = p.PtrRPC.Call("Server.Out", line, nil) // TODO: Change to "Server.WriteLine"
+		log.Fatal(p.err)
 	}
+	p.err = p.PtrRPC.Call("Server.Out", line, nil) // TODO: Change to "Server.WriteLine"
 }
 
 // startServer starts a display server with the filename exe (if not already running)
