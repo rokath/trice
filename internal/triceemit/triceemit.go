@@ -54,16 +54,17 @@ type Trice struct {
 	Value [2]byte // max 2 byte data payload inside a TriceAtom
 }
 
+// TriceAtomsReceiver is the interface a trice receicer has to provide for a trice interpreter.
+// The provided channels are read only channels
+type TriceAtomsReceiver interface {
+	TriceAtomsChannel() <-chan []Trice
+	IgnoredBytesChannel() <-chan []byte
+}
+
 // TriceReceiver receives trices using io.Reader r and decodes them according to the expected coding.
-// It provides a TriceReceiver interface.
+// It provides a TriceAtomsReceiver interface.
 // All recognized trice atoms as fetched are going as slices into the atoms channel.
 // Not used read bytes are sent to the ignored channel. Theses bytes could be garbage after out of sync or some different protocol.
-//  // TriceReceiverI is the interface a trice receicer has to provide for a trice interpreter.
-//  // The provided channels are read only channels
-//  type TriceReceiverI interface {
-//  	TriceAtomsChannel() <-chan []trice
-//  	IgnoredBytesChannel() <-chan []byte
-//  }
 type TriceReceiver struct {
 	err        error        // if some error occured it is stored here
 	r          io.Reader    // interface embedding
@@ -144,9 +145,10 @@ type TriceInterpreter struct {
 	sw io.StringWriter
 }
 
-// NewSimpleTriceInterpreter uses sw to write complete log lines as one composed string to a display device.
-//
-func NewSimpleTriceInterpreter(sw io.StringWriter, tr TriceReceiver) *TriceInterpreter {
+// NewSimpleTriceInterpreter gets its data from the TriceAtomsReceiver interface tr.
+// It uses the io.StringWriter interface sw to write the trice strings looked up in the trice id list
+// and enhanced with the printed values.
+func NewSimpleTriceInterpreter(sw io.StringWriter, tr TriceAtomsReceiver) *TriceInterpreter {
 	p := &TriceInterpreter{}
 	p.atomsChannel = tr.TriceAtomsChannel()
 	p.ignoredChannel = tr.IgnoredBytesChannel()
@@ -170,13 +172,44 @@ func NewSimpleTriceInterpreter(sw io.StringWriter, tr TriceReceiver) *TriceInter
 			case b := <-p.ignoredChannel:
 				p.ignored = append(p.ignored, b...)
 			}
-			s := fmt.Sprintln(p.atoms, p.ignored) // "processing"
+			s := fmt.Sprintln(p.atoms, p.ignored) // "processing" // TODO: add intelligence here
 			_, p.err = sw.WriteString(s)
 			p.atoms = p.atoms[:0]
 			p.ignored = p.ignored[:0]
 		}
 	}()
 	return p
+}
+
+type LineWriter interface {
+	WriteLine([]string)
+}
+
+type TriceLineComposerI interface {
+	io.StringWriter
+	LineWriter
+}
+
+type TriceLineComposer struct {
+	timestamp string
+	prefix    string
+	suffix    string
+	line      []string // line collector
+	lw        LineWriter
+	err       error
+}
+
+// NewLineComposer constructs log lines according to these rules:
+//
+func NewLineComposer(timestamp, prefix, postfix string, lw LineWriter) *TriceLineComposer {
+	p := &TriceLineComposer{timestamp, prefix, postfix, make([]string, 100), lw, nil}
+	return p
+}
+
+// WriteString implements the io.StringWriter interface for TriceLineComposer
+func (p *TriceLineComposer) WriteString(s string) (n int, err error) {
+	// todo
+	return len(s), nil
 }
 
 /*

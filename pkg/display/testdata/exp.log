@@ -1,6 +1,2 @@
-a + msg:a + MESSAGE:a + unknown:a
-b + MSG:b + debug:b + Unknown:b
-a + a + MESSAGE:a + unknown:a
-b + MSG:b + b + Unknown:b
-a + [92;40ma[0m + [92;40mMESSAGE:a[0m + unknown:a
-b + [92;40mMSG:b[0m + [7;38;5;130mb[0m + Unknown:b
+This is the 1st line
+This is the 2nd line
