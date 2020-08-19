@@ -6,9 +6,9 @@ package emitter
 
 import (
 	"bytes"
-	"fmt"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/rokath/trice/internal/triceemit"
 	"github.com/rokath/trice/pkg/cage"
@@ -28,7 +28,7 @@ func TestAA(t *testing.T) {
 	p := newLocalDisplay()
 	// q uses the lineWriter p internally.
 	// It provides a lineWriter.
-	q := newLineTranslator(p, "defaultColor")
+	q := newLineTranslatorANSI(p, "defaultColor")
 	// lineComposer r implements the io.StringWriter interface and uses the lineWriter provided.
 	// The line composer scans the trice strings and composes lines out of them according to its properies.
 	r := newLineComposer("TIMESTAMP", "PREFIX", "SUFFIX", q)
@@ -37,25 +37,23 @@ func TestAA(t *testing.T) {
 	// u collects trice atoms to a complete trice, generates the appropriate string from it and writes it to the provided io.StringWriter
 	u := triceemit.NewSimpleTriceInterpreter(r, x)
 
-	fmt.Print(u)
+	time.Sleep(100 * time.Millisecond)
+	//fmt.Print(u)
 	u.Stop() // end of life
+	t.Fail()
 }
 
 func TestLocal(t *testing.T) {
 	// prepare
-	afn := "testdata/act.log"
-	efn := "testdata/exp.log"
+	afn := "testdata/actLocal.log"
+	efn := "testdata/expLocal.log"
 	os.Remove(afn)
 	c := cage.Start(afn)
-
-	// do
 	p := newLocalDisplay()
 	l1 := []string{"This is ", "the 1st ", "line"}
 	l2 := []string{"This is ", "the 2nd ", "line"}
 	p.writeLine(l1)
 	p.writeLine(l2)
-
-	// check output
 	cage.Stop(c)
 	lib.EqualTextFiles(t, afn, efn)
 	os.Remove(afn)
@@ -63,18 +61,16 @@ func TestLocal(t *testing.T) {
 
 func TestRemote(t *testing.T) {
 	// prepare
-	afn := "testdata/act.log"
-	efn := "testdata/exp.log"
+	afn := "testdata/actRemote.log"
+	efn := "testdata/expRemote.log"
 	os.Remove(afn)
-
-	// do
-	p := newRemoteDisplay("localhost", "65497", "trice.exe", afn)
+	p := newRemoteDisplay("localhost", "65497", "trice.exe", "-logfile "+afn)
 	l1 := []string{"This is ", "the 1st ", "line"}
 	l2 := []string{"This is ", "the 2nd ", "line"}
 	p.writeLine(l1)
 	p.writeLine(l2)
-
-	// check output
+	p.stopServer(0)
+	time.Sleep(100 * time.Millisecond)
 	lib.EqualTextFiles(t, afn, efn)
 	os.Remove(afn)
 }

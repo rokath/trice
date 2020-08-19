@@ -6,6 +6,7 @@
 package disp
 
 import (
+	"errors"
 	"fmt"
 	"net/rpc"
 	"os/exec"
@@ -32,16 +33,12 @@ func StartServer(exe string) {
 		shell = "gnome-terminal" // this only works for gnome based linux desktop env
 		clip = append(clip, "--", "/bin/bash", "-c", exe+" ds -ipa "+IPAddr+" -ipp "+IPPort+" -lg off")
 	} else {
-		//log.Fatal("trice is running on unknown operating system")
-		global.Check(p.err)
+		err := errors.New("trice is running on unknown operating system")
+		global.Fatal(err)
 	}
 	cmd := exec.Command(shell, clip...)
-
 	err := cmd.Run()
-	if err != nil {
-		//log.Println(clip)
-		global.Check(p.err)
-	}
+	global.Fatal(err)
 }
 
 // StopServer sends signal to display server to quit

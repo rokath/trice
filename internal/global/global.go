@@ -47,13 +47,26 @@ func EvaluateWrap(b []byte) bool {
 	return x
 }
 
-//this logs the function name as well.
-func Check(err error) {
-	if err != nil {
-		// notice that we're using 1, so it will actually log the where
-		// the error happened, 0 = this function, we don't want that.
-		pc, fn, line, _ := runtime.Caller(1)
-		log.Fatalf("[error] in %s[%s:%d] %v", runtime.FuncForPC(pc).Name(), fn, line, err)
+// Fatal ends in osExit(1) if err not nil.
+func Fatal(err error) {
+	if nil == err {
+		return
 	}
+	// notice that we're using 1, so it will actually log the where
+	// the error happened, 0 = this function, we don't want that.
+	pc, fn, line, _ := runtime.Caller(1)
+	log.Fatalf("[error] in %s[%s:%d] %v", runtime.FuncForPC(pc).Name(), fn, line, err)
+}
+
+// Check returns true if err not nil.
+func Check(err error) (b bool) {
+	if nil == err {
+		return
+	}
+	// notice that we're using 1, so it will actually log the where
+	// the error happened, 0 = this function, we don't want that.
+	pc, fn, line, _ := runtime.Caller(1)
+	log.Printf("[error] in %s[%s:%d] %v", runtime.FuncForPC(pc).Name(), fn, line, err)
+	b = true
 	return
 }

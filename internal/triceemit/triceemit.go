@@ -100,9 +100,8 @@ func NewTriceReceiverfromBare(r io.Reader) *TriceReceiver {
 	p.ignored = make(chan []byte, ignoredChannelCapacity)
 	go func() {
 		for {
-			if nil != p.err {
-				//log.Fatal(p.err) // stop in case of an error
-				global.Check(p.err)
+			if io.EOF == p.err || global.Check(p.err) {
+				return
 			}
 			p.readRaw()
 		}
@@ -166,10 +165,7 @@ func NewSimpleTriceInterpreter(sw io.StringWriter, tr TriceAtomsReceiver) *Trice
 
 	go func() {
 		for {
-			//if nil != p.err {
-			//	log.Fatal(p.err) // stop on any error, TODO: stop receiver too
-			//}
-			global.Check(p.err)
+			global.Fatal(p.err)
 			select {
 			case a, ok := <-p.atomsChannel:
 				if !ok {
@@ -311,7 +307,7 @@ func (p *TriceReceiver) readRaw() {
 	n, p.err = io.ReadAtLeast(p.r, p.syncbuffer[leftovers:limit], minBytes) // read to have at least triceSize bytes
 	le := leftovers + n                                                     // the valid len inside p.by
 	if le < triceSize {                                                     // got not the minimum amount of expected bytes
-		global.Check(p.err)
+		return // assuming o.EOF == p.err
 	}
 	p.syncbuffer = p.syncbuffer[:le]                 // set valid length
 	o := findSubSliceOffset(p.syncbuffer, syncTrice) // look for a sync point
