@@ -17,6 +17,7 @@ import (
 	"reflect"
 	"strings"
 
+	"github.com/rokath/trice/internal/global"
 	"github.com/rokath/trice/internal/id"
 	"github.com/rokath/trice/pkg/lib"
 )
@@ -26,7 +27,7 @@ const (
 	triceSize = 4
 
 	// triceChannelCapacity is the max possible trice slice count hold in channel
-	triceChannelCapacity = 100
+	triceChannelCapacity = 1000
 
 	// ignoredChannelCapacity is the max count of ignored bytes
 	ignoredChannelCapacity = 1000
@@ -100,7 +101,8 @@ func NewTriceReceiverfromBare(r io.Reader) *TriceReceiver {
 	go func() {
 		for {
 			if nil != p.err {
-				return // stop in case of an error
+				//log.Fatal(p.err) // stop in case of an error
+				global.Check(p.err)
 			}
 			p.readRaw()
 		}
@@ -119,6 +121,9 @@ type TriceInterpreter struct {
 
 	// This is the receive channel for trice receiver ignoredChannel bytes.
 	ignoredChannel <-chan []byte
+
+	// This channel is used to stop the TriceInterpreter
+	done chan int
 
 	// atoms holds from channel read trice atoms not processed so far.
 	atoms []Trice
@@ -147,7 +152,7 @@ type TriceInterpreter struct {
 
 // NewSimpleTriceInterpreter gets its data from the TriceAtomsReceiver interface tr.
 // It uses the io.StringWriter interface sw to write the trice strings looked up in the trice id list
-// and enhanced with the printed values.
+// and enhanced with the printed values. Each single trice string is written separately with sw.
 func NewSimpleTriceInterpreter(sw io.StringWriter, tr TriceAtomsReceiver) *TriceInterpreter {
 	p := &TriceInterpreter{}
 	p.atomsChannel = tr.TriceAtomsChannel()
@@ -157,12 +162,14 @@ func NewSimpleTriceInterpreter(sw io.StringWriter, tr TriceAtomsReceiver) *Trice
 	p.ignored = make([]byte, 1000)
 	p.values = make([]byte, 1000)
 	p.css = make([]string, 1000)
+	p.done = make(chan int)
 
 	go func() {
 		for {
-			if nil != p.err {
-				return // stop on any error, TODO: stop receiver too
-			}
+			//if nil != p.err {
+			//	log.Fatal(p.err) // stop on any error, TODO: stop receiver too
+			//}
+			global.Check(p.err)
 			select {
 			case a, ok := <-p.atomsChannel:
 				if !ok {
@@ -171,6 +178,8 @@ func NewSimpleTriceInterpreter(sw io.StringWriter, tr TriceAtomsReceiver) *Trice
 				p.atoms = append(p.atoms, a...)
 			case b := <-p.ignoredChannel:
 				p.ignored = append(p.ignored, b...)
+			case <-p.done:
+				return // end of life
 			}
 			s := fmt.Sprintln(p.atoms, p.ignored) // "processing" // TODO: add intelligence here
 			_, p.err = sw.WriteString(s)
@@ -181,35 +190,9 @@ func NewSimpleTriceInterpreter(sw io.StringWriter, tr TriceAtomsReceiver) *Trice
 	return p
 }
 
-type LineWriter interface {
-	WriteLine([]string)
-}
-
-type TriceLineComposerI interface {
-	io.StringWriter
-	LineWriter
-}
-
-type TriceLineComposer struct {
-	timestamp string
-	prefix    string
-	suffix    string
-	line      []string // line collector
-	lw        LineWriter
-	err       error
-}
-
-// NewLineComposer constructs log lines according to these rules:
-//
-func NewLineComposer(timestamp, prefix, postfix string, lw LineWriter) *TriceLineComposer {
-	p := &TriceLineComposer{timestamp, prefix, postfix, make([]string, 100), lw, nil}
-	return p
-}
-
-// WriteString implements the io.StringWriter interface for TriceLineComposer
-func (p *TriceLineComposer) WriteString(s string) (n int, err error) {
-	// todo
-	return len(s), nil
+// Stop ends life of TriceInterpreter
+func (p *TriceInterpreter) Stop() {
+	p.done <- 0
 }
 
 /*
@@ -328,10 +311,7 @@ func (p *TriceReceiver) readRaw() {
 	n, p.err = io.ReadAtLeast(p.r, p.syncbuffer[leftovers:limit], minBytes) // read to have at least triceSize bytes
 	le := leftovers + n                                                     // the valid len inside p.by
 	if le < triceSize {                                                     // got not the minimum amount of expected bytes
-		if nil != p.err {
-			close(p.atoms) // this is the signal for the following interpreter to stop
-		}
-		return // s.th. went wrong
+		global.Check(p.err)
 	}
 	p.syncbuffer = p.syncbuffer[:le]                 // set valid length
 	o := findSubSliceOffset(p.syncbuffer, syncTrice) // look for a sync point

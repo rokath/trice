@@ -10,7 +10,6 @@ package jlink
 import (
 	"fmt"
 	"io/ioutil"
-	"log"
 	"os"
 	"os/exec"
 	"runtime"
@@ -128,7 +127,8 @@ func (p *JLINK) Open() error {
 	}
 	lcmdH = exec.Command(shell, clip)
 	if err = lcmdH.Start(); err != nil {
-		log.Fatal("start error", err)
+		//		log.Fatal("start error", err)
+		global.Check(err)
 	}
 
 	p.tlfH, err = os.Open(p.tlfN) // Open() opens a file with read only flag.

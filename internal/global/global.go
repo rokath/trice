@@ -8,7 +8,9 @@
 package global
 
 import (
+	"log"
 	"os"
+	"runtime"
 )
 
 var (
@@ -43,4 +45,15 @@ func EvaluateWrap(b []byte) bool {
 		b[2] == DestinationAddr && // todo locAddr
 		b[3] == b[0]^b[1]^b[2]^b[4]^b[5]^b[6]^b[7] // crc8
 	return x
+}
+
+//this logs the function name as well.
+func Check(err error) {
+	if err != nil {
+		// notice that we're using 1, so it will actually log the where
+		// the error happened, 0 = this function, we don't want that.
+		pc, fn, line, _ := runtime.Caller(1)
+		log.Fatalf("[error] in %s[%s:%d] %v", runtime.FuncForPC(pc).Name(), fn, line, err)
+	}
+	return
 }

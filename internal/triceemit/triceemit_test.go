@@ -7,10 +7,8 @@ package triceemit
 
 import (
 	"bytes"
-	"fmt"
 	"testing"
 
-	"github.com/rokath/trice/pkg/display"
 	"github.com/rokath/trice/pkg/lib"
 )
 
@@ -27,18 +25,6 @@ import (
 //	fmt.Println(tr)
 //	t.Fail()
 //}
-
-func TestAA(t *testing.T) {
-	p := display.NewLocal("defaultColor") // p implements the LineWriter interface needed by LineComposer
-	q := NewLineComposer("", "", "", p)   // q implements the io.StringWriter interface and needs a LineWriter
-
-	s := bytes.NewReader([]byte{0, 1, 2, 3}) // s implements the io.Reader interface needed by TriceReceiver
-	x := NewTriceReceiverfromBare(s)         // x uses the io.Reader interface and implements the TriceAtomsReceiver interface
-
-	r := NewSimpleTriceInterpreter(q, x) // r uses the TriceAtomsReceiver interface and the io.StringWriter interface
-
-	fmt.Print(r)
-}
 
 func TestNewTriceReceiverfromBare(t *testing.T) {
 	r := bytes.NewReader([]byte{'j', 'a', 'r', 1, 1, 1, 1, 0x16, 0x16, 0x16, 0x16, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4})
