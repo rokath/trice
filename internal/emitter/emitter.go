@@ -11,6 +11,7 @@ import (
 	"os/exec"
 	"runtime"
 	"strings"
+	"time"
 
 	"github.com/rokath/trice/internal/global"
 )
@@ -44,29 +45,87 @@ func (p *lineTranslator) writeLine(line []string) {
 }
 
 type triceLineComposer struct {
-	timestamp string
-	prefix    string
-	suffix    string
-	line      []string   // line collector
-	lw        lineWriter // internal interface
-	err       error
+	timestampFormat string
+	prefix          string
+	suffix          string
+	line            []string   // line collector
+	lw              lineWriter // internal interface
+	err             error
 }
 
 // NewLineComposer constructs log lines according to these rules:...
 // It provides an io.StringWriter interface which is used for the reception of (trice) strings.
 // NewLineComposer uses lw for writing the generated lines.
-func newLineComposer(timestamp, prefix, postfix string, lw lineWriter) *triceLineComposer {
-	p := &triceLineComposer{timestamp, prefix, postfix, make([]string, 100), lw, nil}
+func newLineComposer(timestampFormat, prefix, postfix string, lw lineWriter) *triceLineComposer {
+	p := &triceLineComposer{timestampFormat, prefix, postfix, make([]string, 100), lw, nil}
+	p.line = p.line[:0]
 	return p
 }
 
+// timestamp returns local time as string according var p.timeStampFormat
+func (p *triceLineComposer) timestamp() string {
+	var s string
+	switch p.timestampFormat {
+	case "LOCmicro":
+		s = time.Now().Format(time.StampMicro) + "  "
+	case "UTCmicro":
+		s = "UTC " + time.Now().UTC().Format(time.StampMicro) + "  "
+	case "off", "none":
+		s = ""
+	default:
+		s = "Use LOCmicro|UTCmicro|off|none as timestamp format "
+	}
+	return s
+}
+
 // WriteString implements the io.StringWriter interface for triceLineComposer
+// If s is empty, WriteString returns 0, nil.
+// If p.line is empty, the actual timestamp and the prefix are added to p.line.
+// If s is without newline it is added to p.line and WriteString returns.
+// If s ends with newline it is added to p.line and also the suffix is added to p.line.
+// If s contains several newlines it is split there and the substrings are hanled accordingly.
+// That means it writes internally a separate line for each substring in s ending with a newline.
 func (p *triceLineComposer) WriteString(s string) (n int, err error) {
-	// todo: parse and collect
-	p.line = append(p.line, s)
 	n = len(s)
-	p.lw.writeLine(p.line)
-	p.line = p.line[:0]
+	sn := strings.ReplaceAll(s, "\r\n", "\n")
+	ss := strings.Split(sn, "\n")
+
+	// play ground results:
+	// fmt.Printf("%q\n", strings.Split("", "\n"))            // [""]                 // 0 new line
+	// fmt.Printf("%q\n", strings.Split("\n", "\n"))          // ["" ""]              // 1 new lne
+	// fmt.Printf("%q\n", strings.Split("\n\n", "\n"))        // ["" "" ""]           // 2 new lines
+	// fmt.Printf("%q\n", strings.Split("a b c", "\n"))       // ["a b c"]            // 0 new line
+	// fmt.Printf("%q\n", strings.Split("a\nb\nc\n", "\n"))   // ["a" "b" "c" ""]     // 3 new lines
+	// fmt.Printf("%q\n", strings.Split("a\n\nb\nc\n", "\n")) // ["a" "" "b" "c" ""]  // 4 new lines
+	// fmt.Printf("%q\n", strings.Split("a\nb\nc", "\n"))     // ["a" "b" "c"]        // 2 new lines
+	// derived rule: len(ss)-1 is count of new lines
+	lineEndCount := len(ss) - 1
+
+	// One string with several newlines gets the identical timestamp.
+	// If a string was already started and gets completed with a following WriteString call,
+	// it keeps its original timestamp, but if following lines inside s they get a new timestamp.
+	ts := p.timestamp()
+	for _, sx := range ss {
+		if 0 == len(p.line) { // start new line
+			if 0 < lineEndCount { // and complete line
+				p.line = append(p.line, ts, p.prefix, sx, p.suffix)
+				p.lw.writeLine(p.line)
+				p.line = p.line[:0]
+				lineEndCount--
+			} else { // and keep it
+				p.line = append(p.line, ts, p.prefix, sx)
+			}
+		} else { // a line was started before
+			if 0 < lineEndCount { // now complete line
+				p.line = append(p.line, sx, p.suffix)
+				p.lw.writeLine(p.line)
+				p.line = p.line[:0]
+				lineEndCount--
+			} else { // extend line
+				p.line = append(p.line, sx)
+			}
+		}
+	}
 	return
 }
 
@@ -85,7 +144,8 @@ func newLocalDisplay() *localDisplay {
 // writeLine is the implemented lineWriter interface for localDisplay.
 func (p *localDisplay) writeLine(line []string) {
 	global.Fatal(p.err)
-	_, p.err = fmt.Println(strings.Join(line, ""))
+	s := strings.Join(line, "")
+	_, p.err = fmt.Println(s)
 }
 
 // remoteDisplay is transferring to a remote display object.

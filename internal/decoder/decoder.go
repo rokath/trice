@@ -6,13 +6,13 @@ package decoder
 import (
 	"bufio"
 	"encoding/binary"
-	"io"
-	"time"
 	"errors"
+	"io"
 
 	"github.com/rokath/trice/internal/bare"
 )
 
+/*
 var (
 	// TimeStampFormat is the PC timestamp format.
 	TimeStampFormat = "off"
@@ -32,7 +32,7 @@ func Timestamp() string {
 	}
 	return s
 }
-
+*/
 ///////////////////////////////////////////////////////////////////////////////
 // TRICE message struct
 //
@@ -52,7 +52,7 @@ type triceMsgLoad struct {
 }
 
 // command message payload
-type cmdMsgLoad struct{
+type cmdMsgLoad struct {
 	tid uint8
 	fid uint8
 	pix uint8
@@ -116,21 +116,21 @@ type Command struct {
 	//TYPE byte
 	//DATA []Pkg // each command can have several data packages as payload
 	DataPackageCount uint8
-	PKG [][]byte
-	r io.Reader
+	PKG              [][]byte
+	r                io.Reader
 }
 
-func (c Command)DecodeData() error {
+func (c Command) DecodeData() error {
 	var i uint8
-	for i < c.DataPackageCount{
-	var len uint16
-	if err := binary.Read(c.r, binary.LittleEndian, &len); err != nil {
-		return err
-	}
-	buf := make([]byte, len)
-	io.ReadFull(c.r, buf)
-	c.PKG = append(c.PKG,buf)
-	i++
+	for i < c.DataPackageCount {
+		var len uint16
+		if err := binary.Read(c.r, binary.LittleEndian, &len); err != nil {
+			return err
+		}
+		buf := make([]byte, len)
+		io.ReadFull(c.r, buf)
+		c.PKG = append(c.PKG, buf)
+		i++
 	}
 	return nil
 }
@@ -159,6 +159,7 @@ func xxx() {
 	dat1 := []byte{11, 12}
 	Some.PKG = [][]byte{dat0, dat1}
 }
+
 // StringWriter is the interface that wraps the basic string Write method.
 //
 // Write writes len(p) strings from p to the underlying data stream. It returns the number of strings

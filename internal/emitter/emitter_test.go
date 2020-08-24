@@ -6,7 +6,9 @@ package emitter
 
 import (
 	"bytes"
+	"fmt"
 	"os"
+	"strings"
 	"testing"
 	"time"
 
@@ -14,6 +16,86 @@ import (
 	"github.com/rokath/trice/pkg/cage"
 	"github.com/rokath/trice/pkg/lib"
 )
+
+// localDisplay is an object used for displaying.
+// localDisplay implements the lineWriter interface
+type checkDisplay struct {
+	s []string
+}
+
+// newCheckDisplay creates a Display. It provides a lineWriter.
+func newChecklDisplay() *checkDisplay {
+	p := &checkDisplay{}
+	return p
+}
+
+// writeLine is the implemented lineWriter interface for checkDisplay.
+func (p *checkDisplay) writeLine(line []string) {
+	s := strings.Join(line, "")
+	p.s = append(p.s, s)
+}
+
+func compare(a, b []string) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for i := range a {
+		if a[i] != b[i] {
+			fmt.Println(a[i])
+			fmt.Println(b[i])
+			return false
+		}
+	}
+	return true
+}
+
+func (p *checkDisplay) checkLine(t *testing.T, lines []string) {
+	//if false == reflect.DeepEqual(p.s, lines) {
+	if false == compare(p.s, lines) {
+		t.Fail()
+	}
+}
+
+func Test2LineComposer(t *testing.T) {
+	// prepare
+	lw := newChecklDisplay()
+	pf := "[ "
+	sf := " ]"
+	p := newLineComposer("off", pf, sf, lw)
+
+	p.WriteString("Hi\r\nAll\n")
+	lw.checkLine(t, []string{"[ Hi ]", "[ All ]"})
+	lw.s = lw.s[:0]
+
+	p.WriteString("Hi")
+	p.WriteString("Hi\n")
+	lw.checkLine(t, []string{"[ HiHi ]"})
+	lw.s = lw.s[:0]
+
+	p.WriteString("\n\nHi\n\n")
+	p.WriteString("Ho\n")
+	lw.checkLine(t, []string{"[  ]", "[  ]", "[ Hi ]", "[  ]", "[ Ho ]"})
+	lw.s = lw.s[:0]
+}
+
+func TestLineComposer(t *testing.T) {
+	// prepare
+	afn := "testdata/actLineComposer.log"
+	efn := "testdata/expLineComposer.log"
+	os.Remove(afn)
+	c := cage.Start(afn)
+
+	lw := newLocalDisplay()
+	p := newLineComposer("off", "PREFIX---", "---SUFFIX", lw)
+	n, e := p.WriteString("Hi\nAll\r\n")
+
+	cage.Stop(c)
+	lib.EqualTextFiles(t, afn, efn)
+	os.Remove(afn)
+
+	lib.Equals(t, 8, n)
+	lib.Equals(t, e, nil)
+}
 
 func TestAA(t *testing.T) {
 	// s implements the io.Reader interface needed by TriceReceiver.
@@ -40,7 +122,7 @@ func TestAA(t *testing.T) {
 	time.Sleep(100 * time.Millisecond)
 	//fmt.Print(u)
 	u.Stop() // end of life
-	t.Fail()
+	//t.Fail()
 }
 
 func TestLocal(t *testing.T) {
