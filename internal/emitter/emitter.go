@@ -23,11 +23,11 @@ type lineWriter interface {
 	writeLine([]string)
 }
 
-// lineTranslator imnplements a lineWriter interface.
+// lineTranslatorANSI imnplements a lineWriter interface.
 // It uses an internal lineWriter lw to write to.
 // It converts the channel information to color data using colorPalette.
 // In case of a remote display the lineTranslator should be used there.
-type lineTranslator struct {
+type lineTranslatorANSI struct {
 	lw           lineWriter
 	colorPalette string
 }
@@ -35,12 +35,13 @@ type lineTranslator struct {
 // newLineTranslatorANSI translates lines to ANSI colors according to colorPalette.
 // It provides a lineWriter interface and uses internally a lineWriter.
 func newLineTranslatorANSI(lw lineWriter, colorPalette string) *lineTranslator {
-	p := &lineTranslator{lw, colorPalette}
+	p := &lineTranslatorANSI{lw, colorPalette}
 	return p
 }
 
 // writeLine consumes a full line, translates it and writes it to the internal lineWriter.
-func (p *lineTranslator) writeLine(line []string) {
+// It adds ANSI color Codes and replaces col: channel information.
+func (p *lineTranslatorANSI) writeLine(line []string) {
 	p.lw.writeLine(line) // TODO: translation
 }
 
