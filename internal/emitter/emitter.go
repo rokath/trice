@@ -56,9 +56,8 @@ type triceLineComposer struct {
 // NewLineComposer constructs log lines according to these rules:...
 // It provides an io.StringWriter interface which is used for the reception of (trice) strings.
 // NewLineComposer uses lw for writing the generated lines.
-func newLineComposer(timestampFormat, prefix, postfix string, lw lineWriter) *triceLineComposer {
-	p := &triceLineComposer{timestampFormat, prefix, postfix, make([]string, 100), lw, nil}
-	p.line = p.line[:0]
+func newLineComposer(lw lineWriter, timestampFormat, prefix, postfix string) *triceLineComposer {
+	p := &triceLineComposer{lw, timestampFormat, prefix, postfix, make([]string, 0, 80), nil}
 	return p
 }
 
@@ -73,7 +72,7 @@ func (p *triceLineComposer) timestamp() string {
 	case "off", "none":
 		s = ""
 	default:
-		s = "Use LOCmicro|UTCmicro|off|none as timestamp format "
+		s = p.timeStampFormat + " "
 	}
 	return s
 }
