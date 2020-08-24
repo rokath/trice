@@ -17,8 +17,8 @@ import (
 	"github.com/rokath/trice/pkg/lib"
 )
 
-// localDisplay is an object used for displaying.
-// localDisplay implements the lineWriter interface
+// checkDisplay is an object used for displaying.
+// checkDisplay implements the lineWriter interface
 type checkDisplay struct {
 	s []string
 }
