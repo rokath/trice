@@ -34,7 +34,7 @@ type lineTranslatorANSI struct {
 
 // newLineTranslatorANSI translates lines to ANSI colors according to colorPalette.
 // It provides a lineWriter interface and uses internally a lineWriter.
-func newLineTranslatorANSI(lw lineWriter, colorPalette string) *lineTranslator {
+func newLineTranslatorANSI(lw lineWriter, colorPalette string) *lineTranslatorANSI {
 	p := &lineTranslatorANSI{lw, colorPalette}
 	return p
 }
@@ -46,11 +46,11 @@ func (p *lineTranslatorANSI) writeLine(line []string) {
 }
 
 type triceLineComposer struct {
+	lw              lineWriter // internal interface
 	timestampFormat string
 	prefix          string
 	suffix          string
-	line            []string   // line collector
-	lw              lineWriter // internal interface
+	line            []string // line collector
 	err             error
 }
 
@@ -73,7 +73,7 @@ func (p *triceLineComposer) timestamp() string {
 	case "off", "none":
 		s = ""
 	default:
-		s = p.timeStampFormat + " "
+		s = p.timestampFormat + " "
 	}
 	return s
 }

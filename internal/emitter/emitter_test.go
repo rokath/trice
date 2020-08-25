@@ -61,7 +61,7 @@ func Test2LineComposer(t *testing.T) {
 	lw := newChecklDisplay()
 	pf := "[ "
 	sf := " ]"
-	p := newLineComposer("off", pf, sf, lw)
+	p := newLineComposer(lw, "off", pf, sf)
 
 	p.WriteString("Hi\r\nAll\n")
 	lw.checkLine(t, []string{"[ Hi ]", "[ All ]"})
@@ -86,7 +86,7 @@ func TestLineComposer(t *testing.T) {
 	c := cage.Start(afn)
 
 	lw := newLocalDisplay()
-	p := newLineComposer("off", "PREFIX---", "---SUFFIX", lw)
+	p := newLineComposer(lw, "off", "PREFIX---", "---SUFFIX")
 	n, e := p.WriteString("Hi\nAll\r\n")
 
 	cage.Stop(c)
@@ -113,7 +113,7 @@ func TestAA(t *testing.T) {
 	q := newLineTranslatorANSI(p, "defaultColor")
 	// lineComposer r implements the io.StringWriter interface and uses the lineWriter provided.
 	// The line composer scans the trice strings and composes lines out of them according to its properies.
-	r := newLineComposer("TIMESTAMP", "PREFIX", "SUFFIX", q)
+	r := newLineComposer(q, "TIMESTAMP", "PREFIX", "SUFFIX")
 
 	// u uses the TriceAtomsReceiver interface (x) for reception and the io.StringWriter interface (r) for writing.
 	// u collects trice atoms to a complete trice, generates the appropriate string from it and writes it to the provided io.StringWriter
