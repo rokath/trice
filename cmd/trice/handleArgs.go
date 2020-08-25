@@ -190,7 +190,7 @@ func init() {
 	fsScLog.StringVar(&cipher.Password, "password", "none", "decrypt passphrase")                                                                                                                                // flag
 	fsScLog.StringVar(&cipher.Password, "pw", "none", "short for -password")                                                                                                                                     // short flag
 	fsScLog.BoolVar(&cipher.ShowKey, "key", false, "show encryption key")                                                                                                                                        // flag
-	fsScLog.StringVar(&decoder.TimeStampFormat, "ts", "LOCmicro", "PC timestamp for logs and logfile name, options: 'off|UTCmicro'")                                                                             // flag
+	fsScLog.StringVar(&decoder.TimeStampFormat, "ts", "LOCmicro", "PC timestamp for logs and logfile name, options: 'off|UTCmicro|zero'")                                                                        // flag
 	fsScLog.StringVar(&disp.ColorPalette, "color", "default", "color set, 'off' disables color handling (\"w:x\"->\"w:x\"), 'none' disables channels color (\"w:x\"->\"x\"), options: 'off|none'")               // flag
 	fsScLog.StringVar(&emit.Prefix, "prefix", "source: ", "prepend prefix to all lines, options: any string or 'off|none' or 'source:' followed by 0-12 spaces, source will be replaced")                        // flag
 	fsScLog.StringVar(&emit.Postfix, "postfix", "\n", "append postfix to all lines, options: any string")                                                                                                        // flag
