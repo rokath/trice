@@ -159,9 +159,9 @@ func NewSimpleTriceInterpreter(sw io.StringWriter, l id.ListT, tr TriceAtomsRece
 	p.ignoredChannel = tr.IgnoredBytesChannel()
 	p.sw = sw
 	p.list = l
-	p.atoms = make([]Trice, 0, 10)
-	p.ignored = make([]byte, 0, 10)
-	p.values = make([]byte, 0, 10)
+	p.atoms = make([]Trice, 0, 1000)
+	p.ignored = make([]byte, 0, 1000)
+	p.values = make([]byte, 0, 100)
 	p.done = make(chan int)
 
 	go func() {
@@ -183,13 +183,11 @@ func NewSimpleTriceInterpreter(sw io.StringWriter, l id.ListT, tr TriceAtomsRece
 				_, p.err = sw.WriteString(s)
 			}
 			if 0 < len(p.ignored) {
-				// TODO: evaluate other protocols here and keep plain strings
+				// TODO: evaluate other protocols here
 				s := fmt.Sprintln("WARNING:ignoring bytes:", p.ignored)
 				_, p.err = sw.WriteString(s)
 				p.ignored = p.ignored[:0]
 			}
-			//p.atoms = p.atoms[:0]
-			//p.ignored = p.ignored[:0]
 		}
 	}()
 	return p
@@ -197,6 +195,7 @@ func NewSimpleTriceInterpreter(sw io.StringWriter, l id.ListT, tr TriceAtomsRece
 
 // translate evaluates p.atoms, p.values and p.ignored and tries to generate a string.
 // If an internal error state occured it discards all accumulated data and clears the error.
+// On return it delivers an emty string if
 func (p *TriceInterpreter) translate() (s string) {
 	if nil != p.err {
 		s = fmt.Sprintln(p.err, p.values, p.atoms, p.ignored)
@@ -206,25 +205,31 @@ func (p *TriceInterpreter) translate() (s string) {
 		p.err = nil
 		return
 	}
-	for 0 < len(p.atoms) {
-		trice := p.atoms[0]
-		p.atoms = p.atoms[1:]
-		if 5654 == trice.ID { // sync
-			continue
-		}
-		p.values = append(p.values, trice.Value[:]...)
-		if 0 == trice.ID {
-			continue
-		}
-		var index int
-		index, p.err = id.Index(int(trice.ID), p.list)
-		if nil != p.err {
-			continue // discard all
-		}
-		p.item = p.list[index]
-		s = p.emitter()
+	if 0 == len(p.atoms) {
 		return
 	}
+	trice := p.atoms[0]
+	p.atoms = p.atoms[1:]
+	if 5654 == trice.ID { // discard sync trice
+		if 22 != trice.Value[0] || 22 != trice.Value[1] {
+			s = fmt.Sprintln("WARNING:", trice, "is invalid. Must have payload [22 22]. (5654 is sync trice.ID)")
+		}
+		return
+	}
+	p.values = append(p.values, trice.Value[:]...)
+	if 0 == trice.ID { // only data
+		return
+	}
+	var index int
+	index, p.err = id.Index(int(trice.ID), p.list)
+	if nil != p.err {
+		s = fmt.Sprintln("WARNING: trice.ID", trice.ID, "not found, discarding values:", p.values)
+		p.values = p.values[:0]
+		return
+	}
+	p.item = p.list[index]
+	s = p.emitter()
+	p.values = p.values[:0]
 	return
 }
 

@@ -9,8 +9,6 @@ import (
 	"reflect"
 	"strings"
 	"testing"
-
-	"github.com/mgutz/ansi"
 )
 
 func Test1colorize(t *testing.T) {
@@ -49,8 +47,10 @@ func Test4colorize(t *testing.T) {
 	p := newLineTranslatorANSI(lw, "default")
 	s := "msg:de"
 	c := p.colorize(s)
-	b := []byte{27, 91, 57, 50, 59, 52, 48, 109, 100, 101, 27, 91, 48, 109}
-	if false == reflect.DeepEqual(b, []byte(c)) {
+	act := []byte(c)
+	exp := []byte{27, 91, 57, 50, 59, 52, 48, 109, 100, 101, 27, 91, 48, 109}
+	equals(t, exp, act)
+	if false == reflect.DeepEqual(exp, act) {
 		t.Fail()
 	}
 }
@@ -71,10 +71,10 @@ func Test1writeLine(t *testing.T) {
 	lw := newCheckDisplay()
 	p := newLineTranslatorANSI(lw, "none")
 	q := newLineTranslatorANSI(lw, "off")
-	l := []string{"M:msg", "I:info", "wrn:end"}
+	l := []string{"M:msg", "I:Info", "wrn:End"}
 	p.writeLine(l)
 	q.writeLine(l)
-	ep := strings.Join([]string{"M:msg", "I:info", "end", ansi.Reset}, "")
-	eq := strings.Join([]string{"M:msg", "I:info", "wrn:end", ansi.Reset}, "")
+	ep := strings.Join([]string{"M:msg", "I:Info", "End"}, "")
+	eq := strings.Join([]string{"M:msg", "I:Info", "wrn:End"}, "")
 	lw.checkLines(t, []string{ep, eq})
 }

@@ -58,16 +58,17 @@ func isLower(s string) bool {
 // If p.colorPalette is "none" remove only lower case channel info "col:"
 // If "COL:" is begin of string add ANSI color code according to COL:
 // If "col:" is begin of string replace "col:" with ANSI color code according to col:
-func (p *lineTranslatorANSI) colorize(s string) string {
+func (p *lineTranslatorANSI) colorize(s string) (r string) {
+	r = s
 	if "off" == p.colorPalette { // do nothing
-		return s
+		return
 	}
 	sc := strings.SplitN(s, ":", 2)
 	if len(sc) < 2 { // no color separator
-		return s
+		return
 	}
 	if "none" == p.colorPalette { // remove channel info
-		if isLower(s) {
+		if isLower(sc[0]) {
 			switch sc[0] {
 			case "e", "err", "error",
 				"w", "wrn", "warning",
@@ -82,80 +83,80 @@ func (p *lineTranslatorANSI) colorize(s string) string {
 				"s", "sig", "signal",
 				"t", "tst", "test",
 				"i", "inf", "info", "informal":
-				s = sc[1] // remove channel info
+				r = sc[1] // remove channel info
 			}
 		}
-		return s
+		return
 	}
 
 	switch sc[0] {
 	case "e", "err", "error":
-		s = sc[1] // remove channel info
+		r = sc[1] // remove channel info
 		fallthrough
 	case "E", "ERR", "ERROR":
-		return colorizeERROR(s)
+		return colorizeERROR(r)
 	case "w", "wrn", "warning":
-		s = sc[1] // remove channel info
+		r = sc[1] // remove channel info
 		fallthrough
 	case "W", "WRN", "WARNING":
-		return colorizeWARNING(s)
+		return colorizeWARNING(r)
 	case "m", "msg", "message":
-		s = sc[1] // remove channel info
+		r = sc[1] // remove channel info
 		fallthrough
 	case "M", "MSG", "MESSAGE":
-		return colorizeMESSAGE(s)
+		return colorizeMESSAGE(r)
 	case "rd", "rd_":
-		s = sc[1] // remove channel info
+		r = sc[1] // remove channel info
 		fallthrough
 	case "RD", "RD_":
-		return colorizeREAD(s)
+		return colorizeREAD(r)
 	case "wr", "wr_":
-		s = sc[1] // remove channel info
+		r = sc[1] // remove channel info
 		fallthrough
 	case "WR", "WR_":
-		return colorizeWRITE(s)
+		return colorizeWRITE(r)
 	case "tim", "time":
-		s = sc[1] // remove channel info
+		r = sc[1] // remove channel info
 		fallthrough
 	case "TIM", "TIME":
-		return colorizeTIME(s)
+		return colorizeTIME(r)
 	case "att", "attention":
-		s = sc[1] // remove channel info
+		r = sc[1] // remove channel info
 		fallthrough
 	case "ATT", "ATTENTION":
-		return colorizeATTENTION(s)
+		return colorizeATTENTION(r)
 	case "d", "db", "dbg", "debug":
-		s = sc[1] // remove channel info
+		r = sc[1] // remove channel info
 		fallthrough
 	case "D", "DB", "DBG", "DEBUG":
-		return colorizeDEBUG(s)
+		return colorizeDEBUG(r)
 	case "dia", "diag":
-		s = sc[1] // remove channel info
+		r = sc[1] // remove channel info
 		fallthrough
 	case "DIA", "DIAG":
-		return colorizeDIAG(s)
+		return colorizeDIAG(r)
 	case "isr", "interrupt":
-		s = sc[1] // remove channel info
+		r = sc[1] // remove channel info
 		fallthrough
 	case "ISR", "INTERRUPT":
-		return colorizeDIAG(s)
+		return colorizeDIAG(r)
 	case "s", "sig", "signal":
-		s = sc[1] // remove channel info
+		r = sc[1] // remove channel info
 		fallthrough
 	case "S", "SIG", "SIGNAL":
-		return colorizeSIGNAL(s)
+		return colorizeSIGNAL(r)
 	case "t", "tst", "test":
-		s = sc[1] // remove channel info
+		r = sc[1] // remove channel info
 		fallthrough
 	case "T", "TST", "TEST":
-		return colorizeTEST(s)
+		return colorizeTEST(r)
 	case "i", "inf", "info", "informal":
-		s = sc[1] // remove channel info
+		r = sc[1] // remove channel info
 		fallthrough
 	case "I", "INF", "INFO", "INFORMAL":
 		return colorizeINFO(s)
 	}
-	return s
+	return
 }
 
 // writeLine consumes a full line, translates it and writes it to the internal lineWriter.
