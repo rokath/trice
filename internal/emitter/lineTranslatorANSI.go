@@ -164,7 +164,8 @@ func (p *lineTranslatorANSI) colorize(s string) string {
 func (p *lineTranslatorANSI) writeLine(line []string) {
 	l := make([]string, 0, 10)
 	for _, s := range line {
-		l = append(l, p.colorize(s))
+		cs := p.colorize(s)
+		l = append(l, cs)
 	}
 	if "default" == p.colorPalette {
 		l = append(l, ansi.Reset)

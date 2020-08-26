@@ -68,7 +68,7 @@ type TriceAtomsReceiver interface {
 // All recognized trice atoms as fetched are going as slices into the atoms channel.
 // Not used read bytes are sent to the ignored channel. Theses bytes could be garbage after out of sync or some different protocol.
 type TriceReceiver struct {
-	err        error        // if some error occured it is stored here
+	Err        error        // if some error occured it is stored here
 	r          io.Reader    // interface embedding
 	syncbuffer []byte       // to hold read bytes for syncing
 	atoms      chan []Trice // The received and unprocessed trice atoms are sent as slices to this channel.
@@ -101,7 +101,7 @@ func NewTriceReceiverfromBare(r io.Reader) *TriceReceiver {
 	p.ignored = make(chan []byte, ignoredChannelCapacity)
 	go func() {
 		for {
-			if io.EOF == p.err || global.Check(p.err) {
+			if io.EOF == p.Err || global.Check(p.Err) {
 				return
 			}
 			p.readRaw()
@@ -178,7 +178,7 @@ func NewSimpleTriceInterpreter(sw io.StringWriter, l id.ListT, tr TriceAtomsRece
 			case <-p.done:
 				return // end of life
 			}
-			if 0 < len(p.atoms) {
+			for 0 < len(p.atoms) {
 				s := p.translate()
 				_, p.err = sw.WriteString(s)
 			}
@@ -188,8 +188,8 @@ func NewSimpleTriceInterpreter(sw io.StringWriter, l id.ListT, tr TriceAtomsRece
 				_, p.err = sw.WriteString(s)
 				p.ignored = p.ignored[:0]
 			}
-			p.atoms = p.atoms[:0]
-			p.ignored = p.ignored[:0]
+			//p.atoms = p.atoms[:0]
+			//p.ignored = p.ignored[:0]
 		}
 	}()
 	return p
@@ -209,6 +209,9 @@ func (p *TriceInterpreter) translate() (s string) {
 	for 0 < len(p.atoms) {
 		trice := p.atoms[0]
 		p.atoms = p.atoms[1:]
+		if 5654 == trice.ID { // sync
+			continue
+		}
 		p.values = append(p.values, trice.Value[:]...)
 		if 0 == trice.ID {
 			continue
@@ -218,7 +221,7 @@ func (p *TriceInterpreter) translate() (s string) {
 		if nil != p.err {
 			continue // discard all
 		}
-		p.item = id.List[index]
+		p.item = p.list[index]
 		s = p.emitter()
 		return
 	}
@@ -488,7 +491,7 @@ func (p *TriceReceiver) readRaw() {
 	}
 	limit := cap(p.syncbuffer)
 	var n int
-	n, p.err = io.ReadAtLeast(p.r, p.syncbuffer[leftovers:limit], minBytes) // read to have at least triceSize bytes
+	n, p.Err = io.ReadAtLeast(p.r, p.syncbuffer[leftovers:limit], minBytes) // read to have at least triceSize bytes
 	le := leftovers + n                                                     // the valid len inside p.by
 	if le < triceSize {                                                     // got not the minimum amount of expected bytes
 		return // assuming o.EOF == p.err
@@ -504,7 +507,7 @@ func (p *TriceReceiver) readRaw() {
 	atoms := make([]Trice, atomsAvail)
 	// now convert from bytes slice into Trice slice t
 	buf := bytes.NewReader(p.syncbuffer)
-	p.err = binary.Read(buf, binary.LittleEndian, atoms) // target assumed to be little endian
+	p.Err = binary.Read(buf, binary.LittleEndian, atoms) // target assumed to be little endian
 	p.syncbuffer = p.syncbuffer[triceSize*atomsAvail:]   // any leftover count from 1 to (triceSize-1) is possible
 	p.atoms <- atoms                                     // send trices
 }

@@ -68,7 +68,7 @@ func TestAA(t *testing.T) {
 
 	// display p implements the lineWriter interface needed by lineComposer.
 	// It interprets the lines written to it according to its properties.
-	p := newLocalDisplay()
+	p := newCheckDisplay()
 	// q uses the lineWriter p internally.
 	// It provides a lineWriter.
 	q := newLineTranslatorANSI(p, "none")
@@ -79,14 +79,22 @@ func TestAA(t *testing.T) {
 	var l id.ListT = []id.Item{
 		{ID: 257, FmtType: "TRICE8_2", FmtStrg: "att:Hello, %d+%d=", Created: 0, Removed: 0},
 		{ID: 514, FmtType: "TRICE16_1", FmtStrg: "att:%d, ok?\n", Created: 0, Removed: 0},
-		{ID: 771, FmtType: "TRICE0", FmtStrg: "msg:Yes!", Created: 0, Removed: 0},
+		{ID: 771, FmtType: "TRICE0", FmtStrg: "msg:Yes!\n", Created: 0, Removed: 0},
+		{ID: 5654, FmtType: "TRICE0", FmtStrg: "%s", Created: 0, Removed: 0},
 	}
 
 	// u uses the TriceAtomsReceiver interface (x) for reception and the io.StringWriter interface (r) for writing.
 	// u collects trice atoms to a complete trice, generates the appropriate string from it and writes it to the provided io.StringWriter
 	u := triceemit.NewSimpleTriceInterpreter(r, l, x)
 
-	time.Sleep(1000 * time.Millisecond)
+	lines := []string{
+		"Hello, 1+1=2, ok?\n",
+		"Yes!\n",
+	}
+	for len(p.s) < 3 {
+		time.Sleep(10 * time.Millisecond)
+	}
+	p.checkLines(t, lines)
 	//fmt.Print(u)
 	u.Stop() // end of life
 	//t.Fail()

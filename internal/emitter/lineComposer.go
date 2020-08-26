@@ -60,10 +60,16 @@ func (p *triceLineComposer) timestamp() string {
 // That means it writes internally a separate line for each substring in s ending with a newline.
 func (p *triceLineComposer) WriteString(s string) (n int, err error) {
 	n = len(s)
+	if 0 == n {
+		return
+	}
+	var emptyLine bool
 	sn := strings.ReplaceAll(s, "\r\n", "\n")
 	ss := strings.Split(sn, "\n")
 
 	// play ground results:
+	// fmt.Printf("%q\n", strings.Split("a", "\n"))           // ["s"]                // 0 new line
+	// fmt.Printf("%q\n", strings.Split("a\n", "\n"))         // ["a" ""]             // 1 new line
 	// fmt.Printf("%q\n", strings.Split("", "\n"))            // [""]                 // 0 new line
 	// fmt.Printf("%q\n", strings.Split("\n", "\n"))          // ["" ""]              // 1 new lne
 	// fmt.Printf("%q\n", strings.Split("\n\n", "\n"))        // ["" "" ""]           // 2 new lines
@@ -79,25 +85,29 @@ func (p *triceLineComposer) WriteString(s string) (n int, err error) {
 	// it keeps its original timestamp, but if following lines inside s they get a new timestamp.
 	ts := p.timestamp()
 	for _, sx := range ss {
-		if 0 == len(p.line) { // start new line
-			if 0 < lineEndCount { // and complete line
-				p.line = append(p.line, ts, p.prefix, sx, p.suffix)
-				p.lw.writeLine(p.line)
-				p.line = p.line[:0]
-				lineEndCount--
-			} else { // and keep it
-				p.line = append(p.line, ts, p.prefix, sx)
+		if 0 == len(p.line) && 0 < lineEndCount { // start new line && and complete line
+			p.line = append(p.line, ts, p.prefix, sx, p.suffix)
+			p.lw.writeLine(p.line)
+			p.line = p.line[:0]
+			lineEndCount--
+		} else if 0 == len(p.line) && 0 == lineEndCount { // start new line
+			p.line = append(p.line, ts, p.prefix, sx)
+			if 0 == len(sx) { // A new line with an empty string was started.
+				// This could cause unwanted timestamp offsets if the next line is significantly delayed.
+				emptyLine = true
 			}
-		} else { // a line was started before
-			if 0 < lineEndCount { // now complete line
-				p.line = append(p.line, sx, p.suffix)
-				p.lw.writeLine(p.line)
-				p.line = p.line[:0]
-				lineEndCount--
-			} else { // extend line
-				p.line = append(p.line, sx)
-			}
+		} else if 0 < len(p.line) && 0 < lineEndCount { // complete line
+			p.line = append(p.line, sx, p.suffix)
+			p.lw.writeLine(p.line)
+			p.line = p.line[:0]
+			lineEndCount--
+		} else if 0 < len(p.line) && 0 == lineEndCount { // extend line
+			p.line = append(p.line, sx)
 		}
+	}
+	if emptyLine { // clean up
+		emptyLine = false
+		p.line = p.line[:0]
 	}
 	return
 }
