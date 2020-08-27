@@ -4,14 +4,7 @@
 // Package global_test is a blackbox test
 package global_test
 
-import (
-	"errors"
-	"testing"
-
-	"github.com/rokath/trice/internal/global"
-	"github.com/rokath/trice/pkg/lib"
-)
-
+/*
 func TestEvaluateWrap(t *testing.T) {
 	// check start byte
 	b := []byte{0xe0, global.SourceAddr, global.SourceAddr, 0xe0, 1, 1, 2, 2}
@@ -36,3 +29,4 @@ func TestCheck(t *testing.T) {
 	c := global.Check(nil)
 	lib.Equals(t, false, c)
 }
+*/

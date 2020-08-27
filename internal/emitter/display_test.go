@@ -8,12 +8,10 @@ import (
 	"os"
 	"testing"
 	"time"
-
-	"github.com/rokath/trice/pkg/lib"
 )
 
-func ExampleLocalDisplay() {
-	p := newLocalDisplay()
+func ExampleNewLocalDisplay() {
+	p := NewLocalDisplay()
 	l1 := []string{"This is ", "the 1st ", "line"}
 	l2 := []string{"This is ", "the 2nd ", "line"}
 	p.writeLine(l1)
@@ -28,13 +26,21 @@ func TestRemoteDisplay(t *testing.T) {
 	afn := "testdata/actRemote.log"
 	efn := "testdata/expRemote.log"
 	os.Remove(afn)
-	p := newRemoteDisplay("localhost", "65497", "trice.exe", "-logfile "+afn)
+	exec := "trice.exe" // todo: os.Args[0] does not work!
+	ipp := randomDynIPPort()
+	p := NewRemoteDisplay(exec, "-logfile "+afn, "localhost", ipp)
 	l1 := []string{"This is ", "the 1st ", "line"}
 	l2 := []string{"This is ", "the 2nd ", "line"}
 	p.writeLine(l1)
 	p.writeLine(l2)
 	p.stopServer(0)
 	time.Sleep(100 * time.Millisecond)
-	lib.EqualTextFiles(t, afn, efn)
+	expLines, expErr := readLines(efn)
+	actLines, actErr := readLines(afn)
+	equals(t, nil, expErr)
+	equals(t, nil, actErr)
+	equals(t, 9, len(expLines))
+	equals(t, 9, len(actLines))
+	equals(t, expLines[1:], actLines[1:])
 	os.Remove(afn)
 }

@@ -9,8 +9,6 @@ import (
 	"runtime"
 	"strings"
 	"testing"
-
-	"github.com/udhos/equalfile"
 )
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -67,24 +65,6 @@ func EqualTextFiles(t *testing.T, fn0, fn1 string) {
 	}
 }
 
-// EqualFileContent returns true if contece is equal
-func EqualFileContent(fn0, fn1 string) bool {
-	cmp := equalfile.New(nil, equalfile.Options{}) // compare using single mode
-	ok, err := cmp.CompareFile(fn0, fn1)
-	if nil != err {
-		ok = false
-	}
-	return ok
-}
-
-// EqualFiles fails test if contence is NOT equal
-func EqualFiles(t *testing.T, fn0, fn1 string) {
-	ok := EqualFileContent(fn0, fn1)
-	if false == ok {
-		t.FailNow()
-	}
-}
-
 var replacement = "<br>\n"
 
 var replacer = strings.NewReplacer(
@@ -103,7 +83,7 @@ func replaceReplacer(s string) string {
 }
 
 // EqualFiles2 fails test if contence is NOT equal
-// Different lineendings are ignored
+// Different line endings are ignored
 func EqualFiles2(t *testing.T, fn0, fn1 string) {
 	b0, err := ioutil.ReadFile(fn0)
 	Ok(t, err)

@@ -18,6 +18,9 @@ import (
 )
 
 var (
+	// Verbose gives mor information on output if set. The value is injected from main packages.
+	Verbose bool
+
 	// Param contails the command line parameters for JLinkRTTLogger
 	Param string
 
@@ -49,11 +52,11 @@ func init() {
 		shell = "gnome-terminal" // this only works for gnome based linux desktop env
 		clip = "-- /bin/bash -c "
 	} else {
-		if global.Verbose {
+		if Verbose {
 			fmt.Println("trice is running on unknown operating system, '-source JLINK' will not work.")
 		}
 	}
-	if global.Verbose {
+	if Verbose {
 		fmt.Println(shell, jcmd, "JLINK executable expected to be in path for usage")
 	}
 }
@@ -87,7 +90,7 @@ func New(param string) *JLINK {
 	// check environment
 	path, err := exec.LookPath(jcmd)
 	if nil == err {
-		if global.Verbose {
+		if Verbose {
 			fmt.Println(path, "found")
 		}
 	} else {
@@ -122,7 +125,7 @@ func (p *JLINK) Close() error {
 // THe temporary logfile is opened for reading.
 func (p *JLINK) Open() error {
 	var err error
-	if global.Verbose {
+	if Verbose {
 		fmt.Println("Start a process:", shell, clip)
 	}
 	lcmdH = exec.Command(shell, clip)
@@ -136,7 +139,7 @@ func (p *JLINK) Open() error {
 		fmt.Println(err)
 		return err
 	}
-	if global.Verbose {
+	if Verbose {
 		fmt.Println("trice is reading from", p.tlfN)
 	}
 	return nil

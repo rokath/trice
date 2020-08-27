@@ -10,14 +10,10 @@ import (
 	"os/exec"
 	"path/filepath"
 	"runtime"
-	"sync"
 	"testing"
 	"time"
 
 	"github.com/kami-zh/go-capturer"
-	"github.com/rokath/trice/internal/disp"
-	"github.com/rokath/trice/internal/global"
-	"github.com/rokath/trice/pkg/cage"
 	"github.com/rokath/trice/pkg/lib"
 )
 
@@ -144,6 +140,7 @@ func frameForOsExitTests(parameters []string, exp string, t *testing.T) {
 	lib.Equals(t, exp, act)
 }
 
+/*
 func TestRTTFX(t *testing.T) {
 	cmd := []string{"trice", "log",
 		"-s", "C:\\repos\\trice\\internal\\receiver\\rttfile\\testdata\\wrapTriceMsgs.bin",
@@ -211,7 +208,8 @@ ISR:alive time 5130100 milliseconds
 `
 	frameForOsExitTests(cmd, exp, t)
 }
-
+*/
+/*
 func TestRNDChaosX(t *testing.T) {
 	cmd := []string{"trice", "log",
 		"-source", "RND",
@@ -224,7 +222,8 @@ RND: wrn:discarding byte 0xa3 (dez 163, char ' ')
 `
 	frameForOsExitTests(cmd, exp, t)
 }
-
+*/
+/*
 func TestHandleArgsRNDbare(t *testing.T) { // cmdLineNotOk
 	cmd := []string{
 		"trice", "log",
@@ -240,7 +239,8 @@ RND: wrn:discarding byte 0xc8 (dez 200, char ' ')
 `
 	frameForOsExitTests(cmd, exp, t)
 }
-
+*/
+/*
 func TestHandleArgsRNDwrap(t *testing.T) { // cmdLineNotOk
 	cmd := []string{
 		"trice", "log",
@@ -252,7 +252,8 @@ trice.Log error unknown ID [235 96 96 216 119 228 147 51] []
 `
 	frameForOsExitTests(cmd, exp, t)
 }
-
+*/
+/*
 func TestHandleArgsSIM0(t *testing.T) {
 	cmd := []string{"trice", "log", "-source", "SIM"}
 
@@ -265,7 +266,8 @@ SIM: ISR:interrupt   message, SysTick is    257
 `
 	frameForOsExitTests(cmd, exp, t)
 }
-
+*/
+/*
 func TestHandleArgsCOMx(t *testing.T) {
 	cmd := []string{"trice", "log", "-source", "COMx"}
 
@@ -273,8 +275,8 @@ func TestHandleArgsCOMx(t *testing.T) {
 `
 	frameForOsExitTests(cmd, exp, t)
 }
-
-// TestScDisplayServer checks if "-ds" switch works (start command)
+*/
+/* TestScDisplayServer checks if "-ds" switch works (start command)
 func TestScDisplayServer(t *testing.T) {
 	afn := "testdata/actDisplayServer.log"
 	efn := "testdata/expDisplayServer.log"
@@ -316,12 +318,8 @@ func TestServerStartStop(t *testing.T) {
 	lib.EqualFiles2(t, afn, efn)
 	lib.Ok(t, os.Remove(afn))
 }
-
-//
-func TestXXZXXZXXZXXZXXZXXZXXZXXZXXZXXZXXZXXZXXZXXZXXZXXZXXZXXZXXZXXZXXZXXZXXZXXZXXZ(t *testing.T) {
-	//t.Fail()
-}
-
+*/
+/*
 // TODO: adapt to parameter set
 func TestScHelp(t *testing.T) {
 	afn := "testdata/actHelp.log"
@@ -332,14 +330,14 @@ func TestScHelp(t *testing.T) {
 	lib.EqualFiles2(t, afn, efn)
 	lib.Ok(t, os.Remove(afn))
 }
-
+*/
 /* This is just tryout code but we do not reach the test aim with it:
 var flag2 bool
 
 // TestHRNDchaos expects installed trice compiled from actual sources.
 //
 // This kind of test does not work just with HandleArgs function, because of os.Exit(0) on io.EOF in -source RND.
-// Endless waiting there does also not work, so this apprpoach is just a quick solution.
+// Endless waiting there does also not work, so this approach is just a quick solution.
 func TestRNDchaos2(t *testing.T) {
 	var act string
 	if false == flag2 { // 1st entry
@@ -350,7 +348,7 @@ func TestRNDchaos2(t *testing.T) {
 			TestRNDchaos2(t) // trigger 2nd entry
 		}
 
-		global.OsExit = onExit // change os.Exit() behaviour
+		//global.OsExit = onExit // change os.Exit() behaviour
 		cage.Name = "c:/repos/trice/flag2.txt"
 		cage.Enable()
 		defer cage.Disable()

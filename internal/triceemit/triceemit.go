@@ -1,8 +1,7 @@
-// + build x
 // Copyright 2020 Thomas.Hoehenleitner [at] seerose.net
 // Use of this source code is governed by a license that can be found in the LICENSE file.
 
-// Package emit is responsible for generating a string slice for each line.
+// Package triceemit is responsible for generating a string slice for each line.
 // The substrings are optionally prefix, timestamp, several content substrings and postfix.
 // Each substring can contain its own color channel as prefix ("col:").
 // The colors are converted later inside the disp.Print() function.
@@ -12,13 +11,11 @@ package triceemit
 import (
 	"bytes"
 	"encoding/binary"
-	"errors"
 	"fmt"
 	"io"
 	"reflect"
 	"strings"
 
-	"github.com/rokath/trice/internal/emit"
 	"github.com/rokath/trice/internal/global"
 	"github.com/rokath/trice/internal/id"
 )
@@ -168,10 +165,10 @@ func NewSimpleTriceInterpreter(sw io.StringWriter, l id.ListT, tr TriceAtomsRece
 		for {
 			global.Fatal(p.err)
 			select {
-			case a, ok := <-p.atomsChannel:
-				if !ok {
-					return // stop when atoms channel was closed
-				}
+			case a, _ := <-p.atomsChannel:
+				//if !ok {
+				//	return // stop when atoms channel was closed
+				//}
 				p.atoms = append(p.atoms, a...)
 			case b := <-p.ignoredChannel:
 				p.ignored = append(p.ignored, b...)
@@ -243,11 +240,7 @@ func (p *TriceInterpreter) emitter() (s string) {
 	var v0, v1, v2, v3 int16
 	var w0, w1, w2, w3 int32
 	var l0, l1 int64
-	p.err = emit.EvalLen(it, prm)
-	if nil != p.err {
-		s = "false len"
-		return
-	}
+	p.evalLen()
 	switch it.FmtType {
 	case "TRICE0":
 		s = f
@@ -313,45 +306,41 @@ func (p *TriceInterpreter) emitter() (s string) {
 		l1 = int64(binary.LittleEndian.Uint64(prm[8:16]))
 		s = fmt.Sprintf(f, l0, l1)
 	default:
-		p.err = errors.New("ERR: INTERNAL ERROR")
-		s = "ERR: INTERNAL ERROR!!!"
+		p.err = fmt.Errorf("Unknown FmtType %s", it.FmtType)
 	}
 	return
 }
 
-// EvalLen checks if byte buffer t has appropriate length to id.item it
-func (p *TriceInterpreter) evalLen() (err error) {
+// evalLen checks if byte buffer t has appropriate length to id.item it
+func (p *TriceInterpreter) evalLen() {
 	it := p.item
 	t := p.values
-	err = errors.New("false len")
 	switch it.FmtType {
 	case "TRICE0", "TRICE8_1", "TRICE8_2", "TRICE16_1":
 		if 2 != len(t) {
-			return
+			p.err = fmt.Errorf("len %d != 2", len(t))
 		}
 	case "TRICE8_3", "TRICE8_4", "TRICE16_2", "TRICE32_1":
 		if 4 != len(t) {
-			return
+			p.err = fmt.Errorf("len %d != 4", len(t))
 		}
 	case "TRICE8_5", "TRICE8_6", "TRICE16_3":
 		if 6 != len(t) {
-			return
+			p.err = fmt.Errorf("len %d != 6", len(t))
 		}
 	case "TRICE8_7", "TRICE8_8", "TRICE16_4", "TRICE32_2", "TRICE64_1":
 		if 8 != len(t) {
-			return
+			p.err = fmt.Errorf("len %d != 8", len(t))
 		}
 	case "TRICE32_3":
 		if 12 != len(t) {
-			return
+			p.err = fmt.Errorf("len %d != 12", len(t))
 		}
 	case "TRICE32_4", "TRICE64_2":
 		if 16 != len(t) {
-			return
+			p.err = fmt.Errorf("len %d != 16", len(t))
 		}
 	}
-	err = nil
-	return
 }
 
 // parse lang C formatstring for %u and replace them with %d and extend the

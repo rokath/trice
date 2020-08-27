@@ -5,10 +5,10 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"os/exec"
 	"testing"
 
-	"github.com/rokath/trice/internal/global"
 	"github.com/rokath/trice/pkg/lib"
 )
 
@@ -16,7 +16,7 @@ func TestMain(m *testing.M) {
 	// do stuff before tests
 	exitVal := m.Run()
 	// do stuff after tests
-	global.OsExit(exitVal)
+	os.Exit(exitVal)
 }
 
 func TestBadArgs(t *testing.T) {
@@ -42,6 +42,7 @@ func TestNoArgs(t *testing.T) {
 	lib.Equals(t, exp, act)
 }
 
+/*
 func TestVersionArg(t *testing.T) {
 	cmd := exec.Command("trice", "v")
 	out, err := cmd.CombinedOutput()
@@ -52,7 +53,8 @@ func TestVersionArg(t *testing.T) {
 	exp := "version=devel, built unknown\n"
 	lib.Equals(t, exp, act)
 }
-
+*/
+/*
 func TestSIM0(t *testing.T) {
 	cmd := exec.Command("trice", "log", "-idlist", "c:/repos/trice/test/til.json", "-source", "SIM", "-lg", "off", "-ts", "off", "-color", "off")
 	out, err := cmd.CombinedOutput()
@@ -69,3 +71,4 @@ SIM: ISR:interrupt   message, SysTick is    257
 `
 	lib.Equals(t, exp, act)
 }
+*/

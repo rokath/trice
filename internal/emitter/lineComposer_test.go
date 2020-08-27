@@ -17,17 +17,17 @@ func Test2LineComposer(t *testing.T) {
 
 	p.WriteString("Hi\r\nAll\n")
 	lw.checkLines(t, []string{"[ Hi ]", "[ All ]"})
-	lw.s = lw.s[:0]
+	lw.lines = lw.lines[:0]
 
 	p.WriteString("Hi")
 	p.WriteString("Hi\n")
 	lw.checkLines(t, []string{"[ HiHi ]"})
-	lw.s = lw.s[:0]
+	lw.lines = lw.lines[:0]
 
 	p.WriteString("\n\nHi\n\n")
 	p.WriteString("Ho\n")
 	lw.checkLines(t, []string{"[  ]", "[  ]", "[ Hi ]", "[  ]", "[ Ho ]"})
-	lw.s = lw.s[:0]
+	lw.lines = lw.lines[:0]
 }
 
 func TestLineComposer(t *testing.T) {

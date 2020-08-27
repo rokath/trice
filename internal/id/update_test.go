@@ -21,7 +21,7 @@ func doUpdate(t *testing.T, path string) {
 
 	err = os.RemoveAll(a)
 	lib.Ok(t, err)
-	err = lib.CopyDir(path+"ori/", a)
+	err = copyDir(path+"ori/", a)
 	lib.Ok(t, err)
 
 	fa := a + "til.json"

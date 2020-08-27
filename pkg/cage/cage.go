@@ -34,8 +34,6 @@ import (
 	"os"
 	"sync"
 	"time"
-
-	"github.com/rokath/trice/internal/global"
 )
 
 // some references:
@@ -45,6 +43,9 @@ import (
 // https://medium.com/@hau12a1/golang-capturing-log-println-and-fmt-println-output-770209c791b4
 
 var (
+	// Verbose gives mor information on output if set. The value is injected from main packages.
+	Verbose bool
+
 	// DefaultLogfileName is the pattern for default logfile name. The timestamp is replaced with the actual time.
 	DefaultLogfileName = "2006-01-02_1504-05_cage.log"
 
@@ -87,7 +88,7 @@ func Start(fn string) *Container {
 
 	// start logging only if fn not "none" or "off"
 	if "none" == fn || "off" == fn {
-		if global.Verbose {
+		if Verbose {
 			fmt.Println("No logfile writing...")
 		}
 		return nil
@@ -105,7 +106,7 @@ func Start(fn string) *Container {
 		fn = "off"
 		return nil
 	}
-	if global.Verbose {
+	if Verbose {
 		log.Printf("Writing to logfile %s...\n", fn)
 	}
 
@@ -165,7 +166,7 @@ func Stop(c *Container) {
 
 	// only if loggig was enabled
 	if nil == c {
-		if global.Verbose {
+		if Verbose {
 			fmt.Println("No logfile writing...done")
 		}
 		return
@@ -185,7 +186,7 @@ func Stop(c *Container) {
 
 	// logfile
 	c.lfHandle.Close()
-	if global.Verbose {
+	if Verbose {
 		log.Printf("Writing to logfile %s...done\n", c.lfName)
 	}
 }

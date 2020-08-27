@@ -7,6 +7,7 @@
 // Therefore package global serves as glue.
 package global
 
+/*
 import (
 	"log"
 	"os"
@@ -70,3 +71,4 @@ func Check(err error) (b bool) {
 	b = true
 	return
 }
+*/

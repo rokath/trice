@@ -8,31 +8,23 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	"io"
-	"io/ioutil"
 	"os"
-	"strings"
-	"time"
 
 	"github.com/rokath/trice/internal/cmd"
 	"github.com/rokath/trice/internal/com"
-	"github.com/rokath/trice/internal/decoder"
-	"github.com/rokath/trice/internal/disp"
-	"github.com/rokath/trice/internal/emit"
+	"github.com/rokath/trice/internal/emitter"
 	"github.com/rokath/trice/internal/global"
 	"github.com/rokath/trice/internal/id"
 	"github.com/rokath/trice/internal/jlink"
 	"github.com/rokath/trice/internal/randomdummy"
-	"github.com/rokath/trice/internal/receiver"
-	"github.com/rokath/trice/internal/receiver/http"
-	"github.com/rokath/trice/internal/receiver/rttfile"
 	"github.com/rokath/trice/pkg/cage"
 	"github.com/rokath/trice/pkg/cipher"
-	"github.com/rokath/trice/pkg/inputdummy"
-	"github.com/rokath/trice/pkg/lib"
 )
 
 var (
+	// Verbose gives mor information on output if set. This variable is copied into the appropriate packages.
+	Verbose bool
+
 	// Encoding describes the way the byte stream is coded. TODO: Change to MultiArgs
 	Encoding string
 
@@ -88,7 +80,7 @@ func flagLogfile(p *flag.FlagSet) {
 }
 
 func flagVerbosity(p *flag.FlagSet) {
-	p.BoolVar(&global.Verbose, "v", false, "verbose, more informal output if used") // flag
+	p.BoolVar(&Verbose, "v", false, "verbose, more informal output if used") // flag
 }
 
 func flagIDList(p *flag.FlagSet) {
@@ -97,8 +89,8 @@ func flagIDList(p *flag.FlagSet) {
 }
 
 func flagIPAddress(p *flag.FlagSet) {
-	p.StringVar(&disp.IPAddr, "ipa", "localhost", "ip address like '127.0.0.1'") // flag
-	p.StringVar(&disp.IPPort, "ipp", "61497", "16 bit port number")              // flag
+	p.StringVar(&emitter.IPAddr, "ipa", "localhost", "ip address like '127.0.0.1'") // flag
+	p.StringVar(&emitter.IPPort, "ipp", "61497", "16 bit port number")              // flag
 }
 
 // scHelp is subcommand help
@@ -110,7 +102,7 @@ func scHelp(
 	sv *flag.FlagSet,
 	scSdSv *flag.FlagSet,
 ) error {
-	if global.Verbose {
+	if Verbose {
 		fmt.Printf("\n*** https://github.com/rokath/trice ***\n\n")
 		fmt.Printf("If a non-multi parameter is used more than one times the last value wins.\n")
 	}
@@ -145,9 +137,9 @@ func scHelp(
 
 // init is executed before main in unspecified order
 func init() {
-	fsScCheck = flag.NewFlagSet("check", flag.ExitOnError)                                        // subcommand
-	pSet = fsScCheck.String("dataset", "position", "parameters, option: 'negative'")              // flag
-	fsScCheck.StringVar(&disp.ColorPalette, "color", "default", "color set, options: 'off|none'") // flag
+	fsScCheck = flag.NewFlagSet("check", flag.ExitOnError)                                           // subcommand
+	pSet = fsScCheck.String("dataset", "position", "parameters, option: 'negative'")                 // flag
+	fsScCheck.StringVar(&emitter.ColorPalette, "color", "default", "color set, options: 'off|none'") // flag
 	flagLogfile(fsScCheck)
 	flagVerbosity(fsScCheck)
 	flagIDList(fsScCheck)
@@ -155,9 +147,9 @@ func init() {
 
 // init is executed before main in unspecified order
 func init() {
-	fsScUpdate = flag.NewFlagSet("update", flag.ExitOnError)                                 // subcommand
-	fsScUpdate.BoolVar(&id.DryRun, "dry-run", false, "no changes are applied")               // flag
-	fsScUpdate.Var(&lib.Srcs, "src", "source dir or file, multi use possible, default './'") // multi flag
+	fsScUpdate = flag.NewFlagSet("update", flag.ExitOnError)                                // subcommand
+	fsScUpdate.BoolVar(&id.DryRun, "dry-run", false, "no changes are applied")              // flag
+	fsScUpdate.Var(&id.Srcs, "src", "source dir or file, multi use possible, default './'") // multi flag
 	flagVerbosity(fsScUpdate)
 	flagIDList(fsScUpdate)
 }
@@ -190,10 +182,10 @@ func init() {
 	fsScLog.StringVar(&cipher.Password, "password", "none", "decrypt passphrase")                                                                                                                                // flag
 	fsScLog.StringVar(&cipher.Password, "pw", "none", "short for -password")                                                                                                                                     // short flag
 	fsScLog.BoolVar(&cipher.ShowKey, "key", false, "show encryption key")                                                                                                                                        // flag
-	fsScLog.StringVar(&decoder.TimeStampFormat, "ts", "LOCmicro", "PC timestamp for logs and logfile name, options: 'off|UTCmicro|zero'")                                                                        // flag
-	fsScLog.StringVar(&disp.ColorPalette, "color", "default", "color set, 'off' disables color handling (\"w:x\"->\"w:x\"), 'none' disables channels color (\"w:x\"->\"x\"), options: 'off|none'")               // flag
-	fsScLog.StringVar(&emit.Prefix, "prefix", "source: ", "prepend prefix to all lines, options: any string or 'off|none' or 'source:' followed by 0-12 spaces, source will be replaced")                        // flag
-	fsScLog.StringVar(&emit.Postfix, "postfix", "\n", "append postfix to all lines, options: any string")                                                                                                        // flag
+	fsScLog.StringVar(&emitter.TimeStampFormat, "ts", "LOCmicro", "PC timestamp for logs and logfile name, options: 'off|none|UTCmicro|zero'")                                                                   // flag
+	fsScLog.StringVar(&emitter.ColorPalette, "color", "default", "color set, 'off' disables color handling (\"w:x\"->\"w:x\"), 'none' disables channels color (\"w:x\"->\"x\"), options: 'off|none'")            // flag
+	fsScLog.StringVar(&emitter.Prefix, "prefix", "source: ", "prepend prefix to all lines, options: any string or 'off|none' or 'source:' followed by 0-12 spaces, source will be replaced")                     // flag
+	fsScLog.StringVar(&emitter.Suffix, "suffix", "", "append suffix to all lines, options: any string")                                                                                                          // flag
 	fsScLog.StringVar(&global.Source, "source", "JLINK", "receiver device, options: 'COMn|JLINK|STLINK|filename|SIM|RND|HTTP'")                                                                                  //HTTP, RTT, RTTD, RTTF")                                             // flag
 	fsScLog.StringVar(&global.Source, "s", "JLINK", "short for -source")                                                                                                                                         // short flag
 	fsScLog.IntVar(&com.Baud, "baud", 115200, "COM baudrate, valid only for '-source COMn'")                                                                                                                     // flag flag
@@ -212,8 +204,8 @@ func init() {
 }
 
 func init() {
-	fsScSv = flag.NewFlagSet("displayServer", flag.ExitOnError)                                // subcommand
-	fsScSv.StringVar(&disp.ColorPalette, "color", "default", "color set, options: 'off|none'") // flag
+	fsScSv = flag.NewFlagSet("displayServer", flag.ExitOnError)                                   // subcommand
+	fsScSv.StringVar(&emitter.ColorPalette, "color", "default", "color set, options: 'off|none'") // flag
 	flagLogfile(fsScSv)
 	flagIPAddress(fsScSv)
 }
@@ -225,6 +217,14 @@ func init() {
 func init() {
 	fsScSdSv = flag.NewFlagSet("shutdownServer", flag.ExitOnError) // subcommand
 	flagIPAddress(fsScSdSv)
+}
+
+// injectValues is distibuting values
+func injectValues() {
+	id.Verbose = Verbose
+	emitter.Verbose = Verbose
+	jlink.Verbose = Verbose
+	cage.Verbose = Verbose
 }
 
 // HandleArgs evaluates the arguments slice of strings
@@ -250,67 +250,74 @@ func HandleArgs(args []string) error {
 
 	case "h", "help":
 		fsScHelp.Parse(subArgs)
+		injectValues()
 		//fsScUpdate.Parse(subArgs)
 		return scHelp(fsScCheck, fsScLog, fsScZero, fsScVerseion, fsScSv, fsScSdSv)
 
 	case "s", "sc", "scan":
 		fsScScan.Parse(subArgs)
+		injectValues()
 		_, err := com.GetSerialPorts()
 		return err
 
 	case "v", "ver", "version":
 		fsScVerseion.Parse(subArgs)
+		injectValues()
 		return scVersion()
 
 	case "u", "update":
 		fsScUpdate.Parse(subArgs)
-		id.FnJSON = lib.ConditinalFilePath(id.FnJSON)
+		injectValues()
+		id.FnJSON = id.ConditinalFilePath(id.FnJSON)
 		return id.ScUpdate()
 
-	case "check":
-		fsScCheck.Parse(subArgs)
-		id.FnJSON = lib.ConditinalFilePath(id.FnJSON)
-		cage.Enable()
-		defer cage.Disable()
-		return emit.ScCheckList(*pSet)
+	//case "check":
+	//	fsScCheck.Parse(subArgs)
+	//	id.FnJSON = id.ConditinalFilePath(id.FnJSON)
+	//	cage.Enable()
+	//	defer cage.Disable()
+	//	return emit.ScCheckList(*pSet)
 
 	case "zeroSourceTreeIds":
 		fsScZero.Parse(subArgs)
+		injectValues()
 		return id.ScZero(*pSrcZ, fsScZero)
 
 	case "l", "log":
 		fsScLog.Parse(subArgs)
-		lib.TimeStampFormat = decoder.TimeStampFormat // todo
-		setPrefix(emit.Prefix)
+		injectValues()
+		setPrefix(emitter.Prefix)
 		//if strings.HasPrefix(global.Source, "COM") {
 		//com.Port = global.Source // set COM port number
 		//global.Source = "COM" // overwrite "COMn"
 		//}
-		id.FnJSON = lib.ConditinalFilePath(id.FnJSON)
+		id.FnJSON = id.ConditinalFilePath(id.FnJSON)
 
 		if false == displayserver {
 			cage.Enable()
 			defer cage.Disable()
-			receiving()
+			//receiving()
 		} else {
+			var p *emitter.RemoteDisplay
 			if true == autostart {
-				disp.StartServer(args[0])
+				p = emitter.NewRemoteDisplay(args[0], "-logfile "+cage.Name)
+			} else {
+				p = emitter.NewRemoteDisplay()
 			}
-			err := disp.Connect()
-			if err != nil {
-				fmt.Println(err)
-				return err
-			}
+			p.ErrorFatal()
 			cmd.KeyboardInput()
-			receiving()
+			//receiving()
 		}
 	case "ds", "displayServer":
 		fsScSv.Parse(subArgs)
-		return disp.ScDisplayServer()
+		injectValues()
+		p := emitter.NewRemoteDisplay()
+		p.ErrorFatal()
 
 	case "sd", "shutdownRemoteDisplayServer":
 		fsScSdSv.Parse(subArgs)
-		return disp.ScShutdownRemoteDisplayServer(1)
+		injectValues()
+		return emitter.ScShutdownRemoteDisplayServer(1)
 
 	default:
 		fmt.Println("try: 'trice help|h'")
@@ -323,25 +330,26 @@ func HandleArgs(args []string) error {
 //
 // It connects then to the running display server.
 func connect(sv string) error {
-	if "" != sv {
-		disp.StartServer(sv)
-	}
-
-	err := disp.Connect()
-	disp.WriteLine = disp.RemoteOut // re-direct output
-	if nil != err {
-		return err
-	}
-
-	disp.PtrRPC.Call("Server.Out", []string{""}, nil)
-	disp.PtrRPC.Call("Server.Out", []string{""}, nil)
-	disp.PtrRPC.Call("Server.Out", []string{""}, nil)
-	disp.PtrRPC.Call("Server.Out", []string{"att:new connection from ", "read:" + global.Source, "..."}, nil)
-	disp.PtrRPC.Call("Server.Out", []string{""}, nil)
-	disp.PtrRPC.Call("Server.Out", []string{""}, nil)
+	//if "" != sv {
+	//	disp.StartServer(sv)
+	//}
+	//
+	//err := disp.Connect()
+	//disp.WriteLine = disp.RemoteOut // re-direct output
+	//if nil != err {
+	//	return err
+	//}
+	//
+	//disp.PtrRPC.Call("Server.Out", []string{""}, nil)
+	//disp.PtrRPC.Call("Server.Out", []string{""}, nil)
+	//disp.PtrRPC.Call("Server.Out", []string{""}, nil)
+	//disp.PtrRPC.Call("Server.Out", []string{"att:new connection from ", "read:" + global.Source, "..."}, nil)
+	//disp.PtrRPC.Call("Server.Out", []string{""}, nil)
+	//disp.PtrRPC.Call("Server.Out", []string{""}, nil)
 	return nil
 }
 
+/*
 // receiving TODO better design
 func receiving() {
 	switch Encoding {
@@ -367,7 +375,7 @@ func receiving() {
 	if nil != err {
 		return
 	}
-	var r io.ReadCloser
+	//var r io.ReadCloser
 
 	source := global.Source
 	if strings.HasPrefix(source, "COM") {
@@ -382,12 +390,12 @@ func receiving() {
 		}
 		defer l.Close()
 		r = l
-	case "HTTP":
-		h := http.New()
-		if false == h.Open() {
-			return
-		}
-		r = h
+	//case "HTTP":
+	//	h := http.New()
+	//	if false == h.Open() {
+	//		return
+	//	}
+	//	r = h
 	case "RND":
 		// rndLimit = 19: you will see n-7 discarded bytes because 7 bytes are held internally to try to sync a wrap
 		innerReader := randomdummy.New(randomdummy.ZeroRandomSeed, rndMode, randomdummy.DefaultDelay, rndLimit)
@@ -398,44 +406,44 @@ func receiving() {
 			return
 		}
 		r = c
-	case "SIM":
-		n := 50 // you will see about n/8 lines
-		i := []byte{'g', 'a', 'r', 'b', 'a', 'g', 'e', '\n',
-			235, 96, 96, 235 ^ 10 ^ 172, 10, 172, 0, 0,
-			235, 96, 96, 235 ^ 10 ^ 172, 10, 172, 1, 1}
-		s := inputdummy.New(i, time.Millisecond, n)
-		emit.DiscardByte = emit.DiscardASCII
-		r = ioutil.NopCloser(s) // https://stackoverflow.com/questions/28158990/golang-io-ioutil-nopcloser
-	/*case "RTT":
-		emit.DiscardByte = emit.DiscardASCII
-		s := segger.New()
-		if nil != s.Open() {
-			return
-		}
-		r = s
-	case "RTTD":
-		emit.DiscardByte = emit.DiscardASCII
-		d := direct.New()
-		if nil != d.Open() {
-			return
-		}
-		r = d*/
-	//case "RTTF":
-	default: // assume source is a filename
-		s := rttfile.New()
-		//fn := "c:/repos/trice/rttfile.bin"
-		err := s.Open(global.Source)
-		if nil != err {
-			fmt.Println(err)
-			return
-		}
-		r = s
+		// case "SIM":
+		// 	n := 50 // you will see about n/8 lines
+		// 	i := []byte{'g', 'a', 'r', 'b', 'a', 'g', 'e', '\n',
+		// 		235, 96, 96, 235 ^ 10 ^ 172, 10, 172, 0, 0,
+		// 		235, 96, 96, 235 ^ 10 ^ 172, 10, 172, 1, 1}
+		// 	s := inputdummy.New(i, time.Millisecond, n)
+		// 	emit.DiscardByte = emit.DiscardASCII
+		// 	r = ioutil.NopCloser(s) // https://stackoverflow.com/questions/28158990/golang-io-ioutil-nopcloser
+		case "RTT":
+			emit.DiscardByte = emit.DiscardASCII
+			s := segger.New()
+			if nil != s.Open() {
+				return
+			}
+			r = s
+		case "RTTD":
+			emit.DiscardByte = emit.DiscardASCII
+			d := direct.New()
+			if nil != d.Open() {
+				return
+			}
+			r = d
+		//case "RTTF":
+		// default: // assume source is a filename
+		// 	s := rttfile.New()
+		// 	//fn := "c:/repos/trice/rttfile.bin"
+		// 	err := s.Open(global.Source)
+		// 	if nil != err {
+		// 		fmt.Println(err)
+		// 		return
+		// 	}
+		// 	r = s
 	}
-	t := receiver.New(r)
+	//t := receiver.New(r)
 
-	t.Start()
+	//t.Start()
 }
-
+*/
 //  func scScan() error {
 //  	com.Port = "COMscan"
 //  	_, err := com.GetSerialPorts()
@@ -446,7 +454,7 @@ func receiving() {
 func scVersion() error {
 	cage.Enable()
 	defer cage.Disable()
-	if global.Verbose {
+	if Verbose {
 		fmt.Println("https://github.com/rokath/trice")
 	}
 	if "" != version {
@@ -461,34 +469,34 @@ func scVersion() error {
 func setPrefix(s string) {
 	switch s {
 	case "source:":
-		emit.Prefix = global.Source + ":"
+		emitter.Prefix = global.Source + ":"
 	case "source: ":
-		emit.Prefix = global.Source + ": "
+		emitter.Prefix = global.Source + ": "
 	case "source:  ":
-		emit.Prefix = global.Source + ":  "
+		emitter.Prefix = global.Source + ":  "
 	case "source:   ":
-		emit.Prefix = global.Source + ":   "
+		emitter.Prefix = global.Source + ":   "
 	case "source:    ":
-		emit.Prefix = global.Source + ":    "
+		emitter.Prefix = global.Source + ":    "
 	case "source:     ":
-		emit.Prefix = global.Source + ":     "
+		emitter.Prefix = global.Source + ":     "
 	case "source:      ":
-		emit.Prefix = global.Source + ":      "
+		emitter.Prefix = global.Source + ":      "
 	case "source:       ":
-		emit.Prefix = global.Source + ":       "
+		emitter.Prefix = global.Source + ":       "
 	case "source:        ":
-		emit.Prefix = global.Source + ":        "
+		emitter.Prefix = global.Source + ":        "
 	case "source:         ":
-		emit.Prefix = global.Source + ":         "
+		emitter.Prefix = global.Source + ":         "
 	case "source:          ":
-		emit.Prefix = global.Source + ":          "
+		emitter.Prefix = global.Source + ":          "
 	case "source:           ":
-		emit.Prefix = global.Source + ":           "
+		emitter.Prefix = global.Source + ":           "
 	case "source:            ":
-		emit.Prefix = global.Source + ":            "
+		emitter.Prefix = global.Source + ":            "
 	case "off", "none":
-		emit.Prefix = ""
+		emitter.Prefix = ""
 	default:
-		emit.Prefix = s
+		emitter.Prefix = s
 	}
 }

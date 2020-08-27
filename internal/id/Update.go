@@ -14,6 +14,8 @@ import (
 	"strings"
 )
 
+// todo: remove static values from parameter lists (Verbose)
+
 const (
 	// patSourceFile is a regex pattern matching any source file for patching
 	patSourceFile = "(\\.c|\\.h|\\.cc|\\.cpp|\\.hpp)$"

@@ -10,3 +10,34 @@ package emitter
 type lineWriter interface {
 	writeLine([]string)
 }
+
+var (
+	// Verbose gives mor information on output if set. The value is injected from main packages.
+	Verbose bool
+
+	// TimeStampFormat is used tor line timestamps.
+	// off = no timestamp
+	// none = no timestamp
+	// LOCmicro = local time with microseconds
+	// UTCmicro = universal time with microseconds
+	// zero = fixed "2006-01-02_1504-05" timestamp (for tests)
+	TimeStampFormat string
+
+	// Prefix starts lines. It follows line timestamp, if any.
+	Prefix string
+
+	// Suffix lollows lines. Usually empty.
+	Suffix string
+
+	// ColorPalette determines the way color is handled.
+	// off = no color handling at all. Lower case color prefixes are not removed. Use with care.
+	// none = no colors. Lower case color prefixes are removed.
+	// default = color codes added (TODO: change to ANSI)
+	ColorPalette string
+
+	// IPAddr ist the remote display IP address.
+	IPAddr string
+
+	// IPPort ist the remote display port number.
+	IPPort string
+)

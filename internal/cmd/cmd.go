@@ -1,7 +1,7 @@
 // Copyright 2020 Thomas.Hoehenleitner [at] seerose.net
 // Use of this source code is governed by a license that can be found in the LICENSE file.
 
-// Package cmd is responsibe for interpreting user commanmdline abnd executing commands
+// Package cmd is responsibe for interpreting user commanmdline and executing commands
 package cmd
 
 import (
@@ -11,8 +11,7 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/rokath/trice/internal/disp"
-	"github.com/rokath/trice/internal/global"
+	"github.com/rokath/trice/internal/emitter"
 )
 
 // KeyboardInput expects user input from terminal
@@ -28,12 +27,12 @@ func keyboardInput(reader *bufio.Reader) { // https://tutorialedge.net/golang/re
 
 	go func() {
 		for {
-			loopAction(reader)
+			loopAction(reader, emitter.IPAddr, emitter.IPPort)
 		}
 	}() // https://stackoverflow.com/questions/16008604/why-add-after-closure-body-in-golang
 }
 
-func loopAction(reader *bufio.Reader) {
+func loopAction(reader *bufio.Reader, ipa, ipp string) {
 	fmt.Print("-> ")
 	text, _ := reader.ReadString('\n')
 	// convert CRLF to LF
@@ -45,13 +44,13 @@ func loopAction(reader *bufio.Reader) {
 
 	switch text {
 	case "q", "quit":
-		global.OsExit(0)
+		os.Exit(0)
 	case "h", "help":
 		fmt.Println("h|help                   - this text")
 		fmt.Println("exitServer|serverExit    - kill server")
 		fmt.Println("q|quit                   - end program")
 	case "sd", "stopServer", "serverStop":
-		err := disp.ScShutdownRemoteDisplayServer(1)
+		err := emitter.ScShutdownRemoteDisplayServer(1, ipa, ipp)
 		if nil != err {
 			fmt.Println(err)
 		}

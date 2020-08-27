@@ -41,7 +41,7 @@ func TestZeroSourceTreeIds(t *testing.T) {
 
 	err = os.RemoveAll(a)
 	lib.Ok(t, err)
-	err = lib.CopyDir(path+"ori/", a)
+	err = copyDir(path+"ori/", a)
 	lib.Ok(t, err)
 
 	zeroSourceTreeIds(a, true)

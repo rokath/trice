@@ -8,9 +8,8 @@ import (
 	"errors"
 	"io"
 	"math/rand"
+	"os"
 	"time"
-
-	"github.com/rokath/trice/internal/global"
 )
 
 const (
@@ -66,7 +65,7 @@ func (p *Randomizer) fillBuffer(b []byte) (int, error) {
 		if 0 == p.limit || p.count+i < p.limit {
 			b[i] = byte(rand.Intn(255))
 		} else {
-			global.OsExit(0) // normally not returning
+			os.Exit(0) // normally not returning
 			// for testing returning takes part, "i, io.EOF" here for smoother testing
 			p.count += i
 			return i, io.EOF
@@ -93,7 +92,7 @@ func (p *Randomizer) Read(b []byte) (int, error) {
 		b = b[:4] // limit len(b)
 		for i = range b {
 			if p.count+i >= p.limit {
-				global.OsExit(0) // normally not returning
+				os.Exit(0) // normally not returning
 				// for testing returning takes part, "i, io.EOF" here for smoother testing
 				p.count += i
 				return i, io.EOF
@@ -108,7 +107,7 @@ func (p *Randomizer) Read(b []byte) (int, error) {
 		b = b[:8] // limit len(b)
 		for i = range b {
 			if p.count+i >= p.limit {
-				global.OsExit(0) // normally not returning
+				os.Exit(0) // normally not returning
 				// for testing returning takes part, "i, io.EOF" here for smoother testing
 				p.count += i
 				return i, io.EOF

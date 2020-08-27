@@ -18,7 +18,6 @@ import (
 	"time"
 
 	"github.com/rokath/trice/internal/global"
-	"github.com/rokath/trice/pkg/lib"
 )
 
 // Item is the basic element
@@ -35,6 +34,9 @@ type Item struct {
 type ListT []Item
 
 var (
+	// Verbose gives mor information on output if set. The value is injected from main packages.
+	Verbose bool
+
 	// List is the internal List instancem for 16 bit IDs enough
 	List = make(ListT, 0, 65536)
 
@@ -177,12 +179,12 @@ func ScZero(SrcZ string, cmd *flag.FlagSet) error {
 // ScUpdate is subcommand update
 func ScUpdate() error {
 
-	if 0 == len(lib.Srcs) {
-		lib.Srcs = append(lib.Srcs, "./") // default value
+	if 0 == len(Srcs) {
+		Srcs = append(Srcs, "./") // default value
 	}
-	for i := range lib.Srcs {
-		s := lib.Srcs[i]
-		srcU := lib.ConditinalFilePath(s)
+	for i := range Srcs {
+		s := Srcs[i]
+		srcU := ConditinalFilePath(s)
 		if _, err := os.Stat(srcU); err == nil { // path exists
 			err = update(srcU, FnJSON)
 			if nil != err {
@@ -201,7 +203,7 @@ func ScUpdate() error {
 
 // update does parse source tree, update IDs and is list
 func update(dir, fn string) error {
-	err := List.Update(dir, fn, !DryRun, global.Verbose)
+	err := List.Update(dir, fn, !DryRun, Verbose)
 	if nil != err {
 		return fmt.Errorf("failed update on %s with %s: %v", dir, fn, err)
 	}
@@ -213,7 +215,7 @@ func update(dir, fn string) error {
 //
 // Base is used to avoid test issues in different operating systems.
 func ListNotFoundMsg(pathname string) {
-	if false == global.Verbose {
+	if false == Verbose {
 		pathname = filepath.Base(pathname) // no path info (used for testing)
 	}
 	fmt.Println("ID list " + pathname + " not found")
@@ -234,7 +236,7 @@ func ReadListFile() error {
 		}
 		go List.FileWatcher()
 	}
-	if true == global.Verbose {
+	if true == Verbose {
 		fmt.Println("id list file", FnJSON, "with", len(List), "items", "on device", global.Source)
 	}
 	return nil
