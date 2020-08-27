@@ -9,7 +9,6 @@ import (
 	"testing"
 
 	"github.com/rokath/trice/internal/com"
-	"github.com/rokath/trice/internal/global"
 	"github.com/rokath/trice/pkg/lib"
 )
 
@@ -23,8 +22,8 @@ func Test1(t *testing.T) {
 	//	PS C:\repos\trice> trice s
 	//	No serial ports found!
 	for i := range ss {
-		global.Source = ss[i]
-		p := com.New(global.Source)
+		port := ss[i]
+		p := com.New(port)
 		if p.Open() {
 			err = p.Close()
 			lib.Equals(t, nil, err)

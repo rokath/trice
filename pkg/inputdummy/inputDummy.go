@@ -9,13 +9,9 @@
 // The time.Duration value can be used to delay the Read function.
 package inputdummy
 
-import (
-	"io"
-	"time"
+var ()
 
-	"github.com/rokath/trice/internal/global"
-)
-
+/*
 const (
 	// NoDelay avoids any internal waiting.
 	NoDelay = time.Duration(0)

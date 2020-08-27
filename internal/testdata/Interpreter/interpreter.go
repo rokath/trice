@@ -5,6 +5,7 @@
 // It expects a Line writer
 package interpreter
 
+/*
 import (
 	"encoding/binary"
 	"errors"
@@ -228,3 +229,4 @@ func emitter(it id.Item, prm []byte) (string, error) {
 	}
 	return s, err
 }
+*/

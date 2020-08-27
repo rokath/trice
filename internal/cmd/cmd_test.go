@@ -47,12 +47,11 @@ func TestHelp(t *testing.T) {
 	lib.Equals(t, exp, act)
 }
 
+// NOT RELIABLE
 func TestShutdownServerWhenRunning(t *testing.T) {
 	ipp := randomDynIPPort()
-
 	p := emitter.NewRemoteDisplay("trice.exe", "", "localhost", ipp)
 	capt := stimulate("sd\r\n", p.IPAddr, p.IPPort)
-
 	// must remove some chars from the beginning, because xxxxx changes all the time
 	discardLength := len("-> read tcp 127.0.0.1:xxxxx->")
 	if discardLength >= len(capt) {
@@ -60,7 +59,6 @@ func TestShutdownServerWhenRunning(t *testing.T) {
 		fmt.Println(capts)
 		t.Fail()
 	}
-
 	exp := "127.0.0.1:" + p.IPPort + ": wsarecv: An existing connection was forcibly closed by the remote host.\n"
 	act := string(capt[discardLength:])
 	equals(t, exp, act)

@@ -10,11 +10,10 @@ package jlink
 import (
 	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
 	"os/exec"
 	"runtime"
-
-	"github.com/rokath/trice/internal/global"
 )
 
 var (
@@ -65,6 +64,7 @@ func init() {
 type JLINK struct {
 	tlfN string   // tempLogFile name
 	tlfH *os.File // tempLogFile handle
+	Err  error
 }
 
 // exists returns whether the given file or directory exists
@@ -107,6 +107,17 @@ func New(param string) *JLINK {
 	return r
 }
 
+// ErrorFatal ends in osExit(1) if p.Err not nil.
+func (p *JLINK) ErrorFatal() {
+	if nil == p.Err {
+		return
+	}
+	// notice that we're using 1, so it will actually log the where
+	// the error happened, 0 = this function, we don't want that.
+	pc, fn, line, _ := runtime.Caller(1)
+	log.Fatalf("[error] in %s[%s:%d] %v", runtime.FuncForPC(pc).Name(), fn, line, p.Err)
+}
+
 // Read() is part of the exported interface io.ReadCloser. It reads a slice of bytes.
 func (p *JLINK) Read(b []byte) (int, error) {
 	return p.tlfH.Read(b)
@@ -124,21 +135,16 @@ func (p *JLINK) Close() error {
 //
 // THe temporary logfile is opened for reading.
 func (p *JLINK) Open() error {
-	var err error
 	if Verbose {
 		fmt.Println("Start a process:", shell, clip)
 	}
 	lcmdH = exec.Command(shell, clip)
-	if err = lcmdH.Start(); err != nil {
-		//		log.Fatal("start error", err)
-		global.Check(err)
-	}
+	p.Err = lcmdH.Start()
+	p.ErrorFatal()
 
-	p.tlfH, err = os.Open(p.tlfN) // Open() opens a file with read only flag.
-	if nil != err {
-		fmt.Println(err)
-		return err
-	}
+	p.tlfH, p.Err = os.Open(p.tlfN) // Open() opens a file with read only flag.
+	p.ErrorFatal()
+
 	if Verbose {
 		fmt.Println("trice is reading from", p.tlfN)
 	}

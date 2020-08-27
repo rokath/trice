@@ -16,8 +16,6 @@ import (
 	"os"
 	"path/filepath"
 	"time"
-
-	"github.com/rokath/trice/internal/global"
 )
 
 // Item is the basic element
@@ -237,7 +235,7 @@ func ReadListFile() error {
 		go List.FileWatcher()
 	}
 	if true == Verbose {
-		fmt.Println("id list file", FnJSON, "with", len(List), "items", "on device", global.Source)
+		fmt.Println("Read ID list file", FnJSON, "with", len(List), "items.")
 	}
 	return nil
 }

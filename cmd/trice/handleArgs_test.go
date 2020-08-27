@@ -283,7 +283,7 @@ func TestScDisplayServer(t *testing.T) {
 	os.Remove(afn)
 	cage.Name = afn
 	disp.IPPort = "61501"
-	global.Source = ""
+	Source = ""
 	lib.Ok(t, connect("C:\\Users\\ms\\go\\bin\\trice.exe"))
 	lib.Ok(t, disp.PtrRPC.Call("Server.Out", []string{"msg:test ", "dbg:line 1."}, nil))
 	lib.Ok(t, disp.PtrRPC.Call("Server.Out", []string{"att:test ", "sig:line 2."}, nil))

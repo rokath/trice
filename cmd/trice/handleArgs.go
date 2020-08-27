@@ -13,7 +13,6 @@ import (
 	"github.com/rokath/trice/internal/cmd"
 	"github.com/rokath/trice/internal/com"
 	"github.com/rokath/trice/internal/emitter"
-	"github.com/rokath/trice/internal/global"
 	"github.com/rokath/trice/internal/id"
 	"github.com/rokath/trice/internal/jlink"
 	"github.com/rokath/trice/internal/randomdummy"
@@ -24,6 +23,9 @@ import (
 var (
 	// Verbose gives mor information on output if set. This variable is copied into the appropriate packages.
 	Verbose bool
+
+	// Source is the trice receiver to use
+	Source string
 
 	// Encoding describes the way the byte stream is coded. TODO: Change to MultiArgs
 	Encoding string
@@ -186,8 +188,8 @@ func init() {
 	fsScLog.StringVar(&emitter.ColorPalette, "color", "default", "color set, 'off' disables color handling (\"w:x\"->\"w:x\"), 'none' disables channels color (\"w:x\"->\"x\"), options: 'off|none'")            // flag
 	fsScLog.StringVar(&emitter.Prefix, "prefix", "source: ", "prepend prefix to all lines, options: any string or 'off|none' or 'source:' followed by 0-12 spaces, source will be replaced")                     // flag
 	fsScLog.StringVar(&emitter.Suffix, "suffix", "", "append suffix to all lines, options: any string")                                                                                                          // flag
-	fsScLog.StringVar(&global.Source, "source", "JLINK", "receiver device, options: 'COMn|JLINK|STLINK|filename|SIM|RND|HTTP'")                                                                                  //HTTP, RTT, RTTD, RTTF")                                             // flag
-	fsScLog.StringVar(&global.Source, "s", "JLINK", "short for -source")                                                                                                                                         // short flag
+	fsScLog.StringVar(&Source, "source", "JLINK", "receiver device, options: 'COMn|JLINK|STLINK|filename|SIM|RND|HTTP'")                                                                                         //HTTP, RTT, RTTD, RTTF")                                             // flag
+	fsScLog.StringVar(&Source, "s", "JLINK", "short for -source")                                                                                                                                                // short flag
 	fsScLog.IntVar(&com.Baud, "baud", 115200, "COM baudrate, valid only for '-source COMn'")                                                                                                                     // flag flag
 	fsScLog.StringVar(&jlink.Param, "jlink", "-Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0", "passed parameter string, valid only for '-source JLRTT', see JLinkRTTLogger in SEGGER UM08001_JLink.pdf") // JLRTT flag
 	//scLog.StringVar(&jlink.Exec, "jlinkExec", jlink.Exec, "JLinkRTTLogger executable with full path")                                                                                                          // JLRTT flag
@@ -287,9 +289,9 @@ func HandleArgs(args []string) error {
 		fsScLog.Parse(subArgs)
 		injectValues()
 		setPrefix(emitter.Prefix)
-		//if strings.HasPrefix(global.Source, "COM") {
-		//com.Port = global.Source // set COM port number
-		//global.Source = "COM" // overwrite "COMn"
+		//if strings.HasPrefix(Source, "COM") {
+		//com.Port = Source // set COM port number
+		//Source = "COM" // overwrite "COMn"
 		//}
 		id.FnJSON = id.ConditinalFilePath(id.FnJSON)
 
@@ -343,7 +345,7 @@ func connect(sv string) error {
 	//disp.PtrRPC.Call("Server.Out", []string{""}, nil)
 	//disp.PtrRPC.Call("Server.Out", []string{""}, nil)
 	//disp.PtrRPC.Call("Server.Out", []string{""}, nil)
-	//disp.PtrRPC.Call("Server.Out", []string{"att:new connection from ", "read:" + global.Source, "..."}, nil)
+	//disp.PtrRPC.Call("Server.Out", []string{"att:new connection from ", "read:" + Source, "..."}, nil)
 	//disp.PtrRPC.Call("Server.Out", []string{""}, nil)
 	//disp.PtrRPC.Call("Server.Out", []string{""}, nil)
 	return nil
@@ -377,7 +379,7 @@ func receiving() {
 	}
 	//var r io.ReadCloser
 
-	source := global.Source
+	source := Source
 	if strings.HasPrefix(source, "COM") {
 		source = "COM" // overwrite "COMn"
 	}
@@ -401,7 +403,7 @@ func receiving() {
 		innerReader := randomdummy.New(randomdummy.ZeroRandomSeed, rndMode, randomdummy.DefaultDelay, rndLimit)
 		r = ioutil.NopCloser(innerReader) // https://stackoverflow.com/questions/28158990/golang-io-ioutil-nopcloser
 	case "COM":
-		c := com.New(global.Source)
+		c := com.New(Source)
 		if false == c.Open() {
 			return
 		}
@@ -432,7 +434,7 @@ func receiving() {
 		// default: // assume source is a filename
 		// 	s := rttfile.New()
 		// 	//fn := "c:/repos/trice/rttfile.bin"
-		// 	err := s.Open(global.Source)
+		// 	err := s.Open(Source)
 		// 	if nil != err {
 		// 		fmt.Println(err)
 		// 		return
@@ -469,31 +471,31 @@ func scVersion() error {
 func setPrefix(s string) {
 	switch s {
 	case "source:":
-		emitter.Prefix = global.Source + ":"
+		emitter.Prefix = Source + ":"
 	case "source: ":
-		emitter.Prefix = global.Source + ": "
+		emitter.Prefix = Source + ": "
 	case "source:  ":
-		emitter.Prefix = global.Source + ":  "
+		emitter.Prefix = Source + ":  "
 	case "source:   ":
-		emitter.Prefix = global.Source + ":   "
+		emitter.Prefix = Source + ":   "
 	case "source:    ":
-		emitter.Prefix = global.Source + ":    "
+		emitter.Prefix = Source + ":    "
 	case "source:     ":
-		emitter.Prefix = global.Source + ":     "
+		emitter.Prefix = Source + ":     "
 	case "source:      ":
-		emitter.Prefix = global.Source + ":      "
+		emitter.Prefix = Source + ":      "
 	case "source:       ":
-		emitter.Prefix = global.Source + ":       "
+		emitter.Prefix = Source + ":       "
 	case "source:        ":
-		emitter.Prefix = global.Source + ":        "
+		emitter.Prefix = Source + ":        "
 	case "source:         ":
-		emitter.Prefix = global.Source + ":         "
+		emitter.Prefix = Source + ":         "
 	case "source:          ":
-		emitter.Prefix = global.Source + ":          "
+		emitter.Prefix = Source + ":          "
 	case "source:           ":
-		emitter.Prefix = global.Source + ":           "
+		emitter.Prefix = Source + ":           "
 	case "source:            ":
-		emitter.Prefix = global.Source + ":            "
+		emitter.Prefix = Source + ":            "
 	case "off", "none":
 		emitter.Prefix = ""
 	default:

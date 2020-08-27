@@ -12,9 +12,6 @@ import (
 )
 
 var (
-	// Port is the COMport name like COM1 or COM123 is set in global.Source
-	// Port string
-
 	// Baud is the configured baudrate of the serial port. It is set as command line parameter.
 	Baud int
 )

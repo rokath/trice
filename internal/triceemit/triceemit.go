@@ -13,10 +13,11 @@ import (
 	"encoding/binary"
 	"fmt"
 	"io"
+	"log"
 	"reflect"
+	"runtime"
 	"strings"
 
-	"github.com/rokath/trice/internal/global"
 	"github.com/rokath/trice/internal/id"
 )
 
@@ -98,7 +99,7 @@ func NewTriceReceiverfromBare(r io.Reader) *TriceReceiver {
 	p.ignored = make(chan []byte, ignoredChannelCapacity)
 	go func() {
 		for {
-			if io.EOF == p.Err || global.Check(p.Err) {
+			if io.EOF == p.Err {
 				return
 			}
 			p.readRaw()
@@ -163,7 +164,7 @@ func NewSimpleTriceInterpreter(sw io.StringWriter, l id.ListT, tr TriceAtomsRece
 
 	go func() {
 		for {
-			global.Fatal(p.err)
+			p.ErrorFatal()
 			select {
 			case a, _ := <-p.atomsChannel:
 				//if !ok {
@@ -188,6 +189,17 @@ func NewSimpleTriceInterpreter(sw io.StringWriter, l id.ListT, tr TriceAtomsRece
 		}
 	}()
 	return p
+}
+
+// ErrorFatal ends in osExit(1) if p.err not nil.
+func (p *TriceInterpreter) ErrorFatal() {
+	if nil == p.err {
+		return
+	}
+	// notice that we're using 1, so it will actually log the where
+	// the error happened, 0 = this function, we don't want that.
+	pc, fn, line, _ := runtime.Caller(1)
+	log.Fatalf("[error] in %s[%s:%d] %v", runtime.FuncForPC(pc).Name(), fn, line, p.err)
 }
 
 // translate evaluates p.atoms, p.values and p.ignored and tries to generate a string.
@@ -470,12 +482,24 @@ func min(a, b int) int {
 	return b
 }
 
+// ErrorFatal ends in osExit(1) if p.Err not nil.
+func (p *TriceReceiver) ErrorFatal() {
+	if nil == p.Err {
+		return
+	}
+	// notice that we're using 1, so it will actually log the where
+	// the error happened, 0 = this function, we don't want that.
+	pc, fn, line, _ := runtime.Caller(1)
+	log.Fatalf("[error] in %s[%s:%d] %v", runtime.FuncForPC(pc).Name(), fn, line, p.Err)
+}
+
 // readRaw uses inner reader p.r to read byte stream and assumes encoding 'raw' (=='bare') for interpretation.
 // It sends a number of Trice items to the internal 'atoms' channel,
 // any ignored bytes to the internal 'ignored' channel and stores internally an error code.
 // It looks for a sync point inside the internally read byte slice and ignores 1 to(triceSize-1) bytes
 // if the sync is not on a triceSize offset. If no sync point is found sync is assumed per default.
 func (p *TriceReceiver) readRaw() {
+	p.ErrorFatal()
 	leftovers := len(p.syncbuffer) // bytes buffered in bytes buffer from last call
 	var minBytes int               // needed additional byte count making a Trice
 	if leftovers < triceSize {

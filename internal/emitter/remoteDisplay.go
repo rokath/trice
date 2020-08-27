@@ -9,8 +9,6 @@ import (
 	"net/rpc"
 	"os/exec"
 	"runtime"
-
-	"github.com/rokath/trice/internal/global"
 )
 
 // RemoteDisplay is transferring to a remote display object.
@@ -62,7 +60,7 @@ func NewRemoteDisplay(args ...string) *RemoteDisplay {
 	return p
 }
 
-// ErrorFatal ends in osExit(1) if err not nil.
+// ErrorFatal ends in osExit(1) if p.Err not nil.
 func (p *RemoteDisplay) ErrorFatal() {
 	if nil == p.Err {
 		return
@@ -75,7 +73,7 @@ func (p *RemoteDisplay) ErrorFatal() {
 
 // writeLine is implementing the lineWriter interface for RemoteDisplay.
 func (p *RemoteDisplay) writeLine(line []string) {
-	global.Check(p.Err)
+	p.ErrorFatal()
 	p.Err = p.PtrRPC.Call("Server.Out", line, nil) // TODO: Change to "Server.WriteLine"
 }
 

@@ -4,14 +4,9 @@
 // Package inputdummy_test is a blsckbox test.
 package inputdummy_test
 
-import (
-	"io"
-	"testing"
+var ()
 
-	"github.com/rokath/trice/pkg/inputdummy"
-	"github.com/rokath/trice/pkg/lib"
-)
-
+/*
 // Test1 checks if a first read works
 func Test1(t *testing.T) {
 	i := []byte{'g', 'a', 'r', 'b', 'a', 'g', 'e', 235, 96, 96, 0, 10, 172, 0, 0}
@@ -101,7 +96,7 @@ func TestLimit(t *testing.T) {
 	lib.Equals(t, 6, n)
 	lib.Equals(t, io.EOF, err)
 }
-
+*/
 /* works but ReadString not needed now
 // Test0 checks if a first read works
 func Test0(t *testing.T) {

@@ -4,6 +4,8 @@
 // Package global_test is a blackbox test
 package global_test
 
+var ()
+
 /*
 func TestEvaluateWrap(t *testing.T) {
 	// check start byte
@@ -20,13 +22,5 @@ func TestEvaluateWrap(t *testing.T) {
 	b = []byte{0xc0, global.SourceAddr, global.SourceAddr, 0xc0, 1, 1, 2, 2}
 	x = global.EvaluateWrap(b)
 	lib.Equals(t, true, x)
-}
-
-func TestCheck(t *testing.T) {
-	err := errors.New("an error")
-	b := global.Check(err)
-	lib.Equals(t, true, b)
-	c := global.Check(nil)
-	lib.Equals(t, false, c)
 }
 */
