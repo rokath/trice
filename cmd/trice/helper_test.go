@@ -17,8 +17,8 @@ import (
 // test helper ///////////////////////////////////////////////////////////////////////
 //
 
-// errorFail fails the test if an err is not nil.
-func errorFail(tb testing.TB, err error) {
+// assertNil fails the test if an err is not nil.
+func assertNil(tb testing.TB, err error) {
 	if err != nil {
 		_, file, line, _ := runtime.Caller(1)
 		fmt.Println(err.Error(), filepath.Base(file), line)
@@ -26,8 +26,8 @@ func errorFail(tb testing.TB, err error) {
 	}
 }
 
-// notEqualFail fails the test if exp is not equal to act.
-func notEqualFail(tb testing.TB, exp, act interface{}) {
+// assertEqual fails the test if exp is not equal to act.
+func assertEqual(tb testing.TB, exp, act interface{}) {
 	if !reflect.DeepEqual(exp, act) {
 		_, file, line, _ := runtime.Caller(1)
 		log.Println("expect:", exp)
@@ -37,8 +37,8 @@ func notEqualFail(tb testing.TB, exp, act interface{}) {
 	}
 }
 
-// notEqualTextFilesFail compares 2 test files ignoring different line endings
-func notEqualTextFilesFail(t *testing.T, fn0, fn1 string) {
+// assertEqualTextFiles compares 2 test files ignoring different line endings
+func assertEqualTextFiles(t *testing.T, fn0, fn1 string) {
 	if !equalTextfiles(fn0, fn1) {
 		t.Fail()
 	}

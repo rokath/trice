@@ -21,9 +21,9 @@ func TestScVersion(t *testing.T) {
 	efn := "testdata/expVersion.log"
 	os.Remove(afn)
 	args := []string{"trice", "version", "-lg", afn}
-	errorFail(t, HandleArgs(args))
-	notEqualTextFilesFail(t, afn, efn)
-	errorFail(t, os.Remove(afn))
+	assertNil(t, HandleArgs(args))
+	assertEqualTextFiles(t, afn, efn)
+	assertNil(t, os.Remove(afn))
 }
 
 func Example_v() {
@@ -131,12 +131,12 @@ func frameForOsExitTests(parameters []string, exp string, t *testing.T) {
 	}*/
 	time.Sleep(3 * time.Second)
 	b, _ := ioutil.ReadFile(logFile) // just pass the file name
-	os.Remove(logFile)               // must be before notEqualFail
+	os.Remove(logFile)               // must be before assertEqual
 	act := string(b)
 	if len(act) > len(exp) { // because of os.Exit act sometimes has not always the same length
 		act = string(b[:len(exp)]) // shorten act to length of exp, exp has granted minumum length
 	}
-	notEqualFail(t, exp, act)
+	assertEqual(t, exp, act)
 }
 
 /*
@@ -283,15 +283,15 @@ func TestScDisplayServer(t *testing.T) {
 	cage.Name = afn
 	disp.IPPort = "61501"
 	Source = ""
-	errorFail(t, connect("C:\\Users\\ms\\go\\bin\\trice.exe"))
-	errorFail(t, disp.PtrRPC.Call("Server.Out", []string{"msg:test ", "dbg:line 1."}, nil))
-	errorFail(t, disp.PtrRPC.Call("Server.Out", []string{"att:test ", "sig:line 2."}, nil))
+	assertNil(t, connect("C:\\Users\\ms\\go\\bin\\trice.exe"))
+	assertNil(t, disp.PtrRPC.Call("Server.Out", []string{"msg:test ", "dbg:line 1."}, nil))
+	assertNil(t, disp.PtrRPC.Call("Server.Out", []string{"att:test ", "sig:line 2."}, nil))
 
 	// stop display server
-	errorFail(t, disp.ScShutdownRemoteDisplayServer(0))
-	notEqualTextFilesFail(t, afn, efn)
+	assertNil(t, disp.ScShutdownRemoteDisplayServer(0))
+	assertEqualTextFiles(t, afn, efn)
 	time.Sleep(200 * time.Millisecond) // may be a wait for displaySever is down now is needed here
-	errorFail(t, os.Remove(afn))
+	assertNil(t, os.Remove(afn))
 }
 
 // TestServerStartStop checks if display server can be started and stopped remotely
@@ -307,15 +307,15 @@ func TestServerStartStop(t *testing.T) {
 		time.Sleep(200 * time.Millisecond)
 
 		// stop display server
-		errorFail(t, disp.ScShutdownRemoteDisplayServer(0))
+		assertNil(t, disp.ScShutdownRemoteDisplayServer(0))
 	}()
 
 	// start display server
 	args := []string{"trice", "ds", "-lg", afn}
 	HandleArgs(args)
 	wg.Wait()
-	notEqualTextFilesFail(t, afn, efn)
-	errorFail(t, os.Remove(afn))
+	assertEqualTextFiles(t, afn, efn)
+	assertNil(t, os.Remove(afn))
 }
 */
 /*
@@ -325,9 +325,9 @@ func TestScHelp(t *testing.T) {
 	efn := "testdata/expHelp.log"
 	os.Remove(afn)
 	args := []string{"trice", "help", "-lg", afn}
-	errorFail(t, HandleArgs(args))
-	notEqualTextFilesFail(t, afn, efn)
-	errorFail(t, os.Remove(afn))
+	assertNil(t, HandleArgs(args))
+	assertEqualTextFiles(t, afn, efn)
+	assertNil(t, os.Remove(afn))
 }
 */
 /* This is just tryout code but we do not reach the test aim with it:
@@ -343,7 +343,7 @@ func TestRNDchaos2(t *testing.T) {
 		flag2 = true
 		onExit := func(x int) {
 			e := 0 // expected value for x from call global.osExit(x)
-			notEqualFail(t, e, x)
+			assertEqual(t, e, x)
 			TestRNDchaos2(t) // trigger 2nd entry
 		}
 
@@ -374,7 +374,7 @@ func TestRNDchaos2(t *testing.T) {
 RND: trice:discarding byte 0x90 (dez 144, char ' ')
 RND: trice:discarding byte 0xa3 (dez 163, char ' ')
 `
-		notEqualFail(t, exp, act)
+		asertEqual(t, exp, act)
 		// test goes well until here
 		// If os.Exit follows here the test ends in every case without error message even it failed.
 		// If os.Exit follows not the execution context goes back to the ReadAtLeast and the test does not end because of endless cycle.

@@ -26,7 +26,7 @@ func TestBadArgs(t *testing.T) {
 		t.Errorf("%v", err)
 	}
 	exp := "try: 'trice help|h'\n"
-	notEqualFail(t, exp, act)
+	assertEqual(t, exp, act)
 }
 
 func TestNoArgs(t *testing.T) {
@@ -37,7 +37,7 @@ func TestNoArgs(t *testing.T) {
 	}
 	act := string(out) // because out is []byte
 	exp := "try: 'trice help|h'\n"
-	notEqualFail(t, exp, act)
+	assertEqual(t, exp, act)
 }
 
 /*
@@ -49,7 +49,7 @@ func TestVersionArg(t *testing.T) {
 	}
 	act := string(out) // because out is []byte
 	exp := "version=devel, built unknown\n"
-	notEqualFail(t, exp, act)
+	assertEqual(t, exp, act)
 }
 */
 /*
@@ -67,6 +67,6 @@ SIM: garbage
 SIM: ISR:interrupt   message, SysTick is      0
 SIM: ISR:interrupt   message, SysTick is    257
 `
-	notEqualFail(t, exp, act)
+	assertEqual(t, exp, act)
 }
 */

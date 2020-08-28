@@ -7,13 +7,13 @@ import (
 
 func Test_isLower(t *testing.T) {
 	f := isLower("lower:")
-	notEqualFail(t, true, f)
+	assertEqual(t, true, f)
 	f = isLower("Lower:")
-	notEqualFail(t, false, f)
+	assertEqual(t, false, f)
 	f = isLower("uppeR:")
-	notEqualFail(t, false, f)
+	assertEqual(t, false, f)
 	f = isLower("0123456789:")
-	notEqualFail(t, true, f)
+	assertEqual(t, true, f)
 }
 
 func TestDefault1_colorize(t *testing.T) {
@@ -23,11 +23,11 @@ func TestDefault1_colorize(t *testing.T) {
 	s = "err:string\n"
 	e = "\x1b[38;5;11;41mstring\n\x1b[0m"
 	c = colorize(s)
-	notEqualFail(t, e, c)
+	assertEqual(t, e, c)
 	s = "ERR:string"
 	e = "\x1b[38;5;11;41mERR:string\x1b[0m"
 	c = colorize(s)
-	notEqualFail(t, e, c)
+	assertEqual(t, e, c)
 }
 
 func TestNone_colorize(t *testing.T) {
@@ -37,11 +37,11 @@ func TestNone_colorize(t *testing.T) {
 	s = "warning:string\n"
 	e = "string\n"
 	c = colorize(s)
-	notEqualFail(t, e, c)
+	assertEqual(t, e, c)
 	s = "MSG:string"
 	e = "MSG:string"
 	c = colorize(s)
-	notEqualFail(t, e, c)
+	assertEqual(t, e, c)
 }
 
 func TestOff_colorize(t *testing.T) {
@@ -51,11 +51,11 @@ func TestOff_colorize(t *testing.T) {
 	s = "dbg:string\n"
 	e = "dbg:string\n"
 	c = colorize(s)
-	notEqualFail(t, e, c)
+	assertEqual(t, e, c)
 	s = "D:string"
 	e = "D:string"
 	c = colorize(s)
-	notEqualFail(t, e, c)
+	assertEqual(t, e, c)
 }
 
 func TestNoneNo_colorize(t *testing.T) {
@@ -65,11 +65,11 @@ func TestNoneNo_colorize(t *testing.T) {
 	s = "msg :string\n"
 	e = "msg :string\n"
 	c = colorize(s)
-	notEqualFail(t, e, c)
+	assertEqual(t, e, c)
 	s = "MSG string"
 	e = "MSG string"
 	c = colorize(s)
-	notEqualFail(t, e, c)
+	assertEqual(t, e, c)
 }
 
 func TestDefault2_colorize(t *testing.T) {
@@ -79,9 +79,9 @@ func TestDefault2_colorize(t *testing.T) {
 	s = "msg: string\n"
 	e = "\x1b[92;40m string\n\x1b[0m"
 	c = colorize(s)
-	notEqualFail(t, e, c)
+	assertEqual(t, e, c)
 	s = "attention:string"
 	e = "\x1b[38;5;11;42mstring\x1b[0m"
 	c = colorize(s)
-	notEqualFail(t, e, c)
+	assertEqual(t, e, c)
 }

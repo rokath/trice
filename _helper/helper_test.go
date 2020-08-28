@@ -29,9 +29,8 @@ func assert(tb testing.TB, condition bool, msg string, v ...interface{}) {
 	}
 }
 
-// assertNil
-// errorFail fails the test if an err is not nil.
-func errorFail(tb testing.TB, err error) {
+// assertNil fails the test if an err is not nil.
+func assertNil(tb testing.TB, err error) {
 	if err != nil {
 		_, file, line, _ := runtime.Caller(1)
 		fmt.Println(err.Error(), filepath.Base(file), line)
@@ -39,9 +38,8 @@ func errorFail(tb testing.TB, err error) {
 	}
 }
 
-// assertEqual
-// notEqualFail fails the test if exp is not equal to act.
-func notEqualFail(tb testing.TB, exp, act interface{}) {
+// assertEqual fails the test if exp is not equal to act.
+func assertEqual(tb testing.TB, exp, act interface{}) {
 	if !reflect.DeepEqual(exp, act) {
 		_, file, line, _ := runtime.Caller(1)
 		log.Println("expect:", exp)
@@ -51,9 +49,8 @@ func notEqualFail(tb testing.TB, exp, act interface{}) {
 	}
 }
 
-// assertEqualFiles
-// notEqualFilesFail fails test if contence is NOT equal
-func notEqualFilesFail(t *testing.T, fn0, fn1 string) {
+// assertEqualFiles fails test if contence is NOT equal
+func assertEqualFiles(t *testing.T, fn0, fn1 string) {
 	ok := equalFileContent(fn0, fn1)
 	if false == ok {
 		t.FailNow()
@@ -89,7 +86,7 @@ func (p *checkDisplay) writeLine(line []string) {
 }
 
 func (p *checkDisplay) checkLines(t *testing.T, lines []string) {
-	notEqualFail(t, p.lines, lines)
+	assertEqual(t, p.lines, lines)
 }
 
 //
@@ -271,4 +268,12 @@ func fileLine() string {
 		s = ""
 	}
 	return s
+}
+
+// min returns the smaller int from a and b
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
 }

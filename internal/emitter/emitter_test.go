@@ -24,7 +24,7 @@ func TestNewSimpleTriceInterpreterWithAnsiOff(t *testing.T) {
 	rd := bytes.NewReader([]byte{1, 1, 1, 1, 0x16, 0x16, 0x16, 0x16, 2, 2, 2, 0, 3, 2, 0, 0, 3, 3, 3, 3, 4, 4})
 	// tai uses the io.Reader interface from s and implements the TriceAtomsReceiver interface.
 	// It scans the raw input byte stream and decodes the trice atoms it transmits to the TriceAtomsReceiver interface.
-	tai := receiver.NewTriceReceiverfromBare(rd)
+	tai := receiver.NewTricesfromBare(rd)
 
 	// display lwD implements the lineWriter interface needed by lineComposer.
 	// It interprets the lines written to it according to its properties.
@@ -46,7 +46,7 @@ func TestNewSimpleTriceInterpreterWithAnsiOff(t *testing.T) {
 
 	// sti uses the TriceAtomsReceiver interface tai for reception and the io.StringWriter interface sw for writing.
 	// sti collects trice atoms to a complete trice, generates the appropriate string using list and writes it to the provided io.StringWriter
-	sti := translator.NewSimpleTriceInterpreter(sw, list, tai)
+	sti := translator.NewSimpleTrices(sw, list, tai)
 
 	lines := []string{
 		"2006-01-02_1504-05 PREFIX att:Hello, 1+1=att:2, ok?",
@@ -67,7 +67,7 @@ func TestNewSimpleTriceInterpreterWithAnsiNone(t *testing.T) {
 	rd := bytes.NewReader([]byte{1, 1, 1, 1, 0x16, 0x16, 0x16, 0x16, 2, 2, 2, 0, 3, 3, 3, 3, 4, 4})
 	// tai uses the io.Reader interface from s and implements the TriceAtomsReceiver interface.
 	// It scans the raw input byte stream and decodes the trice atoms it transmits to the TriceAtomsReceiver interface.
-	tai := receiver.NewTriceReceiverfromBare(rd)
+	tai := receiver.NewTricesfromBare(rd)
 
 	// display lwD implements the lineWriter interface needed by lineComposer.
 	// It interprets the lines written to it according to its properties.
@@ -88,7 +88,7 @@ func TestNewSimpleTriceInterpreterWithAnsiNone(t *testing.T) {
 
 	// sti uses the TriceAtomsReceiver interface tai for reception and the io.StringWriter interface (r) for writing.
 	// sti collects trice atoms to a complete trice, generates the appropriate string with list and writes it to the provided io.StringWriter
-	sti := translator.NewSimpleTriceInterpreter(sw, list, tai)
+	sti := translator.NewSimpleTrices(sw, list, tai)
 
 	lines := []string{
 		"2006-01-02_1504-05 PREFIX Hello, 1+1=2, ok?",
@@ -109,7 +109,7 @@ func TestNewSimpleTriceInterpreterResync(t *testing.T) {
 	rd := bytes.NewReader([]byte{'j', 'a', 'r', 0x16, 0x16, 0x16, 0x16, 4, 4})
 	// tai uses the io.Reader interface from s and implements the TriceAtomsReceiver interface.
 	// It scans the raw input byte stream and decodes the trice atoms it transmits to the TriceAtomsReceiver interface.
-	tai := receiver.NewTriceReceiverfromBare(rd)
+	tai := receiver.NewTricesfromBare(rd)
 
 	// display lwD implements the lineWriter interface needed by lineComposer.
 	// It interprets the lines written to it according to its properties.
@@ -130,7 +130,7 @@ func TestNewSimpleTriceInterpreterResync(t *testing.T) {
 
 	// sti uses the TriceAtomsReceiver interface tai for reception and the io.StringWriter interface (r) for writing.
 	// sti collects trice atoms to a complete trice, generates the appropriate string with list and writes it to the provided io.StringWriter
-	sti := translator.NewSimpleTriceInterpreter(sw, list, tai)
+	sti := translator.NewSimpleTrices(sw, list, tai)
 
 	lines := []string{
 		"2006-01-02_1504-05 PREFIX WARNING:ignoring bytes: [106 97 114]",

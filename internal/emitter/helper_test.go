@@ -30,8 +30,8 @@ func readLines(filename string) (lines []string, err error) {
 	return
 }
 
-// notEqualFail fails the test if exp is not equal to act.
-func notEqualFail(tb testing.TB, exp, act interface{}) {
+// assertEqual fails the test if exp is not equal to act.
+func assertEqual(tb testing.TB, exp, act interface{}) {
 	if !reflect.DeepEqual(exp, act) {
 		_, file, line, _ := runtime.Caller(1)
 		log.Println("expect:", exp)
@@ -69,7 +69,7 @@ func (p *checkDisplay) writeLine(line []string) {
 }
 
 func (p *checkDisplay) checkLines(t *testing.T, lines []string) {
-	notEqualFail(t, p.lines, lines)
+	assertEqual(t, p.lines, lines)
 }
 
 //

@@ -60,6 +60,6 @@ func Test1(t *testing.T) {
 	cage.Stop(c)
 
 	// check output
-	notEqualTextFilesFail(t, afn, efn)
+	assertEqualTextFiles(t, afn, efn)
 	os.Remove(afn)
 }

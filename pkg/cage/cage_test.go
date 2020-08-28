@@ -31,9 +31,9 @@ func TestStart(t *testing.T) {
 	os.Remove(efn)
 
 	efh, err := os.OpenFile(efn, os.O_RDWR|os.O_CREATE, 0666)
-	errorFail(t, err)
+	assertNil(t, err)
 	_, err = fmt.Fprintln(efh, "testLog00\ntestOutOrErr01\ntestOutOrErr01")
-	errorFail(t, err)
+	assertNil(t, err)
 
 	log.SetFlags(0) // switch off log timestamp
 
@@ -47,9 +47,9 @@ func TestStart(t *testing.T) {
 	equalFiles(t, afn, efn)
 
 	efh, err = os.OpenFile(efn, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
-	errorFail(t, err)
+	assertNil(t, err)
 	_, err = fmt.Fprintln(efh, "testLog10\ntestOutOrErr11\ntestOutOrErr11")
-	errorFail(t, err)
+	assertNil(t, err)
 
 	d := cage.Start(afn)
 
@@ -61,6 +61,6 @@ func TestStart(t *testing.T) {
 
 	equalFiles(t, afn, efn)
 
-	errorFail(t, os.Remove(afn))
-	errorFail(t, os.Remove(efn))
+	assertNil(t, os.Remove(afn))
+	assertNil(t, os.Remove(efn))
 }

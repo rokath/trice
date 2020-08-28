@@ -17,7 +17,7 @@ func Test1(t *testing.T) {
 		return
 	}
 	err := p.Open()
-	notEqualFail(t, nil, err)
+	assertEqual(t, nil, err)
 	err = p.Close()
-	notEqualFail(t, nil, err)
+	assertEqual(t, nil, err)
 }

@@ -11,16 +11,16 @@ func TestEvaluateWrap(t *testing.T) {
 	// check start byte
 	b := []byte{0xe0, global.SourceAddr, global.SourceAddr, 0xe0, 1, 1, 2, 2}
 	x := global.EvaluateWrap(b)
-	notEqualFail(t, false, x)
+	assertEqual(t, false, x)
 
 	// check crc
 	b = []byte{0xc0, global.SourceAddr, global.SourceAddr, 0xe0, 1, 1, 2, 2}
 	x = global.EvaluateWrap(b)
-	notEqualFail(t, false, x)
+	assertEqual(t, false, x)
 
 	// check ok
 	b = []byte{0xc0, global.SourceAddr, global.SourceAddr, 0xc0, 1, 1, 2, 2}
 	x = global.EvaluateWrap(b)
-	notEqualFail(t, true, x)
+	assertEqual(t, true, x)
 }
 */

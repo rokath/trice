@@ -14,43 +14,43 @@ func TestPwdNone(t *testing.T) {
 	cipher.Password = "none"
 	cipher.ShowKey = false
 	e := cipher.SetUp()
-	notEqualFail(t, nil, e)
+	assertEqual(t, nil, e)
 
 	b := []byte{1, 2, 3, 4, 5, 6, 7, 8}
 	c := cipher.Encrypt8(b)
-	notEqualFail(t, b, c)
+	assertEqual(t, b, c)
 
 	d := cipher.Decrypt8(c)
-	notEqualFail(t, c, d)
+	assertEqual(t, c, d)
 }
 
 func Test8PwdXXZ(t *testing.T) {
 	cipher.Password = "XYZ"
 	cipher.ShowKey = true
 	e := cipher.SetUp()
-	notEqualFail(t, nil, e)
+	assertEqual(t, nil, e)
 
 	b := []byte{1, 2, 3, 4, 5, 6, 7, 8}
 	c := cipher.Encrypt8(b)
 	exp := []byte{0x32, 0xa8, 0x10, 0x11, 0x93, 0x8e, 0x64, 0x51}
-	notEqualFail(t, exp, c)
+	assertEqual(t, exp, c)
 
 	d := cipher.Decrypt8(c)
-	notEqualFail(t, b, d)
+	assertEqual(t, b, d)
 }
 
 func Test4PwdXXZ(t *testing.T) {
 	cipher.Password = "XYZ"
 	cipher.ShowKey = false
 	e := cipher.SetUp()
-	notEqualFail(t, nil, e)
+	assertEqual(t, nil, e)
 
 	b := []byte{1, 2, 3, 4}
 	c := cipher.Encrypt8(b)
 	exp := []byte{0xd0, 0x4a, 0x20, 0x8a, 0x62, 0x49, 0xdd, 0x5f}
-	notEqualFail(t, exp, c)
+	assertEqual(t, exp, c)
 
 	d := cipher.Decrypt8(c)
 	b8 := []byte{1, 2, 3, 4, 0x16, 0x16, 0x16, 0x16}
-	notEqualFail(t, b8, d)
+	assertEqual(t, b8, d)
 }

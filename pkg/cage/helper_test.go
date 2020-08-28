@@ -12,8 +12,8 @@ import (
 // test helper ///////////////////////////////////////////////////////////////////////
 //
 
-// errorFail fails the test if an err is not nil.
-func errorFail(tb testing.TB, err error) {
+// assertNil fails the test if an err is not nil.
+func assertNil(tb testing.TB, err error) {
 	if err != nil {
 		_, file, line, _ := runtime.Caller(1)
 		fmt.Println(err.Error(), filepath.Base(file), line)

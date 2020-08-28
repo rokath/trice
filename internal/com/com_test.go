@@ -13,7 +13,7 @@ import (
 
 func Test1(t *testing.T) {
 	ss, err := com.GetSerialPorts()
-	errorFail(t, err)
+	assertNil(t, err)
 	//	PS C:\repos\trice> trice s
 	//	Could not enumerate serial ports
 	//	PS C:\repos\trice> trice s
@@ -24,7 +24,7 @@ func Test1(t *testing.T) {
 		port := ss[i]
 		p := com.New(port)
 		if p.Open() {
-			errorFail(t, p.Close())
+			assertNil(t, p.Close())
 		}
 	}
 }

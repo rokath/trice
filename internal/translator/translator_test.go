@@ -23,8 +23,8 @@ package translator
 // 		Created: 0,     // int32  `json:"created"` // utc unix time of creation
 // 		Removed: 0,     // int32  `json:"removed"` // utc unix time of disappearing in processed src directory
 // 	}
-// 	notEqualFail(t, tExp, p.item)
-// 	notEqualFail(t, []byte{11, 22, 33, 44}, p.values)
+// 	assertEqual(t, tExp, p.item)
+// 	assertEqual(t, []byte{11, 22, 33, 44}, p.values)
 // 	//	tExp := id.Item{
 // 	//		ID:      29200,             //      int    `json:"id"`      // identifier
 // 	//		FmtType: "TRICE32_1",       // string `json:"fmtType"` // format type (bitsize and number of fmt string parameters)

@@ -18,7 +18,7 @@ func TestZeroMode(t *testing.T) {
 	act := make([]byte, 19)
 	s.Read(act)
 	exp := []byte{0x9f, 0x90, 0xa3, 0xe2, 0x50, 0xc4, 0x9d, 0xa7, 0xc6, 0x30, 0x5d, 0xc5, 0x77, 0xe4, 0x93, 0x33, 0x29, 0x50, 0xdc}
-	notEqualFail(t, exp, act)
+	assertEqual(t, exp, act)
 }
 
 // TestZeroModeLimit checks Read mode 0 with limit
@@ -28,8 +28,8 @@ func TestZeroModeLimit(t *testing.T) {
 	n, err := s.Read(act)
 	exp := []byte{0x9f, 0x90, 0xa3, 0xe2, 0x50, 0xc4, 0x9d, 0xa7, 0xc6}
 	act = act[:n]
-	notEqualFail(t, exp, act)
-	notEqualFail(t, errors.New("EOF"), err)
+	assertEqual(t, exp, act)
+	assertEqual(t, errors.New("EOF"), err)
 }
 
 // TestUnknownMode checks Read mode unknown
@@ -38,7 +38,7 @@ func TestUnknownMode(t *testing.T) {
 	act := make([]byte, 19)
 	s.Read(act)
 	exp := []byte{0x9f, 0x90, 0xa3, 0xe2, 0x50, 0xc4, 0x9d, 0xa7, 0xc6, 0x30, 0x5d, 0xc5, 0x77, 0xe4, 0x93, 0x33, 0x29, 0x50, 0xdc}
-	notEqualFail(t, exp, act)
+	assertEqual(t, exp, act)
 }
 
 // TestBareModeShort checks Read mode bare
@@ -46,8 +46,8 @@ func TestBareModeTooShort(t *testing.T) {
 	s := randomdummy.New(randomdummy.ZeroRandomSeed, "BareModeNoSync", randomdummy.NoDelay, randomdummy.NoLimit)
 	b := make([]byte, 3)
 	act, err := s.Read(b)
-	notEqualFail(t, 0, act)
-	notEqualFail(t, errors.New("too short for bare"), err)
+	assertEqual(t, 0, act)
+	assertEqual(t, errors.New("too short for bare"), err)
 }
 
 // TestWrapModeTooShort checks Read mode wrap
@@ -55,8 +55,8 @@ func TestWrapModeTooShort(t *testing.T) {
 	s := randomdummy.New(randomdummy.ZeroRandomSeed, "WrapModeWithValidCrc", randomdummy.NoDelay, randomdummy.NoLimit)
 	b := make([]byte, 3)
 	act, err := s.Read(b)
-	notEqualFail(t, 0, act)
-	notEqualFail(t, errors.New("too short for wrap"), err)
+	assertEqual(t, 0, act)
+	assertEqual(t, errors.New("too short for wrap"), err)
 }
 
 // TestBareMode checks Read mode bare
@@ -66,11 +66,11 @@ func TestBareMode(t *testing.T) {
 	n, _ := s.Read(act)
 	act = act[:n]
 	exp := []byte{0x9f, 0x90, 0xa3, 0xe2}
-	notEqualFail(t, exp, act)
+	assertEqual(t, exp, act)
 
 	s.Read(act)
 	exp = []byte{0x50, 0xc4, 0x9d, 0xa7}
-	notEqualFail(t, exp, act)
+	assertEqual(t, exp, act)
 }
 
 // TestWrapMode checks Read mode wrap
@@ -81,11 +81,11 @@ func TestWrapMode(t *testing.T) {
 	n, _ := s.Read(act)
 	act = act[:n] // limit to read bytes
 	exp := []byte{0xeb, 0x60, 0x60, 0x45, 0x50, 0xc4, 0x9d, 0xa7}
-	notEqualFail(t, exp, act)
+	assertEqual(t, exp, act)
 
 	s.Read(act)
 	exp = []byte{0xeb, 0x60, 0x60, 0xd8, 0x77, 0xe4, 0x93, 0x33}
-	notEqualFail(t, exp, act)
+	assertEqual(t, exp, act)
 }
 
 // TestRNDchaos expects installed trice compiled from actual sources.
@@ -103,5 +103,5 @@ func TestRNDchaos(t *testing.T) {
 RND: trice:discarding byte 0x90 (dez 144, char ' ')
 RND: trice:discarding byte 0xa3 (dez 163, char ' ')
 `
-	notEqualFail(t, exp, act)
+	assertEqual(t, exp, act)
 }

@@ -43,7 +43,7 @@ func TestHelp(t *testing.T) {
 	exp := "-> h|help                   - this text\nexitServer|serverExit    - kill server\nq|quit                   - end program\n"
 	cap := stimulate("help\r\n", "", "")
 	act := string(cap)
-	notEqualFail(t, exp, act)
+	assertEqual(t, exp, act)
 }
 
 // NOT RELIABLE
@@ -60,5 +60,5 @@ func TestShutdownServerWhenRunning(t *testing.T) {
 	}
 	exp := "127.0.0.1:" + p.IPPort + ": wsarecv: An existing connection was forcibly closed by the remote host.\n"
 	act := string(capt[discardLength:])
-	notEqualFail(t, exp, act)
+	assertEqual(t, exp, act)
 }

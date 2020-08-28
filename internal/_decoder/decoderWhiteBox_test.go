@@ -23,7 +23,7 @@ func Test1_stringsFromASCIIDecode(t *testing.T) {
 	ascii := make(chan string, 2)
 
 	p, e := New(r, enc, trice, command, ascii, dropped, err)
-	notEqualFail(t, nil, e)
+	assertEqual(t, nil, e)
 	p.decode()
 	var act []string
 	count := 2
@@ -43,7 +43,7 @@ func Test1_stringsFromASCIIDecode(t *testing.T) {
 		count--
 	}
 	exp := []string{"m:Hello", "you\t\a\a\asig:Gophers!"}
-	notEqualFail(t, exp, act)
+	assertEqual(t, exp, act)
 }
 
 func Test1_bareDecode(t *testing.T) {
@@ -57,7 +57,7 @@ func Test1_bareDecode(t *testing.T) {
 	)
 	trice := make(chan []bare.Item, 200)
 	p, e := New(r, enc, trice, command, ascii, dropped, err)
-	notEqualFail(t, nil, e)
+	assertEqual(t, nil, e)
 	p.decode()
 	var act []bare.Item
 	select {
@@ -77,7 +77,7 @@ func Test1_bareDecode(t *testing.T) {
 		{ID: 0x0202, Value: [2]byte{0x02, 0x02}},
 		{ID: 0x0303, Value: [2]byte{0x03, 0x03}},
 	}
-	notEqualFail(t, exp, act)
+	assertEqual(t, exp, act)
 }
 
 func Test1_wrapDecode(t *testing.T) {
@@ -91,7 +91,7 @@ func Test1_wrapDecode(t *testing.T) {
 	)
 	trice := make(chan []bare.Item, 200)
 	p, e := New(r, enc, trice, command, ascii, dropped, err)
-	notEqualFail(t, nil, e)
+	assertEqual(t, nil, e)
 	p.decode()
 	var act []bare.Item
 	select {
@@ -109,5 +109,5 @@ func Test1_wrapDecode(t *testing.T) {
 		{ID: 0x0101, Value: [2]byte{0x02, 0x02}},
 		{ID: 0x0808, Value: [2]byte{0x05, 0x05}},
 	}
-	notEqualFail(t, exp, act)
+	assertEqual(t, exp, act)
 }

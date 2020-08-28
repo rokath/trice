@@ -27,9 +27,9 @@ type TriceAtomsReceiver interface {
 	IgnoredBytesChannel() <-chan []byte
 }
 
-// TriceInterpreter uses the 2 TriceReceiver channels and global settings to compose a complete log line as one string.
+// TriceTranslator uses the 2 TriceReceiver channels and global settings to compose a complete log line as one string.
 // The string is transferred using the io.StringWriter interface.
-type TriceInterpreter struct {
+type TriceTranslator struct {
 	// If some error occured it is stored here. This makes error handling more handy.
 	err error
 
@@ -66,12 +66,12 @@ type TriceInterpreter struct {
 	sw io.StringWriter
 }
 
-// NewSimpleTriceInterpreter gets its data from the TriceAtomsReceiver interface tr.
+// NewSimpleTrices gets its data from the TriceAtomsReceiver interface tr.
 // It uses the io.StringWriter interface sw to write the trice strings looked up in the trice id list
 // and enhanced with the printed values. Each single trice string is written separately with sw.
 // It does not evaluate the TriceInterpreter.ignored bytes.
-func NewSimpleTriceInterpreter(sw io.StringWriter, l id.ListT, tr TriceAtomsReceiver) *TriceInterpreter {
-	p := &TriceInterpreter{}
+func NewSimpleTrices(sw io.StringWriter, l id.ListT, tr TriceAtomsReceiver) *TriceTranslator {
+	p := &TriceTranslator{}
 	p.atomsChannel = tr.TriceAtomsChannel()
 	p.ignoredChannel = tr.IgnoredBytesChannel()
 	p.sw = sw
@@ -111,7 +111,7 @@ func NewSimpleTriceInterpreter(sw io.StringWriter, l id.ListT, tr TriceAtomsRece
 }
 
 // ErrorFatal ends in osExit(1) if p.err not nil.
-func (p *TriceInterpreter) ErrorFatal() {
+func (p *TriceTranslator) ErrorFatal() {
 	if nil == p.err {
 		return
 	}
@@ -123,7 +123,7 @@ func (p *TriceInterpreter) ErrorFatal() {
 // If an internal error state occured it discards all accumulated data and clears the error.
 // On return it delivers an emty string if not enough data yet for the next string.
 // This is usually the case when trice.ID is 0 and only data payload is to store.
-func (p *TriceInterpreter) translate() (s string) {
+func (p *TriceTranslator) translate() (s string) {
 	if nil != p.err {
 		s = fmt.Sprintln(p.err, p.values, p.atoms, p.ignored)
 		p.values = p.values[:0]
@@ -163,7 +163,7 @@ func (p *TriceInterpreter) translate() (s string) {
 // emmiter wworks fine with %x, %d and %o but NOT with %u for now
 // %x is emitted in Go signed!
 // For %u a format string parsing is needed to perform the correct casts.
-func (p *TriceInterpreter) emitter() (s string) {
+func (p *TriceTranslator) emitter() (s string) {
 	it := p.item
 	prm := p.values
 	f, _, _ := langCtoGoFmtStingConverter(it.FmtStrg) // todo
@@ -242,7 +242,7 @@ func (p *TriceInterpreter) emitter() (s string) {
 }
 
 // evalLen checks if byte buffer t has appropriate length to id.item it
-func (p *TriceInterpreter) evalLen() {
+func (p *TriceTranslator) evalLen() {
 	it := p.item
 	t := p.values
 	switch it.FmtType {
@@ -297,6 +297,6 @@ func langCtoGoFmtStingConverter(f string) (s string, u []bool, err error) {
 }
 
 // Stop ends life of TriceInterpreter
-func (p *TriceInterpreter) Stop() {
+func (p *TriceTranslator) Stop() {
 	p.done <- 0
 }

@@ -16,8 +16,8 @@ import (
 // test helper ///////////////////////////////////////////////////////////////////////
 //
 
-// notEqualFail fails the test if exp is not equal to act.
-func notEqualFail(tb testing.TB, exp, act interface{}) {
+// assertEqual fails the test if exp is not equal to act.
+func assertEqual(tb testing.TB, exp, act interface{}) {
 	if !reflect.DeepEqual(exp, act) {
 		_, file, line, _ := runtime.Caller(1)
 		log.Println("expect:", exp)

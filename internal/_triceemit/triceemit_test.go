@@ -32,7 +32,7 @@ func TestNewTriceReceiverfromBare(t *testing.T) {
 		select {
 		case bAct := <-p.ignored:
 			bExp := []byte{106, 97, 114}
-			notEqualFail(t, bExp, bAct)
+			assertEqual(t, bExp, bAct)
 			bFlag = true
 		case tAct := <-p.atoms:
 			tExp := []Trice{
@@ -41,11 +41,11 @@ func TestNewTriceReceiverfromBare(t *testing.T) {
 				{ID: 514, Value: [2]byte{2, 2}},
 				{ID: 771, Value: [2]byte{3, 3}},
 			}
-			notEqualFail(t, tExp, tAct)
+			assertEqual(t, tExp, tAct)
 			tFlag = true
 		default:
 			if bFlag && tFlag {
-				notEqualFail(t, []byte{4, 4}, p.syncbuffer)
+				assertEqual(t, []byte{4, 4}, p.syncbuffer)
 				return
 			}
 		}
@@ -71,8 +71,8 @@ func TestNewTriceReceiverfromBare(t *testing.T) {
 // 		Created: 0,     // int32  `json:"created"` // utc unix time of creation
 // 		Removed: 0,     // int32  `json:"removed"` // utc unix time of disappearing in processed src directory
 // 	}
-// 	notEqualFail(t, tExp, p.item)
-// 	notEqualFail(t, []byte{11, 22, 33, 44}, p.values)
+// 	assertEqual(t, tExp, p.item)
+// 	assertEqual(t, []byte{11, 22, 33, 44}, p.values)
 // 	//	tExp := id.Item{
 // 	//		ID:      29200,             //      int    `json:"id"`      // identifier
 // 	//		FmtType: "TRICE32_1",       // string `json:"fmtType"` // format type (bitsize and number of fmt string parameters)

@@ -14,7 +14,7 @@ func Test1(t *testing.T) {
 	o := make([]byte, 7)
 	r := []byte{'g', 'a', 'r', 'b', 'a', 'g', 'e'}
 	s.Read(o)
-	notEqualFail(t, o, r)
+	assertEqual(t, o, r)
 }
 
 // Test2 checks if a shorter internal buffer repeats
@@ -24,7 +24,7 @@ func Test2(t *testing.T) {
 	o := make([]byte, 3)
 	r := []byte{'A', 'A', 'A'}
 	s.Read(o)
-	notEqualFail(t, o, r)
+	assertEqual(t, o, r)
 }
 
 // Test 3 checks if a longer internal buffer repeats
@@ -35,7 +35,7 @@ func Test3(t *testing.T) {
 	exp := []byte{7, 8, 9, 10, 0, 1, 2}
 	s.Read(o)
 	s.Read(o)
-	notEqualFail(t, exp, o)
+	assertEqual(t, exp, o)
 }
 
 // Test4 checks if a zero internal buffer works
@@ -44,8 +44,8 @@ func Test4(t *testing.T) {
 	s := inputdummy.New(i, inputdummy.NoDelay, inputdummy.NoLimit)
 	o := make([]byte, 3)
 	n, err := s.Read(o)
-	notEqualFail(t, n, 0)
-	notEqualFail(t, err, io.EOF)
+	assertEqual(t, n, 0)
+	assertEqual(t, err, io.EOF)
 }
 
 // Test5 checks if a nil internal buffer works
@@ -53,8 +53,8 @@ func Test5(t *testing.T) {
 	s := inputdummy.New(nil, inputdummy.NoDelay, inputdummy.NoLimit)
 	o := make([]byte, 3)
 	n, err := s.Read(o)
-	notEqualFail(t, n, 0)
-	notEqualFail(t, err, io.EOF)
+	assertEqual(t, n, 0)
+	assertEqual(t, err, io.EOF)
 }
 
 // Test6 checks if a zero external buffer works with internal nil
@@ -62,8 +62,8 @@ func Test6(t *testing.T) {
 	s := inputdummy.New(nil, inputdummy.NoDelay, inputdummy.NoLimit)
 	o := []byte{}
 	n, err := s.Read(o)
-	notEqualFail(t, n, 0)
-	notEqualFail(t, err, io.EOF)
+	assertEqual(t, n, 0)
+	assertEqual(t, err, io.EOF)
 }
 
 // Test7 checks if a zero external buffer works with internal zero
@@ -72,8 +72,8 @@ func Test7(t *testing.T) {
 	s := inputdummy.New(i, inputdummy.NoDelay, inputdummy.NoLimit)
 	o := []byte{}
 	n, err := s.Read(o)
-	notEqualFail(t, n, 0)
-	notEqualFail(t, err, io.EOF)
+	assertEqual(t, n, 0)
+	assertEqual(t, err, io.EOF)
 }
 
 // Test8 checks if a zero external buffer works with internal non-zero
@@ -82,8 +82,8 @@ func Test8(t *testing.T) {
 	s := inputdummy.New(i, inputdummy.NoDelay, inputdummy.NoLimit)
 	var o []byte
 	n, err := s.Read(o)
-	notEqualFail(t, n, 0)
-	notEqualFail(t, err, nil)
+	assertEqual(t, n, 0)
+	assertEqual(t, err, nil)
 }
 
 // TestLimit checks if a zero external buffer works with internal non-zero
@@ -92,9 +92,9 @@ func TestLimit(t *testing.T) {
 	s := inputdummy.New(i, inputdummy.NoDelay, 6)
 	o := make([]byte, 8)
 	n, err := s.Read(o)
-	notEqualFail(t, byte(2), o[5])
-	notEqualFail(t, 6, n)
-	notEqualFail(t, io.EOF, err)
+	assertEqual(t, byte(2), o[5])
+	assertEqual(t, 6, n)
+	assertEqual(t, io.EOF, err)
 }
 */
 /* works but ReadString not needed now
@@ -104,8 +104,8 @@ func Test0(t *testing.T) {
 	s := inputdummy.New(i, inputdummy.NoDelay, inputdummy.NoLimit)
 
 	act, err := s.ReadString('\n')
-	notEqualFail(t, "garbage\n", act)
-	notEqualFail(t, nil, err)
+	assertEqual(t, "garbage\n", act)
+	assertEqual(t, nil, err)
 }
 
 // Test01 checks if a first read works
@@ -114,7 +114,7 @@ func Test01(t *testing.T) {
 	s := inputdummy.New(i, inputdummy.NoDelay, 3)
 
 	act, err := s.ReadString('\n')
-	notEqualFail(t, "gar", act)
-	notEqualFail(t, io.EOF, err)
+	assertEqual(t, "gar", act)
+	assertEqual(t, io.EOF, err)
 }
 */
