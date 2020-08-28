@@ -57,7 +57,7 @@ func lineGenerator(t *testing.T, s string, len, count int, wg *sync.WaitGroup) {
 	go func() {
 		defer wg.Done()
 		for ; i < count; i++ { // line count
-			lib.Ok(t, disp.WriteLine(ss))
+			errorFail(t, disp.WriteLine(ss))
 		}
 	}()
 }
@@ -81,15 +81,15 @@ func TestServerMutex(t *testing.T) {
 	disp.StartServer(exe)
 	err := disp.Connect()
 	disp.WriteLine = disp.RemoteOut // re-direct output
-	lib.Ok(t, err)
+	errorFail(t, err)
 
 	var result int64
 	err = disp.PtrRPC.Call("Server.ColorPalette", []string{"off"}, &result)
-	lib.Ok(t, err)
+	errorFail(t, err)
 
 	ss := []string{"first line", "\n"}
 	err = disp.WriteLine(ss)
-	lib.Ok(t, err)
+	errorFail(t, err)
 
 	ll := 21
 	lc := 10
@@ -100,9 +100,9 @@ func TestServerMutex(t *testing.T) {
 	}
 
 	wg.Wait()
-	lib.Ok(t, disp.ScShutdownRemoteDisplayServer(0))
+	errorFail(t, disp.ScShutdownRemoteDisplayServer(0))
 	n := lib.UniqLines(t, cage.Name, uniqName)
-	lib.Equals(t, n, lv+4) // first line + 9 lines + server line
+	notEqualFail(t, n, lv+4) // first line + 9 lines + server line
 	os.Remove(uniqName)
 	time.Sleep(200 * time.Millisecond) // Why to wait here? 50ms is not enough.
 	os.Remove(cage.Name)

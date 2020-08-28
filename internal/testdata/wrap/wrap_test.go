@@ -11,13 +11,12 @@ import (
 
 	"github.com/rokath/trice/internal/bare"
 	"github.com/rokath/trice/internal/wrap"
-	"github.com/rokath/trice/pkg/lib"
 )
 
 func Test1(t *testing.T) {
 	r := bytes.NewReader([]byte{})
 	_, err := wrap.NewReader(r, "xxx")
-	lib.Equals(t, errors.New("unknown encoding"), err)
+	notEqualFail(t, errors.New("unknown encoding"), err)
 
 }
 
@@ -25,13 +24,13 @@ func Test1(t *testing.T) {
 func TestWrapInputWithSync(t *testing.T) {
 	r := bytes.NewReader([]byte{'j', 'a', 'r', 0xC0, 0x60, 0x60, 0xC0, 1, 1, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 0xC0, 0x60, 0x60, 0xC0, 8, 8, 5, 5})
 	x, err := wrap.NewReader(r, "wrap")
-	lib.Equals(t, nil, err)
+	notEqualFail(t, nil, err)
 
 	// read 3 baretrice items
 	act := make([]wrap.Item, 5)
 	n, err := x.Read(act)
-	lib.Equals(t, nil, err)
-	lib.Equals(t, 2, n)
+	notEqualFail(t, nil, err)
+	notEqualFail(t, 2, n)
 	act = act[:n]
 
 	exp := []wrap.Item{
@@ -57,5 +56,5 @@ func TestWrapInputWithSync(t *testing.T) {
 		},
 	}
 
-	lib.Equals(t, exp, act)
+	notEqualFail(t, exp, act)
 }

@@ -13,7 +13,6 @@ import (
 	"testing"
 
 	"github.com/rokath/trice/pkg/display"
-	"github.com/rokath/trice/pkg/lib"
 )
 
 var (
@@ -84,25 +83,25 @@ func stringsSplit(s string, delimiter byte) []string {
 func TestZ(t *testing.T) {
 	act := stringsSplit("att:12345\rdbg:\rtime:12:03\rsig:679012", '\r')
 	exp := []string{"att:12345", "dbg:", "time:12:03", "sig:679012"}
-	lib.Equals(t, exp, act)
+	notEqualFail(t, exp, act)
 
 	act = strings.Split("att:12345\rdbg:\rtime:12:03\rsig:679012", "\r")
 	exp = []string{"att:12345", "dbg:", "time:12:03", "sig:679012"}
-	lib.Equals(t, exp, act)
+	notEqualFail(t, exp, act)
 
 	act = stringsSplit("att:12345\rdbg:\rtime:12:03\rsig:679012\r", '\r')
 	exp = []string{"att:12345", "dbg:", "time:12:03", "sig:679012"}
-	lib.Equals(t, exp, act)
+	notEqualFail(t, exp, act)
 
 	act = strings.Split("att:12345\rdbg:\rtime:12:03\rsig:679012\r", "\r")
 	exp = []string{"att:12345", "dbg:", "time:12:03", "sig:679012", ""}
-	lib.Equals(t, exp, act)
+	notEqualFail(t, exp, act)
 
 	act = stringsSplit("att:12345\rdbg:\rtime:12:03\rsig:679012\r\r", '\r')
 	exp = []string{"att:12345", "dbg:", "time:12:03", "sig:679012", ""}
-	lib.Equals(t, exp, act)
+	notEqualFail(t, exp, act)
 
 	act = strings.Split("att:12345\rdbg:\rtime:12:03\rsig:679012\r\r", "\r")
 	exp = []string{"att:12345", "dbg:", "time:12:03", "sig:679012", "", ""}
-	lib.Equals(t, exp, act)
+	notEqualFail(t, exp, act)
 }

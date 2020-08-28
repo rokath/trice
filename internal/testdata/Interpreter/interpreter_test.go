@@ -19,7 +19,7 @@ func Test0(t *testing.T) {
 	d := display.New("default")
 
 	p, e := interpreter.New(d, trices)
-	lib.Equals(t, nil, e)
+	notEqualFail(t, nil, e)
 
 	x := []bare.Item{
 		{
@@ -45,7 +45,7 @@ func Test1(t *testing.T) {
 	d := display.New("default")
 
 	p, e := interpreter.New(d, trices)
-	lib.Equals(t, nil, e)
+	notEqualFail(t, nil, e)
 
 	x := []bare.Item{
 		//   {
@@ -84,7 +84,10 @@ func Test1(t *testing.T) {
 //
 	//   	// https://stackoverflow.com/questions/19646889/why-should-i-use-log-println-instead-of-fmt-println
 	//   	act := capturer.CaptureOutput(f) // caturer does not capture log output.
-	//   	lib.Equals(t, exp, act)          // TODO this test fails because ansiOut uses log output. But if I change that there to fmt other tests will fail.
+	//   	notEqualFail(t, exp, act)          // TODO this test fails because ansiOut uses log output. But if I change that there to fmt other tests will fail.
+	f()
+}
+*/s log output. But if I change that there to fmt other tests will fail.
 	f()
 }
 */

@@ -13,7 +13,6 @@ import (
 	"testing"
 
 	"github.com/rokath/trice/internal/emitter"
-	"github.com/rokath/trice/pkg/lib"
 )
 
 // stimulate injects keys to the loop action and returns the captured output as byte slice.
@@ -44,7 +43,7 @@ func TestHelp(t *testing.T) {
 	exp := "-> h|help                   - this text\nexitServer|serverExit    - kill server\nq|quit                   - end program\n"
 	cap := stimulate("help\r\n", "", "")
 	act := string(cap)
-	lib.Equals(t, exp, act)
+	notEqualFail(t, exp, act)
 }
 
 // NOT RELIABLE

@@ -25,6 +25,15 @@ var (
 	two = "./testdata/dir/two.txt"
 )
 
+// errorFail fails the test if an err is not nil.
+func errorFail(tb testing.TB, err error) {
+	if err != nil {
+		_, file, line, _ := runtime.Caller(1)
+		fmt.Println(err.Error(), filepath.Base(file), line)
+		tb.FailNow()
+	}
+}
+
 // notEqualFail fails the test if exp is not equal to act.
 func notEqualFail(tb testing.TB, exp, act interface{}) {
 	if !reflect.DeepEqual(exp, act) {

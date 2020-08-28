@@ -8,8 +8,6 @@ import (
 	"os"
 	"os/exec"
 	"testing"
-
-	"github.com/rokath/trice/pkg/lib"
 )
 
 func TestMain(m *testing.M) {
@@ -28,7 +26,7 @@ func TestBadArgs(t *testing.T) {
 		t.Errorf("%v", err)
 	}
 	exp := "try: 'trice help|h'\n"
-	lib.Equals(t, exp, act)
+	notEqualFail(t, exp, act)
 }
 
 func TestNoArgs(t *testing.T) {
@@ -39,7 +37,7 @@ func TestNoArgs(t *testing.T) {
 	}
 	act := string(out) // because out is []byte
 	exp := "try: 'trice help|h'\n"
-	lib.Equals(t, exp, act)
+	notEqualFail(t, exp, act)
 }
 
 /*
@@ -51,7 +49,7 @@ func TestVersionArg(t *testing.T) {
 	}
 	act := string(out) // because out is []byte
 	exp := "version=devel, built unknown\n"
-	lib.Equals(t, exp, act)
+	notEqualFail(t, exp, act)
 }
 */
 /*
@@ -69,6 +67,6 @@ SIM: garbage
 SIM: ISR:interrupt   message, SysTick is      0
 SIM: ISR:interrupt   message, SysTick is    257
 `
-	lib.Equals(t, exp, act)
+	notEqualFail(t, exp, act)
 }
 */

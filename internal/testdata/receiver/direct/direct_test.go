@@ -6,10 +6,7 @@ package direct_test
 
 import (
 	"testing"
-
-	"github.com/rokath/trice/pkg/lib"
 )
 
 func TestDummy(t *testing.T) {
-	lib.Ok(t, nil)
 }

@@ -8,7 +8,6 @@ import (
 	"testing"
 
 	"github.com/rokath/trice/internal/jlink"
-	"github.com/rokath/trice/pkg/lib"
 )
 
 func Test1(t *testing.T) {
@@ -18,7 +17,7 @@ func Test1(t *testing.T) {
 		return
 	}
 	err := p.Open()
-	lib.Equals(t, nil, err)
+	notEqualFail(t, nil, err)
 	err = p.Close()
-	lib.Equals(t, nil, err)
+	notEqualFail(t, nil, err)
 }

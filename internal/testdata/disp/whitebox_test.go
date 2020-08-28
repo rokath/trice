@@ -3,19 +3,17 @@ package disp
 
 import (
 	"testing"
-
-	"github.com/rokath/trice/pkg/lib"
 )
 
 func Test_isLower(t *testing.T) {
 	f := isLower("lower:")
-	lib.Equals(t, true, f)
+	notEqualFail(t, true, f)
 	f = isLower("Lower:")
-	lib.Equals(t, false, f)
+	notEqualFail(t, false, f)
 	f = isLower("uppeR:")
-	lib.Equals(t, false, f)
+	notEqualFail(t, false, f)
 	f = isLower("0123456789:")
-	lib.Equals(t, true, f)
+	notEqualFail(t, true, f)
 }
 
 func TestDefault1_colorize(t *testing.T) {
@@ -25,11 +23,11 @@ func TestDefault1_colorize(t *testing.T) {
 	s = "err:string\n"
 	e = "\x1b[38;5;11;41mstring\n\x1b[0m"
 	c = colorize(s)
-	lib.Equals(t, e, c)
+	notEqualFail(t, e, c)
 	s = "ERR:string"
 	e = "\x1b[38;5;11;41mERR:string\x1b[0m"
 	c = colorize(s)
-	lib.Equals(t, e, c)
+	notEqualFail(t, e, c)
 }
 
 func TestNone_colorize(t *testing.T) {
@@ -39,11 +37,11 @@ func TestNone_colorize(t *testing.T) {
 	s = "warning:string\n"
 	e = "string\n"
 	c = colorize(s)
-	lib.Equals(t, e, c)
+	notEqualFail(t, e, c)
 	s = "MSG:string"
 	e = "MSG:string"
 	c = colorize(s)
-	lib.Equals(t, e, c)
+	notEqualFail(t, e, c)
 }
 
 func TestOff_colorize(t *testing.T) {
@@ -53,11 +51,11 @@ func TestOff_colorize(t *testing.T) {
 	s = "dbg:string\n"
 	e = "dbg:string\n"
 	c = colorize(s)
-	lib.Equals(t, e, c)
+	notEqualFail(t, e, c)
 	s = "D:string"
 	e = "D:string"
 	c = colorize(s)
-	lib.Equals(t, e, c)
+	notEqualFail(t, e, c)
 }
 
 func TestNoneNo_colorize(t *testing.T) {
@@ -67,11 +65,11 @@ func TestNoneNo_colorize(t *testing.T) {
 	s = "msg :string\n"
 	e = "msg :string\n"
 	c = colorize(s)
-	lib.Equals(t, e, c)
+	notEqualFail(t, e, c)
 	s = "MSG string"
 	e = "MSG string"
 	c = colorize(s)
-	lib.Equals(t, e, c)
+	notEqualFail(t, e, c)
 }
 
 func TestDefault2_colorize(t *testing.T) {
@@ -81,9 +79,9 @@ func TestDefault2_colorize(t *testing.T) {
 	s = "msg: string\n"
 	e = "\x1b[92;40m string\n\x1b[0m"
 	c = colorize(s)
-	lib.Equals(t, e, c)
+	notEqualFail(t, e, c)
 	s = "attention:string"
 	e = "\x1b[38;5;11;42mstring\x1b[0m"
 	c = colorize(s)
-	lib.Equals(t, e, c)
+	notEqualFail(t, e, c)
 }

@@ -10,13 +10,12 @@ import (
 	"testing"
 
 	"github.com/rokath/trice/internal/bare"
-	"github.com/rokath/trice/pkg/lib"
 )
 
 func Test1(t *testing.T) {
 	r := bytes.NewReader([]byte{})
 	_, err := bare.NewReader(r, "xxx")
-	lib.Equals(t, errors.New("unknown encoding"), err)
+	notEqualFail(t, errors.New("unknown encoding"), err)
 
 }
 
@@ -25,13 +24,13 @@ func TestRawInputWithSync(t *testing.T) {
 	r := bytes.NewReader([]byte{'j', 'a', 'r', 1, 1, 1, 1, 0x16, 0x16, 0x16, 0x16, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4})
 	//x, err := bare.NewReader(r, "raw")
 	x, err := bare.NewRawReader(r)
-	lib.Equals(t, nil, err)
+	notEqualFail(t, nil, err)
 
 	// read 3 bare items
 	act := make([]bare.Item, 3)
 	n, err := x.Read(act)
-	lib.Equals(t, nil, err)
-	lib.Equals(t, 3, n)
+	notEqualFail(t, nil, err)
+	notEqualFail(t, 3, n)
 	act = act[:n]
 
 	exp := []bare.Item{
@@ -40,17 +39,17 @@ func TestRawInputWithSync(t *testing.T) {
 		{ID: 0x0202, Value: [2]byte{0x02, 0x02}},
 	}
 
-	lib.Equals(t, exp, act)
+	notEqualFail(t, exp, act)
 
 	// read 3 baretrice items, but get only 1
 	act = make([]bare.Item, 3)
 	n, err = x.Read(act)
-	lib.Equals(t, nil, err)
-	lib.Equals(t, 1, n)
+	notEqualFail(t, nil, err)
+	notEqualFail(t, 1, n)
 	act = act[:n]
 
 	exp = []bare.Item{{ID: 0x0303, Value: [2]byte{0x03, 0x03}}}
-	lib.Equals(t, exp, act)
+	notEqualFail(t, exp, act)
 
 	// at this point only the last 2 bytes {4,4} in the internal buffer
 }
@@ -59,18 +58,18 @@ func TestRawInputWithSync(t *testing.T) {
 func TestWrapInputWithSync(t *testing.T) {
 	r := bytes.NewReader([]byte{'j', 'a', 'r', 0xC0, 0x60, 0x60, 0xC0, 1, 1, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 0xC0, 0x60, 0x60, 0xC0, 8, 8, 5, 5})
 	x, err := bare.NewReader(r, "wrap")
-	lib.Equals(t, nil, err)
+	notEqualFail(t, nil, err)
 
 	// read 3 baretrice items
 	act := make([]bare.Item, 5)
 	n, err := x.Read(act)
-	lib.Equals(t, nil, err)
-	lib.Equals(t, 2, n)
+	notEqualFail(t, nil, err)
+	notEqualFail(t, 2, n)
 	act = act[:n]
 
 	exp := []bare.Item{
 		{ID: 0x0101, Value: [2]byte{0x02, 0x02}},
 		{ID: 0x0808, Value: [2]byte{0x05, 0x05}},
 	}
-	lib.Equals(t, exp, act)
+	notEqualFail(t, exp, act)
 }

@@ -6,15 +6,11 @@ package rttfile_test
 
 import (
 	"testing"
-
-	"github.com/rokath/trice/pkg/lib"
 )
 
 func TestDummy(t *testing.T) {
-	lib.Ok(t, nil)
 }
 
 func TestWrap(t *testing.T) {
 	// see TestRTTF in main_test.go
-	lib.Ok(t, nil)
 }
