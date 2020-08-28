@@ -14,7 +14,6 @@ import (
 	"time"
 
 	"github.com/kami-zh/go-capturer"
-	"github.com/rokath/trice/pkg/lib"
 )
 
 func TestScVersion(t *testing.T) {
@@ -23,7 +22,7 @@ func TestScVersion(t *testing.T) {
 	os.Remove(afn)
 	args := []string{"trice", "version", "-lg", afn}
 	errorFail(t, HandleArgs(args))
-	lib.EqualFiles2(t, afn, efn)
+	notEqualTextFilesFail(t, afn, efn)
 	errorFail(t, os.Remove(afn))
 }
 
@@ -290,7 +289,7 @@ func TestScDisplayServer(t *testing.T) {
 
 	// stop display server
 	errorFail(t, disp.ScShutdownRemoteDisplayServer(0))
-	lib.EqualFiles2(t, afn, efn)
+	notEqualTextFilesFail(t, afn, efn)
 	time.Sleep(200 * time.Millisecond) // may be a wait for displaySever is down now is needed here
 	errorFail(t, os.Remove(afn))
 }
@@ -315,7 +314,7 @@ func TestServerStartStop(t *testing.T) {
 	args := []string{"trice", "ds", "-lg", afn}
 	HandleArgs(args)
 	wg.Wait()
-	lib.EqualFiles2(t, afn, efn)
+	notEqualTextFilesFail(t, afn, efn)
 	errorFail(t, os.Remove(afn))
 }
 */
@@ -327,7 +326,7 @@ func TestScHelp(t *testing.T) {
 	os.Remove(afn)
 	args := []string{"trice", "help", "-lg", afn}
 	errorFail(t, HandleArgs(args))
-	lib.EqualFiles2(t, afn, efn)
+	notEqualTextFilesFail(t, afn, efn)
 	errorFail(t, os.Remove(afn))
 }
 */

@@ -14,7 +14,6 @@ import (
 
 	"github.com/rokath/trice/internal/disp"
 	"github.com/rokath/trice/pkg/cage"
-	"github.com/rokath/trice/pkg/lib"
 )
 
 func lineGenerator(t *testing.T, s string, len, count int, wg *sync.WaitGroup) {
@@ -101,7 +100,7 @@ func TestServerMutex(t *testing.T) {
 
 	wg.Wait()
 	errorFail(t, disp.ScShutdownRemoteDisplayServer(0))
-	n := lib.UniqLines(t, cage.Name, uniqName)
+	n := uniqLines(t, cage.Name, uniqName)
 	notEqualFail(t, n, lv+4) // first line + 9 lines + server line
 	os.Remove(uniqName)
 	time.Sleep(200 * time.Millisecond) // Why to wait here? 50ms is not enough.

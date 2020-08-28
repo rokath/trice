@@ -12,27 +12,26 @@ import (
 	"github.com/rokath/trice/internal/bare"
 )
 
-/*
-var (
-	// TimeStampFormat is the PC timestamp format.
-	TimeStampFormat = "off"
-)
+// var (
+// 	// TimeStampFormat is the PC timestamp format.
+// 	TimeStampFormat = "off"
+// )
+//
+// // Timestamp returns local time as string according var TimeStampFormat
+// // https://www.alexedwards.net/blog/an-overview-of-go-tooling#managing-dependencies
+// func timestamp() string {
+// 	var s string
+// 	switch TimeStampFormat {
+// 	case "LOCmicro":
+// 		s = time.Now().Format(time.StampMicro) + "  "
+// 	case "UTCmicro":
+// 		s = "UTC " + time.Now().UTC().Format(time.StampMicro) + "  "
+// 	case "off", "none":
+// 		s = ""
+// 	}
+// 	return s
+// }
 
-// Timestamp returns local time as string according var TimeStampFormat
-// https://www.alexedwards.net/blog/an-overview-of-go-tooling#managing-dependencies
-func Timestamp() string {
-	var s string
-	switch TimeStampFormat {
-	case "LOCmicro":
-		s = time.Now().Format(time.StampMicro) + "  "
-	case "UTCmicro":
-		s = "UTC " + time.Now().UTC().Format(time.StampMicro) + "  "
-	case "off", "none":
-		s = ""
-	}
-	return s
-}
-*/
 ///////////////////////////////////////////////////////////////////////////////
 // TRICE message struct
 //

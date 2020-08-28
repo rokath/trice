@@ -10,7 +10,6 @@ import (
 
 	"github.com/rokath/trice/pkg/cage"
 	"github.com/rokath/trice/pkg/display"
-	"github.com/rokath/trice/pkg/lib"
 )
 
 var (
@@ -61,6 +60,6 @@ func Test1(t *testing.T) {
 	cage.Stop(c)
 
 	// check output
-	lib.EqualTextFiles(t, afn, efn)
+	notEqualTextFilesFail(t, afn, efn)
 	os.Remove(afn)
 }

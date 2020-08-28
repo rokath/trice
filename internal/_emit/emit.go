@@ -12,10 +12,10 @@ import (
 	"errors"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/rokath/trice/internal/disp"
 	"github.com/rokath/trice/internal/id"
-	"github.com/rokath/trice/pkg/lib"
 )
 
 var (
@@ -39,6 +39,26 @@ var (
 	// type DicardFunc func(byte)
 	DiscardByte = DiscardWithMessage
 )
+
+var (
+	// TimeStampFormat is the PC timestamp format.
+	TimeStampFormat = "off"
+)
+
+// Timestamp returns local time as string according var TimeStampFormat
+// https://www.alexedwards.net/blog/an-overview-of-go-tooling#managing-dependencies
+func timestamp() string {
+	var s string
+	switch TimeStampFormat {
+	case "LOCmicro":
+		s = time.Now().Format(time.StampMicro) + "  "
+	case "UTCmicro":
+		s = "UTC " + time.Now().UTC().Format(time.StampMicro) + "  "
+	case "off", "none":
+		s = ""
+	}
+	return s
+}
 
 // Clear removes data garbage from inner structs, accumulated during RTTD sync process
 func Clear() {
@@ -265,7 +285,7 @@ func LineCollect(s string) {
 	}
 	if 0 == len(css) {
 		a(Prefix)
-		a(lib.Timestamp())
+		a(timestamp())
 	}
 	if false == strings.HasSuffix(s, "\n") {
 		a(s)

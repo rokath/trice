@@ -433,31 +433,30 @@ func TrimBackslashes(s string) string {
 	return s
 }
 
-/*
-// LineCollect collects s into an internal line substring slice
-// When s ends with a newline it is trimmed and the slice goes to Out and is discarded afterwards
-func (p *TriceInterpreter) LineCollect(s string) {
-	s = TrimBackslashes(s)
+// // LineCollect collects s into an internal line substring slice
+// // When s ends with a newline it is trimmed and the slice goes to Out and is discarded afterwards
+// func (p *TriceInterpreter) LineCollect(s string) {
+// 	s = TrimBackslashes(s)
+//
+// 	a := func(su string) {
+// 		p.css = append(p.css, su)
+// 	}
+// 	if 0 == len(p.css) {
+// 		a(Prefix)
+// 		a(timestamp())
+// 	}
+// 	if false == strings.HasSuffix(s, "\n") {
+// 		a(s)
+// 		return
+// 	}
+// 	s = strings.TrimSuffix(s, "\n")
+// 	a(s)
+// 	a(Postfix)
+// 	//lineComplete = true
+// 	//disp.Out(css)
+// 	//css = css[:0] // discard slice data
+// }
 
-	a := func(su string) {
-		p.css = append(p.css, su)
-	}
-	if 0 == len(p.css) {
-		a(Prefix)
-		a(lib.Timestamp())
-	}
-	if false == strings.HasSuffix(s, "\n") {
-		a(s)
-		return
-	}
-	s = strings.TrimSuffix(s, "\n")
-	a(s)
-	a(Postfix)
-	//lineComplete = true
-	//disp.Out(css)
-	//css = css[:0] // discard slice data
-}
-*/
 // findSubSliceOffset returns offset of slice sub inside slice b or negative len(sub) if not found.
 // This is a helper function to find sync points inside readRaw
 func findSubSliceOffset(b, sub []byte) int {

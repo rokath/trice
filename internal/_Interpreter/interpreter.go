@@ -20,6 +20,28 @@ import (
 	"github.com/rokath/trice/pkg/lib"
 )
 
+
+var (
+	// TimeStampFormat is the PC timestamp format.
+	TimeStampFormat = "off"
+)
+
+// Timestamp returns local time as string according var TimeStampFormat
+// https://www.alexedwards.net/blog/an-overview-of-go-tooling#managing-dependencies
+func timestamp() string {
+	var s string
+	switch TimeStampFormat {
+	case "LOCmicro":
+		s = time.Now().Format(time.StampMicro) + "  "
+	case "UTCmicro":
+		s = "UTC " + time.Now().UTC().Format(time.StampMicro) + "  "
+	case "off", "none":
+		s = ""
+	}
+	return s
+}
+
+
 type Interpreter struct{}
 
 // T is the interpreter type.
@@ -128,7 +150,7 @@ func lineCollect(s string) {
 	}
 	if 0 == len(css) {
 		a(Prefix)
-		a(lib.Timestamp())
+		a(timestamp())
 	}
 	if !strings.HasSuffix(s, "\n") {
 		a(s)
@@ -221,6 +243,15 @@ func emitter(it id.Item, prm []byte) (string, error) {
 		l0 = int64(binary.LittleEndian.Uint64(prm[0:8]))
 		s = fmt.Sprintf(f, l0)
 	case "TRICE64_2":
+		l0 = int64(binary.LittleEndian.Uint64(prm[0:8]))
+		l1 = int64(binary.LittleEndian.Uint64(prm[8:16]))
+		s = fmt.Sprintf(f, l0, l1)
+	default:
+		return "ERR: INTERNAL ERROR!!!", errors.New("ERR: INTERNAL ERROR")
+	}
+	return s, err
+}
+*/":
 		l0 = int64(binary.LittleEndian.Uint64(prm[0:8]))
 		l1 = int64(binary.LittleEndian.Uint64(prm[8:16]))
 		s = fmt.Sprintf(f, l0, l1)
