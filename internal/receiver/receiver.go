@@ -14,15 +14,15 @@ const (
 	triceSize = 4
 
 	// triceChannelCapacity is the max possible trice slice count hold in channel
-	triceChannelCapacity = 10
+	triceChannelCapacity = 1024
 
 	// ignoredChannelCapacity is the max count of ignored bytes
-	ignoredChannelCapacity = 10
+	ignoredChannelCapacity = 1024
 )
 
 var (
 	// bytesBufferCapacity is the internal bufferered amount for sync package search.
-	bytesBufferCapacity = 64
+	bytesBufferCapacity = 4096
 
 	// syncTrice is a trice emitted regularely by the target for making sure all gets in sync again after some disruption.
 	syncTrice = []byte{0x16, 0x16, 0x16, 0x16}
