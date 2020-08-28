@@ -6,6 +6,7 @@ package emitter
 import (
 	"fmt"
 	"log"
+	"path/filepath"
 	"runtime"
 	"strings"
 )
@@ -27,10 +28,8 @@ func (p *LocalDisplay) ErrorFatal() {
 	if nil == p.Err {
 		return
 	}
-	// notice that we're using 1, so it will actually log the where
-	// the error happened, 0 = this function, we don't want that.
-	pc, fn, line, _ := runtime.Caller(1)
-	log.Fatalf("[error] in %s[%s:%d] %v", runtime.FuncForPC(pc).Name(), fn, line, p.Err)
+	_, file, line, _ := runtime.Caller(1)
+	log.Fatal(p.Err, filepath.Base(file), line)
 }
 
 // writeLine is the implemented lineWriter interface for localDisplay.

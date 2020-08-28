@@ -13,6 +13,7 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"runtime"
 )
 
@@ -112,10 +113,8 @@ func (p *JLINK) ErrorFatal() {
 	if nil == p.Err {
 		return
 	}
-	// notice that we're using 1, so it will actually log the where
-	// the error happened, 0 = this function, we don't want that.
-	pc, fn, line, _ := runtime.Caller(1)
-	log.Fatalf("[error] in %s[%s:%d] %v", runtime.FuncForPC(pc).Name(), fn, line, p.Err)
+	_, file, line, _ := runtime.Caller(1)
+	log.Fatal(p.Err, filepath.Base(file), line)
 }
 
 // Read() is part of the exported interface io.ReadCloser. It reads a slice of bytes.

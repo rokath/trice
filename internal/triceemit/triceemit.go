@@ -14,6 +14,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"path/filepath"
 	"reflect"
 	"runtime"
 	"strings"
@@ -196,10 +197,8 @@ func (p *TriceInterpreter) ErrorFatal() {
 	if nil == p.err {
 		return
 	}
-	// notice that we're using 1, so it will actually log the where
-	// the error happened, 0 = this function, we don't want that.
-	pc, fn, line, _ := runtime.Caller(1)
-	log.Fatalf("[error] in %s[%s:%d] %v", runtime.FuncForPC(pc).Name(), fn, line, p.err)
+	_, file, line, _ := runtime.Caller(1)
+	log.Fatal(p.err, filepath.Base(file), line)
 }
 
 // translate evaluates p.atoms, p.values and p.ignored and tries to generate a string.
@@ -487,10 +486,8 @@ func (p *TriceReceiver) ErrorFatal() {
 	if nil == p.Err {
 		return
 	}
-	// notice that we're using 1, so it will actually log the where
-	// the error happened, 0 = this function, we don't want that.
-	pc, fn, line, _ := runtime.Caller(1)
-	log.Fatalf("[error] in %s[%s:%d] %v", runtime.FuncForPC(pc).Name(), fn, line, p.Err)
+	_, file, line, _ := runtime.Caller(1)
+	log.Fatal(p.Err, filepath.Base(file), line)
 }
 
 // readRaw uses inner reader p.r to read byte stream and assumes encoding 'raw' (=='bare') for interpretation.

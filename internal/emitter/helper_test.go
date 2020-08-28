@@ -9,6 +9,7 @@ import (
 	"io/ioutil"
 	"log"
 	"math/rand"
+	"path/filepath"
 	"reflect"
 	"runtime"
 	"strings"
@@ -32,12 +33,10 @@ func readLines(filename string) (lines []string, err error) {
 // notEqualFail fails the test if exp is not equal to act.
 func notEqualFail(tb testing.TB, exp, act interface{}) {
 	if !reflect.DeepEqual(exp, act) {
-		// notice that we're using 1, so it will actually log the where
-		// the error happened, 0 = this function, we don't want that.
-		pc, fn, line, _ := runtime.Caller(1)
-		log.Printf("[delta] in %s[%s:%d]", runtime.FuncForPC(pc).Name(), fn, line)
+		_, file, line, _ := runtime.Caller(1)
 		log.Println("expect:", exp)
 		log.Println("actual:", act)
+		fmt.Println(filepath.Base(file), line)
 		tb.FailNow()
 	}
 }
@@ -69,27 +68,7 @@ func (p *checkDisplay) writeLine(line []string) {
 	p.lines = append(p.lines, s)
 }
 
-// // equalStringSlices returns true when a == b
-// func equalStringSlices(a, b []string) bool {
-// 	if len(a) != len(b) {
-// 		fmt.Println(len(a), len(b))
-// 		return false
-// 	}
-// 	for i := range a {
-// 		if a[i] != b[i] {
-// 			fmt.Println(a[i])
-// 			fmt.Println(b[i])
-// 			return false
-// 		}
-// 	}
-// 	return true
-// }
-
 func (p *checkDisplay) checkLines(t *testing.T, lines []string) {
-	//if false == reflect.DeepEqual(p.s, lines) {
-	//if false == equalStringSlices(p.lines, lines) {
-	//	t.Fail()
-	//}
 	notEqualFail(t, p.lines, lines)
 }
 
