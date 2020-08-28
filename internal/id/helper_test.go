@@ -25,15 +25,13 @@ var (
 	two = "./testdata/dir/two.txt"
 )
 
-// equals fails the test if exp is not equal to act.
-func equals(tb testing.TB, exp, act interface{}) {
+// notEqualFail fails the test if exp is not equal to act.
+func notEqualFail(tb testing.TB, exp, act interface{}) {
 	if !reflect.DeepEqual(exp, act) {
-		// notice that we're using 1, so it will actually log the where
-		// the error happened, 0 = this function, we don't want that.
-		pc, fn, line, _ := runtime.Caller(1)
-		log.Printf("[delta] in %s[%s:%d]", runtime.FuncForPC(pc).Name(), fn, line)
+		_, file, line, _ := runtime.Caller(1)
 		log.Println("expect:", exp)
 		log.Println("actual:", act)
+		fmt.Println(filepath.Base(file), line)
 		tb.FailNow()
 	}
 }
@@ -48,8 +46,8 @@ func equalFileContent(fn0, fn1 string) bool {
 	return ok
 }
 
-// equalFiles fails test if contence is NOT equal
-func equalFiles(t *testing.T, fn0, fn1 string) {
+// notEqualFilesFail fails test if contence is NOT equal
+func notEqualFilesFail(t *testing.T, fn0, fn1 string) {
 	ok := equalFileContent(fn0, fn1)
 	if false == ok {
 		t.FailNow()
@@ -162,24 +160,24 @@ func TestCopyFile(t *testing.T) {
 	src := two
 	dest := two + ".copied"
 	err := copyFile(src, dest)
-	equals(t, nil, err)
-	equalFiles(t, src, dest)
+	notEqualFail(t, nil, err)
+	notEqualFilesFail(t, src, dest)
 	err = os.Remove(dest)
-	equals(t, nil, err)
+	notEqualFail(t, nil, err)
 }
 
 func TestCopyDir(t *testing.T) {
 	src := "./testdata/dir"
 	dest := src + ".copied"
 	err := copyDir(src, dest)
-	equals(t, nil, err)
+	notEqualFail(t, nil, err)
 	//equals(t, src, dest)
 	err = os.RemoveAll(dest)
-	equals(t, nil, err)
+	notEqualFail(t, nil, err)
 }
 
 func TestEqualFileContent0(t *testing.T) {
-	equalFiles(t, os.Args[0], os.Args[0])
+	notEqualFilesFail(t, os.Args[0], os.Args[0])
 }
 
 //

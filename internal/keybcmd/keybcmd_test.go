@@ -61,5 +61,5 @@ func TestShutdownServerWhenRunning(t *testing.T) {
 	}
 	exp := "127.0.0.1:" + p.IPPort + ": wsarecv: An existing connection was forcibly closed by the remote host.\n"
 	act := string(capt[discardLength:])
-	equals(t, exp, act)
+	notEqualFail(t, exp, act)
 }

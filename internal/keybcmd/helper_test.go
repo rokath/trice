@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 	"math/rand"
+	"path/filepath"
 	"reflect"
 	"runtime"
 	"testing"
@@ -16,15 +17,13 @@ import (
 // test helper ///////////////////////////////////////////////////////////////////////
 //
 
-// equals fails the test if exp is not equal to act.
-func equals(tb testing.TB, exp, act interface{}) {
+// notEqualFail fails the test if exp is not equal to act.
+func notEqualFail(tb testing.TB, exp, act interface{}) {
 	if !reflect.DeepEqual(exp, act) {
-		// notice that we're using 1, so it will actually log the where
-		// the error happened, 0 = this function, we don't want that.
-		pc, fn, line, _ := runtime.Caller(1)
-		log.Printf("[delta] in %s[%s:%d]", runtime.FuncForPC(pc).Name(), fn, line)
+		_, file, line, _ := runtime.Caller(1)
 		log.Println("expect:", exp)
 		log.Println("actual:", act)
+		fmt.Println(filepath.Base(file), line)
 		tb.FailNow()
 	}
 }
@@ -35,10 +34,6 @@ func randomDynIPPort() (s string) {
 	max := 65535
 	s = fmt.Sprint(rand.Intn(max-min) + min)
 	return
-}
-
-func TestEquals(t *testing.T) {
-	equals(t, nil, nil)
 }
 
 //

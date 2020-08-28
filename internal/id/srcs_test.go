@@ -11,22 +11,22 @@ import (
 
 func TestArrayFlag(t *testing.T) {
 	p := &Srcs
-	equals(t, "my string representation", p.String())
+	notEqualFail(t, "my string representation", p.String())
 
 	p.Set("ab")
 	p.Set("xyz")
 	fmt.Println(Srcs)
 	var af ArrayFlag
 	af = []string{"ab", "xyz"}
-	equals(t, af, Srcs)
+	notEqualFail(t, af, Srcs)
 }
 
 func TestConditinalFilePath(t *testing.T) {
 	s := ConditinalFilePath("off")
-	equals(t, "off", s)
+	notEqualFail(t, "off", s)
 	s = ConditinalFilePath("none")
-	equals(t, "none", s)
+	notEqualFail(t, "none", s)
 	s = ConditinalFilePath("/tatue/tata")
 	b := filepath.Base(s)
-	equals(t, b, "tata")
+	notEqualFail(t, b, "tata")
 }
