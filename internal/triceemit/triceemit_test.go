@@ -8,8 +8,6 @@ package triceemit
 import (
 	"bytes"
 	"testing"
-
-	"github.com/rokath/trice/pkg/lib"
 )
 
 //
@@ -34,7 +32,7 @@ func TestNewTriceReceiverfromBare(t *testing.T) {
 		select {
 		case bAct := <-p.ignored:
 			bExp := []byte{106, 97, 114}
-			lib.Equals(t, bExp, bAct)
+			notEqualFail(t, bExp, bAct)
 			bFlag = true
 		case tAct := <-p.atoms:
 			tExp := []Trice{
@@ -43,11 +41,11 @@ func TestNewTriceReceiverfromBare(t *testing.T) {
 				{ID: 514, Value: [2]byte{2, 2}},
 				{ID: 771, Value: [2]byte{3, 3}},
 			}
-			lib.Equals(t, tExp, tAct)
+			notEqualFail(t, tExp, tAct)
 			tFlag = true
 		default:
 			if bFlag && tFlag {
-				lib.Equals(t, []byte{4, 4}, p.syncbuffer)
+				notEqualFail(t, []byte{4, 4}, p.syncbuffer)
 				return
 			}
 		}
