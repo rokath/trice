@@ -7,13 +7,7 @@
 // The colors are converted later inside the disp.Print() function.
 package triceemit
 
-// Trice is the bare Trice data type for a Trice atom.
-// A Trice starts with zero or several Trice atoms with ID==0 carrying parts of the Trice data payload.
-// The last Trice atom of a Trice contains the Trice ID!=0 and the last part of the data payload.
-type Trice struct {
-	ID    uint16  // 2^16 ^= more than 65500 different trice IDs possible
-	Value [2]byte // max 2 byte data payload inside a TriceAtom
-}
+var ()
 
 // func NewTriceInterpreter(r *TriceReceiver) {
 // 	go func() {

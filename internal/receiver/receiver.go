@@ -1,7 +1,9 @@
 // Copyright 2020 Thomas.Hoehenleitner [at] seerose.net
 // Use of this source code is governed by a license that can be found in the LICENSE file.
 
-package triceemit
+// Package receiver provides trice receiver functionality.
+// It uses a bytes.Reader for getting bytes and provides the received trices over a trice atoms channel
+package receiver
 
 import (
 	"bytes"
@@ -31,6 +33,14 @@ var (
 	// syncTrice is a trice emitted regularely by the target for making sure all gets in sync again after some disruption.
 	syncTrice = []byte{0x16, 0x16, 0x16, 0x16}
 )
+
+// Trice is the bare Trice data type for a Trice atom.
+// A Trice starts with zero or several Trice atoms with ID==0 carrying parts of the Trice data payload.
+// The last Trice atom of a Trice contains the Trice ID!=0 and the last part of the data payload.
+type Trice struct {
+	ID    uint16  // 2^16 ^= more than 65500 different trice IDs possible
+	Value [2]byte // max 2 byte data payload inside a TriceAtom
+}
 
 // TriceReceiver receives trices using io.Reader r and decodes them according to the expected coding.
 // It provides a TriceAtomsReceiver interface.
