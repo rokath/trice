@@ -9,12 +9,11 @@ import (
 	"testing"
 
 	"github.com/rokath/trice/internal/com"
-	"github.com/rokath/trice/pkg/lib"
 )
 
 func Test1(t *testing.T) {
 	ss, err := com.GetSerialPorts()
-	lib.Equals(t, nil, err)
+	errorFail(t, err)
 	//	PS C:\repos\trice> trice s
 	//	Could not enumerate serial ports
 	//	PS C:\repos\trice> trice s
@@ -25,8 +24,7 @@ func Test1(t *testing.T) {
 		port := ss[i]
 		p := com.New(port)
 		if p.Open() {
-			err = p.Close()
-			lib.Equals(t, nil, err)
+			errorFail(t, p.Close())
 		}
 	}
 }

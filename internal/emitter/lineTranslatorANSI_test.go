@@ -5,8 +5,6 @@
 package emitter
 
 import (
-	"fmt"
-	"reflect"
 	"strings"
 	"testing"
 )
@@ -26,20 +24,14 @@ func Test2colorize(t *testing.T) {
 	p := newLineTranslatorANSI(lw, "none")
 	s := "msg:de"
 	c := p.colorize(s)
-	if "de" != c {
-		t.Fail()
-	}
+	notEqualFail(t, "de", c)
 }
 
 func Test3colorize(t *testing.T) {
 	lw := newCheckDisplay()
 	p := newLineTranslatorANSI(lw, "off")
 	s := "msg:de"
-	c := p.colorize(s)
-	if s != c {
-		fmt.Println(s, c)
-		t.Fail()
-	}
+	notEqualFail(t, s, p.colorize(s))
 }
 
 func Test4colorize(t *testing.T) {
@@ -49,10 +41,7 @@ func Test4colorize(t *testing.T) {
 	c := p.colorize(s)
 	act := []byte(c)
 	exp := []byte{27, 91, 57, 50, 59, 52, 48, 109, 100, 101, 27, 91, 48, 109}
-	equals(t, exp, act)
-	if false == reflect.DeepEqual(exp, act) {
-		t.Fail()
-	}
+	notEqualFail(t, exp, act)
 }
 
 func Test5colorize(t *testing.T) {
@@ -61,10 +50,7 @@ func Test5colorize(t *testing.T) {
 	s := "MESSAGE:de"
 	c := p.colorize(s)
 	b := []byte{27, 91, 57, 50, 59, 52, 48, 109, 77, 69, 83, 83, 65, 71, 69, 58, 100, 101, 27, 91, 48, 109}
-	if false == reflect.DeepEqual(b, []byte(c)) {
-		fmt.Println([]byte(c))
-		t.Fail()
-	}
+	notEqualFail(t, b, []byte(c))
 }
 
 func Test1writeLine(t *testing.T) {
