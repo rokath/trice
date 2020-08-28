@@ -10,17 +10,6 @@ import (
 	"time"
 )
 
-func ExampleNewLocalDisplay() {
-	p := NewLocalDisplay()
-	l1 := []string{"This is ", "the 1st ", "line"}
-	l2 := []string{"This is ", "the 2nd ", "line"}
-	p.writeLine(l1)
-	p.writeLine(l2)
-	// Output:
-	// This is the 1st line
-	// This is the 2nd line
-}
-
 func TestRemoteDisplay(t *testing.T) {
 	// prepare
 	afn := "testdata/actRemote.log"

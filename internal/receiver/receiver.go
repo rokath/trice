@@ -49,11 +49,13 @@ type TriceReceiver struct {
 }
 
 // TriceAtomsChannel provides a read channel for reading trice atoms.
+// It is part of the TriceAtomsReceiver interface.
 func (p *TriceReceiver) TriceAtomsChannel() <-chan []Trice {
 	return p.atoms
 }
 
 // IgnoredBytesChannel provides a read channel for reading bytes the trice receiver ignored.
+// It is part of the TriceAtomsReceiver interface.
 func (p *TriceReceiver) IgnoredBytesChannel() <-chan []byte {
 	return p.ignored
 }
