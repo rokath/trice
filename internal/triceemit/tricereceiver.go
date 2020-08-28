@@ -1,11 +1,6 @@
 // Copyright 2020 Thomas.Hoehenleitner [at] seerose.net
 // Use of this source code is governed by a license that can be found in the LICENSE file.
 
-// Package triceemit is responsible for generating a string slice for each line.
-// The substrings are optionally prefix, timestamp, several content substrings and postfix.
-// Each substring can contain its own color channel as prefix ("col:").
-// The colors are converted later inside the disp.Print() function.
-
 package triceemit
 
 import (
@@ -16,6 +11,17 @@ import (
 	"path/filepath"
 	"reflect"
 	"runtime"
+)
+
+const (
+	// triceSize is the count of bytes in a byte stream used for one Trice.
+	triceSize = 4
+
+	// triceChannelCapacity is the max possible trice slice count hold in channel
+	triceChannelCapacity = 10
+
+	// ignoredChannelCapacity is the max count of ignored bytes
+	ignoredChannelCapacity = 10
 )
 
 var (

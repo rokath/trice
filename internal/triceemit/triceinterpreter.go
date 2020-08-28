@@ -1,11 +1,6 @@
 // Copyright 2020 Thomas.Hoehenleitner [at] seerose.net
 // Use of this source code is governed by a license that can be found in the LICENSE file.
 
-// Package triceemit is responsible for generating a string slice for each line.
-// The substrings are optionally prefix, timestamp, several content substrings and postfix.
-// Each substring can contain its own color channel as prefix ("col:").
-// The colors are converted later inside the disp.Print() function.
-
 package triceemit
 
 import (
@@ -19,7 +14,12 @@ import (
 	"github.com/rokath/trice/internal/id"
 )
 
-var ()
+// TriceAtomsReceiver is the interface a trice receicer has to provide for a trice interpreter.
+// The provided channels are read only channels
+type TriceAtomsReceiver interface {
+	TriceAtomsChannel() <-chan []Trice
+	IgnoredBytesChannel() <-chan []byte
+}
 
 // TriceInterpreter uses the 2 TriceReceiver channels and global settings to compose a complete log line as one string.
 // The string is transferred using the io.StringWriter interface.
@@ -115,7 +115,8 @@ func (p *TriceInterpreter) ErrorFatal() {
 
 // translate evaluates p.atoms, p.values and p.ignored and tries to generate a string.
 // If an internal error state occured it discards all accumulated data and clears the error.
-// On return it delivers an emty string if
+// On return it delivers an emty string if not enough data yet for the next string.
+// This is usually the case when trice.ID is 0 and only data payload is to store.
 func (p *TriceInterpreter) translate() (s string) {
 	if nil != p.err {
 		s = fmt.Sprintln(p.err, p.values, p.atoms, p.ignored)

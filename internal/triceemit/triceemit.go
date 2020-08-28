@@ -5,27 +5,7 @@
 // The substrings are optionally prefix, timestamp, several content substrings and postfix.
 // Each substring can contain its own color channel as prefix ("col:").
 // The colors are converted later inside the disp.Print() function.
-
 package triceemit
-
-const (
-	// triceSize is the count of bytes in a byte stream used for one Trice.
-	triceSize = 4
-
-	// triceChannelCapacity is the max possible trice slice count hold in channel
-	triceChannelCapacity = 10
-
-	// ignoredChannelCapacity is the max count of ignored bytes
-	ignoredChannelCapacity = 10
-)
-
-var (
-	// Prefix is a (configurable) string added to each line at the beginning
-	Prefix = ""
-
-	// Postfix is a (configurable) string added to each line end
-	Postfix = "\n"
-)
 
 // Trice is the bare Trice data type for a Trice atom.
 // A Trice starts with zero or several Trice atoms with ID==0 carrying parts of the Trice data payload.
@@ -35,46 +15,37 @@ type Trice struct {
 	Value [2]byte // max 2 byte data payload inside a TriceAtom
 }
 
-// TriceAtomsReceiver is the interface a trice receicer has to provide for a trice interpreter.
-// The provided channels are read only channels
-type TriceAtomsReceiver interface {
-	TriceAtomsChannel() <-chan []Trice
-	IgnoredBytesChannel() <-chan []byte
-}
-
-/*
-func NewTriceInterpreter(r *TriceReceiver) {
-	go func() {
-		for {
-			select {
-			case atoms := <-r.atoms:
-				p.atoms = append(p.atoms, atoms)
-			case ignored := <-r.ignored:
-
-			}
-		}
-	}()
-	go func() {
-
-		for {
-			atomsSlice := <-r.atoms // next trice atoms slice
-			// 			p.atomsBuffer = append(p.atomsBuffer, atomsSlice)
-			// 			p.item.ID = int(trice.ID)
-			// 			p.values = append(p.values, trice.Value[0], trice.Value[1])
-			// 			//p.values = append(p.values, trice.Value...)
-			fmt.Println(atomsSlice)
-
-			if 0 < len(r.atoms) {
-				atom := r.atoms[0]
-				p.atoms = p.atoms[1:]
-				if 0 == atom.ID {
-
-				}
-			}
-		}
-	}()
-}
-*/
+// func NewTriceInterpreter(r *TriceReceiver) {
+// 	go func() {
+// 		for {
+// 			select {
+// 			case atoms := <-r.atoms:
+// 				p.atoms = append(p.atoms, atoms)
+// 			case ignored := <-r.ignored:
+//
+// 			}
+// 		}
+// 	}()
+// 	go func() {
+//
+// 		for {
+// 			atomsSlice := <-r.atoms // next trice atoms slice
+// 			// 			p.atomsBuffer = append(p.atomsBuffer, atomsSlice)
+// 			// 			p.item.ID = int(trice.ID)
+// 			// 			p.values = append(p.values, trice.Value[0], trice.Value[1])
+// 			// 			//p.values = append(p.values, trice.Value...)
+// 			fmt.Println(atomsSlice)
+//
+// 			if 0 < len(r.atoms) {
+// 				atom := r.atoms[0]
+// 				p.atoms = p.atoms[1:]
+// 				if 0 == atom.ID {
+//
+// 				}
+// 			}
+// 		}
+// 	}()
+// }
 
 // // TrimBackslashes handles special chars in s
 // func TrimBackslashes(s string) string {
@@ -144,27 +115,27 @@ func NewTriceInterpreter(r *TriceReceiver) {
 // 	}()
 // }
 
-/*func xy(){
-	var t Trice // chanel 'trices'
-	//var b []byte // channel 'ignored'
-	item, values, err := TriceCollector(t)
-	if item (
-		//s, b, _ := Emitter( item, values, b)
-		LineCollect(s)
-	)
-}*/
-
-/* NewTriceReceiverFromWrap creates a TriceReceiver using r as internal reader.
-func NewTriceReceiverFromWrap(r io.Reader) *TriceReceiver {
-	p := &TriceReceiver{}
-	p.r = r
-	p.atoms = make(chan []Trice, triceChannelCapacity)
-	p.ignored = make(chan []byte, ignoredChannelCapacity)
-	go func() {
-
-	}()
-	return p
-}*/
+// func xy(){
+// 	var t Trice // chanel 'trices'
+// 	//var b []byte // channel 'ignored'
+// 	item, values, err := TriceCollector(t)
+// 	if item (
+// 		//s, b, _ := Emitter( item, values, b)
+// 		LineCollect(s)
+// 	)
+// }
+//
+// // NewTriceReceiverFromWrap creates a TriceReceiver using r as internal reader.
+// func NewTriceReceiverFromWrap(r io.Reader) *TriceReceiver {
+// 	p := &TriceReceiver{}
+// 	p.r = r
+// 	p.atoms = make(chan []Trice, triceChannelCapacity)
+// 	p.ignored = make(chan []byte, ignoredChannelCapacity)
+// 	go func() {
+//
+// 	}()
+// 	return p
+// }
 
 //type TriceReadFunc func Read( []Trice) (int, error)
 
