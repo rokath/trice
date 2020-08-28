@@ -10,11 +10,11 @@ import (
 	"fmt"
 	"os"
 
-	keybcmd "github.com/rokath/trice/internal/cmd"
 	"github.com/rokath/trice/internal/com"
 	"github.com/rokath/trice/internal/emitter"
 	"github.com/rokath/trice/internal/id"
 	"github.com/rokath/trice/internal/jlink"
+	"github.com/rokath/trice/internal/keybcmd"
 	"github.com/rokath/trice/pkg/cage"
 	"github.com/rokath/trice/pkg/cipher"
 )
