@@ -2,7 +2,7 @@
 // Use of this source code is governed by a license that can be found in the LICENSE file.
 
 // The check functions are used not only for testing but also for evaluating id lists
-package emit
+package emitter
 
 import (
 	"fmt"

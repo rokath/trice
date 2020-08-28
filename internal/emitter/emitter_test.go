@@ -6,6 +6,7 @@ package emitter
 
 import (
 	"bytes"
+	"fmt"
 	"testing"
 	"time"
 
@@ -31,7 +32,7 @@ func TestNewSimpleTriceInterpreterWithAnsiOff(t *testing.T) {
 	lwD := newCheckDisplay()
 	// lwT uses the lineWriter p internally.
 	// It provides a lineWriter.
-	lwT := newLineTranslatorANSI(lwD, "off")
+	lwT := newLineTransformerANSI(lwD, "off")
 	// lineComposer r implements the io.StringWriter interface and uses the lineWriter provided.
 	// The line composer scans the trice strings and composes lines out of them according to its properies.
 	sw := newLineComposer(lwT, "zero", "PREFIX", "")
@@ -74,7 +75,7 @@ func TestNewSimpleTriceInterpreterWithAnsiNone(t *testing.T) {
 	lwD := newCheckDisplay()
 	// lwT uses the lineWriter p internally.
 	// It provides a lineWriter.
-	lwT := newLineTranslatorANSI(lwD, "none")
+	lwT := newLineTransformerANSI(lwD, "none")
 	// lineComposer r implements the io.StringWriter interface and uses the lineWriter provided.
 	// The line composer scans the trice strings and composes lines out of them according to its properies.
 	sw := newLineComposer(lwT, "zero", "PREFIX", "")
@@ -116,7 +117,7 @@ func TestNewSimpleTriceInterpreterResync(t *testing.T) {
 	lwD := newCheckDisplay()
 	// lwT uses the lineWriter p internally.
 	// It provides a lineWriter.
-	lwT := newLineTranslatorANSI(lwD, "none")
+	lwT := newLineTransformerANSI(lwD, "none")
 	// lineComposer r implements the io.StringWriter interface and uses the lineWriter provided.
 	// The line composer scans the trice strings and composes lines out of them according to its properies.
 	sw := newLineComposer(lwT, "zero", "PREFIX", "")
@@ -140,4 +141,17 @@ func TestNewSimpleTriceInterpreterResync(t *testing.T) {
 	}
 	lwD.checkLines(t, lines)
 	sti.Stop() // end of life
+}
+
+func TestScCheck(t *testing.T) {
+	// display lwD implements the lineWriter interface needed by lineComposer.
+	// It interprets the lines written to it according to its properties.
+	lwD := newCheckDisplay()
+	// lwT uses the lineWriter p internally.
+	// It provides a lineWriter.
+	lwT := newLineTransformerANSI(lwD, "none")
+	// lineComposer r implements the io.StringWriter interface and uses the lineWriter provided.
+	// The line composer scans the trice strings and composes lines out of them according to its properies.
+	sw := newLineComposer(lwT, "zero", "PREFIX", "")
+	fmt.Print(sw)
 }

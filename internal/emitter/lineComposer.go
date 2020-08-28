@@ -51,13 +51,14 @@ func (p *triceLineComposer) timestamp() string {
 	return s
 }
 
-// WriteString implements the io.StringWriter interface for triceLineComposer
+// WriteString implements the io.StringWriter interface. The triceLineComposer can use it.
+// WriteString uses the internal line writer p.lw for writing out full lines.
 // If s is empty, WriteString returns 0, nil.
 // If p.line is empty, the actual timestamp and the prefix are added to p.line.
 // If s is without newline it is added to p.line and WriteString returns.
-// If s ends with newline it is added to p.line and also the suffix is added to p.line.
-// If s contains several newlines it is split there and the substrings are hanled accordingly.
-// That means it writes internally a separate line for each substring in s ending with a newline.
+// If s ends with newline it is added to p.line and also the suffix is added to p.line and pline is written to p.lw.
+// If s contains several newlines it is split there and the substrings are handled accordingly.
+// That means it writes internally a separate line for each substring (in s) ending with a newline.
 func (p *triceLineComposer) WriteString(s string) (n int, err error) {
 	n = len(s)
 	if 0 == n {

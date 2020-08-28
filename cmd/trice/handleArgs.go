@@ -136,7 +136,6 @@ func scHelp(
 	return nil
 }
 
-// init is executed before main in unspecified order
 func init() {
 	fsScCheck = flag.NewFlagSet("check", flag.ExitOnError)                                           // subcommand
 	pSet = fsScCheck.String("dataset", "position", "parameters, option: 'negative'")                 // flag
@@ -146,7 +145,6 @@ func init() {
 	flagIDList(fsScCheck)
 }
 
-// init is executed before main in unspecified order
 func init() {
 	fsScUpdate = flag.NewFlagSet("update", flag.ExitOnError)                                // subcommand
 	fsScUpdate.BoolVar(&id.DryRun, "dry-run", false, "no changes are applied")              // flag
@@ -155,21 +153,18 @@ func init() {
 	flagIDList(fsScUpdate)
 }
 
-// init is executed before main in unspecified order
 func init() {
 	fsScZero = flag.NewFlagSet("zeroSourceTreeIds", flag.ContinueOnError)                 // subcommand (during development only)
 	pSrcZ = fsScZero.String("src", "", "zero all Id(n) inside source tree dir, required") // flag
 	fsScZero.BoolVar(&id.DryRun, "dry-run", false, "no changes are applied")              // flag
 }
 
-// init is executed before main in unspecified order
 func init() {
 	fsScHelp = flag.NewFlagSet("help", flag.ContinueOnError) // subcommand
 	flagLogfile(fsScHelp)
 	flagVerbosity(fsScHelp)
 }
 
-// init is executed before main in unspecified order
 func init() {
 	fsScVerseion = flag.NewFlagSet("version", flag.ContinueOnError) // subcommand
 	flagLogfile(fsScVerseion)
@@ -190,8 +185,7 @@ func init() {
 	fsScLog.StringVar(&Source, "source", "JLINK", "receiver device, options: 'COMn|JLINK|STLINK|filename|SIM|RND|HTTP'")                                                                                         //HTTP, RTT, RTTD, RTTF")                                             // flag
 	fsScLog.StringVar(&Source, "s", "JLINK", "short for -source")                                                                                                                                                // short flag
 	fsScLog.IntVar(&com.Baud, "baud", 115200, "COM baudrate, valid only for '-source COMn'")                                                                                                                     // flag flag
-	fsScLog.StringVar(&jlink.Param, "jlink", "-Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0", "passed parameter string, valid only for '-source JLRTT', see JLinkRTTLogger in SEGGER UM08001_JLink.pdf") // JLRTT flag
-	//scLog.StringVar(&jlink.Exec, "jlinkExec", jlink.Exec, "JLinkRTTLogger executable with full path")                                                                                                          // JLRTT flag
+	fsScLog.StringVar(&jlink.Param, "jlink", "-Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0", "passed parameter string, valid only for '-source JLRTT', see JLinkRTTLogger in SEGGER UM08001_JLink.pdf") // JLRTT flag                                                                                                     // JLRTT flag
 	//fsScLog.StringVar(&rndMode, "rndMode", "WrapModeWithValidCrc", "valid only for '-source RND', see randomdummy.go, options: 'ChaosMode|BareModeNoSync'")
 	//fsScLog.IntVar(&rndLimit, "rndLimit", randomdummy.NoLimit, "valid only for '-source RND', see randomdummy.go, options: 'n|0', 'n' is count of bytes, '0' for unlimited count")
 	fsScLog.BoolVar(&displayserver, "displayserver", false, "send trice lines to displayserver @ ipa:ipp")
@@ -220,7 +214,7 @@ func init() {
 	flagIPAddress(fsScSdSv)
 }
 
-// injectValues is distibuting values
+// injectValues is distibuting values used in several packages.
 func injectValues() {
 	id.Verbose = Verbose
 	emitter.Verbose = Verbose
@@ -232,18 +226,15 @@ func injectValues() {
 func HandleArgs(args []string) error {
 	cage.DefaultLogfileName = "2006-01-02_1504-05_trice.log"
 
-	// Verify that a subcommand has been provided
-	// os.Arg[0] is the main command
-	// os.Arg[1] will be the subcommand
+	// Verify that a subcommand has been provided: os.Arg[0] is the main command, os.Arg[1] will be the subcommand.
 	if len(os.Args) < 2 {
 		msg := "no args, try: 'trice help'"
 		fmt.Println(msg)
 		return errors.New(msg)
 	}
 
-	// Switch on the subcommand
-	// Parse the flags for appropriate FlagSet
-	// FlagSet.Parse() requires a set of arguments to parse as input
+	// Switch on the subcommand. Parse the flags for appropriate FlagSet.
+	// FlagSet.Parse() requires a set of arguments to parse as input.
 	// os.Args[2:] will be all arguments starting after the subcommand at os.Args[1]
 	subCmd := args[1]
 	subArgs := args[2:]
@@ -252,7 +243,6 @@ func HandleArgs(args []string) error {
 	case "h", "help":
 		fsScHelp.Parse(subArgs)
 		injectValues()
-		//fsScUpdate.Parse(subArgs)
 		return scHelp(fsScCheck, fsScLog, fsScZero, fsScVerseion, fsScSv, fsScSdSv)
 
 	case "s", "sc", "scan":
@@ -277,7 +267,7 @@ func HandleArgs(args []string) error {
 	//	id.FnJSON = id.ConditinalFilePath(id.FnJSON)
 	//	cage.Enable()
 	//	defer cage.Disable()
-	//	return emit.ScCheckList(*pSet)
+	//	return emitter.ScCheckList(*pSet)
 
 	case "zeroSourceTreeIds":
 		fsScZero.Parse(subArgs)
