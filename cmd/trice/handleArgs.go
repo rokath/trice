@@ -10,7 +10,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/rokath/trice/internal/cmd"
+	keybcmd "github.com/rokath/trice/internal/cmd"
 	"github.com/rokath/trice/internal/com"
 	"github.com/rokath/trice/internal/emitter"
 	"github.com/rokath/trice/internal/id"
@@ -306,7 +306,7 @@ func HandleArgs(args []string) error {
 				p = emitter.NewRemoteDisplay()
 			}
 			p.ErrorFatal()
-			cmd.KeyboardInput()
+			keybcmd.ReadInput()
 			//receiving()
 		}
 	case "ds", "displayServer":

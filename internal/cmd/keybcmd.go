@@ -2,7 +2,7 @@
 // Use of this source code is governed by a license that can be found in the LICENSE file.
 
 // Package cmd is responsibe for interpreting user commanmdline and executing commands
-package cmd
+package keybcmd
 
 import (
 	"bufio"
@@ -15,7 +15,7 @@ import (
 )
 
 // KeyboardInput expects user input from terminal
-func KeyboardInput() { // https://tutorialedge.net/golang/reading-console-input-golang/
+func ReadInput() { // https://tutorialedge.net/golang/reading-console-input-golang/
 	reader := bufio.NewReader(os.Stdin)
 	keyboardInput(reader)
 }
