@@ -67,18 +67,18 @@ func randomDynIPPort() (s string) {
 }
 
 // checkDisplay is an object used for testing.
-// It implements the lineWriter interface.
+// It implements the Linewriter interface.
 type checkDisplay struct {
 	lines []string
 }
 
-// newCheckDisplay creates a Display. It provides a lineWriter.
+// newCheckDisplay creates a Display. It provides a Linewriter.
 func newCheckDisplay() *checkDisplay {
 	p := &checkDisplay{}
 	return p
 }
 
-// writeLine is the implemented lineWriter interface for checkDisplay.
+// writeLine is the implemented Linewriter interface for checkDisplay.
 // It appends written lines to the internal data.
 func (p *checkDisplay) writeLine(line []string) {
 	s := strings.Join(line, "")

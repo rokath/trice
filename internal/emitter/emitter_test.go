@@ -27,13 +27,13 @@ func TestNewSimpleTriceInterpreterWithAnsiOff(t *testing.T) {
 	// It scans the raw input byte stream and decodes the trice atoms it transmits to the TriceAtomsReceiver interface.
 	tai := receiver.NewTricesfromBare(rd)
 
-	// display lwD implements the lineWriter interface needed by lineComposer.
+	// display lwD implements the Linewriter interface needed by lineComposer.
 	// It interprets the lines written to it according to its properties.
 	lwD := newCheckDisplay()
-	// lwT uses the lineWriter p internally.
-	// It provides a lineWriter.
+	// lwT uses the Linewriter lwD internally.
+	// It provides a Linewriter.
 	lwT := newLineTransformerANSI(lwD, "off")
-	// lineComposer r implements the io.StringWriter interface and uses the lineWriter provided.
+	// lineComposer r implements the io.StringWriter interface and uses the Linewriter provided.
 	// The line composer scans the trice strings and composes lines out of them according to its properies.
 	sw := newLineComposer(lwT, "zero", "PREFIX", "")
 
@@ -70,13 +70,13 @@ func TestNewSimpleTriceInterpreterWithAnsiNone(t *testing.T) {
 	// It scans the raw input byte stream and decodes the trice atoms it transmits to the TriceAtomsReceiver interface.
 	tai := receiver.NewTricesfromBare(rd)
 
-	// display lwD implements the lineWriter interface needed by lineComposer.
+	// display lwD implements the Linewriter interface needed by lineComposer.
 	// It interprets the lines written to it according to its properties.
 	lwD := newCheckDisplay()
-	// lwT uses the lineWriter p internally.
-	// It provides a lineWriter.
+	// lwT uses the Linewriter lwD internally.
+	// It provides a Linewriter.
 	lwT := newLineTransformerANSI(lwD, "none")
-	// lineComposer r implements the io.StringWriter interface and uses the lineWriter provided.
+	// lineComposer r implements the io.StringWriter interface and uses the Linewriter provided.
 	// The line composer scans the trice strings and composes lines out of them according to its properies.
 	sw := newLineComposer(lwT, "zero", "PREFIX", "")
 
@@ -112,13 +112,13 @@ func TestNewSimpleTriceInterpreterResync(t *testing.T) {
 	// It scans the raw input byte stream and decodes the trice atoms it transmits to the TriceAtomsReceiver interface.
 	tai := receiver.NewTricesfromBare(rd)
 
-	// display lwD implements the lineWriter interface needed by lineComposer.
+	// display lwD implements the Linewriter interface needed by lineComposer.
 	// It interprets the lines written to it according to its properties.
 	lwD := newCheckDisplay()
-	// lwT uses the lineWriter p internally.
-	// It provides a lineWriter.
+	// lwT uses the Linewriter p internally.
+	// It provides a Linewriter.
 	lwT := newLineTransformerANSI(lwD, "none")
-	// lineComposer r implements the io.StringWriter interface and uses the lineWriter provided.
+	// lineComposer r implements the io.StringWriter interface and uses the Linewriter provided.
 	// The line composer scans the trice strings and composes lines out of them according to its properies.
 	sw := newLineComposer(lwT, "zero", "PREFIX", "")
 
@@ -143,14 +143,14 @@ func TestNewSimpleTriceInterpreterResync(t *testing.T) {
 	sti.Stop() // end of life
 }
 
-func TestScCheck(t *testing.T) {
-	// display lwD implements the lineWriter interface needed by lineComposer.
+func _TestScCheck(t *testing.T) {
+	// display lwD implements the Linewriter interface needed by lineComposer.
 	// It interprets the lines written to it according to its properties.
 	lwD := newCheckDisplay()
-	// lwT uses the lineWriter p internally.
-	// It provides a lineWriter.
+	// lwT uses the Linewriter p internally.
+	// It provides a Linewriter.
 	lwT := newLineTransformerANSI(lwD, "none")
-	// lineComposer r implements the io.StringWriter interface and uses the lineWriter provided.
+	// lineComposer r implements the io.StringWriter interface and uses the Linewriter provided.
 	// The line composer scans the trice strings and composes lines out of them according to its properies.
 	sw := newLineComposer(lwT, "zero", "PREFIX", "")
 	fmt.Print(sw)

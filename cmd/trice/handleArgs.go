@@ -42,7 +42,7 @@ var (
 	autostart bool
 
 	// fsScCheck is flag set for sub command check for evaluating ID list
-	fsScCheck *flag.FlagSet
+	// fsScCheck *flag.FlagSet
 
 	// pSet is a string pointer to the data set used for scCheck
 	pSet *string
@@ -96,7 +96,7 @@ func flagIPAddress(p *flag.FlagSet) {
 
 // scHelp is subcommand help
 func scHelp(
-	c *flag.FlagSet,
+	//c *flag.FlagSet,
 	l *flag.FlagSet,
 	z *flag.FlagSet,
 	v *flag.FlagSet,
@@ -115,8 +115,8 @@ func scHelp(
 	fsScHelp.PrintDefaults()
 	fmt.Fprintln(fsScUpdate.Output(), "subcommand 'u', 'upd', 'update' for updating ID list and source files")
 	fsScUpdate.PrintDefaults()
-	fmt.Fprintln(c.Output(), "subcommand 'check' for dispaying the ID list in trice log format")
-	c.PrintDefaults()
+	//fmt.Fprintln(c.Output(), "subcommand 'check' for dispaying the ID list in trice log format")
+	//c.PrintDefaults()
 	fmt.Fprintln(l.Output(), "subcommand 'l', 'log' for displaying trice logs coming from source")
 	l.PrintDefaults()
 	fmt.Fprintln(z.Output(), "subcommand 'zeroSourceTreeIds' for setting all TRICE IDs to 0 in source tree, avoid using this subcommand normally")
@@ -136,14 +136,14 @@ func scHelp(
 	return nil
 }
 
-func init() {
-	fsScCheck = flag.NewFlagSet("check", flag.ExitOnError)                                           // subcommand
-	pSet = fsScCheck.String("dataset", "position", "parameters, option: 'negative'")                 // flag
-	fsScCheck.StringVar(&emitter.ColorPalette, "color", "default", "color set, options: 'off|none'") // flag
-	flagLogfile(fsScCheck)
-	flagVerbosity(fsScCheck)
-	flagIDList(fsScCheck)
-}
+// func init() {
+// 	fsScCheck = flag.NewFlagSet("check", flag.ExitOnError)                                           // subcommand
+// 	pSet = fsScCheck.String("dataset", "position", "parameters, option: 'negative'")                 // flag
+// 	fsScCheck.StringVar(&emitter.ColorPalette, "color", "default", "color set, options: 'off|none'") // flag
+// 	flagLogfile(fsScCheck)
+// 	flagVerbosity(fsScCheck)
+// 	flagIDList(fsScCheck)
+// }
 
 func init() {
 	fsScUpdate = flag.NewFlagSet("update", flag.ExitOnError)                                // subcommand
@@ -243,7 +243,8 @@ func HandleArgs(args []string) error {
 	case "h", "help":
 		fsScHelp.Parse(subArgs)
 		injectValues()
-		return scHelp(fsScCheck, fsScLog, fsScZero, fsScVerseion, fsScSv, fsScSdSv)
+		//return scHelp(fsScCheck, fsScLog, fsScZero, fsScVerseion, fsScSv, fsScSdSv)
+		return scHelp(fsScLog, fsScZero, fsScVerseion, fsScSv, fsScSdSv)
 
 	case "s", "sc", "scan":
 		fsScScan.Parse(subArgs)
@@ -302,8 +303,7 @@ func HandleArgs(args []string) error {
 	case "ds", "displayServer":
 		fsScSv.Parse(subArgs)
 		injectValues()
-		p := emitter.NewRemoteDisplay()
-		p.ErrorFatal()
+		return emitter.ScDisplayServer()
 
 	case "sd", "shutdownRemoteDisplayServer":
 		fsScSdSv.Parse(subArgs)

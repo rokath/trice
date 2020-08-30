@@ -70,10 +70,10 @@ func (p *RemoteDisplay) ErrorFatal() {
 	log.Fatal(p.Err, filepath.Base(file), line)
 }
 
-// writeLine is implementing the lineWriter interface for RemoteDisplay.
+// writeLine is implementing the Linewriter interface for RemoteDisplay.
 func (p *RemoteDisplay) writeLine(line []string) {
 	p.ErrorFatal()
-	p.Err = p.PtrRPC.Call("Server.Out", line, nil) // TODO: Change to "Server.WriteLine"
+	p.Err = p.PtrRPC.Call("Server.WriteLine", line, nil) // TODO: Change to "Server.WriteLine"
 }
 
 // startServer starts a display server with the filename exe (if not already running)

@@ -4,10 +4,10 @@
 // Package emitter does...
 package emitter
 
-// lineWriter is the common interface for output devices.
+// Linewriter is the common interface for output devices.
 // string slice `line` contains all string parts of one line.
 // The last string part is without newline char and must be handled by the output device.
-type lineWriter interface {
+type Linewriter interface {
 	writeLine([]string)
 }
 

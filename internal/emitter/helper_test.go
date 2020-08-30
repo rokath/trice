@@ -20,14 +20,13 @@ import (
 // test helper ///////////////////////////////////////////////////////////////////////
 //
 
-func readLines(filename string) (lines []string, err error) {
-	content, err := ioutil.ReadFile(filename)
-	stringContent := string(content)
-	if runtime.GOOS == "windows" {
-		stringContent = strings.ReplaceAll(stringContent, "\r\n", "\n")
+// assertNil fails the test if an err is not nil.
+func assertNil(tb testing.TB, err error) {
+	if err != nil {
+		_, file, line, _ := runtime.Caller(1)
+		fmt.Println(err.Error(), filepath.Base(file), line)
+		tb.FailNow()
 	}
-	lines = strings.Split(stringContent, "\n")
-	return
 }
 
 // assertEqual fails the test if exp is not equal to act.
@@ -41,6 +40,19 @@ func assertEqual(tb testing.TB, exp, act interface{}) {
 	}
 }
 
+//
+// test helper ///////////////////////////////////////////////////////////////////////
+
+func readLines(filename string) (lines []string, err error) {
+	content, err := ioutil.ReadFile(filename)
+	stringContent := string(content)
+	if runtime.GOOS == "windows" {
+		stringContent = strings.ReplaceAll(stringContent, "\r\n", "\n")
+	}
+	lines = strings.Split(stringContent, "\n")
+	return
+}
+
 func randomDynIPPort() (s string) {
 	rand.Seed(time.Now().UTC().UnixNano())
 	min := 49152
@@ -50,18 +62,18 @@ func randomDynIPPort() (s string) {
 }
 
 // checkDisplay is an object used for testing.
-// It implements the lineWriter interface.
+// It implements the Linewriter interface.
 type checkDisplay struct {
 	lines []string
 }
 
-// newCheckDisplay creates a Display. It provides a lineWriter.
+// newCheckDisplay creates a Display. It provides a Linewriter.
 func newCheckDisplay() *checkDisplay {
 	p := &checkDisplay{}
 	return p
 }
 
-// writeLine is the implemented lineWriter interface for checkDisplay.
+// writeLine is the implemented Linewriter interface for checkDisplay.
 // It appends written lines to the internal data.
 func (p *checkDisplay) writeLine(line []string) {
 	s := strings.Join(line, "")
@@ -71,6 +83,3 @@ func (p *checkDisplay) writeLine(line []string) {
 func (p *checkDisplay) checkLines(t *testing.T, lines []string) {
 	assertEqual(t, p.lines, lines)
 }
-
-//
-// test helper ///////////////////////////////////////////////////////////////////////

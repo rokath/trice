@@ -9,7 +9,7 @@ import (
 )
 
 type triceLineComposer struct {
-	lw              lineWriter // internal interface
+	lw              Linewriter // internal interface
 	timestampFormat string
 	prefix          string
 	suffix          string
@@ -20,7 +20,7 @@ type triceLineComposer struct {
 // newLineComposer constructs log lines according to these rules:...
 // It provides an io.StringWriter interface which is used for the reception of (trice) strings.
 // It uses lw for writing the generated lines.
-func newLineComposer(lw lineWriter, timestampFormat, prefix, suffix string) *triceLineComposer {
+func newLineComposer(lw Linewriter, timestampFormat, prefix, suffix string) *triceLineComposer {
 	pf := prefix + " "
 	if " " == pf {
 		pf = ""

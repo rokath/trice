@@ -12,18 +12,18 @@ import (
 	"github.com/mgutz/ansi"
 )
 
-// lineTransformerANSI imnplements a lineWriter interface.
-// It uses an internal lineWriter lw to write to.
+// lineTransformerANSI imnplements a Linewriter interface.
+// It uses an internal Linewriter lw to write to.
 // It converts the channel information to color data using colorPalette.
 // In case of a remote display the lineTranslator should be used there.
 type lineTransformerANSI struct {
-	lw           lineWriter
+	lw           Linewriter
 	colorPalette string
 }
 
 // newLineTransformerANSI translates lines to ANSI colors according to colorPalette.
-// It provides a lineWriter interface and uses internally a lineWriter.
-func newLineTransformerANSI(lw lineWriter, colorPalette string) *lineTransformerANSI {
+// It provides a Linewriter interface and uses internally a Linewriter.
+func newLineTransformerANSI(lw Linewriter, colorPalette string) *lineTransformerANSI {
 	p := &lineTransformerANSI{lw, colorPalette}
 	return p
 }
@@ -159,16 +159,20 @@ func (p *lineTransformerANSI) colorize(s string) (r string) {
 	return
 }
 
-// writeLine consumes a full line, translates it and writes it to the internal lineWriter.
+// writeLine consumes a full line, translates it and writes it to the internal Linewriter.
 // It adds ANSI color Codes and replaces col: channel information.
 // It treats each sub string separately and and a color reset code at the end.
 func (p *lineTransformerANSI) writeLine(line []string) {
+	var colored bool
 	l := make([]string, 0, 10)
 	for _, s := range line {
 		cs := p.colorize(s)
 		l = append(l, cs)
+		if cs != s {
+			colored = true
+		}
 	}
-	if "default" == p.colorPalette {
+	if "default" == p.colorPalette && 1 < len(l) && colored {
 		l = append(l, ansi.Reset)
 	}
 	p.lw.writeLine(l)
