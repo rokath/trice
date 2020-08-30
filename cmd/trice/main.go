@@ -20,23 +20,15 @@ var (
 
 	// do not initialize, goreleaser will handle that
 	date string
-
-	// linkTime ...
-	linkTime = "testTime"
 )
 
 func main() {
 	args.Version = version
 	args.Commit = commit
 	args.Date = date
-	fi, err := os.Stat(os.Args[0])
-	if nil == err {
-		args.LinkTime = fi.ModTime().String()
-	} else {
-		args.LinkTime = "unknown" // on running main tests fileinfo is invalid
-	}
+
 	rand.Seed(time.Now().UnixNano())
-	err = args.HandleArgs(os.Args)
+	err := args.Handler(os.Args)
 	if nil != err {
 		os.Exit(1)
 	}

@@ -29,9 +29,6 @@ var (
 	// Date is set in main package
 	Date string
 
-	// LinkTime is a helper for displaying build time during development.
-	LinkTime = "testTime"
-
 	// Verbose gives mor information on output if set. This variable is copied into the appropriate packages.
 	Verbose bool
 
@@ -234,8 +231,16 @@ func injectValues() {
 	cage.Verbose = Verbose
 }
 
-// HandleArgs evaluates the arguments slice of strings
-func HandleArgs(args []string) error {
+// Handler evaluates the arguments slice of strings
+func Handler(args []string) error {
+
+	// buildTime is a helper for displaying version as time during development.
+	buildTime := "unknown"
+	fi, err := os.Stat(os.Args[0])
+	if nil == err { // on running main tests fileinfo is invalid
+		buildTime = fi.ModTime().String()
+	}
+
 	cage.DefaultLogfileName = "2006-01-02_1504-05_trice.log"
 
 	// Verify that a subcommand has been provided: os.Arg[0] is the main command, os.Arg[1] will be the subcommand.
@@ -267,7 +272,7 @@ func HandleArgs(args []string) error {
 	case "v", "ver", "version":
 		fsScVerseion.Parse(subArgs)
 		injectValues()
-		return scVersion()
+		return scVersion(buildTime)
 
 	case "u", "update":
 		fsScUpdate.Parse(subArgs)
@@ -454,7 +459,7 @@ func receiving() {
 //  }
 
 // scVersion is subcommand 'version'
-func scVersion() error {
+func scVersion(buildTime string) error {
 	cage.Enable()
 	defer cage.Disable()
 	if Verbose {
@@ -463,7 +468,7 @@ func scVersion() error {
 	if "" != Version {
 		fmt.Printf("version=%v, commit=%v, built at %v\n", Version, Commit, Date)
 	} else {
-		fmt.Printf("version=devel, built %s\n", LinkTime)
+		fmt.Printf("version=devel, built %s\n", buildTime)
 	}
 	return nil
 }

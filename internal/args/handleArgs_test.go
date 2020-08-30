@@ -16,51 +16,46 @@ import (
 	"github.com/kami-zh/go-capturer"
 )
 
-// For some reason afn gets not deleted oc cli tests
+// For some reason afn gets not deleted on cli tests
 // func TestScVersion(t *testing.T) {
 // 	afn := "testdata/actVersion.log"
 // 	efn := "testdata/expVersion.log"
 // 	os.Remove(afn)
 // 	args := []string{"trice", "version", "-lg", afn}
-// 	assertNil(t, HandleArgs(args))
+// 	assertNil(t, Handler(args))
 // 	assertEqualTextFiles(t, afn, efn)
 // 	time.Sleep(100 * time.Millisecond)
 // 	assertNil(t, os.Remove(afn))
 // }
 
-func Example_v() {
+func TestVersion(t *testing.T) {
+	fi, err := os.Stat(os.Args[0])
+	assertNil(t, err)
+	buildTime := fi.ModTime().String()
+	exp := "version=devel, built " + buildTime + "\n"
+
 	fn := func() {
-		HandleArgs([]string{"trice", "v"})
+		Handler([]string{"trice", "v"})
 	}
 	act := capturer.CaptureOutput(fn)
-	fmt.Print(act)
-	// Output:
-	// version=devel, built testTime
-}
+	assertEqual(t, exp, act)
 
-func Example_ver() {
-	fn := func() {
-		HandleArgs([]string{"trice", "ver"})
+	fn = func() {
+		Handler([]string{"trice", "ver"})
 	}
-	act := capturer.CaptureOutput(fn)
-	fmt.Print(act)
-	// Output:
-	// version=devel, built testTime
-}
+	act = capturer.CaptureOutput(fn)
+	assertEqual(t, exp, act)
 
-func Example_version() {
-	fn := func() {
-		HandleArgs([]string{"trice", "version"})
+	fn = func() {
+		Handler([]string{"trice", "version"})
 	}
-	act := capturer.CaptureOutput(fn)
-	fmt.Print(act)
-	// Output:
-	// version=devel, built testTime
+	act = capturer.CaptureOutput(fn)
+	assertEqual(t, exp, act)
 }
 
-func Example_handleArgsNone() {
+func Example_HandlerNone() {
 	fn := func() {
-		HandleArgs([]string{"trice", ""})
+		Handler([]string{"trice", ""})
 	}
 	act := capturer.CaptureOutput(fn)
 	fmt.Print(act)
@@ -70,7 +65,7 @@ func Example_handleArgsNone() {
 
 func Example_wrongSubcommand() {
 	fn := func() {
-		HandleArgs([]string{"trice", "xyz"})
+		Handler([]string{"trice", "xyz"})
 	}
 	act := capturer.CaptureOutput(fn)
 	fmt.Print(act)
@@ -80,7 +75,7 @@ func Example_wrongSubcommand() {
 
 func Example_vwrongSubcommand() {
 	fn := func() {
-		HandleArgs([]string{"trice", "xyz"})
+		Handler([]string{"trice", "xyz"})
 	}
 	act := capturer.CaptureOutput(fn)
 	fmt.Print(act)
@@ -115,7 +110,7 @@ func frameForOsExitTests(parameters []string, exp string, t *testing.T) {
 	par := append(parameters, "-idlist", "c:/repos/trice/test/til.json", "-color", "off", "-ts", "none", "-lg", logFile)
 	if os.Getenv("BE_EOF_"+fnName) == "1" { // here inside debug test does not stop
 		//os.Remove(logFile) // secure logFile not exists already
-		HandleArgs(par)
+		Handler(par)
 		return
 	}
 	fmt.Println(os.Args[0])
@@ -225,7 +220,7 @@ RND: wrn:discarding byte 0xa3 (dez 163, char ' ')
 }
 */
 /*
-func TestHandleArgsRNDbare(t *testing.T) { // cmdLineNotOk
+func TestHandlerRNDbare(t *testing.T) { // cmdLineNotOk
 	cmd := []string{
 		"trice", "log",
 		"-source", "RND",
@@ -242,7 +237,7 @@ RND: wrn:discarding byte 0xc8 (dez 200, char ' ')
 }
 */
 /*
-func TestHandleArgsRNDwrap(t *testing.T) { // cmdLineNotOk
+func TestHandlerRNDwrap(t *testing.T) { // cmdLineNotOk
 	cmd := []string{
 		"trice", "log",
 		"-source", "RND",
@@ -255,7 +250,7 @@ trice.Log error unknown ID [235 96 96 216 119 228 147 51] []
 }
 */
 /*
-func TestHandleArgsSIM0(t *testing.T) {
+func TestHandlerSIM0(t *testing.T) {
 	cmd := []string{"trice", "log", "-source", "SIM"}
 
 	exp := `SIM: garbage
@@ -269,7 +264,7 @@ SIM: ISR:interrupt   message, SysTick is    257
 }
 */
 /*
-func TestHandleArgsCOMx(t *testing.T) {
+func TestHandlerCOMx(t *testing.T) {
 	cmd := []string{"trice", "log", "-source", "COMx"}
 
 	exp := `Serial port not found try 'trice s' to check for serial ports
@@ -314,7 +309,7 @@ func TestServerStartStop(t *testing.T) {
 
 	// start display server
 	args := []string{"trice", "ds", "-lg", afn}
-	HandleArgs(args)
+	Handler(args)
 	wg.Wait()
 	assertEqualTextFiles(t, afn, efn)
 	assertNil(t, os.Remove(afn))
@@ -327,7 +322,7 @@ func TestScHelp(t *testing.T) {
 	efn := "testdata/expHelp.log"
 	os.Remove(afn)
 	args := []string{"trice", "help", "-lg", afn}
-	assertNil(t, HandleArgs(args))
+	assertNil(t, Handler(args))
 	assertEqualTextFiles(t, afn, efn)
 	assertNil(t, os.Remove(afn))
 }
@@ -337,7 +332,7 @@ var flag2 bool
 
 // TestHRNDchaos expects installed trice compiled from actual sources.
 //
-// This kind of test does not work just with HandleArgs function, because of os.Exit(0) on io.EOF in -source RND.
+// This kind of test does not work just with Handler function, because of os.Exit(0) on io.EOF in -source RND.
 // Endless waiting there does also not work, so this approach is just a quick solution.
 func TestRNDchaos2(t *testing.T) {
 	var act string
@@ -354,7 +349,7 @@ func TestRNDchaos2(t *testing.T) {
 		cage.Enable()
 		defer cage.Disable()
 		func() {
-			HandleArgs([]string{"trice", "log",
+			Handler([]string{"trice", "log",
 				"-idlist", "c:/repos/trice/til.json",
 				"-source", "RND",
 				"-rndLimit", "10",

@@ -14,7 +14,7 @@ func TestRemoteDisplay(t *testing.T) {
 	// prepare
 	afn := "testdata/actRemote.log"
 	efn := "testdata/expRemote.log"
-	assertNil(t, os.Remove(afn))
+	os.Remove(afn)
 	exec := "trice.exe" // todo: os.Args[0] does not work!
 	ipp := randomDynIPPort()
 	p := NewRemoteDisplay(exec, "-logfile "+afn, "localhost", ipp)
@@ -31,5 +31,5 @@ func TestRemoteDisplay(t *testing.T) {
 	assertEqual(t, 9, len(expLines))
 	assertEqual(t, 9, len(actLines))
 	assertEqual(t, expLines[1:], actLines[1:])
-	os.Remove(afn)
+	assertNil(t, os.Remove(afn))
 }
