@@ -5,26 +5,15 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
 	"log"
 	"path/filepath"
 	"reflect"
 	"runtime"
-	"strings"
 	"testing"
 )
 
 // test helper ///////////////////////////////////////////////////////////////////////
 //
-
-// assertNil fails the test if an err is not nil.
-func assertNil(tb testing.TB, err error) {
-	if err != nil {
-		_, file, line, _ := runtime.Caller(1)
-		fmt.Println(err.Error(), filepath.Base(file), line)
-		tb.FailNow()
-	}
-}
 
 // assertEqual fails the test if exp is not equal to act.
 func assertEqual(tb testing.TB, exp, act interface{}) {
@@ -37,26 +26,5 @@ func assertEqual(tb testing.TB, exp, act interface{}) {
 	}
 }
 
-// assertEqualTextFiles compares 2 test files ignoring different line endings
-func assertEqualTextFiles(t *testing.T, fn0, fn1 string) {
-	if !equalTextfiles(fn0, fn1) {
-		t.Fail()
-	}
-}
-
 //
 // test helper ///////////////////////////////////////////////////////////////////////
-
-// equalTextfiles returns true if file content is the same.
-// Different line endings are ignored.
-func equalTextfiles(fn0, fn1 string) bool {
-	s0, _ := ioutil.ReadFile(fn0)
-	s1, _ := ioutil.ReadFile(fn1)
-	var x = strings.NewReplacer("\r\n", "\n")
-	x0 := x.Replace(string(s0))
-	x1 := x.Replace(string(s1))
-	if strings.Compare(x0, x1) == 0 {
-		return true
-	}
-	return false
-}

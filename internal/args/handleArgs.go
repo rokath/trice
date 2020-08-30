@@ -2,7 +2,7 @@
 // Use of this source code is governed by a license that can be found in the LICENSE file.
 
 // Package main implemets the commandline interface and calls the appropriate commands
-package main
+package args
 
 import (
 	"errors"
@@ -20,6 +20,18 @@ import (
 )
 
 var (
+	// Version is set in main package
+	Version string
+
+	// Commit is set in main package
+	Commit string
+
+	// Date is set in main package
+	Date string
+
+	// LinkTime is a helper for displaying build time during development.
+	LinkTime = "testTime"
+
 	// Verbose gives mor information on output if set. This variable is copied into the appropriate packages.
 	Verbose bool
 
@@ -448,10 +460,10 @@ func scVersion() error {
 	if Verbose {
 		fmt.Println("https://github.com/rokath/trice")
 	}
-	if "" != version {
-		fmt.Printf("version=%v, commit=%v, built at %v\n", version, commit, date)
+	if "" != Version {
+		fmt.Printf("version=%v, commit=%v, built at %v\n", Version, Commit, Date)
 	} else {
-		fmt.Printf("version=devel, built %s\n", linkTime)
+		fmt.Printf("version=devel, built %s\n", LinkTime)
 	}
 	return nil
 }

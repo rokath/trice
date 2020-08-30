@@ -7,6 +7,8 @@ import (
 	"math/rand"
 	"os"
 	"time"
+
+	"github.com/rokath/trice/internal/args"
 )
 
 var (
@@ -24,14 +26,17 @@ var (
 )
 
 func main() {
+	args.Version = version
+	args.Commit = commit
+	args.Date = date
 	fi, err := os.Stat(os.Args[0])
 	if nil == err {
-		linkTime = fi.ModTime().String()
+		args.LinkTime = fi.ModTime().String()
 	} else {
-		linkTime = "unknown" // on running main tests fileinfo is invalid
+		args.LinkTime = "unknown" // on running main tests fileinfo is invalid
 	}
 	rand.Seed(time.Now().UnixNano())
-	err = HandleArgs(os.Args)
+	err = args.HandleArgs(os.Args)
 	if nil != err {
 		os.Exit(1)
 	}
