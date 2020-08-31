@@ -12,54 +12,16 @@ import (
 	"runtime"
 	"testing"
 	"time"
-
-	"github.com/kami-zh/go-capturer"
 )
 
 var ()
 
-/*
-// For some reason afn gets not deleted on cli tests
-func TestScVersion0(t *testing.T) {
-	afn := "testdata/actVersion.log"
-	efn := "testdata/expVersion.log"
-	os.Remove(afn)
-	args := []string{"trice", "version", "-lg", afn}
-	assertNil(t, Handler(args))
-	assertEqualTextFiles(t, afn, efn)
-	time.Sleep(100 * time.Millisecond)
-	assertNil(t, os.Remove(afn))
-}
+func TestScVersion(t *testing.T) {
 
-func TestScVersion1(t *testing.T) {
-
-	// keep backup of the real stdout
-	old := os.Stdout
-
-	// re-direct stdout
-	r, w, err := os.Pipe()
-	assertNil(t, err)
-	os.Stdout = w
-
-	// copy the output in a separate goroutine so printing can't block indefinitely
-	outC := make(chan string)
-	go func() {
-		var buf bytes.Buffer
-		io.Copy(&buf, r)
-		outC <- buf.String()
-	}()
-
-	// run the code
-	Handler([]string{"trice", "h"})
-
-	// back to normal state
-	w.Close()
-
-	// restoring the real stdout
-	os.Stdout = old
-
-	// read output
-	act := <-outC
+	fn := func() {
+		Handler([]string{"trice", "h"})
+	}
+	act := captureStdout(fn)
 
 	exp := `syntax: 'trice subcommand' [params]
 	subcommand 'help', 'h' for command line usage
@@ -161,7 +123,6 @@ func TestScVersion1(t *testing.T) {
 		`
 	assertEqualLines(t, exp, act)
 }
-*/
 
 func TestVersion(t *testing.T) {
 	fi, err := os.Stat(os.Args[0])
@@ -172,19 +133,19 @@ func TestVersion(t *testing.T) {
 	fn := func() {
 		Handler([]string{"trice", "v"})
 	}
-	act := capturer.CaptureOutput(fn)
+	act := captureStdout(fn)
 	assertEqual(t, exp, act)
 
 	fn = func() {
 		Handler([]string{"trice", "ver"})
 	}
-	act = capturer.CaptureOutput(fn)
+	act = captureStdout(fn)
 	assertEqual(t, exp, act)
 
 	fn = func() {
 		Handler([]string{"trice", "version"})
 	}
-	act = capturer.CaptureOutput(fn)
+	act = captureStdout(fn)
 	assertEqual(t, exp, act)
 }
 
@@ -192,7 +153,7 @@ func Example_handlerNone() {
 	fn := func() {
 		Handler([]string{"trice", ""})
 	}
-	act := capturer.CaptureOutput(fn)
+	act := captureStdout(fn)
 	fmt.Print(act)
 	// Output:
 	// try: 'trice help|h'
@@ -202,7 +163,7 @@ func Example_wrongSubcommand() {
 	fn := func() {
 		Handler([]string{"trice", "xyz"})
 	}
-	act := capturer.CaptureOutput(fn)
+	act := captureStdout(fn)
 	fmt.Print(act)
 	// Output:
 	// try: 'trice help|h'
@@ -212,7 +173,7 @@ func Example_vwrongSubcommand() {
 	fn := func() {
 		Handler([]string{"trice", "xyz"})
 	}
-	act := capturer.CaptureOutput(fn)
+	act := captureStdout(fn)
 	fmt.Print(act)
 	// Output:
 	// try: 'trice help|h'

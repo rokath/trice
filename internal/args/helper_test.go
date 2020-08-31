@@ -4,9 +4,12 @@
 package args
 
 import (
+	"bytes"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"log"
+	"os"
 	"path/filepath"
 	"reflect"
 	"runtime"
@@ -50,8 +53,8 @@ func assertEqualLines(tb testing.TB, exp, act string) {
 	exp0 := strings.ReplaceAll(exp, "\r\n", "\n")
 	act0 := strings.ReplaceAll(act, "\r\n", "\n")
 
-	exp1 := strings.Split(exp0, "\r")
-	act1 := strings.Split(act0, "\r")
+	exp1 := strings.Split(exp0, "\n")
+	act1 := strings.Split(act0, "\n")
 
 	if len(exp1) != len(act1) {
 		fmt.Println(len(exp1), len(act1))
@@ -86,4 +89,42 @@ func equalTextfiles(fn0, fn1 string) bool {
 		return true
 	}
 	return false
+}
+
+// captureStdout captures stdout and stderr.
+func captureStdout(f func()) string {
+
+	// keep backup of the real stdout
+	old := os.Stdout
+
+	// re-direct stdout
+	r, w, err := os.Pipe()
+	if nil != err {
+		return err.Error()
+	}
+	os.Stdout = w
+	defer func() {
+		// restoring the real stdout
+		os.Stdout = old
+	}()
+
+	// copy the output in a separate goroutine so printing can't block indefinitely
+	outC := make(chan string)
+	go func() {
+		var buf bytes.Buffer
+		io.Copy(&buf, r)
+		outC <- buf.String()
+	}()
+
+	// run the function
+	f()
+
+	// back to normal state
+	err = w.Close()
+	if nil != err {
+		return err.Error()
+	}
+
+	// read output
+	return <-outC
 }
