@@ -31,7 +31,7 @@ type TriceAtomsReceiver interface {
 // The string is transferred using the io.StringWriter interface.
 type TriceTranslator struct {
 	// If some error occured it is stored here. This makes error handling more handy.
-	err error
+	Err error
 
 	// This is the receive channel for trice atomsChannel.
 	atomsChannel <-chan []Trice
@@ -97,12 +97,12 @@ func NewSimpleTrices(sw io.StringWriter, l id.ListT, tr TriceAtomsReceiver) *Tri
 			}
 			for 0 < len(p.atoms) {
 				s := p.translate()
-				_, p.err = sw.WriteString(s)
+				_, p.Err = sw.WriteString(s)
 			}
 			if 0 < len(p.ignored) {
 				// TODO: evaluate other protocols here
 				s := fmt.Sprintln("WARNING:ignoring bytes:", p.ignored)
-				_, p.err = sw.WriteString(s)
+				_, p.Err = sw.WriteString(s)
 				p.ignored = p.ignored[:0]
 			}
 		}
@@ -112,11 +112,11 @@ func NewSimpleTrices(sw io.StringWriter, l id.ListT, tr TriceAtomsReceiver) *Tri
 
 // ErrorFatal ends in osExit(1) if p.err not nil.
 func (p *TriceTranslator) ErrorFatal() {
-	if nil == p.err {
+	if nil == p.Err {
 		return
 	}
 	_, file, line, _ := runtime.Caller(1)
-	log.Fatal(p.err, filepath.Base(file), line)
+	log.Fatal(p.Err, filepath.Base(file), line)
 }
 
 // translate evaluates p.atoms, p.values and p.ignored and tries to generate a string.
@@ -124,12 +124,12 @@ func (p *TriceTranslator) ErrorFatal() {
 // On return it delivers an emty string if not enough data yet for the next string.
 // This is usually the case when trice.ID is 0 and only data payload is to store.
 func (p *TriceTranslator) translate() (s string) {
-	if nil != p.err {
-		s = fmt.Sprintln(p.err, p.values, p.atoms, p.ignored)
+	if nil != p.Err {
+		s = fmt.Sprintln(p.Err, p.values, p.atoms, p.ignored)
 		p.values = p.values[:0]
 		p.atoms = p.atoms[:0]
 		p.ignored = p.ignored[:0]
-		p.err = nil
+		p.Err = nil
 		return
 	}
 	if 0 == len(p.atoms) {
@@ -148,8 +148,9 @@ func (p *TriceTranslator) translate() (s string) {
 		return
 	}
 	var index int
-	index, p.err = id.Index(int(trice.ID), p.list)
-	if nil != p.err {
+	index, p.Err = id.Index(int(trice.ID), p.list)
+	if nil != p.Err {
+		p.Err = nil
 		s = fmt.Sprintln("WARNING: trice.ID", trice.ID, "not found, discarding values:", p.values)
 		p.values = p.values[:0]
 		return
@@ -236,7 +237,7 @@ func (p *TriceTranslator) emitter() (s string) {
 		l1 = int64(binary.LittleEndian.Uint64(prm[8:16]))
 		s = fmt.Sprintf(f, l0, l1)
 	default:
-		p.err = fmt.Errorf("Unknown FmtType %s", it.FmtType)
+		p.Err = fmt.Errorf("Unknown FmtType %s", it.FmtType)
 	}
 	return
 }
@@ -248,27 +249,27 @@ func (p *TriceTranslator) evalLen() {
 	switch it.FmtType {
 	case "TRICE0", "TRICE8_1", "TRICE8_2", "TRICE16_1":
 		if 2 != len(t) {
-			p.err = fmt.Errorf("len %d != 2", len(t))
+			p.Err = fmt.Errorf("len %d != 2", len(t))
 		}
 	case "TRICE8_3", "TRICE8_4", "TRICE16_2", "TRICE32_1":
 		if 4 != len(t) {
-			p.err = fmt.Errorf("len %d != 4", len(t))
+			p.Err = fmt.Errorf("len %d != 4", len(t))
 		}
 	case "TRICE8_5", "TRICE8_6", "TRICE16_3":
 		if 6 != len(t) {
-			p.err = fmt.Errorf("len %d != 6", len(t))
+			p.Err = fmt.Errorf("len %d != 6", len(t))
 		}
 	case "TRICE8_7", "TRICE8_8", "TRICE16_4", "TRICE32_2", "TRICE64_1":
 		if 8 != len(t) {
-			p.err = fmt.Errorf("len %d != 8", len(t))
+			p.Err = fmt.Errorf("len %d != 8", len(t))
 		}
 	case "TRICE32_3":
 		if 12 != len(t) {
-			p.err = fmt.Errorf("len %d != 12", len(t))
+			p.Err = fmt.Errorf("len %d != 12", len(t))
 		}
 	case "TRICE32_4", "TRICE64_2":
 		if 16 != len(t) {
-			p.err = fmt.Errorf("len %d != 16", len(t))
+			p.Err = fmt.Errorf("len %d != 16", len(t))
 		}
 	}
 }
