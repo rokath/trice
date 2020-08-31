@@ -343,3 +343,15 @@ func captureStdout(f func()) string {
 	// read output
 	return <-outC
 }
+
+// errorFatal ends in osExit(1) if err not nil.
+func errorFatal(err error) {
+	if nil == err {
+		return
+	}
+	if Verbose {
+		_, file, line, _ := runtime.Caller(1)
+		log.Fatal(err, filepath.Base(file), line)
+	}
+	log.Fatal(err)
+}

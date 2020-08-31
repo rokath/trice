@@ -5,12 +5,15 @@
 package args
 
 import (
-	"bytes"
 	"errors"
 	"flag"
 	"fmt"
 	"io"
+	"log"
 	"os"
+	"path/filepath"
+	"runtime"
+	"strings"
 
 	"github.com/rokath/trice/internal/com"
 	"github.com/rokath/trice/internal/emitter"
@@ -37,7 +40,7 @@ var (
 	Verbose bool
 
 	// Source is the trice receiver to use
-	Source string
+	Port string
 
 	// Encoding describes the way the byte stream is coded. TODO: Change to MultiArgs
 	Encoding string
@@ -202,8 +205,8 @@ func init() {
 	fsScLog.StringVar(&emitter.ColorPalette, "color", "default", "color set, 'off' disables color handling (\"w:x\"->\"w:x\"), 'none' disables channels color (\"w:x\"->\"x\"), options: 'off|none'")            // flag
 	fsScLog.StringVar(&emitter.Prefix, "prefix", "source: ", "line prefix, options: any string or 'off|none' or 'source:' followed by 0-12 spaces, 'source:' will be replaced by source value e.g., 'COM17:'")   // flag
 	fsScLog.StringVar(&emitter.Suffix, "suffix", "", "append suffix to all lines, options: any string")                                                                                                          // flag
-	fsScLog.StringVar(&Source, "source", "JLINK", "receiver device, options: 'COMn|JLINK|STLINK|filename|SIM|RND|HTTP'")                                                                                         // flag
-	fsScLog.StringVar(&Source, "s", "JLINK", "short for -source")                                                                                                                                                // short flag
+	fsScLog.StringVar(&Port, "source", "JLINK", "receiver device, options: 'COMn|JLINK|STLINK|filename|SIM|RND|HTTP'")                                                                                           // flag
+	fsScLog.StringVar(&Port, "s", "JLINK", "short for -source")                                                                                                                                                  // short flag
 	fsScLog.IntVar(&com.Baud, "baud", 115200, "COM baudrate, valid only for '-source COMn'")                                                                                                                     // flag flag
 	fsScLog.StringVar(&jlink.Param, "jlink", "-Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0", "passed parameter string, valid only for '-source JLRTT', see JLinkRTTLogger in SEGGER UM08001_JLink.pdf") // JLRTT flag
 	//fsScLog.StringVar(&rndMode, "rndMode", "WrapModeWithValidCrc", "valid only for '-source RND', see randomdummy.go, options: 'ChaosMode|BareModeNoSync'")
@@ -307,33 +310,7 @@ func Handler(args []string) error {
 	case "l", "log":
 		fsScLog.Parse(subArgs)
 		injectValues()
-		translatePrefix()
-		id.FnJSON = id.ConditinalFilePath(id.FnJSON)
-		if true == displayRemote {
-			var p *emitter.RemoteDisplay
-			if true == autostart {
-				p = emitter.NewRemoteDisplay(args[0], "-logfile "+cage.Name)
-			} else {
-				p = emitter.NewRemoteDisplay()
-			}
-			p.ErrorFatal()
-			keybcmd.ReadInput()
-		} else {
-			cage.Enable()
-			defer cage.Disable()
-		}
-		//receiving()
-
-		switch Encoding {
-		case "bare":
-			// rd implements the io.Reader interface needed by TriceReceiver.
-			// It is the input source.
-			rd := bytes.NewReader([]byte{1, 1, 1, 1, 0x16, 0x16, 0x16, 0x16, 2, 2, 2, 0, 3, 2, 0, 0, 3, 3, 3, 3, 4, 4})
-			receiveBareSimpleTricesAndDisplayAnsiColor(rd)
-			return nil
-		default:
-			return errors.New("unexpected Encoding")
-		}
+		return receiving()
 
 	case "ds", "displayServer":
 		fsScSv.Parse(subArgs)
@@ -351,10 +328,90 @@ func Handler(args []string) error {
 	}
 }
 
-func receiveBareSimpleTricesAndDisplayAnsiColor(rd io.Reader) {
+// errorFatal ends in osExit(1) if err not nil.
+func errorFatal(err error) {
+	if nil == err {
+		return
+	}
+	if Verbose {
+		_, file, line, _ := runtime.Caller(1)
+		log.Fatal(err, filepath.Base(file), line)
+	}
+	log.Fatal(err)
+}
+
+// newReadCloser uses variable Port and tries to return a valid io.ReadCloser.
+func newReadCloser() (r io.ReadCloser, e error) {
+	if strings.HasPrefix(Port, "COM") {
+		c := com.New(Port)
+		if false == c.Open() {
+			e = fmt.Errorf("Can not open %s", Port)
+		}
+		r = c
+		return
+	}
+	switch Port {
+	case "JLINK":
+		l := jlink.New(jlink.Param) // yes
+		if nil != l.Open() {
+			e = fmt.Errorf("Can not open JLINK %s", jlink.Param)
+		}
+		r = l
+	default:
+		e = fmt.Errorf("Unknown input port %s", Port)
+	}
+	return
+}
+
+// receiving uses internally these settings:
+// Port
+// Encoding
+func receiving() error {
+	translatePrefix()
+	id.FnJSON = id.ConditinalFilePath(id.FnJSON)
+	if true == displayRemote {
+		var p *emitter.RemoteDisplay
+		if true == autostart {
+			p = emitter.NewRemoteDisplay(os.Args[0], "-logfile "+cage.Name)
+		} else {
+			p = emitter.NewRemoteDisplay()
+		}
+		p.ErrorFatal()
+		keybcmd.ReadInput()
+	} else {
+		cage.Enable()
+		defer cage.Disable()
+	}
+	r, e := newReadCloser()
+	errorFatal(e)
+	id.ReadListFile()
+
+	var p *translator.TriceTranslator
+	switch Encoding {
+	case "bare":
+		p = receiveBareSimpleTricesAndDisplayAnsiColor(r)
+
+	case "bareXTEACrypted", "wrapXTEACrypted":
+		errorFatal(cipher.SetUp())
+		fallthrough
+	case "ascii", "wrap", "wrapped":
+		fallthrough
+	default:
+		return fmt.Errorf("unknown encoding: %s", Encoding)
+	}
+
+	for nil == p.Err {
+		// endless loop
+	}
+	errorFatal(r.Close())
+	return p.Err
+
+}
+
+func receiveBareSimpleTricesAndDisplayAnsiColor(rd io.Reader) *translator.TriceTranslator {
 	// tai uses the io.Reader interface from s and implements the TriceAtomsReceiver interface.
 	// It scans the raw input byte stream and decodes the trice atoms it transmits to the TriceAtomsReceiver interface.
-	tai := receiver.NewTricesfromBare(rd)
+	triceAtomsReceiver := receiver.NewTricesfromBare(rd)
 
 	// NewColorDisplay creates a ColorlDisplay. It provides a Linewriter.
 	// It uses internally a local display combined with a line transformer.
@@ -364,13 +421,21 @@ func receiveBareSimpleTricesAndDisplayAnsiColor(rd io.Reader) {
 	// The line composer scans the trice strings and composes lines out of them according to its properies.
 	sw := emitter.NewLineComposer(lwD, emitter.TimeStampFormat, emitter.Prefix, emitter.Suffix)
 
-	var list id.ListT
-	// sti uses the TriceAtomsReceiver interface tai for reception and the io.StringWriter interface sw for writing.
-	// sti collects trice atoms to a complete trice, generates the appropriate string using list and writes it to the provided io.StringWriter
-	translator.NewSimpleTrices(sw, list, tai)
-	for {
-	}
+	// uses triceAtomsReceiver for reception and the io.StringWriter interface sw for writing.
+	// collects trice atoms to a complete trice, generates the appropriate string using list and writes it to the provided io.StringWriter
+	return translator.NewSimpleTrices(sw, id.List, triceAtomsReceiver)
 }
+
+//switch Encoding {
+//case "bare":
+//	// rd implements the io.Reader interface needed by TriceReceiver.
+//	// It is the input source.
+//	rd := bytes.NewReader([]byte{1, 1, 1, 1, 0x16, 0x16, 0x16, 0x16, 2, 2, 2, 0, 3, 2, 0, 0, 3, 3, 3, 3, 4, 4})
+//	receiveBareSimpleTricesAndDisplayAnsiColor(rd)
+//	return nil
+//default:
+//	return errors.New("unexpected Encoding")
+//}
 
 // // connect starts a display server sv if sv is not empty, otherwise it assumes a running display server.
 // //
@@ -398,30 +463,7 @@ func receiveBareSimpleTricesAndDisplayAnsiColor(rd io.Reader) {
 /*
 // receiving TODO better design
 func receiving() {
-	switch Encoding {
-	case "bare", "raw":
-		if "none" != cipher.Password {
-			Encoding = "bareXTEACrypted"
-		}
-	case "wrap", "wrapped":
-		if "none" != cipher.Password {
-			Encoding = "wrapXTEACrypted"
-		}
-	case "ascii":
-		fallthrough
-	default:
-		fmt.Println("unknown encoding:", Encoding)
-		return
-	}
 
-	id.ReadListFile()
-
-	// prepare
-	err := cipher.SetUp()
-	if nil != err {
-		return
-	}
-	//var r io.ReadCloser
 
 	source := Source
 	if strings.HasPrefix(source, "COM") {
@@ -429,13 +471,7 @@ func receiving() {
 	}
 
 	switch source {
-	case "JLINK":
-		l := jlink.New(jlink.Param) // yes
-		if nil != l.Open() {
-			return
-		}
-		defer l.Close()
-		r = l
+
 	//case "HTTP":
 	//	h := http.New()
 	//	if false == h.Open() {
@@ -516,31 +552,31 @@ func scVersion(buildTime string) error {
 func translatePrefix() {
 	switch emitter.Prefix {
 	case "source:":
-		emitter.Prefix = Source + ":"
+		emitter.Prefix = Port + ":"
 	case "source: ":
-		emitter.Prefix = Source + ": "
+		emitter.Prefix = Port + ": "
 	case "source:  ":
-		emitter.Prefix = Source + ":  "
+		emitter.Prefix = Port + ":  "
 	case "source:   ":
-		emitter.Prefix = Source + ":   "
+		emitter.Prefix = Port + ":   "
 	case "source:    ":
-		emitter.Prefix = Source + ":    "
+		emitter.Prefix = Port + ":    "
 	case "source:     ":
-		emitter.Prefix = Source + ":     "
+		emitter.Prefix = Port + ":     "
 	case "source:      ":
-		emitter.Prefix = Source + ":      "
+		emitter.Prefix = Port + ":      "
 	case "source:       ":
-		emitter.Prefix = Source + ":       "
+		emitter.Prefix = Port + ":       "
 	case "source:        ":
-		emitter.Prefix = Source + ":        "
+		emitter.Prefix = Port + ":        "
 	case "source:         ":
-		emitter.Prefix = Source + ":         "
+		emitter.Prefix = Port + ":         "
 	case "source:          ":
-		emitter.Prefix = Source + ":          "
+		emitter.Prefix = Port + ":          "
 	case "source:           ":
-		emitter.Prefix = Source + ":           "
+		emitter.Prefix = Port + ":           "
 	case "source:            ":
-		emitter.Prefix = Source + ":            "
+		emitter.Prefix = Port + ":            "
 	case "off", "none":
 		emitter.Prefix = ""
 	}
