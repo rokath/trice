@@ -13,7 +13,7 @@ func Test2LineComposer(t *testing.T) {
 	lw := newCheckDisplay()
 	pf := "["
 	sf := "]"
-	p := newLineComposer(lw, "off", pf, sf)
+	p := NewLineComposer(lw, "off", pf, sf)
 
 	p.WriteString("Hi\r\nAll\n")
 	lw.checkLines(t, []string{"[ Hi ]", "[ All ]"})
@@ -33,7 +33,7 @@ func Test2LineComposer(t *testing.T) {
 func TestLineComposer(t *testing.T) {
 	// prepare
 	lw := newCheckDisplay()
-	p := newLineComposer(lw, "zero", "<<<", ">>>")
+	p := NewLineComposer(lw, "zero", "<<<", ">>>")
 	p.WriteString("Hi\nAll\r\n")
 
 	lw.checkLines(t, []string{"2006-01-02_1504-05 <<< Hi >>>", "2006-01-02_1504-05 <<< All >>>"})

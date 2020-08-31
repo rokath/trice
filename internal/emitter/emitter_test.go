@@ -35,7 +35,7 @@ func TestNewSimpleTriceInterpreterWithAnsiOff(t *testing.T) {
 	lwT := newLineTransformerANSI(lwD, "off")
 	// lineComposer r implements the io.StringWriter interface and uses the Linewriter provided.
 	// The line composer scans the trice strings and composes lines out of them according to its properies.
-	sw := newLineComposer(lwT, "zero", "PREFIX", "")
+	sw := NewLineComposer(lwT, "zero", "PREFIX", "")
 
 	var list id.ListT = []id.Item{
 		{ID: 257, FmtType: "TRICE8_2", FmtStrg: "att:Hello, %d+%d=", Created: 0, Removed: 0},
@@ -78,7 +78,7 @@ func TestNewSimpleTriceInterpreterWithAnsiNone(t *testing.T) {
 	lwT := newLineTransformerANSI(lwD, "none")
 	// lineComposer r implements the io.StringWriter interface and uses the Linewriter provided.
 	// The line composer scans the trice strings and composes lines out of them according to its properies.
-	sw := newLineComposer(lwT, "zero", "PREFIX", "")
+	sw := NewLineComposer(lwT, "zero", "PREFIX", "")
 
 	var list id.ListT = []id.Item{
 		{ID: 257, FmtType: "TRICE8_2", FmtStrg: "att:Hello, %d+%d=", Created: 0, Removed: 0},
@@ -120,7 +120,7 @@ func TestNewSimpleTriceInterpreterResync(t *testing.T) {
 	lwT := newLineTransformerANSI(lwD, "none")
 	// lineComposer r implements the io.StringWriter interface and uses the Linewriter provided.
 	// The line composer scans the trice strings and composes lines out of them according to its properies.
-	sw := newLineComposer(lwT, "zero", "PREFIX", "")
+	sw := NewLineComposer(lwT, "zero", "PREFIX", "")
 
 	var list id.ListT = []id.Item{
 		{ID: 257, FmtType: "TRICE8_2", FmtStrg: "att:Hello, %d+%d=", Created: 0, Removed: 0},
@@ -152,6 +152,6 @@ func _TestScCheck(t *testing.T) {
 	lwT := newLineTransformerANSI(lwD, "none")
 	// lineComposer r implements the io.StringWriter interface and uses the Linewriter provided.
 	// The line composer scans the trice strings and composes lines out of them according to its properies.
-	sw := newLineComposer(lwT, "zero", "PREFIX", "")
+	sw := NewLineComposer(lwT, "zero", "PREFIX", "")
 	fmt.Print(sw)
 }

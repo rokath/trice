@@ -5,9 +5,11 @@
 package args
 
 import (
+	"bytes"
 	"errors"
 	"flag"
 	"fmt"
+	"io"
 	"os"
 
 	"github.com/rokath/trice/internal/com"
@@ -15,6 +17,8 @@ import (
 	"github.com/rokath/trice/internal/id"
 	"github.com/rokath/trice/internal/jlink"
 	"github.com/rokath/trice/internal/keybcmd"
+	"github.com/rokath/trice/internal/receiver"
+	"github.com/rokath/trice/internal/translator"
 	"github.com/rokath/trice/pkg/cage"
 	"github.com/rokath/trice/pkg/cipher"
 )
@@ -44,8 +48,8 @@ var (
 	// rndLimit is flag vaue for byte count limit in random mode
 	//rndLimit int
 
-	// displayserver if set, sends trice lines over TCP
-	displayserver bool
+	// displayRemote if set, sends trice lines over TCP
+	displayRemote bool
 
 	// autostart if set, starts an additional trice instamce as displayserver
 	autostart bool
@@ -204,8 +208,8 @@ func init() {
 	fsScLog.StringVar(&jlink.Param, "jlink", "-Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0", "passed parameter string, valid only for '-source JLRTT', see JLinkRTTLogger in SEGGER UM08001_JLink.pdf") // JLRTT flag
 	//fsScLog.StringVar(&rndMode, "rndMode", "WrapModeWithValidCrc", "valid only for '-source RND', see randomdummy.go, options: 'ChaosMode|BareModeNoSync'")
 	//fsScLog.IntVar(&rndLimit, "rndLimit", randomdummy.NoLimit, "valid only for '-source RND', see randomdummy.go, options: 'n|0', 'n' is count of bytes, '0' for unlimited count")
-	fsScLog.BoolVar(&displayserver, "displayserver", false, "send trice lines to displayserver @ ipa:ipp")
-	fsScLog.BoolVar(&displayserver, "ds", false, "short for '-displayserver'")
+	fsScLog.BoolVar(&displayRemote, "displayserver", false, "send trice lines to displayserver @ ipa:ipp")
+	fsScLog.BoolVar(&displayRemote, "ds", false, "short for '-displayserver'")
 	fsScLog.BoolVar(&autostart, "autostart", false, "autostart displayserver @ ipa:ipp (works not good with windows, because of cmd and powershell color issues and missing cli params in wt and gitbash)")
 	fsScLog.BoolVar(&autostart, "a", false, "short for '-autostart'")
 	flagLogfile(fsScLog)
@@ -305,12 +309,7 @@ func Handler(args []string) error {
 		injectValues()
 		translatePrefix()
 		id.FnJSON = id.ConditinalFilePath(id.FnJSON)
-
-		if false == displayserver {
-			cage.Enable()
-			defer cage.Disable()
-			//receiving()
-		} else {
+		if true == displayRemote {
 			var p *emitter.RemoteDisplay
 			if true == autostart {
 				p = emitter.NewRemoteDisplay(args[0], "-logfile "+cage.Name)
@@ -319,8 +318,23 @@ func Handler(args []string) error {
 			}
 			p.ErrorFatal()
 			keybcmd.ReadInput()
-			//receiving()
+		} else {
+			cage.Enable()
+			defer cage.Disable()
 		}
+		//receiving()
+
+		switch Encoding {
+		case "bare":
+			// rd implements the io.Reader interface needed by TriceReceiver.
+			// It is the input source.
+			rd := bytes.NewReader([]byte{1, 1, 1, 1, 0x16, 0x16, 0x16, 0x16, 2, 2, 2, 0, 3, 2, 0, 0, 3, 3, 3, 3, 4, 4})
+			receiveBareSimpleTricesAndDisplayAnsiColor(rd)
+			return nil
+		default:
+			return errors.New("unexpected Encoding")
+		}
+
 	case "ds", "displayServer":
 		fsScSv.Parse(subArgs)
 		injectValues()
@@ -335,7 +349,27 @@ func Handler(args []string) error {
 		fmt.Println("try: 'trice help|h'")
 		return nil
 	}
-	return nil
+}
+
+func receiveBareSimpleTricesAndDisplayAnsiColor(rd io.Reader) {
+	// tai uses the io.Reader interface from s and implements the TriceAtomsReceiver interface.
+	// It scans the raw input byte stream and decodes the trice atoms it transmits to the TriceAtomsReceiver interface.
+	tai := receiver.NewTricesfromBare(rd)
+
+	// NewColorDisplay creates a ColorlDisplay. It provides a Linewriter.
+	// It uses internally a local display combined with a line transformer.
+	lwD := emitter.NewColorDisplay(emitter.ColorPalette)
+
+	// lineComposer r implements the io.StringWriter interface and uses the Linewriter provided.
+	// The line composer scans the trice strings and composes lines out of them according to its properies.
+	sw := emitter.NewLineComposer(lwD, emitter.TimeStampFormat, emitter.Prefix, emitter.Suffix)
+
+	var list id.ListT
+	// sti uses the TriceAtomsReceiver interface tai for reception and the io.StringWriter interface sw for writing.
+	// sti collects trice atoms to a complete trice, generates the appropriate string using list and writes it to the provided io.StringWriter
+	translator.NewSimpleTrices(sw, list, tai)
+	for {
+	}
 }
 
 // // connect starts a display server sv if sv is not empty, otherwise it assumes a running display server.

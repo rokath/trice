@@ -5,26 +5,7 @@
 // cage.Enable()
 // defer cage.Disable()
 // do stuff...
-// for capturing output in a string consider "import capturer "github.com/kami-zh/go-capturer"
-//
-// TODO: debug code:
-//	Problem:
-//	cage.Enable() re-direkted os.Stderr und dupliziert so Ausgaben an os.Sterr in trice.log
-//	hCmd.Output() usw. geben os.Stderr zurück. Das ist auch wirklich die re-directed Adresse.
-//	Der Paketest von cage funktioniert, auch TestScHelp() geht fehlerfrei durch.
-//	Wenn aber über die Kommandozeile "trice h" erfolgt, landen Ausgaben an os.Stderr NICHT in trice.log obwohl os.Stderr re-directed ist.
-//		log.SetFlags(0)
-//		fmt.Println("0: os.Stderr     addr:", os.Stderr) // ok not in trice.log
-//		cage.Enable()
-//		defer cage.Disable()
-//		fmt.Println("1: os.Stderr     addr:", os.Stderr)     // ok in trice.log (os.Stdout)
-//		fmt.Println("2: hCmd.Output() addr:", hCmd.Output()) // ok in trice.log (os.Stdout)
-//
-//		fmt.Fprintln(os.Stderr, "3:      OS.STDERR")       // NOT in trice.log
-//		fmt.Fprintln(hCmd.Output(), "4:    hCmd.Output()") // NOT in trice.log
-//		log.Println("5: TryIt")                            // ok in trice.log (log out)
-//		fmt.Println("6: TryIt2")                           // ok in trice.log (os.Stdout)
-//		fmt.Fprintln(os.Stdout, "7:      OS.STDOUT")       // ok in trice.log (os.Stdout)
+
 package cage
 
 import (
