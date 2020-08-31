@@ -1,7 +1,7 @@
 // Copyright 2020 Thomas.Hoehenleitner [at] seerose.net
 // Use of this source code is governed by a license that can be found in the LICENSE file.
 
-// Package cmd is responsibe for interpreting user commanmdline and executing commands
+// Package keybcmd is responsibe for interpreting user commanmdline and executing commands
 package keybcmd
 
 import (
@@ -14,7 +14,7 @@ import (
 	"github.com/rokath/trice/internal/emitter"
 )
 
-// KeyboardInput expects user input from terminal
+// ReadInput expects user input from terminal
 func ReadInput() { // https://tutorialedge.net/golang/reading-console-input-golang/
 	reader := bufio.NewReader(os.Stdin)
 	keyboardInput(reader)

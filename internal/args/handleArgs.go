@@ -1,7 +1,7 @@
 // Copyright 2020 Thomas.Hoehenleitner [at] seerose.net
 // Use of this source code is governed by a license that can be found in the LICENSE file.
 
-// Package main implemets the commandline interface and calls the appropriate commands
+// Package args implemets the commandline interface and calls the appropriate commands
 package args
 
 import (
@@ -75,7 +75,7 @@ var (
 	fsScSv *flag.FlagSet
 
 	// fsScVerseion is flag set for sub command 'version'
-	fsScVerseion *flag.FlagSet
+	fsScVersion *flag.FlagSet
 
 	// fsScScan is flag set for sub command 'scan'
 	fsScScan *flag.FlagSet
@@ -119,29 +119,36 @@ func scHelp(
 	cage.Enable()
 	defer cage.Disable()
 
-	fmt.Fprintln(fsScHelp.Output(), "syntax: 'trice subcommand' [params]")
-	fmt.Fprintln(fsScHelp.Output(), "subcommand 'help', 'h' for command line usage")
+	fmt.Println("syntax: 'trice subcommand' [params]")
+	fmt.Println("subcommand 'help', 'h' for command line usage")
+	fsScHelp.SetOutput(os.Stdout)
 	fsScHelp.PrintDefaults()
-	fmt.Fprintln(fsScUpdate.Output(), "subcommand 'u', 'upd', 'update' for updating ID list and source files")
+	fmt.Println("subcommand 'u', 'upd', 'update' for updating ID list and source files")
+	fsScUpdate.SetOutput(os.Stdout)
 	fsScUpdate.PrintDefaults()
 	//fmt.Fprintln(c.Output(), "subcommand 'check' for dispaying the ID list in trice log format")
 	//c.PrintDefaults()
-	fmt.Fprintln(l.Output(), "subcommand 'l', 'log' for displaying trice logs coming from source")
+	fmt.Println("subcommand 'l', 'log' for displaying trice logs coming from source")
+	l.SetOutput(os.Stdout)
 	l.PrintDefaults()
-	fmt.Fprintln(z.Output(), "subcommand 'zeroSourceTreeIds' for setting all TRICE IDs to 0 in source tree, avoid using this subcommand normally")
+	fmt.Println("subcommand 'zeroSourceTreeIds' for setting all TRICE IDs to 0 in source tree, avoid using this subcommand normally")
+	z.SetOutput(os.Stdout)
 	z.PrintDefaults()
-	fmt.Fprintln(v.Output(), "subcommand 'v', 'ver', 'version' for displaying version information")
+	fmt.Println("subcommand 'v', 'ver', 'version' for displaying version information")
+	v.SetOutput(os.Stdout)
 	v.PrintDefaults()
-	fmt.Fprintln(sv.Output(), "subcommand 'ds', 'displayServer' starts a display server, use in a separate console, on Windows use wt or a linux shell like git-bash to avoid color issues, several instances of 'trice l -ds' will send output there")
+	fmt.Println("subcommand 'ds', 'displayServer' starts a display server, use in a separate console, on Windows use wt or a linux shell like git-bash to avoid color issues, several instances of 'trice l -ds' will send output there")
+	sv.SetOutput(os.Stdout)
 	sv.PrintDefaults()
-	fmt.Fprintln(scSdSv.Output(), "subcommand 'sd', 'shutdownServer' ends display server at IPA:IPP, works also on a remote mashine")
+	fmt.Println("subcommand 'sd', 'shutdownServer' ends display server at IPA:IPP, works also on a remote mashine")
+	scSdSv.SetOutput(os.Stdout)
 	scSdSv.PrintDefaults()
-	fmt.Fprintln(fsScHelp.Output(), "examples:")
-	fmt.Fprintln(fsScHelp.Output(), "    'trice update -src ../A -src ../../B' parses ../A and ../../B with all subdirectories for TRICE IDs to update and adjusts til.json")
-	fmt.Fprintln(fsScHelp.Output(), "    'trice l -s COM15 -baud 38400 -d wrap display wrap data format trice log messages from COM15")
-	fmt.Fprintln(fsScHelp.Output(), "    'trice l display bare data format trice log messages from default source")
-	fmt.Fprintln(fsScHelp.Output(), "    'trice zeroSourceTreeIds -dir ../A' sets all TRICE IDs to 0 in ./A")
-	fmt.Fprintln(fsScHelp.Output(), "    'trice v -v' shows verbose version information")
+	fmt.Println("examples:")
+	fmt.Println("    'trice update -src ../A -src ../../B' parses ../A and ../../B with all subdirectories for TRICE IDs to update and adjusts til.json")
+	fmt.Println("    'trice l -s COM15 -baud 38400 -d wrap display wrap data format trice log messages from COM15")
+	fmt.Println("    'trice l display bare data format trice log messages from default source")
+	fmt.Println("    'trice zeroSourceTreeIds -dir ../A' sets all TRICE IDs to 0 in ./A")
+	fmt.Println("    'trice v -v' shows verbose version information")
 	return nil
 }
 
@@ -175,9 +182,9 @@ func init() {
 }
 
 func init() {
-	fsScVerseion = flag.NewFlagSet("version", flag.ContinueOnError) // subcommand
-	flagLogfile(fsScVerseion)
-	flagVerbosity(fsScVerseion)
+	fsScVersion = flag.NewFlagSet("version", flag.ContinueOnError) // subcommand
+	flagLogfile(fsScVersion)
+	flagVerbosity(fsScVersion)
 }
 
 func init() {
@@ -189,12 +196,12 @@ func init() {
 	fsScLog.BoolVar(&cipher.ShowKey, "key", false, "show encryption key")                                                                                                                                        // flag
 	fsScLog.StringVar(&emitter.TimeStampFormat, "ts", "LOCmicro", "PC timestamp for logs and logfile name, options: 'off|none|UTCmicro|zero'")                                                                   // flag
 	fsScLog.StringVar(&emitter.ColorPalette, "color", "default", "color set, 'off' disables color handling (\"w:x\"->\"w:x\"), 'none' disables channels color (\"w:x\"->\"x\"), options: 'off|none'")            // flag
-	fsScLog.StringVar(&emitter.Prefix, "prefix", "source: ", "prepend prefix to all lines, options: any string or 'off|none' or 'source:' followed by 0-12 spaces, source will be replaced")                     // flag
+	fsScLog.StringVar(&emitter.Prefix, "prefix", "source: ", "line prefix, options: any string or 'off|none' or 'source:' followed by 0-12 spaces, 'source:' will be replaced by source value e.g., 'COM17:'")   // flag
 	fsScLog.StringVar(&emitter.Suffix, "suffix", "", "append suffix to all lines, options: any string")                                                                                                          // flag
-	fsScLog.StringVar(&Source, "source", "JLINK", "receiver device, options: 'COMn|JLINK|STLINK|filename|SIM|RND|HTTP'")                                                                                         //HTTP, RTT, RTTD, RTTF")                                             // flag
+	fsScLog.StringVar(&Source, "source", "JLINK", "receiver device, options: 'COMn|JLINK|STLINK|filename|SIM|RND|HTTP'")                                                                                         // flag
 	fsScLog.StringVar(&Source, "s", "JLINK", "short for -source")                                                                                                                                                // short flag
 	fsScLog.IntVar(&com.Baud, "baud", 115200, "COM baudrate, valid only for '-source COMn'")                                                                                                                     // flag flag
-	fsScLog.StringVar(&jlink.Param, "jlink", "-Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0", "passed parameter string, valid only for '-source JLRTT', see JLinkRTTLogger in SEGGER UM08001_JLink.pdf") // JLRTT flag                                                                                                     // JLRTT flag
+	fsScLog.StringVar(&jlink.Param, "jlink", "-Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0", "passed parameter string, valid only for '-source JLRTT', see JLinkRTTLogger in SEGGER UM08001_JLink.pdf") // JLRTT flag
 	//fsScLog.StringVar(&rndMode, "rndMode", "WrapModeWithValidCrc", "valid only for '-source RND', see randomdummy.go, options: 'ChaosMode|BareModeNoSync'")
 	//fsScLog.IntVar(&rndLimit, "rndLimit", randomdummy.NoLimit, "valid only for '-source RND', see randomdummy.go, options: 'n|0', 'n' is count of bytes, '0' for unlimited count")
 	fsScLog.BoolVar(&displayserver, "displayserver", false, "send trice lines to displayserver @ ipa:ipp")
@@ -224,6 +231,7 @@ func init() {
 }
 
 // injectValues is distibuting values used in several packages.
+// It must not be called before the appropriate arg parsing.
 func injectValues() {
 	id.Verbose = Verbose
 	emitter.Verbose = Verbose
@@ -261,7 +269,7 @@ func Handler(args []string) error {
 		fsScHelp.Parse(subArgs)
 		injectValues()
 		//return scHelp(fsScCheck, fsScLog, fsScZero, fsScVerseion, fsScSv, fsScSdSv)
-		return scHelp(fsScLog, fsScZero, fsScVerseion, fsScSv, fsScSdSv)
+		return scHelp(fsScLog, fsScZero, fsScVersion, fsScSv, fsScSdSv)
 
 	case "s", "sc", "scan":
 		fsScScan.Parse(subArgs)
@@ -270,7 +278,7 @@ func Handler(args []string) error {
 		return err
 
 	case "v", "ver", "version":
-		fsScVerseion.Parse(subArgs)
+		fsScVersion.Parse(subArgs)
 		injectValues()
 		return scVersion(buildTime)
 
@@ -295,11 +303,7 @@ func Handler(args []string) error {
 	case "l", "log":
 		fsScLog.Parse(subArgs)
 		injectValues()
-		setPrefix(emitter.Prefix)
-		//if strings.HasPrefix(Source, "COM") {
-		//com.Port = Source // set COM port number
-		//Source = "COM" // overwrite "COMn"
-		//}
+		translatePrefix()
 		id.FnJSON = id.ConditinalFilePath(id.FnJSON)
 
 		if false == displayserver {
@@ -334,28 +338,28 @@ func Handler(args []string) error {
 	return nil
 }
 
-// connect starts a display server sy if sv is not empty, otherwise it assumes a running display server.
-//
-// It connects then to the running display server.
-func connect(sv string) error {
-	//if "" != sv {
-	//	disp.StartServer(sv)
-	//}
-	//
-	//err := disp.Connect()
-	//disp.WriteLine = disp.RemoteOut // re-direct output
-	//if nil != err {
-	//	return err
-	//}
-	//
-	//disp.PtrRPC.Call("Server.Out", []string{""}, nil)
-	//disp.PtrRPC.Call("Server.Out", []string{""}, nil)
-	//disp.PtrRPC.Call("Server.Out", []string{""}, nil)
-	//disp.PtrRPC.Call("Server.Out", []string{"att:new connection from ", "read:" + Source, "..."}, nil)
-	//disp.PtrRPC.Call("Server.Out", []string{""}, nil)
-	//disp.PtrRPC.Call("Server.Out", []string{""}, nil)
-	return nil
-}
+// // connect starts a display server sv if sv is not empty, otherwise it assumes a running display server.
+// //
+// // It connects then to the running display server.
+// func connect(sv string) error {
+// 	//if "" != sv {
+// 	//	disp.StartServer(sv)
+// 	//}
+// 	//
+// 	//err := disp.Connect()
+// 	//disp.WriteLine = disp.RemoteOut // re-direct output
+// 	//if nil != err {
+// 	//	return err
+// 	//}
+// 	//
+// 	//disp.PtrRPC.Call("Server.Out", []string{""}, nil)
+// 	//disp.PtrRPC.Call("Server.Out", []string{""}, nil)
+// 	//disp.PtrRPC.Call("Server.Out", []string{""}, nil)
+// 	//disp.PtrRPC.Call("Server.Out", []string{"att:new connection from ", "read:" + Source, "..."}, nil)
+// 	//disp.PtrRPC.Call("Server.Out", []string{""}, nil)
+// 	//disp.PtrRPC.Call("Server.Out", []string{""}, nil)
+// 	return nil
+// }
 
 /*
 // receiving TODO better design
@@ -473,9 +477,10 @@ func scVersion(buildTime string) error {
 	return nil
 }
 
-// setPrefix sets s as prefix for each trice log line
-func setPrefix(s string) {
-	switch s {
+// translatePrefix changes "source:" to e.g., "JLINK:".
+// todo: use strings.Split()
+func translatePrefix() {
+	switch emitter.Prefix {
 	case "source:":
 		emitter.Prefix = Source + ":"
 	case "source: ":
@@ -504,7 +509,5 @@ func setPrefix(s string) {
 		emitter.Prefix = Source + ":            "
 	case "off", "none":
 		emitter.Prefix = ""
-	default:
-		emitter.Prefix = s
 	}
 }

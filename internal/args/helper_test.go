@@ -43,6 +43,27 @@ func assertEqual(tb testing.TB, exp, act interface{}) {
 	}
 }
 
+// assertEqualLines compares exp and act line by line ignoring lineendings and leading/trailing spaces.
+func assertEqualLines(tb testing.TB, exp, act string) {
+
+	// remove windows line endings
+	exp0 := strings.ReplaceAll(exp, "\r\n", "\n")
+	act0 := strings.ReplaceAll(act, "\r\n", "\n")
+
+	exp1 := strings.Split(exp0, "\r")
+	act1 := strings.Split(act0, "\r")
+
+	if len(exp1) != len(act1) {
+		fmt.Println(len(exp1), len(act1))
+		tb.Fail()
+	}
+	for i, se := range exp1 {
+		expLine := strings.TrimSpace(se)
+		actLine := strings.TrimSpace(act1[i])
+		assertEqual(tb, expLine, actLine)
+	}
+}
+
 // assertEqualTextFiles compares 2 test files ignoring different line endings
 func assertEqualTextFiles(t *testing.T, fn0, fn1 string) {
 	if !equalTextfiles(fn0, fn1) {

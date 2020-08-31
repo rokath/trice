@@ -16,17 +16,152 @@ import (
 	"github.com/kami-zh/go-capturer"
 )
 
+var ()
+
+/*
 // For some reason afn gets not deleted on cli tests
-// func TestScVersion(t *testing.T) {
-// 	afn := "testdata/actVersion.log"
-// 	efn := "testdata/expVersion.log"
-// 	os.Remove(afn)
-// 	args := []string{"trice", "version", "-lg", afn}
-// 	assertNil(t, Handler(args))
-// 	assertEqualTextFiles(t, afn, efn)
-// 	time.Sleep(100 * time.Millisecond)
-// 	assertNil(t, os.Remove(afn))
-// }
+func TestScVersion0(t *testing.T) {
+	afn := "testdata/actVersion.log"
+	efn := "testdata/expVersion.log"
+	os.Remove(afn)
+	args := []string{"trice", "version", "-lg", afn}
+	assertNil(t, Handler(args))
+	assertEqualTextFiles(t, afn, efn)
+	time.Sleep(100 * time.Millisecond)
+	assertNil(t, os.Remove(afn))
+}
+
+func TestScVersion1(t *testing.T) {
+
+	// keep backup of the real stdout
+	old := os.Stdout
+
+	// re-direct stdout
+	r, w, err := os.Pipe()
+	assertNil(t, err)
+	os.Stdout = w
+
+	// copy the output in a separate goroutine so printing can't block indefinitely
+	outC := make(chan string)
+	go func() {
+		var buf bytes.Buffer
+		io.Copy(&buf, r)
+		outC <- buf.String()
+	}()
+
+	// run the code
+	Handler([]string{"trice", "h"})
+
+	// back to normal state
+	w.Close()
+
+	// restoring the real stdout
+	os.Stdout = old
+
+	// read output
+	act := <-outC
+
+	exp := `syntax: 'trice subcommand' [params]
+	subcommand 'help', 'h' for command line usage
+	  -lg string
+			short for -logfile (default "off")
+	  -logfile string
+			append all output to logfile, options: 'none|filename|auto', 'auto' for "2006-01-02_1504-05_trice.log" with actual time (default "off")
+	  -v	verbose, more informal output if used
+	subcommand 'u', 'upd', 'update' for updating ID list and source files
+	  -dry-run
+			no changes are applied
+	  -i string
+			short for '-idlist' (default "til.json")
+	  -idlist string
+			trice ID list path, 'none' possible (default "til.json")
+	  -src value
+			source dir or file, multi use possible, default './'
+	  -v	verbose, more informal output if used
+	subcommand 'l', 'log' for displaying trice logs coming from source
+	  -a	short for '-autostart'
+	  -autostart
+			autostart displayserver @ ipa:ipp (works not good with windows, because of cmd and powershell color issues and missing cli params in wt and gitbash)
+	  -baud int
+			COM baudrate, valid only for '-source COMn' (default 115200)
+	  -color string
+			color set, 'off' disables color handling ("w:x"->"w:x"), 'none' disables channels color ("w:x"->"x"), options: 'off|none' (default "default")
+	  -displayserver
+			send trice lines to displayserver @ ipa:ipp
+	  -ds
+			short for '-displayserver'
+	  -e string
+			short for -encoding (default "bare")
+	  -encoding string
+			trice transmit data format type, options: 'ascii|wrap' (default "bare")
+	  -i string
+			short for '-idlist' (default "til.json")
+	  -idlist string
+			trice ID list path, 'none' possible (default "til.json")
+	  -ipa string
+			ip address like '127.0.0.1' (default "localhost")
+	  -ipp string
+			16 bit port number (default "61497")
+	  -jlink string
+			passed parameter string, valid only for '-source JLRTT', see JLinkRTTLogger in SEGGER UM08001_JLink.pdf (default "-Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0")
+	  -key
+			show encryption key
+	  -lg string
+			short for -logfile (default "off")
+	  -logfile string
+			append all output to logfile, options: 'none|filename|auto', 'auto' for "2006-01-02_1504-05_trice.log" with actual time (default "off")
+	  -password string
+			decrypt passphrase (default "none")
+	  -prefix string
+			line prefix, options: any string or 'off|none' or 'source:' followed by 0-12 spaces, 'source:' will be replaced by source value e.g., 'COM17:' (default "source: ")
+	  -pw string
+			short for -password (default "none")
+	  -s string
+			short for -source (default "JLINK")
+	  -source string
+			receiver device, options: 'COMn|JLINK|STLINK|filename|SIM|RND|HTTP' (default "JLINK")
+	  -suffix string
+			append suffix to all lines, options: any string
+	  -ts string
+			PC timestamp for logs and logfile name, options: 'off|none|UTCmicro|zero' (default "LOCmicro")
+	  -v	verbose, more informal output if used
+	subcommand 'zeroSourceTreeIds' for setting all TRICE IDs to 0 in source tree, avoid using this subcommand normally
+	  -dry-run
+			no changes are applied
+	  -src string
+			zero all Id(n) inside source tree dir, required
+	subcommand 'v', 'ver', 'version' for displaying version information
+	  -lg string
+			short for -logfile (default "off")
+	  -logfile string
+			append all output to logfile, options: 'none|filename|auto', 'auto' for "2006-01-02_1504-05_trice.log" with actual time (default "off")
+	  -v	verbose, more informal output if used
+	subcommand 'ds', 'displayServer' starts a display server, use in a separate console, on Windows use wt or a linux shell like git-bash to avoid color issues, several instances of 'trice l -ds' will send output there
+	  -color string
+			color set, options: 'off|none' (default "default")
+	  -ipa string
+			ip address like '127.0.0.1' (default "localhost")
+	  -ipp string
+			16 bit port number (default "61497")
+	  -lg string
+			short for -logfile (default "off")
+	  -logfile string
+			append all output to logfile, options: 'none|filename|auto', 'auto' for "2006-01-02_1504-05_trice.log" with actual time (default "off")
+	subcommand 'sd', 'shutdownServer' ends display server at IPA:IPP, works also on a remote mashine
+	  -ipa string
+			ip address like '127.0.0.1' (default "localhost")
+	  -ipp string
+			16 bit port number (default "61497")
+	examples:
+		'trice update -src ../A -src ../../B' parses ../A and ../../B with all subdirectories for TRICE IDs to update and adjusts til.json
+		'trice l -s COM15 -baud 38400 -d wrap display wrap data format trice log messages from COM15
+		'trice l display bare data format trice log messages from default source
+		'trice zeroSourceTreeIds -dir ../A' sets all TRICE IDs to 0 in ./A
+		'trice v -v' shows verbose version information
+		`
+	assertEqualLines(t, exp, act)
+}
+*/
 
 func TestVersion(t *testing.T) {
 	fi, err := os.Stat(os.Args[0])
@@ -53,7 +188,7 @@ func TestVersion(t *testing.T) {
 	assertEqual(t, exp, act)
 }
 
-func Example_HandlerNone() {
+func Example_handlerNone() {
 	fn := func() {
 		Handler([]string{"trice", ""})
 	}
