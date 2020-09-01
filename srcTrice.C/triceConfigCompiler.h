@@ -1,4 +1,4 @@
-/*! \file triceStm32CompilerConfig.h
+/*! \file triceConfigCompiler.h
 \author Thomas.Hoehenleitner [at] seerose.net
 *******************************************************************************/
 
