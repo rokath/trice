@@ -21,9 +21,9 @@ type lineTransformerANSI struct {
 	colorPalette string
 }
 
-// newLineTransformerANSI translates lines to ANSI colors according to colorPalette.
+// NewLineTransformerANSI translates lines to ANSI colors according to colorPalette.
 // It provides a Linewriter interface and uses internally a Linewriter.
-func newLineTransformerANSI(lw Linewriter, colorPalette string) *lineTransformerANSI {
+func NewLineTransformerANSI(lw Linewriter, colorPalette string) *lineTransformerANSI {
 	p := &lineTransformerANSI{lw, colorPalette}
 	return p
 }

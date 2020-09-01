@@ -63,7 +63,7 @@ uint32_t ms = 0;
 /* USER CODE END EV */
 
 /******************************************************************************/
-/*           Cortex-M0 Processor Interruption and Exception Handlers          */ 
+/*           Cortex-M0 Processor Interruption and Exception Handlers          */
 /******************************************************************************/
 /**
   * @brief This function handles Non maskable interrupt.
@@ -132,7 +132,7 @@ void SysTick_Handler(void)
         ms_1 = ms;
     }
   /* USER CODE END SysTick_IRQn 0 */
-  
+
   /* USER CODE BEGIN SysTick_IRQn 1 */
     #ifdef LL_INTERFACE_WITH_INTERRUPTS
         triceServeBare();

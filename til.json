@@ -1,5 +1,61 @@
 [
 	{
+		"id": 258,
+		"fmtType": "TRICE8_2",
+		"fmtStrg": "att:Hello, %d+%d=", 
+		"created": 1,
+		"removed": 0
+	},
+	{
+		"id": 514,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "att:%d, ok?\n", 
+		"created": 1,
+		"removed": 0
+	},
+	{
+		"id": 771,
+		"fmtType": "TRICE0",
+		"fmtStrg": "msg:Yes!\n", 
+		"created": 1,
+		"removed": 0
+	},
+	{
+		"id": 5654,
+		"fmtType": "TRICE0",
+		"fmtStrg": "%s", 
+		"created": 1,
+		"removed": 0
+	},
+	{
+		"id": 257,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "%d\\b\\b\\b",
+		"created": 1590415342,
+		"removed": 0
+	},
+	{
+		"id": 514,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "%d\\b\\b\\b",
+		"created": 1590415461,
+		"removed": 0
+	},
+	{
+		"id": 2056,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "%d\\b\\b\\b\\b",
+		"created": 1590415940,
+		"removed": 0
+	},
+	{
+		"id": 5654,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "%d\\b\\b\\b\\b",
+		"created": 1590416274,
+		"removed": 0
+	},
+	{
 		"id": 45373,
 		"fmtType": "TRICE16_1",
 		"fmtStrg": "tim:timing      message, SysTick is %6d\\n",
@@ -865,34 +921,6 @@
 		"fmtType": "TRICE0",
 		"fmtStrg": "rd_:triceWrite.c",
 		"created": 1590414933,
-		"removed": 0
-	},
-	{
-		"id": 257,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "%d\\b\\b\\b",
-		"created": 1590415342,
-		"removed": 0
-	},
-	{
-		"id": 514,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "%d\\b\\b\\b",
-		"created": 1590415461,
-		"removed": 0
-	},
-	{
-		"id": 2056,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "%d\\b\\b\\b\\b",
-		"created": 1590415940,
-		"removed": 0
-	},
-	{
-		"id": 5654,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "%d\\b\\b\\b\\b",
-		"created": 1590416274,
 		"removed": 0
 	},
 	{

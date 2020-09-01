@@ -81,6 +81,9 @@ func (p *TriceReceiver) readRaw() {
 	atoms := make([]Trice, atomsAvail)
 	// now convert from bytes slice into Trice slice t
 	buf := bytes.NewReader(p.syncbuffer)
+
+	// Evtl. kommen die ID's im big endian Format an!!!!!!!!!!!!!
+
 	p.Err = binary.Read(buf, binary.LittleEndian, atoms) // target assumed to be little endian
 	p.syncbuffer = p.syncbuffer[triceSize*atomsAvail:]   // any leftover count from 1 to (triceSize-1) is possible
 	p.atoms <- atoms                                     // send trices

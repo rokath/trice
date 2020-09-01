@@ -60,7 +60,7 @@ func NewColorDisplay(colorPalette string) *ColorDisplay {
 	lD := NewLocalDisplay()
 	// lwT uses the Linewriter lD internally.
 	// It provides a Linewriter.
-	lwT := newLineTransformerANSI(lD, colorPalette)
+	lwT := NewLineTransformerANSI(lD, colorPalette)
 
 	cD := &ColorDisplay{lD, lwT}
 	return cD

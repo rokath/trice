@@ -32,7 +32,7 @@ func TestNewSimpleTriceInterpreterWithAnsiOff(t *testing.T) {
 	lwD := newCheckDisplay()
 	// lwT uses the Linewriter lwD internally.
 	// It provides a Linewriter.
-	lwT := newLineTransformerANSI(lwD, "off")
+	lwT := NewLineTransformerANSI(lwD, "off")
 	// lineComposer r implements the io.StringWriter interface and uses the Linewriter provided.
 	// The line composer scans the trice strings and composes lines out of them according to its properies.
 	sw := NewLineComposer(lwT, "zero", "PREFIX", "")
@@ -75,7 +75,7 @@ func TestNewSimpleTriceInterpreterWithAnsiNone(t *testing.T) {
 	lwD := newCheckDisplay()
 	// lwT uses the Linewriter lwD internally.
 	// It provides a Linewriter.
-	lwT := newLineTransformerANSI(lwD, "none")
+	lwT := NewLineTransformerANSI(lwD, "none")
 	// lineComposer r implements the io.StringWriter interface and uses the Linewriter provided.
 	// The line composer scans the trice strings and composes lines out of them according to its properies.
 	sw := NewLineComposer(lwT, "zero", "PREFIX", "")
@@ -117,7 +117,7 @@ func TestNewSimpleTriceInterpreterResync(t *testing.T) {
 	lwD := newCheckDisplay()
 	// lwT uses the Linewriter p internally.
 	// It provides a Linewriter.
-	lwT := newLineTransformerANSI(lwD, "none")
+	lwT := NewLineTransformerANSI(lwD, "none")
 	// lineComposer r implements the io.StringWriter interface and uses the Linewriter provided.
 	// The line composer scans the trice strings and composes lines out of them according to its properies.
 	sw := NewLineComposer(lwT, "zero", "PREFIX", "")
@@ -149,7 +149,7 @@ func _TestScCheck(t *testing.T) {
 	lwD := newCheckDisplay()
 	// lwT uses the Linewriter p internally.
 	// It provides a Linewriter.
-	lwT := newLineTransformerANSI(lwD, "none")
+	lwT := NewLineTransformerANSI(lwD, "none")
 	// lineComposer r implements the io.StringWriter interface and uses the Linewriter provided.
 	// The line composer scans the trice strings and composes lines out of them according to its properies.
 	sw := NewLineComposer(lwT, "zero", "PREFIX", "")
