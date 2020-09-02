@@ -463,6 +463,11 @@
               <FileType>1</FileType>
               <FilePath>..\..\..\srcTrice.C\bare.c</FilePath>
             </File>
+            <File>
+              <FileName>triceCheck.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\srcTrice.C\triceCheck.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
