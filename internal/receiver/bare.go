@@ -3,13 +3,16 @@
 
 // Package receiver provides trice receiver functionality.
 // It uses a bytes.Reader for getting bytes and provides the received trices over a trice atoms channel
+
 package receiver
 
 import (
 	"bytes"
 	"encoding/binary"
+	"fmt"
 	"io"
 	"reflect"
+	"time"
 )
 
 // NewTricesfromBare creates a TriceReceiver using r as internal reader.
@@ -45,6 +48,51 @@ func (p *TriceReceiver) ErrorFatal() {
 	if nil != p.Err1 {
 		panic(p.Err1)
 	}
+}
+
+// syncSyncBuffer checks p.syncBuffer for invalid patterns:
+// Sync package is IDDA=89abcdef
+//
+// To avoid wrong syncing these ID's are excluded: nn89, abcd, cdef, efnn (514 pieces)
+//
+// Possible:    IH IL DH DL IH IL DH DL IH IL DH DL (1 right)
+//              xx xx xx xx nn 89 ab cd ef nn xx xx -> avoid with ID!=nn89, ID!=efnn
+//
+// Possible:    IH IL DH DL IH IL DH DL IH IL DH DL (2 right)
+//              xx xx xx xx xx nn 89 ab cd ef nn xx -> avoid with ID!=cdef
+//
+// Possible:    IH IL DH DL IH IL DH DL IH IL DH DL (3 right)
+//              xx xx xx xx xx xx nn 89 ab cd ef nn -> avoid with ID!=abcd
+//
+// Sync packet: IH IL DH DL IH IL DH DL IH IL DH DL
+//              xx xx xx nn 89 ab cd ef nn xx xx xx -> use ID=89ab with DA=cdef as sync packet
+//
+//  Possible:   IH IL DH DL IH IL DH DL IH IL DH DL (1 left)
+//              xx xx xx 89 ab cd ef xx xx xx xx xx -> avoid with ID!=abcd
+//
+//  Possible:   IH IL DH DL IH IL DH DL IH IL DH DL (2 left)
+//              xx xx 89 ab cd ef xx xx xx xx xx xx -> avoid with ID!=cdef
+//
+//  Possible:   IH IL DH DL IH IL DH DL IH IL DH DL (3 left)
+//              xx 89 ab cd ef xx xx xx xx xx xx xx ->  avoid with ID!=nn89, ID!=efnn
+//
+// If an ID=89ab with DA!=cdef is detected -> out of sync!
+// If an IH=ef is detected -> out of sync
+// If an IL=89 is detected -> out of sync
+// If an ID=abcd is detected -> out of sync
+// If an ID=cdef is detected -> out of sync
+func (p *TriceReceiver) syncCheck(atoms []Trice) bool {
+	for _, a := range atoms {
+		ih := byte(a.ID >> 8)
+		il := byte(a.ID)
+		if 0xabcd == a.ID || 0xcdef == a.ID || 0xef == ih || 0x89 == il {
+			fmt.Println("sync issue, unexpected id: ", ih, il)
+			p.ignored <- p.syncBuffer[:1]   // send dropped byte to ignored channel
+			p.syncBuffer = p.syncBuffer[1:] // drop 1 to (triceSize-1) bytes
+			return false
+		}
+	}
+	return true
 }
 
 // readRaw uses inner reader p.r to read byte stream and assumes encoding 'raw' (=='bare') for interpretation.
@@ -90,6 +138,8 @@ func (p *TriceReceiver) readRaw() {
 		p.syncBuffer = p.syncBuffer[adjust:] // drop 1 to (triceSize-1) bytes
 	}
 
+retry:
+
 	// convert from syncBuffer into Trice slice
 	atomsAvail := len(p.syncBuffer) / triceSize
 	atoms := make([]Trice, atomsAvail) ////////////////////////////////////// TODO: avoid make here
@@ -97,8 +147,15 @@ func (p *TriceReceiver) readRaw() {
 
 	// consider Big.Endian
 	p.Err1 = binary.Read(buf, binary.LittleEndian, atoms) // target assumed to be little endian
-	p.syncBuffer = p.syncBuffer[triceSize*atomsAvail:]    // any leftover count from 1 to (triceSize-1) is possible
-	p.atoms <- atoms                                      // send trices
+
+	// check atoms in buf for wrong sync
+	if false == p.syncCheck(atoms) {
+		time.Sleep(3 * time.Second)
+		goto retry
+	}
+
+	p.syncBuffer = p.syncBuffer[triceSize*atomsAvail:] // any leftover count from 1 to (triceSize-1) is possible
+	p.atoms <- atoms                                   // send trices
 }
 
 // findSubSliceOffset returns offset of slice sub inside slice b or negative len(sub) if not found.

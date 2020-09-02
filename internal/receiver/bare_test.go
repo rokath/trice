@@ -30,7 +30,7 @@ func TestNewTricesfromBare(t *testing.T) {
 			tFlag = true
 		default:
 			if bFlag && tFlag {
-				assertEqual(t, []byte{4, 4}, p.syncbuffer)
+				assertEqual(t, []byte{4, 4}, p.syncBuffer)
 				return
 			}
 		}

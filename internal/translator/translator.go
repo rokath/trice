@@ -10,6 +10,7 @@ import (
 	"log"
 	"path/filepath"
 	"runtime"
+	"time"
 
 	"github.com/rokath/trice/internal/id"
 	"github.com/rokath/trice/internal/receiver"
@@ -103,6 +104,7 @@ func NewSimpleTrices(sw io.StringWriter, l id.ListT, tr TriceAtomsReceiver) *Tri
 			if 0 < len(p.ignored) {
 				// TODO: evaluate other protocols here
 				s := fmt.Sprintln("WARNING:ignoring bytes:", p.ignored)
+				time.Sleep(1 * time.Second)
 				_, p.Err = sw.WriteString(s)
 				p.ignored = p.ignored[:0]
 			}
@@ -141,6 +143,7 @@ func (p *TriceTranslator) translate() (s string) {
 	if 5654 == trice.ID { // discard sync trice
 		if 22 != trice.Value[0] || 22 != trice.Value[1] {
 			s = fmt.Sprintln("WARNING:", trice, "is invalid. Must have payload [22 22]. (5654 is sync trice.ID)")
+			time.Sleep(1 * time.Second)
 		}
 		return
 	}
@@ -153,6 +156,7 @@ func (p *TriceTranslator) translate() (s string) {
 	if nil != p.Err {
 		p.Err = nil
 		s = fmt.Sprintln("WARNING: trice.ID", trice.ID, "not found, discarding values:", p.values)
+		time.Sleep(1 * time.Second)
 		p.values = p.values[:0]
 		return
 	}
