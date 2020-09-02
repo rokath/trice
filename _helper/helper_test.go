@@ -355,3 +355,26 @@ func errorFatal(err error) {
 	}
 	log.Fatal(err)
 }
+
+
+// errorFatal ends in osExit(1) if err not nil.
+func errorFatal(err error) {
+	if nil == err {
+		return
+	}
+	panic(err)
+}
+
+type bytesViewer struct {
+	r io.Reader
+}
+
+func newBytesViewer(o io.Reader) (i io.Reader) {
+	return &bytesViewer{o}
+}
+
+func (p *bytesViewer) Read(b []byte) (n int, e error) {
+	n, e = p.r.Read(b)
+	fmt.Println("bytesViewer:", e, n, b[:n])
+	return
+}

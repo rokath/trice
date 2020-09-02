@@ -5,7 +5,7 @@
 *******************************************************************************/
 #define TRICE_FILENAME TRICE0( Id(25337), "rd_:triceCheck.c" );
 //#define TRICE_CODE NO_CODE // enable this line to disable trice code generation in this file object
-#include "trice.h"
+#include "bare.h"
 
 
 #ifndef SYSTICKVAL16
@@ -20,13 +20,13 @@ void triceCheckSet( int index )
     switch(index){
         case 0:
         	TRICE0 (Id( 1227), "--------------------------------------------------\r\n" );
-        	TRICE_P( "Hello %s, this is a %dst printf replacement.\n", "world", 1 ); // visible only with defined TRICE_PRINTF_ADAPTER
+        	//TRICE_P( "Hello %s, this is a %dst printf replacement.\n", "world", 1 ); // visible only with defined TRICE_PRINTF_ADAPTER
         	TRICE0 (Id(34030), "--------------------------------------------------\r\n" );
         	TRICE16_1( Id(46097), "dbg:12345 as 16bit is %#016b\n", 12345 );
             TRICE0 (Id(17469), "--------------------------------------------------\r\n" );
-            TRICE_ASSERT(0==0);
+            //TRICE_ASSERT(0==0);
             TRICE0( Id(44415), "sig:This ASSERT error is just a demo and no real error:\n");
-            TRICE_ASSERT(0==1);
+            //TRICE_ASSERT(0==1);
             TRICE0 (Id( 7622), "--------------------------------------------------\r\n" );
         break;
         case 1:
@@ -133,6 +133,7 @@ void triceCheckSet( int index )
             TRICE0 (Id(21507), "message:J" );
             TRICE0 (Id(44743), "inf:k\n" );
         break;
+				/*
         case 11:
             TRICE0( Id(49229), "att:Next few lines have no color and visible only when TRICE_RUNTIME_GENERATED_STRINGS_SUPPORT is defined\n" );
             TRICE_S( 18, "\n" );
@@ -160,6 +161,7 @@ void triceCheckSet( int index )
             TRICE_S( 18, "123456789abcdef789\n" );
             TRICE_S( 18, "123456789abcdef7890\n" );
         break;
+				*/
         case 14:
         #ifdef ENCRYPT
             {

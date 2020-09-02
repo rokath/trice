@@ -65,7 +65,9 @@ func (p *triceLineComposer) WriteString(s string) (n int, err error) {
 		return
 	}
 	var emptyLine bool
-	sn := strings.ReplaceAll(s, "\r\n", "\n")
+	s0 := strings.ReplaceAll(s, "\\r\\n", "\n")
+	s1 := strings.ReplaceAll(s0, "\\n", "\n")
+	sn := strings.ReplaceAll(s1, "\r\n", "\n")
 	ss := strings.Split(sn, "\n")
 
 	// play ground results:

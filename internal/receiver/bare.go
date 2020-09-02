@@ -9,10 +9,7 @@ import (
 	"bytes"
 	"encoding/binary"
 	"io"
-	"log"
-	"path/filepath"
 	"reflect"
-	"runtime"
 )
 
 // NewTricesfromBare creates a TriceReceiver using r as internal reader.
@@ -26,12 +23,12 @@ import (
 func NewTricesfromBare(r io.Reader) *TriceReceiver {
 	p := &TriceReceiver{}
 	p.r = r
-	p.syncbuffer = make([]byte, 0, bytesBufferCapacity)
+
 	p.atoms = make(chan []Trice, triceChannelCapacity)
 	p.ignored = make(chan []byte, ignoredChannelCapacity)
 	go func() {
 		for {
-			if io.EOF == p.Err {
+			if io.EOF == p.Err0 {
 				return
 			}
 			p.readRaw()
@@ -42,11 +39,12 @@ func NewTricesfromBare(r io.Reader) *TriceReceiver {
 
 // ErrorFatal ends in osExit(1) if p.Err not nil.
 func (p *TriceReceiver) ErrorFatal() {
-	if nil == p.Err {
-		return
+	if nil != p.Err0 {
+		panic(p.Err0)
 	}
-	_, file, line, _ := runtime.Caller(1)
-	log.Fatal(p.Err, filepath.Base(file), line)
+	if nil != p.Err1 {
+		panic(p.Err1)
+	}
 }
 
 // readRaw uses inner reader p.r to read byte stream and assumes encoding 'raw' (=='bare') for interpretation.
@@ -56,37 +54,51 @@ func (p *TriceReceiver) ErrorFatal() {
 // if the sync is not on a triceSize offset. If no sync point is found sync is assumed per default.
 func (p *TriceReceiver) readRaw() {
 	p.ErrorFatal()
-	leftovers := len(p.syncbuffer) // bytes buffered in bytes buffer from last call
-	var minBytes int               // needed additional byte count making a Trice
+
+	// move any leftovers (1-3 bytes) to start of syncArray
+	leftovers := len(p.syncBuffer) // bytes buffered in bytes buffer from last call
+	copy(p.syncArray[:], p.syncBuffer)
+
+	// set reception size
+	p.syncBuffer = p.syncArray[leftovers:bytesBufferCapacity]
+
+	// needed additional byte count making a least one Trice
+	var minBytes int
 	if leftovers < triceSize {
 		minBytes = triceSize - leftovers
 	} else {
 		minBytes = triceSize
 	}
-	limit := cap(p.syncbuffer)
+
+	// read to have at least triceSize bytes
 	var n int
-	n, p.Err = io.ReadAtLeast(p.r, p.syncbuffer[leftovers:limit], minBytes) // read to have at least triceSize bytes
-	le := leftovers + n                                                     // the valid len inside p.by
-	if le < triceSize {                                                     // got not the minimum amount of expected bytes
+	n, p.Err0 = io.ReadAtLeast(p.r, p.syncBuffer, minBytes)
+	//fmt.Println("DEBUG: ", n, p.Err0, leftovers, minBytes)
+
+	// the valid len inside syncBuffer
+	le := leftovers + n
+	if le < triceSize { // got not the minimum amount of expected bytes
 		return // assuming o.EOF == p.err
 	}
-	p.syncbuffer = p.syncbuffer[:le]                 // set valid length
-	o := findSubSliceOffset(p.syncbuffer, syncTrice) // look for a sync point
-	adjust := o % triceSize                          // expect to be 0
-	if 0 != adjust {                                 // out of sync
-		p.ignored <- p.syncbuffer[:adjust]   // send dropped bytes to ignored channel
-		p.syncbuffer = p.syncbuffer[adjust:] // drop 1 to (triceSize-1) bytes
+	p.syncBuffer = p.syncArray[:le] // set valid length
+
+	// look for a sync point
+	o := findSubSliceOffset(p.syncBuffer, syncTrice)
+	adjust := o % triceSize // expect to be 0
+	if 0 != adjust {        // out of sync
+		p.ignored <- p.syncBuffer[:adjust]   // send dropped bytes to ignored channel
+		p.syncBuffer = p.syncBuffer[adjust:] // drop 1 to (triceSize-1) bytes
 	}
-	atomsAvail := len(p.syncbuffer) / triceSize
-	atoms := make([]Trice, atomsAvail)
-	// now convert from bytes slice into Trice slice t
-	buf := bytes.NewReader(p.syncbuffer)
 
-	// Evtl. kommen die ID's im big endian Format an!!!!!!!!!!!!!
+	// convert from syncBuffer into Trice slice
+	atomsAvail := len(p.syncBuffer) / triceSize
+	atoms := make([]Trice, atomsAvail) ////////////////////////////////////// TODO: avoid make here
+	buf := bytes.NewReader(p.syncBuffer)
 
-	p.Err = binary.Read(buf, binary.LittleEndian, atoms) // target assumed to be little endian
-	p.syncbuffer = p.syncbuffer[triceSize*atomsAvail:]   // any leftover count from 1 to (triceSize-1) is possible
-	p.atoms <- atoms                                     // send trices
+	// consider Big.Endian
+	p.Err1 = binary.Read(buf, binary.LittleEndian, atoms) // target assumed to be little endian
+	p.syncBuffer = p.syncBuffer[triceSize*atomsAvail:]    // any leftover count from 1 to (triceSize-1) is possible
+	p.atoms <- atoms                                      // send trices
 }
 
 // findSubSliceOffset returns offset of slice sub inside slice b or negative len(sub) if not found.

@@ -95,6 +95,7 @@ func NewSimpleTrices(sw io.StringWriter, l id.ListT, tr TriceAtomsReceiver) *Tri
 			case <-p.done:
 				return // end of life
 			}
+			//fmt.Println("vales:", p.values, "atoms:", p.atoms, "ignored:", p.ignored)
 			for 0 < len(p.atoms) {
 				s := p.translate()
 				_, p.Err = sw.WriteString(s)

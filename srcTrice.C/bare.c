@@ -22,22 +22,4 @@ uint32_t triceFifoReadIndexBytes = 0; //!< trice fifo read index
 
 uint32_t triceFifoMaxDepthBytes = 0; //!< diagnostics
 
-
-//! triceWriteServer() must be called cyclically to proceed ongoing write out
-//! best place: sysTick ISR and UART ISR (both together)
-void triceServeUartOut( void ){
-
-    if( !triceTxDataRegisterEmpty() ){ 
-        return;
-    }
-    if( 0 == triceFifoDepth() ){
-        triceDisableTxEmptyInterrupt();
-        return;
-    }else{
-        uint8_t v = triceBytePop();
-        triceTransmitData8( v );
-        triceEnableTxEmptyInterrupt();
-    }
-}
-
 #endif // #if TRICE_CODE

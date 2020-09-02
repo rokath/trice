@@ -22,7 +22,8 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "bare.h"
+#include "triceCheck.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -42,7 +43,8 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-
+int milliSecond = 0;
+int Second = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -85,23 +87,40 @@ int main(void)
   SystemClock_Config();
 
   /* USER CODE BEGIN SysInit */
-
+    SysTick->CTRL |= SysTick_CTRL_TICKINT_Msk; // enable SysTick interrupt
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
-
+  LL_USART_EnableIT_RXNE(TRICE_UART); // enable UART2 interrupt
+    
   /* USER CODE END 2 */
 
   /* Infinite loop */
+    //TRICE8_2( Id(257), "att:Hello, %d+%d=", 250,255 );
+    //TRICE16_1( Id(514), "att:%d, ok?\n", 250+255 );
+	  //TRICE0( Id(772), "dbg:ok?\n" );
+	  //TRICE_SYNC;
+    //TRICE0( Id(771), "msg:Yes!\n" );
+    //TRICE0( Id(772), "dbg:ok?\n" );
+    //TRICE0( Id(771), "msg:Yes!\n" );
+
+		
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+			static int lastSecond = -1;
+			if( Second != lastSecond ){
+				TRICE_SYNC;
+				triceCheckSet(Second);
+				lastSecond = Second;
+			}
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+      //triceServeUartOut();
   }
   /* USER CODE END 3 */
 }

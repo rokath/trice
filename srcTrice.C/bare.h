@@ -36,9 +36,6 @@ extern "C" {
 
 #define Id( n ) (n) //!< Macro for improved trice readability and better source code parsing.
 
-#define ntohl(v) (v) //__builtin_bswap32((uint32_t)(v))
-#define htonl(v) ntohl(v)
-
 #define TRICE_BYTES_FIFO_MASK ((TRICE_FIFO_SIZE)-1) //!< max possible bytes count in fifo
 #define TRICE_TRICE_FIFO_MASK ((TRICE_BYTES_FIFO_MASK)>>2) //!< max possible trices count in fifo
 
@@ -51,14 +48,16 @@ extern uint32_t triceFifoMaxDepthBytes; //!< diagnostics
 //! \param v trice id with 2 byte data
 //! trice time critical part
 TRICE_INLINE void triceTricePush( uint32_t v ){
-    triceFifo[triceFifoWriteIndexTrices++] = htonl( v);
+    triceFifo[triceFifoWriteIndexTrices++] = v;
     triceFifoWriteIndexTrices &= TRICE_TRICE_FIFO_MASK;
 }
 
 //! pop one trice byte from trice fifo
 //! \return trice byte
 TRICE_INLINE uint8_t triceBytePop(){
-    uint8_t by = triceFifo[triceFifoReadIndexBytes++];
+    //#define ntohl(v) (v) //__builtin_bswap32((uint32_t)(v))
+    //#define htonl(v) ntohl(v)
+    uint8_t by = ((uint8_t*)triceFifo)[triceFifoReadIndexBytes++]; // handle endianess!
     triceFifoReadIndexBytes &= TRICE_BYTES_FIFO_MASK;
     return by;
 }
@@ -71,13 +70,22 @@ TRICE_INLINE unsigned triceFifoDepth( void ){
     return triceDepth;
 }
 
+//! triceWriteServer() must be called cyclically to proceed ongoing write out
+//! best place: sysTick ISR and UART ISR (both together)
+TRICE_INLINE void triceServeUartOut( void ){
 
-
-
-void triceServeUartOut( void );
-
-
-
+    if( !triceTxDataRegisterEmpty() ){ 
+        return;
+    }
+    if( 0 == triceFifoDepth() ){
+        triceDisableTxEmptyInterrupt();
+        return;
+    }else{
+        uint8_t v = triceBytePop();
+        triceTransmitData8( v );
+        triceEnableTxEmptyInterrupt();
+    }
+}
 
 //! used as TRICE_CODE macro option for more flash occupation, but decreases execution time and needs smaller buffers
 #define MORE_FLASH_AND_SPEED 30 //!< value is only to distinguish from LESS_FLASH and NO_CODE

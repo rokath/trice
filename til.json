@@ -1,6 +1,6 @@
 [
 	{
-		"id": 258,
+		"id": 257,
 		"fmtType": "TRICE8_2",
 		"fmtStrg": "att:Hello, %d+%d=", 
 		"created": 1,
@@ -17,6 +17,13 @@
 		"id": 771,
 		"fmtType": "TRICE0",
 		"fmtStrg": "msg:Yes!\n", 
+		"created": 1,
+		"removed": 0
+	},
+	{
+		"id": 772,
+		"fmtType": "TRICE0",
+		"fmtStrg": "dbg:ok?\n", 
 		"created": 1,
 		"removed": 0
 	},
