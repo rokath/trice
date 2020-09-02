@@ -12,14 +12,19 @@ as NO_CODE (globally or file specific) the TRICE* macros generate no code.
 extern "C" {
 #endif
 
+#define TRICE_VARIANT STM32_LL
+#define TRICE_UART USART2
+
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-//#include "triceConfig.h"
 #include "triceConfigCompiler.h"
+#include "triceConfigTx.h"
+#include "triceConfigTxInterrupt.h"
+#include "triceConfigCriticalSection.h"
 #include "triceTick.h"
 
-#define TRICE_PUSH(v) triceFifoPush(v)
+#define TRICE_PUSH(v) triceTricePush(v)
 #define TRICE_FIFO_SIZE 256 //!< must be a power of 2, one trice needs 4 to 32 bytes, must hold trice bursts until they are transmitted, fifo is transmitted with lower priority
 
 
@@ -31,25 +36,60 @@ extern "C" {
 
 #define Id( n ) (n) //!< Macro for improved trice readability and better source code parsing.
 
-
-
-#define ntohl(v) __builtin_bswap32((uint32_t)(v))
+#define ntohl(v) (v) //__builtin_bswap32((uint32_t)(v))
 #define htonl(v) ntohl(v)
 
-
-#define TRICE_FIFO_MASK ((TRICE_FIFO_SIZE>>2)-1) //!< max possible count of items in fifo
+#define TRICE_BYTES_FIFO_MASK ((TRICE_FIFO_SIZE)-1) //!< max possible bytes count in fifo
+#define TRICE_TRICE_FIFO_MASK ((TRICE_BYTES_FIFO_MASK)>>2) //!< max possible trices count in fifo
 
 extern uint32_t triceFifo[];
-extern uint32_t wrIndexTriceFifo;
+extern uint32_t triceFifoWriteIndexTrices;
+extern uint32_t triceFifoReadIndexBytes;
+extern uint32_t triceFifoMaxDepthBytes; //!< diagnostics
 
 //! put one trice into trice fifo
 //! \param v trice id with 2 byte data
 //! trice time critical part
-TRICE_INLINE void tricePush( uint32_t v ){
-    triceFifo[wrIndexTriceFifo++] = htonl( v);
-    wrIndexTriceFifo &= TRICE_FIFO_MASK;
+TRICE_INLINE void triceTricePush( uint32_t v ){
+    triceFifo[triceFifoWriteIndexTrices++] = htonl( v);
+    triceFifoWriteIndexTrices &= TRICE_TRICE_FIFO_MASK;
 }
 
+//! pop one trice byte from trice fifo
+//! \return trice byte
+TRICE_INLINE uint8_t triceBytePop(){
+    uint8_t by = triceFifo[triceFifoReadIndexBytes++];
+    triceFifoReadIndexBytes &= TRICE_BYTES_FIFO_MASK;
+    return by;
+}
+
+//! byte count inside trice fifo
+//! \return count of buffered trices
+TRICE_INLINE unsigned triceFifoDepth( void ){
+    unsigned triceDepth = ((triceFifoWriteIndexTrices<<2) - triceFifoReadIndexBytes) & TRICE_BYTES_FIFO_MASK;
+    triceFifoMaxDepthBytes = triceDepth < triceFifoMaxDepthBytes ? triceFifoMaxDepthBytes : triceDepth; // diagnostics
+    return triceDepth;
+}
+
+
+
+
+void triceServeUartOut( void );
+
+
+
+
+//! used as TRICE_CODE macro option for more flash occupation, but decreases execution time and needs smaller buffers
+#define MORE_FLASH_AND_SPEED 30 //!< value is only to distinguish from LESS_FLASH and NO_CODE
+
+//! used as TRICE_CODE macro option for less flash occupation, but increases execution time and needs bigger buffers
+#define LESS_FLASH_AND_SPEED 20 //!< value is only to distinguish from MORE_FLASH and NO_CODE
+
+//! used as TRICE_CODE macro option for no trice code generation
+#define NO_CODE 0 //!< value is only to distinguish from MORE_FLASH or LESS_FLASH ans must be 0
+
+
+#define TRICE_CODE MORE_FLASH_AND_SPEED
 
 
 

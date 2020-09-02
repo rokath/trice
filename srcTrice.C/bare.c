@@ -13,26 +13,31 @@ The trices (macros) are dumped as 32bit values into a 32 bit fifo. That is the t
 
 #if TRICE_CODE
 
-#define TRICE_FIFO_SIZE 1024 //!< must be a power of 2
-
 //! trice fifo instance, here are the trices buffered.
 ALIGN4 uint32_t triceFifo[ TRICE_FIFO_SIZE>>2 ] ALIGN4_END;
 
-uint32_t wrIndexTriceFifo = 0; //!< trice fifo write index, used inside macros, so must be visible
+uint32_t triceFifoWriteIndexTrices = 0; //!< trice fifo write index, used inside macros, so must be visible
 
-uint32_t rdIndexTriceFifo = 0; //!< trice fifo read index
+uint32_t triceFifoReadIndexBytes = 0; //!< trice fifo read index
+
+uint32_t triceFifoMaxDepthBytes = 0; //!< diagnostics
 
 
-//uint32_t maxTriceDepth = 0; //!< for max trices depth diagnostics
+//! triceWriteServer() must be called cyclically to proceed ongoing write out
+//! best place: sysTick ISR and UART ISR (both together)
+void triceServeUartOut( void ){
 
-//! byte count inside trice fifo
-//! \return count of buffered trices
-static unsigned triceFifoDepth( void ){
-    unsigned triceDepth = ((wrIndexTriceFifo<<2) - rdIndexTriceFifo) & (TRICE_FIFO_MASK*4+3);
-    //maxTriceDepth = triceDepth < maxTriceDepth ? maxTriceDepth : triceDepth; // diagnostics
-    return triceDepth;
+    if( !triceTxDataRegisterEmpty() ){ 
+        return;
+    }
+    if( 0 == triceFifoDepth() ){
+        triceDisableTxEmptyInterrupt();
+        return;
+    }else{
+        uint8_t v = triceBytePop();
+        triceTransmitData8( v );
+        triceEnableTxEmptyInterrupt();
+    }
 }
-
-
 
 #endif // #if TRICE_CODE
