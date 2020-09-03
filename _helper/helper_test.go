@@ -351,14 +351,13 @@ func errorFatal(err error) {
 	}
 	if Verbose {
 		_, file, line, _ := runtime.Caller(1)
-		log.Fatal(err, filepath.Base(file), line)
+		log.Fatal(err, " "+filepath.Base(file)+" ", line)
 	}
 	log.Fatal(err)
 }
 
-
-// errorFatal ends in osExit(1) if err not nil.
-func errorFatal(err error) {
+// errorPanic ends in osExit(1) if err not nil.
+func errorPanic(err error) {
 	if nil == err {
 		return
 	}

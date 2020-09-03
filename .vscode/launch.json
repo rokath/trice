@@ -155,7 +155,7 @@
                      "-baud",
                      "115200",
                      "-idlist",
-                     "${workspaceFolder}/examples/til.json",
+                     "${workspaceFolder}/til.json",
                      "-key",
                      "none"
             ]
@@ -173,7 +173,7 @@
                      "-baud",
                      "115200",
                      "-idlist",
-                     "${workspaceFolder}/examples/til.json",
+                     "${workspaceFolder}/til.json",
                      "-key",
                      "none"
             ]

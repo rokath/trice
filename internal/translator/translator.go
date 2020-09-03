@@ -5,6 +5,7 @@ package translator
 
 import (
 	"encoding/binary"
+	"encoding/hex"
 	"fmt"
 	"io"
 	"log"
@@ -68,15 +69,14 @@ type TriceTranslator struct {
 }
 
 // NewSimpleTrices gets its data from the TriceAtomsReceiver interface tr.
-// It uses the io.StringWriter interface sw to write the trice strings looked up in the trice id list
+// It uses the io.StringWriter interface sw to write the trice strings looked up in id.List
 // and enhanced with the printed values. Each single trice string is written separately with sw.
 // It does not evaluate the TriceInterpreter.ignored bytes.
-func NewSimpleTrices(sw io.StringWriter, l id.ListT, tr TriceAtomsReceiver) *TriceTranslator {
+func NewSimpleTrices(sw io.StringWriter, tr TriceAtomsReceiver) *TriceTranslator {
 	p := &TriceTranslator{}
 	p.atomsChannel = tr.TriceAtomsChannel()
 	p.ignoredChannel = tr.IgnoredBytesChannel()
 	p.sw = sw
-	p.list = l
 	p.atoms = make([]Trice, 0, 1000)
 	p.ignored = make([]byte, 0, 1000)
 	p.values = make([]byte, 0, 100)
@@ -103,7 +103,7 @@ func NewSimpleTrices(sw io.StringWriter, l id.ListT, tr TriceAtomsReceiver) *Tri
 			}
 			if 0 < len(p.ignored) {
 				// TODO: evaluate other protocols here
-				s := fmt.Sprintln("WARNING:ignoring bytes:", p.ignored)
+				s := fmt.Sprintln("ATTENTION: found ignored bytes:", p.ignored)
 				time.Sleep(1 * time.Second)
 				_, p.Err = sw.WriteString(s)
 				p.ignored = p.ignored[:0]
@@ -140,9 +140,18 @@ func (p *TriceTranslator) translate() (s string) {
 	}
 	trice := p.atoms[0]
 	p.atoms = p.atoms[1:]
-	if 5654 == trice.ID { // discard sync trice
-		if 22 != trice.Value[0] || 22 != trice.Value[1] {
-			s = fmt.Sprintln("WARNING:", trice, "is invalid. Must have payload [22 22]. (5654 is sync trice.ID)")
+	if 0x89ab == trice.ID { // discard sync trice
+		var hi, lo int
+		nativeEndian := binary.LittleEndian // TODO: put in file endian_amd64.go
+		if binary.LittleEndian == nativeEndian {
+			hi = 1
+			lo = 0
+		} else { // littleEndian
+			hi = 0
+			lo = 1
+		}
+		if 0xcd != trice.Value[hi] || 0xef != trice.Value[lo] {
+			s = fmt.Sprintln("WARNING:", trice, "is invalid. Must have payload [205 239].")
 			time.Sleep(1 * time.Second)
 		}
 		return
@@ -152,15 +161,15 @@ func (p *TriceTranslator) translate() (s string) {
 		return
 	}
 	var index int
-	index, p.Err = id.Index(int(trice.ID), p.list)
+	index, p.Err = id.Index(int(trice.ID), id.List)
 	if nil != p.Err {
 		p.Err = nil
-		s = fmt.Sprintln("WARNING: trice.ID", trice.ID, "not found, discarding values:", p.values)
+		s = fmt.Sprintf("WARNING: trice.ID %d not found, discarding the 2 id bytes and the data bytes %04x %s\n", trice.ID, trice.ID, hex.EncodeToString(p.values))
 		time.Sleep(1 * time.Second)
 		p.values = p.values[:0]
 		return
 	}
-	p.item = p.list[index]
+	p.item = id.List[index]
 	s = p.emitter()
 	p.values = p.values[:0]
 	return

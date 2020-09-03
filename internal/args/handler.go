@@ -338,7 +338,7 @@ func errorFatal(err error) {
 	}
 	if Verbose {
 		_, file, line, _ := runtime.Caller(1)
-		log.Fatal(err, filepath.Base(file), line)
+		log.Fatal(err, " "+filepath.Base(file)+" ", line)
 	}
 	log.Fatal(err)
 }
@@ -431,7 +431,7 @@ func receiveBareSimpleTricesAndDisplayAnsiColor(rd io.Reader) *translator.TriceT
 
 	// uses triceAtomsReceiver for reception and the io.StringWriter interface sw for writing.
 	// collects trice atoms to a complete trice, generates the appropriate string using list and writes it to the provided io.StringWriter
-	return translator.NewSimpleTrices(sw, id.List, triceAtomsReceiver)
+	return translator.NewSimpleTrices(sw, triceAtomsReceiver)
 }
 
 // There is a small chance this test fails because of unexpected ordering of 'ignoring bytes' message.
@@ -452,7 +452,7 @@ func simNewSimpleTriceInterpreterWithAnsi(rd io.Reader) *translator.TriceTransla
 
 	// sti uses triceAtomsReceiver for reception and the io.StringWriter interface (r) for writing.
 	// sti collects trice atoms to a complete trice, generates the appropriate string with list and writes it to the provided io.StringWriter
-	return translator.NewSimpleTrices(sw, id.List, triceAtomsReceiver)
+	return translator.NewSimpleTrices(sw, triceAtomsReceiver)
 }
 
 // There is a small chance this test fails because of unexpected ordering of 'ignoring bytes' message.
@@ -471,7 +471,7 @@ func simNewSimpleTriceInterpreterWithAnsi0(rd io.Reader) *translator.TriceTransl
 	// The line composer scans the trice strings and composes lines out of them according to its properies.
 	sw := emitter.NewLineComposer(lwD, emitter.TimeStampFormat, emitter.Prefix, emitter.Suffix)
 
-	var list id.ListT = []id.Item{
+	id.List = []id.Item{
 		{ID: 257, FmtType: "TRICE8_2", FmtStrg: "att:Hello, %d+%d=", Created: 0, Removed: 0},
 		{ID: 514, FmtType: "TRICE16_1", FmtStrg: "att:%d, ok?\n", Created: 0, Removed: 0},
 		{ID: 771, FmtType: "TRICE0", FmtStrg: "msg:Yes!\n", Created: 0, Removed: 0},
@@ -480,7 +480,7 @@ func simNewSimpleTriceInterpreterWithAnsi0(rd io.Reader) *translator.TriceTransl
 
 	// sti uses triceAtomsReceiver for reception and the io.StringWriter interface (r) for writing.
 	// sti collects trice atoms to a complete trice, generates the appropriate string with list and writes it to the provided io.StringWriter
-	return translator.NewSimpleTrices(sw, list, triceAtomsReceiver)
+	return translator.NewSimpleTrices(sw, triceAtomsReceiver)
 }
 
 //switch Encoding {

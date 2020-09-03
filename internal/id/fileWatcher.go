@@ -10,7 +10,7 @@ import (
 	"github.com/fsnotify/fsnotify"
 )
 
-// ListFileWatcher checks id list file for changes
+// FileWatcher checks id list file for changes
 // taken from https://medium.com/@skdomino/watch-this-file-watching-in-go-5b5a247cf71f
 func (p *ListT) FileWatcher() {
 
@@ -23,7 +23,6 @@ func (p *ListT) FileWatcher() {
 
 	done := make(chan bool)
 	go func() {
-		var cnt int
 		var now, last time.Time
 		for {
 			select {
@@ -33,9 +32,8 @@ func (p *ListT) FileWatcher() {
 
 				now = time.Now()
 				diff := now.Sub(last)
-				if diff > 1000*time.Millisecond {
+				if diff > 5000*time.Millisecond {
 					fmt.Println("renew id.List")
-					cnt++
 					renewIDList()
 					last = time.Now()
 				}
@@ -60,7 +58,10 @@ func (p *ListT) FileWatcher() {
 // renewIDList clears the internal id list and reads it again
 func renewIDList() {
 	if "none" != FnJSON {
-		List = List[:0]
-		List.Read(FnJSON)
+		List = ListA[:0]
+		errorFatal(List.Read(FnJSON))
+		if true == Verbose {
+			fmt.Println("Read ID list file", FnJSON, "with", len(List), "items.")
+		}
 	}
 }

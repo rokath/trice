@@ -15,6 +15,20 @@ import (
 	"time"
 )
 
+type bytesViewer struct {
+	r io.Reader
+}
+
+func newBytesViewer(o io.Reader) (i io.Reader) {
+	return &bytesViewer{o}
+}
+
+func (p *bytesViewer) Read(b []byte) (n int, e error) {
+	n, e = p.r.Read(b)
+	fmt.Println("bytesViewer:", e, n, b[:n])
+	return
+}
+
 // NewTricesfromBare creates a TriceReceiver using r as internal reader.
 // It assumes bare coded trices in the byte stream.
 // It creates a trices channel and and sends the received trices to it.
@@ -25,7 +39,7 @@ import (
 // multiple of triceSice offset. If not, the appropriate count of bytes is ignored.
 func NewTricesfromBare(r io.Reader) *TriceReceiver {
 	p := &TriceReceiver{}
-	p.r = r
+	p.r = r // newBytesViewer(r)
 
 	p.atoms = make(chan []Trice, triceChannelCapacity)
 	p.ignored = make(chan []byte, ignoredChannelCapacity)
@@ -81,12 +95,27 @@ func (p *TriceReceiver) ErrorFatal() {
 // If an IL=89 is detected -> out of sync
 // If an ID=abcd is detected -> out of sync
 // If an ID=cdef is detected -> out of sync
+const (
+	syncID = 0x89ab
+	syncDa = 0xcdef
+
+	syncIDHi = 0x89
+	syncIDLo = 0xab
+	syncDaHi = 0xcd
+	syncDaLo = 0xef
+
+	forbIddenID0  = 0xabcd // If an ID=abcd is detected -> out of sync
+	forbIddenID1  = 0xcdef // If an ID=cdef is detected -> out of sync
+	forbiddenIDHi = 0xef   // If an IH=ef is detected -> out of sync
+	forbiddenIDLo = 0x89   // If an IL=89 is detected -> out of sync
+)
+
 func (p *TriceReceiver) syncCheck(atoms []Trice) bool {
 	for _, a := range atoms {
 		ih := byte(a.ID >> 8)
 		il := byte(a.ID)
-		if 0xabcd == a.ID || 0xcdef == a.ID || 0xef == ih || 0x89 == il {
-			fmt.Println("sync issue, unexpected id: ", ih, il)
+		if forbIddenID0 == a.ID || forbIddenID1 == a.ID || forbiddenIDHi == ih || forbiddenIDLo == il {
+			fmt.Println("sync issue, unexpected id, ih, il, ignoring first byte and retrying...: ", a.ID, ih, il)
 			p.ignored <- p.syncBuffer[:1]   // send dropped byte to ignored channel
 			p.syncBuffer = p.syncBuffer[1:] // drop 1 to (triceSize-1) bytes
 			return false
@@ -121,7 +150,6 @@ func (p *TriceReceiver) readRaw() {
 	// read to have at least triceSize bytes
 	var n int
 	n, p.Err0 = io.ReadAtLeast(p.r, p.syncBuffer, minBytes)
-	//fmt.Println("DEBUG: ", n, p.Err0, leftovers, minBytes)
 
 	// the valid len inside syncBuffer
 	le := leftovers + n
@@ -138,20 +166,20 @@ func (p *TriceReceiver) readRaw() {
 		p.syncBuffer = p.syncBuffer[adjust:] // drop 1 to (triceSize-1) bytes
 	}
 
-retry:
-
+retrySync:
 	// convert from syncBuffer into Trice slice
 	atomsAvail := len(p.syncBuffer) / triceSize
 	atoms := make([]Trice, atomsAvail) ////////////////////////////////////// TODO: avoid make here
 	buf := bytes.NewReader(p.syncBuffer)
 
 	// consider Big.Endian
-	p.Err1 = binary.Read(buf, binary.LittleEndian, atoms) // target assumed to be little endian
+	//p.Err1 = binary.Read(buf, binary.LittleEndian, atoms) // target assumed to be little endian
+	p.Err1 = binary.Read(buf, binary.BigEndian, atoms) // target assumed to be big endian
 
 	// check atoms in buf for wrong sync
 	if false == p.syncCheck(atoms) {
 		time.Sleep(3 * time.Second)
-		goto retry
+		goto retrySync
 	}
 
 	p.syncBuffer = p.syncBuffer[triceSize*atomsAvail:] // any leftover count from 1 to (triceSize-1) is possible

@@ -25,67 +25,75 @@ extern "C" {
 #include "triceTick.h"
 
 #define TRICE_PUSH(v) triceTricePush(v)
-#define TRICE_FIFO_SIZE 256 //!< must be a power of 2, one trice needs 4 to 32 bytes, must hold trice bursts until they are transmitted, fifo is transmitted with lower priority
+#define TRICE_FIFO_BYTE_SIZE 4096 //!< must be a power of 2, one trice needs 4 to 32 bytes, must hold trice bursts until they are transmitted, fifo is transmitted with lower priority
 
 
-//! trice sync message for RTTdirect environments. The value 5654 is a reserved pattern used as ID and value.
-//! It cannot occure in the trice stream. You must not change that. Otherwise the RTTD syncing will not work.
+//! trice sync message for RTTdirect environments. The value 35243 (0x89ab) is a reserved pattern used as ID with value 0xcdef.
+//! It cannot occure in the trice stream. You must not change that. Otherwise the syncing will not work.
 //! If for some reason the Id changes during 'trice u', probably when the string changed, you need to remove
-//! the old pattern from til.json and put Id(5654) manually here
-#define TRICE_SYNC do{ TRICE16_1( Id(5654), "%d\b\b\b\b", 5654 ); }while(0)
+//! the old pattern from til.json and put Id(35243) manually here
+#define TRICE_SYNC do{ TRICE16_1( Id(35243), "%04x\b\b\b\b", 0xcdef ); }while(0)
 
 #define Id( n ) (n) //!< Macro for improved trice readability and better source code parsing.
 
-#define TRICE_BYTES_FIFO_MASK ((TRICE_FIFO_SIZE)-1) //!< max possible bytes count in fifo
-#define TRICE_TRICE_FIFO_MASK ((TRICE_BYTES_FIFO_MASK)>>2) //!< max possible trices count in fifo
+#define TRICE_FIFO_MASK (((TRICE_FIFO_BYTE_SIZE)>>2)-1) //!< max possible trices count in fifo
 
 extern uint32_t triceFifo[];
-extern uint32_t triceFifoWriteIndexTrices;
-extern uint32_t triceFifoReadIndexBytes;
-extern uint32_t triceFifoMaxDepthBytes; //!< diagnostics
+extern uint32_t triceFifoWriteIndex;
+extern uint32_t triceFifoReadIndex;
+extern uint32_t triceFifoMaxDepthTrices; //!< diagnostics
 
 //! put one trice into trice fifo
 //! \param v trice id with 2 byte data
 //! trice time critical part
 TRICE_INLINE void triceTricePush( uint32_t v ){
-    triceFifo[triceFifoWriteIndexTrices++] = v;
-    triceFifoWriteIndexTrices &= TRICE_TRICE_FIFO_MASK;
+    triceFifo[triceFifoWriteIndex++] = v;
+    triceFifoWriteIndex &= TRICE_FIFO_MASK;
 }
 
-//! pop one trice byte from trice fifo
-//! \return trice byte
-TRICE_INLINE uint8_t triceBytePop(){
-    //#define ntohl(v) (v) //__builtin_bswap32((uint32_t)(v))
-    //#define htonl(v) ntohl(v)
-    uint8_t by = ((uint8_t*)triceFifo)[triceFifoReadIndexBytes++]; // handle endianess!
-    triceFifoReadIndexBytes &= TRICE_BYTES_FIFO_MASK;
-    return by;
+//! put one trice into trice fifo
+//! \param v trice id with 2 byte data
+//! trice time critical part
+TRICE_INLINE uint32_t triceTricePop(){
+    uint32_t v = triceFifo[triceFifoReadIndex++];
+    triceFifoReadIndex &= TRICE_FIFO_MASK;
+	  return v;
 }
 
-//! byte count inside trice fifo
+//! trices count inside trice fifo
 //! \return count of buffered trices
 TRICE_INLINE unsigned triceFifoDepth( void ){
-    unsigned triceDepth = ((triceFifoWriteIndexTrices<<2) - triceFifoReadIndexBytes) & TRICE_BYTES_FIFO_MASK;
-    triceFifoMaxDepthBytes = triceDepth < triceFifoMaxDepthBytes ? triceFifoMaxDepthBytes : triceDepth; // diagnostics
+    unsigned triceDepth = (triceFifoWriteIndex - triceFifoReadIndex) & TRICE_FIFO_MASK;
+    triceFifoMaxDepthTrices = triceDepth < triceFifoMaxDepthTrices ? triceFifoMaxDepthTrices : triceDepth; // diagnostics
     return triceDepth;
 }
 
 //! triceWriteServer() must be called cyclically to proceed ongoing write out
 //! best place: sysTick ISR and UART ISR (both together)
 TRICE_INLINE void triceServeUartOut( void ){
+		 static uint8_t by[4];
+	   static int idx = 4;
 
-    if( !triceTxDataRegisterEmpty() ){ 
+    if( !triceTxDataRegisterEmpty() ){ // hw busy
         return;
     }
-    if( 0 == triceFifoDepth() ){
+    if( 4 == idx && 0 == triceFifoDepth() ){ // no data
         triceDisableTxEmptyInterrupt();
         return;
-    }else{
-        uint8_t v = triceBytePop();
-        triceTransmitData8( v );
-        triceEnableTxEmptyInterrupt();
     }
+		if( 4 == idx ){ // next trice
+			  uint32_t v = triceTricePop();
+			  by[0] = (uint8_t)(v>>8); // IDHi big endian
+			  by[1] = (uint8_t)(v);    // IDLo big endian
+			  by[3] = (uint8_t)(v>>24);// DaHi litte endian -> should be changed to by[2] (needs many changes in trice.h but does not influence trice go code)
+			  by[2] = (uint8_t)(v>>16);// DaLo litte endian -> should be changed to by[3] (needs many changes in trice.h but does not influence trice go code)
+			  idx = 0;
+	  }
+		// next byte
+		triceTransmitData8( by[idx++] );
+		triceEnableTxEmptyInterrupt();
 }
+
 
 //! used as TRICE_CODE macro option for more flash occupation, but decreases execution time and needs smaller buffers
 #define MORE_FLASH_AND_SPEED 30 //!< value is only to distinguish from LESS_FLASH and NO_CODE

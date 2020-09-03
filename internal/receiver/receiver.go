@@ -26,7 +26,7 @@ const (
 var (
 
 	// syncTrice is a trice emitted regularely by the target for making sure all gets in sync again after some disruption.
-	syncTrice = []byte{0x16, 0x16, 0x16, 0x16}
+	syncTrice = []byte{0x89, 0xab, 0xef, 0xcd} // todo: endianess
 )
 
 // Trice is the bare Trice data type for a Trice atom.

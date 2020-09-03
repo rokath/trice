@@ -23,21 +23,14 @@
 	{
 		"id": 772,
 		"fmtType": "TRICE0",
-		"fmtStrg": "dbg:ok?\n", 
+		"fmtStrg": "s:                                        \ns:   ARM-MDK_LL_UART_BARE_NUCLEO-F070RB   \ns:                                        \n\n",
 		"created": 1,
 		"removed": 0
 	},
 	{
-		"id": 5654,
+		"id": 1257,
 		"fmtType": "TRICE0",
-		"fmtStrg": "%s", 
-		"created": 1,
-		"removed": 0
-	},
-	{
-		"id": 257,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "%d\\b\\b\\b",
+		"fmtStrg": "s: ",
 		"created": 1590415342,
 		"removed": 0
 	},

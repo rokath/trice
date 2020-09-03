@@ -37,7 +37,7 @@ func TestNewSimpleTriceInterpreterWithAnsiOff(t *testing.T) {
 	// The line composer scans the trice strings and composes lines out of them according to its properies.
 	sw := NewLineComposer(lwT, "zero", "PREFIX", "")
 
-	var list id.ListT = []id.Item{
+	id.List = []id.Item{
 		{ID: 257, FmtType: "TRICE8_2", FmtStrg: "att:Hello, %d+%d=", Created: 0, Removed: 0},
 		{ID: 514, FmtType: "TRICE16_1", FmtStrg: "att:%d, ok", Created: 0, Removed: 0},
 		{ID: 515, FmtType: "TRICE0", FmtStrg: "?\n", Created: 0, Removed: 0},
@@ -47,7 +47,7 @@ func TestNewSimpleTriceInterpreterWithAnsiOff(t *testing.T) {
 
 	// sti uses the TriceAtomsReceiver interface tai for reception and the io.StringWriter interface sw for writing.
 	// sti collects trice atoms to a complete trice, generates the appropriate string using list and writes it to the provided io.StringWriter
-	sti := translator.NewSimpleTrices(sw, list, tai)
+	sti := translator.NewSimpleTrices(sw, tai)
 
 	lines := []string{
 		"2006-01-02_1504-05 PREFIX att:Hello, 1+1=att:2, ok?",
@@ -80,7 +80,7 @@ func TestNewSimpleTriceInterpreterWithAnsiNone(t *testing.T) {
 	// The line composer scans the trice strings and composes lines out of them according to its properies.
 	sw := NewLineComposer(lwT, "zero", "PREFIX", "")
 
-	var list id.ListT = []id.Item{
+	id.List = []id.Item{
 		{ID: 257, FmtType: "TRICE8_2", FmtStrg: "att:Hello, %d+%d=", Created: 0, Removed: 0},
 		{ID: 514, FmtType: "TRICE16_1", FmtStrg: "att:%d, ok?\n", Created: 0, Removed: 0},
 		{ID: 771, FmtType: "TRICE0", FmtStrg: "msg:Yes!\n", Created: 0, Removed: 0},
@@ -89,7 +89,7 @@ func TestNewSimpleTriceInterpreterWithAnsiNone(t *testing.T) {
 
 	// sti uses the TriceAtomsReceiver interface tai for reception and the io.StringWriter interface (r) for writing.
 	// sti collects trice atoms to a complete trice, generates the appropriate string with list and writes it to the provided io.StringWriter
-	sti := translator.NewSimpleTrices(sw, list, tai)
+	sti := translator.NewSimpleTrices(sw, tai)
 
 	lines := []string{
 		"2006-01-02_1504-05 PREFIX Hello, 1+1=2, ok?",
@@ -122,7 +122,7 @@ func TestNewSimpleTriceInterpreterResync(t *testing.T) {
 	// The line composer scans the trice strings and composes lines out of them according to its properies.
 	sw := NewLineComposer(lwT, "zero", "PREFIX", "")
 
-	var list id.ListT = []id.Item{
+	id.List = []id.Item{
 		{ID: 257, FmtType: "TRICE8_2", FmtStrg: "att:Hello, %d+%d=", Created: 0, Removed: 0},
 		{ID: 514, FmtType: "TRICE16_1", FmtStrg: "att:%d, ok?\n", Created: 0, Removed: 0},
 		{ID: 771, FmtType: "TRICE0", FmtStrg: "msg:Yes!\n", Created: 0, Removed: 0},
@@ -131,7 +131,7 @@ func TestNewSimpleTriceInterpreterResync(t *testing.T) {
 
 	// sti uses the TriceAtomsReceiver interface tai for reception and the io.StringWriter interface (r) for writing.
 	// sti collects trice atoms to a complete trice, generates the appropriate string with list and writes it to the provided io.StringWriter
-	sti := translator.NewSimpleTrices(sw, list, tai)
+	sti := translator.NewSimpleTrices(sw, tai)
 
 	lines := []string{
 		"2006-01-02_1504-05 PREFIX WARNING:ignoring bytes: [106 97 114]",

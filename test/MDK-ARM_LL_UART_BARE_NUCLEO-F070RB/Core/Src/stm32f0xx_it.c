@@ -119,20 +119,22 @@ void PendSV_Handler(void)
   /* USER CODE END PendSV_IRQn 1 */
 }
 
+
 /**
   * @brief This function handles System tick timer.
   */
 void SysTick_Handler(void)
 {
   /* USER CODE BEGIN SysTick_IRQn 0 */
-	extern int milliSecond, Second;
-	milliSecond++;
-	if( 5 == milliSecond ){
+	
+	  extern int milliSecond, Second;
+	  milliSecond++;
+	if( 1000 == milliSecond ){
 		milliSecond = 0;
 		Second++;
 	}
-	if( Second > 20 ){
-		Second = 0;
+	if( Second > 10 ){
+		  Second = 0;
 	}
   /* USER CODE END SysTick_IRQn 0 */
 

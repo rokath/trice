@@ -12,10 +12,20 @@ import (
 	"flag"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"math/rand"
 	"os"
 	"path/filepath"
+	"runtime"
 	"time"
+)
+
+var (
+	// Verbose gives mor information on output if set. The value is injected from main packages.
+	Verbose bool
+
+	// DryRun if set, inhibits real changes
+	DryRun bool
 )
 
 // Item is the basic element
@@ -27,52 +37,74 @@ type Item struct {
 	Removed int32  `json:"removed"` // utc unix time of disappearing in processed src directory
 }
 
-// ListT is a slice type containing the ID list.
-// There exists only one global list.
-type ListT []Item
+// List is the trice ID list
+type List struct {
 
-var (
-	// Verbose gives mor information on output if set. The value is injected from main packages.
-	Verbose bool
+	// fnJSON is the filename of the id list
+	fnJSON string
 
-	// List is the internal List instancem for 16 bit IDs enough
-	List = make(ListT, 0, 65536)
+	// array ist the undelying list array for List
+	array [65536]Item
 
-	// FnJSON is the filename of the id list
-	FnJSON string
+	// list is a slice type containing the ID list.
+	list []Item
 
-	// DryRun if set, inhibits real changes
-	DryRun bool
-)
+	savedErr error
+}
+
+// NewList creates an ID list instance
+func NewList(fnJSON string) *List {
+	p := &List{}
+	p.fnJSON = FnJSON
+	p.list = p.array[:0]
+	p.Read()
+	return p
+}
+
+// ReadListFile reads idlist file in internal struct and starts a file watcher.
+//
+// Just in case the idlist file gets updated, the file watcher updates the internals struct.
+// This way trice needs not to be restarted during development process.
+func (p *List) ReadListFile() {
+	if "none" != p.FnJSON {
+		b, err := ioutil.ReadFile(p.fnJSON)
+		errorFatal(err)
+		errorFatal(json.Unmarshal(b, p))
+		// TODO: sort for binary search
+		go List.FileWatcher()
+	}
+	if true == Verbose {
+		fmt.Println("Read ID list file", FnJSON, "with", len(List), "items.")
+	}
+}
 
 // newID() gets a random ID not used so far.
 // If all IDs used, longest removed ID is reused (TODO)
-func (p *ListT) newID() (int, error) {
-	var i, id int
+func (p *List) newID() int {
+	var id int
 
 	for { // this is good enough if id count is less than 2/3 of total count, otherwise it will take too long
 		id = 1 + rand.Intn(65535) // 2^16 - 1, 0 is reserved
 		new := true
-		for i = range *p {
-			if id == (*p)[i].ID {
-				new = false // id found, so not usable
+		for i = range p.list { // todo: binary search
+			ih = uint8_t(id >> 8)
+			il = uint8_t(id)
+			if id == (*p)[i].ID || 0xabcd == id || 0xcdef == id || 0xef == ih || 0x89 == il { // see bare.go
+				new = false // id found or forbidden, so not usable
 				break
 			}
 		}
 		if false == new {
-			continue // id used already, next try
-		}
-		n := len(*p)
-		if (0 == i && 0 == n) || i+1 == n {
-			return id, nil
+			continue // next try
 		}
 	}
+	return id
 }
 
 // appendIfMissing is appending i idItem to *p.
 // It returns true if item was missing or changed, otherwise false.
-func (p *ListT) appendIfMissing(i Item, verbose bool) (int, bool) {
-	for _, e := range *p {
+func (p *List) appendIfMissing(i Item, verbose bool) (int, bool) {
+	for _, e := range p.list {
 		if e.ID == i.ID { // if id exists
 			if (e.FmtType == i.FmtType) && (e.FmtStrg == i.FmtStrg) { // identical
 				if 0 == e.Removed { // is active
@@ -111,7 +143,7 @@ func (p *ListT) appendIfMissing(i Item, verbose bool) (int, bool) {
 
 // ExtendIDList returns id beause it could get changed when id is in list with different typ or fmts.
 // It is an exported function for simplyfing tests in other packets.
-func (p *ListT) extendIDList(id int, typ, fmts string, verbose bool) (int, bool) {
+func (p *List) extendIDList(id int, typ, fmts string, verbose bool) (int, bool) {
 	i := Item{
 		ID:      id,
 		FmtType: typ,
@@ -122,17 +154,7 @@ func (p *ListT) extendIDList(id int, typ, fmts string, verbose bool) (int, bool)
 	return p.appendIfMissing(i, verbose)
 }
 
-// Read is reading a JSON file fn and returning a slice
-func (p *ListT) Read(fn string) error {
-	b, err := ioutil.ReadFile(fn)
-	if err != nil {
-		return fmt.Errorf("failed to read %s: %v", fn, err)
-	}
-	err = json.Unmarshal(b, p)
-	return err
-}
-
-func (p *ListT) write(filename string) error {
+func (p *List) write(filename string) error {
 	b, err := json.MarshalIndent(p, "", "\t")
 	if err != nil {
 		return err
@@ -140,28 +162,16 @@ func (p *ListT) write(filename string) error {
 	return ioutil.WriteFile(filename, b, 0644)
 }
 
-// Index returns the index of 'ID' inside 'l'. If 'ID' is not inside 'l' Index() returns 0 and an error.
-//
-// todo: replace it with functionality in InexEx
-func Index(i int, l ListT) (int, error) {
-	for x := range l {
-		k := l[x].ID
-		if i == k {
-			return x, nil
-		}
-	}
-	return 0, errors.New("unknown ID")
-}
-
-// IndexEx returns the index of id inside List. If is is not inside List Index returns 0 and an error.
-func IndexEx(id int) (int, error) {
-	for i := range List {
-		iD := List[i].ID
+// Index returns the index of id inside p.List. If id is not inside p.List it returns -1.
+func (p *List) Index(id int) int {
+	for i := range p.List {
+		iD := p.List[i].ID
 		if id == iD {
-			return i, nil
+			return nil
 		}
 	}
-	return 0, errors.New("unknown ID")
+	p.savedErr = errors.New("unknown ID")
+	return -1
 }
 
 // ScZero does replace all ID's in sourc tree with 0
@@ -219,23 +229,14 @@ func ListNotFoundMsg(pathname string) {
 	fmt.Println("ID list " + pathname + " not found")
 }
 
-// ReadListFile reads idlist file in internal struct and starts a file watcher.
-//
-// Just in case the idlist file gets updated, the file watcher updates the internals struct.
-// This way trice needs not to be restarted during development process.
-func ReadListFile() error {
-	if "none" != FnJSON {
-		// setup ip list
-		err := List.Read(FnJSON)
-		if nil != err {
-			//fmt.Println("ID list " + path.Base(id.FnJSON) + " not found, exit")
-			ListNotFoundMsg(FnJSON)
-			return errors.New("file not found")
-		}
-		go List.FileWatcher()
+// errorFatal ends in osExit(1) if err not nil.
+func errorFatal(err error) {
+	if nil == err {
+		return
 	}
-	if true == Verbose {
-		fmt.Println("Read ID list file", FnJSON, "with", len(List), "items.")
+	if Verbose {
+		_, file, line, _ := runtime.Caller(1)
+		log.Fatal(err, " "+filepath.Base(file)+" ", line)
 	}
-	return nil
+	log.Fatal(err)
 }

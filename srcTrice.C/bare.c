@@ -14,12 +14,12 @@ The trices (macros) are dumped as 32bit values into a 32 bit fifo. That is the t
 #if TRICE_CODE
 
 //! trice fifo instance, here are the trices buffered.
-ALIGN4 uint32_t triceFifo[ TRICE_FIFO_SIZE>>2 ] ALIGN4_END;
+ALIGN4 uint32_t triceFifo[ TRICE_FIFO_BYTE_SIZE>>2 ] ALIGN4_END;
 
-uint32_t triceFifoWriteIndexTrices = 0; //!< trice fifo write index, used inside macros, so must be visible
+uint32_t triceFifoWriteIndex = 0; //!< trice fifo write index, used inside macros, so must be visible
 
-uint32_t triceFifoReadIndexBytes = 0; //!< trice fifo read index
+uint32_t triceFifoReadIndex = 0; //!< trice fifo read index
 
-uint32_t triceFifoMaxDepthBytes = 0; //!< diagnostics
+uint32_t triceFifoMaxDepthTrices = 0; //!< diagnostics
 
 #endif // #if TRICE_CODE
