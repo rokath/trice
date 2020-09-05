@@ -1,4 +1,4 @@
-/*! \file bare.h
+ /*! \file bare.h
 \brief Software tracer header file
 \details This file is included in target code files. If TRICE_CODE is defined
 as NO_CODE (globally or file specific) the TRICE* macros generate no code.
@@ -12,26 +12,61 @@ as NO_CODE (globally or file specific) the TRICE* macros generate no code.
 extern "C" {
 #endif
 
-#define TRICE_VARIANT STM32_LL
-#define TRICE_UART USART2
+//! used as TRICE_CODE macro option for more flash occupation, but decreases execution time and needs smaller buffers
+#define MORE_FLASH_AND_SPEED 30 //!< value is only to distinguish from LESS_FLASH and NO_CODE
 
-#include <stdint.h>
-#include <stdlib.h>
-#include <string.h>
-#include "triceConfigCompiler.h"
-#include "triceConfigTx.h"
-#include "triceConfigTxInterrupt.h"
-#include "triceConfigCriticalSection.h"
-#include "triceTick.h"
+//! used as TRICE_CODE macro option for less flash occupation, but increases execution time and needs bigger buffers
+#define LESS_FLASH_AND_SPEED 20 //!< value is only to distinguish from MORE_FLASH and NO_CODE
+
+//! used as TRICE_CODE macro option for no trice code generation
+#define NO_CODE 10 //!< value is only to distinguish from MORE_FLASH or LESS_FLASH ans must be 0
+
+#include "bareConfig.h"
 
 #define TRICE_PUSH(v) triceTricePush(v)
-#define TRICE_FIFO_BYTE_SIZE 4096 //!< must be a power of 2, one trice needs 4 to 32 bytes, must hold trice bursts until they are transmitted, fifo is transmitted with lower priority
 
-
-//! trice sync message for RTTdirect environments. The value 35243 (0x89ab) is a reserved pattern used as ID with value 0xcdef.
-//! It cannot occure in the trice stream. You must not change that. Otherwise the syncing will not work.
-//! If for some reason the Id changes during 'trice u', probably when the string changed, you need to remove
-//! the old pattern from til.json and put Id(35243) manually here
+//! TRICE_SYNC is an optional trice sync message for syncing, when bare transmission is used.
+//! The value 35243 (0x89ab) is a reserved pattern used as ID with value DA 0xcdef.
+//! The byte sequence of the sync message is 0x89 0xab 0xcd 0xef.
+//! It cannot occure in the trice stream in another way due to ID generaion policy.
+//! Sync package is IDDA=89abcdef
+//!
+//! To avoid wrong syncing these ID's are excluded: xx89, abcd, cdef, efxx (514 pieces)
+//!
+//! Possible:    IH IL DH DL IH IL DH DL IH IL DH DL (1 right)
+//!              xx xx xx xx xx 89 ab cd ef xx xx xx -> avoid IL=89, IH=ef
+//!
+//! Possible:    IH IL DH DL IH IL DH DL IH IL DH DL (2 right)
+//!              xx xx xx xx xx xx 89 ab cd ef xx xx -> avoid ID=cdef
+//!
+//! Possible:    IH IL DH DL IH IL DH DL IH IL DH DL (3 right)
+//!              xx xx xx xx xx xx xx 89 ab cd ef xx -> avoid ID=abcd
+//!
+//! Sync packet: IH IL DH DL IH IL DH DL IH IL DH DL
+//!              xx xx xx xx 89 ab cd ef xx xx xx xx -> use ID=89ab with DA=cdef as sync packet
+//!
+//!  Possible:   IH IL DH DL IH IL DH DL IH IL DH DL (1 left)
+//!              xx xx xx 89 ab cd ef xx xx xx xx xx -> avoid ID=abcd
+//!
+//!  Possible:   IH IL DH DL IH IL DH DL IH IL DH DL (2 left)
+//!              xx xx 89 ab cd ef xx xx xx xx xx xx -> avoid ID=cdef
+//!
+//!  Possible:   IH IL DH DL IH IL DH DL IH IL DH DL (3 left)
+//!              xx 89 ab cd ef xx xx xx xx xx xx xx ->  avoid IL=nn89, IH=ef
+//!
+//! If an ID=89ab with DA!=cdef is detected -> out of sync!
+//! If an IH=ef is detected -> out of sync, all 256 IDs starting with 0xef are excluded
+//! If an IL=89 is detected -> out of sync, all 256 IDs ending with 0x89 are excluded
+//! If an ID=abcd is detected -> out of sync, ID 0xabcd is excluded
+//! If an ID=cdef is detected -> out of sync, ID 0xcdef is excluded
+//! ID 0x89ab is reserved for this trice sync package.
+//! The trice sync message payload must be 0xcdef.
+//! You must not change any of the above demands. Otherwise the syncing will not work.
+//! If for some reason the Id changes during 'trice u', probably when the string changed accidently, 
+//! you need to remove the old pattern from til.json and put Id(35243) manually here.
+//! The trice sync string makes the trice sync info invisible just in case,
+//! but the trice tool will filter them out anyway. The trice tool automatic id generation
+//! follows these rules.
 #define TRICE_SYNC do{ TRICE16_1( Id(35243), "%04x\b\b\b\b", 0xcdef ); }while(0)
 
 #define Id( n ) (n) //!< Macro for improved trice readability and better source code parsing.
@@ -41,26 +76,25 @@ extern "C" {
 extern uint32_t triceFifo[];
 extern uint32_t triceFifoWriteIndex;
 extern uint32_t triceFifoReadIndex;
-extern uint32_t triceFifoMaxDepthTrices; //!< diagnostics
+extern uint32_t triceFifoMaxDepthTrices; //!< usabble for diagnostics
 
-//! put one trice into trice fifo
+//! triceTricePush puts one trice into trice fifo.
+//! This is a trice time critical part.
 //! \param v trice id with 2 byte data
-//! trice time critical part
 TRICE_INLINE void triceTricePush( uint32_t v ){
     triceFifo[triceFifoWriteIndex++] = v;
     triceFifoWriteIndex &= TRICE_FIFO_MASK;
 }
 
-//! put one trice into trice fifo
-//! \param v trice id with 2 byte data
-//! trice time critical part
+//! triceTricePop gets one trice from trice fifo.
+//! \return trice id with 2 byte data in one uint32_t.
 TRICE_INLINE uint32_t triceTricePop(){
     uint32_t v = triceFifo[triceFifoReadIndex++];
     triceFifoReadIndex &= TRICE_FIFO_MASK;
 	  return v;
 }
 
-//! trices count inside trice fifo
+//! triceFifoDepth determines trices count inside trice fifo.
 //! \return count of buffered trices
 TRICE_INLINE unsigned triceFifoDepth( void ){
     unsigned triceDepth = (triceFifoWriteIndex - triceFifoReadIndex) & TRICE_FIFO_MASK;
@@ -68,8 +102,9 @@ TRICE_INLINE unsigned triceFifoDepth( void ){
     return triceDepth;
 }
 
-//! triceWriteServer() must be called cyclically to proceed ongoing write out
-//! best place: sysTick ISR and UART ISR (both together)
+//! triceServeUartOut() must be called cyclically to proceed ongoing write out.
+//! A good place: sysTick ISR and UART ISR (both together).
+//! TODO: endianess with compiler macros.
 TRICE_INLINE void triceServeUartOut( void ){
 		 static uint8_t by[4];
 	   static int idx = 4;
@@ -93,21 +128,6 @@ TRICE_INLINE void triceServeUartOut( void ){
 		triceTransmitData8( by[idx++] );
 		triceEnableTxEmptyInterrupt();
 }
-
-
-//! used as TRICE_CODE macro option for more flash occupation, but decreases execution time and needs smaller buffers
-#define MORE_FLASH_AND_SPEED 30 //!< value is only to distinguish from LESS_FLASH and NO_CODE
-
-//! used as TRICE_CODE macro option for less flash occupation, but increases execution time and needs bigger buffers
-#define LESS_FLASH_AND_SPEED 20 //!< value is only to distinguish from MORE_FLASH and NO_CODE
-
-//! used as TRICE_CODE macro option for no trice code generation
-#define NO_CODE 0 //!< value is only to distinguish from MORE_FLASH or LESS_FLASH ans must be 0
-
-
-#define TRICE_CODE MORE_FLASH_AND_SPEED
-
-
 
 #if NO_CODE == TRICE_CODE // no trice code generation
 

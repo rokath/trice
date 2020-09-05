@@ -23,7 +23,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "bare.h"
-#include "triceCheck.h"
+//#include "triceCheck.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -95,18 +95,12 @@ int main(void)
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
   LL_USART_EnableIT_RXNE(TRICE_UART); // enable UART2 interrupt
-    
+	  TRICE_SYNC;
+    TRICE0( Id(58155), "s:                                        \ns:   ARM-MDK_LL_UART_BARE_NUCLEO-F030RB   \ns:                                        \n\n");
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
-    //TRICE8_2( Id(257), "att:Hello, %d+%d=", 250,255 );
-    //TRICE16_1( Id(514), "att:%d, ok?\n", 250+255 );
-	  //TRICE0( Id(772), "dbg:ok?\n" );
-	  //TRICE_SYNC;
-    //TRICE0( Id(771), "msg:Yes!\n" );
-    //TRICE0( Id(772), "dbg:ok?\n" );
-    //TRICE0( Id(771), "msg:Yes!\n" );
-
 		
   /* USER CODE BEGIN WHILE */
   while (1)

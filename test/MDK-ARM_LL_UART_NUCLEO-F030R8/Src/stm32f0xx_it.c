@@ -23,7 +23,7 @@
 #include "stm32f0xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "trice.h"
+#include "bare.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -43,7 +43,7 @@
 
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN PV */
-uint32_t ms = 0; 
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -125,6 +125,16 @@ void PendSV_Handler(void)
 void SysTick_Handler(void)
 {
   /* USER CODE BEGIN SysTick_IRQn 0 */
+
+	  extern int milliSecond, Second;
+	  milliSecond++;
+	if( 1000 == milliSecond ){
+		milliSecond = 0;
+		Second++;
+	}
+	if( Second > 10 ){
+		  Second = 0;
+
     static uint32_t ms_1 = 0;
     ms++;
     if( ms >= ms_1 + 100 ){
@@ -134,6 +144,7 @@ void SysTick_Handler(void)
   /* USER CODE END SysTick_IRQn 0 */
   
   /* USER CODE BEGIN SysTick_IRQn 1 */
+ triceServeUartOut();
     #ifdef LL_INTERFACE_WITH_INTERRUPTS
         triceServe();
     #endif
@@ -156,7 +167,8 @@ void USART2_IRQHandler(void)
 
   /* USER CODE END USART2_IRQn 0 */
   /* USER CODE BEGIN USART2_IRQn 1 */
-    #ifdef LL_INTERFACE_WITH_INTERRUPTS
+triceServeUartOut();
+#ifdef LL_INTERFACE_WITH_INTERRUPTS
         triceServe();
     #endif
   /* USER CODE END USART2_IRQn 1 */

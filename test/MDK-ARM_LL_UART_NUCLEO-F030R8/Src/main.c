@@ -23,7 +23,8 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "trice.h"
+#include "bare.h"
+#include "triceCheck.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -43,7 +44,8 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-
+int milliSecond = 0;
+int Second = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -75,7 +77,6 @@ int main(void)
 
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
   
-
   LL_APB1_GRP2_EnableClock(LL_APB1_GRP2_PERIPH_SYSCFG);
   LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_PWR);
 
@@ -96,10 +97,21 @@ int main(void)
   MX_GPIO_Init();
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
-    LL_USART_EnableIT_RXNE(USART2); // enable UART2 interrupt
+  LL_USART_EnableIT_RXNE(TRICE_UART); // enable UART2 interrupt
   /* USER CODE END 2 */
 
   /* Infinite loop */
+	  TRICE_SYNC;
+    TRICE0( Id(772), "s:                                        \ns:   ARM-MDK_LL_UART_BARE_NUCLEO-F070RB   \ns:                                        \n\n");
+    TRICE8_2( Id(257), "att:Hello, %d+%d=", 250,255 );
+    TRICE16_1( Id(514), "att:%d, ok?\n", 250+255 );
+   // TRICE16_1( Id(1257), "SIG:val=%04x\n", 0x2211 );
+	  TRICE_SYNC;	  
+	  TRICE_SYNC;
+    TRICE0( Id(771), "msg:Yes!\n" );
+    TRICE0( Id(771), "msg:Yes!\n" );
+
+		
   /* USER CODE BEGIN WHILE */
     TRICE_SYNC;
     TRICE16_1( Id( 2625), "TIM:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
@@ -117,6 +129,17 @@ int main(void)
     //////////////////////////////////////////////////
     // demo trices
     //
+
+			static int lastSecond = -1;
+			if( Second != lastSecond ){
+				//TRICE16_1( Id(1257), "SIG:val=%04x\n", Second );
+				TRICE_SYNC;
+				triceCheckSet(Second);
+				lastSecond = Second;
+			}
+
+
+
     static uint32_t ms_1 = 0;
     if( ms >= ms_1 + 1000 ){ // every sec
         static int index = 0;
@@ -144,6 +167,7 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+      //triceServeUartOut();
   }
   /* USER CODE END 3 */
 }

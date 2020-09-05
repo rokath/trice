@@ -58,30 +58,30 @@ void triceCheckSet( int index )
             TRICE64_1( Id(51060), "att:64bit %#b\n", 0x1122334455667788ull );
         break;
         case 3:
-            TRICE8_1( Id(38612), "tst:TRICE8_1 %d\n", -1 );
-            TRICE8_2( Id(44766), "tst:TRICE8_2 %d %d\n", -1, -2 );
-            TRICE8_3( Id(56466), "tst:TRICE8_3 %d %d %d\n", -1, -2, -3 );
-            TRICE8_4( Id(25269), "tst:TRICE8_4 %d %d %d %d\n", -1, -2, -3, -4 );
-            TRICE8_5( Id(29229), "tst:TRICE8_5 %d %d %d %d %d\n", -1, -2, -3, -4, -5 );
-            TRICE8_6( Id(54673), "tst:TRICE8_6 %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6 );
-            TRICE8_7( Id(39003), "tst:TRICE8_7 %d %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6, -7 );
-            TRICE8_8( Id(17307), "tst:TRICE8_8 %d %d %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );
+            TRICE8_1( Id(34112), "tst:TRICE8_1 %d\n", -1 );
+            TRICE8_2( Id(16255), "tst:TRICE8_2 %d %d\n", -1, -2 );
+            TRICE8_3( Id(60392), "tst:TRICE8_3 %d %d %d\n", -1, -2, -3 );
+            TRICE8_4( Id(61544), "tst:TRICE8_4 %d %d %d %d\n", -1, -2, -3, -4 );
+            TRICE8_5( Id(14960), "tst:TRICE8_5 %d %d %d %d %d\n", -1, -2, -3, -4, -5 );
+            TRICE8_6( Id(16368), "tst:TRICE8_6 %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6 );
+            TRICE8_7( Id(15292), "tst:TRICE8_7 %d %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6, -7 );
+            TRICE8_8( Id(46283), "tst:TRICE8_8 %d %d %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );
         break;
         case 4:
-            TRICE16_1( Id(11441), "tst:TRICE16_1 %d\n", -1 ); // 1
-            TRICE16_2( Id( 7354), "tst:TRICE16_2 %d %d\n", -1, -2 ); // 2
-            TRICE16_3( Id(32565), "tst:TRICE16_3 %d %d %d\n", -1, -2, -3 ); // 3
-            TRICE16_4( Id(18329), "tst:TRICE16_4 %d %d %d %d\n", -1, -2, -3, -4 ); // 4
+            TRICE16_1( Id(24514), "tst:TRICE16_1 %d\n", -1 ); // 1
+            TRICE16_2( Id( 8439), "tst:TRICE16_2 %d %d\n", -1, -2 ); // 2
+            TRICE16_3( Id(13166), "tst:TRICE16_3 %d %d %d\n", -1, -2, -3 ); // 3
+            TRICE16_4( Id(  482), "tst:TRICE16_4 %d %d %d %d\n", -1, -2, -3, -4 ); // 4
         break;
         case 5:
-            TRICE32_1( Id(21762), "tst:TRICE32_1 %d\n", -1 ); // 2
-            TRICE32_2( Id(41764), "tst:TRICE32_2 %d %d\n", -1, -2 ); // 4
-            TRICE32_3( Id( 6435), "tst:TRICE32_3 %d %d %d\n", -1, -2, -3 ); // 4
-            TRICE32_4( Id( 4527), "tst:TRICE32_4 %d %d %d %d\n", -1, -2, -3, -4 ); // 4
+            TRICE32_1( Id(59764), "tst:TRICE32_1 %d\n", -1 ); // 2
+            TRICE32_2( Id(28870), "tst:TRICE32_2 %d %d\n", -1, -2 ); // 4
+            TRICE32_3( Id(64982), "tst:TRICE32_3 %d %d %d\n", -1, -2, -3 ); // 4
+            TRICE32_4( Id(22830), "tst:TRICE32_4 %d %d %d %d\n", -1, -2, -3, -4 ); // 4
         break;
         case 6:
-            TRICE64_1( Id(39599), "tst:TRICE64_1 %d\n", -1 ); // 2
-            TRICE64_2( Id( 5982), "tst:TRICE64_2 %d %d\n", -1, -2 ); // 4
+            TRICE64_1( Id(20181), "tst:TRICE64_1 %d\n", -1 ); // 2
+            TRICE64_2( Id(54366), "tst:TRICE64_2 %d %d\n", -1, -2 ); // 4
         break;
         case 7:
             TRICE0(Id(14272), "e:A" );

@@ -127,7 +127,7 @@ void SysTick_Handler(void)
   /* USER CODE BEGIN SysTick_IRQn 0 */
 	extern int milliSecond, Second;
 	milliSecond++;
-	if( 10 == milliSecond ){
+	if( 1000 == milliSecond ){
 		milliSecond = 0;
 		Second++;
 	}

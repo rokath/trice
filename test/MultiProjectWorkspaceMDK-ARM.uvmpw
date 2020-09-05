@@ -15,6 +15,7 @@
 
   <project>
     <PathAndName>.\MDK-ARM_LL_UART_BARE_NUCLEO-F070RB\MDK-ARM\MDK-ARM_LL_UART_BARE_NUCLEO-F070RB.uvprojx</PathAndName>
+    <NodeIsExpanded>1</NodeIsExpanded>
   </project>
 
   <project>
