@@ -43,7 +43,7 @@ type List struct {
 	// fnJSON is the filename of the id list
 	fnJSON string
 
-	// array ist the undelying list array for List
+	// array is the undelying list array for List
 	array [65536]Item
 
 	// list is a slice type containing the ID list.
@@ -55,9 +55,9 @@ type List struct {
 // NewList creates an ID list instance
 func NewList(fnJSON string) *List {
 	p := &List{}
-	p.fnJSON = FnJSON
+	p.fnJSON = fnJSON
 	p.list = p.array[:0]
-	p.Read()
+	p.ReadListFile()
 	return p
 }
 
@@ -66,15 +66,15 @@ func NewList(fnJSON string) *List {
 // Just in case the idlist file gets updated, the file watcher updates the internals struct.
 // This way trice needs not to be restarted during development process.
 func (p *List) ReadListFile() {
-	if "none" != p.FnJSON {
+	if "none" != p.fnJSON {
 		b, err := ioutil.ReadFile(p.fnJSON)
 		errorFatal(err)
 		errorFatal(json.Unmarshal(b, p))
 		// TODO: sort for binary search
-		go List.FileWatcher()
+		go p.FileWatcher()
 	}
 	if true == Verbose {
-		fmt.Println("Read ID list file", FnJSON, "with", len(List), "items.")
+		fmt.Println("Read ID list file", p.fnJSON, "with", len(p.list), "items.")
 	}
 }
 
@@ -86,10 +86,10 @@ func (p *List) newID() int {
 	for { // this is good enough if id count is less than 2/3 of total count, otherwise it will take too long
 		id = 1 + rand.Intn(65535) // 2^16 - 1, 0 is reserved
 		new := true
-		for i = range p.list { // todo: binary search
-			ih = uint8_t(id >> 8)
-			il = uint8_t(id)
-			if id == (*p)[i].ID || 0xabcd == id || 0xcdef == id || 0xef == ih || 0x89 == il { // see bare.go
+		for _, item := range p.list { // todo: binary search
+			ih := uint8(id >> 8) // todo: endianess
+			il := uint8(id)
+			if id == item.ID || 0xef == ih || 0x89 == il || 0x89ab == id || 0xabcd == id || 0xcdef == id { // see bare.go
 				new = false // id found or forbidden, so not usable
 				break
 			}
@@ -101,18 +101,18 @@ func (p *List) newID() int {
 	return id
 }
 
-// appendIfMissing is appending i idItem to *p.
+// appendIfMissing is appending item to p.list.
 // It returns true if item was missing or changed, otherwise false.
-func (p *List) appendIfMissing(i Item, verbose bool) (int, bool) {
+func (p *List) appendIfMissing(item Item, verbose bool) (int, bool) {
 	for _, e := range p.list {
-		if e.ID == i.ID { // if id exists
-			if (e.FmtType == i.FmtType) && (e.FmtStrg == i.FmtStrg) { // identical
+		if e.ID == item.ID { // if id exists
+			if (e.FmtType == item.FmtType) && (e.FmtStrg == item.FmtStrg) { // identical
 				if 0 == e.Removed { // is active
-					return i.ID, false // known i, nothing todo
+					return item.ID, false // known i, nothing todo
 				}
 				// id is inactive
 				e.Removed = 0 // i exists again, clear removal, so it is active again
-				return i.ID, true
+				return item.ID, true
 			}
 			// arriving here means a data difference for the identical id between the actual file
 			// and the ID list. So a new ID is generated and goes with the actual file information
@@ -123,22 +123,22 @@ func (p *List) appendIfMissing(i Item, verbose bool) (int, bool) {
 			if verbose {
 				fmt.Println("e.ID format changed, so get a new ID")
 				fmt.Println(e)
-				fmt.Println(i)
+				fmt.Println(item)
 			}
-			i.ID, _ = p.newID()
-			i.Created = int32(time.Now().Unix())
-			fmt.Println(i)
-			*p = append(*p, i)
+			item.ID = p.newID()
+			item.Created = int32(time.Now().Unix())
+			fmt.Println(item)
+			p.list = append(p.list, item)
 			// Need to change file! Therefore the (new) ID is delivered back.
-			return i.ID, true
+			return item.ID, true
 		}
 		// Do not care about same format for different IDs, what could be done here.
 		// Having different IDs for identical TRICEs is more an advantage for debugging.
 		// If for some reason a huge amount of identical TRICEs should get identical
 		// IDs this could be done here.
 	}
-	*p = append(*p, i)
-	return i.ID, true
+	p.list = append(p.list, item)
+	return item.ID, true
 }
 
 // ExtendIDList returns id beause it could get changed when id is in list with different typ or fmts.
@@ -154,20 +154,20 @@ func (p *List) extendIDList(id int, typ, fmts string, verbose bool) (int, bool) 
 	return p.appendIfMissing(i, verbose)
 }
 
-func (p *List) write(filename string) error {
+func (p *List) writeListFile() error {
 	b, err := json.MarshalIndent(p, "", "\t")
 	if err != nil {
 		return err
 	}
-	return ioutil.WriteFile(filename, b, 0644)
+	return ioutil.WriteFile(p.fnJSON, b, 0644)
 }
 
-// Index returns the index of id inside p.List. If id is not inside p.List it returns -1.
+// Index returns the index of id inside p.list. If id is not found it returns -1.
 func (p *List) Index(id int) int {
-	for i := range p.List {
-		iD := p.List[i].ID
+	for i := range p.list {
+		iD := p.list[i].ID
 		if id == iD {
-			return nil
+			return i
 		}
 	}
 	p.savedErr = errors.New("unknown ID")
@@ -185,8 +185,8 @@ func ScZero(SrcZ string, cmd *flag.FlagSet) error {
 }
 
 // ScUpdate is subcommand update
-func ScUpdate() error {
-
+func ScUpdate(fnJSON string) error {
+	p := NewList(fnJSON)
 	if 0 == len(Srcs) {
 		Srcs = append(Srcs, "./") // default value
 	}
@@ -194,7 +194,7 @@ func ScUpdate() error {
 		s := Srcs[i]
 		srcU := ConditinalFilePath(s)
 		if _, err := os.Stat(srcU); err == nil { // path exists
-			err = update(srcU, FnJSON)
+			err = p.update(srcU)
 			if nil != err {
 				return err
 			}
@@ -210,12 +210,12 @@ func ScUpdate() error {
 }
 
 // update does parse source tree, update IDs and is list
-func update(dir, fn string) error {
-	err := List.Update(dir, fn, !DryRun, Verbose)
+func (p *List) update(dir string) error {
+	err := p.Update(dir, !DryRun, Verbose)
 	if nil != err {
-		return fmt.Errorf("failed update on %s with %s: %v", dir, fn, err)
+		return fmt.Errorf("failed update on %s with %s: %v", dir, p.fnJSON, err)
 	}
-	fmt.Println(len(List), "ID's in list", fn)
+	fmt.Println(len(p.list), "ID's in list", p.fnJSON)
 	return nil
 }
 

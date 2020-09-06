@@ -416,7 +416,7 @@ func receiving() error {
 
 }
 
-func receiveBareSimpleTricesAndDisplayAnsiColor(rd io.Reader) *translator.TriceTranslator {
+func receiveBareSimpleTricesAndDisplayAnsiColor(rd io.Reader, fnJSON string) *translator.TriceTranslator {
 	// tai uses the io.Reader interface from s and implements the TriceAtomsReceiver interface.
 	// It scans the raw input byte stream and decodes the trice atoms it transmits to the TriceAtomsReceiver interface.
 	triceAtomsReceiver := receiver.NewTricesfromBare(rd)
@@ -429,9 +429,11 @@ func receiveBareSimpleTricesAndDisplayAnsiColor(rd io.Reader) *translator.TriceT
 	// The line composer scans the trice strings and composes lines out of them according to its properies.
 	sw := emitter.NewLineComposer(lwD, emitter.TimeStampFormat, emitter.Prefix, emitter.Suffix)
 
+	list := id.NewList(fnJSON)
+
 	// uses triceAtomsReceiver for reception and the io.StringWriter interface sw for writing.
 	// collects trice atoms to a complete trice, generates the appropriate string using list and writes it to the provided io.StringWriter
-	return translator.NewSimpleTrices(sw, triceAtomsReceiver)
+	return translator.NewSimpleTrices(sw, list, triceAtomsReceiver)
 }
 
 // There is a small chance this test fails because of unexpected ordering of 'ignoring bytes' message.

@@ -12,7 +12,7 @@ import (
 
 // FileWatcher checks id list file for changes
 // taken from https://medium.com/@skdomino/watch-this-file-watching-in-go-5b5a247cf71f
-func (p *ListT) FileWatcher() {
+func (p *List) FileWatcher() {
 
 	// creates a new file watcher
 	watcher, err := fsnotify.NewWatcher()
@@ -34,7 +34,7 @@ func (p *ListT) FileWatcher() {
 				diff := now.Sub(last)
 				if diff > 5000*time.Millisecond {
 					fmt.Println("renew id.List")
-					renewIDList()
+					p.renewIDList()
 					last = time.Now()
 				}
 
@@ -46,22 +46,19 @@ func (p *ListT) FileWatcher() {
 	}()
 
 	// out of the box fsnotify can watch a single file, or a single directory
-	if err := watcher.Add(FnJSON); err != nil {
+	if err := watcher.Add(p.fnJSON); err != nil {
 		fmt.Println("ERROR2", err)
 	}
 	if Verbose {
-		fmt.Println(FnJSON, "watched now for changes")
+		fmt.Println(p.fnJSON, "watched now for changes")
 	}
 	<-done
 }
 
 // renewIDList clears the internal id list and reads it again
-func renewIDList() {
-	if "none" != FnJSON {
-		List = ListA[:0]
-		errorFatal(List.Read(FnJSON))
-		if true == Verbose {
-			fmt.Println("Read ID list file", FnJSON, "with", len(List), "items.")
-		}
+func (p *List) renewIDList() {
+	if "none" != p.fnJSON {
+		p.list = p.array[:0]
+		p.ReadListFile()
 	}
 }
