@@ -65,34 +65,35 @@ func isSourceFile(fi os.FileInfo) bool {
 // - replace FmtType( Id(0), ...) with FmtType( Id(n), ...)
 // - find duplicate FmtType( Id(n), ...) and replace one of them if trices are not identical
 // - extend file fnIDList
-func (p *ListT) Update(root, fn string, run, verbose bool) error {
+func (p *List) Update(root string, run, verbose bool) error {
 	fmt.Println("dir=", root)
-	fmt.Println("list=", fn)
+	fmt.Println("list=", p.fnJSON)
 	listModified := false
-	err := p.Read(fn)
-	if nil != err {
-		fmt.Println(fn + " not found, creating a new one")
-		if true == run {
-			err = p.write(fn)
-			if nil != err {
-				return fmt.Errorf("failed to write %s: %v", fn, err)
-			}
-		}
-	}
-	err = filepath.Walk(root, visitUpdate(run, p, &listModified, verbose))
+	//err :=
+	p.ReadListFile()
+	//if nil != err {
+	//	fmt.Println(fn + " not found, creating a new one")
+	//	if true == run {
+	//		err = p.write(fn)
+	//		if nil != err {
+	//			return fmt.Errorf("failed to write %s: %v", fn, err)
+	//		}
+	//	}
+	//}
+	err := filepath.Walk(root, visitUpdate(run, p, &listModified, verbose))
 	if nil != err {
 		return fmt.Errorf("failed to walk tree: %v", err)
 	}
 	if listModified && true == run {
-		err = p.write(fn)
+		err = p.writeListFile()
 		if nil != err {
-			return fmt.Errorf("failed to write %s: %v", fn, err)
+			return fmt.Errorf("failed to write %s: %v", p.fnJSON, err)
 		}
 	}
 	return nil
 }
 
-func visitUpdate(run bool, p *ListT, pListModified *bool, verbose bool) filepath.WalkFunc {
+func visitUpdate(run bool, p *List, pListModified *bool, verbose bool) filepath.WalkFunc {
 	// WalkFunc is the type of the function called for each file or directory
 	// visited by Walk. The path argument contains the argument to Walk as a
 	// prefix; that is, if Walk is called with "dir", which is a directory
@@ -165,7 +166,7 @@ func visitUpdate(run bool, p *ListT, pListModified *bool, verbose bool) filepath
 //    - modified flag is true when any id was changed in the file
 //    - subs gets shorter
 //    - s is updated
-func updateNextID(p *ListT, pListModified *bool, modified bool, subs, s string, verbose bool) (bool, bool, string, string) {
+func updateNextID(p *List, pListModified *bool, modified bool, subs, s string, verbose bool) (bool, bool, string, string) {
 	loc := matchNbTRICE.FindStringIndex(subs) // find the next TRICE location in file
 	if nil == loc {
 		return false, modified, subs, s // done
@@ -185,11 +186,11 @@ func updateNextID(p *ListT, pListModified *bool, modified bool, subs, s string, 
 	if 0 == id {
 		zeroID := nbID
 		zeroTRICE := nbTRICE
-		id, err = p.newID()
-		if nil != err {
-			fmt.Println("error: No new ID found")
-			return false, modified, subs, s
-		}
+		id /*err*/ = p.newID()
+		// if nil != err {
+		// 	fmt.Println("error: No new ID found")
+		// 	return false, modified, subs, s
+		// }
 		newID := fmt.Sprintf("Id(%5d)", id)
 		if verbose {
 			fmt.Println(zeroID, " -> ", newID)
