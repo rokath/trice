@@ -131,7 +131,7 @@ void SysTick_Handler(void)
         milliSecond = 0;
         Second++;
     }
-    if( Second > 20 ){
+	if( Second > 10 ){
         Second = 0;
     }
   /* USER CODE END SysTick_IRQn 0 */

@@ -23,7 +23,6 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "bare.h"
-//#include "triceCheck.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -67,7 +66,9 @@ static void MX_USART2_UART_Init(void);
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-
+#ifdef ENCRYPT
+    InitXteaTable();
+#endif
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -96,17 +97,14 @@ int main(void)
   /* USER CODE BEGIN 2 */
   LL_USART_EnableIT_RXNE(TRICE_UART); // enable UART2 interrupt
     TRICE0( Id(58155), "s:                                        \ns:   ARM-MDK_LL_UART_BARE_NUCLEO-F030RB   \ns:                                        \n\n");
-
   /* USER CODE END 2 */
 
   /* Infinite loop */
-
   /* USER CODE BEGIN WHILE */
   while (1)
   {
     static int lastSecond = -1;
     if( Second != lastSecond ){
-        TRICE_SYNC;
         triceCheckSet(Second);
         lastSecond = Second;
     }
