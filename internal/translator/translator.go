@@ -54,7 +54,7 @@ type TriceTranslator struct {
 	values []byte
 
 	//
-	list id.ListT
+	list *id.List
 
 	// item is the next trice item ready for output, if item is not 0.
 	item id.Item
@@ -72,7 +72,7 @@ type TriceTranslator struct {
 // It uses the io.StringWriter interface sw to write the trice strings looked up in id.List
 // and enhanced with the printed values. Each single trice string is written separately with sw.
 // It does not evaluate the TriceInterpreter.ignored bytes.
-func NewSimpleTrices(sw io.StringWriter, tr TriceAtomsReceiver) *TriceTranslator {
+func NewSimpleTrices(sw io.StringWriter, list *id.List, tr TriceAtomsReceiver) *TriceTranslator {
 	p := &TriceTranslator{}
 	p.atomsChannel = tr.TriceAtomsChannel()
 	p.ignoredChannel = tr.IgnoredBytesChannel()
@@ -81,6 +81,7 @@ func NewSimpleTrices(sw io.StringWriter, tr TriceAtomsReceiver) *TriceTranslator
 	p.ignored = make([]byte, 0, 1000)
 	p.values = make([]byte, 0, 100)
 	p.done = make(chan int)
+	p.list = list
 
 	go func() {
 		for {
@@ -161,7 +162,7 @@ func (p *TriceTranslator) translate() (s string) {
 		return
 	}
 	var index int
-	index, p.Err = id.Index(int(trice.ID), id.List)
+	index, p.Err = p.list.Index(int(trice.ID))
 	if nil != p.Err {
 		p.Err = nil
 		s = fmt.Sprintf("WARNING: trice.ID %d not found, discarding the 2 id bytes and the data bytes %04x %s\n", trice.ID, trice.ID, hex.EncodeToString(p.values))
