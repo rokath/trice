@@ -9,7 +9,7 @@ import (
 	"testing"
 )
 
-func (p *ListT) zeroTimestampCreated() {
+func (p *List) zeroTimestampCreated() {
 	for i := range *p {
 		(*p)[i].Created = 0
 	}

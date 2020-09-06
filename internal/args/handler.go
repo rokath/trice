@@ -92,6 +92,8 @@ var (
 
 	// fsScSdSv is flag set for sub command 'shutdownServer'
 	fsScSdSv *flag.FlagSet
+
+	fnJSON string
 )
 
 func flagLogfile(p *flag.FlagSet) {
@@ -104,8 +106,8 @@ func flagVerbosity(p *flag.FlagSet) {
 }
 
 func flagIDList(p *flag.FlagSet) {
-	p.StringVar(&id.FnJSON, "idlist", "til.json", "trice ID list path, 'none' possible") // flag
-	p.StringVar(&id.FnJSON, "i", "til.json", "short for '-idlist'")                      // flag
+	p.StringVar(&fnJSON, "idlist", "til.json", "trice ID list path, 'none' possible") // flag
+	p.StringVar(&fnJSON, "i", "til.json", "short for '-idlist'")                      // flag
 }
 
 func flagIPAddress(p *flag.FlagSet) {
@@ -295,8 +297,8 @@ func Handler(args []string) error {
 	case "u", "update":
 		fsScUpdate.Parse(subArgs)
 		injectValues()
-		id.FnJSON = id.ConditinalFilePath(id.FnJSON)
-		return id.ScUpdate()
+		fnJSON = id.ConditinalFilePath(fnJSON)
+		return id.ScUpdate(fnJSON)
 
 	//case "check":
 	//	fsScCheck.Parse(subArgs)
@@ -374,7 +376,7 @@ func newReadCloser() (r io.ReadCloser, e error) {
 // Encoding
 func receiving() error {
 	translatePrefix()
-	id.FnJSON = id.ConditinalFilePath(id.FnJSON)
+	fnJSON = id.ConditinalFilePath(fnJSON)
 	if true == displayRemote {
 		var p *emitter.RemoteDisplay
 		if true == autostart {
@@ -390,14 +392,13 @@ func receiving() error {
 	}
 	r, e := newReadCloser()
 	errorFatal(e)
-	id.ReadListFile()
 
 	var p *translator.TriceTranslator
 	switch Encoding {
-	case "sim":
-		p = simNewSimpleTriceInterpreterWithAnsi(r)
+	//	case "sim":
+	//		p = simNewSimpleTriceInterpreterWithAnsi(r)
 	case "bare":
-		p = receiveBareSimpleTricesAndDisplayAnsiColor(r)
+		p = receiveBareSimpleTricesAndDisplayAnsiColor(r, fnJSON)
 
 	case "bareXTEACrypted", "wrapXTEACrypted":
 		errorFatal(cipher.SetUp())
@@ -436,54 +437,54 @@ func receiveBareSimpleTricesAndDisplayAnsiColor(rd io.Reader, fnJSON string) *tr
 	return translator.NewSimpleTrices(sw, list, triceAtomsReceiver)
 }
 
-// There is a small chance this test fails because of unexpected ordering of 'ignoring bytes' message.
-// This is no error.
-func simNewSimpleTriceInterpreterWithAnsi(rd io.Reader) *translator.TriceTranslator {
-
-	// tai uses the io.Reader interface from s and implements the TriceAtomsReceiver interface.
-	// It scans the raw input byte stream and decodes the trice atoms it transmits to the TriceAtomsReceiver interface.
-	triceAtomsReceiver := receiver.NewTricesfromBare(rd)
-
-	// NewColorDisplay creates a ColorlDisplay. It provides a Linewriter.
-	// It uses internally a local display combined with a line transformer.
-	lwD := emitter.NewColorDisplay(emitter.ColorPalette)
-
-	// lineComposer r implements the io.StringWriter interface and uses the Linewriter provided.
-	// The line composer scans the trice strings and composes lines out of them according to its properies.
-	sw := emitter.NewLineComposer(lwD, emitter.TimeStampFormat, emitter.Prefix, emitter.Suffix)
-
-	// sti uses triceAtomsReceiver for reception and the io.StringWriter interface (r) for writing.
-	// sti collects trice atoms to a complete trice, generates the appropriate string with list and writes it to the provided io.StringWriter
-	return translator.NewSimpleTrices(sw, triceAtomsReceiver)
-}
-
-// There is a small chance this test fails because of unexpected ordering of 'ignoring bytes' message.
-// This is no error.
-func simNewSimpleTriceInterpreterWithAnsi0(rd io.Reader) *translator.TriceTranslator {
-
-	// tai uses the io.Reader interface from s and implements the TriceAtomsReceiver interface.
-	// It scans the raw input byte stream and decodes the trice atoms it transmits to the TriceAtomsReceiver interface.
-	triceAtomsReceiver := receiver.NewTricesfromBare(rd)
-
-	// NewColorDisplay creates a ColorlDisplay. It provides a Linewriter.
-	// It uses internally a local display combined with a line transformer.
-	lwD := emitter.NewColorDisplay(emitter.ColorPalette)
-
-	// lineComposer r implements the io.StringWriter interface and uses the Linewriter provided.
-	// The line composer scans the trice strings and composes lines out of them according to its properies.
-	sw := emitter.NewLineComposer(lwD, emitter.TimeStampFormat, emitter.Prefix, emitter.Suffix)
-
-	id.List = []id.Item{
-		{ID: 257, FmtType: "TRICE8_2", FmtStrg: "att:Hello, %d+%d=", Created: 0, Removed: 0},
-		{ID: 514, FmtType: "TRICE16_1", FmtStrg: "att:%d, ok?\n", Created: 0, Removed: 0},
-		{ID: 771, FmtType: "TRICE0", FmtStrg: "msg:Yes!\n", Created: 0, Removed: 0},
-		{ID: 5654, FmtType: "TRICE0", FmtStrg: "%s", Created: 0, Removed: 0},
-	}
-
-	// sti uses triceAtomsReceiver for reception and the io.StringWriter interface (r) for writing.
-	// sti collects trice atoms to a complete trice, generates the appropriate string with list and writes it to the provided io.StringWriter
-	return translator.NewSimpleTrices(sw, triceAtomsReceiver)
-}
+//  // There is a small chance this test fails because of unexpected ordering of 'ignoring bytes' message.
+//  // This is no error.
+//  func simNewSimpleTriceInterpreterWithAnsi(rd io.Reader) *translator.TriceTranslator {
+//
+//  	// tai uses the io.Reader interface from s and implements the TriceAtomsReceiver interface.
+//  	// It scans the raw input byte stream and decodes the trice atoms it transmits to the TriceAtomsReceiver interface.
+//  	triceAtomsReceiver := receiver.NewTricesfromBare(rd)
+//
+//  	// NewColorDisplay creates a ColorlDisplay. It provides a Linewriter.
+//  	// It uses internally a local display combined with a line transformer.
+//  	lwD := emitter.NewColorDisplay(emitter.ColorPalette)
+//
+//  	// lineComposer r implements the io.StringWriter interface and uses the Linewriter provided.
+//  	// The line composer scans the trice strings and composes lines out of them according to its properies.
+//  	sw := emitter.NewLineComposer(lwD, emitter.TimeStampFormat, emitter.Prefix, emitter.Suffix)
+//
+//  	// sti uses triceAtomsReceiver for reception and the io.StringWriter interface (r) for writing.
+//  	// sti collects trice atoms to a complete trice, generates the appropriate string with list and writes it to the provided io.StringWriter
+//  	return translator.NewSimpleTrices(sw, list,  triceAtomsReceiver)
+//  }
+//
+//  // There is a small chance this test fails because of unexpected ordering of 'ignoring bytes' message.
+//  // This is no error.
+//  func simNewSimpleTriceInterpreterWithAnsi0(rd io.Reader) *translator.TriceTranslator {
+//
+//  	// tai uses the io.Reader interface from s and implements the TriceAtomsReceiver interface.
+//  	// It scans the raw input byte stream and decodes the trice atoms it transmits to the TriceAtomsReceiver interface.
+//  	triceAtomsReceiver := receiver.NewTricesfromBare(rd)
+//
+//  	// NewColorDisplay creates a ColorlDisplay. It provides a Linewriter.
+//  	// It uses internally a local display combined with a line transformer.
+//  	lwD := emitter.NewColorDisplay(emitter.ColorPalette)
+//
+//  	// lineComposer r implements the io.StringWriter interface and uses the Linewriter provided.
+//  	// The line composer scans the trice strings and composes lines out of them according to its properies.
+//  	sw := emitter.NewLineComposer(lwD, emitter.TimeStampFormat, emitter.Prefix, emitter.Suffix)
+//
+//  	id.List = []id.Item{
+//  		{ID: 257, FmtType: "TRICE8_2", FmtStrg: "att:Hello, %d+%d=", Created: 0, Removed: 0},
+//  		{ID: 514, FmtType: "TRICE16_1", FmtStrg: "att:%d, ok?\n", Created: 0, Removed: 0},
+//  		{ID: 771, FmtType: "TRICE0", FmtStrg: "msg:Yes!\n", Created: 0, Removed: 0},
+//  		{ID: 5654, FmtType: "TRICE0", FmtStrg: "%s", Created: 0, Removed: 0},
+//  	}
+//
+//  	// sti uses triceAtomsReceiver for reception and the io.StringWriter interface (r) for writing.
+//  	// sti collects trice atoms to a complete trice, generates the appropriate string with list and writes it to the provided io.StringWriter
+//  	return translator.NewSimpleTrices(sw, triceAtomsReceiver)
+//  }
 
 //switch Encoding {
 //case "bare":

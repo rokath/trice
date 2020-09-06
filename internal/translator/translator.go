@@ -162,7 +162,7 @@ func (p *TriceTranslator) translate() (s string) {
 		return
 	}
 	var index int
-	index, p.Err = p.list.Index(int(trice.ID))
+	index = p.list.Index(int(trice.ID))
 	if nil != p.Err {
 		p.Err = nil
 		s = fmt.Sprintf("WARNING: trice.ID %d not found, discarding the 2 id bytes and the data bytes %04x %s\n", trice.ID, trice.ID, hex.EncodeToString(p.values))
@@ -170,7 +170,7 @@ func (p *TriceTranslator) translate() (s string) {
 		p.values = p.values[:0]
 		return
 	}
-	p.item = id.List[index]
+	p.item = p.list.Item(index)
 	s = p.emitter()
 	p.values = p.values[:0]
 	return

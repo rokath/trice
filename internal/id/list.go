@@ -80,25 +80,21 @@ func (p *List) ReadListFile() {
 
 // newID() gets a random ID not used so far.
 // If all IDs used, longest removed ID is reused (TODO)
-func (p *List) newID() int {
-	var id int
-
+func (p *List) newID() (id int) {
+start:
 	for { // this is good enough if id count is less than 2/3 of total count, otherwise it will take too long
-		id = 1 + rand.Intn(65535) // 2^16 - 1, 0 is reserved
-		new := true
-		for _, item := range p.list { // todo: binary search
-			ih := uint8(id >> 8) // todo: endianess
-			il := uint8(id)
-			if id == item.ID || 0xef == ih || 0x89 == il || 0x89ab == id || 0xabcd == id || 0xcdef == id { // see bare.go
-				new = false // id found or forbidden, so not usable
-				break
-			}
-		}
-		if false == new {
+		id = 20 + rand.Intn(65535) // 2^16=65536, id 0 used for params, ids 1-19 reserved, 515 ids forbidden, so 65000 ids possible
+		ih := uint8(id >> 8)       // todo: endianess
+		il := uint8(id)
+		if 0xef == ih || 0x89 == il || 0x89ab == id || 0xabcd == id || 0xcdef == id { // 515 ids forbidden, see bare.go
 			continue // next try
 		}
+		for _, item := range p.list { // todo: binary search
+			if id == item.ID {
+				goto start // id used
+			}
+		}
 	}
-	return id
 }
 
 // appendIfMissing is appending item to p.list.
@@ -172,6 +168,11 @@ func (p *List) Index(id int) int {
 	}
 	p.savedErr = errors.New("unknown ID")
 	return -1
+}
+
+// Item returns the trice item on index from the list
+func (p *List) Item(index int) Item {
+	return p.list[index]
 }
 
 // ScZero does replace all ID's in sourc tree with 0
