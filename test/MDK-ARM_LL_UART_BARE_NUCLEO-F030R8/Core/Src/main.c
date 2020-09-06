@@ -95,26 +95,25 @@ int main(void)
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
   LL_USART_EnableIT_RXNE(TRICE_UART); // enable UART2 interrupt
-	  TRICE_SYNC;
     TRICE0( Id(58155), "s:                                        \ns:   ARM-MDK_LL_UART_BARE_NUCLEO-F030RB   \ns:                                        \n\n");
 
   /* USER CODE END 2 */
 
   /* Infinite loop */
-		
+
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-			static int lastSecond = -1;
-			if( Second != lastSecond ){
-				TRICE_SYNC;
-				triceCheckSet(Second);
-				lastSecond = Second;
-			}
+    static int lastSecond = -1;
+    if( Second != lastSecond ){
+        TRICE_SYNC;
+        triceCheckSet(Second);
+        lastSecond = Second;
+    }
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-      //triceServeUartOut();
+    triceServeOut();
   }
   /* USER CODE END 3 */
 }

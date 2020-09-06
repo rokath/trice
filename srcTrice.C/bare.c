@@ -22,4 +22,41 @@ uint32_t triceFifoReadIndex = 0; //!< trice fifo read index
 
 uint32_t triceFifoMaxDepthTrices = 0; //!< diagnostics
 
+uint8_t triceBytesBuffer[8]; //!< bytes transmit buffer
+int triceBytesBufferIndex = sizeof(triceBytesBuffer)+1; // 9
+
+//! TODO: endianess with compiler macros.
+static void triceLoadTriceToBuffer( uint8_t* p, uint32_t t ){
+    p[0] = (uint8_t)(t>>8); // IDHi big endian
+    p[1] = (uint8_t)(t);    // IDLo big endian
+    p[3] = (uint8_t)(t>>24);// DaHi litte endian -> should be changed to by[2] (needs many changes in trice.h but does not influence trice go code)
+    p[2] = (uint8_t)(t>>16);// DaLo litte endian -> should be changed to by[3] (needs many changes in trice.h but does not influence trice go code)
+}
+
+//! triceServeOut() must be called cyclically to proceed ongoing write out.
+//! A possibe place is main loop.
+void triceServeOut( void ){
+    if( triceBytesBufferIndex < sizeof(triceBytesBuffer)+1 ){ // bytes buffer not empty or tx not finished
+        return; // nothing to do
+    }
+    // next trice
+    int n = triceFifoDepth();
+    if( 0 == n ){
+        return; // nothing to transmit
+    }else{
+        uint32_t trice = triceTricePop();
+        triceLoadTriceToBuffer( triceBytesBuffer, trice ); // 1st trice
+        if( 1 == n ){ // only one trice to transmit
+            trice = 0x89abcdef; // sync trice as 2nd trice
+        }else{  // at least 2 trices to transmit
+            trice = triceTricePop();
+        }
+        triceLoadTriceToBuffer( triceBytesBuffer+sizeof(trice), trice ); // 2nd trice
+        triceBytesBufferIndex = 0;
+        // next byte
+        triceTransmitData8( triceBytesBuffer[triceBytesBufferIndex++] );
+        triceEnableTxEmptyInterrupt();
+    }
+}
+
 #endif // #if TRICE_CODE

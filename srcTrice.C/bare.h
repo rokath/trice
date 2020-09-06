@@ -77,6 +77,10 @@ extern uint32_t triceFifo[];
 extern uint32_t triceFifoWriteIndex;
 extern uint32_t triceFifoReadIndex;
 extern uint32_t triceFifoMaxDepthTrices; //!< usabble for diagnostics
+extern uint8_t triceBytesBuffer[8];
+extern int triceBytesBufferIndex;
+
+void triceServeOut( void );
 
 //! triceTricePush puts one trice into trice fifo.
 //! This is a trice time critical part.
@@ -91,7 +95,7 @@ TRICE_INLINE void triceTricePush( uint32_t v ){
 TRICE_INLINE uint32_t triceTricePop(){
     uint32_t v = triceFifo[triceFifoReadIndex++];
     triceFifoReadIndex &= TRICE_FIFO_MASK;
-	  return v;
+    return v;
 }
 
 //! triceFifoDepth determines trices count inside trice fifo.
@@ -105,28 +109,15 @@ TRICE_INLINE unsigned triceFifoDepth( void ){
 //! triceServeUartOut() must be called cyclically to proceed ongoing write out.
 //! A good place: sysTick ISR and UART ISR (both together).
 //! TODO: endianess with compiler macros.
-TRICE_INLINE void triceServeUartOut( void ){
-		 static uint8_t by[4];
-	   static int idx = 4;
-
-    if( !triceTxDataRegisterEmpty() ){ // hw busy
-        return;
-    }
-    if( 4 == idx && 0 == triceFifoDepth() ){ // no data
+TRICE_INLINE void triceServeTransmit( void ){
+    if( sizeof(triceBytesBuffer) <= triceBytesBufferIndex  ){ // no more bytes
+        triceBytesBufferIndex = sizeof(triceBytesBuffer)+1; // signal tx done
         triceDisableTxEmptyInterrupt();
         return;
     }
-		if( 4 == idx ){ // next trice
-			  uint32_t v = triceTricePop();
-			  by[0] = (uint8_t)(v>>8); // IDHi big endian
-			  by[1] = (uint8_t)(v);    // IDLo big endian
-			  by[3] = (uint8_t)(v>>24);// DaHi litte endian -> should be changed to by[2] (needs many changes in trice.h but does not influence trice go code)
-			  by[2] = (uint8_t)(v>>16);// DaLo litte endian -> should be changed to by[3] (needs many changes in trice.h but does not influence trice go code)
-			  idx = 0;
-	  }
-		// next byte
-		triceTransmitData8( by[idx++] );
-		triceEnableTxEmptyInterrupt();
+    // next byte
+    triceTransmitData8( triceBytesBuffer[triceBytesBufferIndex++] );
+    triceEnableTxEmptyInterrupt();
 }
 
 #if NO_CODE == TRICE_CODE // no trice code generation
