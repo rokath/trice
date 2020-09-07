@@ -6,6 +6,7 @@ package assert
 
 import (
 	"fmt"
+	"io/ioutil"
 	"log"
 	"path/filepath"
 	"reflect"
@@ -84,6 +85,24 @@ func EqualLines(tb testing.TB, exp, act string) {
 		actLine := strings.TrimSpace(act1[i])
 		Equal(tb, expLine, actLine)
 	}
+}
+
+// EqualTextFiles fails test if lines in fn0 & fn1 NOT equal.
+// Line endings are ignored
+func EqualTextFiles(t *testing.T, fn0, fn1 string) {
+
+	// Read entire file content, giving us little control but
+	// making it very simple. No need to close the file.
+	b0, e0 := ioutil.ReadFile(fn0)
+	ErrorNil(t, e0)
+	b1, e1 := ioutil.ReadFile(fn1)
+	ErrorNil(t, e1)
+
+	// Convert []byte to string and print to screen
+	s0 := string(b0)
+	s1 := string(b1)
+
+	EqualLines(t, s0, s1)
 }
 
 // EqualFiles fails test if contence is NOT equal

@@ -1,9 +1,9 @@
 [
 	{
-		"ID": 12345,
-		"FmtType": "TRICE0",
-		"FmtStrg": "Hi",
-		"Created": 0,
-		"Removed": 0
+		"id": 12345,
+		"fmtType": "TRICE0",
+		"fmtStrg": "Hi",
+		"created": 0,
+		"removed": 0
 	}
 ]

@@ -20,69 +20,7 @@ import (
 // test helper ///////////////////////////////////////////////////////////////////////
 //
 
-// assert fails the test if the condition is false.
-func assert(tb testing.TB, condition bool, msg string, v ...interface{}) {
-	if !condition {
-		_, file, line, _ := runtime.Caller(1)
-		fmt.Println(msg, filepath.Base(file), line, v...)
-		tb.FailNow()
-	}
-}
 
-// assertNil fails the test if an err is not nil.
-func assertNil(tb testing.TB, err error) {
-	if err != nil {
-		_, file, line, _ := runtime.Caller(1)
-		fmt.Println(err.Error(), filepath.Base(file), line)
-		tb.FailNow()
-	}
-}
-
-// assertEqual fails the test if exp is not equal to act.
-func assertEqual(tb testing.TB, exp, act interface{}) {
-	if !reflect.DeepEqual(exp, act) {
-		_, file, line, _ := runtime.Caller(1)
-		log.Println("expect:", exp)
-		log.Println("actual:", act)
-		es := fmt.Sprintf("%v", exp)
-		as := fmt.Sprintf("%v", act)
-		log.Println("expect:", es)
-		log.Println("actual:", as)
-		log.Println("expect:", []byte(es))
-		log.Println("actual:", []byte(as))
-		fmt.Println(filepath.Base(file), line)
-		tb.FailNow()
-	}
-}
-
-// assertEqualLines compares exp and act line by line ignoring lineendings and leading/trailing spaces.
-func assertEqualLines(tb testing.TB, exp, act string) {
-
-	// remove windows line endings
-	exp0 := strings.ReplaceAll(exp, "\r\n", "\n")
-	act0 := strings.ReplaceAll(act, "\r\n", "\n")
-
-	exp1 := strings.Split(exp0, "\r")
-	act1 := strings.Split(act0, "\r")
-
-	if len(exp1) != len(act1) {
-		fmt.Println(len(exp1), len(act1))
-		tb.Fail()
-	}
-	for i, se := range exp1 {
-		expLine := strings.TrimSpace(se)
-		actLine := strings.TrimSpace(act1[i])
-		assertEqual(tb, expLine, actLine)
-	}
-}
-
-// assertEqualFiles fails test if contence is NOT equal
-func assertEqualFiles(t *testing.T, fn0, fn1 string) {
-	ok := equalFileContent(fn0, fn1)
-	if false == ok {
-		t.FailNow()
-	}
-}
 
 // randomDynIPPort returns a random IP port number for testing.
 // use 'rand.Seed(time.Now().UTC().UnixNano())' before to get different numbers on each first call.

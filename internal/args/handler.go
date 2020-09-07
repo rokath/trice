@@ -431,6 +431,7 @@ func receiveBareSimpleTricesAndDisplayAnsiColor(rd io.Reader, fnJSON string) *tr
 	sw := emitter.NewLineComposer(lwD, emitter.TimeStampFormat, emitter.Prefix, emitter.Suffix)
 
 	list := id.NewList(fnJSON)
+	list.ReadListFile()
 
 	// uses triceAtomsReceiver for reception and the io.StringWriter interface sw for writing.
 	// collects trice atoms to a complete trice, generates the appropriate string using list and writes it to the provided io.StringWriter

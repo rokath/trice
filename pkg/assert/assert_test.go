@@ -5,6 +5,7 @@
 package assert_test
 
 import (
+	"io/ioutil"
 	"os"
 	"testing"
 
@@ -34,6 +35,20 @@ func TestEqualLines(t *testing.T) {
 	exp := "Hello\r\nWorld\r\n"
 	act := "Hello\nWorld\n"
 	assert.EqualLines(t, exp, act)
+}
+
+func TestEqualTextFiles(t *testing.T) {
+	fd0, e0 := ioutil.TempFile("", "*.txt")
+	assert.ErrorNil(t, e0)
+	defer fd0.Close()
+
+	fd1, e1 := ioutil.TempFile("", "*.txt")
+	assert.ErrorNil(t, e1)
+	defer fd1.Close()
+
+	fd0.WriteString("Hello\r\nWorld\r\n")
+	fd1.WriteString("Hello\nWorld\n")
+	assert.EqualTextFiles(t, fd0.Name(), fd1.Name())
 }
 
 func TestEqualFiles(t *testing.T) {

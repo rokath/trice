@@ -57,7 +57,6 @@ func NewList(fnJSON string) *List {
 	p := &List{}
 	p.fnJSON = fnJSON
 	p.list = p.array[:0]
-	p.ReadListFile()
 	return p
 }
 
@@ -69,12 +68,27 @@ func (p *List) ReadListFile() {
 	if "none" != p.fnJSON {
 		b, err := ioutil.ReadFile(p.fnJSON)
 		errorFatal(err)
-		errorFatal(json.Unmarshal(b, p))
+		err = json.Unmarshal(b, &(p.list))
+		errorFatal(err)
 		// TODO: sort for binary search
 		go p.FileWatcher()
 	}
 	if true == Verbose {
 		fmt.Println("Read ID list file", p.fnJSON, "with", len(p.list), "items.")
+	}
+}
+
+// WriteListFile marshalls p.list to p.fnJSON.
+func (p *List) WriteListFile() {
+	b, err := json.MarshalIndent(p.list, "", "\t")
+	errorFatal(err)
+	errorFatal(ioutil.WriteFile(p.fnJSON, b, 0644))
+}
+
+// ZeroTimestampCreated sets all timstamps 'created' to 0.
+func (p *List) ZeroTimestampCreated() {
+	for i := range p.list {
+		p.list[i].Created = 0
 	}
 }
 
@@ -89,10 +103,14 @@ start:
 		if 0xef == ih || 0x89 == il || 0x89ab == id || 0xabcd == id || 0xcdef == id { // 515 ids forbidden, see bare.go
 			continue // next try
 		}
+		if 0 == len(p.list) {
+			return
+		}
 		for _, item := range p.list { // todo: binary search
 			if id == item.ID {
 				goto start // id used
 			}
+			return
 		}
 	}
 }
@@ -139,7 +157,7 @@ func (p *List) appendIfMissing(item Item, verbose bool) (int, bool) {
 
 // ExtendIDList returns id beause it could get changed when id is in list with different typ or fmts.
 // It is an exported function for simplyfing tests in other packets.
-func (p *List) extendIDList(id int, typ, fmts string, verbose bool) (int, bool) {
+func (p *List) ExtendIDList(id int, typ, fmts string, verbose bool) (int, bool) {
 	i := Item{
 		ID:      id,
 		FmtType: typ,
@@ -148,14 +166,6 @@ func (p *List) extendIDList(id int, typ, fmts string, verbose bool) (int, bool) 
 		Removed: 0,
 	}
 	return p.appendIfMissing(i, verbose)
-}
-
-func (p *List) writeListFile() error {
-	b, err := json.MarshalIndent(p, "", "\t")
-	if err != nil {
-		return err
-	}
-	return ioutil.WriteFile(p.fnJSON, b, 0644)
 }
 
 // Index returns the index of id inside p.list. If id is not found it returns -1.
@@ -181,13 +191,14 @@ func ScZero(SrcZ string, cmd *flag.FlagSet) error {
 		cmd.PrintDefaults()
 		return errors.New("no source tree root specified")
 	}
-	zeroSourceTreeIds(SrcZ, !DryRun)
+	ZeroSourceTreeIds(SrcZ, !DryRun)
 	return nil
 }
 
 // ScUpdate is subcommand update
 func ScUpdate(fnJSON string) error {
 	p := NewList(fnJSON)
+	p.ReadListFile()
 	if 0 == len(Srcs) {
 		Srcs = append(Srcs, "./") // default value
 	}

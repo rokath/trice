@@ -70,7 +70,7 @@ func (p *List) Update(root string, run, verbose bool) error {
 	fmt.Println("list=", p.fnJSON)
 	listModified := false
 	//err :=
-	p.ReadListFile()
+	//p.ReadListFile()
 	//if nil != err {
 	//	fmt.Println(fn + " not found, creating a new one")
 	//	if true == run {
@@ -85,8 +85,8 @@ func (p *List) Update(root string, run, verbose bool) error {
 		return fmt.Errorf("failed to walk tree: %v", err)
 	}
 	if listModified && true == run {
-		err = p.writeListFile()
-		if nil != err {
+		p.WriteListFile()
+		if nil != p.savedErr {
 			return fmt.Errorf("failed to write %s: %v", p.fnJSON, err)
 		}
 	}
@@ -208,7 +208,7 @@ func updateNextID(p *List, pListModified *bool, modified bool, subs, s string, v
 	}
 	match := matchFmtString.FindAllStringSubmatch(nbTRICE, 1)
 	fmtString := match[0][1]
-	nID, flag := p.extendIDList(id, typNameTRICE, fmtString, verbose)
+	nID, flag := p.ExtendIDList(id, typNameTRICE, fmtString, verbose)
 	if flag {
 		*pListModified = true
 		if nID != id { // a new id was generated
@@ -281,7 +281,7 @@ func updateParamCount(modified bool, subs, s string, verbose bool) (bool, bool, 
 }
 
 // ZeroSourceTreeIds is overwriting with 0 all id's from source code tree srcRoot. It does not touch idlist.
-func zeroSourceTreeIds(srcRoot string, run bool) {
+func ZeroSourceTreeIds(srcRoot string, run bool) {
 	err := filepath.Walk(srcRoot, visitZeroSourceTreeIds(run))
 	if err != nil {
 		panic(err)
