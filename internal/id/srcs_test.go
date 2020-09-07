@@ -7,26 +7,28 @@ import (
 	"fmt"
 	"path/filepath"
 	"testing"
+
+	"github.com/rokath/trice/pkg/assert"
 )
 
 func TestArrayFlag(t *testing.T) {
 	p := &Srcs
-	assertEqual(t, "my string representation", p.String())
+	assert.Equal(t, "my string representation", p.String())
 
 	p.Set("ab")
 	p.Set("xyz")
 	fmt.Println(Srcs)
 	var af ArrayFlag
 	af = []string{"ab", "xyz"}
-	assertEqual(t, af, Srcs)
+	assert.Equal(t, af, Srcs)
 }
 
 func TestConditinalFilePath(t *testing.T) {
 	s := ConditinalFilePath("off")
-	assertEqual(t, "off", s)
+	assert.Equal(t, "off", s)
 	s = ConditinalFilePath("none")
-	assertEqual(t, "none", s)
+	assert.Equal(t, "none", s)
 	s = ConditinalFilePath("/tatue/tata")
 	b := filepath.Base(s)
-	assertEqual(t, b, "tata")
+	assert.Equal(t, b, "tata")
 }

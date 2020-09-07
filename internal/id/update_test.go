@@ -17,12 +17,7 @@ import (
 func doUpdate(t *testing.T, s, sExp []string) {
 
 	rand.Seed(0)
-
-	fl, err := ioutil.TempFile("", "til*.json")
-	assert.ErrorNil(t, err)
-	nl := fl.Name()
-	fl.Close()
-	p := id.NewList(nl)
+	p := id.NewList(file.Random("{}", "", "til*.json"))
 
 	dir0, err := ioutil.TempDir("", "*")
 	assert.ErrorNil(t, err)
@@ -33,39 +28,19 @@ func doUpdate(t *testing.T, s, sExp []string) {
 	dir3, err := ioutil.TempDir(dir1, "*")
 	assert.ErrorNil(t, err)
 
-	f0, err := ioutil.TempFile(dir1, "*.c")
-	assert.ErrorNil(t, err)
-	n0 := f0.Name()
-	f0.WriteString(s[0])
-	f0.Close()
-
+	n0 := file.Random(s[0], dir1, "*.c")
 	err = p.Update(dir0, true, true)
 	assert.ErrorNil(t, err)
 
-	f1, err := ioutil.TempFile(dir2, "*.c")
-	assert.ErrorNil(t, err)
-	n1 := f1.Name()
-	f1.WriteString(s[1])
-	f1.Close()
-
+	n1 := file.Random(s[1], dir2, "*.cpp")
 	err = p.Update(dir0, true, true)
 	assert.ErrorNil(t, err)
 
-	f2, err := ioutil.TempFile(dir2, "*.c")
-	assert.ErrorNil(t, err)
-	n2 := f2.Name()
-	f2.WriteString(s[2])
-	f2.Close()
-
+	n2 := file.Random(s[2], dir2, "*.cc")
 	err = p.Update(dir0, true, true)
 	assert.ErrorNil(t, err)
 
-	f3, err := ioutil.TempFile(dir3, "*.c")
-	assert.ErrorNil(t, err)
-	n3 := f3.Name()
-	f3.WriteString(s[3])
-	f3.Close()
-
+	n3 := file.Random(s[3], dir3, "*.c")
 	err = p.Update(dir0, true, true)
 	assert.ErrorNil(t, err)
 

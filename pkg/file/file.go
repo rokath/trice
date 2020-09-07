@@ -42,7 +42,7 @@ func SmallReadLines(filename string) (lines []string, err error) {
 	return
 }
 
-// BiReadLines reads all lines of a file into lines.
+// BigReadLines reads all lines of a file into lines.
 // https://stackoverflow.com/questions/7424340/read-in-lines-in-a-text-file-sort-then-overwrite-file
 func BigReadLines(file string) ([]string, error) {
 	var lines []string
@@ -317,4 +317,15 @@ func ReadString(filename string) (s string) {
 	errorFatal(err)
 	s = string(b)
 	return
+}
+
+// Random creates a random file containing s and returns its name.
+// See ioutil.Tempfile() for dir and pattern.
+func Random(s, dir, pattern string) string {
+	fd, err := ioutil.TempFile(dir, pattern)
+	errorFatal(err)
+	fd.WriteString(s)
+	fn := fd.Name()
+	fd.Close()
+	return fn
 }
