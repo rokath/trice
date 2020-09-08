@@ -11,7 +11,6 @@ import (
 	"log"
 	"path/filepath"
 	"runtime"
-	"time"
 
 	"github.com/rokath/trice/internal/id"
 	"github.com/rokath/trice/internal/receiver"
@@ -105,7 +104,7 @@ func NewSimpleTrices(sw io.StringWriter, list *id.List, tr TriceAtomsReceiver) *
 			if 0 < len(p.ignored) {
 				// TODO: evaluate other protocols here
 				s := fmt.Sprintln("e:\ne:                           \ne: found ignored byte:", p.ignored, "\ne:                           ")
-				time.Sleep(1 * time.Second)
+				//time.Sleep(1 * time.Second)
 				_, p.Err = sw.WriteString(s)
 				p.ignored = p.ignored[:0]
 			}
@@ -123,6 +122,16 @@ func (p *TriceTranslator) ErrorFatal() {
 	log.Fatal(p.Err, filepath.Base(file), line)
 }
 
+// reSyncAtoms does remove one byte in the atoms slice.
+// f true indicates that the last 2 values are to be removed
+func (p *TriceTranslator) reSyncAtoms(f bool) {
+	if f {
+		p.values = p.values[:len(p.values)-2]
+	}
+	how to?
+
+}
+
 // translate evaluates p.atoms, p.values and p.ignored and tries to generate a string.
 // If an internal error state occured it discards all accumulated data and clears the error.
 // On return it delivers an emty string if not enough data yet for the next string.
@@ -136,12 +145,20 @@ func (p *TriceTranslator) translate() (s string) {
 		p.Err = nil
 		return
 	}
-	if 0 == len(p.atoms) {
+	if 0 == len(p.atoms) { // nothing to do
 		return
 	}
+	defer func() { // remove one atom after successully processing
+		p.atoms = p.atoms[1:]
+	}()
 	trice := p.atoms[0]
-	p.atoms = p.atoms[1:]
-	if 0x89ab == trice.ID { // discard sync trice
+reSyncAtomsDone:
+	if 0 == len(p.atoms) { // nothing to do
+		return // This can be the case after removing some bytes
+	}
+
+	// discard sync trice
+	if 0x89ab == trice.ID {
 		var hi, lo int
 		nativeEndian := binary.LittleEndian // TODO: put in file endian_amd64.go
 		if binary.LittleEndian == nativeEndian {
@@ -152,21 +169,28 @@ func (p *TriceTranslator) translate() (s string) {
 			lo = 1
 		}
 		if 0xcd != trice.Value[hi] || 0xef != trice.Value[lo] {
-			s = fmt.Sprintln("WARNING:", trice, "is invalid. Must have payload [205 239].")
-			time.Sleep(1 * time.Second)
+			s = fmt.Sprintln("e:                                   \ne: ", trice, "is invalid. Must have payload [205 239]. \ne:                                     ")
+			p.reSyncAtoms(false)
+			goto reSyncAtomsDone
 		}
 		return
 	}
-	p.values = append(p.values, trice.Value[:]...)
-	if 0 == trice.ID { // only data
+	p.values = append(p.values, trice.Value[:]...) // append the 2 data bytes of the current trice
+	if 0 == trice.ID {                             // only data
 		return
 	}
 	var index int
 	index = p.list.Index(int(trice.ID))
-	if nil != p.Err || index < 0 {
+	if index < 0 { // unknown trice.ID
 		p.Err = nil
-		s = fmt.Sprintf("WARNING: trice.ID %d not found, discarding the 2 id bytes and the data bytes %04x %s\n", trice.ID, trice.ID, hex.EncodeToString(p.values))
-		time.Sleep(1 * time.Second)
+		s = fmt.Sprintf("e:                                                                       \ne: trice.ID %d not found, trying reSync... \ne:                                                                     \n", trice.ID)
+		p.reSyncAtoms(true)
+		goto reSyncAtomsDone
+	}
+
+	if err := p.evalLen(); nil != err { // The accumulated data are not matching the trice.ID
+		s = err.Error()
+		s += fmt.Sprintf("e:                                                                       \ne trice.ID %d does not match values %s - ignoring both \ne:                                                         \n", trice.ID, hex.EncodeToString(p.values))
 		p.values = p.values[:0]
 		return
 	}
@@ -180,14 +204,13 @@ func (p *TriceTranslator) translate() (s string) {
 // %x is emitted in Go signed!
 // For %u a format string parsing is needed to perform the correct casts.
 func (p *TriceTranslator) emitter() (s string) {
-	it := p.item
-	prm := p.values
-	f, _, _ := langCtoGoFmtStingConverter(it.FmtStrg) // todo
+	f, _, _ := langCtoGoFmtStingConverter(p.item.FmtStrg) // todo
 	var v0, v1, v2, v3 int16
 	var w0, w1, w2, w3 int32
 	var l0, l1 int64
-	p.evalLen()
-	switch it.FmtType {
+
+	prm := p.values
+	switch p.item.FmtType {
 	case "TRICE0":
 		s = f
 	case "TRICE8_1":
@@ -252,41 +275,42 @@ func (p *TriceTranslator) emitter() (s string) {
 		l1 = int64(binary.LittleEndian.Uint64(prm[8:16]))
 		s = fmt.Sprintf(f, l0, l1)
 	default:
-		p.Err = fmt.Errorf("Unknown FmtType %s", it.FmtType)
+		p.Err = fmt.Errorf("Unknown FmtType %s", p.item.FmtType)
 	}
 	return
 }
 
 // evalLen checks if byte buffer t has appropriate length to id.item it
-func (p *TriceTranslator) evalLen() {
-	it := p.item
+func (p *TriceTranslator) evalLen() (err error) {
 	t := p.values
-	switch it.FmtType {
+	switch p.item.FmtType {
 	case "TRICE0", "TRICE8_1", "TRICE8_2", "TRICE16_1":
 		if 2 != len(t) {
-			p.Err = fmt.Errorf("len %d != 2", len(t))
+			err = fmt.Errorf("len %d != 2", len(t))
 		}
 	case "TRICE8_3", "TRICE8_4", "TRICE16_2", "TRICE32_1":
 		if 4 != len(t) {
-			p.Err = fmt.Errorf("len %d != 4", len(t))
+			err = fmt.Errorf("len %d != 4", len(t))
 		}
 	case "TRICE8_5", "TRICE8_6", "TRICE16_3":
 		if 6 != len(t) {
-			p.Err = fmt.Errorf("len %d != 6", len(t))
+			err = fmt.Errorf("len %d != 6", len(t))
 		}
 	case "TRICE8_7", "TRICE8_8", "TRICE16_4", "TRICE32_2", "TRICE64_1":
 		if 8 != len(t) {
-			p.Err = fmt.Errorf("len %d != 8", len(t))
+			err = fmt.Errorf("len %d != 8", len(t))
 		}
 	case "TRICE32_3":
 		if 12 != len(t) {
-			p.Err = fmt.Errorf("len %d != 12", len(t))
+			err = fmt.Errorf("len %d != 12", len(t))
 		}
 	case "TRICE32_4", "TRICE64_2":
 		if 16 != len(t) {
-			p.Err = fmt.Errorf("len %d != 16", len(t))
+			err = fmt.Errorf("len %d != 16", len(t))
 		}
 	}
+	err = nil
+	return
 }
 
 // parse lang C formatstring for %u and replace them with %d and extend the

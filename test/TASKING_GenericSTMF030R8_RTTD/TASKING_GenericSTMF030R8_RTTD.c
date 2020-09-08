@@ -21,11 +21,11 @@ int main(void)
 										 // no exception
 
     TRICE_RTT_SYNC;
-    TRICE16_1( Id(45373), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
-    TRICE0( Id(28187), "att:TASKING_GenericSTMF030R8_RTTD\n" );
-    TRICE16_1( Id(45373), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
-    TRICE16_1( Id(45373), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
-    TRICE16_1( Id(45373), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
-    TRICE16_1( Id(45373), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
+    TRICE16_1( Id(34656), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
+    TRICE0( Id( 3879), "att:TASKING_GenericSTMF030R8_RTTD\n" );
+    TRICE16_1( Id(57048), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
+    TRICE16_1( Id(11236), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
+    TRICE16_1( Id(17900), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
+    TRICE16_1( Id(44086), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
 
 }

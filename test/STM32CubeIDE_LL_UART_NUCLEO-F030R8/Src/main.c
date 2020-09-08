@@ -101,12 +101,12 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  TRICE16_1( Id(45373), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
-  TRICE0( Id(47756), "att:STM32CubeIDE_LL_UART_NUCLEO-F030R8\n" );
-  TRICE16_1( Id(45373), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
-  TRICE16_1( Id(45373), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
-  TRICE16_1( Id(45373), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
-  TRICE16_1( Id(45373), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
+  TRICE16_1( Id(31905), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
+  TRICE0( Id(63313), "att:STM32CubeIDE_LL_UART_NUCLEO-F030R8\n" );
+  TRICE16_1( Id(46377), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
+  TRICE16_1( Id(39206), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
+  TRICE16_1( Id(33238), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
+  TRICE16_1( Id(17927), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
     while (1)
     {
       //////////////////////////////////////////////////
@@ -116,7 +116,7 @@ int main(void)
       if( ms >= ms_1 + 1000 ){ // every sec
           static int index = 0;
           triceCheckSet(index++%20);
-          TRICE32_1( Id(29200), "time:ms = %d\n", ms );
+          TRICE32_1( Id(45025), "time:ms = %d\n", ms );
           LL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
           ms_1 = ms;
       }

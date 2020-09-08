@@ -12,7 +12,6 @@ import (
 	"fmt"
 	"io"
 	"reflect"
-	"time"
 )
 
 type bytesViewer struct {
@@ -96,26 +95,26 @@ func (p *TriceReceiver) ErrorFatal() {
 // If an ID=abcd is detected -> out of sync
 // If an ID=cdef is detected -> out of sync
 const (
-	syncID = 0x89ab
-	syncDa = 0xcdef
+	syncID = 0x89ab // 35243
+	syncDa = 0xcdef // 52719
 
-	syncIDHi = 0x89
-	syncIDLo = 0xab
-	syncDaHi = 0xcd
-	syncDaLo = 0xef
+	syncIDHi = 0x89 // 137
+	syncIDLo = 0xab // 171
+	syncDaHi = 0xcd // 205
+	syncDaLo = 0xef // 239
 
-	forbIddenID0  = 0xabcd // If an ID=abcd is detected -> out of sync
-	forbIddenID1  = 0xcdef // If an ID=cdef is detected -> out of sync
-	forbiddenIDHi = 0xef   // If an IH=ef is detected -> out of sync
-	forbiddenIDLo = 0x89   // If an IL=89 is detected -> out of sync
+	forbIddenID0  = 0xabcd // If an ID=abcd (43981) is detected -> out of sync
+	forbIddenID1  = 0xcdef // If an ID=cdef (52719) is detected -> out of sync
+	forbiddenIDHi = 0xef   // If an IH=ef     (239) is detected -> out of sync
+	forbiddenIDLo = 0x89   // If an IL=  89   (137) is detected -> out of sync
 )
 
 func (p *TriceReceiver) syncCheck(atoms []Trice) bool {
-	for _, a := range atoms {
+	for i, a := range atoms {
 		ih := byte(a.ID >> 8)
 		il := byte(a.ID)
 		if forbIddenID0 == a.ID || forbIddenID1 == a.ID || forbiddenIDHi == ih || forbiddenIDLo == il {
-			fmt.Println("sync issue, unexpected id, ih, il, ignoring first byte and retrying...: ", a.ID, ih, il)
+			fmt.Println("sync issue, trice atom has unexpected id, ih, il, ignoring first byte and retrying...: ", i, a.ID, ih, il)
 			p.ignored <- p.syncBuffer[:1]   // send dropped byte to ignored channel
 			p.syncBuffer = p.syncBuffer[1:] // drop 1 to (triceSize-1) bytes
 			return false
@@ -178,7 +177,7 @@ retrySync:
 
 	// check atoms in buf for wrong sync
 	if false == p.syncCheck(atoms) {
-		time.Sleep(3 * time.Second)
+		//time.Sleep(3 * time.Second)
 		goto retrySync
 	}
 

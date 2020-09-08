@@ -102,24 +102,24 @@ int main(void)
 
   /* Infinite loop */
 	  TRICE_SYNC;
-    TRICE0( Id(772), "s:                                        \ns:   ARM-MDK_LL_UART_BARE_NUCLEO-F070RB   \ns:                                        \n\n");
-    TRICE8_2( Id(13811), "att:Hello, %d+%d=", 250,255 );
-    TRICE16_1( Id(23673), "att:%d, ok?\n", 250+255 );
-   // TRICE16_1( Id(1257), "SIG:val=%04x\n", 0x2211 );
+    TRICE0( Id(38388), "s:                                        \ns:   ARM-MDK_LL_UART_BARE_NUCLEO-F070RB   \ns:                                        \n\n");
+    TRICE8_2( Id(24187), "att:Hello, %d+%d=", 250,255 );
+    TRICE16_1( Id(15490), "att:%d, ok?\n", 250+255 );
+   // TRICE16_1( Id(39911), "SIG:val=%04x\n", 0x2211 );
 	  TRICE_SYNC;	  
 	  TRICE_SYNC;
-    TRICE0( Id(13484), "msg:Yes!\n" );
-    TRICE0( Id(25361), "msg:Yes!\n" );
+    TRICE0( Id(51981), "msg:Yes!\n" );
+    TRICE0( Id(45592), "msg:Yes!\n" );
 
 		
   /* USER CODE BEGIN WHILE */
     TRICE_SYNC;
-    TRICE16_1( Id( 2625), "TIM:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
-    TRICE0( Id(22234), "att:MDK-ARM_LL_UART_NUCLEO-F030R8\n" );
-    TRICE16_1( Id( 2625), "TIM:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
-    TRICE16_1( Id( 2625), "TIM:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
-    TRICE16_1( Id( 2625), "TIM:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
-    TRICE16_1( Id( 2625), "TIM:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
+    TRICE16_1( Id(22933), "TIM:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
+    TRICE0( Id(50381), "att:MDK-ARM_LL_UART_NUCLEO-F030R8\n" );
+    TRICE16_1( Id( 2140), "TIM:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
+    TRICE16_1( Id(18662), "TIM:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
+    TRICE16_1( Id(33813), "TIM:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
+    TRICE16_1( Id(35310), "TIM:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
     {
         char* s = "Hi5!\n";
         triceWrite( s, strlen(s));
@@ -132,7 +132,7 @@ int main(void)
 
 			static int lastSecond = -1;
 			if( Second != lastSecond ){
-				//TRICE16_1( Id(1257), "SIG:val=%04x\n", Second );
+				//TRICE16_1( Id(55353), "SIG:val=%04x\n", Second );
 				TRICE_SYNC;
 				triceCheckSet(Second);
 				lastSecond = Second;
@@ -149,7 +149,7 @@ int main(void)
             triceWrite( s, strlen(s));
         }
         triceCheckSet(index++%20);
-        TRICE32_1( Id(29200), "time:ms = %d\n", ms );
+        TRICE32_1( Id(42754), "time:ms = %d\n", ms );
         LL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
         ms_1 = ms;
     }

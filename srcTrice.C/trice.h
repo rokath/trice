@@ -29,22 +29,21 @@ extern "C" {
 #define TRICE_SERVE_PERIOD 1
 #endif
 
-//! trice sync message for RTTdirect environments. The value 5654 is a reserved pattern used as ID and value.
+//! trice sync message for RTTdirect environments. The value 0x89ab is a reserved pattern used as ID with value 0xcdef.
 //! It cannot occure in the trice stream. You must not change that. Otherwise the RTTD syncing will not work.
-//! If for some reason the Id changes during 'trice u', probably when the string changed, you need to remove
-//! the old pattern from til.json and put Id(5654) manually here
-#define TRICE_SYNC do{ TRICE16_1( Id(5654), "%d\b\b\b\b", 5654 ); }while(0)
+//! The Id(0x89ab) is here as hex value, so it is ignored by ID management.
+#define TRICE_SYNC do{ TRICE16_1( Id(0x89ab), "%x\b\b\b\b", 0xcdef ); }while(0)
 
 #ifdef TRICE_FILENAME
-#define TRICE_LOC do{ TRICE_FILENAME; TRICE16_1( Id(43789), "msg: line %d ", __LINE__ ); }while(0) //!< trice filename and line
+#define TRICE_LOC do{ TRICE_FILENAME; TRICE16_1( Id( 6827), "msg: line %d ", __LINE__ ); }while(0) //!< trice filename and line
 #else
-#define TRICE_LOC do{                 TRICE16_1( Id(42554), "msg: line %d ", __LINE__ ); }while(0)  //!< trice line
+#define TRICE_LOC do{                 TRICE16_1( Id( 9271), "msg: line %d ", __LINE__ ); }while(0)  //!< trice line
 #endif
 
 #if NO_CODE == TRICE_CODE
 #define TRICE_ASSERT( flag )
 #else
-#define TRICE_ASSERT( flag )               do{ if(!(flag)) { TRICE_LOC; TRICE0( Id(37710), "ERR:ASSERT failed\n" ); } }while(0) //!< report if flag is not true
+#define TRICE_ASSERT( flag )               do{ if(!(flag)) { TRICE_LOC; TRICE0( Id(50085), "ERR:ASSERT failed\n" ); } }while(0) //!< report if flag is not true
 #endif
 
 #define ASSERT_OR_RETURN( flag )           do{ TRICE_ASSERT( flag ); if(!(flag)) { return; } }while(0) //!< report if flag is not true and return

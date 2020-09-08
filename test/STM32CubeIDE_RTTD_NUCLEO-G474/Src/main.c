@@ -100,12 +100,12 @@ int main(void)
     SEGGER_RTT_Init();
     TRICE_RTT_SYNC;
 
-	TRICE16_1( Id(45373), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
-	TRICE0( Id(18289), "att:STM32CubeIDE_RTTD_NUCLEO-G474\n" );
-	TRICE16_1( Id(45373), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
-	TRICE16_1( Id(45373), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
-	TRICE16_1( Id(45373), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
-	TRICE16_1( Id(45373), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
+	TRICE16_1( Id(12582), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
+	TRICE0( Id(57937), "att:STM32CubeIDE_RTTD_NUCLEO-G474\n" );
+	TRICE16_1( Id(62021), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
+	TRICE16_1( Id(17420), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
+	TRICE16_1( Id(20316), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
+	TRICE16_1( Id(47842), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
 	while (1)
   {
   //////////////////////////////////////////////////
@@ -117,7 +117,7 @@ int main(void)
       static int index = 0;
       TRICE_RTT_SYNC; // helps to re-sync when connected to a running target
       triceCheckSet(index++%20);
-      TRICE32_1( Id(29200), "time:ms = %d\n", ms );
+      TRICE32_1( Id(47959), "time:ms = %d\n", ms );
       ms_1 = ms;
   }
   //

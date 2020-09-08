@@ -68,9 +68,11 @@ func (p *List) ReadListFile() {
 	if "none" != p.FnJSON {
 		b, err := ioutil.ReadFile(p.FnJSON)
 		errorFatal(err)
-		err = json.Unmarshal(b, &(p.list))
-		errorFatal(err)
-		// TODO: sort for binary search
+		if 0 < len(b) {
+			err = json.Unmarshal(b, &(p.list))
+			errorFatal(err)
+			// TODO: sort for binary search
+		}
 	}
 	if true == Verbose {
 		fmt.Println("Read ID list file", p.FnJSON, "with", len(p.list), "items.")

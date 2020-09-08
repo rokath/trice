@@ -45,15 +45,15 @@ void main( void )
     audio  = audio_open(AUDIO_1);
     if ( audio == NULL )
     {
-        TRICE0( Id(10447), "Failed to initialize audio service" );
+        TRICE0( Id(63724), "Failed to initialize audio service" );
         abort();
     }
-    TRICE0( Id(33334), "Successfully initialized audio service\n" );
+    TRICE0( Id(60540), "Successfully initialized audio service\n" );
 
     info = wav_parseheader( (uintptr_t) _lc_ub_sound_wav, (uintptr_t) _lc_ue_sound_wav );
     if (wav_testsupported( info ))
     {
-    	TRICE0( Id(25827), "Play 'sound.wav'\n-> " );
+    	TRICE0( Id(29299), "Play 'sound.wav'\n-> " );
         audio_tx_start(audio);
     	/*
         // initialize systick
@@ -64,12 +64,12 @@ void main( void )
     										 // no exception
     	*/
 
-        TRICE16_1( Id(45373), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
-        TRICE0( Id( 6321), "att:TASKING_STM32F4DISC_Audio_Service_RTTD\n" );
-        TRICE16_1( Id(45373), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
-        TRICE16_1( Id(45373), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
-        TRICE16_1( Id(45373), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
-        TRICE16_1( Id(45373), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
+        TRICE16_1( Id(51876), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
+        TRICE0( Id(44230), "att:TASKING_STM32F4DISC_Audio_Service_RTTD\n" );
+        TRICE16_1( Id( 1808), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
+        TRICE16_1( Id( 4080), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
+        TRICE16_1( Id(13209), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
+        TRICE16_1( Id(29575), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
         triceCheckSet(0);
 
         for (;;)
@@ -79,7 +79,7 @@ void main( void )
     }
     else
     {
-    	TRICE0( Id(14691), "Invalid wav file\n" );
+    	TRICE0( Id(34072), "Invalid wav file\n" );
     }
 }
 

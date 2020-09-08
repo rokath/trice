@@ -21,12 +21,12 @@ int main(void)
 	*(uint32_t*)0xE000E010 = 0x5;        // SysTick->CTRL = 0x7; // Enable SysTick, and use processor clock
 										 // no exception
 
-	TRICE16_1( Id(45373), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
-    TRICE0( Id(55230), "att:TASKING_GenericSTMF030R8_RTTB\n" );
-    TRICE16_1( Id(45373), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
-    TRICE16_1( Id(45373), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
-    TRICE16_1( Id(45373), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
-    TRICE16_1( Id(45373), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
+	TRICE16_1( Id(45192), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
+    TRICE0( Id(17680), "att:TASKING_GenericSTMF030R8_RTTB\n" );
+    TRICE16_1( Id(65301), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
+    TRICE16_1( Id(19437), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
+    TRICE16_1( Id(18461), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
+    TRICE16_1( Id(17990), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
     for(;;){
     	triceServe();
     }

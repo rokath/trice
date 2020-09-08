@@ -96,8 +96,10 @@ int main(void)
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
   LL_USART_EnableIT_RXNE(TRICE_UART); // enable UART2 interrupt
-    TRICE0( Id(772), "s:                                        \ns:   ARM-MDK_LL_UART_BARE_NUCLEO-F070RB   \ns:                                        \n\n");
-  /* USER CODE END 2 */
+	  TRICE_SYNC;
+    TRICE0( Id(54442), "s:                                        \ns:   ARM-MDK_LL_UART_BARE_NUCLEO-F070RB   \ns:                                        \n\n");
+    TRICE_SYNC;
+/* USER CODE END 2 */
 
   /* Infinite loop */	
   /* USER CODE BEGIN WHILE */

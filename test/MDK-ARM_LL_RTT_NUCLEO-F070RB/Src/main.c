@@ -101,12 +101,12 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
     TRICE_SYNC;
-    TRICE16_1( Id(45373), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
-    TRICE0( Id( 3223), "att:MDK-ARM_LL_RTT_NUCLEO-F070RB\n" );
-    TRICE16_1( Id(45373), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
-    TRICE16_1( Id(45373), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
-    TRICE16_1( Id(45373), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
-    TRICE16_1( Id(45373), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
+    TRICE16_1( Id(   27), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
+    TRICE0( Id(  620), "att:MDK-ARM_LL_RTT_NUCLEO-F070RB\n" );
+    TRICE16_1( Id(15284), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
+    TRICE16_1( Id(12054), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
+    TRICE16_1( Id(13065), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
+    TRICE16_1( Id(17051), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
     while (1)
     {
       //////////////////////////////////////////////////
@@ -118,7 +118,7 @@ int main(void)
           TRICE_SYNC; // for re-synchronisation the running target
           static int index = 0;
           triceCheckSet(index++%20);
-          TRICE32_1( Id(29200), "time:ms = %d\n", ms );
+          TRICE32_1( Id( 5177), "time:ms = %d\n", ms );
           LL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
           ms_1 = ms;
       }

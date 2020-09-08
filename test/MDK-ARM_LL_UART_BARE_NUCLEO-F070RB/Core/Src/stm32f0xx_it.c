@@ -129,7 +129,7 @@ void SysTick_Handler(void)
 	
 	  extern int milliSecond, Second;
 	  milliSecond++;
-	if( 1000 == milliSecond ){
+	if( 20 == milliSecond ){
 		milliSecond = 0;
 		Second++;
 	}

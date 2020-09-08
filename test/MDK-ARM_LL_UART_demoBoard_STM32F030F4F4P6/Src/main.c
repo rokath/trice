@@ -101,12 +101,12 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-    TRICE16_1( Id( 2625), "TIM:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
-    TRICE0( Id(25132), "att:MDK-ARM_LL_UART_demoBoard_STM32F030F4F4P6\n" );
-    TRICE16_1( Id( 2625), "TIM:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
-    TRICE16_1( Id( 2625), "TIM:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
-    TRICE16_1( Id( 2625), "TIM:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
-    TRICE16_1( Id( 2625), "TIM:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
+    TRICE16_1( Id(35514), "TIM:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
+    TRICE0( Id(36796), "att:MDK-ARM_LL_UART_demoBoard_STM32F030F4F4P6\n" );
+    TRICE16_1( Id(19227), "TIM:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
+    TRICE16_1( Id(15308), "TIM:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
+    TRICE16_1( Id(  912), "TIM:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
+    TRICE16_1( Id(63214), "TIM:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
     while (1)
     {
       //////////////////////////////////////////////////
@@ -114,7 +114,7 @@ int main(void)
       //
       static uint32_t ms_1 = 0;
       if( ms >= ms_1 + 300 ){ // every 300 ms
-          TRICE32_1( Id(29200), "time:ms = %d\n", ms );
+          TRICE32_1( Id(22267), "time:ms = %d\n", ms );
           ms_1 = ms;
       }
       //

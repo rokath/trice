@@ -166,7 +166,7 @@
           <SizeOfObject>0</SizeOfObject>
           <BreakByAccess>0</BreakByAccess>
           <BreakIfRCount>1</BreakIfRCount>
-          <Filename>&lt;1&gt;../Core/Src/stm32f0xx_it.c</Filename>
+          <Filename>../Core/Src/stm32f0xx_it.c</Filename>
           <ExecCommand></ExecCommand>
           <Expression>\\MDK_ARM_LL_UART_BARE_NUCLEO_F070RB\../Core/Src/stm32f0xx_it.c\143</Expression>
         </Bp>
@@ -237,7 +237,7 @@
 
   <Group>
     <GroupName>Application/MDK-ARM</GroupName>
-    <tvExp>0</tvExp>
+    <tvExp>1</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>

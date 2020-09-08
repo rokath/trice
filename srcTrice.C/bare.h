@@ -62,12 +62,11 @@ extern "C" {
 //! ID 0x89ab is reserved for this trice sync package.
 //! The trice sync message payload must be 0xcdef.
 //! You must not change any of the above demands. Otherwise the syncing will not work.
-//! If for some reason the Id changes during 'trice u', probably when the string changed accidently, 
-//! you need to remove the old pattern from til.json and put Id(35243) manually here.
+//! The Id(0x89ab) is here as hex value, so it is ignored by ID management.
 //! The trice sync string makes the trice sync info invisible just in case,
 //! but the trice tool will filter them out anyway. The trice tool automatic id generation
 //! follows these rules.
-#define TRICE_SYNC do{ TRICE16_1( Id(35243), "%04x\b\b\b\b", 0xcdef ); }while(0)
+#define TRICE_SYNC do{ TRICE16_1( Id(0x89ab), "%x\b\b\b\b", 0xcdef ); }while(0)
 
 #define Id( n ) (n) //!< Macro for improved trice readability and better source code parsing.
 

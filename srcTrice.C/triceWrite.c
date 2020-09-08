@@ -3,7 +3,7 @@
 \brief 
 \details 
 *******************************************************************************/
-#define TRICE_FILENAME TRICE0( Id(60411), "rd_:triceWrite.c" );
+#define TRICE_FILENAME TRICE0( Id(48576), "rd_:triceWrite.c" );
 
 #include <string.h> // memcpy
 #include "trice.h"

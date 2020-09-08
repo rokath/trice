@@ -47,7 +47,7 @@ void triceServeOut( void ){
         uint32_t trice = triceTricePop();
         triceLoadTriceToBuffer( triceBytesBuffer, trice ); // 1st trice
         if( 1 == n ){ // only one trice to transmit
-            trice = 0x89abcdef; // sync trice as 2nd trice
+            trice = 0xcdef89ab; // sync trice as 2nd trice
         }else{  // at least 2 trices to transmit
             trice = triceTricePop();
         }

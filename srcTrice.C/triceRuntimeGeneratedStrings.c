@@ -12,17 +12,17 @@ void triceRuntimeGeneratedSpaces( int spaces ){
     while (spaces ){
         switch( spaces ){
             case  0: return;
-            case  1: TRICE0( Id(14746), " " ); return;
-            case  2: TRICE0( Id(32263), "  " ); return;
-            case  3: TRICE0( Id(41033), "   " ); return;
-            case  4: TRICE0( Id(  500), "    " ); return;
-            case  5: TRICE0( Id(23151), "     " ); return;
-            case  6: TRICE0( Id(11628), "      " ); return;
-            case  7: TRICE0( Id(40825), "       " ); return;
-            case  8: TRICE0( Id(63581), "        " ); return;
-            case  9: TRICE0( Id(11347), "         " ); return;
+            case  1: TRICE0( Id(54494), " " ); return;
+            case  2: TRICE0( Id(63793), "  " ); return;
+            case  3: TRICE0( Id(   74), "   " ); return;
+            case  4: TRICE0( Id(11711), "    " ); return;
+            case  5: TRICE0( Id(14829), "     " ); return;
+            case  6: TRICE0( Id(61517), "      " ); return;
+            case  7: TRICE0( Id( 5748), "       " ); return;
+            case  8: TRICE0( Id(44808), "        " ); return;
+            case  9: TRICE0( Id( 5461), "         " ); return;
             case 10:
-            default: TRICE0( Id(46732), "          " ); 
+            default: TRICE0( Id( 6442), "          " ); 
                 spaces -= 10;
             break;
         }
@@ -38,22 +38,22 @@ static void triceRuntimeGeneratedStringUnbound( const char* s ){
         switch( len ){
             case  0: return;
             case  1: c1=*s++;
-                TRICE8_1( Id(36152), "%c", c1 ); return;
+                TRICE8_1( Id(58827), "%c", c1 ); return;
             case  2: c1=*s++; c2=*s++;
-                TRICE8_2( Id(49862), "%c%c", c1, c2 ); return;
+                TRICE8_2( Id(58935), "%c%c", c1, c2 ); return;
             case  3: c1=*s++; c2=*s++; c3=*s++;
-                TRICE8_3( Id(60898), "%c%c%c", c1, c2, c3 ); return;
+                TRICE8_3( Id(58794), "%c%c%c", c1, c2, c3 ); return;
             case  4: c1=*s++; c2=*s++; c3=*s++; c4=*s++;
-                TRICE8_4( Id(57970), "%c%c%c%c", c1, c2, c3, c4 ); return;
+                TRICE8_4( Id(23968), "%c%c%c%c", c1, c2, c3, c4 ); return;
             case  5: c1=*s++; c2=*s++; c3=*s++; c4=*s++; c5=*s++;
-                TRICE8_5( Id(49813), "%c%c%c%c%c", c1, c2, c3, c4, c5 ); return;
+                TRICE8_5( Id(11648), "%c%c%c%c%c", c1, c2, c3, c4, c5 ); return;
             case  6: c1=*s++; c2=*s++; c3=*s++; c4=*s++; c5=*s++; c6=*s++;
-                TRICE8_6( Id(10201), "%c%c%c%c%c%c", c1, c2, c3, c4, c5, c6 ); return;
+                TRICE8_6( Id(17494), "%c%c%c%c%c%c", c1, c2, c3, c4, c5, c6 ); return;
             case  7: c1=*s++; c2=*s++; c3=*s++; c4=*s++; c5=*s++; c6=*s++; c7=*s++;
-                TRICE8_7( Id(57439), "%c%c%c%c%c%c%c", c1, c2, c3, c4, c5, c6, c7); return;
+                TRICE8_7( Id(47269), "%c%c%c%c%c%c%c", c1, c2, c3, c4, c5, c6, c7); return;
             case  8:
             default: c1 = *s++; c2 = *s++; c3 = *s++; c4 = *s++; c5 = *s++; c6 = *s++; c7 = *s++; c8 = *s++;
-                TRICE8_8( Id(53018), "%c%c%c%c%c%c%c%c", c1, c2, c3, c4, c5, c6, c7, c8 );
+                TRICE8_8( Id( 7125), "%c%c%c%c%c%c%c%c", c1, c2, c3, c4, c5, c6, c7, c8 );
                 len -= 8;
         }
     }
@@ -146,7 +146,7 @@ static uint8_t triceReCalStringBuffer( size_t len, const char*  s ){
     h[lenH] = (uint8_t)(len_1>>8);
     
     if( 0 == len || 65536 < len ){
-        TRICE32_1( Id( 9285), "ERR:invalid length %d, ignoring trice string package\n", len );
+        TRICE32_1( Id(21676), "ERR:invalid length %d, ignoring trice string package\n", len );
         return 0;
     }
 
@@ -165,7 +165,7 @@ static void triceRuntimeGeneratedStringUnbound( const char* s ){
     size_t len = strlen( s );
     uint8_t pix = triceReCalStringBuffer( len, s );
     // a short TRICE with "%s" and the index number together follows the separate special com packet sequence
-    TRICE8_1( Id( 8479), "%s", pix ); // "%s" tells trice tool that a separate string package was sent, pix (cycle) is used for string identification
+    TRICE8_1( Id(14731), "%s", pix ); // "%s" tells trice tool that a separate string package was sent, pix (cycle) is used for string identification
 }
 
 //! trice a space string
@@ -174,17 +174,17 @@ static void triceRuntimeGeneratedSpaces( int spaces ){
     while (spaces ){
         switch( spaces ){
             case  0: return;
-            case  1: TRICE0( Id(14746), " " ); return;
-            case  2: TRICE0( Id(32263), "  " ); return;
-            case  3: TRICE0( Id(41033), "   " ); return;
-            case  4: TRICE0( Id(  500), "    " ); return;
-            case  5: TRICE0( Id(23151), "     " ); return;
-            case  6: TRICE0( Id(11628), "      " ); return;
-            case  7: TRICE0( Id(40825), "       " ); return;
-            case  8: TRICE0( Id(63581), "        " ); return;
-            case  9: TRICE0( Id(11347), "         " ); return;
+            case  1: TRICE0( Id( 8845), " " ); return;
+            case  2: TRICE0( Id( 2958), "  " ); return;
+            case  3: TRICE0( Id(34448), "   " ); return;
+            case  4: TRICE0( Id(17119), "    " ); return;
+            case  5: TRICE0( Id(45012), "     " ); return;
+            case  6: TRICE0( Id(43146), "      " ); return;
+            case  7: TRICE0( Id(19276), "       " ); return;
+            case  8: TRICE0( Id(17304), "        " ); return;
+            case  9: TRICE0( Id(42085), "         " ); return;
             case 10:
-            default: TRICE0( Id(46732), "          " ); 
+            default: TRICE0( Id(45987), "          " ); 
                 spaces -= 10;
             break;
         }
