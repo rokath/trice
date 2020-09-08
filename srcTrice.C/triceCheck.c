@@ -19,10 +19,10 @@ void triceCheckSet( int index )
 {
     switch(index){
         case 0:
-        	TRICE0 (Id(24481), "--------------------------------------------------\r\n" );
-        	//TRICE_P( "Hello %s, this is a %dst printf replacement.\n", "world", 1 ); // visible only with defined TRICE_PRINTF_ADAPTER
-        	TRICE0 (Id(13428), "--------------------------------------------------\r\n" );
-        	TRICE16_1( Id(18133), "dbg:12345 as 16bit is %#016b\n", 12345 );
+            TRICE0 (Id(24481), "--------------------------------------------------\r\n" );
+            //TRICE_P( "Hello %s, this is a %dst printf replacement.\n", "world", 1 ); // visible only with defined TRICE_PRINTF_ADAPTER
+            TRICE0 (Id(13428), "--------------------------------------------------\r\n" );
+            TRICE16_1( Id(18133), "dbg:12345 as 16bit is %#016b\n", 12345 );
             TRICE0 (Id( 3791), "--------------------------------------------------\r\n" );
             //TRICE_ASSERT(0==0);
             TRICE0( Id(17125), "sig:This ASSERT error is just a demo and no real error:\n");
@@ -57,11 +57,11 @@ void triceCheckSet( int index )
             TRICE32_4( Id(28944), "tst:TRICE32_4 %%10d ->     %10d     %10d     %10d    %10x\n",      1, 0x7fffffff, 0x80000000, 0xffffffff ); // 4
             TRICE64_1( Id(19049), "att:64bit %#b\n", 0x1122334455667788ull );
         break;
-        case 3:
+        case 30:
             TRICE8_1( Id(41267), "tst:TRICE8_1 %d\n", -1 );
             TRICE8_2( Id(28873), "tst:TRICE8_2 %d %d\n", -1, -2 );
             TRICE8_3( Id(18501), "tst:TRICE8_3 %d %d %d\n", -1, -2, -3 );
-            TRICE8_4( Id(63901), "tst:TRICE8_4 %d %d %d %d\n", -1, -2, -3, -4 );
+            TRICE8_4( Id(34892), "tst:TRICE8_4 %d %d %d %d\n", -1, -2, -3, -4 );
             TRICE8_5( Id( 2043), "tst:TRICE8_5 %d %d %d %d %d\n", -1, -2, -3, -4, -5 );
             TRICE8_6( Id(36242), "tst:TRICE8_6 %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6 );
             TRICE8_7( Id(23187), "tst:TRICE8_7 %d %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6, -7 );

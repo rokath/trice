@@ -128,7 +128,7 @@ func (p *TriceTranslator) reSyncAtoms(f bool) {
 	if f {
 		p.values = p.values[:len(p.values)-2]
 	}
-	how to?
+	fmt.Print("?") //how to?
 
 }
 
@@ -173,6 +173,7 @@ reSyncAtomsDone:
 			p.reSyncAtoms(false)
 			goto reSyncAtomsDone
 		}
+		s = "8"
 		return
 	}
 	p.values = append(p.values, trice.Value[:]...) // append the 2 data bytes of the current trice

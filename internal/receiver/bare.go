@@ -11,9 +11,13 @@ import (
 	"encoding/binary"
 	"fmt"
 	"io"
+	"log"
 	"reflect"
 )
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// dynamic debug helper
+//
 type bytesViewer struct {
 	r io.Reader
 }
@@ -28,6 +32,9 @@ func (p *bytesViewer) Read(b []byte) (n int, e error) {
 	return
 }
 
+//
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
 // NewTricesfromBare creates a TriceReceiver using r as internal reader.
 // It assumes bare coded trices in the byte stream.
 // It creates a trices channel and and sends the received trices to it.
@@ -38,7 +45,7 @@ func (p *bytesViewer) Read(b []byte) (n int, e error) {
 // multiple of triceSice offset. If not, the appropriate count of bytes is ignored.
 func NewTricesfromBare(r io.Reader) *TriceReceiver {
 	p := &TriceReceiver{}
-	p.r = r // newBytesViewer(r)
+	p.r = r // newBytesViewer(r) // dynamic debug helper
 
 	p.atoms = make(chan []Trice, triceChannelCapacity)
 	p.ignored = make(chan []byte, ignoredChannelCapacity)
@@ -114,9 +121,7 @@ func (p *TriceReceiver) syncCheck(atoms []Trice) bool {
 		ih := byte(a.ID >> 8)
 		il := byte(a.ID)
 		if forbIddenID0 == a.ID || forbIddenID1 == a.ID || forbiddenIDHi == ih || forbiddenIDLo == il {
-			fmt.Println("sync issue, trice atom has unexpected id, ih, il, ignoring first byte and retrying...: ", i, a.ID, ih, il)
-			p.ignored <- p.syncBuffer[:1]   // send dropped byte to ignored channel
-			p.syncBuffer = p.syncBuffer[1:] // drop 1 to (triceSize-1) bytes
+			log.Println("sync issue, trice atom has unexpected id, ih, il, ignoring first byte and retrying...: ", i, a.ID, ih, il)
 			return false
 		}
 	}
@@ -160,25 +165,27 @@ func (p *TriceReceiver) readRaw() {
 	// look for a sync point
 	o := findSubSliceOffset(p.syncBuffer, syncTrice)
 	adjust := o % triceSize // expect to be 0
-	if 0 != adjust {        // out of sync
-		p.ignored <- p.syncBuffer[:adjust]   // send dropped bytes to ignored channel
+
+	if 0 != adjust { // out of sync
+		p.ignored <- p.syncBuffer[:adjust]   // send dropped bytes as slice to ignored channel
 		p.syncBuffer = p.syncBuffer[adjust:] // drop 1 to (triceSize-1) bytes
+		return                               // try to read more
 	}
 
-retrySync:
 	// convert from syncBuffer into Trice slice
 	atomsAvail := len(p.syncBuffer) / triceSize
+	if 0 == atomsAvail {
+		return // try to read more
+	}
 	atoms := make([]Trice, atomsAvail) ////////////////////////////////////// TODO: avoid make here
 	buf := bytes.NewReader(p.syncBuffer)
-
-	// consider Big.Endian
-	//p.Err1 = binary.Read(buf, binary.LittleEndian, atoms) // target assumed to be little endian
-	p.Err1 = binary.Read(buf, binary.BigEndian, atoms) // target assumed to be big endian
+	p.Err1 = binary.Read(buf, binary.BigEndian, atoms) // target received data are big endian
 
 	// check atoms in buf for wrong sync
-	if false == p.syncCheck(atoms) {
-		//time.Sleep(3 * time.Second)
-		goto retrySync
+	if false == p.syncCheck(atoms) { // out of sync
+		p.ignored <- p.syncBuffer[:1]   // send dropped byte (as slice) to ignored channel
+		p.syncBuffer = p.syncBuffer[1:] // drop 1 byte
+		return                          // try to read more
 	}
 
 	p.syncBuffer = p.syncBuffer[triceSize*atomsAvail:] // any leftover count from 1 to (triceSize-1) is possible

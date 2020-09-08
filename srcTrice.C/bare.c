@@ -22,7 +22,8 @@ uint32_t triceFifoReadIndex = 0; //!< trice fifo read index
 
 uint32_t triceFifoMaxDepthTrices = 0; //!< diagnostics
 
-uint8_t triceBytesBuffer[8]; //!< bytes transmit buffer
+uint8_t  triceBytesBuffer[8]; //!< bytes transmit buffer
+
 int triceBytesBufferIndex = sizeof(triceBytesBuffer)+1; // 9
 
 //! TODO: endianess with compiler macros.
@@ -36,22 +37,20 @@ static void triceLoadTriceToBuffer( uint8_t* p, uint32_t t ){
 //! triceServeOut() must be called cyclically to proceed ongoing write out.
 //! A possibe place is main loop.
 void triceServeOut( void ){
-    if( triceBytesBufferIndex < sizeof(triceBytesBuffer)+1 ){ // bytes buffer not empty or tx not finished
-        return; // nothing to do
-    }
-    // next trice
-    int n = triceFifoDepth();
-    if( 0 == n ){
-        return; // nothing to transmit
-    }else{
-        uint32_t trice = triceTricePop();
-        triceLoadTriceToBuffer( triceBytesBuffer, trice ); // 1st trice
-        if( 1 == n ){ // only one trice to transmit
-            trice = 0xcdef89ab; // sync trice as 2nd trice
-        }else{  // at least 2 trices to transmit
-            trice = triceTricePop();
+    if( triceBytesBufferIndex >= sizeof(triceBytesBuffer)+1 ){ // bytes buffer empty and tx finished
+        // next trice
+        static uint8_t* const triceBytesBuffer2 = &triceBytesBuffer[4];
+        int n = triceFifoDepth();
+        if( 1 < n ){
+            triceLoadTriceToBuffer( triceBytesBuffer,  triceTricePop() ); // 1st trice
+            triceLoadTriceToBuffer( triceBytesBuffer2, triceTricePop() ); // 2nd trice
+        }else if( 1 == n) { // only 1 trice, so transmit also 1 sync trices
+            triceLoadTriceToBuffer( triceBytesBuffer,  triceTricePop() ); // 1st trice
+            triceLoadTriceToBuffer( triceBytesBuffer2, 0xcdef89ab ); // 2nd sync trice
+        }else { // nothing to transmit, so transmit sync trices
+            triceLoadTriceToBuffer( triceBytesBuffer,  0xcdef89ab ); // 1st sync trice
+            triceLoadTriceToBuffer( triceBytesBuffer2, 0xcdef89ab ); // 2nd sync trice
         }
-        triceLoadTriceToBuffer( triceBytesBuffer+sizeof(trice), trice ); // 2nd trice
         triceBytesBufferIndex = 0;
         // next byte
         triceTransmitData8( triceBytesBuffer[triceBytesBufferIndex++] );
