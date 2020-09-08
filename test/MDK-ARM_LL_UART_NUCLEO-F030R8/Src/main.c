@@ -103,13 +103,13 @@ int main(void)
   /* Infinite loop */
 	  TRICE_SYNC;
     TRICE0( Id(772), "s:                                        \ns:   ARM-MDK_LL_UART_BARE_NUCLEO-F070RB   \ns:                                        \n\n");
-    TRICE8_2( Id(257), "att:Hello, %d+%d=", 250,255 );
-    TRICE16_1( Id(514), "att:%d, ok?\n", 250+255 );
+    TRICE8_2( Id(13811), "att:Hello, %d+%d=", 250,255 );
+    TRICE16_1( Id(23673), "att:%d, ok?\n", 250+255 );
    // TRICE16_1( Id(1257), "SIG:val=%04x\n", 0x2211 );
 	  TRICE_SYNC;	  
 	  TRICE_SYNC;
-    TRICE0( Id(771), "msg:Yes!\n" );
-    TRICE0( Id(771), "msg:Yes!\n" );
+    TRICE0( Id(13484), "msg:Yes!\n" );
+    TRICE0( Id(25361), "msg:Yes!\n" );
 
 		
   /* USER CODE BEGIN WHILE */

@@ -4,11 +4,9 @@
 // The check functions are used not only for testing but also for evaluating id lists
 package emitter
 
-import (
-	"fmt"
+var ()
 
-	"github.com/rokath/trice/internal/id"
-)
+/*
 
 // checkValuePosition is a consistency check for positive values and their position.
 // It should be moved to the tests.
@@ -186,3 +184,4 @@ func ScCheckList(dataset string) error {
 	Check(id.List, dataset)
 	return nil
 }
+*/

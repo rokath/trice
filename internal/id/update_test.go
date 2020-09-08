@@ -64,6 +64,7 @@ func doUpdate(t *testing.T, sOri, sExp []string, listExp string) {
 	assert.ErrorNil(t, os.RemoveAll(p.FnJSON))
 }
 
+// todo
 func TestUpdatePrintfAdapter(t *testing.T) {
 
 	sOri := []string{`

@@ -104,7 +104,7 @@ func NewSimpleTrices(sw io.StringWriter, list *id.List, tr TriceAtomsReceiver) *
 			}
 			if 0 < len(p.ignored) {
 				// TODO: evaluate other protocols here
-				s := fmt.Sprintln("ATTENTION: found ignored bytes:", p.ignored)
+				s := fmt.Sprintln("e:\ne:                           \ne: found ignored byte:", p.ignored, "\ne:                           ")
 				time.Sleep(1 * time.Second)
 				_, p.Err = sw.WriteString(s)
 				p.ignored = p.ignored[:0]
@@ -163,7 +163,7 @@ func (p *TriceTranslator) translate() (s string) {
 	}
 	var index int
 	index = p.list.Index(int(trice.ID))
-	if nil != p.Err {
+	if nil != p.Err || index < 0 {
 		p.Err = nil
 		s = fmt.Sprintf("WARNING: trice.ID %d not found, discarding the 2 id bytes and the data bytes %04x %s\n", trice.ID, trice.ID, hex.EncodeToString(p.values))
 		time.Sleep(1 * time.Second)

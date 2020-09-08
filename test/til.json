@@ -3218,5 +3218,47 @@
 		"fmtStrg": "tst:TRICE64_2 %d %d\\n",
 		"created": 1599305244,
 		"removed": 0
+	},
+	{
+		"id": 772,
+		"fmtType": "TRICE0",
+		"fmtStrg": "s:                                        \\ns:   ARM-MDK_LL_UART_BARE_NUCLEO-F070RB   \\ns:                                        \\n\\n",
+		"created": 1599569160,
+		"removed": 0
+	},
+	{
+		"id": 13811,
+		"fmtType": "TRICE8_2",
+		"fmtStrg": "att:Hello, %d+%d=",
+		"created": 1599569160,
+		"removed": 0
+	},
+	{
+		"id": 23673,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "att:%d, ok?\\n",
+		"created": 1599569160,
+		"removed": 0
+	},
+	{
+		"id": 1257,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "SIG:val=%04x\\n",
+		"created": 1599569160,
+		"removed": 0
+	},
+	{
+		"id": 13484,
+		"fmtType": "TRICE0",
+		"fmtStrg": "msg:Yes!\\n",
+		"created": 1599569160,
+		"removed": 0
+	},
+	{
+		"id": 25361,
+		"fmtType": "TRICE0",
+		"fmtStrg": "msg:Yes!\\n",
+		"created": 1599569160,
+		"removed": 0
 	}
 ]

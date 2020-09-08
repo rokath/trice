@@ -153,10 +153,10 @@ func (p *TriceReceiver) readRaw() {
 
 	// the valid len inside syncBuffer
 	le := leftovers + n
-	if le < triceSize { // got not the minimum amount of expected bytes
+	p.syncBuffer = p.syncArray[:le] // set valid length
+	if le < triceSize {             // got not the minimum amount of expected bytes
 		return // assuming o.EOF == p.err
 	}
-	p.syncBuffer = p.syncArray[:le] // set valid length
 
 	// look for a sync point
 	o := findSubSliceOffset(p.syncBuffer, syncTrice)
@@ -190,7 +190,7 @@ retrySync:
 // This is a helper function to find sync points inside readRaw
 func findSubSliceOffset(b, sub []byte) int {
 	s := len(sub)
-	if len(b) < s {
+	if len(b) < s { // b is too small
 		return -s
 	}
 	for i := range b {
