@@ -40,8 +40,8 @@ type Item struct {
 // List is the trice ID list
 type List struct {
 
-	// fnJSON is the filename of the id list
-	fnJSON string
+	// FnJSON is the filename of the id list
+	FnJSON string
 
 	// array is the undelying list array for List
 	array [65536]Item
@@ -55,7 +55,7 @@ type List struct {
 // NewList creates an ID list instance
 func NewList(fnJSON string) *List {
 	p := &List{}
-	p.fnJSON = fnJSON
+	p.FnJSON = fnJSON
 	p.list = p.array[:0]
 	return p
 }
@@ -65,16 +65,15 @@ func NewList(fnJSON string) *List {
 // Just in case the idlist file gets updated, the file watcher updates the internals struct.
 // This way trice needs not to be restarted during development process.
 func (p *List) ReadListFile() {
-	if "none" != p.fnJSON {
-		b, err := ioutil.ReadFile(p.fnJSON)
+	if "none" != p.FnJSON {
+		b, err := ioutil.ReadFile(p.FnJSON)
 		errorFatal(err)
 		err = json.Unmarshal(b, &(p.list))
 		errorFatal(err)
 		// TODO: sort for binary search
-		go p.FileWatcher()
 	}
 	if true == Verbose {
-		fmt.Println("Read ID list file", p.fnJSON, "with", len(p.list), "items.")
+		fmt.Println("Read ID list file", p.FnJSON, "with", len(p.list), "items.")
 	}
 }
 
@@ -82,7 +81,7 @@ func (p *List) ReadListFile() {
 func (p *List) WriteListFile() {
 	b, err := json.MarshalIndent(p.list, "", "\t")
 	errorFatal(err)
-	errorFatal(ioutil.WriteFile(p.fnJSON, b, 0644))
+	errorFatal(ioutil.WriteFile(p.FnJSON, b, 0644))
 }
 
 // ZeroTimestampCreated sets all timstamps 'created' to 0.
@@ -225,9 +224,9 @@ func ScUpdate(fnJSON string) error {
 func (p *List) update(dir string) error {
 	err := p.Update(dir, !DryRun, Verbose)
 	if nil != err {
-		return fmt.Errorf("failed update on %s with %s: %v", dir, p.fnJSON, err)
+		return fmt.Errorf("failed update on %s with %s: %v", dir, p.FnJSON, err)
 	}
-	fmt.Println(len(p.list), "ID's in list", p.fnJSON)
+	fmt.Println(len(p.list), "ID's in list", p.FnJSON)
 	return nil
 }
 

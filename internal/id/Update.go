@@ -67,7 +67,7 @@ func isSourceFile(fi os.FileInfo) bool {
 // - extend file fnIDList
 func (p *List) Update(root string, run, verbose bool) error {
 	fmt.Println("dir=", root)
-	fmt.Println("list=", p.fnJSON)
+	fmt.Println("list=", p.FnJSON)
 	listModified := false
 	//err :=
 	//p.ReadListFile()
@@ -87,7 +87,7 @@ func (p *List) Update(root string, run, verbose bool) error {
 	if listModified && true == run {
 		p.WriteListFile()
 		if nil != p.savedErr {
-			return fmt.Errorf("failed to write %s: %v", p.fnJSON, err)
+			return fmt.Errorf("failed to write %s: %v", p.FnJSON, err)
 		}
 	}
 	return nil

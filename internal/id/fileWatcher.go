@@ -46,19 +46,18 @@ func (p *List) FileWatcher() {
 	}()
 
 	// out of the box fsnotify can watch a single file, or a single directory
-	if err := watcher.Add(p.fnJSON); err != nil {
+	if err := watcher.Add(p.FnJSON); err != nil {
 		fmt.Println("ERROR2", err)
 	}
 	if Verbose {
-		fmt.Println(p.fnJSON, "watched now for changes")
+		fmt.Println(p.FnJSON, "watched now for changes")
 	}
 	<-done
 }
 
 // renewIDList clears the internal id list and reads it again
 func (p *List) renewIDList() {
-	if "none" != p.fnJSON {
+	if "none" != p.FnJSON {
 		p.list = p.array[:0]
-		p.ReadListFile()
 	}
 }

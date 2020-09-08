@@ -30,9 +30,18 @@ void triceCheckSet( void )
      TRICE8_1( Id(15177), "tst: %d\n", n )  TRICE8_1( Id(56737), "tst: %d\n", n )  TRICE8_1( Id(38738), "tst: %d\n", n ) 
      TRICE8_1( Id(16966), "tst: %d\n", n ); TRICE8_1( Id(57737), "tst: %d\n", n ); TRICE8_1( Id(28718), "tst: %d\n", n ) 
 
+
+
+
+
     // mixed
      TRICE8_1( Id(26878), "tst: %d\n", n );  TRICE8_1( Id(53334), "tst: %d\n", n )
      TRICE8_1( Id(43551), "tst: %d\n", n );  TRICE8_1( Id(64025), "tst: %d\n", n )
+
+
+
+
+
 
     // param count
     TRICE0( Id(51789), "tst: Hi" );
@@ -58,6 +67,11 @@ void triceCheckSet( void )
 
     TRICE64_3( Id(23714), "tst:TRICE64 %d %d %d\n", 1, 2, 3 );
     TRICE64_4( Id(26365), "tst:TRICE64 %d %d %d %d\n", 1, 2, 3, 4 );
+    
+    
+    
+    
+    
     
     // special chars
     TRICE0( Id(58043), "tst: Hi>" );

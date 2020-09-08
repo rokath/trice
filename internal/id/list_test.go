@@ -5,7 +5,7 @@
 package id_test
 
 import (
-	"io/ioutil"
+	"os"
 	"testing"
 
 	"github.com/rokath/trice/internal/id"
@@ -14,16 +14,24 @@ import (
 )
 
 func TestWrite(t *testing.T) {
-	fd, err := ioutil.TempFile("", "*.json")
-	assert.ErrorNil(t, err)
-	fa := fd.Name()
-	fd.Close()
+	fa := file.Random("[]", "", "*.json")
 	p := id.NewList(fa)
-	p.WriteListFile()
 	p.ExtendIDList(12345, "TRICE0", "Hi", true)
 	p.ZeroTimestampCreated()
 	p.WriteListFile()
-	assert.EqualTextFiles(t, "testdata/BasicFunctions/writeExp.json", fa)
+
+	listAct := file.ReadString(fa)
+	assert.ErrorNil(t, os.RemoveAll(fa))
+	listExp := `[
+		{
+			"id": 12345,
+			"fmtType": "TRICE0",
+			"fmtStrg": "Hi",
+			"created": 0,
+			"removed": 0
+		}
+	]`
+	assert.EqualLines(t, listExp, listAct)
 }
 
 func TestZeroSourceTreeIds(t *testing.T) {
@@ -122,6 +130,7 @@ func TestZeroSourceTreeIds(t *testing.T) {
 	fn := file.Random(s, "", "*.c")
 	id.ZeroSourceTreeIds(fn, true)
 	act := file.ReadString(fn)
+	assert.ErrorNil(t, os.RemoveAll(fn))
 	exp := `
 	/*! \file triceCheck.c
 	\brief trices for tool evaluation
@@ -233,5 +242,31 @@ func TestAppendItem(t *testing.T) {
 	p.ZeroTimestampCreated()
 	p.WriteListFile()
 
-	assert.EqualTextFiles(t, "testdata/appendID/exp/til.json", fa)
+	sAct := file.ReadString(fa)
+	assert.ErrorNil(t, os.RemoveAll(fa))
+
+	sExp := `[
+		{
+			"id": 123,
+			"fmtType": "TRICE0",
+			"fmtStrg": "some logstring",
+			"created": 0,
+			"removed": 0
+		},
+		{
+			"id": 4444,
+			"fmtType": "TRICE32_1",
+			"fmtStrg": "some other %d logstring",
+			"created": 0,
+			"removed": 0
+		},
+		{
+			"id": 55,
+			"fmtType": "TRICE8_7",
+			"fmtStrg": "some more %d %d %d %d %d %d %d logstring",
+			"created": 0,
+			"removed": 0
+		}
+	]`
+	assert.EqualLines(t, sExp, sAct)
 }

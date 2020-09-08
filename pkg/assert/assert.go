@@ -73,8 +73,8 @@ func EqualLines(tb testing.TB, exp, act string) {
 	exp0 := strings.ReplaceAll(exp, "\r\n", "\n")
 	act0 := strings.ReplaceAll(act, "\r\n", "\n")
 
-	exp1 := strings.Split(exp0, "\r")
-	act1 := strings.Split(act0, "\r")
+	exp1 := strings.Split(exp0, "\n")
+	act1 := strings.Split(act0, "\n")
 
 	if len(exp1) != len(act1) {
 		fmt.Println(len(exp1), len(act1))
