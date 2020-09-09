@@ -4191,5 +4191,26 @@
 		"fmtStrg": "rd_:triceWrite.c",
 		"created": 1599591698,
 		"removed": 0
+	},
+	{
+		"id": 54442,
+		"fmtType": "TRICE0",
+		"fmtStrg": "s:                                        \\ns:   ARM-MDK_LL_UART_BARE_NUCLEO-F070RB   \\ns:                                        \\n\\n",
+		"created": 1599666707,
+		"removed": 0
+	},
+	{
+		"id": 12266,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "DIAG: triceFifoMaxDepthTrices = %d\\n",
+		"created": 1599666707,
+		"removed": 0
+	},
+	{
+		"id": 8063,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "DIAG: triceFifoMaxDepthTrices = %d\\n",
+		"created": 1599666797,
+		"removed": 0
 	}
 ]

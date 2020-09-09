@@ -3,7 +3,6 @@
 
 // Package receiver provides trice receiver functionality.
 // It uses a bytes.Reader for getting bytes and provides the received trices over a trice atoms channel
-
 package receiver
 
 import (
@@ -45,7 +44,7 @@ func (p *bytesViewer) Read(b []byte) (n int, e error) {
 // multiple of triceSice offset. If not, the appropriate count of bytes is ignored.
 func NewTricesfromBare(r io.Reader) *TriceReceiver {
 	p := &TriceReceiver{}
-	p.r = r // newBytesViewer(r) // dynamic debug helper
+	p.r = newBytesViewer(r) // dynamic debug helper
 
 	p.atoms = make(chan []Trice, triceChannelCapacity)
 	p.ignored = make(chan []byte, ignoredChannelCapacity)
@@ -136,6 +135,7 @@ func (p *TriceReceiver) syncCheck(atoms []Trice) bool {
 func (p *TriceReceiver) readRaw() {
 	p.ErrorFatal()
 
+	fmt.Println("leftovers", p.syncBuffer)
 	// move any leftovers (1-3 bytes) to start of syncArray
 	leftovers := len(p.syncBuffer) // bytes buffered in bytes buffer from last call
 	copy(p.syncArray[:], p.syncBuffer)
@@ -164,6 +164,9 @@ func (p *TriceReceiver) readRaw() {
 
 	// look for a sync point
 	o := findSubSliceOffset(p.syncBuffer, syncTrice)
+	if o < 0 { // wait for more data
+		return
+	}
 	adjust := o % triceSize // expect to be 0
 
 	if 0 != adjust { // out of sync

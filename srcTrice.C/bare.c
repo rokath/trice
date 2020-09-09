@@ -17,14 +17,11 @@ The trices (macros) are dumped as 32bit values into a 32 bit fifo. That is the t
 ALIGN4 uint32_t triceFifo[ TRICE_FIFO_BYTE_SIZE>>2 ] ALIGN4_END;
 
 uint32_t triceFifoWriteIndex = 0; //!< trice fifo write index, used inside macros, so must be visible
-
 uint32_t triceFifoReadIndex = 0; //!< trice fifo read index
-
 uint32_t triceFifoMaxDepthTrices = 0; //!< diagnostics
-
 uint8_t  triceBytesBuffer[8]; //!< bytes transmit buffer
-
-int triceBytesBufferIndex = sizeof(triceBytesBuffer)+1; // 9
+int const triceBytesBufferDone = -1;
+int triceBytesBufferIndex = triceBytesBufferDone;
 
 //! TODO: endianess with compiler macros.
 static void triceLoadTriceToBuffer( uint8_t* p, uint32_t t ){
@@ -34,22 +31,29 @@ static void triceLoadTriceToBuffer( uint8_t* p, uint32_t t ){
     p[2] = (uint8_t)(t>>16);// DaLo litte endian -> should be changed to by[3] (needs many changes in trice.h but does not influence trice go code)
 }
 
-//! triceServeOut() must be called cyclically to proceed ongoing write out.
+//! triceServeOut must be called cyclically to proceed ongoing write out.
+//! It schould be called at least every ms.
 //! A possibe place is main loop.
 void triceServeOut( void ){
-    if( triceBytesBufferIndex >= sizeof(triceBytesBuffer)+1 ){ // bytes buffer empty and tx finished
+	  int const syncPeriod = 3; // max every 100 ms or 200 trices a sync trice is needed
+	  static int syncNeed = syncPeriod; // start with a sync trice
+    if( triceBytesBufferDone == triceBytesBufferIndex ){ // bytes buffer empty and tx finished
         // next trice
-        static uint8_t* const triceBytesBuffer2 = &triceBytesBuffer[4];
+        static uint8_t* const b0 = &triceBytesBuffer[0];
+        static uint8_t* const b1 = &triceBytesBuffer[4];
         int n = triceFifoDepth();
-        if( 1 < n ){
-            triceLoadTriceToBuffer( triceBytesBuffer,  triceTricePop() ); // 1st trice
-            triceLoadTriceToBuffer( triceBytesBuffer2, triceTricePop() ); // 2nd trice
-        }else if( 1 == n) { // only 1 trice, so transmit also 1 sync trices
-            triceLoadTriceToBuffer( triceBytesBuffer,  triceTricePop() ); // 1st trice
-            triceLoadTriceToBuffer( triceBytesBuffer2, 0xcdef89ab ); // 2nd sync trice
+        if( 1 < n || syncNeed < syncPeriod ){ // no need for sync trice
+            triceLoadTriceToBuffer( b0, triceTricePop() ); // 1st trice
+            triceLoadTriceToBuffer( b1, triceTricePop() ); // 2nd trice
+					  syncNeed++;
+        }else if( 1 <= n ) { // only 1 trice, so transmit also 1 sync trices
+            triceLoadTriceToBuffer( b0, triceTricePop() ); // 1st trice
+            triceLoadTriceToBuffer( b1, 0xcdef89ab ); // 2nd sync trice
+					  syncNeed = 0;
         }else { // nothing to transmit, so transmit sync trices
-            triceLoadTriceToBuffer( triceBytesBuffer,  0xcdef89ab ); // 1st sync trice
-            triceLoadTriceToBuffer( triceBytesBuffer2, 0xcdef89ab ); // 2nd sync trice
+            triceLoadTriceToBuffer( b0, 0xcdef89ab ); // 1st sync trice
+            triceLoadTriceToBuffer( b1, 0xcdef89ab ); // 2nd sync trice
+					  syncNeed = 0;
         }
         triceBytesBufferIndex = 0;
         // next byte

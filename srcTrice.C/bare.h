@@ -109,8 +109,12 @@ TRICE_INLINE unsigned triceFifoDepth( void ){
 //! A good place: sysTick ISR and UART ISR (both together).
 //! TODO: endianess with compiler macros.
 TRICE_INLINE void triceServeTransmit( void ){
-    if( sizeof(triceBytesBuffer) <= triceBytesBufferIndex  ){ // no more bytes
-        triceBytesBufferIndex = sizeof(triceBytesBuffer)+1; // signal tx done
+	  extern int const triceBytesBufferDone;
+	  if( triceBytesBufferDone == triceBytesBufferIndex ){ // unexpected case
+			  for(;;);
+		}
+    if( sizeof(triceBytesBuffer) == triceBytesBufferIndex  ){ // no more bytes
+        triceBytesBufferIndex = triceBytesBufferDone; // signal tx done
         triceDisableTxEmptyInterrupt();
         return;
     }
