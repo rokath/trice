@@ -25,7 +25,7 @@ extern "C" {
 //! TRICE_FIFO_BYTE_SIZE must be a power of 2, one trice needs 4 to 32 or one day more bytes.
 //! The fifo has to hold trice bursts until they are transmitted.
 //! It is transmitted with lower priority in the background for example with the UART tx interrupt.
-#define TRICE_FIFO_BYTE_SIZE 512 
+#define TRICE_FIFO_BYTE_SIZE 2048
 
 //! Set according to hardware
 #define TRICE_UART USART2 
@@ -33,6 +33,8 @@ extern "C" {
 //! Set to MORE_FLASH_AND_SPEED, LESS_FLASH_AND_SPEED or NO_CODE
 #define TRICE_CODE MORE_FLASH_AND_SPEED
 
+//! every 100 ms or 200 trices a sync trice is ok
+#define TRICE_BARE_SYNC_LEVEL 500
 //
 ///////////////////////////////////////////////////////////////////////////////
 

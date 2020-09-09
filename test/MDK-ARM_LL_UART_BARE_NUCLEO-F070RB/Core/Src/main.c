@@ -103,27 +103,27 @@ int main(void)
 
   /* Infinite loop */	
   /* USER CODE BEGIN WHILE */
-		while (1)
-		{
-				{ // every second
-					static int lastSecond = 0;
-					if( Second != lastSecond ){
-							TRICE16_1( Id( 8063), "DIAG: triceFifoMaxDepthTrices = %d\n", triceFifoMaxDepthTrices );
-							triceCheckSet(Second);
-							lastSecond = Second;
-					}
-				}
-    /* USER CODE END WHILE */
+    while (1)
+    {
+        { // every second
+            static int lastSecond = 0;
+            if( Second != lastSecond ){
+                TRICE16_1( Id( 8063), "DIAG: triceFifoMaxDepthTrices = %d\n", triceFifoMaxDepthTrices );
+                triceCheckSet(Second);
+                lastSecond = Second;
+            }
+        }
+  /* USER CODE END WHILE */
 
-    /* USER CODE BEGIN 3 */
-				{ // check every ms
-						static int lastMs = 0;
-						if( milliSecond != lastMs ){
-								lastMs = milliSecond;
-								triceServeOut();
-						}
-				}
-		}
+  /* USER CODE BEGIN 3 */
+        { // check every ms
+            static int lastMs = 0;
+            if( milliSecond != lastMs ){
+                lastMs = milliSecond;
+                triceServeOut();
+            }
+        }
+    }
   /* USER CODE END 3 */
 }
 

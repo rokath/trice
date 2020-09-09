@@ -42,13 +42,13 @@ type Trice struct {
 // All recognized trice atoms as fetched are going as slices into the atoms channel.
 // Not used read bytes are sent to the ignored channel. Theses bytes could be garbage after out of sync or some different protocol.
 type TriceReceiver struct {
-	Err0       error                     // if some error occured it is stored here
-	Err1       error                     // if some error occured it is stored here
-	r          io.Reader                 // interface embedding
-	syncArray  [bytesBufferCapacity]byte // physical sync buffer
-	syncBuffer []byte                    //  valid bytes inside syncArray
-	atoms      chan []Trice              // The receivetod and unprocessed trice atoms are sent as slices to this channel.
-	ignored    chan []byte               // The read bytes not usable for trice atom generation are sent as slices to this channel.
+	Err0 error     // if some error occured it is stored here
+	Err1 error     // if some error occured it is stored here
+	r    io.Reader // interface embedding
+	//syncArray  [bytesBufferCapacity]byte // physical sync buffer
+	syncBuffer []byte       //  valid bytes inside syncArray
+	atoms      chan []Trice // The receivetod and unprocessed trice atoms are sent as slices to this channel.
+	ignored    chan []byte  // The read bytes not usable for trice atom generation are sent as slices to this channel.
 }
 
 // TriceAtomsChannel provides a read channel for reading trice atoms.

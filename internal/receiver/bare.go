@@ -135,15 +135,10 @@ func (p *TriceReceiver) syncCheck(atoms []Trice) bool {
 func (p *TriceReceiver) readRaw() {
 	p.ErrorFatal()
 
-	fmt.Println("leftovers", p.syncBuffer)
-	// move any leftovers (1-3 bytes) to start of syncArray
-	leftovers := len(p.syncBuffer) // bytes buffered in bytes buffer from last call
-	copy(p.syncArray[:], p.syncBuffer)
+	leftovers := len(p.syncBuffer) // bytes buffered from last call
+	fmt.Println("leftovers", leftovers, p.syncBuffer)
 
-	// set reception size
-	p.syncBuffer = p.syncArray[leftovers:bytesBufferCapacity]
-
-	// needed additional byte count making a least one Trice
+	// needed additional byte count making a least one trice
 	var minBytes int
 	if leftovers < triceSize {
 		minBytes = triceSize - leftovers
@@ -153,12 +148,17 @@ func (p *TriceReceiver) readRaw() {
 
 	// read to have at least triceSize bytes
 	var n int
-	n, p.Err0 = io.ReadAtLeast(p.r, p.syncBuffer, minBytes)
+	receiveBuffer := make([]byte, bytesBufferCapacity)
+	n, p.Err0 = io.ReadAtLeast(p.r, receiveBuffer, minBytes)
+	receiveBuffer = receiveBuffer[:n] // set valid length
 
-	// the valid len inside syncBuffer
-	le := leftovers + n
-	p.syncBuffer = p.syncArray[:le] // set valid length
-	if le < triceSize {             // got not the minimum amount of expected bytes
+	p.syncBuffer = append(p.syncBuffer, receiveBuffer...) // merge
+	le := leftovers + n                                   // le is valid length. It is the same as len(p.syncBuffer)
+	if len(p.syncBuffer) != le {
+		for {
+		}
+	}
+	if le < triceSize { // got not the minimum amount of expected bytes
 		return // assuming o.EOF == p.err
 	}
 

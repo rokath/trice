@@ -35,25 +35,34 @@ static void triceLoadTriceToBuffer( uint8_t* p, uint32_t t ){
 //! It schould be called at least every ms.
 //! A possibe place is main loop.
 void triceServeOut( void ){
-	  int const syncPeriod = 3; // max every 100 ms or 200 trices a sync trice is needed
-	  static int syncNeed = syncPeriod; // start with a sync trice
+    static int syncLevel = TRICE_BARE_SYNC_LEVEL; // start with a sync trice
     if( triceBytesBufferDone == triceBytesBufferIndex ){ // bytes buffer empty and tx finished
         // next trice
         static uint8_t* const b0 = &triceBytesBuffer[0];
         static uint8_t* const b1 = &triceBytesBuffer[4];
         int n = triceFifoDepth();
-        if( 1 < n || syncNeed < syncPeriod ){ // no need for sync trice
-            triceLoadTriceToBuffer( b0, triceTricePop() ); // 1st trice
-            triceLoadTriceToBuffer( b1, triceTricePop() ); // 2nd trice
-					  syncNeed++;
-        }else if( 1 <= n ) { // only 1 trice, so transmit also 1 sync trices
-            triceLoadTriceToBuffer( b0, triceTricePop() ); // 1st trice
-            triceLoadTriceToBuffer( b1, 0xcdef89ab ); // 2nd sync trice
-					  syncNeed = 0;
-        }else { // nothing to transmit, so transmit sync trices
-            triceLoadTriceToBuffer( b0, 0xcdef89ab ); // 1st sync trice
-            triceLoadTriceToBuffer( b1, 0xcdef89ab ); // 2nd sync trice
-					  syncNeed = 0;
+        if( syncLevel < TRICE_BARE_SYNC_LEVEL ){ // no need for a sync trice
+            if( 0 == n ) { // no trices to transmit
+                syncLevel++; 
+                return;
+            } else if( 1 == n ){ // one trice to transmit
+                triceLoadTriceToBuffer( b0, triceTricePop() ); // 1st trice
+                triceLoadTriceToBuffer( b1, 0xcdef89ab ); // 2nd sync trice
+                syncLevel = 0;
+            } else { // at least 2 trices to transmit
+                triceLoadTriceToBuffer( b0, triceTricePop() ); // 1st trice
+                triceLoadTriceToBuffer( b1, triceTricePop() ); // 2nd trice
+                syncLevel++;
+            }
+        } else { // need for a sync trice
+            if( 1 <= n ){ // at least one trice, so transmit it and one sync trice
+                triceLoadTriceToBuffer( b0, triceTricePop() ); // 1st trice
+                triceLoadTriceToBuffer( b1, 0xcdef89ab ); // 2nd sync trice
+            } else { // nothing to transmit so transmit 2 sync trices
+                triceLoadTriceToBuffer( b0, 0xcdef89ab ); // 1st sync trice
+                triceLoadTriceToBuffer( b1, 0xcdef89ab ); // 2nd sync trice
+            }
+            syncLevel = 0;
         }
         triceBytesBufferIndex = 0;
         // next byte
@@ -61,5 +70,35 @@ void triceServeOut( void ){
         triceEnableTxEmptyInterrupt();
     }
 }
+
+
+//! triceFifoDepth determines trices count inside trice fifo.
+//! \return count of buffered trices
+unsigned triceFifoDepth( void ){
+    unsigned triceDepth = (triceFifoWriteIndex - triceFifoReadIndex) & TRICE_FIFO_MASK;
+    triceFifoMaxDepthTrices = triceDepth < triceFifoMaxDepthTrices ? triceFifoMaxDepthTrices : triceDepth; // diagnostics
+    return triceDepth;
+}
+
+//! triceServeTransmit() must be called cyclically to proceed ongoing write out.
+//! A good place: sysTick ISR and UART ISR (both together).
+//! TODO: endianess with compiler macros.
+void triceServeTransmit( void ){
+    if( triceBytesBufferDone == triceBytesBufferIndex ){
+        for(;;);  // unexpected case
+    }
+    if( sizeof(triceBytesBuffer) == triceBytesBufferIndex  ){ // no more bytes
+        triceBytesBufferIndex = triceBytesBufferDone; // signal tx done
+        triceDisableTxEmptyInterrupt();
+        return;
+    }
+    if( !triceTxDataRegisterEmpty() ){
+        for(;;);  // unexpected case
+    }
+    // next byte
+    triceTransmitData8( triceBytesBuffer[triceBytesBufferIndex++] );
+    triceEnableTxEmptyInterrupt();
+}
+
 
 #endif // #if TRICE_CODE

@@ -78,6 +78,7 @@ extern uint32_t triceFifoReadIndex;
 extern uint32_t triceFifoMaxDepthTrices; //!< usabble for diagnostics
 extern uint8_t triceBytesBuffer[8];
 extern int triceBytesBufferIndex;
+extern int const triceBytesBufferDone;
 
 void triceServeOut( void );
 
@@ -97,31 +98,8 @@ TRICE_INLINE uint32_t triceTricePop(){
     return v;
 }
 
-//! triceFifoDepth determines trices count inside trice fifo.
-//! \return count of buffered trices
-TRICE_INLINE unsigned triceFifoDepth( void ){
-    unsigned triceDepth = (triceFifoWriteIndex - triceFifoReadIndex) & TRICE_FIFO_MASK;
-    triceFifoMaxDepthTrices = triceDepth < triceFifoMaxDepthTrices ? triceFifoMaxDepthTrices : triceDepth; // diagnostics
-    return triceDepth;
-}
-
-//! triceServeUartOut() must be called cyclically to proceed ongoing write out.
-//! A good place: sysTick ISR and UART ISR (both together).
-//! TODO: endianess with compiler macros.
-TRICE_INLINE void triceServeTransmit( void ){
-	  extern int const triceBytesBufferDone;
-	  if( triceBytesBufferDone == triceBytesBufferIndex ){ // unexpected case
-			  for(;;);
-		}
-    if( sizeof(triceBytesBuffer) == triceBytesBufferIndex  ){ // no more bytes
-        triceBytesBufferIndex = triceBytesBufferDone; // signal tx done
-        triceDisableTxEmptyInterrupt();
-        return;
-    }
-    // next byte
-    triceTransmitData8( triceBytesBuffer[triceBytesBufferIndex++] );
-    triceEnableTxEmptyInterrupt();
-}
+unsigned triceFifoDepth( void );
+void triceServeTransmit( void );
 
 #if NO_CODE == TRICE_CODE // no trice code generation
 
