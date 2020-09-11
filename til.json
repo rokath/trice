@@ -1,5 +1,12 @@
 [
 	{
+		"id": 17459,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "MSG: tryout %04x\n",
+		"created": 1599572743,
+		"removed": 0
+	},
+	{
 		"id": 6827,
 		"fmtType": "TRICE16_1",
 		"fmtStrg": "msg: line %d ",

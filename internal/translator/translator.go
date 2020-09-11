@@ -4,8 +4,6 @@
 package translator
 
 import (
-	"encoding/binary"
-	"encoding/hex"
 	"fmt"
 	"io"
 	"log"
@@ -46,11 +44,11 @@ type TriceTranslator struct {
 	// atoms holds read trice atoms not processed so far.
 	atoms []Trice
 
-	// ignored holds so far unused values for the next trice item.
+	// ignored holds so far unused bytes for the next trice item.
 	ignored []byte
 
 	// values holds so far unused values for the next trice item.
-	values []byte
+	values []uint16
 
 	//
 	list *id.List
@@ -78,7 +76,7 @@ func NewSimpleTrices(sw io.StringWriter, list *id.List, tr TriceAtomsReceiver) *
 	p.sw = sw
 	p.atoms = make([]Trice, 0, 1000)
 	p.ignored = make([]byte, 0, 1000)
-	p.values = make([]byte, 0, 100)
+	p.values = make([]uint16, 0, 100)
 	p.done = make(chan int)
 	p.list = list
 
@@ -126,9 +124,9 @@ func (p *TriceTranslator) ErrorFatal() {
 // f true indicates that the last 2 values are to be removed
 func (p *TriceTranslator) reSyncAtoms(f bool) {
 	if f {
-		p.values = p.values[:len(p.values)-2]
+		p.values = p.values[:0] // discard accumulated values
 	}
-	fmt.Print("?") //how to?
+	//fmt.Print("?") //how to?
 
 }
 
@@ -159,25 +157,14 @@ reSyncAtomsDone:
 
 	// discard sync trice
 	if 0x89ab == trice.ID {
-		var hi, lo int
-		nativeEndian := binary.LittleEndian // TODO: put in file endian_amd64.go
-		if binary.LittleEndian == nativeEndian {
-			hi = 1
-			lo = 0
-		} else { // littleEndian
-			hi = 0
-			lo = 1
-		}
-		if 0xcd != trice.Value[hi] || 0xef != trice.Value[lo] {
+		if 0xcdef != trice.Value {
 			s = fmt.Sprintln("e:                                   \ne: ", trice, "is invalid. Must have payload [205 239]. \ne:                                     ")
-			p.reSyncAtoms(false)
-			goto reSyncAtomsDone
 		}
-		s = "8"
+		s = fmt.Sprintln("att:~")
 		return
 	}
-	p.values = append(p.values, trice.Value[:]...) // append the 2 data bytes of the current trice
-	if 0 == trice.ID {                             // only data
+	p.values = append(p.values, trice.Value) // append the uint16 date of the current trice
+	if 0 == trice.ID {                       // trice atom has only data
 		return
 	}
 	var index int
@@ -191,7 +178,7 @@ reSyncAtomsDone:
 
 	if err := p.evalLen(); nil != err { // The accumulated data are not matching the trice.ID
 		s = err.Error()
-		s += fmt.Sprintf("e:                                                                       \ne trice.ID %d does not match values %s - ignoring both \ne:                                                         \n", trice.ID, hex.EncodeToString(p.values))
+		s += fmt.Sprintf("e:                                                                       \ne trice.ID %d does not match values %x - ignoring both \ne:                                                         \n", trice.ID, p.values)
 		p.values = p.values[:0]
 		return
 	}
@@ -233,47 +220,47 @@ func (p *TriceTranslator) emitter() (s string) {
 	case "TRICE8_8":
 		s = fmt.Sprintf(f, int8(prm[0]), int8(prm[1]), int8(prm[2]), int8(prm[3]), int8(prm[4]), int8(prm[5]), int8(prm[6]), int8(prm[7]))
 	case "TRICE16_1":
-		v0 = int16(binary.LittleEndian.Uint16(prm[0:2]))
+		v0 = int16(p.values[0])
 		s = fmt.Sprintf(f, v0)
 	case "TRICE16_2":
-		v0 = int16(binary.LittleEndian.Uint16(prm[0:2]))
-		v1 = int16(binary.LittleEndian.Uint16(prm[2:4]))
+		v0 = int16(p.values[0])
+		v1 = int16(p.values[1])
 		s = fmt.Sprintf(f, v0, v1)
 	case "TRICE16_3":
-		v0 = int16(binary.LittleEndian.Uint16(prm[0:2]))
-		v1 = int16(binary.LittleEndian.Uint16(prm[2:4]))
-		v2 = int16(binary.LittleEndian.Uint16(prm[4:6]))
+		v0 = int16(p.values[0])
+		v1 = int16(p.values[1])
+		v2 = int16(p.values[2])
 		s = fmt.Sprintf(f, v0, v1, v2)
 	case "TRICE16_4":
-		v0 = int16(binary.LittleEndian.Uint16(prm[0:2]))
-		v1 = int16(binary.LittleEndian.Uint16(prm[2:4]))
-		v2 = int16(binary.LittleEndian.Uint16(prm[4:6]))
-		v3 = int16(binary.LittleEndian.Uint16(prm[6:8]))
+		v0 = int16(p.values[0])
+		v1 = int16(p.values[1])
+		v2 = int16(p.values[2])
+		v3 = int16(p.values[3])
 		s = fmt.Sprintf(f, v0, v1, v2, v3)
 	case "TRICE32_1":
-		w0 = int32(binary.LittleEndian.Uint32(prm[0:4]))
+		w0 = (int32(p.values[1]) << 16) | int32(p.values[0]) // daLo ist tranmitted first -> idx 0
 		s = fmt.Sprintf(f, w0)
 	case "TRICE32_2":
-		w0 = int32(binary.LittleEndian.Uint32(prm[0:4]))
-		w1 = int32(binary.LittleEndian.Uint32(prm[4:8]))
+		w0 = (int32(p.values[1]) << 16) | int32(p.values[0]) // first param is transmitted first
+		w1 = (int32(p.values[3]) << 16) | int32(p.values[2])
 		s = fmt.Sprintf(f, w0, w1)
 	case "TRICE32_3":
-		w0 = int32(binary.LittleEndian.Uint32(prm[0:4]))
-		w1 = int32(binary.LittleEndian.Uint32(prm[4:8]))
-		w2 = int32(binary.LittleEndian.Uint32(prm[8:12]))
+		w0 = (int32(p.values[1]) << 16) | int32(p.values[0])
+		w1 = (int32(p.values[3]) << 16) | int32(p.values[2])
+		w2 = (int32(p.values[5]) << 16) | int32(p.values[4])
 		s = fmt.Sprintf(f, w0, w1, w2)
 	case "TRICE32_4":
-		w0 = int32(binary.LittleEndian.Uint32(prm[0:4]))
-		w1 = int32(binary.LittleEndian.Uint32(prm[4:8]))
-		w2 = int32(binary.LittleEndian.Uint32(prm[8:12]))
-		w3 = int32(binary.LittleEndian.Uint32(prm[12:16]))
+		w0 = (int32(p.values[1]) << 16) | int32(p.values[0])
+		w1 = (int32(p.values[3]) << 16) | int32(p.values[2])
+		w2 = (int32(p.values[5]) << 16) | int32(p.values[4])
+		w3 = (int32(p.values[7]) << 16) | int32(p.values[6])
 		s = fmt.Sprintf(f, w0, w1, w2, w3)
 	case "TRICE64_1":
-		l0 = int64(binary.LittleEndian.Uint64(prm[0:8]))
+		l0 = (int64(p.values[3]) << 48) | (int64(p.values[2]) << 32) | (int64(p.values[1]) << 16) | int64(p.values[0]) // hh hl lh ll
 		s = fmt.Sprintf(f, l0)
 	case "TRICE64_2":
-		l0 = int64(binary.LittleEndian.Uint64(prm[0:8]))
-		l1 = int64(binary.LittleEndian.Uint64(prm[8:16]))
+		l0 = (int64(p.values[3]) << 48) | (int64(p.values[2]) << 32) | (int64(p.values[1]) << 16) | int64(p.values[0]) // hh hl lh ll
+		l1 = (int64(p.values[7]) << 48) | (int64(p.values[6]) << 32) | (int64(p.values[5]) << 16) | int64(p.values[4]) // hh hl lh ll
 		s = fmt.Sprintf(f, l0, l1)
 	default:
 		p.Err = fmt.Errorf("Unknown FmtType %s", p.item.FmtType)

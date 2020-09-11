@@ -12,21 +12,21 @@ import (
 )
 
 func TestNewTricesfromBare(t *testing.T) {
-	r := bytes.NewReader([]byte{'j', 'a', 'r', 1, 1, 1, 1, 0x89, 0xab, 0xef, 0xcd, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4}) // todo: byteorder in sync
+	r := bytes.NewReader([]byte{'j', 'a', 'r', 1, 1, 1, 1, 0x89, 0xab, 0xcd, 0xef, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4}) // todo: byteorder in sync
 	p := NewTricesfromBare(r)
 	var bFlag, tFlag bool
 	for {
 		select {
-		case bAct := <-p.ignored:
+		case bAct := <-p.ignoredCh:
 			bExp := []byte{106, 97, 114}
 			assert.Equal(t, bExp, bAct)
 			bFlag = true
-		case tAct := <-p.atoms:
+		case tAct := <-p.atomsCh:
 			tExp := []Trice{
-				{ID: 257, Value: [2]byte{1, 1}},
-				{ID: 0x89ab, Value: [2]byte{0xef, 0xcd}}, // endianess!
-				{ID: 514, Value: [2]byte{2, 2}},
-				{ID: 771, Value: [2]byte{3, 3}},
+				{ID: 0x0101, Value: 257},
+				{ID: 0x89ab, Value: 0xcdef},
+				{ID: 514, Value: 0x0202},
+				{ID: 771, Value: 0x0303},
 			}
 			assert.Equal(t, tExp, tAct)
 			tFlag = true

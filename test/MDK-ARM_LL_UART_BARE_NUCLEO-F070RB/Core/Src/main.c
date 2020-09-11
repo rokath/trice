@@ -95,10 +95,8 @@ int main(void)
   MX_GPIO_Init();
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
-  LL_USART_EnableIT_RXNE(TRICE_UART); // enable UART2 interrupt
-	  TRICE_SYNC;
+    LL_USART_EnableIT_RXNE(TRICE_UART); // enable UART2 interrupt
     TRICE0( Id(54442), "s:                                        \ns:   ARM-MDK_LL_UART_BARE_NUCLEO-F070RB   \ns:                                        \n\n");
-    TRICE_SYNC;
 /* USER CODE END 2 */
 
   /* Infinite loop */	
@@ -108,8 +106,9 @@ int main(void)
         { // every second
             static int lastSecond = 0;
             if( Second != lastSecond ){
+                TRICE16_1( Id(0x4433), "MSG: tryout %04x\n", 0x2211 );
                 TRICE16_1( Id( 8063), "DIAG: triceFifoMaxDepthTrices = %d\n", triceFifoMaxDepthTrices );
-                triceCheckSet(Second);
+                //triceCheckSet(Second);
                 lastSecond = Second;
             }
         }

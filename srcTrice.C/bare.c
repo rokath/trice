@@ -20,47 +20,63 @@ uint32_t triceFifoWriteIndex = 0; //!< trice fifo write index, used inside macro
 uint32_t triceFifoReadIndex = 0; //!< trice fifo read index
 uint32_t triceFifoMaxDepthTrices = 0; //!< diagnostics
 uint8_t  triceBytesBuffer[8]; //!< bytes transmit buffer
-int const triceBytesBufferDone = -1;
-int triceBytesBufferIndex = triceBytesBufferDone;
+int const triceBytesBufferIndexLimit = 8; // sizeof(triceBytesBuffer[8]);
+int triceBytesBufferIndex = triceBytesBufferIndexLimit;
 
 //! TODO: endianess with compiler macros.
-static void triceLoadTriceToBuffer( uint8_t* p, uint32_t t ){
-    p[0] = (uint8_t)(t>>8); // IDHi big endian
-    p[1] = (uint8_t)(t);    // IDLo big endian
-    p[3] = (uint8_t)(t>>24);// DaHi litte endian -> should be changed to by[2] (needs many changes in trice.h but does not influence trice go code)
-    p[2] = (uint8_t)(t>>16);// DaLo litte endian -> should be changed to by[3] (needs many changes in trice.h but does not influence trice go code)
+TRICE_INLINE void triceLoadInNetworkOrder( uint8_t* p, uint32_t t ){
+    // ID arrives in upper 16 bit in machine endianess
+    // DA arrives in lower 16 bit in machine endianess (8 bit values are in trice ordering)
+
+    // transmit in big endian
+    uint8_t idHi = p[0] = (uint8_t)(t>>24); // IDHi big endian
+    uint8_t idLo = p[1] = (uint8_t)(t>>16); // IDLo big endian
+    
+    // transmit in big endian   
+    uint8_t daLo = p[2] = (uint8_t)(t>> 8); // DaLo big endian -> should be changed to >>24 (needs many changes in trice.h but does not influence trice go code)
+    uint8_t daHi = p[3] = (uint8_t)(t>> 0); // DaHi big endian -> should be changed to >>16 (needs many changes in trice.h but does not influence trice go code)
+}
+
+TRICE_INLINE void triceTransfer( uint32_t t0, uint32_t t1 ){
+    triceLoadInNetworkOrder( &triceBytesBuffer[0], t0 ); // 1st sync trice
+    triceLoadInNetworkOrder( &triceBytesBuffer[4], t1 ); // 2nd sync trice
+}
+
+//! triceFifoDepth determines trices count inside trice fifo.
+//! \return count of buffered trices
+TRICE_INLINE unsigned triceFifoDepth( void ){
+    unsigned triceDepth = (triceFifoWriteIndex - triceFifoReadIndex) & TRICE_FIFO_MASK;
+    triceFifoMaxDepthTrices = triceDepth < triceFifoMaxDepthTrices ? triceFifoMaxDepthTrices : triceDepth; // diagnostics
+    return triceDepth;
 }
 
 //! triceServeOut must be called cyclically to proceed ongoing write out.
 //! It schould be called at least every ms.
 //! A possibe place is main loop.
 void triceServeOut( void ){
+    // 89 ab cd ef <- on serial port
+    // ih il dh dl
+    uint32_t const syncTrice = 0x89abcdef; // endianess!! ID is in low part
     static int syncLevel = TRICE_BARE_SYNC_LEVEL; // start with a sync trice
-    if( triceBytesBufferDone == triceBytesBufferIndex ){ // bytes buffer empty and tx finished
+    if( triceBytesBufferIndexLimit == triceBytesBufferIndex ){ // bytes buffer empty and tx finished
         // next trice
-        static uint8_t* const b0 = &triceBytesBuffer[0];
-        static uint8_t* const b1 = &triceBytesBuffer[4];
         int n = triceFifoDepth();
         if( syncLevel < TRICE_BARE_SYNC_LEVEL ){ // no need for a sync trice
             if( 0 == n ) { // no trices to transmit
                 syncLevel++; 
                 return;
             } else if( 1 == n ){ // one trice to transmit
-                triceLoadTriceToBuffer( b0, triceTricePop() ); // 1st trice
-                triceLoadTriceToBuffer( b1, 0xcdef89ab ); // 2nd sync trice
+                triceTransfer( triceTricePop(), syncTrice );
                 syncLevel = 0;
             } else { // at least 2 trices to transmit
-                triceLoadTriceToBuffer( b0, triceTricePop() ); // 1st trice
-                triceLoadTriceToBuffer( b1, triceTricePop() ); // 2nd trice
+                triceTransfer( triceTricePop(), triceTricePop() );
                 syncLevel++;
             }
         } else { // need for a sync trice
             if( 1 <= n ){ // at least one trice, so transmit it and one sync trice
-                triceLoadTriceToBuffer( b0, triceTricePop() ); // 1st trice
-                triceLoadTriceToBuffer( b1, 0xcdef89ab ); // 2nd sync trice
+                triceTransfer( triceTricePop(), syncTrice );
             } else { // nothing to transmit so transmit 2 sync trices
-                triceLoadTriceToBuffer( b0, 0xcdef89ab ); // 1st sync trice
-                triceLoadTriceToBuffer( b1, 0xcdef89ab ); // 2nd sync trice
+                triceTransfer( syncTrice, syncTrice );
             }
             syncLevel = 0;
         }
@@ -72,33 +88,21 @@ void triceServeOut( void ){
 }
 
 
-//! triceFifoDepth determines trices count inside trice fifo.
-//! \return count of buffered trices
-unsigned triceFifoDepth( void ){
-    unsigned triceDepth = (triceFifoWriteIndex - triceFifoReadIndex) & TRICE_FIFO_MASK;
-    triceFifoMaxDepthTrices = triceDepth < triceFifoMaxDepthTrices ? triceFifoMaxDepthTrices : triceDepth; // diagnostics
-    return triceDepth;
-}
-
 //! triceServeTransmit() must be called cyclically to proceed ongoing write out.
 //! A good place: sysTick ISR and UART ISR (both together).
 //! TODO: endianess with compiler macros.
 void triceServeTransmit( void ){
-    if( triceBytesBufferDone == triceBytesBufferIndex ){
-        for(;;);  // unexpected case
-    }
-    if( sizeof(triceBytesBuffer) == triceBytesBufferIndex  ){ // no more bytes
-        triceBytesBufferIndex = triceBytesBufferDone; // signal tx done
-        triceDisableTxEmptyInterrupt();
-        return;
-    }
     if( !triceTxDataRegisterEmpty() ){
-        for(;;);  // unexpected case
+        for(;;); // unexpected case
+    }
+    if( triceBytesBufferIndexLimit == triceBytesBufferIndex ){
+        for(;;); // unexpected case
     }
     // next byte
     triceTransmitData8( triceBytesBuffer[triceBytesBufferIndex++] );
-    triceEnableTxEmptyInterrupt();
+    if( sizeof(triceBytesBuffer) == triceBytesBufferIndex  ){ // no more bytes
+        triceDisableTxEmptyInterrupt();
+    }
 }
-
 
 #endif // #if TRICE_CODE

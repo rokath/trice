@@ -174,7 +174,7 @@ func updateNextID(p *List, pListModified *bool, modified bool, subs, s string, v
 	nbTRICE := subs[loc[0]:loc[1]]
 	nbID := matchNbID.FindString(nbTRICE)
 	if "" == nbID {
-		fmt.Println("error: No 'Id(n)' found inside " + nbTRICE)
+		fmt.Println("warning: No 'Id(n)' found inside " + nbTRICE)
 		return false, modified, subs, s
 	}
 	var id int

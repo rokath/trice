@@ -44,16 +44,15 @@ func (p *bytesViewer) Read(b []byte) (n int, e error) {
 // multiple of triceSice offset. If not, the appropriate count of bytes is ignored.
 func NewTricesfromBare(r io.Reader) *TriceReceiver {
 	p := &TriceReceiver{}
-	p.r = newBytesViewer(r) // dynamic debug helper
+	p.r = r // newBytesViewer(r) // dynamic debug helper
 
-	p.atoms = make(chan []Trice, triceChannelCapacity)
-	p.ignored = make(chan []byte, ignoredChannelCapacity)
+	p.atomsCh = make(chan []Trice)  //triceChannelCapacity)
+	p.ignoredCh = make(chan []byte) //, ignoredChannelCapacity)
 	go func() {
 		for {
-			if io.EOF == p.Err0 {
-				return
-			}
+			//if io.EOF != p.Err0 {
 			p.readRaw()
+			//}
 		}
 	}()
 	return p
@@ -136,7 +135,9 @@ func (p *TriceReceiver) readRaw() {
 	p.ErrorFatal()
 
 	leftovers := len(p.syncBuffer) // bytes buffered from last call
-	fmt.Println("leftovers", leftovers, p.syncBuffer)
+	if 0 < leftovers {
+		fmt.Println("leftovers", leftovers, p.syncBuffer)
+	}
 
 	// needed additional byte count making a least one trice
 	var minBytes int
@@ -153,31 +154,28 @@ func (p *TriceReceiver) readRaw() {
 	receiveBuffer = receiveBuffer[:n] // set valid length
 
 	p.syncBuffer = append(p.syncBuffer, receiveBuffer...) // merge
-	le := leftovers + n                                   // le is valid length. It is the same as len(p.syncBuffer)
-	if len(p.syncBuffer) != le {
-		for {
-		}
-	}
-	if le < triceSize { // got not the minimum amount of expected bytes
+	if len(p.syncBuffer) < triceSize {                    // got not the minimum amount of expected bytes
+		fmt.Println("assuming o.EOF == p.err")
 		return // assuming o.EOF == p.err
 	}
 
 	// look for a sync point
 	o := findSubSliceOffset(p.syncBuffer, syncTrice)
 	if o < 0 { // wait for more data
+		fmt.Println("look for a sync point, wait for more data")
 		return
 	}
 	adjust := o % triceSize // expect to be 0
 
 	if 0 != adjust { // out of sync
-		p.ignored <- p.syncBuffer[:adjust]   // send dropped bytes as slice to ignored channel
+		p.ignoredCh <- p.syncBuffer[:adjust] // send dropped bytes as slice to ignored channel
 		p.syncBuffer = p.syncBuffer[adjust:] // drop 1 to (triceSize-1) bytes
-		return                               // try to read more
 	}
 
 	// convert from syncBuffer into Trice slice
 	atomsAvail := len(p.syncBuffer) / triceSize
 	if 0 == atomsAvail {
+		fmt.Println("convert from syncBuffer into Trice slice, try to read more")
 		return // try to read more
 	}
 	atoms := make([]Trice, atomsAvail) ////////////////////////////////////// TODO: avoid make here
@@ -186,13 +184,15 @@ func (p *TriceReceiver) readRaw() {
 
 	// check atoms in buf for wrong sync
 	if false == p.syncCheck(atoms) { // out of sync
-		p.ignored <- p.syncBuffer[:1]   // send dropped byte (as slice) to ignored channel
+		fmt.Println("out of sync", p.syncBuffer)
+		p.ignoredCh <- p.syncBuffer[:1] // send dropped byte (as slice) to ignored channel
 		p.syncBuffer = p.syncBuffer[1:] // drop 1 byte
 		return                          // try to read more
 	}
 
 	p.syncBuffer = p.syncBuffer[triceSize*atomsAvail:] // any leftover count from 1 to (triceSize-1) is possible
-	p.atoms <- atoms                                   // send trices
+	fmt.Println("atoms", atoms)
+	p.atomsCh <- atoms // send trices
 }
 
 // findSubSliceOffset returns offset of slice sub inside slice b or negative len(sub) if not found.
