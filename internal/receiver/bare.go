@@ -58,6 +58,8 @@ func NewTricesfromBare(r io.Reader) *TriceReceiver {
 	return p
 }
 
+https://medium.com/rungo/anatomy-of-channels-in-go-concurrency-in-go-1ec336086adb
+
 // ErrorFatal ends in osExit(1) if p.Err not nil.
 func (p *TriceReceiver) ErrorFatal() {
 	if nil != p.Err0 {
