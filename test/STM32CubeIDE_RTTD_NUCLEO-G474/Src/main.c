@@ -117,7 +117,7 @@ int main(void)
       static int index = 0;
       TRICE_RTT_SYNC; // helps to re-sync when connected to a running target
       triceCheckSet(index++%20);
-      TRICE32_1( Id(47959), "time:ms = %d\n", ms );
+      TRICE32_1( Id(38312), "time:ms = %d\n", ms );
       ms_1 = ms;
   }
   //

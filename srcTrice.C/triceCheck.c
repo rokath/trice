@@ -57,7 +57,7 @@ void triceCheckSet( int index )
             TRICE32_4( Id(28944), "tst:TRICE32_4 %%10d ->     %10d     %10d     %10d    %10x\n",      1, 0x7fffffff, 0x80000000, 0xffffffff ); // 4
             TRICE64_1( Id(19049), "att:64bit %#b\n", 0x1122334455667788ull );
         break;
-        case 30:
+        case 3:
             TRICE8_1( Id(41267), "tst:TRICE8_1 %d\n", -1 );
             TRICE8_2( Id(28873), "tst:TRICE8_2 %d %d\n", -1, -2 );
             TRICE8_3( Id(18501), "tst:TRICE8_3 %d %d %d\n", -1, -2, -3 );
@@ -176,8 +176,8 @@ void triceCheckSet( int index )
                 TRICE16_1( Id(50168), "tim: post decryption SysTick=%d\n", SYSTICKVAL16 );
                 TRICE8_8( Id(  990), "msg:2:%03x %03x %03x %03x %03x %03x %03x %03x\n", b[0], b[1], b[2], b[3], b[4], b[5], b[6], b[7] );
             }
-        #endif
             TRICE0 (Id( 7275), "--------------------------------------------------\r\n\n" );
+        #endif
         break;
         default:
         break;

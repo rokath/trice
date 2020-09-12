@@ -10,7 +10,6 @@ import (
 	"encoding/binary"
 	"fmt"
 	"io"
-	"log"
 	"reflect"
 )
 
@@ -50,15 +49,13 @@ func NewTricesfromBare(r io.Reader) *TriceReceiver {
 	p.ignoredCh = make(chan []byte) //, ignoredChannelCapacity)
 	go func() {
 		for {
-			//if io.EOF != p.Err0 {
-			p.readRaw()
-			//}
+			if io.EOF != p.Err0 { // for testing
+				p.readRaw()
+			}
 		}
 	}()
 	return p
 }
-
-https://medium.com/rungo/anatomy-of-channels-in-go-concurrency-in-go-1ec336086adb
 
 // ErrorFatal ends in osExit(1) if p.Err not nil.
 func (p *TriceReceiver) ErrorFatal() {
@@ -116,16 +113,16 @@ const (
 	forbiddenIDLo = 0x89   // If an IL=  89   (137) is detected -> out of sync
 )
 
-func (p *TriceReceiver) syncCheck(atoms []Trice) bool {
+// syncCheck returns -1 on success. On failure it returns the appropriate index number
+func (p *TriceReceiver) syncCheck(atoms []Trice) int {
 	for i, a := range atoms {
 		ih := byte(a.ID >> 8)
 		il := byte(a.ID)
 		if forbIddenID0 == a.ID || forbIddenID1 == a.ID || forbiddenIDHi == ih || forbiddenIDLo == il {
-			log.Println("sync issue, trice atom has unexpected id, ih, il, ignoring first byte and retrying...: ", i, a.ID, ih, il)
-			return false
+			return i
 		}
 	}
-	return true
+	return -1
 }
 
 // readRaw uses inner reader p.r to read byte stream and assumes encoding 'raw' (=='bare') for interpretation.
@@ -137,9 +134,6 @@ func (p *TriceReceiver) readRaw() {
 	p.ErrorFatal()
 
 	leftovers := len(p.syncBuffer) // bytes buffered from last call
-	if 0 < leftovers {
-		fmt.Println("leftovers", leftovers, p.syncBuffer)
-	}
 
 	// needed additional byte count making a least one trice
 	var minBytes int
@@ -151,50 +145,58 @@ func (p *TriceReceiver) readRaw() {
 
 	// read to have at least triceSize bytes
 	var n int
-	receiveBuffer := make([]byte, bytesBufferCapacity)
+	receiveBuffer := make([]byte, receiveBufferCapacity)
 	n, p.Err0 = io.ReadAtLeast(p.r, receiveBuffer, minBytes)
 	receiveBuffer = receiveBuffer[:n] // set valid length
 
 	p.syncBuffer = append(p.syncBuffer, receiveBuffer...) // merge
 	if len(p.syncBuffer) < triceSize {                    // got not the minimum amount of expected bytes
-		fmt.Println("assuming o.EOF == p.err")
+		fmt.Println("Unexpected", p.Err0)
 		return // assuming o.EOF == p.err
 	}
 
 	// look for a sync point
 	o := findSubSliceOffset(p.syncBuffer, syncTrice)
 	if o < 0 { // wait for more data
-		fmt.Println("look for a sync point, wait for more data")
 		return
 	}
-	adjust := o % triceSize // expect to be 0
+	//adjust := o % triceSize // expect to be 0, can be 0...3
 
-	if 0 != adjust { // out of sync
-		p.ignoredCh <- p.syncBuffer[:adjust] // send dropped bytes as slice to ignored channel
-		p.syncBuffer = p.syncBuffer[adjust:] // drop 1 to (triceSize-1) bytes
+	if 0 != o%triceSize { // out of sync
+		if Verbose {
+			fmt.Printf("############################# Out of sync: o=%d ", o)
+			fmt.Println(p)
+		}
+		p.ignoredCh <- p.syncBuffer[:o] // send dropped bytes as slice to ignored channel
+		p.syncBuffer = p.syncBuffer[o:] // drop 1 to (triceSize-1) bytes
 	}
 
 	// convert from syncBuffer into Trice slice
-	atomsAvail := len(p.syncBuffer) / triceSize
-	if 0 == atomsAvail {
-		fmt.Println("convert from syncBuffer into Trice slice, try to read more")
+	atomsAvailCount := len(p.syncBuffer) / triceSize
+	if 0 == atomsAvailCount {
+		fmt.Println("++++++++++++++++++++++++++++ convert from syncBuffer into Trice slice, try to read more")
+		fmt.Println(p)
 		return // try to read more
 	}
-	atoms := make([]Trice, atomsAvail) ////////////////////////////////////// TODO: avoid make here
+	atomsAvail := make([]Trice, atomsAvailCount) ////////////////////////////////////// TODO: avoid make here
 	buf := bytes.NewReader(p.syncBuffer)
-	p.Err1 = binary.Read(buf, binary.BigEndian, atoms) // target received data are big endian
+	p.Err1 = binary.Read(buf, binary.BigEndian, atomsAvail) // target received data are big endian
 
 	// check atoms in buf for wrong sync
-	if false == p.syncCheck(atoms) { // out of sync
-		fmt.Println("out of sync", p.syncBuffer)
-		p.ignoredCh <- p.syncBuffer[:1] // send dropped byte (as slice) to ignored channel
-		p.syncBuffer = p.syncBuffer[1:] // drop 1 byte
-		return                          // try to read more
+	i := p.syncCheck(atomsAvail)
+	if 0 <= i { // out of sync
+		if Verbose {
+			fmt.Printf("Sync issue, trice atom %d has unexpected id=%x. ", i, atomsAvail[i].ID)
+			fmt.Println(p)
+		}
+		ign := i * triceSize
+		p.ignoredCh <- p.syncBuffer[:ign] // send dropped byte (as slice) to ignored channel
+		p.syncBuffer = p.syncBuffer[ign:] // drop 1 byte
+		return                            // try to read more
 	}
 
-	p.syncBuffer = p.syncBuffer[triceSize*atomsAvail:] // any leftover count from 1 to (triceSize-1) is possible
-	fmt.Println("atoms", atoms)
-	p.atomsCh <- atoms // send trices
+	p.syncBuffer = p.syncBuffer[triceSize*atomsAvailCount:] // any leftover count from 1 to (triceSize-1) is possible
+	p.atomsCh <- atomsAvail                                 // send trices
 }
 
 // findSubSliceOffset returns offset of slice sub inside slice b or negative len(sub) if not found.

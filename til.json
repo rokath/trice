@@ -1,5 +1,12 @@
 [
 	{
+		"id": 8036,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "DIAG: triceFifoMaxDepthTrices = %d\n",
+		"created": 1599572743,
+		"removed": 0
+	},
+	{
 		"id": 17459,
 		"fmtType": "TRICE16_1",
 		"fmtStrg": "MSG: tryout %04x\n",
@@ -2622,6 +2629,41 @@
 		"fmtType": "TRICE32_1",
 		"fmtStrg": "time:ms = %d\\n",
 		"created": 1599572727,
+		"removed": 0
+	},
+	{
+		"id": 34892,
+		"fmtType": "TRICE8_4",
+		"fmtStrg": "tst:TRICE8_4 %d %d %d %d\\n",
+		"created": 1599914353,
+		"removed": 0
+	},
+	{
+		"id": 38312,
+		"fmtType": "TRICE32_1",
+		"fmtStrg": "time:ms = %d\\n",
+		"created": 1599914353,
+		"removed": 0
+	},
+	{
+		"id": 47304,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "tim:timing      message, SysTick is %6d\\n",
+		"created": 1599914354,
+		"removed": 0
+	},
+	{
+		"id": 7674,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "DIAG: triceFifo max used bytes = %d\\n",
+		"created": 1599945686,
+		"removed": 0
+	},
+	{
+		"id": 13893,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "DIAG: triceFifo max used bytes = %d\\n",
+		"created": 1599945921,
 		"removed": 0
 	}
 ]

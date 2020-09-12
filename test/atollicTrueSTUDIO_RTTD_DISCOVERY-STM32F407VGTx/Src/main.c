@@ -109,7 +109,7 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   TRICE_RTT_SYNC;
-  TRICE16_1( Id(11648), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
+  TRICE16_1( Id(47304), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
   TRICE0( Id(51071), "att:atollicTrueSTUDIO_RTTD_DISCOVERY-STM32F407VGTx\n" );
   TRICE16_1( Id(32392), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
   TRICE16_1( Id(35978), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );

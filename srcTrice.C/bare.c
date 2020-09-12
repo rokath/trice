@@ -38,8 +38,8 @@ TRICE_INLINE void triceLoadInNetworkOrder( uint8_t* p, uint32_t t ){
 }
 
 TRICE_INLINE void triceTransfer( uint32_t t0, uint32_t t1 ){
-    triceLoadInNetworkOrder( &triceBytesBuffer[0], t0 ); // 1st sync trice
-    triceLoadInNetworkOrder( &triceBytesBuffer[4], t1 ); // 2nd sync trice
+    triceLoadInNetworkOrder( &triceBytesBuffer[0], t0 );
+    triceLoadInNetworkOrder( &triceBytesBuffer[4], t1 );
 }
 
 //! triceFifoDepth determines trices count inside trice fifo.
@@ -69,8 +69,10 @@ void triceServeOut( void ){
                 triceTransfer( triceTricePop(), syncTrice );
                 syncLevel = 0;
             } else { // at least 2 trices to transmit
-                triceTransfer( triceTricePop(), triceTricePop() );
-                syncLevel++;
+                uint32_t t0 = triceTricePop();
+                uint32_t t1 = triceTricePop();
+                triceTransfer( t0, t1 );
+                syncLevel+=2;
             }
         } else { // need for a sync trice
             if( 1 <= n ){ // at least one trice, so transmit it and one sync trice

@@ -249,6 +249,8 @@ func injectValues() {
 	emitter.Verbose = Verbose
 	jlink.Verbose = Verbose
 	cage.Verbose = Verbose
+	receiver.Verbose = Verbose
+	translator.Verbose = Verbose
 }
 
 // Handler evaluates the arguments slice of strings

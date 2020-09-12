@@ -33,8 +33,13 @@ extern "C" {
 //! Set to MORE_FLASH_AND_SPEED, LESS_FLASH_AND_SPEED or NO_CODE
 #define TRICE_CODE MORE_FLASH_AND_SPEED
 
-//! every 100 ms or 200 trices a sync trice is ok
-#define TRICE_BARE_SYNC_LEVEL 500
+//! TRICE_BARE_SYNC_LEVEL is the max amount of trices bulk transmitted without a sync trice injected.
+//! Assuming triceServeOut() is called every ms this is also the max ms abount without a sync trice.
+//! Bigger numbers decrease the bandwidth needs but increase the possible loss of trices in case of
+//! re-sync need. A number of 10 is recommended: every 10 ms or 10 trices a sync trice is transmitted
+//! increasing the bandwidth need by 10% ans loosing 10 trices in the worst case.
+#define TRICE_BARE_SYNC_LEVEL 10
+
 //
 ///////////////////////////////////////////////////////////////////////////////
 
