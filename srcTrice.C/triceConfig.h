@@ -10,7 +10,7 @@
 
 #ifndef TRICE_CONFIG_H_
 #define TRICE_CONFIG_H_
-#error
+
 #include <stdint.h>
 
 #ifdef __cplusplus

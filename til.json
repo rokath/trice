@@ -2672,5 +2672,12 @@
 		"fmtStrg": "debug:triceFifo max %d used bytes so far\\n",
 		"created": 1599998069,
 		"removed": 0
+	},
+	{
+		"id": 25934,
+		"fmtType": "TRICE0",
+		"fmtStrg": "s:                                        \\ns:   ARM-MDK_RTT_BARE_NUCLEO-F030RB   \\ns:                                        \\n\\n",
+		"created": 1600011926,
+		"removed": 0
 	}
 ]

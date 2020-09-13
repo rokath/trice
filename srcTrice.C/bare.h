@@ -1,7 +1,4 @@
  /*! \file bare.h
-\brief Software tracer header file
-\details This file is included in target code files. If TRICE_CODE is defined
-as NO_CODE (globally or file specific) the TRICE* macros generate no code.
 \author thomas.toehenleitner [at] seerose.net
 *******************************************************************************/
 
@@ -11,6 +8,10 @@ as NO_CODE (globally or file specific) the TRICE* macros generate no code.
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#define UART 99
+
+#define RTT 100
 
 //! used as TRICE_CODE macro option for more flash occupation, but decreases execution time and needs smaller buffers
 #define MORE_FLASH_AND_SPEED 30 //!< value is only to distinguish from LESS_FLASH and NO_CODE
@@ -23,54 +24,11 @@ extern "C" {
 
 #include "bareConfig.h"
 
-#define TRICE_PUSH(v) triceTricePush(v)
+#if RTT == TRICE_PORT
 
-//! TRICE_SYNC is an optional trice sync message for syncing, when bare transmission is used.
-//! The value 35243 (0x89ab) is a reserved pattern used as ID with value DA 0xcdef.
-//! The byte sequence of the sync message is 0x89 0xab 0xcd 0xef.
-//! It cannot occure in the trice stream in another way due to ID generaion policy.
-//! Sync package is IDDA=89abcdef
-//!
-//! To avoid wrong syncing these ID's are excluded: xx89, abcd, cdef, efxx (514 pieces)
-//!
-//! Possible:    IH IL DH DL IH IL DH DL IH IL DH DL (1 right)
-//!              xx xx xx xx xx 89 ab cd ef xx xx xx -> avoid IL=89, IH=ef
-//!
-//! Possible:    IH IL DH DL IH IL DH DL IH IL DH DL (2 right)
-//!              xx xx xx xx xx xx 89 ab cd ef xx xx -> avoid ID=cdef
-//!
-//! Possible:    IH IL DH DL IH IL DH DL IH IL DH DL (3 right)
-//!              xx xx xx xx xx xx xx 89 ab cd ef xx -> avoid ID=abcd
-//!
-//! Sync packet: IH IL DH DL IH IL DH DL IH IL DH DL
-//!              xx xx xx xx 89 ab cd ef xx xx xx xx -> use ID=89ab with DA=cdef as sync packet
-//!
-//!  Possible:   IH IL DH DL IH IL DH DL IH IL DH DL (1 left)
-//!              xx xx xx 89 ab cd ef xx xx xx xx xx -> avoid ID=abcd
-//!
-//!  Possible:   IH IL DH DL IH IL DH DL IH IL DH DL (2 left)
-//!              xx xx 89 ab cd ef xx xx xx xx xx xx -> avoid ID=cdef
-//!
-//!  Possible:   IH IL DH DL IH IL DH DL IH IL DH DL (3 left)
-//!              xx 89 ab cd ef xx xx xx xx xx xx xx ->  avoid IL=nn89, IH=ef
-//!
-//! If an ID=89ab with DA!=cdef is detected -> out of sync!
-//! If an IH=ef is detected -> out of sync, all 256 IDs starting with 0xef are excluded
-//! If an IL=89 is detected -> out of sync, all 256 IDs ending with 0x89 are excluded
-//! If an ID=abcd is detected -> out of sync, ID 0xabcd is excluded
-//! If an ID=cdef is detected -> out of sync, ID 0xcdef is excluded
-//! ID 0x89ab is reserved for this trice sync package.
-//! The trice sync message payload must be 0xcdef.
-//! You must not change any of the above demands. Otherwise the syncing will not work.
-//! The Id(0x89ab) is here as hex value, so it is ignored by ID management.
-//! The trice sync string makes the trice sync info invisible just in case,
-//! but the trice tool will filter them out anyway. The trice tool automatic id generation
-//! follows these rules.
-#define TRICE_SYNC do{ TRICE16_1( Id(0x89ab), "%x\b\b\b\b", 0xcdef ); }while(0)
 
-#define Id( n ) (n) //!< Macro for improved trice readability and better source code parsing.
 
-#define TRICE_FIFO_MASK (((TRICE_FIFO_BYTE_SIZE)>>2)-1) //!< max possible trices count in fifo
+#elif UART == TRICE_PORT
 
 extern uint32_t triceFifo[];
 extern uint32_t triceFifoWriteIndex;
@@ -80,26 +38,24 @@ extern uint8_t triceBytesBuffer[8];
 extern int triceBytesBufferIndex;
 extern int const triceBytesBufferDone;
 
+unsigned triceFifoDepth( void );
+void triceServeTransmit( void );
 void triceServeOut( void );
 
-//! triceTricePush puts one trice into trice fifo.
+#define TRICE_FIFO_MASK (((TRICE_FIFO_BYTE_SIZE)>>2)-1) //!< max possible trices count in fifo
+
+//! tricePush puts one trice into trice fifo.
 //! This is a trice time critical part.
 //! \param v trice id with 2 byte data
-TRICE_INLINE void triceTricePush( uint32_t v ){
+TRICE_INLINE void tricePush( uint32_t v ){
     triceFifo[triceFifoWriteIndex++] = v;
     triceFifoWriteIndex &= TRICE_FIFO_MASK;
 }
+#endif
 
-//! triceTricePop gets one trice from trice fifo.
-//! \return trice id with 2 byte data in one uint32_t.
-TRICE_INLINE uint32_t triceTricePop(){
-    uint32_t v = triceFifo[triceFifoReadIndex++];
-    triceFifoReadIndex &= TRICE_FIFO_MASK;
-    return v;
-}
+#define TRICE_PUSH(v) tricePush(v)
 
-unsigned triceFifoDepth( void );
-void triceServeTransmit( void );
+#define Id( n ) (n) //!< Macro for improved trice readability and better source code parsing.
 
 #if NO_CODE == TRICE_CODE // no trice code generation
 
