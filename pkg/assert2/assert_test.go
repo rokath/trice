@@ -1,7 +1,7 @@
 // Copyright 2020 Thomas.Hoehenleitner [at] seerose.net
 // Use of this source code is governed by a license that can be found in the LICENSE file.
 
-// Package assert provides hepler functions for testing.
+// Package assert_test contains blackbox tests.
 package assert_test
 
 import (
@@ -11,9 +11,6 @@ import (
 
 	"github.com/rokath/trice/pkg/assert"
 )
-
-// test helper ///////////////////////////////////////////////////////////////////////
-//
 
 func TestTrue(t *testing.T) {
 	assert.True(t, true, "")

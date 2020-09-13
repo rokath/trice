@@ -2,7 +2,7 @@
 // Use of this source code is governed by a license that can be found in the LICENSE file.
 
 // Package assert provides hepler functions for testing.
-package assert
+package assert2
 
 import (
 	"fmt"
@@ -40,14 +40,14 @@ func False(tb testing.TB, condition bool, msg string, v ...interface{}) {
 	}
 }
 
-// ErrorNil fails the test if an err is not nil.
-func ErrorNil(tb testing.TB, err error) {
-	if err != nil {
-		_, file, line, _ := runtime.Caller(1)
-		fmt.Println(err.Error(), filepath.Base(file), line)
-		tb.FailNow()
-	}
-}
+// // ErrorNil fails the test if an err is not nil.
+// func ErrorNil(tb testing.TB, err error) {
+// 	if err != nil {
+// 		_, file, line, _ := runtime.Caller(1)
+// 		fmt.Println(err.Error(), filepath.Base(file), line)
+// 		tb.FailNow()
+// 	}
+// }
 
 // Equal fails the test if exp is not equal to act.
 func Equal(tb testing.TB, exp, act interface{}) {
