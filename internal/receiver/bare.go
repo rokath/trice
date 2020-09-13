@@ -43,7 +43,7 @@ func (p *bytesViewer) Read(b []byte) (n int, e error) {
 // multiple of triceSice offset. If not, the appropriate count of bytes is ignored.
 func NewTricesfromBare(r io.Reader) *TriceReceiver {
 	p := &TriceReceiver{}
-	p.r = r // newBytesViewer(r) // dynamic debug helper
+	p.r = newBytesViewer(r) // dynamic debug helper
 
 	p.atomsCh = make(chan []Trice)  //triceChannelCapacity)
 	p.ignoredCh = make(chan []byte) //, ignoredChannelCapacity)

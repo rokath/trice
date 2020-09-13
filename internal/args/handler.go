@@ -365,7 +365,7 @@ func newReadCloser() (r io.ReadCloser, e error) {
 		}
 		r = l
 	case "DUMMY":
-		rd := bytes.NewReader([]byte{2, 1, 1, 1, 0x16, 0x16, 0x16, 0x16, 2, 2, 2, 0, 3, 3, 3, 3, 4, 4})
+		rd := bytes.NewReader([]byte{2, 1, 1, 1, 0x89, 0xab, 0xcd, 0xef, 2, 2, 2, 0, 3, 3, 3, 3, 4, 4})
 		r = ioutil.NopCloser(rd)
 	default:
 		e = fmt.Errorf("Unknown input port %s", Port)

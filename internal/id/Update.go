@@ -67,7 +67,7 @@ func isSourceFile(fi os.FileInfo) bool {
 // - extend file fnIDList
 func (p *List) Update(root string, run, verbose bool) error {
 	fmt.Println("dir=", root)
-	fmt.Println("list=", p.FnJSON)
+	fmt.Println("List=", p.FnJSON)
 	listModified := false
 	//err :=
 	//p.ReadListFile()
@@ -155,8 +155,8 @@ func visitUpdate(run bool, p *List, pListModified *bool, verbose bool) filepath.
 }
 
 // updateNextID is getting these parameters:
-//    - p = pointer to ID list
-//    - pListModified = pointer to the 'ID list modified flag', which is set true if s.th. changed in the list
+//    - p = pointer to ID List
+//    - pListModified = pointer to the 'ID List modified flag', which is set true if s.th. changed in the List
 //    - modified = the 'file modified flag', which is returned set true if s.th. changed in the file
 //    - subs = the remaining file contents
 //    - s = the full filecontents, which could be modified

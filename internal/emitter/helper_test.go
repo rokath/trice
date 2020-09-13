@@ -7,10 +7,11 @@ package emitter
 import (
 	"fmt"
 	"io/ioutil"
-	"log"
+
+	"github.com/stretchr/testify/assert"
+
 	"math/rand"
-	"path/filepath"
-	"reflect"
+
 	"runtime"
 	"strings"
 	"testing"
@@ -19,35 +20,7 @@ import (
 
 // test helper ///////////////////////////////////////////////////////////////////////
 //
-
-// assertNil fails the test if an err is not nil.
-func assertNil(tb testing.TB, err error) {
-	if err != nil {
-		_, file, line, _ := runtime.Caller(1)
-		fmt.Println(err.Error(), filepath.Base(file), line)
-		tb.FailNow()
-	}
-}
-
-// assertEqual fails the test if exp is not equal to act.
-func assertEqual(tb testing.TB, exp, act interface{}) {
-	if !reflect.DeepEqual(exp, act) {
-		_, file, line, _ := runtime.Caller(1)
-		log.Println("expect:", exp)
-		log.Println("actual:", act)
-		es := fmt.Sprintf("%v", exp)
-		as := fmt.Sprintf("%v", act)
-		log.Println("expect:", es)
-		log.Println("actual:", as)
-		log.Println("expect:", []byte(es))
-		log.Println("actual:", []byte(as))
-		fmt.Println(filepath.Base(file), line)
-		tb.FailNow()
-	}
-}
-
 //
-// test helper ///////////////////////////////////////////////////////////////////////
 
 func readLines(filename string) (lines []string, err error) {
 	content, err := ioutil.ReadFile(filename)
@@ -87,5 +60,8 @@ func (p *checkDisplay) writeLine(line []string) {
 }
 
 func (p *checkDisplay) checkLines(t *testing.T, lines []string) {
-	assertEqual(t, p.lines, lines)
+	assert.Equal(t, lines, p.lines)
 }
+
+//
+// test helper ///////////////////////////////////////////////////////////////////////

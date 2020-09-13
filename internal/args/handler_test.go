@@ -5,8 +5,6 @@ package args
 
 import (
 	"fmt"
-	"github.com/rokath/trice/pkg/assert2"
-	"github.com/stretchr/testify/assert"
 	"io/ioutil"
 	"os"
 	"os/exec"
@@ -14,11 +12,14 @@ import (
 	"runtime"
 	"testing"
 	"time"
+
+	"github.com/rokath/trice/pkg/assert2"
+	"github.com/stretchr/testify/assert"
 )
 
 var ()
 
-func TestScVersion(t *testing.T) {
+func _TestScVersion(t *testing.T) {
 
 	fn := func() {
 		Handler([]string{"trice", "h"})

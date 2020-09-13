@@ -42,7 +42,7 @@ type TriceTranslator struct {
 	Err error
 
 	// This channel is used to stop the TriceInterpreter
-	// done chan int
+	done chan int
 
 	// values holds so far unused values for the next trice item.
 	values []uint16
@@ -84,7 +84,7 @@ func NewSimpleTrices(sw io.StringWriter, list *id.List, tr TriceAtomsReceiver) *
 	//p.atoms = make([]Trice, 0, 1000)
 	//p.ignored = make([]byte, 0, 1000)
 	p.values = make([]uint16, 0, 100)
-	//p.done = make(chan int)
+	p.done = make(chan int)
 	p.list = list
 
 	go func() {
@@ -103,8 +103,8 @@ func NewSimpleTrices(sw io.StringWriter, list *id.List, tr TriceAtomsReceiver) *
 					_, p.Err = sw.WriteString(s)
 				}
 
-				//case <-p.done:
-				//	return // end of life
+			case <-p.done:
+				return // end of life
 			}
 		}
 	}()
@@ -349,7 +349,7 @@ func langCtoGoFmtStingConverter(f string) (s string, u []bool, err error) {
 	return
 }
 
-// Stop ends life of TriceInterpreter
-// func (p *TriceTranslator) Stop() {
-// 	p.done <- 0
-// }
+// Stop ends life of TriceInterpreter.
+func (p *TriceTranslator) Stop() {
+	p.done <- 0
+}

@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/rokath/trice/internal/jlink"
+	"github.com/stretchr/testify/assert"
 )
 
 func Test1(t *testing.T) {
@@ -16,8 +17,6 @@ func Test1(t *testing.T) {
 		t.Fail()
 		return
 	}
-	err := p.Open()
-	assertEqual(t, nil, err)
-	err = p.Close()
-	assertEqual(t, nil, err)
+	assert.Nil(t, p.Open())
+	assert.Nil(t, p.Close())
 }

@@ -5,6 +5,7 @@
 package emitter
 
 import (
+	"github.com/stretchr/testify/assert"
 	"os"
 	"testing"
 	"time"
@@ -26,10 +27,10 @@ func TestRemoteDisplay(t *testing.T) {
 	time.Sleep(100 * time.Millisecond)
 	expLines, expErr := readLines(efn)
 	actLines, actErr := readLines(afn)
-	assertEqual(t, nil, expErr)
-	assertEqual(t, nil, actErr)
-	assertEqual(t, 9, len(expLines))
-	assertEqual(t, 9, len(actLines))
-	assertEqual(t, expLines[1:], actLines[1:])
-	assertNil(t, os.Remove(afn))
+	assert.Equal(t, nil, expErr)
+	assert.Equal(t, nil, actErr)
+	assert.Equal(t, 9, len(expLines))
+	assert.Equal(t, 9, len(actLines))
+	assert.Equal(t, expLines[1:], actLines[1:])
+	assert.Nil(t, os.Remove(afn))
 }

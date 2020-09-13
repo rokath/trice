@@ -10,7 +10,7 @@ import (
 	"github.com/fsnotify/fsnotify"
 )
 
-// FileWatcher checks id list file for changes
+// FileWatcher checks id List file for changes
 // taken from https://medium.com/@skdomino/watch-this-file-watching-in-go-5b5a247cf71f
 func (p *List) FileWatcher() {
 
@@ -55,10 +55,10 @@ func (p *List) FileWatcher() {
 	<-done
 }
 
-// renewIDList clears the internal id list and reads it again
+// renewIDList clears the internal id List and reads it again
 func (p *List) renewIDList() {
 	if "none" != p.FnJSON {
-		p.list = p.array[:0]
+		p.List = p.List[:0]
 		p.ReadListFile()
 	}
 }

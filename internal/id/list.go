@@ -1,10 +1,10 @@
 // Copyright 2020 Thomas.Hoehenleitner [at] seerose.net
 // Use of this source code is governed by a license that can be found in the LICENSE file.
 
-// Package id list is responsible for id list managing
+// Package id List is responsible for id List managing
 package id
 
-// list management
+// List management
 
 import (
 	"encoding/json"
@@ -37,26 +37,26 @@ type Item struct {
 	Removed int32  `json:"removed"` // utc unix time of disappearing in processed src directory
 }
 
-// List is the trice ID list
+// List is the trice ID List
 type List struct {
 
-	// FnJSON is the filename of the id list
+	// FnJSON is the filename of the id List
 	FnJSON string
 
-	// array is the undelying list array for List
-	array [65536]Item
+	// array is the undelying List array for List
+	//array [65536]Item
 
-	// list is a slice type containing the ID list.
-	list []Item
+	// List is a slice type containing the ID List.
+	List []Item
 
 	savedErr error
 }
 
-// NewList creates an ID list instance
+// NewList creates an ID List instance
 func NewList(fnJSON string) *List {
 	p := &List{}
 	p.FnJSON = fnJSON
-	p.list = p.array[:0]
+	p.List = make([]Item, 0, 65536)
 	return p
 }
 
@@ -69,27 +69,27 @@ func (p *List) ReadListFile() {
 		b, err := ioutil.ReadFile(p.FnJSON)
 		errorFatal(err)
 		if 0 < len(b) {
-			err = json.Unmarshal(b, &(p.list))
+			err = json.Unmarshal(b, &(p.List))
 			errorFatal(err)
 			// TODO: sort for binary search
 		}
 	}
 	if true == Verbose {
-		fmt.Println("Read ID list file", p.FnJSON, "with", len(p.list), "items.")
+		fmt.Println("Read ID List file", p.FnJSON, "with", len(p.List), "items.")
 	}
 }
 
-// WriteListFile marshalls p.list to p.fnJSON.
+// WriteListFile marshalls p.List to p.fnJSON.
 func (p *List) WriteListFile() {
-	b, err := json.MarshalIndent(p.list, "", "\t")
+	b, err := json.MarshalIndent(p.List, "", "\t")
 	errorFatal(err)
 	errorFatal(ioutil.WriteFile(p.FnJSON, b, 0644))
 }
 
 // ZeroTimestampCreated sets all timstamps 'created' to 0.
 func (p *List) ZeroTimestampCreated() {
-	for i := range p.list {
-		p.list[i].Created = 0
+	for i := range p.List {
+		p.List[i].Created = 0
 	}
 }
 
@@ -104,10 +104,10 @@ start:
 		if 0xef == ih || 0x89 == il || 0x89ab == id || 0xabcd == id || 0xcdef == id { // 515 ids forbidden, see bare.go
 			continue // next try
 		}
-		if 0 == len(p.list) {
+		if 0 == len(p.List) {
 			return
 		}
-		for _, item := range p.list { // todo: binary search
+		for _, item := range p.List { // todo: binary search
 			if id == item.ID {
 				goto start // id used
 			}
@@ -116,10 +116,10 @@ start:
 	}
 }
 
-// appendIfMissing is appending item to p.list.
+// appendIfMissing is appending item to p.List.
 // It returns true if item was missing or changed, otherwise false.
 func (p *List) appendIfMissing(item Item, verbose bool) (int, bool) {
-	for _, e := range p.list {
+	for _, e := range p.List {
 		if e.ID == item.ID { // if id exists
 			if (e.FmtType == item.FmtType) && (e.FmtStrg == item.FmtStrg) { // identical
 				if 0 == e.Removed { // is active
@@ -130,9 +130,9 @@ func (p *List) appendIfMissing(item Item, verbose bool) (int, bool) {
 				return item.ID, true
 			}
 			// arriving here means a data difference for the identical id between the actual file
-			// and the ID list. So a new ID is generated and goes with the actual file information
-			// into the ID list. Also the ID inside the file must be replaced with the new ID.
-			// The legacy ID inside the ID list can not invalidated here because it is possibly
+			// and the ID List. So a new ID is generated and goes with the actual file information
+			// into the ID List. Also the ID inside the file must be replaced with the new ID.
+			// The legacy ID inside the ID List can not invalidated here because it is possibly
 			// used  on a different place in unchanged form. The ID invalidation could be done
 			// globally later in a separate action.
 			if verbose {
@@ -143,7 +143,7 @@ func (p *List) appendIfMissing(item Item, verbose bool) (int, bool) {
 			item.ID = p.newID()
 			item.Created = int32(time.Now().Unix())
 			fmt.Println(item)
-			p.list = append(p.list, item)
+			p.List = append(p.List, item)
 			// Need to change file! Therefore the (new) ID is delivered back.
 			return item.ID, true
 		}
@@ -152,11 +152,11 @@ func (p *List) appendIfMissing(item Item, verbose bool) (int, bool) {
 		// If for some reason a huge amount of identical TRICEs should get identical
 		// IDs this could be done here.
 	}
-	p.list = append(p.list, item)
+	p.List = append(p.List, item)
 	return item.ID, true
 }
 
-// ExtendIDList returns id beause it could get changed when id is in list with different typ or fmts.
+// ExtendIDList returns id beause it could get changed when id is in List with different typ or fmts.
 // It is an exported function for simplyfing tests in other packets.
 func (p *List) ExtendIDList(id int, typ, fmts string, verbose bool) (int, bool) {
 	i := Item{
@@ -169,10 +169,10 @@ func (p *List) ExtendIDList(id int, typ, fmts string, verbose bool) (int, bool) 
 	return p.appendIfMissing(i, verbose)
 }
 
-// Index returns the index of id inside p.list. If id is not found it returns -1.
+// Index returns the index of id inside p.List. If id is not found it returns -1.
 func (p *List) Index(id int) int {
-	for i := range p.list {
-		iD := p.list[i].ID
+	for i := range p.List {
+		iD := p.List[i].ID
 		if id == iD {
 			return i
 		}
@@ -181,9 +181,9 @@ func (p *List) Index(id int) int {
 	return -1
 }
 
-// Item returns the trice item on index from the list
+// Item returns the trice item on index from the List
 func (p *List) Item(index int) Item {
-	return p.list[index]
+	return p.List[index]
 }
 
 // ScZero does replace all ID's in sourc tree with 0
@@ -222,24 +222,24 @@ func ScUpdate(fnJSON string) error {
 	return nil
 }
 
-// update does parse source tree, update IDs and is list
+// update does parse source tree, update IDs and is List
 func (p *List) update(dir string) error {
 	err := p.Update(dir, !DryRun, Verbose)
 	if nil != err {
 		return fmt.Errorf("failed update on %s with %s: %v", dir, p.FnJSON, err)
 	}
-	fmt.Println(len(p.list), "ID's in list", p.FnJSON)
+	fmt.Println(len(p.List), "ID's in List", p.FnJSON)
 	return nil
 }
 
-// ListNotFoundMsg give an output message about not found ID list.ListNotFoundMsg.
+// ListNotFoundMsg give an output message about not found ID List.ListNotFoundMsg.
 //
 // Base is used to avoid test issues in different operating systems.
 func ListNotFoundMsg(pathname string) {
 	if false == Verbose {
 		pathname = filepath.Base(pathname) // no path info (used for testing)
 	}
-	fmt.Println("ID list " + pathname + " not found")
+	fmt.Println("ID List " + pathname + " not found")
 }
 
 // errorFatal ends in osExit(1) if err not nil.
