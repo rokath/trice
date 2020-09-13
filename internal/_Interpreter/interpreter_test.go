@@ -41,7 +41,7 @@ func Test0(t *testing.T) {
 
 func Test1(t *testing.T) {
 	id.FnJSON = "testdata/til.json"
-	id.FnJSON = lib.ConditinalFilePath(id.FnJSON)
+	id.FnJSON = lib.ConditionalFilePath(id.FnJSON)
 	id.ReadListFile()
 	trices := make(chan []bare.Item, 4096)
 	d := display.New("default")

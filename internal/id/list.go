@@ -205,7 +205,7 @@ func ScUpdate(fnJSON string) error {
 	}
 	for i := range Srcs {
 		s := Srcs[i]
-		srcU := ConditinalFilePath(s)
+		srcU := ConditionalFilePath(s)
 		if _, err := os.Stat(srcU); err == nil { // path exists
 			err = p.update(srcU)
 			if nil != err {

@@ -1,11 +1,12 @@
 // Copyright 2020 Thomas.Hoehenleitner [at] seerose.net
 // Use of this source code is governed by a license that can be found in the LICENSE file.
 
-// Package assert provides hepler functions for testing.
+// Package assert2 provides hepler functions for testing.
 package assert2
 
 import (
 	"fmt"
+	"github.com/stretchr/testify/assert"
 	"io/ioutil"
 	"log"
 	"path/filepath"
@@ -20,34 +21,6 @@ import (
 // test helper ///////////////////////////////////////////////////////////////////////
 //
 
-// True fails the test if condition is false.
-func True(tb testing.TB, condition bool, msg string, v ...interface{}) {
-	if !condition {
-		_, file, line, _ := runtime.Caller(1)
-		fmt.Println(msg, filepath.Base(file), line, " ")
-		fmt.Println(v...)
-		tb.FailNow()
-	}
-}
-
-// False fails the test if condition is true.
-func False(tb testing.TB, condition bool, msg string, v ...interface{}) {
-	if condition {
-		_, file, line, _ := runtime.Caller(1)
-		fmt.Print(msg, filepath.Base(file), line, " ")
-		fmt.Println(v...)
-		tb.FailNow()
-	}
-}
-
-// // ErrorNil fails the test if an err is not nil.
-// func ErrorNil(tb testing.TB, err error) {
-// 	if err != nil {
-// 		_, file, line, _ := runtime.Caller(1)
-// 		fmt.Println(err.Error(), filepath.Base(file), line)
-// 		tb.FailNow()
-// 	}
-// }
 
 // Equal fails the test if exp is not equal to act.
 func Equal(tb testing.TB, exp, act interface{}) {
@@ -94,9 +67,9 @@ func EqualTextFiles(t *testing.T, fn0, fn1 string) {
 	// Read entire file content, giving us little control but
 	// making it very simple. No need to close the file.
 	b0, e0 := ioutil.ReadFile(fn0)
-	ErrorNil(t, e0)
+	assert.Nil(t, e0)
 	b1, e1 := ioutil.ReadFile(fn1)
-	ErrorNil(t, e1)
+	assert.Nil(t, e1)
 
 	// Convert []byte to string and print to screen
 	s0 := string(b0)

@@ -8,7 +8,7 @@ import (
 	"bytes"
 	"testing"
 
-	"github.com/rokath/trice/pkg/assert"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestNewTricesfromBare(t *testing.T) {
@@ -18,12 +18,11 @@ func TestNewTricesfromBare(t *testing.T) {
 	for {
 		select {
 		case bAct := <-p.ignoredCh:
-			bExp := []byte{106, 97, 114}
+			bExp := []byte{106, 97, 114, 1, 1, 1, 1}
 			assert.Equal(t, bExp, bAct)
 			bFlag = true
 		case tAct := <-p.atomsCh:
 			tExp := []Trice{
-				{ID: 0x0101, Value: 257},
 				{ID: 0x89ab, Value: 0xcdef},
 				{ID: 514, Value: 0x0202},
 				{ID: 771, Value: 0x0303},

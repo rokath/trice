@@ -299,12 +299,12 @@ func Handler(args []string) error {
 	case "u", "update":
 		fsScUpdate.Parse(subArgs)
 		injectValues()
-		fnJSON = id.ConditinalFilePath(fnJSON)
+		fnJSON = id.ConditionalFilePath(fnJSON)
 		return id.ScUpdate(fnJSON)
 
 	//case "check":
 	//	fsScCheck.Parse(subArgs)
-	//	id.FnJSON = id.ConditinalFilePath(id.FnJSON)
+	//	id.FnJSON = id.ConditionalFilePath(id.FnJSON)
 	//	cage.Enable()
 	//	defer cage.Disable()
 	//	return emitter.ScCheckList(*pSet)
@@ -378,7 +378,7 @@ func newReadCloser() (r io.ReadCloser, e error) {
 // Encoding
 func receiving() error {
 	translatePrefix()
-	fnJSON = id.ConditinalFilePath(fnJSON)
+	fnJSON = id.ConditionalFilePath(fnJSON)
 	if true == displayRemote {
 		var p *emitter.RemoteDisplay
 		if true == autostart {

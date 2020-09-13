@@ -19,9 +19,9 @@ var (
 	TimeStampFormat = "off"
 )
 
-// String is a needed method for some reason.
+// String method is the needed for interface satisfaction.
 func (i *ArrayFlag) String() string {
-	return "my string representation"
+	return ""
 }
 
 // Set is a needed method for multi flags.
@@ -30,8 +30,8 @@ func (i *ArrayFlag) Set(value string) error {
 	return nil
 }
 
-// ConditinalFilePath returns absolute file path if fn is not "off" or "none".
-func ConditinalFilePath(fn string) string {
+// ConditionalFilePath returns absolute file path if fn is not "off" or "none".
+func ConditionalFilePath(fn string) string {
 	if "none" == fn || "off" == fn {
 		return fn
 	}

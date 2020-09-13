@@ -8,12 +8,12 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/rokath/trice/pkg/assert"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestArrayFlag(t *testing.T) {
 	p := &Srcs
-	assert.Equal(t, "my string representation", p.String())
+	assert.Equal(t, "", p.String())
 
 	p.Set("ab")
 	p.Set("xyz")
@@ -21,14 +21,15 @@ func TestArrayFlag(t *testing.T) {
 	var af ArrayFlag
 	af = []string{"ab", "xyz"}
 	assert.Equal(t, af, Srcs)
+	assert.Equal(t, af.String(), Srcs.String())
 }
 
-func TestConditinalFilePath(t *testing.T) {
-	s := ConditinalFilePath("off")
+func TestConditionalFilePath(t *testing.T) {
+	s := ConditionalFilePath("off")
 	assert.Equal(t, "off", s)
-	s = ConditinalFilePath("none")
+	s = ConditionalFilePath("none")
 	assert.Equal(t, "none", s)
-	s = ConditinalFilePath("/tatue/tata")
+	s = ConditionalFilePath("/tatue/tata")
 	b := filepath.Base(s)
 	assert.Equal(t, b, "tata")
 }

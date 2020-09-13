@@ -5,11 +5,12 @@
 package id_test
 
 import (
+	"github.com/stretchr/testify/assert"
 	"os"
 	"testing"
 
 	"github.com/rokath/trice/internal/id"
-	"github.com/rokath/trice/pkg/assert"
+	"github.com/rokath/trice/pkg/assert2"
 	"github.com/rokath/trice/pkg/file"
 )
 
@@ -21,7 +22,7 @@ func TestWrite(t *testing.T) {
 	p.WriteListFile()
 
 	listAct := file.ReadString(fa)
-	assert.ErrorNil(t, os.RemoveAll(fa))
+	assert.Nil(t, os.RemoveAll(fa))
 	listExp := `[
 		{
 			"id": 12345,
@@ -31,7 +32,7 @@ func TestWrite(t *testing.T) {
 			"removed": 0
 		}
 	]`
-	assert.EqualLines(t, listExp, listAct)
+	assert2.EqualLines(t, listExp, listAct)
 }
 
 func TestZeroSourceTreeIds(t *testing.T) {
@@ -130,7 +131,7 @@ func TestZeroSourceTreeIds(t *testing.T) {
 	fn := file.Random(s, "", "*.c")
 	id.ZeroSourceTreeIds(fn, true)
 	act := file.ReadString(fn)
-	assert.ErrorNil(t, os.RemoveAll(fn))
+	assert.Nil(t, os.RemoveAll(fn))
 	exp := `
 	/*! \file triceCheck.c
 	\brief trices for tool evaluation
@@ -223,7 +224,7 @@ func TestZeroSourceTreeIds(t *testing.T) {
 		// 4 subtraces
 	} // sum 111 sub traces (need 444 bytes Buffet space)	
 	`
-	assert.EqualLines(t, exp, act)
+	assert2.EqualLines(t, exp, act)
 }
 
 func TestAppendItem(t *testing.T) {
@@ -243,7 +244,7 @@ func TestAppendItem(t *testing.T) {
 	p.WriteListFile()
 
 	sAct := file.ReadString(fa)
-	assert.ErrorNil(t, os.RemoveAll(fa))
+	assert.Nil(t, os.RemoveAll(fa))
 
 	sExp := `[
 		{
@@ -268,5 +269,5 @@ func TestAppendItem(t *testing.T) {
 			"removed": 0
 		}
 	]`
-	assert.EqualLines(t, sExp, sAct)
+	assert2.EqualLines(t, sExp, sAct)
 }

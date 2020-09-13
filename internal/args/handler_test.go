@@ -5,6 +5,8 @@ package args
 
 import (
 	"fmt"
+	"github.com/rokath/trice/pkg/assert2"
+	"github.com/stretchr/testify/assert"
 	"io/ioutil"
 	"os"
 	"os/exec"
@@ -121,12 +123,12 @@ func TestScVersion(t *testing.T) {
 		'trice zeroSourceTreeIds -dir ../A' sets all TRICE IDs to 0 in ./A
 		'trice v -v' shows verbose version information
 		`
-	assertEqualLines(t, exp, act)
+	assert2.EqualLines(t, exp, act)
 }
 
 func TestVersion(t *testing.T) {
 	fi, err := os.Stat(os.Args[0])
-	assertNil(t, err)
+	assert.Nil(t, err)
 	buildTime := fi.ModTime().String()
 	exp := "version=devel, built " + buildTime + "\n"
 
@@ -134,19 +136,19 @@ func TestVersion(t *testing.T) {
 		Handler([]string{"trice", "v"})
 	}
 	act := captureStdout(fn)
-	assertEqual(t, exp, act)
+	assert.Equal(t, exp, act)
 
 	fn = func() {
 		Handler([]string{"trice", "ver"})
 	}
 	act = captureStdout(fn)
-	assertEqual(t, exp, act)
+	assert.Equal(t, exp, act)
 
 	fn = func() {
 		Handler([]string{"trice", "version"})
 	}
 	act = captureStdout(fn)
-	assertEqual(t, exp, act)
+	assert.Equal(t, exp, act)
 }
 
 func Example_handlerNone() {
@@ -229,7 +231,7 @@ func frameForOsExitTests(parameters []string, exp string, t *testing.T) {
 	if len(act) > len(exp) { // because of os.Exit act sometimes has not always the same length
 		act = string(b[:len(exp)]) // shorten act to length of exp, exp has granted minumum length
 	}
-	assertEqual(t, exp, act)
+	assert.Equal(t, exp, act)
 }
 
 /*

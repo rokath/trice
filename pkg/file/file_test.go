@@ -5,10 +5,11 @@
 package file_test
 
 import (
+	"github.com/stretchr/testify/assert"
 	"os"
 	"testing"
 
-	"github.com/rokath/trice/pkg/assert"
+	"github.com/rokath/trice/pkg/assert2"
 	"github.com/rokath/trice/pkg/file"
 )
 
@@ -44,14 +45,14 @@ var (
 func TestCopy(t *testing.T) {
 	src := two
 	dest := two + ".copied"
-	assert.ErrorNil(t, file.Copy(src, dest))
-	assert.EqualFiles(t, src, dest)
-	assert.ErrorNil(t, os.Remove(dest))
+	assert.Nil(t, file.Copy(src, dest))
+	assert2.EqualFiles(t, src, dest)
+	assert.Nil(t, os.Remove(dest))
 }
 
 func TestCopyDir(t *testing.T) {
 	src := "./testdata/dir"
 	dest := src + ".copied"
-	assert.ErrorNil(t, file.CopyDir(src, dest))
-	assert.ErrorNil(t, os.RemoveAll(dest))
+	assert.Nil(t, file.CopyDir(src, dest))
+	assert.Nil(t, os.RemoveAll(dest))
 }
