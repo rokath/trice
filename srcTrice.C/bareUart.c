@@ -13,55 +13,6 @@ uint8_t  triceBytesBuffer[8]; //!< bytes transmit buffer
 int const triceBytesBufferIndexLimit = 8; // sizeof(triceBytesBuffer[8]);
 int triceBytesBufferIndex = triceBytesBufferIndexLimit;
 
-
-
-//! TRICE_SYNC is an optional trice sync message for syncing, when bare transmission is used.
-//! The value 35243 (0x89ab) is a reserved pattern used as ID with value DA 0xcdef.
-//! The byte sequence of the sync message is 0x89 0xab 0xcd 0xef.
-//! It cannot occure in the trice stream in another way due to ID generaion policy.
-//! Sync package is IDDA=89abcdef
-//!
-//! To avoid wrong syncing these ID's are excluded: xx89, abcd, cdef, efxx (514 pieces)
-//!
-//! Possible:    IH IL DH DL IH IL DH DL IH IL DH DL (1 right)
-//!              xx xx xx xx xx 89 ab cd ef xx xx xx -> avoid IL=89, IH=ef
-//!
-//! Possible:    IH IL DH DL IH IL DH DL IH IL DH DL (2 right)
-//!              xx xx xx xx xx xx 89 ab cd ef xx xx -> avoid ID=cdef
-//!
-//! Possible:    IH IL DH DL IH IL DH DL IH IL DH DL (3 right)
-//!              xx xx xx xx xx xx xx 89 ab cd ef xx -> avoid ID=abcd
-//!
-//! Sync packet: IH IL DH DL IH IL DH DL IH IL DH DL
-//!              xx xx xx xx 89 ab cd ef xx xx xx xx -> use ID=89ab with DA=cdef as sync packet
-//!
-//!  Possible:   IH IL DH DL IH IL DH DL IH IL DH DL (1 left)
-//!              xx xx xx 89 ab cd ef xx xx xx xx xx -> avoid ID=abcd
-//!
-//!  Possible:   IH IL DH DL IH IL DH DL IH IL DH DL (2 left)
-//!              xx xx 89 ab cd ef xx xx xx xx xx xx -> avoid ID=cdef
-//!
-//!  Possible:   IH IL DH DL IH IL DH DL IH IL DH DL (3 left)
-//!              xx 89 ab cd ef xx xx xx xx xx xx xx ->  avoid IL=nn89, IH=ef
-//!
-//! If an ID=89ab with DA!=cdef is detected -> out of sync!
-//! If an IH=ef is detected -> out of sync, all 256 IDs starting with 0xef are excluded
-//! If an IL=89 is detected -> out of sync, all 256 IDs ending with 0x89 are excluded
-//! If an ID=abcd is detected -> out of sync, ID 0xabcd is excluded
-//! If an ID=cdef is detected -> out of sync, ID 0xcdef is excluded
-//! ID 0x89ab is reserved for this trice sync package.
-//! The trice sync message payload must be 0xcdef.
-//! You must not change any of the above demands. Otherwise the syncing will not work.
-//! The Id(0x89ab) is here as hex value, so it is ignored by ID management.
-//! The trice sync string makes the trice sync info invisible just in case,
-//! but the trice tool will filter them out anyway. The trice tool automatic id generation
-//! follows these rules.
-#define TRICE_SYNC do{ TRICE16_1( Id(0x89ab), "%x\b\b\b\b", 0xcdef ); }while(0)
-
-
-
-
-
 //! tricePop gets one trice from trice fifo.
 //! \return trice id with 2 byte data in one uint32_t.
 TRICE_INLINE uint32_t tricePop(){

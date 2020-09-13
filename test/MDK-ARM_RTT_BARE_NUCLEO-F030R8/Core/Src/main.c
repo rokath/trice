@@ -89,6 +89,7 @@ int main(void)
   MX_GPIO_Init();
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
+    TRICE_SYNC;
     TRICE0( Id(25934), "s:                                        \ns:   ARM-MDK_RTT_BARE_NUCLEO-F030RB   \ns:                                        \n\n");
   /* USER CODE END 2 */
 
@@ -99,7 +100,9 @@ int main(void)
      { // every second
           static int lastSecond = 0;
           if( Second != lastSecond ){
-              triceCheckSet(Second);
+    TRICE_SYNC;
+    TRICE0( Id(25934), "s:                                        \ns:   ARM-MDK_RTT_BARE_NUCLEO-F030RB   \ns:                                        \n\n");
+              //triceCheckSet(Second);
               lastSecond = Second;
           }
       }
