@@ -106,7 +106,8 @@ int main(void)
       { // every second
           static int lastSecond = 0;
           if( Second != lastSecond ){
-              TRICE16_1( Id(13893), "DIAG: triceFifo max used bytes = %d\n", triceFifoMaxDepthTrices * sizeof(uint32_t) );
+              //13893
+              TRICE16_1( Id(22832), "debug:triceFifo max %d used bytes so far\n", triceFifoMaxDepthTrices * sizeof(uint32_t) );
               triceCheckSet(Second);
               lastSecond = Second;
           }

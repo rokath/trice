@@ -2665,5 +2665,12 @@
 		"fmtStrg": "DIAG: triceFifo max used bytes = %d\\n",
 		"created": 1599945921,
 		"removed": 0
+	},
+	{
+		"id": 22832,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "debug:triceFifo max %d used bytes so far\\n",
+		"created": 1599998069,
+		"removed": 0
 	}
 ]

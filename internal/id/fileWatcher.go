@@ -59,5 +59,6 @@ func (p *List) FileWatcher() {
 func (p *List) renewIDList() {
 	if "none" != p.FnJSON {
 		p.list = p.array[:0]
+		p.ReadListFile()
 	}
 }
