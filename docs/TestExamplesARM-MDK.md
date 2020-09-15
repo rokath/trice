@@ -13,6 +13,8 @@
   - [MDK-ARM_LL_RTTB_NUCLEO-F030R8](MDK-ARM_LL_RTTB_NUCLEO-F030R8.md)
     - ~ 16 clocks
   - [MDK-ARM_LL_RTTB_NUCLEO-F070RB](MDK-ARM_LL_RTTB_NUCLEO-F070RB.md)
+    - wrapped trices
+     to RTT
     - ~ 18 clocks
   - [MDK-ARM_LL_RTTD_NUCLEO-F030R8](MDK-ARM_LL_RTTD_NUCLEO-F030R8.md)
     - ~ 230 clocks

@@ -7,18 +7,18 @@
 
   <Targets>
     <Target>
-      <TargetName>MDK-ARM_RTT_BARE_NUCLEO-F030R8</TargetName>
+      <TargetName>MDK-ARM_RTT_BARE_NUCLEO-F070RB</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
       <pCCUsed>5060750::V5.06 update 6 (build 750)::.\ARMCC</pCCUsed>
       <uAC6>0</uAC6>
       <TargetOption>
         <TargetCommonOption>
-          <Device>STM32F030R8Tx</Device>
+          <Device>STM32F070RBTx</Device>
           <Vendor>STMicroelectronics</Vendor>
           <PackID>Keil.STM32F0xx_DFP.2.1.0</PackID>
           <PackURL>http://www.keil.com/pack/</PackURL>
-          <Cpu>IRAM(0x20000000-0x20001FFF) IROM(0x8000000-0x800FFFF) CLOCK(8000000) CPUTYPE("Cortex-M0")</Cpu>
+          <Cpu>IRAM(0x20000000-0x20003FFF) IROM(0x8000000-0x801FFFF) CLOCK(8000000) CPUTYPE("Cortex-M0")</Cpu>
           <FlashUtilSpec></FlashUtilSpec>
           <StartupFile></StartupFile>
           <FlashDriverDll></FlashDriverDll>
@@ -33,7 +33,7 @@
           <SLE66CMisc></SLE66CMisc>
           <SLE66AMisc></SLE66AMisc>
           <SLE66LinkerMisc></SLE66LinkerMisc>
-          <SFDFile>$$Device:STM32F030R8Tx$CMSIS\SVD\STM32F0x0.svd</SFDFile>
+          <SFDFile>$$Device:STM32F070RBTx$CMSIS\SVD\STM32F0x0.svd</SFDFile>
           <bCustSvd>0</bCustSvd>
           <UseEnv>0</UseEnv>
           <BinPath></BinPath>
@@ -48,8 +48,8 @@
             <NotGenerated>0</NotGenerated>
             <InvalidFlash>1</InvalidFlash>
           </TargetStatus>
-          <OutputDirectory>MDK-ARM_RTT_BARE_NUCLEO-F030R8\</OutputDirectory>
-          <OutputName>MDK-ARM_RTT_BARE_NUCLEO-F030R8</OutputName>
+          <OutputDirectory>MDK-ARM_RTT_BARE_NUCLEO-F070RB\</OutputDirectory>
+          <OutputName>MDK-ARM_RTT_BARE_NUCLEO-F070RB</OutputName>
           <CreateExecutable>1</CreateExecutable>
           <CreateLib>0</CreateLib>
           <CreateHexFile>1</CreateHexFile>
@@ -246,12 +246,12 @@
               <IRAM>
                 <Type>0</Type>
                 <StartAddress>0x20000000</StartAddress>
-                <Size>0x2000</Size>
+                <Size>0x4000</Size>
               </IRAM>
               <IROM>
                 <Type>1</Type>
                 <StartAddress>0x8000000</StartAddress>
-                <Size>0x10000</Size>
+                <Size>0x20000</Size>
               </IROM>
               <XRAM>
                 <Type>0</Type>
@@ -276,7 +276,7 @@
               <OCR_RVCT4>
                 <Type>1</Type>
                 <StartAddress>0x8000000</StartAddress>
-                <Size>0x10000</Size>
+                <Size>0x20000</Size>
               </OCR_RVCT4>
               <OCR_RVCT5>
                 <Type>1</Type>
@@ -301,7 +301,7 @@
               <OCR_RVCT9>
                 <Type>0</Type>
                 <StartAddress>0x20000000</StartAddress>
-                <Size>0x2000</Size>
+                <Size>0x4000</Size>
               </OCR_RVCT9>
               <OCR_RVCT10>
                 <Type>0</Type>
@@ -337,9 +337,9 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>USE_HAL_DRIVER,STM32F030x8</Define>
+              <Define>USE_HAL_DRIVER,STM32F070xB</Define>
               <Undefine></Undefine>
-              <IncludePath>../Core/Inc;C:/ST/CubeMX/STM32Cube_FW_F0_V1.11.0/Drivers/STM32F0xx_HAL_Driver/Inc;C:/ST/CubeMX/STM32Cube_FW_F0_V1.11.0/Drivers/STM32F0xx_HAL_Driver/Inc/Legacy;C:/ST/CubeMX/STM32Cube_FW_F0_V1.11.0/Drivers/CMSIS/Device/ST/STM32F0xx/Include;C:/ST/CubeMX/STM32Cube_FW_F0_V1.11.0/Drivers/CMSIS/Include;..\..\..\srcTrice.C</IncludePath>
+              <IncludePath>../Core/Inc;../Drivers/STM32F0xx_HAL_Driver/Inc;../Drivers/STM32F0xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32F0xx/Include;../Drivers/CMSIS/Include;..\..\..\srcTrice.C</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -384,34 +384,9 @@
           <GroupName>Application/MDK-ARM</GroupName>
           <Files>
             <File>
-              <FileName>startup_stm32f030x8.s</FileName>
+              <FileName>startup_stm32f070xb.s</FileName>
               <FileType>2</FileType>
-              <FilePath>startup_stm32f030x8.s</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>Trice</GroupName>
-          <Files>
-            <File>
-              <FileName>bare.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\srcTrice.C\bare.c</FilePath>
-            </File>
-            <File>
-              <FileName>bareRTT.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\srcTrice.C\bareRTT.c</FilePath>
-            </File>
-            <File>
-              <FileName>triceCheck.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\srcTrice.C\triceCheck.c</FilePath>
-            </File>
-            <File>
-              <FileName>SEGGER_RTT.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\third_party\SEGGER_RTT\RTT\SEGGER_RTT.c</FilePath>
+              <FilePath>startup_stm32f070xb.s</FilePath>
             </File>
           </Files>
         </Group>
@@ -441,87 +416,87 @@
             <File>
               <FileName>stm32f0xx_hal_tim.c</FileName>
               <FileType>1</FileType>
-              <FilePath>C:/ST/CubeMX/STM32Cube_FW_F0_V1.11.0/Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_tim.c</FilePath>
+              <FilePath>../Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_tim.c</FilePath>
             </File>
             <File>
               <FileName>stm32f0xx_hal_tim_ex.c</FileName>
               <FileType>1</FileType>
-              <FilePath>C:/ST/CubeMX/STM32Cube_FW_F0_V1.11.0/Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_tim_ex.c</FilePath>
+              <FilePath>../Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_tim_ex.c</FilePath>
             </File>
             <File>
               <FileName>stm32f0xx_hal_uart.c</FileName>
               <FileType>1</FileType>
-              <FilePath>C:/ST/CubeMX/STM32Cube_FW_F0_V1.11.0/Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_uart.c</FilePath>
+              <FilePath>../Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_uart.c</FilePath>
             </File>
             <File>
               <FileName>stm32f0xx_hal_uart_ex.c</FileName>
               <FileType>1</FileType>
-              <FilePath>C:/ST/CubeMX/STM32Cube_FW_F0_V1.11.0/Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_uart_ex.c</FilePath>
+              <FilePath>../Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_uart_ex.c</FilePath>
             </File>
             <File>
               <FileName>stm32f0xx_hal_rcc.c</FileName>
               <FileType>1</FileType>
-              <FilePath>C:/ST/CubeMX/STM32Cube_FW_F0_V1.11.0/Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_rcc.c</FilePath>
+              <FilePath>../Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_rcc.c</FilePath>
             </File>
             <File>
               <FileName>stm32f0xx_hal_rcc_ex.c</FileName>
               <FileType>1</FileType>
-              <FilePath>C:/ST/CubeMX/STM32Cube_FW_F0_V1.11.0/Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_rcc_ex.c</FilePath>
+              <FilePath>../Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_rcc_ex.c</FilePath>
             </File>
             <File>
               <FileName>stm32f0xx_hal.c</FileName>
               <FileType>1</FileType>
-              <FilePath>C:/ST/CubeMX/STM32Cube_FW_F0_V1.11.0/Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal.c</FilePath>
+              <FilePath>../Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal.c</FilePath>
             </File>
             <File>
               <FileName>stm32f0xx_hal_i2c.c</FileName>
               <FileType>1</FileType>
-              <FilePath>C:/ST/CubeMX/STM32Cube_FW_F0_V1.11.0/Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_i2c.c</FilePath>
+              <FilePath>../Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_i2c.c</FilePath>
             </File>
             <File>
               <FileName>stm32f0xx_hal_i2c_ex.c</FileName>
               <FileType>1</FileType>
-              <FilePath>C:/ST/CubeMX/STM32Cube_FW_F0_V1.11.0/Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_i2c_ex.c</FilePath>
+              <FilePath>../Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_i2c_ex.c</FilePath>
             </File>
             <File>
               <FileName>stm32f0xx_hal_gpio.c</FileName>
               <FileType>1</FileType>
-              <FilePath>C:/ST/CubeMX/STM32Cube_FW_F0_V1.11.0/Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_gpio.c</FilePath>
+              <FilePath>../Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_gpio.c</FilePath>
             </File>
             <File>
               <FileName>stm32f0xx_hal_dma.c</FileName>
               <FileType>1</FileType>
-              <FilePath>C:/ST/CubeMX/STM32Cube_FW_F0_V1.11.0/Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_dma.c</FilePath>
+              <FilePath>../Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_dma.c</FilePath>
             </File>
             <File>
               <FileName>stm32f0xx_hal_cortex.c</FileName>
               <FileType>1</FileType>
-              <FilePath>C:/ST/CubeMX/STM32Cube_FW_F0_V1.11.0/Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_cortex.c</FilePath>
+              <FilePath>../Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_cortex.c</FilePath>
             </File>
             <File>
               <FileName>stm32f0xx_hal_pwr.c</FileName>
               <FileType>1</FileType>
-              <FilePath>C:/ST/CubeMX/STM32Cube_FW_F0_V1.11.0/Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_pwr.c</FilePath>
+              <FilePath>../Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_pwr.c</FilePath>
             </File>
             <File>
               <FileName>stm32f0xx_hal_pwr_ex.c</FileName>
               <FileType>1</FileType>
-              <FilePath>C:/ST/CubeMX/STM32Cube_FW_F0_V1.11.0/Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_pwr_ex.c</FilePath>
+              <FilePath>../Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_pwr_ex.c</FilePath>
             </File>
             <File>
               <FileName>stm32f0xx_hal_flash.c</FileName>
               <FileType>1</FileType>
-              <FilePath>C:/ST/CubeMX/STM32Cube_FW_F0_V1.11.0/Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_flash.c</FilePath>
+              <FilePath>../Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_flash.c</FilePath>
             </File>
             <File>
               <FileName>stm32f0xx_hal_flash_ex.c</FileName>
               <FileType>1</FileType>
-              <FilePath>C:/ST/CubeMX/STM32Cube_FW_F0_V1.11.0/Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_flash_ex.c</FilePath>
+              <FilePath>../Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_flash_ex.c</FilePath>
             </File>
             <File>
               <FileName>stm32f0xx_hal_exti.c</FileName>
               <FileType>1</FileType>
-              <FilePath>C:/ST/CubeMX/STM32Cube_FW_F0_V1.11.0/Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_exti.c</FilePath>
+              <FilePath>../Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_exti.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -532,6 +507,31 @@
               <FileName>system_stm32f0xx.c</FileName>
               <FileType>1</FileType>
               <FilePath>../Core/Src/system_stm32f0xx.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>Trice</GroupName>
+          <Files>
+            <File>
+              <FileName>bare.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\srcTrice.C\bare.c</FilePath>
+            </File>
+            <File>
+              <FileName>bareRTT.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\srcTrice.C\bareRTT.c</FilePath>
+            </File>
+            <File>
+              <FileName>triceCheck.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\srcTrice.C\triceCheck.c</FilePath>
+            </File>
+            <File>
+              <FileName>SEGGER_RTT.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\third_party\SEGGER_RTT\RTT\SEGGER_RTT.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -548,7 +548,7 @@
       <component Cclass="CMSIS" Cgroup="CORE" Cvendor="ARM" Cversion="4.3.0" condition="CMSIS Core">
         <package name="CMSIS" schemaVersion="1.3" url="http://www.keil.com/pack/" vendor="ARM" version="4.5.0"/>
         <targetInfos>
-          <targetInfo name="MDK-ARM_RTT_BARE_NUCLEO-F030R8"/>
+          <targetInfo name="MDK-ARM_RTT_BARE_NUCLEO-F070RB"/>
         </targetInfos>
       </component>
     </components>

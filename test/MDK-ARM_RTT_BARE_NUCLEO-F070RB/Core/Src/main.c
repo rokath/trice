@@ -90,7 +90,7 @@ int main(void)
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
     TRICE_SYNC;
-    TRICE0( Id(30334), "s:                                        \ns:   ARM-MDK_RTT_BARE_NUCLEO-F030R8   \ns:                                        \n\n");
+    TRICE0( Id(25989), "s:                                        \ns:   ARM-MDK_RTT_BARE_NUCLEO-F070RB   \ns:                                        \n\n");
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -101,7 +101,7 @@ int main(void)
           static int lastSecond = 0;
           if( Second != lastSecond ){
               TRICE_SYNC;
-              TRICE0( Id(19506), "s:                                        \ns:   ARM-MDK_RTT_BARE_NUCLEO-F030R8   \ns:                                        \n\n");
+              TRICE0( Id(21866), "s:                                        \ns:   ARM-MDK_RTT_BARE_NUCLEO-F070RB   \ns:                                        \n\n");
               //triceCheckSet(Second);
               lastSecond = Second;
           }
@@ -130,7 +130,7 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
-  RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL12;
+  RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL6;
   RCC_OscInitStruct.PLL.PREDIV = RCC_PREDIV_DIV1;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
   {

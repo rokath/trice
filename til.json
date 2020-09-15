@@ -2679,5 +2679,33 @@
 		"fmtStrg": "s:                                        \\ns:   ARM-MDK_RTT_BARE_NUCLEO-F030RB   \\ns:                                        \\n\\n",
 		"created": 1600011926,
 		"removed": 0
+	},
+	{
+		"id": 25989,
+		"fmtType": "TRICE0",
+		"fmtStrg": "s:                                        \\ns:   ARM-MDK_RTT_BARE_NUCLEO-F070RB   \\ns:                                        \\n\\n",
+		"created": 1600165426,
+		"removed": 0
+	},
+	{
+		"id": 21866,
+		"fmtType": "TRICE0",
+		"fmtStrg": "s:                                        \\ns:   ARM-MDK_RTT_BARE_NUCLEO-F070RB   \\ns:                                        \\n\\n",
+		"created": 1600165426,
+		"removed": 0
+	},
+	{
+		"id": 30334,
+		"fmtType": "TRICE0",
+		"fmtStrg": "s:                                        \\ns:   ARM-MDK_RTT_BARE_NUCLEO-F030R8   \\ns:                                        \\n\\n",
+		"created": 1600165430,
+		"removed": 0
+	},
+	{
+		"id": 19506,
+		"fmtType": "TRICE0",
+		"fmtStrg": "s:                                        \\ns:   ARM-MDK_RTT_BARE_NUCLEO-F030R8   \\ns:                                        \\n\\n",
+		"created": 1600165430,
+		"removed": 0
 	}
 ]

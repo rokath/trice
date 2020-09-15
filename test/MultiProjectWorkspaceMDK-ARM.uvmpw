@@ -37,7 +37,6 @@
 
   <project>
     <PathAndName>.\MDK-ARM_LL_RTT_NUCLEO-F030R8\MDK-ARM\MDK-ARM_LL_RTT_NUCLEO-F030R8.uvprojx</PathAndName>
-    <NodeIsActive>1</NodeIsActive>
   </project>
 
   <project>
@@ -46,6 +45,7 @@
 
   <project>
     <PathAndName>.\MDK-ARM_LL_RTT1_NUCLEO-F091RC\MDK-ARM\MDK-ARM_LL_RTT1_NUCLEO-F091RC.uvprojx</PathAndName>
+    <NodeIsActive>1</NodeIsActive>
   </project>
 
   <project>

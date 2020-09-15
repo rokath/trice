@@ -26,7 +26,9 @@ func newBytesViewer(o io.Reader) (i io.Reader) {
 
 func (p *bytesViewer) Read(b []byte) (n int, e error) {
 	n, e = p.r.Read(b)
-	fmt.Println("bytesViewer:", e, n, b[:n])
+	if 0 != n {
+		fmt.Println("bytesViewer:", e, n, b[:n])
+	}
 	return
 }
 
@@ -49,7 +51,7 @@ func NewTricesfromBare(r io.Reader) *TriceReceiver {
 	p.ignoredCh = make(chan []byte) //, ignoredChannelCapacity)
 	go func() {
 		for {
-			if io.EOF != p.Err0 { // for testing
+			if io.EOF != p.Err0 { // for testing and file reading, p.Err0 is cleared on file watcher event.
 				p.readRaw()
 			}
 		}
@@ -113,7 +115,7 @@ const (
 	forbiddenIDLo = 0x89   // If an IL=  89   (137) is detected -> out of sync
 )
 
-// syncCheck returns -1 on success. On failure it returns the appropriate index number
+// syncCheck returns -1 on success. On failure it returns the appropriate index number.
 func (p *TriceReceiver) syncCheck(atoms []Trice) int {
 	for i, a := range atoms {
 		ih := byte(a.ID >> 8)
@@ -152,6 +154,7 @@ func (p *TriceReceiver) readRaw() {
 	p.syncBuffer = append(p.syncBuffer, receiveBuffer...) // merge
 	if len(p.syncBuffer) < triceSize {                    // got not the minimum amount of expected bytes
 		fmt.Println("Unexpected", p.Err0)
+		// p.Err0 = nil // clear error
 		return // assuming o.EOF == p.err
 	}
 

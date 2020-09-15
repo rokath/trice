@@ -13,8 +13,9 @@ import (
 	"log"
 	"os"
 	"os/exec"
-	"path/filepath"
 	"runtime"
+
+	"github.com/fsnotify/fsnotify"
 )
 
 var (
@@ -24,17 +25,17 @@ var (
 	// Param contails the command line parameters for JLinkRTTLogger
 	Param string
 
-	// exe is the JLinkRTTLogger executable name
-	jcmd string
+	// jlinkBinary is the JLinkRTTLogger executable .
+	jlinkBinary string
 
-	// dynLib is the JLinkRTTLogger used dynamic library name
-	dynLib string
+	// jlinkDynLib is the JLinkRTTLogger used dynamic library name.
+	jlinkDynLib string
 
-	// shell is the os specific calling environment
+	// shell is the os specific calling environment.
 	shell string
 
-	// clip is the os specific calling environment comandline beginning
-	clip string
+	// jlinkCmdLine is the os specific JLINK commandline.
+	jlinkCmdLine string
 
 	// jlink command handle
 	lcmdH *exec.Cmd
@@ -42,30 +43,30 @@ var (
 
 func init() {
 	if runtime.GOOS == "windows" {
-		jcmd = "JLinkRTTLogger.exe"
-		dynLib = "JLinkARM.dll"
+		jlinkBinary = "JLinkRTTLogger.exe"
+		jlinkDynLib = "JLinkARM.dll"
 		shell = "cmd"
-		clip = "/c "
+		jlinkCmdLine = "/c "
 	} else if runtime.GOOS == "linux" {
-		jcmd = "JLinkRTTLogger"
-		dynLib = "JLinkARM.so"
+		jlinkBinary = "JLinkRTTLogger"
+		jlinkDynLib = "JLinkARM.so"
 		shell = "gnome-terminal" // this only works for gnome based linux desktop env
-		clip = "-- /bin/bash -c "
+		jlinkCmdLine = "-- /bin/bash -c "
 	} else {
 		if Verbose {
 			fmt.Println("trice is running on unknown operating system, '-source JLINK' will not work.")
 		}
 	}
 	if Verbose {
-		fmt.Println(shell, jcmd, "JLINK executable expected to be in path for usage")
+		fmt.Println(shell, jlinkBinary, "JLINK executable expected to be in path for usage")
 	}
 }
 
 // JLINK is the Segger RealTime Transfer logger reader interface.
 type JLINK struct {
-	tlfN string   // tempLogFile name
-	tlfH *os.File // tempLogFile handle
-	Err  error
+	tempLogFileName   string
+	tempLogFileHandle *os.File
+	Err               error
 }
 
 // exists returns whether the given file or directory exists
@@ -89,21 +90,21 @@ func New(param string) *JLINK {
 	r := &JLINK{} // create SeggerRTT instance
 
 	// check environment
-	path, err := exec.LookPath(jcmd)
+	path, err := exec.LookPath(jlinkBinary)
 	if nil == err {
 		if Verbose {
 			fmt.Println(path, "found")
 		}
 	} else {
-		fmt.Println(jcmd, "not found")
+		fmt.Println(jlinkBinary, "not found")
 		return nil
 	}
 
 	// get a temporary file name
-	r.tlfH, _ = ioutil.TempFile(os.TempDir(), "trice-*.bin") // opens for read and write
-	r.tlfN = r.tlfH.Name()
-	r.tlfH.Close()
-	clip += jcmd + " " + param + " " + r.tlfN // full parameter string
+	r.tempLogFileHandle, _ = ioutil.TempFile(os.TempDir(), "trice-*.bin") // opens for read and write
+	r.tempLogFileName = r.tempLogFileHandle.Name()
+	r.tempLogFileHandle.Close()
+	jlinkCmdLine += jlinkBinary + " " + param + " " + r.tempLogFileName // full parameter string
 
 	return r
 }
@@ -113,39 +114,61 @@ func (p *JLINK) ErrorFatal() {
 	if nil == p.Err {
 		return
 	}
-	_, file, line, _ := runtime.Caller(1)
-	log.Fatal(p.Err, filepath.Base(file), line)
+	log.Panic("jlinkCmdLine =", jlinkCmdLine, "jlinkDynLib =", jlinkDynLib, "PATH ok?")
 }
 
 // Read() is part of the exported interface io.ReadCloser. It reads a slice of bytes.
 func (p *JLINK) Read(b []byte) (int, error) {
-	return p.tlfH.Read(b)
+	return p.tempLogFileHandle.Read(b)
 }
 
 // Close is part of the exported interface io.ReadCloser. It ends the connection.
 //
 // See https://stackoverflow.com/questions/11886531/terminating-a-process-started-with-os-exec-in-golang
 func (p *JLINK) Close() error {
-	var err error
-	return err
+	p.Err = p.tempLogFileHandle.Close()
+	p.ErrorFatal()
+	return os.Remove(p.tempLogFileName) // clean up
 }
 
 // Open starts the JLinkRTTLogger command with a temporary logfile
 //
-// THe temporary logfile is opened for reading.
+// The temporary logfile is opened for reading.
 func (p *JLINK) Open() error {
 	if Verbose {
-		fmt.Println("Start a process:", shell, clip)
+		fmt.Println("Start a process:", shell, jlinkCmdLine)
 	}
-	lcmdH = exec.Command(shell, clip)
+	lcmdH = exec.Command(shell, jlinkCmdLine)
 	p.Err = lcmdH.Start()
 	p.ErrorFatal()
 
-	p.tlfH, p.Err = os.Open(p.tlfN) // Open() opens a file with read only flag.
+	p.tempLogFileHandle, p.Err = os.Open(p.tempLogFileName) // Open() opens a file with read only flag.
 	p.ErrorFatal()
 
+	p.watchLogfile()
 	if Verbose {
-		fmt.Println("trice is reading from", p.tlfN)
+		fmt.Println("trice is watching and reading from", p.tempLogFileName)
 	}
 	return nil
+}
+
+// watchLogfile creates a new file watcher.
+func (p *JLINK) watchLogfile() {
+	var watcher *fsnotify.Watcher
+	watcher, p.Err = fsnotify.NewWatcher()
+	defer watcher.Close()
+	go func() {
+		for {
+			p.ErrorFatal()
+			select {
+			case event := <-watcher.Events: // watch for events
+				fmt.Printf("EVENT! %#v\n", event)
+
+			case p.Err = <-watcher.Errors: // watch for errors
+				fmt.Print("E")
+			}
+		}
+	}()
+	// out of the box fsnotify can watch a single file, or a single directory
+	p.Err = watcher.Add("xxxx")
 }
