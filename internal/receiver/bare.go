@@ -10,7 +10,7 @@ import (
 	"encoding/binary"
 	"fmt"
 	"io"
-	"reflect"
+	"time"
 )
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -26,9 +26,9 @@ func newBytesViewer(o io.Reader) (i io.Reader) {
 
 func (p *bytesViewer) Read(b []byte) (n int, e error) {
 	n, e = p.r.Read(b)
-	if 0 != n {
-		fmt.Println("bytesViewer:", e, n, b[:n])
-	}
+	//if 0 != n {
+	fmt.Println("bytesViewer:", e, n, b[:n])
+	//}
 	return
 }
 
@@ -51,9 +51,11 @@ func NewTricesfromBare(r io.Reader) *TriceReceiver {
 	p.ignoredCh = make(chan []byte) //, ignoredChannelCapacity)
 	go func() {
 		for {
-			if io.EOF != p.Err0 { // for testing and file reading, p.Err0 is cleared on file watcher event.
-				p.readRaw()
-			}
+			time.Sleep(1000 * time.Millisecond)
+			//p.Err0 = nil
+			//if io.EOF != p.Err0 { // for testing and file reading, p.Err0 is cleared on file watcher event.
+			p.readRaw()
+			//}
 		}
 	}()
 	return p
@@ -148,14 +150,19 @@ func (p *TriceReceiver) readRaw() {
 	// read to have at least triceSize bytes
 	var n int
 	receiveBuffer := make([]byte, receiveBufferCapacity)
-	n, p.Err0 = io.ReadAtLeast(p.r, receiveBuffer, minBytes)
-	receiveBuffer = receiveBuffer[:n] // set valid length
+	n, _ = io.ReadAtLeast(p.r, receiveBuffer, minBytes)
+	if 0 < n {
+		receiveBuffer = receiveBuffer[:n]
+	} else {
+		receiveBuffer = receiveBuffer[:0]
+	}
+	// set valid length
 
 	p.syncBuffer = append(p.syncBuffer, receiveBuffer...) // merge
 	if len(p.syncBuffer) < triceSize {                    // got not the minimum amount of expected bytes
 		fmt.Println("Unexpected", p.Err0)
-		// p.Err0 = nil // clear error
-		return // assuming o.EOF == p.err
+		p.Err0 = nil // clear error
+		return       // assuming o.EOF == p.err
 	}
 
 	// look for a sync point
@@ -210,7 +217,7 @@ func findSubSliceOffset(b, sub []byte) int {
 		return -s
 	}
 	for i := range b {
-		if i <= len(b)-s && reflect.DeepEqual(b[i:i+s], sub) {
+		if i <= len(b)-s && bytes.Equal(b[i:i+s], sub) {
 			return i
 		}
 	}

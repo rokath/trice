@@ -44,7 +44,12 @@ extern "C" {
 //! \param v trice
 //! trice time critical part
 TRICE_INLINE void tricePush( uint32_t v ){
-    SEGGER_RTT_Write(TRICE_RTT_CHANNEL, &v, sizeof(v));
+    uint8_t b[4];
+    b[0] = (uint8_t)(v>>24);
+    b[1] = (uint8_t)(v>>16);
+    b[2] = (uint8_t)(v>>8);
+    b[3] = (uint8_t)(v>>0);
+    SEGGER_RTT_Write(TRICE_RTT_CHANNEL, &b, sizeof(v));
 }
 
 #ifdef __cplusplus

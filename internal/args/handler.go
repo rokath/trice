@@ -102,7 +102,8 @@ func flagLogfile(p *flag.FlagSet) {
 }
 
 func flagVerbosity(p *flag.FlagSet) {
-	p.BoolVar(&Verbose, "v", false, "verbose, more informal output if used") // flag
+	p.BoolVar(&Verbose, "verbose", false, "verbose, more informal output if used") // flag
+	p.BoolVar(&Verbose, "v", false, "short for verbose")                           // flag
 }
 
 func flagIDList(p *flag.FlagSet) {

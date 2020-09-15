@@ -90,7 +90,7 @@ int main(void)
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
     TRICE_SYNC;
-    TRICE0( Id(30334), "s:                                        \ns:   ARM-MDK_RTT_BARE_NUCLEO-F030R8   \ns:                                        \n\n");
+    TRICE0( Id(23803), "s:                                        \ns:     ARM-MDK_RTT_BARE_NUCLEO-F030R8     \ns:                                        \n\n");
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -101,8 +101,8 @@ int main(void)
           static int lastSecond = 0;
           if( Second != lastSecond ){
               TRICE_SYNC;
-              TRICE0( Id(19506), "s:                                        \ns:   ARM-MDK_RTT_BARE_NUCLEO-F030R8   \ns:                                        \n\n");
-              //triceCheckSet(Second);
+              TRICE0( Id(57921), "s:                                        \ns:     ARM-MDK_RTT_BARE_NUCLEO-F030R8     \ns:                                        \n\n");
+              triceCheckSet(Second);
               lastSecond = Second;
           }
       }

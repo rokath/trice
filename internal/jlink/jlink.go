@@ -157,18 +157,63 @@ func (p *JLINK) watchLogfile() {
 	var watcher *fsnotify.Watcher
 	watcher, p.Err = fsnotify.NewWatcher()
 	defer watcher.Close()
+
 	go func() {
 		for {
+			var ok bool
+			var event fsnotify.Event
 			p.ErrorFatal()
 			select {
-			case event := <-watcher.Events: // watch for events
+			case event, ok = <-watcher.Events: // watch for events
+				if !ok {
+					continue //return
+				}
 				fmt.Printf("EVENT! %#v\n", event)
-
-			case p.Err = <-watcher.Errors: // watch for errors
-				fmt.Print("E")
+				if event.Op&fsnotify.Write == fsnotify.Write {
+					log.Println("modified file:", event.Name)
+				}
+			case p.Err, ok = <-watcher.Errors: // watch for errors
+				if !ok {
+					continue // return
+				}
 			}
 		}
 	}()
 	// out of the box fsnotify can watch a single file, or a single directory
-	p.Err = watcher.Add("xxxx")
+	p.Err = watcher.Add(p.tempLogFileName)
+}
+
+func xxxmain() {
+	watcher, err := fsnotify.NewWatcher()
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer watcher.Close()
+
+	done := make(chan bool)
+	go func() {
+		for {
+			select {
+			case event, ok := <-watcher.Events:
+				if !ok {
+					return
+				}
+				log.Println("event:", event)
+				if event.Op&fsnotify.Write == fsnotify.Write {
+					log.Println("modified file:", event.Name)
+				}
+			case err, ok := <-watcher.Errors:
+				if !ok {
+					return
+				}
+				log.Println("error:", err)
+			}
+		}
+	}()
+
+	err = watcher.Add("/tmp/foo")
+	if err != nil {
+		log.Fatal(err)
+	}
+	<-done
 }

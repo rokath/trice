@@ -64,6 +64,7 @@
             "args": ["log",
                      "-port",
                      "JLINK",
+                     "-verbose"
                      "-idlist",
                      "${workspaceFolder}/til.json",
                      "-key",

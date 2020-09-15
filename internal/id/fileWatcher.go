@@ -27,8 +27,8 @@ func (p *List) FileWatcher() {
 		for {
 			select {
 			// watch for events
-			case <-watcher.Events:
-				//fmt.Printf("EVENT! %#v\n", event)
+			case event, ok := <-watcher.Events:
+				fmt.Println("EVENT:", event, ok)
 
 				now = time.Now()
 				diff := now.Sub(last)
