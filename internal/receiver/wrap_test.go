@@ -1,0 +1,55 @@
+// Copyright 2020 Thomas.Hoehenleitner [at] seerose.net
+// Use of this source code is governed by a license that can be found in the LICENSE file.
+
+// Package wrap_test is a blackbox test.
+package receiver_test
+
+var ()
+
+/*
+func Test1(t *testing.T) {
+	r := bytes.NewReader([]byte{})
+	_, err := wrap.NewReader(r, "xxx")
+	assertEqual(t, errors.New("unknown encoding"), err)
+
+}
+
+// TestWrapInputWithSync checks disturbed wrapped input data reading
+func TestWrapInputWithSync(t *testing.T) {
+	r := bytes.NewReader([]byte{'j', 'a', 'r', 0xC0, 0x60, 0x60, 0xC0, 1, 1, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 0xC0, 0x60, 0x60, 0xC0, 8, 8, 5, 5})
+	x, err := wrap.NewReader(r, "wrap")
+	assertEqual(t, nil, err)
+
+	// read 3 baretrice items
+	act := make([]wrap.Item, 5)
+	n, err := x.Read(act)
+	assertEqual(t, nil, err)
+	assertEqual(t, 2, n)
+	act = act[:n]
+
+	exp := []wrap.Item{
+		{
+			Start:  0xC0,
+			Dest:   0x60,
+			Source: 0x60,
+			Crc:    0xC0,
+			BareV: bare.Item{
+				ID:    0x0101,
+				Value: [2]byte{0x02, 0x02},
+			},
+		},
+		{
+			Start:  0xC0,
+			Dest:   0x60,
+			Source: 0x60,
+			Crc:    0xC0,
+			BareV: bare.Item{
+				ID:    0x0808,
+				Value: [2]byte{0x05, 0x05},
+			},
+		},
+	}
+
+	assertEqual(t, exp, act)
+}
+*/

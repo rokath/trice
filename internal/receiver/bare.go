@@ -13,6 +13,12 @@ import (
 	"time"
 )
 
+// BareTriceReceiver is the TriceReceiver data struct for receiving bare trice data.
+type BareTriceReceiver struct {
+	TriceReceiver        // common components
+	syncBuffer    []byte // valid bytes inside syncArray
+}
+
 // NewTricesfromBare creates a TriceReceiver using r as internal reader.
 // It assumes bare coded trices in the byte stream.
 // It creates a trices channel and and sends the received trices to it.
@@ -21,8 +27,8 @@ import (
 // The sync condition is assumed generally. From time to time (aka every second)
 // a sync trice should be inside the byte stream. This sync trice must be on a
 // multiple of triceSice offset. If not, the appropriate count of bytes is ignored.
-func NewTricesfromBare(r io.Reader) *TriceReceiver {
-	p := &TriceReceiver{}
+func NewTricesfromBare(r io.Reader) *BareTriceReceiver {
+	p := &BareTriceReceiver{}
 	p.r = r // newBytesViewer(r) // dynamic debug helper
 
 	p.atomsCh = make(chan []Trice)  //triceChannelCapacity)
@@ -34,6 +40,15 @@ func NewTricesfromBare(r io.Reader) *TriceReceiver {
 		}
 	}()
 	return p
+}
+
+// String is the method for displaying the current TriceReceiver instance state.
+func (p *BareTriceReceiver) String() string {
+	s := fmt.Sprintf("syncBuffer= ")
+	for _, n := range p.syncBuffer {
+		s += fmt.Sprintf("%x ", n)
+	}
+	return s
 }
 
 // syncSyncBuffer checks p.syncBuffer for invalid patterns:
@@ -87,7 +102,7 @@ const (
 // any ignored bytes to the internal 'ignored' channel and stores internally an error code.
 // It looks for a sync point inside the internally read byte slice and ignores 1 to(triceSize-1) bytes
 // if the sync is not on a triceSize offset. If no sync point is found sync is assumed per default.
-func (p *TriceReceiver) readBare() {
+func (p *BareTriceReceiver) readBare() {
 	p.ErrorFatal()
 
 	leftovers := len(p.syncBuffer) // bytes buffered from last call
@@ -175,7 +190,7 @@ func findSubSliceOffset(b, sub []byte) int {
 }
 
 // syncCheck returns -1 on success. On failure it returns the appropriate index number.
-func (p *TriceReceiver) syncCheck(atoms []Trice) int {
+func (p *BareTriceReceiver) syncCheck(atoms []Trice) int {
 	for i, a := range atoms {
 		ih := byte(a.ID >> 8)
 		il := byte(a.ID)
