@@ -9,8 +9,8 @@
 package receiver
 
 import (
+	"bytes"
 	"io"
-	"time"
 )
 
 // encoding is used to enumerate input bytes stream encoding
@@ -22,45 +22,65 @@ const (
 	// The wrap format are 4 control bytes followed by 4 bytes BareItem
 	// start (==0xC0), dest, src, crc BareItem
 	// The crc is an exOr crc over bytes 0-2&4-7
-	wrapped encoding = iota
+	//wrapped encoding = iota
 
 	// WrapXTEACrypted assumes byte stream source are XTEA encrypted wrapp trice data
-	wrapXTEACrypted
+	//wrapXTEACrypted
 
 	// bytesBufferCapacity is the internal bufferered amount for syncing
 	bytesBufferCapacity int = 4096
 )
 
-// WrapTriceReceiver is the TriceReceiver data struct for receiving wrapped trice data.
-type WrapTriceReceiver struct {
-	TriceReceiver
-}
 
-// NewTricesfromWrap creates a TriceReceiver using r as internal reader.
-// It assumes wrap coded trices in the byte stream.
-// It creates a trices channel and and sends the received trices to it.
-// If an out of sync condition is detected some bytes from the beginning are ignored.
-// The ignored bytes are send to an also created ignored channel.
-func NewTricesfromWrap(r io.Reader) *WrapTriceReceiver {
-	p := &WrapTriceReceiver{}
-	p.r = r // newBytesViewer(r) // dynamic debug helper
+// type Wrap struct{
+// 	Start, Dest, Source, Crc byte
+// 	trice Trice
+// }
 
-	p.atomsCh = make(chan []Trice)  //triceChannelCapacity)
-	p.ignoredCh = make(chan []byte) //, ignoredChannelCapacity)
-	go func() {
-		for {
-			time.Sleep(100 * time.Millisecond) // todo: trigger from fileWatcher
-			p.readWrap()
+// // WrapTriceReceiver is the TriceReceiver data struct for receiving wrapped trice data.
+// type WrapTriceReceiver struct {
+// 	TriceReceiver
+// 	syncBuffer    []byte // valid bytes inside syncArray
+// 	wrapBuffer []Wrap
+// }
+
+var holdBuf = make([]byte,0,receiveBufferCapacity)
+var bareBuf = make([]byte,0,receiveBufferCapacity)
+
+ func evaluateWrap( w []byte )bool{
+ 	return true
+ }
+// NewBareReaderFromWrap creates an out io.Reader using in as internal reader.
+// It assumes wrap coded trices in the input byte stream.
+// It uses the wrapper bytes for syncing and removes them silently.
+func NewBareReaderFromWrap(in io.Reader)( out io.Reader ){
+	var buf = make([]byte, receiveBufferCapacity)
+	var n, _ = in.Read(buf)
+	holdBuf = append( holdBuf, buf[:n]...)
+	var i int
+	for i = range holdBuf {
+		if false == evaluateWrap( holdBuf[i:i+8]){
+			continue
 		}
-	}()
-	return p
+		bareBuf= append(bareBuf,holdBuf[i+4:i+8]...)
+		if i + 8 > len(holdBuf){
+			break
+		}
+		i += 8
+	}
+	holdBuf = holdBuf[i:]
+	out = bytes.NewReader(bareBuf)
+	return
 }
-
+/*
+type Wrap struct{
+	Start, Dest, Source, Crc byte
+	trice Trice
+}
 func (p *WrapTriceReceiver) readWrap() {
 
 }
 
-/*
 // Item is the wrap trice data type
 type Item struct {
 	Start, Dest, Source, Crc byte
