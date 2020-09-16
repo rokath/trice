@@ -1,7 +1,4 @@
-/*! \file trice.h
-\brief Software tracer header file
-\details This file is included in target code files. If TRICE_CODE is defined
-as NO_CODE (globally or file specific) the TRICE* macros generate no code.
+ /*! \file trice.h
 \author thomas.toehenleitner [at] seerose.net
 *******************************************************************************/
 
@@ -12,179 +9,19 @@ as NO_CODE (globally or file specific) the TRICE* macros generate no code.
 extern "C" {
 #endif
 
+//! used as TRICE_CODE macro option for more flash occupation, but decreases execution time and needs smaller buffers
+#define MORE_FLASH_AND_SPEED 30 //!< value is only to distinguish from LESS_FLASH and NO_CODE
+
+//! used as TRICE_CODE macro option for less flash occupation, but increases execution time and needs bigger buffers
+#define LESS_FLASH_AND_SPEED 20 //!< value is only to distinguish from MORE_FLASH and NO_CODE
+
+//! used as TRICE_CODE macro option for no trice code generation
+#define NO_CODE 10 //!< value is only to distinguish from MORE_FLASH or LESS_FLASH ans must be 0
+
+#include "triceConfigCompiler.h"
 #include "triceConfig.h"
-#include "triceTick.h"
-#include "triceWrite.h"
-#include "triceCheck.h"
-
-#ifdef ENCRYPT
-#include "xteaCrypto.h"
-#endif
-
-#ifndef TRICE_TRANSFER_PERIOD
-#define TRICE_TRANSFER_PERIOD 1
-#endif
-
-#ifndef TRICE_SERVE_PERIOD
-#define TRICE_SERVE_PERIOD 1
-#endif
-
-//! trice sync message for RTTdirect environments. The value 0x89ab is a reserved pattern used as ID with value 0xcdef.
-//! It cannot occure in the trice stream. You must not change that. Otherwise the RTTD syncing will not work.
-//! The Id(0x89ab) is here as hex value, so it is ignored by ID management.
-#define TRICE_SYNC do{ TRICE16_1( Id(0x89ab), "%x\b\b\b\b", 0xcdef ); }while(0)
-
-#ifdef TRICE_FILENAME
-#define TRICE_LOC do{ TRICE_FILENAME; TRICE16_1( Id( 6827), "msg: line %d ", __LINE__ ); }while(0) //!< trice filename and line
-#else
-#define TRICE_LOC do{                 TRICE16_1( Id( 9271), "msg: line %d ", __LINE__ ); }while(0)  //!< trice line
-#endif
-
-#if NO_CODE == TRICE_CODE
-#define TRICE_ASSERT( flag )
-#else
-#define TRICE_ASSERT( flag )               do{ if(!(flag)) { TRICE_LOC; TRICE0( Id(50085), "ERR:ASSERT failed\n" ); } }while(0) //!< report if flag is not true
-#endif
-
-#define ASSERT_OR_RETURN( flag )           do{ TRICE_ASSERT( flag ); if(!(flag)) { return; } }while(0) //!< report if flag is not true and return
-#define ASSERT_OR_RETURN_RESULT( flag, r ) do{ TRICE_ASSERT( flag ); if(!(flag)) { return r; } }while(0) //!< report if flag is not true and return
-
-#ifdef TRICE_PRINTF_ADAPTER
-
-#ifndef TRICE_RUNTIME_GENERATED_STRINGS_SUPPORT
-#error needs TRICE_RUNTIME_GENERATED_STRINGS_SUPPORT
-#endif
-
-int tricePrintfAdapter( const char* pFmt, ... ); //!< used in macro expansion, use not directly
-
-//! replacement for printf, sprintf and it relatives are writing in a buffer, use TRICE_S on that buffers
-#define TRICE_P( s, ... ) tricePrintfAdapter( s, __VA_ARGS__)
-
-#else
-
-#define TRICE_P( s, ... )
-
-#endif
-
-#if TRICE_CODE && defined TRICE_RUNTIME_GENERATED_STRINGS_SUPPORT
-
-void triceRuntimeGeneratedString( int rightBound, const char* s ); //!< used in macro expansion, use not directly
-
-//! out a runtime string, use TRICE0 for compile time strings
-//! \param n right bound position, use 0 for output in place
-//! \param s pointer to runtime generated string
-#define TRICE_S( n, s ) triceRuntimeGeneratedString( n, s )
-
-#else
-
-#define TRICE_S( n, s )
-
-#endif
-
-
-void TriceServeTransmission( void );
 
 #define Id( n ) (n) //!< Macro for improved trice readability and better source code parsing.
-
-#if NO_CODE != TRICE_CODE // trice code generation
-
-#include <stdint.h>
-#include <stdlib.h>
-#include <string.h>
-
-///////////////////////////////////////////////////////////////////////////////
-// TRICE message struct
-//
-
-typedef PACKED struct{
-    uint8_t start; // trice message header start value
-    uint8_t cad;   // client address
-    uint8_t sad;   // server address
-    uint8_t crc8;  // ab^cad^sad^load[0]^load[1]^load[2]^load[3]
-}PACKED_END triceMsgHeader_t; //!< trice message header for routing, syncing and conistency check
-
-typedef PACKED union {
-    PACKED struct{
-    uint16_t Id; // trice id
-    uint16_t d;  // 2 data byte
-    }PACKED_END trice;
-    uint8_t load[4]; // for crc8 computation
-    uint32_t atomicTrice;
-}PACKED_END triceMsgLoad_t; //!< trice message payload
-
-
-//! \code
-//! trice package: header without data packages
-//!   |--------------------------------- fixed packet start0 byte 0xeb
-//!   |   |----------------------------- client address (local address byte)
-//!   |   |   |------------------------- server address (destination)
-//!   |   |   |   |--------------------- exclusive-or checksum byte
-//!   |   |   |   |   |----------------- ID low part
-//!   |   |   |   |   |   |------------- ID high part
-//!   |   |   |   |   |   |   |--------- Value Low part
-//!   |   |   |   |   |   |   |   |----- Value High part
-//!   v   v   v   v   v   v   v   v
-//! 0xeb cad sad cr8 idL idH vaL  vaH
-//!
-//! com packet: header followed by 0...255 data packages
-//!   |--------------------------------- fixed packet start0 byte 0xc0
-//!   |   |----------------------------- following data package count fixed 1 for trice strings
-//!   |   |   |------------------------- server address (destination)
-//!   |   |   |   |--------------------- exclusive-or checksum byte
-//!   |   |   |   |   |----------------- type identifyer byte
-//!   |   |   |   |   |   |------------- function identifyer byte
-//!   |   |   |   |   |   |   |--------- packet index (2 lsb packet type and and 6 msb cycle counter)
-//!   |   |   |   |   |   |   |   |----- data package count
-//!   v   v   v   v   v   v   v   v
-//! 0xc0 cad sad cr8 tid fid pix dpc
-//!
-//! com type: (part of pix)
-//!       bit1      |      bit0       | meaning
-//!   COM_CMD_FLAG  | COM_ANSWER_FLAG |
-//! ----------------|-----------------|------------------------------------------
-//!         1       |        1        | \b Cmd = command expecting answer
-//!         0       |        1        | \b Ans = answer to a command expecting answer
-//!         1       |        0        | \b Msg = command not expecting an answer (message)
-//!         0       |        0        | \b Buf = trice string package, when 0xffff==tidfid
-//! \endcode
-//! trice message packet
-typedef PACKED struct {
-    triceMsgHeader_t hd; // header
-    triceMsgLoad_t ld; // payload
-}PACKED_END triceMsg_t;
-
-///////////////////////////////////////////////////////////////////////////////
-// fifo functionality
-//
-
-void tricePush( uint32_t v );
-void triceDirectWrite( uint32_t v );
-
-TRICE_INLINE void triceDirectWriteARM7( uint32_t v ){
-    unsigned SEGGER_RTT_WriteSkipNoLock(unsigned BufferIndex, const void* pData, unsigned NumBytes);
-    SEGGER_RTT_WriteSkipNoLock(0, &v, sizeof(uint32_t) );
-}
-
-void tricePushRTT( uint32_t v );
-
-#if defined( TRICE_FIFO_SIZE ) && TRICE_FIFO_SIZE > 0
-#define TRICE_FIFO_MASK ((TRICE_FIFO_SIZE>>2)-1) //!< max possible count of items in fifo
-
-extern uint32_t triceFifo[];
-extern uint32_t wrIndexTriceFifo;
-extern uint32_t maxTrices;
-
-//! put one trice into trice fifo
-//! \param v trice id with 2 byte data
-//! trice time critical part
-TRICE_INLINE void triceFifoPush( uint32_t v ){
-    triceFifo[wrIndexTriceFifo++] = v;
-    wrIndexTriceFifo &= TRICE_FIFO_MASK;
-}
-   
-#endif // #if defined( TRICE_FIFO_SIZE ) && TRICE_FIFO_SIZE > 0
-
-#endif // #if NO_CODE != TRICE_CODE
 
 #if NO_CODE == TRICE_CODE // no trice code generation
 
@@ -215,27 +52,34 @@ TRICE_INLINE void triceFifoPush( uint32_t v ){
 ///////////////////////////////////////////////////////////////////////////////
 // TRICE macros
 //
+/*
+Inside a 32 bit sequence the 16 bit ID comes first
+When several data, the real ID comes in the last 32 bit sequence.
+*/
 
-//! basic trice macro, assumes d16 to be
-//! id trice identifier
+//! basic trice macro
+//! \param id a 16 bit trice identifier, goes into upper 2 bytes to be transmitted first
 //! \param d16 a 16 bit value
 #define TRICE( id, d16 ) do{ \
-    TRICE_PUSH( (((uint32_t)(uint16_t)(d16))<<16) | (id)); \
+  /*TRICE_PUSH( (((uint32_t)(uint16_t)(d16))<<16) | (id));*/ \
+    TRICE_PUSH(((((uint32_t)(id))<<16)) | ((uint16_t)(d16))); \
 } while(0)
 
 //! basic trice macro, assumes d16 to be a 16 bit value
-//! id is 0
+//! id is 0, goes into upper 2 bytes to be transmitted first
 //! \param d16 a 16 bit value
 #define TRICE_ID0( d16 ) do{ \
-    TRICE_PUSH( ((uint32_t)(uint16_t)(d16))<<16); \
+    /*TRICE_PUSH( ((uint32_t)(uint16_t)(d16))<<16);*/ \
+    TRICE_PUSH((uint16_t)(d16)); \
 } while(0)
 
-//! trace Id protected (outside critical section)
+//! trace Id protected (outside critical section), 16 bit data are 0
 //! \param Id trice identifier
 //! \param pFmt formatstring for trice
 #define TRICE0( Id, pFmt ) do{ \
     TRICE_ENTER_CRITICAL_SECTION \
-    TRICE_PUSH( Id ); \
+    /*TRICE_PUSH( Id );*/ \
+    TRICE_PUSH( ((uint32_t)(Id))<<16 ); \
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
 
@@ -1167,8 +1011,49 @@ TRICE_INLINE void trice_64_2_ocs( uint16_t Id, uint64_t d0, uint64_t d1 ){
 
 #endif // #if LESS_FLASH_AND_SPEED == TRICE_CODE // #####################################
 
-void triceToWriteBuffer( void );
-void triceBareToWriteBuffer( void );
+//! TRICE_SYNC is an optional trice sync message for syncing, when bare transmission is used.
+//! The value 35243 (0x89ab) is a reserved pattern used as ID with value DA 0xcdef.
+//! The hex notation protects against unwanted automatic changes.
+//! The byte sequence of the sync message is 0x89 0xab 0xcd 0xef.
+//! It cannot occure in the trice stream in another way due to ID generaion policy.
+//! Sync package is IDDA=89abcdef
+//!
+//! To avoid wrong syncing these ID's are excluded: xx89, abcd, cdef, efxx (514 pieces)
+//!
+//! Possible:    IH IL DH DL IH IL DH DL IH IL DH DL (1 right)
+//!              xx xx xx xx xx 89 ab cd ef xx xx xx -> avoid IL=89, IH=ef
+//!
+//! Possible:    IH IL DH DL IH IL DH DL IH IL DH DL (2 right)
+//!              xx xx xx xx xx xx 89 ab cd ef xx xx -> avoid ID=cdef
+//!
+//! Possible:    IH IL DH DL IH IL DH DL IH IL DH DL (3 right)
+//!              xx xx xx xx xx xx xx 89 ab cd ef xx -> avoid ID=abcd
+//!
+//! Sync packet: IH IL DH DL IH IL DH DL IH IL DH DL
+//!              xx xx xx xx 89 ab cd ef xx xx xx xx -> use ID=89ab with DA=cdef as sync packet
+//!
+//!  Possible:   IH IL DH DL IH IL DH DL IH IL DH DL (1 left)
+//!              xx xx xx 89 ab cd ef xx xx xx xx xx -> avoid ID=abcd
+//!
+//!  Possible:   IH IL DH DL IH IL DH DL IH IL DH DL (2 left)
+//!              xx xx 89 ab cd ef xx xx xx xx xx xx -> avoid ID=cdef
+//!
+//!  Possible:   IH IL DH DL IH IL DH DL IH IL DH DL (3 left)
+//!              xx 89 ab cd ef xx xx xx xx xx xx xx ->  avoid IL=nn89, IH=ef
+//!
+//! If an ID=89ab with DA!=cdef is detected -> out of sync!
+//! If an IH=ef is detected -> out of sync, all 256 IDs starting with 0xef are excluded
+//! If an IL=89 is detected -> out of sync, all 256 IDs ending with 0x89 are excluded
+//! If an ID=abcd is detected -> out of sync, ID 0xabcd is excluded
+//! If an ID=cdef is detected -> out of sync, ID 0xcdef is excluded
+//! ID 0x89ab is reserved for this trice sync package.
+//! The trice sync message payload must be 0xcdef.
+//! You must not change any of the above demands. Otherwise the syncing will not work.
+//! The Id(0x89ab) is here as hex value, so it is ignored by ID management.
+//! The trice sync string makes the trice sync info invisible just in case,
+//! but the trice tool will filter them out anyway. The trice tool automatic id generation
+//! follows these rules.
+#define TRICE_SYNC do{ TRICE16_1( Id(0x89ab), "%x\b\b\b\b", 0xcdef ); }while(0)
 
 #ifdef __cplusplus
 }

@@ -70,10 +70,10 @@
             <nStopU2X>0</nStopU2X>
           </BeforeCompile>
           <BeforeMake>
-            <RunUserProg1>0</RunUserProg1>
-            <RunUserProg2>1</RunUserProg2>
-            <UserProg1Name></UserProg1Name>
-            <UserProg2Name>trice u -i ./../../til.json -src ./.. -v</UserProg2Name>
+            <RunUserProg1>1</RunUserProg1>
+            <RunUserProg2>0</RunUserProg2>
+            <UserProg1Name>trice u -i ../../../til.json -src ../../../ -v</UserProg1Name>
+            <UserProg2Name></UserProg2Name>
             <UserProg1Dos16Mode>0</UserProg1Dos16Mode>
             <UserProg2Dos16Mode>0</UserProg2Dos16Mode>
             <nStopB1X>0</nStopB1X>
@@ -339,7 +339,7 @@
               <MiscControls></MiscControls>
               <Define>USE_FULL_LL_DRIVER,HSE_VALUE=8000000,HSE_STARTUP_TIMEOUT=100,LSE_STARTUP_TIMEOUT=5000,LSE_VALUE=32768,HSI_VALUE=8000000,LSI_VALUE=40000,VDD_VALUE=3300,PREFETCH_ENABLE=1,INSTRUCTION_CACHE_ENABLE=0,DATA_CACHE_ENABLE=0,STM32F070xB</Define>
               <Undefine></Undefine>
-              <IncludePath>../Core/Inc;C:/ST/CubeMX/STM32Cube_FW_F0_V1.11.0/Drivers/STM32F0xx_HAL_Driver/Inc;C:/ST/CubeMX/STM32Cube_FW_F0_V1.11.0/Drivers/CMSIS/Device/ST/STM32F0xx/Include;C:/ST/CubeMX/STM32Cube_FW_F0_V1.11.0/Drivers/CMSIS/Include;..\..\..\srcTrice.C</IncludePath>
+              <IncludePath>../Core/Inc;C:/ST/CubeMX/STM32Cube_FW_F0_V1.11.0/Drivers/STM32F0xx_HAL_Driver/Inc;C:/ST/CubeMX/STM32Cube_FW_F0_V1.11.0/Drivers/CMSIS/Device/ST/STM32F0xx/Include;C:/ST/CubeMX/STM32Cube_FW_F0_V1.11.0/Drivers/CMSIS/Include;..\..\..\srcTrice.C;..\..\..\third_party\SEGGER_RTT\RTT</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -459,14 +459,24 @@
           <GroupName>Trice</GroupName>
           <Files>
             <File>
-              <FileName>bare.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\srcTrice.C\bare.c</FilePath>
-            </File>
-            <File>
               <FileName>triceCheck.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\srcTrice.C\triceCheck.c</FilePath>
+            </File>
+            <File>
+              <FileName>triceFifoUART.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\srcTrice.C\triceFifoUART.c</FilePath>
+            </File>
+            <File>
+              <FileName>triceSeggerRTT.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\srcTrice.C\triceSeggerRTT.c</FilePath>
+            </File>
+            <File>
+              <FileName>SEGGER_RTT.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\third_party\SEGGER_RTT\RTT\SEGGER_RTT.c</FilePath>
             </File>
           </Files>
         </Group>

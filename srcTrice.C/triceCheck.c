@@ -5,7 +5,7 @@
 *******************************************************************************/
 #define TRICE_FILENAME TRICE0( Id(59283), "rd_:triceCheck.c" );
 //#define TRICE_CODE NO_CODE // enable this line to disable trice code generation in this file object
-#include "bare.h"
+#include "trice.h"
 
 #include "main.h" // __get_PRIMASK
 

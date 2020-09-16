@@ -1,32 +1,35 @@
-/*! \file bareConfigUART.h
+/*! \file triceConfigFifoUART.h
 \author Thomas.Hoehenleitner [at] seerose.net
 *******************************************************************************/
 
-#ifndef BARE_CONFIG_UART_H_
-#define BARE_CONFIG_UART_H_
+#ifndef TRICE_CONFIG_FIFO_UART_H_
+#define TRICE_CONFIG_FIFO_UART_H_
 
 #include <stdint.h>
 #include "main.h" // hardware specific stuff
-#include "bareConfigCompiler.h"
+#include "triceConfigCompiler.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-//! TRICE_FIFO_BYTE_SIZE must be a power of 2, one trice needs 4 to 32 or one day more bytes.
-//! The fifo has to hold trice bursts until they are transmitted.
-//! It is transmitted with lower priority in the background for example with the UART tx interrupt.
-#define TRICE_FIFO_BYTE_SIZE 2048
-
 //! Set according to hardware
 #define TRICE_UART USART2 
+
+//! triceServeOut must be called cyclically like every 1-100 ms for examle in main loop or a background task.
+void triceServeOut( void );
+
+//! triceServeTransmit is to be lacated inside the according UART ISR.
+void triceServeTransmit( void );
+
+extern uint32_t triceFifoMaxDepthTrices; //!< usabble for diagnostics
 
 //! TRICE_BARE_SYNC_LEVEL is the max amount of trices bulk transmitted without a sync trice injected.
 //! Assuming triceServeOut() is called every ms this is also the max ms abount without a sync trice.
 //! Bigger numbers decrease the bandwidth needs but increase the possible loss of trices in case of
-//! re-sync need. A number of 10 is recommended: every 10 ms or 10 trices a sync trice is transmitted
-//! increasing the bandwidth need by 10% ans loosing 10 trices in the worst case.
-#define TRICE_BARE_SYNC_LEVEL 10
+//! re-sync need. A number of 10-100 is recommended: every 10-100 ms or 10-100 trices a sync trice is transmitted
+//! increasing the bandwidth need by 10-1% ans loosing 10 trices in the worst case.
+#define TRICE_BARE_SYNC_LEVEL 100
 
 //! Check if a new byte can be written into trice transmit register.
 //! \retval 0 == not empty
@@ -59,4 +62,4 @@ TRICE_INLINE void triceDisableTxEmptyInterrupt( void ){
 }
 #endif
 
-#endif /* BARE_CONFIG_UART_H_ */
+#endif /* TRICE_CONFIG_FIFO_UART_H_ */

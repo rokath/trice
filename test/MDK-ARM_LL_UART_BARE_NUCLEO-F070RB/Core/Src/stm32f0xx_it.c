@@ -23,7 +23,8 @@
 #include "stm32f0xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "bare.h"
+#include "trice.h"
+#include "triceFifoUART.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -129,13 +130,11 @@ void SysTick_Handler(void)
 	
 	  extern int milliSecond, Second;
 	  milliSecond++;
-	if( 1000 == milliSecond ){
+	  if( 1000 == milliSecond ){
 		milliSecond = 0;
 		Second++;
 	}
-	if( Second > 10 ){
-		  Second = 0;
-	}
+
   /* USER CODE END SysTick_IRQn 0 */
 
   /* USER CODE BEGIN SysTick_IRQn 1 */

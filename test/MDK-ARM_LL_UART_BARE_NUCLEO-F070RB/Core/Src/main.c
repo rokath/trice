@@ -22,7 +22,8 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "bare.h"
+#include "trice.h"
+#include "triceFifoUART.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -106,9 +107,10 @@ int main(void)
         { // every second
             static int lastSecond = 0;
             if( Second != lastSecond ){
+                TRICE0( Id(54442), "s:                                        \ns:   ARM-MDK_LL_UART_BARE_NUCLEO-F070RB   \ns:                                        \n\n");
                 TRICE16_1( Id(0x4433), "MSG: tryout %04x\n", 0x2211 );
-                TRICE16_1( Id( 8063), "DIAG: triceFifoMaxDepthTrices = %d\n", triceFifoMaxDepthTrices );
-                //triceCheckSet(Second);
+                // TRICE16_1( Id(0), "inf: triceFifoMaxDepthTrices = %d\n", triceFifoMaxDepthTrices );
+                triceCheckSet(Second%10);
                 lastSecond = Second;
             }
         }

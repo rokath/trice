@@ -221,5 +221,5 @@ func findSubSliceOffset(b, sub []byte) int {
 			return i
 		}
 	}
-	return -s
+	return 0
 }

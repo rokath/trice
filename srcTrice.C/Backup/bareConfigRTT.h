@@ -2,7 +2,7 @@
 \author Thomas.Hoehenleitner [at] seerose.net
 *******************************************************************************/
 
-#ifndef BARE_CONFIG_RTT_H_
+#if 0 //ndef BARE_CONFIG_RTT_H_
 #define BARE_CONFIG_RTT_H_
 
 #include "bareConfigCompiler.h"
@@ -38,19 +38,6 @@ extern "C" {
 #define SEGGER_RTT_MAX_NUM_UP_BUFFERS                   (3)    // Number of up-buffers (T->H) available on this target
 #define SEGGER_RTT_MAX_NUM_DOWN_BUFFERS                 (3)    // Number of down-buffers (H->T) available on this target
 */
-#include "SEGGER_RTT.h"
-
-//! put one trice into RTT0 buffer
-//! \param v trice
-//! trice time critical part
-TRICE_INLINE void tricePush( uint32_t v ){
-    uint8_t b[4];
-    b[0] = (uint8_t)(v>>24);
-    b[1] = (uint8_t)(v>>16);
-    b[2] = (uint8_t)(v>>8);
-    b[3] = (uint8_t)(v>>0);
-    SEGGER_RTT_Write(TRICE_RTT_CHANNEL, &b, sizeof(v));
-}
 
 #ifdef __cplusplus
 }
