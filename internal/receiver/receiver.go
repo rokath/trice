@@ -39,8 +39,7 @@ type Trice struct {
 // All recognized trice atoms as fetched are going as slices into the atoms channel.
 // Not used read bytes are sent to the ignored channel. Theses bytes could be garbage after out of sync or some different protocol.
 type TriceReceiver struct {
-	Err0       error        // if some error occured it is stored here
-	Err1       error        // if some error occured it is stored here
+	savedErr   error        // if some error occured it is stored here
 	r          io.Reader    // interface embedding
 	syncBuffer []byte       // valid bytes inside syncArray
 	atomsCh    chan []Trice // The received and unprocessed trice atoms are sent as slices to this channel.
@@ -67,3 +66,32 @@ func (p *TriceReceiver) TriceAtomsChannel() <-chan []Trice {
 func (p *TriceReceiver) IgnoredBytesChannel() <-chan []byte {
 	return p.ignoredCh
 }
+
+// ErrorFatal ends in osExit(1) if p.Err not nil.
+func (p *TriceReceiver) ErrorFatal() {
+	if nil != p.savedErr {
+		panic(p.savedErr)
+	}
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// dynamic debug helper
+//
+type bytesViewer struct {
+	r io.Reader
+}
+
+func newBytesViewer(o io.Reader) (i io.Reader) {
+	return &bytesViewer{o}
+}
+
+func (p *bytesViewer) Read(b []byte) (n int, e error) {
+	n, e = p.r.Read(b)
+	//if 0 != n {
+	fmt.Println("bytesViewer:", e, n, b[:n])
+	//}
+	return
+}
+
+//
+///////////////////////////////////////////////////////////////////////////////////////////////////

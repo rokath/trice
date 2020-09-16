@@ -13,28 +13,6 @@ import (
 	"time"
 )
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
-// dynamic debug helper
-//
-type bytesViewer struct {
-	r io.Reader
-}
-
-func newBytesViewer(o io.Reader) (i io.Reader) {
-	return &bytesViewer{o}
-}
-
-func (p *bytesViewer) Read(b []byte) (n int, e error) {
-	n, e = p.r.Read(b)
-	//if 0 != n {
-	fmt.Println("bytesViewer:", e, n, b[:n])
-	//}
-	return
-}
-
-//
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
 // NewTricesfromBare creates a TriceReceiver using r as internal reader.
 // It assumes bare coded trices in the byte stream.
 // It creates a trices channel and and sends the received trices to it.
@@ -52,20 +30,10 @@ func NewTricesfromBare(r io.Reader) *TriceReceiver {
 	go func() {
 		for {
 			time.Sleep(100 * time.Millisecond) // todo: trigger from fileWatcher
-			p.readRaw()
+			p.readBare()
 		}
 	}()
 	return p
-}
-
-// ErrorFatal ends in osExit(1) if p.Err not nil.
-func (p *TriceReceiver) ErrorFatal() {
-	if nil != p.Err0 {
-		panic(p.Err0)
-	}
-	if nil != p.Err1 {
-		panic(p.Err1)
-	}
 }
 
 // syncSyncBuffer checks p.syncBuffer for invalid patterns:
@@ -114,12 +82,12 @@ const (
 	forbiddenIDLo = 0x89   // If an IL=  89   (137) is detected -> out of sync
 )
 
-// readRaw uses inner reader p.r to read byte stream and assumes encoding 'raw' (=='bare') for interpretation.
+// readBare uses inner reader p.r to read byte stream and assumes encoding 'raw' (=='bare') for interpretation.
 // It sends a number of Trice items to the internal 'atoms' channel,
 // any ignored bytes to the internal 'ignored' channel and stores internally an error code.
 // It looks for a sync point inside the internally read byte slice and ignores 1 to(triceSize-1) bytes
 // if the sync is not on a triceSize offset. If no sync point is found sync is assumed per default.
-func (p *TriceReceiver) readRaw() {
+func (p *TriceReceiver) readBare() {
 	p.ErrorFatal()
 
 	leftovers := len(p.syncBuffer) // bytes buffered from last call
@@ -172,7 +140,7 @@ func (p *TriceReceiver) readRaw() {
 	}
 	atomsAvail := make([]Trice, atomsAvailCount) ////////////////////////////////////// TODO: avoid make here
 	buf := bytes.NewReader(p.syncBuffer)
-	p.Err1 = binary.Read(buf, binary.BigEndian, atomsAvail) // target received data are big endian
+	p.savedErr = binary.Read(buf, binary.BigEndian, atomsAvail) // target received data are big endian
 
 	// check atoms in buf for wrong sync
 	i := p.syncCheck(atomsAvail)
