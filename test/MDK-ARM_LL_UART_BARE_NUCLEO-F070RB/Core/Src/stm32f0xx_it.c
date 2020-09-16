@@ -127,13 +127,8 @@ void PendSV_Handler(void)
 void SysTick_Handler(void)
 {
   /* USER CODE BEGIN SysTick_IRQn 0 */
-	
-	  extern int milliSecond, Second;
+	  extern int milliSecond;
 	  milliSecond++;
-	  if( 1000 == milliSecond ){
-		milliSecond = 0;
-		Second++;
-	}
 
   /* USER CODE END SysTick_IRQn 0 */
 

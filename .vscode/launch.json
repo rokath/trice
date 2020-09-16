@@ -144,14 +144,15 @@
             ]
         },       
         {
-            "name": "trice l -s COMn",
+            "name": "trice l -g COM3",
             "type": "go",
             "request": "launch",
             "mode": "auto",
             "program": "${workspaceFolder}/cmd/trice",
             "env": {},
             "args": ["log",
-                     "-source",
+                     "-verbose",
+                     "-port",
                      "COM3",
                      "-baud",
                      "115200",

@@ -3,37 +3,12 @@
 *******************************************************************************/
 #include "triceFifoUART.h"
 
-
-
-/*
-
-extern uint32_t triceFifo[];
-extern uint32_t triceFifoWriteIndex;
-extern uint32_t triceFifoReadIndex;
-
-extern uint8_t triceBytesBuffer[8];
-extern int triceBytesBufferIndex;
-extern int const triceBytesBufferDone;
-
-unsigned triceFifoDepth( void );
-
-
-*/
-
-
-
-
 //! TRICE_FIFO_BYTE_SIZE must be a power of 2, one trice needs 4 to 32 or one day more bytes.
 //! The fifo has to hold trice bursts until they are transmitted.
 //! It is transmitted with lower priority in the background for example with the UART tx interrupt.
-#define TRICE_FIFO_BYTE_SIZE 512
-
+#define TRICE_FIFO_BYTE_SIZE 256
 
 #define TRICE_FIFO_MASK (((TRICE_FIFO_BYTE_SIZE)>>2)-1) //!< max possible trices count in fifo
-
-
-
-
 
 //! trice fifo instance, here are the trices buffered.
 ALIGN4 uint32_t triceFifo[ TRICE_FIFO_BYTE_SIZE>>2 ] ALIGN4_END;
@@ -45,7 +20,6 @@ uint8_t  triceBytesBuffer[8]; //!< bytes transmit buffer
 int const triceBytesBufferIndexLimit = 8; // sizeof(triceBytesBuffer[8]);
 int triceBytesBufferIndex = triceBytesBufferIndexLimit;
 
-
 //! tricePushFifo puts one trice into trice fifo.
 //! This is a trice time critical part.
 //! \param v trice id with 2 byte data
@@ -53,9 +27,6 @@ void tricePushFifoUART( uint32_t v ){
     triceFifo[triceFifoWriteIndex++] = v;
     triceFifoWriteIndex &= TRICE_FIFO_MASK;
 }
-
-
-
 
 //! tricePop gets one trice from trice fifo.
 //! \return trice id with 2 byte data in one uint32_t.

@@ -2756,5 +2756,103 @@
 		"fmtStrg": "s:                                        \\ns:     ARM-MDK_RTT_BARE_NUCLEO-F030R8     \\ns:                                        \\n\\n",
 		"created": 1600200399,
 		"removed": 0
+	},
+	{
+		"id": 36338,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "MSG: tryout %04x\\n",
+		"created": 1600262722,
+		"removed": 0
+	},
+	{
+		"id": 47238,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "MSG: tryout %04x\\n",
+		"created": 1600262920,
+		"removed": 0
+	},
+	{
+		"id": 17625,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "MSG: FifoMaxDepthTrices = %d\\n",
+		"created": 1600262920,
+		"removed": 0
+	},
+	{
+		"id": 54364,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "MSG: tryout %04x\\n",
+		"created": 1600262974,
+		"removed": 0
+	},
+	{
+		"id": 44833,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "MSG: TriceFifoMaxDepthTrices = %d\\n",
+		"created": 1600262974,
+		"removed": 0
+	},
+	{
+		"id": 25941,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "MSG: tryout %04x\\n",
+		"created": 1600263020,
+		"removed": 0
+	},
+	{
+		"id": 38072,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "MSG: TriceFifoMaxDepthTrices = %d\\n",
+		"created": 1600263020,
+		"removed": 0
+	},
+	{
+		"id": 50603,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "MSG: tryout %04x\\n",
+		"created": 1600263067,
+		"removed": 0
+	},
+	{
+		"id": 13241,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "MSG: triceFifoMaxDepthTrices = %d\\n",
+		"created": 1600263067,
+		"removed": 0
+	},
+	{
+		"id": 16158,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "MSG: triceFifoMaxDepthBytes = %d\\n",
+		"created": 1600263540,
+		"removed": 0
+	},
+	{
+		"id": 47378,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "MSG: triceFifoMaxDepthBytes = %d\\n",
+		"created": 1600263623,
+		"removed": 0
+	},
+	{
+		"id": 28443,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "MSG: triceFifoMaxDepthBytes = %d\\n",
+		"created": 1600263657,
+		"removed": 0
+	},
+	{
+		"id": 11176,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "MSG: triceFifoMaxDepthBytes = %d\\n",
+		"created": 1600263696,
+		"removed": 0
+	},
+	{
+		"id": 36847,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "MSG: triceFifoMaxDepthBytes = %d\\n",
+		"created": 1600266568,
+		"removed": 0
 	}
 ]

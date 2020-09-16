@@ -104,22 +104,22 @@ int main(void)
   /* USER CODE BEGIN WHILE */
     while (1)
     {
-        { // every second
-            static int lastSecond = 0;
-            if( Second != lastSecond ){
-                TRICE0( Id(54442), "s:                                        \ns:   ARM-MDK_LL_UART_BARE_NUCLEO-F070RB   \ns:                                        \n\n");
-                TRICE16_1( Id(0x4433), "MSG: tryout %04x\n", 0x2211 );
-                // TRICE16_1( Id(0), "inf: triceFifoMaxDepthTrices = %d\n", triceFifoMaxDepthTrices );
-                triceCheckSet(Second%10);
-                lastSecond = Second;
+        static int lastTricesTime = 0;
+        { // send some trices every few ms
+            if( milliSecond >= lastTricesTime + 100 ){
+                static int index = 0;
+                TRICE16_1( Id(36847),"MSG: triceFifoMaxDepthBytes = %d\n", triceFifoMaxDepthTrices*4 );
+                triceCheckSet(index%10);
+                index++;
+                lastTricesTime = milliSecond;
             }
         }
   /* USER CODE END WHILE */
 
   /* USER CODE BEGIN 3 */
-        { // check every ms
+        { // serve every few ms
             static int lastMs = 0;
-            if( milliSecond != lastMs ){
+            if( milliSecond >= lastMs + 1 ){
                 lastMs = milliSecond;
                 triceServeOut();
             }

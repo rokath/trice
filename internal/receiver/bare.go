@@ -38,24 +38,21 @@ func (p *bytesViewer) Read(b []byte) (n int, e error) {
 // NewTricesfromBare creates a TriceReceiver using r as internal reader.
 // It assumes bare coded trices in the byte stream.
 // It creates a trices channel and and sends the received trices to it.
-// If an out of sync condition is detected 1 to (triceSize-1) bytes are ignored.
+// If an out of sync condition is detected some bytes from the beginning are ignored.
 // The ignored bytes are send to an also created ignored channel.
 // The sync condition is assumed generally. From time to time (aka every second)
 // a sync trice should be inside the byte stream. This sync trice must be on a
 // multiple of triceSice offset. If not, the appropriate count of bytes is ignored.
 func NewTricesfromBare(r io.Reader) *TriceReceiver {
 	p := &TriceReceiver{}
-	p.r = newBytesViewer(r) // dynamic debug helper
+	p.r = r // newBytesViewer(r) // dynamic debug helper
 
 	p.atomsCh = make(chan []Trice)  //triceChannelCapacity)
 	p.ignoredCh = make(chan []byte) //, ignoredChannelCapacity)
 	go func() {
 		for {
-			time.Sleep(1000 * time.Millisecond)
-			//p.Err0 = nil
-			//if io.EOF != p.Err0 { // for testing and file reading, p.Err0 is cleared on file watcher event.
+			time.Sleep(100 * time.Millisecond) // todo: trigger from fileWatcher
 			p.readRaw()
-			//}
 		}
 	}()
 	return p
@@ -117,18 +114,6 @@ const (
 	forbiddenIDLo = 0x89   // If an IL=  89   (137) is detected -> out of sync
 )
 
-// syncCheck returns -1 on success. On failure it returns the appropriate index number.
-func (p *TriceReceiver) syncCheck(atoms []Trice) int {
-	for i, a := range atoms {
-		ih := byte(a.ID >> 8)
-		il := byte(a.ID)
-		if forbIddenID0 == a.ID || forbIddenID1 == a.ID || forbiddenIDHi == ih || forbiddenIDLo == il {
-			return i
-		}
-	}
-	return -1
-}
-
 // readRaw uses inner reader p.r to read byte stream and assumes encoding 'raw' (=='bare') for interpretation.
 // It sends a number of Trice items to the internal 'atoms' channel,
 // any ignored bytes to the internal 'ignored' channel and stores internally an error code.
@@ -156,13 +141,10 @@ func (p *TriceReceiver) readRaw() {
 	} else {
 		receiveBuffer = receiveBuffer[:0]
 	}
-	// set valid length
 
 	p.syncBuffer = append(p.syncBuffer, receiveBuffer...) // merge
 	if len(p.syncBuffer) < triceSize {                    // got not the minimum amount of expected bytes
-		fmt.Println("Unexpected", p.Err0)
-		p.Err0 = nil // clear error
-		return       // assuming o.EOF == p.err
+		return // no data
 	}
 
 	// look for a sync point
@@ -170,12 +152,12 @@ func (p *TriceReceiver) readRaw() {
 	if o < 0 { // wait for more data
 		return
 	}
-	//adjust := o % triceSize // expect to be 0, can be 0...3
+	adjust := o % triceSize // expect to be 0, can be 0...3
 
-	if 0 != o%triceSize { // out of sync
+	if 0 != adjust { // out of sync
 		if Verbose {
 			fmt.Printf("############################# Out of sync: o=%d ", o)
-			fmt.Println(p)
+			//fmt.Println(p)
 		}
 		p.ignoredCh <- p.syncBuffer[:o] // send dropped bytes as slice to ignored channel
 		p.syncBuffer = p.syncBuffer[o:] // drop 1 to (triceSize-1) bytes
@@ -185,7 +167,7 @@ func (p *TriceReceiver) readRaw() {
 	atomsAvailCount := len(p.syncBuffer) / triceSize
 	if 0 == atomsAvailCount {
 		fmt.Println("++++++++++++++++++++++++++++ convert from syncBuffer into Trice slice, try to read more")
-		fmt.Println(p)
+		//fmt.Println(p)
 		return // try to read more
 	}
 	atomsAvail := make([]Trice, atomsAvailCount) ////////////////////////////////////// TODO: avoid make here
@@ -199,7 +181,7 @@ func (p *TriceReceiver) readRaw() {
 			fmt.Printf("Sync issue, trice atom %d has unexpected id=%x. ", i, atomsAvail[i].ID)
 			fmt.Println(p)
 		}
-		ign := i * triceSize
+		ign := (i + 1) * triceSize
 		p.ignoredCh <- p.syncBuffer[:ign] // send dropped byte (as slice) to ignored channel
 		p.syncBuffer = p.syncBuffer[ign:] // drop 1 byte
 		return                            // try to read more
@@ -222,4 +204,16 @@ func findSubSliceOffset(b, sub []byte) int {
 		}
 	}
 	return 0
+}
+
+// syncCheck returns -1 on success. On failure it returns the appropriate index number.
+func (p *TriceReceiver) syncCheck(atoms []Trice) int {
+	for i, a := range atoms {
+		ih := byte(a.ID >> 8)
+		il := byte(a.ID)
+		if forbIddenID0 == a.ID || forbIddenID1 == a.ID || forbiddenIDHi == ih || forbiddenIDLo == il {
+			return i
+		}
+	}
+	return -1
 }
