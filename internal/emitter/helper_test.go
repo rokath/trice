@@ -8,13 +8,10 @@ import (
 	"fmt"
 	"io/ioutil"
 
-	"github.com/stretchr/testify/assert"
-
 	"math/rand"
 
 	"runtime"
 	"strings"
-	"testing"
 	"time"
 )
 
@@ -59,9 +56,9 @@ func (p *checkDisplay) writeLine(line []string) {
 	p.lines = append(p.lines, s)
 }
 
-func (p *checkDisplay) checkLines(t *testing.T, lines []string) {
-	assert.Equal(t, lines, p.lines)
-}
+// func (p *checkDisplay) checkLines(t *testing.T, lines []string) {
+// 	assert.Equal(t, lines, p.lines)
+// }
 
 //
 // test helper ///////////////////////////////////////////////////////////////////////

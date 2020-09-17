@@ -5,9 +5,10 @@
 package emitter
 
 import (
-	"github.com/stretchr/testify/assert"
 	"strings"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func Test1colorize(t *testing.T) {
@@ -63,5 +64,5 @@ func Test1writeLine(t *testing.T) {
 	q.writeLine(l)
 	ep := strings.Join([]string{"M:msg", "I:Info", "End"}, "")
 	eq := strings.Join([]string{"M:msg", "I:Info", "wrn:End"}, "")
-	lw.checkLines(t, []string{ep, eq})
+	assert.Equal(t, []string{ep, eq}, lw.lines)
 }

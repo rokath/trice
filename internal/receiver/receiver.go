@@ -8,6 +8,7 @@ package receiver
 import (
 	"fmt"
 	"io"
+	"time"
 )
 
 const (
@@ -21,9 +22,6 @@ const (
 var (
 	// Verbose gives more information on output if set. This variable is set outside this package.
 	Verbose bool
-
-	// syncTrice is a trice emitted regularely by the target for making sure all gets in sync again after some disruption.
-	syncTrice = []byte{0x89, 0xab, 0xcd, 0xef} // idHi, idLo, daHi, daLo <- big endian is the network order, id transmitted first
 )
 
 // Trice is the bare Trice data type for a Trice atom.
@@ -59,6 +57,11 @@ func (p *TriceReceiver) IgnoredBytesChannel() <-chan []byte {
 
 // ErrorFatal ends in osExit(1) if p.Err not nil.
 func (p *TriceReceiver) ErrorFatal() {
+	if io.EOF == p.savedErr {
+		time.Sleep(200 * time.Millisecond)
+		p.savedErr = nil
+		return
+	}
 	if nil != p.savedErr {
 		panic(p.savedErr)
 	}
@@ -77,9 +80,10 @@ func newBytesViewer(o io.Reader) (i io.Reader) {
 
 func (p *bytesViewer) Read(b []byte) (n int, e error) {
 	n, e = p.r.Read(b)
-	//if 0 != n {
-	fmt.Println("bytesViewer:", e, n, b[:n])
-	//}
+
+	a := make([]byte, n)
+	copy(a, b)
+	fmt.Println("bytesViewer:", e, n, a)
 	return
 }
 

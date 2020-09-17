@@ -52,25 +52,17 @@ type TriceTranslator struct {
 
 	// item is the next trice item ready for output, if item is not 0.
 	item id.Item
-
-	// lineComplete is set when a line is complete.
-	//lineComplete bool
-
-	// sw is the interface for writing a whole line to the display.
-	// When a line is complete, its []string slice is converted to one single string for output.
-	// This simplifies the output interface and avoids partial lines to be mixed from several sources.
-	//sw io.StringWriter
 }
 
-// String is the method for displaying the current TriceTranslator instance.
-func (p *TriceTranslator) String() string {
-	s := fmt.Sprintf("ID=%d=%x", p.item.ID, p.item.ID)
-	s += fmt.Sprintf("values in hex: ")
-	for _, n := range p.values {
-		s += fmt.Sprintf("%x ", n)
-	}
-	return s
-}
+// // String is the method for displaying the current TriceTranslator instance.
+// func (p *TriceTranslator) String() string {
+// 	s := fmt.Sprintf("ID=%d=%x", p.item.ID, p.item.ID)
+// 	s += fmt.Sprintf("values in hex: ")
+// 	for _, n := range p.values {
+// 		s += fmt.Sprintf("%x ", n)
+// 	}
+// 	return s
+// }
 
 // NewSimpleTrices gets its data from the TriceAtomsReceiver interface tr.
 // It uses the io.StringWriter interface sw to write the trice strings looked up in id.List
@@ -78,11 +70,6 @@ func (p *TriceTranslator) String() string {
 // It does not evaluate the TriceInterpreter ignored bytes ('Simple'Trices).
 func NewSimpleTrices(sw io.StringWriter, list *id.List, tr TriceAtomsReceiver) *TriceTranslator {
 	p := &TriceTranslator{}
-	//p.atomsChannel = tr.TriceAtomsChannel()
-	//p.ignoredChannel = tr.IgnoredBytesChannel()
-	//p.sw = sw
-	//p.atoms = make([]Trice, 0, 1000)
-	//p.ignored = make([]byte, 0, 1000)
 	p.values = make([]uint16, 0, 100)
 	p.done = make(chan int)
 	p.list = list
@@ -136,7 +123,7 @@ func (p *TriceTranslator) ErrorFatal() {
 // This is usually the case when trice.ID is 0 and only data payload is to store.
 func (p *TriceTranslator) translate(trice Trice) (s string) {
 	if nil != p.Err {
-		s = redBalk + fmt.Sprintln("+++++++++++++++++++++++", p.Err, p.values)
+		s = redBalk + fmt.Sprintln(p.Err, p.values)
 		p.values = p.values[:0]
 		p.Err = nil
 		return
@@ -148,7 +135,6 @@ func (p *TriceTranslator) translate(trice Trice) (s string) {
 			}
 			p.values = p.values[:0]
 		}
-		//s = fmt.Sprintln("debug:~")
 		return
 	}
 	p.values = append(p.values, trice.Value) // append the uint16 date of the current trice
@@ -158,7 +144,7 @@ func (p *TriceTranslator) translate(trice Trice) (s string) {
 	index := p.list.Index(int(trice.ID))
 	if index < 0 { // unknown trice.ID
 		p.Err = nil
-		s = redBalk + fmt.Sprintf("error: unknown trice.ID\n")
+		s = redBalk + fmt.Sprintln("error: unknown trice.ID", trice.ID, "(", trice.ID>>8, 0xff&trice.ID, "), values = ", p.values)
 		s += fmt.Sprintln(p)
 		p.values = p.values[:0]
 		return
@@ -180,10 +166,10 @@ func (p *TriceTranslator) addValues() (s string) {
 
 	p.evalLen()
 	if nil != p.Err {
-		if Verbose {
-			s = p.Err.Error() + fmt.Sprint("The accumulated data are not matching the trice.ID. Discarding: ")
-			s += fmt.Sprintln(p)
-		}
+		//if Verbose {
+		s = p.Err.Error() + fmt.Sprint("The accumulated data are not matching the trice.ID. Discarding: ")
+		s += fmt.Sprintln(p)
+		//}
 		p.values = p.values[:0]
 		p.Err = nil
 		return

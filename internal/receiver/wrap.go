@@ -10,6 +10,7 @@ package receiver
 
 import (
 	"bytes"
+	"fmt"
 	"io"
 )
 
@@ -31,7 +32,6 @@ const (
 	bytesBufferCapacity int = 4096
 )
 
-
 // type Wrap struct{
 // 	Start, Dest, Source, Crc byte
 // 	trice Trice
@@ -44,34 +44,54 @@ const (
 // 	wrapBuffer []Wrap
 // }
 
-var holdBuf = make([]byte,0,receiveBufferCapacity)
-var bareBuf = make([]byte,0,receiveBufferCapacity)
+var (
+	holdBuf = make([]byte, 0, receiveBufferCapacity)
+	bareBuf = make([]byte, 0, receiveBufferCapacity)
 
- func evaluateWrap( w []byte )bool{
- 	return true
- }
+	// DestinationAddr is local trice address, used for routing in distributed systems.
+	destinationAddr = byte(0x60)
+
+	// SourceAddr is remote trice address, used for routing in distributed systems.
+	sourceAddr = byte(0x60)
+)
+
+// evaluateWrap checks if the wrap in b contains valid trice header data.
+//
+// It returns true on success, otherwise false.
+func evaluateWrap(b []byte) bool {
+	x := 0xc0 == b[0] && // start byte
+		b[1] == sourceAddr && // todo remAddr
+		b[2] == destinationAddr && // todo locAddr
+		b[3] == b[0]^b[1]^b[2]^b[4]^b[5]^b[6]^b[7] // crc8
+	return x
+}
+
 // NewBareReaderFromWrap creates an out io.Reader using in as internal reader.
 // It assumes wrap coded trices in the input byte stream.
 // It uses the wrapper bytes for syncing and removes them silently.
-func NewBareReaderFromWrap(in io.Reader)( out io.Reader ){
+func NewBareReaderFromWrap(in io.Reader) (out io.Reader) {
 	var buf = make([]byte, receiveBufferCapacity)
-	var n, _ = in.Read(buf)
-	holdBuf = append( holdBuf, buf[:n]...)
+	var n, e = in.Read(buf)
+	if nil != e {
+		fmt.Println(e)
+	}
+	holdBuf = append(holdBuf, buf[:n]...)
 	var i int
 	for i = range holdBuf {
-		if false == evaluateWrap( holdBuf[i:i+8]){
-			continue
+		if false == evaluateWrap(holdBuf[i:i+8]) {
+			continue // try to re-sync
 		}
-		bareBuf= append(bareBuf,holdBuf[i+4:i+8]...)
-		if i + 8 > len(holdBuf){
-			break
+		bareBuf = append(bareBuf, holdBuf[i+4:i+8]...)
+		if i+8 > len(holdBuf) {
+			break // done
 		}
 		i += 8
 	}
-	holdBuf = holdBuf[i:]
+	holdBuf = holdBuf[i:] // keep remaining bytes
 	out = bytes.NewReader(bareBuf)
 	return
 }
+
 /*
 type Wrap struct{
 	Start, Dest, Source, Crc byte

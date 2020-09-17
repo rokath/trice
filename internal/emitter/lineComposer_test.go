@@ -6,6 +6,8 @@ package emitter
 
 import (
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func Test2LineComposer(t *testing.T) {
@@ -16,17 +18,17 @@ func Test2LineComposer(t *testing.T) {
 	p := NewLineComposer(lw, "off", pf, sf)
 
 	p.WriteString("Hi\r\nAll\n")
-	lw.checkLines(t, []string{"[ Hi ]", "[ All ]"})
+	assert.Equal(t, []string{"[ Hi ]", "[ All ]"}, lw.lines)
 	lw.lines = lw.lines[:0]
 
 	p.WriteString("Hi")
 	p.WriteString("Hi\n")
-	lw.checkLines(t, []string{"[ HiHi ]"})
+	assert.Equal(t, []string{"[ HiHi ]"}, lw.lines)
 	lw.lines = lw.lines[:0]
 
 	p.WriteString("\n\nHi\n\n")
 	p.WriteString("Ho\n")
-	lw.checkLines(t, []string{"[  ]", "[  ]", "[ Hi ]", "[  ]", "[ Ho ]"})
+	assert.Equal(t, []string{"[  ]", "[  ]", "[ Hi ]", "[  ]", "[ Ho ]"}, lw.lines)
 	lw.lines = lw.lines[:0]
 }
 
@@ -35,6 +37,5 @@ func TestLineComposer(t *testing.T) {
 	lw := newCheckDisplay()
 	p := NewLineComposer(lw, "zero", "<<<", ">>>")
 	p.WriteString("Hi\nAll\r\n")
-
-	lw.checkLines(t, []string{"2006-01-02_1504-05 <<< Hi >>>", "2006-01-02_1504-05 <<< All >>>"})
+	assert.Equal(t, []string{"2006-01-02_1504-05 <<< Hi >>>", "2006-01-02_1504-05 <<< All >>>"}, lw.lines)
 }
