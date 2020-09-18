@@ -7,6 +7,8 @@ package com
 
 import (
 	"fmt"
+	"io"
+	"log"
 
 	"go.bug.st/serial"
 )
@@ -15,6 +17,30 @@ var (
 	// Baud is the configured baudrate of the serial port. It is set as command line parameter.
 	Baud int
 )
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// dynamic debug helper
+//
+type bytesViewer struct {
+	r io.Reader
+}
+
+// newBytesViewer returns a reader `get` which is internally using reader `from`.
+// Calling the `get` Read method leads to internally calling the `from` Read method
+// but lets to do some additional action like logging
+func newBytesViewer(from io.Reader) (get io.Reader) {
+	return &bytesViewer{from}
+}
+
+func (p *bytesViewer) Read(buf []byte) (count int, err error) {
+	count, err = p.r.Read(buf)
+
+	log.Println("bytesViewer:", err, count, buf)
+	return
+}
+
+//
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
 // COM is a serial device trice receiver
 type COM struct {
@@ -43,7 +69,9 @@ func New(comPort string) *COM {
 // The Read function blocks until (at least) one byte is received from
 // the serial port or an error occurs.
 func (p *COM) Read(buf []byte) (int, error) {
-	return p.serialHandle.Read(buf)
+	count, err := p.serialHandle.Read(buf)
+	log.Println("COM.Read:", err, count, buf[:count])
+	return count, err
 }
 
 // Close releases port

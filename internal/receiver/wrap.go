@@ -9,7 +9,6 @@
 package receiver
 
 import (
-	"bytes"
 	"fmt"
 	"io"
 )
@@ -18,18 +17,18 @@ import (
 type encoding int
 
 const (
-	// wrapped assumes byte stream source are in wrap format
-	//
-	// The wrap format are 4 control bytes followed by 4 bytes BareItem
-	// start (==0xC0), dest, src, crc BareItem
-	// The crc is an exOr crc over bytes 0-2&4-7
-	//wrapped encoding = iota
+// wrapped assumes byte stream source are in wrap format
+//
+// The wrap format are 4 control bytes followed by 4 bytes BareItem
+// start (==0xC0), dest, src, crc BareItem
+// The crc is an exOr crc over bytes 0-2&4-7
+//wrapped encoding = iota
 
-	// WrapXTEACrypted assumes byte stream source are XTEA encrypted wrapp trice data
-	//wrapXTEACrypted
+// WrapXTEACrypted assumes byte stream source are XTEA encrypted wrapp trice data
+//wrapXTEACrypted
 
-	// bytesBufferCapacity is the internal bufferered amount for syncing
-	bytesBufferCapacity int = 4096
+// bytesBufferCapacity is the internal bufferered amount for syncing
+// bytesBufferCapacity int = 4096
 )
 
 // type Wrap struct{
@@ -44,51 +43,68 @@ const (
 // 	wrapBuffer []Wrap
 // }
 
-var (
-	holdBuf = make([]byte, 0, receiveBufferCapacity)
-	bareBuf = make([]byte, 0, receiveBufferCapacity)
+var ()
 
-	// DestinationAddr is local trice address, used for routing in distributed systems.
-	destinationAddr = byte(0x60)
+// BareReaderFromWrap provides a Read method for bare data from wrapped data
+type BareReaderFromWrap struct {
+	in         io.Reader
+	localAddr  byte
+	remoteAddr byte
+	nextData   []byte
+	holdBuf    []byte
+	bareBuf    []byte
+	savedErr   error
+}
 
-	// SourceAddr is remote trice address, used for routing in distributed systems.
-	sourceAddr = byte(0x60)
-)
+// NewBareReaderFromWrap returns a pointer to a BareReaderFromWrap instance
+// which is satisfying the io.Reader interface and using `in` as internal reader.
+// It assumes wrap coded trices in the input byte stream.
+// It uses the wrapper bytes for syncing and removes them silently.
+func NewBareReaderFromWrap(in io.Reader) *BareReaderFromWrap {
+	p := &BareReaderFromWrap{}
+	p.in = in
+	p.localAddr = 0x60
+	p.remoteAddr = 0x60
+	p.nextData = make([]byte, 4096)
+	p.holdBuf = make([]byte, 0)
+	p.bareBuf = make([]byte, 0)
+	return p
+}
+
+// Read is the provided method for interface satisfying.
+func (p *BareReaderFromWrap) Read(buf []byte) (int, error) {
+	n, err := p.in.Read(p.nextData)
+	p.holdBuf = append(p.holdBuf, p.nextData[:n]...)
+	var i int
+	for i = range p.holdBuf {
+		if len(p.holdBuf) < i+8 {
+			break // done
+		}
+		if false == p.evaluateWrap(p.holdBuf[i:i+8]) {
+			fmt.Println("ignoring", p.holdBuf[i])
+			continue // try to re-sync
+		}
+		p.bareBuf = append(p.bareBuf, p.holdBuf[i+4:i+8]...)
+		i += 8
+	}
+	count := copy(buf, p.bareBuf)
+
+	// keep remaining bytes for next turn
+	p.holdBuf = p.holdBuf[i:]
+	p.bareBuf = p.bareBuf[:count]
+	return count, err
+}
 
 // evaluateWrap checks if the wrap in b contains valid trice header data.
 //
 // It returns true on success, otherwise false.
-func evaluateWrap(b []byte) bool {
-	x := 0xc0 == b[0] && // start byte
-		b[1] == sourceAddr && // todo remAddr
-		b[2] == destinationAddr && // todo locAddr
-		b[3] == b[0]^b[1]^b[2]^b[4]^b[5]^b[6]^b[7] // crc8
-	return x
-}
-
-// NewBareReaderFromWrap creates an out io.Reader using in as internal reader.
-// It assumes wrap coded trices in the input byte stream.
-// It uses the wrapper bytes for syncing and removes them silently.
-func NewBareReaderFromWrap(in io.Reader) (out io.Reader) {
-	var buf = make([]byte, receiveBufferCapacity)
-	var n, e = in.Read(buf)
-	if nil != e {
-		fmt.Println(e)
+func (p *BareReaderFromWrap) evaluateWrap(b []byte) (x bool) {
+	if 8 == len(b) {
+		x = 0xc0 == b[0] && // start byte
+			b[1] == p.remoteAddr &&
+			b[2] == p.localAddr &&
+			b[3] == b[0]^b[1]^b[2]^b[4]^b[5]^b[6]^b[7] // crc8
 	}
-	holdBuf = append(holdBuf, buf[:n]...)
-	var i int
-	for i = range holdBuf {
-		if false == evaluateWrap(holdBuf[i:i+8]) {
-			continue // try to re-sync
-		}
-		bareBuf = append(bareBuf, holdBuf[i+4:i+8]...)
-		if i+8 > len(holdBuf) {
-			break // done
-		}
-		i += 8
-	}
-	holdBuf = holdBuf[i:] // keep remaining bytes
-	out = bytes.NewReader(bareBuf)
 	return
 }
 

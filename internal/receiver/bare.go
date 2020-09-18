@@ -30,9 +30,9 @@ type BareTriceReceiver struct {
 // multiple of triceSice offset. If not, the appropriate count of bytes is ignored.
 func NewTricesfromBare(r io.Reader) *BareTriceReceiver {
 	p := &BareTriceReceiver{}
-	p.r = newBytesViewer(r)         // dynamic debug helper
-	p.atomsCh = make(chan []Trice)  //triceChannelCapacity)
-	p.ignoredCh = make(chan []byte) //, ignoredChannelCapacity)
+	p.r = r
+	p.atomsCh = make(chan []Trice)
+	p.ignoredCh = make(chan []byte)
 	p.syncBuffer = make([]byte, 0, 10000)
 	go func() {
 		for {
