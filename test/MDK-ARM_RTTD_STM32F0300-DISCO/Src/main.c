@@ -95,7 +95,7 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-    TRICE_RTT_SYNC;
+    TRICE_SYNC;
     TRICE16_1( Id(45373), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
     TRICE0( Id( 3526), "att:MDK-ARM_RTTD_STM32F0300-DISCO\n" );
     TRICE16_1( Id(45373), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
@@ -110,7 +110,7 @@ int main(void)
       static uint32_t ms_1 = 0;
       uint32_t ms = HAL_GetTick();
       if( ms >= ms_1 + 1000 ){ // every sec
-          TRICE_RTT_SYNC; // for re-synchronisation the running target
+          TRICE_SYNC; // for re-synchronisation the running target
           static int index = 0;
           triceCheckSet(index++%20);
           TRICE32_1( Id(29200), "time:ms = %d\n", ms );
