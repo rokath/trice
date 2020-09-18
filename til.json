@@ -2854,5 +2854,19 @@
 		"fmtStrg": "MSG: triceFifoMaxDepthBytes = %d\\n",
 		"created": 1600266568,
 		"removed": 0
+	},
+	{
+		"id": 27621,
+		"fmtType": "TRICE0",
+		"fmtStrg": "rd_:triceEscFifoUART.c",
+		"created": 1600460976,
+		"removed": 0
+	},
+	{
+		"id": 2783,
+		"fmtType": "TRICE0",
+		"fmtStrg": "s:                                        \\ns:   ARM-MDK_LL_UART_ESC_NUCLEO-F070RB   \\ns:                                        \\n\\n",
+		"created": 1600460976,
+		"removed": 0
 	}
 ]
