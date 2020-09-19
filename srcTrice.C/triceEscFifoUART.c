@@ -27,7 +27,7 @@ int triceFifoMaxDepth = 0; //!< diagnostics
 //! tricePushByte puts one byte into trice fifo.
 //! This is a trice time critical part.
 //! \param v byte date
-static void tricePushByte(uint8_t v) {
+void tricePushByteUART(uint8_t v) {
     triceFifo[triceFifoWriteIndex++] = v;
     triceFifoWriteIndex &= TRICE_FIFO_MASK;
 }
@@ -65,16 +65,16 @@ void triceServeTransmit(void) {
 
 static void triceWritePaddingBytes(int count) {
     while (count--) {
-        tricePushByte(0);
+        TRICE_PUSH_BYTE(0);
     }
 }
 
 static void triceWriteEsc(int count, uint8_t *buf) {
     while (count--) {
         uint8_t c = *buf++;
-        tricePushByte(c);
+        TRICE_PUSH_BYTE(c);
         if (TRICE_ESC == c) {
-            tricePushByte(TRICE_DEL);
+            TRICE_PUSH_BYTE(TRICE_DEL);
         }
     }
     triceEnableTxEmptyInterrupt();

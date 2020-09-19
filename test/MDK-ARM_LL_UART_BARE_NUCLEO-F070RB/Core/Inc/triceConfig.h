@@ -16,17 +16,7 @@ extern "C" {
     // MORE_FLASH_AND_SPEED
     // LESS_FLASH_AND_SPEED 
     // or NO_CODE
-#define TRICE_CODE TO_TRICE_WRITE_ESC
-
-#if TO_TRICE_WRITE_ESC == TRICE_CODE
-
-void tricePushByteUART(uint8_t v);
-void tricePushByteSeggerRTT(uint8_t v);
-
-//! Set trice out channel(s) 
-#define TRICE_PUSH_BYTE(v) do{ tricePushByteSeggerRTT(v); tricePushByteUART(v); } while(0)
-
-#else // #if TO_TRICE_WRITE_ESC == TRICE_CODE
+#define TRICE_CODE MORE_FLASH_AND_SPEED
 
 void tricePushSeggerRTT( uint32_t );
 void tricePushFifoUART( uint32_t );
@@ -34,7 +24,6 @@ void tricePushFifoUART( uint32_t );
 //! Set trice out channel(s) 
 #define TRICE_PUSH(v) do{ tricePushSeggerRTT(v); tricePushFifoUART(v); } while(0)
 
-#endif // #else // #if TO_TRICE_WRITE_ESC == TRICE_CODE
 // See triceConfigCompiler.h for compiler adaption 
 
 //!< tests

@@ -96,13 +96,13 @@ int main(void)
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
     LL_USART_EnableIT_RXNE(TRICE_UART); // enable UART2 interrupt
-    TRICE0( Id( 2783), "s:                                        \ns:   ARM-MDK_LL_UART_ESC_NUCLEO-F070RB   \ns:                                        \n\n");
-/* USER CODE END 2 */
+    TRICE0( Id(65335), "s:                                        \ns:   ARM-MDK_LL_UART_ESC_NUCLEO-F030R8   \ns:                                        \n\n");
+  /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-    while (1)
-    {
+  while (1)
+  {
         static int lastTricesTime = 0;
         { // send some trices every few ms
             if( milliSecond >= lastTricesTime + 100 ){
@@ -123,7 +123,7 @@ int main(void)
         //         triceServeTransmit();
         //     }
         // }
-    }
+  }
   /* USER CODE END 3 */
 }
 
@@ -145,7 +145,7 @@ void SystemClock_Config(void)
 
   }
   LL_RCC_HSI_SetCalibTrimming(16);
-  LL_RCC_PLL_ConfigDomain_SYS(LL_RCC_PLLSOURCE_HSI, LL_RCC_PLL_MUL_6, LL_RCC_PREDIV_DIV_1);
+  LL_RCC_PLL_ConfigDomain_SYS(LL_RCC_PLLSOURCE_HSI_DIV_2, LL_RCC_PLL_MUL_12);
   LL_RCC_PLL_Enable();
 
    /* Wait till PLL is ready */
@@ -192,7 +192,7 @@ static void MX_USART2_UART_Init(void)
   */
   GPIO_InitStruct.Pin = USART_TX_Pin;
   GPIO_InitStruct.Mode = LL_GPIO_MODE_ALTERNATE;
-  GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_HIGH;
+  GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_LOW;
   GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
   GPIO_InitStruct.Pull = LL_GPIO_PULL_NO;
   GPIO_InitStruct.Alternate = LL_GPIO_AF_1;
@@ -200,7 +200,7 @@ static void MX_USART2_UART_Init(void)
 
   GPIO_InitStruct.Pin = USART_RX_Pin;
   GPIO_InitStruct.Mode = LL_GPIO_MODE_ALTERNATE;
-  GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_HIGH;
+  GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_LOW;
   GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
   GPIO_InitStruct.Pull = LL_GPIO_PULL_NO;
   GPIO_InitStruct.Alternate = LL_GPIO_AF_1;

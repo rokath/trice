@@ -32,9 +32,7 @@ void tricePushFifoUART(uint32_t v) {
 
 //! tricePop gets one trice from trice fifo.
 //! \return trice id with 2 byte data in one uint32_t.
-TRICE_INLINE uint32_t
-
-tricePop() {
+TRICE_INLINE uint32_t tricePop() {
     uint32_t v = triceFifo[triceFifoReadIndex++];
     triceFifoReadIndex &= TRICE_FIFO_MASK;
     return v;
@@ -73,7 +71,7 @@ TRICE_INLINE unsigned triceFifoDepth(void) {
 void triceServeOut(void) {
     // 89 ab cd ef <- on serial port
     // ih il dh dl
-    uint32_t const syncTrice = 0x89abcdef; // endianess!! ID is in low part
+    uint32_t const syncTrice = 0x89abcdef;
     static int syncLevel = TRICE_BARE_SYNC_LEVEL; // start with a sync trice
     if (triceBytesBufferIndexLimit == triceBytesBufferIndex) { // bytes buffer empty and tx finished
         // next trice
