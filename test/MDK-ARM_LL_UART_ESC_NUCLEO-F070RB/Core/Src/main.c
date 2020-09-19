@@ -107,7 +107,7 @@ int main(void)
         { // send some trices every few ms
             if( milliSecond >= lastTricesTime + 100 ){
                 static int index = 0;
-                TRICE16_1( Id(36847),"MSG: triceFifoMaxDepthBytes = %d\n", triceFifoMaxDepthTrices*4 );
+                TRICE16_1( Id(15761),"MSG: triceFifoMaxDepth = %d\n", triceFifoMaxDepth );
                 triceCheckSet(index%10);
                 index++;
                 lastTricesTime = milliSecond;
@@ -116,13 +116,13 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-        { // serve every few ms
-            static int lastMs = 0;
-            if( milliSecond >= lastMs + 1 ){
-                lastMs = milliSecond;
-                triceServeOut();
-            }
-        }
+        // { // serve every few ms
+        //     static int lastMs = 0;
+        //     if( milliSecond >= lastMs + 1 ){
+        //         lastMs = milliSecond;
+        //         triceServeTransmit();
+        //     }
+        // }
     }
   /* USER CODE END 3 */
 }

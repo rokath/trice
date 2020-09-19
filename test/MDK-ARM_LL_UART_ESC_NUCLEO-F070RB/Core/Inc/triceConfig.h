@@ -12,7 +12,7 @@ extern "C" {
 #include <stdint.h>
 
 //! Set to MORE_FLASH_AND_SPEED, LESS_FLASH_AND_SPEED or NO_CODE
-#define TRICE_CODE MORE_FLASH_AND_SPEED
+#define TRICE_CODE TO_TRICE_WRITE_ESC
 
 void tricePushSeggerRTT( uint32_t );
 void tricePushFifoUART( uint32_t );

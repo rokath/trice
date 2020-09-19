@@ -2868,5 +2868,19 @@
 		"fmtStrg": "s:                                        \\ns:   ARM-MDK_LL_UART_ESC_NUCLEO-F070RB   \\ns:                                        \\n\\n",
 		"created": 1600460976,
 		"removed": 0
+	},
+	{
+		"id": 44435,
+		"fmtType": "TRICE0",
+		"fmtStrg": "rd_:triceEscFifoUART.c",
+		"created": 1600539879,
+		"removed": 0
+	},
+	{
+		"id": 15761,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "MSG: triceFifoMaxDepth = %d\\n",
+		"created": 1600541250,
+		"removed": 0
 	}
 ]
