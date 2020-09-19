@@ -1,4 +1,4 @@
- /*! \file trice.h
+/*! \file trice.h
 \author thomas.toehenleitner [at] seerose.net
 *******************************************************************************/
 
@@ -24,7 +24,7 @@ extern "C" {
 #include "triceConfigCompiler.h"
 #include "triceConfig.h"
 
-#define Id( n ) (n) //!< Macro for improved trice readability and better source code parsing.
+#define Id(n) (n) //!< Macro for improved trice readability and better source code parsing.
 
 #if NO_CODE == TRICE_CODE // no trice code generation
 

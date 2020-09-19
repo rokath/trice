@@ -31,7 +31,16 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="596ec32d-a9ed-44af-8688-378c9ba72bb6" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/trice.h" beforeDir="false" afterPath="$PROJECT_DIR$/trice.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/triceCheck.c" beforeDir="false" afterPath="$PROJECT_DIR$/triceCheck.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/triceConfigCompiler.h" beforeDir="false" afterPath="$PROJECT_DIR$/triceConfigCompiler.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/triceEscFifoUART.c" beforeDir="false" afterPath="$PROJECT_DIR$/triceEscFifoUART.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/triceEscFifoUART.h" beforeDir="false" afterPath="$PROJECT_DIR$/triceEscFifoUART.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/triceFifoUART.c" beforeDir="false" afterPath="$PROJECT_DIR$/triceFifoUART.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/triceFifoUART.h" beforeDir="false" afterPath="$PROJECT_DIR$/triceFifoUART.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/triceSeggerRTT.c" beforeDir="false" afterPath="$PROJECT_DIR$/triceSeggerRTT.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/triceXteaCrypto.h" beforeDir="false" afterPath="$PROJECT_DIR$/triceXteaCrypto.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -65,6 +74,7 @@
       <option name="presentableId" value="Default" />
       <updated>1600505637527</updated>
       <workItem from="1600505639589" duration="1147000" />
+      <workItem from="1600542858336" duration="299000" />
     </task>
     <servers />
   </component>
@@ -78,12 +88,13 @@
         </entry>
       </map>
     </option>
+    <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="WindowStateProjectService">
-    <state x="75" y="271" key="SettingsEditor" timestamp="1600506533312">
+    <state x="75" y="271" key="SettingsEditor" timestamp="1600542868744">
       <screen x="0" y="0" width="2560" height="1400" />
     </state>
-    <state x="75" y="271" key="SettingsEditor/3840.0.1920.1020/-1360.0.1360.768/0.0.2560.1400@0.0.2560.1400" timestamp="1600506533312" />
+    <state x="75" y="271" key="SettingsEditor/3840.0.1920.1020/-1360.0.1360.768/0.0.2560.1400@0.0.2560.1400" timestamp="1600542868744" />
     <state x="943" y="419" width="672" height="678" key="search.everywhere.popup" timestamp="1600505826908">
       <screen x="0" y="0" width="2560" height="1400" />
     </state>

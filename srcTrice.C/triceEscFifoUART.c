@@ -1,7 +1,7 @@
 /*! \file triceEscFifoUART.h
 \author Thomas.Hoehenleitner [at] seerose.net
 *******************************************************************************/
-#include <string.h> // memcpy
+#include <string.h> // strlen
 #include "trice.h"
 #include "triceEscFifoUART.h"
 
@@ -18,7 +18,7 @@
 
 
 //! trice fifo instance, here are the trices buffered.
-static uint8_t triceFifo[ TRICE_FIFO_BYTE_SIZE];
+static uint8_t triceFifo[TRICE_FIFO_BYTE_SIZE];
 
 static int triceFifoWriteIndex = 0; //!< trice fifo write index, used inside macros, so must be visible
 static int triceFifoReadIndex = 0; //!< trice fifo read index
@@ -27,14 +27,14 @@ int triceFifoMaxDepth = 0; //!< diagnostics
 //! tricePushByte puts one byte into trice fifo.
 //! This is a trice time critical part.
 //! \param v byte date
-static void tricePushByte( uint8_t v ){
+static void tricePushByte(uint8_t v) {
     triceFifo[triceFifoWriteIndex++] = v;
     triceFifoWriteIndex &= TRICE_FIFO_MASK;
 }
 
 //! tricePop gets one byte from trice fifo.
 //! \return byte date
-uint8_t tricePopByte(){
+uint8_t tricePopByte() {
     uint8_t v = triceFifo[triceFifoReadIndex++];
     triceFifoReadIndex &= TRICE_FIFO_MASK;
     return v;
@@ -57,47 +57,47 @@ void triceServeTransmit(void) {
     }
     // next byte
     triceTransmitData8(tricePopByte());
-    if( 0 == triceFifoDepth() ){ // no more bytes
+    if (0 == triceFifoDepth()) { // no more bytes
         triceDisableTxEmptyInterrupt();
     }
 }
 
 
-static void triceWritePaddingBytes( int count ){
-    while( count-- ){
+static void triceWritePaddingBytes(int count) {
+    while (count--) {
         tricePushByte(0);
     }
 }
 
-static void triceWriteEsc( int count, uint8_t * buf ){
-    while( count-- ){
+static void triceWriteEsc(int count, uint8_t *buf) {
+    while (count--) {
         uint8_t c = *buf++;
         tricePushByte(c);
-        if( TRICE_ESC == c ){
+        if (TRICE_ESC == c) {
             tricePushByte(TRICE_DEL);
         }
     }
     triceEnableTxEmptyInterrupt();
 }
 
-void triceWriteEscP( int count, uint8_t * buf ){
+void triceWriteEscP(int count, uint8_t *buf) {
     TRICE_ENTER_CRITICAL_SECTION
-    triceWriteEsc( count, buf );
+    triceWriteEsc(count, buf);
     TRICE_LEAVE_CRITICAL_SECTION
 }
 
-void trice_s(uint16_t Id, char * dynString){
+void trice_s(uint16_t Id, char *dynString) {
     int n = 1 + strlen(dynString);
     int h = -1; // h is the smallest number with 2^h = k && k >= n
     int k = 0;       // n is at least 1 here, so h cannot get -1
-    while( k < n ){  // n:  0 | 1 2 3 4 5
-        k=1<<h++;    // h: -1 | 1 2 3 3 4
+    while (k < n) {  // n:  0 | 1 2 3 4 5
+        k = 1 << h++;// h: -1 | 1 2 3 3 4
     }                // k:  0 | 1 2 4 4 8
-    uint8_t msg[] = {TRICE_HI_BYTE(Id), TRICE_LO_BYTE(Id), TRICE_ESC, TRICE_P0+h };
+    uint8_t msg[] = {TRICE_HI_BYTE(Id), TRICE_LO_BYTE(Id), TRICE_ESC, TRICE_P0 + h};
     TRICE_ENTER_CRITICAL_SECTION
-    triceWriteEsc( sizeof(msg), msg );
-    triceWriteEsc( n, (uint8_t*)dynString );
-    triceWritePaddingBytes(k-n);
+    triceWriteEsc(sizeof(msg), msg);
+    triceWriteEsc(n, (uint8_t *) dynString);
+    triceWritePaddingBytes(k - n);
     TRICE_LEAVE_CRITICAL_SECTION
     // example: ""         =                                   0 -> bufLen=1 -> n=0, (1<<0)= 1, padding=0
     // example: "a"        = 'a'                               0 -> bufLen=2 -> n=1, (1<<1)= 2, padding=0
