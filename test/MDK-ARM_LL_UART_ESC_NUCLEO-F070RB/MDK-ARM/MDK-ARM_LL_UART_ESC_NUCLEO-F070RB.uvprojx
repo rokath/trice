@@ -404,9 +404,9 @@
               <FilePath>..\..\..\srcTrice.C\triceXteaCrypto.c</FilePath>
             </File>
             <File>
-              <FileName>triceEscFifoUART.c</FileName>
+              <FileName>triceEscFifo.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\srcTrice.C\triceEscFifoUART.c</FilePath>
+              <FilePath>..\..\..\srcTrice.C\triceEscFifo.c</FilePath>
             </File>
             <File>
               <FileName>SEGGER_RTT.c</FileName>

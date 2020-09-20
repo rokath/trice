@@ -26,11 +26,11 @@ extern "C" {
 // adapt 
 #ifdef TRICE_WRITE_ESC_FIFO
 
-void tricePushByteUART(uint8_t v);
+void tricePushByteEscFifo(uint8_t v);
 void tricePushByteSeggerRTT(uint8_t v);
 
 //! Set trice out channel(s) 
-#define TRICE_PUSH_BYTE(v) do{ tricePushByteSeggerRTT(v); tricePushByteUART(v); } while(0)
+#define TRICE_PUSH_BYTE(v) do{ tricePushByteSeggerRTT(v); tricePushByteEscFifo(v); } while(0)
 
 #endif // #ifdef TRICE_WRITE_ESC_FIFO
 //
@@ -48,10 +48,10 @@ void tricePushByteSeggerRTT(uint8_t v);
 //#define LESS_FLASH_AND_SPEED
 
 void tricePushSeggerRTT( uint32_t );
-void tricePushFifoUART( uint32_t );
+void tricePushBareFifo( uint32_t );
 
 //! Set trice out channel(s) 
-#define TRICE_PUSH(v) do{ tricePushSeggerRTT(v); tricePushFifoUART(v); } while(0)
+#define TRICE_PUSH(v) do{ tricePushSeggerRTT(v); tricePushBareFifo(v); } while(0)
 
 #endif // #ifdef TRICE_WRITE_BARE_FIFO
 //
@@ -71,17 +71,17 @@ void tricePushFifoUART( uint32_t );
 //#define LESS_FLASH_AND_SPEED
 
 void tricePushSeggerRTT( uint32_t );
-void tricePushFifoUART( uint32_t );
+void tricePushBareFifo( uint32_t );
 
 //! Set trice out channel(s) 
-#define TRICE_PUSH(v) do{ tricePushFifoUART(v); } while(0)
+#define TRICE_PUSH(v) do{ tricePushBareFifo(v); } while(0)
 
 
-void tricePushByteUART(uint8_t v);
+void tricePushByteEscFifo(uint8_t v);
 void tricePushByteSeggerRTT(uint8_t v);
 
 //! Set trice out channel(s) 
-#define TRICE_PUSH_BYTE(v) do{ tricePushByteUART(v); } while(0)
+#define TRICE_PUSH_BYTE(v) do{ tricePushByteEscFifo(v); } while(0)
 
 #endif // #ifdef TRICE_WRITE_BARE_FIFO
 //

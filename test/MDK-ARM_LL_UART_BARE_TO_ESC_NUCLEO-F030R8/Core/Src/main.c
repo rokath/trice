@@ -23,7 +23,10 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "trice.h"
-#include "triceBareFifoUART.h"
+#include "triceInterfaceUART.h"
+#include "triceBareFifo.h"
+#include "triceEscFifo.h"
+#include "triceBareFifoToEscFifo.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -107,7 +110,7 @@ int main(void)
       { // every few milliseconds
             if( milliSecond >= lastTricesTime + 1000 ){
                 static int index = 0;
-                TRICE16_1( Id(36847),"MSG: triceFifoMaxDepthBytes = %d\n", triceFifoMaxDepthTrices*4 );
+                TRICE16_2( Id(24732),"MSG: triceFifoMaxDepthBytes: Bare = %d, Esc = %d\n", triceBareFifoMaxDepthTrices*4, triceEscFifoMaxDepth );
                 triceCheckSet(index%10);
                 index++;
                 lastTricesTime = milliSecond;

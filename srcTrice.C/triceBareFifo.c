@@ -1,9 +1,13 @@
-/*! \file triceBareFifoUART.h
+/*! \file triceBareFifo.c
 \author Thomas.Hoehenleitner [at] seerose.net
 *******************************************************************************/
-#include "triceBareFifoUART.h"
+#include <stdint.h>
+#include "triceBareFifo.h"
+#include "triceConfigCompiler.h"
 
-#define TRICE_FILENAME TRICE0( Id(20698), "rd_:triceBareFifoUART.c" );
+#include "triceInterfaceUART.h" // for ticeEnableTxEmptyInterrupt(); (next byte)
+
+#define TRICE_FILENAME TRICE0( Id( 1603), "rd_:triceBareFifo.c" );
 //! TRICE_FIFO_BYTE_SIZE must be a power of 2, one trice needs 4 to 32 or one day more bytes.
 //! The fifo has to hold trice bursts until they are transmitted.
 //! It is transmitted with lower priority in the background for example with the UART tx interrupt.
@@ -18,15 +22,15 @@ ALIGN4_END;
 
 uint32_t triceFifoWriteIndex = 0; //!< trice fifo write index, used inside macros, so must be visible
 uint32_t triceFifoReadIndex = 0; //!< trice fifo read index
-uint32_t triceFifoMaxDepthTrices = 0; //!< diagnostics
+int triceBareFifoMaxDepthTrices = 0; //!< diagnostics
 uint8_t triceBytesBuffer[8]; //!< bytes transmit buffer
 int const triceBytesBufferIndexLimit = 8; // sizeof(triceBytesBuffer[8]);
 int triceBytesBufferIndex = triceBytesBufferIndexLimit;
 
-//! tricePushFifo puts one trice into trice fifo.
+//! tricePushBareFifo puts one trice into trice fifo.
 //! This is a trice time critical part.
 //! \param v trice id with 2 byte data
-void tricePushFifoUART(uint32_t v) {
+void tricePushBareFifo(uint32_t v) {
     triceFifo[triceFifoWriteIndex++] = v;
     triceFifoWriteIndex &= TRICE_FIFO_MASK;
 }
@@ -58,11 +62,11 @@ TRICE_INLINE void triceTransfer(uint32_t t0, uint32_t t1) {
     triceLoadInNetworkOrder(&triceBytesBuffer[4], t1);
 }
 
-//! triceFifoDepth determines trices count inside trice fifo.
+//! triceBareFifoDepth determines trices count inside trice fifo.
 //! \return count of buffered trices
-TRICE_INLINE unsigned triceFifoDepth(void) {
+TRICE_INLINE unsigned triceBareFifoDepth(void) {
     unsigned triceDepth = (triceFifoWriteIndex - triceFifoReadIndex) & TRICE_FIFO_MASK;
-    triceFifoMaxDepthTrices = triceDepth < triceFifoMaxDepthTrices ? triceFifoMaxDepthTrices : triceDepth; // diagnostics
+    triceBareFifoMaxDepthTrices = triceDepth < triceBareFifoMaxDepthTrices ? triceBareFifoMaxDepthTrices : triceDepth; // diagnostics
     return triceDepth;
 }
 
@@ -76,7 +80,7 @@ void triceServeBareFifoOut(void) {
     static int syncLevel = TRICE_BARE_SYNC_LEVEL; // start with a sync trice
     if (triceBytesBufferIndexLimit == triceBytesBufferIndex) { // bytes buffer empty and tx finished
         // next trice
-        int n = triceFifoDepth();
+        int n = triceBareFifoDepth();
         if (syncLevel < TRICE_BARE_SYNC_LEVEL) { // no need for a sync trice
             if (0 == n) { // no trices to transmit
                 syncLevel++;
@@ -100,22 +104,5 @@ void triceServeBareFifoOut(void) {
         }
         triceBytesBufferIndex = 0;
         triceEnableTxEmptyInterrupt(); // next byte
-    }
-}
-
-//! triceServeBareFifoTransmit must be called cyclically to proceed ongoing write out.
-//! A good place: sysTick ISR and UART ISR (both together).
-//! TODO: endianess with compiler macros.
-void triceServeBareFifoTransmit(void) {
-    if (!triceTxDataRegisterEmpty()) {
-        for (;;); // unexpected case
-    }
-    if (triceBytesBufferIndexLimit == triceBytesBufferIndex) {
-        for (;;); // unexpected case
-    }
-    // next byte
-    triceTransmitData8(triceBytesBuffer[triceBytesBufferIndex++]);
-    if (sizeof(triceBytesBuffer) == triceBytesBufferIndex) { // no more bytes
-        triceDisableTxEmptyInterrupt();
     }
 }

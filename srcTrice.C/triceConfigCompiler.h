@@ -1,9 +1,9 @@
-/*! \file bareConfigCompiler.h
+/*! \file triceConfigCompiler.h
 \author Thomas.Hoehenleitner [at] seerose.net
 *******************************************************************************/
 
-#ifndef BARE_CONFIG_COMPILER_H_
-#define BARE_CONFIG_COMPILER_H_
+#ifndef TRICE_CONFIG_COMPILER_H_
+#define TRICE_CONFIG_COMPILER_H_
 
 #include <stdint.h>
 
@@ -39,6 +39,8 @@ extern "C" {
 #define TRICE_LEAVE_CRITICAL_SECTION } __set_PRIMASK(primaskstate); }
 
 #elif defined(__arm__) // ARMkeil IDE #########################################
+
+#include <cmsis_armcc.h>
 
 #define TRICE_INLINE static inline //! used for trice code
 
@@ -99,4 +101,4 @@ extern "C" {
 }
 #endif
 
-#endif /* BARE_CONFIG_COMPILER_H_ */
+#endif /* TRICE_CONFIG_COMPILER_H_ */

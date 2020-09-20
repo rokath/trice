@@ -1,12 +1,15 @@
-/*! \file triceEscFifoUART.h
+/*! \file triceEscFifo.c
 \author Thomas.Hoehenleitner [at] seerose.net
 *******************************************************************************/
 #include <string.h> // strlen
+#include "triceConfigCompiler.h"
 #include "trice.h"
-#include "triceEscFifoUART.h"
+#include "triceEscFifo.h"
+
+#include "triceInterfaceUART.h" // for ticeEnableTxEmptyInterrupt(); (next byte)
 
 
-#define TRICE_FILENAME TRICE0( Id(44435), "rd_:triceEscFifoUART.c" );
+#define TRICE_FILENAME TRICE0( Id(44860), "rd_:triceEscFifo.c" );
 
 
 //! TRICE_FIFO_BYTE_SIZE must be a power of 2, one trice needs 4 to 32 or one day more bytes.
@@ -22,45 +25,33 @@ static uint8_t triceFifo[TRICE_FIFO_BYTE_SIZE];
 
 static int triceFifoWriteIndex = 0; //!< trice fifo write index, used inside macros, so must be visible
 static int triceFifoReadIndex = 0; //!< trice fifo read index
-int triceFifoMaxDepth = 0; //!< diagnostics
+int triceEscFifoMaxDepth = 0; //!< diagnostics
 
-//! tricePushByte puts one byte into trice fifo.
+//! tricePushByteEscFifo puts one byte into trice fifo.
 //! This is a trice time critical part.
 //! \param v byte date
-void tricePushByteUART(uint8_t v) {
+void tricePushByteEscFifo(uint8_t v) {
     triceFifo[triceFifoWriteIndex++] = v;
     triceFifoWriteIndex &= TRICE_FIFO_MASK;
 }
 
-//! tricePop gets one byte from trice fifo.
+//! tricePopByteEscFifo gets one byte from trice fifo.
 //! \return byte date
-uint8_t tricePopByte() {
+uint8_t tricePopByteEscFifo(void) {
     uint8_t v = triceFifo[triceFifoReadIndex++];
     triceFifoReadIndex &= TRICE_FIFO_MASK;
     return v;
 }
 
-//! triceFifoDepth determines trices count inside trice fifo.
+//! triceEscFifoDepth determines trices count inside trice fifo.
 //! \return count of buffered trices
-static int triceFifoDepth(void) {
+int triceEscFifoDepth(void) {
     int triceDepth = (triceFifoWriteIndex - triceFifoReadIndex) & TRICE_FIFO_MASK;
-    triceFifoMaxDepth = triceDepth < triceFifoMaxDepth ? triceFifoMaxDepth : triceDepth; // diagnostics
+    triceEscFifoMaxDepth = triceDepth < triceEscFifoMaxDepth ? triceEscFifoMaxDepth : triceDepth; // diagnostics
     return triceDepth;
 }
 
 
-//! triceServeEscFifoTransmit must be called cyclically to proceed ongoing write out.
-//! A good place: sysTick ISR and UART ISR (both together).
-void triceServeEscFifoTransmit(void) {
-    if (!triceTxDataRegisterEmpty()) {
-        for (;;); // unexpected case
-    }
-    // next byte
-    triceTransmitData8(tricePopByte());
-    if (0 == triceFifoDepth()) { // no more bytes
-        triceDisableTxEmptyInterrupt();
-    }
-}
 
 static void triceWritePaddingBytes(int count) {
     while (count--) {
@@ -83,7 +74,7 @@ void triceWriteEscP(int count, uint8_t *buf) {
     TRICE_ENTER_CRITICAL_SECTION
     TRICE_PUSH_BYTE(TRICE_ESC);
     triceWriteEsc(count, buf);
-    triceEnableTxEmptyInterrupt();
+    triceEnableTxEmptyInterrupt(); // next byte
     TRICE_LEAVE_CRITICAL_SECTION
 }
 
@@ -100,7 +91,7 @@ void trice_s(uint16_t Id, char *dynString) {
     triceWriteEsc(sizeof(msg), msg);
     triceWriteEsc(n, (uint8_t *) dynString);
     triceWritePaddingBytes(k - n);
-    triceEnableTxEmptyInterrupt();
+    triceEnableTxEmptyInterrupt(); // next byte
     TRICE_LEAVE_CRITICAL_SECTION
     // example: ""         =                                   0 -> bufLen=1 -> n=0, (1<<0)= 1, padding=0
     // example: "a"        = 'a'                               0 -> bufLen=2 -> n=1, (1<<1)= 2, padding=0

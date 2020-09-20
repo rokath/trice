@@ -2910,5 +2910,54 @@
 		"fmtStrg": "rd_:triceBareFifoToEscFifo.c",
 		"created": 1600611913,
 		"removed": 0
+	},
+	{
+		"id": 32335,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "MSG: triceBareFifoMaxDepthBytes = %d\\n",
+		"created": 1600615569,
+		"removed": 0
+	},
+	{
+		"id": 38882,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "MSG: triceBareFifoMaxDepthBytes = %d\\n",
+		"created": 1600615571,
+		"removed": 0
+	},
+	{
+		"id": 24732,
+		"fmtType": "TRICE16_2",
+		"fmtStrg": "MSG: triceFifoMaxDepthBytes: Bare = %d, Esc = %d\\n",
+		"created": 1600615571,
+		"removed": 0
+	},
+	{
+		"id": 48699,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "MSG: triceEscFifoMaxDepth = %d\\n",
+		"created": 1600615994,
+		"removed": 0
+	},
+	{
+		"id": 55132,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "MSG: triceEscFifoMaxDepth = %d\\n",
+		"created": 1600615994,
+		"removed": 0
+	},
+	{
+		"id": 1603,
+		"fmtType": "TRICE0",
+		"fmtStrg": "rd_:triceBareFifo.c",
+		"created": 1600621083,
+		"removed": 0
+	},
+	{
+		"id": 44860,
+		"fmtType": "TRICE0",
+		"fmtStrg": "rd_:triceEscFifo.c",
+		"created": 1600621083,
+		"removed": 0
 	}
 ]

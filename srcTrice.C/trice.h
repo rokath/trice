@@ -78,7 +78,6 @@ extern "C" {
 
 void triceWriteEscP( int count, uint8_t * buf );
 void trice_s(uint16_t Id, char * dynString);
-extern int triceFifoMaxDepth;
 
 //! Write Id and dynString protected (outside critical section).
 //! \param Id trice identifier

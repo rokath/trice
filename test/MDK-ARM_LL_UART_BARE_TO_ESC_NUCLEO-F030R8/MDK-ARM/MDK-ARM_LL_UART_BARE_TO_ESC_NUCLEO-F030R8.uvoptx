@@ -183,7 +183,7 @@
 
   <Group>
     <GroupName>Application/MDK-ARM</GroupName>
-    <tvExp>0</tvExp>
+    <tvExp>1</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -211,11 +211,11 @@
       <GroupNumber>2</GroupNumber>
       <FileNumber>2</FileNumber>
       <FileType>1</FileType>
-      <tvExp>0</tvExp>
+      <tvExp>1</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\..\srcTrice.C\triceBareFifoUART.c</PathWithFileName>
-      <FilenameWithoutPath>triceBareFifoUART.c</FilenameWithoutPath>
+      <PathWithFileName>..\..\..\srcTrice.C\triceBareFifo.c</PathWithFileName>
+      <FilenameWithoutPath>triceBareFifo.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -238,8 +238,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\..\srcTrice.C\triceEscFifoUART.c</PathWithFileName>
-      <FilenameWithoutPath>triceEscFifoUART.c</FilenameWithoutPath>
+      <PathWithFileName>..\..\..\srcTrice.C\triceEscFifo.c</PathWithFileName>
+      <FilenameWithoutPath>triceEscFifo.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>

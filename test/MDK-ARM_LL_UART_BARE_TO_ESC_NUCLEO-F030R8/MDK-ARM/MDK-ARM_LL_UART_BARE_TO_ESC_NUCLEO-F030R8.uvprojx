@@ -394,9 +394,9 @@
           <GroupName>Trice</GroupName>
           <Files>
             <File>
-              <FileName>triceBareFifoUART.c</FileName>
+              <FileName>triceBareFifo.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\srcTrice.C\triceBareFifoUART.c</FilePath>
+              <FilePath>..\..\..\srcTrice.C\triceBareFifo.c</FilePath>
             </File>
             <File>
               <FileName>triceCheck.c</FileName>
@@ -404,9 +404,9 @@
               <FilePath>..\..\..\srcTrice.C\triceCheck.c</FilePath>
             </File>
             <File>
-              <FileName>triceEscFifoUART.c</FileName>
+              <FileName>triceEscFifo.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\srcTrice.C\triceEscFifoUART.c</FilePath>
+              <FilePath>..\..\..\srcTrice.C\triceEscFifo.c</FilePath>
             </File>
             <File>
               <FileName>triceSeggerRTT.c</FileName>

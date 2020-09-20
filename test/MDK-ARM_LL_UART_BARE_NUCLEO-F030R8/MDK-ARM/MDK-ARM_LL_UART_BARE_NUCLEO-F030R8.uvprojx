@@ -434,9 +434,9 @@
               <FilePath>..\..\..\third_party\SEGGER_RTT\RTT\SEGGER_RTT.c</FilePath>
             </File>
             <File>
-              <FileName>triceBareFifoUART.c</FileName>
+              <FileName>triceBareFifo.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\srcTrice.C\triceBareFifoUART.c</FilePath>
+              <FilePath>..\..\..\srcTrice.C\triceBareFifo.c</FilePath>
             </File>
           </Files>
         </Group>

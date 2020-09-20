@@ -23,7 +23,8 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "trice.h"
-#include "triceEscFifoUART.h"
+#include "triceEscFifo.h"
+#include "triceInterfaceUART.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -107,7 +108,7 @@ int main(void)
         { // send some trices every few ms
             if( milliSecond >= lastTricesTime + 1000 ){
                 static int index = 0x00E8;
-                TRICE16_1( Id(15761),"MSG: triceFifoMaxDepth = %d\n", index );
+                TRICE16_1( Id(48699),"MSG: triceEscFifoMaxDepth = %d\n", index );
                 //triceCheckSet(index%10);
                 index++;
                 lastTricesTime = milliSecond;

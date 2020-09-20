@@ -1,14 +1,9 @@
-/*! \file triceBareFifoUART.h
+/*! \file triceBareFifo.h
 \author Thomas.Hoehenleitner [at] seerose.net
 *******************************************************************************/
 
-#ifndef TRICE_BARE_FIFO_UART_H_
-#define TRICE_BARE_FIFO_UART_H_
-
-#include <stdint.h>
-#include "main.h" // hardware specific stuff
-#include "triceConfigCompiler.h"
-#include "triceInterfaceUART.h"
+#ifndef TRICE_BARE_FIFO_H_
+#define TRICE_BARE_FIFO_H_
 
 #ifdef __cplusplus
 extern "C" {
@@ -17,10 +12,7 @@ extern "C" {
 //! triceServeBareFifoOut must be called cyclically like every 1-100 ms for examle in main loop or a background task.
 void triceServeBareFifoOut(void);
 
-//! triceServeBareFifoTransmit is to be lacated inside the according UART ISR.
-void triceServeBareFifoTransmit(void);
-
-extern uint32_t triceFifoMaxDepthTrices; //!< usabble for diagnostics
+extern int triceBareFifoMaxDepthTrices; //!< usabble for diagnostics
 
 //! TRICE_BARE_SYNC_LEVEL is the max amount of trices bulk transmitted without a sync trice injected.
 //! Assuming triceServeBareFifoOut() is called every ms this is also the max ms abount without a sync trice.
@@ -34,4 +26,4 @@ extern uint32_t triceFifoMaxDepthTrices; //!< usabble for diagnostics
 }
 #endif
 
-#endif /* TRICE_BARE_FIFO_UART_H_ */
+#endif /* TRICE_BARE_FIFO_H_ */
