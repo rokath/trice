@@ -9,24 +9,12 @@
 extern "C" {
 #endif
 
-//! used as TRICE_CODE macro option for more triceWrite(int count, uint8_t * from)
-#define TO_TRICE_WRITE_ESC 40 //!< value is only to distinguish from MORE_FLASH_AND_SPEED, LESS_FLASH_AND_SPEED and NO_CODE
-
-//! used as TRICE_CODE macro option for more flash occupation, but decreases execution time and needs smaller buffers
-#define MORE_FLASH_AND_SPEED 30 //!< value is only to distinguish from LESS_FLASH and NO_CODE
-
-//! used as TRICE_CODE macro option for less flash occupation, but increases execution time and needs bigger buffers
-#define LESS_FLASH_AND_SPEED 20 //!< value is only to distinguish from MORE_FLASH and NO_CODE
-
-//! used as TRICE_CODE macro option for no trice code generation
-#define NO_CODE 10 //!< value is only to distinguish from MORE_FLASH or LESS_FLASH ans must be 0
-
 #include "triceConfigCompiler.h"
 #include "triceConfig.h"
 
 #define Id(n) (n) //!< Macro for improved trice readability and better source code parsing.
 
-#if NO_CODE == TRICE_CODE // no trice code generation
+#ifdef TRICE_NO_CODE // no trice code generation //////////////////////////////
 
 #define TRICE0( id, pFmt )
 #define TRICE8_1( id, pFmt, v0                             )
@@ -48,19 +36,18 @@ extern "C" {
 #define TRICE64_1( id, pFmt, v0 )
 #define TRICE64_2( id, pFmt, v0, v1 )
 
-#endif // #if NO_CODE == TRICE_CODE // trice code generation
+#endif // #ifdef TRICE_NO_CODE // no trice code generation ////////////////////
 
-#if TO_TRICE_WRITE_ESC == TRICE_CODE // #####################################################
+#ifdef TRICE_WRITE_ESC_FIFO ///////////////////////////////////////////////////
 
-
-#define TRICE_ESC  0xEC //! Escape char = control char to start a package
-#define TRICE_DEL  0xDE //! Delete char = If follower of TRICE_ESC it deletes the meaning os TRICE_ESC making it an ordinary TRICE_ESC char
-#define TRICE_P0   0xDF //! No param char = If follower of TRICE_ESC only a 16 bit ID is inside the payload.
-#define TRICE_P1   0xE0 //! 1 byte param char = If follower of TRICE_ESC a 16 bit ID and 1 byte are inside the payload.
-#define TRICE_P2   0xE1 //! 2 byte param char = If follower of TRICE_ESC a 16 bit ID and 2 byte are inside the payload.
-#define TRICE_P4   0xE2 //! 4 byte param char = If follower of TRICE_ESC a 16 bit ID and 4 byte are inside the payload.
-#define TRICE_P8   0xE3 //! 8 byte param char = If follower of TRICE_ESC a 16 bit ID and 8 byte are inside the payload.
-#define TRICE_P16  0xE4
+#define TRICE_ESC  0xEC //!< Escape char is control char to start a package.
+#define TRICE_DEL  0xDE //!< Delete char, if follower of TRICE_ESC, deletes the meaning os TRICE_ESC making it an ordinary TRICE_ESC char.
+#define TRICE_P0   0xDF //!< No param char = If follower of TRICE_ESC only a 16 bit ID is inside the payload.
+#define TRICE_P1   0xE0 //!< 1 byte param char = If follower of TRICE_ESC a 16 bit ID and 1 byte are inside the payload.
+#define TRICE_P2   0xE1 //!< 2 byte param char = If follower of TRICE_ESC a 16 bit ID and 2 byte are inside the payload.
+#define TRICE_P4   0xE2 //!< 4 byte param char = If follower of TRICE_ESC a 16 bit ID and 4 byte are inside the payload.
+#define TRICE_P8   0xE3 //!< 8 byte param char = If follower of TRICE_ESC a 16 bit ID and 8 byte are inside the payload.
+#define TRICE_P16  0xE4 //!< 16 byte param char = If follower of TRICE_ESC a 16 bit ID and 8 byte are inside the payload.
 // #define TRICE_P32  0xE5
 // #define TRICE_P64  0xE6
 // #define TRICE_P128 0xE7
@@ -284,7 +271,8 @@ extern int triceFifoMaxDepth;
 
 #endif // #if TO_TRICE_WRITE == TRICE_CODE // ###########################################
 
-#if MORE_FLASH_AND_SPEED == TRICE_CODE // ###############################################
+#ifdef TRICE_WRITE_BARE_FIFO // #########################################################
+#ifdef MORE_FLASH_AND_SPEED // ##########################################################
 
 ///////////////////////////////////////////////////////////////////////////////
 // TRICE macros
@@ -593,7 +581,7 @@ When several data, the real ID comes in the last 32 bit sequence.
 
 #endif // #if MORE_FLASH_AND_SPEED == TRICE_CODE // ######################################
 
-#if LESS_FLASH_AND_SPEED == TRICE_CODE // ################################################
+#ifdef LESS_FLASH_AND_SPEED // ###########################################################
 
 ///////////////////////////////////////////////////////////////////////////////
 // internal trice functions
@@ -1246,7 +1234,9 @@ TRICE_INLINE void trice_64_2_ocs( uint16_t Id, uint64_t d0, uint64_t d1 ){
     trice_64_2_ocs( Id, (uint64_t)d0, (uint64_t)d1 ); \
 } while(0)
 
-#endif // #if LESS_FLASH_AND_SPEED == TRICE_CODE // #####################################
+#endif // #ifdef LESS_FLASH_AND_SPEED // ################################################
+#endif // #ifdef TRICE_WRITE_BARE_FIFO // ###############################################
+
 
 //! TRICE_SYNC is an optional trice sync message for syncing, when bare transmission is used.
 //! The value 35243 (0x89ab) is a reserved pattern used as ID with value DA 0xcdef.
