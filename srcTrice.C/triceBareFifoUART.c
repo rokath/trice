@@ -1,8 +1,9 @@
-/*! \file triceFifoUART.h
+/*! \file triceBareFifoUART.h
 \author Thomas.Hoehenleitner [at] seerose.net
 *******************************************************************************/
-#include "triceFifoUART.h"
+#include "triceBareFifoUART.h"
 
+#define TRICE_FILENAME TRICE0( Id(20698), "rd_:triceBareFifoUART.c" );
 //! TRICE_FIFO_BYTE_SIZE must be a power of 2, one trice needs 4 to 32 or one day more bytes.
 //! The fifo has to hold trice bursts until they are transmitted.
 //! It is transmitted with lower priority in the background for example with the UART tx interrupt.

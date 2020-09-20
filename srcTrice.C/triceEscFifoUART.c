@@ -80,8 +80,10 @@ static void triceWriteEsc(int count, uint8_t *buf) {
     triceEnableTxEmptyInterrupt();
 }
 
+//! Start with TRICE_ESC and then comes buf
 void triceWriteEscP(int count, uint8_t *buf) {
     TRICE_ENTER_CRITICAL_SECTION
+    TRICE_PUSH_BYTE(TRICE_ESC);
     triceWriteEsc(count, buf);
     TRICE_LEAVE_CRITICAL_SECTION
 }
@@ -93,8 +95,9 @@ void trice_s(uint16_t Id, char *dynString) {
     while (k < n) {  // n:  0 | 1 2 3 4 5
         k = 1 << h++;// h: -1 | 1 2 3 3 4
     }                // k:  0 | 1 2 4 4 8
-    uint8_t msg[] = {TRICE_HI_BYTE(Id), TRICE_LO_BYTE(Id), TRICE_ESC, TRICE_P0 + h};
+    uint8_t msg[] = {TRICE_P0 + h, TRICE_HI_BYTE(Id), TRICE_LO_BYTE(Id)};
     TRICE_ENTER_CRITICAL_SECTION
+    TRICE_PUSH_BYTE(TRICE_ESC);
     triceWriteEsc(sizeof(msg), msg);
     triceWriteEsc(n, (uint8_t *) dynString);
     triceWritePaddingBytes(k - n);

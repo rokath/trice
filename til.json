@@ -2889,5 +2889,12 @@
 		"fmtStrg": "s:                                        \\ns:   ARM-MDK_LL_UART_ESC_NUCLEO-F030R8   \\ns:                                        \\n\\n",
 		"created": 1600546863,
 		"removed": 0
+	},
+	{
+		"id": 20698,
+		"fmtType": "TRICE0",
+		"fmtStrg": "rd_:triceBareFifoUART.c",
+		"created": 1600594398,
+		"removed": 0
 	}
 ]

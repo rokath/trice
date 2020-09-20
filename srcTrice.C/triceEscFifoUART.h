@@ -1,4 +1,4 @@
-/*! \file triceEsvFifoUART.h
+/*! \file triceEscFifoUART.h
 \author Thomas.Hoehenleitner [at] seerose.net
 *******************************************************************************/
 

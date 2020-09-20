@@ -23,7 +23,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "trice.h"
-#include "triceFifoUART.h"
+#include "triceBareFifoUART.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -97,9 +97,9 @@ int main(void)
   /* USER CODE BEGIN 2 */
     LL_USART_EnableIT_RXNE(TRICE_UART); // enable UART2 interrupt
     TRICE0( Id(54442), "s:                                        \ns:   ARM-MDK_LL_UART_BARE_NUCLEO-F070RB   \ns:                                        \n\n");
-/* USER CODE END 2 */
+  /* USER CODE END 2 */
 
-  /* Infinite loop */	
+  /* Infinite loop */
   /* USER CODE BEGIN WHILE */
     while (1)
     {

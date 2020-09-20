@@ -1,9 +1,9 @@
-/*! \file triceConfigFifoUART.h
+/*! \file triceBareFifoUART.h
 \author Thomas.Hoehenleitner [at] seerose.net
 *******************************************************************************/
 
-#ifndef TRICE_CONFIG_FIFO_UART_H_
-#define TRICE_CONFIG_FIFO_UART_H_
+#ifndef TRICE_BARE_FIFO_UART_H_
+#define TRICE_BARE_FIFO_UART_H_
 
 #include <stdint.h>
 #include "main.h" // hardware specific stuff
@@ -64,4 +64,4 @@ TRICE_INLINE void triceDisableTxEmptyInterrupt(void) {
 }
 #endif
 
-#endif /* TRICE_CONFIG_FIFO_UART_H_ */
+#endif /* TRICE_BARE_FIFO_UART_H_ */

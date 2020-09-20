@@ -105,23 +105,16 @@ extern int triceFifoMaxDepth;
 //! \param Id trice identifier
 //! \param pFmt formatstring for trice
 #define TRICE0(Id, pFmt) do{ \
-    uint8_t msg[] = {TRICE_ESC, TRICE_P0, TRICE_HI_BYTE(Id), TRICE_LO_BYTE(Id)}; \
+    uint8_t msg[] = {TRICE_P0, TRICE_HI_BYTE(Id), TRICE_LO_BYTE(Id)}; \
     triceWriteEscP( sizeof(msg), msg ); \
 } while(0)
-
-// static inline void TRICE0( uint16_t Id, char* pFmt ){
-//     do{ 
-//     uint8_t msg[] = {TRICE_ESC, TRICE_P0, TRICE_HI_BYTE(Id), TRICE_LO_BYTE(Id)}; 
-//     triceWriteEscP( sizeof(msg), msg ); 
-//     } while(0);
-//     }
 
 //! trace Id protected (outside critical section)
 //! \param Id trice identifier
 //! \param pFmt formatstring for trice
 //! \param 8-bit payload
 #define TRICE8_1(Id, pFmt, d0) do{ \
-    uint8_t msg[] = {TRICE_ESC, TRICE_P1, TRICE_HI_BYTE(Id), TRICE_LO_BYTE(Id), \
+    uint8_t msg[] = {TRICE_P1, TRICE_HI_BYTE(Id), TRICE_LO_BYTE(Id), \
         TRICE_BYTE(d0)}; \
     triceWriteEscP( sizeof(msg), msg ); \
 } while(0)
@@ -132,46 +125,46 @@ extern int triceFifoMaxDepth;
 //! \param d0 payload
 //! \param d1 payload
 #define TRICE8_2(Id, pFmt, d0, d1) do{ \
-    uint8_t msg[] = {TRICE_ESC, TRICE_P2, TRICE_HI_BYTE(Id), TRICE_LO_BYTE(Id), \
+    uint8_t msg[] = {TRICE_P2, TRICE_HI_BYTE(Id), TRICE_LO_BYTE(Id), \
         TRICE_BYTE(d0), TRICE_BYTE(d1)}; \
     triceWriteEscP( sizeof(msg), msg ); \
 } while(0)
 
 #define TRICE8_3(Id, pFmt, d0, d1, d2) do{ \
-    uint8_t msg[] = {TRICE_ESC, TRICE_P4, TRICE_HI_BYTE(Id), TRICE_LO_BYTE(Id), \
+    uint8_t msg[] = {TRICE_P4, TRICE_HI_BYTE(Id), TRICE_LO_BYTE(Id), \
         TRICE_BYTE(d0), TRICE_BYTE(d1), TRICE_BYTE(d2)}; \
     triceWriteEscP( sizeof(msg), msg ); \
 } while(0)
 
 #define TRICE8_4(Id, pFmt, d0, d1, d2, d3) do{ \
-    uint8_t msg[] = {TRICE_ESC, TRICE_P4, TRICE_HI_BYTE(Id), TRICE_LO_BYTE(Id), \
+    uint8_t msg[] = {TRICE_P4, TRICE_HI_BYTE(Id), TRICE_LO_BYTE(Id), \
         TRICE_BYTE(d0), TRICE_BYTE(d1), TRICE_BYTE(d2), TRICE_BYTE(d3)}; \
     triceWriteEscP( sizeof(msg), msg ); \
 } while(0)
 
 #define TRICE8_5(Id, pFmt, d0, d1, d2, d3, d4) do{ \
-    uint8_t msg[] = {TRICE_ESC, TRICE_P8, TRICE_HI_BYTE(Id), TRICE_LO_BYTE(Id), \
+    uint8_t msg[] = {TRICE_P8, TRICE_HI_BYTE(Id), TRICE_LO_BYTE(Id), \
         TRICE_BYTE(d0), TRICE_BYTE(d1), TRICE_BYTE(d2), TRICE_BYTE(d3), \
         TRICE_BYTE(d4)}; \
     triceWriteEscP( sizeof(msg), msg ); \
 } while(0)
 
 #define TRICE8_6(Id, pFmt, d0, d1, d2, d3, d4, d5) do{ \
-    uint8_t msg[] = {TRICE_ESC, TRICE_P8, TRICE_HI_BYTE(Id), TRICE_LO_BYTE(Id), \
+    uint8_t msg[] = {TRICE_P8, TRICE_HI_BYTE(Id), TRICE_LO_BYTE(Id), \
         TRICE_BYTE(d0), TRICE_BYTE(d1), TRICE_BYTE(d2), TRICE_BYTE(d3), \
         TRICE_BYTE(d4), TRICE_BYTE(d5)}; \
     triceWriteEscP( sizeof(msg), msg ); \
 } while(0)
 
 #define TRICE8_7(Id, pFmt, d0, d1, d2, d3, d4, d5, d6) do{ \
-    uint8_t msg[] = {TRICE_ESC, TRICE_P8, TRICE_HI_BYTE(Id), TRICE_LO_BYTE(Id), \
+    uint8_t msg[] = {TRICE_P8, TRICE_HI_BYTE(Id), TRICE_LO_BYTE(Id), \
         TRICE_BYTE(d0), TRICE_BYTE(d1), TRICE_BYTE(d2), TRICE_BYTE(d3), \
         TRICE_BYTE(d4), TRICE_BYTE(d5), TRICE_BYTE(d6)}; \
     triceWriteEscP( sizeof(msg), msg ); \
 } while(0)
 
 #define TRICE8_8(Id, pFmt, d0, d1, d2, d3, d4, d5, d6, d7) do{ \
-    uint8_t msg[] = {TRICE_ESC, TRICE_P8, TRICE_HI_BYTE(Id), TRICE_LO_BYTE(Id), \
+    uint8_t msg[] = {TRICE_P8, TRICE_HI_BYTE(Id), TRICE_LO_BYTE(Id), \
         TRICE_BYTE(d0), TRICE_BYTE(d1), TRICE_BYTE(d2), TRICE_BYTE(d3), \
         TRICE_BYTE(d4), TRICE_BYTE(d5), TRICE_BYTE(d6), TRICE_BYTE(d7)}; \
     triceWriteEscP( sizeof(msg), msg ); \
@@ -182,20 +175,20 @@ extern int triceFifoMaxDepth;
 //! \param pFmt formatstring for trice
 //! \param d0 payload
 #define TRICE16_1(Id, pFmt, d0) do{ \
-    uint8_t msg[] = {TRICE_ESC, TRICE_P2, TRICE_HI_BYTE(Id), TRICE_LO_BYTE(Id), \
+    uint8_t msg[] = {TRICE_P2, TRICE_HI_BYTE(Id), TRICE_LO_BYTE(Id), \
         TRICE_HI_BYTE(d0), TRICE_LO_BYTE(d0)}; \
     triceWriteEscP( sizeof(msg), msg ); \
 } while(0)
 
 #define TRICE16_2(Id, pFmt, d0, d1) do{ \
-    uint8_t msg[] = {TRICE_ESC, TRICE_P4, TRICE_HI_BYTE(Id), TRICE_LO_BYTE(Id), \
+    uint8_t msg[] = {TRICE_P4, TRICE_HI_BYTE(Id), TRICE_LO_BYTE(Id), \
         TRICE_HI_BYTE(d0), TRICE_LO_BYTE(d0), \
         TRICE_HI_BYTE(d1), TRICE_LO_BYTE(d1)}; \
     triceWriteEscP( sizeof(msg), msg ); \
 } while(0)
 
 #define TRICE16_3(Id, pFmt, d0, d1, d2) do{ \
-    uint8_t msg[] = {TRICE_ESC, TRICE_P8, TRICE_HI_BYTE(Id), TRICE_LO_BYTE(Id), \
+    uint8_t msg[] = {TRICE_P8, TRICE_HI_BYTE(Id), TRICE_LO_BYTE(Id), \
         TRICE_HI_BYTE(d0), TRICE_LO_BYTE(d0), \
         TRICE_HI_BYTE(d1), TRICE_LO_BYTE(d1), \
         TRICE_HI_BYTE(d2), TRICE_LO_BYTE(d2)}; \
@@ -203,7 +196,7 @@ extern int triceFifoMaxDepth;
 } while(0)
 
 #define TRICE16_4(Id, pFmt, d0, d1, d2, d3) do{ \
-    uint8_t msg[] = {TRICE_ESC, TRICE_P8, TRICE_HI_BYTE(Id), TRICE_LO_BYTE(Id), \
+    uint8_t msg[] = {TRICE_P8, TRICE_HI_BYTE(Id), TRICE_LO_BYTE(Id), \
         TRICE_HI_BYTE(d0), TRICE_LO_BYTE(d0), \
         TRICE_HI_BYTE(d1), TRICE_LO_BYTE(d1), \
         TRICE_HI_BYTE(d2), TRICE_LO_BYTE(d2), \
@@ -216,7 +209,7 @@ extern int triceFifoMaxDepth;
 //! \param pFmt formatstring for trice
 //! \param d0 payload
 #define TRICE32_1(Id, pFmt, d0) do{ \
-    uint8_t msg[] = {TRICE_ESC, TRICE_P4, TRICE_HI_BYTE(Id), TRICE_LO_BYTE(Id), \
+    uint8_t msg[] = {TRICE_P4, TRICE_HI_BYTE(Id), TRICE_LO_BYTE(Id), \
         TRICE_HH_BYTE(d0), TRICE_HL_BYTE(d0), TRICE_LH_BYTE(d0), TRICE_LL_BYTE(d0)}; \
     triceWriteEscP( sizeof(msg), msg ); \
 } while(0)
@@ -227,7 +220,7 @@ extern int triceFifoMaxDepth;
 //! \param d0 payload
 //! \param d1 payload
 #define TRICE32_2(Id, pFmt, d0, d1) do{ \
-    uint8_t msg[] = {TRICE_ESC, TRICE_P8, TRICE_HI_BYTE(Id), TRICE_LO_BYTE(Id), \
+    uint8_t msg[] = {TRICE_P8, TRICE_HI_BYTE(Id), TRICE_LO_BYTE(Id), \
         TRICE_HH_BYTE(d0), TRICE_HL_BYTE(d0), TRICE_LH_BYTE(d0), TRICE_LL_BYTE(d0), \
         TRICE_HH_BYTE(d1), TRICE_HL_BYTE(d1), TRICE_LH_BYTE(d1), TRICE_LL_BYTE(d1)}; \
     triceWriteEscP( sizeof(msg), msg ); \
@@ -240,7 +233,7 @@ extern int triceFifoMaxDepth;
 //! \param d1 payload
 //! \param d2 payload
 #define TRICE32_3(Id, pFmt, d0, d1, d2) do{ \
-    uint8_t msg[] = {TRICE_ESC, TRICE_P16, TRICE_HI_BYTE(Id), TRICE_LO_BYTE(Id), \
+    uint8_t msg[] = {TRICE_P16, TRICE_HI_BYTE(Id), TRICE_LO_BYTE(Id), \
         TRICE_HH_BYTE(d0), TRICE_HL_BYTE(d0), TRICE_LH_BYTE(d0), TRICE_LL_BYTE(d0), \
         TRICE_HH_BYTE(d1), TRICE_HL_BYTE(d1), TRICE_LH_BYTE(d1), TRICE_LL_BYTE(d1), \
         TRICE_HH_BYTE(d2), TRICE_HL_BYTE(d2), TRICE_LH_BYTE(d2), TRICE_LL_BYTE(d2)}; \
@@ -255,7 +248,7 @@ extern int triceFifoMaxDepth;
 //! \param d2 payload
 //! \param d3 payload
 #define TRICE32_4(Id, pFmt, d0, d1, d2, d3) do{ \
-    uint8_t msg[] = {TRICE_ESC, TRICE_P16, TRICE_HI_BYTE(Id), TRICE_LO_BYTE(Id), \
+    uint8_t msg[] = {TRICE_P16, TRICE_HI_BYTE(Id), TRICE_LO_BYTE(Id), \
         TRICE_HH_BYTE(d0), TRICE_HL_BYTE(d0), TRICE_LH_BYTE(d0), TRICE_LL_BYTE(d0), \
         TRICE_HH_BYTE(d1), TRICE_HL_BYTE(d1), TRICE_LH_BYTE(d1), TRICE_LL_BYTE(d1), \
         TRICE_HH_BYTE(d2), TRICE_HL_BYTE(d2), TRICE_LH_BYTE(d2), TRICE_LL_BYTE(d2), \
@@ -269,7 +262,7 @@ extern int triceFifoMaxDepth;
 //! \param pFmt formatstring for trice
 //! \param d0 payload
 #define TRICE64_1(Id, pFmt, d0) do{ \
-    uint8_t msg[] = {TRICE_ESC, TRICE_P8, TRICE_HI_BYTE(Id), TRICE_LO_BYTE(Id), \
+    uint8_t msg[] = {TRICE_P8, TRICE_HI_BYTE(Id), TRICE_LO_BYTE(Id), \
         TRICE_HHH_BYTE(d0), TRICE_HHL_BYTE(d0), TRICE_HLH_BYTE(d0), TRICE_HLL_BYTE(d0), \
         TRICE_LHH_BYTE(d0), TRICE_LHL_BYTE(d0), TRICE_LLH_BYTE(d0), TRICE_LLL_BYTE(d0)}; \
     triceWriteEscP( sizeof(msg), msg ); \
@@ -281,7 +274,7 @@ extern int triceFifoMaxDepth;
 //! \param d0 payload
 //! \param d1 payload
 #define TRICE64_2(Id, pFmt, d0, d1) do{ \
-    uint8_t msg[] = {TRICE_ESC, TRICE_P16, TRICE_HI_BYTE(Id), TRICE_LO_BYTE(Id), \
+    uint8_t msg[] = {TRICE_P16, TRICE_HI_BYTE(Id), TRICE_LO_BYTE(Id), \
         TRICE_HHH_BYTE(d0), TRICE_HHL_BYTE(d0), TRICE_HLH_BYTE(d0), TRICE_HLL_BYTE(d0), \
         TRICE_LHH_BYTE(d0), TRICE_LHL_BYTE(d0), TRICE_LLH_BYTE(d0), TRICE_LLL_BYTE(d0), \
         TRICE_HHH_BYTE(d1), TRICE_HHL_BYTE(d1), TRICE_HLH_BYTE(d1), TRICE_HLL_BYTE(d1), \
