@@ -38,8 +38,6 @@ extern "C" {
 
 #endif // #ifdef TRICE_NO_CODE // no trice code generation ////////////////////
 
-#ifdef TRICE_WRITE_ESC_FIFO ///////////////////////////////////////////////////
-
 #define TRICE_ESC  0xEC //!< Escape char is control char to start a package.
 #define TRICE_DEL  0xDE //!< Delete char, if follower of TRICE_ESC, deletes the meaning os TRICE_ESC making it an ordinary TRICE_ESC char.
 #define TRICE_P0   0xDF //!< No param char = If follower of TRICE_ESC only a 16 bit ID is inside the payload.
@@ -75,6 +73,8 @@ extern "C" {
 #define TRICE_LLH_BYTE(v) TRICE_BYTE(((uint64_t)(v))>> 8)
 #define TRICE_LLL_BYTE(v) TRICE_BYTE(v)
 
+
+#ifdef TRICE_WRITE_ESC_FIFO ///////////////////////////////////////////////////
 
 void triceWriteEscP( int count, uint8_t * buf );
 void trice_s(uint16_t Id, char * dynString);
@@ -271,7 +271,7 @@ extern int triceFifoMaxDepth;
 
 #endif // #if TO_TRICE_WRITE == TRICE_CODE // ###########################################
 
-#ifdef TRICE_WRITE_BARE_FIFO // #########################################################
+#if defined TRICE_WRITE_BARE_FIFO || defined TRICE_WRITE_BARE_FIFO_SERVE_TO_ESC_FIFO // #
 #ifdef MORE_FLASH_AND_SPEED // ##########################################################
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -116,13 +116,6 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-        // { // serve every few ms
-        //     static int lastMs = 0;
-        //     if( milliSecond >= lastMs + 1 ){
-        //         lastMs = milliSecond;
-        //         triceServeTransmit();
-        //     }
-        // }
     }
   /* USER CODE END 3 */
 }

@@ -2896,5 +2896,19 @@
 		"fmtStrg": "rd_:triceBareFifoUART.c",
 		"created": 1600594398,
 		"removed": 0
+	},
+	{
+		"id": 7872,
+		"fmtType": "TRICE0",
+		"fmtStrg": "s:                                        \\ns:   ARM-MDK_LL_UART_BARE_TO_ESC_NUCLEO-F030RB   \\ns:                                        \\n\\n",
+		"created": 1600609093,
+		"removed": 0
+	},
+	{
+		"id": 44155,
+		"fmtType": "TRICE0",
+		"fmtStrg": "rd_:triceBareFifoToEscFifo.c",
+		"created": 1600611913,
+		"removed": 0
 	}
 ]

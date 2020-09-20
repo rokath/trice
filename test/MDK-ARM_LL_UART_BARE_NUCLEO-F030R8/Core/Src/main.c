@@ -44,7 +44,6 @@
 
 /* USER CODE BEGIN PV */
 int milliSecond = 0;
-int Second = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -105,7 +104,7 @@ int main(void)
   while (1)
   {
         static int lastTricesTime = 0;
-      { // every second
+      { // every few milliseconds
             if( milliSecond >= lastTricesTime + 100 ){
                 static int index = 0;
                 TRICE16_1( Id(36847),"MSG: triceFifoMaxDepthBytes = %d\n", triceFifoMaxDepthTrices*4 );
@@ -121,7 +120,7 @@ int main(void)
             static int lastMs = 0;
             if( milliSecond >= lastMs + 1 ){
                 lastMs = milliSecond;
-                triceServeOut();
+                triceServeBareFifoOut();
             }
         }
   }

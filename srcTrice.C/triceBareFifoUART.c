@@ -66,10 +66,10 @@ TRICE_INLINE unsigned triceFifoDepth(void) {
     return triceDepth;
 }
 
-//! triceServeOut must be called cyclically to proceed ongoing write out.
+//! triceServeBareFifoOut must be called cyclically to proceed ongoing write out.
 //! It schould be called at least every ms.
 //! A possibe place is main loop.
-void triceServeOut(void) {
+void triceServeBareFifoOut(void) {
     // 89 ab cd ef <- on serial port
     // ih il dh dl
     uint32_t const syncTrice = 0x89abcdef;
@@ -99,16 +99,14 @@ void triceServeOut(void) {
             syncLevel = 0;
         }
         triceBytesBufferIndex = 0;
-        // next byte
-        triceTransmitData8(triceBytesBuffer[triceBytesBufferIndex++]);
-        triceEnableTxEmptyInterrupt();
+        triceEnableTxEmptyInterrupt(); // next byte
     }
 }
 
-//! triceServeTransmit() must be called cyclically to proceed ongoing write out.
+//! triceServeBareFifoTransmit must be called cyclically to proceed ongoing write out.
 //! A good place: sysTick ISR and UART ISR (both together).
 //! TODO: endianess with compiler macros.
-void triceServeTransmit(void) {
+void triceServeBareFifoTransmit(void) {
     if (!triceTxDataRegisterEmpty()) {
         for (;;); // unexpected case
     }

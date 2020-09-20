@@ -152,7 +152,7 @@ void USART2_IRQHandler(void)
 
   /* USER CODE END USART2_IRQn 0 */
   /* USER CODE BEGIN USART2_IRQn 1 */
-    triceServeTransmit();
+    triceServeEscFifoTransmit();
   /* USER CODE END USART2_IRQn 1 */
 }
 

@@ -126,8 +126,8 @@ void PendSV_Handler(void)
 void SysTick_Handler(void)
 {
   /* USER CODE BEGIN SysTick_IRQn 0 */
-	  extern int milliSecond;
-	  milliSecond++;
+    extern int milliSecond;
+    milliSecond++;
 
   /* USER CODE END SysTick_IRQn 0 */
 
@@ -152,7 +152,7 @@ void USART2_IRQHandler(void)
 
   /* USER CODE END USART2_IRQn 0 */
   /* USER CODE BEGIN USART2_IRQn 1 */
-    triceServeTransmit();
+    triceServeBareFifoTransmit();
   /* USER CODE END USART2_IRQn 1 */
 }
 

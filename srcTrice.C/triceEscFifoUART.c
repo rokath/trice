@@ -49,9 +49,9 @@ static int triceFifoDepth(void) {
 }
 
 
-//! triceServeTransmit() must be called cyclically to proceed ongoing write out.
+//! triceServeEscFifoTransmit must be called cyclically to proceed ongoing write out.
 //! A good place: sysTick ISR and UART ISR (both together).
-void triceServeTransmit(void) {
+void triceServeEscFifoTransmit(void) {
     if (!triceTxDataRegisterEmpty()) {
         for (;;); // unexpected case
     }
@@ -61,7 +61,6 @@ void triceServeTransmit(void) {
         triceDisableTxEmptyInterrupt();
     }
 }
-
 
 static void triceWritePaddingBytes(int count) {
     while (count--) {
@@ -77,7 +76,6 @@ static void triceWriteEsc(int count, uint8_t *buf) {
             TRICE_PUSH_BYTE(TRICE_DEL);
         }
     }
-    triceEnableTxEmptyInterrupt();
 }
 
 //! Start with TRICE_ESC and then comes buf
@@ -85,6 +83,7 @@ void triceWriteEscP(int count, uint8_t *buf) {
     TRICE_ENTER_CRITICAL_SECTION
     TRICE_PUSH_BYTE(TRICE_ESC);
     triceWriteEsc(count, buf);
+    triceEnableTxEmptyInterrupt();
     TRICE_LEAVE_CRITICAL_SECTION
 }
 
@@ -101,6 +100,7 @@ void trice_s(uint16_t Id, char *dynString) {
     triceWriteEsc(sizeof(msg), msg);
     triceWriteEsc(n, (uint8_t *) dynString);
     triceWritePaddingBytes(k - n);
+    triceEnableTxEmptyInterrupt();
     TRICE_LEAVE_CRITICAL_SECTION
     // example: ""         =                                   0 -> bufLen=1 -> n=0, (1<<0)= 1, padding=0
     // example: "a"        = 'a'                               0 -> bufLen=2 -> n=1, (1<<1)= 2, padding=0
