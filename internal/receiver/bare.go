@@ -10,7 +10,6 @@ import (
 	"encoding/binary"
 	"fmt"
 	"io"
-	"log"
 	"time"
 )
 
@@ -128,7 +127,7 @@ func (p *BareTriceReceiver) readBare() {
 		// convert into Trice slice
 		cv := make([]byte, syncLen)
 		copy(cv, p.syncBuffer)
-		log.Println("syncbuffer:", syncLen, cv)
+		//log.Println("syncbuffer:", syncLen, cv)
 		r := bytes.NewReader(cv)
 		atomsAvailCount := len(cv) / triceSize
 		atomsAvail := make([]Trice, atomsAvailCount)              // needs to be created on each loop fresh because it is send away thru a channel

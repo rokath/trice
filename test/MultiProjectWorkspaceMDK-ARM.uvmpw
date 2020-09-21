@@ -21,6 +21,7 @@
 
   <project>
     <PathAndName>.\MDK-ARM_LL_UART_ESC_NUCLEO-F070RB\MDK-ARM\MDK-ARM_LL_UART_ESC_NUCLEO-F070RB.uvprojx</PathAndName>
+    <NodeIsActive>1</NodeIsActive>
   </project>
 
   <project>
@@ -29,7 +30,6 @@
 
   <project>
     <PathAndName>.\MDK-ARM_LL_UART_BARE_TO_ESC_NUCLEO-F070RB\MDK-ARM\MDK-ARM_LL_UART_BARE_TO_ESC_NUCLEO-F070RB.uvprojx</PathAndName>
-    <NodeIsActive>1</NodeIsActive>
     <NodeIsExpanded>1</NodeIsExpanded>
   </project>
 

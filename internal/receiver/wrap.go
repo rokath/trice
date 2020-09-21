@@ -1,7 +1,7 @@
 // Copyright 2020 Thomas.Hoehenleitner [at] seerose.net
 // Use of this source code is governed by a license that can be found in the LICENSE file.
 
-// Package wrap provides a Reader for wrapped trice data
+// Package receiver provides a Reader for wrapped trice data
 //
 // It uses any byte reader and additional encoding information.
 // It reads trice wraps and syncs internally if byte stream inconsistent.
