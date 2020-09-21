@@ -2966,5 +2966,40 @@
 		"fmtStrg": "rd_:triceBareFifoToBytesBuffer.c",
 		"created": 1600672903,
 		"removed": 0
+	},
+	{
+		"id": 37259,
+		"fmtType": "TRICE0",
+		"fmtStrg": "s:                                        \\ns:   ARM-MDK_LL_UART_BARE_TO_ESC_NUCLEO-F030R8   \\ns:                                        \\n\\n",
+		"created": 1600679081,
+		"removed": 0
+	},
+	{
+		"id": 33467,
+		"fmtType": "TRICE0",
+		"fmtStrg": "s:                                        \\ns:   ARM-MDK_LL_UART_BARE_TO_ESC_NUCLEO-F070RB   \\ns:                                        \\n\\n",
+		"created": 1600679081,
+		"removed": 0
+	},
+	{
+		"id": 38143,
+		"fmtType": "TRICE16_2",
+		"fmtStrg": "MSG: triceFifoMaxDepth: Bare = %d, Esc = %d\\n",
+		"created": 1600679595,
+		"removed": 0
+	},
+	{
+		"id": 41488,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "MSG: triceBareFifoMaxDepth = %d\\n",
+		"created": 1600679680,
+		"removed": 0
+	},
+	{
+		"id": 46650,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "MSG: triceBareFifoMaxDepth = %d\\n",
+		"created": 1600679681,
+		"removed": 0
 	}
 ]

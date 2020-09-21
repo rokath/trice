@@ -23,8 +23,9 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "trice.h"
-#include "triceBareFifo.h"
 #include "triceInterfaceUART.h"
+#include "triceBareFifo.h"
+#include "triceBareFifoToEscFifo.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -97,7 +98,7 @@ int main(void)
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
   LL_USART_EnableIT_RXNE(TRICE_UART); // enable UART2 interrupt
-    TRICE0( Id(20913), "s:                                        \ns:   ARM-MDK_LL_UART_BARE_NUCLEO-F030RB   \ns:                                        \n\n");
+    TRICE0( Id(33467), "s:                                        \ns:   ARM-MDK_LL_UART_BARE_TO_ESC_NUCLEO-F070RB   \ns:                                        \n\n");
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -106,9 +107,9 @@ int main(void)
   {
         static int lastTricesTime = 0;
       { // every few milliseconds
-            if( milliSecond >= lastTricesTime + 100 ){
+            if( milliSecond >= lastTricesTime + 1000 ){
                 static int index = 0;
-                TRICE16_1( Id(41488),"MSG: triceBareFifoMaxDepth = %d\n", triceBareFifoMaxDepth );
+                TRICE16_2( Id(38143),"MSG: triceFifoMaxDepth: Bare = %d, Esc = %d\n", triceBareFifoMaxDepth, triceEscFifoMaxDepth );
                 triceCheckSet(index%10);
                 index++;
                 lastTricesTime = milliSecond;
@@ -117,11 +118,11 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-        { // check every ms
+        { // check every few milliseconds
             static int lastMs = 0;
             if( milliSecond >= lastMs + 1 ){
                 lastMs = milliSecond;
-                triceServeBareFifoToBytesBuffer();
+                triceServeBareFifoToEscFifo();
             }
         }
   }
@@ -146,7 +147,7 @@ void SystemClock_Config(void)
 
   }
   LL_RCC_HSI_SetCalibTrimming(16);
-  LL_RCC_PLL_ConfigDomain_SYS(LL_RCC_PLLSOURCE_HSI_DIV_2, LL_RCC_PLL_MUL_12);
+  LL_RCC_PLL_ConfigDomain_SYS(LL_RCC_PLLSOURCE_HSI, LL_RCC_PLL_MUL_6, LL_RCC_PREDIV_DIV_1);
   LL_RCC_PLL_Enable();
 
    /* Wait till PLL is ready */
@@ -193,7 +194,7 @@ static void MX_USART2_UART_Init(void)
   */
   GPIO_InitStruct.Pin = USART_TX_Pin;
   GPIO_InitStruct.Mode = LL_GPIO_MODE_ALTERNATE;
-  GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_LOW;
+  GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_HIGH;
   GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
   GPIO_InitStruct.Pull = LL_GPIO_PULL_NO;
   GPIO_InitStruct.Alternate = LL_GPIO_AF_1;
@@ -201,7 +202,7 @@ static void MX_USART2_UART_Init(void)
 
   GPIO_InitStruct.Pin = USART_RX_Pin;
   GPIO_InitStruct.Mode = LL_GPIO_MODE_ALTERNATE;
-  GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_LOW;
+  GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_HIGH;
   GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
   GPIO_InitStruct.Pull = LL_GPIO_PULL_NO;
   GPIO_InitStruct.Alternate = LL_GPIO_AF_1;

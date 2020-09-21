@@ -14,8 +14,8 @@ extern "C" {
 void tricePushBareFifo(uint32_t v);
 uint32_t tricePopBareFifo(void);
 
-unsigned triceBareFifoDepth(void);
-extern int triceBareFifoMaxDepthTrices; //!< diagnostics
+int triceBareFifoDepth(void);
+extern int triceBareFifoMaxDepth; //!< diagnostics
 
 #ifdef __cplusplus
 }

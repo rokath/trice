@@ -19,9 +19,9 @@ ALIGN4 uint32_t
 triceFifo[ TRICE_FIFO_BYTE_SIZE>>2 ]
 ALIGN4_END;
 
-uint32_t triceFifoWriteIndex = 0; //!< trice fifo write index, used inside macros, so must be visible
-uint32_t triceFifoReadIndex = 0; //!< trice fifo read index
-int triceBareFifoMaxDepthTrices = 0; //!< diagnostics
+int triceFifoWriteIndex = 0; //!< trice fifo write index, used inside macros, so must be visible
+int triceFifoReadIndex = 0; //!< trice fifo read index
+int triceBareFifoMaxDepth = 0; //!< diagnostics
 
 //! tricePushBareFifo puts one trice into trice fifo.
 //! This is a trice time critical part.
@@ -39,10 +39,11 @@ uint32_t tricePopBareFifo(void) {
     return v;
 }
 
-//! triceBareFifoDepth determines trices count inside trice fifo.
-//! \return count of buffered trices
-unsigned triceBareFifoDepth(void) {
-    unsigned triceDepth = (triceFifoWriteIndex - triceFifoReadIndex) & TRICE_FIFO_MASK;
-    triceBareFifoMaxDepthTrices = triceDepth < triceBareFifoMaxDepthTrices ? triceBareFifoMaxDepthTrices : triceDepth; // diagnostics
-    return triceDepth;
+//! triceBareFifoDepth determines bytes count inside trice fifo.
+//! \return count of buffered bytes
+int triceBareFifoDepth(void) {
+    int triceCount = (triceFifoWriteIndex - triceFifoReadIndex) & TRICE_FIFO_MASK;
+    int depth = triceCount*sizeof(uint32_t);
+    triceBareFifoMaxDepth = depth < triceBareFifoMaxDepth ? triceBareFifoMaxDepth : depth; // diagnostics
+    return depth;
 }
