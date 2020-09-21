@@ -10,7 +10,7 @@
       <TargetName>MDK-ARM_LL_UART_BARE_NUCLEO-F030R8</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
-      <pCCUsed>5060750::V5.06 update 6 (build 750)::ARMCC</pCCUsed>
+      <pCCUsed>5060750::V5.06 update 6 (build 750)::.\ARMCC</pCCUsed>
       <uAC6>0</uAC6>
       <TargetOption>
         <TargetCommonOption>
@@ -437,6 +437,11 @@
               <FileName>triceBareFifo.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\srcTrice.C\triceBareFifo.c</FilePath>
+            </File>
+            <File>
+              <FileName>triceBareFifoToBytesBuffer.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\srcTrice.C\triceBareFifoToBytesBuffer.c</FilePath>
             </File>
           </Files>
         </Group>

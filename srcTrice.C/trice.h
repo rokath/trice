@@ -76,8 +76,7 @@ extern "C" {
 
 #ifdef TRICE_WRITE_ESC_FIFO ///////////////////////////////////////////////////
 
-void triceWriteEscP( int count, uint8_t * buf );
-void trice_s(uint16_t Id, char * dynString);
+#include "triceEscFifo.h"
 
 //! Write Id and dynString protected (outside critical section).
 //! \param Id trice identifier

@@ -2959,5 +2959,12 @@
 		"fmtStrg": "rd_:triceEscFifo.c",
 		"created": 1600621083,
 		"removed": 0
+	},
+	{
+		"id": 1716,
+		"fmtType": "TRICE0",
+		"fmtStrg": "rd_:triceBareFifoToBytesBuffer.c",
+		"created": 1600672903,
+		"removed": 0
 	}
 ]

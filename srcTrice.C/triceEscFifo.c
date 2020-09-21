@@ -6,11 +6,7 @@
 #include "trice.h"
 #include "triceEscFifo.h"
 
-#include "triceInterfaceUART.h" // for ticeEnableTxEmptyInterrupt(); (next byte)
-
-
 #define TRICE_FILENAME TRICE0( Id(44860), "rd_:triceEscFifo.c" );
-
 
 //! TRICE_FIFO_BYTE_SIZE must be a power of 2, one trice needs 4 to 32 or one day more bytes.
 //! The fifo has to hold trice bursts until they are transmitted.
@@ -18,7 +14,6 @@
 #define TRICE_FIFO_BYTE_SIZE 1024
 
 #define TRICE_FIFO_MASK (TRICE_FIFO_BYTE_SIZE-1) //!< max possible byte count in fifo
-
 
 //! trice fifo instance, here are the trices buffered.
 static uint8_t triceFifo[TRICE_FIFO_BYTE_SIZE];
@@ -51,8 +46,6 @@ int triceEscFifoDepth(void) {
     return triceDepth;
 }
 
-
-
 static void triceWritePaddingBytes(int count) {
     while (count--) {
         TRICE_PUSH_BYTE(0);
@@ -74,7 +67,6 @@ void triceWriteEscP(int count, uint8_t *buf) {
     TRICE_ENTER_CRITICAL_SECTION
     TRICE_PUSH_BYTE(TRICE_ESC);
     triceWriteEsc(count, buf);
-    triceEnableTxEmptyInterrupt(); // next byte
     TRICE_LEAVE_CRITICAL_SECTION
 }
 
@@ -91,7 +83,6 @@ void trice_s(uint16_t Id, char *dynString) {
     triceWriteEsc(sizeof(msg), msg);
     triceWriteEsc(n, (uint8_t *) dynString);
     triceWritePaddingBytes(k - n);
-    triceEnableTxEmptyInterrupt(); // next byte
     TRICE_LEAVE_CRITICAL_SECTION
     // example: ""         =                                   0 -> bufLen=1 -> n=0, (1<<0)= 1, padding=0
     // example: "a"        = 'a'                               0 -> bufLen=2 -> n=1, (1<<1)= 2, padding=0

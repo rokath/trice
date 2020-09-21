@@ -44,13 +44,13 @@ TRICE_INLINE void triceDisableTxEmptyInterrupt(void) {
 }
 
 
-extern int triceBytesBufferIndex;
-extern int triceBytesBufferIndexLimit;
-extern uint8_t triceBytesBuffer[8];
-//! triceServeBareFifoTransmit must be called cyclically to proceed ongoing write out.
+
+#include "triceBareFifoToBytesBuffer.h"
+
+//! triceServeBytesBufferTransmit must be called cyclically to proceed ongoing write out.
 //! A good place: sysTick ISR and UART ISR (both together).
 //! TODO: endianess with compiler macros.
-TRICE_INLINE void triceServeBareFifoTransmit(void) {
+TRICE_INLINE void triceServeBytesBufferTransmit(void) {
     if (!triceTxDataRegisterEmpty()) {
         for (;;); // unexpected case
     }
@@ -59,26 +59,33 @@ TRICE_INLINE void triceServeBareFifoTransmit(void) {
     }
     // next byte
     triceTransmitData8(triceBytesBuffer[triceBytesBufferIndex++]);
-    if (sizeof(triceBytesBuffer) == triceBytesBufferIndex) { // no more bytes
+    if (triceBytesBufferIndexLimit == triceBytesBufferIndex) { // no more bytes
         triceDisableTxEmptyInterrupt();
+    }
+}
+
+TRICE_INLINE void triceTriggerBytesBufferTransmit(void){
+    if( triceBytesByfferDepth() && triceTxDataRegisterEmpty() ){
+        triceEnableTxEmptyInterrupt(); // next bytes
     }
 }
 
 
 
+#include "triceEscFifo.h"
 
-int triceEscFifoDepth(void);
-uint8_t tricePopByteEscFifo(void);
 //! triceServeEscFifoTransmit must be called cyclically to proceed ongoing write out.
 //! A good place is UART ISR.
 TRICE_INLINE void triceServeEscFifoTransmit(void) {
-    if (!triceTxDataRegisterEmpty()) {
-        for (;;); // unexpected case
-    }
-    // next byte
     triceTransmitData8(tricePopByteEscFifo());
     if (0 == triceEscFifoDepth()) { // no more bytes
         triceDisableTxEmptyInterrupt();
+    }
+}
+
+TRICE_INLINE void triceTriggerEscFifoTransmit(void){
+    if( triceEscFifoDepth() && triceTxDataRegisterEmpty() ){
+        triceEnableTxEmptyInterrupt(); // next bytes
     }
 }
 

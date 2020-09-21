@@ -133,7 +133,7 @@ void SysTick_Handler(void)
   /* USER CODE END SysTick_IRQn 0 */
 
   /* USER CODE BEGIN SysTick_IRQn 1 */
-
+    triceTriggerBytesBufferTransmit();
   /* USER CODE END SysTick_IRQn 1 */
 }
 
@@ -153,7 +153,7 @@ void USART2_IRQHandler(void)
 
   /* USER CODE END USART2_IRQn 0 */
   /* USER CODE BEGIN USART2_IRQn 1 */
-    triceServeBareFifoTransmit();
+    triceServeBytesBufferTransmit();
   /* USER CODE END USART2_IRQn 1 */
 }
 
