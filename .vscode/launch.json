@@ -152,6 +152,8 @@
             "env": {},
             "args": ["log",
                      "-verbose",
+                     "-encoding",
+                     "esc",
                      "-port",
                      "COM3",
                      "-baud",

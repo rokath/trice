@@ -4,11 +4,13 @@
 package translator
 
 import (
+	"encoding/binary"
 	"fmt"
 	"io"
 	"log"
 	"path/filepath"
 	"runtime"
+	"time"
 
 	"github.com/rokath/trice/internal/id"
 	"github.com/rokath/trice/internal/receiver"
@@ -35,23 +37,291 @@ type TriceAtomsReceiver interface {
 	IgnoredBytesChannel() <-chan []byte
 }
 
-// TriceTranslator uses the 2 TriceReceiver channels and global settings to compose a complete log line as one string.
-// The string is transferred using the io.StringWriter interface.
-type TriceTranslator struct {
-	// If some error occured it is stored here. This makes error handling more handy.
-	Err error
+// translator is the common data cantainmer with the common methods for BareTranslator, EscTranslator and the like.
+type translator struct {
+	list     *id.List
+	item     id.Item // item is the next trice item ready for output.
+	savedErr error
+}
 
+// Translator is the common interface for BareTranslator, EscTranslator and the like.
+type Translator interface {
+	// If some error occured it is stored here. This makes error handling more handy.
+	SavedError() error
+}
+
+func (p *translator) SavedError() error {
+	return p.savedErr
+}
+
+// ErrorFatal ends in osExit(1) if p.err not nil.
+func (p *translator) ErrorFatal() {
+	if nil == p.savedErr {
+		return
+	}
+	_, file, line, _ := runtime.Caller(1)
+	log.Fatal(p.savedErr, filepath.Base(file), line)
+}
+
+// BareTranslator ...
+type BareTranslator struct {
+	translator
 	// This channel is used to stop the TriceInterpreter
 	done chan int
 
 	// values holds so far unused values for the next trice item.
 	values []uint16
+}
 
-	// dictionary
-	list *id.List
+// EscTranslator ...
+type EscTranslator struct {
+	translator
 
-	// item is the next trice item ready for output, if item is not 0.
-	item id.Item
+	// inner bytes reader
+	in io.Reader
+
+	// inner string writer
+	sw io.StringWriter
+
+	syncBuffer []byte
+}
+
+// NewEscTrices uses rd for reception and sw for writing.
+// It collects trice bytes to a complete esc trice message, generates the appropriate string using list and writes it to sw.
+// EC LC IH IL ...
+func NewEscTrices(sw io.StringWriter, list *id.List, in io.Reader) *EscTranslator {
+	p := new(EscTranslator)
+	p.sw = sw
+	p.list = list
+	p.in = in
+	p.syncBuffer = make([]byte, 0, 10000)
+	go func() {
+		for {
+			time.Sleep(10 * time.Millisecond) // todo: trigger from fileWatcher
+			s := p.readEsc()
+			_, p.savedErr = sw.WriteString(s)
+		}
+	}()
+	return p
+}
+
+func (p *EscTranslator) readEsc() (s string) {
+	p.ErrorFatal()
+	var n int
+	rb := make([]byte, 10000)
+	n, p.savedErr = p.in.Read(rb)
+	p.syncBuffer = append(p.syncBuffer, rb[:n]...) // merge with leftovers
+parse:
+	if len(p.syncBuffer) < 4 {
+		return
+	}
+	for _, c := range p.syncBuffer {
+		if 0xec != c {
+			p.syncBuffer = p.syncBuffer[1:] // remove 1st char
+			goto parse                      // no start byte
+		}
+		if 0xde == p.syncBuffer[1] {
+			p.syncBuffer = p.syncBuffer[1:] // remove 1st char
+			goto parse                      // no start byte: `0xec 0xde` is no valid esc packet start.
+		}
+
+		// p.syncBuffer[0] is esc, p.syncBuffer[1] is length code
+		id := (int(p.syncBuffer[2]) << 8) | int(p.syncBuffer[3])
+		index := p.list.Index(id)
+		if index < 0 { // unknown id
+			p.savedErr = nil
+			s = redBalk + fmt.Sprintln("error: unknown id", id, "syncBuffer = ", p.syncBuffer)
+			p.syncBuffer = p.syncBuffer[1:] // remove 1st char
+			goto parse
+		}
+		p.item = p.list.Item(index)
+
+		switch p.syncBuffer[1] { // length code
+		case 0xdf: // no params
+			if "TRICE0" == p.item.FmtType {
+				s = fmt.Sprintf(p.item.FmtStrg)
+				p.syncBuffer = p.syncBuffer[4:]
+				return
+			}
+			p.syncBuffer = p.syncBuffer[1:] // remove 1st char
+			goto parse
+		case 0xe0: // 1 byte param
+			if len(p.syncBuffer) < 5 {
+				return // wait
+			}
+			if "TRICE8_1" != p.item.FmtType {
+				s = fmt.Sprintf(p.item.FmtStrg, p.syncBuffer[4])
+				p.syncBuffer = p.syncBuffer[5:]
+				return
+			}
+			s = redBalk + fmt.Sprintln("error: ", p.syncBuffer)
+			p.syncBuffer = p.syncBuffer[1:] // remove 1st char
+			goto parse
+		case 0xe1: // 2 bytes param
+			if len(p.syncBuffer) < 6 {
+				return // wait
+			}
+			if "TRICE8_2" != p.item.FmtType {
+				s = fmt.Sprintf(p.item.FmtStrg, p.syncBuffer[4], p.syncBuffer[5])
+				p.syncBuffer = p.syncBuffer[6:]
+				return
+			}
+			if "TRICE16_1" != p.item.FmtType {
+				s = fmt.Sprintf(p.item.FmtStrg, int(binary.BigEndian.Uint16(p.syncBuffer[4:5])))
+				p.syncBuffer = p.syncBuffer[6:]
+				return
+			}
+			s = redBalk + fmt.Sprintln("error: ", p.syncBuffer)
+			p.syncBuffer = p.syncBuffer[1:] // remove 1st char
+			goto parse
+		case 0xe2: // 4 bytes param
+			if len(p.syncBuffer) < 7 {
+				return // wait
+			}
+			if "TRICE8_3" != p.item.FmtType {
+				s = fmt.Sprintf(p.item.FmtStrg, p.syncBuffer[4], p.syncBuffer[5], p.syncBuffer[6])
+				p.syncBuffer = p.syncBuffer[7:]
+				return
+			}
+			if len(p.syncBuffer) < 8 {
+				return // wait
+			}
+			if "TRICE8_4" != p.item.FmtType {
+				s = fmt.Sprintf(p.item.FmtStrg,
+					p.syncBuffer[4], p.syncBuffer[5], p.syncBuffer[6], p.syncBuffer[7])
+				p.syncBuffer = p.syncBuffer[8:]
+				return
+			}
+			if "TRICE16_2" != p.item.FmtType {
+				s = fmt.Sprintf(p.item.FmtStrg,
+					int(binary.BigEndian.Uint16(p.syncBuffer[4:5])),
+					int(binary.BigEndian.Uint16(p.syncBuffer[6:7])))
+				p.syncBuffer = p.syncBuffer[8:]
+				return
+			}
+			if "TRICE32_1" != p.item.FmtType {
+				s = fmt.Sprintf(p.item.FmtStrg, int(binary.BigEndian.Uint32(p.syncBuffer[4:7])))
+				p.syncBuffer = p.syncBuffer[8:]
+				return
+			}
+			s = redBalk + fmt.Sprintln("error: ", p.syncBuffer)
+			p.syncBuffer = p.syncBuffer[1:] // remove 1st char
+			goto parse
+		case 0xe3: // 8 bytes param
+			if "TRICE8_5" != p.item.FmtType {
+				if len(p.syncBuffer) < 9 {
+					return // wait
+				}
+				s = fmt.Sprintf(p.item.FmtStrg,
+					p.syncBuffer[4], p.syncBuffer[5], p.syncBuffer[6], p.syncBuffer[7],
+					p.syncBuffer[8])
+				p.syncBuffer = p.syncBuffer[9:]
+				return
+			}
+			if len(p.syncBuffer) < 10 {
+				return // wait
+			}
+			if "TRICE8_6" != p.item.FmtType {
+				s = fmt.Sprintf(p.item.FmtStrg,
+					p.syncBuffer[4], p.syncBuffer[5], p.syncBuffer[6], p.syncBuffer[7],
+					p.syncBuffer[8], p.syncBuffer[9])
+				p.syncBuffer = p.syncBuffer[10:]
+				return
+			}
+			if "TRICE16_3" != p.item.FmtType {
+				s = fmt.Sprintf(p.item.FmtStrg,
+					int(binary.BigEndian.Uint16(p.syncBuffer[4:5])),
+					int(binary.BigEndian.Uint16(p.syncBuffer[6:7])),
+					int(binary.BigEndian.Uint16(p.syncBuffer[8:9])))
+				p.syncBuffer = p.syncBuffer[10:]
+				return
+			}
+			if len(p.syncBuffer) < 11 {
+				return // wait
+			}
+			if "TRICE8_7" != p.item.FmtType {
+				s = fmt.Sprintf(p.item.FmtStrg,
+					p.syncBuffer[4], p.syncBuffer[5], p.syncBuffer[6], p.syncBuffer[7],
+					p.syncBuffer[8], p.syncBuffer[9], p.syncBuffer[10])
+				p.syncBuffer = p.syncBuffer[11:]
+				return
+			}
+			if len(p.syncBuffer) < 12 {
+				return // wait
+			}
+			if "TRICE8_8" != p.item.FmtType {
+				s = fmt.Sprintf(p.item.FmtStrg,
+					p.syncBuffer[4], p.syncBuffer[5], p.syncBuffer[6], p.syncBuffer[7],
+					p.syncBuffer[8], p.syncBuffer[9], p.syncBuffer[10], p.syncBuffer[11])
+				p.syncBuffer = p.syncBuffer[12:]
+				return
+			}
+			if "TRICE16_4" != p.item.FmtType {
+				s = fmt.Sprintf(p.item.FmtStrg,
+					int(binary.BigEndian.Uint16(p.syncBuffer[4:5])),
+					int(binary.BigEndian.Uint16(p.syncBuffer[6:7])),
+					int(binary.BigEndian.Uint16(p.syncBuffer[8:9])),
+					int(binary.BigEndian.Uint16(p.syncBuffer[10:11])))
+				p.syncBuffer = p.syncBuffer[12:]
+				return
+			}
+			if "TRICE32_2" != p.item.FmtType {
+				s = fmt.Sprintf(p.item.FmtStrg,
+					int(binary.BigEndian.Uint32(p.syncBuffer[4:7])),
+					int(binary.BigEndian.Uint32(p.syncBuffer[8:11])))
+				p.syncBuffer = p.syncBuffer[12:]
+				return
+			}
+			if "TRICE64_1" != p.item.FmtType {
+				s = fmt.Sprintf(p.item.FmtStrg,
+					int64(binary.BigEndian.Uint64(p.syncBuffer[4:11])))
+				p.syncBuffer = p.syncBuffer[12:]
+				return
+			}
+			s = redBalk + fmt.Sprintln("error: ", p.syncBuffer)
+			p.syncBuffer = p.syncBuffer[1:] // remove 1st char
+			goto parse
+		case 0xe4: // 16 bytes param
+			if len(p.syncBuffer) < 16 {
+				return // wait
+			}
+			if "TRICE32_3" != p.item.FmtType {
+				s = fmt.Sprintf(p.item.FmtStrg,
+					int(binary.BigEndian.Uint32(p.syncBuffer[4:7])),
+					int(binary.BigEndian.Uint32(p.syncBuffer[8:11])),
+					int(binary.BigEndian.Uint32(p.syncBuffer[12:15])))
+				p.syncBuffer = p.syncBuffer[16:]
+				return
+			}
+			if len(p.syncBuffer) < 20 {
+				return // wait
+			}
+			if "TRICE32_4" != p.item.FmtType {
+				s = fmt.Sprintf(p.item.FmtStrg,
+					int(binary.BigEndian.Uint32(p.syncBuffer[4:7])),
+					int(binary.BigEndian.Uint32(p.syncBuffer[8:11])),
+					int(binary.BigEndian.Uint32(p.syncBuffer[12:15])),
+					int(binary.BigEndian.Uint32(p.syncBuffer[16:19])))
+				p.syncBuffer = p.syncBuffer[20:]
+				return
+			}
+			if "TRICE64_2" != p.item.FmtType {
+				s = fmt.Sprintf(p.item.FmtStrg,
+					int64(binary.BigEndian.Uint64(p.syncBuffer[4:11])),
+					int64(binary.BigEndian.Uint64(p.syncBuffer[12:19])))
+				p.syncBuffer = p.syncBuffer[20:]
+				return
+			}
+			s = redBalk + fmt.Sprintln("error: ", p.syncBuffer)
+			p.syncBuffer = p.syncBuffer[1:] // remove 1st char
+			goto parse
+		default:
+			s = redBalk + fmt.Sprintln("error: ", p.syncBuffer)
+			p.syncBuffer = p.syncBuffer[1:]
+			goto parse // invalid length code
+		}
+	}
+	return
 }
 
 // // String is the method for displaying the current TriceTranslator instance.
@@ -68,8 +338,8 @@ type TriceTranslator struct {
 // It uses the io.StringWriter interface sw to write the trice strings looked up in id.List
 // and enhanced with the printed values. Each single trice string is written separately with sw.
 // It does not evaluate the TriceInterpreter ignored bytes ('Simple'Trices).
-func NewSimpleTrices(sw io.StringWriter, list *id.List, tr TriceAtomsReceiver) *TriceTranslator {
-	p := &TriceTranslator{}
+func NewSimpleTrices(sw io.StringWriter, list *id.List, tr TriceAtomsReceiver) *BareTranslator {
+	p := &BareTranslator{}
 	p.values = make([]uint16, 0, 100)
 	p.done = make(chan int)
 	p.list = list
@@ -81,13 +351,13 @@ func NewSimpleTrices(sw io.StringWriter, list *id.List, tr TriceAtomsReceiver) *
 			case atoms := <-tr.TriceAtomsChannel():
 				for _, trice := range atoms {
 					s := p.translate(trice)
-					_, p.Err = sw.WriteString(s)
+					_, p.savedErr = sw.WriteString(s)
 				}
 			case ignored := <-tr.IgnoredBytesChannel():
 				// TODO: evaluate other protocols here
 				if Verbose {
 					s := fmt.Sprintln("error:Found", len(ignored), "ignored byte(s):", ignored)
-					_, p.Err = sw.WriteString(s)
+					_, p.savedErr = sw.WriteString(s)
 				}
 
 			case <-p.done:
@@ -96,15 +366,6 @@ func NewSimpleTrices(sw io.StringWriter, list *id.List, tr TriceAtomsReceiver) *
 		}
 	}()
 	return p
-}
-
-// ErrorFatal ends in osExit(1) if p.err not nil.
-func (p *TriceTranslator) ErrorFatal() {
-	if nil == p.Err {
-		return
-	}
-	_, file, line, _ := runtime.Caller(1)
-	log.Fatal(p.Err, filepath.Base(file), line)
 }
 
 //// reSyncAtoms does remove one byte in the atoms slice.
@@ -121,11 +382,11 @@ func (p *TriceTranslator) ErrorFatal() {
 // If an internal error state occured it discards all accumulated data and clears the error.
 // On return it delivers an emty string if not enough data yet for the next string.
 // This is usually the case when trice.ID is 0 and only data payload is to store.
-func (p *TriceTranslator) translate(trice Trice) (s string) {
-	if nil != p.Err {
-		s = redBalk + fmt.Sprintln(p.Err, p.values)
+func (p *BareTranslator) translate(trice Trice) (s string) {
+	if nil != p.savedErr {
+		s = redBalk + fmt.Sprintln(p.savedErr, p.values)
 		p.values = p.values[:0]
-		p.Err = nil
+		p.savedErr = nil
 		return
 	}
 	if 0x89ab == trice.ID { // discard sync trice
@@ -143,7 +404,7 @@ func (p *TriceTranslator) translate(trice Trice) (s string) {
 	}
 	index := p.list.Index(int(trice.ID))
 	if index < 0 { // unknown trice.ID
-		p.Err = nil
+		p.savedErr = nil
 		s = redBalk + fmt.Sprintln("error: unknown trice.ID", trice.ID, "(", trice.ID>>8, 0xff&trice.ID, "), values = ", p.values)
 		s += fmt.Sprintln(p)
 		p.values = p.values[:0]
@@ -158,20 +419,20 @@ func (p *TriceTranslator) translate(trice Trice) (s string) {
 // addValues wworks fine with %x, %d and %o but NOT with %u for now
 // %x is emitted in Go signed!
 // For %u a format string parsing is needed to perform the correct casts.
-func (p *TriceTranslator) addValues() (s string) {
+func (p *BareTranslator) addValues() (s string) {
 	f, _, _ := langCtoGoFmtStingConverter(p.item.FmtStrg) // todo
 	var v0, v1, v2, v3 int16
 	var w0, w1, w2, w3 int32
 	var l0, l1 int64
 
 	p.evalLen()
-	if nil != p.Err {
+	if nil != p.savedErr {
 		//if Verbose {
-		s = p.Err.Error() + fmt.Sprint("The accumulated data are not matching the trice.ID. Discarding: ")
+		s = p.savedErr.Error() + fmt.Sprint("The accumulated data are not matching the trice.ID. Discarding: ")
 		s += fmt.Sprintln(p)
 		//}
 		p.values = p.values[:0]
-		p.Err = nil
+		p.savedErr = nil
 		return
 	}
 
@@ -276,38 +537,38 @@ func (p *TriceTranslator) addValues() (s string) {
 		l1 = (int64(p.values[7]) << 48) | (int64(p.values[6]) << 32) | (int64(p.values[5]) << 16) | int64(p.values[4]) // hh hl lh ll
 		s = fmt.Sprintf(f, l0, l1)
 	default:
-		p.Err = fmt.Errorf("Unknown FmtType %s", p.item.FmtType)
+		p.savedErr = fmt.Errorf("Unknown FmtType %s", p.item.FmtType)
 	}
 	return
 }
 
 // evalLen checks if byte buffer t has appropriate length to id.item it
-func (p *TriceTranslator) evalLen() {
+func (p *BareTranslator) evalLen() {
 	t := p.values
 	switch p.item.FmtType {
 	case "TRICE0", "TRICE8_1", "TRICE8_2", "TRICE16_1":
 		if 1 != len(t) {
-			p.Err = fmt.Errorf("err:len %d != 1 ", len(t))
+			p.savedErr = fmt.Errorf("err:len %d != 1 ", len(t))
 		}
 	case "TRICE8_3", "TRICE8_4", "TRICE16_2", "TRICE32_1":
 		if 2 != len(t) {
-			p.Err = fmt.Errorf("err:len %d != 2 ", len(t))
+			p.savedErr = fmt.Errorf("err:len %d != 2 ", len(t))
 		}
 	case "TRICE8_5", "TRICE8_6", "TRICE16_3":
 		if 3 != len(t) {
-			p.Err = fmt.Errorf("err:len %d != 3 ", len(t))
+			p.savedErr = fmt.Errorf("err:len %d != 3 ", len(t))
 		}
 	case "TRICE8_7", "TRICE8_8", "TRICE16_4", "TRICE32_2", "TRICE64_1":
 		if 4 != len(t) {
-			p.Err = fmt.Errorf("err:len %d != 4 ", len(t))
+			p.savedErr = fmt.Errorf("err:len %d != 4 ", len(t))
 		}
 	case "TRICE32_3":
 		if 6 != len(t) {
-			p.Err = fmt.Errorf("err:len %d != 6 ", len(t))
+			p.savedErr = fmt.Errorf("err:len %d != 6 ", len(t))
 		}
 	case "TRICE32_4", "TRICE64_2":
 		if 8 != len(t) {
-			p.Err = fmt.Errorf("err:len %d != 8 ", len(t))
+			p.savedErr = fmt.Errorf("err:len %d != 8 ", len(t))
 		}
 	}
 }
@@ -336,6 +597,6 @@ func langCtoGoFmtStingConverter(f string) (s string, u []bool, err error) {
 }
 
 // Stop ends life of TriceInterpreter.
-func (p *TriceTranslator) Stop() {
+func (p *BareTranslator) Stop() {
 	p.done <- 0
 }

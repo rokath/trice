@@ -3001,5 +3001,12 @@
 		"fmtStrg": "MSG: triceBareFifoMaxDepth = %d\\n",
 		"created": 1600679681,
 		"removed": 0
+	},
+	{
+		"id": 62429,
+		"fmtType": "TRICE0",
+		"fmtStrg": "s:                                        \\ns:   ARM-MDK_LL_UART_ESC_NUCLEO-F070RB    \\ns:                                        \\n\\n",
+		"created": 1600701585,
+		"removed": 0
 	}
 ]

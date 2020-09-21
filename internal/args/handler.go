@@ -396,7 +396,8 @@ func receiving() error {
 	portReader, e := newReadCloser()
 	errorFatal(e)
 
-	var p *translator.TriceTranslator
+	var p translator.Translator // interface type
+
 	if "default" == Encoding {
 		switch Port {
 		case "JLINK":
@@ -412,6 +413,8 @@ func receiving() error {
 	//		p = simNewSimpleTriceInterpreterWithAnsi(r)
 	case "bare":
 		p = receiveBareSimpleTricesAndDisplayAnsiColor(portReader, fnJSON)
+	case "esc":
+		p = receiveEscTricesAndDisplayAnsiColor(portReader, fnJSON)
 	case "wrap", "wrapped":
 		p = receiveWrapSimpleTricesAndDisplayAnsiColor(portReader, fnJSON)
 
@@ -424,15 +427,15 @@ func receiving() error {
 		return fmt.Errorf("unknown encoding: %s", Encoding)
 	}
 
-	for nil == p.Err { // endless loop
+	for nil == p.SavedError() { // endless loop
 		time.Sleep(100 * time.Millisecond)
 	}
 	errorFatal(portReader.Close())
-	return p.Err
+	return p.SavedError()
 
 }
 
-func receiveWrapSimpleTricesAndDisplayAnsiColor(rd io.Reader, fnJSON string) *translator.TriceTranslator {
+func receiveWrapSimpleTricesAndDisplayAnsiColor(rd io.Reader, fnJSON string) *translator.BareTranslator {
 	// triceAtomsReceiver uses the io.Reader interface from s and implements the TriceAtomsReceiver interface.
 	// It scans the raw input byte stream and decodes the trice atoms it transmits to the TriceAtomsReceiver interface.
 	triceAtomsReceiver := receiver.NewTricesfromBare(receiver.NewBareReaderFromWrap(rd))
@@ -441,7 +444,7 @@ func receiveWrapSimpleTricesAndDisplayAnsiColor(rd io.Reader, fnJSON string) *tr
 	// It uses internally a local display combined with a line transformer.
 	lwD := emitter.NewColorDisplay(emitter.ColorPalette)
 
-	// lineComposer r implements the io.StringWriter interface and uses the Linewriter provided.
+	// lineComposer implements the io.StringWriter interface and uses the Linewriter provided.
 	// The line composer scans the trice strings and composes lines out of them according to its properies.
 	sw := emitter.NewLineComposer(lwD, emitter.TimeStampFormat, emitter.Prefix, emitter.Suffix)
 
@@ -454,7 +457,7 @@ func receiveWrapSimpleTricesAndDisplayAnsiColor(rd io.Reader, fnJSON string) *tr
 	return translator.NewSimpleTrices(sw, list, triceAtomsReceiver)
 }
 
-func receiveBareSimpleTricesAndDisplayAnsiColor(rd io.Reader, fnJSON string) *translator.TriceTranslator {
+func receiveBareSimpleTricesAndDisplayAnsiColor(rd io.Reader, fnJSON string) *translator.BareTranslator {
 	// triceAtomsReceiver uses the io.Reader interface from s and implements the TriceAtomsReceiver interface.
 	// It scans the raw input byte stream and decodes the trice atoms it transmits to the TriceAtomsReceiver interface.
 	triceAtomsReceiver := receiver.NewTricesfromBare(rd)
@@ -463,7 +466,7 @@ func receiveBareSimpleTricesAndDisplayAnsiColor(rd io.Reader, fnJSON string) *tr
 	// It uses internally a local display combined with a line transformer.
 	lwD := emitter.NewColorDisplay(emitter.ColorPalette)
 
-	// lineComposer r implements the io.StringWriter interface and uses the Linewriter provided.
+	// lineComposer implements the io.StringWriter interface and uses the Linewriter provided.
 	// The line composer scans the trice strings and composes lines out of them according to its properies.
 	sw := emitter.NewLineComposer(lwD, emitter.TimeStampFormat, emitter.Prefix, emitter.Suffix)
 
@@ -474,6 +477,24 @@ func receiveBareSimpleTricesAndDisplayAnsiColor(rd io.Reader, fnJSON string) *tr
 	// uses triceAtomsReceiver for reception and the io.StringWriter interface sw for writing.
 	// collects trice atoms to a complete trice, generates the appropriate string using list and writes it to the provided io.StringWriter
 	return translator.NewSimpleTrices(sw, list, triceAtomsReceiver)
+}
+
+func receiveEscTricesAndDisplayAnsiColor(rd io.Reader, fnJSON string) *translator.EscTranslator {
+	// NewColorDisplay creates a ColorlDisplay. It provides a Linewriter.
+	// It uses internally a local display combined with a line transformer.
+	lwD := emitter.NewColorDisplay(emitter.ColorPalette)
+
+	// lineComposer implements the io.StringWriter interface and uses the Linewriter provided.
+	// The line composer scans the trice strings and composes lines out of them according to its properies.
+	sw := emitter.NewLineComposer(lwD, emitter.TimeStampFormat, emitter.Prefix, emitter.Suffix)
+
+	list := id.NewList(fnJSON)
+	list.ReadListFile()
+	go list.FileWatcher()
+
+	// uses rd for reception and the io.StringWriter interface sw for writing.
+	// collects trice bytes to a complete esc trice message, generates the appropriate string using list and writes it to the provided io.StringWriter
+	return translator.NewEscTrices(sw, list, rd)
 }
 
 //  // There is a small chance this test fails because of unexpected ordering of 'ignoring bytes' message.
