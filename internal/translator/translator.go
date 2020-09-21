@@ -149,7 +149,7 @@ parse:
 			if len(p.syncBuffer) < 5 {
 				return // wait
 			}
-			if "TRICE8_1" != p.item.FmtType {
+			if "TRICE8_1" == p.item.FmtType {
 				s = fmt.Sprintf(p.item.FmtStrg, p.syncBuffer[4])
 				p.syncBuffer = p.syncBuffer[5:]
 				return
@@ -161,13 +161,13 @@ parse:
 			if len(p.syncBuffer) < 6 {
 				return // wait
 			}
-			if "TRICE8_2" != p.item.FmtType {
+			if "TRICE8_2" == p.item.FmtType {
 				s = fmt.Sprintf(p.item.FmtStrg, p.syncBuffer[4], p.syncBuffer[5])
 				p.syncBuffer = p.syncBuffer[6:]
 				return
 			}
-			if "TRICE16_1" != p.item.FmtType {
-				s = fmt.Sprintf(p.item.FmtStrg, int(binary.BigEndian.Uint16(p.syncBuffer[4:5])))
+			if "TRICE16_1" == p.item.FmtType {
+				s = fmt.Sprintf(p.item.FmtStrg, int(binary.BigEndian.Uint16(p.syncBuffer[4:6])))
 				p.syncBuffer = p.syncBuffer[6:]
 				return
 			}
@@ -178,7 +178,7 @@ parse:
 			if len(p.syncBuffer) < 7 {
 				return // wait
 			}
-			if "TRICE8_3" != p.item.FmtType {
+			if "TRICE8_3" == p.item.FmtType {
 				s = fmt.Sprintf(p.item.FmtStrg, p.syncBuffer[4], p.syncBuffer[5], p.syncBuffer[6])
 				p.syncBuffer = p.syncBuffer[7:]
 				return
@@ -186,21 +186,21 @@ parse:
 			if len(p.syncBuffer) < 8 {
 				return // wait
 			}
-			if "TRICE8_4" != p.item.FmtType {
+			if "TRICE8_4" == p.item.FmtType {
 				s = fmt.Sprintf(p.item.FmtStrg,
 					p.syncBuffer[4], p.syncBuffer[5], p.syncBuffer[6], p.syncBuffer[7])
 				p.syncBuffer = p.syncBuffer[8:]
 				return
 			}
-			if "TRICE16_2" != p.item.FmtType {
+			if "TRICE16_2" == p.item.FmtType {
 				s = fmt.Sprintf(p.item.FmtStrg,
-					int(binary.BigEndian.Uint16(p.syncBuffer[4:5])),
-					int(binary.BigEndian.Uint16(p.syncBuffer[6:7])))
+					int(binary.BigEndian.Uint16(p.syncBuffer[4:6])),
+					int(binary.BigEndian.Uint16(p.syncBuffer[6:8])))
 				p.syncBuffer = p.syncBuffer[8:]
 				return
 			}
-			if "TRICE32_1" != p.item.FmtType {
-				s = fmt.Sprintf(p.item.FmtStrg, int(binary.BigEndian.Uint32(p.syncBuffer[4:7])))
+			if "TRICE32_1" == p.item.FmtType {
+				s = fmt.Sprintf(p.item.FmtStrg, int(binary.BigEndian.Uint32(p.syncBuffer[4:8])))
 				p.syncBuffer = p.syncBuffer[8:]
 				return
 			}
@@ -208,7 +208,7 @@ parse:
 			p.syncBuffer = p.syncBuffer[1:] // remove 1st char
 			goto parse
 		case 0xe3: // 8 bytes param
-			if "TRICE8_5" != p.item.FmtType {
+			if "TRICE8_5" == p.item.FmtType {
 				if len(p.syncBuffer) < 9 {
 					return // wait
 				}
@@ -221,25 +221,25 @@ parse:
 			if len(p.syncBuffer) < 10 {
 				return // wait
 			}
-			if "TRICE8_6" != p.item.FmtType {
+			if "TRICE8_6" == p.item.FmtType {
 				s = fmt.Sprintf(p.item.FmtStrg,
 					p.syncBuffer[4], p.syncBuffer[5], p.syncBuffer[6], p.syncBuffer[7],
 					p.syncBuffer[8], p.syncBuffer[9])
 				p.syncBuffer = p.syncBuffer[10:]
 				return
 			}
-			if "TRICE16_3" != p.item.FmtType {
+			if "TRICE16_3" == p.item.FmtType {
 				s = fmt.Sprintf(p.item.FmtStrg,
-					int(binary.BigEndian.Uint16(p.syncBuffer[4:5])),
-					int(binary.BigEndian.Uint16(p.syncBuffer[6:7])),
-					int(binary.BigEndian.Uint16(p.syncBuffer[8:9])))
+					int(binary.BigEndian.Uint16(p.syncBuffer[4:6])),
+					int(binary.BigEndian.Uint16(p.syncBuffer[6:8])),
+					int(binary.BigEndian.Uint16(p.syncBuffer[8:10])))
 				p.syncBuffer = p.syncBuffer[10:]
 				return
 			}
 			if len(p.syncBuffer) < 11 {
 				return // wait
 			}
-			if "TRICE8_7" != p.item.FmtType {
+			if "TRICE8_7" == p.item.FmtType {
 				s = fmt.Sprintf(p.item.FmtStrg,
 					p.syncBuffer[4], p.syncBuffer[5], p.syncBuffer[6], p.syncBuffer[7],
 					p.syncBuffer[8], p.syncBuffer[9], p.syncBuffer[10])
@@ -249,32 +249,32 @@ parse:
 			if len(p.syncBuffer) < 12 {
 				return // wait
 			}
-			if "TRICE8_8" != p.item.FmtType {
+			if "TRICE8_8" == p.item.FmtType {
 				s = fmt.Sprintf(p.item.FmtStrg,
 					p.syncBuffer[4], p.syncBuffer[5], p.syncBuffer[6], p.syncBuffer[7],
 					p.syncBuffer[8], p.syncBuffer[9], p.syncBuffer[10], p.syncBuffer[11])
 				p.syncBuffer = p.syncBuffer[12:]
 				return
 			}
-			if "TRICE16_4" != p.item.FmtType {
+			if "TRICE16_4" == p.item.FmtType {
 				s = fmt.Sprintf(p.item.FmtStrg,
-					int(binary.BigEndian.Uint16(p.syncBuffer[4:5])),
-					int(binary.BigEndian.Uint16(p.syncBuffer[6:7])),
-					int(binary.BigEndian.Uint16(p.syncBuffer[8:9])),
-					int(binary.BigEndian.Uint16(p.syncBuffer[10:11])))
+					int(binary.BigEndian.Uint16(p.syncBuffer[4:6])),
+					int(binary.BigEndian.Uint16(p.syncBuffer[6:8])),
+					int(binary.BigEndian.Uint16(p.syncBuffer[8:10])),
+					int(binary.BigEndian.Uint16(p.syncBuffer[10:12])))
 				p.syncBuffer = p.syncBuffer[12:]
 				return
 			}
-			if "TRICE32_2" != p.item.FmtType {
+			if "TRICE32_2" == p.item.FmtType {
 				s = fmt.Sprintf(p.item.FmtStrg,
-					int(binary.BigEndian.Uint32(p.syncBuffer[4:7])),
-					int(binary.BigEndian.Uint32(p.syncBuffer[8:11])))
+					int(binary.BigEndian.Uint32(p.syncBuffer[4:8])),
+					int(binary.BigEndian.Uint32(p.syncBuffer[8:12])))
 				p.syncBuffer = p.syncBuffer[12:]
 				return
 			}
-			if "TRICE64_1" != p.item.FmtType {
+			if "TRICE64_1" == p.item.FmtType {
 				s = fmt.Sprintf(p.item.FmtStrg,
-					int64(binary.BigEndian.Uint64(p.syncBuffer[4:11])))
+					int64(binary.BigEndian.Uint64(p.syncBuffer[4:12])))
 				p.syncBuffer = p.syncBuffer[12:]
 				return
 			}
@@ -285,30 +285,30 @@ parse:
 			if len(p.syncBuffer) < 16 {
 				return // wait
 			}
-			if "TRICE32_3" != p.item.FmtType {
+			if "TRICE32_3" == p.item.FmtType {
 				s = fmt.Sprintf(p.item.FmtStrg,
-					int(binary.BigEndian.Uint32(p.syncBuffer[4:7])),
-					int(binary.BigEndian.Uint32(p.syncBuffer[8:11])),
-					int(binary.BigEndian.Uint32(p.syncBuffer[12:15])))
+					int(binary.BigEndian.Uint32(p.syncBuffer[4:8])),
+					int(binary.BigEndian.Uint32(p.syncBuffer[8:12])),
+					int(binary.BigEndian.Uint32(p.syncBuffer[12:16])))
 				p.syncBuffer = p.syncBuffer[16:]
 				return
 			}
 			if len(p.syncBuffer) < 20 {
 				return // wait
 			}
-			if "TRICE32_4" != p.item.FmtType {
+			if "TRICE32_4" == p.item.FmtType {
 				s = fmt.Sprintf(p.item.FmtStrg,
-					int(binary.BigEndian.Uint32(p.syncBuffer[4:7])),
-					int(binary.BigEndian.Uint32(p.syncBuffer[8:11])),
-					int(binary.BigEndian.Uint32(p.syncBuffer[12:15])),
-					int(binary.BigEndian.Uint32(p.syncBuffer[16:19])))
+					int(binary.BigEndian.Uint32(p.syncBuffer[4:8])),
+					int(binary.BigEndian.Uint32(p.syncBuffer[8:12])),
+					int(binary.BigEndian.Uint32(p.syncBuffer[12:16])),
+					int(binary.BigEndian.Uint32(p.syncBuffer[16:20])))
 				p.syncBuffer = p.syncBuffer[20:]
 				return
 			}
-			if "TRICE64_2" != p.item.FmtType {
+			if "TRICE64_2" == p.item.FmtType {
 				s = fmt.Sprintf(p.item.FmtStrg,
-					int64(binary.BigEndian.Uint64(p.syncBuffer[4:11])),
-					int64(binary.BigEndian.Uint64(p.syncBuffer[12:19])))
+					int64(binary.BigEndian.Uint64(p.syncBuffer[4:12])),
+					int64(binary.BigEndian.Uint64(p.syncBuffer[12:20])))
 				p.syncBuffer = p.syncBuffer[20:]
 				return
 			}

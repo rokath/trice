@@ -106,7 +106,7 @@ int main(void)
     {
         static int lastTricesTime = 0;
         { // send some trices every few ms
-            if( milliSecond >= lastTricesTime + 1000 ){
+            if( milliSecond >= lastTricesTime + 100 ){
                 static int index = 0;
                 TRICE16_1( Id(55132),"MSG: triceEscFifoMaxDepth = %d\n", triceEscFifoMaxDepth );
                 triceCheckSet(index%10);

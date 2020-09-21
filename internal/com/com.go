@@ -70,7 +70,7 @@ func New(comPort string) *COM {
 // the serial port or an error occurs.
 func (p *COM) Read(buf []byte) (int, error) {
 	count, err := p.serialHandle.Read(buf)
-	log.Println("COM.Read:", err, count, buf[:count])
+	//log.Println("COM.Read:", err, count, buf[:count])
 	return count, err
 }
 
