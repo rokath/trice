@@ -10,7 +10,6 @@ import (
 	"log"
 	"path/filepath"
 	"runtime"
-	"time"
 
 	"github.com/rokath/trice/internal/id"
 	"github.com/rokath/trice/internal/receiver"
@@ -94,10 +93,10 @@ func NewEscTrices(sw io.StringWriter, list *id.List, in io.Reader) *EscTranslato
 	p.sw = sw
 	p.list = list
 	p.in = in
-	p.syncBuffer = make([]byte, 0, 10000)
+	p.syncBuffer = make([]byte, 0, 1000)
 	go func() {
 		for {
-			time.Sleep(10 * time.Millisecond) // todo: trigger from fileWatcher
+			//time.Sleep(1 * time.Millisecond) // todo: trigger from fileWatcher
 			s := p.readEsc()
 			_, p.savedErr = sw.WriteString(s)
 		}
@@ -108,7 +107,7 @@ func NewEscTrices(sw io.StringWriter, list *id.List, in io.Reader) *EscTranslato
 func (p *EscTranslator) readEsc() (s string) {
 	p.ErrorFatal()
 	var n int
-	rb := make([]byte, 10000)
+	rb := make([]byte, 100)
 	n, p.savedErr = p.in.Read(rb)
 	p.syncBuffer = append(p.syncBuffer, rb[:n]...) // merge with leftovers
 parse:
