@@ -3008,5 +3008,19 @@
 		"fmtStrg": "s:                                        \\ns:   ARM-MDK_LL_UART_ESC_NUCLEO-F070RB    \\ns:                                        \\n\\n",
 		"created": 1600701585,
 		"removed": 0
+	},
+	{
+		"id": 9014,
+		"fmtType": "TRICE64_2",
+		"fmtStrg": "tst:TRICE64_2 %d %16d\\n",
+		"created": 1600766376,
+		"removed": 0
+	},
+	{
+		"id": 16627,
+		"fmtType": "TRICE64_2",
+		"fmtStrg": "tst:TRICE64_2 %x %16d\\n",
+		"created": 1600768387,
+		"removed": 0
 	}
 ]

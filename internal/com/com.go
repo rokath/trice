@@ -78,7 +78,7 @@ func NewCOMPortGoBugSt(comPortName string) *comPortGoBugSt {
 // the serial port or an error occurs.
 func (p *comPortGoBugSt) Read(buf []byte) (int, error) {
 	count, err := p.serialHandle.Read(buf)
-	//log.Println("comPortGoBugSt.Read:", err, count, buf[:count])
+	log.Println("comPortGoBugSt.Read:", err, count, buf[:count])
 	return count, err
 }
 
@@ -156,6 +156,6 @@ func (p *comPortTarm) Close() error {
 // the serial port or an error occurs.
 func (p *comPortTarm) Read(buf []byte) (int, error) {
 	count, err := p.stream.Read(buf)
-	//log.Println("comPortGoBugSt.Read:", err, count, buf[:count])
+	log.Println("comPortTarm.Read:", err, count, buf[:count])
 	return count, err
 }
