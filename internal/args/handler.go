@@ -351,7 +351,9 @@ func errorFatal(err error) {
 // newReadCloser uses variable Port and tries to return a valid io.ReadCloser.
 func newReadCloser() (r io.ReadCloser, e error) {
 	if strings.HasPrefix(Port, "COM") {
-		c := com.New(Port)
+		var c com.COMport // interface type
+		//c = com.NewCOMPortGoBugSt(Port)
+		c = com.NewCOMPortTarm(Port)
 		if false == c.Open() {
 			e = fmt.Errorf("Can not open %s", Port)
 		}

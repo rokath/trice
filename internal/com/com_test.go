@@ -22,7 +22,7 @@ func Test1(t *testing.T) {
 	//	No serial ports found!
 	for i := range ss {
 		port := ss[i]
-		p := com.New(port)
+		p := com.NewCOMPortGoBugSt(port)
 		if p.Open() {
 			assertNil(t, p.Close())
 		}

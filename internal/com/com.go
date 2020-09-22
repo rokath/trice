@@ -10,7 +10,8 @@ import (
 	"io"
 	"log"
 
-	"go.bug.st/serial"
+	serialtarm "github.com/tarm/serial"
+	serialgobugst "go.bug.st/serial"
 )
 
 var (
@@ -42,22 +43,29 @@ func (p *bytesViewer) Read(buf []byte) (count int, err error) {
 //
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-// COM is a serial device trice receiver
-type COM struct {
-	port         string
-	serialHandle serial.Port
-	serialMode   serial.Mode
+// COMport ...
+type COMport interface {
+	Open() bool
+	Read(buf []byte) (int, error)
+	Close() error
 }
 
-// New creates an instance of a serial device type trice receiver
-func New(comPort string) *COM {
-	r := &COM{
-		port: comPort,
-		serialMode: serial.Mode{
+// comPortGoBugSt is a serial device trice receiver
+type comPortGoBugSt struct {
+	port         string
+	serialHandle serialgobugst.Port
+	serialMode   serialgobugst.Mode
+}
+
+// NewCOMPortGoBugSt creates an instance of a serial device type trice receiver
+func NewCOMPortGoBugSt(comPortName string) *comPortGoBugSt {
+	r := &comPortGoBugSt{
+		port: comPortName,
+		serialMode: serialgobugst.Mode{
 			BaudRate: Baud,
 			DataBits: 8,
-			Parity:   serial.NoParity,
-			StopBits: serial.OneStopBit,
+			Parity:   serialgobugst.NoParity,
+			StopBits: serialgobugst.OneStopBit,
 		},
 	}
 	return r
@@ -68,25 +76,23 @@ func New(comPort string) *COM {
 //
 // The Read function blocks until (at least) one byte is received from
 // the serial port or an error occurs.
-func (p *COM) Read(buf []byte) (int, error) {
+func (p *comPortGoBugSt) Read(buf []byte) (int, error) {
 	count, err := p.serialHandle.Read(buf)
-	//log.Println("COM.Read:", err, count, buf[:count])
+	//log.Println("comPortGoBugSt.Read:", err, count, buf[:count])
 	return count, err
 }
 
 // Close releases port
-func (p *COM) Close() error {
+func (p *comPortGoBugSt) Close() error {
 	return p.serialHandle.Close()
 }
 
 // Open initializes the serial receiver.
 //
 // It opens a serial port.
-func (p *COM) Open() bool {
+func (p *comPortGoBugSt) Open() bool {
 	var err error
-
-	p.serialHandle, err = serial.Open(p.port, &p.serialMode)
-
+	p.serialHandle, err = serialgobugst.Open(p.port, &p.serialMode)
 	if err != nil {
 		fmt.Println(err, "try 'trice s' to check for serial ports")
 		return false
@@ -96,7 +102,7 @@ func (p *COM) Open() bool {
 
 // GetSerialPorts scans for serial ports
 func GetSerialPorts() ([]string, error) {
-	ports, err := serial.GetPortsList()
+	ports, err := serialgobugst.GetPortsList()
 
 	if err != nil {
 		fmt.Println(err)
@@ -109,26 +115,47 @@ func GetSerialPorts() ([]string, error) {
 	for _, port := range ports {
 		fmt.Println("Found port: ", port)
 	}
-
 	return ports, err
 }
 
-/*
-// conditionalComPortScan scans for COM ports if -port was specified as COMscan, it tries to use first found COM port.
-func conditionalComPortScan() error {
-	if "COMscan" != Port {
-		return nil
-	}
-	log.Println("Scan for serial ports...")
-	ports, err := GetSerialPorts()
-	if err != nil {
-		return err
-	}
-	if len(ports) > 0 {
-		log.Println("Take serial port", ports[0])
-		Port = ports[0]
-		return nil
-	}
-	return errors.New("Could not find serial port on system")
+// comPortGoBugSt is a serial device trice receiver
+type comPortTarm struct {
+	config serialtarm.Config
+	stream *serialtarm.Port
 }
-*/
+
+// NewCOMPortTarm creates an instance of a serial device type trice receiver
+func NewCOMPortTarm(comPortName string) *comPortTarm {
+	var p = new(comPortTarm)
+	p.config.Name = comPortName
+	p.config.Baud = Baud
+	p.config.ReadTimeout = 1
+	p.config.Size = 8
+	return p
+}
+
+func (p *comPortTarm) Open() bool {
+	var err error
+	p.stream, err = serialtarm.OpenPort(&p.config)
+	if err != nil {
+		fmt.Println(p.config.Name, "not found")
+		fmt.Println("try 'trice scan'")
+		return false
+	}
+	return true
+}
+
+func (p *comPortTarm) Close() error {
+	return p.stream.Close()
+}
+
+// Stores data received from the serial port into the provided byte array
+// buffer. The function returns the number of bytes read.
+//
+// The Read function blocks until (at least) one byte is received from
+// the serial port or an error occurs.
+func (p *comPortTarm) Read(buf []byte) (int, error) {
+	count, err := p.stream.Read(buf)
+	//log.Println("comPortGoBugSt.Read:", err, count, buf[:count])
+	return count, err
+}
