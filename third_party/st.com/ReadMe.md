@@ -1,6 +1,6 @@
 # STMicroelectronics downloades software
 
-Check for newer versions at [st.com](st.com).
+Check for newer versions at [st.com](https://www.st.com).
 
 ## en.stsw-link009.zip
 
