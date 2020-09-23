@@ -1,11 +1,29 @@
 # Third party Software
-## SEGGER_RTT_V672b/
-- Downloaded & extracted from Segger website, check if a newer version is available
-- Reduce the code to your needs. 
-## en.stsw-stm32068.zip
-- Downloaded STM32F4-Discovery Demo-Firmware
-## Manuals/
-- some descriptions
-## JLink
-- `JLinkRTTLogger.exe` and acompanying `JLinkARM.dll` copied from default install location `C:\Program Files (x86)\SEGGER\JLink`. 
 
+## goST
+
+- see Segger RTT over STLINK
+
+## keil.com
+
+- Tooling info
+
+## microchip.com
+
+- Planned 8 bit example
+
+## nxp.com
+
+- Planned NXP example
+
+## segger.com
+
+- Tooling around Segger RTT
+
+## st.com
+
+- STMicroelectronics
+
+## zadig.akeo.ie
+
+- Installer for libusb (needed for goST)
