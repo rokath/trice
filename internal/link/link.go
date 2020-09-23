@@ -160,7 +160,8 @@ func (p *LINK) Open() error {
 		fmt.Println("Start a process:", linkCmd, "with needed lib", linkLib, "and args:", Args, p.tempLogFileName)
 	}
 	//cmd = exec.Command(linkCmd, Args, p.tempLogFileName)
-	cmd = exec.Command(linkCmd, "-Device", "STM32F070RB", "-if", "SWD", "-Speed", "4000", "-RTTChannel", "0", p.tempLogFileName)
+	//cmd = exec.Command(linkCmd, "-Device", "STM32F070RB", "-if", "SWD", "-Speed", "4000", "-RTTChannel", "0", p.tempLogFileName)
+	cmd = exec.Command(linkCmd, "-Device", "STM32F030R8", "-if", "SWD", "-Speed", "4000", "-RTTChannel", "0", p.tempLogFileName)
 
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
