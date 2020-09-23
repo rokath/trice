@@ -23,8 +23,8 @@ import (
 	"github.com/rokath/trice/internal/com"
 	"github.com/rokath/trice/internal/emitter"
 	"github.com/rokath/trice/internal/id"
-	"github.com/rokath/trice/internal/jlink"
 	"github.com/rokath/trice/internal/keybcmd"
+	"github.com/rokath/trice/internal/link"
 	"github.com/rokath/trice/internal/receiver"
 	"github.com/rokath/trice/internal/translator"
 	"github.com/rokath/trice/pkg/cage"
@@ -216,7 +216,7 @@ func init() {
 	fsScLog.StringVar(&Port, "port", "JLINK", "receiver device, options: 'COMn|JLINK|STLINK|filename|SIM|RND|HTTP'")                                                                                           // flag
 	fsScLog.StringVar(&Port, "p", "JLINK", "short for -port")                                                                                                                                                  // short flag
 	fsScLog.IntVar(&com.Baud, "baud", 115200, "COM baudrate, valid only for '-source COMn'")                                                                                                                   // flag flag
-	fsScLog.StringVar(&jlink.Param, "jlink", "-Device STM32F070RB -if SWD -Speed 4000 -RTTChannel 0", "passed parameter string, valid only for '-port JLINK', see JLinkRTTLogger in SEGGER UM08001_JLink.pdf") // JLRTT flag
+	fsScLog.StringVar(&link.Param, "link", "-Device STM32F070RB -if SWD -Speed 4000 -RTTChannel 0", "passed parameter string, valid only for '-port JLINK', see JLinkRTTLogger in SEGGER UM08001_JLink.pdf")   // JLRTT flag
 	//fsScLog.StringVar(&rndMode, "rndMode", "WrapModeWithValidCrc", "valid only for '-source RND', see randomdummy.go, options: 'ChaosMode|BareModeNoSync'")
 	//fsScLog.IntVar(&rndLimit, "rndLimit", randomdummy.NoLimit, "valid only for '-source RND', see randomdummy.go, options: 'n|0', 'n' is count of bytes, '0' for unlimited count")
 	fsScLog.BoolVar(&displayRemote, "displayserver", false, "send trice lines to displayserver @ ipa:ipp")
@@ -250,7 +250,7 @@ func init() {
 func injectValues() {
 	id.Verbose = Verbose
 	emitter.Verbose = Verbose
-	jlink.Verbose = Verbose
+	link.Verbose = Verbose
 	cage.Verbose = Verbose
 	receiver.Verbose = Verbose
 	translator.Verbose = Verbose
@@ -364,9 +364,9 @@ func newReadCloser() (r io.ReadCloser, e error) {
 	}
 	switch Port {
 	case "JLINK":
-		l := jlink.New(jlink.Param) // yes
+		l := link.New(link.Param) // yes
 		if nil != l.Open() {
-			e = fmt.Errorf("Can not open JLINK %s", jlink.Param)
+			e = fmt.Errorf("Can not open JLINK %s", link.Param)
 		}
 		r = l
 	case "GOST", "STLINK":

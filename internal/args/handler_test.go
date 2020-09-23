@@ -67,7 +67,7 @@ func _TestScVersion(t *testing.T) {
 			ip address like '127.0.0.1' (default "localhost")
 	  -ipp string
 			16 bit port number (default "61497")
-	  -jlink string
+	  -link string
 			passed parameter string, valid only for '-source JLRTT', see JLinkRTTLogger in SEGGER UM08001_JLink.pdf (default "-Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0")
 	  -key
 			show encryption key

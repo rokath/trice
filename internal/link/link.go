@@ -1,11 +1,11 @@
 // Copyright 2020 Thomas.Hoehenleitner [at] seerose.net
 // Use of this source code is governed by a license that can be found in the LICENSE file.
 
-// Package jlink reads from SeggerRTT with the SEGGER app JLinkRTTLogger.
+// Package link reads from SeggerRTT with the SEGGER app JLinkRTTLogger.
 //
 // It provides a ReadCloser interface and makes no assumptiona about the delivered data.
 // It is also agnostic concerning the RTT channel and other setup parameters.
-package jlink
+package link
 
 import (
 	"fmt"
@@ -25,40 +25,40 @@ var (
 	// Param contails the command line parameters for JLinkRTTLogger
 	Param string
 
-	// jlinkBinary is the JLinkRTTLogger executable .
-	jlinkBinary string
+	// linkBinary is the JLinkRTTLogger executable .
+	linkBinary string
 
-	// jlinkDynLib is the JLinkRTTLogger used dynamic library name.
-	jlinkDynLib string
+	// linkDynLib is the JLinkRTTLogger used dynamic library name.
+	linkDynLib string
 
 	// shell is the os specific calling environment.
 	shell string
 
-	// jlinkCmdLine is the os specific JLINK commandline.
-	jlinkCmdLine string
+	// linkCmdLine is the os specific JLINK commandline.
+	linkCmdLine string
 
-	// jlink command handle
+	// link command handle
 	lcmdH *exec.Cmd
 )
 
 func init() {
 	if runtime.GOOS == "windows" {
-		jlinkBinary = "JLinkRTTLogger.exe"
-		jlinkDynLib = "JLinkARM.dll"
+		linkBinary = "JLinkRTTLogger.exe"
+		linkDynLib = "JLinkARM.dll"
 		shell = "cmd"
-		jlinkCmdLine = "/c "
+		linkCmdLine = "/c "
 	} else if runtime.GOOS == "linux" {
-		jlinkBinary = "JLinkRTTLogger"
-		jlinkDynLib = "JLinkARM.so"
+		linkBinary = "JLinkRTTLogger"
+		linkDynLib = "JLinkARM.so"
 		shell = "gnome-terminal" // this only works for gnome based linux desktop env
-		jlinkCmdLine = "-- /bin/bash -c "
+		linkCmdLine = "-- /bin/bash -c "
 	} else {
 		if Verbose {
 			fmt.Println("trice is running on unknown operating system, '-source JLINK' will not work.")
 		}
 	}
 	if Verbose {
-		fmt.Println(shell, jlinkBinary, "JLINK executable expected to be in path for usage")
+		fmt.Println(shell, linkBinary, "JLINK executable expected to be in path for usage")
 	}
 }
 
@@ -90,13 +90,13 @@ func New(param string) *JLINK {
 	r := &JLINK{} // create SeggerRTT instance
 
 	// check environment
-	path, err := exec.LookPath(jlinkBinary)
+	path, err := exec.LookPath(linkBinary)
 	if nil == err {
 		if Verbose {
 			fmt.Println(path, "found")
 		}
 	} else {
-		fmt.Println(jlinkBinary, "not found")
+		fmt.Println(linkBinary, "not found")
 		return nil
 	}
 
@@ -104,7 +104,7 @@ func New(param string) *JLINK {
 	r.tempLogFileHandle, _ = ioutil.TempFile(os.TempDir(), "trice-*.bin") // opens for read and write
 	r.tempLogFileName = r.tempLogFileHandle.Name()
 	r.tempLogFileHandle.Close()
-	jlinkCmdLine += jlinkBinary + " " + param + " " + r.tempLogFileName // full parameter string
+	linkCmdLine += linkBinary + " " + param + " " + r.tempLogFileName // full parameter string
 
 	return r
 }
@@ -114,7 +114,7 @@ func (p *JLINK) ErrorFatal() {
 	if nil == p.Err {
 		return
 	}
-	log.Panic("jlinkCmdLine =", jlinkCmdLine, "jlinkDynLib =", jlinkDynLib, "PATH ok?")
+	log.Panic("linkCmdLine =", linkCmdLine, "linkDynLib =", linkDynLib, "PATH ok?")
 }
 
 // Read() is part of the exported interface io.ReadCloser. It reads a slice of bytes.
@@ -136,9 +136,9 @@ func (p *JLINK) Close() error {
 // The temporary logfile is opened for reading.
 func (p *JLINK) Open() error {
 	if Verbose {
-		fmt.Println("Start a process:", shell, jlinkCmdLine)
+		fmt.Println("Start a process:", shell, linkCmdLine)
 	}
-	lcmdH = exec.Command(shell, jlinkCmdLine)
+	lcmdH = exec.Command(shell)
 	p.Err = lcmdH.Start()
 	p.ErrorFatal()
 
