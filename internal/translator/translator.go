@@ -412,7 +412,8 @@ func NewSimpleTrices(sw io.StringWriter, list *id.List, tr TriceAtomsReceiver) *
 				}
 
 			case <-p.done:
-				return // end of life
+				fmt.Println("end of life")
+				return
 			}
 		}
 	}()

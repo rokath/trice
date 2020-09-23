@@ -13,9 +13,11 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"os/signal"
 	"path/filepath"
 	"runtime"
 	"strings"
+	"syscall"
 	"time"
 
 	"github.com/rokath/trice/internal/com"
@@ -367,6 +369,7 @@ func newReadCloser() (r io.ReadCloser, e error) {
 			e = fmt.Errorf("Can not open JLINK %s", jlink.Param)
 		}
 		r = l
+	case "GOST", "STLINK":
 	case "DUMMY":
 		rd := bytes.NewReader([]byte{2, 1, 1, 1, 0x89, 0xab, 0xcd, 0xef, 2, 2, 2, 0, 3, 3, 3, 3, 4, 4})
 		r = ioutil.NopCloser(rd)
@@ -397,6 +400,23 @@ func receiving() error {
 	}
 	portReader, e := newReadCloser()
 	errorFatal(e)
+
+	sigs := make(chan os.Signal, 1)
+	//done := make(chan bool, 1)
+
+	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
+
+	go func() {
+		sig := <-sigs
+		fmt.Println()
+		fmt.Println(sig)
+		portReader.Close()
+		//done <- true
+	}()
+
+	//fmt.Println("awaiting signal")
+	//<-done
+	//fmt.Println("exiting")
 
 	var p translator.Translator // interface type
 
