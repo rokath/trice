@@ -12,7 +12,7 @@ import (
 )
 
 func Test1(t *testing.T) {
-	p := link.New("-Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0")
+	p := link.NewReadCloser("-Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0")
 	if nil == p {
 		t.Fail()
 		return

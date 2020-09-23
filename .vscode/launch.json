@@ -55,7 +55,7 @@
             ]
         },              
         {
-            "name": "-p JLINK",
+            "name": "-p LINK",
             "type": "go",
             "request": "launch",
             "mode": "auto",
@@ -64,7 +64,7 @@
             "args": ["log",
                      "-port",
                      "JLINK",
-                     "-verbose"
+                     "-verbose",
                      "-idlist",
                      "${workspaceFolder}/til.json",
                      "-key",
@@ -144,7 +144,7 @@
             ]
         },       
         {
-            "name": "trice l -g COM3",
+            "name": "trice l -p COM3",
             "type": "go",
             "request": "launch",
             "mode": "auto",

@@ -22,53 +22,72 @@ var (
 	// Verbose gives mor information on output if set. The value is injected from main packages.
 	Verbose bool
 
-	// Param contails the command line parameters for JLinkRTTLogger
-	Param string
+	// Port is the LINK used.
+	Port string
+
+	// Args contails the command line parameters for JLinkRTTLogger
+	Args string
 
 	// linkBinary is the JLinkRTTLogger executable .
-	linkBinary string
+	linkCmd string
 
 	// linkDynLib is the JLinkRTTLogger used dynamic library name.
-	linkDynLib string
+	linkLib string
 
 	// shell is the os specific calling environment.
-	shell string
+	//shell string
 
-	// linkCmdLine is the os specific JLINK commandline.
-	linkCmdLine string
+	// linkCmdLine is the os specific LINK commandline.
+	//linkCmdLine string
 
 	// link command handle
-	lcmdH *exec.Cmd
+	cmd *exec.Cmd
 )
 
-func init() {
-	if runtime.GOOS == "windows" {
-		linkBinary = "JLinkRTTLogger.exe"
-		linkDynLib = "JLinkARM.dll"
-		shell = "cmd"
-		linkCmdLine = "/c "
-	} else if runtime.GOOS == "linux" {
-		linkBinary = "JLinkRTTLogger"
-		linkDynLib = "JLinkARM.so"
-		shell = "gnome-terminal" // this only works for gnome based linux desktop env
-		linkCmdLine = "-- /bin/bash -c "
-	} else {
-		if Verbose {
-			fmt.Println("trice is running on unknown operating system, '-source JLINK' will not work.")
+func setEnvironment() {
+	if "windows" != runtime.GOOS && "linux" != runtime.GOOS {
+		fmt.Println("trice needs windows or linux as operating system.")
+	}
+	switch Port {
+	case "JLINK":
+		if runtime.GOOS == "windows" {
+			linkCmd = "JLinkRTTLogger.exe"
+			linkLib = "JLinkARM.dll"
+			//shell = "cmd"
+			//linkCmdLine = "/c "
+		} else if runtime.GOOS == "linux" {
+			linkCmd = "JLinkRTTLogger"
+			linkLib = "JLinkARM.so"
+			//shell = "gnome-terminal" // this only works for gnome based linux desktop env
+			//linkCmdLine = "-- /bin/bash -c "
+		}
+	case "STLINK":
+		if runtime.GOOS == "windows" {
+			linkCmd = "rttLogger.exe"
+			linkLib = "libusb-1.0.dll"
+			//shell = "cmd"
+			//linkCmdLine = "/c "
+		} else if runtime.GOOS == "linux" {
+			linkCmd = "rttLogger"
+			linkLib = "libusb-1.0.so"
+			//shell = "gnome-terminal" // this only works for gnome based linux desktop env
+			//linkCmdLine = "-- /bin/bash -c "
 		}
 	}
 	if Verbose {
-		fmt.Println(shell, linkBinary, "JLINK executable expected to be in path for usage")
+		fmt.Println("LINK executable", linkCmd, "and lib", linkLib, "expected to be in path for usage.")
 	}
+
 }
 
-// JLINK is the Segger RealTime Transfer logger reader interface.
-type JLINK struct {
+// LINK is the Segger RealTime Transfer logger reader interface.
+type LINK struct {
 	tempLogFileName   string
 	tempLogFileHandle *os.File
 	Err               error
 }
 
+/*
 // exists returns whether the given file or directory exists
 // https://stackoverflow.com/questions/10510691/how-to-check-whether-a-file-or-directory-exists
 func exists(path string) (bool, error) {
@@ -81,51 +100,53 @@ func exists(path string) (bool, error) {
 	}
 	return false, err
 }
+*/
 
-// New creates an instance of RTT ReadCloser.
+// NewReadCloser creates an instance of RTT ReadCloser.
 //
 // It is intended to be used by receiver.New() which embeds its interface.
 // The param string is used as JLinkRTTLogger parameter string. See SEGGER UM08001_JLink.pdf for details.
-func New(param string) *JLINK {
-	r := &JLINK{} // create SeggerRTT instance
+func NewReadCloser(param string) *LINK {
+	p := &LINK{} // create link instance
 
+	setEnvironment()
 	// check environment
-	path, err := exec.LookPath(linkBinary)
+	path, err := exec.LookPath(linkCmd)
 	if nil == err {
 		if Verbose {
 			fmt.Println(path, "found")
 		}
 	} else {
-		fmt.Println(linkBinary, "not found")
+		fmt.Println(linkCmd, "not found")
 		return nil
 	}
 
 	// get a temporary file name
-	r.tempLogFileHandle, _ = ioutil.TempFile(os.TempDir(), "trice-*.bin") // opens for read and write
-	r.tempLogFileName = r.tempLogFileHandle.Name()
-	r.tempLogFileHandle.Close()
-	linkCmdLine += linkBinary + " " + param + " " + r.tempLogFileName // full parameter string
+	p.tempLogFileHandle, _ = ioutil.TempFile(os.TempDir(), "trice-*.bin") // opens for read and write
+	p.tempLogFileName = p.tempLogFileHandle.Name()
+	p.tempLogFileHandle.Close()
+	//linkCmdLine += linkCmd + " " + Args + " " + r.tempLogFileName // full parameter string
 
-	return r
+	return p
 }
 
 // ErrorFatal ends in osExit(1) if p.Err not nil.
-func (p *JLINK) ErrorFatal() {
+func (p *LINK) ErrorFatal() {
 	if nil == p.Err {
 		return
 	}
-	log.Panic("linkCmdLine =", linkCmdLine, "linkDynLib =", linkDynLib, "PATH ok?")
+	log.Panic("linkCmd =", linkCmd, "linkLib =", linkLib, " <--- PATH ok?")
 }
 
 // Read() is part of the exported interface io.ReadCloser. It reads a slice of bytes.
-func (p *JLINK) Read(b []byte) (int, error) {
+func (p *LINK) Read(b []byte) (int, error) {
 	return p.tempLogFileHandle.Read(b)
 }
 
 // Close is part of the exported interface io.ReadCloser. It ends the connection.
 //
 // See https://stackoverflow.com/questions/11886531/terminating-a-process-started-with-os-exec-in-golang
-func (p *JLINK) Close() error {
+func (p *LINK) Close() error {
 	p.Err = p.tempLogFileHandle.Close()
 	p.ErrorFatal()
 	return os.Remove(p.tempLogFileName) // clean up
@@ -134,12 +155,17 @@ func (p *JLINK) Close() error {
 // Open starts the JLinkRTTLogger command with a temporary logfile
 //
 // The temporary logfile is opened for reading.
-func (p *JLINK) Open() error {
+func (p *LINK) Open() error {
 	if Verbose {
-		fmt.Println("Start a process:", shell, linkCmdLine)
+		fmt.Println("Start a process:", linkCmd, "with needed lib", linkLib, "and args:", Args, p.tempLogFileName)
 	}
-	lcmdH = exec.Command(shell)
-	p.Err = lcmdH.Start()
+	//cmd = exec.Command(linkCmd, Args, p.tempLogFileName)
+	cmd = exec.Command(linkCmd, "-Device", "STM32F070RB", "-if", "SWD", "-Speed", "4000", "-RTTChannel", "0", p.tempLogFileName)
+
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	p.Err = cmd.Start()
 	p.ErrorFatal()
 
 	p.tempLogFileHandle, p.Err = os.Open(p.tempLogFileName) // Open() opens a file with read only flag.
@@ -153,7 +179,7 @@ func (p *JLINK) Open() error {
 }
 
 // watchLogfile creates a new file watcher.
-func (p *JLINK) watchLogfile() {
+func (p *LINK) watchLogfile() {
 	var watcher *fsnotify.Watcher
 	watcher, p.Err = fsnotify.NewWatcher()
 	defer watcher.Close()
@@ -183,6 +209,7 @@ func (p *JLINK) watchLogfile() {
 	p.Err = watcher.Add(p.tempLogFileName)
 }
 
+/*
 func xxxmain() {
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {
@@ -217,3 +244,4 @@ func xxxmain() {
 	}
 	<-done
 }
+*/

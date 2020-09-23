@@ -203,20 +203,20 @@ func init() {
 }
 
 func init() {
-	fsScLog = flag.NewFlagSet("log", flag.ExitOnError)                                                                                                                                                         // subcommand
-	fsScLog.StringVar(&Encoding, "encoding", "default", "trice transmit data format type, options: 'ascii|bare|esc|wrap'. For -p JLINK default is bare, for -p COMn default is bare")                          // flag
-	fsScLog.StringVar(&Encoding, "e", "default", "short for -encoding")                                                                                                                                        // short flag
-	fsScLog.StringVar(&cipher.Password, "password", "none", "decrypt passphrase")                                                                                                                              // flag
-	fsScLog.StringVar(&cipher.Password, "pw", "none", "short for -password")                                                                                                                                   // short flag
-	fsScLog.BoolVar(&cipher.ShowKey, "key", false, "show encryption key")                                                                                                                                      // flag
-	fsScLog.StringVar(&emitter.TimeStampFormat, "ts", "LOCmicro", "PC timestamp for logs and logfile name, options: 'off|none|UTCmicro|zero'")                                                                 // flag
-	fsScLog.StringVar(&emitter.ColorPalette, "color", "default", "color set, 'off' disables color handling (\"w:x\"->\"w:x\"), 'none' disables channels color (\"w:x\"->\"x\"), options: 'off|none'")          // flag
-	fsScLog.StringVar(&emitter.Prefix, "prefix", "source: ", "line prefix, options: any string or 'off|none' or 'source:' followed by 0-12 spaces, 'source:' will be replaced by source value e.g., 'COM17:'") // flag
-	fsScLog.StringVar(&emitter.Suffix, "suffix", "", "append suffix to all lines, options: any string")                                                                                                        // flag
-	fsScLog.StringVar(&Port, "port", "JLINK", "receiver device, options: 'COMn|JLINK|STLINK|filename|SIM|RND|HTTP'")                                                                                           // flag
-	fsScLog.StringVar(&Port, "p", "JLINK", "short for -port")                                                                                                                                                  // short flag
-	fsScLog.IntVar(&com.Baud, "baud", 115200, "COM baudrate, valid only for '-source COMn'")                                                                                                                   // flag flag
-	fsScLog.StringVar(&link.Param, "link", "-Device STM32F070RB -if SWD -Speed 4000 -RTTChannel 0", "passed parameter string, valid only for '-port JLINK', see JLinkRTTLogger in SEGGER UM08001_JLink.pdf")   // JLRTT flag
+	fsScLog = flag.NewFlagSet("log", flag.ExitOnError)                                                                                                                                                          // subcommand
+	fsScLog.StringVar(&Encoding, "encoding", "default", "trice transmit data format type, options: 'ascii|bare|esc|wrap'. For -p JLINK default is bare, for -p COMn default is bare")                           // flag
+	fsScLog.StringVar(&Encoding, "e", "default", "short for -encoding")                                                                                                                                         // short flag
+	fsScLog.StringVar(&cipher.Password, "password", "none", "decrypt passphrase")                                                                                                                               // flag
+	fsScLog.StringVar(&cipher.Password, "pw", "none", "short for -password")                                                                                                                                    // short flag
+	fsScLog.BoolVar(&cipher.ShowKey, "key", false, "show encryption key")                                                                                                                                       // flag
+	fsScLog.StringVar(&emitter.TimeStampFormat, "ts", "LOCmicro", "PC timestamp for logs and logfile name, options: 'off|none|UTCmicro|zero'")                                                                  // flag
+	fsScLog.StringVar(&emitter.ColorPalette, "color", "default", "color set, 'off' disables color handling (\"w:x\"->\"w:x\"), 'none' disables channels color (\"w:x\"->\"x\"), options: 'off|none'")           // flag
+	fsScLog.StringVar(&emitter.Prefix, "prefix", "source: ", "line prefix, options: any string or 'off|none' or 'source:' followed by 0-12 spaces, 'source:' will be replaced by source value e.g., 'COM17:'")  // flag
+	fsScLog.StringVar(&emitter.Suffix, "suffix", "", "append suffix to all lines, options: any string")                                                                                                         // flag
+	fsScLog.StringVar(&Port, "port", "JLINK", "receiver device, options: 'COMn|JLINK|STLINK|filename|SIM|RND|HTTP'")                                                                                            // flag
+	fsScLog.StringVar(&Port, "p", "JLINK", "short for -port")                                                                                                                                                   // short flag
+	fsScLog.IntVar(&com.Baud, "baud", 115200, "COM baudrate, valid only for '-source COMn'")                                                                                                                    // flag flag
+	fsScLog.StringVar(&link.Args, "args", "-Device STM32F070RB -if SWD -Speed 4000 -RTTChannel 0", "passed parameter string, valid only for '-p JLINK|STLINK', see JLinkRTTLogger in SEGGER UM08001_JLink.pdf") // JLRTT flag
 	//fsScLog.StringVar(&rndMode, "rndMode", "WrapModeWithValidCrc", "valid only for '-source RND', see randomdummy.go, options: 'ChaosMode|BareModeNoSync'")
 	//fsScLog.IntVar(&rndLimit, "rndLimit", randomdummy.NoLimit, "valid only for '-source RND', see randomdummy.go, options: 'n|0', 'n' is count of bytes, '0' for unlimited count")
 	fsScLog.BoolVar(&displayRemote, "displayserver", false, "send trice lines to displayserver @ ipa:ipp")
@@ -254,6 +254,7 @@ func injectValues() {
 	cage.Verbose = Verbose
 	receiver.Verbose = Verbose
 	translator.Verbose = Verbose
+	link.Port = Port
 }
 
 // Handler evaluates the arguments slice of strings
@@ -363,13 +364,12 @@ func newReadCloser() (r io.ReadCloser, e error) {
 		return
 	}
 	switch Port {
-	case "JLINK":
-		l := link.New(link.Param) // yes
+	case "JLINK", "STLINK":
+		l := link.NewReadCloser(link.Args) // yes
 		if nil != l.Open() {
-			e = fmt.Errorf("Can not open JLINK %s", link.Param)
+			e = fmt.Errorf("Can not open LINK %s", link.Args)
 		}
 		r = l
-	case "GOST", "STLINK":
 	case "DUMMY":
 		rd := bytes.NewReader([]byte{2, 1, 1, 1, 0x89, 0xab, 0xcd, 0xef, 2, 2, 2, 0, 3, 3, 3, 3, 4, 4})
 		r = ioutil.NopCloser(rd)
@@ -401,28 +401,11 @@ func receiving() error {
 	portReader, e := newReadCloser()
 	errorFatal(e)
 
-	sigs := make(chan os.Signal, 1)
-	//done := make(chan bool, 1)
-
-	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
-
-	go func() {
-		sig := <-sigs
-		fmt.Println()
-		fmt.Println(sig)
-		portReader.Close()
-		//done <- true
-	}()
-
-	//fmt.Println("awaiting signal")
-	//<-done
-	//fmt.Println("exiting")
-
 	var p translator.Translator // interface type
 
 	if "default" == Encoding {
 		switch Port {
-		case "JLINK":
+		case "JLINK", "STLINK":
 			Encoding = "bare"
 		default:
 			if strings.HasPrefix(Port, "COM") {
@@ -449,12 +432,21 @@ func receiving() error {
 		return fmt.Errorf("unknown encoding: %s", Encoding)
 	}
 
+	sigs := make(chan os.Signal, 1)
+	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
+
 	for nil == p.SavedError() { // endless loop
-		time.Sleep(100 * time.Millisecond)
+		select {
+		case sig := <-sigs:
+			fmt.Println("####################################   END OF LIFE!   ####################################")
+			fmt.Println(sig)
+			goto end
+		case <-time.After(10 * time.Millisecond):
+		}
 	}
+end:
 	errorFatal(portReader.Close())
 	return p.SavedError()
-
 }
 
 func receiveWrapSimpleTricesAndDisplayAnsiColor(rd io.Reader, fnJSON string) *translator.BareTranslator {
