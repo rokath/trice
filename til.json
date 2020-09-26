@@ -3022,5 +3022,12 @@
 		"fmtStrg": "tst:TRICE64_2 %x %16d\\n",
 		"created": 1600768387,
 		"removed": 0
+	},
+	{
+		"id": 51601,
+		"fmtType": "TRICE64_2",
+		"fmtStrg": "MSG: triceBareFifoMaxDepth = %d (index %d)\\n",
+		"created": 1601116799,
+		"removed": 0
 	}
 ]

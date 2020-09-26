@@ -11,39 +11,39 @@
 //! TRICE_FIFO_BYTE_SIZE must be a power of 2, one trice needs 4 to 32 or one day more bytes.
 //! The fifo has to hold trice bursts until they are transmitted.
 //! It is transmitted with lower priority in the background for example with the UART tx interrupt.
-#define TRICE_FIFO_BYTE_SIZE 1024
+#define TRICE_ESC_FIFO_BYTE_SIZE 1024
 
-#define TRICE_FIFO_MASK (TRICE_FIFO_BYTE_SIZE-1) //!< max possible byte count in fifo
+#define TRICE_ESC_FIFO_MASK (TRICE_ESC_FIFO_BYTE_SIZE-1) //!< max possible byte count in fifo
 
 //! trice fifo instance, here are the trices buffered.
-static uint8_t triceFifo[TRICE_FIFO_BYTE_SIZE];
+static uint8_t triceEscFifo[TRICE_ESC_FIFO_BYTE_SIZE];
 
-static int triceFifoWriteIndex = 0; //!< trice fifo write index, used inside macros, so must be visible
-static int triceFifoReadIndex = 0; //!< trice fifo read index
+static int triceEscFifoWriteIndex = 0; //!< trice fifo write index, used inside macros, so must be visible
+static int triceEscFifoReadIndex = 0; //!< trice fifo read index
 int triceEscFifoMaxDepth = 0; //!< diagnostics
 
 //! tricePushByteEscFifo puts one byte into trice fifo.
 //! This is a trice time critical part.
 //! \param v byte date
 void tricePushByteEscFifo(uint8_t v) {
-    triceFifo[triceFifoWriteIndex++] = v;
-    triceFifoWriteIndex &= TRICE_FIFO_MASK;
+    triceEscFifo[triceEscFifoWriteIndex++] = v;
+    triceEscFifoWriteIndex &= TRICE_ESC_FIFO_MASK;
 }
 
 //! tricePopByteEscFifo gets one byte from trice fifo.
 //! \return byte date
 uint8_t tricePopByteEscFifo(void) {
-    uint8_t v = triceFifo[triceFifoReadIndex++];
-    triceFifoReadIndex &= TRICE_FIFO_MASK;
+    uint8_t v = triceEscFifo[triceEscFifoReadIndex++];
+    triceEscFifoReadIndex &= TRICE_ESC_FIFO_MASK;
     return v;
 }
 
 //! triceEscFifoDepth determines trices count inside trice fifo.
 //! \return count of buffered trices
 int triceEscFifoDepth(void) {
-    int triceDepth = (triceFifoWriteIndex - triceFifoReadIndex) & TRICE_FIFO_MASK;
-    triceEscFifoMaxDepth = triceDepth < triceEscFifoMaxDepth ? triceEscFifoMaxDepth : triceDepth; // diagnostics
-    return triceDepth;
+    int triceEscDepth = (triceEscFifoWriteIndex - triceEscFifoReadIndex) & TRICE_ESC_FIFO_MASK;
+    triceEscFifoMaxDepth = triceEscFifoMaxDepth < triceEscDepth ? triceEscDepth : triceEscFifoMaxDepth; // diagnostics
+    return triceEscDepth;
 }
 
 static void triceWritePaddingBytes(int count) {

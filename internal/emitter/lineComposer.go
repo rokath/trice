@@ -8,7 +8,8 @@ import (
 	"time"
 )
 
-type triceLineComposer struct {
+// TriceLineComposer ...
+type TriceLineComposer struct {
 	lw              Linewriter // internal interface
 	timestampFormat string
 	prefix          string
@@ -20,7 +21,7 @@ type triceLineComposer struct {
 // NewLineComposer constructs log lines according to these rules:...
 // It provides an io.StringWriter interface which is used for the reception of (trice) strings.
 // It uses lw for writing the generated lines.
-func NewLineComposer(lw Linewriter, timestampFormat, prefix, suffix string) *triceLineComposer {
+func NewLineComposer(lw Linewriter, timestampFormat, prefix, suffix string) *TriceLineComposer {
 	pf := prefix + " "
 	if " " == pf {
 		pf = ""
@@ -29,12 +30,12 @@ func NewLineComposer(lw Linewriter, timestampFormat, prefix, suffix string) *tri
 	if " " == sf {
 		sf = ""
 	}
-	p := &triceLineComposer{lw, timestampFormat, pf, sf, make([]string, 0, 80), nil}
+	p := &TriceLineComposer{lw, timestampFormat, pf, sf, make([]string, 0, 80), nil}
 	return p
 }
 
 // timestamp returns local time as string according var p.timeStampFormat
-func (p *triceLineComposer) timestamp() string {
+func (p *TriceLineComposer) timestamp() string {
 	var s string
 	switch p.timestampFormat {
 	case "LOCmicro":
@@ -59,7 +60,7 @@ func (p *triceLineComposer) timestamp() string {
 // If s ends with newline it is added to p.line and also the suffix is added to p.line and pline is written to p.lw.
 // If s contains several newlines it is split there and the substrings are handled accordingly.
 // That means it writes internally a separate line for each substring (in s) ending with a newline.
-func (p *triceLineComposer) WriteString(s string) (n int, err error) {
+func (p *TriceLineComposer) WriteString(s string) (n int, err error) {
 	n = len(s)
 	if 0 == n {
 		return

@@ -5,7 +5,6 @@
 // cage.Enable()
 // defer cage.Disable()
 // do stuff...
-
 package cage
 
 import (

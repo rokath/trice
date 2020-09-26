@@ -12,19 +12,19 @@ import (
 	"github.com/mgutz/ansi"
 )
 
-// lineTransformerANSI imnplements a Linewriter interface.
+// LineTransformerANSI imnplements a Linewriter interface.
 // It uses an internal Linewriter lw to write to.
 // It converts the channel information to color data using colorPalette.
 // In case of a remote display the lineTranslator should be used there.
-type lineTransformerANSI struct {
+type LineTransformerANSI struct {
 	lw           Linewriter
 	colorPalette string
 }
 
 // NewLineTransformerANSI translates lines to ANSI colors according to colorPalette.
 // It provides a Linewriter interface and uses internally a Linewriter.
-func NewLineTransformerANSI(lw Linewriter, colorPalette string) *lineTransformerANSI {
-	p := &lineTransformerANSI{lw, colorPalette}
+func NewLineTransformerANSI(lw Linewriter, colorPalette string) *LineTransformerANSI {
+	p := &LineTransformerANSI{lw, colorPalette}
 	return p
 }
 
@@ -58,7 +58,7 @@ func isLower(s string) bool {
 // If p.colorPalette is "none" remove only lower case channel info "col:"
 // If "COL:" is begin of string add ANSI color code according to COL:
 // If "col:" is begin of string replace "col:" with ANSI color code according to col:
-func (p *lineTransformerANSI) colorize(s string) (r string) {
+func (p *LineTransformerANSI) colorize(s string) (r string) {
 	r = s
 	if "off" == p.colorPalette { // do nothing
 		return
@@ -162,7 +162,7 @@ func (p *lineTransformerANSI) colorize(s string) (r string) {
 // writeLine consumes a full line, translates it and writes it to the internal Linewriter.
 // It adds ANSI color Codes and replaces col: channel information.
 // It treats each sub string separately and and a color reset code at the end.
-func (p *lineTransformerANSI) writeLine(line []string) {
+func (p *LineTransformerANSI) writeLine(line []string) {
 	var colored bool
 	l := make([]string, 0, 10)
 	for _, s := range line {

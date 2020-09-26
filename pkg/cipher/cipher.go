@@ -4,7 +4,6 @@
 // Package cipher provides an encryption and decryption interface.
 //
 // It abstracts from the used cipher algorithm
-
 package cipher
 
 import (

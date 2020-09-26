@@ -13,7 +13,7 @@ import (
 	"log"
 	"os"
 	"os/exec"
-	"runtime"
+	"strings"
 
 	"github.com/fsnotify/fsnotify"
 )
@@ -27,97 +27,48 @@ var (
 
 	// Args contails the command line parameters for JLinkRTTLogger
 	Args string
-
-	// linkBinary is the JLinkRTTLogger executable .
-	linkCmd string
-
-	// linkDynLib is the JLinkRTTLogger used dynamic library name.
-	linkLib string
-
-	// shell is the os specific calling environment.
-	//shell string
-
-	// linkCmdLine is the os specific LINK commandline.
-	//linkCmdLine string
-
-	// link command handle
-	cmd *exec.Cmd
 )
 
-func setEnvironment() {
-	if "windows" != runtime.GOOS && "linux" != runtime.GOOS {
-		fmt.Println("trice needs windows or linux as operating system.")
-	}
-	switch Port {
-	case "JLINK":
-		if runtime.GOOS == "windows" {
-			linkCmd = "JLinkRTTLogger.exe"
-			linkLib = "JLinkARM.dll"
-			//shell = "cmd"
-			//linkCmdLine = "/c "
-		} else if runtime.GOOS == "linux" {
-			linkCmd = "JLinkRTTLogger"
-			linkLib = "JLinkARM.so"
-			//shell = "gnome-terminal" // this only works for gnome based linux desktop env
-			//linkCmdLine = "-- /bin/bash -c "
-		}
-	case "STLINK":
-		if runtime.GOOS == "windows" {
-			linkCmd = "rttLogger.exe"
-			linkLib = "libusb-1.0.dll"
-			//shell = "cmd"
-			//linkCmdLine = "/c "
-		} else if runtime.GOOS == "linux" {
-			linkCmd = "rttLogger"
-			linkLib = "libusb-1.0.so"
-			//shell = "gnome-terminal" // this only works for gnome based linux desktop env
-			//linkCmdLine = "-- /bin/bash -c "
-		}
-	}
-	if Verbose {
-		fmt.Println("LINK executable", linkCmd, "and lib", linkLib, "expected to be in path for usage.")
-	}
-
-}
-
-// LINK is the Segger RealTime Transfer logger reader interface.
-type LINK struct {
+// Device is the RTT logger reader interface.
+type Device struct {
+	Exec              string    // linkBinary is the RTT logger executable .
+	Lib               string    // linkDynLib is the RTT used dynamic library name.
+	cmd               *exec.Cmd // link command handle
 	tempLogFileName   string
 	tempLogFileHandle *os.File
 	Err               error
 }
 
-/*
-// exists returns whether the given file or directory exists
-// https://stackoverflow.com/questions/10510691/how-to-check-whether-a-file-or-directory-exists
-func exists(path string) (bool, error) {
-	_, err := os.Stat(path)
-	if err == nil {
-		return true, nil
+// SetLinkCommandName evaluates port and sets the appropriate link command name
+func (p *Device) SetLinkCommandName() {
+	switch Port {
+	case "JLINK":
+		p.Exec = "JLinkRTTLogger"
+		p.Lib = "JLinkARM"
+	case "STLINK":
+		p.Exec = "rttLogger"
+		p.Lib = "libusb-1.0"
 	}
-	if os.IsNotExist(err) {
-		return false, nil
+	if Verbose {
+		fmt.Println("LINK executable", p.Exec, "and dynamic lib", p.Lib, "expected to be in path for usage.")
 	}
-	return false, err
+
 }
-*/
 
-// NewReadCloser creates an instance of RTT ReadCloser.
-//
-// It is intended to be used by receiver.New() which embeds its interface.
-// The param string is used as JLinkRTTLogger parameter string. See SEGGER UM08001_JLink.pdf for details.
-func NewReadCloser(param string) *LINK {
-	p := &LINK{} // create link instance
+// NewReadCloser creates an instance of RTT ReadCloser of type Port.
+// The Args string is used as parameter string. See SEGGER UM08001_JLink.pdf for details.
+func NewReadCloser() *Device {
+	p := &Device{} // create link instance
 
-	setEnvironment()
+	p.SetLinkCommandName()
 	// check environment
-	path, err := exec.LookPath(linkCmd)
+	path, err := exec.LookPath(p.Exec)
 	if nil == err {
 		if Verbose {
 			fmt.Println(path, "found")
 		}
 	} else {
-		fmt.Println(linkCmd, "not found")
+		fmt.Println(p.Exec, "not found")
 		return nil
 	}
 
@@ -131,22 +82,22 @@ func NewReadCloser(param string) *LINK {
 }
 
 // ErrorFatal ends in osExit(1) if p.Err not nil.
-func (p *LINK) ErrorFatal() {
+func (p *Device) ErrorFatal() {
 	if nil == p.Err {
 		return
 	}
-	log.Panic("linkCmd =", linkCmd, "linkLib =", linkLib, " <--- PATH ok?")
+	log.Panic("linkCmd =", p.Exec, "linkLib =", p.Exec, " <--- PATH ok?")
 }
 
 // Read() is part of the exported interface io.ReadCloser. It reads a slice of bytes.
-func (p *LINK) Read(b []byte) (int, error) {
+func (p *Device) Read(b []byte) (int, error) {
 	return p.tempLogFileHandle.Read(b)
 }
 
 // Close is part of the exported interface io.ReadCloser. It ends the connection.
 //
 // See https://stackoverflow.com/questions/11886531/terminating-a-process-started-with-os-exec-in-golang
-func (p *LINK) Close() error {
+func (p *Device) Close() error {
 	p.Err = p.tempLogFileHandle.Close()
 	p.ErrorFatal()
 	return os.Remove(p.tempLogFileName) // clean up
@@ -155,18 +106,58 @@ func (p *LINK) Close() error {
 // Open starts the JLinkRTTLogger command with a temporary logfile
 //
 // The temporary logfile is opened for reading.
-func (p *LINK) Open() error {
+func (p *Device) Open() error {
 	if Verbose {
-		fmt.Println("Start a process:", linkCmd, "with needed lib", linkLib, "and args:", Args, p.tempLogFileName)
+		fmt.Println("Start a process:", p.Exec, "with needed lib", p.Lib, "and args:", Args, p.tempLogFileName)
+	}
+	args := strings.Split(Args, " ")
+	args = append(args, p.tempLogFileName)
+	switch len(args) {
+	case 0:
+		p.cmd = exec.Command(p.Exec)
+	case 1:
+		p.cmd = exec.Command(p.Exec, args[0])
+	case 2:
+		p.cmd = exec.Command(p.Exec, args[0], args[1])
+	case 3:
+		p.cmd = exec.Command(p.Exec, args[0], args[1], args[2])
+	case 4:
+		p.cmd = exec.Command(p.Exec, args[0], args[1], args[2], args[3])
+	case 5:
+		p.cmd = exec.Command(p.Exec, args[0], args[1], args[2], args[3], args[4])
+	case 6:
+		p.cmd = exec.Command(p.Exec, args[0], args[1], args[2], args[3], args[4], args[5])
+	case 7:
+		p.cmd = exec.Command(p.Exec, args[0], args[1], args[2], args[3], args[4], args[5], args[6])
+	case 8:
+		p.cmd = exec.Command(p.Exec, args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7])
+	case 9:
+		p.cmd = exec.Command(p.Exec, args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8])
+	case 10:
+		p.cmd = exec.Command(p.Exec, args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9])
+	case 11:
+		p.cmd = exec.Command(p.Exec, args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10])
+	case 12:
+		p.cmd = exec.Command(p.Exec, args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11])
+	case 13:
+		p.cmd = exec.Command(p.Exec, args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12])
+	case 14:
+		p.cmd = exec.Command(p.Exec, args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13])
+	case 15:
+		p.cmd = exec.Command(p.Exec, args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14])
+	case 16:
+		p.cmd = exec.Command(p.Exec, args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14], args[15])
+	default:
+		p.Err = fmt.Errorf("Cannot handle \"%s\"as parameter string - too much separators: %v", Args, args)
 	}
 	//cmd = exec.Command(linkCmd, Args, p.tempLogFileName)
 	//cmd = exec.Command(linkCmd, "-Device", "STM32F070RB", "-if", "SWD", "-Speed", "4000", "-RTTChannel", "0", p.tempLogFileName)
-	cmd = exec.Command(linkCmd, "-Device", "STM32F030R8", "-if", "SWD", "-Speed", "4000", "-RTTChannel", "0", p.tempLogFileName)
+	//p.cmd = exec.Command(p.Exec, "-Device", "STM32F030R8", "-if", "SWD", "-Speed", "4000", "-RTTChannel", "0", p.tempLogFileName)
 
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
+	p.cmd.Stdout = os.Stdout
+	p.cmd.Stderr = os.Stderr
 
-	p.Err = cmd.Start()
+	p.Err = p.cmd.Start()
 	p.ErrorFatal()
 
 	p.tempLogFileHandle, p.Err = os.Open(p.tempLogFileName) // Open() opens a file with read only flag.
@@ -180,7 +171,7 @@ func (p *LINK) Open() error {
 }
 
 // watchLogfile creates a new file watcher.
-func (p *LINK) watchLogfile() {
+func (p *Device) watchLogfile() {
 	var watcher *fsnotify.Watcher
 	watcher, p.Err = fsnotify.NewWatcher()
 	defer watcher.Close()
@@ -209,40 +200,3 @@ func (p *LINK) watchLogfile() {
 	// out of the box fsnotify can watch a single file, or a single directory
 	p.Err = watcher.Add(p.tempLogFileName)
 }
-
-/*
-func xxxmain() {
-	watcher, err := fsnotify.NewWatcher()
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer watcher.Close()
-
-	done := make(chan bool)
-	go func() {
-		for {
-			select {
-			case event, ok := <-watcher.Events:
-				if !ok {
-					return
-				}
-				log.Println("event:", event)
-				if event.Op&fsnotify.Write == fsnotify.Write {
-					log.Println("modified file:", event.Name)
-				}
-			case err, ok := <-watcher.Errors:
-				if !ok {
-					return
-				}
-				log.Println("error:", err)
-			}
-		}
-	}()
-
-	err = watcher.Add("/tmp/foo")
-	if err != nil {
-		log.Fatal(err)
-	}
-	<-done
-}
-*/

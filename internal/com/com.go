@@ -50,16 +50,16 @@ type COMport interface {
 	Close() error
 }
 
-// comPortGoBugSt is a serial device trice receiver
-type comPortGoBugSt struct {
+// PortGoBugSt is a serial device trice receiver
+type PortGoBugSt struct {
 	port         string
 	serialHandle serialgobugst.Port
 	serialMode   serialgobugst.Mode
 }
 
 // NewCOMPortGoBugSt creates an instance of a serial device type trice receiver
-func NewCOMPortGoBugSt(comPortName string) *comPortGoBugSt {
-	r := &comPortGoBugSt{
+func NewCOMPortGoBugSt(comPortName string) *PortGoBugSt {
+	r := &PortGoBugSt{
 		port: comPortName,
 		serialMode: serialgobugst.Mode{
 			BaudRate: Baud,
@@ -76,21 +76,21 @@ func NewCOMPortGoBugSt(comPortName string) *comPortGoBugSt {
 //
 // The Read function blocks until (at least) one byte is received from
 // the serial port or an error occurs.
-func (p *comPortGoBugSt) Read(buf []byte) (int, error) {
+func (p *PortGoBugSt) Read(buf []byte) (int, error) {
 	count, err := p.serialHandle.Read(buf)
 	log.Println("comPortGoBugSt.Read:", err, count, buf[:count])
 	return count, err
 }
 
 // Close releases port
-func (p *comPortGoBugSt) Close() error {
+func (p *PortGoBugSt) Close() error {
 	return p.serialHandle.Close()
 }
 
 // Open initializes the serial receiver.
 //
 // It opens a serial port.
-func (p *comPortGoBugSt) Open() bool {
+func (p *PortGoBugSt) Open() bool {
 	var err error
 	p.serialHandle, err = serialgobugst.Open(p.port, &p.serialMode)
 	if err != nil {
@@ -118,15 +118,15 @@ func GetSerialPorts() ([]string, error) {
 	return ports, err
 }
 
-// comPortGoBugSt is a serial device trice receiver
-type comPortTarm struct {
+// PortTarm is a serial device trice receiver.
+type PortTarm struct {
 	config serialtarm.Config
 	stream *serialtarm.Port
 }
 
 // NewCOMPortTarm creates an instance of a serial device type trice receiver
-func NewCOMPortTarm(comPortName string) *comPortTarm {
-	var p = new(comPortTarm)
+func NewCOMPortTarm(comPortName string) *PortTarm {
+	var p = new(PortTarm)
 	p.config.Name = comPortName
 	p.config.Baud = Baud
 	p.config.ReadTimeout = 1
@@ -134,7 +134,8 @@ func NewCOMPortTarm(comPortName string) *comPortTarm {
 	return p
 }
 
-func (p *comPortTarm) Open() bool {
+// Open returns true on successful operation.
+func (p *PortTarm) Open() bool {
 	var err error
 	p.stream, err = serialtarm.OpenPort(&p.config)
 	if err != nil {
@@ -145,7 +146,8 @@ func (p *comPortTarm) Open() bool {
 	return true
 }
 
-func (p *comPortTarm) Close() error {
+// Close returns an error in case of failure.
+func (p *PortTarm) Close() error {
 	return p.stream.Close()
 }
 
@@ -154,8 +156,10 @@ func (p *comPortTarm) Close() error {
 //
 // The Read function blocks until (at least) one byte is received from
 // the serial port or an error occurs.
-func (p *comPortTarm) Read(buf []byte) (int, error) {
+func (p *PortTarm) Read(buf []byte) (int, error) {
 	count, err := p.stream.Read(buf)
-	log.Println("comPortTarm.Read:", err, count, buf[:count])
+	if 0 < count || nil != err {
+		log.Println("comPortTarm.Read:", err, count, buf[:count])
+	}
 	return count, err
 }

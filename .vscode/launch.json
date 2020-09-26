@@ -65,6 +65,8 @@
                      "-port",
                      "JLINK",
                      "-verbose",
+                     "-encoding",
+                     "esc",
                      "-idlist",
                      "${workspaceFolder}/til.json",
                      "-key",

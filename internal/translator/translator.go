@@ -10,6 +10,7 @@ import (
 	"log"
 	"path/filepath"
 	"runtime"
+	"time"
 
 	"github.com/rokath/trice/internal/id"
 	"github.com/rokath/trice/internal/receiver"
@@ -92,7 +93,7 @@ type EscTranslator struct {
 	syncBuffer []byte
 }
 
-// NewEscTrices uses rd for reception and sw for writing.
+// NewEscTrices uses in for reception and sw for writing.
 // It collects trice bytes to a complete esc trice message, generates the appropriate string using list and writes it to sw.
 // EC LC IH IL ...
 func NewEscTrices(sw io.StringWriter, list *id.List, in io.Reader) *EscTranslator {
@@ -103,7 +104,10 @@ func NewEscTrices(sw io.StringWriter, list *id.List, in io.Reader) *EscTranslato
 	p.syncBuffer = make([]byte, 0, 1000)
 	go func() {
 		for {
-			//time.Sleep(1 * time.Millisecond) // todo: trigger from fileWatcher
+			if io.EOF == p.savedErr {
+				time.Sleep(100 * time.Millisecond) // todo: trigger from fileWatcher
+				p.savedErr = nil
+			}
 			s := p.readEsc()
 			_, p.savedErr = sw.WriteString(s)
 		}
@@ -456,9 +460,23 @@ func (p *BareTranslator) translate(trice Trice) (s string) {
 	}
 	index := p.list.Index(int(trice.ID))
 	if index < 0 { // unknown trice.ID
+
+		// clear any error
 		p.savedErr = nil
-		s = redBalk + fmt.Sprintln("error: unknown trice.ID", trice.ID, "(", trice.ID>>8, 0xff&trice.ID, "), values = ", p.values)
+
+		// convert values to bytes for displaying
+		var vb []byte
+		for _, v := range p.values {
+			b := make([]byte, 2)
+			binary.LittleEndian.PutUint16(b, v)
+			vb = append(vb, b...)
+		}
+
+		// message
+		s = redBalk + fmt.Sprintln("error: unknown trice.ID", trice.ID, "(", trice.ID>>8, 0xff&trice.ID, "), values = ", p.values, ", as bytes: ", vb)
 		s += fmt.Sprintln(p)
+
+		// clear values
 		p.values = p.values[:0]
 		return
 	}

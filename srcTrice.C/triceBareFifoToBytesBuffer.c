@@ -59,7 +59,7 @@ void triceServeBareFifoToBytesBuffer(void) {
             if (0 == n) { // no trices to transmit
                 syncLevel++;
                 return;
-            } else if (1 == n) { // one trice to transmit
+            } else if (4 == n) { // one trice to transmit
                 triceTransfer(tricePopBareFifo(), syncTrice);
                 syncLevel = 0;
             } else { // at least 2 trices to transmit
@@ -69,7 +69,7 @@ void triceServeBareFifoToBytesBuffer(void) {
                 syncLevel += 2;
             }
         } else { // need for a sync trice
-            if (1 <= n) { // at least one trice, so transmit it and one sync trice
+            if (4 <= n) { // at least one trice, so transmit it and one sync trice
                 triceTransfer(tricePopBareFifo(), syncTrice);
             } else { // nothing to transmit so transmit 2 sync trices
                 triceTransfer(syncTrice, syncTrice);
