@@ -1,3047 +1,800 @@
 [
 	{
-		"id": 8036,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "DIAG: triceFifoMaxDepthTrices = %d\n",
-		"created": 1599572743,
-		"removed": 0
-	},
-	{
-		"id": 17459,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "MSG: tryout %04x\n",
-		"created": 1599572743,
-		"removed": 0
-	},
-	{
-		"id": 6827,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "msg: line %d ",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 9271,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "msg: line %d ",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 50085,
-		"fmtType": "TRICE0",
-		"fmtStrg": "ERR:ASSERT failed\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 59283,
-		"fmtType": "TRICE0",
-		"fmtStrg": "rd_:triceCheck.c",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 24481,
-		"fmtType": "TRICE0",
-		"fmtStrg": "--------------------------------------------------\\r\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 13428,
-		"fmtType": "TRICE0",
-		"fmtStrg": "--------------------------------------------------\\r\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 18133,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "dbg:12345 as 16bit is %#016b\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 3791,
-		"fmtType": "TRICE0",
-		"fmtStrg": "--------------------------------------------------\\r\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 17125,
-		"fmtType": "TRICE0",
-		"fmtStrg": "sig:This ASSERT error is just a demo and no real error:\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 26797,
-		"fmtType": "TRICE0",
-		"fmtStrg": "--------------------------------------------------\\r\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 18113,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "ERR:error       message, SysTick is %6d\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 28289,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "WRN:warning     message, SysTick is %6d\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 53560,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "ATT:attension   message, SysTick is %6d\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 16672,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "DIA:diagnostics message, SysTick is %6d\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 42206,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "TIM:timing      message, SysTick is %6d\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 23973,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "DBG:debug       message, SysTick is %6d\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 13730,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "SIG:signal      message, SysTick is %6d\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 24302,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "RD:read         message, SysTick is %6d\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 14138,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "WR:write        message, SysTick is %6d\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 55445,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "ISR:interrupt   message, SysTick is %6d\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 41495,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "TST:test        message, SysTick is %6d\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 45697,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "MSG:normal      message, SysTick is %6d\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 24589,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "INFO:informal   message, SysTick is %6d\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 2527,
-		"fmtType": "TRICE8_4",
-		"fmtStrg": "tst:TRICE8  %%03x -\u003e  %03x  %03x  %03x  %03x\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 63423,
-		"fmtType": "TRICE8_4",
-		"fmtStrg": "tst:TRICE8   %%4d -\u003e %4d %4d %4d %4d\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 40063,
-		"fmtType": "TRICE8_4",
-		"fmtStrg": "tst:TRICE8   %%4o -\u003e %4o %4o %4o %4o\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 8674,
-		"fmtType": "TRICE16_4",
-		"fmtStrg": "tst:TRICE16  %%05x -\u003e   %05x   %05x   %05x   %05x\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 59869,
-		"fmtType": "TRICE16_4",
-		"fmtStrg": "tst:TRICE16   %%6d -\u003e  %6d  %6d  %6d  %6d\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 24781,
-		"fmtType": "TRICE16_4",
-		"fmtStrg": "tst:TRICE16   %%7o -\u003e %7o %7o %7o %7o\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 16811,
-		"fmtType": "TRICE32_4",
-		"fmtStrg": "tst:TRICE32_4 %%09x -\u003e      %09x      %09x       %09x     %09x\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 28944,
-		"fmtType": "TRICE32_4",
-		"fmtStrg": "tst:TRICE32_4 %%10d -\u003e     %10d     %10d     %10d    %10x\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 19049,
-		"fmtType": "TRICE64_1",
-		"fmtStrg": "att:64bit %#b\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 41267,
-		"fmtType": "TRICE8_1",
-		"fmtStrg": "tst:TRICE8_1 %d\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 28873,
-		"fmtType": "TRICE8_2",
-		"fmtStrg": "tst:TRICE8_2 %d %d\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 18501,
-		"fmtType": "TRICE8_3",
-		"fmtStrg": "tst:TRICE8_3 %d %d %d\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 63901,
-		"fmtType": "TRICE8_4",
-		"fmtStrg": "tst:TRICE8_4 %d %d %d %d\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 2043,
-		"fmtType": "TRICE8_5",
-		"fmtStrg": "tst:TRICE8_5 %d %d %d %d %d\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 36242,
-		"fmtType": "TRICE8_6",
-		"fmtStrg": "tst:TRICE8_6 %d %d %d %d %d %d\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 23187,
-		"fmtType": "TRICE8_7",
-		"fmtStrg": "tst:TRICE8_7 %d %d %d %d %d %d %d\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 5279,
-		"fmtType": "TRICE8_8",
-		"fmtStrg": "tst:TRICE8_8 %d %d %d %d %d %d %d %d\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 50977,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "tst:TRICE16_1 %d\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 65136,
-		"fmtType": "TRICE16_2",
-		"fmtStrg": "tst:TRICE16_2 %d %d\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 58915,
-		"fmtType": "TRICE16_3",
-		"fmtStrg": "tst:TRICE16_3 %d %d %d\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 45117,
-		"fmtType": "TRICE16_4",
-		"fmtStrg": "tst:TRICE16_4 %d %d %d %d\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 6384,
-		"fmtType": "TRICE32_1",
-		"fmtStrg": "tst:TRICE32_1 %d\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 11505,
-		"fmtType": "TRICE32_2",
-		"fmtStrg": "tst:TRICE32_2 %d %d\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 56189,
-		"fmtType": "TRICE32_3",
-		"fmtStrg": "tst:TRICE32_3 %d %d %d\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 36573,
-		"fmtType": "TRICE32_4",
-		"fmtStrg": "tst:TRICE32_4 %d %d %d %d\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 43171,
-		"fmtType": "TRICE64_1",
-		"fmtStrg": "tst:TRICE64_1 %d\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 8402,
-		"fmtType": "TRICE64_2",
-		"fmtStrg": "tst:TRICE64_2 %d %d\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 44690,
-		"fmtType": "TRICE0",
-		"fmtStrg": "e:A",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 1471,
-		"fmtType": "TRICE0",
-		"fmtStrg": "w:B",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 52563,
-		"fmtType": "TRICE0",
-		"fmtStrg": "a:c",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 61604,
-		"fmtType": "TRICE0",
-		"fmtStrg": "wr:d",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 39587,
-		"fmtType": "TRICE0",
-		"fmtStrg": "rd:e\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 53436,
-		"fmtType": "TRICE0",
-		"fmtStrg": "diag:f",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 32678,
-		"fmtType": "TRICE0",
-		"fmtStrg": "d:G",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 13587,
-		"fmtType": "TRICE0",
-		"fmtStrg": "t:H",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 8059,
-		"fmtType": "TRICE0",
-		"fmtStrg": "time:i",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 26357,
-		"fmtType": "TRICE0",
-		"fmtStrg": "message:J",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 2812,
-		"fmtType": "TRICE0",
-		"fmtStrg": "dbg:k\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 43782,
-		"fmtType": "TRICE0",
-		"fmtStrg": "1",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 31945,
-		"fmtType": "TRICE0",
-		"fmtStrg": "2",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 57633,
-		"fmtType": "TRICE0",
-		"fmtStrg": "3",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 32117,
-		"fmtType": "TRICE0",
-		"fmtStrg": "4",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 3996,
-		"fmtType": "TRICE0",
-		"fmtStrg": "e:7",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 6559,
-		"fmtType": "TRICE0",
-		"fmtStrg": "m:12",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 30479,
-		"fmtType": "TRICE0",
-		"fmtStrg": "m:123\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 41878,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "err:error       message, SysTick is %6d\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 3242,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "wrn:warning     message, SysTick is %6d\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 10588,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "att:attension   message, SysTick is %6d\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 15045,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "dia:diagnostics message, SysTick is %6d\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 20195,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "tim:timing      message, SysTick is %6d\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 56298,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "dbg:debug       message, SysTick is %6d\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 62837,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "sig:signal      message, SysTick is %6d\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 35517,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "rd_:read        message, SysTick is %6d\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 47873,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "wr:write        message, SysTick is %6d\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 64995,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "isr:interrupt   message, SysTick is %6d\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 42962,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "tst:test        message, SysTick is %6d\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 59159,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "msg:normal      message, SysTick is %6d\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 48090,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "info:informal   message, SysTick is %6d\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 55237,
-		"fmtType": "TRICE0",
-		"fmtStrg": "e:A",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 38195,
-		"fmtType": "TRICE0",
-		"fmtStrg": "w:B",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 43063,
-		"fmtType": "TRICE0",
-		"fmtStrg": "a:c",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 6176,
-		"fmtType": "TRICE0",
-		"fmtStrg": "wr:d",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 6665,
-		"fmtType": "TRICE0",
-		"fmtStrg": "rd:e",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 47959,
-		"fmtType": "TRICE0",
-		"fmtStrg": "diag:y",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 48390,
-		"fmtType": "TRICE0",
-		"fmtStrg": "d:G",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 64481,
-		"fmtType": "TRICE0",
-		"fmtStrg": "t:H",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 19868,
-		"fmtType": "TRICE0",
-		"fmtStrg": "time:i",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 9207,
-		"fmtType": "TRICE0",
-		"fmtStrg": "message:J",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 29302,
-		"fmtType": "TRICE0",
-		"fmtStrg": "inf:k\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 21100,
-		"fmtType": "TRICE0",
-		"fmtStrg": "att:Next few lines have no color and visible only when TRICE_RUNTIME_GENERATED_STRINGS_SUPPORT is defined\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 2502,
-		"fmtType": "TRICE8_8",
-		"fmtStrg": "msg:1:%03x %03x %03x %03x %03x %03x %03x %03x\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 20625,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "tim: pre encryption SysTick=%d\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 64368,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "tim: post encryption SysTick=%d\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 43335,
-		"fmtType": "TRICE8_8",
-		"fmtStrg": "att:1:%03x %03x %03x %03x %03x %03x %03x %03x\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 56697,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "tim: pre decryption SysTick=%d\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 50168,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "tim: post decryption SysTick=%d\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 990,
-		"fmtType": "TRICE8_8",
-		"fmtStrg": "msg:2:%03x %03x %03x %03x %03x %03x %03x %03x\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 7275,
-		"fmtType": "TRICE0",
-		"fmtStrg": "--------------------------------------------------\\r\\n\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 54494,
-		"fmtType": "TRICE0",
-		"fmtStrg": " ",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 63793,
-		"fmtType": "TRICE0",
-		"fmtStrg": "  ",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 74,
-		"fmtType": "TRICE0",
-		"fmtStrg": "   ",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 11711,
-		"fmtType": "TRICE0",
-		"fmtStrg": "    ",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 14829,
-		"fmtType": "TRICE0",
-		"fmtStrg": "     ",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 61517,
-		"fmtType": "TRICE0",
-		"fmtStrg": "      ",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 5748,
-		"fmtType": "TRICE0",
-		"fmtStrg": "       ",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 44808,
-		"fmtType": "TRICE0",
-		"fmtStrg": "        ",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 5461,
-		"fmtType": "TRICE0",
-		"fmtStrg": "         ",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 6442,
-		"fmtType": "TRICE0",
-		"fmtStrg": "          ",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 58827,
-		"fmtType": "TRICE8_1",
-		"fmtStrg": "%c",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 58935,
-		"fmtType": "TRICE8_2",
-		"fmtStrg": "%c%c",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 58794,
-		"fmtType": "TRICE8_3",
-		"fmtStrg": "%c%c%c",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 23968,
-		"fmtType": "TRICE8_4",
-		"fmtStrg": "%c%c%c%c",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 11648,
-		"fmtType": "TRICE8_5",
-		"fmtStrg": "%c%c%c%c%c",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 17494,
-		"fmtType": "TRICE8_6",
-		"fmtStrg": "%c%c%c%c%c%c",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 47269,
-		"fmtType": "TRICE8_7",
-		"fmtStrg": "%c%c%c%c%c%c%c",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 7125,
-		"fmtType": "TRICE8_8",
-		"fmtStrg": "%c%c%c%c%c%c%c%c",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 21676,
-		"fmtType": "TRICE32_1",
-		"fmtStrg": "ERR:invalid length %d, ignoring trice string package\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 14731,
-		"fmtType": "TRICE8_1",
-		"fmtStrg": "%s",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 8845,
-		"fmtType": "TRICE0",
-		"fmtStrg": " ",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 2958,
-		"fmtType": "TRICE0",
-		"fmtStrg": "  ",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 34448,
-		"fmtType": "TRICE0",
-		"fmtStrg": "   ",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 17119,
-		"fmtType": "TRICE0",
-		"fmtStrg": "    ",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 45012,
-		"fmtType": "TRICE0",
-		"fmtStrg": "     ",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 43146,
-		"fmtType": "TRICE0",
-		"fmtStrg": "      ",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 19276,
-		"fmtType": "TRICE0",
-		"fmtStrg": "       ",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 17304,
-		"fmtType": "TRICE0",
-		"fmtStrg": "        ",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 42085,
-		"fmtType": "TRICE0",
-		"fmtStrg": "         ",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 45987,
-		"fmtType": "TRICE0",
-		"fmtStrg": "          ",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 48576,
-		"fmtType": "TRICE0",
-		"fmtStrg": "rd_:triceWrite.c",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 7442,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "tim:timing      message, SysTick is %6d\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 56979,
-		"fmtType": "TRICE0",
-		"fmtStrg": "att:IAR_EWARM_HAL_UART_NUCLEO-F070RB\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 43971,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "tim:timing      message, SysTick is %6d\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 64504,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "tim:timing      message, SysTick is %6d\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 43158,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "tim:timing      message, SysTick is %6d\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 32975,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "tim:timing      message, SysTick is %6d\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 29630,
-		"fmtType": "TRICE32_1",
-		"fmtStrg": "time:ms = %d\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 50593,
-		"fmtType": "TRICE32_1",
-		"fmtStrg": "ISR:alive time %d milliseconds\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 26669,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "tim:timing      message, SysTick is %6d\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 42287,
-		"fmtType": "TRICE0",
-		"fmtStrg": "att:IAR_EWARM_LL_UART_NUCLEO-F030RB\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 36243,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "tim:timing      message, SysTick is %6d\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 4021,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "tim:timing      message, SysTick is %6d\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 34537,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "tim:timing      message, SysTick is %6d\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 18445,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "tim:timing      message, SysTick is %6d\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 23588,
-		"fmtType": "TRICE32_1",
-		"fmtStrg": "time:ms = %d\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 60874,
-		"fmtType": "TRICE32_1",
-		"fmtStrg": "ISR:alive time %d milliseconds\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 48110,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "TIM:timing      message, SysTick is %6d\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 53140,
-		"fmtType": "TRICE0",
-		"fmtStrg": "att:IAR_EWARM_LL_UART_NUCLEO-F070RB\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 46765,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "TIM:timing      message, SysTick is %6d\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 27232,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "TIM:timing      message, SysTick is %6d\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 63161,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "TIM:timing      message, SysTick is %6d\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 58408,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "TIM:timing      message, SysTick is %6d\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 27936,
-		"fmtType": "TRICE32_1",
-		"fmtStrg": "time:ms = %d\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 56536,
-		"fmtType": "TRICE32_1",
-		"fmtStrg": "ISR:alive time %d milliseconds\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 47869,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "tim:timing      message, SysTick is %6d\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 44127,
-		"fmtType": "TRICE0",
-		"fmtStrg": "att:IAR_EWARM_RTTD_DISCOVERY-STM32F407VGTx\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 14194,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "tim:timing      message, SysTick is %6d\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 18144,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "tim:timing      message, SysTick is %6d\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 37958,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "tim:timing      message, SysTick is %6d\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 52578,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "tim:timing      message, SysTick is %6d\\n",
-		"created": 1599572723,
-		"removed": 0
-	},
-	{
-		"id": 34087,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "TIM:timing      message, SysTick is %6d\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 4039,
-		"fmtType": "TRICE0",
-		"fmtStrg": "att:IAR_EWARM_RTT_NUCLEO-F030R8\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 53570,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "TIM:timing      message, SysTick is %6d\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 15220,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "TIM:timing      message, SysTick is %6d\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 6543,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "TIM:timing      message, SysTick is %6d\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 52657,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "TIM:timing      message, SysTick is %6d\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 59171,
-		"fmtType": "TRICE32_1",
-		"fmtStrg": "time:ms = %d\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 36441,
-		"fmtType": "TRICE32_1",
-		"fmtStrg": "ISR:alive time %d milliseconds\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 35115,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "TIM:timing      message, SysTick is %6d\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 23932,
-		"fmtType": "TRICE0",
-		"fmtStrg": "att:MDK-ARM_HAL_UART_NUCLEO-F030R8\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 6196,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "TIM:timing      message, SysTick is %6d\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 14394,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "TIM:timing      message, SysTick is %6d\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 51521,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "TIM:timing      message, SysTick is %6d\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 8096,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "TIM:timing      message, SysTick is %6d\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 27518,
-		"fmtType": "TRICE32_1",
-		"fmtStrg": "time:ms = %d\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 18481,
-		"fmtType": "TRICE32_1",
-		"fmtStrg": "ISR:alive time %d milliseconds\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 59939,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "TIM:timing      message, SysTick is %6d\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 18178,
-		"fmtType": "TRICE0",
-		"fmtStrg": "att:MDK-ARM_HAL_UART_NUCLEO-F070RB\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 14498,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "TIM:timing      message, SysTick is %6d\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 18967,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "TIM:timing      message, SysTick is %6d\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 49494,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "TIM:timing      message, SysTick is %6d\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 32793,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "TIM:timing      message, SysTick is %6d\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 6023,
-		"fmtType": "TRICE32_1",
-		"fmtStrg": "time:ms = %d\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 24550,
-		"fmtType": "TRICE32_1",
-		"fmtStrg": "ISR:alive time %d milliseconds\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 59798,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "tim:timing      message, SysTick is %6d\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 24602,
-		"fmtType": "TRICE0",
-		"fmtStrg": "att:MDK-ARM_RTT1_NUCLEO-F091RC\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 31706,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "tim:timing      message, SysTick is %6d\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 11695,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "tim:timing      message, SysTick is %6d\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 48026,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "tim:timing      message, SysTick is %6d\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 24975,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "tim:timing      message, SysTick is %6d\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 52631,
-		"fmtType": "TRICE32_1",
-		"fmtStrg": "time:ms = %d\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 57046,
-		"fmtType": "TRICE32_1",
-		"fmtStrg": "ISR:alive time %d milliseconds\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 51446,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "TIM:timing      message, SysTick is %6d\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 12568,
-		"fmtType": "TRICE0",
-		"fmtStrg": "att:MDK-ARM_LL_RTTB_NUCLEO-F030R8\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 30476,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "TIM:timing      message, SysTick is %6d\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 46246,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "TIM:timing      message, SysTick is %6d\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 58152,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "TIM:timing      message, SysTick is %6d\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 16264,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "TIM:timing      message, SysTick is %6d\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 64958,
-		"fmtType": "TRICE32_1",
-		"fmtStrg": "time:ms = %d\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 20057,
-		"fmtType": "TRICE32_1",
-		"fmtStrg": "ISR:alive time %d milliseconds\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 5967,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "TIM:timing      message, SysTick is %6d\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 16926,
-		"fmtType": "TRICE0",
-		"fmtStrg": "att:MDK-ARM_LL_RTTB_NUCLEO-F070RB\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 63175,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "TIM:timing      message, SysTick is %6d\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 10862,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "TIM:timing      message, SysTick is %6d\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 16975,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "TIM:timing      message, SysTick is %6d\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 28709,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "TIM:timing      message, SysTick is %6d\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 54060,
-		"fmtType": "TRICE32_1",
-		"fmtStrg": "time:ms = %d\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 62293,
-		"fmtType": "TRICE32_1",
-		"fmtStrg": "ISR:alive time %d milliseconds\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 24444,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "TIM:timing      message, SysTick is %6d\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 48985,
-		"fmtType": "TRICE0",
-		"fmtStrg": "att:MDK-ARM_LL_RTT_NUCLEO-F030R8\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 56190,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "TIM:timing      message, SysTick is %6d\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 18949,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "TIM:timing      message, SysTick is %6d\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 43095,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "TIM:timing      message, SysTick is %6d\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 59106,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "TIM:timing      message, SysTick is %6d\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 5509,
-		"fmtType": "TRICE32_1",
-		"fmtStrg": "time:ms = %d\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 47028,
-		"fmtType": "TRICE32_1",
-		"fmtStrg": "ISR:alive time %d milliseconds\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 27,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "tim:timing      message, SysTick is %6d\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 620,
-		"fmtType": "TRICE0",
-		"fmtStrg": "att:MDK-ARM_LL_RTT_NUCLEO-F070RB\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 15284,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "tim:timing      message, SysTick is %6d\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 12054,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "tim:timing      message, SysTick is %6d\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 13065,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "tim:timing      message, SysTick is %6d\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 17051,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "tim:timing      message, SysTick is %6d\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 5177,
-		"fmtType": "TRICE32_1",
-		"fmtStrg": "time:ms = %d\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 21471,
-		"fmtType": "TRICE32_1",
-		"fmtStrg": "ISR:alive time %d milliseconds\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 20913,
-		"fmtType": "TRICE0",
-		"fmtStrg": "s:                                        \\ns:   ARM-MDK_LL_UART_BARE_NUCLEO-F030RB   \\ns:                                        \\n\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 54442,
-		"fmtType": "TRICE0",
-		"fmtStrg": "s:                                        \\ns:   ARM-MDK_LL_UART_BARE_NUCLEO-F070RB   \\ns:                                        \\n\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 38388,
-		"fmtType": "TRICE0",
-		"fmtStrg": "s:                                        \\ns:   ARM-MDK_LL_UART_BARE_NUCLEO-F070RB   \\ns:                                        \\n\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 24187,
-		"fmtType": "TRICE8_2",
-		"fmtStrg": "att:Hello, %d+%d=",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 15490,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "att:%d, ok?\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 39911,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "SIG:val=%04x\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 51981,
-		"fmtType": "TRICE0",
-		"fmtStrg": "msg:Yes!\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 45592,
-		"fmtType": "TRICE0",
-		"fmtStrg": "msg:Yes!\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 22933,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "TIM:timing      message, SysTick is %6d\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 50381,
-		"fmtType": "TRICE0",
-		"fmtStrg": "att:MDK-ARM_LL_UART_NUCLEO-F030R8\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 2140,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "TIM:timing      message, SysTick is %6d\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 18662,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "TIM:timing      message, SysTick is %6d\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 33813,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "TIM:timing      message, SysTick is %6d\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 35310,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "TIM:timing      message, SysTick is %6d\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 55353,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "SIG:val=%04x\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 42754,
-		"fmtType": "TRICE32_1",
-		"fmtStrg": "time:ms = %d\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 53223,
-		"fmtType": "TRICE32_1",
-		"fmtStrg": "ISR:alive time %d milliseconds\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 38088,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "TIM:timing      message, SysTick is %6d\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 3149,
-		"fmtType": "TRICE0",
-		"fmtStrg": "att:MDK-ARM_LL_UART_NUCLEO-F070RB\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 2398,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "TIM:timing      message, SysTick is %6d\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 50628,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "TIM:timing      message, SysTick is %6d\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 32978,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "TIM:timing      message, SysTick is %6d\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 1566,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "TIM:timing      message, SysTick is %6d\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 31392,
-		"fmtType": "TRICE32_1",
-		"fmtStrg": "time:ms = %d\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 56394,
-		"fmtType": "TRICE32_1",
-		"fmtStrg": "ISR:alive time %d milliseconds\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 35514,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "TIM:timing      message, SysTick is %6d\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 36796,
-		"fmtType": "TRICE0",
-		"fmtStrg": "att:MDK-ARM_LL_UART_demoBoard_STM32F030F4F4P6\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 19227,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "TIM:timing      message, SysTick is %6d\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 15308,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "TIM:timing      message, SysTick is %6d\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 912,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "TIM:timing      message, SysTick is %6d\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 63214,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "TIM:timing      message, SysTick is %6d\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 22267,
-		"fmtType": "TRICE32_1",
-		"fmtStrg": "time:ms = %d\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 54554,
-		"fmtType": "TRICE32_1",
-		"fmtStrg": "ISR:alive time %d milliseconds\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 23213,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "tim:timing      message, SysTick is %6d\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 24495,
-		"fmtType": "TRICE0",
-		"fmtStrg": "att:MDK-ARM_RTTD_STM32F0300-DISCO\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 32756,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "tim:timing      message, SysTick is %6d\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 56750,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "tim:timing      message, SysTick is %6d\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 20807,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "tim:timing      message, SysTick is %6d\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 16428,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "tim:timing      message, SysTick is %6d\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 8763,
-		"fmtType": "TRICE32_1",
-		"fmtStrg": "time:ms = %d\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 36174,
-		"fmtType": "TRICE32_1",
-		"fmtStrg": "ISR:alive time %d milliseconds\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 32622,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "TIM:timing      message, SysTick is %6d\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 1674,
-		"fmtType": "TRICE0",
-		"fmtStrg": "att:MDK-ARM_RTT_NUCLEO-F030R8\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 9580,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "TIM:timing      message, SysTick is %6d\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 29396,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "TIM:timing      message, SysTick is %6d\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 13630,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "TIM:timing      message, SysTick is %6d\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 15281,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "TIM:timing      message, SysTick is %6d\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 20319,
-		"fmtType": "TRICE32_1",
-		"fmtStrg": "time:ms = %d\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 52415,
-		"fmtType": "TRICE32_1",
-		"fmtStrg": "ISR:alive time %d milliseconds\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 13710,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "tim:timing      message, SysTick is %6d\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 22198,
-		"fmtType": "TRICE0",
-		"fmtStrg": "att:STM32CubeIDE_HAL_UART_NUCLEO-F070RB\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 2683,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "tim:timing      message, SysTick is %6d\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 52581,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "tim:timing      message, SysTick is %6d\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 47005,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "tim:timing      message, SysTick is %6d\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 7146,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "tim:timing      message, SysTick is %6d\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 59754,
-		"fmtType": "TRICE32_1",
-		"fmtStrg": "time:ms = %d\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 16988,
-		"fmtType": "TRICE32_1",
-		"fmtStrg": "ISR:alive time %d milliseconds\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 1943,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "tim:timing      message, SysTick is %6d\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 9857,
-		"fmtType": "TRICE0",
-		"fmtStrg": "att:STM32CubeIDE_HAL_UART_NUCLEO-G474\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 56081,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "tim:timing      message, SysTick is %6d\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 58,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "tim:timing      message, SysTick is %6d\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 21412,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "tim:timing      message, SysTick is %6d\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 10643,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "tim:timing      message, SysTick is %6d\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 49544,
-		"fmtType": "TRICE32_1",
-		"fmtStrg": "time:ms = %d\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 63611,
-		"fmtType": "TRICE32_1",
-		"fmtStrg": "ISR:alive time %d milliseconds\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 31905,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "tim:timing      message, SysTick is %6d\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 63313,
-		"fmtType": "TRICE0",
-		"fmtStrg": "att:STM32CubeIDE_LL_UART_NUCLEO-F030R8\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 46377,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "tim:timing      message, SysTick is %6d\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 39206,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "tim:timing      message, SysTick is %6d\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 33238,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "tim:timing      message, SysTick is %6d\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 17927,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "tim:timing      message, SysTick is %6d\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 45025,
-		"fmtType": "TRICE32_1",
-		"fmtStrg": "time:ms = %d\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 57290,
-		"fmtType": "TRICE32_1",
-		"fmtStrg": "ISR:alive time %d milliseconds\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 54857,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "tim:timing      message, SysTick is %6d\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 25711,
-		"fmtType": "TRICE0",
-		"fmtStrg": "att:STM32CubeIDE_LL_UART_NUCLEO-F070RB\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 13054,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "tim:timing      message, SysTick is %6d\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 19514,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "tim:timing      message, SysTick is %6d\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 18125,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "tim:timing      message, SysTick is %6d\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 44745,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "tim:timing      message, SysTick is %6d\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 59297,
-		"fmtType": "TRICE32_1",
-		"fmtStrg": "time:ms = %d\\n",
-		"created": 1599572724,
-		"removed": 0
-	},
-	{
-		"id": 48921,
-		"fmtType": "TRICE32_1",
-		"fmtStrg": "ISR:alive time %d milliseconds\\n",
-		"created": 1599572725,
-		"removed": 0
-	},
-	{
-		"id": 57881,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "tim:timing      message, SysTick is %6d\\n",
-		"created": 1599572725,
-		"removed": 0
-	},
-	{
-		"id": 10824,
-		"fmtType": "TRICE0",
-		"fmtStrg": "att:STM32CubeIDE_RTTD_DISCOVERY-STM32F051R8Tx\\n",
-		"created": 1599572725,
-		"removed": 0
-	},
-	{
-		"id": 17656,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "tim:timing      message, SysTick is %6d\\n",
-		"created": 1599572725,
-		"removed": 0
-	},
-	{
-		"id": 14970,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "tim:timing      message, SysTick is %6d\\n",
-		"created": 1599572725,
-		"removed": 0
-	},
-	{
-		"id": 46492,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "tim:timing      message, SysTick is %6d\\n",
-		"created": 1599572725,
-		"removed": 0
-	},
-	{
-		"id": 55712,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "tim:timing      message, SysTick is %6d\\n",
-		"created": 1599572725,
-		"removed": 0
-	},
-	{
-		"id": 33378,
-		"fmtType": "TRICE32_1",
-		"fmtStrg": "time:ms = %d\\n",
-		"created": 1599572725,
-		"removed": 0
-	},
-	{
-		"id": 28797,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "tim:timing      message, SysTick is %6d\\n",
-		"created": 1599572725,
-		"removed": 0
-	},
-	{
-		"id": 47911,
-		"fmtType": "TRICE0",
-		"fmtStrg": "att:STM32CubeIDE_RTTD_NUCLEO-F091\\n",
-		"created": 1599572725,
-		"removed": 0
-	},
-	{
-		"id": 62262,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "tim:timing      message, SysTick is %6d\\n",
-		"created": 1599572725,
-		"removed": 0
-	},
-	{
-		"id": 48507,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "tim:timing      message, SysTick is %6d\\n",
-		"created": 1599572725,
-		"removed": 0
-	},
-	{
-		"id": 60785,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "tim:timing      message, SysTick is %6d\\n",
-		"created": 1599572725,
-		"removed": 0
-	},
-	{
-		"id": 39899,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "tim:timing      message, SysTick is %6d\\n",
-		"created": 1599572725,
-		"removed": 0
-	},
-	{
-		"id": 45001,
-		"fmtType": "TRICE32_1",
-		"fmtStrg": "time:ms = %d\\n",
-		"created": 1599572725,
-		"removed": 0
-	},
-	{
-		"id": 12582,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "tim:timing      message, SysTick is %6d\\n",
-		"created": 1599572725,
-		"removed": 0
-	},
-	{
-		"id": 57937,
-		"fmtType": "TRICE0",
-		"fmtStrg": "att:STM32CubeIDE_RTTD_NUCLEO-G474\\n",
-		"created": 1599572725,
-		"removed": 0
-	},
-	{
-		"id": 62021,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "tim:timing      message, SysTick is %6d\\n",
-		"created": 1599572725,
-		"removed": 0
-	},
-	{
-		"id": 17420,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "tim:timing      message, SysTick is %6d\\n",
-		"created": 1599572725,
-		"removed": 0
-	},
-	{
-		"id": 20316,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "tim:timing      message, SysTick is %6d\\n",
-		"created": 1599572725,
-		"removed": 0
-	},
-	{
-		"id": 47842,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "tim:timing      message, SysTick is %6d\\n",
-		"created": 1599572725,
-		"removed": 0
-	},
-	{
-		"id": 10240,
-		"fmtType": "TRICE32_1",
-		"fmtStrg": "time:ms = %d\\n",
-		"created": 1599572725,
-		"removed": 0
-	},
-	{
-		"id": 45192,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "tim:timing      message, SysTick is %6d\\n",
-		"created": 1599572725,
-		"removed": 0
-	},
-	{
-		"id": 17680,
-		"fmtType": "TRICE0",
-		"fmtStrg": "att:TASKING_GenericSTMF030R8_RTTB\\n",
-		"created": 1599572725,
-		"removed": 0
-	},
-	{
-		"id": 65301,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "tim:timing      message, SysTick is %6d\\n",
-		"created": 1599572725,
-		"removed": 0
-	},
-	{
-		"id": 19437,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "tim:timing      message, SysTick is %6d\\n",
-		"created": 1599572725,
-		"removed": 0
-	},
-	{
-		"id": 18461,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "tim:timing      message, SysTick is %6d\\n",
-		"created": 1599572725,
-		"removed": 0
-	},
-	{
-		"id": 17990,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "tim:timing      message, SysTick is %6d\\n",
-		"created": 1599572725,
-		"removed": 0
-	},
-	{
-		"id": 34656,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "tim:timing      message, SysTick is %6d\\n",
-		"created": 1599572725,
-		"removed": 0
-	},
-	{
-		"id": 3879,
-		"fmtType": "TRICE0",
-		"fmtStrg": "att:TASKING_GenericSTMF030R8_RTTD\\n",
-		"created": 1599572725,
-		"removed": 0
-	},
-	{
-		"id": 57048,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "tim:timing      message, SysTick is %6d\\n",
-		"created": 1599572725,
-		"removed": 0
-	},
-	{
-		"id": 11236,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "tim:timing      message, SysTick is %6d\\n",
-		"created": 1599572725,
-		"removed": 0
-	},
-	{
-		"id": 17900,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "tim:timing      message, SysTick is %6d\\n",
-		"created": 1599572725,
-		"removed": 0
-	},
-	{
-		"id": 44086,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "tim:timing      message, SysTick is %6d\\n",
-		"created": 1599572725,
-		"removed": 0
-	},
-	{
-		"id": 11934,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "tim:timing      message, SysTick is %6d\\n",
-		"created": 1599572725,
-		"removed": 0
-	},
-	{
-		"id": 22764,
-		"fmtType": "TRICE0",
-		"fmtStrg": "att:TASKING_GenericSTMF070RB_RTTD\\n",
-		"created": 1599572725,
-		"removed": 0
-	},
-	{
-		"id": 39992,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "tim:timing      message, SysTick is %6d\\n",
-		"created": 1599572725,
-		"removed": 0
-	},
-	{
-		"id": 6663,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "tim:timing      message, SysTick is %6d\\n",
-		"created": 1599572725,
-		"removed": 0
-	},
-	{
-		"id": 30374,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "tim:timing      message, SysTick is %6d\\n",
-		"created": 1599572725,
-		"removed": 0
-	},
-	{
-		"id": 65000,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "tim:timing      message, SysTick is %6d\\n",
-		"created": 1599572725,
-		"removed": 0
-	},
-	{
-		"id": 37700,
-		"fmtType": "TRICE0",
-		"fmtStrg": "Complex number c1: ",
-		"created": 1599572725,
-		"removed": 0
-	},
-	{
-		"id": 11783,
-		"fmtType": "TRICE0",
-		"fmtStrg": "Complex number c2: ",
-		"created": 1599572725,
-		"removed": 0
-	},
-	{
-		"id": 18702,
-		"fmtType": "TRICE0",
-		"fmtStrg": "Calculate c1 + c2: ",
-		"created": 1599572725,
-		"removed": 0
-	},
-	{
-		"id": 59545,
-		"fmtType": "TRICE0",
-		"fmtStrg": "Calculate c2 - c1: ",
-		"created": 1599572725,
-		"removed": 0
-	},
-	{
-		"id": 55235,
-		"fmtType": "TRICE0",
-		"fmtStrg": "Negate previous  : ",
-		"created": 1599572725,
-		"removed": 0
-	},
-	{
-		"id": 30256,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "tim:timing      message, SysTick is %6d\\n",
-		"created": 1599572725,
-		"removed": 0
-	},
-	{
-		"id": 1967,
-		"fmtType": "TRICE0",
-		"fmtStrg": "att:TASKING_RTTD_cpp_Example\\n",
-		"created": 1599572725,
-		"removed": 0
-	},
-	{
-		"id": 63842,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "tim:timing      message, SysTick is %6d\\n",
-		"created": 1599572725,
-		"removed": 0
-	},
-	{
-		"id": 20323,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "tim:timing      message, SysTick is %6d\\n",
-		"created": 1599572725,
-		"removed": 0
-	},
-	{
-		"id": 64438,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "tim:timing      message, SysTick is %6d\\n",
-		"created": 1599572725,
-		"removed": 0
-	},
-	{
-		"id": 34505,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "tim:timing      message, SysTick is %6d\\n",
-		"created": 1599572725,
-		"removed": 0
-	},
-	{
-		"id": 63724,
-		"fmtType": "TRICE0",
-		"fmtStrg": "Failed to initialize audio service",
-		"created": 1599572727,
-		"removed": 0
-	},
-	{
-		"id": 60540,
-		"fmtType": "TRICE0",
-		"fmtStrg": "Successfully initialized audio service\\n",
-		"created": 1599572727,
-		"removed": 0
-	},
-	{
-		"id": 29299,
-		"fmtType": "TRICE0",
-		"fmtStrg": "Play 'sound.wav'\\n-\u003e ",
-		"created": 1599572727,
-		"removed": 0
-	},
-	{
-		"id": 51876,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "tim:timing      message, SysTick is %6d\\n",
-		"created": 1599572727,
-		"removed": 0
-	},
-	{
-		"id": 44230,
-		"fmtType": "TRICE0",
-		"fmtStrg": "att:TASKING_STM32F4DISC_Audio_Service_RTTD\\n",
-		"created": 1599572727,
-		"removed": 0
-	},
-	{
-		"id": 1808,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "tim:timing      message, SysTick is %6d\\n",
-		"created": 1599572727,
-		"removed": 0
-	},
-	{
-		"id": 4080,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "tim:timing      message, SysTick is %6d\\n",
-		"created": 1599572727,
-		"removed": 0
-	},
-	{
-		"id": 13209,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "tim:timing      message, SysTick is %6d\\n",
-		"created": 1599572727,
-		"removed": 0
-	},
-	{
-		"id": 29575,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "tim:timing      message, SysTick is %6d\\n",
-		"created": 1599572727,
-		"removed": 0
-	},
-	{
-		"id": 34072,
-		"fmtType": "TRICE0",
-		"fmtStrg": "Invalid wav file\\n",
-		"created": 1599572727,
-		"removed": 0
-	},
-	{
-		"id": 32392,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "tim:timing      message, SysTick is %6d\\n",
-		"created": 1599572727,
-		"removed": 0
-	},
-	{
-		"id": 51071,
-		"fmtType": "TRICE0",
-		"fmtStrg": "att:atollicTrueSTUDIO_RTTD_DISCOVERY-STM32F407VGTx\\n",
-		"created": 1599572727,
-		"removed": 0
-	},
-	{
-		"id": 35978,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "tim:timing      message, SysTick is %6d\\n",
-		"created": 1599572727,
-		"removed": 0
-	},
-	{
-		"id": 7285,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "tim:timing      message, SysTick is %6d\\n",
-		"created": 1599572727,
-		"removed": 0
-	},
-	{
-		"id": 63877,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "tim:timing      message, SysTick is %6d\\n",
-		"created": 1599572727,
-		"removed": 0
-	},
-	{
-		"id": 11715,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "tim:timing      message, SysTick is %6d\\n",
-		"created": 1599572727,
-		"removed": 0
-	},
-	{
-		"id": 6262,
-		"fmtType": "TRICE32_1",
-		"fmtStrg": "time:ms = %d\\n",
-		"created": 1599572727,
-		"removed": 0
-	},
-	{
-		"id": 34892,
-		"fmtType": "TRICE8_4",
-		"fmtStrg": "tst:TRICE8_4 %d %d %d %d\\n",
-		"created": 1599914353,
-		"removed": 0
-	},
-	{
-		"id": 38312,
-		"fmtType": "TRICE32_1",
-		"fmtStrg": "time:ms = %d\\n",
-		"created": 1599914353,
-		"removed": 0
-	},
-	{
-		"id": 47304,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "tim:timing      message, SysTick is %6d\\n",
-		"created": 1599914354,
-		"removed": 0
-	},
-	{
-		"id": 7674,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "DIAG: triceFifo max used bytes = %d\\n",
-		"created": 1599945686,
-		"removed": 0
-	},
-	{
-		"id": 13893,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "DIAG: triceFifo max used bytes = %d\\n",
-		"created": 1599945921,
-		"removed": 0
-	},
-	{
-		"id": 22832,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "debug:triceFifo max %d used bytes so far\\n",
-		"created": 1599998069,
-		"removed": 0
-	},
-	{
-		"id": 25934,
-		"fmtType": "TRICE0",
-		"fmtStrg": "s:                                        \\ns:   ARM-MDK_RTT_BARE_NUCLEO-F030RB   \\ns:                                        \\n\\n",
-		"created": 1600011926,
-		"removed": 0
-	},
-	{
-		"id": 25989,
-		"fmtType": "TRICE0",
-		"fmtStrg": "s:                                        \\ns:   ARM-MDK_RTT_BARE_NUCLEO-F070RB   \\ns:                                        \\n\\n",
-		"created": 1600165426,
-		"removed": 0
-	},
-	{
-		"id": 21866,
-		"fmtType": "TRICE0",
-		"fmtStrg": "s:                                        \\ns:   ARM-MDK_RTT_BARE_NUCLEO-F070RB   \\ns:                                        \\n\\n",
-		"created": 1600165426,
-		"removed": 0
-	},
-	{
-		"id": 30334,
-		"fmtType": "TRICE0",
-		"fmtStrg": "s:                                        \\ns:   ARM-MDK_RTT_BARE_NUCLEO-F030R8   \\ns:                                        \\n\\n",
-		"created": 1600165430,
-		"removed": 0
-	},
-	{
-		"id": 19506,
-		"fmtType": "TRICE0",
-		"fmtStrg": "s:                                        \\ns:   ARM-MDK_RTT_BARE_NUCLEO-F030R8   \\ns:                                        \\n\\n",
-		"created": 1600165430,
-		"removed": 0
-	},
-	{
-		"id": 10025,
-		"fmtType": "TRICE0",
-		"fmtStrg": "s:                                        \\ns:    ARM-MDK_RTT_BARE_NUCLEO-F030R8     \\ns:                                        \\n\\n",
-		"created": 1600199723,
-		"removed": 0
-	},
-	{
-		"id": 8017,
-		"fmtType": "TRICE0",
-		"fmtStrg": "s:                                        \\ns:    ARM-MDK_RTT_BARE_NUCLEO-F030R8   \\ns:                                        \\n\\n",
-		"created": 1600199762,
-		"removed": 0
-	},
-	{
-		"id": 47108,
-		"fmtType": "TRICE0",
-		"fmtStrg": "s:                                        \\ns:    ARM-MDK_RTT_BARE_NUCLEO-F030R8    \\ns:                                        \\n\\n",
-		"created": 1600199817,
-		"removed": 0
-	},
-	{
-		"id": 7425,
-		"fmtType": "TRICE0",
-		"fmtStrg": "s:                                        \\ns:     ARM-MDK_RTT_BARE_NUCLEO-F030R8     \\ns:                                        \\n\\n",
-		"created": 1600199881,
-		"removed": 0
-	},
-	{
-		"id": 49202,
-		"fmtType": "TRICE0",
-		"fmtStrg": "s:                                        \\ns:     ARM-MDK_RTT_BARE_NUCLEO-F030R8     \\ns:                                        \\n\\n",
-		"created": 1600199881,
-		"removed": 0
-	},
-	{
-		"id": 23803,
-		"fmtType": "TRICE0",
-		"fmtStrg": "s:                                        \\ns:     ARM-MDK_RTT_BARE_NUCLEO-F030R8     \\ns:                                        \\n\\n",
-		"created": 1600200399,
-		"removed": 0
-	},
-	{
-		"id": 57921,
-		"fmtType": "TRICE0",
-		"fmtStrg": "s:                                        \\ns:     ARM-MDK_RTT_BARE_NUCLEO-F030R8     \\ns:                                        \\n\\n",
-		"created": 1600200399,
-		"removed": 0
-	},
-	{
-		"id": 36338,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "MSG: tryout %04x\\n",
-		"created": 1600262722,
-		"removed": 0
-	},
-	{
-		"id": 47238,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "MSG: tryout %04x\\n",
-		"created": 1600262920,
-		"removed": 0
-	},
-	{
-		"id": 17625,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "MSG: FifoMaxDepthTrices = %d\\n",
-		"created": 1600262920,
-		"removed": 0
-	},
-	{
-		"id": 54364,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "MSG: tryout %04x\\n",
-		"created": 1600262974,
-		"removed": 0
-	},
-	{
-		"id": 44833,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "MSG: TriceFifoMaxDepthTrices = %d\\n",
-		"created": 1600262974,
-		"removed": 0
-	},
-	{
-		"id": 25941,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "MSG: tryout %04x\\n",
-		"created": 1600263020,
-		"removed": 0
-	},
-	{
-		"id": 38072,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "MSG: TriceFifoMaxDepthTrices = %d\\n",
-		"created": 1600263020,
-		"removed": 0
-	},
-	{
-		"id": 50603,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "MSG: tryout %04x\\n",
-		"created": 1600263067,
-		"removed": 0
-	},
-	{
-		"id": 13241,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "MSG: triceFifoMaxDepthTrices = %d\\n",
-		"created": 1600263067,
-		"removed": 0
-	},
-	{
-		"id": 16158,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "MSG: triceFifoMaxDepthBytes = %d\\n",
-		"created": 1600263540,
-		"removed": 0
-	},
-	{
-		"id": 47378,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "MSG: triceFifoMaxDepthBytes = %d\\n",
-		"created": 1600263623,
-		"removed": 0
-	},
-	{
-		"id": 28443,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "MSG: triceFifoMaxDepthBytes = %d\\n",
-		"created": 1600263657,
-		"removed": 0
-	},
-	{
-		"id": 11176,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "MSG: triceFifoMaxDepthBytes = %d\\n",
-		"created": 1600263696,
-		"removed": 0
-	},
-	{
-		"id": 36847,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "MSG: triceFifoMaxDepthBytes = %d\\n",
-		"created": 1600266568,
-		"removed": 0
-	},
-	{
-		"id": 27621,
-		"fmtType": "TRICE0",
-		"fmtStrg": "rd_:triceEscFifoUART.c",
-		"created": 1600460976,
-		"removed": 0
-	},
-	{
-		"id": 2783,
-		"fmtType": "TRICE0",
-		"fmtStrg": "s:                                        \\ns:   ARM-MDK_LL_UART_ESC_NUCLEO-F070RB   \\ns:                                        \\n\\n",
-		"created": 1600460976,
-		"removed": 0
-	},
-	{
-		"id": 44435,
-		"fmtType": "TRICE0",
-		"fmtStrg": "rd_:triceEscFifoUART.c",
-		"created": 1600539879,
-		"removed": 0
-	},
-	{
-		"id": 15761,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "MSG: triceFifoMaxDepth = %d\\n",
-		"created": 1600541250,
-		"removed": 0
-	},
-	{
-		"id": 65335,
-		"fmtType": "TRICE0",
-		"fmtStrg": "s:                                        \\ns:   ARM-MDK_LL_UART_ESC_NUCLEO-F030R8   \\ns:                                        \\n\\n",
-		"created": 1600546863,
-		"removed": 0
-	},
-	{
-		"id": 20698,
-		"fmtType": "TRICE0",
-		"fmtStrg": "rd_:triceBareFifoUART.c",
-		"created": 1600594398,
-		"removed": 0
-	},
-	{
-		"id": 7872,
-		"fmtType": "TRICE0",
-		"fmtStrg": "s:                                        \\ns:   ARM-MDK_LL_UART_BARE_TO_ESC_NUCLEO-F030RB   \\ns:                                        \\n\\n",
-		"created": 1600609093,
-		"removed": 0
-	},
-	{
-		"id": 44155,
-		"fmtType": "TRICE0",
-		"fmtStrg": "rd_:triceBareFifoToEscFifo.c",
-		"created": 1600611913,
-		"removed": 0
-	},
-	{
-		"id": 32335,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "MSG: triceBareFifoMaxDepthBytes = %d\\n",
-		"created": 1600615569,
-		"removed": 0
-	},
-	{
-		"id": 38882,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "MSG: triceBareFifoMaxDepthBytes = %d\\n",
-		"created": 1600615571,
-		"removed": 0
-	},
-	{
-		"id": 24732,
-		"fmtType": "TRICE16_2",
-		"fmtStrg": "MSG: triceFifoMaxDepthBytes: Bare = %d, Esc = %d\\n",
-		"created": 1600615571,
-		"removed": 0
-	},
-	{
-		"id": 48699,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "MSG: triceEscFifoMaxDepth = %d\\n",
-		"created": 1600615994,
-		"removed": 0
-	},
-	{
-		"id": 55132,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "MSG: triceEscFifoMaxDepth = %d\\n",
-		"created": 1600615994,
-		"removed": 0
-	},
-	{
 		"id": 1603,
 		"fmtType": "TRICE0",
 		"fmtStrg": "rd_:triceBareFifo.c",
-		"created": 1600621083,
-		"removed": 0
-	},
-	{
-		"id": 44860,
-		"fmtType": "TRICE0",
-		"fmtStrg": "rd_:triceEscFifo.c",
-		"created": 1600621083,
+		"created": 1601240704,
 		"removed": 0
 	},
 	{
 		"id": 1716,
 		"fmtType": "TRICE0",
 		"fmtStrg": "rd_:triceBareFifoToBytesBuffer.c",
-		"created": 1600672903,
+		"created": 1601240704,
 		"removed": 0
 	},
 	{
-		"id": 37259,
+		"id": 44155,
 		"fmtType": "TRICE0",
-		"fmtStrg": "s:                                        \\ns:   ARM-MDK_LL_UART_BARE_TO_ESC_NUCLEO-F030R8   \\ns:                                        \\n\\n",
-		"created": 1600679081,
+		"fmtStrg": "rd_:triceBareFifoToEscFifo.c",
+		"created": 1601240704,
 		"removed": 0
 	},
 	{
-		"id": 33467,
+		"id": 59283,
 		"fmtType": "TRICE0",
-		"fmtStrg": "s:                                        \\ns:   ARM-MDK_LL_UART_BARE_TO_ESC_NUCLEO-F070RB   \\ns:                                        \\n\\n",
-		"created": 1600679081,
+		"fmtStrg": "rd_:triceCheck.c",
+		"created": 1601240704,
 		"removed": 0
 	},
 	{
-		"id": 38143,
+		"id": 24481,
+		"fmtType": "TRICE0",
+		"fmtStrg": "--------------------------------------------------\\r\\n",
+		"created": 1601240704,
+		"removed": 0
+	},
+	{
+		"id": 13428,
+		"fmtType": "TRICE0",
+		"fmtStrg": "--------------------------------------------------\\r\\n",
+		"created": 1601240704,
+		"removed": 0
+	},
+	{
+		"id": 18133,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "dbg:12345 as 16bit is %#016b\\n",
+		"created": 1601240704,
+		"removed": 0
+	},
+	{
+		"id": 3791,
+		"fmtType": "TRICE0",
+		"fmtStrg": "--------------------------------------------------\\r\\n",
+		"created": 1601240704,
+		"removed": 0
+	},
+	{
+		"id": 17125,
+		"fmtType": "TRICE0",
+		"fmtStrg": "sig:This ASSERT error is just a demo and no real error:\\n",
+		"created": 1601240704,
+		"removed": 0
+	},
+	{
+		"id": 26797,
+		"fmtType": "TRICE0",
+		"fmtStrg": "--------------------------------------------------\\r\\n",
+		"created": 1601240704,
+		"removed": 0
+	},
+	{
+		"id": 18113,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "ERR:error       message, SysTick is %6d\\n",
+		"created": 1601240704,
+		"removed": 0
+	},
+	{
+		"id": 28289,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "WRN:warning     message, SysTick is %6d\\n",
+		"created": 1601240704,
+		"removed": 0
+	},
+	{
+		"id": 53560,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "ATT:attension   message, SysTick is %6d\\n",
+		"created": 1601240704,
+		"removed": 0
+	},
+	{
+		"id": 16672,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "DIA:diagnostics message, SysTick is %6d\\n",
+		"created": 1601240704,
+		"removed": 0
+	},
+	{
+		"id": 42206,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "TIM:timing      message, SysTick is %6d\\n",
+		"created": 1601240704,
+		"removed": 0
+	},
+	{
+		"id": 23973,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "DBG:debug       message, SysTick is %6d\\n",
+		"created": 1601240704,
+		"removed": 0
+	},
+	{
+		"id": 13730,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "SIG:signal      message, SysTick is %6d\\n",
+		"created": 1601240704,
+		"removed": 0
+	},
+	{
+		"id": 24302,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "RD:read         message, SysTick is %6d\\n",
+		"created": 1601240704,
+		"removed": 0
+	},
+	{
+		"id": 14138,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "WR:write        message, SysTick is %6d\\n",
+		"created": 1601240704,
+		"removed": 0
+	},
+	{
+		"id": 55445,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "ISR:interrupt   message, SysTick is %6d\\n",
+		"created": 1601240704,
+		"removed": 0
+	},
+	{
+		"id": 41495,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "TST:test        message, SysTick is %6d\\n",
+		"created": 1601240704,
+		"removed": 0
+	},
+	{
+		"id": 45697,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "MSG:normal      message, SysTick is %6d\\n",
+		"created": 1601240704,
+		"removed": 0
+	},
+	{
+		"id": 24589,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "INFO:informal   message, SysTick is %6d\\n",
+		"created": 1601240704,
+		"removed": 0
+	},
+	{
+		"id": 2527,
+		"fmtType": "TRICE8_4",
+		"fmtStrg": "tst:TRICE8  %%03x -\u003e  %03x  %03x  %03x  %03x\\n",
+		"created": 1601240704,
+		"removed": 0
+	},
+	{
+		"id": 63423,
+		"fmtType": "TRICE8_4",
+		"fmtStrg": "tst:TRICE8   %%4d -\u003e %4d %4d %4d %4d\\n",
+		"created": 1601240704,
+		"removed": 0
+	},
+	{
+		"id": 40063,
+		"fmtType": "TRICE8_4",
+		"fmtStrg": "tst:TRICE8   %%4o -\u003e %4o %4o %4o %4o\\n",
+		"created": 1601240704,
+		"removed": 0
+	},
+	{
+		"id": 8674,
+		"fmtType": "TRICE16_4",
+		"fmtStrg": "tst:TRICE16  %%05x -\u003e   %05x   %05x   %05x   %05x\\n",
+		"created": 1601240704,
+		"removed": 0
+	},
+	{
+		"id": 59869,
+		"fmtType": "TRICE16_4",
+		"fmtStrg": "tst:TRICE16   %%6d -\u003e  %6d  %6d  %6d  %6d\\n",
+		"created": 1601240704,
+		"removed": 0
+	},
+	{
+		"id": 24781,
+		"fmtType": "TRICE16_4",
+		"fmtStrg": "tst:TRICE16   %%7o -\u003e %7o %7o %7o %7o\\n",
+		"created": 1601240704,
+		"removed": 0
+	},
+	{
+		"id": 16811,
+		"fmtType": "TRICE32_4",
+		"fmtStrg": "tst:TRICE32_4 %%09x -\u003e      %09x      %09x       %09x     %09x\\n",
+		"created": 1601240704,
+		"removed": 0
+	},
+	{
+		"id": 28944,
+		"fmtType": "TRICE32_4",
+		"fmtStrg": "tst:TRICE32_4 %%10d -\u003e     %10d     %10d     %10d    %10x\\n",
+		"created": 1601240704,
+		"removed": 0
+	},
+	{
+		"id": 19049,
+		"fmtType": "TRICE64_1",
+		"fmtStrg": "att:64bit %#b\\n",
+		"created": 1601240704,
+		"removed": 0
+	},
+	{
+		"id": 41267,
+		"fmtType": "TRICE8_1",
+		"fmtStrg": "tst:TRICE8_1 %d\\n",
+		"created": 1601240704,
+		"removed": 0
+	},
+	{
+		"id": 28873,
+		"fmtType": "TRICE8_2",
+		"fmtStrg": "tst:TRICE8_2 %d %d\\n",
+		"created": 1601240704,
+		"removed": 0
+	},
+	{
+		"id": 18501,
+		"fmtType": "TRICE8_3",
+		"fmtStrg": "tst:TRICE8_3 %d %d %d\\n",
+		"created": 1601240704,
+		"removed": 0
+	},
+	{
+		"id": 34892,
+		"fmtType": "TRICE8_4",
+		"fmtStrg": "tst:TRICE8_4 %d %d %d %d\\n",
+		"created": 1601240704,
+		"removed": 0
+	},
+	{
+		"id": 2043,
+		"fmtType": "TRICE8_5",
+		"fmtStrg": "tst:TRICE8_5 %d %d %d %d %d\\n",
+		"created": 1601240704,
+		"removed": 0
+	},
+	{
+		"id": 36242,
+		"fmtType": "TRICE8_6",
+		"fmtStrg": "tst:TRICE8_6 %d %d %d %d %d %d\\n",
+		"created": 1601240704,
+		"removed": 0
+	},
+	{
+		"id": 23187,
+		"fmtType": "TRICE8_7",
+		"fmtStrg": "tst:TRICE8_7 %d %d %d %d %d %d %d\\n",
+		"created": 1601240704,
+		"removed": 0
+	},
+	{
+		"id": 5279,
+		"fmtType": "TRICE8_8",
+		"fmtStrg": "tst:TRICE8_8 %d %d %d %d %d %d %d %d\\n",
+		"created": 1601240704,
+		"removed": 0
+	},
+	{
+		"id": 50977,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "tst:TRICE16_1 %d\\n",
+		"created": 1601240704,
+		"removed": 0
+	},
+	{
+		"id": 65136,
 		"fmtType": "TRICE16_2",
-		"fmtStrg": "MSG: triceFifoMaxDepth: Bare = %d, Esc = %d\\n",
-		"created": 1600679595,
+		"fmtStrg": "tst:TRICE16_2 %d %d\\n",
+		"created": 1601240704,
+		"removed": 0
+	},
+	{
+		"id": 58915,
+		"fmtType": "TRICE16_3",
+		"fmtStrg": "tst:TRICE16_3 %d %d %d\\n",
+		"created": 1601240704,
+		"removed": 0
+	},
+	{
+		"id": 45117,
+		"fmtType": "TRICE16_4",
+		"fmtStrg": "tst:TRICE16_4 %d %d %d %d\\n",
+		"created": 1601240704,
+		"removed": 0
+	},
+	{
+		"id": 6384,
+		"fmtType": "TRICE32_1",
+		"fmtStrg": "tst:TRICE32_1 %d\\n",
+		"created": 1601240704,
+		"removed": 0
+	},
+	{
+		"id": 11505,
+		"fmtType": "TRICE32_2",
+		"fmtStrg": "tst:TRICE32_2 %d %d\\n",
+		"created": 1601240704,
+		"removed": 0
+	},
+	{
+		"id": 56189,
+		"fmtType": "TRICE32_3",
+		"fmtStrg": "tst:TRICE32_3 %d %d %d\\n",
+		"created": 1601240704,
+		"removed": 0
+	},
+	{
+		"id": 36573,
+		"fmtType": "TRICE32_4",
+		"fmtStrg": "tst:TRICE32_4 %d %d %d %d\\n",
+		"created": 1601240704,
+		"removed": 0
+	},
+	{
+		"id": 43171,
+		"fmtType": "TRICE64_1",
+		"fmtStrg": "tst:TRICE64_1 %d\\n",
+		"created": 1601240704,
+		"removed": 0
+	},
+	{
+		"id": 8402,
+		"fmtType": "TRICE64_2",
+		"fmtStrg": "tst:TRICE64_2 %d %d\\n",
+		"created": 1601240704,
+		"removed": 0
+	},
+	{
+		"id": 44690,
+		"fmtType": "TRICE0",
+		"fmtStrg": "e:A",
+		"created": 1601240704,
+		"removed": 0
+	},
+	{
+		"id": 1471,
+		"fmtType": "TRICE0",
+		"fmtStrg": "w:B",
+		"created": 1601240704,
+		"removed": 0
+	},
+	{
+		"id": 52563,
+		"fmtType": "TRICE0",
+		"fmtStrg": "a:c",
+		"created": 1601240704,
+		"removed": 0
+	},
+	{
+		"id": 61604,
+		"fmtType": "TRICE0",
+		"fmtStrg": "wr:d",
+		"created": 1601240704,
+		"removed": 0
+	},
+	{
+		"id": 39587,
+		"fmtType": "TRICE0",
+		"fmtStrg": "rd:e\\n",
+		"created": 1601240704,
+		"removed": 0
+	},
+	{
+		"id": 53436,
+		"fmtType": "TRICE0",
+		"fmtStrg": "diag:f",
+		"created": 1601240704,
+		"removed": 0
+	},
+	{
+		"id": 32678,
+		"fmtType": "TRICE0",
+		"fmtStrg": "d:G",
+		"created": 1601240704,
+		"removed": 0
+	},
+	{
+		"id": 13587,
+		"fmtType": "TRICE0",
+		"fmtStrg": "t:H",
+		"created": 1601240704,
+		"removed": 0
+	},
+	{
+		"id": 8059,
+		"fmtType": "TRICE0",
+		"fmtStrg": "time:i",
+		"created": 1601240704,
+		"removed": 0
+	},
+	{
+		"id": 26357,
+		"fmtType": "TRICE0",
+		"fmtStrg": "message:J",
+		"created": 1601240704,
+		"removed": 0
+	},
+	{
+		"id": 2812,
+		"fmtType": "TRICE0",
+		"fmtStrg": "dbg:k\\n",
+		"created": 1601240704,
+		"removed": 0
+	},
+	{
+		"id": 43782,
+		"fmtType": "TRICE0",
+		"fmtStrg": "1",
+		"created": 1601240704,
+		"removed": 0
+	},
+	{
+		"id": 31945,
+		"fmtType": "TRICE0",
+		"fmtStrg": "2",
+		"created": 1601240704,
+		"removed": 0
+	},
+	{
+		"id": 57633,
+		"fmtType": "TRICE0",
+		"fmtStrg": "3",
+		"created": 1601240704,
+		"removed": 0
+	},
+	{
+		"id": 32117,
+		"fmtType": "TRICE0",
+		"fmtStrg": "4",
+		"created": 1601240704,
+		"removed": 0
+	},
+	{
+		"id": 3996,
+		"fmtType": "TRICE0",
+		"fmtStrg": "e:7",
+		"created": 1601240704,
+		"removed": 0
+	},
+	{
+		"id": 6559,
+		"fmtType": "TRICE0",
+		"fmtStrg": "m:12",
+		"created": 1601240704,
+		"removed": 0
+	},
+	{
+		"id": 30479,
+		"fmtType": "TRICE0",
+		"fmtStrg": "m:123\\n",
+		"created": 1601240704,
+		"removed": 0
+	},
+	{
+		"id": 41878,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "err:error       message, SysTick is %6d\\n",
+		"created": 1601240704,
+		"removed": 0
+	},
+	{
+		"id": 3242,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "wrn:warning     message, SysTick is %6d\\n",
+		"created": 1601240704,
+		"removed": 0
+	},
+	{
+		"id": 10588,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "att:attension   message, SysTick is %6d\\n",
+		"created": 1601240704,
+		"removed": 0
+	},
+	{
+		"id": 15045,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "dia:diagnostics message, SysTick is %6d\\n",
+		"created": 1601240704,
+		"removed": 0
+	},
+	{
+		"id": 20195,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "tim:timing      message, SysTick is %6d\\n",
+		"created": 1601240704,
+		"removed": 0
+	},
+	{
+		"id": 56298,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "dbg:debug       message, SysTick is %6d\\n",
+		"created": 1601240704,
+		"removed": 0
+	},
+	{
+		"id": 62837,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "sig:signal      message, SysTick is %6d\\n",
+		"created": 1601240704,
+		"removed": 0
+	},
+	{
+		"id": 35517,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "rd_:read        message, SysTick is %6d\\n",
+		"created": 1601240704,
+		"removed": 0
+	},
+	{
+		"id": 47873,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "wr:write        message, SysTick is %6d\\n",
+		"created": 1601240704,
+		"removed": 0
+	},
+	{
+		"id": 64995,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "isr:interrupt   message, SysTick is %6d\\n",
+		"created": 1601240704,
+		"removed": 0
+	},
+	{
+		"id": 42962,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "tst:test        message, SysTick is %6d\\n",
+		"created": 1601240704,
+		"removed": 0
+	},
+	{
+		"id": 59159,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "msg:normal      message, SysTick is %6d\\n",
+		"created": 1601240704,
+		"removed": 0
+	},
+	{
+		"id": 48090,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "info:informal   message, SysTick is %6d\\n",
+		"created": 1601240704,
+		"removed": 0
+	},
+	{
+		"id": 55237,
+		"fmtType": "TRICE0",
+		"fmtStrg": "e:A",
+		"created": 1601240704,
+		"removed": 0
+	},
+	{
+		"id": 38195,
+		"fmtType": "TRICE0",
+		"fmtStrg": "w:B",
+		"created": 1601240704,
+		"removed": 0
+	},
+	{
+		"id": 43063,
+		"fmtType": "TRICE0",
+		"fmtStrg": "a:c",
+		"created": 1601240704,
+		"removed": 0
+	},
+	{
+		"id": 6176,
+		"fmtType": "TRICE0",
+		"fmtStrg": "wr:d",
+		"created": 1601240704,
+		"removed": 0
+	},
+	{
+		"id": 6665,
+		"fmtType": "TRICE0",
+		"fmtStrg": "rd:e",
+		"created": 1601240704,
+		"removed": 0
+	},
+	{
+		"id": 47959,
+		"fmtType": "TRICE0",
+		"fmtStrg": "diag:y",
+		"created": 1601240704,
+		"removed": 0
+	},
+	{
+		"id": 48390,
+		"fmtType": "TRICE0",
+		"fmtStrg": "d:G",
+		"created": 1601240704,
+		"removed": 0
+	},
+	{
+		"id": 64481,
+		"fmtType": "TRICE0",
+		"fmtStrg": "t:H",
+		"created": 1601240704,
+		"removed": 0
+	},
+	{
+		"id": 19868,
+		"fmtType": "TRICE0",
+		"fmtStrg": "time:i",
+		"created": 1601240704,
+		"removed": 0
+	},
+	{
+		"id": 9207,
+		"fmtType": "TRICE0",
+		"fmtStrg": "message:J",
+		"created": 1601240704,
+		"removed": 0
+	},
+	{
+		"id": 29302,
+		"fmtType": "TRICE0",
+		"fmtStrg": "inf:k\\n",
+		"created": 1601240704,
+		"removed": 0
+	},
+	{
+		"id": 21100,
+		"fmtType": "TRICE0",
+		"fmtStrg": "att:Next few lines have no color and visible only when TRICE_RUNTIME_GENERATED_STRINGS_SUPPORT is defined\\n",
+		"created": 1601240704,
+		"removed": 0
+	},
+	{
+		"id": 2502,
+		"fmtType": "TRICE8_8",
+		"fmtStrg": "msg:1:%03x %03x %03x %03x %03x %03x %03x %03x\\n",
+		"created": 1601240704,
+		"removed": 0
+	},
+	{
+		"id": 20625,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "tim: pre encryption SysTick=%d\\n",
+		"created": 1601240704,
+		"removed": 0
+	},
+	{
+		"id": 64368,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "tim: post encryption SysTick=%d\\n",
+		"created": 1601240704,
+		"removed": 0
+	},
+	{
+		"id": 43335,
+		"fmtType": "TRICE8_8",
+		"fmtStrg": "att:1:%03x %03x %03x %03x %03x %03x %03x %03x\\n",
+		"created": 1601240704,
+		"removed": 0
+	},
+	{
+		"id": 56697,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "tim: pre decryption SysTick=%d\\n",
+		"created": 1601240704,
+		"removed": 0
+	},
+	{
+		"id": 50168,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "tim: post decryption SysTick=%d\\n",
+		"created": 1601240704,
+		"removed": 0
+	},
+	{
+		"id": 990,
+		"fmtType": "TRICE8_8",
+		"fmtStrg": "msg:2:%03x %03x %03x %03x %03x %03x %03x %03x\\n",
+		"created": 1601240704,
+		"removed": 0
+	},
+	{
+		"id": 7275,
+		"fmtType": "TRICE0",
+		"fmtStrg": "--------------------------------------------------\\r\\n\\n",
+		"created": 1601240704,
+		"removed": 0
+	},
+	{
+		"id": 44860,
+		"fmtType": "TRICE0",
+		"fmtStrg": "rd_:triceEscFifo.c",
+		"created": 1601240704,
+		"removed": 0
+	},
+	{
+		"id": 20913,
+		"fmtType": "TRICE0",
+		"fmtStrg": "s:                                        \\ns:   ARM-MDK_LL_UART_BARE_NUCLEO-F030RB   \\ns:                                        \\n\\n",
+		"created": 1601240704,
 		"removed": 0
 	},
 	{
 		"id": 41488,
 		"fmtType": "TRICE16_1",
 		"fmtStrg": "MSG: triceBareFifoMaxDepth = %d\\n",
-		"created": 1600679680,
+		"created": 1601240704,
 		"removed": 0
 	},
 	{
-		"id": 46650,
-		"fmtType": "TRICE16_1",
-		"fmtStrg": "MSG: triceBareFifoMaxDepth = %d\\n",
-		"created": 1600679681,
-		"removed": 0
-	},
-	{
-		"id": 62429,
+		"id": 54442,
 		"fmtType": "TRICE0",
-		"fmtStrg": "s:                                        \\ns:   ARM-MDK_LL_UART_ESC_NUCLEO-F070RB    \\ns:                                        \\n\\n",
-		"created": 1600701585,
-		"removed": 0
-	},
-	{
-		"id": 9014,
-		"fmtType": "TRICE64_2",
-		"fmtStrg": "tst:TRICE64_2 %d %16d\\n",
-		"created": 1600766376,
-		"removed": 0
-	},
-	{
-		"id": 16627,
-		"fmtType": "TRICE64_2",
-		"fmtStrg": "tst:TRICE64_2 %x %16d\\n",
-		"created": 1600768387,
+		"fmtStrg": "s:                                        \\ns:   ARM-MDK_LL_UART_BARE_NUCLEO-F070RB   \\ns:                                        \\n\\n",
+		"created": 1601240705,
 		"removed": 0
 	},
 	{
 		"id": 51601,
 		"fmtType": "TRICE64_2",
 		"fmtStrg": "MSG: triceBareFifoMaxDepth = %d (index %d)\\n",
-		"created": 1601116799,
+		"created": 1601240705,
+		"removed": 0
+	},
+	{
+		"id": 37259,
+		"fmtType": "TRICE0",
+		"fmtStrg": "s:                                        \\ns:   ARM-MDK_LL_UART_BARE_TO_ESC_NUCLEO-F030R8   \\ns:                                        \\n\\n",
+		"created": 1601240705,
+		"removed": 0
+	},
+	{
+		"id": 38143,
+		"fmtType": "TRICE16_2",
+		"fmtStrg": "MSG: triceFifoMaxDepth: Bare = %d, Esc = %d\\n",
+		"created": 1601240705,
+		"removed": 0
+	},
+	{
+		"id": 33467,
+		"fmtType": "TRICE0",
+		"fmtStrg": "s:                                        \\ns:   ARM-MDK_LL_UART_BARE_TO_ESC_NUCLEO-F070RB   \\ns:                                        \\n\\n",
+		"created": 1601240705,
 		"removed": 0
 	},
 	{
 		"id": 60242,
 		"fmtType": "TRICE0",
 		"fmtStrg": "\\ns:                                        \\ns:   ARM-MDK_LL_UART_ESC_NUCLEO-F030R8    \\ns:                                        \\n\\n",
-		"created": 1601159492,
+		"created": 1601240705,
 		"removed": 0
 	},
 	{
 		"id": 45495,
 		"fmtType": "TRICE64_2",
 		"fmtStrg": "MSG: triceEscFifoMaxDepth = %d, index = %d\\n",
-		"created": 1601159492,
+		"created": 1601240705,
+		"removed": 0
+	},
+	{
+		"id": 62429,
+		"fmtType": "TRICE0",
+		"fmtStrg": "s:                                        \\ns:   ARM-MDK_LL_UART_ESC_NUCLEO-F070RB    \\ns:                                        \\n\\n",
+		"created": 1601240705,
+		"removed": 0
+	},
+	{
+		"id": 55132,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "MSG: triceEscFifoMaxDepth = %d\\n",
+		"created": 1601240705,
+		"removed": 0
+	},
+	{
+		"id": 16627,
+		"fmtType": "TRICE64_2",
+		"fmtStrg": "tst:TRICE64_2 %x %16d\\n",
+		"created": 1601240705,
 		"removed": 0
 	}
 ]

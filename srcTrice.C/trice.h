@@ -284,7 +284,6 @@ When several data, the real ID comes in the last 32 bit sequence.
 //! \param id a 16 bit trice identifier, goes into upper 2 bytes to be transmitted first
 //! \param d16 a 16 bit value
 #define TRICE( id, d16 ) do{ \
-  /*TRICE_PUSH( (((uint32_t)(uint16_t)(d16))<<16) | (id));*/ \
     TRICE_PUSH(((((uint32_t)(id))<<16)) | ((uint16_t)(d16))); \
 } while(0)
 
@@ -292,7 +291,6 @@ When several data, the real ID comes in the last 32 bit sequence.
 //! id is 0, goes into upper 2 bytes to be transmitted first
 //! \param d16 a 16 bit value
 #define TRICE_ID0( d16 ) do{ \
-    /*TRICE_PUSH( ((uint32_t)(uint16_t)(d16))<<16);*/ \
     TRICE_PUSH((uint16_t)(d16)); \
 } while(0)
 
@@ -301,7 +299,6 @@ When several data, the real ID comes in the last 32 bit sequence.
 //! \param pFmt formatstring for trice
 #define TRICE0( Id, pFmt ) do{ \
     TRICE_ENTER_CRITICAL_SECTION \
-    /*TRICE_PUSH( Id );*/ \
     TRICE_PUSH( ((uint32_t)(Id))<<16 ); \
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)

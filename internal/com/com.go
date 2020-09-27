@@ -16,6 +16,7 @@ var (
 	// Baud is the configured baudrate of the serial port. It is set as command line parameter.
 	Baud int
 
+	// Verbose shows additional information if set true.
 	Verbose bool
 )
 
