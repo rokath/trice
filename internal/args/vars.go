@@ -17,8 +17,8 @@ var (
 	// Date is the compile time and injected from main package.
 	Date string
 
-	// Verbose gives mor information on output if set. This variable is copied into the appropriate packages.
-	Verbose bool
+	// verbose gives mor information on output if set. This variable is copied into the appropriate packages.
+	verbose bool
 
 	// Port is the trice receiver to use.
 	Port string

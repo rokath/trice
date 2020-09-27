@@ -42,6 +42,7 @@ type translator struct {
 	list     *id.List
 	item     id.Item // item is the next trice item ready for output.
 	savedErr error
+	done     chan int // This channel is used to stop the TriceInterpreter
 
 	//////////////////////////////////////////////////////////////////////
 	// DEBUG
@@ -53,12 +54,16 @@ type translator struct {
 
 // Translator is the common interface for BareTranslator, EscTranslator and the like.
 type Translator interface {
-	// If some error occured it is stored here. This makes error handling more handy.
 	SavedError() error
+	Done() chan int
 }
 
 func (p *translator) SavedError() error {
 	return p.savedErr
+}
+
+func (p *translator) Done() chan int {
+	return p.done
 }
 
 // ErrorFatal ends in osExit(1) if p.err not nil.
@@ -73,8 +78,6 @@ func (p *translator) ErrorFatal() {
 // BareTranslator ...
 type BareTranslator struct {
 	translator
-	// This channel is used to stop the TriceInterpreter
-	done chan int
 
 	// values holds so far unused values for the next trice item.
 	values []uint16
@@ -96,21 +99,31 @@ type EscTranslator struct {
 // NewEscTrices uses in for reception and sw for writing.
 // It collects trice bytes to a complete esc trice message, generates the appropriate string using list and writes it to sw.
 // EC LC IH IL ...
-func NewEscTrices(sw io.StringWriter, list *id.List, in io.Reader) *EscTranslator {
+func NewEscTrices(sw io.StringWriter, list *id.List, in io.ReadCloser) *EscTranslator {
 	p := new(EscTranslator)
 	p.sw = sw
 	p.list = list
 	p.in = in
 	p.syncBuffer = make([]byte, 0, 1000)
+	p.done = make(chan int)
 	go func() {
 		for {
-			if io.EOF == p.savedErr {
-				time.Sleep(100 * time.Millisecond) // todo: trigger from fileWatcher
-				p.savedErr = nil
+			select {
+			case <-p.done:
+				if Verbose {
+					fmt.Println("end of esc translator life")
+				}
+				return
+
+			case <-time.After(1 * time.Millisecond): // todo: trigger from fileWatcher
+				if io.EOF == p.savedErr {
+					p.savedErr = nil
+				}
+				s := p.readEsc()
+				_, p.savedErr = sw.WriteString(s)
 			}
-			s := p.readEsc()
-			_, p.savedErr = sw.WriteString(s)
 		}
+
 	}()
 	return p
 }
@@ -139,7 +152,6 @@ parse:
 		id := (int(p.syncBuffer[2]) << 8) | int(p.syncBuffer[3])
 		index := p.list.Index(id)
 		if index < 0 { // unknown id
-			p.savedErr = nil
 			s = redBalk + fmt.Sprintln("error: unknown id", id, "syncBuffer = ", p.syncBuffer)
 			p.syncBuffer = p.syncBuffer[1:] // remove 1st char
 			goto parse
@@ -416,7 +428,9 @@ func NewSimpleTrices(sw io.StringWriter, list *id.List, tr TriceAtomsReceiver) *
 				}
 
 			case <-p.done:
-				fmt.Println("end of life")
+				if Verbose {
+					fmt.Println("end of bare translator life")
+				}
 				return
 			}
 		}
@@ -460,24 +474,17 @@ func (p *BareTranslator) translate(trice Trice) (s string) {
 	}
 	index := p.list.Index(int(trice.ID))
 	if index < 0 { // unknown trice.ID
-
-		// clear any error
-		p.savedErr = nil
-
-		// convert values to bytes for displaying
-		var vb []byte
-		for _, v := range p.values {
-			b := make([]byte, 2)
-			binary.LittleEndian.PutUint16(b, v)
-			vb = append(vb, b...)
+		if Verbose {
+			var vb []byte
+			for _, v := range p.values { // convert values to bytes for displaying
+				b := make([]byte, 2)
+				binary.LittleEndian.PutUint16(b, v)
+				vb = append(vb, b...)
+			}
+			s = redBalk + fmt.Sprintln("error: unknown trice.ID", trice.ID, "(", trice.ID>>8, 0xff&trice.ID, "), values = ", p.values, ", as bytes: ", vb)
+			s += fmt.Sprintln(p)
 		}
-
-		// message
-		s = redBalk + fmt.Sprintln("error: unknown trice.ID", trice.ID, "(", trice.ID>>8, 0xff&trice.ID, "), values = ", p.values, ", as bytes: ", vb)
-		s += fmt.Sprintln(p)
-
-		// clear values
-		p.values = p.values[:0]
+		p.values = p.values[:0] // clear values
 		return
 	}
 	p.item = p.list.Item(index)
@@ -497,10 +504,10 @@ func (p *BareTranslator) addValues() (s string) {
 
 	p.evalLen()
 	if nil != p.savedErr {
-		//if Verbose {
-		s = p.savedErr.Error() + fmt.Sprint("The accumulated data are not matching the trice.ID. Discarding: ")
-		s += fmt.Sprintln(p)
-		//}
+		if Verbose {
+			s = p.savedErr.Error() + fmt.Sprint("The accumulated data are not matching the trice.ID. Discarding: ")
+			s += fmt.Sprintln(p)
+		}
 		p.values = p.values[:0]
 		p.savedErr = nil
 		return

@@ -16,7 +16,6 @@ import (
 	"runtime"
 	"strings"
 	"syscall"
-	"time"
 
 	"github.com/rokath/trice/internal/com"
 	"github.com/rokath/trice/internal/emitter"
@@ -29,12 +28,12 @@ import (
 	"github.com/rokath/trice/pkg/cipher"
 )
 
-// newReadCloser uses variable Port and tries to return a valid io.ReadCloser.
-func newReadCloser() (r io.ReadCloser, e error) {
+// newInputPort uses variable Port and tries to return a valid io.ReadCloser.
+func newInputPort() (r io.ReadCloser, e error) {
 	if strings.HasPrefix(Port, "COM") {
 		var c com.COMport // interface type
-		//c = com.NewCOMPortGoBugSt(Port)
-		c = com.NewCOMPortTarm(Port)
+		c = com.NewCOMPortGoBugSt(Port)
+		//c = com.NewCOMPortTarm(Port)
 		if false == c.Open() {
 			e = fmt.Errorf("Can not open %s", Port)
 		}
@@ -43,7 +42,7 @@ func newReadCloser() (r io.ReadCloser, e error) {
 	}
 	switch Port {
 	case "JLINK", "STLINK":
-		l := link.NewReadCloser()
+		l := link.NewDevice()
 		if nil != l.Open() {
 			e = fmt.Errorf("Can not open link device %s", link.Args)
 		}
@@ -75,8 +74,9 @@ func receiving() error {
 		cage.Enable()
 		defer cage.Disable()
 	}
-	portReader, e := newReadCloser()
+	portReader, e := newInputPort()
 	errorFatal(e)
+	defer portReader.Close()
 
 	var p translator.Translator // interface type
 
@@ -101,22 +101,15 @@ func receiving() error {
 
 	sigs := make(chan os.Signal, 1)
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
-
-	for { // endless loop
-		select {
-		case sig := <-sigs:
-			fmt.Println("####################################   END OF LIFE!   ####################################")
-			fmt.Println(sig)
-			goto end
-		case <-time.After(10 * time.Millisecond):
-		}
+	sig := <-sigs // wait for a signal
+	if verbose {
+		fmt.Println("####################################", sig, "####################################")
 	}
-end:
-	errorFatal(portReader.Close())
-	return p.SavedError()
+	p.Done() <- 0         // end translator
+	return p.SavedError() // back to main
 }
 
-func receiveBareSimpleTricesAndDisplayAnsiColor(rd io.Reader, fnJSON string) *translator.BareTranslator {
+func receiveBareSimpleTricesAndDisplayAnsiColor(rd io.ReadCloser, fnJSON string) *translator.BareTranslator {
 	// NewColorDisplay creates a ColorlDisplay. It provides a Linewriter.
 	// It uses internally a local display combined with a line transformer.
 	lwD := emitter.NewColorDisplay(emitter.ColorPalette)
@@ -138,7 +131,7 @@ func receiveBareSimpleTricesAndDisplayAnsiColor(rd io.Reader, fnJSON string) *tr
 	return translator.NewSimpleTrices(sw, list, triceAtomsReceiver)
 }
 
-func receiveEscTricesAndDisplayAnsiColor(rd io.Reader, fnJSON string) *translator.EscTranslator {
+func receiveEscTricesAndDisplayAnsiColor(rd io.ReadCloser, fnJSON string) *translator.EscTranslator {
 	// NewColorDisplay creates a ColorlDisplay. It provides a Linewriter.
 	// It uses internally a local display combined with a line transformer.
 	lwD := emitter.NewColorDisplay(emitter.ColorPalette)
@@ -196,7 +189,7 @@ func errorFatal(err error) {
 	if nil == err {
 		return
 	}
-	if Verbose {
+	if verbose {
 		_, file, line, _ := runtime.Caller(1)
 		log.Fatal(err, " "+filepath.Base(file)+" ", line)
 	}

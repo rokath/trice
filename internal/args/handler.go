@@ -93,7 +93,7 @@ func scHelp(
 	sv *flag.FlagSet,
 	scSdSv *flag.FlagSet,
 ) error {
-	if Verbose {
+	if verbose {
 		fmt.Printf("\n*** https://github.com/rokath/trice ***\n\n")
 		fmt.Printf("If a non-multi parameter is used more than one times the last value wins.\n")
 	}
@@ -135,7 +135,7 @@ func scHelp(
 func scVersion() error {
 	cage.Enable()
 	defer cage.Disable()
-	if Verbose {
+	if verbose {
 		fmt.Println("https://github.com/rokath/trice")
 	}
 	if "" != Version {
@@ -164,11 +164,12 @@ func setDefaultArgs() {
 // It must not be called before the appropriate arg parsing.
 func distributeArgs() {
 	setDefaultArgs()
-	id.Verbose = Verbose
-	emitter.Verbose = Verbose
-	link.Verbose = Verbose
-	cage.Verbose = Verbose
-	receiver.Verbose = Verbose
-	translator.Verbose = Verbose
+	com.Verbose = verbose
+	id.Verbose = verbose
+	emitter.Verbose = verbose
+	link.Verbose = verbose
+	cage.Verbose = verbose
+	receiver.Verbose = verbose
+	translator.Verbose = verbose
 	link.Port = Port
 }

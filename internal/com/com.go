@@ -7,8 +7,6 @@ package com
 
 import (
 	"fmt"
-	"io"
-	"log"
 
 	serialtarm "github.com/tarm/serial"
 	serialgobugst "go.bug.st/serial"
@@ -17,11 +15,14 @@ import (
 var (
 	// Baud is the configured baudrate of the serial port. It is set as command line parameter.
 	Baud int
+
+	Verbose bool
 )
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // dynamic debug helper
 //
+/*
 type bytesViewer struct {
 	r io.Reader
 }
@@ -39,7 +40,7 @@ func (p *bytesViewer) Read(buf []byte) (count int, err error) {
 	log.Println("bytesViewer:", err, count, buf)
 	return
 }
-
+*/
 //
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -78,12 +79,17 @@ func NewCOMPortGoBugSt(comPortName string) *PortGoBugSt {
 // the serial port or an error occurs.
 func (p *PortGoBugSt) Read(buf []byte) (int, error) {
 	count, err := p.serialHandle.Read(buf)
-	log.Println("comPortGoBugSt.Read:", err, count, buf[:count])
+	//if 0 < count || nil != err {
+	//log.Println("comPortGoBugSt.Read:", err, count, buf[:count])
+	//}
 	return count, err
 }
 
-// Close releases port
+// Close releases port.
 func (p *PortGoBugSt) Close() error {
+	if Verbose {
+		fmt.Println("Closing GoBugSt COM port")
+	}
 	return p.serialHandle.Close()
 }
 
@@ -148,6 +154,9 @@ func (p *PortTarm) Open() bool {
 
 // Close returns an error in case of failure.
 func (p *PortTarm) Close() error {
+	if Verbose {
+		fmt.Println("Closing Tarm COM port")
+	}
 	return p.stream.Close()
 }
 
@@ -158,8 +167,8 @@ func (p *PortTarm) Close() error {
 // the serial port or an error occurs.
 func (p *PortTarm) Read(buf []byte) (int, error) {
 	count, err := p.stream.Read(buf)
-	if 0 < count || nil != err {
-		log.Println("comPortTarm.Read:", err, count, buf[:count])
-	}
+	//if 0 < count || nil != err {
+	//	log.Println("comPortTarm.Read:", err, count, buf[:count])
+	//}
 	return count, err
 }

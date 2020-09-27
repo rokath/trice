@@ -25,7 +25,7 @@ func init() {
 	fsScLog.StringVar(&emitter.ColorPalette, "color", "default", "color set, 'off' disables color handling (\"w:x\"->\"w:x\"), 'none' disables channels color (\"w:x\"->\"x\"), options: 'off|none'")           // flag
 	fsScLog.StringVar(&emitter.Prefix, "prefix", "source: ", "line prefix, options: any string or 'off|none' or 'source:' followed by 0-12 spaces, 'source:' will be replaced by source value e.g., 'COM17:'")  // flag
 	fsScLog.StringVar(&emitter.Suffix, "suffix", "", "append suffix to all lines, options: any string")                                                                                                         // flag
-	fsScLog.StringVar(&Port, "port", "JLINK", "receiver device, options: 'COMn|JLINK|STLINK|filename|SIM|RND|HTTP'")                                                                                            // flag
+	fsScLog.StringVar(&Port, "port", "JLINK", "receiver device, options: 'COMn|JLINK|STLINK'")                                                                                                                  //|filename|SIM|RND|HTTP'")                                                                                            // flag
 	fsScLog.StringVar(&Port, "p", "JLINK", "short for -port")                                                                                                                                                   // short flag
 	fsScLog.IntVar(&com.Baud, "baud", 115200, "COM baudrate, valid only for '-source COMn'")                                                                                                                    // flag flag
 	fsScLog.StringVar(&link.Args, "args", "-Device STM32F070RB -if SWD -Speed 4000 -RTTChannel 0", "passed parameter string, valid only for '-p JLINK|STLINK', see JLinkRTTLogger in SEGGER UM08001_JLink.pdf") // JLRTT flag
@@ -87,8 +87,8 @@ func flagLogfile(p *flag.FlagSet) {
 }
 
 func flagVerbosity(p *flag.FlagSet) {
-	p.BoolVar(&Verbose, "verbose", false, "verbose, more informal output if used") // flag
-	p.BoolVar(&Verbose, "v", false, "short for verbose")                           // flag
+	p.BoolVar(&verbose, "verbose", false, "verbose, more informal output if used") // flag
+	p.BoolVar(&verbose, "v", false, "short for verbose")                           // flag
 }
 
 func flagIDList(p *flag.FlagSet) {

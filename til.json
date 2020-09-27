@@ -3029,5 +3029,19 @@
 		"fmtStrg": "MSG: triceBareFifoMaxDepth = %d (index %d)\\n",
 		"created": 1601116799,
 		"removed": 0
+	},
+	{
+		"id": 60242,
+		"fmtType": "TRICE0",
+		"fmtStrg": "\\ns:                                        \\ns:   ARM-MDK_LL_UART_ESC_NUCLEO-F030R8    \\ns:                                        \\n\\n",
+		"created": 1601159492,
+		"removed": 0
+	},
+	{
+		"id": 45495,
+		"fmtType": "TRICE64_2",
+		"fmtStrg": "MSG: triceEscFifoMaxDepth = %d, index = %d\\n",
+		"created": 1601159492,
+		"removed": 0
 	}
 ]

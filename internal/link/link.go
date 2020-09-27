@@ -16,6 +16,7 @@ import (
 	"strings"
 
 	"github.com/fsnotify/fsnotify"
+	"github.com/pkg/errors"
 )
 
 var (
@@ -37,6 +38,7 @@ type Device struct {
 	tempLogFileName   string
 	tempLogFileHandle *os.File
 	Err               error
+	Done              chan bool
 }
 
 // SetLinkCommandName evaluates port and sets the appropriate link command name
@@ -55,13 +57,13 @@ func (p *Device) SetLinkCommandName() {
 
 }
 
-// NewReadCloser creates an instance of RTT ReadCloser of type Port.
+// NewDevice creates an instance of RTT ReadCloser of type Port.
 // The Args string is used as parameter string. See SEGGER UM08001_JLink.pdf for details.
-func NewReadCloser() *Device {
+func NewDevice() *Device {
 	p := &Device{} // create link instance
 
 	p.SetLinkCommandName()
-	// check environment
+	/* check environment
 	path, err := exec.LookPath(p.Exec)
 	if nil == err {
 		if Verbose {
@@ -71,13 +73,12 @@ func NewReadCloser() *Device {
 		fmt.Println(p.Exec, "not found")
 		return nil
 	}
+	*/
 
 	// get a temporary file name
 	p.tempLogFileHandle, _ = ioutil.TempFile(os.TempDir(), "trice-*.bin") // opens for read and write
 	p.tempLogFileName = p.tempLogFileHandle.Name()
 	p.tempLogFileHandle.Close()
-	//linkCmdLine += linkCmd + " " + Args + " " + r.tempLogFileName // full parameter string
-
 	return p
 }
 
@@ -95,16 +96,18 @@ func (p *Device) Read(b []byte) (int, error) {
 }
 
 // Close is part of the exported interface io.ReadCloser. It ends the connection.
-//
-// See https://stackoverflow.com/questions/11886531/terminating-a-process-started-with-os-exec-in-golang
 func (p *Device) Close() error {
-	p.Err = p.tempLogFileHandle.Close()
-	p.ErrorFatal()
-	return os.Remove(p.tempLogFileName) // clean up
+	if Verbose {
+		fmt.Println("Closing link device.")
+	}
+	// FRAGE AN BASTI: Wer beendet den Prozess?
+	//p.Err = errors.Wrap(p.Err, p.cmd.Process.Kill().Error())
+	//p.Err = errors.Wrap(p.Err, p.tempLogFileHandle.Close().Error())
+	p.Err = errors.Wrap(p.Err, os.Remove(p.tempLogFileName).Error())
+	return p.Err
 }
 
-// Open starts the JLinkRTTLogger command with a temporary logfile
-//
+// Open starts the RTT logger command with a temporary logfile.
 // The temporary logfile is opened for reading.
 func (p *Device) Open() error {
 	if Verbose {
@@ -150,20 +153,18 @@ func (p *Device) Open() error {
 	default:
 		p.Err = fmt.Errorf("Cannot handle \"%s\"as parameter string - too much separators: %v", Args, args)
 	}
-	//cmd = exec.Command(linkCmd, Args, p.tempLogFileName)
-	//cmd = exec.Command(linkCmd, "-Device", "STM32F070RB", "-if", "SWD", "-Speed", "4000", "-RTTChannel", "0", p.tempLogFileName)
-	//p.cmd = exec.Command(p.Exec, "-Device", "STM32F030R8", "-if", "SWD", "-Speed", "4000", "-RTTChannel", "0", p.tempLogFileName)
 
-	p.cmd.Stdout = os.Stdout
-	p.cmd.Stderr = os.Stderr
-
+	if Verbose {
+		p.cmd.Stdout = os.Stdout
+		p.cmd.Stderr = os.Stderr
+	}
 	p.Err = p.cmd.Start()
 	p.ErrorFatal()
 
 	p.tempLogFileHandle, p.Err = os.Open(p.tempLogFileName) // Open() opens a file with read only flag.
 	p.ErrorFatal()
 
-	p.watchLogfile()
+	//p.watchLogfile()
 	if Verbose {
 		fmt.Println("trice is watching and reading from", p.tempLogFileName)
 	}

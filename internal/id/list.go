@@ -43,9 +43,6 @@ type List struct {
 	// FnJSON is the filename of the id List
 	FnJSON string
 
-	// array is the undelying List array for List
-	//array [65536]Item
-
 	// List is a slice type containing the ID List.
 	List []Item
 
@@ -177,7 +174,6 @@ func (p *List) Index(id int) int {
 			return i
 		}
 	}
-	p.savedErr = errors.New("unknown ID")
 	return -1
 }
 
