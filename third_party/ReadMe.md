@@ -24,6 +24,3 @@
 
 - STMicroelectronics
 
-## zadig.akeo.ie
-
-- Installer for libusb (needed for goST)

@@ -3,8 +3,7 @@
 - Check in the Internet for newer versions.
 
 ## JLink
-
-- `JLinkRTTLogger.exe` and acompanying `JLinkARM.dll` copied from default install location `C:\Program Files (x86)\SEGGER\JLink`. 
+- Download and install [J-LinkSoftwareAndDocumentationPack](https://www.segger.com/downloads/jlink/#J-LinkSoftwareAndDocumentationPack) or simply use `JLinkRTTLogger.exe` and acompanying `JLinkARM.dll` copied from default install location `C:\Program Files (x86)\SEGGER\JLink`. You need to extend search PATH.
 
 ## SEGGER_RTT
 

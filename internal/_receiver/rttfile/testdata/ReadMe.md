@@ -1,2 +1,0 @@
-- File *trice-614860871.bin* was copied from temp folder and renamed into *wrapTriceMsgs.bin*. 
-- it was generated implicit with `trice l -s JLINK` and a connected evaluation board tranmitting trice wrap messages over RTT.
