@@ -44,13 +44,6 @@ type translator struct {
 	item     id.Item // item is the next trice item ready for output.
 	savedErr error
 	done     chan int // This channel is used to stop the TriceInterpreter
-
-	//////////////////////////////////////////////////////////////////////
-	// DEBUG
-	prev     int64
-	errCount int
-	//
-	//////////////////////////////////////////////////////////////////////
 }
 
 // Translator is the common interface for BareTranslator, EscTranslator and the like.
@@ -355,28 +348,9 @@ parse:
 				return
 			}
 			if "TRICE64_2" == p.item.FmtType {
-				if 0 < p.errCount {
-					s = fmt.Sprintf("err:Failures:%d, ", p.errCount) // DEBUG
-				} else {
-					s = fmt.Sprintf("tst:Failures:%d, ", p.errCount) // DEBUG
-				}
-				s += fmt.Sprintf(p.item.FmtStrg,
+				s = fmt.Sprintf(p.item.FmtStrg,
 					int64(binary.BigEndian.Uint64(p.syncBuffer[4:12])),
 					int64(binary.BigEndian.Uint64(p.syncBuffer[12:20])))
-				/*
-					//////////////////////////////////////////////////////////////////////
-					// DEBUG for MDK-ARM_LL_UART_ESC_NUCLEO-F070RB
-					a := int64(binary.BigEndian.Uint64(p.syncBuffer[4:12]))
-					b := int64(binary.BigEndian.Uint64(p.syncBuffer[12:20]))
-					if (0x1020304050607080 != a || b != p.prev+1) && 0 != p.prev {
-						s = redBalk + s + redBalk
-						p.errCount++
-					}
-
-					p.prev = b
-					//
-					//////////////////////////////////////////////////////////////////////
-				*/
 				p.syncBuffer = p.syncBuffer[20:]
 				return
 			}

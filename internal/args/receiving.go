@@ -5,16 +5,13 @@
 package args
 
 import (
-	"bytes"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"os"
 	"os/signal"
 	"path/filepath"
 	"runtime"
-	"strings"
 	"syscall"
 
 	"github.com/rokath/trice/internal/com"
@@ -30,7 +27,14 @@ import (
 
 // newInputPort uses variable Port and tries to return a valid io.ReadCloser.
 func newInputPort() (r io.ReadCloser, e error) {
-	if strings.HasPrefix(Port, "COM") {
+	switch Port {
+	case "JLINK", "STLINK":
+		l := link.NewDevice()
+		if nil != l.Open() {
+			e = fmt.Errorf("Can not open link device %s", link.Args)
+		}
+		r = l
+	default: // assuming serial port
 		var c com.COMport // interface type
 		c = com.NewCOMPortGoBugSt(Port)
 		//c = com.NewCOMPortTarm(Port)
@@ -40,23 +44,10 @@ func newInputPort() (r io.ReadCloser, e error) {
 		r = c
 		return
 	}
-	switch Port {
-	case "JLINK", "STLINK":
-		l := link.NewDevice()
-		if nil != l.Open() {
-			e = fmt.Errorf("Can not open link device %s", link.Args)
-		}
-		r = l
-	case "DUMMY":
-		rd := bytes.NewReader([]byte{2, 1, 1, 1, 0x89, 0xab, 0xcd, 0xef, 2, 2, 2, 0, 3, 3, 3, 3, 4, 4})
-		r = ioutil.NopCloser(rd)
-	default:
-		e = fmt.Errorf("Unknown input port %s", Port)
-	}
 	return
 }
 
-// receiving performs the trice log task, uses internally Port and Encoding and returns on program end.
+// receiving performs the trice log task, uses internally Port and encoding and returns on program end.
 func receiving() error {
 	translatePrefix()
 	fnJSON = id.ConditionalFilePath(fnJSON)
@@ -80,7 +71,7 @@ func receiving() error {
 
 	var p translator.Translator // interface type
 
-	switch Encoding {
+	switch encoding {
 	//	case "sim":
 	//		p = simNewSimpleTriceInterpreterWithAnsi(r)
 	case "bare":
@@ -96,7 +87,7 @@ func receiving() error {
 	case "ascii":
 		fallthrough
 	default:
-		return fmt.Errorf("unknown encoding: %s", Encoding)
+		return fmt.Errorf("unknown encoding: %s", encoding)
 	}
 
 	sigs := make(chan os.Signal, 1)

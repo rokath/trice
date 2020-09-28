@@ -23,8 +23,8 @@ var (
 	// Port is the trice receiver to use.
 	Port string
 
-	// Encoding describes the way the byte stream is coded.
-	Encoding string
+	// encoding describes the way the byte stream is coded.
+	encoding string
 
 	// displayRemote if set, sends trice lines over TCP.
 	displayRemote bool

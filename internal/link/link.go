@@ -48,32 +48,19 @@ func (p *Device) SetLinkCommandName() {
 		p.Exec = "JLinkRTTLogger"
 		p.Lib = "JLinkARM"
 	case "STLINK":
-		p.Exec = "rttLogger"
+		p.Exec = "stRttLogger"
 		p.Lib = "libusb-1.0"
 	}
 	if Verbose {
 		fmt.Println("LINK executable", p.Exec, "and dynamic lib", p.Lib, "expected to be in path for usage.")
 	}
-
 }
 
 // NewDevice creates an instance of RTT ReadCloser of type Port.
 // The Args string is used as parameter string. See SEGGER UM08001_JLink.pdf for details.
 func NewDevice() *Device {
 	p := &Device{} // create link instance
-
 	p.SetLinkCommandName()
-	/* check environment
-	path, err := exec.LookPath(p.Exec)
-	if nil == err {
-		if Verbose {
-			fmt.Println(path, "found")
-		}
-	} else {
-		fmt.Println(p.Exec, "not found")
-		return nil
-	}
-	*/
 
 	// get a temporary file name
 	p.tempLogFileHandle, _ = ioutil.TempFile(os.TempDir(), "trice-*.bin") // opens for read and write
@@ -100,7 +87,8 @@ func (p *Device) Close() error {
 	if Verbose {
 		fmt.Println("Closing link device.")
 	}
-	// FRAGE AN BASTI: Wer beendet den Prozess?
+	// CTRL-C sends SIGTERM also to the started command. It closes the temporary file and terminates itself.
+	// Todo: If trice is terminated not with CTRL-C kill automatically.
 	//p.Err = errors.Wrap(p.Err, p.cmd.Process.Kill().Error())
 	//p.Err = errors.Wrap(p.Err, p.tempLogFileHandle.Close().Error())
 	p.Err = errors.Wrap(p.Err, os.Remove(p.tempLogFileName).Error())
@@ -114,7 +102,7 @@ func (p *Device) Open() error {
 		fmt.Println("Start a process:", p.Exec, "with needed lib", p.Lib, "and args:", Args, p.tempLogFileName)
 	}
 	args := strings.Split(Args, " ")
-	args = append(args, p.tempLogFileName)
+	args = append(args, p.tempLogFileName) // Todo: check if slice could be passed directly.
 	switch len(args) {
 	case 0:
 		p.cmd = exec.Command(p.Exec)
@@ -164,7 +152,7 @@ func (p *Device) Open() error {
 	p.tempLogFileHandle, p.Err = os.Open(p.tempLogFileName) // Open() opens a file with read only flag.
 	p.ErrorFatal()
 
-	//p.watchLogfile()
+	//p.watchLogfile() // todo: make it working well
 	if Verbose {
 		fmt.Println("trice is watching and reading from", p.tempLogFileName)
 	}

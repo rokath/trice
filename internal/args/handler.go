@@ -9,7 +9,6 @@ import (
 	"flag"
 	"fmt"
 	"os"
-	"strings"
 
 	"github.com/rokath/trice/internal/com"
 	"github.com/rokath/trice/internal/emitter"
@@ -146,24 +145,9 @@ func scVersion() error {
 	return nil
 }
 
-// setDefaultArgs sets args being literally "default" to their mode specific default value.
-func setDefaultArgs() {
-	if "default" == Encoding {
-		switch Port {
-		case "JLINK", "STLINK":
-			Encoding = "bare"
-		default:
-			if strings.HasPrefix(Port, "COM") {
-				Encoding = "bare"
-			}
-		}
-	}
-}
-
 // distributeArgs is distibuting values used in several packages.
 // It must not be called before the appropriate arg parsing.
 func distributeArgs() {
-	setDefaultArgs()
 	com.Verbose = verbose
 	id.Verbose = verbose
 	emitter.Verbose = verbose
