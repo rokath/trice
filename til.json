@@ -796,5 +796,19 @@
 		"fmtStrg": "tst:TRICE64_2 %x %16d\\n",
 		"created": 1601240705,
 		"removed": 0
+	},
+	{
+		"id": 10566,
+		"fmtType": "TRICE0",
+		"fmtStrg": "s:                                        \\ns:   ARM-MDK_LL_BARE_STM32F0308-DISCO   \\ns:                                        \\n\\n",
+		"created": 1601307082,
+		"removed": 0
+	},
+	{
+		"id": 9549,
+		"fmtType": "TRICE0",
+		"fmtStrg": "s:                                        \\ns:    ARM-MDK_LL_BARE_STM32F0308-DISCO    \\ns:                                        \\n\\n",
+		"created": 1601308021,
+		"removed": 0
 	}
 ]

@@ -7,7 +7,7 @@
 
   <Targets>
     <Target>
-      <TargetName>MDK-ARM_LL_UART_BARE_NUCLEO-F030R8</TargetName>
+      <TargetName>MDK-ARM_LL_BARE_STM32F0308-DISCO</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
       <pCCUsed>5060750::V5.06 update 6 (build 750)::.\ARMCC</pCCUsed>
@@ -48,8 +48,8 @@
             <NotGenerated>0</NotGenerated>
             <InvalidFlash>1</InvalidFlash>
           </TargetStatus>
-          <OutputDirectory>MDK-ARM_LL_UART_BARE_NUCLEO-F030R8\</OutputDirectory>
-          <OutputName>MDK-ARM_LL_UART_BARE_NUCLEO-F030R8</OutputName>
+          <OutputDirectory>MDK-ARM_LL_BARE_STM32F0308-DISCO\</OutputDirectory>
+          <OutputName>MDK-ARM_LL_BARE_STM32F0308-DISCO</OutputName>
           <CreateExecutable>1</CreateExecutable>
           <CreateLib>0</CreateLib>
           <CreateHexFile>1</CreateHexFile>
@@ -89,7 +89,7 @@
             <nStopA1X>0</nStopA1X>
             <nStopA2X>0</nStopA2X>
           </AfterMake>
-          <SelectedForBatchBuild>1</SelectedForBatchBuild>
+          <SelectedForBatchBuild>0</SelectedForBatchBuild>
           <SVCSIdString></SVCSIdString>
         </TargetCommonOption>
         <CommonProperty>
@@ -313,8 +313,8 @@
           </ArmAdsMisc>
           <Cads>
             <interw>1</interw>
-            <Optim>4</Optim>
-            <oTime>1</oTime>
+            <Optim>1</Optim>
+            <oTime>0</oTime>
             <SplitLS>0</SplitLS>
             <OneElfS>1</OneElfS>
             <Strict>0</Strict>
@@ -339,7 +339,7 @@
               <MiscControls></MiscControls>
               <Define>USE_FULL_LL_DRIVER,HSE_VALUE=8000000,HSE_STARTUP_TIMEOUT=100,LSE_STARTUP_TIMEOUT=5000,LSE_VALUE=32768,HSI_VALUE=8000000,LSI_VALUE=40000,VDD_VALUE=3300,PREFETCH_ENABLE=1,INSTRUCTION_CACHE_ENABLE=0,DATA_CACHE_ENABLE=0,STM32F030x8</Define>
               <Undefine></Undefine>
-              <IncludePath>../Core/Inc;..\..\..\srcTrice.C;..\..\..\third_party\segger.com\SEGGER_RTT\RTT;../Drivers/STM32F0xx_HAL_Driver/Inc;../Drivers/CMSIS/Device/ST/STM32F0xx/Include;../Drivers/CMSIS/Include</IncludePath>
+              <IncludePath>../Core/Inc;../Drivers/STM32F0xx_HAL_Driver/Inc;../Drivers/CMSIS/Device/ST/STM32F0xx/Include;../Drivers/CMSIS/Include;..\..\..\srcTrice.C;..\..\..\third_party\segger.com\SEGGER_RTT\RTT</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -352,7 +352,7 @@
             <NoWarn>0</NoWarn>
             <uSurpInc>0</uSurpInc>
             <useXO>0</useXO>
-            <ClangAsOpt>4</ClangAsOpt>
+            <ClangAsOpt>1</ClangAsOpt>
             <VariousControls>
               <MiscControls></MiscControls>
               <Define></Define>
@@ -391,33 +391,13 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>Application/User/Core</GroupName>
-          <Files>
-            <File>
-              <FileName>main.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../Core/Src/main.c</FilePath>
-            </File>
-            <File>
-              <FileName>stm32f0xx_it.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../Core/Src/stm32f0xx_it.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>Drivers/CMSIS</GroupName>
-          <Files>
-            <File>
-              <FileName>system_stm32f0xx.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../Core/Src/system_stm32f0xx.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
           <GroupName>Trice</GroupName>
           <Files>
+            <File>
+              <FileName>triceBareFifo.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\srcTrice.C\triceBareFifo.c</FilePath>
+            </File>
             <File>
               <FileName>triceCheck.c</FileName>
               <FileType>1</FileType>
@@ -433,15 +413,23 @@
               <FileType>1</FileType>
               <FilePath>..\..\..\third_party\segger.com\SEGGER_RTT\RTT\SEGGER_RTT.c</FilePath>
             </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>::CMSIS</GroupName>
+        </Group>
+        <Group>
+          <GroupName>Application/User/Core</GroupName>
+          <Files>
             <File>
-              <FileName>triceBareFifo.c</FileName>
+              <FileName>main.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\srcTrice.C\triceBareFifo.c</FilePath>
+              <FilePath>../Core/Src/main.c</FilePath>
             </File>
             <File>
-              <FileName>triceBareFifoToBytesBuffer.c</FileName>
+              <FileName>stm32f0xx_it.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\srcTrice.C\triceBareFifoToBytesBuffer.c</FilePath>
+              <FilePath>../Core/Src/stm32f0xx_it.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -464,19 +452,9 @@
               <FilePath>../Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_ll_exti.c</FilePath>
             </File>
             <File>
-              <FileName>stm32f0xx_ll_usart.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_ll_usart.c</FilePath>
-            </File>
-            <File>
               <FileName>stm32f0xx_ll_rcc.c</FileName>
               <FileType>1</FileType>
               <FilePath>../Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_ll_rcc.c</FilePath>
-            </File>
-            <File>
-              <FileName>stm32f0xx_ll_dma.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_ll_dma.c</FilePath>
             </File>
             <File>
               <FileName>stm32f0xx_ll_utils.c</FileName>
@@ -486,7 +464,14 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>::CMSIS</GroupName>
+          <GroupName>Drivers/CMSIS</GroupName>
+          <Files>
+            <File>
+              <FileName>system_stm32f0xx.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../Core/Src/system_stm32f0xx.c</FilePath>
+            </File>
+          </Files>
         </Group>
       </Groups>
     </Target>
@@ -498,7 +483,7 @@
       <component Cclass="CMSIS" Cgroup="CORE" Cvendor="ARM" Cversion="4.3.0" condition="CMSIS Core">
         <package name="CMSIS" schemaVersion="1.3" url="http://www.keil.com/pack/" vendor="ARM" version="4.5.0"/>
         <targetInfos>
-          <targetInfo name="MDK-ARM_LL_UART_BARE_NUCLEO-F030R8"/>
+          <targetInfo name="MDK-ARM_LL_BARE_STM32F0308-DISCO"/>
         </targetInfos>
       </component>
     </components>
