@@ -33,6 +33,8 @@ func init() {
 	fsScLog.BoolVar(&displayRemote, "ds", false, "short for '-displayserver'")
 	fsScLog.BoolVar(&autostart, "autostart", false, "autostart displayserver @ ipa:ipp (works not good with windows, because of cmd and powershell color issues and missing cli params in wt and gitbash)")
 	fsScLog.BoolVar(&autostart, "a", false, "short for '-autostart'")
+	fsScLog.BoolVar(&showInputBytes, "showInputBytes", false, "show incoming bytes")
+	fsScLog.BoolVar(&showInputBytes, "sib", false, "short for '-showInputBytes'")
 	flagLogfile(fsScLog)
 	flagVerbosity(fsScLog)
 	flagIDList(fsScLog)

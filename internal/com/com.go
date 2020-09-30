@@ -20,31 +20,6 @@ var (
 	Verbose bool
 )
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
-// dynamic debug helper
-//
-/*
-type bytesViewer struct {
-	r io.Reader
-}
-
-// newBytesViewer returns a reader `get` which is internally using reader `from`.
-// Calling the `get` Read method leads to internally calling the `from` Read method
-// but lets to do some additional action like logging
-func newBytesViewer(from io.Reader) (get io.Reader) {
-	return &bytesViewer{from}
-}
-
-func (p *bytesViewer) Read(buf []byte) (count int, err error) {
-	count, err = p.r.Read(buf)
-
-	log.Println("bytesViewer:", err, count, buf)
-	return
-}
-*/
-//
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
 // COMport ...
 type COMport interface {
 	Open() bool

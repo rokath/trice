@@ -61,4 +61,7 @@ var (
 
 	// fnJSON is the filename for the JSON formatted ID list.
 	fnJSON string
+
+	// showInputBytes displays incoming bytes if set true
+	showInputBytes bool
 )

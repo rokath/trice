@@ -52,6 +52,7 @@ func receiving() error {
 	translatePrefix()
 	fnJSON = id.ConditionalFilePath(fnJSON)
 
+	// setup optional logging and optional remote display
 	if true == displayRemote {
 		var p *emitter.RemoteDisplay
 		if true == autostart {
@@ -65,22 +66,27 @@ func receiving() error {
 		cage.Enable()
 		defer cage.Disable()
 	}
+
+	// setup input port
 	portReader, e := newInputPort()
 	errorFatal(e)
+	if showInputBytes {
+		portReader = newBytesViewer(portReader)
+	}
 	defer portReader.Close()
 
 	var p translator.Translator // interface type
 
+	// activate selected encoding
 	switch encoding {
-	//	case "sim":
-	//		p = simNewSimpleTriceInterpreterWithAnsi(r)
 	case "bare":
 		p = receiveBareSimpleTricesAndDisplayAnsiColor(portReader, fnJSON)
 	case "esc":
 		p = receiveEscTricesAndDisplayAnsiColor(portReader, fnJSON)
 	//case "wrap", "wrapped":
 	//p = receiveWrapSimpleTricesAndDisplayAnsiColor(portReader, fnJSON)
-
+	//	case "sim":
+	//		p = simNewSimpleTriceInterpreterWithAnsi(r)
 	case "bareXTEACrypted", "wrapXTEACrypted":
 		errorFatal(cipher.SetUp())
 		fallthrough
@@ -90,6 +96,7 @@ func receiving() error {
 		return fmt.Errorf("unknown encoding: %s", encoding)
 	}
 
+	// prepare CTRL-C shutdown reaction
 	sigs := make(chan os.Signal, 1)
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
 	sig := <-sigs // wait for a signal
@@ -186,3 +193,31 @@ func errorFatal(err error) {
 	}
 	log.Fatal(err)
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// dynamic debug helper
+//
+
+type bytesViewer struct {
+	r io.ReadCloser
+}
+
+// newBytesViewer returns a ReadCloser `in` which is internally using reader `from`.
+// Calling the `in` Read method leads to internally calling the `from` Read method
+// but lets to do some additional action like logging
+func newBytesViewer(from io.ReadCloser) (in io.ReadCloser) {
+	return &bytesViewer{from}
+}
+
+func (p *bytesViewer) Read(buf []byte) (count int, err error) {
+	count, err = p.r.Read(buf)
+	if 0 < count || nil != err {
+		log.Println("input bytes:", err, count, buf[:count])
+	}
+	return
+}
+
+func (p *bytesViewer) Close() error { return nil } // todo: Why is Close() method needed here?
+
+//
+///////////////////////////////////////////////////////////////////////////////////////////////////
