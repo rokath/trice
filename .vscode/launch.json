@@ -55,7 +55,7 @@
             ]
         },              
         {
-            "name": "-p LINK",
+            "name": "-p STLINK",
             "type": "go",
             "request": "launch",
             "mode": "auto",
@@ -63,10 +63,12 @@
             "env": {},
             "args": ["log",
                      "-port",
-                     "JLINK",
+                     "STLINK",
+                     "-largs",
+                     "\"-Device STM32F070F6 -if SWD -speed 4000 -RTTChannel 0\"",
                      "-verbose",
                      "-encoding",
-                     "esc",
+                     "bare",
                      "-idlist",
                      "${workspaceFolder}/til.json",
                      "-key",

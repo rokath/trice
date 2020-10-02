@@ -10,7 +10,6 @@ import (
 	"encoding/binary"
 	"fmt"
 	"io"
-	"time"
 )
 
 // BareTriceReceiver is the TriceReceiver data struct for receiving bare trice data.
@@ -35,7 +34,7 @@ func NewTricesfromBare(r io.Reader) *BareTriceReceiver {
 	p.syncBuffer = make([]byte, 0, 10000)
 	go func() {
 		for {
-			time.Sleep(10 * time.Millisecond) // todo: trigger from fileWatcher
+			time.Sleep(1 * time.Millisecond) // todo: trigger from fileWatcher
 			p.readBare()
 		}
 	}()

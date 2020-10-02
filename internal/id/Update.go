@@ -66,8 +66,10 @@ func isSourceFile(fi os.FileInfo) bool {
 // - find duplicate FmtType( Id(n), ...) and replace one of them if trices are not identical
 // - extend file fnIDList
 func (p *List) Update(root string, run, verbose bool) error {
-	fmt.Println("dir=", root)
-	fmt.Println("List=", p.FnJSON)
+	if Verbose {
+		fmt.Println("dir=", root)
+		fmt.Println("List=", p.FnJSON)
+	}
 	listModified := false
 	//err :=
 	//p.ReadListFile()

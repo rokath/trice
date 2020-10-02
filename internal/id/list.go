@@ -224,7 +224,9 @@ func (p *List) update(dir string) error {
 	if nil != err {
 		return fmt.Errorf("failed update on %s with %s: %v", dir, p.FnJSON, err)
 	}
-	fmt.Println(len(p.List), "ID's in List", p.FnJSON)
+	if Verbose {
+		fmt.Println(len(p.List), "ID's in List", p.FnJSON)
+	}
 	return nil
 }
 

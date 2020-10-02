@@ -23,6 +23,7 @@ Additional information:
 *
 **********************************************************************
 */
+
 #define _CCIAR   0
 #define _CCCLANG 1
 

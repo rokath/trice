@@ -28,7 +28,8 @@ func init() {
 	fsScLog.StringVar(&Port, "port", "STLINK", "receiver device: 'STLINK'|'JLINK'|serial name. The serial name is like 'COM12' for Windows or a Linux name like '/dev/tty/usb12'.")                                              //|filename|SIM|RND|HTTP'")                                                                                            // flag
 	fsScLog.StringVar(&Port, "p", "STLINK", "short for -port")                                                                                                                                                                   // short flag
 	fsScLog.IntVar(&com.Baud, "baud", 115200, "COM baudrate, valid only for '-port COMn'")                                                                                                                                       // flag flag
-	fsScLog.StringVar(&link.Args, "largs", "-Device STM32F070RB -if SWD -Speed 4000 -RTTChannel 0", "passed parameter string, valid only for '-p STLINK|JLINK', see for STLINK also JLinkRTTLogger in SEGGER UM08001_JLink.pdf") // JLRTT flag
+	fsScLog.StringVar(&link.Args, "largs", "-Device STM32F070F6 -if SWD -Speed 4000 -RTTChannel 0", "passed parameter string, valid only for '-p STLINK|JLINK', see for STLINK also JLinkRTTLogger in SEGGER UM08001_JLink.pdf") // JLRTT flag
+	//fsScLog.StringVar(&link.Args, "largs", `-RTTSearchRanges "0x20000000 0x1800"`, "passed parameter string, valid only for '-p STLINK|JLINK', see for STLINK also JLinkRTTLogger in SEGGER UM08001_JLink.pdf") // JLRTT flag
 	fsScLog.BoolVar(&displayRemote, "displayserver", false, "send trice lines to displayserver @ ipa:ipp")
 	fsScLog.BoolVar(&displayRemote, "ds", false, "short for '-displayserver'")
 	fsScLog.BoolVar(&autostart, "autostart", false, "autostart displayserver @ ipa:ipp (works not good with windows, because of cmd and powershell color issues and missing cli params in wt and gitbash)")

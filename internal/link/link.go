@@ -98,11 +98,16 @@ func (p *Device) Close() error {
 // Open starts the RTT logger command with a temporary logfile.
 // The temporary logfile is opened for reading.
 func (p *Device) Open() error {
-	if Verbose {
-		fmt.Println("Start a process:", p.Exec, "with needed lib", p.Lib, "and args:", Args, p.tempLogFileName)
-	}
-	args := strings.Split(Args, " ")
+	var args []string
+	args = strings.Split(Args, " ")
+	//args = append(args, `-RTTSearchRanges 0x20000000 0x1800`)
 	args = append(args, p.tempLogFileName) // Todo: check if slice could be passed directly.
+	if Verbose {
+		fmt.Println("Start a process:", p.Exec, "with needed lib", p.Lib, "and args:")
+		for i, a := range args {
+			fmt.Println(i, a)
+		}
+	}
 	switch len(args) {
 	case 0:
 		p.cmd = exec.Command(p.Exec)
