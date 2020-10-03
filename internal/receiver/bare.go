@@ -10,6 +10,7 @@ import (
 	"encoding/binary"
 	"fmt"
 	"io"
+	"time"
 )
 
 // BareTriceReceiver is the TriceReceiver data struct for receiving bare trice data.
