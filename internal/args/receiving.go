@@ -52,6 +52,7 @@ func receiving() error {
 	translatePrefix()
 	fnJSON = id.ConditionalFilePath(fnJSON)
 
+	var lwD emitter.Linewriter
 	// setup optional logging and optional remote display
 	if true == displayRemote {
 		var p *emitter.RemoteDisplay
@@ -61,8 +62,12 @@ func receiving() error {
 			p = emitter.NewRemoteDisplay()
 		}
 		p.ErrorFatal()
+		lwD = p
 		keybcmd.ReadInput()
 	} else {
+		// NewColorDisplay creates a ColorlDisplay. It provides a Linewriter.
+		// It uses internally a local display combined with a line transformer.
+		lwD = emitter.NewColorDisplay(emitter.ColorPalette)
 		cage.Enable()
 		defer cage.Disable()
 	}
@@ -80,9 +85,9 @@ func receiving() error {
 	// activate selected encoding
 	switch encoding {
 	case "bare":
-		p = receiveBareSimpleTricesAndDisplayAnsiColor(portReader, fnJSON)
+		p = receiveBareSimpleTricesAndDisplayAnsiColor(lwD, portReader, fnJSON)
 	case "esc":
-		p = receiveEscTricesAndDisplayAnsiColor(portReader, fnJSON)
+		p = receiveEscTricesAndDisplayAnsiColor(lwD, portReader, fnJSON)
 	//case "wrap", "wrapped":
 	//p = receiveWrapSimpleTricesAndDisplayAnsiColor(portReader, fnJSON)
 	//	case "sim":
@@ -107,11 +112,7 @@ func receiving() error {
 	return p.SavedError() // back to main
 }
 
-func receiveBareSimpleTricesAndDisplayAnsiColor(rd io.ReadCloser, fnJSON string) *translator.BareTranslator {
-	// NewColorDisplay creates a ColorlDisplay. It provides a Linewriter.
-	// It uses internally a local display combined with a line transformer.
-	lwD := emitter.NewColorDisplay(emitter.ColorPalette)
-
+func receiveBareSimpleTricesAndDisplayAnsiColor(lwD emitter.Linewriter, rd io.ReadCloser, fnJSON string) *translator.BareTranslator {
 	// lineComposer implements the io.StringWriter interface and uses the Linewriter provided.
 	// The line composer scans the trice strings and composes lines out of them according to its properies.
 	sw := emitter.NewLineComposer(lwD, emitter.TimeStampFormat, emitter.Prefix, emitter.Suffix)
@@ -129,11 +130,7 @@ func receiveBareSimpleTricesAndDisplayAnsiColor(rd io.ReadCloser, fnJSON string)
 	return translator.NewSimpleTrices(sw, list, triceAtomsReceiver)
 }
 
-func receiveEscTricesAndDisplayAnsiColor(rd io.ReadCloser, fnJSON string) *translator.EscTranslator {
-	// NewColorDisplay creates a ColorlDisplay. It provides a Linewriter.
-	// It uses internally a local display combined with a line transformer.
-	lwD := emitter.NewColorDisplay(emitter.ColorPalette)
-
+func receiveEscTricesAndDisplayAnsiColor(lwD emitter.Linewriter, rd io.ReadCloser, fnJSON string) *translator.EscTranslator {
 	// lineComposer implements the io.StringWriter interface and uses the Linewriter provided.
 	// The line composer scans the trice strings and composes lines out of them according to its properies.
 	sw := emitter.NewLineComposer(lwD, emitter.TimeStampFormat, emitter.Prefix, emitter.Suffix)

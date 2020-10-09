@@ -22,12 +22,12 @@ type RemoteDisplay struct {
 	PtrRPC *rpc.Client // PtrRPC is a pointer for remote calls valid after a succesful rpc.Dial()
 }
 
-// NewRemoteDisplay creates a connection to a remote Display.
+// NewRemoteDisplay creates a connection to a remote Display and implements the Linewriter inteface.
 // It accepts 0 to 4 string arguments. More arguments are ignored.
 // For not given parameters default values are taken. The parameters are in the following order.
 // args[0] (exe), is a programm started to create a remote server instance if not already running.
 // If the remote server is already running on ips:ipp than a start of a 2nd instace is not is possible. This is silently ignored.
-// If args[0] is empty a running display server is assumed and a connection is established if possible.
+// If args[0] is empty, a running display server is assumed and a connection is established if possible.
 // args[1] (params) contains additional remote display (=trice) command parameters.
 // This value is used only if the remote server gets started.
 // args[2] (ipa) is the IP address to be used to connect to the remote display.
