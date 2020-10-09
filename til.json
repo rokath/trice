@@ -810,5 +810,19 @@
 		"fmtStrg": "s:                                        \\ns:    ARM-MDK_LL_BARE_STM32F0308-DISCO    \\ns:                                        \\n\\n",
 		"created": 1601308021,
 		"removed": 0
+	},
+	{
+		"id": 15835,
+		"fmtType": "TRICE0",
+		"fmtStrg": "s:                                              \\ns:    ARM-MDK_BARE_STM32F03051R8Tx-DISCOVERY    \\ns:                                              \\n\\n",
+		"created": 1602255477,
+		"removed": 0
+	},
+	{
+		"id": 23971,
+		"fmtType": "TRICE0",
+		"fmtStrg": "s:                                              \\ns:    ARM-MDK_BARE_STM32F03051R8Tx-DISCOVERY    \\ns:                                              \\n\\n",
+		"created": 1602255678,
+		"removed": 0
 	}
 ]
