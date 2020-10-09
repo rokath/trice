@@ -55,7 +55,7 @@ func (p *Server) LogSetFlags(f []int64, r *int64) error {
 }
 
 // Shutdown is called remotely to shutdown display server
-func (p *Server) Shutdown(ts []int64, y *int64) error {
+func (p *Server) Shutdown(ts []int64, _ *int64) error {
 	timeStamp := ts[0]
 	p.Display.writeLine([]string{""})
 	p.Display.writeLine([]string{""})

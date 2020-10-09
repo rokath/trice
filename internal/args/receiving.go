@@ -31,7 +31,7 @@ func newInputPort() (r io.ReadCloser, e error) {
 	case "JLINK", "STLINK":
 		l := link.NewDevice()
 		if nil != l.Open() {
-			e = fmt.Errorf("Can not open link device %s", link.Args)
+			e = fmt.Errorf("can not open link device %s", link.Args)
 		}
 		r = l
 	default: // assuming serial port
@@ -39,7 +39,7 @@ func newInputPort() (r io.ReadCloser, e error) {
 		c = com.NewCOMPortGoBugSt(Port)
 		//c = com.NewCOMPortTarm(Port)
 		if false == c.Open() {
-			e = fmt.Errorf("Can not open %s", Port)
+			e = fmt.Errorf("can not open %s", Port)
 		}
 		r = c
 		return
@@ -52,7 +52,7 @@ func receiving() error {
 	translatePrefix()
 	fnJSON = id.ConditionalFilePath(fnJSON)
 
-	var lwD emitter.Linewriter
+	var lwD emitter.LineWriter
 	// setup optional logging and optional remote display
 	if true == displayRemote {
 		var p *emitter.RemoteDisplay
@@ -112,7 +112,7 @@ func receiving() error {
 	return p.SavedError() // back to main
 }
 
-func receiveBareSimpleTricesAndDisplayAnsiColor(lwD emitter.Linewriter, rd io.ReadCloser, fnJSON string) *translator.BareTranslator {
+func receiveBareSimpleTricesAndDisplayAnsiColor(lwD emitter.LineWriter, rd io.ReadCloser, fnJSON string) *translator.BareTranslator {
 	// lineComposer implements the io.StringWriter interface and uses the Linewriter provided.
 	// The line composer scans the trice strings and composes lines out of them according to its properies.
 	sw := emitter.NewLineComposer(lwD, emitter.TimeStampFormat, emitter.Prefix, emitter.Suffix)
@@ -130,7 +130,7 @@ func receiveBareSimpleTricesAndDisplayAnsiColor(lwD emitter.Linewriter, rd io.Re
 	return translator.NewSimpleTrices(sw, list, triceAtomsReceiver)
 }
 
-func receiveEscTricesAndDisplayAnsiColor(lwD emitter.Linewriter, rd io.ReadCloser, fnJSON string) *translator.EscTranslator {
+func receiveEscTricesAndDisplayAnsiColor(lwD emitter.LineWriter, rd io.ReadCloser, fnJSON string) *translator.EscTranslator {
 	// lineComposer implements the io.StringWriter interface and uses the Linewriter provided.
 	// The line composer scans the trice strings and composes lines out of them according to its properies.
 	sw := emitter.NewLineComposer(lwD, emitter.TimeStampFormat, emitter.Prefix, emitter.Suffix)

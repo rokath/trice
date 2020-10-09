@@ -5,127 +5,120 @@ package args
 
 import (
 	"fmt"
-	"io/ioutil"
-	"os"
-	"os/exec"
-	"path/filepath"
-	"runtime"
-	"testing"
-	"time"
-
-	"github.com/rokath/trice/pkg/assert2"
 	"github.com/stretchr/testify/assert"
+	"os"
+	"testing"
 )
 
 var ()
 
-func _TestScVersion(t *testing.T) {
-
-	fn := func() {
-		Handler([]string{"trice", "h"})
-	}
-	act := captureStdout(fn)
-
-	exp := `syntax: 'trice subcommand' [params]
-	subcommand 'help', 'h' for command line usage
-	  -lg string
-			short for -logfile (default "off")
-	  -logfile string
-			append all output to logfile, options: 'none|filename|auto', 'auto' for "2006-01-02_1504-05_trice.log" with actual time (default "off")
-	  -v	verbose, more informal output if used
-	subcommand 'u', 'upd', 'update' for updating ID list and source files
-	  -dry-run
-			no changes are applied
-	  -i string
-			short for '-idlist' (default "til.json")
-	  -idlist string
-			trice ID list path, 'none' possible (default "til.json")
-	  -src value
-			source dir or file, multi use possible, default './'
-	  -v	verbose, more informal output if used
-	subcommand 'l', 'log' for displaying trice logs coming from source
-	  -a	short for '-autostart'
-	  -autostart
-			autostart displayserver @ ipa:ipp (works not good with windows, because of cmd and powershell color issues and missing cli params in wt and gitbash)
-	  -baud int
-			COM baudrate, valid only for '-source COMn' (default 115200)
-	  -color string
-			color set, 'off' disables color handling ("w:x"->"w:x"), 'none' disables channels color ("w:x"->"x"), options: 'off|none' (default "default")
-	  -displayserver
-			send trice lines to displayserver @ ipa:ipp
-	  -ds
-			short for '-displayserver'
-	  -e string
-			short for -encoding (default "bare")
-	  -encoding string
-			trice transmit data format type, options: 'ascii|wrap' (default "bare")
-	  -i string
-			short for '-idlist' (default "til.json")
-	  -idlist string
-			trice ID list path, 'none' possible (default "til.json")
-	  -ipa string
-			ip address like '127.0.0.1' (default "localhost")
-	  -ipp string
-			16 bit port number (default "61497")
-	  -link string
-			passed parameter string, valid only for '-source JLRTT', see JLinkRTTLogger in SEGGER UM08001_JLink.pdf (default "-Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0")
-	  -key
-			show encryption key
-	  -lg string
-			short for -logfile (default "off")
-	  -logfile string
-			append all output to logfile, options: 'none|filename|auto', 'auto' for "2006-01-02_1504-05_trice.log" with actual time (default "off")
-	  -password string
-			decrypt passphrase (default "none")
-	  -prefix string
-			line prefix, options: any string or 'off|none' or 'source:' followed by 0-12 spaces, 'source:' will be replaced by source value e.g., 'COM17:' (default "source: ")
-	  -pw string
-			short for -password (default "none")
-	  -s string
-			short for -source (default "JLINK")
-	  -source string
-			receiver device, options: 'COMn|JLINK|STLINK|filename|SIM|RND|HTTP' (default "JLINK")
-	  -suffix string
-			append suffix to all lines, options: any string
-	  -ts string
-			PC timestamp for logs and logfile name, options: 'off|none|UTCmicro|zero' (default "LOCmicro")
-	  -v	verbose, more informal output if used
-	subcommand 'zeroSourceTreeIds' for setting all TRICE IDs to 0 in source tree, avoid using this subcommand normally
-	  -dry-run
-			no changes are applied
-	  -src string
-			zero all Id(n) inside source tree dir, required
-	subcommand 'v', 'ver', 'version' for displaying version information
-	  -lg string
-			short for -logfile (default "off")
-	  -logfile string
-			append all output to logfile, options: 'none|filename|auto', 'auto' for "2006-01-02_1504-05_trice.log" with actual time (default "off")
-	  -v	verbose, more informal output if used
-	subcommand 'ds', 'displayServer' starts a display server, use in a separate console, on Windows use wt or a linux shell like git-bash to avoid color issues, several instances of 'trice l -ds' will send output there
-	  -color string
-			color set, options: 'off|none' (default "default")
-	  -ipa string
-			ip address like '127.0.0.1' (default "localhost")
-	  -ipp string
-			16 bit port number (default "61497")
-	  -lg string
-			short for -logfile (default "off")
-	  -logfile string
-			append all output to logfile, options: 'none|filename|auto', 'auto' for "2006-01-02_1504-05_trice.log" with actual time (default "off")
-	subcommand 'sd', 'shutdownServer' ends display server at IPA:IPP, works also on a remote mashine
-	  -ipa string
-			ip address like '127.0.0.1' (default "localhost")
-	  -ipp string
-			16 bit port number (default "61497")
-	examples:
-		'trice update -src ../A -src ../../B' parses ../A and ../../B with all subdirectories for TRICE IDs to update and adjusts til.json
-		'trice l -s COM15 -baud 38400 -d wrap display wrap data format trice log messages from COM15
-		'trice l display bare data format trice log messages from default source
-		'trice zeroSourceTreeIds -dir ../A' sets all TRICE IDs to 0 in ./A
-		'trice v -v' shows verbose version information
-		`
-	assert2.EqualLines(t, exp, act)
-}
+//func _TestScVersion(t *testing.T) {
+//
+//	fn := func() {
+//		Handler([]string{"trice", "h"})
+//	}
+//	act := captureStdout(fn)
+//
+//	exp := `syntax: 'trice subcommand' [params]
+//	subcommand 'help', 'h' for command line usage
+//	  -lg string
+//			short for -logfile (default "off")
+//	  -logfile string
+//			append all output to logfile, options: 'none|filename|auto', 'auto' for "2006-01-02_1504-05_trice.log" with actual time (default "off")
+//	  -v	verbose, more informal output if used
+//	subcommand 'u', 'upd', 'update' for updating ID list and source files
+//	  -dry-run
+//			no changes are applied
+//	  -i string
+//			short for '-idlist' (default "til.json")
+//	  -idlist string
+//			trice ID list path, 'none' possible (default "til.json")
+//	  -src value
+//			source dir or file, multi use possible, default './'
+//	  -v	verbose, more informal output if used
+//	subcommand 'l', 'log' for displaying trice logs coming from source
+//	  -a	short for '-autostart'
+//	  -autostart
+//			autostart displayserver @ ipa:ipp (works not good with windows, because of cmd and powershell color issues and missing cli params in wt and gitbash)
+//	  -baud int
+//			COM baudrate, valid only for '-source COMn' (default 115200)
+//	  -color string
+//			color set, 'off' disables color handling ("w:x"->"w:x"), 'none' disables channels color ("w:x"->"x"), options: 'off|none' (default "default")
+//	  -displayserver
+//			send trice lines to displayserver @ ipa:ipp
+//	  -ds
+//			short for '-displayserver'
+//	  -e string
+//			short for -encoding (default "bare")
+//	  -encoding string
+//			trice transmit data format type, options: 'ascii|wrap' (default "bare")
+//	  -i string
+//			short for '-idlist' (default "til.json")
+//	  -idlist string
+//			trice ID list path, 'none' possible (default "til.json")
+//	  -ipa string
+//			ip address like '127.0.0.1' (default "localhost")
+//	  -ipp string
+//			16 bit port number (default "61497")
+//	  -link string
+//			passed parameter string, valid only for '-source JLRTT', see JLinkRTTLogger in SEGGER UM08001_JLink.pdf (default "-Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0")
+//	  -key
+//			show encryption key
+//	  -lg string
+//			short for -logfile (default "off")
+//	  -logfile string
+//			append all output to logfile, options: 'none|filename|auto', 'auto' for "2006-01-02_1504-05_trice.log" with actual time (default "off")
+//	  -password string
+//			decrypt passphrase (default "none")
+//	  -prefix string
+//			line prefix, options: any string or 'off|none' or 'source:' followed by 0-12 spaces, 'source:' will be replaced by source value e.g., 'COM17:' (default "source: ")
+//	  -pw string
+//			short for -password (default "none")
+//	  -s string
+//			short for -source (default "JLINK")
+//	  -source string
+//			receiver device, options: 'COMn|JLINK|STLINK|filename|SIM|RND|HTTP' (default "JLINK")
+//	  -suffix string
+//			append suffix to all lines, options: any string
+//	  -ts string
+//			PC timestamp for logs and logfile name, options: 'off|none|UTCmicro|zero' (default "LOCmicro")
+//	  -v	verbose, more informal output if used
+//	subcommand 'zeroSourceTreeIds' for setting all TRICE IDs to 0 in source tree, avoid using this subcommand normally
+//	  -dry-run
+//			no changes are applied
+//	  -src string
+//			zero all Id(n) inside source tree dir, required
+//	subcommand 'v', 'ver', 'version' for displaying version information
+//	  -lg string
+//			short for -logfile (default "off")
+//	  -logfile string
+//			append all output to logfile, options: 'none|filename|auto', 'auto' for "2006-01-02_1504-05_trice.log" with actual time (default "off")
+//	  -v	verbose, more informal output if used
+//	subcommand 'ds', 'displayServer' starts a display server, use in a separate console, on Windows use wt or a linux shell like git-bash to avoid color issues, several instances of 'trice l -ds' will send output there
+//	  -color string
+//			color set, options: 'off|none' (default "default")
+//	  -ipa string
+//			ip address like '127.0.0.1' (default "localhost")
+//	  -ipp string
+//			16 bit port number (default "61497")
+//	  -lg string
+//			short for -logfile (default "off")
+//	  -logfile string
+//			append all output to logfile, options: 'none|filename|auto', 'auto' for "2006-01-02_1504-05_trice.log" with actual time (default "off")
+//	subcommand 'sd', 'shutdownServer' ends display server at IPA:IPP, works also on a remote mashine
+//	  -ipa string
+//			ip address like '127.0.0.1' (default "localhost")
+//	  -ipp string
+//			16 bit port number (default "61497")
+//	examples:
+//		'trice update -src ../A -src ../../B' parses ../A and ../../B with all subdirectories for TRICE IDs to update and adjusts til.json
+//		'trice l -s COM15 -baud 38400 -d wrap display wrap data format trice log messages from COM15
+//		'trice l display bare data format trice log messages from default source
+//		'trice zeroSourceTreeIds -dir ../A' sets all TRICE IDs to 0 in ./A
+//		'trice v -v' shows verbose version information
+//		`
+//	assert2.EqualLines(t, exp, act)
+//}
 
 func TestVersion(t *testing.T) {
 	fi, err := os.Stat(os.Args[0])
@@ -182,58 +175,58 @@ func Example_vwrongSubcommand() {
 	// try: 'trice help|h'
 }
 
-// tempFileName returns a valid temporary filename or an empty string
-func tempFileName(pattern string) string {
-	// get a temporary file name
-	fh, err := ioutil.TempFile(os.TempDir(), pattern) // opens for read and write
-	if nil != err {
-		return ""
-	}
-	name := fh.Name()
-	fh.Close()
-	return name
-}
+//// tempFileName returns a valid temporary filename or an empty string
+//func tempFileName(pattern string) string {
+//	// get a temporary file name
+//	fh, err := ioutil.TempFile(os.TempDir(), pattern) // opens for read and write
+//	if nil != err {
+//		return ""
+//	}
+//	name := fh.Name()
+//	fh.Close()
+//	return name
+//}
 
-func frameForOsExitTests(parameters []string, exp string, t *testing.T) {
-	pc := make([]uintptr, 10) // at least 1 entry needed
-	runtime.Callers(2, pc)    // for debugging first parameter must be 2
-	f := runtime.FuncForPC(pc[0])
-	fullName := f.Name() // full name like "github/rokath/trice/cmd/trice.TestRTTF"
-	fmt.Println("fullName:", fullName)
-	baseName := filepath.Base(fullName)
-	fmt.Println("baseName:", baseName)
-	fnName := filepath.Ext(baseName)[1:]
-	fmt.Println("fnName:", fnName)
-	logFile := baseName + ".log"
-	fmt.Println("logfile:", logFile)
-	par := append(parameters, "-idlist", "c:/repos/trice/test/til.json", "-color", "off", "-ts", "none", "-lg", logFile)
-	if os.Getenv("BE_EOF_"+fnName) == "1" { // here inside debug test does not stop
-		//os.Remove(logFile) // secure logFile not exists already
-		Handler(par)
-		return
-	}
-	fmt.Println(os.Args[0])
-	cmd := exec.Command(os.Args[0], "-test.run="+fnName) // test fn name!
-	cmd.Env = append(os.Environ(), "BE_EOF_"+fnName+"=1")
-	err := cmd.Run()
-	if nil != err {
-		//t.Fail()
-	}
-	/*e, ok := err.(*exec.ExitError)
-	ok = false
-	if ok && !e.Success() {
-		t.Fail()
-		return
-	}*/
-	time.Sleep(3 * time.Second)
-	b, _ := ioutil.ReadFile(logFile) // just pass the file name
-	os.Remove(logFile)               // must be before assertEqual
-	act := string(b)
-	if len(act) > len(exp) { // because of os.Exit act sometimes has not always the same length
-		act = string(b[:len(exp)]) // shorten act to length of exp, exp has granted minumum length
-	}
-	assert.Equal(t, exp, act)
-}
+//func frameForOsExitTests(parameters []string, exp string, t *testing.T) {
+//	pc := make([]uintptr, 10) // at least 1 entry needed
+//	runtime.Callers(2, pc)    // for debugging first parameter must be 2
+//	f := runtime.FuncForPC(pc[0])
+//	fullName := f.Name() // full name like "github/rokath/trice/cmd/trice.TestRTTF"
+//	fmt.Println("fullName:", fullName)
+//	baseName := filepath.Base(fullName)
+//	fmt.Println("baseName:", baseName)
+//	fnName := filepath.Ext(baseName)[1:]
+//	fmt.Println("fnName:", fnName)
+//	logFile := baseName + ".log"
+//	fmt.Println("logfile:", logFile)
+//	par := append(parameters, "-idlist", "c:/repos/trice/test/til.json", "-color", "off", "-ts", "none", "-lg", logFile)
+//	if os.Getenv("BE_EOF_"+fnName) == "1" { // here inside debug test does not stop
+//		//os.Remove(logFile) // secure logFile not exists already
+//		Handler(par)
+//		return
+//	}
+//	fmt.Println(os.Args[0])
+//	cmd := exec.Command(os.Args[0], "-test.run="+fnName) // test fn name!
+//	cmd.Env = append(os.Environ(), "BE_EOF_"+fnName+"=1")
+//	err := cmd.Run()
+//	if nil != err {
+//		//t.Fail()
+//	}
+//	/*e, ok := err.(*exec.ExitError)
+//	ok = false
+//	if ok && !e.Success() {
+//		t.Fail()
+//		return
+//	}*/
+//	time.Sleep(3 * time.Second)
+//	b, _ := ioutil.ReadFile(logFile) // just pass the file name
+//	os.Remove(logFile)               // must be before assertEqual
+//	act := string(b)
+//	if len(act) > len(exp) { // because of os.Exit act sometimes has not always the same length
+//		act = string(b[:len(exp)]) // shorten act to length of exp, exp has granted minumum length
+//	}
+//	assert.Equal(t, exp, act)
+//}
 
 /*
 func TestRTTFX(t *testing.T) {

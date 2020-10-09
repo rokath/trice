@@ -47,7 +47,7 @@ func TestHelp(t *testing.T) {
 }
 
 // NOT RELIABLE
-func TestShutdownServerWhenRunning(t *testing.T) {
+func _TestShutdownServerWhenRunning(t *testing.T) {
 	ipp := randomDynIPPort()
 	p := emitter.NewRemoteDisplay("trice.exe", "", "localhost", ipp)
 	capt := stimulate("sd\r\n", p.IPAddr, p.IPPort)

@@ -16,7 +16,7 @@ var (
 	Srcs ArrayFlag
 
 	// TimeStampFormat is the PC timestamp format.
-	TimeStampFormat = "off"
+	//TimeStampFormat = "off"
 )
 
 // String method is the needed for interface satisfaction.

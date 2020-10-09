@@ -48,7 +48,7 @@ func (p *LocalDisplay) writeLine(line []string) {
 // It embeds a local display and a line transformer
 type ColorDisplay struct {
 	display *LocalDisplay
-	lw      Linewriter
+	lw      LineWriter
 }
 
 // NewColorDisplay creates a ColorlDisplay. It provides a Linewriter.

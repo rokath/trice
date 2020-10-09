@@ -4,10 +4,10 @@
 // Package emitter emits the translated trice strings.
 package emitter
 
-// Linewriter is the common interface for output devices.
+// LineWriter is the common interface for output devices.
 // string slice `line` contains all string parts of one line.
 // The last string part is without newline char and must be handled by the output device.
-type Linewriter interface {
+type LineWriter interface {
 	writeLine([]string)
 }
 

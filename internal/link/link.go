@@ -144,7 +144,7 @@ func (p *Device) Open() error {
 	case 16:
 		p.cmd = exec.Command(p.Exec, args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11], args[12], args[13], args[14], args[15])
 	default:
-		p.Err = fmt.Errorf("Cannot handle \"%s\"as parameter string - too much separators: %v", Args, args)
+		p.Err = fmt.Errorf("cannot handle \"%s\"as parameter string - too much separators: %v", Args, args)
 	}
 
 	if Verbose {

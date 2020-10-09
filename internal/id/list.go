@@ -230,15 +230,15 @@ func (p *List) update(dir string) error {
 	return nil
 }
 
-// ListNotFoundMsg give an output message about not found ID List.ListNotFoundMsg.
-//
-// Base is used to avoid test issues in different operating systems.
-func ListNotFoundMsg(pathname string) {
-	if false == Verbose {
-		pathname = filepath.Base(pathname) // no path info (used for testing)
-	}
-	fmt.Println("ID List " + pathname + " not found")
-}
+//// ListNotFoundMsg give an output message about not found ID List.ListNotFoundMsg.
+////
+//// Base is used to avoid test issues in different operating systems.
+//func ListNotFoundMsg(pathname string) {
+//	if false == Verbose {
+//		pathname = filepath.Base(pathname) // no path info (used for testing)
+//	}
+//	fmt.Println("ID List " + pathname + " not found")
+//}
 
 // errorFatal ends in osExit(1) if err not nil.
 func errorFatal(err error) {

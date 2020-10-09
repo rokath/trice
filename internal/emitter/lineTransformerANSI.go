@@ -17,13 +17,13 @@ import (
 // It converts the channel information to color data using colorPalette.
 // In case of a remote display the lineTranslator should be used there.
 type LineTransformerANSI struct {
-	lw           Linewriter
+	lw           LineWriter
 	colorPalette string
 }
 
 // NewLineTransformerANSI translates lines to ANSI colors according to colorPalette.
 // It provides a Linewriter interface and uses internally a Linewriter.
-func NewLineTransformerANSI(lw Linewriter, colorPalette string) *LineTransformerANSI {
+func NewLineTransformerANSI(lw LineWriter, colorPalette string) *LineTransformerANSI {
 	p := &LineTransformerANSI{lw, colorPalette}
 	return p
 }
@@ -38,7 +38,7 @@ var (
 	colorizeATTENTION = ansi.ColorFunc("11:green")
 	colorizeDEBUG     = ansi.ColorFunc("130+i")
 	colorizeDIAG      = ansi.ColorFunc("161+B")
-	colorizeINTERRUPT = ansi.ColorFunc("13+i")
+	//colorizeINTERRUPT = ansi.ColorFunc("13+i")
 	colorizeSIGNAL    = ansi.ColorFunc("118+i")
 	colorizeTEST      = ansi.ColorFunc("yellow+h:black")
 	colorizeINFO      = ansi.ColorFunc("121+i")

@@ -126,7 +126,7 @@ func visitUpdate(run bool, p *List, pListModified *bool, verbose bool) filepath.
 		s := string(read)
 
 		// update parameter count (TRICE* to TRICE*_n)
-		subs := s[:len(s)]
+		subs := s[:]
 		for {
 			var found bool
 			found, pathModified, subs, s = updateParamCount(pathModified, subs, s, verbose)
@@ -136,7 +136,7 @@ func visitUpdate(run bool, p *List, pListModified *bool, verbose bool) filepath.
 		}
 
 		// update IDs
-		subs = s[:len(s)]
+		subs = s[:]
 		for {
 			var found bool
 			found, pathModified, subs, s = updateNextID(p, pListModified, pathModified, subs, s, verbose)

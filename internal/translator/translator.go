@@ -589,7 +589,7 @@ func (p *BareTranslator) addValues() (s string) {
 		l1 = (int64(p.values[7]) << 48) | (int64(p.values[6]) << 32) | (int64(p.values[5]) << 16) | int64(p.values[4]) // hh hl lh ll
 		s = fmt.Sprintf(f, l0, l1)
 	default:
-		p.savedErr = fmt.Errorf("Unknown FmtType %s", p.item.FmtType)
+		p.savedErr = fmt.Errorf("unknown FmtType %s", p.item.FmtType)
 	}
 	return
 }

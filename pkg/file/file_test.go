@@ -38,7 +38,7 @@ func TestLineNumber(t *testing.T) {
 }
 
 var (
-	one = "testdata/dir/one.txt"
+	//one = "testdata/dir/one.txt"
 	two = "testdata/dir/two.txt"
 )
 

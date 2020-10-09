@@ -2,7 +2,18 @@
 // Use of this source code is governed by a license that can be found in the LICENSE file.
 
 // small helper functions for quick copy into packages code
-package ...
+package
+
+import (
+	"bufio"
+	"fmt"
+	"math/rand"
+	"os"
+	"sort"
+	"strings"
+	"testing"
+)
+...
 
 import (
 	"fmt"
@@ -31,11 +42,11 @@ func randomDynIPPort() (s string) {
 	return
 }
 
-// checkDisplay is an object used for testing.
-// It implements the Linewriter interface.
-type checkDisplay struct {
-	lines []string
-}
+// // checkDisplay is an object used for testing.
+// // It implements the Linewriter interface.
+// type checkDisplay struct {
+// 	lines []string
+// }
 
 // newCheckDisplay creates a Display. It provides a Linewriter.
 func newCheckDisplay() *checkDisplay {
@@ -136,7 +147,7 @@ func sortLines(inFile, outFile string) {
         os.Exit(1)
     }
     sort.Strings(lines)
-    err = WriteLines(OutFile, lines)
+    err = WriteLines(outFile, lines)
     if err != nil {
         fmt.Println(err)
         os.Exit(1)
