@@ -1,5 +1,5 @@
 # **trice** - **TR**ace **I**ds **C** **E**mbedded *(printf() - replacement)*
-embedded device C printf-like trace code and real-time PC logging (trace ID visualization) over serial port
+embedded device C printf-like trace code and real-time PC logging (trace ID visualization) over any port
 
 ## Info shields
 ![GitHub Workflow Status](https://img.shields.io/github/workflow/status/rokath/trice/goreleaser)
@@ -47,12 +47,12 @@ embedded device C printf-like trace code and real-time PC logging (trace ID visu
 ## About
 - C trace code (`TRICE` macros)  and real-time PC logging with `trice` (tool written in **Go**).
 - Communication without string transfer, just with IDs. Prerequisite: byte transmission to PC, low bandwidth is ok:
-  - method does'nt matter: serial port, i2c, spi, DAC->ADC, toggle pin, ...
+  - method does'nt matter: serial port, i2c, spi, DAC->ADC, toggle pin, RTT, ...
 - "log in (a) trice" ![](./docs/README.media/life0.gif)
 - Main idea: Logging strings **not** into an embedded device to display them later on a PC but keep usage comfortable and simple. The `TRICE` macros look like printf() but work under the hood completely different.
 
 ## `TRICE` macros for C|C++ code
-- Real fast (**~16 CPU clocks per trace!!!**) and small loggging technique, a tracer in software usable 
+- Real fast (**~15 CPU clocks per trace possible!!!**) and small loggging technique, a tracer in software usable 
   - for debugging dynamic behaviour during development, 
   - as runtime logger or simply for narrow bandwidth logging in the field even with encryption.
 - Usage is similar to 'printf()', but the format strings go not into the target image.
@@ -64,7 +64,7 @@ embedded device C printf-like trace code and real-time PC logging (trace ID visu
 ## How it works
 - Write `TRICE16( "msg:%d degree\n", temperature );` in source .
 - `trice update` changes this line to  `TRICE16( Id(12345), "msg:%d degree\n", temperature );` in source code and adds the *ID 12345* together with *"msg:%d degree\n"* into a trice ID list, a JSON referece file named `til.json`.
-- During compilation the TRICE16 macro is expanded only to a *12345* reference and the variable *temperature* and the format string never sees the target.
+- During compilation the TRICE16 macro is expanded to only a *12345* reference and the variable *temperature* and the format string never sees the target.
 
 ![trice](./docs/README.media/triceBlockDiagram.svg)
 - When the programflow passes the line `TRICE16( "msg:%d degree\n", temperature );` the 16 bit ID *12345* and the 16 bit *-5* are transfered as a 32 bit value into the triceFifo, what goes really fast. This way the program flow is nearly undisturbed, so TRICE macros are usable also inside interrupts or the scheduler.
@@ -73,7 +73,7 @@ embedded device C printf-like trace code and real-time PC logging (trace ID visu
 - With the help of the `til.json` file the trices get then visualized on the PC.
 - It is also possible to let the debug probe transfer the buffer to the PC (see *SeggerRTT* explanation for details)
 
-  ![triceBlockDiagramWithSeggerRTT.svg](./docs/README.media/triceBlockDiagramWithSeggerRTT.svg)
+  ![triceBlockDiagramWithRTT.svg](./docs/README.media/triceBlockDiagramWithRTT.svg)
 
 
 ## `trice` PC tool

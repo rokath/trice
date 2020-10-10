@@ -1,43 +1,43 @@
 # Segger Real Time Transfer (RTT) 
-- Prerequisite is a processor with memory background access supporrt like ARM Cortex-M cores.
+- Prerequisite is a processor with memory background access support like ARM Cortex-M cores.
+- If you can use a Segger JLINK or an STM STLINK debug probe (ST Microelectronics eval boards have it) this is an easy and fast way to use trice.
 - Detailed description can be found in document [UM08001_JLink.pdf](../third_party/Manuals/UM08001_JLink.pdf) in chapter 16 which is part of [https://www.segger.com/downloads/jlink/#J-LinkSoftwareAndDocumentationPack](https://www.segger.com/downloads/jlink/#J-LinkSoftwareAndDocumentationPack).
-- Following examples for Windows, but should work similar also on Linux and Darwin (MacOS).
+- Following examples are for Windows, but should work similar also on Linux and Darwin (MacOS).
 - The trice tool can use the SEGGER RTT protocol in different ways.
   - Hardware paths:
     - Use J-Link or J-Link OB (on-board)
     - Use ST-Link with **gostlink** (Work in progress in June 2020)
     - Use some other Debug-Probe with target memory access (support welcome)
   - Data format
-    - trice8: Normal UART format (depreciated for RTT)
-    - trice4: direct trice format (was RTTD)
+    - bare: direct trice format
+    - other data protocols are not difficult to adapt.
   - RTT channel selection (on target and on host) 
     - RECOMMENDED:
-      - `trice l -device JLinkRTTLogger -channel n` starts a `JLinkRTTLogger.exe` which connects to J-Link and writes to a logfile which in turn is read by the trice tool. On exit the `JLinkRTTLogger.exe` is killed.automatically. It expects a target sending trice messages in 4-bytes format over RTT channel n. It is possible to start several instances on different channels as well as on different targets.
-      - `trice` without args scans for a trice.json first in the current directory and second in the trice.exe directory.
-    - OBSOLETE:
-     - Channel 0 (normally for ASCII messages)
-      - Flash a RTT example, start `JLink.exe` and `trice log -device RTT` for trice logs.
-        - `trice l -device RTT` connects to a running **J-Link driver/server** over TCP localhost:19021 and displays trices.
-      - Flash a RTTD example, start `JLink.exe` and `trice log -device RTTD` for trice logs.
-        - `trice l -device RTT` connects to a running **J-Link driver/server** over TCP localhost:19021 and displays trices.
+      - `trice l -p JLINK` starts in background a `JLinkRTTLogger.exe` which connects to J-Link and writes to a logfile which in turn is read by the trice tool. On exit the `JLinkRTTLogger.exe` is killed automatically. It expects a target sending trice messages in 4-bytes (bare) format over RTT channel 0 (other channels supported too). It is possible to start several instances on different channels as well as on different targets.
 
- 
 ## J-Link option
+
 - Prerequisite is a SEGGER J-Link debug probe or a development board with an on-board J-Link option. 
 
-### Convert a NUCLEO (valid for ST-Link v2 & v2.1, not for v3)
-Following steps describe the needed action for a STM NUCLEO board and windows - adapt them to your environment.
+### Convert a STM NUCLEO or DISCOVERY onboard ST-Link (valid for ST-Link v2 & v2.1, not for v3)
+
+Following steps describe the needed action for a ST Microelectronics evaluation board and windows - adapt them to your environment.
+
 #### First step (to do if some issues occur - otherwise you can skip it)
+
 - Get & install [STM32 ST-LINK utility](https://www.st.com/en/development-tools/stsw-link004.html) 
 - Run from default install location `"C:\Program Files (x86)\STMicroelectronics\STM32 ST-LINKUtility\ST-LINK Utility\ST-LinkUpgrade.exe"`)
-- Enable checkbox `Change Type` and select radio button `STM32 Debug+Mass storage + VCP` The `STM32Debug+ VCP` won´t be detected by Segger reflash utility.
+- Enable checkbox `Change Type` and select radio button `STM32 Debug+Mass storage + VCP`. *The `STM32Debug+ VCP` won´t be detected by Segger reflash utility.*
 
   ![ST-LINK-Upgrade.PNG](./README.media/ST-LINK-Upgrade.PNG)
+
 #### Second step
+
 - Check [https://www.segger.com/products/debug-probes/j-link/models/other-j-links/st-link-on-board/](https://www.segger.com/products/debug-probes/j-link/models/other-j-links/st-link-on-board/)
-- Use `STLinkReflash.exe` to convert NUCLEO from ST-Link on-board to J-Link on-board. `STM32 Debug+ VCP` won´t be detected by Segger reflash utility.
+- Use `STLinkReflash.exe` to convert NUCLEO from ST-Link on-board to J-Link on-board. *`STM32 Debug+ VCP` won´t be detected by Segger reflash utility.*
 
 ### Some SEGGER tools in short
+
 - `JLink.exe` is the SEGGER J-Link commander. It starts the **J-Link driver/server** and the `trice` tool can connect to it:
   - Example:
     - Compile and flash `MDK-ARM_LL_RTT_NUCLEO-F030R8` project
@@ -83,27 +83,24 @@ Following steps describe the needed action for a STM NUCLEO board and windows - 
   - **MINUS:** 
     - Unfortunately it cannot run separately parallel to stimulate the target with any proprietary protocol.
 
-
 ## Software Setup example (JLinkRTTViewer.exe is depriciated, use JLink.exe instead!)
+
   - Build and flash `triceDemo_NUCLEO-F030RB_LL_SeggerRTT_MDK-ARM`
   - Download [J-Link Software and Documentation Pack](https://www.segger.com/downloads/jlink/#J-LinkSoftwareAndDocumentationPack) and install
   - Start `"C:\Program Files (x86)\SEGGER\JLink\JLinkRTTViewer.exe"` and connect to the J-Link. You only need this as a running server to connect to.
     - Unfortunately the JLinkRTTViewer "steals" from time to time some trice data packages and displays them as data garbage.
     - Better use JLink.exe or the *Segger J-Link SDK* instead.
-  - Run `trice log -list /c/GitRepos/trice/examples/til.json -device RTT`. It should now connect to JLinkLogViewer.
-  - Also `trice receiver -list /c/GitRepos/trice/examples/til.json -device RTT` is possible when trice display server is active (`trice ds`).
+  - Run `trice log -port JLINK`. It should now connect to JLinkLogViewer.
+  - Also `trice log -device RTT` is possible when trice display server is active (`trice ds`).
   - Now the trice output is visible.
 - In the SeggerRTT example projects you see how to setup.
 
-## Segger RTT buffered (PC side receiver -device=RTT)
-- Uses trice buffering for very fast trice execution.
-- The trices go into the trice fifo and the the app software needs to background transfer the trices to the Segger RTT write buffer.
-- Normally no need to use that, because the unbuffered variants will do better.
+## Segger RTT 
 
-## Segger RTT unbuffered 
 - The main advantage here is, that no `triceServe()` is needed in the background, because this job is automatically done by SeggerRTT. This way one can debug code as comfortable as with `printf()` but with all the TRICE advantages. Have a look here: ![SeggerRTTD.gif](./README.media/SeggerRTTD.gif)
 
-## Segger RTT unbuffered (PC side receiver -device=RTT)
+## Segger RTT unbuffered (PC side receiver -device=JLINK)
+
 - Avoid trice buffering inside target and write with TRICE macro directly into the RTT buffer
 - Write the 8 bytes per trace directly (little time & some space overhead on target, but no changes on host side) - this is implemented as test example.
   

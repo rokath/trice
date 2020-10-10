@@ -162,106 +162,114 @@ trice subcommand -switch1 -switch2 parameter -switch3 ...
 Which subcommand switches are usable for each subcommand is shown with `trice help`. This gives also information about their default values.
 The common subcommand switches are documented the the [subcommand switches](#common-subcommand-switches-reference) section below.
 
-Output of `trice h`:
+Output of `trice h`: (Actual version could slightly differ)
 ```
-ms@LAPTOP-BQDERHJS MINGW64 /c/repos/trice/test (devel)
 $ trice h
-No logfile writing...
 syntax: 'trice subcommand' [params]
-subcommand 'help', 'h'
-  -lf string
-        write output to logfile when set to a filename (default "off")
-subcommand 'u', 'upd', 'update'
+subcommand 'help', 'h' for command line usage
+  -l string
+        Short for -logfile. (default "off")
+  -logfile string
+        Append all output to logfile, options: 'none|filename|auto', 'auto' for "2006-01-02_1504-05_trice.log" with actual time. (default "off")
+  -v    short for verbose
+  -verbose
+        Verbose, more informal output if used. Can be helpful during setup.
+subcommand 'u', 'upd', 'update' For updating ID list and source files.
   -dry-run
-        no changes are applied
-  -list string
-        trice ID list path, "none" possible (default "til.json")
+        No changes applied but output shows what would happen.
+  -i string
+        Short for '-idlist'. (default "til.json")
+  -idlist string
+        The trice ID list path. (default "til.json")
+  -s value
+        Short for src.
   -src value
-        source dir or file, multi use possible (default "./")
-  -v    verbose
-subcommand 'check'
-  -color string
-        color set, options: off|alternate (default "default")
-  -dataset string
-        parameters, option: negative (default "position")
-  -list string
-        trice ID list path (default "til.json")
-subcommand 'l', 'log'
+        Source dir or file, multi use possible, default is './'.
+  -v    short for verbose
+  -verbose
+        Verbose, more informal output if used. Can be helpful during setup.
+subcommand 'l', 'log' For displaying trice logs coming from port.
+  -a    Short for '-autostart'.
+  -autostart
+        Autostart displayserver @ ipa:ipp (works not good with windows, because of cmd and powershell color issues and missing cli params in wt and gitbash).
   -baud int
-        COM baudrate (default 115200)
+        COM baudrate, valid only for '-port COMn'. (default 115200)
   -color string
-        color set, options: off|alternate (default "default")
-  -device string
-        receiver device, options: HTTP, RTT, RTTD, SIM, RND (default "COM")
-  -key string
-        decrypt passphrase (default "none")
-  -lf string
-        Append all output to logfile. Set to "off" or "none" to switch off. (default "2006-01-02_1504-05_trice.log")
-  -list string
-        trice ID list path (default "til.json")
-  -port string
-        COM port, options: COM1|...|COM999 (default "COMscan")
-  -postfix string
-        append postfix to all lines (default "\n")
-  -prefix string
-        prepend prefix to all lines, set to "off" (default "COMport:")
-  -show
-        show passphrase
-  -ts string
-        PC timestamp for logs and logfile name, options: off|UTCmicro (default "LOCmicro")
-subcommand 'zeroSourceTreeIds' (avoid using this subcommand normally)
-  -dry-run
-        no changes are applied
-  -src string
-        zero all Id(n) inside source tree dir (required)
-subcommand 'v', 'ver', 'version'
-  -lf string
-        append all output to logfile, set to a filename for logging (default "off")
-subcommand 'ds', 'displayServer'
-  -color string
-        color set, options: off|alternate (default "default")
-  -ipa string
-        ip address (default "localhost")
-  -ipp string
-        16 bit port number (default "61497")
-  -lf string
-        Append all output to logfile. Set to "off" or "none" to switch off. (default "2006-01-02_1504-05_trice.log")
-subcommand 'r', 'rec', 'receiver'
-  -baud int
-        COM baudrate (default 115200)
-  -device string
-        receiver device, options: HTTP, RTT, RTTD, SIM, RND (default "COM")
+        Color set, 'off' disables color handling ("w:x"->"w:x"), 'none' disables channels color ("w:x"->"x"), options: 'off|none'. (default "default")
+  -displayserver
+        Send trice lines to displayserver @ ipa:ipp.
   -ds
-        start display server
+        Short for '-displayserver'.
+  -e string
+        Short for -encoding. (default "bare")
+  -encoding string
+        The trice transmit data format type, option: 'esc'. Target device coding must match. (default "bare")
+  -i string
+        Short for '-idlist'. (default "til.json")
+  -idlist string
+        The trice ID list path. (default "til.json")
   -ipa string
-        ip address (default "localhost")
+        IP address like '127.0.0.1'. (default "localhost")
   -ipp string
-        16 bit ip port number (default "61497")
-  -key string
-        decrypt passphrase (default "none")
-  -lf string
-        If '-ds' append all output to logfile. Set to "off" or "none" to switch off. (default "2006-01-02_1504-05_trice.log")
-  -list string
-        trice ID list path (default "til.json")
+        16 bit IP port number. (default "61497")
+  -l string
+        Short for -logfile. (default "off")
+  -largs string
+        Passed parameter string, valid only for '-p STLINK|JLINK', see for STLINK also JLinkRTTLogger in SEGGER UM08001_JLink.pdf. (default "-Device STM32F070F6 -if SWD -Speed 4000 -RTTChannel 0")
+  -logfile string
+        Append all output to logfile, options: 'none|filename|auto', 'auto' for "2006-01-02_1504-05_trice.log" with actual time. (default "off")
+  -p string
+        short for -port (default "JLINK")
   -port string
-        COM port, options: COM1|...|COM999 (default "COMscan")
-  -postfix string
-        append postfix to all lines (default "\n")
+        receiver device: 'STLINK'|'JLINK'|serial name. The serial name is like 'COM12' for Windows or a Linux name like '/dev/tty/usb12'. (default "JLINK")
   -prefix string
-        prepend prefix to all lines, set to "off" (default "COMport:")
-  -show
-        show passphrase
+        Line prefix, options: any string or 'off|none' or 'source:' followed by 0-12 spaces, 'source:' will be replaced by source value e.g., 'COM17:'. (default "source: ")
+  -s    Short for '-showInputBytes'.
+  -showInputBytes
+        Show incoming bytes, what can be helpful during setup.
+  -suffix string
+        Append suffix to all lines, options: any string.
   -ts string
-        PC timestamp for logs, options: off|UTCmicro (default "LOCmicro")
+        PC timestamp for logs and logfile name, options: 'off|none|UTCmicro|zero' (default "LOCmicro")
+  -v    short for verbose
+  -verbose
+        Verbose, more informal output if used. Can be helpful during setup.
+subcommand 'zeroSourceTreeIds' For setting all TRICE IDs to 0 in source tree.
+  -dry-run
+        No changes applied but output shows what would happen.
+  -src string
+        Zero all Id(n) inside source tree dir, required.
+subcommand 'v', 'ver', 'version' For displaying version information.
+  -l string
+        Short for -logfile. (default "off")
+  -logfile string
+        Append all output to logfile, options: 'none|filename|auto', 'auto' for "2006-01-02_1504-05_trice.log" with actual time. (default "off")
+  -v    short for verbose
+  -verbose
+        Verbose, more informal output if used. Can be helpful during setup.
+subcommand 'ds', 'displayServer' Starts a display server, use in a separate console, on Windows use wt or a linux shell like git-bash to avoid color issues, several instances of 'trice l -ds' will send output there
+  -color string
+        Color set, options: 'off|none'. (default "default")
+  -ipa string
+        IP address like '127.0.0.1'. (default "localhost")
+  -ipp string
+        16 bit IP port number. (default "61497")
+  -l string
+        Short for -logfile. (default "off")
+  -logfile string
+        Append all output to logfile, options: 'none|filename|auto', 'auto' for "2006-01-02_1504-05_trice.log" with actual time. (default "off")
+subcommand 'sd', 'shutdownServer' Ends display server at IPA:IPP, works also on a remote mashine.
+  -ipa string
+        IP address like '127.0.0.1'. (default "localhost")
+  -ipp string
+        16 bit IP port number. (default "61497")
 examples:
-    'trice update [-src sourcerootdir]', default sourcerootdir is ./
-    'trice log [-port COMn] [-baud m]', default port is COMscan, default m is 38400, fixed to 8N1
-    'trice zeroSourceTreeIds -dir sourcerootdir]'
-    'trice version'
-No logfile writing...done
+    'trice update -src ../A -src ../../B' parses ../A and ../../B with all subdirectories for TRICE IDs to update and adjusts til.json
+    'trice l -p COM15 -baud 38400' Display trice log messages from serial port COM15
+    'trice l' Display bare data format trice log messages from default source JLINK over Segger RTT protocol.
+    'trice zeroSourceTreeIds -dir ../A' Sets all TRICE IDs to 0 in ./A.
+    'trice v -v' Shows verbose version information.
 ```
-
-**You must not run `trice update...` inside the downloaded trice directory!** It would change files inside the test directories rsulting later in failed tests.
 
 ### Subcommand `help` (shortcut `h`)
 - `trice help` will give you a short commandline options overview.
@@ -293,9 +301,6 @@ Set all Id(n) inside source tree dir to Id(0). This subcommand is mainly for tes
 
 ### Subcommand `displayServer` (shortcut `ds`)
 Running `trice ds` opens a display server to be used for displaying the TRICE logs remotely.
-
-### Subcommand `receiver` (shortcut `r` or `rec)
-Instead of `log`ging into the current window you can run `trice r` to log into a remote display. This is useful for sending keyboard commands to the target device because of the empty window. An other option would be to send different trice logs to different remote displays. For both the trice tool needs source code adaption. For now the `r` option is useful for example with an older notebook just as trice display.
 
 #### `remoteDisplay` switch '-ds'
 As example executing `trice rd -list examples/til.json  -port COM38 -ds` opens a separate display window automatically on the same PC.
@@ -330,11 +335,11 @@ You can specify this swich if you want to change the used port number for the re
 - This is a `string` switch. It has one parameter. Its default value is `none`. If you change this value you need to compile the target with the appropriate key.
 - This option is recommended if you deliver firmware to customers and want protect the trice log output. This does not work together with the `#define TRICE_STRINGS FULL_RUNTIME` option right now.
 
-#### subcommand switch 'lg' (logfile)
+#### subcommand switch '-l' or '-logfile'
 - This is a `string` switch. It has one parameter. Its default value is `trice.log`. All trice output of the appropriate subcommands is appended per default into the logfile trice additionally to the normal output. Change the filename with `-lg myName.txt` or switch logging off with `-lg off`. See also
 [logfile viewing](#Logfile-viewing).
 
-#### subcommand switch '-list' (JSON ID list)
+#### subcommand switch '-i' or '-idlist' (JSON ID list)
 - This is a `string` switch. It has one parameter. Its default value is `./til.json` (the **t**race **i**d **l**ist inside the actual directory). The with '-list' specified JSON file is the key to display the ID coded trices during runtime and should be under version control.
 
 #### subcommand switch '-port' (COM port)
@@ -371,15 +376,3 @@ This timestamp switch generates the timestamps on the PC only, what is good enou
 ### Color issues under Windows
 **Currently CMD console colors are not enabled by default in Win10**, so if you see no color but escape sequences on your powershell or cmd window, please refer to
 [Windows console with ANSI colors handling](https://superuser.com/questions/413073/windows-console-with-ansi-colors-handling/1050078#1050078) or simply use a Linux like terminal under windows, like git-bash. One option is also to install Microsoft *Windows Terminal (Preview)* from inside the Microsoft store and to start trice inside there. Unfortunally this can not be done automatically right now because of missing commandline switches.
-
-### trice Receiver variants
-![triceReceiver.svg](README.media/triceReceiver.svg)
-#### Simulator
-- Check functionality without hardware
-![](README.media/trice_log_-device=SIM.PNG)
-#### Random numbers
-- Check receiver against data garbage
-![](README.media/trice_log_-device=RND.PNG)
-#### HTTP receiver
-- Just a check (unimplemented)
-![](README.media/trice_log_-device=HTTP.PNG)
