@@ -26,6 +26,8 @@ extern "C" {
 // adapt 
 #ifdef TRICE_WRITE_ESC_FIFO
 
+#define TRICE_UART USART2
+
 void tricePushByteEscFifo(uint8_t v);
 void tricePushByteSeggerRTT(uint8_t v);
 

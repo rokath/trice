@@ -47,13 +47,8 @@ func newInputPort() (r io.ReadCloser, e error) {
 	return
 }
 
-// receiving performs the trice log task, uses internally Port and encoding and returns on program end.
-func receiving() error {
-	translatePrefix()
-	fnJSON = id.ConditionalFilePath(fnJSON)
-
-	var lwD emitter.LineWriter
-	// setup optional logging and optional remote display
+// newLineWriter provides a LineWriter which can be a remote Display or the local console.
+func newLineWriter() (lwD emitter.LineWriter) {
 	if true == displayRemote {
 		var p *emitter.RemoteDisplay
 		if true == autostart {
@@ -68,6 +63,28 @@ func receiving() error {
 		// NewColorDisplay creates a ColorlDisplay. It provides a Linewriter.
 		// It uses internally a local display combined with a line transformer.
 		lwD = emitter.NewColorDisplay(emitter.ColorPalette)
+	}
+	return
+}
+
+// newList returns a list struct which stays up-to-date in case the til.json file changes.
+func newList() (l *id.List) {
+	l = id.NewList(fnJSON)
+	l.ReadListFile()
+	go l.FileWatcher()
+	return
+}
+
+// receiving performs the trice log task, uses internally Port and encoding and returns on program end.
+func receiving() error {
+	translatePrefix()
+	fnJSON = id.ConditionalFilePath(fnJSON)
+
+	lwD := newLineWriter()
+
+	list := newList()
+
+	if !displayRemote {
 		cage.Enable()
 		defer cage.Disable()
 	}
@@ -85,9 +102,9 @@ func receiving() error {
 	// activate selected encoding
 	switch encoding {
 	case "bare":
-		p = receiveBareSimpleTricesAndDisplayAnsiColor(lwD, portReader, fnJSON)
+		p = receiveBareSimpleTricesAndDisplayAnsiColor(lwD, portReader, list)
 	case "esc":
-		p = receiveEscTricesAndDisplayAnsiColor(lwD, portReader, fnJSON)
+		p = receiveEscTricesAndDisplayAnsiColor(lwD, portReader, list)
 	//case "wrap", "wrapped":
 	//p = receiveWrapSimpleTricesAndDisplayAnsiColor(portReader, fnJSON)
 	//	case "sim":
@@ -104,22 +121,22 @@ func receiving() error {
 	// prepare CTRL-C shutdown reaction
 	sigs := make(chan os.Signal, 1)
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
-	sig := <-sigs // wait for a signal
-	if verbose {
-		fmt.Println("####################################", sig, "####################################")
+	select {
+	//case reopen := <-reopen
+	case sig := <-sigs: // wait for a signal
+		if verbose {
+			fmt.Println("####################################", sig, "####################################")
+		}
+		p.Done() <- 0         // end translator
+		return p.SavedError() // back to main
 	}
-	p.Done() <- 0         // end translator
-	return p.SavedError() // back to main
+
 }
 
-func receiveBareSimpleTricesAndDisplayAnsiColor(lwD emitter.LineWriter, rd io.ReadCloser, fnJSON string) *translator.BareTranslator {
+func receiveBareSimpleTricesAndDisplayAnsiColor(lwD emitter.LineWriter, rd io.ReadCloser, list *id.List) *translator.BareTranslator {
 	// lineComposer implements the io.StringWriter interface and uses the Linewriter provided.
 	// The line composer scans the trice strings and composes lines out of them according to its properies.
 	sw := emitter.NewLineComposer(lwD, emitter.TimeStampFormat, emitter.Prefix, emitter.Suffix)
-
-	list := id.NewList(fnJSON)
-	list.ReadListFile()
-	go list.FileWatcher()
 
 	// triceAtomsReceiver uses the io.Reader interface from s and implements the TriceAtomsReceiver interface.
 	// It scans the raw input byte stream and decodes the trice atoms it transmits to the TriceAtomsReceiver interface.
@@ -130,14 +147,10 @@ func receiveBareSimpleTricesAndDisplayAnsiColor(lwD emitter.LineWriter, rd io.Re
 	return translator.NewSimpleTrices(sw, list, triceAtomsReceiver)
 }
 
-func receiveEscTricesAndDisplayAnsiColor(lwD emitter.LineWriter, rd io.ReadCloser, fnJSON string) *translator.EscTranslator {
+func receiveEscTricesAndDisplayAnsiColor(lwD emitter.LineWriter, rd io.ReadCloser, list *id.List) *translator.EscTranslator {
 	// lineComposer implements the io.StringWriter interface and uses the Linewriter provided.
 	// The line composer scans the trice strings and composes lines out of them according to its properies.
 	sw := emitter.NewLineComposer(lwD, emitter.TimeStampFormat, emitter.Prefix, emitter.Suffix)
-
-	list := id.NewList(fnJSON)
-	list.ReadListFile()
-	go list.FileWatcher()
 
 	// uses rd for reception and the io.StringWriter interface sw for writing.
 	// collects trice bytes to a complete esc trice message, generates the appropriate string using list and writes it to the provided io.StringWriter
@@ -208,7 +221,7 @@ func newBytesViewer(from io.ReadCloser) (in io.ReadCloser) {
 
 func (p *bytesViewer) Read(buf []byte) (count int, err error) {
 	count, err = p.r.Read(buf)
-	if 0 < count || nil != err {
+	if 0 < count || (nil != err && io.EOF != err) {
 		log.Println("input bytes:", err, count, buf[:count])
 	}
 	return

@@ -114,6 +114,11 @@ func NewEscTrices(sw io.StringWriter, list *id.List, in io.ReadCloser) *EscTrans
 					p.savedErr = nil
 				}
 				s := p.readEsc()
+				if nil != p.savedErr && io.EOF != p.savedErr {
+					fmt.Println("Read error", p.savedErr)
+					in.Close()
+					return
+				}
 				_, p.savedErr = sw.WriteString(s)
 			}
 		}
@@ -449,16 +454,13 @@ func (p *BareTranslator) translate(trice Trice) (s string) {
 	}
 	index := p.list.Index(int(trice.ID))
 	if index < 0 { // unknown trice.ID
-		if Verbose {
-			var vb []byte
-			for _, v := range p.values { // convert values to bytes for displaying
-				b := make([]byte, 2)
-				binary.LittleEndian.PutUint16(b, v)
-				vb = append(vb, b...)
-			}
-			s = redBalk + fmt.Sprintln("error: unknown trice.ID", trice.ID, "(", trice.ID>>8, 0xff&trice.ID, "), values = ", p.values, ", as bytes: ", vb)
-			s += fmt.Sprintln(p)
+		var vb []byte
+		for _, v := range p.values { // convert values to bytes for displaying
+			b := make([]byte, 2)
+			binary.LittleEndian.PutUint16(b, v)
+			vb = append(vb, b...)
 		}
+		s = fmt.Sprintln("error: unknown trice.ID", trice.ID, "(", trice.ID>>8, 0xff&trice.ID, "), values = ", p.values, ", as bytes: ", vb)
 		p.values = p.values[:0] // clear values
 		return
 	}

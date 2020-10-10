@@ -8,10 +8,12 @@
 
 #define TRICE_FILENAME TRICE0( Id(44860), "rd_:triceEscFifo.c" );
 
+#ifndef TRICE_ESC_FIFO_BYTE_SIZE
 //! TRICE_FIFO_BYTE_SIZE must be a power of 2, one trice needs 4 to 32 or one day more bytes.
 //! The fifo has to hold trice bursts until they are transmitted.
 //! It is transmitted with lower priority in the background for example with the UART tx interrupt.
 #define TRICE_ESC_FIFO_BYTE_SIZE 1024
+#endif
 
 #define TRICE_ESC_FIFO_MASK (TRICE_ESC_FIFO_BYTE_SIZE-1) //!< max possible byte count in fifo
 
