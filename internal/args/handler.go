@@ -69,7 +69,8 @@ func Handler(args []string) error {
 	case "l", "log":
 		fsScLog.Parse(subArgs)
 		distributeArgs()
-		return receiving()
+		doReceive()
+		return nil
 	case "ds", "displayServer":
 		fsScSv.Parse(subArgs)
 		distributeArgs()

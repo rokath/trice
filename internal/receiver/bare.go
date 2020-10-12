@@ -27,16 +27,21 @@ type BareTriceReceiver struct {
 // The sync condition is assumed generally. From time to time (aka every second)
 // a sync trice should be inside the byte stream. This sync trice must be on a
 // multiple of triceSice offset. If not, the appropriate count of bytes is ignored.
-func NewTricesfromBare(r io.Reader) *BareTriceReceiver {
+func NewTricesfromBare(r io.Reader, hardReadError chan bool) *BareTriceReceiver {
 	p := &BareTriceReceiver{}
 	p.r = r
+	p.hardReadError = hardReadError
 	p.atomsCh = make(chan []Trice)
 	p.ignoredCh = make(chan []byte)
 	p.syncBuffer = make([]byte, 0, 10000)
 	go func() {
 		for {
-			time.Sleep(1 * time.Millisecond) // todo: trigger from fileWatcher
+			time.Sleep(1 * time.Millisecond) // todo: trigger from fileWatcher when reading from file
 			p.readBare()
+			if nil != p.savedErr && io.EOF != p.savedErr {
+				p.hardReadError <- true
+				return // some hardware error like unplugged cable
+			}
 		}
 	}()
 	return p
@@ -95,7 +100,7 @@ func NewTricesfromBare(r io.Reader) *BareTriceReceiver {
 // It looks for the first sync point inside the internally read byte slice and ignores ALL bytes
 // if the sync is not on a triceSize offset.
 func (p *BareTriceReceiver) readBare() {
-	p.ErrorFatal()
+	//p.ErrorFatal()
 	var n int
 	rb := make([]byte, receiveBufferCapacity)
 	n, p.savedErr = p.r.Read(rb)

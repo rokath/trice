@@ -15,8 +15,7 @@ extern "C" {
 
 //! Set according to hardware
 #ifndef TRICE_UART
-#error "Need '#define TRICE_UART USARTn' in config file."
-#define TRICE_UART USART2
+#error "Need '#define TRICE_UART USARTn' in config file. '#define TRICE_UART USART2'"
 #endif
 
 //! Check if a new byte can be written into trice transmit register.

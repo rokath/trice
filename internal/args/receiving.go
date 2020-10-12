@@ -13,6 +13,7 @@ import (
 	"path/filepath"
 	"runtime"
 	"syscall"
+	"time"
 
 	"github.com/rokath/trice/internal/com"
 	"github.com/rokath/trice/internal/emitter"
@@ -75,23 +76,40 @@ func newList() (l *id.List) {
 	return
 }
 
-// receiving performs the trice log task, uses internally Port and encoding and returns on program end.
-func receiving() error {
+// doReceive prepares writing and list and provides a retry mechanism for unplugged UART.
+func doReceive() {
 	translatePrefix()
 	fnJSON = id.ConditionalFilePath(fnJSON)
-
 	lwD := newLineWriter()
-
 	list := newList()
 
 	if !displayRemote {
 		cage.Enable()
 		defer cage.Disable()
 	}
+	// over this channel read errors despite io.EOF reported
+	hardReadError := make(chan bool)
+	for {
+		f := receiving(lwD, list, hardReadError)
+		if false == f {
+			return
+		}
+		time.Sleep(100 * time.Millisecond) // retry
+	}
+}
+
+// receiving performs the trice log task, uses internally Port and encoding and
+// returns false on program end signal or true on hard read error.
+func receiving(lwD emitter.LineWriter, list *id.List, hardReadError chan bool) bool {
 
 	// setup input port
 	portReader, e := newInputPort()
-	errorFatal(e)
+	if nil != e {
+		if verbose {
+			fmt.Println(e)
+		}
+		return true
+	}
 	if showInputBytes {
 		portReader = newBytesViewer(portReader)
 	}
@@ -102,7 +120,7 @@ func receiving() error {
 	// activate selected encoding
 	switch encoding {
 	case "bare":
-		p = receiveBareSimpleTricesAndDisplayAnsiColor(lwD, portReader, list)
+		p = receiveBareSimpleTricesAndDisplayAnsiColor(lwD, portReader, list, hardReadError)
 	case "esc":
 		p = receiveEscTricesAndDisplayAnsiColor(lwD, portReader, list)
 	//case "wrap", "wrapped":
@@ -115,32 +133,41 @@ func receiving() error {
 	case "ascii":
 		fallthrough
 	default:
-		return fmt.Errorf("unknown encoding: %s", encoding)
+		fmt.Println("unknown encoding ", encoding)
+		return false
 	}
 
 	// prepare CTRL-C shutdown reaction
 	sigs := make(chan os.Signal, 1)
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
 	select {
-	//case reopen := <-reopen
+	case <-hardReadError:
+		if verbose {
+			fmt.Println("####################################", p.SavedError(), "####################################")
+		}
+		p.Done() <- 0 // end translator
+		return true
 	case sig := <-sigs: // wait for a signal
 		if verbose {
 			fmt.Println("####################################", sig, "####################################")
 		}
-		p.Done() <- 0         // end translator
-		return p.SavedError() // back to main
+		p.Done() <- 0 // end translator
+		return false  // back to main
 	}
-
 }
 
-func receiveBareSimpleTricesAndDisplayAnsiColor(lwD emitter.LineWriter, rd io.ReadCloser, list *id.List) *translator.BareTranslator {
+func receiveBareSimpleTricesAndDisplayAnsiColor(
+	lwD emitter.LineWriter,
+	rd io.ReadCloser,
+	list *id.List,
+	hardReadError chan bool) *translator.BareTranslator {
 	// lineComposer implements the io.StringWriter interface and uses the Linewriter provided.
 	// The line composer scans the trice strings and composes lines out of them according to its properies.
 	sw := emitter.NewLineComposer(lwD, emitter.TimeStampFormat, emitter.Prefix, emitter.Suffix)
 
 	// triceAtomsReceiver uses the io.Reader interface from s and implements the TriceAtomsReceiver interface.
 	// It scans the raw input byte stream and decodes the trice atoms it transmits to the TriceAtomsReceiver interface.
-	triceAtomsReceiver := receiver.NewTricesfromBare(rd)
+	triceAtomsReceiver := receiver.NewTricesfromBare(rd, hardReadError)
 
 	// uses triceAtomsReceiver for reception and the io.StringWriter interface sw for writing.
 	// collects trice atoms to a complete trice, generates the appropriate string using list and writes it to the provided io.StringWriter

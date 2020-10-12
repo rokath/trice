@@ -26,7 +26,8 @@ func TestNewSimpleTriceInterpreterWithAnsiOff(t *testing.T) {
 	rd := bytes.NewReader([]byte{1, 2, 3, 4, 0x89, 0xab, 0xcd, 0xef, 2, 3, 0, 0xc, 1, 3, 0, 0, 3, 3, 3, 3, 4, 4})
 	// tai uses the io.Reader interface from s and implements the TriceAtomsReceiver interface.
 	// It scans the raw input byte stream and decodes the trice atoms it transmits to the TriceAtomsReceiver interface.
-	tai := receiver.NewTricesfromBare(rd)
+	hardReadError := make(chan bool)
+	tai := receiver.NewTricesfromBare(rd, hardReadError)
 
 	// display lwD implements the Linewriter interface needed by lineComposer.
 	// It interprets the lines written to it according to its properties.
@@ -69,7 +70,8 @@ func TestNewSimpleTriceInterpreterWithAnsiNone(t *testing.T) {
 	rd := bytes.NewReader([]byte{1, 1, 1, 1, 0x89, 0xab, 0xcd, 0xef, 2, 4, 0, 2, 3, 3, 3, 3, 4, 4})
 	// tai uses the io.Reader interface from s and implements the TriceAtomsReceiver interface.
 	// It scans the raw input byte stream and decodes the trice atoms it transmits to the TriceAtomsReceiver interface.
-	tai := receiver.NewTricesfromBare(rd)
+	hardReadError := make(chan bool)
+	tai := receiver.NewTricesfromBare(rd, hardReadError)
 
 	// display lwD implements the Linewriter interface needed by lineComposer.
 	// It interprets the lines written to it according to its properties.
@@ -113,7 +115,8 @@ func TestNewSimpleTriceInterpreterResync(t *testing.T) {
 	rd := bytes.NewReader([]byte{'j', 'a', 'r', 0x89, 0xab, 0xcd, 0xef, 4, 4})
 	// tai uses the io.Reader interface from s and implements the TriceAtomsReceiver interface.
 	// It scans the raw input byte stream and decodes the trice atoms it transmits to the TriceAtomsReceiver interface.
-	tai := receiver.NewTricesfromBare(rd)
+	hardReadError := make(chan bool)
+	tai := receiver.NewTricesfromBare(rd, hardReadError)
 
 	// display lwD implements the Linewriter interface needed by lineComposer.
 	// It interprets the lines written to it according to its properties.

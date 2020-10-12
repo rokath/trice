@@ -13,7 +13,8 @@ import (
 
 func TestNewTricesfromBare(t *testing.T) {
 	r := bytes.NewReader([]byte{'j', 'a', 'r', 1, 1, 1, 1, 0x89, 0xab, 0xcd, 0xef, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4}) // todo: byteorder in sync
-	p := NewTricesfromBare(r)
+	hardReadError := make(chan bool)
+	p := NewTricesfromBare(r, hardReadError)
 	for {
 		select {
 		case bAct := <-p.ignoredCh:

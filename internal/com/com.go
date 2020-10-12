@@ -76,7 +76,9 @@ func (p *PortGoBugSt) Open() bool {
 	var err error
 	p.serialHandle, err = serialgobugst.Open(p.port, &p.serialMode)
 	if err != nil {
-		fmt.Println(err, "try 'trice s' to check for serial ports")
+		if Verbose {
+			fmt.Println(err, "try 'trice s' to check for serial ports")
+		}
 		return false
 	}
 	return true
@@ -121,8 +123,10 @@ func (p *PortTarm) Open() bool {
 	var err error
 	p.stream, err = serialtarm.OpenPort(&p.config)
 	if err != nil {
-		fmt.Println(p.config.Name, "not found")
-		fmt.Println("try 'trice scan'")
+		if Verbose {
+			fmt.Println(p.config.Name, "not found")
+			fmt.Println("try 'trice scan'")
+		}
 		return false
 	}
 	return true
