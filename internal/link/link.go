@@ -100,6 +100,10 @@ func (p *Device) Close() error {
 func (p *Device) Open() error {
 	var args []string
 	args = strings.Split(Args, " ")
+	// The -RTTSearchRanges "..." need to be written without "" and with _ istead of space.
+	for i := range args { // 0x20000000_0x1800 -> 0x20000000 0x1800
+		args[i] = strings.Replace(args[i], "_0x", " 0x", -1)
+	}
 	//args = append(args, `-RTTSearchRanges 0x20000000 0x1800`)
 	args = append(args, p.tempLogFileName) // Todo: check if slice could be passed directly.
 	if Verbose {

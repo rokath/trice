@@ -86,7 +86,7 @@ extern "C" {
 #define TRICE_S(Id, pFmt, dynString) do{ trice_s(Id, dynString) }while(0)
 
 
-//! trace Id protected (outside critical section), 16 bit data are 0
+//! trace Id protected (outside critical section) within 3 bytes
 //! \param Id trice identifier
 //! \param pFmt formatstring for trice
 #define TRICE0(Id, pFmt) do{ \
@@ -94,7 +94,7 @@ extern "C" {
     triceWriteEscP( sizeof(msg), msg ); \
 } while(0)
 
-//! trace Id protected (outside critical section)
+//! trace Id protected and a 8-bit value protected (outside critical section) within 4 bytes
 //! \param Id trice identifier
 //! \param pFmt formatstring for trice
 //! \param 8-bit payload
@@ -104,7 +104,7 @@ extern "C" {
     triceWriteEscP( sizeof(msg), msg ); \
 } while(0)
 
-//! trace Id and 8-bit values protected (outside critical section)
+//! trace Id and two 8-bit values protected (outside critical section) within 5 bytes
 //! \param Id trice identifier
 //! \param pFmt formatstring for trice
 //! \param d0 payload
@@ -155,7 +155,7 @@ extern "C" {
     triceWriteEscP( sizeof(msg), msg ); \
 } while(0)
 
-//! trace Id and 16-bit value protected (outside critical section)
+//! trace Id and 16-bit value protected (outside critical section) within 5 bytes
 //! \param Id trice identifier
 //! \param pFmt formatstring for trice
 //! \param d0 payload
@@ -165,6 +165,11 @@ extern "C" {
     triceWriteEscP( sizeof(msg), msg ); \
 } while(0)
 
+//! trace Id and two 16-bit values protected (outside critical section) within 7 bytes
+//! \param Id trice identifier
+//! \param pFmt formatstring for trice
+//! \param d0 payload
+//! \param d1 payload
 #define TRICE16_2(Id, pFmt, d0, d1) do{ \
     uint8_t msg[] = {TRICE_P4, TRICE_HI_BYTE(Id), TRICE_LO_BYTE(Id), \
         TRICE_HI_BYTE(d0), TRICE_LO_BYTE(d0), \

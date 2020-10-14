@@ -37,7 +37,10 @@ func TestNewSimpleTriceInterpreterWithAnsiOff(t *testing.T) {
 	lwT := NewLineTransformerANSI(lwD, "off")
 	// lineComposer r implements the io.StringWriter interface and uses the Linewriter provided.
 	// The line composer scans the trice strings and composes lines out of them according to its properies.
-	sw := NewLineComposer(lwT, "zero", "PREFIX", "")
+	TimestampFormat = "zero"
+	Prefix = "PREFIX"
+	Suffix = ""
+	sw := NewLineComposer(lwT)
 
 	dict := id.NewList("none")
 	dict.List = []id.Item{
@@ -81,7 +84,10 @@ func TestNewSimpleTriceInterpreterWithAnsiNone(t *testing.T) {
 	lwT := NewLineTransformerANSI(lwD, "none")
 	// lineComposer r implements the io.StringWriter interface and uses the Linewriter provided.
 	// The line composer scans the trice strings and composes lines out of them according to its properies.
-	sw := NewLineComposer(lwT, "zero", "PREFIX", "")
+	TimestampFormat = "zero"
+	Prefix = "PREFIX"
+	Suffix = ""
+	sw := NewLineComposer(lwT)
 
 	dict := id.NewList("none")
 	dict.List = []id.Item{
@@ -126,7 +132,10 @@ func TestNewSimpleTriceInterpreterResync(t *testing.T) {
 	lwT := NewLineTransformerANSI(lwD, "none")
 	// lineComposer r implements the io.StringWriter interface and uses the Linewriter provided.
 	// The line composer scans the trice strings and composes lines out of them according to its properies.
-	sw := NewLineComposer(lwT, "zero", "PREFIX", "")
+	TimestampFormat = "zero"
+	Prefix = "PREFIX"
+	Suffix = ""
+	sw := NewLineComposer(lwT)
 
 	dict := id.NewList("none")
 
@@ -151,6 +160,9 @@ func TestScCheck(t *testing.T) {
 	lwT := NewLineTransformerANSI(lwD, "none")
 	// lineComposer r implements the io.StringWriter interface and uses the Linewriter provided.
 	// The line composer scans the trice strings and composes lines out of them according to its properies.
-	sw := NewLineComposer(lwT, "zero", "PREFIX", "")
+	TimestampFormat = "zero"
+	Prefix = "PREFIX"
+	Suffix = ""
+	sw := NewLineComposer(lwT)
 	fmt.Print(sw)
 }

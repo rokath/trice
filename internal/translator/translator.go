@@ -93,7 +93,7 @@ type EscTranslator struct {
 // NewEscTrices uses in for reception and sw for writing.
 // It collects trice bytes to a complete esc trice message, generates the appropriate string using list and writes it to sw.
 // EC LC IH IL ...
-func NewEscTrices(sw io.StringWriter, list *id.List, in io.ReadCloser) *EscTranslator {
+func NewEscTrices(sw io.StringWriter, list *id.List, in io.ReadCloser, hardReadError chan bool) *EscTranslator {
 	p := new(EscTranslator)
 	p.sw = sw
 	p.list = list
@@ -117,6 +117,7 @@ func NewEscTrices(sw io.StringWriter, list *id.List, in io.ReadCloser) *EscTrans
 				if nil != p.savedErr && io.EOF != p.savedErr {
 					fmt.Println("Read error", p.savedErr)
 					in.Close()
+					hardReadError <- true
 					return
 				}
 				_, p.savedErr = sw.WriteString(s)

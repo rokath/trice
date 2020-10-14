@@ -78,29 +78,33 @@ func newList() (l *id.List) {
 
 // doReceive prepares writing and list and provides a retry mechanism for unplugged UART.
 func doReceive() {
+	if !displayRemote {
+		cage.Enable()
+		defer cage.Disable()
+	}
 	translatePrefix()
 	fnJSON = id.ConditionalFilePath(fnJSON)
 	lwD := newLineWriter()
 	list := newList()
 
-	if !displayRemote {
-		cage.Enable()
-		defer cage.Disable()
-	}
+	// lineComposer implements the io.StringWriter interface and uses the Linewriter provided.
+	// The line composer scans the trice strings and composes lines out of them according to its properies.
+	sw := emitter.NewLineComposer(lwD)
+
 	// over this channel read errors despite io.EOF reported
 	hardReadError := make(chan bool)
 	for {
-		f := receiving(lwD, list, hardReadError)
+		f := receiving(sw, list, hardReadError)
 		if false == f {
 			return
 		}
-		time.Sleep(100 * time.Millisecond) // retry
+		time.Sleep(100 * time.Millisecond) // retry interval
 	}
 }
 
 // receiving performs the trice log task, uses internally Port and encoding and
 // returns false on program end signal or true on hard read error.
-func receiving(lwD emitter.LineWriter, list *id.List, hardReadError chan bool) bool {
+func receiving(sw *emitter.TriceLineComposer, list *id.List, hardReadError chan bool) bool {
 
 	// setup input port
 	portReader, e := newInputPort()
@@ -110,19 +114,18 @@ func receiving(lwD emitter.LineWriter, list *id.List, hardReadError chan bool) b
 		}
 		return true
 	}
+	defer portReader.Close()
 	if showInputBytes {
 		portReader = newBytesViewer(portReader)
 	}
-	defer portReader.Close()
-
-	var p translator.Translator // interface type
 
 	// activate selected encoding
+	var p translator.Translator // interface type
 	switch encoding {
 	case "bare":
-		p = receiveBareSimpleTricesAndDisplayAnsiColor(lwD, portReader, list, hardReadError)
+		p = receiveBareSimpleTricesAndDisplayAnsiColor(sw, portReader, list, hardReadError)
 	case "esc":
-		p = receiveEscTricesAndDisplayAnsiColor(lwD, portReader, list)
+		p = receiveEscTricesAndDisplayAnsiColor(sw, portReader, list, hardReadError)
 	//case "wrap", "wrapped":
 	//p = receiveWrapSimpleTricesAndDisplayAnsiColor(portReader, fnJSON)
 	//	case "sim":
@@ -157,31 +160,31 @@ func receiving(lwD emitter.LineWriter, list *id.List, hardReadError chan bool) b
 }
 
 func receiveBareSimpleTricesAndDisplayAnsiColor(
-	lwD emitter.LineWriter,
+	sw *emitter.TriceLineComposer,
 	rd io.ReadCloser,
 	list *id.List,
-	hardReadError chan bool) *translator.BareTranslator {
-	// lineComposer implements the io.StringWriter interface and uses the Linewriter provided.
-	// The line composer scans the trice strings and composes lines out of them according to its properies.
-	sw := emitter.NewLineComposer(lwD, emitter.TimeStampFormat, emitter.Prefix, emitter.Suffix)
+	hardReadError chan bool) (bt *translator.BareTranslator) {
 
 	// triceAtomsReceiver uses the io.Reader interface from s and implements the TriceAtomsReceiver interface.
 	// It scans the raw input byte stream and decodes the trice atoms it transmits to the TriceAtomsReceiver interface.
 	triceAtomsReceiver := receiver.NewTricesfromBare(rd, hardReadError)
 
-	// uses triceAtomsReceiver for reception and the io.StringWriter interface sw for writing.
-	// collects trice atoms to a complete trice, generates the appropriate string using list and writes it to the provided io.StringWriter
-	return translator.NewSimpleTrices(sw, list, triceAtomsReceiver)
+	// bt uses triceAtomsReceiver for reception and the io.StringWriter interface sw for writing.
+	// It collects trice atoms to a complete trice, generates the appropriate string using list and writes it to the provided io.StringWriter
+	bt = translator.NewSimpleTrices(sw, list, triceAtomsReceiver)
+	return
 }
 
-func receiveEscTricesAndDisplayAnsiColor(lwD emitter.LineWriter, rd io.ReadCloser, list *id.List) *translator.EscTranslator {
-	// lineComposer implements the io.StringWriter interface and uses the Linewriter provided.
-	// The line composer scans the trice strings and composes lines out of them according to its properies.
-	sw := emitter.NewLineComposer(lwD, emitter.TimeStampFormat, emitter.Prefix, emitter.Suffix)
+func receiveEscTricesAndDisplayAnsiColor(
+	sw *emitter.TriceLineComposer,
+	rd io.ReadCloser,
+	list *id.List,
+	hardReadError chan bool) (et *translator.EscTranslator) {
 
 	// uses rd for reception and the io.StringWriter interface sw for writing.
 	// collects trice bytes to a complete esc trice message, generates the appropriate string using list and writes it to the provided io.StringWriter
-	return translator.NewEscTrices(sw, list, rd)
+	et = translator.NewEscTrices(sw, list, rd, hardReadError)
+	return
 }
 
 // translatePrefix changes "source:" to e.g., "JLINK:".

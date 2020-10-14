@@ -21,16 +21,16 @@ type TriceLineComposer struct {
 // NewLineComposer constructs log lines according to these rules:...
 // It provides an io.StringWriter interface which is used for the reception of (trice) strings.
 // It uses lw for writing the generated lines.
-func NewLineComposer(lw LineWriter, timestampFormat, prefix, suffix string) *TriceLineComposer {
-	pf := prefix + " "
+func NewLineComposer(lw LineWriter) *TriceLineComposer {
+	pf := Prefix + " "
 	if " " == pf {
 		pf = ""
 	}
-	sf := " " + suffix
+	sf := " " + Suffix
 	if " " == sf {
 		sf = ""
 	}
-	p := &TriceLineComposer{lw, timestampFormat, pf, sf, make([]string, 0, 80), nil}
+	p := &TriceLineComposer{lw, TimestampFormat, pf, sf, make([]string, 0, 80), nil}
 	return p
 }
 

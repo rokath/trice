@@ -13,9 +13,10 @@ import (
 func Test2LineComposer(t *testing.T) {
 	// prepare
 	lw := newCheckDisplay()
-	pf := "["
-	sf := "]"
-	p := NewLineComposer(lw, "off", pf, sf)
+	TimestampFormat = "off"
+	Prefix = "["
+	Suffix = "]"
+	p := NewLineComposer(lw)
 
 	p.WriteString("Hi\r\nAll\n")
 	assert.Equal(t, []string{"[ Hi ]", "[ All ]"}, lw.lines)
@@ -35,7 +36,10 @@ func Test2LineComposer(t *testing.T) {
 func TestLineComposer(t *testing.T) {
 	// prepare
 	lw := newCheckDisplay()
-	p := NewLineComposer(lw, "zero", "<<<", ">>>")
+	TimestampFormat = "zero"
+	Prefix = "<<<"
+	Suffix = ">>>"
+	p := NewLineComposer(lw)
 	p.WriteString("Hi\nAll\r\n")
 	assert.Equal(t, []string{"2006-01-02_1504-05 <<< Hi >>>", "2006-01-02_1504-05 <<< All >>>"}, lw.lines)
 }
