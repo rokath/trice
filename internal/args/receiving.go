@@ -32,7 +32,7 @@ func newInputPort() (r io.ReadCloser, e error) {
 	case "JLINK", "STLINK":
 		l := link.NewDevice()
 		if nil != l.Open() {
-			e = fmt.Errorf("can not open link device %s", link.Args)
+			e = fmt.Errorf("can not open link device %s with args %s", Port, link.Args)
 		}
 		r = l
 	default: // assuming serial port
@@ -106,7 +106,7 @@ func doReceive() {
 // returns false on program end signal or true on hard read error.
 func receiving(sw *emitter.TriceLineComposer, list *id.List, hardReadError chan bool) bool {
 
-	// setup input port
+	// (re-)setup input port
 	portReader, e := newInputPort()
 	if nil != e {
 		if verbose {
