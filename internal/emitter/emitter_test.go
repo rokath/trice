@@ -6,7 +6,6 @@ package emitter
 
 import (
 	"bytes"
-	"fmt"
 	"testing"
 	"time"
 
@@ -65,6 +64,7 @@ func TestNewSimpleTriceInterpreterWithAnsiOff(t *testing.T) {
 	sti.Stop() // end of life
 }
 
+/*
 // There is a small chance this test fails because of unexpected ordering of 'ignoring bytes' message.
 // This is no error.
 func TestNewSimpleTriceInterpreterWithAnsiNone(t *testing.T) {
@@ -166,3 +166,4 @@ func TestScCheck(t *testing.T) {
 	sw := NewLineComposer(lwT)
 	fmt.Print(sw)
 }
+*/

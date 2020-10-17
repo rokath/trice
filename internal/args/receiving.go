@@ -16,9 +16,9 @@ import (
 	"time"
 
 	"github.com/rokath/trice/internal/com"
+	"github.com/rokath/trice/internal/decoder"
 	"github.com/rokath/trice/internal/emitter"
 	"github.com/rokath/trice/internal/id"
-	"github.com/rokath/trice/internal/keybcmd"
 	"github.com/rokath/trice/internal/link"
 	"github.com/rokath/trice/internal/receiver"
 	"github.com/rokath/trice/internal/translator"
@@ -48,26 +48,6 @@ func newInputPort() (r io.ReadCloser, e error) {
 	return
 }
 
-// newLineWriter provides a LineWriter which can be a remote Display or the local console.
-func newLineWriter() (lwD emitter.LineWriter) {
-	if true == displayRemote {
-		var p *emitter.RemoteDisplay
-		if true == autostart {
-			p = emitter.NewRemoteDisplay(os.Args[0], "-logfile "+cage.Name)
-		} else {
-			p = emitter.NewRemoteDisplay()
-		}
-		p.ErrorFatal()
-		lwD = p
-		keybcmd.ReadInput()
-	} else {
-		// NewColorDisplay creates a ColorlDisplay. It provides a Linewriter.
-		// It uses internally a local display combined with a line transformer.
-		lwD = emitter.NewColorDisplay(emitter.ColorPalette)
-	}
-	return
-}
-
 // newList returns a list struct which stays up-to-date in case the til.json file changes.
 func newList() (l *id.List) {
 	l = id.NewList(fnJSON)
@@ -84,7 +64,7 @@ func doReceive() {
 	}
 	translatePrefix()
 	fnJSON = id.ConditionalFilePath(fnJSON)
-	lwD := newLineWriter()
+	lwD := emitter.NewLineWriter(displayRemote, autostart)
 	list := newList()
 
 	// lineComposer implements the io.StringWriter interface and uses the Linewriter provided.
@@ -99,6 +79,14 @@ func doReceive() {
 			return
 		}
 		time.Sleep(100 * time.Millisecond) // retry interval
+	}
+}
+
+func run(sw *emitter.TriceLineComposer, dec decoder.StringsReader) {
+	ss := make([]string, 100)
+	n, _ := dec.StringsRead(ss)
+	for i := range ss[:n] {
+		sw.WriteString(ss[i])
 	}
 }
 
@@ -122,6 +110,10 @@ func receiving(sw *emitter.TriceLineComposer, list *id.List, hardReadError chan 
 	// activate selected encoding
 	var p translator.Translator // interface type
 	switch encoding {
+	case "esc2":
+		var dec decoder.StringsReader = decoder.NewEsc(list, portReader)
+		run(sw, dec)
+
 	case "bare":
 		p = receiveBareSimpleTricesAndDisplayAnsiColor(sw, portReader, list, hardReadError)
 	case "esc":

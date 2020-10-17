@@ -4,12 +4,11 @@
 // Package emitter emits the translated trice strings.
 package emitter
 
-// LineWriter is the common interface for output devices.
-// string slice `line` contains all string parts of one line.
-// The last string part is without newline char and must be handled by the output device.
-type LineWriter interface {
-	writeLine([]string)
-}
+import (
+	"os"
+
+	"github.com/rokath/trice/pkg/cage"
+)
 
 var (
 	// Verbose gives mor information on output if set. The value is injected from main packages.
@@ -41,3 +40,30 @@ var (
 	// IPPort ist the remote display port number.
 	IPPort string
 )
+
+// LineWriter is the common interface for output devices.
+// The string slice `line` contains all string parts of one line including prefix and suffix.
+// The last string part is without newline char and must be handled by the output device.
+type LineWriter interface {
+	writeLine([]string)
+}
+
+// NewLineWriter provides a LineWriter which can be a remote Display or the local console.
+func NewLineWriter(displayRemote, autostart bool) (lwD LineWriter) {
+	if true == displayRemote {
+		var p *RemoteDisplay
+		if true == autostart {
+			p = NewRemoteDisplay(os.Args[0], "-logfile "+cage.Name)
+		} else {
+			p = NewRemoteDisplay()
+		}
+		p.ErrorFatal()
+		lwD = p
+		//keybcmd.ReadInput()
+	} else {
+		// NewColorDisplay creates a ColorlDisplay. It provides a Linewriter.
+		// It uses internally a local display combined with a line transformer.
+		lwD = NewColorDisplay(ColorPalette)
+	}
+	return
+}
