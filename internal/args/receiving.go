@@ -82,12 +82,33 @@ func doReceive() {
 	}
 }
 
-func run(sw *emitter.TriceLineComposer, dec decoder.StringsReader) {
+func run(sw *emitter.TriceLineComposer, dec decoder.StringsReader) error {
 	ss := make([]string, 100)
-	n, _ := dec.StringsRead(ss)
+	n, err := dec.StringsRead(ss)
+	if nil != err && io.EOF != err {
+		return err
+	}
 	for i := range ss[:n] {
 		sw.WriteString(ss[i])
 	}
+	return nil
+}
+
+func runEsc2(sw *emitter.TriceLineComposer, list *id.List) {
+again: // (re-)setup input port
+	portReader, e := newInputPort()
+	if nil != e {
+		if verbose {
+			fmt.Println(e)
+		}
+		time.Sleep(1000 * time.Millisecond)
+		goto again
+	}
+	defer portReader.Close()
+	if showInputBytes {
+		portReader = newBytesViewer(portReader)
+	}
+	//var dec decoder.StringsReader = decoder.NewEsc(list, portReader)
 }
 
 // receiving performs the trice log task, uses internally Port and encoding and

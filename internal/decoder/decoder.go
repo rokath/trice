@@ -5,9 +5,12 @@
 package decoder
 
 import (
+	"fmt"
 	"io"
 
+	"github.com/rokath/trice/internal/com"
 	"github.com/rokath/trice/internal/id"
+	"github.com/rokath/trice/internal/link"
 )
 
 // StringsReader as Decoder method uses an underlying (byte) Reader for reading and returns max len(p) strings inside p.
@@ -16,13 +19,36 @@ type StringsReader interface {
 	StringsRead(p []string) (n int, err error)
 }
 
+// Decoder is the interface (method set) a decoder needs to provide
+type Decoder interface {
+	NewInputPort(port, pargs string) (r io.ReadCloser, e error)
+	StringsReader
+}
+
 // Decoder is the common data struct for all decoders
-type Decoder struct {
+type decoder struct {
 	in         io.Reader // inner reader
 	syncBuffer []byte    // unprocessed bytes hold for next cycle
 	list       *id.List
-	StringsReader
-	savedErr error
-	//item     id.Item // item is the next trice item ready for output.
-	//done     chan int // This channel is used to stop the TriceInterpreter
+}
+
+func newInputPort(port, pargs string) (r io.ReadCloser, err error) {
+	switch port {
+	case "JLINK", "STLINK":
+		l := link.NewDevice()
+		if nil != l.Open() {
+			err = fmt.Errorf("can not open link device %s with args %s", port, pargs)
+		}
+		r = l
+	default: // assuming serial port
+		var c com.COMport // interface type
+		c = com.NewCOMPortGoBugSt(port)
+		//c = com.NewCOMPortTarm(Port)
+		if false == c.Open() {
+			err = fmt.Errorf("can not open %s", port)
+		}
+		r = c
+		return
+	}
+	return
 }
