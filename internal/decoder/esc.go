@@ -20,7 +20,7 @@ const (
 
 // Esc is the Decoder instance for esc encoded trices
 type Esc struct {
-	decoder
+	decoding
 }
 
 // NewEsc provides an EscDecoder instance.
@@ -30,11 +30,6 @@ func NewEsc(list *id.List, in io.Reader) *Esc {
 	p.syncBuffer = make([]byte, 2*buffSize)
 	p.list = list
 	return p
-}
-
-// NewInputPort ...
-func (p *Esc) NewInputPort(port, pargs string) (r io.ReadCloser, err error) {
-	return newInputPort(port, pargs)
 }
 
 // StringsRead is the provided read method for esc decoding.

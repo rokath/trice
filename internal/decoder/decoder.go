@@ -5,8 +5,10 @@
 package decoder
 
 import (
+	"bytes"
 	"fmt"
 	"io"
+	"io/ioutil"
 
 	"github.com/rokath/trice/internal/com"
 	"github.com/rokath/trice/internal/id"
@@ -14,25 +16,25 @@ import (
 )
 
 // StringsReader as Decoder method uses an underlying (byte) Reader for reading and returns max len(p) strings inside p.
-// n is the received anmount of strings. err is the underlying Reader error or an internal error.
+// n is the received amount of strings. err is the underlying Reader error or an internal error.
 type StringsReader interface {
 	StringsRead(p []string) (n int, err error)
 }
 
 // Decoder is the interface (method set) a decoder needs to provide
 type Decoder interface {
-	NewInputPort(port, pargs string) (r io.ReadCloser, e error)
 	StringsReader
 }
 
 // Decoder is the common data struct for all decoders
-type decoder struct {
+type decoding struct {
 	in         io.Reader // inner reader
 	syncBuffer []byte    // unprocessed bytes hold for next cycle
 	list       *id.List
 }
 
-func newInputPort(port, pargs string) (r io.ReadCloser, err error) {
+// NewInputPort is the common action taken by the decoder specific methods NewInputPort.
+func NewInputPort(port, pargs string) (r io.ReadCloser, err error) {
 	switch port {
 	case "JLINK", "STLINK":
 		l := link.NewDevice()
@@ -49,6 +51,9 @@ func newInputPort(port, pargs string) (r io.ReadCloser, err error) {
 		}
 		r = c
 		return
+	case "BUFFER": // pargs is expected to be a byte sequence in the same format as for example coming from one of the other ports
+		r = ioutil.NopCloser(bytes.NewBufferString(pargs))
 	}
+
 	return
 }

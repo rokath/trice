@@ -43,8 +43,8 @@ type List struct {
 	// FnJSON is the filename of the id List
 	FnJSON string
 
-	// List is a slice type containing the ID List.
-	List []Item
+	// ItemList is a slice type containing the ID ItemList.
+	ItemList []Item
 
 	savedErr error
 }
@@ -53,7 +53,7 @@ type List struct {
 func NewList(fnJSON string) *List {
 	p := &List{}
 	p.FnJSON = fnJSON
-	p.List = make([]Item, 0, 65536)
+	p.ItemList = make([]Item, 0, 65536)
 	return p
 }
 
@@ -66,27 +66,27 @@ func (p *List) ReadListFile() {
 		b, err := ioutil.ReadFile(p.FnJSON)
 		errorFatal(err)
 		if 0 < len(b) {
-			err = json.Unmarshal(b, &(p.List))
+			err = json.Unmarshal(b, &(p.ItemList))
 			errorFatal(err)
 			// TODO: sort for binary search
 		}
 	}
 	if true == Verbose {
-		fmt.Println("Read ID List file", p.FnJSON, "with", len(p.List), "items.")
+		fmt.Println("Read ID List file", p.FnJSON, "with", len(p.ItemList), "items.")
 	}
 }
 
 // WriteListFile marshalls p.List to p.fnJSON.
 func (p *List) WriteListFile() {
-	b, err := json.MarshalIndent(p.List, "", "\t")
+	b, err := json.MarshalIndent(p.ItemList, "", "\t")
 	errorFatal(err)
 	errorFatal(ioutil.WriteFile(p.FnJSON, b, 0644))
 }
 
 // ZeroTimestampCreated sets all timstamps 'created' to 0.
 func (p *List) ZeroTimestampCreated() {
-	for i := range p.List {
-		p.List[i].Created = 0
+	for i := range p.ItemList {
+		p.ItemList[i].Created = 0
 	}
 }
 
@@ -101,10 +101,10 @@ start:
 		if 0xef == ih || 0x89 == il || 0x89ab == id || 0xabcd == id || 0xcdef == id { // 515 ids forbidden, see bare.go
 			continue // next try
 		}
-		if 0 == len(p.List) {
+		if 0 == len(p.ItemList) {
 			return
 		}
-		for _, item := range p.List { // todo: binary search
+		for _, item := range p.ItemList { // todo: binary search
 			if id == item.ID {
 				goto start // id used
 			}
@@ -116,7 +116,7 @@ start:
 // appendIfMissing is appending item to p.List.
 // It returns true if item was missing or changed, otherwise false.
 func (p *List) appendIfMissing(item Item, verbose bool) (int, bool) {
-	for _, e := range p.List {
+	for _, e := range p.ItemList {
 		if e.ID == item.ID { // if id exists
 			if (e.FmtType == item.FmtType) && (e.FmtStrg == item.FmtStrg) { // identical
 				if 0 == e.Removed { // is active
@@ -140,7 +140,7 @@ func (p *List) appendIfMissing(item Item, verbose bool) (int, bool) {
 			item.ID = p.newID()
 			item.Created = int32(time.Now().Unix())
 			fmt.Println(item)
-			p.List = append(p.List, item)
+			p.ItemList = append(p.ItemList, item)
 			// Need to change file! Therefore the (new) ID is delivered back.
 			return item.ID, true
 		}
@@ -149,7 +149,7 @@ func (p *List) appendIfMissing(item Item, verbose bool) (int, bool) {
 		// If for some reason a huge amount of identical TRICEs should get identical
 		// IDs this could be done here.
 	}
-	p.List = append(p.List, item)
+	p.ItemList = append(p.ItemList, item)
 	return item.ID, true
 }
 
@@ -168,8 +168,8 @@ func (p *List) ExtendIDList(id int, typ, fmts string, verbose bool) (int, bool) 
 
 // Index returns the index of id inside p.List. If id is not found it returns -1.
 func (p *List) Index(id int) int {
-	for i := range p.List {
-		iD := p.List[i].ID
+	for i := range p.ItemList {
+		iD := p.ItemList[i].ID
 		if id == iD {
 			return i
 		}
@@ -179,7 +179,7 @@ func (p *List) Index(id int) int {
 
 // Item returns the trice item on index from the List
 func (p *List) Item(index int) Item {
-	return p.List[index]
+	return p.ItemList[index]
 }
 
 // ScZero does replace all ID's in sourc tree with 0
@@ -225,7 +225,7 @@ func (p *List) update(dir string) error {
 		return fmt.Errorf("failed update on %s with %s: %v", dir, p.FnJSON, err)
 	}
 	if Verbose {
-		fmt.Println(len(p.List), "ID's in List", p.FnJSON)
+		fmt.Println(len(p.ItemList), "ID's in List", p.FnJSON)
 	}
 	return nil
 }

@@ -5,8 +5,6 @@
 
 package emitter
 
-var ()
-
 /*
 
 // checkValuePosition is a consistency check for positive values and their position.

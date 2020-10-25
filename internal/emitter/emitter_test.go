@@ -42,7 +42,7 @@ func TestNewSimpleTriceInterpreterWithAnsiOff(t *testing.T) {
 	sw := NewLineComposer(lwT)
 
 	dict := id.NewList("none")
-	dict.List = []id.Item{
+	dict.ItemList = []id.Item{
 		{ID: 258, FmtType: "TRICE8_2", FmtStrg: "att:Hello, %d*%d=", Created: 0, Removed: 0}, // 1, 2, 3, 4,
 		{ID: 515, FmtType: "TRICE16_1", FmtStrg: "att:%d, ok", Created: 0, Removed: 0},       // 2, 3, 0, 0xc,
 		{ID: 259, FmtType: "TRICE0", FmtStrg: "?\n", Created: 0, Removed: 0},                 // 1, 3, 0, 0,

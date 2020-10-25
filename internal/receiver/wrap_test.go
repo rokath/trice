@@ -4,8 +4,6 @@
 // Package wrap_test is a blackbox test.
 package receiver_test
 
-var ()
-
 /*
 func Test1(t *testing.T) {
 	r := bytes.NewReader([]byte{})

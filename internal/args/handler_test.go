@@ -10,8 +10,6 @@ import (
 	"testing"
 )
 
-var ()
-
 //func _TestScVersion(t *testing.T) {
 //
 //	fn := func() {

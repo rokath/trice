@@ -48,8 +48,8 @@ func newInputPort() (r io.ReadCloser, e error) {
 	return
 }
 
-// newList returns a list struct which stays up-to-date in case the til.json file changes.
-func newList() (l *id.List) {
+// NewList returns a list struct which stays up-to-date in case the til.json file changes.
+func NewList() (l *id.List) {
 	l = id.NewList(fnJSON)
 	l.ReadListFile()
 	go l.FileWatcher()
@@ -65,7 +65,7 @@ func doReceive() {
 	translatePrefix()
 	fnJSON = id.ConditionalFilePath(fnJSON)
 	lwD := emitter.NewLineWriter(displayRemote, autostart)
-	list := newList()
+	list := NewList()
 
 	// lineComposer implements the io.StringWriter interface and uses the Linewriter provided.
 	// The line composer scans the trice strings and composes lines out of them according to its properies.

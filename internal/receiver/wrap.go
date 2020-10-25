@@ -43,8 +43,6 @@ const (
 // 	wrapBuffer []Wrap
 // }
 
-var ()
-
 // BareReaderFromWrap provides a Read method for bare data from wrapped data
 type BareReaderFromWrap struct {
 	in         io.Reader
