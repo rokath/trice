@@ -4,6 +4,7 @@
 package decoder_test
 
 import (
+	"encoding/json"
 	"fmt"
 	"testing"
 
@@ -12,7 +13,7 @@ import (
 )
 
 var (
-	data string = string([]byte{
+	byteStream string = string([]byte{
 		236, 228, 113, 16, 0, 0, 0, 1, 127, 255, 255, 255, 128, 0, 0, 0, 255, 255, 255, 255, // TRICE32_4 %10d ->              1     2147483647     -2147483648            -1
 		236, 227, 74, 105, 17, 34, 51, 68, 85, 102, 119, 136, // 64bit 0b1000100100010001100110100010001010101011001100111011110001000
 		236, 228, 177, 183, 0, 0, 0, 0, 0, 0, 0, 129, 0, 0, 0, 0, 0, 0, 0, 3, // MSG: triceEscFifoMaxDepth = 129, index = 3
@@ -54,8 +55,10 @@ var (
 		"removed": 0
 	},
 ]`
+	itemList = make([]id.Item, 1<<16)
+) // var
 
-	//	itemlist = make( []id.Item
+/*
 
 	itemlist = []id.Item{
 		{ID: 258, FmtType: "TRICE8_2", FmtStrg: "att:Hello, %d*%d=", Created: 0, Removed: 0}, // 1, 2, 3, 4,
@@ -70,13 +73,27 @@ var (
 		//savedErr: nil,
 	}
 )
+*/
 
 func Test1(t *testing.T) {
-	//json.Unmarshal(b, &(p.ItemList))
-	r, err := decoder.NewInputPort("BUFFER", data)
-	p := decoder.NewEsc(list, r)
+	var data = []byte(til)
+	json.Unmarshal(data, &itemList)
+	r, err := decoder.NewInputPort("BUFFER", byteStream)
+	p := decoder.NewEsc(itemList, r)
+	i := id.List{}
+	i.ItemList := itemList
+	p.list = i
 	if err != nil {
 		fmt.Println(p)
 		t.Fail()
 	}
+	ss := make([]string, 100)
+	n, err := p.StringsRead(ss)
+	if err != nil {
+		fmt.Println(p)
+		t.Fail()
+	}
+	ss = ss[:n]
+	fmt.Println(ss)
+	//t.Fail()
 }

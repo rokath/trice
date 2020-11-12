@@ -24,11 +24,11 @@ type Esc struct {
 }
 
 // NewEsc provides an EscDecoder instance.
-func NewEsc(list *id.List, in io.Reader) *Esc {
+func NewEsc(list []id.Item, in io.Reader) *Esc {
 	p := &Esc{}
 	p.in = in
-	p.syncBuffer = make([]byte, 2*buffSize)
-	p.list = list
+	p.syncBuffer = make([]byte, 0, 2*buffSize)
+	p.itemList = list
 	return p
 }
 
@@ -57,11 +57,11 @@ parse:
 		return
 	}
 	for _, c := range p.syncBuffer {
-		if 0xec != c {
+		if 0xec != c { // 0xec == 236
 			p.syncBuffer = p.syncBuffer[1:] // remove 1st char
 			goto parse                      // no start byte
 		}
-		if 0xde == p.syncBuffer[1] {
+		if 0xde == p.syncBuffer[1] { // 0xde == 222
 			p.syncBuffer = p.syncBuffer[1:] // remove 1st char
 			goto parse                      // no start byte: `0xec 0xde` is no valid esc packet start. Is is an escaped 0xec.
 		}

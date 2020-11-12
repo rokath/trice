@@ -31,6 +31,7 @@ type decoding struct {
 	in         io.Reader // inner reader
 	syncBuffer []byte    // unprocessed bytes hold for next cycle
 	list       *id.List
+	itemList   []id.Item
 }
 
 // NewInputPort is the common action taken by the decoder specific methods NewInputPort.
