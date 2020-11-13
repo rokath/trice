@@ -824,5 +824,12 @@
 		"fmtStrg": "s:                                              \\ns:    ARM-MDK_BARE_STM32F03051R8Tx-DISCOVERY    \\ns:                                              \\n\\n",
 		"created": 1602255678,
 		"removed": 0
+	},
+	{
+		"id": 44249,
+		"fmtType": "TRICE0",
+		"fmtStrg": "Hallo Ralf!\\n",
+		"created": 1604512008,
+		"removed": 0
 	}
 ]

@@ -17,6 +17,7 @@ extern "C" {
 //#define TRICE_NO_CODE //!< no trice code generation
 //#define TRICE_WRITE_BARE_FIFO
 #define TRICE_WRITE_ESC_FIFO
+#define TRICE_UART USART2
 //#define TRICE_WRITE_BARE_FIFO_WRITE_ESC_FIFO
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -30,7 +31,7 @@ void tricePushByteEscFifo(uint8_t v);
 void tricePushByteSeggerRTT(uint8_t v);
 
 //! Set trice out channel(s) 
-#define TRICE_PUSH_BYTE(v) do{ tricePushByteSeggerRTT(v); tricePushByteEscFifo(v); } while(0)
+#define TRICE_PUSH_BYTE(v) do{ /*tricePushByteSeggerRTT(v);*/ tricePushByteEscFifo(v); } while(0)
 
 #endif // #ifdef TRICE_WRITE_ESC_FIFO
 //

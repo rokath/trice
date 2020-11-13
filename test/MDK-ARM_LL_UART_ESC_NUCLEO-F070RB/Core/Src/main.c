@@ -109,6 +109,7 @@ int main(void)
             if( milliSecond >= lastTricesTime + 100 ){
                 static int index = 0;
                 TRICE16_1( Id(55132),"MSG: triceEscFifoMaxDepth = %d\n", triceEscFifoMaxDepth );
+                TRICE0( Id(44249), "Hallo Ralf!\n" );
                 TRICE64_2(Id(16627), "tst:TRICE64_2 %x %16d\n", 0x1020304050607080, index); // 4
                 triceCheckSet(index%10);
                 index++;
