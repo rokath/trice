@@ -16,6 +16,7 @@ import (
 
 // EscTranslator ...
 type EscTranslator struct {
+	// id to string translation table
 	translator
 
 	// inner bytes reader

@@ -6,6 +6,7 @@ package decoder
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -26,15 +27,17 @@ type Decoder interface {
 	StringsReader
 }
 
-// Decoder is the common data struct for all decoders
+// decoding is the common data struct for all decoders
 type decoding struct {
 	in         io.Reader // inner reader
 	syncBuffer []byte    // unprocessed bytes hold for next cycle
-	list       *id.List
-	itemList   []id.Item
+	lut        idLookUp  // id look-up map for translation
 }
 
 // NewInputPort is the common action taken by the decoder specific methods NewInputPort.
+// port and pargs are the input port specific descriptors.
+// r is returned for input abstraction.
+// err is nil on successful open.
 func NewInputPort(port, pargs string) (r io.ReadCloser, err error) {
 	switch port {
 	case "JLINK", "STLINK":
@@ -57,4 +60,44 @@ func NewInputPort(port, pargs string) (r io.ReadCloser, err error) {
 	}
 
 	return
+}
+
+// idFmt contains the ID mapped information needed for decoding
+type idFmt struct {
+	Type string
+	Strg string
+}
+
+// idLookUp is the translation map ID to format info
+type idLookUp map[int]idFmt
+
+// newIDLut assumes til as JSON formatted input and returns a map for trice ID to fmt string translation.
+func newIDLut(til []byte) (lut idLookUp, err error) {
+
+	// l is an item list for up to 65536 items (2^16)
+	//l := make([]id.Item, 0, 65536)
+	var list []id.Item
+
+	if 0 < len(til) {
+		err = json.Unmarshal(til, &list)
+	}
+
+	if nil != err {
+		return lut, err
+	}
+
+	// create look-up map
+	lut = make(idLookUp)
+	// to do: add timestamp evaluation
+	for _, item := range list {
+		key := item.ID
+		value := idFmt{Type: item.FmtType, Strg: item.FmtStrg}
+		lut[key] = value
+	}
+
+	//fmt.Println(til)
+	//fmt.Println(list)
+	//fmt.Println(lut)
+
+	return lut, nil
 }

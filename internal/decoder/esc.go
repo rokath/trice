@@ -9,8 +9,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-
-	"github.com/rokath/trice/internal/id"
 )
 
 const (
@@ -24,22 +22,25 @@ type Esc struct {
 }
 
 // NewEsc provides an EscDecoder instance.
-func NewEsc(list []id.Item, in io.Reader) *Esc {
-	p := &Esc{}
+// til is the trice id list in JSON format.
+// in is the usable reader for the input bytes.
+func NewEsc(til []byte, in io.Reader) (p *Esc, err error) {
+	p = &Esc{}
 	p.in = in
 	p.syncBuffer = make([]byte, 0, 2*buffSize)
-	p.itemList = list
-	return p
+	p.lut, err = newIDLut(til)
+	return
 }
 
 // StringsRead is the provided read method for esc decoding.
 func (p *Esc) StringsRead(ss []string) (n int, err error) {
-	return p.readEsc2(ss)
+	//fmt.Println(p.lut)
+	return p.readEsc3(ss)
 }
 
-// readEsc2 uses inner reader
-func (p *Esc) readEsc2(ss []string) (m int, err error) {
-	var item id.Item                          // item is the next trice item ready for output.
+// readEsc3 uses inner reader and internal id look-up table to fill ss.
+// m is the count of decoded strings inside ss.
+func (p *Esc) readEsc3(ss []string) (m int, err error) {
 	maxBytes := 4*len(ss) - len(p.syncBuffer) // shortest esc trice is 4 bytes: 0xec 0xdf idHi idLo, so surely read not more than space in ss
 	rb := make([]byte, maxBytes)
 	var n int
@@ -68,19 +69,18 @@ parse:
 
 		// p.syncBuffer[0] is esc, p.syncBuffer[1] is length code, now following the 2 id bytes in bigendian format (network byte order)
 		id := (int(p.syncBuffer[2]) << 8) | int(p.syncBuffer[3])
-		index := p.list.Index(id)
-		if index < 0 { // unknown id
+		trice, ok := p.lut[id]
+		if !ok { // unknown id
 			ss[m] = fmt.Sprintln("error: unknown id", id, "syncBuffer = ", p.syncBuffer)
 			m++
 			p.syncBuffer = p.syncBuffer[1:] // remove 1st char
 			goto parse
 		}
-		item = p.list.Item(index)
 
 		switch p.syncBuffer[1] { // length code evaluation
 		case 0xdf: // no params
-			if "TRICE0" == item.FmtType {
-				ss[m] = fmt.Sprintf(item.FmtStrg)
+			if "TRICE0" == trice.Type {
+				ss[m] = fmt.Sprintf(trice.Strg)
 				m++
 				p.syncBuffer = p.syncBuffer[4:]
 				goto parse
@@ -93,8 +93,8 @@ parse:
 			if len(p.syncBuffer) < 5 {
 				return // wait
 			}
-			if "TRICE8_1" == item.FmtType {
-				ss[m] = fmt.Sprintf(item.FmtStrg, int8(p.syncBuffer[4]))
+			if "TRICE8_1" == trice.Type {
+				ss[m] = fmt.Sprintf(trice.Strg, int8(p.syncBuffer[4]))
 				m++
 				p.syncBuffer = p.syncBuffer[5:]
 				goto parse
@@ -107,16 +107,16 @@ parse:
 			if len(p.syncBuffer) < 6 {
 				return // wait
 			}
-			if "TRICE8_2" == item.FmtType {
-				ss[m] = fmt.Sprintf(item.FmtStrg,
+			if "TRICE8_2" == trice.Type {
+				ss[m] = fmt.Sprintf(trice.Strg,
 					int8(p.syncBuffer[4]),
 					int8(p.syncBuffer[5]))
 				m++
 				p.syncBuffer = p.syncBuffer[6:]
 				goto parse
 			}
-			if "TRICE16_1" == item.FmtType {
-				ss[m] = fmt.Sprintf(item.FmtStrg, int16(binary.BigEndian.Uint16(p.syncBuffer[4:6])))
+			if "TRICE16_1" == trice.Type {
+				ss[m] = fmt.Sprintf(trice.Strg, int16(binary.BigEndian.Uint16(p.syncBuffer[4:6])))
 				m++
 				p.syncBuffer = p.syncBuffer[6:]
 				goto parse
@@ -129,8 +129,8 @@ parse:
 			if len(p.syncBuffer) < 7 {
 				return // wait
 			}
-			if "TRICE8_3" == item.FmtType {
-				ss[m] = fmt.Sprintf(item.FmtStrg,
+			if "TRICE8_3" == trice.Type {
+				ss[m] = fmt.Sprintf(trice.Strg,
 					int8(p.syncBuffer[4]),
 					int8(p.syncBuffer[5]),
 					int8(p.syncBuffer[6]))
@@ -141,8 +141,8 @@ parse:
 			if len(p.syncBuffer) < 8 {
 				return // wait
 			}
-			if "TRICE8_4" == item.FmtType {
-				ss[m] = fmt.Sprintf(item.FmtStrg,
+			if "TRICE8_4" == trice.Type {
+				ss[m] = fmt.Sprintf(trice.Strg,
 					int8(p.syncBuffer[4]),
 					int8(p.syncBuffer[5]),
 					int8(p.syncBuffer[6]),
@@ -151,16 +151,16 @@ parse:
 				p.syncBuffer = p.syncBuffer[8:]
 				goto parse
 			}
-			if "TRICE16_2" == item.FmtType {
-				ss[m] = fmt.Sprintf(item.FmtStrg,
+			if "TRICE16_2" == trice.Type {
+				ss[m] = fmt.Sprintf(trice.Strg,
 					int16(binary.BigEndian.Uint16(p.syncBuffer[4:6])),
 					int16(binary.BigEndian.Uint16(p.syncBuffer[6:8])))
 				m++
 				p.syncBuffer = p.syncBuffer[8:]
 				goto parse
 			}
-			if "TRICE32_1" == item.FmtType {
-				ss[m] = fmt.Sprintf(item.FmtStrg, int32(binary.BigEndian.Uint32(p.syncBuffer[4:8])))
+			if "TRICE32_1" == trice.Type {
+				ss[m] = fmt.Sprintf(trice.Strg, int32(binary.BigEndian.Uint32(p.syncBuffer[4:8])))
 				m++
 				p.syncBuffer = p.syncBuffer[8:]
 				goto parse
@@ -170,11 +170,11 @@ parse:
 			p.syncBuffer = p.syncBuffer[1:] // remove 1st char
 			goto parse
 		case 0xe3: // 8 bytes param including 0-3 padding
-			if "TRICE8_5" == item.FmtType {
+			if "TRICE8_5" == trice.Type {
 				if len(p.syncBuffer) < 9 {
 					return // wait
 				}
-				ss[m] = fmt.Sprintf(item.FmtStrg,
+				ss[m] = fmt.Sprintf(trice.Strg,
 					int8(p.syncBuffer[4]),
 					int8(p.syncBuffer[5]),
 					int8(p.syncBuffer[6]),
@@ -187,8 +187,8 @@ parse:
 			if len(p.syncBuffer) < 10 {
 				return // wait
 			}
-			if "TRICE8_6" == item.FmtType {
-				ss[m] = fmt.Sprintf(item.FmtStrg,
+			if "TRICE8_6" == trice.Type {
+				ss[m] = fmt.Sprintf(trice.Strg,
 					int8(p.syncBuffer[4]),
 					int8(p.syncBuffer[5]),
 					int8(p.syncBuffer[6]),
@@ -199,8 +199,8 @@ parse:
 				p.syncBuffer = p.syncBuffer[10:]
 				goto parse
 			}
-			if "TRICE16_3" == item.FmtType {
-				ss[m] = fmt.Sprintf(item.FmtStrg,
+			if "TRICE16_3" == trice.Type {
+				ss[m] = fmt.Sprintf(trice.Strg,
 					int16(binary.BigEndian.Uint16(p.syncBuffer[4:6])),
 					int16(binary.BigEndian.Uint16(p.syncBuffer[6:8])),
 					int16(binary.BigEndian.Uint16(p.syncBuffer[8:10])))
@@ -211,8 +211,8 @@ parse:
 			if len(p.syncBuffer) < 11 {
 				return // wait
 			}
-			if "TRICE8_7" == item.FmtType {
-				ss[m] = fmt.Sprintf(item.FmtStrg,
+			if "TRICE8_7" == trice.Type {
+				ss[m] = fmt.Sprintf(trice.Strg,
 					int8(p.syncBuffer[4]),
 					int8(p.syncBuffer[5]),
 					int8(p.syncBuffer[6]),
@@ -227,8 +227,8 @@ parse:
 			if len(p.syncBuffer) < 12 {
 				return // wait
 			}
-			if "TRICE8_8" == item.FmtType {
-				ss[m] = fmt.Sprintf(item.FmtStrg,
+			if "TRICE8_8" == trice.Type {
+				ss[m] = fmt.Sprintf(trice.Strg,
 					int8(p.syncBuffer[4]),
 					int8(p.syncBuffer[5]),
 					int8(p.syncBuffer[6]),
@@ -241,8 +241,8 @@ parse:
 				p.syncBuffer = p.syncBuffer[12:]
 				return
 			}
-			if "TRICE16_4" == item.FmtType {
-				ss[m] = fmt.Sprintf(item.FmtStrg,
+			if "TRICE16_4" == trice.Type {
+				ss[m] = fmt.Sprintf(trice.Strg,
 					int16(binary.BigEndian.Uint16(p.syncBuffer[4:6])),
 					int16(binary.BigEndian.Uint16(p.syncBuffer[6:8])),
 					int16(binary.BigEndian.Uint16(p.syncBuffer[8:10])),
@@ -251,16 +251,16 @@ parse:
 				p.syncBuffer = p.syncBuffer[12:]
 				goto parse
 			}
-			if "TRICE32_2" == item.FmtType {
-				ss[m] = fmt.Sprintf(item.FmtStrg,
+			if "TRICE32_2" == trice.Type {
+				ss[m] = fmt.Sprintf(trice.Strg,
 					int32(binary.BigEndian.Uint32(p.syncBuffer[4:8])),
 					int32(binary.BigEndian.Uint32(p.syncBuffer[8:12])))
 				m++
 				p.syncBuffer = p.syncBuffer[12:]
 				goto parse
 			}
-			if "TRICE64_1" == item.FmtType {
-				ss[m] = fmt.Sprintf(item.FmtStrg,
+			if "TRICE64_1" == trice.Type {
+				ss[m] = fmt.Sprintf(trice.Strg,
 					int64(binary.BigEndian.Uint64(p.syncBuffer[4:12])))
 				m++
 				p.syncBuffer = p.syncBuffer[12:]
@@ -274,8 +274,8 @@ parse:
 			if len(p.syncBuffer) < 16 {
 				return // wait
 			}
-			if "TRICE32_3" == item.FmtType {
-				ss[m] = fmt.Sprintf(item.FmtStrg,
+			if "TRICE32_3" == trice.Type {
+				ss[m] = fmt.Sprintf(trice.Strg,
 					int32(binary.BigEndian.Uint32(p.syncBuffer[4:8])),
 					int32(binary.BigEndian.Uint32(p.syncBuffer[8:12])),
 					int32(binary.BigEndian.Uint32(p.syncBuffer[12:16])))
@@ -286,8 +286,8 @@ parse:
 			if len(p.syncBuffer) < 20 {
 				return // wait
 			}
-			if "TRICE32_4" == item.FmtType {
-				ss[m] = fmt.Sprintf(item.FmtStrg,
+			if "TRICE32_4" == trice.Type {
+				ss[m] = fmt.Sprintf(trice.Strg,
 					int32(binary.BigEndian.Uint32(p.syncBuffer[4:8])),
 					int32(binary.BigEndian.Uint32(p.syncBuffer[8:12])),
 					int32(binary.BigEndian.Uint32(p.syncBuffer[12:16])),
@@ -296,8 +296,8 @@ parse:
 				p.syncBuffer = p.syncBuffer[20:]
 				goto parse
 			}
-			if "TRICE64_2" == item.FmtType {
-				ss[m] = fmt.Sprintf(item.FmtStrg,
+			if "TRICE64_2" == trice.Type {
+				ss[m] = fmt.Sprintf(trice.Strg,
 					int64(binary.BigEndian.Uint64(p.syncBuffer[4:12])),
 					int64(binary.BigEndian.Uint64(p.syncBuffer[12:20])))
 				m++

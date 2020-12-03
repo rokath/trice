@@ -4,28 +4,17 @@
 package decoder_test
 
 import (
-	"encoding/json"
 	"fmt"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
+
 	"github.com/rokath/trice/internal/decoder"
-	"github.com/rokath/trice/internal/id"
 )
 
 var (
-	byteStream string = string([]byte{
-		236, 228, 113, 16, 0, 0, 0, 1, 127, 255, 255, 255, 128, 0, 0, 0, 255, 255, 255, 255, // TRICE32_4 %10d ->              1     2147483647     -2147483648            -1
-		236, 227, 74, 105, 17, 34, 51, 68, 85, 102, 119, 136, // 64bit 0b1000100100010001100110100010001010101011001100111011110001000
-		236, 228, 177, 183, 0, 0, 0, 0, 0, 0, 0, 129, 0, 0, 0, 0, 0, 0, 0, 3, // MSG: triceEscFifoMaxDepth = 129, index = 3
-		236, 224, 161, 51, 255, // TRICE8_1 -1
-		236, 228, 177, 183, 0, 0, 0, 0, 0, 0, 0, 98, 0, 0, 0, 0, 0, 0, 0, 2,
-		236, 226, 9, 223, 1, 127, 128, 255,
-		236, 226, 247, 191, 1, 127, 128, 255,
-		236, 226, 156, 127, 1, 127, 128, 255,
-	})
-
-	til string = `
-[
+	// til is the trace id list content for tests
+	til = `[
 	{
 		"id": 28944,
 		"fmtType": "TRICE32_4",
@@ -53,47 +42,42 @@ var (
 		"fmtStrg": "MSG: triceEscFifoMaxDepth = %d, index = %d\\n",
 		"created": 1601240705,
 		"removed": 0
-	},
+	}
 ]`
-	itemList = make([]id.Item, 1<<16)
-) // var
 
-/*
-
-	itemlist = []id.Item{
-		{ID: 258, FmtType: "TRICE8_2", FmtStrg: "att:Hello, %d*%d=", Created: 0, Removed: 0}, // 1, 2, 3, 4,
-		{ID: 515, FmtType: "TRICE16_1", FmtStrg: "att:%d, ok", Created: 0, Removed: 0},       // 2, 3, 0, 0xc,
-		{ID: 259, FmtType: "TRICE0", FmtStrg: "?\n", Created: 0, Removed: 0},                 // 1, 3, 0, 0,
-		{ID: 771, FmtType: "TRICE0", FmtStrg: "msg:Yes!\n", Created: 0, Removed: 0},          // 3, 3, 3, 3,
-	}
-
-	list = &id.List{
-		FnJSON:   "",
-		ItemList: itemlist,
-		//savedErr: nil,
-	}
+	// bytestream are the raw read input bytes for tests
+	byteStream string = string([]byte{
+		236, 228, 113, 16, 0, 0, 0, 1, 127, 255, 255, 255, 128, 0, 0, 0, 255, 255, 255, 255, // TRICE32_4 %10d ->              1     2147483647     -2147483648            -1
+		236, 227, 74, 105, 17, 34, 51, 68, 85, 102, 119, 136, // 64bit 0b1000100100010001100110100010001010101011001100111011110001000
+		236, 228, 177, 183, 0, 0, 0, 0, 0, 0, 0, 129, 0, 0, 0, 0, 0, 0, 0, 3, // MSG: triceEscFifoMaxDepth = 129, index = 3
+		236, 224, 161, 51, 255, // TRICE8_1 -1
+		236, 228, 177, 183, 0, 0, 0, 0, 0, 0, 0, 98, 0, 0, 0, 0, 0, 0, 0, 2, // MSG: triceEscFifoMaxDepth = 98, index = 2
+	})
 )
-*/
 
 func Test1(t *testing.T) {
-	var data = []byte(til)
-	json.Unmarshal(data, &itemList)
-	r, err := decoder.NewInputPort("BUFFER", byteStream)
-	p := decoder.NewEsc(itemList, r)
-	i := id.List{}
-	i.ItemList := itemList
-	p.list = i
+
+	// rc is created ReadCloser
+	rc, err := decoder.NewInputPort("BUFFER", byteStream)
 	if err != nil {
-		fmt.Println(p)
 		t.Fail()
 	}
+
+	//fmt.Println(til)
+
+	// p is a new esc decoder instance
+	p, err := decoder.NewEsc([]byte(til), rc)
+	if err != nil {
+		t.Fail()
+	}
+
 	ss := make([]string, 100)
 	n, err := p.StringsRead(ss)
 	if err != nil {
-		fmt.Println(p)
 		t.Fail()
 	}
 	ss = ss[:n]
-	fmt.Println(ss)
-	//t.Fail()
+	act := fmt.Sprintln(ss)
+	exp := "[tst:TRICE32_4 %10d ->              1     2147483647     -2147483648            -1\\n att:64bit 0b1000100100010001100110100010001010101011001100111011110001000\\n MSG: triceEscFifoMaxDepth = 129, index = 3\\n tst:TRICE8_1 -1\\n MSG: triceEscFifoMaxDepth = 98, index = 2\\n]\n"
+	assert.Equal(t, exp, act)
 }

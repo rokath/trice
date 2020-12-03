@@ -132,7 +132,8 @@ func receiving(sw *emitter.TriceLineComposer, list *id.List, hardReadError chan 
 	var p translator.Translator // interface type
 	switch encoding {
 	case "esc2":
-		var dec decoder.StringsReader = decoder.NewEsc(list.ItemList, portReader)
+		var dec decoder.StringsReader
+		//////////////////////////////////////////////////////////////////////////////////////////////////////// todo        dec, _ = decoder.NewEsc(list.ItemList, portReader)
 		run(sw, dec)
 
 	case "bare":
