@@ -67,8 +67,8 @@ func doReceive() {
 	lwD := emitter.NewLineWriter(displayRemote, autostart)
 	list := NewList()
 
-	// lineComposer implements the io.StringWriter interface and uses the Linewriter provided.
-	// The line composer scans the trice strings and composes lines out of them according to its properies.
+	// lineComposer implements the io.StringWriter interface and uses the line writer provided.
+	// The line composer scans the trice strings and composes lines out of them according to its properties.
 	sw := emitter.NewLineComposer(lwD)
 
 	// over this channel read errors despite io.EOF reported
@@ -133,7 +133,7 @@ func receiving(sw *emitter.TriceLineComposer, list *id.List, hardReadError chan 
 	switch encoding {
 	case "esc2":
 		var dec decoder.StringsReader
-		//////////////////////////////////////////////////////////////////////////////////////////////////////// todo        dec, _ = decoder.NewEsc(list.ItemList, portReader)
+		dec, _ = decoder.NewEscL(list.ItemList, portReader)
 		run(sw, dec)
 
 	case "bare":

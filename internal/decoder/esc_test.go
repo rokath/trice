@@ -45,7 +45,7 @@ var (
 	}
 ]`
 
-	// bytestream are the raw read input bytes for tests
+	// byteStream are the raw read input bytes for tests
 	byteStream string = string([]byte{
 		236, 228, 113, 16, 0, 0, 0, 1, 127, 255, 255, 255, 128, 0, 0, 0, 255, 255, 255, 255, // TRICE32_4 %10d ->              1     2147483647     -2147483648            -1
 		236, 227, 74, 105, 17, 34, 51, 68, 85, 102, 119, 136, // 64bit 0b1000100100010001100110100010001010101011001100111011110001000
@@ -62,8 +62,6 @@ func Test1(t *testing.T) {
 	if err != nil {
 		t.Fail()
 	}
-
-	//fmt.Println(til)
 
 	// p is a new esc decoder instance
 	p, err := decoder.NewEsc([]byte(til), rc)

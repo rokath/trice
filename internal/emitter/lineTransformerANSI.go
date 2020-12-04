@@ -39,9 +39,9 @@ var (
 	colorizeDEBUG     = ansi.ColorFunc("130+i")
 	colorizeDIAG      = ansi.ColorFunc("161+B")
 	//colorizeINTERRUPT = ansi.ColorFunc("13+i")
-	colorizeSIGNAL    = ansi.ColorFunc("118+i")
-	colorizeTEST      = ansi.ColorFunc("yellow+h:black")
-	colorizeINFO      = ansi.ColorFunc("121+i")
+	colorizeSIGNAL = ansi.ColorFunc("118+i")
+	colorizeTEST   = ansi.ColorFunc("yellow+h:black")
+	colorizeINFO   = ansi.ColorFunc("121+i")
 )
 
 func isLower(s string) bool {

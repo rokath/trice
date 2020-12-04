@@ -8,6 +8,7 @@ import (
 	"encoding/binary"
 	"errors"
 	"fmt"
+	"github.com/rokath/trice/internal/id"
 	"io"
 )
 
@@ -29,6 +30,17 @@ func NewEsc(til []byte, in io.Reader) (p *Esc, err error) {
 	p.in = in
 	p.syncBuffer = make([]byte, 0, 2*buffSize)
 	p.lut, err = newIDLut(til)
+	return
+}
+
+// NewEscL provides an EscDecoder instance.
+// l is the trice id list in slice of struct format.
+// in is the usable reader for the input bytes.
+func NewEscL(l []id.Item, in io.Reader) (p *Esc, err error) {
+	p = &Esc{}
+	p.in = in
+	p.syncBuffer = make([]byte, 0, 2*buffSize)
+	p.lut = MakeLut(l)
 	return
 }
 

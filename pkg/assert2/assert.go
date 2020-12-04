@@ -21,7 +21,6 @@ import (
 // test helper ///////////////////////////////////////////////////////////////////////
 //
 
-
 // Equal fails the test if exp is not equal to act.
 func Equal(tb testing.TB, exp, act interface{}) {
 	if !reflect.DeepEqual(exp, act) {
