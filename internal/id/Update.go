@@ -88,9 +88,9 @@ func (p *List) Update(root string, run, verbose bool) error {
 	}
 	if listModified && true == run {
 		p.WriteListFile()
-		if nil != p.savedErr {
-			return fmt.Errorf("failed to write %s: %v", p.FnJSON, err)
-		}
+		//if nil != p.savedErr {
+		//return fmt.Errorf("failed to write %s: %v", p.FnJSON, err)
+		//}
 	}
 	return nil
 }

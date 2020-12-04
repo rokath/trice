@@ -1,7 +1,6 @@
 // Copyright 2020 Thomas.Hoehenleitner [at] seerose.net
 // Use of this source code is governed by a license that can be found in the LICENSE file.
 
-// Package args implemets the commandline interface and calls the appropriate commands.
 package args
 
 import (
@@ -15,46 +14,14 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/rokath/trice/internal/com"
 	"github.com/rokath/trice/internal/decoder"
 	"github.com/rokath/trice/internal/emitter"
 	"github.com/rokath/trice/internal/id"
-	"github.com/rokath/trice/internal/link"
 	"github.com/rokath/trice/internal/receiver"
 	"github.com/rokath/trice/internal/translator"
 	"github.com/rokath/trice/pkg/cage"
 	"github.com/rokath/trice/pkg/cipher"
 )
-
-// newInputPort uses variable Port and tries to return a valid io.ReadCloser.
-func newInputPort() (r io.ReadCloser, e error) {
-	switch Port {
-	case "JLINK", "STLINK":
-		l := link.NewDevice()
-		if nil != l.Open() {
-			e = fmt.Errorf("can not open link device %s with args %s", Port, link.Args)
-		}
-		r = l
-	default: // assuming serial port
-		var c com.COMport // interface type
-		c = com.NewCOMPortGoBugSt(Port)
-		//c = com.NewCOMPortTarm(Port)
-		if false == c.Open() {
-			e = fmt.Errorf("can not open %s", Port)
-		}
-		r = c
-		return
-	}
-	return
-}
-
-// NewList returns a list struct which stays up-to-date in case the til.json file changes.
-func NewList() (l *id.List) {
-	l = id.NewList(fnJSON)
-	l.ReadListFile()
-	go l.FileWatcher()
-	return
-}
 
 // doReceive prepares writing and list and provides a retry mechanism for unplugged UART.
 func doReceive() {
@@ -82,41 +49,12 @@ func doReceive() {
 	}
 }
 
-func run(sw *emitter.TriceLineComposer, dec decoder.StringsReader) error {
-	ss := make([]string, 100)
-	n, err := dec.StringsRead(ss)
-	if nil != err && io.EOF != err {
-		return err
-	}
-	for i := range ss[:n] {
-		sw.WriteString(ss[i])
-	}
-	return nil
-}
-
-func runEsc2(sw *emitter.TriceLineComposer, list *id.List) {
-again: // (re-)setup input port
-	portReader, e := newInputPort()
-	if nil != e {
-		if verbose {
-			fmt.Println(e)
-		}
-		time.Sleep(1000 * time.Millisecond)
-		goto again
-	}
-	defer portReader.Close()
-	if showInputBytes {
-		portReader = newBytesViewer(portReader)
-	}
-	//var dec decoder.StringsReader = decoder.NewEsc(list, portReader)
-}
-
 // receiving performs the trice log task, uses internally Port and encoding and
 // returns false on program end signal or true on hard read error.
 func receiving(sw *emitter.TriceLineComposer, list *id.List, hardReadError chan bool) bool {
 
 	// (re-)setup input port
-	portReader, e := newInputPort()
+	portReader, e := decoder.NewInputPort(Port, "")
 	if nil != e {
 		if verbose {
 			fmt.Println(e)
@@ -131,15 +69,29 @@ func receiving(sw *emitter.TriceLineComposer, list *id.List, hardReadError chan 
 	// activate selected encoding
 	var p translator.Translator // interface type
 	switch encoding {
-	case "esc2":
-		var dec decoder.StringsReader
-		dec, _ = decoder.NewEscL(list.ItemList, portReader)
-		run(sw, dec)
+	case "esc", "esc2":
+		dec := decoder.NewEsc(list.ItemList, portReader)
+		for {
+			err := run(sw, dec)
+			if nil != err {
+				time.Sleep(2 * time.Second)
+				dec = decoder.NewEsc(list.ItemList, portReader) // read list again - it could have changed
+			}
+		}
+	case "bare2":
+		dec := decoder.NewBare(list.ItemList, portReader)
+		for {
+			err := run(sw, dec)
+			if nil != err {
+				time.Sleep(2 * time.Second)
+				dec = decoder.NewBare(list.ItemList, portReader) // read list again - it could have changed
+			}
+		}
 
 	case "bare":
 		p = receiveBareSimpleTricesAndDisplayAnsiColor(sw, portReader, list, hardReadError)
-	case "esc":
-		p = receiveEscTricesAndDisplayAnsiColor(sw, portReader, list, hardReadError)
+	//case "esc":
+	//p = receiveEscTricesAndDisplayAnsiColor(sw, portReader, list, hardReadError)
 	//case "wrap", "wrapped":
 	//p = receiveWrapSimpleTricesAndDisplayAnsiColor(portReader, fnJSON)
 	//	case "sim":
@@ -189,16 +141,24 @@ func receiveBareSimpleTricesAndDisplayAnsiColor(
 	return
 }
 
-func receiveEscTricesAndDisplayAnsiColor(
-	sw *emitter.TriceLineComposer,
-	rd io.ReadCloser,
-	list *id.List,
-	hardReadError chan bool) (et *translator.EscTranslator) {
-
-	// uses rd for reception and the io.StringWriter interface sw for writing.
-	// collects trice bytes to a complete esc trice message, generates the appropriate string using list and writes it to the provided io.StringWriter
-	et = translator.NewEscTrices(sw, list, rd, hardReadError)
+// NewList returns a pointer to a list struct which stays up-to-date in case the til.json file changes.
+func NewList() (l *id.List) {
+	l = id.NewList(fnJSON)
+	l.ReadListFile()
+	go l.FileWatcher()
 	return
+}
+
+func run(sw *emitter.TriceLineComposer, dec decoder.StringsReader) error {
+	ss := make([]string, 100)
+	n, err := dec.StringsRead(ss)
+	if nil != err && io.EOF != err {
+		return err
+	}
+	for i := range ss[:n] {
+		sw.WriteString(ss[i])
+	}
+	return nil
 }
 
 // translatePrefix changes "source:" to e.g., "JLINK:".
@@ -275,3 +235,36 @@ func (p *bytesViewer) Close() error { return nil } // todo: Why is Close() metho
 
 //
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+
+/* not needed
+func runEsc2(sw *emitter.TriceLineComposer, list *id.List) {
+again: // (re-)setup input port
+	portReader, e := decoder.NewInputPort(Port, "")
+	if nil != e {
+		if verbose {
+			fmt.Println(e)
+		}
+		time.Sleep(1000 * time.Millisecond)
+		goto again
+	}
+	defer portReader.Close()
+	if showInputBytes {
+		portReader = newBytesViewer(portReader)
+	}
+	//var dec decoder.StringsReader = decoder.NewEsc(list, portReader)
+}
+*/
+
+/* This works well but is not well refactored
+func receiveEscTricesAndDisplayAnsiColor(
+	sw *emitter.TriceLineComposer,
+	rd io.ReadCloser,
+	list *id.List,
+	hardReadError chan bool) (et *translator.EscTranslator) {
+
+	// uses rd for reception and the io.StringWriter interface sw for writing.
+	// collects trice bytes to a complete esc trice message, generates the appropriate string using list and writes it to the provided io.StringWriter
+	et = translator.NewEscTrices(sw, list, rd, hardReadError)
+	return
+}
+*/

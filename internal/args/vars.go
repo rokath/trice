@@ -1,6 +1,8 @@
 // Copyright 2020 Thomas.Hoehenleitner [at] seerose.net
 // Use of this source code is governed by a license that can be found in the LICENSE file.
 
+// Package args implements the commandline interface and calls the appropriate commands.
+// Its function Handler is called in package main as entry point.
 package args
 
 import (

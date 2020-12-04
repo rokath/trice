@@ -35,9 +35,11 @@ type decoding struct {
 }
 
 // NewInputPort is the common action taken by the decoder specific methods NewInputPort.
-// port and args are the input port specific descriptors.
 // r is returned for input abstraction.
 // err is nil on successful open.
+// port and args are the input port specific descriptors.
+// When port is "COMn" args can be used to be "TARM" to use a different driver for dynamic testing.
+// When port is "BUFFER", args is expected to be a byte sequence in the same format as for example coming from one of the other ports.
 func NewInputPort(port, args string) (r io.ReadCloser, err error) {
 	switch port {
 	case "JLINK", "STLINK":
@@ -47,7 +49,7 @@ func NewInputPort(port, args string) (r io.ReadCloser, err error) {
 		}
 		r = l
 	default: // assuming serial port
-		var c com.COMport // interface type
+		var c com.COMport   // interface type
 		if "TARM" == args { // for comparing dynamic behaviour
 			c = com.NewCOMPortTarm(port)
 		} else {
@@ -58,10 +60,9 @@ func NewInputPort(port, args string) (r io.ReadCloser, err error) {
 		}
 		r = c
 		return
-	case "BUFFER": // args is expected to be a byte sequence in the same format as for example coming from one of the other ports
+	case "BUFFER":
 		r = ioutil.NopCloser(bytes.NewBufferString(args))
 	}
-
 	return
 }
 

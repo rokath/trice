@@ -55,7 +55,7 @@ var (
 	})
 )
 
-func Test1(t *testing.T) {
+func TestEsc(t *testing.T) {
 
 	// rc is created ReadCloser
 	rc, err := decoder.NewInputPort("BUFFER", byteStream)
@@ -63,11 +63,38 @@ func Test1(t *testing.T) {
 		t.Fail()
 	}
 
-	// p is a new esc decoder instance
-	p, err := decoder.NewEsc([]byte(til), rc)
+	list, err := decoder.UnmarshalTriceIDList([]byte(til))
 	if err != nil {
 		t.Fail()
 	}
+
+	p := decoder.NewEsc(list, rc) // p is a new esc decoder instance
+
+	ss := make([]string, 100)
+	n, err := p.StringsRead(ss)
+	if err != nil {
+		t.Fail()
+	}
+	ss = ss[:n]
+	act := fmt.Sprintln(ss)
+	exp := "[tst:TRICE32_4 %10d ->              1     2147483647     -2147483648            -1\\n att:64bit 0b1000100100010001100110100010001010101011001100111011110001000\\n MSG: triceEscFifoMaxDepth = 129, index = 3\\n tst:TRICE8_1 -1\\n MSG: triceEscFifoMaxDepth = 98, index = 2\\n]\n"
+	assert.Equal(t, exp, act)
+}
+
+func TestBare(t *testing.T) {
+
+	// rc is created ReadCloser
+	rc, err := decoder.NewInputPort("BUFFER", byteStream)
+	if err != nil {
+		t.Fail()
+	}
+
+	list, err := decoder.UnmarshalTriceIDList([]byte(til))
+	if err != nil {
+		t.Fail()
+	}
+
+	p := decoder.NewBare(list, rc) // p is a new esc decoder instance
 
 	ss := make([]string, 100)
 	n, err := p.StringsRead(ss)

@@ -46,7 +46,7 @@ type List struct {
 	// ItemList is a slice type containing the ID ItemList.
 	ItemList []Item
 
-	savedErr error
+	//savedErr error
 }
 
 // NewList creates an ID List instance

@@ -13,32 +13,34 @@ import (
 	"github.com/rokath/trice/internal/id"
 )
 
+/*
 const (
 	// receive and sync buffer size
 	buffSize = 1024
 )
+*/
 
-// Esc is the Decoder instance for esc encoded trices.
-type Esc struct {
+// Bare is the Decoder instance for bare encoded trices.
+type Bare struct {
 	decoding
 }
 
-// NewEsc provides an EscDecoder instance.
+// NewBare provides an EscDecoder instance.
 // l is the trice id list in slice of struct format.
 // in is the usable reader for the input bytes.
-func NewEsc(l []id.Item, in io.Reader) (p *Esc) {
-	p = &Esc{}
+func NewBare(l []id.Item, in io.Reader) (p *Bare) {
+	p = &Bare{}
 	p.in = in
 	p.syncBuffer = make([]byte, 0, 2*buffSize)
 	p.lut = MakeLut(l)
 	return
 }
 
-// StringsRead is the provided read method for esc decoding.
+// StringsRead is the provided read method for bare decoding.
 // It uses inner reader and internal id look-up table to fill ss.
 // ss is a slice of strings with a len for the max expected strings.
 // m is the count of decoded strings inside ss.
-func (p *Esc) StringsRead(ss []string) (m int, err error) {
+func (p *Bare) StringsRead(ss []string) (m int, err error) {
 	maxBytes := 4*len(ss) - len(p.syncBuffer) // shortest esc trice is 4 bytes: 0xec 0xdf idHi idLo, so surely read not more than space in ss
 	rb := make([]byte, maxBytes)
 	var n int
@@ -315,16 +317,3 @@ parse:
 	}
 	return
 }
-
-/*
-// NewEsc provides an EscDecoder instance.
-// til is the trice id list in JSON format.
-// in is the usable reader for the input bytes.
-func NewEsc(til []byte, in io.Reader) (p *Esc, err error) {
-	p = &Esc{}
-	p.in = in
-	p.syncBuffer = make([]byte, 0, 2*buffSize)
-	p.lut, err = newIDLut(til)
-	return
-}
-*/

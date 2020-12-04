@@ -23,7 +23,7 @@ import (
 // It returns for program exit.
 func Handler(args []string) error {
 
-	if "" == Date { // goreleaser will set Date, otherwise use file info
+	if "" == Date { // goreleaser will set Date, otherwise use file info.
 		fi, err := os.Stat(os.Args[0])
 		if nil == err { // On running main tests fileinfo is invalid, so do not use in that case.
 			Date = fi.ModTime().String()
@@ -31,7 +31,7 @@ func Handler(args []string) error {
 	}
 	cage.DefaultLogfileName = "2006-01-02_1504-05_trice.log"
 
-	// Verify that a subcommand has been provided: os.Arg[0] is the main command, os.Arg[1] will be the subcommand.
+	// Verify that a subcommand has been provided: os.Arg[0] is the main command (trice), os.Arg[1] will be the subcommand.
 	if len(os.Args) < 2 {
 		msg := "no args, try: 'trice help'"
 		fmt.Println(msg)
@@ -44,6 +44,9 @@ func Handler(args []string) error {
 	subCmd := args[1]
 	subArgs := args[2:]
 	switch subCmd { // Check which subcommand is invoked.
+	default:
+		fmt.Println("try: 'trice help|h'")
+		return nil
 	case "h", "help":
 		fsScHelp.Parse(subArgs)
 		distributeArgs()
@@ -66,21 +69,18 @@ func Handler(args []string) error {
 		fsScZero.Parse(subArgs)
 		distributeArgs()
 		return id.ScZero(*pSrcZ, fsScZero)
-	case "l", "log":
-		fsScLog.Parse(subArgs)
-		distributeArgs()
-		doReceive()
-		return nil
-	case "ds", "displayServer":
-		fsScSv.Parse(subArgs)
-		distributeArgs()
-		return emitter.ScDisplayServer()
 	case "sd", "sdds", "sdrds", "shutdownRemoteDisplayServer":
 		fsScSdSv.Parse(subArgs)
 		distributeArgs()
 		return emitter.ScShutdownRemoteDisplayServer(1)
-	default:
-		fmt.Println("try: 'trice help|h'")
+	case "ds", "displayServer":
+		fsScSv.Parse(subArgs)
+		distributeArgs()
+		return emitter.ScDisplayServer() // endless loop
+	case "l", "log":
+		fsScLog.Parse(subArgs)
+		distributeArgs()
+		doReceive() // endless loop
 		return nil
 	}
 }
@@ -131,7 +131,7 @@ func scHelp(
 	return nil
 }
 
-// scVersion is subcommand 'version'
+// scVersion is subcommand 'version'. It prints version information.
 func scVersion() error {
 	cage.Enable()
 	defer cage.Disable()
