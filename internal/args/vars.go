@@ -25,6 +25,9 @@ var (
 	// Port is the trice receiver to use.
 	Port string
 
+	// arguments is the trice receiver to use.
+	arguments string
+
 	// encoding describes the way the byte stream is coded.
 	encoding string
 
@@ -66,4 +69,13 @@ var (
 
 	// showInputBytes displays incoming bytes if set true
 	showInputBytes bool
+
+	// used to replace "default" args value for STLINK and JLINK port
+	defaultLinkArgs = "-Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0 -RTTSearchRanges 0x20000000_0x1000"
+
+	// used to replace "default" args value for COMn port
+	defaultCOMArgs = ""
+
+	// used to replace "default" args value for BUFFER port
+	defaultBUFFERArgs = "0 0 0 0"
 )

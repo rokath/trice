@@ -9,7 +9,6 @@ import (
 	"github.com/rokath/trice/internal/com"
 	"github.com/rokath/trice/internal/emitter"
 	"github.com/rokath/trice/internal/id"
-	"github.com/rokath/trice/internal/link"
 	"github.com/rokath/trice/pkg/cage"
 )
 
@@ -20,15 +19,14 @@ func init() {
 	//fsScLog.StringVar(&cipher.Password, "password", "none", "The decrypt passphrase.")                                                                                                                                                // flag
 	//fsScLog.StringVar(&cipher.Password, "pw", "none", "Short for -password.")                                                                                                                                                     // short flag
 	//fsScLog.BoolVar(&cipher.ShowKey, "key", false, "Show encryption key.")                                                                                                                                                        // flag
-	fsScLog.StringVar(&emitter.TimestampFormat, "ts", "LOCmicro", "PC timestamp for logs and logfile name, options: 'off|none|UTCmicro|zero'")                                                                                                                       // flag
-	fsScLog.StringVar(&emitter.ColorPalette, "color", "default", "Color set, 'off' disables color handling (\"w:x\"->\"w:x\"), 'none' disables channels color (\"w:x\"->\"x\"), options: 'off|none'.")                                                               // flag
-	fsScLog.StringVar(&emitter.Prefix, "prefix", "source: ", "Line prefix, options: any string or 'off|none' or 'source:' followed by 0-12 spaces, 'source:' will be replaced by source value e.g., 'COM17:'.")                                                      // flag
-	fsScLog.StringVar(&emitter.Suffix, "suffix", "", "Append suffix to all lines, options: any string.")                                                                                                                                                             // flag
-	fsScLog.StringVar(&Port, "port", "JLINK", "receiver device: 'STLINK'|'JLINK'|serial name. The serial name is like 'COM12' for Windows or a Linux name like '/dev/tty/usb12'.")                                                                                   //|filename|SIM|RND|HTTP'")                                                                                            // flag
-	fsScLog.StringVar(&Port, "p", "JLINK", "short for -port")                                                                                                                                                                                                        // short flag
-	fsScLog.IntVar(&com.Baud, "baud", 115200, "COM baudrate, valid only for '-port COMn'.")                                                                                                                                                                          // flag flag
-	fsScLog.StringVar(&link.Args, "largs", "-Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0 -RTTSearchRanges 0x20000000_0x1000", "Passed parameter string, valid only for '-p STLINK|JLINK', see for STLINK also JLinkRTTLogger in SEGGER UM08001_JLink.pdf.") // JLRTT flag
-	//fsScLog.StringVar(&link.Args, "largs", `-RTTSearchRanges "0x20000000 0x1800"`, "passed parameter string, valid only for '-p STLINK|JLINK', see for STLINK also JLinkRTTLogger in SEGGER UM08001_JLink.pdf") // JLRTT flag
+	fsScLog.StringVar(&emitter.TimestampFormat, "ts", "LOCmicro", "PC timestamp for logs and logfile name, options: 'off|none|UTCmicro|zero'")                                                                  // flag
+	fsScLog.StringVar(&emitter.ColorPalette, "color", "default", "Color set, 'off' disables color handling (\"w:x\"->\"w:x\"), 'none' disables channels color (\"w:x\"->\"x\"), options: 'off|none'.")          // flag
+	fsScLog.StringVar(&emitter.Prefix, "prefix", "source: ", "Line prefix, options: any string or 'off|none' or 'source:' followed by 0-12 spaces, 'source:' will be replaced by source value e.g., 'COM17:'.") // flag
+	fsScLog.StringVar(&emitter.Suffix, "suffix", "", "Append suffix to all lines, options: any string.")                                                                                                        // flag
+	fsScLog.StringVar(&Port, "port", "JLINK", "receiver device: 'STLINK'|'JLINK'|serial name. The serial name is like 'COM12' for Windows or a Linux name like '/dev/tty/usb12'.")                              //|filename|SIM|RND|HTTP'")                                                                                            // flag
+	fsScLog.StringVar(&Port, "p", "JLINK", "short for -port")                                                                                                                                                   // short flag
+	fsScLog.IntVar(&com.Baud, "baud", 115200, "COM baudrate, valid only for '-port COMn'.")                                                                                                                     // flag flag
+	fsScLog.StringVar(&arguments, "args", "default", "To port specific passed parameter string.")
 	fsScLog.BoolVar(&displayRemote, "displayserver", false, "Send trice lines to displayserver @ ipa:ipp.")
 	fsScLog.BoolVar(&displayRemote, "ds", false, "Short for '-displayserver'.")
 	fsScLog.BoolVar(&autostart, "autostart", false, "Autostart displayserver @ ipa:ipp (works not good with windows, because of cmd and powershell color issues and missing cli params in wt and gitbash).")

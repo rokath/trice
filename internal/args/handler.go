@@ -101,27 +101,40 @@ func scHelp(
 	defer cage.Disable()
 
 	fmt.Println("syntax: 'trice subcommand' [params]")
+
 	fmt.Println("subcommand 'help', 'h' for command line usage")
 	fsScHelp.SetOutput(os.Stdout)
 	fsScHelp.PrintDefaults()
+
 	fmt.Println("subcommand 'u', 'upd', 'update' For updating ID list and source files.")
 	fsScUpdate.SetOutput(os.Stdout)
 	fsScUpdate.PrintDefaults()
+
 	fmt.Println("subcommand 'l', 'log' For displaying trice logs coming from port.")
 	l.SetOutput(os.Stdout)
+	fmt.Println("args is used as optional port parameters. The \"default\" value is replaced with:")
+	fmt.Printf("\t\"COMn\" port: \"%s\", Option for args is \"TARM\" to use a different driver. (For baud rate settings see -baud.)\n", defaultCOMArgs)
+	fmt.Printf("\t\"JLINK\" port: \"%s\", For args options see JLinkRTTLogger in SEGGER UM08001_JLink.pdf.\n", defaultLinkArgs)
+	fmt.Printf("\t\"STLINK\" port: \"%s\", For args options see JLinkRTTLogger in SEGGER UM08001_JLink.pdf. (same CLI)\n", defaultLinkArgs)
+	fmt.Printf("\t\"BUFFER\" port: \"%s\", Option for args is any byte sequence.\n", defaultBUFFERArgs)
 	l.PrintDefaults()
+
 	fmt.Println("subcommand 'zeroSourceTreeIds' For setting all TRICE IDs to 0 in source tree.")
 	z.SetOutput(os.Stdout)
 	z.PrintDefaults()
+
 	fmt.Println("subcommand 'v', 'ver', 'version' For displaying version information.")
 	v.SetOutput(os.Stdout)
 	v.PrintDefaults()
+
 	fmt.Println("subcommand 'ds', 'displayServer' Starts a display server, use in a separate console, on Windows use wt or a linux shell like git-bash to avoid color issues, several instances of 'trice l -ds' will send output there")
 	sv.SetOutput(os.Stdout)
 	sv.PrintDefaults()
+
 	fmt.Println("subcommand 'sd', 'shutdownServer' Ends display server at IPA:IPP, works also on a remote mashine.")
 	scSdSv.SetOutput(os.Stdout)
 	scSdSv.PrintDefaults()
+
 	fmt.Println("examples:")
 	fmt.Println("    'trice update -src ../A -src ../../B' parses ../A and ../../B with all subdirectories for TRICE IDs to update and adjusts til.json")
 	fmt.Println("    'trice l -p COM15 -baud 38400' Display trice log messages from serial port COM15")
@@ -156,5 +169,14 @@ func distributeArgs() {
 	cage.Verbose = verbose
 	receiver.Verbose = verbose
 	translator.Verbose = verbose
-	link.Port = Port
+	if "JLINK" == Port || "STLINK" == Port {
+		link.Port = Port
+		if "default" == arguments {
+			// Passed parameter string, valid only for '-p STLINK|JLINK', see for STLINK also JLinkRTTLogger in SEGGER UM08001_JLink.pdf.
+			link.Args = "-Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0 -RTTSearchRanges 0x20000000_0x1000"
+		} else {
+			link.Args = arguments
+		}
+	}
+
 }

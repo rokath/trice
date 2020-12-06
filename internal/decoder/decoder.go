@@ -34,12 +34,12 @@ type decoding struct {
 	lut        IDLookUp  // id look-up map for translation
 }
 
-// NewInputPort is the common action taken by the decoder specific methods NewInputPort.
-// r is returned for input abstraction.
+// NewInputPort returns a ReadCloser for the specified port and its args.
 // err is nil on successful open.
-// port and args are the input port specific descriptors.
 // When port is "COMn" args can be used to be "TARM" to use a different driver for dynamic testing.
 // When port is "BUFFER", args is expected to be a byte sequence in the same format as for example coming from one of the other ports.
+// When port is "JLINK" args contains JLinkRTTLogger.exe specific parameters described inside UM08001_JLink.pdf.
+// When port is "STLINK" args has the same format as for "JLINK"
 func NewInputPort(port, args string) (r io.ReadCloser, err error) {
 	switch port {
 	case "JLINK", "STLINK":
