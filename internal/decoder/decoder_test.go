@@ -45,20 +45,39 @@ var (
 	}
 ]`
 
-	// byteStream are the raw read input bytes for tests
-	byteStream string = string([]byte{
+	// byteStreamEsc are the raw read input bytes for esc format tests
+	byteStreamEsc string = string([]byte{
 		236, 228, 113, 16, 0, 0, 0, 1, 127, 255, 255, 255, 128, 0, 0, 0, 255, 255, 255, 255, // TRICE32_4 %10d ->              1     2147483647     -2147483648            -1
 		236, 227, 74, 105, 17, 34, 51, 68, 85, 102, 119, 136, // 64bit 0b1000100100010001100110100010001010101011001100111011110001000
 		236, 228, 177, 183, 0, 0, 0, 0, 0, 0, 0, 129, 0, 0, 0, 0, 0, 0, 0, 3, // MSG: triceEscFifoMaxDepth = 129, index = 3
 		236, 224, 161, 51, 255, // TRICE8_1 -1
 		236, 228, 177, 183, 0, 0, 0, 0, 0, 0, 0, 98, 0, 0, 0, 0, 0, 0, 0, 2, // MSG: triceEscFifoMaxDepth = 98, index = 2
 	})
+
+	// byteStreamBare are the raw read input bytes for bare format tests
+	byteStreamBare string = string([]byte{
+		//0, 0, 0, 1, 0, 0, 127, 255, 0, 0, 128, 0, 33, 226, 255, 255, 0, 0, 0, 1, 0, 0, 127, 255, 0, 0, 128, 0, 233, 221, 255, 255, 0, 0, 0, 1, 0, 0, 127,
+		//255, 0, 0, 128, 0, 96, 205, 255, 255, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 255, 255, 0, 0, 127, 255, 0, 0, 0, 0, 0, 0, 128, 0, 0, 0, 255, 255, 65, 171, 255, 255,
+		0, 0, 0, 1,
+		0, 0, 0, 0,
+		0, 0, 255, 255,
+		0, 0, 127, 255,
+		0, 0, 0, 0,
+		0, 0, 128, 0,
+		0, 0, 255, 255,
+		113, 16, 255, 255,
+
+		0, 0, 119, 136,
+		0, 0, 85, 102,
+		0, 0, 51, 68,
+		74, 105, 17, 34,
+	})
 )
 
 func TestEsc(t *testing.T) {
 
 	// rc is created ReadCloser
-	rc, err := decoder.NewInputPort("BUFFER", byteStream)
+	rc, err := decoder.NewInputPort("BUFFER", byteStreamEsc)
 	if err != nil {
 		t.Fail()
 	}
@@ -84,7 +103,7 @@ func TestEsc(t *testing.T) {
 func TestBare(t *testing.T) {
 
 	// rc is created ReadCloser
-	rc, err := decoder.NewInputPort("BUFFER", byteStream)
+	rc, err := decoder.NewInputPort("BUFFER", byteStreamBare)
 	if err != nil {
 		t.Fail()
 	}

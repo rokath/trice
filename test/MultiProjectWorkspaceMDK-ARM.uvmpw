@@ -9,6 +9,7 @@
 
   <project>
     <PathAndName>.\MDK-ARM_LL_UART_BARE_NUCLEO-F030R8\MDK-ARM\MDK-ARM_LL_UART_BARE_NUCLEO-F030R8.uvprojx</PathAndName>
+    <NodeIsExpanded>1</NodeIsExpanded>
   </project>
 
   <project>
@@ -17,8 +18,6 @@
 
   <project>
     <PathAndName>.\MDK-ARM_LL_UART_ESC_NUCLEO-F030R8\MDK-ARM\MDK-ARM_LL_UART_ESC_NUCLEO-F030R8.uvprojx</PathAndName>
-    <NodeIsActive>1</NodeIsActive>
-    <NodeIsExpanded>1</NodeIsExpanded>
   </project>
 
   <project>
@@ -27,10 +26,13 @@
 
   <project>
     <PathAndName>.\MDK-ARM_BARE_STM32F03051R8Tx-DISCOVERY\MDK-ARM\MDK-ARM_BARE_STM32F03051R8Tx-DISCOVERY.uvprojx</PathAndName>
+    <NodeIsExpanded>1</NodeIsExpanded>
   </project>
 
   <project>
     <PathAndName>.\MDK-ARM_LL_BARE_STM32F0308-DISCO\MDK-ARM\MDK-ARM_LL_BARE_STM32F0308-DISCO.uvprojx</PathAndName>
+    <NodeIsActive>1</NodeIsActive>
+    <NodeIsExpanded>1</NodeIsExpanded>
   </project>
 
   <project>
