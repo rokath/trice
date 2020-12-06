@@ -54,7 +54,7 @@ func doReceive() {
 func receiving(sw *emitter.TriceLineComposer, list *id.List, hardReadError chan bool) bool {
 
 	// (re-)setup input port
-	portReader, e := decoder.NewInputPort(Port, "")
+	portReader, e := decoder.NewInputPort(port, portArguments)
 	if nil != e {
 		if verbose {
 			fmt.Println(e)
@@ -166,31 +166,31 @@ func run(sw *emitter.TriceLineComposer, dec decoder.StringsReader) error {
 func translatePrefix() {
 	switch emitter.Prefix {
 	case "source:":
-		emitter.Prefix = Port + ":"
+		emitter.Prefix = port + ":"
 	case "source: ":
-		emitter.Prefix = Port + ": "
+		emitter.Prefix = port + ": "
 	case "source:  ":
-		emitter.Prefix = Port + ":  "
+		emitter.Prefix = port + ":  "
 	case "source:   ":
-		emitter.Prefix = Port + ":   "
+		emitter.Prefix = port + ":   "
 	case "source:    ":
-		emitter.Prefix = Port + ":    "
+		emitter.Prefix = port + ":    "
 	case "source:     ":
-		emitter.Prefix = Port + ":     "
+		emitter.Prefix = port + ":     "
 	case "source:      ":
-		emitter.Prefix = Port + ":      "
+		emitter.Prefix = port + ":      "
 	case "source:       ":
-		emitter.Prefix = Port + ":       "
+		emitter.Prefix = port + ":       "
 	case "source:        ":
-		emitter.Prefix = Port + ":        "
+		emitter.Prefix = port + ":        "
 	case "source:         ":
-		emitter.Prefix = Port + ":         "
+		emitter.Prefix = port + ":         "
 	case "source:          ":
-		emitter.Prefix = Port + ":          "
+		emitter.Prefix = port + ":          "
 	case "source:           ":
-		emitter.Prefix = Port + ":           "
+		emitter.Prefix = port + ":           "
 	case "source:            ":
-		emitter.Prefix = Port + ":            "
+		emitter.Prefix = port + ":            "
 	case "off", "none":
 		emitter.Prefix = ""
 	}
@@ -236,35 +236,35 @@ func (p *bytesViewer) Close() error { return nil } // todo: Why is Close() metho
 //
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-/* not needed
-func runEsc2(sw *emitter.TriceLineComposer, list *id.List) {
-again: // (re-)setup input port
-	portReader, e := decoder.NewInputPort(Port, "")
-	if nil != e {
-		if verbose {
-			fmt.Println(e)
-		}
-		time.Sleep(1000 * time.Millisecond)
-		goto again
-	}
-	defer portReader.Close()
-	if showInputBytes {
-		portReader = newBytesViewer(portReader)
-	}
-	//var dec decoder.StringsReader = decoder.NewEsc(list, portReader)
-}
-*/
-
-/* This works well but is not well refactored
-func receiveEscTricesAndDisplayAnsiColor(
-	sw *emitter.TriceLineComposer,
-	rd io.ReadCloser,
-	list *id.List,
-	hardReadError chan bool) (et *translator.EscTranslator) {
-
-	// uses rd for reception and the io.StringWriter interface sw for writing.
-	// collects trice bytes to a complete esc trice message, generates the appropriate string using list and writes it to the provided io.StringWriter
-	et = translator.NewEscTrices(sw, list, rd, hardReadError)
-	return
-}
-*/
+// not needed
+//func runEsc2(sw *emitter.TriceLineComposer, list *id.List) {
+//again: // (re-)setup input port
+//	portReader, e := decoder.NewInputPort(Port, "")
+//	if nil != e {
+//		if verbose {
+//			fmt.Println(e)
+//		}
+//		time.Sleep(1000 * time.Millisecond)
+//		goto again
+//	}
+//	defer portReader.Close()
+//	if showInputBytes {
+//		portReader = newBytesViewer(portReader)
+//	}
+//	//var dec decoder.StringsReader = decoder.NewEsc(list, portReader)
+//}
+//
+//
+// This works well but is not well refactored
+//func receiveEscTricesAndDisplayAnsiColor(
+//	sw *emitter.TriceLineComposer,
+//	rd io.ReadCloser,
+//	list *id.List,
+//	hardReadError chan bool) (et *translator.EscTranslator) {
+//
+//	// uses rd for reception and the io.StringWriter interface sw for writing.
+//	// collects trice bytes to a complete esc trice message, generates the appropriate string using list and writes it to the provided io.StringWriter
+//	et = translator.NewEscTrices(sw, list, rd, hardReadError)
+//	return
+//}
+//

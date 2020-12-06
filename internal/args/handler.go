@@ -9,6 +9,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/rokath/trice/internal/com"
 	"github.com/rokath/trice/internal/emitter"
@@ -114,8 +115,7 @@ func scHelp(
 	l.SetOutput(os.Stdout)
 	fmt.Println("args is used as optional port parameters. The \"default\" value is replaced with:")
 	fmt.Printf("\t\"COMn\" port: \"%s\", Option for args is \"TARM\" to use a different driver. (For baud rate settings see -baud.)\n", defaultCOMArgs)
-	fmt.Printf("\t\"JLINK\" port: \"%s\", For args options see JLinkRTTLogger in SEGGER UM08001_JLink.pdf.\n", defaultLinkArgs)
-	fmt.Printf("\t\"STLINK\" port: \"%s\", For args options see JLinkRTTLogger in SEGGER UM08001_JLink.pdf. (same CLI)\n", defaultLinkArgs)
+	fmt.Printf(`%s"JLINK" or "STLINK" port: "%s", For args options see JLinkRTTLogger in SEGGER UM08001_JLink.pdf. (The -RTTSearchRanges "..." need to be written without "" and with _ istead of space.)%s`, "\t", defaultLinkArgs, "\n")
 	fmt.Printf("\t\"BUFFER\" port: \"%s\", Option for args is any byte sequence.\n", defaultBUFFERArgs)
 	l.PrintDefaults()
 
@@ -159,9 +159,24 @@ func scVersion() error {
 	return nil
 }
 
+// replaceDefaultArgs assigns port specific default strings.
+func replaceDefaultArgs() {
+	if strings.HasPrefix(port, "COM") {
+		portArguments = defaultCOMArgs
+	} else {
+		switch port {
+		case "JLINK", "STLINK":
+			portArguments = defaultLinkArgs
+		case "BUFFER":
+			portArguments = defaultBUFFERArgs
+		}
+	}
+}
+
 // distributeArgs is distibuting values used in several packages.
 // It must not be called before the appropriate arg parsing.
 func distributeArgs() {
+	replaceDefaultArgs()
 	com.Verbose = verbose
 	id.Verbose = verbose
 	emitter.Verbose = verbose
@@ -169,14 +184,4 @@ func distributeArgs() {
 	cage.Verbose = verbose
 	receiver.Verbose = verbose
 	translator.Verbose = verbose
-	if "JLINK" == Port || "STLINK" == Port {
-		link.Port = Port
-		if "default" == arguments {
-			// Passed parameter string, valid only for '-p STLINK|JLINK', see for STLINK also JLinkRTTLogger in SEGGER UM08001_JLink.pdf.
-			link.Args = "-Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0 -RTTSearchRanges 0x20000000_0x1000"
-		} else {
-			link.Args = arguments
-		}
-	}
-
 }

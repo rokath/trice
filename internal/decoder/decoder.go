@@ -43,7 +43,7 @@ type decoding struct {
 func NewInputPort(port, args string) (r io.ReadCloser, err error) {
 	switch port {
 	case "JLINK", "STLINK":
-		l := link.NewDevice()
+		l := link.NewDevice(port, args)
 		if nil != l.Open() {
 			err = fmt.Errorf("can not open link device %s with args %s", port, args)
 		}

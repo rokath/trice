@@ -23,10 +23,10 @@ func init() {
 	fsScLog.StringVar(&emitter.ColorPalette, "color", "default", "Color set, 'off' disables color handling (\"w:x\"->\"w:x\"), 'none' disables channels color (\"w:x\"->\"x\"), options: 'off|none'.")          // flag
 	fsScLog.StringVar(&emitter.Prefix, "prefix", "source: ", "Line prefix, options: any string or 'off|none' or 'source:' followed by 0-12 spaces, 'source:' will be replaced by source value e.g., 'COM17:'.") // flag
 	fsScLog.StringVar(&emitter.Suffix, "suffix", "", "Append suffix to all lines, options: any string.")                                                                                                        // flag
-	fsScLog.StringVar(&Port, "port", "JLINK", "receiver device: 'STLINK'|'JLINK'|serial name. The serial name is like 'COM12' for Windows or a Linux name like '/dev/tty/usb12'.")                              //|filename|SIM|RND|HTTP'")                                                                                            // flag
-	fsScLog.StringVar(&Port, "p", "JLINK", "short for -port")                                                                                                                                                   // short flag
+	fsScLog.StringVar(&port, "port", "JLINK", "receiver device: 'STLINK'|'JLINK'|serial name. The serial name is like 'COM12' for Windows or a Linux name like '/dev/tty/usb12'.")                              //|filename|SIM|RND|HTTP'")                                                                                            // flag
+	fsScLog.StringVar(&port, "p", "JLINK", "short for -port")                                                                                                                                                   // short flag
 	fsScLog.IntVar(&com.Baud, "baud", 115200, "COM baudrate, valid only for '-port COMn'.")                                                                                                                     // flag flag
-	fsScLog.StringVar(&arguments, "args", "default", "To port specific passed parameter string.")
+	fsScLog.StringVar(&portArguments, "args", "default", "To port specific passed parameter string.")
 	fsScLog.BoolVar(&displayRemote, "displayserver", false, "Send trice lines to displayserver @ ipa:ipp.")
 	fsScLog.BoolVar(&displayRemote, "ds", false, "Short for '-displayserver'.")
 	fsScLog.BoolVar(&autostart, "autostart", false, "Autostart displayserver @ ipa:ipp (works not good with windows, because of cmd and powershell color issues and missing cli params in wt and gitbash).")

@@ -22,11 +22,11 @@ var (
 	// verbose gives mor information on output if set. This variable is copied into the appropriate packages.
 	verbose bool
 
-	// Port is the trice receiver to use.
-	Port string
+	// port is the trice receiver to use.
+	port string
 
-	// arguments is the trice receiver to use.
-	arguments string
+	// portArguments are the trice receiver device specific arguments.
+	portArguments string
 
 	// encoding describes the way the byte stream is coded.
 	encoding string
