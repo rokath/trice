@@ -831,5 +831,12 @@
 		"fmtStrg": "Hallo Ralf!\\n",
 		"created": 1604512008,
 		"removed": 0
+	},
+	{
+		"id": 10777,
+		"fmtType": "TRICE0",
+		"fmtStrg": "s:                                              \\ns:   MDK-ARM_LL_UART_RTT0_BARE_STM32F091_NUCLEO-64   \\ns:                                              \\n\\n",
+		"created": 1607373562,
+		"removed": 0
 	}
 ]

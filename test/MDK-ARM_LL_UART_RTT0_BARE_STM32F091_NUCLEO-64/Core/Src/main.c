@@ -22,7 +22,8 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "trice.h"
+#include "triceBareFifoToBytesBuffer.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -42,7 +43,7 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-
+int milliSecond = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -85,23 +86,41 @@ int main(void)
   SystemClock_Config();
 
   /* USER CODE BEGIN SysInit */
-
+    SysTick->CTRL |= SysTick_CTRL_TICKINT_Msk; // enable SysTick interrupt
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
-
+    LL_USART_EnableIT_RXNE(TRICE_UART); // enable UART2 interrupt
+    TRICE0( Id(10777), "s:                                              \ns:   MDK-ARM_LL_UART_RTT0_BARE_STM32F091_NUCLEO-64   \ns:                                              \n\n");
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+    static int lastTricesTime = 0;
+    { // send some trices every few ms
+        if( milliSecond >= lastTricesTime + 100 ){
+            static int index = 0;
+            //TRICE64_2( Id(51601),"MSG: triceBareFifoMaxDepth = %d (index %d)\n", triceBareFifoMaxDepth, index );
+            triceCheckSet(index%10);
+            index++;
+            lastTricesTime = milliSecond;
+        }
+    }
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+        { // serve every few ms
+            static int lastMs = 0;
+            if( milliSecond >= lastMs + 1 ){
+                lastMs = milliSecond;
+                triceServeBareFifoToBytesBuffer();
+            }
+        }
   }
   /* USER CODE END 3 */
 }

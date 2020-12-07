@@ -23,6 +23,9 @@
 #include "stm32f0xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "trice.h"
+#include "triceBareFifo.h"
+#include "triceInterfaceUART.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -126,11 +129,12 @@ void PendSV_Handler(void)
 void SysTick_Handler(void)
 {
   /* USER CODE BEGIN SysTick_IRQn 0 */
-
+    extern int milliSecond;
+    milliSecond++;
   /* USER CODE END SysTick_IRQn 0 */
 
   /* USER CODE BEGIN SysTick_IRQn 1 */
-
+    triceTriggerBytesBufferTransmit();
   /* USER CODE END SysTick_IRQn 1 */
 }
 
@@ -150,7 +154,7 @@ void USART2_IRQHandler(void)
 
   /* USER CODE END USART2_IRQn 0 */
   /* USER CODE BEGIN USART2_IRQn 1 */
-
+    triceServeBytesBufferTransmit();
   /* USER CODE END USART2_IRQn 1 */
 }
 

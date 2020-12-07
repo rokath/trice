@@ -167,7 +167,7 @@ parse:
 		case "TRICE32_1":
 			vH := int32(binary.BigEndian.Uint16(p.syncBuffer[2:4])) << 16
 			vL := int32(binary.BigEndian.Uint16(p.syncBuffer[6:8]))
-			ss[m] = fmt.Sprintf(trice.Strg, vH+vL)
+			ss[m] = fmt.Sprintf(trice.Strg, vH|vL)
 			m++
 			p.syncBuffer = p.syncBuffer[8:]
 			goto parse
@@ -239,7 +239,7 @@ parse:
 			v0L := int32(binary.BigEndian.Uint16(p.syncBuffer[6:8]))
 			v1H := int32(binary.BigEndian.Uint16(p.syncBuffer[10:12])) << 16
 			v1L := int32(binary.BigEndian.Uint16(p.syncBuffer[14:16]))
-			ss[m] = fmt.Sprintf(trice.Strg, v0H+v0L, v1H+v1L)
+			ss[m] = fmt.Sprintf(trice.Strg, v0H|v0L, v1H|v1L)
 			m++
 			p.syncBuffer = p.syncBuffer[16:]
 			goto parse
@@ -248,7 +248,7 @@ parse:
 			vHL := int64(binary.BigEndian.Uint16(p.syncBuffer[6:8])) << 32
 			vLH := int64(binary.BigEndian.Uint16(p.syncBuffer[10:12])) << 16
 			vLL := int64(binary.BigEndian.Uint16(p.syncBuffer[14:16]))
-			ss[m] = fmt.Sprintf(trice.Strg, vHH+vHL+vLH+vLL)
+			ss[m] = fmt.Sprintf(trice.Strg, vHH|vHL|vLH|vLL)
 			m++
 			p.syncBuffer = p.syncBuffer[16:]
 			goto parse
@@ -259,7 +259,7 @@ parse:
 			v1L := int32(binary.BigEndian.Uint16(p.syncBuffer[14:16]))
 			v2H := int32(binary.BigEndian.Uint16(p.syncBuffer[18:20])) << 16
 			v2L := int32(binary.BigEndian.Uint16(p.syncBuffer[22:24]))
-			ss[m] = fmt.Sprintf(trice.Strg, v0H+v0L, v1H+v1L, v2H+v2L)
+			ss[m] = fmt.Sprintf(trice.Strg, v0H|v0L, v1H|v1L, v2H|v2L)
 			m++
 			p.syncBuffer = p.syncBuffer[24:]
 			goto parse
@@ -272,7 +272,7 @@ parse:
 			v2L := int32(binary.BigEndian.Uint16(p.syncBuffer[22:24]))
 			v3H := int32(binary.BigEndian.Uint16(p.syncBuffer[26:28])) << 16
 			v3L := int32(binary.BigEndian.Uint16(p.syncBuffer[30:32]))
-			ss[m] = fmt.Sprintf(trice.Strg, v0H+v0L, v1H+v1L, v2H+v2L, v3H+v3L)
+			ss[m] = fmt.Sprintf(trice.Strg, v0H|v0L, v1H|v1L, v2H|v2L, v3H|v3L)
 			m++
 			p.syncBuffer = p.syncBuffer[32:]
 			goto parse
@@ -286,7 +286,7 @@ parse:
 			v1HL := int64(binary.BigEndian.Uint16(p.syncBuffer[22:24])) << 32
 			v1LH := int64(binary.BigEndian.Uint16(p.syncBuffer[26:28])) << 16
 			v1LL := int64(binary.BigEndian.Uint16(p.syncBuffer[30:32]))
-			ss[m] = fmt.Sprintf(trice.Strg, v0HH+v0HL+v0LH+v0LL, v1HH+v1HL+v1LH+v1LL)
+			ss[m] = fmt.Sprintf(trice.Strg, v0HH|v0HL|v0LH|v0LL, v1HH|v1HL|v1LH|v1LL)
 			m++
 			p.syncBuffer = p.syncBuffer[32:]
 			goto parse
