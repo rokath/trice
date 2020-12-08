@@ -4,17 +4,7 @@
 // whitebox test for package emitter.
 package emitter
 
-import (
-	"bytes"
-	"testing"
-	"time"
-
-	"github.com/rokath/trice/internal/id"
-	"github.com/rokath/trice/internal/receiver"
-	"github.com/rokath/trice/internal/translator"
-	"github.com/stretchr/testify/assert"
-)
-
+/*
 // TestNewSimpleTriceInterpreterWithAnsiOff
 // There is a small chance this test fails because of unexpected ordering of 'ignoring bytes' message.
 // This is no error.
@@ -63,7 +53,7 @@ func TestNewSimpleTriceInterpreterWithAnsiOff(t *testing.T) {
 	assert.Equal(t, lines, lwD.lines)
 	sti.Stop() // end of life
 }
-
+*/
 /*
 // There is a small chance this test fails because of unexpected ordering of 'ignoring bytes' message.
 // This is no error.

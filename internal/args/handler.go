@@ -16,7 +16,6 @@ import (
 	"github.com/rokath/trice/internal/id"
 	"github.com/rokath/trice/internal/link"
 	"github.com/rokath/trice/internal/receiver"
-	"github.com/rokath/trice/internal/translator"
 	"github.com/rokath/trice/pkg/cage"
 )
 
@@ -183,5 +182,5 @@ func distributeArgs() {
 	link.Verbose = verbose
 	cage.Verbose = verbose
 	receiver.Verbose = verbose
-	translator.Verbose = verbose
+	//translator.Verbose = verbose
 }

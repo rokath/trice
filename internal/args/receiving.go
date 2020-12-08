@@ -7,18 +7,13 @@ import (
 	"fmt"
 	"io"
 	"log"
-	"os"
-	"os/signal"
 	"path/filepath"
 	"runtime"
-	"syscall"
 	"time"
 
 	"github.com/rokath/trice/internal/decoder"
 	"github.com/rokath/trice/internal/emitter"
 	"github.com/rokath/trice/internal/id"
-	"github.com/rokath/trice/internal/receiver"
-	"github.com/rokath/trice/internal/translator"
 	"github.com/rokath/trice/pkg/cage"
 	"github.com/rokath/trice/pkg/cipher"
 )
@@ -67,9 +62,9 @@ func receiving(sw *emitter.TriceLineComposer, list *id.List, hardReadError chan 
 	}
 
 	// activate selected encoding
-	var p translator.Translator // interface type
+	//var p translator.Translator // interface type
 	switch encoding {
-	case "esc", "esc2":
+	case "esc":
 		dec := decoder.NewEsc(list.ItemList, portReader)
 		for {
 			err := run(sw, dec)
@@ -78,7 +73,7 @@ func receiving(sw *emitter.TriceLineComposer, list *id.List, hardReadError chan 
 				dec = decoder.NewEsc(list.ItemList, portReader) // read list again - it could have changed
 			}
 		}
-	case "bare2":
+	case "bare":
 		dec := decoder.NewBare(list.ItemList, portReader)
 		for {
 			err := run(sw, dec)
@@ -88,8 +83,8 @@ func receiving(sw *emitter.TriceLineComposer, list *id.List, hardReadError chan 
 			}
 		}
 
-	case "bare":
-		p = receiveBareSimpleTricesAndDisplayAnsiColor(sw, portReader, list, hardReadError)
+	//case "bare":
+	//	p = receiveBareSimpleTricesAndDisplayAnsiColor(sw, portReader, list, hardReadError)
 	//case "esc":
 	//p = receiveEscTricesAndDisplayAnsiColor(sw, portReader, list, hardReadError)
 	//case "wrap", "wrapped":
@@ -106,25 +101,26 @@ func receiving(sw *emitter.TriceLineComposer, list *id.List, hardReadError chan 
 		return false
 	}
 
-	// prepare CTRL-C shutdown reaction
-	sigs := make(chan os.Signal, 1)
-	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
-	select {
-	case <-hardReadError:
-		if verbose {
-			fmt.Println("####################################", p.SavedError(), "####################################")
-		}
-		p.Done() <- 0 // end translator
-		return true
-	case sig := <-sigs: // wait for a signal
-		if verbose {
-			fmt.Println("####################################", sig, "####################################")
-		}
-		p.Done() <- 0 // end translator
-		return false  // back to main
-	}
+	//// prepare CTRL-C shutdown reaction
+	//sigs := make(chan os.Signal, 1)
+	//signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
+	//select {
+	//case <-hardReadError:
+	//	if verbose {
+	//		//fmt.Println("####################################", p.SavedError(), "####################################")
+	//	}
+	//	// p.Done() <- 0 // end translator
+	//	return true
+	//case sig := <-sigs: // wait for a signal
+	//	if verbose {
+	//		fmt.Println("####################################", sig, "####################################")
+	//	}
+	//	//p.Done() <- 0 // end translator
+	//	return false // back to main
+	//}
 }
 
+/*
 func receiveBareSimpleTricesAndDisplayAnsiColor(
 	sw *emitter.TriceLineComposer,
 	rd io.ReadCloser,
@@ -140,7 +136,7 @@ func receiveBareSimpleTricesAndDisplayAnsiColor(
 	bt = translator.NewSimpleTrices(sw, list, triceAtomsReceiver)
 	return
 }
-
+*/
 // NewList returns a pointer to a list struct which stays up-to-date in case the til.json file changes.
 func NewList() (l *id.List) {
 	l = id.NewList(fnJSON)
