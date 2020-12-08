@@ -16,6 +16,11 @@ import (
 	"github.com/rokath/trice/internal/link"
 )
 
+var (
+	// Encoding describes the way the byte stream is coded.
+	Encoding string
+)
+
 // StringsReader as Decoder method uses an underlying (byte) Reader for reading and returns max len(p) strings inside p.
 // n is the received amount of strings. err is the underlying Reader error or an internal error.
 type StringsReader interface {

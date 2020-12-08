@@ -1,7 +1,7 @@
 // Copyright 2020 Thomas.Hoehenleitner [at] seerose.net
 // Use of this source code is governed by a license that can be found in the LICENSE file.
 
-package args
+package receiver
 
 import (
 	"fmt"
@@ -18,15 +18,29 @@ import (
 	"github.com/rokath/trice/pkg/cipher"
 )
 
-// doReceive prepares writing and list and provides a retry mechanism for unplugged UART.
-func doReceive() {
-	if !displayRemote {
+var (
+	// Verbose gives mor information on output if set. The value is injected from main packages.
+	Verbose bool
+
+	// ShowInputBytes displays incoming bytes if set true
+	ShowInputBytes bool
+
+	// Port is the trice receiver to use.
+	Port string
+
+	// PortArguments are the trice receiver device specific arguments.
+	PortArguments string
+)
+
+// Loop prepares writing and list and provides a retry mechanism for unplugged UART.
+func Loop() {
+	if !emitter.DisplayRemote {
 		cage.Enable()
 		defer cage.Disable()
 	}
 	translatePrefix()
-	fnJSON = id.ConditionalFilePath(fnJSON)
-	lwD := emitter.NewLineWriter(displayRemote, autostart)
+
+	lwD := emitter.NewLineWriter()
 	list := NewList()
 
 	// lineComposer implements the io.StringWriter interface and uses the line writer provided.
@@ -49,21 +63,21 @@ func doReceive() {
 func receiving(sw *emitter.TriceLineComposer, list *id.List, hardReadError chan bool) bool {
 
 	// (re-)setup input port
-	portReader, e := decoder.NewInputPort(port, portArguments)
+	portReader, e := decoder.NewInputPort(Port, PortArguments)
 	if nil != e {
-		if verbose {
+		if Verbose {
 			fmt.Println(e)
 		}
 		return true
 	}
 	defer portReader.Close()
-	if showInputBytes {
+	if ShowInputBytes {
 		portReader = newBytesViewer(portReader)
 	}
 
 	// activate selected encoding
 	//var p translator.Translator // interface type
-	switch encoding {
+	switch decoder.Encoding {
 	case "esc":
 		dec := decoder.NewEsc(list.ItemList, portReader)
 		for {
@@ -97,7 +111,7 @@ func receiving(sw *emitter.TriceLineComposer, list *id.List, hardReadError chan 
 	case "ascii":
 		fallthrough
 	default:
-		fmt.Println("unknown encoding ", encoding)
+		fmt.Println("unknown encoding ", decoder.Encoding)
 		return false
 	}
 
@@ -139,7 +153,7 @@ func receiveBareSimpleTricesAndDisplayAnsiColor(
 */
 // NewList returns a pointer to a list struct which stays up-to-date in case the til.json file changes.
 func NewList() (l *id.List) {
-	l = id.NewList(fnJSON)
+	l = id.NewList(id.FnJSON)
 	l.ReadListFile()
 	go l.FileWatcher()
 	return
@@ -162,31 +176,31 @@ func run(sw *emitter.TriceLineComposer, dec decoder.StringsReader) error {
 func translatePrefix() {
 	switch emitter.Prefix {
 	case "source:":
-		emitter.Prefix = port + ":"
+		emitter.Prefix = Port + ":"
 	case "source: ":
-		emitter.Prefix = port + ": "
+		emitter.Prefix = Port + ": "
 	case "source:  ":
-		emitter.Prefix = port + ":  "
+		emitter.Prefix = Port + ":  "
 	case "source:   ":
-		emitter.Prefix = port + ":   "
+		emitter.Prefix = Port + ":   "
 	case "source:    ":
-		emitter.Prefix = port + ":    "
+		emitter.Prefix = Port + ":    "
 	case "source:     ":
-		emitter.Prefix = port + ":     "
+		emitter.Prefix = Port + ":     "
 	case "source:      ":
-		emitter.Prefix = port + ":      "
+		emitter.Prefix = Port + ":      "
 	case "source:       ":
-		emitter.Prefix = port + ":       "
+		emitter.Prefix = Port + ":       "
 	case "source:        ":
-		emitter.Prefix = port + ":        "
+		emitter.Prefix = Port + ":        "
 	case "source:         ":
-		emitter.Prefix = port + ":         "
+		emitter.Prefix = Port + ":         "
 	case "source:          ":
-		emitter.Prefix = port + ":          "
+		emitter.Prefix = Port + ":          "
 	case "source:           ":
-		emitter.Prefix = port + ":           "
+		emitter.Prefix = Port + ":           "
 	case "source:            ":
-		emitter.Prefix = port + ":            "
+		emitter.Prefix = Port + ":            "
 	case "off", "none":
 		emitter.Prefix = ""
 	}
@@ -197,7 +211,7 @@ func errorFatal(err error) {
 	if nil == err {
 		return
 	}
-	if verbose {
+	if Verbose {
 		_, file, line, _ := runtime.Caller(1)
 		log.Fatal(err, " "+filepath.Base(file)+" ", line)
 	}
@@ -227,7 +241,8 @@ func (p *bytesViewer) Read(buf []byte) (count int, err error) {
 	return
 }
 
-func (p *bytesViewer) Close() error { return nil } // todo: Why is Close() method needed here?
+// Close is needed to satify the ReadCloser interface.
+func (p *bytesViewer) Close() error { return nil }
 
 //
 ///////////////////////////////////////////////////////////////////////////////////////////////////

@@ -22,21 +22,6 @@ var (
 	// verbose gives mor information on output if set. This variable is copied into the appropriate packages.
 	verbose bool
 
-	// port is the trice receiver to use.
-	port string
-
-	// portArguments are the trice receiver device specific arguments.
-	portArguments string
-
-	// encoding describes the way the byte stream is coded.
-	encoding string
-
-	// displayRemote if set, sends trice lines over TCP.
-	displayRemote bool
-
-	// autostart if set, starts an additional trice instance as displayserver.
-	autostart bool
-
 	// fsScUpdate is flag set for sub command 'update' for updating ID list.
 	fsScUpdate *flag.FlagSet
 
@@ -63,12 +48,6 @@ var (
 
 	// fsScSdSv is flag set for sub command 'shutdownServer'.
 	fsScSdSv *flag.FlagSet
-
-	// fnJSON is the filename for the JSON formatted ID list.
-	fnJSON string
-
-	// showInputBytes displays incoming bytes if set true
-	showInputBytes bool
 
 	// used to replace "default" args value for STLINK and JLINK port
 	defaultLinkArgs = "-Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0 -RTTSearchRanges 0x20000000_0x1000"

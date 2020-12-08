@@ -26,6 +26,9 @@ var (
 
 	// DryRun if set, inhibits real changes
 	DryRun bool
+
+	// FnJSON is the filename for the JSON formatted ID list.
+	FnJSON string
 )
 
 // Item is the basic element

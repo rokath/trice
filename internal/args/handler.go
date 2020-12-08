@@ -15,12 +15,15 @@ import (
 	"github.com/rokath/trice/internal/emitter"
 	"github.com/rokath/trice/internal/id"
 	"github.com/rokath/trice/internal/link"
+	"github.com/rokath/trice/internal/receiver"
 	"github.com/rokath/trice/pkg/cage"
 )
 
 // Handler is called in main, evaluates args and calls the appropriate functions.
 // It returns for program exit.
 func Handler(args []string) error {
+
+	id.FnJSON = id.ConditionalFilePath(id.FnJSON)
 
 	if "" == Date { // goreleaser will set Date, otherwise use file info.
 		fi, err := os.Stat(os.Args[0])
@@ -62,8 +65,7 @@ func Handler(args []string) error {
 	case "u", "update":
 		fsScUpdate.Parse(subArgs)
 		distributeArgs()
-		fnJSON = id.ConditionalFilePath(fnJSON)
-		return id.ScUpdate(fnJSON)
+		return id.ScUpdate(id.FnJSON)
 	case "zeroSourceTreeIds":
 		fsScZero.Parse(subArgs)
 		distributeArgs()
@@ -79,7 +81,7 @@ func Handler(args []string) error {
 	case "l", "log":
 		fsScLog.Parse(subArgs)
 		distributeArgs()
-		doReceive() // endless loop
+		receiver.Loop() // endless loop
 		return nil
 	}
 }
@@ -159,14 +161,14 @@ func scVersion() error {
 
 // replaceDefaultArgs assigns port specific default strings.
 func replaceDefaultArgs() {
-	if strings.HasPrefix(port, "COM") {
-		portArguments = defaultCOMArgs
+	if strings.HasPrefix(receiver.Port, "COM") {
+		receiver.PortArguments = defaultCOMArgs
 	} else {
-		switch port {
+		switch receiver.Port {
 		case "JLINK", "STLINK":
-			portArguments = defaultLinkArgs
+			receiver.PortArguments = defaultLinkArgs
 		case "BUFFER":
-			portArguments = defaultBUFFERArgs
+			receiver.PortArguments = defaultBUFFERArgs
 		}
 	}
 }
@@ -180,6 +182,5 @@ func distributeArgs() {
 	emitter.Verbose = verbose
 	link.Verbose = verbose
 	cage.Verbose = verbose
-	//receiver.Verbose = verbose
-	//translator.Verbose = verbose
+	receiver.Verbose = verbose
 }

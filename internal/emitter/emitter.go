@@ -39,6 +39,12 @@ var (
 
 	// IPPort ist the remote display port number.
 	IPPort string
+
+	// DisplayRemote if set, sends trice lines over TCP.
+	DisplayRemote bool
+
+	// Autostart if set, starts an additional trice instance as displayserver.
+	Autostart bool
 )
 
 // LineWriter is the common interface for output devices.
@@ -49,10 +55,10 @@ type LineWriter interface {
 }
 
 // NewLineWriter provides a LineWriter which can be a remote Display or the local console.
-func NewLineWriter(displayRemote, autostart bool) (lwD LineWriter) {
-	if true == displayRemote {
+func NewLineWriter() (lwD LineWriter) {
+	if true == DisplayRemote {
 		var p *RemoteDisplay
-		if true == autostart {
+		if true == Autostart {
 			p = NewRemoteDisplay(os.Args[0], "-logfile "+cage.Name)
 		} else {
 			p = NewRemoteDisplay()

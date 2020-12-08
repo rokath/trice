@@ -7,15 +7,17 @@ import (
 	"flag"
 
 	"github.com/rokath/trice/internal/com"
+	"github.com/rokath/trice/internal/decoder"
 	"github.com/rokath/trice/internal/emitter"
 	"github.com/rokath/trice/internal/id"
+	"github.com/rokath/trice/internal/receiver"
 	"github.com/rokath/trice/pkg/cage"
 )
 
 func init() {
-	fsScLog = flag.NewFlagSet("log", flag.ExitOnError)                                                                                       // subcommand
-	fsScLog.StringVar(&encoding, "encoding", "bare", "The trice transmit data format type, option: 'esc'. Target device coding must match.") // flag
-	fsScLog.StringVar(&encoding, "e", "bare", "Short for -encoding.")                                                                        // short flag
+	fsScLog = flag.NewFlagSet("log", flag.ExitOnError)                                                                                               // subcommand
+	fsScLog.StringVar(&decoder.Encoding, "encoding", "bare", "The trice transmit data format type, option: 'esc'. Target device coding must match.") // flag
+	fsScLog.StringVar(&decoder.Encoding, "e", "bare", "Short for -encoding.")                                                                        // short flag
 	//fsScLog.StringVar(&cipher.Password, "password", "none", "The decrypt passphrase.")                                                                                                                                                // flag
 	//fsScLog.StringVar(&cipher.Password, "pw", "none", "Short for -password.")                                                                                                                                                     // short flag
 	//fsScLog.BoolVar(&cipher.ShowKey, "key", false, "Show encryption key.")                                                                                                                                                        // flag
@@ -23,16 +25,16 @@ func init() {
 	fsScLog.StringVar(&emitter.ColorPalette, "color", "default", "Color set, 'off' disables color handling (\"w:x\"->\"w:x\"), 'none' disables channels color (\"w:x\"->\"x\"), options: 'off|none'.")          // flag
 	fsScLog.StringVar(&emitter.Prefix, "prefix", "source: ", "Line prefix, options: any string or 'off|none' or 'source:' followed by 0-12 spaces, 'source:' will be replaced by source value e.g., 'COM17:'.") // flag
 	fsScLog.StringVar(&emitter.Suffix, "suffix", "", "Append suffix to all lines, options: any string.")                                                                                                        // flag
-	fsScLog.StringVar(&port, "port", "JLINK", "receiver device: 'STLINK'|'JLINK'|serial name. The serial name is like 'COM12' for Windows or a Linux name like '/dev/tty/usb12'.")                              //|filename|SIM|RND|HTTP'")                                                                                            // flag
-	fsScLog.StringVar(&port, "p", "JLINK", "short for -port")                                                                                                                                                   // short flag
+	fsScLog.StringVar(&receiver.Port, "port", "JLINK", "receiver device: 'STLINK'|'JLINK'|serial name. The serial name is like 'COM12' for Windows or a Linux name like '/dev/tty/usb12'.")                     //|filename|SIM|RND|HTTP'")                                                                                            // flag
+	fsScLog.StringVar(&receiver.Port, "p", "JLINK", "short for -port")                                                                                                                                          // short flag
 	fsScLog.IntVar(&com.Baud, "baud", 115200, "COM baudrate, valid only for '-port COMn'.")                                                                                                                     // flag flag
-	fsScLog.StringVar(&portArguments, "args", "default", "To port specific passed parameter string.")
-	fsScLog.BoolVar(&displayRemote, "displayserver", false, "Send trice lines to displayserver @ ipa:ipp.")
-	fsScLog.BoolVar(&displayRemote, "ds", false, "Short for '-displayserver'.")
-	fsScLog.BoolVar(&autostart, "autostart", false, "Autostart displayserver @ ipa:ipp (works not good with windows, because of cmd and powershell color issues and missing cli params in wt and gitbash).")
-	fsScLog.BoolVar(&autostart, "a", false, "Short for '-autostart'.")
-	fsScLog.BoolVar(&showInputBytes, "showInputBytes", false, "Show incoming bytes, what can be helpful during setup.")
-	fsScLog.BoolVar(&showInputBytes, "s", false, "Short for '-showInputBytes'.")
+	fsScLog.StringVar(&receiver.PortArguments, "args", "default", "To port specific passed parameter string.")
+	fsScLog.BoolVar(&emitter.DisplayRemote, "displayserver", false, "Send trice lines to displayserver @ ipa:ipp.")
+	fsScLog.BoolVar(&emitter.DisplayRemote, "ds", false, "Short for '-displayserver'.")
+	fsScLog.BoolVar(&emitter.Autostart, "autostart", false, "Autostart displayserver @ ipa:ipp (works not good with windows, because of cmd and powershell color issues and missing cli params in wt and gitbash).")
+	fsScLog.BoolVar(&emitter.Autostart, "a", false, "Short for '-autostart'.")
+	fsScLog.BoolVar(&receiver.ShowInputBytes, "showInputBytes", false, "Show incoming bytes, what can be helpful during setup.")
+	fsScLog.BoolVar(&receiver.ShowInputBytes, "s", false, "Short for '-showInputBytes'.")
 	flagLogfile(fsScLog)
 	flagVerbosity(fsScLog)
 	flagIDList(fsScLog)
@@ -93,8 +95,8 @@ func flagVerbosity(p *flag.FlagSet) {
 }
 
 func flagIDList(p *flag.FlagSet) {
-	p.StringVar(&fnJSON, "idlist", "til.json", "The trice ID list path.") // flag
-	p.StringVar(&fnJSON, "i", "til.json", "Short for '-idlist'.")         // flag
+	p.StringVar(&id.FnJSON, "idlist", "til.json", "The trice ID list path.") // flag
+	p.StringVar(&id.FnJSON, "i", "til.json", "Short for '-idlist'.")         // flag
 }
 
 func flagIPAddress(p *flag.FlagSet) {
