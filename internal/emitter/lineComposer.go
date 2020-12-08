@@ -18,10 +18,10 @@ type TriceLineComposer struct {
 	err             error
 }
 
-// NewLineComposer constructs log lines according to these rules:...
+// newLineComposer constructs log lines according to these rules:...
 // It provides an io.StringWriter interface which is used for the reception of (trice) strings.
 // It uses lw for writing the generated lines.
-func NewLineComposer(lw LineWriter) *TriceLineComposer {
+func newLineComposer(lw LineWriter) *TriceLineComposer {
 	pf := Prefix + " "
 	if " " == pf {
 		pf = ""

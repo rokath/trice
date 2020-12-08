@@ -18,8 +18,6 @@ import (
 	"github.com/rokath/trice/internal/emitter"
 	"github.com/rokath/trice/internal/id"
 	"github.com/rokath/trice/internal/link"
-	"github.com/rokath/trice/pkg/cage"
-	"github.com/rokath/trice/pkg/cipher"
 )
 
 var (
@@ -36,13 +34,13 @@ var (
 	PortArguments string
 )
 
-// NewInputPort returns a ReadCloser for the specified port and its args.
+// NewReader returns a ReadCloser for the specified port and its args.
 // err is nil on successful open.
 // When port is "COMn" args can be used to be "TARM" to use a different driver for dynamic testing.
 // When port is "BUFFER", args is expected to be a byte sequence in the same format as for example coming from one of the other ports.
 // When port is "JLINK" args contains JLinkRTTLogger.exe specific parameters described inside UM08001_JLink.pdf.
 // When port is "STLINK" args has the same format as for "JLINK"
-func NewInputPort(port, args string) (r io.ReadCloser, err error) {
+func NewReader(port, args string) (r io.ReadCloser, err error) {
 	switch port {
 	case "JLINK", "STLINK":
 		l := link.NewDevice(port, args)
@@ -70,158 +68,31 @@ func NewInputPort(port, args string) (r io.ReadCloser, err error) {
 
 // Loop prepares writing and list and provides a retry mechanism for unplugged UART.
 func Loop() {
-	if !emitter.DisplayRemote {
-		cage.Enable()
-		defer cage.Disable()
-	}
-	translatePrefix()
 
-	lwD := emitter.NewLineWriter()
-	list := NewList()
+	list := id.New()
+	sw := emitter.New(emitter.Prefix)
 
-	// lineComposer implements the io.StringWriter interface and uses the line writer provided.
-	// The line composer scans the trice strings and composes lines out of them according to its properties.
-	sw := emitter.NewLineComposer(lwD)
-
-	// over this channel read errors despite io.EOF reported
-	hardReadError := make(chan bool)
 	for {
-		f := receiving(sw, list, hardReadError)
+
+		// (re-)setup input port
+		rc, e := NewReader(Port, PortArguments)
+		if nil != e {
+			if Verbose {
+				fmt.Println(e)
+			}
+			return // true
+		}
+		defer rc.Close()
+		if ShowInputBytes {
+			rc = newBytesViewer(rc)
+		}
+
+		f := decoder.Translate(sw, list, rc)
 		if false == f {
 			return
 		}
+
 		time.Sleep(100 * time.Millisecond) // retry interval
-	}
-}
-
-// receiving performs the trice log task, uses internally Port and encoding and
-// returns false on program end signal or true on hard read error.
-func receiving(sw *emitter.TriceLineComposer, list *id.List, hardReadError chan bool) bool {
-
-	// (re-)setup input port
-	portReader, e := NewInputPort(Port, PortArguments)
-	if nil != e {
-		if Verbose {
-			fmt.Println(e)
-		}
-		return true
-	}
-	defer portReader.Close()
-	if ShowInputBytes {
-		portReader = newBytesViewer(portReader)
-	}
-
-	// activate selected encoding
-	//var p translator.Translator // interface type
-	switch decoder.Encoding {
-	case "esc":
-		dec := decoder.NewEsc(list.ItemList, portReader)
-		for {
-			err := run(sw, dec)
-			if nil != err {
-				time.Sleep(2 * time.Second)
-				dec = decoder.NewEsc(list.ItemList, portReader) // read list again - it could have changed
-			}
-		}
-	case "bare":
-		dec := decoder.NewBare(list.ItemList, portReader)
-		for {
-			err := run(sw, dec)
-			if nil != err {
-				time.Sleep(2 * time.Second)
-				dec = decoder.NewBare(list.ItemList, portReader) // read list again - it could have changed
-			}
-		}
-
-	//case "bare":
-	//	p = receiveBareSimpleTricesAndDisplayAnsiColor(sw, portReader, list, hardReadError)
-	//case "esc":
-	//p = receiveEscTricesAndDisplayAnsiColor(sw, portReader, list, hardReadError)
-	//case "wrap", "wrapped":
-	//p = receiveWrapSimpleTricesAndDisplayAnsiColor(portReader, fnJSON)
-	//	case "sim":
-	//		p = simNewSimpleTriceInterpreterWithAnsi(r)
-	case "bareXTEACrypted", "wrapXTEACrypted":
-		errorFatal(cipher.SetUp())
-		fallthrough
-	case "ascii":
-		fallthrough
-	default:
-		fmt.Println("unknown encoding ", decoder.Encoding)
-		return false
-	}
-
-	//// prepare CTRL-C shutdown reaction
-	//sigs := make(chan os.Signal, 1)
-	//signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
-	//select {
-	//case <-hardReadError:
-	//	if verbose {
-	//		//fmt.Println("####################################", p.SavedError(), "####################################")
-	//	}
-	//	// p.Done() <- 0 // end translator
-	//	return true
-	//case sig := <-sigs: // wait for a signal
-	//	if verbose {
-	//		fmt.Println("####################################", sig, "####################################")
-	//	}
-	//	//p.Done() <- 0 // end translator
-	//	return false // back to main
-	//}
-}
-
-// NewList returns a pointer to a list struct which stays up-to-date in case the til.json file changes.
-func NewList() (l *id.List) {
-	l = id.NewList(id.FnJSON)
-	l.ReadListFile()
-	go l.FileWatcher()
-	return
-}
-
-func run(sw *emitter.TriceLineComposer, dec decoder.StringsReader) error {
-	ss := make([]string, 100)
-	n, err := dec.StringsRead(ss)
-	if nil != err && io.EOF != err {
-		return err
-	}
-	for i := range ss[:n] {
-		sw.WriteString(ss[i])
-	}
-	return nil
-}
-
-// translatePrefix changes "source:" to e.g., "JLINK:".
-// todo: use strings.Split()
-func translatePrefix() {
-	switch emitter.Prefix {
-	case "source:":
-		emitter.Prefix = Port + ":"
-	case "source: ":
-		emitter.Prefix = Port + ": "
-	case "source:  ":
-		emitter.Prefix = Port + ":  "
-	case "source:   ":
-		emitter.Prefix = Port + ":   "
-	case "source:    ":
-		emitter.Prefix = Port + ":    "
-	case "source:     ":
-		emitter.Prefix = Port + ":     "
-	case "source:      ":
-		emitter.Prefix = Port + ":      "
-	case "source:       ":
-		emitter.Prefix = Port + ":       "
-	case "source:        ":
-		emitter.Prefix = Port + ":        "
-	case "source:         ":
-		emitter.Prefix = Port + ":         "
-	case "source:          ":
-		emitter.Prefix = Port + ":          "
-	case "source:           ":
-		emitter.Prefix = Port + ":           "
-	case "source:            ":
-		emitter.Prefix = Port + ":            "
-	case "off", "none":
-		emitter.Prefix = ""
 	}
 }
 
@@ -269,7 +140,7 @@ func (p *bytesViewer) Close() error { return nil }
 // not needed
 //func runEsc2(sw *emitter.TriceLineComposer, list *id.List) {
 //again: // (re-)setup input port
-//	portReader, e := decoder.NewInputPort(Port, "")
+//	portReader, e := decoder.NewReader(Port, "")
 //	if nil != e {
 //		if verbose {
 //			fmt.Println(e)

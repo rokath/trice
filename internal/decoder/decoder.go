@@ -6,12 +6,22 @@ package decoder
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
+	"log"
+	"path/filepath"
+	"runtime"
+	"time"
 
+	"github.com/rokath/trice/internal/emitter"
 	"github.com/rokath/trice/internal/id"
+	"github.com/rokath/trice/pkg/cipher"
 )
 
 var (
+	// Verbose gives mor information on output if set. The value is injected from main packages.
+	Verbose bool
+
 	// Encoding describes the way the byte stream is coded.
 	Encoding string
 )
@@ -75,4 +85,92 @@ func newIDLut(til []byte) (IDLookUp, error) {
 	}
 	lut := MakeLut(list) // create look-up map
 	return lut, nil
+}
+
+// Translate performs the trice log task.
+// Bytes are read with rc, according decoder.Encoding are translated into strings
+// returns false on program end signal or true on hard read error.
+func Translate(sw *emitter.TriceLineComposer, list *id.List, rc io.ReadCloser /*, hardReadError chan bool*/) bool {
+
+	// activate selected encoding
+	// var p translator.Translator // interface type
+	switch Encoding {
+	case "esc":
+		dec := NewEsc(list.ItemList, rc)
+		for {
+			err := run(sw, dec)
+			if nil != err {
+				time.Sleep(2 * time.Second)
+				dec = NewEsc(list.ItemList, rc) // read list again - it could have changed
+			}
+		}
+	case "bare":
+		dec := NewBare(list.ItemList, rc)
+		for {
+			err := run(sw, dec)
+			if nil != err {
+				time.Sleep(2 * time.Second)
+				dec = NewBare(list.ItemList, rc) // read list again - it could have changed
+			}
+		}
+
+	//case "bare":
+	//	p = receiveBareSimpleTricesAndDisplayAnsiColor(sw, rc, list, hardReadError)
+	//case "esc":
+	//p = receiveEscTricesAndDisplayAnsiColor(sw, rc, list, hardReadError)
+	//case "wrap", "wrapped":
+	//p = receiveWrapSimpleTricesAndDisplayAnsiColor(rc, fnJSON)
+	//	case "sim":
+	//		p = simNewSimpleTriceInterpreterWithAnsi(r)
+	case "bareXTEACrypted", "wrapXTEACrypted":
+		errorFatal(cipher.SetUp())
+		fallthrough
+	case "ascii":
+		fallthrough
+	default:
+		fmt.Println("unknown encoding ", Encoding)
+		return false
+	}
+
+	//// prepare CTRL-C shutdown reaction
+	//sigs := make(chan os.Signal, 1)
+	//signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
+	//select {
+	//case <-hardReadError:
+	//	if verbose {
+	//		//fmt.Println("####################################", p.SavedError(), "####################################")
+	//	}
+	//	// p.Done() <- 0 // end translator
+	//	return true
+	//case sig := <-sigs: // wait for a signal
+	//	if verbose {
+	//		fmt.Println("####################################", sig, "####################################")
+	//	}
+	//	//p.Done() <- 0 // end translator
+	//	return false // back to main
+	//}
+}
+
+func run(sw *emitter.TriceLineComposer, sr StringsReader) error {
+	ss := make([]string, 100)
+	n, err := sr.StringsRead(ss)
+	if nil != err && io.EOF != err {
+		return err
+	}
+	for i := range ss[:n] {
+		sw.WriteString(ss[i])
+	}
+	return nil
+}
+
+// errorFatal ends in osExit(1) if err not nil.
+func errorFatal(err error) {
+	if nil == err {
+		return
+	}
+	if Verbose {
+		_, file, line, _ := runtime.Caller(1)
+		log.Fatal(err, " "+filepath.Base(file)+" ", line)
+	}
+	log.Fatal(err)
 }

@@ -908,7 +908,7 @@ var (
 func TestEsc(t *testing.T) {
 
 	// rc is created ReadCloser
-	rc, err := receiver.NewInputPort("BUFFER", byteStreamEsc)
+	rc, err := receiver.NewReader("BUFFER", byteStreamEsc)
 	if err != nil {
 		t.Fail()
 	}
@@ -934,7 +934,7 @@ func TestEsc(t *testing.T) {
 func TestBare(t *testing.T) {
 
 	// rc is created ReadCloser
-	rc, err := receiver.NewInputPort("BUFFER", byteStreamBare)
+	rc, err := receiver.NewReader("BUFFER", byteStreamBare)
 	if err != nil {
 		t.Fail()
 	}

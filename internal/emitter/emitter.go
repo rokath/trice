@@ -54,8 +54,8 @@ type LineWriter interface {
 	writeLine([]string)
 }
 
-// NewLineWriter provides a LineWriter which can be a remote Display or the local console.
-func NewLineWriter() (lwD LineWriter) {
+// newLineWriter provides a LineWriter which can be a remote Display or the local console.
+func newLineWriter() (lwD LineWriter) {
 	if true == DisplayRemote {
 		var p *RemoteDisplay
 		if true == Autostart {
@@ -72,4 +72,51 @@ func NewLineWriter() (lwD LineWriter) {
 		lwD = NewColorDisplay(ColorPalette)
 	}
 	return
+}
+
+// New creates the emitter instance and returns a string writer to be used for emitting.
+func New(prefix string) *TriceLineComposer {
+	if !DisplayRemote {
+		cage.Enable()
+		defer cage.Disable()
+	}
+	SetPrefix(prefix)
+	// lineComposer implements the io.StringWriter interface and uses the line writer provided.
+	// The line composer scans the trice strings and composes lines out of them according to its properties.
+	return newLineComposer(newLineWriter())
+}
+
+// SetPrefix changes "source:" to e.g., "JLINK:".
+// to do: better implementation for example with strings.Split
+func SetPrefix(port string) {
+	switch Prefix {
+	case "source:":
+		Prefix = port + ":"
+	case "source: ":
+		Prefix = port + ": "
+	case "source:  ":
+		Prefix = port + ":  "
+	case "source:   ":
+		Prefix = port + ":   "
+	case "source:    ":
+		Prefix = port + ":    "
+	case "source:     ":
+		Prefix = port + ":     "
+	case "source:      ":
+		Prefix = port + ":      "
+	case "source:       ":
+		Prefix = port + ":       "
+	case "source:        ":
+		Prefix = port + ":        "
+	case "source:         ":
+		Prefix = port + ":         "
+	case "source:          ":
+		Prefix = port + ":          "
+	case "source:           ":
+		Prefix = port + ":           "
+	case "source:            ":
+		Prefix = port + ":            "
+	case "off", "none":
+		Prefix = ""
+	}
 }

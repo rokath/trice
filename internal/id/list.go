@@ -42,14 +42,19 @@ type Item struct {
 
 // List is the trice ID List
 type List struct {
-
 	// FnJSON is the filename of the id List
 	FnJSON string
 
 	// ItemList is a slice type containing the ID ItemList.
 	ItemList []Item
+}
 
-	//savedErr error
+// New returns a pointer to a list struct which stays up-to-date in case the til.json file changes.
+func New() (l *List) {
+	l = NewList(FnJSON)
+	l.ReadListFile()
+	go l.FileWatcher()
+	return
 }
 
 // NewList creates an ID List instance
