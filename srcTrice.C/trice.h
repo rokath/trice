@@ -487,8 +487,8 @@ When several data, the real ID comes in the last 32 bit sequence.
 #define TRICE32_1( Id, pFmt, d0 ) do{ \
     uint32_t x = (uint32_t)d0; \
     TRICE_ENTER_CRITICAL_SECTION \
-    TRICE_ID0( x ); \
-    TRICE( Id, x>>16 ); \
+    TRICE_ID0( x>>16 ); \
+    TRICE( Id, x ); \
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
 
@@ -500,10 +500,10 @@ When several data, the real ID comes in the last 32 bit sequence.
 #define TRICE32_2( Id, pFmt, d0, d1 ) do{ \
     uint32_t x0 = (uint32_t)d0, x1 = (uint32_t)d1; \
     TRICE_ENTER_CRITICAL_SECTION \
-    TRICE_ID0( x0 ); \
     TRICE_ID0( x0>>16 ); \
-    TRICE_ID0( x1 ); \
-    TRICE( Id, x1>>16 ); \
+    TRICE_ID0( x0 ); \
+    TRICE_ID0( x1>>16 ); \
+    TRICE( Id, x1 ); \
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
 
@@ -516,12 +516,12 @@ When several data, the real ID comes in the last 32 bit sequence.
 #define TRICE32_3( Id, pFmt, d0, d1, d2 ) do{ \
     uint32_t x0 = (uint32_t)d0, x1 = (uint32_t)d1, x2 = (uint32_t)d2; \
     TRICE_ENTER_CRITICAL_SECTION \
-    TRICE_ID0( x0 ); \
     TRICE_ID0( x0>>16 ); \
-    TRICE_ID0( x1 ); \
+    TRICE_ID0( x0 ); \
     TRICE_ID0( x1>>16 ); \
-    TRICE_ID0( x2 ); \
-    TRICE( Id, x2>>16 ); \
+    TRICE_ID0( x1 ); \
+    TRICE_ID0( x2>>16 ); \
+    TRICE( Id, x2 ); \
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
 
@@ -535,14 +535,14 @@ When several data, the real ID comes in the last 32 bit sequence.
 #define TRICE32_4( Id, pFmt, d0, d1, d2, d3 ) do{ \
     uint32_t x0 = (uint32_t)d0, x1 = (uint32_t)d1, x2 = (uint32_t)d2, x3 = (uint32_t)d3; \
     TRICE_ENTER_CRITICAL_SECTION \
-    TRICE_ID0( x0 ); \
     TRICE_ID0( x0>>16 ); \
-    TRICE_ID0( x1 ); \
+    TRICE_ID0( x0 ); \
     TRICE_ID0( x1>>16 ); \
-    TRICE_ID0( x2 ); \
+    TRICE_ID0( x1 ); \
     TRICE_ID0( x2>>16 ); \
-    TRICE_ID0( x3 ); \
-    TRICE( Id, x3>>16 ); \
+    TRICE_ID0( x2 ); \
+    TRICE_ID0( x3>>16 ); \
+    TRICE( Id, x3 ); \
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
 
@@ -553,10 +553,10 @@ When several data, the real ID comes in the last 32 bit sequence.
 #define TRICE64_1( Id, pFmt, d0 ) do{ \
     uint64_t x = (uint64_t)d0; \
     TRICE_ENTER_CRITICAL_SECTION \
-    TRICE_ID0( x>>00 ); /*ll*/ \
-    TRICE_ID0( x>>16 ); /*hl*/\
-    TRICE_ID0( x>>32 ); /*lh*/ \
-    TRICE( Id, x>>48 ); /*hh*/ \
+    TRICE_ID0( x>>48 ); /*hh*/ \
+    TRICE_ID0( x>>32 ); /*hl*/\
+    TRICE_ID0( x>>16 ); /*lh*/ \
+    TRICE( Id, x );     /*ll*/ \
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
 
@@ -568,14 +568,14 @@ When several data, the real ID comes in the last 32 bit sequence.
 #define TRICE64_2( Id, pFmt, d0, d1 ) do{ \
     uint64_t x0 = (uint64_t)d0, x1 = (uint64_t)d1; \
     TRICE_ENTER_CRITICAL_SECTION \
-    TRICE_ID0( x0>>00 ); /*ll*/ \
-    TRICE_ID0( x0>>16 ); /*hl*/\
-    TRICE_ID0( x0>>32 ); /*lh*/ \
     TRICE_ID0( x0>>48 ); /*hh*/ \
-    TRICE_ID0( x1>>00 ); /*ll*/ \
-    TRICE_ID0( x1>>16 ); /*hl*/\
-    TRICE_ID0( x1>>32 ); /*lh*/ \
-    TRICE( Id, x1>>48 ); /*hh*/ \
+    TRICE_ID0( x0>>32 ); /*hl*/ \
+    TRICE_ID0( x0>>16 ); /*lh*/ \
+    TRICE_ID0( x0 );     /*ll*/ \
+    TRICE_ID0( x1>>48 ); /*hh*/ \
+    TRICE_ID0( x1>>32 ); /*hl*/ \
+    TRICE_ID0( x1>>16 ); /*lh*/ \
+    TRICE( Id, x1 );     /*ll*/ \
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
 

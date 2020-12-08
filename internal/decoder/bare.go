@@ -71,6 +71,13 @@ parse:
 			}
 			// the 2 id bytes are in bigendian format (network byte order)
 			id = (int(p.syncBuffer[index+0]) << 8) | int(p.syncBuffer[index+1])
+			if 0x89ab == id && 0xcd == p.syncBuffer[index+2] && 0xef == p.syncBuffer[index+3] {
+				// remove sync packet
+				sb0 := p.syncBuffer[:index]
+				sb1 := p.syncBuffer[index+4:]
+				p.syncBuffer = append(sb0, sb1...)
+				goto parse
+			}
 			if 0 == id { // multi atom trice
 				index += 4
 			}
