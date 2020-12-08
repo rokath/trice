@@ -4,16 +4,20 @@
 package receiver
 
 import (
+	"bytes"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"log"
 	"path/filepath"
 	"runtime"
 	"time"
 
+	"github.com/rokath/trice/internal/com"
 	"github.com/rokath/trice/internal/decoder"
 	"github.com/rokath/trice/internal/emitter"
 	"github.com/rokath/trice/internal/id"
+	"github.com/rokath/trice/internal/link"
 	"github.com/rokath/trice/pkg/cage"
 	"github.com/rokath/trice/pkg/cipher"
 )
@@ -31,6 +35,38 @@ var (
 	// PortArguments are the trice receiver device specific arguments.
 	PortArguments string
 )
+
+// NewInputPort returns a ReadCloser for the specified port and its args.
+// err is nil on successful open.
+// When port is "COMn" args can be used to be "TARM" to use a different driver for dynamic testing.
+// When port is "BUFFER", args is expected to be a byte sequence in the same format as for example coming from one of the other ports.
+// When port is "JLINK" args contains JLinkRTTLogger.exe specific parameters described inside UM08001_JLink.pdf.
+// When port is "STLINK" args has the same format as for "JLINK"
+func NewInputPort(port, args string) (r io.ReadCloser, err error) {
+	switch port {
+	case "JLINK", "STLINK":
+		l := link.NewDevice(port, args)
+		if nil != l.Open() {
+			err = fmt.Errorf("can not open link device %s with args %s", port, args)
+		}
+		r = l
+	default: // assuming serial port
+		var c com.COMport   // interface type
+		if "TARM" == args { // for comparing dynamic behaviour
+			c = com.NewCOMPortTarm(port)
+		} else {
+			c = com.NewCOMPortGoBugSt(port)
+		}
+		if false == c.Open() {
+			err = fmt.Errorf("can not open %s", port)
+		}
+		r = c
+		return
+	case "BUFFER":
+		r = ioutil.NopCloser(bytes.NewBufferString(args))
+	}
+	return
+}
 
 // Loop prepares writing and list and provides a retry mechanism for unplugged UART.
 func Loop() {
@@ -63,7 +99,7 @@ func Loop() {
 func receiving(sw *emitter.TriceLineComposer, list *id.List, hardReadError chan bool) bool {
 
 	// (re-)setup input port
-	portReader, e := decoder.NewInputPort(Port, PortArguments)
+	portReader, e := NewInputPort(Port, PortArguments)
 	if nil != e {
 		if Verbose {
 			fmt.Println(e)
@@ -134,23 +170,6 @@ func receiving(sw *emitter.TriceLineComposer, list *id.List, hardReadError chan 
 	//}
 }
 
-/*
-func receiveBareSimpleTricesAndDisplayAnsiColor(
-	sw *emitter.TriceLineComposer,
-	rd io.ReadCloser,
-	list *id.List,
-	hardReadError chan bool) (bt *translator.BareTranslator) {
-
-	// triceAtomsReceiver uses the io.Reader interface from s and implements the TriceAtomsReceiver interface.
-	// It scans the raw input byte stream and decodes the trice atoms it transmits to the TriceAtomsReceiver interface.
-	triceAtomsReceiver := receiver.NewTricesfromBare(rd, hardReadError)
-
-	// bt uses triceAtomsReceiver for reception and the io.StringWriter interface sw for writing.
-	// It collects trice atoms to a complete trice, generates the appropriate string using list and writes it to the provided io.StringWriter
-	bt = translator.NewSimpleTrices(sw, list, triceAtomsReceiver)
-	return
-}
-*/
 // NewList returns a pointer to a list struct which stays up-to-date in case the til.json file changes.
 func NewList() (l *id.List) {
 	l = id.NewList(id.FnJSON)
@@ -279,3 +298,21 @@ func (p *bytesViewer) Close() error { return nil }
 //	return
 //}
 //
+
+/*
+func receiveBareSimpleTricesAndDisplayAnsiColor(
+	sw *emitter.TriceLineComposer,
+	rd io.ReadCloser,
+	list *id.List,
+	hardReadError chan bool) (bt *translator.BareTranslator) {
+
+	// triceAtomsReceiver uses the io.Reader interface from s and implements the TriceAtomsReceiver interface.
+	// It scans the raw input byte stream and decodes the trice atoms it transmits to the TriceAtomsReceiver interface.
+	triceAtomsReceiver := receiver.NewTricesfromBare(rd, hardReadError)
+
+	// bt uses triceAtomsReceiver for reception and the io.StringWriter interface sw for writing.
+	// It collects trice atoms to a complete trice, generates the appropriate string using list and writes it to the provided io.StringWriter
+	bt = translator.NewSimpleTrices(sw, list, triceAtomsReceiver)
+	return
+}
+*/
