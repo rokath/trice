@@ -61,6 +61,7 @@ var (
 	})
 
 	byteStreamWrap string = string([]byte{
+		//235, 96, 96, 49, 72, 145, 3, 0,
 		235, 96, 96, 235, 163, 150, 150, 163,
 		//235, 96, 96, 133, 0, 0, 32, 78,
 		//235, 96, 96, 50, 145, 72, 0, 0,
@@ -786,6 +787,13 @@ var (
 			"created": 1601240704,
 			"removed": 0
 		},
+		{
+			"id": 18577,
+			"fmtType": "TRICE32_1",
+			"fmtStrg": "ISR:alive time %d milliseconds\\n",
+			"created": 1590414933,
+			"removed": 0
+		},		
 		{
 			"id": 44860,
 			"fmtType": "TRICE0",

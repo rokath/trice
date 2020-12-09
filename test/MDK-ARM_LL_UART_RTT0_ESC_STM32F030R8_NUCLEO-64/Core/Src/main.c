@@ -23,7 +23,8 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "trice.h"
-#include "triceBareFifoToBytesBuffer.h"
+//#include "triceEscFifo.h"
+#include "triceInterfaceUART.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -66,7 +67,9 @@ static void MX_USART2_UART_Init(void);
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-
+#ifdef ENCRYPT
+    InitXteaTable();
+#endif
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -94,33 +97,28 @@ int main(void)
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
     LL_USART_EnableIT_RXNE(TRICE_UART); // enable UART2 interrupt
-    TRICE0( Id(64636), "s:                                                   \ns:   MDK-ARM_LL_UART_RTT0_BARE_STM32F091_NUCLEO-64   \ns:                                                   \n\n");
+    TRICE0( Id(48976), "\ns:                                                     \ns:   ARM-MDK_LL_UART_RTT0_ESC_STM32F030R8_NUCLEO-64    \ns:                                                     \n\n");
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-    static int lastTricesTime = 0;
-    { // send some trices every few ms
-        if( milliSecond >= lastTricesTime + 100 ){
-            static int index = 0;
-            triceCheckSet(index%10);
-            index++;
-            lastTricesTime = milliSecond;
+        static int lastTricesTime = 0;
+        { // send some trices every few ms
+            if( milliSecond >= lastTricesTime + 100 ){
+                static int index = 0;
+                //TRICE16_1( Id(55132),"MSG: triceEscFifoMaxDepth = %d\n", triceEscFifoMaxDepth );
+                TRICE64_2(Id(16627), "tst:TRICE64_2 %x %16d\n", 0x1020304050607080, index); // 4
+                triceCheckSet(index%10);
+                index++;
+                lastTricesTime = milliSecond;
+            }
         }
-    }
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-        { // serve every few ms
-            static int lastMs = 0;
-            if( milliSecond >= lastMs + 1 ){
-                lastMs = milliSecond;
-                triceServeBareFifoToBytesBuffer();
-            }
-        }
-  }
+    }
   /* USER CODE END 3 */
 }
 
@@ -142,7 +140,7 @@ void SystemClock_Config(void)
 
   }
   LL_RCC_HSI_SetCalibTrimming(16);
-  LL_RCC_PLL_ConfigDomain_SYS(LL_RCC_PLLSOURCE_HSI, LL_RCC_PLL_MUL_12, LL_RCC_PREDIV_DIV_2);
+  LL_RCC_PLL_ConfigDomain_SYS(LL_RCC_PLLSOURCE_HSI_DIV_2, LL_RCC_PLL_MUL_12);
   LL_RCC_PLL_Enable();
 
    /* Wait till PLL is ready */
@@ -161,7 +159,6 @@ void SystemClock_Config(void)
   }
   LL_Init1msTick(48000000);
   LL_SetSystemCoreClock(48000000);
-  LL_RCC_SetUSARTClockSource(LL_RCC_USART2_CLKSOURCE_PCLK1);
 }
 
 /**
@@ -284,10 +281,7 @@ void Error_Handler(void)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
   /* User can add his own implementation to report the HAL error return state */
-  __disable_irq();
-  while (1)
-  {
-  }
+
   /* USER CODE END Error_Handler_Debug */
 }
 
@@ -303,7 +297,7 @@ void assert_failed(uint8_t *file, uint32_t line)
 {
   /* USER CODE BEGIN 6 */
   /* User can add his own implementation to report the file name and line number,
-     ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
+     tex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
   /* USER CODE END 6 */
 }
 #endif /* USE_FULL_ASSERT */
