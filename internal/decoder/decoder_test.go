@@ -60,6 +60,23 @@ var (
 		32, 210, 255, 254, // TRICE64_2 -1 -2
 	})
 
+	byteStreamWrap string = string([]byte{
+		235, 96, 96, 235, 163, 150, 150, 163,
+		//235, 96, 96, 133, 0, 0, 32, 78,
+		//235, 96, 96, 50, 145, 72, 0, 0,
+		//235, 96, 96, 33, 0, 0, 132, 78,
+		//235, 96, 96, 50, 145, 72, 0, 0,
+		//235, 96, 96, 77, 0, 0, 232, 78,
+		//235, 96, 96, 50, 145, 72, 0, 0,
+		//235, 96, 96, 232, 0, 0, 76, 79,
+		//235, 96, 96, 50, 145, 72, 0, 0,
+		//235, 96, 96, 20, 0, 0, 176, 79,
+		//235, 96, 96, 50, 145, 72, 0, 0,
+		//235, 96, 96, 175, 0, 0, 20, 80,
+		//235, 96, 96, 50, 145, 72, 0, 0,
+		//235, 96, 96, 195, 0, 0, 120, 80,
+	})
+
 	// til is the trace id list content for tests
 	til = `[
 		{
@@ -918,7 +935,7 @@ func TestEsc(t *testing.T) {
 		t.Fail()
 	}
 
-	p := decoder.NewEsc(list, rc) // p is a new esc decoder instance
+	p := decoder.NewEsc(list, rc) // p is a new decoder instance
 
 	ss := make([]string, 100)
 	n, err := p.StringsRead(ss)
@@ -944,7 +961,7 @@ func TestBare(t *testing.T) {
 		t.Fail()
 	}
 
-	p := decoder.NewBare(list, rc) // p is a new esc decoder instance
+	p := decoder.NewBare(list, rc) // p is a new decoder instance
 
 	ss := make([]string, 100)
 	n, err := p.StringsRead(ss)
@@ -954,5 +971,31 @@ func TestBare(t *testing.T) {
 	ss = ss[:n]
 	act := fmt.Sprintln(ss)
 	exp := "[tst:TRICE32_1 -1\\n tst:TRICE32_2 -1 -2\\n tst:TRICE32_3 -1 -2 -3\\n tst:TRICE32_4 -1 -2 -3 -4\\n tst:TRICE64_1 -1\\n tst:TRICE64_2 -1 -2\\n]\n"
+	assert.Equal(t, exp, act)
+}
+
+func TestWrap(t *testing.T) {
+
+	// rc is created ReadCloser
+	rc, err := receiver.NewReader("BUFFER", byteStreamWrap)
+	if err != nil {
+		t.Fail()
+	}
+
+	list, err := decoder.UnmarshalTriceIDList([]byte(til))
+	if err != nil {
+		t.Fail()
+	}
+
+	p := decoder.NewBare(list, decoder.NewBareReaderFromWrap(rc)) // p is a new decoder instance
+
+	ss := make([]string, 100)
+	n, err := p.StringsRead(ss)
+	if err != nil {
+		t.Fail()
+	}
+	ss = ss[:n]
+	act := fmt.Sprintln(ss)
+	exp := "[err:error       message, SysTick is -26973\\n]\n"
 	assert.Equal(t, exp, act)
 }

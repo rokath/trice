@@ -64,11 +64,8 @@ parse:
 	var index int
 
 	// read trice id
-	for range p.syncBuffer {
+	for len(p.syncBuffer) >= index+4 {
 		for 0 == id {
-			if len(p.syncBuffer) < index+4 {
-				return // need more data
-			}
 			// the 2 id bytes are in bigendian format (network byte order)
 			id = (int(p.syncBuffer[index+0]) << 8) | int(p.syncBuffer[index+1])
 			if 0x89ab == id && 0xcd == p.syncBuffer[index+2] && 0xef == p.syncBuffer[index+3] {

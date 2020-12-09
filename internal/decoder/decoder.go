@@ -113,6 +113,15 @@ func Translate(sw *emitter.TriceLineComposer, list *id.List, rc io.ReadCloser /*
 				dec = NewBare(list.ItemList, rc) // read list again - it could have changed
 			}
 		}
+	case "wrap":
+		dec := NewBare(list.ItemList, NewBareReaderFromWrap(rc))
+		for {
+			err := run(sw, dec)
+			if nil != err {
+				time.Sleep(2 * time.Second)
+				dec = NewBare(list.ItemList, NewBareReaderFromWrap(rc)) // read list again - it could have changed
+			}
+		}
 
 	//case "bare":
 	//	p = receiveBareSimpleTricesAndDisplayAnsiColor(sw, rc, list, hardReadError)
