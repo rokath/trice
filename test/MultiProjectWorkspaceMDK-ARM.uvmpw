@@ -8,16 +8,12 @@
   <WorkspaceName>WorkSpace</WorkspaceName>
 
   <project>
-    <PathAndName>.\MDK-ARM_BARE_STM32F03051R8Tx-DISCOVERY\MDK-ARM\MDK-ARM_BARE_STM32F03051R8Tx-DISCOVERY.uvprojx</PathAndName>
-  </project>
-
-  <project>
     <PathAndName>.\MDK-ARM_LL_UART_RTT0_BARE_STM32F091_NUCLEO-64\MDK-ARM\MDK-ARM_LL_UART_RTT0_BARE_STM32F091_NUCLEO-64.uvprojx</PathAndName>
-    <NodeIsActive>1</NodeIsActive>
   </project>
 
   <project>
     <PathAndName>.\MDK-ARM_LL_UART_RTT0_BARE_STM32F030R8-NUCLEO-64\MDK-ARM\MDK-ARM_LL_UART_RTT0_BARE_STM32F030R8-NUCLEO-64.uvprojx</PathAndName>
+    <NodeIsActive>1</NodeIsActive>
   </project>
 
   <project>
@@ -30,6 +26,14 @@
 
   <project>
     <PathAndName>.\MDK-ARM_LL_UART_RTT0_ESC_STM32F070RB_NUCLEO-64\MDK-ARM\MDK-ARM_LL_UART_RTT0_ESC_STM32F070RB_NUCLEO-64.uvprojx</PathAndName>
+  </project>
+
+  <project>
+    <PathAndName>.\MDK-ARM_RTT0_BARE_STM32F0308-DISCO\MDK-ARM\MDK-ARM_RTT0_BARE_STM32F0308-DISCO.uvprojx</PathAndName>
+  </project>
+
+  <project>
+    <PathAndName>.\MDK-ARM_RTT0_BARE_STM32F03051R8Tx-DISCOVERY\MDK-ARM\MDK-ARM_RTT0_BARE_STM32F03051R8Tx-DISCOVERY.uvprojx</PathAndName>
   </project>
 
 </ProjectWorkspace>

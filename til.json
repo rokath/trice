@@ -2042,5 +2042,12 @@
 		"fmtStrg": "s:                                                   \\ns:   MDK-ARM_LL_UART_RTT0_BARE_STM32F070_NUCLEO-64   \\ns:                                                   \\n\\n",
 		"created": 1607530389,
 		"removed": 0
+	},
+	{
+		"id": 57476,
+		"fmtType": "TRICE0",
+		"fmtStrg": "s:                                          \\ns:    ARM-MDK_RTT0_BARE_STM32F0308-DISCO    \\ns:                                          \\n\\n",
+		"created": 1607548146,
+		"removed": 0
 	}
 ]
