@@ -1,0 +1,42 @@
+;------------------------------------------------------------
+;
+; Copyright (c) 2013-2015 Altium Limited
+;
+; This software is the proprietary, copyrighted property of
+; Altium Ltd. All Right Reserved.
+;
+; SVN revision information:
+; $Rev: 14907 $:
+; $Date: 2015-01-19 13:30:51 +0100 (Mon, 19 Jan 2015) $:
+;
+;------------------------------------------------------------
+
+[Plugin]
+Name=drv_stm32_i2cm
+Implement=drv_i2cm
+Caption=STM32 Master I2C Driver 
+Description=Device driver for I2C masters on STM32 devices
+CompileOption0=-I"$(SWP_ABSPATH)\internal"
+SourceFile0=$(SWP_RELPATH)\src\drv_stm32_i2cm.c
+SourceFile1=$(SWP_RELPATH)\src\drv_stm32_i2cm_f10x.c
+SourceFile2=$(SWP_RELPATH)\src\drv_stm32_i2cm_f2xx_f4xx.c
+SourceFile3=$(SWP_RELPATH)\src\drv_stm32_i2cm_l1xx.c
+SourceFile4=$(SWP_RELPATH)\src\drv_stm32_i2cm_f0xx_f3xx.c
+SourceFile5=$(SWP_RELPATH)\src\drv_stm32f0_f3_i2cm.c
+Require0=timing
+
+[PluginApplicationCode]
+OpenType=i2cm_t *
+OpenFunction=i2cm_open
+
+[Instance]
+MultipleLinks=True
+Require0=per_stm32_i2c
+
+[Instance_Option0]
+Name=i2c_frequency
+Caption=SCL frequency
+Description=I2C clock frequency (in Hz)
+Kind=UINT32
+DefaultValue=100000
+

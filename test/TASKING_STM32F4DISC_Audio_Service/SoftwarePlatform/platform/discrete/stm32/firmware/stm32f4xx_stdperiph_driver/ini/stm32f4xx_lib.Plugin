@@ -1,0 +1,36 @@
+;------------------------------------------------------------
+;
+; Copyright (c) 2013-2015 Altium Limited
+;
+; This software is the proprietary, copyrighted property of
+; Altium Ltd. All Right Reserved.
+;
+; SVN revision information:
+; $Rev: 14907 $:
+; $Date: 2015-01-19 13:30:51 +0100 (Mon, 19 Jan 2015) $:
+;
+;------------------------------------------------------------
+
+[Plugin]
+Name=stm32f4xx_lib
+Implement=stm32f4xx_lib
+Caption=STM32F4XX Peripheral Access Library
+GlobalCompileOption0=-DUSE_STDPERIPH_DRIVER=1
+GlobalCompileOption1=-I"$(SWP_ABSPATH)\inc"
+CompileOption0=-Wc--no-warnings=529,560,588
+SourceDir=$(SWP_RELPATH)\src
+Require0=stm32_cmsis
+
+[Available_If0]
+Kind=ENVIRONMENT
+Object=DEVICE
+Condition=REQ
+Value=STM324.
+OrCondition=True
+
+[Available_If1]
+Kind=ENVIRONMENT
+Object=DEVICE
+Condition=REQ
+Value=STM32F4.
+OrCondition=True

@@ -1,0 +1,42 @@
+;------------------------------------------------------------
+;
+; Copyright (c) 2013-2015 Altium Limited
+;
+; This software is the proprietary, copyrighted property of
+; Altium Ltd. All Right Reserved.
+;
+; SVN revision information:
+; $Rev: 14907 $:
+; $Date: 2015-01-19 13:30:51 +0100 (Mon, 19 Jan 2015) $:
+;
+;------------------------------------------------------------
+
+[Plugin]
+Name=pal_arch_cortex
+Implement=pal_arch
+Description=PAL implements the Cortex M architecture
+Caption=Cortex M architecture
+GenerateFile=pal_arch_cfg
+SourceDir=$(SWP_RELPATH)\src
+GlobalCompileOption0=-I"$(SWP_ABSPATH)\include"
+Bitmap=pal_arch_cortex.bmp
+Require0=pal_arch_cortex_variant
+Require1=cortex_arch_specials
+
+[Require1_If0]
+Kind=ENVIRONMENT
+Object=ARCHITECTURE
+Condition=REQ
+Value=ARMv7E?M
+
+[Available_If0]
+Kind=ENVIRONMENT
+Object=ARCHITECTURE
+Condition=REQ
+Value=ARMv(6|7|7E)M
+
+[Option0]
+Name=LSLSECTION
+Kind=STRING
+AutoValue=linear
+NoGenerate=True

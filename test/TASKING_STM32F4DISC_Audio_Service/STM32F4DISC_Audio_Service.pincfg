@@ -1,0 +1,57 @@
+<v1:pinSettings xmlns:v1="http://www.tasking.com/schema/pinsettings/v1.1">
+  <v1:pinMappingsRef version="1.18" file="platform:/plugin/com.tasking.pinmapper.input.stm32/etc/STM32F407V_E-G_Tx_pinmappings.xml"/>
+  <v1:deviceSetting id="stm32f407ve_gtx" pattern="STM32F407V[EG]T*">
+    <v1:packageSetting id="lqfp100"/>
+  </v1:deviceSetting>
+  <v1:configSetting configurationId="pb8.gpio_speed" altId="pb8.gpio_speed.gpio_fast_speed"/>
+  <v1:configSetting configurationId="i2c1_scl" altId="i2c1_scl.pb6">
+    <v1:connectionSetting altId="pb6.i2c1_scl"/>
+  </v1:configSetting>
+  <v1:configSetting configurationId="i2c1_sda" altId="i2c1_sda.pb9">
+    <v1:connectionSetting altId="pb9.i2c1_sda"/>
+  </v1:configSetting>
+  <v1:configSetting configurationId="pb7.gpio_speed" altId="pb7.gpio_speed.gpio_fast_speed"/>
+  <v1:configSetting configurationId="i2c1.i2c" altId="i2c1.i2c.i2c"/>
+  <v1:configSetting configurationId="pc7.gpio_speed" altId="pc7.gpio_speed.gpio_fast_speed"/>
+  <v1:configSetting configurationId="i2s3_ck" altId="i2s3_ck.pc10">
+    <v1:connectionSetting altId="pc10.i2s3_ck"/>
+  </v1:configSetting>
+  <v1:configSetting configurationId="i2s3_mck" altId="i2s3_mck.pc7">
+    <v1:connectionSetting altId="pc7.i2s3_mck"/>
+  </v1:configSetting>
+  <v1:configSetting configurationId="pc12.gpio_speed" altId="pc12.gpio_speed.gpio_fast_speed"/>
+  <v1:configSetting configurationId="pa4.gpio_speed" altId="pa4.gpio_speed.gpio_fast_speed"/>
+  <v1:configSetting configurationId="pc10.gpio_speed" altId="pc10.gpio_speed.gpio_fast_speed"/>
+  <v1:configSetting configurationId="pc12" altId="pc12.i2s3_sd">
+    <v1:connectionSetting altId="i2s3_sd.pc12"/>
+  </v1:configSetting>
+  <v1:configSetting configurationId="i2s3.mode" altId="i2s3.mode.half_duplex_master"/>
+  <v1:configSetting configurationId="pc7" altId="pc7.i2s3_mck">
+    <v1:connectionSetting altId="i2s3_mck.pc7"/>
+  </v1:configSetting>
+  <v1:configSetting configurationId="pc10" altId="pc10.i2s3_ck">
+    <v1:connectionSetting altId="i2s3_ck.pc10"/>
+  </v1:configSetting>
+  <v1:configSetting configurationId="i2s3_ws" altId="i2s3_ws.pa4">
+    <v1:connectionSetting altId="pa4.i2s3_ws"/>
+  </v1:configSetting>
+  <v1:configSetting configurationId="i2s3_sd" altId="i2s3_sd.pc12">
+    <v1:connectionSetting altId="pc12.i2s3_sd"/>
+  </v1:configSetting>
+  <v1:configSetting configurationId="pa4" altId="pa4.i2s3_ws">
+    <v1:connectionSetting altId="i2s3_ws.pa4"/>
+  </v1:configSetting>
+  <v1:configSetting configurationId="pd4.gpio_mode" altId="pd4.gpio_mode.gpio_mode_out"/>
+  <v1:configSetting configurationId="pd4" altId="pd4.gpio"/>
+  <v1:configSetting configurationId="pb9" altId="pb9.i2c1_sda">
+    <v1:connectionSetting altId="i2c1_sda.pb9"/>
+  </v1:configSetting>
+  <v1:configSetting configurationId="pb6" altId="pb6.i2c1_scl">
+    <v1:connectionSetting altId="i2c1_scl.pb6"/>
+  </v1:configSetting>
+  <v1:configSetting configurationId="pb9.gpio_speed" altId="pb9.gpio_speed.gpio_fast_speed"/>
+  <v1:configSetting configurationId="pb6.gpio_speed" altId="pb6.gpio_speed.gpio_fast_speed"/>
+  <v1:configSetting configurationId="i2s3.master_clock" altId="i2s3.master_clock.enabled"/>
+  <v1:configSetting configurationId="pb6.gpio_otype" altId="pb6.gpio_otype.gpio_otype_od"/>
+  <v1:configSetting configurationId="pb9.gpio_otype" altId="pb9.gpio_otype.gpio_otype_od"/>
+</v1:pinSettings>

@@ -1,0 +1,20 @@
+VERSION
+{   KOIL = "2.1"; // KOIL (Part A), Spec v2.1
+    OSSEMANTICS = "ORTI", "2.1"; // ORTI, Part B Spec v2.1
+};
+
+IMPLEMENTATION TASKING_POSIX
+{
+
+OS
+{
+ENUM ["NO"= 0,"YES"=1 ] INFO, "Info available";
+}, "System Info";
+
+
+}; // TASKING_POSIX
+
+OS Status
+{
+INFO="0";
+};

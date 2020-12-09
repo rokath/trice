@@ -1,0 +1,50 @@
+;------------------------------------------------------------
+;
+; Copyright (c) 2013-2015 Altium Limited
+;
+; This software is the proprietary, copyrighted property of
+; Altium Ltd. All Right Reserved.
+;
+; SVN revision information:
+; $Rev: 14907 $:
+; $Date: 2015-01-19 13:30:51 +0100 (Mon, 19 Jan 2015) $:
+;
+;------------------------------------------------------------
+
+[Plugin]
+Name=pal
+Implement=pal
+Caption=PAL Services
+Description=Processor Abstraction Layer
+Bitmap=pal.bmp
+
+FrameworkCompileOption0=-I"$(SWP_ABSPATH)\include"
+SourceDir=$(SWP_RELPATH)\src
+
+InitHandler=pal_init
+InitHandlerPriority=128
+Require0=pal_arch
+
+[Option0]
+Name=CLOCKHZ
+Caption=Processor Clock (Hz)
+Description=Frequency of the processor clock in Hz. Used in timing calculations.
+Kind=UINT32
+DefaultValue=50000000
+
+[Option1]
+Name=USETIMERS
+Kind=BOOLEAN
+DefaultValue=False
+
+[Option1_Available_If0]
+Kind=INTERFACE
+Condition=EQ
+Object=timing
+
+[Option2]
+Name=INTERRUPT_CONTROL_CFG
+Description=Interrupt enable\disable mask
+Kind=UINT32
+DefaultValue=0
+Auto=True

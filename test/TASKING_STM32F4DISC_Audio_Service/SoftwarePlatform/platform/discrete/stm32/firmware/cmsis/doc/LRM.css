@@ -1,0 +1,425 @@
+P.Code {
+	display: block;
+	text-align: left;
+	text-indent: 0.00pt;
+	margin-top: 0.000000pt;
+	margin-bottom: 0.000000pt;
+	margin-right: 0.000000pt;
+	margin-left: 15pt;
+	font-size: 10.000000pt;
+	font-weight: medium;
+	font-style: Regular;
+	color: #4444CC;
+	text-decoration: none;
+	vertical-align: baseline;
+	text-transform: none;
+	font-family: "Courier New";
+}
+H6.CaptionFigColumn {
+	display: block;
+	text-align: left;
+	text-indent: 0.000000pt;
+	margin-top: 3.000000pt;
+	margin-bottom: 11.000000pt;
+	margin-right: 0.000000pt;
+	margin-left: 0.000000pt;
+	font-size: 9.000000pt;
+	font-weight: medium;
+	font-style: Italic;
+	color: #000000;
+	text-decoration: none;
+	vertical-align: baseline;
+	text-transform: none;
+	font-family: "Arial";
+}
+.note {
+	display: block;
+	text-align: left;
+	text-indent: 0pt;
+	margin-top: 19.5pt;
+	margin-bottom: 19.5pt;
+	margin-right: 0pt;
+	margin-left: 0pt;
+	font-size: 11pt;
+	font-weight: medium;
+	font-style: ;
+	color: #000000;
+	border-width:1px; border-style:solid; border-color: #006BB6;
+	background: #DFF3FF;
+	text-decoration: none;
+	vertical-align: baseline;
+	text-transform: none;
+	font-family: "Arial";
+}
+EM.UILabel {
+	font-weight: Bold;
+	font-style: Regular;
+	text-decoration: none;
+	vertical-align: baseline;
+	text-transform: none;
+}
+EM.CodeName {
+	font-weight: Bold;
+	font-style: Regular;
+	text-decoration: none;
+	vertical-align: baseline;
+	text-transform: none;
+	font-family:"Courier New";
+}
+PRE.programlisting {
+        margin-left:20px
+}
+
+body, html { border: 0px }
+
+
+/* following font face declarations need to be removed for DBCS */
+
+body, h1, h2, h3, h4, h5, h6, p, table, td, caption, th, ul, ol, dl, li, dd, dt {font-family: Arial, Helvetica, sans-serif; color: #000000}
+th {font-family: Arial, Helvetica, sans-serif; background-color: #DFF3FF}
+table, tr, td, th {border-collapse: collapse; border-color: black}
+pre				{ font-family: Courier, monospace}
+
+/* end font face declarations */
+
+/* following font size declarations should be OK for DBCS */
+body, h1, h2, h3, h4, h5, h6, p, table, td, caption, th, ul, ol, dl, li, dd, dt {font-size: 10pt; }
+pre				{ font-size: 10pt}
+
+/* end font size declarations */
+
+body	     { background: #FFFFFF}
+h1           { font-size: 18pt; margin-top: 5; margin-bottom: 1 }
+h2           { font-size: 14pt; margin-top: 20; margin-bottom: 3 }
+h2.reftitle  { font-size: 16pt; margin-top: 5; margin-bottom: 1; color: #006BB6}
+h3           { font-size: 12pt; margin-top: 20; margin-bottom: 3 }
+h3.title     { font-size: 12pt; margin-top: 10; margin-bottom: 3 }
+h4           { font-size: 11pt; margin-top: 20; margin-bottom: 3}
+h5           { font-size: 11pt; margin-top: 20; margin-bottom: 3; font-style: italic }
+p            { margin-top: 2px; margin-bottom: 2px }
+pre	     { margin-left: 6; font-size: 9pt }
+.programlisting
+             { margin-top: 9px; margin-bottom: 9px; line-height: 12pt }
+
+a:link	     { color: #0000FF; text-decoration: none }
+a:visited    { color: #0000BB; text-decoration: none }
+a:hover	     { color: #0000BB; text-decoration: underline }
+a:active     { color: #0000BB; text-decoration: underline }
+
+ul	     { margin-top: 0; margin-bottom: 10}
+li	     { margin-top: 5; margin-bottom: 0}
+ul li        { margin-left: -20 }
+ol li        { margin-left: -15 }
+li p	     { margin-top: 10; margin-bottom: 0 } 
+ol	     { margin-top: 0; margin-bottom: 10 }
+dl	     { margin-top: 0; margin-bottom: 10 }
+dt	     { margin-top: 0; margin-bottom: 0; font-weight: bold }
+dd	     { margin-top: 0; margin-bottom: 0 }
+strong	     { font-weight: bold}
+em	     { font-style: italic}
+var	     { font-style: italic}
+div.revision { border-left-style: solid; border-left-width: thin; 
+				   border-left-color: #7B68EE; padding-left:5 }
+th	     { font-weight: bold; padding: 0.4em; text-align:left }
+tr	     { padding: 0.4em }
+td	     { padding-left: 0.4em; padding-right: 0.6em }
+
+/* how a category listing is formatted */
+.category-table {
+	border-collapse:collapse
+}
+.category-table-tr-1 {
+	padding: 0.4em
+}
+.category-table-tr-2 {
+	padding: 0.4em
+}
+.category-table-td {
+	padding-left: 0.4em; padding-right: 0.6em 
+}
+
+/* how a miscellaneous tables are formatted  */
+.misc-table {
+	border-collapse:collapse; border: solid; border-width: 1px; border-color: black
+}
+.misc-table th {
+	border: solid;  border-color: black; border-width: 1px
+}
+.misc-table tr {
+	border: solid;  border-color: black; border-width: 1px
+}
+.misc-table td {
+	border: solid;  border-color: black; border-width: 1px
+}
+
+DIV.droptext {
+	font-family: Arial, sans-serif;
+}
+
+SPAN.expandtext {
+	font-size: 9pt;
+	font-family: Arial, sans-serif;
+}
+
+SPAN.Dialogs {
+	font-family: Arial, sans-serif;
+	font-weight: bold;
+	font-style: normal;
+}
+
+SPAN.Controls {
+	font-family: Arial, sans-serif;
+	font-weight: bold;
+	font-style: normal;
+}
+
+SPAN.MenuSelections {
+	font-family: Arial, sans-serif;
+	font-weight: bold;
+	font-style: normal;
+}
+
+SPAN.Tabs {
+	font-family: Arial, sans-serif;
+	font-weight: bold;
+	font-style: normal;
+}
+
+SPAN.HDDReferences {
+	font-family: "Courier New", monospace;
+}
+
+SPAN.DataEntry {
+	font-family: "Courier New", monospace;
+}
+
+SPAN.KeyboardShortcuts {
+	font-family: Arial, sans-serif;
+	font-weight: bold;
+	font-style: normal;
+}
+
+SPAN.HeaderHighlight {
+	font-weight: bold;
+	font-style: normal;
+	font-family: Arial, sans-serif;
+	color: #000080;
+}
+
+SPAN.OptionHighlight {
+	font-weight: bold;
+	font-style: normal;
+	font-family: Arial, sans-serif;
+	color: #0066ff;
+}
+
+SPAN.BoldHighlight {
+	font-weight: bold;
+	font-style: normal;
+	font-family: Arial, sans-serif;
+}
+
+P.SectionHighlight {
+	font-size: 12pt;
+	font-weight: bold;
+	font-style: normal;
+	margin-bottom: 3pt;
+	margin-top: 9pt;
+}
+
+SPAN.DataEntryHilight {
+	font-family: "Courier New", monospace;
+	font-weight: bold;
+	font-style: normal;
+	color: #0066ff;
+}
+
+SPAN.ParameterHighlight {
+	font-weight: bold;
+	font-style: normal;
+	font-family: Arial, sans-serif;
+	color: #0066ff;
+}
+
+SPAN.HDDRefHighlight {
+	font-weight: bold;
+	font-style: normal;
+	font-family: "Courier New", monospace;
+}
+
+P.DataEntryColour {
+	font-family: "Courier New", monospace;
+	color: #800080;
+	font-weight: bold;
+	font-style: normal;
+}
+
+SPAN.Toolbars {
+	font-weight: bold;
+	font-style: normal;
+	font-family: Arial, sans-serif;
+}
+
+SPAN.Icons {
+	font-weight: bold;
+	font-style: normal;
+	font-family: Arial, sans-serif;
+}
+
+SPAN.ExampleHighlight {
+	font-family: "Courier New", monospace;
+	color: #800080;
+	font-weight: bold;
+	font-style: normal;
+}
+
+P.ProcessParameterSpa {
+	margin-top: 9pt;
+	margin-bottom: 9pt;
+}
+
+
+P.SubSectionHiLight {
+	font-weight: bold;
+	font-style: normal;
+	margin-top: 6pt;
+	margin-bottom: 3pt;
+}
+
+
+P.LinksSection {
+	margin-top: 1pt;
+	margin-bottom: 1pt;
+}
+
+P.ProBullets {
+	margin-top: 6pt;
+	margin-bottom: 6pt;
+	text-indent: -15px;
+	margin-left: 16px;
+}
+
+
+SPAN.BoldWhite {
+	font-weight: bold;
+	font-style: normal;
+	font-family: Arial, sans-serif;
+	color: #ffffff;
+}
+
+SPAN.TableAltiumNavy {
+	font-family: Arial, sans-serif;
+	color: #000066;
+}
+
+SPAN.whitetext {
+	font-family: Arial, sans-serif;
+	color: #ffffff;
+}
+
+P.SubSectionHILI {
+	font-weight: bold;
+	font-style: normal;
+	margin-top: 6pt;
+	color: #003399;
+}
+
+
+P.accessbull {
+	text-indent: -15px;
+	margin-left: 16px;
+}
+
+
+SPAN.fuschia {
+	font-family: "Courier New", monospace;
+	color: #ff00ff;
+}
+
+SPAN.Blue {
+	font-family: "Courier New", monospace;
+	color: #0000ff;
+}
+
+SPAN.Red {
+	font-family: "Courier New", monospace;
+	color: #ff0000;
+}
+
+SPAN.Green {
+	font-family: "Courier New", monospace;
+	color: #008000;
+}
+
+SPAN.HDDHialt {
+	font-weight: bold;
+	font-style: normal;
+	font-family: "Courier New", monospace;
+	color: #0065ff;
+}
+
+P.postimageadj {
+	margin-top: 9pt;
+	margin-bottom: 9pt;
+}
+
+P.postimageprelinkadj {
+	margin-top: 6pt;
+}
+
+P.preimageadj {
+	margin-bottom: 6pt;
+}
+
+
+P.posttablepredataentry {
+	margin-top: 6pt;
+	margin-bottom: 6pt;
+}
+
+SPAN.DataEntryBold {
+	font-weight: bold;
+	font-style: normal;
+	font-family: "Courier New", monospace;
+}
+
+P.BulletedList {
+	list-style: disc;
+	margin-left: 0pt;
+}
+
+P.BulPara {
+	margin-left: 16px;
+}
+
+P.NumberedList {
+	list-style: decimal;
+}
+
+P.NumPara {
+	margin-left: 24px;
+}
+
+SPAN.SPICENT {
+	font-family: courier, monospace;
+}
+
+SPAN.Grey {
+	font-family: "Courier New", monospace;
+	color: #808080;
+}
+
+SPAN.Bluenavy {
+	font-family: "Courier New", monospace;
+	color: #000080;
+	font-weight: bold;
+	font-style: normal;
+}
+
+P.NoteSep {
+	x-next-class: ;
+	x-next-type: P;
+	margin-top: 6pt;
+	margin-bottom: 6pt;
+	text-align: Center;
+}

@@ -1,0 +1,25 @@
+;------------------------------------------------------------
+;
+; Copyright (c) 2013-2015 Altium Limited
+;
+; This software is the proprietary, copyrighted property of
+; Altium Ltd. All Right Reserved.
+;
+; SVN revision information:
+; $Rev: 14907 $:
+; $Date: 2015-01-19 13:30:51 +0100 (Mon, 19 Jan 2015) $:
+;
+;------------------------------------------------------------
+
+[Plugin]
+Name=cortex_arch_specials
+Description=Cortex-M architecture specials
+Caption=Cortex-M Architecture
+Implement=cortex_arch_specials
+Bitmap=cortex_arch_specials.bmp
+
+[Option0]
+Name=INTERRUPT_MASK
+Description=Interrupt enable mask
+Kind=STRING
+DefaultValue=0-239
