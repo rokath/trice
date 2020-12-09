@@ -14,3 +14,4 @@
 #go.sum
 #.id
 #_tryout/*
+internal/decoder/debug.test

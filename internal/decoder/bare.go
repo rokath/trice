@@ -6,7 +6,6 @@ package decoder
 
 import (
 	"encoding/binary"
-	"errors"
 	"fmt"
 	"io"
 
@@ -54,43 +53,47 @@ func (p *Bare) StringsRead(ss []string) (m int, err error) {
 	if nil != err {
 		return
 	}
-parse:
-	if len(ss) == m {
-		err = errors.New("no space in string slice")
-		return
-	}
 
-	var id int
-	var index int
+	//var id int
+	//var index int
 
-	// read trice id
-	for len(p.syncBuffer) >= index+4 {
-		for 0 == id {
+	for { // scan p.syncBuffer
+		id := 0 // read trice id
+		index := 0
+		for 0 == id && len(p.syncBuffer) >= index+4 {
+			if len(ss) == m { // no space in string slice
+				return
+			}
 			// the 2 id bytes are in bigendian format (network byte order)
-			id = (int(p.syncBuffer[index+0]) << 8) | int(p.syncBuffer[index+1])
+			id = (int(p.syncBuffer[index+0]) << 8) | int(p.syncBuffer[index+1]) // to do use binary.
+			//id = int(binary.BigEndian.Uint16(p.syncBuffer[index+0 : index+1]))
 			if 0x89ab == id && 0xcd == p.syncBuffer[index+2] && 0xef == p.syncBuffer[index+3] {
 				// remove sync packet
 				sb0 := p.syncBuffer[:index]
 				sb1 := p.syncBuffer[index+4:]
 				p.syncBuffer = append(sb0, sb1...)
-				goto parse
+				id = 0
+				continue
 			}
 			if 0 == id { // multi atom trice
 				index += 4
 			}
-			if 28 < index { // out of sync?
+			if 28 < index { // max 32 bytes for one trice, out of sync?
 				ss[m] = fmt.Sprintln("wrn:ignoring byte", p.syncBuffer[0])
 				m++
 				p.syncBuffer = p.syncBuffer[1:] // remove 1st char
-				goto parse
+				index = 0                       // and try again
 			}
+		}
+		if 0 == id { // p.syncBuffer contains no more full trice.
+			return
 		}
 		trice, ok := p.lut[id]
 		if !ok { // unknown id
 			ss[m] = fmt.Sprintln("error:unknown id", id, "ignoring byte", p.syncBuffer[0])
 			m++
 			p.syncBuffer = p.syncBuffer[1:] // remove 1st char
-			goto parse
+			continue
 		}
 
 		// check byte count
@@ -112,13 +115,13 @@ parse:
 			ss[m] = fmt.Sprint("error:unexpected trice.Type", trice.Type, "ignoring byte", p.syncBuffer[0])
 			m++
 			p.syncBuffer = p.syncBuffer[1:] // remove 1st char
-			goto parse
+			continue
 		}
 		if index+4 != byteCount {
 			ss[m] = fmt.Sprint("error:unexpected index", index, "ignoring byte", p.syncBuffer[0])
 			m++
 			p.syncBuffer = p.syncBuffer[1:] // remove 1st char
-			goto parse
+			continue
 		}
 
 		switch trice.Type {
@@ -126,24 +129,24 @@ parse:
 			ss[m] = fmt.Sprintf(trice.Strg)
 			m++
 			p.syncBuffer = p.syncBuffer[4:]
-			goto parse
+			continue
 		case "TRICE8_1":
 			ss[m] = fmt.Sprintf(trice.Strg, int8(p.syncBuffer[2]))
 			m++
 			p.syncBuffer = p.syncBuffer[4:]
-			goto parse
+			continue
 		case "TRICE8_2":
 			ss[m] = fmt.Sprintf(trice.Strg,
 				int8(p.syncBuffer[2]),
 				int8(p.syncBuffer[3]))
 			m++
 			p.syncBuffer = p.syncBuffer[4:]
-			goto parse
+			continue
 		case "TRICE16_1":
 			ss[m] = fmt.Sprintf(trice.Strg, int16(binary.BigEndian.Uint16(p.syncBuffer[2:4])))
 			m++
 			p.syncBuffer = p.syncBuffer[4:]
-			goto parse
+			continue
 		case "TRICE8_3":
 			ss[m] = fmt.Sprintf(trice.Strg,
 				int8(p.syncBuffer[2]),
@@ -151,7 +154,7 @@ parse:
 				int8(p.syncBuffer[6]))
 			m++
 			p.syncBuffer = p.syncBuffer[8:]
-			goto parse
+			continue
 		case "TRICE8_4":
 			ss[m] = fmt.Sprintf(trice.Strg,
 				int8(p.syncBuffer[2]),
@@ -160,21 +163,21 @@ parse:
 				int8(p.syncBuffer[7]))
 			m++
 			p.syncBuffer = p.syncBuffer[8:]
-			goto parse
+			continue
 		case "TRICE16_2":
 			ss[m] = fmt.Sprintf(trice.Strg,
 				int16(binary.BigEndian.Uint16(p.syncBuffer[2:4])),
 				int16(binary.BigEndian.Uint16(p.syncBuffer[6:8])))
 			m++
 			p.syncBuffer = p.syncBuffer[8:]
-			goto parse
+			continue
 		case "TRICE32_1":
 			vH := int32(binary.BigEndian.Uint16(p.syncBuffer[2:4])) << 16
 			vL := int32(binary.BigEndian.Uint16(p.syncBuffer[6:8]))
 			ss[m] = fmt.Sprintf(trice.Strg, vH|vL)
 			m++
 			p.syncBuffer = p.syncBuffer[8:]
-			goto parse
+			continue
 		case "TRICE8_5":
 			ss[m] = fmt.Sprintf(trice.Strg,
 				int8(p.syncBuffer[2]),
@@ -184,7 +187,7 @@ parse:
 				int8(p.syncBuffer[10]))
 			m++
 			p.syncBuffer = p.syncBuffer[12:]
-			goto parse
+			continue
 		case "TRICE8_6":
 			ss[m] = fmt.Sprintf(trice.Strg,
 				int8(p.syncBuffer[2]),
@@ -195,7 +198,7 @@ parse:
 				int8(p.syncBuffer[11]))
 			m++
 			p.syncBuffer = p.syncBuffer[12:]
-			goto parse
+			continue
 		case "TRICE16_3":
 			ss[m] = fmt.Sprintf(trice.Strg,
 				int16(binary.BigEndian.Uint16(p.syncBuffer[2:4])),
@@ -203,7 +206,7 @@ parse:
 				int16(binary.BigEndian.Uint16(p.syncBuffer[10:12])))
 			m++
 			p.syncBuffer = p.syncBuffer[12:]
-			goto parse
+			continue
 		case "TRICE8_7":
 			ss[m] = fmt.Sprintf(trice.Strg,
 				int8(p.syncBuffer[2]),
@@ -215,7 +218,7 @@ parse:
 				int8(p.syncBuffer[14]))
 			m++
 			p.syncBuffer = p.syncBuffer[16:]
-			goto parse
+			continue
 		case "TRICE8_8":
 			ss[m] = fmt.Sprintf(trice.Strg,
 				int8(p.syncBuffer[2]),
@@ -228,7 +231,7 @@ parse:
 				int8(p.syncBuffer[15]))
 			m++
 			p.syncBuffer = p.syncBuffer[16:]
-			goto parse
+			continue
 		case "TRICE16_4":
 			ss[m] = fmt.Sprintf(trice.Strg,
 				int16(binary.BigEndian.Uint16(p.syncBuffer[2:4])),
@@ -237,7 +240,7 @@ parse:
 				int16(binary.BigEndian.Uint16(p.syncBuffer[14:16])))
 			m++
 			p.syncBuffer = p.syncBuffer[16:]
-			goto parse
+			continue
 		case "TRICE32_2":
 			v0H := int32(binary.BigEndian.Uint16(p.syncBuffer[2:4])) << 16
 			v0L := int32(binary.BigEndian.Uint16(p.syncBuffer[6:8]))
@@ -246,7 +249,7 @@ parse:
 			ss[m] = fmt.Sprintf(trice.Strg, v0H|v0L, v1H|v1L)
 			m++
 			p.syncBuffer = p.syncBuffer[16:]
-			goto parse
+			continue
 		case "TRICE64_1":
 			vHH := int64(binary.BigEndian.Uint16(p.syncBuffer[2:4])) << 48
 			vHL := int64(binary.BigEndian.Uint16(p.syncBuffer[6:8])) << 32
@@ -255,7 +258,7 @@ parse:
 			ss[m] = fmt.Sprintf(trice.Strg, vHH|vHL|vLH|vLL)
 			m++
 			p.syncBuffer = p.syncBuffer[16:]
-			goto parse
+			continue
 		case "TRICE32_3":
 			v0H := int32(binary.BigEndian.Uint16(p.syncBuffer[2:4])) << 16
 			v0L := int32(binary.BigEndian.Uint16(p.syncBuffer[6:8]))
@@ -266,7 +269,7 @@ parse:
 			ss[m] = fmt.Sprintf(trice.Strg, v0H|v0L, v1H|v1L, v2H|v2L)
 			m++
 			p.syncBuffer = p.syncBuffer[24:]
-			goto parse
+			continue
 		case "TRICE32_4":
 			v0H := int32(binary.BigEndian.Uint16(p.syncBuffer[2:4])) << 16
 			v0L := int32(binary.BigEndian.Uint16(p.syncBuffer[6:8]))
@@ -279,7 +282,7 @@ parse:
 			ss[m] = fmt.Sprintf(trice.Strg, v0H|v0L, v1H|v1L, v2H|v2L, v3H|v3L)
 			m++
 			p.syncBuffer = p.syncBuffer[32:]
-			goto parse
+			continue
 		case "TRICE64_2":
 			v0HH := int64(binary.BigEndian.Uint16(p.syncBuffer[2:4])) << 48
 			v0HL := int64(binary.BigEndian.Uint16(p.syncBuffer[6:8])) << 32
@@ -293,8 +296,7 @@ parse:
 			ss[m] = fmt.Sprintf(trice.Strg, v0HH|v0HL|v0LH|v0LL, v1HH|v1HL|v1LH|v1LL)
 			m++
 			p.syncBuffer = p.syncBuffer[32:]
-			goto parse
+			continue
 		}
 	}
-	return
 }
