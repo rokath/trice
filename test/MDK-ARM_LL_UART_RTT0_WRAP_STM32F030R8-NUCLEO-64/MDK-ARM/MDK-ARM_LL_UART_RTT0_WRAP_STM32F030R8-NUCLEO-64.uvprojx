@@ -464,11 +464,6 @@
               <FilePath>..\..\..\srcTrice.C\triceBareFifo.c</FilePath>
             </File>
             <File>
-              <FileName>triceBareFifoToBytesBuffer.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\srcTrice.C\triceBareFifoToBytesBuffer.c</FilePath>
-            </File>
-            <File>
               <FileName>triceCheck.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\srcTrice.C\triceCheck.c</FilePath>
@@ -482,6 +477,11 @@
               <FileName>SEGGER_RTT.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\third_party\segger.com\SEGGER_RTT\RTT\SEGGER_RTT.c</FilePath>
+            </File>
+            <File>
+              <FileName>triceBareFifoToBytesBuffer.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\srcTrice.C\triceBareFifoToBytesBuffer.c</FilePath>
             </File>
           </Files>
         </Group>

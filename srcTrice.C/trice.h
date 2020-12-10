@@ -12,6 +12,9 @@ extern "C" {
 #include "triceConfigCompiler.h"
 #include "triceConfig.h"
 
+#define SYNCED_BARE_ENCODING 4 //!< The trice bytes are sent in bare format with sync packages.
+#define WRAPPED_BARE_ENCODING 8 //!< The trice bytes are sent in wrapped format.
+
 #define Id(n) (n) //!< Macro for improved trice readability and better source code parsing.
 
 #ifdef TRICE_NO_CODE // no trice code generation //////////////////////////////
@@ -559,7 +562,7 @@ When several data, the real ID comes in the last 32 bit sequence.
     TRICE_ID0( x>>48 ); /*hh*/ \
     TRICE_ID0( x>>32 ); /*hl*/\
     TRICE_ID0( x>>16 ); /*lh*/ \
-    TRICE_JOINEDPUSH( Id, x );     /*ll*/ \
+    TRICE_JOINEDPUSH( Id, x ); /*ll*/ \
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
 
@@ -578,7 +581,7 @@ When several data, the real ID comes in the last 32 bit sequence.
     TRICE_ID0( x1>>48 ); /*hh*/ \
     TRICE_ID0( x1>>32 ); /*hl*/ \
     TRICE_ID0( x1>>16 ); /*lh*/ \
-    TRICE_JOINEDPUSH( Id, x1 );     /*ll*/ \
+    TRICE_JOINEDPUSH( Id, x1 ); /*ll*/ \
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
 

@@ -117,7 +117,7 @@ int main(void)
             static int lastMs = 0;
             if( milliSecond >= lastMs + 1 ){
                 lastMs = milliSecond;
-                triceServeBareFifoToBytesBuffer();
+                triceServeBareFifoToBytesBuffer(WRAPPED_BARE_ENCODING);
             }
         }
   }

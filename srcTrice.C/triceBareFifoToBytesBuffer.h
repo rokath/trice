@@ -12,7 +12,7 @@ extern "C" {
 #include <stdint.h>
 
 //! triceServeBareFifoToBytesBuffer must be called cyclically like every 1-100 ms for examle in main loop or a background task.
-void triceServeBareFifoToBytesBuffer(void);
+void triceServeBareFifoToBytesBuffer(int encoding);
 
 int triceBytesByfferDepth( void );
 

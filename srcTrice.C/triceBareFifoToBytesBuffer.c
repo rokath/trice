@@ -16,7 +16,7 @@
 int const syncLevelLimit = 10;
 
 
-uint8_t triceBytesBuffer[8]; //!< bytes transmit buffer
+uint8_t triceBytesBuffer[8] = { TRICE_WRAP_START_BYTE, TRICE_WRAP_LOCAL_ADDR, TRICE_WRAP_DEST_ADDR, 0, 0,0,0,0 }; //!< bytes transmit buffer (prefilled for wrap
 int const triceBytesBufferIndexLimit = 8; // sizeof(triceBytesBuffer[8]);
 int triceBytesBufferIndex = triceBytesBufferIndexLimit;
 
@@ -44,10 +44,7 @@ int triceBytesByfferDepth( void ){
     return triceBytesBufferIndexLimit - triceBytesBufferIndex;
 }
 
-//! triceServeBareFifoToBytesBuffer must be called cyclically to proceed ongoing write out.
-//! It schould be called at least every ms.
-//! A possibe place is main loop.
-void triceServeBareFifoToBytesBuffer(void) {
+static void triceServeBareFifoSyncedToBytesBuffer(void) {
     // 89 ab cd ef <- on serial port
     // ih il dh dl
     uint32_t const syncTrice = 0x89abcdef;
@@ -77,5 +74,34 @@ void triceServeBareFifoToBytesBuffer(void) {
             syncLevel = 0;
         }
         triceBytesBufferIndex = 0;
+    }
+}
+
+static void triceServeBareFifoWrappedToBytesBuffer(void) {
+    if (triceBytesBufferIndexLimit == triceBytesBufferIndex) { // bytes buffer empty and tx finished
+        // next trice
+        int n = triceBareFifoDepth();
+        if ( n >= 4 ) { // a trice to transmit
+            uint32_t x = tricePopBareFifo();
+            triceBytesBuffer[3]  = (uint8_t)( TRICE_WRAP_START_BYTE ^ TRICE_WRAP_LOCAL_ADDR ^ TRICE_WRAP_DEST_ADDR ^ x ^ (x>>8) ^ (x>>16) ^ (x>>24) ); // crc8
+            triceLoadInNetworkOrder(&triceBytesBuffer[4], x);
+            triceBytesBufferIndex = 0;
+        }
+    }
+}
+
+//! triceServeBareFifoToBytesBuffer must be called cyclically to proceed ongoing write out.
+//! It schould be called at least every ms.
+//! A possibe place is main loop.
+void triceServeBareFifoToBytesBuffer(int encoding) {
+    switch( encoding ){
+    case SYNCED_BARE_ENCODING:
+        triceServeBareFifoSyncedToBytesBuffer();
+        return;
+    case WRAPPED_BARE_ENCODING:
+        triceServeBareFifoWrappedToBytesBuffer();
+        return;
+    default:
+        break;
     }
 }

@@ -21,7 +21,9 @@ extern "C" {
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-
+#define TRICE_WRAP_START_BYTE 0xEB // 235
+#define TRICE_WRAP_LOCAL_ADDR 0x60 // to do: also trice tool parameter
+#define TRICE_WRAP_DEST_ADDR  0x60 // to do: also trice tool parameter
 
 #define TRICE_UART USART2
 

@@ -2056,5 +2056,12 @@
 		"fmtStrg": "s:                                                   \\ns:   MDK-ARM_LL_UART_RTT0_WRAP_STM32F030_NUCLEO-64   \\ns:                                                   \\n\\n",
 		"created": 1607588440,
 		"removed": 0
+	},
+	{
+		"id": 19484,
+		"fmtType": "TRICE0",
+		"fmtStrg": "rd_:triceBareFifoWrappedToBytesBuffer.c",
+		"created": 1607598290,
+		"removed": 0
 	}
 ]
