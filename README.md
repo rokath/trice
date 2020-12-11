@@ -47,7 +47,7 @@ embedded device C printf-like trace code and real-time PC logging (trace ID visu
 
 ## About
 
-- C trace code (`TRICE` macros)  and real-time PC logging with `trice` (tool written in **Go**).
+- C trace code (`TRICE` macros)  and real-time PC logging with `trice` (tool written in [Go](https://en.wikipedia.org/wiki/Go_(programming_language))).
 - Communication without string transfer, just with IDs. Prerequisite: byte transmission to PC, low bandwidth is ok:
   - method does'nt matter: serial port, i2c, spi, DAC->ADC, toggle pin, RTT, ...
 - "log in (a) trice" ![ ](./docs/README.media/life0.gif)
@@ -58,28 +58,43 @@ embedded device C printf-like trace code and real-time PC logging (trace ID visu
 - Real fast (**under 20 CPU clocks per trace possible!!!**) and small loggging technique, a tracer in software usable.
   - for debugging dynamic behaviour during development, 
   - as runtime logger or simply for narrow bandwidth logging in the field even with encryption.
-- Usage is similar to 'printf()', but the format strings go not into the target image.
-  - Using TRICE in your code reduces the needed FLASH memory.
-- The needed code instrumentation is minimal:
-  - Rename and adapt a [config file](./srcTrice.C/_triceConfig.h) (hardware specific).
-  - Add a few [small C-files](./srcTrice.C/) to your project and include a [C-header](./srcTrice.C/trice.h) where trices are used.
-  - Core instrumentation needs less 150 bytes FLASH and about 100 bytes RAM.
-  - In fact the total FLASH memory need is decreasing using TRICE because no printf library code nor the log strings itself are inside the target system anymore.
+- Usage is similar to 'printf()' and TRICE in your code reduces the needed FLASH memory because the instrumentation code is very small (can be less 150 bytes FLASH and about 100 bytes RAM) and no printf library code nor log strings are inside the embedded device anymore.
+- Not much to do:
+  - Copy config file [_triceConfig.h](https://github.com/rokath/trice/tree/master/srcTrice.C/_triceConfig.h) as `triceConfig.h` to your project or take it from one of the [test projects](https://github.com/rokath/trice/tree/master/test/) 
+  - Add a few [small C-files](https://github.com/rokath/trice/tree/master/srcTrice.C/) to your project and include [trice.h](https://github.com/rokath/trice/tree/master/srcTrice.C/trice.h) where trices are used.
 
 ## How it works
 
-- For example write `TRICE16( "msg:Temperature %d degree\n", temperature );` in source code instead of `printf( "msg:Temperature %d degree\n", temperature );`.
-- `trice update` changes this line to  `TRICE16_1( Id(12345), "msg:Temperature %d degree\n", temperature );` in source code and adds the *ID 12345* together with *"msg:Temperature %d degree\n"* into a **t**rice **I**D **l**ist, a JSON referece file named `til.json`.
-- With the TRICE**16** you adjust the parameter size to 16 bit what allows some compile time optimization.
-- The appended **_1** sets the expected parameter count to 1 allowing further compile time optimization and also a compile time check.
-- During compilation the TRICE16 macro is expanded to only a *12345* reference and the variable *temperature* and the format string never sees the target.
+- For example change source code:
+```
+printf( "msg: %d Kelvin\n", temperature );
+```
+```
+TRICE16( "msg: %d Kelvin\n", temperature );
+```
+
+  `trice update` (run it automatically in the tool chain) changes this line to  
+
+```
+TRICE16_1( Id(12345), "msg: %d Kelvin\n", temperature );
+```
+in source code and adds the *ID 12345* together with *"msg: %d Kelvin\n"* into a **t**rice **I**D **l**ist, a JSON referece file named [til.json](https://github.com/rokath/trice/blob/master/til.json).
+- With the `16` in TRICE**16** you adjust the parameter size to 16 bit what allows more runtime efficient code compared to `32` or `64`.
+- The appended **_1** sets the expected parameter count to 1 allowing further optimization and also a compile time parameter count check.
+- During compilation the `TRICE16_1` macro is expanded to only a *12345* reference and the variable *temperature* and the format string never sees the target.
 
 ![trice](./docs/README.media/triceBlockDiagram.svg)
-- When the programflow passes the line `TRICE16( "msg:Temperature %d degree\n", temperature );` the 16 bit ID *12345* and the 16 bit *-5* are transfered as a 32 bit value into the triceFifo, what goes really fast. This way the program flow is nearly undisturbed, so TRICE macros are usable also inside interrupts or the scheduler.
-- For visualization a background service is needed. The triceServe takes the 4 bytes trice values from the triceFifo, adds control information and puts that into the triceWriteBuffer, with at least 8 bytes size.
+- When the programflow passes the line `TRICE16_1( Id(12345), "msg: %d Kelvin\n", temperature );` the 16 bit ID *12345* and the 16 bit *15* are transfered as one 32 bit value into the triceFifo, what goes really fast. This way the program flow is nearly undisturbed, so TRICE macros are usable also inside interrupts or in the scheduler.
+- For visualization a background service is needed. The `triceServe` takes the 4 bytes trice values from the triceFifo, adds control information and puts that into the triceWriteBuffer, with at least 8 bytes size.
+  - At this stage the trice out format is done (all optionally encrypted): 
+    - bare with sync packages 
+    - wrapped bare
+    - escaped transmit format
+    - your decision ...
+  - The triceFifo can be also a direct writeBuffer for TRICEmacro generated output format. This is useful with escaped transmit format to incorporate dynamic strings in an efficient way. Check code of test example [MDK-ARM_LL_UART_RTT0_ESC_STM32F030R8_NUCLEO-64](https://github.com/rokath/trice/tree/master/test/MDK-ARM_LL_UART_RTT0_ESC_STM32F030R8_NUCLEO-64) for example.
 - The bytes go from triceWriteBuffer to the PC and there the `trice` tool receives them.
-- With the help of the `til.json` file the trices get then visualized on the PC.
-- It is also possible to let the debug probe transfer the buffer to the PC (see *SeggerRTT* explanation for details)
+- With the help of the [til.json](https://github.com/rokath/trice/blob/master/til.json) file the trices get then visualized on the PC.
+- It is also possible to let the debug probe transfer the buffer to the PC (see *SeggerRTT* explanation for details). This keeps the implementation clearer and allows to see the trice strings directly during debugging.
 
   ![triceBlockDiagramWithRTT.svg](./docs/README.media/triceBlockDiagramWithRTT.svg)
 
@@ -87,16 +102,16 @@ embedded device C printf-like trace code and real-time PC logging (trace ID visu
 ## `trice` PC tool
 - Manages `TRICE` macro IDs inside a C|C++ source tree and extracts the strings in an ID-string list during target device compile time.
 - Displays `TRICE` macros like printf() output in realtime during target device runtime. The received IDs and parameters are printed out.
-- Written in Go, simply usage, no installer.
+- Written in [Go](https://en.wikipedia.org/wiki/Go_(programming_language)), simply usage, no installer.
 
-## Quick setup
-- add [trice.c](./srcTrice.C/trice.c) and acompanying files as they are to your project
-- #include [trice.h](./srcTrice.C/trice.h) as is in your source file to use trice
-- copy [triceConfig.h](./srcTrice.C/triceConfig.h) and adapt to your needs
-- [triceCheck.c](./srcTrice.C/triceCheck.c) 
+## Quick setup (See also test examples)
+- Add [triceBareFifo.c](https://github.com/rokath/trice/tree/master/srcTrice.C/triceBareFifo.c) or [triceEscFifo.c](https://github.com/rokath/trice/tree/master/srcTrice.C/triceEscFifo.c)  and acompanying files as they are to your project
+- #include [trice.h](https://github.com/rokath/trice/tree/master/srcTrice.C/trice.h) as is in your source file to use trice
+- Copy [_triceConfig.h](https://github.com/rokath/trice/tree/master/srcTrice.C/_triceConfig.h), rename to `triceConfig.h` and adapt to your needs.
+- [triceCheck.c](https://github.com/rokath/trice/tree/master/srcTrice.C/triceCheck.c) 
 is example code and for testing
-- run `trice u` in root of your C|Cpp source project after code instrumentation with TRICE* statements to generate a project specific til.json file 
-- compile, flash & run `trice log -port COMm -baud n` with correct values m and n
+- Run `trice u` in root of your C|Cpp source project after code instrumentation with `TRICE*` statements to generate a project specific or common [til.json](https://github.com/rokath/trice/tree/master/til.json) file.
+- Compile, flash & run `trice log -port COMm -baud n` with correct values m and n.
 
 ## Possible Use Cases
 - Using trice not only for **dynamic debugging** but also as **logging** technique
@@ -107,18 +122,18 @@ is example code and for testing
   - This way you can deliver firmware images with encrypted TRICE output only readable with the appropriate key and til.json.
   - XTEA is a recommendation and implemented as option.
 - You can even translate the til.json in **different languages**, so changing a language is just changing the til.json file.
-- trice has intentionally no timestamps for performance reasons. But you can add own **timestamps as parameters**. Having several devices with trice timestamps, **network timing measurements** are possible.
-- Using trice with an **RTOS** gives the option for detailed **task timing analysis**. Because of the very short execution time of a trice you could add `TRICE16( Id(0), "tim:%d us, task=%d\n", us, nexTask );` to the scheduler and vizualize the output on PC. The same is possible for **interrupt timing analysis**.
-- `TRICE16( "%d us\n", sysTick );` before and after a function call lets you easy measure the function execution time.
+- trice has intentionally no target timestamps for performance reasons. On the PC you can display the *reception timestampts*. But you can add own **timestamps as parameters** for exact embedded times measuremnets. Having several devices with trice timestamps, **network timing measurements** are possible.
+- Using trice with an **RTOS** gives the option for detailed **task timing analysis**. Because of the very short execution time of a trice you could add `TRICE16( "tim:%d us, task=%d\n", us, nexTask );` to the scheduler and vizualize the output on PC. The same is possible for **interrupt timing analysis**.
+- `TRICE16( "tim:%d us\n", sysTick );` before and after a function call lets you easy measure the function execution time.
 - As graphical vizualisation you could use a tool similar to https://github.com/sqshq/sampler.
 
 ## Documentation
 ### Common
-- see [./docs/Common.md](./docs/Common.md)
+- see [./docs/Common.md](https://github.com/rokath/trice/tree/master/docs/Common.md)
 ### RealTimeTransfer
-- see [./docs/SeggerRTT.md](./docs/SeggerRTT.md)
+- see [./docs/SeggerRTT.md](https://github.com/rokath/trice/tree/master/docs/SeggerRTT.md)
 ### Examples
-- follow [./docs/TestExamples.md](./docs/TestExamples.md)
+- follow [./docs/TestExamples.md](https://github.com/rokath/trice/tree/master/docs/TestExamples.md)
 ### Hints
 - One free GPIO-Pin is already enough for using TRICE. You can transmit each basic trice (4 bytes) as bare messages over one pin:
   - ![manchester1.PNG](./docs/README.media/manchester1.PNG)
