@@ -98,7 +98,7 @@ func TestZeroSourceTreeIds(t *testing.T) {
 		
 		TRICE16_1( Id(33281), "ERR:error       message, SysTick is %d\n", SYSTICKVAL16 ); // 1
 		TRICE16_1( Id( 3505), "WRN:warning     message, SysTick is %d\n", SYSTICKVAL16 ); // 1
-		TRICE16_1( Id(32166), "ATT:attension   message, SysTick is %d\n", SYSTICKVAL16 ); // 1
+		TRICE16_1( Id(32166), "ATT:attention   message, SysTick is %d\n", SYSTICKVAL16 ); // 1
 		TRICE16_1( Id(63852), "DIA:diagnostics message, SysTick is %d\n", SYSTICKVAL16 ); // 1
 		TRICE16_1( Id(55914), "TIM:timing      message, SysTick is %d\n", SYSTICKVAL16 ); // 1
 		TRICE16_1( Id(58892), "DBG:debug       message, SysTick is %d\n", SYSTICKVAL16 ); // 1
@@ -110,7 +110,7 @@ func TestZeroSourceTreeIds(t *testing.T) {
 	
 		TRICE16_1( Id(27740), "err:error       message, SysTick is %d\n", SYSTICKVAL16 ); // 1
 		TRICE16_1( Id(31710), "wrn:warning     message, SysTick is %d\n", SYSTICKVAL16 ); // 1
-		TRICE16_1( Id( 7075), "att:attension   message, SysTick is %d\n", SYSTICKVAL16 ); // 1
+		TRICE16_1( Id( 7075), "att:attention   message, SysTick is %d\n", SYSTICKVAL16 ); // 1
 		TRICE16_1( Id(59999), "dia:diagnostics message, SysTick is %d\n", SYSTICKVAL16 ); // 1
 		TRICE16_1( Id(54975), "tim:timing      message, SysTick is %d\n", SYSTICKVAL16 ); // 1
 		TRICE16_1( Id(22076), "dbg:debug       message, SysTick is %d\n", SYSTICKVAL16 ); // 1
@@ -194,7 +194,7 @@ func TestZeroSourceTreeIds(t *testing.T) {
 		
 		TRICE16_1( Id(0), "ERR:error       message, SysTick is %d\n", SYSTICKVAL16 ); // 1
 		TRICE16_1( Id(0), "WRN:warning     message, SysTick is %d\n", SYSTICKVAL16 ); // 1
-		TRICE16_1( Id(0), "ATT:attension   message, SysTick is %d\n", SYSTICKVAL16 ); // 1
+		TRICE16_1( Id(0), "ATT:attention   message, SysTick is %d\n", SYSTICKVAL16 ); // 1
 		TRICE16_1( Id(0), "DIA:diagnostics message, SysTick is %d\n", SYSTICKVAL16 ); // 1
 		TRICE16_1( Id(0), "TIM:timing      message, SysTick is %d\n", SYSTICKVAL16 ); // 1
 		TRICE16_1( Id(0), "DBG:debug       message, SysTick is %d\n", SYSTICKVAL16 ); // 1
@@ -206,7 +206,7 @@ func TestZeroSourceTreeIds(t *testing.T) {
 	
 		TRICE16_1( Id(0), "err:error       message, SysTick is %d\n", SYSTICKVAL16 ); // 1
 		TRICE16_1( Id(0), "wrn:warning     message, SysTick is %d\n", SYSTICKVAL16 ); // 1
-		TRICE16_1( Id(0), "att:attension   message, SysTick is %d\n", SYSTICKVAL16 ); // 1
+		TRICE16_1( Id(0), "att:attention   message, SysTick is %d\n", SYSTICKVAL16 ); // 1
 		TRICE16_1( Id(0), "dia:diagnostics message, SysTick is %d\n", SYSTICKVAL16 ); // 1
 		TRICE16_1( Id(0), "tim:timing      message, SysTick is %d\n", SYSTICKVAL16 ); // 1
 		TRICE16_1( Id(0), "dbg:debug       message, SysTick is %d\n", SYSTICKVAL16 ); // 1
