@@ -103,7 +103,7 @@ int main(void)
   {
     static int lastTricesTime = 0;
     { // send some trices every few ms
-        if( milliSecond >= lastTricesTime + 100 ){
+        if( milliSecond >= lastTricesTime + 500 ){
             static int index = 0;
             triceCheckSet(index%10);
             index++;

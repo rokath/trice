@@ -57,7 +57,7 @@ void tricePushSeggerRTT( uint32_t );
 void tricePushBareFifo( uint32_t );
 
 //! Set trice out channel(s) 
-#define TRICE_PUSH(v) do{ tricePushSeggerRTT(v); tricePushBareFifo(v); } while(0)
+#define TRICE_PUSH(v) do{ /*tricePushSeggerRTT(v); */tricePushBareFifo(v); } while(0)
 
 #endif // #ifdef TRICE_WRITE_BARE_FIFO
 //

@@ -39,20 +39,23 @@ embedded device C printf-like trace code and real-time PC logging (trace ID visu
 ![GitHub search hit counter](https://img.shields.io/github/search/rokath/trice/serial)
 ![GitHub search hit counter](https://img.shields.io/github/search/rokath/trice/C)
 
-
-[LINK](./docs/)
-[LINK2](https://rokath.github.io/trice/)
-[LINK3](https://rokath.github.io/trice/docs/)
+<!---
+- [docs folder](https://github.com/rokath/trice/tree/master/docs)
+- [doc index](https://rokath.github.io/trice/docs/)
+--->
+- [github.io/trice/](https://rokath.github.io/trice/)
 
 ## About
+
 - C trace code (`TRICE` macros)  and real-time PC logging with `trice` (tool written in **Go**).
 - Communication without string transfer, just with IDs. Prerequisite: byte transmission to PC, low bandwidth is ok:
   - method does'nt matter: serial port, i2c, spi, DAC->ADC, toggle pin, RTT, ...
-- "log in (a) trice" ![](./docs/README.media/life0.gif)
+- "log in (a) trice" ![ ](./docs/README.media/life0.gif)
 - Main idea: Logging strings **not** into an embedded device to display them later on a PC but keep usage comfortable and simple. The `TRICE` macros look like printf() but work under the hood completely different.
 
 ## `TRICE` macros for C|C++ code
-- Real fast (**~15 CPU clocks per trace possible!!!**) and small loggging technique, a tracer in software usable 
+
+- Real fast (**under 20 CPU clocks per trace possible!!!**) and small loggging technique, a tracer in software usable.
   - for debugging dynamic behaviour during development, 
   - as runtime logger or simply for narrow bandwidth logging in the field even with encryption.
 - Usage is similar to 'printf()', but the format strings go not into the target image.
@@ -62,9 +65,13 @@ embedded device C printf-like trace code and real-time PC logging (trace ID visu
   - Add a few [small C-files](./srcTrice.C/) to your project and include a [C-header](./srcTrice.C/trice.h) where trices are used.
   - Core instrumentation needs less 150 bytes FLASH and about 100 bytes RAM.
   - In fact the total FLASH memory need is decreasing using TRICE because no printf library code nor the log strings itself are inside the target system anymore.
+
 ## How it works
-- Write `TRICE16( "msg:Temperature %d degree\n", temperature );` in source .
-- `trice update` changes this line to  `TRICE16( Id(12345), "msg:Temperature %d degree\n", temperature );` in source code and adds the *ID 12345* together with *"msg:Temperature %d degree\n"* into a **t**rice **I**D **l**ist, a JSON referece file named `til.json`.
+
+- For example write `TRICE16( "msg:Temperature %d degree\n", temperature );` in source code instead of `printf( "msg:Temperature %d degree\n", temperature );`.
+- `trice update` changes this line to  `TRICE16_1( Id(12345), "msg:Temperature %d degree\n", temperature );` in source code and adds the *ID 12345* together with *"msg:Temperature %d degree\n"* into a **t**rice **I**D **l**ist, a JSON referece file named `til.json`.
+- With the TRICE**16** you adjust the parameter size to 16 bit what allows some compile time optimization.
+- The appended **_1** sets the expected parameter count to 1 allowing further compile time optimization and also a compile time check.
 - During compilation the TRICE16 macro is expanded to only a *12345* reference and the variable *temperature* and the format string never sees the target.
 
 ![trice](./docs/README.media/triceBlockDiagram.svg)

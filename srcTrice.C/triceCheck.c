@@ -55,6 +55,8 @@ void triceCheckSet(int index) {
             TRICE16_1(Id(16672), "DIA:diagnostics message, SysTick is %6d\n", SYSTICKVAL16);
             TRICE16_1(Id(42206), "TIM:timing      message, SysTick is %6d\n", SYSTICKVAL16);
             TRICE16_1(Id(23973), "DBG:debug       message, SysTick is %6d\n", SYSTICKVAL16);
+            break;
+        case 2:
             TRICE16_1(Id(13730), "SIG:signal      message, SysTick is %6d\n", SYSTICKVAL16);
             TRICE16_1(Id(24302), "RD:read         message, SysTick is %6d\n", SYSTICKVAL16);
             TRICE16_1(Id(14138), "WR:write        message, SysTick is %6d\n", SYSTICKVAL16);
@@ -63,7 +65,7 @@ void triceCheckSet(int index) {
             TRICE16_1(Id(45697), "MSG:normal      message, SysTick is %6d\n", SYSTICKVAL16);
             TRICE16_1(Id(24589), "INFO:informal   message, SysTick is %6d\n", SYSTICKVAL16);
             break;
-        case 2:
+        case 3:
             TRICE8_4(Id(2527), "tst:TRICE8  %%03x ->  %03x  %03x  %03x  %03x\n", 1, 0x7f, 0x80, 0xff);
             TRICE8_4(Id(63423), "tst:TRICE8   %%4d -> %4d %4d %4d %4d\n", 1, 0x7f, 0x80, 0xff);
             TRICE8_4(Id(40063), "tst:TRICE8   %%4o -> %4o %4o %4o %4o\n", 1, 0x7f, 0x80, 0xff);
@@ -71,12 +73,13 @@ void triceCheckSet(int index) {
             TRICE16_4(Id(8674), "tst:TRICE16  %%05x ->   %05x   %05x   %05x   %05x\n", 1, 0x7fff, 0x8000, 0xffff);
             TRICE16_4(Id(59869), "tst:TRICE16   %%6d ->  %6d  %6d  %6d  %6d\n", 1, 0x7fff, 0x8000, 0xffff);
             TRICE16_4(Id(24781), "tst:TRICE16   %%7o -> %7o %7o %7o %7o\n", 1, 0x7fff, 0x8000, 0xffff);
-
+            break;
+        case 4:
             TRICE32_4(Id(16811), "tst:TRICE32_4 %%09x ->      %09x      %09x       %09x     %09x\n", 1, 0x7fffffff, 0x80000000, 0xffffffff); // 4
             TRICE32_4(Id(28944), "tst:TRICE32_4 %%10d ->     %10d     %10d     %10d    %10x\n", 1, 0x7fffffff, 0x80000000, 0xffffffff); // 4
             TRICE64_1(Id(19049), "att:64bit %#b\n", 0x1122334455667788ull);
             break;
-        case 3:
+        case 5:
             TRICE8_1(Id(41267), "tst:TRICE8_1 %d\n", -1);
             TRICE8_2(Id(28873), "tst:TRICE8_2 %d %d\n", -1, -2);
             TRICE8_3(Id(18501), "tst:TRICE8_3 %d %d %d\n", -1, -2, -3);
@@ -86,23 +89,23 @@ void triceCheckSet(int index) {
             TRICE8_7(Id(23187), "tst:TRICE8_7 %d %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6, -7);
             TRICE8_8(Id(5279), "tst:TRICE8_8 %d %d %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6, -7, -8);
             break;
-        case 4:
+        case 7:
             TRICE16_1(Id(50977), "tst:TRICE16_1 %d\n", -1); // 1
             TRICE16_2(Id(65136), "tst:TRICE16_2 %d %d\n", -1, -2); // 2
             TRICE16_3(Id(58915), "tst:TRICE16_3 %d %d %d\n", -1, -2, -3); // 3
             TRICE16_4(Id(45117), "tst:TRICE16_4 %d %d %d %d\n", -1, -2, -3, -4); // 4
             break;
-        case 5:
+        case 8:
             TRICE32_1(Id(6384), "tst:TRICE32_1 %d\n", -1); // 2
             TRICE32_2(Id(11505), "tst:TRICE32_2 %d %d\n", -1, -2); // 4
             TRICE32_3(Id(56189), "tst:TRICE32_3 %d %d %d\n", -1, -2, -3); // 4
             TRICE32_4(Id(36573), "tst:TRICE32_4 %d %d %d %d\n", -1, -2, -3, -4); // 4
             break;
-        case 6:
+        case 9:
             TRICE64_1(Id(43171), "tst:TRICE64_1 %d\n", -1); // 2
             TRICE64_2(Id(8402), "tst:TRICE64_2 %d %d\n", -1, -2); // 4
             break;
-        case 7:
+        case 10:
             TRICE0(Id(44690), "e:A");
             TRICE0(Id(1471), "w:B");
             TRICE0(Id(52563), "a:c");
@@ -115,7 +118,7 @@ void triceCheckSet(int index) {
             TRICE0(Id(26357), "message:J");
             TRICE0(Id(2812), "dbg:k\n");
             break;
-        case 8:
+        case 11:
             TRICE0(Id(43782), "1");
             TRICE0(Id(31945), "2");
             TRICE0(Id(57633), "3");
@@ -124,33 +127,11 @@ void triceCheckSet(int index) {
             TRICE0(Id(6559), "m:12");
             TRICE0(Id(30479), "m:123\n");
             break;
-        case 9:
-            TRICE16_1(Id(41878), "err:error       message, SysTick is %6d\n", SYSTICKVAL16);
-            TRICE16_1(Id(3242), "wrn:warning     message, SysTick is %6d\n", SYSTICKVAL16);
-            TRICE16_1(Id(10588), "att:attension   message, SysTick is %6d\n", SYSTICKVAL16);
-            TRICE16_1(Id(15045), "dia:diagnostics message, SysTick is %6d\n", SYSTICKVAL16);
-            TRICE16_1(Id(20195), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16);
-            TRICE16_1(Id(56298), "dbg:debug       message, SysTick is %6d\n", SYSTICKVAL16);
-            TRICE16_1(Id(62837), "sig:signal      message, SysTick is %6d\n", SYSTICKVAL16);
-            TRICE16_1(Id(35517), "rd_:read        message, SysTick is %6d\n", SYSTICKVAL16);
-            TRICE16_1(Id(47873), "wr:write        message, SysTick is %6d\n", SYSTICKVAL16);
-            TRICE16_1(Id(64995), "isr:interrupt   message, SysTick is %6d\n", SYSTICKVAL16);
-            TRICE16_1(Id(42962), "tst:test        message, SysTick is %6d\n", SYSTICKVAL16);
-            TRICE16_1(Id(59159), "msg:normal      message, SysTick is %6d\n", SYSTICKVAL16);
-            TRICE16_1(Id(48090), "info:informal   message, SysTick is %6d\n", SYSTICKVAL16);
+        case 12:
+
             break;
-        case 10:
-            TRICE0(Id(55237), "e:A");
-            TRICE0(Id(38195), "w:B");
-            TRICE0(Id(43063), "a:c");
-            TRICE0(Id(6176), "wr:d");
-            TRICE0(Id(6665), "rd:e");
-            TRICE0(Id(47959), "diag:y");
-            TRICE0(Id(48390), "d:G");
-            TRICE0(Id(64481), "t:H");
-            TRICE0(Id(19868), "time:i");
-            TRICE0(Id(9207), "message:J");
-            TRICE0(Id(29302), "inf:k\n");
+        case 13:
+
             break;
             /*
     case 11:

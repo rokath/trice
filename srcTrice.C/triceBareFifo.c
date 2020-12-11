@@ -11,7 +11,7 @@
 //! The fifo has to hold trice bursts until they are transmitted.
 //! It is transmitted with lower priority in the background for example with the UART tx interrupt.
 #ifndef TRICE_BARE_FIFO_BYTE_SIZE
-#define TRICE_BARE_FIFO_BYTE_SIZE 256
+#define TRICE_BARE_FIFO_BYTE_SIZE 4096
 #endif
 
 #define TRICE_BARE_FIFO_MASK (((TRICE_BARE_FIFO_BYTE_SIZE)>>2)-1) //!< max possible trices count in fifo
