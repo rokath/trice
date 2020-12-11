@@ -19,7 +19,7 @@ type RemoteDisplay struct {
 	Params string      // remote server additional parameters (despite "ds -ipa a.b.c.d -ipp nnnn")
 	IPAddr string      // IP addr
 	IPPort string      // IP port
-	PtrRPC *rpc.Client // PtrRPC is a pointer for remote calls valid after a succesful rpc.Dial()
+	PtrRPC *rpc.Client // PtrRPC is a pointer for remote calls valid after a successful rpc.Dial()
 }
 
 // NewRemoteDisplay creates a connection to a remote Display and implements the Linewriter inteface.
