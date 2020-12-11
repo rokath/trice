@@ -1,7 +1,7 @@
 // Copyright 2020 Thomas.Hoehenleitner [at] seerose.net
 // Use of this source code is governed by a license that can be found in the LICENSE file.
 
-// Package keybcmd is responsibe for interpreting user commanmdline and executing commands
+// Package keybcmd is responsible for interpreting user commanmdline and executing commands
 package keybcmd
 
 import (
