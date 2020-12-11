@@ -219,7 +219,7 @@ var (
 		{
 			"id": 53560,
 			"fmtType": "TRICE16_1",
-			"fmtStrg": "ATT:attension   message, SysTick is %6d\\n",
+			"fmtStrg": "ATT:attention   message, SysTick is %6d\\n",
 			"created": 1601240704,
 			"removed": 0
 		},
@@ -625,7 +625,7 @@ var (
 		{
 			"id": 10588,
 			"fmtType": "TRICE16_1",
-			"fmtStrg": "att:attension   message, SysTick is %6d\\n",
+			"fmtStrg": "att:attention   message, SysTick is %6d\\n",
 			"created": 1601240704,
 			"removed": 0
 		},
