@@ -221,7 +221,7 @@ func Example_vwrongSubcommand() {
 //	os.Remove(logFile)               // must be before assertEqual
 //	act := string(b)
 //	if len(act) > len(exp) { // because of os.Exit act sometimes has not always the same length
-//		act = string(b[:len(exp)]) // shorten act to length of exp, exp has granted minumum length
+//		act = string(b[:len(exp)]) // shorten act to length of exp, exp has granted minimum length
 //	}
 //	assert.Equal(t, exp, act)
 //}
@@ -238,7 +238,7 @@ ISR:alive time 5121900 milliseconds
 ISR:alive time 5122000 milliseconds
 ERR:error       message, SysTick is -19095
 WRN:warning     message, SysTick is -19483
-ATT:attension   message, SysTick is -19871
+ATT:attention   message, SysTick is -19871
 DIA:diagnostics message, SysTick is -20259
 TIM:timing      message, SysTick is -20647
 DBG:debug       message, SysTick is -21035
