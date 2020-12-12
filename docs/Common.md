@@ -10,26 +10,40 @@ you can write
 ```
 TRICE8("time is %d:%d:%d\n", hour, min, sec);
 ```
-into a source file of your project. The `8` stands here for 8 bit values (`0`, `16`, `32` and `64` also possibe). Only values of the same size are allowed in one TRICE* statement, but you can use `TRICE32` consequently to match most cases.
+into a source file of your project. The `8` stands here for 8 bit values (`0`, `16`, `32` and `64` also possibe). Only values of the same size are allowed in one TRICE* statement, but you can use `TRICE32` consequently to match most cases for the prize of little overhead.
 
-When performing `trice update` the source is parsed and in result this line changes to
+When performing `trice update` the source (tree) is parsed and in result this line changes to
 ```
 TRICE8_3( Id(12345), "time is %d:%d:%d\n", hour, min, sec);
 ```
-where ```12345``` is an as ID generated 16 bit random number not used so far. Automatically
-the ID is added to an [ID list](../test/til.json) together with the appropriate format string information. The TRICE`8_3` means 3 bytes as parameters in
+where ```12345``` is an as ID generated 16 bit random number not used so far. About 65000 different trice messages are possible. If not enough, the IDs are extendable to 32 bit. Automatically
+the ID is added to an [ID list](https://github.com/rokath/trice/blob/master/til.json) together with the appropriate format string information. The TRICE`8_3` means 3 bytes as parameters in
 this example and allows efficient code and a compile time check.
 
-*The total amount of data is currently limitated to 8 parameters for TRICE8 or 4 parameters for TRICE16 and TRICE32 and two parameters for TRICE64, but this is easy to extend.*
+*The total amount of data is currently limitated to 8 parameters for TRICE8 or 4 parameters for TRICE16 and TRICE32 and two parameters for TRICE64, but this is easy to extend if needed.*
 
 When the embedded project is compiled, only the ID goes to the binary
 but not the format string, what results in a smaller memory footprint.
 
-During TRICE* runtime, inside the microcontroller only the ID (together with the 
+During runtime only the ID (together with the 
 parameters like hour, min, sec) is copied to a buffer. Execution time for a TRICE16_1
-(as example) on a 48 MHz ARM is about 16 systicks resulting in 250 nanoseconds duration,
+(as example) on a 48 MHz ARM can be about 16 systicks resulting in 250 nanoseconds duration,
 so you can use `trice` also inside interrupts. The needed buffer space is
-one 32 bit word per normal trice (for up to 2 data bytes). Just in case the internal fifo overflows, the data are still in sync, you simply loose trices.
+one 32 bit word per normal trice (for up to 2 data bytes). 
+
+
+
+
+hier weiter
+
+
+
+
+
+
+
+
+Just in case the internal fifo overflows, the data are still in sync, you simply loose trices.
 
 Slightly delayed in the background the TRICE trace goes to the communication port,
 what is also fast compared to all the actions behind a `printf()` statement.
