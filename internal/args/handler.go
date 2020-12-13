@@ -104,40 +104,51 @@ func scHelp(
 
 	fmt.Println("syntax: 'trice subcommand' [params]")
 
-	fmt.Println("subcommand 'help', 'h' for command line usage")
-	fsScHelp.SetOutput(os.Stdout)
-	fsScHelp.PrintDefaults()
-
-	fmt.Println("subcommand 'u', 'upd', 'update' For updating ID list and source files.")
-	fsScUpdate.SetOutput(os.Stdout)
-	fsScUpdate.PrintDefaults()
-
-	fmt.Println("subcommand 'l', 'log' For displaying trice logs coming from port.")
-	l.SetOutput(os.Stdout)
-	l.PrintDefaults()
-
-	fmt.Println("subcommand 'zeroSourceTreeIds' For setting all TRICE IDs to 0 in source tree.")
-	z.SetOutput(os.Stdout)
-	z.PrintDefaults()
-
-	fmt.Println("subcommand 'v', 'ver', 'version' For displaying version information.")
-	v.SetOutput(os.Stdout)
-	v.PrintDefaults()
-
-	fmt.Println("subcommand 'ds', 'displayServer' Starts a display server, use in a separate console, on Windows use wt or a linux shell like git-bash to avoid color issues, several instances of 'trice l -ds' will send output there")
+	fmt.Println(`subcommand 'ds|displayServer': Starts a display server. 
+	Use in a separate console. On Windows use wt (https://github.com/microsoft/terminal) or a linux shell like git-bash to avoid ANSI color issues. 
+	Running "trice ds" inside a console opens a display server to be used for displaying the TRICE logs remotely.
+	Several instances of 'trice l -ds -port ...' (for different ports) will send output there in parallel.`)
 	sv.SetOutput(os.Stdout)
 	sv.PrintDefaults()
 
-	fmt.Println("subcommand 'sd', 'shutdownServer' Ends display server at IPA:IPP, works also on a remote mashine.")
+	fmt.Println(`subcommand 'h|help': For command line usage.
+	"trice h" will print this help text as a whole.`)
+
+	fsScHelp.SetOutput(os.Stdout)
+	fsScHelp.PrintDefaults()
+
+	fmt.Println(`subcommand 'l|log': For displaying trice logs coming from port. With "trice log" the trice tool display mode is activated.`)
+	l.SetOutput(os.Stdout)
+	l.PrintDefaults()
+
+	fmt.Println("subcommand 'sd|shutdownServer': Ends display server at IPA:IPP, works also on a remote mashine.")
 	scSdSv.SetOutput(os.Stdout)
 	scSdSv.PrintDefaults()
 
+	fmt.Println(`subcommand 'u|upd|update': For updating ID list and source files.
+	"trice update" will parse source tree(s) for new or changed TRICE macros, modify them appropirate and update/generate the JSON list.
+	The "update" subcommand has no mantadory switches. Omitted optional switches are used with their default parameters.`)
+
+	fsScUpdate.SetOutput(os.Stdout)
+	fsScUpdate.PrintDefaults()
+
+	fmt.Println(`subcommand 'v|ver|version': For displaying version information.
+	"trice v" will print the version information. In trice is unversioned the build time will be displayed instead.`)
+	v.SetOutput(os.Stdout)
+	v.PrintDefaults()
+
+	fmt.Println(`subcommand 'zeroSourceTreeIds': Set all Id(n) inside source tree dir to Id(0). 
+	Avoid using this subcommand normally. The switch "-src" is mantadory and no multi-flag here.
+	This subcommand is mainly for testing. For several source directories you need several runs.`)
+	z.SetOutput(os.Stdout)
+	z.PrintDefaults()
+
 	fmt.Println("examples:")
-	fmt.Println("    'trice update -src ../A -src ../../B' parses ../A and ../../B with all subdirectories for TRICE IDs to update and adjusts til.json")
-	fmt.Println("    'trice l -p COM15 -baud 38400' Display trice log messages from serial port COM15")
-	fmt.Println("    'trice l' Display bare data format trice log messages from default source JLINK over Segger RTT protocol.")
-	fmt.Println("    'trice zeroSourceTreeIds -dir ../A' Sets all TRICE IDs to 0 in ./A.")
-	fmt.Println("    'trice v -v' Shows verbose version information.")
+	fmt.Println("    'trice update -src ../A -src ../../B': Parse ../A and ../../B with all subdirectories for TRICE IDs to update and adjusts til.json")
+	fmt.Println("    'trice l -p COM15 -baud 38400': Display trice log messages from serial port COM15")
+	fmt.Println("    'trice l': Display bare data format trice log messages from default source JLINK over Segger RTT protocol.")
+	fmt.Println("    'trice zeroSourceTreeIds -dir ../A': Sets all TRICE IDs to 0 in ./A. Use with care!")
+	fmt.Println("    'trice l -port STLINK -v -s': Shows verbose version information and also the received raw bytes.")
 	return nil
 }
 

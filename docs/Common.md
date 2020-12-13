@@ -183,169 +183,21 @@ The trice tool can be started in several modes (subcommands), each with several 
 trice subcommand -switch1 -switch2 parameter -switch3 ...
 ```
 Which subcommand switches are usable for each subcommand is shown with `trice help`. This gives also information about their default values.
-The common subcommand switches are documented the the [subcommand switches](#common-subcommand-switches-reference) section below.
 
 Output of `trice h`: (Actual version could slightly differ)
 ```
-$ trice h
-syntax: 'trice subcommand' [params]
-subcommand 'help', 'h' for command line usage
-  -l string
-        Short for -logfile. (default "off")
-  -logfile string
-        Append all output to logfile, options: 'none|filename|auto', 'auto' for "2006-01-02_1504-05_trice.log" with actual time. (default "off")
-  -v    short for verbose
-  -verbose
-        Verbose, more informal output if used. Can be helpful during setup.
-subcommand 'u', 'upd', 'update' For updating ID list and source files.
-  -dry-run
-        No changes applied but output shows what would happen.
-  -i string
-        Short for '-idlist'. (default "til.json")
-  -idlist string
-        The trice ID list path. (default "til.json")
-  -s value
-        Short for src.
-  -src value
-        Source dir or file, multi use possible, default is './'.
-  -v    short for verbose
-  -verbose
-        Verbose, more informal output if used. Can be helpful during setup.
-subcommand 'l', 'log' For displaying trice logs coming from port.
-  -a    Short for '-autostart'.
-  -autostart
-        Autostart displayserver @ ipa:ipp (works not good with windows, because of cmd and powershell color issues and missing cli params in wt and gitbash).
-  -baud int
-        COM baudrate, valid only for '-port COMn'. (default 115200)
-  -color string
-        Color set, 'off' disables color handling ("w:x"->"w:x"), 'none' disables channels color ("w:x"->"x"), options: 'off|none'. (default "default")
-  -displayserver
-        Send trice lines to displayserver @ ipa:ipp.
-  -ds
-        Short for '-displayserver'.
-  -e string
-        Short for -encoding. (default "bare")
-  -encoding string
-        The trice transmit data format type, option: 'esc'. Target device coding must match. (default "bare")
-  -i string
-        Short for '-idlist'. (default "til.json")
-  -idlist string
-        The trice ID list path. (default "til.json")
-  -ipa string
-        IP address like '127.0.0.1'. (default "localhost")
-  -ipp string
-        16 bit IP port number. (default "61497")
-  -l string
-        Short for -logfile. (default "off")
-  -largs string
-        Passed parameter string, valid only for '-p STLINK|JLINK', see for STLINK also JLinkRTTLogger in SEGGER UM08001_JLink.pdf. (default "-Device STM32F070F6 -if SWD -Speed 4000 -RTTChannel 0")
-  -logfile string
-        Append all output to logfile, options: 'none|filename|auto', 'auto' for "2006-01-02_1504-05_trice.log" with actual time. (default "off")
-  -p string
-        short for -port (default "JLINK")
-  -port string
-        receiver device: 'STLINK'|'JLINK'|serial name. The serial name is like 'COM12' for Windows or a Linux name like '/dev/tty/usb12'. (default "JLINK")
-  -prefix string
-        Line prefix, options: any string or 'off|none' or 'source:' followed by 0-12 spaces, 'source:' will be replaced by source value e.g., 'COM17:'. (default "source: ")
-  -s    Short for '-showInputBytes'.
-  -showInputBytes
-        Show incoming bytes, what can be helpful during setup.
-  -suffix string
-        Append suffix to all lines, options: any string.
-  -ts string
-        PC timestamp for logs and logfile name, options: 'off|none|UTCmicro|zero' (default "LOCmicro")
-  -v    short for verbose
-  -verbose
-        Verbose, more informal output if used. Can be helpful during setup.
-subcommand 'zeroSourceTreeIds' For setting all TRICE IDs to 0 in source tree.
-  -dry-run
-        No changes applied but output shows what would happen.
-  -src string
-        Zero all Id(n) inside source tree dir, required.
-subcommand 'v', 'ver', 'version' For displaying version information.
-  -l string
-        Short for -logfile. (default "off")
-  -logfile string
-        Append all output to logfile, options: 'none|filename|auto', 'auto' for "2006-01-02_1504-05_trice.log" with actual time. (default "off")
-  -v    short for verbose
-  -verbose
-        Verbose, more informal output if used. Can be helpful during setup.
-subcommand 'ds', 'displayServer' Starts a display server, use in a separate console, on Windows use wt or a linux shell like git-bash to avoid color issues, several instances of 'trice l -ds' will send output there
-  -color string
-        Color set, options: 'off|none'. (default "default")
-  -ipa string
-        IP address like '127.0.0.1'. (default "localhost")
-  -ipp string
-        16 bit IP port number. (default "61497")
-  -l string
-        Short for -logfile. (default "off")
-  -logfile string
-        Append all output to logfile, options: 'none|filename|auto', 'auto' for "2006-01-02_1504-05_trice.log" with actual time. (default "off")
-subcommand 'sd', 'shutdownServer' Ends display server at IPA:IPP, works also on a remote mashine.
-  -ipa string
-        IP address like '127.0.0.1'. (default "localhost")
-  -ipp string
-        16 bit IP port number. (default "61497")
-examples:
-    'trice update -src ../A -src ../../B' parses ../A and ../../B with all subdirectories for TRICE IDs to update and adjusts til.json
-    'trice l -p COM15 -baud 38400' Display trice log messages from serial port COM15
-    'trice l' Display bare data format trice log messages from default source JLINK over Segger RTT protocol.
-    'trice zeroSourceTreeIds -dir ../A' Sets all TRICE IDs to 0 in ./A.
-    'trice v -v' Shows verbose version information.
+
 ```
 
-### Subcommand `help` (shortcut `h`)
-- `trice help` will give you a short commandline options overview.
-
-No additional switches available.
-
-### Subcommand `version` (shortcut `v` or `ver`)
-- `trice v` will print the version information.
-
-No additional switches available.
-
-### Subcommand `update` (shortcut `u` or `upd`)
-- `trice update` will parse source tree(s) for changed TRICE macros, modify them appropirate and update/generate the JSON list
-
-The `update` subcommand has no mantadory switches. Omitted optional switches are used with their default parameters. You **must not** run `trice update` on the downloaded trice directory. It would modify test files resulting in failed tests later on. But you can use the `-dry-run` switch.
 
 <!---
 ### Subcommand `check` 
 - `trice check` will check the JSON list and emit all TRICE statements inside the list once with a dataset.
---->
 
 #### `check` switch '-dataset'
 - This is a `string` switch. It has one parameter. Its default value is `position`. That means each parameter has a different value. This is useful for testing.
 - The `negative` value is uses a dataset with negative values for testing.
-
-### Subcommand `log` (shortcut `l`)
-With `trice log` the display mode is activated. 
-
-### Subcommand `zeroSourceTreeIds`
-Set all Id(n) inside source tree dir to Id(0). This subcommand is mainly for testing. Avoid using this subcommand normally. The switch `-src` is mantadory and no multi-flag here - for several source directories you need several runs.
-
-### Subcommand `displayServer` (shortcut `ds`)
-Running `trice ds` opens a display server to be used for displaying the TRICE logs remotely.
-
-#### `remoteDisplay` switch '-ds'
-As example executing `trice rd -list examples/til.json  -port COM38 -ds` opens a separate display window automatically on the same PC.
-![](./README.media/displayServer.gif)
-
-### Common subcommand switches reference
-
-Which subcommand switches are usable for each subcommand is shown with `trice help`. This gives also information about their default values.
-
-#### subcommand switch '-baud' (COM port baudrate)
-
-#### subcommand switch '-color' (palette)
-
-
-#### subcommand switch '-dry-run' (no changes)
-
-#### subcommand switch '-key' (encryption password)
-- This is a `string` switch. It has one parameter. Its default value is `none`. If you change this value you need to compile the target with the appropriate key.
-- This option is recommended if you deliver firmware to customers and want protect the trice log output. This does not work together with the `#define TRICE_STRINGS FULL_RUNTIME` option right now.
-
+--->
 
 
 ## Additional hints
