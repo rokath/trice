@@ -25,78 +25,86 @@ this example and allows efficient code and a compile time check.
 When the embedded project is compiled, only the ID goes to the binary
 but not the format string, what results in a smaller memory footprint.
 
-During runtime only the ID (together with the 
-parameters like hour, min, sec) is copied to a buffer. Execution time for a TRICE16_1
-(as example) on a 48 MHz ARM can be about 16 systicks resulting in 250 nanoseconds duration,
-so you can use `trice` also inside interrupts. The needed buffer space is
-one 32 bit word per normal trice (for up to 2 data bytes). 
+There are different possibilities for internal fifo buffer storage format:
+- bare code format
+  
+  During runtime normally only the 16-bit ID 12345 (together with the parameters like hour, min, sec) is copied to a buffer. Execution time for a TRICE16_1 (as example) on a 48 MHz ARM can be about 16 systicks resulting in 250 nanoseconds duration, so you can use `trice` also inside interrupts or the RTOS scheduler to analyze task timings. The needed buffer space is one 32 bit word per normal trice (for up to 2 data bytes). A direct out transfer is possible but not recommended for serial output because of possible issues to re-sync in case of data loss. Just in case the internal bare fifo overflows, the data are still in sync.
 
+  If the wrap format is desired as output the buffered 4 byte trice is transmitted as an 8 byte packet allowing start byte, sender and receiver addresses and CRC8 check to be used later in parallel with different software protocols.
 
+  The bare output format contains exactly the bare bytes but is enriched with sync packages to achieve syncing. The sync package interval is adjustable.
 
+- (direct) esc(ape) code format
 
-hier weiter
+  During untime the esc code format is generated immediately during the TRICE macro execution. This results in a slightly longer TRICE macro execution but allows the direct background transfer to the output device (UART or RTT memory) because re-sync is easy. One advantage of the esc format compared to bare is the more efficient coding of dynamic strings if you have lots of them.
 
+Slightly delayed in the background the TRICE trace goes to the communication port, what is also fast compared to all the actions behind a `printf()` statement.
 
-
-
-
-
-
-
-Just in case the internal fifo overflows, the data are still in sync, you simply loose trices.
-
-Slightly delayed in the background the TRICE trace goes to the communication port,
-what is also fast compared to all the actions behind a `printf()` statement.
-
-The buffered 4 byte trice is transmitted as an 8 byte packet allowing start byte, sender and
-receiver addresses and CRC8 check to be used later in parallel with different
-software protocols.
 
 Please understand, that when debugging code containing TRICE* statements, during a 
-TRICE* step-over only  one ore more 32 bit values go into the internal fifo buffer and no output
-is visible because of the stopped target.
+TRICE* step-over only  one ore more 32 bit values go into the internal fifo buffer and no serial output
+is visible because of the stopped target. But the SEGGER debug probe reads out the RTT memory and this way also during debug stepping realtime trice output is visible. That is (right now) not true for the STLINK interface because the is only one USB enpoint.
 
 ## `trice`
 
-Executing `trice update` at the root of your project source updates the TRICE* statements inside the source code and the ID list (only where changes occured).
+Executing `trice update` at the root of your project source updates the TRICE* statements inside the source code and the ID list (only where changes occured). The `-src` switch can be used multiple times to keep the amount of parsed data small for better speed.
 
 With `trice log -port COM12 -baud 115200` you can visualize the trices on the PC, 
 if for example `COM12` is receiving the data from the embedded device.
 
-The following capture output comes from an example project inside`../examples`
+The following capture output comes from an example project inside`../test`
 
 ![](README.media/life.gif)
 
-See [triceCheck.c](../srcTrice.C/triceCheck.c) for reference.
-The trices can come mixed from inside interrupts (white `ISR:...`) or from normal code. For usage with a RTOS protect TRICE* against breaks. Regard the differences in the read SysTick values inside the GIF above These differeces are the MCU clocks needed for one trice (~0,25µs@48MHz).
+See [triceCheck.c](https://github.com/rokath/trice/blob/master/srcTrice.C/triceCheck.c) for reference.
+The trices can come mixed from inside interrupts (light blue `ISR:...`) or from normal code. For usage with a RTOS protect TRICE* against breaks. Regard the differences in the read SysTick values inside the GIF above These differeces are the MCU clocks needed for one trice (~0,25µs@48MHz).
 
-Use `-color off` switch for piping output in a file or `-color alternate` for a different color set. *(color set designs are welcome, see func colorSetAlternate() in [emit.go](../internal/emit/emit.go))*
+Use the `-color off` switch for piping output in a file.
 
 ## Setup
 
 ### Project structure
    name        | info                                                    |
 ---------------|---------------------------------------------------------|
-cmd/           | the `trice` sources                                     |
-pkg/           | the internal `trice`packages                            |
-src.C/         | C sources for your embedded project                     | 
-examples/      | example target projects                                 |
+cmd/trice      | the `trice` sources                                     |
 docs/          | documentation                                           |
+internal/      | project specific packages                               |
+pkg/           | universal packages                                      |
+srcTrice.C/    | C sources for trice instrumentation                     | 
+test/          | example target projects                                 |
+third_party/   | external components                                     |
 
+<!---
 ### Check the `trice` binary
 - Copy command trice into a path directory.
 - Run inside a shell `trice check -list path/to/trice/examples/triceDemoF030R8/MDK-ARM/`[til.json](../examples/triceDemoF030R8/MDK-ARM/til.json). You should see output like this:
 ![](./README.media/Check.PNG)
-
+--->
 ### Instrument a target source code project (How to use trice in your project)
+Look at one of the appropriate test projects as example. In general:
 
-  - Include [trice.c](../srcTrice.C/trice.c) unchanged into your project and make sure the [trice.h](../srcTrice.C/trice.h) header file is found by your compiler.
-- Add `#include "trice.h"` to your project files where to use TRICE and put `TRICE0( Id(0), "msg:Hello world!\n" );` after your initialization code.
+- Copy [_triceConfig.h](https://github.com/rokath/trice/tree/master/srcTrice.C/_triceConfig.h), rename to `triceConfig.h` and adapt to your needs.
+
+- Make sure the [trice.h](https://github.com/rokath/trice/blob/master/srcTrice.C/trice.h) header file is found by your compiler and for
+
+  - bare or wrap transfer format
+    
+    Include [triceBareFifo.c](https://github.com/rokath/trice/blob/master/srcTrice.C/triceBareFifo.c) together with [triceBareFifoToBytesBuffer.c](https://github.com/rokath/trice/blob/master/srcTrice.C/triceBareFifoToBytesBuffer.c) into your project.
+
+  - esc transfer format
+    
+    Include [triceEscFifo.c](https://github.com/rokath/trice/blob/master/srcTrice.C/triceEscFifo.c) into your project.
+
+Next steps:
+
+- Add `#include "trice.h"` to your project files where to use TRICE macros and put `TRICE0( Id(0), "msg:Hello world!\n" );` after your initialization code.
 - Run `trice u` at the root of your source code. Afterwards:
     - The `Id(0)` should have changed into `Id(12345)` as example. (The `12345` stays here for a 16-bit non-zero random number).
-    - A file [til.json](../test/til.json)  (**t**race **i**d **l**ist) should be generated.
-    - Running `trice check` should show your message, indicating everything is fine so far.
-- `trice help` is your friend if something fails.
+    - A file [til.json](https://github.com/rokath/trice/blob/master/til.json)  (**t**race **i**d **l**ist) should be generated.
+- Set up timer and UART interrupt and main loop in the right way. Analyze the test example projects for advice.
+
+<!---    - Running `trice check` should show your message, indicating everything is fine so far.--->
+
 - For help have a look at the differences between these 2 projects or into [DemoF030R8.md](./DemoF030R8.md)
   - `../examples/generatedDemoF030R8` - It is just the STM32 CubeMX generated code.
   - `../examples/traceLDemoF030R8` - It is a copy of the above enhanced with trice check code.
@@ -144,11 +152,12 @@ Code=3808 RO-data=240 RW-data=36 ZI-data=1540|    TriceCheckSet()  |      512  |
 - The ID list should go into the version control repository of your project.
 - For a firmware release it makes sense to remove all unused IDs (development garbage) from til.json.
   - This could be done by deleting til.json, getting the legacy til.json from the former firmware release from the source control system and enhance it with the actual release software IDs by simply calling 'trice update'.
+- During `trice update` TRICE macros commented out are treated in the same way as actice TRICE macros. Even after deletion their content stays inside til.json. This is intensionally to get best stability.
 
 ## Encryption
 - You can deliver your device with encrypted trices. This way nobody is able to read the trices despite the service guy.
 - Implementd is XTEA but this is easy exchangeable.
-- The 8 byte blocks can get enrypted by enabling `#define ENRYPT...` inside *config.h*. You need to add `-key test` as **log** switch and you're done.
+- The 8 byte blocks can get enrypted by enabling `#define ENRYPT...` inside *triceConfig.h*. You need to add `-key test` as **log** switch and you're done.
 - Any password is usable instead of `test`. Simply add once the `-show` switch and copy the displayed passphrase into the *config.h* file.
 
 
@@ -300,8 +309,10 @@ No additional switches available.
 
 The `update` subcommand has no mantadory switches. Omitted optional switches are used with their default parameters. You **must not** run `trice update` on the downloaded trice directory. It would modify test files resulting in failed tests later on. But you can use the `-dry-run` switch.
 
+<!---
 ### Subcommand `check` 
 - `trice check` will check the JSON list and emit all TRICE statements inside the list once with a dataset.
+--->
 
 #### `check` switch '-dataset'
 - This is a `string` switch. It has one parameter. Its default value is `position`. That means each parameter has a different value. This is useful for testing.
@@ -325,60 +336,17 @@ As example executing `trice rd -list examples/til.json  -port COM38 -ds` opens a
 Which subcommand switches are usable for each subcommand is shown with `trice help`. This gives also information about their default values.
 
 #### subcommand switch '-baud' (COM port baudrate)
-- This is an `int` switch. It has one parameter. Its default value is `115200`. 
-- It is the only setup parameter. The other values default to 8N1 (8 data bits, no parity, one stopbit)
 
 #### subcommand switch '-color' (palette)
-- This is a `string` switch. It has one parameter. Its default value is `default`. 
-- The `alternate` value uses a different color palette.
-- 'off' suppresses all color information. Useful for redirecting in a file.
+
 
 #### subcommand switch '-dry-run' (no changes)
-- This is a `bool` switch. It has no parameters. Its default value is **false**. If the switch is applied its value is **true**.
-- `trice u -dry-run` will change nothing but show changes it would perform without the `-dry-run` switch.
-
-#### subcommand switch '-ipa' (IP address)
-- This is a `string` switch. It has one parameter. Its default value is `localhost` (127.0.0.1).
-You can specify this swich if you intend to use the remote display option to show the output on a different PC in the network. 
-
-#### subcommand switch '-ipp' (IP port)
-- This is a `string` switch. It has one parameter. Its default value is `61497`.
-You can specify this swich if you want to change the used port number for the remote display functionality.
 
 #### subcommand switch '-key' (encryption password)
 - This is a `string` switch. It has one parameter. Its default value is `none`. If you change this value you need to compile the target with the appropriate key.
 - This option is recommended if you deliver firmware to customers and want protect the trice log output. This does not work together with the `#define TRICE_STRINGS FULL_RUNTIME` option right now.
 
-#### subcommand switch '-l' or '-logfile'
-- This is a `string` switch. It has one parameter. Its default value is `trice.log`. All trice output of the appropriate subcommands is appended per default into the logfile trice additionally to the normal output. Change the filename with `-lg myName.txt` or switch logging off with `-lg off`. See also
-[logfile viewing](#Logfile-viewing).
 
-#### subcommand switch '-i' or '-idlist' (JSON ID list)
-- This is a `string` switch. It has one parameter. Its default value is `./til.json` (the **t**race **i**d **l**ist inside the actual directory). The with '-list' specified JSON file is the key to display the ID coded trices during runtime and should be under version control.
-
-#### subcommand switch '-port' (COM port)
-- This is a `string` switch. It has one parameter. Its default value is `COMscan`. 
-- Using a virtual serial COM port on the PC over a FTDI USB adapter is a most likely variant. Usually trice tool needs this switch in the form `-port COM9` if for example COM port 9 is used.
-- With the default value trice scans for available COM ports.
-
-#### subcommand switch '-show' (show passphrase)
-- This is a `bool` switch. It has no parameters. Its default value is **false**. If the switch is applied its value is **true**.
-- Use this switch for creating your own password keys. If applied together with `-key MyPwd` it shows the encryption key. Simply copy this key than into the line `#define ENCRYPT XTEA_KEY( a9, 4a, 8f, e5, cc, b1, 9b, a6, 1c, 4c, 08, 73, d3, 91, e9, 87 ); //!< -key test` inside triceConfig.h. 
-
-#### subcommand switch '-src' (source directory)
-- This is a `string` switch. It has one parameter. Its default value is `./` (the actual directory). 
-- This is a multi-flag switch. It can be used several times and for directories and also for files. Right now not usable yet in the form "-src *.c".
-- Example: `trice u  -dry-run -v -src ./examples/ -src src.C/trice.h` will scan all C|C++ header and source code files inside directory ./examples and scan also file trice.h inside src.C directory. It would create|extend a list file til.json in the current directory without the **-dry-run** Switch.
-
-#### subcommand switch '-ts' (timestamp)
-This timestamp switch generates the timestamps on the PC only, what is good enough for many cases. If you need precise target timestamps you need to generate them inside the target and send them as TRICE* parameters.
-- This is a `string` switch. It has one parameter. Its default value is `LOCmicro`. That means local time with microseconds.
-- `UTCmicro` shows timestamps in universal time.
-- `off` no timestamps
-
-#### subcommand switch '-v' (verbose)
-- This is a `bool` switch. It has no parameters. Its default value is **false**. If the switch is applied its value is **true**.
-- For example `trice u -dry-run -v` is the same as `trice u -dry-run` but with more descriptive output.
 
 ## Additional hints
 

@@ -114,10 +114,6 @@ func scHelp(
 
 	fmt.Println("subcommand 'l', 'log' For displaying trice logs coming from port.")
 	l.SetOutput(os.Stdout)
-	fmt.Println("args is used as optional port parameters. The \"default\" value is replaced with:")
-	fmt.Printf("\t\"COMn\" port: \"%s\", Option for args is \"TARM\" to use a different driver. (For baud rate settings see -baud.)\n", defaultCOMArgs)
-	fmt.Printf(`%s"JLINK" or "STLINK" port: "%s", For args options see JLinkRTTLogger in SEGGER UM08001_JLink.pdf. (The -RTTSearchRanges "..." need to be written without "" and with _ istead of space.)%s`, "\t", defaultLinkArgs, "\n")
-	fmt.Printf("\t\"BUFFER\" port: \"%s\", Option for args is any byte sequence.\n", defaultBUFFERArgs)
 	l.PrintDefaults()
 
 	fmt.Println("subcommand 'zeroSourceTreeIds' For setting all TRICE IDs to 0 in source tree.")
