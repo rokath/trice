@@ -63,66 +63,70 @@ embedded device C printf-like trace code and real-time PC logging (trace ID visu
   - Copy config file [_triceConfig.h](https://github.com/rokath/trice/tree/master/srcTrice.C/_triceConfig.h) as `triceConfig.h` to your project or take it from one of the [test projects](https://github.com/rokath/trice/tree/master/test/) 
   - Add a few [small C-files](https://github.com/rokath/trice/tree/master/srcTrice.C/) to your project and include [trice.h](https://github.com/rokath/trice/tree/master/srcTrice.C/trice.h) where trices are used.
 
-## How it works
+## How it approximately works
 
-- For example change source code:
-```
-printf( "msg: %d Kelvin\n", temperature );
-```
-```
-TRICE16( "msg: %d Kelvin\n", temperature );
+For example change manually or automatically the source code line
+
+```c
+printf( "MSG: %d Kelvin\n", k );
 ```
 
-  `trice update` (run it automatically in the tool chain) changes this line to  
+into
 
+```c
+TRICE16( "MSG: %d Kelvin\n", k );
 ```
-TRICE16_1( Id(12345), "msg: %d Kelvin\n", temperature );
+
+`trice update` (run it automatically in the tool chain) changes it to  
+
+```c
+TRICE16_1( Id(12345), "MSG: %d Kelvin\n", k );
 ```
-in source code and adds the *ID 12345* together with *"msg: %d Kelvin\n"* into a **t**rice **I**D **l**ist, a JSON referece file named [til.json](https://github.com/rokath/trice/blob/master/til.json).
+
+and adds the *ID 12345* together with *"msg: %d Kelvin\n"* into a **t**rice **I**D **l**ist, a JSON referece file named [til.json](https://github.com/rokath/trice/blob/master/til.json).
 - With the `16` in TRICE**16** you adjust the parameter size to 16 bit what allows more runtime efficient code compared to `32` or `64`.
 - The appended **_1** sets the expected parameter count to 1 allowing further optimization and also a compile time parameter count check.
-- During compilation the `TRICE16_1` macro is expanded to only a *12345* reference and the variable *temperature* and the format string never sees the target.
+- During compilation the `TRICE16_1` macro is translated to only a *12345* reference and the variable *k*. The format string never sees the target.
 
-![trice](./docs/README.media/triceBlockDiagram.svg)
-- When the programflow passes the line `TRICE16_1( Id(12345), "msg: %d Kelvin\n", temperature );` the 16 bit ID *12345* and the 16 bit *15* are transfered as one 32 bit value into the triceFifo, what goes really fast. This way the program flow is nearly undisturbed, so TRICE macros are usable also inside interrupts or in the scheduler.
-- For visualization a background service is needed. The `triceServe` takes the 4 bytes trice values from the triceFifo, adds control information and puts that into the triceWriteBuffer, with at least 8 bytes size.
-  - At this stage the trice out format is done (all optionally encrypted): 
-    - bare with sync packages 
-    - wrapped bare
-    - escaped transmit format
-    - your decision ...
-  - The triceFifo can be also a direct writeBuffer for TRICEmacro generated output format. This is useful with escaped transmit format to incorporate dynamic strings in an efficient way. Check code of test example [MDK-ARM_LL_UART_RTT0_ESC_STM32F030R8_NUCLEO-64](https://github.com/rokath/trice/tree/master/test/MDK-ARM_LL_UART_RTT0_ESC_STM32F030R8_NUCLEO-64) for example.
-- The bytes go from triceWriteBuffer to the PC and there the `trice` tool receives them.
-- With the help of the [til.json](https://github.com/rokath/trice/blob/master/til.json) file the trices get then visualized on the PC.
-- It is also possible to let the debug probe transfer the buffer to the PC (see *SeggerRTT* explanation for details). This keeps the implementation clearer and allows to see the trice strings directly during debugging.
+This is a slightly simplified view:
 
-  ![triceBlockDiagramWithRTT.svg](./docs/README.media/triceBlockDiagramWithRTT.svg)
+![trice](./docs/README.media/trice4BlockDiagram.svg)
 
+- When the programflow passes the line `TRICE16_1( Id(12345), "msg: %d Kelvin\n", k );` the 16 bit ID *12345* and the 16 bit temperature value are transfered as one combined 32 bit value into the triceFifo, what goes really fast. Diffenent encodings are possible. This way the program flow is nearly undisturbed, so **TRICE macros are usable also inside interrupts or in the scheduler**.
+- For visualization a background service is needed. In the simplest case it is just an UART triggered interrupt for triceFIFO reading.
+- During runtime the trice tool receives the trice as a 4 byte package `0x30 0x39 0x00 0x0F`
+- The `0x30 0x39` is the ID 12345 and a map lookup delivers the format string *"msg: %d Kelvin\n"* and also the format information *"TRICE16_1"*. Now the trice tool is able to execute `printf("MSG: %d Kelvin\n", 0x000F);` and the full log information is displayed.
 
 ## `trice` PC tool
+
 - Manages `TRICE` macro IDs inside a C|C++ source tree and extracts the strings in an ID-string list during target device compile time.
 - Displays `TRICE` macros like printf() output in realtime during target device runtime. The received IDs and parameters are printed out.
-- Written in [Go](https://en.wikipedia.org/wiki/Go_(programming_language)), simply usage, no installer.
+- Written in [Go](https://en.wikipedia.org/wiki/Go_(programming_language)), simply usage, no installer, needs to be in $PATH
 
-## Quick setup (See also test examples)
-- Add [triceBareFifo.c](https://github.com/rokath/trice/tree/master/srcTrice.C/triceBareFifo.c) or [triceEscFifo.c](https://github.com/rokath/trice/tree/master/srcTrice.C/triceEscFifo.c)  and acompanying files as they are to your project
-- #include [trice.h](https://github.com/rokath/trice/tree/master/srcTrice.C/trice.h) as is in your source file to use trice
-- Copy [_triceConfig.h](https://github.com/rokath/trice/tree/master/srcTrice.C/_triceConfig.h), rename to `triceConfig.h` and adapt to your needs.
-- [triceCheck.c](https://github.com/rokath/trice/tree/master/srcTrice.C/triceCheck.c) 
-is example code and for testing
-- Run `trice u` in root of your C|Cpp source project after code instrumentation with `TRICE*` statements to generate a project specific or common [til.json](https://github.com/rokath/trice/tree/master/til.json) file.
-- Compile, flash & run `trice log -port COMm -baud n` with correct values m and n.
+## Quick setup
+
+Follow these steps for instrumentation information even your target is not an ARM:
+
+- Install the free [STCubeMX](https://www.st.com/en/development-tools/stm32cubemx.html).
+- Choose from [test examples](https://github.com/rokath/trice/tree/master/test) the for you best fitting project, for example `MDK-ARM_LL_UART_RTT0_ESC_STM32F030R8_NUCLEO-64`.
+- Open the `MDK-ARM_LL_UART_RTT0_ESC_STM32F030R8_NUCLEO-64.ioc` file with [STCubeMX](https://www.st.com/en/development-tools/stm32cubemx.html) and generate without changing any setting.
+- Make an empty directory `MyProject` inside the `test` folder and copy the `MDK-ARM_LL_UART_RTT0_ESC_STM32F030R8_NUCLEO-64.ioc` there and rename it to `MyProject.ioc`.
+- Generate `MyProject` with CubeMX.
+- Now compare the directories `MDK-ARM_LL_UART_RTT0_ESC_STM32F030R8_NUCLEO-64` and `MyProject` to see the trice instrumentation as differences.
 
 ## Possible Use Cases
+
 - Using trice not only for **dynamic debugging** but also as **logging** technique
     is possible and gives the advantage to have very short messages (no strings) for transmission, 
     but keep in mind that the file `til.json` is the key to read all output if your devices in the field for 10 or more years.
+- The `til.json` file can be deleted and regenerated from the sources anytime. In that case you get rid of all legacy strings but it is better to keep them for compability reasons.
+- You can en|dis-able the TRICE code generation on file or project level, so no need to remove the TRICE macros from the code after dynamic debugging.
 - You can consider TRICE also as **a kind of intelligent data compression** what could be interesting for IoT things, especially NB-IoT, where you have very low data rates.
-- Also it is possible to **encrypt the 8 byte transfer packets** to get a reasonable protection for many cases.
+- Also it is possible to **encrypt the trice transfer packets** to get a reasonable protection for many cases.
   - This way you can deliver firmware images with encrypted TRICE output only readable with the appropriate key and til.json.
   - XTEA is a recommendation and implemented as option.
 - You can even translate the til.json in **different languages**, so changing a language is just changing the til.json file.
-- trice has intentionally no target timestamps for performance reasons. On the PC you can display the *reception timestampts*. But you can add own **timestamps as parameters** for exact embedded times measuremnets. Having several devices with trice timestamps, **network timing measurements** are possible.
+- TRICE has intentionally no target timestamps for performance reasons. On the PC you can display the *reception timestampts*. But you can add own **timestamps as parameters** for exact embedded time measuremnets. Having several devices with trice timestamps, **network timing measurement** is possible.
 - Using trice with an **RTOS** gives the option for detailed **task timing analysis**. Because of the very short execution time of a trice you could add `TRICE16( "tim:%d us, task=%d\n", us, nexTask );` to the scheduler and vizualize the output on PC. The same is possible for **interrupt timing analysis**.
 - `TRICE16( "tim:%d us\n", sysTick );` before and after a function call lets you easy measure the function execution time.
 - As graphical vizualisation you could use a tool similar to https://github.com/sqshq/sampler.
@@ -140,5 +144,3 @@ is example code and for testing
   - ![manchester2.PNG](./docs/README.media/manchester2.PNG)
   - See [https://circuitcellar.com/cc-blog/a-trace-tool-for-embedded-systems/](https://circuitcellar.com/cc-blog/a-trace-tool-for-embedded-systems/) for more information. As trace dongle you can use any spare microcontroller board with an UART together with an FTDI USB converter.
   - This slow path is usable because trice needs only few bytes for transmission.
-- If you run tests apply the `-p=1` flag to avoid parallel execution: `go test ./... -p=1` This is slower but avoids trouble with the displayserver tests.
-
