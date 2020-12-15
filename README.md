@@ -58,7 +58,7 @@ embedded device C printf-like trace code and real-time PC logging (trace ID visu
 - Real fast (**under 20 CPU clocks per trace possible!!!**) and small loggging technique, a tracer in software usable.
   - for debugging dynamic behaviour during development, 
   - as runtime logger or simply for narrow bandwidth logging in the field even with encryption.
-- Usage is similar to 'printf()' and TRICE in your code reduces the needed FLASH memory because the instrumentation code is very small (can be less 150 bytes FLASH and about 100 bytes RAM) and no printf library code nor log strings are inside the embedded device anymore.
+- TRICE in your code reduces the needed FLASH memory because the instrumentation code is very small (can be less 150 bytes FLASH and about 100 bytes RAM) and no printf library code nor log strings are inside the embedded device anymore.
 
 ## How it approximately works
 
