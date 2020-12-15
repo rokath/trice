@@ -89,7 +89,7 @@ This is a slightly simplified view:
 
 ![trice](./docs/README.media/trice4BlockDiagram.svg)
 
-- When the programflow passes the line `TRICE16_1( Id(12345), "msg: %d Kelvin\n", k );` the 16 bit ID *12345* and the 16 bit temperature value are transfered as one combined 32 bit value into the triceFifo, what goes really fast. Diffenent encodings are possible. This way the program flow is nearly undisturbed, so **TRICE macros are usable also inside interrupts or in the scheduler**.
+- When the programflow passes the line `TRICE16_1( Id(12345), "MSG: %d Kelvin\n", k );` the 16 bit ID *12345* and the 16 bit temperature value are transfered as one combined 32 bit value into the triceFifo, what goes really fast. Different encodings are possible. The program flow is nearly undisturbed, so **TRICE macros are usable also inside interrupts or in the scheduler**.
 - For visualization a background service is needed. In the simplest case it is just an UART triggered interrupt for triceFIFO reading.
 - During runtime the trice tool receives the trice as a 4 byte package `0x30 0x39 0x00 0x0F`
 - The `0x30 0x39` is the ID 12345 and a map lookup delivers the format string *"msg: %d Kelvin\n"* and also the format information *"TRICE16_1"*. Now the trice tool is able to execute `printf("MSG: %d Kelvin\n", 0x000F);` and the full log information is displayed.
@@ -98,9 +98,10 @@ This is a slightly simplified view:
 
 - Manages `TRICE` macro IDs inside a C|C++ source tree and extracts the strings in an ID-string list during target device compile time.
 - Displays `TRICE` macros like printf() output in realtime during target device runtime. The received IDs and parameters are printed out.
-- Written in [Go](https://en.wikipedia.org/wiki/Go_(programming_language)), simply usage, no installer, needs to be in $PATH
+- Can receive trices on several PCs and display them on a remote display server-
+- Written in [Go](https://en.wikipedia.org/wiki/Go_(programming_language)), simply usage, no installer, needs to be in $PATH.
 
-## Quick setup
+## Quick target setup
 
 Follow these steps for instrumentation information even your target is not an ARM:
 
@@ -121,7 +122,7 @@ Follow these steps for instrumentation information even your target is not an AR
 - You can consider TRICE also as **a kind of intelligent data compression** what could be interesting for IoT things, especially NB-IoT, where you have very low data rates.
 - Also it is possible to **encrypt the trice transfer packets** to get a reasonable protection for many cases.
   - This way you can deliver firmware images with encrypted TRICE output only readable with the appropriate key and til.json.
-  - XTEA is a recommendation and implemented as option.
+  - XTEA is implemented as one option.
 - You can even translate the til.json in **different languages**, so changing a language is just changing the til.json file.
 - TRICE has intentionally no target timestamps for performance reasons. On the PC you can display the *reception timestampts*. But you can add own **timestamps as parameters** for exact embedded time measuremnets. Having several devices with trice timestamps, **network timing measurement** is possible.
 - Using trice with an **RTOS** gives the option for detailed **task timing analysis**. Because of the very short execution time of a trice you could add `TRICE16( "tim:%d us, task=%d\n", us, nexTask );` to the scheduler and vizualize the output on PC. The same is possible for **interrupt timing analysis**.
