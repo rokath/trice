@@ -1,6 +1,6 @@
 # Trice demo & test project info
 
-Many demo projects are ARMKeil IDE STM32 here but the TRICE tool is easy adaptable to 8 - 64 bit architectures.
+Many demo projects are ARMKeil IDE STM32 here but TRICE is easy adaptable to 8 - 64 bit architectures.
 
 ## Backup folder
 
