@@ -55,14 +55,14 @@ embedded device C printf-like trace code and real-time PC logging (trace ID visu
 
 ## `TRICE` macros for C|C++ code
 
-- Real fast (**under 20 CPU clocks per trace possible!!!**) and small loggging technique, a tracer in software usable.
+- Real fast (**under 20 CPU clocks per trace possible!!!**) and small loggging technique, a tracer in software usable
   - for debugging dynamic behaviour during development, 
   - as runtime logger or simply for narrow bandwidth logging in the field even with encryption.
 - TRICE in your code reduces the needed FLASH memory because the instrumentation code is very small (can be less 150 bytes FLASH and about 100 bytes RAM) and no printf library code nor log strings are inside the embedded device anymore.
 
 ## How it approximately works
 
-For example change manually or automatically the source code line
+For example change the source code line
 
 ```c
 printf( "MSG: %d Kelvin\n", k );
