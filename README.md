@@ -160,6 +160,6 @@ Follow these steps for instrumentation information even your target processor is
 
 ## Documentation
 
-No need to read all this stuff - is is just for reference.
+No need to read all this stuff - is is just for help and reference.
 
 - see [./docs/Common.md](https://github.com/rokath/trice/tree/master/docs/Common.md)
