@@ -1,6 +1,8 @@
 
 (work in progress...)
 
+- The `til.json` file can be deleted and regenerated from the sources anytime. In that case you get rid of all legacy strings but it is better to keep them for compability reasons.
+- You can disable the TRICE code generation on file or project level, so no need to remove the TRICE macros from the code after dynamic debugging.
 
 <!---
 - [docs folder](https://github.com/rokath/trice/tree/master/docs)

@@ -57,6 +57,21 @@ Embedded device C printf-like slim and fast trace code and real-time PC logging 
   - as runtime logger or simply for narrow bandwidth logging in the field even with encryption.
 - TRICE in your code **reduces the needed FLASH memory** because the instrumentation code is very small (can be less 150 bytes FLASH and about 100 bytes RAM) and no printf library code nor log strings are inside the embedded device anymore.
 
+## Possible Use Cases
+
+- Using trice not only for **dynamic debugging** but also as **logging** technique
+    is possible and gives the advantage to have very short messages (no strings) for transmission, 
+    but keep in mind that the file `til.json` is the key to read all output if your devices in the field for 10 or more years.
+- You can consider TRICE also as a kind of **data compression** what could be interesting for IoT things, especially NB-IoT, where you have very low data rates.
+- Also it is possible to **encrypt** the trice transfer packets to get a reasonable protection for many cases.
+  - This way you can deliver firmware images with encrypted TRICE output only readable with the appropriate key and til.json.
+  - XTEA is implemented as one option.
+- You can even translate the til.json in **different languages**, so changing a language is just changing the til.json file.
+- Using trice with an **RTOS** gives the option for detailed **task timing analysis**. Because of the very short execution time of a trice you could add `TRICE32_2( Id(0), "tim:tick=%d, task=%d\n", sysTick, nexTask );` to the scheduler and vizualize the output on PC. The same is possible for **interrupt timing analysis**.
+- `TRICE16( "tim:%d\n", sysTick );` before and after a function call lets you easy measure the function execution time.
+- As graphical vizualisation you could use a tool similar to https://github.com/sqshq/sampler.
+- TRICE has intentionally no target timestamps for performance reasons. On the PC you can display the *reception timestampts*. But you can add own **timestamps as parameters** for exact embedded time measuremnets. Having several devices with trice timestamps, **network timing measurement** is possible.
+
 ## How it approximately works
 
 For example change the source code line
@@ -100,23 +115,6 @@ This is a slightly simplified view:
 - Displays `TRICE` macros like printf() output in realtime during target device runtime. The received IDs and parameters are printed out.
 - Can receive trices on several PCs and display them on a remote display server-
 - Written in [Go](https://github.com/golang/go), simply usage, no installer, needs to be in $PATH.
-
-## Possible Use Cases
-
-- Using trice not only for **dynamic debugging** but also as **logging** technique
-    is possible and gives the advantage to have very short messages (no strings) for transmission, 
-    but keep in mind that the file `til.json` is the key to read all output if your devices in the field for 10 or more years.
-- The `til.json` file can be deleted and regenerated from the sources anytime. In that case you get rid of all legacy strings but it is better to keep them for compability reasons.
-- You can disable the TRICE code generation on file or project level, so no need to remove the TRICE macros from the code after dynamic debugging.
-- You can consider TRICE also as a kind of **intelligent data compression** what could be interesting for IoT things, especially NB-IoT, where you have very low data rates.
-- Also it is possible to **encrypt the trice transfer packets** to get a reasonable protection for many cases.
-  - This way you can deliver firmware images with encrypted TRICE output only readable with the appropriate key and til.json.
-  - XTEA is implemented as one option.
-- You can even translate the til.json in **different languages**, so changing a language is just changing the til.json file.
-- TRICE has intentionally no target timestamps for performance reasons. On the PC you can display the *reception timestampts*. But you can add own **timestamps as parameters** for exact embedded time measuremnets. Having several devices with trice timestamps, **network timing measurement** is possible.
-- Using trice with an **RTOS** gives the option for detailed **task timing analysis**. Because of the very short execution time of a trice you could add `TRICE32_2( Id(0), "tim:tick=%d, task=%d\n", sysTick, nexTask );` to the scheduler and vizualize the output on PC. The same is possible for **interrupt timing analysis**.
-- `TRICE16( "tim:%d\n", sysTick );` before and after a function call lets you easy measure the function execution time.
-- As graphical vizualisation you could use a tool similar to https://github.com/sqshq/sampler.
 
 ## How to start
 
