@@ -1,6 +1,26 @@
 
 (work in progress...)
 
+
+<!---
+- [docs folder](https://github.com/rokath/trice/tree/master/docs)
+- [doc index](https://rokath.github.io/trice/docs/)
+--->
+
+### RealTimeTransfer
+- see [./docs/SeggerRTT.md](https://github.com/rokath/trice/tree/master/docs/SeggerRTT.md)
+### Examples
+- see [test](https://github.com/rokath/trice/tree/master/test)
+
+
+### Hint if you have only one spare pin and no UART
+- One free GPIO-Pin is already enough for using TRICE. You can transmit each basic trice (4 bytes) as bare messages over one pin:
+  - ![manchester1.PNG](./docs/README.media/manchester1.PNG)
+  - ![manchester2.PNG](./docs/README.media/manchester2.PNG)
+  - See [https://circuitcellar.com/cc-blog/a-trace-tool-for-embedded-systems/](https://circuitcellar.com/cc-blog/a-trace-tool-for-embedded-systems/) for more information. As trace dongle you can use any spare microcontroller board with an UART together with an FTDI USB converter.
+  - This slow path is usable because trice needs only few bytes for transmission.
+
+
 - Not much to do:
   - Copy config file [_triceConfig.h](https://github.com/rokath/trice/tree/master/srcTrice.C/_triceConfig.h) as `triceConfig.h` to your project or take it from one of the [test projects](https://github.com/rokath/trice/tree/master/test/) 
   - Add a few [small C-files](https://github.com/rokath/trice/tree/master/srcTrice.C/) to your project and include [trice.h](https://github.com/rokath/trice/tree/master/srcTrice.C/trice.h) where trices are used.
@@ -205,21 +225,6 @@ Code=3808 RO-data=240 RW-data=36 ZI-data=1540|    TriceCheckSet()  |      512  |
 - Any password is usable instead of `test`. Simply add once the `-show` switch and copy the displayed passphrase into the *config.h* file.
 
 
-## Build `trice` from Go sources
-- Install Go, download the trice sources and cd into the `trice` directory
-- Testing
-```
-go test ./...
-```
-- Build & Install
-```
-go install ./...
-```
-Afterwards you should find an executable `trice` inside $GOPATH/bin/
-- Running
-```
-trice help
-```
 
 ## Otions for `trice` tool
 The trice tool can be started in several modes (subcommands), each with several mantadory or optional switches. Switches can have parameters or not.
