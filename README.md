@@ -79,6 +79,7 @@ TRICE16_1( Id(12345), "MSG: %d Kelvin\n", k );
 
 and adds the *ID 12345* together with *"MSG: %d Kelvin\n"* into a **t**rice **I**D **l**ist, a JSON referece file named [til.json](https://github.com/rokath/trice/blob/master/til.json).
 
+- The *12345* is a randomly generated 16 bit ID not used so far.
 - With the `16` in TRICE**16** you adjust the parameter size to 16 bit what allows more runtime efficient code compared to `32` or `64`.
 - The appended **_1** sets the expected parameter count to 1 allowing further optimization and also a compile time parameter count check.
 - During compilation the `TRICE16_1` macro is translated to only a *12345* reference and the variable *k*. The format string never sees the target.
