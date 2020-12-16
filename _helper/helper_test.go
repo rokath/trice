@@ -326,3 +326,27 @@ func (p *bytesViewer) Read(b []byte) (n int, e error) {
 	fmt.Println("bytesViewer:", e, n, b[:n])
 	return
 }
+
+
+// test helper ///////////////////////////////////////////////////////////////////////
+//
+
+// assertEqual fails the test if exp is not equal to act.
+func assertEqual(tb testing.TB, exp, act interface{}) {
+	if !reflect.DeepEqual(exp, act) {
+		_, file, line, _ := runtime.Caller(1)
+		log.Println("expect:", exp)
+		log.Println("actual:", act)
+		es := fmt.Sprintf("%v", exp)
+		as := fmt.Sprintf("%v", act)
+		log.Println("expect:", es)
+		log.Println("actual:", as)
+		log.Println("expect:", []byte(es))
+		log.Println("actual:", []byte(as))
+		fmt.Println(filepath.Base(file), line)
+		tb.FailNow()
+	}
+}
+
+//
+// test helper ///////////////////////////////////////////////////////////////////////

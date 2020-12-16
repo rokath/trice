@@ -18,6 +18,11 @@ import (
 	"github.com/rokath/trice/pkg/cipher"
 )
 
+const (
+	// receive and sync buffer size
+	buffSize = 1024
+)
+
 var (
 	// Verbose gives mor information on output if set. The value is injected from main packages.
 	Verbose bool

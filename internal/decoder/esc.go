@@ -13,11 +13,6 @@ import (
 	"github.com/rokath/trice/internal/id"
 )
 
-const (
-	// receive and sync buffer size
-	buffSize = 1024
-)
-
 // Esc is the Decoder instance for esc encoded trices.
 type Esc struct {
 	decoding

@@ -1,1 +1,1 @@
-# Some heper code for copying where to uses
+# Some heper code for copying where to use

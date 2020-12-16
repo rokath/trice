@@ -76,7 +76,7 @@ func (p *RemoteDisplay) writeLine(line []string) {
 	p.Err = p.PtrRPC.Call("Server.WriteLine", line, nil) // TODO: Change to "Server.WriteLine"
 }
 
-// startServer starts a display server with the filename exe (if not already running)
+// startServer starts a display server with the filename exe (if not already running).
 func (p *RemoteDisplay) startServer() {
 	var shell string
 	var clip []string

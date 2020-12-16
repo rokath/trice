@@ -1,4 +1,5 @@
-# Segger Real Time Transfer (RTT) 
+# Segger Real Time Transfer (RTT)
+
 - Prerequisite is a processor with memory background access support like ARM Cortex-M cores.
 - If you can use a Segger JLINK or an STM STLINK debug probe (ST Microelectronics eval boards have it) this is an easy and fast way to use trice.
 - Detailed description can be found in document [UM08001_JLink.pdf](../third_party/Manuals/UM08001_JLink.pdf) in chapter 16 which is part of [https://www.segger.com/downloads/jlink/#J-LinkSoftwareAndDocumentationPack](https://www.segger.com/downloads/jlink/#J-LinkSoftwareAndDocumentationPack).
@@ -42,31 +43,35 @@ Following steps describe the needed action for a ST Microelectronics evaluation 
   - Example:
     - Compile and flash `MDK-ARM_LL_RTT_NUCLEO-F030R8` project
     - Open a commandline and run:
-      ```
+
+      ```b
       "C:\Program Files (x86)\SEGGER\JLink\JLink.exe" -If SWD -Speed 4000 -AutoConnect 1 -Device STM32F030R8 -USB 773295023
       ```
+
     - Or simply doubleclick on "C:\Program Files (x86)\SEGGER\JLink\JLink.exe"
     - Open an other commandline and run:
-      ```
+
+      ```b
       trice log -device RTT
       ```
+
     - trice outout is visible
     - With `h`alt and `g`o inside the Jlink window the MCU can get haltes and released
     - It is possible in parallel to debug-step with a debugger (tested with ARM-MDK)
-  - **PLUS:** 
+  - **PLUS:**
     - works reliable
     - trice can connect over TCP localhost:19021 and display logs over RTT channel 0
   - **MINUS:** 
     - Uses RTT up-channel 0 and therefore RTT up-channel 0 is not usable differently
     - No down-channel usable
 - `JLinkRTTLogger.exe` is usable for writing RTT channel N data from target into a file. The trice tool can watch this file and display them.
-  - **PLUS:**   
+  - **PLUS:**
     - Can use RTT up-channel 0,1,2,...
     - Can run in several instances for the same target each on a different channel
   - **MINUS:**
-    - Needs a running **J-Link driver/server** 
-    - Logs in a file, so `trice` needs to read from that file 
-    - 
+    - Needs a running **J-Link driver/server**
+    - Logs in a file, so `trice` needs to read from that file
+    - ...
   - **UNKNOWN:**
     - If several instances can watch on different RTT chanels and all goes in parallel to debugging.
   - **TESTED:**
@@ -109,6 +114,7 @@ Following steps describe the needed action for a ST Microelectronics evaluation 
 - Normally no need to use that, because the unbuffered direct mode will do better.
 
 ## Recommended: Segger RTTD unbuffered direct mode (PC side receiver -device=RTTD)
+
 - Write directly the 4 byte trices to RTT (faster and less RAM & code on target side and litte extension on host side). 
 - Doing so leads to the question how to reliable sync the data stream, because there is no control information in the data stream.
   - A sync package does fine here (`TRICE_RTTD_SYNC`)
@@ -126,6 +132,7 @@ Following steps describe the needed action for a ST Microelectronics evaluation 
   ![triceBlockDiagramWithSeggerRTTD.svg](./README.media/triceBlockDiagramWithSeggerRTTD.svg)
 
 ## Segger J-Link SDK (~800 EUR) Option
+
 - Segger offers a SeggerRTT SDK which allows to use more than just channel 0 and you can develop your own tooling with it.
 - The `trice -device RTT` is ok for usage **as is** right now. However if you with more comfort check here:
 - Question: [How-to-access-multiple-RTT-channels](https://forum.segger.com/index.php/Thread/6688-SOLVED-How-to-access-multiple-RTT-channels-from-Telnet/)
@@ -133,6 +140,7 @@ Following steps describe the needed action for a ST Microelectronics evaluation 
   - [https://www.segger.com/products/debug-probes/j-link/technology/j-link-sdk/](https://www.segger.com/products/debug-probes/j-link/technology/j-link-sdk/)
 
 ## Additional Notes (leftovers)
+
 - `Downloading RTT target package` from [https://www.segger.com/products/debug-probes/j-link/technology/about-real-time-transfer/](https://www.segger.com/products/debug-probes/j-link/technology/about-real-time-transfer/).
 - Read the manual `"C:\Program Files (x86)\SEGGER\JLink\Doc\Manuals\UM08001_JLink.pdf"`.
 - Extract `"C:\Program Files (x86)\SEGGER\JLink\Samples\RTT\SEGGER_RTT_V672b.zip"` to target project. 
@@ -146,6 +154,7 @@ Following steps describe the needed action for a ST Microelectronics evaluation 
 - [https://github.com/stalehd/jlinklogviewer](https://github.com/stalehd/jlinklogviewer) is integrated into the trice tool (`-device RTT` option)
 
 ## Further development
+
 - Maybe `libusb` together with `libjaylink` offer some options too.
 - Checkout [https://github.com/deadsy/jaylink[(https://github.com/deadsy/jaylink).
 - `"C:\Program Files (x86)\SEGGER\JLink\JMem.exe"` shows a memory dump.
@@ -153,7 +162,8 @@ Following steps describe the needed action for a ST Microelectronics evaluation 
 - Go to (https://libusb.info/)[https://libusb.info/] 
   - -> Downloads -> Latest Windows Binaries
   - extract `libusb-1.0.23` (or later version)
-```
+
+```b
 libusb-1.0.23\examples\bin64> .\listdevs.exe
 2109:2811 (bus 2, device 8) path: 6
 1022:145f (bus 1, device 0)
@@ -161,21 +171,16 @@ libusb-1.0.23\examples\bin64> .\listdevs.exe
 0a12:0001 (bus 2, device 1) path: 13
 1366:0105 (bus 2, device 10) path: 5
 ```
+
 - Repeat without connected Segger JLink
-```
+
+```b
 libusb-1.0.23\examples\bin64> .\listdevs.exe
 2109:2811 (bus 2, device 8) path: 6
 1022:145f (bus 1, device 0)
 1022:43d5 (bus 2, device 0)
 0a12:0001 (bus 2, device 1) path: 13
-```  
+```
+
 - In this case `1366:0105 (bus 2, device 10) path: 5` is missing, so `vid=1366`, `did=0105` as example
 - On Windows install WSL2. The real Linux kernel is needed for full USB access.
-
-
-
-## ST-Link option
-- See: [https://github.com/phryniszak/strtt](https://github.com/phryniszak/strtt)
-- Check [https://github.com/search?q=gostlink](https://github.com/search?q=gostlink)
-
-

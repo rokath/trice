@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-// TriceLineComposer ...
+// TriceLineComposer collects all partial strings forming one line.
 type TriceLineComposer struct {
 	lw              LineWriter // internal interface
 	timestampFormat string

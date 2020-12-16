@@ -52,7 +52,6 @@ func (p *BareReaderFromWrap) Read(buf []byte) (int, error) {
 	count := copy(buf, p.bareBuf)
 
 	// keep remaining bytes for next turn
-
 	return count, err
 }
 

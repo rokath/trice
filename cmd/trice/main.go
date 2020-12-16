@@ -23,6 +23,7 @@ var (
 	date string
 )
 
+// main is the entry point.
 func main() {
 	args.Version = version
 	args.Commit = commit

@@ -12,13 +12,6 @@ import (
 	"github.com/rokath/trice/internal/id"
 )
 
-/*
-const (
-	// receive and sync buffer size
-	buffSize = 1024
-)
-*/
-
 // Bare is the Decoder instance for bare encoded trices.
 type Bare struct {
 	decoding
@@ -53,9 +46,6 @@ func (p *Bare) StringsRead(ss []string) (m int, err error) {
 	if nil != err {
 		return
 	}
-
-	//var id int
-	//var index int
 
 	for { // scan p.syncBuffer
 		id := 0 // read trice id

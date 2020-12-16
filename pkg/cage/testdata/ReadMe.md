@@ -1,1 +1,3 @@
-directory for temporary testdata
+# Directory for temporary testdata
+
+- do not remove

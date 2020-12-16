@@ -20,7 +20,7 @@ var (
 	Verbose bool
 )
 
-// COMport ...
+// COMport is the comport interface type to use different COMports.
 type COMport interface {
 	Open() bool
 	Read(buf []byte) (int, error)
@@ -51,17 +51,12 @@ func NewCOMPortGoBugSt(comPortName string) *PortGoBugSt {
 	return r
 }
 
-// Stores data received from the serial port into the provided byte array
-// buffer. The function returns the number of bytes read.
-//
-// The Read function blocks until (at least) one byte is received from
+// Read blocks until (at least) one byte is received from
 // the serial port or an error occurs.
+// It stores data received from the serial port into the provided byte array
+// buffer. The function returns the number of bytes read.
 func (p *PortGoBugSt) Read(buf []byte) (int, error) {
-	count, err := p.serialHandle.Read(buf)
-	//if 0 < count || nil != err {
-	//log.Println("comPortGoBugSt.Read:", err, count, buf[:count])
-	//}
-	return count, err
+	return p.serialHandle.Read(buf)
 }
 
 // Close releases port.
@@ -87,7 +82,7 @@ func (p *PortGoBugSt) Open() bool {
 	return true
 }
 
-// GetSerialPorts scans for serial ports
+// GetSerialPorts scans for serial ports.
 func GetSerialPorts() ([]string, error) {
 	ports, err := serialgobugst.GetPortsList()
 
@@ -111,7 +106,7 @@ type PortTarm struct {
 	stream *serialtarm.Port
 }
 
-// NewCOMPortTarm creates an instance of a serial device type trice receiver
+// NewCOMPortTarm creates an instance of a serial device type trice receiver.
 func NewCOMPortTarm(comPortName string) *PortTarm {
 	var p = new(PortTarm)
 	p.config.Name = comPortName
@@ -146,15 +141,10 @@ func (p *PortTarm) Close() error {
 	return p.stream.Close()
 }
 
-// Stores data received from the serial port into the provided byte array
-// buffer. The function returns the number of bytes read.
-//
-// The Read function blocks until (at least) one byte is received from
+// Read blocks until (at least) one byte is received from
 // the serial port or an error occurs.
+// It stores data received from the serial port into the provided byte array
+// buffer. The function returns the number of bytes read.
 func (p *PortTarm) Read(buf []byte) (int, error) {
-	count, err := p.stream.Read(buf)
-	//if 0 < count || nil != err {
-	//	log.Println("comPortTarm.Read:", err, count, buf[:count])
-	//}
-	return count, err
+	return p.stream.Read(buf)
 }
