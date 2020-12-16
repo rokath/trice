@@ -81,7 +81,7 @@ and adds the *ID 12345* together with *"MSG: %d Kelvin\n"* into a **t**rice **I*
 
 - The *12345* is a randomly generated 16 bit ID not used so far.
 - With the `16` in TRICE**16** you adjust the parameter size to 16 bit what allows more runtime efficient code compared to `32` or `64`.
-- The appended **_1** sets the expected parameter count to 1 allowing further optimization and also a compile time parameter count check.
+- The appended **_1** sets the expected parameter count to 1, allowing further optimization and also a compile time parameter count check.
 - During compilation the `TRICE16_1` macro is translated to only a *12345* reference and the variable *k*. The format string never sees the target.
 
 This is a slightly simplified view:
@@ -92,6 +92,7 @@ This is a slightly simplified view:
 - For visualization a background service is needed. In the simplest case it is just an UART triggered interrupt for triceFIFO reading.
 - During runtime the PC trice tool receives the trice as a 4 byte package `0x30 0x39 0x00 0x0F` from the UART port.
 - The `0x30 0x39` is the ID 12345 and a map lookup delivers the format string *"MSG: %d Kelvin\n"* and also the format information *"TRICE16_1"*. Now the trice tool is able to execute `printf("MSG: %d Kelvin\n", 0x000F);` and the full log information is displayed.
+- Only the parameter count and size affect encoding size but not the format string length.
 
 ## `trice` PC tool
 
@@ -106,15 +107,15 @@ This is a slightly simplified view:
     is possible and gives the advantage to have very short messages (no strings) for transmission, 
     but keep in mind that the file `til.json` is the key to read all output if your devices in the field for 10 or more years.
 - The `til.json` file can be deleted and regenerated from the sources anytime. In that case you get rid of all legacy strings but it is better to keep them for compability reasons.
-- You can en|dis-able the TRICE code generation on file or project level, so no need to remove the TRICE macros from the code after dynamic debugging.
-- You can consider TRICE also as **a kind of intelligent data compression** what could be interesting for IoT things, especially NB-IoT, where you have very low data rates.
+- You can disable the TRICE code generation on file or project level, so no need to remove the TRICE macros from the code after dynamic debugging.
+- You can consider TRICE also as a kind of **intelligent data compression** what could be interesting for IoT things, especially NB-IoT, where you have very low data rates.
 - Also it is possible to **encrypt the trice transfer packets** to get a reasonable protection for many cases.
   - This way you can deliver firmware images with encrypted TRICE output only readable with the appropriate key and til.json.
   - XTEA is implemented as one option.
 - You can even translate the til.json in **different languages**, so changing a language is just changing the til.json file.
 - TRICE has intentionally no target timestamps for performance reasons. On the PC you can display the *reception timestampts*. But you can add own **timestamps as parameters** for exact embedded time measuremnets. Having several devices with trice timestamps, **network timing measurement** is possible.
-- Using trice with an **RTOS** gives the option for detailed **task timing analysis**. Because of the very short execution time of a trice you could add `TRICE32( "tim:%d us, task=%d\n", us, nexTask );` to the scheduler and vizualize the output on PC. The same is possible for **interrupt timing analysis**.
-- `TRICE16( "tim:%d us\n", sysTick );` before and after a function call lets you easy measure the function execution time.
+- Using trice with an **RTOS** gives the option for detailed **task timing analysis**. Because of the very short execution time of a trice you could add `TRICE32_2( Id(0), "tim:tick=%d, task=%d\n", sysTick, nexTask );` to the scheduler and vizualize the output on PC. The same is possible for **interrupt timing analysis**.
+- `TRICE16( "tim:%d\n", sysTick );` before and after a function call lets you easy measure the function execution time.
 - As graphical vizualisation you could use a tool similar to https://github.com/sqshq/sampler.
 
 ## How to start
@@ -152,9 +153,9 @@ Follow these steps for instrumentation information even your target processor is
 
 - Install the free [STCubeMX](https://www.st.com/en/development-tools/stm32cubemx.html).
 - Choose from [test examples](https://github.com/rokath/trice/tree/master/test) the for you best fitting project `MyExample`.
-- Open the `MyExample.ioc` file with [STCubeMX](https://www.st.com/en/development-tools/stm32cubemx.html) and generate without changing any setting.
+- Open the `MyExample.ioc` file with [STCubeMX](https://www.waveshare.com/wiki/STM32CubeMX_Tutorial_Series:_Overview) and generate without changing any setting.
 - Make an empty directory `MyProject` inside the `test` folder and copy the `MyExample.ioc` there and rename it to `MyProject.ioc`.
-- Open `MyProject.ioc` with STCubeMX, change in projects settings `MyExample` to `MyProject` and generate.
+- Open `MyProject.ioc` with [STCubeMX](https://www.waveshare.com/wiki/STM32CubeMX_Tutorial_Series:_Overview), change in projects settings `MyExample` to `MyProject` and generate.
 - Now compare the directories `MyExample` and `MyProject` to see the trice instrumentation as differences.
 
 ## Documentation
