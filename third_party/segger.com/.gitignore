@@ -1,1 +1,4 @@
 STLinkReflash_190812/
+SEGGER_RTT/
+JLinkARM.dll
+JLinkRTTLogger.exe

@@ -24,6 +24,13 @@ var (
 		236, 228, 177, 183, 0, 0, 0, 0, 0, 0, 0, 98, 0, 0, 0, 0, 0, 0, 0, 2, // MSG: triceEscFifoMaxDepth = 98, index = 2
 	})
 
+	// byteStreamEscDynStrings are the raw read input bytes for esc format tests
+	byteStreamEscDynStrings string = string([]byte{
+		236, 224, 0, 18, 0, // ""
+		236, 225, 0, 18, 64, 0, // "@"
+		236, 225, 0, 18, 65, 0, // "A"
+	})
+
 	// byteStreamBare are the raw read input bytes for bare format tests
 	byteStreamBare string = string([]byte{
 		137, 171, 205, 239, // sync
@@ -132,6 +139,13 @@ var (
 
 	// til is the trace id list content for tests
 	til = `[
+		{
+			"id": 18,
+			"fmtType": "TRICE_S",
+			"fmtStrg": "%s",
+			"created": 1601240704,
+			"removed": 0
+		},
 		{
 			"id": 1603,
 			"fmtType": "TRICE0",
@@ -1005,6 +1019,32 @@ func TestEsc(t *testing.T) {
 	ss = ss[:n]
 	act := fmt.Sprintln(ss)
 	exp := "[tst:TRICE32_4 %10d ->              1     2147483647     -2147483648            -1\\n att:64bit 0b1000100100010001100110100010001010101011001100111011110001000\\n MSG: triceEscFifoMaxDepth = 129, index = 3\\n tst:TRICE8_1 -1\\n MSG: triceEscFifoMaxDepth = 98, index = 2\\n]\n"
+	assert.Equal(t, exp, act)
+}
+
+func TestEscDynStrings(t *testing.T) {
+
+	// rc is created ReadCloser
+	rc, err := receiver.NewReader("BUFFER", byteStreamEscDynStrings)
+	if err != nil {
+		t.Fail()
+	}
+
+	list, err := decoder.UnmarshalTriceIDList([]byte(til))
+	if err != nil {
+		t.Fail()
+	}
+
+	p := decoder.NewEsc(list, rc) // p is a new decoder instance
+
+	ss := make([]string, 100)
+	n, err := p.StringsRead(ss)
+	if err != nil {
+		t.Fail()
+	}
+	ss = ss[:n]
+	act := fmt.Sprintln(ss)
+	exp := "[ @\x00 A\x00]\n"
 	assert.Equal(t, exp, act)
 }
 

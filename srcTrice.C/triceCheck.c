@@ -133,36 +133,38 @@ void triceCheckSet(int index) {
         case 13:
 
             break;
-            /*
-    case 11:
+            
+    case 14:
         TRICE0( Id(21100), "att:Next few lines have no color and visible only when TRICE_RUNTIME_GENERATED_STRINGS_SUPPORT is defined\n" );
-        TRICE_S( 18, "\n" );
-        TRICE_S( 18, "1\n" );
-        TRICE_S( 18, "12\n" );
-        TRICE_S( 18, "123\n" );
-        TRICE_S( 18, "1234\n" );
-        TRICE_S( 18, "12345\n" );
-        TRICE_S( 18, "123456\n" );
-        TRICE_S( 18, "1234567\n" );
-        TRICE_S( 18, "12345678\n" );
-        TRICE_S( 18, "123456789\n" );
+        TRICE_S( Id(18), "%s", "" );
+        TRICE_S( Id(18), "%s", "@" );
+        TRICE_S( Id(18), "%s", "A" );
+        TRICE_S( Id(18), "%s", "1\n" );
+        TRICE_S( Id(18), "%s", "12\n" );
+        TRICE_S( Id(18), "%s", "123\n" );
+        TRICE_S( Id(18), "%s", "1234\n" );
+        TRICE_S( Id(18), "%s", "12345\n" );
+        TRICE_S( Id(18), "%s", "123456\n" );
+        TRICE_S( Id(18), "%s", "1234567\n" );
+        TRICE_S( Id(18), "%s", "12345678\n" );
+        TRICE_S( Id(18), "%s", "123456789\n" );
+    break;       
+    case 15:      
+        TRICE_S( Id(18), "%s", "123456789a\n" );
+        TRICE_S( Id(18), "%s", "123456789ab\n" );
+        TRICE_S( Id(18), "%s", "123456789abc\n" );
+        TRICE_S( Id(18), "%s", "123456789abcd\n" );
+        TRICE_S( Id(18), "%s", "123456789abcde\n" );
+    break;      
+    case 16:    
+        TRICE_S( Id(18), "%s", "123456789abcdef\n" );
+        TRICE_S( Id(18), "%s", "123456789abcdef7\n" );
+        TRICE_S( Id(18), "%s", "123456789abcdef78\n" );
+        TRICE_S( Id(18), "%s", "123456789abcdef789\n" );
+        TRICE_S( Id(18), "%s", "123456789abcdef7890\n" );
     break;
-    case 12:
-        TRICE_S( 18, "123456789a\n" );
-        TRICE_S( 18, "123456789ab\n" );
-        TRICE_S( 18, "123456789abc\n" );
-        TRICE_S( 18, "123456789abcd\n" );
-        TRICE_S( 18, "123456789abcde\n" );
-    break;
-    case 13:
-        TRICE_S( 18, "123456789abcdef\n" );
-        TRICE_S( 18, "123456789abcdef7\n" );
-        TRICE_S( 18, "123456789abcdef78\n" );
-        TRICE_S( 18, "123456789abcdef789\n" );
-        TRICE_S( 18, "123456789abcdef7890\n" );
-    break;
-            */
-        case 14:
+            
+        case 17:
 #ifdef ENCRYPT
             {
                 uint8_t b[8] = {1,2,3,4,5,6,7,8};

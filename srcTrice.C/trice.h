@@ -86,7 +86,7 @@ extern "C" {
 //! \param pFmt formatstring for trice (ignored here but used by the trice tool)
 //! \param dynString 0-terminated runtime generated string
 //! After the 4 byte trice message header are following 2^n bytes 
-#define TRICE_S(Id, pFmt, dynString) do{ trice_s(Id, dynString) }while(0)
+#define TRICE_S(Id, pFmt, dynString) do{ trice_s(Id, dynString); }while(0)
 
 
 //! trace Id protected (outside critical section) within 3 bytes

@@ -46,7 +46,7 @@ Tiny & fast trace code for embedded device real-time PC logging (trace ID visual
 
 - Printf-like trace macros `TRICE` and PC `trice` tool (written in [Go](https://en.wikipedia.org/wiki/Go_(programming_language))) for automatic ID managing & logging.
 - Communication without string transfer, just with IDs. Prerequisite: byte transmission to PC, low bandwidth is ok:
-  - method does'nt matter: serial port, i2c, spi, DAC->ADC, toggle pin, RTT, ...
+  - method does'nt matter: [UART](https://en.wikipedia.org/wiki/Universal_asynchronous_receiver-transmitter), [I²C](https://en.wikipedia.org/wiki/I%C2%B2C), [SPI](https://en.wikipedia.org/wiki/Serial_Peripheral_Interface), [GPIO](https://circuitcellar.com/cc-blog/a-trace-tool-for-embedded-systems/), [RTT](https://www.segger.com/products/debug-probes/j-link/technology/about-real-time-transfer/), [CAN](https://en.wikipedia.org/wiki/CAN_bus), [LIN](https://en.wikipedia.org/wiki/Local_Interconnect_Network), ...
 - "log in (a) trice" ![ ](./docs/README.media/life0.gif)
 - Main idea: Logging strings **not** into an embedded device to display them later on a PC but keep usage comfortable and simple.
 
@@ -61,13 +61,21 @@ Tiny & fast trace code for embedded device real-time PC logging (trace ID visual
     is possible and gives the advantage to have very short messages (no strings) for transmission, 
     but keep in mind that the file `til.json` is the key to read all output if your devices in the field for 10 or more years.
 - You can consider TRICE also as a kind of **data compression** what could be interesting for IoT things, especially NB-IoT, where you have very low data rates.
-- Storing logs as trices in FLASH for later analysis safes memory because a string occupies only 2 bytes.
+- Storing trices in FLASH for later log analysis safes memory because a `TRICE` occupies only 4 bytes.
 - Also it is possible to **encrypt** the trice transfer packets to get a reasonable protection for many cases.
   - This way you can deliver firmware images with encrypted TRICE output only readable with the appropriate key and til.json.
   - XTEA is implemented as one option.
 - You can even translate the til.json in **different languages**, so changing a language is just changing the til.json file.
-- Using trice with an **RTOS** gives the option for detailed **task timing analysis**. Because of the very short execution time of a trice you could add `TRICE32_2( Id(0), "tim:tick=%d, task=%d\n", sysTick, nexTask );` to the scheduler and vizualize the output on PC. The same is possible for **interrupt timing analysis**.
-- `TRICE16( "tim:%d\n", sysTick );` before and after a function call lets you easy measure the function execution time.
+- Using trice with an **RTOS** gives the option for detailed **task timing analysis**. Because of the very short execution time of a trice you could add
+
+```c
+    TRICE8( "sig:task %d -> %d: ", previousTaskID, nexTaskID );
+    TRICE32( "tim:tick=%d\n", clock );
+```
+
+ to the scheduler and vizualize the output on PC. The same is possible for **interrupt timing analysis**.
+
+- `TRICE16( "tim: myFunc %d\n", sysTick );` before and after a function call lets you easy measure the function execution time.
 - As graphical vizualisation you could use a tool similar to https://github.com/sqshq/sampler.
 - TRICE has intentionally no target timestamps for performance reasons. On the PC you can display the *reception timestampts*. But you can add own **timestamps as parameters** for exact embedded time measuremnets. Having several devices with trice timestamps, **network timing measurement** is possible.
 

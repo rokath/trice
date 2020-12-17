@@ -45,7 +45,7 @@ is example code and for testing
 
 
 
-The `triceServe` takes the 4 bytes trice values from the triceFifo, adds control information and puts that into the triceWriteBuffer, with at least 8 bytes size.
+- The `triceServe` takes the 4 bytes trice values from the triceFifo, adds control information and puts that into the triceWriteBuffer, with at least 8 bytes size.
   - At this stage the trice out format is done (all optionally encrypted):
     - bare with sync packages
     - wrapped bare
@@ -58,7 +58,6 @@ The `triceServe` takes the 4 bytes trice values from the triceFifo, adds control
 
   ![triceBlockDiagramWithRTT.svg](./docs/README.media/triceBlockDiagramWithRTT.svg)
 
-
 ## Quick setup (See also test examples)
 
 - Add [triceBareFifo.c](https://github.com/rokath/trice/tree/master/srcTrice.C/triceBareFifo.c) or [triceEscFifo.c](https://github.com/rokath/trice/tree/master/srcTrice.C/triceEscFifo.c)  and acompanying files as they are to your project
@@ -70,22 +69,28 @@ is example code and for testing
 - Compile, flash & run `trice log -port COMm -baud n` with correct values m and n.
 
 ## `TRICE0` |`TRICE8` |`TRICE16` |`TRICE32` |`TRICE64` macro
+
 It is avoiding all the internal overhead (space and time) of a `printf()` 
 statement but is easy to use. For example instead of writing 
 
-```
+```c
 printf("time is %d:%d:%d\n", hour, min, sec);
 ```
+
 you can write
-```
+
+```c
 TRICE8("time is %d:%d:%d\n", hour, min, sec);
 ```
+
 into a source file of your project. The `8` stands here for 8 bit values (`0`, `16`, `32` and `64` also possibe). Only values of the same size are allowed in one TRICE* statement, but you can use `TRICE32` consequently to match most cases for the prize of little overhead.
 
 When performing `trice update` the source (tree) is parsed and in result this line changes to
-```
+
+```c
 TRICE8_3( Id(12345), "time is %d:%d:%d\n", hour, min, sec);
 ```
+
 where ```12345``` is an as ID generated 16 bit random number not used so far. About 65000 different trice messages are possible. If not enough, the IDs are extendable to 32 bit. Automatically
 the ID is added to an [ID list](https://github.com/rokath/trice/blob/master/til.json) together with the appropriate format string information. The TRICE`8_3` means 3 bytes as parameters in
 this example and allows efficient code and a compile time check.
@@ -95,24 +100,9 @@ this example and allows efficient code and a compile time check.
 When the embedded project is compiled, only the ID goes to the binary
 but not the format string, what results in a smaller memory footprint.
 
-There are different possibilities for internal fifo buffer storage format:
-- bare code format
-  
-  During runtime normally only the 16-bit ID 12345 (together with the parameters like hour, min, sec) is copied to a buffer. Execution time for a TRICE16_1 (as example) on a 48 MHz ARM can be about 16 systicks resulting in 250 nanoseconds duration, so you can use `trice` also inside interrupts or the RTOS scheduler to analyze task timings. The needed buffer space is one 32 bit word per normal trice (for up to 2 data bytes). A direct out transfer is possible but not recommended for serial output because of possible issues to re-sync in case of data loss. Just in case the internal bare fifo overflows, the data are still in sync.
-
-  If the wrap format is desired as output the buffered 4 byte trice is transmitted as an 8 byte packet allowing start byte, sender and receiver addresses and CRC8 check to be used later in parallel with different software protocols.
-
-  The bare output format contains exactly the bare bytes but is enriched with sync packages to achieve syncing. The sync package interval is adjustable.
-
-- (direct) esc(ape) code format
-
-  During untime the esc code format is generated immediately during the TRICE macro execution. This results in a slightly longer TRICE macro execution but allows the direct background transfer to the output device (UART or RTT memory) because re-sync is easy. One advantage of the esc format compared to bare is the more efficient coding of dynamic strings if you have lots of them.
-
 Slightly delayed in the background the TRICE trace goes to the communication port, what is also fast compared to all the actions behind a `printf()` statement.
 
-
-Please understand, that when debugging code containing TRICE* statements, during a 
-TRICE* step-over only  one ore more 32 bit values go into the internal fifo buffer and no serial output
+Please understand, that when debugging code containing TRICE\* statements, during a TRICE\* step-over only  one ore more 32 bit values go into the internal fifo buffer and no serial output
 is visible because of the stopped target. But the SEGGER debug probe reads out the RTT memory and this way also during debug stepping realtime trice output is visible. That is (right now) not true for the STLINK interface because the is only one USB enpoint.
 
 ## `trice`

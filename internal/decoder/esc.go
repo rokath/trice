@@ -92,6 +92,12 @@ parse:
 				p.syncBuffer = p.syncBuffer[5:]
 				goto parse
 			}
+			if "TRICE_S" == trice.Type && 0 == int8(p.syncBuffer[4]) {
+				ss[m] = fmt.Sprintf(trice.Strg, "")
+				m++
+				p.syncBuffer = p.syncBuffer[5:]
+				goto parse
+			}
 			ss[m] = fmt.Sprintln("error: ", p.syncBuffer)
 			m++
 			p.syncBuffer = p.syncBuffer[1:] // remove 1st char
@@ -114,6 +120,12 @@ parse:
 				p.syncBuffer = p.syncBuffer[6:]
 				goto parse
 			}
+			if "TRICE_S" == trice.Type && 0 == int8(p.syncBuffer[5]) {
+				ss[m] = fmt.Sprintf(trice.Strg, string(p.syncBuffer[4:6]))
+				m++
+				p.syncBuffer = p.syncBuffer[5:]
+				goto parse
+			}
 			ss[m] = fmt.Sprintln("error: ", p.syncBuffer)
 			m++
 			p.syncBuffer = p.syncBuffer[1:] // remove 1st char
@@ -129,6 +141,13 @@ parse:
 					int8(p.syncBuffer[6]))
 				m++
 				p.syncBuffer = p.syncBuffer[7:]
+				// the following padding byte is silently removed later during waiting for the next 0xec start byte
+				goto parse
+			}
+			if "TRICE_S" == trice.Type && 0 == int8(p.syncBuffer[6]) {
+				ss[m] = fmt.Sprintf(trice.Strg, string(p.syncBuffer[4:7]))
+				m++
+				p.syncBuffer = p.syncBuffer[7:] // hier weiter!!!!!!!!!!!!!!!!!!!!!
 				goto parse
 			}
 			if len(p.syncBuffer) < 8 {
@@ -156,6 +175,12 @@ parse:
 				ss[m] = fmt.Sprintf(trice.Strg, int32(binary.BigEndian.Uint32(p.syncBuffer[4:8])))
 				m++
 				p.syncBuffer = p.syncBuffer[8:]
+				goto parse
+			}
+			if "TRICE_S" == trice.Type && 0 == int8(p.syncBuffer[7]) { // padding with 0 is expected
+				ss[m] = fmt.Sprintf(trice.Strg, string(p.syncBuffer[4:6]))
+				m++
+				p.syncBuffer = p.syncBuffer[5:]
 				goto parse
 			}
 			ss[m] = fmt.Sprintln("error: ", p.syncBuffer)
