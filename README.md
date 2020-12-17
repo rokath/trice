@@ -1,6 +1,6 @@
 # **trice** - **TR**ace **I**ds **C** **E**mbedded
 
-Embedded device C printf-like slim and fast trace code and real-time PC logging (trace ID visualization) over any port.
+Tiny & fast trace code for embedded device real-time PC logging (trace ID visualization) over any port.
 
 ## Info shields
 ![GitHub Workflow Status](https://img.shields.io/github/workflow/status/rokath/trice/goreleaser)
@@ -44,17 +44,15 @@ Embedded device C printf-like slim and fast trace code and real-time PC logging 
 
 ## About
 
-- C trace code (`TRICE` macros)  and real-time PC logging with `trice` (tool written in [Go](https://en.wikipedia.org/wiki/Go_(programming_language))).
+- Printf-like trace macros `TRICE` and PC `trice` tool (written in [Go](https://en.wikipedia.org/wiki/Go_(programming_language))) for automatic ID managing & logging.
 - Communication without string transfer, just with IDs. Prerequisite: byte transmission to PC, low bandwidth is ok:
   - method does'nt matter: serial port, i2c, spi, DAC->ADC, toggle pin, RTT, ...
 - "log in (a) trice" ![ ](./docs/README.media/life0.gif)
-- Main idea: Logging strings **not** into an embedded device to display them later on a PC but keep usage comfortable and simple. The `TRICE` macros look like printf() but work under the hood completely different.
+- Main idea: Logging strings **not** into an embedded device to display them later on a PC but keep usage comfortable and simple.
 
-## `TRICE` macros for C|C++ code
+## `TRICE` macros for C & C++ code
 
-- Real fast (**under 20 CPU clocks per trace possible!!!**) and small loggging technique, a tracer in software usable
-  - for debugging dynamic behaviour during development, 
-  - as runtime logger or simply for narrow bandwidth logging in the field even with encryption.
+- Real fast (**under 20 CPU clocks per trace possible!!!**)
 - TRICE in your code **reduces the needed FLASH memory** because the instrumentation code is very small (can be less 150 bytes FLASH and about 100 bytes RAM) and no printf library code nor log strings are inside the embedded device anymore.
 
 ## Possible Use Cases
@@ -63,6 +61,7 @@ Embedded device C printf-like slim and fast trace code and real-time PC logging 
     is possible and gives the advantage to have very short messages (no strings) for transmission, 
     but keep in mind that the file `til.json` is the key to read all output if your devices in the field for 10 or more years.
 - You can consider TRICE also as a kind of **data compression** what could be interesting for IoT things, especially NB-IoT, where you have very low data rates.
+- Storing logs as trices in FLASH for later analysis safes memory because a string occupies only 2 bytes.
 - Also it is possible to **encrypt** the trice transfer packets to get a reasonable protection for many cases.
   - This way you can deliver firmware images with encrypted TRICE output only readable with the appropriate key and til.json.
   - XTEA is implemented as one option.

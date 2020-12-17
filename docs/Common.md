@@ -1,5 +1,9 @@
 
 (work in progress...)
+The `TRICE` macros look like printf() but work under the hood completely different.
+and small loggging technique, a tracer in software usable
+  - for debugging dynamic behaviour during development, 
+  - as runtime logger or simply for narrow bandwidth logging in the field even with encryption.
 
 - The `til.json` file can be deleted and regenerated from the sources anytime. In that case you get rid of all legacy strings but it is better to keep them for compability reasons.
 - You can disable the TRICE code generation on file or project level, so no need to remove the TRICE macros from the code after dynamic debugging.
@@ -17,8 +21,8 @@
 
 ### Hint if you have only one spare pin and no UART
 - One free GPIO-Pin is already enough for using TRICE. You can transmit each basic trice (4 bytes) as bare messages over one pin:
-  - ![manchester1.PNG](./docs/README.media/manchester1.PNG)
-  - ![manchester2.PNG](./docs/README.media/manchester2.PNG)
+  - ![manchester1.PNG](./README.media/manchester1.PNG)
+  - ![manchester2.PNG](./README.media/manchester2.PNG)
   - See [https://circuitcellar.com/cc-blog/a-trace-tool-for-embedded-systems/](https://circuitcellar.com/cc-blog/a-trace-tool-for-embedded-systems/) for more information. As trace dongle you can use any spare microcontroller board with an UART together with an FTDI USB converter.
   - This slow path is usable because trice needs only few bytes for transmission.
 
