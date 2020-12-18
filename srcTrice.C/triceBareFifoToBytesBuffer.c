@@ -15,6 +15,19 @@
 //! increasing the bandwidth need by 10-1% ans loosing 10 trices in the worst case.
 int const syncLevelLimit = 10;
 
+#ifndef TRICE_WRAP_START_BYTE
+#define TRICE_WRAP_START_BYTE 0
+#endif
+
+#ifndef TRICE_WRAP_LOCAL_ADDR
+#define TRICE_WRAP_LOCAL_ADDR 0
+#endif
+
+#ifndef TRICE_WRAP_DEST_ADDR
+#define TRICE_WRAP_DEST_ADDR 0
+#endif
+
+
 
 uint8_t triceBytesBuffer[8] = { TRICE_WRAP_START_BYTE, TRICE_WRAP_LOCAL_ADDR, TRICE_WRAP_DEST_ADDR, 0, 0,0,0,0 }; //!< bytes transmit buffer (prefilled for wrap
 int const triceBytesBufferIndexLimit = 8; // sizeof(triceBytesBuffer[8]);

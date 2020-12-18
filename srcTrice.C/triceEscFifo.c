@@ -12,7 +12,7 @@
 //! TRICE_FIFO_BYTE_SIZE must be a power of 2, one trice needs 4 to 32 or one day more bytes.
 //! The fifo has to hold trice bursts until they are transmitted.
 //! It is transmitted with lower priority in the background for example with the UART tx interrupt.
-#define TRICE_ESC_FIFO_BYTE_SIZE 1024
+#define TRICE_ESC_FIFO_BYTE_SIZE 2048
 #endif
 
 #define TRICE_ESC_FIFO_MASK (TRICE_ESC_FIFO_BYTE_SIZE-1) //!< max possible byte count in fifo

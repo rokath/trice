@@ -32,6 +32,11 @@
 
 #define SYSTICKVAL16 ((uint16_t)SYSTICKVAL32)
 
+
+#ifndef TRICE_S
+#define TRICE_S( i, p, s )
+#endif
+
 //! write out all types of trices with fixed values for testing
 //! \details One trice has one subtrace, if param size max 2 bytes. 
 //! Traces with more bytes as parameter consist of several subtraces.
@@ -134,11 +139,9 @@ void triceCheckSet(int index) {
 
             break;
             
-    case 14:
-        TRICE0( Id(21100), "att:Next few lines have no color and visible only when TRICE_RUNTIME_GENERATED_STRINGS_SUPPORT is defined\n" );
+    case 14: 
         TRICE_S( Id(18), "%s", "" );
-        TRICE_S( Id(18), "%s", "@" );
-        TRICE_S( Id(18), "%s", "A" );
+        TRICE_S( Id(18), "%s", "\n" );
         TRICE_S( Id(18), "%s", "1\n" );
         TRICE_S( Id(18), "%s", "12\n" );
         TRICE_S( Id(18), "%s", "123\n" );
@@ -148,23 +151,75 @@ void triceCheckSet(int index) {
         TRICE_S( Id(18), "%s", "1234567\n" );
         TRICE_S( Id(18), "%s", "12345678\n" );
         TRICE_S( Id(18), "%s", "123456789\n" );
-    break;       
-    case 15:      
-        TRICE_S( Id(18), "%s", "123456789a\n" );
-        TRICE_S( Id(18), "%s", "123456789ab\n" );
-        TRICE_S( Id(18), "%s", "123456789abc\n" );
-        TRICE_S( Id(18), "%s", "123456789abcd\n" );
-        TRICE_S( Id(18), "%s", "123456789abcde\n" );
-    break;      
-    case 16:    
-        TRICE_S( Id(18), "%s", "123456789abcdef\n" );
-        TRICE_S( Id(18), "%s", "123456789abcdef7\n" );
-        TRICE_S( Id(18), "%s", "123456789abcdef78\n" );
-        TRICE_S( Id(18), "%s", "123456789abcdef789\n" );
-        TRICE_S( Id(18), "%s", "123456789abcdef7890\n" );
-    break;
+        TRICE_S( Id(18), "%s", "123456789A\n" );
+        TRICE_S( Id(18), "%s", "123456789AB\n" );
+        TRICE_S( Id(18), "%s", "123456789ABC\n" );
+        TRICE_S( Id(18), "%s", "123456789ABCD\n" );
+        TRICE_S( Id(18), "%s", "123456789ABCDE\n" );
+        TRICE_S( Id(18), "%s", "123456789ABCDEF\n" );
+        TRICE_S( Id(18), "%s", "123456789ABCDEFG\n" );
+        break;       
+    case 15: 
+        TRICE_S( Id(18), "%s", "123456789ABCDEFGH\n" );
+        TRICE_S( Id(18), "%s", "123456789ABCDEFGHI\n" );   
+        TRICE_S( Id(18), "%s", "123456789ABCDEFGHIJ\n" );
+        TRICE_S( Id(18), "%s", "123456789ABCDEFGHIJ01\n" );
+        TRICE_S( Id(18), "%s", "123456789ABCDEFGHIJ012\n" );
+        TRICE_S( Id(18), "%s", "123456789ABCDEFGHIJ0123\n" );
+        TRICE_S( Id(18), "%s", "123456789ABCDEFGHIJ01234\n" );
+        TRICE_S( Id(18), "%s", "123456789ABCDEFGHIJ012345\n" );
+        TRICE_S( Id(18), "%s", "123456789ABCDEFGHIJ0123456\n" );
+        TRICE_S( Id(18), "%s", "123456789ABCDEFGHIJ01234567\n" );
+        TRICE_S( Id(18), "%s", "123456789ABCDEFGHIJ012345678\n" );
+        TRICE_S( Id(18), "%s", "123456789ABCDEFGHIJ0123456789\n" );
+        TRICE_S( Id(18), "%s", "123456789ABCDEFGHIJ0123456789A\n" );
+        TRICE_S( Id(18), "%s", "123456789ABCDEFGHIJ0123456789AB\n" );
+        TRICE_S( Id(18), "%s", "123456789ABCDEFGHIJ0123456789ABC\n" );
+        TRICE_S( Id(18), "%s", "123456789ABCDEFGHIJ0123456789ABCD\n" );
+        TRICE_S( Id(18), "%s", "123456789ABCDEFGHIJ0123456789ABCDE\n" );
+        TRICE_S( Id(18), "%s", "123456789ABCDEFGHIJ0123456789ABCDEF\n" );
+        break;
+    case 16: 
+        TRICE_S( Id(18), "%s", "123456789ABCDEFGHIJ0123456789ABCDEFG\n" );
+        TRICE_S( Id(18), "%s", "123456789ABCDEFGHIJ0123456789ABCDEFGH\n" );
+        TRICE_S( Id(18), "%s", "123456789ABCDEFGHIJ0123456789ABCDEFGHI\n" );
+        TRICE_S( Id(18), "%s", "123456789ABCDEFGHIJ0123456789ABCDEFGHIJ\n" );
+        TRICE_S( Id(18), "%s", "123456789ABCDEFGHIJ0123456789ABCDEFGHIJ0\n" );
+        TRICE_S( Id(18), "%s", "123456789ABCDEFGHIJ0123456789ABCDEFGHIJ01\n" );
+        TRICE_S( Id(18), "%s", "123456789ABCDEFGHIJ0123456789ABCDEFGHIJ012\n" );
+        break;
+    case 17: 
+       TRICE_S( Id(18), "%s", "123456789ABCDEFGHIJ0123456789ABCDEFGHIJ0123\n" );
+        TRICE_S( Id(18), "%s", "123456789ABCDEFGHIJ0123456789ABCDEFGHIJ01234\n" );
+        TRICE_S( Id(18), "%s", "123456789ABCDEFGHIJ0123456789ABCDEFGHIJ012345\n" );
+        TRICE_S( Id(18), "%s", "123456789ABCDEFGHIJ0123456789ABCDEFGHIJ0123456\n" );
+        TRICE_S( Id(18), "%s", "123456789ABCDEFGHIJ0123456789ABCDEFGHIJ01234567\n" );
+        TRICE_S( Id(18), "%s", "123456789ABCDEFGHIJ0123456789ABCDEFGHIJ012345678\n" );
+        TRICE_S( Id(18), "%s", "123456789ABCDEFGHIJ0123456789ABCDEFGHIJ0123456789\n" );
+        TRICE_S( Id(18), "%s", "123456789ABCDEFGHIJ0123456789ABCDEFGHIJ0123456789A\n" );
+        break;
+    case 18: 
+        TRICE_S( Id(18), "%s", "123456789ABCDEFGHIJ0123456789ABCDEFGHIJ0123456789AB\n" );
+        TRICE_S( Id(18), "%s", "123456789ABCDEFGHIJ0123456789ABCDEFGHIJ0123456789ABC\n" );
+        TRICE_S( Id(18), "%s", "123456789ABCDEFGHIJ0123456789ABCDEFGHIJ0123456789ABCD\n" );
+        break;
+    case 19: 
+        TRICE_S( Id(18), "%s", "123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRSTUVW\n" );
+        break;
+    case 20: 
+        TRICE_S( Id(18), "%s", "123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRSTU\n" );
+        break;   
+    case 21: 
+        TRICE_S( Id(18), "%s", "123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRSTUV\n" );
+        break;
+    case 22: 
+        // longest supported dynamically runtime string with 256 chars
+        TRICE_S( Id(18), "%s", "123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRABC\n" );
+      // forbidden
+      //TRICE_S( Id(18), "%s", "123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRABCD\n" );
+        break;
             
-        case 17:
+    case 23:
 #ifdef ENCRYPT
             {
                 uint8_t b[8] = {1,2,3,4,5,6,7,8};

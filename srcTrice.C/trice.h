@@ -49,13 +49,13 @@ extern "C" {
 #define TRICE_P4   0xE2 //!< 4 byte param char = If follower of TRICE_ESC a 16 bit ID and 4 byte are inside the payload.
 #define TRICE_P8   0xE3 //!< 8 byte param char = If follower of TRICE_ESC a 16 bit ID and 8 byte are inside the payload.
 #define TRICE_P16  0xE4 //!< 16 byte param char = If follower of TRICE_ESC a 16 bit ID and 8 byte are inside the payload.
-// #define TRICE_P32  0xE5
-// #define TRICE_P64  0xE6
-// #define TRICE_P128 0xE7
-// #define TRICE_P256 0xE8
-// #define TRICE_P512 0xE9
-// #define TRICE_P1K  0xEA
-// #define TRICE_P2K  0xEB
+//                 0xE5 // dynamically used for runtime strings with size 17-32
+//                 0xE6 // dynamically used for runtime strings with size 33-64
+//                 0xE7 // dynamically used for runtime strings with size 63-128
+//                 0xE8 // dynamically used for runtime strings with size 127-256
+//                 0xE9 // reserved
+//                 0xEA // reserved
+//                 0xEB // reserved
 
 #define TRICE_BYTE(d) ((uint8_t)(d))
 
@@ -120,7 +120,7 @@ extern "C" {
 
 #define TRICE8_3(Id, pFmt, d0, d1, d2) do{ \
     uint8_t msg[] = {TRICE_P4, TRICE_HI_BYTE(Id), TRICE_LO_BYTE(Id), \
-        TRICE_BYTE(d0), TRICE_BYTE(d1), TRICE_BYTE(d2)}; \
+        TRICE_BYTE(d0), TRICE_BYTE(d1), TRICE_BYTE(d2), TRICE_BYTE(0)}; \
     triceWriteEscP( sizeof(msg), msg ); \
 } while(0)
 
@@ -133,21 +133,21 @@ extern "C" {
 #define TRICE8_5(Id, pFmt, d0, d1, d2, d3, d4) do{ \
     uint8_t msg[] = {TRICE_P8, TRICE_HI_BYTE(Id), TRICE_LO_BYTE(Id), \
         TRICE_BYTE(d0), TRICE_BYTE(d1), TRICE_BYTE(d2), TRICE_BYTE(d3), \
-        TRICE_BYTE(d4)}; \
+        TRICE_BYTE(d4), TRICE_BYTE(0),  TRICE_BYTE(0),  TRICE_BYTE(0)}; \
     triceWriteEscP( sizeof(msg), msg ); \
 } while(0)
 
 #define TRICE8_6(Id, pFmt, d0, d1, d2, d3, d4, d5) do{ \
     uint8_t msg[] = {TRICE_P8, TRICE_HI_BYTE(Id), TRICE_LO_BYTE(Id), \
         TRICE_BYTE(d0), TRICE_BYTE(d1), TRICE_BYTE(d2), TRICE_BYTE(d3), \
-        TRICE_BYTE(d4), TRICE_BYTE(d5)}; \
+        TRICE_BYTE(d4), TRICE_BYTE(d5), TRICE_BYTE(0),  TRICE_BYTE(0)}; \
     triceWriteEscP( sizeof(msg), msg ); \
 } while(0)
 
 #define TRICE8_7(Id, pFmt, d0, d1, d2, d3, d4, d5, d6) do{ \
     uint8_t msg[] = {TRICE_P8, TRICE_HI_BYTE(Id), TRICE_LO_BYTE(Id), \
         TRICE_BYTE(d0), TRICE_BYTE(d1), TRICE_BYTE(d2), TRICE_BYTE(d3), \
-        TRICE_BYTE(d4), TRICE_BYTE(d5), TRICE_BYTE(d6)}; \
+        TRICE_BYTE(d4), TRICE_BYTE(d5), TRICE_BYTE(d6), TRICE_BYTE(0)}; \
     triceWriteEscP( sizeof(msg), msg ); \
 } while(0)
 
@@ -184,7 +184,8 @@ extern "C" {
     uint8_t msg[] = {TRICE_P8, TRICE_HI_BYTE(Id), TRICE_LO_BYTE(Id), \
         TRICE_HI_BYTE(d0), TRICE_LO_BYTE(d0), \
         TRICE_HI_BYTE(d1), TRICE_LO_BYTE(d1), \
-        TRICE_HI_BYTE(d2), TRICE_LO_BYTE(d2)}; \
+        TRICE_HI_BYTE(d2), TRICE_LO_BYTE(d2), \
+        TRICE_BYTE(0),     TRICE_BYTE(0)}; \
     triceWriteEscP( sizeof(msg), msg ); \
 } while(0)
 
@@ -229,7 +230,8 @@ extern "C" {
     uint8_t msg[] = {TRICE_P16, TRICE_HI_BYTE(Id), TRICE_LO_BYTE(Id), \
         TRICE_HH_BYTE(d0), TRICE_HL_BYTE(d0), TRICE_LH_BYTE(d0), TRICE_LL_BYTE(d0), \
         TRICE_HH_BYTE(d1), TRICE_HL_BYTE(d1), TRICE_LH_BYTE(d1), TRICE_LL_BYTE(d1), \
-        TRICE_HH_BYTE(d2), TRICE_HL_BYTE(d2), TRICE_LH_BYTE(d2), TRICE_LL_BYTE(d2)}; \
+        TRICE_HH_BYTE(d2), TRICE_HL_BYTE(d2), TRICE_LH_BYTE(d2), TRICE_LL_BYTE(d2), \
+        TRICE_BYTE(0),     TRICE_BYTE(0),     TRICE_BYTE(0),     TRICE_BYTE(0)}; \
     triceWriteEscP( sizeof(msg), msg ); \
 } while(0)
 
