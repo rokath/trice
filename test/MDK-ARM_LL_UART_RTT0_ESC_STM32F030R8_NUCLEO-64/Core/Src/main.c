@@ -24,7 +24,7 @@
 /* USER CODE BEGIN Includes */
 #include "trice.h"
 //#include "triceEscFifo.h"
-#include "triceInterfaceUART.h"
+#include "./intern/triceInterfaceUART.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/

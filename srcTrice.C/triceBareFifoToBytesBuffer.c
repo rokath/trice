@@ -2,9 +2,9 @@
 \author Thomas.Hoehenleitner [at] seerose.net
 *******************************************************************************/
 #include "trice.h"
-#include "triceBareFifoToEscFifo.h"
-#include "triceBareFifo.h"
-#include "triceEscFifo.h"
+#include "./intern/triceBareFifoToEscFifo.h"
+//#include "./intern/triceBareFifo.h"
+//#include "./intern/triceEscFifo.h"
 
 #define TRICE_FILENAME TRICE0( Id( 1716), "rd_:triceBareFifoToBytesBuffer.c" );
 

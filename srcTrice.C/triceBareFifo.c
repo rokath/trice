@@ -2,8 +2,8 @@
 \author Thomas.Hoehenleitner [at] seerose.net
 *******************************************************************************/
 #include <stdint.h>
-#include "triceConfigCompiler.h"
-#include "triceBareFifo.h"
+#include "./intern/triceConfigCompiler.h"
+#include "./intern/triceBareFifo.h"
 
 #define TRICE_FILENAME TRICE0( Id( 1603), "rd_:triceBareFifo.c" );
 

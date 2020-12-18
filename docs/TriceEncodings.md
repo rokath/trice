@@ -2,6 +2,107 @@
 
 There are different possibilities for encoding trices. The trice encoding inside the triceFifo can differ from the trice transmit format.
 
+## bareL internal storage format
+
+- This is the fastest storage option on little endian mashines.
+
+```b
+      0     1     2     3 | macro
+--------------------------|--------
+     IL    IH     0     0 | TRICE0( Id(I), "..." );
+     IL    IH    b0     0 | TRICE8_1( Id(I), "...", b0 );
+     IL    IH    b0    b1 | TRICE8_2( Id(I), "...", b1 );
+     IL    IH   w0L   w0H | TRICE16_1( Id(I), "...", w0 );
+```
+
+```b
+     0      1     2     3     4     5     6     7 | macro
+--------------------------------------------------|-----------------------------------------------
+     0      0    b0    b1    IL    IH    b2     0 | TRICE8_3( Id(I), "...", b0, b1, b2 );
+     0      0    b0    b1    IL    IH    b2    b3 | TRICE8_4( Id(I), "...", b0, b1, b2, b3 );
+     0      0   w0L   w0H    IL    IH   w1L   w1H | TRICE16_2( Id(I), "...", w0, w1 );
+     0      0  d0LL  d0LH    IL    IH  d0HL  d0HH | TRICE32_1( Id(I), "...", d0 );
+```
+
+```b
+     0      1     2     3     4     5     6     7     8     9     10     11 | macro
+----------------------------------------------------------------------------|------------
+     0      0    b0    b1     0     0    b2    b3    IL    IH     b4      0 | TRICE8_5( Id(I), "...", b0, b1, b2, b3, b4 );
+     0      0    b0    b1     0     0    b2    b3    IL    IH     b4     b5 | TRICE8_6( Id(I), "...", b0, b1, b2, b3, b4, b5 );
+     0      0   w0L   w0H     0     0   w1L   w1H    IL    IH    w2L    w2H | TRICE16_3( Id(I), "...", w0, w1, w2);
+```
+
+```b
+     0      1     2     3     4     5     6     7     8     9     10     11     12     13     14     15 | macro
+--------------------------------------------------------------------------------------------------------|------------
+     0      0    b0    b1     0     0    b2    b3     0     0     b4     b5     IL     IH     b6      0 | TRICE8_7( Id(I), "...", b0, b1, b2, b3, b4, b5, b6 );
+     0      0    b0    b1     0     0    b2    b3     0     0     b4     b5     IL     IH     b6     b7 | TRICE8_8( Id(I), "...", b0, b1, b2, b3, b4, b5, b6, b7 );
+     0      0   w0L   w0H     0     0   w1L   w1H     0     0    w2L    w2H     IL     IH    w3L    w3H | TRICE16_3( Id(I), "...", w0, w1, w2, w3);
+     0      0  d0LL  d0LH     0     0  d0HL  d0HH     0     0   d1LL   d1LH     IL     IH   d1HL   d1HH | TRICE32_2( Id(I), "...", d0, d1 );
+     0      0 l0LLL l0LLH     0     0 l0LHL l0LHH     0     0  l0HLL  l0HLH     IL     IH  l0HHL  l0HHH | TRICE64_1( Id(I), "...", l0 );
+```
+
+and so on...
+
+## bareL transmit format
+
+- This is exactly the same as the bareL internal storage format with one and only one difference: There are sometimes 4 byte [sync packages](#sync-packages) mixed in on 4 byte offsets.
+- Transmitting `bareL` encoded trice messages reduces the code and increases the speed on little-endian mashines.
+
+
+## bare internal storage format
+
+- This is the fastest storage option on big endian mashines.
+
+```b
+      0     1     2     3 | macro
+--------------------------|--------
+     IH    IL     0     0 | TRICE0( Id(I), "..." );
+     IH    IL    b0     0 | TRICE8_1( Id(I), "...", b0 );
+     IH    IL    b0    b1 | TRICE8_2( Id(I), "...", b1 );
+     IH    IL   w0H   w0L | TRICE16_1( Id(I), "...", w0 );
+```
+
+```b
+     0      1     2     3     4     5     6     7 | macro
+--------------------------------------------------|-----------------------------------------------
+     0      0    b0    b1    IH    IL    b2     0 | TRICE8_3( Id(I), "...", b0, b1, b2 );
+     0      0    b0    b1    IH    IL    b2    b3 | TRICE8_4( Id(I), "...", b0, b1, b2, b3 );
+     0      0   w0H   w0L    IH    IL   w1H   w1L | TRICE16_2( Id(I), "...", w0, w1 );
+     0      0  d0HH  d0HL    IH    IL  d0LH  d0LL | TRICE32_1( Id(I), "...", d0 );
+```
+
+```b
+     0      1     2     3     4     5     6     7     8     9     10     11 | macro
+----------------------------------------------------------------------------|------------
+     0      0    b0    b1     0     0    b2    b3    IH    IL     b4      0 | TRICE8_5( Id(I), "...", b0, b1, b2, b3, b4 );
+     0      0    b0    b1     0     0    b2    b3    IH    IL     b4     b5 | TRICE8_6( Id(I), "...", b0, b1, b2, b3, b4, b5 );
+     0      0   w0H   w0H     0     0   w1H   w1L    IH    IL    w2H    w2L | TRICE16_3( Id(I), "...", w0, w1, w2);
+```
+
+```b
+     0      1     2     3     4     5     6     7     8     9     10     11     12     13     14     15 | macro
+--------------------------------------------------------------------------------------------------------|------------
+     0      0    b0    b1     0     0    b2    b3     0     0     b4     b5     IH     IL     b6      0 | TRICE8_7( Id(I), "...", b0, b1, b2, b3, b4, b5, b6 );
+     0      0    b0    b1     0     0    b2    b3     0     0     b4     b5     IH     IL     b6     b7 | TRICE8_8( Id(I), "...", b0, b1, b2, b3, b4, b5, b6, b7 );
+     0      0   w0H   w0L     0     0   w1H   w1L     0     0    w2H    w2L     IH     IL    w3H    w3L | TRICE16_3( Id(I), "...", w0, w1, w2, w3);
+     0      0  d0HH  d0HL     0     0  d0LH  d0LL     0     0   d1HH   d1HL     IH     IL   d1LH   d1LL | TRICE32_2( Id(I), "...", d0, d1 );
+     0      0 l0HHH l0HHL     0     0 l0HLH l0HLL     0     0  l0LHH  l0LHL     IH     IL  l0LLH  l0LLL | TRICE64_1( Id(I), "...", l0 );
+```
+
+and so on...
+
+## bare transmit format
+
+- This is exactly the same as the bare internal storage format with one and only one difference: There are sometimes 4 byte [sync packages](#sync-packages) mixed in on 4 byte offsets.
+- Transmitting `bare` encoded trice messages reduces the code and increases the speed on little-endian mashines.
+
+
+
+
+
+
+
 internal fifo buffer storage format:
 
 - bare code format
@@ -105,6 +206,60 @@ A number of bytes according LC is optionally following the header. If within the
 See function `TestEsc` and `TestEscDynStrings` in file [decoder_test.go](https://github.com/rokath/trice/blob/master/internal/decoder/decoder_test.go).
 
 ## Encoding `bare`
+
+
+## Sync packages
+- The frequency is adjustable and could be every 100ms or 40 bytes.
+- The PC `trice` tool removes them silently.
+- A sync package is `0x89 0xab 0xcd 0ef`. 
+- The PC `trice` tool does not use 
+
+
+```c
+//! TRICE_SYNC is an optional trice sync message for syncing, when bare transmission is used.
+//! The value 35243 (0x89ab) is a reserved pattern used as ID with value DA 0xcdef.
+//! The hex notation protects against unwanted automatic changes.
+//! The byte sequence of the sync message is 0x89 0xab 0xcd 0xef.
+//! It cannot occure in the trice stream in another way due to ID generaion policy.
+//! Sync package is IDDA=89abcdef
+//!
+//! To avoid wrong syncing these ID's are excluded: xx89, abcd, cdef, efxx (514 pieces)
+//!
+//! Possible:    IH IL DH DL IH IL DH DL IH IL DH DL (1 right)
+//!              xx xx xx xx xx 89 ab cd ef xx xx xx -> avoid IL=89, IH=ef
+//!
+//! Possible:    IH IL DH DL IH IL DH DL IH IL DH DL (2 right)
+//!              xx xx xx xx xx xx 89 ab cd ef xx xx -> avoid ID=cdef
+//!
+//! Possible:    IH IL DH DL IH IL DH DL IH IL DH DL (3 right)
+//!              xx xx xx xx xx xx xx 89 ab cd ef xx -> avoid ID=abcd
+//!
+//! Sync packet: IH IL DH DL IH IL DH DL IH IL DH DL
+//!              xx xx xx xx 89 ab cd ef xx xx xx xx -> use ID=89ab with DA=cdef as sync packet
+//!
+//!  Possible:   IH IL DH DL IH IL DH DL IH IL DH DL (1 left)
+//!              xx xx xx 89 ab cd ef xx xx xx xx xx -> avoid ID=abcd
+//!
+//!  Possible:   IH IL DH DL IH IL DH DL IH IL DH DL (2 left)
+//!              xx xx 89 ab cd ef xx xx xx xx xx xx -> avoid ID=cdef
+//!
+//!  Possible:   IH IL DH DL IH IL DH DL IH IL DH DL (3 left)
+//!              xx 89 ab cd ef xx xx xx xx xx xx xx ->  avoid IL=nn89, IH=ef
+//!
+//! If an ID=89ab with DA!=cdef is detected -> out of sync!
+//! If an IH=ef is detected -> out of sync, all 256 IDs starting with 0xef are excluded
+//! If an IL=89 is detected -> out of sync, all 256 IDs ending with 0x89 are excluded
+//! If an ID=abcd is detected -> out of sync, ID 0xabcd is excluded
+//! If an ID=cdef is detected -> out of sync, ID 0xcdef is excluded
+//! ID 0x89ab is reserved for this trice sync package.
+//! The trice sync message payload must be 0xcdef.
+//! You must not change any of the above demands. Otherwise the syncing will not work.
+//! The Id(0x89ab) is here as hex value, so it is ignored by ID management.
+//! The trice sync string makes the trice sync info invisible just in case,
+//! but the trice tool will filter them out anyway. The trice tool automatic id generation
+//! follows these rules.
+//#define TRICE_SYNC do{ TRICE16_1( Id(0x89ab), "%x\b\b\b\b", 0xcdef ); }while(0)
+```
 
 - Byte order is network order (bigendian)
 - Each trice is coded in one to eight 4-byte trice atoms.

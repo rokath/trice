@@ -22,6 +22,7 @@ extern "C" {
 #define PACKED                                  //!< pack data preamble
 #define PACKED_END __attribute__ ((packed))     //!< pack data post declaration
 
+#ifndef TRICE_ENTER_CRITICAL_SECTION
 //! TRICE_ENTER_CRITICAL_SECTION saves interrupt state and disables Interrupts.
 //! \details Workaround for ARM Cortex M0 and M0+:
 //! \li __get_PRIMASK() is 0 when interrupts are enabled globally.
@@ -29,7 +30,9 @@ extern "C" {
 //! If trices are used only outside critical sections or interrupts,
 //! you can leave this macro empty for more speed. Use only '{' in that case.
 #define TRICE_ENTER_CRITICAL_SECTION { uint32_t primaskstate = __get_PRIMASK(); __disable_irq(); {
+#endif
 
+#ifndef TRICE_LEAVE_CRITICAL_SECTION
 //! TRICE_LEAVE_CRITICAL_SECTION restores interrupt state.
 //! \details Workaround for ARM Cortex M0 and M0+:
 //! \li __get_PRIMASK() is 0 when interrupts are enabled globally.
@@ -37,6 +40,7 @@ extern "C" {
 //! If trices are used only outside critical sections or interrupts,
 //! you can leave this macro pair empty for more speed. Use only '}' in that case.
 #define TRICE_LEAVE_CRITICAL_SECTION } __set_PRIMASK(primaskstate); }
+#endif
 
 #elif defined(__arm__) // ARMkeil IDE #########################################
 
@@ -49,6 +53,7 @@ extern "C" {
 #define PACKED __packed   //!< pack data preamble
 #define PACKED_END        //!< pack data post declaration
 
+#ifndef TRICE_ENTER_CRITICAL_SECTION
 //! TRICE_ENTER_CRITICAL_SECTION saves interrupt state and disables Interrupts.
 //! \details Workaround for ARM Cortex M0 and M0+:
 //! \li __get_PRIMASK() is 0 when interrupts are enabled globally.
@@ -56,7 +61,9 @@ extern "C" {
 //! If trices are used only outside critical sections or interrupts,
 //! you can leave this macro empty for more speed. Use only '{' in that case.
 #define TRICE_ENTER_CRITICAL_SECTION { uint32_t primaskstate = __get_PRIMASK(); __disable_irq(); {
+#endif 
 
+#ifndef TRICE_LEAVE_CRITICAL_SECTION
 //! TRICE_LEAVE_CRITICAL_SECTION restores interrupt state.
 //! \details Workaround for ARM Cortex M0 and M0+:
 //! \li __get_PRIMASK() is 0 when interrupts are enabled globally.
@@ -64,6 +71,7 @@ extern "C" {
 //! If trices are used only outside critical sections or interrupts,
 //! you can leave this macro pair empty for more speed. Use only '}' in that case.
 #define TRICE_LEAVE_CRITICAL_SECTION } __set_PRIMASK(primaskstate); }
+#endif
 
 #elif 1 // ####################################################################
 #error "add new compiler here"

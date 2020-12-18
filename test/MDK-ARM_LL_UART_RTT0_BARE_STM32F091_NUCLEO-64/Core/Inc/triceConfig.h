@@ -11,6 +11,9 @@ extern "C" {
 
 #include <stdint.h>
 
+// Uncomment for more speed but only if TRICE macros cannot get interrupted by other TRICE macros (e.g. interrupts).
+// #define TRICE_ENTER_CRITICAL_SECTION {
+// #define TRICE_LEAVE_CRITICAL_SECTION }
 
 ///////////////////////////////////////////////////////////////////////////////
 // select target trice method
@@ -21,9 +24,7 @@ extern "C" {
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-
-
-#define TRICE_UART USART2
+#define TRICE_UART USART2 
 
 
 ///////////////////////////////////////////////////////////////////////////////

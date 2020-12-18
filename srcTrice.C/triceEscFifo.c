@@ -2,9 +2,9 @@
 \author Thomas.Hoehenleitner [at] seerose.net
 *******************************************************************************/
 #include <string.h> // strlen
-#include "triceConfigCompiler.h"
+#include "./intern/triceConfigCompiler.h"
 #include "trice.h"
-#include "triceEscFifo.h"
+//#include "./intern/triceEscFifo.h"
 
 #define TRICE_FILENAME TRICE0( Id(44860), "rd_:triceEscFifo.c" );
 
