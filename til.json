@@ -2070,5 +2070,12 @@
 		"fmtStrg": "rd_:triceBareFifoWrappedToBytesBuffer.c",
 		"created": 1607598290,
 		"removed": 0
+	},
+	{
+		"id": 13515,
+		"fmtType": "TRICE0",
+		"fmtStrg": "rd_:triceFifo.c",
+		"created": 1608408835,
+		"removed": 0
 	}
 ]

@@ -10,6 +10,7 @@ extern "C" {
 #endif
 
 #include <stdint.h>
+#include "triceConfig.h"
 
 void triceWriteEscP( int count, uint8_t * buf );
 void trice_s(uint16_t Id, char * dynString);
