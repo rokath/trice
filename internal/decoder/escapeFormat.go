@@ -1,16 +1,33 @@
 // Copyright 2020 Thomas.Hoehenleitner [at] seerose.net
 // Use of this source code is governed by a license that can be found in the LICENSE file.
 
-// Package decoder provides several decoders for differently encoded trice streams.
 package decoder
 
 import (
-	"C"
+	"bytes"
 	"encoding/binary"
 	"errors"
 	"fmt"
+	"io"
+
+	"github.com/rokath/trice/internal/id"
 )
-import "bytes"
+
+// Esc is the Decoder instance for esc encoded trices.
+type Esc struct {
+	decoding
+}
+
+// NewEscFormat provides an EscDecoder instance.
+// l is the trice id list in slice of struct format.
+// in is the usable reader for the input bytes.
+func NewEscFormat(l []id.Item, in io.Reader) (p *Esc) {
+	p = &Esc{}
+	p.in = in
+	p.syncBuffer = make([]byte, 0, 2*buffSize)
+	p.lut = MakeLut(l)
+	return
+}
 
 // StringsRead is the provided read method for esc decoding.
 // To do: rewrite code
