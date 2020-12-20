@@ -92,6 +92,17 @@ func newIDLut(til []byte) (IDLookUp, error) {
 	return lut, nil
 }
 
+// NewEscFormat provides an EscDecoder instance.
+// l is the trice id list in slice of struct format.
+// in is the usable reader for the input bytes.
+func NewEscFormat(l []id.Item, in io.Reader) (p *Esc) {
+	p = &Esc{}
+	p.in = in
+	p.syncBuffer = make([]byte, 0, 2*buffSize)
+	p.lut = MakeLut(l)
+	return
+}
+
 // Translate performs the trice log task.
 // Bytes are read with rc, according decoder.Encoding are translated into strings
 // returns false on program end signal or true on hard read error.
