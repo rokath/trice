@@ -12,7 +12,7 @@ extern "C" {
 #include <stdint.h>
 
 void tricePushBareFifo(uint32_t v);
-uint32_t tricePopBareFifo(void);
+uint32_t triceU32Pop(void);
 
 int triceBareFifoDepth(void);
 extern int triceBareFifoMaxDepth; //!< diagnostics

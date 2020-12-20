@@ -33,17 +33,17 @@ void tricePushBareFifo(uint32_t v) {
     triceBareFifoWriteIndex &= TRICE_BARE_FIFO_MASK;
 }
 
-//! tricePopBareFifo gets one trice from trice fifo.
+//! triceU32Pop gets one trice from trice fifo.
 //! \return trice id with 2 byte data in one uint32_t.
-uint32_t tricePopBareFifo(void) {
+uint32_t triceU32Pop(void) {
     uint32_t v = triceBareFifo[triceBareFifoReadIndex++];
     triceBareFifoReadIndex &= TRICE_BARE_FIFO_MASK;
     return v;
 }
 
-//! triceBareFifoDepth determines bytes count inside trice fifo.
+//! triceU32FifoDepth determines bytes count inside trice fifo.
 //! \return count of buffered bytes
-int triceBareFifoDepth(void) {
+int triceU32FifoDepth(void) {
     int triceCount = (triceBareFifoWriteIndex - triceBareFifoReadIndex) & TRICE_BARE_FIFO_MASK;
     int depth = triceCount*sizeof(uint32_t);
     triceBareFifoMaxDepth = triceBareFifoMaxDepth < depth ? depth : triceBareFifoMaxDepth; // diagnostics

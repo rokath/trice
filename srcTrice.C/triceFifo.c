@@ -2,50 +2,52 @@
 \author Thomas.Hoehenleitner [at] seerose.net
 *******************************************************************************/
 #include <stdint.h>
-#include "./intern/triceConfigCompiler.h"
-#include "./intern/triceFifo.h"
+#include <string.h> // strlen
+#include "triceConfig.h"
+#include "intern/triceConfigCompiler.h"
+#include "intern/triceFifo.h"
 
 #define TRICE_FILENAME TRICE0( Id(13515), "rd_:triceFifo.c" );
 
 //! trice fifo instance, here are the trices buffered.
 ALIGN4 uint32_t
-triceInt32Fifo[ TRICE_FIFO_BYTE_SIZE>>2 ]
+triceU32Fifo[ TRICE_FIFO_BYTE_SIZE>>2 ]
 ALIGN4_END;
 
-uint8_t* const triceInt8Fifo = (uint8_t*)triceInt32Fifo;
+uint8_t* const triceU8Fifo = (uint8_t*)triceU32Fifo;
 
-int triceInt32FifoWriteIndex = 0; //!< trice fifo write index, used inside macros, so must be visible
-int triceInt32FifoReadIndex = 0; //!< trice fifo read index for 32 bit values
+int triceU32FifoWriteIndex = 0; //!< trice fifo write index, used inside macros, so must be visible
+int triceU32FifoReadIndex = 0; //!< trice fifo read index for 32 bit values
 
-int triceInt8FifoWriteIndex = 0; //!< trice fifo write index, used inside macros, so must be visible
-int triceInt8FifoReadIndex = 0; //!< trice fifo read index
+int triceU8FifoWriteIndex = 0; //!< trice fifo write index, used inside macros, so must be visible
+int triceU8FifoReadIndex = 0; //!< trice fifo read index
 
 int triceFifoMaxDepth = 0; //!< diagnostics
 
-//! triceInt32FifoDepth determines bytes count inside trice fifo.
+//! triceU32FifoDepth determines bytes count inside trice fifo.
 //! Assumption: Only int32 access for push and pop.
 //! \return count of buffered bytes
-int triceInt32UsageFifoDepth(void) {
-    int triceCount = (triceInt32FifoWriteIndex - triceInt32FifoReadIndex) & TRICE_INT32_FIFO_MASK;
+int triceU32UsageFifoDepth(void) {
+    int triceCount = (triceU32FifoWriteIndex - triceU32FifoReadIndex) & TRICE_U32_FIFO_MASK;
     int depth = triceCount*sizeof(uint32_t);
     triceFifoMaxDepth = triceFifoMaxDepth < depth ? depth : triceFifoMaxDepth; // diagnostics
     return depth;
 }
 
-//! triceInt8UsageFifoDepth determines bytes count inside trice fifo.
+//! triceU8UsageFifoDepth determines bytes count inside trice fifo.
 //! Assumption: Only int8 access for push and pop.
 //! \return count of buffered bytes
-int triceInt8UsageFifoDepth(void) {
-    int depth = (triceInt8FifoWriteIndex - triceInt8FifoReadIndex) & TRICE_INT8_FIFO_MASK;
-    triceFifoMaxDepth = triceFifoMaxDepth < depth ? depth : triceMaxDepth; // diagnostics
+int triceU8UsageFifoDepth(void) {
+    int depth = (triceU8FifoWriteIndex - triceU8FifoReadIndex) & TRICE_U8_FIFO_MASK;
+    triceFifoMaxDepth = triceFifoMaxDepth < depth ? depth : triceFifoMaxDepth; // diagnostics
     return depth;
 }
 
-//! triceInt32WriteInt8ReadFifoDepth determines bytes count inside trice fifo.
+//! triceU32WriteInt8ReadFifoDepth determines bytes count inside trice fifo.
 //! Assumption: Only int32 for push and only int8 for pop.
 //! \return count of buffered bytes
-int triceInt32WriteInt8ReadFifoDepth(void) {
-    int depth = ((triceInt32FifoWriteIndex<<2) - triceInt8FifoReadIndex) & TRICE_INT8_FIFO_MASK;
+int triceU32WriteInt8ReadFifoDepth(void) {
+    int depth = ((triceU32FifoWriteIndex<<2) - triceU8FifoReadIndex) & TRICE_U8_FIFO_MASK;
     triceFifoMaxDepth = triceFifoMaxDepth < depth ? depth : triceFifoMaxDepth; // diagnostics
     return depth;
 }
@@ -75,6 +77,10 @@ void triceWriteEscP(int count, uint8_t *buf) {
     triceWriteEsc(count, buf);
     TRICE_LEAVE_CRITICAL_SECTION
 }
+
+#define TRICE_BYTE(d) ((uint8_t)(d))
+#define TRICE_HI_BYTE(v) TRICE_BYTE(((uint16_t)(v))>>8)
+#define TRICE_LO_BYTE(v) TRICE_BYTE(v)
 
 void trice_s(uint16_t Id, char *dynString) {
     int n = 1 + strlen(dynString);

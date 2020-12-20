@@ -55,6 +55,8 @@ void tricePushByteSeggerRTT(uint8_t v);
 //
 ///////////////////////////////////////////////////////////////////////////////
 
+#define TRICE_PUSH_BYTE(v) do{ /*tricePushByteSeggerRTT(v);*/ triceU8Push(v); } while(0)
+
 
 ///////////////////////////////////////////////////////////////////////////////
 // adapt
@@ -67,10 +69,10 @@ void tricePushByteSeggerRTT(uint8_t v);
 //#define LESS_FLASH_AND_SPEED
 
 void tricePushSeggerRTT( uint32_t );
-void tricePushBareFifo( uint32_t );
+void triceU32Push( uint32_t );
 
 //! Set trice out channel(s) 
-#define TRICE_PUSH(v) do{ tricePushSeggerRTT(v); tricePushBareFifo(v); } while(0)
+#define TRICE_PUSH(v) do{ tricePushSeggerRTT(v); triceU32Push(v); } while(0)
 
 #endif // #ifdef TRICE_WRITE_BARE_FIFO
 //

@@ -64,23 +64,23 @@ static void triceServeBareFifoSyncedToBytesBuffer(void) {
     static int syncLevel = syncLevelLimit; // start with a sync trice
     if (triceBytesBufferIndexLimit == triceBytesBufferIndex) { // bytes buffer empty and tx finished
         // next trice
-        int n = triceBareFifoDepth();
+        int n = triceU32UsageFifoDepth();
         if (syncLevel < syncLevelLimit) { // no need for a sync trice
             if (0 == n) { // no trices to transmit
                 syncLevel++;
                 return;
             } else if (4 == n) { // one trice to transmit
-                triceTransfer(tricePopBareFifo(), syncTrice);
+                triceTransfer(triceU32Pop(), syncTrice);
                 syncLevel = 0;
             } else { // at least 2 trices to transmit
-                uint32_t t0 = tricePopBareFifo();
-                uint32_t t1 = tricePopBareFifo();
+                uint32_t t0 = triceU32Pop();
+                uint32_t t1 = triceU32Pop();
                 triceTransfer(t0, t1);
                 syncLevel += 2;
             }
         } else { // need for a sync trice
             if (4 <= n) { // at least one trice, so transmit it and one sync trice
-                triceTransfer(tricePopBareFifo(), syncTrice);
+                triceTransfer(triceU32Pop(), syncTrice);
             } else { // nothing to transmit so transmit 2 sync trices
                 triceTransfer(syncTrice, syncTrice);
             }
@@ -93,9 +93,9 @@ static void triceServeBareFifoSyncedToBytesBuffer(void) {
 static void triceServeBareFifoWrappedToBytesBuffer(void) {
     if (triceBytesBufferIndexLimit == triceBytesBufferIndex) { // bytes buffer empty and tx finished
         // next trice
-        int n = triceBareFifoDepth();
+        int n = triceU32UsageFifoDepth();
         if ( n >= 4 ) { // a trice to transmit
-            uint32_t x = tricePopBareFifo();
+            uint32_t x = triceU32Pop();
             triceBytesBuffer[3]  = (uint8_t)( TRICE_WRAP_START_BYTE ^ TRICE_WRAP_LOCAL_ADDR ^ TRICE_WRAP_DEST_ADDR ^ x ^ (x>>8) ^ (x>>16) ^ (x>>24) ); // crc8
             triceLoadInNetworkOrder(&triceBytesBuffer[4], x);
             triceBytesBufferIndex = 0;

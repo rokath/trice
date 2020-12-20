@@ -458,11 +458,6 @@
           <GroupName>trice</GroupName>
           <Files>
             <File>
-              <FileName>triceBareFifo.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\srcTrice.C\triceBareFifo.c</FilePath>
-            </File>
-            <File>
               <FileName>triceCheck.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\srcTrice.C\triceCheck.c</FilePath>
@@ -481,6 +476,11 @@
               <FileName>triceBareFifoToBytesBuffer.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\srcTrice.C\triceBareFifoToBytesBuffer.c</FilePath>
+            </File>
+            <File>
+              <FileName>triceFifo.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\srcTrice.C\triceFifo.c</FilePath>
             </File>
           </Files>
         </Group>
