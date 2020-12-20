@@ -92,6 +92,11 @@ func newIDLut(til []byte) (IDLookUp, error) {
 	return lut, nil
 }
 
+// Esc is the Decoder instance for esc encoded trices.
+type Esc struct {
+	decoding
+}
+
 // NewEscFormat provides an EscDecoder instance.
 // l is the trice id list in slice of struct format.
 // in is the usable reader for the input bytes.

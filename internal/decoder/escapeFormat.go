@@ -12,11 +12,6 @@ import (
 )
 import "bytes"
 
-// Esc is the Decoder instance for esc encoded trices.
-type Esc struct {
-	decoding
-}
-
 // StringsRead is the provided read method for esc decoding.
 // To do: rewrite code
 // It uses inner reader and internal id look-up table to fill ss.
