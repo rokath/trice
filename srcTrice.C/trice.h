@@ -9,18 +9,17 @@
 extern "C" {
 #endif
 
-#include "./intern/triceConfigCompiler.h"
 #include "triceConfig.h"
+#include "intern/triceConfigCompiler.h"
+#include "intern/triceNoCode.h"
+#include "intern/triceEsc.h"
+#include "intern/triceBare.h"
+#include "intern/triceFifo.h"
 
 #define SYNCED_BARE_ENCODING 4 //!< The trice bytes are sent in bare format with sync packages.
 #define WRAPPED_BARE_ENCODING 8 //!< The trice bytes are sent in wrapped format.
 
 #define Id(n) (n) //!< Macro for improved trice readability and better source code parsing.
-
-#include "./intern/triceNoCode.h"
-#include "./intern/triceEscFifo.h"
-#include "./intern/triceBare.h"
-#include "./intern/triceFifo.h"
 
 #ifdef __cplusplus
 }

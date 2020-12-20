@@ -2,6 +2,17 @@
 \author Thomas.Hoehenleitner [at] seerose.net
 *******************************************************************************/
 
+
+#ifndef TRICE_FIFO_H_
+#define TRICE_FIFO_H_
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#include "triceConfig.h"
+#include "intern/triceConfigCompiler.h"
+
 //! TRICE_FIFO_BYTE_SIZE must be a power of 2, one trice needs typically 4 or 8 bytes, max 32 bytes.
 //! The fifo has to hold trice bursts until they are transmitted.
 //! It is transmitted with lower priority in the background for example with the UART tx interrupt.
@@ -49,7 +60,7 @@ TRICE_INLINE uint32_t triceU32Pop(void) {
 
 //! triceU8Pop gets one trice from trice fifo.
 //! \return trice id with 2 byte data in one uint32_t.
-TRICE_INLINE uint8_t triceU8PopFifo(void) {
+TRICE_INLINE uint8_t triceU8Pop(void) {
     uint8_t v = triceU8Fifo[triceU8FifoReadIndex++];
     triceU8FifoReadIndex &= TRICE_U8_FIFO_MASK;
     return v;
@@ -80,3 +91,10 @@ int triceU32WriteInt8ReadFifoDepth(void);
 
 void triceWriteEscP(int count, uint8_t *buf);
 void trice_s(uint16_t Id, char *dynString);
+
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* TRICE_FIFO_H_ */

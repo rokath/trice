@@ -45,11 +45,11 @@ extern "C" {
 // adapt 
 #ifdef TRICE_WRITE_ESC_FIFO
 
-void tricePushByteEscFifo(uint8_t v);
+//void tricePushByteEscFifo(uint8_t v);
 void tricePushByteSeggerRTT(uint8_t v);
 
 //! Set trice out channel(s) 
-#define TRICE_PUSH_BYTE(v) do{ tricePushByteSeggerRTT(v); tricePushByteEscFifo(v); } while(0)
+#define TRICE_PUSH_BYTE(v) do{ tricePushByteSeggerRTT(v); triceU8Push(v); } while(0)
 
 #endif // #ifdef TRICE_WRITE_ESC_FIFO
 //

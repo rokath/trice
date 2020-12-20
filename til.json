@@ -2077,5 +2077,12 @@
 		"fmtStrg": "rd_:triceFifo.c",
 		"created": 1608408835,
 		"removed": 0
+	},
+	{
+		"id": 44507,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "MSG: triceFifoMaxDepth = %d\\n",
+		"created": 1608467657,
+		"removed": 0
 	}
 ]

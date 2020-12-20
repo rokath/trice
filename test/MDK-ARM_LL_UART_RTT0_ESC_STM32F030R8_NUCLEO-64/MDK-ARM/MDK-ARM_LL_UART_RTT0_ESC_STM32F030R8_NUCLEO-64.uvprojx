@@ -468,11 +468,6 @@
               <FilePath>..\..\..\srcTrice.C\triceXteaCrypto.c</FilePath>
             </File>
             <File>
-              <FileName>triceEscFifo.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\srcTrice.C\triceEscFifo.c</FilePath>
-            </File>
-            <File>
               <FileName>triceSeggerRTT.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\srcTrice.C\triceSeggerRTT.c</FilePath>
@@ -481,6 +476,11 @@
               <FileName>SEGGER_RTT.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\third_party\segger.com\SEGGER_RTT\RTT\SEGGER_RTT.c</FilePath>
+            </File>
+            <File>
+              <FileName>triceFifo.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\srcTrice.C\triceFifo.c</FilePath>
             </File>
           </Files>
         </Group>

@@ -74,19 +74,19 @@ TRICE_INLINE void triceTriggerBytesBufferTransmit(void){
 
 
 
-#include "triceEscFifo.h"
+#include "triceFifo.h"
 
 //! triceServeEscFifoTransmit must be called cyclically to proceed ongoing write out.
 //! A good place is UART ISR.
 TRICE_INLINE void triceServeEscFifoTransmit(void) {
-    triceTransmitData8(tricePopByteEscFifo());
-    if (0 == triceEscFifoDepth()) { // no more bytes
+    triceTransmitData8(triceU8Pop());
+    if (0 == triceU8UsageFifoDepth()) { // no more bytes
         triceDisableTxEmptyInterrupt();
     }
 }
 
 TRICE_INLINE void triceTriggerEscFifoTransmit(void){
-    if( triceEscFifoDepth() && triceTxDataRegisterEmpty() ){
+    if( triceU8UsageFifoDepth() && triceTxDataRegisterEmpty() ){
         triceEnableTxEmptyInterrupt(); // next bytes
     }
 }

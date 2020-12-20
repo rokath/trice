@@ -9,6 +9,8 @@
 
   <project>
     <PathAndName>.\MDK-ARM_LL_UART_RTT0_BARE_STM32F091_NUCLEO-64\MDK-ARM\MDK-ARM_LL_UART_RTT0_BARE_STM32F091_NUCLEO-64.uvprojx</PathAndName>
+    <NodeIsActive>1</NodeIsActive>
+    <NodeIsExpanded>1</NodeIsExpanded>
   </project>
 
   <project>
@@ -25,6 +27,7 @@
 
   <project>
     <PathAndName>.\MDK-ARM_LL_UART_RTT0_ESC_STM32F070RB_NUCLEO-64\MDK-ARM\MDK-ARM_LL_UART_RTT0_ESC_STM32F070RB_NUCLEO-64.uvprojx</PathAndName>
+    <NodeIsExpanded>1</NodeIsExpanded>
   </project>
 
   <project>
@@ -37,8 +40,6 @@
 
   <project>
     <PathAndName>.\MDK-ARM_LL_UART_RTT0_WRAP_STM32F030R8-NUCLEO-64\MDK-ARM\MDK-ARM_LL_UART_RTT0_WRAP_STM32F030R8-NUCLEO-64.uvprojx</PathAndName>
-    <NodeIsActive>1</NodeIsActive>
-    <NodeIsExpanded>1</NodeIsExpanded>
   </project>
 
 </ProjectWorkspace>
