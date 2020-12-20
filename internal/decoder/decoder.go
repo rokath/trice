@@ -101,12 +101,12 @@ func Translate(sw *emitter.TriceLineComposer, list *id.List, rc io.ReadCloser /*
 	// var p translator.Translator // interface type
 	switch Encoding {
 	case "esc":
-		dec := NewEscFormat(list.ItemList, rc)
+		dec := NewBareFormat(list.ItemList, rc)
 		for {
 			err := run(sw, dec)
 			if nil != err {
 				time.Sleep(2 * time.Second)
-				dec = NewEscFormat(list.ItemList, rc) // read list again - it could have changed
+				dec = NewBareFormat(list.ItemList, rc) // read list again - it could have changed
 			}
 		}
 	case "bare":
