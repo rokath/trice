@@ -19,7 +19,7 @@ extern "C" {
 
 #include "./intern/triceNoCode.h"
 #include "./intern/triceEscFifo.h"
-#include "./intern/triceBareFifo.h"
+#include "./intern/triceBare.h"
 #include "./intern/triceFifo.h"
 
 #ifdef __cplusplus
