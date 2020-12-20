@@ -17,7 +17,7 @@ extern "C" {
 //! The fifo has to hold trice bursts until they are transmitted.
 //! It is transmitted with lower priority in the background for example with the UART tx interrupt.
 #ifndef TRICE_FIFO_BYTE_SIZE
-#define TRICE_FIFO_BYTE_SIZE (256)
+#define TRICE_FIFO_BYTE_SIZE (1024)
 #endif
 
 #define TRICE_U32_FIFO_MASK (((TRICE_FIFO_BYTE_SIZE)>>2)-1) //!< max possible int32 count in fifo

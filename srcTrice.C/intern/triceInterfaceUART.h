@@ -7,7 +7,8 @@
 
 #include <stdint.h>
 #include "main.h" // hardware specific stuff
-#include "triceConfigCompiler.h"
+#include "trice.h"
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -46,9 +47,6 @@ TRICE_INLINE void triceDisableTxEmptyInterrupt(void) {
 }
 
 
-
-#include "triceBareFifoToBytesBuffer.h"
-
 //! triceServeBytesBufferTransmit must be called cyclically to proceed ongoing write out.
 //! A good place: sysTick ISR and UART ISR (both together).
 //! TODO: endianess with compiler macros.
@@ -73,9 +71,6 @@ TRICE_INLINE void triceTriggerBytesBufferTransmit(void){
 }
 
 
-
-#include "triceFifo.h"
-
 //! triceServeEscFifoTransmit must be called cyclically to proceed ongoing write out.
 //! A good place is UART ISR.
 TRICE_INLINE void triceServeEscFifoTransmit(void) {
@@ -90,8 +85,6 @@ TRICE_INLINE void triceTriggerEscFifoTransmit(void){
         triceEnableTxEmptyInterrupt(); // next bytes
     }
 }
-
-
 
 
 #ifdef __cplusplus

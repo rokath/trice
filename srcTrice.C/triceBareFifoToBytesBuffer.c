@@ -2,6 +2,7 @@
 \author Thomas.Hoehenleitner [at] seerose.net
 *******************************************************************************/
 #include "trice.h"
+#include "intern/triceBareFifoToBytesBuffer.h"
 
 #define TRICE_FILENAME TRICE0( Id( 1716), "rd_:triceBareFifoToBytesBuffer.c" );
 
@@ -54,7 +55,7 @@ int triceBytesByfferDepth( void ){
     return triceBytesBufferIndexLimit - triceBytesBufferIndex;
 }
 
-static void triceServeBareFifoSyncedToBytesBuffer(void) {
+void triceServeBareFifoSyncedToBytesBuffer(void) {
     // 89 ab cd ef <- on serial port
     // ih il dh dl
     uint32_t const syncTrice = 0x89abcdef;
@@ -87,7 +88,7 @@ static void triceServeBareFifoSyncedToBytesBuffer(void) {
     }
 }
 
-static void triceServeBareFifoWrappedToBytesBuffer(void) {
+void triceServeBareFifoWrappedToBytesBuffer(void) {
     if (triceBytesBufferIndexLimit == triceBytesBufferIndex) { // bytes buffer empty and tx finished
         // next trice
         int n = triceU32UsageFifoDepth();
@@ -100,6 +101,7 @@ static void triceServeBareFifoWrappedToBytesBuffer(void) {
     }
 }
 
+/*
 //! triceServeBareFifoToBytesBuffer must be called cyclically to proceed ongoing write out.
 //! It schould be called at least every ms.
 //! A possibe place is main loop.
@@ -115,3 +117,4 @@ void triceServeBareFifoToBytesBuffer(int encoding) {
         break;
     }
 }
+*/

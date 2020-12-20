@@ -28,6 +28,7 @@ extern "C" {
 #include "intern/triceBare.h"
 #include "intern/triceFifo.h"
 #include "intern/triceSeggerRTT.h"
+#include "intern/triceBareFifoToBytesBuffer.h"
 
 #define SYNCED_BARE_ENCODING 4 //!< The trice bytes are sent in bare format with sync packages.
 #define WRAPPED_BARE_ENCODING 8 //!< The trice bytes are sent in wrapped format.

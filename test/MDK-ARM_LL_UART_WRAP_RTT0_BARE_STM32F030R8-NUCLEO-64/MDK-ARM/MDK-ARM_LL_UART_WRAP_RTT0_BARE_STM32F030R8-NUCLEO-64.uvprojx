@@ -7,16 +7,16 @@
 
   <Targets>
     <Target>
-      <TargetName>MDK-ARM_LL_UART_RTT0_WRAP_STM32F030R8-NUCLEO-64</TargetName>
+      <TargetName>MDK-ARM_LL_UART_WRAP_RTT0_BARE_STM32F030R8-NUCLEO-64</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
-      <pCCUsed>5060750::V5.06 update 6 (build 750)::ARMCC</pCCUsed>
+      <pCCUsed>5060960::V5.06 update 7 (build 960)::ARMCC</pCCUsed>
       <uAC6>0</uAC6>
       <TargetOption>
         <TargetCommonOption>
           <Device>STM32F030R8Tx</Device>
           <Vendor>STMicroelectronics</Vendor>
-          <PackID>Keil.STM32F0xx_DFP.2.0.0</PackID>
+          <PackID>Keil.STM32F0xx_DFP.2.1.0</PackID>
           <PackURL>http://www.keil.com/pack/</PackURL>
           <Cpu>IRAM(0x20000000-0x20001FFF) IROM(0x8000000-0x800FFFF) CLOCK(8000000) CPUTYPE("Cortex-M0") TZ</Cpu>
           <FlashUtilSpec></FlashUtilSpec>
@@ -185,6 +185,7 @@
             <uocXRam>0</uocXRam>
             <RvdsVP>0</RvdsVP>
             <RvdsMve>0</RvdsMve>
+            <RvdsCdeCp>0</RvdsCdeCp>
             <hadIRAM2>0</hadIRAM2>
             <hadIROM2>0</hadIROM2>
             <StupSel>8</StupSel>
@@ -338,7 +339,7 @@
               <MiscControls></MiscControls>
               <Define>USE_FULL_LL_DRIVER,HSE_VALUE=8000000,HSE_STARTUP_TIMEOUT=100,LSE_STARTUP_TIMEOUT=5000,LSE_VALUE=32768,HSI_VALUE=8000000,LSI_VALUE=40000,VDD_VALUE=3300,PREFETCH_ENABLE=1,INSTRUCTION_CACHE_ENABLE=0,DATA_CACHE_ENABLE=0,STM32F030x8</Define>
               <Undefine></Undefine>
-              <IncludePath>../Core/Inc; C:/Users/ms/STM32Cube/Repository/STM32Cube_FW_F0_V1.11.2/Drivers/STM32F0xx_HAL_Driver/Inc; C:/Users/ms/STM32Cube/Repository/STM32Cube_FW_F0_V1.11.2/Drivers/CMSIS/Device/ST/STM32F0xx/Include; C:/Users/ms/STM32Cube/Repository/STM32Cube_FW_F0_V1.11.2/Drivers/CMSIS/Include; ..\..\..\srcTrice.C; ..\..\..\third_party\segger.com\SEGGER_RTT\RTT</IncludePath>
+              <IncludePath>../Core/Inc;  C:/Users/ms/STM32Cube/Repository/STM32Cube_FW_F0_V1.11.2/Drivers/STM32F0xx_HAL_Driver/Inc;  C:/Users/ms/STM32Cube/Repository/STM32Cube_FW_F0_V1.11.2/Drivers/CMSIS/Device/ST/STM32F0xx/Include;  C:/Users/ms/STM32Cube/Repository/STM32Cube_FW_F0_V1.11.2/Drivers/CMSIS/Include;  ..\..\..\srcTrice.C;  ..\..\..\third_party\segger.com\SEGGER_RTT\RTT</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -351,7 +352,7 @@
             <NoWarn>0</NoWarn>
             <uSurpInc>0</uSurpInc>
             <useXO>0</useXO>
-            <uClangAs>0</uClangAs>
+            <ClangAsOpt>4</ClangAsOpt>
             <VariousControls>
               <MiscControls></MiscControls>
               <Define></Define>

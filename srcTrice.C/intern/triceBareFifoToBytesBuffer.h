@@ -20,6 +20,9 @@ extern int triceBytesBufferIndex;
 extern uint8_t triceBytesBuffer[8];
 extern int const triceBytesBufferIndexLimit; // sizeof(triceBytesBuffer[8]);
 
+void triceServeBareFifoSyncedToBytesBuffer(void);
+void triceServeBareFifoWrappedToBytesBuffer(void);
+
 #ifdef __cplusplus
 }
 #endif

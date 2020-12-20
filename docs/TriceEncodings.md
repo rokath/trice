@@ -2,7 +2,7 @@
 
 There are different possibilities for encoding trices. The trice encoding inside the triceFifo can differ from the trice transmit format.
 
-## bareL internal storage format
+## bareL internal triceFifo storage format
 
 - This is the fastest storage option on little endian mashines.
 
@@ -44,13 +44,15 @@ There are different possibilities for encoding trices. The trice encoding inside
 
 and so on...
 
+Because the triceFifo has a power-of-2 size in case of an overflow syncing is without issues.
+
 ## bareL transmit format
 
 - This is exactly the same as the bareL internal storage format with one and only one difference: There are sometimes 4 byte [sync packages](#sync-packages) mixed in on 4 byte offsets.
 - Transmitting `bareL` encoded trice messages reduces the code and increases the speed on little-endian mashines.
 
 
-## bare internal storage format
+## bare internal triceFifo storage format
 
 - This is the fastest storage option on big endian mashines.
 
@@ -91,6 +93,8 @@ and so on...
 ```
 
 and so on...
+
+Because the triceFifo has a power-of-2 size in case of an overflow syncing is without issues.
 
 ## bare transmit format
 
