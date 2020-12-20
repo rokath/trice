@@ -17,10 +17,10 @@ type Bare struct {
 	decoding
 }
 
-// NewBare provides an BareDecoder instance.
+// NewBareFormat provides an BareDecoder instance.
 // l is the trice id list in slice of struct format.
 // in is the usable reader for the input bytes.
-func NewBare(l []id.Item, in io.Reader) (p *Bare) {
+func NewBareFormat(l []id.Item, in io.Reader) (p *Bare) {
 	p = &Bare{}
 	p.in = in
 	p.syncBuffer = make([]byte, 0, 2*buffSize)

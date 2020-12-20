@@ -1003,7 +1003,7 @@ func TestEsc(t *testing.T) {
 		t.Fail()
 	}
 
-	p := decoder.NewEsc(list, rc) // p is a new decoder instance
+	p := decoder.NewEscFormat(list, rc) // p is a new decoder instance
 
 	ss := make([]string, 100)
 	n, err := p.StringsRead(ss)
@@ -1023,7 +1023,7 @@ func checkDynString(t *testing.T, list []id.Item, in, exp string) {
 		t.Fail()
 	}
 
-	p := decoder.NewEsc(list, rc) // p is a new decoder instance
+	p := decoder.NewEscFormat(list, rc) // p is a new decoder instance
 
 	ss := make([]string, 100)
 	n, err := p.StringsRead(ss)
@@ -1195,7 +1195,7 @@ func TestBare(t *testing.T) {
 		t.Fail()
 	}
 
-	p := decoder.NewBare(list, rc) // p is a new decoder instance
+	p := decoder.NewBareFormat(list, rc) // p is a new decoder instance
 
 	ss := make([]string, 100)
 	n, err := p.StringsRead(ss)
@@ -1221,7 +1221,7 @@ func TestWrap(t *testing.T) {
 		t.Fail()
 	}
 
-	p := decoder.NewBare(list, decoder.NewBareReaderFromWrap(rc)) // p is a new decoder instance
+	p := decoder.NewBareFormat(list, decoder.NewBareReaderFromWrap(rc)) // p is a new decoder instance
 
 	ss := make([]string, 100)
 	n, err := p.StringsRead(ss)
