@@ -12,8 +12,7 @@ extern "C" {
 #include <stdint.h>
 #include "triceConfig.h"
 
-#ifdef TRICE_WRITE_ESC_FIFO ///////////////////////////////////////////////////
-
+#if TRICE_ESC_ENCODING == TRICE_ENCODING 
 
 #define TRICE_ESC  0xEC //!< Escape char is control char to start a package.
 #define TRICE_DEL  0xDE //!< Delete char, if follower of TRICE_ESC, deletes the meaning os TRICE_ESC making it an ordinary TRICE_ESC char.
@@ -248,7 +247,7 @@ extern "C" {
     triceWriteEscP( sizeof(msg), msg ); \
 } while(0)
 
-#endif // #if TO_TRICE_WRITE == TRICE_CODE 
+#endif // #if TRICE_ESC_ENCODING == TRICE_ENCODING
 
 #ifdef __cplusplus
 }

@@ -10,17 +10,10 @@ extern "C" {
 #endif
 
 #include <stdint.h>
+#include "trice.h"
 
-// void tricePushBareFifo(uint32_t v);
-// uint32_t triceU32Pop(void);
-// 
-// int triceBareFifoDepth(void);
-// extern int triceBareFifoMaxDepth; //!< diagnostics
-
-
-
-#if defined TRICE_WRITE_BARE_FIFO || defined TRICE_WRITE_BARE_FIFO_SERVE_TO_ESC_FIFO // #
-#ifdef MORE_FLASH_AND_SPEED // ##########################################################
+#if TRICE_FAST_BARE_SYNC_ENCODING == TRICE_ENCODING \
+ || TRICE_FAST_BARE_WRAP_ENCODING == TRICE_ENCODING
 
 ///////////////////////////////////////////////////////////////////////////////
 // TRICE macros
@@ -327,9 +320,17 @@ When several data, the real ID comes in the last 32 bit sequence.
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
 
-#endif // #if MORE_FLASH_AND_SPEED == TRICE_CODE // ######################################
+#endif // #if TRICE_FAST_BARE_SYNC_ENCODING == TRICE_ENCODING 
 
-#ifdef LESS_FLASH_AND_SPEED // ###########################################################
+
+
+
+
+
+
+
+
+#if TRICE_LESS_BAREL_SYNC_ENCODING == TRICE_ENCODING 
 
 ///////////////////////////////////////////////////////////////////////////////
 // internal trice functions
@@ -982,9 +983,7 @@ TRICE_INLINE void trice_64_2_ocs( uint16_t Id, uint64_t d0, uint64_t d1 ){
     trice_64_2_ocs( Id, (uint64_t)d0, (uint64_t)d1 ); \
 } while(0)
 
-#endif // #ifdef LESS_FLASH_AND_SPEED // ################################################
-#endif // #ifdef TRICE_WRITE_BARE_FIFO // ###############################################
-
+#endif // #if TRICE_LESS_BARE_SYNC_ENCODING == TRICE_ENCODING
 
 #ifdef __cplusplus
 }
