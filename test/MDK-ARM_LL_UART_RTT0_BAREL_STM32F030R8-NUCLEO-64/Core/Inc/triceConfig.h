@@ -22,7 +22,7 @@ extern "C" {
 
 ///////////////////////////////////////////////////////////////////////////////
 // select target trice method
-#define TRICE_ENCODING TRICE_FAST_BARE_SYNC_ENCODING
+#define TRICE_ENCODING TRICE_LESS_BAREL_SYNC_ENCODING
 
 #define TRICE_PUSH_BYTE(v) do{ tricePushByteSeggerRTT(v); triceU8Push(v); } while(0) //!< Set trice out channel(s) 
 #define TRICE_PUSH(v) do{ tricePushSeggerRTT(v); triceU32Push(v); } while(0) //!< Set trice out channel(s) 

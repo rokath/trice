@@ -23,12 +23,14 @@ extern "C" {
 
 #include "triceConfig.h"
 #include "intern/triceConfigCompiler.h"
+#include "intern/triceFifo.h"
+#include "intern/triceSeggerRTT.h"
+
 #include "intern/triceNoCode.h"
 #include "intern/triceEsc.h"
 #include "intern/triceFastBare.h"
 #include "intern/triceLessFlashBareL.h"
-#include "intern/triceFifo.h"
-#include "intern/triceSeggerRTT.h"
+
 #include "intern/triceBareFifoToBytesBuffer.h"
 
 #define Id(n) (n) //!< Macro for improved trice readability and better source code parsing.

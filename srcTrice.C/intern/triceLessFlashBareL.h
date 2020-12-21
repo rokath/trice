@@ -1,9 +1,9 @@
-/*! \file triceBare.h
+/*! \file triceLessBareL.h
 \author Thomas.Hoehenleitner [at] seerose.net
 *******************************************************************************/
 
-#ifndef TRICE_BARE_H_
-#define TRICE_BARE_H_
+#ifndef TRICE_LESS_BAREL_H_
+#define TRICE_LESS_BAREL_H_
 
 #ifdef __cplusplus
 extern "C" {
@@ -11,7 +11,6 @@ extern "C" {
 
 #include <stdint.h>
 #include "trice.h"
-
 
 #if TRICE_LESS_BAREL_SYNC_ENCODING == TRICE_ENCODING 
 
@@ -672,4 +671,4 @@ TRICE_INLINE void trice_64_2_ocs( uint16_t Id, uint64_t d0, uint64_t d1 ){
 }
 #endif
 
-#endif /* TRICE_BARE_H_ */
+#endif /* TRICE_LESS_BAREL_H_ */

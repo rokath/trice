@@ -100,21 +100,3 @@ void triceServeBareFifoWrappedToBytesBuffer(void) {
         }
     }
 }
-
-/*
-//! triceServeBareFifoToBytesBuffer must be called cyclically to proceed ongoing write out.
-//! It schould be called at least every ms.
-//! A possibe place is main loop.
-void triceServeBareFifoToBytesBuffer(int encoding) {
-    switch( encoding ){
-    case SYNCED_BARE_ENCODING:
-        triceServeBareFifoSyncedToBytesBuffer();
-        return;
-    case WRAPPED_BARE_ENCODING:
-        triceServeBareFifoWrappedToBytesBuffer();
-        return;
-    default:
-        break;
-    }
-}
-*/
