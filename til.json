@@ -2098,5 +2098,12 @@
 		"fmtStrg": "s:                                                          \\ns:   MDK-ARM_LL_UART_WRAP_RTT0_BARE_STM32F030R8-NUCLEO-64   \\ns:                                                          \\n\\n",
 		"created": 1608497366,
 		"removed": 0
+	},
+	{
+		"id": 16472,
+		"fmtType": "TRICE0",
+		"fmtStrg": "s:                                                    \\ns:   MDK-ARM_LL_UART_RTT0_BAREL_STM32F030_NUCLEO-64   \\ns:                                                    \\n\\n",
+		"created": 1608550216,
+		"removed": 0
 	}
 ]

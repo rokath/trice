@@ -9,6 +9,8 @@
 extern "C" {
 #endif
 
+#include <stdint.h>
+
 void tricePushSeggerRTT(uint32_t v);
 void tricePushByteSeggerRTT(uint8_t v);
 
