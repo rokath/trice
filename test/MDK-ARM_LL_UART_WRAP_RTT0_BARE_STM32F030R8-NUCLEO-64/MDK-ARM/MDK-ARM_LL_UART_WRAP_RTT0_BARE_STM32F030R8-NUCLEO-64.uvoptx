@@ -166,7 +166,7 @@
           <SizeOfObject>0</SizeOfObject>
           <BreakByAccess>0</BreakByAccess>
           <BreakIfRCount>1</BreakIfRCount>
-          <Filename>&lt;4&gt;..\..\..\srcTrice.C\./intern/triceInterfaceUART.h</Filename>
+          <Filename>&lt;1&gt;..\..\..\srcTrice.C\./intern/triceInterfaceUART.h</Filename>
           <ExecCommand></ExecCommand>
           <Expression>\\MDK_ARM_LL_UART_RTT0_BARE_STM32F030R8_NUCLEO_64\../Core/Src/stm32f0xx_it.c\61</Expression>
         </Bp>

@@ -118,6 +118,15 @@ func Translate(sw *emitter.TriceLineComposer, list *id.List, rc io.ReadCloser /*
 				dec = NewBareFormat(list.ItemList, rc) // read list again - it could have changed
 			}
 		}
+	case "bareL":
+		dec := NewBareLFormat(list.ItemList, rc)
+		for {
+			err := run(sw, dec)
+			if nil != err {
+				time.Sleep(2 * time.Second)
+				dec = NewBareLFormat(list.ItemList, rc) // read list again - it could have changed
+			}
+		}
 	case "wrap":
 		dec := NewBareFormat(list.ItemList, NewBareReaderFromWrap(rc))
 		for {

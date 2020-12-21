@@ -12,15 +12,15 @@ import (
 )
 
 // Bare is the Decoder instance for bare encoded trices.
-type Bare struct {
+type BareL struct {
 	decoding
 }
 
 // NewBareFormat provides an BareDecoder instance.
 // l is the trice id list in slice of struct format.
 // in is the usable reader for the input bytes.
-func NewBareFormat(l []id.Item, in io.Reader) (p *Bare) {
-	p = &Bare{}
+func NewBareLFormat(l []id.Item, in io.Reader) (p *BareL) {
+	p = &BareL{}
 	p.in = in
 	p.syncBuffer = make([]byte, 0, 2*buffSize)
 	p.lut = MakeLut(l)
@@ -31,7 +31,7 @@ func NewBareFormat(l []id.Item, in io.Reader) (p *Bare) {
 // It uses inner reader and internal id look-up table to fill ss.
 // ss is a slice of strings with a len for the max expected strings.
 // m is the count of decoded strings inside ss.
-func (p *Bare) StringsRead(ss []string) (m int, err error) {
+func (p *BareL) StringsRead(ss []string) (m int, err error) {
 	// p.syncBuffer contains unprocessed bytes.
 	// This could be the max size -1 for one trice (TRICE64_2 is 32 bytes long), so 31 bytes
 	maxBytes := 4*len(ss) - len(p.syncBuffer) // one bare trice is 4 bytes: IDHi IDLo b0 b1, so surely read not more than space in ss
@@ -54,8 +54,8 @@ func (p *Bare) StringsRead(ss []string) (m int, err error) {
 				return
 			}
 			// the 2 triceID bytes are in bigendian format (network byte order)
-			triceID = (int(p.syncBuffer[index+0]) << 8) | int(p.syncBuffer[index+1]) // to do use binary.
-			//triceID = int(binary.BigEndian.Uint16(p.syncBuffer[index+0 : index+1]))
+			triceID = (int(p.syncBuffer[index+1]) << 8) | int(p.syncBuffer[index+0]) // to do use binary.
+			//triceID = int(binary.LittleEndian.Uint16(p.syncBuffer[index+0 : index+1]))
 			if 0x89ab == triceID && 0xcd == p.syncBuffer[index+2] && 0xef == p.syncBuffer[index+3] {
 				// remove sync packet
 				sb0 := p.syncBuffer[:index]
@@ -132,7 +132,7 @@ func (p *Bare) StringsRead(ss []string) (m int, err error) {
 			p.syncBuffer = p.syncBuffer[4:]
 			continue
 		case "TRICE16_1":
-			ss[m] = fmt.Sprintf(trice.Strg, int16(binary.BigEndian.Uint16(p.syncBuffer[2:4])))
+			ss[m] = fmt.Sprintf(trice.Strg, int16(binary.LittleEndian.Uint16(p.syncBuffer[2:4])))
 			m++
 			p.syncBuffer = p.syncBuffer[4:]
 			continue
@@ -155,14 +155,14 @@ func (p *Bare) StringsRead(ss []string) (m int, err error) {
 			continue
 		case "TRICE16_2":
 			ss[m] = fmt.Sprintf(trice.Strg,
-				int16(binary.BigEndian.Uint16(p.syncBuffer[2:4])),
-				int16(binary.BigEndian.Uint16(p.syncBuffer[6:8])))
+				int16(binary.LittleEndian.Uint16(p.syncBuffer[2:4])),
+				int16(binary.LittleEndian.Uint16(p.syncBuffer[6:8])))
 			m++
 			p.syncBuffer = p.syncBuffer[8:]
 			continue
 		case "TRICE32_1":
-			vH := int32(binary.BigEndian.Uint16(p.syncBuffer[2:4])) << 16
-			vL := int32(binary.BigEndian.Uint16(p.syncBuffer[6:8]))
+			vH := int32(binary.LittleEndian.Uint16(p.syncBuffer[2:4])) << 16
+			vL := int32(binary.LittleEndian.Uint16(p.syncBuffer[6:8]))
 			ss[m] = fmt.Sprintf(trice.Strg, vH|vL)
 			m++
 			p.syncBuffer = p.syncBuffer[8:]
@@ -190,9 +190,9 @@ func (p *Bare) StringsRead(ss []string) (m int, err error) {
 			continue
 		case "TRICE16_3":
 			ss[m] = fmt.Sprintf(trice.Strg,
-				int16(binary.BigEndian.Uint16(p.syncBuffer[2:4])),
-				int16(binary.BigEndian.Uint16(p.syncBuffer[6:8])),
-				int16(binary.BigEndian.Uint16(p.syncBuffer[10:12])))
+				int16(binary.LittleEndian.Uint16(p.syncBuffer[2:4])),
+				int16(binary.LittleEndian.Uint16(p.syncBuffer[6:8])),
+				int16(binary.LittleEndian.Uint16(p.syncBuffer[10:12])))
 			m++
 			p.syncBuffer = p.syncBuffer[12:]
 			continue
@@ -223,65 +223,65 @@ func (p *Bare) StringsRead(ss []string) (m int, err error) {
 			continue
 		case "TRICE16_4":
 			ss[m] = fmt.Sprintf(trice.Strg,
-				int16(binary.BigEndian.Uint16(p.syncBuffer[2:4])),
-				int16(binary.BigEndian.Uint16(p.syncBuffer[6:8])),
-				int16(binary.BigEndian.Uint16(p.syncBuffer[10:12])),
-				int16(binary.BigEndian.Uint16(p.syncBuffer[14:16])))
+				int16(binary.LittleEndian.Uint16(p.syncBuffer[2:4])),
+				int16(binary.LittleEndian.Uint16(p.syncBuffer[6:8])),
+				int16(binary.LittleEndian.Uint16(p.syncBuffer[10:12])),
+				int16(binary.LittleEndian.Uint16(p.syncBuffer[14:16])))
 			m++
 			p.syncBuffer = p.syncBuffer[16:]
 			continue
 		case "TRICE32_2":
-			v0H := int32(binary.BigEndian.Uint16(p.syncBuffer[2:4])) << 16
-			v0L := int32(binary.BigEndian.Uint16(p.syncBuffer[6:8]))
-			v1H := int32(binary.BigEndian.Uint16(p.syncBuffer[10:12])) << 16
-			v1L := int32(binary.BigEndian.Uint16(p.syncBuffer[14:16]))
+			v0H := int32(binary.LittleEndian.Uint16(p.syncBuffer[2:4])) << 16
+			v0L := int32(binary.LittleEndian.Uint16(p.syncBuffer[6:8]))
+			v1H := int32(binary.LittleEndian.Uint16(p.syncBuffer[10:12])) << 16
+			v1L := int32(binary.LittleEndian.Uint16(p.syncBuffer[14:16]))
 			ss[m] = fmt.Sprintf(trice.Strg, v0H|v0L, v1H|v1L)
 			m++
 			p.syncBuffer = p.syncBuffer[16:]
 			continue
 		case "TRICE64_1":
-			vHH := int64(binary.BigEndian.Uint16(p.syncBuffer[2:4])) << 48
-			vHL := int64(binary.BigEndian.Uint16(p.syncBuffer[6:8])) << 32
-			vLH := int64(binary.BigEndian.Uint16(p.syncBuffer[10:12])) << 16
-			vLL := int64(binary.BigEndian.Uint16(p.syncBuffer[14:16]))
+			vHH := int64(binary.LittleEndian.Uint16(p.syncBuffer[2:4])) << 48
+			vHL := int64(binary.LittleEndian.Uint16(p.syncBuffer[6:8])) << 32
+			vLH := int64(binary.LittleEndian.Uint16(p.syncBuffer[10:12])) << 16
+			vLL := int64(binary.LittleEndian.Uint16(p.syncBuffer[14:16]))
 			ss[m] = fmt.Sprintf(trice.Strg, vHH|vHL|vLH|vLL)
 			m++
 			p.syncBuffer = p.syncBuffer[16:]
 			continue
 		case "TRICE32_3":
-			v0H := int32(binary.BigEndian.Uint16(p.syncBuffer[2:4])) << 16
-			v0L := int32(binary.BigEndian.Uint16(p.syncBuffer[6:8]))
-			v1H := int32(binary.BigEndian.Uint16(p.syncBuffer[10:12])) << 16
-			v1L := int32(binary.BigEndian.Uint16(p.syncBuffer[14:16]))
-			v2H := int32(binary.BigEndian.Uint16(p.syncBuffer[18:20])) << 16
-			v2L := int32(binary.BigEndian.Uint16(p.syncBuffer[22:24]))
+			v0H := int32(binary.LittleEndian.Uint16(p.syncBuffer[2:4])) << 16
+			v0L := int32(binary.LittleEndian.Uint16(p.syncBuffer[6:8]))
+			v1H := int32(binary.LittleEndian.Uint16(p.syncBuffer[10:12])) << 16
+			v1L := int32(binary.LittleEndian.Uint16(p.syncBuffer[14:16]))
+			v2H := int32(binary.LittleEndian.Uint16(p.syncBuffer[18:20])) << 16
+			v2L := int32(binary.LittleEndian.Uint16(p.syncBuffer[22:24]))
 			ss[m] = fmt.Sprintf(trice.Strg, v0H|v0L, v1H|v1L, v2H|v2L)
 			m++
 			p.syncBuffer = p.syncBuffer[24:]
 			continue
 		case "TRICE32_4":
-			v0H := int32(binary.BigEndian.Uint16(p.syncBuffer[2:4])) << 16
-			v0L := int32(binary.BigEndian.Uint16(p.syncBuffer[6:8]))
-			v1H := int32(binary.BigEndian.Uint16(p.syncBuffer[10:12])) << 16
-			v1L := int32(binary.BigEndian.Uint16(p.syncBuffer[14:16]))
-			v2H := int32(binary.BigEndian.Uint16(p.syncBuffer[18:20])) << 16
-			v2L := int32(binary.BigEndian.Uint16(p.syncBuffer[22:24]))
-			v3H := int32(binary.BigEndian.Uint16(p.syncBuffer[26:28])) << 16
-			v3L := int32(binary.BigEndian.Uint16(p.syncBuffer[30:32]))
+			v0H := int32(binary.LittleEndian.Uint16(p.syncBuffer[2:4])) << 16
+			v0L := int32(binary.LittleEndian.Uint16(p.syncBuffer[6:8]))
+			v1H := int32(binary.LittleEndian.Uint16(p.syncBuffer[10:12])) << 16
+			v1L := int32(binary.LittleEndian.Uint16(p.syncBuffer[14:16]))
+			v2H := int32(binary.LittleEndian.Uint16(p.syncBuffer[18:20])) << 16
+			v2L := int32(binary.LittleEndian.Uint16(p.syncBuffer[22:24]))
+			v3H := int32(binary.LittleEndian.Uint16(p.syncBuffer[26:28])) << 16
+			v3L := int32(binary.LittleEndian.Uint16(p.syncBuffer[30:32]))
 			ss[m] = fmt.Sprintf(trice.Strg, v0H|v0L, v1H|v1L, v2H|v2L, v3H|v3L)
 			m++
 			p.syncBuffer = p.syncBuffer[32:]
 			continue
 		case "TRICE64_2":
-			v0HH := int64(binary.BigEndian.Uint16(p.syncBuffer[2:4])) << 48
-			v0HL := int64(binary.BigEndian.Uint16(p.syncBuffer[6:8])) << 32
-			v0LH := int64(binary.BigEndian.Uint16(p.syncBuffer[10:12])) << 16
-			v0LL := int64(binary.BigEndian.Uint16(p.syncBuffer[14:16]))
+			v0HH := int64(binary.LittleEndian.Uint16(p.syncBuffer[2:4])) << 48
+			v0HL := int64(binary.LittleEndian.Uint16(p.syncBuffer[6:8])) << 32
+			v0LH := int64(binary.LittleEndian.Uint16(p.syncBuffer[10:12])) << 16
+			v0LL := int64(binary.LittleEndian.Uint16(p.syncBuffer[14:16]))
 
-			v1HH := int64(binary.BigEndian.Uint16(p.syncBuffer[18:20])) << 48
-			v1HL := int64(binary.BigEndian.Uint16(p.syncBuffer[22:24])) << 32
-			v1LH := int64(binary.BigEndian.Uint16(p.syncBuffer[26:28])) << 16
-			v1LL := int64(binary.BigEndian.Uint16(p.syncBuffer[30:32]))
+			v1HH := int64(binary.LittleEndian.Uint16(p.syncBuffer[18:20])) << 48
+			v1HL := int64(binary.LittleEndian.Uint16(p.syncBuffer[22:24])) << 32
+			v1LH := int64(binary.LittleEndian.Uint16(p.syncBuffer[26:28])) << 16
+			v1LL := int64(binary.LittleEndian.Uint16(p.syncBuffer[30:32]))
 			ss[m] = fmt.Sprintf(trice.Strg, v0HH|v0HL|v0LH|v0LL, v1HH|v1HL|v1LH|v1LL)
 			m++
 			p.syncBuffer = p.syncBuffer[32:]
