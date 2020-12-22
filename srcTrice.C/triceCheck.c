@@ -13,26 +13,6 @@
 // trice time measurement
 //
 
-#if defined( __arm__ )       /* Defined by GNU C and RealView */ \
- || defined( __thumb__ )  /* Defined by GNU C and RealView in Thumb mode */ \
- || defined( _ARM )       /* Defined by ImageCraft C */ \
- || defined( _M_ARM )     /* Defined by Visual Studio */ \
- || defined( _M_ARMT )    /* Defined by Visual Studio in Thumb mode */ \
- || defined( __arm )      /* Defined by Diab */ \
- || defined( __ICCARM__ ) /* IAR */ \
- || defined( __CC_ARM )   /* ARM's (RealView) compiler */ \
- || defined( __ARM__ )    /* TASKING VX ARM toolset C compiler */ \
- || defined( __CARM__ )   /* TASKING VX ARM toolset C compiler */ \
- || defined( __CPARM__ )  /* TASKING VX ARM toolset C++ compiler */
-#define SYSTICKVAL32 (*(volatile uint32_t*)0xE000E018UL)
-#else
-#error "unknown architecture"
-#define SYSTICKVAL32 0
-#endif
-
-#define SYSTICKVAL16 ((uint16_t)SYSTICKVAL32)
-
-
 #ifndef TRICE_S
 #define TRICE_S( i, p, s )
 #endif
@@ -57,7 +37,23 @@ void triceCheckSet(int index) {
             TRICE16_1(Id(18113), "ERR:error       message, SysTick is %6d\n", SYSTICKVAL16);
             TRICE16_1(Id(28289), "WRN:warning     message, SysTick is %6d\n", SYSTICKVAL16);
             TRICE16_1(Id(53560), "ATT:attension   message, SysTick is %6d\n", SYSTICKVAL16);
+                 // Disassembly for fast bare 
+                 //     39:             TRICE16_1(Id(53560), "ATT:attension   message, SysTick is %6d\n", SYSTICKVAL16); 
+                 // 	                                        ; r2 contains 0xE000E000
+                 // 0x0800087C 6994      LDR      r4,[r2,#0x18] ; load systick into R4
+                 // 0x0800087E 0DC0      LSRS     r0,r0,#23     ; right shift triceU32FifoWriteIndex by 23 (half mask operation)
+                 // 0x08000880 4DE8      LDR      r5,[pc,#928]  ; @0x08000C24 = load ID into r5 (upper 16 bit because <<16 inside Id())
+                 // 0x08000882 B2A4      UXTH     r4,r4         ; (uint16_t) mask
+                 // 0x08000884 1964      ADDS     r4,r4,r5      ; combine ID and systic into r4
+                 // 0x08000886 0085      LSLS     r5,r0,#2      ; compute from r0 byte index into r5
+                 // 0x08000888 514C      STR      r4,[r1,r5]    ; store trice to memory location
+                 // 0x0800088A 1C40      ADDS     r0,r0,#1      ; increment 32 bit index
+                 // 0x0800088C 05C0      LSLS     r0,r0,#23     ; left shift triceU32FifoWriteIndex by 23 (half mask operation)
+                 //     40:             TRICE16_1(Id(16672), "DIA:diagnostics message, SysTick is %6d\n", SYSTICKVAL16); 
             TRICE16_1(Id(16672), "DIA:diagnostics message, SysTick is %6d\n", SYSTICKVAL16);
+        
+        
+        
             TRICE16_1(Id(42206), "TIM:timing      message, SysTick is %6d\n", SYSTICKVAL16);
             TRICE16_1(Id(23973), "DBG:debug       message, SysTick is %6d\n", SYSTICKVAL16);
             break;
@@ -189,7 +185,7 @@ void triceCheckSet(int index) {
         TRICE_S( Id(18), "%s", "123456789ABCDEFGHIJ0123456789ABCDEFGHIJ012\n" );
         break;
     case 17: 
-       TRICE_S( Id(18), "%s", "123456789ABCDEFGHIJ0123456789ABCDEFGHIJ0123\n" );
+        TRICE_S( Id(18), "%s", "123456789ABCDEFGHIJ0123456789ABCDEFGHIJ0123\n" );
         TRICE_S( Id(18), "%s", "123456789ABCDEFGHIJ0123456789ABCDEFGHIJ01234\n" );
         TRICE_S( Id(18), "%s", "123456789ABCDEFGHIJ0123456789ABCDEFGHIJ012345\n" );
         TRICE_S( Id(18), "%s", "123456789ABCDEFGHIJ0123456789ABCDEFGHIJ0123456\n" );
@@ -218,8 +214,9 @@ void triceCheckSet(int index) {
       // forbidden
       //TRICE_S( Id(18), "%s", "123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRABCD\n" );
         break;
-            
-    case 23:
+    case 25:
+       // TRICE_RS( "tata" ):
+    case 33:
 #ifdef ENCRYPT
             {
                 uint8_t b[8] = {1,2,3,4,5,6,7,8};

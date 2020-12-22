@@ -103,7 +103,7 @@ extern "C" {
 #define SYSTICKVAL32 0
 #endif
 
-#define SYSTICKVAL16 ((uint16_t)SYSTICKVAL32)
+#define SYSTICKVAL16 (SYSTICKVAL32)
 
 #ifdef __cplusplus
 }

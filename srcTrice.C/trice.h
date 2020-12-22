@@ -33,8 +33,6 @@ extern "C" {
 
 #include "intern/triceBareFifoToBytesBuffer.h"
 
-#define Id(n) (n) //!< Macro for improved trice readability and better source code parsing.
-
 #ifdef __cplusplus
 }
 #endif
