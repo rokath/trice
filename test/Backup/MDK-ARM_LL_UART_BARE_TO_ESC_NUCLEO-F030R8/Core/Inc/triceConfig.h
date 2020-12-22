@@ -47,11 +47,11 @@ void tricePushByteSeggerRTT(uint8_t v);
 //! used as TRICE_CODE macro option for less flash occupation, but increases execution time and needs bigger buffers
 //#define LESS_FLASH_AND_SPEED
 
-void tricePushSeggerRTT( uint32_t );
+void triceU32PushSeggerRTT( uint32_t );
 void tricePushBareFifo( uint32_t );
 
 //! Set trice out channel(s) 
-#define TRICE_PUSH(v) do{ tricePushSeggerRTT(v); tricePushBareFifo(v); } while(0)
+#define TRICE_PUSH(v) do{ triceU32PushSeggerRTT(v); tricePushBareFifo(v); } while(0)
 
 #endif // #ifdef TRICE_WRITE_BARE_FIFO
 //
@@ -70,7 +70,7 @@ void tricePushBareFifo( uint32_t );
 //! used as TRICE_CODE macro option for less flash occupation, but increases execution time and needs bigger buffers
 //#define LESS_FLASH_AND_SPEED
 
-void tricePushSeggerRTT( uint32_t );
+void triceU32PushSeggerRTT( uint32_t );
 void tricePushBareFifo( uint32_t );
 
 //! Set trice out channel(s) 

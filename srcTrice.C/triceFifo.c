@@ -56,16 +56,16 @@ int triceU32WriteInt8ReadFifoDepth(void) {
 
 static void triceWritePaddingBytes(int count) {
     while (count--) {
-        TRICE_PUSH_BYTE(0);
+        TRICE_U8PUSH(0);
     }
 }
 
 static void triceWriteEsc(int count, uint8_t *buf) {
     while (count--) {
         uint8_t c = *buf++;
-        TRICE_PUSH_BYTE(c);
+        TRICE_U8PUSH(c);
         if (TRICE_ESC == c) {
-            TRICE_PUSH_BYTE(TRICE_DEL);
+            TRICE_U8PUSH(TRICE_DEL);
         }
     }
 }
@@ -73,7 +73,7 @@ static void triceWriteEsc(int count, uint8_t *buf) {
 //! Start with TRICE_ESC and then comes buf
 void triceWriteEscP(int count, uint8_t *buf) {
     TRICE_ENTER_CRITICAL_SECTION
-    TRICE_PUSH_BYTE(TRICE_ESC);
+    TRICE_U8PUSH(TRICE_ESC);
     triceWriteEsc(count, buf);
     TRICE_LEAVE_CRITICAL_SECTION
 }
@@ -91,7 +91,7 @@ void trice_s(uint16_t Id, char *dynString) {
     }                // k:  0 | 1 2 4 4 8
     uint8_t msg[] = {TRICE_P0 + h, TRICE_HI_BYTE(Id), TRICE_LO_BYTE(Id)};
     TRICE_ENTER_CRITICAL_SECTION
-    TRICE_PUSH_BYTE(TRICE_ESC);
+    TRICE_U8PUSH(TRICE_ESC);
     triceWriteEsc(sizeof(msg), msg);
     triceWriteEsc(n, (uint8_t *) dynString);
     triceWritePaddingBytes(k - n);

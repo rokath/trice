@@ -14,10 +14,10 @@ extern "C" {
 #define TRICE_LESS_BARE_SYNC_ENCODING 30
 #define TRICE_FAST_BARE_WRAP_ENCODING 40
 #define TRICE_LESS_BARE_WRAP_ENCODING 50
-#define TRICE_FAST_BAREL_SYNC_ENCODING 60
-#define TRICE_LESS_BAREL_SYNC_ENCODING 70
-#define TRICE_FAST_BAREL_WRAP_ENCODING 80
-#define TRICE_LESS_BAREL_WRAP_ENCODING 90
+#define TRICE_FAST_BARE_L_SYNC_ENCODING 60
+#define TRICE_LESS_BARE_L_SYNC_ENCODING 70
+#define TRICE_FAST_BARE_L_WRAP_ENCODING 80
+#define TRICE_LESS_BARE_L_WRAP_ENCODING 90
 #define TRICE_ESC_ENCODING 100
 #define TRICE_ESCL_ENCODING 200
 
@@ -29,7 +29,7 @@ extern "C" {
 #include "intern/triceNoCode.h"
 #include "intern/triceEsc.h"
 #include "intern/triceFastBare.h"
-#include "intern/triceLessFlashBareL.h"
+//#include "intern/triceLessFlashBareL.h"
 
 #include "intern/triceBareFifoToBytesBuffer.h"
 

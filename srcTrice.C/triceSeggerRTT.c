@@ -10,7 +10,7 @@
 //! put one trice into RTT0 buffer
 //! \param v trice
 //! trice time critical part
-void tricePushSeggerRTT(uint32_t v) {
+void triceU32PushSeggerRTT(uint32_t v) {
     uint8_t b[4];
     b[0] = (uint8_t)(v >> 24);
     b[1] = (uint8_t)(v >> 16);
@@ -23,6 +23,6 @@ void tricePushSeggerRTT(uint32_t v) {
 //! put one byte into RTT0 buffer
 //! \param v byte
 //! trice time critical part
-void tricePushByteSeggerRTT(uint8_t v) {
+void triceU8PushSeggerRTT(uint8_t v) {
     SEGGER_RTT_Write(TRICE_RTT_CHANNEL, &v, sizeof(v));
 }

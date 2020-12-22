@@ -1,9 +1,9 @@
-/*! \file triceFastBare.h
+/*! \file triceFastBareL.h
 \author Thomas.Hoehenleitner [at] seerose.net
 *******************************************************************************/
 
-#ifndef TRICE_FAST_BARE_H_
-#define TRICE_FAST_BARE_H_
+#ifndef TRICE_FAST_BARE_L_H_
+#define TRICE_FAST_BARE_L_H_
 
 #ifdef __cplusplus
 extern "C" {
@@ -12,8 +12,8 @@ extern "C" {
 #include <stdint.h>
 #include "trice.h"
 
-#if TRICE_FAST_BARE_SYNC_ENCODING == TRICE_ENCODING \
- || TRICE_FAST_BARE_WRAP_ENCODING == TRICE_ENCODING
+#if TRICE_FAST_BARE_L_SYNC_ENCODING == TRICE_ENCODING \
+ || TRICE_FAST_BARE_L_WRAP_ENCODING == TRICE_ENCODING
 
 ///////////////////////////////////////////////////////////////////////////////
 // TRICE macros
@@ -326,4 +326,4 @@ When several data, the real ID comes in the last 32 bit sequence.
 }
 #endif
 
-#endif /* TRICE_BARE_H_ */
+#endif /* TRICE_BARE_L_H_ */

@@ -1,10 +1,58 @@
 # Trice encodings
 
-There are different possibilities for encoding trices. The trice encoding inside the triceFifo can differ from the trice transmit format.
+## Encoding `bare`
 
-## bareL internal triceFifo storage format
+The bare trice transmit format is in network order (big endian). The trice encoding inside the triceFifo differs from the trice transmit format on little endian mashines for performance reasons.
 
-- This is the fastest storage option on little endian mashines.
+- The bare triceFifo storage format is in machine order concerning 16 bit values but big endian for 32 and 64 bit values. In detail:
+  - on big endian mashines:
+    - m = H
+    - n = L
+  - on little endian mashines:
+    - m = L
+    - n = H
+
+## bare internal triceFifo storage format expressed in mashine order
+
+```b
+      0     1     2     3 | macro
+--------------------------|--------
+     Im    In     0     0 | TRICE0( Id(I), "..." );
+     Im    In    b0     0 | TRICE8_1( Id(I), "...", b0 );
+     Im    In    b0    b1 | TRICE8_2( Id(I), "...", b1 );
+     Im    In   w0m   w0n | TRICE16_1( Id(I), "...", w0 );
+```
+
+```b
+     0      1     2     3     4     5     6     7 | macro
+--------------------------------------------------|-----------------------------------------------
+     0      0    b0    b1    Im    In    b2     0 | TRICE8_3( Id(I), "...", b0, b1, b2 );
+     0      0    b0    b1    Im    In    b2    b3 | TRICE8_4( Id(I), "...", b0, b1, b2, b3 );
+     0      0   w0m   w0n    Im    In   w1m   w1n | TRICE16_2( Id(I), "...", w0, w1 );
+     0      0  d0Hm  d0Hn    Im    In  d0Lm  d0Ln | TRICE32_1( Id(I), "...", d0 );
+```
+
+```b
+     0      1     2     3     4     5     6     7     8     9     10     11 | macro
+----------------------------------------------------------------------------|------------
+     0      0    b0    b1     0     0    b2    b3    Im    In     b4      0 | TRICE8_5( Id(I), "...", b0, b1, b2, b3, b4 );
+     0      0    b0    b1     0     0    b2    b3    Im    In     b4     b5 | TRICE8_6( Id(I), "...", b0, b1, b2, b3, b4, b5 );
+     0      0   w0m   w0n     0     0   w1m   w1n    Im    In    w2m    w2n | TRICE16_3( Id(I), "...", w0, w1, w2);
+```
+
+```b
+     0      1     2     3     4     5     6     7     8     9     10     11     12     13     14     15 | macro
+--------------------------------------------------------------------------------------------------------|------------
+     0      0    b0    b1     0     0    b2    b3     0     0     b4     b5     Im     In     b6      0 | TRICE8_7( Id(I), "...", b0, b1, b2, b3, b4, b5, b6 );
+     0      0    b0    b1     0     0    b2    b3     0     0     b4     b5     Im     In     b6     b7 | TRICE8_8( Id(I), "...", b0, b1, b2, b3, b4, b5, b6, b7 );
+     0      0   w0m   w0n     0     0   w1m   w1n     0     0    w2m    w2n     Im     In    w3m    w3n | TRICE16_3( Id(I), "...", w0, w1, w2, w3);
+     0      0  d0Hm  d0Hn     0     0  d0Lm  d0Ln     0     0   d1Hm   d1Hn     Im     In   d1Lm   d1Ln | TRICE32_2( Id(I), "...", d0, d1 );
+     0      0 l0HHm l0HHn     0     0 l0HLm l0HLn     0     0  l0LHm  l0LHn     Im     In  l0LLm  l0LLn | TRICE64_1( Id(I), "...", l0 );
+```
+
+and so on...
+
+## bare internal triceFifo storage format on little endian mashines
 
 ```b
       0     1     2     3 | macro
@@ -21,7 +69,7 @@ There are different possibilities for encoding trices. The trice encoding inside
      0      0    b0    b1    IL    IH    b2     0 | TRICE8_3( Id(I), "...", b0, b1, b2 );
      0      0    b0    b1    IL    IH    b2    b3 | TRICE8_4( Id(I), "...", b0, b1, b2, b3 );
      0      0   w0L   w0H    IL    IH   w1L   w1H | TRICE16_2( Id(I), "...", w0, w1 );
-     0      0  d0LL  d0LH    IL    IH  d0HL  d0HH | TRICE32_1( Id(I), "...", d0 );
+     0      0  d0HL  d0HH    IL    IH  d0LL  d0LH | TRICE32_1( Id(I), "...", d0 );
 ```
 
 ```b
@@ -38,23 +86,13 @@ There are different possibilities for encoding trices. The trice encoding inside
      0      0    b0    b1     0     0    b2    b3     0     0     b4     b5     IL     IH     b6      0 | TRICE8_7( Id(I), "...", b0, b1, b2, b3, b4, b5, b6 );
      0      0    b0    b1     0     0    b2    b3     0     0     b4     b5     IL     IH     b6     b7 | TRICE8_8( Id(I), "...", b0, b1, b2, b3, b4, b5, b6, b7 );
      0      0   w0L   w0H     0     0   w1L   w1H     0     0    w2L    w2H     IL     IH    w3L    w3H | TRICE16_3( Id(I), "...", w0, w1, w2, w3);
-     0      0  d0LL  d0LH     0     0  d0HL  d0HH     0     0   d1LL   d1LH     IL     IH   d1HL   d1HH | TRICE32_2( Id(I), "...", d0, d1 );
-     0      0 l0LLL l0LLH     0     0 l0LHL l0LHH     0     0  l0HLL  l0HLH     IL     IH  l0HHL  l0HHH | TRICE64_1( Id(I), "...", l0 );
+     0      0  d0HL  d0HH     0     0  d0LL  d0LH     0     0   d1HL   d1HH     IL     IH   d1LL   d1LH | TRICE32_2( Id(I), "...", d0, d1 );
+     0      0 l0HHL l0HHH     0     0 l0HLL l0HLH     0     0  l0LHL  l0LHH     IL     IH  l0LLL  l0LLH | TRICE64_1( Id(I), "...", l0 );
 ```
 
 and so on...
 
-Because the triceFifo has a power-of-2 size in case of an overflow syncing is without issues.
-
-## bareL transmit format
-
-- This is exactly the same as the bareL internal storage format with one and only one difference: There are sometimes 4 byte [sync packages](#sync-packages) mixed in on 4 byte offsets.
-- Transmitting `bareL` encoded trice messages reduces the code and increases the speed on little-endian mashines.
-
-
-## bare internal triceFifo storage format
-
-- This is the fastest storage option on big endian mashines.
+## bare internal triceFifo storage format on big endian mashines
 
 ```b
       0     1     2     3 | macro
@@ -98,14 +136,11 @@ Because the triceFifo has a power-of-2 size in case of an overflow syncing is wi
 
 ## bare transmit format
 
-- This is exactly the same as the bare internal storage format with one and only one difference: There are sometimes 4 byte [sync packages](#sync-packages) mixed in on 4 byte offsets.
-- Transmitting `bare` encoded trice messages reduces the code and increases the speed on little-endian mashines.
+- This is exactly the same as the bare internal storage format with these differences:
+  - The byte order of the 16 bit values is big endian.
+  - There are sometimes 4 byte [sync packages](#sync-packages) mixed in at 4 byte offsets.
 
-
-
-
-
-
+<!---
 
 internal fifo buffer storage format:
 
@@ -117,12 +152,14 @@ internal fifo buffer storage format:
 
   The bare output format contains exactly the bare bytes but is enriched with sync packages to achieve syncing. The sync package interval is adjustable.
 
+
 - (direct) esc(ape) code format
 
   During untime the esc code format is generated immediately during the TRICE macro execution. This results in a slightly longer TRICE macro execution but allows the direct background transfer to the output device (UART or RTT memory) because re-sync is easy. One advantage of the esc format compared to bare is the more efficient coding of dynamic strings if you have lots of them.
 
-
 Targest can send trices in different encodings
+
+--->
 
 ## Encoding `esc`
 

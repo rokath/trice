@@ -11,8 +11,8 @@ extern "C" {
 
 #include <stdint.h>
 
-void tricePushSeggerRTT(uint32_t v);
-void tricePushByteSeggerRTT(uint8_t v);
+void triceU32PushSeggerRTT(uint32_t v);
+void triceU8PushSeggerRTT(uint8_t v);
 
 #ifdef __cplusplus
 }
