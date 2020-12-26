@@ -1,5 +1,57 @@
 # Trice encodings
 
+## Encoding `pack32`
+
+
+The pack32 trice transmit format is in network order (big endian). The trice encoding inside the triceFifo is already network order. So it is unchanged movable to the output channel. 
+
+
+
+```b
+      0     1     2     3 | macro
+--------------------------|--------
+     IH    IL     0     0 | TRICE0( Id(I), "..." );
+     IH    IL     0     0 | TRICE_S( Id(I), "...%s...", "" );
+```
+
+```b
+     0     1     2     3     4     5     6     7      | macro
+------------------------------------------------------|-----------------------------------------------------
+     IH    IL   cntH  cntL   b0    0     0     0      | TRICE8_1( Id(I), "...", b0 );             // cnt = 1
+     IH    IL   cntH  cntL   b0    b1    0     0      | TRICE8_2( Id(I), "...", b0, b1 );         // cnt = 2
+     IH    IL   cntH  cntL   b0    b1    b2    0      | TRICE8_3( Id(I), "...", b0, b1, b2 );     // cnt = 2
+     IH    IL   cntH  cntL   b0    b1    b2    b3     | TRICE8_4( Id(I), "...", b0, b1, b2, b3 ); // cnt = 3
+     IH    IL   cntH  cntL   w0H   w0L   0     0      | TRICE16_1( Id(I), "...", w0 );            // cnt = 2
+     IH    IL   cntH  cntL   w0H   w0L   w1H   w1L    | TRICE16_2( Id(I), "...", w0, w1 );        // cnt = 4
+     IH    IL   cntH  cntL   d0HH  d0HL  d0LH  d0LL   | TRICE32_1( Id(I), "...", d0 );            // cnt = 4
+     IH    IL   cntH  cntL   'a'   0     0     0      | TRICE_S( Id(I), "...%s...", "a" );        // cnt = 1
+     IH    IL   cntH  cntL   'a'  'b'    0     0      | TRICE_S( Id(I), "...%s...", "ab" );       // cnt = 2
+     IH    IL   cntH  cntL   'a'  'b'   'c'    0      | TRICE_S( Id(I), "...%s...", "abc" );      // cnt = 3
+     IH    IL   cntH  cntL   'a'  'b'   'c'   'd'     | TRICE_S( Id(I), "...%s...", "abcd" );     // cnt = 4
+```
+
+
+```b
+     0     1     2     3     4     5     6     7     8     9     10    11     | macro
+------------------------------------------------------------------------------|---------------------------------------------------------------------
+     IH    IL   cntH  cntL   b0    b1    b2    b3    b4    0     0     0      | TRICE8_5( Id(I), "...", b0, b1, b2, b3, b4 );             // cnt = 5
+     IH    IL   cntH  cntL   b0    b1    b2    b3    b4    b5    0     0      | TRICE8_6( Id(I), "...", b0, b1, b2, b3, b4, b5 );         // cnt = 6
+     IH    IL   cntH  cntL   b0    b1    b2    b3    b4    b5    b6    0      | TRICE8_7( Id(I), "...", b0, b1, b2, b3, b4, b5, b6 );     // cnt = 7
+     IH    IL   cntH  cntL   b0    b1    b2    b3    b4    b5    b6    b7     | TRICE8_8( Id(I), "...", b0, b1, b2, b3, b4, b5, b6, b7 ); // cnt = 8
+     IH    IL   cntH  cntL   w0H   w0L   w1H   w1L   w2H   w2L   0     0      | TRICE16_3( Id(I), "...", w0, w1, w2 );                    // cnt = 6
+     IH    IL   cntH  cntL   w0H   w0L   w1H   w1L   w2H   w2L   w3H   w3L    | TRICE16_4( Id(I), "...", w0, w1, w2, w3 );                // cnt = 8
+     IH    IL   cntH  cntL  d0HH  d0HL  d0LH  d0LL  d1HH  d1HL  d1LH  d1LL    | TRICE32_2( Id(I), "...", d0, d1 );                        // cnt = 8
+     IH    IL   cntH  cntL l0HHH l0HHL l0HLH l0HLL l0LHH l0LHL l0LLH l0LLL    | TRICE64_1( Id(I), "...", l0 );                            // cnt = 8
+     IH    IL   cntH  cntL   'a'   'b'   'c'   'd'   'e'   0     0     0      | TRICE_S( Id(I), "...%s...", "abcde" );                    // cnt = 5
+     IH    IL   cntH  cntL   'a'   'b'   'c'   'd'   'e'   'f'   0     0      | TRICE_S( Id(I), "...%s...", "abcdef" );                   // cnt = 6
+     IH    IL   cntH  cntL   'a'   'b'   'c'   'd'   'e'   'f'   'g'   0      | TRICE_S( Id(I), "...%s...", "abcdefg" );                  // cnt = 7
+     IH    IL   cntH  cntL   'a'   'b'   'c'   'd'   'e'   'f'   'g'   'h'    | TRICE_S( Id(I), "...%s...", "abcdefgh" );                 // cnt = 8
+```
+
+and so on...
+
+On each 4-byte aligned offset a sync packet {0x89, 0xab, 0xcd, 0xef} can be inserted.
+
 ## Encoding `bare`
 
 The bare trice transmit format is in network order (big endian). The trice encoding inside the triceFifo differs from the trice transmit format on little endian mashines for performance reasons.
