@@ -49,6 +49,8 @@ TRICE_INLINE void triceLoadInNetworkOrder(uint8_t *p, uint32_t t) {
 TRICE_INLINE void triceTransfer(uint32_t t0, uint32_t t1) {
     triceLoadInNetworkOrder(&triceBytesBuffer[0], t0);
     triceLoadInNetworkOrder(&triceBytesBuffer[4], t1);
+    //triceBytesBuffer[0] = t0;
+    //triceBytesBuffer[1] = t1;
 }
 
 int triceBytesByfferDepth( void ){
