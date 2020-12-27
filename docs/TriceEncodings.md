@@ -1,9 +1,9 @@
 # Trice encodings
 
-## Encoding `pack32`
+## Encoding `pack`
 
 
-The pack32 trice transmit format is in network order (big endian). The trice encoding inside the triceFifo is already network order. So it is unchanged movable to the output channel. 
+The pack trice transmit format is in network order (big endian). The trice encoding inside the triceFifo is already network order. So it is unchanged movable to the output channel. 
 
 
 

@@ -31,7 +31,8 @@ extern "C" {
     defined(__AARCH64EB__) || \
     defined(_MIBSEB) || defined(__MIBSEB) || defined(__MIBSEB__)
 // It's a big-endian target architecture
-#define HTONS(n) (n##u)
+#define HTONS(n) ((uint16_t)(n))
+#define HTON(n)  ((uint32_t)(n))
 #elif defined(__BYTE_ORDER) && __BYTE_ORDER == __LITTLE_ENDIAN || \
     defined(__LITTLE_ENDIAN__) || \
     defined(__ARMEL__) || \
