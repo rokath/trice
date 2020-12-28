@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	syncPacket = "inf:[SYNCPACKET 0x89abcdef]"
+	syncPacket = "inf:[TRICE_SYNCPACKET 0x89abcdef]"
 )
 
 // Pack is the Decoder instance for bare encoded trices.
@@ -20,10 +20,10 @@ type Pack struct {
 	decoding
 }
 
-// NewPackEncoding provides an decoder instance.
+// NewPackDecoder provides an decoder instance.
 // l is the trice id list in slice of struct format.
 // in is the usable reader for the input bytes.
-func NewPackEncoding(l []id.Item, in io.Reader) (p *Pack) {
+func NewPackDecoder(l []id.Item, in io.Reader) (p *Pack) {
 	p = &Pack{}
 	p.in = in
 	p.syncBuffer = make([]byte, 0, 2*buffSize)
@@ -38,27 +38,35 @@ func NewPackEncoding(l []id.Item, in io.Reader) (p *Pack) {
 // m is the count of decoded strings inside ss.
 func (p *Pack) StringsRead(ss []string) (m int, err error) {
 	for m < len(ss) {
-		b := make([]byte, 1000)
+		b := make([]byte, 4096)
 		var n int
 		n, err = p.Read(b)
 		if 0 == n {
 			return
 		}
+		b = b[:n]
 		if syncPacket == string(b) {
 			continue
 		}
-		ss[m] = string(b[:n])
+		ss[m] = string(b)
 		m++
-		if nil != err {
-			return
-		}
+		//return // read only one string for now
+		//if nil != err {
+		//	return
+		//}
 	}
 	return
 }
 
+// bytesCountOk returns true if the transmitted count information matches the expected count
+func (p *Pack) bytesCountOk(triceType string, cnt int) bool {
+	bytesCount := p.expectedByteCount(triceType)
+	return cnt == bytesCount || -1 == bytesCount
+}
+
 // byteCount returns expected byte count for triceType.
 // It returns -1 for an unknown value an -2 for unknown triceType.
-func expectedByteCount(triceType string) int {
+func (p *Pack) expectedByteCount(triceType string) int {
 	switch triceType {
 	case "TRICE0":
 		return 0
@@ -91,21 +99,52 @@ func expectedByteCount(triceType string) int {
 
 // rub removes leading bytes from sync buffer
 func (p *Pack) rub(n int) {
-	p.syncBuffer = p.syncBuffer[:n]
+	p.syncBuffer = p.syncBuffer[n:]
 }
 
-func (p *Pack) paddingBytesOk(triceType string) bool {
+func (p *Pack) paddingBytesOk(triceType string, cnt int) bool {
 	switch triceType {
-	case "TRICE8_1", "TRICE8_5":
+	case "TRICE0", "TRICE8_4", "TRICE8_8",
+		"TRICE16_2", "TRICE16_4",
+		"TRICE32_1", "TRICE32_2", "TRICE32_3", "TRICE32_4",
+		"TRICE64_1", "TRICE64_2":
+		return true // no padding bytes
+	case "TRICE8_1":
 		return 0 == p.syncBuffer[5] && 0 == p.syncBuffer[6] && 0 == p.syncBuffer[7]
-	case "TRICE8_2", "TRICE8_6", "TRICE16_1":
+	case "TRICE8_2", "TRICE16_1":
 		return 0 == p.syncBuffer[6] && 0 == p.syncBuffer[7]
-	case "TRICE8_3", "TRICE8_7":
+	case "TRICE8_3":
 		return 0 == p.syncBuffer[7]
-	case "TRICE16_3":
+	case "TRICE8_5":
+		return 0 == p.syncBuffer[9] && 0 == p.syncBuffer[10] && 0 == p.syncBuffer[11]
+	case "TRICE8_6", "TRICE16_3":
 		return 0 == p.syncBuffer[10] && 0 == p.syncBuffer[11]
+	case "TRICE8_7":
+		return 0 == p.syncBuffer[11]
+	case "TRICE_S":
+		x := 3 & cnt
+		switch x {
+		case 0:
+			return true // no padding bytes
+		case 3:
+			return 0 == p.syncBuffer[4+cnt]
+		case 2:
+			return 0 == p.syncBuffer[4+cnt] && 0 == p.syncBuffer[1+4+cnt]
+		case 1:
+			return 0 == p.syncBuffer[4+cnt] && 0 == p.syncBuffer[1+4+cnt] && 0 == p.syncBuffer[2+4+cnt]
+		}
 	}
 	return false
+}
+
+// completeTrice returns true if triceType payload is complete
+func (p *Pack) completeTrice(triceType string, cnt int) bool {
+	cnt += 3
+	cnt &= ^3
+	if len(p.syncBuffer) < 4+cnt {
+		return false
+	}
+	return true
 }
 
 // Read is the provided read method for pack decoding of next string as byte slice.
@@ -118,23 +157,23 @@ func (p *Pack) Read(b []byte) (n int, err error) {
 	}
 
 	// fill intermediate read buffer for pack encoding
-	rb := make([]byte, 1000)
+	rb := make([]byte, buffSize)
 	var m int
 	m, err = p.in.Read(rb)
 
 	// p.syncBuffer contains unprocessed bytes from last call.
 	p.syncBuffer = append(p.syncBuffer, rb[:m]...) // merge with leftovers
-	if nil != err {
+	if nil != err && io.EOF != err {
 		return
 	}
 	if len(p.syncBuffer) < 4 {
-		return
+		return // wait
 	}
 
-	triceID := int(binary.BigEndian.Uint16(p.syncBuffer[0:1])) // first 2 bytes are the ID
-	count := int(binary.BigEndian.Uint16(p.syncBuffer[2:3]))   // next 2 bytes are the count
+	triceID := int(binary.BigEndian.Uint16(p.syncBuffer[0:2])) // first 2 bytes are the ID
+	count := int(binary.BigEndian.Uint16(p.syncBuffer[2:4]))   // next 2 bytes are the count
 
-	if 0x89ab == triceID && 0xcdef == count {
+	if 0x89ab == triceID && 0xcdef == count { // sync trice
 		p.rub(4)
 		n = copy(b, syncPacket)
 		return
@@ -142,20 +181,23 @@ func (p *Pack) Read(b []byte) (n int, err error) {
 
 	trice, ok := p.lut[triceID] // check lookup table
 	if !ok {
-		n = copy(b, fmt.Sprintln("error:unknown triceID ", triceID, ", ignoring byte", p.syncBuffer[0]))
+		n = copy(b, fmt.Sprintf("error:unknown triceID %5d, ignoring byte %02x\n", triceID, p.syncBuffer[0]))
 		p.rub(1)
 		return
 	}
 
-	byteCount := expectedByteCount(trice.Type)
-	if count != byteCount && -1 != byteCount {
-		n = copy(b, fmt.Sprint("error:unecpected byteCount ", byteCount, ", ignoring byte ", p.syncBuffer[0]))
+	if !p.bytesCountOk(trice.Type, count) {
+		n = copy(b, fmt.Sprintf("error:unecpected byteCount, it is not %d, ignoring byte %02x\n", count, p.syncBuffer[0]))
 		p.rub(1)
 		return
 	}
 
-	if !p.paddingBytesOk(trice.Type) {
-		n = copy(b, fmt.Sprint("error:padding bytes not zero, ignoring byte", p.syncBuffer[0]))
+	if !p.completeTrice(trice.Type, count) {
+		return // try later again
+	}
+
+	if !p.paddingBytesOk(trice.Type, count) {
+		n = copy(b, fmt.Sprintf("error:padding bytes not zero, ignoring byte %02x\n", p.syncBuffer[0]))
 		p.rub(1)
 		return
 	}
@@ -167,11 +209,14 @@ func (p *Pack) Read(b []byte) (n int, err error) {
 		p.rub(4)
 		return
 	case "TRICE8_1":
-		n = copy(b, fmt.Sprintf(trice.Strg, p.syncBuffer[4]))
+		if len(p.syncBuffer) < 8 {
+			return
+		}
+		n = copy(b, fmt.Sprintf(trice.Strg, int8(p.syncBuffer[4]))) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
 		p.rub(8)
 		return
 	case "TRICE8_2":
-		n = copy(b, fmt.Sprintf(trice.Strg, p.syncBuffer[4], p.syncBuffer[5]))
+		n = copy(b, fmt.Sprintf(trice.Strg, int8(p.syncBuffer[4]), int8(p.syncBuffer[5])))
 		p.rub(8)
 		return
 	case "TRICE16_1":
@@ -179,12 +224,12 @@ func (p *Pack) Read(b []byte) (n int, err error) {
 		p.rub(8)
 		return
 	case "TRICE8_3":
-		n = copy(b, fmt.Sprintf(trice.Strg, p.syncBuffer[4], p.syncBuffer[5], p.syncBuffer[6]))
+		n = copy(b, fmt.Sprintf(trice.Strg, int8(p.syncBuffer[4]), int8(p.syncBuffer[5]), int8(p.syncBuffer[6])))
 		p.rub(8)
 		return
 	case "TRICE8_4":
 		n = copy(b, fmt.Sprintf(trice.Strg,
-			p.syncBuffer[4], p.syncBuffer[5], p.syncBuffer[6], p.syncBuffer[7]))
+			int8(p.syncBuffer[4]), int8(p.syncBuffer[5]), int8(p.syncBuffer[6]), int8(p.syncBuffer[7])))
 		p.rub(8)
 		return
 	case "TRICE16_2":
@@ -201,14 +246,14 @@ func (p *Pack) Read(b []byte) (n int, err error) {
 		return
 	case "TRICE8_5":
 		n = copy(b, fmt.Sprintf(trice.Strg,
-			p.syncBuffer[4], p.syncBuffer[5], p.syncBuffer[6], p.syncBuffer[7],
-			p.syncBuffer[8]))
+			int8(p.syncBuffer[4]), int8(p.syncBuffer[5]), int8(p.syncBuffer[6]), int8(p.syncBuffer[7]),
+			int8(p.syncBuffer[8])))
 		p.rub(12)
 		return
 	case "TRICE8_6":
 		n = copy(b, fmt.Sprintf(trice.Strg,
-			p.syncBuffer[4], p.syncBuffer[5], p.syncBuffer[6], p.syncBuffer[7],
-			p.syncBuffer[8], p.syncBuffer[9]))
+			int8(p.syncBuffer[4]), int8(p.syncBuffer[5]), int8(p.syncBuffer[6]), int8(p.syncBuffer[7]),
+			int8(p.syncBuffer[8]), int8(p.syncBuffer[9])))
 		p.rub(12)
 		return
 	case "TRICE16_3":
@@ -220,14 +265,14 @@ func (p *Pack) Read(b []byte) (n int, err error) {
 		return
 	case "TRICE8_7":
 		n = copy(b, fmt.Sprintf(trice.Strg,
-			p.syncBuffer[4], p.syncBuffer[5], p.syncBuffer[6], p.syncBuffer[7],
-			p.syncBuffer[8], p.syncBuffer[9], p.syncBuffer[10]))
+			int8(p.syncBuffer[4]), int8(p.syncBuffer[5]), int8(p.syncBuffer[6]), int8(p.syncBuffer[7]),
+			int8(p.syncBuffer[8]), int8(p.syncBuffer[9]), int8(p.syncBuffer[10])))
 		p.rub(12)
 		return
 	case "TRICE8_8":
 		n = copy(b, fmt.Sprintf(trice.Strg,
-			p.syncBuffer[4], p.syncBuffer[5], p.syncBuffer[6], p.syncBuffer[7],
-			p.syncBuffer[8], p.syncBuffer[9], p.syncBuffer[10], p.syncBuffer[11]))
+			int8(p.syncBuffer[4]), int8(p.syncBuffer[5]), int8(p.syncBuffer[6]), int8(p.syncBuffer[7]),
+			int8(p.syncBuffer[8]), int8(p.syncBuffer[9]), int8(p.syncBuffer[10]), int8(p.syncBuffer[11])))
 		p.rub(12)
 		return
 	case "TRICE16_4":
@@ -291,11 +336,11 @@ func (p *Pack) Read(b []byte) (n int, err error) {
 	case "TRICE_S":
 		n = copy(b, fmt.Sprintf(trice.Strg, string(p.syncBuffer[4:4+count])))
 		count += 3
-		count &= 4
+		count &= ^3
 		p.rub(4 + count)
 		return
 	}
-	n = copy(b, fmt.Sprint("error:Unexpected trice.Type ", trice.Type, ", ignoring byte", p.syncBuffer[0]))
+	n = copy(b, fmt.Sprint("error:Unexpected trice.Type ", trice.Type, ", ignoring byte ", p.syncBuffer[0]))
 	p.rub(1)
 	return
 }

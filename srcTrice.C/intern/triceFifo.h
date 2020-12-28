@@ -68,7 +68,7 @@ TRICE_INLINE uint8_t triceU8Pop(void) {
 
 int triceU32UsageFifoDepth(void);
 int triceU8UsageFifoDepth(void);
-int triceU32WriteInt8ReadFifoDepth(void);
+int triceU32WriteU8ReadFifoDepth(void);
 
 
 #ifdef __cplusplus

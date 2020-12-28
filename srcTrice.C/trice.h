@@ -31,6 +31,7 @@ extern "C" {
     defined(__AARCH64EB__) || \
     defined(_MIBSEB) || defined(__MIBSEB) || defined(__MIBSEB__)
 // It's a big-endian target architecture
+// On a big endian system, the most significant byte is stored first.
 #define HTONS(n) ((uint16_t)(n))
 #define HTON(n)  ((uint32_t)(n))
 #elif defined(__BYTE_ORDER) && __BYTE_ORDER == __LITTLE_ENDIAN || \
@@ -40,8 +41,13 @@ extern "C" {
     defined(__AARCH64EL__) || \
     defined(_MIPSEL) || defined(__MIPSEL) || defined(__MIPSEL__)
 // It's a little-endian target architecture
+// On a little endian system, the least significant byte will be stored first.
 #define HTONS(n) ( (((uint16_t)(n))>>8) | (((uint16_t)(n))<<8) )
-#define HTON(n)  ( HTONS((((uint32_t)(n))>>16)) |  HTONS((((uint32_t)(n))<<16)) ) 
+#define HH(n) ( (uint32_t)(n)    >>24)
+#define HL(n) (((uint32_t)(n)<<8)>>24)
+#define LH(n) ((uint32_t)((uint16_t)(n)    >> 8))
+#define LL(n) ((uint32_t)(( uint8_t)(n)        ))
+#define HTON(n) ((LL(n)<<24)|(LH(n)<<16)|(HL(n)<<8)|HH(n) ) 
 #else
 #error "I don't know what architecture this is!"
 #endif
@@ -53,7 +59,7 @@ extern "C" {
 #include "intern/triceNoCode.h"
 #include "intern/triceEsc.h"
 #include "intern/triceFastBare.h"
-#include "intern/tricePack32.h"
+#include "intern/tricePack.h"
 //#include "intern/triceLessFlashBareL.h"
 
 #include "intern/triceBareFifoToBytesBuffer.h"

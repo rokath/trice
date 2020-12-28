@@ -64,8 +64,33 @@ TRICE_INLINE void triceServeBytesBufferTransmit(void) {
     }
 }
 
+
+//! triceServeU32WriteU8ReadFifoTransmit must be called cyclically to proceed ongoing write out.
+//! A good place: sysTick ISR and UART ISR (both together).
+TRICE_INLINE void triceServeU32WriteU8ReadFifoTransmit(void) {
+    if (!triceTxDataRegisterEmpty()) {
+        for (;;); // unexpected case
+    }
+    if (0 == triceU32WriteU8ReadFifoDepth()) {
+        for (;;); // unexpected case
+    }
+    // next byte
+    triceTransmitData8(triceU8Pop());
+    if (0 == triceU32WriteU8ReadFifoDepth()) { // no more bytes
+        triceDisableTxEmptyInterrupt();
+    }
+}
+
+
 TRICE_INLINE void triceTriggerBytesBufferTransmit(void){
     if( triceBytesByfferDepth() && triceTxDataRegisterEmpty() ){
+        triceEnableTxEmptyInterrupt(); // next bytes
+    }
+}
+
+
+TRICE_INLINE void triceTriggerU32WriteU8ReadFifoTransmit(void){
+    if( triceU32WriteU8ReadFifoDepth() && triceTxDataRegisterEmpty() ){
         triceEnableTxEmptyInterrupt(); // next bytes
     }
 }

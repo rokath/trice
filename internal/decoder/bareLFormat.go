@@ -11,12 +11,12 @@ import (
 	"github.com/rokath/trice/internal/id"
 )
 
-// Bare is the Decoder instance for bare encoded trices.
+// BareL is the Decoder instance for bare encoded trices.
 type BareL struct {
 	decoding
 }
 
-// NewBareFormat provides an BareDecoder instance.
+// NewBareLFormat provides an BareDecoder instance.
 // l is the trice id list in slice of struct format.
 // in is the usable reader for the input bytes.
 func NewBareLFormat(l []id.Item, in io.Reader) (p *BareL) {

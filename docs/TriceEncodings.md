@@ -10,6 +10,7 @@ The pack trice transmit format is in network order (big endian). The trice encod
 ```b
       0     1     2     3 | macro
 --------------------------|--------
+   0x89  0xab  0xcd  0xef | TRICE16_1( Id(0x89ab), "inf:[ SYNCTRICE 0x89ab%04x ]", 0xcdef );
      IH    IL     0     0 | TRICE0( Id(I), "..." );
      IH    IL     0     0 | TRICE_S( Id(I), "...%s...", "" );
 ```

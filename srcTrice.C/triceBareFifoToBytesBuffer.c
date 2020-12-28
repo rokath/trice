@@ -9,9 +9,9 @@
 //! syncLevelLimit is the max amount of trices bulk transmitted without a sync trice injected.
 //! Assuming triceServeBareFifoToBytesBuffer() is called every ms this is also the max ms abount without a sync trice.
 //! Bigger numbers decrease the bandwidth needs but increase the possible loss of trices in case of
-//! re-sync need. A number of 10-100 is recommended: every 10-100 ms or 10-100 trices a sync trice is transmitted
-//! increasing the bandwidth need by 10-1% ans loosing 10 trices in the worst case.
-int const syncLevelLimit = 10;
+//! re-sync need. A number of 10-100 is recommended: every 10-100 ms or 10-100 trices a sync trice is transmitted.
+//! It increases the bandwidth need by 10-1%.
+int const syncLevelLimit = 10000;
 
 #ifndef TRICE_WRAP_START_BYTE
 #define TRICE_WRAP_START_BYTE 0

@@ -1,9 +1,9 @@
-/*! \file tricePack32.h
+/*! \file tricePack.h
 \author Thomas.Hoehenleitner [at] seerose.net
 *******************************************************************************/
 
-#ifndef TRICE_PACK32_H_
-#define TRICE_PACK32_H_
+#ifndef TRICE_PACK_H_
+#define TRICE_PACK_H_
 
 #ifdef __cplusplus
 extern "C" {
@@ -13,7 +13,7 @@ extern "C" {
 
 #if TRICE_PACK32_ENCODING == TRICE_ENCODING
 
-#define Id(n) (((uint32_t)HTONS(n))<<16) //!< Prepare ID for transmission
+#define Id(n) (((uint32_t)(n))<<16) //!< Prepare ID for transmission
 
 ///////////////////////////////////////////////////////////////////////////////
 // TRICE macros
@@ -26,14 +26,14 @@ This count is the payload size.
 16-bit values follow in sequence optionally with not counted 2 padding bytes forming a 32-bit aligment.
 */
 
-#define TRICE_U8_JOIN( first, second )((((uint16_t)(first))<< 8)|((uint8_t)(second))) //!< helper macro
+#define TRICE_U8_JOIN( first, second ) ((uint16_t)((((uint16_t)(second))<< 8)|((uint8_t)(first)))) //!< helper macro
 
 //! trace id protected (outside critical section), 16 bit data are 0
 //! \param id trice identifier
 //! \param pFmt formatstring for trice
 #define TRICE0( id, pFmt ) do{ \
     TRICE_ENTER_CRITICAL_SECTION \
-    TRICE_U32PUSH(id); \
+    TRICE_U32PUSH( HTON(id) ); \
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
 
@@ -43,8 +43,8 @@ This count is the payload size.
 //! \param 8-bit payload
 #define TRICE8_1( id, pFmt, d0 ) do{ \
     TRICE_ENTER_CRITICAL_SECTION \
-    TRICE_U32PUSH( id | HTONS(1) ); \
-    TRICE_U32PUSH((uint32_t)(d0)<<24); \
+    TRICE_U32PUSH( HTON(id|1) ); \
+    TRICE_U32PUSH((uint8_t)(d0)); \
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
 
@@ -55,8 +55,8 @@ This count is the payload size.
 //! \param d1 payload
 #define TRICE8_2( id, pFmt, d0, d1 ) do{ \
     TRICE_ENTER_CRITICAL_SECTION \
-    TRICE_U32PUSH( id | HTONS(2) ); \
-    TRICE_U32PUSH( (uint32_t)TRICE_U8_JOIN(d0,d1)<<16); \
+    TRICE_U32PUSH( HTON(id|2) ); \
+    TRICE_U32PUSH( TRICE_U8_JOIN(d0,d1)); \
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
 
@@ -68,8 +68,8 @@ This count is the payload size.
 //! \param d2 payload
 #define TRICE8_3( id, pFmt, d0, d1, d2 ) do{ \
     TRICE_ENTER_CRITICAL_SECTION \
-    TRICE_U32PUSH( id | HTONS(3) ); \
-    TRICE_U32PUSH( ((uint32_t)TRICE_U8_JOIN(d0,d1)<<16)| TRICE_U8_JOIN(d2,0) ); \
+    TRICE_U32PUSH( HTON(id|3) ); \
+    TRICE_U32PUSH( TRICE_U8_JOIN(d0,d1) | ((uint8_t)(d2)<<16) ); \
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
 
@@ -82,8 +82,8 @@ This count is the payload size.
 //! \param d3 payload
 #define TRICE8_4( id, pFmt, d0, d1, d2, d3 ) do{ \
     TRICE_ENTER_CRITICAL_SECTION \
-    TRICE_U32PUSH( id | HTONS(4) ); \
-    TRICE_U32PUSH( ((uint32_t)TRICE_U8_JOIN(d0,d1)<<16)| TRICE_U8_JOIN(d2,d3) ); \
+    TRICE_U32PUSH( HTON(id|4) ); \
+    TRICE_U32PUSH( TRICE_U8_JOIN(d0,d1) | ((uint32_t)TRICE_U8_JOIN(d2,d3)<<16) ); \
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
 
@@ -97,9 +97,9 @@ This count is the payload size.
 //! \param d4 payload
 #define TRICE8_5( id, pFmt, d0, d1, d2, d3, d4 ) do{ \
     TRICE_ENTER_CRITICAL_SECTION \
-    TRICE_U32PUSH( id | HTONS(5) ); \
-    TRICE_U32PUSH( ((uint32_t)TRICE_U8_JOIN(d0,d1)<<16)| TRICE_U8_JOIN(d2,d3) ); \
-    TRICE_U32PUSH(((uint32_t)(d4))<<24); \
+    TRICE_U32PUSH( HTON(id|5) ); \
+    TRICE_U32PUSH( TRICE_U8_JOIN(d0,d1) | ((uint32_t)TRICE_U8_JOIN(d2,d3)<<16) ); \
+    TRICE_U32PUSH(((uint8_t)(d4))); \
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
 
@@ -114,9 +114,9 @@ This count is the payload size.
 //! \param d5 payload
 #define TRICE8_6( id, pFmt, d0, d1, d2, d3, d4, d5 ) do{ \
     TRICE_ENTER_CRITICAL_SECTION \
-    TRICE_U32PUSH( id | HTONS(6) ); \
-    TRICE_U32PUSH((((uint32_t)TRICE_U8_JOIN(d0,d1)<<16))| TRICE_U8_JOIN(d2,d3) ); \
-    TRICE_U32PUSH( ((uint32_t)TRICE_U8_JOIN(d4,d5)<<16)                        ); \
+    TRICE_U32PUSH( HTON(id|6) ); \
+    TRICE_U32PUSH( TRICE_U8_JOIN(d0,d1) | ((uint32_t)TRICE_U8_JOIN(d2,d3)<<16) ); \
+    TRICE_U32PUSH( TRICE_U8_JOIN(d4,d5) ); \
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
 
@@ -132,9 +132,9 @@ This count is the payload size.
 //! \param d6 payload
 #define TRICE8_7( id, pFmt, d0, d1, d2, d3, d4, d5, d6 ) do{ \
     TRICE_ENTER_CRITICAL_SECTION \
-    TRICE_U32PUSH( id | HTONS(7) ); \
-    TRICE_U32PUSH(((uint32_t)TRICE_U8_JOIN(d0,d1)<<16)| TRICE_U8_JOIN(d2,d3) ); \
-    TRICE_U32PUSH(((uint32_t)TRICE_U8_JOIN(d4,d5)<<16)| TRICE_U8_JOIN(d6, 0) ); \
+    TRICE_U32PUSH( HTON(id|7) ); \
+    TRICE_U32PUSH( TRICE_U8_JOIN(d0,d1) | ((uint32_t)TRICE_U8_JOIN(d2,d3)<<16) ); \
+    TRICE_U32PUSH( TRICE_U8_JOIN(d4,d5) | ((uint32_t)TRICE_U8_JOIN(d6, 0)<<16) ); \
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
 
@@ -151,9 +151,9 @@ This count is the payload size.
 //! \param d7 payload
 #define TRICE8_8( id, pFmt, d0, d1, d2, d3, d4, d5, d6, d7 ) do{ \
     TRICE_ENTER_CRITICAL_SECTION \
-    TRICE_U32PUSH( id | HTONS(8) ); \
-    TRICE_U32PUSH(((uint32_t)TRICE_U8_JOIN(d0,d1)<<16)| TRICE_U8_JOIN(d2,d3) ); \
-    TRICE_U32PUSH(((uint32_t)TRICE_U8_JOIN(d4,d5)<<16)| TRICE_U8_JOIN(d6,d7) ); \
+    TRICE_U32PUSH( HTON(id|8) ); \
+    TRICE_U32PUSH( TRICE_U8_JOIN(d0,d1) | ((uint32_t)TRICE_U8_JOIN(d2,d3)<<16) ); \
+    TRICE_U32PUSH( TRICE_U8_JOIN(d4,d5) | ((uint32_t)TRICE_U8_JOIN(d6,d7)<<16) ); \
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
 
@@ -163,8 +163,8 @@ This count is the payload size.
 //! \param d0 payload
 #define TRICE16_1( id, pFmt, d0 ) do{ \
     TRICE_ENTER_CRITICAL_SECTION \
-    TRICE_U32PUSH( id | HTONS(2) ); \
-    TRICE_U32PUSH( (uint32_t)HTONS(d0)<<16 ); \
+    TRICE_U32PUSH( HTON(id|2) ); \
+    TRICE_U32PUSH( HTON((uint32_t)(d0)<<16) ); \
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
 
@@ -175,8 +175,8 @@ This count is the payload size.
 //! \param d1 payload
 #define TRICE16_2( id, pFmt, d0, d1 ) do{ \
     TRICE_ENTER_CRITICAL_SECTION \
-    TRICE_U32PUSH( id | HTONS(4) ); \
-    TRICE_U32PUSH( ((uint32_t)HTONS(d0)<<16)| HTONS(d1) ); \
+    TRICE_U32PUSH( HTON(id|4) ); \
+    TRICE_U32PUSH( HTON(((uint32_t)(d0)<<16)| (uint16_t)(d1) )); \
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
 
@@ -188,9 +188,9 @@ This count is the payload size.
 //! \param d2 payload
 #define TRICE16_3( id, pFmt, d0, d1, d2 ) do{ \
     TRICE_ENTER_CRITICAL_SECTION \
-    TRICE_U32PUSH( id | HTONS(6) ); \
-    TRICE_U32PUSH( ((uint32_t)HTONS(d0)<<16)| HTONS(d1) ); \
-    TRICE_U32PUSH(  (uint32_t)HTONS(d2)<<16); \
+    TRICE_U32PUSH( HTON(id|6) ); \
+    TRICE_U32PUSH( HTON(((uint32_t)(d0)<<16)| (uint16_t)(d1) ));  \
+    TRICE_U32PUSH( HTON((uint32_t)(d0)<<16) ); \
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
 
@@ -203,9 +203,9 @@ This count is the payload size.
 //! \param d3 payload
 #define TRICE16_4( id, pFmt, d0, d1, d2, d3 ) do{ \
     TRICE_ENTER_CRITICAL_SECTION \
-    TRICE_U32PUSH( id | HTONS(8) ); \
-    TRICE_U32PUSH( ((uint32_t)HTONS(d0)<<16)| HTONS(d1) ); \
-    TRICE_U32PUSH( ((uint32_t)HTONS(d2)<<16)| HTONS(d3) ); \
+    TRICE_U32PUSH( HTON(id|8) ); \
+    TRICE_U32PUSH( HTON(((uint32_t)(d0)<<16)| (uint16_t)(d1) )); \
+    TRICE_U32PUSH( HTON(((uint32_t)(d2)<<16)| (uint16_t)(d3) ));  \
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
 
@@ -215,7 +215,7 @@ This count is the payload size.
 //! \param d0 payload
 #define TRICE32_1( id, pFmt, d0 ) do{ \
     TRICE_ENTER_CRITICAL_SECTION \
-    TRICE_U32PUSH( id | HTONS(4) ); \
+    TRICE_U32PUSH( HTON(id|4)  ); \
     TRICE_U32PUSH(HTON(d0)); \
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
@@ -227,7 +227,7 @@ This count is the payload size.
 //! \param d1 payload
 #define TRICE32_2( id, pFmt, d0, d1 ) do{ \
     TRICE_ENTER_CRITICAL_SECTION \
-    TRICE_U32PUSH( id | HTONS(8) ); \
+    TRICE_U32PUSH( HTON(id|8) ); \
     TRICE_U32PUSH(HTON(d0)); \
     TRICE_U32PUSH(HTON(d1)); \
     TRICE_LEAVE_CRITICAL_SECTION \
@@ -241,7 +241,7 @@ This count is the payload size.
 //! \param d2 payload
 #define TRICE32_3( id, pFmt, d0, d1, d2 ) do{ \
     TRICE_ENTER_CRITICAL_SECTION \
-    TRICE_U32PUSH( id | HTONS(12) ); \
+    TRICE_U32PUSH( HTON(id|12) ); \
     TRICE_U32PUSH(HTON(d0)); \
     TRICE_U32PUSH(HTON(d1)); \
     TRICE_U32PUSH(HTON(d2)); \
@@ -257,7 +257,7 @@ This count is the payload size.
 //! \param d3 payload
 #define TRICE32_4( id, pFmt, d0, d1, d2, d3 ) do{ \
     TRICE_ENTER_CRITICAL_SECTION \
-    TRICE_U32PUSH( id | HTONS(16) ); \
+    TRICE_U32PUSH( HTON(id|16)  ); \
     TRICE_U32PUSH(HTON(d0)); \
     TRICE_U32PUSH(HTON(d1)); \
     TRICE_U32PUSH(HTON(d2)); \
@@ -271,8 +271,8 @@ This count is the payload size.
 //! \param d0 payload
 #define TRICE64_1( id, pFmt, d0 ) do{ \
     TRICE_ENTER_CRITICAL_SECTION \
-    TRICE_U32PUSH( id | HTONS(8) ); \
-    TRICE_U32PUSH((uint32_t)(((uint64_t)HTON((uint32_t)(d0)))>>32)); \
+    TRICE_U32PUSH( HTON(id|8)  ); \
+    TRICE_U32PUSH( HTON((uint64_t)(d0)>>32)); \
     TRICE_U32PUSH(HTON(d0)); \
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
@@ -284,10 +284,10 @@ This count is the payload size.
 //! \param d1 payload
 #define TRICE64_2( id, pFmt, d0, d1 ) do{ \
     TRICE_ENTER_CRITICAL_SECTION \
-    TRICE_U32PUSH( id | HTONS(16) ); \
-    TRICE_U32PUSH((uint32_t)(((uint64_t)HTON((uint32_t)(d0)))>>32)); \
+    TRICE_U32PUSH( HTON(id|16) ); \
+    TRICE_U32PUSH( HTON((uint64_t)(d0)>>32)); \
     TRICE_U32PUSH(HTON(d0)); \
-    TRICE_U32PUSH((uint32_t)(((uint64_t)HTON((uint32_t)(d1)))>>32)); \
+    TRICE_U32PUSH( HTON((uint64_t)(d1)>>32)); \
     TRICE_U32PUSH(HTON(d1)); \
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
@@ -308,7 +308,7 @@ TRICE_INLINE void trice_s(uint32_t id, char *s) {
         s[65535] = 0; // truncate
         len = 65535;
     }
-    TRICE_U32PUSH( id | HTONS(len) ); // on PC side the id reception gives the TRICE_S and the format string information
+    TRICE_U32PUSH( HTON(id|len) ); // on PC side the id reception gives the TRICE_S and the format string information
     while( 3 < len ){
         uint32_t* pos = (uint32_t*)(s+i);
         TRICE_U32PUSH( *pos );
@@ -319,11 +319,14 @@ TRICE_INLINE void trice_s(uint32_t id, char *s) {
     switch( len ){
         case 0: 
             break;
-        case 1: TRICE_U32PUSH( ((uint32_t)(s[i+0]) << 24) ); 
+        case 1: 
+            TRICE_U32PUSH( s[i+0]);
             break;
-        case 2: TRICE_U32PUSH( ((uint32_t)(s[i+0]) << 24)|((uint32_t)(s[i+1]) << 16) ); 
+        case 2: 
+            TRICE_U32PUSH( TRICE_U8_JOIN(s[i+0],s[i+1]) ); \
             break;
-        case 3: TRICE_U32PUSH( ((uint32_t)(s[i+0]) << 24)|((uint32_t)(s[i+1]) << 16)|((uint32_t)(s[i+2]) << 8) );
+        case 3: 
+            TRICE_U32PUSH( TRICE_U8_JOIN(s[i+0],s[i+1]) | (s[i+2]<<16) );
             break;
     }
     TRICE_LEAVE_CRITICAL_SECTION
@@ -377,4 +380,4 @@ static void triceRuntimeGeneratedStringUnbound( const char* s ){
 }
 #endif
 
-#endif /* TRICE_PACK32_H_ */
+#endif /* TRICE_PACK_H_ */

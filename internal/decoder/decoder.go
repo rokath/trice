@@ -110,12 +110,12 @@ func Translate(sw *emitter.TriceLineComposer, list *id.List, rc io.ReadCloser /*
 			}
 		}
 	case "pack":
-		dec := NewPackEncoding(list.ItemList, rc)
+		dec := NewPackDecoder(list.ItemList, rc)
 		for {
 			err := run(sw, dec)
 			if nil != err {
 				time.Sleep(2 * time.Second)
-				dec = NewPackEncoding(list.ItemList, rc) // read list again - it could have changed
+				dec = NewPackDecoder(list.ItemList, rc) // read list again - it could have changed
 			}
 		}
 	case "bare":
@@ -184,7 +184,7 @@ func Translate(sw *emitter.TriceLineComposer, list *id.List, rc io.ReadCloser /*
 }
 
 func run(sw *emitter.TriceLineComposer, sr StringsReader) error {
-	ss := make([]string, 100)
+	ss := make([]string, 1)
 	n, err := sr.StringsRead(ss)
 	if nil != err && io.EOF != err {
 		return err

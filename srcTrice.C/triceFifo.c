@@ -43,10 +43,10 @@ int triceU8UsageFifoDepth(void) {
     return depth;
 }
 
-//! triceU32WriteInt8ReadFifoDepth determines bytes count inside trice fifo.
+//! triceU32WriteU8ReadFifoDepth determines bytes count inside trice fifo.
 //! Assumption: Only int32 for push and only int8 for pop.
 //! \return count of buffered bytes
-int triceU32WriteInt8ReadFifoDepth(void) {
+int triceU32WriteU8ReadFifoDepth(void) {
     int depth = ((triceU32FifoWriteIndex<<2) - triceU8FifoReadIndex) & TRICE_U8_FIFO_MASK;
     triceFifoMaxDepth = triceFifoMaxDepth < depth ? depth : triceFifoMaxDepth; // diagnostics
     return depth;

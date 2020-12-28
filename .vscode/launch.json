@@ -87,8 +87,8 @@
                      "RND",
                      "-rndLimit",
                      "5",
-                     "-rndMode"
-                     "BareModeNoSync"
+                     "-rndMode",
+                     "BareModeNoSync",
                      "-idlist",
                      "${workspaceFolder}/test/til.json",
                      "-key",
@@ -112,21 +112,20 @@
             ]
         },        
         {
-            "name": "-device SIM",
+            "name": "-device -p COM5 -e pack",
             "type": "go",
             "request": "launch",
             "mode": "auto",
             "program": "${workspaceFolder}/cmd/trice",
             "env": {},
             "args": ["log",
+                     "-p",
+                     "COM5",
                      "-s",
-                     "DUMMY",
                      "-e",
-                     "sim",
+                     "pack",
                      "-idlist",
-                     "${workspaceFolder}/test/til.json",
-                     "-key",
-                     "none"
+                     "${workspaceFolder}/til.json"
             ]
         },
         {
@@ -198,7 +197,7 @@
                      "${workspaceFolder}/test/til.json",
                      "-color",
                      "xxxxxxxxxxalternate",
-                     "-v"
+                     "-v",
                      "-dataset",
                      "xxx"
             ]

@@ -95,10 +95,6 @@ int main(void)
   /* USER CODE BEGIN 2 */
     LL_USART_EnableIT_RXNE(TRICE_UART); // enable UART2 interrupt
     memset(triceU8Fifo, 0xaa, 200 );
-    TRICE16_1(Id(0x0201), "WR:write        message, SysTick is %6d\n", SYSTICKVAL16);
-    TRICE16_1(Id(0x0201), "WR:write        message, SysTick is %6d\n", SYSTICKVAL16);
-    TRICE16_1(Id(0x0201), "WR:write        message, SysTick is %6d\n", SYSTICKVAL16);
-    TRICE16_1(Id(0x0201), "WR:write        message, SysTick is %6d\n", SYSTICKVAL16);
     TRICE0( Id(16472), "s:                                                    \ns:   MDK-ARM_LL_UART_RTT0_BAREL_STM32F030_NUCLEO-64   \ns:                                                    \n\n");
   /* USER CODE END 2 */
 
@@ -110,7 +106,7 @@ int main(void)
     { // send some trices every few ms
         if( milliSecond >= lastTricesTime + 100 ){
             static int index = 0;
-            triceCheckSet(index%10);
+            triceCheckSet(index%30);
             index++;
             lastTricesTime = milliSecond;
         }

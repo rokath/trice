@@ -7,6 +7,13 @@
 		"removed": 0
 	},
 	{
+		"id": 19,
+		"fmtType": "TRICE_S",
+		"fmtStrg": "sig:%s",
+		"created": 1601240704,
+		"removed": 0
+	},
+	{
 		"id": 1603,
 		"fmtType": "TRICE0",
 		"fmtStrg": "rd_:triceBareFifo.c",
