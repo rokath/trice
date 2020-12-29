@@ -37,7 +37,7 @@ void triceCheckSet(int index) {
             TRICE16_1(Id(18113), "ERR:error       message, SysTick is %6d\n", SYSTICKVAL16);
             TRICE16_1(Id(28289), "WRN:warning     message, SysTick is %6d\n", SYSTICKVAL16);
             TRICE16_1(Id(53560), "ATT:attension   message, SysTick is %6d\n", SYSTICKVAL16);
-                 // Disassembly for fast bare 
+                 // Disassembly for fast bare encoding
                  //     39:             TRICE16_1(Id(53560), "ATT:attension   message, SysTick is %6d\n", SYSTICKVAL16); 
                  // 	                                        ; r2 contains 0xE000E000
                  // 0x0800087C 6994      LDR      r4,[r2,#0x18] ; load systick into R4
@@ -62,6 +62,29 @@ void triceCheckSet(int index) {
             TRICE16_1(Id(24302), "RD:read         message, SysTick is %6d\n", SYSTICKVAL16);
             TRICE16_1(Id(14138), "WR:write        message, SysTick is %6d\n", SYSTICKVAL16);
             TRICE16_1(Id(55445), "ISR:interrupt   message, SysTick is %6d\n", SYSTICKVAL16);
+                // Disassembly for pack encoding
+                //     64:             TRICE16_1(Id(55445), "ISR:interrupt   message, SysTick is %6d\n", SYSTICKVAL16); 
+                // 0x08000A42 6984      LDR      r4,[r0,#0x18]
+                // 0x08000A44 0DD2      LSRS     r2,r2,#23
+                // 0x08000A46 6984      LDR      r4,[r0,#0x18]
+                // 0x08000A48 6984      LDR      r4,[r0,#0x18]
+                // 0x08000A4A 6985      LDR      r5,[r0,#0x18]
+                // 0x08000A4C 0624      LSLS     r4,r4,#24
+                // 0x08000A4E 0C24      LSRS     r4,r4,#16
+                // 0x08000A50 042D      LSLS     r5,r5,#16
+                // 0x08000A52 0E2D      LSRS     r5,r5,#24
+                // 0x08000A54 432C      ORRS     r4,r4,r5
+                // 0x08000A56 0095      LSLS     r5,r2,#2
+                // 0x08000A58 1C52      ADDS     r2,r2,#1
+                // 0x08000A5A 514C      STR      r4,[r1,r5]
+                // 0x08000A5C 05D2      LSLS     r2,r2,#23
+                // 0x08000A5E 0DD2      LSRS     r2,r2,#23
+                // 0x08000A60 0095      LSLS     r5,r2,#2
+                // 0x08000A62 4C91      LDR      r4,[pc,#580]  ; @0x08000CA8
+                // 0x08000A64 514C      STR      r4,[r1,r5]
+                // 0x08000A66 1C52      ADDS     r2,r2,#1
+                // 0x08000A68 05D2      LSLS     r2,r2,#23
+                //     65:             TRICE16_1(Id(41495), "TST:test        message, SysTick is %6d\n", SYSTICKVAL16);         
             TRICE16_1(Id(41495), "TST:test        message, SysTick is %6d\n", SYSTICKVAL16);
             TRICE16_1(Id(45697), "MSG:normal      message, SysTick is %6d\n", SYSTICKVAL16);
             TRICE16_1(Id(24589), "INFO:informal   message, SysTick is %6d\n", SYSTICKVAL16);

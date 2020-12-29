@@ -7,7 +7,7 @@
 
   <Targets>
     <Target>
-      <TargetName>MDK-ARM_LL_UART_RTT0_PACK32_STM32F030R8-NUCLEO-64</TargetName>
+      <TargetName>MDK-ARM_LL_UART_RTT0_PACK_STM32F030R8-NUCLEO-64</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
       <pCCUsed>5060960::V5.06 update 7 (build 960)::ARMCC</pCCUsed>
@@ -48,8 +48,8 @@
             <NotGenerated>0</NotGenerated>
             <InvalidFlash>1</InvalidFlash>
           </TargetStatus>
-          <OutputDirectory>MDK-ARM_LL_UART_RTT0_PACK32_STM32F030R8-NUCLEO-64\</OutputDirectory>
-          <OutputName>MDK-ARM_LL_UART_RTT0_PACK32_STM32F030R8-NUCLEO-64</OutputName>
+          <OutputDirectory>MDK-ARM_LL_UART_RTT0_PACK_STM32F030R8-NUCLEO-64\</OutputDirectory>
+          <OutputName>MDK-ARM_LL_UART_RTT0_PACK_STM32F030R8-NUCLEO-64</OutputName>
           <CreateExecutable>1</CreateExecutable>
           <CreateLib>0</CreateLib>
           <CreateHexFile>1</CreateHexFile>
@@ -313,8 +313,8 @@
           </ArmAdsMisc>
           <Cads>
             <interw>1</interw>
-            <Optim>1</Optim>
-            <oTime>0</oTime>
+            <Optim>4</Optim>
+            <oTime>1</oTime>
             <SplitLS>0</SplitLS>
             <OneElfS>1</OneElfS>
             <Strict>0</Strict>
