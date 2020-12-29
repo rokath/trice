@@ -112,7 +112,7 @@
             ]
         },        
         {
-            "name": "-device -p COM5 -e pack",
+            "name": "-device -p COM5 -e esc",
             "type": "go",
             "request": "launch",
             "mode": "auto",
@@ -123,7 +123,7 @@
                      "COM5",
                      "-s",
                      "-e",
-                     "pack",
+                     "esc",
                      "-idlist",
                      "${workspaceFolder}/til.json"
             ]

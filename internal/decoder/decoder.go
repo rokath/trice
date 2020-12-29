@@ -184,7 +184,13 @@ func Translate(sw *emitter.TriceLineComposer, list *id.List, rc io.ReadCloser /*
 }
 
 func run(sw *emitter.TriceLineComposer, sr StringsReader) error {
-	ss := make([]string, 1)
+	var sssiz int // to do: 1 for pack, 100 for esc
+	if Encoding == "pack" {
+		sssiz = 1
+	} else {
+		sssiz = 100
+	}
+	ss := make([]string, sssiz)
 	n, err := sr.StringsRead(ss)
 	if nil != err && io.EOF != err {
 		return err

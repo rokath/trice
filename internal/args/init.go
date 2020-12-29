@@ -27,9 +27,9 @@ See https://github.com/rokath/trice/blob/master/srcTrice.C/triceCheck.c for exam
 )
 
 func init() {
-	fsScLog = flag.NewFlagSet("log", flag.ExitOnError)                                                                                                          // subcommand
-	fsScLog.StringVar(&decoder.Encoding, "encoding", "bare", "The trice transmit data format type, options: 'bare|esc|wrap'. Target device coding must match.") // flag
-	fsScLog.StringVar(&decoder.Encoding, "e", "bare", "Short for -encoding.")                                                                                   // short flag
+	fsScLog = flag.NewFlagSet("log", flag.ExitOnError)                                                                                                               // subcommand
+	fsScLog.StringVar(&decoder.Encoding, "encoding", "bare", "The trice transmit data format type, options: 'bare|esc|pack|wrap'. Target device coding must match.") // flag
+	fsScLog.StringVar(&decoder.Encoding, "e", "bare", "Short for -encoding.")                                                                                        // short flag
 	//fsScLog.StringVar(&cipher.Password, "password", "none", "The decrypt passphrase.")                                                                                                                                                // flag
 	//fsScLog.StringVar(&cipher.Password, "pw", "none", "Short for -password.")                                                                                                                                                     // short flag
 	//	fsScLog.BoolVar(&cipher.ShowKey, "key", false, `Show encryption key.
