@@ -23,8 +23,6 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "trice.h"
-//#include "triceEscFifo.h"
-////////////////#include "./intern/triceInterfaceUART.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -109,8 +107,7 @@ int main(void)
             if( milliSecond >= lastTricesTime + 100 ){
                 static int index = 0;
                 TRICE16_1( Id(44507),"MSG: triceFifoMaxDepth = %d\n", triceFifoMaxDepth );
-                TRICE64_2(Id(16627), "tst:TRICE64_2 %x %16d\n", 0x1020304050607080, index); // 4
-                triceCheckSet(index%25);
+                triceCheckSet(index%30);
                 index++;
                 lastTricesTime = milliSecond;
             }
@@ -281,7 +278,10 @@ void Error_Handler(void)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
   /* User can add his own implementation to report the HAL error return state */
-
+  __disable_irq();
+  while (1)
+  {
+  }
   /* USER CODE END Error_Handler_Debug */
 }
 

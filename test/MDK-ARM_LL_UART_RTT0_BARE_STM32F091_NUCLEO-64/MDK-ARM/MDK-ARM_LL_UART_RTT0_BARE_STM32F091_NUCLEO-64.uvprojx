@@ -352,7 +352,7 @@
             <NoWarn>0</NoWarn>
             <uSurpInc>0</uSurpInc>
             <useXO>0</useXO>
-            <ClangAsOpt>13</ClangAsOpt>
+            <ClangAsOpt>4</ClangAsOpt>
             <VariousControls>
               <MiscControls></MiscControls>
               <Define></Define>
@@ -459,11 +459,6 @@
           <GroupName>trice</GroupName>
           <Files>
             <File>
-              <FileName>triceBareFifoToBytesBuffer.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\srcTrice.C\triceBareFifoToBytesBuffer.c</FilePath>
-            </File>
-            <File>
               <FileName>triceCheck.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\srcTrice.C\triceCheck.c</FilePath>
@@ -482,6 +477,11 @@
               <FileName>triceFifo.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\srcTrice.C\triceFifo.c</FilePath>
+            </File>
+            <File>
+              <FileName>triceFifoToBytesBuffer.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\srcTrice.C\triceFifoToBytesBuffer.c</FilePath>
             </File>
           </Files>
         </Group>

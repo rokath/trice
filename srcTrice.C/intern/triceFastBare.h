@@ -10,10 +10,8 @@ extern "C" {
 #endif
 
 #include <stdint.h>
+#include <string.h>
 #include "trice.h"
-
-#if TRICE_FAST_BARE_SYNC_ENCODING == TRICE_ENCODING \
- || TRICE_FAST_BARE_WRAP_ENCODING == TRICE_ENCODING
 
 
 #define Id(n) ((n##u)<<16) //!< Macro for improved trice readability and better source code parsing.
@@ -393,9 +391,6 @@ static void triceRuntimeGeneratedStringUnbound( const char* s ){
 
 //! trice runtime string
 #define TRICE_RTS(dynString) do{ triceRuntimeGeneratedStringUnbound(dynString); }while(0)
-
-
-#endif // #if TRICE_FAST_BARE_SYNC_ENCODING == TRICE_ENCODING || TRICE_FAST_BARE_WRAP_ENCODING == TRICE_ENCODING
 
 #ifdef __cplusplus
 }

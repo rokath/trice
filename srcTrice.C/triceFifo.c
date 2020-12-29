@@ -27,7 +27,7 @@ int triceFifoMaxDepth = 0; //!< diagnostics
 //! triceU32FifoDepth determines bytes count inside trice fifo.
 //! Assumption: Only int32 access for push and pop.
 //! \return count of buffered bytes
-int triceU32UsageFifoDepth(void) {
+int triceU32FifoDepth(void) {
     int triceCount = (triceU32FifoWriteIndex - triceU32FifoReadIndex) & TRICE_U32_FIFO_MASK;
     int depth = triceCount*sizeof(uint32_t);
     triceFifoMaxDepth = triceFifoMaxDepth < depth ? depth : triceFifoMaxDepth; // diagnostics
@@ -37,7 +37,7 @@ int triceU32UsageFifoDepth(void) {
 //! triceU8UsageFifoDepth determines bytes count inside trice fifo.
 //! Assumption: Only int8 access for push and pop.
 //! \return count of buffered bytes
-int triceU8UsageFifoDepth(void) {
+int triceU8FifoDepth(void) {
     int depth = (triceU8FifoWriteIndex - triceU8FifoReadIndex) & TRICE_U8_FIFO_MASK;
     triceFifoMaxDepth = triceFifoMaxDepth < depth ? depth : triceFifoMaxDepth; // diagnostics
     return depth;

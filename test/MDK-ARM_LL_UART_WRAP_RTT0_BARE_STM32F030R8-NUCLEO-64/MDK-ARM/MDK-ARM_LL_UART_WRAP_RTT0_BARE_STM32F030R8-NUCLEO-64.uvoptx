@@ -457,11 +457,11 @@
       <GroupNumber>5</GroupNumber>
       <FileNumber>15</FileNumber>
       <FileType>1</FileType>
-      <tvExp>1</tvExp>
+      <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\..\srcTrice.C\triceBareFifoToBytesBuffer.c</PathWithFileName>
-      <FilenameWithoutPath>triceBareFifoToBytesBuffer.c</FilenameWithoutPath>
+      <PathWithFileName>..\..\..\srcTrice.C\triceFifo.c</PathWithFileName>
+      <FilenameWithoutPath>triceFifo.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -472,8 +472,8 @@
       <tvExp>1</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\..\srcTrice.C\triceFifo.c</PathWithFileName>
-      <FilenameWithoutPath>triceFifo.c</FilenameWithoutPath>
+      <PathWithFileName>..\..\..\srcTrice.C\triceFifoToBytesBuffer.c</PathWithFileName>
+      <FilenameWithoutPath>triceFifoToBytesBuffer.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>

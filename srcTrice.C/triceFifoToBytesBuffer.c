@@ -1,10 +1,11 @@
-/*! \file triceBareFifoToBytesBuffer.c
+/*! \file triceFifoToBytesBuffer.c
 \author Thomas.Hoehenleitner [at] seerose.net
 *******************************************************************************/
 #include "trice.h"
-#include "intern/triceBareFifoToBytesBuffer.h"
+#include "intern/triceFifo.h"
+#include "intern/triceFifoToBytesBuffer.h"
 
-#define TRICE_FILENAME TRICE0( Id( 1716), "rd_:triceBareFifoToBytesBuffer.c" );
+#define TRICE_FILENAME TRICE0( Id(30152), "rd_:triceFifoToBytesBuffer.c" );
 
 //! syncLevelLimit is the max amount of trices bulk transmitted without a sync trice injected.
 //! Assuming triceServeBareFifoToBytesBuffer() is called every ms this is also the max ms abount without a sync trice.
@@ -57,14 +58,14 @@ int triceBytesByfferDepth( void ){
     return triceBytesBufferIndexLimit - triceBytesBufferIndex;
 }
 
-void triceServeBareFifoSyncedToBytesBuffer(void) {
+void triceServeFifoSyncedToBytesBuffer(void) {
     // 89 ab cd ef <- on serial port
     // ih il dh dl
     uint32_t const syncTrice = 0x89abcdef;
     static int syncLevel = syncLevelLimit; // start with a sync trice
     if (triceBytesBufferIndexLimit == triceBytesBufferIndex) { // bytes buffer empty and tx finished
         // next trice
-        int n = triceU32UsageFifoDepth();
+        int n = triceU32FifoDepth();
         if (syncLevel < syncLevelLimit) { // no need for a sync trice
             if (0 == n) { // no trices to transmit
                 syncLevel++;
@@ -90,10 +91,10 @@ void triceServeBareFifoSyncedToBytesBuffer(void) {
     }
 }
 
-void triceServeBareFifoWrappedToBytesBuffer(void) {
+void triceServeFifoWrappedToBytesBuffer(void) {
     if (triceBytesBufferIndexLimit == triceBytesBufferIndex) { // bytes buffer empty and tx finished
         // next trice
-        int n = triceU32UsageFifoDepth();
+        int n = triceU32FifoDepth();
         if ( n >= 4 ) { // a trice to transmit
             uint32_t x = triceU32Pop();
             triceBytesBuffer[3]  = (uint8_t)( TRICE_WRAP_START_BYTE ^ TRICE_WRAP_LOCAL_ADDR ^ TRICE_WRAP_DEST_ADDR ^ x ^ (x>>8) ^ (x>>16) ^ (x>>24) ); // crc8

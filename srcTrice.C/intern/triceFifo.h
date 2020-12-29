@@ -66,8 +66,8 @@ TRICE_INLINE uint8_t triceU8Pop(void) {
     return v;
 }
 
-int triceU32UsageFifoDepth(void);
-int triceU8UsageFifoDepth(void);
+int triceU32FifoDepth(void);
+int triceU8FifoDepth(void);
 int triceU32WriteU8ReadFifoDepth(void);
 
 

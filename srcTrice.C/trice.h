@@ -20,7 +20,7 @@ extern "C" {
 #define TRICE_LESS_BARE_L_WRAP_ENCODING 90
 #define TRICE_ESC_ENCODING 100
 #define TRICE_ESCL_ENCODING 200
-#define TRICE_PACK32_ENCODING 300
+#define TRICE_PACK_ENCODING 300
 
 #include "triceConfig.h"
 
@@ -56,13 +56,28 @@ extern "C" {
 #include "intern/triceFifo.h"
 #include "intern/triceSeggerRTT.h"
 
+#if TRICE_NOCODE_ENCODING == TRICE_ENCODING
 #include "intern/triceNoCode.h"
+#endif
+
+#if TRICE_ESC_ENCODING == TRICE_ENCODING
 #include "intern/triceEsc.h"
+#include "intern/triceFifoToBytesBuffer.h"
+#endif
+
+
+#if TRICE_FAST_BARE_SYNC_ENCODING == TRICE_ENCODING \
+ || TRICE_FAST_BARE_WRAP_ENCODING == TRICE_ENCODING
 #include "intern/triceFastBare.h"
+#include "intern/triceFifoToBytesBuffer.h"
+#endif
+
+#if TRICE_PACK_ENCODING == TRICE_ENCODING
 #include "intern/tricePack.h"
+#endif
+
 //#include "intern/triceLessFlashBareL.h"
 
-#include "intern/triceBareFifoToBytesBuffer.h"
 
 #ifdef __cplusplus
 }

@@ -23,7 +23,6 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "trice.h"
-#include "./intern/triceBareFifoToBytesBuffer.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -94,8 +93,7 @@ int main(void)
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
     LL_USART_EnableIT_RXNE(TRICE_UART); // enable UART2 interrupt
-    memset(triceU8Fifo, 0xaa, 200 );
-    TRICE0( Id(16472), "s:                                                    \ns:   MDK-ARM_LL_UART_RTT0_BAREL_STM32F030_NUCLEO-64   \ns:                                                    \n\n");
+    TRICE0( Id(46928), "s:                                                   \ns:   MDK-ARM_LL_UART_RTT0_PACK_STM32F030_NUCLEO-64   \ns:                                                   \n\n");
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -106,7 +104,8 @@ int main(void)
     { // send some trices every few ms
         if( milliSecond >= lastTricesTime + 100 ){
             static int index = 0;
-            triceCheckSet(index%30);
+                TRICE16_1( Id(44507),"MSG: triceFifoMaxDepth = %d\n", triceFifoMaxDepth );
+                triceCheckSet(index%30);
             index++;
             lastTricesTime = milliSecond;
         }
@@ -114,13 +113,6 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-        { // serve every few ms
-            static int lastMs = 0;
-            if( milliSecond >= lastMs + 1 ){
-                lastMs = milliSecond;
-                triceServeBareFifoSyncedToBytesBuffer();
-            }
-        }
   }
   /* USER CODE END 3 */
 }

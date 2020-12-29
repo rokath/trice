@@ -24,7 +24,6 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "trice.h"
-//#include "./intern/triceEscFifo.h"
 #include "./intern/triceInterfaceUART.h"
 /* USER CODE END Includes */
 
@@ -135,7 +134,7 @@ void SysTick_Handler(void)
   /* USER CODE END SysTick_IRQn 0 */
 
   /* USER CODE BEGIN SysTick_IRQn 1 */
-    triceTriggerEscFifoTransmit();
+    triceTriggerU8FifoTransmit();
   /* USER CODE END SysTick_IRQn 1 */
 }
 
@@ -155,7 +154,7 @@ void USART2_IRQHandler(void)
 
   /* USER CODE END USART2_IRQn 0 */
   /* USER CODE BEGIN USART2_IRQn 1 */
-    triceServeEscFifoTransmit();
+    triceServeU8FifoTransmit();
   /* USER CODE END USART2_IRQn 1 */
 }
 

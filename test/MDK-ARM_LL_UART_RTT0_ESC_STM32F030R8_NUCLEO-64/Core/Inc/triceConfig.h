@@ -15,8 +15,8 @@ extern "C" {
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-// #define TRICE_ENTER_CRITICAL_SECTION { // Uncomment for more speed but only if TRICE macros cannot
-// #define TRICE_LEAVE_CRITICAL_SECTION } // get interrupted by other TRICE macros (e.g. interrupts).
+#define TRICE_ENTER_CRITICAL_SECTION { // Uncomment for more speed but only if TRICE macros cannot
+#define TRICE_LEAVE_CRITICAL_SECTION } // get interrupted by other TRICE macros (e.g. interrupts).
 //
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -26,7 +26,7 @@ extern "C" {
 #define TRICE_ENCODING TRICE_ESC_ENCODING
 
 #define TRICE_U8PUSH(v) do{ triceU8PushSeggerRTT(v); triceU8Push(v); } while(0) //!< Set trice out channel(s) 
-#define TRICE_U32PUSH(v) do{ tricePushtriceU32PushSeggerRTTSeggerRTT(v); triceU32Push(v); } while(0) //!< Set trice out channel(s) 
+//#define TRICE_U32PUSH(v) do{ tricePushtriceU32PushSeggerRTTSeggerRTT(v); triceU32Push(v); } while(0) //!< Set trice out channel(s) 
 //
 ///////////////////////////////////////////////////////////////////////////////
 

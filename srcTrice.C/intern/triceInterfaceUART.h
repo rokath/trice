@@ -46,7 +46,7 @@ TRICE_INLINE void triceDisableTxEmptyInterrupt(void) {
     LL_USART_DisableIT_TXE(TRICE_UART);
 }
 
-
+#ifdef TRICE_FIFO_TO_BYTES_BUFFER_H_
 //! triceServeBytesBufferTransmit must be called cyclically to proceed ongoing write out.
 //! A good place: sysTick ISR and UART ISR (both together).
 //! TODO: endianess with compiler macros.
@@ -65,6 +65,13 @@ TRICE_INLINE void triceServeBytesBufferTransmit(void) {
 }
 
 
+TRICE_INLINE void triceTriggerBytesBufferTransmit(void){
+    if( triceBytesByfferDepth() && triceTxDataRegisterEmpty() ){
+        triceEnableTxEmptyInterrupt(); // next bytes
+    }
+}
+#endif
+
 //! triceServeU32WriteU8ReadFifoTransmit must be called cyclically to proceed ongoing write out.
 //! A good place: sysTick ISR and UART ISR (both together).
 TRICE_INLINE void triceServeU32WriteU8ReadFifoTransmit(void) {
@@ -82,13 +89,6 @@ TRICE_INLINE void triceServeU32WriteU8ReadFifoTransmit(void) {
 }
 
 
-TRICE_INLINE void triceTriggerBytesBufferTransmit(void){
-    if( triceBytesByfferDepth() && triceTxDataRegisterEmpty() ){
-        triceEnableTxEmptyInterrupt(); // next bytes
-    }
-}
-
-
 TRICE_INLINE void triceTriggerU32WriteU8ReadFifoTransmit(void){
     if( triceU32WriteU8ReadFifoDepth() && triceTxDataRegisterEmpty() ){
         triceEnableTxEmptyInterrupt(); // next bytes
@@ -96,17 +96,17 @@ TRICE_INLINE void triceTriggerU32WriteU8ReadFifoTransmit(void){
 }
 
 
-//! triceServeEscFifoTransmit must be called cyclically to proceed ongoing write out.
+//! triceServeU8FifoTransmit must be called cyclically to proceed ongoing write out.
 //! A good place is UART ISR.
-TRICE_INLINE void triceServeEscFifoTransmit(void) {
+TRICE_INLINE void triceServeU8FifoTransmit(void) {
     triceTransmitData8(triceU8Pop());
-    if (0 == triceU8UsageFifoDepth()) { // no more bytes
+    if (0 == triceU8FifoDepth()) { // no more bytes
         triceDisableTxEmptyInterrupt();
     }
 }
 
-TRICE_INLINE void triceTriggerEscFifoTransmit(void){
-    if( triceU8UsageFifoDepth() && triceTxDataRegisterEmpty() ){
+TRICE_INLINE void triceTriggerU8FifoTransmit(void){
+    if( triceU8FifoDepth() && triceTxDataRegisterEmpty() ){
         triceEnableTxEmptyInterrupt(); // next bytes
     }
 }

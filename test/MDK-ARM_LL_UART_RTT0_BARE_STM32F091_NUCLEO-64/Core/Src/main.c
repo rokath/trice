@@ -23,7 +23,6 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "trice.h"
-#include "./intern/triceBareFifoToBytesBuffer.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -117,7 +116,7 @@ int main(void)
             static int lastMs = 0;
             if( milliSecond >= lastMs + 1 ){
                 lastMs = milliSecond;
-                triceServeBareFifoSyncedToBytesBuffer();
+                triceServeFifoSyncedToBytesBuffer();
             }
         }
   }

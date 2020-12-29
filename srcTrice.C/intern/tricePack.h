@@ -10,8 +10,9 @@ extern "C" {
 #endif
 
 #include <stdint.h>
+#include <string.h>
 
-#if TRICE_PACK32_ENCODING == TRICE_ENCODING
+//#if TRICE_PACK_ENCODING == TRICE_ENCODING
 
 #define Id(n) (((uint32_t)(n))<<16) //!< Prepare ID for transmission
 
@@ -374,7 +375,7 @@ static void triceRuntimeGeneratedStringUnbound( const char* s ){
 #define TRICE_RTS(dynString) do{ triceRuntimeGeneratedStringUnbound(dynString); }while(0)
 */
 
-#endif // #if TRICE_PACK32_ENCODING == TRICE_ENCODING
+//#endif // #if TRICE_PACK_ENCODING == TRICE_ENCODING
 
 #ifdef __cplusplus
 }

@@ -1,9 +1,9 @@
-/*! \file triceBareFifoToBytesBuffer.h
+/*! \file triceFifoToBytesBuffer.h
 \author Thomas.Hoehenleitner [at] seerose.net
 *******************************************************************************/
 
-#ifndef TRICE_BARE_FIFO_TO_BYTES_BUFFER_H_
-#define TRICE_BARE_FIFO_TO_BYTES_BUFFER_H_
+#ifndef TRICE_FIFO_TO_BYTES_BUFFER_H_
+#define TRICE_FIFO_TO_BYTES_BUFFER_H_
 
 #ifdef __cplusplus
 extern "C" {
@@ -16,11 +16,11 @@ extern int triceBytesBufferIndex;
 extern uint8_t triceBytesBuffer[8];
 extern int const triceBytesBufferIndexLimit; // sizeof(triceBytesBuffer[8]);
 
-void triceServeBareFifoSyncedToBytesBuffer(void);
-void triceServeBareFifoWrappedToBytesBuffer(void);
+void triceServeFifoSyncedToBytesBuffer(void);
+void triceServeFifoWrappedToBytesBuffer(void);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* TRICE_BARE_FIFO_TO_BYTES_BUFFER_H_ */
+#endif /* TRICE_FIFO_TO_BYTES_BUFFER_H_ */

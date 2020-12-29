@@ -2112,5 +2112,33 @@
 		"fmtStrg": "s:                                                    \\ns:   MDK-ARM_LL_UART_RTT0_BAREL_STM32F030_NUCLEO-64   \\ns:                                                    \\n\\n",
 		"created": 1608550216,
 		"removed": 0
+	},
+	{
+		"id": 29840,
+		"fmtType": "TRICE0",
+		"fmtStrg": "s:                                                    \\ns:   MDK-ARM_LL_UART_RTT0_PACK_STM32F030_NUCLEO-64   \\ns:                                                    \\n\\n",
+		"created": 1609239056,
+		"removed": 0
+	},
+	{
+		"id": 46928,
+		"fmtType": "TRICE0",
+		"fmtStrg": "s:                                                   \\ns:   MDK-ARM_LL_UART_RTT0_PACK_STM32F030_NUCLEO-64   \\ns:                                                   \\n\\n",
+		"created": 1609239117,
+		"removed": 0
+	},
+	{
+		"id": 30152,
+		"fmtType": "TRICE0",
+		"fmtStrg": "rd_:triceFifoToBytesBuffer.c",
+		"created": 1609240073,
+		"removed": 0
+	},
+	{
+		"id": 44866,
+		"fmtType": "TRICE16_1",
+		"fmtStrg": "MSG: triceFifoMaxDepth = %d\\n",
+		"created": 1609243354,
+		"removed": 0
 	}
 ]
