@@ -51,7 +51,7 @@ The pack trice transmit format is in network order (big endian). The trice encod
 
 and so on...
 
-On each 4-byte aligned offset a sync packet {0x89, 0xab, 0xcd, 0xef} can be inserted.
+A sync packet {0x89, 0xab, 0xcd, 0xef} can be inserted anytime between 2 trices but not inside a trice.
 
 ## Encoding `bare`
 

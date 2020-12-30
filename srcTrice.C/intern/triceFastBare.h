@@ -74,7 +74,7 @@ When several data, the real ID comes in the last 32 bit sequence.
 //! \param d2 payload
 #define TRICE8_3( Id, pFmt, d0, d1, d2 ) do{ \
     TRICE_ENTER_CRITICAL_SECTION \
-    TRICE_U32PUSH( (uint16_t)TRICE_JOIN_U8(d0, d1 )); \
+    TRICE_U32PUSH( TRICE_JOIN_U8(d0, d1 )); \
     TRICE_JOINEDPUSH( Id, (uint16_t)(d2)<<8 ); \
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
@@ -88,7 +88,7 @@ When several data, the real ID comes in the last 32 bit sequence.
 //! \param d3 payload
 #define TRICE8_4( Id, pFmt, d0, d1, d2, d3 ) do{ \
     TRICE_ENTER_CRITICAL_SECTION \
-    TRICE_U32PUSH( (uint16_t)TRICE_JOIN_U8(d0, d1 )); \
+    TRICE_U32PUSH( TRICE_JOIN_U8(d0, d1 )); \
     TRICE_JOINEDPUSH( Id, TRICE_JOIN_U8(d2, d3 )); \
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
@@ -103,8 +103,8 @@ When several data, the real ID comes in the last 32 bit sequence.
 //! \param d4 payload
 #define TRICE8_5( Id, pFmt, d0, d1, d2, d3, d4 ) do{ \
     TRICE_ENTER_CRITICAL_SECTION \
-    TRICE_U32PUSH( (uint16_t)TRICE_JOIN_U8(d0, d1 )); \
-    TRICE_U32PUSH( (uint16_t)TRICE_JOIN_U8(d2, d3 )); \
+    TRICE_U32PUSH( TRICE_JOIN_U8(d0, d1 )); \
+    TRICE_U32PUSH( TRICE_JOIN_U8(d2, d3 )); \
     TRICE_JOINEDPUSH( Id, (uint16_t)(d4)<<8 ); \
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
@@ -120,8 +120,8 @@ When several data, the real ID comes in the last 32 bit sequence.
 //! \param d5 payload
 #define TRICE8_6( Id, pFmt, d0, d1, d2, d3, d4, d5 ) do{ \
     TRICE_ENTER_CRITICAL_SECTION \
-    TRICE_U32PUSH( (uint16_t)TRICE_JOIN_U8(d0, d1 )); \
-    TRICE_U32PUSH( (uint16_t)TRICE_JOIN_U8(d2, d3 )); \
+    TRICE_U32PUSH( TRICE_JOIN_U8(d0, d1 )); \
+    TRICE_U32PUSH( TRICE_JOIN_U8(d2, d3 )); \
     TRICE_JOINEDPUSH( Id, TRICE_JOIN_U8(d4, d5 )); \
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
@@ -138,9 +138,9 @@ When several data, the real ID comes in the last 32 bit sequence.
 //! \param d6 payload
 #define TRICE8_7( Id, pFmt, d0, d1, d2, d3, d4, d5, d6 ) do{ \
     TRICE_ENTER_CRITICAL_SECTION \
-    TRICE_U32PUSH( (uint16_t)TRICE_JOIN_U8(d0, d1 )); \
-    TRICE_U32PUSH( (uint16_t)TRICE_JOIN_U8(d2, d3 )); \
-    TRICE_U32PUSH( (uint16_t)TRICE_JOIN_U8(d4, d5 )); \
+    TRICE_U32PUSH( TRICE_JOIN_U8(d0, d1 )); \
+    TRICE_U32PUSH( TRICE_JOIN_U8(d2, d3 )); \
+    TRICE_U32PUSH( TRICE_JOIN_U8(d4, d5 )); \
     TRICE_JOINEDPUSH( Id, (uint16_t)(d6)<<8 ); \
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
@@ -158,9 +158,9 @@ When several data, the real ID comes in the last 32 bit sequence.
 //! \param d7 payload
 #define TRICE8_8( Id, pFmt, d0, d1, d2, d3, d4, d5, d6, d7 ) do{ \
     TRICE_ENTER_CRITICAL_SECTION \
-    TRICE_U32PUSH( (uint16_t)TRICE_JOIN_U8(d0, d1 )); \
-    TRICE_U32PUSH( (uint16_t)TRICE_JOIN_U8(d2, d3 )); \
-    TRICE_U32PUSH( (uint16_t)TRICE_JOIN_U8(d4, d5 )); \
+    TRICE_U32PUSH( TRICE_JOIN_U8(d0, d1 )); \
+    TRICE_U32PUSH( TRICE_JOIN_U8(d2, d3 )); \
+    TRICE_U32PUSH( TRICE_JOIN_U8(d4, d5 )); \
     TRICE_JOINEDPUSH( Id, TRICE_JOIN_U8(d6, d7 )); \
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
@@ -182,7 +182,7 @@ When several data, the real ID comes in the last 32 bit sequence.
 //! \param d1 payload
 #define TRICE16_2( Id, pFmt, d0, d1 ) do{ \
     TRICE_ENTER_CRITICAL_SECTION \
-    TRICE_U32PUSH( (uint16_t)(d0) ); \
+    TRICE_U32PUSH( (uint16_t)(d0) ); /* This cast ensures that padding bytes are 0 */ \
     TRICE_JOINEDPUSH( Id, d1 ); \
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
@@ -195,8 +195,8 @@ When several data, the real ID comes in the last 32 bit sequence.
 //! \param d2 payload
 #define TRICE16_3( Id, pFmt, d0, d1, d2 ) do{ \
     TRICE_ENTER_CRITICAL_SECTION \
-    TRICE_U32PUSH( (uint16_t)(d0) ); \
-    TRICE_U32PUSH( (uint16_t)(d1) ); \
+    TRICE_U32PUSH( (uint16_t)(d0) ); /* This cast ensures that padding bytes are 0 */ \
+    TRICE_U32PUSH( (uint16_t)(d1) ); /* This cast ensures that padding bytes are 0 */ \
     TRICE_JOINEDPUSH( Id, d2 ); \
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
@@ -210,9 +210,9 @@ When several data, the real ID comes in the last 32 bit sequence.
 //! \param d3 payload
 #define TRICE16_4( Id, pFmt, d0, d1, d2, d3 ) do{ \
     TRICE_ENTER_CRITICAL_SECTION \
-    TRICE_U32PUSH( (uint16_t)(d0) ); \
-    TRICE_U32PUSH( (uint16_t)(d1) ); \
-    TRICE_U32PUSH( (uint16_t)(d2) ); \
+    TRICE_U32PUSH( (uint16_t)(d0) ); /* This cast ensures that padding bytes are 0 */ \
+    TRICE_U32PUSH( (uint16_t)(d1) ); /* This cast ensures that padding bytes are 0 */ \
+    TRICE_U32PUSH( (uint16_t)(d2) ); /* This cast ensures that padding bytes are 0 */ \
     TRICE_JOINEDPUSH( Id, d3 ); \
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
