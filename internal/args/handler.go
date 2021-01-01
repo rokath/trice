@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/rokath/trice/internal/com"
 	"github.com/rokath/trice/internal/decoder"
@@ -82,7 +83,7 @@ func Handler(args []string) error {
 	case "l", "log":
 		fsScLog.Parse(subArgs)
 		distributeArgs()
-		receiver.Loop() // endless loop
+		logLoop() // endless loop
 		return nil
 	}
 }
@@ -192,4 +193,34 @@ func distributeArgs() {
 	cage.Verbose = verbose
 	receiver.Verbose = verbose
 	decoder.Verbose = verbose
+}
+
+// logLoop prepares writing and list and provides a retry mechanism for unplugged UART.
+func logLoop() {
+
+	list := id.New()
+	sw := emitter.New(emitter.Prefix)
+
+	for {
+
+		// (re-)setup input port
+		rc, e := receiver.NewReader(receiver.Port, receiver.PortArguments)
+		if nil != e {
+			if verbose {
+				fmt.Println(e)
+			}
+			return // true
+		}
+		defer rc.Close()
+		if receiver.ShowInputBytes {
+			rc = receiver.NewBytesViewer(rc)
+		}
+
+		f := decoder.Translate(sw, list, rc)
+		if false == f {
+			return
+		}
+
+		time.Sleep(100 * time.Millisecond) // retry interval
+	}
 }

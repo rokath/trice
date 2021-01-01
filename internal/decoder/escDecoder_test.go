@@ -1,17 +1,15 @@
 // Copyright 2020 Thomas.Hoehenleitner [at] seerose.net
 // Use of this source code is governed by a license that can be found in the LICENSE file.
 
-package decoder_test
+package decoder
 
 import (
 	"fmt"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
-
-	"github.com/rokath/trice/internal/decoder"
 	"github.com/rokath/trice/internal/id"
 	"github.com/rokath/trice/internal/receiver"
+	"github.com/stretchr/testify/assert"
 )
 
 var (
@@ -126,12 +124,12 @@ func TestEsc(t *testing.T) {
 		t.Fail()
 	}
 
-	list, err := decoder.UnmarshalTriceIDList([]byte(til))
+	list, err := UnmarshalTriceIDList([]byte(til))
 	if err != nil {
 		t.Fail()
 	}
 
-	p := decoder.NewEscFormat(list, rc) // p is a new decoder instance
+	p := NewEscFormat(list, rc) // p is a new decoder instance
 
 	ss := make([]string, 100)
 	n, err := p.StringsRead(ss)
@@ -151,7 +149,7 @@ func checkDynString(t *testing.T, list []id.Item, in, exp string) {
 		t.Fail()
 	}
 
-	p := decoder.NewEscFormat(list, rc) // p is a new decoder instance
+	p := NewEscFormat(list, rc) // p is a new decoder instance
 
 	ss := make([]string, 100)
 	n, err := p.StringsRead(ss)
@@ -165,7 +163,7 @@ func checkDynString(t *testing.T, list []id.Item, in, exp string) {
 }
 
 func TestEscDynStrings(t *testing.T) {
-	list, err := decoder.UnmarshalTriceIDList([]byte(til))
+	list, err := UnmarshalTriceIDList([]byte(til))
 	if err != nil {
 		t.Fail()
 	}

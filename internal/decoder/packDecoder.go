@@ -18,16 +18,23 @@ const (
 // Pack is the Decoder instance for bare encoded trices.
 type Pack struct {
 	decoding
+	endian         bool   // littleEndian or bigEndian
+	trice          idFmt  // received trice
+	b              []byte // read buffer
+	n              int    // size of returned trice message
+	d0, d1, d2, d3 uint32 // read raw data
 }
 
 // NewPackDecoder provides an decoder instance.
 // l is the trice id list in slice of struct format.
 // in is the usable reader for the input bytes.
-func NewPackDecoder(l []id.Item, in io.Reader) (p *Pack) {
+// littleEndian is false on normal network order.
+func NewPackDecoder(l []id.Item, in io.Reader, endian bool) (p *Pack) {
 	p = &Pack{}
 	p.in = in
 	p.syncBuffer = make([]byte, 0, 2*buffSize)
 	p.lut = MakeLut(l)
+	p.endian = endian
 	return
 }
 
@@ -58,16 +65,378 @@ func (p *Pack) StringsRead(ss []string) (m int, err error) {
 	return
 }
 
+// Read is the provided read method for pack decoding of next string as byte slice.
+// It uses inner reader p.in and internal id look-up table to fill b with a string.
+// b is a slice of bytes with a len for the max expected string size.
+// n is the count of read bytes inside b.
+func (p *Pack) Read(b []byte) (n int, err error) {
+	p.b = b
+	p.n = n
+	if 0 == len(b) {
+		return
+	}
+
+	// create and fill intermediate read buffer for pack encoding
+	rb := make([]byte, buffSize)
+	var m int
+	m, err = p.in.Read(rb)
+
+	// p.syncBuffer can contain unprocessed bytes from last call.
+	p.syncBuffer = append(p.syncBuffer, rb[:m]...) // merge with leftovers
+	if nil != err && io.EOF != err {
+		return
+	}
+	if len(p.syncBuffer) < 4 {
+		return // wait
+	}
+
+	head := p.readU32(p.syncBuffer[0:4])
+	if 0x89abcdef == head { // sync trice
+		p.rub(4)
+		n = copy(b, syncPacket)
+		return
+	}
+
+	triceID := int(head >> 16)  // 2 msb bytes are the ID
+	count := int(0xffff & head) // next 2 bytes are the count
+	var ok bool
+	p.trice, ok = p.lut[triceID] // check lookup table
+	if !ok {
+		return p.outOfSync(fmt.Sprintf("unknown triceID %5d", triceID))
+	}
+
+	if !p.bytesCountOk(count) {
+		return p.outOfSync(fmt.Sprintf("unecpected byteCount, it is not %d", count))
+	}
+
+	if !p.completeTrice(count) {
+		return // try later again
+	}
+
+	if !p.readDataAndCheckPaddingBytes(count) {
+		return p.outOfSync(fmt.Sprintf("error:padding bytes not zero"))
+	}
+
+	// ID and count are ok
+	switch p.trice.Type {
+	case "TRICE0":
+		return p.trice0()
+	case "TRICE8_1":
+		return p.trice81()
+	case "TRICE8_2":
+		return p.trice82()
+	case "TRICE8_3":
+		return p.trice83()
+	case "TRICE8_4":
+		return p.trice84()
+	case "TRICE8_5":
+		return p.trice85()
+	case "TRICE8_6":
+		return p.trice86()
+	case "TRICE8_7":
+		return p.trice87()
+	case "TRICE8_8":
+		return p.trice88()
+	case "TRICE16_1":
+		return p.trice161()
+	case "TRICE16_2":
+		return p.trice162()
+	case "TRICE16_3":
+		return p.trice163()
+	case "TRICE16_4":
+		return p.trice164()
+	case "TRICE32_1":
+		return p.trice321()
+	case "TRICE32_2":
+		return p.trice322()
+	case "TRICE32_3":
+		return p.trice323()
+	case "TRICE32_4":
+		return p.trice324()
+	case "TRICE64_1":
+		return p.trice641()
+	case "TRICE64_2":
+		return p.trice642()
+	case "TRICE_S":
+		return p.triceS(count)
+	}
+	n = copy(b, fmt.Sprint("error:Unexpected trice.Type ", p.trice.Type, ", ignoring byte ", p.syncBuffer[0]))
+	p.rub(1)
+	return
+}
+
+func (p *Pack) triceS(cnt int) (n int, e error) {
+	n = copy(p.b, fmt.Sprintf(p.trice.Strg, string(p.syncBuffer[4:4+cnt])))
+	cnt += 3
+	cnt &= ^3
+	p.rub(4 + cnt)
+	return
+}
+
+func (p *Pack) trice0() (n int, e error) {
+	n = copy(p.b, fmt.Sprintf(p.trice.Strg))
+	p.rub(4)
+	return
+}
+
+func (p *Pack) trice81() (n int, e error) {
+	b0 := int8(p.d0)
+	n = copy(p.b, fmt.Sprintf(p.trice.Strg, b0)) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
+	p.rub(8)
+	return
+}
+
+func (p *Pack) trice82() (n int, e error) {
+	b0 := int8(p.d0 >> 8)
+	b1 := int8(p.d0)
+	n = copy(p.b, fmt.Sprintf(p.trice.Strg, b0, b1))
+	p.rub(8)
+	return
+}
+
+func (p *Pack) trice83() (n int, e error) {
+	b0 := int8(p.d0 >> 16)
+	b1 := int8(p.d0 >> 8)
+	b2 := int8(p.d0)
+	n = copy(p.b, fmt.Sprintf(p.trice.Strg, b0, b1, b2))
+	p.rub(8)
+	return
+}
+
+func (p *Pack) trice84() (n int, e error) {
+	b0 := int8(p.d0 >> 24)
+	b1 := int8(p.d0 >> 16)
+	b2 := int8(p.d0 >> 8)
+	b3 := int8(p.d0)
+	n = copy(p.b, fmt.Sprintf(p.trice.Strg, b0, b1, b2, b3))
+	p.rub(8)
+	return
+}
+
+func (p *Pack) trice85() (n int, e error) {
+	b0 := int8(p.d0 >> 24)
+	b1 := int8(p.d0 >> 16)
+	b2 := int8(p.d0 >> 8)
+	b3 := int8(p.d0)
+	b4 := int8(p.d1)
+	n = copy(p.b, fmt.Sprintf(p.trice.Strg, b0, b1, b2, b3, b4))
+	p.rub(12)
+	return
+}
+
+func (p *Pack) trice86() (n int, e error) {
+	b0 := int8(p.d0 >> 24)
+	b1 := int8(p.d0 >> 16)
+	b2 := int8(p.d0 >> 8)
+	b3 := int8(p.d0)
+	b4 := int8(p.d1 >> 8)
+	b5 := int8(p.d1)
+	n = copy(p.b, fmt.Sprintf(p.trice.Strg, b0, b1, b2, b3, b4, b5))
+	p.rub(12)
+	return
+}
+
+func (p *Pack) trice87() (n int, e error) {
+	b0 := int8(p.d0 >> 24)
+	b1 := int8(p.d0 >> 16)
+	b2 := int8(p.d0 >> 8)
+	b3 := int8(p.d0)
+	b4 := int8(p.d1 >> 16)
+	b5 := int8(p.d1 >> 8)
+	b6 := int8(p.d1)
+	n = copy(p.b, fmt.Sprintf(p.trice.Strg, b0, b1, b2, b3, b4, b5, b6))
+	p.rub(12)
+	return
+}
+
+func (p *Pack) trice88() (n int, e error) {
+	b0 := int8(p.d0 >> 24)
+	b1 := int8(p.d0 >> 16)
+	b2 := int8(p.d0 >> 8)
+	b3 := int8(p.d0)
+	b4 := int8(p.d1 >> 24)
+	b5 := int8(p.d1 >> 16)
+	b6 := int8(p.d1 >> 8)
+	b7 := int8(p.d1)
+	n = copy(p.b, fmt.Sprintf(p.trice.Strg, b0, b1, b2, b3, b4, b5, b6, b7))
+	p.rub(12)
+	return
+}
+
+func (p *Pack) trice161() (n int, e error) {
+	d0 := int16(p.d0)
+	n = copy(p.b, fmt.Sprintf(p.trice.Strg, d0))
+	p.rub(8)
+	return
+}
+
+func (p *Pack) trice162() (n int, e error) {
+	d0 := int16(p.d0 >> 16)
+	d1 := int16(p.d0)
+	n = copy(p.b, fmt.Sprintf(p.trice.Strg, d0, d1))
+	p.rub(8)
+	return
+}
+
+func (p *Pack) trice163() (n int, e error) {
+	d0 := int16(p.d0 >> 16)
+	d1 := int16(p.d0)
+	d2 := int16(p.d1)
+	n = copy(p.b, fmt.Sprintf(p.trice.Strg, d0, d1, d2))
+	p.rub(12)
+	return
+}
+
+func (p *Pack) trice164() (n int, e error) {
+	d0 := int16(p.d0 >> 16)
+	d1 := int16(p.d0)
+	d2 := int16(p.d1 >> 16)
+	d3 := int16(p.d1)
+	n = copy(p.b, fmt.Sprintf(p.trice.Strg, d0, d1, d2, d3))
+	p.rub(12)
+	return
+}
+
+func (p *Pack) trice321() (n int, e error) {
+	d0 := int32(p.d0)
+	n = copy(p.b, fmt.Sprintf(p.trice.Strg, d0))
+	p.rub(8)
+	return
+}
+
+func (p *Pack) trice322() (n int, e error) {
+	d0 := int32(p.d0)
+	d1 := int32(p.d1)
+	n = copy(p.b, fmt.Sprintf(p.trice.Strg, d0, d1))
+	p.rub(12)
+	return
+}
+
+func (p *Pack) trice323() (n int, e error) {
+	d0 := int32(p.d0)
+	d1 := int32(p.d1)
+	d2 := int32(p.d2)
+	n = copy(p.b, fmt.Sprintf(p.trice.Strg, d0, d1, d2))
+	p.rub(16)
+	return
+}
+
+func (p *Pack) trice324() (n int, e error) {
+	d0 := int32(p.d0)
+	d1 := int32(p.d1)
+	d2 := int32(p.d2)
+	d3 := int32(p.d3)
+	n = copy(p.b, fmt.Sprintf(p.trice.Strg, d0, d1, d2, d3))
+	p.rub(20)
+	return
+}
+
+func (p *Pack) trice641() (n int, e error) {
+	d0 := (int64(p.d0) << 32) | int64(p.d1)
+	n = copy(p.b, fmt.Sprintf(p.trice.Strg, d0))
+	p.rub(12)
+	return
+}
+
+func (p *Pack) trice642() (n int, e error) {
+	d0 := (int64(p.d0) << 32) | int64(p.d1)
+	d1 := (int64(p.d2) << 32) | int64(p.d3)
+	n = copy(p.b, fmt.Sprintf(p.trice.Strg, d0, d1))
+	p.rub(20)
+	return
+}
+
+// readU32 returns the 4 b bytes as uint32 according the specified endianess
+func (p *Pack) readU32(b []byte) uint32 {
+	if littleEndian == p.endian {
+		return binary.LittleEndian.Uint32(b)
+	}
+	return binary.BigEndian.Uint32(b)
+}
+
+// readDataAndCheckPaddingBytes checks if existing paddings bytes 0
+// after reading data and storing them as 32 bit chunks in p.d0, ... p.d3.
+func (p *Pack) readDataAndCheckPaddingBytes(cnt int) (ok bool) {
+	switch p.trice.Type {
+	case "TRICE0":
+		return true
+	case "TRICE32_4", "TRICE64_2":
+		p.d3 = p.readU32(p.syncBuffer[16:20])
+		fallthrough
+	case "TRICE32_3":
+		p.d2 = p.readU32(p.syncBuffer[12:16])
+		fallthrough
+	case "TRICE8_8", "TRICE16_4", "TRICE32_2", "TRICE64_1":
+		p.d1 = p.readU32(p.syncBuffer[8:12])
+		fallthrough
+	case "TRICE8_4", "TRICE16_2", "TRICE32_1":
+		p.d0 = p.readU32(p.syncBuffer[4:8])
+		return true // no padding bytes
+	case "TRICE_S":
+		x := 3 & cnt
+		switch x {
+		case 0:
+			return true // no padding bytes
+		case 3:
+			ok = 0 == p.syncBuffer[4+cnt]
+		case 2:
+			ok = 0 == p.syncBuffer[4+cnt] && 0 == p.syncBuffer[1+4+cnt]
+		case 1:
+			ok = 0 == p.syncBuffer[4+cnt] && 0 == p.syncBuffer[1+4+cnt] && 0 == p.syncBuffer[2+4+cnt]
+		}
+	default:
+		p.d0 = p.readU32(p.syncBuffer[4:8])
+		switch p.trice.Type {
+		case "TRICE8_1":
+			ok = p.d0 < (1 << 8)
+		case "TRICE8_2", "TRICE16_1":
+			ok = p.d0 < (1 << 16)
+		case "TRICE8_3":
+			ok = p.d0 < (1 << 24)
+		default:
+			p.d1 = p.readU32(p.syncBuffer[8:12])
+			switch p.trice.Type {
+			case "TRICE8_5":
+				ok = p.d1 < (1 << 8)
+			case "TRICE8_6", "TRICE16_3":
+				ok = p.d1 < (1 << 16)
+			case "TRICE8_7":
+				ok = p.d1 < (1 << 24)
+			}
+		}
+	}
+	if true == ok {
+		return
+	}
+	return false
+}
+
+// completeTrice returns true if triceType payload is complete
+func (p *Pack) completeTrice(cnt int) bool {
+	cnt += 3
+	cnt &= ^3
+	if len(p.syncBuffer) < 4+cnt {
+		return false
+	}
+	return true
+}
+
+func (p *Pack) outOfSync(msg string) (n int, e error) {
+	n = copy(p.b, fmt.Sprintf("error:%s, ignoring byte %02x\n", msg, p.syncBuffer[0]))
+	p.rub(1)
+	return
+}
+
 // bytesCountOk returns true if the transmitted count information matches the expected count
-func (p *Pack) bytesCountOk(triceType string, cnt int) bool {
-	bytesCount := p.expectedByteCount(triceType)
+func (p *Pack) bytesCountOk(cnt int) bool {
+	bytesCount := p.expectedByteCount()
 	return cnt == bytesCount || -1 == bytesCount
 }
 
 // byteCount returns expected byte count for triceType.
 // It returns -1 for an unknown value an -2 for unknown triceType.
-func (p *Pack) expectedByteCount(triceType string) int {
-	switch triceType {
+func (p *Pack) expectedByteCount() int {
+	switch p.trice.Type {
 	case "TRICE0":
 		return 0
 	case "TRICE8_1":
@@ -100,247 +469,4 @@ func (p *Pack) expectedByteCount(triceType string) int {
 // rub removes leading bytes from sync buffer
 func (p *Pack) rub(n int) {
 	p.syncBuffer = p.syncBuffer[n:]
-}
-
-func (p *Pack) paddingBytesOk(triceType string, cnt int) bool {
-	switch triceType {
-	case "TRICE0", "TRICE8_4", "TRICE8_8",
-		"TRICE16_2", "TRICE16_4",
-		"TRICE32_1", "TRICE32_2", "TRICE32_3", "TRICE32_4",
-		"TRICE64_1", "TRICE64_2":
-		return true // no padding bytes
-	case "TRICE8_1":
-		return 0 == p.syncBuffer[5] && 0 == p.syncBuffer[6] && 0 == p.syncBuffer[7]
-	case "TRICE8_2", "TRICE16_1":
-		return 0 == p.syncBuffer[6] && 0 == p.syncBuffer[7]
-	case "TRICE8_3":
-		return 0 == p.syncBuffer[7]
-	case "TRICE8_5":
-		return 0 == p.syncBuffer[9] && 0 == p.syncBuffer[10] && 0 == p.syncBuffer[11]
-	case "TRICE8_6", "TRICE16_3":
-		return 0 == p.syncBuffer[10] && 0 == p.syncBuffer[11]
-	case "TRICE8_7":
-		return 0 == p.syncBuffer[11]
-	case "TRICE_S":
-		x := 3 & cnt
-		switch x {
-		case 0:
-			return true // no padding bytes
-		case 3:
-			return 0 == p.syncBuffer[4+cnt]
-		case 2:
-			return 0 == p.syncBuffer[4+cnt] && 0 == p.syncBuffer[1+4+cnt]
-		case 1:
-			return 0 == p.syncBuffer[4+cnt] && 0 == p.syncBuffer[1+4+cnt] && 0 == p.syncBuffer[2+4+cnt]
-		}
-	}
-	return false
-}
-
-// completeTrice returns true if triceType payload is complete
-func (p *Pack) completeTrice(triceType string, cnt int) bool {
-	cnt += 3
-	cnt &= ^3
-	if len(p.syncBuffer) < 4+cnt {
-		return false
-	}
-	return true
-}
-
-// Read is the provided read method for pack decoding of next string as byte slice.
-// It uses inner reader and internal id look-up table to fill b with a string.
-// b is a slice of bytes with a len for the max expected string size.
-// n is the count of read bytes inside b.
-func (p *Pack) Read(b []byte) (n int, err error) {
-	if 0 == len(b) {
-		return
-	}
-
-	// fill intermediate read buffer for pack encoding
-	rb := make([]byte, buffSize)
-	var m int
-	m, err = p.in.Read(rb)
-
-	// p.syncBuffer contains unprocessed bytes from last call.
-	p.syncBuffer = append(p.syncBuffer, rb[:m]...) // merge with leftovers
-	if nil != err && io.EOF != err {
-		return
-	}
-	if len(p.syncBuffer) < 4 {
-		return // wait
-	}
-
-	triceID := int(binary.BigEndian.Uint16(p.syncBuffer[0:2])) // first 2 bytes are the ID
-	count := int(binary.BigEndian.Uint16(p.syncBuffer[2:4]))   // next 2 bytes are the count
-
-	if 0x89ab == triceID && 0xcdef == count { // sync trice
-		p.rub(4)
-		n = copy(b, syncPacket)
-		return
-	}
-
-	trice, ok := p.lut[triceID] // check lookup table
-	if !ok {
-		n = copy(b, fmt.Sprintf("error:unknown triceID %5d, ignoring byte %02x\n", triceID, p.syncBuffer[0]))
-		p.rub(1)
-		return
-	}
-
-	if !p.bytesCountOk(trice.Type, count) {
-		n = copy(b, fmt.Sprintf("error:unecpected byteCount, it is not %d, ignoring byte %02x\n", count, p.syncBuffer[0]))
-		p.rub(1)
-		return
-	}
-
-	if !p.completeTrice(trice.Type, count) {
-		return // try later again
-	}
-
-	if !p.paddingBytesOk(trice.Type, count) {
-		n = copy(b, fmt.Sprintf("error:padding bytes not zero, ignoring byte %02x\n", p.syncBuffer[0]))
-		p.rub(1)
-		return
-	}
-
-	// ID and count are ok
-	switch trice.Type {
-	case "TRICE0":
-		n = copy(b, fmt.Sprintf(trice.Strg))
-		p.rub(4)
-		return
-	case "TRICE8_1":
-		if len(p.syncBuffer) < 8 {
-			return
-		}
-		n = copy(b, fmt.Sprintf(trice.Strg, int8(p.syncBuffer[4]))) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-		p.rub(8)
-		return
-	case "TRICE8_2":
-		n = copy(b, fmt.Sprintf(trice.Strg, int8(p.syncBuffer[4]), int8(p.syncBuffer[5])))
-		p.rub(8)
-		return
-	case "TRICE16_1":
-		n = copy(b, fmt.Sprintf(trice.Strg, int16(binary.BigEndian.Uint16(p.syncBuffer[4:6]))))
-		p.rub(8)
-		return
-	case "TRICE8_3":
-		n = copy(b, fmt.Sprintf(trice.Strg, int8(p.syncBuffer[4]), int8(p.syncBuffer[5]), int8(p.syncBuffer[6])))
-		p.rub(8)
-		return
-	case "TRICE8_4":
-		n = copy(b, fmt.Sprintf(trice.Strg,
-			int8(p.syncBuffer[4]), int8(p.syncBuffer[5]), int8(p.syncBuffer[6]), int8(p.syncBuffer[7])))
-		p.rub(8)
-		return
-	case "TRICE16_2":
-		n = copy(b, fmt.Sprintf(trice.Strg,
-			int16(binary.BigEndian.Uint16(p.syncBuffer[4:6])),
-			int16(binary.BigEndian.Uint16(p.syncBuffer[6:8]))))
-		p.rub(8)
-		return
-	case "TRICE32_1":
-		vH := int32(binary.BigEndian.Uint16(p.syncBuffer[4:6])) << 16
-		vL := int32(binary.BigEndian.Uint16(p.syncBuffer[6:8]))
-		n = copy(b, fmt.Sprintf(trice.Strg, vH|vL))
-		p.rub(8)
-		return
-	case "TRICE8_5":
-		n = copy(b, fmt.Sprintf(trice.Strg,
-			int8(p.syncBuffer[4]), int8(p.syncBuffer[5]), int8(p.syncBuffer[6]), int8(p.syncBuffer[7]),
-			int8(p.syncBuffer[8])))
-		p.rub(12)
-		return
-	case "TRICE8_6":
-		n = copy(b, fmt.Sprintf(trice.Strg,
-			int8(p.syncBuffer[4]), int8(p.syncBuffer[5]), int8(p.syncBuffer[6]), int8(p.syncBuffer[7]),
-			int8(p.syncBuffer[8]), int8(p.syncBuffer[9])))
-		p.rub(12)
-		return
-	case "TRICE16_3":
-		n = copy(b, fmt.Sprintf(trice.Strg,
-			int16(binary.BigEndian.Uint16(p.syncBuffer[4:6])),
-			int16(binary.BigEndian.Uint16(p.syncBuffer[6:8])),
-			int16(binary.BigEndian.Uint16(p.syncBuffer[8:10]))))
-		p.rub(12)
-		return
-	case "TRICE8_7":
-		n = copy(b, fmt.Sprintf(trice.Strg,
-			int8(p.syncBuffer[4]), int8(p.syncBuffer[5]), int8(p.syncBuffer[6]), int8(p.syncBuffer[7]),
-			int8(p.syncBuffer[8]), int8(p.syncBuffer[9]), int8(p.syncBuffer[10])))
-		p.rub(12)
-		return
-	case "TRICE8_8":
-		n = copy(b, fmt.Sprintf(trice.Strg,
-			int8(p.syncBuffer[4]), int8(p.syncBuffer[5]), int8(p.syncBuffer[6]), int8(p.syncBuffer[7]),
-			int8(p.syncBuffer[8]), int8(p.syncBuffer[9]), int8(p.syncBuffer[10]), int8(p.syncBuffer[11])))
-		p.rub(12)
-		return
-	case "TRICE16_4":
-		n = copy(b, fmt.Sprintf(trice.Strg,
-			int16(binary.BigEndian.Uint16(p.syncBuffer[4:6])),
-			int16(binary.BigEndian.Uint16(p.syncBuffer[6:8])),
-			int16(binary.BigEndian.Uint16(p.syncBuffer[8:10])),
-			int16(binary.BigEndian.Uint16(p.syncBuffer[10:12]))))
-		p.rub(12)
-		return
-	case "TRICE32_2":
-		v0H := int32(binary.BigEndian.Uint16(p.syncBuffer[4:6])) << 16
-		v0L := int32(binary.BigEndian.Uint16(p.syncBuffer[6:8]))
-		v1H := int32(binary.BigEndian.Uint16(p.syncBuffer[8:10])) << 16
-		v1L := int32(binary.BigEndian.Uint16(p.syncBuffer[10:12]))
-		n = copy(b, fmt.Sprintf(trice.Strg, v0H|v0L, v1H|v1L))
-		p.rub(12)
-		return
-	case "TRICE64_1":
-		vHH := int64(binary.BigEndian.Uint16(p.syncBuffer[4:6])) << 48
-		vHL := int64(binary.BigEndian.Uint16(p.syncBuffer[6:8])) << 32
-		vLH := int64(binary.BigEndian.Uint16(p.syncBuffer[8:10])) << 16
-		vLL := int64(binary.BigEndian.Uint16(p.syncBuffer[10:12]))
-		n = copy(b, fmt.Sprintf(trice.Strg, vHH|vHL|vLH|vLL))
-		p.rub(12)
-		return
-	case "TRICE32_3":
-		v0H := int32(binary.BigEndian.Uint16(p.syncBuffer[4:6])) << 16
-		v0L := int32(binary.BigEndian.Uint16(p.syncBuffer[6:8]))
-		v1H := int32(binary.BigEndian.Uint16(p.syncBuffer[8:10])) << 16
-		v1L := int32(binary.BigEndian.Uint16(p.syncBuffer[10:12]))
-		v2H := int32(binary.BigEndian.Uint16(p.syncBuffer[12:14])) << 16
-		v2L := int32(binary.BigEndian.Uint16(p.syncBuffer[14:16]))
-		n = copy(b, fmt.Sprintf(trice.Strg, v0H|v0L, v1H|v1L, v2H|v2L))
-		p.rub(16)
-		return
-	case "TRICE32_4":
-		v0H := int32(binary.BigEndian.Uint16(p.syncBuffer[4:6])) << 16
-		v0L := int32(binary.BigEndian.Uint16(p.syncBuffer[6:8]))
-		v1H := int32(binary.BigEndian.Uint16(p.syncBuffer[8:10])) << 16
-		v1L := int32(binary.BigEndian.Uint16(p.syncBuffer[10:12]))
-		v2H := int32(binary.BigEndian.Uint16(p.syncBuffer[12:14])) << 16
-		v2L := int32(binary.BigEndian.Uint16(p.syncBuffer[14:16]))
-		v3H := int32(binary.BigEndian.Uint16(p.syncBuffer[16:18])) << 16
-		v3L := int32(binary.BigEndian.Uint16(p.syncBuffer[18:20]))
-		n = copy(b, fmt.Sprintf(trice.Strg, v0H|v0L, v1H|v1L, v2H|v2L, v3H|v3L))
-		p.rub(20)
-		return
-	case "TRICE64_2":
-		v0HH := int64(binary.BigEndian.Uint16(p.syncBuffer[4:6])) << 48
-		v0HL := int64(binary.BigEndian.Uint16(p.syncBuffer[6:8])) << 32
-		v0LH := int64(binary.BigEndian.Uint16(p.syncBuffer[8:10])) << 16
-		v0LL := int64(binary.BigEndian.Uint16(p.syncBuffer[10:12]))
-		v1HH := int64(binary.BigEndian.Uint16(p.syncBuffer[12:14])) << 48
-		v1HL := int64(binary.BigEndian.Uint16(p.syncBuffer[14:16])) << 32
-		v1LH := int64(binary.BigEndian.Uint16(p.syncBuffer[16:18])) << 16
-		v1LL := int64(binary.BigEndian.Uint16(p.syncBuffer[18:20]))
-		n = copy(b, fmt.Sprintf(trice.Strg, v0HH|v0HL|v0LH|v0LL, v1HH|v1HL|v1LH|v1LL))
-		p.rub(20)
-		return
-	case "TRICE_S":
-		n = copy(b, fmt.Sprintf(trice.Strg, string(p.syncBuffer[4:4+count])))
-		count += 3
-		count &= ^3
-		p.rub(4 + count)
-		return
-	}
-	n = copy(b, fmt.Sprint("error:Unexpected trice.Type ", trice.Type, ", ignoring byte ", p.syncBuffer[0]))
-	p.rub(1)
-	return
 }

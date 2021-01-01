@@ -20,7 +20,9 @@ import (
 
 const (
 	// receive and sync buffer size
-	buffSize = 1024
+	buffSize     = 1024
+	littleEndian = true
+	bigEndian    = false
 )
 
 var (
@@ -110,12 +112,21 @@ func Translate(sw *emitter.TriceLineComposer, list *id.List, rc io.ReadCloser /*
 			}
 		}
 	case "pack":
-		dec := NewPackDecoder(list.ItemList, rc)
+		dec := NewPackDecoder(list.ItemList, rc, false)
 		for {
 			err := run(sw, dec)
 			if nil != err {
 				time.Sleep(2 * time.Second)
-				dec = NewPackDecoder(list.ItemList, rc) // read list again - it could have changed
+				dec = NewPackDecoder(list.ItemList, rc, false) // read list again - it could have changed
+			}
+		}
+	case "packl", "packL":
+		dec := NewPackDecoder(list.ItemList, rc, true)
+		for {
+			err := run(sw, dec)
+			if nil != err {
+				time.Sleep(2 * time.Second)
+				dec = NewPackDecoder(list.ItemList, rc, true) // read list again - it could have changed
 			}
 		}
 	case "bare":
@@ -127,7 +138,7 @@ func Translate(sw *emitter.TriceLineComposer, list *id.List, rc io.ReadCloser /*
 				dec = NewBareFormat(list.ItemList, rc) // read list again - it could have changed
 			}
 		}
-	case "bareL":
+	case "barel", "bareL":
 		dec := NewBareLFormat(list.ItemList, rc)
 		for {
 			err := run(sw, dec)

@@ -88,7 +88,30 @@ void triceCheckSet(int index) {
             TRICE16_1(Id(41495), "TST:test        message, SysTick is %6d\n", SYSTICKVAL16);
             TRICE16_1(Id(45697), "MSG:normal      message, SysTick is %6d\n", SYSTICKVAL16);
             TRICE16_1(Id(24589), "INFO:informal   message, SysTick is %6d\n", SYSTICKVAL16);
-            break;
+
+            TRICE32_1(Id(55424), "TST:test        message, SysTick is %6d\n", SYSTICKVAL16);
+            TRICE32_1(Id(55424), "TST:test        message, SysTick is %6d\n", SYSTICKVAL16);
+            TRICE32_1(Id(55424), "TST:test        message, SysTick is %6d\n", SYSTICKVAL16);
+                //     94:             TRICE32_1(Id(55424), "TST:test        message, SysTick is %6d\n", SYSTICKVAL16); 
+                // 0x08000A58 698D      LDR      r5,[r1,#0x18]
+                // 0x08000A5A 0DDB      LSRS     r3,r3,#23
+                // 0x08000A5C 009E      LSLS     r6,r3,#2
+                // 0x08000A5E 1C5B      ADDS     r3,r3,#1
+                // 0x08000A60 05DB      LSLS     r3,r3,#23
+                // 0x08000A62 5185      STR      r5,[r0,r6]
+                // 0x08000A64 0DDB      LSRS     r3,r3,#23
+                // 0x08000A66 009D      LSLS     r5,r3,#2
+                // 0x08000A68 5142      STR      r2,[r0,r5]
+                // 0x08000A6A 1C5B      ADDS     r3,r3,#1
+                // 0x08000A6C 05DB      LSLS     r3,r3,#23
+                //     95:             TRICE32_1(Id(55424), "TST:test        message, SysTick is %6d\n", SYSTICKVAL16);
+            TRICE32_1(Id(55424), "TST:test        message, SysTick is %6d\n", SYSTICKVAL16);
+            TRICE32_1(Id(55424), "TST:test        message, SysTick is %6d\n", SYSTICKVAL16);
+            TRICE32_1(Id(55424), "TST:test        message, SysTick is %6d\n", SYSTICKVAL16);
+            TRICE32_1(Id(55424), "TST:test        message, SysTick is %6d\n", SYSTICKVAL16);
+
+
+break;
         case 3:
             TRICE8_4(Id(2527), "tst:TRICE8  %%03x ->  %03x  %03x  %03x  %03x\n", 1, 0x7f, 0x80, 0xff);
             TRICE8_4(Id(63423), "tst:TRICE8   %%4d -> %4d %4d %4d %4d\n", 1, 0x7f, 0x80, 0xff);
@@ -127,7 +150,7 @@ void triceCheckSet(int index) {
             break;
         case 9:
             TRICE64_1(Id(43171), "tst:TRICE64_1 %d\n", -1); // 2
-            TRICE64_2(Id(8402), "tst:TRICE64_2 %d %d\n", -1, -2); // 4
+            TRICE64_2(Id( 8402), "tst:TRICE64_2 %d %d\n", -1, -2); // 4
             break;
         case 10:
             TRICE0(Id(44690), "e:A");
@@ -152,7 +175,15 @@ void triceCheckSet(int index) {
             TRICE0(Id(30479), "m:123\n");
             break;
         case 12:
-
+            TRICE8_1(Id(41267), "tst:TRICE8_1 %d\n", 1);
+            TRICE8_1(Id(41267), "tst:TRICE8_1 %d\n",-1);
+            TRICE8_2(Id(28873), "tst:TRICE8_2 %d %d\n", 1, 2);
+            TRICE8_3(Id(18501), "tst:TRICE8_3 %d %d %d\n", 1, 2, 3);
+            TRICE8_4(Id(34892), "tst:TRICE8_4 %d %d %d %d\n", 1, 2, 3, 4);
+            TRICE8_5(Id( 2043), "tst:TRICE8_5 %d %d %d %d %d\n", 1, 2, 3, 4, 5);
+            TRICE8_6(Id(36242), "tst:TRICE8_6 %d %d %d %d %d %d\n", 1, 2, 3, 4, 5, 6);
+            TRICE8_7(Id(23187), "tst:TRICE8_7 %d %d %d %d %d %d %d\n", 1, 2, 3, 4, 5, 6, 7);
+            TRICE8_8(Id( 5279), "tst:TRICE8_8 %d %d %d %d %d %d %d %d\n", 1, 2, 3, 4, 5, 6, 7, 8);
             break;
         case 13:
 
@@ -182,6 +213,7 @@ void triceCheckSet(int index) {
         TRICE_S( Id(18), "%s", "123456789ABCDEFGH\n" );
         TRICE_S( Id(18), "%s", "123456789ABCDEFGHI\n" );   
         TRICE_S( Id(18), "%s", "123456789ABCDEFGHIJ\n" );
+        TRICE_S( Id(18), "%s", "123456789ABCDEFGHIJ0\n" );
         TRICE_S( Id(18), "%s", "123456789ABCDEFGHIJ01\n" );
         TRICE_S( Id(18), "%s", "123456789ABCDEFGHIJ012\n" );
         TRICE_S( Id(18), "%s", "123456789ABCDEFGHIJ0123\n" );

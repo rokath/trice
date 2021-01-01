@@ -35,32 +35,32 @@ extern "C" {
 #define TRICE_HTON(n)  ((uint32_t)(n))
 #else
 #define TRICE_HTONS(n) ( (((uint16_t)(n))>>8) | (((uint16_t)(n))<<8) )
-#define TRICE_HH(n) ( (uint32_t)(n)    >>24)
-#define TRICE_HL(n) (((uint32_t)(n)<<8)>>24)
-#define TRICE_LH(n) ((uint32_t)((uint16_t)(n) >> 8))
-#define TRICE_LL(n) ((uint32_t)(( uint8_t)(n)     ))
-#define TRICE_HTON(n) ((TRICE_LL(n)<<24)|(TRICE_LH(n)<<16)|(TRICE_HL(n)<<8)|TRICE_HH(n) ) 
+#define TRICE_HH(n)                     ((uint32_t)(n)>>24)
+#define TRICE_HL(n) ((uint32_t)(uint8_t)((uint32_t)(n)>>16))
+#define TRICE_LH(n) ((uint32_t)         ((uint16_t)(n)>> 8))
+#define TRICE_LL(n) ((uint32_t)         (( uint8_t)(n)    ))
+#define TRICE_HTON(n) ((TRICE_LL(n)<<24)|(TRICE_LH(n)<<16)|(TRICE_HL(n)<<8)|TRICE_HH(n) )
 #endif
-
+#define TRICE_HTON_U32PUSH(v) TRICE_U32PUSH( TRICE_HTON(v) )
 
 #if TRICE_NOCODE_ENCODING == TRICE_ENCODING
 #include "intern/triceNoCode.h"
 #endif
 
 #if TRICE_ESC_ENCODING == TRICE_ENCODING
-#include "intern/triceEsc.h"
+#include "intern/triceEscEncoder.h"
 #include "intern/triceFifoToBytesBuffer.h"
 #endif
 
 
 #if TRICE_FAST_BARE_SYNC_ENCODING == TRICE_ENCODING \
  || TRICE_FAST_BARE_WRAP_ENCODING == TRICE_ENCODING
-#include "intern/triceFastBare.h"
+#include "intern/triceFastBareEncoder.h"
 #include "intern/triceFifoToBytesBuffer.h"
 #endif
 
 #if TRICE_PACK_ENCODING == TRICE_ENCODING
-#include "intern/tricePack.h"
+#include "intern/tricePackEncoder.h"
 #endif
 
 //#include "intern/triceLessFlashBareL.h"

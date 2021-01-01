@@ -11,12 +11,8 @@ import (
 	"log"
 	"path/filepath"
 	"runtime"
-	"time"
 
 	"github.com/rokath/trice/internal/com"
-	"github.com/rokath/trice/internal/decoder"
-	"github.com/rokath/trice/internal/emitter"
-	"github.com/rokath/trice/internal/id"
 	"github.com/rokath/trice/internal/link"
 )
 
@@ -66,36 +62,6 @@ func NewReader(port, args string) (r io.ReadCloser, err error) {
 	return
 }
 
-// Loop prepares writing and list and provides a retry mechanism for unplugged UART.
-func Loop() {
-
-	list := id.New()
-	sw := emitter.New(emitter.Prefix)
-
-	for {
-
-		// (re-)setup input port
-		rc, e := NewReader(Port, PortArguments)
-		if nil != e {
-			if Verbose {
-				fmt.Println(e)
-			}
-			return // true
-		}
-		defer rc.Close()
-		if ShowInputBytes {
-			rc = newBytesViewer(rc)
-		}
-
-		f := decoder.Translate(sw, list, rc)
-		if false == f {
-			return
-		}
-
-		time.Sleep(100 * time.Millisecond) // retry interval
-	}
-}
-
 // errorFatal ends in osExit(1) if err not nil.
 func errorFatal(err error) {
 	if nil == err {
@@ -119,7 +85,7 @@ type bytesViewer struct {
 // newBytesViewer returns a ReadCloser `in` which is internally using reader `from`.
 // Calling the `in` Read method leads to internally calling the `from` Read method
 // but lets to do some additional action like logging
-func newBytesViewer(from io.ReadCloser) (in io.ReadCloser) {
+func NewBytesViewer(from io.ReadCloser) (in io.ReadCloser) {
 	return &bytesViewer{from}
 }
 

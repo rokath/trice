@@ -2140,5 +2140,54 @@
 		"fmtStrg": "MSG: triceFifoMaxDepth = %d\\n",
 		"created": 1609243354,
 		"removed": 0
+	},
+	{
+		"id": 17989,
+		"fmtType": "TRICE16_2",
+		"fmtStrg": "MSG: triceFifoMaxDepth = %d, select = %d\\n",
+		"created": 1609536508,
+		"removed": 0
+	},
+	{
+		"id": 55424,
+		"fmtType": "TRICE32_1",
+		"fmtStrg": "TST:test        message, SysTick is %6d\\n",
+		"created": 1609539067,
+		"removed": 0
+	},
+	{
+		"id": 63705,
+		"fmtType": "TRICE32_1",
+		"fmtStrg": "TST:test        message, SysTick is %6d\\n",
+		"created": 1609539067,
+		"removed": 0
+	},
+	{
+		"id": 64709,
+		"fmtType": "TRICE32_1",
+		"fmtStrg": "TST:test        message, SysTick is %6d\\n",
+		"created": 1609539067,
+		"removed": 0
+	},
+	{
+		"id": 56011,
+		"fmtType": "TRICE32_1",
+		"fmtStrg": "TST:test        message, SysTick is %6d\\n",
+		"created": 1609539067,
+		"removed": 0
+	},
+	{
+		"id": 55532,
+		"fmtType": "TRICE32_1",
+		"fmtStrg": "TST:test        message, SysTick is %6d\\n",
+		"created": 1609539067,
+		"removed": 0
+	},
+	{
+		"id": 31330,
+		"fmtType": "TRICE32_1",
+		"fmtStrg": "TST:test        message, SysTick is %6d\\n",
+		"created": 1609539067,
+		"removed": 0
 	}
 ]
