@@ -89,7 +89,7 @@ func TestWrap(t *testing.T) {
 		t.Fail()
 	}
 
-	p := NewBareFormat(list, NewBareReaderFromWrap(rc)) // p is a new decoder instance
+	p := NewBareDecoder(list, NewBareReaderFromWrap(rc), littleEndian) // p is a new decoder instance
 
 	ss := make([]string, 100)
 	n, err := p.StringsRead(ss)

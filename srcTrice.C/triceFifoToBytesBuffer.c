@@ -32,7 +32,7 @@ uint8_t triceBytesBuffer[8] = { TRICE_WRAP_START_BYTE, TRICE_WRAP_LOCAL_ADDR, TR
 int const triceBytesBufferIndexLimit = 8; // sizeof(triceBytesBuffer[8]);
 int triceBytesBufferIndex = triceBytesBufferIndexLimit;
 
-
+/*
 //! TODO: endianess with compiler macros.
 TRICE_INLINE void triceLoadInNetworkOrder(uint8_t *p, uint32_t t) {
     // ID arrives in upper 16 bit in machine endianess
@@ -46,12 +46,12 @@ TRICE_INLINE void triceLoadInNetworkOrder(uint8_t *p, uint32_t t) {
     uint8_t daLo = p[2] = (uint8_t)(t >> 8); // DaLo big endian -> should be changed to >>24 (needs many changes in trice.h but does not influence trice go code)
     uint8_t daHi = p[3] = (uint8_t)(t >> 0); // DaHi big endian -> should be changed to >>16 (needs many changes in trice.h but does not influence trice go code)
 }
-
+*/
 TRICE_INLINE void triceTransfer(uint32_t t0, uint32_t t1) {
-    triceLoadInNetworkOrder(&triceBytesBuffer[0], t0);
-    triceLoadInNetworkOrder(&triceBytesBuffer[4], t1);
-    //triceBytesBuffer[0] = t0;
-    //triceBytesBuffer[1] = t1;
+    //triceLoadInNetworkOrder(&triceBytesBuffer[0], t0);
+    //triceLoadInNetworkOrder(&triceBytesBuffer[4], t1);
+    *(uint32_t*)&triceBytesBuffer[0] = t0;
+    *(uint32_t*)&triceBytesBuffer[4] = t1;
 }
 
 int triceBytesByfferDepth( void ){
@@ -61,7 +61,7 @@ int triceBytesByfferDepth( void ){
 void triceServeFifoSyncedToBytesBuffer(void) {
     // 89 ab cd ef <- on serial port
     // ih il dh dl
-    uint32_t const syncTrice = 0x89abcdef;
+    uint32_t const syncTrice = TRICE_HTON(0x89abcdef);
     static int syncLevel = syncLevelLimit; // start with a sync trice
     if (triceBytesBufferIndexLimit == triceBytesBufferIndex) { // bytes buffer empty and tx finished
         // next trice
@@ -98,7 +98,8 @@ void triceServeFifoWrappedToBytesBuffer(void) {
         if ( n >= 4 ) { // a trice to transmit
             uint32_t x = triceU32Pop();
             triceBytesBuffer[3]  = (uint8_t)( TRICE_WRAP_START_BYTE ^ TRICE_WRAP_LOCAL_ADDR ^ TRICE_WRAP_DEST_ADDR ^ x ^ (x>>8) ^ (x>>16) ^ (x>>24) ); // crc8
-            triceLoadInNetworkOrder(&triceBytesBuffer[4], x);
+            
+            *(uint32_t*)&triceBytesBuffer[4] = x; //triceLoadInNetworkOrder(&triceBytesBuffer[4], x);
             triceBytesBufferIndex = 0;
         }
     }

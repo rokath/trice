@@ -11,22 +11,23 @@ extern "C" {
 
 #include <stdint.h>
 
-#define __LITTLE_ENDIAN__
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-// #define TRICE_ENTER_CRITICAL_SECTION { // Uncomment for more speed but only if TRICE macros cannot
-// #define TRICE_LEAVE_CRITICAL_SECTION } // get interrupted by other TRICE macros (e.g. interrupts).
+#define TRICE_ENTER_CRITICAL_SECTION { // Uncomment for more speed but only if TRICE macros cannot
+#define TRICE_LEAVE_CRITICAL_SECTION } // get interrupted by other TRICE macros (e.g. interrupts).
 //
 ///////////////////////////////////////////////////////////////////////////////
 
 
 ///////////////////////////////////////////////////////////////////////////////
 // select target trice method
-#define TRICE_ENCODING TRICE_FAST_BARE_SYNC_ENCODING
+#define TRICE_ENCODING TRICE_PACK_ENCODING
 
-#define TRICE_U8PUSH(v) do{ triceU8PushSeggerRTT(v); triceU8Push(v); } while(0) //!< Set trice out channel(s) 
-#define TRICE_U32PUSH(v) do{ triceU32PushSeggerRTT(v); triceU32Push(v); } while(0) //!< Set trice out channel(s) 
+#define TRICE_HARDWARE_ENDIANESS TRICE_LITTLE_ENDIANESS 
+#define TRICE_TRANSFER_ENDIANESS TRICE_LITTLE_ENDIANESS 
+#define TRICE_U8PUSH(v) do{ /*triceU8PushSeggerRTT(v);*/ triceU8Push(v); } while(0) //!< Set trice out channel(s) 
+#define TRICE_U32PUSH(v) do{ /*triceU32PushSeggerRTT(v);*/ triceU32Push(v); } while(0) //!< Set trice out channel(s) 
 //
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -39,7 +40,7 @@ extern "C" {
 
 ///////////////////////////////////////////////////////////////////////////////
 // uncomment for trice UART transfer format
-// #define TRICE_UART USART2 // set UART number
+#define TRICE_UART USART2 // set UART number
 ///////////////////////////////////////////////////////////////////////////////
 
 void triceCheckSet( int index ); //!< tests

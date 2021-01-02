@@ -17,6 +17,42 @@
 #define TRICE_S( i, p, s )
 #endif
 
+
+//! triceRuntimeGeneratedStringUnbound can transfer runtime generated strings if TRICES_1 is not available.
+TRICE_INLINE void triceRuntimeGeneratedStringUnbound( const char* s ){
+    size_t len = strlen( s );
+    char c1, c2, c3, c4, c5, c6, c7, c8;
+    while( len ){
+        switch( len ){
+            case  0: return;
+            case  1: c1=*s++;
+                TRICE8_1( Id(36152), "%c", c1 ); return;
+            case  2: c1=*s++; c2=*s++;
+                TRICE8_2( Id(49862), "%c%c", c1, c2 ); return;
+            case  3: c1=*s++; c2=*s++; c3=*s++;
+                TRICE8_3( Id(60898), "%c%c%c", c1, c2, c3 ); return;
+            case  4: c1=*s++; c2=*s++; c3=*s++; c4=*s++;
+                TRICE8_4( Id(57970), "%c%c%c%c", c1, c2, c3, c4 ); return;
+            case  5: c1=*s++; c2=*s++; c3=*s++; c4=*s++; c5=*s++;
+                TRICE8_5( Id(49813), "%c%c%c%c%c", c1, c2, c3, c4, c5 ); return;
+            case  6: c1=*s++; c2=*s++; c3=*s++; c4=*s++; c5=*s++; c6=*s++;
+                TRICE8_6( Id(10201), "%c%c%c%c%c%c", c1, c2, c3, c4, c5, c6 ); return;
+            case  7: c1=*s++; c2=*s++; c3=*s++; c4=*s++; c5=*s++; c6=*s++; c7=*s++;
+                TRICE8_7( Id(57439), "%c%c%c%c%c%c%c", c1, c2, c3, c4, c5, c6, c7); return;
+            case  8:
+            default: c1 = *s++; c2 = *s++; c3 = *s++; c4 = *s++; c5 = *s++; c6 = *s++; c7 = *s++; c8 = *s++;
+                TRICE8_8( Id(53018), "%c%c%c%c%c%c%c%c", c1, c2, c3, c4, c5, c6, c7, c8 );
+                len -= 8;
+        }
+    }
+    return;
+}
+
+//! trice runtime string
+#define TRICE_RTS(dynString) do{ triceRuntimeGeneratedStringUnbound(dynString); }while(0)
+
+
+
 //! write out all types of trices with fixed values for testing
 //! \details One trice has one subtrace, if param size max 2 bytes. 
 //! Traces with more bytes as parameter consist of several subtraces.
@@ -176,7 +212,6 @@ break;
             break;
         case 12:
             TRICE8_1(Id(41267), "tst:TRICE8_1 %d\n", 1);
-            TRICE8_1(Id(41267), "tst:TRICE8_1 %d\n",-1);
             TRICE8_2(Id(28873), "tst:TRICE8_2 %d %d\n", 1, 2);
             TRICE8_3(Id(18501), "tst:TRICE8_3 %d %d %d\n", 1, 2, 3);
             TRICE8_4(Id(34892), "tst:TRICE8_4 %d %d %d %d\n", 1, 2, 3, 4);
@@ -186,7 +221,26 @@ break;
             TRICE8_8(Id( 5279), "tst:TRICE8_8 %d %d %d %d %d %d %d %d\n", 1, 2, 3, 4, 5, 6, 7, 8);
             break;
         case 13:
-
+            TRICE_RTS( "an_example_string\n" );
+            TRICE_RTS( "" );
+            TRICE_RTS( "\n" );
+            TRICE_RTS( "a\n" );
+            TRICE_RTS( "an\n" );
+            TRICE_RTS( "an_\n" );
+            TRICE_RTS( "an_e\n" );
+            TRICE_RTS( "an_ex\n" );
+            TRICE_RTS( "an_exa\n" );
+            TRICE_RTS( "an_exam\n" );
+            TRICE_RTS( "an_examp\n" );
+            TRICE_RTS( "an_exampl\n" );
+            TRICE_RTS( "an_example\n" );
+            TRICE_RTS( "an_example_\n" );
+            TRICE_RTS( "an_example_s\n" );
+            TRICE_RTS( "an_example_st\n" );
+            TRICE_RTS( "an_example_str\n" );
+            TRICE_RTS( "an_example_stri\n" );
+            TRICE_RTS( "an_example_strin\n" );
+            TRICE_RTS( "an_example_string\n" );
             break;
             
     case 14: 

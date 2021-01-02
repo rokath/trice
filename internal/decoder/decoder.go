@@ -20,7 +20,7 @@ import (
 
 const (
 	// receive and sync buffer size
-	buffSize     = 1024
+	buffSize     = 4096
 	littleEndian = true
 	bigEndian    = false
 )
@@ -112,48 +112,57 @@ func Translate(sw *emitter.TriceLineComposer, list *id.List, rc io.ReadCloser /*
 			}
 		}
 	case "pack":
-		dec := NewPackDecoder(list.ItemList, rc, false)
+		dec := NewPackDecoder(list.ItemList, rc, bigEndian)
 		for {
 			err := run(sw, dec)
 			if nil != err {
 				time.Sleep(2 * time.Second)
-				dec = NewPackDecoder(list.ItemList, rc, false) // read list again - it could have changed
+				dec = NewPackDecoder(list.ItemList, rc, bigEndian) // read list again - it could have changed
 			}
 		}
 	case "packl", "packL":
-		dec := NewPackDecoder(list.ItemList, rc, true)
+		dec := NewPackDecoder(list.ItemList, rc, littleEndian)
 		for {
 			err := run(sw, dec)
 			if nil != err {
 				time.Sleep(2 * time.Second)
-				dec = NewPackDecoder(list.ItemList, rc, true) // read list again - it could have changed
+				dec = NewPackDecoder(list.ItemList, rc, littleEndian) // read list again - it could have changed
 			}
 		}
 	case "bare":
-		dec := NewBareFormat(list.ItemList, rc)
+		dec := NewBareDecoder(list.ItemList, rc, bigEndian)
 		for {
 			err := run(sw, dec)
 			if nil != err {
 				time.Sleep(2 * time.Second)
-				dec = NewBareFormat(list.ItemList, rc) // read list again - it could have changed
+				dec = NewBareDecoder(list.ItemList, rc, bigEndian) // read list again - it could have changed
 			}
 		}
 	case "barel", "bareL":
-		dec := NewBareLFormat(list.ItemList, rc)
+		dec := NewBareDecoder(list.ItemList, rc, littleEndian)
 		for {
 			err := run(sw, dec)
 			if nil != err {
 				time.Sleep(2 * time.Second)
-				dec = NewBareLFormat(list.ItemList, rc) // read list again - it could have changed
+				dec = NewBareDecoder(list.ItemList, rc, littleEndian) // read list again - it could have changed
 			}
 		}
 	case "wrap":
-		dec := NewBareFormat(list.ItemList, NewBareReaderFromWrap(rc))
+		dec := NewBareDecoder(list.ItemList, NewBareReaderFromWrap(rc), bigEndian)
 		for {
 			err := run(sw, dec)
 			if nil != err {
 				time.Sleep(2 * time.Second)
-				dec = NewBareFormat(list.ItemList, NewBareReaderFromWrap(rc)) // read list again - it could have changed
+				dec = NewBareDecoder(list.ItemList, NewBareReaderFromWrap(rc), bigEndian) // read list again - it could have changed
+			}
+		}
+	case "wrapl", "wrapL":
+		dec := NewBareDecoder(list.ItemList, NewBareReaderFromWrap(rc), littleEndian)
+		for {
+			err := run(sw, dec)
+			if nil != err {
+				time.Sleep(2 * time.Second)
+				dec = NewBareDecoder(list.ItemList, NewBareReaderFromWrap(rc), littleEndian) // read list again - it could have changed
 			}
 		}
 

@@ -2189,5 +2189,19 @@
 		"fmtStrg": "TST:test        message, SysTick is %6d\\n",
 		"created": 1609539067,
 		"removed": 0
+	},
+	{
+		"id": 24543,
+		"fmtType": "TRICE0",
+		"fmtStrg": "wrn:TRICES_1(id, pFmt, dynString) macro is not supported in bare encoding.\\nSee TRICE_RTS macro in triceCheck.c for an alternative or use a different encoding.\\n",
+		"created": 1609622699,
+		"removed": 0
+	},
+	{
+		"id": 28489,
+		"fmtType": "TRICE0",
+		"fmtStrg": "wrn:TRICES_1(id, pFmt, dynString) macro is not supported in bare encoding.\\nmsg:See TRICE_RTS macro in triceCheck.c for an alternative or use a different encoding.\\n",
+		"created": 1609624663,
+		"removed": 0
 	}
 ]

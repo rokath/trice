@@ -30,6 +30,10 @@ extern "C" {
 #include "intern/triceFifo.h"
 #include "intern/triceSeggerRTT.h"
 
+#define TRICE_U8_JOIN(  first, second ) ((uint16_t)((((uint8_t )(first))<< 8)|((uint8_t )(second)))) //!< helper macro
+#define TRICE_U16_JOIN( first, second ) (          ((((uint32_t)(first))<<16)|((uint16_t)(second)))) //!< helper macro
+
+
 #if TRICE_HARDWARE_ENDIANESS == TRICE_TRANSFER_ENDIANESS
 #define TRICE_HTONS(n) ((uint16_t)(n))
 #define TRICE_HTON(n)  ((uint32_t)(n))

@@ -57,7 +57,7 @@ func (p *Pack) StringsRead(ss []string) (m int, err error) {
 		}
 		ss[m] = string(b)
 		m++
-		//return // read only one string for now
+		return // read only one string for now
 		//if nil != err {
 		//	return
 		//}
@@ -69,6 +69,8 @@ func (p *Pack) StringsRead(ss []string) (m int, err error) {
 // It uses inner reader p.in and internal id look-up table to fill b with a string.
 // b is a slice of bytes with a len for the max expected string size.
 // n is the count of read bytes inside b.
+// Read returns one trice string (optionally starting wth a channel specifier).
+// A line can contain several trice strings.
 func (p *Pack) Read(b []byte) (n int, err error) {
 	p.b = b
 	p.n = n
@@ -91,10 +93,8 @@ func (p *Pack) Read(b []byte) (n int, err error) {
 	}
 
 	head := p.readU32(p.syncBuffer[0:4])
-	if 0x89abcdef == head { // sync trice
-		p.rub(4)
-		n = copy(b, syncPacket)
-		return
+	if 0x89abcdef == head {
+		return p.syncTrice()
 	}
 
 	triceID := int(head >> 16)  // 2 msb bytes are the ID
@@ -160,9 +160,132 @@ func (p *Pack) Read(b []byte) (n int, err error) {
 	case "TRICE_S":
 		return p.triceS(count)
 	}
-	n = copy(b, fmt.Sprint("error:Unexpected trice.Type ", p.trice.Type, ", ignoring byte ", p.syncBuffer[0]))
+	return p.outOfSync(fmt.Sprintf("Unexpected trice.Type %s", p.trice.Type))
+}
+
+// readU32 returns the 4 b bytes as uint32 according the specified endianess
+func (p *Pack) readU32(b []byte) uint32 {
+	if littleEndian == p.endian {
+		return binary.LittleEndian.Uint32(b)
+	}
+	return binary.BigEndian.Uint32(b)
+}
+
+// readDataAndCheckPaddingBytes checks if existing paddings bytes 0
+// after reading data and storing them as 32 bit chunks in p.d0, ... p.d3.
+func (p *Pack) readDataAndCheckPaddingBytes(cnt int) (ok bool) {
+	switch p.trice.Type {
+	case "TRICE0":
+		return true
+	case "TRICE32_4", "TRICE64_2":
+		p.d3 = p.readU32(p.syncBuffer[16:20])
+		fallthrough
+	case "TRICE32_3":
+		p.d2 = p.readU32(p.syncBuffer[12:16])
+		fallthrough
+	case "TRICE8_8", "TRICE16_4", "TRICE32_2", "TRICE64_1":
+		p.d1 = p.readU32(p.syncBuffer[8:12])
+		fallthrough
+	case "TRICE8_4", "TRICE16_2", "TRICE32_1":
+		p.d0 = p.readU32(p.syncBuffer[4:8])
+		return true // no padding bytes
+	case "TRICE_S":
+		x := 3 & cnt
+		switch x {
+		case 0:
+			return true // no padding bytes
+		case 3:
+			ok = 0 == p.syncBuffer[4+cnt]
+		case 2:
+			ok = 0 == p.syncBuffer[4+cnt] && 0 == p.syncBuffer[1+4+cnt]
+		case 1:
+			ok = 0 == p.syncBuffer[4+cnt] && 0 == p.syncBuffer[1+4+cnt] && 0 == p.syncBuffer[2+4+cnt]
+		}
+	default:
+		p.d0 = p.readU32(p.syncBuffer[4:8])
+		switch p.trice.Type {
+		case "TRICE8_1":
+			ok = p.d0 < (1 << 8)
+		case "TRICE8_2", "TRICE16_1":
+			ok = p.d0 < (1 << 16)
+		case "TRICE8_3":
+			ok = p.d0 < (1 << 24)
+		default:
+			p.d1 = p.readU32(p.syncBuffer[8:12])
+			switch p.trice.Type {
+			case "TRICE8_5":
+				ok = p.d1 < (1 << 8)
+			case "TRICE8_6", "TRICE16_3":
+				ok = p.d1 < (1 << 16)
+			case "TRICE8_7":
+				ok = p.d1 < (1 << 24)
+			}
+		}
+	}
+	if true == ok {
+		return
+	}
+	return false
+}
+
+// completeTrice returns true if triceType payload is complete
+func (p *Pack) completeTrice(cnt int) bool {
+	cnt += 3
+	cnt &= ^3
+	if len(p.syncBuffer) < 4+cnt {
+		return false
+	}
+	return true
+}
+
+func (p *Pack) outOfSync(msg string) (n int, e error) {
+	n = copy(p.b, fmt.Sprintf("error:%s, ignoring byte %02x\n", msg, p.syncBuffer[0]))
 	p.rub(1)
 	return
+}
+
+// bytesCountOk returns true if the transmitted count information matches the expected count
+func (p *Pack) bytesCountOk(cnt int) bool {
+	bytesCount := p.expectedByteCount()
+	return cnt == bytesCount || -1 == bytesCount
+}
+
+// byteCount returns expected byte count for triceType.
+// It returns -1 for an unknown value an -2 for unknown triceType.
+func (p *Pack) expectedByteCount() int {
+	switch p.trice.Type {
+	case "TRICE0":
+		return 0
+	case "TRICE8_1":
+		return 1
+	case "TRICE8_2", "TRICE16_1":
+		return 2
+	case "TRICE8_3":
+		return 3
+	case "TRICE8_4", "TRICE16_2", "TRICE32_1":
+		return 4
+	case "TRICE8_5":
+		return 5
+	case "TRICE8_6", "TRICE16_3":
+		return 6
+	case "TRICE8_7":
+		return 7
+	case "TRICE8_8", "TRICE16_4", "TRICE32_2", "TRICE64_1":
+		return 8
+	case "TRICE32_3":
+		return 12
+	case "TRICE32_4", "TRICE64_2":
+		return 16
+	case "TRICE_S":
+		return -1 // unknown count
+	default:
+		return -2 // unknown trice type
+	}
+}
+
+// rub removes leading bytes from sync buffer
+func (p *Pack) rub(n int) {
+	p.syncBuffer = p.syncBuffer[n:]
 }
 
 func (p *Pack) triceS(cnt int) (n int, e error) {
@@ -346,127 +469,8 @@ func (p *Pack) trice642() (n int, e error) {
 	return
 }
 
-// readU32 returns the 4 b bytes as uint32 according the specified endianess
-func (p *Pack) readU32(b []byte) uint32 {
-	if littleEndian == p.endian {
-		return binary.LittleEndian.Uint32(b)
-	}
-	return binary.BigEndian.Uint32(b)
-}
-
-// readDataAndCheckPaddingBytes checks if existing paddings bytes 0
-// after reading data and storing them as 32 bit chunks in p.d0, ... p.d3.
-func (p *Pack) readDataAndCheckPaddingBytes(cnt int) (ok bool) {
-	switch p.trice.Type {
-	case "TRICE0":
-		return true
-	case "TRICE32_4", "TRICE64_2":
-		p.d3 = p.readU32(p.syncBuffer[16:20])
-		fallthrough
-	case "TRICE32_3":
-		p.d2 = p.readU32(p.syncBuffer[12:16])
-		fallthrough
-	case "TRICE8_8", "TRICE16_4", "TRICE32_2", "TRICE64_1":
-		p.d1 = p.readU32(p.syncBuffer[8:12])
-		fallthrough
-	case "TRICE8_4", "TRICE16_2", "TRICE32_1":
-		p.d0 = p.readU32(p.syncBuffer[4:8])
-		return true // no padding bytes
-	case "TRICE_S":
-		x := 3 & cnt
-		switch x {
-		case 0:
-			return true // no padding bytes
-		case 3:
-			ok = 0 == p.syncBuffer[4+cnt]
-		case 2:
-			ok = 0 == p.syncBuffer[4+cnt] && 0 == p.syncBuffer[1+4+cnt]
-		case 1:
-			ok = 0 == p.syncBuffer[4+cnt] && 0 == p.syncBuffer[1+4+cnt] && 0 == p.syncBuffer[2+4+cnt]
-		}
-	default:
-		p.d0 = p.readU32(p.syncBuffer[4:8])
-		switch p.trice.Type {
-		case "TRICE8_1":
-			ok = p.d0 < (1 << 8)
-		case "TRICE8_2", "TRICE16_1":
-			ok = p.d0 < (1 << 16)
-		case "TRICE8_3":
-			ok = p.d0 < (1 << 24)
-		default:
-			p.d1 = p.readU32(p.syncBuffer[8:12])
-			switch p.trice.Type {
-			case "TRICE8_5":
-				ok = p.d1 < (1 << 8)
-			case "TRICE8_6", "TRICE16_3":
-				ok = p.d1 < (1 << 16)
-			case "TRICE8_7":
-				ok = p.d1 < (1 << 24)
-			}
-		}
-	}
-	if true == ok {
-		return
-	}
-	return false
-}
-
-// completeTrice returns true if triceType payload is complete
-func (p *Pack) completeTrice(cnt int) bool {
-	cnt += 3
-	cnt &= ^3
-	if len(p.syncBuffer) < 4+cnt {
-		return false
-	}
-	return true
-}
-
-func (p *Pack) outOfSync(msg string) (n int, e error) {
-	n = copy(p.b, fmt.Sprintf("error:%s, ignoring byte %02x\n", msg, p.syncBuffer[0]))
-	p.rub(1)
+func (p *Pack) syncTrice() (n int, e error) {
+	n = copy(p.b, syncPacket)
+	p.rub(4)
 	return
-}
-
-// bytesCountOk returns true if the transmitted count information matches the expected count
-func (p *Pack) bytesCountOk(cnt int) bool {
-	bytesCount := p.expectedByteCount()
-	return cnt == bytesCount || -1 == bytesCount
-}
-
-// byteCount returns expected byte count for triceType.
-// It returns -1 for an unknown value an -2 for unknown triceType.
-func (p *Pack) expectedByteCount() int {
-	switch p.trice.Type {
-	case "TRICE0":
-		return 0
-	case "TRICE8_1":
-		return 1
-	case "TRICE8_2", "TRICE16_1":
-		return 2
-	case "TRICE8_3":
-		return 3
-	case "TRICE8_4", "TRICE16_2", "TRICE32_1":
-		return 4
-	case "TRICE8_5":
-		return 5
-	case "TRICE8_6", "TRICE16_3":
-		return 6
-	case "TRICE8_7":
-		return 7
-	case "TRICE8_8", "TRICE16_4", "TRICE32_2", "TRICE64_1":
-		return 8
-	case "TRICE32_3":
-		return 12
-	case "TRICE32_4", "TRICE64_2":
-		return 16
-	case "TRICE_S":
-		return -1 // unknown count
-	default:
-		return -2 // unknown trice type
-	}
-}
-
-// rub removes leading bytes from sync buffer
-func (p *Pack) rub(n int) {
-	p.syncBuffer = p.syncBuffer[n:]
 }

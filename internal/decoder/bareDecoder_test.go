@@ -65,7 +65,7 @@ func TestBare(t *testing.T) {
 		t.Fail()
 	}
 
-	p := NewBareFormat(list, rc) // p is a new decoder instance
+	p := NewBareDecoder(list, rc, littleEndian) // p is a new decoder instance
 
 	ss := make([]string, 100)
 	n, err := p.StringsRead(ss)

@@ -102,7 +102,7 @@ int main(void)
   {
     static int lastTricesTime = 0;
     { // send some trices every few ms
-        if( milliSecond >= lastTricesTime + 1000 ){
+        if( milliSecond >= lastTricesTime + 100 ){
             static int index = 0;
             int select = index % 30;
             TRICE_SYNC;

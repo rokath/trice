@@ -94,6 +94,7 @@ int main(void)
   /* USER CODE BEGIN 2 */
     LL_USART_EnableIT_RXNE(TRICE_UART); // enable UART2 interrupt
     TRICE0( Id(54823), "s:                                                   \ns:   MDK-ARM_LL_UART_RTT0_BARE_STM32F030_NUCLEO-64   \ns:                                                   \n\n");
+    TRICE_SYNC; // not really needed here
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -104,7 +105,7 @@ int main(void)
     { // send some trices every few ms
         if( milliSecond >= lastTricesTime + 100 ){
             static int index = 0;
-            triceCheckSet(index%10);
+            triceCheckSet(index%30);
             index++;
             lastTricesTime = milliSecond;
         }
