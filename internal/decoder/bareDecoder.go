@@ -90,7 +90,7 @@ func (p *Bare) Read(b []byte) (n int, err error) {
 		}
 		head := int(p.readU32(p.syncBuffer[0:4]))
 
-		if 0x89abcdef == head { // sync trice
+		if 0x89abcdef == uint(head) { // sync trice
 			p.rub(4)
 			continue
 		}
