@@ -52,7 +52,7 @@ var byteStreamBare string = string([]byte{
 	137, 171, 205, 239, // sync
 })
 
-func TestBare(t *testing.T) {
+func _TestBare(t *testing.T) {
 
 	// rc is created ReadCloser
 	rc, err := receiver.NewReader("BUFFER", byteStreamBare)

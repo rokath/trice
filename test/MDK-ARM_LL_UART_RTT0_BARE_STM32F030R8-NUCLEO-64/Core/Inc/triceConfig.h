@@ -22,20 +22,20 @@ extern "C" {
 
 ///////////////////////////////////////////////////////////////////////////////
 // select target trice method
-#define TRICE_ENCODING TRICE_FAST_BARE_SYNC_ENCODING
+#define TRICE_ENCODING TRICE_BARE_ENCODING
 
 #define TRICE_HARDWARE_ENDIANESS TRICE_LITTLE_ENDIANESS 
-#define TRICE_TRANSFER_ENDIANESS TRICE_BIG_ENDIANESS 
+#define TRICE_TRANSFER_ENDIANESS TRICE_LITTLE_ENDIANESS 
 //#define TRICE_U8PUSH(v) do{ /*triceU8PushSeggerRTT(v);*/ triceU8Push(v); } while(0) //!< Set trice out channel(s) 
 #define TRICE_U32PUSH(v) do{ /*triceU32PushSeggerRTT(v);*/ triceU32Push(v); } while(0) //!< Set trice out channel(s) 
 //
 ///////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////////
-// uncomment for trice wrap transfer format
-// #define TRICE_WRAP_START_BYTE 0xEB // 235
-// #define TRICE_WRAP_LOCAL_ADDR 0x60 // to do: also trice tool parameter
-// #define TRICE_WRAP_DEST_ADDR  0x60 // to do: also trice tool parameter
+// for trice wrap transfer format only
+#define TRICE_WRAP_START_BYTE 0xEB // 235
+#define TRICE_WRAP_LOCAL_ADDR 0x80 // to do: also trice tool parameter
+#define TRICE_WRAP_DEST_ADDR  0x81 // to do: also trice tool parameter
 ///////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////////

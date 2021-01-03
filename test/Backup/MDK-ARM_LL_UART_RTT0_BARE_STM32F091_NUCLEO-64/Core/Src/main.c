@@ -93,7 +93,7 @@ int main(void)
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
     LL_USART_EnableIT_RXNE(TRICE_UART); // enable UART2 interrupt
-    TRICE0( Id(16472), "s:                                                    \ns:   MDK-ARM_LL_UART_RTT0_BAREL_STM32F030_NUCLEO-64   \ns:                                                    \n\n");
+    TRICE0( Id(64636), "s:                                                   \ns:   MDK-ARM_LL_UART_RTT0_BARE_STM32F091_NUCLEO-64   \ns:                                                   \n\n");
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -104,7 +104,7 @@ int main(void)
     { // send some trices every few ms
         if( milliSecond >= lastTricesTime + 100 ){
             static int index = 0;
-            triceCheckSet(index%30);
+            triceCheckSet(index%10);
             index++;
             lastTricesTime = milliSecond;
         }
@@ -141,7 +141,7 @@ void SystemClock_Config(void)
 
   }
   LL_RCC_HSI_SetCalibTrimming(16);
-  LL_RCC_PLL_ConfigDomain_SYS(LL_RCC_PLLSOURCE_HSI_DIV_2, LL_RCC_PLL_MUL_12);
+  LL_RCC_PLL_ConfigDomain_SYS(LL_RCC_PLLSOURCE_HSI, LL_RCC_PLL_MUL_12, LL_RCC_PREDIV_DIV_2);
   LL_RCC_PLL_Enable();
 
    /* Wait till PLL is ready */
@@ -160,6 +160,7 @@ void SystemClock_Config(void)
   }
   LL_Init1msTick(48000000);
   LL_SetSystemCoreClock(48000000);
+  LL_RCC_SetUSARTClockSource(LL_RCC_USART2_CLKSOURCE_PCLK1);
 }
 
 /**

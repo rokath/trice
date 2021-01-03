@@ -134,7 +134,6 @@ void SysTick_Handler(void)
   /* USER CODE END SysTick_IRQn 0 */
 
   /* USER CODE BEGIN SysTick_IRQn 1 */
-    //triceTriggerBytesBufferTransmit();
     triceTriggerU32WriteU8ReadFifoTransmit();
   /* USER CODE END SysTick_IRQn 1 */
 }

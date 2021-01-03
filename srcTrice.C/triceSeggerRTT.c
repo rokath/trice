@@ -1,5 +1,6 @@
-/*! \file bareRTT.c
+/*! \file triceSeggerRTT.c
 \author Thomas.Hoehenleitner [at] seerose.net
+\details This file decouples SEGGER RTT usage from trice code.
 *******************************************************************************/
 #include <stdint.h>
 #include "trice.h"
@@ -11,12 +12,7 @@
 //! \param v trice
 //! trice time critical part
 void triceU32PushSeggerRTT(uint32_t v) {
-    uint8_t b[4];
-    b[0] = (uint8_t)(v >> 24);
-    b[1] = (uint8_t)(v >> 16);
-    b[2] = (uint8_t)(v >> 8);
-    b[3] = (uint8_t)(v >> 0);
-    SEGGER_RTT_Write(TRICE_RTT_CHANNEL, &b, sizeof(v));
+    SEGGER_RTT_Write(TRICE_RTT_CHANNEL, &v, sizeof(v));
 }
 
 
