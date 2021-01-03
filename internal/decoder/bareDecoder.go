@@ -4,7 +4,6 @@
 package decoder
 
 import (
-	"encoding/binary"
 	"fmt"
 	"io"
 
@@ -14,11 +13,7 @@ import (
 // Bare is the Decoder instance for bare encoded trices.
 type Bare struct {
 	decoding
-	endian  bool   // littleEndian or bigEndian
-	trice   idFmt  // received trice
-	b       []byte // read buffer
-	n       int    // size of returned trice message
-	payload []int  // value payload
+	payload []int // value payload
 }
 
 // NewBareDecoder provides an BareDecoder instance.
@@ -161,26 +156,6 @@ func (p *Bare) Read(b []byte) (n int, err error) {
 		}
 		return p.outOfSync(fmt.Sprintf("Unexpected trice.Type %s", p.trice.Type))
 	}
-}
-
-// readU32 returns the 4 b bytes as uint32 according the specified endianess
-func (p *Bare) readU32(b []byte) uint32 {
-	if littleEndian == p.endian {
-		return binary.LittleEndian.Uint32(b)
-	}
-	return binary.BigEndian.Uint32(b)
-}
-
-// rub removes leading bytes from sync buffer
-func (p *Bare) rub(n int) {
-	p.syncBuffer = p.syncBuffer[n:]
-}
-
-func (p *Bare) outOfSync(msg string) (n int, e error) {
-	p.payload = p.payload[:0]
-	n = copy(p.b, fmt.Sprintf("error:%s, ignoring byte %02x\n", msg, p.syncBuffer[0]))
-	p.rub(1)
-	return
 }
 
 // payloadLenOk returns true if the transmitted count information matches the expected count

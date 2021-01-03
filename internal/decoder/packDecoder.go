@@ -4,7 +4,6 @@
 package decoder
 
 import (
-	"encoding/binary"
 	"fmt"
 	"io"
 
@@ -18,10 +17,6 @@ const (
 // Pack is the Decoder instance for bare encoded trices.
 type Pack struct {
 	decoding
-	endian         bool   // littleEndian or bigEndian
-	trice          idFmt  // received trice
-	b              []byte // read buffer
-	n              int    // size of returned trice message
 	d0, d1, d2, d3 uint32 // read raw data
 }
 
@@ -118,57 +113,7 @@ func (p *Pack) Read(b []byte) (n int, err error) {
 	}
 
 	// ID and count are ok
-	switch p.trice.Type {
-	case "TRICE0":
-		return p.trice0()
-	case "TRICE8_1":
-		return p.trice81()
-	case "TRICE8_2":
-		return p.trice82()
-	case "TRICE8_3":
-		return p.trice83()
-	case "TRICE8_4":
-		return p.trice84()
-	case "TRICE8_5":
-		return p.trice85()
-	case "TRICE8_6":
-		return p.trice86()
-	case "TRICE8_7":
-		return p.trice87()
-	case "TRICE8_8":
-		return p.trice88()
-	case "TRICE16_1":
-		return p.trice161()
-	case "TRICE16_2":
-		return p.trice162()
-	case "TRICE16_3":
-		return p.trice163()
-	case "TRICE16_4":
-		return p.trice164()
-	case "TRICE32_1":
-		return p.trice321()
-	case "TRICE32_2":
-		return p.trice322()
-	case "TRICE32_3":
-		return p.trice323()
-	case "TRICE32_4":
-		return p.trice324()
-	case "TRICE64_1":
-		return p.trice641()
-	case "TRICE64_2":
-		return p.trice642()
-	case "TRICE_S":
-		return p.triceS(count)
-	}
-	return p.outOfSync(fmt.Sprintf("Unexpected trice.Type %s", p.trice.Type))
-}
-
-// readU32 returns the 4 b bytes as uint32 according the specified endianess
-func (p *Pack) readU32(b []byte) uint32 {
-	if littleEndian == p.endian {
-		return binary.LittleEndian.Uint32(b)
-	}
-	return binary.BigEndian.Uint32(b)
+	return p.sprintTrice(count)
 }
 
 // readDataAndCheckPaddingBytes checks if existing paddings bytes 0
@@ -238,12 +183,6 @@ func (p *Pack) completeTrice(cnt int) bool {
 	return true
 }
 
-func (p *Pack) outOfSync(msg string) (n int, e error) {
-	n = copy(p.b, fmt.Sprintf("error:%s, ignoring byte %02x\n", msg, p.syncBuffer[0]))
-	p.rub(1)
-	return
-}
-
 // bytesCountOk returns true if the transmitted count information matches the expected count
 func (p *Pack) bytesCountOk(cnt int) bool {
 	bytesCount := p.expectedByteCount()
@@ -283,9 +222,52 @@ func (p *Pack) expectedByteCount() int {
 	}
 }
 
-// rub removes leading bytes from sync buffer
-func (p *Pack) rub(n int) {
-	p.syncBuffer = p.syncBuffer[n:]
+func (p *Pack) sprintTrice(cnt int) (n int, e error) {
+	// ID and count are ok
+	switch p.trice.Type {
+	case "TRICE0":
+		return p.trice0()
+	case "TRICE8_1":
+		return p.trice81()
+	case "TRICE8_2":
+		return p.trice82()
+	case "TRICE8_3":
+		return p.trice83()
+	case "TRICE8_4":
+		return p.trice84()
+	case "TRICE8_5":
+		return p.trice85()
+	case "TRICE8_6":
+		return p.trice86()
+	case "TRICE8_7":
+		return p.trice87()
+	case "TRICE8_8":
+		return p.trice88()
+	case "TRICE16_1":
+		return p.trice161()
+	case "TRICE16_2":
+		return p.trice162()
+	case "TRICE16_3":
+		return p.trice163()
+	case "TRICE16_4":
+		return p.trice164()
+	case "TRICE32_1":
+		return p.trice321()
+	case "TRICE32_2":
+		return p.trice322()
+	case "TRICE32_3":
+		return p.trice323()
+	case "TRICE32_4":
+		return p.trice324()
+	case "TRICE64_1":
+		return p.trice641()
+	case "TRICE64_2":
+		return p.trice642()
+	case "TRICE_S":
+		return p.triceS(cnt)
+	default:
+		return p.outOfSync(fmt.Sprintf("Unexpected trice.Type %s", p.trice.Type))
+	}
 }
 
 func (p *Pack) triceS(cnt int) (n int, e error) {

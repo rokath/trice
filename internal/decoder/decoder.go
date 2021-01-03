@@ -5,6 +5,7 @@
 package decoder
 
 import (
+	"encoding/binary"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -49,6 +50,45 @@ type decoding struct {
 	in         io.Reader // inner reader
 	syncBuffer []byte    // unprocessed bytes hold for next cycle
 	lut        IDLookUp  // id look-up map for translation
+	endian     bool      // littleEndian or bigEndian
+	trice      idFmt     // received trice
+	b          []byte    // read buffer
+	n          int       // size of returned trice message
+}
+
+// readU16 returns the 2 b bytes as uint16 according the specified endianess
+func (p *decoding) readU16(b []byte) uint16 {
+	if littleEndian == p.endian {
+		return binary.LittleEndian.Uint16(b)
+	}
+	return binary.BigEndian.Uint16(b)
+}
+
+// readU32 returns the 4 b bytes as uint32 according the specified endianess
+func (p *decoding) readU32(b []byte) uint32 {
+	if littleEndian == p.endian {
+		return binary.LittleEndian.Uint32(b)
+	}
+	return binary.BigEndian.Uint32(b)
+}
+
+// readU64 returns the 8 b bytes as uint64 according the specified endianess
+func (p *decoding) readU64(b []byte) uint64 {
+	if littleEndian == p.endian {
+		return binary.LittleEndian.Uint64(b)
+	}
+	return binary.BigEndian.Uint64(b)
+}
+
+// rub removes leading bytes from sync buffer
+func (p *decoding) rub(n int) {
+	p.syncBuffer = p.syncBuffer[n:]
+}
+
+func (p *decoding) outOfSync(msg string) (n int, e error) {
+	n = copy(p.b, fmt.Sprintf("error:%s, ignoring byte %02x\n", msg, p.syncBuffer[0]))
+	p.rub(1)
+	return
 }
 
 // idFmt contains the ID mapped information needed for decoding.
@@ -102,13 +142,22 @@ func Translate(sw *emitter.TriceLineComposer, list *id.List, rc io.ReadCloser /*
 	// activate selected encoding
 	// var p translator.Translator // interface type
 	switch Encoding {
-	case "esc":
-		dec := NewEscFormat(list.ItemList, rc)
+	case "leg":
+		dec := NewEscLegacyDecoder(list.ItemList, rc)
 		for {
 			err := run(sw, dec)
 			if nil != err {
 				time.Sleep(2 * time.Second)
-				dec = NewEscFormat(list.ItemList, rc) // read list again - it could have changed
+				dec = NewEscLegacyDecoder(list.ItemList, rc) // read list again - it could have changed
+			}
+		}
+	case "esc":
+		dec := NewEscDecoder(list.ItemList, rc, bigEndian)
+		for {
+			err := run(sw, dec)
+			if nil != err {
+				time.Sleep(2 * time.Second)
+				dec = NewEscDecoder(list.ItemList, rc, bigEndian) // read list again - it could have changed
 			}
 		}
 	case "pack":
@@ -232,3 +281,74 @@ func errorFatal(err error) {
 	}
 	log.Fatal(err)
 }
+
+/*
+func (p *decoding) triceS(cnt int) (n int, e error) { return }
+func (p *decoding) trice0() (n int, e error)        { return }
+func (p *decoding) trice81() (n int, e error)       { return }
+func (p *decoding) trice82() (n int, e error)       { return }
+func (p *decoding) trice83() (n int, e error)       { return }
+func (p *decoding) trice84() (n int, e error)       { return }
+func (p *decoding) trice85() (n int, e error)       { return }
+func (p *decoding) trice86() (n int, e error)       { return }
+func (p *decoding) trice87() (n int, e error)       { return }
+func (p *decoding) trice88() (n int, e error)       { return }
+func (p *decoding) trice161() (n int, e error)      { return }
+func (p *decoding) trice162() (n int, e error)      { return }
+func (p *decoding) trice163() (n int, e error)      { return }
+func (p *decoding) trice164() (n int, e error)      { return }
+func (p *decoding) trice321() (n int, e error)      { return }
+func (p *decoding) trice322() (n int, e error)      { return }
+func (p *decoding) trice323() (n int, e error)      { return }
+func (p *decoding) trice324() (n int, e error)      { return }
+func (p *decoding) trice641() (n int, e error)      { return }
+func (p *decoding) trice642() (n int, e error)      { return }
+
+func (d *decoding) sprintTrice(p *decoding, cnt int) (n int, e error) {
+	// ID and count are ok
+	switch p.trice.Type {
+	case "TRICE0":
+		return p.trice0()
+	case "TRICE8_1":
+		return p.trice81()
+	case "TRICE8_2":
+		return p.trice82()
+	case "TRICE8_3":
+		return p.trice83()
+	case "TRICE8_4":
+		return p.trice84()
+	case "TRICE8_5":
+		return p.trice85()
+	case "TRICE8_6":
+		return p.trice86()
+	case "TRICE8_7":
+		return p.trice87()
+	case "TRICE8_8":
+		return p.trice88()
+	case "TRICE16_1":
+		return p.trice161()
+	case "TRICE16_2":
+		return p.trice162()
+	case "TRICE16_3":
+		return p.trice163()
+	case "TRICE16_4":
+		return p.trice164()
+	case "TRICE32_1":
+		return p.trice321()
+	case "TRICE32_2":
+		return p.trice322()
+	case "TRICE32_3":
+		return p.trice323()
+	case "TRICE32_4":
+		return p.trice324()
+	case "TRICE64_1":
+		return p.trice641()
+	case "TRICE64_2":
+		return p.trice642()
+	case "TRICE_S":
+		return p.triceS(cnt)
+	default:
+		return p.outOfSync(fmt.Sprintf("Unexpected trice.Type %s", p.trice.Type))
+	}
+}
+*/

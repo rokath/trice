@@ -180,6 +180,8 @@ break;
             break;
         case 8:
             TRICE32_1(Id(6384), "tst:TRICE32_1 %d\n", -1); // 2
+            //TRICE32_1v1(Id(6384), "tst:TRICE32_1 %d\n", -1); // 2
+            TRICE32_1(Id(6384), "tst:TRICE32_1 %d\n", -1); // 2
             TRICE32_2(Id(11505), "tst:TRICE32_2 %d %d\n", -1, -2); // 4
             TRICE32_3(Id(56189), "tst:TRICE32_3 %d %d %d\n", -1, -2, -3); // 4
             TRICE32_4(Id(36573), "tst:TRICE32_4 %d %d %d %d\n", -1, -2, -3, -4); // 4

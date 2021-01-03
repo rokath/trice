@@ -173,6 +173,30 @@ extern "C" {
     triceWriteEscP( sizeof(msg), msg ); \
 } while(0)
 
+/*
+//! trace Id and 32-bit values protected (outside critical section)
+//! \param Id trice identifier
+//! \param pFmt formatstring for trice
+//! \param d0 payload
+#define TRICE32_1v1(Id, pFmt, d0) do{ \
+    uint8_t msg[] = {TRICE_ESC, TRICE_P4, TRICE_HI_BYTE(Id), TRICE_LO_BYTE(Id), \
+        TRICE_HH_BYTE(d0), TRICE_HL_BYTE(d0), TRICE_LH_BYTE(d0), TRICE_LL_BYTE(d0)}; \
+    triceWriteEscE( sizeof(msg), msg ); \
+} while(0)
+
+
+//! trace Id and 32-bit values protected (outside critical section)
+//! \param Id trice identifier
+//! \param pFmt formatstring for trice
+//! \param d0 payload
+#define TRICE32_1v2(Id, pFmt, d0) do{ \
+    uint32_t msg[2] = { TRICE_HTON( TRICE_ESC<<24 | TRICE_P4<<16 | id) , \
+                       TRICE_HTON(d0) }; \
+    triceWriteEscE( 8, (uint8_t*)msg ); \
+} while(0)
+*/
+
+
 //! trace Id and 32-bit values protected (outside critical section)
 //! \param Id trice identifier
 //! \param pFmt formatstring for trice
@@ -268,7 +292,19 @@ TRICE_INLINE void triceWriteEsc(int count, uint8_t *buf) {
         }
     }
 }
-
+/*
+// triceWriteEscE writes first byte in buffer without check because it is a wanted TRICE_ESC.
+TRICE_INLINE void triceWriteEscE(int count, uint8_t *buf) {
+    TRICE_U8PUSH(*buf);
+    while (--count) {
+        uint8_t c = *++buf;
+        TRICE_U8PUSH(c);
+        if (TRICE_ESC == c) {
+            TRICE_U8PUSH(TRICE_DEL);
+        }
+    }
+}
+*/
 //! Start with TRICE_ESC and then comes buf
 TRICE_INLINE void triceWriteEscP(int count, uint8_t *buf) {
     TRICE_ENTER_CRITICAL_SECTION

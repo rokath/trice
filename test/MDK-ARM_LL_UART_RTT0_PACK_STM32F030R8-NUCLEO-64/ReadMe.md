@@ -13,5 +13,5 @@ Delivers TRICE logs over UART and RTT channel 0 in "bare" encoding.
 ## Infos
 
 - The trices are stored in `bare` format and read out in 8 byte packages.
-- Te transfer goes over RTT channel 0 and UART.
+- The transfer goes over RTT channel 0 and UART.
 - A sync package is inserted from time to time in UART transfer.
