@@ -53,7 +53,7 @@ type decoding struct {
 	endian     bool      // littleEndian or bigEndian
 	trice      idFmt     // received trice
 	b          []byte    // read buffer
-	n          int       // size of returned trice message
+	bc         int       // trice specific bytes count
 }
 
 // readU16 returns the 2 b bytes as uint16 according the specified endianess
@@ -86,7 +86,7 @@ func (p *decoding) rub(n int) {
 }
 
 func (p *decoding) outOfSync(msg string) (n int, e error) {
-	n = copy(p.b, fmt.Sprintf("error:%s, ignoring byte %02x\n", msg, p.syncBuffer[0]))
+	n = copy(p.b, fmt.Sprintln("error:", msg, "ignoring first byte", p.syncBuffer[0:p.bc]))
 	p.rub(1)
 	return
 }

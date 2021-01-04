@@ -67,11 +67,10 @@ func (p *Pack) StringsRead(ss []string) (m int, err error) {
 // Read returns one trice string (optionally starting wth a channel specifier).
 // A line can contain several trice strings.
 func (p *Pack) Read(b []byte) (n int, err error) {
-	p.b = b
-	p.n = n
 	if 0 == len(b) {
 		return
 	}
+	p.b = b
 
 	// create and fill intermediate read buffer for pack encoding
 	rb := make([]byte, buffSize)

@@ -129,7 +129,7 @@ func TestEsc(t *testing.T) {
 		t.Fail()
 	}
 
-	p := NewEscFormat(list, rc) // p is a new decoder instance
+	p := NewEscDecoder(list, rc, bigEndian) // p is a new decoder instance
 
 	ss := make([]string, 100)
 	n, err := p.StringsRead(ss)
@@ -149,7 +149,7 @@ func checkDynString(t *testing.T, list []id.Item, in, exp string) {
 		t.Fail()
 	}
 
-	p := NewEscFormat(list, rc) // p is a new decoder instance
+	p := NewEscDecoder(list, rc, bigEndian) // p is a new decoder instance
 
 	ss := make([]string, 100)
 	n, err := p.StringsRead(ss)
