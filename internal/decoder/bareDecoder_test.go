@@ -13,7 +13,7 @@ import (
 )
 
 // byteStreamBare are the raw read input bytes for bare format tests
-var byteStreamBare string = string([]byte{
+var byteStreamBare = string([]byte{
 	137, 171, 205, 239, // sync
 	0, 0, 255, 255,
 	24, 240, 255, 255, // TRICE32_1 -1

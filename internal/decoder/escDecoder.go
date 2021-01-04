@@ -24,7 +24,7 @@ func NewEscDecoder(l []id.Item, in io.Reader, endian bool) (p *Esc) {
 	p.in = in
 	p.syncBuffer = make([]byte, 0, buffSize)
 	p.lut = MakeLut(l)
-	p.endian = endian
+	p.endian = endian // esc format is only big endian
 	return
 }
 
@@ -52,7 +52,7 @@ func (p *Esc) StringsRead(ss []string) (m int, err error) {
 // n is the count of read bytes inside b.
 // Read returns one trice string or nothing.
 func (p *Esc) Read(b []byte) (n int, err error) {
-	sizeMsg := "error: buffer too small"
+	sizeMsg := "e:buf too small"
 	if len(b) < len(sizeMsg) {
 		return
 	}
@@ -71,7 +71,7 @@ func (p *Esc) Read(b []byte) (n int, err error) {
 		return
 	}
 
-	p.bc = len(p.syncBuffer) // intermediade for better error tracking
+	p.bc = len(p.syncBuffer) // intermediade assingment for better error tracking
 	if p.bc < 4 {
 		return // wait
 	}
@@ -79,34 +79,65 @@ func (p *Esc) Read(b []byte) (n int, err error) {
 	if 0xec != p.syncBuffer[0] { // 0xec == 236
 		return p.outOfSync("start byte is not 0xEC")
 	}
-	p.rub(1) // remove read start byte 0xEC
-	lengthCode := p.syncBuffer[0]
+	lengthCode := p.syncBuffer[1]
 	if 0xde == lengthCode { // 0xde == 222
 		return p.outOfSync("0xEC is followed by 0xDE, so no start byte")
 	}
-	p.rub(1) // remove read length code
-	triceID := int(binary.BigEndian.Uint16(p.syncBuffer[0:2]))
+	triceID := int(binary.BigEndian.Uint16(p.syncBuffer[2:4]))
 	var ok bool
 	p.trice, ok = p.lut[triceID]
 	if !ok { // unknown id
 		return p.outOfSync(fmt.Sprint("unknown ID ", triceID))
 	}
-	p.bc = p.bytesCount(lengthCode)
+	p.bc = p.bytesCount(lengthCode) // payload plus header
 	if p.expectedByteCount() != p.bc {
 		return p.outOfSync(fmt.Sprint("trice.Type ", p.trice.Type, " with not matching length code ", lengthCode))
 	}
-	if len(p.syncBuffer) < 2+p.bc {
+	if len(p.syncBuffer) < 4+p.bc { // header plus payload
 		return // wait
 	}
 	// ID and count are ok
 	return p.sprintTrice(p.bc)
 }
 
+func (p *Esc) bytesCount(lc byte) int {
+	if 0xe0 <= lc && lc <= 0xe9 {
+		return 1 << (lc - 0xe0)
+	}
+	if 0xdf == lc {
+		return 0
+	}
+	return -2
+}
+
+// byteCount returns expected byte count for triceType.
+// It returns -1 for an unknown value an -2 for unknown triceType.
+func (p *Esc) expectedByteCount() int {
+	switch p.trice.Type {
+	case "TRICE0":
+		return 0
+	case "TRICE8_1":
+		return 1
+	case "TRICE8_2", "TRICE16_1":
+		return 2
+	case "TRICE8_3", "TRICE8_4", "TRICE16_2", "TRICE32_1":
+		return 4
+	case "TRICE8_5", "TRICE8_6", "TRICE16_3", "TRICE8_7", "TRICE8_8", "TRICE16_4", "TRICE32_2", "TRICE64_1":
+		return 8
+	case "TRICE32_3", "TRICE32_4", "TRICE64_2":
+		return 16
+	case "TRICE_S":
+		return p.bc
+	default:
+		return -1 // unknown trice type
+	}
+}
+
 func (p *Esc) sprintTrice(bc int) (n int, e error) {
 	if "TRICE_S" == p.trice.Type { // special case
 		return p.triceS()
 	}
-	p.rub(2) // remove read triceID
+	p.rub(4) // remove header
 	switch p.trice.Type {
 	case "TRICE0":
 		return p.trice0()
@@ -151,63 +182,31 @@ func (p *Esc) sprintTrice(bc int) (n int, e error) {
 	}
 }
 
-func (p *Esc) bytesCount(lc byte) int {
-	if 0xe0 <= lc && lc <= 0xe9 {
-		return 1 << (lc - 0xe0)
-	}
-	if 0xdf == lc {
-		return 0
-	}
-	return -2
-	//	switch lc {
-	//	case 0xdf:
-	//		return 0
-	//	case 0xe0:
-	//		return 1
-	//	case 0xe1:
-	//		return 2
-	//	case 0xe2:
-	//		return 4
-	//	case 0xe3:
-	//		return 8
-	//	case 0xe4:
-	//		return 16
-	//	case 0xe5:
-	//		return 32
-	//	case 0xe6:
-	//		return 64
-	//	case 0xe7:
-	//		return 128
-	//	case 0xe8:
-	//		return 256
-	//	case 0xe9:
-	//		return 512
-	//	default:
-	//		return -2
-	//	}
-}
+func (p *Esc) triceS() (n int, e error) {
+	b := p.syncBuffer[4:]
 
-// byteCount returns expected byte count for triceType.
-// It returns -1 for an unknown value an -2 for unknown triceType.
-func (p *Esc) expectedByteCount() int {
-	switch p.trice.Type {
-	case "TRICE0":
-		return 0
-	case "TRICE8_1":
-		return 1
-	case "TRICE8_2", "TRICE16_1":
-		return 2
-	case "TRICE8_3", "TRICE8_4", "TRICE16_2", "TRICE32_1":
-		return 4
-	case "TRICE8_5", "TRICE8_6", "TRICE16_3", "TRICE8_7", "TRICE8_8", "TRICE16_4", "TRICE32_2", "TRICE64_1":
-		return 8
-	case "TRICE32_3", "TRICE32_4", "TRICE64_2":
-		return 16
-	case "TRICE_S":
-		return p.bc
-	default:
-		return -1 // unknown trice type
+	//p.bc -= 4
+	var i int // find index of first 0 or last index
+	for ; i < p.bc && 0 != b[i]; i++ {
 	}
+
+	// check first half
+	if 4 <= p.bc && i < (p.bc>>1)+1 {
+		p.bc += 4
+		return p.outOfSync("first half of string buffer and first byte of 2nd half not allowed to contain a 0")
+	}
+
+	// check tail
+	j := i
+	for ; j < p.bc; j++ {
+		if 0 != b[j] {
+			p.bc += 4
+			return p.outOfSync("padding bytes not zero")
+		}
+	}
+	n = copy(p.b, fmt.Sprintf(p.trice.Strg, string(b[:i])))
+	p.rub(4 + p.bc)
+	return
 }
 
 func (p *Esc) trice0() (n int, e error) {
@@ -406,29 +405,5 @@ func (p *Esc) trice642() (n int, e error) {
 	d1 := int64(p.readU64(p.syncBuffer[8:16])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
 	n = copy(p.b, fmt.Sprintf(p.trice.Strg, d0, d1))
 	p.rub(p.bc)
-	return
-}
-
-func (p *Esc) triceS() (n int, e error) {
-	b := p.syncBuffer[2:]
-
-	var i int // find first 0
-	for ; i < p.bc && 0 != b[i]; i++ {
-	}
-
-	// check first half
-	//if i <= (p.bc>>1)+1 {
-	//	return p.outOfSync("first half of string buffer and first byte of 2nd half not allowed to contain a 0")
-	//}
-
-	// check tail
-	j := i
-	for ; j < p.bc; j++ {
-		if 0 != b[j] {
-			return p.outOfSync("padding bytes not zero")
-		}
-	}
-	n = copy(p.b, fmt.Sprintf(p.trice.Strg, string(b[:i])))
-	p.rub(2 + p.bc)
 	return
 }

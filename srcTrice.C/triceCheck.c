@@ -246,24 +246,24 @@ break;
             break;
             
     case 14: 
-     //   TRICE_S( Id(18), "%s", "" );
-        TRICE_S( Id(18), "%s", "\n" );
+      //  TRICE_S( Id(18), "%s", "" );
+      //  TRICE_S( Id(18), "%s", "\n" );
         TRICE_S( Id(18), "%s", "1\n" );
-        TRICE_S( Id(18), "%s", "12\n" );
-        TRICE_S( Id(18), "%s", "123\n" );
-        TRICE_S( Id(18), "%s", "1234\n" );
-        TRICE_S( Id(18), "%s", "12345\n" );
-        TRICE_S( Id(18), "%s", "123456\n" );
-        TRICE_S( Id(18), "%s", "1234567\n" );
-        TRICE_S( Id(18), "%s", "12345678\n" );
-        TRICE_S( Id(18), "%s", "123456789\n" );
-        TRICE_S( Id(18), "%s", "123456789A\n" );
-        TRICE_S( Id(18), "%s", "123456789AB\n" );
-        TRICE_S( Id(18), "%s", "123456789ABC\n" );
-        TRICE_S( Id(18), "%s", "123456789ABCD\n" );
-        TRICE_S( Id(18), "%s", "123456789ABCDE\n" );
-        TRICE_S( Id(18), "%s", "123456789ABCDEF\n" );
-        TRICE_S( Id(18), "%s", "123456789ABCDEFG\n" );
+      //TRICE_S( Id(18), "%s", "12\n" );
+      //TRICE_S( Id(18), "%s", "123\n" );
+      //TRICE_S( Id(18), "%s", "1234\n" );
+      //TRICE_S( Id(18), "%s", "12345\n" );
+      //TRICE_S( Id(18), "%s", "123456\n" );
+       // TRICE_S( Id(18), "%s", "1234567\n" );
+       // TRICE_S( Id(18), "%s", "12345678\n" );
+       // TRICE_S( Id(18), "%s", "123456789\n" );
+       // TRICE_S( Id(18), "%s", "123456789A\n" );
+       // TRICE_S( Id(18), "%s", "123456789AB\n" );
+       // TRICE_S( Id(18), "%s", "123456789ABC\n" );
+       // TRICE_S( Id(18), "%s", "123456789ABCD\n" );
+       // TRICE_S( Id(18), "%s", "123456789ABCDE\n" );
+       // TRICE_S( Id(18), "%s", "123456789ABCDEF\n" );
+       // TRICE_S( Id(18), "%s", "123456789ABCDEFG\n" );
         break;       
     case 15: 
         TRICE_S( Id(18), "%s", "123456789ABCDEFGH\n" );
@@ -322,7 +322,7 @@ break;
     case 22: 
         // longest supported dynamically runtime string with 256 chars (pack format is ok with 65535 chars)
         TRICE_S( Id(19), "sig:%s", "123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRABC\n" );
-        #if TRICE_ESC_ENCODING != TRICE_ENCODING  
+        #if 1 //TRICE_ESC_ENCODING != TRICE_ENCODING  
         // strlen > 255 forbidden for esc encoding
         TRICE_S( Id(19), "sig:%s", "123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRABCD\n" );
         #endif

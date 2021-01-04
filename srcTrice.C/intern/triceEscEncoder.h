@@ -21,12 +21,12 @@ extern "C" {
 
 #define TRICE_ESC  0xEC //!< Escape char is control char to start a package.
 #define TRICE_DEL  0xDE //!< Delete char, if follower of TRICE_ESC, deletes the meaning os TRICE_ESC making it an ordinary TRICE_ESC char.
-#define TRICE_P0   0xDF //!< No param char = If follower of TRICE_ESC only a 16 bit ID is inside the payload.
-#define TRICE_P1   0xE0 //!< 1 byte param char = If follower of TRICE_ESC a 16 bit ID and 1 byte are inside the payload.
-#define TRICE_P2   0xE1 //!< 2 byte param char = If follower of TRICE_ESC a 16 bit ID and 2 byte are inside the payload.
-#define TRICE_P4   0xE2 //!< 4 byte param char = If follower of TRICE_ESC a 16 bit ID and 4 byte are inside the payload.
-#define TRICE_P8   0xE3 //!< 8 byte param char = If follower of TRICE_ESC a 16 bit ID and 8 byte are inside the payload.
-#define TRICE_P16  0xE4 //!< 16 byte param char = If follower of TRICE_ESC a 16 bit ID and 8 byte are inside the payload.
+#define TRICE_P0   0xDF //!< 223: No param char = If follower of TRICE_ESC only a 16 bit ID is inside the payload.
+#define TRICE_P1   0xE0 //!< 224: 1 byte param char = If follower of TRICE_ESC a 16 bit ID and 1 byte are inside the payload.
+#define TRICE_P2   0xE1 //!< 225: 2 byte param char = If follower of TRICE_ESC a 16 bit ID and 2 byte are inside the payload.
+#define TRICE_P4   0xE2 //!< 226: 4 byte param char = If follower of TRICE_ESC a 16 bit ID and 4 byte are inside the payload.
+#define TRICE_P8   0xE3 //!< 227: 8 byte param char = If follower of TRICE_ESC a 16 bit ID and 8 byte are inside the payload.
+#define TRICE_P16  0xE4 //!< 228: 16 byte param char = If follower of TRICE_ESC a 16 bit ID and 8 byte are inside the payload.
 //                 0xE5 // dynamically used for runtime strings with size 17-32
 //                 0xE6 // dynamically used for runtime strings with size 33-64
 //                 0xE7 // dynamically used for runtime strings with size 63-128
@@ -317,7 +317,7 @@ TRICE_INLINE void triceWriteEscP(int count, uint8_t *buf) {
 #define TRICE_HI_BYTE(v) TRICE_BYTE(((uint16_t)(v))>>8)
 #define TRICE_LO_BYTE(v) TRICE_BYTE(v)
 
-TRICE_INLINE void trice_s(uint16_t Id, char *dynString) {
+TRICE_INLINE void trice_s1(uint16_t Id, char *dynString) {
     int n = 1 + strlen(dynString);
     int h = -1; // h is the smallest number with 2^h = k && k >= n
     int k = 0;       // n is at least 1 here, so h cannot get -1
@@ -341,6 +341,52 @@ TRICE_INLINE void trice_s(uint16_t Id, char *dynString) {
     // example: "abcdefg"  = 'a' 'b' 'c' 'd' 'e' 'f' 'g'       0 -> bufLen=8 -> n=3, (1<<8)= 8, padding=0
     // example: "abcdefgh" = 'a' 'b' 'c' 'd' 'e' 'f' 'g' 'h'   0 -> bufLen=9 -> n=4, (1<<4)=16, padding=7
 }
+
+#if 0
+//! see https://graphics.stanford.edu/~seander/bithacks.html#RoundUpPowerOf2
+TRICE_INLINE unsigned long upper_power_of_two(unsigned long v){
+    if( 0 == v ){
+        return 0;
+    }
+    v--;
+    v |= v >> 1;
+    v |= v >> 2;
+    v |= v >> 4;
+    v |= v >> 8;
+    v |= v >> 16;
+    v++;
+    return v;
+}
+#else
+//! see https://stackoverflow.com/questions/466204/rounding-up-to-next-power-of-2
+TRICE_INLINE unsigned long upper_power_of_two(unsigned long x){
+    int power = 1;
+    if( 0 == x ){
+        return 0;
+    }
+    while(power < x){
+        power<<=1;
+    }
+    return power;
+}
+#endif
+
+//! trice_s does not transmit the string terminating 0 but adds optionally padding bytes with content 0
+TRICE_INLINE void trice_s(uint16_t Id, char *dynString) {
+    int n = strlen(dynString);
+    int h = upper_power_of_two(n);
+    uint8_t msg[] = {TRICE_P0 + h, TRICE_HI_BYTE(Id), TRICE_LO_BYTE(Id)};
+    TRICE_ENTER_CRITICAL_SECTION
+    TRICE_U8PUSH(TRICE_ESC);
+    triceWriteEsc(sizeof(msg), msg);
+    if( n > 0 ){
+        triceWriteEsc(n, (uint8_t *) dynString);
+        triceWritePaddingBytes(h - n);
+    }
+    TRICE_LEAVE_CRITICAL_SECTION
+}
+
+
 
 #endif // #if TRICE_ESC_ENCODING == TRICE_ENCODING
 

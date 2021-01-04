@@ -11,7 +11,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var byteStreamWrap string = string([]byte{
+var byteStreamWrap = string([]byte{
 	235, 96, 96, 121, 161, 51, 255, 255, // TRICE8_1 -1
 	235, 96, 96, 83, 112, 201, 255, 254, // TRICE8_2 -1 -2
 	235, 96, 96, 234, 0, 0, 255, 254,
