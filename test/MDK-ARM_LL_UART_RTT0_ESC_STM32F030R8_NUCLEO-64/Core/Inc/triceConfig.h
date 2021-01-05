@@ -11,6 +11,10 @@ extern "C" {
 
 #include <stdint.h>
 
+#define TRICE_HEADLINE \
+TRICE0( Id(48976), "\ns:                                                     \ns:   ARM-MDK_LL_UART_RTT0_ESC_STM32F030R8_NUCLEO-64    \ns:                                                     \n\n")
+
+
 ///////////////////////////////////////////////////////////////////////////////
 //
 #define TRICE_ENTER_CRITICAL_SECTION { // Uncomment for more speed but only if TRICE macros cannot
@@ -32,8 +36,10 @@ extern "C" {
 //! When set to TRICE_LITTLE_ENDIANESS the trice tool -enc format specifier is extended by a letter 'l' (small 'L').
 //! Example -enc "pack" -> -enc "packl".
 #define TRICE_TRANSFER_ENDIANESS TRICE_LITTLE_ENDIANESS 
+
 #define TRICE_U8PUSH(v) do{ triceU8PushSeggerRTT(v); triceU8Push(v); } while(0) //!< Set trice out channel(s) 
 //#define TRICE_U32PUSH(v) do{ triceU32PushSeggerRTT(v); triceU32Push(v); } while(0) //!< Set trice out channel(s) 
+
 //
 ///////////////////////////////////////////////////////////////////////////////
 

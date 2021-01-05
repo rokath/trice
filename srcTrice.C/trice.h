@@ -58,8 +58,9 @@ extern "C" {
 #include "intern/tricePackEncoder.h"
 #endif
 
-//#include "intern/triceLessFlashBareL.h"
-
+#ifndef TRICE_SYNC // some encoder define a sync trice
+#define TRICE_SYNC do{ } while(0)// otherwise empty definition for compability
+#endif
 
 #ifdef __cplusplus
 }

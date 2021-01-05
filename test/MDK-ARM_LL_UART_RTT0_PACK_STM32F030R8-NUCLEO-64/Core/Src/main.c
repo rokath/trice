@@ -95,7 +95,7 @@ int main(void)
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
     LL_USART_EnableIT_RXNE(TRICE_UART); // enable UART2 interrupt
-    TRICE0( Id(46928), "s:                                                   \ns:   MDK-ARM_LL_UART_RTT0_PACK_STM32F030_NUCLEO-64   \ns:                                                   \n\n");
+    TRICE_HEADLINE;
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -117,6 +117,13 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+        { // serve every few ms
+            static int lastMs = 0;
+            if( milliSecond >= lastMs + 1 ){
+                lastMs = milliSecond;
+                // nothing to do
+            }
+        }
   }
   /* USER CODE END 3 */
 }

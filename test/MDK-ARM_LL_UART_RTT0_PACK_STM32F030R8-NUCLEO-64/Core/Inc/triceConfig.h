@@ -11,6 +11,10 @@ extern "C" {
 
 #include <stdint.h>
 
+#define TRICE_HEADLINE \
+TRICE0( Id(46928), "s:                                                   \ns:   MDK-ARM_LL_UART_RTT0_PACK_STM32F030_NUCLEO-64   \ns:                                                   \n\n");
+
+
 ///////////////////////////////////////////////////////////////////////////////
 //
 #define TRICE_ENTER_CRITICAL_SECTION { // Uncomment for more speed but only if TRICE macros cannot
@@ -18,6 +22,7 @@ extern "C" {
 //
 ///////////////////////////////////////////////////////////////////////////////
 
+#define TRICE_FIFO_BYTE_SIZE 2048 //!< must be a power of 2
 
 ///////////////////////////////////////////////////////////////////////////////
 //

@@ -2203,5 +2203,33 @@
 		"fmtStrg": "wrn:TRICES_1(id, pFmt, dynString) macro is not supported in bare encoding.\\nmsg:See TRICE_RTS macro in triceCheck.c for an alternative or use a different encoding.\\n",
 		"created": 1609624663,
 		"removed": 0
+	},
+	{
+		"id": 3759,
+		"fmtType": "TRICE16_2",
+		"fmtStrg": "sig:%2d:%6d\\n",
+		"created": 1609847090,
+		"removed": 0
+	},
+	{
+		"id": 11393,
+		"fmtType": "TRICE32_2",
+		"fmtStrg": "sig:%2d:%6d\\n",
+		"created": 1609847200,
+		"removed": 0
+	},
+	{
+		"id": 36269,
+		"fmtType": "TRICE32_2",
+		"fmtStrg": "sig:%2d:%6d\\n",
+		"created": 1609849399,
+		"removed": 0
+	},
+	{
+		"id": 46957,
+		"fmtType": "TRICE0",
+		"fmtStrg": "s:                                                   \\ns:                     myProject                     \\ns:                                                   \\n\\n",
+		"created": 1609855824,
+		"removed": 0
 	}
 ]

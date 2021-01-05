@@ -185,7 +185,6 @@ func (p *Esc) sprintTrice(bc int) (n int, e error) {
 func (p *Esc) triceS() (n int, e error) {
 	b := p.syncBuffer[4:]
 
-	//p.bc -= 4
 	var i int // find index of first 0 or last index
 	for ; i < p.bc && 0 != b[i]; i++ {
 	}
@@ -204,6 +203,7 @@ func (p *Esc) triceS() (n int, e error) {
 			return p.outOfSync("padding bytes not zero")
 		}
 	}
+	// ok
 	n = copy(p.b, fmt.Sprintf(p.trice.Strg, string(b[:i])))
 	p.rub(4 + p.bc)
 	return

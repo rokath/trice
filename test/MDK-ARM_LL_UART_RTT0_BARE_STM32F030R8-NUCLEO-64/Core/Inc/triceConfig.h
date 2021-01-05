@@ -11,6 +11,8 @@ extern "C" {
 
 #include <stdint.h>
 
+#define TRICE_HEADLINE \
+TRICE0( Id(54823), "s:                                                   \ns:   MDK-ARM_LL_UART_RTT0_BARE_STM32F030_NUCLEO-64   \ns:                                                   \n\n")
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -19,12 +21,19 @@ extern "C" {
 //
 ///////////////////////////////////////////////////////////////////////////////
 
+#define TRICE_FIFO_BYTE_SIZE 2048 //!< must be a power of 2
 
 ///////////////////////////////////////////////////////////////////////////////
 // select target trice method
 #define TRICE_ENCODING TRICE_BARE_ENCODING
 
 #define TRICE_HARDWARE_ENDIANESS TRICE_LITTLE_ENDIANESS 
+
+//! Set byte order according desired transfer format. Options: TRICE_BIG_ENDIANESS, TRICE_LITTLE_ENDIANESS. 
+//! TRICE_BIG_ENDIANESS is network order.
+//! If TRICE_TRANSFER_ENDIANESS is equal to TRICE_HARDWARE_ENDIANESS the trice code is smaller and more efficient.
+//! When set to TRICE_LITTLE_ENDIANESS the trice tool -enc format specifier is extended by a letter 'l' (small 'L').
+//! Example -enc "pack" -> -enc "packl".
 #define TRICE_TRANSFER_ENDIANESS TRICE_LITTLE_ENDIANESS 
 //#define TRICE_U8PUSH(v) do{ /*triceU8PushSeggerRTT(v);*/ triceU8Push(v); } while(0) //!< Set trice out channel(s) 
 #define TRICE_U32PUSH(v) do{ /*triceU32PushSeggerRTT(v);*/ triceU32Push(v); } while(0) //!< Set trice out channel(s) 
