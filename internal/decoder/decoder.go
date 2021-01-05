@@ -56,41 +56,6 @@ type decoding struct {
 	bc         int       // trice specific bytes count
 }
 
-// readU16 returns the 2 b bytes as uint16 according the specified endianess
-func (p *decoding) readU16(b []byte) uint16 {
-	if littleEndian == p.endian {
-		return binary.LittleEndian.Uint16(b)
-	}
-	return binary.BigEndian.Uint16(b)
-}
-
-// readU32 returns the 4 b bytes as uint32 according the specified endianess
-func (p *decoding) readU32(b []byte) uint32 {
-	if littleEndian == p.endian {
-		return binary.LittleEndian.Uint32(b)
-	}
-	return binary.BigEndian.Uint32(b)
-}
-
-// readU64 returns the 8 b bytes as uint64 according the specified endianess
-func (p *decoding) readU64(b []byte) uint64 {
-	if littleEndian == p.endian {
-		return binary.LittleEndian.Uint64(b)
-	}
-	return binary.BigEndian.Uint64(b)
-}
-
-// rub removes leading bytes from sync buffer
-func (p *decoding) rub(n int) {
-	p.syncBuffer = p.syncBuffer[n:]
-}
-
-func (p *decoding) outOfSync(msg string) (n int, e error) {
-	n = copy(p.b, fmt.Sprintln("error:", msg, "ignoring first byte", p.syncBuffer[0:p.bc]))
-	p.rub(1)
-	return
-}
-
 // idFmt contains the ID mapped information needed for decoding.
 type idFmt struct {
 	Type string
@@ -135,17 +100,17 @@ func newIDLut(til []byte) (IDLookUp, error) {
 }
 
 // Translate performs the trice log task.
-// Bytes are read with rc, according decoder.Encoding are translated into strings
-// returns false on program end signal or true on hard read error.
+// Bytes are read with rc. Then according decoder.Encoding are translated into strings.
+// Translate returns false on program end signal or true on hard read error.
 func Translate(sw *emitter.TriceLineComposer, list *id.List, rc io.ReadCloser /*, hardReadError chan bool*/) bool {
-
+	tsb := make([]byte, 4096) // intermediate trice string buffer for a single trice
 	// activate selected encoding
 	// var p translator.Translator // interface type
 	switch Encoding {
 	case "leg":
 		dec := NewEscLegacyDecoder(list.ItemList, rc)
 		for {
-			err := run(sw, dec)
+			err := run0(sw, dec)
 			if nil != err {
 				time.Sleep(2 * time.Second)
 				dec = NewEscLegacyDecoder(list.ItemList, rc) // read list again - it could have changed
@@ -154,7 +119,7 @@ func Translate(sw *emitter.TriceLineComposer, list *id.List, rc io.ReadCloser /*
 	case "esc":
 		dec := NewEscDecoder(list.ItemList, rc, bigEndian)
 		for {
-			err := run(sw, dec)
+			err := run(sw, tsb, dec)
 			if nil != err {
 				time.Sleep(2 * time.Second)
 				dec = NewEscDecoder(list.ItemList, rc, bigEndian) // read list again - it could have changed
@@ -163,7 +128,7 @@ func Translate(sw *emitter.TriceLineComposer, list *id.List, rc io.ReadCloser /*
 	case "pack":
 		dec := NewPackDecoder(list.ItemList, rc, bigEndian)
 		for {
-			err := run(sw, dec)
+			err := run(sw, tsb, dec)
 			if nil != err {
 				time.Sleep(2 * time.Second)
 				dec = NewPackDecoder(list.ItemList, rc, bigEndian) // read list again - it could have changed
@@ -172,16 +137,18 @@ func Translate(sw *emitter.TriceLineComposer, list *id.List, rc io.ReadCloser /*
 	case "packl", "packL":
 		dec := NewPackDecoder(list.ItemList, rc, littleEndian)
 		for {
-			err := run(sw, dec)
+			err := run(sw, tsb, dec)
 			if nil != err {
-				time.Sleep(2 * time.Second)
-				dec = NewPackDecoder(list.ItemList, rc, littleEndian) // read list again - it could have changed
+				//time.Sleep(2 * time.Second)
+				//dec = NewPackDecoder(list.ItemList, rc, littleEndian) // read list again - it could have changed
+				fmt.Println(err)
+				return true
 			}
 		}
 	case "bare":
 		dec := NewBareDecoder(list.ItemList, rc, bigEndian)
 		for {
-			err := run(sw, dec)
+			err := run(sw, tsb, dec)
 			if nil != err {
 				time.Sleep(2 * time.Second)
 				dec = NewBareDecoder(list.ItemList, rc, bigEndian) // read list again - it could have changed
@@ -190,7 +157,7 @@ func Translate(sw *emitter.TriceLineComposer, list *id.List, rc io.ReadCloser /*
 	case "barel", "bareL":
 		dec := NewBareDecoder(list.ItemList, rc, littleEndian)
 		for {
-			err := run(sw, dec)
+			err := run(sw, tsb, dec)
 			if nil != err {
 				time.Sleep(2 * time.Second)
 				dec = NewBareDecoder(list.ItemList, rc, littleEndian) // read list again - it could have changed
@@ -199,7 +166,7 @@ func Translate(sw *emitter.TriceLineComposer, list *id.List, rc io.ReadCloser /*
 	case "wrap":
 		dec := NewBareDecoder(list.ItemList, NewBareReaderFromWrap(rc), bigEndian)
 		for {
-			err := run(sw, dec)
+			err := run(sw, tsb, dec)
 			if nil != err {
 				time.Sleep(2 * time.Second)
 				dec = NewBareDecoder(list.ItemList, NewBareReaderFromWrap(rc), bigEndian) // read list again - it could have changed
@@ -208,7 +175,7 @@ func Translate(sw *emitter.TriceLineComposer, list *id.List, rc io.ReadCloser /*
 	case "wrapl", "wrapL":
 		dec := NewBareDecoder(list.ItemList, NewBareReaderFromWrap(rc), littleEndian)
 		for {
-			err := run(sw, dec)
+			err := run(sw, tsb, dec)
 			if nil != err {
 				time.Sleep(2 * time.Second)
 				dec = NewBareDecoder(list.ItemList, NewBareReaderFromWrap(rc), littleEndian) // read list again - it could have changed
@@ -252,7 +219,7 @@ func Translate(sw *emitter.TriceLineComposer, list *id.List, rc io.ReadCloser /*
 	//}
 }
 
-func run(sw *emitter.TriceLineComposer, sr StringsReader) error {
+func run0(sw *emitter.TriceLineComposer, sr StringsReader) error {
 	var sssiz int // to do: 1 for pack, 100 for esc
 	if Encoding == "pack" {
 		sssiz = 1
@@ -270,6 +237,15 @@ func run(sw *emitter.TriceLineComposer, sr StringsReader) error {
 	return nil
 }
 
+func run(sw io.Writer, b []byte, sr io.Reader) error {
+	n, err := sr.Read(b)
+	if nil != err { //} && io.EOF != err {
+		return err
+	}
+	sw.Write(b[:n])
+	return nil
+}
+
 // errorFatal ends in osExit(1) if err not nil.
 func errorFatal(err error) {
 	if nil == err {
@@ -282,73 +258,37 @@ func errorFatal(err error) {
 	log.Fatal(err)
 }
 
-/*
-func (p *decoding) triceS(cnt int) (n int, e error) { return }
-func (p *decoding) trice0() (n int, e error)        { return }
-func (p *decoding) trice81() (n int, e error)       { return }
-func (p *decoding) trice82() (n int, e error)       { return }
-func (p *decoding) trice83() (n int, e error)       { return }
-func (p *decoding) trice84() (n int, e error)       { return }
-func (p *decoding) trice85() (n int, e error)       { return }
-func (p *decoding) trice86() (n int, e error)       { return }
-func (p *decoding) trice87() (n int, e error)       { return }
-func (p *decoding) trice88() (n int, e error)       { return }
-func (p *decoding) trice161() (n int, e error)      { return }
-func (p *decoding) trice162() (n int, e error)      { return }
-func (p *decoding) trice163() (n int, e error)      { return }
-func (p *decoding) trice164() (n int, e error)      { return }
-func (p *decoding) trice321() (n int, e error)      { return }
-func (p *decoding) trice322() (n int, e error)      { return }
-func (p *decoding) trice323() (n int, e error)      { return }
-func (p *decoding) trice324() (n int, e error)      { return }
-func (p *decoding) trice641() (n int, e error)      { return }
-func (p *decoding) trice642() (n int, e error)      { return }
-
-func (d *decoding) sprintTrice(p *decoding, cnt int) (n int, e error) {
-	// ID and count are ok
-	switch p.trice.Type {
-	case "TRICE0":
-		return p.trice0()
-	case "TRICE8_1":
-		return p.trice81()
-	case "TRICE8_2":
-		return p.trice82()
-	case "TRICE8_3":
-		return p.trice83()
-	case "TRICE8_4":
-		return p.trice84()
-	case "TRICE8_5":
-		return p.trice85()
-	case "TRICE8_6":
-		return p.trice86()
-	case "TRICE8_7":
-		return p.trice87()
-	case "TRICE8_8":
-		return p.trice88()
-	case "TRICE16_1":
-		return p.trice161()
-	case "TRICE16_2":
-		return p.trice162()
-	case "TRICE16_3":
-		return p.trice163()
-	case "TRICE16_4":
-		return p.trice164()
-	case "TRICE32_1":
-		return p.trice321()
-	case "TRICE32_2":
-		return p.trice322()
-	case "TRICE32_3":
-		return p.trice323()
-	case "TRICE32_4":
-		return p.trice324()
-	case "TRICE64_1":
-		return p.trice641()
-	case "TRICE64_2":
-		return p.trice642()
-	case "TRICE_S":
-		return p.triceS(cnt)
-	default:
-		return p.outOfSync(fmt.Sprintf("Unexpected trice.Type %s", p.trice.Type))
+// readU16 returns the 2 b bytes as uint16 according the specified endianess
+func (p *decoding) readU16(b []byte) uint16 {
+	if littleEndian == p.endian {
+		return binary.LittleEndian.Uint16(b)
 	}
+	return binary.BigEndian.Uint16(b)
 }
-*/
+
+// readU32 returns the 4 b bytes as uint32 according the specified endianess
+func (p *decoding) readU32(b []byte) uint32 {
+	if littleEndian == p.endian {
+		return binary.LittleEndian.Uint32(b)
+	}
+	return binary.BigEndian.Uint32(b)
+}
+
+// readU64 returns the 8 b bytes as uint64 according the specified endianess
+func (p *decoding) readU64(b []byte) uint64 {
+	if littleEndian == p.endian {
+		return binary.LittleEndian.Uint64(b)
+	}
+	return binary.BigEndian.Uint64(b)
+}
+
+// rub removes leading bytes from sync buffer
+func (p *decoding) rub(n int) {
+	p.syncBuffer = p.syncBuffer[n:]
+}
+
+func (p *decoding) outOfSync(msg string) (n int, e error) {
+	n = copy(p.b, fmt.Sprintln("error:", msg, "ignoring first byte", p.syncBuffer[0:p.bc]))
+	p.rub(1)
+	return
+}

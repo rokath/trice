@@ -52,6 +52,15 @@ func (p *TriceLineComposer) timestamp() string {
 	return s
 }
 
+// Write treats received buffer as a string.
+func (p *TriceLineComposer) Write(b []byte) (n int, err error) {
+	s := string(b)
+	if "inf:[TRICE_SYNCPACKET 0x89abcdef]" == s {
+		s = "" // don't show
+	}
+	return p.WriteString(s)
+}
+
 // WriteString implements the io.StringWriter interface. The triceLineComposer can use it.
 // WriteString uses the internal line writer p.lw for writing out full lines.
 // If s is empty, WriteString returns 0, nil.

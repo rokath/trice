@@ -61,8 +61,11 @@ extern "C" {
 //! \param pFmt formatstring for trice (ignored here but used by the trice tool)
 //! \param dynString 0-terminated runtime generated string
 //! After the 4 byte trice message header are following 2^n bytes 
+#ifdef TRICE_ESC_LEGACY
+#define TRICE_S(Id, pFmt, dynString) do{ trice_s_legacy(Id, dynString); }while(0)
+#else
 #define TRICE_S(Id, pFmt, dynString) do{ trice_s(Id, dynString); }while(0)
-
+#endif
 
 //! trace Id protected (outside critical section) within 3 bytes
 //! \param Id trice identifier
@@ -317,7 +320,7 @@ TRICE_INLINE void triceWriteEscP(int count, uint8_t *buf) {
 #define TRICE_HI_BYTE(v) TRICE_BYTE(((uint16_t)(v))>>8)
 #define TRICE_LO_BYTE(v) TRICE_BYTE(v)
 
-TRICE_INLINE void trice_s1(uint16_t Id, char *dynString) {
+TRICE_INLINE void trice_s_legacy(uint16_t Id, char *dynString) {
     int n = 1 + strlen(dynString);
     int h = -1; // h is the smallest number with 2^h = k && k >= n
     int k = 0;       // n is at least 1 here, so h cannot get -1

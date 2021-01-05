@@ -33,6 +33,7 @@ func NewPackDecoder(l []id.Item, in io.Reader, endian bool) (p *Pack) {
 	return
 }
 
+/*
 // StringsRead is the provided read method for pack decoding.
 // It uses method Read to fill ss.
 // ss is a slice of strings with a len for the max expected strings.
@@ -59,6 +60,7 @@ func (p *Pack) StringsRead(ss []string) (m int, err error) {
 	}
 	return
 }
+*/
 
 // Read is the provided read method for pack decoding of next string as byte slice.
 // It uses inner reader p.in and internal id look-up table to fill b with a string.
@@ -72,19 +74,19 @@ func (p *Pack) Read(b []byte) (n int, err error) {
 	}
 	p.b = b
 
-	// create and fill intermediate read buffer for pack encoding
-	rb := make([]byte, buffSize)
-	var m int
-	m, err = p.in.Read(rb)
+	// fill intermediate read buffer for pack encoding
+	n, err = p.in.Read(b) // use b as intermediate buffer to avoid allocation
 
 	// p.syncBuffer can contain unprocessed bytes from last call.
-	p.syncBuffer = append(p.syncBuffer, rb[:m]...) // merge with leftovers
-	if nil != err && io.EOF != err {
+	p.syncBuffer = append(p.syncBuffer, b[:n]...) // merge with leftovers
+	n = 0
+	if nil != err /*&& io.EOF != err*/ {
 		return
 	}
 	if len(p.syncBuffer) < 4 {
 		return // wait
 	}
+	p.bc = 4 // alt least 4 bytes readable
 
 	head := p.readU32(p.syncBuffer[0:4])
 	if 0x89abcdef == head {

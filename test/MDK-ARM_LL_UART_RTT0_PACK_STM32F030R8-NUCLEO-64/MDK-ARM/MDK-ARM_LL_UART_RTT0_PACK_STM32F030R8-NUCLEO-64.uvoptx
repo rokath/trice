@@ -166,7 +166,7 @@
           <SizeOfObject>0</SizeOfObject>
           <BreakByAccess>0</BreakByAccess>
           <BreakIfRCount>1</BreakIfRCount>
-          <Filename>&lt;1&gt;..\..\..\srcTrice.C\triceCheck.c</Filename>
+          <Filename>..\..\..\srcTrice.C\triceCheck.c</Filename>
           <ExecCommand></ExecCommand>
           <Expression>\\MDK_ARM_LL_UART_RTT0_PACK_STM32F030R8_NUCLEO_64\../../../srcTrice.C/triceCheck.c\63</Expression>
         </Bp>

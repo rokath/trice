@@ -200,16 +200,23 @@ func logLoop() {
 
 	list := id.New()
 	sw := emitter.New(emitter.Prefix)
+	var interrupted bool
+	var counter int
 
 	for {
 
-		// (re-)setup input port
 		rc, e := receiver.NewReader(receiver.Port, receiver.PortArguments)
 		if nil != e {
 			if verbose {
 				fmt.Println(e)
 			}
-			return // true
+			if !interrupted {
+				return // hopeless
+			}
+			time.Sleep(1000 * time.Millisecond) // retry interval
+			fmt.Printf("\rsig:(re-)setup input port...%d", counter)
+			counter++
+			continue
 		}
 		defer rc.Close()
 		if receiver.ShowInputBytes {
@@ -220,7 +227,6 @@ func logLoop() {
 		if false == f {
 			return
 		}
-
-		time.Sleep(100 * time.Millisecond) // retry interval
+		interrupted = true
 	}
 }
