@@ -24,7 +24,7 @@ type Leg struct {
 func NewEscLegacyDecoder(l []id.Item, in io.Reader) (p *Leg) {
 	p = &Leg{}
 	p.in = in
-	p.syncBuffer = make([]byte, 0, 2*buffSize)
+	p.syncBuffer = make([]byte, 0, defaultSize)
 	p.lut = MakeLut(l)
 	return
 }

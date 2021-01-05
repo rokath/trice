@@ -10,18 +10,19 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"os"
+	"os/signal"
 	"path/filepath"
 	"runtime"
-	"time"
+	"syscall"
 
 	"github.com/rokath/trice/internal/emitter"
 	"github.com/rokath/trice/internal/id"
-	"github.com/rokath/trice/pkg/cipher"
 )
 
 const (
 	// receive and sync buffer size
-	buffSize     = 4096
+	defaultSize  = 4096
 	littleEndian = true
 	bigEndian    = false
 )
@@ -101,122 +102,76 @@ func newIDLut(til []byte) (IDLookUp, error) {
 
 // Translate performs the trice log task.
 // Bytes are read with rc. Then according decoder.Encoding are translated into strings.
-// Translate returns false on program end signal or true on hard read error.
-func Translate(sw *emitter.TriceLineComposer, list *id.List, rc io.ReadCloser /*, hardReadError chan bool*/) bool {
-	tsb := make([]byte, 4096) // intermediate trice string buffer for a single trice
-	// activate selected encoding
-	// var p translator.Translator // interface type
+// Each read returns the amount of bytes for one trice.
+// Translate returns true on io.EOF or false on hard read error or sigterm.
+func Translate(sw *emitter.TriceLineComposer, list *id.List, rc io.ReadCloser) bool {
+
+	var dec io.Reader
 	switch Encoding {
 	case "leg":
 		dec := NewEscLegacyDecoder(list.ItemList, rc)
 		for {
 			err := run0(sw, dec)
+			if io.EOF == err {
+				continue // try again
+			}
 			if nil != err {
-				time.Sleep(2 * time.Second)
-				dec = NewEscLegacyDecoder(list.ItemList, rc) // read list again - it could have changed
+				return false // stop
 			}
 		}
 	case "esc":
-		dec := NewEscDecoder(list.ItemList, rc, bigEndian)
-		for {
-			err := run(sw, tsb, dec)
-			if nil != err {
-				time.Sleep(2 * time.Second)
-				dec = NewEscDecoder(list.ItemList, rc, bigEndian) // read list again - it could have changed
-			}
-		}
+		dec = NewEscDecoder(list.ItemList, rc, bigEndian)
 	case "pack":
-		dec := NewPackDecoder(list.ItemList, rc, bigEndian)
-		for {
-			err := run(sw, tsb, dec)
-			if nil != err {
-				time.Sleep(2 * time.Second)
-				dec = NewPackDecoder(list.ItemList, rc, bigEndian) // read list again - it could have changed
-			}
-		}
+		dec = NewPackDecoder(list.ItemList, rc, bigEndian)
 	case "packl", "packL":
-		dec := NewPackDecoder(list.ItemList, rc, littleEndian)
-		for {
-			err := run(sw, tsb, dec)
-			if nil != err {
-				//time.Sleep(2 * time.Second)
-				//dec = NewPackDecoder(list.ItemList, rc, littleEndian) // read list again - it could have changed
-				fmt.Println(err)
-				return true
-			}
-		}
+		dec = NewPackDecoder(list.ItemList, rc, littleEndian)
 	case "bare":
-		dec := NewBareDecoder(list.ItemList, rc, bigEndian)
-		for {
-			err := run(sw, tsb, dec)
-			if nil != err {
-				time.Sleep(2 * time.Second)
-				dec = NewBareDecoder(list.ItemList, rc, bigEndian) // read list again - it could have changed
-			}
-		}
+		dec = NewBareDecoder(list.ItemList, rc, bigEndian)
 	case "barel", "bareL":
-		dec := NewBareDecoder(list.ItemList, rc, littleEndian)
-		for {
-			err := run(sw, tsb, dec)
-			if nil != err {
-				time.Sleep(2 * time.Second)
-				dec = NewBareDecoder(list.ItemList, rc, littleEndian) // read list again - it could have changed
-			}
-		}
+		dec = NewBareDecoder(list.ItemList, rc, littleEndian)
 	case "wrap":
-		dec := NewBareDecoder(list.ItemList, NewBareReaderFromWrap(rc), bigEndian)
-		for {
-			err := run(sw, tsb, dec)
-			if nil != err {
-				time.Sleep(2 * time.Second)
-				dec = NewBareDecoder(list.ItemList, NewBareReaderFromWrap(rc), bigEndian) // read list again - it could have changed
-			}
-		}
+		dec = NewBareDecoder(list.ItemList, NewBareReaderFromWrap(rc), bigEndian)
 	case "wrapl", "wrapL":
-		dec := NewBareDecoder(list.ItemList, NewBareReaderFromWrap(rc), littleEndian)
-		for {
-			err := run(sw, tsb, dec)
-			if nil != err {
-				time.Sleep(2 * time.Second)
-				dec = NewBareDecoder(list.ItemList, NewBareReaderFromWrap(rc), littleEndian) // read list again - it could have changed
-			}
-		}
-
-	//case "bare":
-	//	p = receiveBareSimpleTricesAndDisplayAnsiColor(sw, rc, list, hardReadError)
-	//case "esc":
-	//p = receiveEscTricesAndDisplayAnsiColor(sw, rc, list, hardReadError)
-	//case "wrap", "wrapped":
-	//p = receiveWrapSimpleTricesAndDisplayAnsiColor(rc, fnJSON)
-	//	case "sim":
-	//		p = simNewSimpleTriceInterpreterWithAnsi(r)
-	case "bareXTEACrypted", "wrapXTEACrypted":
-		errorFatal(cipher.SetUp())
-		fallthrough
-	case "ascii":
-		fallthrough
+		dec = NewBareDecoder(list.ItemList, NewBareReaderFromWrap(rc), littleEndian)
+	//case "bareXTEACrypted", "wrapXTEACrypted":
+	//	errorFatal(cipher.SetUp())
+	//	fallthrough
 	default:
 		fmt.Println("unknown encoding ", Encoding)
-		return false
+		return false // stop
 	}
 
-	//// prepare CTRL-C shutdown reaction
-	//sigs := make(chan os.Signal, 1)
-	//signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
-	//select {
-	//case <-hardReadError:
-	//	if verbose {
-	//		//fmt.Println("####################################", p.SavedError(), "####################################")
-	//	}
-	//	// p.Done() <- 0 // end translator
-	//	return true
-	//case sig := <-sigs: // wait for a signal
-	//	if verbose {
-	//		fmt.Println("####################################", sig, "####################################")
-	//	}
-	//	//p.Done() <- 0 // end translator
-	//	return false // back to main
-	//}
+	// prepare CTRL-C shutdown reaction
+	sigs := make(chan os.Signal, 1)
+	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
+
+	// intermediate trice string buffer for a single trice
+	b := make([]byte, defaultSize)
+	for {
+		select {
+		case sig := <-sigs: // wait for a signal
+			if Verbose {
+				fmt.Println("####################################", sig, "####################################")
+			}
+			return false // end
+		default:
+			n, err := dec.Read(b)
+			if io.EOF == err {
+				if Verbose {
+					fmt.Println(err)
+				}
+				continue // read again
+			}
+			if nil != err {
+				if Verbose {
+					fmt.Println(err)
+				}
+				return true // try again
+			}
+			sw.Write(b[:n])
+			//time.Sleep(1 * time.Millisecond) // limit speed
+		}
+	}
 }
 
 func run0(sw *emitter.TriceLineComposer, sr StringsReader) error {
@@ -237,9 +192,9 @@ func run0(sw *emitter.TriceLineComposer, sr StringsReader) error {
 	return nil
 }
 
-func run(sw io.Writer, b []byte, sr io.Reader) error {
+func shovel(sw io.Writer, b []byte, sr io.Reader) error {
 	n, err := sr.Read(b)
-	if nil != err { //} && io.EOF != err {
+	if nil != err && io.EOF != err {
 		return err
 	}
 	sw.Write(b[:n])

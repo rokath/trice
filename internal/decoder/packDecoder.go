@@ -27,7 +27,7 @@ type Pack struct {
 func NewPackDecoder(l []id.Item, in io.Reader, endian bool) (p *Pack) {
 	p = &Pack{}
 	p.in = in
-	p.syncBuffer = make([]byte, 0, 2*buffSize)
+	p.syncBuffer = make([]byte, 0, defaultSize)
 	p.lut = MakeLut(l)
 	p.endian = endian
 	return
@@ -41,7 +41,7 @@ func NewPackDecoder(l []id.Item, in io.Reader, endian bool) (p *Pack) {
 // m is the count of decoded strings inside ss.
 func (p *Pack) StringsRead(ss []string) (m int, err error) {
 	for m < len(ss) {
-		b := make([]byte, 4096)
+		b := make([]byte, defaultSize)
 		var n int
 		n, err = p.Read(b)
 		if 0 == n {

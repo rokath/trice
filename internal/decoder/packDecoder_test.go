@@ -68,7 +68,7 @@ func TestPack0(t *testing.T) { // test incomplete trice message
 	// ss = ss[:n]
 	// act := fmt.Sprintln(ss)
 
-	b := make([]byte, 4096)
+	b := make([]byte, defaultSize)
 	n, _ := p.Read(b)
 	act := fmt.Sprintln(string(b[:n]))
 	exp := "[]\n"
@@ -95,7 +95,7 @@ func _TestPack1(t *testing.T) { // to do: repair
 	//ss = ss[:n]
 	//act := fmt.Sprintln(ss)
 
-	b := make([]byte, 4096)
+	b := make([]byte, defaultSize)
 	n, _ := p.Read(b)
 	act := fmt.Sprintln(string(b[:n]))
 	exp := "[ATT:attention   message, SysTick is   1284\\n tst:TRICE8  %03x ->  001  07f  -80  -01\\n tst:TRICE8   %4d ->    1  127 -128   -1\\n tst:TRICE8   %4o ->    1  177 -200   -1\\n tst:TRICE16  %05x ->   00001   07fff   -8000   -0001\\n tst:TRICE16   %6d ->       1   32767  -32768      -1\\n tst:TRICE16   %7o ->       1   77777 -100000      -1\\n]\n"
@@ -125,7 +125,7 @@ func _TestPack2(t *testing.T) {
 	//act := fmt.Sprintln(ss)
 	//exp := "[\n 1\n 12\n 123\n 1234\n 12345\n 123456\n 1234567\n 12345678\n 123456789\n]\n"
 
-	b := make([]byte, 4096)
+	b := make([]byte, defaultSize)
 	n, _ := p.Read(b)
 	act := fmt.Sprintln(string(b[:n]))
 	exp := "[ATT:attention   message, SysTick is   1284\\n tst:TRICE8  %03x ->  001  07f  -80  -01\\n tst:TRICE8   %4d ->    1  127 -128   -1\\n tst:TRICE8   %4o ->    1  177 -200   -1\\n tst:TRICE16  %05x ->   00001   07fff   -8000   -0001\\n tst:TRICE16   %6d ->       1   32767  -32768      -1\\n tst:TRICE16   %7o ->       1   77777 -100000      -1\\n]\n"

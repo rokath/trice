@@ -27,7 +27,7 @@ TRICE0( Id(48976), "\ns:                                                     \ns
 ///////////////////////////////////////////////////////////////////////////////
 // select target trice method
 #define TRICE_ENCODING TRICE_ESC_ENCODING
-#define TRICE_ESC_LEGACY // temporary for tests
+//#define TRICE_ESC_LEGACY // temporary for tests
 
 #define TRICE_HARDWARE_ENDIANESS TRICE_LITTLE_ENDIANESS 
 

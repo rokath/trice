@@ -22,7 +22,7 @@ type Esc struct {
 func NewEscDecoder(l []id.Item, in io.Reader, endian bool) (p *Esc) {
 	p = &Esc{}
 	p.in = in
-	p.syncBuffer = make([]byte, 0, buffSize)
+	p.syncBuffer = make([]byte, 0, defaultSize)
 	p.lut = MakeLut(l)
 	p.endian = endian // esc format is only big endian
 	return
@@ -34,7 +34,7 @@ func NewEscDecoder(l []id.Item, in io.Reader, endian bool) (p *Esc) {
 // Each ss substring can start with a channel specifier.
 // m is the count of decoded strings inside ss.
 func (p *Esc) StringsRead(ss []string) (m int, err error) {
-	b := make([]byte, buffSize)
+	b := make([]byte, defaultSize)
 	var n int
 	n, err = p.Read(b)
 	if 0 == n {
@@ -56,7 +56,7 @@ func (p *Esc) Read(b []byte) (n int, err error) {
 	if len(b) < len(sizeMsg) {
 		return
 	}
-	if len(b) < buffSize {
+	if len(b) < defaultSize {
 		n = copy(b, fmt.Sprintln(sizeMsg))
 		return
 	}

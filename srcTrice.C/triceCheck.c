@@ -242,7 +242,7 @@ void triceCheckSet(int index) {
             TRICE_RTS( "an_example_stri\n" );
             TRICE_RTS( "an_example_strin\n" );
             TRICE_RTS( "an_example_string\n" );
-            break;       
+            break;
         case 14: 
             TRICE_S( Id(18), "%s", "" );
             TRICE_S( Id(18), "%s", "\n" );
@@ -262,7 +262,7 @@ void triceCheckSet(int index) {
             TRICE_S( Id(18), "%s", "123456789ABCDE\n" );
             TRICE_S( Id(18), "%s", "123456789ABCDEF\n" );
             TRICE_S( Id(18), "%s", "123456789ABCDEFG\n" );
-            break;       
+            break;
         case 15: 
             TRICE_S( Id(18), "%s", "123456789ABCDEFGH\n" );
             TRICE_S( Id(18), "%s", "123456789ABCDEFGHI\n" );   

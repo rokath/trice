@@ -22,7 +22,7 @@ type Bare struct {
 func NewBareDecoder(l []id.Item, in io.Reader, endian bool) (p *Bare) {
 	p = &Bare{}
 	p.in = in
-	p.syncBuffer = make([]byte, 0, 2*buffSize)
+	p.syncBuffer = make([]byte, 0, defaultSize)
 	p.lut = MakeLut(l)
 	p.endian = endian
 	return
@@ -35,7 +35,7 @@ func NewBareDecoder(l []id.Item, in io.Reader, endian bool) (p *Bare) {
 // m is the count of decoded strings inside ss.
 func (p *Bare) StringsRead(ss []string) (m int, err error) {
 	for m < len(ss) {
-		b := make([]byte, 4096)
+		b := make([]byte, defaultSize)
 		var n int
 		n, err = p.Read(b)
 		if 0 == n {
@@ -68,7 +68,7 @@ func (p *Bare) Read(b []byte) (n int, err error) {
 	p.b = b
 
 	// create and fill intermediate read buffer for pack encoding
-	rb := make([]byte, buffSize)
+	rb := make([]byte, defaultSize)
 	var m int
 	m, err = p.in.Read(rb)
 

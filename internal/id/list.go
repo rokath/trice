@@ -76,7 +76,6 @@ func (p *List) ReadListFile() {
 		if 0 < len(b) {
 			err = json.Unmarshal(b, &(p.ItemList))
 			errorFatal(err)
-			// TODO: sort for binary search
 		}
 	}
 	if true == Verbose {

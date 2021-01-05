@@ -37,9 +37,9 @@ func NewBareReaderFromWrap(in io.Reader) *BareReaderFromWrap {
 	p.wrapStartByte = wrapStartByte
 	p.localAddr = receiverAddress
 	p.remoteAddr = senderAddress
-	p.nextData = make([]byte, 4096)
-	p.holdBuf = make([]byte, 0, 4096)
-	p.bareBuf = make([]byte, 0, 4096)
+	p.nextData = make([]byte, defaultSize)
+	p.holdBuf = make([]byte, 0, defaultSize)
+	p.bareBuf = make([]byte, 0, defaultSize)
 	return p
 }
 
