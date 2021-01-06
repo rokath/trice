@@ -15,6 +15,7 @@ import (
 	"path/filepath"
 	"runtime"
 	"syscall"
+	"time"
 
 	"github.com/rokath/trice/internal/emitter"
 	"github.com/rokath/trice/internal/id"
@@ -147,6 +148,7 @@ func Translate(sw *emitter.TriceLineComposer, list *id.List, rc io.ReadCloser) b
 
 	// intermediate trice string buffer for a single trice
 	b := make([]byte, defaultSize)
+outer:
 	for {
 		select {
 		case sig := <-sigs: // wait for a signal
@@ -160,7 +162,8 @@ func Translate(sw *emitter.TriceLineComposer, list *id.List, rc io.ReadCloser) b
 				if Verbose {
 					fmt.Println(err)
 				}
-				continue // read again
+				time.Sleep(100 * time.Millisecond) // limit try again speed
+				continue outer                     // read again
 			}
 			if nil != err {
 				if Verbose {
@@ -169,7 +172,7 @@ func Translate(sw *emitter.TriceLineComposer, list *id.List, rc io.ReadCloser) b
 				return true // try again
 			}
 			sw.Write(b[:n])
-			//time.Sleep(1 * time.Millisecond) // limit speed
+
 		}
 	}
 }
@@ -189,15 +192,6 @@ func run0(sw *emitter.TriceLineComposer, sr StringsReader) error {
 	for i := range ss[:n] {
 		sw.WriteString(ss[i])
 	}
-	return nil
-}
-
-func shovel(sw io.Writer, b []byte, sr io.Reader) error {
-	n, err := sr.Read(b)
-	if nil != err && io.EOF != err {
-		return err
-	}
-	sw.Write(b[:n])
 	return nil
 }
 
@@ -243,7 +237,11 @@ func (p *decoding) rub(n int) {
 }
 
 func (p *decoding) outOfSync(msg string) (n int, e error) {
-	n = copy(p.b, fmt.Sprintln("error:", msg, "ignoring first byte", p.syncBuffer[0:p.bc]))
+	cnt := p.bc
+	if cnt > 20 {
+		cnt = 20
+	}
+	n = copy(p.b, fmt.Sprintln("error:", msg, "ignoring first byte", p.syncBuffer[0:cnt]))
 	p.rub(1)
 	return
 }

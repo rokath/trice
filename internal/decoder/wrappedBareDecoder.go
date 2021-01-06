@@ -10,7 +10,7 @@ import (
 )
 
 var (
-	wrapStartByte   byte = 0xEB
+	wrapStartByte   byte = 0xEB // marker
 	senderAddress   byte = 0x80 // remote device
 	receiverAddress byte = 0x81 // this device
 )
@@ -50,7 +50,7 @@ func (p *BareReaderFromWrap) Read(buf []byte) (int, error) {
 	p.bareBuf = p.bareBuf[:0]
 	for 8 <= len(p.holdBuf) {
 		if false == p.evaluateWrap(p.holdBuf[:8]) {
-			fmt.Println("ignoring", p.holdBuf[0])
+			fmt.Println("wrap data inconsistent, ignoring", p.holdBuf[0])
 			p.holdBuf = p.holdBuf[1:]
 			continue // try to re-sync
 		}
@@ -64,7 +64,6 @@ func (p *BareReaderFromWrap) Read(buf []byte) (int, error) {
 }
 
 // evaluateWrap checks if the wrap in b contains valid trice header data.
-//
 // It returns true on success, otherwise false.
 func (p *BareReaderFromWrap) evaluateWrap(b []byte) (x bool) {
 	if 8 == len(b) {

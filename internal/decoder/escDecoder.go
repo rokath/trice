@@ -28,36 +28,18 @@ func NewEscDecoder(l []id.Item, in io.Reader, endian bool) (p *Esc) {
 	return
 }
 
-// StringsRead is the provided read method for esc decoding.
-// It uses method Read to fill ss.
-// ss is a slice of strings with a len for the max expected strings.
-// Each ss substring can start with a channel specifier.
-// m is the count of decoded strings inside ss.
-func (p *Esc) StringsRead(ss []string) (m int, err error) {
-	b := make([]byte, defaultSize)
-	var n int
-	n, err = p.Read(b)
-	if 0 == n {
-		return
-	}
-	b = b[:n]
-	ss[0] = string(b)
-	m = 1
-	return // read only one string
-}
-
 // Read is the provided read method for esc decoding of next string as byte slice.
 // It uses inner reader p.in and internal id look-up table to fill b with a string.
 // b is a slice of bytes with a len for the max expected string size.
 // n is the count of read bytes inside b.
 // Read returns one trice string or nothing.
 func (p *Esc) Read(b []byte) (n int, err error) {
-	sizeMsg := "e:buf too small"
+	sizeMsg := fmt.Sprintln("e:buf too small, expecting", defaultSize, "bytes.")
 	if len(b) < len(sizeMsg) {
 		return
 	}
 	if len(b) < defaultSize {
-		n = copy(b, fmt.Sprintln(sizeMsg))
+		n = copy(b, sizeMsg)
 		return
 	}
 
@@ -70,6 +52,9 @@ func (p *Esc) Read(b []byte) (n int, err error) {
 		n = copy(b, fmt.Sprintln("error:internal reader error ", err))
 		return
 	}
+
+	// Even err could be io.EOF some valid data possibly in p.syncBuffer.
+	// In case of file input (JLINK usage) a plug off is not detectable here.
 
 	p.bc = len(p.syncBuffer) // intermediade assingment for better error tracking
 	if p.bc < 4 {

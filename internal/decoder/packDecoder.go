@@ -33,35 +33,6 @@ func NewPackDecoder(l []id.Item, in io.Reader, endian bool) (p *Pack) {
 	return
 }
 
-/*
-// StringsRead is the provided read method for pack decoding.
-// It uses method Read to fill ss.
-// ss is a slice of strings with a len for the max expected strings.
-// Each ss substring can start with a channel specifier.
-// m is the count of decoded strings inside ss.
-func (p *Pack) StringsRead(ss []string) (m int, err error) {
-	for m < len(ss) {
-		b := make([]byte, defaultSize)
-		var n int
-		n, err = p.Read(b)
-		if 0 == n {
-			return
-		}
-		b = b[:n]
-		if syncPacket == string(b) {
-			continue
-		}
-		ss[m] = string(b)
-		m++
-		return // read only one string for now
-		//if nil != err {
-		//	return
-		//}
-	}
-	return
-}
-*/
-
 // Read is the provided read method for pack decoding of next string as byte slice.
 // It uses inner reader p.in and internal id look-up table to fill b with a string.
 // b is a slice of bytes with a len for the max expected string size.
@@ -69,20 +40,25 @@ func (p *Pack) StringsRead(ss []string) (m int, err error) {
 // Read returns one trice string (optionally starting wth a channel specifier).
 // A line can contain several trice strings.
 func (p *Pack) Read(b []byte) (n int, err error) {
-	if 0 == len(b) {
+	sizeMsg := fmt.Sprintln("e:buf too small, expecting", defaultSize, "bytes.")
+	if len(b) < len(sizeMsg) {
+		return
+	}
+	if len(b) < defaultSize {
+		n = copy(b, sizeMsg)
 		return
 	}
 	p.b = b
-
 	// fill intermediate read buffer for pack encoding
 	n, err = p.in.Read(b) // use b as intermediate buffer to avoid allocation
-
 	// p.syncBuffer can contain unprocessed bytes from last call.
 	p.syncBuffer = append(p.syncBuffer, b[:n]...) // merge with leftovers
 	n = 0
-	if nil != err /*&& io.EOF != err*/ {
+	if nil != err && io.EOF != err {
 		return
 	}
+	// Even err could be io.EOF some valid data possibly in p.syncBuffer.
+	// In case of file input (JLINK usage) a plug off is not detectable here.
 	if len(p.syncBuffer) < 4 {
 		return // wait
 	}
@@ -92,7 +68,6 @@ func (p *Pack) Read(b []byte) (n int, err error) {
 	if 0x89abcdef == head {
 		return p.syncTrice()
 	}
-
 	triceID := int(head >> 16)  // 2 msb bytes are the ID
 	count := int(0xffff & head) // next 2 bytes are the count
 	var ok bool
@@ -100,19 +75,15 @@ func (p *Pack) Read(b []byte) (n int, err error) {
 	if !ok {
 		return p.outOfSync(fmt.Sprintf("unknown triceID %5d", triceID))
 	}
-
 	if !p.bytesCountOk(count) {
 		return p.outOfSync(fmt.Sprintf("unecpected byteCount, it is not %d", count))
 	}
-
 	if !p.completeTrice(count) {
 		return // try later again
 	}
-
 	if !p.readDataAndCheckPaddingBytes(count) {
 		return p.outOfSync(fmt.Sprintf("error:padding bytes not zero"))
 	}
-
 	// ID and count are ok
 	return p.sprintTrice(count)
 }
@@ -174,7 +145,7 @@ func (p *Pack) readDataAndCheckPaddingBytes(cnt int) (ok bool) {
 	return false
 }
 
-// completeTrice returns true if triceType payload is complete
+// completeTrice returns true if triceType payload is complete.
 func (p *Pack) completeTrice(cnt int) bool {
 	cnt += 3
 	cnt &= ^3
@@ -184,7 +155,7 @@ func (p *Pack) completeTrice(cnt int) bool {
 	return true
 }
 
-// bytesCountOk returns true if the transmitted count information matches the expected count
+// bytesCountOk returns true if the transmitted count information matches the expected count.
 func (p *Pack) bytesCountOk(cnt int) bool {
 	bytesCount := p.expectedByteCount()
 	return cnt == bytesCount || -1 == bytesCount
@@ -223,6 +194,7 @@ func (p *Pack) expectedByteCount() int {
 	}
 }
 
+// sprintTrice generates the trice string.
 func (p *Pack) sprintTrice(cnt int) (n int, e error) {
 	// ID and count are ok
 	switch p.trice.Type {

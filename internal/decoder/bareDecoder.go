@@ -28,33 +28,6 @@ func NewBareDecoder(l []id.Item, in io.Reader, endian bool) (p *Bare) {
 	return
 }
 
-// StringsRead is the provided read method for pack decoding.
-// It uses method Read to fill ss.
-// ss is a slice of strings with a len for the max expected strings.
-// Each ss substring can start with a channel specifier.
-// m is the count of decoded strings inside ss.
-func (p *Bare) StringsRead(ss []string) (m int, err error) {
-	for m < len(ss) {
-		b := make([]byte, defaultSize)
-		var n int
-		n, err = p.Read(b)
-		if 0 == n {
-			return
-		}
-		b = b[:n]
-		if syncPacket == string(b) {
-			continue
-		}
-		ss[m] = string(b)
-		m++
-		return // read only one string for now
-		//if nil != err {
-		//	return
-		//}
-	}
-	return
-}
-
 // Read is the provided read method for bare decoding of next string as byte slice.
 // It uses inner reader p.in and internal id look-up table to fill b with a string.
 // b is a slice of bytes with a len for the max expected string size.
@@ -62,98 +35,58 @@ func (p *Bare) StringsRead(ss []string) (m int, err error) {
 // Read returns one trice string (optionally starting wth a channel specifier).
 // A line can contain several trice strings.
 func (p *Bare) Read(b []byte) (n int, err error) {
-	if 0 == len(b) {
+	sizeMsg := fmt.Sprintln("e:buf too small, expecting", defaultSize, "bytes.")
+	if len(b) < len(sizeMsg) {
+		return
+	}
+	if len(b) < defaultSize {
+		n = copy(b, sizeMsg)
 		return
 	}
 	p.b = b
-
-	// create and fill intermediate read buffer for pack encoding
-	rb := make([]byte, defaultSize)
-	var m int
-	m, err = p.in.Read(rb)
-
+	// fill intermediate read buffer for pack encoding
+	n, err = p.in.Read(b) // use b as intermediate buffer to avoid allocation
 	// p.syncBuffer can contain unprocessed bytes from last call.
-	p.syncBuffer = append(p.syncBuffer, rb[:m]...) // merge with leftovers
+	p.syncBuffer = append(p.syncBuffer, b[:n]...) // merge with leftovers
+	n = 0
 	if nil != err && io.EOF != err {
 		return
 	}
-
+	// Even err could be io.EOF some valid data possibly in p.syncBuffer.
+	// In case of file input (JLINK usage) a plug off is not detectable here.
 	for {
 		if len(p.syncBuffer) < 4 {
 			return // wait
 		}
+		p.bc = 4
 		head := int(p.readU32(p.syncBuffer[0:4]))
-
 		if 0x89abcdef == uint(head) { // sync trice
 			p.rub(4)
 			continue
 		}
-
 		triceID := head >> 16                      // 2 msb bytes are the ID
 		p.payload = append(p.payload, 0xffff&head) // next 2 bytes are payload
-
 		if 8 < len(p.payload) {
+			p.payload = p.payload[:0]
 			return p.outOfSync(fmt.Sprintf("too much payload data %d", len(p.payload)))
 		}
-
 		if 0 == triceID {
 			p.rub(4)
 			continue
 		}
-
 		var ok bool
 		p.trice, ok = p.lut[triceID] // check lookup table
 		if !ok {
+			p.payload = p.payload[:0]
 			return p.outOfSync(fmt.Sprintf("unknown triceID %5d", triceID))
 		}
-
 		if !p.payloadLenOk() {
+			p.payload = p.payload[:0]
 			return p.outOfSync(fmt.Sprintf("unecpected payload len %d", p.expectedPayloadLen()))
 		}
-
 		p.rub(4)
-		// ID and payload are ok
-		switch p.trice.Type {
-		case "TRICE0":
-			return p.trice0()
-		case "TRICE8_1":
-			return p.trice81()
-		case "TRICE8_2":
-			return p.trice82()
-		case "TRICE8_3":
-			return p.trice83()
-		case "TRICE8_4":
-			return p.trice84()
-		case "TRICE8_5":
-			return p.trice85()
-		case "TRICE8_6":
-			return p.trice86()
-		case "TRICE8_7":
-			return p.trice87()
-		case "TRICE8_8":
-			return p.trice88()
-		case "TRICE16_1":
-			return p.trice161()
-		case "TRICE16_2":
-			return p.trice162()
-		case "TRICE16_3":
-			return p.trice163()
-		case "TRICE16_4":
-			return p.trice164()
-		case "TRICE32_1":
-			return p.trice321()
-		case "TRICE32_2":
-			return p.trice322()
-		case "TRICE32_3":
-			return p.trice323()
-		case "TRICE32_4":
-			return p.trice324()
-		case "TRICE64_1":
-			return p.trice641()
-		case "TRICE64_2":
-			return p.trice642()
-		}
-		return p.outOfSync(fmt.Sprintf("Unexpected trice.Type %s", p.trice.Type))
+		// ID and count are ok
+		return p.sprintTrice()
 	}
 }
 
@@ -184,6 +117,51 @@ func (p *Bare) expectedPayloadLen() int {
 	default:
 		return -2 // unknown trice type
 	}
+}
+
+// sprintTrice generates the trice string.
+func (p *Bare) sprintTrice() (n int, err error) {
+	switch p.trice.Type {
+	case "TRICE0":
+		return p.trice0()
+	case "TRICE8_1":
+		return p.trice81()
+	case "TRICE8_2":
+		return p.trice82()
+	case "TRICE8_3":
+		return p.trice83()
+	case "TRICE8_4":
+		return p.trice84()
+	case "TRICE8_5":
+		return p.trice85()
+	case "TRICE8_6":
+		return p.trice86()
+	case "TRICE8_7":
+		return p.trice87()
+	case "TRICE8_8":
+		return p.trice88()
+	case "TRICE16_1":
+		return p.trice161()
+	case "TRICE16_2":
+		return p.trice162()
+	case "TRICE16_3":
+		return p.trice163()
+	case "TRICE16_4":
+		return p.trice164()
+	case "TRICE32_1":
+		return p.trice321()
+	case "TRICE32_2":
+		return p.trice322()
+	case "TRICE32_3":
+		return p.trice323()
+	case "TRICE32_4":
+		return p.trice324()
+	case "TRICE64_1":
+		return p.trice641()
+	case "TRICE64_2":
+		return p.trice642()
+	}
+	return p.outOfSync(fmt.Sprintf("Unexpected trice.Type %s", p.trice.Type))
 }
 
 func (p *Bare) trice0() (n int, e error) {
