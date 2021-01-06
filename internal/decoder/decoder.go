@@ -109,17 +109,6 @@ func Translate(sw *emitter.TriceLineComposer, list *id.List, rc io.ReadCloser) b
 
 	var dec io.Reader
 	switch Encoding {
-	case "leg":
-		dec := NewEscLegacyDecoder(list.ItemList, rc)
-		for {
-			err := run0(sw, dec)
-			if io.EOF == err {
-				continue // try again
-			}
-			if nil != err {
-				return false // stop
-			}
-		}
 	case "esc":
 		dec = NewEscDecoder(list.ItemList, rc, bigEndian)
 	case "pack":
