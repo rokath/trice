@@ -4,21 +4,21 @@
 package id_test
 
 import (
-	"github.com/stretchr/testify/assert"
 	"io/ioutil"
 	"math/rand"
 	"os"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
+
 	"github.com/rokath/trice/internal/id"
 	"github.com/rokath/trice/pkg/assert2"
-	"github.com/rokath/trice/pkg/file"
 )
 
 func doUpdate(t *testing.T, sOri, sExp []string, listExp string) {
 
 	rand.Seed(0)
-	p := id.NewList(file.Random("{}", "", "til*.json"))
+	p := id.NewList(randomFile("{}", "", "til*.json"))
 
 	dir0, err := ioutil.TempDir("", "*")
 	assert.Nil(t, err)
@@ -29,33 +29,33 @@ func doUpdate(t *testing.T, sOri, sExp []string, listExp string) {
 	dir3, err := ioutil.TempDir(dir1, "*")
 	assert.Nil(t, err)
 
-	n0 := file.Random(sOri[0], dir1, "*.c")
+	n0 := randomFile(sOri[0], dir1, "*.c")
 	err = p.Update(dir0, true, true)
 	assert.Nil(t, err)
 
-	n1 := file.Random(sOri[1], dir2, "*.cpp")
+	n1 := randomFile(sOri[1], dir2, "*.cpp")
 	err = p.Update(dir0, true, true)
 	assert.Nil(t, err)
 
-	n2 := file.Random(sOri[2], dir2, "*.cc")
+	n2 := randomFile(sOri[2], dir2, "*.cc")
 	err = p.Update(dir0, true, true)
 	assert.Nil(t, err)
 
-	n3 := file.Random(sOri[3], dir3, "*.c")
+	n3 := randomFile(sOri[3], dir3, "*.c")
 	err = p.Update(dir0, true, true)
 	assert.Nil(t, err)
 
 	p.ZeroTimestampCreated()
 	p.WriteListFile()
 
-	listAct := file.ReadString(p.FnJSON)
+	listAct := readFileAsString(p.FnJSON)
 	assert2.EqualLines(t, listExp, listAct)
 
 	sAct := make([]string, 0, 4)
-	sAct = append(sAct, file.ReadString(n0))
-	sAct = append(sAct, file.ReadString(n1))
-	sAct = append(sAct, file.ReadString(n2))
-	sAct = append(sAct, file.ReadString(n3))
+	sAct = append(sAct, readFileAsString(n0))
+	sAct = append(sAct, readFileAsString(n1))
+	sAct = append(sAct, readFileAsString(n2))
+	sAct = append(sAct, readFileAsString(n3))
 
 	for i := range sExp {
 		assert2.EqualLines(t, sExp[i], sAct[i])

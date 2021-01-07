@@ -5,23 +5,45 @@
 package id_test
 
 import (
-	"github.com/stretchr/testify/assert"
+	"io/ioutil"
 	"os"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
+
 	"github.com/rokath/trice/internal/id"
 	"github.com/rokath/trice/pkg/assert2"
-	"github.com/rokath/trice/pkg/file"
+	"github.com/rokath/trice/pkg/msg"
 )
 
+// Random creates a random file containing s and returns its name.
+// See ioutil.Tempfile() for dir and pattern.
+func randomFile(s, dir, pattern string) string {
+	fd, err := ioutil.TempFile(dir, pattern)
+	msg.FatalErr(err)
+	_, err = fd.WriteString(s)
+	msg.OnErr(err)
+	fn := fd.Name()
+	msg.OnErr(fd.Close())
+	return fn
+}
+
+// readFileAsString returns filename content as string
+func readFileAsString(filename string) (s string) {
+	b, err := ioutil.ReadFile(filename)
+	msg.FatalErr(err)
+	s = string(b)
+	return
+}
+
 func TestWrite(t *testing.T) {
-	fa := file.Random("[]", "", "*.json")
+	fa := randomFile("[]", "", "*.json")
 	p := id.NewList(fa)
 	p.ExtendIDList(12345, "TRICE0", "Hi", true)
 	p.ZeroTimestampCreated()
 	p.WriteListFile()
 
-	listAct := file.ReadString(fa)
+	listAct := readFileAsString(fa)
 	assert.Nil(t, os.RemoveAll(fa))
 	listExp := `[
 		{
@@ -128,9 +150,9 @@ func TestZeroSourceTreeIds(t *testing.T) {
 		// 4 subtraces
 	} // sum 111 sub traces (need 444 bytes Buffet space)	
 	`
-	fn := file.Random(s, "", "*.c")
+	fn := randomFile(s, "", "*.c")
 	id.ZeroSourceTreeIds(fn, true)
-	act := file.ReadString(fn)
+	act := readFileAsString(fn)
 	assert.Nil(t, os.RemoveAll(fn))
 	exp := `
 	/*! \file triceCheck.c
@@ -228,7 +250,7 @@ func TestZeroSourceTreeIds(t *testing.T) {
 }
 
 func TestAppendItem(t *testing.T) {
-	fa := file.Random("{}", "", "*.json")
+	fa := randomFile("{}", "", "*.json")
 
 	// create file
 	p := id.NewList(fa)
@@ -243,7 +265,7 @@ func TestAppendItem(t *testing.T) {
 	p.ZeroTimestampCreated()
 	p.WriteListFile()
 
-	sAct := file.ReadString(fa)
+	sAct := readFileAsString(fa)
 	assert.Nil(t, os.RemoveAll(fa))
 
 	sExp := `[
