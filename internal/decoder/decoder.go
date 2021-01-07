@@ -211,7 +211,11 @@ func (p *decoding) readU64(b []byte) uint64 {
 
 // rub removes leading bytes from sync buffer
 func (p *decoding) rub(n int) {
-	// fmt.Println(p.syncBuffer[0:n]) // just to see trice bytes per trice
+	fmt.Printf("in = string([]byte{")
+	for _, b := range p.syncBuffer[0:n] { // just to see trice bytes per trice
+		fmt.Printf("%3d,", b)
+	}
+	fmt.Println("\b})")
 	p.syncBuffer = p.syncBuffer[n:]
 }
 

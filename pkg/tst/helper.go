@@ -60,6 +60,15 @@ func CaptureStdOut(f func()) string {
 	return <-outC
 }
 
+// EqualStrings fails test if strings not identical.
+func EqualStrings(t *testing.T, exp, act string) {
+	if strings.Compare(act, exp) != 0 {
+		log.Println("expect:", exp)
+		log.Println("actual:", act)
+		t.Fail()
+	}
+}
+
 // Equal fails the test if exp is not equal to act.
 func Equal(tb testing.TB, exp, act interface{}) {
 	if !reflect.DeepEqual(exp, act) {

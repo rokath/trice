@@ -3,6 +3,63 @@
 
 package decoder
 
+import (
+	"bytes"
+	"fmt"
+	"io/ioutil"
+	"strings"
+	"testing"
+
+	"github.com/rokath/trice/pkg/tst"
+)
+
+/*
+type triceTest struct {
+	in []string // byte buffer sequence
+	ex string   // output
+}
+
+var triceTests []struct {
+	in  []string // byte buffer sequence
+	exp string   // output
+}
+*/
+
+func Test1(t *testing.T) {
+	triceTestTable := []struct {
+		in  []byte // byte buffer
+		exp string // output
+	}{
+		{
+			[]byte{
+				239, 205, 171, 137,
+				4, 0, 69, 70, 10, 0, 116, 2,
+			},
+			"[ MSG: triceFifoMaxDepth = 628, select = 10 ]\n",
+		},
+	}
+	list, err := UnmarshalTriceIDList([]byte(til))
+	buf := make([]byte, defaultSize)
+	if err != nil {
+		t.Fail()
+	}
+	for _, tt := range triceTestTable {
+		rc := ioutil.NopCloser(bytes.NewBuffer(tt.in))
+		p := NewPackDecoder(list, rc, littleEndian) // p is a new decoder instance
+		var err error
+		var n int
+		var act string
+		for nil == err {
+			n, err = p.Read(buf)
+			act = fmt.Sprintln(string(buf[:n]))
+			if 0 == strings.Compare(act, "inf:[TRICE_SYNCPACKET 0x89abcdef]") {
+				continue
+			}
+		}
+		tst.EqualStrings(t, tt.exp, act)
+	}
+}
+
 var (
 	// til is the trace id list content for tests
 	til = `[
