@@ -71,9 +71,10 @@ func TestPack0(t *testing.T) { // test incomplete trice message
 	b := make([]byte, defaultSize)
 	n, _ := p.Read(b)
 	act := fmt.Sprintln(string(b[:n]))
-	exp := "[]\n"
+	exp := "inf:[TRICE_SYNCPACKET 0x89abcdef]\n"
 	assert.Equal(t, exp, act)
 }
+
 /*
 func _TestPack1(t *testing.T) { // to do: repair
 

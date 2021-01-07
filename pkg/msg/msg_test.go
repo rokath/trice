@@ -14,8 +14,8 @@ func ExampleOnErr() {
 	msg.OnErr(e)
 	e = errors.New("s.th. went wrong")
 	msg.OnErr(e)
-	// output:
-	// [error] in github.com/rokath/trice/pkg/msg_test.ExampleOnErr[c:/repos/trice/pkg/msg/msg_test.go:16] s.th. went wrong
+	// Output:
+	// [error] in github.com/rokath/trice/pkg/msg_test.ExampleOnErr[msg_test.go:16] s.th. went wrong
 }
 
 func ExampleInfoOnErr() {
@@ -23,7 +23,7 @@ func ExampleInfoOnErr() {
 	msg.OnErr(e)
 	e = errors.New("s.th. went wrong")
 	msg.InfoOnErr("info", e)
-	// output:
+	// Output:
 	// info
-	// [error] in github.com/rokath/trice/pkg/msg_test.ExampleInfoOnErr[c:/repos/trice/pkg/msg/msg_test.go:25] s.th. went wrong
+	// [error] in github.com/rokath/trice/pkg/msg_test.ExampleInfoOnErr[msg_test.go:25] s.th. went wrong
 }

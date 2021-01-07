@@ -7,12 +7,8 @@ package msg
 import (
 	"fmt"
 	"log"
+	"path/filepath"
 	"runtime"
-)
-
-const (
-	formatString = "[error] in %s[%s:%d] %v"
-	seriousError = "[error] Could not recover caller information"
 )
 
 // OnErr prints a common error message with location info when err is not nil.
@@ -20,14 +16,8 @@ func OnErr(err error) {
 	if nil == err {
 		return
 	}
-	// notice that we're using 1, so it will actually log the where
-	// the error happened, 0 = this function, we don't want that.
 	pc, fn, line, ok := runtime.Caller(1)
-	if ok {
-		fmt.Printf(formatString, runtime.FuncForPC(pc).Name(), fn, line, err)
-	} else {
-		fmt.Printf(seriousError)
-	}
+	fmtMessage(pc, fn, line, ok, err)
 }
 
 // InfoOnErr prints info and a common error message with location info when err is not nil.
@@ -36,14 +26,8 @@ func InfoOnErr(info string, err error) {
 		return
 	}
 	fmt.Println(info)
-	// notice that we're using 1, so it will actually log the where
-	// the error happened, 0 = this function, we don't want that.
 	pc, fn, line, ok := runtime.Caller(1)
-	if ok {
-		fmt.Printf(formatString, runtime.FuncForPC(pc).Name(), fn, line, err)
-	} else {
-		fmt.Printf(seriousError)
-	}
+	fmtMessage(pc, fn, line, ok, err)
 }
 
 // FatalErr ends in osExit(1) if err not nil.
@@ -51,14 +35,8 @@ func FatalErr(err error) {
 	if nil == err {
 		return
 	}
-	// notice that we're using 1, so it will actually log the where
-	// the error happened, 0 = this function, we don't want that.
 	pc, fn, line, ok := runtime.Caller(1)
-	if ok {
-		log.Fatal(formatString, runtime.FuncForPC(pc).Name(), fn, line, err)
-	} else {
-		log.Fatal(seriousError)
-	}
+	logMessage(pc, fn, line, ok, err)
 }
 
 // InfoFatalErr ends in osExit(1) if err not nil.
@@ -67,14 +45,8 @@ func InfoFatalErr(info string, err error) {
 		return
 	}
 	log.Println(info)
-	// notice that we're using 1, so it will actually log the where
-	// the error happened, 0 = this function, we don't want that.
 	pc, fn, line, ok := runtime.Caller(1)
-	if ok {
-		log.Fatal(formatString, runtime.FuncForPC(pc).Name(), fn, line, err)
-	} else {
-		log.Fatal(seriousError)
-	}
+	logMessage(pc, fn, line, ok, err)
 }
 
 // PanicErr ends in panic if err not nil.
@@ -83,4 +55,29 @@ func PanicErr(err error) {
 		return
 	}
 	panic(err)
+}
+
+const (
+	formatString = "[error] in %s[%s:%d] %v"
+	seriousError = "[error] Could not recover caller information"
+)
+
+func fmtMessage(pc uintptr, fn string, line int, ok bool, err error) {
+	funcName := runtime.FuncForPC(pc).Name()
+	fileName := filepath.Base(fn)
+	if ok {
+		fmt.Printf(formatString, funcName, fileName, line, err)
+	} else {
+		fmt.Printf(seriousError)
+	}
+}
+
+func logMessage(pc uintptr, fn string, line int, ok bool, err error) {
+	funcName := runtime.FuncForPC(pc).Name()
+	fileName := filepath.Base(fn)
+	if ok {
+		log.Fatal(formatString, funcName, fileName, line, err)
+	} else {
+		log.Fatal(seriousError)
+	}
 }

@@ -56,13 +56,3 @@ func Example_wrongSubcommand() {
 	// Output:
 	// try: 'trice help|h'
 }
-
-func Example_vwrongSubcommand() {
-	fn := func() {
-		Handler([]string{"trice", "xyz"})
-	}
-	act := tst.CaptureStdOut(fn)
-	fmt.Print(act)
-	// Output:
-	// try: 'trice help|h'
-}
