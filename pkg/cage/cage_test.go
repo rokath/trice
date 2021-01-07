@@ -6,7 +6,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/rokath/trice/pkg/assert2"
+	"github.com/rokath/trice/pkg/tst"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/rokath/trice/pkg/cage"
@@ -33,7 +33,7 @@ func TestStart(t *testing.T) {
 	assert.Nil(t, err)
 
 	cage.Stop(c)
-	assert2.EqualFiles(t, afn, efn)
+	tst.EqualFiles(t, afn, efn)
 
 	efh, err = os.OpenFile(efn, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	assert.Nil(t, err)
@@ -49,7 +49,7 @@ func TestStart(t *testing.T) {
 
 	cage.Stop(d)
 
-	assert2.EqualTextFiles(t, afn, efn)
+	tst.EqualTextFiles(t, afn, efn)
 
 	assert.Nil(t, os.Remove(afn))
 	assert.Nil(t, os.Remove(efn))

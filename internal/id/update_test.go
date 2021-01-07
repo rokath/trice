@@ -12,7 +12,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/rokath/trice/internal/id"
-	"github.com/rokath/trice/pkg/assert2"
+	"github.com/rokath/trice/pkg/tst"
 )
 
 func doUpdate(t *testing.T, sOri, sExp []string, listExp string) {
@@ -49,7 +49,7 @@ func doUpdate(t *testing.T, sOri, sExp []string, listExp string) {
 	p.WriteListFile()
 
 	listAct := readFileAsString(p.FnJSON)
-	assert2.EqualLines(t, listExp, listAct)
+	tst.EqualLines(t, listExp, listAct)
 
 	sAct := make([]string, 0, 4)
 	sAct = append(sAct, readFileAsString(n0))
@@ -58,7 +58,7 @@ func doUpdate(t *testing.T, sOri, sExp []string, listExp string) {
 	sAct = append(sAct, readFileAsString(n3))
 
 	for i := range sExp {
-		assert2.EqualLines(t, sExp[i], sAct[i])
+		tst.EqualLines(t, sExp[i], sAct[i])
 	}
 
 	assert.Nil(t, os.RemoveAll(dir0))

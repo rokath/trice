@@ -12,7 +12,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/rokath/trice/internal/id"
-	"github.com/rokath/trice/pkg/assert2"
+	"github.com/rokath/trice/pkg/tst"
 	"github.com/rokath/trice/pkg/msg"
 )
 
@@ -54,7 +54,7 @@ func TestWrite(t *testing.T) {
 			"removed": 0
 		}
 	]`
-	assert2.EqualLines(t, listExp, listAct)
+	tst.EqualLines(t, listExp, listAct)
 }
 
 func TestZeroSourceTreeIds(t *testing.T) {
@@ -246,7 +246,7 @@ func TestZeroSourceTreeIds(t *testing.T) {
 		// 4 subtraces
 	} // sum 111 sub traces (need 444 bytes Buffet space)	
 	`
-	assert2.EqualLines(t, exp, act)
+	tst.EqualLines(t, exp, act)
 }
 
 func TestAppendItem(t *testing.T) {
@@ -291,5 +291,5 @@ func TestAppendItem(t *testing.T) {
 			"removed": 0
 		}
 	]`
-	assert2.EqualLines(t, sExp, sAct)
+	tst.EqualLines(t, sExp, sAct)
 }

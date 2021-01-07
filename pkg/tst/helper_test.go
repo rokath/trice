@@ -2,7 +2,7 @@
 // Use of this source code is governed by a license that can be found in the LICENSE file.
 
 // Package assert_test contains blackbox tests.
-package assert2_test
+package tst_test
 
 import (
 	"io/ioutil"
@@ -11,17 +11,17 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/rokath/trice/pkg/assert2"
+	"github.com/rokath/trice/pkg/tst"
 )
 
 func TestEqual(t *testing.T) {
-	assert2.Equal(t, 33, 33)
+	tst.Equal(t, 33, 33)
 }
 
 func TestEqualLines(t *testing.T) {
 	exp := "Hello\r\nWorld\r\n"
 	act := "Hello\nWorld\n"
-	assert2.EqualLines(t, exp, act)
+	tst.EqualLines(t, exp, act)
 }
 
 func TestEqualTextFiles(t *testing.T) {
@@ -43,9 +43,9 @@ func TestEqualTextFiles(t *testing.T) {
 	assert.Nil(t, e2)
 	_, e3 := fd1.WriteString("Hello\nWorld\n")
 	assert.Nil(t, e3)
-	assert2.EqualTextFiles(t, fd0.Name(), fd1.Name())
+	tst.EqualTextFiles(t, fd0.Name(), fd1.Name())
 }
 
 func TestEqualFiles(t *testing.T) {
-	assert2.EqualLines(t, os.Args[0], os.Args[0])
+	tst.EqualLines(t, os.Args[0], os.Args[0])
 }
