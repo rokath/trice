@@ -2,16 +2,7 @@
 // Use of this source code is governed by a license that can be found in the LICENSE file.
 
 package decoder
-
-import (
-	"fmt"
-	"testing"
-
-	"github.com/stretchr/testify/assert"
-
-	"github.com/rokath/trice/internal/receiver"
-)
-
+/*
 // byteStreamBare are the raw read input bytes for bare format tests
 var byteStreamBare = string([]byte{
 	137, 171, 205, 239, // sync
@@ -77,3 +68,4 @@ func _TestBare(t *testing.T) {
 	exp := "[tst:TRICE32_1 -1\\n tst:TRICE32_2 -1 -2\\n tst:TRICE32_3 -1 -2 -3\\n tst:TRICE32_4 -1 -2 -3 -4\\n tst:TRICE64_1 -1\\n tst:TRICE64_2 -1 -2\\n]\n"
 	assert.Equal(t, exp, act)
 }
+*/

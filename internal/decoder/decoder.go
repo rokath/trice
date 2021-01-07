@@ -9,11 +9,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 	"os"
 	"os/signal"
-	"path/filepath"
-	"runtime"
 	"syscall"
 	"time"
 
@@ -90,7 +87,7 @@ func MakeLut(list []id.Item) (lut IDLookUp) {
 	}
 	return
 }
-
+/*
 // newIDLut assumes til as JSON formatted input and returns a map for trice ID to fmt string translation.
 func newIDLut(til []byte) (IDLookUp, error) {
 	list, err := UnmarshalTriceIDList(til)
@@ -100,7 +97,7 @@ func newIDLut(til []byte) (IDLookUp, error) {
 	lut := MakeLut(list) // create look-up map
 	return lut, nil
 }
-
+*/
 // Translate performs the trice log task.
 // Bytes are read with rc. Then according decoder.Encoding are translated into strings.
 // Each read returns the amount of bytes for one trice.
@@ -160,12 +157,12 @@ outer:
 				}
 				return true // try again
 			}
-			sw.Write(b[:n])
+			_,_=sw.Write(b[:n])
 
 		}
 	}
 }
-
+/*
 func run0(sw *emitter.TriceLineComposer, sr StringsReader) error {
 	var sssiz int // to do: 1 for pack, 100 for esc
 	if Encoding == "pack" {
@@ -195,7 +192,7 @@ func errorFatal(err error) {
 	}
 	log.Fatal(err)
 }
-
+*/
 // readU16 returns the 2 b bytes as uint16 according the specified endianess
 func (p *decoding) readU16(b []byte) uint16 {
 	if littleEndian == p.endian {

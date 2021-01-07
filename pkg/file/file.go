@@ -7,6 +7,7 @@ package file
 import (
 	"bufio"
 	"fmt"
+	"github.com/rokath/trice/pkg/msg"
 	"io"
 	"io/ioutil"
 	"log"
@@ -23,7 +24,8 @@ func BigReadLines(file string) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer f.Close()
+	defer msg.OnErr(f.Close())
+
 	r := bufio.NewReader(f)
 	for {
 		const delim = '\n'
@@ -44,6 +46,7 @@ func BigReadLines(file string) ([]string, error) {
 	return lines, nil
 }
 
+/*
 // ReadLines reads all lines of a file into lines.
 var ReadLines = BigReadLines
 
@@ -79,7 +82,7 @@ func uniqueString(ss []string) []string {
 	}
 	return list
 }
-
+*/
 // errorFatal ends in osExit(1) if p.Err not nil.
 func errorFatal(err error) {
 	if nil == err {
@@ -88,7 +91,7 @@ func errorFatal(err error) {
 	_, file, line, _ := runtime.Caller(1)
 	log.Fatal(err, filepath.Base(file), line)
 }
-
+/*
 // removeFromSlice accepts a byte slice and an integer slice
 // and deletes each index from the integer slice from the
 // byte slice
@@ -99,7 +102,7 @@ func removeFromSlice(data []byte, indexes []int) []byte {
 	}
 	return data
 }
-
+*/
 // Copy copies the contents of the file named src to the file named
 // by dst. The file will be created if it does not already exist. If the
 // destination file exists, all it's contents will be replaced by the contents
@@ -110,7 +113,7 @@ func Copy(src, dst string) (err error) {
 	if err != nil {
 		return
 	}
-	defer in.Close()
+	defer msg.OnErr(in.Close())
 
 	out, err := os.Create(dst)
 	if err != nil {
@@ -215,8 +218,9 @@ func ReadString(filename string) (s string) {
 func Random(s, dir, pattern string) string {
 	fd, err := ioutil.TempFile(dir, pattern)
 	errorFatal(err)
-	fd.WriteString(s)
+	_,err = fd.WriteString(s)
+	msg.OnErr(err)
 	fn := fd.Name()
-	fd.Close()
+	_=fd.Close()
 	return fn
 }

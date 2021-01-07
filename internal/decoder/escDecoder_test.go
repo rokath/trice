@@ -3,15 +3,7 @@
 
 package decoder
 
-import (
-	"fmt"
-	"testing"
-
-	"github.com/rokath/trice/internal/id"
-	"github.com/rokath/trice/internal/receiver"
-	"github.com/stretchr/testify/assert"
-)
-
+/*
 var (
 	// byteStreamEsc are the raw read input bytes for esc format tests
 	byteStreamEsc = string([]byte{
@@ -260,7 +252,7 @@ func TestEscDynStrings(t *testing.T) {
 		10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0})
 	exp = "[123456789ABCDEFGHIJKLMNOPQRSTUVW\n]\n"
 	checkDynString(t, list, in, exp)
-	/*
+
 		in = string([]byte{236, 231, 0, 18,
 			49, 50, 51, 52, 53, 54, 55, 56, 57, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87,
 			49, 50, 51, 52, 53, 54, 55, 56, 57, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87,
@@ -308,5 +300,5 @@ func TestEscDynStrings(t *testing.T) {
 			49, 50, 51, 52, 53, 54, 55, 56, 57, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 0, 0})
 		exp = "[123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRSTU]\n"
 		checkDynString(t, list, in, exp)
-	*/
 }
+*/

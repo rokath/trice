@@ -6,13 +6,10 @@ package keybcmd
 
 import (
 	"bufio"
-	"fmt"
 	"io/ioutil"
 	"os"
 	"strings"
 	"testing"
-
-	"github.com/rokath/trice/internal/emitter"
 )
 
 // stimulate injects keys to the loop action and returns the captured output as byte slice.
@@ -41,11 +38,11 @@ func stimulate(keys, ipa, ipp string) []byte {
 
 func TestHelp(t *testing.T) {
 	exp := "-> h|help                   - this text\nexitServer|serverExit    - kill server\nq|quit                   - end program\n"
-	cap := stimulate("help\r\n", "", "")
-	act := string(cap)
+	b := stimulate("help\r\n", "", "")
+	act := string(b)
 	assertEqual(t, exp, act)
 }
-
+/*
 // NOT RELIABLE
 func _TestShutdownServerWhenRunning(t *testing.T) {
 	ipp := randomDynIPPort()
@@ -62,3 +59,4 @@ func _TestShutdownServerWhenRunning(t *testing.T) {
 	act := string(capt[discardLength:])
 	assertEqual(t, exp, act)
 }
+*/

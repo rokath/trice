@@ -5,10 +5,13 @@ package id
 
 import (
 	"fmt"
+	"github.com/rokath/trice/pkg/msg"
 	"time"
 
 	"github.com/fsnotify/fsnotify"
 )
+
+
 
 // FileWatcher checks id List file for changes
 // taken from https://medium.com/@skdomino/watch-this-file-watching-in-go-5b5a247cf71f
@@ -19,8 +22,7 @@ func (p *List) FileWatcher() {
 	if err != nil {
 		fmt.Println("ERROR0", err)
 	}
-	defer watcher.Close()
-
+	defer msg.OnErr(watcher.Close())
 	done := make(chan bool)
 	go func() {
 		var now, last time.Time

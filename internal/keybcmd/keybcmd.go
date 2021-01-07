@@ -13,13 +13,13 @@ import (
 
 	"github.com/rokath/trice/internal/emitter"
 )
-
+/*
 // ReadInput expects user input from terminal
 func ReadInput() { // https://tutorialedge.net/golang/reading-console-input-golang/
 	reader := bufio.NewReader(os.Stdin)
 	keyboardInput(reader)
 }
-
+*/
 // keyboardInput expects input from reader
 func keyboardInput(reader *bufio.Reader) { // https://tutorialedge.net/golang/reading-console-input-golang/
 	fmt.Println("Simple Shell")

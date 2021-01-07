@@ -164,7 +164,7 @@ func Stop(c *Container) {
 	log.SetOutput(c.oldLog)
 
 	// logfile
-	c.lfHandle.Close()
+	_=c.lfHandle.Close()
 	if Verbose {
 		log.Printf("Writing to logfile %s...done\n", c.lfName)
 	}

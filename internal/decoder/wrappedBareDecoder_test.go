@@ -2,15 +2,7 @@
 // Use of this source code is governed by a license that can be found in the LICENSE file.
 
 package decoder
-
-import (
-	"fmt"
-	"testing"
-
-	"github.com/rokath/trice/internal/receiver"
-	"github.com/stretchr/testify/assert"
-)
-
+/*
 var byteStreamWrap = string([]byte{
 	235, 96, 96, 121, 161, 51, 255, 255, // TRICE8_1 -1
 	235, 96, 96, 83, 112, 201, 255, 254, // TRICE8_2 -1 -2
@@ -101,3 +93,4 @@ func _TestWrap(t *testing.T) {
 	exp := "[tst:TRICE8_1 -1\\n tst:TRICE8_2 -1 -2\\n tst:TRICE8_3 -1 -2 -3\\n tst:TRICE8_4 -1 -2 -3 -4\\n tst:TRICE8_5 -1 -2 -3 -4 -5\\n tst:TRICE8_6 -1 -2 -3 -4 -5 -6\\n tst:TRICE8_7 -1 -2 -3 -4 -5 -6 -7\\n tst:TRICE8_8 -1 -2 -3 -4 -5 -6 -7 -8\\n tst:TRICE16_1 -1\\n tst:TRICE16_2 -1 -2\\n tst:TRICE16_3 -1 -2 -3\\n tst:TRICE16_4 -1 -2 -3 -4\\n tst:TRICE32_1 -1\\n tst:TRICE32_2 -1 -2\\n tst:TRICE32_3 -1 -2 -3\\n tst:TRICE32_4 -1 -2 -3 -4\\n tst:TRICE64_1 -1\\n tst:TRICE64_2 -1 -2\\n]\n"
 	assert.Equal(t, exp, act)
 }
+*/

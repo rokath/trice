@@ -6,9 +6,17 @@ package
 
 import (
 	"bufio"
+	"bytes"
 	"fmt"
+	"github.com/udhos/equalfile"
+	"io"
+	"io/ioutil"
+	"log"
 	"math/rand"
 	"os"
+	"path/filepath"
+	"reflect"
+	"runtime"
 	"sort"
 	"strings"
 	"testing"
@@ -312,11 +320,11 @@ func errorPanic(err error) {
 	}
 	panic(err)
 }
-
+/*
 type bytesViewer struct {
 	r io.Reader
 }
-
+*/
 func newBytesViewer(o io.Reader) (i io.Reader) {
 	return &bytesViewer{o}
 }

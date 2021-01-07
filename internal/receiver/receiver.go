@@ -6,14 +6,11 @@ package receiver
 import (
 	"bytes"
 	"fmt"
+	"github.com/rokath/trice/internal/com"
+	"github.com/rokath/trice/internal/link"
 	"io"
 	"io/ioutil"
 	"log"
-	"path/filepath"
-	"runtime"
-
-	"github.com/rokath/trice/internal/com"
-	"github.com/rokath/trice/internal/link"
 )
 
 var (
@@ -62,6 +59,7 @@ func NewReader(port, args string) (r io.ReadCloser, err error) {
 	return
 }
 
+/*
 // errorFatal ends in osExit(1) if err not nil.
 func errorFatal(err error) {
 	if nil == err {
@@ -73,6 +71,7 @@ func errorFatal(err error) {
 	}
 	log.Fatal(err)
 }
+*/
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // dynamic debug helper

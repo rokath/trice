@@ -82,7 +82,7 @@ func (p *Esc) Read(b []byte) (n int, err error) {
 		return // wait
 	}
 	// ID and count are ok
-	return p.sprintTrice(p.bc)
+	return p.sprintTrice()
 }
 
 func (p *Esc) bytesCount(lc byte) int {
@@ -118,7 +118,7 @@ func (p *Esc) expectedByteCount() int {
 	}
 }
 
-func (p *Esc) sprintTrice(bc int) (n int, e error) {
+func (p *Esc) sprintTrice() (n int, e error) {
 	if "TRICE_S" == p.trice.Type { // special case
 		return p.triceS()
 	}

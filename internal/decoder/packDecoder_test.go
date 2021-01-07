@@ -74,7 +74,7 @@ func TestPack0(t *testing.T) { // test incomplete trice message
 	exp := "[]\n"
 	assert.Equal(t, exp, act)
 }
-
+/*
 func _TestPack1(t *testing.T) { // to do: repair
 
 	// rc is created ReadCloser
@@ -133,3 +133,4 @@ func _TestPack2(t *testing.T) {
 
 	assert.Equal(t, exp, act)
 }
+*/
