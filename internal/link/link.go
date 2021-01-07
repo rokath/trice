@@ -17,6 +17,7 @@ import (
 
 	"github.com/fsnotify/fsnotify"
 	"github.com/pkg/errors"
+	"github.com/rokath/trice/pkg/msg"
 )
 
 var (
@@ -55,7 +56,9 @@ func NewDevice(port, arguments string) *Device {
 		fmt.Println("LINK executable", p.Exec, "and dynamic lib", p.Lib, "expected to be in path for usage.")
 	}
 	// get a temporary file name
-	p.tempLogFileHandle, _ = ioutil.TempFile(os.TempDir(), "trice-*.bin") // opens for read and write
+	var e error
+	p.tempLogFileHandle, e = ioutil.TempFile(os.TempDir(), "trice-*.bin") // opens for read and write
+	msg.OnErr(e)
 	p.tempLogFileName = p.tempLogFileHandle.Name()
 	p.tempLogFileHandle.Close()
 
@@ -165,7 +168,7 @@ func (p *Device) Open() error {
 func (p *Device) watchLogfile() {
 	var watcher *fsnotify.Watcher
 	watcher, p.Err = fsnotify.NewWatcher()
-	defer watcher.Close()
+	defer func() { msg.OnErr(watcher.Close()) }()
 
 	go func() {
 		for {

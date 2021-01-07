@@ -14,6 +14,8 @@ import (
 	"os"
 	"sync"
 	"time"
+
+	"github.com/rokath/trice/pkg/msg"
 )
 
 // some references:
@@ -152,8 +154,8 @@ func Stop(c *Container) {
 	}
 
 	// close pipes
-	_ = c.writerStdout.Close()
-	_ = c.writerStderr.Close()
+	msg.OnErr(c.writerStdout.Close())
+	msg.OnErr(c.writerStderr.Close())
 
 	// c.wg.Wait() // 2 go routines to be finished
 	time.Sleep(100 * time.Millisecond)
@@ -164,7 +166,7 @@ func Stop(c *Container) {
 	log.SetOutput(c.oldLog)
 
 	// logfile
-	_=c.lfHandle.Close()
+	msg.OnErr(c.lfHandle.Close())
 	if Verbose {
 		log.Printf("Writing to logfile %s...done\n", c.lfName)
 	}

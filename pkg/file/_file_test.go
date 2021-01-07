@@ -5,12 +5,7 @@
 package file_test
 
 import (
-	"github.com/stretchr/testify/assert"
-	"os"
 	"testing"
-
-	"github.com/rokath/trice/pkg/assert2"
-	"github.com/rokath/trice/pkg/file"
 )
 
 func TestReadLines(t *testing.T) {
@@ -42,6 +37,7 @@ var (
 	two = "testdata/dir/two.txt"
 )
 
+/*
 func TestCopy(t *testing.T) {
 	src := two
 	dest := two + ".copied"
@@ -56,3 +52,4 @@ func TestCopyDir(t *testing.T) {
 	assert.Nil(t, file.CopyDir(src, dest))
 	assert.Nil(t, os.RemoveAll(dest))
 }
+*/

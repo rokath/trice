@@ -12,12 +12,11 @@ import (
 	"flag"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"math/rand"
 	"os"
-	"path/filepath"
-	"runtime"
 	"time"
+
+	"github.com/rokath/trice/pkg/msg"
 )
 
 var (
@@ -72,10 +71,10 @@ func NewList(fnJSON string) *List {
 func (p *List) ReadListFile() {
 	if "none" != p.FnJSON {
 		b, err := ioutil.ReadFile(p.FnJSON)
-		errorFatal(err)
+		msg.FatalErr(err)
 		if 0 < len(b) {
 			err = json.Unmarshal(b, &(p.ItemList))
-			errorFatal(err)
+			msg.FatalErr(err)
 		}
 	}
 	if true == Verbose {
@@ -86,8 +85,8 @@ func (p *List) ReadListFile() {
 // WriteListFile marshalls p.List to p.fnJSON.
 func (p *List) WriteListFile() {
 	b, err := json.MarshalIndent(p.ItemList, "", "\t")
-	errorFatal(err)
-	errorFatal(ioutil.WriteFile(p.FnJSON, b, 0644))
+	msg.FatalErr(err)
+	msg.FatalErr(ioutil.WriteFile(p.FnJSON, b, 0644))
 }
 
 // ZeroTimestampCreated sets all timstamps 'created' to 0.
@@ -246,15 +245,3 @@ func (p *List) update(dir string) error {
 //	}
 //	fmt.Println("ID List " + pathname + " not found")
 //}
-
-// errorFatal ends in osExit(1) if err not nil.
-func errorFatal(err error) {
-	if nil == err {
-		return
-	}
-	if Verbose {
-		_, file, line, _ := runtime.Caller(1)
-		log.Fatal(err, " "+filepath.Base(file)+" ", line)
-	}
-	log.Fatal(err)
-}

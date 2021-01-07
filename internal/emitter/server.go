@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/rokath/trice/pkg/cage"
+	"github.com/rokath/trice/pkg/msg"
 )
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -67,10 +68,7 @@ func (p *Server) Shutdown(ts []int64, _ *int64) error {
 	p.Display.writeLine([]string{""})
 	p.Display.writeLine([]string{""})
 	defer func() {
-		err := listener.Close()
-		if nil != err {
-			fmt.Println(err)
-		}
+		msg.OnErr(listener.Close())
 		//fmt.Println("exit...")
 		exit = true // do not set true before closing listener, otherwise panic!
 		//	// no need for this code

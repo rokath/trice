@@ -6,6 +6,8 @@ package id
 import (
 	"fmt"
 	"path/filepath"
+
+	"github.com/rokath/trice/pkg/msg"
 )
 
 // ArrayFlag is a slice type for multi flag
@@ -33,8 +35,6 @@ func ConditionalFilePath(fn string) string {
 		return fn
 	}
 	s, err := filepath.Abs(fn)
-	if nil != err {
-		_ = fmt.Errorf("failed to parse %s: %v", fn, err)
-	}
+	msg.InfoOnErr(fmt.Sprintf("failed to parse %s\n", fn), err)
 	return s
 }

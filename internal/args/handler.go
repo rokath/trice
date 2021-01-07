@@ -19,6 +19,7 @@ import (
 	"github.com/rokath/trice/internal/link"
 	"github.com/rokath/trice/internal/receiver"
 	"github.com/rokath/trice/pkg/cage"
+	"github.com/rokath/trice/pkg/msg"
 )
 
 // Handler is called in main, evaluates args and calls the appropriate functions.
@@ -218,7 +219,7 @@ func logLoop() {
 			counter++
 			continue
 		}
-		defer rc.Close()
+		defer func() { msg.OnErr(rc.Close()) }()
 		if receiver.ShowInputBytes {
 			rc = receiver.NewBytesViewer(rc)
 		}

@@ -6,11 +6,12 @@ package receiver
 import (
 	"bytes"
 	"fmt"
-	"github.com/rokath/trice/internal/com"
-	"github.com/rokath/trice/internal/link"
 	"io"
 	"io/ioutil"
 	"log"
+
+	"github.com/rokath/trice/internal/com"
+	"github.com/rokath/trice/internal/link"
 )
 
 var (
@@ -59,20 +60,6 @@ func NewReader(port, args string) (r io.ReadCloser, err error) {
 	return
 }
 
-/*
-// errorFatal ends in osExit(1) if err not nil.
-func errorFatal(err error) {
-	if nil == err {
-		return
-	}
-	if Verbose {
-		_, file, line, _ := runtime.Caller(1)
-		log.Fatal(err, " "+filepath.Base(file)+" ", line)
-	}
-	log.Fatal(err)
-}
-*/
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // dynamic debug helper
 //
@@ -81,7 +68,7 @@ type bytesViewer struct {
 	r io.ReadCloser
 }
 
-// newBytesViewer returns a ReadCloser `in` which is internally using reader `from`.
+// NewBytesViewer returns a ReadCloser `in` which is internally using reader `from`.
 // Calling the `in` Read method leads to internally calling the `from` Read method
 // but lets to do some additional action like logging
 func NewBytesViewer(from io.ReadCloser) (in io.ReadCloser) {

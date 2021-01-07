@@ -16,6 +16,7 @@ import (
 
 	"github.com/rokath/trice/internal/emitter"
 	"github.com/rokath/trice/internal/id"
+	"github.com/rokath/trice/pkg/msg"
 )
 
 const (
@@ -87,6 +88,7 @@ func MakeLut(list []id.Item) (lut IDLookUp) {
 	}
 	return
 }
+
 /*
 // newIDLut assumes til as JSON formatted input and returns a map for trice ID to fmt string translation.
 func newIDLut(til []byte) (IDLookUp, error) {
@@ -121,7 +123,7 @@ func Translate(sw *emitter.TriceLineComposer, list *id.List, rc io.ReadCloser) b
 	case "wrapl", "wrapL":
 		dec = NewBareDecoder(list.ItemList, NewBareReaderFromWrap(rc), littleEndian)
 	//case "bareXTEACrypted", "wrapXTEACrypted":
-	//	errorFatal(cipher.SetUp())
+	//	msg.FatalErr(cipher.SetUp())
 	//	fallthrough
 	default:
 		fmt.Println("unknown encoding ", Encoding)
@@ -157,11 +159,12 @@ outer:
 				}
 				return true // try again
 			}
-			_,_=sw.Write(b[:n])
-
+			m, err := sw.Write(b[:n])
+			msg.InfoOnErr(fmt.Sprintln("sw.Write wrote", m, "bytes"), err)
 		}
 	}
 }
+
 /*
 func run0(sw *emitter.TriceLineComposer, sr StringsReader) error {
 	var sssiz int // to do: 1 for pack, 100 for esc
@@ -180,19 +183,8 @@ func run0(sw *emitter.TriceLineComposer, sr StringsReader) error {
 	}
 	return nil
 }
-
-// errorFatal ends in osExit(1) if err not nil.
-func errorFatal(err error) {
-	if nil == err {
-		return
-	}
-	if Verbose {
-		_, file, line, _ := runtime.Caller(1)
-		log.Fatal(err, " "+filepath.Base(file)+" ", line)
-	}
-	log.Fatal(err)
-}
 */
+
 // readU16 returns the 2 b bytes as uint16 according the specified endianess
 func (p *decoding) readU16(b []byte) uint16 {
 	if littleEndian == p.endian {

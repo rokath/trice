@@ -107,7 +107,7 @@ func readLines(file string) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer f.Close()
+	defer func(){ msg.OnErr( f.Close() }()
 	r := bufio.NewReader(f)
 	for {
 		const delim = '\n'
@@ -134,9 +134,9 @@ func writeLines(file string, lines []string) error {
 	if err != nil {
 		return err
 	}
-	defer f.Close()
+	defer func(){ msg.OnErr( f.Close() }()
 	w := bufio.NewWriter(f)
-	defer w.Flush()
+	defer func(){ msg.OnErr( f.Flush() }()
 	for _, line := range lines {
 		_, err := w.WriteString(line)
 		if err != nil {
@@ -196,13 +196,13 @@ func cleanFile(fileName string) {
 	if err != nil {
 		panic(err)
 	}
-	defer file.Close()
+	defer func(){ msg.OnErr( file.Close() }()
 
 	wFile, err := os.Create(fileName + ".clean")
 	if err != nil {
 		panic(err)
 	}
-	defer wFile.Close()
+	defer func(){ msg.OnErr( wFile.Close() }()
 	w := bufio.NewWriter(wFile)
 
 	data := make([]byte, 128)
@@ -301,30 +301,10 @@ func captureStdout(f func()) string {
 	return <-outC
 }
 
-// errorFatal ends in osExit(1) if err not nil.
-func errorFatal(err error) {
-	if nil == err {
-		return
-	}
-	if Verbose {
-		_, file, line, _ := runtime.Caller(1)
-		log.Fatal(err, " "+filepath.Base(file)+" ", line)
-	}
-	log.Fatal(err)
-}
-
-// errorPanic ends in osExit(1) if err not nil.
-func errorPanic(err error) {
-	if nil == err {
-		return
-	}
-	panic(err)
-}
-/*
 type bytesViewer struct {
 	r io.Reader
 }
-*/
+
 func newBytesViewer(o io.Reader) (i io.Reader) {
 	return &bytesViewer{o}
 }
