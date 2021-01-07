@@ -8,6 +8,7 @@ import (
 	"os"
 	"testing"
 
+	"github.com/rokath/trice/pkg/tst"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -20,19 +21,19 @@ func TestVersion(t *testing.T) {
 	fn := func() {
 		Handler([]string{"trice", "v"})
 	}
-	act := captureStdout(fn)
+	act := tst.CaptureStdOut(fn)
 	assert.Equal(t, exp, act)
 
 	fn = func() {
 		Handler([]string{"trice", "ver"})
 	}
-	act = captureStdout(fn)
+	act = tst.CaptureStdOut(fn)
 	assert.Equal(t, exp, act)
 
 	fn = func() {
 		Handler([]string{"trice", "version"})
 	}
-	act = captureStdout(fn)
+	act = tst.CaptureStdOut(fn)
 	assert.Equal(t, exp, act)
 }
 
@@ -40,7 +41,7 @@ func Example_handlerNone() {
 	fn := func() {
 		Handler([]string{"trice", ""})
 	}
-	act := captureStdout(fn)
+	act := tst.CaptureStdOut(fn)
 	fmt.Print(act)
 	// Output:
 	// try: 'trice help|h'
@@ -50,7 +51,7 @@ func Example_wrongSubcommand() {
 	fn := func() {
 		Handler([]string{"trice", "xyz"})
 	}
-	act := captureStdout(fn)
+	act := tst.CaptureStdOut(fn)
 	fmt.Print(act)
 	// Output:
 	// try: 'trice help|h'
@@ -60,7 +61,7 @@ func Example_vwrongSubcommand() {
 	fn := func() {
 		Handler([]string{"trice", "xyz"})
 	}
-	act := captureStdout(fn)
+	act := tst.CaptureStdOut(fn)
 	fmt.Print(act)
 	// Output:
 	// try: 'trice help|h'

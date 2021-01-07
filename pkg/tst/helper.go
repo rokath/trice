@@ -1,25 +1,64 @@
 // Copyright 2020 Thomas.Hoehenleitner [at] seerose.net
 // Use of this source code is governed by a license that can be found in the LICENSE file.
 
-// Package tst provides hepler functions for testing.
+// Package tst provides some helper functions for testing.
 package tst
 
 import (
+	"bytes"
 	"fmt"
-	"github.com/stretchr/testify/assert"
+	"io"
 	"io/ioutil"
 	"log"
+	"os"
 	"path/filepath"
 	"reflect"
 	"runtime"
 	"strings"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
+
 	"github.com/udhos/equalfile"
 )
 
-// test helper ///////////////////////////////////////////////////////////////////////
-//
+// CaptureStdOut captures stdout and returns it as string.
+func CaptureStdOut(f func()) string {
+
+	// keep backup of the real stdout
+	old := os.Stdout
+
+	// re-direct stdout
+	r, w, err := os.Pipe()
+	if nil != err {
+		return err.Error()
+	}
+	os.Stdout = w
+	defer func() {
+		// restoring the real stdout
+		os.Stdout = old
+	}()
+
+	// copy the output in a separate goroutine so printing can't block indefinitely
+	outC := make(chan string)
+	go func() {
+		var buf bytes.Buffer
+		io.Copy(&buf, r)
+		outC <- buf.String()
+	}()
+
+	// run the function
+	f()
+
+	// back to normal state
+	err = w.Close()
+	if nil != err {
+		return err.Error()
+	}
+
+	// read output
+	return <-outC
+}
 
 // Equal fails the test if exp is not equal to act.
 func Equal(tb testing.TB, exp, act interface{}) {
@@ -93,4 +132,13 @@ func equalFileContent(fn0, fn1 string) bool {
 		ok = false
 	}
 	return ok
+}
+
+// AssertNoErr fails the test if err is not nil.
+func AssertNoErr(tb testing.TB, err error) {
+	if err != nil {
+		_, file, line, _ := runtime.Caller(1)
+		fmt.Println(err.Error(), filepath.Base(file), line)
+		tb.FailNow()
+	}
 }

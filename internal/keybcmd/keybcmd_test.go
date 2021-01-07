@@ -10,6 +10,8 @@ import (
 	"os"
 	"strings"
 	"testing"
+
+	"github.com/rokath/trice/pkg/tst"
 )
 
 // stimulate injects keys to the loop action and returns the captured output as byte slice.
@@ -40,8 +42,9 @@ func TestHelp(t *testing.T) {
 	exp := "-> h|help                   - this text\nexitServer|serverExit    - kill server\nq|quit                   - end program\n"
 	b := stimulate("help\r\n", "", "")
 	act := string(b)
-	assertEqual(t, exp, act)
+	tst.Equal(t, exp, act)
 }
+
 /*
 // NOT RELIABLE
 func _TestShutdownServerWhenRunning(t *testing.T) {
@@ -57,6 +60,6 @@ func _TestShutdownServerWhenRunning(t *testing.T) {
 	}
 	exp := "127.0.0.1:" + p.IPPort + ": wsarecv: An existing connection was forcibly closed by the remote host.\n"
 	act := string(capt[discardLength:])
-	assertEqual(t, exp, act)
+	tst.Equal(t, exp, act)
 }
 */

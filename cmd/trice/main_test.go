@@ -8,6 +8,8 @@ import (
 	"os"
 	"os/exec"
 	"testing"
+
+	"github.com/rokath/trice/pkg/tst"
 )
 
 func TestMain(m *testing.M) {
@@ -26,7 +28,7 @@ func TestBadArgs(t *testing.T) {
 		t.Errorf("%v", err)
 	}
 	exp := "try: 'trice help|h'\n"
-	assertEqual(t, exp, act)
+	tst.Equal(t, exp, act)
 }
 
 func TestNoArgs(t *testing.T) {
@@ -37,5 +39,5 @@ func TestNoArgs(t *testing.T) {
 	}
 	act := string(out) // because out is []byte
 	exp := "try: 'trice help|h'\n"
-	assertEqual(t, exp, act)
+	tst.Equal(t, exp, act)
 }

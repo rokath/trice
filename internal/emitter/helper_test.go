@@ -5,14 +5,10 @@
 package emitter
 
 import (
-	"fmt"
 	"io/ioutil"
-
-	"math/rand"
 
 	"runtime"
 	"strings"
-	"time"
 )
 
 // test helper ///////////////////////////////////////////////////////////////////////
@@ -26,14 +22,6 @@ func readLines(filename string) (lines []string, err error) {
 		stringContent = strings.ReplaceAll(stringContent, "\r\n", "\n")
 	}
 	lines = strings.Split(stringContent, "\n")
-	return
-}
-
-func randomDynIPPort() (s string) {
-	rand.Seed(time.Now().UTC().UnixNano())
-	min := 49152
-	max := 65535
-	s = fmt.Sprint(rand.Intn(max-min) + min)
 	return
 }
 
@@ -55,10 +43,6 @@ func (p *checkDisplay) writeLine(line []string) {
 	s := strings.Join(line, "")
 	p.lines = append(p.lines, s)
 }
-
-// func (p *checkDisplay) checkLines(t *testing.T, lines []string) {
-// 	assert.Equal(t, lines, p.lines)
-// }
 
 //
 // test helper ///////////////////////////////////////////////////////////////////////

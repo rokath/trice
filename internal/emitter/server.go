@@ -27,10 +27,6 @@ type Server struct {
 	Display ColorDisplay // todo: LineWriter?
 }
 
-// func (p *Server) Out(line []string, reply *int64) error {
-// 	return p.WriteLine(line, reply)
-// }
-
 // WriteLine is the exported server method for string display, if trice tool acts as display server.
 // By declaring it as a Server struct method it is registered as RPC destination.
 func (p *Server) WriteLine(line []string, reply *int64) error {
@@ -69,20 +65,7 @@ func (p *Server) Shutdown(ts []int64, _ *int64) error {
 	p.Display.writeLine([]string{""})
 	defer func() {
 		msg.OnErr(listener.Close())
-		//fmt.Println("exit...")
 		exit = true // do not set true before closing listener, otherwise panic!
-		//	// no need for this code
-		//	if nil != conn {
-		//		fmt.Println("Calling net.Conn conn.Close()...")
-		//		err = conn.Close()
-		//		if nil != err {
-		//			fmt.Println(err)
-		//		} else {
-		//			fmt.Println("Calling conn.Close()...done")
-		//		}
-		//	} else {
-		//		fmt.Println("'conn' is nil, cannot call conn.Close()")
-		//	}
 	}()
 	return nil
 }
@@ -119,10 +102,8 @@ func ScDisplayServer() error {
 		conn, err = listener.Accept()
 		if nil != err {
 			if true == exit {
-				//fmt.Println("exit...done")
 				return err
 			}
-			//fmt.Println(err)
 			continue
 		}
 		go rpc.ServeConn(conn)

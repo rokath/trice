@@ -154,48 +154,6 @@ func scHelp(
 	return nil
 }
 
-// scVersion is subcommand 'version'. It prints version information.
-func scVersion() error {
-	cage.Enable()
-	defer cage.Disable()
-	if verbose {
-		fmt.Println("https://github.com/rokath/trice")
-	}
-	if "" != Version {
-		fmt.Printf("version=%v, commit=%v, built at %v\n", Version, Commit, Date)
-	} else {
-		fmt.Printf("version=devel, built %s\n", Date)
-	}
-	return nil
-}
-
-// replaceDefaultArgs assigns port specific default strings.
-func replaceDefaultArgs() {
-	if strings.HasPrefix(receiver.Port, "COM") {
-		receiver.PortArguments = defaultCOMArgs
-	} else {
-		switch receiver.Port {
-		case "JLINK", "STLINK":
-			receiver.PortArguments = defaultLinkArgs
-		case "BUFFER":
-			receiver.PortArguments = defaultBUFFERArgs
-		}
-	}
-}
-
-// distributeArgs is distibuting values used in several packages.
-// It must not be called before the appropriate arg parsing.
-func distributeArgs() {
-	replaceDefaultArgs()
-	com.Verbose = verbose
-	id.Verbose = verbose
-	emitter.Verbose = verbose
-	link.Verbose = verbose
-	cage.Verbose = verbose
-	receiver.Verbose = verbose
-	decoder.Verbose = verbose
-}
-
 // logLoop prepares writing and list and provides a retry mechanism for unplugged UART.
 func logLoop() {
 
@@ -205,7 +163,6 @@ func logLoop() {
 	var counter int
 
 	for {
-
 		rc, e := receiver.NewReader(receiver.Port, receiver.PortArguments)
 		if nil != e {
 			if verbose {
@@ -229,5 +186,47 @@ func logLoop() {
 			return
 		}
 		interrupted = true
+	}
+}
+
+// scVersion is subcommand 'version'. It prints version information.
+func scVersion() error {
+	cage.Enable()
+	defer cage.Disable()
+	if verbose {
+		fmt.Println("https://github.com/rokath/trice")
+	}
+	if "" != Version {
+		fmt.Printf("version=%v, commit=%v, built at %v\n", Version, Commit, Date)
+	} else {
+		fmt.Printf("version=devel, built %s\n", Date)
+	}
+	return nil
+}
+
+// distributeArgs is distibuting values used in several packages.
+// It must not be called before the appropriate arg parsing.
+func distributeArgs() {
+	replaceDefaultArgs()
+	com.Verbose = verbose
+	id.Verbose = verbose
+	emitter.Verbose = verbose
+	link.Verbose = verbose
+	cage.Verbose = verbose
+	receiver.Verbose = verbose
+	decoder.Verbose = verbose
+}
+
+// replaceDefaultArgs assigns port specific default strings.
+func replaceDefaultArgs() {
+	if strings.HasPrefix(receiver.Port, "COM") {
+		receiver.PortArguments = defaultCOMArgs
+	} else {
+		switch receiver.Port {
+		case "JLINK", "STLINK":
+			receiver.PortArguments = defaultLinkArgs
+		case "BUFFER":
+			receiver.PortArguments = defaultBUFFERArgs
+		}
 	}
 }

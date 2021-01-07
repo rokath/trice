@@ -9,11 +9,12 @@ import (
 	"testing"
 
 	"github.com/rokath/trice/internal/com"
+	"github.com/rokath/trice/pkg/tst"
 )
 
 func Test1(t *testing.T) {
 	ss, err := com.GetSerialPorts()
-	assertNil(t, err)
+	tst.AssertNoErr(t, err)
 	// To do: handle special cases:
 	//
 	//	PS C:\repos\trice> trice s
@@ -28,7 +29,7 @@ func Test1(t *testing.T) {
 		port := ss[i]
 		p := com.NewCOMPortGoBugSt(port)
 		if p.Open() {
-			assertNil(t, p.Close())
+			tst.AssertNoErr(t, p.Close())
 		}
 	}
 }

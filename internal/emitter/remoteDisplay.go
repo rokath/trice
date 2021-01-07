@@ -117,14 +117,6 @@ func (p *RemoteDisplay) Connect() {
 	}
 }
 
-// // DisConnect closes the connection to the remote display.
-// func (p *RemoteDisplay) DisConnect() {
-// 	if nil != p.PtrRPC {
-// 		p.PtrRPC.Close()
-// 		p.PtrRPC = nil
-// 	}
-// }
-
 // ScShutdownRemoteDisplayServer connects to a client to send shutdown message to display server.
 // 0==timeStamp -> no timestamp in shutdown message, use for tests.
 // 1==timeStamp -> timestamp in shutdown message, use normally.

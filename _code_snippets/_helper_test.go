@@ -70,7 +70,7 @@ func (p *checkDisplay) writeLine(line []string) {
 }
 
 func (p *checkDisplay) checkLines(t *testing.T, lines []string) {
-	assertEqual(t, p.lines, lines)
+	tst.Equal(t, p.lines, lines)
 }
 
 //
@@ -263,8 +263,8 @@ func min(a, b int) int {
 }
 
 
-// captureStdout captures stdout and stderr.
-func captureStdout(f func()) string {
+// tst.CaptureStdOut captures stdout and stderr.
+func tst.CaptureStdOut(f func()) string {
 
 	// keep backup of the real stdout
 	old := os.Stdout
@@ -319,8 +319,8 @@ func (p *bytesViewer) Read(b []byte) (n int, e error) {
 // test helper ///////////////////////////////////////////////////////////////////////
 //
 
-// assertEqual fails the test if exp is not equal to act.
-func assertEqual(tb testing.TB, exp, act interface{}) {
+// tst.Equal fails the test if exp is not equal to act.
+func tst.Equal(tb testing.TB, exp, act interface{}) {
 	if !reflect.DeepEqual(exp, act) {
 		_, file, line, _ := runtime.Caller(1)
 		log.Println("expect:", exp)

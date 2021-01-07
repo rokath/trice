@@ -5,10 +5,13 @@
 package emitter
 
 import (
-	"github.com/stretchr/testify/assert"
+	"fmt"
+	"math/rand"
 	"os"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestRemoteDisplay(t *testing.T) {
@@ -33,4 +36,12 @@ func TestRemoteDisplay(t *testing.T) {
 	assert.Equal(t, 9, len(actLines))
 	assert.Equal(t, expLines[1:], actLines[1:])
 	assert.Nil(t, os.Remove(afn))
+}
+
+func randomDynIPPort() (s string) {
+	rand.Seed(time.Now().UTC().UnixNano())
+	min := 49152
+	max := 65535
+	s = fmt.Sprint(rand.Intn(max-min) + min)
+	return
 }
