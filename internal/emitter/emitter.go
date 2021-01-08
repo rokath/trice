@@ -7,6 +7,7 @@ package emitter
 import (
 	"os"
 
+	"github.com/rokath/trice/internal/receiver"
 	"github.com/rokath/trice/pkg/cage"
 )
 
@@ -75,12 +76,12 @@ func newLineWriter() (lwD LineWriter) {
 }
 
 // New creates the emitter instance and returns a string writer to be used for emitting.
-func New(prefix string) *TriceLineComposer {
+func New() *TriceLineComposer {
 	if !DisplayRemote {
 		cage.Enable()
 		defer cage.Disable()
 	}
-	SetPrefix(prefix)
+	SetPrefix()
 	// lineComposer implements the io.StringWriter interface and uses the line writer provided.
 	// The line composer scans the trice strings and composes lines out of them according to its properties.
 	return newLineComposer(newLineWriter())
@@ -88,7 +89,8 @@ func New(prefix string) *TriceLineComposer {
 
 // SetPrefix changes "source:" to e.g., "JLINK:".
 // to do: better implementation for example with strings.Split
-func SetPrefix(port string) {
+func SetPrefix() {
+	port := receiver.Port
 	switch Prefix {
 	case "source:":
 		Prefix = port + ":"

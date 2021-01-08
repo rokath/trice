@@ -22,15 +22,7 @@ type TriceLineComposer struct {
 // It provides an io.StringWriter interface which is used for the reception of (trice) strings.
 // It uses lw for writing the generated lines.
 func newLineComposer(lw LineWriter) *TriceLineComposer {
-	pf := Prefix + " "
-	if " " == pf {
-		pf = ""
-	}
-	sf := " " + Suffix
-	if " " == sf {
-		sf = ""
-	}
-	p := &TriceLineComposer{lw, TimestampFormat, pf, sf, make([]string, 0, 80), nil}
+	p := &TriceLineComposer{lw, TimestampFormat, Prefix, Suffix, make([]string, 0, 4096), nil} // not more than 4096 strings per line expected
 	return p
 }
 

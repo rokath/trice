@@ -158,7 +158,7 @@ func scHelp(
 func logLoop() {
 
 	list := id.New()
-	sw := emitter.New(emitter.Prefix)
+	sw := emitter.New()
 	var interrupted bool
 	var counter int
 
