@@ -83,10 +83,7 @@ func Start(fn string) *Container {
 		fn = time.Now().Format(fn) // replace timestamp in default logfilename
 	} // otherwise use cli defined logfilename
 	lfH, err := os.OpenFile(fn, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
-	if err != nil {
-		log.Fatalf("error opening file %s: %v", fn, err)
-		//fn = "off" return nil
-	}
+	msg.FatalErr(err)
 	if Verbose {
 		log.Printf("Writing to logfile %s...\n", fn)
 	}
