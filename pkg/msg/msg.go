@@ -58,15 +58,15 @@ func PanicErr(err error) {
 }
 
 const (
-	formatString = "[error] in %s[%s:%d] %v"
-	seriousError = "[error] Could not recover caller information"
+	formatString = "Error in %s:%d: func '%s' -> %v"
+	seriousError = "Error: Could not recover caller information."
 )
 
 func fmtMessage(pc uintptr, fn string, line int, ok bool, err error) {
 	funcName := runtime.FuncForPC(pc).Name()
 	fileName := filepath.Base(fn)
 	if ok {
-		fmt.Printf(formatString, funcName, fileName, line, err)
+		fmt.Printf(formatString, fileName, line, funcName, err)
 	} else {
 		fmt.Printf(seriousError)
 	}
@@ -76,8 +76,8 @@ func logMessage(pc uintptr, fn string, line int, ok bool, err error) {
 	funcName := runtime.FuncForPC(pc).Name()
 	fileName := filepath.Base(fn)
 	if ok {
-		log.Fatal(formatString, funcName, fileName, line, err)
+		log.Fatalf(formatString, fileName, line, funcName, err)
 	} else {
-		log.Fatal(seriousError)
+		log.Fatalf(seriousError)
 	}
 }

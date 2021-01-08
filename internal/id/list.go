@@ -71,7 +71,7 @@ func NewList(fnJSON string) *List {
 func (p *List) ReadListFile() {
 	if "none" != p.FnJSON {
 		b, err := ioutil.ReadFile(p.FnJSON)
-		msg.FatalErr(err)
+		msg.InfoFatalErr("May be need to create an empty file first? (Safety feature)", err)
 		if 0 < len(b) {
 			err = json.Unmarshal(b, &(p.ItemList))
 			msg.FatalErr(err)

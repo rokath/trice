@@ -63,6 +63,7 @@ func CaptureStdOut(f func()) string {
 // EqualStrings fails test if strings not identical.
 func EqualStrings(t *testing.T, exp, act string) {
 	if strings.Compare(act, exp) != 0 {
+		log.Println("")
 		log.Println("expect:", exp)
 		log.Println("actual:", act)
 		t.Fail()
