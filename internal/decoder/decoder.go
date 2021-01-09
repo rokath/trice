@@ -37,16 +37,8 @@ var (
 	TestTableMode bool
 )
 
-// StringsReader as Decoder method uses an underlying (byte) Reader for reading and returns max len(p) strings inside p.
-// n is the received amount of strings. err is the underlying Reader error or an internal error.
-type StringsReader interface {
-	StringsRead(p []string) (n int, err error)
-}
-
-// Decoder is the interface (method set) a decoder needs to provide
-type Decoder interface {
-	StringsReader
-}
+// newDecoder abstracts the function type for a new decoder.
+type newDecoder func(l []id.Item, in io.Reader, endian bool) (r io.Reader)
 
 // decoding is the common data struct for all decoders
 type decoding struct {

@@ -8,7 +8,7 @@ import (
 )
 
 func TestPackl(t *testing.T) {
-	doTableTest(t, packlTestTable)
+	doTableTest(t, NewPackDecoder, littleEndian, packlTestTable)
 }
 
 var packlTestTable = testTable{

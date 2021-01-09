@@ -14,12 +14,14 @@ import (
 	"github.com/rokath/trice/pkg/tst"
 )
 
+// testTable ist a slice of structs generatable by the trice tool -testTable option.
 type testTable []struct {
 	in  []byte // byte buffer sequence
 	exp string // output
 }
 
-func doTableTest(t *testing.T, teta testTable) {
+// doTableTest is the universal decoder test sequence.
+func doTableTest(t *testing.T, f newDecoder, endianess bool, teta testTable) {
 	list, err := UnmarshalTriceIDList([]byte(til))
 	buf := make([]byte, defaultSize)
 	if err != nil {
@@ -27,7 +29,7 @@ func doTableTest(t *testing.T, teta testTable) {
 	}
 	for _, x := range teta {
 		rc := ioutil.NopCloser(bytes.NewBuffer(x.in))
-		p := NewPackDecoder(list, rc, littleEndian) // p is a new decoder instance
+		p := f(list, rc, endianess) // p is a new decoder instance
 		var err error
 		var n int
 		var act string

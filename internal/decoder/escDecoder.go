@@ -19,12 +19,13 @@ type Esc struct {
 // NewEscDecoder provides an EscDecoder instance.
 // l is the trice id list in slice of struct format.
 // in is the usable reader for the input bytes.
-func NewEscDecoder(l []id.Item, in io.Reader, endian bool) (p *Esc) {
-	p = &Esc{}
+func NewEscDecoder(l []id.Item, in io.Reader, endian bool) (r io.Reader) {
+	p := &Esc{}
 	p.in = in
 	p.syncBuffer = make([]byte, 0, defaultSize)
 	p.lut = MakeLut(l)
 	p.endian = endian // esc format is only big endian
+	r = p
 	return
 }
 
