@@ -59,15 +59,15 @@ TRICE_INLINE void triceRuntimeGeneratedStringUnbound( const char* s ){
 void triceCheckSet(int index) {
     switch (index) {
         case 0:
-            TRICE0(Id(24481), "--------------------------------------------------\r\n");
+            TRICE0(Id(24481), "--------------------------------------------------\n");
             //TRICE_P( "Hello %s, this is a %dst printf replacement.\n", "world", 1 ); // visible only with defined TRICE_PRINTF_ADAPTER
-            TRICE0(Id(13428), "--------------------------------------------------\r\n");
+            TRICE0(Id(13428), "--------------------------------------------------\n");
             TRICE16_1(Id(18133), "dbg:12345 as 16bit is %#016b\n", 12345);
-            TRICE0(Id(3791), "--------------------------------------------------\r\n");
+            TRICE0(Id(3791), "--------------------------------------------------\n");
             //TRICE_ASSERT(0==0);
             TRICE0(Id(17125), "sig:This ASSERT error is just a demo and no real error:\n");
             //TRICE_ASSERT(0==1);
-            TRICE0(Id(26797), "--------------------------------------------------\r\n");
+            TRICE0(Id(26797), "--------------------------------------------------\n");
             break;
         case 1:
             TRICE16_1(Id(18113), "ERR:error       message, SysTick is %6d\n", SYSTICKVAL16);
@@ -340,7 +340,7 @@ void triceCheckSet(int index) {
             TRICE16_1( Id(50168), "tim: post decryption SysTick=%d\n", SYSTICKVAL16 );
             TRICE8_8( Id(  990), "msg:2:%03x %03x %03x %03x %03x %03x %03x %03x\n", b[0], b[1], b[2], b[3], b[4], b[5], b[6], b[7] );
         }
-        TRICE0 (Id( 7275), "--------------------------------------------------\r\n\n" );
+        TRICE0 (Id( 7275), "--------------------------------------------------\n\n" );
 #endif
         break;
     default:

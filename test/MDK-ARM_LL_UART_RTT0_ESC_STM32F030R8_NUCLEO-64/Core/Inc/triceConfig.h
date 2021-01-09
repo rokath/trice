@@ -17,8 +17,8 @@ TRICE0( Id(48976), "\ns:                                                     \ns
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-#define TRICE_ENTER_CRITICAL_SECTION { // Uncomment for more speed but only if TRICE macros cannot
-#define TRICE_LEAVE_CRITICAL_SECTION } // get interrupted by other TRICE macros (e.g. interrupts).
+//#define TRICE_ENTER_CRITICAL_SECTION { // Uncomment for more speed but only if TRICE macros cannot
+//#define TRICE_LEAVE_CRITICAL_SECTION } // get interrupted by other TRICE macros (e.g. interrupts).
 //
 ///////////////////////////////////////////////////////////////////////////////
 

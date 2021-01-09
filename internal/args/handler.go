@@ -168,7 +168,7 @@ func logLoop() {
 		}
 		if "" == emitter.Suffix {
 			//emitter.Suffix = "\\\\n\"},"
-			emitter.Suffix = "\\n`},"
+			emitter.Suffix = "`},"
 		}
 		if "default" == emitter.ColorPalette {
 			emitter.ColorPalette = "off"

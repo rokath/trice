@@ -172,7 +172,7 @@ func (p *LineTransformerANSI) writeLine(line []string) {
 			colored = true
 		}
 	}
-	if "default" == p.colorPalette && 1 < len(l) && colored {
+	if ("default" == p.colorPalette || "color" == p.colorPalette) && 1 < len(l) && colored {
 		l = append(l, ansi.Reset)
 	}
 	p.lw.writeLine(l)

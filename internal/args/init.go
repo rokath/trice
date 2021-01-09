@@ -22,7 +22,7 @@ var (
 See https://github.com/rokath/trice/blob/master/srcTrice.C/triceCheck.c for examples. Color options: 
 "off": Disable ANSI color. The lower case channel information is kept: "w:x"-> "w:x" 
 "none": Disable ANSI color. The lower case channel information is removed: "w:x"-> "x"
-"default": Use ANSI color codes for known upper and lower case channel info are inserted and lower case channel information is removed.
+"default|color": Use ANSI color codes for known upper and lower case channel info are inserted and lower case channel information is removed.
 `
 
 	boolInfo = "This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true."
