@@ -19,13 +19,13 @@ type Bare struct {
 // NewBareDecoder provides an BareDecoder instance.
 // l is the trice id list in slice of struct format.
 // in is the usable reader for the input bytes.
-func NewBareDecoder(l []id.Item, in io.Reader, endian bool) (p *Bare) {
-	p = &Bare{}
+func NewBareDecoder(l []id.Item, in io.Reader, endian bool) io.Reader {
+	p := &Bare{}
 	p.in = in
 	p.syncBuffer = make([]byte, 0, defaultSize)
 	p.lut = MakeLut(l)
 	p.endian = endian
-	return
+	return p
 }
 
 // Read is the provided read method for bare decoding of next string as byte slice.

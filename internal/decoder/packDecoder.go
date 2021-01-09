@@ -24,14 +24,13 @@ type Pack struct {
 // l is the trice id list in slice of struct format.
 // in is the usable reader for the input bytes.
 // littleEndian is false on normal network order.
-func NewPackDecoder(l []id.Item, in io.Reader, endian bool) (r io.Reader) {
+func NewPackDecoder(l []id.Item, in io.Reader, endian bool) io.Reader {
 	p := &Pack{}
 	p.in = in
 	p.syncBuffer = make([]byte, 0, defaultSize)
 	p.lut = MakeLut(l)
 	p.endian = endian
-	r = p
-	return
+	return p
 }
 
 // Read is the provided read method for pack decoding of next string as byte slice.

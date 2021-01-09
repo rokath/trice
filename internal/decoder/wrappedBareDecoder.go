@@ -31,7 +31,7 @@ type BareReaderFromWrap struct {
 // which is satisfying the io.Reader interface and using `in` as internal reader.
 // It assumes wrap coded trices in the input byte stream.
 // It uses the wrapper bytes for syncing and removes them silently.
-func NewBareReaderFromWrap(in io.Reader) *BareReaderFromWrap {
+func NewBareReaderFromWrap(in io.Reader) io.Reader {
 	p := &BareReaderFromWrap{}
 	p.in = in
 	p.wrapStartByte = wrapStartByte
