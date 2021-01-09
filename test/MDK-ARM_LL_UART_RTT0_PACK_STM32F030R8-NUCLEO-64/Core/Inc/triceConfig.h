@@ -17,8 +17,8 @@ TRICE0( Id(46928), "s:                                                   \ns:   
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-#define TRICE_ENTER_CRITICAL_SECTION { // Uncomment for more speed but only if TRICE macros cannot
-#define TRICE_LEAVE_CRITICAL_SECTION } // get interrupted by other TRICE macros (e.g. interrupts).
+//#define TRICE_ENTER_CRITICAL_SECTION { // Uncomment for more speed but only if TRICE macros & fifo access cannot
+//#define TRICE_LEAVE_CRITICAL_SECTION } // get interrupted by other TRICE macros or fifo access (e.g. interrupts).
 //
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -48,9 +48,9 @@ TRICE0( Id(46928), "s:                                                   \ns:   
 
 ///////////////////////////////////////////////////////////////////////////////
 // uncomment for trice wrap transfer format
-// #define TRICE_WRAP_START_BYTE 0xEB // 235, to do: also as trice tool parameter
-// #define TRICE_WRAP_LOCAL_ADDR 0x60 // to do: also as trice tool parameter
-// #define TRICE_WRAP_DEST_ADDR  0x60 // to do: also as trice tool parameter
+//#define TRICE_WRAP_START_BYTE 0xEB // 235
+//#define TRICE_WRAP_LOCAL_ADDR 0x80 // to do: also trice tool parameter
+//#define TRICE_WRAP_DEST_ADDR  0x81 // to do: also trice tool parameter
 ///////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////////

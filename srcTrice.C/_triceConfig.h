@@ -16,11 +16,12 @@ TRICE0( Id(46957), "s:                                                   \ns:   
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-#define TRICE_ENTER_CRITICAL_SECTION { // Uncomment for more speed but only if TRICE macros cannot
-#define TRICE_LEAVE_CRITICAL_SECTION } // get interrupted by other TRICE macros (e.g. interrupts).
+//#define TRICE_ENTER_CRITICAL_SECTION { // Uncomment for more speed but only if TRICE macros & fifo access cannot
+//#define TRICE_LEAVE_CRITICAL_SECTION } // get interrupted by other TRICE macros or fifo access (e.g. interrupts).
 //
 ///////////////////////////////////////////////////////////////////////////////
 
+#define TRICE_FIFO_BYTE_SIZE 2048 //!< must be a power of 2
 
 ///////////////////////////////////////////////////////////////////////////////
 // select target trice method

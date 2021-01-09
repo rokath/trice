@@ -16,8 +16,8 @@ TRICE0( Id(54823), "s:                                                   \ns:   
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-#define TRICE_ENTER_CRITICAL_SECTION { // Uncomment for more speed but only if TRICE macros cannot
-#define TRICE_LEAVE_CRITICAL_SECTION } // get interrupted by other TRICE macros (e.g. interrupts).
+//#define TRICE_ENTER_CRITICAL_SECTION { // Uncomment for more speed but only if TRICE macros & fifo access cannot
+//#define TRICE_LEAVE_CRITICAL_SECTION } // get interrupted by other TRICE macros or fifo access (e.g. interrupts).
 //
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -35,6 +35,7 @@ TRICE0( Id(54823), "s:                                                   \ns:   
 //! When set to TRICE_LITTLE_ENDIANESS the trice tool -enc format specifier is extended by a letter 'l' (small 'L').
 //! Example -enc "pack" -> -enc "packl".
 #define TRICE_TRANSFER_ENDIANESS TRICE_LITTLE_ENDIANESS 
+
 //#define TRICE_U8PUSH(v) do{ /*triceU8PushSeggerRTT(v);*/ triceU8Push(v); } while(0) //!< Set trice out channel(s) 
 #define TRICE_U32PUSH(v) do{ /*triceU32PushSeggerRTT(v);*/ triceU32Push(v); } while(0) //!< Set trice out channel(s) 
 //
