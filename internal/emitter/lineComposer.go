@@ -92,8 +92,7 @@ func (p *TriceLineComposer) WriteString(s string) (n int, err error) {
 	for _, sx := range ss {
 		if 0 == len(p.line) && 0 < lineEndCount { // start new line && and complete line
 			p.line = append(p.line, ts, p.prefix, sx, p.suffix)
-			p.lw.writeLine(p.line)
-			p.line = p.line[:0]
+			p.completeLine()
 			lineEndCount--
 		} else if 0 == len(p.line) && 0 == lineEndCount { // start new line
 			p.line = append(p.line, ts, p.prefix, sx)
@@ -103,8 +102,7 @@ func (p *TriceLineComposer) WriteString(s string) (n int, err error) {
 			}
 		} else if 0 < len(p.line) && 0 < lineEndCount { // complete line
 			p.line = append(p.line, sx, p.suffix)
-			p.lw.writeLine(p.line)
-			p.line = p.line[:0]
+			p.completeLine()
 			lineEndCount--
 		} else if 0 < len(p.line) && 0 == lineEndCount { // extend line
 			p.line = append(p.line, sx)
@@ -115,4 +113,10 @@ func (p *TriceLineComposer) WriteString(s string) (n int, err error) {
 		p.line = p.line[:0]
 	}
 	return
+}
+
+func (p *TriceLineComposer) completeLine() {
+	p.lw.writeLine(p.line)
+	p.line = p.line[:0]
+	NextLine = true
 }

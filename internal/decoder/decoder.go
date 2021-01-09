@@ -32,6 +32,9 @@ var (
 
 	// Encoding describes the way the byte stream is coded.
 	Encoding string
+
+	// TestTableMode is a special option for easy decoder test table generation.
+	TestTableMode bool
 )
 
 // StringsReader as Decoder method uses an underlying (byte) Reader for reading and returns max len(p) strings inside p.
@@ -100,6 +103,7 @@ func newIDLut(til []byte) (IDLookUp, error) {
 	return lut, nil
 }
 */
+
 // Translate performs the trice log task.
 // Bytes are read with rc. Then according decoder.Encoding are translated into strings.
 // Each read returns the amount of bytes for one trice.
@@ -211,9 +215,15 @@ func (p *decoding) readU64(b []byte) uint64 {
 
 // rub removes leading bytes from sync buffer
 func (p *decoding) rub(n int) {
-	//for _, b := range p.syncBuffer[0:n] { // just to see trice bytes per trice
-	//	fmt.Printf("%3d,", b)
-	//}
+	if TestTableMode {
+		if emitter.NextLine {
+			emitter.NextLine = false
+			fmt.Printf("{ []byte{ ")
+		}
+		for _, b := range p.syncBuffer[0:n] { // just to see trice bytes per trice
+			fmt.Printf("%3d,", b)
+		}
+	}
 	p.syncBuffer = p.syncBuffer[n:]
 }
 

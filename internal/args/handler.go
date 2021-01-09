@@ -156,7 +156,25 @@ func scHelp(
 
 // logLoop prepares writing and list and provides a retry mechanism for unplugged UART.
 func logLoop() {
-
+	if decoder.TestTableMode {
+		// set switches if they not set already
+		// trice l -ts off -prefix " }, ``" -suffix "\n``}," -color off
+		if "LOCmicro" == emitter.TimestampFormat {
+			emitter.TimestampFormat = "off"
+		}
+		if defaultPrefix == emitter.Prefix {
+			//emitter.Prefix = " }, \""
+			emitter.Prefix = " }, `"
+		}
+		if "" == emitter.Suffix {
+			//emitter.Suffix = "\\\\n\"},"
+			emitter.Suffix = "\\n`},"
+		}
+		if "default" == emitter.ColorPalette {
+			emitter.ColorPalette = "off"
+		}
+	}
+	c := cage.Start(cage.Name)
 	list := id.New()
 	sw := emitter.New()
 	var interrupted bool
@@ -169,6 +187,7 @@ func logLoop() {
 				fmt.Println(e)
 			}
 			if !interrupted {
+				cage.Stop(c)
 				return // hopeless
 			}
 			time.Sleep(1000 * time.Millisecond) // retry interval
@@ -183,6 +202,7 @@ func logLoop() {
 
 		f := decoder.Translate(sw, list, rc)
 		if false == f {
+			cage.Stop(c)
 			return
 		}
 		interrupted = true
@@ -210,11 +230,12 @@ func distributeArgs() {
 	replaceDefaultArgs()
 	com.Verbose = verbose
 	id.Verbose = verbose
-	emitter.Verbose = verbose
 	link.Verbose = verbose
 	cage.Verbose = verbose
 	receiver.Verbose = verbose
 	decoder.Verbose = verbose
+	emitter.Verbose = verbose
+	emitter.TestTableMode = decoder.TestTableMode
 }
 
 // replaceDefaultArgs assigns port specific default strings.

@@ -15,6 +15,8 @@ import (
 	"github.com/rokath/trice/pkg/cage"
 )
 
+const defaultPrefix = "source: "
+
 var (
 	colorInfo = `The format strings can start with a lower or upper case channel infomation.
 See https://github.com/rokath/trice/blob/master/srcTrice.C/triceCheck.c for examples. Color options: 
@@ -27,7 +29,8 @@ See https://github.com/rokath/trice/blob/master/srcTrice.C/triceCheck.c for exam
 )
 
 func init() {
-	fsScLog = flag.NewFlagSet("log", flag.ExitOnError)                                                                                                                           // subcommand
+	fsScLog = flag.NewFlagSet("log", flag.ExitOnError) // subcommand
+	//  trice l -ts off -prefix " }, ``" -suffix "\n``}," -color off
 	fsScLog.StringVar(&decoder.Encoding, "encoding", "packl", "The trice transmit data format type, options: 'pack[l]|esc|bare[l]|wrap[l]'. Target device encoding must match.") // flag
 	fsScLog.StringVar(&decoder.Encoding, "e", "packl", "Short for -encoding.")                                                                                                   // short flag
 	//fsScLog.StringVar(&cipher.Password, "password", "none", "The decrypt passphrase.")                                                                                                                                                // flag
@@ -50,9 +53,9 @@ When set to "off" no PC timestamps displayed.
 If you need target timestamps you need to get the time inside the target and send it as TRICE* parameter.
 `) // flag
 
-	fsScLog.StringVar(&emitter.ColorPalette, "color", "default", colorInfo)                                                                                                                                     // flag
-	fsScLog.StringVar(&emitter.Prefix, "prefix", "source: ", "Line prefix, options: any string or 'off|none' or 'source:' followed by 0-12 spaces, 'source:' will be replaced by source value e.g., 'COM17:'.") // flag
-	fsScLog.StringVar(&emitter.Suffix, "suffix", "", "Append suffix to all lines, options: any string.")                                                                                                        // flag
+	fsScLog.StringVar(&emitter.ColorPalette, "color", "default", colorInfo)                                                                                                                                        // flag
+	fsScLog.StringVar(&emitter.Prefix, "prefix", defaultPrefix, "Line prefix, options: any string or 'off|none' or 'source:' followed by 0-12 spaces, 'source:' will be replaced by source value e.g., 'COM17:'.") // flag
+	fsScLog.StringVar(&emitter.Suffix, "suffix", "", "Append suffix to all lines, options: any string.")                                                                                                           // flag
 
 	info := fmt.Sprint(`receiver device: 'STLINK'|'JLINK'|serial name. 
 The serial name is like 'COM12' for Windows or a Linux name like '/dev/tty/usb12'. 
@@ -90,6 +93,7 @@ Example: "trice l -port COM38 -displayserver -autostart" opens a separate displa
 	fsScLog.BoolVar(&receiver.ShowInputBytes, "showInputBytes", false, `Show incoming bytes, what can be helpful during setup.
 `+boolInfo)
 	fsScLog.BoolVar(&receiver.ShowInputBytes, "s", false, "Short for '-showInputBytes'.")
+	fsScLog.BoolVar(&decoder.TestTableMode, "testTable", false, `Generate testTable output and ignore -prefix, -suffix, -ts, -color. `+boolInfo)
 	flagLogfile(fsScLog)
 	flagVerbosity(fsScLog)
 	flagIDList(fsScLog)

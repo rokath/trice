@@ -46,6 +46,12 @@ var (
 
 	// Autostart if set, starts an additional trice instance as displayserver.
 	Autostart bool
+
+	// TestTableMode is set externally to avoid Prefix overwrite
+	TestTableMode bool
+
+	// NextLine is set true as help for decoder.TestTableMode, where it is clreared at line start.
+	NextLine bool
 )
 
 // LineWriter is the common interface for output devices.
@@ -81,7 +87,9 @@ func New() *TriceLineComposer {
 		cage.Enable()
 		defer cage.Disable()
 	}
-	SetPrefix()
+	if !TestTableMode { // do not change Prefix in TestTableMode
+		SetPrefix()
+	}
 	// lineComposer implements the io.StringWriter interface and uses the line writer provided.
 	// The line composer scans the trice strings and composes lines out of them according to its properties.
 	return newLineComposer(newLineWriter())
