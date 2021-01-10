@@ -19,6 +19,7 @@ import (
 	"github.com/rokath/trice/internal/link"
 	"github.com/rokath/trice/internal/receiver"
 	"github.com/rokath/trice/pkg/cage"
+	"github.com/rokath/trice/pkg/cipher"
 	"github.com/rokath/trice/pkg/msg"
 )
 
@@ -156,6 +157,7 @@ func scHelp(
 
 // logLoop prepares writing and list and provides a retry mechanism for unplugged UART.
 func logLoop() {
+	cipher.SetUp() // does nothing when -password is "none"
 	if decoder.TestTableMode {
 		// set switches if they not set already
 		// trice l -ts off -prefix " }, ``" -suffix "\n``}," -color off

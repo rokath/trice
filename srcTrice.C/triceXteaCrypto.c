@@ -8,7 +8,7 @@ see also https://www.emsec.ruhr-uni-bochum.de/media/crypto/veroeffentlichungen/2
 
 #ifdef ENCRYPT
 
-#include "xteaCrypto.h"
+#include "intern/triceXteaCrypto.h"
 
 //! golang XTEA works with 64 rounds
 static const unsigned int numRounds = 64;

@@ -25,11 +25,11 @@ var (
 	// cipher is a pointer to the cryptpo struct filled during initialization
 	ci *xtea.Cipher
 
-	// enabled set to true if a -key other than "none" was given
+	// enabled set to true if a -password other than "none" was given
 	enabled bool
 )
 
-// SetUp uses the Password to create a cipher. If Show
+// SetUp uses the Password to create a cipher. If Password is "none" encryption/decryption is disabled.
 func SetUp() error {
 	var err error
 	ci, enabled, err = createCipher()
@@ -82,9 +82,9 @@ func Encrypt8(b []byte) []byte {
 	}
 	b = b[:8]
 	if enabled {
-		b = swap8Bytes(b)
+		//	b = swap8Bytes(b)
 		ci.Encrypt(b, b)
-		b = swap8Bytes(b)
+		//	b = swap8Bytes(b)
 	}
 	return b
 }
@@ -95,9 +95,9 @@ func Encrypt8(b []byte) []byte {
 // Langer slices are truncated to length 8.
 func Decrypt8(b []byte) []byte {
 	if enabled {
-		b = swap8Bytes(b)
+		//b = swap8Bytes(b)
 		ci.Decrypt(b, b)
-		b = swap8Bytes(b)
+		//b = swap8Bytes(b)
 	}
 	return b
 }

@@ -10,7 +10,7 @@ extern "C" {
 #endif
 
 #include <stdint.h>
-
+#define ENCRYPT XTEA_KEY( 7d, 01, 8b, b3, df, 0e, 52, 36, 92, 84, 5a, f1, f2, 7e, 99, 2c ); //!< -password mySecret
 #define TRICE_HEADLINE \
 TRICE0( Id(44461), "s:                                                          \ns:   MDK-ARM_LL_UART_WRAP_RTT0_BARE_STM32F030R8-NUCLEO-64   \ns:                                                          \n\n");
 

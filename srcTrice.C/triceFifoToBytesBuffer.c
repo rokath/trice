@@ -32,26 +32,12 @@ uint8_t triceBytesBuffer[8] = { TRICE_WRAP_START_BYTE, TRICE_WRAP_LOCAL_ADDR, TR
 int const triceBytesBufferIndexLimit = 8; // sizeof(triceBytesBuffer[8]);
 int triceBytesBufferIndex = triceBytesBufferIndexLimit;
 
-/*
-//! TODO: endianess with compiler macros.
-TRICE_INLINE void triceLoadInNetworkOrder(uint8_t *p, uint32_t t) {
-    // ID arrives in upper 16 bit in machine endianess
-    // DA arrives in lower 16 bit in machine endianess (8 bit values are in trice ordering)
-
-    // transmit in big endian
-    uint8_t idHi = p[0] = (uint8_t)(t >> 24); // IDHi big endian
-    uint8_t idLo = p[1] = (uint8_t)(t >> 16); // IDLo big endian
-
-    // transmit in big endian   
-    uint8_t daLo = p[2] = (uint8_t)(t >> 8); // DaLo big endian -> should be changed to >>24 (needs many changes in trice.h but does not influence trice go code)
-    uint8_t daHi = p[3] = (uint8_t)(t >> 0); // DaHi big endian -> should be changed to >>16 (needs many changes in trice.h but does not influence trice go code)
-}
-*/
 TRICE_INLINE void triceTransfer(uint32_t t0, uint32_t t1) {
-    //triceLoadInNetworkOrder(&triceBytesBuffer[0], t0);
-    //triceLoadInNetworkOrder(&triceBytesBuffer[4], t1);
     *(uint32_t*)&triceBytesBuffer[0] = t0;
     *(uint32_t*)&triceBytesBuffer[4] = t1;
+#ifdef ENCRYPT
+    encrypt( triceBytesBuffer );
+#endif
 }
 
 int triceBytesByfferDepth( void ){
@@ -97,9 +83,17 @@ void triceServeFifoWrappedToBytesBuffer(void) {
         int n = triceU32FifoDepth();
         if ( n >= 4 ) { // a trice to transmit
             uint32_t x = triceU32Pop();
-            triceBytesBuffer[3]  = (uint8_t)( TRICE_WRAP_START_BYTE ^ TRICE_WRAP_LOCAL_ADDR ^ TRICE_WRAP_DEST_ADDR ^ x ^ (x>>8) ^ (x>>16) ^ (x>>24) ); // crc8
+#ifdef ENCRYPT
+            triceBytesBuffer[0] = TRICE_WRAP_START_BYTE;
+            triceBytesBuffer[1] = TRICE_WRAP_LOCAL_ADDR;
+            triceBytesBuffer[2] = TRICE_WRAP_DEST_ADDR;
+#endif
+            triceBytesBuffer[3] = (uint8_t)( TRICE_WRAP_START_BYTE ^ TRICE_WRAP_LOCAL_ADDR ^ TRICE_WRAP_DEST_ADDR ^ x ^ (x>>8) ^ (x>>16) ^ (x>>24) ); // crc8
             
             *(uint32_t*)&triceBytesBuffer[4] = x; //triceLoadInNetworkOrder(&triceBytesBuffer[4], x);
+#ifdef ENCRYPT
+            encrypt( triceBytesBuffer );
+#endif
             triceBytesBufferIndex = 0;
         }
     }

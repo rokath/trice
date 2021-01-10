@@ -77,9 +77,9 @@ func MakeLut(list []id.Item) (lut IDLookUp) {
 	lut = make(IDLookUp)
 	// to do: add timestamp evaluation
 	for _, item := range list {
-		key := item.ID
+		k := item.ID
 		value := idFmt{Type: item.FmtType, Strg: item.FmtStrg}
-		lut[key] = value
+		lut[k] = value
 	}
 	return
 }

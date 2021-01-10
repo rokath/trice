@@ -13,6 +13,7 @@ import (
 	"github.com/rokath/trice/internal/id"
 	"github.com/rokath/trice/internal/receiver"
 	"github.com/rokath/trice/pkg/cage"
+	"github.com/rokath/trice/pkg/cipher"
 )
 
 const defaultPrefix = "source: "
@@ -29,17 +30,16 @@ See https://github.com/rokath/trice/blob/master/srcTrice.C/triceCheck.c for exam
 )
 
 func init() {
-	fsScLog = flag.NewFlagSet("log", flag.ExitOnError) // subcommand
-	//  trice l -ts off -prefix " }, ``" -suffix "\n``}," -color off
+	fsScLog = flag.NewFlagSet("log", flag.ExitOnError)                                                                                                                           // subcommand
 	fsScLog.StringVar(&decoder.Encoding, "encoding", "packl", "The trice transmit data format type, options: 'pack[l]|esc|bare[l]|wrap[l]'. Target device encoding must match.") // flag
 	fsScLog.StringVar(&decoder.Encoding, "e", "packl", "Short for -encoding.")                                                                                                   // short flag
-	//fsScLog.StringVar(&cipher.Password, "password", "none", "The decrypt passphrase.")                                                                                                                                                // flag
-	//fsScLog.StringVar(&cipher.Password, "pw", "none", "Short for -password.")                                                                                                                                                     // short flag
-	//	fsScLog.BoolVar(&cipher.ShowKey, "key", false, `Show encryption key.
-	//- +boolInfo
-	//- Use this switch for creating your own password keys. If applied together with "-password MyPwd" it shows the encryption key.
-	//Simply copy this key than into the line
-	//"#define ENCRYPT XTEA_KEY( a9, 4a, 8f, e5, cc, b1, 9b, a6, 1c, 4c, 08, 73, d3, 91, e9, 87 ); //!< -key test" inside triceConfig.h.`)
+	fsScLog.StringVar(&cipher.Password, "password", "none", "The decrypt passphrase.")                                                                                           // flag
+	fsScLog.StringVar(&cipher.Password, "pw", "none", "Short for -password.")                                                                                                    // short flag
+	fsScLog.BoolVar(&cipher.ShowKey, "key", false, `Show encryption key.
+	- +boolInfo
+	- Use this switch for creating your own password keys. If applied together with "-password MyPwd" it shows the encryption key.
+	Simply copy this key than into the line
+	"#define ENCRYPT XTEA_KEY( a9, 4a, 8f, e5, cc, b1, 9b, a6, 1c, 4c, 08, 73, d3, 91, e9, 87 ); //!< -key test" inside triceConfig.h.`)
 	// flag
 	//- This is a `string` switch. It has one parameter. Its default value is `none`. If you change this value you need to compile the target with the appropriate key.
 	//- This option is recommended if you deliver firmware to customers and want protect the trice log output. This does not work together with the `#define TRICE_STRINGS FULL_RUNTIME` option right now.
@@ -174,7 +174,7 @@ For example "trice u -dry-run -v" is the same as "trice u -dry-run" but with mor
 
 func flagIDList(p *flag.FlagSet) {
 	p.StringVar(&id.FnJSON, "idlist", "til.json", `The trice ID list file.
-The specified JSON file is the key to display the ID coded trices during runtime and should be under version control.
+The specified JSON file is needed to display the ID coded trices during runtime and should be under version control.
 `) // flag
 	p.StringVar(&id.FnJSON, "i", "til.json", `Short for '-idlist'.
 `) // flag

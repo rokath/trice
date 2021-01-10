@@ -483,6 +483,11 @@
               <FileType>1</FileType>
               <FilePath>..\..\..\srcTrice.C\triceSeggerRTT.c</FilePath>
             </File>
+            <File>
+              <FileName>triceXteaCrypto.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\srcTrice.C\triceXteaCrypto.c</FilePath>
+            </File>
           </Files>
         </Group>
       </Groups>

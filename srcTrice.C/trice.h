@@ -21,6 +21,9 @@ extern "C" {
 #include "intern/triceConfigCompiler.h"
 #include "intern/triceFifo.h"
 #include "intern/triceSeggerRTT.h"
+#ifdef ENCRYPT
+#include "intern/triceXteaCrypto.h"
+#endif
 
 #define TRICE_U8_JOIN(  first, second ) ((uint16_t)((((uint8_t )(first))<< 8)|((uint8_t )(second)))) //!< helper macro
 #define TRICE_U16_JOIN( first, second ) (          ((((uint32_t)(first))<<16)|((uint16_t)(second)))) //!< helper macro

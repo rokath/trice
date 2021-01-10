@@ -14,8 +14,7 @@ import (
 func TestPwdNone(t *testing.T) {
 	cipher.Password = "none"
 	cipher.ShowKey = false
-	e := cipher.SetUp()
-	tst.Equal(t, nil, e)
+	tst.AssertNoErr(t, cipher.SetUp())
 
 	b := []byte{1, 2, 3, 4, 5, 6, 7, 8}
 	c := cipher.Encrypt8(b)
@@ -28,8 +27,7 @@ func TestPwdNone(t *testing.T) {
 func Test8PwdXXZ(t *testing.T) {
 	cipher.Password = "XYZ"
 	cipher.ShowKey = true
-	e := cipher.SetUp()
-	tst.Equal(t, nil, e)
+	tst.AssertNoErr(t, cipher.SetUp())
 
 	b := []byte{1, 2, 3, 4, 5, 6, 7, 8}
 	c := cipher.Encrypt8(b)
@@ -43,8 +41,7 @@ func Test8PwdXXZ(t *testing.T) {
 func Test4PwdXXZ(t *testing.T) {
 	cipher.Password = "XYZ"
 	cipher.ShowKey = false
-	e := cipher.SetUp()
-	tst.Equal(t, nil, e)
+	tst.AssertNoErr(t, cipher.SetUp())
 
 	b := []byte{1, 2, 3, 4}
 	c := cipher.Encrypt8(b)
