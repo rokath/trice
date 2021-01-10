@@ -9,21 +9,21 @@ import (
 	"github.com/rokath/trice/pkg/msg"
 )
 
-func ExampleOnErr() {
+func ExampleInfoOnErr_a() {
 	var e error
-	msg.OnErr(e)
+	msg.InfoOnErr("", e)
 	e = errors.New("s.th. went wrong")
-	msg.OnErr(e)
+	msg.InfoOnErr("", e)
 	// Output:
-	// Error in msg_test.go:16: func 'github.com/rokath/trice/pkg/msg_test.ExampleOnErr' -> s.th. went wrong
+	// Error in msg_test.go:16: func 'github.com/rokath/trice/pkg/msg_test.ExampleInfoOnErr_a' -> s.th. went wrong
 }
 
-func ExampleInfoOnErr() {
+func ExampleInfoOnErr_b() {
 	var e error
-	msg.OnErr(e)
+	msg.InfoOnErr("", e)
 	e = errors.New("s.th. went wrong")
 	msg.InfoOnErr("info", e)
 	// Output:
 	// info
-	// Error in msg_test.go:25: func 'github.com/rokath/trice/pkg/msg_test.ExampleInfoOnErr' -> s.th. went wrong
+	// Error in msg_test.go:25: func 'github.com/rokath/trice/pkg/msg_test.ExampleInfoOnErr_b' -> s.th. went wrong
 }

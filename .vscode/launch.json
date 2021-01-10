@@ -74,26 +74,6 @@
             ]
         },
         {
-            "name": "-s RND",
-            "type": "go",
-            "request": "launch",
-            "mode": "auto",
-            "program": "${workspaceFolder}/cmd/trice",
-            "env": {},
-            "args": ["log",
-                     "-source",
-                     "RND",
-                     "-rndLimit",
-                     "5",
-                     "-rndMode",
-                     "BareModeNoSync",
-                     "-idlist",
-                     "${workspaceFolder}/test/til.json",
-                     "-key",
-                     "none"
-            ]
-        },
-        {
             "name": "-s wrapTriceMsgs.bin",
             "type": "go",
             "request": "launch",
@@ -110,7 +90,7 @@
             ]
         },        
         {
-            "name": "-device -p COM5 -e esc",
+            "name": "-device -e wrapl -password MySecret",
             "type": "go",
             "request": "launch",
             "mode": "auto",
@@ -121,7 +101,9 @@
                      "COM5",
                      "-s",
                      "-e",
-                     "esc",
+                     "wrapl",
+                     "-password",
+                     "MySecret",
                      "-idlist",
                      "${workspaceFolder}/til.json"
             ]

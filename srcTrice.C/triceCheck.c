@@ -330,15 +330,17 @@ void triceCheckSet(int index) {
 #ifdef ENCRYPT
         {
             uint8_t b[8] = {1,2,3,4,5,6,7,8};
-            TRICE8_8( Id( 2502), "msg:1:%03x %03x %03x %03x %03x %03x %03x %03x\n", b[0], b[1], b[2], b[3], b[4], b[5], b[6], b[7] );
+            TRICE8_8(  Id(32509), "msg: message = %03x %03x %03x %03x %03x %03x %03x %03x\n", b[0], b[1], b[2], b[3], b[4], b[5], b[6], b[7] );
             TRICE16_1( Id(20625), "tim: pre encryption SysTick=%d\n", SYSTICKVAL16 );
             encrypt(b);
             TRICE16_1( Id(64368), "tim: post encryption SysTick=%d\n", SYSTICKVAL16 );
-            TRICE8_8( Id(43335), "att:1:%03x %03x %03x %03x %03x %03x %03x %03x\n", b[0], b[1], b[2], b[3], b[4], b[5], b[6], b[7] );
+            TRICE8_8(  Id(44594), "att: encrypted = %03x %03x %03x %03x %03x %03x %03x %03x\n", b[0], b[1], b[2], b[3], b[4], b[5], b[6], b[7] );
+            TRICE16_4( Id(36992), "att: encrypted = %d,%d,%d,%d,", b[0], b[1], b[2], b[3] );
+            TRICE16_4( Id(30981), "att: %d,%d,%d,%d\n", b[4], b[5], b[6], b[7] );
             TRICE16_1( Id(56697), "tim: pre decryption SysTick=%d\n", SYSTICKVAL16 );
             decrypt(b);
             TRICE16_1( Id(50168), "tim: post decryption SysTick=%d\n", SYSTICKVAL16 );
-            TRICE8_8( Id(  990), "msg:2:%03x %03x %03x %03x %03x %03x %03x %03x\n", b[0], b[1], b[2], b[3], b[4], b[5], b[6], b[7] );
+            TRICE8_8(  Id(36226), "msg: messge = %03x %03x %03x %03x %03x %03x %03x %03x\n", b[0], b[1], b[2], b[3], b[4], b[5], b[6], b[7] );
         }
         TRICE0 (Id( 7275), "--------------------------------------------------\n\n" );
 #endif

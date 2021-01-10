@@ -25,7 +25,6 @@ See https://github.com/rokath/trice/blob/master/srcTrice.C/triceCheck.c for exam
 "none": Disable ANSI color. The lower case channel information is removed: "w:x"-> "x"
 "default|color": Use ANSI color codes for known upper and lower case channel info are inserted and lower case channel information is removed.
 `
-
 	boolInfo = "This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true."
 )
 
@@ -33,16 +32,12 @@ func init() {
 	fsScLog = flag.NewFlagSet("log", flag.ExitOnError)                                                                                                                           // subcommand
 	fsScLog.StringVar(&decoder.Encoding, "encoding", "packl", "The trice transmit data format type, options: 'pack[l]|esc|bare[l]|wrap[l]'. Target device encoding must match.") // flag
 	fsScLog.StringVar(&decoder.Encoding, "e", "packl", "Short for -encoding.")                                                                                                   // short flag
-	fsScLog.StringVar(&cipher.Password, "password", "none", "The decrypt passphrase.")                                                                                           // flag
-	fsScLog.StringVar(&cipher.Password, "pw", "none", "Short for -password.")                                                                                                    // short flag
-	fsScLog.BoolVar(&cipher.ShowKey, "key", false, `Show encryption key.
-	- +boolInfo
-	- Use this switch for creating your own password keys. If applied together with "-password MyPwd" it shows the encryption key.
-	Simply copy this key than into the line
-	"#define ENCRYPT XTEA_KEY( a9, 4a, 8f, e5, cc, b1, 9b, a6, 1c, 4c, 08, 73, d3, 91, e9, 87 ); //!< -key test" inside triceConfig.h.`)
-	// flag
-	//- This is a `string` switch. It has one parameter. Its default value is `none`. If you change this value you need to compile the target with the appropriate key.
-	//- This option is recommended if you deliver firmware to customers and want protect the trice log output. This does not work together with the `#define TRICE_STRINGS FULL_RUNTIME` option right now.
+	fsScLog.StringVar(&cipher.Password, "password", "none", `The decrypt passphrase. If you change this value you need to compile the target with the appropriate key.
+This is recommended if you deliver firmware to customers and want protect the trice log output. This does work right now only with wrapped barel format.`) // flag
+	fsScLog.StringVar(&cipher.Password, "pw", "none", "Short for -password.") // short flag
+	fsScLog.BoolVar(&cipher.ShowKey, "showKey", false, `Show encryption key. Use this switch for creating your own password keys. If applied together with "-password MySecret" it shows the encryption key.
+Simply copy this key than into the line "#define ENCRYPT XTEA_KEY( ea, bb, ec, 6f, 31, 80, 4e, b9, 68, e2, fa, ea, ae, f1, 50, 54 ); //!< -password MySecret" inside triceConfig.h.
+`+boolInfo)
 
 	fsScLog.StringVar(&emitter.TimestampFormat, "ts", "LOCmicro",
 		`PC timestamp for logs and logfile name, options: 'off|none|UTCmicro|zero'

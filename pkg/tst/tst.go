@@ -152,3 +152,12 @@ func AssertNoErr(tb testing.TB, err error) {
 		tb.FailNow()
 	}
 }
+
+// AssertTrue fails the test if flag is false.
+func AssertTrue(tb testing.TB, flag bool) {
+	if !flag {
+		_, file, line, _ := runtime.Caller(1)
+		fmt.Println(flag, filepath.Base(file), line)
+		tb.FailNow()
+	}
+}

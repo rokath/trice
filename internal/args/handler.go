@@ -183,7 +183,7 @@ func logLoop() {
 	var counter int
 
 	for {
-		rc, e := receiver.NewReader(receiver.Port, receiver.PortArguments)
+		rc, e := receiver.NewReadCloser(receiver.Port, receiver.PortArguments)
 		if nil != e {
 			if verbose {
 				fmt.Println(e)
@@ -197,7 +197,7 @@ func logLoop() {
 			counter++
 			continue
 		}
-		defer func() { msg.OnErr(rc.Close()) }()
+		defer func() { msg.InfoOnErr("", rc.Close()) }()
 		if receiver.ShowInputBytes {
 			rc = receiver.NewBytesViewer(rc)
 		}

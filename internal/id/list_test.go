@@ -12,26 +12,26 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/rokath/trice/internal/id"
-	"github.com/rokath/trice/pkg/tst"
 	"github.com/rokath/trice/pkg/msg"
+	"github.com/rokath/trice/pkg/tst"
 )
 
 // Random creates a random file containing s and returns its name.
 // See ioutil.Tempfile() for dir and pattern.
 func randomFile(s, dir, pattern string) string {
 	fd, err := ioutil.TempFile(dir, pattern)
-	msg.FatalErr(err)
+	msg.FatalOnErr("", err)
 	_, err = fd.WriteString(s)
-	msg.OnErr(err)
+	msg.InfoOnErr("", err)
 	fn := fd.Name()
-	msg.OnErr(fd.Close())
+	msg.InfoOnErr("", fd.Close())
 	return fn
 }
 
 // readFileAsString returns filename content as string
 func readFileAsString(filename string) (s string) {
 	b, err := ioutil.ReadFile(filename)
-	msg.FatalErr(err)
+	msg.FatalOnErr("", err)
 	s = string(b)
 	return
 }

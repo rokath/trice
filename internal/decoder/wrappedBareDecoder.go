@@ -7,6 +7,8 @@ package decoder
 import (
 	"fmt"
 	"io"
+
+	"github.com/rokath/trice/pkg/cipher"
 )
 
 var (
@@ -49,12 +51,13 @@ func (p *BareReaderFromWrap) Read(buf []byte) (int, error) {
 	p.holdBuf = append(p.holdBuf, p.nextData[:n]...)
 	p.bareBuf = p.bareBuf[:0]
 	for 8 <= len(p.holdBuf) {
-		if false == p.evaluateWrap(p.holdBuf[:8]) {
+		b := cipher.Decrypt8(p.holdBuf[:8])
+		if false == p.evaluateWrap(b) {
 			fmt.Println("wrap data inconsistent, ignoring", p.holdBuf[0])
 			p.holdBuf = p.holdBuf[1:]
 			continue // try to re-sync
 		}
-		p.bareBuf = append(p.bareBuf, p.holdBuf[4:8]...)
+		p.bareBuf = append(p.bareBuf, b[4:8]...)
 		p.holdBuf = p.holdBuf[8:]
 	}
 	count := copy(buf, p.bareBuf)

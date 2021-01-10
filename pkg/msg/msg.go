@@ -5,20 +5,12 @@
 package msg
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"path/filepath"
 	"runtime"
 )
-
-// OnErr prints a common error message with location info when err is not nil.
-func OnErr(err error) {
-	if nil == err {
-		return
-	}
-	pc, fn, line, ok := runtime.Caller(1)
-	fmtMessage(pc, fn, line, ok, err)
-}
 
 // InfoOnErr prints info and a common error message with location info when err is not nil.
 func InfoOnErr(info string, err error) {
@@ -30,17 +22,8 @@ func InfoOnErr(info string, err error) {
 	fmtMessage(pc, fn, line, ok, err)
 }
 
-// FatalErr ends in osExit(1) if err not nil.
-func FatalErr(err error) {
-	if nil == err {
-		return
-	}
-	pc, fn, line, ok := runtime.Caller(1)
-	logMessage(pc, fn, line, ok, err)
-}
-
-// InfoFatalErr ends in osExit(1) if err not nil.
-func InfoFatalErr(info string, err error) {
+// FatalOnErr ends in osExit(1) if err not nil.
+func FatalOnErr(info string, err error) {
 	if nil == err {
 		return
 	}
@@ -49,12 +32,33 @@ func InfoFatalErr(info string, err error) {
 	logMessage(pc, fn, line, ok, err)
 }
 
-// PanicErr ends in panic if err not nil.
-func PanicErr(err error) {
+// PanicOnErr ends in panic if err not nil.
+func PanicOnErr(info string, err error) {
 	if nil == err {
 		return
 	}
+	log.Println(info)
 	panic(err)
+}
+
+// InfoOnFalse prints info and a common error message with location info when err is not nil.
+func InfoOnFalse(info string, flag bool) {
+	if true == flag {
+		return
+	}
+	fmt.Println(info)
+	pc, fn, line, ok := runtime.Caller(1)
+	fmtMessage(pc, fn, line, ok, errors.New(info))
+}
+
+// FatalOnFalse prints info and a common error message with location info when err is not nil.
+func FatalOnFalse(info string, flag bool) {
+	if true == flag {
+		return
+	}
+	fmt.Println(info)
+	pc, fn, line, ok := runtime.Caller(1)
+	logMessage(pc, fn, line, ok, errors.New(info))
 }
 
 const (

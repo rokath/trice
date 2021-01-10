@@ -28,13 +28,13 @@ var (
 	PortArguments string
 )
 
-// NewReader returns a ReadCloser for the specified port and its args.
+// NewReadCloser returns a ReadCloser for the specified port and its args.
 // err is nil on successful open.
 // When port is "COMn" args can be used to be "TARM" to use a different driver for dynamic testing.
 // When port is "BUFFER", args is expected to be a byte sequence in the same format as for example coming from one of the other ports.
 // When port is "JLINK" args contains JLinkRTTLogger.exe specific parameters described inside UM08001_JLink.pdf.
 // When port is "STLINK" args has the same format as for "JLINK"
-func NewReader(port, args string) (r io.ReadCloser, err error) {
+func NewReadCloser(port, args string) (r io.ReadCloser, err error) {
 	switch port {
 	case "JLINK", "STLINK":
 		l := link.NewDevice(port, args)

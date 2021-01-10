@@ -663,5 +663,47 @@
 		"fmtStrg": "s:                                                   \\ns:   MDK-ARM_LL_UART_RTT0_PACK_STM32F030_NUCLEO-64   \\ns:                                                   \\n\\n",
 		"created": 1610101612,
 		"removed": 0
+	},
+	{
+		"id": 32509,
+		"fmtType": "TRICE8_8",
+		"fmtStrg": "msg: message = %03x %03x %03x %03x %03x %03x %03x %03x\\n",
+		"created": 1610273417,
+		"removed": 0
+	},
+	{
+		"id": 44594,
+		"fmtType": "TRICE8_8",
+		"fmtStrg": "att: encrypted = %03x %03x %03x %03x %03x %03x %03x %03x\\n",
+		"created": 1610273417,
+		"removed": 0
+	},
+	{
+		"id": 36992,
+		"fmtType": "TRICE16_4",
+		"fmtStrg": "att: encrypted = %d,%d,%d,%d,",
+		"created": 1610273417,
+		"removed": 0
+	},
+	{
+		"id": 56013,
+		"fmtType": "TRICE16_4",
+		"fmtStrg": "att:%d,%d,%d,%d\\n",
+		"created": 1610273417,
+		"removed": 0
+	},
+	{
+		"id": 36226,
+		"fmtType": "TRICE8_8",
+		"fmtStrg": "msg: messge = %03x %03x %03x %03x %03x %03x %03x %03x\\n",
+		"created": 1610273417,
+		"removed": 0
+	},
+	{
+		"id": 30981,
+		"fmtType": "TRICE16_4",
+		"fmtStrg": "att: %d,%d,%d,%d\\n",
+		"created": 1610273496,
+		"removed": 0
 	}
 ]

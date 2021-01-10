@@ -11,6 +11,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/rokath/trice/pkg/msg"
 	"golang.org/x/crypto/xtea"
 )
 
@@ -21,6 +22,8 @@ var (
 
 	// ShowKey, if set, allows to see the encryption passphrase
 	ShowKey bool
+
+	Key []byte
 
 	// cipher is a pointer to the cryptpo struct filled during initialization
 	ci *xtea.Cipher
@@ -46,12 +49,19 @@ func SetUp() error {
 
 // createCipher prepares decryption, with password "none" the encryption flag is set false, otherwise true
 func createCipher() (*xtea.Cipher, bool, error) {
-	h := sha1.New() // https://gobyexample.com/sha1-hashes
-	h.Write([]byte(Password))
-	key := h.Sum(nil)
-	key = key[:16] // only first 16 bytes needed as key
-
-	c, err := xtea.NewCipher(key)
+	if "0000000000000000" == Password { // used for checking only
+		Key = []byte{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+	} else if "1000000000000000" == Password { // used for checking only
+		Key = []byte{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+	} else if "0001000000000000" == Password { // used for checking only
+		Key = []byte{0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+	} else {
+		h := sha1.New() // https://gobyexample.com/sha1-hashes
+		h.Write([]byte(Password))
+		Key = h.Sum(nil)
+		Key = Key[:16] // only first 16 bytes needed as key
+	}
+	c, err := xtea.NewCipher(Key)
 	if err != nil {
 		return nil, false, errors.New("NewCipher returned error")
 	}
@@ -59,7 +69,7 @@ func createCipher() (*xtea.Cipher, bool, error) {
 	if "none" != Password {
 		e = true
 		if true == ShowKey {
-			fmt.Printf("% 20x is XTEA encryption key\n", key)
+			fmt.Printf("% 20x is XTEA encryption key\n", Key)
 		}
 	} else if true == ShowKey {
 		fmt.Printf("no encryption\n")
@@ -76,28 +86,32 @@ func swap8Bytes(b []byte) []byte {
 //
 // Shorter slices are extented with 0x16 until length 8.
 // Langer slices are truncated to length 8.
-func Encrypt8(b []byte) []byte {
-	for len(b) < 8 {
-		b = append(b, 0x16) // if len(b) == 4, {0x16,0x16,0x16,0x16} is appended and this is a TRICE_SYNC message
-	}
-	b = b[:8]
+func Encrypt8(b []byte) (e []byte) {
+	msg.InfoOnFalse("Buffer len is not 8.", 8 == len(b))
 	if enabled {
-		//	b = swap8Bytes(b)
-		ci.Encrypt(b, b)
-		//	b = swap8Bytes(b)
+		src := swap8Bytes(b) // HtoN
+		dst := make([]byte, 8)
+		ci.Encrypt(dst, src) // assumes network order
+		e = swap8Bytes(dst)  // NtoH (should be done in target before decrypt)
+	} else {
+		e = b
 	}
-	return b
+	return
 }
 
 // Decrypt8 translates an Encrypt protected byte slice back in a slice of length 8.
 //
 // Shorter slices are extented with 0 until length 8.
 // Langer slices are truncated to length 8.
-func Decrypt8(b []byte) []byte {
+func Decrypt8(b []byte) (d []byte) {
+	msg.InfoOnFalse("Buffer len is not 8.", 8 == len(b))
 	if enabled {
-		//b = swap8Bytes(b)
-		ci.Decrypt(b, b)
-		//b = swap8Bytes(b)
+		src := swap8Bytes(b) // HtoN (not done in Target after encrypt)
+		dst := make([]byte, 8)
+		ci.Decrypt(dst, src) // assumes network order
+		d = swap8Bytes(dst)  // NtoH
+	} else {
+		d = b
 	}
-	return b
+	return
 }

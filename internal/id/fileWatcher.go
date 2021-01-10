@@ -18,8 +18,8 @@ func (p *List) FileWatcher() {
 
 	// creates a new file watcher
 	watcher, err := fsnotify.NewWatcher()
-	msg.OnErr(err)
-	defer func() { msg.OnErr(watcher.Close()) }()
+	msg.InfoOnErr("", err)
+	defer func() { msg.InfoOnErr("", watcher.Close()) }()
 
 	done := make(chan bool)
 	go func() {

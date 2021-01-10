@@ -71,10 +71,10 @@ func NewList(fnJSON string) *List {
 func (p *List) ReadListFile() {
 	if "none" != p.FnJSON {
 		b, err := ioutil.ReadFile(p.FnJSON)
-		msg.InfoFatalErr("May be need to create an empty file first? (Safety feature)", err)
+		msg.FatalOnErr("May be need to create an empty file first? (Safety feature)", err)
 		if 0 < len(b) {
 			err = json.Unmarshal(b, &(p.ItemList))
-			msg.FatalErr(err)
+			msg.FatalOnErr("", err)
 		}
 	}
 	if true == Verbose {
@@ -85,8 +85,8 @@ func (p *List) ReadListFile() {
 // WriteListFile marshalls p.List to p.fnJSON.
 func (p *List) WriteListFile() {
 	b, err := json.MarshalIndent(p.ItemList, "", "\t")
-	msg.FatalErr(err)
-	msg.FatalErr(ioutil.WriteFile(p.FnJSON, b, 0644))
+	msg.FatalOnErr("", err)
+	msg.FatalOnErr("", ioutil.WriteFile(p.FnJSON, b, 0644))
 }
 
 // ZeroTimestampCreated sets all timstamps 'created' to 0.
