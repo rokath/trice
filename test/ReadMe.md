@@ -1,6 +1,6 @@
 # Trice demo & test project info
 
-Many demo projects are ARMKeil IDE STM32 here but TRICE is easy adaptable to 8 - 64 bit architectures.
+Demo projects are ARMKeil IDE STM32 here but TRICE is easy adaptable to 8 - 64 bit architectures.
 
 ## Backup folder
 
@@ -12,11 +12,12 @@ Many demo projects are ARMKeil IDE STM32 here but TRICE is easy adaptable to 8 -
 
 - Open an escape sequence capable terminal in trice root `C:\repos\trice\`opr where you put it.
   - Any directory will do as well but the `til.json` file needs to be found.
-  - git-bash will do or also windows-terminal
-  - Under Windows the DOS or powershell could have display issues with the escaped ASCII codes. Search the internet for answers.
+  - git-bash will do or also windows-terminal from Mirosoft store.
+    - Under Windows the DOS or powershell could have display issues with the escaped ASCII codes. Search the internet for answers.
 
 ## RTT info
 
+- The example projects support both, RTT and UART just for demonstration.
 - RTT = Real Time Transfer is a technique developed by SEGGER for background memory access during processor runtime. This is possible for ARM cores over the JTAG or SWD interface if a debug probe is connected.
 - Some of the STM developmemt boards contain a debug probe you can use for the board itself or for an othe board.
 - These are so called on-board STLINK debug probes. To use RTT use the `-p STLINK` switch.
@@ -26,7 +27,7 @@ Many demo projects are ARMKeil IDE STM32 here but TRICE is easy adaptable to 8 -
 
 ## UART
 
-- The default baud rate is 115200 for all test projects and the trice tool assumes that baud rate automatically. Use the `-baud` switch for other settings.
+- The default baud rate is 115200 for all test projects and the trice tool assumes that baud rate automatically. Use the ztice tool `-baud` switch for other settings.
 
 ## MDK-ARM projects
 
@@ -42,15 +43,12 @@ The projects are generated with necessary library files *as reference* to keep t
 
 ## Details
 
+- [MDK-ARM_LL_generatedDemo_STM32F030R8-NUCLEO-64\ReadMe.md](MDK-ARM_LL_generatedDemo_STM32F030R8-NUCLEO-64\ReadMe.md)
 - [MDK-ARM_LL_UART_RTT0_BARE_STM32F030R8-NUCLEO-64/ReadMe.md](MDK-ARM_LL_UART_RTT0_BARE_STM32F030R8-NUCLEO-64/ReadMe.md)
-- [MDK-ARM_LL_UART_RTT0_BARE_STM32F070RB_NUCLEO-64/ReadMe.md](MDK-ARM_LL_UART_RTT0_BARE_STM32F070RB_NUCLEO-64/ReadMe.md)
 - [MDK-ARM_LL_UART_RTT0_BARE_STM32F091_NUCLEO-64/ReadMe.md](MDK-ARM_LL_UART_RTT0_BARE_STM32F091_NUCLEO-64/ReadMe.md)
 - [MDK-ARM_LL_UART_RTT0_ESC_STM32F030R8_NUCLEO-64/ReadMe.md](MDK-ARM_LL_UART_RTT0_ESC_STM32F030R8_NUCLEO-64/ReadMe.md)
-- [MDK-ARM_LL_UART_RTT0_ESC_STM32F070RB_NUCLEO-64/ReadMe.md](MDK-ARM_LL_UART_RTT0_ESC_STM32F070RB_NUCLEO-64/ReadMe.md)
 - [MDK-ARM_LL_UART_WRAP_RTT0_BARE_STM32F030R8-NUCLEO-64/ReadMe.md](MDK-ARM_LL_UART_WRAP_RTT0_BARE_STM32F030R8-NUCLEO-64/ReadMe.md)
-- [MDK-ARM_RTT0_BARE_STM32F0308-DISCO/ReadMe.md](MDK-ARM_RTT0_BARE_STM32F0308-DISCO/ReadMe.md)
-- [MDK-ARM_RTT0_BARE_STM32F03051R8Tx-DISCOVERY/ReadMe.md](MDK-ARM_RTT0_BARE_STM32F03051R8Tx-DISCOVERY/ReadMe.md)
-- [MDK-ARM_RTT0_BARE_STM32F03051R8Tx-DISCOVERY/ReadMe.md](MDK-ARM_RTT0_BARE_STM32F03051R8Tx-DISCOVERY/ReadMe.md)
+
 
 ## Further info
 
