@@ -21,6 +21,6 @@
   - /path/to/current/folder/
   - Additional a config file can be specified in the command line as first parameter
   - command line parameters
-- If the */trice/executable/folder* is part of */path/to/current/folder/* the config file */trice/executable/folder/trice.conf.json* is loaded twice resuting the the appropriate config priority
+- If the */trice/executable/folder* is part of */path/to/current/folder/*, the config file */trice/executable/folder/trice.conf.json* is loaded twice resulting the the appropriate config priority
 - The last subcommand is the winner.
 - Parameters of other subcommands are ignored.

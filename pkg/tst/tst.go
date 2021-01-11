@@ -17,6 +17,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/rokath/trice/pkg/msg"
+
 	"github.com/stretchr/testify/assert"
 
 	"github.com/udhos/equalfile"
@@ -43,7 +45,8 @@ func CaptureStdOut(f func()) string {
 	outC := make(chan string)
 	go func() {
 		var buf bytes.Buffer
-		io.Copy(&buf, r)
+		_, err := io.Copy(&buf, r)
+		msg.InfoOnErr("", err)
 		outC <- buf.String()
 	}()
 

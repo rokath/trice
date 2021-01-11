@@ -39,9 +39,9 @@ func Handler(args []string) error {
 
 	// Verify that a subcommand has been provided: os.Arg[0] is the main command (trice), os.Arg[1] will be the subcommand.
 	if len(os.Args) < 2 {
-		msg := "no args, try: 'trice help'"
-		fmt.Println(msg)
-		return errors.New(msg)
+		m := "no args, try: 'trice help'"
+		fmt.Println(m)
+		return errors.New(m)
 	}
 
 	// Switch on the subcommand. Parse the flags for appropriate FlagSet.
@@ -54,36 +54,36 @@ func Handler(args []string) error {
 		fmt.Println("try: 'trice help|h'")
 		return nil
 	case "h", "help":
-		fsScHelp.Parse(subArgs)
+		msg.InfoOnErr("", fsScHelp.Parse(subArgs))
 		distributeArgs()
 		return scHelp(fsScLog, fsScZero, fsScVersion, fsScSv, fsScSdSv)
 	case "s", "sc", "scan":
-		fsScScan.Parse(subArgs)
+		msg.InfoOnErr("", fsScScan.Parse(subArgs))
 		distributeArgs()
 		_, err := com.GetSerialPorts()
 		return err
 	case "v", "ver", "version":
-		fsScVersion.Parse(subArgs)
+		msg.InfoOnErr("", fsScVersion.Parse(subArgs))
 		distributeArgs()
 		return scVersion()
 	case "u", "update":
-		fsScUpdate.Parse(subArgs)
+		msg.InfoOnErr("", fsScUpdate.Parse(subArgs))
 		distributeArgs()
 		return id.ScUpdate(id.FnJSON)
 	case "zeroSourceTreeIds":
-		fsScZero.Parse(subArgs)
+		msg.InfoOnErr("", fsScZero.Parse(subArgs))
 		distributeArgs()
 		return id.ScZero(*pSrcZ, fsScZero)
 	case "sd", "sdds", "sdrds", "shutdownRemoteDisplayServer":
-		fsScSdSv.Parse(subArgs)
+		msg.InfoOnErr("", fsScSdSv.Parse(subArgs))
 		distributeArgs()
 		return emitter.ScShutdownRemoteDisplayServer(1)
 	case "ds", "displayServer":
-		fsScSv.Parse(subArgs)
+		msg.InfoOnErr("", fsScSv.Parse(subArgs))
 		distributeArgs()
 		return emitter.ScDisplayServer() // endless loop
 	case "l", "log":
-		fsScLog.Parse(subArgs)
+		msg.InfoOnErr("", fsScLog.Parse(subArgs))
 		distributeArgs()
 		logLoop() // endless loop
 		return nil
@@ -157,7 +157,7 @@ func scHelp(
 
 // logLoop prepares writing and list and provides a retry mechanism for unplugged UART.
 func logLoop() {
-	cipher.SetUp() // does nothing when -password is "none"
+	msg.InfoOnErr("", cipher.SetUp()) // does nothing when -password is "none"
 	if decoder.TestTableMode {
 		// set switches if they not set already
 		// trice l -ts off -prefix " }, ``" -suffix "\n``}," -color off
@@ -234,7 +234,6 @@ func distributeArgs() {
 	id.Verbose = verbose
 	link.Verbose = verbose
 	cage.Verbose = verbose
-	receiver.Verbose = verbose
 	decoder.Verbose = verbose
 	emitter.Verbose = verbose
 	emitter.TestTableMode = decoder.TestTableMode

@@ -60,7 +60,7 @@ func NewDevice(port, arguments string) *Device {
 	p.tempLogFileHandle, e = ioutil.TempFile(os.TempDir(), "trice-*.bin") // opens for read and write
 	msg.InfoOnErr("", e)
 	p.tempLogFileName = p.tempLogFileHandle.Name()
-	p.tempLogFileHandle.Close()
+	msg.InfoOnErr("", p.tempLogFileHandle.Close())
 
 	p.arguments = arguments
 	p.args = strings.Split(arguments, " ")

@@ -6,6 +6,7 @@ package emitter
 
 import (
 	"fmt"
+	"github.com/rokath/trice/pkg/msg"
 	"math/rand"
 	"os"
 	"testing"
@@ -18,7 +19,7 @@ func TestRemoteDisplay(t *testing.T) {
 	// prepare
 	afn := "testdata/actRemote.log"
 	efn := "testdata/expRemote.log"
-	os.Remove(afn)
+	msg.InfoOnErr("", os.Remove(afn))
 	exec := "trice.exe" // todo: os.Args[0] does not work!
 	ipp := randomDynIPPort()
 	p := NewRemoteDisplay(exec, "-logfile "+afn, "localhost", ipp)

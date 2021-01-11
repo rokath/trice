@@ -6,6 +6,7 @@ package keybcmd
 
 import (
 	"bufio"
+	"github.com/rokath/trice/pkg/msg"
 	"io/ioutil"
 	"os"
 	"strings"
@@ -29,7 +30,7 @@ func stimulate(keys, ipa, ipp string) []byte {
 	loopAction(bufioReader, ipa, ipp)
 
 	// restore
-	w.Close()
+	msg.InfoOnErr("", w.Close())
 	captured, _ := ioutil.ReadAll(r)
 	os.Stdout = rescueStdout
 

@@ -7,6 +7,8 @@ package emitter
 import (
 	"testing"
 
+	"github.com/rokath/trice/pkg/msg"
+
 	"github.com/stretchr/testify/assert"
 )
 
@@ -18,17 +20,22 @@ func Test2LineComposer(t *testing.T) {
 	Suffix = "]"
 	p := newLineComposer(lw)
 
-	p.WriteString("Hi\r\nAll\n")
+	_, err := p.WriteString("Hi\r\nAll\n")
+	msg.InfoOnErr("", err)
 	assert.Equal(t, []string{"[Hi]", "[All]"}, lw.lines)
 	lw.lines = lw.lines[:0]
 
-	p.WriteString("Hi")
-	p.WriteString("Hi\n")
+	_, err = p.WriteString("Hi")
+	msg.InfoOnErr("", err)
+	_, err = p.WriteString("Hi\n")
+	msg.InfoOnErr("", err)
 	assert.Equal(t, []string{"[HiHi]"}, lw.lines)
 	lw.lines = lw.lines[:0]
 
-	p.WriteString("\n\nHi\n\n")
-	p.WriteString("Ho\n")
+	_, err = p.WriteString("\n\nHi\n\n")
+	msg.InfoOnErr("", err)
+	_, err = p.WriteString("Ho\n")
+	msg.InfoOnErr("", err)
 	assert.Equal(t, []string{"[]", "[]", "[Hi]", "[]", "[Ho]"}, lw.lines)
 	lw.lines = lw.lines[:0]
 }
@@ -40,6 +47,7 @@ func TestLineComposer(t *testing.T) {
 	Prefix = "<<<"
 	Suffix = ">>>"
 	p := newLineComposer(lw)
-	p.WriteString("Hi\nAll\r\n")
+	_, err := p.WriteString("Hi\nAll\r\n")
+	msg.InfoOnErr("", err)
 	assert.Equal(t, []string{"2006-01-02_1504-05 <<<Hi>>>", "2006-01-02_1504-05 <<<All>>>"}, lw.lines)
 }

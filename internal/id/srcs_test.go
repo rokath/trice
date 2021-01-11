@@ -5,6 +5,7 @@ package id
 
 import (
 	"fmt"
+	"github.com/rokath/trice/pkg/msg"
 	"path/filepath"
 	"testing"
 
@@ -15,8 +16,8 @@ func TestArrayFlag(t *testing.T) {
 	p := &Srcs
 	assert.Equal(t, "", p.String())
 
-	p.Set("ab")
-	p.Set("xyz")
+	msg.InfoOnErr("", p.Set("ab"))
+	msg.InfoOnErr("", p.Set("xyz"))
 	fmt.Println(Srcs)
 	var af ArrayFlag
 	af = []string{"ab", "xyz"}

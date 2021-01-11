@@ -51,7 +51,7 @@ The pack trice transmit format is in network order (big endian). The trice encod
 
 and so on...
 
-A sync packet {0x89, 0xab, 0xcd, 0xef} can be inserted anytime between 2 trices but not inside a trice.
+A sync packet {0x89, 0xab, 0xcd, 0xef} can be inserted anytime between 2 trice but not inside a trice.
 
 ## Encoding `bare`
 
@@ -105,7 +105,7 @@ The bare trice transmit format is in network order (big endian). The trice encod
 
 and so on...
 
-## bare internal triceFifo storage format on little endian mashines
+## bare internal triceFifo storage format on little endian machines
 
 ```b
       0     1     2     3 | macro
@@ -145,7 +145,7 @@ and so on...
 
 and so on...
 
-## bare internal triceFifo storage format on big endian mashines
+## bare internal triceFifo storage format on big endian machines
 
 ```b
       0     1     2     3 | macro
@@ -185,7 +185,7 @@ and so on...
 
 and so on...
 
-Because the triceFifo has a power-of-2 size in case of an overflow syncing is without issues.
+Because the triceFifo has a power-of-2 size, in case of an overflow syncing is without issues.
 
 ## bare transmit format
 
@@ -239,7 +239,7 @@ The ESCaped encoding allowes a syncing to the next trice message on the behalf o
 #define TRICE_DEL  0xDE //!< Delete char, if follower of TRICE_ESC, deletes the meaning os TRICE_ESC making it an ordinary TRICE_ESC char.
 ```
 
-This is inserted as not counted value into the bytestream after an `0xec` to signal that this is an ordinary `0xec` byte inside the data stream. As byte `0xec` is not used so often is is defined as ESC character:
+This is inserted as not counted value into the bytes stream after an `0xec` to signal that this is an ordinary `0xec` byte inside the data stream. As byte `0xec` is not used so often is is defined as ESC character:
 
 ### Length Code `LC`
 
@@ -265,7 +265,7 @@ The LC is a 1-byte logarithmic length code. This is a copy from [trice.h lines 4
 ### TriceID `IH` and `IL`
 
 - The third and fourth byte are the 16 bit trice ID: IH & IL.
-- The trice ID encodes one of the allowed trice macros and a format string.
+- The trice ID encodes one of the allowed trice macros, and a format string.
 - The format string has some format specifiers accordingly to the trice macro.
 - In the case of `TRICE_S` the format string contains one and only one `%s`.
 
@@ -358,7 +358,7 @@ See function `TestEsc` and `TestEscDynStrings` in file [decoder_test.go](https:/
 - Byte order is network order (bigendian)
 - Each trice is coded in one to eight 4-byte trice atoms.
 - A trice atom consists of a 2 byte id and 2 bytes data.
-- When a trice consists of several trice atoms only the last one carries the trice id. The others have a trice id 0.
+- When a trice consists of several trice atoms, only the last one carries the trice id. The others have a trice id 0.
 
 ## Encoding `wrap`
 
@@ -366,7 +366,7 @@ See function `TestEsc` and `TestEscDynStrings` in file [decoder_test.go](https:/
   - 0xEB = start byte
   - 0x60 = source address
   - 0x60 = destination address
-  - crc8 = 8 bit checksum over start byte, source and destination address and the 4 bare bytes.
+  - crc8 = 8 bit checksum over start byte, source and destination address, and the 4 bare bytes.
 
 
 ## `esc` encoding (to do: improve this)

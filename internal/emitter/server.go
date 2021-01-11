@@ -91,7 +91,7 @@ func ScDisplayServer() error {
 	fmt.Println("displayServer @", a)
 	srv := new(Server)
 	srv.Display = *NewColorDisplay(ColorPalette)
-	rpc.Register(srv)
+	msg.InfoOnErr("", rpc.Register(srv))
 	var err error
 	listener, err = net.Listen("tcp", a)
 	if nil != err {
