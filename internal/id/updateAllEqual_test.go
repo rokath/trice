@@ -15,18 +15,60 @@ func TestUpdateAllEqual(t *testing.T) {
 	`, `
 	TRICE32_2( Id(100), "rd_:    { (uint32_t*) 0x%08x, 0x%08xu  },\r\n", pAddress, Value );
 	TRICE32_2( Id(100), "rd_:    { (uint32_t*) 0x%08x, 0x%08xu  },\r\n", pAddress, Value );
+	TRICE_S( Id(200), "sig:generated=%s\n", x );
+	TRICE_S( Id(200), "sig:generated=%s\n", x );
+	TRICE_S( Id(200), "sig:generated=%s\n", x );
 	`, `
 	TRICE32_2( Id(100), "rd_:    { (uint32_t*) 0x%08x, 0x%08xu  },\r\n", pAddress, Value );
+	TRICE_S( Id(200), "sig:generated=%s\n", x );
+	TRICE_S( Id(200), "sig:generated=%s\n", x );
 	`}
 
 	listExp := `[
-		{
-			"id": 100,
-			"fmtType": "TRICE32_2",
-			"fmtStrg": "rd_:    { (uint32_t*) 0x%08x, 0x%08xu  },\\r\\n",
-			"created": 0,
-			"removed": 0
-		}
-	]`
+	{
+		"id": 100,
+		"fmtType": "TRICE32_2",
+		"fmtStrg": "rd_:    { (uint32_t*) 0x%08x, 0x%08xu  },\\r\\n",
+		"created": 0,
+		"removed": 0
+	},
+	{
+		"id": 200,
+		"fmtType": "TRICE_S",
+		"fmtStrg": "sig:generated=%s\\n",
+		"created": 0,
+		"removed": 0
+	}
+]`
+	doUpdate(t, sOri, sOri, listExp)
+}
+
+// Currently a TRICE macro must be complete with Id(0) or Id(12345) or can be without parameter count specification but must not contain an Id(0) or Id(12345) in that case.
+// Examples:
+// TRICE8( "%d", v) // ok
+// TRICE8_1( Id(0), "%d", v) // ok
+// TRICE8_1( Id(7), "%d", v) // ok
+// TRICE8_1( "%d", v ) // NOT ok: remove _1 or add Id(0)
+// TRICE8( Id(0), "%d", v ) // NOT ok: add _1 or remove Id(0)
+func TestUpdateWithIdAndNoParamCount(t *testing.T) {
+	sOri := []string{`
+	TRICE32_2( Id(100), "rd_:    { (uint32_t*) 0x%08x, 0x%08xu  },\r\n", pAddress, Value );
+	`, `
+
+	`, `
+
+	`, `
+
+	`}
+
+	listExp := `[
+	{
+		"id": 100,
+		"fmtType": "TRICE32_2",
+		"fmtStrg": "rd_:    { (uint32_t*) 0x%08x, 0x%08xu  },\\r\\n",
+		"created": 0,
+		"removed": 0
+	}
+]`
 	doUpdate(t, sOri, sOri, listExp)
 }
