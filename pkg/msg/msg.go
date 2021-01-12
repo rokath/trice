@@ -12,6 +12,12 @@ import (
 	"runtime"
 )
 
+// Info prints info with location info.
+func Info(info string) {
+	pc, fn, line, ok := runtime.Caller(1)
+	fmtMessage(pc, fn, line, ok, errors.New(info))
+}
+
 // InfoOnErr prints info and a common error message with location info when err is not nil.
 func InfoOnErr(info string, err error) {
 	if nil == err {
@@ -46,7 +52,6 @@ func InfoOnFalse(info string, flag bool) {
 	if true == flag {
 		return
 	}
-	fmt.Println(info)
 	pc, fn, line, ok := runtime.Caller(1)
 	fmtMessage(pc, fn, line, ok, errors.New(info))
 }

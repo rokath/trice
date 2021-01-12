@@ -12,6 +12,8 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+
+	"github.com/rokath/trice/pkg/msg"
 )
 
 // todo: remove static values from parameter lists (Verbose)
@@ -21,25 +23,25 @@ const (
 	patSourceFile = "(\\.c|\\.h|\\.cc|\\.cpp|\\.hpp)$"
 
 	// patNbTRICE is a regex pattern matching any "TRICE*(Id(n), "", ... )". - see https://regex101.com/r/LNlAwY/7, The (?U) says non-greedy
-	patNbTRICE = `(?U)(TRICE0|TRICE8_[1-8]|TRICE16_[1-4]|TRICE32_[1-4]|TRICE64_[1-4])\s*\(\s*\bId\b\s*\(\s*.*[0-9]\s*\)\s*,\s*".*"\s*.*\)`
+	patNbTRICE = `(?U)(TRICE_S|TRICE0|TRICE8_[1-8]|TRICE16_[1-4]|TRICE32_[1-4]|TRICE64_[1-4])\s*\(\s*\bId\b\s*\(\s*.*[0-9]\s*\)\s*,\s*".*"\s*.*\)`
 
 	// patNbID is a regex pattern matching any (first in string) "Id(n)" and usable in matches of matchNbTRICE
 	patNbID = `\bId\s*\(\s*[0-9]*\s*\)`
 
 	// patTypNameTRICE is a regex pattern matching "TRICE*" inside trice
-	patTypNameTRICE = `(\bTRICE0\b|\bTRICE8_[1-8]\b|\bTRICE16_[1-4]\b|\bTRICE32_[1-4]|\bTRICE64_[1-4])`
+	patTypNameTRICE = `(\bTRICE_S\b|\bTRICE0\b|\bTRICE8_[1-8]\b|\bTRICE16_[1-4]\b|\bTRICE32_[1-4]|\bTRICE64_[1-4])`
 
 	// patFmtString is a regex matching the first format string inside trice
 	patFmtString = `"(.*)"`
 
 	// patFullTriceWithoutID is a regex find a TRICE* line without Id, The (?U) says non-greedy
-	patFullTriceWithoutID = `(?U)(\bTRICE64|TRICE32|TRICE16|TRICE8|TRICE0\b)\s*\(\s*".*"\s*.*\)`
+	patFullTriceWithoutID = `(?U)(\bTRICE64|TRICE32|TRICE16|TRICE8|TRICE0|TRICE_S\b)\s*\(\s*".*"\s*.*\)`
 
 	// patTriceStartWithoutIDo is a regex
-	patTriceStartWithoutIDo = `(\bTRICE64|TRICE32|TRICE16|TRICE8|TRICE0\b)\s*\(`
+	patTriceStartWithoutIDo = `(\bTRICE64|TRICE32|TRICE16|TRICE8|TRICE0|TRICE_S\b)\s*\(`
 
 	// patTriceStartWithoutID is a regex
-	patTriceStartWithoutID = `(\bTRICE64|TRICE32|TRICE16|TRICE8|TRICE0\b)\s*`
+	patTriceStartWithoutID = `(\bTRICE64|TRICE32|TRICE16|TRICE8|TRICE0|TRICE_S\b)\s*`
 
 	// patNextFormatSpezifier is a regex find next format specifier in a string (exclude %%*)
 	patNextFormatSpezifier = `(?:^|[^%])(%[0-9\.#]*(b|d|u|x|X|o|f))`
@@ -176,13 +178,13 @@ func updateNextID(p *List, pListModified *bool, modified bool, subs, s string, v
 	nbTRICE := subs[loc[0]:loc[1]]
 	nbID := matchNbID.FindString(nbTRICE)
 	if "" == nbID {
-		fmt.Println("warning: No 'Id(n)' found inside " + nbTRICE)
+		msg.Info(fmt.Sprintln("No 'Id(n)' found inside " + nbTRICE))
 		return false, modified, subs, s
 	}
 	var id int
 	_, err := fmt.Sscanf(nbID, "Id(%d", &id) // closing bracket in format string omitted intensionally
 	if nil != err {                          // because spaces after id otherwise are not tolerated
-		fmt.Println("error: No 'Id(n)' found inside " + nbID)
+		msg.Info(fmt.Sprintln("No 'Id(n)' found inside " + nbID))
 		return false, modified, subs, s
 	}
 	if 0 == id {
@@ -205,7 +207,7 @@ func updateNextID(p *List, pListModified *bool, modified bool, subs, s string, v
 	subs = subs[loc[1]:]
 	typNameTRICE := matchTypNameTRICE.FindString(nbTRICE)
 	if "" == typNameTRICE {
-		fmt.Println("error: no 'TRICE*' found inside " + typNameTRICE)
+		msg.Info(fmt.Sprintln("no 'TRICE*' found inside " + typNameTRICE))
 		return false, modified, subs, s
 	}
 	match := matchFmtString.FindAllStringSubmatch(nbTRICE, 1)
@@ -348,7 +350,7 @@ func zeroNextID(modified bool, subs, s string) (bool, bool, string, string) {
 	nbTRICE := subs[loc[0]:loc[1]]
 	nbID := matchNbID.FindString(nbTRICE)
 	if "" == nbID {
-		fmt.Println("No 'Id(n)' found inside " + nbTRICE)
+		msg.Info(fmt.Sprintln("No 'Id(n)' found inside " + nbTRICE))
 		return false, modified, subs, s
 	}
 

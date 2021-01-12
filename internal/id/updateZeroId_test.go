@@ -31,6 +31,8 @@ func TestUpdateZeroId(t *testing.T) {
 	TRICE32_2( Id(0), "tst:   %11d   %11d\n", 0x80000000, 0xffffffff  );
 	TRICE32_2( Id(0), "tst:TRICE32   %%12o ->  %12o  %12o", 1, 0x7fffffff );
 	TRICE32_2( Id(0), "tst:  %12o  %12o\n", 0x80000000, 0xffffffff );
+	TRICE_S( Id(0), "sig:generated=%s\n", x );
+	TRICE_S  (   Id(0),   "sig:generated=%s\n", x );
 	`}
 
 	sExp := []string{`
@@ -57,6 +59,8 @@ func TestUpdateZeroId(t *testing.T) {
 	TRICE32_2( Id(53650), "tst:   %11d   %11d\n", 0x80000000, 0xffffffff  );
 	TRICE32_2( Id(15285), "tst:TRICE32   %%12o ->  %12o  %12o", 1, 0x7fffffff );
 	TRICE32_2( Id(61124), "tst:  %12o  %12o\n", 0x80000000, 0xffffffff );
+	TRICE_S( Id(63805), "sig:generated=%s\n", x );
+	TRICE_S  (   Id(44213),   "sig:generated=%s\n", x );
 	`}
 
 	listExp := `[
@@ -199,7 +203,55 @@ func TestUpdateZeroId(t *testing.T) {
 			"fmtStrg": "tst:  %12o  %12o\\n",
 			"created": 0,
 			"removed": 0
-		}
+		},
+		{
+			"id": 63805,
+			"fmtType": "TRICE_S",
+			"fmtStrg": "sig:generated=%s\\n",
+			"created": 0,
+			"removed": 0
+		},	
+		{
+			"id": 44213,
+			"fmtType": "TRICE_S",
+			"fmtStrg": "sig:generated=%s\\n",
+			"created": 0,
+			"removed": 0
+		}	
 	]`
+	doUpdate(t, sOri, sExp, listExp)
+}
+
+func _TestUpdateZeroIds(t *testing.T) {
+
+	sOri := []string{`
+	TRICE_S( Id(0), "tst:runtime string %s.\n", x)
+	`, `
+
+	`, `
+
+	`, `
+	
+	`}
+
+	sExp := []string{`
+	TRICE_S( Id(43274), "tst:runtime string %s.\n", x)
+	`, `
+
+	`, `
+
+	`, `
+	
+	`}
+
+	listExp := `[
+	{
+		"id": 43274,
+		"fmtType": "TRICE_S",
+		"fmtStrg": "tst:runtime string %s.\\n",
+		"created": 0,
+		"removed": 0
+	}
+]`
 	doUpdate(t, sOri, sExp, listExp)
 }

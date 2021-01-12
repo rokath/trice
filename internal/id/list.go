@@ -139,7 +139,7 @@ func (p *List) appendIfMissing(item Item, verbose bool) (int, bool) {
 			// used  on a different place in unchanged form. The ID invalidation could be done
 			// globally later in a separate action.
 			if verbose {
-				fmt.Println("e.ID format changed, so get a new ID")
+				fmt.Println("Same ID", e.ID, "but not identical:", e.FmtType, "?", item.FmtType, "or", e.FmtStrg, "?", item.FmtStrg, "so get a new ID.")
 				fmt.Println(e)
 				fmt.Println(item)
 			}
