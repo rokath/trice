@@ -53,7 +53,7 @@ extern "C" {
 
 
 #if TRICE_BARE_ENCODING == TRICE_ENCODING
-#include "intern/triceFastBareEncoder.h"
+#include "intern/triceBareEncoder.h"
 #include "intern/triceFifoToBytesBuffer.h"
 #endif
 

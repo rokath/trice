@@ -1,11 +1,34 @@
 # Trice encodings
 
+## General
+
+Trice bytes can be encodend in different flawors and it is easy to develop a different encoding.
+- Currently are supported:
+  - C:\repos\trice\srcTrice.C\intern\triceEscEncoder.h - escape sequence encoding
+  - C:\repos\trice\srcTrice.C\intern\triceBareEncoder.h - bare encoding 
+  - C:\repos\trice\srcTrice.C\intern\tricePackEncoder.h - pack 
+
+- For each encoding inside the triceConfig.h is selectable:
+  - encoding with more memory needs but a bit faster OR encoding with less memory needs but a bit slower
+  - encoding with little endian or encoding in big endian
+
+- Additionally an encoding can be wrapped with transport information. As example look for wrapped bare encoding.
+- Also it is possible to use encryption, which is shown as example for the wrapped bare encoding.
+
+A good choice is pack in little endian order (-e packL).
+
+## Some own encoding
+
+- Copy the C:\repos\trice\srcTrice.C\intern\tricePackEncoder.h, to C:\repos\trice\srcTrice.C\intern\triceOwnEncoder.h.
+- Adapt C:\repos\trice\srcTrice.C\intern\triceOwnEncoder.h and integrate it in trice.h accordingly.
+- Adapt triceConfig.h in the desired way.
+- Copy C:\repos\trice\internal\decoder\packDecoder.go to C:\repos\trice\internal\decoder\ownDecoder.go and adapt it.
+- Integrate ownDecoder.go accordingly.
+- Write tests!
+
 ## Encoding `pack`
 
-
 The pack trice transmit format is in network order (big endian). The trice encoding inside the triceFifo is already network order. So it is unchanged movable to the output channel. 
-
-
 
 ```b
       0     1     2     3 | macro
