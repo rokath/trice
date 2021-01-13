@@ -2,7 +2,7 @@
 // Use of this source code is governed by a license that can be found in the LICENSE file.
 
 // small helper functions for quick copy into packages code
-package
+package xxx
 
 import (
 	"bufio"
@@ -107,7 +107,7 @@ func readLines(file string) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer func(){ msg.InfoOnErr( "", f.Close() }()
+	defer func(){ msg.InfoOnErr( "", f.Close()) }()
 	r := bufio.NewReader(f)
 	for {
 		const delim = '\n'
@@ -134,9 +134,9 @@ func writeLines(file string, lines []string) error {
 	if err != nil {
 		return err
 	}
-	defer func(){ msg.InfoOnErr( "", f.Close() }()
+	defer func(){ msg.InfoOnErr( "", f.Close()) }()
 	w := bufio.NewWriter(f)
-	defer func(){ msg.InfoOnErr( "", f.Flush() }()
+	defer func(){ msg.InfoOnErr( "", f.Flush()) }()
 	for _, line := range lines {
 		_, err := w.WriteString(line)
 		if err != nil {
@@ -196,13 +196,13 @@ func cleanFile(fileName string) {
 	if err != nil {
 		panic(err)
 	}
-	defer func(){ msg.InfoOnErr( "", file.Close() }()
+	defer func(){ msg.InfoOnErr( "", file.Close()) }()
 
 	wFile, err := os.Create(fileName + ".clean")
 	if err != nil {
 		panic(err)
 	}
-	defer func(){ msg.InfoOnErr( "", wFile.Close() }()
+	defer func(){ msg.InfoOnErr( "", wFile.Close())}()
 	w := bufio.NewWriter(wFile)
 
 	data := make([]byte, 128)
@@ -263,8 +263,8 @@ func min(a, b int) int {
 }
 
 
-// tst.CaptureStdOut captures stdout and stderr.
-func tst.CaptureStdOut(f func()) string {
+// CaptureStdOut captures stdout and stderr.
+func CaptureStdOut(f func() string {
 
 	// keep backup of the real stdout
 	old := os.Stdout
@@ -319,8 +319,8 @@ func (p *bytesViewer) Read(b []byte) (n int, e error) {
 // test helper ///////////////////////////////////////////////////////////////////////
 //
 
-// tst.Equal fails the test if exp is not equal to act.
-func tst.Equal(tb testing.TB, exp, act interface{}) {
+// Equal fails the test if exp is not equal to act.
+func Equal(tb testing.TB, exp, act interface{}) {
 	if !reflect.DeepEqual(exp, act) {
 		_, file, line, _ := runtime.Caller(1)
 		log.Println("expect:", exp)

@@ -3,14 +3,15 @@
 ## General
 
 Trice bytes can be encodend in different flawors and it is easy to develop a different encoding.
+
 - Currently are supported:
-  - C:\repos\trice\srcTrice.C\intern\triceEscEncoder.h - escape sequence encoding
-  - C:\repos\trice\srcTrice.C\intern\triceBareEncoder.h - bare encoding 
-  - C:\repos\trice\srcTrice.C\intern\tricePackEncoder.h - pack 
+    - C:\repos\trice\srcTrice.C\intern\triceEscEncoder.h - escape sequence encoding
+    - C:\repos\trice\srcTrice.C\intern\triceBareEncoder.h - bare encoding
+    - C:\repos\trice\srcTrice.C\intern\tricePackEncoder.h - pack
 
 - For each encoding inside the triceConfig.h is selectable:
-  - encoding with more memory needs but a bit faster OR encoding with less memory needs but a bit slower
-  - encoding with little endian or encoding in big endian
+    - encoding with more memory needs but a bit faster OR encoding with less memory needs but a bit slower
+    - encoding with little endian or encoding in big endian
 
 - Additionally an encoding can be wrapped with transport information. As example look for wrapped bare encoding.
 - Also it is possible to use encryption, which is shown as example for the wrapped bare encoding.
@@ -28,7 +29,8 @@ A good choice is pack in little endian order (-e packL).
 
 ## Encoding `pack`
 
-The pack trice transmit format is in network order (big endian). The trice encoding inside the triceFifo is already network order. So it is unchanged movable to the output channel. 
+The pack trice transmit format is in network order (big endian). The trice encoding inside the triceFifo is already
+network order. So it is unchanged movable to the output channel.
 
 ```b
       0     1     2     3 | macro
@@ -54,7 +56,6 @@ The pack trice transmit format is in network order (big endian). The trice encod
      IH    IL   cntH  cntL   'a'  'b'   'c'   'd'     | TRICE_S( Id(I), "...%s...", "abcd" );     // cnt = 4
 ```
 
-
 ```b
      0     1     2     3     4     5     6     7     8     9     10    11     | macro
 ------------------------------------------------------------------------------|---------------------------------------------------------------------
@@ -78,15 +79,17 @@ A sync packet {0x89, 0xab, 0xcd, 0xef} can be inserted anytime between 2 trice b
 
 ## Encoding `bare`
 
-The bare trice transmit format is in network order (big endian). The trice encoding inside the triceFifo differs from the trice transmit format on little endian mashines for performance reasons.
+The bare trice transmit format is in network order (big endian). The trice encoding inside the triceFifo differs from
+the trice transmit format on little endian mashines for performance reasons.
 
-- The bare triceFifo storage format is in machine order concerning 16 bit values but big endian for 32 and 64 bit values. In detail:
-  - on big endian mashines:
-    - m = H
-    - n = L
-  - on little endian mashines:
-    - m = L
-    - n = H
+- The bare triceFifo storage format is in machine order concerning 16 bit values but big endian for 32 and 64 bit
+  values. In detail:
+    - on big endian mashines:
+        - m = H
+        - n = L
+    - on little endian mashines:
+        - m = L
+        - n = H
 
 ## bare internal triceFifo storage format expressed in mashine order
 
@@ -213,8 +216,8 @@ Because the triceFifo has a power-of-2 size, in case of an overflow syncing is w
 ## bare transmit format
 
 - This is exactly the same as the bare internal storage format with these differences:
-  - The byte order of the 16 bit values is big endian.
-  - There are sometimes 4 byte [sync packages](#sync-packages) mixed in at 4 byte offsets.
+    - The byte order of the 16 bit values is big endian.
+    - There are sometimes 4 byte [sync packages](#sync-packages) mixed in at 4 byte offsets.
 
 <!---
 
@@ -239,7 +242,8 @@ Targest can send trices in different encodings
 
 ## Encoding `esc`
 
-The `esc` encoding uses an escape character for syncing after some data loss. It is extendable and recommended if plenty of runtime strings need to be transmitted because these are more compact in `esc` encoding compared to the bare format.
+The `esc` encoding uses an escape character for syncing after some data loss. It is extendable and recommended if plenty
+of runtime strings need to be transmitted because these are more compact in `esc` encoding compared to the bare format.
 
 - All numbers are transmitted in network order (big endian).
 - All values are in left-right order - first value comes first.
@@ -256,17 +260,22 @@ An `esc` trice transfer packet consists of an 4-byte header followed by an optio
 #define TRICE_ESC  0xEC //!< Escape char is control char to start a package.
 ```
 
-The ESCaped encoding allowes a syncing to the next trice message on the behalf of the escape character `0xec`. It is always followed by a length code in the range `0xdf ... 0xe8`. All other bytes are reserved for future usage despite the `0xde` byte. 
+The ESCaped encoding allowes a syncing to the next trice message on the behalf of the escape character `0xec`. It is
+always followed by a length code in the range `0xdf ... 0xe8`. All other bytes are reserved for future usage despite
+the `0xde` byte.
 
 ```c
 #define TRICE_DEL  0xDE //!< Delete char, if follower of TRICE_ESC, deletes the meaning os TRICE_ESC making it an ordinary TRICE_ESC char.
 ```
 
-This is inserted as not counted value into the bytes stream after an `0xec` to signal that this is an ordinary `0xec` byte inside the data stream. As byte `0xec` is not used so often is is defined as ESC character:
+This is inserted as not counted value into the bytes stream after an `0xec` to signal that this is an ordinary `0xec`
+byte inside the data stream. As byte `0xec` is not used so often is is defined as ESC character:
 
 ### Length Code `LC`
 
-The LC is a 1-byte logarithmic length code. This is a copy from [trice.h lines 44-58](https://github.com/rokath/trice/blob/master/srcTrice.C/trice.h) and shows the length code meaning:
+The LC is a 1-byte logarithmic length code. This is a copy
+from [trice.h lines 44-58](https://github.com/rokath/trice/blob/master/srcTrice.C/trice.h) and shows the length code
+meaning:
 
 ```c
 #define TRICE_P0   0xDF //!< No param char = If follower of TRICE_ESC only a 16 bit ID is inside the payload.
@@ -294,7 +303,8 @@ The LC is a 1-byte logarithmic length code. This is a copy from [trice.h lines 4
 
 ### Payload
 
-A number of bytes according LC is optionally following the header. If within the data to be transmitted an 0xEC occurs it stays on its place and is followed by a not counted 0xDE byte to signal that this is no start byte.
+A number of bytes according LC is optionally following the header. If within the data to be transmitted an 0xEC occurs
+it stays on its place and is followed by a not counted 0xDE byte to signal that this is no start byte.
 
 - Generic description
 
@@ -319,18 +329,17 @@ A number of bytes according LC is optionally following the header. If within the
 | EC .. ...              | reserved                   |             | All packages starting with EC E9 until starting with EC FF are reserved.
 | EC FF ...              | reserved                   |             | All packages starting with EC E9 until starting with EC FF are reserved.
 
-- Examples
-See function `TestEsc` and `TestEscDynStrings` in file [decoder_test.go](https://github.com/rokath/trice/blob/master/internal/decoder/decoder_test.go).
+- Examples See function `TestEsc` and `TestEscDynStrings` in
+  file [decoder_test.go](https://github.com/rokath/trice/blob/master/internal/decoder/decoder_test.go).
 
 ## Encoding `bare`
 
-
 ## Sync packages
+
 - The frequency is adjustable and could be every 100ms or 40 bytes.
 - The PC `trice` tool removes them silently.
-- A sync package is `0x89 0xab 0xcd 0ef`. 
-- The PC `trice` tool does not use 
-
+- A sync package is `0x89 0xab 0xcd 0ef`.
+- The PC `trice` tool does not use
 
 ```c
 //! TRICE_SYNC is an optional trice sync message for syncing, when bare transmission is used.
@@ -386,10 +395,9 @@ See function `TestEsc` and `TestEscDynStrings` in file [decoder_test.go](https:/
 ## Encoding `wrap`
 
 - This is the same as bare, but each trice atom is prefixed with a 4 byte wrap information:
-  - 0xEB = start byte
-  - 0x60 = source address
-  - 0x60 = destination address
-  - crc8 = 8 bit checksum over start byte, source and destination address, and the 4 bare bytes.
-
+    - 0xEB = start byte
+    - 0x60 = source address
+    - 0x60 = destination address
+    - crc8 = 8 bit checksum over start byte, source and destination address, and the 4 bare bytes.
 
 ## `esc` encoding (to do: improve this)

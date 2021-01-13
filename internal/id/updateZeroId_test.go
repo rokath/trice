@@ -222,7 +222,7 @@ func TestUpdateZeroId(t *testing.T) {
 	doUpdate(t, sOri, sExp, listExp)
 }
 
-func _TestUpdateZeroIds(t *testing.T) {
+func TestUpdateZeroIds(t *testing.T) {
 
 	sOri := []string{`
 	TRICE_S( Id(0), "tst:runtime string %s.\n", x)
