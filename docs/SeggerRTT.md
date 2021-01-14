@@ -9,7 +9,7 @@
     - Use J-Link or J-Link OB (on-board).
       J-Link OB one is flashable to many ST Microelectronics evaluation boards (v2.0 link hardware).
     - Use ST-Link with [gostlink](https://github.com/rokath/trice/blob/master/third_party/goST/ReadMe.md).
-      It uses only one USB endpoint so debugging and trice outout in parallel is not possible.
+      It uses only one USB endpoint so debugging and trice output in parallel is not possible.
     - Use some other Debug-Probe with target memory access (support welcome)
   - RTT channel selection (on target and on host)
     - RECOMMENDED:
