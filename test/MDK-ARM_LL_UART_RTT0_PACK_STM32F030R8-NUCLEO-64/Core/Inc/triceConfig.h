@@ -41,7 +41,7 @@ TRICE0( Id(46928), "s:                                                   \ns:   
 #define TRICE_TRANSFER_ENDIANESS TRICE_LITTLE_ENDIANESS 
 
 //#define TRICE_U8PUSH(v) do{ triceU8PushSeggerRTT(v); triceU8Push(v); } while(0) //!< Set trice out channel(s) 
-#define TRICE_U32PUSH(v) do{ /*triceU32PushSeggerRTT(v);*/ triceU32Push(v); } while(0) //!< Set trice out channel(s) 
+#define TRICE_U32PUSH(v) do{ triceU32PushSeggerRTT(v); triceU32Push(v); } while(0) //!< Set trice out channel(s) 
 
 //
 ///////////////////////////////////////////////////////////////////////////////

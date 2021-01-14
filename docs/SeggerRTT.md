@@ -25,11 +25,10 @@ Following steps describe the needed action for a ST Microelectronics evaluation 
 
 #### First step (to do if some issues occur - otherwise you can skip it)
 
-- Get & install [STM32 ST-LINK utility](https://www.st.com/en/development-tools/stsw-link004.html) 
+- Get & install [STM32 ST-LINK utility](https://www.st.com/en/development-tools/stsw-link004.html)
 - Run from default install location `"C:\Program Files (x86)\STMicroelectronics\STM32 ST-LINKUtility\ST-LINK Utility\ST-LinkUpgrade.exe"`)
 - Enable checkbox `Change Type` and select radio button `STM32 Debug+Mass storage + VCP`. *The `STM32Debug+ VCP` won´t be detected by Segger reflash utility.*
-
-  ![ST-LINK-Upgrade.PNG](https://github.com/rokath/trice/blob/master/docs/README.media/ST-LINK-Upgrade.PNGG)
+  ![ST-LINK-Upgrade.PNG](./README.media/ST-LINK-Upgrade.PNG)
 
 #### Second step
 
@@ -40,7 +39,9 @@ Following steps describe the needed action for a ST Microelectronics evaluation 
 
 - `JLink.exe` is the SEGGER J-Link commander. It starts the **J-Link driver/server** and the `trice` tool can connect to it:
   - Example:
-    - Compile and flash `MDK-ARM_LL_RTT_NUCLEO-F030R8` project
+    - Compile and flash `../test/MDK-ARM_LL_UART_RTT0_PACK_STM32F030R8-NUCLEO-64` project
+
+<!---
     - Open a commandline and run:
 
       ```b
@@ -48,21 +49,24 @@ Following steps describe the needed action for a ST Microelectronics evaluation 
       ```
 
     - Or simply doubleclick on "C:\Program Files (x86)\SEGGER\JLink\JLink.exe"
-    - Open an other commandline and run:
+-->
+    - Open a commandline and run:
 
       ```b
-      trice log -device RTT
+      trice log -p JLINK
       ```
 
     - trice outout is visible
     - With `h`alt and `g`o inside the Jlink window the MCU can get haltes and released
     - It is possible in parallel to debug-step with a debugger (tested with ARM-MDK)
-  - **PLUS:**
-    - works reliable
-    - trice can connect over TCP localhost:19021 and display logs over RTT channel 0
-  - **MINUS:** 
-    - Uses RTT up-channel 0 and therefore RTT up-channel 0 is not usable differently
-    - No down-channel usable
+
+- **PLUS:**
+- works reliable
+- trice can connect over TCP localhost:19021 and display logs over RTT channel 0
+
+- **MINUS:**
+- Uses RTT up-channel 0 and therefore RTT up-channel 0 is not usable differently
+- No down-channel usable
 - `JLinkRTTLogger.exe` is usable for writing RTT channel N data from target into a file. The trice tool can watch this file and display them.
   - **PLUS:**
     - Can use RTT up-channel 0,1,2,...
@@ -75,65 +79,43 @@ Following steps describe the needed action for a ST Microelectronics evaluation 
     - If several instances can watch on different RTT chanels and all goes in parallel to debugging.
   - **TESTED:**
     - Create file
-      ```
-      $ /c/Program\ Files\ \(x86\)/SEGGER/JLink/JLinkRTTLogger.exe -Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0 triceRaw.log
-      ```
+
+    /c/Program\ Files\ \(x86\)/SEGGER/JLink/JLinkRTTLogger.exe -Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0 triceRaw.log
+
     - Play file with *-device RTTF*
 
-
 - `JLinkRTTClient.exe` can be used for simple text transmitting to the target, it also displays strings  from target coming over channel 0. It is not used by the trice tool. 
-  - **PLUS:** 
+  - **PLUS:**
     - target stimulation with proprietary protocol over RTT down-channel 0 possible
-  - **MINUS:** 
+  - **MINUS:**
     - Unfortunately it cannot run separately parallel to stimulate the target with any proprietary protocol.
 
-## Software Setup example (JLinkRTTViewer.exe is depriciated, use JLink.exe instead!)
+## Software Setup example (JLinkRTTViewer.exe is depreciated, use JLink.exe instead!)
 
-  - Build and flash `triceDemo_NUCLEO-F030RB_LL_SeggerRTT_MDK-ARM`
+- Build and flash `../test/MDK-ARM_LL_UART_RTT0_PACK_STM32F030R8-NUCLEO-64`
   - Download [J-Link Software and Documentation Pack](https://www.segger.com/downloads/jlink/#J-LinkSoftwareAndDocumentationPack) and install
   - Start `"C:\Program Files (x86)\SEGGER\JLink\JLinkRTTViewer.exe"` and connect to the J-Link. You only need this as a running server to connect to.
     - Unfortunately the JLinkRTTViewer "steals" from time to time some trice data packages and displays them as data garbage.
     - Better use JLink.exe or the *Segger J-Link SDK* instead.
   - Run `trice log -port JLINK`. It should now connect to JLinkLogViewer.
-  - Also `trice log -device RTT` is possible when trice display server is active (`trice ds`).
   - Now the trice output is visible.
 - In the SeggerRTT example projects you see how to setup.
 
-## Segger RTT 
+## Segger RTT
 
-- The main advantage here is, that no `triceServe()` is needed in the background, because this job is automatically done by SeggerRTT. This way one can debug code as comfortable as with `printf()` but with all the TRICE advantages. Have a look here: ![SeggerRTTD.gif](./README.media/SeggerRTTD.gif)
+- The main advantage here is, that no `triceServe()` nor any interrupt is needed in the background, because this job is automatically done by SeggerRTT. This way one can debug code as comfortable as with `printf()` but with all the TRICE advantages. Have a look here: ![SeggerRTTD.gif](./README.media/JLINK-DebugSession.gif)
 
 ## Segger RTT unbuffered (PC side receiver -device=JLINK)
 
 - Avoid trice buffering inside target and write with TRICE macro directly into the RTT buffer
-- Write the 8 bytes per trace directly (little time & some space overhead on target, but no changes on host side) - this is implemented as test example.
+- Write the bytes per trace directly (little time & some space overhead on target, but no changes on host side) - this is implemented as test example.
   
-  ![triceBlockDiagramWithSeggerRTT.svg](./README.media/triceBlockDiagramWithSeggerRTT.svg)
-
-- Normally no need to use that, because the unbuffered direct mode will do better.
-
-## Recommended: Segger RTTD unbuffered direct mode (PC side receiver -device=RTTD)
-
-- Write directly the 4 byte trices to RTT (faster and less RAM & code on target side and litte extension on host side). 
-- Doing so leads to the question how to reliable sync the data stream, because there is no control information in the data stream.
-  - A sync package does fine here (`TRICE_RTTD_SYNC`)
-    - A one time sync package after reset will do, but to re-connect to a running target a repetition every second or so is recommended.
-    - The trice data stream cannot contain a 4-bytes sequence 0x16161616, when the ID 5654 is reserved for the sync package.
-    - The sync package itself gets invisible because it deletes itself 
-```
-//! trice sync message for RTTdirect environments. The value 5654 is a reserved pattern used as ID and value.
-//! It cannot occure in the trice stream. You must not change that. Otherwise the RTTD syncing will not work.
-//! If for some reason the Id changes during 'trice u', probably when the string changed, you need to remove
-//! the old pattern from til.json and put Id(5654) manually here
-#define TRICE_RTTD_SYNC do{ TRICE16_1( Id(5654), "%d\b\b\b\b", 5654 ); }while(0)
-```
-
-  ![triceBlockDiagramWithSeggerRTTD.svg](./README.media/triceBlockDiagramWithSeggerRTTD.svg)
+  ![triceBlockDiagramWithSeggerRTT.svg](./README.media/triceBlockDiagramWithSeggerRTTD.svg)
 
 ## Segger J-Link SDK (~800 EUR) Option
 
 - Segger offers a SeggerRTT SDK which allows to use more than just channel 0 and you can develop your own tooling with it.
-- The `trice -device RTT` is ok for usage **as is** right now. However if you with more comfort check here:
+- The `trice -port JLINK` is ok for usage **as is** right now. However if you wish more comfort check here:
 - Question: [How-to-access-multiple-RTT-channels](https://forum.segger.com/index.php/Thread/6688-SOLVED-How-to-access-multiple-RTT-channels-from-Telnet/)
   - "Developer pack used to write your own program for the J-Link. Please be sure you agree to the terms of the associated license found on the Licensing Information tab before purchasing this SDK. You will benefit from six months of free email support from the time that this product is ordered."
   - [https://www.segger.com/products/debug-probes/j-link/technology/j-link-sdk/](https://www.segger.com/products/debug-probes/j-link/technology/j-link-sdk/)
@@ -142,7 +124,7 @@ Following steps describe the needed action for a ST Microelectronics evaluation 
 
 - `Downloading RTT target package` from [https://www.segger.com/products/debug-probes/j-link/technology/about-real-time-transfer/](https://www.segger.com/products/debug-probes/j-link/technology/about-real-time-transfer/).
 - Read the manual `"C:\Program Files (x86)\SEGGER\JLink\Doc\Manuals\UM08001_JLink.pdf"`.
-- Extract `"C:\Program Files (x86)\SEGGER\JLink\Samples\RTT\SEGGER_RTT_V672b.zip"` to target project. 
+- Extract `"C:\Program Files (x86)\SEGGER\JLink\Samples\RTT\SEGGER_RTT_V672b.zip"` to target project. Check for an update @ SEGGER.
 - Add `SEGGER_RTTI.c` to target project
 - Put into main(): `char* s = "Hi5!\n"; SEGGER_RTT_Write(0, s, strlen(s));`, compile & flash image
 - Start `"C:\Program Files (x86)\SEGGER\JLink\JLinkRTTViewer.exe"` & connect.
@@ -150,10 +132,11 @@ Following steps describe the needed action for a ST Microelectronics evaluation 
 - Now `Hi5!` should be visible inside terminal window when resetting target board.
 - Instead of `"C:\Program Files (x86)\SEGGER\JLink\JLinkRTTViewer.exe"` also `"C:\Program Files (x86)\SEGGER\JLink\JLink.exe"` could be started & then `https://github.com/stalehd/jlinklogviewer`.
 - What also works: `"C:\Program Files (x86)\SEGGER\JLink\JLink.exe"` followed by a terminal program like TeraTerm connected to `localhost:19021`.
-- [https://github.com/stalehd/jlinklogviewer](https://github.com/stalehd/jlinklogviewer) is integrated into the trice tool (`-device RTT` option)
+- [https://github.com/stalehd/jlinklogviewer](https://github.com/stalehd/jlinklogviewer) is integrated into the trice tool (`-port JLINK` option)
 
 ## Further development
 
+- The GoST project offers a way around JLINK. Used -port STLINK instead.
 - Maybe `libusb` together with `libjaylink` offer some options too.
 - Checkout [https://github.com/deadsy/jaylink[(https://github.com/deadsy/jaylink).
 - `"C:\Program Files (x86)\SEGGER\JLink\JMem.exe"` shows a memory dump.
