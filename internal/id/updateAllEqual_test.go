@@ -52,9 +52,19 @@ func TestUpdateAllEqual(t *testing.T) {
 // TRICE8( Id(0), "%d", v ) // NOT ok: add _1 or remove Id(0)
 func TestUpdateWithIdAndNoParamCount(t *testing.T) {
 	sOri := []string{`
-	TRICE32_2( Id(100), "rd_:    { (uint32_t*) 0x%08x, 0x%08xu  },\r\n", pAddress, Value );
+	TRICE32_2( Id(100), "rd_:    { (uint32_t*) 0x%08x, 0x%08xu  },\r\n", pAddress, Value ); // to do: remove _2
+	`, `
+	TRICE_S( "wr:fmtSting %s", x )
 	`, `
 
+	`, `
+
+	`}
+
+	sExp := []string{`
+	TRICE32_2( Id(100), "rd_:    { (uint32_t*) 0x%08x, 0x%08xu  },\r\n", pAddress, Value ); // to do: remove _2
+	`, `
+	TRICE_S( Id(43274), "wr:fmtSting %s", x )
 	`, `
 
 	`, `
@@ -62,13 +72,20 @@ func TestUpdateWithIdAndNoParamCount(t *testing.T) {
 	`}
 
 	listExp := `[
-	{
-		"id": 100,
-		"fmtType": "TRICE32_2",
-		"fmtStrg": "rd_:    { (uint32_t*) 0x%08x, 0x%08xu  },\\r\\n",
-		"created": 0,
-		"removed": 0
-	}
+		{
+			"id": 100,
+			"fmtType": "TRICE32_2",
+			"fmtStrg": "rd_:    { (uint32_t*) 0x%08x, 0x%08xu  },\\r\\n",
+			"created": 0,
+			"removed": 0
+		},
+		{
+			"id": 43274,
+			"fmtType": "TRICE_S",
+			"fmtStrg": "wr:fmtSting %s",
+			"created": 0,
+			"removed": 0
+		}
 ]`
-	doUpdate(t, sOri, sOri, listExp)
+	doUpdate(t, sOri, sExp, listExp)
 }

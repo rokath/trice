@@ -1,24 +1,23 @@
 # Segger Real Time Transfer (RTT)
 
 - Prerequisite is a processor with memory background access support like ARM Cortex-M cores.
-- If you can use a Segger JLINK or an STM STLINK debug probe (ST Microelectronics eval boards have it) this is an easy and fast way to use trice.
-- Detailed description can be found in document [UM08001_JLink.pdf](../third_party/Manuals/UM08001_JLink.pdf) in chapter 16 which is part of [https://www.segger.com/downloads/jlink/#J-LinkSoftwareAndDocumentationPack](https://www.segger.com/downloads/jlink/#J-LinkSoftwareAndDocumentationPack).
+- If you can use a Segger JLINK or an STM STLINK debug probe (ST Microelectronics eval boards have it) this is an easy and fast way to use trice without any UART or other port.
+- Detailed description can be found in document [UM08001_JLink.pdf](https://github.com/rokath/trice/blob/master/third_party/segger.com/UM08001_JLink.pdf) in chapter 16 which is part of [https://www.segger.com/downloads/jlink/#J-LinkSoftwareAndDocumentationPack](https://www.segger.com/downloads/jlink/#J-LinkSoftwareAndDocumentationPack).
 - Following examples are for Windows, but should work similar also on Linux and Darwin (MacOS).
 - The trice tool can use the SEGGER RTT protocol in different ways.
   - Hardware paths:
-    - Use J-Link or J-Link OB (on-board)
-    - Use ST-Link with **gostlink** (Work in progress in June 2020)
+    - Use J-Link or J-Link OB (on-board).
+      J-Link OB one is flashable to many ST Microelectronics evaluation boards (v2.0 link hardware).
+    - Use ST-Link with [gostlink](https://github.com/rokath/trice/blob/master/third_party/goST/ReadMe.md).
+      It uses only one USB endpoint so debugging and trice outout in parallel is not possible.
     - Use some other Debug-Probe with target memory access (support welcome)
-  - Data format
-    - bare: direct trice format
-    - other data protocols are not difficult to adapt.
-  - RTT channel selection (on target and on host) 
+  - RTT channel selection (on target and on host)
     - RECOMMENDED:
-      - `trice l -p JLINK` starts in background a `JLinkRTTLogger.exe` which connects to J-Link and writes to a logfile which in turn is read by the trice tool. On exit the `JLinkRTTLogger.exe` is killed automatically. It expects a target sending trice messages in 4-bytes (bare) format over RTT channel 0 (other channels supported too). It is possible to start several instances on different channels as well as on different targets.
+      - `trice l -p JLINK` starts in background a `JLinkRTTLogger.exe` which connects to J-Link and writes to a logfile which in turn is read by the trice tool. On exit the `JLinkRTTLogger.exe` is killed automatically. It expects a target sending messages over RTT channel 0 (other channels supported too). It is possible to start several instances on different channels as well as on different targets.
 
 ## J-Link option
 
-- Prerequisite is a SEGGER J-Link debug probe or a development board with an on-board J-Link option. 
+- Prerequisite is a SEGGER J-Link debug probe or a development board with an on-board J-Link option.
 
 ### Convert a STM NUCLEO or DISCOVERY onboard ST-Link (valid for ST-Link v2 & v2.1, not for v3)
 
@@ -30,7 +29,7 @@ Following steps describe the needed action for a ST Microelectronics evaluation 
 - Run from default install location `"C:\Program Files (x86)\STMicroelectronics\STM32 ST-LINKUtility\ST-LINK Utility\ST-LinkUpgrade.exe"`)
 - Enable checkbox `Change Type` and select radio button `STM32 Debug+Mass storage + VCP`. *The `STM32Debug+ VCP` won´t be detected by Segger reflash utility.*
 
-  ![ST-LINK-Upgrade.PNG](./README.media/ST-LINK-Upgrade.PNG)
+  ![ST-LINK-Upgrade.PNG](https://github.com/rokath/trice/blob/master/docs/README.media/ST-LINK-Upgrade.PNGG)
 
 #### Second step
 
