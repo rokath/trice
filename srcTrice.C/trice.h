@@ -61,6 +61,10 @@ extern "C" {
 #include "intern/tricePackEncoder.h"
 #endif
 
+#if TRICE_PACK2_ENCODING == TRICE_ENCODING
+#include "intern/tricePack2Encoder.h"
+#endif
+
 #ifndef TRICE_SYNC // some encoder define a sync trice
 #define TRICE_SYNC do{ } while(0)// otherwise empty definition for compability
 #endif

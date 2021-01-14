@@ -140,7 +140,7 @@
         <SetRegEntry>
           <Number>0</Number>
           <Key>DLGUARM</Key>
-          <Name>d</Name>
+          <Name></Name>
         </SetRegEntry>
         <SetRegEntry>
           <Number>0</Number>
@@ -157,9 +157,9 @@
         <Bp>
           <Number>0</Number>
           <Type>0</Type>
-          <LineNumber>182</LineNumber>
+          <LineNumber>147</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134224446</Address>
+          <Address>134220906</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -168,14 +168,14 @@
           <BreakIfRCount>1</BreakIfRCount>
           <Filename>&lt;1&gt;..\..\..\srcTrice.C\triceCheck.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\MDK_ARM_LL_UART_RTT0_PACK_STM32F030R8_NUCLEO_64\../../../srcTrice.C/triceCheck.c\182</Expression>
+          <Expression>\\MDK_ARM_LL_UART_RTT0_PACK_STM32F030R8_NUCLEO_64\../../../srcTrice.C/triceCheck.c\147</Expression>
         </Bp>
         <Bp>
           <Number>1</Number>
           <Type>0</Type>
-          <LineNumber>183</LineNumber>
+          <LineNumber>130</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134224496</Address>
+          <Address>134220786</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -184,23 +184,23 @@
           <BreakIfRCount>1</BreakIfRCount>
           <Filename>&lt;1&gt;..\..\..\srcTrice.C\triceCheck.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\MDK_ARM_LL_UART_RTT0_PACK_STM32F030R8_NUCLEO_64\../../../srcTrice.C/triceCheck.c\183</Expression>
+          <Expression>\\MDK_ARM_LL_UART_RTT0_PACK_STM32F030R8_NUCLEO_64\../../../srcTrice.C/triceCheck.c\130</Expression>
         </Bp>
         <Bp>
           <Number>2</Number>
           <Type>0</Type>
-          <LineNumber>181</LineNumber>
+          <LineNumber>131</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134224392</Address>
+          <Address>0</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
           <SizeOfObject>0</SizeOfObject>
           <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>1</BreakIfRCount>
+          <BreakIfRCount>0</BreakIfRCount>
           <Filename>&lt;1&gt;..\..\..\srcTrice.C\triceCheck.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\MDK_ARM_LL_UART_RTT0_PACK_STM32F030R8_NUCLEO_64\../../../srcTrice.C/triceCheck.c\181</Expression>
+          <Expression></Expression>
         </Bp>
       </Breakpoint>
       <Tracepoint>
@@ -209,7 +209,7 @@
       <DebugFlag>
         <trace>0</trace>
         <periodic>1</periodic>
-        <aLwin>0</aLwin>
+        <aLwin>1</aLwin>
         <aCover>0</aCover>
         <aSer1>0</aSer1>
         <aSer2>0</aSer2>
@@ -429,7 +429,7 @@
       <GroupNumber>5</GroupNumber>
       <FileNumber>12</FileNumber>
       <FileType>1</FileType>
-      <tvExp>1</tvExp>
+      <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\srcTrice.C\triceCheck.c</PathWithFileName>

@@ -125,9 +125,31 @@ void triceCheckSet(int index) {
             TRICE16_1(Id(45697), "MSG:normal      message, SysTick is %6d\n", SYSTICKVAL16);
             TRICE16_1(Id(24589), "INFO:informal   message, SysTick is %6d\n", SYSTICKVAL16);
 
-            TRICE32_1(Id(55424), "TST:test        message, SysTick is %6d\n", SYSTICKVAL16);
-            TRICE32_1(Id(55424), "TST:test        message, SysTick is %6d\n", SYSTICKVAL16);
-            TRICE32_1(Id(55424), "TST:test        message, SysTick is %6d\n", SYSTICKVAL16);
+            TRICE32_1(Id(55420), "TST:test        message, SysTick is %6d\n", SYSTICKVAL16);
+            TRICE32_1(Id(55421), "TST:test        message, SysTick is %6d\n", SYSTICKVAL16);
+                // Disassembly for pack2 encoding
+                //    129:             TRICE32_1(Id(55421), "TST:test        message, SysTick is %6d\n", SYSTICKVAL16); 
+                // 0x08000BCA B672      CPSID    I
+                // 0x08000BCC 4E4D      LDR      r6,[pc,#308]  ; @0x08000D04
+                // 0x08000BCE 0097      LSLS     r7,r2,#2
+                // 0x08000BD0 199E      ADDS     r6,r3,r6
+                // 0x08000BD2 1C5B      ADDS     r3,r3,#1
+                // 0x08000BD4 51C6      STR      r6,[r0,r7]
+                // 0x08000BD6 1C52      ADDS     r2,r2,#1
+                // 0x08000BD8 05D2      LSLS     r2,r2,#23
+                //    129:             TRICE32_1(Id(55421), "TST:test        message, SysTick is %6d\n", SYSTICKVAL16); 
+                // 0x08000BDA 698E      LDR      r6,[r1,#0x18]
+                // 0x08000BDC B2DB      UXTB     r3,r3
+                // 0x08000BDE 0DD2      LSRS     r2,r2,#23
+                // 0x08000BE0 0097      LSLS     r7,r2,#2
+                // 0x08000BE2 1C52      ADDS     r2,r2,#1
+                // 0x08000BE4 05D2      LSLS     r2,r2,#23
+                // 0x08000BE6 51C6      STR      r6,[r0,r7]
+                // 0x08000BE8 0DD2      LSRS     r2,r2,#23
+                // 0x08000BEA F3848810  MSR      PRIMASK,r4
+                // 0x08000BEE F3EF8410  MRS      r4,PRIMASK
+//    130:             TRICE32_1(Id(55422), "TST:test        message, SysTick is %6d\n", SYSTICKVAL16); 
+            TRICE32_1(Id(55422), "TST:test        message, SysTick is %6d\n", SYSTICKVAL16);
                 // Disassembly for pack encoding
                 //     94:             TRICE32_1(Id(55424), "TST:test        message, SysTick is %6d\n", SYSTICKVAL16); 
                 // 0x08000A58 698D      LDR      r5,[r1,#0x18]
@@ -142,10 +164,10 @@ void triceCheckSet(int index) {
                 // 0x08000A6A 1C5B      ADDS     r3,r3,#1
                 // 0x08000A6C 05DB      LSLS     r3,r3,#23
                 //     95:             TRICE32_1(Id(55424), "TST:test        message, SysTick is %6d\n", SYSTICKVAL16);
+            TRICE32_1(Id(55423), "TST:test        message, SysTick is %6d\n", SYSTICKVAL16);
             TRICE32_1(Id(55424), "TST:test        message, SysTick is %6d\n", SYSTICKVAL16);
-            TRICE32_1(Id(55424), "TST:test        message, SysTick is %6d\n", SYSTICKVAL16);
-            TRICE32_1(Id(55424), "TST:test        message, SysTick is %6d\n", SYSTICKVAL16);
-            TRICE32_1(Id(55424), "TST:test        message, SysTick is %6d\n", SYSTICKVAL16);
+            TRICE32_1(Id(55425), "TST:test        message, SysTick is %6d\n", SYSTICKVAL16);
+            TRICE32_1(Id(55426), "TST:test        message, SysTick is %6d\n", SYSTICKVAL16);
             break;
         case 3:
             TRICE8_4(Id(2527), "tst:TRICE8  %%03x ->  %03x  %03x  %03x  %03x\n", 1, 0x7f, 0x80, 0xff);
@@ -318,9 +340,9 @@ void triceCheckSet(int index) {
             break;
         case 22: 
             // longest supported dynamically runtime string with 256 chars (pack format is ok with 65535 chars)
-            TRICE_S( Id(41906), "sig:%s", "123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRABC\n" );
+            //TRICE_S( Id(41906), "sig:%s", "123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRABC\n" );
             #ifndef TRICE_ESC_LEGACY  // strlen > 255 forbidden for legacy esc encoding
-            TRICE_S( Id(44619), "sig:%s", "123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRABCD\n" );
+            //TRICE_S( Id(44619), "sig:%s", "123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRABCD\n" );
             #endif
         break;
         case 25:

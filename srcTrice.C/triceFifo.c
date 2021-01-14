@@ -9,6 +9,10 @@
 
 #define TRICE_FILENAME TRICE0( Id(13515), "rd_:triceFifo.c" );
 
+#if TRICE_ENCODING == TRICE_PACK2_ENCODING
+uint8_t triceCycle = 0;
+#endif
+
 //! trice fifo instance, here are the trices buffered.
 ALIGN4 uint32_t
 triceU32Fifo[ TRICE_FIFO_BYTE_SIZE>>2 ]

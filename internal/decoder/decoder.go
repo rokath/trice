@@ -110,6 +110,10 @@ func Translate(sw *emitter.TriceLineComposer, list *id.List, rc io.ReadCloser) b
 		dec = NewPackDecoder(list.ItemList, rc, bigEndian)
 	case "packl", "packL":
 		dec = NewPackDecoder(list.ItemList, rc, littleEndian)
+	case "pack2":
+		dec = NewPack2Decoder(list.ItemList, rc, bigEndian)
+	case "pack2l", "pack2L":
+		dec = NewPack2Decoder(list.ItemList, rc, littleEndian)
 	case "bare":
 		dec = NewBareDecoder(list.ItemList, rc, bigEndian)
 	case "barel", "bareL":
