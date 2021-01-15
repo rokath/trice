@@ -13,20 +13,19 @@ import (
 
 // Esc is the Decoder instance for esc encoded trices.
 type Esc struct {
-	decoding
+	Decoding
 }
 
 // NewEscDecoder provides an EscDecoder instance.
 // l is the trice id list in slice of struct format.
 // in is the usable reader for the input bytes.
-func NewEscDecoder(l []id.Item, in io.Reader, endian bool) (r io.Reader) {
+func NewEscDecoder(l []id.Item, in io.Reader, endian bool) Decoding {
 	p := &Esc{}
 	p.in = in
 	p.syncBuffer = make([]byte, 0, defaultSize)
 	p.lut = MakeLut(l)
 	p.endian = endian // esc format is only big endian
-	r = p
-	return
+	return p.Decoding
 }
 
 // Read is the provided read method for esc decoding of next string as byte slice.

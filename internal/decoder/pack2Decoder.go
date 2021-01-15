@@ -13,7 +13,7 @@ import (
 
 // Pack2 is the Decoder instance for bare encoded trices.
 type Pack2 struct {
-	decoding
+	Decoding
 	syncPacket     string
 	d0, d1, d2, d3 uint32 // read raw data
 	cycle          int
@@ -24,14 +24,15 @@ type Pack2 struct {
 // l is the trice id list in slice of struct format.
 // in is the usable reader for the input bytes.
 // littleEndian is false on normal network order.
-func NewPack2Decoder(l []id.Item, in io.Reader, endian bool) io.Reader {
+func NewPack2Decoder(l []id.Item, in io.Reader, endian bool) Decoding {
 	p := &Pack2{}
 	p.in = in
 	p.syncBuffer = make([]byte, 0, defaultSize)
 	p.lut = MakeLut(l)
 	p.endian = endian
 	p.syncPacket = "inf:[TRICE_SYNCPACKET 0x89abcdef]"
-	return p
+	p.rd = p.Read
+	return p.Decoding
 }
 
 // Read is the provided read method for pack decoding of next string as byte slice.

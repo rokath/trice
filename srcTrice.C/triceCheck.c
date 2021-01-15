@@ -291,21 +291,21 @@ void triceCheckSet(int index) {
             TRICE_RTS( "an_example_string\n" );
             break;
         case 14:
-					  runtimeStringIndex = 0;
-						triceRuntimeStrings(33);
+            runtimeStringIndex = 0;
+            triceRuntimeStrings(5);
             break;
-        case 15: 
-					  runtimeStringIndex = 60;
-						triceRuntimeStrings(10);
-            break;
-        case 16: 
-					  runtimeStringIndex = 125;
-						triceRuntimeStrings(5);
-            break;
-        case 17: 
-					  runtimeStringIndex = 248;
-						triceRuntimeStrings(5);
-            break;
+//       case 15: 
+//					  runtimeStringIndex = 60;
+//						triceRuntimeStrings(10);
+//           break;
+//       case 16: 
+//					  runtimeStringIndex = 125;
+//						triceRuntimeStrings(5);
+//           break;
+//       case 17: 
+//					  runtimeStringIndex = 248;
+//						triceRuntimeStrings(5);
+//           break;
         case 33:
 #ifdef ENCRYPT
         {

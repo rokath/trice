@@ -38,17 +38,18 @@ var (
 )
 
 // newDecoder abstracts the function type for a new decoder.
-type newDecoder func(l []id.Item, in io.Reader, endian bool) (r io.Reader)
+type newDecoder func(l []id.Item, in io.Reader, endian bool) (d Decoding)
 
-// decoding is the common data struct for all decoders
-type decoding struct {
-	in         io.Reader // inner reader
-	syncBuffer []byte    // unprocessed bytes hold for next cycle
-	lut        IDLookUp  // id look-up map for translation
-	endian     bool      // littleEndian or bigEndian
-	trice      idFmt     // received trice
-	b          []byte    // read buffer
-	bc         int       // trice specific bytes count
+// Decoding is the common data struct for all decoders
+type Decoding struct {
+	in         io.Reader                 // inner reader
+	syncBuffer []byte                    // unprocessed bytes hold for next cycle
+	lut        IDLookUp                  // id look-up map for translation
+	endian     bool                      // littleEndian or bigEndian
+	trice      idFmt                     // received trice
+	b          []byte                    // read buffer
+	bc         int                       // trice specific bytes
+	rd         func([]byte) (int, error) // outer reader
 }
 
 // idFmt contains the ID mapped information needed for decoding.
@@ -102,7 +103,7 @@ func newIDLut(til []byte) (IDLookUp, error) {
 // Translate returns true on io.EOF or false on hard read error or sigterm.
 func Translate(sw *emitter.TriceLineComposer, list *id.List, rc io.ReadCloser) bool {
 
-	var dec io.Reader
+	var dec Decoding //io.Reader
 	switch Encoding {
 	case "esc":
 		dec = NewEscDecoder(list.ItemList, rc, bigEndian)
@@ -145,7 +146,7 @@ outer:
 			}
 			return false // end
 		default:
-			n, err := dec.Read(b)
+			n, err := dec.rd(b)
 			if io.EOF == err {
 				if Verbose {
 					fmt.Println(err)
@@ -186,7 +187,7 @@ func run0(sw *emitter.TriceLineComposer, sr StringsReader) error {
 */
 
 // readU16 returns the 2 b bytes as uint16 according the specified endianess
-func (p *decoding) readU16(b []byte) uint16 {
+func (p *Decoding) readU16(b []byte) uint16 {
 	if littleEndian == p.endian {
 		return binary.LittleEndian.Uint16(b)
 	}
@@ -194,7 +195,7 @@ func (p *decoding) readU16(b []byte) uint16 {
 }
 
 // readU32 returns the 4 b bytes as uint32 according the specified endianess
-func (p *decoding) readU32(b []byte) uint32 {
+func (p *Decoding) readU32(b []byte) uint32 {
 	if littleEndian == p.endian {
 		return binary.LittleEndian.Uint32(b)
 	}
@@ -202,7 +203,7 @@ func (p *decoding) readU32(b []byte) uint32 {
 }
 
 // readU64 returns the 8 b bytes as uint64 according the specified endianess
-func (p *decoding) readU64(b []byte) uint64 {
+func (p *Decoding) readU64(b []byte) uint64 {
 	if littleEndian == p.endian {
 		return binary.LittleEndian.Uint64(b)
 	}
@@ -210,7 +211,7 @@ func (p *decoding) readU64(b []byte) uint64 {
 }
 
 // rub removes leading bytes from sync buffer
-func (p *decoding) rub(n int) {
+func (p *Decoding) rub(n int) {
 	if TestTableMode {
 		if emitter.NextLine {
 			emitter.NextLine = false
@@ -223,7 +224,7 @@ func (p *decoding) rub(n int) {
 	p.syncBuffer = p.syncBuffer[n:]
 }
 
-func (p *decoding) outOfSync(msg string) (n int, e error) {
+func (p *Decoding) outOfSync(msg string) (n int, e error) {
 	cnt := p.bc
 	if cnt > 20 {
 		cnt = 20

@@ -27,14 +27,14 @@ func doTableTest(t *testing.T, f newDecoder, endianess bool, teta testTable) {
 	if err != nil {
 		t.Fail()
 	}
+	dec := f(list, nil, endianess) // p is a new decoder instance
 	for _, x := range teta {
-		rc := ioutil.NopCloser(bytes.NewBuffer(x.in))
-		p := f(list, rc, endianess) // p is a new decoder instance
+		dec.in = ioutil.NopCloser(bytes.NewBuffer(x.in))
 		var err error
 		var n int
 		var act string
 		for nil == err {
-			n, err = p.Read(buf)
+			n, err = dec.rd(buf)
 			if io.EOF == err && 0 == n {
 				break
 			}
