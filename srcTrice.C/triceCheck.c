@@ -51,7 +51,33 @@ TRICE_INLINE void triceRuntimeGeneratedStringUnbound( const char* s ){
 //! trice runtime string
 #define TRICE_RTS(dynString) do{ triceRuntimeGeneratedStringUnbound(dynString); }while(0)
 
+static int runtimeStringIndex = 250;
 
+// nextRuntimeString returns a in length changing string from 0 to 250 bytes.
+char* nextRuntimeString( void ){
+	  int const iMax = 250;
+	  static int lastI = 0;
+		static char lastC = '1';
+	  static char* rts = "\
+			  123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRSTUVW\
+			  123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRSTUVW\
+			  123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRSTUVW\
+				"; // some more than 250
+		rts[lastI] = lastC; // restore
+
+		runtimeStringIndex = runtimeStringIndex < iMax ? runtimeStringIndex : 0; // avoid overflow
+		lastC = rts[runtimeStringIndex]; // keep for restore
+		rts[runtimeStringIndex] = 0; // write string end char
+		runtimeStringIndex++; // set next
+		return rts;
+}
+
+// triceRuntimeStrings sends n stings to the trice port.
+void triceRuntimeStrings( int n ){
+	  while( n-->0 ){
+			  TRICE_S( Id(   18), "%s", nextRuntimeString() );
+		}
+}			
 
 //! write out all types of trices with fixed values for testing
 //! \details One trice has one subtrace, if param size max 2 bytes. 
@@ -264,89 +290,22 @@ void triceCheckSet(int index) {
             TRICE_RTS( "an_example_strin\n" );
             TRICE_RTS( "an_example_string\n" );
             break;
-        case 14: 
-            TRICE_S( Id(47726), "%s", "" );
-            TRICE_S( Id(51347), "%s", "\n" );
-            TRICE_S( Id(62061), "%s", "1\n" );
-            TRICE_S( Id(61919), "%s", "12\n" );
-            TRICE_S( Id(40673), "%s", "123\n" );
-            TRICE_S( Id(61171), "%s", "1234\n" );
-            TRICE_S( Id(61464), "%s", "12345\n" );
-            TRICE_S( Id(64530), "%s", "123456\n" );
-            TRICE_S( Id(41027), "%s", "1234567\n" );
-            TRICE_S( Id(16073), "%s", "12345678\n" );
-            TRICE_S( Id(47177), "%s", "123456789\n" );
-            TRICE_S( Id(29848), "%s", "123456789A\n" );
-            TRICE_S( Id(56675), "%s", "123456789AB\n" );
-            TRICE_S( Id(60173), "%s", "123456789ABC\n" );
-            TRICE_S( Id(13422), "%s", "123456789ABCD\n" );
-            TRICE_S( Id(39477), "%s", "123456789ABCDE\n" );
-            TRICE_S( Id( 4201), "%s", "123456789ABCDEF\n" );
-            TRICE_S( Id(31109), "%s", "123456789ABCDEFG\n" );
+        case 14:
+					  runtimeStringIndex = 0;
+						triceRuntimeStrings(33);
             break;
         case 15: 
-            TRICE_S( Id( 9060), "%s", "123456789ABCDEFGH\n" );
-            TRICE_S( Id(65468), "%s", "123456789ABCDEFGHI\n" );   
-            TRICE_S( Id(35161), "%s", "123456789ABCDEFGHIJ\n" );
-            TRICE_S( Id(41331), "%s", "123456789ABCDEFGHIJ0\n" );
-            TRICE_S( Id(64839), "%s", "123456789ABCDEFGHIJ01\n" );
-            TRICE_S( Id(53022), "%s", "123456789ABCDEFGHIJ012\n" );
-            TRICE_S( Id(36582), "%s", "123456789ABCDEFGHIJ0123\n" );
-            TRICE_S( Id(22400), "%s", "123456789ABCDEFGHIJ01234\n" );
-            TRICE_S( Id(62017), "%s", "123456789ABCDEFGHIJ012345\n" );
-            TRICE_S( Id(59495), "%s", "123456789ABCDEFGHIJ0123456\n" );
-            TRICE_S( Id(36371), "%s", "123456789ABCDEFGHIJ01234567\n" );
-            TRICE_S( Id( 8879), "%s", "123456789ABCDEFGHIJ012345678\n" );
-            TRICE_S( Id( 6138), "%s", "123456789ABCDEFGHIJ0123456789\n" );
-            TRICE_S( Id( 6394), "%s", "123456789ABCDEFGHIJ0123456789A\n" );
-            TRICE_S( Id( 4796), "%s", "123456789ABCDEFGHIJ0123456789AB\n" );
-            TRICE_S( Id(31729), "%s", "123456789ABCDEFGHIJ0123456789ABC\n" );
-            TRICE_S( Id(17372), "%s", "123456789ABCDEFGHIJ0123456789ABCD\n" );
-            TRICE_S( Id(63839), "%s", "123456789ABCDEFGHIJ0123456789ABCDE\n" );
-            TRICE_S( Id(13090), "%s", "123456789ABCDEFGHIJ0123456789ABCDEF\n" );
+					  runtimeStringIndex = 60;
+						triceRuntimeStrings(10);
             break;
         case 16: 
-            TRICE_S( Id(50392), "%s", "123456789ABCDEFGHIJ0123456789ABCDEFG\n" );
-            TRICE_S( Id(55102), "%s", "123456789ABCDEFGHIJ0123456789ABCDEFGH\n" );
-            TRICE_S( Id(13473), "%s", "123456789ABCDEFGHIJ0123456789ABCDEFGHI\n" );
-            TRICE_S( Id(51318), "%s", "123456789ABCDEFGHIJ0123456789ABCDEFGHIJ\n" );
-            TRICE_S( Id(51003), "%s", "123456789ABCDEFGHIJ0123456789ABCDEFGHIJ0\n" );
-            TRICE_S( Id(31736), "%s", "123456789ABCDEFGHIJ0123456789ABCDEFGHIJ01\n" );
-            TRICE_S( Id( 7424), "%s", "123456789ABCDEFGHIJ0123456789ABCDEFGHIJ012\n" );
+					  runtimeStringIndex = 125;
+						triceRuntimeStrings(5);
             break;
         case 17: 
-            TRICE_S( Id(46462), "%s", "123456789ABCDEFGHIJ0123456789ABCDEFGHIJ0123\n" );
-            TRICE_S( Id(65359), "%s", "123456789ABCDEFGHIJ0123456789ABCDEFGHIJ01234\n" );
-            TRICE_S( Id( 6430), "%s", "123456789ABCDEFGHIJ0123456789ABCDEFGHIJ012345\n" );
-            TRICE_S( Id(29017), "%s", "123456789ABCDEFGHIJ0123456789ABCDEFGHIJ0123456\n" );
-            TRICE_S( Id(59317), "%s", "123456789ABCDEFGHIJ0123456789ABCDEFGHIJ01234567\n" );
-            TRICE_S( Id(48729), "%s", "123456789ABCDEFGHIJ0123456789ABCDEFGHIJ012345678\n" );
-            TRICE_S( Id(22511), "%s", "123456789ABCDEFGHIJ0123456789ABCDEFGHIJ0123456789\n" );
-            TRICE_S( Id(62377), "%s", "123456789ABCDEFGHIJ0123456789ABCDEFGHIJ0123456789A\n" );
+					  runtimeStringIndex = 248;
+						triceRuntimeStrings(5);
             break;
-        case 18: 
-            TRICE_S( Id(35340), "%s", "123456789ABCDEFGHIJ0123456789ABCDEFGHIJ0123456789AB\n" );
-            TRICE_S( Id( 3354), "%s", "123456789ABCDEFGHIJ0123456789ABCDEFGHIJ0123456789ABC\n" );
-            TRICE_S( Id(28177), "%s", "123456789ABCDEFGHIJ0123456789ABCDEFGHIJ0123456789ABCD\n" );
-            break;
-        case 19: 
-            TRICE_S( Id(24863), "%s", "123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRSTUVW\n" );
-            break;
-        case 20: 
-            TRICE_S( Id(11397), "%s", "123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRSTU\n" );
-            break;   
-        case 21: 
-            TRICE_S( Id(30121), "%s", "123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRSTUV\n" );
-            break;
-        case 22: 
-            // longest supported dynamically runtime string with 256 chars (pack format is ok with 65535 chars)
-            //TRICE_S( Id(41906), "sig:%s", "123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRABC\n" );
-            #ifndef TRICE_ESC_LEGACY  // strlen > 255 forbidden for legacy esc encoding
-            //TRICE_S( Id(44619), "sig:%s", "123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRABCD\n" );
-            #endif
-        break;
-        case 25:
-           // TRICE_RS( "tata" ):
         case 33:
 #ifdef ENCRYPT
         {
