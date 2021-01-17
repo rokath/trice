@@ -190,8 +190,8 @@ func (p *Pack2) bytesCountOk(cnt int) bool {
 	return cnt == bytesCount || -1 == bytesCount
 }
 
-// byteCount returns expected byte count for triceType.
-// It returns -1 for an unknown value an -2 for unknown triceType.
+// expectedByteCount returns expected byte count for triceType.
+// It returns -1 for an unknown count value and -2 for unknown triceType.
 func (p *Pack2) expectedByteCount() int {
 	switch p.trice.Type {
 	case "TRICE0":

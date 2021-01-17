@@ -51,33 +51,25 @@ TRICE_INLINE void triceRuntimeGeneratedStringUnbound( const char* s ){
 //! trice runtime string
 #define TRICE_RTS(dynString) do{ triceRuntimeGeneratedStringUnbound(dynString); }while(0)
 
-static int runtimeStringIndex = 250;
-
 // nextRuntimeString returns a in length changing string from 0 to 250 bytes.
-char* nextRuntimeString( void ){
-	  int const iMax = 250;
-	  static int lastI = 0;
-		static char lastC = '1';
-	  static char* rts = "\
-			  123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRSTUVW\
-			  123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRSTUVW\
-			  123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRSTUVW123456789ABCDEFGHIJKLMNOPQRSTUVW\
-				"; // some more than 250
-		rts[lastI] = lastC; // restore
-
-		runtimeStringIndex = runtimeStringIndex < iMax ? runtimeStringIndex : 0; // avoid overflow
-		lastC = rts[runtimeStringIndex]; // keep for restore
-		rts[runtimeStringIndex] = 0; // write string end char
-		runtimeStringIndex++; // set next
-		return rts;
+char* nextRuntimeString( int length ){
+    static char rts[300] = {0};
+    for( int i = 0; i < length; i++ ){
+       char c = 0x7f & (0x20 + i);
+        c = c < 0x20 ? c + 0x20 : c;
+        rts[i] = c;
+    }
+    rts[length] = 0;
+    return rts;
 }
 
 // triceRuntimeStrings sends n stings to the trice port.
-void triceRuntimeStrings( int n ){
-	  while( n-->0 ){
-			  TRICE_S( Id(   18), "%s", nextRuntimeString() );
-		}
-}			
+void triceRuntimeStrings( int from, int limit){
+    for( int i = from; i < limit; i++ ){
+        char* rts =  nextRuntimeString(i);
+        TRICE_S( Id(   99), "%s\n", rts );
+    }
+}
 
 //! write out all types of trices with fixed values for testing
 //! \details One trice has one subtrace, if param size max 2 bytes. 
@@ -113,9 +105,6 @@ void triceCheckSet(int index) {
                  // 0x0800088C 05C0      LSLS     r0,r0,#23     ; left shift triceU32FifoWriteIndex by 23 (half mask operation)
                  //     40:             TRICE16_1(Id(16672), "DIA:diagnostics message, SysTick is %6d\n", SYSTICKVAL16); 
             TRICE16_1(Id(16672), "DIA:diagnostics message, SysTick is %6d\n", SYSTICKVAL16);
-        
-        
-        
             TRICE16_1(Id(42206), "TIM:timing      message, SysTick is %6d\n", SYSTICKVAL16);
             TRICE16_1(Id(23973), "DBG:debug       message, SysTick is %6d\n", SYSTICKVAL16);
             break;
@@ -291,21 +280,17 @@ void triceCheckSet(int index) {
             TRICE_RTS( "an_example_string\n" );
             break;
         case 14:
- //           runtimeStringIndex = 0;
-   //         triceRuntimeStrings(5);
+            triceRuntimeStrings(0, 20);
             break;
-//       case 15: 
-//					  runtimeStringIndex = 60;
-//						triceRuntimeStrings(10);
-//           break;
-//       case 16: 
-//					  runtimeStringIndex = 125;
-//						triceRuntimeStrings(5);
-//           break;
-//       case 17: 
-//					  runtimeStringIndex = 248;
-//						triceRuntimeStrings(5);
-//           break;
+       case 15: 
+			triceRuntimeStrings(30, 35 );
+           break;
+       case 16: 
+			triceRuntimeStrings(126, 130);
+           break;
+       case 17: 
+			triceRuntimeStrings(254, 256);
+           break;
         case 33:
 #ifdef ENCRYPT
         {

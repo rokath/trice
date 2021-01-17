@@ -705,5 +705,33 @@
 		"fmtStrg": "att: %d,%d,%d,%d\\n",
 		"created": 1610273496,
 		"removed": 0
+	},
+	{
+		"id": 55421,
+		"fmtType": "TRICE32_1",
+		"fmtStrg": "TST:test        message, SysTick is %6d\\n",
+		"created": 1610910418,
+		"removed": 0
+	},
+	{
+		"id": 55422,
+		"fmtType": "TRICE32_1",
+		"fmtStrg": "TST:test        message, SysTick is %6d\\n",
+		"created": 1610910418,
+		"removed": 0
+	},
+	{
+		"id": 4950,
+		"fmtType": "TRICE32_1",
+		"fmtStrg": "tst:TRICE32_1 %08x\\n",
+		"created": 1610910418,
+		"removed": 0
+	},
+	{
+		"id": 99,
+		"fmtType": "TRICE_S",
+		"fmtStrg": "%s\\n",
+		"created": 1610914200,
+		"removed": 0
 	}
 ]

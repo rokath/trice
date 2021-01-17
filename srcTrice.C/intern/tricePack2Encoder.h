@@ -355,7 +355,7 @@ TRICE_INLINE void trice_s(uint32_t id, char *s) {
     TRICE_ENTER_CRITICAL_SECTION
     int i = 0;
     int len = strlen( s );
-    if( 255 < len ){
+    if( 255 < len ){ 
         s[255] = 0; // truncate
         len = 255;
     }
