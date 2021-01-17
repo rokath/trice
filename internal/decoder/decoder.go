@@ -38,18 +38,60 @@ var (
 )
 
 // newDecoder abstracts the function type for a new decoder.
-type newDecoder func(l []id.Item, in io.Reader, endian bool) (d Decoding)
+type newDecoder func(l []id.Item, in io.Reader, endian bool) Decoder
 
-// Decoding is the common data struct for all decoders
-type Decoding struct {
-	in         io.Reader                 // inner reader
-	syncBuffer []byte                    // unprocessed bytes hold for next cycle
-	lut        IDLookUp                  // id look-up map for translation
-	endian     bool                      // littleEndian or bigEndian
-	trice      idFmt                     // received trice
-	b          []byte                    // read buffer
-	bc         int                       // trice specific bytes
-	rd         func([]byte) (int, error) // outer reader
+// Decoder is providing a byte reader returning decoded trices.
+// setInput allowes switching the input stream to a different source.
+type Decoder interface {
+	io.Reader
+	setInput(io.Reader)
+}
+
+// decoderData is the common data struct for all decoders.
+type decoderData struct {
+	in                io.Reader // inner reader
+	syncBuffer        []byte    // unprocessed bytes hold for next cycle
+	lut               IDLookUp  // id look-up map for translation
+	endian            bool      // littleEndian or bigEndian
+	trice             idFmt     // received trice
+	b                 []byte    // read buffer
+	bc                int       // trice specific bytes
+	lastInnerRead     time.Time
+	innerReadInterval time.Duration
+}
+
+// type intervalReader struct {
+// 	r io.ReadCloser
+// }
+//
+// // NewBytesViewer returns a ReadCloser `in` which is internally using reader `from`.
+// // Calling the `in` Read method leads to internally calling the `from` Read method
+// // but lets to do some additional action like logging
+// func newIntervalReader(from io.ReadCloser) (in io.ReadCloser) {
+// 	return &intervalReader{from}
+// }
+//
+// func (p *intervalReader) Read(buf []byte) (count int, err error) {
+// 	count, err = p.r.Read(buf)
+// 	return
+// }
+//
+// // Close is needed to satify the ReadCloser interface.
+// func (p *intervalReader) Close() error { return nil }
+//
+// // setInput allowes switching the input stream to a different source.
+// //
+// // This function is for easier testing with cycle counters.
+// func (p *decoderData) setInput(r io.ReadCloser) {
+// 	//	p.in = newIntervalReader(r)
+// 	p.in = r
+// }
+
+// setInput allowes switching the input stream to a different source.
+//
+// This function is for easier testing with cycle counters.
+func (p *decoderData) setInput(r io.Reader) {
+	p.in = r
 }
 
 // idFmt contains the ID mapped information needed for decoding.
@@ -103,7 +145,7 @@ func newIDLut(til []byte) (IDLookUp, error) {
 // Translate returns true on io.EOF or false on hard read error or sigterm.
 func Translate(sw *emitter.TriceLineComposer, list *id.List, rc io.ReadCloser) bool {
 
-	var dec Decoding //io.Reader
+	var dec Decoder //io.Reader
 	switch Encoding {
 	case "esc":
 		dec = NewEscDecoder(list.ItemList, rc, bigEndian)
@@ -146,11 +188,14 @@ outer:
 			}
 			return false // end
 		default:
-			n, err := dec.rd(b)
+
+			n, err := dec.Read(b) // Code to measure
+
 			if io.EOF == err {
 				if Verbose {
 					fmt.Println(err)
 				}
+				fmt.Println("WAITING...")
 				time.Sleep(100 * time.Millisecond) // limit try again speed
 				continue outer                     // read again
 			}
@@ -160,7 +205,12 @@ outer:
 				}
 				return true // try again
 			}
+			start := time.Now()
 			m, err := sw.Write(b[:n])
+			duration := time.Since(start).Milliseconds()
+			if duration > 100 {
+				fmt.Println("TriceLineComposer.Write duration =", duration, "ms.")
+			}
 			msg.InfoOnErr(fmt.Sprintln("sw.Write wrote", m, "bytes"), err)
 		}
 	}
@@ -187,7 +237,7 @@ func run0(sw *emitter.TriceLineComposer, sr StringsReader) error {
 */
 
 // readU16 returns the 2 b bytes as uint16 according the specified endianess
-func (p *Decoding) readU16(b []byte) uint16 {
+func (p *decoderData) readU16(b []byte) uint16 {
 	if littleEndian == p.endian {
 		return binary.LittleEndian.Uint16(b)
 	}
@@ -195,7 +245,7 @@ func (p *Decoding) readU16(b []byte) uint16 {
 }
 
 // readU32 returns the 4 b bytes as uint32 according the specified endianess
-func (p *Decoding) readU32(b []byte) uint32 {
+func (p *decoderData) readU32(b []byte) uint32 {
 	if littleEndian == p.endian {
 		return binary.LittleEndian.Uint32(b)
 	}
@@ -203,7 +253,7 @@ func (p *Decoding) readU32(b []byte) uint32 {
 }
 
 // readU64 returns the 8 b bytes as uint64 according the specified endianess
-func (p *Decoding) readU64(b []byte) uint64 {
+func (p *decoderData) readU64(b []byte) uint64 {
 	if littleEndian == p.endian {
 		return binary.LittleEndian.Uint64(b)
 	}
@@ -211,7 +261,7 @@ func (p *Decoding) readU64(b []byte) uint64 {
 }
 
 // rub removes leading bytes from sync buffer
-func (p *Decoding) rub(n int) {
+func (p *decoderData) rub(n int) {
 	if TestTableMode {
 		if emitter.NextLine {
 			emitter.NextLine = false
@@ -224,7 +274,7 @@ func (p *Decoding) rub(n int) {
 	p.syncBuffer = p.syncBuffer[n:]
 }
 
-func (p *Decoding) outOfSync(msg string) (n int, e error) {
+func (p *decoderData) outOfSync(msg string) (n int, e error) {
 	cnt := p.bc
 	if cnt > 20 {
 		cnt = 20

@@ -21,20 +21,21 @@ type testTable []struct {
 }
 
 // doTableTest is the universal decoder test sequence.
-func doTableTest(t *testing.T, f newDecoder, endianess bool, teta testTable) {
+func doTableTest(t *testing.T, f newDecoder, endianness bool, teta testTable) {
 	list, err := UnmarshalTriceIDList([]byte(til))
 	buf := make([]byte, defaultSize)
 	if err != nil {
 		t.Fail()
 	}
-	dec := f(list, nil, endianess) // p is a new decoder instance
+	dec := f(list, nil, endianness) // p is a new decoder instance
 	for _, x := range teta {
-		dec.in = ioutil.NopCloser(bytes.NewBuffer(x.in))
+		in := ioutil.NopCloser(bytes.NewBuffer(x.in))
+		dec.setInput(in)
 		var err error
 		var n int
 		var act string
 		for nil == err {
-			n, err = dec.rd(buf)
+			n, err = dec.Read(buf)
 			if io.EOF == err && 0 == n {
 				break
 			}
@@ -715,6 +716,13 @@ var (
 			"fmtType": "TRICE0",
 			"fmtStrg": "s:                                                   \\ns:   MDK-ARM_LL_UART_RTT0_PACK_STM32F030_NUCLEO-64   \\ns:                                                   \\n\\n",
 			"created": 1610101612,
+			"removed": 0
+		},
+		{
+			"id": 4950,
+			"fmtType": "TRICE32_1",
+			"fmtStrg": "tst:TRICE32_1 %08x\\n",
+			"created": 1610742151,
 			"removed": 0
 		}
 	]`

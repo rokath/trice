@@ -84,7 +84,7 @@
                      "-s",
                      "C:\\repos\\trice\\internal\\receiver\\rttfile\\testdata\\wrapTriceMsgs.bin",
                      "-idlist",
-                     "${workspaceFolder}/test/til.json",
+                     "${workspaceFolder}/til.json",
                      "-key",
                      "none"
             ]
@@ -109,7 +109,7 @@
             ]
         },
         {
-            "name": "Launch trice log -port",
+            "name": "trice l -p COM5 -e pack2L",
             "type": "go",
             "request": "launch",
             "mode": "auto",
@@ -117,13 +117,13 @@
             "env": {},
             "args": ["log",
                      "-port",
-                     "COM7",
+                     "COM5",
                      "-baud",
                      "115200",
+                     "-e",
+                     "pack2L",
                      "-idlist",
-                     "${workspaceFolder}/test/til.json",
-                     "-key",
-                     "none"
+                     "${workspaceFolder}/til.json"
             ]
         },       
         {
@@ -174,7 +174,7 @@
             "env": {},
             "args": ["check",
                      "-idlist",
-                     "${workspaceFolder}/test/til.json",
+                     "${workspaceFolder}/til.json",
                      "-color",
                      "xxxxxxxxxxalternate",
                      "-v",

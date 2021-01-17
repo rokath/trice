@@ -6,14 +6,14 @@ package decoder
 import (
 	"fmt"
 	"io"
+	"time"
 
 	"github.com/rokath/trice/internal/id"
-	"github.com/rokath/trice/pkg/msg"
 )
 
-// Pack2 is the Decoder instance for bare encoded trices.
+// Pack2 is the Decoding instance for bare encoded trices.
 type Pack2 struct {
-	Decoding
+	decoderData
 	syncPacket     string
 	d0, d1, d2, d3 uint32 // read raw data
 	cycle          int
@@ -24,15 +24,16 @@ type Pack2 struct {
 // l is the trice id list in slice of struct format.
 // in is the usable reader for the input bytes.
 // littleEndian is false on normal network order.
-func NewPack2Decoder(l []id.Item, in io.Reader, endian bool) Decoding {
+func NewPack2Decoder(l []id.Item, in io.Reader, endian bool) Decoder {
 	p := &Pack2{}
 	p.in = in
 	p.syncBuffer = make([]byte, 0, defaultSize)
 	p.lut = MakeLut(l)
 	p.endian = endian
 	p.syncPacket = "inf:[TRICE_SYNCPACKET 0x89abcdef]"
-	p.rd = p.Read
-	return p.Decoding
+	p.innerReadInterval = 100 * time.Millisecond
+	p.cycleErrorFlag = true // avoid cycle error message @ start
+	return p
 }
 
 // Read is the provided read method for pack decoding of next string as byte slice.
@@ -51,13 +52,27 @@ func (p *Pack2) Read(b []byte) (n int, err error) {
 		return
 	}
 	p.b = b
-	// fill intermediate read buffer for pack encoding
-	n, err = p.in.Read(b) // use b as intermediate buffer to avoid allocation
-	// p.syncBuffer can contain unprocessed bytes from last call.
-	p.syncBuffer = append(p.syncBuffer, b[:n]...) // merge with leftovers
-	n = 0
-	if nil != err && io.EOF != err {
-		return
+
+	if time.Since(p.lastInnerRead) > p.innerReadInterval { // poll inner reader
+		if Verbose {
+			p.lastInnerRead = time.Now()
+
+			// fill intermediate read buffer for pack encoding
+			n, err = p.in.Read(b) // use b as intermediate buffer to avoid allocation
+			duration := time.Since(p.lastInnerRead).Milliseconds()
+			if 0 < duration {
+				fmt.Println("Inner Read duration =", duration, "ms.")
+			}
+		} else {
+			n, err = p.in.Read(b) // use b as intermediate buffer to avoid allocation
+		}
+
+		// p.syncBuffer can contain unprocessed bytes from last call.
+		p.syncBuffer = append(p.syncBuffer, b[:n]...) // merge with leftovers
+		n = 0
+		if nil != err && io.EOF != err {
+			return
+		}
 	}
 	// Even err could be io.EOF some valid data possibly in p.syncBuffer.
 	// In case of file input (JLINK usage) a plug off is not detectable here.
@@ -73,19 +88,14 @@ func (p *Pack2) Read(b []byte) (n int, err error) {
 	triceID := int(head >> 16)             // 2 msb bytes are the ID
 	count := int((0x0000ff00 & head) >> 8) // next byte is the count
 	cycle := int((0x000000ff & head))      // least significant byte is the cycle
-	if cycle != p.cycle {                  // lost trices or out of sync
-		infoString := fmt.Sprintln("ERROR:received cycle", cycle, " does not match expected cyle", p.cycle)
-		msg.Info(infoString)
-		p.cycle = cycle
-		if false == p.cycleErrorFlag {
-			p.cycleErrorFlag = true // assuming lost trices but still in sync
-		} else {
-			return p.outOfSync(infoString) // out of sync
+	var cycleWarning string
+	if cycle != 0xff&(p.cycle+1) { // lost trices or out of sync
+		if !p.cycleErrorFlag {
+			cycleWarning = fmt.Sprintln("warning:Cycle", cycle, "does not match expected cyle", p.cycle+1, "- lost trice messages?")
+			p.cycleErrorFlag = true
 		}
-	} else {
-		p.cycleErrorFlag = false
 	}
-	p.cycle++
+
 	var ok bool
 	p.trice, ok = p.lut[triceID] // check lookup table
 	if !ok {
@@ -101,6 +111,9 @@ func (p *Pack2) Read(b []byte) (n int, err error) {
 		return p.outOfSync(fmt.Sprintf("error:padding bytes not zero"))
 	}
 	// ID and count are ok
+	p.cycleErrorFlag = false
+	p.cycle = cycle // Set cycle for checking next trice here because all checks passed.
+	p.trice.Strg = cycleWarning + p.trice.Strg
 	return p.sprintTrice(count)
 }
 

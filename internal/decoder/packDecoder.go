@@ -14,9 +14,9 @@ const (
 	syncPacket = "inf:[TRICE_SYNCPACKET 0x89abcdef]"
 )
 
-// Pack is the Decoder instance for bare encoded trices.
+// Pack is the Decoding instance for bare encoded trices.
 type Pack struct {
-	Decoding
+	decoderData
 	d0, d1, d2, d3 uint32 // read raw data
 }
 
@@ -24,14 +24,19 @@ type Pack struct {
 // l is the trice id list in slice of struct format.
 // in is the usable reader for the input bytes.
 // littleEndian is false on normal network order.
-func NewPackDecoder(l []id.Item, in io.Reader, endian bool) Decoding {
+func NewPackDecoder(l []id.Item, in io.Reader, endian bool) Decoder {
 	p := &Pack{}
 	p.in = in
 	p.syncBuffer = make([]byte, 0, defaultSize)
 	p.lut = MakeLut(l)
 	p.endian = endian
-	return p.Decoding
+	return p
 }
+
+// SetInput allowes switching the input stream to a different source.
+//func (p *decoderData) SetInput(r io.Reader) {
+//	p.in = r
+//
 
 // Read is the provided read method for pack decoding of next string as byte slice.
 // It uses inner reader p.in and internal id look-up table to fill b with a string.

@@ -10,22 +10,22 @@ import (
 	"github.com/rokath/trice/internal/id"
 )
 
-// Bare is the Decoder instance for bare encoded trices.
+// Bare is the Decoding instance for bare encoded trices.
 type Bare struct {
-	Decoding
+	decoderData
 	payload []int // value payload
 }
 
 // NewBareDecoder provides an BareDecoder instance.
 // l is the trice id list in slice of struct format.
 // in is the usable reader for the input bytes.
-func NewBareDecoder(l []id.Item, in io.Reader, endian bool) Decoding {
+func NewBareDecoder(l []id.Item, in io.Reader, endian bool) Decoder {
 	p := &Bare{}
 	p.in = in
 	p.syncBuffer = make([]byte, 0, defaultSize)
 	p.lut = MakeLut(l)
 	p.endian = endian
-	return p.Decoding
+	return Decoder(p)
 }
 
 // Read is the provided read method for bare decoding of next string as byte slice.

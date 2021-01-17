@@ -151,8 +151,8 @@ void triceCheckSet(int index) {
             TRICE16_1(Id(45697), "MSG:normal      message, SysTick is %6d\n", SYSTICKVAL16);
             TRICE16_1(Id(24589), "INFO:informal   message, SysTick is %6d\n", SYSTICKVAL16);
 
-            TRICE32_1(Id(55420), "TST:test        message, SysTick is %6d\n", SYSTICKVAL16);
-            TRICE32_1(Id(55421), "TST:test        message, SysTick is %6d\n", SYSTICKVAL16);
+            TRICE32_1(Id(55424), "TST:test        message, SysTick is %6d\n", SYSTICKVAL16);
+            TRICE32_1(Id(55424), "TST:test        message, SysTick is %6d\n", SYSTICKVAL16);
                 // Disassembly for pack2 encoding
                 //    129:             TRICE32_1(Id(55421), "TST:test        message, SysTick is %6d\n", SYSTICKVAL16); 
                 // 0x08000BCA B672      CPSID    I
@@ -175,7 +175,7 @@ void triceCheckSet(int index) {
                 // 0x08000BEA F3848810  MSR      PRIMASK,r4
                 // 0x08000BEE F3EF8410  MRS      r4,PRIMASK
 //    130:             TRICE32_1(Id(55422), "TST:test        message, SysTick is %6d\n", SYSTICKVAL16); 
-            TRICE32_1(Id(55422), "TST:test        message, SysTick is %6d\n", SYSTICKVAL16);
+            TRICE32_1(Id(55424), "TST:test        message, SysTick is %6d\n", SYSTICKVAL16);
                 // Disassembly for pack encoding
                 //     94:             TRICE32_1(Id(55424), "TST:test        message, SysTick is %6d\n", SYSTICKVAL16); 
                 // 0x08000A58 698D      LDR      r5,[r1,#0x18]
@@ -190,10 +190,10 @@ void triceCheckSet(int index) {
                 // 0x08000A6A 1C5B      ADDS     r3,r3,#1
                 // 0x08000A6C 05DB      LSLS     r3,r3,#23
                 //     95:             TRICE32_1(Id(55424), "TST:test        message, SysTick is %6d\n", SYSTICKVAL16);
-            TRICE32_1(Id(55423), "TST:test        message, SysTick is %6d\n", SYSTICKVAL16);
             TRICE32_1(Id(55424), "TST:test        message, SysTick is %6d\n", SYSTICKVAL16);
-            TRICE32_1(Id(55425), "TST:test        message, SysTick is %6d\n", SYSTICKVAL16);
-            TRICE32_1(Id(55426), "TST:test        message, SysTick is %6d\n", SYSTICKVAL16);
+            TRICE32_1(Id(55424), "TST:test        message, SysTick is %6d\n", SYSTICKVAL16);
+            TRICE32_1(Id(55424), "TST:test        message, SysTick is %6d\n", SYSTICKVAL16);
+            TRICE32_1(Id(55424), "TST:test        message, SysTick is %6d\n", SYSTICKVAL16);
             break;
         case 3:
             TRICE8_4(Id(2527), "tst:TRICE8  %%03x ->  %03x  %03x  %03x  %03x\n", 1, 0x7f, 0x80, 0xff);
@@ -291,8 +291,8 @@ void triceCheckSet(int index) {
             TRICE_RTS( "an_example_string\n" );
             break;
         case 14:
-            runtimeStringIndex = 0;
-            triceRuntimeStrings(5);
+ //           runtimeStringIndex = 0;
+   //         triceRuntimeStrings(5);
             break;
 //       case 15: 
 //					  runtimeStringIndex = 60;
