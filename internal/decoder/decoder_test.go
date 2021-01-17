@@ -722,7 +722,14 @@ var (
 			"id": 4950,
 			"fmtType": "TRICE32_1",
 			"fmtStrg": "tst:TRICE32_1 %08x\\n",
-			"created": 1610742151,
+			"created": 1610910418,
+			"removed": 0
+		},
+		{
+			"id": 99,
+			"fmtType": "TRICE_S",
+			"fmtStrg": "%s\\n",
+			"created": 1610914200,
 			"removed": 0
 		}
 	]`

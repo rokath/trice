@@ -57,6 +57,7 @@ char* nextRuntimeString( int length ){
     for( int i = 0; i < length; i++ ){
        char c = 0x7f & (0x20 + i);
         c = c < 0x20 ? c + 0x20 : c;
+        c = '`' == c ? 0x20 : c; // exclude back tick for easy testTable generation
         rts[i] = c;
     }
     rts[length] = 0;
