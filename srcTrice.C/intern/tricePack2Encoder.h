@@ -1,9 +1,9 @@
-/*! \file tricePackEncoder.h
+/*! \file tricePack2Encoder.h
 \author Thomas.Hoehenleitner [at] seerose.net
 *******************************************************************************/
 
-#ifndef TRICE_PACK_ENCODER_H_
-#define TRICE_PACK_ENCODER_H_
+#ifndef TRICE_PACK2_ENCODER_H_
+#define TRICE_PACK2_ENCODER_H_
 
 #ifdef __cplusplus
 extern "C" {
@@ -268,6 +268,8 @@ b0 b1 b2 b3 b4 b5 b6 b7 // TRICE8_8
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
 
+#define TRICE_LONGCOUNT( n ) (((n) << 16) | (0xffff & ~(n)) )
+
 //! trace id and 32-bit values protected (outside critical section)
 //! \param id trice identifier
 //! \param pFmt formatstring for trice
@@ -277,7 +279,8 @@ b0 b1 b2 b3 b4 b5 b6 b7 // TRICE8_8
 //! \param d3 payload
 #define TRICE32_4( id, pFmt, d0, d1, d2, d3 ) do{ \
     TRICE_ENTER_CRITICAL_SECTION \
-    TRICE_HTON_U32PUSH( id|0x1000|triceCycle++ ); \
+    TRICE_HTON_U32PUSH( id|0x0d00|triceCycle++ ); \
+    TRICE_HTON_U32PUSH( TRICE_LONGCOUNT(16) ); \
     TRICE_HTON_U32PUSH( d0 ); \
     TRICE_HTON_U32PUSH( d1 ); \
     TRICE_HTON_U32PUSH( d2 ); \
@@ -306,7 +309,8 @@ b0 b1 b2 b3 b4 b5 b6 b7 // TRICE8_8
 //! \param d1 payload
 #define TRICE64_2( id, pFmt, d0, d1 ) do{ \
     TRICE_ENTER_CRITICAL_SECTION \
-    TRICE_HTON_U32PUSH( id|0x1000|triceCycle++ ); \
+    TRICE_HTON_U32PUSH( id|0x0d00|triceCycle++ ); \
+    TRICE_HTON_U32PUSH( TRICE_LONGCOUNT(16) ); \
     TRICE_HTON_U32PUSH( (uint64_t)(d0)>>32 ); \
     TRICE_HTON_U32PUSH( d0 ); \
     TRICE_HTON_U32PUSH( (uint64_t)(d1)>>32 ); \
@@ -355,11 +359,16 @@ TRICE_INLINE void trice_s(uint32_t id, char *s) {
     TRICE_ENTER_CRITICAL_SECTION
     int i = 0;
     int len = strlen( s );
-    if( 255 < len ){ 
-        s[255] = 0; // truncate
-        len = 255;
+    if( 65535 < len ){ 
+        s[65535] = 0; // truncate
+        len = 65535;
     }
-    TRICE_HTON_U32PUSH( id|(len<<8)|triceCycle++ ); // on PC side the id reception gives the TRICE_S and the format string information
+    if( len <= 12 ){
+        TRICE_HTON_U32PUSH( id|(len<<8)|triceCycle++ ); // on PC side the id reception gives the TRICE_S and the format string information
+    }else{
+        TRICE_HTON_U32PUSH( id|(0xd<<8)|triceCycle++ ); // on PC side the id reception gives the TRICE_S and the format string information
+        TRICE_HTON_U32PUSH( TRICE_LONGCOUNT(len) );
+    }
     while( 3 < len ){
         uint32_t* pos = (uint32_t*)(s+i);
         TRICE_U32PUSH( *pos );
@@ -393,4 +402,4 @@ TRICE_INLINE void trice_s(uint32_t id, char *s) {
 }
 #endif
 
-#endif /* TRICE_PACK_ENCODER_H_ */
+#endif /* TRICE_PACK2_ENCODER_H_ */

@@ -96,6 +96,20 @@ func (p *Pack2) Read(b []byte) (n int, err error) {
 		}
 	}
 
+	// 38 13 171 65 239 255 16 0
+	if 0xd == count { // TRICE_LONGCOUNT(n), values 0-12 short counts, 0xd is long count and 0xe & 0xf are reserved.
+		if len(p.syncBuffer) < 8 {
+			return // wait
+		}
+		countTransfer := p.readU32(p.syncBuffer[4:8])
+		count16 := int16(countTransfer >> 16)
+		count16invers := int16(countTransfer)
+		if count16 != ^count16invers {
+			return p.outOfSync(fmt.Sprintf("invalid countTransfer %08x", countTransfer))
+		}
+		count = int(count16)
+	}
+
 	var ok bool
 	p.trice, ok = p.lut[triceID] // check lookup table
 	if !ok {
@@ -110,7 +124,11 @@ func (p *Pack2) Read(b []byte) (n int, err error) {
 	if !p.readDataAndCheckPaddingBytes(count) {
 		return p.outOfSync(fmt.Sprintf("error:padding bytes not zero"))
 	}
+
 	// ID and count are ok
+	if count > 12 { // remove the 4 long count bytes
+		p.syncBuffer = append(p.syncBuffer[0:4], p.syncBuffer[8:]...)
+	}
 	p.cycleErrorFlag = false
 	p.cycle = cycle // Set cycle for checking next trice here because all checks passed.
 	p.trice.Strg = cycleWarning + p.trice.Strg
@@ -120,20 +138,25 @@ func (p *Pack2) Read(b []byte) (n int, err error) {
 // readDataAndCheckPaddingBytes checks if existing paddings bytes 0
 // after reading data and storing them as 32 bit chunks in p.d0, ... p.d3.
 func (p *Pack2) readDataAndCheckPaddingBytes(cnt int) (ok bool) {
+	b := make([]byte, cnt+8) hier weiter
+	copy(b, p.syncBuffer)
+	if cnt > 12 {
+		b = append(b[0:4], b[8:]...)
+	}
 	switch p.trice.Type {
 	case "TRICE0":
 		return true
 	case "TRICE32_4", "TRICE64_2":
-		p.d3 = p.readU32(p.syncBuffer[16:20])
+		p.d3 = p.readU32(b[16:20])
 		fallthrough
 	case "TRICE32_3":
-		p.d2 = p.readU32(p.syncBuffer[12:16])
+		p.d2 = p.readU32(b[12:16])
 		fallthrough
 	case "TRICE8_8", "TRICE16_4", "TRICE32_2", "TRICE64_1":
-		p.d1 = p.readU32(p.syncBuffer[8:12])
+		p.d1 = p.readU32(b[8:12])
 		fallthrough
 	case "TRICE8_4", "TRICE16_2", "TRICE32_1":
-		p.d0 = p.readU32(p.syncBuffer[4:8])
+		p.d0 = p.readU32(b[4:8])
 		return true // no padding bytes
 	case "TRICE_S":
 		x := 3 & cnt
@@ -176,9 +199,13 @@ func (p *Pack2) readDataAndCheckPaddingBytes(cnt int) (ok bool) {
 
 // completeTrice returns true if triceType payload is complete.
 func (p *Pack2) completeTrice(cnt int) bool {
+	longCountBytes := 0
+	if cnt > 12 {
+		longCountBytes = 4
+	}
 	cnt += 3
 	cnt &= ^3
-	if len(p.syncBuffer) < 4+cnt {
+	if len(p.syncBuffer) < 4+longCountBytes+cnt {
 		return false
 	}
 	return true
