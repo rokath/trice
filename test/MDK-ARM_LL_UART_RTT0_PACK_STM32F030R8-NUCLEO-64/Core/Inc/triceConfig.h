@@ -28,7 +28,7 @@ TRICE0( Id(46928), "s:                                                   \ns:   
 //
 
 //! Select target trice transfer encoding. 
-#define TRICE_ENCODING TRICE_PACK2_ENCODING
+#define TRICE_ENCODING TRICE_PACK_ENCODING
 
 //! Set endianess according to target hardware. Options: TRICE_BIG_ENDIANESS, TRICE_LITTLE_ENDIANESS.
 #define TRICE_HARDWARE_ENDIANESS TRICE_LITTLE_ENDIANESS 

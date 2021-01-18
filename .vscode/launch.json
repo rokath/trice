@@ -90,7 +90,7 @@
             ]
         },        
         {
-            "name": "-device -e wrapl -password MySecret",
+            "name": "-device -e wrap -password MySecret",
             "type": "go",
             "request": "launch",
             "mode": "auto",
@@ -98,10 +98,10 @@
             "env": {},
             "args": ["log",
                      "-p",
-                     "COM5",
+                     "COM16",
                      "-s",
                      "-e",
-                     "wrapl",
+                     "wrap",
                      "-password",
                      "MySecret",
                      "-idlist",

@@ -79,113 +79,150 @@ void triceCheckSet(int index) {
     switch (index) {
         case 0:
             TRICE0(Id(24481), "--------------------------------------------------\n");
-            //TRICE_P( "Hello %s, this is a %dst printf replacement.\n", "world", 1 ); // visible only with defined TRICE_PRINTF_ADAPTER
-            TRICE0(Id(13428), "--------------------------------------------------\n");
+            TRICE0(Id(24481), "--------------------------------------------------\n");
             TRICE16_1(Id(18133), "dbg:12345 as 16bit is %#016b\n", 12345);
-            TRICE0(Id(3791), "--------------------------------------------------\n");
-            //TRICE_ASSERT(0==0);
+            TRICE0(Id(24481), "--------------------------------------------------\n");
             TRICE0(Id(17125), "sig:This ASSERT error is just a demo and no real error:\n");
-            //TRICE_ASSERT(0==1);
-            TRICE0(Id(26797), "--------------------------------------------------\n");
+            TRICE0(Id(24481), "--------------------------------------------------\n");
             break;
         case 1:
             TRICE16_1(Id(18113), "ERR:error       message, SysTick is %6d\n", SYSTICKVAL16);
             TRICE16_1(Id(28289), "WRN:warning     message, SysTick is %6d\n", SYSTICKVAL16);
             TRICE16_1(Id(53560), "ATT:attension   message, SysTick is %6d\n", SYSTICKVAL16);
-                 // Disassembly for fast bare encoding
-                 //     39:             TRICE16_1(Id(53560), "ATT:attension   message, SysTick is %6d\n", SYSTICKVAL16); 
-                 // 	                                        ; r2 contains 0xE000E000
-                 // 0x0800087C 6994      LDR      r4,[r2,#0x18] ; load systick into R4
-                 // 0x0800087E 0DC0      LSRS     r0,r0,#23     ; right shift triceU32FifoWriteIndex by 23 (half mask operation)
-                 // 0x08000880 4DE8      LDR      r5,[pc,#928]  ; @0x08000C24 = load ID into r5 (upper 16 bit because <<16 inside Id())
-                 // 0x08000882 B2A4      UXTH     r4,r4         ; (uint16_t) mask
-                 // 0x08000884 1964      ADDS     r4,r4,r5      ; combine ID and systic into r4
-                 // 0x08000886 0085      LSLS     r5,r0,#2      ; compute from r0 byte index into r5
-                 // 0x08000888 514C      STR      r4,[r1,r5]    ; store trice to memory location
-                 // 0x0800088A 1C40      ADDS     r0,r0,#1      ; increment 32 bit index
-                 // 0x0800088C 05C0      LSLS     r0,r0,#23     ; left shift triceU32FifoWriteIndex by 23 (half mask operation)
-                 //     40:             TRICE16_1(Id(16672), "DIA:diagnostics message, SysTick is %6d\n", SYSTICKVAL16); 
             TRICE16_1(Id(16672), "DIA:diagnostics message, SysTick is %6d\n", SYSTICKVAL16);
             TRICE16_1(Id(42206), "TIM:timing      message, SysTick is %6d\n", SYSTICKVAL16);
             TRICE16_1(Id(23973), "DBG:debug       message, SysTick is %6d\n", SYSTICKVAL16);
-            break;
-        case 2:
             TRICE16_1(Id(13730), "SIG:signal      message, SysTick is %6d\n", SYSTICKVAL16);
             TRICE16_1(Id(24302), "RD:read         message, SysTick is %6d\n", SYSTICKVAL16);
             TRICE16_1(Id(14138), "WR:write        message, SysTick is %6d\n", SYSTICKVAL16);
             TRICE16_1(Id(55445), "ISR:interrupt   message, SysTick is %6d\n", SYSTICKVAL16);
-                // Disassembly for pack encoding
-                //     64:             TRICE16_1(Id(55445), "ISR:interrupt   message, SysTick is %6d\n", SYSTICKVAL16); 
-                // 0x08000A42 6984      LDR      r4,[r0,#0x18]
-                // 0x08000A44 0DD2      LSRS     r2,r2,#23
-                // 0x08000A46 6984      LDR      r4,[r0,#0x18]
-                // 0x08000A48 6984      LDR      r4,[r0,#0x18]
-                // 0x08000A4A 6985      LDR      r5,[r0,#0x18]
-                // 0x08000A4C 0624      LSLS     r4,r4,#24
-                // 0x08000A4E 0C24      LSRS     r4,r4,#16
-                // 0x08000A50 042D      LSLS     r5,r5,#16
-                // 0x08000A52 0E2D      LSRS     r5,r5,#24
-                // 0x08000A54 432C      ORRS     r4,r4,r5
-                // 0x08000A56 0095      LSLS     r5,r2,#2
-                // 0x08000A58 1C52      ADDS     r2,r2,#1
-                // 0x08000A5A 514C      STR      r4,[r1,r5]
-                // 0x08000A5C 05D2      LSLS     r2,r2,#23
-                // 0x08000A5E 0DD2      LSRS     r2,r2,#23
-                // 0x08000A60 0095      LSLS     r5,r2,#2
-                // 0x08000A62 4C91      LDR      r4,[pc,#580]  ; @0x08000CA8
-                // 0x08000A64 514C      STR      r4,[r1,r5]
-                // 0x08000A66 1C52      ADDS     r2,r2,#1
-                // 0x08000A68 05D2      LSLS     r2,r2,#23
-                //     65:             TRICE16_1(Id(41495), "TST:test        message, SysTick is %6d\n", SYSTICKVAL16);         
-            TRICE16_1(Id(41495), "TST:test        message, SysTick is %6d\n", SYSTICKVAL16);
             TRICE16_1(Id(45697), "MSG:normal      message, SysTick is %6d\n", SYSTICKVAL16);
             TRICE16_1(Id(24589), "INFO:informal   message, SysTick is %6d\n", SYSTICKVAL16);
-
+            break;
+        case 2:
+            TRICE16_1(Id(41495), "TST:test        message, SysTick is %6d\n", SYSTICKVAL16);
+            TRICE16_1(Id(41495), "TST:test        message, SysTick is %6d\n", SYSTICKVAL16);
+                // ARM Disassembly for bareL encoding (~27 clocks)
+                // 0x08000A9A B672      CPSID    I
+                // 0x08000A9C 6986      LDR      r6,[r0,#0x18]
+                // 0x08000A9E 009F      LSLS     r7,r3,#2
+                // 0x08000AA0 B2B6      UXTH     r6,r6
+                // 0x08000AA2 1876      ADDS     r6,r6,r1
+                // 0x08000AA4 1C5B      ADDS     r3,r3,#1
+                // 0x08000AA6 05DB      LSLS     r3,r3,#23
+                // 0x08000AA8 51D6      STR      r6,[r2,r7]
+                // 0x08000AAA 0DDB      LSRS     r3,r3,#23
+                // 0x08000AAC F3858810  MSR      PRIMASK,r5
+                // 0x08000AB0 F3EF8510  MRS      r5,PRIMASK
+            TRICE16_1(Id(41495), "TST:test        message, SysTick is %6d\n", SYSTICKVAL16);
+            TRICE16_1(Id(41495), "TST:test        message, SysTick is %6d\n", SYSTICKVAL16);
+                // ARM Disassembly for packL encoding (~34 clocks)
+                // 0x08000B30 B672      CPSID    I
+                // 0x08000B32 009E      LSLS     r6,r3,#2
+                // 0x08000B34 5181      STR      r1,[r0,r6]
+                // 0x08000B36 1C5B      ADDS     r3,r3,#1
+                // 0x08000B38 05DB      LSLS     r3,r3,#23 
+                // 0x08000B3A 6996      LDR      r6,[r2,#0x18]
+                // 0x08000B3C 0DDB      LSRS     r3,r3,#23
+                // 0x08000B3E 009F      LSLS     r7,r3,#2
+                // 0x08000B40 1C5B      ADDS     r3,r3,#1
+                // 0x08000B42 B2B6      UXTH     r6,r6
+                // 0x08000B44 05DB      LSLS     r3,r3,#23
+                // 0x08000B46 51C6      STR      r6,[r0,r7]
+                // 0x08000B48 0DDB      LSRS     r3,r3,#23
+                // 0x08000B4A F3848810  MSR      PRIMASK,r4
+                // 0x08000B4E F3EF8410  MRS      r4,PRIMASK
+            TRICE16_1(Id(41495), "TST:test        message, SysTick is %6d\n", SYSTICKVAL16);
+            TRICE16_1(Id(41495), "TST:test        message, SysTick is %6d\n", SYSTICKVAL16);
+                // ARM Disassembly for pack2L encoding (~39 clocks)
+                // 0x08000C14 B672      CPSID    I
+                // 0x08000C16 1866      ADDS     r6,r4,r1
+                // 0x08000C18 009F      LSLS     r7,r3,#2
+                // 0x08000C1A 1C64      ADDS     r4,r4,#1
+                // 0x08000C1C 51C6      STR      r6,[r0,r7]
+                // 0x08000C1E 1C5B      ADDS     r3,r3,#1
+                // 0x08000C20 05DB      LSLS     r3,r3,#23
+                // 0x08000C22 6996      LDR      r6,[r2,#0x18]
+                // 0x08000C24 B2E4      UXTB     r4,r4
+                // 0x08000C26 0DDB      LSRS     r3,r3,#23
+                // 0x08000C28 009F      LSLS     r7,r3,#2
+                // 0x08000C2A 1C5B      ADDS     r3,r3,#1
+                // 0x08000C2C B2B6      UXTH     r6,r6
+                // 0x08000C2E 05DB      LSLS     r3,r3,#23
+                // 0x08000C30 51C6      STR      r6,[r0,r7]
+                // 0x08000C32 0DDB      LSRS     r3,r3,#23
+                // 0x08000C34 F3858810  MSR      PRIMASK,r5
+                // 0x08000C38 F3EF8510  MRS      r5,PRIMASK
+            TRICE16_1(Id(41495), "TST:test        message, SysTick is %6d\n", SYSTICKVAL16);
+            TRICE16_1(Id(41495), "TST:test        message, SysTick is %6d\n", SYSTICKVAL16);
+            TRICE16_1(Id(41495), "TST:test        message, SysTick is %6d\n", SYSTICKVAL16);
+            TRICE16_1(Id(41495), "TST:test        message, SysTick is %6d\n", SYSTICKVAL16);
+            break;
+        case 3:
             TRICE32_1(Id(55424), "TST:test        message, SysTick is %6d\n", SYSTICKVAL16);
             TRICE32_1(Id(55424), "TST:test        message, SysTick is %6d\n", SYSTICKVAL16);
-                // Disassembly for pack2 encoding
-                //    129:             TRICE32_1(Id(55421), "TST:test        message, SysTick is %6d\n", SYSTICKVAL16); 
-                // 0x08000BCA B672      CPSID    I
-                // 0x08000BCC 4E4D      LDR      r6,[pc,#308]  ; @0x08000D04
-                // 0x08000BCE 0097      LSLS     r7,r2,#2
-                // 0x08000BD0 199E      ADDS     r6,r3,r6
-                // 0x08000BD2 1C5B      ADDS     r3,r3,#1
-                // 0x08000BD4 51C6      STR      r6,[r0,r7]
-                // 0x08000BD6 1C52      ADDS     r2,r2,#1
-                // 0x08000BD8 05D2      LSLS     r2,r2,#23
-                //    129:             TRICE32_1(Id(55421), "TST:test        message, SysTick is %6d\n", SYSTICKVAL16); 
-                // 0x08000BDA 698E      LDR      r6,[r1,#0x18]
-                // 0x08000BDC B2DB      UXTB     r3,r3
-                // 0x08000BDE 0DD2      LSRS     r2,r2,#23
-                // 0x08000BE0 0097      LSLS     r7,r2,#2
-                // 0x08000BE2 1C52      ADDS     r2,r2,#1
-                // 0x08000BE4 05D2      LSLS     r2,r2,#23
-                // 0x08000BE6 51C6      STR      r6,[r0,r7]
-                // 0x08000BE8 0DD2      LSRS     r2,r2,#23
-                // 0x08000BEA F3848810  MSR      PRIMASK,r4
-                // 0x08000BEE F3EF8410  MRS      r4,PRIMASK
-//    130:             TRICE32_1(Id(55422), "TST:test        message, SysTick is %6d\n", SYSTICKVAL16); 
+                // ARM Disassembly for bareL encoding (~40 clocks)
+                // 0x08000BBC B672      CPSID    I
+                // 0x08000BBE 6986      LDR      r6,[r0,#0x18]
+                // 0x08000BC0 009F      LSLS     r7,r3,#2
+                // 0x08000BC2 0C36      LSRS     r6,r6,#16
+                // 0x08000BC4 51CE      STR      r6,[r1,r7]
+                // 0x08000BC6 1C5B      ADDS     r3,r3,#1
+                // 0x08000BC8 05DB      LSLS     r3,r3,#23
+                // 0x08000BCA 6986      LDR      r6,[r0,#0x18]
+                // 0x08000BCC 0DDB      LSRS     r3,r3,#23
+                // 0x08000BCE B2B6      UXTH     r6,r6
+                // 0x08000BD0 1AB6      SUBS     r6,r6,r2
+                // 0x08000BD2 009F      LSLS     r7,r3,#2
+                // 0x08000BD4 1C5B      ADDS     r3,r3,#1
+                // 0x08000BD6 05DB      LSLS     r3,r3,#23
+                // 0x08000BD8 51CE      STR      r6,[r1,r7]
+                // 0x08000BDA 0DDB      LSRS     r3,r3,#23
+                // 0x08000BDC F3848810  MSR      PRIMASK,r4
+                // 0x08000BE0 F3EF8410  MRS      r4,PRIMASK
             TRICE32_1(Id(55424), "TST:test        message, SysTick is %6d\n", SYSTICKVAL16);
-                // Disassembly for pack encoding
-                //     94:             TRICE32_1(Id(55424), "TST:test        message, SysTick is %6d\n", SYSTICKVAL16); 
-                // 0x08000A58 698D      LDR      r5,[r1,#0x18]
-                // 0x08000A5A 0DDB      LSRS     r3,r3,#23
-                // 0x08000A5C 009E      LSLS     r6,r3,#2
-                // 0x08000A5E 1C5B      ADDS     r3,r3,#1
-                // 0x08000A60 05DB      LSLS     r3,r3,#23
-                // 0x08000A62 5185      STR      r5,[r0,r6]
-                // 0x08000A64 0DDB      LSRS     r3,r3,#23
-                // 0x08000A66 009D      LSLS     r5,r3,#2
-                // 0x08000A68 5142      STR      r2,[r0,r5]
-                // 0x08000A6A 1C5B      ADDS     r3,r3,#1
-                // 0x08000A6C 05DB      LSLS     r3,r3,#23
-                //     95:             TRICE32_1(Id(55424), "TST:test        message, SysTick is %6d\n", SYSTICKVAL16);
+            TRICE32_1(Id(55424), "TST:test        message, SysTick is %6d\n", SYSTICKVAL16);
+                // ARM Disassembly for packL encoding (~33 clocks)
+                // 0x08000CF0 B672      CPSID    I
+                // 0x08000CF2 009E      LSLS     r6,r3,#2
+                // 0x08000CF4 5181      STR      r1,[r0,r6]
+                // 0x08000CF6 1C5B      ADDS     r3,r3,#1
+                // 0x08000CF8 05DB      LSLS     r3,r3,#23
+                // 0x08000CFA 6996      LDR      r6,[r2,#0x18]
+                // 0x08000CFC 0DDB      LSRS     r3,r3,#23
+                // 0x08000CFE 009F      LSLS     r7,r3,#2
+                // 0x08000D00 1C5B      ADDS     r3,r3,#1
+                // 0x08000D02 05DB      LSLS     r3,r3,#23
+                // 0x08000D04 51C6      STR      r6,[r0,r7]
+                // 0x08000D06 0DDB      LSRS     r3,r3,#23
+                // 0x08000D08 F3858810  MSR      PRIMASK,r5
+                // 0x08000D0C F3EF8510  MRS      r5,PRIMASK                
+            TRICE32_1(Id(55424), "TST:test        message, SysTick is %6d\n", SYSTICKVAL16);
+            TRICE32_1(Id(55424), "TST:test        message, SysTick is %6d\n", SYSTICKVAL16);
+                // ARM Disassembly for pack2L encoding (~37 clocks)
+                // 0x08000E12 B672      CPSID    I
+                // 0x08000E14 1866      ADDS     r6,r4,r1
+                // 0x08000E16 009F      LSLS     r7,r3,#2
+                // 0x08000E18 1C64      ADDS     r4,r4,#1
+                // 0x08000E1A 51C6      STR      r6,[r0,r7]
+                // 0x08000E1C 1C5B      ADDS     r3,r3,#1
+                // 0x08000E1E 05DB      LSLS     r3,r3,#23
+                // 0x08000E20 6996      LDR      r6,[r2,#0x18]
+                // 0x08000E22 B2E4      UXTB     r4,r4
+                // 0x08000E24 0DDB      LSRS     r3,r3,#23
+                // 0x08000E26 009F      LSLS     r7,r3,#2
+                // 0x08000E28 1C5B      ADDS     r3,r3,#1
+                // 0x08000E2A 05DB      LSLS     r3,r3,#23
+                // 0x08000E2C 51C6      STR      r6,[r0,r7]
+                // 0x08000E2E 0DDB      LSRS     r3,r3,#23
+                // 0x08000E30 F3858810  MSR      PRIMASK,r5
+                // 0x08000E34 F3EF8510  MRS      r5,PRIMASK               
             TRICE32_1(Id(55424), "TST:test        message, SysTick is %6d\n", SYSTICKVAL16);
             TRICE32_1(Id(55424), "TST:test        message, SysTick is %6d\n", SYSTICKVAL16);
             TRICE32_1(Id(55424), "TST:test        message, SysTick is %6d\n", SYSTICKVAL16);
             TRICE32_1(Id(55424), "TST:test        message, SysTick is %6d\n", SYSTICKVAL16);
             break;
-        case 3:
+        case 4:
             TRICE8_4(Id(2527), "tst:TRICE8  %%03x ->  %03x  %03x  %03x  %03x\n", 1, 0x7f, 0x80, 0xff);
             TRICE8_4(Id(63423), "tst:TRICE8   %%4d -> %4d %4d %4d %4d\n", 1, 0x7f, 0x80, 0xff);
             TRICE8_4(Id(40063), "tst:TRICE8   %%4o -> %4o %4o %4o %4o\n", 1, 0x7f, 0x80, 0xff);
@@ -193,8 +230,7 @@ void triceCheckSet(int index) {
             TRICE16_4(Id(8674), "tst:TRICE16  %%05x ->   %05x   %05x   %05x   %05x\n", 1, 0x7fff, 0x8000, 0xffff);
             TRICE16_4(Id(59869), "tst:TRICE16   %%6d ->  %6d  %6d  %6d  %6d\n", 1, 0x7fff, 0x8000, 0xffff);
             TRICE16_4(Id(24781), "tst:TRICE16   %%7o -> %7o %7o %7o %7o\n", 1, 0x7fff, 0x8000, 0xffff);
-            break;
-        case 4:
+
             TRICE32_4(Id(16811), "tst:TRICE32_4 %%09x ->      %09x      %09x       %09x     %09x\n", 1, 0x7fffffff, 0x80000000, 0xffffffff); // 4
             TRICE32_4(Id(28944), "tst:TRICE32_4 %%10d ->     %10d     %10d     %10d    %10x\n", 1, 0x7fffffff, 0x80000000, 0xffffffff); // 4
             TRICE64_1(Id(19049), "att:64bit %#b\n", 0x1122334455667788ull);

@@ -3,7 +3,12 @@
 
 package decoder
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/rokath/trice/pkg/cipher"
+	"github.com/rokath/trice/pkg/tst"
+)
 
 func TestWrappedBareL(t *testing.T) {
 	doTableTest(t, NewBareDecoder, littleEndian, wrappedBareLTestTable)
@@ -11,6 +16,12 @@ func TestWrappedBareL(t *testing.T) {
 
 func TestWrappedBare(t *testing.T) {
 	doTableTest(t, NewBareDecoder, bigEndian, wrappedBareTestTable)
+}
+
+func TestEncryptedTestWrappedBare(t *testing.T) {
+	cipher.Password = "MySecret"
+	tst.AssertNoErr(t, cipher.SetUp())
+	doTableTest(t, NewBareDecoder, bigEndian, encryptedWrappedBareTestTable)
 }
 
 var wrappedBareLTestTable = testTable{
@@ -215,4 +226,15 @@ var wrappedBareTestTable = testTable{
 	{[]byte{0, 0, 97, 110, 0, 0, 95, 101, 0, 0, 120, 97, 207, 26, 109, 112, 0, 0, 108, 101, 0, 0, 95, 115, 0, 0, 116, 114, 207, 26, 105, 110, 141, 56, 0, 10}, `an_example_strin`},
 	{[]byte{0, 0, 97, 110, 0, 0, 95, 101, 0, 0, 120, 97, 207, 26, 109, 112, 0, 0, 108, 101, 0, 0, 95, 115, 0, 0, 116, 114, 207, 26, 105, 110, 194, 198, 103, 10}, `an_example_string`},
 	{[]byte{137, 171, 205, 239, 0, 0, 1, 152, 70, 69, 0, 14}, `MSG: triceFifoMaxDepth = 408, select = 14`},
+}
+
+var encryptedWrappedBareTestTable = testTable{
+	{[]byte{73, 30, 134, 219, 229, 12, 175, 39}, ``}, // sync trice
+	{[]byte{32, 219, 85, 219, 178, 71, 211, 103, 240, 140, 22, 140, 15, 12, 178, 101}, `MSG: triceFifoMaxDepth = 4, select = 0`},
+	{[]byte{234, 96, 214, 236, 57, 193, 7, 235}, `--------------------------------------------------`},
+	{[]byte{15, 1, 167, 97, 54, 253, 62, 129}, `--------------------------------------------------`},
+	{[]byte{22, 207, 0, 100, 192, 241, 245, 43}, `dbg:12345 as 16bit is 0b0011000000111001`},
+	{[]byte{194, 189, 182, 68, 174, 241, 225, 67}, `--------------------------------------------------`},
+	{[]byte{242, 42, 201, 210, 96, 41, 118, 213}, `sig:This ASSERT error is just a demo and no real error:`},
+	{[]byte{145, 165, 154, 156, 144, 134, 51, 187}, `--------------------------------------------------`},
 }

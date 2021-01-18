@@ -21,13 +21,22 @@ extern uint8_t triceCycle;
 //
 /*
 Transfer is in network order (big endian) or little endian acording TRICE_TRANSFER_ENDIANESS.
-Inside a 32-bit sequence the 16-bit ID comes together with 16-bit count in specified transfer endianess:
-This count is the payload size without counting padding bytes. The ID is in the 2 msb and the count in the 2 lsb.
+Inside a 32-bit sequence the 24-bit ID i comes together with a 4-bit count c and a 8-bit cycle counter n in specified transfer endianess:
+iiiiiiii iiiiiiii iiiicccc nnnnnnnn
+The count c is the valid payload size without counting padding bytes and has valid values from 0 to 12.
+c=0xd is indicating a longer 16 bit count l following in the next 4 bytes as 32-bit value:
+llllllll llllllll LLLLLLLL LLLLLLLL, with L == ~l (all bits negated)
+This coding gives some options for out-of-sync detection:
+With 2^20 > 1000000 possible IDs there is a low chance to to hit a wrong id and a high chance to detect a miss.
+The cycle counter must rotate continuously between 0...255.
+If the count is >12 the long count is used but this is transmitted twice: as value and inverted value.
+Also the optional 1-3 padding bytes are checked to be 0.
 \code
 head = (id<<16)| (count<<8) | cycle
 \endcode
 8-bit values follow packt as uint32_t in specified transfer endianess:
 \code
+// little endian example
  0  0  0 b0 // TRICE8_1
  0  0 b0 b1 // TRICE8_2
  0 b0 b1 b2 // TRICE8_3
@@ -40,6 +49,7 @@ b0 b1 b2 b3 b4 b5 b6 b7 // TRICE8_8
 16-bit values follow in sequence optionally with not counted 2 padding bytes forming a 32-bit aligment.
 */
 
+// TRICE_SYNC can be used any time for tests. In is an invisible trice message.
 #define TRICE_SYNC do{ \
     TRICE_ENTER_CRITICAL_SECTION \
     TRICE_HTON_U32PUSH( 0x89abcdef ); \
@@ -339,7 +349,8 @@ b0 b1 b2 b3 b4 b5 b6 b7 // TRICE8_8
 //! \param d1 payload
 #define TRICE64_2( id, pFmt, d0, d1 ) do{ \
     TRICE_ENTER_CRITICAL_SECTION \
-    TRICE_HTON_U32PUSH( id|0x1000|triceCycle++ ); \
+    TRICE_HTON_U32PUSH( id|0x0d00|triceCycle++ ); \
+    TRICE_HTON_U32PUSH( TRICE_LONGCOUNT(16) ); \
     TRICE_HTON_U32PUSH( d0 ); \
     TRICE_HTON_U32PUSH( (uint64_t)(d0)>>32 ); \
     TRICE_HTON_U32PUSH( d1 ); \
