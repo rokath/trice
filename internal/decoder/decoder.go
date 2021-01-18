@@ -5,6 +5,7 @@
 package decoder
 
 import (
+	"bytes"
 	"encoding/binary"
 	"encoding/json"
 	"fmt"
@@ -252,6 +253,19 @@ func (p *decoderData) readU32(b []byte) uint32 {
 	return binary.BigEndian.Uint32(b)
 }
 
+// writeU32 returns the 4 bytes as uint32 in b according the specified endianess
+func (p *decoderData) writeU32(v uint32) (b *bytes.Buffer) {
+	var err error
+	b = new(bytes.Buffer)
+	if littleEndian == p.endian {
+		err = binary.Write(b, binary.LittleEndian, v)
+	} else {
+		err = binary.Write(b, binary.BigEndian, v)
+	}
+	msg.InfoOnErr("binary.Write failed:", err)
+	return
+}
+
 // readU64 returns the 8 b bytes as uint64 according the specified endianess
 func (p *decoderData) readU64(b []byte) uint64 {
 	if littleEndian == p.endian {
@@ -268,6 +282,33 @@ func (p *decoderData) rub(n int) {
 			fmt.Printf("{ []byte{ ")
 		}
 		for _, b := range p.syncBuffer[0:n] { // just to see trice bytes per trice
+			fmt.Printf("%3d,", b)
+		}
+	}
+	p.syncBuffer = p.syncBuffer[n:]
+}
+
+// rubWithLongCount removes leading bytes from sync buffer but considers long count bytes
+// in case of TestTableMode to generate correct test table data.
+func (p *decoderData) rubWithLongCount(n, count int) {
+	if TestTableMode {
+		if emitter.NextLine {
+			emitter.NextLine = false
+			fmt.Printf("{ []byte{ ")
+		}
+		for _, b := range p.syncBuffer[0:4] { // just to see trice bytes per trice
+			fmt.Printf("%3d,", b)
+		}
+		if count > 12 { // restore long count transfer bytes
+			hi := uint32(count << 16)
+			lo := uint16(^count)
+			countTransfer := hi | uint32(lo)
+			buf := p.writeU32(countTransfer)
+			for _, b := range buf.Bytes() {
+				fmt.Printf("%d,", b)
+			}
+		}
+		for _, b := range p.syncBuffer[4:n] { // just to see trice bytes per trice
 			fmt.Printf("%3d,", b)
 		}
 	}

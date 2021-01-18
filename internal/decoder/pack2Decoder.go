@@ -118,7 +118,7 @@ func (p *Pack2) Read(b []byte) (n int, err error) {
 	if !p.bytesCountOk(count) {
 		return p.outOfSync(fmt.Sprintf("unecpected byteCount, it is not %d", count))
 	}
-	if !p.completeTrice(count) {
+	if !p.isTriceComplete(count) {
 		return // try later again
 	}
 	if !p.readDataAndCheckPaddingBytes(count) {
@@ -138,7 +138,7 @@ func (p *Pack2) Read(b []byte) (n int, err error) {
 // readDataAndCheckPaddingBytes checks if existing paddings bytes 0
 // after reading data and storing them as 32 bit chunks in p.d0, ... p.d3.
 func (p *Pack2) readDataAndCheckPaddingBytes(cnt int) (ok bool) {
-	b := make([]byte, cnt+8) hier weiter
+	b := make([]byte, cnt+3+8) // max 3 more plus head plus possible long count
 	copy(b, p.syncBuffer)
 	if cnt > 12 {
 		b = append(b[0:4], b[8:]...)
@@ -164,14 +164,14 @@ func (p *Pack2) readDataAndCheckPaddingBytes(cnt int) (ok bool) {
 		case 0:
 			return true // no padding bytes
 		case 3:
-			ok = 0 == p.syncBuffer[4+cnt]
+			ok = 0 == b[4+cnt]
 		case 2:
-			ok = 0 == p.syncBuffer[4+cnt] && 0 == p.syncBuffer[1+4+cnt]
+			ok = 0 == b[4+cnt] && 0 == b[1+4+cnt]
 		case 1:
-			ok = 0 == p.syncBuffer[4+cnt] && 0 == p.syncBuffer[1+4+cnt] && 0 == p.syncBuffer[2+4+cnt]
+			ok = 0 == b[4+cnt] && 0 == b[1+4+cnt] && 0 == b[2+4+cnt]
 		}
 	default:
-		p.d0 = p.readU32(p.syncBuffer[4:8])
+		p.d0 = p.readU32(b[4:8])
 		switch p.trice.Type {
 		case "TRICE8_1":
 			ok = p.d0 < (1 << 8)
@@ -180,7 +180,7 @@ func (p *Pack2) readDataAndCheckPaddingBytes(cnt int) (ok bool) {
 		case "TRICE8_3":
 			ok = p.d0 < (1 << 24)
 		default:
-			p.d1 = p.readU32(p.syncBuffer[8:12])
+			p.d1 = p.readU32(b[8:12])
 			switch p.trice.Type {
 			case "TRICE8_5":
 				ok = p.d1 < (1 << 8)
@@ -197,8 +197,8 @@ func (p *Pack2) readDataAndCheckPaddingBytes(cnt int) (ok bool) {
 	return false
 }
 
-// completeTrice returns true if triceType payload is complete.
-func (p *Pack2) completeTrice(cnt int) bool {
+// isTriceComplete returns true if triceType payload is complete.
+func (p *Pack2) isTriceComplete(cnt int) bool {
 	longCountBytes := 0
 	if cnt > 12 {
 		longCountBytes = 4
@@ -301,9 +301,10 @@ func (p *Pack2) sprintTrice(cnt int) (n int, e error) {
 
 func (p *Pack2) triceS(cnt int) (n int, e error) {
 	n = copy(p.b, fmt.Sprintf(p.trice.Strg, string(p.syncBuffer[4:4+cnt])))
-	cnt += 3
-	cnt &= ^3
-	p.rub(4 + cnt)
+	var ct int
+	ct = cnt + 3
+	ct &= ^3
+	p.rubWithLongCount(4+ct, cnt)
 	return
 }
 
@@ -461,7 +462,7 @@ func (p *Pack2) trice324() (n int, e error) {
 	d2 := int32(p.d2)
 	d3 := int32(p.d3)
 	n = copy(p.b, fmt.Sprintf(p.trice.Strg, d0, d1, d2, d3))
-	p.rub(20)
+	p.rubWithLongCount(20, 16)
 	return
 }
 
@@ -476,7 +477,7 @@ func (p *Pack2) trice642() (n int, e error) {
 	d0 := (int64(p.d0) << 32) | int64(p.d1)
 	d1 := (int64(p.d2) << 32) | int64(p.d3)
 	n = copy(p.b, fmt.Sprintf(p.trice.Strg, d0, d1))
-	p.rub(20)
+	p.rubWithLongCount(20, 16)
 	return
 }
 
