@@ -8,11 +8,11 @@ import (
 )
 
 func TestPack2L(t *testing.T) {
-	doTableTest(t, NewPack2Decoder, littleEndian, pack2LTestTable)
+	doTableTest(t, NewPack2Decoder, littleEndian, pack2LTestTable, "unwrapped")
 }
 
 func TestPack2(t *testing.T) {
-	doTableTest(t, NewPack2Decoder, bigEndian, pack2TestTable)
+	doTableTest(t, NewPack2Decoder, bigEndian, pack2TestTable, "unwrapped")
 }
 
 var pack2LTestTable = testTable{ // little endian

@@ -196,7 +196,9 @@ outer:
 				if Verbose {
 					fmt.Println(err)
 				}
-				fmt.Println("WAITING...")
+				if Verbose {
+					fmt.Println("WAITING...")
+				}
 				time.Sleep(100 * time.Millisecond) // limit try again speed
 				continue outer                     // read again
 			}

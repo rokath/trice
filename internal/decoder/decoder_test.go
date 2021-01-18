@@ -21,7 +21,7 @@ type testTable []struct {
 }
 
 // doTableTest is the universal decoder test sequence.
-func doTableTest(t *testing.T, f newDecoder, endianness bool, teta testTable) {
+func doTableTest(t *testing.T, f newDecoder, endianness bool, teta testTable, inputDataType string) {
 	list, err := UnmarshalTriceIDList([]byte(til))
 	buf := make([]byte, defaultSize)
 	if err != nil {
@@ -30,7 +30,13 @@ func doTableTest(t *testing.T, f newDecoder, endianness bool, teta testTable) {
 	dec := f(list, nil, endianness) // p is a new decoder instance
 	for _, x := range teta {
 		in := ioutil.NopCloser(bytes.NewBuffer(x.in))
-		dec.setInput(in)
+		if "unwrapped" == inputDataType {
+			dec.setInput(in)
+		} else if "wrapped" == inputDataType {
+			dec.setInput(NewBareReaderFromWrap(in))
+		} else {
+			t.Fail()
+		}
 		var err error
 		var n int
 		var act string

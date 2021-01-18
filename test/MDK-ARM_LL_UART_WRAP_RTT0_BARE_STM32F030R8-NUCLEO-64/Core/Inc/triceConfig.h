@@ -11,7 +11,7 @@ extern "C" {
 
 #include <stdint.h>
 // Enabling next line leads to XTEA encryption  with the key. Only wrapped barel over UART us encrypted right now.
-#define ENCRYPT XTEA_KEY( ea, bb, ec, 6f, 31, 80, 4e, b9, 68, e2, fa, ea, ae, f1, 50, 54 ); //!< -password MySecret
+//#define ENCRYPT XTEA_KEY( ea, bb, ec, 6f, 31, 80, 4e, b9, 68, e2, fa, ea, ae, f1, 50, 54 ); //!< -password MySecret
 
 #define TRICE_HEADLINE \
 TRICE0( Id(44461), "s:                                                          \ns:   MDK-ARM_LL_UART_WRAP_RTT0_BARE_STM32F030R8-NUCLEO-64   \ns:                                                          \n\n");
@@ -39,8 +39,8 @@ TRICE0( Id(44461), "s:                                                          
 //! Example -enc "pack" -> -enc "packl".
 #define TRICE_TRANSFER_ENDIANESS TRICE_BIG_ENDIANESS 
 
-//#define TRICE_U8PUSH(v) do{ triceU8PushSeggerRTT(v); triceU8Push(v); } while(0) //!< Set trice out channel(s) 
-#define TRICE_U32PUSH(v) do{ triceU32PushSeggerRTT(v); triceU32Push(v); } while(0) //!< Set trice out channel(s) 
+//#define TRICE_U8PUSH(v) do{ uint8_t x = v; triceU8PushSeggerRTT(x); triceU8Push(x); } while(0) //!< Set trice out channel(s) 
+#define TRICE_U32PUSH(v) do{ uint32_t x = v; triceU32PushSeggerRTT(x); triceU32Push(x); } while(0) //!< Set trice out channel(s) 
 //
 ///////////////////////////////////////////////////////////////////////////////
 

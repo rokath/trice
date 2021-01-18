@@ -233,7 +233,7 @@ void triceCheckSet(int index) {
 
             TRICE32_4(Id(16811), "tst:TRICE32_4 %%09x ->      %09x      %09x       %09x     %09x\n", 1, 0x7fffffff, 0x80000000, 0xffffffff); // 4
             TRICE32_4(Id(28944), "tst:TRICE32_4 %%10d ->     %10d     %10d     %10d    %10x\n", 1, 0x7fffffff, 0x80000000, 0xffffffff); // 4
-            TRICE64_1(Id(19049), "att:64bit %#b\n", 0x1122334455667788ull);
+            TRICE64_1(Id(19049), "att:64bit %#b\n", 0x1122334455667788);
             break;
         case 5:
             TRICE8_1(Id(41267), "tst:TRICE8_1 %d\n", -1);

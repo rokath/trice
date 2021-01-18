@@ -284,12 +284,12 @@ When several data, the real ID comes in the last 32 bit sequence.
 //! \param pFmt formatstring for trice
 //! \param d0 payload
 #define TRICE64_1( Id, pFmt, d0 ) do{ \
-    uint64_t x = (uint64_t)(d0); \
+    uint64_t d64 = (uint64_t)(d0); \
     TRICE_ENTER_CRITICAL_SECTION \
-    TRICE_HTON_U32PUSH( (uint16_t)( x>>48 )); /*hh*/ \
-    TRICE_HTON_U32PUSH( (uint16_t)( x>>32 )); /*hl*/\
-    TRICE_HTON_U32PUSH( (uint16_t)( x>>16 )); /*lh*/ \
-    TRICE_HTON_U32PUSH( Id | (uint16_t)x ); /*ll*/ \
+    TRICE_HTON_U32PUSH( (uint16_t)( d64>>48 )); /*hh*/ \
+    TRICE_HTON_U32PUSH( (uint16_t)( d64>>32 )); /*hl*/\
+    TRICE_HTON_U32PUSH( (uint16_t)( d64>>16 )); /*lh*/ \
+    TRICE_HTON_U32PUSH( Id | (uint16_t)d64 ); /*ll*/ \
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
 
