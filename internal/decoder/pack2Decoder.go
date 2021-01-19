@@ -79,14 +79,14 @@ func (p *Pack2) Read(b []byte) (n int, err error) {
 	if len(p.syncBuffer) < 4 {
 		return // wait
 	}
-	p.bc = 4 // alt least 4 bytes readable
+	p.bc = 4 // At least 4 bytes readable. Used by pack2 decoder only for displaying next few bytes in case out of sync.
 
 	head := p.readU32(p.syncBuffer[0:4])
 	if 0x89abcdef == head {
 		return p.syncTrice()
 	}
-	triceID := int(head >> 16)             // 2 msb bytes are the ID
-	count := int((0x0000ff00 & head) >> 8) // next byte is the count
+	triceID := int(head >> (32 - 20))      // 20 most significant bits are the ID
+	count := int((0x00000f00 & head) >> 8) // this nibble is the 4-bit count
 	cycle := int((0x000000ff & head))      // least significant byte is the cycle
 	var cycleWarning string
 	if cycle != 0xff&(p.cycle+1) { // lost trices or out of sync

@@ -12,7 +12,7 @@ extern "C" {
 #include <stdint.h>
 #include <string.h>
 
-#define Id(n) (((uint32_t)(n))<<16) //!< Prepare ID for transmission
+#define Id(n) (((uint32_t)(n))<<(32-20)) //!< Prepare 20-bit ID for transmission
 
 extern uint8_t triceCycle;
 
@@ -49,7 +49,7 @@ b0 b1 b2 b3 b4 b5 b6 b7 // TRICE8_8
 16-bit values follow in sequence optionally with not counted 2 padding bytes forming a 32-bit aligment.
 */
 
-// TRICE_SYNC can be used any time for tests. In is an invisible trice message.
+// TRICE_SYNC can be used for checks or payload filling. In is an invisible trice message.
 #define TRICE_SYNC do{ \
     TRICE_ENTER_CRITICAL_SECTION \
     TRICE_HTON_U32PUSH( 0x89abcdef ); \
@@ -61,7 +61,8 @@ b0 b1 b2 b3 b4 b5 b6 b7 // TRICE8_8
 //! \param pFmt formatstring for trice
 #define TRICE0( id, pFmt ) do{ \
     TRICE_ENTER_CRITICAL_SECTION \
-    TRICE_HTON_U32PUSH( id|triceCycle++ ); \
+    TRICE_HTON_U32PUSH( id|triceCycle ); \
+    triceCycle++; \
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
 
@@ -71,7 +72,8 @@ b0 b1 b2 b3 b4 b5 b6 b7 // TRICE8_8
 //! \param 8-bit payload
 #define TRICE8_1( id, pFmt, d0 ) do{ \
     TRICE_ENTER_CRITICAL_SECTION \
-    TRICE_HTON_U32PUSH( id|0x0100|triceCycle++ ); \
+    TRICE_HTON_U32PUSH( id|0x0100|triceCycle ); \
+    triceCycle++; \
     TRICE_HTON_U32PUSH( (uint8_t)(d0) ); \
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
@@ -85,7 +87,8 @@ b0 b1 b2 b3 b4 b5 b6 b7 // TRICE8_8
 //! \param d1 payload
 #define TRICE8_2( id, pFmt, d0, d1 ) do{ \
     TRICE_ENTER_CRITICAL_SECTION \
-    TRICE_HTON_U32PUSH( id|0x0200|triceCycle++ ); \
+    TRICE_HTON_U32PUSH( id|0x0200|triceCycle ); \
+    triceCycle++; \
     TRICE_HTON_U32PUSH( TRICE_U8_JOIN(d0,d1) ); \
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
@@ -98,7 +101,8 @@ b0 b1 b2 b3 b4 b5 b6 b7 // TRICE8_8
 //! \param d2 payload
 #define TRICE8_3( id, pFmt, d0, d1, d2 ) do{ \
     TRICE_ENTER_CRITICAL_SECTION \
-    TRICE_HTON_U32PUSH( id|0x0300|triceCycle++ ); \
+    TRICE_HTON_U32PUSH( id|0x0300|triceCycle ); \
+    triceCycle++; \
     TRICE_HTON_U32PUSH( ((uint32_t)TRICE_U8_JOIN( 0,d0)<<16) | TRICE_U8_JOIN(d1,d2) ); /*TRICE_HTON_U32PUSH( ((uint8_t)((uint32_t)(d0)<<16)) | TRICE_U8_JOIN(d1,d2) ); */ \
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
@@ -112,7 +116,8 @@ b0 b1 b2 b3 b4 b5 b6 b7 // TRICE8_8
 //! \param d3 payload
 #define TRICE8_4( id, pFmt, d0, d1, d2, d3 ) do{ \
     TRICE_ENTER_CRITICAL_SECTION \
-    TRICE_HTON_U32PUSH( id|0x0400|triceCycle++ ); \
+    TRICE_HTON_U32PUSH( id|0x0400|triceCycle ); \
+    triceCycle++; \
     TRICE_HTON_U32PUSH( ((uint32_t)TRICE_U8_JOIN(d0,d1)<<16) | TRICE_U8_JOIN(d2,d3) ); \
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
@@ -127,7 +132,8 @@ b0 b1 b2 b3 b4 b5 b6 b7 // TRICE8_8
 //! \param d4 payload
 #define TRICE8_5( id, pFmt, d0, d1, d2, d3, d4 ) do{ \
     TRICE_ENTER_CRITICAL_SECTION \
-    TRICE_HTON_U32PUSH( id|0x0500|triceCycle++ ); \
+    TRICE_HTON_U32PUSH( id|0x0500|triceCycle ); \
+    triceCycle++; \
     TRICE_HTON_U32PUSH( ((uint32_t)TRICE_U8_JOIN(d0,d1)<<16) | TRICE_U8_JOIN(d2,d3) ); \
     TRICE_HTON_U32PUSH( (uint8_t)(d4) ); \
     TRICE_LEAVE_CRITICAL_SECTION \
@@ -144,7 +150,8 @@ b0 b1 b2 b3 b4 b5 b6 b7 // TRICE8_8
 //! \param d5 payload
 #define TRICE8_6( id, pFmt, d0, d1, d2, d3, d4, d5 ) do{ \
     TRICE_ENTER_CRITICAL_SECTION \
-    TRICE_HTON_U32PUSH( id|0x0600|triceCycle++ ); \
+    TRICE_HTON_U32PUSH( id|0x0600|triceCycle ); \
+    triceCycle++; \
     TRICE_HTON_U32PUSH( ((uint32_t)TRICE_U8_JOIN(d0,d1)<<16) | TRICE_U8_JOIN(d2,d3) ); \
     TRICE_HTON_U32PUSH( TRICE_U8_JOIN(d4,d5) ); \
     TRICE_LEAVE_CRITICAL_SECTION \
@@ -162,7 +169,8 @@ b0 b1 b2 b3 b4 b5 b6 b7 // TRICE8_8
 //! \param d6 payload
 #define TRICE8_7( id, pFmt, d0, d1, d2, d3, d4, d5, d6 ) do{ \
     TRICE_ENTER_CRITICAL_SECTION \
-    TRICE_HTON_U32PUSH( id|0x0700|triceCycle++ ); \
+    TRICE_HTON_U32PUSH( id|0x0700|triceCycle ); \
+    triceCycle++; \
     TRICE_HTON_U32PUSH( ((uint32_t)TRICE_U8_JOIN(d0,d1)<<16) | TRICE_U8_JOIN(d2,d3) ); \
     TRICE_HTON_U32PUSH( ((uint32_t)TRICE_U8_JOIN( 0,d4)<<16) | TRICE_U8_JOIN(d5,d6) ); \
     TRICE_LEAVE_CRITICAL_SECTION \
@@ -181,7 +189,8 @@ b0 b1 b2 b3 b4 b5 b6 b7 // TRICE8_8
 //! \param d7 payload
 #define TRICE8_8( id, pFmt, d0, d1, d2, d3, d4, d5, d6, d7 ) do{ \
     TRICE_ENTER_CRITICAL_SECTION \
-    TRICE_HTON_U32PUSH( id|0x0800|triceCycle++ ); \
+    TRICE_HTON_U32PUSH( id|0x0800|triceCycle ); \
+    triceCycle++; \
     TRICE_HTON_U32PUSH( ((uint32_t)TRICE_U8_JOIN(d0,d1)<<16) | TRICE_U8_JOIN(d2,d3) ); \
     TRICE_HTON_U32PUSH( ((uint32_t)TRICE_U8_JOIN(d4,d5)<<16) | TRICE_U8_JOIN(d6,d7) ); \
     TRICE_LEAVE_CRITICAL_SECTION \
@@ -193,7 +202,8 @@ b0 b1 b2 b3 b4 b5 b6 b7 // TRICE8_8
 //! \param d0 payload
 #define TRICE16_1( id, pFmt, d0 ) do{ \
     TRICE_ENTER_CRITICAL_SECTION \
-    TRICE_HTON_U32PUSH( id|0x0200|triceCycle++ ); \
+    TRICE_HTON_U32PUSH( id|0x0200|triceCycle ); \
+    triceCycle++; \
     TRICE_HTON_U32PUSH( (uint16_t)d0 ); \
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
@@ -205,7 +215,8 @@ b0 b1 b2 b3 b4 b5 b6 b7 // TRICE8_8
 //! \param d1 payload
 #define TRICE16_2( id, pFmt, d0, d1 ) do{ \
     TRICE_ENTER_CRITICAL_SECTION \
-    TRICE_HTON_U32PUSH( id|0x0400|triceCycle++ ); \
+    TRICE_HTON_U32PUSH( id|0x0400|triceCycle ); \
+    triceCycle++; \
     TRICE_HTON_U32PUSH( TRICE_U16_JOIN(d0,d1) ); \
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
@@ -218,7 +229,8 @@ b0 b1 b2 b3 b4 b5 b6 b7 // TRICE8_8
 //! \param d2 payload
 #define TRICE16_3( id, pFmt, d0, d1, d2 ) do{ \
     TRICE_ENTER_CRITICAL_SECTION \
-    TRICE_HTON_U32PUSH( id|0x0600|triceCycle++ ); \
+    TRICE_HTON_U32PUSH( id|0x0600|triceCycle ); \
+    triceCycle++; \
     TRICE_HTON_U32PUSH( TRICE_U16_JOIN(d0,d1) ); \
     TRICE_HTON_U32PUSH( (uint16_t)(d2) ); \
     TRICE_LEAVE_CRITICAL_SECTION \
@@ -233,7 +245,8 @@ b0 b1 b2 b3 b4 b5 b6 b7 // TRICE8_8
 //! \param d3 payload
 #define TRICE16_4( id, pFmt, d0, d1, d2, d3 ) do{ \
     TRICE_ENTER_CRITICAL_SECTION \
-    TRICE_HTON_U32PUSH( id|0x0800|triceCycle++ ); \
+    TRICE_HTON_U32PUSH( id|0x0800|triceCycle ); \
+    triceCycle++; \
     TRICE_HTON_U32PUSH( TRICE_U16_JOIN(d0,d1) ); \
     TRICE_HTON_U32PUSH( TRICE_U16_JOIN(d2,d3) ); \
     TRICE_LEAVE_CRITICAL_SECTION \
@@ -245,7 +258,8 @@ b0 b1 b2 b3 b4 b5 b6 b7 // TRICE8_8
 //! \param d0 payload
 #define TRICE32_1( id, pFmt, d0 ) do{ \
     TRICE_ENTER_CRITICAL_SECTION \
-    TRICE_HTON_U32PUSH( id|0x0400|triceCycle++ ); \
+    TRICE_HTON_U32PUSH( id|0x0400|triceCycle ); \
+    triceCycle++; \
     TRICE_HTON_U32PUSH( d0 ); \
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
@@ -257,7 +271,8 @@ b0 b1 b2 b3 b4 b5 b6 b7 // TRICE8_8
 //! \param d1 payload
 #define TRICE32_2( id, pFmt, d0, d1 ) do{ \
     TRICE_ENTER_CRITICAL_SECTION \
-    TRICE_HTON_U32PUSH( id|0x0800|triceCycle++ ); \
+    TRICE_HTON_U32PUSH( id|0x0800|triceCycle ); \
+    triceCycle++; \
     TRICE_HTON_U32PUSH( d0 ); \
     TRICE_HTON_U32PUSH( d1 ); \
     TRICE_LEAVE_CRITICAL_SECTION \
@@ -271,7 +286,8 @@ b0 b1 b2 b3 b4 b5 b6 b7 // TRICE8_8
 //! \param d2 payload
 #define TRICE32_3( id, pFmt, d0, d1, d2 ) do{ \
     TRICE_ENTER_CRITICAL_SECTION \
-    TRICE_HTON_U32PUSH( id|0x0c00|triceCycle++ ); \
+    TRICE_HTON_U32PUSH( id|0x0c00|triceCycle ); \
+    triceCycle++; \
     TRICE_HTON_U32PUSH( d0 ); \
     TRICE_HTON_U32PUSH( d1 ); \
     TRICE_HTON_U32PUSH( d2 ); \
@@ -289,7 +305,8 @@ b0 b1 b2 b3 b4 b5 b6 b7 // TRICE8_8
 //! \param d3 payload
 #define TRICE32_4( id, pFmt, d0, d1, d2, d3 ) do{ \
     TRICE_ENTER_CRITICAL_SECTION \
-    TRICE_HTON_U32PUSH( id|0x0d00|triceCycle++ ); \
+    TRICE_HTON_U32PUSH( id|0x0d00|triceCycle ); \
+    triceCycle++; \
     TRICE_HTON_U32PUSH( TRICE_LONGCOUNT(16) ); \
     TRICE_HTON_U32PUSH( d0 ); \
     TRICE_HTON_U32PUSH( d1 ); \
@@ -306,7 +323,8 @@ b0 b1 b2 b3 b4 b5 b6 b7 // TRICE8_8
 //! \param d0 payload
 #define TRICE64_1( id, pFmt, d0 ) do{ \
     TRICE_ENTER_CRITICAL_SECTION \
-    TRICE_HTON_U32PUSH( id|0x0800|triceCycle++ ); \
+    TRICE_HTON_U32PUSH( id|0x0800|triceCycle ); \
+    triceCycle++; \
     TRICE_HTON_U32PUSH( (uint64_t)(d0)>>32 ); \
     TRICE_HTON_U32PUSH( d0 ); \
     TRICE_LEAVE_CRITICAL_SECTION \
@@ -319,7 +337,8 @@ b0 b1 b2 b3 b4 b5 b6 b7 // TRICE8_8
 //! \param d1 payload
 #define TRICE64_2( id, pFmt, d0, d1 ) do{ \
     TRICE_ENTER_CRITICAL_SECTION \
-    TRICE_HTON_U32PUSH( id|0x0d00|triceCycle++ ); \
+    TRICE_HTON_U32PUSH( id|0x0d00|triceCycle ); \
+    triceCycle++; \
     TRICE_HTON_U32PUSH( TRICE_LONGCOUNT(16) ); \
     TRICE_HTON_U32PUSH( (uint64_t)(d0)>>32 ); \
     TRICE_HTON_U32PUSH( d0 ); \
@@ -336,7 +355,8 @@ b0 b1 b2 b3 b4 b5 b6 b7 // TRICE8_8
 //! \param d0 payload
 #define TRICE64_1( id, pFmt, d0 ) do{ \
     TRICE_ENTER_CRITICAL_SECTION \
-    TRICE_HTON_U32PUSH( id|0x0800|triceCycle++ ); \
+    TRICE_HTON_U32PUSH( id|0x0800|triceCycle ); \
+    triceCycle++; \
     TRICE_HTON_U32PUSH( d0 ); \
     TRICE_HTON_U32PUSH( (uint64_t)(d0)>>32 ); \
     TRICE_LEAVE_CRITICAL_SECTION \
@@ -349,7 +369,8 @@ b0 b1 b2 b3 b4 b5 b6 b7 // TRICE8_8
 //! \param d1 payload
 #define TRICE64_2( id, pFmt, d0, d1 ) do{ \
     TRICE_ENTER_CRITICAL_SECTION \
-    TRICE_HTON_U32PUSH( id|0x0d00|triceCycle++ ); \
+    TRICE_HTON_U32PUSH( id|0x0d00|triceCycle ); \
+    triceCycle++; \
     TRICE_HTON_U32PUSH( TRICE_LONGCOUNT(16) ); \
     TRICE_HTON_U32PUSH( d0 ); \
     TRICE_HTON_U32PUSH( (uint64_t)(d0)>>32 ); \
@@ -375,11 +396,12 @@ TRICE_INLINE void trice_s(uint32_t id, char *s) {
         len = 65535;
     }
     if( len <= 12 ){
-        TRICE_HTON_U32PUSH( id|(len<<8)|triceCycle++ ); // on PC side the id reception gives the TRICE_S and the format string information
+        TRICE_HTON_U32PUSH( id|(len<<8)|triceCycle ); // on PC side the id reception gives the TRICE_S and the format string information
     }else{
-        TRICE_HTON_U32PUSH( id|(0xd<<8)|triceCycle++ ); // on PC side the id reception gives the TRICE_S and the format string information
+        TRICE_HTON_U32PUSH( id|(0xd<<8)|triceCycle ); // on PC side the id reception gives the TRICE_S and the format string information
         TRICE_HTON_U32PUSH( TRICE_LONGCOUNT(len) );
     }
+    triceCycle++;
     while( 3 < len ){
         uint32_t* pos = (uint32_t*)(s+i);
         TRICE_U32PUSH( *pos );

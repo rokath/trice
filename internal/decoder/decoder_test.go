@@ -52,7 +52,7 @@ func doTableTest(t *testing.T, f newDecoder, endianness bool, teta testTable, in
 		}
 		a := strings.TrimSuffix(act, "\\n")
 		ab := strings.TrimSuffix(a, "\n")
-		tst.EqualLines(t, x.exp, ab)
+		tst.EqualStrings(t, x.exp, ab)
 	}
 }
 

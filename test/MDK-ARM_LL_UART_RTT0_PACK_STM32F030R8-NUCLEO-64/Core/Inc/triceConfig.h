@@ -36,11 +36,11 @@ TRICE0( Id(46928), "s:                                                   \ns:   
 //! Set byte order according desired transfer format. Options: TRICE_BIG_ENDIANESS, TRICE_LITTLE_ENDIANESS. 
 //! TRICE_BIG_ENDIANESS is network order.
 //! If TRICE_TRANSFER_ENDIANESS is equal to TRICE_HARDWARE_ENDIANESS the trice code is smaller and more efficient.
-//! When set to TRICE_LITTLE_ENDIANESS the trice tool -enc format specifier is extended by a letter 'l' (small 'L').
-//! Example -enc "pack" -> -enc "packl".
-#define TRICE_TRANSFER_ENDIANESS TRICE_LITTLE_ENDIANESS 
+//! When set to TRICE_LITTLE_ENDIANESS the trice tool -enc format specifier is extended by a letter 'L'.
+//! Example -enc "pack2L" -> -enc "pack2L".
+#define TRICE_TRANSFER_ENDIANESS TRICE_BIG_ENDIANESS 
 
-//#define TRICE_U8PUSH(v) do{ triceU8PushSeggerRTT(v); triceU8Push(v); } while(0) //!< Set trice out channel(s) 
+//#define TRICE_U8PUSH(v) do{ uint8_t x = v;  triceU8PushSeggerRTT(x); triceU8Push(x); } while(0) //!< Set trice out channel(s) 
 #define TRICE_U32PUSH(v) do{ uint32_t x = v; triceU32PushSeggerRTT(x); triceU32Push(x); } while(0) //!< Set trice out channel(s) 
 
 //

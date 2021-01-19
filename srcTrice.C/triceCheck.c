@@ -56,8 +56,9 @@ char* nextRuntimeString( int length ){
     static char rts[300] = {0};
     for( int i = 0; i < length; i++ ){
        char c = 0x7f & (0x20 + i);
-        c = c < 0x20 ? c + 0x20 : c;
+        c = c < 0x20 ? c + 0x20 : c; // exclude control characters
         c = '`' == c ? 0x20 : c; // exclude back tick for easy testTable generation
+        c = 127 == c ? 0x20 : c; // exclude DEL control character
         rts[i] = c;
     }
     rts[length] = 0;
