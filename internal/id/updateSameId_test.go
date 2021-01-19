@@ -3,10 +3,14 @@
 
 package id_test
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/rokath/trice/internal/id"
+)
 
 func TestUpdateSameId(t *testing.T) {
-
+	id.SearchMethod = "legacy"
 	sOri := []string{`
 		TRICE32_2( Id(10000), "rd_:  A { (uint32_t*) 0x%08x, 0x%08xu  },\r\n", pAddress, Value );
 		`, `
@@ -75,7 +79,7 @@ func TestUpdateSameId(t *testing.T) {
 
 // TestUpdateSameId2 does not use 43274 a 2nd time here because
 func TestUpdateSameId2(t *testing.T) {
-
+	id.SearchMethod = "legacy"
 	sOri := []string{`
 		TRICE_S( Id(10000), "rd_: Example a %s", x );
 		`, `
@@ -136,7 +140,7 @@ func TestUpdateSameId2(t *testing.T) {
 }
 
 func TestUpdateSameId3(t *testing.T) {
-
+	id.SearchMethod = "legacy"
 	sOri := []string{`
 		TRICE_S( Id(10000), "rd_: Example a %s", x ); // stays 10000
 		`, `

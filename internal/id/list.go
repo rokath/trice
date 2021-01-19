@@ -28,6 +28,15 @@ var (
 
 	// FnJSON is the filename for the JSON formatted ID list.
 	FnJSON string
+
+	// LowerBound is the smallest allowed ID
+	LowerBound = 1
+
+	// UpperBound is the biggest allowed ID
+	UpperBound = 65535
+
+	// SearchMethod is the next ID search method.
+	SearchMethod = "random"
 )
 
 // Item is the basic element
@@ -99,9 +108,26 @@ func (p *List) ZeroTimestampCreated() {
 // newID() gets a random ID not used so far.
 // If all IDs used, longest removed ID is reused (TODO)
 func (p *List) newID() (id int) {
+	switch SearchMethod {
+	case "legacy":
+		return p.newIDLegacyMethod()
+	case "random":
+		return p.newIDRandomMethod()
+	case "upward":
+		return p.newIDUpwardMethod()
+	case "downward":
+		return p.newIDDownwardMethod()
+	}
+	msg.Info(fmt.Sprint("ERROR:", SearchMethod, "is unknown ID search method."))
+	return 0
+}
+
+// newIDLegacyMethod() gets a random ID not used so far.
+// If all IDs used, longest removed ID is reused (TODO)
+func (p *List) newIDLegacyMethod() (id int) {
 start:
 	for { // this is good enough if id count is less than 2/3 of total count, otherwise it will take too long
-		id = 20 + rand.Intn(65535) // 2^16=65536, id 0 used for params, ids 1-19 reserved, 515 ids forbidden, so 65000 ids possible
+		id = 20 + rand.Intn(65535) // 2^16=65536, id 0 used for params, ids 1-19 reserved, 515 ids forbidden, so 65000 ids possible // BUG!!!!!!! Must be 65535-20 but many tests need to be adapted!!!!!!!!!!!!!!!!!!!!!!!
 		ih := uint8(id >> 8)       // todo: endianess
 		il := uint8(id)
 		if 0xef == ih || 0x89 == il || 0x89ab == id || 0xabcd == id || 0xcdef == id { // 515 ids forbidden, see bare.go
@@ -117,6 +143,60 @@ start:
 			return
 		}
 	}
+}
+
+func (p *List) newIDRandomMethod() (id int) {
+	id = LowerBound + rand.Intn(UpperBound-LowerBound)
+	if 0 == len(p.ItemList) {
+		return
+	}
+	for _, item := range p.ItemList { // todo: binary search
+		if id == item.ID { // id used
+			id = LowerBound + rand.Intn(UpperBound-LowerBound) // next try
+			continue
+		}
+		return
+	}
+	msg.Info("No free ID found.")
+	return 0
+}
+
+func (p *List) newIDUpwardMethod() (id int) {
+	id = LowerBound
+	if 0 == len(p.ItemList) {
+		return
+	}
+	for _, item := range p.ItemList { // todo: binary search
+		if id == item.ID { // id used
+			id++ // next ID
+			continue
+		}
+		return
+	}
+	if id <= UpperBound {
+		return
+	}
+	msg.Info("No free ID found.")
+	return 0
+}
+
+func (p *List) newIDDownwardMethod() (id int) {
+	id = UpperBound
+	if 0 == len(p.ItemList) {
+		return
+	}
+	for _, item := range p.ItemList { // todo: binary search
+		if id == item.ID { // id used
+			id-- // next ID
+			continue
+		}
+		return
+	}
+	if id >= LowerBound {
+		return
+	}
+	msg.Info("No free ID found.")
+	return 0
 }
 
 // appendIfMissing is appending item to p.List.

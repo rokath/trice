@@ -3,10 +3,14 @@
 
 package id_test
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/rokath/trice/internal/id"
+)
 
 func TestAutoParamCount(t *testing.T) {
-
+	id.SearchMethod = "legacy"
 	sOri := []string{`
     // with count, with id, more in one line, optional semi-colon
 	TRICE8_1( Id(0), "tst: %d\n", n );

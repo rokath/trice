@@ -3,10 +3,14 @@
 
 package id_test
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/rokath/trice/internal/id"
+)
 
 func TestUpdateZeroId(t *testing.T) {
-
+	id.SearchMethod = "legacy"
 	sOri := []string{`
 	TRICE0 (Id(0), "---------------------------------------\n" );
 	TRICE0 (Id(0), "---------------------------------------\n" );
@@ -223,7 +227,7 @@ func TestUpdateZeroId(t *testing.T) {
 }
 
 func TestUpdateZeroIds(t *testing.T) {
-
+	id.SearchMethod = "legacy"
 	sOri := []string{`
 	TRICE_S( Id(0), "tst:runtime string %s.\n", x)
 	`, `

@@ -3,7 +3,11 @@
 
 package id_test
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/rokath/trice/internal/id"
+)
 
 func TestUpdateAllEqual(t *testing.T) {
 	sOri := []string{`
@@ -51,6 +55,7 @@ func TestUpdateAllEqual(t *testing.T) {
 // TRICE8_1( "%d", v ) // NOT ok: remove _1 or add Id(0)
 // TRICE8( Id(0), "%d", v ) // NOT ok: add _1 or remove Id(0)
 func TestUpdateWithIdAndNoParamCount(t *testing.T) {
+	id.SearchMethod = "legacy"
 	sOri := []string{`
 	TRICE32_2( Id(100), "rd_:    { (uint32_t*) 0x%08x, 0x%08xu  },\r\n", pAddress, Value ); // to do: remove _2
 	`, `

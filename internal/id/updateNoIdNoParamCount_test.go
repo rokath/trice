@@ -3,9 +3,14 @@
 
 package id_test
 
-import "testing"
+import (
+	"testing"
 
-func TestUpdateNoIDNoParamCount(t *testing.T) {
+	"github.com/rokath/trice/internal/id"
+)
+
+func TestLegacyUpdateNoIDNoParamCount(t *testing.T) {
+	id.SearchMethod = "legacy"
 	sOri := []string{`
 	TRICE16( "tst:%d\n", v0 );
 	TRICE16( "tst:%d, %d\n", v0v1 ); // The fmt string is important, not the param count.
@@ -131,7 +136,8 @@ func TestUpdateNoIDNoParamCount(t *testing.T) {
 	doUpdate(t, sOri, sExp, listExp)
 }
 
-func TestUpdateT8NoParamCount(t *testing.T) {
+func TestLegacyUpdateT8NoParamCount(t *testing.T) {
+	id.SearchMethod = "legacy"
 	sOri := []string{`
 	TRICE8( "tst:%d\n", v0 );
 	TRICE8( "tst:%d, %d\n", v0v1 ); // The fmt string is important, not the param count.
@@ -248,6 +254,133 @@ func TestUpdateT8NoParamCount(t *testing.T) {
 	},
 	{
 		"id": 472,
+		"fmtType": "TRICE_S",
+		"fmtStrg": "tst:%32s\\n",
+		"created": 0,
+		"removed": 0
+	}
+]`
+	doUpdate(t, sOri, sExp, listExp)
+}
+
+func TestUpwardUpdateT8NoParamCount(t *testing.T) {
+	id.SearchMethod = "upward"
+	id.LowerBound = 7
+	sOri := []string{`
+	TRICE8( "tst:%d\n", v0 );
+	`, `
+
+	`, `
+	
+	`, `
+	TRICE_S( "tst:%32s\n", v0 ); 
+	`}
+
+	sExp := []string{`
+	TRICE8_1( Id(    7), "tst:%d\n", v0 );
+	`, `
+	
+	`, `
+
+	`, `
+	TRICE_S( Id(    8), "tst:%32s\n", v0 ); 
+	`}
+
+	listExp := `[
+	{
+		"id": 7,
+		"fmtType": "TRICE8_1",
+		"fmtStrg": "tst:%d\\n",
+		"created": 0,
+		"removed": 0
+	},
+	{
+		"id": 8,
+		"fmtType": "TRICE_S",
+		"fmtStrg": "tst:%32s\\n",
+		"created": 0,
+		"removed": 0
+	}
+]`
+	doUpdate(t, sOri, sExp, listExp)
+}
+
+func TestDownwardUpdateT8NoParamCount(t *testing.T) {
+	id.SearchMethod = "downward"
+	id.UpperBound = 999999
+	sOri := []string{`
+	TRICE8( "tst:%d\n", v0 );
+	`, `
+
+	`, `
+	
+	`, `
+	TRICE_S( "tst:%32s\n", v0 ); 
+	`}
+
+	sExp := []string{`
+	TRICE8_1( Id(999999), "tst:%d\n", v0 );
+	`, `
+	
+	`, `
+
+	`, `
+	TRICE_S( Id(999998), "tst:%32s\n", v0 ); 
+	`}
+
+	listExp := `[
+	{
+		"id": 999999,
+		"fmtType": "TRICE8_1",
+		"fmtStrg": "tst:%d\\n",
+		"created": 0,
+		"removed": 0
+	},
+	{
+		"id": 999998,
+		"fmtType": "TRICE_S",
+		"fmtStrg": "tst:%32s\\n",
+		"created": 0,
+		"removed": 0
+	}
+]`
+	doUpdate(t, sOri, sExp, listExp)
+}
+
+func TestRandomUpdateT8NoParamCount(t *testing.T) {
+	id.SearchMethod = "random"
+	id.UpperBound = 999999
+	id.LowerBound = 100000
+	sOri := []string{`
+	TRICE8( "tst:%d\n", v0 );
+	`, `
+
+	`, `
+	
+	`, `
+	TRICE_S( "tst:%32s\n", v0 ); 
+	`}
+
+	sExp := []string{`
+	TRICE8_1( Id(395529), "tst:%d\n", v0 );
+	`, `
+	
+	`, `
+
+	`, `
+	TRICE_S( Id(559098), "tst:%32s\n", v0 ); 
+	`}
+
+	listExp := `[
+	{
+		"id": 395529,
+		"fmtType": "TRICE8_1",
+		"fmtStrg": "tst:%d\\n",
+		"created": 0,
+		"removed": 0
+	},
+	{
+		"id": 559098,
 		"fmtType": "TRICE_S",
 		"fmtStrg": "tst:%32s\\n",
 		"created": 0,
