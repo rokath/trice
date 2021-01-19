@@ -12,7 +12,7 @@ extern "C" {
 #include <stdint.h>
 
 #define TRICE_HEADLINE \
-TRICE0( Id(999883), "s:                                                   \ns:   MDK-ARM_LL_UART_RTT0_PACK_STM32F030_NUCLEO-64   \ns:                                                   \n\n");
+TRICE0( Id(0), "s:                                                   \ns:   MDK-ARM_LL_UART_RTT0_PACK_STM32F030_NUCLEO-64   \ns:                                                   \n\n");
 
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -182,7 +182,7 @@
                      "xxx"
             ]
         },
-        {
+        { // trice u -v  -IDLo 999000 -IDUp 999999 -IDMethod random -i ../../../til.json -src ./ -src ../Core -src ../../../srcTrice.C
             "name": "update",
             "type": "go",
             "request": "launch",
@@ -192,10 +192,16 @@
             "args": ["update",
                     "-v",
                     "-src",
-                    "C:/repos/BTdev/STM32",
+                    "C:/repos/trice/test/MDK-ARM_LL_UART_RTT0_PACK_STM32F030R8-NUCLEO-64/Core",
+                    "-IDLo",
+                    "999000",
+                    "-IDUp",
+                    "999999",
+                    "-IDMethod",
+                    "upward",
                     "-idlist",
-                    "c:/repos/BTdev/til.json"
-            ]
+                    "c:/repos/trice/til.json"
+            ] // "trice update -v -src C:/repos/trice/test/MDK-ARM_LL_UART_RTT0_PACK_STM32F030R8-NUCLEO-64/Core -IDLo 999000 -IDUp 999999 -IDMethod random -idlist c:/repos/trice/til.json
         }
     ]
 }

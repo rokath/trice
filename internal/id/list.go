@@ -177,8 +177,10 @@ func (p *List) newIDUpwardMethod() (id int) {
 		}
 		break
 	}
+	if id < UpperBound {
+		LowerBound = id + 1 // new starting point
+	}
 	if id <= UpperBound {
-		LowerBound = id // new starting point
 		return
 	}
 	msg.Info("No free ID found.")
@@ -197,8 +199,10 @@ func (p *List) newIDDownwardMethod() (id int) {
 		}
 		break
 	}
+	if id > LowerBound {
+		UpperBound = id - 1 // new starting point
+	}
 	if id >= LowerBound {
-		UpperBound = id // new starting point
 		return
 	}
 	msg.Info("No free ID found.")
