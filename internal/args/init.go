@@ -111,10 +111,11 @@ Without the "-dry-run" switch it would create|extend a list file til.json in the
 	flagVerbosity(fsScUpdate)
 	flagIDList(fsScUpdate)
 	fsScUpdate.StringVar(&id.SearchMethod, "IDMethod", "legacy", "Search method for new ID's in range- Options are 'upward', 'downward' & 'random'.")
-	fsScUpdate.IntVar(&id.LowerBound, "IDLowerBound", 1, "Smallest allowed trice ID. (Lower end of ID range).")
-	fsScUpdate.IntVar(&id.LowerBound, "IDLo", 21, "Short for '-IDLowerBound'.")
-	fsScUpdate.IntVar(&id.UpperBound, "IDUpperBound", 65535, "Biggest allowed trice ID. (Upper end of ID range).")
-	fsScUpdate.IntVar(&id.UpperBound, "IDUp", 65535, "Short for '-IDUpperBound'.")
+	fsScUpdate.IntVar(&id.LowerBound, "IDLowerBound", id.LowerBound, "Smallest allowed trice ID. (Lower end of ID range).")
+	fsScUpdate.IntVar(&id.LowerBound, "IDLo", id.LowerBound, "Short for '-IDLowerBound'.")
+	fsScUpdate.IntVar(&id.UpperBound, "IDUpperBound", id.UpperBound, "Biggest allowed trice ID. (Upper end of ID range).")
+	fsScUpdate.IntVar(&id.UpperBound, "IDUp", id.UpperBound, "Short for '-IDUpperBound'.")
+	//fsScUpdate.BoolVar(&id.ReUse, "IDreuse", true, `Known trice strings without ID get the same ID`)
 }
 
 func init() {

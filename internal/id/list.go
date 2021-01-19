@@ -37,6 +37,10 @@ var (
 
 	// SearchMethod is the next ID search method.
 	SearchMethod = "random"
+
+	// ReUse true: Known trice strings without ID get the same ID. If identical TRICE macros have different ID's they are not touched.
+	// If a trice string is more than once in the id list, the oldest (active?) is reused.
+	//ReUse = true // to do: Behaviour not implemented yet.
 )
 
 // Item is the basic element
@@ -171,9 +175,10 @@ func (p *List) newIDUpwardMethod() (id int) {
 			id++ // next ID
 			continue
 		}
-		return
+		break
 	}
 	if id <= UpperBound {
+		LowerBound = id // new starting point
 		return
 	}
 	msg.Info("No free ID found.")
@@ -190,9 +195,10 @@ func (p *List) newIDDownwardMethod() (id int) {
 			id-- // next ID
 			continue
 		}
-		return
+		break
 	}
 	if id >= LowerBound {
+		UpperBound = id // new starting point
 		return
 	}
 	msg.Info("No free ID found.")

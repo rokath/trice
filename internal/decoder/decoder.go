@@ -128,17 +128,15 @@ func MakeLut(list []id.Item) (lut IDLookUp) {
 	return
 }
 
-/*
-// newIDLut assumes til as JSON formatted input and returns a map for trice ID to fmt string translation.
-func newIDLut(til []byte) (IDLookUp, error) {
-	list, err := UnmarshalTriceIDList(til)
-	if nil != err {
-		return nil, err
-	}
-	lut := MakeLut(list) // create look-up map
-	return lut, nil
-}
-*/
+//  // newIDLut assumes til as JSON formatted input and returns a map for trice ID to fmt string translation.
+//  func newIDLut(til []byte) (IDLookUp, error) {
+//  	list, err := UnmarshalTriceIDList(til)
+//  	if nil != err {
+//  		return nil, err
+//  	}
+//  	lut := MakeLut(list) // create look-up map
+//  	return lut, nil
+//  }
 
 // Translate performs the trice log task.
 // Bytes are read with rc. Then according decoder.Encoding are translated into strings.
