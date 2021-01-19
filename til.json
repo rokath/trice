@@ -733,5 +733,19 @@
 		"fmtStrg": "%s\\n",
 		"created": 1610914200,
 		"removed": 0
+	},
+	{
+		"id": 999999,
+		"fmtType": "TRICE0",
+		"fmtStrg": "s:                                                   \\ns:   MDK-ARM_LL_UART_RTT0_PACK_STM32F030_NUCLEO-64   \\ns:                                                   \\n\\n",
+		"created": 1611086234,
+		"removed": 0
+	},
+	{
+		"id": 999998,
+		"fmtType": "TRICE16_2",
+		"fmtStrg": "MSG: triceFifoMaxDepth = %d, select = %d\\n",
+		"created": 1611086234,
+		"removed": 0
 	}
 ]

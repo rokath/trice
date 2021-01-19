@@ -107,7 +107,7 @@ int main(void)
         if( milliSecond >= lastTricesTime + 100 ){
             static int index = 0;
             int select = index % 30;
-            TRICE16_2( Id(0),"MSG: triceFifoMaxDepth = %d, select = %d\n", triceFifoMaxDepth, select );
+            TRICE16_2( Id(999998),"MSG: triceFifoMaxDepth = %d, select = %d\n", triceFifoMaxDepth, select );
             triceCheckSet(select);
             index++;
             lastTricesTime = milliSecond;

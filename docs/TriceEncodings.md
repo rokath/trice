@@ -4,73 +4,84 @@
 
 Trice bytes can be encodend in different flawors and it is easy to develop a different encoding.
 
-- Currently are supported:
-    - C:\repos\trice\srcTrice.C\intern\triceEscEncoder.h - escape sequence encoding
-    - C:\repos\trice\srcTrice.C\intern\triceBareEncoder.h - bare encoding
-    - C:\repos\trice\srcTrice.C\intern\tricePackEncoder.h - pack
+## Quick start recommendation
+
+- Use **pack2L** encoding if your target processor is a little endian mashine, otherwise use **pack2**
+- The `trice` tool assumes **pack2L** per default, so no need for commandline switch `-enc` with **pack2L**.
+
+## Overview
+
+Currently are supported:
+- C:\repos\trice\srcTrice.C\intern\triceEscEncoder.h - escape sequence encoding, try-out implementation, runtime strings up to 255 chars
+- C:\repos\trice\srcTrice.C\intern\triceBareEncoder.h - bare encoding, minimal implementation, no cycle counter, 16-bit IDs, no runtime strings
+- C:\repos\trice\srcTrice.C\intern\tricePackEncoder.h - pack encoding, pack2 predecessor, no cycle counter, 16-bit IDs, runtime strings up to 255 chars
+- C:\repos\trice\srcTrice.C\intern\tricePack2Encoder.h - pack2 encoding, with cycle counter, 20-bit IDs, runtime strings up to 65535 chars, recommended for usage
 
 - For each encoding inside the triceConfig.h is selectable:
     - encoding with more memory needs but a bit faster OR encoding with less memory needs but a bit slower
     - encoding with little endian or encoding in big endian
 
-- Additionally an encoding can be wrapped with transport information. As example look for wrapped bare encoding.
+- Additionally an encoding can be wrapped with transport information. As example checkout wrapped bare encoding.
 - Also it is possible to use encryption, which is shown as example for the wrapped bare encoding.
-
-A good choice is pack in little endian order (-e packL).
 
 ## Some own encoding
 
-- Copy the C:\repos\trice\srcTrice.C\intern\tricePackEncoder.h, to C:\repos\trice\srcTrice.C\intern\triceOwnEncoder.h.
-- Adapt C:\repos\trice\srcTrice.C\intern\triceOwnEncoder.h and integrate it in trice.h accordingly.
-- Adapt triceConfig.h in the desired way.
-- Copy C:\repos\trice\internal\decoder\packDecoder.go to C:\repos\trice\internal\decoder\ownDecoder.go and adapt it.
+To implement a different encoding:
+- Copy the C:\repos\trice\srcTrice.C\intern\trice*Any*Encoder.h, to C:\repos\trice\srcTrice.C\intern\trice*Own*Encoder.h.
+- Adapt C:\repos\trice\srcTrice.C\intern\trice*Own*Encoder.h and integrate it in trice.h accordingly.
+- Create a test project, copy and adapt triceConfig.h in the desired way.
+- Copy C:\repos\trice\internal\decoder\**any**Decoder.go to C:\repos\trice\internal\decoder\*own*Decoder.go and adapt it.
 - Integrate ownDecoder.go accordingly.
 - Write tests!
 
-## Encoding `pack`
+## Encoding `pack` or `packL` (no cycle counter, 16-bit IDs, runtime strings up to 255 chars)
 
-The pack trice transmit format is in network order (big endian). The trice encoding inside the triceFifo is already
-network order. So it is unchanged movable to the output channel.
+All values up to 32 bit are combined 32 bit units in big (=network) or little endian order.
+64-bit values are in the same byte order.
+
+- IIII = 16-bit ID
+- CCCC = following byte count without padding bytes
+- 0-3 padding 0-bytes fill the last 32-bit unit
 
 ```b
-      0     1     2     3 | macro
---------------------------|--------
-   0x89  0xab  0xcd  0xef | TRICE16_1( Id(0x89ab), "inf:[ SYNCTRICE 0x89ab%04x ]", 0xcdef );
-     IH    IL     0     0 | TRICE0( Id(I), "..." );
-     IH    IL     0     0 | TRICE_S( Id(I), "...%s...", "" );
+      3 2 1 0 | macro
+--------------|-----------------------------------------------------------------
+   0x89abcdef | TRICE16_1( Id(0x89ab), "inf:[ SYNCTRICE 0x89ab%04x ]", 0xcdef );
+     IIIICCCC | TRICE0( Id(I), "..." );
+     IIIICCCC | TRICE_S( Id(I), "...%s...", "" );
 ```
 
 ```b
-     0     1     2     3     4     5     6     7      | macro
-------------------------------------------------------|-----------------------------------------------------
-     IH    IL   cntH  cntL   b0    0     0     0      | TRICE8_1( Id(I), "...", b0 );             // cnt = 1
-     IH    IL   cntH  cntL   b0    b1    0     0      | TRICE8_2( Id(I), "...", b0, b1 );         // cnt = 2
-     IH    IL   cntH  cntL   b0    b1    b2    0      | TRICE8_3( Id(I), "...", b0, b1, b2 );     // cnt = 2
-     IH    IL   cntH  cntL   b0    b1    b2    b3     | TRICE8_4( Id(I), "...", b0, b1, b2, b3 ); // cnt = 3
-     IH    IL   cntH  cntL   w0H   w0L   0     0      | TRICE16_1( Id(I), "...", w0 );            // cnt = 2
-     IH    IL   cntH  cntL   w0H   w0L   w1H   w1L    | TRICE16_2( Id(I), "...", w0, w1 );        // cnt = 4
-     IH    IL   cntH  cntL   d0HH  d0HL  d0LH  d0LL   | TRICE32_1( Id(I), "...", d0 );            // cnt = 4
-     IH    IL   cntH  cntL   'a'   0     0     0      | TRICE_S( Id(I), "...%s...", "a" );        // cnt = 1
-     IH    IL   cntH  cntL   'a'  'b'    0     0      | TRICE_S( Id(I), "...%s...", "ab" );       // cnt = 2
-     IH    IL   cntH  cntL   'a'  'b'   'c'    0      | TRICE_S( Id(I), "...%s...", "abc" );      // cnt = 3
-     IH    IL   cntH  cntL   'a'  'b'   'c'   'd'     | TRICE_S( Id(I), "...%s...", "abcd" );     // cnt = 4
+     3 2 1 0    3 2 1 0      | macro
+-----------------------------|-----------------------------------------------------
+     IIIICCCC   000000b0     | TRICE8_1( Id(I), "...", b0 );             // cnt = 1
+     IIIICCCC   0000b0b1     | TRICE8_2( Id(I), "...", b0, b1 );         // cnt = 2
+     IIIICCCC   00b0b1b2     | TRICE8_3( Id(I), "...", b0, b1, b2 );     // cnt = 2
+     IIIICCCC   b0b1b2b3     | TRICE8_4( Id(I), "...", b0, b1, b2, b3 ); // cnt = 3
+     IIIICCCC   0000w0w0     | TRICE16_1( Id(I), "...", w0 );            // cnt = 2
+     IIIICCCC   w0w0w1w1     | TRICE16_2( Id(I), "...", w0, w1 );        // cnt = 4
+     IIIICCCC   d0d0d0d0     | TRICE32_1( Id(I), "...", d0 );            // cnt = 4
+     IIIICCCC   000000aa     | TRICE_S( Id(I), "...%s...", "a" );        // cnt = 1
+     IIIICCCC   0000aabb     | TRICE_S( Id(I), "...%s...", "ab" );       // cnt = 2
+     IIIICCCC   00aabbcc     | TRICE_S( Id(I), "...%s...", "abc" );      // cnt = 3
+     IIIICCCC   aabbccdd     | TRICE_S( Id(I), "...%s...", "abcd" );     // cnt = 4
 ```
 
 ```b
-     0     1     2     3     4     5     6     7     8     9     10    11     | macro
-------------------------------------------------------------------------------|---------------------------------------------------------------------
-     IH    IL   cntH  cntL   b0    b1    b2    b3    b4    0     0     0      | TRICE8_5( Id(I), "...", b0, b1, b2, b3, b4 );             // cnt = 5
-     IH    IL   cntH  cntL   b0    b1    b2    b3    b4    b5    0     0      | TRICE8_6( Id(I), "...", b0, b1, b2, b3, b4, b5 );         // cnt = 6
-     IH    IL   cntH  cntL   b0    b1    b2    b3    b4    b5    b6    0      | TRICE8_7( Id(I), "...", b0, b1, b2, b3, b4, b5, b6 );     // cnt = 7
-     IH    IL   cntH  cntL   b0    b1    b2    b3    b4    b5    b6    b7     | TRICE8_8( Id(I), "...", b0, b1, b2, b3, b4, b5, b6, b7 ); // cnt = 8
-     IH    IL   cntH  cntL   w0H   w0L   w1H   w1L   w2H   w2L   0     0      | TRICE16_3( Id(I), "...", w0, w1, w2 );                    // cnt = 6
-     IH    IL   cntH  cntL   w0H   w0L   w1H   w1L   w2H   w2L   w3H   w3L    | TRICE16_4( Id(I), "...", w0, w1, w2, w3 );                // cnt = 8
-     IH    IL   cntH  cntL  d0HH  d0HL  d0LH  d0LL  d1HH  d1HL  d1LH  d1LL    | TRICE32_2( Id(I), "...", d0, d1 );                        // cnt = 8
-     IH    IL   cntH  cntL l0HHH l0HHL l0HLH l0HLL l0LHH l0LHL l0LLH l0LLL    | TRICE64_1( Id(I), "...", l0 );                            // cnt = 8
-     IH    IL   cntH  cntL   'a'   'b'   'c'   'd'   'e'   0     0     0      | TRICE_S( Id(I), "...%s...", "abcde" );                    // cnt = 5
-     IH    IL   cntH  cntL   'a'   'b'   'c'   'd'   'e'   'f'   0     0      | TRICE_S( Id(I), "...%s...", "abcdef" );                   // cnt = 6
-     IH    IL   cntH  cntL   'a'   'b'   'c'   'd'   'e'   'f'   'g'   0      | TRICE_S( Id(I), "...%s...", "abcdefg" );                  // cnt = 7
-     IH    IL   cntH  cntL   'a'   'b'   'c'   'd'   'e'   'f'   'g'   'h'    | TRICE_S( Id(I), "...%s...", "abcdefgh" );                 // cnt = 8
+     3 2 1 0   3 2 1 0   3 2 1 0   | macro
+-----------------------------------|---------------------------------------------------------------------
+     IIIICCCC  b0b1b2b3  000000b4  | TRICE8_5( Id(I), "...", b0, b1, b2, b3, b4 );             // cnt = 5
+     IIIICCCC  b0b1b2b3  0000b4b5  | TRICE8_6( Id(I), "...", b0, b1, b2, b3, b4, b5 );         // cnt = 6
+     IIIICCCC  b0b1b2b3  00b4b5b6  | TRICE8_7( Id(I), "...", b0, b1, b2, b3, b4, b5, b6 );     // cnt = 7
+     IIIICCCC  b0b1b2b3  b4b5b6b7  | TRICE8_8( Id(I), "...", b0, b1, b2, b3, b4, b5, b6, b7 ); // cnt = 8
+     IIIICCCC  w0w0w1w1  0000w2w2  | TRICE16_3( Id(I), "...", w0, w1, w2 );                    // cnt = 6
+     IIIICCCC  w0w0w1w1  w2w2w3w3  | TRICE16_4( Id(I), "...", w0, w1, w2, w3 );                // cnt = 8
+     IIIICCCC  d0d0d0d0  d1d1d1d1  | TRICE32_2( Id(I), "...", d0, d1 );                        // cnt = 8
+     IIIICCCC  l0l0l0l0  l0l0l0l0  | TRICE64_1( Id(I), "...", l0 );                            // cnt = 8
+     IIIICCCC  aabbccdd  000000ee  | TRICE_S( Id(I), "...%s...", "abcde" );                    // cnt = 5
+     IIIICCCC  aabbccdd  0000eeff  | TRICE_S( Id(I), "...%s...", "abcdef" );                   // cnt = 6
+     IIIICCCC  aabbccdd  00eeffgg  | TRICE_S( Id(I), "...%s...", "abcdefg" );                  // cnt = 7
+     IIIICCCC  aabbccdd  eeffgghh  | TRICE_S( Id(I), "...%s...", "abcdefgh" );                 // cnt = 8
 ```
 
 and so on...
@@ -79,44 +90,30 @@ A sync packet {0x89, 0xab, 0xcd, 0xef} can be inserted anytime between 2 trice b
 
 ## Encoding `bare`
 
-The bare trice transmit format is in network order (big endian). The trice encoding inside the triceFifo differs from
-the trice transmit format on little endian mashines for performance reasons.
-
-- The bare triceFifo storage format is in machine order concerning 16 bit values but big endian for 32 and 64 bit
-  values. In detail:
-    - on big endian mashines:
-        - m = H
-        - n = L
-    - on little endian mashines:
-        - m = L
-        - n = H
-
-## bare internal triceFifo storage format expressed in mashine order
-
 ```b
-      0     1     2     3 | macro
---------------------------|--------
-     Im    In     0     0 | TRICE0( Id(I), "..." );
-     Im    In    b0     0 | TRICE8_1( Id(I), "...", b0 );
-     Im    In    b0    b1 | TRICE8_2( Id(I), "...", b1 );
-     Im    In   w0m   w0n | TRICE16_1( Id(I), "...", w0 );
+     3 2 1 0   | macro
+---------------|--------------------------------
+     IIII0000  | TRICE0( Id(I), "..." );
+     IIII00b0  | TRICE8_1( Id(I), "...", b0 );
+     IIIIb0b1  | TRICE8_2( Id(I), "...", b1 );
+     IIIIw0w0  | TRICE16_1( Id(I), "...", w0 );
 ```
 
 ```b
-     0      1     2     3     4     5     6     7 | macro
---------------------------------------------------|-----------------------------------------------
-     0      0    b0    b1    Im    In    b2     0 | TRICE8_3( Id(I), "...", b0, b1, b2 );
-     0      0    b0    b1    Im    In    b2    b3 | TRICE8_4( Id(I), "...", b0, b1, b2, b3 );
-     0      0   w0m   w0n    Im    In   w1m   w1n | TRICE16_2( Id(I), "...", w0, w1 );
-     0      0  d0Hm  d0Hn    Im    In  d0Lm  d0Ln | TRICE32_1( Id(I), "...", d0 );
+     3 2 1 0    3 2 1 0   | macro
+--------------------------|-----------------------------------------------
+     0000b0b1   IIII00b2  | TRICE8_3( Id(I), "...", b0, b1, b2 );
+     0000b0b1   IIIIb2b3  | TRICE8_4( Id(I), "...", b0, b1, b2, b3 );
+     0000w0w0   IIIIw1w1  | TRICE16_2( Id(I), "...", w0, w1 );
+     0000d0d0   IIIId0d0  | TRICE32_1( Id(I), "...", d0 );
 ```
 
 ```b
-     0      1     2     3     4     5     6     7     8     9     10     11 | macro
-----------------------------------------------------------------------------|------------
-     0      0    b0    b1     0     0    b2    b3    Im    In     b4      0 | TRICE8_5( Id(I), "...", b0, b1, b2, b3, b4 );
-     0      0    b0    b1     0     0    b2    b3    Im    In     b4     b5 | TRICE8_6( Id(I), "...", b0, b1, b2, b3, b4, b5 );
-     0      0   w0m   w0n     0     0   w1m   w1n    Im    In    w2m    w2n | TRICE16_3( Id(I), "...", w0, w1, w2);
+     3 2 1 0    3 2 1 0    3 2 1 0   | macro
+-----------------------------------  |------------
+     0000b0b1   0000b2b3   IIII00b4  | TRICE8_5( Id(I), "...", b0, b1, b2, b3, b4 );
+     0000b0b1   0000b2b3   IIIIb4b5  | TRICE8_6( Id(I), "...", b0, b1, b2, b3, b4, b5 );
+     0000w0w0   0000w1w1   IIIIw2w2  | TRICE16_3( Id(I), "...", w0, w1, w2);
 ```
 
 ```b
@@ -131,45 +128,6 @@ the trice transmit format on little endian mashines for performance reasons.
 
 and so on...
 
-## bare internal triceFifo storage format on little endian machines
-
-```b
-      0     1     2     3 | macro
---------------------------|--------
-     IL    IH     0     0 | TRICE0( Id(I), "..." );
-     IL    IH    b0     0 | TRICE8_1( Id(I), "...", b0 );
-     IL    IH    b0    b1 | TRICE8_2( Id(I), "...", b1 );
-     IL    IH   w0L   w0H | TRICE16_1( Id(I), "...", w0 );
-```
-
-```b
-     0      1     2     3     4     5     6     7 | macro
---------------------------------------------------|-----------------------------------------------
-     0      0    b0    b1    IL    IH    b2     0 | TRICE8_3( Id(I), "...", b0, b1, b2 );
-     0      0    b0    b1    IL    IH    b2    b3 | TRICE8_4( Id(I), "...", b0, b1, b2, b3 );
-     0      0   w0L   w0H    IL    IH   w1L   w1H | TRICE16_2( Id(I), "...", w0, w1 );
-     0      0  d0HL  d0HH    IL    IH  d0LL  d0LH | TRICE32_1( Id(I), "...", d0 );
-```
-
-```b
-     0      1     2     3     4     5     6     7     8     9     10     11 | macro
-----------------------------------------------------------------------------|------------
-     0      0    b0    b1     0     0    b2    b3    IL    IH     b4      0 | TRICE8_5( Id(I), "...", b0, b1, b2, b3, b4 );
-     0      0    b0    b1     0     0    b2    b3    IL    IH     b4     b5 | TRICE8_6( Id(I), "...", b0, b1, b2, b3, b4, b5 );
-     0      0   w0L   w0H     0     0   w1L   w1H    IL    IH    w2L    w2H | TRICE16_3( Id(I), "...", w0, w1, w2);
-```
-
-```b
-     0      1     2     3     4     5     6     7     8     9     10     11     12     13     14     15 | macro
---------------------------------------------------------------------------------------------------------|------------
-     0      0    b0    b1     0     0    b2    b3     0     0     b4     b5     IL     IH     b6      0 | TRICE8_7( Id(I), "...", b0, b1, b2, b3, b4, b5, b6 );
-     0      0    b0    b1     0     0    b2    b3     0     0     b4     b5     IL     IH     b6     b7 | TRICE8_8( Id(I), "...", b0, b1, b2, b3, b4, b5, b6, b7 );
-     0      0   w0L   w0H     0     0   w1L   w1H     0     0    w2L    w2H     IL     IH    w3L    w3H | TRICE16_3( Id(I), "...", w0, w1, w2, w3);
-     0      0  d0HL  d0HH     0     0  d0LL  d0LH     0     0   d1HL   d1HH     IL     IH   d1LL   d1LH | TRICE32_2( Id(I), "...", d0, d1 );
-     0      0 l0HHL l0HHH     0     0 l0HLL l0HLH     0     0  l0LHL  l0LHH     IL     IH  l0LLL  l0LLH | TRICE64_1( Id(I), "...", l0 );
-```
-
-and so on...
 
 ## bare internal triceFifo storage format on big endian machines
 
