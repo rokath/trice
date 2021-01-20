@@ -7,12 +7,17 @@ Trice bytes can be encodend in different flawors and it is easy to develop a dif
 ## Quick start recommendation
 
 - Use **pack2L** encoding if your target processor is a little endian mashine, otherwise use **pack2**
-- The `trice` tool assumes **pack2L** per default, so no need for commandline switch `-enc` with **pack2L**.
+- The `trice` tool assumes **pack2L** per default, so no need for commandline switch `-enc pack2L`.
+
+```c
+#define TRICE_ENCODING TRICE_PACK2_ENCODING
+```
 
 ## Overview
 
-Inside the triceConfig.h is selectable:
-- Encoding with more memory needs but a bit faster.
+Inside the target project specific triceConfig.h is selectable:
+
+- Encoding with more memory needs but a bit faster. (to do)
   - The trice macros are expanded in Assembler code.
   - If in the code only a few TRICE macrose this is the best choice.
 - Encoding with less memory needs but a bit slower.
@@ -21,7 +26,19 @@ Inside the triceConfig.h is selectable:
   - Unused TRICE macro definitions could be deleted manually from the target code to reduce memory needs.
 - Encoding in little or big endian.
   - The encoding should match the target processor endiannes.
-- Additionally an encoding can be wrapped with transport information. As example checkout wrapped bare encoding.
+
+  ```c
+  #define TRICE_TRANSFER_ENDIANESS TRICE_LITTLE_ENDIANESS
+  ```
+
+- Additionally an encoding can be wrapped with transport information. This setting is done by calling cyclically this function:
+
+```c
+triceServeFifoWrappedToBytesBuffer();
+```
+
+ As example checkout wrapped bare encoding.
+
 - Also it is possible to use encryption, which is shown as example for the wrapped bare encoding.
 
 Currently these encodings are supported:
@@ -87,16 +104,31 @@ To implement a different encoding:
 - Integrate *own*Decoder.go accordingly.
 - Write tests!
 
-## Encoding `pack` & `packL` (no cycle counter, 16-bit IDs, runtime strings up to 255 chars)
+## Encoding `pack2` & `pack2L` (with cycle counter, 20-bit IDs, runtime strings up to 65535 chars)
+
+The encoding is similar to `pack` & `packL` encoding with these differences:
+
+`IIIICCCC` is replaced by `IIIIICNN` and  an optional following long count `LLLLcccc`
+
+- `IIIII` = 20-bit ID
+- `C` = 4-bit byte count
+  - 0...12 = short count (no following long count)
+  - 0xd = indicates a following long count
+  - 0xe = reserved
+  - 0xf = reserved
+- `NN` = 8-bit cycle counter
+- `LLLL` = 16-bit long count
+- `cccc` = bit-inversed LLLL as check sum
+
+## Encoding `pack` & `packL` (no cycle counter, 16-bit IDs, runtime strings up to 65535 chars)
 
 All values up to 32 bit are combined 32 bit units in big (=network) or little endian order.
 64-bit values are in the same byte order.
 
-```b
-- IIII = 16-bit ID
-- CCCC = byte count without counting padding bytes
+- `IIII` = 16-bit ID
+- `CCCC` = byte count without counting padding bytes
 - 0-3 padding 0-bytes fill the last 32-bit unit
-```
+
 
 ```b
 byte 3 2 1 0  | macro
@@ -149,6 +181,8 @@ A [sync package](#sync-packages) can be inserted anytime between 2 trice but not
 - A trice atom consists of a 2 byte id and 2 bytes data.
 - When a trice consists of several trice atoms, only the last one carries the trice id. The others have a trice id 0.
 
+- `IIII` = 16-bit ID
+
 ```b
 byte  3 2 1 0  | macro
 ---------------|--------------------------------
@@ -188,40 +222,26 @@ byte 3 2 1 0    3 2 1 0    3 2 1 0    3 2 1 0  | macro
 and so on...
 
 The bare transmit format is exactly the same as the bare internal storage format with these differences:
-- There are sometimes 4 byte [sync packages](#sync-packages) mixed in at 4 byte offsets.
 
-<!---
+During runtime normally only the 16-bit ID 12345 (together with the parameters like hour, min, sec) is copied to a buffer. Execution time for a TRICE16_1 (as example) on a 48 MHz ARM can be about 16 systicks resulting in 250 nanoseconds duration, so you can use `trice` also inside interrupts or the RTOS scheduler to analyze task timings. The needed buffer space is one 32 bit word per normal trice (for up to 2 data bytes). 
 
-internal fifo buffer storage format:
+If the wrap format is desired as output the buffered 4 byte trice is transmitted as an 8 byte packet allowing start byte, sender and receiver addresses and CRC8 check to be used later in parallel with different software protocols.
 
-- bare code format
-  
-  During runtime normally only the 16-bit ID 12345 (together with the parameters like hour, min, sec) is copied to a buffer. Execution time for a TRICE16_1 (as example) on a 48 MHz ARM can be about 16 systicks resulting in 250 nanoseconds duration, so you can use `trice` also inside interrupts or the RTOS scheduler to analyze task timings. The needed buffer space is one 32 bit word per normal trice (for up to 2 data bytes). A direct out transfer is possible but not recommended for serial output because of possible issues to re-sync in case of data loss. Just in case the internal bare fifo overflows, the data are still in sync.
-
-  If the wrap format is desired as output the buffered 4 byte trice is transmitted as an 8 byte packet allowing start byte, sender and receiver addresses and CRC8 check to be used later in parallel with different software protocols.
-
-  The bare output format contains exactly the bare bytes but is enriched with sync packages to achieve syncing. The sync package interval is adjustable.
-
-
-- (direct) esc(ape) code format
-
-  During untime the esc code format is generated immediately during the TRICE macro execution. This results in a slightly longer TRICE macro execution but allows the direct background transfer to the output device (UART or RTT memory) because re-sync is easy. One advantage of the esc format compared to bare is the more efficient coding of dynamic strings if you have lots of them.
-
-Targest can send trices in different encodings
-
---->
+The bare output format contains exactly the bare bytes but is enriched with 4 byte [sync packages](#sync-packages) mixed in at 4 byte offsets to achieve syncing. The sync package interval is adjustable.
 
 ## Encoding `wrap` & `wrapL`
 
-- This is the same as bare, but each trice atom is prefixed with a 4 byte wrap information:
-    - 0xEB = start byte
-    - 0x60 = source address
-    - 0x60 = destination address
-    - crc8 = 8 bit checksum over start byte, source and destination address, and the 4 bare bytes.
+This is the same as bare, but each trice atom is prefixed with a 4 byte wrap information:
+
+- 0xEB = start byte
+- 0x80 = source address
+- 0x81 = destination address
+- crc8 = 8 bit checksum over start byte, source and destination address, and the 4 bare bytes.
 
 ## Encoding `esc`
 
 The `esc` encoding uses an escape character for syncing after some data loss. It is extendable.
+
 - All numbers are transmitted in network order (big endian).
 - All values are in left-right order - first value comes first.
 

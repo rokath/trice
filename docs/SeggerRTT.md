@@ -6,14 +6,16 @@
 - Following examples are for Windows, but should work similar also on Linux and Darwin (MacOS).
 - The trice tool can use the SEGGER RTT protocol in different ways.
   - Hardware paths:
-    - Use J-Link or J-Link OB (on-board).
-      J-Link OB one is flashable to many ST Microelectronics evaluation boards (v2.0 link hardware).
+    - Use [J-Link](https://www.segger.com/products/debug-probes/j-link/) or [J-Link OB (on-board)](https://www.segger.com/products/debug-probes/j-link/models/j-link-ob/).
+      J-Link OB one is flashable to many ST Microelectronics evaluation boards (v2.0 link hardware) and for example also usable with NXP and Atmel
     - Use ST-Link with [gostlink](https://github.com/rokath/trice/blob/master/third_party/goST/ReadMe.md).
       It uses only one USB endpoint so debugging and trice output in parallel is not possible.
     - Use some other Debug-Probe with target memory access (support welcome)
   - RTT channel selection (on target and on host)
     - RECOMMENDED:
-      - `trice l -p JLINK` starts in background a `JLinkRTTLogger.exe` which connects to J-Link and writes to a logfile which in turn is read by the trice tool. On exit the `JLinkRTTLogger.exe` is killed automatically. It expects a target sending messages over RTT channel 0 (other channels supported too). It is possible to start several instances on different channels as well as on different targets.
+      - `trice l -p JLINK` or shorter `trice l` (default port is JLINK) starts in background a `JLinkRTTLogger.exe` which connects to J-Link and writes to a logfile which in turn is read by the trice tool. On exit the `JLinkRTTLogger.exe` is killed automatically. It expects a target sending messages over RTT channel 0 (other channels supported too). It is possible to start several instances on different channels as well as on different targets.
+      - `trice l -p STLINK` starts in background a `trice/third_party/goST/stRttLogger.exe` which connects to J-Link and writes to a logfile which in turn is read by the trice tool. On exit the `stRttLogger.exe` is killed automatically. It expects a target sending messages over RTT channel 0 (other channels supported too). It is possible to start several instances on different channels as well as on different targets.
+      - If you have the choice prefer J-Link. It allowes parallel debugging and trice output.
 
 ## J-Link option
 
@@ -32,7 +34,7 @@ Following steps describe the needed action for a ST Microelectronics evaluation 
 
 #### Second step
 
-- Check [https://www.segger.com/products/debug-probes/j-link/models/other-j-links/st-link-on-board/](https://www.segger.com/products/debug-probes/j-link/models/other-j-links/st-link-on-board/)
+- Check [Converting ST-LINK On-Board Into a J-Link](https://www.segger.com/products/debug-probes/j-link/models/other-j-links/st-link-on-board/)
 - Use `STLinkReflash.exe` to convert NUCLEO from ST-Link on-board to J-Link on-board. *`STM32 Debug+ VCP` won´t be detected by Segger reflash utility.*
 
 ### Some SEGGER tools in short
@@ -40,16 +42,6 @@ Following steps describe the needed action for a ST Microelectronics evaluation 
 - `JLink.exe` is the SEGGER J-Link commander. It starts the **J-Link driver/server** and the `trice` tool can connect to it:
   - Example:
     - Compile and flash `../test/MDK-ARM_LL_UART_RTT0_PACK_STM32F030R8-NUCLEO-64` project
-
-<!---
-    - Open a commandline and run:
-
-      ```b
-      "C:\Program Files (x86)\SEGGER\JLink\JLink.exe" -If SWD -Speed 4000 -AutoConnect 1 -Device STM32F030R8 -USB 773295023
-      ```
-
-    - Or simply doubleclick on "C:\Program Files (x86)\SEGGER\JLink\JLink.exe"
--->
     - Open a commandline and run:
 
       ```b
@@ -93,11 +85,17 @@ Following steps describe the needed action for a ST Microelectronics evaluation 
 ## Software Setup example (JLinkRTTViewer.exe is depreciated, use JLink.exe instead!)
 
 - Build and flash `../test/MDK-ARM_LL_UART_RTT0_PACK_STM32F030R8-NUCLEO-64`
-  - Download [J-Link Software and Documentation Pack](https://www.segger.com/downloads/jlink/#J-LinkSoftwareAndDocumentationPack) and install
+  - Download [J-Link Software and Documentation Pack](https://www.segger.com/downloads/jlink/#J-LinkSoftwareAndDocumentationPack) and install.
+
+<!---
+
   - Start `"C:\Program Files (x86)\SEGGER\JLink\JLinkRTTViewer.exe"` and connect to the J-Link. You only need this as a running server to connect to.
     - Unfortunately the JLinkRTTViewer "steals" from time to time some trice data packages and displays them as data garbage.
     - Better use JLink.exe or the *Segger J-Link SDK* instead.
-  - Run `trice log -port JLINK`. It should now connect to JLinkLogViewer.
+
+-->
+
+  - Run `trice log -port JLINK` or in short `trice l`.
   - Now the trice output is visible.
 - In the SeggerRTT example projects you see how to setup.
 

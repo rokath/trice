@@ -10,8 +10,8 @@ extern "C" {
 #endif
 
 #include <stdint.h>
-// Enabling next line leads to XTEA encryption  with the key. Only wrapped barel over UART us encrypted right now.
-//#define ENCRYPT XTEA_KEY( ea, bb, ec, 6f, 31, 80, 4e, b9, 68, e2, fa, ea, ae, f1, 50, 54 ); //!< -password MySecret
+// Enabling next line leads to XTEA encryption  with the key. Only wrapped bare[L] over UART us encrypted right now.
+#define ENCRYPT XTEA_KEY( ea, bb, ec, 6f, 31, 80, 4e, b9, 68, e2, fa, ea, ae, f1, 50, 54 ); //!< -password MySecret
 
 #define TRICE_HEADLINE \
 TRICE0( Id(44461), "s:                                                          \ns:   MDK-ARM_LL_UART_WRAP_RTT0_BARE_STM32F030R8-NUCLEO-64   \ns:                                                          \n\n");
@@ -28,6 +28,7 @@ TRICE0( Id(44461), "s:                                                          
 ///////////////////////////////////////////////////////////////////////////////
 // select target trice method
 #define TRICE_ENCODING TRICE_BARE_ENCODING
+#define TRICE_OUTPUT_WRAPPED //!< relevant only for bare encoding
 
 //! Set endianess according to target hardware. Options: TRICE_BIG_ENDIANESS, TRICE_LITTLE_ENDIANESS.
 #define TRICE_HARDWARE_ENDIANESS TRICE_LITTLE_ENDIANESS 
@@ -37,10 +38,10 @@ TRICE0( Id(44461), "s:                                                          
 //! If TRICE_TRANSFER_ENDIANESS is equal to TRICE_HARDWARE_ENDIANESS the trice code is smaller and more efficient.
 //! When set to TRICE_LITTLE_ENDIANESS the trice tool -enc format specifier is extended by a letter 'l' (small 'L').
 //! Example -enc "pack" -> -enc "packl".
-#define TRICE_TRANSFER_ENDIANESS TRICE_BIG_ENDIANESS 
+#define TRICE_TRANSFER_ENDIANESS TRICE_LITTLE_ENDIANESS 
 
-//#define TRICE_U8PUSH(v) do{ uint8_t x = v; triceU8PushSeggerRTT(x); triceU8Push(x); } while(0) //!< Set trice out channel(s) 
-#define TRICE_U32PUSH(v) do{ uint32_t x = v; triceU32PushSeggerRTT(x); triceU32Push(x); } while(0) //!< Set trice out channel(s) 
+//#define TRICE_U8PUSH(v) do{ /*triceU8PushSeggerRTT(v);*/ triceU8Push(v); } while(0) //!< Set trice out channel(s) 
+#define TRICE_U32PUSH(v) do{ triceU32PushSeggerRTT(v); triceU32Push(v); } while(0) //!< Set trice out channel(s) 
 //
 ///////////////////////////////////////////////////////////////////////////////
 

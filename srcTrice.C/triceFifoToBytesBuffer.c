@@ -12,7 +12,7 @@
 //! Bigger numbers decrease the bandwidth needs but increase the possible loss of trices in case of
 //! re-sync need. A number of 10-100 is recommended: every 10-100 ms or 10-100 trices a sync trice is transmitted.
 //! It increases the bandwidth need by 10-1%.
-int const syncLevelLimit = 10000;
+int const syncLevelLimit = 100;
 
 #ifndef TRICE_WRAP_START_BYTE
 #define TRICE_WRAP_START_BYTE 0
@@ -83,7 +83,7 @@ void triceServeFifoWrappedToBytesBuffer(void) {
         int n = triceU32FifoDepth();
         if ( n >= 4 ) { // a trice to transmit
             uint32_t x = triceU32Pop();
-#ifdef ENCRYPT
+#ifdef ENCRYPT // need to re-init buffer
             triceBytesBuffer[0] = TRICE_WRAP_START_BYTE;
             triceBytesBuffer[1] = TRICE_WRAP_LOCAL_ADDR;
             triceBytesBuffer[2] = TRICE_WRAP_DEST_ADDR;

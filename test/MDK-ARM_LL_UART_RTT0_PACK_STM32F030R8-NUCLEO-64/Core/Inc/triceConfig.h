@@ -31,6 +31,7 @@ TRICE0( Id(999999), "s:                                                   \ns:  
 #define TRICE_ENCODING TRICE_PACK2_ENCODING
 
 //! Set endianess according to target hardware. Options: TRICE_BIG_ENDIANESS, TRICE_LITTLE_ENDIANESS.
+//! Some compiler offer an automatic detection for this.
 #define TRICE_HARDWARE_ENDIANESS TRICE_LITTLE_ENDIANESS 
 
 //! Set byte order according desired transfer format. Options: TRICE_BIG_ENDIANESS, TRICE_LITTLE_ENDIANESS. 
@@ -38,7 +39,7 @@ TRICE0( Id(999999), "s:                                                   \ns:  
 //! If TRICE_TRANSFER_ENDIANESS is equal to TRICE_HARDWARE_ENDIANESS the trice code is smaller and more efficient.
 //! When set to TRICE_LITTLE_ENDIANESS the trice tool -enc format specifier is extended by a letter 'L'.
 //! Example -enc "pack2L" -> -enc "pack2L".
-#define TRICE_TRANSFER_ENDIANESS TRICE_BIG_ENDIANESS 
+#define TRICE_TRANSFER_ENDIANESS TRICE_LITTLE_ENDIANESS 
 
 //#define TRICE_U8PUSH(v) do{ uint8_t x = v;  triceU8PushSeggerRTT(x); triceU8Push(x); } while(0) //!< Set trice out channel(s) 
 #define TRICE_U32PUSH(v) do{ uint32_t x = v; triceU32PushSeggerRTT(x); triceU32Push(x); } while(0) //!< Set trice out channel(s) 
@@ -49,8 +50,8 @@ TRICE0( Id(999999), "s:                                                   \ns:  
 ///////////////////////////////////////////////////////////////////////////////
 // uncomment for trice wrap transfer format
 // #define TRICE_WRAP_START_BYTE 0xEB // 235, to do: also as trice tool parameter
-// #define TRICE_WRAP_LOCAL_ADDR 0x60 // to do: also as trice tool parameter
-// #define TRICE_WRAP_DEST_ADDR  0x60 // to do: also as trice tool parameter
+// #define TRICE_WRAP_LOCAL_ADDR 0x80 // to do: also as trice tool parameter
+// #define TRICE_WRAP_DEST_ADDR  0x81 // to do: also as trice tool parameter
 ///////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////////

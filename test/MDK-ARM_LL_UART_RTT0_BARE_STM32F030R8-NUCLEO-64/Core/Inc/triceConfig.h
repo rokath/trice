@@ -10,6 +10,8 @@ extern "C" {
 #endif
 
 #include <stdint.h>
+// Enabling next line leads to XTEA encryption  with the key. Only wrapped barel over UART us encrypted right now.
+//#define ENCRYPT XTEA_KEY( ea, bb, ec, 6f, 31, 80, 4e, b9, 68, e2, fa, ea, ae, f1, 50, 54 ); //!< -password MySecret
 
 #define TRICE_HEADLINE \
 TRICE0( Id(54823), "s:                                                   \ns:   MDK-ARM_LL_UART_RTT0_BARE_STM32F030_NUCLEO-64   \ns:                                                   \n\n")
@@ -27,6 +29,7 @@ TRICE0( Id(54823), "s:                                                   \ns:   
 // select target trice method
 #define TRICE_ENCODING TRICE_BARE_ENCODING
 
+//! Set endianess according to target hardware. Options: TRICE_BIG_ENDIANESS, TRICE_LITTLE_ENDIANESS.
 #define TRICE_HARDWARE_ENDIANESS TRICE_LITTLE_ENDIANESS 
 
 //! Set byte order according desired transfer format. Options: TRICE_BIG_ENDIANESS, TRICE_LITTLE_ENDIANESS. 
