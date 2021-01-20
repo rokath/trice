@@ -11,40 +11,95 @@ Trice bytes can be encodend in different flawors and it is easy to develop a dif
 
 ## Overview
 
-Currently are supported:
-- C:\repos\trice\srcTrice.C\intern\triceEscEncoder.h - escape sequence encoding, try-out implementation, runtime strings up to 255 chars
-- C:\repos\trice\srcTrice.C\intern\triceBareEncoder.h - bare encoding, minimal implementation, no cycle counter, 16-bit IDs, no runtime strings
-- C:\repos\trice\srcTrice.C\intern\tricePackEncoder.h - pack encoding, pack2 predecessor, no cycle counter, 16-bit IDs, runtime strings up to 255 chars
-- C:\repos\trice\srcTrice.C\intern\tricePack2Encoder.h - pack2 encoding, with cycle counter, 20-bit IDs, runtime strings up to 65535 chars, recommended for usage
-
-- For each encoding inside the triceConfig.h is selectable:
-    - encoding with more memory needs but a bit faster OR encoding with less memory needs but a bit slower
-    - encoding with little endian or encoding in big endian
-
+Inside the triceConfig.h is selectable:
+- Encoding with more memory needs but a bit faster.
+  - The trice macros are expanded in Assembler code.
+  - If in the code only a few TRICE macrose this is the best choice.
+- Encoding with less memory needs but a bit slower.
+  - Each TRICE macro is a function call.
+  - Good choice if in the code many TRICE macros.
+  - Unused TRICE macro definitions could be deleted manually from the target code to reduce memory needs.
+- Encoding in little or big endian.
+  - The encoding should match the target processor endiannes.
 - Additionally an encoding can be wrapped with transport information. As example checkout wrapped bare encoding.
 - Also it is possible to use encryption, which is shown as example for the wrapped bare encoding.
 
-## Some own encoding
+Currently these encodings are supported:
+
+### `pack2` & `pacl2L` encoding
+
+This is the recommended encoding.
+
+- with cycle counter
+- 20-bit IDs
+- runtime strings up to 65535 chars
+- target source: trice/srcTrice.C/intern/tricePack2Encoder.h 
+- trice tool source: trice/internal/decoder/pack2Decoder.go
+- trice tool test file: trice/internal/decoder/pack2Decoder_test.go
+
+### `pack` & `packL` encoding
+
+This is the pack2 & pack2L predecessor and kept for reference. 
+
+- no cycle counter
+- 16-bit IDs
+- runtime strings up to 65535 chars
+- target source: trice/srcTrice.C/intern/tricePackEncoder.h 
+- trice tool source: trice/internal/decoder/packDecoder.go
+- trice tool test file: trice/internal/decoder/packDecoder_test.go
+
+
+### `bare` and `bareL` encoding
+
+This was the first minimal implementation. Could be interstuing for 8-bit and 16-bit processors.
+
+- no cycle counter
+- 16-bit IDs
+- no runtime strings
+- target source: trice/srcTrice.C/intern/triceBareEncoder.h 
+- trice tool source: trice/internal/decoder/bareDecoder.go
+- trice tool test file: trice/internal/decoder/bareDecoder_test.go
+
+### `wrap` and `wrapL` encoding
+
+This is also `bare` & `bareL` encoding but with additional control bytes.
+
+### `esc` encoding
+
+This is a try-out escape sequence encoding implementation and kept for reference.
+
+- no endianness choice
+- no cycle counter
+- 16-bit IDs
+- runtime strings up to 255 chars
+- target source: trice/srcTrice.C/intern/triceEscEncoder.h 
+- trice tool source: trice/internal/decoder/escDecoder.go
+- trice tool test file: trice/internal/decoder/escDecoder_test.go
+
+
+### own encoding
 
 To implement a different encoding:
-- Copy the C:\repos\trice\srcTrice.C\intern\trice*Any*Encoder.h, to C:\repos\trice\srcTrice.C\intern\trice*Own*Encoder.h.
-- Adapt C:\repos\trice\srcTrice.C\intern\trice*Own*Encoder.h and integrate it in trice.h accordingly.
+- Copy trice/srcTrice.C/intern/trice*Any*Encoder.h, to trice/srcTrice.C/intern/trice*Own*Encoder.h.
+- Adapt trice/srcTrice.C/intern/trice*Own*Encoder.h and integrate it in trice.h accordingly.
 - Create a test project, copy and adapt triceConfig.h in the desired way.
-- Copy C:\repos\trice\internal\decoder\**any**Decoder.go to C:\repos\trice\internal\decoder\*own*Decoder.go and adapt it.
-- Integrate ownDecoder.go accordingly.
+- Copy trice/internal/decoder/*any*Decoder.go to trice/internal/decoder/**own**Decoder.go and adapt it.
+- Integrate *own*Decoder.go accordingly.
 - Write tests!
 
-## Encoding `pack` or `packL` (no cycle counter, 16-bit IDs, runtime strings up to 255 chars)
+## Encoding `pack` & `packL` (no cycle counter, 16-bit IDs, runtime strings up to 255 chars)
 
 All values up to 32 bit are combined 32 bit units in big (=network) or little endian order.
 64-bit values are in the same byte order.
 
+```b
 - IIII = 16-bit ID
-- CCCC = following byte count without padding bytes
+- CCCC = byte count without counting padding bytes
 - 0-3 padding 0-bytes fill the last 32-bit unit
+```
 
 ```b
-      3 2 1 0 | macro
+byte 3 2 1 0  | macro
 --------------|-----------------------------------------------------------------
    0x89abcdef | TRICE16_1( Id(0x89ab), "inf:[ SYNCTRICE 0x89ab%04x ]", 0xcdef );
      IIIICCCC | TRICE0( Id(I), "..." );
@@ -52,7 +107,7 @@ All values up to 32 bit are combined 32 bit units in big (=network) or little en
 ```
 
 ```b
-     3 2 1 0    3 2 1 0      | macro
+byte 3 2 1 0    3 2 1 0      | macro
 -----------------------------|-----------------------------------------------------
      IIIICCCC   000000b0     | TRICE8_1( Id(I), "...", b0 );             // cnt = 1
      IIIICCCC   0000b0b1     | TRICE8_2( Id(I), "...", b0, b1 );         // cnt = 2
@@ -68,7 +123,7 @@ All values up to 32 bit are combined 32 bit units in big (=network) or little en
 ```
 
 ```b
-     3 2 1 0   3 2 1 0   3 2 1 0   | macro
+byte  3 2 1 0   3 2 1 0   3 2 1 0  | macro
 -----------------------------------|---------------------------------------------------------------------
      IIIICCCC  b0b1b2b3  000000b4  | TRICE8_5( Id(I), "...", b0, b1, b2, b3, b4 );             // cnt = 5
      IIIICCCC  b0b1b2b3  0000b4b5  | TRICE8_6( Id(I), "...", b0, b1, b2, b3, b4, b5 );         // cnt = 6
@@ -86,12 +141,16 @@ All values up to 32 bit are combined 32 bit units in big (=network) or little en
 
 and so on...
 
-A sync packet {0x89, 0xab, 0xcd, 0xef} can be inserted anytime between 2 trice but not inside a trice.
+A [sync package](#sync-packages) can be inserted anytime between 2 trice but not inside a trice.
 
-## Encoding `bare`
+## Encoding `bare` & `bareL`
+
+- Each trice is coded in one to eight 4-byte trice atoms.
+- A trice atom consists of a 2 byte id and 2 bytes data.
+- When a trice consists of several trice atoms, only the last one carries the trice id. The others have a trice id 0.
 
 ```b
-     3 2 1 0   | macro
+byte  3 2 1 0  | macro
 ---------------|--------------------------------
      IIII0000  | TRICE0( Id(I), "..." );
      IIII00b0  | TRICE8_1( Id(I), "...", b0 );
@@ -100,7 +159,7 @@ A sync packet {0x89, 0xab, 0xcd, 0xef} can be inserted anytime between 2 trice b
 ```
 
 ```b
-     3 2 1 0    3 2 1 0   | macro
+byte  3 2 1 0    3 2 1 0  | macro
 --------------------------|-----------------------------------------------
      0000b0b1   IIII00b2  | TRICE8_3( Id(I), "...", b0, b1, b2 );
      0000b0b1   IIIIb2b3  | TRICE8_4( Id(I), "...", b0, b1, b2, b3 );
@@ -109,7 +168,7 @@ A sync packet {0x89, 0xab, 0xcd, 0xef} can be inserted anytime between 2 trice b
 ```
 
 ```b
-     3 2 1 0    3 2 1 0    3 2 1 0   | macro
+byte  3 2 1 0    3 2 1 0    3 2 1 0  | macro
 -----------------------------------  |------------
      0000b0b1   0000b2b3   IIII00b4  | TRICE8_5( Id(I), "...", b0, b1, b2, b3, b4 );
      0000b0b1   0000b2b3   IIIIb4b5  | TRICE8_6( Id(I), "...", b0, b1, b2, b3, b4, b5 );
@@ -117,65 +176,19 @@ A sync packet {0x89, 0xab, 0xcd, 0xef} can be inserted anytime between 2 trice b
 ```
 
 ```b
-     0      1     2     3     4     5     6     7     8     9     10     11     12     13     14     15 | macro
---------------------------------------------------------------------------------------------------------|------------
-     0      0    b0    b1     0     0    b2    b3     0     0     b4     b5     Im     In     b6      0 | TRICE8_7( Id(I), "...", b0, b1, b2, b3, b4, b5, b6 );
-     0      0    b0    b1     0     0    b2    b3     0     0     b4     b5     Im     In     b6     b7 | TRICE8_8( Id(I), "...", b0, b1, b2, b3, b4, b5, b6, b7 );
-     0      0   w0m   w0n     0     0   w1m   w1n     0     0    w2m    w2n     Im     In    w3m    w3n | TRICE16_3( Id(I), "...", w0, w1, w2, w3);
-     0      0  d0Hm  d0Hn     0     0  d0Lm  d0Ln     0     0   d1Hm   d1Hn     Im     In   d1Lm   d1Ln | TRICE32_2( Id(I), "...", d0, d1 );
-     0      0 l0HHm l0HHn     0     0 l0HLm l0HLn     0     0  l0LHm  l0LHn     Im     In  l0LLm  l0LLn | TRICE64_1( Id(I), "...", l0 );
+byte 3 2 1 0    3 2 1 0    3 2 1 0    3 2 1 0  | macro
+-----------------------------------------------|------------
+    0000b0b1   0000b2b3   0000b4b5   IIII00b6  | TRICE8_7( Id(I), "...", b0, b1, b2, b3, b4, b5, b6 );
+    0000b0b1   0000b2b3   0000b4b5   IIIIb6b7  | TRICE8_8( Id(I), "...", b0, b1, b2, b3, b4, b5, b6, b7 );
+    0000w0w0   0000w1w1   0000w2w2   IIIIw3w3  | TRICE16_3( Id(I), "...", w0, w1, w2, w3);
+    0000d0d0   0000d0d0   0000d1d1   IIIId1d1  | TRICE32_2( Id(I), "...", d0, d1 );
+    0000l0l0   0000l0l0   0000l0l0   IIIIl0l0  | TRICE64_1( Id(I), "...", l0 );
 ```
 
 and so on...
 
-
-## bare internal triceFifo storage format on big endian machines
-
-```b
-      0     1     2     3 | macro
---------------------------|--------
-     IH    IL     0     0 | TRICE0( Id(I), "..." );
-     IH    IL    b0     0 | TRICE8_1( Id(I), "...", b0 );
-     IH    IL    b0    b1 | TRICE8_2( Id(I), "...", b1 );
-     IH    IL   w0H   w0L | TRICE16_1( Id(I), "...", w0 );
-```
-
-```b
-     0      1     2     3     4     5     6     7 | macro
---------------------------------------------------|-----------------------------------------------
-     0      0    b0    b1    IH    IL    b2     0 | TRICE8_3( Id(I), "...", b0, b1, b2 );
-     0      0    b0    b1    IH    IL    b2    b3 | TRICE8_4( Id(I), "...", b0, b1, b2, b3 );
-     0      0   w0H   w0L    IH    IL   w1H   w1L | TRICE16_2( Id(I), "...", w0, w1 );
-     0      0  d0HH  d0HL    IH    IL  d0LH  d0LL | TRICE32_1( Id(I), "...", d0 );
-```
-
-```b
-     0      1     2     3     4     5     6     7     8     9     10     11 | macro
-----------------------------------------------------------------------------|------------
-     0      0    b0    b1     0     0    b2    b3    IH    IL     b4      0 | TRICE8_5( Id(I), "...", b0, b1, b2, b3, b4 );
-     0      0    b0    b1     0     0    b2    b3    IH    IL     b4     b5 | TRICE8_6( Id(I), "...", b0, b1, b2, b3, b4, b5 );
-     0      0   w0H   w0H     0     0   w1H   w1L    IH    IL    w2H    w2L | TRICE16_3( Id(I), "...", w0, w1, w2);
-```
-
-```b
-     0      1     2     3     4     5     6     7     8     9     10     11     12     13     14     15 | macro
---------------------------------------------------------------------------------------------------------|------------
-     0      0    b0    b1     0     0    b2    b3     0     0     b4     b5     IH     IL     b6      0 | TRICE8_7( Id(I), "...", b0, b1, b2, b3, b4, b5, b6 );
-     0      0    b0    b1     0     0    b2    b3     0     0     b4     b5     IH     IL     b6     b7 | TRICE8_8( Id(I), "...", b0, b1, b2, b3, b4, b5, b6, b7 );
-     0      0   w0H   w0L     0     0   w1H   w1L     0     0    w2H    w2L     IH     IL    w3H    w3L | TRICE16_3( Id(I), "...", w0, w1, w2, w3);
-     0      0  d0HH  d0HL     0     0  d0LH  d0LL     0     0   d1HH   d1HL     IH     IL   d1LH   d1LL | TRICE32_2( Id(I), "...", d0, d1 );
-     0      0 l0HHH l0HHL     0     0 l0HLH l0HLL     0     0  l0LHH  l0LHL     IH     IL  l0LLH  l0LLL | TRICE64_1( Id(I), "...", l0 );
-```
-
-and so on...
-
-Because the triceFifo has a power-of-2 size, in case of an overflow syncing is without issues.
-
-## bare transmit format
-
-- This is exactly the same as the bare internal storage format with these differences:
-    - The byte order of the 16 bit values is big endian.
-    - There are sometimes 4 byte [sync packages](#sync-packages) mixed in at 4 byte offsets.
+The bare transmit format is exactly the same as the bare internal storage format with these differences:
+- There are sometimes 4 byte [sync packages](#sync-packages) mixed in at 4 byte offsets.
 
 <!---
 
@@ -198,11 +211,17 @@ Targest can send trices in different encodings
 
 --->
 
+## Encoding `wrap` & `wrapL`
+
+- This is the same as bare, but each trice atom is prefixed with a 4 byte wrap information:
+    - 0xEB = start byte
+    - 0x60 = source address
+    - 0x60 = destination address
+    - crc8 = 8 bit checksum over start byte, source and destination address, and the 4 bare bytes.
+
 ## Encoding `esc`
 
-The `esc` encoding uses an escape character for syncing after some data loss. It is extendable and recommended if plenty
-of runtime strings need to be transmitted because these are more compact in `esc` encoding compared to the bare format.
-
+The `esc` encoding uses an escape character for syncing after some data loss. It is extendable.
 - All numbers are transmitted in network order (big endian).
 - All values are in left-right order - first value comes first.
 
@@ -266,31 +285,31 @@ it stays on its place and is followed by a not counted 0xDE byte to signal that 
 
 - Generic description
 
-| Code                   | Meaning                    | max padding | Remark
-|------------------------|----------------------------|-------------|---------------------------------------------------------------------------------------------------------------
-| EC LC IH IL ...        | payload = 2^(LC-E0) bytes  |             | LC is a length code
-| EC 00 ...              | reserved                   |             | All packages starting with EC 00 until starting with EC DD are reserved.
-| EC .. ...              | reserved                   |             | All packages starting with EC 00 until starting with EC DD are reserved.
-| EC DD ...              | reserved                   |             | All packages starting with EC 00 until starting with EC DD are reserved.
-| EC DE = EC             | real EC character          |             | If inside the payload occures EC an uncounted DE is injected afterwards.
-| EC DF IH IL            | 16 bit ID no payload       |        0    | TRICE0, special case: 2^-1 = 0 byte payload
-| EC E0 IH IL B0         | 16 bit ID   1 byte payload |        0    | TRICE8_1, TRICE_S(""): 2^0 = 1 byte payload
-| EC E1 IH IL B0 B1      | 16 bit ID   2 byte payload |        0    | TRICE8_2, TRICE16_1, TRICE_S("0")
-| EC E2 IH IL B0 .. B3   | 16 bit ID   4 byte payload |        1    | TRICE8_3, TRICE8_4, TRICE16_2, TRICE32_1, TRICE_S("01"), TRICE_S("012")
-| EC E3 IH IL B0 .. B7   | 16 bit ID   8 byte payload |        3    | TRICE8_5,... TRICE8_8, TRICE16_3, TRICE16_4, TRICE32_2, TRICE64_1, TRICE_S("0123"), ..., TRICE_S("01234567")
-| EC E4 IH IL B0 .. B15  | 16 bit ID  16 byte payload |        7    | TRICE32_3, TRICE32_4, TRICE64_2, TRICE_S("012345678"), ..., TRICE_S("0123456789abcde")
-| EC E5 IH IL B0 .. B31  | 16 bit ID  32 byte payload |       15    | TRICE_S("0123456789abcdef"), ... TRICE_S(strlen(31))
-| EC E6 IH IL B0 .. B63  | 16 bit ID  64 byte payload |       31    | TRICE_S(strlen(32)), ...,TRICE_S(strlen(63))
-| EC E7 IH IL B0 .. B127 | 16 bit ID 128 byte payload |       63    | TRICE_S(strlen(64)), ...,TRICE_S(strlen(127))
-| EC E8 IH IL B0 .. B255 | 16 bit ID 256 byte payload |      127    | TRICE_S(strlen(128)), ...,TRICE_S(strlen(255))
-| EC E9 ...              | reserved                   |             | All packages starting with EC E9 until starting with EC FF are reserved.
-| EC .. ...              | reserved                   |             | All packages starting with EC E9 until starting with EC FF are reserved.
-| EC FF ...              | reserved                   |             | All packages starting with EC E9 until starting with EC FF are reserved.
+```b
+Code                  |Meaning                   |pad|Remark
+----------------------|--------------------------|---|-----------------------------------------------------------------------------
+EC LC IH IL ...       |payload = 2^(LC-E0) bytes |   |LC is a length code
+EC 00 ...             |reserved                  |   |All packages starting with EC 00 until starting with EC DD are reserved.
+EC .. ...             |reserved                  |   |All packages starting with EC 00 until starting with EC DD are reserved.
+EC DD ...             |reserved                  |   |All packages starting with EC 00 until starting with EC DD are reserved.
+EC DE = EC            |real EC character         |   |If inside the payload occures EC an uncounted DE is injected afterwards.
+EC DF IH IL           |16 bit ID no payload      |  0|TRICE0, special case: 2^-1 = 0 byte payload
+EC E0 IH IL B0        |16 bit ID   1 byte payload|  0|TRICE8_1, TRICE_S(""): 2^0 = 1 byte payload
+EC E1 IH IL B0 B1     |16 bit ID   2 byte payload|  0|TRICE8_2, TRICE16_1, TRICE_S("0")
+EC E2 IH IL B0 .. B3  |16 bit ID   4 byte payload|  1|TRICE8_3, TRICE8_4, TRICE16_2, TRICE32_1, TRICE_S("01"), TRICE_S("012")
+EC E3 IH IL B0 .. B7  |16 bit ID   8 byte payload|  3|TRICE8_5,...TRICE8_8,TRICE16_3,TRICE16_4,TRICE32_2,TRICE64_1,TRICE_S("0...7")
+EC E4 IH IL B0 .. B15 |16 bit ID  16 byte payload|  7|TRICE32_3, TRICE32_4, TRICE64_2, TRICE_S("0...e")
+EC E5 IH IL B0 .. B31 |16 bit ID  32 byte payload| 15|TRICE_S("0123456789abcdef"), ... TRICE_S(strlen(31))
+EC E6 IH IL B0 .. B63 |16 bit ID  64 byte payload| 31|TRICE_S(strlen(32)), ...,TRICE_S(strlen(63))
+EC E7 IH IL B0 .. B127|16 bit ID 128 byte payload| 63|TRICE_S(strlen(64)), ...,TRICE_S(strlen(127))
+EC E8 IH IL B0 .. B255|16 bit ID 256 byte payload|127|TRICE_S(strlen(128)), ...,TRICE_S(strlen(255))
+EC E9 ...             |reserved                  |   |All packages starting with EC E9 until starting with EC FF are reserved.
+EC .. ...             |reserved                  |   |All packages starting with EC E9 until starting with EC FF are reserved.
+EC FF ...             |reserved                  |   |All packages starting with EC E9 until starting with EC FF are reserved.
+```
 
 - Examples See function `TestEsc` and `TestEscDynStrings` in
   file [decoder_test.go](https://github.com/rokath/trice/blob/master/internal/decoder/decoder_test.go).
-
-## Encoding `bare`
 
 ## Sync packages
 
@@ -344,18 +363,3 @@ it stays on its place and is followed by a not counted 0xDE byte to signal that 
 //! follows these rules.
 //#define TRICE_SYNC do{ TRICE16_1( Id(0x89ab), "%x\b\b\b\b", 0xcdef ); }while(0)
 ```
-
-- Byte order is network order (bigendian)
-- Each trice is coded in one to eight 4-byte trice atoms.
-- A trice atom consists of a 2 byte id and 2 bytes data.
-- When a trice consists of several trice atoms, only the last one carries the trice id. The others have a trice id 0.
-
-## Encoding `wrap`
-
-- This is the same as bare, but each trice atom is prefixed with a 4 byte wrap information:
-    - 0xEB = start byte
-    - 0x60 = source address
-    - 0x60 = destination address
-    - crc8 = 8 bit checksum over start byte, source and destination address, and the 4 bare bytes.
-
-## `esc` encoding (to do: improve this)
