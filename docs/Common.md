@@ -1,3 +1,4 @@
+# Common informa
 
 (work in progress...)
 
@@ -46,7 +47,7 @@ if for example `COM12` is receiving the data from the embedded device.
 
 The following capture output comes from an example project inside`../test`
 
-![life.gif](https://github.com/rokath/trice/blob/master/doc/README.media/life.gif)
+![life.gif](./README.media/life.gif)
 
 See [triceCheck.c](https://github.com/rokath/trice/blob/master/srcTrice.C/triceCheck.c) for reference.
 The trices can come mixed from inside interrupts (light blue `ISR:...`) or from normal code. For usage with a RTOS protect TRICE* against breaks. Regard the differences in the read SysTick values inside the GIF above These differeces are the MCU clocks needed for one trice (~0,25µs@48MHz).
@@ -56,12 +57,13 @@ Use the `-color off` switch for piping output in a file.
 ## Setup
 
 ### Project structure
+
    name        | info                                                    |
 ---------------|---------------------------------------------------------|
-cmd/trice      | the `trice` sources                                     |
+cmd/trice      | `trice` tool command Go sources                         |
 docs/          | documentation                                           |
-internal/      | project specific packages                               |
-pkg/           | universal packages                                      |
+internal/      | `trice` tool internal Go packages                       |
+pkg/           | `trice` tool common Go packages                         |
 srcTrice.C/    | C sources for trice instrumentation                     | 
 test/          | example target projects                                 |
 third_party/   | external components                                     |
@@ -72,7 +74,9 @@ third_party/   | external components                                     |
 - Run inside a shell `trice check -list path/to/trice/examples/triceDemoF030R8/MDK-ARM/`[til.json](../examples/triceDemoF030R8/MDK-ARM/til.json). You should see output like this:
 ![](./README.media/Check.PNG)
 --->
-### Instrument a target source code project (How to use trice in your project)
+
+ Instrument a target source code project (How to use trice in your project)
+
 Look at one of the appropriate test projects as example. In general:
 
 - Copy [_triceConfig.h](https://github.com/rokath/trice/tree/master/srcTrice.C/_triceConfig.h), rename to `triceConfig.h` and adapt to your needs.
@@ -80,19 +84,17 @@ Look at one of the appropriate test projects as example. In general:
 - Make sure the [trice.h](https://github.com/rokath/trice/blob/master/srcTrice.C/trice.h) header file is found by your compiler and for
 
   - bare or wrap transfer format
-    
     Include [triceBareFifo.c](https://github.com/rokath/trice/blob/master/srcTrice.C/triceBareFifo.c) together with [triceBareFifoToBytesBuffer.c](https://github.com/rokath/trice/blob/master/srcTrice.C/triceBareFifoToBytesBuffer.c) into your project.
 
   - esc transfer format
-    
     Include [triceEscFifo.c](https://github.com/rokath/trice/blob/master/srcTrice.C/triceEscFifo.c) into your project.
 
 Next steps:
 
 - Add `#include "trice.h"` to your project files where to use TRICE macros and put `TRICE0( Id(0), "msg:Hello world!\n" );` after your initialization code.
 - Run `trice u` at the root of your source code. Afterwards:
-    - The `Id(0)` should have changed into `Id(12345)` as example. (The `12345` stays here for a 16-bit non-zero random number).
-    - A file [til.json](https://github.com/rokath/trice/blob/master/til.json)  (**t**race **i**d **l**ist) should be generated.
+  - The `Id(0)` should have changed into `Id(12345)` as example. (The `12345` stays here for a 16-bit non-zero random number).
+  - A file [til.json](https://github.com/rokath/trice/blob/master/til.json)  (**t**race **i**d **l**ist) should be generated.
 - Set up timer and UART interrupt and main loop in the right way. Analyze the test example projects for advice.
 
 <!---    - Running `trice check` should show your message, indicating everything is fine so far.--->
@@ -100,7 +102,8 @@ Next steps:
 - For help have a look at the differences between these 2 projects or into [DemoF030R8.md](./DemoF030R8.md)
   - `../examples/generatedDemoF030R8` - It is just the STM32 CubeMX generated code.
   - `../examples/traceLDemoF030R8` - It is a copy of the above enhanced with trice check code.
-```
+
+```b
 Quick and dirty option
 ======================
 - Leave these definitions empty: 
@@ -122,6 +125,7 @@ Quick and dirty option
   This way you cannot forget the update step, it performs automatically.
 
 ## Memory needs (ARM example project)
+
 Program Size (STM32-F030R8 demo project)     |trice instrumentation|buffer size|compiler optimze for time| comment
 ---------------------------------------------|------------------------|-----------|-------------------------|-----------------------------
 Code=1592 RO-data=236 RW-data= 4 ZI-data=1028|        none            |        0  |         off             | CubeMX generated, no trice
@@ -133,39 +137,28 @@ Code=3808 RO-data=240 RW-data=36 ZI-data=1540|    TriceCheckSet()  |      512  |
 - The about 50 trices in TriceCheckSet() allocate roughly 2100 (fast mode) or 1500 (small mode) bytes.
 - trices are removable without code changes by defining `TRICE_OFF` on file or project level. 
 
-## ID management internals & hints
-- During `trice update` so far unknown IDs are added to the ID list (case new sources added) with a `Created` utc timestamp.
-- If an ID was deleted inside the source tree (or file removal) the appropriate ID's stays inside the ID list but gets a `Removed` utc timestamp.
-- If the same ID appears again the appropriate `Removed` timestamp is deleted inside the ID list and the ID is aktive again.
-- If duplicate ID's with different format strings found inside the source tree (case several developers) the newer ID is replaced by a new ID. The probability for such case is low, because of the random ID generation.
-- If the format string was modified, the ID goes into the `Removed` state and a new ID is generated.
-- Keeping obsolete IDs makes it more comfortable during development to deal with different firmware variants at the same time.
-- This way you can simply copy a TRICE* statement and modify it without dealing with the ID. The trice tool will do for you.
-- The ID list should go into the version control repository of your project.
-- For a firmware release it makes sense to remove all unused IDs (development garbage) from til.json.
-  - This could be done by deleting til.json, getting the legacy til.json from the former firmware release from the source control system and enhance it with the actual release software IDs by simply calling 'trice update'.
-- During `trice update` TRICE macros commented out are treated in the same way as actice TRICE macros. Even after deletion their content stays inside til.json. This is intensionally to get best stability.
+## 
 
-## Encryption
 - You can deliver your device with encrypted trices. This way nobody is able to read the trices despite the service guy.
 - Implementd is XTEA but this is easy exchangeable.
 - The 8 byte blocks can get enrypted by enabling `#define ENRYPT...` inside *triceConfig.h*. You need to add `-key test` as **log** switch and you're done.
 - Any password is usable instead of `test`. Simply add once the `-show` switch and copy the displayed passphrase into the *config.h* file.
 
-
-
 ## Otions for `trice` tool
+
 The trice tool can be started in several modes (subcommands), each with several mantadory or optional switches. Switches can have parameters or not.
-```
+
+```b
 trice subcommand -switch1 -switch2 parameter -switch3 ...
 ```
+
 Which subcommand switches are usable for each subcommand is shown with `trice help`. This gives also information about their default values.
 
 Output of `trice h`: (Actual version could slightly differ)
-```
+
+```b
 
 ```
-
 
 <!---
 ### Subcommand `check` 
@@ -176,14 +169,16 @@ Output of `trice h`: (Actual version could slightly differ)
 - The `negative` value is uses a dataset with negative values for testing.
 --->
 
-
 ## Additional hints
 
 ### Logfile viewing
+
 `trice` generated logfiles with subcommand switch `-color off` are normal ASCII files. If they are with color codes, these are ANSI excape sequences.
+
 - One easy view option is `less -R trice.log`. The linux command `less` is also available inside the VScode terminal. 
 - Under Windows one could also download and use [ansifilter](https://sourceforge.net/projects/ansifilter/) for logfile viewing. A monospaced font is recommended. 
 
 ### Color issues under Windows
+
 **Currently CMD console colors are not enabled by default in Win10**, so if you see no color but escape sequences on your powershell or cmd window, please refer to
 [Windows console with ANSI colors handling](https://superuser.com/questions/413073/windows-console-with-ansi-colors-handling/1050078#1050078) or simply use a Linux like terminal under windows, like git-bash. One option is also to install Microsoft *Windows Terminal (Preview)* from inside the Microsoft store and to start trice inside there. Unfortunally this can not be done automatically right now because of missing commandline switches.

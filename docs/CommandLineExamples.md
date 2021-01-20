@@ -1,5 +1,7 @@
 
-# `trice` Command Line switches
+# `trice` Command Line switches examples
+
+(work in progress...)
 
 ## Current state
 

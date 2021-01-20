@@ -1,7 +1,11 @@
-# `trice` config file *trice.conf.json*
+# `trice` config file *trice.conf.json* (to do)
+
 ## Reading stuff
+
 [https://dev.to/ilyakaznacheev/a-clean-way-to-pass-configs-in-a-go-application-1g64](https://dev.to/ilyakaznacheev/a-clean-way-to-pass-configs-in-a-go-application-1g64)
+
 ## Rules
+
 - The `trice` command  can be called without parameters. 
   - In that case it needs to find at least one config file named *trice.conf.json*.
 - The `trice` command can be called with a single sub-command plus an optional dashed parameter list.
@@ -11,7 +15,9 @@
 - The `trice` command accepts a config *filename.json* followed optionally by a subcommand plus parameters.
   - In that case no search for a config file named *trice.conf.json* is done.
   - Settings in the commandline have always higher priority.
+
 ## Config file search and parameters priority
+
 - The trice tool starts to search for config files named *trice.conf.json* and loads them one after another in the following order with rising priority:
   - /trice/executable/folder
   - /
