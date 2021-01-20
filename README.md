@@ -154,6 +154,8 @@ trice help
 
 ### Quick target setup
 
+- Use
+
 Follow these steps for instrumentation information even your target processor is not an ARM (any bit width will do):
 
 - Install the free [STCubeMX](https://www.st.com/en/development-tools/stm32cubemx.html).
@@ -167,4 +169,7 @@ Follow these steps for instrumentation information even your target processor is
 
 No need to read all this stuff - is is just for help and reference.
 
-- see [./docs/Common.md](https://github.com/rokath/trice/tree/master/docs/Common.md)
+- [Common.md](https://github.com/rokath/trice/tree/master/docs/Common.md)
+- [ID management](https://github.com/rokath/trice/tree/master/docs/IDManagement.md)
+- [OneWireOption](https://github.com/rokath/trice/tree/master/docs/OneWireOption.md)
+- [SeggerRTT](https://github.com/rokath/trice/tree/master/docs/SeggerRTT.md)

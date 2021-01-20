@@ -38,9 +38,8 @@ var (
 	// SearchMethod is the next ID search method.
 	SearchMethod = "random"
 
-	// ReUse true: Known trice strings without ID get the same ID. If identical TRICE macros have different ID's they are not touched.
-	// If a trice string is more than once in the id list, the oldest (active?) is reused.
-	//ReUse = true // to do: Behaviour not implemented yet.
+	// Reuse to do: Behaviour not implemented yet.
+	Reuse = "no"
 )
 
 // Item is the basic element

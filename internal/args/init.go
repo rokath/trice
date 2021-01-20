@@ -115,7 +115,11 @@ Without the "-dry-run" switch it would create|extend a list file til.json in the
 	fsScUpdate.IntVar(&id.LowerBound, "IDLo", id.LowerBound, "Short for '-IDLowerBound'.")
 	fsScUpdate.IntVar(&id.UpperBound, "IDUpperBound", id.UpperBound, "Biggest allowed trice ID. (Upper end of ID range).")
 	fsScUpdate.IntVar(&id.UpperBound, "IDUp", id.UpperBound, "Short for '-IDUpperBound'.")
-	//fsScUpdate.BoolVar(&id.ReUse, "IDreuse", true, `Known trice strings without ID get the same ID`)
+	fsScUpdate.StringVar(&id.Reuse, "IDReuse", "yes", `(to do)
+	yes=Known trice strings without ID get the same ID. If identical TRICE macros have different ID's they are not touched.
+	no=Known trice strings without ID get a different ID. If identical TRICE macros have same ID's they are not touched.
+	yes-replace=Equal trice strings with different ID get the same ID.
+	no-replace=Equal trice strings with same ID get the different ID.`)
 }
 
 func init() {

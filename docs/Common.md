@@ -1,72 +1,5 @@
 
 (work in progress...)
-The `TRICE` macros look like printf() but work under the hood completely different.
-and small loggging technique, a tracer in software usable
-  - for debugging dynamic behaviour during development, 
-  - as runtime logger or simply for narrow bandwidth logging in the field even with encryption.
-
-- The `til.json` file can be deleted and regenerated from the sources anytime. In that case you get rid of all legacy strings but it is better to keep them for compability reasons.
-- You can disable the TRICE code generation on file or project level, so no need to remove the TRICE macros from the code after dynamic debugging.
-
-<!---
-- [docs folder](https://github.com/rokath/trice/tree/master/docs)
-- [doc index](https://rokath.github.io/trice/docs/)
---->
-
-### RealTimeTransfer
-- see [./docs/SeggerRTT.md](https://github.com/rokath/trice/tree/master/docs/SeggerRTT.md)
-### Examples
-- see [test](https://github.com/rokath/trice/tree/master/test)
-
-
-### Hint if you have only one spare pin and no UART
-- One free GPIO-Pin is already enough for using TRICE. You can transmit each basic trice (4 bytes) as bare messages over one pin:
-  - ![manchester1.PNG](./README.media/manchester1.PNG)
-  - ![manchester2.PNG](./README.media/manchester2.PNG)
-  - See [https://circuitcellar.com/cc-blog/a-trace-tool-for-embedded-systems/](https://circuitcellar.com/cc-blog/a-trace-tool-for-embedded-systems/) for more information. As trace dongle you can use any spare microcontroller board with an UART together with an FTDI USB converter.
-  - This slow path is usable because trice needs only few bytes for transmission.
-
-
-- Not much to do:
-  - Copy config file [_triceConfig.h](https://github.com/rokath/trice/tree/master/srcTrice.C/_triceConfig.h) as `triceConfig.h` to your project or take it from one of the [test projects](https://github.com/rokath/trice/tree/master/test/) 
-  - Add a few [small C-files](https://github.com/rokath/trice/tree/master/srcTrice.C/) to your project and include [trice.h](https://github.com/rokath/trice/tree/master/srcTrice.C/trice.h) where trices are used.
-
-- If you run tests apply the `-p=1` flag to avoid parallel execution: `go test ./... -p=1` This is slower but avoids trouble with the displayserver tests.
-
-
-- Add [triceBareFifo.c](https://github.com/rokath/trice/tree/master/srcTrice.C/triceBareFifo.c) or [triceEscFifo.c](https://github.com/rokath/trice/tree/master/srcTrice.C/triceEscFifo.c)  and acompanying files as they are to your project
-- #include [trice.h](https://github.com/rokath/trice/tree/master/srcTrice.C/trice.h) as is in your source file to use trice
-- Copy [_triceConfig.h](https://github.com/rokath/trice/tree/master/srcTrice.C/_triceConfig.h), rename to `triceConfig.h` and adapt to your needs.
-- [triceCheck.c](https://github.com/rokath/trice/tree/master/srcTrice.C/triceCheck.c) 
-is example code and for testing
-- Run `trice u` in root of your C|Cpp source project after code instrumentation with `TRICE*` statements to generate a project specific or common [til.json](https://github.com/rokath/trice/tree/master/til.json) file.
-- Compile, flash & run `trice log -port COMm -baud n` with correct values m and n.
-
-
-
-
-- The `triceServe` takes the 4 bytes trice values from the triceFifo, adds control information and puts that into the triceWriteBuffer, with at least 8 bytes size.
-  - At this stage the trice out format is done (all optionally encrypted):
-    - bare with sync packages
-    - wrapped bare
-    - escaped transmit format
-    - your decision ...
-  - The triceFifo can be also a direct writeBuffer for TRICEmacro generated output format. This is useful with escaped transmit format to incorporate dynamic strings in an efficient way. Check code of test example [MDK-ARM_LL_UART_RTT0_ESC_STM32F030R8_NUCLEO-64](https://github.com/rokath/trice/tree/master/test/MDK-ARM_LL_UART_RTT0_ESC_STM32F030R8_NUCLEO-64) for example.
-- The bytes go from triceWriteBuffer to the PC and there the `trice` tool receives them.
-- With the help of the [til.json](https://github.com/rokath/trice/blob/master/til.json) file the trices get then visualized on the PC.
-- It is also possible to let the debug probe transfer the buffer to the PC (see *SeggerRTT* explanation for details). This keeps the implementation clearer and allows to see the trice strings directly during debugging.
-
-  ![triceBlockDiagramWithRTT.svg](./docs/README.media/triceBlockDiagramWithRTT.svg)
-
-## Quick setup (See also test examples)
-
-- Add [triceBareFifo.c](https://github.com/rokath/trice/tree/master/srcTrice.C/triceBareFifo.c) or [triceEscFifo.c](https://github.com/rokath/trice/tree/master/srcTrice.C/triceEscFifo.c)  and acompanying files as they are to your project
-- #include [trice.h](https://github.com/rokath/trice/tree/master/srcTrice.C/trice.h) as is in your source file to use trice
-- Copy [_triceConfig.h](https://github.com/rokath/trice/tree/master/srcTrice.C/_triceConfig.h), rename to `triceConfig.h` and adapt to your needs.
-- [triceCheck.c](https://github.com/rokath/trice/tree/master/srcTrice.C/triceCheck.c) 
-is example code and for testing
-- Run `trice u` in root of your C|Cpp source project after code instrumentation with `TRICE*` statements to generate a project specific or common [til.json](https://github.com/rokath/trice/tree/master/til.json) file.
-- Compile, flash & run `trice log -port COMm -baud n` with correct values m and n.
 
 ## `TRICE0` |`TRICE8` |`TRICE16` |`TRICE32` |`TRICE64` macro
 
@@ -91,9 +24,8 @@ When performing `trice update` the source (tree) is parsed and in result this li
 TRICE8_3( Id(12345), "time is %d:%d:%d\n", hour, min, sec);
 ```
 
-where ```12345``` is an as ID generated 16 bit random number not used so far. About 65000 different trice messages are possible. If not enough, the IDs are extendable to 32 bit. Automatically
-the ID is added to an [ID list](https://github.com/rokath/trice/blob/master/til.json) together with the appropriate format string information. The TRICE`8_3` means 3 bytes as parameters in
-this example and allows efficient code and a compile time check.
+where ```12345``` is an as ID generated 16 bit random number not used so far. About 65000 different trice messages are possible per default.  recommended **pack[L]** encoding suppoerts 24-bit IDs, so more than 1048000 different trice IDs usable.
+Automatically the ID is added to an [ID list](https://github.com/rokath/trice/blob/master/til.json) together with the appropriate format string information. The TRICE`8_3` means 3 bytes as parameters in this example and allows efficient code and a compile time check.
 
 *The total amount of data is currently limitated to 8 parameters for TRICE8 or 4 parameters for TRICE16 and TRICE32 and two parameters for TRICE64, but this is easy to extend if needed.*
 
@@ -114,7 +46,7 @@ if for example `COM12` is receiving the data from the embedded device.
 
 The following capture output comes from an example project inside`../test`
 
-![](README.media/life.gif)
+![life.gif](https://github.com/rokath/trice/blob/master/doc/README.media/life.gif)
 
 See [triceCheck.c](https://github.com/rokath/trice/blob/master/srcTrice.C/triceCheck.c) for reference.
 The trices can come mixed from inside interrupts (light blue `ISR:...`) or from normal code. For usage with a RTOS protect TRICE* against breaks. Regard the differences in the read SysTick values inside the GIF above These differeces are the MCU clocks needed for one trice (~0,25µs@48MHz).
