@@ -51,7 +51,7 @@ When several data, the real ID comes in the last 32 bit sequence.
 //! \param 8-bit payload
 #define TRICE8_1( Id, pFmt, d0 ) do{ \
     TRICE_ENTER_CRITICAL_SECTION \
-    TRICE_HTON_U32PUSH( Id | (uint8_t)d0 ); \
+    TRICE_HTON_U32PUSH( Id | (uint8_t)(d0) ); \
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
 
@@ -171,7 +171,7 @@ When several data, the real ID comes in the last 32 bit sequence.
 //! \param d0 payload
 #define TRICE16_1( Id, pFmt, d0 ) do{ \
     TRICE_ENTER_CRITICAL_SECTION \
-    TRICE_HTON_U32PUSH( Id | (uint16_t)d0 ); \
+    TRICE_HTON_U32PUSH( Id | (uint16_t)(d0) ); \
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
 
@@ -183,7 +183,7 @@ When several data, the real ID comes in the last 32 bit sequence.
 #define TRICE16_2( Id, pFmt, d0, d1 ) do{ \
     TRICE_ENTER_CRITICAL_SECTION \
     TRICE_HTON_U32PUSH( (uint16_t)(d0) ); /* This cast ensures that padding bytes are 0 */ \
-    TRICE_HTON_U32PUSH( Id | (uint16_t)d1 ); \
+    TRICE_HTON_U32PUSH( Id | (uint16_t)(d1) ); \
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
 
@@ -197,7 +197,7 @@ When several data, the real ID comes in the last 32 bit sequence.
     TRICE_ENTER_CRITICAL_SECTION \
     TRICE_HTON_U32PUSH( (uint16_t)(d0) ); /* This cast ensures that padding bytes are 0 */ \
     TRICE_HTON_U32PUSH( (uint16_t)(d1) ); /* This cast ensures that padding bytes are 0 */ \
-    TRICE_HTON_U32PUSH( Id | (uint16_t)d2 ); \
+    TRICE_HTON_U32PUSH( Id | (uint16_t)(d2) ); \
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
 
@@ -213,7 +213,7 @@ When several data, the real ID comes in the last 32 bit sequence.
     TRICE_HTON_U32PUSH( (uint16_t)(d0) ); /* This cast ensures that padding bytes are 0 */ \
     TRICE_HTON_U32PUSH( (uint16_t)(d1) ); /* This cast ensures that padding bytes are 0 */ \
     TRICE_HTON_U32PUSH( (uint16_t)(d2) ); /* This cast ensures that padding bytes are 0 */ \
-    TRICE_HTON_U32PUSH( Id | (uint16_t)d3 ); \
+    TRICE_HTON_U32PUSH( Id | (uint16_t)(d3) ); \
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
 
@@ -224,7 +224,7 @@ When several data, the real ID comes in the last 32 bit sequence.
 #define TRICE32_1( Id, pFmt, d0 ) do{ \
     TRICE_ENTER_CRITICAL_SECTION \
     TRICE_HTON_U32PUSH( (uint32_t)(d0)>>16 ); \
-    TRICE_HTON_U32PUSH( Id | (uint16_t)d0 ); \
+    TRICE_HTON_U32PUSH( Id | (uint16_t)(d0) ); \
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
 
@@ -238,7 +238,7 @@ When several data, the real ID comes in the last 32 bit sequence.
     TRICE_HTON_U32PUSH( (uint32_t)(d0)>>16 ); \
     TRICE_HTON_U32PUSH( (uint16_t)(d0) ); \
     TRICE_HTON_U32PUSH( (uint32_t)(d1)>>16 ); \
-    TRICE_HTON_U32PUSH( Id | (uint16_t)d1 ); \
+    TRICE_HTON_U32PUSH( Id | (uint16_t)(d1) ); \
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
 
@@ -255,7 +255,7 @@ When several data, the real ID comes in the last 32 bit sequence.
     TRICE_HTON_U32PUSH( (uint32_t)(d1)>>16 ); \
     TRICE_HTON_U32PUSH( (uint16_t)(d1) ); \
     TRICE_HTON_U32PUSH( (uint32_t)(d2)>>16 ); \
-    TRICE_HTON_U32PUSH( Id | (uint16_t)d2 ); \
+    TRICE_HTON_U32PUSH( Id | (uint16_t)(d2) ); \
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
 
@@ -275,7 +275,7 @@ When several data, the real ID comes in the last 32 bit sequence.
     TRICE_HTON_U32PUSH( (uint32_t)(d2)>>16 ); \
     TRICE_HTON_U32PUSH( (uint16_t)(d2) ); \
     TRICE_HTON_U32PUSH( (uint32_t)(d3)>>16 ); \
-    TRICE_HTON_U32PUSH( Id | (uint16_t)d3 ); \
+    TRICE_HTON_U32PUSH( Id | (uint16_t)(d3) ); \
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
 
@@ -338,7 +338,7 @@ TRICE_INLINE void trice_0_ocs( uint32_t Id ){
 //! \param Id trice identifier
 //! \param d0 payload
 TRICE_INLINE void trice_8_1_ics( uint32_t Id, uint32_t d0 ){
-    TRICE_HTON_U32PUSH( Id | d0 );
+    TRICE_HTON_U32PUSH( Id | (uint8_t)(d0) );
 }
 
 //! trice Id and 8- or 16-bit value protected (outside critical section)
@@ -354,7 +354,7 @@ TRICE_INLINE void trice_8_1_ocs( uint32_t Id, uint32_t d0 ){
 //! \param d0 payload
 //! \param d1 payload
 TRICE_INLINE void trice_8_02_ics( uint32_t d0, uint32_t d1 ){
-    TRICE_HTON_U32PUSH( (d0<<8) | d1 );
+    TRICE_HTON_U32PUSH( (uint16_t)(d0<<8) | (uint8_t)(d1) );
 }
 
 //! trice Id and 8-bit values unprotected (inside critical section)
@@ -362,7 +362,7 @@ TRICE_INLINE void trice_8_02_ics( uint32_t d0, uint32_t d1 ){
 //! \param d0 payload
 //! \param d1 payload
 TRICE_INLINE void trice_8_2_ics( uint32_t Id, uint32_t d0, uint32_t d1 ){
-    TRICE_HTON_U32PUSH( Id | (d0<<8) | d1 );
+    TRICE_HTON_U32PUSH( Id | (uint16_t)(d0<<8) | (uint8_t)(d1) );
 }
 
 //! trice Id and 8-bit values protected (outside critical section)
@@ -538,28 +538,47 @@ TRICE_INLINE void trice_8_8_ocs( uint32_t Id, uint32_t d0, uint32_t d1, uint32_t
     TRICE_LEAVE_CRITICAL_SECTION
 }
 
-#define trice_16_1_ics trice_8_1_ics //!< same code
-#define trice_16_1_ocs trice_8_1_ocs //!< same code
+//#define trice_16_1_ics trice_8_1_ics //!< same code
+//#define trice_16_1_ocs trice_8_1_ocs //!< same code
+
+
+//! trice Id and 8- or 16-bit value unprotected (inside critical section)
+//! \param Id trice identifier
+//! \param d0 payload
+TRICE_INLINE void trice_16_1_ics( uint32_t Id, uint16_t d0 ){
+    TRICE_HTON_U32PUSH( Id | d0 );
+}
+
+
+//! trice Id and 8- or 16-bit value protected (outside critical section)
+//! \param Id trice identifier
+//! \param d0 payload
+TRICE_INLINE void trice_16_1_ocs( uint32_t Id, uint16_t d0 ){
+    TRICE_ENTER_CRITICAL_SECTION
+    trice_16_1_ics(Id, d0);
+    TRICE_LEAVE_CRITICAL_SECTION
+}
+
 
 //! trice Id==0 and 16-bit value unprotected (inside critical section)
 //! \param d0 payload
-TRICE_INLINE void trice_16_01_ics( uint32_t d0 ){
+TRICE_INLINE void trice_16_01_ics( uint16_t d0 ){
     TRICE_HTON_U32PUSH( d0 );
 }
 
-//! trice Id==0 and 8-bit values unprotected (inside critical section)
+//! trice Id==0 and 16-bit values unprotected (inside critical section)
 //! \param d0 payload
 //! \param d1 payload
-TRICE_INLINE void trice_16_02_ics( uint32_t d0, uint32_t d1 ){
+TRICE_INLINE void trice_16_02_ics( uint32_t d0, uint16_t d1 ){
     trice_16_01_ics( d0 );
     trice_16_01_ics( d1 );
 }
 
-//! trice Id and 8-bit values unprotected (inside critical section)
+//! trice Id and 16-bit values unprotected (inside critical section)
 //! \param Id trice identifier
 //! \param d0 payload
 //! \param d1 payload
-TRICE_INLINE void trice_16_2_ics( uint32_t Id, uint32_t d0, uint32_t d1 ){
+TRICE_INLINE void trice_16_2_ics( uint32_t Id, uint16_t d0, uint16_t d1 ){
     trice_16_01_ics( d0 );
     trice_16_1_ics( Id, d1 );
 }
@@ -568,7 +587,7 @@ TRICE_INLINE void trice_16_2_ics( uint32_t Id, uint32_t d0, uint32_t d1 ){
 //! \param Id trice identifier
 //! \param d0 payload
 //! \param d1 payload
-TRICE_INLINE void trice_16_2_ocs( uint32_t Id, uint32_t d0, uint32_t d1 ){
+TRICE_INLINE void trice_16_2_ocs( uint32_t Id, uint16_t d0, uint16_t d1 ){
     TRICE_ENTER_CRITICAL_SECTION
     trice_16_2_ics( Id, d0, d1 );
     TRICE_LEAVE_CRITICAL_SECTION
@@ -579,7 +598,7 @@ TRICE_INLINE void trice_16_2_ocs( uint32_t Id, uint32_t d0, uint32_t d1 ){
 //! \param d0 payload
 //! \param d1 payload
 //! \param d2 payload
-TRICE_INLINE void trice_16_3_ics( uint32_t Id, uint32_t d0, uint32_t d1, uint32_t d2 ){
+TRICE_INLINE void trice_16_3_ics( uint32_t Id, uint16_t d0, uint16_t d1, uint16_t d2 ){
     trice_16_02_ics( d0, d1 );
     trice_16_1_ics( Id, d2 );
 }
@@ -589,7 +608,7 @@ TRICE_INLINE void trice_16_3_ics( uint32_t Id, uint32_t d0, uint32_t d1, uint32_
 //! \param d0 payload
 //! \param d1 payload
 //! \param d2 payload
-TRICE_INLINE void trice_16_3_ocs( uint32_t Id, uint32_t d0, uint32_t d1, uint32_t d2 ){
+TRICE_INLINE void trice_16_3_ocs( uint32_t Id, uint16_t d0, uint16_t d1, uint16_t d2 ){
     TRICE_ENTER_CRITICAL_SECTION
     trice_16_3_ics( Id, d0, d1, d2 );
     TRICE_LEAVE_CRITICAL_SECTION
@@ -601,7 +620,7 @@ TRICE_INLINE void trice_16_3_ocs( uint32_t Id, uint32_t d0, uint32_t d1, uint32_
 //! \param d1 payload
 //! \param d2 payload
 //! \param d3 payload
-TRICE_INLINE void trice_16_4_ics( uint32_t Id, uint32_t d0, uint32_t d1, uint32_t d2, uint32_t d3 ){
+TRICE_INLINE void trice_16_4_ics( uint32_t Id, uint16_t d0, uint16_t d1, uint16_t d2, uint16_t d3 ){
     trice_16_02_ics( d0, d1 );
     trice_16_2_ics( Id, d2, d3 );
 }
@@ -612,7 +631,7 @@ TRICE_INLINE void trice_16_4_ics( uint32_t Id, uint32_t d0, uint32_t d1, uint32_
 //! \param d1 payload
 //! \param d2 payload
 //! \param d3 payload
-TRICE_INLINE void trice_16_4_ocs( uint32_t Id, uint32_t d0, uint32_t d1, uint32_t d2, uint32_t d3 ){
+TRICE_INLINE void trice_16_4_ocs( uint32_t Id, uint16_t d0, uint16_t d1, uint16_t d2, uint16_t d3 ){
     TRICE_ENTER_CRITICAL_SECTION
     trice_16_4_ics( Id, d0, d1, d2, d3 );
     TRICE_LEAVE_CRITICAL_SECTION
@@ -621,13 +640,17 @@ TRICE_INLINE void trice_16_4_ocs( uint32_t Id, uint32_t d0, uint32_t d1, uint32_
 //! trice Id and 32-bit value unprotected (inside critical section)
 //! \param Id trice identifier
 //! \param d0 payload
+//! ATTENTION! The endianness byte swapping is done only up to 16 bit.
+//! The 32-bit and 64-bit values are transmoitted as 16-bit groups where the 16-bit units inside according to the transfer endanness
+//! but their order is always in little endianness. This is a known bare encoding bug but not worth to fix it right now because
+//! all runs fine now and a lot of code is to change. But is should be done in the future.
 TRICE_INLINE void trice_32_1_ics( uint32_t Id, uint32_t d0 ){
-#if TRICE_TRANSFER_ENDIANESS == TRICE_LITTLE_ENDIANESS
-    trice_16_01_ics( (uint16_t)d0 ); // lo
-    trice_16_1_ics( Id, d0>>16 );    // hi
+#if 1 // TRICE_TRANSFER_ENDIANESS == TRICE_LITTLE_ENDIANESS
+    trice_16_01_ics(    (uint16_t)(d0>>16) ); // hi 
+    trice_16_1_ics( Id, (uint16_t)(d0) );     // lo (implicit swapp)
 #elif TRICE_TRANSFER_ENDIANESS == TRICE_BIG_ENDIANESS
-    trice_16_01_ics( d0>>16 );             // hi
-    trice_16_1_ics( Id, (uint16_t)d0 ); // lo
+    trice_16_01_ics(    (uint16_t)(d0) );     // hi
+    trice_16_1_ics( Id, (uint16_t)(d0>>16) ); // lo
 #else
 #error
 #endif
@@ -646,14 +669,17 @@ TRICE_INLINE void trice_32_1_ocs( uint32_t Id, uint32_t d0 ){
 //! \param Id trice identifier
 //! \param d0 payload
 //! \param d1 payload
+//! ATTENTION! The endianness byte swapping is done only up to 16 bit.
+//! The 32-bit and 64-bit values are transmoitted as 16-bit groups where the 16-bit units inside according to the transfer endanness
+//! but their order is always in little endianness. This is a known bare encoding bug but not worth to fix it right now because
+//! all runs fine now and a lot of code is to change. But is should be done in the future.
 TRICE_INLINE void trice_32_2_ics( uint32_t Id, uint32_t d0, uint32_t d1 ){
-#if TRICE_TRANSFER_ENDIANESS == TRICE_LITTLE_ENDIANESS
-    trice_16_02_ics( (uint16_t)d0, d0>>16 );    // lo, hi
-    trice_16_2_ics( Id, (uint16_t)d1, d1>>16 ); // lo, hi
+#if 1 // TRICE_TRANSFER_ENDIANESS == TRICE_LITTLE_ENDIANESS
+    trice_16_02_ics(    (uint16_t)(d0>>16), (uint16_t)(d0) ); // lo, hi (trice_16_02_ics swapps)
+    trice_16_2_ics( Id, (uint16_t)(d1>>16), (uint16_t)(d1) ); // lo, hi (trice_16_2_ics swapps)
 #elif TRICE_TRANSFER_ENDIANESS == TRICE_BIG_ENDIANESS
-    #error
-    trice_16_02_ics( d0>>16, (uint16_t)d0);    // hi, lo
-    trice_16_2_ics( Id, d1>>16, (uint16_t)d1); // hi, lo
+    trice_16_02_ics(    (uint16_t)(d0), (uint16_t)(d0>>16)); // hi, lo
+    trice_16_2_ics( Id, (uint16_t)(d1), (uint16_t)(d1>>16)); // hi, lo
 #else
 #error
 #endif
@@ -674,13 +700,17 @@ TRICE_INLINE void trice_32_2_ocs( uint32_t Id, uint32_t d0, uint32_t d1 ){
 //! \param d0 payload
 //! \param d1 payload
 //! \param d2 payload
+//! ATTENTION! The endianness byte swapping is done only up to 16 bit.
+//! The 32-bit and 64-bit values are transmoitted as 16-bit groups where the 16-bit units inside according to the transfer endanness
+//! but their order is always in little endianness. This is a known bare encoding bug but not worth to fix it right now because
+//! all runs fine now and a lot of code is to change. But is should be done in the future.
 TRICE_INLINE void trice_32_3_ics( uint32_t Id, uint32_t d0, uint32_t d1, uint32_t d2 ){
-#if TRICE_TRANSFER_ENDIANESS == TRICE_LITTLE_ENDIANESS
-    trice_16_02_ics( (uint16_t)d0, d0>>16 );                           // lo, hi
-    trice_16_4_ics( Id, (uint16_t)d1, d1>>16 , (uint16_t)d2, d2>>16 ); // lo, hi
+#if 1 // TRICE_TRANSFER_ENDIANESS == TRICE_LITTLE_ENDIANESS
+    trice_16_02_ics(    (uint16_t)(d0>>16), (uint16_t)(d0) );                                     // lo, hi (trice_16_02_ics swapps)
+    trice_16_4_ics( Id, (uint16_t)(d1>>16), (uint16_t)(d1), (uint16_t)(d2>>16), (uint16_t)(d2) ); // lo, hi (trice_16_4_ics swapps)
 #elif TRICE_TRANSFER_ENDIANESS == TRICE_BIG_ENDIANESS
-    trice_16_02_ics( d0>>16, (uint16_t)d0 );                             // hi, lo
-    trice_16_4_ics( Id, d1>>16, (uint16_t)d1, d2>>16, (uint16_t)d2 ); // hi, lo
+    trice_16_02_ics(    (uint16_t)(d0), (uint16_t)(d0>>16) );                                     // hi, lo
+    trice_16_4_ics( Id, (uint16_t)(d1), (uint16_t)(d1>>16), (uint16_t)(d2), (uint16_t)(d2>>16) ); // hi, lo
 #else
 #error
 #endif
@@ -703,13 +733,17 @@ TRICE_INLINE void trice_32_3_ocs( uint32_t Id, uint32_t d0, uint32_t d1, uint32_
 //! \param d1 payload
 //! \param d2 payload
 //! \param d3 payload
+//! ATTENTION! The endianness byte swapping is done only up to 16 bit.
+//! The 32-bit and 64-bit values are transmoitted as 16-bit groups where the 16-bit units inside according to the transfer endanness
+//! but their order is always in little endianness. This is a known bare encoding bug but not worth to fix it right now because
+//! all runs fine now and a lot of code is to change. But is should be done in the future.
 TRICE_INLINE void trice_32_4_ics( uint32_t Id, uint32_t d0, uint32_t d1, uint32_t d2, uint32_t d3 ){
-#if TRICE_TRANSFER_ENDIANESS == TRICE_LITTLE_ENDIANESS
-    trice_16_4_ics(  0, (uint16_t)d0, d0>>16, (uint16_t)d1, d1>>16  ); // lo, hi
-    trice_16_4_ics( Id, (uint16_t)d2, d2>>16, (uint16_t)d3, d3>>16  ); // lo, hi
+#if 1 // TRICE_TRANSFER_ENDIANESS == TRICE_LITTLE_ENDIANESS
+    trice_16_4_ics(  0, (uint16_t)(d0>>16), (uint16_t)(d0), (uint16_t)(d1>>16), (uint16_t)(d1) ); // lo, hi (trice_16_4_ics swapps)
+    trice_16_4_ics( Id, (uint16_t)(d2>>16), (uint16_t)(d2), (uint16_t)(d3>>16), (uint16_t)(d3) ); // lo, hi (trice_16_4_ics swapps)
 #elif TRICE_TRANSFER_ENDIANESS == TRICE_BIG_ENDIANESS
-    trice_16_4_ics(  0, d0>>16, (uint16_t)d0, d1>>16, (uint16_t)d1  ); // hi, lo
-    trice_16_4_ics( Id, d2>>16, (uint16_t)d2, d3>>16, (uint16_t)d3  ); // hi, lo
+    trice_16_4_ics(  0, (uint16_t)(d0), (uint16_t)(d0>>16), (uint16_t)(d1), (uint16_t)(d1>>16)  ); // hi, lo
+    trice_16_4_ics( Id, (uint16_t)(d2), (uint16_t)(d2>>16), (uint16_t)(d3), (uint16_t)(d3>>16)  ); // hi, lo
 #else
 #error
 #endif
@@ -731,11 +765,16 @@ TRICE_INLINE void trice_32_4_ocs( uint32_t Id, uint32_t d0, uint32_t d1, uint32_
 //! \param Id trice identifier
 //! \param d0 payload
 TRICE_INLINE void trice_64_1_ics( uint32_t Id, uint64_t d0 ){
-#if TRICE_TRANSFER_ENDIANESS == TRICE_LITTLE_ENDIANESS
-    trice_16_02_ics( (uint16_t)d0, (uint16_t)(d0>>16) );          // ll, lh
-    trice_16_2_ics( Id, (uint16_t)(d0>>32), (uint16_t)(d0>>48 )); // hl, hh
+//! ATTENTION! The endianness byte swapping is done only up to 16 bit.
+//! The 32-bit and 64-bit values are transmoitted as 16-bit groups where the 16-bit units inside according to the transfer endanness
+//! but their order is always in little endianness. This is a known bare encoding bug but not worth to fix it right now because
+//! all runs fine now and a lot of code is to change. But is should be done in the future.
+#if 1 //  TRICE_TRANSFER_ENDIANESS == TRICE_LITTLE_ENDIANESS
+    trice_16_02_ics( (uint16_t)(d0>>48), (uint16_t)(d0>>32) ); // hh, hl
+    trice_16_2_ics( Id, (uint16_t)(d0>>16), (uint16_t)(d0 ));  // lh, ll (implicit swapped)
 #elif TRICE_TRANSFER_ENDIANESS == TRICE_BIG_ENDIANESS
-#error
+    trice_16_02_ics( (uint16_t)(d0), (uint16_t)(d0>>16) );        // ll, lh
+    trice_16_2_ics( Id, (uint16_t)(d0>>32), (uint16_t)(d0>>48 )); // hl, hh
 #else
 #error
 #endif
@@ -745,14 +784,21 @@ TRICE_INLINE void trice_64_1_ics( uint32_t Id, uint64_t d0 ){
 //! \param Id trice identifier
 //! \param d0 payload
 //! \param d1 payload
+//! ATTENTION! The endianness byte swapping is done only up to 16 bit.
+//! The 32-bit and 64-bit values are transmoitted as 16-bit groups where the 16-bit units inside according to the transfer endanness
+//! but their order is always in little endianness. This is a known bare encoding bug but not worth to fix it right now because
+//! all runs fine now and a lot of code is to change. But is should be done in the future.
 TRICE_INLINE void trice_64_2_ics( uint32_t Id, uint64_t d0, uint64_t d1 ){
-#if TRICE_TRANSFER_ENDIANESS == TRICE_LITTLE_ENDIANESS
-    trice_16_02_ics( (uint16_t)d0, (uint16_t)(d0>>16) );
-    trice_16_02_ics( (uint16_t)(d0>>32), (uint16_t)(d0>>48) );
-    trice_16_02_ics( (uint16_t)d1, (uint16_t)(d1>>16) );
-    trice_16_2_ics( Id, (uint16_t)(d1>>32), (uint16_t)(d1>>48 ));
+#if 1 // TRICE_TRANSFER_ENDIANESS == TRICE_LITTLE_ENDIANESS
+    trice_16_02_ics( (uint16_t)(d0>>48), (uint16_t)(d0>>32) );
+    trice_16_02_ics( (uint16_t)(d0>>16), (uint16_t)(d0) );
+    trice_16_02_ics( (uint16_t)(d1>>48), (uint16_t)(d1>>32) );
+    trice_16_2_ics( Id, (uint16_t)(d1>>16), (uint16_t)(d1 ));
 #elif TRICE_TRANSFER_ENDIANESS == TRICE_BIG_ENDIANESS
-#error
+    trice_16_02_ics( (uint16_t)(d0), (uint16_t)(d0>>16) );
+    trice_16_02_ics( (uint16_t)(d0>>32), (uint16_t)(d0>>48) );
+    trice_16_02_ics( (uint16_t)(d1), (uint16_t)(d1>>16) );
+    trice_16_2_ics( Id, (uint16_t)(d1>>32), (uint16_t)(d1>>48 ));
 #else
 #error
 #endif
@@ -774,7 +820,7 @@ TRICE_INLINE void trice_64_2_ics( uint32_t Id, uint64_t d0, uint64_t d1 ){
 //! \param pFmt formatstring for trice
 //! \param 8-bit payload
 #define TRICE8_1( Id, pFmt, d0 ) do{ \
-    trice_8_1_ocs( Id, (uint8_t)d0 ); \
+    trice_8_1_ocs( Id, (uint8_t)(d0) ); \
 } while(0)
 
 //! trice Id and 8-bit values protected (outside critical section)
@@ -783,7 +829,7 @@ TRICE_INLINE void trice_64_2_ics( uint32_t Id, uint64_t d0, uint64_t d1 ){
 //! \param d0 payload
 //! \param d1 payload
 #define TRICE8_2( Id, pFmt, d0, d1 ) do{ \
-    trice_8_2_ocs( Id, (uint8_t)d0, (uint8_t)d1 ); \
+    trice_8_2_ocs( Id, (uint8_t)(d0), (uint8_t)(d1) ); \
 } while(0)
 
 //! trice Id and 8-bit values protected (outside critical section)
@@ -793,7 +839,7 @@ TRICE_INLINE void trice_64_2_ics( uint32_t Id, uint64_t d0, uint64_t d1 ){
 //! \param d1 payload
 //! \param d2 payload
 #define TRICE8_3( Id, pFmt, d0, d1, d2 ) do{ \
-    trice_8_3_ocs( Id, (uint8_t)d0, (uint8_t)d1, (uint8_t)d2 ); \
+    trice_8_3_ocs( Id, (uint8_t)(d0), (uint8_t)(d1), (uint8_t)(d2) ); \
 } while(0)
 
 //! trice Id and 8-bit values protected (outside critical section)
@@ -804,7 +850,7 @@ TRICE_INLINE void trice_64_2_ics( uint32_t Id, uint64_t d0, uint64_t d1 ){
 //! \param d2 payload
 //! \param d3 payload
 #define TRICE8_4( Id, pFmt, d0, d1, d2, d3 ) do{ \
-    trice_8_4_ocs( Id, (uint8_t)d0, (uint8_t)d1, (uint8_t)d2, (uint8_t)d3 ); \
+    trice_8_4_ocs( Id, (uint8_t)(d0), (uint8_t)(d1), (uint8_t)(d2), (uint8_t)(d3) ); \
 } while(0)
 
 //! trice Id and 8-bit values protected (outside critical section)
@@ -816,7 +862,7 @@ TRICE_INLINE void trice_64_2_ics( uint32_t Id, uint64_t d0, uint64_t d1 ){
 //! \param d3 payload
 //! \param d4 payload
 #define TRICE8_5( Id, pFmt, d0, d1, d2, d3, d4 ) do{ \
-    trice_8_5_ocs( Id, (uint8_t)d0, (uint8_t)d1, (uint8_t)d2, (uint8_t)d3, (uint8_t)d4 ); \
+    trice_8_5_ocs( Id, (uint8_t)(d0), (uint8_t)(d1), (uint8_t)(d2), (uint8_t)(d3), (uint8_t)(d4) ); \
 } while(0)
 
 //! trice Id and 8-bit values protected (outside critical section)
@@ -829,7 +875,7 @@ TRICE_INLINE void trice_64_2_ics( uint32_t Id, uint64_t d0, uint64_t d1 ){
 //! \param d4 payload
 //! \param d5 payload
 #define TRICE8_6( Id, pFmt, d0, d1, d2, d3, d4, d5 ) do{ \
-    trice_8_6_ocs( Id, (uint8_t)d0, (uint8_t)d1, (uint8_t)d2, (uint8_t)d3, (uint8_t)d4, (uint8_t)d5 ); \
+    trice_8_6_ocs( Id, (uint8_t)(d0), (uint8_t)(d1), (uint8_t)(d2), (uint8_t)(d3), (uint8_t)(d4), (uint8_t)(d5) ); \
 } while(0)
 
 //! trice Id and 8-bit values protected (outside critical section)
@@ -843,7 +889,7 @@ TRICE_INLINE void trice_64_2_ics( uint32_t Id, uint64_t d0, uint64_t d1 ){
 //! \param d5 payload
 //! \param d6 payload
 #define TRICE8_7( Id, pFmt, d0, d1, d2, d3, d4, d5, d6 ) do{ \
-    trice_8_7_ocs( Id, (uint8_t)d0, (uint8_t)d1, (uint8_t)d2, (uint8_t)d3, (uint8_t)d4, (uint8_t)d5, (uint8_t)d6 ); \
+    trice_8_7_ocs( Id, (uint8_t)(d0), (uint8_t)(d1), (uint8_t)(d2), (uint8_t)(d3), (uint8_t)(d4), (uint8_t)(d5), (uint8_t)(d6) ); \
 } while(0)
 
 //! trice Id and 8-bit values protected (outside critical section)
@@ -858,7 +904,7 @@ TRICE_INLINE void trice_64_2_ics( uint32_t Id, uint64_t d0, uint64_t d1 ){
 //! \param d6 payload
 //! \param d7 payload
 #define TRICE8_8( Id, pFmt, d0, d1, d2, d3, d4, d5, d6, d7 ) do{ \
-    trice_8_8_ocs( Id, (uint8_t)d0, (uint8_t)d1, (uint8_t)d2, (uint8_t)d3, (uint8_t)d4, (uint8_t)d5, (uint8_t)d6, (uint8_t)d7 ); \
+    trice_8_8_ocs( Id, (uint8_t)(d0), (uint8_t)(d1), (uint8_t)(d2), (uint8_t)(d3), (uint8_t)(d4), (uint8_t)(d5), (uint8_t)(d6), (uint8_t)(d7) ); \
 } while(0)
 
 //! trice Id and 16-bit value protected (outside critical section)
@@ -866,7 +912,7 @@ TRICE_INLINE void trice_64_2_ics( uint32_t Id, uint64_t d0, uint64_t d1 ){
 //! \param pFmt formatstring for trice
 //! \param d0 payload
 #define TRICE16_1( Id, pFmt, d0 ) do{ \
-    trice_16_1_ocs( Id, (uint16_t)d0 ); \
+    trice_16_1_ocs( Id, (uint16_t)(d0) ); \
 } while(0)
 
 //! trice Id and 16-bit values protected (outside critical section)
@@ -875,7 +921,7 @@ TRICE_INLINE void trice_64_2_ics( uint32_t Id, uint64_t d0, uint64_t d1 ){
 //! \param d0 payload
 //! \param d1 payload
 #define TRICE16_2( Id, pFmt, d0, d1 ) do{ \
-    trice_16_2_ocs( Id, (uint16_t)d0, (uint16_t)d1 ); \
+    trice_16_2_ocs( Id, (uint16_t)(d0), (uint16_t)(d1) ); \
 } while(0)
 
 //! trice Id and 16-bit values protected (outside critical section)
@@ -885,7 +931,7 @@ TRICE_INLINE void trice_64_2_ics( uint32_t Id, uint64_t d0, uint64_t d1 ){
 //! \param d1 payload
 //! \param d2 payload
 #define TRICE16_3( Id, pFmt, d0, d1, d2 ) do{ \
-    trice_16_3_ocs( Id, (uint16_t)d0, (uint16_t)d1, (uint16_t)d2 ); \
+    trice_16_3_ocs( Id, (uint16_t)(d0), (uint16_t)(d1), (uint16_t)(d2) ); \
 } while(0)
 
 //! trice Id and 16-bit values protected (outside critical section)
@@ -896,7 +942,7 @@ TRICE_INLINE void trice_64_2_ics( uint32_t Id, uint64_t d0, uint64_t d1 ){
 //! \param d2 payload
 //! \param d3 payload
 #define TRICE16_4( Id, pFmt, d0, d1, d2, d3 ) do{ \
-    trice_16_4_ocs( Id, (uint16_t)d0, (uint16_t)d1, (uint16_t)d2, (uint16_t)d3 ); \
+    trice_16_4_ocs( (uint32_t)(Id), (uint16_t)(d0), (uint16_t)(d1), (uint16_t)(d2), (uint16_t)(d3) ); \
 } while(0)
 
 //! trice Id and 32-bit value protected (outside critical section)
@@ -904,7 +950,7 @@ TRICE_INLINE void trice_64_2_ics( uint32_t Id, uint64_t d0, uint64_t d1 ){
 //! \param pFmt formatstring for trice
 //! \param d0 payload
 #define TRICE32_1( Id, pFmt, d0 ) do{ \
-    trice_32_1_ocs( Id, (uint32_t)d0 ); \
+    trice_32_1_ocs( Id, (uint32_t)(d0) ); \
 } while(0)
 
 //! trice Id and 32-bit values protected (outside critical section)
@@ -913,7 +959,7 @@ TRICE_INLINE void trice_64_2_ics( uint32_t Id, uint64_t d0, uint64_t d1 ){
 //! \param d0 payload
 //! \param d1 payload
 #define TRICE32_2( Id, pFmt, d0, d1 ) do{ \
-    trice_32_2_ocs( Id, (uint32_t)d0, (uint32_t)d1 ); \
+    trice_32_2_ocs( Id, (uint32_t)(d0), (uint32_t)(d1) ); \
 } while(0)
 
 //! trice Id and 32-bit values protected (outside critical section)
@@ -923,7 +969,7 @@ TRICE_INLINE void trice_64_2_ics( uint32_t Id, uint64_t d0, uint64_t d1 ){
 //! \param d1 payload
 //! \param d2 payload
 #define TRICE32_3( Id, pFmt, d0, d1, d2 ) do{ \
-    trice_32_3_ocs( Id, (uint32_t)d0, (uint32_t)d1, (uint32_t)d2 ); \
+    trice_32_3_ocs( Id, (uint32_t)(d0), (uint32_t)(d1), (uint32_t)(d2) ); \
 } while(0)
 
 //! trice Id and 32-bit values protected (outside critical section)
@@ -934,16 +980,16 @@ TRICE_INLINE void trice_64_2_ics( uint32_t Id, uint64_t d0, uint64_t d1 ){
 //! \param d2 payload
 //! \param d3 payload
 #define TRICE32_4( Id, pFmt, d0, d1, d2, d3 ) do{ \
-    trice_32_4_ocs( Id, (uint32_t)d0, (uint32_t)d1, (uint32_t)d2, (uint32_t)d3 ); \
+    trice_32_4_ocs( Id, (uint32_t)(d0), (uint32_t)(d1), (uint32_t)(d2), (uint32_t)(d3) ); \
 } while(0)
 
-//! trice Id and 64-bit value protected (outside critical section)
-//! \param Id trice identifier
-//! \param pFmt formatstring for trice
-//! \param d0 payload
-#define TRICE64_1( Id, pFmt, d0 ) do{ \
-    trice_64_1_ocs( Id, (uint64_t)d0 ); \
-} while(0)
+// //! trice Id and 64-bit value protected (outside critical section)
+// //! \param Id trice identifier
+// //! \param pFmt formatstring for trice
+// //! \param d0 payload
+// #define TRICE64_1( Id, pFmt, d0 ) do{ \
+//     trice_64_1_ocs( Id, (uint64_t)(d0) ); \
+// } while(0)
 
 
 //! trice Id and 64-bit value protected (outside critical section)
@@ -960,7 +1006,7 @@ TRICE_INLINE void trice_64_1_ocs( uint32_t Id, uint64_t d0 ){
 //! \param pFmt formatstring for trice
 //! \param d0 payload
 #define TRICE64_1( Id, pFmt, d0 ) do{ \
-    trice_64_1_ocs( Id, (uint64_t)d0 ); \
+    trice_64_1_ocs( Id, (uint64_t)(d0) ); \
 } while(0)
 
 //! trice Id and 64-bit value protected (outside critical section)
@@ -979,7 +1025,7 @@ TRICE_INLINE void trice_64_2_ocs( uint32_t Id, uint64_t d0, uint64_t d1 ){
 //! \param d0 payload
 //! \param d1 payload
 #define TRICE64_2( Id, pFmt, d0, d1 ) do{ \
-    trice_64_2_ocs( Id, (uint64_t)d0, (uint64_t)d1 ); \
+    trice_64_2_ocs( Id, (uint64_t)(d0), (uint64_t)(d1) ); \
 } while(0)
 
 #endif // TRICE_COMPILE == TRICE_SPACE_OVER_SPEED

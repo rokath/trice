@@ -747,5 +747,26 @@
 		"fmtStrg": "MSG: triceFifoMaxDepth = %d, select = %d\\n",
 		"created": 1611086234,
 		"removed": 0
+	},
+	{
+		"id": 37375,
+		"fmtType": "TRICE32_2",
+		"fmtStrg": "tst:TRICE32_2 %x %x\\n",
+		"created": 1611220200,
+		"removed": 0
+	},
+	{
+		"id": 49163,
+		"fmtType": "TRICE32_3",
+		"fmtStrg": "tst:TRICE32_3 %x %x %x\\n",
+		"created": 1611220200,
+		"removed": 0
+	},
+	{
+		"id": 37165,
+		"fmtType": "TRICE32_4",
+		"fmtStrg": "tst:TRICE32_4 %x %x %x %x\\n",
+		"created": 1611220200,
+		"removed": 0
 	}
 ]

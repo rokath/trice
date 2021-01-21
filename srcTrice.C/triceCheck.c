@@ -253,10 +253,13 @@ void triceCheckSet(int index) {
             TRICE16_4(Id(45117), "tst:TRICE16_4 %d %d %d %d\n", -1, -2, -3, -4); // 4
             break;
         case 8:
-            TRICE32_1(Id(6384), "tst:TRICE32_1 %d\n", -1); // 2
             TRICE32_1(Id( 4950), "tst:TRICE32_1 %08x\n", 0x0123cafe); // 2
+            TRICE32_1(Id( 6384), "tst:TRICE32_1 %d\n", -1); // 2
+            TRICE32_2(Id(37375), "tst:TRICE32_2 %x %x\n", -1, -2); // 4
             TRICE32_2(Id(11505), "tst:TRICE32_2 %d %d\n", -1, -2); // 4
+            TRICE32_3(Id(49163), "tst:TRICE32_3 %x %x %x\n", -1, -2, -3); // 4
             TRICE32_3(Id(56189), "tst:TRICE32_3 %d %d %d\n", -1, -2, -3); // 4
+            TRICE32_4(Id(37165), "tst:TRICE32_4 %x %x %x %x\n", -1, -2, -3, -4); // 4
             TRICE32_4(Id(36573), "tst:TRICE32_4 %d %d %d %d\n", -1, -2, -3, -4); // 4
             break;
         case 9:

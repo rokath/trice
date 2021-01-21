@@ -24,7 +24,7 @@ TRICE0( Id(54823), "s:                                                   \ns:   
 ///////////////////////////////////////////////////////////////////////////////
 
 #define TRICE_FIFO_BYTE_SIZE 2048 //!< must be a power of 2
-#define TRICE_COMPILE TRICE_SPEED_OVER_SPACE // TRICE_SPACE_OVER_SPEED or TRICE_SPEED_OVER_SPACE
+#define TRICE_COMPILE TRICE_SPACE_OVER_SPEED // TRICE_SPACE_OVER_SPEED or TRICE_SPEED_OVER_SPACE
 
 ///////////////////////////////////////////////////////////////////////////////
 //
