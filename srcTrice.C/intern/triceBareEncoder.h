@@ -983,15 +983,6 @@ TRICE_INLINE void trice_64_2_ics( uint32_t Id, uint64_t d0, uint64_t d1 ){
     trice_32_4_ocs( Id, (uint32_t)(d0), (uint32_t)(d1), (uint32_t)(d2), (uint32_t)(d3) ); \
 } while(0)
 
-// //! trice Id and 64-bit value protected (outside critical section)
-// //! \param Id trice identifier
-// //! \param pFmt formatstring for trice
-// //! \param d0 payload
-// #define TRICE64_1( Id, pFmt, d0 ) do{ \
-//     trice_64_1_ocs( Id, (uint64_t)(d0) ); \
-// } while(0)
-
-
 //! trice Id and 64-bit value protected (outside critical section)
 //! \param Id trice identifier
 //! \param d0 payload

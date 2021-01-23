@@ -60,6 +60,20 @@ var (
 	// til is the trace id list content for tests
 	til = `[
 		{
+			"id": 999953,
+			"fmtType": "TRICE8_8",
+			"fmtStrg": "tst:TRICE8_8 %d %d %d %d %d %d %d %d\\n",
+			"created": 1611397232,
+			"removed": 0
+		},
+		{
+			"id": 1047954,
+			"fmtType": "TRICE8_7",
+			"fmtStrg": "tst:TRICE8_7 %d %d %d %d %d %d %d\\n",
+			"created": 1611399853,
+			"removed": 0
+		},		
+		{
 			"id": 18,
 			"fmtType": "TRICE_S",
 			"fmtStrg": "%s",
