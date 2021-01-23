@@ -23,25 +23,32 @@ const (
 	patSourceFile = "(\\.c|\\.h|\\.cc|\\.cpp|\\.hpp)$"
 
 	// patNbTRICE is a regex pattern matching any "TRICE*(Id(n), "", ... )". - see https://regex101.com/r/LNlAwY/9, The (?U) says non-greedy
-	patNbTRICE = `(?U)(TRICE_S|TRICE0|TRICE8_[1-8]|TRICE16_[1-4]|TRICE32_[1-4]|TRICE64_[1-4])\s*\(\s*\bId\b\s*\(\s*.*[0-9]\s*\)\s*,\s*".*"\s*.*\)`
-
+	// patNbTRICE is a regex pattern matching any "TRICE*(Id(n), "", ... )". - see https://regex101.com/r/id0uSF/1
+	//patNbTRICE = `(?U)(\bTRICE_S|TRICE0|TRICE8_[1-8]|TRICE16_[1-4]|TRICE32_[1-4]|TRICE64_[1-4]\b)\s*\(\s*\bId\b\s*\(\s*.*[0-9]\s*\)\s*,\s*".*"\s*.*\)`
+	//patNbTRICE = `(?U)(\bTRICE[_S|0|8_1|8_2|8_3|8_4|8_5|8_6|8_7|8_8|16_1|16_2|16_3|16_4|32_1|32_2|32_3|32_4|64_1|64_2|64_3|64_4]\b)\s*\(\s*\bId\b\s*\(\s*.*[0-9]\s*\)\s*,\s*".*"\s*.*\)`
+	patNbTRICE = `(?U)(\bTRICE_S|trice_s|TRICE0|trice0|TRICE8_[1-8]|trice8_[1-8]|TRICE16_[1-4]|trice16_[1-4]|TRICE32_[1-4]|trice32_[1-4]|TRICE64_[1-4]|trice64_[1-4]\b)\s*\(\s*\bId\b\s*\(\s*.*[0-9]\s*\)\s*,\s*".*"\s*.*\)`
+	//patNbTRICE = `(?U)(\bTRICE_S|TRICE0|TRICE8_[1-8]|TRICE16_[1-4]|TRICE32_[1-4]|TRICE64_[1-4]\b)\s*\(\s*\bId\b\s*\(\s*.*[0-9]\s*\)\s*,\s*".*"\s*.*\)`
 	// patNbID is a regex pattern matching any (first in string) "Id(n)" and usable in matches of matchNbTRICE
 	patNbID = `\bId\s*\(\s*[0-9]*\s*\)`
 
 	// patTypNameTRICE is a regex pattern matching "TRICE*" inside trice
-	patTypNameTRICE = `(\bTRICE_S\b|\bTRICE0\b|\bTRICE8_[1-8]\b|\bTRICE16_[1-4]\b|\bTRICE32_[1-4]|\bTRICE64_[1-4])`
+	//patTypNameTRICE = `(\bTRICE_S\b|\bTRICE0\b|\bTRICE8_[1-8]\b|\bTRICE16_[1-4]\b|\bTRICE32_[1-4]\b|\bTRICE64_[1-4]\b)`
+	patTypNameTRICE = `(\bTRICE_S\b|\bTRICE0\b|\bTRICE8_[1-8]\b|\bTRICE16_[1-4]\b|\bTRICE32_[1-4]\b|\bTRICE64_[1-4]\b|\btrice_S\b|\btrice0\b|\btrice8_[1-8]\b|\btrice16_[1-4]\b|\btrice32_[1-4]\b|\btrice64_[1-4]\b)`
 
 	// patFmtString is a regex matching the first format string inside trice
 	patFmtString = `"(.*)"`
 
 	// patFullTriceWithoutID is a regex find a TRICE* line without Id, The (?U) says non-greedy
-	patFullTriceWithoutID = `(?U)(\bTRICE64|TRICE32|TRICE16|TRICE8|TRICE0|TRICE_S\b)\s*\(\s*".*"\s*.*\)`
+	//patFullTriceWithoutID = `(?U)(\bTRICE64|TRICE32|TRICE16|TRICE8|TRICE0|TRICE_S\b)\s*\(\s*".*"\s*.*\)`
+	patFullTriceWithoutID = `(?U)(\bTRICE64|TRICE32|TRICE16|TRICE8|TRICE0|TRICE_S|trice64|trice32|trice16|trice8|trice0|trice_s\b)\s*\(\s*".*"\s*.*\)`
 
 	// patTriceStartWithoutIDo is a regex
-	patTriceStartWithoutIDo = `(\bTRICE64|TRICE32|TRICE16|TRICE8|TRICE0|TRICE_S\b)\s*\(`
+	//patTriceStartWithoutIDo = `(\bTRICE64|TRICE32|TRICE16|TRICE8|TRICE0|TRICE_S\b)\s*\(`
+	patTriceStartWithoutIDo = `(\bTRICE64|TRICE32|TRICE16|TRICE8|TRICE0|TRICE_S|trice64|trice32|trice16|trice8|trice0|trice_s\b)\s*\(`
 
 	// patTriceStartWithoutID is a regex
-	patTriceStartWithoutID = `(\bTRICE64|TRICE32|TRICE16|TRICE8|TRICE0|TRICE_S\b)\s*`
+	//patTriceStartWithoutID = `(\bTRICE64|TRICE32|TRICE16|TRICE8|TRICE0|TRICE_S\b)\s*`
+	patTriceStartWithoutID = `(\bTRICE64|TRICE32|TRICE16|TRICE8|TRICE0|TRICE_S|trice64|trice32|trice16|trice8|trice0|trice_s\b)\s*`
 
 	// patNextFormatSpezifier is a regex find next format specifier in a string (exclude %%*)
 	patNextFormatSpezifier = `(?:^|[^%])(%[0-9\.#]*(b|d|u|x|X|o|f))`
