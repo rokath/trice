@@ -20,10 +20,17 @@ func Test2Pack2(t *testing.T) {
 }
 
 func TestPack2BigId(t *testing.T) {
+<<<<<<< HEAD
 	doTableTest(t, NewPack2Decoder, littleEndian, pack2LTestTableBigID, "unwrapped")
 }
 
 var pack2LTestTableBigID = testTable{ // little endian
+=======
+	doTableTest(t, NewPack2Decoder, littleEndian, pack2LTestTableBigId, "unwrapped")
+}
+
+var pack2LTestTableBigId = testTable{ // little endian
+>>>>>>> master
 	{[]byte{61, 39, 217, 255, 4, 3, 2, 1, 7, 6, 5, 0}, `tst:TRICE8_7 1 2 3 4 5 6 7`},
 	{[]byte{62, 24, 33, 244, 4, 3, 2, 1, 8, 7, 6, 5}, `tst:TRICE8_8 1 2 3 4 5 6 7 8`},
 }
