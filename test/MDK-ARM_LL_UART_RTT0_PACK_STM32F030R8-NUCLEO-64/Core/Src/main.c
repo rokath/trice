@@ -108,7 +108,8 @@ int main(void)
             static int index = 0;
             int select = index % 30;
             TRICE16_2( Id( 17989),"MSG: triceFifoMaxDepth = %d, select = %d\n", triceFifoMaxDepth, select );
-            triceCheckSet(select);
+            triceCheckSetTime(select);
+            triceCheckSetSpace(select);
             index++;
             lastTricesTime = milliSecond;
         }

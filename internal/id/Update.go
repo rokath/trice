@@ -70,6 +70,20 @@ func isSourceFile(fi os.FileInfo) bool {
 	return matchSourceFile.MatchString(fi.Name())
 }
 
+// Additional actions needed: (Option -dry-run lets do a check in advance.)
+// - Insert in all TRICE messages without ID an `Id(0),`
+// - Check if all TRICE messages have correct parameter count and adapt the count without touching the Id(n),
+// - Check if ID list has same ID more than one time and remove younger items with message.
+//  - Read til.json in a map and write til.json after the map was finally manipulated back to til.json.
+// - Check if Source tree has same ID with different TRICE strings.
+//   - Keep the ID which is in til.json and set others to 0 with message.
+//   - If none of the more than 1 time used ID is in til.json set all to 0 with message.
+// - Check if in source code exist IDs not in til.json so far and extend til.json if there is no conflict.
+//  - If the ID in soure code is already used in til.json differently set the ID in source code to 0 with message.
+// NOT NEEDED: - Check if in til.json ID's not in source tree and mark them with `removed` timestamp.
+// NOT NEEDED:   - If several source trees use same til.json, the `removed` timestamp is without sense.
+// NOT NEEDED:   - If a `removed` timestamp is set, but the ID is in the source tree the `removed` timestamp is set to 0.
+
 // Update is parsing source tree root and performing these actions:
 // - replace FmtType( Id(0), ...) with FmtType( Id(n), ...)
 // - find duplicate FmtType( Id(n), ...) and replace one of them if trices are not identical

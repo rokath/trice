@@ -72,6 +72,29 @@ extern "C" {
 #define TRICE_SYNC do{ } while(0)// otherwise empty definition for compability
 #endif
 
+#ifndef trice0
+#define trice_sync TRICE_SYNC
+#define trice0     TRICE0
+#define trice8_1   TRICE8_1
+#define trice8_2   TRICE8_2
+#define trice8_3   TRICE8_3
+#define trice8_4   TRICE8_4
+#define trice8_5   TRICE8_5
+#define trice8_6   TRICE8_6
+#define trice8_7   TRICE8_7
+#define trice8_8   TRICE8_8
+#define trice16_1  TRICE16_1
+#define trice16_2  TRICE16_2
+#define trice16_3  TRICE16_3
+#define trice16_4  TRICE16_4
+#define trice32_1  TRICE32_1
+#define trice32_2  TRICE32_2
+#define trice32_3  TRICE32_3
+#define trice32_4  TRICE32_4
+#define trice64_1  TRICE64_1
+#define trice64_2  TRICE64_2
+#endif // #ifndef trice0
+
 #ifdef __cplusplus
 }
 #endif

@@ -15,6 +15,34 @@ import (
 	"github.com/rokath/trice/pkg/tst"
 )
 
+func doUpdate1(t *testing.T, sOri, sExp []string, listExp string) {
+	rand.Seed(0)
+	p := id.NewList(randomFile("{}", "", "til*.json"))
+
+	dir0, err := ioutil.TempDir("", "*")
+	assert.Nil(t, err)
+
+	n0 := randomFile(sOri[0], dir0, "*.c")
+	err = p.Update(dir0, true, true)
+	assert.Nil(t, err)
+
+	p.ZeroTimestampCreated()
+	p.WriteListFile()
+
+	listAct := readFileAsString(p.FnJSON)
+	tst.EqualLines(t, listExp, listAct)
+
+	sAct := make([]string, 0, 1)
+	sAct = append(sAct, readFileAsString(n0))
+
+	for i := range sExp {
+		tst.EqualLines(t, sExp[i], sAct[i])
+	}
+
+	assert.Nil(t, os.RemoveAll(dir0))
+	assert.Nil(t, os.RemoveAll(p.FnJSON))
+}
+
 func doUpdate(t *testing.T, sOri, sExp []string, listExp string) {
 
 	rand.Seed(0)

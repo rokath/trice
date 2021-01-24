@@ -100,25 +100,26 @@ func (p *Bare) payloadLenOk() bool {
 // It returns -1 for an unknown value an -2 for unknown triceType.
 func (p *Bare) expectedPayloadLen() int {
 	switch p.trice.Type {
-	case "TRICE0", "TRICE8_1", "TRICE8_2", "TRICE16_1":
+	case "TRICE0", "TRICE8_1", "TRICE8_2", "TRICE16_1", "trice0", "trice8_1", "trice8_2", "trice16_1":
 		return 1
-	case "TRICE8_3", "TRICE8_4", "TRICE16_2", "TRICE32_1":
+	case "TRICE8_3", "TRICE8_4", "TRICE16_2", "TRICE32_1", "trice8_3", "trice8_4", "trice16_2", "trice32_1":
 		return 2
-	case "TRICE8_5", "TRICE8_6", "TRICE16_3":
+	case "TRICE8_5", "TRICE8_6", "TRICE16_3", "trice8_5", "trice8_6", "trice16_3":
 		return 3
-	case "TRICE8_7", "TRICE8_8", "TRICE16_4", "TRICE32_2", "TRICE64_1":
+	case "TRICE8_7", "TRICE8_8", "TRICE16_4", "TRICE32_2", "TRICE64_1", "trice8_7", "trice8_8", "trice16_4", "trice32_2", "trice64_1":
 		return 4
-	case "TRICE32_3":
+	case "TRICE32_3", "trice32_3":
 		return 6
-	case "TRICE32_4", "TRICE64_2":
+	case "TRICE32_4", "TRICE64_2", "trice32_4", "trice64_2":
 		return 8
-	case "TRICE_S":
+	case "TRICE_S", "trice_S":
 		return -1 // unknown count
 	default:
 		return -2 // unknown trice type
 	}
 }
 
+/*
 // sprintTrice generates the trice string.
 func (p *Bare) sprintTrice() (n int, err error) {
 	switch p.trice.Type {
@@ -162,6 +163,56 @@ func (p *Bare) sprintTrice() (n int, err error) {
 		return p.trice642()
 	}
 	return p.outOfSync(fmt.Sprintf("Unexpected trice.Type %s", p.trice.Type))
+}
+*/
+
+// sprintTrice generates the trice string.
+func (p *Bare) sprintTrice( /*cnt int*/ ) (n int, e error) {
+	// ID and count are ok
+	switch p.trice.Type {
+	case "TRICE0", "trice0":
+		return p.trice0()
+	case "TRICE8_1", "trice8_1":
+		return p.trice81()
+	case "TRICE8_2", "trice8_2":
+		return p.trice82()
+	case "TRICE8_3", "trice8_3":
+		return p.trice83()
+	case "TRICE8_4", "trice8_4":
+		return p.trice84()
+	case "TRICE8_5", "trice8_5":
+		return p.trice85()
+	case "TRICE8_6", "trice8_6":
+		return p.trice86()
+	case "TRICE8_7", "trice8_7":
+		return p.trice87()
+	case "TRICE8_8", "trice8_8":
+		return p.trice88()
+	case "TRICE16_1", "trice16_1":
+		return p.trice161()
+	case "TRICE16_2", "trice16_2":
+		return p.trice162()
+	case "TRICE16_3", "trice16_3":
+		return p.trice163()
+	case "TRICE16_4", "trice16_4":
+		return p.trice164()
+	case "TRICE32_1", "trice32_1":
+		return p.trice321()
+	case "TRICE32_2", "trice32_2":
+		return p.trice322()
+	case "TRICE32_3", "trice32_3":
+		return p.trice323()
+	case "TRICE32_4", "trice32_4":
+		return p.trice324()
+	case "TRICE64_1", "trice64_1":
+		return p.trice641()
+	case "TRICE64_2", "trice64_2":
+		return p.trice642()
+		//	case "TRICE_S", "trice_s":
+		//		return p.triceS(cnt)
+	default:
+		return p.outOfSync(fmt.Sprintf("Unexpected trice.Type %s", p.trice.Type))
+	}
 }
 
 func (p *Bare) trice0() (n int, e error) {

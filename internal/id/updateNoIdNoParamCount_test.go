@@ -9,6 +9,122 @@ import (
 	"github.com/rokath/trice/internal/id"
 )
 
+func TestLegacyUpdateTrice0(t *testing.T) {
+	id.SearchMethod = "legacy"
+	sOri := []string{`
+	TRICE0( "AA" );
+	trice0( "BB" );
+	`}
+	sExp := []string{`
+	TRICE0( Id(43274), "AA" );
+	trice0( Id( 9089), "BB" );
+	`}
+	listExp := `[
+	{
+		"id": 43274,
+		"fmtType": "TRICE0",
+		"fmtStrg": "AA",
+		"created": 0,
+		"removed": 0
+	},
+	{
+		"id": 9089,
+		"fmtType": "trice0",
+		"fmtStrg": "BB",
+		"created": 0,
+		"removed": 0
+	}
+]`
+	doUpdate1(t, sOri, sExp, listExp)
+}
+
+// func TestUpdateTrice0Downward0(t *testing.T) {
+// 	id.SearchMethod = "downward"
+// 	sOri := []string{`
+// 	TRICE0( "AA" );
+// 	trice0( "CC" );
+// 	`}
+// 	sExp := []string{`
+// 	TRICE0( Id(65535), "AA" );
+// 	trice0( Id(65534), "CC" );
+// 	`}
+// 	listExp := `[
+// 	{
+// 		"id": 65535,
+// 		"fmtType": "TRICE0",
+// 		"fmtStrg": "AA",
+// 		"created": 0,
+// 		"removed": 0
+// 	},
+// 	{
+// 		"id": 65534,
+// 		"fmtType": "trice0",
+// 		"fmtStrg": "CC",
+// 		"created": 0,
+// 		"removed": 0
+// 	}
+// ]`
+// 	doUpdate1(t, sOri, sExp, listExp)
+// }
+
+func TestUpdateTrice0Downward1(t *testing.T) {
+	id.SearchMethod = "downward"
+	sOri := []string{`
+	TRICE0( Id(65535), "AA" );
+	trice0( "AA" );
+	`}
+	sExp := []string{`
+	TRICE0( Id(65535), "AA" );
+	trice0( Id(65534), "AA" );
+	`}
+	listExp := `[
+	{
+		"id": 65535,
+		"fmtType": "TRICE0",
+		"fmtStrg": "AA",
+		"created": 0,
+		"removed": 0
+	},
+	{
+		"id": 65534,
+		"fmtType": "trice0",
+		"fmtStrg": "AA",
+		"created": 0,
+		"removed": 0
+	}
+]`
+	doUpdate1(t, sOri, sExp, listExp)
+}
+
+// func _TestUpdateTrice0Downward2(t *testing.T) {
+// 	id.SearchMethod = "downward"
+// 	sOri := []string{`
+// 	TRICE0( "AA" );
+// 	trice0( Id(65535), "BB" );
+// 	`}
+// 	sExp := []string{`
+// 	TRICE0( Id(65534), "AA" );
+// 	trice0( Id(65535), "BB" );
+// 	`}
+// 	listExp := `[
+// 	{
+// 		"id": 65534,
+// 		"fmtType": "TRICE0",
+// 		"fmtStrg": "AA",
+// 		"created": 0,
+// 		"removed": 0
+// 	},
+// 	{
+// 		"id": 65535,
+// 		"fmtType": "trice0",
+// 		"fmtStrg": "BB",
+// 		"created": 0,
+// 		"removed": 0
+// 	}
+// ]`
+// 	doUpdate1(t, sOri, sExp, listExp)
+// }
+
 func TestLegacyUpdateNoIDNoParamCount(t *testing.T) {
 	id.SearchMethod = "legacy"
 	sOri := []string{`

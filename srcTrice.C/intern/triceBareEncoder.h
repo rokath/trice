@@ -15,10 +15,7 @@ extern "C" {
 
 #define TRICE_S(id, pFmt, dynString) do{ TRICE0( Id(28489), "wrn:TRICES_1(id, pFmt, dynString) macro is not supported in bare encoding.\nmsg:See TRICE_RTS macro in triceCheck.c for an alternative or use a different encoding.\n"); }while(0)
 
-
 #define Id(n) (((uint32_t)(n))<<16) //!< Macro for improved trice readability and better source code parsing. n must not exceed 2^16-1.
-
-#if TRICE_COMPILE == TRICE_SPEED_OVER_SPACE
 
 ///////////////////////////////////////////////////////////////////////////////
 // TRICE macros
@@ -311,10 +308,6 @@ When several data, the real ID comes in the last 32 bit sequence.
     TRICE_HTON_U32PUSH( Id | (uint16_t)x1 );  /*ll*/ \
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
-
-#endif // TRICE_COMPILE == TRICE_SPEED_OVER_SPACE
-
-#if TRICE_COMPILE == TRICE_SPACE_OVER_SPEED
 
 ///////////////////////////////////////////////////////////////////////////////
 // internal trice functions
@@ -811,7 +804,7 @@ TRICE_INLINE void trice_64_2_ics( uint32_t Id, uint64_t d0, uint64_t d1 ){
 //! trice Id protected (outside critical section)
 //! \param Id trice identifier
 //! \param pFmt formatstring for trice
-#define TRICE0( Id, pFmt ) do{ \
+#define trice0( Id, pFmt ) do{ \
     trice_0_ocs( Id ); \
 } while(0)
 
@@ -819,7 +812,7 @@ TRICE_INLINE void trice_64_2_ics( uint32_t Id, uint64_t d0, uint64_t d1 ){
 //! \param Id trice identifier
 //! \param pFmt formatstring for trice
 //! \param 8-bit payload
-#define TRICE8_1( Id, pFmt, d0 ) do{ \
+#define trice8_1( Id, pFmt, d0 ) do{ \
     trice_8_1_ocs( Id, (uint8_t)(d0) ); \
 } while(0)
 
@@ -828,7 +821,7 @@ TRICE_INLINE void trice_64_2_ics( uint32_t Id, uint64_t d0, uint64_t d1 ){
 //! \param pFmt formatstring for trice
 //! \param d0 payload
 //! \param d1 payload
-#define TRICE8_2( Id, pFmt, d0, d1 ) do{ \
+#define trice8_2( Id, pFmt, d0, d1 ) do{ \
     trice_8_2_ocs( Id, (uint8_t)(d0), (uint8_t)(d1) ); \
 } while(0)
 
@@ -838,7 +831,7 @@ TRICE_INLINE void trice_64_2_ics( uint32_t Id, uint64_t d0, uint64_t d1 ){
 //! \param d0 payload
 //! \param d1 payload
 //! \param d2 payload
-#define TRICE8_3( Id, pFmt, d0, d1, d2 ) do{ \
+#define trice8_3( Id, pFmt, d0, d1, d2 ) do{ \
     trice_8_3_ocs( Id, (uint8_t)(d0), (uint8_t)(d1), (uint8_t)(d2) ); \
 } while(0)
 
@@ -849,7 +842,7 @@ TRICE_INLINE void trice_64_2_ics( uint32_t Id, uint64_t d0, uint64_t d1 ){
 //! \param d1 payload
 //! \param d2 payload
 //! \param d3 payload
-#define TRICE8_4( Id, pFmt, d0, d1, d2, d3 ) do{ \
+#define trice8_4( Id, pFmt, d0, d1, d2, d3 ) do{ \
     trice_8_4_ocs( Id, (uint8_t)(d0), (uint8_t)(d1), (uint8_t)(d2), (uint8_t)(d3) ); \
 } while(0)
 
@@ -861,7 +854,7 @@ TRICE_INLINE void trice_64_2_ics( uint32_t Id, uint64_t d0, uint64_t d1 ){
 //! \param d2 payload
 //! \param d3 payload
 //! \param d4 payload
-#define TRICE8_5( Id, pFmt, d0, d1, d2, d3, d4 ) do{ \
+#define trice8_5( Id, pFmt, d0, d1, d2, d3, d4 ) do{ \
     trice_8_5_ocs( Id, (uint8_t)(d0), (uint8_t)(d1), (uint8_t)(d2), (uint8_t)(d3), (uint8_t)(d4) ); \
 } while(0)
 
@@ -874,7 +867,7 @@ TRICE_INLINE void trice_64_2_ics( uint32_t Id, uint64_t d0, uint64_t d1 ){
 //! \param d3 payload
 //! \param d4 payload
 //! \param d5 payload
-#define TRICE8_6( Id, pFmt, d0, d1, d2, d3, d4, d5 ) do{ \
+#define trice8_6( Id, pFmt, d0, d1, d2, d3, d4, d5 ) do{ \
     trice_8_6_ocs( Id, (uint8_t)(d0), (uint8_t)(d1), (uint8_t)(d2), (uint8_t)(d3), (uint8_t)(d4), (uint8_t)(d5) ); \
 } while(0)
 
@@ -888,7 +881,7 @@ TRICE_INLINE void trice_64_2_ics( uint32_t Id, uint64_t d0, uint64_t d1 ){
 //! \param d4 payload
 //! \param d5 payload
 //! \param d6 payload
-#define TRICE8_7( Id, pFmt, d0, d1, d2, d3, d4, d5, d6 ) do{ \
+#define trice8_7( Id, pFmt, d0, d1, d2, d3, d4, d5, d6 ) do{ \
     trice_8_7_ocs( Id, (uint8_t)(d0), (uint8_t)(d1), (uint8_t)(d2), (uint8_t)(d3), (uint8_t)(d4), (uint8_t)(d5), (uint8_t)(d6) ); \
 } while(0)
 
@@ -903,7 +896,7 @@ TRICE_INLINE void trice_64_2_ics( uint32_t Id, uint64_t d0, uint64_t d1 ){
 //! \param d5 payload
 //! \param d6 payload
 //! \param d7 payload
-#define TRICE8_8( Id, pFmt, d0, d1, d2, d3, d4, d5, d6, d7 ) do{ \
+#define trice8_8( Id, pFmt, d0, d1, d2, d3, d4, d5, d6, d7 ) do{ \
     trice_8_8_ocs( Id, (uint8_t)(d0), (uint8_t)(d1), (uint8_t)(d2), (uint8_t)(d3), (uint8_t)(d4), (uint8_t)(d5), (uint8_t)(d6), (uint8_t)(d7) ); \
 } while(0)
 
@@ -911,7 +904,7 @@ TRICE_INLINE void trice_64_2_ics( uint32_t Id, uint64_t d0, uint64_t d1 ){
 //! \param Id trice identifier
 //! \param pFmt formatstring for trice
 //! \param d0 payload
-#define TRICE16_1( Id, pFmt, d0 ) do{ \
+#define trice16_1( Id, pFmt, d0 ) do{ \
     trice_16_1_ocs( Id, (uint16_t)(d0) ); \
 } while(0)
 
@@ -920,7 +913,7 @@ TRICE_INLINE void trice_64_2_ics( uint32_t Id, uint64_t d0, uint64_t d1 ){
 //! \param pFmt formatstring for trice
 //! \param d0 payload
 //! \param d1 payload
-#define TRICE16_2( Id, pFmt, d0, d1 ) do{ \
+#define trice16_2( Id, pFmt, d0, d1 ) do{ \
     trice_16_2_ocs( Id, (uint16_t)(d0), (uint16_t)(d1) ); \
 } while(0)
 
@@ -930,7 +923,7 @@ TRICE_INLINE void trice_64_2_ics( uint32_t Id, uint64_t d0, uint64_t d1 ){
 //! \param d0 payload
 //! \param d1 payload
 //! \param d2 payload
-#define TRICE16_3( Id, pFmt, d0, d1, d2 ) do{ \
+#define trice16_3( Id, pFmt, d0, d1, d2 ) do{ \
     trice_16_3_ocs( Id, (uint16_t)(d0), (uint16_t)(d1), (uint16_t)(d2) ); \
 } while(0)
 
@@ -941,7 +934,7 @@ TRICE_INLINE void trice_64_2_ics( uint32_t Id, uint64_t d0, uint64_t d1 ){
 //! \param d1 payload
 //! \param d2 payload
 //! \param d3 payload
-#define TRICE16_4( Id, pFmt, d0, d1, d2, d3 ) do{ \
+#define trice16_4( Id, pFmt, d0, d1, d2, d3 ) do{ \
     trice_16_4_ocs( (uint32_t)(Id), (uint16_t)(d0), (uint16_t)(d1), (uint16_t)(d2), (uint16_t)(d3) ); \
 } while(0)
 
@@ -949,7 +942,7 @@ TRICE_INLINE void trice_64_2_ics( uint32_t Id, uint64_t d0, uint64_t d1 ){
 //! \param Id trice identifier
 //! \param pFmt formatstring for trice
 //! \param d0 payload
-#define TRICE32_1( Id, pFmt, d0 ) do{ \
+#define trice32_1( Id, pFmt, d0 ) do{ \
     trice_32_1_ocs( Id, (uint32_t)(d0) ); \
 } while(0)
 
@@ -958,7 +951,7 @@ TRICE_INLINE void trice_64_2_ics( uint32_t Id, uint64_t d0, uint64_t d1 ){
 //! \param pFmt formatstring for trice
 //! \param d0 payload
 //! \param d1 payload
-#define TRICE32_2( Id, pFmt, d0, d1 ) do{ \
+#define trice32_2( Id, pFmt, d0, d1 ) do{ \
     trice_32_2_ocs( Id, (uint32_t)(d0), (uint32_t)(d1) ); \
 } while(0)
 
@@ -968,7 +961,7 @@ TRICE_INLINE void trice_64_2_ics( uint32_t Id, uint64_t d0, uint64_t d1 ){
 //! \param d0 payload
 //! \param d1 payload
 //! \param d2 payload
-#define TRICE32_3( Id, pFmt, d0, d1, d2 ) do{ \
+#define trice32_3( Id, pFmt, d0, d1, d2 ) do{ \
     trice_32_3_ocs( Id, (uint32_t)(d0), (uint32_t)(d1), (uint32_t)(d2) ); \
 } while(0)
 
@@ -979,7 +972,7 @@ TRICE_INLINE void trice_64_2_ics( uint32_t Id, uint64_t d0, uint64_t d1 ){
 //! \param d1 payload
 //! \param d2 payload
 //! \param d3 payload
-#define TRICE32_4( Id, pFmt, d0, d1, d2, d3 ) do{ \
+#define trice32_4( Id, pFmt, d0, d1, d2, d3 ) do{ \
     trice_32_4_ocs( Id, (uint32_t)(d0), (uint32_t)(d1), (uint32_t)(d2), (uint32_t)(d3) ); \
 } while(0)
 
@@ -996,7 +989,7 @@ TRICE_INLINE void trice_64_1_ocs( uint32_t Id, uint64_t d0 ){
 //! \param Id trice identifier
 //! \param pFmt formatstring for trice
 //! \param d0 payload
-#define TRICE64_1( Id, pFmt, d0 ) do{ \
+#define trice64_1( Id, pFmt, d0 ) do{ \
     trice_64_1_ocs( Id, (uint64_t)(d0) ); \
 } while(0)
 
@@ -1015,11 +1008,10 @@ TRICE_INLINE void trice_64_2_ocs( uint32_t Id, uint64_t d0, uint64_t d1 ){
 //! \param pFmt formatstring for trice
 //! \param d0 payload
 //! \param d1 payload
-#define TRICE64_2( Id, pFmt, d0, d1 ) do{ \
+#define trice64_2( Id, pFmt, d0, d1 ) do{ \
     trice_64_2_ocs( Id, (uint64_t)(d0), (uint64_t)(d1) ); \
 } while(0)
 
-#endif // TRICE_COMPILE == TRICE_SPACE_OVER_SPEED
 
 #ifdef __cplusplus
 }

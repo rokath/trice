@@ -58,7 +58,8 @@ TRICE0( Id(48976), "\ns:                                                     \ns
 #define TRICE_UART USART2 // set UART number
 ///////////////////////////////////////////////////////////////////////////////
 
-void triceCheckSet( int index ); //!< tests
+void triceCheckSetTime( int index ); //!< tests
+void triceCheckSetSpace( int index ); //!< tests
 
 #ifdef __cplusplus
 }
