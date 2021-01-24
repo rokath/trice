@@ -73,11 +73,10 @@ void triceRuntimeStrings( int from, int limit){
     }
 }
 
-#if 1
 //! write out all types of trices with fixed values for testing
 //! \details One trice has one subtrace, if param size max 2 bytes. 
 //! Traces with more bytes as parameter consist of several subtraces.
-void triceCheckSet(int index) {
+void triceCheckSetTime(int index) {
     switch (index) {
         case 0:
             TRICE0(Id(24481), "--------------------------------------------------\n");
@@ -244,7 +243,6 @@ void triceCheckSet(int index) {
     }
 }
 
-#else
 
 //! write out all types of trices with fixed values for testing
 //! \details One trice has one subtrace, if param size max 2 bytes. 
@@ -252,32 +250,32 @@ void triceCheckSet(int index) {
 void triceCheckSet(int index) {
     switch (index) {
         case 0:
-            trice0(Id(24481), "--------------------------------------------------\n");
-            trice0(Id(24481), "--------------------------------------------------\n");
-            trice16_1(Id(18133), "dbg:12345 as 16bit is %#016b\n", 12345);
-            trice0(Id(24481), "--------------------------------------------------\n");
-            trice0(Id(17125), "sig:This ASSERT error is just a demo and no real error:\n");
-            trice0(Id(24481), "--------------------------------------------------\n");
+            trice0(Id( 7428), "--------------------------------------------------\n");
+            trice0(Id(34936), "--------------------------------------------------\n");
+            trice16_1(Id(53581), "dbg:12345 as 16bit is %#016b\n", 12345);
+            trice0(Id(44974), "--------------------------------------------------\n");
+            trice0(Id(44673), "sig:This ASSERT error is just a demo and no real error:\n");
+            trice0(Id(64750), "--------------------------------------------------\n");
             break;
         case 1:
-            trice16_1(Id(18113), "ERR:error       message, SysTick is %6d\n", SYSTICKVAL16);
-            trice16_1(Id(28289), "WRN:warning     message, SysTick is %6d\n", SYSTICKVAL16);
-            trice16_1(Id(53560), "ATT:attension   message, SysTick is %6d\n", SYSTICKVAL16);
-            trice16_1(Id(16672), "DIA:diagnostics message, SysTick is %6d\n", SYSTICKVAL16);
-            trice16_1(Id(42206), "TIM:timing      message, SysTick is %6d\n", SYSTICKVAL16);
-            trice16_1(Id(23973), "DBG:debug       message, SysTick is %6d\n", SYSTICKVAL16);
-            trice16_1(Id(13730), "SIG:signal      message, SysTick is %6d\n", SYSTICKVAL16);
-            trice16_1(Id(24302), "RD:read         message, SysTick is %6d\n", SYSTICKVAL16);
-            trice16_1(Id(14138), "WR:write        message, SysTick is %6d\n", SYSTICKVAL16);
-            trice16_1(Id(55445), "ISR:interrupt   message, SysTick is %6d\n", SYSTICKVAL16);
-            trice16_1(Id(45697), "MSG:normal      message, SysTick is %6d\n", SYSTICKVAL16);
-            trice16_1(Id(24589), "INFO:informal   message, SysTick is %6d\n", SYSTICKVAL16);
+            trice16_1(Id(53601), "ERR:error       message, SysTick is %6d\n", SYSTICKVAL16);
+            trice16_1(Id(63356), "WRN:warning     message, SysTick is %6d\n", SYSTICKVAL16);
+            trice16_1(Id(13115), "ATT:attension   message, SysTick is %6d\n", SYSTICKVAL16);
+            trice16_1(Id(34880), "DIA:diagnostics message, SysTick is %6d\n", SYSTICKVAL16);
+            trice16_1(Id(28691), "TIM:timing      message, SysTick is %6d\n", SYSTICKVAL16);
+            trice16_1(Id(21299), "DBG:debug       message, SysTick is %6d\n", SYSTICKVAL16);
+            trice16_1(Id(21756), "SIG:signal      message, SysTick is %6d\n", SYSTICKVAL16);
+            trice16_1(Id(55641), "RD:read         message, SysTick is %6d\n", SYSTICKVAL16);
+            trice16_1(Id(21649), "WR:write        message, SysTick is %6d\n", SYSTICKVAL16);
+            trice16_1(Id(38305), "ISR:interrupt   message, SysTick is %6d\n", SYSTICKVAL16);
+            trice16_1(Id(37470), "MSG:normal      message, SysTick is %6d\n", SYSTICKVAL16);
+            trice16_1(Id(63899), "INFO:informal   message, SysTick is %6d\n", SYSTICKVAL16);
             break;
         case 2:
-            trice16_1(Id(999999), "tst:trice16_1   message, SysTick is %6d\n", SYSTICKVAL16);
-            trice16_1(Id(999998), "tst:trice16_1   message, SysTick is %6d\n", SYSTICKVAL16);
+            trice16_1(Id(35005), "tst:trice16_1   message, SysTick is %6d\n", SYSTICKVAL16);
+            trice16_1(Id(11613), "tst:trice16_1   message, SysTick is %6d\n", SYSTICKVAL16);
             trice16_1(Id(999997), "tst:trice16_1   message, SysTick is %6d\n", SYSTICKVAL16);
-            trice16_1(Id(999996), "tst:trice16_1   message, SysTick is %6d\n", SYSTICKVAL16);
+            trice16_1(Id(59000), "tst:trice16_1   message, SysTick is %6d\n", SYSTICKVAL16);
             break;
         case 3:
             trice32_1(Id(999995), "tst:trice32_1   message, SysTick is %6d\n", SYSTICKVAL16);
@@ -298,13 +296,13 @@ void triceCheckSet(int index) {
             break;
         case 5:
             trice8_1(Id(999983), "tst:trice8_1 %d\n", -111);
-            trice8_2(Id(999982), "tst:trice8_2 %d %d\n", -111, -122);
-            trice8_3(Id(999981), "tst:trice8_3 %d %d %d\n", -111, -122, -3);
-            trice8_4(Id(999980), "tst:trice8_4 %d %d %d %d\n", -111, -122, -3, -4);
-            trice8_5(Id(999979), "tst:trice8_5 %d %d %d %d %d\n", -111, -122, -3, -4, -5);
-            trice8_6(Id(999978), "tst:trice8_6 %d %d %d %d %d %d\n", -111, -122, -3, -4, -5, -6);
-            trice8_7(Id(999977), "tst:trice8_7 %d %d %d %d %d %d %d\n", -111, -122, -3, -4, -5, -6, -7);
-            trice8_8(Id(999976), "tst:trice8_8 %d %d %d %d %d %d %d %d\n", -111, -122, -3, -4, -5, -6, -7, -8);
+            trice8_2(Id(999982), "tst:trice8_2 %d %d\n", -111, -222);
+            trice8_3(Id(999981), "tst:trice8_3 %d %d %d\n", -111, -222, -3);
+            trice8_4(Id(999980), "tst:trice8_4 %d %d %d %d\n", -111, -222, -3, -4);
+            trice8_5(Id(999979), "tst:trice8_5 %d %d %d %d %d\n", -111, -222, -3, -4, -5);
+            trice8_6(Id(999978), "tst:trice8_6 %d %d %d %d %d %d\n", -111, -222, -3, -4, -5, -6);
+            trice8_7(Id(999977), "tst:trice8_7 %d %d %d %d %d %d %d\n", -111, -222, -3, -4, -5, -6, -7);
+            trice8_8(Id(999976), "tst:trice8_8 %d %d %d %d %d %d %d %d\n", -111, -222, -3, -4, -5, -6, -7, -8);
             break;
         case 7:
             trice16_1(Id(999975), "tst:trice16_1 %d\n", -111); // 1
@@ -313,40 +311,42 @@ void triceCheckSet(int index) {
             trice16_4(Id(999972), "tst:trice16_4 %d %d %d %d\n", -111, -222, -333, -444); // 4
             break;
         case 8:
-            trice32_1(Id(999971), "tst:trice32_1 %08x\n", 0x0123cafe); // 2
             trice32_1(Id(999970), "tst:trice32_1 %d\n", -111); // 2
-            trice32_2(Id(999969), "tst:trice32_2 %x %x\n", -111, -222); // 4
             trice32_2(Id(999968), "tst:trice32_2 %d %d\n", -111, -222); // 4
-            trice32_3(Id(999967), "tst:trice32_3 %x %x %x\n", -111, -222, -333); // 4
             trice32_3(Id(999966), "tst:trice32_3 %d %d %d\n", -111, -222, -333); // 4
-            trice32_4(Id(999965), "tst:trice32_4 %x %x %x %x\n", -111, -222, -333, -444); // 4
             trice32_4(Id(999964), "tst:trice32_4 %d %d %d %d\n", -111, -222, -333, -444); // 4
+            trice32_1(Id(999971), "tst:trice32_1 %08x\n", 0x0123cafe); // 2
+            trice32_2(Id(999969), "tst:trice32_2 %x %x\n", 0xfeedcafe, 0xcafe0123); // 4
+            trice32_3(Id(999967), "tst:trice32_3 %x %x %x\n", 0xaa001122, 0xbb112233, 0xcc223344); // 4
+            trice32_4(Id(999965), "tst:trice32_4 %x %x %x %x\n", 0x12345678, 0x9abcdef0, 0xfedcba98, 0x87654321); // 4
             break;
         case 9:
-            trice64_1(Id(999963), "tst:trice64_1 %d\n", -111); // 2
-            trice64_2(Id(999962), "tst:trice64_2 %d %d\n", -111, -222); // 4
+            trice64_1(Id(59010), "tst:trice64_1 %d\n", -111); // 2
+            trice64_2(Id(59011), "tst:trice64_2 %d %d\n", -111, -222); // 4
+            trice64_1(Id(60000), "tst:trice64_1 %x\n", 0x8765432112345678); // 2
+            trice64_2(Id(58010), "tst:trice64_2 %x %x\n", 0x13579bdffdb97531, 0xeca8642002468ace); // 4
             break;
         case 10:
-            trice0(Id(44690), "e:A");
-            trice0(Id(1471), "w:B");
-            trice0(Id(52563), "a:c");
-            trice0(Id(61604), "wr:d");
-            trice0(Id(39587), "rd:e\n");
-            trice0(Id(53436), "diag:f");
-            trice0(Id(32678), "d:G");
-            trice0(Id(13587), "t:H");
-            trice0(Id(8059), "time:i");
-            trice0(Id(26357), "message:J");
-            trice0(Id(2812), "dbg:k\n");
+            trice0(Id( 4361), "e:A");
+            trice0(Id(61148), "w:B");
+            trice0(Id(51175), "a:c");
+            trice0(Id(38433), "wr:d");
+            trice0(Id(19819), "rd:e\n");
+            trice0(Id(53400), "diag:f");
+            trice0(Id(25505), "d:G");
+            trice0(Id(53207), "t:H");
+            trice0(Id(34163), "time:i");
+            trice0(Id(35099), "message:J");
+            trice0(Id(19680), "dbg:k\n");
             break;
         case 11:
-            trice0(Id(43782), "1");
-            trice0(Id(31945), "2");
-            trice0(Id(57633), "3");
-            trice0(Id(32117), "4");
-            trice0(Id(3996), "e:7");
-            trice0(Id(6559), "m:12");
-            trice0(Id(30479), "m:123\n");
+            trice0(Id(44026), "1");
+            trice0(Id(27771), "2");
+            trice0(Id(14471), "3");
+            trice0(Id( 1869), "4");
+            trice0(Id(58735), "e:7");
+            trice0(Id(48828), "m:12");
+            trice0(Id(41422), "m:123\n");
             break;
         case 12:
             trice8_1(Id(999961), "tst:trice8_1 %d\n", 1);
@@ -415,4 +415,4 @@ void triceCheckSet(int index) {
         break;
     }
 }
-#endif
+

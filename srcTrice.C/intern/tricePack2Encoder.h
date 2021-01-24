@@ -70,25 +70,48 @@ IIIIIDNN 0010FFEF d0d0d0d0 d1d1d1d1 d2d2d2d2 d3d3d3d3// TRICE32_4
 
 \li 64-bit values follow in sequence optionally with a long count in case TRICE64_2.
 \code
-IIIII8NN d0d0d0d0 d0d0d0d0                           // TRICE64_1
+IIIII8NN d0d0d0d0 d0d0d0d0                          // TRICE64_1
 IIIIIDNN 0010FFEF d0d0d0d0d0d0d0d0 d1d1d1d1d1d1d1d1 // TRICE64_2
 \endcode
 */
 
-// TRICE_SYNC can be used for checks or payload filling. In is an invisible trice message.
+//! TRICE_SYNC can be used for checks or payload filling. In is an invisible trice message.
 #define TRICE_SYNC do{ \
     TRICE_ENTER_CRITICAL_SECTION \
     TRICE_HTON_U32PUSH( 0x89abcdef ); \
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
 
+//! trice_sync can be used for checks or payload filling. In is an invisible trice message.
 TRICE_INLINE void trice_sync( void ){
     TRICE_SYNC;
 }
 
-//! trace id protected (outside critical section), 16 bit data are 0
+// triceHeader is only for internal usage.
+TRICE_INLINE void triceHeader( uint32_t header ){
+    TRICE_HTON_U32PUSH( header|triceCycle );
+    triceCycle++; 
+}
+
+//! triceID is an internal helper.
+TRICE_INLINE void triceID( uint32_t id ){
+    TRICE_ENTER_CRITICAL_SECTION
+    triceHeader( id );
+    TRICE_LEAVE_CRITICAL_SECTION
+}
+
+//! trice0 does trace id protected (outside critical section).
 //! \param id trice identifier
 //! \param pFmt formatstring for trice
+#define trice0( id, pFmt ) do{ \
+    triceID( id ); \
+} while(0)
+
+
+//! TRICE0 does trace id protected (outside critical section).
+//! \param id trice identifier
+//! \param pFmt formatstring for trice
+//! This is a time optinized implementation.
 #define TRICE0( id, pFmt ) do{ \
     TRICE_ENTER_CRITICAL_SECTION \
     TRICE_HTON_U32PUSH( id|triceCycle ); \
@@ -96,21 +119,32 @@ TRICE_INLINE void trice_sync( void ){
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
 
-// trice_header is only for internal usage.
-TRICE_INLINE void trice_header( uint32_t header ){
-    TRICE_HTON_U32PUSH( header|triceCycle );
-    triceCycle++; 
+//! trice18 is an internal helper.
+TRICE_INLINE void trice18( uint8_t d0 ){
+    TRICE_HTON_U32PUSH( (uint8_t)d0 );
 }
 
-TRICE_INLINE void trice0( uint32_t id, char* pFmt ){
+//! trice81 is an internal helper.
+TRICE_INLINE void trice81( uint32_t id, uint8_t d0 ){
     TRICE_ENTER_CRITICAL_SECTION
-    trice_header( id );
+    triceHeader( id|0x0100 );
+    trice18( d0 );
     TRICE_LEAVE_CRITICAL_SECTION
 }
-//! trace id protected (outside critical section)
+
+//! trice8_1 does trace id and 8-bit value protected (outside critical section).
 //! \param id trice identifier
 //! \param pFmt formatstring for trice
 //! \param 8-bit payload
+#define trice8_1( id, pFmt, d0 ) do{ \
+    trice81( (uint32_t)id, (uint8_t)d0 ); \
+} while(0) 
+
+//! TRICE8_1 does trace id and 8-bit value protected (outside critical section).
+//! \param id trice identifier
+//! \param pFmt formatstring for trice
+//! \param 8-bit payload
+//! This is a time optinized implementation.
 #define TRICE8_1( id, pFmt, d0 ) do{ \
     TRICE_ENTER_CRITICAL_SECTION \
     TRICE_HTON_U32PUSH( id|0x0100|triceCycle ); \
@@ -119,24 +153,34 @@ TRICE_INLINE void trice0( uint32_t id, char* pFmt ){
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
 
-
-//! trice_18 is an internal helper.
-TRICE_INLINE void trice_18( int8_t d0 ){
-    TRICE_HTON_U32PUSH( (uint8_t)d0 );
+//! trice28 is an internal helper.
+TRICE_INLINE void trice28( uint8_t d0 , uint8_t d1 ){
+    TRICE_HTON_U32PUSH( TRICE_U8_JOIN(d0,d1) ); 
 }
 
-TRICE_INLINE void trice8_1( uint32_t id, char* pFmt, int8_t d0 ){
+//! trice82 is an internal helper.
+TRICE_INLINE void trice82( uint32_t id, uint8_t d0 , uint8_t d1 ){
     TRICE_ENTER_CRITICAL_SECTION
-    trice_header( id|0x0100 );
-    trice_18( d0 );
+    triceHeader( id|0x0200 );
+    trice28( d0, d1 );
     TRICE_LEAVE_CRITICAL_SECTION
 }
 
-//! trace id and 8-bit values protected (outside critical section)
+//! trice8_2 does trace id and 8-bit values protected (outside critical section)
 //! \param id trice identifier
 //! \param pFmt formatstring for trice
 //! \param d0 payload
 //! \param d1 payload
+#define trice8_2( id, pFmt, d0, d1 ) do{ \
+    trice82( (uint32_t)id, (uint8_t)d0, (uint8_t)d1 ); \
+} while(0) 
+
+//! TRICE8_2 does trace id and 8-bit values protected (outside critical section).
+//! \param id trice identifier
+//! \param pFmt formatstring for trice
+//! \param d0 payload
+//! \param d1 payload
+//! This is a time optinized implementation.
 #define TRICE8_2( id, pFmt, d0, d1 ) do{ \
     TRICE_ENTER_CRITICAL_SECTION \
     TRICE_HTON_U32PUSH( id|0x0200|triceCycle ); \
@@ -145,24 +189,36 @@ TRICE_INLINE void trice8_1( uint32_t id, char* pFmt, int8_t d0 ){
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
 
-
-TRICE_INLINE void trice_28( int8_t d0 , int8_t d1 ){
-    TRICE_HTON_U32PUSH( TRICE_U8_JOIN(d0,d1) ); 
+//! trice38 is an internal helper.
+TRICE_INLINE void trice38( uint8_t d0 , uint8_t d1, uint8_t d2){
+    TRICE_HTON_U32PUSH( ((uint32_t)TRICE_U8_JOIN( 0,d0)<<16) | TRICE_U8_JOIN(d1,d2) );
 }
 
-TRICE_INLINE void trice8_2( uint32_t id, char* pFmt, int8_t d0 , int8_t d1 ){
+//! trice83 is an internal helper.
+TRICE_INLINE void trice83( uint32_t id, uint8_t d0 , uint8_t d1, uint8_t d2 ){
     TRICE_ENTER_CRITICAL_SECTION
-    trice_header( id|0x0200 );
-    trice_28( d0, d1 );
+    triceHeader( id|0x0300 );
+    trice38( d0, d1, d2 );
     TRICE_LEAVE_CRITICAL_SECTION
 }
 
-//! trace id and 8-bit values protected (outside critical section)
+//! trice8_3 does trace id and 8-bit values protected (outside critical section).
 //! \param id trice identifier
 //! \param pFmt formatstring for trice
 //! \param d0 payload
 //! \param d1 payload
 //! \param d2 payload
+#define trice8_3( id, pFmt, d0, d1, d2 ) do{ \
+    trice83( (uint32_t)id, (uint8_t)d0, (uint8_t)d1, (uint8_t)d2 ); \
+} while(0) 
+
+//! TRICE8_3 does trace id and 8-bit values protected (outside critical section).
+//! \param id trice identifier
+//! \param pFmt formatstring for trice
+//! \param d0 payload
+//! \param d1 payload
+//! \param d2 payload
+//! This is a time optinized implementation.
 #define TRICE8_3( id, pFmt, d0, d1, d2 ) do{ \
     TRICE_ENTER_CRITICAL_SECTION \
     TRICE_HTON_U32PUSH( id|0x0300|triceCycle ); \
@@ -171,25 +227,38 @@ TRICE_INLINE void trice8_2( uint32_t id, char* pFmt, int8_t d0 , int8_t d1 ){
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
 
-
-TRICE_INLINE void trice_38( int8_t d0 , int8_t d1, int8_t d2){
-    TRICE_HTON_U32PUSH( ((uint32_t)TRICE_U8_JOIN( 0,d0)<<16) | TRICE_U8_JOIN(d1,d2) );
+//! trice48 is an internal helper.
+TRICE_INLINE void trice48( uint8_t d0 , uint8_t d1, uint8_t d2, uint8_t d3 ){
+    TRICE_HTON_U32PUSH( ((uint32_t)TRICE_U8_JOIN(d0,d1)<<16) | TRICE_U8_JOIN(d2,d3) );
 }
 
-TRICE_INLINE void trice8_3( uint32_t id, char* pFmt, int8_t d0 , int8_t d1, int8_t d2 ){
+//! trice84 is an internal helper.
+TRICE_INLINE void trice84( uint32_t id, uint8_t d0 , uint8_t d1, uint8_t d2, uint8_t d3 ){
     TRICE_ENTER_CRITICAL_SECTION
-    trice_header( id|0x0300 );
-    trice_38( d0, d1, d2 );
+    triceHeader( id|0x0400 );
+    trice48( d0, d1, d2, d3 );
     TRICE_LEAVE_CRITICAL_SECTION
 }
 
-//! trace id and 8-bit values protected (outside critical section)
+//! trice8_4 does trace id and 8-bit values protected (outside critical section).
 //! \param id trice identifier
 //! \param pFmt formatstring for trice
 //! \param d0 payload
 //! \param d1 payload
 //! \param d2 payload
 //! \param d3 payload
+#define trice8_4( id, pFmt, d0, d1, d2, d3 ) do{ \
+    trice84( (uint32_t)id, (uint8_t)d0, (uint8_t)d1, (uint8_t)d2, (uint8_t)d3 ); \
+} while(0) 
+
+//! TRICE8_4 does trace id and 8-bit values protected (outside critical section).
+//! \param id trice identifier
+//! \param pFmt formatstring for trice
+//! \param d0 payload
+//! \param d1 payload
+//! \param d2 payload
+//! \param d3 payload
+//! This is a time optinized implementation.
 #define TRICE8_4( id, pFmt, d0, d1, d2, d3 ) do{ \
     TRICE_ENTER_CRITICAL_SECTION \
     TRICE_HTON_U32PUSH( id|0x0400|triceCycle ); \
@@ -198,19 +267,16 @@ TRICE_INLINE void trice8_3( uint32_t id, char* pFmt, int8_t d0 , int8_t d1, int8
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
 
-//! trice_48 is an internal helper.
-TRICE_INLINE void trice_48( int8_t d0 , int8_t d1, int8_t d2, int8_t d3 ){
-    TRICE_HTON_U32PUSH( ((uint32_t)TRICE_U8_JOIN(d0,d1)<<16) | TRICE_U8_JOIN(d2,d3) );
-}
-
-TRICE_INLINE void trice8_4( uint32_t id, char* pFmt, int8_t d0 , int8_t d1, int8_t d2, int8_t d3 ){
+//! trice85 is an internal helper.
+TRICE_INLINE void trice85( uint32_t id, uint8_t d0 , uint8_t d1, uint8_t d2, uint8_t d3, uint8_t d4 ){
     TRICE_ENTER_CRITICAL_SECTION
-    trice_header( id|0x0400 );
-    trice_48( d0, d1, d2, d3 );
+    triceHeader( id|0x0500 );
+    trice48( d0, d1, d2, d3 );
+    trice18( d4 );
     TRICE_LEAVE_CRITICAL_SECTION
 }
 
-//! trace id and 8-bit values protected (outside critical section)
+//! trice8_5 does trace id and 8-bit values protected (outside critical section).
 //! \param id trice identifier
 //! \param pFmt formatstring for trice
 //! \param d0 payload
@@ -218,6 +284,19 @@ TRICE_INLINE void trice8_4( uint32_t id, char* pFmt, int8_t d0 , int8_t d1, int8
 //! \param d2 payload
 //! \param d3 payload
 //! \param d4 payload
+#define trice8_5( id, pFmt, d0, d1, d2, d3, d4 ) do{ \
+    trice85( (uint32_t)id, (uint8_t)d0, (uint8_t)d1, (uint8_t)d2, (uint8_t)d3, (uint8_t)d4 ); \
+} while(0) 
+
+//! TRICE8_5 does trace id and 8-bit values protected (outside critical section).
+//! \param id trice identifier
+//! \param pFmt formatstring for trice
+//! \param d0 payload
+//! \param d1 payload
+//! \param d2 payload
+//! \param d3 payload
+//! \param d4 payload
+//! This is a time optinized implementation.
 #define TRICE8_5( id, pFmt, d0, d1, d2, d3, d4 ) do{ \
     TRICE_ENTER_CRITICAL_SECTION \
     TRICE_HTON_U32PUSH( id|0x0500|triceCycle ); \
@@ -227,16 +306,16 @@ TRICE_INLINE void trice8_4( uint32_t id, char* pFmt, int8_t d0 , int8_t d1, int8
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
 
-
-TRICE_INLINE void trice8_5( uint32_t id, char* pFmt, int8_t d0 , int8_t d1, int8_t d2, int8_t d3, int8_t d4 ){
+//! trice86 is an internal helper.
+TRICE_INLINE void trice86( uint32_t id, uint8_t d0 , uint8_t d1, uint8_t d2, uint8_t d3, uint8_t d4, uint8_t d5 ){
     TRICE_ENTER_CRITICAL_SECTION
-    trice_header( id|0x0500 );
-    trice_48( d0, d1, d2, d3 );
-    trice_18( d4 );
+    triceHeader( id|0x0600 );
+    trice48( d0, d1, d2, d3 );
+    trice28( d4, d5 );
     TRICE_LEAVE_CRITICAL_SECTION
 }
 
-//! trace id and 8-bit values protected (outside critical section)
+//! trice8_6 does trace id and 8-bit values protected (outside critical section).
 //! \param id trice identifier
 //! \param pFmt formatstring for trice
 //! \param d0 payload
@@ -245,6 +324,20 @@ TRICE_INLINE void trice8_5( uint32_t id, char* pFmt, int8_t d0 , int8_t d1, int8
 //! \param d3 payload
 //! \param d4 payload
 //! \param d5 payload
+#define trice8_6( id, pFmt, d0, d1, d2, d3, d4, d5 ) do{ \
+    trice86( (uint32_t)id, (uint8_t)d0, (uint8_t)d1, (uint8_t)d2, (uint8_t)d3, (uint8_t)d4, (uint8_t)d5 ); \
+} while(0) 
+
+//! TRICE8_6 does trace id and 8-bit values protected (outside critical section).
+//! \param id trice identifier
+//! \param pFmt formatstring for trice
+//! \param d0 payload
+//! \param d1 payload
+//! \param d2 payload
+//! \param d3 payload
+//! \param d4 payload
+//! \param d5 payload
+//! This is a time optinized implementation.
 #define TRICE8_6( id, pFmt, d0, d1, d2, d3, d4, d5 ) do{ \
     TRICE_ENTER_CRITICAL_SECTION \
     TRICE_HTON_U32PUSH( id|0x0600|triceCycle ); \
@@ -254,16 +347,16 @@ TRICE_INLINE void trice8_5( uint32_t id, char* pFmt, int8_t d0 , int8_t d1, int8
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
 
-
-TRICE_INLINE void trice8_6( uint32_t id, char* pFmt, int8_t d0 , int8_t d1, int8_t d2, int8_t d3, int8_t d4, int8_t d5 ){
+//! trice87 is an internal helper.
+TRICE_INLINE void trice87( uint32_t id, uint8_t d0 , uint8_t d1, uint8_t d2, uint8_t d3, uint8_t d4, uint8_t d5, uint8_t d6 ){
     TRICE_ENTER_CRITICAL_SECTION
-    trice_header( id|0x0600 );
-    trice_48( d0, d1, d2, d3 );
-    trice_28( d4, d5 );
+    triceHeader( id|0x0700 );
+    trice48( d0, d1, d2, d3 );
+    trice38( d4, d5, d6 );
     TRICE_LEAVE_CRITICAL_SECTION
 }
 
-//! trace id and 8-bit values protected (outside critical section)
+//! TRICE8_7 does trace id and 8-bit values protected (outside critical section).
 //! \param id trice identifier
 //! \param pFmt formatstring for trice
 //! \param d0 payload
@@ -273,6 +366,21 @@ TRICE_INLINE void trice8_6( uint32_t id, char* pFmt, int8_t d0 , int8_t d1, int8
 //! \param d4 payload
 //! \param d5 payload
 //! \param d6 payload
+#define trice8_7( id, pFmt, d0, d1, d2, d3,  d4, d5, d6 ) do{ \
+    trice87( (uint32_t)id, (uint8_t)d0, (uint8_t)d1, (uint8_t)d2, (uint8_t)d3, (uint8_t)d4, (uint8_t)d5, (uint8_t)d6 ); \
+} while(0) 
+
+//! TRICE8_7 does trace id and 8-bit values protected (outside critical section).
+//! \param id trice identifier
+//! \param pFmt formatstring for trice
+//! \param d0 payload
+//! \param d1 payload
+//! \param d2 payload
+//! \param d3 payload
+//! \param d4 payload
+//! \param d5 payload
+//! \param d6 payload
+//! This is a time optinized implementation.
 #define TRICE8_7( id, pFmt, d0, d1, d2, d3, d4, d5, d6 ) do{ \
     TRICE_ENTER_CRITICAL_SECTION \
     TRICE_HTON_U32PUSH( id|0x0700|triceCycle ); \
@@ -282,15 +390,16 @@ TRICE_INLINE void trice8_6( uint32_t id, char* pFmt, int8_t d0 , int8_t d1, int8
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
 
-TRICE_INLINE void trice8_7( uint32_t id, char* pFmt, int8_t d0 , int8_t d1, int8_t d2, int8_t d3, int8_t d4, int8_t d5, int8_t d6 ){
+//! trice88 is an internal helper.
+TRICE_INLINE void trice88( uint32_t id, uint8_t d0 , uint8_t d1, uint8_t d2, uint8_t d3, uint8_t d4, uint8_t d5, uint8_t d6, uint8_t d7 ){
     TRICE_ENTER_CRITICAL_SECTION
-    trice_header( id|0x0700 );
-    trice_48( d0, d1, d2, d3 );
-    trice_38( d4, d5, d6 );
+    triceHeader( id|0x0800 );
+    trice48( d0, d1, d2, d3 );
+    trice48( d4, d5, d6, d7 );
     TRICE_LEAVE_CRITICAL_SECTION
 }
 
-//! trace id and 8-bit values protected (outside critical section)
+//! trice8_8 does trace id and 8-bit values protected (outside critical section).
 //! \param id trice identifier
 //! \param pFmt formatstring for trice
 //! \param d0 payload
@@ -301,6 +410,22 @@ TRICE_INLINE void trice8_7( uint32_t id, char* pFmt, int8_t d0 , int8_t d1, int8
 //! \param d5 payload
 //! \param d6 payload
 //! \param d7 payload
+#define trice8_8( id, pFmt, d0, d1, d2, d3, d4, d5, d6, d7 ) do{ \
+    trice88( (uint32_t)id, (uint8_t)d0, (uint8_t)d1, (uint8_t)d2, (uint8_t)d3, (uint8_t)d4, (uint8_t)d5, (uint8_t)d6, (uint8_t)d7 ); \
+} while(0) 
+
+//! TRICE8_8 does trace id and 8-bit values protected (outside critical section).
+//! \param id trice identifier
+//! \param pFmt formatstring for trice
+//! \param d0 payload
+//! \param d1 payload
+//! \param d2 payload
+//! \param d3 payload
+//! \param d4 payload
+//! \param d5 payload
+//! \param d6 payload
+//! \param d7 payload
+//! This is a time optinized implementation.
 #define TRICE8_8( id, pFmt, d0, d1, d2, d3, d4, d5, d6, d7 ) do{ \
     TRICE_ENTER_CRITICAL_SECTION \
     TRICE_HTON_U32PUSH( id|0x0800|triceCycle ); \
@@ -310,19 +435,32 @@ TRICE_INLINE void trice8_7( uint32_t id, char* pFmt, int8_t d0 , int8_t d1, int8
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
 
+//! trice116 is an internal helper.
+TRICE_INLINE void trice116( uint16_t d0 ){
+    TRICE_HTON_U32PUSH( (uint16_t)d0 ); ;
+}
 
-TRICE_INLINE void trice8_8( uint32_t id, char* pFmt, int8_t d0 , int8_t d1, int8_t d2, int8_t d3, int8_t d4, int8_t d5, int8_t d6, int8_t d7 ){
+//! trice161 is an internal helper.
+TRICE_INLINE void trice161( uint32_t id, uint16_t d0 ){
     TRICE_ENTER_CRITICAL_SECTION
-    trice_header( id|0x0800 );
-    trice_48( d0, d1, d2, d3 );
-    trice_48( d4, d5, d6, d7 );
+    triceHeader( id|0x0200 );
+    trice116( d0 );
     TRICE_LEAVE_CRITICAL_SECTION
 }
 
-//! trace id and 16-bit value protected (outside critical section)
+//! trice16_1 does trace id and 16-bit value protected (outside critical section).
 //! \param id trice identifier
 //! \param pFmt formatstring for trice
 //! \param d0 payload
+#define trice16_1( id, pFmt, d0 ) do{ \
+    trice161( (uint32_t)id, (uint16_t)d0 ); \
+} while(0) 
+
+//! TRICE16_1 does trace id and 16-bit value protected (outside critical section).
+//! \param id trice identifier
+//! \param pFmt formatstring for trice
+//! \param d0 payload
+//! This is a time optinized implementation.
 #define TRICE16_1( id, pFmt, d0 ) do{ \
     TRICE_ENTER_CRITICAL_SECTION \
     TRICE_HTON_U32PUSH( id|0x0200|triceCycle ); \
@@ -331,23 +469,34 @@ TRICE_INLINE void trice8_8( uint32_t id, char* pFmt, int8_t d0 , int8_t d1, int8
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
 
-//! trice_116 is an internal helper.
-TRICE_INLINE void trice_116( int16_t d0 ){
-    TRICE_HTON_U32PUSH( (uint16_t)d0 ); ;
+//! trice216 is an internal helper.
+TRICE_INLINE void trice216( uint16_t d0, uint16_t d1 ){
+    TRICE_HTON_U32PUSH( TRICE_U16_JOIN(d0,d1) );
 }
 
-TRICE_INLINE void trice16_1( uint32_t id, char* pFmt, int16_t d0 ){
+//! trice162 is an internal helper.
+TRICE_INLINE void trice162( uint32_t id, uint16_t d0, uint16_t d1 ){
     TRICE_ENTER_CRITICAL_SECTION
-    trice_header( id|0x0200 );
-    trice_116( d0 );
+    triceHeader( id|0x0400 );
+    trice216( d0, d1 );
     TRICE_LEAVE_CRITICAL_SECTION
 }
 
-//! trace id and 16-bit values protected (outside critical section)
+//! trice16_2 does trace id and 16-bit values protected (outside critical section).
 //! \param id trice identifier
 //! \param pFmt formatstring for trice
 //! \param d0 payload
 //! \param d1 payload
+#define trice16_2( id, pFmt, d0, d1 ) do{ \
+    trice162( (uint32_t)id, (uint16_t)d0, (uint16_t)d1 ); \
+} while(0) 
+
+//! TRICE16_2 does trace id and 16-bit values protected (outside critical section).
+//! \param id trice identifier
+//! \param pFmt formatstring for trice
+//! \param d0 payload
+//! \param d1 payload
+//! This is a time optinized implementation.
 #define TRICE16_2( id, pFmt, d0, d1 ) do{ \
     TRICE_ENTER_CRITICAL_SECTION \
     TRICE_HTON_U32PUSH( id|0x0400|triceCycle ); \
@@ -356,24 +505,32 @@ TRICE_INLINE void trice16_1( uint32_t id, char* pFmt, int16_t d0 ){
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
 
-//! trice_216 is an internal helper.
-TRICE_INLINE void trice_216( int16_t d0, int16_t d1 ){
-    TRICE_HTON_U32PUSH( TRICE_U16_JOIN(d0,d1) );
-}
-
-TRICE_INLINE void trice16_2( uint32_t id, char* pFmt, int16_t d0, int16_t d1 ){
+//! trice163 is an internal helper.
+TRICE_INLINE void trice163( uint32_t id, uint16_t d0, uint16_t d1, uint16_t d2 ){
     TRICE_ENTER_CRITICAL_SECTION
-    trice_header( id|0x0400 );
-    trice_216( d0, d1 );
+    triceHeader( id|0x0600 );
+    trice216( d0, d1 );
+    trice116( d2 );
     TRICE_LEAVE_CRITICAL_SECTION
 }
 
-//! trace id and 16-bit values protected (outside critical section)
+//! trice16_3 does trace id and 16-bit values protected (outside critical section).
 //! \param id trice identifier
 //! \param pFmt formatstring for trice
 //! \param d0 payload
 //! \param d1 payload
 //! \param d2 payload
+#define trice16_3( id, pFmt, d0, d1, d2 ) do{ \
+    trice163( (uint32_t)id, (uint16_t)d0, (uint16_t)d1, (uint16_t)d2 ); \
+} while(0) 
+
+//! TRICE16_3 does trace id and 16-bit values protected (outside critical section).
+//! \param id trice identifier
+//! \param pFmt formatstring for trice
+//! \param d0 payload
+//! \param d1 payload
+//! \param d2 payload
+//! This is a time optinized implementation.
 #define TRICE16_3( id, pFmt, d0, d1, d2 ) do{ \
     TRICE_ENTER_CRITICAL_SECTION \
     TRICE_HTON_U32PUSH( id|0x0600|triceCycle ); \
@@ -383,22 +540,34 @@ TRICE_INLINE void trice16_2( uint32_t id, char* pFmt, int16_t d0, int16_t d1 ){
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
 
-
-TRICE_INLINE void trice16_3( uint32_t id, char* pFmt, int16_t d0, int16_t d1, int16_t d2 ){
+//! trice164 is an internal helper.
+TRICE_INLINE void trice164( uint32_t id, uint16_t d0, uint16_t d1, uint16_t d2, uint16_t d3 ){
     TRICE_ENTER_CRITICAL_SECTION
-    trice_header( id|0x0600 );
-    trice_216( d0, d1 );
-    trice_116( d2 );
+    triceHeader( id|0x0800 );
+    trice216( d0, d1 );
+    trice216( d2, d3 );
     TRICE_LEAVE_CRITICAL_SECTION
 }
 
-//! trace id and 16-bit values protected (outside critical section)
+//! trice16_4 does trace id and 16-bit values protected (outside critical section).
 //! \param id trice identifier
 //! \param pFmt formatstring for trice
 //! \param d0 payload
 //! \param d1 payload
 //! \param d2 payload
 //! \param d3 payload
+#define trice16_4( id, pFmt, d0, d1, d2, d3 ) do{ \
+    trice164( (uint32_t)id, (uint16_t)d0, (uint16_t)d1, (uint16_t)d2, (uint16_t)d3 ); \
+} while(0) 
+
+//! TRICE16_4 does trace id and 16-bit values protected (outside critical section).
+//! \param id trice identifier
+//! \param pFmt formatstring for trice
+//! \param d0 payload
+//! \param d1 payload
+//! \param d2 payload
+//! \param d3 payload
+//! This is a time optinized implementation.
 #define TRICE16_4( id, pFmt, d0, d1, d2, d3 ) do{ \
     TRICE_ENTER_CRITICAL_SECTION \
     TRICE_HTON_U32PUSH( id|0x0800|triceCycle ); \
@@ -408,18 +577,50 @@ TRICE_INLINE void trice16_3( uint32_t id, char* pFmt, int16_t d0, int16_t d1, in
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
 
-TRICE_INLINE void trice16_4( uint32_t id, char* pFmt, int16_t d0, int16_t d1, int16_t d2, int16_t d3 ){
+//! trice123 is an internal helper.
+TRICE_INLINE void trice132( uint32_t d0 ){
+    TRICE_HTON_U32PUSH( d0 ); ;
+}
+
+//! trice223 is an internal helper.
+TRICE_INLINE void trice232( uint32_t d0, uint32_t d1 ){
+    trice132( d0 );
+    TRICE_HTON_U32PUSH( d1 );
+}
+
+//! trice323 is an internal helper.
+TRICE_INLINE void trice332( uint32_t d0, uint32_t d1, uint32_t d2 ){
+    trice232( d0, d1 );
+    TRICE_HTON_U32PUSH( d2 );
+}
+
+//! trice423 is an internal helper.
+TRICE_INLINE void trice432( uint32_t d0, uint32_t d1, uint32_t d2, uint32_t d3 ){
+    trice332( d0, d1, d2 );
+    TRICE_HTON_U32PUSH( d3 );
+}
+
+//! trice321 is an internal helper.
+TRICE_INLINE void trice321( uint32_t id, uint32_t d0 ){
     TRICE_ENTER_CRITICAL_SECTION
-    trice_header( id|0x0800 );
-    trice_216( d0, d1 );
-    trice_216( d2, d3 );
+    triceHeader( id|0x0400 );
+    trice132( d0 );
     TRICE_LEAVE_CRITICAL_SECTION
 }
 
-//! trace id and 32-bit value protected (outside critical section)
+//! trice32_1 does trace id and 32-bit value protected (outside critical section).
 //! \param id trice identifier
 //! \param pFmt formatstring for trice
 //! \param d0 payload
+#define trice32_1( id, pFmt, d0 ) do{ \
+    trice321( (uint32_t)id, (uint32_t)d0 ); \
+} while(0) 
+
+//! TRICE32_1 does trace id and 32-bit value protected (outside critical section).
+//! \param id trice identifier
+//! \param pFmt formatstring for trice
+//! \param d0 payload
+//! This is a time optinized implementation.
 #define TRICE32_1( id, pFmt, d0 ) do{ \
     TRICE_ENTER_CRITICAL_SECTION \
     TRICE_HTON_U32PUSH( id|0x0400|triceCycle ); \
@@ -428,42 +629,29 @@ TRICE_INLINE void trice16_4( uint32_t id, char* pFmt, int16_t d0, int16_t d1, in
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
 
-
-//! trice_123 is an internal helper.
-TRICE_INLINE void trice_132( int32_t d0 ){
-    TRICE_HTON_U32PUSH( d0 ); ;
-}
-
-//! trice_223 is an internal helper.
-TRICE_INLINE void trice_232( int32_t d0, uint32_t d1 ){
-    trice_132( d0 );
-    TRICE_HTON_U32PUSH( d1 );
-}
-
-//! trice_323 is an internal helper.
-TRICE_INLINE void trice_332( int32_t d0, uint32_t d1, uint32_t d2 ){
-    trice_232( d0, d1 );
-    TRICE_HTON_U32PUSH( d2 );
-}
-
-//! trice_423 is an internal helper.
-TRICE_INLINE void trice_432( int32_t d0, uint32_t d1, uint32_t d2, uint32_t d3 ){
-    trice_332( d0, d1, d2 );
-    TRICE_HTON_U32PUSH( d3 );
-}
-
-TRICE_INLINE void trice32_1( uint32_t id, char* pFmt, int32_t d0 ){
+//! trice322 is an internal helper.
+TRICE_INLINE void trice322( uint32_t id, uint32_t d0, uint32_t d1 ){
     TRICE_ENTER_CRITICAL_SECTION
-    trice_header( id|0x0400 );
-    trice_132( d0 );
+    triceHeader( id|0x0800 );
+    trice232( d0, d1 );
     TRICE_LEAVE_CRITICAL_SECTION
 }
 
-//! trace id and 32-bit values protected (outside critical section)
+//! trice32_2 does trace id and 32-bit values protected (outside critical section).
 //! \param id trice identifier
 //! \param pFmt formatstring for trice
 //! \param d0 payload
 //! \param d1 payload
+#define trice32_2( id, pFmt, d0, d1 ) do{ \
+    trice322( (uint32_t)id, (uint32_t)d0, (uint32_t)d1 ); \
+} while(0) 
+
+//! TRICE32_2 does trace id and 32-bit values protected (outside critical section).
+//! \param id trice identifier
+//! \param pFmt formatstring for trice
+//! \param d0 payload
+//! \param d1 payload
+//! This is a time optinized implementation.
 #define TRICE32_2( id, pFmt, d0, d1 ) do{ \
     TRICE_ENTER_CRITICAL_SECTION \
     TRICE_HTON_U32PUSH( id|0x0800|triceCycle ); \
@@ -473,19 +661,31 @@ TRICE_INLINE void trice32_1( uint32_t id, char* pFmt, int32_t d0 ){
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
 
-TRICE_INLINE void trice32_2( uint32_t id, char* pFmt, int32_t d0, int32_t d1 ){
+//! trice323 is an internal helper.
+TRICE_INLINE void trice323( uint32_t id, uint32_t d0, uint32_t d1, uint32_t d2 ){
     TRICE_ENTER_CRITICAL_SECTION
-    trice_header( id|0x0800 );
-    trice_232( d0, d1 );
+    triceHeader( id|0x0c00 );
+    trice332( d0, d1, d2 );
     TRICE_LEAVE_CRITICAL_SECTION
 }
 
-//! trace id and 32-bit values protected (outside critical section)
+//! trice32_3 does trace id and 32-bit values protected (outside critical section).
 //! \param id trice identifier
 //! \param pFmt formatstring for trice
 //! \param d0 payload
 //! \param d1 payload
 //! \param d2 payload
+#define trice32_3( id, pFmt, d0, d1, d2 ) do{ \
+    trice323( (uint32_t)id, (uint32_t)d0, (uint32_t)d1, (uint32_t)d2 ); \
+} while(0) 
+
+//! TRICE32_3 does trace id and 32-bit values protected (outside critical section).
+//! \param id trice identifier
+//! \param pFmt formatstring for trice
+//! \param d0 payload
+//! \param d1 payload
+//! \param d2 payload
+//! This is a time optinized implementation.
 #define TRICE32_3( id, pFmt, d0, d1, d2 ) do{ \
     TRICE_ENTER_CRITICAL_SECTION \
     TRICE_HTON_U32PUSH( id|0x0c00|triceCycle ); \
@@ -496,23 +696,37 @@ TRICE_INLINE void trice32_2( uint32_t id, char* pFmt, int32_t d0, int32_t d1 ){
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
 
+//! TRICE_LONGCOUNT is an internal helper.
+#define TRICE_LONGCOUNT( n ) (((n) << 16) | (0xffff & ~(n)) )
 
-TRICE_INLINE void trice32_3( uint32_t id, char* pFmt, int32_t d0, int32_t d1, int32_t d2 ){
+//! trice324 is an internal helper.
+TRICE_INLINE void trice324( uint32_t id, uint32_t d0, uint32_t d1, uint32_t d2, uint32_t d3 ){
     TRICE_ENTER_CRITICAL_SECTION
-    trice_header( id|0x0c00 );
-    trice_332( d0, d1, d2 );
+    triceHeader( id|0x0d00 );
+    trice132( TRICE_LONGCOUNT(16) ); // long count 16
+    trice432( d0, d1, d2, d3 );
     TRICE_LEAVE_CRITICAL_SECTION
 }
 
-#define TRICE_LONGCOUNT( n ) (((n) << 16) | (0xffff & ~(n)) )
-
-//! trace id and 32-bit values protected (outside critical section)
+//! trice32_4 does trace id and 32-bit values protected (outside critical section).
 //! \param id trice identifier
 //! \param pFmt formatstring for trice
 //! \param d0 payload
 //! \param d1 payload
 //! \param d2 payload
 //! \param d3 payload
+#define trice32_4( id, pFmt, d0, d1, d2, d3 ) do{ \
+    trice324( (uint32_t)id, (uint32_t)d0, (uint32_t)d1, (uint32_t)d2, (uint32_t)d3 ); \
+} while(0) 
+
+//! TRICE32_4 does trace id and 32-bit values protected (outside critical section).
+//! \param id trice identifier
+//! \param pFmt formatstring for trice
+//! \param d0 payload
+//! \param d1 payload
+//! \param d2 payload
+//! \param d3 payload
+//! This is a time optinized implementation.
 #define TRICE32_4( id, pFmt, d0, d1, d2, d3 ) do{ \
     TRICE_ENTER_CRITICAL_SECTION \
     TRICE_HTON_U32PUSH( id|0x0d00|triceCycle ); \
@@ -525,21 +739,29 @@ TRICE_INLINE void trice32_3( uint32_t id, char* pFmt, int32_t d0, int32_t d1, in
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
 
+#if 1 // TRICE_TRANSFER_ENDIANESS == TRICE_LITTLE_ENDIANESS // to do: adapt decoder
 
-TRICE_INLINE void trice32_4( uint32_t id, char* pFmt, int32_t d0, int32_t d1, int32_t d2, int32_t d3 ){
+//! trice641 is an internal helper.
+TRICE_INLINE void trice641( uint32_t id, uint64_t d0 ){
     TRICE_ENTER_CRITICAL_SECTION
-    trice_header( id|0x0d00 );
-    trice_132( TRICE_LONGCOUNT(16) ); // long count 16
-    trice_432( d0, d1, d2, d3 );
+    triceHeader( id|0x0800 );
+    trice232( (uint32_t)(d0>>32), (uint32_t)d0 );
     TRICE_LEAVE_CRITICAL_SECTION
 }
 
-#if 1 // TRICE_TRANSFER_ENDIANESS == TRICE_LITTLE_ENDIANESS
-
-//! trace id and 64-bit values protected (outside critical section)
+//! trice64_1 does trace id and 64-bit values protected (outside critical section).
 //! \param id trice identifier
 //! \param pFmt formatstring for trice
 //! \param d0 payload
+#define trice64_1( id, pFmt, d0 ) do{ \
+    trice641( (uint32_t)id, (uint64_t)d0 ); \
+} while(0)
+
+//! TRICE64_1 does trace id and 64-bit values protected (outside critical section).
+//! \param id trice identifier
+//! \param pFmt formatstring for trice
+//! \param d0 payload
+//! This is a time optinized implementation.
 #define TRICE64_1( id, pFmt, d0 ) do{ \
     TRICE_ENTER_CRITICAL_SECTION \
     TRICE_HTON_U32PUSH( id|0x0800|triceCycle ); \
@@ -549,18 +771,30 @@ TRICE_INLINE void trice32_4( uint32_t id, char* pFmt, int32_t d0, int32_t d1, in
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
 
-TRICE_INLINE void trice64_1( uint32_t id, char* pFmt, int64_t d0 ){
+//! trice642 is an internal helper.
+TRICE_INLINE void trice642( uint32_t id, uint64_t d0, uint64_t d1 ){
     TRICE_ENTER_CRITICAL_SECTION
-    trice_header( id|0x0800 );
-    trice_232( (uint32_t)(d0>>32), (uint32_t)d0 );
+    triceHeader( id|0x0d00 );
+    trice132( TRICE_LONGCOUNT(16) ); // long count 16
+    trice432( (uint32_t)(d0>>32), (uint32_t)d0, (uint32_t)(d1>>32), (uint32_t)d1 );
     TRICE_LEAVE_CRITICAL_SECTION
 }
 
-//! trace id and 64-bit values protected (outside critical section)
+//! trice64_2 does trace id and 64-bit values protected (outside critical section).
 //! \param id trice identifier
 //! \param pFmt formatstring for trice
 //! \param d0 payload
 //! \param d1 payload
+#define trice64_2( id, pFmt, d0, d1 ) do{ \
+    trice642( (uint32_t)id, (uint64_t)d0, (uint64_t)d1 ); \
+} while(0)
+
+//! TRICE64_2 does trace id and 64-bit values protected (outside critical section).
+//! \param id trice identifier
+//! \param pFmt formatstring for trice
+//! \param d0 payload
+//! \param d1 payload
+//! This is a time optinized implementation.
 #define TRICE64_2( id, pFmt, d0, d1 ) do{ \
     TRICE_ENTER_CRITICAL_SECTION \
     TRICE_HTON_U32PUSH( id|0x0d00|triceCycle ); \
@@ -572,22 +806,22 @@ TRICE_INLINE void trice64_1( uint32_t id, char* pFmt, int64_t d0 ){
     TRICE_HTON_U32PUSH( d1 ); \
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
-
-
-TRICE_INLINE void trice64_2( uint32_t id, char* pFmt, int64_t d0, int64_t d1 ){
-    TRICE_ENTER_CRITICAL_SECTION
-    trice_header( id|0x0d00 );
-    trice_132( TRICE_LONGCOUNT(16) ); // long count 16
-    trice_432( (uint32_t)(d0>>32), (uint32_t)d0, (uint32_t)(d1>>32), (uint32_t)d1 );
-    TRICE_LEAVE_CRITICAL_SECTION
-}
 
 #else // #if TRICE_TRANSFER_ENDIANESS == TRICE_LITTLE_ENDIANESS
 
+
+TRICE_INLINE void trice64_1( uint32_t id, uint64_t d0 ){
+    TRICE_ENTER_CRITICAL_SECTION
+    triceHeader( id|0x0800 );
+    trice232( (uint32_t)d0, (uint32_t)(d0>>32) );
+    TRICE_LEAVE_CRITICAL_SECTION
+}
+
 //! trace id and 64-bit values protected (outside critical section)
 //! \param id trice identifier
 //! \param pFmt formatstring for trice
 //! \param d0 payload
+//! This is a time optinized implementation.
 #define TRICE64_1( id, pFmt, d0 ) do{ \
     TRICE_ENTER_CRITICAL_SECTION \
     TRICE_HTON_U32PUSH( id|0x0800|triceCycle ); \
@@ -598,10 +832,11 @@ TRICE_INLINE void trice64_2( uint32_t id, char* pFmt, int64_t d0, int64_t d1 ){
 } while(0)
 
 
-TRICE_INLINE void trice64_1( uint32_t id, char* pFmt, int64_t d0 ){
+TRICE_INLINE void trice64_2( uint32_t id, uint64_t d0, uint64_t d1 ){
     TRICE_ENTER_CRITICAL_SECTION
-    trice_header( id|0x0800 );
-    trice_232( (uint32_t)d0, (uint32_t)(d0>>32) );
+    triceHeader( id|0x0d00 );
+    trice132( TRICE_LONGCOUNT(16) ); // long count 16
+    trice432( (uint32_t)d0, (uint32_t)(d0>>32), (uint32_t)d1, (uint32_t)(d1>>32) );
     TRICE_LEAVE_CRITICAL_SECTION
 }
 
@@ -610,6 +845,7 @@ TRICE_INLINE void trice64_1( uint32_t id, char* pFmt, int64_t d0 ){
 //! \param pFmt formatstring for trice
 //! \param d0 payload
 //! \param d1 payload
+//! This is a time optinized implementation.
 #define TRICE64_2( id, pFmt, d0, d1 ) do{ \
     TRICE_ENTER_CRITICAL_SECTION \
     TRICE_HTON_U32PUSH( id|0x0d00|triceCycle ); \
@@ -621,16 +857,6 @@ TRICE_INLINE void trice64_1( uint32_t id, char* pFmt, int64_t d0 ){
     TRICE_HTON_U32PUSH( (uint64_t)(d1)>>32 ); \
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
-
-
-TRICE_INLINE void trice64_2( uint32_t id, char* pFmt, int64_t d0, int64_t d1 ){
-    TRICE_ENTER_CRITICAL_SECTION
-    trice_header( id|0x0d00 );
-    trice_132( TRICE_LONGCOUNT(16) ); // long count 16
-    trice_432( (uint32_t)d0, (uint32_t)(d0>>32), (uint32_t)d1, (uint32_t)(d1>>32) );
-    TRICE_LEAVE_CRITICAL_SECTION
-}
-
 
 #endif // #else // #if TRICE_TRANSFER_ENDIANESS == TRICE_LITTLE_ENDIANESS
 
