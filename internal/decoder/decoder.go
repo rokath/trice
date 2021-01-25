@@ -101,7 +101,7 @@ type idFmt struct {
 	Strg string
 }
 
-// IDLookUp is the ID to format info translation map
+// IDLookUp is the ID-to-format info translation map
 type IDLookUp map[int]idFmt
 
 // UnmarshalTriceIDList extracts the trice ID list byte slice to an items slice.
