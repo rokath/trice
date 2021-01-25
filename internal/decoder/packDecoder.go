@@ -28,7 +28,7 @@ func NewPackDecoder(l []id.Item, in io.Reader, endian bool) Decoder {
 	p := &Pack{}
 	p.in = in
 	p.syncBuffer = make([]byte, 0, defaultSize)
-	p.lut = MakeLut(l)
+	p.lut = id.MakeLut(l)
 	p.endian = endian
 	return p
 }

@@ -7,7 +7,6 @@ package decoder
 import (
 	"bytes"
 	"encoding/binary"
-	"encoding/json"
 	"fmt"
 	"io"
 	"os"
@@ -50,13 +49,13 @@ type Decoder interface {
 
 // decoderData is the common data struct for all decoders.
 type decoderData struct {
-	in                io.Reader // inner reader
-	syncBuffer        []byte    // unprocessed bytes hold for next cycle
-	lut               IDLookUp  // id look-up map for translation
-	endian            bool      // littleEndian or bigEndian
-	trice             idFmt     // received trice
-	b                 []byte    // read buffer
-	bc                int       // trice specific bytes
+	in                io.Reader   // inner reader
+	syncBuffer        []byte      // unprocessed bytes hold for next cycle
+	lut               id.LookUp   // id look-up map for translation
+	endian            bool        // littleEndian or bigEndian
+	trice             id.TriceFmt // received trice
+	b                 []byte      // read buffer
+	bc                int         // trice specific bytes
 	lastInnerRead     time.Time
 	innerReadInterval time.Duration
 }
@@ -94,49 +93,6 @@ type decoderData struct {
 func (p *decoderData) setInput(r io.Reader) {
 	p.in = r
 }
-
-// idFmt contains the ID mapped information needed for decoding.
-type idFmt struct {
-	Type string
-	Strg string
-}
-
-// IDLookUp is the ID-to-format info translation map
-type IDLookUp map[int]idFmt
-
-// UnmarshalTriceIDList extracts the trice ID list byte slice to an items slice.
-// til is a result of a read til.json file or is a converted test string.
-// til can change during runtime, when an "trice update" occurs.
-// Just in case til is not consistent the err value is not nil.
-func UnmarshalTriceIDList(til []byte) (list []id.Item, err error) {
-	if 0 < len(til) {
-		err = json.Unmarshal(til, &list)
-	}
-	return
-}
-
-// MakeLut returns a trice ID lookup map.
-func MakeLut(list []id.Item) (lut IDLookUp) {
-	// create look-up map
-	lut = make(IDLookUp)
-	// to do: add timestamp evaluation
-	for _, item := range list {
-		k := item.ID
-		value := idFmt{Type: item.FmtType, Strg: item.FmtStrg}
-		lut[k] = value
-	}
-	return
-}
-
-//  // newIDLut assumes til as JSON formatted input and returns a map for trice ID to fmt string translation.
-//  func newIDLut(til []byte) (IDLookUp, error) {
-//  	list, err := UnmarshalTriceIDList(til)
-//  	if nil != err {
-//  		return nil, err
-//  	}
-//  	lut := MakeLut(list) // create look-up map
-//  	return lut, nil
-//  }
 
 // Translate performs the trice log task.
 // Bytes are read with rc. Then according decoder.Encoding are translated into strings.

@@ -5,7 +5,7 @@
 
 ## Current state
 
-- No config file implemented yet.
+- No config file implemented yet. But all other commands are working.
 - All following information about config files are just ideas.
 - The config file can contain one or several subcommands and flags:
   - If exactly one subcommand in config file: No need to to be specified in the command line.
@@ -17,11 +17,11 @@
 - The **trice** command accepts one and only one sub-command (which can be inside the config file) followed by optional flags: `trice [s|subcommand [-f|flag [value]] [...]]`
 - The flags start with a single dash and are boolean or need a value separated by space or `=`. 
 - Flags in square brackets `[]` are optional. If omitted they have a default value depending on the context.
-- Some flags are multi-flags. That means they can occur several times.
+- Some flags can occur several times. Check with `trice h` for multi-flags. 
 - Command line subcommand and flags are overwriting config file values.
 - A subcommand in the command line is the selected subcommand in config files if there is any.
 - You can place different subcommands with flags in a config file and specify only a subcommand in the command line for selection, like `trice u` and `trice l`.
-- For example when adding `trice u [...]` to toolchain with a config file only `trice` needs to be started once for logging.
+- `trice l [...]` needs to be started only once for a development session. For example when running `trice u [...]` (in the toolchain), the still active trice logger detects til.json changes and re-reads the list automatically.
 
 ### `trice [...]`
 
@@ -53,7 +53,7 @@ Update IDs in scource code and ID list.
 
 Use filename as config file and ignore all config files named *trice.conf*. If filename is *[path/]trice.conf* no other *trice.conf* is evaluated and it is searched only in the current directory or the specified path location. The config file must contain one and only one subcommand or a subcommand must be inside the command line.
 
-### `trice v|version [-lg|logfile off|filename]`
+### `trice v|version [-l|logfile off|filename]`
 
 Show trice version. To log version information in a file use -lg filename. Default is off. This can be useful for automatic logging.
 
@@ -61,11 +61,11 @@ Show trice version. To log version information in a file use -lg filename. Defau
 
 Scan for available COMports.
 
-### `trice ds|displayserver [-lg|logfile off|filename] [-color [off|alternate]] [-s|source IPaddr:IPport]`
+### `trice ds|displayserver [-l|logfile off|filename] [-color [off|alternate]] [-s|source IPaddr:IPport]`
 
 Start as display server which can serve as destination for several trice instances.
 
-- `-lg|logfile off|filename`
+- `-l|logfile off|filename`
   - Default filename is "2006-01-02_1504-05_trice.log" with the current time. To switch logging off set to "off".
 - `-color [off|alternate]`
   - Switch color off or use alternate color set.
@@ -80,7 +80,7 @@ This can be handy if display server is not visible or on a remote mashine.
 Log trice messages from -source and display them line by line. Default destination is current display.
 
 - `-c|config off|filename` Default filename is *trice.conf*. It is searched on top down places. Last config overloads previous settings. Command line flags overload config settings and "off" ignores *trice.conf* files.
-- `-lg|logfile off|filename` Default filename is `2006-01-02_1504-05_trice.log` with current time. To switch logging off set to "off". When -remote switch is active the default is "off", because the destination logs then.
+- `-l|logfile off|filename` Default filename is `2006-01-02_1504-05_trice.log` with current time. To switch logging off set to "off". When -remote switch is active the default is "off", because the destination logs then.
 - `-ts off|UTCmicro` Default added timestamp is LOCmicro. Use this flag to change to UTC or to switch timestamps off.
 - `-f|format b|bare|w|wrap` Default format is bare. That means a basic trice message is 4 bytes: 2 bytes ID and 2 bytes value. It is faster on the target, but cyclic sync messages are reccommended (**TRICE_SYNC**). The wrap format contains bare and 4 bytes additional control information. This allowes automatic host syncing and additional protocols on the same channel.
 - `-k|key password [-show]` Decrypt encrypted trice messages if password is not "none". The switch -show displays the passphrase.

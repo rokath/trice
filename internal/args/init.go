@@ -102,7 +102,7 @@ func init() {
 `+boolInfo) // flag
 
 	fsScUpdate.Var(&id.Srcs, "src", `Source dir or file, It has one parameter. Not usable in the form "-src *.c".
-This is a multi-flag switch. It can be used several times and for directories and also for files. 
+This is a multi-flag switch. It can be used several times for directories and also for files. 
 Example: "trice u  -dry-run -v -src ./test/ -src srcTrice.C/trice.h" will scan all C|C++ header and 
 source code files inside directory ./test and scan also file trice.h inside srcTrice.C directory. 
 Without the "-dry-run" switch it would create|extend a list file til.json in the current directory.

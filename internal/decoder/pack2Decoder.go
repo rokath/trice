@@ -28,7 +28,7 @@ func NewPack2Decoder(l []id.Item, in io.Reader, endian bool) Decoder {
 	p := &Pack2{}
 	p.in = in
 	p.syncBuffer = make([]byte, 0, defaultSize)
-	p.lut = MakeLut(l)
+	p.lut = id.MakeLut(l)
 	p.endian = endian
 	p.syncPacket = "inf:[TRICE_SYNCPACKET 0x89abcdef]"
 	p.innerReadInterval = 100 * time.Millisecond

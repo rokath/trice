@@ -57,7 +57,9 @@ type List struct {
 	FnJSON string
 
 	// ItemList is a slice type containing the ID ItemList.
-	ItemList []Item
+	ItemList []Item // obsolete to do: remove
+
+	bytes []byte // file content
 }
 
 // New returns a pointer to a list struct which stays up-to-date in case the til.json file changes.
@@ -72,8 +74,64 @@ func New() (l *List) {
 func NewList(fnJSON string) *List {
 	p := &List{}
 	p.FnJSON = fnJSON
-	p.ItemList = make([]Item, 0, 65536)
+	p.ItemList = make([]Item, 0, 65536) // obsolete to do: remove
+
 	return p
+}
+
+// TriceFmt contains the ID mapped information needed for decoding.
+type TriceFmt struct {
+	Type string
+	Strg string
+}
+
+// LookUp is the ID-to-format info translation map
+type LookUp map[int]TriceFmt
+
+// MakeLut returns a trice ID lookup map.
+func MakeLut(list []Item) (lut LookUp) {
+	// create look-up map
+	lut = make(LookUp)
+	// to do: add timestamp evaluation
+	for _, item := range list {
+		k := item.ID
+		value := TriceFmt{Type: item.FmtType, Strg: item.FmtStrg}
+		lut[k] = value
+	}
+	return
+}
+
+// LutToJSON converts lut into JSON byte slice
+func LutToJSON(lut LookUp) ([]byte, error) {
+	return json.MarshalIndent(lut, "", "\t")
+}
+
+// JSONToLut converts JSON byte slice to lut
+func JSONToLut(jn []byte) (lut LookUp, err error) {
+	err = json.Unmarshal(jn, &lut)
+	return
+}
+
+// WriteLutToFileJSON writes lut into file fnJSON.
+func WriteLutToFileJSON(fn string, lut LookUp) (err error) {
+	var b []byte
+	b, err = LutToJSON(lut)
+	msg.FatalOnErr("", err)
+	var f *os.File
+	f, err = os.Create(fn)
+	msg.FatalOnErr(fn, err)
+	defer func() {
+		err = f.Close()
+	}()
+	_, err = f.Write(b)
+	return
+}
+
+// ReadLutFromFileJSON reads file fnJSON into lut.
+func ReadLutFromFileJSON(fnJSON string) (lut LookUp, err error) {
+	lut = make(LookUp, 1000)
+	err = nil
+	return
 }
 
 // ReadListFile reads idlist file in internal struct and starts a file watcher.
@@ -88,6 +146,7 @@ func (p *List) ReadListFile() {
 			err = json.Unmarshal(b, &(p.ItemList))
 			msg.FatalOnErr("", err)
 		}
+		p.bytes = b
 	}
 	if true == Verbose {
 		fmt.Println("Read ID List file", p.FnJSON, "with", len(p.ItemList), "items.")

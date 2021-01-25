@@ -23,7 +23,7 @@ func NewEscDecoder(l []id.Item, in io.Reader, endian bool) Decoder {
 	p := &Esc{}
 	p.in = in
 	p.syncBuffer = make([]byte, 0, defaultSize)
-	p.lut = MakeLut(l)
+	p.lut = id.MakeLut(l)
 	p.endian = endian // esc format is only big endian
 	return p
 }

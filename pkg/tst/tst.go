@@ -24,6 +24,17 @@ import (
 	"github.com/udhos/equalfile"
 )
 
+// TempFileName returns a temporary file name based on pattern.
+// pattern should contain at least an asterics. Example: "trice-*.bin"
+func TempFileName(pattern string) (s string) {
+	tempFileHandle, e := ioutil.TempFile(os.TempDir(), pattern) // opens for read and write
+	msg.InfoOnErr("", e)
+	s = tempFileHandle.Name()
+	msg.InfoOnErr("", tempFileHandle.Close())
+	msg.InfoOnErr(s, os.Remove(s) )
+	return
+}
+
 // CaptureStdOut captures stdout and returns it as string.
 func CaptureStdOut(f func()) string {
 

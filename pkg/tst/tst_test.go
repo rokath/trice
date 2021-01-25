@@ -7,12 +7,22 @@ package tst_test
 import (
 	"io/ioutil"
 	"os"
+	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 
 	"github.com/rokath/trice/pkg/tst"
 )
+
+func TestTempFileName(t *testing.T) {
+	s := tst.TempFileName("AB_*.CD")
+	b := filepath.Base(s)
+	tst.AssertTrue(t, strings.HasPrefix(b, "AB_"))
+	tst.AssertTrue(t, strings.HasSuffix(b, ".CD"))
+	tst.AssertTrue(t, len(s) > 10)
+}
 
 func TestEqual(t *testing.T) {
 	tst.Equal(t, 33, 33)
