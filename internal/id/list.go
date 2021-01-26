@@ -127,16 +127,16 @@ func WriteLutToFileJSON(fn string, lut LookUp) (err error) {
 	return
 }
 
-// ReadLutFromFileJSON reads file fnJSON into lut.
-func ReadLutFromFileJSON(fnJSON string) (lut LookUp, err error) {
-	lut = make(LookUp, 1000)
-	err = nil
-	return
-}
+// // ReadLutFromFileJSON reads file fnJSON into lut.
+// func ReadLutFromFileJSON(fnJSON string) (lut LookUp, err error) {
+// 	lut = make(LookUp, 1000)
+// 	err = nil
+// 	return
+// }
 
-// ReadListFile reads idlist file in internal struct and starts a file watcher.
+// ReadListFile reads id list file in internal struct and starts a file watcher.
 //
-// Just in case the idlist file gets updated, the file watcher updates the internals struct.
+// Just in case the id list file gets updated, the file watcher updates the internals struct.
 // This way trice needs not to be restarted during development process.
 func (p *List) ReadListFile() {
 	if "none" != p.FnJSON {
@@ -153,14 +153,14 @@ func (p *List) ReadListFile() {
 	}
 }
 
-// WriteListFile marshalls p.List to p.fnJSON.
+// WriteListFile marshals p.List to p.fnJSON.
 func (p *List) WriteListFile() {
 	b, err := json.MarshalIndent(p.ItemList, "", "\t")
 	msg.FatalOnErr("", err)
 	msg.FatalOnErr("", ioutil.WriteFile(p.FnJSON, b, 0644))
 }
 
-// ZeroTimestampCreated sets all timstamps 'created' to 0.
+// ZeroTimestampCreated sets all timestamps 'created' to 0.
 func (p *List) ZeroTimestampCreated() {
 	for i := range p.ItemList {
 		p.ItemList[i].Created = 0
@@ -190,7 +190,7 @@ func (p *List) newIDLegacyMethod() (id int) {
 start:
 	for { // this is good enough if id count is less than 2/3 of total count, otherwise it will take too long
 		id = 20 + rand.Intn(65535) // 2^16=65536, id 0 used for params, ids 1-19 reserved, 515 ids forbidden, so 65000 ids possible // BUG!!!!!!! Must be 65535-20 but many tests need to be adapted!!!!!!!!!!!!!!!!!!!!!!!
-		ih := uint8(id >> 8)       // todo: endianess
+		ih := uint8(id >> 8)       // todo: endianness
 		il := uint8(id)
 		if 0xef == ih || 0x89 == il || 0x89ab == id || 0xabcd == id || 0xcdef == id { // 515 ids forbidden, see bare.go
 			continue // next try
@@ -299,21 +299,21 @@ func (p *List) appendIfMissing(item Item, verbose bool) (int, bool) {
 			return item.ID, true
 		}
 		// Do not care about same format for different IDs, what could be done here.
-		// Having different IDs for identical TRICEs is more an advantage for debugging.
-		// If for some reason a huge amount of identical TRICEs should get identical
+		// Having different IDs for identical TRICE's is more an advantage for debugging.
+		// If for some reason a huge amount of identical TRICE's should get identical
 		// IDs this could be done here.
 	}
 	p.ItemList = append(p.ItemList, item)
 	return item.ID, true
 }
 
-// ExtendIDList returns id beause it could get changed when id is in List with different typ or fmts.
-// It is an exported function for simplyfing tests in other packets.
-func (p *List) ExtendIDList(id int, typ, fmts string, verbose bool) (int, bool) {
+// ExtendIDList returns id because it could get changed when id is in List with different typ or fmts.
+// It is an exported function for simplifying tests in other packets.
+func (p *List) ExtendIDList(id int, typ, fmt string, verbose bool) (int, bool) {
 	i := Item{
 		ID:      id,
 		FmtType: typ,
-		FmtStrg: fmts,
+		FmtStrg: fmt,
 		Created: int32(time.Now().Unix()),
 		Removed: 0,
 	}
@@ -336,7 +336,7 @@ func (p *List) Item(index int) Item {
 	return p.ItemList[index]
 }
 
-// ScZero does replace all ID's in sourc tree with 0
+// ScZero does replace all ID's in source tree with 0
 func ScZero(SrcZ string, cmd *flag.FlagSet) error {
 	if SrcZ == "" {
 		cmd.PrintDefaults()

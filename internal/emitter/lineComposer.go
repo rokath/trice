@@ -8,6 +8,8 @@ import (
 	"time"
 )
 
+const SyncPacketPattern = "inf:[TRICE_SYNC_PACKET 0x89abcdef]"
+
 // TriceLineComposer collects all partial strings forming one line.
 type TriceLineComposer struct {
 	lw              LineWriter // internal interface
@@ -47,7 +49,7 @@ func (p *TriceLineComposer) timestamp() string {
 // Write treats received buffer as a string.
 func (p *TriceLineComposer) Write(b []byte) (n int, err error) {
 	s := string(b)
-	if "inf:[TRICE_SYNCPACKET 0x89abcdef]" == s {
+	if SyncPacketPattern == s {
 		s = "" // don't show
 	}
 	return p.WriteString(s)

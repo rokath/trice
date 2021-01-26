@@ -10,7 +10,7 @@ import (
 	"github.com/rokath/trice/internal/id"
 )
 
-// Bare is the Decoding instance for bare encoded trices.
+// Bare is the Decoding instance for bare encoded trice's.
 type Bare struct {
 	decoderData
 	payload []int // value payload
@@ -53,7 +53,7 @@ func (p *Bare) Read(b []byte) (n int, err error) {
 		return
 	}
 	// Even err could be io.EOF some valid data possibly in p.syncBuffer.
-	// In case of file input (JLINK usage) a plug off is not detectable here.
+	// In case of file input (J-LINK usage) a plug off is not detectable here.
 	for {
 		if len(p.syncBuffer) < 4 {
 			return // wait
@@ -222,7 +222,7 @@ func (p *Bare) trice0() (n int, e error) {
 }
 
 func (p *Bare) trice81() (n int, e error) {
-	// to do: Evaluate p.trice.Strg for %u, change to %d and use uint8 than.
+	// to do: Evaluate p.trice.Strng for %u, change to %d and use uint8 than.
 	b0 := int8(p.payload[0])
 	n = copy(p.b, fmt.Sprintf(p.trice.Strg, b0))
 	p.payload = p.payload[:0]

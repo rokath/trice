@@ -40,8 +40,8 @@ var (
 // newDecoder abstracts the function type for a new decoder.
 type newDecoder func(l []id.Item, in io.Reader, endian bool) Decoder
 
-// Decoder is providing a byte reader returning decoded trices.
-// setInput allowes switching the input stream to a different source.
+// Decoder is providing a byte reader returning decoded trice's.
+// setInput allows switching the input stream to a different source.
 type Decoder interface {
 	io.Reader
 	setInput(io.Reader)
@@ -76,10 +76,10 @@ type decoderData struct {
 // 	return
 // }
 //
-// // Close is needed to satify the ReadCloser interface.
+// // Close is needed to satisfy the ReadCloser interface.
 // func (p *intervalReader) Close() error { return nil }
 //
-// // setInput allowes switching the input stream to a different source.
+// // setInput allows switching the input stream to a different source.
 // //
 // // This function is for easier testing with cycle counters.
 // func (p *decoderData) setInput(r io.ReadCloser) {
@@ -87,7 +87,7 @@ type decoderData struct {
 // 	p.in = r
 // }
 
-// setInput allowes switching the input stream to a different source.
+// setInput allows switching the input stream to a different source.
 //
 // This function is for easier testing with cycle counters.
 func (p *decoderData) setInput(r io.Reader) {
@@ -120,7 +120,7 @@ func Translate(sw *emitter.TriceLineComposer, list *id.List, rc io.ReadCloser) b
 		dec = NewBareDecoder(list.ItemList, NewBareReaderFromWrap(rc), bigEndian)
 	case "wrapl", "wrapL":
 		dec = NewBareDecoder(list.ItemList, NewBareReaderFromWrap(rc), littleEndian)
-	//case "bareXTEACrypted", "wrapXTEACrypted":
+	//case "bareXTEAEncrypted", "wrapXTEAEncrypted":
 	//	msg.FatalErr(cipher.SetUp())
 	//	fallthrough
 	default:
@@ -175,13 +175,13 @@ outer:
 
 /*
 func run0(sw *emitter.TriceLineComposer, sr StringsReader) error {
-	var sssiz int // to do: 1 for pack, 100 for esc
+	var size int // to do: 1 for pack, 100 for esc
 	if Encoding == "pack" {
-		sssiz = 1
+		size = 1
 	} else {
-		sssiz = 100
+		size = 100
 	}
-	ss := make([]string, sssiz)
+	ss := make([]string, size)
 	n, err := sr.StringsRead(ss)
 	if nil != err && io.EOF != err {
 		return err
@@ -193,7 +193,7 @@ func run0(sw *emitter.TriceLineComposer, sr StringsReader) error {
 }
 */
 
-// readU16 returns the 2 b bytes as uint16 according the specified endianess
+// readU16 returns the 2 b bytes as uint16 according the specified endianness
 func (p *decoderData) readU16(b []byte) uint16 {
 	if littleEndian == p.endian {
 		return binary.LittleEndian.Uint16(b)
@@ -201,7 +201,7 @@ func (p *decoderData) readU16(b []byte) uint16 {
 	return binary.BigEndian.Uint16(b)
 }
 
-// readU32 returns the 4 b bytes as uint32 according the specified endianess
+// readU32 returns the 4 b bytes as uint32 according the specified endianness
 func (p *decoderData) readU32(b []byte) uint32 {
 	if littleEndian == p.endian {
 		return binary.LittleEndian.Uint32(b)
@@ -209,7 +209,7 @@ func (p *decoderData) readU32(b []byte) uint32 {
 	return binary.BigEndian.Uint32(b)
 }
 
-// writeU32 returns the 4 bytes as uint32 in b according the specified endianess
+// writeU32 returns the 4 bytes as uint32 in b according the specified endianness
 func (p *decoderData) writeU32(v uint32) (b *bytes.Buffer) {
 	var err error
 	b = new(bytes.Buffer)
@@ -222,7 +222,7 @@ func (p *decoderData) writeU32(v uint32) (b *bytes.Buffer) {
 	return
 }
 
-// readU64 returns the 8 b bytes as uint64 according the specified endianess
+// readU64 returns the 8 b bytes as uint64 according the specified endianness
 func (p *decoderData) readU64(b []byte) uint64 {
 	if littleEndian == p.endian {
 		return binary.LittleEndian.Uint64(b)

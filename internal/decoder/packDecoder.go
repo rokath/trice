@@ -7,12 +7,13 @@ import (
 	"fmt"
 	"io"
 
+	"github.com/rokath/trice/internal/emitter"
 	"github.com/rokath/trice/internal/id"
 )
 
-const (
-	syncPacket = "inf:[TRICE_SYNCPACKET 0x89abcdef]"
-)
+// const (
+// 	syncPacket = emitter.SyncPacketPattern
+// )
 
 // Pack is the Decoding instance for bare encoded trices.
 type Pack struct {
@@ -430,7 +431,7 @@ func (p *Pack) trice642() (n int, e error) {
 }
 
 func (p *Pack) syncTrice() (n int, e error) {
-	n = copy(p.b, syncPacket)
+	n = copy(p.b, emitter.SyncPacketPattern)
 	p.rub(4)
 	return
 }

@@ -8,6 +8,7 @@ import (
 	"io"
 	"time"
 
+	"github.com/rokath/trice/internal/emitter"
 	"github.com/rokath/trice/internal/id"
 )
 
@@ -30,7 +31,7 @@ func NewPack2Decoder(l []id.Item, in io.Reader, endian bool) Decoder {
 	p.syncBuffer = make([]byte, 0, defaultSize)
 	p.lut = id.MakeLut(l)
 	p.endian = endian
-	p.syncPacket = "inf:[TRICE_SYNCPACKET 0x89abcdef]"
+	p.syncPacket = emitter.SyncPacketPattern
 	p.innerReadInterval = 100 * time.Millisecond
 	p.cycleErrorFlag = true // avoid cycle error message @ start
 	return p

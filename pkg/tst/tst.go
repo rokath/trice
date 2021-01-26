@@ -25,13 +25,14 @@ import (
 )
 
 // TempFileName returns a temporary file name based on pattern.
-// pattern should contain at least an asterics. Example: "trice-*.bin"
+// The file is created and deleted and only the name is delivered.
+// The pattern should contain at least an asterics. Example: myFile-*.bin"
 func TempFileName(pattern string) (s string) {
 	tempFileHandle, e := ioutil.TempFile(os.TempDir(), pattern) // opens for read and write
 	msg.InfoOnErr("", e)
 	s = tempFileHandle.Name()
 	msg.InfoOnErr("", tempFileHandle.Close())
-	msg.InfoOnErr(s, os.Remove(s) )
+	msg.InfoOnErr(s, os.Remove(s))
 	return
 }
 
