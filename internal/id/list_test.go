@@ -17,17 +17,25 @@ import (
 	"github.com/rokath/trice/pkg/tst"
 )
 
-func _TestLutToJSON(t *testing.T) {
-	lut := make(id.LookUp, 0)
-	lut[12] = id.TriceFmt{Type: "tt", Strg: "ss"}
-	lut[16] = id.TriceFmt{Type: "tt", Strg: "ss"}
-	lut[16] = id.TriceFmt{"tt3", "ss"}
-	exp := `{"12":{"Type":"tt","Strg":"ss"},"16":{"Type":"tt3","Strg":"ss"}}`
-	b, e := id.LutToJSON(lut)
-	tst.AssertNoErr(t, e)
-	act := string(b)
-	tst.EqualStrings(t, exp, act)
-}
+// func TestLutToJSON(t *testing.T) {
+// 	lut := make(id.LookUp, 0)
+// 	lut[12] = id.TriceFmt{Type: "tt", Strg: "ss"}
+// 	lut[16] = id.TriceFmt{Type: "tt", Strg: "ss"}
+// 	lut[16] = id.TriceFmt{"tt3", "ss"}
+// 	exp := `{
+// 	"12": {
+// 		"Type": "tt",
+// 		"Strg": "ss"
+// 	},
+// 	"16": {
+// 		"Type": "tt3",
+// 		"Strg": "ss"
+// 	}
+// }`
+// 	b, e := id.LutToJSON(lut)
+// 	tst.AssertNoErr(t, e)
+// 	act := string(b)
+// 	tst.Equal(t, exp, act)
 
 func TestJSONToLut(t *testing.T) {
 	jn := []byte(`{"12":{"Type":"tt","Strg":"ss"},"16":{"Type":"tt3","Strg":"ss"}}`)
@@ -38,17 +46,17 @@ func TestJSONToLut(t *testing.T) {
 	tst.EqualStrings(t, exp, act)
 }
 
-func TestWriteLutToFileJSON(t *testing.T) {
-	lut := make(id.LookUp, 0)
-	lut[12] = id.TriceFmt{Type: "tt", Strg: "ss"}
-	lut[16] = id.TriceFmt{Type: "tt", Strg: "ss"}
-	lut[16] = id.TriceFmt{"tt3", "ss"}
-	fnJSON := "TestWriteLutToFileJSON.json"
-	err := id.WriteLutToFileJSON(fnJSON, lut)
-	if nil != err {
-		t.Fail()
-	}
-}
+// func TestWriteLutToFileJSON(t *testing.T) {
+// 	lut := make(id.LookUp, 0)
+// 	lut[12] = id.TriceFmt{Type: "tt", Strg: "ss"}
+// 	lut[16] = id.TriceFmt{Type: "tt", Strg: "ss"}
+// 	lut[16] = id.TriceFmt{"tt3", "ss"}
+// 	fnJSON := "TestWriteLutToFileJSON.json"
+// 	err := id.WriteLutToFileJSON(fnJSON, lut)
+// 	if nil != err {
+// 		t.Fail()
+// 	}
+// }
 
 // randomFile creates a random file containing s and returns its name.
 // See ioutil.Tempfile() for dir and pattern.

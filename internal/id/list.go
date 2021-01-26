@@ -11,8 +11,6 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	"io/ioutil"
-	"math/rand"
 	"os"
 	"time"
 
@@ -51,13 +49,25 @@ type Item struct {
 	Removed int32  `json:"removed"` // utc unix time of disappearing in processed src directory
 }
 
+/*
+// TriceFmt contains the ID mapped information needed for decoding.
+type TriceFmt struct {
+	Type string
+	Strg string
+}
+*/
+
+// LookUp is the ID-to-format info translation map.
+// The key is identical with ID inside Item.
+type LookUp map[int]Item
+
 // List is the trice ID List
 type List struct {
 	// FnJSON is the filename of the id List
 	FnJSON string
 
 	// ItemList is a slice type containing the ID ItemList.
-	ItemList []Item // obsolete to do: remove
+	//ItemList []Item // obsolete to do: remove
 
 	bytes []byte // file content
 }
@@ -72,34 +82,37 @@ func New() (l *List) {
 
 // NewList creates an ID List instance
 func NewList(fnJSON string) *List {
-	p := &List{}
-	p.FnJSON = fnJSON
-	p.ItemList = make([]Item, 0, 65536) // obsolete to do: remove
-
-	return p
+	fmt.Println("NewList")
+	return nil
 }
 
-// TriceFmt contains the ID mapped information needed for decoding.
-type TriceFmt struct {
-	Type string
-	Strg string
-}
-
-// LookUp is the ID-to-format info translation map
-type LookUp map[int]TriceFmt
+// // NewList creates an ID List instance
+// func NewList(fnJSON string) *List {
+// 	p := &List{}
+// 	p.FnJSON = fnJSON
+// 	p.ItemList = make([]Item, 0, 65536) // obsolete to do: remove
+//
+// 	return p
+// }
 
 // MakeLut returns a trice ID lookup map.
 func MakeLut(list []Item) (lut LookUp) {
-	// create look-up map
-	lut = make(LookUp)
-	// to do: add timestamp evaluation
-	for _, item := range list {
-		k := item.ID
-		value := TriceFmt{Type: item.FmtType, Strg: item.FmtStrg}
-		lut[k] = value
-	}
+	fmt.Println("MakeLut")
 	return
 }
+
+// // MakeLut returns a trice ID lookup map.
+// func MakeLut(list []Item) (lut LookUp) {
+// 	// create look-up map
+// 	lut = make(LookUp)
+// 	// to do: add timestamp evaluation
+// 	for _, item := range list {
+// 		k := item.ID
+// 		value := TriceFmt{Type: item.FmtType, Strg: item.FmtStrg}
+// 		lut[k] = value
+// 	}
+// 	return
+// }
 
 // LutToJSON converts lut into JSON byte slice
 func LutToJSON(lut LookUp) ([]byte, error) {
@@ -139,173 +152,205 @@ func WriteLutToFileJSON(fn string, lut LookUp) (err error) {
 // Just in case the id list file gets updated, the file watcher updates the internals struct.
 // This way trice needs not to be restarted during development process.
 func (p *List) ReadListFile() {
-	if "none" != p.FnJSON {
-		b, err := ioutil.ReadFile(p.FnJSON)
-		msg.FatalOnErr("May be need to create an empty file first? (Safety feature)", err)
-		if 0 < len(b) {
-			err = json.Unmarshal(b, &(p.ItemList))
-			msg.FatalOnErr("", err)
-		}
-		p.bytes = b
-	}
-	if true == Verbose {
-		fmt.Println("Read ID List file", p.FnJSON, "with", len(p.ItemList), "items.")
-	}
+	fmt.Println("ReadListFile")
 }
+
+// // ReadListFile reads id list file in internal struct and starts a file watcher.
+// //
+// // Just in case the id list file gets updated, the file watcher updates the internals struct.
+// // This way trice needs not to be restarted during development process.
+// func (p *List) ReadListFile() {
+// 	if "none" != p.FnJSON {
+// 		b, err := ioutil.ReadFile(p.FnJSON)
+// 		msg.FatalOnErr("May be need to create an empty file first? (Safety feature)", err)
+// 		if 0 < len(b) {
+// 			err = json.Unmarshal(b, &(p.ItemList))
+// 			msg.FatalOnErr("", err)
+// 		}
+// 		p.bytes = b
+// 	}
+// 	if true == Verbose {
+// 		fmt.Println("Read ID List file", p.FnJSON, "with", len(p.ItemList), "items.")
+// 	}
+// }
 
 // WriteListFile marshals p.List to p.fnJSON.
 func (p *List) WriteListFile() {
-	b, err := json.MarshalIndent(p.ItemList, "", "\t")
-	msg.FatalOnErr("", err)
-	msg.FatalOnErr("", ioutil.WriteFile(p.FnJSON, b, 0644))
+	fmt.Println("WriteListFile")
 }
+
+// // WriteListFile marshals p.List to p.fnJSON.
+// func (p *List) WriteListFile() {
+// 	b, err := json.MarshalIndent(p.ItemList, "", "\t")
+// 	msg.FatalOnErr("", err)
+// 	msg.FatalOnErr("", ioutil.WriteFile(p.FnJSON, b, 0644))
+// }
 
 // ZeroTimestampCreated sets all timestamps 'created' to 0.
 func (p *List) ZeroTimestampCreated() {
-	for i := range p.ItemList {
-		p.ItemList[i].Created = 0
-	}
+	fmt.Println("ZeroTimestampCreated")
 }
+
+// // ZeroTimestampCreated sets all timestamps 'created' to 0.
+// func (p *List) ZeroTimestampCreated() {
+// 	for i := range p.ItemList {
+// 		p.ItemList[i].Created = 0
+// 	}
+// }
 
 // newID() gets a random ID not used so far.
 // If all IDs used, longest removed ID is reused (TODO)
 func (p *List) newID() (id int) {
-	switch SearchMethod {
-	case "legacy":
-		return p.newIDLegacyMethod()
-	case "random":
-		return p.newIDRandomMethod()
-	case "upward":
-		return p.newIDUpwardMethod()
-	case "downward":
-		return p.newIDDownwardMethod()
-	}
-	msg.Info(fmt.Sprint("ERROR:", SearchMethod, "is unknown ID search method."))
-	return 0
+	fmt.Println("newID")
+	return
 }
 
-// newIDLegacyMethod() gets a random ID not used so far.
-// If all IDs used, longest removed ID is reused (TODO)
-func (p *List) newIDLegacyMethod() (id int) {
-start:
-	for { // this is good enough if id count is less than 2/3 of total count, otherwise it will take too long
-		id = 20 + rand.Intn(65535) // 2^16=65536, id 0 used for params, ids 1-19 reserved, 515 ids forbidden, so 65000 ids possible // BUG!!!!!!! Must be 65535-20 but many tests need to be adapted!!!!!!!!!!!!!!!!!!!!!!!
-		ih := uint8(id >> 8)       // todo: endianness
-		il := uint8(id)
-		if 0xef == ih || 0x89 == il || 0x89ab == id || 0xabcd == id || 0xcdef == id { // 515 ids forbidden, see bare.go
-			continue // next try
-		}
-		if 0 == len(p.ItemList) {
-			return
-		}
-		for _, item := range p.ItemList { // todo: binary search
-			if id == item.ID {
-				goto start // id used
-			}
-			return
-		}
-	}
-}
+// // newID() gets a random ID not used so far.
+// // If all IDs used, longest removed ID is reused (TODO)
+// func (p *List) newID() (id int) {
+// 	switch SearchMethod {
+// 	case "legacy":
+// 		return p.newIDLegacyMethod()
+// 	case "random":
+// 		return p.newIDRandomMethod()
+// 	case "upward":
+// 		return p.newIDUpwardMethod()
+// 	case "downward":
+// 		return p.newIDDownwardMethod()
+// 	}
+// 	msg.Info(fmt.Sprint("ERROR:", SearchMethod, "is unknown ID search method."))
+// 	return 0
+// }
 
-func (p *List) newIDRandomMethod() (id int) {
-	id = LowerBound + rand.Intn(UpperBound-LowerBound)
-	if 0 == len(p.ItemList) {
-		return
-	}
-	for _, item := range p.ItemList { // todo: binary search
-		if id == item.ID { // id used
-			id = LowerBound + rand.Intn(UpperBound-LowerBound) // next try
-			continue
-		}
-		return
-	}
-	msg.Info("No free ID found.")
-	return 0
-}
+// // newIDLegacyMethod() gets a random ID not used so far.
+// // If all IDs used, longest removed ID is reused (TODO)
+// func (p *List) newIDLegacyMethod() (id int) {
+// start:
+// 	for { // this is good enough if id count is less than 2/3 of total count, otherwise it will take too long
+// 		id = 20 + rand.Intn(65535) // 2^16=65536, id 0 used for params, ids 1-19 reserved, 515 ids forbidden, so 65000 ids possible // BUG!!!!!!! Must be 65535-20 but many tests need to be adapted!!!!!!!!!!!!!!!!!!!!!!!
+// 		ih := uint8(id >> 8)       // todo: endianness
+// 		il := uint8(id)
+// 		if 0xef == ih || 0x89 == il || 0x89ab == id || 0xabcd == id || 0xcdef == id { // 515 ids forbidden, see bare.go
+// 			continue // next try
+// 		}
+// 		if 0 == len(p.ItemList) {
+// 			return
+// 		}
+// 		for _, item := range p.ItemList { // todo: binary search
+// 			if id == item.ID {
+// 				goto start // id used
+// 			}
+// 			return
+// 		}
+// 	}
+// }
 
-func (p *List) newIDUpwardMethod() (id int) {
-	id = LowerBound
-	if 0 == len(p.ItemList) {
-		return
-	}
-	for _, item := range p.ItemList { // todo: binary search
-		if id == item.ID { // id used
-			id++ // next ID
-			continue
-		}
-		break
-	}
-	if id < UpperBound {
-		LowerBound = id + 1 // new starting point
-	}
-	if id <= UpperBound {
-		return
-	}
-	msg.Info("No free ID found.")
-	return 0
-}
+// func (p *List) newIDRandomMethod() (id int) {
+// 	id = LowerBound + rand.Intn(UpperBound-LowerBound)
+// 	if 0 == len(p.ItemList) {
+// 		return
+// 	}
+// 	for _, item := range p.ItemList { // todo: binary search
+// 		if id == item.ID { // id used
+// 			id = LowerBound + rand.Intn(UpperBound-LowerBound) // next try
+// 			continue
+// 		}
+// 		return
+// 	}
+// 	msg.Info("No free ID found.")
+// 	return 0
+// }
 
-func (p *List) newIDDownwardMethod() (id int) {
-	id = UpperBound
-	if 0 == len(p.ItemList) {
-		return
-	}
-	for _, item := range p.ItemList { // todo: binary search
-		if id == item.ID { // id used
-			id-- // next ID
-			continue
-		}
-		break
-	}
-	if id > LowerBound {
-		UpperBound = id - 1 // new starting point
-	}
-	if id >= LowerBound {
-		return
-	}
-	msg.Info("No free ID found.")
-	return 0
-}
+// func (p *List) newIDUpwardMethod() (id int) {
+// 	id = LowerBound
+// 	if 0 == len(p.ItemList) {
+// 		return
+// 	}
+// 	for _, item := range p.ItemList { // todo: binary search
+// 		if id == item.ID { // id used
+// 			id++ // next ID
+// 			continue
+// 		}
+// 		break
+// 	}
+// 	if id < UpperBound {
+// 		LowerBound = id + 1 // new starting point
+// 	}
+// 	if id <= UpperBound {
+// 		return
+// 	}
+// 	msg.Info("No free ID found.")
+// 	return 0
+// }
+
+// func (p *List) newIDDownwardMethod() (id int) {
+// 	id = UpperBound
+// 	if 0 == len(p.ItemList) {
+// 		return
+// 	}
+// 	for _, item := range p.ItemList { // todo: binary search
+// 		if id == item.ID { // id used
+// 			id-- // next ID
+// 			continue
+// 		}
+// 		break
+// 	}
+// 	if id > LowerBound {
+// 		UpperBound = id - 1 // new starting point
+// 	}
+// 	if id >= LowerBound {
+// 		return
+// 	}
+// 	msg.Info("No free ID found.")
+// 	return 0
+// }
 
 // appendIfMissing is appending item to p.List.
 // It returns true if item was missing or changed, otherwise false.
 func (p *List) appendIfMissing(item Item, verbose bool) (int, bool) {
-	for _, e := range p.ItemList {
-		if e.ID == item.ID { // if id exists
-			if (e.FmtType == item.FmtType) && (e.FmtStrg == item.FmtStrg) { // identical
-				if 0 == e.Removed { // is active
-					return item.ID, false // known i, nothing todo
-				}
-				// id is inactive
-				e.Removed = 0 // i exists again, clear removal, so it is active again
-				return item.ID, true
-			}
-			// arriving here means a data difference for the identical id between the actual file
-			// and the ID List. So a new ID is generated and goes with the actual file information
-			// into the ID List. Also the ID inside the file must be replaced with the new ID.
-			// The legacy ID inside the ID List can not invalidated here because it is possibly
-			// used  on a different place in unchanged form. The ID invalidation could be done
-			// globally later in a separate action.
-			if verbose {
-				fmt.Println("Same ID", e.ID, "but not identical:", e.FmtType, "?", item.FmtType, "or", e.FmtStrg, "?", item.FmtStrg, "so get a new ID.")
-				fmt.Println(e)
-				fmt.Println(item)
-			}
-			item.ID = p.newID()
-			item.Created = int32(time.Now().Unix())
-			fmt.Println(item)
-			p.ItemList = append(p.ItemList, item)
-			// Need to change file! Therefore the (new) ID is delivered back.
-			return item.ID, true
-		}
-		// Do not care about same format for different IDs, what could be done here.
-		// Having different IDs for identical TRICE's is more an advantage for debugging.
-		// If for some reason a huge amount of identical TRICE's should get identical
-		// IDs this could be done here.
-	}
-	p.ItemList = append(p.ItemList, item)
-	return item.ID, true
+	fmt.Print("appendIfMissing")
+	return 0, false
 }
+
+// // appendIfMissing is appending item to p.List.
+// // It returns true if item was missing or changed, otherwise false.
+// func (p *List) appendIfMissing(item Item, verbose bool) (int, bool) {
+// 	for _, e := range p.ItemList {
+// 		if e.ID == item.ID { // if id exists
+// 			if (e.FmtType == item.FmtType) && (e.FmtStrg == item.FmtStrg) { // identical
+// 				if 0 == e.Removed { // is active
+// 					return item.ID, false // known i, nothing todo
+// 				}
+// 				// id is inactive
+// 				e.Removed = 0 // i exists again, clear removal, so it is active again
+// 				return item.ID, true
+// 			}
+// 			// arriving here means a data difference for the identical id between the actual file
+// 			// and the ID List. So a new ID is generated and goes with the actual file information
+// 			// into the ID List. Also the ID inside the file must be replaced with the new ID.
+// 			// The legacy ID inside the ID List can not invalidated here because it is possibly
+// 			// used  on a different place in unchanged form. The ID invalidation could be done
+// 			// globally later in a separate action.
+// 			if verbose {
+// 				fmt.Println("Same ID", e.ID, "but not identical:", e.FmtType, "?", item.FmtType, "or", e.FmtStrg, "?", item.FmtStrg, "so get a new ID.")
+// 				fmt.Println(e)
+// 				fmt.Println(item)
+// 			}
+// 			item.ID = p.newID()
+// 			item.Created = int32(time.Now().Unix())
+// 			fmt.Println(item)
+// 			p.ItemList = append(p.ItemList, item)
+// 			// Need to change file! Therefore the (new) ID is delivered back.
+// 			return item.ID, true
+// 		}
+// 		// Do not care about same format for different IDs, what could be done here.
+// 		// Having different IDs for identical TRICE's is more an advantage for debugging.
+// 		// If for some reason a huge amount of identical TRICE's should get identical
+// 		// IDs this could be done here.
+// 	}
+// 	p.ItemList = append(p.ItemList, item)
+// 	return item.ID, true
+// }
 
 // ExtendIDList returns id because it could get changed when id is in List with different typ or fmts.
 // It is an exported function for simplifying tests in other packets.
@@ -322,19 +367,32 @@ func (p *List) ExtendIDList(id int, typ, fmt string, verbose bool) (int, bool) {
 
 // Index returns the index of id inside p.List. If id is not found it returns -1.
 func (p *List) Index(id int) int {
-	for i := range p.ItemList {
-		iD := p.ItemList[i].ID
-		if id == iD {
-			return i
-		}
-	}
-	return -1
+	fmt.Println("Index")
+	return 0
 }
+
+// // Index returns the index of id inside p.List. If id is not found it returns -1.
+// func (p *List) Index(id int) int {
+// 	for i := range p.ItemList {
+// 		iD := p.ItemList[i].ID
+// 		if id == iD {
+// 			return i
+// 		}
+// 	}
+// 	return -1
+// }
 
 // Item returns the trice item on index from the List
 func (p *List) Item(index int) Item {
-	return p.ItemList[index]
+	fmt.Println("Item")
+	var i Item
+	return i
 }
+
+// // Item returns the trice item on index from the List
+// func (p *List) Item(index int) Item {
+// 	return p.ItemList[index]
+// }
 
 // ScZero does replace all ID's in source tree with 0
 func ScZero(SrcZ string, cmd *flag.FlagSet) error {
@@ -374,12 +432,18 @@ func ScUpdate(fnJSON string) error {
 
 // update does parse source tree, update IDs and is List
 func (p *List) update(dir string) error {
-	err := p.Update(dir, !DryRun, Verbose)
-	if nil != err {
-		return fmt.Errorf("failed update on %s with %s: %v", dir, p.FnJSON, err)
-	}
-	if Verbose {
-		fmt.Println(len(p.ItemList), "ID's in List", p.FnJSON)
-	}
+	fmt.Println("update")
 	return nil
 }
+
+// // update does parse source tree, update IDs and is List
+// func (p *List) update(dir string) error {
+// 	err := p.Update(dir, !DryRun, Verbose)
+// 	if nil != err {
+// 		return fmt.Errorf("failed update on %s with %s: %v", dir, p.FnJSON, err)
+// 	}
+// 	if Verbose {
+// 		fmt.Println(len(p.ItemList), "ID's in List", p.FnJSON)
+// 	}
+// 	return nil
+// }

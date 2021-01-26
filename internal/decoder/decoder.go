@@ -49,13 +49,13 @@ type Decoder interface {
 
 // decoderData is the common data struct for all decoders.
 type decoderData struct {
-	in                io.Reader   // inner reader
-	syncBuffer        []byte      // unprocessed bytes hold for next cycle
-	lut               id.LookUp   // id look-up map for translation
-	endian            bool        // littleEndian or bigEndian
-	trice             id.TriceFmt // received trice
-	b                 []byte      // read buffer
-	bc                int         // trice specific bytes
+	in                io.Reader // inner reader
+	syncBuffer        []byte    // unprocessed bytes hold for next cycle
+	endian            bool      // littleEndian or bigEndian
+	lut               id.LookUp // id look-up map for translation
+	trice             id.Item   //id.TriceFmt // received trice
+	b                 []byte    // read buffer
+	bc                int       // trice specific bytes count
 	lastInnerRead     time.Time
 	innerReadInterval time.Duration
 }
@@ -102,30 +102,30 @@ func Translate(sw *emitter.TriceLineComposer, list *id.List, rc io.ReadCloser) b
 
 	var dec Decoder //io.Reader
 	switch Encoding {
-	case "esc":
-		dec = NewEscDecoder(list.ItemList, rc, bigEndian)
-	case "pack":
-		dec = NewPackDecoder(list.ItemList, rc, bigEndian)
-	case "packl", "packL":
-		dec = NewPackDecoder(list.ItemList, rc, littleEndian)
-	case "pack2":
-		dec = NewPack2Decoder(list.ItemList, rc, bigEndian)
-	case "pack2l", "pack2L":
-		dec = NewPack2Decoder(list.ItemList, rc, littleEndian)
-	case "bare":
-		dec = NewBareDecoder(list.ItemList, rc, bigEndian)
-	case "barel", "bareL":
-		dec = NewBareDecoder(list.ItemList, rc, littleEndian)
-	case "wrap":
-		dec = NewBareDecoder(list.ItemList, NewBareReaderFromWrap(rc), bigEndian)
-	case "wrapl", "wrapL":
-		dec = NewBareDecoder(list.ItemList, NewBareReaderFromWrap(rc), littleEndian)
+	//	case "esc":
+	//		dec = NewEscDecoder(list.ItemList, rc, bigEndian)
+	//	case "pack":
+	//		dec = NewPackDecoder(list.ItemList, rc, bigEndian)
+	//	case "packl", "packL":
+	//		dec = NewPackDecoder(list.ItemList, rc, littleEndian)
+	//	case "pack2":
+	//		dec = NewPack2Decoder(list.ItemList, rc, bigEndian)
+	//	case "pack2l", "pack2L":
+	//		dec = NewPack2Decoder(list.ItemList, rc, littleEndian)
+	//	case "bare":
+	//		dec = NewBareDecoder(list.ItemList, rc, bigEndian)
+	//	case "barel", "bareL":
+	//		dec = NewBareDecoder(list.ItemList, rc, littleEndian)
+	//	case "wrap":
+	//		dec = NewBareDecoder(list.ItemList, NewBareReaderFromWrap(rc), bigEndian)
+	//	case "wrapl", "wrapL":
+	//		dec = NewBareDecoder(list.ItemList, NewBareReaderFromWrap(rc), littleEndian)
 	//case "bareXTEAEncrypted", "wrapXTEAEncrypted":
 	//	msg.FatalErr(cipher.SetUp())
 	//	fallthrough
 	default:
 		fmt.Println("unknown encoding ", Encoding)
-		return false // stop
+		//return false // stop
 	}
 
 	// prepare CTRL-C shutdown reaction

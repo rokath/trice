@@ -132,7 +132,7 @@ func (p *Pack2) Read(b []byte) (n int, err error) {
 	}
 	p.cycleErrorFlag = false
 	p.cycle = cycle // Set cycle for checking next trice here because all checks passed.
-	p.trice.Strg = cycleWarning + p.trice.Strg
+	p.trice.FmtStrg = cycleWarning + p.trice.FmtStrg
 	return p.sprintTrice(count)
 }
 
@@ -144,7 +144,7 @@ func (p *Pack2) readDataAndCheckPaddingBytes(cnt int) (ok bool) {
 	if cnt > 12 {
 		b = append(b[0:4], b[8:]...)
 	}
-	switch p.trice.Type {
+	switch p.trice.FmtType {
 	case "TRICE0", "trice0":
 		return true
 	case "TRICE32_4", "TRICE64_2", "trice32_4", "trice64_2":
@@ -173,7 +173,7 @@ func (p *Pack2) readDataAndCheckPaddingBytes(cnt int) (ok bool) {
 		}
 	default:
 		p.d0 = p.readU32(b[4:8])
-		switch p.trice.Type {
+		switch p.trice.FmtType {
 		case "TRICE8_1", "trice8_1":
 			ok = p.d0 < (1 << 8)
 		case "TRICE8_2", "TRICE16_1", "trice8_2", "trice16_1":
@@ -182,7 +182,7 @@ func (p *Pack2) readDataAndCheckPaddingBytes(cnt int) (ok bool) {
 			ok = p.d0 < (1 << 24)
 		default:
 			p.d1 = p.readU32(b[8:12])
-			switch p.trice.Type {
+			switch p.trice.FmtType {
 			case "TRICE8_5", "trice8_5":
 				ok = p.d1 < (1 << 8)
 			case "TRICE8_6", "TRICE16_3", "trice8_6", "trice16_3":
@@ -221,7 +221,7 @@ func (p *Pack2) bytesCountOk(cnt int) bool {
 // expectedByteCount returns expected byte count for triceType.
 // It returns -1 for an unknown count value and -2 for unknown triceType.
 func (p *Pack2) expectedByteCount() int {
-	switch p.trice.Type {
+	switch p.trice.FmtType {
 	case "TRICE0", "trice0":
 		return 0
 	case "TRICE8_1", "trice8_1":
@@ -254,7 +254,7 @@ func (p *Pack2) expectedByteCount() int {
 // sprintTrice generates the trice string.
 func (p *Pack2) sprintTrice(cnt int) (n int, e error) {
 	// ID and count are ok
-	switch p.trice.Type {
+	switch p.trice.FmtType {
 	case "TRICE0", "trice0":
 		return p.trice0()
 	case "TRICE8_1", "trice8_1":
@@ -296,12 +296,12 @@ func (p *Pack2) sprintTrice(cnt int) (n int, e error) {
 	case "TRICE_S", "trice_s":
 		return p.triceS(cnt)
 	default:
-		return p.outOfSync(fmt.Sprintf("Unexpected trice.Type %s", p.trice.Type))
+		return p.outOfSync(fmt.Sprintf("Unexpected trice.FmtType %s", p.trice.FmtType))
 	}
 }
 
 func (p *Pack2) triceS(cnt int) (n int, e error) {
-	n = copy(p.b, fmt.Sprintf(p.trice.Strg, string(p.syncBuffer[4:4+cnt])))
+	n = copy(p.b, fmt.Sprintf(p.trice.FmtStrg, string(p.syncBuffer[4:4+cnt])))
 	var ct int
 	ct = cnt + 3
 	ct &= ^3
@@ -310,14 +310,14 @@ func (p *Pack2) triceS(cnt int) (n int, e error) {
 }
 
 func (p *Pack2) trice0() (n int, e error) {
-	n = copy(p.b, fmt.Sprintf(p.trice.Strg))
+	n = copy(p.b, fmt.Sprintf(p.trice.FmtStrg))
 	p.rub(4)
 	return
 }
 
 func (p *Pack2) trice81() (n int, e error) {
 	b0 := int8(p.d0)
-	n = copy(p.b, fmt.Sprintf(p.trice.Strg, b0)) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
+	n = copy(p.b, fmt.Sprintf(p.trice.FmtStrg, b0)) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
 	p.rub(8)
 	return
 }
@@ -325,7 +325,7 @@ func (p *Pack2) trice81() (n int, e error) {
 func (p *Pack2) trice82() (n int, e error) {
 	b0 := int8(p.d0 >> 8)
 	b1 := int8(p.d0)
-	n = copy(p.b, fmt.Sprintf(p.trice.Strg, b0, b1))
+	n = copy(p.b, fmt.Sprintf(p.trice.FmtStrg, b0, b1))
 	p.rub(8)
 	return
 }
@@ -334,7 +334,7 @@ func (p *Pack2) trice83() (n int, e error) {
 	b0 := int8(p.d0 >> 16)
 	b1 := int8(p.d0 >> 8)
 	b2 := int8(p.d0)
-	n = copy(p.b, fmt.Sprintf(p.trice.Strg, b0, b1, b2))
+	n = copy(p.b, fmt.Sprintf(p.trice.FmtStrg, b0, b1, b2))
 	p.rub(8)
 	return
 }
@@ -344,7 +344,7 @@ func (p *Pack2) trice84() (n int, e error) {
 	b1 := int8(p.d0 >> 16)
 	b2 := int8(p.d0 >> 8)
 	b3 := int8(p.d0)
-	n = copy(p.b, fmt.Sprintf(p.trice.Strg, b0, b1, b2, b3))
+	n = copy(p.b, fmt.Sprintf(p.trice.FmtStrg, b0, b1, b2, b3))
 	p.rub(8)
 	return
 }
@@ -355,7 +355,7 @@ func (p *Pack2) trice85() (n int, e error) {
 	b2 := int8(p.d0 >> 8)
 	b3 := int8(p.d0)
 	b4 := int8(p.d1)
-	n = copy(p.b, fmt.Sprintf(p.trice.Strg, b0, b1, b2, b3, b4))
+	n = copy(p.b, fmt.Sprintf(p.trice.FmtStrg, b0, b1, b2, b3, b4))
 	p.rub(12)
 	return
 }
@@ -367,7 +367,7 @@ func (p *Pack2) trice86() (n int, e error) {
 	b3 := int8(p.d0)
 	b4 := int8(p.d1 >> 8)
 	b5 := int8(p.d1)
-	n = copy(p.b, fmt.Sprintf(p.trice.Strg, b0, b1, b2, b3, b4, b5))
+	n = copy(p.b, fmt.Sprintf(p.trice.FmtStrg, b0, b1, b2, b3, b4, b5))
 	p.rub(12)
 	return
 }
@@ -380,7 +380,7 @@ func (p *Pack2) trice87() (n int, e error) {
 	b4 := int8(p.d1 >> 16)
 	b5 := int8(p.d1 >> 8)
 	b6 := int8(p.d1)
-	n = copy(p.b, fmt.Sprintf(p.trice.Strg, b0, b1, b2, b3, b4, b5, b6))
+	n = copy(p.b, fmt.Sprintf(p.trice.FmtStrg, b0, b1, b2, b3, b4, b5, b6))
 	p.rub(12)
 	return
 }
@@ -394,14 +394,14 @@ func (p *Pack2) trice88() (n int, e error) {
 	b5 := int8(p.d1 >> 16)
 	b6 := int8(p.d1 >> 8)
 	b7 := int8(p.d1)
-	n = copy(p.b, fmt.Sprintf(p.trice.Strg, b0, b1, b2, b3, b4, b5, b6, b7))
+	n = copy(p.b, fmt.Sprintf(p.trice.FmtStrg, b0, b1, b2, b3, b4, b5, b6, b7))
 	p.rub(12)
 	return
 }
 
 func (p *Pack2) trice161() (n int, e error) {
 	d0 := int16(p.d0)
-	n = copy(p.b, fmt.Sprintf(p.trice.Strg, d0))
+	n = copy(p.b, fmt.Sprintf(p.trice.FmtStrg, d0))
 	p.rub(8)
 	return
 }
@@ -409,7 +409,7 @@ func (p *Pack2) trice161() (n int, e error) {
 func (p *Pack2) trice162() (n int, e error) {
 	d0 := int16(p.d0 >> 16)
 	d1 := int16(p.d0)
-	n = copy(p.b, fmt.Sprintf(p.trice.Strg, d0, d1))
+	n = copy(p.b, fmt.Sprintf(p.trice.FmtStrg, d0, d1))
 	p.rub(8)
 	return
 }
@@ -418,7 +418,7 @@ func (p *Pack2) trice163() (n int, e error) {
 	d0 := int16(p.d0 >> 16)
 	d1 := int16(p.d0)
 	d2 := int16(p.d1)
-	n = copy(p.b, fmt.Sprintf(p.trice.Strg, d0, d1, d2))
+	n = copy(p.b, fmt.Sprintf(p.trice.FmtStrg, d0, d1, d2))
 	p.rub(12)
 	return
 }
@@ -428,14 +428,14 @@ func (p *Pack2) trice164() (n int, e error) {
 	d1 := int16(p.d0)
 	d2 := int16(p.d1 >> 16)
 	d3 := int16(p.d1)
-	n = copy(p.b, fmt.Sprintf(p.trice.Strg, d0, d1, d2, d3))
+	n = copy(p.b, fmt.Sprintf(p.trice.FmtStrg, d0, d1, d2, d3))
 	p.rub(12)
 	return
 }
 
 func (p *Pack2) trice321() (n int, e error) {
 	d0 := int32(p.d0)
-	n = copy(p.b, fmt.Sprintf(p.trice.Strg, d0))
+	n = copy(p.b, fmt.Sprintf(p.trice.FmtStrg, d0))
 	p.rub(8)
 	return
 }
@@ -443,7 +443,7 @@ func (p *Pack2) trice321() (n int, e error) {
 func (p *Pack2) trice322() (n int, e error) {
 	d0 := int32(p.d0)
 	d1 := int32(p.d1)
-	n = copy(p.b, fmt.Sprintf(p.trice.Strg, d0, d1))
+	n = copy(p.b, fmt.Sprintf(p.trice.FmtStrg, d0, d1))
 	p.rub(12)
 	return
 }
@@ -452,7 +452,7 @@ func (p *Pack2) trice323() (n int, e error) {
 	d0 := int32(p.d0)
 	d1 := int32(p.d1)
 	d2 := int32(p.d2)
-	n = copy(p.b, fmt.Sprintf(p.trice.Strg, d0, d1, d2))
+	n = copy(p.b, fmt.Sprintf(p.trice.FmtStrg, d0, d1, d2))
 	p.rub(16)
 	return
 }
@@ -462,14 +462,14 @@ func (p *Pack2) trice324() (n int, e error) {
 	d1 := int32(p.d1)
 	d2 := int32(p.d2)
 	d3 := int32(p.d3)
-	n = copy(p.b, fmt.Sprintf(p.trice.Strg, d0, d1, d2, d3))
+	n = copy(p.b, fmt.Sprintf(p.trice.FmtStrg, d0, d1, d2, d3))
 	p.rubWithLongCount(20, 16)
 	return
 }
 
 func (p *Pack2) trice641() (n int, e error) {
 	d0 := (int64(p.d0) << 32) | int64(p.d1)
-	n = copy(p.b, fmt.Sprintf(p.trice.Strg, d0))
+	n = copy(p.b, fmt.Sprintf(p.trice.FmtStrg, d0))
 	p.rub(12)
 	return
 }
@@ -477,7 +477,7 @@ func (p *Pack2) trice641() (n int, e error) {
 func (p *Pack2) trice642() (n int, e error) {
 	d0 := (int64(p.d0) << 32) | int64(p.d1)
 	d1 := (int64(p.d2) << 32) | int64(p.d3)
-	n = copy(p.b, fmt.Sprintf(p.trice.Strg, d0, d1))
+	n = copy(p.b, fmt.Sprintf(p.trice.FmtStrg, d0, d1))
 	p.rubWithLongCount(20, 16)
 	return
 }

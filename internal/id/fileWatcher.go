@@ -55,8 +55,13 @@ func (p *List) FileWatcher() {
 
 // renewIDList clears the internal id List and reads it again
 func (p *List) renewIDList() {
-	if "none" != p.FnJSON {
-		p.ItemList = p.ItemList[:0]
-		p.ReadListFile()
-	}
+	fmt.Println("renewIDList")
 }
+
+// // renewIDList clears the internal id List and reads it again
+// func (p *List) renewIDList() {
+// 	if "none" != p.FnJSON {
+// 		p.ItemList = p.ItemList[:0]
+// 		p.ReadListFile()
+// 	}
+// }
