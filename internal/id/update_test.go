@@ -1,20 +1,9 @@
 // Copyright 2020 Thomas.Hoehenleitner [at] seerose.net
 // Use of this source code is governed by a license that can be found in the LICENSE file.
-
+// +build xxxyyy
 package id_test
 
-import (
-	"io/ioutil"
-	"math/rand"
-	"os"
-	"testing"
-
-	"github.com/stretchr/testify/assert"
-
-	"github.com/rokath/trice/internal/id"
-	"github.com/rokath/trice/pkg/tst"
-)
-
+/*
 func doUpdate1(t *testing.T, sOri, sExp []string, listExp string) {
 	rand.Seed(0)
 	p := id.NewList(randomFile("{}", "", "til*.json"))
@@ -119,3 +108,4 @@ func TestUpdatePrintfAdapter(t *testing.T) {
 	listExp := `[]`
 	doUpdate(t, sOri, sExp, listExp)
 }
+*/

@@ -1,10 +1,16 @@
 {
-	"12": {
-		"Type": "tt",
-		"Strg": "ss"
+	"111": {
+		"id": 111,
+		"fmtType": "t2",
+		"fmtStrg": "s2",
+		"created": 0,
+		"removed": 0
 	},
-	"16": {
-		"Type": "tt3",
-		"Strg": "ss"
+	"12": {
+		"id": 12,
+		"fmtType": "tt",
+		"fmtStrg": "ss",
+		"created": 0,
+		"removed": 0
 	}
 }

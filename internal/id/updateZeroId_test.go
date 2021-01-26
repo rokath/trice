@@ -3,12 +3,7 @@
 
 package id_test
 
-import (
-	"testing"
-
-	"github.com/rokath/trice/internal/id"
-)
-
+/*
 func TestUpdateZeroId(t *testing.T) {
 	id.SearchMethod = "legacy"
 	sOri := []string{`
@@ -214,14 +209,14 @@ func TestUpdateZeroId(t *testing.T) {
 			"fmtStrg": "sig:generated=%s\\n",
 			"created": 0,
 			"removed": 0
-		},	
+		},
 		{
 			"id": 44213,
 			"fmtType": "TRICE_S",
 			"fmtStrg": "sig:generated=%s\\n",
 			"created": 0,
 			"removed": 0
-		}	
+		}
 	]`
 	doUpdate(t, sOri, sExp, listExp)
 }
@@ -235,7 +230,7 @@ func TestUpdateZeroIds(t *testing.T) {
 	`, `
 
 	`, `
-	
+
 	`}
 
 	sExp := []string{`
@@ -245,7 +240,7 @@ func TestUpdateZeroIds(t *testing.T) {
 	`, `
 
 	`, `
-	
+
 	`}
 
 	listExp := `[
@@ -259,3 +254,4 @@ func TestUpdateZeroIds(t *testing.T) {
 ]`
 	doUpdate(t, sOri, sExp, listExp)
 }
+*/

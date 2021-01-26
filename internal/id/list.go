@@ -8,11 +8,10 @@ package id
 
 import (
 	"encoding/json"
-	"errors"
-	"flag"
 	"fmt"
+	"io/ioutil"
+	"math/rand"
 	"os"
-	"time"
 
 	"github.com/rokath/trice/pkg/msg"
 )
@@ -36,92 +35,45 @@ var (
 	// SearchMethod is the next ID search method.
 	SearchMethod = "random"
 
-	// Reuse to do: Behaviour not implemented yet.
-	Reuse = "no"
+	// ReUse to do: Behaviour not implemented yet.
+	// ReUse assigns the same ID if trice format is already known.
+	ReUse = "no"
 )
 
 // Item is the basic element
 type Item struct {
-	ID      int    `json:"id"`      // identifier
 	FmtType string `json:"fmtType"` // format type (bitsize and number of fmt string parameters)
 	FmtStrg string `json:"fmtStrg"` // format string
 	Created int32  `json:"created"` // utc unix time of creation
 	Removed int32  `json:"removed"` // utc unix time of disappearing in processed src directory
 }
 
-/*
-// TriceFmt contains the ID mapped information needed for decoding.
-type TriceFmt struct {
-	Type string
-	Strg string
-}
-*/
-
 // LookUp is the ID-to-format info translation map.
 // The key is identical with ID inside Item.
 type LookUp map[int]Item
 
-// List is the trice ID List
-type List struct {
-	// FnJSON is the filename of the id List
-	FnJSON string
+// Lut is the global trice ID look-up table. It is permanetly updated using fileWatcher.
+var Lut LookUp
 
-	// ItemList is a slice type containing the ID ItemList.
-	//ItemList []Item // obsolete to do: remove
-
-	bytes []byte // file content
-}
-
-// New returns a pointer to a list struct which stays up-to-date in case the til.json file changes.
-func New() (l *List) {
-	l = NewList(FnJSON)
-	l.ReadListFile()
-	go l.FileWatcher()
-	return
-}
-
-// NewList creates an ID List instance
-func NewList(fnJSON string) *List {
-	fmt.Println("NewList")
-	return nil
-}
-
-// // NewList creates an ID List instance
-// func NewList(fnJSON string) *List {
-// 	p := &List{}
-// 	p.FnJSON = fnJSON
-// 	p.ItemList = make([]Item, 0, 65536) // obsolete to do: remove
-//
-// 	return p
-// }
-
-// MakeLut returns a trice ID lookup map.
-func MakeLut(list []Item) (lut LookUp) {
-	fmt.Println("MakeLut")
-	return
-}
-
-// // MakeLut returns a trice ID lookup map.
-// func MakeLut(list []Item) (lut LookUp) {
-// 	// create look-up map
-// 	lut = make(LookUp)
-// 	// to do: add timestamp evaluation
-// 	for _, item := range list {
-// 		k := item.ID
-// 		value := TriceFmt{Type: item.FmtType, Strg: item.FmtStrg}
-// 		lut[k] = value
-// 	}
-// 	return
-// }
-
-// LutToJSON converts lut into JSON byte slice
+// LutToJSON converts lut into JSON byte slice in human readable form.
 func LutToJSON(lut LookUp) ([]byte, error) {
 	return json.MarshalIndent(lut, "", "\t")
 }
 
-// JSONToLut converts JSON byte slice to lut
-func JSONToLut(jn []byte) (lut LookUp, err error) {
-	err = json.Unmarshal(jn, &lut)
+// JSONToLut converts JSON byte slice to lut.
+func JSONToLut(b []byte) (lut LookUp, err error) {
+	lut = make(LookUp, 1000)
+	if 0 < len(b) {
+		err = json.Unmarshal(b, &lut)
+	}
+	return
+}
+
+// JSONToLut converts JSON byte slice to lut.
+func (lut LookUp) JSONToLut(b []byte) (err error) {
+	if 0 < len(b) {
+		err = json.Unmarshal(b, &lut)
+	}
 	return
 }
 
@@ -140,171 +92,113 @@ func WriteLutToFileJSON(fn string, lut LookUp) (err error) {
 	return
 }
 
-// // ReadLutFromFileJSON reads file fnJSON into lut.
-// func ReadLutFromFileJSON(fnJSON string) (lut LookUp, err error) {
-// 	lut = make(LookUp, 1000)
-// 	err = nil
-// 	return
-// }
+// ReadLutFromFileJSON reads file fnJSON into lut.
+func ReadLutFromFileJSON(fn string) (LookUp, error) {
+	b, err := ioutil.ReadFile(fn)
+	msg.FatalOnErr("May be need to create an empty file first? (Safety feature)", err)
+	return JSONToLut(b)
+}
 
-// ReadListFile reads id list file in internal struct and starts a file watcher.
+// NewLut returns a lut map which stays up-to-date in case the til.json file changes.
 //
-// Just in case the id list file gets updated, the file watcher updates the internals struct.
+// Just in case the id list file FnJSON gets updated, the file watcher updates lut.
 // This way trice needs not to be restarted during development process.
-func (p *List) ReadListFile() {
-	fmt.Println("ReadListFile")
+func NewLut() LookUp {
+	lut, err := ReadLutFromFileJSON(FnJSON)
+	msg.FatalOnErr("", err)
+	go lut.FileWatcher()
+	if true == Verbose {
+		fmt.Println("Read ID List file", FnJSON, "with", len(lut), "items.")
+	}
+	return lut
 }
-
-// // ReadListFile reads id list file in internal struct and starts a file watcher.
-// //
-// // Just in case the id list file gets updated, the file watcher updates the internals struct.
-// // This way trice needs not to be restarted during development process.
-// func (p *List) ReadListFile() {
-// 	if "none" != p.FnJSON {
-// 		b, err := ioutil.ReadFile(p.FnJSON)
-// 		msg.FatalOnErr("May be need to create an empty file first? (Safety feature)", err)
-// 		if 0 < len(b) {
-// 			err = json.Unmarshal(b, &(p.ItemList))
-// 			msg.FatalOnErr("", err)
-// 		}
-// 		p.bytes = b
-// 	}
-// 	if true == Verbose {
-// 		fmt.Println("Read ID List file", p.FnJSON, "with", len(p.ItemList), "items.")
-// 	}
-// }
-
-// WriteListFile marshals p.List to p.fnJSON.
-func (p *List) WriteListFile() {
-	fmt.Println("WriteListFile")
-}
-
-// // WriteListFile marshals p.List to p.fnJSON.
-// func (p *List) WriteListFile() {
-// 	b, err := json.MarshalIndent(p.ItemList, "", "\t")
-// 	msg.FatalOnErr("", err)
-// 	msg.FatalOnErr("", ioutil.WriteFile(p.FnJSON, b, 0644))
-// }
 
 // ZeroTimestampCreated sets all timestamps 'created' to 0.
-func (p *List) ZeroTimestampCreated() {
-	fmt.Println("ZeroTimestampCreated")
+func (lut LookUp) ZeroTimestampCreated() {
+	for k, v := range lut {
+		v.Created = 0
+		lut[k] = v
+	}
 }
-
-// // ZeroTimestampCreated sets all timestamps 'created' to 0.
-// func (p *List) ZeroTimestampCreated() {
-// 	for i := range p.ItemList {
-// 		p.ItemList[i].Created = 0
-// 	}
-// }
 
 // newID() gets a random ID not used so far.
 // If all IDs used, longest removed ID is reused (TODO)
-func (p *List) newID() (id int) {
-	fmt.Println("newID")
-	return
+func (lut LookUp) newID() (id int) {
+	switch SearchMethod {
+	case "random":
+		return lut.newRandomID()
+	case "upward":
+		return lut.newUpwardID()
+	case "downward":
+		return lut.newDownwardID()
+	}
+	msg.Info(fmt.Sprint("ERROR:", SearchMethod, "is unknown ID search method."))
+	return 0
 }
 
-// // newID() gets a random ID not used so far.
-// // If all IDs used, longest removed ID is reused (TODO)
-// func (p *List) newID() (id int) {
-// 	switch SearchMethod {
-// 	case "legacy":
-// 		return p.newIDLegacyMethod()
-// 	case "random":
-// 		return p.newIDRandomMethod()
-// 	case "upward":
-// 		return p.newIDUpwardMethod()
-// 	case "downward":
-// 		return p.newIDDownwardMethod()
-// 	}
-// 	msg.Info(fmt.Sprint("ERROR:", SearchMethod, "is unknown ID search method."))
-// 	return 0
-// }
+func (lut LookUp) newRandomID() (id int) {
+	interval := UpperBound - LowerBound
+	freeIDs := interval - len(lut)
+	msg.FatalOnFalse("no new ID possible"+fmt.Sprint(LowerBound, UpperBound, len(lut)), freeIDs > 0)
+	msg.InfoOnFalse("WARNING: More than 75% IDs used!", freeIDs < (3*interval)>>2)
+	id = LowerBound + rand.Intn(interval)
+	if 0 == len(lut) {
+		return
+	}
+	for {
+	nextTry:
+		for k := range lut {
+			if id == k { // id used
+				fmt.Println("ID", id, "used, next try...")
+				id = LowerBound + rand.Intn(interval)
+				goto nextTry
+			}
+		}
+		return
+	}
+}
 
-// // newIDLegacyMethod() gets a random ID not used so far.
-// // If all IDs used, longest removed ID is reused (TODO)
-// func (p *List) newIDLegacyMethod() (id int) {
-// start:
-// 	for { // this is good enough if id count is less than 2/3 of total count, otherwise it will take too long
-// 		id = 20 + rand.Intn(65535) // 2^16=65536, id 0 used for params, ids 1-19 reserved, 515 ids forbidden, so 65000 ids possible // BUG!!!!!!! Must be 65535-20 but many tests need to be adapted!!!!!!!!!!!!!!!!!!!!!!!
-// 		ih := uint8(id >> 8)       // todo: endianness
-// 		il := uint8(id)
-// 		if 0xef == ih || 0x89 == il || 0x89ab == id || 0xabcd == id || 0xcdef == id { // 515 ids forbidden, see bare.go
-// 			continue // next try
-// 		}
-// 		if 0 == len(p.ItemList) {
-// 			return
-// 		}
-// 		for _, item := range p.ItemList { // todo: binary search
-// 			if id == item.ID {
-// 				goto start // id used
-// 			}
-// 			return
-// 		}
-// 	}
-// }
+func (lut LookUp) newUpwardID() (id int) {
+	interval := UpperBound - LowerBound
+	freeIDs := interval - len(lut)
+	msg.FatalOnFalse("no new ID possible"+fmt.Sprint(LowerBound, UpperBound, len(lut)), freeIDs > 0)
+	id = LowerBound
+	if 0 == len(lut) {
+		return
+	}
+	for {
+	nextTry:
+		for k := range lut {
+			if id == k { // id used
+				id++
+				goto nextTry
+			}
+		}
+		return
+	}
+}
 
-// func (p *List) newIDRandomMethod() (id int) {
-// 	id = LowerBound + rand.Intn(UpperBound-LowerBound)
-// 	if 0 == len(p.ItemList) {
-// 		return
-// 	}
-// 	for _, item := range p.ItemList { // todo: binary search
-// 		if id == item.ID { // id used
-// 			id = LowerBound + rand.Intn(UpperBound-LowerBound) // next try
-// 			continue
-// 		}
-// 		return
-// 	}
-// 	msg.Info("No free ID found.")
-// 	return 0
-// }
+func (lut LookUp) newDownwardID() (id int) {
+	interval := UpperBound - LowerBound
+	freeIDs := interval - len(lut)
+	msg.FatalOnFalse("no new ID possible"+fmt.Sprint(LowerBound, UpperBound, len(lut)), freeIDs > 0)
+	id = UpperBound
+	if 0 == len(lut) {
+		return
+	}
+	for {
+	nextTry:
+		for k := range lut {
+			if id == k { // id used
+				id--
+				goto nextTry
+			}
+		}
+		return
+	}
+}
 
-// func (p *List) newIDUpwardMethod() (id int) {
-// 	id = LowerBound
-// 	if 0 == len(p.ItemList) {
-// 		return
-// 	}
-// 	for _, item := range p.ItemList { // todo: binary search
-// 		if id == item.ID { // id used
-// 			id++ // next ID
-// 			continue
-// 		}
-// 		break
-// 	}
-// 	if id < UpperBound {
-// 		LowerBound = id + 1 // new starting point
-// 	}
-// 	if id <= UpperBound {
-// 		return
-// 	}
-// 	msg.Info("No free ID found.")
-// 	return 0
-// }
-
-// func (p *List) newIDDownwardMethod() (id int) {
-// 	id = UpperBound
-// 	if 0 == len(p.ItemList) {
-// 		return
-// 	}
-// 	for _, item := range p.ItemList { // todo: binary search
-// 		if id == item.ID { // id used
-// 			id-- // next ID
-// 			continue
-// 		}
-// 		break
-// 	}
-// 	if id > LowerBound {
-// 		UpperBound = id - 1 // new starting point
-// 	}
-// 	if id >= LowerBound {
-// 		return
-// 	}
-// 	msg.Info("No free ID found.")
-// 	return 0
-// }
-
+/*
 // appendIfMissing is appending item to p.List.
 // It returns true if item was missing or changed, otherwise false.
 func (p *List) appendIfMissing(item Item, verbose bool) (int, bool) {
@@ -356,7 +250,7 @@ func (p *List) appendIfMissing(item Item, verbose bool) (int, bool) {
 // It is an exported function for simplifying tests in other packets.
 func (p *List) ExtendIDList(id int, typ, fmt string, verbose bool) (int, bool) {
 	i := Item{
-		ID:      id,
+		//ID:      id,
 		FmtType: typ,
 		FmtStrg: fmt,
 		Created: int32(time.Now().Unix()),
@@ -435,7 +329,7 @@ func (p *List) update(dir string) error {
 	fmt.Println("update")
 	return nil
 }
-
+*/
 // // update does parse source tree, update IDs and is List
 // func (p *List) update(dir string) error {
 // 	err := p.Update(dir, !DryRun, Verbose)
@@ -446,4 +340,27 @@ func (p *List) update(dir string) error {
 // 		fmt.Println(len(p.ItemList), "ID's in List", p.FnJSON)
 // 	}
 // 	return nil
+// }
+
+// // newIDLegacyMethod() gets a random ID not used so far.
+// // If all IDs used, longest removed ID is reused (TODO)
+// func (p *List) newIDLegacyMethod() (id int) {
+// start:
+// 	for { // this is good enough if id count is less than 2/3 of total count, otherwise it will take too long
+// 		id = 20 + rand.Intn(65535) // 2^16=65536, id 0 used for params, ids 1-19 reserved, 515 ids forbidden, so 65000 ids possible // BUG!!!!!!! Must be 65535-20 but many tests need to be adapted!!!!!!!!!!!!!!!!!!!!!!!
+// 		ih := uint8(id >> 8)       // todo: endianness
+// 		il := uint8(id)
+// 		if 0xef == ih || 0x89 == il || 0x89ab == id || 0xabcd == id || 0xcdef == id { // 515 ids forbidden, see bare.go
+// 			continue // next try
+// 		}
+// 		if 0 == len(p.ItemList) {
+// 			return
+// 		}
+// 		for _, item := range p.ItemList { // todo: binary search
+// 			if id == item.ID {
+// 				goto start // id used
+// 			}
+// 			return
+// 		}
+// 	}
 // }

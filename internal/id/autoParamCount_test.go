@@ -1,14 +1,9 @@
 // Copyright 2020 Thomas.Hoehenleitner [at] seerose.net
 // Use of this source code is governed by a license that can be found in the LICENSE file.
-
+// +build xxx
 package id_test
 
-import (
-	"testing"
-
-	"github.com/rokath/trice/internal/id"
-)
-
+/*
 func TestAutoParamCount(t *testing.T) {
 	id.SearchMethod = "legacy"
 	sOri := []string{`
@@ -17,17 +12,17 @@ func TestAutoParamCount(t *testing.T) {
 	TRICE8_1( Id(0), "tst: %d\n", n ); TRICE8_1( Id(0), "tst: %d\n", n );
 	TRICE8_1( Id(0), "tst: %d\n", n ); TRICE8_1( Id(0), "tst: %d\n", n ); TRICE8_1( Id(0), "tst: %d\n", n );
 	TRICE8_1( Id(0), "tst: %d\n", n )
-	TRICE8_1( Id(0), "tst: %d\n", n )  TRICE8_1( Id(0), "tst: %d\n", n ) 
-	TRICE8_1( Id(0), "tst: %d\n", n )  TRICE8_1( Id(0), "tst: %d\n", n )  TRICE8_1( Id(0), "tst: %d\n", n ) 
-	TRICE8_1( Id(0), "tst: %d\n", n ); TRICE8_1( Id(0), "tst: %d\n", n ); TRICE8_1( Id(0), "tst: %d\n", n ) 
+	TRICE8_1( Id(0), "tst: %d\n", n )  TRICE8_1( Id(0), "tst: %d\n", n )
+	TRICE8_1( Id(0), "tst: %d\n", n )  TRICE8_1( Id(0), "tst: %d\n", n )  TRICE8_1( Id(0), "tst: %d\n", n )
+	TRICE8_1( Id(0), "tst: %d\n", n ); TRICE8_1( Id(0), "tst: %d\n", n ); TRICE8_1( Id(0), "tst: %d\n", n )
 	// without count, without id, more in one line, optional semi-colon
 	TRICE8( "tst: %d\n", n );
 	TRICE8( "tst: %d\n", n ); TRICE8( "tst: %d\n", n );
 	TRICE8( "tst: %d\n", n ); TRICE8( "tst: %d\n", n ); TRICE8( "tst: %d\n", n );
-	TRICE8( "tst: %d\n", n ) 
-	TRICE8( "tst: %d\n", n )  TRICE8( "tst: %d\n", n ) 
-	TRICE8( "tst: %d\n", n )  TRICE8( "tst: %d\n", n )  TRICE8( "tst: %d\n", n ) 
-	TRICE8( "tst: %d\n", n ); TRICE8( "tst: %d\n", n ); TRICE8( "tst: %d\n", n ) 
+	TRICE8( "tst: %d\n", n )
+	TRICE8( "tst: %d\n", n )  TRICE8( "tst: %d\n", n )
+	TRICE8( "tst: %d\n", n )  TRICE8( "tst: %d\n", n )  TRICE8( "tst: %d\n", n )
+	TRICE8( "tst: %d\n", n ); TRICE8( "tst: %d\n", n ); TRICE8( "tst: %d\n", n )
 	`, `
     // mixed
      TRICE8( "tst: %d\n", n );  TRICE8_1( Id(0), "tst: %d\n", n )
@@ -38,11 +33,11 @@ func TestAutoParamCount(t *testing.T) {
     TRICE8( "tst:TRICE8 %d\n", 1 );
     TRICE8( "tst:TRICE8 %d %d\n", 1, 2 );
     TRICE8( "tst:TRICE8 %d %d %d\n", 1, 2, 3 );
-    TRICE8( "tst:TRICE8 %d %d %d %d\n", 1, 2, 3, 4 ); 
+    TRICE8( "tst:TRICE8 %d %d %d %d\n", 1, 2, 3, 4 );
     TRICE8( "tst:TRICE8 %d %d %d %d %d\n", 1, 2, 3, 4, 5 );
     TRICE8( "tst:TRICE8 %d %d %d %d %d %d \n", 1, 2, 3, 4, 5, 6 );
-    TRICE8( "tst:TRICE8 %d %d %d %d %d %d %d\n", 1, 2, 3, 4, 5, 6, 7 ); 
-    TRICE8( "tst:TRICE8 %d %d %d %d %d %d %d %d\n", 1, 2, 3, 4, 5, 6, 7, 8 ); 
+    TRICE8( "tst:TRICE8 %d %d %d %d %d %d %d\n", 1, 2, 3, 4, 5, 6, 7 );
+    TRICE8( "tst:TRICE8 %d %d %d %d %d %d %d %d\n", 1, 2, 3, 4, 5, 6, 7, 8 );
     TRICE16( "tst:TRICE16 %d\n", 1 );
     TRICE16( "tst:TRICE16 %d %d\n", 1, 2 );
     TRICE16( "tst:TRICE16 %d %d %d\n", 1, 2, 3 );
@@ -70,17 +65,17 @@ func TestAutoParamCount(t *testing.T) {
 	TRICE8_1( Id( 9089), "tst: %d\n", n ); TRICE8_1( Id(46083), "tst: %d\n", n );
 	TRICE8_1( Id(50226), "tst: %d\n", n ); TRICE8_1( Id(18460), "tst: %d\n", n ); TRICE8_1( Id(55041), "tst: %d\n", n );
 	TRICE8_1( Id(60612), "tst: %d\n", n )
-	TRICE8_1( Id(16507), "tst: %d\n", n )  TRICE8_1( Id(59378), "tst: %d\n", n ) 
-	TRICE8_1( Id(62543), "tst: %d\n", n )  TRICE8_1( Id(34028), "tst: %d\n", n )  TRICE8_1( Id(  472), "tst: %d\n", n ) 
-	TRICE8_1( Id( 1669), "tst: %d\n", n ); TRICE8_1( Id(21923), "tst: %d\n", n ); TRICE8_1( Id(42242), "tst: %d\n", n ) 
+	TRICE8_1( Id(16507), "tst: %d\n", n )  TRICE8_1( Id(59378), "tst: %d\n", n )
+	TRICE8_1( Id(62543), "tst: %d\n", n )  TRICE8_1( Id(34028), "tst: %d\n", n )  TRICE8_1( Id(  472), "tst: %d\n", n )
+	TRICE8_1( Id( 1669), "tst: %d\n", n ); TRICE8_1( Id(21923), "tst: %d\n", n ); TRICE8_1( Id(42242), "tst: %d\n", n )
 	// without count, without id, more in one line, optional semi-colon
 	TRICE8_1( Id(60761), "tst: %d\n", n );
 	TRICE8_1( Id(16891), "tst: %d\n", n ); TRICE8_1( Id(53650), "tst: %d\n", n );
 	TRICE8_1( Id(15285), "tst: %d\n", n ); TRICE8_1( Id(61124), "tst: %d\n", n ); TRICE8_1( Id(63805), "tst: %d\n", n );
-	TRICE8_1( Id(44213), "tst: %d\n", n ) 
-	TRICE8_1( Id(57421), "tst: %d\n", n )  TRICE8_1( Id(38870), "tst: %d\n", n ) 
-	TRICE8_1( Id(15196), "tst: %d\n", n )  TRICE8_1( Id(56756), "tst: %d\n", n )  TRICE8_1( Id(38757), "tst: %d\n", n ) 
-	TRICE8_1( Id(16985), "tst: %d\n", n ); TRICE8_1( Id(57756), "tst: %d\n", n ); TRICE8_1( Id(28737), "tst: %d\n", n ) 
+	TRICE8_1( Id(44213), "tst: %d\n", n )
+	TRICE8_1( Id(57421), "tst: %d\n", n )  TRICE8_1( Id(38870), "tst: %d\n", n )
+	TRICE8_1( Id(15196), "tst: %d\n", n )  TRICE8_1( Id(56756), "tst: %d\n", n )  TRICE8_1( Id(38757), "tst: %d\n", n )
+	TRICE8_1( Id(16985), "tst: %d\n", n ); TRICE8_1( Id(57756), "tst: %d\n", n ); TRICE8_1( Id(28737), "tst: %d\n", n )
 	`, `
     // mixed
      TRICE8_1( Id(26897), "tst: %d\n", n );  TRICE8_1( Id(53353), "tst: %d\n", n )
@@ -91,11 +86,11 @@ func TestAutoParamCount(t *testing.T) {
     TRICE8_1( Id(23823), "tst:TRICE8 %d\n", 1 );
     TRICE8_2( Id(23845), "tst:TRICE8 %d %d\n", 1, 2 );
     TRICE8_3( Id(63690), "tst:TRICE8 %d %d %d\n", 1, 2, 3 );
-    TRICE8_4( Id(52219), "tst:TRICE8 %d %d %d %d\n", 1, 2, 3, 4 ); 
+    TRICE8_4( Id(52219), "tst:TRICE8 %d %d %d %d\n", 1, 2, 3, 4 );
     TRICE8_5( Id(21209), "tst:TRICE8 %d %d %d %d %d\n", 1, 2, 3, 4, 5 );
     TRICE8_6( Id(37812), "tst:TRICE8 %d %d %d %d %d %d \n", 1, 2, 3, 4, 5, 6 );
-    TRICE8_7( Id(20324), "tst:TRICE8 %d %d %d %d %d %d %d\n", 1, 2, 3, 4, 5, 6, 7 ); 
-    TRICE8_8( Id(32876), "tst:TRICE8 %d %d %d %d %d %d %d %d\n", 1, 2, 3, 4, 5, 6, 7, 8 ); 
+    TRICE8_7( Id(20324), "tst:TRICE8 %d %d %d %d %d %d %d\n", 1, 2, 3, 4, 5, 6, 7 );
+    TRICE8_8( Id(32876), "tst:TRICE8 %d %d %d %d %d %d %d %d\n", 1, 2, 3, 4, 5, 6, 7, 8 );
     TRICE16_1( Id( 8353), "tst:TRICE16 %d\n", 1 );
     TRICE16_2( Id(11349), "tst:TRICE16 %d %d\n", 1, 2 );
     TRICE16_3( Id(30672), "tst:TRICE16 %d %d %d\n", 1, 2, 3 );
@@ -541,3 +536,4 @@ func TestAutoParamCount(t *testing.T) {
 	]`
 	doUpdate(t, sOri, sExp, listExp)
 }
+*/

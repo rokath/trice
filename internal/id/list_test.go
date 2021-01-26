@@ -17,46 +17,105 @@ import (
 	"github.com/rokath/trice/pkg/tst"
 )
 
-// func TestLutToJSON(t *testing.T) {
-// 	lut := make(id.LookUp, 0)
-// 	lut[12] = id.TriceFmt{Type: "tt", Strg: "ss"}
-// 	lut[16] = id.TriceFmt{Type: "tt", Strg: "ss"}
-// 	lut[16] = id.TriceFmt{"tt3", "ss"}
-// 	exp := `{
-// 	"12": {
-// 		"Type": "tt",
-// 		"Strg": "ss"
-// 	},
-// 	"16": {
-// 		"Type": "tt3",
-// 		"Strg": "ss"
-// 	}
-// }`
-// 	b, e := id.LutToJSON(lut)
-// 	tst.AssertNoErr(t, e)
-// 	act := string(b)
-// 	tst.Equal(t, exp, act)
+func TestNewUpwardID(t *testing.T) {
+	id.LowerBound = 10
+	id.UpperBound = 9
 
-func TestJSONToLut(t *testing.T) {
-	jn := []byte(`{"12":{"Type":"tt","Strg":"ss"},"16":{"Type":"tt3","Strg":"ss"}}`)
-	exp := "map[12:{tt ss} 16:{tt3 ss}]"
-	lut, e := id.JSONToLut(jn)
-	tst.AssertNoErr(t, e)
-	act := fmt.Sprint(lut)
-	tst.EqualStrings(t, exp, act)
 }
 
-// func TestWriteLutToFileJSON(t *testing.T) {
-// 	lut := make(id.LookUp, 0)
-// 	lut[12] = id.TriceFmt{Type: "tt", Strg: "ss"}
-// 	lut[16] = id.TriceFmt{Type: "tt", Strg: "ss"}
-// 	lut[16] = id.TriceFmt{"tt3", "ss"}
-// 	fnJSON := "TestWriteLutToFileJSON.json"
-// 	err := id.WriteLutToFileJSON(fnJSON, lut)
-// 	if nil != err {
-// 		t.Fail()
-// 	}
-// }
+func sampeLut() (lut id.LookUp) {
+	lut = make(id.LookUp, 0)
+	lut[111] = id.Item{FmtType: "t111", FmtStrg: "ss", Created: 321}
+	lut[12] = id.Item{FmtType: "t12", FmtStrg: "s12", Created: 12456, Removed: 12992}
+	lut[12] = id.Item{FmtType: "tt", FmtStrg: "ss", Created: 456, Removed: 992}
+	return
+}
+
+const sampleLutJSON = `{
+	"111": {
+		"fmtType": "t111",
+		"fmtStrg": "ss",
+		"created": 321,
+		"removed": 0
+	},
+	"12": {
+		"fmtType": "tt",
+		"fmtStrg": "ss",
+		"created": 456,
+		"removed": 992
+	}
+}`
+
+const sampleLutJSON1 = `{
+	"3": {
+		"fmtType": "t3",
+		"fmtStrg": "s3",
+		"created": 3,
+		"removed": 0
+	},
+	"12": {
+		"fmtType": "t12",
+		"fmtStrg": "ss",
+		"created": 456,
+		"removed": 992
+	}
+}`
+
+const sampleLutMap = "map[12:{tt ss 456 992} 111:{t111 ss 321 0}]"
+const sampleLutMap1 = "map[12:{tt ss 456 992} 333:{t33 ss3 3 0}]"
+
+// TestLutToJSONFilledByteSlice checks normal initial case.
+func TestLutToJSONFilledByteSlice(t *testing.T) {
+	lut := sampeLut()
+	exp := sampleLutJSON
+	b, e := id.LutToJSON(lut)
+	tst.AssertNoErr(t, e)
+	act := string(b)
+	tst.Equal(t, exp, act)
+}
+
+// TestJSONToLutEmptyByteSlice checks empty case.
+func TestJSONToLutEmptyByteSlice(t *testing.T) {
+	var b []byte
+	exp := "map[]"
+	lut, e := id.JSONToLut(b)
+	tst.AssertNoErr(t, e)
+	act := fmt.Sprint(lut)
+	tst.Equal(t, exp, act)
+}
+
+// TestJSONToLutMapUpdate checks if a prefilled map is extended and updated.
+func TestJSONToLutMapUpdate(t *testing.T) {
+	b := []byte(sampleLutJSON)
+	exp := "map[3:{t3 s3 3 0} 12:{t12 ss 456 992} 111:{t111 ss 321 0}]"
+	lut, e := id.JSONToLut(b)
+	tst.AssertNoErr(t, e)
+	b1 := []byte(sampleLutJSON1)
+	lut.JSONToLut(b1)
+	act := fmt.Sprint(lut)
+	tst.Equal(t, exp, act)
+}
+
+func TestJSONToLut(t *testing.T) {
+	b := []byte(sampleLutJSON)
+	exp := sampleLutMap
+	lut, e := id.JSONToLut(b)
+	tst.AssertNoErr(t, e)
+	act := fmt.Sprint(lut)
+	tst.Equal(t, exp, act)
+}
+
+func TestWriteLutToFileJSON(t *testing.T) {
+	lut := sampeLut()
+	exp := sampleLutMap
+	fn := tst.TempFileName("TestWriteLutToFile*.JSON")
+	e := id.WriteLutToFileJSON(fn, lut)
+	tst.AssertNoErr(t, e)
+	lut, e = id.ReadLutFromFileJSON(fn)
+	tst.AssertNoErr(t, e)
+	act := fmt.Sprint(lut)
+	tst.Equal(t, exp, act)
+}
 
 // randomFile creates a random file containing s and returns its name.
 // See ioutil.Tempfile() for dir and pattern.
@@ -78,26 +137,26 @@ func readFileAsString(filename string) (s string) {
 	return
 }
 
-func TestWrite(t *testing.T) {
-	fa := randomFile("[]", "", "*.json")
-	p := id.NewList(fa)
-	p.ExtendIDList(12345, "TRICE0", "Hi", true)
-	p.ZeroTimestampCreated()
-	p.WriteListFile()
-
-	listAct := readFileAsString(fa)
-	assert.Nil(t, os.RemoveAll(fa))
-	listExp := `[
-		{
-			"id": 12345,
-			"fmtType": "TRICE0",
-			"fmtStrg": "Hi",
-			"created": 0,
-			"removed": 0
-		}
-	]`
-	tst.EqualLines(t, listExp, listAct)
-}
+// func TestWrite(t *testing.T) {
+// 	fa := randomFile("[]", "", "*.json")
+// 	p := id.NewList(fa)
+// 	p.ExtendIDList(12345, "TRICE0", "Hi", true)
+// 	p.ZeroTimestampCreated()
+// 	p.WriteListFile()
+//
+// 	listAct := readFileAsString(fa)
+// 	assert.Nil(t, os.RemoveAll(fa))
+// 	listExp := `[
+// 		{
+// 			"id": 12345,
+// 			"fmtType": "TRICE0",
+// 			"fmtStrg": "Hi",
+// 			"created": 0,
+// 			"removed": 0
+// 		}
+// 	]`
+// 	tst.EqualLines(t, listExp, listAct)
+// }
 
 func TestZeroSourceTreeIds(t *testing.T) {
 	s := `
@@ -291,47 +350,47 @@ func TestZeroSourceTreeIds(t *testing.T) {
 	tst.EqualLines(t, exp, act)
 }
 
-func TestAppendItem(t *testing.T) {
-	fa := randomFile("{}", "", "*.json")
-
-	// create file
-	p := id.NewList(fa)
-	p.ExtendIDList(123, "TRICE0", "some logstring", true)
-	p.ExtendIDList(4444, "TRICE32_1", "some other %d logstring", true)
-	p.WriteListFile()
-
-	// extend file
-	p = id.NewList(fa)
-	p.ReadListFile()
-	p.ExtendIDList(55, "TRICE8_7", "some more %d %d %d %d %d %d %d logstring", true)
-	p.ZeroTimestampCreated()
-	p.WriteListFile()
-
-	sAct := readFileAsString(fa)
-	assert.Nil(t, os.RemoveAll(fa))
-
-	sExp := `[
-		{
-			"id": 123,
-			"fmtType": "TRICE0",
-			"fmtStrg": "some logstring",
-			"created": 0,
-			"removed": 0
-		},
-		{
-			"id": 4444,
-			"fmtType": "TRICE32_1",
-			"fmtStrg": "some other %d logstring",
-			"created": 0,
-			"removed": 0
-		},
-		{
-			"id": 55,
-			"fmtType": "TRICE8_7",
-			"fmtStrg": "some more %d %d %d %d %d %d %d logstring",
-			"created": 0,
-			"removed": 0
-		}
-	]`
-	tst.EqualLines(t, sExp, sAct)
-}
+// func TestAppendItem(t *testing.T) {
+// 	fa := randomFile("{}", "", "*.json")
+//
+// 	// create file
+// 	p := id.NewList(fa)
+// 	p.ExtendIDList(123, "TRICE0", "some logstring", true)
+// 	p.ExtendIDList(4444, "TRICE32_1", "some other %d logstring", true)
+// 	p.WriteListFile()
+//
+// 	// extend file
+// 	p = id.NewList(fa)
+// 	p.ReadListFile()
+// 	p.ExtendIDList(55, "TRICE8_7", "some more %d %d %d %d %d %d %d logstring", true)
+// 	p.ZeroTimestampCreated()
+// 	p.WriteListFile()
+//
+// 	sAct := readFileAsString(fa)
+// 	assert.Nil(t, os.RemoveAll(fa))
+//
+// 	sExp := `[
+// 		{
+// 			"id": 123,
+// 			"fmtType": "TRICE0",
+// 			"fmtStrg": "some logstring",
+// 			"created": 0,
+// 			"removed": 0
+// 		},
+// 		{
+// 			"id": 4444,
+// 			"fmtType": "TRICE32_1",
+// 			"fmtStrg": "some other %d logstring",
+// 			"created": 0,
+// 			"removed": 0
+// 		},
+// 		{
+// 			"id": 55,
+// 			"fmtType": "TRICE8_7",
+// 			"fmtStrg": "some more %d %d %d %d %d %d %d logstring",
+// 			"created": 0,
+// 			"removed": 0
+// 		}
+// 	]`
+// 	tst.EqualLines(t, sExp, sAct)
+// }

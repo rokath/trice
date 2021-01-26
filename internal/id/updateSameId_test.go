@@ -3,12 +3,7 @@
 
 package id_test
 
-import (
-	"testing"
-
-	"github.com/rokath/trice/internal/id"
-)
-
+/*
 func TestUpdateSameId(t *testing.T) {
 	id.SearchMethod = "legacy"
 	sOri := []string{`
@@ -192,3 +187,4 @@ func TestUpdateSameId3(t *testing.T) {
 ]`
 	doUpdate(t, sOri, sExp, listExp)
 }
+*/
