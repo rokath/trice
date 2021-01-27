@@ -18,13 +18,21 @@ import (
 )
 
 func TestNewUpwardID(t *testing.T) {
-	id.LowerBound = 9
-	id.UpperBound = 10
-	var lut id.LookUp
+	id.LowerBound = 97
+	id.UpperBound = 100
+	var i id.Item
+	lut := make(id.LookUp, 4)
+	lut[98] = i // add
+	lut[99] = i // add
 	id := lut.NewUpwardID()
-	tst.AssertTrue(t, 9 == id)
+	tst.AssertTrue(t, 97 == id)
+	lut[id] = i // add
 	id = lut.NewUpwardID()
-	tst.AssertTrue(t, 0 == id)
+	tst.AssertTrue(t, 100 == id)
+	delete(lut, 98)
+	delete(lut, 99)
+	id = lut.NewUpwardID()
+	tst.AssertTrue(t, 98 == id)
 }
 
 func sampeLut() (lut id.LookUp) {

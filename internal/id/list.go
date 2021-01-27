@@ -158,14 +158,14 @@ func (lut LookUp) newRandomID() (id int) {
 	}
 }
 
+// NewUpwardID provides the next free ID inside interval [LowerBound,UpperBound].
+// The delivered id is usable as key for lut, but not added.
 func (lut LookUp) NewUpwardID() (id int) {
 	interval := 1 + UpperBound - LowerBound // both bounds are included
 	freeIDs := interval - len(lut)
 	msg.FatalOnFalse("no new ID possible: "+fmt.Sprint("lb=", LowerBound, ", ub=", UpperBound, ", len(lut)=", len(lut)), freeIDs > 0)
-	var t Item
 	id = LowerBound
 	if 0 == len(lut) {
-		lut[id] = t // add
 		return
 	}
 	for {
@@ -176,7 +176,6 @@ func (lut LookUp) NewUpwardID() (id int) {
 				goto nextTry
 			}
 		}
-		lut[id] = t // add
 		return
 	}
 }
