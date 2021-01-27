@@ -52,7 +52,7 @@ Tiny & fast trace code for embedded device real-time PC logging (trace ID visual
 
 ## `TRICE` macros for C & C++ code
 
-- Real fast (**under 20 CPU clocks per trace possible!!!**)
+- Real fast (**under 40 CPU clocks per trace possible!!!**)
 - TRICE in your code **reduces the needed FLASH memory** because the instrumentation code is very small (can be less 150 bytes FLASH and about 100 bytes RAM) and no printf library code nor log strings are inside the embedded device anymore.
 
 ## Possible Use Cases
@@ -77,7 +77,7 @@ Tiny & fast trace code for embedded device real-time PC logging (trace ID visual
 
 - `TRICE16( "tim: myFunc %d\n", sysTick );` before and after a function call lets you easy measure the function execution time.
 - As graphical vizualisation you could use a tool similar to https://github.com/sqshq/sampler.
-- TRICE has intentionally no target timestamps for performance reasons. On the PC you can display the *reception timestampts*. But you can add own **timestamps as parameters** for exact embedded time measuremnets. Having several devices with trice timestamps, **network timing measurement** is possible.
+- TRICE has intentionally no target timestamps for performance reasons. On the PC you can display the *reception timestampts*. But you can add own **timestamps as parameters** for exact embedded time measurements. Having several devices with trice timestamps, **network timing measurement** is possible.
 
 ## How it approximately works
 
@@ -120,7 +120,7 @@ This is a slightly simplified view:
 
 - Manages `TRICE` macro IDs inside a C or C++ source tree and extracts the strings in an ID-string list during target device compile time.
 - Displays `TRICE` macros like printf() output in realtime during target device runtime. The received IDs and parameters are printed out.
-- Can receive trices on several PCs and display them on a remote display server-
+- Can receive trices on several PCs and display them on a remote display server.
 - Written in [Go](https://github.com/golang/go), simply usage, no installer, needs to be in $PATH.
 
 ## How to start
@@ -154,16 +154,14 @@ trice help
 
 ### Quick target setup
 
-- Use
-
-Follow these steps for instrumentation information even your target processor is not an ARM (any bit width will do):
-
-- Install the free [STCubeMX](https://www.st.com/en/development-tools/stm32cubemx.html).
-- Choose from [test examples](https://github.com/rokath/trice/tree/master/test) the for you best fitting project `MyExample`.
-- Open the `MyExample.ioc` file with [STCubeMX](https://www.waveshare.com/wiki/STM32CubeMX_Tutorial_Series:_Overview) and generate without changing any setting.
-- Make an empty directory `MyProject` inside the `test` folder and copy the `MyExample.ioc` there and rename it to `MyProject.ioc`.
-- Open `MyProject.ioc` with [STCubeMX](https://www.waveshare.com/wiki/STM32CubeMX_Tutorial_Series:_Overview), change in projects settings `MyExample` to `MyProject` and generate.
-- Now compare the directories `MyExample` and `MyProject` to see the trice instrumentation as differences.
+- Compare the **not** instrumented test project [MDK-ARM_LL_generatedDemo_STM32F030R8-NUCLEO-64](https://github.com/rokath/trice/tree/master/test/MDK-ARM_LL_generatedDemo_STM32F030R8-NUCLEO-64) with one of the instrumented test projects in [test](https://github.com/rokath/trice/tree/master/test/) to see what to to.
+- **or** follow these steps for instrumentation information even your target processor is not an ARM (any bit width will do):
+  - Install the free [STCubeMX](https://www.st.com/en/development-tools/stm32cubemx.html).
+  - Choose from [test examples](https://github.com/rokath/trice/tree/master/test) the for you best fitting project `MyExample`.
+  - Open the `MyExample.ioc` file with [STCubeMX](https://www.waveshare.com/wiki/STM32CubeMX_Tutorial_Series:_Overview) and generate without changing any setting.
+  - Make an empty directory `MyProject` inside the `test` folder and copy the `MyExample.ioc` there and rename it to `MyProject.ioc`.
+  - Open `MyProject.ioc` with [STCubeMX](https://www.waveshare.com/wiki/STM32CubeMX_Tutorial_Series:_Overview), change in projects settings `MyExample` to `MyProject` and generate.
+  - Now compare the directories `MyExample` and `MyProject` to see the trice instrumentation as differences.
 
 ## Documentation
 
