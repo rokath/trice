@@ -128,7 +128,7 @@ func (lut LookUp) newID() (id int) {
 	case "random":
 		return lut.newRandomID()
 	case "upward":
-		return lut.newUpwardID()
+		return lut.NewUpwardID()
 	case "downward":
 		return lut.newDownwardID()
 	}
@@ -158,12 +158,14 @@ func (lut LookUp) newRandomID() (id int) {
 	}
 }
 
-func (lut LookUp) newUpwardID() (id int) {
-	interval := UpperBound - LowerBound
+func (lut LookUp) NewUpwardID() (id int) {
+	interval := 1 + UpperBound - LowerBound // both bounds are included
 	freeIDs := interval - len(lut)
-	msg.FatalOnFalse("no new ID possible"+fmt.Sprint(LowerBound, UpperBound, len(lut)), freeIDs > 0)
+	msg.FatalOnFalse("no new ID possible: "+fmt.Sprint("lb=", LowerBound, ", ub=", UpperBound, ", len(lut)=", len(lut)), freeIDs > 0)
+	var t Item
 	id = LowerBound
 	if 0 == len(lut) {
+		lut[id] = t // add
 		return
 	}
 	for {
@@ -174,12 +176,13 @@ func (lut LookUp) newUpwardID() (id int) {
 				goto nextTry
 			}
 		}
+		lut[id] = t // add
 		return
 	}
 }
 
 func (lut LookUp) newDownwardID() (id int) {
-	interval := UpperBound - LowerBound
+	interval := 1 + UpperBound - LowerBound // both bounds are included
 	freeIDs := interval - len(lut)
 	msg.FatalOnFalse("no new ID possible"+fmt.Sprint(LowerBound, UpperBound, len(lut)), freeIDs > 0)
 	id = UpperBound
