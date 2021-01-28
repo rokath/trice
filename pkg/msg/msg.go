@@ -47,9 +47,18 @@ func PanicOnErr(info string, err error) {
 	panic(err)
 }
 
-// InfoOnFalse prints info and a common error message with location info when err is not nil.
+// InfoOnFalse prints info and a common error message with location info when flag is false.
 func InfoOnFalse(info string, flag bool) {
 	if true == flag {
+		return
+	}
+	pc, fn, line, ok := runtime.Caller(1)
+	fmtMessage(pc, fn, line, ok, errors.New(info))
+}
+
+// InfoOnTrue prints info and a common error message with location info when flag is true.
+func InfoOnTrue(info string, flag bool) {
+	if false == flag {
 		return
 	}
 	pc, fn, line, ok := runtime.Caller(1)

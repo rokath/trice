@@ -25,11 +25,11 @@ type Pack2 struct {
 // l is the trice id list in slice of struct format.
 // in is the usable reader for the input bytes.
 // littleEndian is false on normal network order.
-func NewPack2Decoder(l []id.Item, in io.Reader, endian bool) Decoder {
+func NewPack2Decoder(lut id.LookUp, in io.Reader, endian bool) Decoder {
 	p := &Pack2{}
 	p.in = in
 	p.syncBuffer = make([]byte, 0, defaultSize)
-	p.lut = id.MakeLut(l)
+	p.lut = lut
 	p.endian = endian
 	p.syncPacket = emitter.SyncPacketPattern
 	p.innerReadInterval = 100 * time.Millisecond

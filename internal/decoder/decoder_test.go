@@ -5,7 +5,6 @@ package decoder
 
 import (
 	"bytes"
-	"encoding/json"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -23,16 +22,16 @@ type testTable []struct {
 	exp string // output
 }
 
-// unmarshalTriceIDListToSlice extracts the trice ID list byte slice to an items slice.
-// til is a result of a read til.json file or is a converted test string.
-// til can change during runtime, when an "trice update" occurs.
-// Just in case til is not consistent the err value is not nil.
-func unmarshalTriceIDListToSlice(tilJSON []byte) (list []id.Item, err error) {
-	if 0 < len(tilJSON) {
-		err = json.Unmarshal(tilJSON, &list)
-	}
-	return
-}
+//// unmarshalTriceIDListToSlice extracts the trice ID list byte slice to an items slice.
+//// til is a result of a read til.json file or is a converted test string.
+//// til can change during runtime, when an "trice update" occurs.
+//// Just in case til is not consistent the err value is not nil.
+//func unmarshalTriceIDListToSlice(tilJSON []byte) (list []id.Item, err error) {
+//	if 0 < len(tilJSON) {
+//		err = json.Unmarshal(tilJSON, &list)
+//	}
+//	return
+//}
 
 //  // newIDLut assumes til as JSON formatted input and returns a map for trice ID to fmt string translation.
 //  func newIDLut(til []byte) (IDLookUp, error) {
@@ -46,12 +45,10 @@ func unmarshalTriceIDListToSlice(tilJSON []byte) (list []id.Item, err error) {
 
 // doTableTest is the universal decoder test sequence.
 func doTableTest(t *testing.T, f newDecoder, endianness bool, teTa testTable, inputDataType string) {
-	list, err := unmarshalTriceIDListToSlice([]byte(til))
+	lut := make(id.LookUp)
+	tst.AssertNoErr(t, lut.FromJSON([]byte(til)))
 	buf := make([]byte, defaultSize)
-	if err != nil {
-		t.Fail()
-	}
-	dec := f(list, nil, endianness) // p is a new decoder instance
+	dec := f(lut, nil, endianness) // p is a new decoder instance
 	for _, x := range teTa {
 		in := ioutil.NopCloser(bytes.NewBuffer(x.in))
 		if "unwrapped" == inputDataType {

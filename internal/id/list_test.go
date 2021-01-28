@@ -5,7 +5,6 @@
 package id_test
 
 import (
-	"fmt"
 	"io/ioutil"
 	"os"
 	"testing"
@@ -16,118 +15,6 @@ import (
 	"github.com/rokath/trice/pkg/msg"
 	"github.com/rokath/trice/pkg/tst"
 )
-
-func TestNewUpwardID(t *testing.T) {
-	id.LowerBound = 97
-	id.UpperBound = 100
-	var i id.Item
-	lut := make(id.LookUp, 4)
-	lut[98] = i // add
-	lut[99] = i // add
-	id := lut.NewUpwardID()
-	tst.AssertTrue(t, 97 == id)
-	lut[id] = i // add
-	id = lut.NewUpwardID()
-	tst.AssertTrue(t, 100 == id)
-	delete(lut, 98)
-	delete(lut, 99)
-	id = lut.NewUpwardID()
-	tst.AssertTrue(t, 98 == id)
-}
-
-func sampeLut() (lut id.LookUp) {
-	lut = make(id.LookUp, 0)
-	lut[111] = id.Item{FmtType: "t111", FmtStrg: "ss", Created: 321}
-	lut[12] = id.Item{FmtType: "t12", FmtStrg: "s12", Created: 12456, Removed: 12992}
-	lut[12] = id.Item{FmtType: "tt", FmtStrg: "ss", Created: 456, Removed: 992}
-	return
-}
-
-const sampleLutJSON = `{
-	"111": {
-		"fmtType": "t111",
-		"fmtStrg": "ss",
-		"created": 321,
-		"removed": 0
-	},
-	"12": {
-		"fmtType": "tt",
-		"fmtStrg": "ss",
-		"created": 456,
-		"removed": 992
-	}
-}`
-
-const sampleLutJSON1 = `{
-	"3": {
-		"fmtType": "t3",
-		"fmtStrg": "s3",
-		"created": 3,
-		"removed": 0
-	},
-	"12": {
-		"fmtType": "t12",
-		"fmtStrg": "ss",
-		"created": 456,
-		"removed": 992
-	}
-}`
-
-const sampleLutMap = "map[12:{tt ss 456 992} 111:{t111 ss 321 0}]"
-const sampleLutMap1 = "map[12:{tt ss 456 992} 333:{t33 ss3 3 0}]"
-
-// TestLutToJSONFilledByteSlice checks normal initial case.
-func TestLutToJSONFilledByteSlice(t *testing.T) {
-	lut := sampeLut()
-	exp := sampleLutJSON
-	b, e := id.LutToJSON(lut)
-	tst.AssertNoErr(t, e)
-	act := string(b)
-	tst.Equal(t, exp, act)
-}
-
-// TestJSONToLutEmptyByteSlice checks empty case.
-func TestJSONToLutEmptyByteSlice(t *testing.T) {
-	var b []byte
-	exp := "map[]"
-	lut, e := id.JSONToLut(b)
-	tst.AssertNoErr(t, e)
-	act := fmt.Sprint(lut)
-	tst.Equal(t, exp, act)
-}
-
-// TestJSONToLutMapUpdate checks if a prefilled map is extended and updated.
-func TestJSONToLutMapUpdate(t *testing.T) {
-	b := []byte(sampleLutJSON)
-	exp := "map[3:{t3 s3 3 0} 12:{t12 ss 456 992} 111:{t111 ss 321 0}]"
-	lut, e := id.JSONToLut(b)
-	tst.AssertNoErr(t, e)
-	b1 := []byte(sampleLutJSON1)
-	lut.JSONToLut(b1)
-	act := fmt.Sprint(lut)
-	tst.Equal(t, exp, act)
-}
-
-func TestJSONToLut(t *testing.T) {
-	b := []byte(sampleLutJSON)
-	exp := sampleLutMap
-	lut, e := id.JSONToLut(b)
-	tst.AssertNoErr(t, e)
-	act := fmt.Sprint(lut)
-	tst.Equal(t, exp, act)
-}
-
-func TestWriteLutToFileJSON(t *testing.T) {
-	lut := sampeLut()
-	exp := sampleLutMap
-	fn := tst.TempFileName("TestWriteLutToFile*.JSON")
-	e := id.WriteLutToFileJSON(fn, lut)
-	tst.AssertNoErr(t, e)
-	lut, e = id.ReadLutFromFileJSON(fn)
-	tst.AssertNoErr(t, e)
-	act := fmt.Sprint(lut)
-	tst.Equal(t, exp, act)
-}
 
 // randomFile creates a random file containing s and returns its name.
 // See ioutil.Tempfile() for dir and pattern.
@@ -149,27 +36,28 @@ func readFileAsString(filename string) (s string) {
 	return
 }
 
-// func TestWrite(t *testing.T) {
-// 	fa := randomFile("[]", "", "*.json")
-// 	p := id.NewList(fa)
-// 	p.ExtendIDList(12345, "TRICE0", "Hi", true)
-// 	p.ZeroTimestampCreated()
-// 	p.WriteListFile()
-//
-// 	listAct := readFileAsString(fa)
-// 	assert.Nil(t, os.RemoveAll(fa))
-// 	listExp := `[
-// 		{
-// 			"id": 12345,
-// 			"fmtType": "TRICE0",
-// 			"fmtStrg": "Hi",
-// 			"created": 0,
-// 			"removed": 0
-// 		}
-// 	]`
-// 	tst.EqualLines(t, listExp, listAct)
-// }
+/*
+func TestWrite(t *testing.T) {
+	fa := randomFile("[]", "", "*.json")
+	p := id.NewList(fa)
+	p.ExtendIDList(12345, "TRICE0", "Hi", true)
+	p.ZeroTimestampCreated()
+	p.WriteListFile()
 
+	listAct := readFileAsString(fa)
+	assert.Nil(t, os.RemoveAll(fa))
+	listExp := `[
+		{
+			"id": 12345,
+			"fmtType": "TRICE0",
+			"fmtStrg": "Hi",
+			"created": 0,
+			"removed": 0
+		}
+	]`
+	tst.EqualLines(t, listExp, listAct)
+}
+*/
 func TestZeroSourceTreeIds(t *testing.T) {
 	s := `
 	/*! \file triceCheck.c

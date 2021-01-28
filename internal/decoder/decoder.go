@@ -38,7 +38,7 @@ var (
 )
 
 // newDecoder abstracts the function type for a new decoder.
-type newDecoder func(l []id.Item, in io.Reader, endian bool) Decoder
+type newDecoder func(lut id.LookUp, in io.Reader, endian bool) Decoder
 
 // Decoder is providing a byte reader returning decoded trice's.
 // setInput allows switching the input stream to a different source.
@@ -95,31 +95,31 @@ func (p *decoderData) setInput(r io.Reader) {
 }
 
 // Translate performs the trice log task.
-// Bytes are read with rc. Then according decoder.Encoding are translated into strings.
-// Each read returns the amount of bytes for one trice.
+// Bytes are read with rc. Then according decoder.Encoding they are translated into strings.
+// Each read returns the amount of bytes for one trice. rc is called on every
 // Translate returns true on io.EOF or false on hard read error or sigterm.
-func Translate(sw *emitter.TriceLineComposer, list *id.List, rc io.ReadCloser) bool {
+func Translate(sw *emitter.TriceLineComposer, lut id.LookUp, rc io.ReadCloser) bool {
 
 	var dec Decoder //io.Reader
 	switch Encoding {
-	//	case "esc":
-	//		dec = NewEscDecoder(list.ItemList, rc, bigEndian)
-	//	case "pack":
-	//		dec = NewPackDecoder(list.ItemList, rc, bigEndian)
-	//	case "packl", "packL":
-	//		dec = NewPackDecoder(list.ItemList, rc, littleEndian)
-	//	case "pack2":
-	//		dec = NewPack2Decoder(list.ItemList, rc, bigEndian)
-	//	case "pack2l", "pack2L":
-	//		dec = NewPack2Decoder(list.ItemList, rc, littleEndian)
-	//	case "bare":
-	//		dec = NewBareDecoder(list.ItemList, rc, bigEndian)
-	//	case "barel", "bareL":
-	//		dec = NewBareDecoder(list.ItemList, rc, littleEndian)
-	//	case "wrap":
-	//		dec = NewBareDecoder(list.ItemList, NewBareReaderFromWrap(rc), bigEndian)
-	//	case "wrapl", "wrapL":
-	//		dec = NewBareDecoder(list.ItemList, NewBareReaderFromWrap(rc), littleEndian)
+	case "esc":
+		dec = NewEscDecoder(lut, rc, bigEndian)
+	case "pack":
+		dec = NewPackDecoder(lut, rc, bigEndian)
+	case "packl", "packL":
+		dec = NewPackDecoder(lut, rc, littleEndian)
+	case "pack2":
+		dec = NewPack2Decoder(lut, rc, bigEndian)
+	case "pack2l", "pack2L":
+		dec = NewPack2Decoder(lut, rc, littleEndian)
+	case "bare":
+		dec = NewBareDecoder(lut, rc, bigEndian)
+	case "barel", "bareL":
+		dec = NewBareDecoder(lut, rc, littleEndian)
+	case "wrap":
+		dec = NewBareDecoder(lut, NewBareReaderFromWrap(rc), bigEndian)
+	case "wrapl", "wrapL":
+		dec = NewBareDecoder(lut, NewBareReaderFromWrap(rc), littleEndian)
 	//case "bareXTEAEncrypted", "wrapXTEAEncrypted":
 	//	msg.FatalErr(cipher.SetUp())
 	//	fallthrough

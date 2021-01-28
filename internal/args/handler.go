@@ -69,7 +69,7 @@ func Handler(args []string) error {
 	case "u", "update":
 		msg.InfoOnErr("", fsScUpdate.Parse(subArgs))
 		distributeArgs()
-		return id.ScUpdate(id.FnJSON)
+		return id.SubCmdUpdate()
 	case "zeroSourceTreeIds":
 		msg.InfoOnErr("", fsScZero.Parse(subArgs))
 		distributeArgs()
@@ -155,7 +155,7 @@ func scHelp(
 	return nil
 }
 
-// logLoop prepares writing and list and provides a retry mechanism for unplugged UART.
+// logLoop prepares writing and lut and provides a retry mechanism for unplugged UART.
 func logLoop() {
 	msg.InfoOnErr("", cipher.SetUp()) // does nothing when -password is "none"
 	if decoder.TestTableMode {
@@ -177,7 +177,12 @@ func logLoop() {
 		}
 	}
 	c := cage.Start(cage.Name)
-	list := id.New()
+	lut := id.NewLut(id.FnJSON) // lut is a map, that means a pointer
+
+	// Just in case the id list file FnJSON gets updated, the file watcher updates lut.
+	// This way trice needs not to be restarted during development process.
+	lut.FileWatcher()
+
 	sw := emitter.New()
 	var interrupted bool
 	var counter int
@@ -202,7 +207,7 @@ func logLoop() {
 			rc = receiver.NewBytesViewer(rc)
 		}
 
-		f := decoder.Translate(sw, list, rc)
+		f := decoder.Translate(sw, lut, rc)
 		if false == f {
 			cage.Stop(c)
 			return
@@ -245,7 +250,7 @@ func replaceDefaultArgs() {
 		receiver.PortArguments = defaultCOMArgs
 	} else {
 		switch receiver.Port {
-		case "JLINK", "STLINK":
+		case "JLINK", "STLINK", "J-LINK", "ST-LINK":
 			receiver.PortArguments = defaultLinkArgs
 		case "BUFFER":
 			receiver.PortArguments = defaultBUFFERArgs

@@ -52,13 +52,13 @@ If you need target timestamps you need to get the time inside the target and sen
 	fsScLog.StringVar(&emitter.Prefix, "prefix", defaultPrefix, "Line prefix, options: any string or 'off|none' or 'source:' followed by 0-12 spaces, 'source:' will be replaced by source value e.g., 'COM17:'.") // flag
 	fsScLog.StringVar(&emitter.Suffix, "suffix", "", "Append suffix to all lines, options: any string.")                                                                                                           // flag
 
-	info := fmt.Sprint(`receiver device: 'STLINK'|'JLINK'|serial name. 
+	info := fmt.Sprint(`receiver device: 'ST-LINK'|'J-LINK'|serial name. 
 The serial name is like 'COM12' for Windows or a Linux name like '/dev/tty/usb12'. 
 Using a virtual serial COM port on the PC over a FTDI USB adapter is a most likely variant.
 `)
 
-	fsScLog.StringVar(&receiver.Port, "port", "JLINK", info)           // flag
-	fsScLog.StringVar(&receiver.Port, "p", "JLINK", "short for -port") // short flag
+	fsScLog.StringVar(&receiver.Port, "port", "J-LINK", info)           // flag
+	fsScLog.StringVar(&receiver.Port, "p", "J-LINK", "short for -port") // short flag
 	fsScLog.IntVar(&com.Baud, "baud", 115200, `Set the serial port baudrate.
 It is the only setup parameter. The other values default to 8N1 (8 data bits, no parity, one stopbit).
 `) // flag flag
@@ -69,8 +69,8 @@ It is the only setup parameter. The other values default to 8N1 (8 data bits, no
 
 	argsInfo := fmt.Sprint(`Use to pass port specific parameters. The "default" value depends on the used port:
 port "COMn": default="`, defaultCOMArgs, `", use "TARM" for a different driver. (For baud rate settings see -baud.)
-port "JLINK": default="`, defaultLinkArgs, `", `, linkArgsInfo, `
-port "STLINK": default="`, defaultLinkArgs, `", `, linkArgsInfo, `
+port "J-LINK": default="`, defaultLinkArgs, `", `, linkArgsInfo, `
+port "ST-LINK": default="`, defaultLinkArgs, `", `, linkArgsInfo, `
 port "BUFFER": default="`, defaultBUFFERArgs, `", Option for args is any byte sequence.
 `)
 
@@ -111,15 +111,13 @@ Without the "-dry-run" switch it would create|extend a list file til.json in the
 	flagVerbosity(fsScUpdate)
 	flagIDList(fsScUpdate)
 	fsScUpdate.StringVar(&id.SearchMethod, "IDMethod", "legacy", "Search method for new ID's in range- Options are 'upward', 'downward' & 'random'.")
-	fsScUpdate.IntVar(&id.LowerBound, "IDLowerBound", id.LowerBound, "Smallest allowed trice ID. (Lower end of ID range).")
-	fsScUpdate.IntVar(&id.LowerBound, "IDLo", id.LowerBound, "Short for '-IDLowerBound'.")
-	fsScUpdate.IntVar(&id.UpperBound, "IDUpperBound", id.UpperBound, "Biggest allowed trice ID. (Upper end of ID range).")
-	fsScUpdate.IntVar(&id.UpperBound, "IDUp", id.UpperBound, "Short for '-IDUpperBound'.")
-	fsScUpdate.StringVar(&id.Reuse, "IDReuse", "yes", `(to do)
-	yes=Known trice strings without ID get the same ID. If identical TRICE macros have different ID's they are not touched.
-	no=Known trice strings without ID get a different ID. If identical TRICE macros have same ID's they are not touched.
-	yes-replace=Equal trice strings with different ID get the same ID.
-	no-replace=Equal trice strings with same ID get the different ID.`)
+	fsScUpdate.IntVar(&id.Min, "IDmin", id.Min, "Smallest allowed trice ID. (Lower end of ID range).")
+	fsScUpdate.IntVar(&id.Max, "IDmax", id.Max, "Biggest allowed trice ID. (Upper end of ID range).")
+	// fsScUpdate.StringVar(&id.ReUse, "IDReUse", "yes", `(to do)
+	// yes=Known trice strings without ID get the same ID. If identical TRICE macros have different ID's they are not touched.
+	// no=Known trice strings without ID get a different ID. If identical TRICE macros have same ID's they are not touched.
+	// yes-replace=Equal trice strings with different ID get the same ID.
+	// no-replace=Equal trice strings with same ID get the different ID.`)
 }
 
 func init() {
