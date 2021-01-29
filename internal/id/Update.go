@@ -70,6 +70,11 @@ func isSourceFile(fi os.FileInfo) bool {
 	return matchSourceFile.MatchString(fi.Name())
 }
 
+func separatedIDsUpdate(root string, lu TriceIDLookUp, tflu TriceFmtLookUp) (modified bool) {
+	// to do
+	return false
+}
+
 // Additional actions needed: (Option -dry-run lets do a check in advance.)
 // - Insert in all TRICE messages without ID an `Id(0),`
 // - Check if all TRICE messages have correct parameter count and adapt the count without touching the Id(n),
@@ -85,40 +90,19 @@ func isSourceFile(fi os.FileInfo) bool {
 // NOT NEEDED:   - If a `removed` timestamp is set, but the ID is in the source tree the `removed` timestamp is set to 0.
 
 // Update is parsing source tree root and performing these actions:
-// - replace FmtType( Id(0), ...) with FmtType( Id(n), ...)
-// - find duplicate FmtType( Id(n), ...) and replace one of them if trices are not identical
+// - replace.Type( Id(0), ...) with.Type( Id(n), ...)
+// - find duplicate.Type( Id(n), ...) and replace one of them if trices are not identical
 // - extend file fnIDList
-func (ilut ItemLookUp) Update(root string, run, verbose bool) error {
+func sharedIDsUpdate(root string, lu TriceIDLookUp, tflu TriceFmtLookUp) (modified bool) {
 	if Verbose {
 		fmt.Println("dir=", root)
-		fmt.Println("List=", p.FnJSON)
+		fmt.Println("List=", FnJSON)
 	}
-	listModified := false
-	//err :=
-	//p.ReadListFile()
-	//if nil != err {
-	//	fmt.Println(fn + " not found, creating a new one")
-	//	if true == run {
-	//		err = p.write(fn)
-	//		if nil != err {
-	//			return fmt.Errorf("failed to write %s: %v", fn, err)
-	//		}
-	//	}
-	//}
-	err := filepath.Walk(root, visitUpdate(run, ilut, &listModified, verbose))
-	if nil != err {
-		return fmt.Errorf("failed to walk tree: %v", err)
-	}
-	if listModified && true == run {
-		p.WriteListFile()
-		//if nil != p.savedErr {
-		//return fmt.Errorf("failed to write %s: %v", p.FnJSON, err)
-		//}
-	}
-	return nil
+	msg.FatalOnErr("failed to walk tree", filepath.Walk(root, visitUpdate(lu, tflu, &modified)))
+	return
 }
 
-func visitUpdate(run bool, ilut ItemLookUp, pListModified *bool, verbose bool) filepath.WalkFunc {
+func visitUpdate(lu TriceIDLookUp, tflu TriceFmtLookUp, pModified *bool) filepath.WalkFunc {
 	// WalkFunc is the type of the function called for each file or directory
 	// visited by Walk. The path argument contains the argument to Walk as a
 	// prefix; that is, if Walk is called with "dir", which is a directory
@@ -138,38 +122,23 @@ func visitUpdate(run bool, ilut ItemLookUp, pListModified *bool, verbose bool) f
 		if err != nil || fi.IsDir() || !isSourceFile(fi) {
 			return err // forward any error and do nothing
 		}
-		if verbose {
+		if Verbose {
 			fmt.Println(path)
 		}
-		pathModified := false
 		read, err := ioutil.ReadFile(path)
 		if nil != err {
 			return err
 		}
-		s := string(read)
+		text := string(read)
+		textN := updateParamCount(text)           // update parameter count: TRICE* to TRICE*_n
+		textI := updateIDsShared(textN, lu, tflu) // update IDs: Id(0) -> Id(M)
 
-		// update parameter count (TRICE* to TRICE*_n)
-		subs := s[:]
-		for {
-			var found bool
-			found, pathModified, subs, s = updateParamCount(pathModified, subs, s, verbose)
-			if false == found {
-				break
-			}
-		}
-
-		// update IDs
-		subs = s[:]
-		for {
-			var found bool
-			found, pathModified, subs, s = updateNextID(ilut, pListModified, pathModified, subs, s, verbose)
-			if false == found {
-				break
-			}
+		if 0 != strings.Compare(text, textI) {
+			*pModified = true
 		}
 
 		// write out
-		if pathModified && true == run {
+		if *pModified && !DryRun {
 			err = ioutil.WriteFile(path, []byte(s), fi.Mode())
 			if nil != err {
 				return fmt.Errorf("failed to change %s: %v", path, err)
@@ -191,118 +160,124 @@ func visitUpdate(run bool, ilut ItemLookUp, pListModified *bool, verbose bool) f
 //    - modified flag is true when any id was changed in the file
 //    - subs gets shorter
 //    - s is updated
-func updateNextID(ilut ItemLookUp, pListModified *bool, modified bool, subs, s string, verbose bool) (bool, bool, string, string) {
-	loc := matchNbTRICE.FindStringIndex(subs) // find the next TRICE location in file
-	if nil == loc {
-		return false, modified, subs, s // done
-	}
-	nbTRICE := subs[loc[0]:loc[1]]
-	nbID := matchNbID.FindString(nbTRICE)
-	if "" == nbID {
-		msg.Info(fmt.Sprintln("No 'Id(n)' found inside " + nbTRICE))
-		return false, modified, subs, s
-	}
-	var id int
-	_, err := fmt.Sscanf(nbID, "Id(%d", &id) // closing bracket in format string omitted intensionally
-	if nil != err {                          // because spaces after id otherwise are not tolerated
-		msg.Info(fmt.Sprintln("No 'Id(n)' found inside " + nbID))
-		return false, modified, subs, s
-	}
-	if 0 == id {
-		zeroID := nbID
-		zeroTRICE := nbTRICE
-		id /*err*/ = p.newID()
-		// if nil != err {
-		// 	fmt.Println("error: No new ID found")
-		// 	return false, modified, subs, s
-		// }
-		newID := fmt.Sprintf("Id(%5d)", id)
-		if verbose {
-			fmt.Println(zeroID, " -> ", newID)
+func updateIDsShared(text string, lu TriceIDLookUp, tflu TriceFmtLookUp) string {
+	subs := text[:] // create a copy of text and assign it to subs
+	for {
+		loc := matchNbTRICE.FindStringIndex(subs) // find the next TRICE location in file
+		if nil == loc {
+			return text // done
 		}
-		nbTRICE := strings.Replace(nbTRICE, zeroID, newID, 1)
-		s = strings.Replace(s, zeroTRICE, nbTRICE, 1)
-		modified = true
-	}
-	// The replacement makes s not shorter, so next search can start at loc[1]
-	subs = subs[loc[1]:]
-	typNameTRICE := matchTypNameTRICE.FindString(nbTRICE)
-	if "" == typNameTRICE {
-		msg.Info(fmt.Sprintln("no 'TRICE*' found inside " + typNameTRICE))
-		return false, modified, subs, s
-	}
-	match := matchFmtString.FindAllStringSubmatch(nbTRICE, 1)
-	fmtString := match[0][1]
-	nID, flag := p.ExtendIDList(id, typNameTRICE, fmtString, verbose)
-	if flag {
-		*pListModified = true
-		if nID != id { // a new id was generated
-			//oID := fmt.Sprintf("Id(%5d)", id)
-			newID := fmt.Sprintf("Id(%5d)", nID)
-			if verbose {
-				fmt.Println(nbID, " -> ", newID)
+		nbTRICE := subs[loc[0]:loc[1]]
+		nbID := matchNbID.FindString(nbTRICE)
+		if "" == nbID {
+			msg.Info(fmt.Sprintln("No 'Id(n)' found inside " + nbTRICE))
+			subs = subs[loc[1]:]
+			continue
+		}
+		var id TriceID
+
+		_, err := fmt.Sscanf(nbID, "Id(%d", &id) // closing bracket in format string omitted intensionally
+		if nil != err {                          // because spaces after id otherwise are not tolerated
+			msg.Info(fmt.Sprintln("No 'Id(n)' found inside " + nbID))
+			subs = subs[loc[1]:]
+			continue
+		}
+
+		if 0 == id {
+			zeroID := nbID
+			zeroTRICE := nbTRICE
+			id = lu.newID()
+			newID := fmt.Sprintf("Id(%5d)", id)
+			if Verbose {
+				fmt.Println(zeroID, " -> ", newID)
 			}
-			newTRICE := strings.Replace(nbTRICE, nbID, newID, 1)
-			s = strings.Replace(s, nbTRICE, newTRICE, 1)
-			modified = true
+			nbTRICE := strings.Replace(nbTRICE, zeroID, newID, 1)
+			text = strings.Replace(text, zeroTRICE, nbTRICE, 1)
 		}
+
+		// prepare subs already for next loop
+		subs = subs[loc[1]:] // The replacement makes s not shorter, so next search can start at loc[1]
+
+		// At this place loc contains a trice with an ID.
+		// It is possible this ID is completely new.
+		// It is possible this ID
+
+		var tf TriceFmt
+		tf.Type = matchTypNameTRICE.FindString(nbTRICE)
+		if "" == tf.Type {
+			msg.Info(fmt.Sprintln("no 'TRICE*' found inside " + nbTRICE))
+			continue
+		}
+		match := matchFmtString.FindAllStringSubmatch(nbTRICE, 1)
+		tf.Strg = match[0][1]
+
+		tflu[tf] = id
+		lu[id] = tf
+
+		nID, flag := p.ExtendIDList(id, typNameTRICE, fmtString)
+		if flag {
+			*pListModified = true
+			if nID != id { // a new id was generated
+				//oID := fmt.Sprintf("Id(%5d)", id)
+				newID := fmt.Sprintf("Id(%5d)", nID)
+				if Verbose {
+					fmt.Println(nbID, " -> ", newID)
+				}
+				newTRICE := strings.Replace(nbTRICE, nbID, newID, 1)
+				s = strings.Replace(s, nbTRICE, newTRICE, 1)
+				modified = true
+			}
+		}
+		return true, modified, subs, s // next done
 	}
-	return true, modified, subs, s // next done
 }
 
-// updateParamCount is called in a loop for each file as long TRICE* statements without ID() are found
+// updateParamCount stays in each file as long TRICE* statements without ID() are found.
 // If a TRICE* is found it is getting an Id(0) inserted and it is also extended by _n
 // according to the format specifier count inside the formatstring
 //
-// updateParamCount is getting these parameters:
-//    - modified = the 'file modified flag', which is returned set true if s.th. changed in the file
-//    - subs = the remaining file contents
-//    - s = the full filecontents, which could be modified
-//    - verbose flag
-// updateNextID is returning these values (left to right):
-//    - modified flag is true when anything was changed in the file
-//    - subs gets shorter
-//    - s is updated
-func updateParamCount(modified bool, subs, s string, verbose bool) (bool, bool, string, string) {
-	loc := matchFullTriceWithoutID.FindStringIndex(subs) // find the next TRICE location in file
-	if nil == loc {
-		return false, modified, subs, s // done
-	}
-	modified = true
-	trice := subs[loc[0]:loc[1]]                                  // the whole TRICE*(*);
-	triceO := matchTriceStartWithoutIDo.FindString(trice)         // TRICE*( part (the trice start)
-	triceS := matchTriceStartWithoutID.FindString(trice)          // TRICE* part (the trice start)
-	triceN := strings.Replace(trice, triceO, triceO+" Id(0),", 1) // insert Id(0)
-
-	// count % format spezifier inside formatstring
-	p := triceN
-	var n int
-	xs := "any"
-	for "" != xs {
-		lo := matchNextFormatSpezifier.FindStringIndex(p)
-		xs = matchNextFormatSpezifier.FindString(p)
-		if "" != xs { // found
-			n++
-			p = p[lo[1]:]
-		} else {
-			xs = ""
+// text is the full filecontents, which could be modified, therefore it is also returned
+func updateParamCount(text string) string {
+	subs := text[:] // create a copy of text and assign it to subs
+	for {
+		loc := matchFullTriceWithoutID.FindStringIndex(subs) // find the next TRICE location in file
+		if nil == loc {
+			return text // done
 		}
-	}
-	if n > 0 { // patch
-		newName := fmt.Sprintf(triceS+"_%d", n)              // TRICE*_n
-		triceN = strings.Replace(triceN, triceS, newName, 1) // insert _n
-	} else {
-		// todo: handle special case 0==n
-	}
+		trice := subs[loc[0]:loc[1]]                                  // the whole TRICE*(*);
+		triceO := matchTriceStartWithoutIDo.FindString(trice)         // TRICE*( part (the trice start)
+		triceS := matchTriceStartWithoutID.FindString(trice)          // TRICE* part (the trice start)
+		triceN := strings.Replace(trice, triceO, triceO+" Id(0),", 1) // insert Id(0)
 
-	if verbose {
-		fmt.Println(trice)
-		fmt.Println("->")
-		fmt.Println(triceN)
+		// count % format spezifier inside formatstring
+		p := triceN
+		var n int
+		xs := "any"
+		for "" != xs {
+			lo := matchNextFormatSpezifier.FindStringIndex(p)
+			xs = matchNextFormatSpezifier.FindString(p)
+			if "" != xs { // found
+				n++
+				p = p[lo[1]:]
+			} else {
+				xs = ""
+			}
+		}
+		if n > 0 { // patch
+			newName := fmt.Sprintf(triceS+"_%d", n)              // TRICE*_n
+			triceN = strings.Replace(triceN, triceS, newName, 1) // insert _n
+		} else {
+			// to do: handle special case 0==n
+		}
+
+		if Verbose {
+			fmt.Println(trice)
+			fmt.Println("->")
+			fmt.Println(triceN)
+		}
+		text = strings.Replace(text, trice, triceN, 1) // modify s
+		subs = subs[loc[1]:]                           // The replacement makes s not shorter, so next search can start at loc[1]
 	}
-	s = strings.Replace(s, trice, triceN, 1) // modify s
-	subs = subs[loc[1]:]                     // The replacement makes s not shorter, so next search can start at loc[1]
-	return true, modified, subs, s           // next done
 }
 
 // ZeroSourceTreeIds is overwriting with 0 all id's from source code tree srcRoot. It does not touch idlist.

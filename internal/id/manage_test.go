@@ -11,53 +11,45 @@ import (
 	"github.com/rokath/trice/pkg/tst"
 )
 
-func sampeLut() (lut LookUp) {
-	lut = make(LookUp)
-	lut[111] = Item{FmtType: "t111", FmtStrg: "ss"}
-	lut[12] = Item{FmtType: "t12", FmtStrg: "s12"}
-	lut[12] = Item{FmtType: "tt", FmtStrg: "ss"}
+func sampleLut0() (lu TriceIDLookUp) {
+	lu = make(TriceIDLookUp)
+	lu[11] = TriceFmt{Type: "t11", Strg: "s11"}
+	lu[12] = TriceFmt{Type: "t12", Strg: "s12"}
+	lu[12] = TriceFmt{Type: "t12", Strg: "s12a"}
 	return
 }
 
-const reverseSampleLut = "map[{t111 ss}:111 {tt ss}:12]"
+const reverseSampleLut0 = "map[{t11 s11}:11 {t12 s12a}:12]"
 
-const sampleLutJSON = `{
-	"111": {
-		"fmtType": "t111",
-		"fmtStrg": "ss"
+const sampleLutJSON0 = `{
+	"11": {
+		"Type": "t11",
+		"Strg": "s11"
 	},
 	"12": {
-		"fmtType": "tt",
-		"fmtStrg": "ss"
+		"Type": "t12",
+		"Strg": "s12a"
 	}
 }`
 
 const sampleLutJSON1 = `{
-	"3": {
-		"fmtType": "t3",
-		"fmtStrg": "s3"
+	"33": {
+		"Type": "t33",
+		"Strg": "s33"
 	},
 	"12": {
-		"fmtType": "t12",
-		"fmtStrg": "ss"
+		"Type": "t12",
+		"Strg": "s12"
 	}
 }`
 
-const sampleLutMap = "map[12:{tt ss} 111:{t111 ss}]"
-const sampleLutMap1 = "map[12:{tt ss} 333:{t33 ss3}]"
-
-func TestLutReverse(t *testing.T) {
-	lut := sampeLut()
-	exp := reverseSampleLut
-	ilut := lut.reverse()
-	act := fmt.Sprint(ilut)
-	tst.Equal(t, exp, act)
-}
+const sampleLutMap0 = "map[11:{t11 s11} 12:{t12 s12a}]"
+const sampleLutMap1 = "map[12:{t12 s12} 33:{t33 s33}]"
 
 // TestLutToJSONFilledByteSlice checks normal initial case.
 func TestLutToJSON(t *testing.T) {
-	lut := sampeLut()
-	exp := sampleLutJSON
+	lut := sampleLut0()
+	exp := sampleLutJSON0
 	b, e := lut.toJSON()
 	tst.AssertNoErr(t, e)
 	act := string(b)
@@ -68,9 +60,7 @@ func TestLutToJSON(t *testing.T) {
 func TestJSONToLutEmptyByteSlice(t *testing.T) {
 	var b []byte
 	exp := "map[]"
-	try := make(map[Item]int)
-	fmt.Println(try)
-	lut := make(LookUp)
+	lut := make(TriceIDLookUp)
 	tst.AssertNoErr(t, lut.FromJSON(b))
 	act := fmt.Sprint(lut)
 	tst.Equal(t, exp, act)
@@ -78,9 +68,9 @@ func TestJSONToLutEmptyByteSlice(t *testing.T) {
 
 // TestJSONToLutMapUpdate checks if a prefilled map is extended and updated.
 func TestJSONToLutMapUpdate(t *testing.T) {
-	b := []byte(sampleLutJSON)
-	exp := "map[3:{t3 s3} 12:{t12 ss} 111:{t111 ss}]"
-	lut := make(LookUp)
+	b := []byte(sampleLutJSON0)
+	exp := "map[11:{t11 s11} 12:{t12 s12} 33:{t33 s33}]"
+	lut := make(TriceIDLookUp)
 	tst.AssertNoErr(t, lut.FromJSON(b))
 	b1 := []byte(sampleLutJSON1)
 	lut.FromJSON(b1)
@@ -90,9 +80,9 @@ func TestJSONToLutMapUpdate(t *testing.T) {
 
 // TestJSONToLut checks if JSON to lut works.
 func TestJSONToLut(t *testing.T) {
-	b := []byte(sampleLutJSON)
-	exp := sampleLutMap
-	lut := make(LookUp)
+	b := []byte(sampleLutJSON0)
+	exp := sampleLutMap0
+	lut := make(TriceIDLookUp)
 	tst.AssertNoErr(t, lut.FromJSON(b))
 	act := fmt.Sprint(lut)
 	tst.Equal(t, exp, act)
@@ -100,11 +90,11 @@ func TestJSONToLut(t *testing.T) {
 
 // TestLutFileTransfer checks lut file transfer.
 func TestLutFileTransfer(t *testing.T) {
-	wr := sampeLut()
-	exp := sampleLutMap
+	wr := sampleLut0()
+	exp := sampleLutMap0
 	fn := tst.TempFileName("TestWriteLutToFile*.JSON")
 	tst.AssertNoErr(t, wr.toFile(fn))
-	rd := make(LookUp)
+	rd := make(TriceIDLookUp)
 	tst.AssertNoErr(t, rd.fromFile(fn))
 	act := fmt.Sprint(rd)
 	tst.Equal(t, exp, act)

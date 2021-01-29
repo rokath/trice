@@ -7,14 +7,13 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/rokath/trice/pkg/msg"
-
 	"github.com/fsnotify/fsnotify"
+	"github.com/rokath/trice/pkg/msg"
 )
 
 // FileWatcher checks id List file for changes
 // taken from https://medium.com/@skdomino/watch-this-file-watching-in-go-5b5a247cf71f
-func (lut LookUp) FileWatcher() {
+func (lu TriceIDLookUp) FileWatcher() {
 
 	// creates a new file watcher
 	watcher, err := fsnotify.NewWatcher()
@@ -34,7 +33,7 @@ func (lut LookUp) FileWatcher() {
 				diff := now.Sub(last)
 				if diff > 5000*time.Millisecond {
 					fmt.Println("renew id.List")
-					lut.renew()
+					lu.fromFile(FnJSON)
 					last = time.Now()
 				}
 
@@ -52,16 +51,3 @@ func (lut LookUp) FileWatcher() {
 	}
 	<-done
 }
-
-// renewIDList clears the internal id List and reads it again
-func (lut LookUp) renew() {
-	fmt.Println("renewIDList")
-}
-
-// // renewIDList clears the internal id List and reads it again
-// func (p *List) renewIDList() {
-// 	if "none" != p.FnJSON {
-// 		p.ItemList = p.ItemList[:0]
-// 		p.ReadListFile()
-// 	}
-// }

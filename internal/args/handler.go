@@ -177,11 +177,11 @@ func logLoop() {
 		}
 	}
 	c := cage.Start(cage.Name)
-	lut := id.NewLut(id.FnJSON) // lut is a map, that means a pointer
+	lu := id.NewLut(id.FnJSON) // lut is a map, that means a pointer
 
 	// Just in case the id list file FnJSON gets updated, the file watcher updates lut.
 	// This way trice needs not to be restarted during development process.
-	lut.FileWatcher()
+	lu.FileWatcher()
 
 	sw := emitter.New()
 	var interrupted bool
@@ -207,7 +207,7 @@ func logLoop() {
 			rc = receiver.NewBytesViewer(rc)
 		}
 
-		f := decoder.Translate(sw, lut, rc)
+		f := decoder.Translate(sw, lu, rc)
 		if false == f {
 			cage.Stop(c)
 			return

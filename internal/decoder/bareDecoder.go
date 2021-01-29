@@ -19,7 +19,7 @@ type Bare struct {
 // NewBareDecoder provides an BareDecoder instance.
 // l is the trice id list in slice of struct format.
 // in is the usable reader for the input bytes.
-func NewBareDecoder(lut id.LookUp, in io.Reader, endian bool) Decoder {
+func NewBareDecoder(lut id.TriceIDLookUp, in io.Reader, endian bool) Decoder {
 	p := &Bare{}
 	p.in = in
 	p.syncBuffer = make([]byte, 0, defaultSize)
@@ -64,7 +64,7 @@ func (p *Bare) Read(b []byte) (n int, err error) {
 			p.rub(4)
 			continue
 		}
-		triceID := head >> 16                      // 2 msb bytes are the ID
+		triceID := id.TriceID(head >> 16)          // 2 msb bytes are the ID
 		p.payload = append(p.payload, 0xffff&head) // next 2 bytes are payload
 		if 8 < len(p.payload) {
 			p.payload = p.payload[:0]
@@ -99,7 +99,7 @@ func (p *Bare) payloadLenOk() bool {
 // expectedPayloadLen returns expected len for triceType.
 // It returns -1 for an unknown value an -2 for unknown triceType.
 func (p *Bare) expectedPayloadLen() int {
-	switch p.trice.FmtType {
+	switch p.trice.Type {
 	case "TRICE0", "TRICE8_1", "TRICE8_2", "TRICE16_1", "trice0", "trice8_1", "trice8_2", "trice16_1":
 		return 1
 	case "TRICE8_3", "TRICE8_4", "TRICE16_2", "TRICE32_1", "trice8_3", "trice8_4", "trice16_2", "trice32_1":
@@ -122,7 +122,7 @@ func (p *Bare) expectedPayloadLen() int {
 /*
 // sprintTrice generates the trice string.
 func (p *Bare) sprintTrice() (n int, err error) {
-	switch p.trice.FmtType {
+	switch p.trice.Type {
 	case "TRICE0":
 		return p.trice0()
 	case "TRICE8_1":
@@ -162,14 +162,14 @@ func (p *Bare) sprintTrice() (n int, err error) {
 	case "TRICE64_2":
 		return p.trice642()
 	}
-	return p.outOfSync(fmt.Sprintf("Unexpected trice.FmtType %s", p.trice.FmtType))
+	return p.outOfSync(fmt.Sprintf("Unexpected trice.Type %s", p.trice.Type))
 }
 */
 
 // sprintTrice generates the trice string.
 func (p *Bare) sprintTrice( /*cnt int*/ ) (n int, e error) {
 	// ID and count are ok
-	switch p.trice.FmtType {
+	switch p.trice.Type {
 	case "TRICE0", "trice0":
 		return p.trice0()
 	case "TRICE8_1", "trice8_1":
@@ -211,12 +211,12 @@ func (p *Bare) sprintTrice( /*cnt int*/ ) (n int, e error) {
 		//	case "TRICE_S", "trice_s":
 		//		return p.triceS(cnt)
 	default:
-		return p.outOfSync(fmt.Sprintf("Unexpected trice.FmtType %s", p.trice.FmtType))
+		return p.outOfSync(fmt.Sprintf("Unexpected trice.Type %s", p.trice.Type))
 	}
 }
 
 func (p *Bare) trice0() (n int, e error) {
-	n = copy(p.b, fmt.Sprintf(p.trice.FmtStrg))
+	n = copy(p.b, fmt.Sprintf(p.trice.Strg))
 	p.payload = p.payload[:0]
 	return
 }
@@ -224,7 +224,7 @@ func (p *Bare) trice0() (n int, e error) {
 func (p *Bare) trice81() (n int, e error) {
 	// to do: Evaluate p.trice.Strng for %u, change to %d and use uint8 than.
 	b0 := int8(p.payload[0])
-	n = copy(p.b, fmt.Sprintf(p.trice.FmtStrg, b0))
+	n = copy(p.b, fmt.Sprintf(p.trice.Strg, b0))
 	p.payload = p.payload[:0]
 	return
 }
@@ -232,7 +232,7 @@ func (p *Bare) trice81() (n int, e error) {
 func (p *Bare) trice82() (n int, e error) {
 	b0 := int8(p.payload[0] >> 8)
 	b1 := int8(p.payload[0])
-	n = copy(p.b, fmt.Sprintf(p.trice.FmtStrg, b0, b1))
+	n = copy(p.b, fmt.Sprintf(p.trice.Strg, b0, b1))
 	p.payload = p.payload[:0]
 	return
 }
@@ -241,7 +241,7 @@ func (p *Bare) trice83() (n int, e error) {
 	b0 := int8(p.payload[0] >> 8)
 	b1 := int8(p.payload[0])
 	b2 := int8(p.payload[1])
-	n = copy(p.b, fmt.Sprintf(p.trice.FmtStrg, b0, b1, b2))
+	n = copy(p.b, fmt.Sprintf(p.trice.Strg, b0, b1, b2))
 	p.payload = p.payload[:0]
 	return
 }
@@ -251,7 +251,7 @@ func (p *Bare) trice84() (n int, e error) {
 	b1 := int8(p.payload[0])
 	b2 := int8(p.payload[1] >> 8)
 	b3 := int8(p.payload[1])
-	n = copy(p.b, fmt.Sprintf(p.trice.FmtStrg, b0, b1, b2, b3))
+	n = copy(p.b, fmt.Sprintf(p.trice.Strg, b0, b1, b2, b3))
 	p.payload = p.payload[:0]
 	return
 }
@@ -262,7 +262,7 @@ func (p *Bare) trice85() (n int, e error) {
 	b2 := int8(p.payload[1] >> 8)
 	b3 := int8(p.payload[1])
 	b4 := int8(p.payload[2])
-	n = copy(p.b, fmt.Sprintf(p.trice.FmtStrg, b0, b1, b2, b3, b4))
+	n = copy(p.b, fmt.Sprintf(p.trice.Strg, b0, b1, b2, b3, b4))
 	p.payload = p.payload[:0]
 	return
 }
@@ -274,7 +274,7 @@ func (p *Bare) trice86() (n int, e error) {
 	b3 := int8(p.payload[1])
 	b4 := int8(p.payload[2] >> 8)
 	b5 := int8(p.payload[2])
-	n = copy(p.b, fmt.Sprintf(p.trice.FmtStrg, b0, b1, b2, b3, b4, b5))
+	n = copy(p.b, fmt.Sprintf(p.trice.Strg, b0, b1, b2, b3, b4, b5))
 	p.payload = p.payload[:0]
 	return
 }
@@ -287,7 +287,7 @@ func (p *Bare) trice87() (n int, e error) {
 	b4 := int8(p.payload[2] >> 8)
 	b5 := int8(p.payload[2])
 	b6 := int8(p.payload[3])
-	n = copy(p.b, fmt.Sprintf(p.trice.FmtStrg, b0, b1, b2, b3, b4, b5, b6))
+	n = copy(p.b, fmt.Sprintf(p.trice.Strg, b0, b1, b2, b3, b4, b5, b6))
 	p.payload = p.payload[:0]
 	return
 }
@@ -301,14 +301,14 @@ func (p *Bare) trice88() (n int, e error) {
 	b5 := int8(p.payload[2])
 	b6 := int8(p.payload[3] >> 8)
 	b7 := int8(p.payload[3])
-	n = copy(p.b, fmt.Sprintf(p.trice.FmtStrg, b0, b1, b2, b3, b4, b5, b6, b7))
+	n = copy(p.b, fmt.Sprintf(p.trice.Strg, b0, b1, b2, b3, b4, b5, b6, b7))
 	p.payload = p.payload[:0]
 	return
 }
 
 func (p *Bare) trice161() (n int, e error) {
 	d0 := int16(p.payload[0])
-	n = copy(p.b, fmt.Sprintf(p.trice.FmtStrg, d0))
+	n = copy(p.b, fmt.Sprintf(p.trice.Strg, d0))
 	p.payload = p.payload[:0]
 	return
 }
@@ -316,7 +316,7 @@ func (p *Bare) trice161() (n int, e error) {
 func (p *Bare) trice162() (n int, e error) {
 	d0 := int16(p.payload[0])
 	d1 := int16(p.payload[1])
-	n = copy(p.b, fmt.Sprintf(p.trice.FmtStrg, d0, d1))
+	n = copy(p.b, fmt.Sprintf(p.trice.Strg, d0, d1))
 	p.payload = p.payload[:0]
 	return
 }
@@ -325,7 +325,7 @@ func (p *Bare) trice163() (n int, e error) {
 	d0 := int16(p.payload[0])
 	d1 := int16(p.payload[1])
 	d2 := int16(p.payload[2])
-	n = copy(p.b, fmt.Sprintf(p.trice.FmtStrg, d0, d1, d2))
+	n = copy(p.b, fmt.Sprintf(p.trice.Strg, d0, d1, d2))
 	p.payload = p.payload[:0]
 	return
 }
@@ -335,14 +335,14 @@ func (p *Bare) trice164() (n int, e error) {
 	d1 := int16(p.payload[1])
 	d2 := int16(p.payload[2])
 	d3 := int16(p.payload[3])
-	n = copy(p.b, fmt.Sprintf(p.trice.FmtStrg, d0, d1, d2, d3))
+	n = copy(p.b, fmt.Sprintf(p.trice.Strg, d0, d1, d2, d3))
 	p.payload = p.payload[:0]
 	return
 }
 
 func (p *Bare) trice321() (n int, e error) {
 	d0 := int32(p.payload[0])<<16 | int32(p.payload[1])
-	n = copy(p.b, fmt.Sprintf(p.trice.FmtStrg, d0))
+	n = copy(p.b, fmt.Sprintf(p.trice.Strg, d0))
 	p.payload = p.payload[:0]
 	return
 }
@@ -350,7 +350,7 @@ func (p *Bare) trice321() (n int, e error) {
 func (p *Bare) trice322() (n int, e error) {
 	d0 := int32(p.payload[0]<<16 | p.payload[1])
 	d1 := int32(p.payload[2]<<16 | p.payload[3])
-	n = copy(p.b, fmt.Sprintf(p.trice.FmtStrg, d0, d1))
+	n = copy(p.b, fmt.Sprintf(p.trice.Strg, d0, d1))
 	p.payload = p.payload[:0]
 	return
 }
@@ -359,7 +359,7 @@ func (p *Bare) trice323() (n int, e error) {
 	d0 := int32(p.payload[0]<<16 | p.payload[1])
 	d1 := int32(p.payload[2]<<16 | p.payload[3])
 	d2 := int32(p.payload[4]<<16 | p.payload[5])
-	n = copy(p.b, fmt.Sprintf(p.trice.FmtStrg, d0, d1, d2))
+	n = copy(p.b, fmt.Sprintf(p.trice.Strg, d0, d1, d2))
 	p.payload = p.payload[:0]
 	return
 }
@@ -369,14 +369,14 @@ func (p *Bare) trice324() (n int, e error) {
 	d1 := int32(p.payload[2]<<16 | p.payload[3])
 	d2 := int32(p.payload[4]<<16 | p.payload[5])
 	d3 := int32(p.payload[6]<<16 | p.payload[7])
-	n = copy(p.b, fmt.Sprintf(p.trice.FmtStrg, d0, d1, d2, d3))
+	n = copy(p.b, fmt.Sprintf(p.trice.Strg, d0, d1, d2, d3))
 	p.payload = p.payload[:0]
 	return
 }
 
 func (p *Bare) trice641() (n int, e error) {
 	d0 := int64(p.payload[0]<<48 | p.payload[1]<<32 | p.payload[2]<<16 | p.payload[3])
-	n = copy(p.b, fmt.Sprintf(p.trice.FmtStrg, d0))
+	n = copy(p.b, fmt.Sprintf(p.trice.Strg, d0))
 	p.payload = p.payload[:0]
 	return
 }
@@ -384,7 +384,7 @@ func (p *Bare) trice641() (n int, e error) {
 func (p *Bare) trice642() (n int, e error) {
 	d0 := int64(p.payload[0]<<48 | p.payload[1]<<32 | p.payload[2]<<16 | p.payload[3])
 	d1 := int64(p.payload[4]<<48 | p.payload[5]<<32 | p.payload[6]<<16 | p.payload[7])
-	n = copy(p.b, fmt.Sprintf(p.trice.FmtStrg, d0, d1))
+	n = copy(p.b, fmt.Sprintf(p.trice.Strg, d0, d1))
 	p.payload = p.payload[:0]
 	return
 }

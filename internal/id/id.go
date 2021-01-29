@@ -4,6 +4,8 @@
 // Package id List is responsible for id List managing
 package id
 
+import "fmt"
+
 var (
 	// Verbose gives mor information on output if set. The value is injected from main packages.
 	Verbose bool
@@ -15,40 +17,51 @@ var (
 	FnJSON string
 
 	// Min is the smallest allowed ID.
-	Min = 1
+	Min = TriceID(1)
 
 	// Max is the biggest allowed ID.
-	Max = 65535
+	Max = TriceID(65535)
 
 	// SearchMethod is the next ID search method.
 	SearchMethod = "random"
+
+	// SharedIDs true: TriceFmt's without TriceID get equal TriceID if an equal TriceFmt exists already.
+	// SharedIDs false: TriceFmt's without TriceID get a different TriceID if an equal TriceFmt exists already.
+	SharedIDs = true
 )
 
-// ID is the trice ID referencing to Fmt.
-type ID int
+// TriceID is the trice ID referencing to Fmt.
+type TriceID int
 
-// Fmt is the trice format information assigned to a trice ID.
-type Fmt struct {
-	Type string `json:"fmtType"` // format type (bitsize and number of fmt string parameters)
-	Strg string `json:"fmtStrg"` // format string
+// String implements part of flag.Value interface. It returns id as string.
+func (id *TriceID) String() string {
+	return fmt.Sprintf("%d", id)
 }
 
-// I2F is the ID-to-Fmt info translation map. Different IDs can refer to same format. (Case source tree merge)
+// Set implements part of flag.Value interface. It initializes id from the partial commandline string
+func (id *TriceID) Set(value string) error {
+	n, err := fmt.Scanf(value)
+	*id = TriceID(n)
+	return err
+}
+
+// TriceFmt is the trice format information assigned to a trice ID.
+type TriceFmt struct {
+	Type string `json:"Type"` // format type (bitsize and number of fmt string parameters)
+	Strg string `json:"Strg"` // format string
+}
+
+// TriceIDLookUp is the ID-to-TriceFmt info translation map. Different IDs can refer to equal TriceFmt's.
 // It is used during logging.
 // Example: 1:A, 5:C, 7:C
 // An ID can point to one and only format string.
-type I2F map[ID]Fmt
+type TriceIDLookUp map[TriceID]TriceFmt
 
-// F2I is the Fmt-to-ID info translation map. Same Format cannot have different IDs.
+// TriceFmtLookUp is the TriceFmt-to-ID info translation map. Equal TriceFmt cannot have different IDs in this translation map.
 //
-// It is derived from I2F reversing it and used during update.
+// It is derived from IDLookUp reversing it and can be used during SharedUpdate of src tree.
 // Example: A:1, !C:5, C:7 (C.7 will overwrite C:5)
-// If in source code same format strings have different IDs they are not touched.
-// If an additional same format string occures without ID it gets one of the already for this format string used IDs.
-type F2I map[Fmt]ID
-
-// Lut is the look-up table. It contains a map and its reverse map.
-type Lut struct {
-	i2f I2F
-	f2i F2I
-}
+// If in source code equal TriceFmt's have different IDs they are not touched.
+// If an additional equal TriceFmt occures without ID it gets one of the already for this format string used IDs.
+// This is the default. For forcing different IDs on equal Fmt's a SolitaryUpdate function is needed. (to do)
+type TriceFmtLookUp map[TriceFmt]TriceID

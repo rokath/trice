@@ -13,7 +13,7 @@ import (
 
 func TestNewID(t *testing.T) {
 	rand.Seed(0)
-	lut := make(LookUp)
+	lut := make(TriceIDLookUp)
 	id := lut.newID()
 	tst.AssertTrue(t, 43255 == id)
 	SearchMethod = "downward"
@@ -24,17 +24,17 @@ func TestNewID(t *testing.T) {
 	tst.AssertTrue(t, 1 == id)
 	id = lut.newID()
 	tst.AssertTrue(t, 1 == id)
-	var i Item
+	var i TriceFmt
 	lut[id] = i
 	id = lut.newID()
 	tst.AssertTrue(t, 2 == id)
 }
 
 func TestNewUpwardID(t *testing.T) {
-	min := 97
-	max := 100
-	var i Item
-	lut := make(LookUp, 4)
+	min := TriceID(97)
+	max := TriceID(100)
+	var i TriceFmt
+	lut := make(TriceIDLookUp, 4)
 	lut[98] = i // add
 	lut[99] = i // add
 	id := lut.newUpwardID(min, max)
@@ -49,10 +49,10 @@ func TestNewUpwardID(t *testing.T) {
 }
 
 func TestNewDownwardID(t *testing.T) {
-	min := 97
-	max := 100
-	var i Item
-	lut := make(LookUp, 4)
+	min := TriceID(97)
+	max := TriceID(100)
+	var i TriceFmt
+	lut := make(TriceIDLookUp, 4)
 	lut[98] = i // add
 	lut[99] = i // add
 	id := lut.newDownwardID(min, max)
@@ -68,9 +68,9 @@ func TestNewDownwardID(t *testing.T) {
 
 func TestNewRandomID(t *testing.T) {
 	rand.Seed(0)
-	min := 50
-	max := 100
-	lut := make(LookUp, 4)
+	min := TriceID(50)
+	max := TriceID(100)
+	lut := make(TriceIDLookUp, 4)
 	id := lut.newRandomID(min, max)
 	tst.AssertTrue(t, 56 == id)
 	id = lut.newRandomID(min, max)

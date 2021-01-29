@@ -19,7 +19,7 @@ type Esc struct {
 // NewEscDecoder provides an EscDecoder instance.
 // l is the trice id list in slice of struct format.
 // in is the usable reader for the input bytes.
-func NewEscDecoder(lut id.LookUp, in io.Reader, endian bool) Decoder {
+func NewEscDecoder(lut id.TriceIDLookUp, in io.Reader, endian bool) Decoder {
 	p := &Esc{}
 	p.in = in
 	p.syncBuffer = make([]byte, 0, defaultSize)
@@ -68,7 +68,7 @@ func (p *Esc) Read(b []byte) (n int, err error) {
 	if 0xde == lengthCode { // 0xde == 222
 		return p.outOfSync("0xEC is followed by 0xDE, so no start byte")
 	}
-	triceID := int(binary.BigEndian.Uint16(p.syncBuffer[2:4]))
+	triceID := id.TriceID(binary.BigEndian.Uint16(p.syncBuffer[2:4]))
 	var ok bool
 	p.trice, ok = p.lut[triceID]
 	if !ok { // unknown id
@@ -76,7 +76,7 @@ func (p *Esc) Read(b []byte) (n int, err error) {
 	}
 	p.bc = p.bytesCount(lengthCode) // payload plus header
 	if p.expectedByteCount() != p.bc {
-		return p.outOfSync(fmt.Sprint("trice.FmtType ", p.trice.FmtType, " with not matching length code ", lengthCode))
+		return p.outOfSync(fmt.Sprint("trice.Type ", p.trice.Type, " with not matching length code ", lengthCode))
 	}
 	if len(p.syncBuffer) < 4+p.bc { // header plus payload
 		return // wait
@@ -98,7 +98,7 @@ func (p *Esc) bytesCount(lc byte) int {
 // byteCount returns expected byte count for triceType.
 // It returns -1 for an unknown value an -2 for unknown triceType.
 func (p *Esc) expectedByteCount() int {
-	switch p.trice.FmtType {
+	switch p.trice.Type {
 	case "TRICE0":
 		return 0
 	case "TRICE8_1":
@@ -119,11 +119,11 @@ func (p *Esc) expectedByteCount() int {
 }
 
 func (p *Esc) sprintTrice() (n int, e error) {
-	if "TRICE_S" == p.trice.FmtType { // special case
+	if "TRICE_S" == p.trice.Type { // special case
 		return p.triceS()
 	}
 	p.rub(4) // remove header
-	switch p.trice.FmtType {
+	switch p.trice.Type {
 	case "TRICE0":
 		return p.trice0()
 	case "TRICE8_1":
@@ -163,7 +163,7 @@ func (p *Esc) sprintTrice() (n int, e error) {
 	case "TRICE64_2":
 		return p.trice642()
 	default:
-		return p.outOfSync(fmt.Sprintf("Unexpected trice.FmtType %s", p.trice.FmtType))
+		return p.outOfSync(fmt.Sprintf("Unexpected trice.Type %s", p.trice.Type))
 	}
 }
 
@@ -189,19 +189,19 @@ func (p *Esc) triceS() (n int, e error) {
 		}
 	}
 	// ok
-	n = copy(p.b, fmt.Sprintf(p.trice.FmtStrg, string(b[:i])))
+	n = copy(p.b, fmt.Sprintf(p.trice.Strg, string(b[:i])))
 	p.rub(4 + p.bc)
 	return
 }
 
 func (p *Esc) trice0() (n int, e error) {
-	n = copy(p.b, fmt.Sprintf(p.trice.FmtStrg))
+	n = copy(p.b, fmt.Sprintf(p.trice.Strg))
 	return
 }
 
 func (p *Esc) trice81() (n int, e error) {
 	b0 := int8(p.syncBuffer[0]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	n = copy(p.b, fmt.Sprintf(p.trice.FmtStrg, b0))
+	n = copy(p.b, fmt.Sprintf(p.trice.Strg, b0))
 	p.rub(p.bc)
 	return
 }
@@ -209,7 +209,7 @@ func (p *Esc) trice81() (n int, e error) {
 func (p *Esc) trice82() (n int, e error) {
 	b0 := int8(p.syncBuffer[0]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
 	b1 := int8(p.syncBuffer[1]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	n = copy(p.b, fmt.Sprintf(p.trice.FmtStrg, b0, b1))
+	n = copy(p.b, fmt.Sprintf(p.trice.Strg, b0, b1))
 	p.rub(p.bc)
 	return
 }
@@ -222,7 +222,7 @@ func (p *Esc) trice83() (n int, e error) {
 	if 0 != b3 {
 		return p.outOfSync("padding byte not zero")
 	}
-	n = copy(p.b, fmt.Sprintf(p.trice.FmtStrg, b0, b1, b2))
+	n = copy(p.b, fmt.Sprintf(p.trice.Strg, b0, b1, b2))
 	p.rub(p.bc)
 	return
 }
@@ -232,7 +232,7 @@ func (p *Esc) trice84() (n int, e error) {
 	b1 := int8(p.syncBuffer[1]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
 	b2 := int8(p.syncBuffer[2]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
 	b3 := int8(p.syncBuffer[3]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	n = copy(p.b, fmt.Sprintf(p.trice.FmtStrg, b0, b1, b2, b3))
+	n = copy(p.b, fmt.Sprintf(p.trice.Strg, b0, b1, b2, b3))
 	p.rub(p.bc)
 	return
 }
@@ -249,7 +249,7 @@ func (p *Esc) trice85() (n int, e error) {
 	if 0 != b7 || 0 != b6 || 0 != b5 {
 		return p.outOfSync("padding bytes not zero")
 	}
-	n = copy(p.b, fmt.Sprintf(p.trice.FmtStrg, b0, b1, b2, b3, b4))
+	n = copy(p.b, fmt.Sprintf(p.trice.Strg, b0, b1, b2, b3, b4))
 	p.rub(p.bc)
 	return
 }
@@ -266,7 +266,7 @@ func (p *Esc) trice86() (n int, e error) {
 	if 0 != b7 || 0 != b6 {
 		return p.outOfSync("padding bytes not zero")
 	}
-	n = copy(p.b, fmt.Sprintf(p.trice.FmtStrg, b0, b1, b2, b3, b4, b5))
+	n = copy(p.b, fmt.Sprintf(p.trice.Strg, b0, b1, b2, b3, b4, b5))
 	p.rub(p.bc)
 	return
 }
@@ -283,7 +283,7 @@ func (p *Esc) trice87() (n int, e error) {
 	if 0 != b7 {
 		return p.outOfSync("padding byte not zero")
 	}
-	n = copy(p.b, fmt.Sprintf(p.trice.FmtStrg, b0, b1, b2, b3, b4, b5, b6))
+	n = copy(p.b, fmt.Sprintf(p.trice.Strg, b0, b1, b2, b3, b4, b5, b6))
 	p.rub(p.bc)
 	return
 }
@@ -297,14 +297,14 @@ func (p *Esc) trice88() (n int, e error) {
 	b5 := int8(p.syncBuffer[5]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
 	b6 := int8(p.syncBuffer[6]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
 	b7 := int8(p.syncBuffer[7]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	n = copy(p.b, fmt.Sprintf(p.trice.FmtStrg, b0, b1, b2, b3, b4, b5, b6, b7))
+	n = copy(p.b, fmt.Sprintf(p.trice.Strg, b0, b1, b2, b3, b4, b5, b6, b7))
 	p.rub(p.bc)
 	return
 }
 
 func (p *Esc) trice161() (n int, e error) {
 	d0 := int16(p.readU16(p.syncBuffer[0:2])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	n = copy(p.b, fmt.Sprintf(p.trice.FmtStrg, d0))
+	n = copy(p.b, fmt.Sprintf(p.trice.Strg, d0))
 	p.rub(p.bc)
 	return
 }
@@ -312,7 +312,7 @@ func (p *Esc) trice161() (n int, e error) {
 func (p *Esc) trice162() (n int, e error) {
 	d0 := int16(p.readU16(p.syncBuffer[0:2])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
 	d1 := int16(p.readU16(p.syncBuffer[2:4])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	n = copy(p.b, fmt.Sprintf(p.trice.FmtStrg, d0, d1))
+	n = copy(p.b, fmt.Sprintf(p.trice.Strg, d0, d1))
 	p.rub(p.bc)
 	return
 }
@@ -325,7 +325,7 @@ func (p *Esc) trice163() (n int, e error) {
 	if 0 != d3 {
 		return p.outOfSync("padding bytes not zero")
 	}
-	n = copy(p.b, fmt.Sprintf(p.trice.FmtStrg, d0, d1, d2))
+	n = copy(p.b, fmt.Sprintf(p.trice.Strg, d0, d1, d2))
 	p.rub(p.bc)
 	return
 }
@@ -335,14 +335,14 @@ func (p *Esc) trice164() (n int, e error) {
 	d1 := int16(p.readU16(p.syncBuffer[2:4])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
 	d2 := int16(p.readU16(p.syncBuffer[4:6])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
 	d3 := int16(p.readU16(p.syncBuffer[6:8])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	n = copy(p.b, fmt.Sprintf(p.trice.FmtStrg, d0, d1, d2, d3))
+	n = copy(p.b, fmt.Sprintf(p.trice.Strg, d0, d1, d2, d3))
 	p.rub(p.bc)
 	return
 }
 
 func (p *Esc) trice321() (n int, e error) {
 	d0 := int32(p.readU32(p.syncBuffer[0:4])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	n = copy(p.b, fmt.Sprintf(p.trice.FmtStrg, d0))
+	n = copy(p.b, fmt.Sprintf(p.trice.Strg, d0))
 	p.rub(p.bc)
 	return
 }
@@ -350,7 +350,7 @@ func (p *Esc) trice321() (n int, e error) {
 func (p *Esc) trice322() (n int, e error) {
 	d0 := int32(p.readU32(p.syncBuffer[0:4])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
 	d1 := int32(p.readU32(p.syncBuffer[4:8])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	n = copy(p.b, fmt.Sprintf(p.trice.FmtStrg, d0, d1))
+	n = copy(p.b, fmt.Sprintf(p.trice.Strg, d0, d1))
 	p.rub(p.bc)
 	return
 }
@@ -363,7 +363,7 @@ func (p *Esc) trice323() (n int, e error) {
 	if 0 != d3 {
 		return p.outOfSync("padding bytes not zero")
 	}
-	n = copy(p.b, fmt.Sprintf(p.trice.FmtStrg, d0, d1, d2))
+	n = copy(p.b, fmt.Sprintf(p.trice.Strg, d0, d1, d2))
 	p.rub(p.bc)
 	return
 }
@@ -373,14 +373,14 @@ func (p *Esc) trice324() (n int, e error) {
 	d1 := int32(p.readU32(p.syncBuffer[4:8]))   // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
 	d2 := int32(p.readU32(p.syncBuffer[8:12]))  // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
 	d3 := int32(p.readU32(p.syncBuffer[12:16])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	n = copy(p.b, fmt.Sprintf(p.trice.FmtStrg, d0, d1, d2, d3))
+	n = copy(p.b, fmt.Sprintf(p.trice.Strg, d0, d1, d2, d3))
 	p.rub(p.bc)
 	return
 }
 
 func (p *Esc) trice641() (n int, e error) {
 	d0 := int64(p.readU64(p.syncBuffer[0:8])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	n = copy(p.b, fmt.Sprintf(p.trice.FmtStrg, d0))
+	n = copy(p.b, fmt.Sprintf(p.trice.Strg, d0))
 	p.rub(p.bc)
 	return
 }
@@ -388,7 +388,7 @@ func (p *Esc) trice641() (n int, e error) {
 func (p *Esc) trice642() (n int, e error) {
 	d0 := int64(p.readU64(p.syncBuffer[0:8]))  // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
 	d1 := int64(p.readU64(p.syncBuffer[8:16])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	n = copy(p.b, fmt.Sprintf(p.trice.FmtStrg, d0, d1))
+	n = copy(p.b, fmt.Sprintf(p.trice.Strg, d0, d1))
 	p.rub(p.bc)
 	return
 }

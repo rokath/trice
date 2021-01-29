@@ -16,78 +16,49 @@ import (
 	"github.com/rokath/trice/pkg/msg"
 )
 
-// NewLut returns a lut map generated from file named fn.
-func NewLut(fn string) Lut {
-	lut := new(Lut)
-	lut.i2f = make(I2F)
-	lut.f2i = make(F2I)
-	msg.FatalOnErr("", lut.fromFile(fn))
+// NewLut returns a look-up map generated from JSON map file named fn.
+func NewLut(fn string) TriceIDLookUp {
+	lu := new(TriceIDLookUp)
+	msg.FatalOnErr("", lu.fromFile(fn))
 	if true == Verbose {
-		fmt.Println("Read ID List file", fn, "with", len(lut), "items.")
+		fmt.Println("Read ID List file", fn, "with", len(*lu), "items.")
 	}
-	return
-}
-
-/* NewItemLut returns a reversed lut map from file.
-func NewItemLut(fn string) (ilut ItemLookUp) {
-	lut := make(LookUp)
-	msg.FatalOnErr("", lut.fromFile(fn))
-	if true == Verbose {
-		fmt.Println("Read ID List file", fn, "with", len(lut), "items.")
-	}
-	return
-}*/
-
-// reverse exchanges the ID:Item pairs in lut into Item:ID pairs and returns that as a new map.
-// If the same Item is behind different IDs only one of them survives.
-func (lut Lut) sync() {
-	for id, fmt := range lut.i2f {
-		lut.f2i[fmt] = id
-	}
-}
-
-// update enriches lut with values from ilut.
-//
-// ilut normally was generated with lut.reverse. Durring source tree parsing new item:ID pairs
-func (lut LookUp) update(ilut ItemLookUp) {
-	for item, id := range ilut {
-		lut[id] = item
-	}
+	return *lu
 }
 
 // newID() gets a random ID not used so far.
-// If all IDs used, longest removed ID is reused (TODO)
-func (lut LookUp) newID() (id int) {
+// The delivered id is usable as key for lu, but not added. So calling fn twice without adding to lu could give the same value back.
+func (lu TriceIDLookUp) newID() (id TriceID) {
 	switch SearchMethod {
 	case "random":
-		return lut.newRandomID(Min, Max)
+		return lu.newRandomID(Min, Max)
 	case "upward":
-		return lut.newUpwardID(Min, Max)
+		return lu.newUpwardID(Min, Max)
 	case "downward":
-		return lut.newDownwardID(Min, Max)
+		return lu.newDownwardID(Min, Max)
 	}
 	msg.Info(fmt.Sprint("ERROR:", SearchMethod, "is unknown ID search method."))
 	return 0
 }
 
 // newRandomID provides a random free ID inside interval [min,max].
-// The delivered id is usable as key for lut, but not added. So calling fn twice without adding to lut could give the same value back.
-func (lut LookUp) newRandomID(min, max int) (id int) {
-	interval := max - min
-	freeIDs := interval + 1 - len(lut)
-	msg.FatalOnFalse("no new ID possible, "+fmt.Sprint(min, max, len(lut)), freeIDs > 0)
+// The delivered id is usable as key for lu, but not added. So calling fn twice without adding to lu could give the same value back.
+func (lu TriceIDLookUp) newRandomID(min, max TriceID) (id TriceID) {
+	interval := int(max - min)
+	freeIDs := interval + 1 - len(lu)
+	msg.FatalOnFalse("no new ID possible, "+fmt.Sprint(min, max, len(lu)), freeIDs > 0)
 	wrnLimit := interval >> 2 // 25%
 	msg.InfoOnTrue("WARNING: Less than 25% IDs free!", freeIDs < wrnLimit)
-	id = min + rand.Intn(interval+1)
-	if 0 == len(lut) {
+	id = min + TriceID(rand.Intn(interval+1))
+	if 0 == len(lu) {
 		return
 	}
 	for {
 	nextTry:
-		for k := range lut {
+		for k := range lu {
 			if id == k { // id used
 				fmt.Println("ID", id, "used, next try...")
-				id = min + rand.Intn(interval)
+				id = min + TriceID(rand.Intn(interval))
 				goto nextTry
 			}
 		}
@@ -96,18 +67,18 @@ func (lut LookUp) newRandomID(min, max int) (id int) {
 }
 
 // newUpwardID provides the smallest free ID inside interval [min,max].
-// The delivered id is usable as key for lut, but not added. So calling fn twice without adding to lut gives the same value back.
-func (lut LookUp) newUpwardID(min, max int) (id int) {
-	interval := max - min
-	freeIDs := interval + 1 - len(lut)
-	msg.FatalOnFalse("no new ID possible: "+fmt.Sprint("min=", min, ", max=", max, ", len(lut)=", len(lut)), freeIDs > 0)
+// The delivered id is usable as key for lut, but not added. So calling fn twice without adding to lu gives the same value back.
+func (lu TriceIDLookUp) newUpwardID(min, max TriceID) (id TriceID) {
+	interval := int(max - min)
+	freeIDs := interval + 1 - len(lu)
+	msg.FatalOnFalse("no new ID possible: "+fmt.Sprint("min=", min, ", max=", max, ", used=", len(lu)), freeIDs > 0)
 	id = min
-	if 0 == len(lut) {
+	if 0 == len(lu) {
 		return
 	}
 	for {
 	nextTry:
-		for k := range lut {
+		for k := range lu {
 			if id == k { // id used
 				id++
 				goto nextTry
@@ -118,18 +89,18 @@ func (lut LookUp) newUpwardID(min, max int) (id int) {
 }
 
 // newDownwardID provides the biggest free ID inside interval [min,max].
-// The delivered id is usable as key for lut, but not added. So calling fn twice without adding to lut gives the same value back.
-func (lut LookUp) newDownwardID(min, max int) (id int) {
-	interval := max - min
-	freeIDs := interval + 1 - len(lut)
-	msg.FatalOnFalse("no new ID possible: "+fmt.Sprint("min=", min, ", max=", max, ", len(lut)=", len(lut)), freeIDs > 0)
+// The delivered id is usable as key for lut, but not added. So calling fn twice without adding to lu gives the same value back.
+func (lu TriceIDLookUp) newDownwardID(min, max TriceID) (id TriceID) {
+	interval := int(max - min)
+	freeIDs := interval + 1 - len(lu)
+	msg.FatalOnFalse("no new ID possible: "+fmt.Sprint("min=", min, ", max=", max, ", used=", len(lu)), freeIDs > 0)
 	id = max
-	if 0 == len(lut) {
+	if 0 == len(lu) {
 		return
 	}
 	for {
 	nextTry:
-		for k := range lut {
+		for k := range lu {
 			if id == k { // id used
 				id--
 				goto nextTry
@@ -140,29 +111,29 @@ func (lut LookUp) newDownwardID(min, max int) (id int) {
 }
 
 // FromJSON converts JSON byte slice to lut.
-func (lut Lut) FromJSON(b []byte) (err error) {
+func (lu TriceIDLookUp) FromJSON(b []byte) (err error) {
 	if 0 < len(b) {
-		err = json.Unmarshal(b, &lut)
+		err = json.Unmarshal(b, &lu)
 	}
 	return
 }
 
 // fromFile reads file fn into lut. Existing keys are overwritten, lut is extended with new keys.
-func (lut Lut) fromFile(fn string) error {
+func (lu TriceIDLookUp) fromFile(fn string) error {
 	b, err := ioutil.ReadFile(fn)
 	msg.FatalOnErr("May be need to create an empty file first? (Safety feature)", err)
-	return lut.i2f.FromJSON(b)
+	return lu.FromJSON(b)
 }
 
 // toJSON converts lut into JSON byte slice in human readable form.
-func (lut LookUp) toJSON() ([]byte, error) {
-	return json.MarshalIndent(lut, "", "\t")
+func (lu TriceIDLookUp) toJSON() ([]byte, error) {
+	return json.MarshalIndent(lu, "", "\t")
 }
 
 // toFile writes lut into file fn as indented JSON.
-func (lut LookUp) toFile(fn string) (err error) {
+func (lu TriceIDLookUp) toFile(fn string) (err error) {
 	var b []byte
-	b, err = lut.toJSON()
+	b, err = lu.toJSON()
 	msg.FatalOnErr("", err)
 	var f *os.File
 	f, err = os.Create(fn)
@@ -171,5 +142,27 @@ func (lut LookUp) toFile(fn string) (err error) {
 		err = f.Close()
 	}()
 	_, err = f.Write(b)
+	return
+}
+
+// reverse returns a reversed map. If differnt triceID's asigned to several equal TriceFmt only one of the TriceID gets it into tflu.
+func (lu TriceIDLookUp) reverse() (tflu TriceFmtLookUp) {
+	if nil == tflu {
+		tflu = make(TriceFmtLookUp)
+	}
+	for id, fm := range lu {
+		tflu[fm] = id
+	}
+	return
+}
+
+// reverse returns a reversed map.  If differnt triceFmt's asigned to several equal TriceFmt, this is an unexpectd and unhandled error and only one of the TriceFmt's gets it into lu.
+func (tflu TriceFmtLookUp) reverse() (lu TriceIDLookUp) {
+	if nil == tflu {
+		tflu = make(TriceFmtLookUp)
+	}
+	for fm, id := range tflu {
+		lu[id] = fm
+	}
 	return
 }

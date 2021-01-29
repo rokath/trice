@@ -38,7 +38,7 @@ var (
 )
 
 // newDecoder abstracts the function type for a new decoder.
-type newDecoder func(lut id.LookUp, in io.Reader, endian bool) Decoder
+type newDecoder func(lut id.TriceIDLookUp, in io.Reader, endian bool) Decoder
 
 // Decoder is providing a byte reader returning decoded trice's.
 // setInput allows switching the input stream to a different source.
@@ -49,13 +49,13 @@ type Decoder interface {
 
 // decoderData is the common data struct for all decoders.
 type decoderData struct {
-	in                io.Reader // inner reader
-	syncBuffer        []byte    // unprocessed bytes hold for next cycle
-	endian            bool      // littleEndian or bigEndian
-	lut               id.LookUp // id look-up map for translation
-	trice             id.Item   //id.TriceFmt // received trice
-	b                 []byte    // read buffer
-	bc                int       // trice specific bytes count
+	in                io.Reader        // inner reader
+	syncBuffer        []byte           // unprocessed bytes hold for next cycle
+	endian            bool             // littleEndian or bigEndian
+	lut               id.TriceIDLookUp // id look-up map for translation
+	trice             id.TriceFmt      //id.TriceFmt // received trice
+	b                 []byte           // read buffer
+	bc                int              // trice specific bytes count
 	lastInnerRead     time.Time
 	innerReadInterval time.Duration
 }
@@ -98,7 +98,7 @@ func (p *decoderData) setInput(r io.Reader) {
 // Bytes are read with rc. Then according decoder.Encoding they are translated into strings.
 // Each read returns the amount of bytes for one trice. rc is called on every
 // Translate returns true on io.EOF or false on hard read error or sigterm.
-func Translate(sw *emitter.TriceLineComposer, lut id.LookUp, rc io.ReadCloser) bool {
+func Translate(sw *emitter.TriceLineComposer, lut id.TriceIDLookUp, rc io.ReadCloser) bool {
 
 	var dec Decoder //io.Reader
 	switch Encoding {

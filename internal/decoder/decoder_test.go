@@ -45,7 +45,7 @@ type testTable []struct {
 
 // doTableTest is the universal decoder test sequence.
 func doTableTest(t *testing.T, f newDecoder, endianness bool, teTa testTable, inputDataType string) {
-	lut := make(id.LookUp)
+	lut := make(id.TriceIDLookUp)
 	tst.AssertNoErr(t, lut.FromJSON([]byte(til)))
 	buf := make([]byte, defaultSize)
 	dec := f(lut, nil, endianness) // p is a new decoder instance

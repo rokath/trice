@@ -11,9 +11,74 @@ import (
 	"flag"
 	"fmt"
 	"os"
+
+	"github.com/rokath/trice/pkg/msg"
 )
 
+// ScZero does replace all ID's in source tree with 0
+func ScZero(SrcZ string, cmd *flag.FlagSet) error {
+	if SrcZ == "" {
+		cmd.PrintDefaults()
+		return errors.New("no source tree root specified")
+	}
+	//	ZeroSourceTreeIds(SrcZ, !DryRun)
+	return nil
+}
+
+// SubCmdUpdate is subcommand update
+func SubCmdUpdate() error {
+	lu := NewLut(FnJSON)
+	tflu := lu.reverse()
+	var modified bool
+
+	if 0 == len(Srcs) {
+		Srcs = append(Srcs, "./") // default value
+	}
+
+	if SharedIDs {
+		update = sharedIDsUpdate
+	} else {
+		update = separatedIDsUpdate
+	}
+
+	for i := range Srcs {
+		s := Srcs[i]
+		srcU := ConditionalFilePath(s)
+		if _, err := os.Stat(srcU); err == nil { // path exists
+			modified = update(srcU, lu, tflu)
+		} else if os.IsNotExist(err) { // path does *not* exist
+			fmt.Println(s, " -> ", srcU, "does not exist!")
+		} else {
+			fmt.Println(s, "Schrodinger: file may or may not exist. See err for details.")
+			// Therefore, do *NOT* use !os.IsNotExist(err) to test for file existence
+			// https://stackoverflow.com/questions/12518876/how-to-check-if-a-file-exists-in-go
+		}
+	}
+
+	if Verbose {
+		fmt.Println(len(lu), "ID's in List", FnJSON)
+	}
+	if modified && !DryRun {
+		msg.FatalOnErr("", lu.toFile(FnJSON))
+	}
+	return nil
+}
+
+// update returns true if s.th. changed in map.
+var update func(string, TriceIDLookUp, TriceFmtLookUp) bool
+
 /*
+// update does parse source tree, update IDs and is List
+func (tflu TriceFmtLookUp) sharedIDsUpdate(dir string) error {
+	err := tflu.Update(dir, !DryRun, Verbose)
+	if nil != err {
+		return fmt.Errorf("failed update on %s with %s: %v", dir, FnJSON, err)
+	}
+	if Verbose {
+		fmt.Println(len(tflu), "ID's in List", FnJSON)
+	}
+	return nil
+}
 // appendIfMissing is appending item to p.List.
 // It returns true if item was missing or changed, otherwise false.
 func (p LookUp) appendIfMissing0(item Item, verbose bool) (int, bool) {
@@ -26,7 +91,7 @@ func (p LookUp) appendIfMissing0(item Item, verbose bool) (int, bool) {
 func (lut LookUp) appendIfMissing(item Item, verbose bool) (int, bool) {
 	for _, e := range p.ItemList {
 		if e.ID == item.ID { // if id exists
-			if (e.FmtType == item.FmtType) && (e.FmtStrg == item.FmtStrg) { // identical
+			if (e.Type == item.Type) && (e.Strg == item.Strg) { // identical
 				if 0 == e.Removed { // is active
 					return item.ID, false // known i, nothing todo
 				}
@@ -41,7 +106,7 @@ func (lut LookUp) appendIfMissing(item Item, verbose bool) (int, bool) {
 			// used  on a different place in unchanged form. The ID invalidation could be done
 			// globally later in a separate action.
 			if verbose {
-				fmt.Println("Same ID", e.ID, "but not identical:", e.FmtType, "?", item.FmtType, "or", e.FmtStrg, "?", item.FmtStrg, "so get a new ID.")
+				fmt.Println("Same ID", e.ID, "but not identical:", e.Type, "?", item.Type, "or", e.Strg, "?", item.Strg, "so get a new ID.")
 				fmt.Println(e)
 				fmt.Println(item)
 			}
@@ -65,8 +130,8 @@ func (lut LookUp) appendIfMissing(item Item, verbose bool) (int, bool) {
 // It is an exported function for simplifying tests in other packets.
 func (p LookUp) ExtendIDList(id int, typ, fmt string, verbose bool) (int, bool) {
 	i := Item{
-		FmtType: typ,
-		FmtStrg: fmt,
+	.Type: typ,
+		.Strg: fmt,
 	}
 	return p.appendIfMissing(i, verbose)
 }
@@ -77,73 +142,3 @@ func (p LookUp) Index(id int) int {
 	return 0
 }
 */
-// ScZero does replace all ID's in source tree with 0
-func ScZero(SrcZ string, cmd *flag.FlagSet) error {
-	if SrcZ == "" {
-		cmd.PrintDefaults()
-		return errors.New("no source tree root specified")
-	}
-	ZeroSourceTreeIds(SrcZ, !DryRun)
-	return nil
-}
-
-// SubCmdUpdate is subcommand update
-func SubCmdUpdate() error {
-	lut := NewLut(FnJSON)
-	ilut := lut.reverse()
-	if 0 == len(Srcs) {
-		Srcs = append(Srcs, "./") // default value
-	}
-	for i := range Srcs {
-		s := Srcs[i]
-		srcU := ConditionalFilePath(s)
-		if _, err := os.Stat(srcU); err == nil { // path exists
-			err = ilut.update(srcU)
-			if nil != err {
-				return err
-			}
-		} else if os.IsNotExist(err) { // path does *not* exist
-			fmt.Println(s, " -> ", srcU, "does not exist!")
-		} else {
-			fmt.Println(s, "Schrodinger: file may or may not exist. See err for details.")
-			// Therefore, do *NOT* use !os.IsNotExist(err) to test for file existence
-			// https://stackoverflow.com/questions/12518876/how-to-check-if-a-file-exists-in-go
-		}
-	}
-	return nil
-}
-
-// update does parse source tree, update IDs and is List
-func (ilut ItemLookUp) update(dir string) error {
-	err := p.Update(dir, !DryRun, Verbose)
-	if nil != err {
-		return fmt.Errorf("failed update on %s with %s: %v", dir, p.FnJSON, err)
-	}
-	if Verbose {
-		fmt.Println(len(p.ItemList), "ID's in List", p.FnJSON)
-	}
-	return nil
-}
-
-// // newIDLegacyMethod() gets a random ID not used so far.
-// // If all IDs used, longest removed ID is reused (TODO)
-// func (p *List) newIDLegacyMethod() (id int) {
-// start:
-// 	for { // this is good enough if id count is less than 2/3 of total count, otherwise it will take too long
-// 		id = 20 + rand.Intn(65535) // 2^16=65536, id 0 used for params, ids 1-19 reserved, 515 ids forbidden, so 65000 ids possible // BUG!!!!!!! Must be 65535-20 but many tests need to be adapted!!!!!!!!!!!!!!!!!!!!!!!
-// 		ih := uint8(id >> 8)       // todo: endianness
-// 		il := uint8(id)
-// 		if 0xef == ih || 0x89 == il || 0x89ab == id || 0xabcd == id || 0xcdef == id { // 515 ids forbidden, see bare.go
-// 			continue // next try
-// 		}
-// 		if 0 == len(p.ItemList) {
-// 			return
-// 		}
-// 		for _, item := range p.ItemList { // todo: binary search
-// 			if id == item.ID {
-// 				goto start // id used
-// 			}
-// 			return
-// 		}
-// 	}
-// }

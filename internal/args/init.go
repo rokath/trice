@@ -111,13 +111,12 @@ Without the "-dry-run" switch it would create|extend a list file til.json in the
 	flagVerbosity(fsScUpdate)
 	flagIDList(fsScUpdate)
 	fsScUpdate.StringVar(&id.SearchMethod, "IDMethod", "legacy", "Search method for new ID's in range- Options are 'upward', 'downward' & 'random'.")
-	fsScUpdate.IntVar(&id.Min, "IDmin", id.Min, "Smallest allowed trice ID. (Lower end of ID range).")
-	fsScUpdate.IntVar(&id.Max, "IDmax", id.Max, "Biggest allowed trice ID. (Upper end of ID range).")
-	// fsScUpdate.StringVar(&id.ReUse, "IDReUse", "yes", `(to do)
-	// yes=Known trice strings without ID get the same ID. If identical TRICE macros have different ID's they are not touched.
-	// no=Known trice strings without ID get a different ID. If identical TRICE macros have same ID's they are not touched.
-	// yes-replace=Equal trice strings with different ID get the same ID.
-	// no-replace=Equal trice strings with same ID get the different ID.`)
+
+	fsScUpdate.Var(&id.Min, "IDmin", "Smallest allowed trice ID. (Lower end of ID range).") // to do: this is no multi-flag.
+	fsScUpdate.Var(&id.Max, "IDmax", "Biggest allowed trice ID. (Upper end of ID range).")  // to do: this is no multi-flag.
+	fsScUpdate.BoolVar(&id.SharedIDs, "sharedIDs", true, `New ID policy:
+true: TriceFmt's without TriceID get equal TriceID if an equal TriceFmt exists already.
+false: TriceFmt's without TriceID get a different TriceID if an equal TriceFmt exists already.`)
 }
 
 func init() {
