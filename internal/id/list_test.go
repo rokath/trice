@@ -9,18 +9,18 @@ package id_test
 // See ioutil.Tempfile() for dir and pattern.
 func randomFile(s, dir, pattern string) string {
 	fd, err := ioutil.TempFile(dir, pattern)
-	msg.FatalOnErr("", err)
+	msg.FatalOnErr( err)
 	_, err = fd.WriteString(s)
-	msg.InfoOnErr("", err)
+	msg.OnErr( err)
 	fn := fd.Name()
-	msg.InfoOnErr("", fd.Close())
+	msg.OnErr( fd.Close())
 	return fn
 }
 
 // readFileAsString returns filename content as string
 func readFileAsString(filename string) (s string) {
 	b, err := ioutil.ReadFile(filename)
-	msg.FatalOnErr("", err)
+	msg.FatalOnErr( err)
 	s = string(b)
 	return
 }

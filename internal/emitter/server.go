@@ -64,7 +64,7 @@ func (p *Server) Shutdown(ts []int64, _ *int64) error {
 	p.Display.writeLine([]string{""})
 	p.Display.writeLine([]string{""})
 	defer func() {
-		msg.InfoOnErr("", listener.Close())
+		msg.OnErr(listener.Close())
 		exit = true // do not set true before closing listener, otherwise panic!
 	}()
 	return nil
@@ -91,7 +91,7 @@ func ScDisplayServer() error {
 	fmt.Println("displayServer @", a)
 	srv := new(Server)
 	srv.Display = *NewColorDisplay(ColorPalette)
-	msg.InfoOnErr("", rpc.Register(srv))
+	msg.OnErr(rpc.Register(srv))
 	var err error
 	listener, err = net.Listen("tcp", a)
 	if nil != err {

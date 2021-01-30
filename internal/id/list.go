@@ -59,7 +59,7 @@ func SubCmdUpdate() error {
 		fmt.Println(len(lu), "ID's in List", FnJSON)
 	}
 	if modified && !DryRun {
-		msg.FatalOnErr("", lu.toFile(FnJSON))
+		msg.FatalOnErr(lu.toFile(FnJSON))
 	}
 	return nil
 }

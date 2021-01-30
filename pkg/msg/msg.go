@@ -18,8 +18,17 @@ func Info(info string) {
 	fmtMessage(pc, fn, line, ok, errors.New(info))
 }
 
+// OnErr prints info and a common error message with location info when err is not nil.
+func OnErr(err error) {
+	if nil == err {
+		return
+	}
+	pc, fn, line, ok := runtime.Caller(1)
+	fmtMessage(pc, fn, line, ok, err)
+}
+
 // InfoOnErr prints info and a common error message with location info when err is not nil.
-func InfoOnErr(info string, err error) {
+func InfoOnErr(err error, info string) {
 	if nil == err {
 		return
 	}
@@ -29,7 +38,16 @@ func InfoOnErr(info string, err error) {
 }
 
 // FatalOnErr ends in osExit(1) if err not nil.
-func FatalOnErr(info string, err error) {
+func FatalOnErr(err error) {
+	if nil == err {
+		return
+	}
+	pc, fn, line, ok := runtime.Caller(1)
+	logMessage(pc, fn, line, ok, err)
+}
+
+// FatalInfoOnErr ends in osExit(1) if err not nil.
+func FatalInfoOnErr(err error, info string) {
 	if nil == err {
 		return
 	}
@@ -39,7 +57,7 @@ func FatalOnErr(info string, err error) {
 }
 
 // PanicOnErr ends in panic if err not nil.
-func PanicOnErr(info string, err error) {
+func PanicOnErr(err error, info string) {
 	if nil == err {
 		return
 	}
@@ -47,8 +65,26 @@ func PanicOnErr(info string, err error) {
 	panic(err)
 }
 
+// OnFalse prints info and a common error message with location info when flag is false.
+func OnFalse(flag bool) {
+	if true == flag {
+		return
+	}
+	pc, fn, line, ok := runtime.Caller(1)
+	fmtMessage(pc, fn, line, ok, nil)
+}
+
+// OnTrue prints info and a common error message with location info when flag is true.
+func OnTrue(flag bool) {
+	if false == flag {
+		return
+	}
+	pc, fn, line, ok := runtime.Caller(1)
+	fmtMessage(pc, fn, line, ok, nil)
+}
+
 // InfoOnFalse prints info and a common error message with location info when flag is false.
-func InfoOnFalse(info string, flag bool) {
+func InfoOnFalse(flag bool, info string) {
 	if true == flag {
 		return
 	}
@@ -57,7 +93,7 @@ func InfoOnFalse(info string, flag bool) {
 }
 
 // InfoOnTrue prints info and a common error message with location info when flag is true.
-func InfoOnTrue(info string, flag bool) {
+func InfoOnTrue(flag bool, info string) {
 	if false == flag {
 		return
 	}
@@ -66,7 +102,7 @@ func InfoOnTrue(info string, flag bool) {
 }
 
 // FatalOnFalse prints info and a common error message with location info when err is not nil.
-func FatalOnFalse(info string, flag bool) {
+func FatalOnFalse(flag bool, info string) {
 	if true == flag {
 		return
 	}

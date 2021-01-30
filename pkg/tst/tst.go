@@ -29,10 +29,10 @@ import (
 // The pattern should contain at least an asterics. Example: myFile-*.bin"
 func TempFileName(pattern string) (s string) {
 	tempFileHandle, e := ioutil.TempFile(os.TempDir(), pattern) // opens for read and write
-	msg.InfoOnErr("", e)
+	msg.OnErr(e)
 	s = tempFileHandle.Name()
-	msg.InfoOnErr("", tempFileHandle.Close())
-	msg.InfoOnErr(s, os.Remove(s))
+	msg.OnErr(tempFileHandle.Close())
+	msg.InfoOnErr(os.Remove(s), s)
 	return
 }
 
@@ -58,7 +58,7 @@ func CaptureStdOut(f func()) string {
 	go func() {
 		var buf bytes.Buffer
 		_, err := io.Copy(&buf, r)
-		msg.InfoOnErr("", err)
+		msg.OnErr(err)
 		outC <- buf.String()
 	}()
 

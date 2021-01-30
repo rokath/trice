@@ -11,19 +11,18 @@ import (
 
 func ExampleInfoOnErr_a() {
 	var e error
-	msg.InfoOnErr("", e)
+	msg.OnErr(e)
 	e = errors.New("s.th. went wrong")
-	msg.InfoOnErr("", e)
+	msg.OnErr(e)
 	// Output:
 	// Error in msg_test.go:16: func 'github.com/rokath/trice/pkg/msg_test.ExampleInfoOnErr_a' -> s.th. went wrong
 }
 
 func ExampleInfoOnErr_b() {
 	var e error
-	msg.InfoOnErr("", e)
+	msg.OnErr(e)
 	e = errors.New("s.th. went wrong")
-	msg.InfoOnErr("info", e)
+	msg.OnErr(e)
 	// Output:
-	// info
 	// Error in msg_test.go:25: func 'github.com/rokath/trice/pkg/msg_test.ExampleInfoOnErr_b' -> s.th. went wrong
 }

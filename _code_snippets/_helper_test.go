@@ -107,7 +107,7 @@ func readLines(file string) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer func(){ msg.InfoOnErr( "", f.Close()) }()
+	defer func(){ msg.OnErr( f.Close()) }()
 	r := bufio.NewReader(f)
 	for {
 		const delim = '\n'
@@ -134,9 +134,9 @@ func writeLines(file string, lines []string) error {
 	if err != nil {
 		return err
 	}
-	defer func(){ msg.InfoOnErr( "", f.Close()) }()
+	defer func(){ msg.OnErr( f.Close()) }()
 	w := bufio.NewWriter(f)
-	defer func(){ msg.InfoOnErr( "", f.Flush()) }()
+	defer func(){ msg.OnErr( f.Flush()) }()
 	for _, line := range lines {
 		_, err := w.WriteString(line)
 		if err != nil {
@@ -196,13 +196,13 @@ func cleanFile(fileName string) {
 	if err != nil {
 		panic(err)
 	}
-	defer func(){ msg.InfoOnErr( "", file.Close()) }()
+	defer func(){ msg.OnErr( file.Close()) }()
 
 	wFile, err := os.Create(fileName + ".clean")
 	if err != nil {
 		panic(err)
 	}
-	defer func(){ msg.InfoOnErr( "", wFile.Close())}()
+	defer func(){ msg.OnErr( wFile.Close())}()
 	w := bufio.NewWriter(wFile)
 
 	data := make([]byte, 128)

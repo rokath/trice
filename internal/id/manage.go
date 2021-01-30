@@ -19,7 +19,7 @@ import (
 // NewLut returns a look-up map generated from JSON map file named fn.
 func NewLut(fn string) TriceIDLookUp {
 	lu := new(TriceIDLookUp)
-	msg.FatalOnErr("", lu.fromFile(fn))
+	msg.FatalOnErr(lu.fromFile(fn))
 	if true == Verbose {
 		fmt.Println("Read ID List file", fn, "with", len(*lu), "items.")
 	}
@@ -46,9 +46,9 @@ func (lu TriceIDLookUp) newID() (id TriceID) {
 func (lu TriceIDLookUp) newRandomID(min, max TriceID) (id TriceID) {
 	interval := int(max - min)
 	freeIDs := interval + 1 - len(lu)
-	msg.FatalOnFalse("no new ID possible, "+fmt.Sprint(min, max, len(lu)), freeIDs > 0)
+	msg.FatalOnFalse(freeIDs > 0, "no new ID possible, "+fmt.Sprint(min, max, len(lu)))
 	wrnLimit := interval >> 2 // 25%
-	msg.InfoOnTrue("WARNING: Less than 25% IDs free!", freeIDs < wrnLimit)
+	msg.InfoOnTrue(freeIDs < wrnLimit, "WARNING: Less than 25% IDs free!")
 	id = min + TriceID(rand.Intn(interval+1))
 	if 0 == len(lu) {
 		return
@@ -71,7 +71,7 @@ func (lu TriceIDLookUp) newRandomID(min, max TriceID) (id TriceID) {
 func (lu TriceIDLookUp) newUpwardID(min, max TriceID) (id TriceID) {
 	interval := int(max - min)
 	freeIDs := interval + 1 - len(lu)
-	msg.FatalOnFalse("no new ID possible: "+fmt.Sprint("min=", min, ", max=", max, ", used=", len(lu)), freeIDs > 0)
+	msg.FatalOnFalse(freeIDs > 0, "no new ID possible: "+fmt.Sprint("min=", min, ", max=", max, ", used=", len(lu)))
 	id = min
 	if 0 == len(lu) {
 		return
@@ -93,7 +93,7 @@ func (lu TriceIDLookUp) newUpwardID(min, max TriceID) (id TriceID) {
 func (lu TriceIDLookUp) newDownwardID(min, max TriceID) (id TriceID) {
 	interval := int(max - min)
 	freeIDs := interval + 1 - len(lu)
-	msg.FatalOnFalse("no new ID possible: "+fmt.Sprint("min=", min, ", max=", max, ", used=", len(lu)), freeIDs > 0)
+	msg.FatalOnFalse(freeIDs > 0, "no new ID possible: "+fmt.Sprint("min=", min, ", max=", max, ", used=", len(lu)))
 	id = max
 	if 0 == len(lu) {
 		return
@@ -121,7 +121,7 @@ func (lu TriceIDLookUp) FromJSON(b []byte) (err error) {
 // fromFile reads file fn into lut. Existing keys are overwritten, lut is extended with new keys.
 func (lu TriceIDLookUp) fromFile(fn string) error {
 	b, err := ioutil.ReadFile(fn)
-	msg.FatalOnErr("May be need to create an empty file first? (Safety feature)", err)
+	msg.FatalInfoOnErr(err, "May be need to create an empty file first? (Safety feature)")
 	return lu.FromJSON(b)
 }
 
@@ -134,10 +134,10 @@ func (lu TriceIDLookUp) toJSON() ([]byte, error) {
 func (lu TriceIDLookUp) toFile(fn string) (err error) {
 	var b []byte
 	b, err = lu.toJSON()
-	msg.FatalOnErr("", err)
+	msg.FatalOnErr(err)
 	var f *os.File
 	f, err = os.Create(fn)
-	msg.FatalOnErr(fn, err)
+	msg.FatalOnErr(err)
 	defer func() {
 		err = f.Close()
 	}()

@@ -87,7 +87,7 @@ func swap8Bytes(b []byte) []byte {
 // Shorter slices are extented with 0x16 until length 8.
 // Langer slices are truncated to length 8.
 func Encrypt8(b []byte) (e []byte) {
-	msg.InfoOnFalse("Buffer len is not 8.", 8 == len(b))
+	msg.InfoOnFalse(8 == len(b), "Buffer len is not 8.")
 	if enabled {
 		src := swap8Bytes(b) // HtoN
 		dst := make([]byte, 8)
@@ -104,7 +104,7 @@ func Encrypt8(b []byte) (e []byte) {
 // Shorter slices are extented with 0 until length 8.
 // Langer slices are truncated to length 8.
 func Decrypt8(b []byte) (d []byte) {
-	msg.InfoOnFalse("Buffer len is not 8.", 8 == len(b))
+	msg.InfoOnFalse(8 == len(b), "Buffer len is not 8.")
 	if enabled {
 		src := swap8Bytes(b) // HtoN (not done in Target after encrypt)
 		dst := make([]byte, 8)

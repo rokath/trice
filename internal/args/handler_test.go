@@ -5,9 +5,10 @@ package args
 
 import (
 	"fmt"
-	"github.com/rokath/trice/pkg/msg"
 	"os"
 	"testing"
+
+	"github.com/rokath/trice/pkg/msg"
 
 	"github.com/rokath/trice/pkg/tst"
 	"github.com/stretchr/testify/assert"
@@ -20,19 +21,19 @@ func TestVersion(t *testing.T) {
 	exp := "version=devel, built " + buildTime + "\n"
 
 	fn := func() {
-		msg.InfoOnErr("", Handler([]string{"trice", "v"}))
+		msg.OnErr(Handler([]string{"trice", "v"}))
 	}
 	act := tst.CaptureStdOut(fn)
 	assert.Equal(t, exp, act)
 
 	fn = func() {
-		msg.InfoOnErr("", Handler([]string{"trice", "ver"}))
+		msg.OnErr(Handler([]string{"trice", "ver"}))
 	}
 	act = tst.CaptureStdOut(fn)
 	assert.Equal(t, exp, act)
 
 	fn = func() {
-		msg.InfoOnErr("", Handler([]string{"trice", "version"}))
+		msg.OnErr(Handler([]string{"trice", "version"}))
 	}
 	act = tst.CaptureStdOut(fn)
 	assert.Equal(t, exp, act)
@@ -40,7 +41,7 @@ func TestVersion(t *testing.T) {
 
 func Example_handlerNone() {
 	fn := func() {
-		msg.InfoOnErr("", Handler([]string{"trice", ""}))
+		msg.OnErr(Handler([]string{"trice", ""}))
 	}
 	act := tst.CaptureStdOut(fn)
 	fmt.Print(act)
@@ -50,7 +51,7 @@ func Example_handlerNone() {
 
 func Example_wrongSubcommand() {
 	fn := func() {
-		msg.InfoOnErr("", Handler([]string{"trice", "xyz"}))
+		msg.OnErr(Handler([]string{"trice", "xyz"}))
 	}
 	act := tst.CaptureStdOut(fn)
 	fmt.Print(act)

@@ -35,6 +35,6 @@ func ConditionalFilePath(fn string) string {
 		return fn
 	}
 	s, err := filepath.Abs(fn)
-	msg.InfoOnErr(fmt.Sprintf("failed to parse %s\n", fn), err)
+	msg.InfoOnErr(err, fmt.Sprintf("failed to parse %s\n", fn))
 	return s
 }

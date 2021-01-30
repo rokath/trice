@@ -11,6 +11,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"strconv"
 	"strings"
 
 	"github.com/rokath/trice/pkg/msg"
@@ -98,7 +99,7 @@ func sharedIDsUpdate(root string, lu TriceIDLookUp, tflu TriceFmtLookUp) (modifi
 		fmt.Println("dir=", root)
 		fmt.Println("List=", FnJSON)
 	}
-	msg.FatalOnErr("failed to walk tree", filepath.Walk(root, visitUpdate(lu, tflu, &modified)))
+	msg.FatalInfoOnErr(filepath.Walk(root, visitUpdate(lu, tflu, &modified)), "failed to walk tree")
 	return
 }
 
@@ -131,20 +132,41 @@ func visitUpdate(lu TriceIDLookUp, tflu TriceFmtLookUp, pModified *bool) filepat
 		}
 		text := string(read)
 		textN := updateParamCount(text)           // update parameter count: TRICE* to TRICE*_n
-		textI := updateIDsShared(textN, lu, tflu) // update IDs: Id(0) -> Id(M)
+		textU := updateIDsShared(textN, lu, tflu) // update IDs: Id(0) -> Id(M)
 
-		if 0 != strings.Compare(text, textI) {
+		if 0 != strings.Compare(text, textU) {
 			*pModified = true
 		}
 
 		// write out
 		if *pModified && !DryRun {
-			err = ioutil.WriteFile(path, []byte(s), fi.Mode())
+			err = ioutil.WriteFile(path, []byte(textU), fi.Mode())
 			if nil != err {
 				return fmt.Errorf("failed to change %s: %v", path, err)
 			}
 		}
 		return nil
+	}
+}
+
+// tricePattern expects a string t containing a trice macro in the form `TRICE*(Id(n), "...", ...);`
+// Returned id is the scanned n inside Id(n), only and only if n is a single decimal number.
+// tf is the recognized trice.
+// Only on success flag is true.
+func tricePattern(t string) (id TriceID, tf TriceFmt, flag bool) {
+	nbID := matchNbID.FindString(t)
+	if "" == nbID {
+		msg.InfoOnTrue(Verbose, fmt.Sprintln("No 'Id(n)' found inside "+t))
+		return
+	}
+	n, e := strconv.Atoi(nbID)
+	msg.FatalOnErr(e) // todo: error is here not possible
+	id = TriceID(n)
+	var tf TriceFmt
+	tf.Type = matchTypNameTRICE.FindString(t)
+	if "" == tf.Type {
+		msg.Info(fmt.Sprintln("no 'TRICE*' found inside " + t))
+		return
 	}
 }
 
@@ -167,7 +189,7 @@ func updateIDsShared(text string, lu TriceIDLookUp, tflu TriceFmtLookUp) string 
 		if nil == loc {
 			return text // done
 		}
-		nbTRICE := subs[loc[0]:loc[1]]
+		nbTRICE := subs[loc[0]:loc[1]] // full trice expression with
 		nbID := matchNbID.FindString(nbTRICE)
 		if "" == nbID {
 			msg.Info(fmt.Sprintln("No 'Id(n)' found inside " + nbTRICE))
@@ -186,6 +208,7 @@ func updateIDsShared(text string, lu TriceIDLookUp, tflu TriceFmtLookUp) string 
 		if 0 == id {
 			zeroID := nbID
 			zeroTRICE := nbTRICE
+			// It is possible tf is already in tflu here
 			id = lu.newID()
 			newID := fmt.Sprintf("Id(%5d)", id)
 			if Verbose {
@@ -195,12 +218,18 @@ func updateIDsShared(text string, lu TriceIDLookUp, tflu TriceFmtLookUp) string 
 			text = strings.Replace(text, zeroTRICE, nbTRICE, 1)
 		}
 
-		// prepare subs already for next loop
+		// prepare subs for next loop
 		subs = subs[loc[1]:] // The replacement makes s not shorter, so next search can start at loc[1]
 
-		// At this place loc contains a trice with an ID.
-		// It is possible this ID is completely new.
-		// It is possible this ID
+		// At this place loc contains a trice with an ID and there are different cases:
+		// tf
+		// The map can be empty or not.
+		// assuming tf is in the map with id0
+		//		tflu[tf] = id will overwrite id0 in tflu
+		//		lu[id] = tf will add id and tf will be found
+		// It is possible this ID is completely new and need to be added to the map.
+		// It is possible this ID is already in the map but with a different triceFmt. (ERROR)
+		//
 
 		var tf TriceFmt
 		tf.Type = matchTypNameTRICE.FindString(nbTRICE)

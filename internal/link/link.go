@@ -58,9 +58,9 @@ func NewDevice(port, arguments string) *Device {
 	// get a temporary file name
 	var e error
 	p.tempLogFileHandle, e = ioutil.TempFile(os.TempDir(), "trice-*.bin") // opens for read and write
-	msg.InfoOnErr("", e)
+	msg.OnErr(e)
 	p.tempLogFileName = p.tempLogFileHandle.Name()
-	msg.InfoOnErr("", p.tempLogFileHandle.Close())
+	msg.OnErr(p.tempLogFileHandle.Close())
 
 	p.arguments = arguments
 	p.args = strings.Split(arguments, " ")
@@ -168,7 +168,7 @@ func (p *Device) Open() error {
 func (p *Device) watchLogfile() {
 	var watcher *fsnotify.Watcher
 	watcher, p.Err = fsnotify.NewWatcher()
-	defer func() { msg.InfoOnErr("", watcher.Close()) }()
+	defer func() { msg.OnErr(watcher.Close()) }()
 
 	go func() {
 		for {

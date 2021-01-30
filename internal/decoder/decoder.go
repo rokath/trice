@@ -168,7 +168,7 @@ outer:
 			if duration > 100 {
 				fmt.Println("TriceLineComposer.Write duration =", duration, "ms.")
 			}
-			msg.InfoOnErr(fmt.Sprintln("sw.Write wrote", m, "bytes"), err)
+			msg.InfoOnErr(err, fmt.Sprintln("sw.Write wrote", m, "bytes"))
 		}
 	}
 }
@@ -218,7 +218,7 @@ func (p *decoderData) writeU32(v uint32) (b *bytes.Buffer) {
 	} else {
 		err = binary.Write(b, binary.BigEndian, v)
 	}
-	msg.InfoOnErr("binary.Write failed:", err)
+	msg.InfoOnErr(err, "binary.Write failed:")
 	return
 }
 

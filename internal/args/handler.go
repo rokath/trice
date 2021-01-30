@@ -54,36 +54,36 @@ func Handler(args []string) error {
 		fmt.Println("try: 'trice help|h'")
 		return nil
 	case "h", "help":
-		msg.InfoOnErr("", fsScHelp.Parse(subArgs))
+		msg.OnErr(fsScHelp.Parse(subArgs))
 		distributeArgs()
 		return scHelp(fsScLog, fsScZero, fsScVersion, fsScSv, fsScSdSv)
 	case "s", "sc", "scan":
-		msg.InfoOnErr("", fsScScan.Parse(subArgs))
+		msg.OnErr(fsScScan.Parse(subArgs))
 		distributeArgs()
 		_, err := com.GetSerialPorts()
 		return err
 	case "v", "ver", "version":
-		msg.InfoOnErr("", fsScVersion.Parse(subArgs))
+		msg.OnErr(fsScVersion.Parse(subArgs))
 		distributeArgs()
 		return scVersion()
 	case "u", "update":
-		msg.InfoOnErr("", fsScUpdate.Parse(subArgs))
+		msg.OnErr(fsScUpdate.Parse(subArgs))
 		distributeArgs()
 		return id.SubCmdUpdate()
 	case "zeroSourceTreeIds":
-		msg.InfoOnErr("", fsScZero.Parse(subArgs))
+		msg.OnErr(fsScZero.Parse(subArgs))
 		distributeArgs()
 		return id.ScZero(*pSrcZ, fsScZero)
 	case "sd", "sdds", "sdrds", "shutdownRemoteDisplayServer":
-		msg.InfoOnErr("", fsScSdSv.Parse(subArgs))
+		msg.OnErr(fsScSdSv.Parse(subArgs))
 		distributeArgs()
 		return emitter.ScShutdownRemoteDisplayServer(1)
 	case "ds", "displayServer":
-		msg.InfoOnErr("", fsScSv.Parse(subArgs))
+		msg.OnErr(fsScSv.Parse(subArgs))
 		distributeArgs()
 		return emitter.ScDisplayServer() // endless loop
 	case "l", "log":
-		msg.InfoOnErr("", fsScLog.Parse(subArgs))
+		msg.OnErr(fsScLog.Parse(subArgs))
 		distributeArgs()
 		logLoop() // endless loop
 		return nil
@@ -157,7 +157,7 @@ func scHelp(
 
 // logLoop prepares writing and lut and provides a retry mechanism for unplugged UART.
 func logLoop() {
-	msg.InfoOnErr("", cipher.SetUp()) // does nothing when -password is "none"
+	msg.OnErr(cipher.SetUp()) // does nothing when -password is "none"
 	if decoder.TestTableMode {
 		// set switches if they not set already
 		// trice l -ts off -prefix " }, ``" -suffix "\n``}," -color off
@@ -202,7 +202,7 @@ func logLoop() {
 			counter++
 			continue
 		}
-		defer func() { msg.InfoOnErr("", rc.Close()) }()
+		defer func() { msg.OnErr(rc.Close()) }()
 		if receiver.ShowInputBytes {
 			rc = receiver.NewBytesViewer(rc)
 		}

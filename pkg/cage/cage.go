@@ -83,7 +83,7 @@ func Start(fn string) *Container {
 		fn = time.Now().Format(fn) // replace timestamp in default logfilename
 	} // otherwise use cli defined logfilename
 	lfH, err := os.OpenFile(fn, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
-	msg.FatalOnErr("", err)
+	msg.FatalOnErr(err)
 	if Verbose {
 		log.Printf("Writing to logfile %s...\n", fn)
 	}
@@ -151,8 +151,8 @@ func Stop(c *Container) {
 	}
 
 	// close pipes
-	msg.InfoOnErr("", c.writerStdout.Close())
-	msg.InfoOnErr("", c.writerStderr.Close())
+	msg.OnErr(c.writerStdout.Close())
+	msg.OnErr(c.writerStderr.Close())
 
 	// c.wg.Wait() // 2 go routines to be finished
 	time.Sleep(100 * time.Millisecond)
@@ -163,7 +163,7 @@ func Stop(c *Container) {
 	log.SetOutput(c.oldLog)
 
 	// logfile
-	msg.InfoOnErr("", c.lfHandle.Close())
+	msg.OnErr(c.lfHandle.Close())
 	if Verbose {
 		log.Printf("Writing to logfile %s...done\n", c.lfName)
 	}

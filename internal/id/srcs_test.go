@@ -5,9 +5,10 @@ package id
 
 import (
 	"fmt"
-	"github.com/rokath/trice/pkg/msg"
 	"path/filepath"
 	"testing"
+
+	"github.com/rokath/trice/pkg/msg"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -16,8 +17,8 @@ func TestArrayFlag(t *testing.T) {
 	p := &Srcs
 	assert.Equal(t, "", p.String())
 
-	msg.InfoOnErr("", p.Set("ab"))
-	msg.InfoOnErr("", p.Set("xyz"))
+	msg.OnErr(p.Set("ab"))
+	msg.OnErr(p.Set("xyz"))
 	fmt.Println(Srcs)
 	var af ArrayFlag
 	af = []string{"ab", "xyz"}

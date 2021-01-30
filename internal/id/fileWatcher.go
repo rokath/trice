@@ -17,8 +17,8 @@ func (lu TriceIDLookUp) FileWatcher() {
 
 	// creates a new file watcher
 	watcher, err := fsnotify.NewWatcher()
-	msg.InfoOnErr("", err)
-	defer func() { msg.InfoOnErr("", watcher.Close()) }()
+	msg.OnErr(err)
+	defer func() { msg.OnErr(watcher.Close()) }()
 
 	done := make(chan bool)
 	go func() {
@@ -45,7 +45,7 @@ func (lu TriceIDLookUp) FileWatcher() {
 	}()
 
 	// out of the box fsnotify can watch a single file, or a single directory
-	msg.InfoOnErr("ERROR2", watcher.Add(FnJSON))
+	msg.InfoOnErr(watcher.Add(FnJSON), "ERROR2")
 	if Verbose {
 		fmt.Println(FnJSON, "watched now for changes")
 	}
