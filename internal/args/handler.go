@@ -66,6 +66,10 @@ func Handler(args []string) error {
 		msg.OnErr(fsScVersion.Parse(subArgs))
 		distributeArgs()
 		return scVersion()
+	case "r", "refresh":
+		msg.OnErr(fsScUpdate.Parse(subArgs))
+		distributeArgs()
+		return id.SubCmdRefreshList()
 	case "u", "update":
 		msg.OnErr(fsScUpdate.Parse(subArgs))
 		distributeArgs()

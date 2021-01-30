@@ -46,6 +46,15 @@ func FatalOnErr(err error) {
 	logMessage(pc, fn, line, ok, err)
 }
 
+// FatalOnTrue ends in osExit(1) if flag is true.
+func FatalOnTrue(flag bool) {
+	if false == flag {
+		return
+	}
+	pc, fn, line, ok := runtime.Caller(1)
+	logMessage(pc, fn, line, ok, nil)
+}
+
 // FatalInfoOnErr ends in osExit(1) if err not nil.
 func FatalInfoOnErr(err error, info string) {
 	if nil == err {

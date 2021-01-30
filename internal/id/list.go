@@ -25,6 +25,16 @@ func ScZero(SrcZ string, cmd *flag.FlagSet) error {
 	return nil
 }
 
+// SubCmdRefreshList refreshes the trice id list parsing the source tree without changing any source file.
+// It only reads FnJSON and tries to add id:tf pairs from the source tree.
+// If equal tf are found with different ids they are all added.
+// If the same id is found with different tf only one is added. The others are reported as warning.
+// If any TRICE* is found without Id(n) or with Id(0) it is ignored.
+// SubCmdUpdate needs to know which IDs are used in the source tree to reliable add new IDs.
+func SubCmdRefreshList() (err error) {
+	return SubCmdUpdate() // to do
+}
+
 // SubCmdUpdate is subcommand update
 func SubCmdUpdate() error {
 	lu := NewLut(FnJSON)
