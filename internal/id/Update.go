@@ -23,32 +23,25 @@ const (
 	// patSourceFile is a regex pattern matching any source file for patching
 	patSourceFile = "(\\.c|\\.h|\\.cc|\\.cpp|\\.hpp)$"
 
-	// patNbTRICE is a regex pattern matching any "TRICE*(Id(n), "", ... )". - see https://regex101.com/r/LNlAwY/9, The (?U) says non-greedy
-	// patNbTRICE is a regex pattern matching any "TRICE*(Id(n), "", ... )". - see https://regex101.com/r/id0uSF/1
-	//patNbTRICE = `(?U)(\bTRICE_S|TRICE0|TRICE8_[1-8]|TRICE16_[1-4]|TRICE32_[1-4]|TRICE64_[1-4]\b)\s*\(\s*\bId\b\s*\(\s*.*[0-9]\s*\)\s*,\s*".*"\s*.*\)`
-	//patNbTRICE = `(?U)(\bTRICE[_S|0|8_1|8_2|8_3|8_4|8_5|8_6|8_7|8_8|16_1|16_2|16_3|16_4|32_1|32_2|32_3|32_4|64_1|64_2|64_3|64_4]\b)\s*\(\s*\bId\b\s*\(\s*.*[0-9]\s*\)\s*,\s*".*"\s*.*\)`
+	// patNbTRICE is a regex pattern matching any "TRICE*(Id(n), "", ... )". - see https://regex101.com/r/id0uSF/1, The (?U) says non-greedy
 	patNbTRICE = `(?U)(\bTRICE_S|trice_s|TRICE0|trice0|TRICE8_[1-8]|trice8_[1-8]|TRICE16_[1-4]|trice16_[1-4]|TRICE32_[1-4]|trice32_[1-4]|TRICE64_[1-4]|trice64_[1-4]\b)\s*\(\s*\bId\b\s*\(\s*.*[0-9]\s*\)\s*,\s*".*"\s*.*\)`
-	//patNbTRICE = `(?U)(\bTRICE_S|TRICE0|TRICE8_[1-8]|TRICE16_[1-4]|TRICE32_[1-4]|TRICE64_[1-4]\b)\s*\(\s*\bId\b\s*\(\s*.*[0-9]\s*\)\s*,\s*".*"\s*.*\)`
+
 	// patNbID is a regex pattern matching any (first in string) "Id(n)" and usable in matches of matchNbTRICE
 	patNbID = `\bId\s*\(\s*[0-9]*\s*\)`
 
 	// patTypNameTRICE is a regex pattern matching "TRICE*" inside trice
-	//patTypNameTRICE = `(\bTRICE_S\b|\bTRICE0\b|\bTRICE8_[1-8]\b|\bTRICE16_[1-4]\b|\bTRICE32_[1-4]\b|\bTRICE64_[1-4]\b)`
 	patTypNameTRICE = `(\bTRICE_S\b|\bTRICE0\b|\bTRICE8_[1-8]\b|\bTRICE16_[1-4]\b|\bTRICE32_[1-4]\b|\bTRICE64_[1-4]\b|\btrice_S\b|\btrice0\b|\btrice8_[1-8]\b|\btrice16_[1-4]\b|\btrice32_[1-4]\b|\btrice64_[1-4]\b)`
 
 	// patFmtString is a regex matching the first format string inside trice
 	patFmtString = `"(.*)"`
 
 	// patFullTriceWithoutID is a regex find a TRICE* line without Id, The (?U) says non-greedy
-	//patFullTriceWithoutID = `(?U)(\bTRICE64|TRICE32|TRICE16|TRICE8|TRICE0|TRICE_S\b)\s*\(\s*".*"\s*.*\)`
 	patFullTriceWithoutID = `(?U)(\bTRICE64|TRICE32|TRICE16|TRICE8|TRICE0|TRICE_S|trice64|trice32|trice16|trice8|trice0|trice_s\b)\s*\(\s*".*"\s*.*\)`
 
 	// patTriceStartWithoutIDo is a regex
-	//patTriceStartWithoutIDo = `(\bTRICE64|TRICE32|TRICE16|TRICE8|TRICE0|TRICE_S\b)\s*\(`
 	patTriceStartWithoutIDo = `(\bTRICE64|TRICE32|TRICE16|TRICE8|TRICE0|TRICE_S|trice64|trice32|trice16|trice8|trice0|trice_s\b)\s*\(`
 
 	// patTriceStartWithoutID is a regex
-	//patTriceStartWithoutID = `(\bTRICE64|TRICE32|TRICE16|TRICE8|TRICE0|TRICE_S\b)\s*`
 	patTriceStartWithoutID = `(\bTRICE64|TRICE32|TRICE16|TRICE8|TRICE0|TRICE_S|trice64|trice32|trice16|trice8|trice0|trice_s\b)\s*`
 
 	// patNextFormatSpezifier is a regex find next format specifier in a string (exclude %%*)
@@ -90,7 +83,7 @@ func separatedIDsUpdate(root string, lu TriceIDLookUp, tflu TriceFmtLookUp) (mod
 // NOT NEEDED:   - If several source trees use same til.json, the `removed` timestamp is without sense.
 // NOT NEEDED:   - If a `removed` timestamp is set, but the ID is in the source tree the `removed` timestamp is set to 0.
 
-// Update is parsing source tree root and performing these actions:
+// Update is parsing source tree root which is part of Srcs and performing these actions:
 // - replace.Type( Id(0), ...) with.Type( Id(n), ...)
 // - find duplicate.Type( Id(n), ...) and replace one of them if trices are not identical
 // - extend file fnIDList
@@ -134,7 +127,7 @@ func visitUpdate(lu TriceIDLookUp, tflu TriceFmtLookUp, pModified *bool) filepat
 		textN := updateParamCount(text)                      // update parameter count: TRICE* to TRICE*_n
 		textU := updateIDsShared(textN, lu, tflu, pModified) // update IDs: Id(0) -> Id(M)
 
-		if text != textU {
+		if text != textU { // to do: updateParamCount could set *pModified too
 			*pModified = true
 		}
 
@@ -236,11 +229,13 @@ func updateIDsShared(text string, lu TriceIDLookUp, tflu TriceFmtLookUp, pModifi
 				}
 			}
 		}
-		if id <= 0 { // invalid
+		tF := tf
+		tF.Type = strings.ToUpper(tF.Type) // no distiction for lower and upper case Type
+		if id <= 0 {                       // invalid
 			invalID := nbID
 			invalTRICE := nbTRICE
 			// It is possible tf is already in tflu (and lu) here, so check it.
-			if id, ok := tflu[tf]; ok { // yes, we can use it
+			if id, ok = tflu[tF]; ok { // yes, we can use it
 				msg.FatalOnTrue(0 == id) // no id 0 allowed in map
 			} else { // no, we need a new one
 				id = lu.newID() // a prerequisite is a in a previous step refreshed lu
@@ -256,7 +251,7 @@ func updateIDsShared(text string, lu TriceIDLookUp, tflu TriceFmtLookUp, pModifi
 		}
 		// update map: That is needed after an invalid trice or if id:tf is valid but not inside lu & tflu yet, for example after manual code changes or forgotten refresh before update.
 		lu[id] = tf
-		tflu[tf] = id
+		tflu[tF] = id // no distiction for lower and upper case Type
 	}
 }
 

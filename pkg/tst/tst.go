@@ -176,3 +176,13 @@ func AssertTrue(tb testing.TB, flag bool) {
 		tb.FailNow()
 	}
 }
+
+// AssertTrueElseInfo fails the test if flag is false.
+func AssertTrueElseInfo(tb testing.TB, flag bool, info string) {
+	if !flag {
+		fmt.Println(info)
+		_, file, line, _ := runtime.Caller(1)
+		fmt.Println(flag, filepath.Base(file), line)
+		tb.FailNow()
+	}
+}

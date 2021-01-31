@@ -110,7 +110,7 @@ Without the "-dry-run" switch it would create|extend a list file til.json in the
 	fsScUpdate.Var(&id.Srcs, "s", "Short for src.") // multi flag
 	flagVerbosity(fsScUpdate)
 	flagIDList(fsScUpdate)
-	fsScUpdate.StringVar(&id.SearchMethod, "IDMethod", "legacy", "Search method for new ID's in range- Options are 'upward', 'downward' & 'random'.")
+	fsScUpdate.StringVar(&id.SearchMethod, "IDMethod", "random", "Search method for new ID's in range- Options are 'upward', 'downward' & 'random'.")
 
 	fsScUpdate.Var(&id.Min, "IDmin", "Smallest allowed trice ID. (Lower end of ID range).") // to do: this is no multi-flag.
 	fsScUpdate.Var(&id.Max, "IDmax", "Biggest allowed trice ID. (Upper end of ID range).")  // to do: this is no multi-flag.

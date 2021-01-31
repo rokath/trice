@@ -12,6 +12,7 @@ import (
 	"io/ioutil"
 	"math/rand"
 	"os"
+	"strings"
 
 	"github.com/rokath/trice/pkg/msg"
 )
@@ -29,7 +30,7 @@ func NewLut(fn string) TriceIDLookUp {
 // newID() gets a random ID not used so far.
 // The delivered id is usable as key for lu, but not added. So calling fn twice without adding to lu could give the same value back.
 // It is important that lu was refreshed before with all sources to avoid finding as a new ID an ID which is already used in the source tree.
-func (lu TriceIDLookUp) newID() (id TriceID) {
+func (lu TriceIDLookUp) newID() TriceID {
 	switch SearchMethod {
 	case "random":
 		return lu.newRandomID(Min, Max)
@@ -45,12 +46,12 @@ func (lu TriceIDLookUp) newID() (id TriceID) {
 // newRandomID provides a random free ID inside interval [min,max].
 // The delivered id is usable as key for lu, but not added. So calling fn twice without adding to lu could give the same value back.
 func (lu TriceIDLookUp) newRandomID(min, max TriceID) (id TriceID) {
-	interval := int(max - min)
-	freeIDs := interval + 1 - len(lu)
+	interval := int(max - min + 1)
+	freeIDs := interval - len(lu)
 	msg.FatalOnFalse(freeIDs > 0, "no new ID possible, "+fmt.Sprint(min, max, len(lu)))
 	wrnLimit := interval >> 2 // 25%
 	msg.InfoOnTrue(freeIDs < wrnLimit, "WARNING: Less than 25% IDs free!")
-	id = min + TriceID(rand.Intn(interval+1))
+	id = min + TriceID(rand.Intn(interval))
 	if 0 == len(lu) {
 		return
 	}
@@ -70,8 +71,8 @@ func (lu TriceIDLookUp) newRandomID(min, max TriceID) (id TriceID) {
 // newUpwardID provides the smallest free ID inside interval [min,max].
 // The delivered id is usable as key for lut, but not added. So calling fn twice without adding to lu gives the same value back.
 func (lu TriceIDLookUp) newUpwardID(min, max TriceID) (id TriceID) {
-	interval := int(max - min)
-	freeIDs := interval + 1 - len(lu)
+	interval := int(max - min + 1)
+	freeIDs := interval - len(lu)
 	msg.FatalOnFalse(freeIDs > 0, "no new ID possible: "+fmt.Sprint("min=", min, ", max=", max, ", used=", len(lu)))
 	id = min
 	if 0 == len(lu) {
@@ -92,8 +93,8 @@ func (lu TriceIDLookUp) newUpwardID(min, max TriceID) (id TriceID) {
 // newDownwardID provides the biggest free ID inside interval [min,max].
 // The delivered id is usable as key for lut, but not added. So calling fn twice without adding to lu gives the same value back.
 func (lu TriceIDLookUp) newDownwardID(min, max TriceID) (id TriceID) {
-	interval := int(max - min)
-	freeIDs := interval + 1 - len(lu)
+	interval := int(max - min + 1)
+	freeIDs := interval - len(lu)
 	msg.FatalOnFalse(freeIDs > 0, "no new ID possible: "+fmt.Sprint("min=", min, ", max=", max, ", used=", len(lu)))
 	id = max
 	if 0 == len(lu) {
@@ -151,8 +152,9 @@ func (lu TriceIDLookUp) reverse() (tflu TriceFmtLookUp) {
 	if nil == tflu {
 		tflu = make(TriceFmtLookUp)
 	}
-	for id, fm := range lu {
-		tflu[fm] = id
+	for id, tF := range lu {
+		tF.Type = strings.ToUpper(tF.Type) // no distiction for lower and upper case Type
+		tflu[tF] = id
 	}
 	return
 }
