@@ -182,7 +182,20 @@
                      "xxx"
             ]
         },
-        { // trice u -v  -IDLo 999000 -IDUp 999999 -IDMethod random -i ../../../til.json -src ./ -src ../Core -src ../../../srcTrice.C
+        {
+            "name": "zeroSourceTreeIds",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}/cmd/trice",
+            "env": {},
+            "args": ["zeroSourceTreeIds",
+                     "-src",
+                     "C:/repos/trice/srcTrice.C/tCopy.c",
+                     "-dry-run"
+            ]
+        },
+        { // trice update -dry-run -v -src C:/repos/trice/test -IDMin 100 -IDMax 999 -IDMethod upward -idlist c:/repos/trice/til.json 
             "name": "update",
             "type": "go",
             "request": "launch",
@@ -190,18 +203,19 @@
             "program": "${workspaceFolder}/cmd/trice",
             "env": {},
             "args": ["update",
+                    "-dry-run",
                     "-v",
                     "-src",
-                    "C:/repos/trice/test/MDK-ARM_LL_UART_RTT0_PACK_STM32F030R8-NUCLEO-64/Core",
-                    "-IDLo",
-                    "999000",
-                    "-IDUp",
-                    "999999",
+                    "C:/repos/trice/test",
+                    "-IDMin",
+                    "100",
+                    "-IDMax",
+                    "999",
                     "-IDMethod",
                     "upward",
                     "-idlist",
                     "c:/repos/trice/til.json"
-            ] // "trice update -v -src C:/repos/trice/test/MDK-ARM_LL_UART_RTT0_PACK_STM32F030R8-NUCLEO-64/Core -IDLo 999000 -IDUp 999999 -IDMethod random -idlist c:/repos/trice/til.json
+            ]
         }
     ]
 }

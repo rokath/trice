@@ -19,12 +19,12 @@ import (
 
 // NewLut returns a look-up map generated from JSON map file named fn.
 func NewLut(fn string) TriceIDLookUp {
-	lu := new(TriceIDLookUp)
+	lu := make(TriceIDLookUp)
 	msg.FatalOnErr(lu.fromFile(fn))
 	if true == Verbose {
-		fmt.Println("Read ID List file", fn, "with", len(*lu), "items.")
+		fmt.Println("Read ID List file", fn, "with", len(lu), "items.")
 	}
-	return *lu
+	return lu
 }
 
 // newID() gets a random ID not used so far.

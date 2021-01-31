@@ -21,7 +21,7 @@ func ScZero(SrcZ string, cmd *flag.FlagSet) error {
 		cmd.PrintDefaults()
 		return errors.New("no source tree root specified")
 	}
-	//	ZeroSourceTreeIds(SrcZ, !DryRun)
+	ZeroSourceTreeIds(SrcZ, !DryRun)
 	return nil
 }
 

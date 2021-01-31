@@ -4,7 +4,12 @@
 // Package id List is responsible for id List managing
 package id
 
-import "fmt"
+import (
+	"fmt"
+	"strconv"
+
+	"github.com/rokath/trice/pkg/msg"
+)
 
 var (
 	// Verbose gives mor information on output if set. The value is injected from main packages.
@@ -40,7 +45,8 @@ func (id *TriceID) String() string {
 
 // Set implements part of flag.Value interface. It initializes id from the partial commandline string
 func (id *TriceID) Set(value string) error {
-	n, err := fmt.Scanf(value)
+	n, err := strconv.Atoi(value)
+	msg.FatalOnErr(err)
 	*id = TriceID(n)
 	return err
 }
