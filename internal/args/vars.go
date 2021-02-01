@@ -22,14 +22,11 @@ var (
 	// verbose gives mor information on output if set. This variable is copied into the appropriate packages.
 	verbose bool
 
+	// fsScRefresh is flag set for sub command 'refresh' for updating ID list without touching the sources.
+	fsScRefresh *flag.FlagSet
+
 	// fsScUpdate is flag set for sub command 'update' for updating ID list.
 	fsScUpdate *flag.FlagSet
-
-	// fsScZero is flag set for sub command 'zero' for clearing IDs in source tree.
-	fsScZero *flag.FlagSet
-
-	// pSrcZ is a string pointer to the safety string for scZero.
-	pSrcZ *string
 
 	// fsScHelp is flag set for sub command 'help'.
 	fsScHelp *flag.FlagSet
@@ -48,6 +45,12 @@ var (
 
 	// fsScSdSv is flag set for sub command 'shutdownServer'.
 	fsScSdSv *flag.FlagSet
+
+	// fsScZero is flag set for sub command 'zero' for clearing IDs in source tree.
+	fsScZero *flag.FlagSet
+
+	// pSrcZ is a string pointer to the safety string for scZero.
+	pSrcZ *string
 
 	// used to replace "default" args value for STLINK and JLINK port
 	defaultLinkArgs = "-Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0 -RTTSearchRanges 0x20000000_0x1000"

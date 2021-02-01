@@ -40,7 +40,7 @@ type TriceID int
 
 // String implements part of flag.Value interface. It returns id as string.
 func (id *TriceID) String() string {
-	return fmt.Sprintf("%d", id)
+	return fmt.Sprintf("%d", *id)
 }
 
 // Set implements part of flag.Value interface. It initializes id from the partial commandline string

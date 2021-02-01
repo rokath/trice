@@ -96,24 +96,17 @@ Example: "trice l -port COM38 -displayserver -autostart" opens a separate displa
 }
 
 func init() {
+	fsScRefresh = flag.NewFlagSet("refresh", flag.ExitOnError) // subcommand
+	flagsRefreshAndUpdate(fsScRefresh)
+}
+
+func init() {
 	fsScUpdate = flag.NewFlagSet("update", flag.ExitOnError) // subcommand
-	fsScUpdate.BoolVar(&id.DryRun, "dry-run", false, `No changes applied but output shows what would happen.
-"trice u -dry-run" will change nothing but show changes it would perform without the "-dry-run" switch.
-`+boolInfo) // flag
-
-	fsScUpdate.Var(&id.Srcs, "src", `Source dir or file, It has one parameter. Not usable in the form "-src *.c".
-This is a multi-flag switch. It can be used several times for directories and also for files. 
-Example: "trice u  -dry-run -v -src ./test/ -src srcTrice.C/trice.h" will scan all C|C++ header and 
-source code files inside directory ./test and scan also file trice.h inside srcTrice.C directory. 
-Without the "-dry-run" switch it would create|extend a list file til.json in the current directory.
- (default "./")`) // multi flag
-	fsScUpdate.Var(&id.Srcs, "s", "Short for src.") // multi flag
-	flagVerbosity(fsScUpdate)
-	flagIDList(fsScUpdate)
-	fsScUpdate.StringVar(&id.SearchMethod, "IDMethod", "random", "Search method for new ID's in range- Options are 'upward', 'downward' & 'random'.")
-
+	flagsRefreshAndUpdate(fsScUpdate)
+	//fsScUpdate.Var(id.NewTriceIDValue(100, &id.Min), "IDMin", "Smallest allowed trice ID. (Lower end of ID range).") // to do: this is no multi-flag.
 	fsScUpdate.Var(&id.Min, "IDMin", "Smallest allowed trice ID. (Lower end of ID range).") // to do: this is no multi-flag.
 	fsScUpdate.Var(&id.Max, "IDMax", "Biggest allowed trice ID. (Upper end of ID range).")  // to do: this is no multi-flag.
+	fsScUpdate.StringVar(&id.SearchMethod, "IDMethod", "random", "Search method for new ID's in range- Options are 'upward', 'downward' & 'random'.")
 	fsScUpdate.BoolVar(&id.SharedIDs, "sharedIDs", true, `New ID policy:
 true: TriceFmt's without TriceID get equal TriceID if an equal TriceFmt exists already.
 false: TriceFmt's without TriceID get a different TriceID if an equal TriceFmt exists already.`)
@@ -122,8 +115,7 @@ false: TriceFmt's without TriceID get a different TriceID if an equal TriceFmt e
 func init() {
 	fsScZero = flag.NewFlagSet("zeroSourceTreeIds", flag.ContinueOnError)
 	pSrcZ = fsScZero.String("src", "", "Zero all Id(n) inside source tree dir, required.") // flag
-	fsScZero.BoolVar(&id.DryRun, "dry-run", false, `No changes applied but output shows what would happen.
-`+boolInfo) // flag
+	flagDryRun(fsScZero)
 }
 
 func init() {
@@ -154,6 +146,13 @@ func init() {
 	flagIPAddress(fsScSdSv)
 }
 
+func flagsRefreshAndUpdate(p *flag.FlagSet) {
+	flagDryRun(p)
+	flagSrcs(p)
+	flagVerbosity(p)
+	flagIDList(p)
+}
+
 func flagLogfile(p *flag.FlagSet) {
 	p.StringVar(&cage.Name, "logfile", "off", `Append all output to logfile. Options are: 'off|none|filename|auto':
 "off": no logfile (same as "none")
@@ -165,6 +164,22 @@ Change the filename with "-logfile myName.txt" or switch logging off with "-logf
 `) // flag
 	p.StringVar(&cage.Name, "l", "off", `Short for -logfile.
 `) // short flag
+}
+
+func flagSrcs(p *flag.FlagSet) {
+	p.Var(&id.Srcs, "src", `Source dir or file, It has one parameter. Not usable in the form "-src *.c".
+This is a multi-flag switch. It can be used several times for directories and also for files. 
+Example: "trice u  -dry-run -v -src ./test/ -src srcTrice.C/trice.h" will scan all C|C++ header and 
+source code files inside directory ./test and scan also file trice.h inside srcTrice.C directory. 
+Without the "-dry-run" switch it would create|extend a list file til.json in the current directory.
+ (default "./")`) // multi flag
+	p.Var(&id.Srcs, "s", "Short for src.") // multi flag
+}
+
+func flagDryRun(p *flag.FlagSet) {
+	p.BoolVar(&id.DryRun, "dry-run", false, `No changes applied but output shows what would happen.
+"trice `+p.Name()+` -dry-run" will change nothing but show changes it would perform without the "-dry-run" switch.
+`+boolInfo) // flag
 }
 
 func flagVerbosity(p *flag.FlagSet) {

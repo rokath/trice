@@ -183,6 +183,15 @@
             ]
         },
         {
+            "name": "help",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}/cmd/trice",
+            "env": {},
+            "args": ["help"
+            ]
+        },       {
             "name": "zeroSourceTreeIds",
             "type": "go",
             "request": "launch",
@@ -207,10 +216,6 @@
                     "-v",
                     "-src",
                     "C:/repos/trice/test",
-                    "-IDMin",
-                    "100",
-                    "-IDMax",
-                    "999",
                     "-IDMethod",
                     "upward",
                     "-idlist",
