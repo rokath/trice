@@ -12,19 +12,20 @@ import (
 	"github.com/rokath/trice/pkg/tst"
 )
 
+// To do: handle special cases:
+//
+//	PS C:\repos\trice> trice s
+//	Could not enumerate serial ports
+//	PS C:\repos\trice> trice s
+//	No serial ports found!
+//
+// A normal case:
+//	PS C:\repos\trice> trice s
+//	Found port:  COM4
 func Test1(t *testing.T) {
 	ss, err := com.GetSerialPorts()
 	tst.AssertNoErr(t, err)
-	// To do: handle special cases:
-	//
-	//	PS C:\repos\trice> trice s
-	//	Could not enumerate serial ports
-	//	PS C:\repos\trice> trice s
-	//	No serial ports found!
-	//
-	// A normal case:
-	//	PS C:\repos\trice> trice s
-	//	Found port:  COM4
+
 	for i := range ss {
 		port := ss[i]
 		p := com.NewCOMPortGoBugSt(port)

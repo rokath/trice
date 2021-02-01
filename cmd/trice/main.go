@@ -25,6 +25,8 @@ var (
 
 // main is the entry point.
 func main() {
+
+	// inject values
 	args.Version = version
 	args.Commit = commit
 	args.Date = date

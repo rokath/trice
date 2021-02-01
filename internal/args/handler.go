@@ -56,12 +56,12 @@ func Handler(args []string) error {
 		msg.OnErr(fsScHelp.Parse(subArgs))
 		distributeArgs()
 		return scHelp()
-	case "s", "sc", "scan":
+	case "s", "scan":
 		msg.OnErr(fsScScan.Parse(subArgs))
 		distributeArgs()
 		_, err := com.GetSerialPorts()
 		return err
-	case "v", "ver", "version":
+	case "ver", "version":
 		msg.OnErr(fsScVersion.Parse(subArgs))
 		distributeArgs()
 		return scVersion()
@@ -77,7 +77,7 @@ func Handler(args []string) error {
 		msg.OnErr(fsScZero.Parse(subArgs))
 		distributeArgs()
 		return id.ScZero(*pSrcZ, fsScZero)
-	case "sd", "sdds", "sdrds", "shutdownRemoteDisplayServer":
+	case "sd", "shutdown":
 		msg.OnErr(fsScSdSv.Parse(subArgs))
 		distributeArgs()
 		return emitter.ScShutdownRemoteDisplayServer(1)
@@ -103,24 +103,50 @@ func scHelp() error {
 	defer cage.Disable()
 
 	fmt.Println("syntax: 'trice subcommand' [params]")
+	if false == (allHelp ||
+		displayServerHelp ||
+		helpHelp ||
+		logHelp ||
+		refreshHelp ||
+		scanHelp ||
+		shutdownHelp ||
+		updateHelp ||
+		versionHelp ||
+		zeroIDsHelp) {
+		fmt.Println("example 'trice h -help': Print help for help.")
+	}
 
-	fmt.Println(`subcommand 'ds|displayServer': Starts a display server. 
+	if allHelp || displayServerHelp {
+		fmt.Println(`subcommand 'ds|displayServer': Starts a display server. 
 	Use in a separate console. On Windows use wt (https://github.com/microsoft/terminal) or a linux shell like git-bash to avoid ANSI color issues. 
 	Running "trice ds" inside a console opens a display server to be used for displaying the TRICE logs remotely.
 	Several instances of 'trice l -ds -port ...' (for different ports) will send output there in parallel.`)
-	fsScSv.SetOutput(os.Stdout)
-	fsScSv.PrintDefaults()
+		fsScSv.SetOutput(os.Stdout)
+		fsScSv.PrintDefaults()
+		fmt.Println("example: 'trice ds': Start display server.")
+	}
 
-	fmt.Println(`subcommand 'h|help': For command line usage.
+	if allHelp || helpHelp {
+		fmt.Println(`subcommand 'h|help': For command line usage.
 	"trice h" will print this help text as a whole.`)
-	fsScHelp.SetOutput(os.Stdout)
-	fsScHelp.PrintDefaults()
+		fsScHelp.SetOutput(os.Stdout)
+		fsScHelp.PrintDefaults()
+		fmt.Println("example 'trice h': Print short help.")
+		fmt.Println("example 'trice h -all': Print all help.")
+		fmt.Println("example 'trice h -log': Print log help.")
+	}
 
-	fmt.Println(`subcommand 'l|log': For displaying trice logs coming from port. With "trice log" the trice tool display mode is activated.`)
-	fsScLog.SetOutput(os.Stdout)
-	fsScLog.PrintDefaults()
+	if allHelp || logHelp {
+		fmt.Println(`subcommand 'l|log': For displaying trice logs coming from port. With "trice log" the trice tool display mode is activated.`)
+		fsScLog.SetOutput(os.Stdout)
+		fsScLog.PrintDefaults()
+		fmt.Println("example: 'trice l -p COM15 -baud 38400': Display trice log messages from serial port COM15")
+		fmt.Println("example: 'trice l': Display pack2L data format trice log messages from default source J-LINK over Segger RTT protocol.")
+		fmt.Println("example: 'trice l -port ST-LINK -v -s': Shows verbose version information and also the received raw bytes.")
+	}
 
-	fmt.Println(`subcommand 'refresh': For updating ID list from source files but does not change the source files.
+	if allHelp || refreshHelp {
+		fmt.Println(`subcommand 'r|refresh': For updating ID list from source files but does not change the source files.
 	"trice refresh" will parse source tree(s) for TRICE macros, and refresh/generate the JSON list.
 	This command should be run on adding souce files to the project before the first time "trice update" is called.
 	If the new source files contain TRICE macros with IDs these are added to til.json if not already used.
@@ -131,45 +157,49 @@ func scHelp() error {
 	IDs used in the added sources with the result that IDs in the added sources could get changed what you may not want.
 	Using "trice u -IDMethod random" (default) makes the chance for such conflicts very low.
 	The "refresh" subcommand has no mantadory switches. Omitted optional switches are used with their default parameters.`)
-	fsScRefresh.SetOutput(os.Stdout)
-	fsScRefresh.PrintDefaults()
+		fsScRefresh.SetOutput(os.Stdout)
+		fsScRefresh.PrintDefaults()
+		fmt.Println("example: 'trice refresh': Update ID list from source tree.")
+	}
 
-	fmt.Println(`subcommand 's|scan': Shows availiable serial ports)`)
-	fsScScan.SetOutput(os.Stdout)
-	fsScScan.PrintDefaults()
+	if allHelp || scanHelp {
+		fmt.Println(`subcommand 's|scan': Shows availiable serial ports)`)
+		fsScScan.SetOutput(os.Stdout)
+		fsScScan.PrintDefaults()
+		fmt.Println("example: 'trice s': Show COM ports.")
+	}
 
-	fmt.Println("subcommand 'sd|shutdownServer': Ends display server at IPA:IPP, works also on a remote mashine.")
-	fsScSdSv.SetOutput(os.Stdout)
-	fsScSdSv.PrintDefaults()
+	if allHelp || shutdownHelp {
+		fmt.Println("subcommand 'sd|shutdown': Ends display server at IPA:IPP, works also on a remote mashine.")
+		fsScSdSv.SetOutput(os.Stdout)
+		fsScSdSv.PrintDefaults()
+		fmt.Println("example: 'trice sd': Shut down remote display server.")
+	}
 
-	fmt.Println(`subcommand 'u|upd|update': For updating ID list and source files.
+	if allHelp || updateHelp {
+		fmt.Println(`subcommand 'u|update': For updating ID list and source files.
 	"trice update" will parse source tree(s) for new or changed TRICE macros, modify them appropirate and update/generate the JSON list.
 	The "update" subcommand has no mantadory switches. Omitted optional switches are used with their default parameters.`)
-	fsScUpdate.SetOutput(os.Stdout)
-	fsScUpdate.PrintDefaults()
+		fsScUpdate.SetOutput(os.Stdout)
+		fsScUpdate.PrintDefaults()
+		fmt.Println("example: 'trice update -src ../A -src ../../B': Parse ../A and ../../B with all subdirectories for TRICE IDs to update and adjusts til.json")
+	}
 
-	fmt.Println(`subcommand 'v|ver|version': For displaying version information.
+	if allHelp || versionHelp {
+		fmt.Println(`subcommand 'ver|version': For displaying version information.
 	"trice v" will print the version information. In trice is unversioned the build time will be displayed instead.`)
-	fsScVersion.SetOutput(os.Stdout)
-	fsScVersion.PrintDefaults()
+		fsScVersion.SetOutput(os.Stdout)
+		fsScVersion.PrintDefaults()
+	}
 
-	fmt.Println(`subcommand 'zeroSourceTreeIds': Set all Id(n) inside source tree dir to Id(0). 
+	if allHelp || zeroIDsHelp {
+		fmt.Println(`subcommand 'zeroSourceTreeIds': Set all Id(n) inside source tree dir to Id(0). 
 	Avoid using this subcommand normally. The switch "-src" is mantadory and no multi-flag here.
 	This subcommand is mainly for testing. For several source directories you need several runs.`)
-	fsScZero.SetOutput(os.Stdout)
-	fsScZero.PrintDefaults()
-
-	fmt.Println("examples:")
-	fmt.Println("    'trice h': Print this help.")
-	fmt.Println("    'trice s': Show COM ports.")
-	fmt.Println("    'trice ds': Start display server.")
-	fmt.Println("    'trice sd': Shut down remote display server.")
-	fmt.Println("    'trice refresh': Update ID list from source tree.")
-	fmt.Println("    'trice update -src ../A -src ../../B': Parse ../A and ../../B with all subdirectories for TRICE IDs to update and adjusts til.json")
-	fmt.Println("    'trice l -p COM15 -baud 38400': Display trice log messages from serial port COM15")
-	fmt.Println("    'trice l': Display bare data format trice log messages from default source JLINK over Segger RTT protocol.")
-	fmt.Println("    'trice zeroSourceTreeIds -dir ../A': Sets all TRICE IDs to 0 in ./A. Use with care!")
-	fmt.Println("    'trice l -port STLINK -v -s': Shows verbose version information and also the received raw bytes.")
+		fsScZero.SetOutput(os.Stdout)
+		fsScZero.PrintDefaults()
+		fmt.Println("example: 'trice zeroSourceTreeIds -src ../A': Sets all TRICE IDs to 0 in ../A. Use with care!")
+	}
 	return nil
 }
 

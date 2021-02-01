@@ -29,6 +29,31 @@ See https://github.com/rokath/trice/blob/master/srcTrice.C/triceCheck.c for exam
 )
 
 func init() {
+	fsScHelp = flag.NewFlagSet("help", flag.ContinueOnError) // subcommand
+	fsScHelp.BoolVar(&allHelp, "all", false, "Show all help.")
+	fsScHelp.BoolVar(&displayServerHelp, "displayserver", false, "Show ds|displayserver specific help.")
+	fsScHelp.BoolVar(&displayServerHelp, "ds", false, "Show ds|displayserver specific help.")
+	fsScHelp.BoolVar(&helpHelp, "help", false, "Show h|help specific help.")
+	fsScHelp.BoolVar(&helpHelp, "h", false, "Show h|help specific help.")
+	fsScHelp.BoolVar(&logHelp, "log", false, "Show l|log specific help.")
+	fsScHelp.BoolVar(&logHelp, "l", false, "Show l|log specific help.")
+	fsScHelp.BoolVar(&refreshHelp, "refresh", false, "Show r|refresh specific help.")
+	fsScHelp.BoolVar(&refreshHelp, "r", false, "Show r|refresh specific help.")
+	fsScHelp.BoolVar(&scanHelp, "scan", false, "Show s|scan specific help.")
+	fsScHelp.BoolVar(&scanHelp, "s", false, "Show s|scan specific help.")
+	fsScHelp.BoolVar(&shutdownHelp, "shutdown", false, "Show sd|shutdown specific help.")
+	fsScHelp.BoolVar(&shutdownHelp, "sd", false, "Show sd|shutdown specific help.")
+	fsScHelp.BoolVar(&updateHelp, "update", false, "Show u|update specific help.")
+	fsScHelp.BoolVar(&updateHelp, "u", false, "Show u|update specific help.")
+	fsScHelp.BoolVar(&versionHelp, "version", false, "Show ver|version specific help.")
+	fsScHelp.BoolVar(&versionHelp, "ver", false, "Show ver|version specific help.")
+	fsScHelp.BoolVar(&zeroIDsHelp, "zeroSourceTreeIds", false, "Show zeroSourceTreeIds specific help.")
+	fsScHelp.BoolVar(&zeroIDsHelp, "z", false, "Show zeroSourceTreeIds specific help.")
+	flagLogfile(fsScHelp)
+	flagVerbosity(fsScHelp)
+}
+
+func init() {
 	fsScLog = flag.NewFlagSet("log", flag.ExitOnError)                                                                                                                            // subcommand
 	fsScLog.StringVar(&decoder.Encoding, "encoding", "pack2L", "The trice transmit data format type, options: 'pack[l]|esc|bare[l]|wrap[l]'. Target device encoding must match.") // flag
 	fsScLog.StringVar(&decoder.Encoding, "e", "pack2L", "Short for -encoding.")                                                                                                   // short flag
@@ -103,7 +128,6 @@ func init() {
 func init() {
 	fsScUpdate = flag.NewFlagSet("update", flag.ExitOnError) // subcommand
 	flagsRefreshAndUpdate(fsScUpdate)
-	//fsScUpdate.Var(id.NewTriceIDValue(100, &id.Min), "IDMin", "Smallest allowed trice ID. (Lower end of ID range).") // to do: this is no multi-flag.
 	fsScUpdate.Var(&id.Min, "IDMin", "Smallest allowed trice ID. (Lower end of ID range).") // to do: this is no multi-flag.
 	fsScUpdate.Var(&id.Max, "IDMax", "Biggest allowed trice ID. (Upper end of ID range).")  // to do: this is no multi-flag.
 	fsScUpdate.StringVar(&id.SearchMethod, "IDMethod", "random", "Search method for new ID's in range- Options are 'upward', 'downward' & 'random'.")
@@ -116,12 +140,6 @@ func init() {
 	fsScZero = flag.NewFlagSet("zeroSourceTreeIds", flag.ContinueOnError)
 	pSrcZ = fsScZero.String("src", "", "Zero all Id(n) inside source tree dir, required.") // flag
 	flagDryRun(fsScZero)
-}
-
-func init() {
-	fsScHelp = flag.NewFlagSet("help", flag.ContinueOnError) // subcommand
-	flagLogfile(fsScHelp)
-	flagVerbosity(fsScHelp)
 }
 
 func init() {
@@ -162,8 +180,8 @@ func flagLogfile(p *flag.FlagSet) {
 All trice output of the appropriate subcommands is appended per default into the logfile trice additionally to the normal output.
 Change the filename with "-logfile myName.txt" or switch logging off with "-logfile none".
 `) // flag
-	p.StringVar(&cage.Name, "l", "off", `Short for -logfile.
-`) // short flag
+	//	p.StringVar(&cage.Name, "lg", "off", `Short for -logfile.
+	//`) // short flag
 }
 
 func flagSrcs(p *flag.FlagSet) {
