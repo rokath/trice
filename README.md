@@ -59,9 +59,9 @@ Tiny & fast trace code for embedded device real-time PC logging (trace ID visual
 
 - Using trice not only for **dynamic debugging** but also as **logging** technique
     is possible and gives the advantage to have very short messages (no strings) for transmission, 
-    but keep in mind that the file `til.json` is the key to read all output if your devices in the field for 10 or more years.
+    but keep in mind that the file [til.json](https://github.com/rokath/trice/blob/master/til.json) is the key to read all output if your devices in the field for 10 or more years.
 - You can consider TRICE also as a kind of **data compression** what could be interesting for IoT things, especially NB-IoT, where you have very low data rates.
-- Storing trices in FLASH for later log analysis safes memory because a `TRICE` occupies only 4 bytes.
+- Storing trices in FLASH for later log analysis saves memory because a `TRICE` occupies only 4 bytes.
 - Also it is possible to **encrypt** the trice transfer packets to get a reasonable protection for many cases.
   - This way you can deliver firmware images with encrypted TRICE output only readable with the appropriate key and til.json.
   - XTEA is implemented as one option.
