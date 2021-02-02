@@ -157,9 +157,25 @@
         <Bp>
           <Number>0</Number>
           <Type>0</Type>
-          <LineNumber>124</LineNumber>
+          <LineNumber>91</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134220500</Address>
+          <Address>134232538</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>1</BreakIfRCount>
+          <Filename>&lt;2&gt;..\..\..\srcTrice.C\triceFifoToBytesBuffer.c</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression>\\MDK_ARM_LL_UART_RTT0_BARE_STM32F030R8_NUCLEO_64\../../../srcTrice.C/triceFifoToBytesBuffer.c\91</Expression>
+        </Bp>
+        <Bp>
+          <Number>1</Number>
+          <Type>0</Type>
+          <LineNumber>126</LineNumber>
+          <EnabledFlag>1</EnabledFlag>
+          <Address>134220304</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -168,10 +184,10 @@
           <BreakIfRCount>1</BreakIfRCount>
           <Filename>&lt;3&gt;../Core/Src/main.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\MDK_ARM_LL_UART_RTT0_BARE_STM32F030R8_NUCLEO_64\../Core/Src/main.c\124</Expression>
+          <Expression>\\MDK_ARM_LL_UART_RTT0_BARE_STM32F030R8_NUCLEO_64\../Core/Src/main.c\126</Expression>
         </Bp>
         <Bp>
-          <Number>1</Number>
+          <Number>2</Number>
           <Type>0</Type>
           <LineNumber>39</LineNumber>
           <EnabledFlag>1</EnabledFlag>
@@ -293,7 +309,7 @@
       <GroupNumber>2</GroupNumber>
       <FileNumber>2</FileNumber>
       <FileType>1</FileType>
-      <tvExp>0</tvExp>
+      <tvExp>1</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>../Core/Src/main.c</PathWithFileName>
@@ -437,7 +453,7 @@
       <GroupNumber>5</GroupNumber>
       <FileNumber>12</FileNumber>
       <FileType>1</FileType>
-      <tvExp>1</tvExp>
+      <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\srcTrice.C\triceCheck.c</PathWithFileName>
