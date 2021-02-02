@@ -14,7 +14,7 @@ extern "C" {
 //#define ENCRYPT XTEA_KEY( ea, bb, ec, 6f, 31, 80, 4e, b9, 68, e2, fa, ea, ae, f1, 50, 54 ); //!< -password MySecret
 
 #define TRICE_HEADLINE \
-TRICE0( Id(1048000), "s:                                                   \ns:   MDK-ARM_LL_UART_RTT0_PACK_STM32F030_NUCLEO-64   \ns:                                                   \n\n");
+TRICE0( Id(27253), "s:                                                   \ns:   MDK-ARM_LL_UART_RTT0_PACK_STM32F030_NUCLEO-64   \ns:                                                   \n\n");
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -29,7 +29,7 @@ TRICE0( Id(1048000), "s:                                                   \ns: 
 //
 
 //! Select target trice transfer encoding. 
-#define TRICE_ENCODING TRICE_PACK2_ENCODING
+#define TRICE_ENCODING TRICE_PACK_ENCODING
 
 //! Set endianess according to target hardware. Options: TRICE_BIG_ENDIANESS, TRICE_LITTLE_ENDIANESS.
 //! Some compiler offer an automatic detection for this.
@@ -43,7 +43,7 @@ TRICE0( Id(1048000), "s:                                                   \ns: 
 #define TRICE_TRANSFER_ENDIANESS TRICE_LITTLE_ENDIANESS 
 
 //#define TRICE_U8PUSH(v) do{ triceU8PushSeggerRTT(v); triceU8Push(v); } while(0) //!< Set trice out channel(s) 
-#define TRICE_U32PUSH(v) do{ /*triceU32PushSeggerRTT(v);*/ triceU32Push(v); } while(0) //!< Set trice out channel(s) 
+#define TRICE_U32PUSH(v) do{ triceU32PushSeggerRTT(v); triceU32Push(v); } while(0) //!< Set trice out channel(s) 
 
 //
 ///////////////////////////////////////////////////////////////////////////////

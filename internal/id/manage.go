@@ -31,6 +31,9 @@ func NewLut(fn string) TriceIDLookUp {
 // The delivered id is usable as key for lu, but not added. So calling fn twice without adding to lu could give the same value back.
 // It is important that lu was refreshed before with all sources to avoid finding as a new ID an ID which is already used in the source tree.
 func (lu TriceIDLookUp) newID() TriceID {
+	if Verbose {
+		fmt.Println("IDMin=", Min, "IDMax=", Max, "IDMethod=", SearchMethod)
+	}
 	switch SearchMethod {
 	case "random":
 		return lu.newRandomID(Min, Max)

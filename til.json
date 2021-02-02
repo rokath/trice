@@ -1,486 +1,750 @@
 {
-	"100": {
+	"10509": {
 		"Type": "TRICE0",
-		"Strg": "rd_:triceCheck.c"
+		"Strg": "att:STM32CubeIDE_HAL_UART_NUCLEO-G474\\n"
 	},
-	"101": {
-		"Type": "TRICE8_1",
-		"Strg": "%c"
+	"10732": {
+		"Type": "TRICE0",
+		"Strg": "s:                                                   \\ns:   MDK-ARM_LL_UART_RTT0_BARE_STM32F070_NUCLEO-64   \\ns:                                                   \\n\\n"
 	},
-	"102": {
-		"Type": "TRICE8_2",
-		"Strg": "%c%c"
+	"11804": {
+		"Type": "TRICE0",
+		"Strg": "Invalid wav file\\n"
 	},
-	"103": {
-		"Type": "TRICE8_3",
-		"Strg": "%c%c%c"
+	"12093": {
+		"Type": "TRICE0",
+		"Strg": "att:MDK-ARM_LL_RTTD_NUCLEO-F030R8\\n"
 	},
-	"104": {
-		"Type": "TRICE8_4",
-		"Strg": "%c%c%c%c"
+	"12126": {
+		"Type": "TRICE0",
+		"Strg": "att:TASKING_GenericSTMF030R8_RTTD\\n"
 	},
-	"105": {
-		"Type": "TRICE8_5",
-		"Strg": "%c%c%c%c%c"
+	"13083": {
+		"Type": "TRICE0",
+		"Strg": "att:MDK-ARM_RTTD_STM32F0300-DISCO\\n"
 	},
-	"106": {
-		"Type": "TRICE8_6",
-		"Strg": "%c%c%c%c%c%c"
+	"13685": {
+		"Type": "TRICE0",
+		"Strg": "att:STM32CubeIDE_LL_UART_NUCLEO-F030R8\\n"
 	},
-	"107": {
-		"Type": "TRICE8_7",
-		"Strg": "%c%c%c%c%c%c%c"
+	"14382": {
+		"Type": "TRICE0",
+		"Strg": "Successfully initialized audio service\\n"
 	},
-	"108": {
-		"Type": "TRICE8_8",
-		"Strg": "%c%c%c%c%c%c%c%c"
-	},
-	"109": {
-		"Type": "TRICE_S",
-		"Strg": "%s\\n"
-	},
-	"110": {
-		"Type": "trice0",
-		"Strg": "--------------------------------------------------\\n"
-	},
-	"111": {
-		"Type": "trice16_1",
-		"Strg": "dbg:12345 as 16bit is %#016b\\n"
-	},
-	"112": {
-		"Type": "trice0",
-		"Strg": "sig:This ASSERT error is just a demo and no real error:\\n"
-	},
-	"113": {
-		"Type": "trice16_1",
-		"Strg": "ERR:error       message, SysTick is %6d\\n"
-	},
-	"114": {
-		"Type": "trice16_1",
-		"Strg": "WRN:warning     message, SysTick is %6d\\n"
-	},
-	"115": {
-		"Type": "trice16_1",
-		"Strg": "ATT:attension   message, SysTick is %6d\\n"
-	},
-	"116": {
-		"Type": "trice16_1",
-		"Strg": "DIA:diagnostics message, SysTick is %6d\\n"
-	},
-	"117": {
-		"Type": "trice16_1",
-		"Strg": "TIM:timing      message, SysTick is %6d\\n"
-	},
-	"118": {
-		"Type": "trice16_1",
-		"Strg": "DBG:debug       message, SysTick is %6d\\n"
-	},
-	"119": {
-		"Type": "trice16_1",
-		"Strg": "SIG:signal      message, SysTick is %6d\\n"
-	},
-	"120": {
-		"Type": "trice16_1",
-		"Strg": "RD:read         message, SysTick is %6d\\n"
-	},
-	"121": {
-		"Type": "trice16_1",
-		"Strg": "WR:write        message, SysTick is %6d\\n"
-	},
-	"122": {
-		"Type": "trice16_1",
-		"Strg": "ISR:interrupt   message, SysTick is %6d\\n"
-	},
-	"123": {
-		"Type": "trice16_1",
-		"Strg": "MSG:normal      message, SysTick is %6d\\n"
-	},
-	"124": {
-		"Type": "trice16_1",
-		"Strg": "INFO:informal   message, SysTick is %6d\\n"
-	},
-	"125": {
+	"14522": {
 		"Type": "TRICE16_1",
-		"Strg": "tst:TRICE16_1   message, SysTick is %6d\\n"
+		"Strg": "tim:timing      message, SysTick is %6d\\n"
 	},
-	"126": {
+	"14969": {
+		"Type": "TRICE0",
+		"Strg": "att:STM32CubeIDE_LL_UART_NUCLEO-F070RB\\n"
+	},
+	"15852": {
+		"Type": "TRICE0",
+		"Strg": "att:STM32CubeIDE_RTTD_NUCLEO-F091\\n"
+	},
+	"16417": {
 		"Type": "TRICE32_1",
-		"Strg": "tst:TRICE32_1   message, SysTick is %6d\\n"
+		"Strg": "ISR:alive time %d milliseconds\\n"
 	},
-	"127": {
-		"Type": "TRICE8_4",
-		"Strg": "tst:TRICE8_4  %%03x -\u003e  %03x  %03x  %03x  %03x\\n"
+	"17147": {
+		"Type": "TRICE0",
+		"Strg": "att:MDK-ARM_LL_UART_NUCLEO-F030R8\\n"
 	},
-	"128": {
-		"Type": "TRICE8_4",
-		"Strg": "tst:TRICE8_4   %%4d -\u003e %4d %4d %4d %4d\\n"
+	"17896": {
+		"Type": "TRICE0",
+		"Strg": "s:                                                          \\ns:   MDK-ARM_LL_UART_WRAP_RTT0_BARE_STM32F030R8-NUCLEO-64   \\ns:                                                          \\n\\n"
 	},
-	"129": {
-		"Type": "TRICE8_4",
-		"Strg": "tst:TRICE8_4   %%4o -\u003e %4o %4o %4o %4o\\n"
+	"18398": {
+		"Type": "TRICE0",
+		"Strg": "Complex number c1: "
 	},
-	"130": {
-		"Type": "TRICE16_4",
-		"Strg": "tst:TRICE16_4  %%05x -\u003e   %05x   %05x   %05x   %05x\\n"
+	"18561": {
+		"Type": "TRICE0",
+		"Strg": "s:                                        \\ns:   ARM-MDK_LL_UART_BARE_TO_ESC_NUCLEO-F070RB   \\ns:                                        \\n\\n"
 	},
-	"131": {
-		"Type": "TRICE16_4",
-		"Strg": "tst:TRICE16_4   %%6d -\u003e  %6d  %6d  %6d  %6d\\n"
+	"22722": {
+		"Type": "TRICE0",
+		"Strg": "s:                                              \\ns:    ARM-MDK_BARE_STM32F03051R8Tx-DISCOVERY    \\ns:                                              \\n\\n"
 	},
-	"132": {
-		"Type": "TRICE16_4",
-		"Strg": "tst:TRICE16_4   %%7o -\u003e %7o %7o %7o %7o\\n"
+	"23553": {
+		"Type": "TRICE0",
+		"Strg": "s:                                        \\ns:   ARM-MDK_LL_UART_BARE_TO_ESC_NUCLEO-F030R8   \\ns:                                        \\n\\n"
 	},
-	"133": {
-		"Type": "TRICE32_4",
-		"Strg": "tst:TRICE32_4 %%09x -\u003e      %09x      %09x       %09x     %09x\\n"
+	"24326": {
+		"Type": "TRICE0",
+		"Strg": "att:TASKING_RTTD_cpp_Example\\n"
 	},
-	"134": {
-		"Type": "TRICE32_4",
-		"Strg": "tst:TRICE32_4 %%10d -\u003e     %10d     %10d     %10d    %10x\\n"
+	"24626": {
+		"Type": "TRICE0",
+		"Strg": "att:MDK-ARM_LL_RTT_NUCLEO-F030R8\\n"
 	},
-	"135": {
-		"Type": "TRICE64_1",
-		"Strg": "att:TRICE64_1 %#b\\n"
+	"25382": {
+		"Type": "TRICE32_1",
+		"Strg": "time:ms = %d\\n"
 	},
-	"136": {
-		"Type": "TRICE8_1",
-		"Strg": "tst:TRICE8_1 %d\\n"
+	"26286": {
+		"Type": "TRICE0",
+		"Strg": "Play 'sound.wav'\\n-\u003e "
 	},
-	"137": {
-		"Type": "TRICE8_2",
-		"Strg": "tst:TRICE8_2 %d %d\\n"
+	"27253": {
+		"Type": "TRICE0",
+		"Strg": "s:                                                   \\ns:   MDK-ARM_LL_UART_RTT0_PACK_STM32F030_NUCLEO-64   \\ns:                                                   \\n\\n"
 	},
-	"138": {
-		"Type": "TRICE8_3",
-		"Strg": "tst:TRICE8_3 %d %d %d\\n"
-	},
-	"139": {
-		"Type": "TRICE8_4",
-		"Strg": "tst:TRICE8_4 %d %d %d %d\\n"
-	},
-	"140": {
-		"Type": "TRICE8_5",
-		"Strg": "tst:TRICE8_5 %d %d %d %d %d\\n"
-	},
-	"141": {
-		"Type": "TRICE8_6",
-		"Strg": "tst:TRICE8_6 %d %d %d %d %d %d\\n"
-	},
-	"142": {
-		"Type": "TRICE8_7",
-		"Strg": "tst:TRICE8_7 %d %d %d %d %d %d %d\\n"
-	},
-	"143": {
-		"Type": "TRICE8_8",
-		"Strg": "tst:TRICE8_8 %d %d %d %d %d %d %d %d\\n"
-	},
-	"144": {
+	"27489": {
 		"Type": "TRICE16_1",
-		"Strg": "tst:TRICE16_1 %d\\n"
+		"Strg": "MSG: triceFifoMaxDepth = %d\\n"
 	},
-	"145": {
+	"27565": {
+		"Type": "TRICE0",
+		"Strg": "att:MDK-ARM_LL_RTTD_NUCLEO-F070RB\\n"
+	},
+	"27590": {
 		"Type": "TRICE16_2",
-		"Strg": "tst:TRICE16_2 %d %d\\n"
+		"Strg": "MSG: triceFifoMaxDepth: Bare = %d, Esc = %d\\n"
 	},
-	"146": {
-		"Type": "TRICE16_3",
-		"Strg": "tst:TRICE16_3 %d %d %d\\n"
-	},
-	"147": {
-		"Type": "TRICE16_4",
-		"Strg": "tst:TRICE16_4 %d %d %d %d\\n"
-	},
-	"148": {
-		"Type": "TRICE32_1",
-		"Strg": "tst:TRICE32_1 %08x\\n"
-	},
-	"149": {
-		"Type": "TRICE32_1",
-		"Strg": "tst:TRICE32_1 %d\\n"
-	},
-	"150": {
-		"Type": "TRICE32_2",
-		"Strg": "tst:TRICE32_2 %x %x\\n"
-	},
-	"151": {
-		"Type": "TRICE32_2",
-		"Strg": "tst:TRICE32_2 %d %d\\n"
-	},
-	"152": {
-		"Type": "TRICE32_3",
-		"Strg": "tst:TRICE32_3 %x %x %x\\n"
-	},
-	"153": {
-		"Type": "TRICE32_3",
-		"Strg": "tst:TRICE32_3 %d %d %d\\n"
-	},
-	"154": {
-		"Type": "TRICE32_4",
-		"Strg": "tst:TRICE32_4 %x %x %x %x\\n"
-	},
-	"155": {
-		"Type": "TRICE32_4",
-		"Strg": "tst:TRICE32_4 %d %d %d %d\\n"
-	},
-	"156": {
-		"Type": "TRICE64_1",
-		"Strg": "tst:TRICE64_1 %d\\n"
-	},
-	"157": {
-		"Type": "TRICE64_2",
-		"Strg": "tst:TRICE64_2 %d %d\\n"
-	},
-	"158": {
-		"Type": "trice0",
-		"Strg": "e:A"
-	},
-	"159": {
-		"Type": "trice0",
-		"Strg": "w:B"
-	},
-	"160": {
-		"Type": "trice0",
-		"Strg": "a:c"
-	},
-	"161": {
-		"Type": "trice0",
-		"Strg": "wr:d"
-	},
-	"162": {
-		"Type": "trice0",
-		"Strg": "rd:e\\n"
-	},
-	"163": {
-		"Type": "trice0",
-		"Strg": "diag:f"
-	},
-	"164": {
-		"Type": "trice0",
-		"Strg": "d:G"
-	},
-	"165": {
-		"Type": "trice0",
-		"Strg": "t:H"
-	},
-	"166": {
-		"Type": "trice0",
-		"Strg": "time:i"
-	},
-	"167": {
-		"Type": "trice0",
-		"Strg": "message:J"
-	},
-	"168": {
-		"Type": "trice0",
-		"Strg": "dbg:k\\n"
-	},
-	"169": {
-		"Type": "trice0",
-		"Strg": "1"
-	},
-	"170": {
-		"Type": "trice0",
-		"Strg": "2"
-	},
-	"171": {
-		"Type": "trice0",
-		"Strg": "3"
-	},
-	"172": {
-		"Type": "trice0",
-		"Strg": "4"
-	},
-	"173": {
-		"Type": "trice0",
-		"Strg": "e:7"
-	},
-	"174": {
-		"Type": "trice0",
-		"Strg": "m:12"
-	},
-	"175": {
-		"Type": "trice0",
-		"Strg": "m:123\\n"
-	},
-	"176": {
-		"Type": "TRICE8_8",
-		"Strg": "msg: message = %03x %03x %03x %03x %03x %03x %03x %03x\\n"
-	},
-	"177": {
-		"Type": "TRICE16_1",
-		"Strg": "tim: pre encryption SysTick=%d\\n"
-	},
-	"178": {
-		"Type": "TRICE16_1",
-		"Strg": "tim: post encryption SysTick=%d\\n"
-	},
-	"179": {
-		"Type": "TRICE8_8",
-		"Strg": "att: encrypted = %03x %03x %03x %03x %03x %03x %03x %03x\\n"
-	},
-	"180": {
-		"Type": "TRICE16_4",
-		"Strg": "att: encrypted = %d,%d,%d,%d,"
-	},
-	"181": {
-		"Type": "TRICE16_4",
-		"Strg": "att: %d,%d,%d,%d\\n"
-	},
-	"182": {
-		"Type": "TRICE16_1",
-		"Strg": "tim: pre decryption SysTick=%d\\n"
-	},
-	"183": {
-		"Type": "TRICE16_1",
-		"Strg": "tim: post decryption SysTick=%d\\n"
-	},
-	"184": {
-		"Type": "TRICE8_8",
-		"Strg": "msg: messge = %03x %03x %03x %03x %03x %03x %03x %03x\\n"
-	},
-	"185": {
+	"27624": {
 		"Type": "TRICE0",
-		"Strg": "--------------------------------------------------\\n\\n"
+		"Strg": "att:TASKING_STM32F4DISC_Audio_Service_RTTD\\n"
 	},
-	"186": {
-		"Type": "trice16_1",
-		"Strg": "tst:trice16_1   message, SysTick is %6d\\n"
+	"30221": {
+		"Type": "TRICE0",
+		"Strg": "att:atollicTrueSTUDIO_RTTD_DISCOVERY-STM32F407VGTx\\n"
 	},
-	"187": {
-		"Type": "trice32_1",
-		"Strg": "tst:trice32_1   message, SysTick is %6d\\n"
+	"30688": {
+		"Type": "TRICE0",
+		"Strg": "\\ns:                                                     \\ns:   ARM-MDK_LL_UART_RTT0_ESC_STM32F030R8_NUCLEO-64    \\ns:                                                     \\n\\n"
 	},
-	"188": {
-		"Type": "trice8_4",
-		"Strg": "tst:trice8_4  %%03x -\u003e  %03x  %03x  %03x  %03x\\n"
+	"32731": {
+		"Type": "TRICE0",
+		"Strg": "Calculate c1 + c2: "
 	},
-	"189": {
-		"Type": "trice8_4",
-		"Strg": "tst:trice8_4   %%4d -\u003e %4d %4d %4d %4d\\n"
+	"33496": {
+		"Type": "TRICE0",
+		"Strg": "att:MDK-ARM_RTT_NUCLEO-F030R8\\n"
 	},
-	"190": {
-		"Type": "trice8_4",
-		"Strg": "tst:trice8_4   %%4o -\u003e %4o %4o %4o %4o\\n"
+	"34868": {
+		"Type": "TRICE16_1",
+		"Strg": "MSG: triceBareFifoMaxDepth = %d\\n"
 	},
-	"191": {
-		"Type": "trice16_4",
-		"Strg": "tst:trice16_4  %%05x -\u003e   %05x   %05x   %05x   %05x\\n"
+	"35527": {
+		"Type": "TRICE0",
+		"Strg": "att:IAR_EWARM_LL_UART_NUCLEO-F070RB\\n"
 	},
-	"192": {
-		"Type": "trice16_4",
-		"Strg": "tst:trice16_4   %%6d -\u003e  %6d  %6d  %6d  %6d\\n"
+	"35740": {
+		"Type": "TRICE0",
+		"Strg": "att:IAR_EWARM_RTTD_DISCOVERY-STM32F407VGTx\\n"
 	},
-	"193": {
-		"Type": "trice16_4",
-		"Strg": "tst:trice16_4   %%7o -\u003e %7o %7o %7o %7o\\n"
+	"36297": {
+		"Type": "TRICE0",
+		"Strg": "s:                                              \\ns:   ARM-MDK_LL_UART_RTT0_ESC_STM32F070RB_NUCLEO-64    \\ns:                                              \\n\\n"
 	},
-	"194": {
-		"Type": "trice32_4",
-		"Strg": "tst:trice32_4 %%09x -\u003e      %09x      %09x       %09x     %09x\\n"
+	"36399": {
+		"Type": "TRICE0",
+		"Strg": "att:MDK-ARM_RTT1_NUCLEO-F091RC\\n"
 	},
-	"195": {
-		"Type": "trice32_4",
-		"Strg": "tst:trice32_4 %%10d -\u003e     %10d     %10d     %10d    %10x\\n"
+	"37519": {
+		"Type": "TRICE0",
+		"Strg": "s:                                                   \\ns:   MDK-ARM_LL_UART_RTT0_BARE_STM32F091_NUCLEO-64   \\ns:                                                   \\n\\n"
 	},
-	"196": {
-		"Type": "trice64_1",
-		"Strg": "att:trice64_1 %#b\\n"
+	"38802": {
+		"Type": "TRICE0",
+		"Strg": "Calculate c2 - c1: "
 	},
-	"197": {
-		"Type": "trice8_1",
-		"Strg": "tst:trice8_1 %d\\n"
+	"39406": {
+		"Type": "TRICE0",
+		"Strg": "s:                                                   \\ns:   MDK-ARM_LL_UART_RTT0_BARE_STM32F030_NUCLEO-64   \\ns:                                                   \\n\\n"
 	},
-	"198": {
-		"Type": "trice8_2",
-		"Strg": "tst:trice8_2 %d %d\\n"
+	"39533": {
+		"Type": "TRICE0",
+		"Strg": "att:STM32CubeIDE_RTTD_NUCLEO-G474\\n"
 	},
-	"199": {
-		"Type": "trice8_3",
-		"Strg": "tst:trice8_3 %d %d %d\\n"
+	"40045": {
+		"Type": "TRICE0",
+		"Strg": "Negate previous  : "
 	},
-	"200": {
-		"Type": "trice8_4",
-		"Strg": "tst:trice8_4 %d %d %d %d\\n"
+	"40468": {
+		"Type": "TRICE0",
+		"Strg": "att:MDK-ARM_LL_RTTB_NUCLEO-F070RB\\n"
 	},
-	"201": {
-		"Type": "trice8_5",
-		"Strg": "tst:trice8_5 %d %d %d %d %d\\n"
+	"41026": {
+		"Type": "TRICE0",
+		"Strg": "Failed to initialize audio service"
 	},
-	"202": {
-		"Type": "trice8_6",
-		"Strg": "tst:trice8_6 %d %d %d %d %d %d\\n"
+	"41804": {
+		"Type": "TRICE0",
+		"Strg": "att:IAR_EWARM_HAL_UART_NUCLEO-F070RB\\n"
 	},
-	"203": {
-		"Type": "trice8_7",
-		"Strg": "tst:trice8_7 %d %d %d %d %d %d %d\\n"
+	"42100": {
+		"Type": "TRICE0",
+		"Strg": "att:IAR_EWARM_LL_UART_NUCLEO-F030RB\\n"
 	},
-	"204": {
-		"Type": "trice8_8",
-		"Strg": "tst:trice8_8 %d %d %d %d %d %d %d %d\\n"
+	"42899": {
+		"Type": "TRICE0",
+		"Strg": "att:MDK-ARM_LL_UART_NUCLEO-F070RB\\n"
 	},
-	"205": {
-		"Type": "trice16_1",
-		"Strg": "tst:trice16_1 %d\\n"
+	"42963": {
+		"Type": "TRICE0",
+		"Strg": "att:MDK-ARM_LL_RTTB_NUCLEO-F030R8\\n"
 	},
-	"206": {
-		"Type": "trice16_2",
-		"Strg": "tst:trice16_2 %d %d\\n"
+	"43310": {
+		"Type": "TRICE0",
+		"Strg": "att:IAR_EWARM_RTT_NUCLEO-F030R8\\n"
 	},
-	"207": {
-		"Type": "trice16_3",
-		"Strg": "tst:trice16_3 %d %d %d\\n"
+	"43336": {
+		"Type": "TRICE0",
+		"Strg": "s:                                          \\ns:    ARM-MDK_RTT0_BARE_STM32F0308-DISCO    \\ns:                                          \\n\\n"
 	},
-	"208": {
-		"Type": "trice16_4",
-		"Strg": "tst:trice16_4 %d %d %d %d\\n"
+	"43499": {
+		"Type": "TRICE0",
+		"Strg": "Complex number c2: "
 	},
-	"209": {
-		"Type": "trice32_1",
-		"Strg": "tst:trice32_1 %d\\n"
+	"44137": {
+		"Type": "TRICE0",
+		"Strg": "att:TASKING_GenericSTMF070RB_RTTD\\n"
 	},
-	"210": {
-		"Type": "trice32_2",
-		"Strg": "tst:trice32_2 %d %d\\n"
+	"44414": {
+		"Type": "TRICE0",
+		"Strg": "att:TASKING_GenericSTMF030R8_RTTB\\n"
 	},
-	"211": {
-		"Type": "trice32_3",
-		"Strg": "tst:trice32_3 %d %d %d\\n"
+	"44778": {
+		"Type": "TRICE0",
+		"Strg": "att:MDK-ARM_LL_RTT_NUCLEO-F070RB\\n"
 	},
-	"212": {
-		"Type": "trice32_4",
-		"Strg": "tst:trice32_4 %d %d %d %d\\n"
+	"44870": {
+		"Type": "TRICE0",
+		"Strg": "att:STM32CubeIDE_RTTD_DISCOVERY-STM32F051R8Tx\\n"
 	},
-	"213": {
-		"Type": "trice32_1",
-		"Strg": "tst:trice32_1 %08x\\n"
+	"45471": {
+		"Type": "TRICE0",
+		"Strg": "att:MDK-ARM_HAL_UART_NUCLEO-F070RB\\n"
 	},
-	"214": {
-		"Type": "trice32_2",
-		"Strg": "tst:trice32_2 %x %x\\n"
+	"46050": {
+		"Type": "TRICE0",
+		"Strg": "att:STM32CubeIDE_HAL_UART_NUCLEO-F070RB\\n"
 	},
-	"215": {
-		"Type": "trice32_3",
-		"Strg": "tst:trice32_3 %x %x %x\\n"
+	"47283": {
+		"Type": "TRICE0",
+		"Strg": "att:MDK-ARM_HAL_UART_NUCLEO-F030R8\\n"
 	},
-	"216": {
-		"Type": "trice32_4",
-		"Strg": "tst:trice32_4 %x %x %x %x\\n"
+	"48114": {
+		"Type": "TRICE0",
+		"Strg": "att:MDK-ARM_LL_UART_demoBoard_STM32F030F4F4P6\\n"
 	},
-	"217": {
-		"Type": "trice64_1",
-		"Strg": "tst:trice64_1 %d\\n"
+	"1047663": {
+		"Type": "TRICE16_2",
+		"Strg": "MSG: triceFifoMaxDepth = %d, select = %d\\n"
 	},
-	"218": {
-		"Type": "trice64_2",
-		"Strg": "tst:trice64_2 %d %d\\n"
+	"47663": {
+		"Type": "TRICE16_2",
+		"Strg": "MSG: triceFifoMaxDepth = %d, select = %d\\n"
 	},
-	"219": {
+	"65002": {
+		"Type": "TRICE0",
+		"Strg": "rd_:triceFifo.c"
+	},
+	"65003": {
 		"Type": "trice64_1",
 		"Strg": "tst:trice64_1 %x\\n"
 	},
-	"220": {
+	"65005": {
+		"Type": "trice0",
+		"Strg": "m:12"
+	},
+	"65010": {
+		"Type": "trice0",
+		"Strg": "sig:This ASSERT error is just a demo and no real error:\\n"
+	},
+	"65013": {
+		"Type": "TRICE8_4",
+		"Strg": "tst:TRICE8_4 %d %d %d %d\\n"
+	},
+	"65017": {
+		"Type": "TRICE16_3",
+		"Strg": "tst:TRICE16_3 %d %d %d\\n"
+	},
+	"65021": {
+		"Type": "TRICE32_2",
+		"Strg": "tst:TRICE32_2 %d %d\\n"
+	},
+	"65023": {
+		"Type": "TRICE32_2",
+		"Strg": "sig:%2d:%6d\\n"
+	},
+	"65029": {
+		"Type": "TRICE0",
+		"Strg": "--------------------------------------------------\\n\\n"
+	},
+	"65031": {
+		"Type": "trice8_7",
+		"Strg": "tst:trice8_7 %d %d %d %d %d %d %d\\n"
+	},
+	"65041": {
+		"Type": "trice0",
+		"Strg": "time:i"
+	},
+	"65042": {
+		"Type": "trice0",
+		"Strg": "w:B"
+	},
+	"65044": {
+		"Type": "trice16_1",
+		"Strg": "WR:write        message, SysTick is %6d\\n"
+	},
+	"65046": {
+		"Type": "trice0",
+		"Strg": "e:7"
+	},
+	"65048": {
+		"Type": "TRICE32_1",
+		"Strg": "tst:TRICE32_1 %08x\\n"
+	},
+	"65051": {
+		"Type": "TRICE16_1",
+		"Strg": "tim: post decryption SysTick=%d\\n"
+	},
+	"65052": {
+		"Type": "TRICE8_4",
+		"Strg": "%c%c%c%c"
+	},
+	"65054": {
+		"Type": "TRICE16_1",
+		"Strg": "tim: pre encryption SysTick=%d\\n"
+	},
+	"65055": {
+		"Type": "TRICE16_4",
+		"Strg": "tst:TRICE16_4  %%05x -\u003e   %05x   %05x   %05x   %05x\\n"
+	},
+	"65057": {
+		"Type": "TRICE8_3",
+		"Strg": "%c%c%c"
+	},
+	"65060": {
+		"Type": "TRICE16_4",
+		"Strg": "tst:TRICE16_4   %%7o -\u003e %7o %7o %7o %7o\\n"
+	},
+	"65061": {
+		"Type": "TRICE16_4",
+		"Strg": "att: %d,%d,%d,%d\\n"
+	},
+	"65064": {
+		"Type": "TRICE0",
+		"Strg": "rd_:triceBareFifoToEscFifo.c"
+	},
+	"65066": {
+		"Type": "TRICE32_4",
+		"Strg": "tst:TRICE32_4 %%10d -\u003e     %10d     %10d     %10d    %10x\\n"
+	},
+	"65073": {
+		"Type": "TRICE32_3",
+		"Strg": "tst:TRICE32_3 %x %x %x\\n"
+	},
+	"65077": {
+		"Type": "TRICE16_4",
+		"Strg": "tst:TRICE16_4   %%6d -\u003e  %6d  %6d  %6d  %6d\\n"
+	},
+	"65083": {
+		"Type": "TRICE8_8",
+		"Strg": "msg: message = %03x %03x %03x %03x %03x %03x %03x %03x\\n"
+	},
+	"65088": {
+		"Type": "TRICE8_5",
+		"Strg": "%c%c%c%c%c"
+	},
+	"65089": {
+		"Type": "trice16_2",
+		"Strg": "tst:trice16_2 %d %d\\n"
+	},
+	"65090": {
+		"Type": "trice0",
+		"Strg": "diag:f"
+	},
+	"65094": {
+		"Type": "trice32_1",
+		"Strg": "tst:trice32_1 %08x\\n"
+	},
+	"65099": {
+		"Type": "trice16_1",
+		"Strg": "INFO:informal   message, SysTick is %6d\\n"
+	},
+	"65103": {
+		"Type": "TRICE8_4",
+		"Strg": "tst:TRICE8_4   %%4o -\u003e %4o %4o %4o %4o\\n"
+	},
+	"65105": {
+		"Type": "trice16_1",
+		"Strg": "ATT:attension   message, SysTick is %6d\\n"
+	},
+	"65109": {
+		"Type": "trice0",
+		"Strg": "3"
+	},
+	"65112": {
+		"Type": "trice8_1",
+		"Strg": "tst:trice8_1 %d\\n"
+	},
+	"65115": {
+		"Type": "trice8_3",
+		"Strg": "tst:trice8_3 %d %d %d\\n"
+	},
+	"65117": {
+		"Type": "TRICE16_4",
+		"Strg": "tst:TRICE16_4 %d %d %d %d\\n"
+	},
+	"65118": {
+		"Type": "TRICE0",
+		"Strg": "rd_:triceFifoToBytesBuffer.c"
+	},
+	"65121": {
+		"Type": "TRICE8_7",
+		"Strg": "%c%c%c%c%c%c%c"
+	},
+	"65132": {
+		"Type": "TRICE32_3",
+		"Strg": "tst:TRICE32_3 %d %d %d\\n"
+	},
+	"65137": {
+		"Type": "trice8_4",
+		"Strg": "tst:trice8_4   %%4o -\u003e %4o %4o %4o %4o\\n"
+	},
+	"65143": {
+		"Type": "trice32_4",
+		"Strg": "tst:trice32_4 %x %x %x %x\\n"
+	},
+	"65144": {
+		"Type": "trice16_4",
+		"Strg": "tst:trice16_4 %d %d %d %d\\n"
+	},
+	"65159": {
+		"Type": "trice8_4",
+		"Strg": "tst:trice8_4 %d %d %d %d\\n"
+	},
+	"65161": {
+		"Type": "trice0",
+		"Strg": "2"
+	},
+	"65167": {
+		"Type": "trice0",
+		"Strg": "a:c"
+	},
+	"65168": {
+		"Type": "trice16_1",
+		"Strg": "dbg:12345 as 16bit is %#016b\\n"
+	},
+	"65184": {
+		"Type": "trice0",
+		"Strg": "e:A"
+	},
+	"65201": {
+		"Type": "trice0",
+		"Strg": "d:G"
+	},
+	"65211": {
+		"Type": "trice16_1",
+		"Strg": "SIG:signal      message, SysTick is %6d\\n"
+	},
+	"65213": {
+		"Type": "TRICE_S",
+		"Strg": "%s\\n"
+	},
+	"65219": {
+		"Type": "trice0",
+		"Strg": "4"
+	},
+	"65228": {
+		"Type": "trice0",
+		"Strg": "1"
+	},
+	"65235": {
+		"Type": "TRICE0",
+		"Strg": "wrn:TRICES_1(id, pFmt, dynString) macro is not supported in bare encoding.\\nmsg:See TRICE_RTS macro in triceCheck.c for an alternative or use a different encoding.\\n"
+	},
+	"65236": {
+		"Type": "trice16_1",
+		"Strg": "ERR:error       message, SysTick is %6d\\n"
+	},
+	"65239": {
+		"Type": "TRICE8_5",
+		"Strg": "tst:TRICE8_5 %d %d %d %d %d\\n"
+	},
+	"65246": {
+		"Type": "TRICE8_7",
+		"Strg": "tst:TRICE8_7 %d %d %d %d %d %d %d\\n"
+	},
+	"65251": {
+		"Type": "trice64_1",
+		"Strg": "att:trice64_1 %#b\\n"
+	},
+	"65254": {
+		"Type": "TRICE0",
+		"Strg": "rd_:triceCheck.c"
+	},
+	"65262": {
 		"Type": "trice64_2",
 		"Strg": "tst:trice64_2 %x %x\\n"
+	},
+	"65264": {
+		"Type": "TRICE8_8",
+		"Strg": "tst:TRICE8_8 %d %d %d %d %d %d %d %d\\n"
+	},
+	"65274": {
+		"Type": "TRICE16_1",
+		"Strg": "tst:TRICE16_1   message, SysTick is %6d\\n"
+	},
+	"65279": {
+		"Type": "TRICE8_2",
+		"Strg": "%c%c"
+	},
+	"65281": {
+		"Type": "TRICE8_8",
+		"Strg": "msg: messge = %03x %03x %03x %03x %03x %03x %03x %03x\\n"
+	},
+	"65283": {
+		"Type": "TRICE32_4",
+		"Strg": "tst:TRICE32_4 %x %x %x %x\\n"
+	},
+	"65287": {
+		"Type": "TRICE32_1",
+		"Strg": "tst:TRICE32_1   message, SysTick is %6d\\n"
+	},
+	"65299": {
+		"Type": "trice64_1",
+		"Strg": "tst:trice64_1 %d\\n"
+	},
+	"65300": {
+		"Type": "trice32_1",
+		"Strg": "tst:trice32_1 %d\\n"
+	},
+	"65304": {
+		"Type": "trice0",
+		"Strg": "--------------------------------------------------\\n"
+	},
+	"65305": {
+		"Type": "trice32_4",
+		"Strg": "tst:trice32_4 %%10d -\u003e     %10d     %10d     %10d    %10x\\n"
+	},
+	"65308": {
+		"Type": "TRICE8_2",
+		"Strg": "tst:TRICE8_2 %d %d\\n"
+	},
+	"65309": {
+		"Type": "trice16_1",
+		"Strg": "DBG:debug       message, SysTick is %6d\\n"
+	},
+	"65312": {
+		"Type": "trice16_1",
+		"Strg": "DIA:diagnostics message, SysTick is %6d\\n"
+	},
+	"65314": {
+		"Type": "trice0",
+		"Strg": "dbg:k\\n"
+	},
+	"65318": {
+		"Type": "TRICE32_2",
+		"Strg": "tst:TRICE32_2 %x %x\\n"
+	},
+	"65329": {
+		"Type": "TRICE8_1",
+		"Strg": "%c"
+	},
+	"65330": {
+		"Type": "TRICE16_1",
+		"Strg": "tim: post encryption SysTick=%d\\n"
+	},
+	"65331": {
+		"Type": "TRICE8_4",
+		"Strg": "tst:TRICE8_4   %%4d -\u003e %4d %4d %4d %4d\\n"
+	},
+	"65344": {
+		"Type": "trice0",
+		"Strg": "message:J"
+	},
+	"65364": {
+		"Type": "trice16_1",
+		"Strg": "MSG:normal      message, SysTick is %6d\\n"
+	},
+	"65367": {
+		"Type": "trice0",
+		"Strg": "rd:e\\n"
+	},
+	"65369": {
+		"Type": "trice32_4",
+		"Strg": "tst:trice32_4 %d %d %d %d\\n"
+	},
+	"65370": {
+		"Type": "trice16_1",
+		"Strg": "tst:trice16_1   message, SysTick is %6d\\n"
+	},
+	"65372": {
+		"Type": "TRICE8_6",
+		"Strg": "tst:TRICE8_6 %d %d %d %d %d %d\\n"
+	},
+	"65385": {
+		"Type": "trice0",
+		"Strg": "m:123\\n"
+	},
+	"65388": {
+		"Type": "trice16_1",
+		"Strg": "WRN:warning     message, SysTick is %6d\\n"
+	},
+	"65391": {
+		"Type": "TRICE64_2",
+		"Strg": "tst:TRICE64_2 %d %d\\n"
+	},
+	"65396": {
+		"Type": "TRICE64_1",
+		"Strg": "att:TRICE64_1 %#b\\n"
+	},
+	"65400": {
+		"Type": "trice8_4",
+		"Strg": "tst:trice8_4   %%4d -\u003e %4d %4d %4d %4d\\n"
+	},
+	"65405": {
+		"Type": "TRICE16_1",
+		"Strg": "tim: pre decryption SysTick=%d\\n"
+	},
+	"65406": {
+		"Type": "trice64_2",
+		"Strg": "tst:trice64_2 %d %d\\n"
+	},
+	"65409": {
+		"Type": "TRICE8_1",
+		"Strg": "tst:TRICE8_1 %d\\n"
+	},
+	"65412": {
+		"Type": "TRICE16_2",
+		"Strg": "tst:TRICE16_2 %d %d\\n"
+	},
+	"65416": {
+		"Type": "TRICE16_1",
+		"Strg": "tst:TRICE16_1 %d\\n"
+	},
+	"65418": {
+		"Type": "trice16_4",
+		"Strg": "tst:trice16_4   %%7o -\u003e %7o %7o %7o %7o\\n"
+	},
+	"65422": {
+		"Type": "TRICE0",
+		"Strg": "s:                                                   \\ns:                     myProject                     \\ns:                                                   \\n\\n"
+	},
+	"65424": {
+		"Type": "trice16_1",
+		"Strg": "tst:trice16_1 %d\\n"
+	},
+	"65428": {
+		"Type": "trice32_3",
+		"Strg": "tst:trice32_3 %x %x %x\\n"
+	},
+	"65437": {
+		"Type": "trice16_3",
+		"Strg": "tst:trice16_3 %d %d %d\\n"
+	},
+	"65438": {
+		"Type": "trice16_1",
+		"Strg": "RD:read         message, SysTick is %6d\\n"
+	},
+	"65439": {
+		"Type": "trice16_1",
+		"Strg": "TIM:timing      message, SysTick is %6d\\n"
+	},
+	"65442": {
+		"Type": "trice8_2",
+		"Strg": "tst:trice8_2 %d %d\\n"
+	},
+	"65443": {
+		"Type": "trice0",
+		"Strg": "wr:d"
+	},
+	"65447": {
+		"Type": "trice16_4",
+		"Strg": "tst:trice16_4  %%05x -\u003e   %05x   %05x   %05x   %05x\\n"
+	},
+	"65450": {
+		"Type": "TRICE32_4",
+		"Strg": "tst:TRICE32_4 %d %d %d %d\\n"
+	},
+	"65454": {
+		"Type": "TRICE8_3",
+		"Strg": "tst:TRICE8_3 %d %d %d\\n"
+	},
+	"65462": {
+		"Type": "trice32_1",
+		"Strg": "tst:trice32_1   message, SysTick is %6d\\n"
+	},
+	"65463": {
+		"Type": "trice16_1",
+		"Strg": "ISR:interrupt   message, SysTick is %6d\\n"
+	},
+	"65468": {
+		"Type": "TRICE8_8",
+		"Strg": "%c%c%c%c%c%c%c%c"
+	},
+	"65473": {
+		"Type": "TRICE8_6",
+		"Strg": "%c%c%c%c%c%c"
+	},
+	"65484": {
+		"Type": "TRICE8_8",
+		"Strg": "att: encrypted = %03x %03x %03x %03x %03x %03x %03x %03x\\n"
+	},
+	"65485": {
+		"Type": "trice32_2",
+		"Strg": "tst:trice32_2 %d %d\\n"
+	},
+	"65492": {
+		"Type": "TRICE8_4",
+		"Strg": "tst:TRICE8_4  %%03x -\u003e  %03x  %03x  %03x  %03x\\n"
+	},
+	"65493": {
+		"Type": "trice8_4",
+		"Strg": "tst:trice8_4  %%03x -\u003e  %03x  %03x  %03x  %03x\\n"
+	},
+	"65495": {
+		"Type": "trice8_6",
+		"Strg": "tst:trice8_6 %d %d %d %d %d %d\\n"
+	},
+	"65498": {
+		"Type": "trice16_4",
+		"Strg": "tst:trice16_4   %%6d -\u003e  %6d  %6d  %6d  %6d\\n"
+	},
+	"65503": {
+		"Type": "trice8_5",
+		"Strg": "tst:trice8_5 %d %d %d %d %d\\n"
+	},
+	"65507": {
+		"Type": "trice32_4",
+		"Strg": "tst:trice32_4 %%09x -\u003e      %09x      %09x       %09x     %09x\\n"
+	},
+	"65510": {
+		"Type": "TRICE32_4",
+		"Strg": "tst:TRICE32_4 %%09x -\u003e      %09x      %09x       %09x     %09x\\n"
+	},
+	"65517": {
+		"Type": "trice0",
+		"Strg": "t:H"
+	},
+	"65523": {
+		"Type": "trice8_8",
+		"Strg": "tst:trice8_8 %d %d %d %d %d %d %d %d\\n"
+	},
+	"65525": {
+		"Type": "trice32_2",
+		"Strg": "tst:trice32_2 %x %x\\n"
+	},
+	"65526": {
+		"Type": "TRICE16_4",
+		"Strg": "att: encrypted = %d,%d,%d,%d,"
+	},
+	"65528": {
+		"Type": "TRICE64_1",
+		"Strg": "tst:TRICE64_1 %d\\n"
+	},
+	"65529": {
+		"Type": "TRICE32_1",
+		"Strg": "tst:TRICE32_1 %d\\n"
+	},
+	"65533": {
+		"Type": "trice32_3",
+		"Strg": "tst:trice32_3 %d %d %d\\n"
 	}
 }

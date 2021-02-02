@@ -21,15 +21,9 @@ func TestVersion(t *testing.T) {
 	exp := "version=devel, built " + buildTime + "\n"
 
 	fn := func() {
-		msg.OnErr(Handler([]string{"trice", "v"}))
-	}
-	act := tst.CaptureStdOut(fn)
-	assert.Equal(t, exp, act)
-
-	fn = func() {
 		msg.OnErr(Handler([]string{"trice", "ver"}))
 	}
-	act = tst.CaptureStdOut(fn)
+	act := tst.CaptureStdOut(fn)
 	assert.Equal(t, exp, act)
 
 	fn = func() {

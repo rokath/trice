@@ -105,12 +105,12 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while( HAL_GetTick() < 1000 );
-  TRICE16_1( Id(45373), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
-  TRICE0( Id(47000), "att:STM32CubeIDE_HAL_UART_NUCLEO-G474\n" );
-  TRICE16_1( Id(45373), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
-  TRICE16_1( Id(45373), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
-  TRICE16_1( Id(45373), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
-  TRICE16_1( Id(45373), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
+  TRICE16_1( Id(14522), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
+  TRICE0( Id(10509), "att:STM32CubeIDE_HAL_UART_NUCLEO-G474\n" );
+  TRICE16_1( Id(14522), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
+  TRICE16_1( Id(14522), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
+  TRICE16_1( Id(14522), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
+  TRICE16_1( Id(14522), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
   while (1)
   {
       //////////////////////////////////////////////////
@@ -121,7 +121,7 @@ int main(void)
       if( ms >= ms_1 + 1000 ){ // every sec
           static int index = 0;
           triceCheckSet(index++%20);
-          TRICE32_1( Id(29200), "time:ms = %d\n", ms );
+          TRICE32_1( Id(25382), "time:ms = %d\n", ms );
           HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
           ms_1 = ms;
       }

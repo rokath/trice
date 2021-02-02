@@ -6,7 +6,7 @@
 #include "triceBareFifo.h"
 #include "triceEscFifo.h"
 
-#define TRICE_FILENAME TRICE0( Id(44155), "rd_:triceBareFifoToEscFifo.c" );
+#define TRICE_FILENAME TRICE0( Id(65064), "rd_:triceBareFifoToEscFifo.c" );
 
 void triceServeBareFifoToEscFifo(void){
 

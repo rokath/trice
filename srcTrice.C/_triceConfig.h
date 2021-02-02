@@ -12,7 +12,7 @@ extern "C" {
 #include <stdint.h>
 
 #define TRICE_HEADLINE \
-TRICE0( Id(46957), "s:                                                   \ns:                     myProject                     \ns:                                                   \n\n")
+TRICE0( Id(65422), "s:                                                   \ns:                     myProject                     \ns:                                                   \n\n")
 
 ///////////////////////////////////////////////////////////////////////////////
 //

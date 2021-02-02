@@ -95,7 +95,7 @@ int main(void)
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
     LL_USART_EnableIT_RXNE(TRICE_UART); // enable UART2 interrupt
-    TRICE0( Id(59213), "s:                                              \ns:   ARM-MDK_LL_UART_RTT0_ESC_STM32F070RB_NUCLEO-64    \ns:                                              \n\n");
+    TRICE0( Id(36297), "s:                                              \ns:   ARM-MDK_LL_UART_RTT0_ESC_STM32F070RB_NUCLEO-64    \ns:                                              \n\n");
 /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -106,7 +106,7 @@ int main(void)
         { // send some trices every few ms
             if( milliSecond >= lastTricesTime + 100 ){
                 static int index = 0;
-                TRICE16_1( Id(44866),"MSG: triceFifoMaxDepth = %d\n", triceFifoMaxDepth );
+                TRICE16_1( Id(27489),"MSG: triceFifoMaxDepth = %d\n", triceFifoMaxDepth );
                 triceCheckSet(index%30);
                 index++;
                 lastTricesTime = milliSecond;

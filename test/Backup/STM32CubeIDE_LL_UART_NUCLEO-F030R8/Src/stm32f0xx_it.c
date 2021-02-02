@@ -128,7 +128,7 @@ void SysTick_Handler(void)
     static uint32_t ms_1 = 0;
     ms++;
     if( ms >= ms_1 + 100 ){
-        TRICE32_1( Id(18577), "ISR:alive time %d milliseconds\n", ms );
+        TRICE32_1( Id(16417), "ISR:alive time %d milliseconds\n", ms );
         ms_1 = ms;
     }
   /* USER CODE END SysTick_IRQn 0 */

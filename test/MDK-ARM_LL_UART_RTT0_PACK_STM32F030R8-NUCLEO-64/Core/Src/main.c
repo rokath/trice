@@ -107,9 +107,15 @@ int main(void)
         if( milliSecond >= lastTricesTime + 100 ){
             static int index = 0;
             int select = index % 30;
-            TRICE16_2( Id( 17989),"MSG: triceFifoMaxDepth = %d, select = %d\n", triceFifoMaxDepth, select );
+            #if TRICE_PACK2_ENCODING == TRICE_ENCODING
+            TRICE16_2( Id(1047663),"MSG: triceFifoMaxDepth = %d, select = %d\n", triceFifoMaxDepth, select ); // bigID check
+            #else
+            TRICE16_2( Id(47663),"MSG: triceFifoMaxDepth = %d, select = %d\n", triceFifoMaxDepth, select );
+            #endif
             triceCheckSetTime(select);
-            triceCheckSetSpace(select);
+            #if TRICE_PACK2_ENCODING == TRICE_ENCODING || TRICE_BARE_ENCODING == TRICE_ENCODING
+            triceCheckSetSpace(select); // not implemented for other encoders
+            #endif
             index++;
             lastTricesTime = milliSecond;
         }

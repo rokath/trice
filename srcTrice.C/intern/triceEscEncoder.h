@@ -389,7 +389,7 @@ TRICE_INLINE uint32_t upperOneShift(uint32_t x){
 
 TRICE_INLINE void upo2check( void ){
     for( uint32_t i = 0; i < 10; i++ ){
-        TRICE32_2( Id(36269), "sig:%2d:%6d\n", i, upperOneShift(i) );
+        TRICE32_2( Id(65023), "sig:%2d:%6d\n", i, upperOneShift(i) );
     }
 }
 

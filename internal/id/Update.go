@@ -202,6 +202,8 @@ func triceParse(t string) (nbID string, id TriceID, tf TriceFmt, ok bool) {
 // Otherwise a new id is generated, text patched and lu & tflu are extended.
 // To work correctly, lu & tflu need to be in a refreshed state, means have all id:tf pairs from Srcs tree already inside.
 // text is returned afterwards and *pModified set true if s.th. was changed.
+// tflu holds the tf in upper case.
+// lu holds the tf in source code case. If in source code upper and lower case occur, than only one can be in lu.
 func updateIDsShared(text string, lu TriceIDLookUp, tflu TriceFmtLookUp, pModified *bool) string {
 	subs := text[:] // create a copy of text and assign it to subs
 	for {
@@ -218,24 +220,25 @@ func updateIDsShared(text string, lu TriceIDLookUp, tflu TriceFmtLookUp, pModifi
 		if !ok {
 			continue
 		}
+		tfS := tf
+		tfS.Type = strings.ToUpper(tfS.Type) // Lower case and upper case Type are not distinguished.
 
 		// In lu id could point to a different tf. So we need to check that and invalidate id in that case.
 		// - That typically happens after tf was changed in source but the id not.
 		// - Also the source file with id:tf could be added from a different project and refresh could not add it to lu because id is used differently.
 		if 0 != id {
 			if tfL, ok := lu[id]; ok { // found
-				if !reflect.DeepEqual(tf, tfL) {
+				tfL.Type = strings.ToUpper(tfL.Type)
+				if !reflect.DeepEqual(tfS, tfL) { // Lower case and upper case Type are not distinguished.
 					id = -id // mark as invalid
 				}
 			}
 		}
-		tF := tf
-		tF.Type = strings.ToUpper(tF.Type) // no distiction for lower and upper case Type
-		if id <= 0 {                       // invalid
+		if id <= 0 { // invalid
 			invalID := nbID
 			invalTRICE := nbTRICE
 			// It is possible tf is already in tflu (and lu) here, so check it.
-			if id, ok = tflu[tF]; ok { // yes, we can use it
+			if id, ok = tflu[tfS]; ok { // yes, we can use it
 				msg.FatalOnTrue(0 == id) // no id 0 allowed in map
 			} else { // no, we need a new one
 				id = lu.newID() // a prerequisite is a in a previous step refreshed lu
@@ -243,7 +246,10 @@ func updateIDsShared(text string, lu TriceIDLookUp, tflu TriceFmtLookUp, pModifi
 			// patch the id into text
 			newID := fmt.Sprintf("Id(%5d)", id)
 			if Verbose {
-				fmt.Println(invalID, " -> ", newID)
+				if newID != invalID {
+					fmt.Print(invalID, " -> ", newID)
+				}
+				fmt.Println(newID)
 			}
 			nbTRICE := strings.Replace(nbTRICE, invalID, newID, 1)
 			text = strings.Replace(text, invalTRICE, nbTRICE, 1)
@@ -251,7 +257,7 @@ func updateIDsShared(text string, lu TriceIDLookUp, tflu TriceFmtLookUp, pModifi
 		}
 		// update map: That is needed after an invalid trice or if id:tf is valid but not inside lu & tflu yet, for example after manual code changes or forgotten refresh before update.
 		lu[id] = tf
-		tflu[tF] = id // no distiction for lower and upper case Type
+		tflu[tfS] = id // no distiction for lower and upper case Type
 	}
 }
 

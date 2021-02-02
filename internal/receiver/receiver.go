@@ -33,7 +33,7 @@ var (
 // When port is "STLINK" args has the same format as for "JLINK"
 func NewReadCloser(port, args string) (r io.ReadCloser, err error) {
 	switch port {
-	case "JLINK", "STLINK":
+	case "JLINK", "STLINK", "J-LINK", "ST-LINK":
 		l := link.NewDevice(port, args)
 		if nil != l.Open() {
 			err = fmt.Errorf("can not open link device %s with args %s", port, args)

@@ -68,20 +68,20 @@ int     main(void)
 
         TRICE_RTT_SYNC;
 
-        TRICE0( Id(10341), "Complex number c1: " );
+        TRICE0( Id(18398), "Complex number c1: " );
         c1.Print();
-        TRICE0( Id( 5368), "Complex number c2: " );
+        TRICE0( Id(43499), "Complex number c2: " );
         c2.Print();
 
-        TRICE0( Id(41892), "Calculate c1 + c2: " );
+        TRICE0( Id(32731), "Calculate c1 + c2: " );
         c3 = c1 + c2;
         c3.Print();
 
-        TRICE0( Id(62733), "Calculate c2 - c1: " );
+        TRICE0( Id(38802), "Calculate c2 - c1: " );
         c3 = c2 - c1;
         c3.Print();
 
-        TRICE0( Id(48854), "Negate previous  : " );
+        TRICE0( Id(40045), "Negate previous  : " );
         c3 = -c3;
         c3.Print();
 
@@ -93,12 +93,12 @@ int     main(void)
     										 // no exception
 
 
-        TRICE16_1( Id(45373), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
-        TRICE0( Id(14438), "att:TASKING_RTTD_cpp_Example\n" );
-        TRICE16_1( Id(45373), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
-        TRICE16_1( Id(45373), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
-        TRICE16_1( Id(45373), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
-        TRICE16_1( Id(45373), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
+        TRICE16_1( Id(14522), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
+        TRICE0( Id(24326), "att:TASKING_RTTD_cpp_Example\n" );
+        TRICE16_1( Id(14522), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
+        TRICE16_1( Id(14522), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
+        TRICE16_1( Id(14522), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
+        TRICE16_1( Id(14522), "tim:timing      message, SysTick is %6d\n", SYSTICKVAL16 );
         triceCheckSet(0);
 
         printf( "End of Program\n" );

@@ -5,7 +5,7 @@
 #include "intern/triceFifo.h"
 #include "intern/triceFifoToBytesBuffer.h"
 
-#define TRICE_FILENAME TRICE0( Id(30152), "rd_:triceFifoToBytesBuffer.c" );
+#define TRICE_FILENAME TRICE0( Id(65118), "rd_:triceFifoToBytesBuffer.c" );
 
 //! syncLevelLimit is the max amount of trices bulk transmitted without a sync trice injected.
 //! Assuming triceServeBareFifoToBytesBuffer() is called every ms this is also the max ms abount without a sync trice.

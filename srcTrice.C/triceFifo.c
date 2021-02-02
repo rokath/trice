@@ -7,7 +7,7 @@
 #include "intern/triceConfigCompiler.h"
 #include "intern/triceFifo.h"
 
-#define TRICE_FILENAME TRICE0( Id(13515), "rd_:triceFifo.c" );
+#define TRICE_FILENAME TRICE0( Id(65002), "rd_:triceFifo.c" );
 
 #if TRICE_ENCODING == TRICE_PACK2_ENCODING
 uint8_t triceCycle = 0;

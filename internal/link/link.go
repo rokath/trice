@@ -44,10 +44,10 @@ type Device struct {
 func NewDevice(port, arguments string) *Device {
 	p := &Device{} // create link instance
 	switch port {
-	case "JLINK":
+	case "JLINK", "J-LINK":
 		p.Exec = "JLinkRTTLogger"
 		p.Lib = "JLinkARM"
-	case "STLINK":
+	case "STLINK, ST-LINK":
 		p.Exec = "stRttLogger"
 		p.Lib = "libusb-1.0"
 	}

@@ -187,7 +187,7 @@ Change the filename with "-logfile myName.txt" or switch logging off with "-logf
 func flagSrcs(p *flag.FlagSet) {
 	p.Var(&id.Srcs, "src", `Source dir or file, It has one parameter. Not usable in the form "-src *.c".
 This is a multi-flag switch. It can be used several times for directories and also for files. 
-Example: "trice u  -dry-run -v -src ./test/ -src srcTrice.C/trice.h" will scan all C|C++ header and 
+Example: "trice `+p.Name()+` -dry-run -v -src ./test/ -src srcTrice.C/trice.h" will scan all C|C++ header and 
 source code files inside directory ./test and scan also file trice.h inside srcTrice.C directory. 
 Without the "-dry-run" switch it would create|extend a list file til.json in the current directory.
  (default "./")`) // multi flag

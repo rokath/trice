@@ -13,7 +13,7 @@ extern "C" {
 #include <string.h>
 #include "SEGGER_RTT.h"
 
-#define TRICE_S(id, pFmt, dynString) do{ TRICE0( Id(28489), "wrn:TRICES_1(id, pFmt, dynString) macro is not supported in bare encoding.\nmsg:See TRICE_RTS macro in triceCheck.c for an alternative or use a different encoding.\n"); }while(0)
+#define TRICE_S(id, pFmt, dynString) do{ TRICE0( Id(65235), "wrn:TRICES_1(id, pFmt, dynString) macro is not supported in bare encoding.\nmsg:See TRICE_RTS macro in triceCheck.c for an alternative or use a different encoding.\n"); }while(0)
 
 #define Id(n) (((uint32_t)(n))<<16) //!< Macro for improved trice readability and better source code parsing. n must not exceed 2^16-1.
 

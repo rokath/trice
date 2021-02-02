@@ -6,6 +6,7 @@ package decoder
 import (
 	"fmt"
 	"io"
+	"strings"
 
 	"github.com/rokath/trice/internal/emitter"
 	"github.com/rokath/trice/internal/id"
@@ -97,7 +98,8 @@ func (p *Pack) Read(b []byte) (n int, err error) {
 // readDataAndCheckPaddingBytes checks if existing paddings bytes 0
 // after reading data and storing them as 32 bit chunks in p.d0, ... p.d3.
 func (p *Pack) readDataAndCheckPaddingBytes(cnt int) (ok bool) {
-	switch p.trice.Type {
+	typ := strings.ToUpper(p.trice.Type) // for trice* too
+	switch typ {
 	case "TRICE0":
 		return true
 	case "TRICE32_4", "TRICE64_2":
@@ -170,7 +172,8 @@ func (p *Pack) bytesCountOk(cnt int) bool {
 // byteCount returns expected byte count for triceType.
 // It returns -1 for an unknown value an -2 for unknown triceType.
 func (p *Pack) expectedByteCount() int {
-	switch p.trice.Type {
+	typ := strings.ToUpper(p.trice.Type) // for trice* too
+	switch typ {
 	case "TRICE0":
 		return 0
 	case "TRICE8_1":
@@ -203,7 +206,8 @@ func (p *Pack) expectedByteCount() int {
 // sprintTrice generates the trice string.
 func (p *Pack) sprintTrice(cnt int) (n int, e error) {
 	// ID and count are ok
-	switch p.trice.Type {
+	typ := strings.ToUpper(p.trice.Type) // for trice* too
+	switch typ {
 	case "TRICE0":
 		return p.trice0()
 	case "TRICE8_1":

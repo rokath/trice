@@ -88,7 +88,7 @@ int main(void)
   MX_GPIO_Init();
   /* USER CODE BEGIN 2 */
 
-    TRICE0( Id(23971), "s:                                              \ns:    ARM-MDK_BARE_STM32F03051R8Tx-DISCOVERY    \ns:                                              \n\n");
+    TRICE0( Id(22722), "s:                                              \ns:    ARM-MDK_BARE_STM32F03051R8Tx-DISCOVERY    \ns:                                              \n\n");
   /* USER CODE END 2 */
 
   /* Infinite loop */

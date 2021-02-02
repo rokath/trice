@@ -88,7 +88,7 @@ int main(void)
   MX_GPIO_Init();
   /* USER CODE BEGIN 2 */
 
-    TRICE0( Id(57476), "s:                                          \ns:    ARM-MDK_RTT0_BARE_STM32F0308-DISCO    \ns:                                          \n\n");
+    TRICE0( Id(43336), "s:                                          \ns:    ARM-MDK_RTT0_BARE_STM32F0308-DISCO    \ns:                                          \n\n");
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -99,7 +99,7 @@ int main(void)
       { // every few milliseconds
             if( milliSecond >= lastTricesTime + 100 ){
                 static int index = 0;
-                //TRICE16_1( Id(41488),"MSG: triceBareFifoMaxDepth = %d\n", triceBareFifoMaxDepth );
+                //TRICE16_1( Id(34868),"MSG: triceBareFifoMaxDepth = %d\n", triceBareFifoMaxDepth );
                 triceCheckSet(index%10);
                 index++;
                 lastTricesTime = milliSecond;
