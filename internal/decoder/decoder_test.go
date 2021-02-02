@@ -817,24 +817,3 @@ var (
 	}
 }`
 )
-
-//// unmarshalTriceIDListToSlice extracts the trice ID list byte slice to an items slice.
-//// til is a result of a read til.json file or is a converted test string.
-//// til can change during runtime, when an "trice update" occurs.
-//// Just in case til is not consistent the err value is not nil.
-//func unmarshalTriceIDListToSlice(tilJSON []byte) (list []id.Item, err error) {
-//	if 0 < len(tilJSON) {
-//		err = json.Unmarshal(tilJSON, &list)
-//	}
-//	return
-//}
-
-//  // newIDLut assumes til as JSON formatted input and returns a map for trice ID to fmt string translation.
-//  func newIDLut(til []byte) (IDLookUp, error) {
-//  	list, err := unmarshalTriceIDListToSlice(til)
-//  	if nil != err {
-//  		return nil, err
-//  	}
-//  	lut := id.MakeLut(list) // create look-up map
-//  	return lut, nil
-//  }

@@ -31,11 +31,6 @@ func NewPackDecoder(lut id.TriceIDLookUp, in io.Reader, endian bool) Decoder {
 	return p
 }
 
-// SetInput allowes switching the input stream to a different source.
-//func (p *decoderData) SetInput(r io.Reader) {
-//	p.in = r
-//
-
 // Read is the provided read method for pack decoding of next string as byte slice.
 // It uses inner reader p.in and internal id look-up table to fill b with a string.
 // b is a slice of bytes with a len for the max expected string size.

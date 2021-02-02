@@ -9,6 +9,7 @@ import (
 	"encoding/binary"
 	"fmt"
 	"io"
+	"log"
 	"os"
 	"os/signal"
 	"syscall"
@@ -61,33 +62,6 @@ type decoderData struct {
 	innerReadInterval  time.Duration
 }
 
-// type intervalReader struct {
-// 	r io.ReadCloser
-// }
-//
-// // NewBytesViewer returns a ReadCloser `in` which is internally using reader `from`.
-// // Calling the `in` Read method leads to internally calling the `from` Read method
-// // but lets to do some additional action like logging
-// func newIntervalReader(from io.ReadCloser) (in io.ReadCloser) {
-// 	return &intervalReader{from}
-// }
-//
-// func (p *intervalReader) Read(buf []byte) (count int, err error) {
-// 	count, err = p.r.Read(buf)
-// 	return
-// }
-//
-// // Close is needed to satisfy the ReadCloser interface.
-// func (p *intervalReader) Close() error { return nil }
-//
-// // setInput allows switching the input stream to a different source.
-// //
-// // This function is for easier testing with cycle counters.
-// func (p *decoderData) setInput(r io.ReadCloser) {
-// 	//	p.in = newIntervalReader(r)
-// 	p.in = r
-// }
-
 // setInput allows switching the input stream to a different source.
 //
 // This function is for easier testing with cycle counters.
@@ -100,7 +74,6 @@ func (p *decoderData) setInput(r io.Reader) {
 // Each read returns the amount of bytes for one trice. rc is called on every
 // Translate returns true on io.EOF or false on hard read error or sigterm.
 func Translate(sw *emitter.TriceLineComposer, lut id.TriceIDLookUp, rc io.ReadCloser) bool {
-
 	var dec Decoder //io.Reader
 	switch Encoding {
 	case "esc":
@@ -121,12 +94,8 @@ func Translate(sw *emitter.TriceLineComposer, lut id.TriceIDLookUp, rc io.ReadCl
 		dec = NewBareDecoder(lut, NewBareReaderFromWrap(rc), bigEndian)
 	case "wrapl", "wrapL":
 		dec = NewBareDecoder(lut, NewBareReaderFromWrap(rc), littleEndian)
-	//case "bareXTEAEncrypted", "wrapXTEAEncrypted":
-	//	msg.FatalErr(cipher.SetUp())
-	//	fallthrough
 	default:
-		fmt.Println("unknown encoding ", Encoding)
-		//return false // stop
+		log.Fatalf(fmt.Sprintln("unknown encoding ", Encoding))
 	}
 
 	// prepare CTRL-C shutdown reaction
@@ -144,7 +113,6 @@ outer:
 			}
 			return false // end
 		default:
-
 			n, err := dec.Read(b) // Code to measure
 
 			if io.EOF == err {
@@ -173,26 +141,6 @@ outer:
 		}
 	}
 }
-
-/*
-func run0(sw *emitter.TriceLineComposer, sr StringsReader) error {
-	var size int // to do: 1 for pack, 100 for esc
-	if Encoding == "pack" {
-		size = 1
-	} else {
-		size = 100
-	}
-	ss := make([]string, size)
-	n, err := sr.StringsRead(ss)
-	if nil != err && io.EOF != err {
-		return err
-	}
-	for i := range ss[:n] {
-		sw.WriteString(ss[i])
-	}
-	return nil
-}
-*/
 
 // readU16 returns the 2 b bytes as uint16 according the specified endianness
 func (p *decoderData) readU16(b []byte) uint16 {
@@ -272,6 +220,7 @@ func (p *decoderData) rubWithLongCount(n, count int) {
 	p.syncBuffer = p.syncBuffer[n:]
 }
 
+// outOfSync generates an error message and removes first byte in input buffer.
 func (p *decoderData) outOfSync(msg string) (n int, e error) {
 	cnt := p.bc
 	if cnt > 20 {
