@@ -7,6 +7,7 @@ import (
 	"encoding/binary"
 	"fmt"
 	"io"
+	"strings"
 
 	"github.com/rokath/trice/internal/id"
 )
@@ -74,7 +75,8 @@ func (p *Esc) Read(b []byte) (n int, err error) {
 	if !ok { // unknown id
 		return p.outOfSync(fmt.Sprint("unknown ID ", triceID))
 	}
-	p.bc = p.bytesCount(lengthCode) // payload plus header
+	p.upperCaseTriceType = strings.ToUpper(p.trice.Type) // for trice* too
+	p.bc = p.bytesCount(lengthCode)                      // payload plus header
 	if p.expectedByteCount() != p.bc {
 		return p.outOfSync(fmt.Sprint("trice.Type ", p.trice.Type, " with not matching length code ", lengthCode))
 	}
@@ -98,7 +100,7 @@ func (p *Esc) bytesCount(lc byte) int {
 // byteCount returns expected byte count for triceType.
 // It returns -1 for an unknown value an -2 for unknown triceType.
 func (p *Esc) expectedByteCount() int {
-	switch p.trice.Type {
+	switch p.upperCaseTriceType {
 	case "TRICE0":
 		return 0
 	case "TRICE8_1":
@@ -123,7 +125,7 @@ func (p *Esc) sprintTrice() (n int, e error) {
 		return p.triceS()
 	}
 	p.rub(4) // remove header
-	switch p.trice.Type {
+	switch p.upperCaseTriceType {
 	case "TRICE0":
 		return p.trice0()
 	case "TRICE8_1":

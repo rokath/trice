@@ -32,7 +32,7 @@ extern "C" {
 #define TRICE_U16_JOIN( first, second ) (          ((((uint32_t)(first))<<16)|((uint16_t)(second)))) //!< helper macro
 
 
-#if TRICE_HARDWARE_ENDIANNESS == TRICE_TRANSFER_ENDIANNESS
+#if TRICE_HARDWARE_ENDIANNNESS == TRICE_TRANSFER_ENDIANNESS
 #define TRICE_HTONS(n) ((uint16_t)(n))
 #define TRICE_HTON(n)  ((uint32_t)(n))
 #else

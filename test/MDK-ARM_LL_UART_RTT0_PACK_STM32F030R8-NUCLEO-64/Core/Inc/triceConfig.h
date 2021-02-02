@@ -33,11 +33,11 @@ TRICE0( Id(27253), "s:                                                   \ns:   
 
 //! Set endianess according to target hardware. Options: TRICE_BIG_ENDIANNESS, TRICE_LITTLE_ENDIANNESS.
 //! Some compiler offer an automatic detection for this.
-#define TRICE_HARDWARE_ENDIANNESS TRICE_LITTLE_ENDIANNESS 
+#define TRICE_HARDWARE_ENDIANNNESS TRICE_LITTLE_ENDIANNESS 
 
 //! Set byte order according desired transfer format. Options: TRICE_BIG_ENDIANNESS, TRICE_LITTLE_ENDIANNESS. 
 //! TRICE_BIG_ENDIANNESS is network order.
-//! If TRICE_TRANSFER_ENDIANNESS is equal to TRICE_HARDWARE_ENDIANNESS the trice code is smaller and more efficient.
+//! If TRICE_TRANSFER_ENDIANNESS is equal to TRICE_HARDWARE_ENDIANNNESS the trice code is smaller and more efficient.
 //! When set to TRICE_LITTLE_ENDIANNESS the trice tool -encoding format specifier is extended by a letter 'L'.
 //! Example -enc "pack2L" -> -encoding "pack2L".
 #define TRICE_TRANSFER_ENDIANNESS TRICE_LITTLE_ENDIANNESS 

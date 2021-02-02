@@ -6,6 +6,7 @@ package decoder
 import (
 	"fmt"
 	"io"
+	"strings"
 	"time"
 
 	"github.com/rokath/trice/internal/emitter"
@@ -116,6 +117,7 @@ func (p *Pack2) Read(b []byte) (n int, err error) {
 	if !ok {
 		return p.outOfSync(fmt.Sprintf("unknown triceID %5d", triceID))
 	}
+	p.upperCaseTriceType = strings.ToUpper(p.trice.Type) // for trice* too
 	if !p.bytesCountOk(count) {
 		return p.outOfSync(fmt.Sprintf("unecpected byteCount, it is not %d", count))
 	}
@@ -144,22 +146,22 @@ func (p *Pack2) readDataAndCheckPaddingBytes(cnt int) (ok bool) {
 	if cnt > 12 {
 		b = append(b[0:4], b[8:]...)
 	}
-	switch p.trice.Type {
-	case "TRICE0", "trice0":
+	switch p.upperCaseTriceType { // for trice* too {
+	case "TRICE0":
 		return true
-	case "TRICE32_4", "TRICE64_2", "trice32_4", "trice64_2":
+	case "TRICE32_4", "TRICE64_2":
 		p.d3 = p.readU32(b[16:20])
 		fallthrough
-	case "TRICE32_3", "trice32_3":
+	case "TRICE32_3":
 		p.d2 = p.readU32(b[12:16])
 		fallthrough
-	case "TRICE8_8", "TRICE16_4", "TRICE32_2", "TRICE64_1", "trice8_8", "trice16_4", "trice32_2", "trice64_1":
+	case "TRICE8_8", "TRICE16_4", "TRICE32_2", "TRICE64_1":
 		p.d1 = p.readU32(b[8:12])
 		fallthrough
-	case "TRICE8_4", "TRICE16_2", "TRICE32_1", "trice8_4", "trice16_2", "trice32_1":
+	case "TRICE8_4", "TRICE16_2", "TRICE32_1":
 		p.d0 = p.readU32(b[4:8])
 		return true // no padding bytes
-	case "TRICE_S", "trice_s":
+	case "TRICE_S":
 		x := 3 & cnt
 		switch x {
 		case 0:
@@ -173,21 +175,21 @@ func (p *Pack2) readDataAndCheckPaddingBytes(cnt int) (ok bool) {
 		}
 	default:
 		p.d0 = p.readU32(b[4:8])
-		switch p.trice.Type {
-		case "TRICE8_1", "trice8_1":
+		switch p.upperCaseTriceType {
+		case "TRICE8_1":
 			ok = p.d0 < (1 << 8)
-		case "TRICE8_2", "TRICE16_1", "trice8_2", "trice16_1":
+		case "TRICE8_2", "TRICE16_1":
 			ok = p.d0 < (1 << 16)
-		case "TRICE8_3", "trice8_3":
+		case "TRICE8_3":
 			ok = p.d0 < (1 << 24)
 		default:
 			p.d1 = p.readU32(b[8:12])
-			switch p.trice.Type {
-			case "TRICE8_5", "trice8_5":
+			switch p.upperCaseTriceType {
+			case "TRICE8_5":
 				ok = p.d1 < (1 << 8)
-			case "TRICE8_6", "TRICE16_3", "trice8_6", "trice16_3":
+			case "TRICE8_6", "TRICE16_3":
 				ok = p.d1 < (1 << 16)
-			case "TRICE8_7", "trice8_7":
+			case "TRICE8_7":
 				ok = p.d1 < (1 << 24)
 			}
 		}
@@ -221,30 +223,30 @@ func (p *Pack2) bytesCountOk(cnt int) bool {
 // expectedByteCount returns expected byte count for triceType.
 // It returns -1 for an unknown count value and -2 for unknown triceType.
 func (p *Pack2) expectedByteCount() int {
-	switch p.trice.Type {
-	case "TRICE0", "trice0":
+	switch p.upperCaseTriceType {
+	case "TRICE0":
 		return 0
-	case "TRICE8_1", "trice8_1":
+	case "TRICE8_1":
 		return 1
-	case "TRICE8_2", "TRICE16_1", "trice8_2", "trice16_1":
+	case "TRICE8_2", "TRICE16_1":
 		return 2
-	case "TRICE8_3", "trice8_3":
+	case "TRICE8_3":
 		return 3
-	case "TRICE8_4", "TRICE16_2", "TRICE32_1", "trice8_4", "trice16_2", "trice32_1":
+	case "TRICE8_4", "TRICE16_2", "TRICE32_1":
 		return 4
-	case "TRICE8_5", "trice8_5":
+	case "TRICE8_5":
 		return 5
-	case "TRICE8_6", "TRICE16_3", "trice8_6", "trice16_3":
+	case "TRICE8_6", "TRICE16_3":
 		return 6
 	case "TRICE8_7", "trice8_7":
 		return 7
-	case "TRICE8_8", "TRICE16_4", "TRICE32_2", "TRICE64_1", "trice8_8", "trice16_4", "trice32_2", "trice64_1":
+	case "TRICE8_8", "TRICE16_4", "TRICE32_2", "TRICE64_1":
 		return 8
-	case "TRICE32_3", "trice32_3":
+	case "TRICE32_3":
 		return 12
-	case "TRICE32_4", "TRICE64_2", "trice32_4", "trice64_2":
+	case "TRICE32_4", "TRICE64_2":
 		return 16
-	case "TRICE_S", "trice_S":
+	case "TRICE_S":
 		return -1 // unknown count
 	default:
 		return -2 // unknown trice type
@@ -254,46 +256,46 @@ func (p *Pack2) expectedByteCount() int {
 // sprintTrice generates the trice string.
 func (p *Pack2) sprintTrice(cnt int) (n int, e error) {
 	// ID and count are ok
-	switch p.trice.Type {
-	case "TRICE0", "trice0":
+	switch p.upperCaseTriceType {
+	case "TRICE0":
 		return p.trice0()
-	case "TRICE8_1", "trice8_1":
+	case "TRICE8_1":
 		return p.trice81()
-	case "TRICE8_2", "trice8_2":
+	case "TRICE8_2":
 		return p.trice82()
-	case "TRICE8_3", "trice8_3":
+	case "TRICE8_3":
 		return p.trice83()
-	case "TRICE8_4", "trice8_4":
+	case "TRICE8_4":
 		return p.trice84()
-	case "TRICE8_5", "trice8_5":
+	case "TRICE8_5":
 		return p.trice85()
-	case "TRICE8_6", "trice8_6":
+	case "TRICE8_6":
 		return p.trice86()
-	case "TRICE8_7", "trice8_7":
+	case "TRICE8_7":
 		return p.trice87()
-	case "TRICE8_8", "trice8_8":
+	case "TRICE8_8":
 		return p.trice88()
-	case "TRICE16_1", "trice16_1":
+	case "TRICE16_1":
 		return p.trice161()
-	case "TRICE16_2", "trice16_2":
+	case "TRICE16_2":
 		return p.trice162()
-	case "TRICE16_3", "trice16_3":
+	case "TRICE16_3":
 		return p.trice163()
-	case "TRICE16_4", "trice16_4":
+	case "TRICE16_4":
 		return p.trice164()
-	case "TRICE32_1", "trice32_1":
+	case "TRICE32_1":
 		return p.trice321()
-	case "TRICE32_2", "trice32_2":
+	case "TRICE32_2":
 		return p.trice322()
-	case "TRICE32_3", "trice32_3":
+	case "TRICE32_3":
 		return p.trice323()
-	case "TRICE32_4", "trice32_4":
+	case "TRICE32_4":
 		return p.trice324()
-	case "TRICE64_1", "trice64_1":
+	case "TRICE64_1":
 		return p.trice641()
-	case "TRICE64_2", "trice64_2":
+	case "TRICE64_2":
 		return p.trice642()
-	case "TRICE_S", "trice_s":
+	case "TRICE_S":
 		return p.triceS(cnt)
 	default:
 		return p.outOfSync(fmt.Sprintf("Unexpected trice.Type %s", p.trice.Type))

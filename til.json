@@ -1,4 +1,8 @@
 {
+	"1047663": {
+		"Type": "TRICE16_2",
+		"Strg": "MSG: triceFifoMaxDepth = %d, select = %d\\n"
+	},
 	"10509": {
 		"Type": "TRICE0",
 		"Strg": "att:STM32CubeIDE_HAL_UART_NUCLEO-G474\\n"
@@ -227,17 +231,13 @@
 		"Type": "TRICE0",
 		"Strg": "att:MDK-ARM_HAL_UART_NUCLEO-F030R8\\n"
 	},
-	"48114": {
-		"Type": "TRICE0",
-		"Strg": "att:MDK-ARM_LL_UART_demoBoard_STM32F030F4F4P6\\n"
-	},
-	"1047663": {
-		"Type": "TRICE16_2",
-		"Strg": "MSG: triceFifoMaxDepth = %d, select = %d\\n"
-	},
 	"47663": {
 		"Type": "TRICE16_2",
 		"Strg": "MSG: triceFifoMaxDepth = %d, select = %d\\n"
+	},
+	"48114": {
+		"Type": "TRICE0",
+		"Strg": "att:MDK-ARM_LL_UART_demoBoard_STM32F030F4F4P6\\n"
 	},
 	"65002": {
 		"Type": "TRICE0",

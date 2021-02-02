@@ -106,9 +106,9 @@ int main(void)
         { // send some trices every few ms
             if( milliSecond >= lastTricesTime + 100 ){
                 static int index = 0;
-                int select = index % 30;
+                int select = index % 18;
                 TRICE_SYNC;
-                TRICE16_2( Id(49664),"MSG: triceFifoMaxDepth = %d, select = %d\n", triceFifoMaxDepth, select );
+                TRICE16_2( Id(47663),"MSG: triceFifoMaxDepth = %d, select = %d\n", triceFifoMaxDepth, select );
                 triceCheckSetTime(select);
                 index++;
                 lastTricesTime = milliSecond;

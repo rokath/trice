@@ -638,10 +638,10 @@ TRICE_INLINE void trice_16_4_ocs( uint32_t Id, uint16_t d0, uint16_t d1, uint16_
 //! but their order is always in little endianness. This is a known bare encoding bug but not worth to fix it right now because
 //! all runs fine now and a lot of code is to change. But is should be done in the future.
 TRICE_INLINE void trice_32_1_ics( uint32_t Id, uint32_t d0 ){
-#if 1 // TRICE_TRANSFER_ENDIANESS == TRICE_LITTLE_ENDIANESS
+#if 1 // TRICE_TRANSFER_ENDIANNESS == TRICE_LITTLE_ENDIANNESS
     trice_16_01_ics(    (uint16_t)(d0>>16) ); // hi 
     trice_16_1_ics( Id, (uint16_t)(d0) );     // lo (implicit swapp)
-#elif TRICE_TRANSFER_ENDIANESS == TRICE_BIG_ENDIANESS
+#elif TRICE_TRANSFER_ENDIANNESS == TRICE_BIG_ENDIANNESS
     trice_16_01_ics(    (uint16_t)(d0) );     // hi
     trice_16_1_ics( Id, (uint16_t)(d0>>16) ); // lo
 #else
@@ -667,10 +667,10 @@ TRICE_INLINE void trice_32_1_ocs( uint32_t Id, uint32_t d0 ){
 //! but their order is always in little endianness. This is a known bare encoding bug but not worth to fix it right now because
 //! all runs fine now and a lot of code is to change. But is should be done in the future.
 TRICE_INLINE void trice_32_2_ics( uint32_t Id, uint32_t d0, uint32_t d1 ){
-#if 1 // TRICE_TRANSFER_ENDIANESS == TRICE_LITTLE_ENDIANESS
+#if 1 // TRICE_TRANSFER_ENDIANNESS == TRICE_LITTLE_ENDIANNESS
     trice_16_02_ics(    (uint16_t)(d0>>16), (uint16_t)(d0) ); // lo, hi (trice_16_02_ics swapps)
     trice_16_2_ics( Id, (uint16_t)(d1>>16), (uint16_t)(d1) ); // lo, hi (trice_16_2_ics swapps)
-#elif TRICE_TRANSFER_ENDIANESS == TRICE_BIG_ENDIANESS
+#elif TRICE_TRANSFER_ENDIANNESS == TRICE_BIG_ENDIANNESS
     trice_16_02_ics(    (uint16_t)(d0), (uint16_t)(d0>>16)); // hi, lo
     trice_16_2_ics( Id, (uint16_t)(d1), (uint16_t)(d1>>16)); // hi, lo
 #else
@@ -698,10 +698,10 @@ TRICE_INLINE void trice_32_2_ocs( uint32_t Id, uint32_t d0, uint32_t d1 ){
 //! but their order is always in little endianness. This is a known bare encoding bug but not worth to fix it right now because
 //! all runs fine now and a lot of code is to change. But is should be done in the future.
 TRICE_INLINE void trice_32_3_ics( uint32_t Id, uint32_t d0, uint32_t d1, uint32_t d2 ){
-#if 1 // TRICE_TRANSFER_ENDIANESS == TRICE_LITTLE_ENDIANESS
+#if 1 // TRICE_TRANSFER_ENDIANNESS == TRICE_LITTLE_ENDIANNESS
     trice_16_02_ics(    (uint16_t)(d0>>16), (uint16_t)(d0) );                                     // lo, hi (trice_16_02_ics swapps)
     trice_16_4_ics( Id, (uint16_t)(d1>>16), (uint16_t)(d1), (uint16_t)(d2>>16), (uint16_t)(d2) ); // lo, hi (trice_16_4_ics swapps)
-#elif TRICE_TRANSFER_ENDIANESS == TRICE_BIG_ENDIANESS
+#elif TRICE_TRANSFER_ENDIANNESS == TRICE_BIG_ENDIANNESS
     trice_16_02_ics(    (uint16_t)(d0), (uint16_t)(d0>>16) );                                     // hi, lo
     trice_16_4_ics( Id, (uint16_t)(d1), (uint16_t)(d1>>16), (uint16_t)(d2), (uint16_t)(d2>>16) ); // hi, lo
 #else
@@ -731,10 +731,10 @@ TRICE_INLINE void trice_32_3_ocs( uint32_t Id, uint32_t d0, uint32_t d1, uint32_
 //! but their order is always in little endianness. This is a known bare encoding bug but not worth to fix it right now because
 //! all runs fine now and a lot of code is to change. But is should be done in the future.
 TRICE_INLINE void trice_32_4_ics( uint32_t Id, uint32_t d0, uint32_t d1, uint32_t d2, uint32_t d3 ){
-#if 1 // TRICE_TRANSFER_ENDIANESS == TRICE_LITTLE_ENDIANESS
+#if 1 // TRICE_TRANSFER_ENDIANNESS == TRICE_LITTLE_ENDIANNESS
     trice_16_4_ics(  0, (uint16_t)(d0>>16), (uint16_t)(d0), (uint16_t)(d1>>16), (uint16_t)(d1) ); // lo, hi (trice_16_4_ics swapps)
     trice_16_4_ics( Id, (uint16_t)(d2>>16), (uint16_t)(d2), (uint16_t)(d3>>16), (uint16_t)(d3) ); // lo, hi (trice_16_4_ics swapps)
-#elif TRICE_TRANSFER_ENDIANESS == TRICE_BIG_ENDIANESS
+#elif TRICE_TRANSFER_ENDIANNESS == TRICE_BIG_ENDIANNESS
     trice_16_4_ics(  0, (uint16_t)(d0), (uint16_t)(d0>>16), (uint16_t)(d1), (uint16_t)(d1>>16)  ); // hi, lo
     trice_16_4_ics( Id, (uint16_t)(d2), (uint16_t)(d2>>16), (uint16_t)(d3), (uint16_t)(d3>>16)  ); // hi, lo
 #else
@@ -762,10 +762,10 @@ TRICE_INLINE void trice_64_1_ics( uint32_t Id, uint64_t d0 ){
 //! The 32-bit and 64-bit values are transmoitted as 16-bit groups where the 16-bit units inside according to the transfer endanness
 //! but their order is always in little endianness. This is a known bare encoding bug but not worth to fix it right now because
 //! all runs fine now and a lot of code is to change. But is should be done in the future.
-#if 1 //  TRICE_TRANSFER_ENDIANESS == TRICE_LITTLE_ENDIANESS
+#if 1 //  TRICE_TRANSFER_ENDIANNESS == TRICE_LITTLE_ENDIANNESS
     trice_16_02_ics( (uint16_t)(d0>>48), (uint16_t)(d0>>32) ); // hh, hl
     trice_16_2_ics( Id, (uint16_t)(d0>>16), (uint16_t)(d0 ));  // lh, ll (implicit swapped)
-#elif TRICE_TRANSFER_ENDIANESS == TRICE_BIG_ENDIANESS
+#elif TRICE_TRANSFER_ENDIANNESS == TRICE_BIG_ENDIANNESS
     trice_16_02_ics( (uint16_t)(d0), (uint16_t)(d0>>16) );        // ll, lh
     trice_16_2_ics( Id, (uint16_t)(d0>>32), (uint16_t)(d0>>48 )); // hl, hh
 #else
@@ -782,12 +782,12 @@ TRICE_INLINE void trice_64_1_ics( uint32_t Id, uint64_t d0 ){
 //! but their order is always in little endianness. This is a known bare encoding bug but not worth to fix it right now because
 //! all runs fine now and a lot of code is to change. But is should be done in the future.
 TRICE_INLINE void trice_64_2_ics( uint32_t Id, uint64_t d0, uint64_t d1 ){
-#if 1 // TRICE_TRANSFER_ENDIANESS == TRICE_LITTLE_ENDIANESS
+#if 1 // TRICE_TRANSFER_ENDIANNESS == TRICE_LITTLE_ENDIANNESS
     trice_16_02_ics( (uint16_t)(d0>>48), (uint16_t)(d0>>32) );
     trice_16_02_ics( (uint16_t)(d0>>16), (uint16_t)(d0) );
     trice_16_02_ics( (uint16_t)(d1>>48), (uint16_t)(d1>>32) );
     trice_16_2_ics( Id, (uint16_t)(d1>>16), (uint16_t)(d1 ));
-#elif TRICE_TRANSFER_ENDIANESS == TRICE_BIG_ENDIANESS
+#elif TRICE_TRANSFER_ENDIANNESS == TRICE_BIG_ENDIANNESS
     trice_16_02_ics( (uint16_t)(d0), (uint16_t)(d0>>16) );
     trice_16_02_ics( (uint16_t)(d0>>32), (uint16_t)(d0>>48) );
     trice_16_02_ics( (uint16_t)(d1), (uint16_t)(d1>>16) );

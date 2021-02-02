@@ -28,7 +28,7 @@ Inside the target project specific triceConfig.h is selectable:
   - The encoding should match the target processor endiannes.
 
   ```c
-  #define TRICE_TRANSFER_ENDIANESS TRICE_LITTLE_ENDIANESS
+  #define TRICE_TRANSFER_ENDIANNESS TRICE_LITTLE_ENDIANNESS
   ```
 
 - Additionally an encoding can be wrapped with transport information. This setting is done by calling cyclically this function:

@@ -92,7 +92,6 @@ func sharedIDsUpdate(root string, lu TriceIDLookUp, tflu TriceFmtLookUp, pListMo
 		fmt.Println("List=", FnJSON)
 	}
 	msg.FatalInfoOnErr(filepath.Walk(root, visitUpdate(lu, tflu, pListModified)), "failed to walk tree")
-	fmt.Println("List modification:", *pListModified)
 }
 
 func visitUpdate(lu TriceIDLookUp, tflu TriceFmtLookUp, pListModified *bool) filepath.WalkFunc {
@@ -126,19 +125,11 @@ func visitUpdate(lu TriceIDLookUp, tflu TriceFmtLookUp, pListModified *bool) fil
 		textN := updateParamCount(text)                                        // update parameter count: TRICE* to TRICE*_n
 		textU, fileModified := updateIDsShared(textN, lu, tflu, pListModified) // update IDs: Id(0) -> Id(M)
 
-		if text != textU && false == *pListModified { // to do: updateParamCount could set *pModified too
-			fmt.Println(*pListModified)
-		}
-		if text != textU && false == fileModified { // to do: updateParamCount could set *pModified too
-			fmt.Println(fileModified)
-		}
-		if text == textU && true == fileModified { // to do: updateParamCount could set *pModified too
-			fmt.Println(fileModified)
-		}
-
 		// write out
 		if fileModified && !DryRun {
-			fmt.Println("Changed: ", path, fileModified, *pListModified)
+			if Verbose {
+				fmt.Println("Changed: ", path)
+			}
 			err = ioutil.WriteFile(path, []byte(textU), fi.Mode())
 			if nil != err {
 				return fmt.Errorf("failed to change %s: %v", path, err)
@@ -346,8 +337,9 @@ func visitZeroSourceTreeIds(run bool) filepath.WalkFunc {
 		if fi.IsDir() || !isSourceFile(fi) || err != nil {
 			return err // forward any error and do nothing
 		}
-
-		fmt.Println(path)
+		if Verbose {
+			fmt.Println(path)
+		}
 		read, err := ioutil.ReadFile(path)
 		if err != nil {
 			return err

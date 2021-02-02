@@ -20,7 +20,7 @@ extern uint8_t triceCycle;
 // TRICE macros
 //
 /*
-Transfer is in network order (big endian) or little endian acording TRICE_TRANSFER_ENDIANESS.
+Transfer is in network order (big endian) or little endian acording TRICE_TRANSFER_ENDIANNESS.
 Inside a 32-bit sequence the 24-bit ID i comes together with a 4-bit count c and a 8-bit cycle counter n in specified transfer endianess:
 iiiiiiii iiiiiiii iiiicccc nnnnnnnn
 The count c is the valid payload size without counting padding bytes and has valid values from 0 to 12.
@@ -739,7 +739,7 @@ TRICE_INLINE void trice324( uint32_t id, uint32_t d0, uint32_t d1, uint32_t d2, 
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
 
-#if 1 // TRICE_TRANSFER_ENDIANESS == TRICE_LITTLE_ENDIANESS // to do: adapt decoder
+#if 1 // TRICE_TRANSFER_ENDIANNESS == TRICE_LITTLE_ENDIANNESS // to do: adapt decoder
 
 //! trice641 is an internal helper.
 TRICE_INLINE void trice641( uint32_t id, uint64_t d0 ){
@@ -807,7 +807,7 @@ TRICE_INLINE void trice642( uint32_t id, uint64_t d0, uint64_t d1 ){
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
 
-#else // #if TRICE_TRANSFER_ENDIANESS == TRICE_LITTLE_ENDIANESS
+#else // #if TRICE_TRANSFER_ENDIANNESS == TRICE_LITTLE_ENDIANNESS
 
 
 TRICE_INLINE void trice64_1( uint32_t id, uint64_t d0 ){
@@ -858,7 +858,7 @@ TRICE_INLINE void trice64_2( uint32_t id, uint64_t d0, uint64_t d1 ){
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
 
-#endif // #else // #if TRICE_TRANSFER_ENDIANESS == TRICE_LITTLE_ENDIANESS
+#endif // #else // #if TRICE_TRANSFER_ENDIANNESS == TRICE_LITTLE_ENDIANNESS
 
 //! string transfer format: 
 //!     id       count    cycle <--- id value in trice transfer order
