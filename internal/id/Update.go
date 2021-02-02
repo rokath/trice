@@ -64,9 +64,8 @@ func isSourceFile(fi os.FileInfo) bool {
 	return matchSourceFile.MatchString(fi.Name())
 }
 
-func separatedIDsUpdate(root string, lu TriceIDLookUp, tflu TriceFmtLookUp) (modified bool) {
+func separatedIDsUpdate(root string, lu TriceIDLookUp, tflu TriceFmtLookUp, pListModified *bool) {
 	// to do
-	return false
 }
 
 // Additional actions needed: (Option -dry-run lets do a check in advance.)
@@ -87,16 +86,16 @@ func separatedIDsUpdate(root string, lu TriceIDLookUp, tflu TriceFmtLookUp) (mod
 // - replace.Type( Id(0), ...) with.Type( Id(n), ...)
 // - find duplicate.Type( Id(n), ...) and replace one of them if trices are not identical
 // - extend file fnIDList
-func sharedIDsUpdate(root string, lu TriceIDLookUp, tflu TriceFmtLookUp) (modified bool) {
+func sharedIDsUpdate(root string, lu TriceIDLookUp, tflu TriceFmtLookUp, pListModified *bool) {
 	if Verbose {
 		fmt.Println("dir=", root)
 		fmt.Println("List=", FnJSON)
 	}
-	msg.FatalInfoOnErr(filepath.Walk(root, visitUpdate(lu, tflu, &modified)), "failed to walk tree")
-	return
+	msg.FatalInfoOnErr(filepath.Walk(root, visitUpdate(lu, tflu, pListModified)), "failed to walk tree")
+	fmt.Println("List modification:", *pListModified)
 }
 
-func visitUpdate(lu TriceIDLookUp, tflu TriceFmtLookUp, pModified *bool) filepath.WalkFunc {
+func visitUpdate(lu TriceIDLookUp, tflu TriceFmtLookUp, pListModified *bool) filepath.WalkFunc {
 	// WalkFunc is the type of the function called for each file or directory
 	// visited by Walk. The path argument contains the argument to Walk as a
 	// prefix; that is, if Walk is called with "dir", which is a directory
@@ -124,15 +123,22 @@ func visitUpdate(lu TriceIDLookUp, tflu TriceFmtLookUp, pModified *bool) filepat
 			return err
 		}
 		text := string(read)
-		textN := updateParamCount(text)                      // update parameter count: TRICE* to TRICE*_n
-		textU := updateIDsShared(textN, lu, tflu, pModified) // update IDs: Id(0) -> Id(M)
+		textN := updateParamCount(text)                                        // update parameter count: TRICE* to TRICE*_n
+		textU, fileModified := updateIDsShared(textN, lu, tflu, pListModified) // update IDs: Id(0) -> Id(M)
 
-		if text != textU { // to do: updateParamCount could set *pModified too
-			*pModified = true
+		if text != textU && false == *pListModified { // to do: updateParamCount could set *pModified too
+			fmt.Println(*pListModified)
+		}
+		if text != textU && false == fileModified { // to do: updateParamCount could set *pModified too
+			fmt.Println(fileModified)
+		}
+		if text == textU && true == fileModified { // to do: updateParamCount could set *pModified too
+			fmt.Println(fileModified)
 		}
 
 		// write out
-		if *pModified && !DryRun {
+		if fileModified && !DryRun {
+			fmt.Println("Changed: ", path, fileModified, *pListModified)
 			err = ioutil.WriteFile(path, []byte(textU), fi.Mode())
 			if nil != err {
 				return fmt.Errorf("failed to change %s: %v", path, err)
@@ -201,15 +207,17 @@ func triceParse(t string) (nbID string, id TriceID, tf TriceFmt, ok bool) {
 // Or: 'TRICE0( Id(12) ,"foo");' was changed to 'TRICE0( Id(13) ,"foo");'. Than lu & tflu are extended accordingly, or, if 13 is already used is replaced with a new id.
 // Otherwise a new id is generated, text patched and lu & tflu are extended.
 // To work correctly, lu & tflu need to be in a refreshed state, means have all id:tf pairs from Srcs tree already inside.
-// text is returned afterwards and *pModified set true if s.th. was changed.
+// text is returned afterwards and true if text was changed and *pListModified set true if s.th. was changed.
+// *pListModified in result is true if any file was changed.
 // tflu holds the tf in upper case.
 // lu holds the tf in source code case. If in source code upper and lower case occur, than only one can be in lu.
-func updateIDsShared(text string, lu TriceIDLookUp, tflu TriceFmtLookUp, pModified *bool) string {
+func updateIDsShared(text string, lu TriceIDLookUp, tflu TriceFmtLookUp, pListModified *bool) (string, bool) {
+	var fileModified bool
 	subs := text[:] // create a copy of text and assign it to subs
 	for {
 		loc := matchNbTRICE.FindStringIndex(subs) // find the next TRICE location in file
 		if nil == loc {
-			return text // done
+			return text, fileModified // done
 		}
 		nbTRICE := subs[loc[0]:loc[1]] // full trice expression with Id(n)
 		// prepare subs for next loop
@@ -247,13 +255,14 @@ func updateIDsShared(text string, lu TriceIDLookUp, tflu TriceFmtLookUp, pModifi
 			newID := fmt.Sprintf("Id(%5d)", id)
 			if Verbose {
 				if newID != invalID {
-					fmt.Print(invalID, " -> ", newID)
+					fmt.Print(invalID, " -> ")
 				}
 				fmt.Println(newID)
 			}
 			nbTRICE := strings.Replace(nbTRICE, invalID, newID, 1)
 			text = strings.Replace(text, invalTRICE, nbTRICE, 1)
-			*pModified = true
+			*pListModified = true
+			fileModified = true
 		}
 		// update map: That is needed after an invalid trice or if id:tf is valid but not inside lu & tflu yet, for example after manual code changes or forgotten refresh before update.
 		lu[id] = tf

@@ -17,8 +17,8 @@ extern "C" {
 #define TRICE_SPEED_OVER_SPACE 0x55aa
 #define TRICE_SPACE_OVER_SPEED 0xaa55
 
-#define TRICE_LITTLE_ENDIANESS 0x00112233
-#define TRICE_BIG_ENDIANESS    0x33221100
+#define TRICE_LITTLE_ENDIANNESS 0x00112233
+#define TRICE_BIG_ENDIANNESS    0x33221100
 
 #include "triceConfig.h"
 #include "intern/triceConfigCompiler.h"
@@ -32,7 +32,7 @@ extern "C" {
 #define TRICE_U16_JOIN( first, second ) (          ((((uint32_t)(first))<<16)|((uint16_t)(second)))) //!< helper macro
 
 
-#if TRICE_HARDWARE_ENDIANESS == TRICE_TRANSFER_ENDIANESS
+#if TRICE_HARDWARE_ENDIANNESS == TRICE_TRANSFER_ENDIANNESS
 #define TRICE_HTONS(n) ((uint16_t)(n))
 #define TRICE_HTON(n)  ((uint32_t)(n))
 #else

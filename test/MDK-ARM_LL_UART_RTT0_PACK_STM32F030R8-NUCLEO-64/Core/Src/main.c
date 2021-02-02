@@ -104,7 +104,7 @@ int main(void)
   {
     static int lastTricesTime = 0;
     { // send some trices every few ms
-        if( milliSecond >= lastTricesTime + 100 ){
+        if( milliSecond >= lastTricesTime + 200 ){
             static int index = 0;
             int select = index % 30;
             #if TRICE_PACK2_ENCODING == TRICE_ENCODING
@@ -113,9 +113,7 @@ int main(void)
             TRICE16_2( Id(47663),"MSG: triceFifoMaxDepth = %d, select = %d\n", triceFifoMaxDepth, select );
             #endif
             triceCheckSetTime(select);
-            #if TRICE_PACK2_ENCODING == TRICE_ENCODING || TRICE_BARE_ENCODING == TRICE_ENCODING
-            triceCheckSetSpace(select); // not implemented for other encoders
-            #endif
+            triceCheckSetSpace(select);
             index++;
             lastTricesTime = milliSecond;
         }

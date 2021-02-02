@@ -17,7 +17,7 @@ func (lu TriceIDLookUp) FileWatcher() {
 
 	// creates a new file watcher
 	watcher, err := fsnotify.NewWatcher()
-	msg.OnErr(err)
+	msg.FatalOnErr(err)
 	defer func() { msg.OnErr(watcher.Close()) }()
 
 	done := make(chan bool)
@@ -27,7 +27,7 @@ func (lu TriceIDLookUp) FileWatcher() {
 			select {
 			// watch for events
 			case event, ok := <-watcher.Events:
-				fmt.Println("EVENT:", event, ok)
+				fmt.Println("EVENT:", event, ok, time.Now().UTC())
 
 				now = time.Now()
 				diff := now.Sub(last)
@@ -39,7 +39,7 @@ func (lu TriceIDLookUp) FileWatcher() {
 
 			// watch for errors
 			case err := <-watcher.Errors:
-				fmt.Println("ERROR1", err)
+				fmt.Println("ERROR1", err, time.Now().UTC())
 			}
 		}
 	}()

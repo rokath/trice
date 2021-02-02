@@ -49,15 +49,16 @@ type Decoder interface {
 
 // decoderData is the common data struct for all decoders.
 type decoderData struct {
-	in                io.Reader        // inner reader
-	syncBuffer        []byte           // unprocessed bytes hold for next cycle
-	endian            bool             // littleEndian or bigEndian
-	lut               id.TriceIDLookUp // id look-up map for translation
-	trice             id.TriceFmt      //id.TriceFmt // received trice
-	b                 []byte           // read buffer
-	bc                int              // trice specific bytes count
-	lastInnerRead     time.Time
-	innerReadInterval time.Duration
+	in                 io.Reader        // inner reader
+	syncBuffer         []byte           // unprocessed bytes hold for next cycle
+	endian             bool             // littleEndian or bigEndian
+	lut                id.TriceIDLookUp // id look-up map for translation
+	trice              id.TriceFmt      // id.TriceFmt // received trice
+	upperCaseTriceType string           // This is the to upper case converted received trice type.
+	b                  []byte           // read buffer
+	bc                 int              // trice specific bytes count
+	lastInnerRead      time.Time
+	innerReadInterval  time.Duration
 }
 
 // type intervalReader struct {

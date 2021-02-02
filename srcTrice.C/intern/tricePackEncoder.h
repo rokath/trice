@@ -20,7 +20,7 @@ extern "C" {
 // TRICE macros
 //
 /*
-Transfer is in network order (big endian) or little endian acording TRICE_TRANSFER_ENDIANESS.
+Transfer is in network order (big endian) or little endian acording TRICE_TRANSFER_ENDIANNESS.
 Inside a 32-bit sequence the 16-bit ID comes together with 16-bit count in specified transfer endianess:
 This count is the payload size without counting padding bytes. The ID is in the 2 msb and the count in the 2 lsb.
 \code

@@ -12,10 +12,6 @@ import (
 	"github.com/rokath/trice/internal/id"
 )
 
-// const (
-// 	syncPacket = emitter.SyncPacketPattern
-// )
-
 // Pack is the Decoding instance for bare encoded trices.
 type Pack struct {
 	decoderData
@@ -82,6 +78,7 @@ func (p *Pack) Read(b []byte) (n int, err error) {
 	if !ok {
 		return p.outOfSync(fmt.Sprintf("unknown triceID %5d", triceID))
 	}
+	p.upperCaseTriceType = strings.ToUpper(p.trice.Type) // for trice* too
 	if !p.bytesCountOk(count) {
 		return p.outOfSync(fmt.Sprintf("unecpected byteCount, it is not %d", count))
 	}
@@ -98,8 +95,7 @@ func (p *Pack) Read(b []byte) (n int, err error) {
 // readDataAndCheckPaddingBytes checks if existing paddings bytes 0
 // after reading data and storing them as 32 bit chunks in p.d0, ... p.d3.
 func (p *Pack) readDataAndCheckPaddingBytes(cnt int) (ok bool) {
-	typ := strings.ToUpper(p.trice.Type) // for trice* too
-	switch typ {
+	switch p.upperCaseTriceType {
 	case "TRICE0":
 		return true
 	case "TRICE32_4", "TRICE64_2":
@@ -128,7 +124,7 @@ func (p *Pack) readDataAndCheckPaddingBytes(cnt int) (ok bool) {
 		}
 	default:
 		p.d0 = p.readU32(p.syncBuffer[4:8])
-		switch p.trice.Type {
+		switch p.upperCaseTriceType {
 		case "TRICE8_1":
 			ok = p.d0 < (1 << 8)
 		case "TRICE8_2", "TRICE16_1":
@@ -137,7 +133,7 @@ func (p *Pack) readDataAndCheckPaddingBytes(cnt int) (ok bool) {
 			ok = p.d0 < (1 << 24)
 		default:
 			p.d1 = p.readU32(p.syncBuffer[8:12])
-			switch p.trice.Type {
+			switch p.upperCaseTriceType {
 			case "TRICE8_5":
 				ok = p.d1 < (1 << 8)
 			case "TRICE8_6", "TRICE16_3":
@@ -172,8 +168,7 @@ func (p *Pack) bytesCountOk(cnt int) bool {
 // byteCount returns expected byte count for triceType.
 // It returns -1 for an unknown value an -2 for unknown triceType.
 func (p *Pack) expectedByteCount() int {
-	typ := strings.ToUpper(p.trice.Type) // for trice* too
-	switch typ {
+	switch p.upperCaseTriceType {
 	case "TRICE0":
 		return 0
 	case "TRICE8_1":
@@ -206,8 +201,7 @@ func (p *Pack) expectedByteCount() int {
 // sprintTrice generates the trice string.
 func (p *Pack) sprintTrice(cnt int) (n int, e error) {
 	// ID and count are ok
-	typ := strings.ToUpper(p.trice.Type) // for trice* too
-	switch typ {
+	switch p.upperCaseTriceType {
 	case "TRICE0":
 		return p.trice0()
 	case "TRICE8_1":

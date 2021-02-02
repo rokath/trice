@@ -50,6 +50,7 @@ TRICE_INLINE void triceRuntimeGeneratedStringUnbound( const char* s ){
 
 //! trice runtime string
 #define TRICE_RTS(dynString) do{ triceRuntimeGeneratedStringUnbound(dynString); }while(0)
+#define trice_rts TRICE_RTS
 
 // nextRuntimeString returns a in length changing string from 0 to 250 bytes.
 char* nextRuntimeString( int length ){
@@ -219,7 +220,10 @@ void triceCheckSetTime(int index) {
        case 17: 
 			triceRuntimeStrings(254, 256);
            break;
-        case 18:
+       case 18: 
+			triceRuntimeStrings(257, 259);
+           break;
+        case 19:
 #ifdef ENCRYPT
         {
             uint8_t b[8] = {1,2,3,4,5,6,7,8};
@@ -243,7 +247,6 @@ void triceCheckSetTime(int index) {
     }
 }
 
-#if TRICE_PACK2_ENCODING == TRICE_ENCODING || TRICE_BARE_ENCODING == TRICE_ENCODING
 //! write out all types of trices with fixed values for testing
 //! \details One trice has one subtrace, if param size max 2 bytes. 
 //! Traces with more bytes as parameter consist of several subtraces.
@@ -359,61 +362,28 @@ void triceCheckSetSpace(int index) {
             trice8_8(Id(65523), "tst:trice8_8 %d %d %d %d %d %d %d %d\n", 1, 2, 3, 4, 5, 6, 7, 8);
             break;
         case 13:
-            TRICE_RTS( "an_example_string\n" );
-            TRICE_RTS( "" );
-            TRICE_RTS( "\n" );
-            TRICE_RTS( "a\n" );
-            TRICE_RTS( "an\n" );
-            TRICE_RTS( "an_\n" );
-            TRICE_RTS( "an_e\n" );
-            TRICE_RTS( "an_ex\n" );
-            TRICE_RTS( "an_exa\n" );
-            TRICE_RTS( "an_exam\n" );
-            TRICE_RTS( "an_examp\n" );
-            TRICE_RTS( "an_exampl\n" );
-            TRICE_RTS( "an_example\n" );
-            TRICE_RTS( "an_example_\n" );
-            TRICE_RTS( "an_example_s\n" );
-            TRICE_RTS( "an_example_st\n" );
-            TRICE_RTS( "an_example_str\n" );
-            TRICE_RTS( "an_example_stri\n" );
-            TRICE_RTS( "an_example_strin\n" );
-            TRICE_RTS( "an_example_string\n" );
+            trice_rts( "an_example_string\n" );
+            trice_rts( "" );
+            trice_rts( "\n" );
+            trice_rts( "a\n" );
+            trice_rts( "an\n" );
+            trice_rts( "an_\n" );
+            trice_rts( "an_e\n" );
+            trice_rts( "an_ex\n" );
+            trice_rts( "an_exa\n" );
+            trice_rts( "an_exam\n" );
+            trice_rts( "an_examp\n" );
+            trice_rts( "an_exampl\n" );
+            trice_rts( "an_example\n" );
+            trice_rts( "an_example_\n" );
+            trice_rts( "an_example_s\n" );
+            trice_rts( "an_example_st\n" );
+            trice_rts( "an_example_str\n" );
+            trice_rts( "an_example_stri\n" );
+            trice_rts( "an_example_strin\n" );
+            trice_rts( "an_example_string\n" );
             break;
-        case 14:
-            triceRuntimeStrings(0, 20);
-            break;
-       case 15: 
-			triceRuntimeStrings(30, 35 );
-           break;
-       case 16: 
-			triceRuntimeStrings(126, 130);
-           break;
-       case 17: 
-			triceRuntimeStrings(254, 256);
-           break;
-        case 18:
-#ifdef ENCRYPT
-        {
-            uint8_t b[8] = {1,2,3,4,5,6,7,8};
-            TRICE8_8(  Id(65083), "msg: message = %03x %03x %03x %03x %03x %03x %03x %03x\n", b[0], b[1], b[2], b[3], b[4], b[5], b[6], b[7] );
-            TRICE16_1( Id(65054), "tim: pre encryption SysTick=%d\n", SYSTICKVAL16 );
-            encrypt(b);
-            TRICE16_1( Id(65330), "tim: post encryption SysTick=%d\n", SYSTICKVAL16 );
-            TRICE8_8(  Id(65484), "att: encrypted = %03x %03x %03x %03x %03x %03x %03x %03x\n", b[0], b[1], b[2], b[3], b[4], b[5], b[6], b[7] );
-            TRICE16_4( Id(65526), "att: encrypted = %d,%d,%d,%d,", b[0], b[1], b[2], b[3] );
-            TRICE16_4( Id(65061), "att: %d,%d,%d,%d\n", b[4], b[5], b[6], b[7] );
-            TRICE16_1( Id(65405), "tim: pre decryption SysTick=%d\n", SYSTICKVAL16 );
-            decrypt(b);
-            TRICE16_1( Id(65051), "tim: post decryption SysTick=%d\n", SYSTICKVAL16 );
-            TRICE8_8(  Id(65281), "msg: messge = %03x %03x %03x %03x %03x %03x %03x %03x\n", b[0], b[1], b[2], b[3], b[4], b[5], b[6], b[7] );
-        }
-        TRICE0 (Id(65029), "--------------------------------------------------\n\n" );
-#endif
-        break;
     default:
         break;
     }
 }
-#endif // #if TRICE_PACK2_ENCODING == TRICE_ENCODING
-

@@ -134,9 +134,11 @@ func TestUpdateIDsShared(t *testing.T) {
 	Max = 99
 	lu := make(TriceIDLookUp)
 	tflu := lu.reverse()
-	modified := false
+	listModified := false
 
-	act := updateIDsShared(text, lu, tflu, &modified)
+	act, fileModified := updateIDsShared(text, lu, tflu, &listModified)
+	tst.Equal(t, true, fileModified)
+	tst.Equal(t, true, listModified)
 	tst.Equal(t, exp, act)
 }
 

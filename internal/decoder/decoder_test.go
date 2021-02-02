@@ -299,7 +299,11 @@ var (
 		"Type": "TRICE0",
 		"Strg": "att:MDK-ARM_LL_UART_demoBoard_STM32F030F4F4P6\\n"
 	},
-	"49664": {
+	"1047663": {
+		"Type": "TRICE16_2",
+		"Strg": "MSG: triceFifoMaxDepth = %d, select = %d\\n"
+	},
+	"47663": {
 		"Type": "TRICE16_2",
 		"Strg": "MSG: triceFifoMaxDepth = %d, select = %d\\n"
 	},

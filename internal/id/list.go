@@ -39,7 +39,7 @@ func SubCmdRefreshList() (err error) {
 func SubCmdUpdate() error {
 	lu := NewLut(FnJSON)
 	tflu := lu.reverse()
-	var modified bool
+	var listModified bool
 
 	if 0 == len(Srcs) {
 		Srcs = append(Srcs, "./") // default value
@@ -55,7 +55,7 @@ func SubCmdUpdate() error {
 		s := Srcs[i]
 		srcU := ConditionalFilePath(s)
 		if _, err := os.Stat(srcU); err == nil { // path exists
-			modified = update(srcU, lu, tflu)
+			update(srcU, lu, tflu, &listModified)
 		} else if os.IsNotExist(err) { // path does *not* exist
 			fmt.Println(s, " -> ", srcU, "does not exist!")
 		} else {
@@ -66,16 +66,16 @@ func SubCmdUpdate() error {
 	}
 
 	if Verbose {
-		fmt.Println(len(lu), "ID's in List", FnJSON)
+		fmt.Println(len(lu), "ID's in List", FnJSON, "listModified=", listModified)
 	}
-	if modified && !DryRun {
+	if listModified && !DryRun {
 		msg.FatalOnErr(lu.toFile(FnJSON))
 	}
 	return nil
 }
 
 // update returns true if s.th. changed in map.
-var update func(string, TriceIDLookUp, TriceFmtLookUp) bool
+var update func(string, TriceIDLookUp, TriceFmtLookUp, *bool)
 
 /*
 // update does parse source tree, update IDs and is List

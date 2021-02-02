@@ -229,7 +229,7 @@ func logLoop() {
 
 	// Just in case the id list file FnJSON gets updated, the file watcher updates lut.
 	// This way trice needs not to be restarted during development process.
-	//lu.FileWatcher()
+	go lu.FileWatcher()
 
 	sw := emitter.New()
 	var interrupted bool
