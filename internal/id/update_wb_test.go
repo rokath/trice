@@ -17,8 +17,32 @@ type idCheck struct {
 	tf      TriceFmt
 }
 
+// to do: improve parser that this works
+func _TestInsertOnlyID(t *testing.T) {
+	text := `
+	TRICE8_8( "hi %2d, %13u, %64b, %8x %02d, %013u, %032b, %016x",1,2,3,4,5,6,7,8 );
+`
+	exp := `
+	TRICE8_8( Id(0), "hi %2d, %13u, %64b, %8x %02d, %013u, %032b, %016x",1,2,3,4,5,6,7,8 );
+`
+	act := updateParamCountLegacy(text)
+	tst.Equal(t, exp, act)
+}
+
+// to do: improve parser that this works
+func _TestInsertOnlyID2(t *testing.T) {
+	text := `
+	TRICE8_3( "hi %2d, %13u, %64b, %8x %02d, %013u, %032b, %016x",1,2,3,4,5,6,7,8 ); // do not change wrong count!
+`
+	exp := `
+	TRICE8_3( Id(0), "hi %2d, %13u, %64b, %8x %02d, %013u, %032b, %016x",1,2,3,4,5,6,7,8 );  // do not change wrong count!
+`
+	act := updateParamCountLegacy(text)
+	tst.Equal(t, exp, act)
+}
+
 // Only the first occurance of a double used ID gets in the list.
-func TestRefreshIDListSingle(t *testing.T) {
+func TestRefreshIDListSingle0(t *testing.T) {
 	text := `
 	TRICE16_3( Id(12345), "hi %2d, %13u, %64b\n",1,2,3 );	
 	TRICE16_3( Id(12345), "DIFFERENT! %2d, %13u, %64b\n",1,2,3 );	
@@ -28,6 +52,35 @@ func TestRefreshIDListSingle(t *testing.T) {
 	TRICE16_3( Id(12345), "DIFFERENT! %2d, %13u, %64b\n",1,2,3 );	
 `
 	expJSON := `{
+	"12345": {
+		"Type": "TRICE16_3",
+		"Strg": "hi %2d, %13u, %64b\\n"
+	}
+}`
+	lu := make(TriceIDLookUp)
+	tflu := lu.reverse()
+	refreshIDs(text, lu, tflu)
+
+	tst.Equal(t, expText, text)
+	b, err := lu.toJSON()
+	tst.Equal(t, nil, err)
+	tst.Equal(t, expJSON, string(b))
+}
+
+func TestRefreshIDListSingle1(t *testing.T) {
+	text := `
+	TRICE16_3( Id(12345), "hi %2d, %13u, %64b\n",1,2,3 );	
+	TRICE16_3( Id(  123), "hi %2d, %13u, %64b\n",1,2,3 );	
+`
+	expText := `
+	TRICE16_3( Id(12345), "hi %2d, %13u, %64b\n",1,2,3 );	
+	TRICE16_3( Id(  123), "hi %2d, %13u, %64b\n",1,2,3 );	
+`
+	expJSON := `{
+	"123": {
+		"Type": "TRICE16_3",
+		"Strg": "hi %2d, %13u, %64b\\n"
+	},
 	"12345": {
 		"Type": "TRICE16_3",
 		"Strg": "hi %2d, %13u, %64b\\n"
@@ -46,19 +99,15 @@ func TestRefreshIDListSingle(t *testing.T) {
 func TestRefreshIDListSingle2(t *testing.T) {
 	text := `
 	TRICE16_3( Id(12345), "hi %2d, %13u, %64b\n",1,2,3 );	
-	TRICE16_3( Id(  123), "ho %2d, %13u, %64b\n",1,2,3 );	
+	trice16_3( Id(12345), "hi %2d, %13u, %64b\n",1,2,3 );	
 `
 	expText := `
 	TRICE16_3( Id(12345), "hi %2d, %13u, %64b\n",1,2,3 );	
-	TRICE16_3( Id(  123), "ho %2d, %13u, %64b\n",1,2,3 );	
+	trice16_3( Id(12345), "hi %2d, %13u, %64b\n",1,2,3 );	
 `
 	expJSON := `{
-	"123": {
-		"Type": "TRICE16_3",
-		"Strg": "ho %2d, %13u, %64b\\n"
-	},
 	"12345": {
-		"Type": "TRICE16_3",
+		"Type": "trice16_3",
 		"Strg": "hi %2d, %13u, %64b\\n"
 	}
 }`
@@ -72,30 +121,6 @@ func TestRefreshIDListSingle2(t *testing.T) {
 	tst.Equal(t, expJSON, string(b))
 }
 
-// to do: improve parser that this works
-func _TestInsertOnlyID(t *testing.T) {
-	text := `
-	TRICE8_8( "hi %2d, %13u, %64b, %8x %02d, %013u, %032b, %016x",1,2,3,4,5,6,7,8 );
-`
-	exp := `
-	TRICE8_8( Id(0), "hi %2d, %13u, %64b, %8x %02d, %013u, %032b, %016x",1,2,3,4,5,6,7,8 );
-`
-	act := updateParamCount(text)
-	tst.Equal(t, exp, act)
-}
-
-// to do: improve parser that this works
-func _TestInsertOnlyID2(t *testing.T) {
-	text := `
-	TRICE8_3( "hi %2d, %13u, %64b, %8x %02d, %013u, %032b, %016x",1,2,3,4,5,6,7,8 ); // do not change wrong count!
-`
-	exp := `
-	TRICE8_3( Id(0), "hi %2d, %13u, %64b, %8x %02d, %013u, %032b, %016x",1,2,3,4,5,6,7,8 );  // do not change wrong count!
-`
-	act := updateParamCount(text)
-	tst.Equal(t, exp, act)
-}
-
 func TestInsertParamCountAndIDSingle(t *testing.T) {
 	text := `
 	TRICE8( "hi %2d, %13u, %64b, %8x %02d, %013u, %032b, %016x",1,2,3,4,5,6,7,8 );
@@ -103,7 +128,7 @@ func TestInsertParamCountAndIDSingle(t *testing.T) {
 	exp := `
 	TRICE8_8( Id(0), "hi %2d, %13u, %64b, %8x %02d, %013u, %032b, %016x",1,2,3,4,5,6,7,8 );
 `
-	act := updateParamCount(text)
+	act := updateParamCountLegacy(text)
 	tst.Equal(t, exp, act)
 }
 
@@ -115,7 +140,7 @@ func TestDoNotCorrectWrongParamCountSingle(t *testing.T) {
 	exp := `
 	TRICE8_2( Id(0), "hi %2d, %13u, %64b, %8x %02d, %013u, %032b, %016x",1,2,3,4,5,6,7,8 );
 `
-	act := updateParamCount(text)
+	act := updateParamCountLegacy(text)
 	tst.Equal(t, exp, act)
 }
 
@@ -196,7 +221,7 @@ func TestInsertParamCountAndIDAll(t *testing.T) {
 	trice64_1( Id(0), "hi %d", 5);
 	trice64_2( Id(0), "hi %d, %u", 5, h);
 	`
-	act := updateParamCount(text)
+	act := updateParamCountLegacy(text)
 	tst.Equal(t, exp, act)
 }
 

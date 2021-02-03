@@ -35,8 +35,11 @@ const (
 	// patFmtString is a regex matching the first format string inside trice
 	patFmtString = `"(.*)"`
 
-	// patFullTriceWithoutID is a regex find a TRICE* line without Id, The (?U) says non-greedy
+	// patFullTriceWithoutID is a regex find a TRICE* line without Id, The (?U) says non-greedy.
 	patFullTriceWithoutID = `(?U)(\bTRICE64|TRICE32|TRICE16|TRICE8|TRICE0|TRICE_S|trice64|trice32|trice16|trice8|trice0|trice_s\b)\s*\(\s*".*"\s*.*\)`
+
+	// patFullTrice is a regex find a TRICE*. The (?U) says non-greedy. https://regex101.com/r/EMhhb1/1
+	patFullTrice = `\b(?:trice|TRICE)(?:0|8_[1-8]|16_[1-4]|32_[1-4]|64_[1-2]|_[sS])\b\(` // WIP !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 	// patTriceStartWithoutIDo is a regex
 	patTriceStartWithoutIDo = `(\bTRICE64|TRICE32|TRICE16|TRICE8|TRICE0|TRICE_S|trice64|trice32|trice16|trice8|trice0|trice_s\b)\s*\(`
@@ -58,7 +61,104 @@ var (
 	matchTriceStartWithoutIDo = regexp.MustCompile(patTriceStartWithoutIDo)
 	matchTriceStartWithoutID  = regexp.MustCompile(patTriceStartWithoutID)
 	matchNextFormatSpezifier  = regexp.MustCompile(patNextFormatSpezifier)
+	matchFullTrice            = regexp.MustCompile(patFullTrice)
 )
+
+// updateParamCountAndID0 stays in each file as long TRICE* statements are found.
+// If a TRICE* is found it is getting an Id(0) inserted and it is also extended by _n
+// according to the format specifier count inside the formatstring. Both only if not alreay existent.
+//
+// text is the full filecontents, which could be modified, therefore it is also returned
+func updateParamCountAndID0(text string) string {
+	subs := text[:] // create a copy of text and assign it to subs
+	for {
+		loc := matchFullTriceWithoutID.FindStringIndex(subs) // find the next TRICE location in file
+		if nil == loc {
+			return text // done
+		}
+		trice := subs[loc[0]:loc[1]]                                  // the whole TRICE*(*);
+		triceO := matchTriceStartWithoutIDo.FindString(trice)         // TRICE*( part (the trice start)
+		triceS := matchTriceStartWithoutID.FindString(trice)          // TRICE* part (the trice start)
+		triceN := strings.Replace(trice, triceO, triceO+" Id(0),", 1) // insert Id(0)
+
+		// count % format spezifier inside formatstring
+		p := triceN
+		var n int
+		xs := "any"
+		for "" != xs {
+			lo := matchNextFormatSpezifier.FindStringIndex(p)
+			xs = matchNextFormatSpezifier.FindString(p)
+			if "" != xs { // found
+				n++
+				p = p[lo[1]:]
+			} else {
+				xs = ""
+			}
+		}
+		if n > 0 { // patch
+			newName := fmt.Sprintf(triceS+"_%d", n)              // TRICE*_n
+			triceN = strings.Replace(triceN, triceS, newName, 1) // insert _n
+		} else {
+			// to do: handle special case 0==n
+		}
+
+		if Verbose {
+			fmt.Println(trice)
+			fmt.Println("->")
+			fmt.Println(triceN)
+		}
+		text = strings.Replace(text, trice, triceN, 1) // modify s
+		subs = subs[loc[1]:]                           // The replacement makes s not shorter, so next search can start at loc[1]
+	}
+}
+
+// updateParamCountLegacy stays in each file as long TRICE* statements without ID() are found.
+// If a TRICE* is found it is getting an Id(0) inserted and it is also extended by _n
+// according to the format specifier count inside the formatstring
+//
+// text is the full filecontents, which could be modified, therefore it is also returned
+func updateParamCountLegacy(text string) string {
+	subs := text[:] // create a copy of text and assign it to subs
+	for {
+		loc := matchFullTriceWithoutID.FindStringIndex(subs) // find the next TRICE location in file
+		if nil == loc {
+			return text // done
+		}
+		trice := subs[loc[0]:loc[1]]                                  // the whole TRICE*(*);
+		triceO := matchTriceStartWithoutIDo.FindString(trice)         // TRICE*( part (the trice start)
+		triceS := matchTriceStartWithoutID.FindString(trice)          // TRICE* part (the trice start)
+		triceN := strings.Replace(trice, triceO, triceO+" Id(0),", 1) // insert Id(0)
+
+		// count % format spezifier inside formatstring
+		p := triceN
+		var n int
+		xs := "any"
+		for "" != xs {
+			lo := matchNextFormatSpezifier.FindStringIndex(p)
+			xs = matchNextFormatSpezifier.FindString(p)
+			if "" != xs { // found
+				n++
+				p = p[lo[1]:]
+			} else {
+				xs = ""
+			}
+		}
+		if n > 0 { // patch
+			newName := fmt.Sprintf(triceS+"_%d", n)              // TRICE*_n
+			triceN = strings.Replace(triceN, triceS, newName, 1) // insert _n
+		} else {
+			// to do: handle special case 0==n
+		}
+
+		if Verbose {
+			fmt.Println(trice)
+			fmt.Println("->")
+			fmt.Println(triceN)
+		}
+		text = strings.Replace(text, trice, triceN, 1) // modify s
+		subs = subs[loc[1]:]                           // The replacement makes s not shorter, so next search can start at loc[1]
+	}
+}
 
 func isSourceFile(fi os.FileInfo) bool {
 	return matchSourceFile.MatchString(fi.Name())
@@ -148,7 +248,7 @@ func visitUpdate(lu TriceIDLookUp, tflu TriceFmtLookUp, pListModified *bool) fil
 			return err
 		}
 		text := string(read)
-		textN := updateParamCount(text)                                        // update parameter count: TRICE* to TRICE*_n
+		textN := updateParamCountLegacy(text)                                  // update parameter count: TRICE* to TRICE*_n
 		textU, fileModified := updateIDsShared(textN, lu, tflu, pListModified) // update IDs: Id(0) -> Id(M)
 
 		// write out
@@ -324,54 +424,6 @@ func updateIDsShared(text string, lu TriceIDLookUp, tflu TriceFmtLookUp, pListMo
 		// update map: That is needed after an invalid trice or if id:tf is valid but not inside lu & tflu yet, for example after manual code changes or forgotten refresh before update.
 		lu[id] = tf
 		tflu[tfS] = id // no distiction for lower and upper case Type
-	}
-}
-
-// updateParamCount stays in each file as long TRICE* statements without ID() are found.
-// If a TRICE* is found it is getting an Id(0) inserted and it is also extended by _n
-// according to the format specifier count inside the formatstring
-//
-// text is the full filecontents, which could be modified, therefore it is also returned
-func updateParamCount(text string) string {
-	subs := text[:] // create a copy of text and assign it to subs
-	for {
-		loc := matchFullTriceWithoutID.FindStringIndex(subs) // find the next TRICE location in file
-		if nil == loc {
-			return text // done
-		}
-		trice := subs[loc[0]:loc[1]]                                  // the whole TRICE*(*);
-		triceO := matchTriceStartWithoutIDo.FindString(trice)         // TRICE*( part (the trice start)
-		triceS := matchTriceStartWithoutID.FindString(trice)          // TRICE* part (the trice start)
-		triceN := strings.Replace(trice, triceO, triceO+" Id(0),", 1) // insert Id(0)
-
-		// count % format spezifier inside formatstring
-		p := triceN
-		var n int
-		xs := "any"
-		for "" != xs {
-			lo := matchNextFormatSpezifier.FindStringIndex(p)
-			xs = matchNextFormatSpezifier.FindString(p)
-			if "" != xs { // found
-				n++
-				p = p[lo[1]:]
-			} else {
-				xs = ""
-			}
-		}
-		if n > 0 { // patch
-			newName := fmt.Sprintf(triceS+"_%d", n)              // TRICE*_n
-			triceN = strings.Replace(triceN, triceS, newName, 1) // insert _n
-		} else {
-			// to do: handle special case 0==n
-		}
-
-		if Verbose {
-			fmt.Println(trice)
-			fmt.Println("->")
-			fmt.Println(triceN)
-		}
-		text = strings.Replace(text, trice, triceN, 1) // modify s
-		subs = subs[loc[1]:]                           // The replacement makes s not shorter, so next search can start at loc[1]
 	}
 }
 
