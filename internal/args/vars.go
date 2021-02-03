@@ -34,6 +34,9 @@ var (
 	// fsScRefresh is flag set for sub command 'refresh' for updating ID list without touching the sources.
 	fsScRefresh *flag.FlagSet
 
+	// fsScReNew is flag set for sub command 'renew' for re-newing ID list without touching the sources.
+	fsScReNew *flag.FlagSet
+
 	// fsScUpdate is flag set for sub command 'update' for updating ID list.
 	fsScUpdate *flag.FlagSet
 
@@ -66,6 +69,7 @@ var (
 	helpHelp          bool // flag for partial help
 	logHelp           bool // flag for partial help
 	refreshHelp       bool // flag for partial help
+	renewHelp         bool // flag for partial help
 	scanHelp          bool // flag for partial help
 	shutdownHelp      bool // flag for partial help
 	updateHelp        bool // flag for partial help

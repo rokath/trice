@@ -126,6 +126,11 @@ func init() {
 }
 
 func init() {
+	fsScReNew = flag.NewFlagSet("renew", flag.ExitOnError) // subcommand
+	flagsRefreshAndUpdate(fsScReNew)
+}
+
+func init() {
 	fsScUpdate = flag.NewFlagSet("update", flag.ExitOnError) // subcommand
 	flagsRefreshAndUpdate(fsScUpdate)
 	fsScUpdate.Var(&id.Min, "IDMin", "Smallest allowed trice ID. (Lower end of ID range).") // to do: this is no multi-flag.

@@ -68,6 +68,14 @@ func separatedIDsUpdate(root string, lu TriceIDLookUp, tflu TriceFmtLookUp, pLis
 	// to do
 }
 
+func refreshList(root string, lu TriceIDLookUp, tflu TriceFmtLookUp) {
+	if Verbose {
+		fmt.Println("dir=", root)
+		fmt.Println("List=", FnJSON)
+	}
+	msg.FatalInfoOnErr(filepath.Walk(root, visitRefresh(lu, tflu)), "failed to walk tree")
+}
+
 // Additional actions needed: (Option -dry-run lets do a check in advance.)
 // - Insert in all TRICE messages without ID an `Id(0),`
 // - Check if all TRICE messages have correct parameter count and adapt the count without touching the Id(n),
@@ -92,6 +100,24 @@ func sharedIDsUpdate(root string, lu TriceIDLookUp, tflu TriceFmtLookUp, pListMo
 		fmt.Println("List=", FnJSON)
 	}
 	msg.FatalInfoOnErr(filepath.Walk(root, visitUpdate(lu, tflu, pListModified)), "failed to walk tree")
+}
+
+func visitRefresh(lu TriceIDLookUp, tflu TriceFmtLookUp) filepath.WalkFunc {
+	return func(path string, fi os.FileInfo, err error) error {
+		if err != nil || fi.IsDir() || !isSourceFile(fi) {
+			return err // forward any error and do nothing
+		}
+		if Verbose {
+			fmt.Println(path)
+		}
+		read, err := ioutil.ReadFile(path)
+		if nil != err {
+			return err
+		}
+		text := string(read)
+		refreshIDs(text, lu, tflu) // update IDs: Id(0) -> Id(M)
+		return nil
+	}
 }
 
 func visitUpdate(lu TriceIDLookUp, tflu TriceFmtLookUp, pListModified *bool) filepath.WalkFunc {
@@ -192,6 +218,46 @@ func triceParse(t string) (nbID string, id TriceID, tf TriceFmt, ok bool) {
 	return
 }
 
+// refreshIDs parses text for valid trices tf and adds them to lu & tflu.
+func refreshIDs(text string, lu TriceIDLookUp, tflu TriceFmtLookUp) {
+	subs := text[:] // create a copy of text and assign it to subs
+	for {
+		loc := matchNbTRICE.FindStringIndex(subs) // find the next TRICE location in file
+		if nil == loc {
+			return // done
+		}
+		nbTRICE := subs[loc[0]:loc[1]] // full trice expression with Id(n)
+		// prepare subs for next loop
+		subs = subs[loc[1]:] // A possible Id(0) replacement makes subs not shorter, so next search can start at loc[1].
+		// A case like 'TRICE*( Id(                             0                              ), "");' is not expected.
+
+		_, id, tf, ok := triceParse(nbTRICE)
+		if !ok {
+			continue
+		}
+		tfS := tf
+		tfS.Type = strings.ToUpper(tfS.Type) // Lower case and upper case Type are not distinguished.
+
+		// In lu id could point to a different tf. So we need to check that and invalidate id in that case.
+		// - That typically happens after tf was changed in source but the id not.
+		// - Also the source file with id:tf could be added from a different project and refresh could not add it to lu because id is used differently.
+		// Without this check double used IDs are silently loose one of their usages, what is ok, but this way we get a warning.
+		if 0 != id {
+			if tfL, ok := lu[id]; ok { // found
+				tfL.Type = strings.ToUpper(tfL.Type)
+				if !reflect.DeepEqual(tfS, tfL) { // Lower case and upper case Type are not distinguished.
+					fmt.Println("Id", id, "already used differently, ignoring it.")
+					id = -id // mark as invalid
+				}
+			}
+		}
+		if id > 0 {
+			lu[id] = tf
+			tflu[tfS] = id // no distiction for lower and upper case Type
+		}
+	}
+}
+
 // updateIDsShared parses text for new or invalid trices tf and gives them the legacy id if tf is already in lu & tflu.
 // An invalid trice is a trice without Id(n) or with Id(0) or which changed somehow. Exampes: 'TRICE0( Id(12) ,"foo");' was changed to 'TRICE0( Id(12) ,"bar");'
 // If 'TRICE0( Id(99) ,"bar");' is in lu & tflu the invalid trice changes to 'TRICE0( Id(99) ,"bar");'. Otherwise instead of 99 a so far unused id is taken.
@@ -233,7 +299,7 @@ func updateIDsShared(text string, lu TriceIDLookUp, tflu TriceFmtLookUp, pListMo
 				}
 			}
 		}
-		if id <= 0 { // invalid
+		if id <= 0 { // invalid: id is 0 or inside lu used differently
 			invalID := nbID
 			invalTRICE := nbTRICE
 			// It is possible tf is already in tflu (and lu) here, so check it.

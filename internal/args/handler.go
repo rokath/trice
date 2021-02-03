@@ -65,6 +65,10 @@ func Handler(args []string) error {
 		msg.OnErr(fsScVersion.Parse(subArgs))
 		distributeArgs()
 		return scVersion()
+	case "renew":
+		msg.OnErr(fsScReNew.Parse(subArgs))
+		distributeArgs()
+		return id.SubCmdReNewList()
 	case "r", "refresh":
 		msg.OnErr(fsScRefresh.Parse(subArgs))
 		distributeArgs()
@@ -108,6 +112,7 @@ func scHelp() error {
 		helpHelp ||
 		logHelp ||
 		refreshHelp ||
+		renewHelp ||
 		scanHelp ||
 		shutdownHelp ||
 		updateHelp ||
@@ -157,6 +162,13 @@ func scHelp() error {
 	IDs used in the added sources with the result that IDs in the added sources could get changed what you may not want.
 	Using "trice u -IDMethod random" (default) makes the chance for such conflicts very low.
 	The "refresh" subcommand has no mantadory switches. Omitted optional switches are used with their default parameters.`)
+		fsScRefresh.SetOutput(os.Stdout)
+		fsScRefresh.PrintDefaults()
+		fmt.Println("example: 'trice refresh': Update ID list from source tree.")
+	}
+
+	if allHelp || renewHelp {
+		fmt.Println(`subcommand 'renew': It is like refresh, but til.json is cleared first, so all 'old' trices are removed. Use with care.`)
 		fsScRefresh.SetOutput(os.Stdout)
 		fsScRefresh.PrintDefaults()
 		fmt.Println("example: 'trice refresh': Update ID list from source tree.")
