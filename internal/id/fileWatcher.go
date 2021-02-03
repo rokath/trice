@@ -32,7 +32,7 @@ func (lu TriceIDLookUp) FileWatcher() {
 				now = time.Now()
 				diff := now.Sub(last)
 				if diff > 5000*time.Millisecond {
-					fmt.Println("renew id.List")
+					fmt.Println("refreshing id.List")
 					lu.fromFile(FnJSON)
 					last = time.Now()
 				}

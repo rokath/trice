@@ -39,7 +39,6 @@ func Handler(args []string) error {
 	// Verify that a subcommand has been provided: os.Arg[0] is the main command (trice), os.Arg[1] will be the subcommand.
 	if len(os.Args) < 2 {
 		m := "no args, try: 'trice help'"
-		fmt.Println(m)
 		return errors.New(m)
 	}
 
@@ -66,7 +65,7 @@ func Handler(args []string) error {
 		distributeArgs()
 		return scVersion()
 	case "renew":
-		msg.OnErr(fsScReNew.Parse(subArgs))
+		msg.OnErr(fsScRenew.Parse(subArgs))
 		distributeArgs()
 		return id.SubCmdReNewList()
 	case "r", "refresh":
@@ -169,9 +168,9 @@ func scHelp() error {
 
 	if allHelp || renewHelp {
 		fmt.Println(`subcommand 'renew': It is like refresh, but til.json is cleared first, so all 'old' trices are removed. Use with care.`)
-		fsScRefresh.SetOutput(os.Stdout)
-		fsScRefresh.PrintDefaults()
-		fmt.Println("example: 'trice refresh': Update ID list from source tree.")
+		fsScRenew.SetOutput(os.Stdout)
+		fsScRenew.PrintDefaults()
+		fmt.Println("example: 'trice renew': Rebuild ID list from source tree, discard old IDs.")
 	}
 
 	if allHelp || scanHelp {

@@ -39,6 +39,7 @@ func init() {
 	fsScHelp.BoolVar(&logHelp, "l", false, "Show l|log specific help.")
 	fsScHelp.BoolVar(&refreshHelp, "refresh", false, "Show r|refresh specific help.")
 	fsScHelp.BoolVar(&refreshHelp, "r", false, "Show r|refresh specific help.")
+	fsScHelp.BoolVar(&renewHelp, "renew", false, "Show renew specific help.")
 	fsScHelp.BoolVar(&scanHelp, "scan", false, "Show s|scan specific help.")
 	fsScHelp.BoolVar(&scanHelp, "s", false, "Show s|scan specific help.")
 	fsScHelp.BoolVar(&shutdownHelp, "shutdown", false, "Show sd|shutdown specific help.")
@@ -126,8 +127,8 @@ func init() {
 }
 
 func init() {
-	fsScReNew = flag.NewFlagSet("renew", flag.ExitOnError) // subcommand
-	flagsRefreshAndUpdate(fsScReNew)
+	fsScRenew = flag.NewFlagSet("renew", flag.ExitOnError) // subcommand
+	flagsRefreshAndUpdate(fsScRenew)
 }
 
 func init() {
