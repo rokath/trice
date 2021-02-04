@@ -17,8 +17,6 @@ import (
 	"github.com/rokath/trice/pkg/msg"
 )
 
-// todo: remove static values from parameter lists (Verbose)
-
 const (
 	// patSourceFile is a regex pattern matching any source file for patching
 	patSourceFile = "(\\.c|\\.h|\\.cc|\\.cpp|\\.hpp)$"
@@ -35,24 +33,9 @@ const (
 	// patFmtString is a regex matching the first format string inside trice
 	patFmtString = `"(.*)"`
 
-	// patFullTriceWithoutID is a regex find a TRICE* line without Id, The (?U) says non-greedy.
-	patFullTriceWithoutID = `(?U)(\bTRICE64|TRICE32|TRICE16|TRICE8|TRICE0|TRICE_S|trice64|trice32|trice16|trice8|trice0|trice_s\b)\s*\(\s*".*"\s*.*\)`
-
-	// patFullTriceBegin is a regex find next any `TRICE*(` including the `(`. The (?U) says non-greedy. https://regex101.com/r/VdCTKd/1
-	patFullTriceBegin = `\b(?:trice|TRICE)(?:0|8_[1-8]|16_[1-4]|32_[1-4]|64_[1-2]|_[sS])(\b|\s*)\(`
-
-	// patTriceStartWithoutIDo is a regex
-	patTriceStartWithoutIDo = `(\bTRICE64|TRICE32|TRICE16|TRICE8|TRICE0|TRICE_S|trice64|trice32|trice16|trice8|trice0|trice_s\b)\s*\(`
-
-	// patTriceStartWithoutID is a regex
-	patTriceStartWithoutID = `(\bTRICE64|TRICE32|TRICE16|TRICE8|TRICE0|TRICE_S|trice64|trice32|trice16|trice8|trice0|trice_s\b)\s*`
-
 	// patNextFormatSpezifier is a regex find next format specifier in a string (exclude %%*)
 	patNextFormatSpezifier = `(?:^|[^%])(%[0-9\.#]*(b|d|u|x|X|o|f))`
 
-	// we do not look for a trailing semi-colon for the option of in-macro usability
-
-	// 1st step: find next trice
 	// https://regex101.com/r/hWMjhU/3 - match any kind of trice with or without len or ID
 	patFullAnyTrice = `(?U)\b(TRICE_S|trice_s|(TRICE|trice)(0|8|16|32|64)(_[1-8])?)\s*\(\s*(Id\s*\((\s*\d+)\s*\)\s*,)?\s*".*"\s*.*\)`
 
@@ -64,29 +47,19 @@ const (
 
 	// patAnyTriceStart finds a starting trice with opening '(': https://regex101.com/r/wPuT4M/1
 	patAnyTriceStart = `(\b(trice|TRICE)(|0|8|16|32|64)_*(s|S|[1-8])*\b)\s*\(`
-
-	// patFullTriceNoLenNoID finds next full TRICE* without len and without Id(n), The (?U) says non-greedy, https://regex101.com/r/uusTpS/1
-	patFullTriceNoLenWithoutID = `(?U)((\b(trice|TRICE)(8|16|32|64)|(TRICE_S|trice_s))\b)\s*\(\s*".*"\s*.*\)`
-	// patFullTriceWithLenWithID: https://regex101.com/r/8S4f4k/1
-	patFullTriceWithLenWithID = `\b((TRICE|trice)(0|(8|16|32|64)_[1-8])|(TRICE_S|trice_s))\b\s*\(\s*\bId\b\s*\(\s*.*[0-9]\s*\)\s*,\s*".*"\s*.*\)`
 )
 
 var (
-	matchSourceFile           = regexp.MustCompile(patSourceFile)
-	matchNbTRICE              = regexp.MustCompile(patNbTRICE)
-	matchNbID                 = regexp.MustCompile(patNbID)
-	matchTypNameTRICE         = regexp.MustCompile(patTypNameTRICE)
-	matchFmtString            = regexp.MustCompile(patFmtString)
-	matchFullTriceWithoutID   = regexp.MustCompile(patFullTriceWithoutID)
-	matchTriceStartWithoutIDo = regexp.MustCompile(patTriceStartWithoutIDo)
-	matchTriceStartWithoutID  = regexp.MustCompile(patTriceStartWithoutID)
-	matchNextFormatSpezifier  = regexp.MustCompile(patNextFormatSpezifier)
-	matchFullTrice            = regexp.MustCompile(patFullTriceBegin)
-
-	matchFullAnyTrice  = regexp.MustCompile(patFullAnyTrice)
-	matchTriceNoLen    = regexp.MustCompile(patTriceNoLen)
-	matchIDInsideTrice = regexp.MustCompile(patIDInsideTrice)
-	matchAnyTriceStart = regexp.MustCompile(patAnyTriceStart)
+	matchSourceFile          = regexp.MustCompile(patSourceFile)
+	matchNbTRICE             = regexp.MustCompile(patNbTRICE)
+	matchNbID                = regexp.MustCompile(patNbID)
+	matchTypNameTRICE        = regexp.MustCompile(patTypNameTRICE)
+	matchFmtString           = regexp.MustCompile(patFmtString)
+	matchNextFormatSpezifier = regexp.MustCompile(patNextFormatSpezifier)
+	matchFullAnyTrice        = regexp.MustCompile(patFullAnyTrice)
+	matchTriceNoLen          = regexp.MustCompile(patTriceNoLen)
+	matchIDInsideTrice       = regexp.MustCompile(patIDInsideTrice)
+	matchAnyTriceStart       = regexp.MustCompile(patAnyTriceStart)
 )
 
 // updateParamCountAndID0 stays in each file as long TRICE* statements are found.
@@ -148,55 +121,6 @@ func updateParamCountAndID0(text string) string {
 	}
 }
 
-/*
-// updateParamCountLegacy stays in each file as long TRICE* statements without ID() are found.
-// If a TRICE* is found it is getting an Id(0) inserted and it is also extended by _n
-// according to the format specifier count inside the formatstring
-//
-// text is the full filecontents, which could be modified, therefore it is also returned
-func updateParamCountLegacy(text string) string {
-	subs := text[:] // create a copy of text and assign it to subs
-	for {
-		loc := matchFullTriceWithoutID.FindStringIndex(subs) // find the next TRICE location in file
-		if nil == loc {
-			return text // done
-		}
-		trice := subs[loc[0]:loc[1]]                                  // the whole TRICE*(*);
-		triceO := matchTriceStartWithoutIDo.FindString(trice)         // TRICE*( part (the trice start)
-		triceS := matchTriceStartWithoutID.FindString(trice)          // TRICE* part (the trice start)
-		triceN := strings.Replace(trice, triceO, triceO+" Id(0),", 1) // insert Id(0)
-
-		// count % format spezifier inside formatstring
-		p := triceN
-		var n int
-		xs := "any"
-		for "" != xs {
-			lo := matchNextFormatSpezifier.FindStringIndex(p)
-			xs = matchNextFormatSpezifier.FindString(p)
-			if "" != xs { // found
-				n++
-				p = p[lo[1]:]
-			} else {
-				xs = ""
-			}
-		}
-		if n > 0 { // patch
-			newName := fmt.Sprintf(triceS+"_%d", n)              // TRICE*_n
-			triceN = strings.Replace(triceN, triceS, newName, 1) // insert _n
-		} else {
-			// to do: handle special case 0==n
-		}
-
-		if Verbose {
-			fmt.Println(trice)
-			fmt.Println("->")
-			fmt.Println(triceN)
-		}
-		text = strings.Replace(text, trice, triceN, 1) // modify s
-		subs = subs[loc[1]:]                           // The replacement makes s not shorter, so next search can start at loc[1]
-	}
-}
-*/
 func isSourceFile(fi os.FileInfo) bool {
 	return matchSourceFile.MatchString(fi.Name())
 }

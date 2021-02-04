@@ -17,53 +17,28 @@ type idCheck struct {
 	tf      TriceFmt
 }
 
-// to do: improve parser that this works
-func TestInsertOnlyID0(t *testing.T) {
+func TestOptionallyExtendLenAndInsertID0(t *testing.T) {
 	text := `
 	TRICE0( "hi" );
+	TRICE8( "hi %d", 5);
+	_TRICE8( "hi %d", 5); // to not touch
+	TRICE8( Id(0), "hi %2d, %13u, %64b, %8x %02d, %013u, %032b, %016x",1,2,3,4,5,6,7,8 );
+	TRICE8( "hi %2d, %13u, %64b, %8x %02d, %013u, %032b, %016x",1,2,3,4,5,6,7,8 );
+	TRICE8_3( "hi %2d, %13u, %64b, %8x %02d, %013u, %032b, %016x",1,2,3,4,5,6,7,8 ); // do not change wrong count
+	trice_s  ( "%s\n", rts )
+	trice_s  ( "%s\n", "rts" );
 `
 	exp := `
 	TRICE0( Id(0), "hi" );
-`
-	//act := updateParamCountLegacy(text)
-	act := updateParamCountAndID0(text)
-	tst.Equal(t, exp, act)
-}
-
-// to do: improve parser that this works
-func TestInsertOnlyID1(t *testing.T) {
-	text := `
-	TRICE8( "hi %d", 5);
-`
-	exp := `
 	TRICE8_1( Id(0), "hi %d", 5);
-`
-	//act := updateParamCountLegacy(text)
-	act := updateParamCountAndID0(text)
-	tst.Equal(t, exp, act)
-}
-
-// to do: improve parser that this works
-func TestInsertOnlyID(t *testing.T) {
-	text := `
-	TRICE8( "hi %2d, %13u, %64b, %8x %02d, %013u, %032b, %016x",1,2,3,4,5,6,7,8 );
-`
-	exp := `
+	_TRICE8( "hi %d", 5); // to not touch
 	TRICE8_8( Id(0), "hi %2d, %13u, %64b, %8x %02d, %013u, %032b, %016x",1,2,3,4,5,6,7,8 );
+	TRICE8_8( Id(0), "hi %2d, %13u, %64b, %8x %02d, %013u, %032b, %016x",1,2,3,4,5,6,7,8 );
+	TRICE8_3( Id(0), "hi %2d, %13u, %64b, %8x %02d, %013u, %032b, %016x",1,2,3,4,5,6,7,8 ); // do not change wrong count
+	trice_s  ( Id(0), "%s\n", rts )
+	trice_s  ( Id(0), "%s\n", "rts" );
 `
-	//act := updateParamCountLegacy(text)
-	act := updateParamCountAndID0(text)
-	tst.Equal(t, exp, act)
-}
 
-// to do: improve parser that this works
-func TestInsertOnlyID2(t *testing.T) {
-	text := `
-	TRICE8_3( "hi %2d, %13u, %64b, %8x %02d, %013u, %032b, %016x",1,2,3,4,5,6,7,8 ); // do not change wrong count!
-`
-	exp := `
-	TRICE8_3( Id(0), "hi %2d, %13u, %64b, %8x %02d, %013u, %032b, %016x",1,2,3,4,5,6,7,8 ); // do not change wrong count!
-`
 	act := updateParamCountAndID0(text)
 	tst.Equal(t, exp, act)
 }
