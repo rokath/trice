@@ -39,7 +39,7 @@ func TestOptionallyExtendLenAndInsertID0(t *testing.T) {
 	trice_s  ( Id(0), "%s\n", "rts" );
 `
 
-	act := updateParamCountAndID0(text)
+	act, _ := updateParamCountAndID0(text)
 	tst.Equal(t, exp, act)
 }
 
@@ -130,7 +130,7 @@ func TestInsertParamCountAndIDSingle(t *testing.T) {
 	exp := `
 	TRICE8_8( Id(0), "hi %2d, %13u, %64b, %8x %02d, %013u, %032b, %016x",1,2,3,4,5,6,7,8 );
 `
-	act := updateParamCountAndID0(text)
+	act, _ := updateParamCountAndID0(text)
 	tst.Equal(t, exp, act)
 }
 
@@ -142,7 +142,7 @@ func TestDoNotCorrectWrongParamCountSingle(t *testing.T) {
 	exp := `
 	TRICE8_2( Id(0), "hi %2d, %13u, %64b, %8x %02d, %013u, %032b, %016x",1,2,3,4,5,6,7,8 );
 `
-	act := updateParamCountAndID0(text)
+	act, _ := updateParamCountAndID0(text)
 	tst.Equal(t, exp, act)
 }
 
@@ -223,7 +223,7 @@ func TestInsertParamCountAndIDAll(t *testing.T) {
 	trice64_1( Id(0), "hi %d", 5);
 	trice64_2( Id(0), "hi %d, %u", 5, h);
 	`
-	act := updateParamCountAndID0(text)
+	act, _ := updateParamCountAndID0(text)
 	tst.Equal(t, exp, act)
 }
 

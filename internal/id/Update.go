@@ -65,14 +65,17 @@ var (
 // updateParamCountAndID0 stays in each file as long TRICE* statements are found.
 // If a TRICE* is found it is getting an Id(0) inserted and it is also extended by _n
 // according to the format specifier count inside the formatstring. Both only if not alreay existent.
+// A not with the format specifier count matching _n is intentionally not corrected.
+// To do: Warning in that case. About a not matching parameter count the compiler will complain.
 //
-// text is the full filecontents, which could be modified, therefore it is also returned
-func updateParamCountAndID0(text string) string {
+// text is the full filecontents, which could be modified, therefore it is also returned with a modified flag
+func updateParamCountAndID0(text string) (string, bool) {
+	var modified bool
 	subs := text[:] // create a copy of text and assign it to subs
 	for {
 		loc := matchFullAnyTrice.FindStringIndex(subs) // find the next TRICE location in file
 		if nil == loc {
-			return text // done
+			return text, modified // done
 		}
 		trice := subs[loc[0]:loc[1]]                       // the whole TRICE*(*);
 		triceC := trice                                    // make a copy
@@ -80,7 +83,6 @@ func updateParamCountAndID0(text string) string {
 		if nil != locNoLen {                               // need to add len to trice name
 			// count % format spezifier inside formatstring
 			triceNameNoLen := triceC[locNoLen[0]:locNoLen[1]]
-			fmt.Println("locNoLen=", triceNameNoLen)
 			var triceNameWithLen string
 			p := triceC
 			var n int
@@ -101,9 +103,10 @@ func updateParamCountAndID0(text string) string {
 			} else {
 				fmt.Println("Parse error: ", n, " % format specifier found inside ", trice)
 			}
+			modified = true
 			if Verbose {
-				fmt.Println(triceNameNoLen)
-				fmt.Println("->")
+				fmt.Print(triceNameNoLen)
+				fmt.Print(" -> ")
 				fmt.Println(triceNameWithLen)
 			}
 		}
@@ -111,10 +114,17 @@ func updateParamCountAndID0(text string) string {
 		// triceC could have been modified here but text is unchanged so far.
 		idLoc := matchIDInsideTrice.FindStringIndex(triceC)
 		if nil == idLoc { // no Id(n) inside trice, so we add it
-			triceO := matchAnyTriceStart.FindString(triceC)               // TRICE*( part (the trice start)
-			triceC = strings.Replace(triceC, triceO, triceO+" Id(0),", 1) // insert Id(0) into trice copy
+			triceO := matchAnyTriceStart.FindString(triceC) // TRICE*( part (the trice start)
+			triceU := triceO + " Id(0),"
+			triceC = strings.Replace(triceC, triceO, triceU, 1) // insert Id(0) into trice copy
+			modified = true
+			if Verbose {
+				fmt.Print(triceO)
+				fmt.Print(" -> ")
+				fmt.Println(triceU)
+			}
 		}
-		if triceC != trice {
+		if modified {
 			text = strings.Replace(text, trice, triceC, 1) // this works, because a trice gets changed only once
 		}
 		subs = subs[loc[1]:] // The replacement makes text not shorter, so next search can start at loc[1]
@@ -209,11 +219,11 @@ func visitUpdate(lu TriceIDLookUp, tflu TriceFmtLookUp, pListModified *bool) fil
 			return err
 		}
 		text := string(read)
-		textN := updateParamCountAndID0(text)
-		//textN := updateParamCountLegacy(text)                                  // update parameter count: TRICE* to TRICE*_n
-		textU, fileModified := updateIDsShared(textN, lu, tflu, pListModified) // update IDs: Id(0) -> Id(M)
+		textN, fileModified0 := updateParamCountAndID0(text)                    // update parameter count: TRICE* to TRICE*_n and insert missing Id(0)
+		textU, fileModified1 := updateIDsShared(textN, lu, tflu, pListModified) // update IDs: Id(0) -> Id(M)
 
 		// write out
+		fileModified := fileModified0 || fileModified1
 		if fileModified && !DryRun {
 			if Verbose {
 				fmt.Println("Changed: ", path)

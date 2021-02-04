@@ -2,16 +2,18 @@
 
 ## ID management internals & hints
 
-- During `trice update` so far unknown IDs are added to the ID list (case new sources added) with a `Created` utc timestamp.
-- If an ID was deleted inside the source tree (or file removal) the appropriate ID's stays inside the ID list but gets a `Removed` utc timestamp.
-- If the same ID appears again the appropriate `Removed` timestamp is deleted inside the ID list and the ID is aktive again.
-- If duplicate ID's with different format strings found inside the source tree (case several developers) the newer ID is replaced by a new ID. The probability for such case is low, because of the random ID generation.
-- If the format string was modified, the ID goes into the `Removed` state and a new ID is generated.
+- The `pack` and `packL` (default) encoding support 20-bit IDs, so over 1 Million IDs possible. The other encodings work with 16-bit IDs.
+- During `trice update` so far unknown IDs are added to the ID list (case new sources added).
+- If an ID was deleted inside the source tree (or file removal) the appropriate ID's stays inside the ID list.
+- If the same ID appears again the appropriate ID is aktive again.
+- If duplicate ID's with different format strings found inside the source tree (case several developers) the one ID is replaced by a new ID. The probability for such case is low, because of the random ID generation. Also it is possible to split the ID space between several developers using `-IDMin` and `-IDMax`.
+- If the format string was modified, the ID stays in the list and a new ID for the changed format string is generated.
 - Keeping obsolete IDs makes it more comfortable during development to deal with different firmware variants at the same time.
 - This way you can simply copy a TRICE* statement and modify it without dealing with the ID. The trice tool will do for you.
 - The ID list should go into the version control repository of your project.
+- Just before check-in the ID list, one could discard ID list changes and run `trice refresh` to get rid of the dayly development garbage.
 - For a firmware release it makes sense to remove all unused IDs (development garbage) from til.json.
-  - This could be done by deleting til.json, getting the legacy til.json from the former firmware release from the source control system and enhance it with the actual release software IDs by simply calling 'trice update'.
+  - This could be done by running `trice refresh`.
 - During `trice update` TRICE macros commented out are treated in the same way as actice TRICE macros. Even after deletion their content stays inside til.json. This is intensionally to get best stability.
 
 
