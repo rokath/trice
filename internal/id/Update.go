@@ -38,8 +38,8 @@ const (
 	// patFullTriceWithoutID is a regex find a TRICE* line without Id, The (?U) says non-greedy.
 	patFullTriceWithoutID = `(?U)(\bTRICE64|TRICE32|TRICE16|TRICE8|TRICE0|TRICE_S|trice64|trice32|trice16|trice8|trice0|trice_s\b)\s*\(\s*".*"\s*.*\)`
 
-	// patFullTrice is a regex find a TRICE*. The (?U) says non-greedy. https://regex101.com/r/EMhhb1/1
-	patFullTrice = `\b(?:trice|TRICE)(?:0|8_[1-8]|16_[1-4]|32_[1-4]|64_[1-2]|_[sS])\b\(` // WIP !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	// patFullTriceBegin is a regex find next any `TRICE*(` including the `(`. The (?U) says non-greedy. https://regex101.com/r/VdCTKd/1
+	patFullTriceBegin = `\b(?:trice|TRICE)(?:0|8_[1-8]|16_[1-4]|32_[1-4]|64_[1-2]|_[sS])(\b|\s*)\(`
 
 	// patTriceStartWithoutIDo is a regex
 	patTriceStartWithoutIDo = `(\bTRICE64|TRICE32|TRICE16|TRICE8|TRICE0|TRICE_S|trice64|trice32|trice16|trice8|trice0|trice_s\b)\s*\(`
@@ -49,6 +49,26 @@ const (
 
 	// patNextFormatSpezifier is a regex find next format specifier in a string (exclude %%*)
 	patNextFormatSpezifier = `(?:^|[^%])(%[0-9\.#]*(b|d|u|x|X|o|f))`
+
+	// we do not look for a trailing semi-colon for the option of in-macro usability
+
+	// 1st step: find next trice
+	// https://regex101.com/r/hWMjhU/3 - match any kind of trice with or without len or ID
+	patFullAnyTrice = `(?U)\b(TRICE_S|trice_s|(TRICE|trice)(0|8|16|32|64)(_[1-8])?)\s*\(\s*(Id\s*\((\s*\d+)\s*\)\s*,)?\s*".*"\s*.*\)`
+
+	// patTriceNoLen finds next `TRICEn` without length specifier: https://regex101.com/r/oKjjic/1
+	patTriceNoLen = `(\b(trice|TRICE)(8|16|32|64)\b)`
+
+	// patIdInsideTrice finds if an `( Id(n) ,"` sequence exists inside trice
+	patIDInsideTrice = `(?U)\(\s*Id\s*\((\s*\d+)\s*\)\s*,\s*"`
+
+	// patAnyTriceStart finds a starting trice with opening '(': https://regex101.com/r/wPuT4M/1
+	patAnyTriceStart = `(\b(trice|TRICE)(|0|8|16|32|64)_*(s|S|[1-8])*\b)\s*\(`
+
+	// patFullTriceNoLenNoID finds next full TRICE* without len and without Id(n), The (?U) says non-greedy, https://regex101.com/r/uusTpS/1
+	patFullTriceNoLenWithoutID = `(?U)((\b(trice|TRICE)(8|16|32|64)|(TRICE_S|trice_s))\b)\s*\(\s*".*"\s*.*\)`
+	// patFullTriceWithLenWithID: https://regex101.com/r/8S4f4k/1
+	patFullTriceWithLenWithID = `\b((TRICE|trice)(0|(8|16|32|64)_[1-8])|(TRICE_S|trice_s))\b\s*\(\s*\bId\b\s*\(\s*.*[0-9]\s*\)\s*,\s*".*"\s*.*\)`
 )
 
 var (
@@ -61,7 +81,12 @@ var (
 	matchTriceStartWithoutIDo = regexp.MustCompile(patTriceStartWithoutIDo)
 	matchTriceStartWithoutID  = regexp.MustCompile(patTriceStartWithoutID)
 	matchNextFormatSpezifier  = regexp.MustCompile(patNextFormatSpezifier)
-	matchFullTrice            = regexp.MustCompile(patFullTrice)
+	matchFullTrice            = regexp.MustCompile(patFullTriceBegin)
+
+	matchFullAnyTrice  = regexp.MustCompile(patFullAnyTrice)
+	matchTriceNoLen    = regexp.MustCompile(patTriceNoLen)
+	matchIDInsideTrice = regexp.MustCompile(patIDInsideTrice)
+	matchAnyTriceStart = regexp.MustCompile(patAnyTriceStart)
 )
 
 // updateParamCountAndID0 stays in each file as long TRICE* statements are found.
@@ -72,46 +97,58 @@ var (
 func updateParamCountAndID0(text string) string {
 	subs := text[:] // create a copy of text and assign it to subs
 	for {
-		loc := matchFullTriceWithoutID.FindStringIndex(subs) // find the next TRICE location in file
+		loc := matchFullAnyTrice.FindStringIndex(subs) // find the next TRICE location in file
 		if nil == loc {
 			return text // done
 		}
-		trice := subs[loc[0]:loc[1]]                                  // the whole TRICE*(*);
-		triceO := matchTriceStartWithoutIDo.FindString(trice)         // TRICE*( part (the trice start)
-		triceS := matchTriceStartWithoutID.FindString(trice)          // TRICE* part (the trice start)
-		triceN := strings.Replace(trice, triceO, triceO+" Id(0),", 1) // insert Id(0)
-
-		// count % format spezifier inside formatstring
-		p := triceN
-		var n int
-		xs := "any"
-		for "" != xs {
-			lo := matchNextFormatSpezifier.FindStringIndex(p)
-			xs = matchNextFormatSpezifier.FindString(p)
-			if "" != xs { // found
-				n++
-				p = p[lo[1]:]
+		trice := subs[loc[0]:loc[1]]                       // the whole TRICE*(*);
+		triceC := trice                                    // make a copy
+		locNoLen := matchTriceNoLen.FindStringIndex(trice) // find the next TRICE no len location in trice
+		if nil != locNoLen {                               // need to add len to trice name
+			// count % format spezifier inside formatstring
+			triceNameNoLen := triceC[locNoLen[0]:locNoLen[1]]
+			fmt.Println("locNoLen=", triceNameNoLen)
+			var triceNameWithLen string
+			p := triceC
+			var n int
+			xs := "any"
+			for "" != xs {
+				lo := matchNextFormatSpezifier.FindStringIndex(p)
+				xs = matchNextFormatSpezifier.FindString(p)
+				if "" != xs { // found
+					n++
+					p = p[lo[1]:]
+				} else {
+					xs = ""
+				}
+			}
+			if 0 < n && n < 9 { // patch
+				triceNameWithLen = fmt.Sprintf(triceNameNoLen+"_%d", n)               // TRICE*_n
+				triceC = strings.Replace(triceC, triceNameNoLen, triceNameWithLen, 1) // insert _n
 			} else {
-				xs = ""
+				fmt.Println("Parse error: ", n, " % format specifier found inside ", trice)
+			}
+			if Verbose {
+				fmt.Println(triceNameNoLen)
+				fmt.Println("->")
+				fmt.Println(triceNameWithLen)
 			}
 		}
-		if n > 0 { // patch
-			newName := fmt.Sprintf(triceS+"_%d", n)              // TRICE*_n
-			triceN = strings.Replace(triceN, triceS, newName, 1) // insert _n
-		} else {
-			// to do: handle special case 0==n
+		// here trice name in triceC contains _n and now we need to check for Id existence now.
+		// triceC could have been modified here but text is unchanged so far.
+		idLoc := matchIDInsideTrice.FindStringIndex(triceC)
+		if nil == idLoc { // no Id(n) inside trice, so we add it
+			triceO := matchAnyTriceStart.FindString(triceC)               // TRICE*( part (the trice start)
+			triceC = strings.Replace(triceC, triceO, triceO+" Id(0),", 1) // insert Id(0) into trice copy
 		}
-
-		if Verbose {
-			fmt.Println(trice)
-			fmt.Println("->")
-			fmt.Println(triceN)
+		if triceC != trice {
+			text = strings.Replace(text, trice, triceC, 1) // this works, because a trice gets changed only once
 		}
-		text = strings.Replace(text, trice, triceN, 1) // modify s
-		subs = subs[loc[1]:]                           // The replacement makes s not shorter, so next search can start at loc[1]
+		subs = subs[loc[1]:] // The replacement makes text not shorter, so next search can start at loc[1]
 	}
 }
 
+/*
 // updateParamCountLegacy stays in each file as long TRICE* statements without ID() are found.
 // If a TRICE* is found it is getting an Id(0) inserted and it is also extended by _n
 // according to the format specifier count inside the formatstring
@@ -159,7 +196,7 @@ func updateParamCountLegacy(text string) string {
 		subs = subs[loc[1]:]                           // The replacement makes s not shorter, so next search can start at loc[1]
 	}
 }
-
+*/
 func isSourceFile(fi os.FileInfo) bool {
 	return matchSourceFile.MatchString(fi.Name())
 }
@@ -248,7 +285,8 @@ func visitUpdate(lu TriceIDLookUp, tflu TriceFmtLookUp, pListModified *bool) fil
 			return err
 		}
 		text := string(read)
-		textN := updateParamCountLegacy(text)                                  // update parameter count: TRICE* to TRICE*_n
+		textN := updateParamCountAndID0(text)
+		//textN := updateParamCountLegacy(text)                                  // update parameter count: TRICE* to TRICE*_n
 		textU, fileModified := updateIDsShared(textN, lu, tflu, pListModified) // update IDs: Id(0) -> Id(M)
 
 		// write out
