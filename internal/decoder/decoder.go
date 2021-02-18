@@ -12,6 +12,7 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"regexp"
 	"syscall"
 	"time"
 
@@ -25,6 +26,10 @@ const (
 	defaultSize  = 4096
 	littleEndian = true
 	bigEndian    = false
+
+	// patNextFormatSpezifier is a regex to find next format u specifier in a string
+	// It does also match %%u positions! so an additional check must follow.
+	patNextFormatUSpezifier = `(?:%[0-9]*u)`
 )
 
 var (
@@ -36,6 +41,8 @@ var (
 
 	// TestTableMode is a special option for easy decoder test table generation.
 	TestTableMode bool
+
+	matchNextFormatUSpezifier = regexp.MustCompile(patNextFormatUSpezifier)
 )
 
 // newDecoder abstracts the function type for a new decoder.

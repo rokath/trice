@@ -5,7 +5,45 @@ package decoder
 
 import (
 	"testing"
+
+	"github.com/tj/assert"
 )
+
+type uTable struct {
+	fmtStrg string
+	value   uint32
+	expStrg string
+}
+
+var uTable1 = []uTable{
+	{"%u", 200, "200"},
+	{"%d", 127, "127"},
+	{"%d", 128, "-128"},
+	{"%u", 128, "128"},
+	{"%u", 255, "255"},
+	{"%d", 255, "-1"},
+	{"%05u", 200, "00200"},
+	{"aaa%5u", 200, "aaa  200"},
+	{"aaa%%7u.%u", 200, "aaa%7u.200"}, //- needs regex improvement
+	{"%%%%7u.%u", 200, "%%7u.200"},    //- needs regex improvement
+}
+
+func Test_trice81_a(t *testing.T) {
+	p := &Pack2{}
+	p.b = make([]byte, defaultSize)
+	p.syncBuffer = make([]byte, defaultSize)
+	for _, v := range uTable1 {
+		p.b = p.b[:defaultSize]
+		p.trice.Strg = v.fmtStrg
+		p.d0 = v.value
+		exp := v.expStrg
+		n, e := p.trice81()
+		assert.Nil(t, e)
+		p.b = p.b[:n]
+		act := string(p.b)
+		assert.Equal(t, exp, act)
+	}
+}
 
 func Test2Pack2BigID(t *testing.T) {
 	var pack2TestTableBigID = testTable{ // big endian

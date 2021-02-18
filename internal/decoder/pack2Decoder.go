@@ -317,17 +317,72 @@ func (p *Pack2) trice0() (n int, e error) {
 	return
 }
 
+//func (p *Pack2) trice81() (n int, e error) {
+//	s := p.trice.Strg
+//	loc := make([]int, 0)
+//	for nil != loc {
+//		loc = matchNextFormatUSpezifier.FindStringIndex(s)
+//		if nil != loc { // a %nu found
+//			if 0 < loc[0] { // not at string start
+//				if "%" != s[loc[0]-1:loc[0]] { // a directly leading %, so cut it
+//					s = s[loc[0]:]
+//					continue
+//				}
+//			}
+//			b0 := uint8(p.d0) // unsigned value
+//			mod := strings.Replace(p.trice.Strg, s[loc[1]-1:loc[1]], "d", 1)
+//			n = copy(p.b, fmt.Sprintf(mod, b0))
+//			p.b = p.b[:n]
+//			p.rub(8)
+//			return
+//		}
+//	}
+//	b0 := int8(p.d0) // signed value
+//	n = copy(p.b, fmt.Sprintf(p.trice.Strg, b0))
+//	p.b = p.b[:n]
+//	p.rub(8)
+//	return
+//}
+
+// ureplace replaces first %nu format specifier in i with %nd and returns that result as o.
+// If a replacement took place u is true, otherwise is o == i and u is false
+func uReplace(i string) (o string, u bool) {
+	loc := make([]int, 0)
+	s := i
+	var offset int
+	for nil != loc {
+		loc = matchNextFormatUSpezifier.FindStringIndex(s)
+		if nil != loc { // a %nu found
+			if 0 < loc[0] { // not at string start, so check for %%
+				x := s[loc[0]-1 : loc[0]]
+				if "%" == x { // a directly leading %, so cut both
+					s = s[loc[0]+1:]
+					offset += loc[0] + 1
+					continue
+				}
+			}
+			o = i[:offset+loc[1]-1] + "d" + i[offset+loc[1]:]
+			u = true
+			return o, true
+		}
+	}
+	return i, false
+}
+
 func (p *Pack2) trice81() (n int, e error) {
-	b0 := int8(p.d0)
-	n = copy(p.b, fmt.Sprintf(p.trice.Strg, b0)) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	p.rub(8)
+	i := p.trice.Strg
+	if o, u := uReplace(i); u {
+		n = copy(p.b, fmt.Sprintf(o, uint8(p.d0)))
+	} else {
+		n = copy(p.b, fmt.Sprintf(o, int8(p.d0)))
+	}
 	return
 }
 
 func (p *Pack2) trice82() (n int, e error) {
 	b0 := int8(p.d0 >> 8)
 	b1 := int8(p.d0)
-	n = copy(p.b, fmt.Sprintf(p.trice.Strg, b0, b1))
+	n = copy(p.b, fmt.Sprintf(p.trice.Strg, b0, b1)) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
 	p.rub(8)
 	return
 }

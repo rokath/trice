@@ -33,7 +33,7 @@ const (
 	// patFmtString is a regex matching the first format string inside trice
 	patFmtString = `"(.*)"`
 
-	// patNextFormatSpezifier is a regex find next format specifier in a string (exclude %%*)
+	// patNextFormatSpezifier is a regex to find next format specifier in a string (exclude %%*)
 	patNextFormatSpezifier = `(?:^|[^%])(%[0-9\.#]*(b|d|u|x|X|o|f))`
 
 	// https://regex101.com/r/hWMjhU/3 - match any kind of trice with or without len or ID
