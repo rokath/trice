@@ -242,6 +242,28 @@ void triceCheckSetTime(int index) {
         TRICE0 (Id(65029), "--------------------------------------------------\n\n" );
 #endif
         break;
+        case 20:
+            #if TRICE_ENCODING == TRICE_PACK2_ENCODING
+            TRICE8_1(Id(52174), "tst:TRICE8_1 %02x\n", 0xe0);
+            TRICE8_1(Id(32742), "tst:TRICE8_1 %u\n", 201);
+            TRICE8_2(Id( 7473), "tst:TRICE8_2 %u %u\n", 201, 202);
+            TRICE8_3(Id(14014), "tst:TRICE8_3 %u %u %u\n", 201, 202, 203);
+            TRICE8_4(Id(31376), "tst:TRICE8_4 %u %u %u %u\n", 201, 202, 203, 204);
+            TRICE8_5(Id(41604), "tst:TRICE8_5 %u %u %u %u %u\n", 201, 202, 203, 204, 205);
+            TRICE8_6(Id(24615), "tst:TRICE8_6 %u %u %u %u %u %u\n", 201, 202, 203, 204, 205, 206);
+            TRICE8_7(Id(55697), "tst:TRICE8_7 %u %u %u %u %u %u %u\n", 201, 202, 203, 204, 205, 206, 207);
+            TRICE8_8(Id(36547), "tst:TRICE8_8 %u %u %u %u %u %u %u %u\n", 201, 202, 203, 204, 205, 206, 207, 208);
+            TRICE16_1(Id(40865), "tst:TRICE16_1 %u\n", 60001);
+            TRICE16_2(Id(30623), "tst:TRICE16_2 %u %u\n", 60001, 60002);
+            TRICE16_3(Id(60735), "tst:TRICE16_3 %u %u %u\n", 60001, 60002, 60003);
+            TRICE16_4(Id(12478), "tst:TRICE16_4 %u %u %u %u\n", 60001, 60002, 60003, 60004);
+            TRICE32_1(Id(24267), "tst:TRICE32_1 %u\n", 4000000001);
+            TRICE32_2(Id(38214), "tst:TRICE32_2 %u %u\n", 4000000001, 4000000002);
+            TRICE32_3(Id(59229), "tst:TRICE32_3 %u %u %u\n", 4000000001, 4000000002, 4000000003);
+            TRICE32_4(Id(38168), "tst:TRICE32_4 %u %u %u %u\n", 4000000001, 4000000002, 4000000003, 4000000004);
+            TRICE64_1(Id(45250), "tst:TRICE64_1 %u\n", -1);
+            TRICE64_2(Id(12051), "tst:TRICE64_2 %u %u\n", -1, -2);
+            #endif // #if TRICE_ENCODING == TRICE_PACK2_ENCODING        
     default:
         break;
     }

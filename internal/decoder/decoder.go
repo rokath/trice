@@ -23,9 +23,16 @@ import (
 
 const (
 	// receive and sync buffer size
-	defaultSize  = 4096
+	defaultSize = 4096
+
+	// flag
 	littleEndian = true
-	bigEndian    = false
+
+	// flag
+	bigEndian = false
+
+	// patNextFormatSpezifier is a regex to find next format specifier in a string (exclude %%*)
+	patNextFormatSpezifier = `(?:^|[^%])(%[0-9\.#]*(b|c|d|u|x|X|o|f))`
 
 	// patNextFormatSpezifier is a regex to find next format u specifier in a string
 	// It does also match %%u positions! so an additional check must follow.
@@ -42,6 +49,7 @@ var (
 	// TestTableMode is a special option for easy decoder test table generation.
 	TestTableMode bool
 
+	matchNextFormatSpezifier  = regexp.MustCompile(patNextFormatSpezifier)
 	matchNextFormatUSpezifier = regexp.MustCompile(patNextFormatUSpezifier)
 )
 

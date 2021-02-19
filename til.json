@@ -15,6 +15,10 @@
 		"Type": "TRICE0",
 		"Strg": "Invalid wav file\\n"
 	},
+	"12051": {
+		"Type": "TRICE64_2",
+		"Strg": "tst:TRICE64_2 %u %u\\n"
+	},
 	"12093": {
 		"Type": "TRICE0",
 		"Strg": "att:MDK-ARM_LL_RTTD_NUCLEO-F030R8\\n"
@@ -23,6 +27,10 @@
 		"Type": "TRICE0",
 		"Strg": "att:TASKING_GenericSTMF030R8_RTTD\\n"
 	},
+	"12478": {
+		"Type": "TRICE16_4",
+		"Strg": "tst:TRICE16_4 %u %u %u %u\\n"
+	},
 	"13083": {
 		"Type": "TRICE0",
 		"Strg": "att:MDK-ARM_RTTD_STM32F0300-DISCO\\n"
@@ -30,6 +38,10 @@
 	"13685": {
 		"Type": "TRICE0",
 		"Strg": "att:STM32CubeIDE_LL_UART_NUCLEO-F030R8\\n"
+	},
+	"14014": {
+		"Type": "TRICE8_3",
+		"Strg": "tst:TRICE8_3 %u %u %u\\n"
 	},
 	"14382": {
 		"Type": "TRICE0",
@@ -75,9 +87,17 @@
 		"Type": "TRICE0",
 		"Strg": "s:                                        \\ns:   ARM-MDK_LL_UART_BARE_TO_ESC_NUCLEO-F030R8   \\ns:                                        \\n\\n"
 	},
+	"24267": {
+		"Type": "TRICE32_1",
+		"Strg": "tst:TRICE32_1 %u\\n"
+	},
 	"24326": {
 		"Type": "TRICE0",
 		"Strg": "att:TASKING_RTTD_cpp_Example\\n"
+	},
+	"24615": {
+		"Type": "TRICE8_6",
+		"Strg": "tst:TRICE8_6 %u %u %u %u %u %u\\n"
 	},
 	"24626": {
 		"Type": "TRICE0",
@@ -115,13 +135,25 @@
 		"Type": "TRICE0",
 		"Strg": "att:atollicTrueSTUDIO_RTTD_DISCOVERY-STM32F407VGTx\\n"
 	},
+	"30623": {
+		"Type": "TRICE16_2",
+		"Strg": "tst:TRICE16_2 %u %u\\n"
+	},
 	"30688": {
 		"Type": "TRICE0",
 		"Strg": "\\ns:                                                     \\ns:   ARM-MDK_LL_UART_RTT0_ESC_STM32F030R8_NUCLEO-64    \\ns:                                                     \\n\\n"
 	},
+	"31376": {
+		"Type": "TRICE8_4",
+		"Strg": "tst:TRICE8_4 %u %u %u %u\\n"
+	},
 	"32731": {
 		"Type": "TRICE0",
 		"Strg": "Calculate c1 + c2: "
+	},
+	"32742": {
+		"Type": "TRICE8_1",
+		"Strg": "tst:TRICE8_1 %u\\n"
 	},
 	"33496": {
 		"Type": "TRICE0",
@@ -147,9 +179,21 @@
 		"Type": "TRICE0",
 		"Strg": "att:MDK-ARM_RTT1_NUCLEO-F091RC\\n"
 	},
+	"36547": {
+		"Type": "TRICE8_8",
+		"Strg": "tst:TRICE8_8 %u %u %u %u %u %u %u %u\\n"
+	},
 	"37519": {
 		"Type": "TRICE0",
 		"Strg": "s:                                                   \\ns:   MDK-ARM_LL_UART_RTT0_BARE_STM32F091_NUCLEO-64   \\ns:                                                   \\n\\n"
+	},
+	"38168": {
+		"Type": "TRICE32_4",
+		"Strg": "tst:TRICE32_4 %u %u %u %u\\n"
+	},
+	"38214": {
+		"Type": "TRICE32_2",
+		"Strg": "tst:TRICE32_2 %u %u\\n"
 	},
 	"38802": {
 		"Type": "TRICE0",
@@ -171,9 +215,17 @@
 		"Type": "TRICE0",
 		"Strg": "att:MDK-ARM_LL_RTTB_NUCLEO-F070RB\\n"
 	},
+	"40865": {
+		"Type": "TRICE16_1",
+		"Strg": "tst:TRICE16_1 %u\\n"
+	},
 	"41026": {
 		"Type": "TRICE0",
 		"Strg": "Failed to initialize audio service"
+	},
+	"41604": {
+		"Type": "TRICE8_5",
+		"Strg": "tst:TRICE8_5 %u %u %u %u %u\\n"
 	},
 	"41804": {
 		"Type": "TRICE0",
@@ -219,6 +271,10 @@
 		"Type": "TRICE0",
 		"Strg": "att:STM32CubeIDE_RTTD_DISCOVERY-STM32F051R8Tx\\n"
 	},
+	"45250": {
+		"Type": "TRICE64_1",
+		"Strg": "tst:TRICE64_1 %u\\n"
+	},
 	"45471": {
 		"Type": "TRICE0",
 		"Strg": "att:MDK-ARM_HAL_UART_NUCLEO-F070RB\\n"
@@ -238,6 +294,22 @@
 	"48114": {
 		"Type": "TRICE0",
 		"Strg": "att:MDK-ARM_LL_UART_demoBoard_STM32F030F4F4P6\\n"
+	},
+	"52174": {
+		"Type": "TRICE8_1",
+		"Strg": "tst:TRICE8_1 %02x\\n"
+	},
+	"55697": {
+		"Type": "TRICE8_7",
+		"Strg": "tst:TRICE8_7 %u %u %u %u %u %u %u\\n"
+	},
+	"59229": {
+		"Type": "TRICE32_3",
+		"Strg": "tst:TRICE32_3 %u %u %u\\n"
+	},
+	"60735": {
+		"Type": "TRICE16_3",
+		"Strg": "tst:TRICE16_3 %u %u %u\\n"
 	},
 	"65002": {
 		"Type": "TRICE0",
@@ -746,5 +818,9 @@
 	"65533": {
 		"Type": "trice32_3",
 		"Strg": "tst:trice32_3 %d %d %d\\n"
+	},
+	"7473": {
+		"Type": "TRICE8_2",
+		"Strg": "tst:TRICE8_2 %u %u\\n"
 	}
 }
