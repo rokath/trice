@@ -37,6 +37,10 @@ const (
 	// patNextFormatSpezifier is a regex to find next format u specifier in a string
 	// It does also match %%u positions! so an additional check must follow.
 	patNextFormatUSpezifier = `(?:%[0-9]*u)`
+
+	// patNextFormatSpezifier is a regex to find next format u specifier in a string
+	// It does also match %%u positions! so an additional check must follow.
+	patNextFormatXSpezifier = `(?:%[0-9]*(x|X|b))`
 )
 
 var (
@@ -49,8 +53,12 @@ var (
 	// TestTableMode is a special option for easy decoder test table generation.
 	TestTableMode bool
 
+	// UnsignedHex if true, forces hex and in values printed as unsigned values.
+	UnsignedHex bool
+
 	matchNextFormatSpezifier  = regexp.MustCompile(patNextFormatSpezifier)
 	matchNextFormatUSpezifier = regexp.MustCompile(patNextFormatUSpezifier)
+	matchNextFormatXSpezifier = regexp.MustCompile(patNextFormatXSpezifier)
 )
 
 // newDecoder abstracts the function type for a new decoder.

@@ -540,6 +540,7 @@ func uReplaceN(i string) (o string, u []bool) {
 		offset += loc[1] // track position
 		fm := s[loc[0]:loc[1]]
 		locU := matchNextFormatUSpezifier.FindStringIndex(fm)
+		locX := matchNextFormatXSpezifier.FindStringIndex(fm)
 		if nil != locU { // a %nu found
 			//if 0 < loc[0] { // not at string start, so check for %%
 			//	x := s[loc[0]-1 : loc[0]]
@@ -551,7 +552,9 @@ func uReplaceN(i string) (o string, u []bool) {
 			//}
 			o = o[:offset-1] + "d" + o[offset:] // replace %nu -> %nd
 			u = append(u, true)
-		} else {
+		} else if nil != locX && UnsignedHex { // a %nx or %nX or %nb found
+			u = append(u, true) // no negative values
+		} else { // keep sign
 			u = append(u, false)
 		}
 		s = i[offset:] // remove processed part

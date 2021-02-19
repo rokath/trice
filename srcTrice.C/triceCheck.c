@@ -244,7 +244,10 @@ void triceCheckSetTime(int index) {
         break;
         case 20:
             #if TRICE_ENCODING == TRICE_PACK2_ENCODING
-            TRICE8_1(Id(52174), "tst:TRICE8_1 %02x\n", 0xe0);
+            TRICE8_8(Id(  579), "tst:TRICE8_1 %%d=%d, %%u=%u, 0x%%x=0x%x, 0x%%2x=0x%2x, 0x%%02x=0x%02x, 0x%%3x=0x%3x, 0x%%03x=0x%03x, %%b=%b\n", 0x81, 0x81, 0x81, 0x81, 0x81, 0x81, 0x81, 0x81);
+            TRICE16_1(Id(21394), "tst:TRICE16_1 0x%04x\n", 0xa0);
+            TRICE8_1(Id(21201), "tst:TRICE8_1 0x%02x\n", 0xa0);
+            TRICE8_1(Id(21201), "tst:TRICE8_1 0x%02x\n", 0xa0);
             TRICE8_1(Id(32742), "tst:TRICE8_1 %u\n", 201);
             TRICE8_2(Id( 7473), "tst:TRICE8_2 %u %u\n", 201, 202);
             TRICE8_3(Id(14014), "tst:TRICE8_3 %u %u %u\n", 201, 202, 203);

@@ -110,6 +110,8 @@ Works not perfect with windows, because of cmd and powershell color issues and m
 Example: "trice l -port COM38 -displayserver -autostart" opens a separate display window automatically on the same PC.
 `+boolInfo)
 
+	fsScLog.BoolVar(&decoder.UnsignedHex, "unsignedHex", false, "Hex and Bin values are printed as unsigned values.")
+	fsScLog.BoolVar(&decoder.UnsignedHex, "u", false, "Short for '-unsignedHex'.")
 	fsScLog.BoolVar(&emitter.Autostart, "a", false, "Short for '-autostart'.")
 	fsScLog.BoolVar(&receiver.ShowInputBytes, "showInputBytes", false, `Show incoming bytes, what can be helpful during setup.
 `+boolInfo)
