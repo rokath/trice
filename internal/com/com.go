@@ -7,6 +7,7 @@ package com
 
 import (
 	"fmt"
+	"time"
 
 	serialtarm "github.com/tarm/serial"
 	serialgobugst "go.bug.st/serial"
@@ -111,7 +112,7 @@ func NewCOMPortTarm(comPortName string) *PortTarm {
 	var p = new(PortTarm)
 	p.config.Name = comPortName
 	p.config.Baud = Baud
-	p.config.ReadTimeout = 1
+	p.config.ReadTimeout = 100 * time.Millisecond
 	p.config.Size = 8
 	if true == Verbose {
 		fmt.Println("NewCOMPortTarm:", p.config)

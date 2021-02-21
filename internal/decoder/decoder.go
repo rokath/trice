@@ -92,6 +92,24 @@ func (p *decoderData) setInput(r io.Reader) {
 	p.in = r
 }
 
+func handleSIGTERM(rc io.ReadCloser) {
+	// prepare CTRL-C shutdown reaction
+	sigs := make(chan os.Signal, 1)
+	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
+	ticker := time.NewTicker(50 * time.Millisecond)
+	for {
+		select {
+		case sig := <-sigs: // wait for a signal
+			if Verbose {
+				fmt.Println("####################################", sig, "####################################")
+			}
+			rc.Close()
+			os.Exit(0) // end
+		case <-ticker.C:
+		}
+	}
+}
+
 // Translate performs the trice log task.
 // Bytes are read with rc. Then according decoder.Encoding they are translated into strings.
 // Each read returns the amount of bytes for one trice. rc is called on every
@@ -121,47 +139,36 @@ func Translate(sw *emitter.TriceLineComposer, lut id.TriceIDLookUp, rc io.ReadCl
 		log.Fatalf(fmt.Sprintln("unknown encoding ", Encoding))
 	}
 
-	// prepare CTRL-C shutdown reaction
-	sigs := make(chan os.Signal, 1)
-	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
+	go handleSIGTERM(rc)
 
 	// intermediate trice string buffer for a single trice
 	b := make([]byte, defaultSize)
 outer:
 	for {
-		select {
-		case sig := <-sigs: // wait for a signal
+		n, err := dec.Read(b) // Code to measure
+		if io.EOF == err {
 			if Verbose {
-				fmt.Println("####################################", sig, "####################################")
+				fmt.Println(err)
 			}
-			return false // end
-		default:
-			n, err := dec.Read(b) // Code to measure
-
-			if io.EOF == err {
-				if Verbose {
-					fmt.Println(err)
-				}
-				if Verbose {
-					fmt.Println("WAITING...")
-				}
-				time.Sleep(100 * time.Millisecond) // limit try again speed
-				continue outer                     // read again
+			if Verbose {
+				fmt.Println("WAITING...")
 			}
-			if nil != err {
-				if Verbose {
-					fmt.Println(err)
-				}
-				return true // try again
-			}
-			start := time.Now()
-			m, err := sw.Write(b[:n])
-			duration := time.Since(start).Milliseconds()
-			if duration > 100 {
-				fmt.Println("TriceLineComposer.Write duration =", duration, "ms.")
-			}
-			msg.InfoOnErr(err, fmt.Sprintln("sw.Write wrote", m, "bytes"))
+			time.Sleep(100 * time.Millisecond) // limit try again speed
+			continue outer                     // read again
 		}
+		if nil != err {
+			if Verbose {
+				fmt.Println(err)
+			}
+			return true // try again
+		}
+		start := time.Now()
+		m, err := sw.Write(b[:n])
+		duration := time.Since(start).Milliseconds()
+		if duration > 100 {
+			fmt.Println("TriceLineComposer.Write duration =", duration, "ms.")
+		}
+		msg.InfoOnErr(err, fmt.Sprintln("sw.Write wrote", m, "bytes"))
 	}
 }
 
