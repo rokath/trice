@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"strings"
+	"sync"
 
 	"github.com/rokath/trice/internal/id"
 )
@@ -20,11 +21,12 @@ type Esc struct {
 // NewEscDecoder provides an EscDecoder instance.
 // l is the trice id list in slice of struct format.
 // in is the usable reader for the input bytes.
-func NewEscDecoder(lut id.TriceIDLookUp, in io.Reader, endian bool) Decoder {
+func NewEscDecoder(lut id.TriceIDLookUp, m *sync.RWMutex, in io.Reader, endian bool) Decoder {
 	p := &Esc{}
 	p.in = in
 	p.syncBuffer = make([]byte, 0, defaultSize)
 	p.lut = lut
+	p.lutMutex = m
 	p.endian = endian // esc format is only big endian
 	return p
 }
@@ -71,7 +73,9 @@ func (p *Esc) Read(b []byte) (n int, err error) {
 	}
 	triceID := id.TriceID(binary.BigEndian.Uint16(p.syncBuffer[2:4]))
 	var ok bool
+	p.lutMutex.RLock()
 	p.trice, ok = p.lut[triceID]
+	p.lutMutex.RUnlock()
 	if !ok { // unknown id
 		return p.outOfSync(fmt.Sprint("unknown ID ", triceID))
 	}

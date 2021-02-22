@@ -23,9 +23,17 @@
 		"Type": "trice16_1",
 		"Strg": "WRN:warning     message, SysTick is %6u\\n"
 	},
+	"10813": {
+		"Type": "TRICE16_1",
+		"Strg": "time:TRICE16_1   message, SysTick is %6u\\n"
+	},
 	"11804": {
 		"Type": "TRICE0",
 		"Strg": "Invalid wav file\\n"
+	},
+	"11967": {
+		"Type": "TRICE16_1",
+		"Strg": "att:TRICE16_1   message, SysTick is %6u\\n"
 	},
 	"12051": {
 		"Type": "TRICE64_2",
@@ -71,6 +79,10 @@
 		"Type": "TRICE0",
 		"Strg": "att:STM32CubeIDE_LL_UART_NUCLEO-F070RB\\n"
 	},
+	"15516": {
+		"Type": "TRICE16_1",
+		"Strg": "TIME:TRICE16_1   message, SysTick is %6u\\n"
+	},
 	"15852": {
 		"Type": "TRICE0",
 		"Strg": "att:STM32CubeIDE_RTTD_NUCLEO-F091\\n"
@@ -86,6 +98,10 @@
 	"17147": {
 		"Type": "TRICE0",
 		"Strg": "att:MDK-ARM_LL_UART_NUCLEO-F030R8\\n"
+	},
+	"1719": {
+		"Type": "TRICE16_1",
+		"Strg": "tim  :TRICE16_1   message, SysTick is %6u\\n"
 	},
 	"17536": {
 		"Type": "trice16_1",
@@ -191,6 +207,10 @@
 		"Type": "TRICE0",
 		"Strg": "att:TASKING_STM32F4DISC_Audio_Service_RTTD\\n"
 	},
+	"28071": {
+		"Type": "TRICE32_1",
+		"Strg": "time:TRICE32_1   message, SysTick is %6d\\n"
+	},
 	"28450": {
 		"Type": "TRICE8_3",
 		"Strg": "tst:trice8_3 %02X %02X %02X\\n"
@@ -230,6 +250,10 @@
 	"33496": {
 		"Type": "TRICE0",
 		"Strg": "att:MDK-ARM_RTT_NUCLEO-F030R8\\n"
+	},
+	"33874": {
+		"Type": "TRICE32_1",
+		"Strg": "TIME:TRICE32_1   message, SysTick is %6d\\n"
 	},
 	"34868": {
 		"Type": "TRICE16_1",
@@ -271,6 +295,10 @@
 		"Type": "TRICE32_2",
 		"Strg": "tst:TRICE32_2 %u %u\\n"
 	},
+	"38516": {
+		"Type": "TRICE32_1",
+		"Strg": "tim :TRICE32_1   message, SysTick is %6d\\n"
+	},
 	"38802": {
 		"Type": "TRICE0",
 		"Strg": "Calculate c2 - c1: "
@@ -282,6 +310,10 @@
 	"39533": {
 		"Type": "TRICE0",
 		"Strg": "att:STM32CubeIDE_RTTD_NUCLEO-G474\\n"
+	},
+	"39704": {
+		"Type": "TRICE32_1",
+		"Strg": "tim  :TRICE32_1   message, SysTick is %6d\\n"
 	},
 	"40045": {
 		"Type": "TRICE0",
@@ -298,6 +330,14 @@
 	"41026": {
 		"Type": "TRICE0",
 		"Strg": "Failed to initialize audio service"
+	},
+	"41184": {
+		"Type": "TRICE16_1",
+		"Strg": "tim :TRICE16_1   message, SysTick is %6u\\n"
+	},
+	"41306": {
+		"Type": "TRICE32_1",
+		"Strg": "tim:TRICE32_1   message, SysTick is %6d\\n"
 	},
 	"41604": {
 		"Type": "TRICE8_5",
@@ -382,6 +422,14 @@
 	"48114": {
 		"Type": "TRICE0",
 		"Strg": "att:MDK-ARM_LL_UART_demoBoard_STM32F030F4F4P6\\n"
+	},
+	"48439": {
+		"Type": "TRICE16_1",
+		"Strg": "tim:TRICE16_1   message, SysTick is %6u\\n"
+	},
+	"49757": {
+		"Type": "TRICE32_1",
+		"Strg": "att:TRICE32_1   message, SysTick is %6d\\n"
 	},
 	"51119": {
 		"Type": "TRICE8_3",

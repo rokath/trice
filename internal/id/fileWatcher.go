@@ -5,6 +5,7 @@ package id
 
 import (
 	"fmt"
+	"sync"
 	"time"
 
 	"github.com/fsnotify/fsnotify"
@@ -13,7 +14,7 @@ import (
 
 // FileWatcher checks id List file for changes
 // taken from https://medium.com/@skdomino/watch-this-file-watching-in-go-5b5a247cf71f
-func (lu TriceIDLookUp) FileWatcher() {
+func (lu TriceIDLookUp) FileWatcher(m *sync.RWMutex) {
 
 	// creates a new file watcher
 	watcher, err := fsnotify.NewWatcher()
@@ -33,7 +34,9 @@ func (lu TriceIDLookUp) FileWatcher() {
 				diff := now.Sub(last)
 				if diff > 5000*time.Millisecond {
 					fmt.Println("refreshing id.List")
+					m.Lock()
 					lu.fromFile(FnJSON)
+					m.Unlock()
 					last = time.Now()
 				}
 

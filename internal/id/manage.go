@@ -115,7 +115,7 @@ func (lu TriceIDLookUp) newDownwardID(min, max TriceID) (id TriceID) {
 	}
 }
 
-// FromJSON converts JSON byte slice to lut.
+// FromJSON converts JSON byte slice to lu.
 func (lu TriceIDLookUp) FromJSON(b []byte) (err error) {
 	if 0 < len(b) {
 		err = json.Unmarshal(b, &lu)

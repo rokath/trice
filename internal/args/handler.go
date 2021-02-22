@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/rokath/trice/internal/com"
@@ -237,10 +238,10 @@ func logLoop() {
 	}
 	c := cage.Start(cage.Name)
 	lu := id.NewLut(id.FnJSON) // lut is a map, that means a pointer
-
+	m := new(sync.RWMutex)     // m is a pointer to a read write mutex for lu
 	// Just in case the id list file FnJSON gets updated, the file watcher updates lut.
 	// This way trice needs not to be restarted during development process.
-	go lu.FileWatcher()
+	go lu.FileWatcher(m)
 
 	sw := emitter.New()
 	var interrupted bool
@@ -266,7 +267,7 @@ func logLoop() {
 			rc = receiver.NewBytesViewer(rc)
 		}
 
-		f := decoder.Translate(sw, lu, rc)
+		f := decoder.Translate(sw, lu, m, rc)
 		if false == f {
 			cage.Stop(c)
 			return

@@ -13,6 +13,7 @@ import (
 	"os"
 	"os/signal"
 	"regexp"
+	"sync"
 	"syscall"
 	"time"
 
@@ -62,7 +63,7 @@ var (
 )
 
 // newDecoder abstracts the function type for a new decoder.
-type newDecoder func(lut id.TriceIDLookUp, in io.Reader, endian bool) Decoder
+type newDecoder func(lut id.TriceIDLookUp, m *sync.RWMutex, in io.Reader, endian bool) Decoder
 
 // Decoder is providing a byte reader returning decoded trice's.
 // setInput allows switching the input stream to a different source.
@@ -77,6 +78,7 @@ type decoderData struct {
 	syncBuffer         []byte           // unprocessed bytes hold for next cycle
 	endian             bool             // littleEndian or bigEndian
 	lut                id.TriceIDLookUp // id look-up map for translation
+	lutMutex           *sync.RWMutex    // to avoid concurrent map read and map write during map refresh triggered by filewatcher
 	trice              id.TriceFmt      // id.TriceFmt // received trice
 	upperCaseTriceType string           // This is the to upper case converted received trice type.
 	b                  []byte           // read buffer
@@ -114,27 +116,27 @@ func handleSIGTERM(rc io.ReadCloser) {
 // Bytes are read with rc. Then according decoder.Encoding they are translated into strings.
 // Each read returns the amount of bytes for one trice. rc is called on every
 // Translate returns true on io.EOF or false on hard read error or sigterm.
-func Translate(sw *emitter.TriceLineComposer, lut id.TriceIDLookUp, rc io.ReadCloser) bool {
+func Translate(sw *emitter.TriceLineComposer, lut id.TriceIDLookUp, m *sync.RWMutex, rc io.ReadCloser) bool {
 	var dec Decoder //io.Reader
 	switch Encoding {
 	case "esc":
-		dec = NewEscDecoder(lut, rc, bigEndian)
+		dec = NewEscDecoder(lut, m, rc, bigEndian)
 	case "pack":
-		dec = NewPackDecoder(lut, rc, bigEndian)
+		dec = NewPackDecoder(lut, m, rc, bigEndian)
 	case "packl", "packL":
-		dec = NewPackDecoder(lut, rc, littleEndian)
+		dec = NewPackDecoder(lut, m, rc, littleEndian)
 	case "pack2":
-		dec = NewPack2Decoder(lut, rc, bigEndian)
+		dec = NewPack2Decoder(lut, m, rc, bigEndian)
 	case "pack2l", "pack2L":
-		dec = NewPack2Decoder(lut, rc, littleEndian)
+		dec = NewPack2Decoder(lut, m, rc, littleEndian)
 	case "bare":
-		dec = NewBareDecoder(lut, rc, bigEndian)
+		dec = NewBareDecoder(lut, m, rc, bigEndian)
 	case "barel", "bareL":
-		dec = NewBareDecoder(lut, rc, littleEndian)
+		dec = NewBareDecoder(lut, m, rc, littleEndian)
 	case "wrap":
-		dec = NewBareDecoder(lut, NewBareReaderFromWrap(rc), bigEndian)
+		dec = NewBareDecoder(lut, m, NewBareReaderFromWrap(rc), bigEndian)
 	case "wrapl", "wrapL":
-		dec = NewBareDecoder(lut, NewBareReaderFromWrap(rc), littleEndian)
+		dec = NewBareDecoder(lut, m, NewBareReaderFromWrap(rc), littleEndian)
 	default:
 		log.Fatalf(fmt.Sprintln("unknown encoding ", Encoding))
 	}

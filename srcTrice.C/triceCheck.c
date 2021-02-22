@@ -102,14 +102,14 @@ void triceCheckSetTime(int index) {
             TRICE16_1(Id(13390), "INFO:informal   message, SysTick is %6u\n", SYSTICKVAL16);
             break;
         case 2:
-            TRICE16_1(Id(46836), "tst:TRICE16_1   message, SysTick is %6u\n", SYSTICKVAL16);
-            TRICE16_1(Id(46836), "tst:TRICE16_1   message, SysTick is %6u\n", SYSTICKVAL16);
-            TRICE16_1(Id(46836), "tst:TRICE16_1   message, SysTick is %6u\n", SYSTICKVAL16);
-            TRICE16_1(Id(46836), "tst:TRICE16_1   message, SysTick is %6u\n", SYSTICKVAL16);
-            TRICE32_1(Id(65287), "tst:TRICE32_1   message, SysTick is %6d\n", SYSTICKVAL16);
-            TRICE32_1(Id(65287), "tst:TRICE32_1   message, SysTick is %6d\n", SYSTICKVAL16);
-            TRICE32_1(Id(65287), "tst:TRICE32_1   message, SysTick is %6d\n", SYSTICKVAL16);
-            TRICE32_1(Id(65287), "tst:TRICE32_1   message, SysTick is %6d\n", SYSTICKVAL16);
+            TRICE16_1(Id(10813), "time:TRICE16_1   message, SysTick is %6u\n", SYSTICKVAL16);
+            TRICE16_1(Id(10813), "time:TRICE16_1   message, SysTick is %6u\n", SYSTICKVAL16);
+            TRICE16_1(Id(10813), "time:TRICE16_1   message, SysTick is %6u\n", SYSTICKVAL16);
+            TRICE16_1(Id(10813), "time:TRICE16_1   message, SysTick is %6u\n", SYSTICKVAL16);
+            TRICE32_1(Id(28071), "time:TRICE32_1   message, SysTick is %6d\n", SYSTICKVAL16);
+            TRICE32_1(Id(28071), "time:TRICE32_1   message, SysTick is %6d\n", SYSTICKVAL16);
+            TRICE32_1(Id(28071), "time:TRICE32_1   message, SysTick is %6d\n", SYSTICKVAL16);
+            TRICE32_1(Id(28071), "time:TRICE32_1   message, SysTick is %6d\n", SYSTICKVAL16);
             break;
         case 3:
             TRICE8_4( Id(65492), "tst:TRICE8_4  %%03x ->  %03x  %03x  %03x  %03x\n", 1, 0x7f, 0x80, 0xff);

@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/rokath/trice/internal/emitter"
@@ -26,11 +27,12 @@ type Pack2 struct {
 // l is the trice id list in slice of struct format.
 // in is the usable reader for the input bytes.
 // littleEndian is false on normal network order.
-func NewPack2Decoder(lut id.TriceIDLookUp, in io.Reader, endian bool) Decoder {
+func NewPack2Decoder(lut id.TriceIDLookUp, m *sync.RWMutex, in io.Reader, endian bool) Decoder {
 	p := &Pack2{}
 	p.in = in
 	p.syncBuffer = make([]byte, 0, defaultSize)
 	p.lut = lut
+	p.lutMutex = m
 	p.endian = endian
 	p.syncPacket = emitter.SyncPacketPattern
 	p.innerReadInterval = 100 * time.Millisecond
@@ -113,7 +115,9 @@ func (p *Pack2) Read(b []byte) (n int, err error) {
 	}
 
 	var ok bool
+	p.lutMutex.RLock()
 	p.trice, ok = p.lut[triceID] // check lookup table
+	p.lutMutex.RUnlock()
 	if !ok {
 		return p.outOfSync(fmt.Sprintf("unknown triceID %5d", triceID))
 	}

@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"strings"
+	"sync"
 
 	"github.com/rokath/trice/internal/id"
 )
@@ -20,11 +21,12 @@ type Bare struct {
 // NewBareDecoder provides an BareDecoder instance.
 // l is the trice id list in slice of struct format.
 // in is the usable reader for the input bytes.
-func NewBareDecoder(lut id.TriceIDLookUp, in io.Reader, endian bool) Decoder {
+func NewBareDecoder(lut id.TriceIDLookUp, m *sync.RWMutex, in io.Reader, endian bool) Decoder {
 	p := &Bare{}
 	p.in = in
 	p.syncBuffer = make([]byte, 0, defaultSize)
 	p.lut = lut
+	p.lutMutex = m
 	p.endian = endian
 	return Decoder(p)
 }
@@ -76,7 +78,9 @@ func (p *Bare) Read(b []byte) (n int, err error) {
 			continue
 		}
 		var ok bool
+		p.lutMutex.RLock()
 		p.trice, ok = p.lut[triceID] // check lookup table
+		p.lutMutex.RUnlock()
 		if !ok {
 			p.payload = p.payload[:0]
 			return p.outOfSync(fmt.Sprintf("unknown triceID %5d", triceID))

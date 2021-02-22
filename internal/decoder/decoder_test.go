@@ -9,6 +9,7 @@ import (
 	"io"
 	"io/ioutil"
 	"strings"
+	"sync"
 	"testing"
 
 	"github.com/rokath/trice/internal/emitter"
@@ -25,9 +26,10 @@ type testTable []struct {
 // doTableTest is the universal decoder test sequence.
 func doTableTest(t *testing.T, f newDecoder, endianness bool, teTa testTable, inputDataType string) {
 	lut := make(id.TriceIDLookUp)
+	m := new(sync.RWMutex)
 	tst.AssertNoErr(t, lut.FromJSON([]byte(til)))
 	buf := make([]byte, defaultSize)
-	dec := f(lut, nil, endianness) // p is a new decoder instance
+	dec := f(lut, m, nil, endianness) // p is a new decoder instance
 	for _, x := range teTa {
 		in := ioutil.NopCloser(bytes.NewBuffer(x.in))
 		if "unwrapped" == inputDataType {
