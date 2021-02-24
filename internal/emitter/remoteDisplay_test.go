@@ -20,7 +20,6 @@ func TestRemoteDisplay(t *testing.T) {
 	efn := "testdata/expRemote.log"
 	_ = os.Remove(afn)
 	ipp := randomDynIPPort()
-	//name := "trice.exe"
 	name := baseName()
 	p := NewRemoteDisplay(name, "-logfile "+afn, "localhost", ipp)
 	l1 := []string{"This is ", "the 1st ", "line"}

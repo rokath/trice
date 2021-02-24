@@ -10,6 +10,10 @@ import (
 	"os/exec"
 	"path/filepath"
 	"runtime"
+	"strings"
+	"time"
+
+	"github.com/rokath/trice/pkg/msg"
 )
 
 // RemoteDisplay is transferring to a remote display object.
@@ -21,12 +25,6 @@ type RemoteDisplay struct {
 	IPPort string      // IP port
 	PtrRPC *rpc.Client // PtrRPC is a pointer for remote calls valid after a successful rpc.Dial()
 }
-
-//  // baseName returns basic filename of program without extension
-//  func baseName() string {
-//  	s := strings.TrimSuffix(filepath.Base(os.Args[0]), filepath.Ext(os.Args[0]))
-//  	return strings.TrimSuffix(s, ".test") // for Example tests only
-//  }
 
 // NewRemoteDisplay creates a connection to a remote Display and implements the Linewriter inteface.
 // It accepts 0 to 4 string arguments. More arguments are ignored.
@@ -82,24 +80,78 @@ func (p *RemoteDisplay) writeLine(line []string) {
 	p.Err = p.PtrRPC.Call("Server.WriteLine", line, nil) // TODO: Change to "Server.WriteLine"
 }
 
+//  // startServer starts a display server with the filename exe (if not already running).
+//  func (p *RemoteDisplay) startServer() {
+//  	var shell string
+//  	var clip []string
+//  	arguments := " ds -ipa " + p.IPAddr + " -ipp " + p.IPPort + " " + p.Params
+//  	if runtime.GOOS == "windows" {
+//  		shell = "cmd"
+//  		shellCmd := "/c start " + p.Cmd
+//  		clip = append(clip, shellCmd, arguments)
+//  	} else if runtime.GOOS == "linux" {
+//  		shell = "gnome-terminal" // this only works for gnome based linux desktop env
+//  		clip = append(clip, "--", "/bin/bash", "-c", p.Cmd+arguments)
+//  	} else {
+//  		log.Fatal("trice is running on unknown operating system", runtime.GOOS)
+//  	}
+//  	cmd := exec.Command(shell, clip...)
+//  	if Verbose {
+//  		fmt.Println("starting", shell, clip, "...")
+//  	}
+//  	p.Err = cmd.Run()
+//  	p.ErrorFatal()
+//  	time.Sleep(1000 * time.Millisecond)
+//  }
+
 // startServer starts a display server with the filename exe (if not already running).
 func (p *RemoteDisplay) startServer() {
-	var shell string
-	var clip []string
-	arguments := " ds -ipa " + p.IPAddr + " -ipp " + p.IPPort + " " + p.Params
-	if runtime.GOOS == "windows" {
-		shell = "cmd"
-		shellCmd := "/c start " + p.Cmd
-		clip = append(clip, shellCmd, arguments)
-	} else if runtime.GOOS == "linux" {
-		shell = "gnome-terminal" // this only works for gnome based linux desktop env
-		clip = append(clip, "--", "/bin/bash", "-c", p.Cmd+arguments)
-	} else {
-		log.Fatal("trice is running on unknown operating system", runtime.GOOS)
+	//var shell string
+	//var clip []string
+	//arguments := " ds -ipa " + p.IPAddr + " -ipp " + p.IPPort + " " + p.Params
+	//if runtime.GOOS == "windows" {
+	//	//shell = "cmd"
+	//	//shellCmd := "/c start " + p.Cmd
+	//	//clip = append(clip, shellCmd, arguments)
+	//} else if runtime.GOOS == "linux" {
+	//	//shell = "gnome-terminal" // this only works for gnome based linux desktop env
+	//	//clip = append(clip, "--", "/bin/bash", "-c", p.Cmd+arguments)
+	//} else {
+	//	log.Fatal("trice is running on unknown operating system", runtime.GOOS)
+	//}
+	var cmd *exec.Cmd
+	s := strings.Split(p.Params, " ")
+	switch len(s) {
+	case 0:
+		cmd = exec.Command(p.Cmd, "ds", "-ipa", p.IPAddr, "-ipp", p.IPPort)
+	case 1:
+		cmd = exec.Command(p.Cmd, "ds", "-ipa", p.IPAddr, "-ipp", p.IPPort, s[0])
+	case 2:
+		cmd = exec.Command(p.Cmd, "ds", "-ipa", p.IPAddr, "-ipp", p.IPPort, s[0], s[1])
+	case 3:
+		cmd = exec.Command(p.Cmd, "ds", "-ipa", p.IPAddr, "-ipp", p.IPPort, s[0], s[1], s[2])
+	case 4:
+		cmd = exec.Command(p.Cmd, "ds", "-ipa", p.IPAddr, "-ipp", p.IPPort, s[0], s[1], s[2], s[3])
+	case 5:
+		cmd = exec.Command(p.Cmd, "ds", "-ipa", p.IPAddr, "-ipp", p.IPPort, s[0], s[1], s[2], s[3], s[4])
+	case 6:
+		cmd = exec.Command(p.Cmd, "ds", "-ipa", p.IPAddr, "-ipp", p.IPPort, s[0], s[1], s[2], s[3], s[4], s[5])
+	case 7:
+		cmd = exec.Command(p.Cmd, "ds", "-ipa", p.IPAddr, "-ipp", p.IPPort, s[0], s[1], s[2], s[3], s[4], s[5], s[6])
+	case 8:
+		cmd = exec.Command(p.Cmd, "ds", "-ipa", p.IPAddr, "-ipp", p.IPPort, s[0], s[1], s[2], s[3], s[4], s[5], s[6], s[7])
+	case 9:
+		cmd = exec.Command(p.Cmd, "ds", "-ipa", p.IPAddr, "-ipp", p.IPPort, s[0], s[1], s[2], s[3], s[4], s[5], s[6], s[7], s[8])
+	case 10:
+		cmd = exec.Command(p.Cmd, "ds", "-ipa", p.IPAddr, "-ipp", p.IPPort, s[0], s[1], s[2], s[3], s[4], s[5], s[6], s[7], s[8], s[9])
+	default:
+		msg.FatalOnTrue(true)
 	}
-	cmd := exec.Command(shell, clip...)
-	p.Err = cmd.Run()
-	p.ErrorFatal()
+	go func() {
+		p.Err = cmd.Run()
+		p.ErrorFatal()
+	}()
+	time.Sleep(1000 * time.Millisecond)
 }
 
 // Connect is called by the client and tries to dial.
