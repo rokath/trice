@@ -6,6 +6,7 @@ package keybcmd
 
 import (
 	"bufio"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"strings"
@@ -44,6 +45,8 @@ func TestHelp(t *testing.T) {
 	exp := "-> h|help                   - this text\nexitServer|serverExit    - kill server\nq|quit                   - end program\n"
 	b := stimulate("help\r\n", "", "")
 	act := string(b)
+	fmt.Println("exp=", exp)
+	fmt.Println("act=", act)
 	tst.Equal(t, exp, act)
 }
 
