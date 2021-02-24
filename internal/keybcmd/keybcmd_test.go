@@ -41,7 +41,7 @@ func stimulate(keys, ipa, ipp string) []byte {
 
 // todo: Linux
 
-func TestHelp(t *testing.T) {
+func _TestHelp(t *testing.T) {
 	exp := "-> h|help                   - this text\nexitServer|serverExit    - kill server\nq|quit                   - end program\n"
 	b := stimulate("help\r\n", "", "")
 	act := string(b)
