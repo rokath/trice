@@ -11,8 +11,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/rokath/trice/pkg/msg"
-
 	"github.com/stretchr/testify/assert"
 )
 
@@ -20,10 +18,11 @@ func TestRemoteDisplay(t *testing.T) {
 	// prepare
 	afn := "testdata/actRemote.log"
 	efn := "testdata/expRemote.log"
-	msg.OnErr(os.Remove(afn))
-	exec := "trice.exe" // todo: os.Args[0] does not work!
+	_ = os.Remove(afn)
 	ipp := randomDynIPPort()
-	p := NewRemoteDisplay(exec, "-logfile "+afn, "localhost", ipp)
+	//name := "trice.exe"
+	name := baseName()
+	p := NewRemoteDisplay(name, "-logfile "+afn, "localhost", ipp)
 	l1 := []string{"This is ", "the 1st ", "line"}
 	l2 := []string{"This is ", "the 2nd ", "line"}
 	p.writeLine(l1)

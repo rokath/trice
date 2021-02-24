@@ -47,21 +47,25 @@ func TestHelp(t *testing.T) {
 	tst.Equal(t, exp, act)
 }
 
-/*
-// NOT RELIABLE
-func _TestShutdownServerWhenRunning(t *testing.T) {
-	ipp := randomDynIPPort()
-	p := emitter.NewRemoteDisplay("trice.exe", "", "localhost", ipp)
-	capt := stimulate("sd\r\n", p.IPAddr, p.IPPort)
-	// must remove some chars from the beginning, because xxxxx changes all the time
-	discardLength := len("-> read tcp 127.0.0.1:xxxxx->")
-	if discardLength >= len(capt) {
-		capts := string(capt)
-		fmt.Println(capts)
-		t.Fail()
-	}
-	exp := "127.0.0.1:" + p.IPPort + ": wsarecv: An existing connection was forcibly closed by the remote host.\n"
-	act := string(capt[discardLength:])
-	tst.Equal(t, exp, act)
-}
-*/
+//  // baseName returns basic filename of program without extension
+//  func baseName() string {
+//  	s := strings.TrimSuffix(filepath.Base(os.Args[0]), filepath.Ext(os.Args[0]))
+//  	return strings.TrimSuffix(s, ".test") // for Example tests only
+//  }
+//
+//  // NOT RELIABLE
+//  func TestShutdownServerWhenRunning(t *testing.T) {
+//  	ipp := randomDynIPPort()
+//  	p := emitter.NewRemoteDisplay(baseName(), "", "localhost", ipp)
+//  	capt := stimulate("sd\r\n", p.IPAddr, p.IPPort)
+//  	// must remove some chars from the beginning, because xxxxx changes all the time
+//  	discardLength := len("-> read tcp 127.0.0.1:xxxxx->")
+//  	if discardLength >= len(capt) {
+//  		capts := string(capt)
+//  		fmt.Println(capts)
+//  		t.Fail()
+//  	}
+//  	exp := "127.0.0.1:" + p.IPPort + ": wsarecv: An existing connection was forcibly closed by the remote host.\n"
+//  	act := string(capt[discardLength:])
+//  	tst.Equal(t, exp, act)
+//  }

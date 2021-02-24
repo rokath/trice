@@ -22,6 +22,12 @@ type RemoteDisplay struct {
 	PtrRPC *rpc.Client // PtrRPC is a pointer for remote calls valid after a successful rpc.Dial()
 }
 
+//  // baseName returns basic filename of program without extension
+//  func baseName() string {
+//  	s := strings.TrimSuffix(filepath.Base(os.Args[0]), filepath.Ext(os.Args[0]))
+//  	return strings.TrimSuffix(s, ".test") // for Example tests only
+//  }
+
 // NewRemoteDisplay creates a connection to a remote Display and implements the Linewriter inteface.
 // It accepts 0 to 4 string arguments. More arguments are ignored.
 // For not given parameters default values are taken. The parameters are in the following order.
