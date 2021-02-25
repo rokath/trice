@@ -7,7 +7,5 @@
 // See '$GOARCH' in https://golang.org/doc/install/source#environment
 package endian
 
-import "encoding/binary"
-
-// Native holds the native endianess of the local machine. Is is binary.LittleEndian or binary.BigEndian
-var Native = binary.LittleEndian
+// Native holds the native endianness of the local machine. Is is binary.LittleEndian or binary.BigEndian
+//  var Native = binary.LittleEndian

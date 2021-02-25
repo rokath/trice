@@ -20,17 +20,17 @@ func ReadInput() { // https://tutorialedge.net/golang/reading-console-input-gola
 	keyboardInput(reader)
 }
 */
-// keyboardInput expects input from reader
-func keyboardInput(reader *bufio.Reader) { // https://tutorialedge.net/golang/reading-console-input-golang/
-	fmt.Println("Simple Shell")
-	fmt.Println("------------")
-
-	go func() {
-		for {
-			loopAction(reader, emitter.IPAddr, emitter.IPPort)
-		}
-	}() // https://stackoverflow.com/questions/16008604/why-add-after-closure-body-in-golang
-}
+//  // keyboardInput expects input from reader
+//  func keyboardInput(reader *bufio.Reader) { // https://tutorialedge.net/golang/reading-console-input-golang/
+//  	fmt.Println("Simple Shell")
+//  	fmt.Println("------------")
+//
+//  	go func() {
+//  		for {
+//  			loopAction(reader, emitter.IPAddr, emitter.IPPort)
+//  		}
+//  	}() // https://stackoverflow.com/questions/16008604/why-add-after-closure-body-in-golang
+//  }
 
 func loopAction(reader *bufio.Reader, ipa, ipp string) {
 	fmt.Print("-> ")

@@ -91,7 +91,7 @@ func (p *Pack2) Read(b []byte) (n int, err error) {
 	}
 	triceID := id.TriceID(head >> (32 - 20)) // 20 most significant bits are the ID
 	count := int((0x00000f00 & head) >> 8)   // this nibble is the 4-bit count
-	cycle := int((0x000000ff & head))        // least significant byte is the cycle
+	cycle := int(0x000000ff & head)        // least significant byte is the cycle
 	var cycleWarning string
 	if cycle != 0xff&(p.cycle+1) { // lost trices or out of sync
 		if !p.cycleErrorFlag {
@@ -608,7 +608,7 @@ func (p *Pack2) uReplace32(d []uint32) (s string, b []interface{}, e error) {
 	}
 	for i := range u {
 		if u[i] {
-			b[i] = uint32(d[i])
+			b[i] = d[i] // is uint32
 		} else {
 			b[i] = int32(d[i])
 		}
@@ -627,7 +627,7 @@ func (p *Pack2) uReplace64(d []uint64) (s string, b []interface{}, e error) {
 	}
 	for i := range u {
 		if u[i] {
-			b[i] = uint64(d[i]) // to do: ???
+			b[i] = d[i] // is uint64
 		} else {
 			b[i] = int64(d[i])
 		}

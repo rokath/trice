@@ -6,15 +6,10 @@ package keybcmd
 
 import (
 	"bufio"
-	"fmt"
+	"github.com/rokath/trice/pkg/msg"
 	"io/ioutil"
 	"os"
 	"strings"
-	"testing"
-
-	"github.com/rokath/trice/pkg/msg"
-
-	"github.com/rokath/trice/pkg/tst"
 )
 
 // stimulate injects keys to the loop action and returns the captured output as byte slice.
@@ -41,14 +36,14 @@ func stimulate(keys, ipa, ipp string) []byte {
 
 // todo: Linux
 
-func _TestHelp(t *testing.T) {
-	exp := "-> h|help                   - this text\nexitServer|serverExit    - kill server\nq|quit                   - end program\n"
-	b := stimulate("help\r\n", "", "")
-	act := string(b)
-	fmt.Println("*****************************************\n*****************************act=", act, "##############")
-	fmt.Println("exp=", exp, "##############")
-	tst.Equal(t, exp, act)
-}
+//  func _TestHelp(t *testing.T) {
+//  	exp := "-> h|help                   - this text\nexitServer|serverExit    - kill server\nq|quit                   - end program\n"
+//  	b := stimulate("help\r\n", "", "")
+//  	act := string(b)
+//  	fmt.Println("*****************************************\n*****************************act=", act, "##############")
+//  	fmt.Println("exp=", exp, "##############")
+//  	tst.Equal(t, exp, act)
+//  }
 
 //  // baseName returns basic filename of program without extension
 //  func baseName() string {

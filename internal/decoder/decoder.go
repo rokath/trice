@@ -105,7 +105,7 @@ func handleSIGTERM(rc io.ReadCloser) {
 			if Verbose {
 				fmt.Println("####################################", sig, "####################################")
 			}
-			rc.Close()
+			msg.FatalOnErr(rc.Close())
 			os.Exit(0) // end
 		case <-ticker.C:
 		}

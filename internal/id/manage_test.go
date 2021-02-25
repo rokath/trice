@@ -19,7 +19,7 @@ func sampleLut0() (lu TriceIDLookUp) {
 	return
 }
 
-const reverseSampleLut0 = "map[{t11 s11}:11 {t12 s12a}:12]"
+//const reverseSampleLut0 = "map[{t11 s11}:11 {t12 s12a}:12]"
 
 const sampleLutJSON0 = `{
 	"11": {
@@ -44,7 +44,8 @@ const sampleLutJSON1 = `{
 }`
 
 const sampleLutMap0 = "map[11:{t11 s11} 12:{t12 s12a}]"
-const sampleLutMap1 = "map[12:{t12 s12} 33:{t33 s33}]"
+
+//const sampleLutMap1 = "map[12:{t12 s12} 33:{t33 s33}]"
 
 // TestLutToJSONFilledByteSlice checks normal initial case.
 func TestLutToJSON(t *testing.T) {
@@ -73,7 +74,8 @@ func TestJSONToLutMapUpdate(t *testing.T) {
 	lut := make(TriceIDLookUp)
 	tst.AssertNoErr(t, lut.FromJSON(b))
 	b1 := []byte(sampleLutJSON1)
-	lut.FromJSON(b1)
+	err := lut.FromJSON(b1)
+	tst.AssertNoErr(t, err)
 	act := fmt.Sprint(lut)
 	tst.Equal(t, exp, act)
 }

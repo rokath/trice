@@ -120,7 +120,7 @@
                      "-encoding",
                      "pack2L",
                      "-port",
-                     "COM16",
+                     "COM3",
                      "-baud",
                      "115200",
                      "-idlist",

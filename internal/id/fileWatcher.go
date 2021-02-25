@@ -35,7 +35,7 @@ func (lu TriceIDLookUp) FileWatcher(m *sync.RWMutex) {
 				if diff > 5000*time.Millisecond {
 					fmt.Println("refreshing id.List")
 					m.Lock()
-					lu.fromFile(FnJSON)
+					msg.FatalOnErr(lu.fromFile(FnJSON))
 					m.Unlock()
 					last = time.Now()
 				}
