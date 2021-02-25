@@ -43,6 +43,96 @@ triceServeFifoWrappedToBytesBuffer();
 
 Currently these encodings are supported:
 
+### `mix` encoding (idea)
+
+- `I` = ID bit
+- `D` = data bit
+
+- The bit 31 is the mode bit.
+  - 0: short encoding
+  - 1: medium and long encoding
+
+- `0IIIIIII IIIIIIII DDDDDDDD DDDDDDDD` : short, implicit count
+- An "implicit" count means coded in trice format resulting from trice-ID and therefore no check option.
+- Short encoding should be used for time and space critical cases.
+  - Configuration is in triceConfig.h possible
+
+```b
+0IIIIIII IIIIIIII 00000000 00000000 : short, implicit count=0, Trice0
+0IIIIIII IIIIIIII DDDDDDDD 00000000 : short, implicit count=1, Trice8_1
+0IIIIIII IIIIIIII DDDDDDDD DDDDDDDD : short, implicit count=2, Trice8_2, Trice16_1
+```
+
+- `1IIIIIII IIIIIIII IIII-NNN CCCCCCCC` : medium, 3-bit count NNN
+- The bit 11 (-) is reserved for future extensions.
+- The medium 3-bit counts 5 and 6 are reserved for future extensions.
+
+```b
+1IIIIIII IIIIIIII IIII-000 CCCCCCCC : medium, count=0, TRICE0, - = reserved bit
+
+1IIIIIII IIIIIIII IIII-001 CCCCCCCC : medium, count=1, TRICE8_1
+DDDDDDDD 00000000 00000000 00000000
+
+1IIIIIII IIIIIIII IIII-010 CCCCCCCC : medium, count=2, TRICE8_2, TRICE16_1
+DDDDDDDD DDDDDDDD 00000000 00000000
+
+1IIIIIII IIIIIIII IIII-011 CCCCCCCC : medium, count=3, TRICE8_3
+DDDDDDDD DDDDDDDD DDDDDDDD 00000000
+
+1IIIIIII IIIIIIII IIII-100 CCCCCCCC : medium, count=4, TRICE8_4, TRICE16_2, TRICE32_1
+DDDDDDDD DDDDDDDD DDDDDDDD DDDDDDDD
+
+1IIIIIII IIIIIIII IIII-101 CCCCCCCC : reserved
+DDDDDDDD DDDDDDDD DDDDDDDD DDDDDDDD
+DDDDDDDD 00000000 00000000 00000000
+
+1IIIIIII IIIIIIII IIII-110 CCCCCCCC : reserved
+DDDDDDDD DDDDDDDD DDDDDDDD DDDDDDDD
+DDDDDDDD DDDDDDDD 00000000 00000000
+```
+
+- `1IIIIIII IIIIIIII IIII-111 CCCCCCCC` : long, count with eXor Checksum = N=^n
+- `NNNNNNNN NNNNNNNN nnnnnnnn nnnnnnnn` = 16-bit count N and bit invers n
+- `DDDDDDDD ...`
+
+```b
+1IIIIIII IIIIIIII IIII-111 CCCCCCCC = long, TRICE8_5
+00000000 00000101 11111111 11111010 = count 5
+DDDDDDDD DDDDDDDD DDDDDDDD DDDDDDDD
+DDDDDDDD 00000000 00000000 00000000
+
+1IIIIIII IIIIIIII IIII-111 CCCCCCCC = long, TRICE 8_6, TRICE 16_3
+00000000 00000110 11111111 11111001 = count 6
+DDDDDDDD DDDDDDDD DDDDDDDD DDDDDDDD
+DDDDDDDD DDDDDDDD 00000000 00000000
+
+1IIIIIII IIIIIIII IIII-111 CCCCCCCC = long, TRICE 8_7
+00000000 00000111 11111111 11111000 = count 7
+DDDDDDDD DDDDDDDD DDDDDDDD DDDDDDDD
+DDDDDDDD DDDDDDDD DDDDDDDD 00000000
+
+1IIIIIII IIIIIIII IIII-111 CCCCCCCC = long, TRICE8_8 TRICE16_4, TRICE32_2, TRICE64_1
+00000000 00001000 11111111 11110111 = count 8
+DDDDDDDD DDDDDDDD DDDDDDDD DDDDDDDD
+DDDDDDDD DDDDDDDD DDDDDDDD DDDDDDDD
+
+1IIIIIII IIIIIIII IIII-111 CCCCCCCC = long, strlen 9
+00000000 00001001 11111111 11110110 = count 9
+DDDDDDDD DDDDDDDD DDDDDDDD DDDDDDDD
+DDDDDDDD DDDDDDDD DDDDDDDD DDDDDDDD
+DDDDDDDD 00000000 00000000 00000000
+
+...
+
+1IIIIIII IIIIIIII IIII-111 CCCCCCCC = long, strlen 65535
+11111111 11111111 00000000 00000000 = count 65535
+DDDDDDDD DDDDDDDD DDDDDDDD DDDDDDDD
+...
+DDDDDDDD DDDDDDDD DDDDDDDD DDDDDDDD
+DDDDDDDD DDDDDDDD DDDDDDDD 00000000
+
+```
+
 ### `pack2` & `pacl2L` encoding
 
 This is the recommended encoding.
@@ -54,57 +144,7 @@ This is the recommended encoding.
 - trice tool source: trice/internal/decoder/pack2Decoder.go
 - trice tool test file: trice/internal/decoder/pack2Decoder_test.go
 
-### `pack` & `packL` encoding
-
-This is the pack2 & pack2L predecessor and kept for reference. 
-
-- no cycle counter
-- 16-bit IDs
-- runtime strings up to 65535 chars
-- target source: trice/srcTrice.C/intern/tricePackEncoder.h 
-- trice tool source: trice/internal/decoder/packDecoder.go
-- trice tool test file: trice/internal/decoder/packDecoder_test.go
-
-
-### `bare` and `bareL` encoding
-
-This was the first minimal implementation. Could be interstuing for 8-bit and 16-bit processors.
-
-- no cycle counter
-- 16-bit IDs
-- no runtime strings
-- target source: trice/srcTrice.C/intern/triceBareEncoder.h 
-- trice tool source: trice/internal/decoder/bareDecoder.go
-- trice tool test file: trice/internal/decoder/bareDecoder_test.go
-
-### `wrap` and `wrapL` encoding
-
-This is also `bare` & `bareL` encoding but with additional control bytes.
-
-### `esc` encoding
-
-This is a try-out escape sequence encoding implementation and kept for reference.
-
-- no endianness choice
-- no cycle counter
-- 16-bit IDs
-- runtime strings up to 255 chars
-- target source: trice/srcTrice.C/intern/triceEscEncoder.h 
-- trice tool source: trice/internal/decoder/escDecoder.go
-- trice tool test file: trice/internal/decoder/escDecoder_test.go
-
-
-### own encoding
-
-To implement a different encoding:
-- Copy trice/srcTrice.C/intern/trice*Any*Encoder.h, to trice/srcTrice.C/intern/trice*Own*Encoder.h.
-- Adapt trice/srcTrice.C/intern/trice*Own*Encoder.h and integrate it in trice.h accordingly.
-- Create a test project, copy and adapt triceConfig.h in the desired way.
-- Copy trice/internal/decoder/*any*Decoder.go to trice/internal/decoder/**own**Decoder.go and adapt it.
-- Integrate *own*Decoder.go accordingly.
-- Write tests!
-
-## Encoding `pack2` & `pack2L` (with cycle counter, 20-bit IDs, runtime strings up to 65535 chars)
+### Encoding `pack2` & `pack2L` (with cycle counter, 20-bit IDs, runtime strings up to 65535 chars)
 
 The encoding is similar to `pack` & `packL` encoding with these differences:
 
@@ -120,7 +160,71 @@ The encoding is similar to `pack` & `packL` encoding with these differences:
 - `LLLL` = 16-bit long count
 - `cccc` = bit-inversed LLLL as check sum
 
-## Encoding `pack` & `packL` (no cycle counter, 16-bit IDs, runtime strings up to 65535 chars)
+Bit pattern:
+
+```b
+
+0IIIIIII IIIIIIII DDDDDDDD DDDDDDDD = mini
+1IIIIIII IIIIIIII IIIINNNN CCCCCCCC = pack2
+
+1IIIIIII IIIIIIII IIII0000 CCCCCCCC = pack2 TRICE0
+
+1IIIIIII IIIIIIII IIII0001 CCCCCCCC = pack2 TRICE8_1
+DDDDDDDD 00000000 00000000 00000000
+
+1IIIIIII IIIIIIII IIII0010 CCCCCCCC = pack2 TRICE8_2, TRICE16_1
+DDDDDDDD DDDDDDDD 00000000 00000000
+
+1IIIIIII IIIIIIII IIII0011 CCCCCCCC = pack2 TRICE8_3
+DDDDDDDD DDDDDDDD DDDDDDDD 00000000
+
+1IIIIIII IIIIIIII IIII0100 CCCCCCCC = pack2 TRICE8_4, TRICE16_2, TRICE32_1
+DDDDDDDD DDDDDDDD DDDDDDDD DDDDDDDD
+
+1IIIIIII IIIIIIII IIII0101 CCCCCCCC = pack2 TRICE8_5
+DDDDDDDD DDDDDDDD DDDDDDDD DDDDDDDD
+DDDDDDDD 00000000 00000000 00000000
+
+1IIIIIII IIIIIIII IIII0110 CCCCCCCC = pack2 TRICE8_6 TRICE16_3
+DDDDDDDD DDDDDDDD DDDDDDDD DDDDDDDD
+DDDDDDDD DDDDDDDD 00000000 00000000
+
+1IIIIIII IIIIIIII IIII0111 CCCCCCCC = pack2 TRICE8_7
+DDDDDDDD DDDDDDDD DDDDDDDD DDDDDDDD
+DDDDDDDD DDDDDDDD DDDDDDDD 00000000
+
+1IIIIIII IIIIIIII IIII1000 CCCCCCCC = pack2 TRICE8_8 TRICE16_4, TRICE32_2, TRICE64_1
+DDDDDDDD DDDDDDDD DDDDDDDD DDDDDDDD
+DDDDDDDD DDDDDDDD DDDDDDDD DDDDDDDD
+
+...
+
+1IIIIIII IIIIIIII IIII1100 CCCCCCCC = pack2 TRICE16_3
+DDDDDDDD DDDDDDDD DDDDDDDD DDDDDDDD
+DDDDDDDD DDDDDDDD DDDDDDDD DDDDDDDD
+DDDDDDDD DDDDDDDD DDDDDDDD DDDDDDDD
+
+1IIIIIII IIIIIIII IIII1101 CCCCCCCC = pack2 long count
+1IIIIIII IIIIIIII IIII1110 CCCCCCCC = pack2 reserved
+1IIIIIII IIIIIIII IIII1111 CCCCCCCC = pack2 reserved
+
+1IIIIIII IIIIIIII IIII1101 CCCCCCCC = pack2 long count
+NNNNNNNN NNNNNNNN nnnnnnnn nnnnnnnn = 16-bit count N and bit invers n
+
+```
+
+### `pack` & `packL` encoding
+
+This is the pack2 & pack2L predecessor and kept for reference. 
+
+- no cycle counter
+- 16-bit IDs
+- runtime strings up to 65535 chars
+- target source: trice/srcTrice.C/intern/tricePackEncoder.h 
+- trice tool source: trice/internal/decoder/packDecoder.go
+- trice tool test file: trice/internal/decoder/packDecoder_test.go
+
+### Encoding `pack` & `packL` (no cycle counter, 16-bit IDs, runtime strings up to 65535 chars)
 
 All values up to 32 bit are combined 32 bit units in big (=network) or little endian order.
 64-bit values are in the same byte order.
@@ -174,6 +278,60 @@ byte  3 2 1 0   3 2 1 0   3 2 1 0  | macro
 and so on...
 
 A [sync package](#sync-packages) can be inserted anytime between 2 trice but not inside a trice.
+
+### `bare` and `bareL` encoding
+
+This was the first minimal implementation. Could be interstuing for 8-bit and 16-bit processors.
+
+- no cycle counter
+- 16-bit IDs
+- no runtime strings
+- target source: trice/srcTrice.C/intern/triceBareEncoder.h
+- trice tool source: trice/internal/decoder/bareDecoder.go
+- trice tool test file: trice/internal/decoder/bareDecoder_test.go
+
+### `wrap` and `wrapL` encoding
+
+This is also `bare` & `bareL` encoding but with additional control bytes.
+
+### `esc` encoding
+
+This is a try-out escape sequence encoding implementation and kept for reference.
+
+- no endianness choice
+- no cycle counter
+- 16-bit IDs
+- runtime strings up to 255 chars
+- target source: trice/srcTrice.C/intern/triceEscEncoder.h 
+- trice tool source: trice/internal/decoder/escDecoder.go
+- trice tool test file: trice/internal/decoder/escDecoder_test.go
+
+### `mini` encoding (idea)
+
+- Supports only `TRICE0`, `TRICE16_1`, `TRICE8_2`.
+- 16-bit IDs and 16-bit data
+- Recommended for 8-bit controller
+- Minimal memory footprint
+- Maximal speed.
+
+### `mix` encoding (idea)
+
+- Combines `pack2` and `mini` by using 1 bit from the ID space as mode bit.
+- If mode bit is 0, then `mini` encoding with 15-bit IDs (32767 usable)
+- If mode bit is 1, then `pack2` encoding with 19-bit IDs (524287 usable)
+- The 4-bit count offers 2 reserved values for future extension.
+
+### own encoding
+
+To implement a different encoding:
+
+- Copy trice/srcTrice.C/intern/trice*Any*Encoder.h, to trice/srcTrice.C/intern/trice*Own*Encoder.h.
+- Adapt trice/srcTrice.C/intern/trice*Own*Encoder.h and integrate it in trice.h accordingly.
+- Create a test project, copy and adapt triceConfig.h in the desired way.
+- Copy trice/internal/decoder/*any*Decoder.go to trice/internal/decoder/**own**Decoder.go and adapt it.
+- Integrate *own*Decoder.go accordingly.
+- Write tests!
+
 
 ## Encoding `bare` & `bareL`
 
