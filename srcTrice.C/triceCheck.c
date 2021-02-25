@@ -90,7 +90,7 @@ void triceCheckSetTime(int index) {
         case 1:
             TRICE16_1(Id(62535), "ERR:error       message, SysTick is %6u\n", SYSTICKVAL16);
             TRICE16_1(Id(10761), "WRN:warning     message, SysTick is %6u\n", SYSTICKVAL16);
-            TRICE16_1(Id(17536), "ATT:attension   message, SysTick is %6u\n", SYSTICKVAL16);
+            TRICE16_1(Id(17536), "ATT:attention   message, SysTick is %6u\n", SYSTICKVAL16);
             TRICE16_1(Id(45064), "DIA:diagnostics message, SysTick is %6u\n", SYSTICKVAL16);
             TRICE16_1(Id(59225), "TIM:timing      message, SysTick is %6u\n", SYSTICKVAL16);
             TRICE16_1(Id( 8101), "DBG:debug       message, SysTick is %6u\n", SYSTICKVAL16);
@@ -296,7 +296,7 @@ void triceCheckSetSpace(int index) {
         case 1:
             trice16_1(Id(62535), "ERR:error       message, SysTick is %6u\n", SYSTICKVAL16);
             trice16_1(Id(10761), "WRN:warning     message, SysTick is %6u\n", SYSTICKVAL16);
-            trice16_1(Id(17536), "ATT:attension   message, SysTick is %6u\n", SYSTICKVAL16);
+            trice16_1(Id(17536), "ATT:attention   message, SysTick is %6u\n", SYSTICKVAL16);
             trice16_1(Id(45064), "DIA:diagnostics message, SysTick is %6u\n", SYSTICKVAL16);
             trice16_1(Id(59225), "TIM:timing      message, SysTick is %6u\n", SYSTICKVAL16);
             trice16_1(Id( 8101), "DBG:debug       message, SysTick is %6u\n", SYSTICKVAL16);

@@ -8,6 +8,7 @@ import (
 	"time"
 )
 
+// SyncPacketPattern is used if a sync packet arrives
 const SyncPacketPattern = "inf:[TRICE_SYNC_PACKET 0x89abcdef]"
 
 // TriceLineComposer collects all partial strings forming one line.
@@ -111,7 +112,6 @@ func (p *TriceLineComposer) WriteString(s string) (n int, err error) {
 		}
 	}
 	if emptyLine { // clean up
-		emptyLine = false
 		p.line = p.line[:0]
 	}
 	return

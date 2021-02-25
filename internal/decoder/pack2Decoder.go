@@ -257,53 +257,47 @@ func (p *Pack2) expectedByteCount() int {
 	}
 }
 
+// https://stackoverflow.com/questions/31561369/how-do-i-declare-a-function-pointer-to-a-method-in-go
+type pack2Selector struct {
+	triceType string
+	triceFn   func(p *Pack2) (int, error)
+}
+
+var pack2Sel = []pack2Selector{
+	{"TRICE0", (*Pack2).trice0},
+	{"TRICE8_1", (*Pack2).trice81},
+	{"TRICE8_2", (*Pack2).trice82},
+	{"TRICE8_3", (*Pack2).trice83},
+	{"TRICE8_4", (*Pack2).trice84},
+	{"TRICE8_5", (*Pack2).trice85},
+	{"TRICE8_6", (*Pack2).trice86},
+	{"TRICE8_7", (*Pack2).trice87},
+	{"TRICE8_8", (*Pack2).trice88},
+	{"TRICE16_1", (*Pack2).trice161},
+	{"TRICE16_2", (*Pack2).trice162},
+	{"TRICE16_3", (*Pack2).trice163},
+	{"TRICE16_4", (*Pack2).trice164},
+	{"TRICE32_1", (*Pack2).trice321},
+	{"TRICE32_2", (*Pack2).trice322},
+	{"TRICE32_3", (*Pack2).trice323},
+	{"TRICE32_4", (*Pack2).trice324},
+	{"TRICE64_1", (*Pack2).trice641},
+	{"TRICE64_2", (*Pack2).trice642},
+}
+
 // sprintTrice generates the trice string.
 func (p *Pack2) sprintTrice(cnt int) (n int, e error) {
 	// ID and count are ok
-	switch p.upperCaseTriceType {
-	case "TRICE0":
-		return p.trice0()
-	case "TRICE8_1":
-		return p.trice81()
-	case "TRICE8_2":
-		return p.trice82()
-	case "TRICE8_3":
-		return p.trice83()
-	case "TRICE8_4":
-		return p.trice84()
-	case "TRICE8_5":
-		return p.trice85()
-	case "TRICE8_6":
-		return p.trice86()
-	case "TRICE8_7":
-		return p.trice87()
-	case "TRICE8_8":
-		return p.trice88()
-	case "TRICE16_1":
-		return p.trice161()
-	case "TRICE16_2":
-		return p.trice162()
-	case "TRICE16_3":
-		return p.trice163()
-	case "TRICE16_4":
-		return p.trice164()
-	case "TRICE32_1":
-		return p.trice321()
-	case "TRICE32_2":
-		return p.trice322()
-	case "TRICE32_3":
-		return p.trice323()
-	case "TRICE32_4":
-		return p.trice324()
-	case "TRICE64_1":
-		return p.trice641()
-	case "TRICE64_2":
-		return p.trice642()
-	case "TRICE_S":
-		return p.triceS(cnt)
-	default:
-		return p.outOfSync(fmt.Sprintf("Unexpected trice.Type %s", p.trice.Type))
+	for _, s := range pack2Sel {
+		if s.triceType == p.upperCaseTriceType {
+			return s.triceFn(p)
+		}
 	}
+
+	if "TRICE_S" == p.upperCaseTriceType {
+		return p.triceS(cnt)
+	}
+	return p.outOfSync(fmt.Sprintf("Unexpected trice.Type %s", p.trice.Type))
 }
 
 func (p *Pack2) triceS(cnt int) (n int, e error) {
@@ -565,7 +559,7 @@ func uReplaceN(i string) (o string, u []bool) {
 	}
 }
 
-// uReplace8 takes parameter values in d and returns them in b as uint8 or int8 according to %nu occurances in format string.
+// uReplace8 takes parameter values in d and returns them in b as uint8 or int8 according to %nu occurences in format string.
 // It also returns the modified formatstring with replacments %nu -> %nd.
 func (p *Pack2) uReplace8(d []uint32) (s string, b []interface{}, e error) {
 	b = make([]interface{}, len(d))
@@ -584,7 +578,7 @@ func (p *Pack2) uReplace8(d []uint32) (s string, b []interface{}, e error) {
 	return
 }
 
-// uReplace16 takes parameter values in d and returns them in b as uint16 or int16 according to %nu occurances in format string.
+// uReplace16 takes parameter values in d and returns them in b as uint16 or int16 according to %nu occurences in format string.
 // It also returns the modified formatstring with replacments %nu -> %nd.
 func (p *Pack2) uReplace16(d []uint32) (s string, b []interface{}, e error) {
 	b = make([]interface{}, len(d))
@@ -603,7 +597,7 @@ func (p *Pack2) uReplace16(d []uint32) (s string, b []interface{}, e error) {
 	return
 }
 
-// uReplace32 takes parameter values in d and returns them in b as uint32 or int32 according to %nu occurances in format string.
+// uReplace32 takes parameter values in d and returns them in b as uint32 or int32 according to %nu occurences in format string.
 // It also returns the modified formatstring with replacments %nu -> %nd.
 func (p *Pack2) uReplace32(d []uint32) (s string, b []interface{}, e error) {
 	b = make([]interface{}, len(d))
@@ -622,7 +616,7 @@ func (p *Pack2) uReplace32(d []uint32) (s string, b []interface{}, e error) {
 	return
 }
 
-// uReplace64 takes parameter values in d and returns them in b as uint64 or int64 according to %nu occurances in format string.
+// uReplace64 takes parameter values in d and returns them in b as uint64 or int64 according to %nu occurences in format string.
 // It also returns the modified formatstring with replacments %nu -> %nd.
 func (p *Pack2) uReplace64(d []uint64) (s string, b []interface{}, e error) {
 	b = make([]interface{}, len(d))

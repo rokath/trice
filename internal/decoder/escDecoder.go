@@ -59,7 +59,7 @@ func (p *Esc) Read(b []byte) (n int, err error) {
 	// Even err could be io.EOF some valid data possibly in p.syncBuffer.
 	// In case of file input (JLINK usage) a plug off is not detectable here.
 
-	p.bc = len(p.syncBuffer) // intermediade assingment for better error tracking
+	p.bc = len(p.syncBuffer) // intermediade assignment for better error tracking
 	if p.bc < 4 {
 		return // wait
 	}
@@ -124,53 +124,45 @@ func (p *Esc) expectedByteCount() int {
 	}
 }
 
+type escSelector struct {
+	triceType string
+	triceFn   func(p *Esc) (int, error)
+}
+
+var escSel = []escSelector{
+	{"TRICE0", (*Esc).trice0},
+	{"TRICE8_1", (*Esc).trice81},
+	{"TRICE8_2", (*Esc).trice82},
+	{"TRICE8_3", (*Esc).trice83},
+	{"TRICE8_4", (*Esc).trice84},
+	{"TRICE8_5", (*Esc).trice85},
+	{"TRICE8_6", (*Esc).trice86},
+	{"TRICE8_7", (*Esc).trice87},
+	{"TRICE8_8", (*Esc).trice88},
+	{"TRICE16_1", (*Esc).trice161},
+	{"TRICE16_2", (*Esc).trice162},
+	{"TRICE16_3", (*Esc).trice163},
+	{"TRICE16_4", (*Esc).trice164},
+	{"TRICE32_1", (*Esc).trice321},
+	{"TRICE32_2", (*Esc).trice322},
+	{"TRICE32_3", (*Esc).trice323},
+	{"TRICE32_4", (*Esc).trice324},
+	{"TRICE64_1", (*Esc).trice641},
+	{"TRICE64_2", (*Esc).trice642},
+}
+
 func (p *Esc) sprintTrice() (n int, e error) {
 	if "TRICE_S" == p.trice.Type { // special case
 		return p.triceS()
 	}
 	p.rub(4) // remove header
-	switch p.upperCaseTriceType {
-	case "TRICE0":
-		return p.trice0()
-	case "TRICE8_1":
-		return p.trice81()
-	case "TRICE8_2":
-		return p.trice82()
-	case "TRICE8_3":
-		return p.trice83()
-	case "TRICE8_4":
-		return p.trice84()
-	case "TRICE8_5":
-		return p.trice85()
-	case "TRICE8_6":
-		return p.trice86()
-	case "TRICE8_7":
-		return p.trice87()
-	case "TRICE8_8":
-		return p.trice88()
-	case "TRICE16_1":
-		return p.trice161()
-	case "TRICE16_2":
-		return p.trice162()
-	case "TRICE16_3":
-		return p.trice163()
-	case "TRICE16_4":
-		return p.trice164()
-	case "TRICE32_1":
-		return p.trice321()
-	case "TRICE32_2":
-		return p.trice322()
-	case "TRICE32_3":
-		return p.trice323()
-	case "TRICE32_4":
-		return p.trice324()
-	case "TRICE64_1":
-		return p.trice641()
-	case "TRICE64_2":
-		return p.trice642()
-	default:
-		return p.outOfSync(fmt.Sprintf("Unexpected trice.Type %s", p.trice.Type))
+
+	for _, s := range escSel {
+		if s.triceType == p.upperCaseTriceType {
+			return s.triceFn(p)
+		}
 	}
+	return p.outOfSync(fmt.Sprintf("Unexpected trice.Type %s", p.trice.Type))
 }
 
 func (p *Esc) triceS() (n int, e error) {

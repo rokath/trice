@@ -70,9 +70,8 @@ func baseName() string {
 	// return strings.TrimSuffix(s, ".test") // for Example tests only
 	if runtime.GOOS == "windows" {
 		return "trice.exe"
-	} else {
-		return "trice"
 	}
+	return "trice"
 }
 
 // newLineWriter provides a LineWriter which can be a remote Display or the local console.

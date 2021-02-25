@@ -5,6 +5,7 @@
 package emitter
 
 import (
+	"fmt"
 	"strings"
 	"testing"
 
@@ -17,6 +18,8 @@ func Test1colorize(t *testing.T) {
 	s := "abc:de"
 	c := p.colorize(s)
 	if c != s {
+		fmt.Println(s)
+		fmt.Println(c)
 		t.Fail()
 	}
 }

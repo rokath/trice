@@ -19,7 +19,7 @@ import (
 const defaultPrefix = "source: "
 
 var (
-	colorInfo = `The format strings can start with a lower or upper case channel infomation.
+	colorInfo = `The format strings can start with a lower or upper case channel information.
 See https://github.com/rokath/trice/blob/master/srcTrice.C/triceCheck.c for examples. Color options: 
 "off": Disable ANSI color. The lower case channel information is kept: "w:x"-> "w:x" 
 "none": Disable ANSI color. The lower case channel information is removed: "w:x"-> "x"

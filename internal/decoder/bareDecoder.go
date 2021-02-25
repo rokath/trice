@@ -125,47 +125,39 @@ func (p *Bare) expectedPayloadLen() int {
 	}
 }
 
+type bareSelector struct {
+	triceType string
+	triceFn   func(p *Bare) (int, error)
+}
+
+var bareSel = []bareSelector{
+	{"TRICE0", (*Bare).trice0},
+	{"TRICE8_1", (*Bare).trice81},
+	{"TRICE8_2", (*Bare).trice82},
+	{"TRICE8_3", (*Bare).trice83},
+	{"TRICE8_4", (*Bare).trice84},
+	{"TRICE8_5", (*Bare).trice85},
+	{"TRICE8_6", (*Bare).trice86},
+	{"TRICE8_7", (*Bare).trice87},
+	{"TRICE8_8", (*Bare).trice88},
+	{"TRICE16_1", (*Bare).trice161},
+	{"TRICE16_2", (*Bare).trice162},
+	{"TRICE16_3", (*Bare).trice163},
+	{"TRICE16_4", (*Bare).trice164},
+	{"TRICE32_1", (*Bare).trice321},
+	{"TRICE32_2", (*Bare).trice322},
+	{"TRICE32_3", (*Bare).trice323},
+	{"TRICE32_4", (*Bare).trice324},
+	{"TRICE64_1", (*Bare).trice641},
+	{"TRICE64_2", (*Bare).trice642},
+}
+
 // sprintTrice generates the trice string.
 func (p *Bare) sprintTrice() (n int, err error) {
-	switch p.upperCaseTriceType {
-	case "TRICE0":
-		return p.trice0()
-	case "TRICE8_1":
-		return p.trice81()
-	case "TRICE8_2":
-		return p.trice82()
-	case "TRICE8_3":
-		return p.trice83()
-	case "TRICE8_4":
-		return p.trice84()
-	case "TRICE8_5":
-		return p.trice85()
-	case "TRICE8_6":
-		return p.trice86()
-	case "TRICE8_7":
-		return p.trice87()
-	case "TRICE8_8":
-		return p.trice88()
-	case "TRICE16_1":
-		return p.trice161()
-	case "TRICE16_2":
-		return p.trice162()
-	case "TRICE16_3":
-		return p.trice163()
-	case "TRICE16_4":
-		return p.trice164()
-	case "TRICE32_1":
-		return p.trice321()
-	case "TRICE32_2":
-		return p.trice322()
-	case "TRICE32_3":
-		return p.trice323()
-	case "TRICE32_4":
-		return p.trice324()
-	case "TRICE64_1":
-		return p.trice641()
-	case "TRICE64_2":
-		return p.trice642()
+	for _, s := range bareSel {
+		if s.triceType == p.upperCaseTriceType {
+			return s.triceFn(p)
+		}
 	}
 	return p.outOfSync(fmt.Sprintf("Unexpected trice.Type %s", p.trice.Type))
 }

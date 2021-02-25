@@ -443,7 +443,7 @@ var (
 	},
 	"65105": {
 		"Type": "trice16_1",
-		"Strg": "ATT:attension   message, SysTick is %6d\\n"
+		"Strg": "ATT:attention   message, SysTick is %6d\\n"
 	},
 	"65109": {
 		"Type": "trice0",

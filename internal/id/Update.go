@@ -325,7 +325,7 @@ func refreshIDs(text string, lu TriceIDLookUp, tflu TriceFmtLookUp) {
 		}
 		if id > 0 {
 			lu[id] = tf
-			tflu[tfS] = id // no distiction for lower and upper case Type
+			tflu[tfS] = id // no distinction for lower and upper case Type
 		}
 	}
 }
@@ -395,7 +395,7 @@ func updateIDsShared(text string, lu TriceIDLookUp, tflu TriceFmtLookUp, pListMo
 		}
 		// update map: That is needed after an invalid trice or if id:tf is valid but not inside lu & tflu yet, for example after manual code changes or forgotten refresh before update.
 		lu[id] = tf
-		tflu[tfS] = id // no distiction for lower and upper case Type
+		tflu[tfS] = id // no distinction for lower and upper case Type
 	}
 }
 

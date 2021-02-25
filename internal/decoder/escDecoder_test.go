@@ -21,7 +21,7 @@ var escTestTable = testTable{
 	{[]byte{236, 226, 186, 47, 0, 34, 0, 1}, `MSG: triceFifoMaxDepth = 34, select = 1`},
 	{[]byte{236, 225, 254, 212, 175, 41}, `ERR:error       message, SysTick is -20695`},
 	{[]byte{236, 225, 255, 108, 168, 113}, `WRN:warning     message, SysTick is -22415`},
-	{[]byte{236, 225, 254, 81, 161, 180}, `ATT:attension   message, SysTick is -24140`},
+	{[]byte{236, 225, 254, 81, 161, 180}, `ATT:attention   message, SysTick is -24140`},
 	{[]byte{236, 225, 255, 32, 155, 252}, `DIA:diagnostics message, SysTick is -25604`},
 	{[]byte{236, 225, 255, 159, 148, 58}, `TIM:timing      message, SysTick is -27590`},
 	{[]byte{236, 225, 255, 29, 141, 130}, `DBG:debug       message, SysTick is -29310`},

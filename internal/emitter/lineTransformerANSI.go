@@ -53,12 +53,74 @@ func isLower(s string) bool {
 	return true
 }
 
+type ansiSelector struct {
+	channel  []string
+	colorize func(string) string
+}
+
+var ansiSel = []ansiSelector{
+	{[]string{"e", "err", "error", "E", "ERR", "ERROR"}, colorizeERROR},
+	{[]string{"w", "wrn", "warning", "W", "WRN", "WARNING"}, colorizeWARNING},
+	{[]string{"m", "msg", "message", "M", "MSG", "MESSAGE"}, colorizeMESSAGE},
+	{[]string{"rd", "rd_", "RD", "RD_"}, colorizeREAD},
+	{[]string{"wr", "wr_", "WR", "WR_"}, colorizeWRITE},
+	{[]string{"tim", "time", "TIM", "TIME"}, colorizeTIME},
+	{[]string{"att", "attention", "ATT", "ATTENTION"}, colorizeATTENTION},
+	{[]string{"d", "db", "dbg", "debug", "D", "DB", "DBG", "DEBUG"}, colorizeDEBUG},
+	{[]string{"dia", "diag", "DIA", "DIAG"}, colorizeDIAG},
+	{[]string{"isr", "interrupt", "ISR", "INTERRUPT"}, colorizeINTERRUPT},
+	{[]string{"s", "sig", "signal", "S", "SIG", "SIGNAL"}, colorizeSIGNAL},
+	{[]string{"t", "tst", "test", "T", "TST", "TEST"}, colorizeTEST},
+	{[]string{"i", "inf", "info", "informal", "I", "INF", "INFO", "INFORMAL"}, colorizeINFO},
+}
+
+func isChannel(ch string) bool {
+	for _, s := range ansiSel {
+		for _, c := range s.channel {
+			if c == ch {
+				return true
+			}
+		}
+	}
+	return false
+}
+
 // colorize prefixes s with an ansi color code according to this conditions:
 // If p.colorPalette is "off", do nothing.
 // If p.colorPalette is "none" remove only lower case channel info "col:"
 // If "COL:" is begin of string add ANSI color code according to COL:
 // If "col:" is begin of string replace "col:" with ANSI color code according to col:
 func (p *LineTransformerANSI) colorize(s string) (r string) {
+	r = s
+	if "off" == p.colorPalette { // do nothing
+		return
+	}
+	sc := strings.SplitN(s, ":", 2)
+	if len(sc) < 2 { // no color separator
+		return
+	}
+	if isChannel(sc[0]) && isLower(sc[0]) {
+		r = sc[1] // remove channel info
+	}
+	if "none" == p.colorPalette {
+		return
+	}
+	for _, s := range ansiSel {
+		for _, c := range s.channel {
+			if c == sc[0] {
+				return s.colorize(r)
+			}
+		}
+	}
+	return
+}
+
+// colorize prefixes s with an ansi color code according to this conditions:
+// If p.colorPalette is "off", do nothing.
+// If p.colorPalette is "none" remove only lower case channel info "col:"
+// If "COL:" is begin of string add ANSI color code according to COL:
+// If "col:" is begin of string replace "col:" with ANSI color code according to col:
+func (p *LineTransformerANSI) _colorize(s string) (r string) {
 	r = s
 	if "off" == p.colorPalette { // do nothing
 		return

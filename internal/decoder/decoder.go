@@ -145,7 +145,6 @@ func Translate(sw *emitter.TriceLineComposer, lut id.TriceIDLookUp, m *sync.RWMu
 
 	// intermediate trice string buffer for a single trice
 	b := make([]byte, defaultSize)
-outer:
 	for {
 		n, err := dec.Read(b) // Code to measure
 		if io.EOF == err {
@@ -156,7 +155,7 @@ outer:
 				fmt.Println("WAITING...")
 			}
 			time.Sleep(100 * time.Millisecond) // limit try again speed
-			continue outer                     // read again
+			continue                           // read again
 		}
 		if nil != err {
 			if Verbose {

@@ -101,7 +101,7 @@ func (p *Device) Close() error {
 
 // Open starts the RTT logger command with a temporary logfile.
 // The temporary logfile is opened for reading.
-func (p *Device) Open() error {
+func (p *Device) _Open() error {
 	if Verbose {
 		fmt.Println("Start a process:", p.Exec, "with needed lib", p.Lib, "and args:")
 		for i, a := range p.args {
@@ -146,6 +146,34 @@ func (p *Device) Open() error {
 	default:
 		p.Err = fmt.Errorf("cannot handle \"%s\"as parameter string - too much separators: %v", p.arguments, p.args)
 	}
+
+	if Verbose {
+		p.cmd.Stdout = os.Stdout
+		p.cmd.Stderr = os.Stderr
+	}
+	p.Err = p.cmd.Start()
+	p.ErrorFatal()
+
+	p.tempLogFileHandle, p.Err = os.Open(p.tempLogFileName) // Open() opens a file with read only flag.
+	p.ErrorFatal()
+
+	//p.watchLogfile() // todo: make it working well
+	if Verbose {
+		fmt.Println("trice is watching and reading from", p.tempLogFileName)
+	}
+	return nil
+}
+
+// Open starts the RTT logger command with a temporary logfile.
+// The temporary logfile is opened for reading.
+func (p *Device) Open() error {
+	if Verbose {
+		fmt.Println("Start a process:", p.Exec, "with needed lib", p.Lib, "and args:")
+		for i, a := range p.args {
+			fmt.Println(i, a)
+		}
+	}
+	p.cmd = exec.Command(p.Exec, p.args...)
 
 	if Verbose {
 		p.cmd.Stdout = os.Stdout

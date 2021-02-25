@@ -15,11 +15,10 @@ import (
 func TestStart(t *testing.T) {
 	afn := "testdata/actCage.log"
 	efn := "testdata/expCage.log"
-	err := os.Remove(afn)
-	err = os.Remove(efn)
+	_ = os.Remove(afn)
+	_ = os.Remove(efn)
 
-	var efh *os.File
-	efh, err = os.OpenFile(efn, os.O_RDWR|os.O_CREATE, 0666)
+	efh, err := os.OpenFile(efn, os.O_RDWR|os.O_CREATE, 0666)
 	assert.Nil(t, err)
 	_, err = fmt.Fprintln(efh, "testLog00\ntestOutOrErr01\ntestOutOrErr01")
 	assert.Nil(t, err)

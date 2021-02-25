@@ -150,19 +150,19 @@ func (lu TriceIDLookUp) toFile(fn string) (err error) {
 	return
 }
 
-// reverse returns a reversed map. If differnt triceID's asigned to several equal TriceFmt only one of the TriceID gets it into tflu.
+// reverse returns a reversed map. If different triceID's asigned to several equal TriceFmt only one of the TriceID gets it into tflu.
 func (lu TriceIDLookUp) reverse() (tflu TriceFmtLookUp) {
 	if nil == tflu {
 		tflu = make(TriceFmtLookUp)
 	}
 	for id, tF := range lu {
-		tF.Type = strings.ToUpper(tF.Type) // no distiction for lower and upper case Type
+		tF.Type = strings.ToUpper(tF.Type) // no distinction for lower and upper case Type
 		tflu[tF] = id
 	}
 	return
 }
 
-// reverse returns a reversed map.  If differnt triceFmt's asigned to several equal TriceFmt, this is an unexpectd and unhandled error and only one of the TriceFmt's gets it into lu.
+// reverse returns a reversed map.  If different triceFmt's asigned to several equal TriceFmt, this is an unexpectd and unhandled error and only one of the TriceFmt's gets it into lu.
 func (tflu TriceFmtLookUp) reverse() (lu TriceIDLookUp) {
 	if nil == tflu {
 		tflu = make(TriceFmtLookUp)
