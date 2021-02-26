@@ -116,7 +116,7 @@ func handleSIGTERM(rc io.ReadCloser) {
 // Bytes are read with rc. Then according decoder.Encoding they are translated into strings.
 // Each read returns the amount of bytes for one trice. rc is called on every
 // Translate returns true on io.EOF or false on hard read error or sigterm.
-func Translate(sw *emitter.TriceLineComposer, lut id.TriceIDLookUp, m *sync.RWMutex, rc io.ReadCloser) bool {
+func Translate(sw *emitter.TriceLineComposer, lut id.TriceIDLookUp, m *sync.RWMutex, rc io.ReadCloser) {
 	var dec Decoder //io.Reader
 	switch Encoding {
 	case "esc":
@@ -140,9 +140,11 @@ func Translate(sw *emitter.TriceLineComposer, lut id.TriceIDLookUp, m *sync.RWMu
 	default:
 		log.Fatalf(fmt.Sprintln("unknown encoding ", Encoding))
 	}
-
 	go handleSIGTERM(rc)
+	decodeAndComposeLoop(sw, dec)
+}
 
+func decodeAndComposeLoop(sw *emitter.TriceLineComposer, dec Decoder) {
 	// intermediate trice string buffer for a single trice
 	b := make([]byte, defaultSize)
 	for {
@@ -161,7 +163,7 @@ func Translate(sw *emitter.TriceLineComposer, lut id.TriceIDLookUp, m *sync.RWMu
 			if Verbose {
 				fmt.Println(err)
 			}
-			return true // try again
+			return // try again
 		}
 		start := time.Now()
 		m, err := sw.Write(b[:n])

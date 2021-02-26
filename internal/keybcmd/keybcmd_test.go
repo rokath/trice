@@ -4,35 +4,27 @@
 // whitebox test
 package keybcmd
 
-import (
-	"bufio"
-	"github.com/rokath/trice/pkg/msg"
-	"io/ioutil"
-	"os"
-	"strings"
-)
-
-// stimulate injects keys to the loop action and returns the captured output as byte slice.
-func stimulate(keys, ipa, ipp string) []byte {
-
-	// simulate input
-	ioReader := strings.NewReader(keys)
-	bufioReader := bufio.NewReader(ioReader)
-
-	// capture output
-	rescueStdout := os.Stdout
-	r, w, _ := os.Pipe()
-	os.Stdout = w
-
-	loopAction(bufioReader, ipa, ipp)
-
-	// restore
-	msg.OnErr(w.Close())
-	captured, _ := ioutil.ReadAll(r)
-	os.Stdout = rescueStdout
-
-	return captured
-}
+//  // stimulate injects keys to the loop action and returns the captured output as byte slice.
+//  func stimulate(keys, ipa, ipp string) []byte {
+//
+//  	// simulate input
+//  	ioReader := strings.NewReader(keys)
+//  	bufioReader := bufio.NewReader(ioReader)
+//
+//  	// capture output
+//  	rescueStdout := os.Stdout
+//  	r, w, _ := os.Pipe()
+//  	os.Stdout = w
+//
+//  	loopAction(bufioReader, ipa, ipp)
+//
+//  	// restore
+//  	msg.OnErr(w.Close())
+//  	captured, _ := ioutil.ReadAll(r)
+//  	os.Stdout = rescueStdout
+//
+//  	return captured
+//  }
 
 // todo: Linux
 

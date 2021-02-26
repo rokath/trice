@@ -43,7 +43,7 @@ func TestOptionallyExtendLenAndInsertID0(t *testing.T) {
 	tst.Equal(t, exp, act)
 }
 
-// Only the first occurance of a double used ID gets in the list.
+// Only the first occurrence of a double used ID gets in the list.
 func TestRefreshIDListSingle0(t *testing.T) {
 	text := `
 	TRICE16_3( Id(12345), "hi %2d, %13u, %64b\n",1,2,3 );	

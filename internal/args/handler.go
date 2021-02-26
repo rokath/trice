@@ -112,20 +112,7 @@ func scHelp() error {
 	defer cage.Disable()
 
 	fmt.Println("syntax: 'trice subcommand' [params]")
-	if false == (allHelp ||
-		displayServerHelp ||
-		helpHelp ||
-		logHelp ||
-		refreshHelp ||
-		renewHelp ||
-		scanHelp ||
-		shutdownHelp ||
-		updateHelp ||
-		versionHelp ||
-		zeroIDsHelp) {
-		fmt.Println("example 'trice h -help': Print help for help.")
-	}
-
+	var ok bool
 	x := []selector{
 		{allHelp || displayServerHelp, displayServerInfo},
 		{allHelp || helpHelp, helpInfo},
@@ -138,11 +125,14 @@ func scHelp() error {
 		{allHelp || updateHelp, updateInfo},
 		{allHelp || zeroIDsHelp, zeroIDsInfo},
 	}
-
 	for _, z := range x {
 		if z.flag {
 			msg.FatalOnErr(z.info())
+			ok = true
 		}
+	}
+	if !ok {
+		fmt.Println("example 'trice h -help': Print help for help.")
 	}
 	return nil
 }
@@ -271,6 +261,7 @@ func logLoop() {
 		}
 	}
 	c := cage.Start(cage.Name)
+	defer cage.Stop(c)
 	lu := id.NewLut(id.FnJSON) // lut is a map, that means a pointer
 	m := new(sync.RWMutex)     // m is a pointer to a read write mutex for lu
 	// Just in case the id list file FnJSON gets updated, the file watcher updates lut.
@@ -301,11 +292,11 @@ func logLoop() {
 			rc = receiver.NewBytesViewer(rc)
 		}
 
-		f := decoder.Translate(sw, lu, m, rc)
-		if false == f {
-			cage.Stop(c)
-			return
-		}
+		decoder.Translate(sw, lu, m, rc)
+		//  if false == f {
+		//  	cage.Stop(c)
+		//  	return
+		//  }
 		interrupted = true
 	}
 }

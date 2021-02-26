@@ -78,6 +78,7 @@ func (p *Pack2) Read(b []byte) (n int, err error) {
 			return
 		}
 	}
+
 	// Even err could be io.EOF some valid data possibly in p.syncBuffer.
 	// In case of file input (JLINK usage) a plug off is not detectable here.
 	if len(p.syncBuffer) < 4 {
@@ -91,7 +92,7 @@ func (p *Pack2) Read(b []byte) (n int, err error) {
 	}
 	triceID := id.TriceID(head >> (32 - 20)) // 20 most significant bits are the ID
 	count := int((0x00000f00 & head) >> 8)   // this nibble is the 4-bit count
-	cycle := int(0x000000ff & head)        // least significant byte is the cycle
+	cycle := int(0x000000ff & head)          // least significant byte is the cycle
 	var cycleWarning string
 	if cycle != 0xff&(p.cycle+1) { // lost trices or out of sync
 		if !p.cycleErrorFlag {
@@ -319,7 +320,7 @@ func (p *Pack2) trice81() (n int, e error) {
 	d := make([]uint32, 1)
 	d[0] = 0xFF & p.d0
 	s, b, e := p.uReplace8(d)
-	n = copy(p.b, fmt.Sprintf(s, b[0])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
+	n = copy(p.b, fmt.Sprintf(s, b[0]))
 	p.rub(8)
 	return
 }
@@ -329,7 +330,7 @@ func (p *Pack2) trice82() (n int, e error) {
 	d[0] = 0xFF & (p.d0 >> 8)
 	d[1] = 0xFF & p.d0
 	s, b, e := p.uReplace8(d)
-	n = copy(p.b, fmt.Sprintf(s, b[0], b[1])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
+	n = copy(p.b, fmt.Sprintf(s, b[0], b[1]))
 	p.rub(8)
 	return
 }
@@ -340,7 +341,7 @@ func (p *Pack2) trice83() (n int, e error) {
 	d[1] = 0xFF & (p.d0 >> 8)
 	d[2] = 0xFF & p.d0
 	s, b, e := p.uReplace8(d)
-	n = copy(p.b, fmt.Sprintf(s, b[0], b[1], b[2])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
+	n = copy(p.b, fmt.Sprintf(s, b[0], b[1], b[2]))
 	p.rub(8)
 	return
 }
@@ -352,7 +353,7 @@ func (p *Pack2) trice84() (n int, e error) {
 	d[2] = 0xFF & (p.d0 >> 8)
 	d[3] = 0xFF & p.d0
 	s, b, e := p.uReplace8(d)
-	n = copy(p.b, fmt.Sprintf(s, b[0], b[1], b[2], b[3])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
+	n = copy(p.b, fmt.Sprintf(s, b[0], b[1], b[2], b[3]))
 	p.rub(8)
 	return
 }
@@ -365,7 +366,7 @@ func (p *Pack2) trice85() (n int, e error) {
 	d[3] = 0xFF & p.d0
 	d[4] = 0xFF & p.d1
 	s, b, e := p.uReplace8(d)
-	n = copy(p.b, fmt.Sprintf(s, b[0], b[1], b[2], b[3], b[4])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
+	n = copy(p.b, fmt.Sprintf(s, b[0], b[1], b[2], b[3], b[4]))
 	p.rub(12)
 	return
 }
@@ -379,7 +380,7 @@ func (p *Pack2) trice86() (n int, e error) {
 	d[4] = 0xFF & (p.d1 >> 8)
 	d[5] = 0xFF & p.d1
 	s, b, e := p.uReplace8(d)
-	n = copy(p.b, fmt.Sprintf(s, b[0], b[1], b[2], b[3], b[4], b[5])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
+	n = copy(p.b, fmt.Sprintf(s, b[0], b[1], b[2], b[3], b[4], b[5]))
 	p.rub(12)
 	return
 }
@@ -394,7 +395,7 @@ func (p *Pack2) trice87() (n int, e error) {
 	d[5] = 0xFF & (p.d1 >> 8)
 	d[6] = 0xFF & p.d1
 	s, b, e := p.uReplace8(d)
-	n = copy(p.b, fmt.Sprintf(s, b[0], b[1], b[2], b[3], b[4], b[5], b[6])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
+	n = copy(p.b, fmt.Sprintf(s, b[0], b[1], b[2], b[3], b[4], b[5], b[6]))
 	p.rub(12)
 	return
 }
@@ -410,7 +411,7 @@ func (p *Pack2) trice88() (n int, e error) {
 	d[6] = 0xFF & (p.d1 >> 8)
 	d[7] = 0xFF & p.d1
 	s, b, e := p.uReplace8(d)
-	n = copy(p.b, fmt.Sprintf(s, b[0], b[1], b[2], b[3], b[4], b[5], b[6], b[7])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
+	n = copy(p.b, fmt.Sprintf(s, b[0], b[1], b[2], b[3], b[4], b[5], b[6], b[7]))
 	p.rub(12)
 	return
 }
@@ -419,7 +420,7 @@ func (p *Pack2) trice161() (n int, e error) {
 	d := make([]uint32, 1)
 	d[0] = 0xFFFF & p.d0
 	s, b, e := p.uReplace16(d)
-	n = copy(p.b, fmt.Sprintf(s, b[0])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
+	n = copy(p.b, fmt.Sprintf(s, b[0]))
 	p.rub(8)
 	return
 }
@@ -429,7 +430,7 @@ func (p *Pack2) trice162() (n int, e error) {
 	d[0] = 0xFFFF & (p.d0 >> 16)
 	d[1] = 0xFFFF & p.d0
 	s, b, e := p.uReplace16(d)
-	n = copy(p.b, fmt.Sprintf(s, b[0], b[1])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
+	n = copy(p.b, fmt.Sprintf(s, b[0], b[1]))
 	p.rub(8)
 	return
 }
@@ -440,7 +441,7 @@ func (p *Pack2) trice163() (n int, e error) {
 	d[1] = 0xFFFF & p.d0
 	d[2] = 0xFFFF & p.d1
 	s, b, e := p.uReplace16(d)
-	n = copy(p.b, fmt.Sprintf(s, b[0], b[1], b[2])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
+	n = copy(p.b, fmt.Sprintf(s, b[0], b[1], b[2]))
 	p.rub(12)
 	return
 }
@@ -452,7 +453,7 @@ func (p *Pack2) trice164() (n int, e error) {
 	d[2] = 0xFFFF & (p.d1 >> 16)
 	d[3] = 0xFFFF & p.d1
 	s, b, e := p.uReplace16(d)
-	n = copy(p.b, fmt.Sprintf(s, b[0], b[1], b[2], b[3])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
+	n = copy(p.b, fmt.Sprintf(s, b[0], b[1], b[2], b[3]))
 	p.rub(12)
 	return
 }
@@ -461,7 +462,7 @@ func (p *Pack2) trice321() (n int, e error) {
 	d := make([]uint32, 1)
 	d[0] = p.d0
 	s, b, e := p.uReplace32(d)
-	n = copy(p.b, fmt.Sprintf(s, b[0])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
+	n = copy(p.b, fmt.Sprintf(s, b[0]))
 	p.rub(8)
 	return
 }
@@ -471,7 +472,7 @@ func (p *Pack2) trice322() (n int, e error) {
 	d[0] = p.d0
 	d[1] = p.d1
 	s, b, e := p.uReplace32(d)
-	n = copy(p.b, fmt.Sprintf(s, b[0], b[1])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
+	n = copy(p.b, fmt.Sprintf(s, b[0], b[1]))
 	p.rub(12)
 	return
 }
@@ -482,7 +483,7 @@ func (p *Pack2) trice323() (n int, e error) {
 	d[1] = p.d1
 	d[2] = p.d2
 	s, b, e := p.uReplace32(d)
-	n = copy(p.b, fmt.Sprintf(s, b[0], b[1], b[2])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
+	n = copy(p.b, fmt.Sprintf(s, b[0], b[1], b[2]))
 	p.rub(16)
 	return
 }
@@ -494,7 +495,7 @@ func (p *Pack2) trice324() (n int, e error) {
 	d[2] = p.d2
 	d[3] = p.d3
 	s, b, e := p.uReplace32(d)
-	n = copy(p.b, fmt.Sprintf(s, b[0], b[1], b[2], b[3])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
+	n = copy(p.b, fmt.Sprintf(s, b[0], b[1], b[2], b[3]))
 	p.rubWithLongCount(20, 16)
 	return
 }
@@ -503,7 +504,7 @@ func (p *Pack2) trice641() (n int, e error) {
 	d := make([]uint64, 1)
 	d[0] = (uint64(p.d0) << 32) | uint64(p.d1)
 	s, b, e := p.uReplace64(d)
-	n = copy(p.b, fmt.Sprintf(s, b[0])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
+	n = copy(p.b, fmt.Sprintf(s, b[0]))
 	p.rub(12)
 	return
 }
@@ -513,7 +514,7 @@ func (p *Pack2) trice642() (n int, e error) {
 	d[0] = (uint64(p.d0) << 32) | uint64(p.d1)
 	d[1] = (uint64(p.d2) << 32) | uint64(p.d3)
 	s, b, e := p.uReplace64(d)
-	n = copy(p.b, fmt.Sprintf(s, b[0], b[1])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
+	n = copy(p.b, fmt.Sprintf(s, b[0], b[1]))
 	p.rubWithLongCount(20, 16)
 	return
 }
@@ -559,7 +560,7 @@ func uReplaceN(i string) (o string, u []bool) {
 	}
 }
 
-// uReplace8 takes parameter values in d and returns them in b as uint8 or int8 according to %nu occurences in format string.
+// uReplace8 takes parameter values in d and returns them in b as uint8 or int8 according to %nu occurrences in format string.
 // It also returns the modified formatstring with replacments %nu -> %nd.
 func (p *Pack2) uReplace8(d []uint32) (s string, b []interface{}, e error) {
 	b = make([]interface{}, len(d))
@@ -578,7 +579,7 @@ func (p *Pack2) uReplace8(d []uint32) (s string, b []interface{}, e error) {
 	return
 }
 
-// uReplace16 takes parameter values in d and returns them in b as uint16 or int16 according to %nu occurences in format string.
+// uReplace16 takes parameter values in d and returns them in b as uint16 or int16 according to %nu occurrences in format string.
 // It also returns the modified formatstring with replacments %nu -> %nd.
 func (p *Pack2) uReplace16(d []uint32) (s string, b []interface{}, e error) {
 	b = make([]interface{}, len(d))
@@ -597,7 +598,7 @@ func (p *Pack2) uReplace16(d []uint32) (s string, b []interface{}, e error) {
 	return
 }
 
-// uReplace32 takes parameter values in d and returns them in b as uint32 or int32 according to %nu occurences in format string.
+// uReplace32 takes parameter values in d and returns them in b as uint32 or int32 according to %nu occurrences in format string.
 // It also returns the modified formatstring with replacments %nu -> %nd.
 func (p *Pack2) uReplace32(d []uint32) (s string, b []interface{}, e error) {
 	b = make([]interface{}, len(d))
@@ -616,7 +617,7 @@ func (p *Pack2) uReplace32(d []uint32) (s string, b []interface{}, e error) {
 	return
 }
 
-// uReplace64 takes parameter values in d and returns them in b as uint64 or int64 according to %nu occurences in format string.
+// uReplace64 takes parameter values in d and returns them in b as uint64 or int64 according to %nu occurrences in format string.
 // It also returns the modified formatstring with replacments %nu -> %nd.
 func (p *Pack2) uReplace64(d []uint64) (s string, b []interface{}, e error) {
 	b = make([]interface{}, len(d))

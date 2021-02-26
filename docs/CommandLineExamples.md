@@ -35,7 +35,7 @@ Search for config files named *trice.conf* and use the settings there. The searc
 
 ### `trice h|help [-c|config cfilename] [-i|idlist idfilename`
 
-Display help and locations of config files named *trice.conf* and all list files *til.json* occurences in top down config search. If *-c* and|or *-l* is specified, the appropriate filenames are used instead.
+Display help and locations of config files named *trice.conf* and all list files *til.json* occurrences in top down config search. If *-c* and|or *-l* is specified, the appropriate filenames are used instead.
 
 - The `-config` option is not implemented yet.
 - The `-idlist` option is not implemented yet.
