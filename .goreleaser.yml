@@ -108,6 +108,8 @@ archives:
       - docs/**/*
       - src.C/**/*
       - test/**/*
+      - third_party/**/*
+      
 
 checksum:
   # You can change the name of the checksums file.
