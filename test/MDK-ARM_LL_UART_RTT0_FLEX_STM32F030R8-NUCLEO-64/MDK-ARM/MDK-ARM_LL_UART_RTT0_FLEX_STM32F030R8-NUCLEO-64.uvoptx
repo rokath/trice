@@ -22,7 +22,7 @@
   </DaveTm>
 
   <Target>
-    <TargetName>MDK-ARM_LL_UART_RTT0_PACK_STM32F030R8-NUCLEO-64</TargetName>
+    <TargetName>MDK-ARM_LL_UART_RTT0_FLEX_STM32F030R8-NUCLEO-64</TargetName>
     <ToolsetNumber>0x4</ToolsetNumber>
     <ToolsetName>ARM-ADS</ToolsetName>
     <TargetOption>
@@ -168,7 +168,7 @@
           <BreakIfRCount>1</BreakIfRCount>
           <Filename>&lt;1&gt;..\..\..\srcTrice.C\triceCheck.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\MDK_ARM_LL_UART_RTT0_PACK_STM32F030R8_NUCLEO_64\../../../srcTrice.C/triceCheck.c\111</Expression>
+          <Expression>\\MDK_ARM_LL_UART_RTT0_FLEX_STM32F030R8_NUCLEO_64\../../../srcTrice.C/triceCheck.c\111</Expression>
         </Bp>
         <Bp>
           <Number>1</Number>
@@ -425,7 +425,7 @@
       <GroupNumber>5</GroupNumber>
       <FileNumber>13</FileNumber>
       <FileType>1</FileType>
-      <tvExp>1</tvExp>
+      <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\srcTrice.C\triceFifo.c</PathWithFileName>

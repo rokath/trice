@@ -13,6 +13,7 @@ extern "C" {
 #define TRICE_BARE_ENCODING    20
 #define TRICE_ESC_ENCODING     30
 #define TRICE_PACK_ENCODING    40
+#define TRICE_FLEX_ENCODING    50
 
 #define TRICE_SPEED_OVER_SPACE 0x55aa
 #define TRICE_SPACE_OVER_SPEED 0xaa55
@@ -54,7 +55,6 @@ extern "C" {
 #include "intern/triceFifoToBytesBuffer.h"
 #endif
 
-
 #if TRICE_BARE_ENCODING == TRICE_ENCODING
 #include "intern/triceBareEncoder.h"
 #include "intern/triceFifoToBytesBuffer.h"
@@ -66,6 +66,10 @@ extern "C" {
 
 #if TRICE_PACK2_ENCODING == TRICE_ENCODING
 #include "intern/tricePack2Encoder.h"
+#endif
+
+#if TRICE_FLEX_ENCODING == TRICE_ENCODING
+#include "intern/triceFlexEncoder.h"
 #endif
 
 #ifndef TRICE_SYNC // some encoder define a sync trice

@@ -275,6 +275,23 @@ void triceCheckSetTime(int index) {
             TRICE64_1(Id(45250), "tst:TRICE64_1 %u\n", -1);
             TRICE64_2(Id(12051), "tst:TRICE64_2 %u %u\n", -1, -2);
             #endif // #if TRICE_ENCODING == TRICE_PACK2_ENCODING        
+    case 21:
+        #if TRICE_ENCODING == TRICE_FLEX_ENCODING
+        Trice0( id(5), "msg:Qick\n");
+        Trice16_1( id(6), "msg:%d\n", 65000);
+        Trice8_2( id(7), "msg:%x, %x\n", 253, 57);
+        Trice16_1( id(8), "msg:%6u\n", SYSTICKVAL16);
+        Trice16_1( id(8), "msg:%6u\n", SYSTICKVAL16);
+        Trice16_1( id(8), "msg:%6u\n", SYSTICKVAL16);
+        Trice16_1( id(8), "msg:%6u\n", SYSTICKVAL16);
+        Trice16_1( id(6), "msg:%d\n", 65000);
+        Trice16_1( id(8), "msg:%6u\n", SYSTICKVAL16);
+        Trice16_1( id(6), "msg:%d\n", 65000);
+        Trice16_1( id(8), "msg:%6u\n", SYSTICKVAL16);
+        Trice16_1( id(6), "msg:%d\n", 65000);
+        Trice16_1( id(8), "msg:%6u\n", SYSTICKVAL16);
+        #endif // #if TRICE_ENCODING == TRICE_FLEX_ENCODING
+        break;
     default:
         break;
     }

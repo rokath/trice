@@ -12,7 +12,9 @@ extern "C" {
 #include <stdint.h>
 #include <string.h>
 
+#ifndef Id
 #define Id(n) (((uint32_t)(n))<<(32-20)) //!< Prepare 20-bit ID for transmission
+#endif
 
 extern uint8_t triceCycle;
 

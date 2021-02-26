@@ -22,12 +22,17 @@
 
   <project>
     <PathAndName>.\MDK-ARM_LL_UART_RTT0_PACK_STM32F030R8-NUCLEO-64\MDK-ARM\MDK-ARM_LL_UART_RTT0_PACK_STM32F030R8-NUCLEO-64.uvprojx</PathAndName>
-    <NodeIsActive>1</NodeIsActive>
     <NodeIsExpanded>1</NodeIsExpanded>
   </project>
 
   <project>
     <PathAndName>.\MDK-ARM_LL_generatedDemo_STM32F030R8-NUCLEO-64\MDK-ARM\MDK-ARM_LL_generatedDemo_STM32F030R8-NUCKEO-64.uvprojx</PathAndName>
+  </project>
+
+  <project>
+    <PathAndName>.\MDK-ARM_LL_UART_RTT0_FLEX_STM32F030R8-NUCLEO-64\MDK-ARM\MDK-ARM_LL_UART_RTT0_FLEX_STM32F030R8-NUCLEO-64.uvprojx</PathAndName>
+    <NodeIsActive>1</NodeIsActive>
+    <NodeIsExpanded>1</NodeIsExpanded>
   </project>
 
 </ProjectWorkspace>
