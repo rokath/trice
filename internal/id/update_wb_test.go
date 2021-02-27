@@ -19,8 +19,11 @@ type idCheck struct {
 
 func TestOptionallyExtendLenAndInsertID0(t *testing.T) {
 	text := `
+	Trice0( "hi" );
 	TRICE0( "hi" );
 	TRICE8( "hi %d", 5);
+	Trice8( "hi %d", 5);
+	Trice16( "hi %d", 5);
 	_TRICE8( "hi %d", 5); // to not touch
 	TRICE8( Id(0), "hi %2d, %13u, %64b, %8x %02d, %013u, %032b, %016x",1,2,3,4,5,6,7,8 );
 	TRICE8( "hi %2d, %13u, %64b, %8x %02d, %013u, %032b, %016x",1,2,3,4,5,6,7,8 );
@@ -29,8 +32,11 @@ func TestOptionallyExtendLenAndInsertID0(t *testing.T) {
 	trice_s  ( "%s\n", "rts" );
 `
 	exp := `
+	Trice0( Id(0), "hi" );
 	TRICE0( Id(0), "hi" );
 	TRICE8_1( Id(0), "hi %d", 5);
+	Trice8_1( Id(0), "hi %d", 5);
+	Trice16_1( Id(0), "hi %d", 5);
 	_TRICE8( "hi %d", 5); // to not touch
 	TRICE8_8( Id(0), "hi %2d, %13u, %64b, %8x %02d, %013u, %032b, %016x",1,2,3,4,5,6,7,8 );
 	TRICE8_8( Id(0), "hi %2d, %13u, %64b, %8x %02d, %013u, %032b, %016x",1,2,3,4,5,6,7,8 );
@@ -48,12 +54,20 @@ func TestRefreshIDListSingle0(t *testing.T) {
 	text := `
 	TRICE16_3( Id(12345), "hi %2d, %13u, %64b\n",1,2,3 );	
 	TRICE16_3( Id(12345), "DIFFERENT! %2d, %13u, %64b\n",1,2,3 );	
+	Trice16_1( Id(12344), "hi %2d\n",1 );	
+	Trice16_1( Id(12344), "DIFFERENT! %2d\n", 2 );	
 `
 	expText := `
 	TRICE16_3( Id(12345), "hi %2d, %13u, %64b\n",1,2,3 );	
 	TRICE16_3( Id(12345), "DIFFERENT! %2d, %13u, %64b\n",1,2,3 );	
+	Trice16_1( Id(12344), "hi %2d\n",1 );	
+	Trice16_1( Id(12344), "DIFFERENT! %2d\n", 2 );	
 `
 	expJSON := `{
+	"12344": {
+		"Type": "Trice16_1",
+		"Strg": "hi %2d\\n"
+	},
 	"12345": {
 		"Type": "TRICE16_3",
 		"Strg": "hi %2d, %13u, %64b\\n"
@@ -73,10 +87,12 @@ func TestRefreshIDListSingle1(t *testing.T) {
 	text := `
 	TRICE16_3( Id(12345), "hi %2d, %13u, %64b\n",1,2,3 );	
 	TRICE16_3( Id(  123), "hi %2d, %13u, %64b\n",1,2,3 );	
+	Trice16_1( Id(   13), "hi %13u\n", 3 );	
 `
 	expText := `
 	TRICE16_3( Id(12345), "hi %2d, %13u, %64b\n",1,2,3 );	
 	TRICE16_3( Id(  123), "hi %2d, %13u, %64b\n",1,2,3 );	
+	Trice16_1( Id(   13), "hi %13u\n", 3 );	
 `
 	expJSON := `{
 	"123": {
@@ -86,6 +102,10 @@ func TestRefreshIDListSingle1(t *testing.T) {
 	"12345": {
 		"Type": "TRICE16_3",
 		"Strg": "hi %2d, %13u, %64b\\n"
+	},
+	"13": {
+		"Type": "Trice16_1",
+		"Strg": "hi %13u\\n"
 	}
 }`
 	lu := make(TriceIDLookUp)
@@ -100,14 +120,20 @@ func TestRefreshIDListSingle1(t *testing.T) {
 
 func TestRefreshIDListSingle2(t *testing.T) {
 	text := `
-	TRICE16_3( Id(12345), "hi %2d, %13u, %64b\n",1,2,3 );	
-	trice16_3( Id(12345), "hi %2d, %13u, %64b\n",1,2,3 );	
+	TRICE16_3( Id(12345), "hi %2d, %13u, %64b\n",1,2,3 );
+	trice16_3( Id(12345), "hi %2d, %13u, %64b\n",1,2,3 );
+	Trice16_1( Id(12344), "ho %64b\n",1 );
 `
 	expText := `
-	TRICE16_3( Id(12345), "hi %2d, %13u, %64b\n",1,2,3 );	
-	trice16_3( Id(12345), "hi %2d, %13u, %64b\n",1,2,3 );	
+	TRICE16_3( Id(12345), "hi %2d, %13u, %64b\n",1,2,3 );
+	trice16_3( Id(12345), "hi %2d, %13u, %64b\n",1,2,3 );
+	Trice16_1( Id(12344), "ho %64b\n",1 );
 `
 	expJSON := `{
+	"12344": {
+		"Type": "Trice16_1",
+		"Strg": "ho %64b\\n"
+	},
 	"12345": {
 		"Type": "trice16_3",
 		"Strg": "hi %2d, %13u, %64b\\n"
@@ -125,9 +151,11 @@ func TestRefreshIDListSingle2(t *testing.T) {
 
 func TestInsertParamCountAndIDSingle(t *testing.T) {
 	text := `
+	Trice16( "hi %016x", 8 );
 	TRICE8( "hi %2d, %13u, %64b, %8x %02d, %013u, %032b, %016x",1,2,3,4,5,6,7,8 );
 `
 	exp := `
+	Trice16_1( Id(0), "hi %016x", 8 );
 	TRICE8_8( Id(0), "hi %2d, %13u, %64b, %8x %02d, %013u, %032b, %016x",1,2,3,4,5,6,7,8 );
 `
 	act, _ := updateParamCountAndID0(text)
@@ -137,9 +165,11 @@ func TestInsertParamCountAndIDSingle(t *testing.T) {
 // A wrong parameter count should not be corrected! THe compiler will complain and a decision should be made.
 func TestDoNotCorrectWrongParamCountSingle(t *testing.T) {
 	text := `
+	Trice8_2( Id(0), "hi %2d",1  );
 	TRICE8_2( Id(0), "hi %2d, %13u, %64b, %8x %02d, %013u, %032b, %016x",1,2,3,4,5,6,7,8 );
 `
 	exp := `
+	Trice8_2( Id(0), "hi %2d",1  );
 	TRICE8_2( Id(0), "hi %2d, %13u, %64b, %8x %02d, %013u, %032b, %016x",1,2,3,4,5,6,7,8 );
 `
 	act, _ := updateParamCountAndID0(text)
@@ -229,6 +259,7 @@ func TestInsertParamCountAndIDAll(t *testing.T) {
 
 func TestInsertSharedIDs(t *testing.T) {
 	text := `
+	Trice0(id(0), "Trallala");
 	trice8_1( Id(0), "hi %d", 5); // first id
 	trice8_1( Id(0), "Hi %d", 5); // different format string needs a new id
 	TRICE8_1( Id(       0   ), "Hi %d", 5); // different type case gets same id
@@ -236,15 +267,20 @@ func TestInsertSharedIDs(t *testing.T) {
 	TRICE8_1( Id(0), "hi %d", 5); // same format string gets same id
 	trice8_1(  Id( 0       ),  "hi %d", 5); // same format string gets same id
 	trice8_1( Id(-0), "hi %d", 5); // minus id's are not touched
+	Trice8_1( Id(0), "hi %d", 5); // first id
+	Trice8_2( id(0), "hi %d %u", 5, 7); // first id
 	`
 	exp := `
-	trice8_1( Id(   99), "hi %d", 5); // first id
-	trice8_1( Id(   98), "Hi %d", 5); // different format string needs a new id
-	TRICE8_1( Id(   98), "Hi %d", 5); // different type case gets same id
+	Trice0(id(32767), "Trallala");
+	trice8_1( Id(    99), "hi %d", 5); // first id
+	trice8_1( Id(    98), "Hi %d", 5); // different format string needs a new id
+	TRICE8_1( Id(    98), "Hi %d", 5); // different type case gets same id
 	trice8_1( Id(0x0), "Hi %d", 5); // this gets not changed because no decimal number
-	TRICE8_1( Id(   99), "hi %d", 5); // same format string gets same id
-	trice8_1(  Id(   99),  "hi %d", 5); // same format string gets same id
+	TRICE8_1( Id(    99), "hi %d", 5); // same format string gets same id
+	trice8_1(  Id(    99),  "hi %d", 5); // same format string gets same id
 	trice8_1( Id(-0), "hi %d", 5); // minus id's are not touched
+	Trice8_1( id(32766), "hi %d", 5); // first id
+	Trice8_2( id(32765), "hi %d %u", 5, 7); // first id
 	`
 	SearchMethod = "downward"
 	Min = 10
@@ -260,7 +296,10 @@ func TestInsertSharedIDs(t *testing.T) {
 }
 
 var tryOkSet = []idCheck{
+	{`Trice0(Id(   59), "tt" )`, "Id(   59)", 59, true, TriceFmt{"Trice0", "tt"}}, // should be false
+	{`Trice0(id(   59), "tt" )`, "id(   59)", 59, true, TriceFmt{"Trice0", "tt"}},
 	{`TRICE0(Id(   59), "tt" )`, "Id(   59)", 59, true, TriceFmt{"TRICE0", "tt"}},
+	{`TRICE0(id(   59), "tt" )`, "id(   59)", 59, true, TriceFmt{"TRICE0", "tt"}}, // should be false
 	{`TRICE0(Id(59   ), "tt" )`, "Id(59   )", 59, true, TriceFmt{"TRICE0", "tt"}},
 	{`TRICE0(Id(59), "tt" )`, "Id(59)", 59, true, TriceFmt{"TRICE0", "tt"}},
 	{`TRICE0(Id( 59 ), "tt" )`, "Id( 59 )", 59, true, TriceFmt{"TRICE0", "tt"}},
@@ -270,7 +309,6 @@ var tryOkSet = []idCheck{
 
 var tryNotOkSetID = []idCheck{
 	{`TRICE0(Id(0x5), "tt" )`, "Id(0x5)", 5, false, TriceFmt{"TRICE0", "tt"}},
-	{`TRICE0(id( 59 ), "tt" )`, "id( 59  )", 59, false, TriceFmt{"TRICE0", "tt"}},
 	{`TRICE0(id(0x5 ), "tt" )`, "id(0x59)", 0x59, false, TriceFmt{"TRICE0", "tt"}},
 }
 

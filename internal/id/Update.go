@@ -22,13 +22,13 @@ const (
 	patSourceFile = "(\\.c|\\.h|\\.cc|\\.cpp|\\.hpp)$"
 
 	// patNbTRICE is a regex pattern matching any "TRICE*(Id(n), "", ... )". - see https://regex101.com/r/id0uSF/1, The (?U) says non-greedy
-	patNbTRICE = `(?U)(\bTRICE_S|trice_s|TRICE0|trice0|TRICE8_[1-8]|trice8_[1-8]|TRICE16_[1-4]|trice16_[1-4]|TRICE32_[1-4]|trice32_[1-4]|TRICE64_[1-4]|trice64_[1-4]\b)\s*\(\s*\bId\b\s*\(\s*.*[0-9]\s*\)\s*,\s*".*"\s*.*\)`
-
-	// patNbID is a regex pattern matching any (first in string) "Id(n)" and usable in matches of matchNbTRICE
-	patNbID = `\bId\s*\(\s*[0-9]*\s*\)`
+	patNbTRICE = `(?U)(\bTRICE_S|trice_s|TRICE0|trice0|Trice0|Trice0i|TRICE8_[1-8]|trice8_[1-8]|Trice8_[1-2]|Trice8_[1-2]i|TRICE16_[1-4]|trice16_[1-4]|Trice16_1|Trice16_1i|TRICE32_[1-4]|trice32_[1-4]|TRICE64_[1-4]|trice64_[1-4]\b)\s*\(\s*\b(I|i)d\b\s*\(\s*.*[0-9]\s*\)\s*,\s*".*"\s*.*\)`
 
 	// patTypNameTRICE is a regex pattern matching "TRICE*" inside trice
-	patTypNameTRICE = `(\bTRICE_S\b|\bTRICE0\b|\bTRICE8_[1-8]\b|\bTRICE16_[1-4]\b|\bTRICE32_[1-4]\b|\bTRICE64_[1-4]\b|\btrice_S\b|\btrice0\b|\btrice8_[1-8]\b|\btrice16_[1-4]\b|\btrice32_[1-4]\b|\btrice64_[1-4]\b)`
+	patTypNameTRICE = `(\bTRICE_S\b|\bTRICE0\b|\bTrice0\b|\bTrice0i\b|\bTRICE8_[1-8]\b|\bTrice8_[1-2]\b|\bTrice8_[1-2]i\b|\bTrice16_1\b|\bTrice16_1i\b|\bTRICE16_[1-4]\b|\bTRICE32_[1-4]\b|\bTRICE64_[1-4]\b|\btrice_S\b|\btrice0\b|\btrice8_[1-8]\b|\btrice16_[1-4]\b|\btrice32_[1-4]\b|\btrice64_[1-4]\b)`
+
+	// patNbID is a regex pattern matching any (first in string) "Id(n)" and usable in matches of matchNbTRICE
+	patNbID = `\b(I|i)d\s*\(\s*[0-9]*\s*\)`
 
 	// patFmtString is a regex matching the first format string inside trice
 	patFmtString = `"(.*)"`
@@ -37,16 +37,16 @@ const (
 	patNextFormatSpezifier = `(?:^|[^%])(%[0-9\.#]*(b|c|d|u|x|X|o|f))`
 
 	// https://regex101.com/r/hWMjhU/3 - match any kind of trice with or without len or ID
-	patFullAnyTrice = `(?U)\b(TRICE_S|trice_s|(TRICE|trice)(0|8|16|32|64)(_[1-8])?)\s*\(\s*(Id\s*\((\s*\d+)\s*\)\s*,)?\s*".*"\s*.*\)`
+	patFullAnyTrice = `(?U)\b(TRICE_S|trice_s|(TRICE|(t|T)rice)(0|8|16|32|64)(_[1-8])?i?)\s*\(\s*((I|i)d\s*\((\s*\d+)\s*\)\s*,)?\s*".*"\s*.*\)`
 
 	// patTriceNoLen finds next `TRICEn` without length specifier: https://regex101.com/r/oKjjic/1
-	patTriceNoLen = `(\b(trice|TRICE)(8|16|32|64)\b)`
-
-	// patIdInsideTrice finds if an `( Id(n) ,"` sequence exists inside trice
-	patIDInsideTrice = `(?U)\(\s*Id\s*\((\s*\d+)\s*\)\s*,\s*"`
+	patTriceNoLen = `(\b(TRICE|(T|t)rice)(8|16|32|64)i?\b)`
 
 	// patAnyTriceStart finds a starting trice with opening '(': https://regex101.com/r/wPuT4M/1
-	patAnyTriceStart = `(\b(trice|TRICE)(|0|8|16|32|64)_*(s|S|[1-8])*\b)\s*\(`
+	patAnyTriceStart = `(\b(TRICE|(T|t)rice)(|0|8|16|32|64)_*(s|S|[1-8])*i?\b)\s*\(`
+
+	// patIdInsideTrice finds if an `( Id(n) ,"` sequence exists inside trice
+	patIDInsideTrice = `(?U)\(\s*(I|i)d\s*\((\s*\d+)\s*\)\s*,\s*"`
 )
 
 var (
@@ -242,20 +242,23 @@ func visitUpdate(lu TriceIDLookUp, tflu TriceFmtLookUp, pListModified *bool) fil
 func triceIDParse(t string) (nbID string, id TriceID, ok bool) {
 	nbID = matchNbID.FindString(t)
 	if "" == nbID {
-		msg.InfoOnTrue(Verbose, fmt.Sprintln("No 'Id(n)' found inside "+t))
+		msg.InfoOnTrue(Verbose, fmt.Sprintln("No 'Id(n)' or 'id(n)' found inside "+t))
 		return
 	}
-
 	var n int
 	_, err := fmt.Sscanf(nbID, "Id(%d", &n) // closing bracket in format string omitted intensionally
-	if nil != err {                         // because spaces after id otherwise are not tolerated
-		msg.Info(fmt.Sprintln("no 'Id(n' found inside " + nbID))
+	if nil == err {                         // because spaces after id otherwise are not tolerated
+		id = TriceID(n)
+		ok = true
 		return
 	}
-	//n, e := strconv.Atoi(nbID)
-	//msg.FatalOnErr(e) // todo: error is here not possible
-	id = TriceID(n)
-	ok = true
+	_, err = fmt.Sscanf(nbID, "id(%d", &n) // closing bracket in format string omitted intensionally
+	if nil == err {
+		id = TriceID(n)
+		ok = true
+		return
+	}
+	msg.Info(fmt.Sprintln("no 'Id(n' or 'id(n' found inside " + nbID))
 	return
 }
 
@@ -277,9 +280,9 @@ func triceFmtParse(t string) (tf TriceFmt, ok bool) {
 }
 
 // triceParse expects a string t containing a trice macro in the form `TRICE*(Id(n), "...", ...);`
+// Returned nbID is the extracted string part containing 'Id(n)'.
 // Returned id is the scanned n inside Id(n), only and only if n is a single decimal number.
 // Returned tf is the recognized trice.
-// Returned nbID is the extracted string part containing 'Id(n)'.
 // Only on success ok is true.
 func triceParse(t string) (nbID string, id TriceID, tf TriceFmt, ok bool) {
 	nbID, id, ok = triceIDParse(t)
@@ -330,10 +333,10 @@ func refreshIDs(text string, lu TriceIDLookUp, tflu TriceFmtLookUp) {
 	}
 }
 
-// updateIDsShared parses text for new or invalid trices tf and gives them the legacy id if tf is already in lu & tflu.
+// updateIDsShared parses text for new or invalid trices 'tf' and gives them the legacy id if 'tf' is already in lu & tflu.
 // An invalid trice is a trice without Id(n) or with Id(0) or which changed somehow. Exampes: 'TRICE0( Id(12) ,"foo");' was changed to 'TRICE0( Id(12) ,"bar");'
 // If 'TRICE0( Id(99) ,"bar");' is in lu & tflu the invalid trice changes to 'TRICE0( Id(99) ,"bar");'. Otherwise instead of 99 a so far unused id is taken.
-// Or: 'TRICE0( Id(12) ,"foo");' was changed to 'TRICE0( Id(13) ,"foo");'. Than lu & tflu are extended accordingly, or, if 13 is already used is replaced with a new id.
+// Or: 'TRICE0( Id(12) ,"foo");' was changed to 'TRICE0( Id(13) ,"foo");'. Than lu & tflu are extended accordingly, or, if 13 is already used, it is replaced with a new id.
 // Otherwise a new id is generated, text patched and lu & tflu are extended.
 // To work correctly, lu & tflu need to be in a refreshed state, means have all id:tf pairs from Srcs tree already inside.
 // text is returned afterwards and true if text was changed and *pListModified set true if s.th. was changed.
@@ -358,37 +361,46 @@ func updateIDsShared(text string, lu TriceIDLookUp, tflu TriceFmtLookUp, pListMo
 			continue
 		}
 		tfS := tf
-		tfS.Type = strings.ToUpper(tfS.Type) // Lower case and upper case Type are not distinguished.
-
+		st := isShortTrice(tf)
+		if !st {
+			tfS.Type = strings.ToUpper(tfS.Type) // Lower case and upper case Type are not distinguished for normal trices.
+		}
 		// In lu id could point to a different tf. So we need to check that and invalidate id in that case.
 		// - That typically happens after tf was changed in source but the id not.
 		// - Also the source file with id:tf could be added from a different project and refresh could not add it to lu because id is used differently.
 		if 0 != id {
 			if tfL, ok := lu[id]; ok { // found
-				tfL.Type = strings.ToUpper(tfL.Type)
-				if !reflect.DeepEqual(tfS, tfL) { // Lower case and upper case Type are not distinguished.
+				if !st {
+					tfL.Type = strings.ToUpper(tfL.Type)
+				}
+				if !reflect.DeepEqual(tfS, tfL) { // Lower case and upper case Type are not distinguished for normal trices.
 					id = -id // mark as invalid
 				}
 			}
 		}
-		if id <= 0 { // invalid: id is 0 or inside lu used differently
+		if id <= 0 { // marked as invalid: id is 0 or inside lu used differently
 			invalID := nbID
 			invalTRICE := nbTRICE
 			// It is possible tf is already in tflu (and lu) here, so check it.
 			if id, ok = tflu[tfS]; ok { // yes, we can use it
 				msg.FatalOnTrue(0 == id) // no id 0 allowed in map
 			} else { // no, we need a new one
-				id = lu.newID() // a prerequisite is a in a previous step refreshed lu
+				id = lu.newID(st) // a prerequisite is a in a previous step refreshed lu
 			}
 			// patch the id into text
-			newID := fmt.Sprintf("Id(%5d)", id)
+			var nID string
+			if st {
+				nID = fmt.Sprintf("id(%5d)", id)
+			} else {
+				nID = fmt.Sprintf("Id(%6d)", id)
+			}
 			if Verbose {
-				if newID != invalID {
+				if nID != invalID {
 					fmt.Print(invalID, " -> ")
 				}
-				fmt.Println(newID)
+				fmt.Println(nID)
 			}
-			nbTRICE := strings.Replace(nbTRICE, invalID, newID, 1)
+			nbTRICE := strings.Replace(nbTRICE, invalID, nID, 1)
 			text = strings.Replace(text, invalTRICE, nbTRICE, 1)
 			*pListModified = true
 			fileModified = true
@@ -397,6 +409,13 @@ func updateIDsShared(text string, lu TriceIDLookUp, tflu TriceFmtLookUp, pListMo
 		lu[id] = tf
 		tflu[tfS] = id // no distinction for lower and upper case Type
 	}
+}
+
+func isShortTrice(tf TriceFmt) bool {
+	if 'T' == tf.Type[0] && 'r' == tf.Type[1] {
+		return true
+	}
+	return false
 }
 
 // ZeroSourceTreeIds is overwriting with 0 all id's from source code tree srcRoot. It does not touch idlist.

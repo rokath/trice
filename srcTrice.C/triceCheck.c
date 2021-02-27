@@ -102,6 +102,7 @@ void triceCheckSetTime(int index) {
             TRICE16_1(Id(13390), "INFO:informal   message, SysTick is %6u\n", SYSTICKVAL16);
             break;
         case 2:
+            Trice16_1( id(12345), "%b", 77 );
             TRICE16_1(Id(10813), "time:TRICE16_1   message, SysTick is %6u\n", SYSTICKVAL16);
             TRICE16_1(Id(10813), "time:TRICE16_1   message, SysTick is %6u\n", SYSTICKVAL16);
             TRICE16_1(Id(10813), "time:TRICE16_1   message, SysTick is %6u\n", SYSTICKVAL16);

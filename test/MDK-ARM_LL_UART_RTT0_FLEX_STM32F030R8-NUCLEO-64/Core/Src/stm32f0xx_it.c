@@ -131,27 +131,28 @@ void SysTick_Handler(void)
     extern int milliSecond;
     milliSecond++;
     if( (milliSecond & 0xFFF) == 0 ){ // every 4096ms
-        Trice0i( id(0), "int:SysTick_Handler" );
-        Trice16_1i( id(0), "int:SysTick: %5u\n", SYSTICKVAL16 );
-        Trice16_1i( id(0), "int:SysTick: %5u\n", SYSTICKVAL16 );
-        Trice16_1i( id(0), "int:SysTick: %5u\n", SYSTICKVAL16 );
-        Trice16_1i( id(0), "int:SysTick: %5u\n", SYSTICKVAL16 );
-        Trice0i( id(0), "int:SysTick_Handler" );
-        Trice0i( id(0), "int:SysTick_Handler" );
-        Trice0i( id(0), "int:SysTick_Handler" );
-        Trice0i( id(0), "int:SysTick_Handler" );
-        Trice0i( id(0), "int:SysTick_Handler" );
-        Trice0i( id(0), "int:SysTick_Handler" );
-        Trice0i( id(0), "int:SysTick_Handler" );
-        Trice0i( id(0), "int:SysTick_Handler" );
-        Trice0i( id(0), "int:SysTick_Handler" );
-        Trice0i( id(0), "int:SysTick_Handler" );
-        Trice16_1i( id(0), "int:SysTick: %5u\n", SYSTICKVAL16 );
-        Trice16_1i( id(0), "int:SysTick: %5u\n", SYSTICKVAL16 );
-        Trice16_1i( id(0), "int:SysTick: %5u\n", SYSTICKVAL16 );
-        Trice16_1i( id(0), "int:SysTick: %5u\n", SYSTICKVAL16 );
-        Trice8_1i( id(0), "int:SysTick: %5d\n", (int8_t)-3 );
-        Trice8_2i( id(0), "int:%d %d\n", (int8_t)-1, (int8_t)-2 );
+        Trice0i( id(13913), "int:SysTick_Handler" );
+        Trice16_1i( id(13668), "int:SysTick: %5u\n", SYSTICKVAL16 );
+        Trice16_1i( id(13668), "int:SysTick: %5u\n", SYSTICKVAL16 );
+        Trice16_1i( id(13668), "int:SysTick: %5u\n", SYSTICKVAL16 );
+        Trice16_1i( id(13668), "int:SysTick: %5u\n", SYSTICKVAL16 );
+        Trice0i( id(13913), "int:SysTick_Handler" );
+        Trice0i( id(13913), "int:SysTick_Handler" );
+        Trice0( id(21036), "int:SysTick_Handler" );
+        Trice0( id(21036), "int:SysTick_Handler" );
+        Trice0( id(21036), "int:SysTick_Handler" );
+        Trice0( id(21036), "int:SysTick_Handler" );
+        Trice0i( id(13913), "int:SysTick_Handler" );
+        Trice0i( id(13913), "int:SysTick_Handler" );
+        Trice0i( id(13913), "int:SysTick_Handler" );
+        Trice0i( id(13913), "int:SysTick_Handler" );
+        Trice16_1( id( 3826), "int:SysTick: %5u\n", SYSTICKVAL16 );
+        Trice16_1i( id(13668), "int:SysTick: %5u\n", SYSTICKVAL16 );
+        Trice16_1i( id(13668), "int:SysTick: %5u\n", SYSTICKVAL16 );
+        Trice16_1i( id(13668), "int:SysTick: %5u\n", SYSTICKVAL16 );
+        Trice8_1i( id(  630), "int:SysTick: %5d\n", (int8_t)-3 );
+        Trice8_2i( id(15428), "int:%d %d\n", (int8_t)-1, (int8_t)-2 );
+        Trice8_2( id(24926), "int:%d %d\n", (int8_t)-1, (int8_t)-2 );
     }
   /* USER CODE END SysTick_IRQn 0 */
 

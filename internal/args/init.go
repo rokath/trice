@@ -136,8 +136,10 @@ func init() {
 func init() {
 	fsScUpdate = flag.NewFlagSet("update", flag.ExitOnError) // subcommand
 	flagsRefreshAndUpdate(fsScUpdate)
-	fsScUpdate.Var(&id.Min, "IDMin", "Smallest allowed trice ID. (Lower end of ID range).") // to do: this is no multi-flag.
-	fsScUpdate.Var(&id.Max, "IDMax", "Biggest allowed trice ID. (Upper end of ID range).")  // to do: this is no multi-flag.
+	fsScUpdate.Var(&id.Min, "IDMin", "Lower end of ID range for normal trices.")          // to do: this is no multi-flag.
+	fsScUpdate.Var(&id.Max, "IDMax", "Upper end of ID range for normal trices.")          // to do: this is no multi-flag.
+	fsScUpdate.Var(&id.MinShort, "IDMinShort", "Lower end of ID range for short trices.") // to do: this is no multi-flag.
+	fsScUpdate.Var(&id.MaxShort, "IDMaxShort", "Upper end of ID range for short trices.") // to do: this is no multi-flag.
 	fsScUpdate.StringVar(&id.SearchMethod, "IDMethod", "random", "Search method for new ID's in range- Options are 'upward', 'downward' & 'random'.")
 	fsScUpdate.BoolVar(&id.SharedIDs, "sharedIDs", true, `New ID policy:
 true: TriceFmt's without TriceID get equal TriceID if an equal TriceFmt exists already.
