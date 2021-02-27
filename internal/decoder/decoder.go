@@ -129,6 +129,10 @@ func Translate(sw *emitter.TriceLineComposer, lut id.TriceIDLookUp, m *sync.RWMu
 		dec = NewPack2Decoder(lut, m, rc, bigEndian)
 	case "pack2l", "pack2L":
 		dec = NewPack2Decoder(lut, m, rc, littleEndian)
+	case "flex", "FLEX":
+		dec = NewFlexDecoder(lut, m, rc, bigEndian)
+	case "flexl", "flexL", "FLEXL":
+		dec = NewFlexDecoder(lut, m, rc, littleEndian)
 	case "bare":
 		dec = NewBareDecoder(lut, m, rc, bigEndian)
 	case "barel", "bareL":
@@ -262,4 +266,39 @@ func (p *decoderData) outOfSync(msg string) (n int, e error) {
 	n = copy(p.b, fmt.Sprintln("error:", msg, "ignoring first byte", p.syncBuffer[0:cnt]))
 	p.rub(1)
 	return
+}
+
+// uReplaceN checks all format specifier in i and replaces %nu with %nd and returns that result as o.
+// If a replacement took place on position k u[k] is true. Afterwards len(u) is amount of found format specifiers.
+func uReplaceN(i string) (o string, u []bool) {
+	o = i
+	s := i
+	var offset int
+	for {
+		loc := matchNextFormatSpezifier.FindStringIndex(s)
+		if nil == loc { // no (more) fm found
+			return
+		}
+		offset += loc[1] // track position
+		fm := s[loc[0]:loc[1]]
+		locU := matchNextFormatUSpezifier.FindStringIndex(fm)
+		locX := matchNextFormatXSpezifier.FindStringIndex(fm)
+		if nil != locU { // a %nu found
+			//if 0 < loc[0] { // not at string start, so check for %%
+			//	x := s[loc[0]-1 : loc[0]]
+			//	if "%" == x { // a directly leading %, so cut both
+			//		s = s[loc[0]+1:]
+			//		offset += loc[0] + 1
+			//		continue
+			//	}
+			//}
+			o = o[:offset-1] + "d" + o[offset:] // replace %nu -> %nd
+			u = append(u, true)
+		} else if nil != locX && UnsignedHex { // a %nx or %nX or %nb found
+			u = append(u, true) // no negative values
+		} else { // keep sign
+			u = append(u, false)
+		}
+		s = i[offset:] // remove processed part
+	}
 }

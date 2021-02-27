@@ -164,7 +164,7 @@ func logInfo() error {
 	fsScLog.SetOutput(os.Stdout)
 	fsScLog.PrintDefaults()
 	fmt.Println("example: 'trice l -p COM15 -baud 38400': Display trice log messages from serial port COM15")
-	fmt.Println("example: 'trice l': Display pack2L data format trice log messages from default source J-LINK over Segger RTT protocol.")
+	fmt.Println("example: 'trice l': Display flexL data format trice log messages from default source J-LINK over Segger RTT protocol.")
 	fmt.Println("example: 'trice l -port ST-LINK -v -s': Shows verbose version information and also the received raw bytes.")
 	return e
 }

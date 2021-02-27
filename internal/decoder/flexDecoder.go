@@ -14,8 +14,8 @@ import (
 	"github.com/rokath/trice/internal/id"
 )
 
-// Pack2 is the Decoding instance for bare encoded trices.
-type Pack2 struct {
+// Flex is the Decoding instance for bare encoded trices.
+type Flex struct {
 	decoderData
 	syncPacket     string
 	d0, d1, d2, d3 uint32 // read raw data
@@ -23,12 +23,12 @@ type Pack2 struct {
 	cycleErrorFlag bool
 }
 
-// NewPack2Decoder provides an decoder instance.
+// NewFlexDecoder provides an decoder instance.
 // l is the trice id list in slice of struct format.
 // in is the usable reader for the input bytes.
 // littleEndian is false on normal network order.
-func NewPack2Decoder(lut id.TriceIDLookUp, m *sync.RWMutex, in io.Reader, endian bool) Decoder {
-	p := &Pack2{}
+func NewFlexDecoder(lut id.TriceIDLookUp, m *sync.RWMutex, in io.Reader, endian bool) Decoder {
+	p := &Flex{}
 	p.in = in
 	p.syncBuffer = make([]byte, 0, defaultSize)
 	p.lut = lut
@@ -46,17 +46,8 @@ func NewPack2Decoder(lut id.TriceIDLookUp, m *sync.RWMutex, in io.Reader, endian
 // n is the count of read bytes inside b.
 // Read returns one trice string (optionally starting wth a channel specifier).
 // A line can contain several trice strings.
-func (p *Pack2) Read(b []byte) (n int, err error) {
-	//  sizeMsg := fmt.Sprintln("e:buf too small, expecting", defaultSize, "bytes.")
-	//  if len(b) < len(sizeMsg) {
-	//  	return
-	//  }
-	//  if len(b) < defaultSize {
-	//  	n = copy(b, sizeMsg)
-	//  	return
-	//  }
+func (p *Flex) Read(b []byte) (n int, err error) {
 	p.b = b
-
 	if time.Since(p.lastInnerRead) > p.innerReadInterval { // poll inner reader
 		var m int
 		if Verbose { // time measure
@@ -73,26 +64,43 @@ func (p *Pack2) Read(b []byte) (n int, err error) {
 			// fill intermediate read buffer for pack encoding
 			m, err = p.in.Read(b) // use b as intermediate buffer to avoid allocation
 		}
-
 		// p.syncBuffer can contain unprocessed bytes from last call.
 		p.syncBuffer = append(p.syncBuffer, b[:m]...) // merge with leftovers
 		if nil != err && io.EOF != err {
 			return
 		}
 	}
-
 	// Even err could be io.EOF some valid data possibly in p.syncBuffer.
 	// In case of file input (JLINK usage) a plug off is not detectable here.
 	if len(p.syncBuffer) < 4 {
 		return // wait
 	}
-	p.bc = 4 // At least 4 bytes readable. Used by pack2 decoder only for displaying next few bytes in case out of sync.
-
+	p.bc = 4 // At least 4 bytes readable. Used by flex decoder only for displaying next few bytes in case out of sync.
 	head := p.readU32(p.syncBuffer[0:4])
 	if 0x89abcdef == head {
 		return p.syncTrice()
 	}
-	triceID := id.TriceID(head >> (32 - 20)) // 20 most significant bits are the ID
+	if 0 == 0x80000000&head { // small sub-encoding
+		return p.smallSubEncoding(head)
+	}
+	return p.mediumAndLongSubEncoding(head)
+}
+
+func (p *Flex) smallSubEncoding(head uint32) (n int, err error) {
+	triceID := id.TriceID(head >> 16) // bits 30...16 are the 15-bit ID
+	var ok bool
+	p.lutMutex.RLock()
+	p.trice, ok = p.lut[triceID] // check lookup table
+	p.lutMutex.RUnlock()
+	if !ok {
+		return p.outOfSync(fmt.Sprintf("unknown triceID %5d", triceID))
+	}
+	p.d0 = 0xffff & head
+	return p.sprintTrice(2)
+}
+
+func (p *Flex) mediumAndLongSubEncoding(head uint32) (n int, err error) {
+	triceID := id.TriceID(head >> (31 - 20)) // bits 30...11 are the 20-bit ID
 	count := int((0x00000f00 & head) >> 8)   // this nibble is the 4-bit count
 	cycle := int(0x000000ff & head)          // least significant byte is the cycle
 	var cycleWarning string
@@ -147,7 +155,7 @@ func (p *Pack2) Read(b []byte) (n int, err error) {
 
 // readDataAndCheckPaddingBytes checks if existing paddings bytes 0
 // after reading data and storing them as 32 bit chunks in p.d0, ... p.d3.
-func (p *Pack2) readDataAndCheckPaddingBytes(cnt int) (ok bool) {
+func (p *Flex) readDataAndCheckPaddingBytes(cnt int) (ok bool) {
 	b := make([]byte, cnt+3+8) // max 3 more plus head plus possible long count
 	copy(b, p.syncBuffer)
 	if cnt > 12 {
@@ -208,7 +216,7 @@ func (p *Pack2) readDataAndCheckPaddingBytes(cnt int) (ok bool) {
 }
 
 // isTriceComplete returns true if triceType payload is complete.
-func (p *Pack2) isTriceComplete(cnt int) bool {
+func (p *Flex) isTriceComplete(cnt int) bool {
 	longCountBytes := 0
 	if cnt > 12 {
 		longCountBytes = 4
@@ -222,14 +230,14 @@ func (p *Pack2) isTriceComplete(cnt int) bool {
 }
 
 // bytesCountOk returns true if the transmitted count information matches the expected count.
-func (p *Pack2) bytesCountOk(cnt int) bool {
+func (p *Flex) bytesCountOk(cnt int) bool {
 	bytesCount := p.expectedByteCount()
 	return cnt == bytesCount || -1 == bytesCount
 }
 
 // expectedByteCount returns expected byte count for triceType.
 // It returns -1 for an unknown count value and -2 for unknown triceType.
-func (p *Pack2) expectedByteCount() int {
+func (p *Flex) expectedByteCount() int {
 	switch p.upperCaseTriceType {
 	case "TRICE0":
 		return 0
@@ -261,37 +269,40 @@ func (p *Pack2) expectedByteCount() int {
 }
 
 // https://stackoverflow.com/questions/31561369/how-do-i-declare-a-function-pointer-to-a-method-in-go
-type pack2Selector struct {
+type flexSelector struct {
 	triceType string
-	triceFn   func(p *Pack2) (int, error)
+	triceFn   func(p *Flex) (int, error)
 }
 
-var pack2Sel = []pack2Selector{
-	{"TRICE0", (*Pack2).trice0},
-	{"TRICE8_1", (*Pack2).trice81},
-	{"TRICE8_2", (*Pack2).trice82},
-	{"TRICE8_3", (*Pack2).trice83},
-	{"TRICE8_4", (*Pack2).trice84},
-	{"TRICE8_5", (*Pack2).trice85},
-	{"TRICE8_6", (*Pack2).trice86},
-	{"TRICE8_7", (*Pack2).trice87},
-	{"TRICE8_8", (*Pack2).trice88},
-	{"TRICE16_1", (*Pack2).trice161},
-	{"TRICE16_2", (*Pack2).trice162},
-	{"TRICE16_3", (*Pack2).trice163},
-	{"TRICE16_4", (*Pack2).trice164},
-	{"TRICE32_1", (*Pack2).trice321},
-	{"TRICE32_2", (*Pack2).trice322},
-	{"TRICE32_3", (*Pack2).trice323},
-	{"TRICE32_4", (*Pack2).trice324},
-	{"TRICE64_1", (*Pack2).trice641},
-	{"TRICE64_2", (*Pack2).trice642},
+var flexSel = []flexSelector{
+	{"TRICE0", (*Flex).trice0},
+	{"TRICE8_1", (*Flex).trice81},
+	{"Trice8_1", (*Flex).trice81s},
+	{"TRICE8_2", (*Flex).trice82},
+	{"Trice8_2", (*Flex).trice82s},
+	{"TRICE8_3", (*Flex).trice83},
+	{"TRICE8_4", (*Flex).trice84},
+	{"TRICE8_5", (*Flex).trice85},
+	{"TRICE8_6", (*Flex).trice86},
+	{"TRICE8_7", (*Flex).trice87},
+	{"TRICE8_8", (*Flex).trice88},
+	{"TRICE16_1", (*Flex).trice161},
+	{"Trice16_1", (*Flex).trice161s},
+	{"TRICE16_2", (*Flex).trice162},
+	{"TRICE16_3", (*Flex).trice163},
+	{"TRICE16_4", (*Flex).trice164},
+	{"TRICE32_1", (*Flex).trice321},
+	{"TRICE32_2", (*Flex).trice322},
+	{"TRICE32_3", (*Flex).trice323},
+	{"TRICE32_4", (*Flex).trice324},
+	{"TRICE64_1", (*Flex).trice641},
+	{"TRICE64_2", (*Flex).trice642},
 }
 
 // sprintTrice generates the trice string.
-func (p *Pack2) sprintTrice(cnt int) (n int, e error) {
+func (p *Flex) sprintTrice(cnt int) (n int, e error) {
 	// ID and count are ok
-	for _, s := range pack2Sel {
+	for _, s := range flexSel {
 		if s.triceType == p.upperCaseTriceType {
 			return s.triceFn(p)
 		}
@@ -303,7 +314,7 @@ func (p *Pack2) sprintTrice(cnt int) (n int, e error) {
 	return p.outOfSync(fmt.Sprintf("Unexpected trice.Type %s", p.trice.Type))
 }
 
-func (p *Pack2) triceS(cnt int) (n int, e error) {
+func (p *Flex) triceS(cnt int) (n int, e error) {
 	n = copy(p.b, fmt.Sprintf(p.trice.Strg, string(p.syncBuffer[4:4+cnt])))
 	var ct int
 	ct = cnt + 3
@@ -312,13 +323,22 @@ func (p *Pack2) triceS(cnt int) (n int, e error) {
 	return
 }
 
-func (p *Pack2) trice0() (n int, e error) {
+func (p *Flex) trice0() (n int, e error) {
 	n = copy(p.b, fmt.Sprintf(p.trice.Strg))
 	p.rub(4)
 	return
 }
 
-func (p *Pack2) trice81() (n int, e error) {
+func (p *Flex) trice81s() (n int, e error) {
+	d := make([]uint32, 1)
+	d[0] = 0xFF & p.d0
+	s, b, e := p.uReplace8(d)
+	n = copy(p.b, fmt.Sprintf(s, b[0]))
+	p.rub(4)
+	return
+}
+
+func (p *Flex) trice81() (n int, e error) {
 	d := make([]uint32, 1)
 	d[0] = 0xFF & p.d0
 	s, b, e := p.uReplace8(d)
@@ -327,7 +347,17 @@ func (p *Pack2) trice81() (n int, e error) {
 	return
 }
 
-func (p *Pack2) trice82() (n int, e error) {
+func (p *Flex) trice82s() (n int, e error) {
+	d := make([]uint32, 2)
+	d[0] = 0xFF & (p.d0 >> 8)
+	d[1] = 0xFF & p.d0
+	s, b, e := p.uReplace8(d)
+	n = copy(p.b, fmt.Sprintf(s, b[0], b[1]))
+	p.rub(4)
+	return
+}
+
+func (p *Flex) trice82() (n int, e error) {
 	d := make([]uint32, 2)
 	d[0] = 0xFF & (p.d0 >> 8)
 	d[1] = 0xFF & p.d0
@@ -337,7 +367,7 @@ func (p *Pack2) trice82() (n int, e error) {
 	return
 }
 
-func (p *Pack2) trice83() (n int, e error) {
+func (p *Flex) trice83() (n int, e error) {
 	d := make([]uint32, 3)
 	d[0] = 0xFF & (p.d0 >> 16)
 	d[1] = 0xFF & (p.d0 >> 8)
@@ -348,7 +378,7 @@ func (p *Pack2) trice83() (n int, e error) {
 	return
 }
 
-func (p *Pack2) trice84() (n int, e error) {
+func (p *Flex) trice84() (n int, e error) {
 	d := make([]uint32, 4)
 	d[0] = 0xFF & (p.d0 >> 24)
 	d[1] = 0xFF & (p.d0 >> 16)
@@ -360,7 +390,7 @@ func (p *Pack2) trice84() (n int, e error) {
 	return
 }
 
-func (p *Pack2) trice85() (n int, e error) {
+func (p *Flex) trice85() (n int, e error) {
 	d := make([]uint32, 5)
 	d[0] = 0xFF & (p.d0 >> 24)
 	d[1] = 0xFF & (p.d0 >> 16)
@@ -373,7 +403,7 @@ func (p *Pack2) trice85() (n int, e error) {
 	return
 }
 
-func (p *Pack2) trice86() (n int, e error) {
+func (p *Flex) trice86() (n int, e error) {
 	d := make([]uint32, 6)
 	d[0] = 0xFF & (p.d0 >> 24)
 	d[1] = 0xFF & (p.d0 >> 16)
@@ -387,7 +417,7 @@ func (p *Pack2) trice86() (n int, e error) {
 	return
 }
 
-func (p *Pack2) trice87() (n int, e error) {
+func (p *Flex) trice87() (n int, e error) {
 	d := make([]uint32, 7)
 	d[0] = 0xFF & (p.d0 >> 24)
 	d[1] = 0xFF & (p.d0 >> 16)
@@ -402,7 +432,7 @@ func (p *Pack2) trice87() (n int, e error) {
 	return
 }
 
-func (p *Pack2) trice88() (n int, e error) {
+func (p *Flex) trice88() (n int, e error) {
 	d := make([]uint32, 8)
 	d[0] = 0xFF & (p.d0 >> 24)
 	d[1] = 0xFF & (p.d0 >> 16)
@@ -418,7 +448,16 @@ func (p *Pack2) trice88() (n int, e error) {
 	return
 }
 
-func (p *Pack2) trice161() (n int, e error) {
+func (p *Flex) trice161s() (n int, e error) {
+	d := make([]uint32, 1)
+	d[0] = 0xFFFF & p.d0
+	s, b, e := p.uReplace16(d)
+	n = copy(p.b, fmt.Sprintf(s, b[0]))
+	p.rub(4)
+	return
+}
+
+func (p *Flex) trice161() (n int, e error) {
 	d := make([]uint32, 1)
 	d[0] = 0xFFFF & p.d0
 	s, b, e := p.uReplace16(d)
@@ -427,7 +466,7 @@ func (p *Pack2) trice161() (n int, e error) {
 	return
 }
 
-func (p *Pack2) trice162() (n int, e error) {
+func (p *Flex) trice162() (n int, e error) {
 	d := make([]uint32, 2)
 	d[0] = 0xFFFF & (p.d0 >> 16)
 	d[1] = 0xFFFF & p.d0
@@ -437,7 +476,7 @@ func (p *Pack2) trice162() (n int, e error) {
 	return
 }
 
-func (p *Pack2) trice163() (n int, e error) {
+func (p *Flex) trice163() (n int, e error) {
 	d := make([]uint32, 3)
 	d[0] = 0xFFFF & (p.d0 >> 16)
 	d[1] = 0xFFFF & p.d0
@@ -448,7 +487,7 @@ func (p *Pack2) trice163() (n int, e error) {
 	return
 }
 
-func (p *Pack2) trice164() (n int, e error) {
+func (p *Flex) trice164() (n int, e error) {
 	d := make([]uint32, 4)
 	d[0] = 0xFFFF & (p.d0 >> 16)
 	d[1] = 0xFFFF & p.d0
@@ -460,7 +499,7 @@ func (p *Pack2) trice164() (n int, e error) {
 	return
 }
 
-func (p *Pack2) trice321() (n int, e error) {
+func (p *Flex) trice321() (n int, e error) {
 	d := make([]uint32, 1)
 	d[0] = p.d0
 	s, b, e := p.uReplace32(d)
@@ -469,7 +508,7 @@ func (p *Pack2) trice321() (n int, e error) {
 	return
 }
 
-func (p *Pack2) trice322() (n int, e error) {
+func (p *Flex) trice322() (n int, e error) {
 	d := make([]uint32, 2)
 	d[0] = p.d0
 	d[1] = p.d1
@@ -479,7 +518,7 @@ func (p *Pack2) trice322() (n int, e error) {
 	return
 }
 
-func (p *Pack2) trice323() (n int, e error) {
+func (p *Flex) trice323() (n int, e error) {
 	d := make([]uint32, 3)
 	d[0] = p.d0
 	d[1] = p.d1
@@ -490,7 +529,7 @@ func (p *Pack2) trice323() (n int, e error) {
 	return
 }
 
-func (p *Pack2) trice324() (n int, e error) {
+func (p *Flex) trice324() (n int, e error) {
 	d := make([]uint32, 4)
 	d[0] = p.d0
 	d[1] = p.d1
@@ -502,7 +541,7 @@ func (p *Pack2) trice324() (n int, e error) {
 	return
 }
 
-func (p *Pack2) trice641() (n int, e error) {
+func (p *Flex) trice641() (n int, e error) {
 	d := make([]uint64, 1)
 	d[0] = (uint64(p.d0) << 32) | uint64(p.d1)
 	s, b, e := p.uReplace64(d)
@@ -511,7 +550,7 @@ func (p *Pack2) trice641() (n int, e error) {
 	return
 }
 
-func (p *Pack2) trice642() (n int, e error) {
+func (p *Flex) trice642() (n int, e error) {
 	d := make([]uint64, 2)
 	d[0] = (uint64(p.d0) << 32) | uint64(p.d1)
 	d[1] = (uint64(p.d2) << 32) | uint64(p.d3)
@@ -521,7 +560,7 @@ func (p *Pack2) trice642() (n int, e error) {
 	return
 }
 
-func (p *Pack2) syncTrice() (n int, e error) {
+func (p *Flex) syncTrice() (n int, e error) {
 	n = copy(p.b, p.syncPacket)
 	p.rub(4)
 	return
@@ -529,7 +568,7 @@ func (p *Pack2) syncTrice() (n int, e error) {
 
 // uReplace8 takes parameter values in d and returns them in b as uint8 or int8 according to %nu occurrences in format string.
 // It also returns the modified formatstring with replacments %nu -> %nd.
-func (p *Pack2) uReplace8(d []uint32) (s string, b []interface{}, e error) {
+func (p *Flex) uReplace8(d []uint32) (s string, b []interface{}, e error) {
 	b = make([]interface{}, len(d))
 	s, u := uReplaceN(p.trice.Strg)
 	if len(u) != len(b) {
@@ -548,7 +587,7 @@ func (p *Pack2) uReplace8(d []uint32) (s string, b []interface{}, e error) {
 
 // uReplace16 takes parameter values in d and returns them in b as uint16 or int16 according to %nu occurrences in format string.
 // It also returns the modified formatstring with replacments %nu -> %nd.
-func (p *Pack2) uReplace16(d []uint32) (s string, b []interface{}, e error) {
+func (p *Flex) uReplace16(d []uint32) (s string, b []interface{}, e error) {
 	b = make([]interface{}, len(d))
 	s, u := uReplaceN(p.trice.Strg)
 	if len(u) != len(b) {
@@ -567,7 +606,7 @@ func (p *Pack2) uReplace16(d []uint32) (s string, b []interface{}, e error) {
 
 // uReplace32 takes parameter values in d and returns them in b as uint32 or int32 according to %nu occurrences in format string.
 // It also returns the modified formatstring with replacments %nu -> %nd.
-func (p *Pack2) uReplace32(d []uint32) (s string, b []interface{}, e error) {
+func (p *Flex) uReplace32(d []uint32) (s string, b []interface{}, e error) {
 	b = make([]interface{}, len(d))
 	s, u := uReplaceN(p.trice.Strg)
 	if len(u) != len(b) {
@@ -586,7 +625,7 @@ func (p *Pack2) uReplace32(d []uint32) (s string, b []interface{}, e error) {
 
 // uReplace64 takes parameter values in d and returns them in b as uint64 or int64 according to %nu occurrences in format string.
 // It also returns the modified formatstring with replacments %nu -> %nd.
-func (p *Pack2) uReplace64(d []uint64) (s string, b []interface{}, e error) {
+func (p *Flex) uReplace64(d []uint64) (s string, b []interface{}, e error) {
 	b = make([]interface{}, len(d))
 	s, u := uReplaceN(p.trice.Strg)
 	if len(u) != len(b) {
