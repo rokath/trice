@@ -14,7 +14,7 @@ extern "C" {
 //#define ENCRYPT XTEA_KEY( ea, bb, ec, 6f, 31, 80, 4e, b9, 68, e2, fa, ea, ae, f1, 50, 54 ); //!< -password MySecret
 
 #define TRICE_HEADLINE \
-TRICE0( Id(27253), "s:                                                   \ns:   MDK-ARM_LL_UART_RTT0_PACK_STM32F030_NUCLEO-64   \ns:                                                   \n\n");
+TRICE0( Id( 41511), "s:                                                   \ns:   MDK-ARM_LL_UART_RTT0_FLEX_STM32F030_NUCLEO-64   \ns:                                                   \n\n");
 
 ///////////////////////////////////////////////////////////////////////////////
 //

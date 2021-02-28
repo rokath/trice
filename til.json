@@ -31,6 +31,10 @@
 		"Type": "TRICE0",
 		"Strg": "Invalid wav file\\n"
 	},
+	"11862": {
+		"Type": "Trice0",
+		"Strg": "att:SysTick_HandlerSysTick_HandlerSysTick_HandlerSysTick_HandlerSysTick_HandlerSysTick_Handler\\n"
+	},
 	"11967": {
 		"Type": "TRICE16_1",
 		"Strg": "att:TRICE16_1   message, SysTick is %6u\\n"
@@ -70,6 +74,10 @@
 	"13685": {
 		"Type": "TRICE0",
 		"Strg": "att:STM32CubeIDE_LL_UART_NUCLEO-F030R8\\n"
+	},
+	"13704": {
+		"Type": "Trice16_1",
+		"Strg": "int:Trice16_1 SysTick: %5u\\n"
 	},
 	"13913": {
 		"Type": "Trice0i",
@@ -139,6 +147,10 @@
 		"Type": "TRICE8_2",
 		"Strg": "tst:TRICE8_2 %02x %02x\\n"
 	},
+	"20419": {
+		"Type": "Trice16_1i",
+		"Strg": "int:Trice16_1i SysTick: %5u\\n"
+	},
 	"21036": {
 		"Type": "Trice0",
 		"Strg": "int:SysTick_Handler"
@@ -202,6 +214,10 @@
 	"25382": {
 		"Type": "TRICE32_1",
 		"Strg": "time:ms = %d\\n"
+	},
+	"25765": {
+		"Type": "Trice0i",
+		"Strg": "int:SysTick_Handler\\n"
 	},
 	"25880": {
 		"Type": "TRICE8_6",
@@ -270,6 +286,10 @@
 	"32742": {
 		"Type": "TRICE8_1",
 		"Strg": "tst:TRICE8_1 %u\\n"
+	},
+	"3338": {
+		"Type": "Trice0i",
+		"Strg": "int:Trice0i SysTick_Handler"
 	},
 	"33496": {
 		"Type": "TRICE0",
@@ -367,6 +387,10 @@
 		"Type": "TRICE32_1",
 		"Strg": "tim:TRICE32_1   message, SysTick is %6d\\n"
 	},
+	"41511": {
+		"Type": "TRICE0",
+		"Strg": "s:                                                   \\ns:   MDK-ARM_LL_UART_RTT0_FLEX_STM32F030_NUCLEO-64   \\ns:                                                   \\n\\n"
+	},
 	"41604": {
 		"Type": "TRICE8_5",
 		"Strg": "tst:TRICE8_5 %u %u %u %u %u\\n"
@@ -454,6 +478,10 @@
 	"48439": {
 		"Type": "TRICE16_1",
 		"Strg": "tim:TRICE16_1   message, SysTick is %6u\\n"
+	},
+	"4929": {
+		"Type": "Trice0i",
+		"Strg": "int:Trice0i SysTick_Handler\\n"
 	},
 	"49757": {
 		"Type": "TRICE32_1",
@@ -1078,5 +1106,13 @@
 	"8101": {
 		"Type": "trice16_1",
 		"Strg": "DBG:debug       message, SysTick is %6u\\n"
+	},
+	"8908": {
+		"Type": "Trice0",
+		"Strg": "att:SysTick_HandlerSysTick_HandlerSysTick_HandlerSysTick_HandlerSysTick_HandlerSysTick_Handler"
+	},
+	"8915": {
+		"Type": "Trice0",
+		"Strg": "att:SysTick_HandlerSysTick_HandlerSysTick_HandlerSysTick_HandlerSysTick_HandlerSysTick_Handler"
 	}
 }

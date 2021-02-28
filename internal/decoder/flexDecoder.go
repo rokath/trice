@@ -83,7 +83,7 @@ func (p *Flex) Read(b []byte) (n int, err error) {
 	if 0 == 0x80000000&head { // small sub-encoding
 		return p.smallSubEncoding(head)
 	}
-	return p.mediumAndLongSubEncoding(head)
+	return p.mediumAndLongSubEncoding(head & 0x7fffffff) // clear mode bit
 }
 
 func (p *Flex) smallSubEncoding(head uint32) (n int, err error) {
@@ -96,12 +96,20 @@ func (p *Flex) smallSubEncoding(head uint32) (n int, err error) {
 		return p.outOfSync(fmt.Sprintf("unknown triceID %5d", triceID))
 	}
 	p.d0 = 0xffff & head
+	p.upperCaseTriceType = p.trice.Type // no conversion here, but a copy is needed
+	switch p.trice.Type {
+	case "Trice0", "Trice0i":
+		return p.sprintTrice(0)
+	case "Trice8_1", "Trice8_1i":
+		return p.sprintTrice(1)
+		// case "Trice16_1", "Trice16_1i", "Trice8_2", "Trice8_2i":
+	}
 	return p.sprintTrice(2)
 }
 
 func (p *Flex) mediumAndLongSubEncoding(head uint32) (n int, err error) {
 	triceID := id.TriceID(head >> (31 - 20)) // bits 30...11 are the 20-bit ID
-	count := int((0x00000f00 & head) >> 8)   // this nibble is the 4-bit count
+	count := int((0x00000700 & head) >> 8)   // this nibble is the 3-bit count
 	cycle := int(0x000000ff & head)          // least significant byte is the cycle
 	var cycleWarning string
 	if cycle != 0xff&(p.cycle+1) { // lost trices or out of sync
@@ -277,9 +285,7 @@ type flexSelector struct {
 var flexSel = []flexSelector{
 	{"TRICE0", (*Flex).trice0},
 	{"TRICE8_1", (*Flex).trice81},
-	{"Trice8_1", (*Flex).trice81s},
 	{"TRICE8_2", (*Flex).trice82},
-	{"Trice8_2", (*Flex).trice82s},
 	{"TRICE8_3", (*Flex).trice83},
 	{"TRICE8_4", (*Flex).trice84},
 	{"TRICE8_5", (*Flex).trice85},
@@ -287,7 +293,6 @@ var flexSel = []flexSelector{
 	{"TRICE8_7", (*Flex).trice87},
 	{"TRICE8_8", (*Flex).trice88},
 	{"TRICE16_1", (*Flex).trice161},
-	{"Trice16_1", (*Flex).trice161s},
 	{"TRICE16_2", (*Flex).trice162},
 	{"TRICE16_3", (*Flex).trice163},
 	{"TRICE16_4", (*Flex).trice164},
@@ -297,6 +302,14 @@ var flexSel = []flexSelector{
 	{"TRICE32_4", (*Flex).trice324},
 	{"TRICE64_1", (*Flex).trice641},
 	{"TRICE64_2", (*Flex).trice642},
+	{"Trice0", (*Flex).trice0},
+	{"Trice8_1", (*Flex).trice81s},
+	{"Trice8_2", (*Flex).trice82s},
+	{"Trice16_1", (*Flex).trice161s},
+	{"Trice0i", (*Flex).trice0},
+	{"Trice8_1i", (*Flex).trice81s},
+	{"Trice8_2i", (*Flex).trice82s},
+	{"Trice16_1i", (*Flex).trice161s},
 }
 
 // sprintTrice generates the trice string.

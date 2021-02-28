@@ -68,7 +68,7 @@ var ansiSel = []ansiSelector{
 	{[]string{"att", "attention", "ATT", "ATTENTION"}, colorizeATTENTION},
 	{[]string{"d", "db", "dbg", "debug", "D", "DB", "DBG", "DEBUG"}, colorizeDEBUG},
 	{[]string{"dia", "diag", "DIA", "DIAG"}, colorizeDIAG},
-	{[]string{"isr", "interrupt", "ISR", "INTERRUPT"}, colorizeINTERRUPT},
+	{[]string{"int", "isr", "ISR", "INT", "interrupt", "INTERRUPT"}, colorizeINTERRUPT},
 	{[]string{"s", "sig", "signal", "S", "SIG", "SIGNAL"}, colorizeSIGNAL},
 	{[]string{"t", "tst", "test", "T", "TST", "TEST"}, colorizeTEST},
 	{[]string{"i", "inf", "info", "informal", "I", "INF", "INFO", "INFORMAL"}, colorizeINFO},

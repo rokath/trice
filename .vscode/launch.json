@@ -118,7 +118,7 @@
             "args": ["log",
                      "-verbose",
                      "-encoding",
-                     "pack2L",
+                     "flexL",
                      "-port",
                      "COM3",
                      "-baud",

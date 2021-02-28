@@ -95,6 +95,8 @@ int main(void)
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
     LL_USART_EnableIT_RXNE(TRICE_UART); // enable UART2 interrupt
+    Trice0( id(11862),  "att:SysTick_HandlerSysTick_HandlerSysTick_HandlerSysTick_HandlerSysTick_HandlerSysTick_Handler\n" );
+
     TRICE_HEADLINE;
   /* USER CODE END 2 */
 
@@ -106,7 +108,7 @@ int main(void)
     { // send some trices every few ms
         if( milliSecond >= lastTricesTime + 100 ){
             static int index = 0;
-            int select = index % 30;
+            int select = index % 2;
             #if 0 // TRICE_FLEX_ENCODING == TRICE_ENCODING
             // TRICE16_2( Id(1047663),"MSG: triceFifoMaxDepth = %d, select = %d\n", triceFifoMaxDepth, select ); // bigID check
             #else
