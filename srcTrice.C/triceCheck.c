@@ -252,7 +252,7 @@ void triceCheckSetTime(int index) {
 #endif
         break;
         case 20:
-            #if TRICE_ENCODING == TRICE_PACK2_ENCODING
+            #if TRICE_ENCODING == TRICE_FLEX_ENCODING
             TRICE8_8(Id(  579), "tst:TRICE8_1 %%d=%d, %%u=%u, 0x%%x=0x%x, 0x%%2x=0x%2x, 0x%%02x=0x%02x, 0x%%3x=0x%3x, 0x%%03x=0x%03x, %%b=%b\n", 0x81, 0x81, 0x81, 0x81, 0x81, 0x81, 0x81, 0x81);
             TRICE16_1(Id(21394), "tst:TRICE16_1 0x%04x\n", 0xa0);
             TRICE8_1(Id(21201), "tst:TRICE8_1 0x%02x\n", 0xa0);
@@ -276,25 +276,25 @@ void triceCheckSetTime(int index) {
             TRICE64_1(Id(45250), "tst:TRICE64_1 %u\n", -1);
             TRICE64_2(Id(12051), "tst:TRICE64_2 %u %u\n", -1, -2);
             #endif // #if TRICE_ENCODING == TRICE_PACK2_ENCODING        
-    case 21:
-        #if TRICE_ENCODING == TRICE_FLEX_ENCODING
-        Trice0( id(5), "msg:Qick\n");
-        Trice16_1( id(6), "msg:%d\n", 65000);
-        Trice8_2( id(7), "msg:%x, %x\n", 253, 57);
-        Trice16_1( id(8), "msg:%6u\n", SYSTICKVAL16);
-        Trice16_1( id(8), "msg:%6u\n", SYSTICKVAL16);
-        Trice16_1( id(8), "msg:%6u\n", SYSTICKVAL16);
-        Trice16_1( id(8), "msg:%6u\n", SYSTICKVAL16);
-        Trice16_1( id(6), "msg:%d\n", 65000);
-        Trice16_1( id(8), "msg:%6u\n", SYSTICKVAL16);
-        Trice16_1( id(6), "msg:%d\n", 65000);
-        Trice16_1( id(8), "msg:%6u\n", SYSTICKVAL16);
-        Trice16_1( id(6), "msg:%d\n", 65000);
-        Trice16_1( id(8), "msg:%6u\n", SYSTICKVAL16);
-        #endif // #if TRICE_ENCODING == TRICE_FLEX_ENCODING
-        break;
-    default:
-        break;
+        case 21:
+            #if TRICE_ENCODING == TRICE_FLEX_ENCODING
+            Trice0   ( id(21682), "msg: Trice0    short\n");
+            Trice16_1( id(10052), "msg: Trice16_1 %d\n", 65000);
+            Trice8_2 ( id(12927), "msg: Trice8_2  %x, %x\n", 253, 57);
+            Trice16_1( id(11439), "msg: Trice16_1 %6u\n", SYSTICKVAL16);
+            Trice16_1( id(11439), "msg: Trice16_1 %6u\n", SYSTICKVAL16);
+            Trice16_1( id(11439), "msg: Trice16_1 %6u\n", SYSTICKVAL16);
+            Trice16_1( id(11439), "msg: Trice16_1 %6u\n", SYSTICKVAL16);
+            Trice16_1( id(10052), "msg: Trice16_1 %d\n", 65000);
+            Trice16_1( id(11439), "msg: Trice16_1 %6u\n", SYSTICKVAL16);
+            Trice16_1( id(10052), "msg: Trice16_1 %d\n", 65000);
+            Trice16_1( id(11439), "msg: Trice16_1 %6u\n", SYSTICKVAL16);
+            Trice16_1( id(10052), "msg: Trice16_1 %d\n", 65000);
+            Trice16_1( id(11439), "msg: Trice16_1 %6u\n", SYSTICKVAL16);
+            #endif // #if TRICE_ENCODING == TRICE_FLEX_ENCODING
+            break;
+        default:
+            break;
     }
 }
 
@@ -442,7 +442,23 @@ void triceCheckSetSpace(int index) {
             trice_rts( "an_example_strin\n" );
             trice_rts( "an_example_string\n" );
             break;
-    default:
+        case 21:
+            #if TRICE_ENCODING == TRICE_FLEX_ENCODING
+            Trice0i   ( id(13003), "msg: Trice0i   short\n");
+            Trice16_1i( id( 9549), "msg: Trice16_1i %d\n", 65000);
+            Trice8_2i ( id(16383), "msg: Trice8_2i  %x, %x\n", 253, 57);
+            Trice16_1i( id( 5124), "msg: Trice16_1i %6u\n", SYSTICKVAL16);
+            Trice16_1i( id( 5124), "msg: Trice16_1i %6u\n", SYSTICKVAL16);
+            Trice16_1i( id( 5124), "msg: Trice16_1i %6u\n", SYSTICKVAL16);
+            Trice16_1i( id( 5124), "msg: Trice16_1i %6u\n", SYSTICKVAL16);
+            Trice16_1i( id( 9549), "msg: Trice16_1i %d\n", 65000);
+            Trice16_1i( id( 5124), "msg: Trice16_1i %6u\n", SYSTICKVAL16);
+            Trice16_1i( id( 9549), "msg: Trice16_1i %d\n", 65000);
+            Trice16_1i( id( 5124), "msg: Trice16_1i %6u\n", SYSTICKVAL16);
+            Trice16_1i( id( 9549), "msg: Trice16_1i %d\n", 65000);
+            Trice16_1i( id( 5124), "msg: Trice16_1i %6u\n", SYSTICKVAL16);
+            #endif // #if TRICE_ENCODING == TRICE_FLEX_ENCODING
+            break;    default:
         break;
     }
 }

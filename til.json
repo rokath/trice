@@ -1,4 +1,8 @@
 {
+	"10052": {
+		"Type": "Trice16_1",
+		"Strg": "msg: Trice16_1 %d\\n"
+	},
 	"10407": {
 		"Type": "TRICE8_1",
 		"Strg": "tst:trice8_1 %02X\\n"
@@ -26,6 +30,10 @@
 	"10813": {
 		"Type": "TRICE16_1",
 		"Strg": "time:TRICE16_1   message, SysTick is %6u\\n"
+	},
+	"11439": {
+		"Type": "Trice16_1",
+		"Strg": "msg: Trice16_1 %6u\\n"
 	},
 	"11804": {
 		"Type": "TRICE0",
@@ -59,6 +67,14 @@
 		"Type": "TRICE16_4",
 		"Strg": "tst:TRICE16_4 %u %u %u %u\\n"
 	},
+	"12927": {
+		"Type": "Trice8_2",
+		"Strg": "msg: Trice8_2  %x, %x\\n"
+	},
+	"13003": {
+		"Type": "Trice0i",
+		"Strg": "msg: Trice0i   short\\n"
+	},
 	"13083": {
 		"Type": "TRICE0",
 		"Strg": "att:MDK-ARM_RTTD_STM32F0300-DISCO\\n"
@@ -78,6 +94,10 @@
 	"13704": {
 		"Type": "Trice16_1",
 		"Strg": "int:Trice16_1 SysTick: %5u\\n"
+	},
+	"13850": {
+		"Type": "Trice8_2",
+		"Strg": "INT:%d %d\\n"
 	},
 	"13913": {
 		"Type": "Trice0i",
@@ -111,6 +131,10 @@
 		"Type": "TRICE0",
 		"Strg": "att:STM32CubeIDE_RTTD_NUCLEO-F091\\n"
 	},
+	"16383": {
+		"Type": "Trice8_2i",
+		"Strg": "msg: Trice8_2i  %x, %x\\n"
+	},
 	"16417": {
 		"Type": "TRICE32_1",
 		"Strg": "ISR:alive time %d milliseconds\\n"
@@ -118,6 +142,10 @@
 	"16731": {
 		"Type": "TRICE8_8",
 		"Strg": "tst:TRICE8_8 %02X %02X %02X %02X %02X %02X %02X %02X\\n"
+	},
+	"16793": {
+		"Type": "Trice0i",
+		"Strg": "INT:Trice0i SysTick_Handler\\n"
 	},
 	"17147": {
 		"Type": "TRICE0",
@@ -142,6 +170,10 @@
 	"18561": {
 		"Type": "TRICE0",
 		"Strg": "s:                                        \\ns:   ARM-MDK_LL_UART_BARE_TO_ESC_NUCLEO-F070RB   \\ns:                                        \\n\\n"
+	},
+	"19074": {
+		"Type": "Trice8_1i",
+		"Strg": "INT:SysTick: %5d\\n"
 	},
 	"20096": {
 		"Type": "TRICE8_2",
@@ -174,6 +206,10 @@
 	"21678": {
 		"Type": "TRICE8_6",
 		"Strg": "tst:TRICE8_6 %02x %02x %02x %02x %02x %02x\\n"
+	},
+	"21682": {
+		"Type": "Trice0",
+		"Strg": "msg: Trice0    short\\n"
 	},
 	"22308": {
 		"Type": "TRICE8_7",
@@ -254,6 +290,10 @@
 	"28450": {
 		"Type": "TRICE8_3",
 		"Strg": "tst:trice8_3 %02X %02X %02X\\n"
+	},
+	"30070": {
+		"Type": "Trice16_1i",
+		"Strg": "INT:Trice16_1i SysTick: %5u\\n"
 	},
 	"30221": {
 		"Type": "TRICE0",
@@ -495,6 +535,10 @@
 		"Type": "TRICE8_3",
 		"Strg": "tst:TRICE8_3 %02x %02x %02x\\n"
 	},
+	"5124": {
+		"Type": "Trice16_1i",
+		"Strg": "msg: Trice16_1i %6u\\n"
+	},
 	"52174": {
 		"Type": "TRICE8_1",
 		"Strg": "tst:TRICE8_1 %02x\\n"
@@ -566,6 +610,10 @@
 	"630": {
 		"Type": "Trice8_1i",
 		"Strg": "int:SysTick: %5d\\n"
+	},
+	"648": {
+		"Type": "Trice16_1",
+		"Strg": "INT:Trice16_1 SysTick: %5u\\n"
 	},
 	"64819": {
 		"Type": "TRICE8_5",
@@ -1099,6 +1147,10 @@
 		"Type": "TRICE8_2",
 		"Strg": "tst:TRICE8_2 %u %u\\n"
 	},
+	"7500": {
+		"Type": "Trice0i",
+		"Strg": "INT:SysTick_Handler\\n"
+	},
 	"8": {
 		"Type": "Trice16_1",
 		"Strg": "msg:%6u\\n"
@@ -1114,5 +1166,13 @@
 	"8915": {
 		"Type": "Trice0",
 		"Strg": "att:SysTick_HandlerSysTick_HandlerSysTick_HandlerSysTick_HandlerSysTick_HandlerSysTick_Handler"
+	},
+	"9549": {
+		"Type": "Trice16_1i",
+		"Strg": "msg: Trice16_1i %d\\n"
+	},
+	"983": {
+		"Type": "Trice8_2i",
+		"Strg": "INT:%d %d\\n"
 	}
 }

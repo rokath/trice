@@ -230,33 +230,6 @@ func (p *decoderData) rub(n int) {
 	p.syncBuffer = p.syncBuffer[n:]
 }
 
-// rubWithLongCount removes leading bytes from sync buffer but considers long count bytes
-// in case of TestTableMode to generate correct test table data.
-func (p *decoderData) rubWithLongCount(n, count int) {
-	if TestTableMode {
-		if emitter.NextLine {
-			emitter.NextLine = false
-			fmt.Printf("{ []byte{ ")
-		}
-		for _, b := range p.syncBuffer[0:4] { // just to see trice bytes per trice
-			fmt.Printf("%3d,", b)
-		}
-		if count > 12 { // restore long count transfer bytes
-			hi := uint32(count << 16)
-			lo := uint16(^count)
-			countTransfer := hi | uint32(lo)
-			buf := p.writeU32(countTransfer)
-			for _, b := range buf.Bytes() {
-				fmt.Printf("%d,", b)
-			}
-		}
-		for _, b := range p.syncBuffer[4:n] { // just to see trice bytes per trice
-			fmt.Printf("%3d,", b)
-		}
-	}
-	p.syncBuffer = p.syncBuffer[n:]
-}
-
 // outOfSync generates an error message and removes first byte in input buffer.
 func (p *decoderData) outOfSync(msg string) (n int, e error) {
 	cnt := p.bc

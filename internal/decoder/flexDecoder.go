@@ -21,6 +21,7 @@ type Flex struct {
 	d0, d1, d2, d3 uint32 // read raw data
 	cycle          int
 	cycleErrorFlag bool
+	sCount         int // for TRICE_S adaption
 }
 
 // NewFlexDecoder provides an decoder instance.
@@ -102,9 +103,8 @@ func (p *Flex) smallSubEncoding(head uint32) (n int, err error) {
 		return p.sprintTrice(0)
 	case "Trice8_1", "Trice8_1i":
 		return p.sprintTrice(1)
-		// case "Trice16_1", "Trice16_1i", "Trice8_2", "Trice8_2i":
 	}
-	return p.sprintTrice(2)
+	return p.sprintTrice(2) // case "Trice16_1", "Trice16_1i", "Trice8_2", "Trice8_2i"
 }
 
 func (p *Flex) mediumAndLongSubEncoding(head uint32) (n int, err error) {
@@ -119,8 +119,7 @@ func (p *Flex) mediumAndLongSubEncoding(head uint32) (n int, err error) {
 		}
 	}
 
-	// 38 13 171 65 239 255 16 0
-	if 0xd == count { // TRICE_LONGCOUNT(n), values 0-12 short counts, 0xd is long count and 0xe & 0xf are reserved.
+	if 0x7 == count { // TRICE_LONGCOUNT(n), values 0-4 short counts, 0x7 is long count and 0x5 & 0x6 are reserved.
 		if len(p.syncBuffer) < 8 {
 			return // wait
 		}
@@ -152,9 +151,9 @@ func (p *Flex) mediumAndLongSubEncoding(head uint32) (n int, err error) {
 	}
 
 	// ID and count are ok
-	if count > 12 { // remove the 4 long count bytes
-		p.syncBuffer = append(p.syncBuffer[0:4], p.syncBuffer[8:]...)
-	}
+	//if count > 4 { // after checks ok, remove the 4 long count bytes
+	//	p.syncBuffer = append(p.syncBuffer[0:4], p.syncBuffer[8:]...)
+	//}
 	p.cycleErrorFlag = false
 	p.cycle = cycle // Set cycle for checking next trice here because all checks passed.
 	p.trice.Strg = cycleWarning + p.trice.Strg
@@ -166,8 +165,8 @@ func (p *Flex) mediumAndLongSubEncoding(head uint32) (n int, err error) {
 func (p *Flex) readDataAndCheckPaddingBytes(cnt int) (ok bool) {
 	b := make([]byte, cnt+3+8) // max 3 more plus head plus possible long count
 	copy(b, p.syncBuffer)
-	if cnt > 12 {
-		b = append(b[0:4], b[8:]...)
+	if cnt > 4 {
+		b = append(b[0:4], b[8:]...) // remove long count in copy
 	}
 	switch p.upperCaseTriceType { // for trice* too {
 	case "TRICE0":
@@ -226,7 +225,7 @@ func (p *Flex) readDataAndCheckPaddingBytes(cnt int) (ok bool) {
 // isTriceComplete returns true if triceType payload is complete.
 func (p *Flex) isTriceComplete(cnt int) bool {
 	longCountBytes := 0
-	if cnt > 12 {
+	if cnt > 4 {
 		longCountBytes = 4
 	}
 	cnt += 3
@@ -239,12 +238,13 @@ func (p *Flex) isTriceComplete(cnt int) bool {
 
 // bytesCountOk returns true if the transmitted count information matches the expected count.
 func (p *Flex) bytesCountOk(cnt int) bool {
+	p.sCount = cnt // keep for triceSCount
 	bytesCount := p.expectedByteCount()
-	return cnt == bytesCount || -1 == bytesCount
+	return cnt == bytesCount
 }
 
 // expectedByteCount returns expected byte count for triceType.
-// It returns -1 for an unknown count value and -2 for unknown triceType.
+// It returns -1 for unknown triceType.
 func (p *Flex) expectedByteCount() int {
 	switch p.upperCaseTriceType {
 	case "TRICE0":
@@ -270,9 +270,9 @@ func (p *Flex) expectedByteCount() int {
 	case "TRICE32_4", "TRICE64_2":
 		return 16
 	case "TRICE_S":
-		return -1 // unknown count
+		return p.sCount // cannot check count
 	default:
-		return -2 // unknown trice type
+		return -1 // unknown trice type
 	}
 }
 
@@ -310,6 +310,7 @@ var flexSel = []flexSelector{
 	{"Trice8_1i", (*Flex).trice81s},
 	{"Trice8_2i", (*Flex).trice82s},
 	{"Trice16_1i", (*Flex).trice161s},
+	{"TRICE_S", (*Flex).triceSCount},
 }
 
 // sprintTrice generates the trice string.
@@ -327,18 +328,23 @@ func (p *Flex) sprintTrice(cnt int) (n int, e error) {
 	return p.outOfSync(fmt.Sprintf("Unexpected trice.Type %s", p.trice.Type))
 }
 
+func (p *Flex) triceSCount() (n int, e error) {
+	return p.triceS(p.sCount)
+}
+
 func (p *Flex) triceS(cnt int) (n int, e error) {
-	n = copy(p.b, fmt.Sprintf(p.trice.Strg, string(p.syncBuffer[4:4+cnt])))
-	var ct int
-	ct = cnt + 3
-	ct &= ^3
-	p.rubWithLongCount(4+ct, cnt)
+	if cnt > 4 {
+		n = copy(p.b, fmt.Sprintf(p.trice.Strg, string(p.syncBuffer[8:8+cnt])))
+	} else {
+		n = copy(p.b, fmt.Sprintf(p.trice.Strg, string(p.syncBuffer[4:4+cnt])))
+	}
+	p.rub4(cnt)
 	return
 }
 
 func (p *Flex) trice0() (n int, e error) {
 	n = copy(p.b, fmt.Sprintf(p.trice.Strg))
-	p.rub(4)
+	p.rub4(0)
 	return
 }
 
@@ -347,7 +353,7 @@ func (p *Flex) trice81s() (n int, e error) {
 	d[0] = 0xFF & p.d0
 	s, b, e := p.uReplace8(d)
 	n = copy(p.b, fmt.Sprintf(s, b[0]))
-	p.rub(4)
+	p.rub4(0)
 	return
 }
 
@@ -356,7 +362,7 @@ func (p *Flex) trice81() (n int, e error) {
 	d[0] = 0xFF & p.d0
 	s, b, e := p.uReplace8(d)
 	n = copy(p.b, fmt.Sprintf(s, b[0]))
-	p.rub(8)
+	p.rub4(1)
 	return
 }
 
@@ -366,7 +372,7 @@ func (p *Flex) trice82s() (n int, e error) {
 	d[1] = 0xFF & p.d0
 	s, b, e := p.uReplace8(d)
 	n = copy(p.b, fmt.Sprintf(s, b[0], b[1]))
-	p.rub(4)
+	p.rub4(0)
 	return
 }
 
@@ -376,7 +382,7 @@ func (p *Flex) trice82() (n int, e error) {
 	d[1] = 0xFF & p.d0
 	s, b, e := p.uReplace8(d)
 	n = copy(p.b, fmt.Sprintf(s, b[0], b[1]))
-	p.rub(8)
+	p.rub4(2)
 	return
 }
 
@@ -387,7 +393,7 @@ func (p *Flex) trice83() (n int, e error) {
 	d[2] = 0xFF & p.d0
 	s, b, e := p.uReplace8(d)
 	n = copy(p.b, fmt.Sprintf(s, b[0], b[1], b[2]))
-	p.rub(8)
+	p.rub4(3)
 	return
 }
 
@@ -399,7 +405,7 @@ func (p *Flex) trice84() (n int, e error) {
 	d[3] = 0xFF & p.d0
 	s, b, e := p.uReplace8(d)
 	n = copy(p.b, fmt.Sprintf(s, b[0], b[1], b[2], b[3]))
-	p.rub(8)
+	p.rub4(4)
 	return
 }
 
@@ -412,7 +418,7 @@ func (p *Flex) trice85() (n int, e error) {
 	d[4] = 0xFF & p.d1
 	s, b, e := p.uReplace8(d)
 	n = copy(p.b, fmt.Sprintf(s, b[0], b[1], b[2], b[3], b[4]))
-	p.rub(12)
+	p.rub4(5)
 	return
 }
 
@@ -426,7 +432,7 @@ func (p *Flex) trice86() (n int, e error) {
 	d[5] = 0xFF & p.d1
 	s, b, e := p.uReplace8(d)
 	n = copy(p.b, fmt.Sprintf(s, b[0], b[1], b[2], b[3], b[4], b[5]))
-	p.rub(12)
+	p.rub4(6)
 	return
 }
 
@@ -441,7 +447,7 @@ func (p *Flex) trice87() (n int, e error) {
 	d[6] = 0xFF & p.d1
 	s, b, e := p.uReplace8(d)
 	n = copy(p.b, fmt.Sprintf(s, b[0], b[1], b[2], b[3], b[4], b[5], b[6]))
-	p.rub(12)
+	p.rub4(7)
 	return
 }
 
@@ -457,7 +463,7 @@ func (p *Flex) trice88() (n int, e error) {
 	d[7] = 0xFF & p.d1
 	s, b, e := p.uReplace8(d)
 	n = copy(p.b, fmt.Sprintf(s, b[0], b[1], b[2], b[3], b[4], b[5], b[6], b[7]))
-	p.rub(12)
+	p.rub4(8)
 	return
 }
 
@@ -466,7 +472,7 @@ func (p *Flex) trice161s() (n int, e error) {
 	d[0] = 0xFFFF & p.d0
 	s, b, e := p.uReplace16(d)
 	n = copy(p.b, fmt.Sprintf(s, b[0]))
-	p.rub(4)
+	p.rub4(0)
 	return
 }
 
@@ -475,7 +481,7 @@ func (p *Flex) trice161() (n int, e error) {
 	d[0] = 0xFFFF & p.d0
 	s, b, e := p.uReplace16(d)
 	n = copy(p.b, fmt.Sprintf(s, b[0]))
-	p.rub(8)
+	p.rub4(2)
 	return
 }
 
@@ -485,7 +491,7 @@ func (p *Flex) trice162() (n int, e error) {
 	d[1] = 0xFFFF & p.d0
 	s, b, e := p.uReplace16(d)
 	n = copy(p.b, fmt.Sprintf(s, b[0], b[1]))
-	p.rub(8)
+	p.rub4(4)
 	return
 }
 
@@ -496,7 +502,7 @@ func (p *Flex) trice163() (n int, e error) {
 	d[2] = 0xFFFF & p.d1
 	s, b, e := p.uReplace16(d)
 	n = copy(p.b, fmt.Sprintf(s, b[0], b[1], b[2]))
-	p.rub(12)
+	p.rub4(6)
 	return
 }
 
@@ -508,7 +514,7 @@ func (p *Flex) trice164() (n int, e error) {
 	d[3] = 0xFFFF & p.d1
 	s, b, e := p.uReplace16(d)
 	n = copy(p.b, fmt.Sprintf(s, b[0], b[1], b[2], b[3]))
-	p.rub(12)
+	p.rub4(8)
 	return
 }
 
@@ -517,7 +523,7 @@ func (p *Flex) trice321() (n int, e error) {
 	d[0] = p.d0
 	s, b, e := p.uReplace32(d)
 	n = copy(p.b, fmt.Sprintf(s, b[0]))
-	p.rub(8)
+	p.rub4(4)
 	return
 }
 
@@ -527,7 +533,7 @@ func (p *Flex) trice322() (n int, e error) {
 	d[1] = p.d1
 	s, b, e := p.uReplace32(d)
 	n = copy(p.b, fmt.Sprintf(s, b[0], b[1]))
-	p.rub(12)
+	p.rub4(8)
 	return
 }
 
@@ -538,7 +544,7 @@ func (p *Flex) trice323() (n int, e error) {
 	d[2] = p.d2
 	s, b, e := p.uReplace32(d)
 	n = copy(p.b, fmt.Sprintf(s, b[0], b[1], b[2]))
-	p.rub(16)
+	p.rub4(12)
 	return
 }
 
@@ -550,7 +556,7 @@ func (p *Flex) trice324() (n int, e error) {
 	d[3] = p.d3
 	s, b, e := p.uReplace32(d)
 	n = copy(p.b, fmt.Sprintf(s, b[0], b[1], b[2], b[3]))
-	p.rubWithLongCount(20, 16)
+	p.rub4(16)
 	return
 }
 
@@ -559,7 +565,7 @@ func (p *Flex) trice641() (n int, e error) {
 	d[0] = (uint64(p.d0) << 32) | uint64(p.d1)
 	s, b, e := p.uReplace64(d)
 	n = copy(p.b, fmt.Sprintf(s, b[0]))
-	p.rub(12)
+	p.rub4(8)
 	return
 }
 
@@ -569,13 +575,13 @@ func (p *Flex) trice642() (n int, e error) {
 	d[1] = (uint64(p.d2) << 32) | uint64(p.d3)
 	s, b, e := p.uReplace64(d)
 	n = copy(p.b, fmt.Sprintf(s, b[0], b[1]))
-	p.rubWithLongCount(20, 16)
+	p.rub4(16)
 	return
 }
 
 func (p *Flex) syncTrice() (n int, e error) {
 	n = copy(p.b, p.syncPacket)
-	p.rub(4)
+	p.rub4(0)
 	return
 }
 
@@ -653,4 +659,51 @@ func (p *Flex) uReplace64(d []uint64) (s string, b []interface{}, e error) {
 		}
 	}
 	return
+}
+
+// rub4 removes leading bytes from sync buffer
+// It removes 4 bytes header plus data considering encoding
+func (p *Flex) rub4(count int) {
+	n := count + 3
+	n &= ^3 // only 4-byte groups
+	if count > 4 {
+		n += 4 // add long count
+	}
+	if TestTableMode {
+		p.printTestTableLine(count)
+	}
+	//if len(p.syncBuffer) < 4+n {
+	//	msg.FatalOnFalse(len(p.syncBuffer) >= 4+n, fmt.Sprintf("size %d smaller than %d", len(p.syncBuffer), 4+n))
+	//}
+	p.syncBuffer = p.syncBuffer[4+n:] // header and data
+}
+
+// printTestTableLine is used to generate testdata
+func (p *Flex) printTestTableLine(count int) {
+	n := count + 3
+	n &= ^3
+	if count > 4 {
+		n += 4 // add long count
+	}
+	if emitter.NextLine {
+		emitter.NextLine = false
+		fmt.Printf("{ []byte{ ")
+	}
+	for _, b := range p.syncBuffer[0:4] { // just to see trice bytes per trice
+		fmt.Printf("%3d,", b)
+	}
+	var dataIndex int
+	if count > 4 { // restore long count transfer bytes
+		hi := uint32(count << 16)
+		lo := uint16(^count)
+		countTransfer := hi | uint32(lo)
+		buf := p.writeU32(countTransfer)
+		for _, b := range buf.Bytes() {
+			fmt.Printf("%d,", b)
+		}
+		dataIndex = 4
+	}
+	for _, b := range p.syncBuffer[dataIndex:n] { // just to see trice bytes per trice
+		fmt.Printf("%3d,", b)
+	}
 }

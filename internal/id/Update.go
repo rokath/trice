@@ -62,12 +62,14 @@ var (
 	matchAnyTriceStart       = regexp.MustCompile(patAnyTriceStart)
 )
 
-// updateParamCountAndID0 stays in each file as long TRICE* statements are found.
+// updateParamCountAndID0 stays in text as long as trice statements are found.
 // If a TRICE* is found it is getting an Id(0) inserted and it is also extended by _n
 // according to the format specifier count inside the formatstring. Both only if not alreay existent.
 // A not with the format specifier count matching _n is intentionally not corrected.
-// To do: Warning in that case. About a not matching parameter count the compiler will complain.
-//
+// About a not matching parameter count the compiler will complain.
+// trice statements ending with letter 'i' keep the 'i' ath the end.
+// Short trices like Trice0 or Trice16_1i need to have an id(0) instead of Id(0) but that gets corrected
+// automatically when the id n is inserted.
 // text is the full filecontents, which could be modified, therefore it is also returned with a modified flag
 func updateParamCountAndID0(text string) (string, bool) {
 	var modified bool
@@ -98,7 +100,11 @@ func updateParamCountAndID0(text string) (string, bool) {
 				}
 			}
 			if 0 < n && n < 9 { // patch
-				triceNameWithLen = fmt.Sprintf(triceNameNoLen+"_%d", n)               // TRICE*_n
+				if 'i' == triceNameNoLen[len(triceNameNoLen)-1] { // last letter is 'i'
+					triceNameWithLen = fmt.Sprintf(triceNameNoLen[:len(triceNameNoLen)-1]+"_%di", n) // TRICE*_ni
+				} else {
+					triceNameWithLen = fmt.Sprintf(triceNameNoLen+"_%d", n) // TRICE*_n
+				}
 				triceC = strings.Replace(triceC, triceNameNoLen, triceNameWithLen, 1) // insert _n
 			} else {
 				fmt.Println("Parse error: ", n, " % format specifier found inside ", trice)
