@@ -276,8 +276,8 @@ void triceCheckSetTime(int index) {
             TRICE64_1(Id(45250), "tst:TRICE64_1 %u\n", -1);
             TRICE64_2(Id(12051), "tst:TRICE64_2 %u %u\n", -1, -2);
             #endif // #if TRICE_ENCODING == TRICE_PACK2_ENCODING        
-        case 21:
             #if TRICE_ENCODING == TRICE_FLEX_ENCODING
+        case 21:
             Trice0   ( id(21682), "msg: Trice0    short\n");
             Trice16_1( id(10052), "msg: Trice16_1 %d\n", 65000);
             Trice8_2 ( id(12927), "msg: Trice8_2  %x, %x\n", 253, 57);
@@ -291,8 +291,108 @@ void triceCheckSetTime(int index) {
             Trice16_1( id(11439), "msg: Trice16_1 %6u\n", SYSTICKVAL16);
             Trice16_1( id(10052), "msg: Trice16_1 %d\n", 65000);
             Trice16_1( id(11439), "msg: Trice16_1 %6u\n", SYSTICKVAL16);
-            #endif // #if TRICE_ENCODING == TRICE_FLEX_ENCODING
             break;
+        case 40:
+            Trice0i( id(15380),     "msg: Trice0i    -> short  trice macro    (no   cycle counter) for only inside critical section\n" );
+          //TRICE0i( Id(0),         "msg: TRICE0i    -> normal trice macro    (with cycle counter) for only inside critical section\n" );
+          //trice0i( Id(0),         "msg: trice0i    -> normal trice function (with cycle counter) for only inside critical section\n" );
+            TRICE0 ( Id( 65336),    "msg: TRICE0     -> normal trice macro    (with cycle counter) for everywhere\n" );
+            Trice0 ( id(23242),     "msg: Trice0     -> short  trice macro    (no   cycle counter) for everywhere\n" );
+            trice0 ( Id( 50329),    "msg: trice0     -> normal trice function (with cycle counter) for everywhere\n" );
+            break;
+        case 41:
+          // Trice8_1i( id(26825),  "msg:  Trice8_1i -> short  trice macro    (no   cycle counter) for only inside critical section %d\n", 111 );
+          // trice8_1i( id( 4205),  "msg:  trice8_1i -> normal trice function (with cycle counter) for only inside critical section %d\n", 111 );
+          // TRICE8_1i( id( 0),     "msg:  TRICE8_1i -> normal trice macro    (with cycle counter) for only inside critical section %d\n", 111 );
+          //Trice16_1i( id(32337),  "msg: Trice16_1i -> short  trice macro    (no   cycle counter) for only inside critical section %d\n", 111 );
+          //TRICE16_1i( id( 4205),  "msg: TRICE16_1i -> normal trice macro    (with cycle counter) for only inside critical section %d\n", 111 );
+          //trice16_1i( id( 4205),  "msg: trice16_1i -> normal trice function (with cycle counter) for only inside critical section %d\n", 111 );
+          //TRICE32_1i( id(     0), "msg: TRICE32_1i -> normal trice macro    (with cycle counter) for only inside critical section %d\n", 111 );
+          //trice32_1i( id(     0), "msg: trice32_1i -> normal trice function (with cycle counter) for only inside critical section %d\n", 111 );
+          //TRICE64_1i( id( 4205),  "msg: TRICE64_1i -> normal trice macro    (with cycle counter) for only inside critical section %d\n", 111 );
+          //trice64_1i( id( 0),     "msg: trice64_1i -> normal trice function (with cycle counter) for only inside critical section %d\n", 111 );
+             Trice8_1 ( id( 9484),  "msg:  Trice8_1  -> short  trice macro    (no   cycle counter) for everywhere                   %u\n", 222 );
+             TRICE8_1 ( Id( 42720), "msg:  TRICE8_1  -> normal trice macro    (with cycle counter) for everywhere                   %u\n", 222 );
+             trice8_1 ( Id( 35941), "msg:  trice8_1  -> normal trice function (with cycle counter) for everywhere                   %u\n", (int8_t)222 );
+            Trice16_1 ( id( 2457),  "msg: Trice16_1  -> short  trice macro    (no   cycle counter) for everywhere                   %u\n", 222 );
+            TRICE16_1 ( Id( 39892), "msg: TRICE16_1  -> normal trice macro    (with cycle counter) for everywhere                   %u\n", 222 );
+            trice16_1 ( Id( 38837), "msg: trice16_1  -> normal trice function (with cycle counter) for everywhere                   %u\n", 222 );
+            TRICE32_1 ( Id( 44960), "msg: TRICE32_1  -> normal trice macro    (with cycle counter) for everywhere                   %u\n", 222 );
+            trice32_1 ( Id( 43451), "msg: trice32_1  -> normal trice function (with cycle counter) for everywhere                   %u\n", 222 );
+            TRICE64_1 ( Id( 63361), "msg: TRICE64_1  -> normal trice macro    (with cycle counter) for everywhere                   %u\n", 222 );
+            trice64_1 ( Id( 64447), "msg: trice64_1  -> normal trice function (with cycle counter) for everywhere                   %u\n", 222 );
+            break;
+        case 42:
+          //TRICE8_2i( id(21880),   "msg:  TRICE8_2i -> normal trice macro    (with cycle counter) for only inside critical section %x %X\n", 0x1a, 0x2a );
+          //trice8_2i( id(21880),   "msg : trice8_2i -> normal trice function (with cycle counter) for only inside critical section %x %X\n", 0x1a, 0x2a );
+          //TRICE16_2i( id(21880),  "msg: TRICE16_2i -> normal trice macro    (with cycle counter) for only inside critical section %x %X\n", 0x1a, 0x2a );
+          //trice16_2i( id(21880),  "msg: trice16_2i -> normal trice function (with cycle counter) for only inside critical section %x %X\n", 0x1234, 0x1234 );
+          //TRICE32_2i( id(21880),  "msg: TRICE32_2i -> normal trice macro    (with cycle counter) for only inside critical section %x %X\n", 0x1234, 0x1234 );
+          //trice32_2i( id(21880),  "msg: trice32_2i -> normal trice function (with cycle counter) for only inside critical section %x %X\n", 0x11223344, 0x55667788 );
+          //TRICE64_2i( id(21880),  "msg: TRICE64_2i -> normal trice macro    (with cycle counter) for only inside critical section %x %X\n", 0x1122334455667788, -0x1122334455667788 );
+          //trice64_2i( id(21880),  "msg: trice64_2i -> normal trice function (with cycle counter) for only inside critical section %x %X\n", 0x1122334455667788, -0x1122334455667788 );
+            TRICE8_2( Id( 35213),   "msg:  TRICE8_2  -> normal trice macro    (with cycle counter) for everywhere                   %x %X\n", 0x1a, 0x2a );
+            trice8_2( Id( 45214),   "msg:  trice8_2  -> normal trice function (with cycle counter) for everywhere                   %x %X\n", 0x1a, 0x2a );
+            TRICE16_2( Id( 50757),  "msg: TRICE16_2  -> normal trice macro    (with cycle counter) for everywhere                   %x %X\n", 0x1234, 0x1234 );
+            trice16_2( Id( 45348),  "msg: trice16_2  -> normal trice function (with cycle counter) for everywhere                   %x %X\n", 0x1234, 0x1234 );
+            TRICE32_2( Id( 47530),  "msg: TRICE32_2  -> normal trice macro    (with cycle counter) for everywhere                   %x %X\n", 0x11223344, 0x55667788 );
+            trice32_2( Id( 64622),  "msg: trice32_2  -> normal trice function (with cycle counter) for everywhere                   %x %X\n", 0x11223344, 0x55667788 );
+            TRICE64_2( Id( 38736),  "msg: TRICE64_2  -> normal trice macro    (with cycle counter) for everywhere                   %x %X\n", 0x1122334455667788, -0x1122334455667788 );
+            trice64_2( Id( 35036),  "msg: trice64_2  -> normal trice function (with cycle counter) for everywhere                   %x %X\n", 0x1122334455667788, -0x1122334455667788 );
+            break;
+        case 43:
+          // TRICE8_3i( id(21880),  "msg:  TRICE8_3i -> normal trice macro    (with cycle counter) for only inside critical section %x %X %u\n", 0x1a,               0x1a,               0x2a );
+          // trice8_3i( id(21880),  "msg:  trice8_3i -> normal trice function (with cycle counter) for only inside critical section %x %X %u\n", 0x1a,               0x1a,               0x2a );
+          //TRICE16_3i( id(21880),  "msg: TRICE16_3i -> normal trice macro    (with cycle counter) for only inside critical section %x %X %u\n", 0x1a,               0x1a,               0x2a );
+          //trice16_3i( id(21880),  "msg: trice16_3i -> normal trice function (with cycle counter) for only inside critical section %x %X %u\n", 0x1234,             0x1234,             0x1234 );
+          //TRICE32_3i( id(21880),  "msg: TRICE32_3i -> normal trice macro    (with cycle counter) for only inside critical section %x %X %u\n", 0x1234,             0x1234,             0x1234 );
+          //trice32_3i( id(21880),  "msg: trice32_3i -> normal trice function (with cycle counter) for only inside critical section %x %X %u\n", 0x11223344,         0x11223344,         0x55667788 );
+             TRICE8_3( Id( 51048),  "msg:  TRICE8_3  -> normal trice macro    (with cycle counter) for everywhere                   %x %X %u\n", 0x1a,               0x1a,               0x2a );
+             trice8_3( Id( 62466),  "msg:  trice8_3  -> normal trice function (with cycle counter) for everywhere                   %x %X %u\n", 0x1a,               0x1a,               0x2a );
+            TRICE16_3( Id( 48411),  "msg: TRICE16_3  -> normal trice macro    (with cycle counter) for everywhere                   %x %X %u\n", 0x1234,             0x1234,             0x1234 );
+            trice16_3( Id( 34814),  "msg: trice16_3  -> normal trice function (with cycle counter) for everywhere                   %x %X %u\n", 0x1234,             0x1234,             0x1234 );
+            TRICE32_3( Id( 37205),  "msg: TRICE32_3  -> normal trice macro    (with cycle counter) for everywhere                   %x %X %u\n", 0x11223344,         0x11223344,         0x55667788 );
+            trice32_3( Id( 58845),  "msg: trice32_3  -> normal trice function (with cycle counter) for everywhere                   %x %X %u\n", 0x11223344,         0x11223344,         0x55667788 );
+            break;
+        case 44:
+          // TRICE8_4i( id(21880),  "msg:  TRICE8_4i -> normal trice macro    (with cycle counter) for only inside critical section %x %X %u %d\n", 0x1a,               0x1a,               0x1a,               0x2a );
+          // trice8_4i( id(21880),  "msg:  trice8_4i -> normal trice function (with cycle counter) for only inside critical section %x %X %u %d\n", 0x1a,               0x1a,               0x1a,               0x2a );
+          //TRICE16_4i( id(21880),  "msg: TRICE16_4i -> normal trice macro    (with cycle counter) for only inside critical section %x %X %u %d\n", 0x1a,               0x1a,               0x1a,               0x2a );
+          //trice16_4i( id(21880),  "msg: trice16_4i -> normal trice function (with cycle counter) for only inside critical section %x %X %u %d\n", 0x1234,             0x1234,             0x1234,             0x1234 );
+          //TRICE32_4i( id(21880),  "msg: TRICE32_4i -> normal trice macro    (with cycle counter) for only inside critical section %x %X %u %d\n", 0x1234,             0x1234,             0x1234,             0x1234 );
+          //trice32_4i( id(21880),  "msg: trice32_4i -> normal trice function (with cycle counter) for only inside critical section %x %X %u %d\n", 0x11223344,         0x11223344,         0x11223344,         0x55667788 );
+             TRICE8_4( Id( 39086),  "msg:  TRICE8_4  -> normal trice macro    (with cycle counter) for everywhere                   %x %X %u %d\n", 0x1a,               0x1a,               0x1a,               0x2a );
+             trice8_4( Id( 54569),  "msg:  trice8_4  -> normal trice function (with cycle counter) for everywhere                   %x %X %u %d\n", 0x1a,               0x1a,               0x1a,               0x2a );
+            TRICE16_4( Id( 42270),  "msg: TRICE16_4  -> normal trice macro    (with cycle counter) for everywhere                   %x %X %u %d\n", 0x1234,             0x1234,             0x1234,             0x1234 );
+            trice16_4( Id( 55892),  "msg: trice16_4  -> normal trice function (with cycle counter) for everywhere                   %x %X %u %d\n", 0x1234,             0x1234,             0x1234,             0x1234 );
+            TRICE32_4( Id( 48416),  "msg: TRICE32_4  -> normal trice macro    (with cycle counter) for everywhere                   %x %X %u %d\n", 0x11223344,         0x11223344,         0x11223344,         0x55667788 );
+            trice32_4( Id( 64296),  "msg: trice32_4  -> normal trice function (with cycle counter) for everywhere                   %x %X %u %d\n", 0x11223344,         0x11223344,         0x11223344,         0x55667788 );
+             break;
+        case 45:
+          // TRICE8_5i( id(21880),  "msg:  TRICE8_5i -> normal trice macro    (with cycle counter) for only inside critical section %x %X %u %u %d\n", 0x1a, 0x2a, 0x3a, 0x4a, 0x5a );
+          // trice8_5i( id(21880),  "msg:  trice8_5i -> normal trice function (with cycle counter) for only inside critical section %x %X %u %u %d\n", 0x1a, 0x2a, 0x3a, 0x4a, 0x5a );
+             TRICE8_5( Id( 56218),  "msg:  TRICE8_5  -> normal trice macro    (with cycle counter) for everywhere                   %x %X %u %u %d\n", 0x1a, 0x2a, 0x3a, 0x4a, 0x5a );
+             trice8_5( Id( 34176),  "msg:  trice8_5  -> normal trice function (with cycle counter) for everywhere                   %x %X %u %u %d\n", 0x1a, 0x2a, 0x3a, 0x4a, 0x5a );
+             break;                
+        case 46:                   
+          // TRICE8_6i( id(21880),  "msg:  TRICE6_5i -> normal trice macro    (with cycle counter) for only inside critical section %x %X %u %d %x %X\n", 0x1a, 0x2a, 0x3a, 0x4a, 0x5a, 0x6a );
+          // trice8_6i( id(21880),  "msg:  trice6_5i -> normal trice function (with cycle counter) for only inside critical section %x %X %u %d %x %X\n", 0x1a, 0x2a, 0x3a, 0x4a, 0x5a, 0x6a );
+             TRICE8_6( Id( 42602),  "msg:  TRICE6_5  -> normal trice macro    (with cycle counter) for everywhere                   %x %X %u %d %x %X\n", 0x1a, 0x2a, 0x3a, 0x4a, 0x5a, 0x6a );
+             trice8_6( Id( 55451),  "msg:  trice6_5  -> normal trice function (with cycle counter) for everywhere                   %x %X %u %d %x %X\n", 0x1a, 0x2a, 0x3a, 0x4a, 0x5a, 0x6a );
+             break;                                                           
+        case 47:                                                              
+          // TRICE8_7i( id(21880),  "msg:  TRICE8_7i -> normal trice macro    (with cycle counter) for only inside critical section %x %X %u %d %x %X %u\n", 0x1a, 0x2a, 0x3a, 0x4a, 0x5a, 0x6a, 0x7a );
+          // trice8_7i( id(21880),  "msg:  trice8_7i -> normal trice function (with cycle counter) for only inside critical section %x %X %u %d %x %X %u\n", 0x1a, 0x2a, 0x3a, 0x4a, 0x5a, 0x6a, 0x7a );
+             TRICE8_7( Id( 45848),  "msg:  TRICE8_7  -> normal trice macro    (with cycle counter) for everywhere                   %x %X %u %d %x %X %u\n", 0x1a, 0x2a, 0x3a, 0x4a, 0x5a, 0x6a, 0x7a );
+             trice8_7( Id( 56442),  "msg:  trice8_7  -> normal trice function (with cycle counter) for everywhere                   %x %X %u %d %x %X %u\n", 0x1a, 0x2a, 0x3a, 0x4a, 0x5a, 0x6a, 0x7a );
+             break;                                                           
+        case 48:                                                              
+          // TRICE8_8i( id(21880),  "msg:  TRICE8_8i -> normal trice macro    (with cycle counter) for only inside critical section %x %X %u %d %x %X %u %d\n", 0x1a, 0x2a, 0x3a, 0x4a, 0x5a, 0x6a, 0x7a, 0x8a );
+          // trice8_8i( id(21880),  "msg:  trice8_8i -> normal trice function (with cycle counter) for only inside critical section %x %X %u %d %x %X %u %d\n", 0x1a, 0x2a, 0x3a, 0x4a, 0x5a, 0x6a, 0x7a, 0x8a );
+             TRICE8_8( Id( 64951),  "msg:  TRICE8_8  -> normal trice macro    (with cycle counter) for everywhere                   %x %X %u %d %x %X %u %d\n", 0x1a, 0x2a, 0x3a, 0x4a, 0x5a, 0x6a, 0x7a, 0x8a );
+             trice8_8( Id( 48424),  "msg:  trice8_8  -> normal trice function (with cycle counter) for everywhere                   %x %X %u %d %x %X %u %d\n", 0x1a, 0x2a, 0x3a, 0x4a, 0x5a, 0x6a, 0x7a, 0x8a );
+             break;
+            #endif // #if TRICE_ENCODING == TRICE_FLEX_ENCODING
         default:
             break;
     }
@@ -358,13 +458,13 @@ void triceCheckSetSpace(int index) {
             break;
         case 5:
             trice8_1(Id(65112), "tst:trice8_1 %d\n", -111);
-            trice8_2(Id(65442), "tst:trice8_2 %d %d\n", -111, -222);
-            trice8_3(Id(65115), "tst:trice8_3 %d %d %d\n", -111, -222, -3);
-            trice8_4(Id(65159), "tst:trice8_4 %d %d %d %d\n", -111, -222, -3, -4);
-            trice8_5(Id(65503), "tst:trice8_5 %d %d %d %d %d\n", -111, -222, -3, -4, -5);
-            trice8_6(Id(65495), "tst:trice8_6 %d %d %d %d %d %d\n", -111, -222, -3, -4, -5, -6);
-            trice8_7(Id(65031), "tst:trice8_7 %d %d %d %d %d %d %d\n", -111, -222, -3, -4, -5, -6, -7);
-            trice8_8(Id(65523), "tst:trice8_8 %d %d %d %d %d %d %d %d\n", -111, -222, -3, -4, -5, -6, -7, -8);
+            trice8_2(Id(65442), "tst:trice8_2 %d %d\n", -111, -122);
+            trice8_3(Id(65115), "tst:trice8_3 %d %d %d\n", -111, -122, -3);
+            trice8_4(Id(65159), "tst:trice8_4 %d %d %d %d\n", -111, -122, -3, -4);
+            trice8_5(Id(65503), "tst:trice8_5 %d %d %d %d %d\n", -111, -122, -3, -4, -5);
+            trice8_6(Id(65495), "tst:trice8_6 %d %d %d %d %d %d\n", -111, -122, -3, -4, -5, -6);
+            trice8_7(Id(65031), "tst:trice8_7 %d %d %d %d %d %d %d\n", -111, -122, -3, -4, -5, -6, -7);
+            trice8_8(Id(65523), "tst:trice8_8 %d %d %d %d %d %d %d %d\n", -111, -122, -3, -4, -5, -6, -7, -8);
             break;
         case 7:
             trice16_1(Id(65424), "tst:trice16_1 %d\n", -111); // 1

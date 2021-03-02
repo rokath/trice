@@ -64,6 +64,53 @@ TRICE0( Id(39406), "s:                                                   \ns:   
 void triceCheckSetTime( int index ); //!< tests
 void triceCheckSetSpace( int index ); //!< tests
 
+
+
+#define trice0i( i, pFmt )  
+#define TRICE0i( i, pFmt ) 
+#define trice8_1i( i, pFmt, d0 )                             //! comment out to generate code for it
+#define trice8_2i( i, pFmt, d0, d1 )                         //! comment out to generate code for it
+#define trice8_3i( i, pFmt, d0, d1, d2 )                     //! comment out to generate code for it
+#define trice8_4i( i, pFmt, d0, d1, d2, d3 )                 //! comment out to generate code for it
+#define trice8_5i( i, pFmt, d0, d1, d2, d3, d4 )             //! comment out to generate code for it
+#define trice8_6i( i, pFmt, d0, d1, d2, d3, d4, d5 )         //! comment out to generate code for it
+#define trice8_7i( i, pFmt, d0, d1, d2, d3, d4, d5, d6 )     //! comment out to generate code for it
+#define trice8_8i( i, pFmt, d0, d1, d2, d3, d4, d5, d6, d7 ) //! comment out to generate code for it
+#define trice16_1i( i, pFmt, d0 )                            //! comment out to generate code for it
+#define trice16_2i( i, pFmt, d0, d1 )                        //! comment out to generate code for it
+#define trice16_3i( i, pFmt, d0, d1, d2 )                    //! comment out to generate code for it
+#define trice16_4i( i, pFmt, d0, d1, d2, d3 )                //! comment out to generate code for it
+#define trice32_1i( i, pFmt, d0 )                            //! comment out to generate code for it
+#define trice32_2i( i, pFmt, d0, d1 )                        //! comment out to generate code for it
+#define trice32_3i( i, pFmt, d0, d1, d2 )                    //! comment out to generate code for it
+#define trice32_4i( i, pFmt, d0, d1, d2, d3 )                //! comment out to generate code for it
+#define trice64_1i( i, pFmt, d0 )                            //! comment out to generate code for it
+#define trice64_2i( i, pFmt, d0, d1 )                        //! comment out to generate code for it
+// #define trice0 ( i, pFmt )  
+// #define TRICE0 ( i, pFmt ) 
+// #define trice8_1( i, pFmt, d0 )                              //! comment out to generate code for it
+// #define trice8_2( i, pFmt, d0, d1 )                          //! comment out to generate code for it
+// #define trice8_3( i, pFmt, d0, d1, d2 )                      //! comment out to generate code for it
+// #define trice8_4( i, pFmt, d0, d1, d2, d3 )                  //! comment out to generate code for it
+// #define trice8_5( i, pFmt, d0, d1, d2, d3, d4 )              //! comment out to generate code for it
+// #define trice8_6( i, pFmt, d0, d1, d2, d3, d4, d5 )          //! comment out to generate code for it
+// #define trice8_7( i, pFmt, d0, d1, d2, d3, d4, d5, d6 )      //! comment out to generate code for it
+// #define trice8_8( i, pFmt, d0, d1, d2, d3, d4, d5, d6, d7 )  //! comment out to generate code for it
+// #define trice16_1( i, pFmt, d0 )                             //! comment out to generate code for it
+// #define trice16_2( i, pFmt, d0, d1 )                         //! comment out to generate code for it
+// #define trice16_3( i, pFmt, d0, d1, d2 )                     //! comment out to generate code for it
+// #define trice16_4( i, pFmt, d0, d1, d2, d3 )                 //! comment out to generate code for it
+// #define trice32_1( i, pFmt, d0 )                             //! comment out to generate code for it
+// #define trice32_2( i, pFmt, d0, d1 )                         //! comment out to generate code for it
+// #define trice32_3( i, pFmt, d0, d1, d2 )                     //! comment out to generate code for it
+// #define trice32_4( i, pFmt, d0, d1, d2, d3 )                 //! comment out to generate code for it
+// #define trice64_1( i, pFmt, d0 )                             //! comment out to generate code for it
+// #define trice64_2( i, pFmt, d0, d1 )                         //! comment out to generate code for it
+
+
+
+
+
 #ifdef __cplusplus
 }
 #endif

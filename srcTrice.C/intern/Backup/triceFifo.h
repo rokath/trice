@@ -3,7 +3,7 @@
 *******************************************************************************/
 
 
-#ifndef TRICE_FIFO_H_
+#if 0 //ndef TRICE_FIFO_H_
 #define TRICE_FIFO_H_
 
 #ifdef __cplusplus

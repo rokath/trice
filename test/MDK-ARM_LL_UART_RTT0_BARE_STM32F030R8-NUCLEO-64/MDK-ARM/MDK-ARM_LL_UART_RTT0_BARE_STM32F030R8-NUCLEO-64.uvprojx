@@ -474,14 +474,9 @@
               <FilePath>..\..\..\third_party\segger.com\SEGGER_RTT\RTT\SEGGER_RTT.c</FilePath>
             </File>
             <File>
-              <FileName>triceFifo.c</FileName>
+              <FileName>trice.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\srcTrice.C\triceFifo.c</FilePath>
-            </File>
-            <File>
-              <FileName>triceFifoToBytesBuffer.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\srcTrice.C\triceFifoToBytesBuffer.c</FilePath>
+              <FilePath>..\..\..\srcTrice.C\trice.c</FilePath>
             </File>
           </Files>
         </Group>

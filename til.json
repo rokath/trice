@@ -3,6 +3,10 @@
 		"Type": "Trice16_1",
 		"Strg": "msg: Trice16_1 %d\\n"
 	},
+	"10363": {
+		"Type": "Trice16_1",
+		"Strg": "msg: Trice16_1  -\u003e short  trice macro    (no   cycle counter) for everywhere %u\\n"
+	},
 	"10407": {
 		"Type": "TRICE8_1",
 		"Strg": "tst:trice8_1 %02X\\n"
@@ -14,6 +18,10 @@
 	"10509": {
 		"Type": "TRICE0",
 		"Strg": "att:STM32CubeIDE_HAL_UART_NUCLEO-G474\\n"
+	},
+	"10524": {
+		"Type": "Trice16_1",
+		"Strg": "msg: Trice16_1 -\u003e short trice macro (no cycle counter) for everywhere 0x%X\\n"
 	},
 	"10650": {
 		"Type": "TRICE8_4",
@@ -67,6 +75,10 @@
 		"Type": "TRICE16_4",
 		"Strg": "tst:TRICE16_4 %u %u %u %u\\n"
 	},
+	"12497": {
+		"Type": "Trice8_1i",
+		"Strg": "msg: Trice8_1i -\u003e short  trice macro    (no   cycle counter) for only inside critical section %d\\n"
+	},
 	"12927": {
 		"Type": "Trice8_2",
 		"Strg": "msg: Trice8_2  %x, %x\\n"
@@ -78,6 +90,10 @@
 	"13083": {
 		"Type": "TRICE0",
 		"Strg": "att:MDK-ARM_RTTD_STM32F0300-DISCO\\n"
+	},
+	"13256": {
+		"Type": "Trice16_1i",
+		"Strg": "msg: Trice16_1i -\u003e short trice macro (no cycle counter) for only inside critical section %x\\n"
 	},
 	"13390": {
 		"Type": "trice16_1",
@@ -118,6 +134,14 @@
 	"14969": {
 		"Type": "TRICE0",
 		"Strg": "att:STM32CubeIDE_LL_UART_NUCLEO-F070RB\\n"
+	},
+	"15330": {
+		"Type": "Trice0i",
+		"Strg": "msg: Trice0i -\u003e short  trice macro    (no   cycle counter) for only inside critical section\\n"
+	},
+	"15380": {
+		"Type": "Trice0i",
+		"Strg": "msg: Trice0i    -\u003e short  trice macro    (no   cycle counter) for only inside critical section\\n"
 	},
 	"15428": {
 		"Type": "Trice8_2i",
@@ -175,6 +199,14 @@
 		"Type": "Trice8_1i",
 		"Strg": "INT:SysTick: %5d\\n"
 	},
+	"19305": {
+		"Type": "Trice16_1",
+		"Strg": "msg: Trice16_1 -\u003e short trice macro (no cycle counter) for everywhere 0x%X\\n"
+	},
+	"19307": {
+		"Type": "Trice8_1",
+		"Strg": "msg: Trice8_1 -\u003e short trice macro (no cycle counter) for everywhere %u\\n"
+	},
 	"20096": {
 		"Type": "TRICE8_2",
 		"Strg": "tst:TRICE8_2 %02x %02x\\n"
@@ -182,6 +214,10 @@
 	"20419": {
 		"Type": "Trice16_1i",
 		"Strg": "int:Trice16_1i SysTick: %5u\\n"
+	},
+	"20679": {
+		"Type": "Trice16_1i",
+		"Strg": "msg: Trice16_1i -\u003e short trice macro (no cycle counter) for only inside critical section\\n"
 	},
 	"21036": {
 		"Type": "Trice0",
@@ -211,6 +247,10 @@
 		"Type": "Trice0",
 		"Strg": "msg: Trice0    short\\n"
 	},
+	"21880": {
+		"Type": "Trice16_1i",
+		"Strg": "msg: Trice16_1i -\u003e short trice macro (no cycle counter) for only inside critical section %x\\n"
+	},
 	"22308": {
 		"Type": "TRICE8_7",
 		"Strg": "tst:TRICE8_7 %02x %02x %02x %02x %02x %02x %02x\\n"
@@ -218,6 +258,10 @@
 	"22722": {
 		"Type": "TRICE0",
 		"Strg": "s:                                              \\ns:    ARM-MDK_BARE_STM32F03051R8Tx-DISCOVERY    \\ns:                                              \\n\\n"
+	},
+	"23242": {
+		"Type": "Trice0",
+		"Strg": "msg: Trice0     -\u003e short  trice macro    (no   cycle counter) for everywhere\\n"
 	},
 	"23553": {
 		"Type": "TRICE0",
@@ -235,6 +279,10 @@
 		"Type": "TRICE0",
 		"Strg": "att:TASKING_RTTD_cpp_Example\\n"
 	},
+	"2457": {
+		"Type": "Trice16_1",
+		"Strg": "msg: Trice16_1  -\u003e short  trice macro    (no   cycle counter) for everywhere                   %u\\n"
+	},
 	"24615": {
 		"Type": "TRICE8_6",
 		"Strg": "tst:TRICE8_6 %u %u %u %u %u %u\\n"
@@ -246,6 +294,14 @@
 	"24926": {
 		"Type": "Trice8_2",
 		"Strg": "int:%d %d\\n"
+	},
+	"25013": {
+		"Type": "Trice8_1i",
+		"Strg": "msg: Trice8_1i  -\u003e short  trice macro    (no   cycle counter) for only inside critical section %d\\n"
+	},
+	"25023": {
+		"Type": "Trice8_1",
+		"Strg": "msg: Trice8_1 -\u003e short trice macro (no cycle counter) for everywhere\\n"
 	},
 	"25382": {
 		"Type": "TRICE32_1",
@@ -262,6 +318,10 @@
 	"26286": {
 		"Type": "TRICE0",
 		"Strg": "Play 'sound.wav'\\n-\u003e "
+	},
+	"26825": {
+		"Type": "Trice8_1i",
+		"Strg": "msg:  Trice8_1i -\u003e short  trice macro    (no   cycle counter) for only inside critical section %d\\n"
 	},
 	"27253": {
 		"Type": "TRICE0",
@@ -291,6 +351,14 @@
 		"Type": "TRICE8_3",
 		"Strg": "tst:trice8_3 %02X %02X %02X\\n"
 	},
+	"28835": {
+		"Type": "Trice0",
+		"Strg": "msg: Trice0  -\u003e short  trice macro    (no   cycle counter) for everywhere\\n"
+	},
+	"29874": {
+		"Type": "Trice16_1",
+		"Strg": "msg: Trice16_1 -\u003e short trice macro (no cycle counter) for everywhere\\n"
+	},
 	"30070": {
 		"Type": "Trice16_1i",
 		"Strg": "INT:Trice16_1i SysTick: %5u\\n"
@@ -307,6 +375,10 @@
 		"Type": "TRICE0",
 		"Strg": "\\ns:                                                     \\ns:   ARM-MDK_LL_UART_RTT0_ESC_STM32F030R8_NUCLEO-64    \\ns:                                                     \\n\\n"
 	},
+	"31050": {
+		"Type": "Trice0",
+		"Strg": "msg: Trice0  -\u003e short trice macro (no cycle counter) for everywhere\\n"
+	},
 	"31376": {
 		"Type": "TRICE8_4",
 		"Strg": "tst:TRICE8_4 %u %u %u %u\\n"
@@ -319,6 +391,10 @@
 		"Type": "trice16_1",
 		"Strg": "ISR:interrupt   message, SysTick is %6u\\n"
 	},
+	"32337": {
+		"Type": "Trice16_1i",
+		"Strg": "msg: Trice16_1i -\u003e short  trice macro    (no   cycle counter) for only inside critical section %d\\n"
+	},
 	"32731": {
 		"Type": "TRICE0",
 		"Strg": "Calculate c1 + c2: "
@@ -327,17 +403,57 @@
 		"Type": "TRICE8_1",
 		"Strg": "tst:TRICE8_1 %u\\n"
 	},
+	"32881": {
+		"Type": "TRICE8_5",
+		"Strg": "msg:  TRICE8_5  -\u003e normal trice macro     (with cycle counter) for everywhere                   %x %X %u %u %d\\n"
+	},
 	"3338": {
 		"Type": "Trice0i",
 		"Strg": "int:Trice0i SysTick_Handler"
+	},
+	"33465": {
+		"Type": "trice64_2",
+		"Strg": "tst:trice64_2 %x %u\\n"
 	},
 	"33496": {
 		"Type": "TRICE0",
 		"Strg": "att:MDK-ARM_RTT_NUCLEO-F030R8\\n"
 	},
+	"33523": {
+		"Type": "TRICE8_2",
+		"Strg": "msg:  TRICE8_2  -\u003e normal trice macro     (with cycle counter) for everywhere                   %x %X\\n"
+	},
+	"33574": {
+		"Type": "TRICE64_2",
+		"Strg": "msg: TRICE64_2  -\u003e normal trice macro (with cycle counter) for everywhere 0x%X 0x%x\\n"
+	},
 	"33874": {
 		"Type": "TRICE32_1",
 		"Strg": "TIME:TRICE32_1   message, SysTick is %6d\\n"
+	},
+	"34064": {
+		"Type": "TRICE32_3",
+		"Strg": "msg: TRICE32_3  -\u003e normal trice macro (with cycle counter) for everywhere                   %x %X %u\\n"
+	},
+	"34176": {
+		"Type": "trice8_5",
+		"Strg": "msg:  trice8_5  -\u003e normal trice function (with cycle counter) for everywhere                   %x %X %u %u %d\\n"
+	},
+	"34417": {
+		"Type": "trice32_3",
+		"Strg": "msg: trice32_3  -\u003e normal trice function  (with cycle counter) for everywhere                   %x %X %u\\n"
+	},
+	"34736": {
+		"Type": "trice8_2",
+		"Strg": "msg: trice8_2   -\u003e normal trice macro (with cycle counter) for everywhere                   %x %X\\n"
+	},
+	"34813": {
+		"Type": "trice8_2",
+		"Strg": "msg:  trice8_2  -\u003e normal trice macro (with cycle counter) for everywhere                   %x %X\\n"
+	},
+	"34814": {
+		"Type": "trice16_3",
+		"Strg": "msg: trice16_3  -\u003e normal trice function (with cycle counter) for everywhere                   %x %X %u\\n"
 	},
 	"34868": {
 		"Type": "TRICE16_1",
@@ -347,6 +463,18 @@
 		"Type": "trice16_1",
 		"Strg": "WR:write        message, SysTick is %6u\\n"
 	},
+	"35036": {
+		"Type": "trice64_2",
+		"Strg": "msg: trice64_2  -\u003e normal trice function (with cycle counter) for everywhere                   %x %X\\n"
+	},
+	"35213": {
+		"Type": "TRICE8_2",
+		"Strg": "msg:  TRICE8_2  -\u003e normal trice macro    (with cycle counter) for everywhere                   %x %X\\n"
+	},
+	"35217": {
+		"Type": "TRICE8_3",
+		"Strg": "msg: TRICE8_3  -\u003e normal trice macro (with cycle counter) for everywhere                   %x %X %u\\n"
+	},
 	"35527": {
 		"Type": "TRICE0",
 		"Strg": "att:IAR_EWARM_LL_UART_NUCLEO-F070RB\\n"
@@ -355,21 +483,73 @@
 		"Type": "TRICE0",
 		"Strg": "att:IAR_EWARM_RTTD_DISCOVERY-STM32F407VGTx\\n"
 	},
+	"35941": {
+		"Type": "trice8_1",
+		"Strg": "msg:  trice8_1  -\u003e normal trice function (with cycle counter) for everywhere                   %u\\n"
+	},
+	"36033": {
+		"Type": "trice8_4",
+		"Strg": "msg:  trice8_4  -\u003e normal trice macro (with cycle counter) for everywhere                   %x %X %u %d\\n"
+	},
+	"36071": {
+		"Type": "TRICE32_3",
+		"Strg": "msg: TRICE32_3  -\u003e normal trice macro     (with cycle counter) for everywhere                   %x %X %u\\n"
+	},
 	"36297": {
 		"Type": "TRICE0",
 		"Strg": "s:                                              \\ns:   ARM-MDK_LL_UART_RTT0_ESC_STM32F070RB_NUCLEO-64    \\ns:                                              \\n\\n"
+	},
+	"36395": {
+		"Type": "TRICE8_4",
+		"Strg": "msg: TRICE8_4  -\u003e normal trice macro (with cycle counter) for everywhere                   %x %X %u %d\\n"
 	},
 	"36399": {
 		"Type": "TRICE0",
 		"Strg": "att:MDK-ARM_RTT1_NUCLEO-F091RC\\n"
 	},
+	"36461": {
+		"Type": "trice8_1",
+		"Strg": "msg: trice8_1   -\u003e normal trice function (with cycle counter) for everywhere %u\\n"
+	},
 	"36547": {
 		"Type": "TRICE8_8",
 		"Strg": "tst:TRICE8_8 %u %u %u %u %u %u %u %u\\n"
 	},
+	"36916": {
+		"Type": "TRICE8_7",
+		"Strg": "msg:  TRICE8_7  -\u003e normal trice macro (with cycle counter) for everywhere                   %x %X %u %d %x %X %u\\n"
+	},
+	"37187": {
+		"Type": "TRICE8_3",
+		"Strg": "msg:  TRICE8_3  -\u003e normal trice macro (with cycle counter) for everywhere                   %x %X %u\\n"
+	},
+	"37205": {
+		"Type": "TRICE32_3",
+		"Strg": "msg: TRICE32_3  -\u003e normal trice macro    (with cycle counter) for everywhere                   %x %X %u\\n"
+	},
+	"37347": {
+		"Type": "trice8_8",
+		"Strg": "msg:  trice8_8  -\u003e normal trice function  (with cycle counter) for everywhere                   %x %X %u %d %x %X %u %d\\n"
+	},
 	"37519": {
 		"Type": "TRICE0",
 		"Strg": "s:                                                   \\ns:   MDK-ARM_LL_UART_RTT0_BARE_STM32F091_NUCLEO-64   \\ns:                                                   \\n\\n"
+	},
+	"37676": {
+		"Type": "trice8_7",
+		"Strg": "msg:  trice8_7  -\u003e normal trice function  (with cycle counter) for everywhere                   %x %X %u %d %x %X %u\\n"
+	},
+	"37693": {
+		"Type": "trice16_2",
+		"Strg": "msg: trice16_2  -\u003e normal trice macro (with cycle counter) for everywhere 0x%X 0x%x\\n"
+	},
+	"37902": {
+		"Type": "TRICE16_2",
+		"Strg": "msg: TRICE16_2  -\u003e normal trice macro (with cycle counter) for everywhere 0x%X 0x%x\\n"
+	},
+	"37968": {
+		"Type": "trice8_2",
+		"Strg": "msg:  trice8_2  -\u003e normal trice function  (with cycle counter) for everywhere                   %x %X\\n"
 	},
 	"38168": {
 		"Type": "TRICE32_4",
@@ -387,13 +567,37 @@
 		"Type": "TRICE32_1",
 		"Strg": "tim :TRICE32_1   message, SysTick is %6d\\n"
 	},
+	"38736": {
+		"Type": "TRICE64_2",
+		"Strg": "msg: TRICE64_2  -\u003e normal trice macro    (with cycle counter) for everywhere                   %x %X\\n"
+	},
+	"38748": {
+		"Type": "trice16_4",
+		"Strg": "msg: trice16_4  -\u003e normal trice function  (with cycle counter) for everywhere                   %x %X %u %d\\n"
+	},
 	"38802": {
 		"Type": "TRICE0",
 		"Strg": "Calculate c2 - c1: "
 	},
+	"38837": {
+		"Type": "trice16_1",
+		"Strg": "msg: trice16_1  -\u003e normal trice function (with cycle counter) for everywhere                   %u\\n"
+	},
+	"39086": {
+		"Type": "TRICE8_4",
+		"Strg": "msg:  TRICE8_4  -\u003e normal trice macro    (with cycle counter) for everywhere                   %x %X %u %d\\n"
+	},
+	"39245": {
+		"Type": "trice16_3",
+		"Strg": "msg: trice16_3  -\u003e normal trice macro (with cycle counter) for everywhere                   %x %X %u\\n"
+	},
 	"39406": {
 		"Type": "TRICE0",
 		"Strg": "s:                                                   \\ns:   MDK-ARM_LL_UART_RTT0_BARE_STM32F030_NUCLEO-64   \\ns:                                                   \\n\\n"
+	},
+	"39407": {
+		"Type": "trice0",
+		"Strg": "msg: trice0  -\u003e normal trice function for everywhere\\n"
 	},
 	"39533": {
 		"Type": "TRICE0",
@@ -402,6 +606,10 @@
 	"39704": {
 		"Type": "TRICE32_1",
 		"Strg": "tim  :TRICE32_1   message, SysTick is %6d\\n"
+	},
+	"39892": {
+		"Type": "TRICE16_1",
+		"Strg": "msg: TRICE16_1  -\u003e normal trice macro    (with cycle counter) for everywhere                   %u\\n"
 	},
 	"40045": {
 		"Type": "TRICE0",
@@ -415,9 +623,21 @@
 		"Type": "TRICE16_1",
 		"Strg": "tst:TRICE16_1 %u\\n"
 	},
+	"40953": {
+		"Type": "TRICE0",
+		"Strg": "msg: TRICE0  -\u003e normal trice macro    (with cycle counter) for everywhere\\n"
+	},
 	"41026": {
 		"Type": "TRICE0",
 		"Strg": "Failed to initialize audio service"
+	},
+	"41032": {
+		"Type": "TRICE8_3",
+		"Strg": "msg:  TRICE8_3  -\u003e normal trice macro     (with cycle counter) for everywhere                   %x %X %u\\n"
+	},
+	"41105": {
+		"Type": "TRICE8_2",
+		"Strg": "msg:  TRICE8_2  -\u003e normal trice macro (with cycle counter) for everywhere                   %x %X\\n"
 	},
 	"41184": {
 		"Type": "TRICE16_1",
@@ -427,6 +647,10 @@
 		"Type": "TRICE32_1",
 		"Strg": "tim:TRICE32_1   message, SysTick is %6d\\n"
 	},
+	"41495": {
+		"Type": "trice8_8",
+		"Strg": "msg:  trice8_8  -\u003e normal trice macro (with cycle counter) for everywhere                   %x %X %u %d %x %X %u %d\\n"
+	},
 	"41511": {
 		"Type": "TRICE0",
 		"Strg": "s:                                                   \\ns:   MDK-ARM_LL_UART_RTT0_FLEX_STM32F030_NUCLEO-64   \\ns:                                                   \\n\\n"
@@ -435,13 +659,45 @@
 		"Type": "TRICE8_5",
 		"Strg": "tst:TRICE8_5 %u %u %u %u %u\\n"
 	},
+	"41644": {
+		"Type": "TRICE8_4",
+		"Strg": "msg:  TRICE8_4  -\u003e normal trice macro (with cycle counter) for everywhere                   %x %X %u %d\\n"
+	},
+	"41736": {
+		"Type": "trice32_3",
+		"Strg": "msg: trice32_3  -\u003e normal trice macro (with cycle counter) for everywhere                   %x %X %u\\n"
+	},
 	"41804": {
 		"Type": "TRICE0",
 		"Strg": "att:IAR_EWARM_HAL_UART_NUCLEO-F070RB\\n"
 	},
+	"41820": {
+		"Type": "TRICE8_5",
+		"Strg": "msg:  TRICE8_5  -\u003e normal trice macro (with cycle counter) for everywhere                   %x %X %u %u %d\\n"
+	},
+	"4205": {
+		"Type": "Trice0i",
+		"Strg": "msg: Trice0i -\u003e short trice macro (no cycle counter) for only inside critical section\\n"
+	},
 	"42100": {
 		"Type": "TRICE0",
 		"Strg": "att:IAR_EWARM_LL_UART_NUCLEO-F030RB\\n"
+	},
+	"42133": {
+		"Type": "trice64_2",
+		"Strg": "msg: trice64_2  -\u003e normal trice macro (with cycle counter) for everywhere 0x%X 0x%x\\n"
+	},
+	"42270": {
+		"Type": "TRICE16_4",
+		"Strg": "msg: TRICE16_4  -\u003e normal trice macro    (with cycle counter) for everywhere                   %x %X %u %d\\n"
+	},
+	"42602": {
+		"Type": "TRICE8_6",
+		"Strg": "msg:  TRICE6_5  -\u003e normal trice macro    (with cycle counter) for everywhere                   %x %X %u %d %x %X\\n"
+	},
+	"42720": {
+		"Type": "TRICE8_1",
+		"Strg": "msg:  TRICE8_1  -\u003e normal trice macro    (with cycle counter) for everywhere                   %u\\n"
 	},
 	"42899": {
 		"Type": "TRICE0",
@@ -451,6 +707,10 @@
 		"Type": "TRICE0",
 		"Strg": "att:MDK-ARM_LL_RTTB_NUCLEO-F030R8\\n"
 	},
+	"43141": {
+		"Type": "trice8_3",
+		"Strg": "msg: trice8_3  -\u003e normal trice macro (with cycle counter) for everywhere                   %x %X %u\\n"
+	},
 	"43310": {
 		"Type": "TRICE0",
 		"Strg": "att:IAR_EWARM_RTT_NUCLEO-F030R8\\n"
@@ -458,6 +718,10 @@
 	"43336": {
 		"Type": "TRICE0",
 		"Strg": "s:                                          \\ns:    ARM-MDK_RTT0_BARE_STM32F0308-DISCO    \\ns:                                          \\n\\n"
+	},
+	"43451": {
+		"Type": "trice32_1",
+		"Strg": "msg: trice32_1  -\u003e normal trice function (with cycle counter) for everywhere                   %u\\n"
 	},
 	"43499": {
 		"Type": "TRICE0",
@@ -471,9 +735,21 @@
 		"Type": "TRICE0",
 		"Strg": "att:TASKING_GenericSTMF070RB_RTTD\\n"
 	},
+	"44389": {
+		"Type": "trice64_1",
+		"Strg": "msg: trice64_1  -\u003e normal trice function (with cycle counter) for everywhere %u\\n"
+	},
 	"44414": {
 		"Type": "TRICE0",
 		"Strg": "att:TASKING_GenericSTMF030R8_RTTB\\n"
+	},
+	"44713": {
+		"Type": "TRICE0",
+		"Strg": "msg: TRICE0  -\u003e normal trice macro for everywhere\\n"
+	},
+	"44749": {
+		"Type": "TRICE16_3",
+		"Strg": "msg: TRICE16_3  -\u003e normal trice macro (with cycle counter) for everywhere                   %x %X %u\\n"
 	},
 	"44778": {
 		"Type": "TRICE0",
@@ -483,29 +759,65 @@
 		"Type": "TRICE0",
 		"Strg": "att:STM32CubeIDE_RTTD_DISCOVERY-STM32F051R8Tx\\n"
 	},
+	"44960": {
+		"Type": "TRICE32_1",
+		"Strg": "msg: TRICE32_1  -\u003e normal trice macro    (with cycle counter) for everywhere                   %u\\n"
+	},
+	"44974": {
+		"Type": "TRICE8_7",
+		"Strg": "msg:  TRICE8_7  -\u003e normal trice macro     (with cycle counter) for everywhere                   %x %X %u %d %x %X %u\\n"
+	},
 	"45064": {
 		"Type": "trice16_1",
 		"Strg": "DIA:diagnostics message, SysTick is %6u\\n"
+	},
+	"45214": {
+		"Type": "trice8_2",
+		"Strg": "msg:  trice8_2  -\u003e normal trice function (with cycle counter) for everywhere                   %x %X\\n"
 	},
 	"45250": {
 		"Type": "TRICE64_1",
 		"Strg": "tst:TRICE64_1 %u\\n"
 	},
+	"45348": {
+		"Type": "trice16_2",
+		"Strg": "msg: trice16_2  -\u003e normal trice function (with cycle counter) for everywhere                   %x %X\\n"
+	},
+	"45424": {
+		"Type": "TRICE8_6",
+		"Strg": "msg:  TRICE6_5  -\u003e normal trice macro (with cycle counter) for everywhere                   %x %X %u %d %x %X\\n"
+	},
 	"45471": {
 		"Type": "TRICE0",
 		"Strg": "att:MDK-ARM_HAL_UART_NUCLEO-F070RB\\n"
+	},
+	"45848": {
+		"Type": "TRICE8_7",
+		"Strg": "msg:  TRICE8_7  -\u003e normal trice macro    (with cycle counter) for everywhere                   %x %X %u %d %x %X %u\\n"
 	},
 	"46050": {
 		"Type": "TRICE0",
 		"Strg": "att:STM32CubeIDE_HAL_UART_NUCLEO-F070RB\\n"
 	},
+	"46624": {
+		"Type": "trice0",
+		"Strg": "msg: trice0  -\u003e normal trice function (with cycle counter) for everywhere\\n"
+	},
 	"46836": {
 		"Type": "TRICE16_1",
 		"Strg": "tst:TRICE16_1   message, SysTick is %6u\\n"
 	},
+	"47137": {
+		"Type": "TRICE8_1",
+		"Strg": "msg: TRICE8_1   -\u003e normal trice macro    (with cycle counter) for everywhere                   %u\\n"
+	},
 	"47283": {
 		"Type": "TRICE0",
 		"Strg": "att:MDK-ARM_HAL_UART_NUCLEO-F030R8\\n"
+	},
+	"47530": {
+		"Type": "TRICE32_2",
+		"Strg": "msg: TRICE32_2  -\u003e normal trice macro    (with cycle counter) for everywhere                   %x %X\\n"
 	},
 	"47663": {
 		"Type": "TRICE16_2",
@@ -515,13 +827,37 @@
 		"Type": "TRICE0",
 		"Strg": "att:MDK-ARM_LL_UART_demoBoard_STM32F030F4F4P6\\n"
 	},
+	"48411": {
+		"Type": "TRICE16_3",
+		"Strg": "msg: TRICE16_3  -\u003e normal trice macro    (with cycle counter) for everywhere                   %x %X %u\\n"
+	},
+	"48416": {
+		"Type": "TRICE32_4",
+		"Strg": "msg: TRICE32_4  -\u003e normal trice macro    (with cycle counter) for everywhere                   %x %X %u %d\\n"
+	},
+	"48424": {
+		"Type": "trice8_8",
+		"Strg": "msg:  trice8_8  -\u003e normal trice function (with cycle counter) for everywhere                   %x %X %u %d %x %X %u %d\\n"
+	},
 	"48439": {
 		"Type": "TRICE16_1",
 		"Strg": "tim:TRICE16_1   message, SysTick is %6u\\n"
 	},
+	"48889": {
+		"Type": "trice16_2",
+		"Strg": "msg: trice16_2  -\u003e normal trice macro (with cycle counter) for everywhere                   %x %X\\n"
+	},
+	"49133": {
+		"Type": "trice16_2",
+		"Strg": "msg: trice16_2  -\u003e normal trice function  (with cycle counter) for everywhere                   %x %X\\n"
+	},
 	"4929": {
 		"Type": "Trice0i",
 		"Strg": "int:Trice0i SysTick_Handler\\n"
+	},
+	"49749": {
+		"Type": "TRICE8_6",
+		"Strg": "msg:  TRICE6_5  -\u003e normal trice macro     (with cycle counter) for everywhere                   %x %X %u %d %x %X\\n"
 	},
 	"49757": {
 		"Type": "TRICE32_1",
@@ -531,6 +867,38 @@
 		"Type": "Trice0",
 		"Strg": "msg:Qick\\n"
 	},
+	"50329": {
+		"Type": "trice0",
+		"Strg": "msg: trice0     -\u003e normal trice function (with cycle counter) for everywhere\\n"
+	},
+	"50424": {
+		"Type": "trice64_2",
+		"Strg": "msg: trice64_2  -\u003e normal trice function  (with cycle counter) for everywhere                   %x %X\\n"
+	},
+	"50478": {
+		"Type": "trice8_5",
+		"Strg": "msg:  trice8_5  -\u003e normal trice function  (with cycle counter) for everywhere                   %x %X %u %u %d\\n"
+	},
+	"50501": {
+		"Type": "trice8_7",
+		"Strg": "msg:  trice8_7  -\u003e normal trice macro (with cycle counter) for everywhere                   %x %X %u %d %x %X %u\\n"
+	},
+	"50624": {
+		"Type": "TRICE16_4",
+		"Strg": "msg: TRICE16_4  -\u003e normal trice macro     (with cycle counter) for everywhere                   %x %X %u %d\\n"
+	},
+	"50757": {
+		"Type": "TRICE16_2",
+		"Strg": "msg: TRICE16_2  -\u003e normal trice macro    (with cycle counter) for everywhere                   %x %X\\n"
+	},
+	"50995": {
+		"Type": "TRICE32_2",
+		"Strg": "msg: TRICE32_2  -\u003e normal trice macro     (with cycle counter) for everywhere                   %x %X\\n"
+	},
+	"51048": {
+		"Type": "TRICE8_3",
+		"Strg": "msg:  TRICE8_3  -\u003e normal trice macro    (with cycle counter) for everywhere                   %x %X %u\\n"
+	},
 	"51119": {
 		"Type": "TRICE8_3",
 		"Strg": "tst:TRICE8_3 %02x %02x %02x\\n"
@@ -539,29 +907,157 @@
 		"Type": "Trice16_1i",
 		"Strg": "msg: Trice16_1i %6u\\n"
 	},
+	"51293": {
+		"Type": "TRICE32_4",
+		"Strg": "msg: TRICE32_4  -\u003e normal trice macro (with cycle counter) for everywhere                   %x %X %u %d\\n"
+	},
+	"51298": {
+		"Type": "trice8_6",
+		"Strg": "msg:  trice6_5  -\u003e normal trice function  (with cycle counter) for everywhere                   %x %X %u %d %x %X\\n"
+	},
+	"51309": {
+		"Type": "trice8_3",
+		"Strg": "msg:  trice8_3  -\u003e normal trice macro (with cycle counter) for everywhere                   %x %X %u\\n"
+	},
+	"51953": {
+		"Type": "TRICE16_2",
+		"Strg": "msg: TRICE16_2  -\u003e normal trice macro (with cycle counter) for everywhere                   %x %X\\n"
+	},
+	"52162": {
+		"Type": "trice32_2",
+		"Strg": "msg: trice32_2  -\u003e normal trice function  (with cycle counter) for everywhere                   %x %X\\n"
+	},
 	"52174": {
 		"Type": "TRICE8_1",
 		"Strg": "tst:TRICE8_1 %02x\\n"
+	},
+	"52433": {
+		"Type": "trice32_2",
+		"Strg": "msg: trice32_2  -\u003e normal trice macro (with cycle counter) for everywhere 0x%X 0x%x\\n"
+	},
+	"52748": {
+		"Type": "trice8_5",
+		"Strg": "msg:  trice8_5  -\u003e normal trice macro (with cycle counter) for everywhere                   %x %X %u %u %d\\n"
+	},
+	"52964": {
+		"Type": "TRICE8_8",
+		"Strg": "msg:  TRICE8_8  -\u003e normal trice macro     (with cycle counter) for everywhere                   %x %X %u %d %x %X %u %d\\n"
+	},
+	"53090": {
+		"Type": "TRICE8_1",
+		"Strg": "msg: TRICE8_1  -\u003e normal trice macro    (with cycle counter) for everywhere %u\\n"
+	},
+	"53187": {
+		"Type": "trice8_1",
+		"Strg": "msg: trice8_1   -\u003e normal trice function (with cycle counter) for everywhere                   %u\\n"
 	},
 	"53200": {
 		"Type": "TRICE8_5",
 		"Strg": "tst:TRICE8_5 %02x %02x %02x %02x %02x\\n"
 	},
+	"53204": {
+		"Type": "trice32_4",
+		"Strg": "msg: trice32_4  -\u003e normal trice macro (with cycle counter) for everywhere                   %x %X %u %d\\n"
+	},
+	"53209": {
+		"Type": "trice32_1",
+		"Strg": "msg: trice32_1  -\u003e normal trice function (with cycle counter) for everywhere %u\\n"
+	},
 	"53546": {
 		"Type": "TRICE8_7",
 		"Strg": "tst:TRICE8_7 %02X %02X %02X %02X %02X %02X %02X\\n"
+	},
+	"53783": {
+		"Type": "TRICE32_1",
+		"Strg": "msg: TRICE32_1  -\u003e normal trice macro    (with cycle counter) for everywhere %u\\n"
+	},
+	"54014": {
+		"Type": "TRICE8_8",
+		"Strg": "msg:  TRICE8_8  -\u003e normal trice macro (with cycle counter) for everywhere                   %x %X %u %d %x %X %u %d\\n"
+	},
+	"54569": {
+		"Type": "trice8_4",
+		"Strg": "msg:  trice8_4  -\u003e normal trice function (with cycle counter) for everywhere                   %x %X %u %d\\n"
+	},
+	"54701": {
+		"Type": "TRICE32_4",
+		"Strg": "msg: TRICE32_4  -\u003e normal trice macro     (with cycle counter) for everywhere                   %x %X %u %d\\n"
+	},
+	"55076": {
+		"Type": "trice8_1",
+		"Strg": "msg: trice8_1  -\u003e normal trice function (with cycle counter) for everywhere %u\\n"
+	},
+	"55241": {
+		"Type": "trice16_4",
+		"Strg": "msg: trice16_4  -\u003e normal trice macro (with cycle counter) for everywhere                   %x %X %u %d\\n"
+	},
+	"55451": {
+		"Type": "trice8_6",
+		"Strg": "msg:  trice6_5  -\u003e normal trice function (with cycle counter) for everywhere                   %x %X %u %d %x %X\\n"
+	},
+	"55595": {
+		"Type": "TRICE0",
+		"Strg": "rd_:triceFunctions.c"
 	},
 	"55697": {
 		"Type": "TRICE8_7",
 		"Strg": "tst:TRICE8_7 %u %u %u %u %u %u %u\\n"
 	},
+	"55892": {
+		"Type": "trice16_4",
+		"Strg": "msg: trice16_4  -\u003e normal trice function (with cycle counter) for everywhere                   %x %X %u %d\\n"
+	},
+	"56175": {
+		"Type": "TRICE16_1",
+		"Strg": "msg: TRICE16_1  -\u003e normal trice macro    (with cycle counter) for everywhere %u\\n"
+	},
+	"56218": {
+		"Type": "TRICE8_5",
+		"Strg": "msg:  TRICE8_5  -\u003e normal trice macro    (with cycle counter) for everywhere                   %x %X %u %u %d\\n"
+	},
+	"56325": {
+		"Type": "trice8_6",
+		"Strg": "msg:  trice6_5  -\u003e normal trice macro (with cycle counter) for everywhere                   %x %X %u %d %x %X\\n"
+	},
+	"56364": {
+		"Type": "TRICE8_1",
+		"Strg": "msg: TRICE8_1   -\u003e normal trice macro    (with cycle counter) for everywhere %u\\n"
+	},
+	"56442": {
+		"Type": "trice8_7",
+		"Strg": "msg:  trice8_7  -\u003e normal trice function (with cycle counter) for everywhere                   %x %X %u %d %x %X %u\\n"
+	},
 	"57007": {
 		"Type": "trice16_1",
 		"Strg": "MSG:normal      message, SysTick is %6u\\n"
 	},
+	"57067": {
+		"Type": "trice32_2",
+		"Strg": "msg: trice32_2  -\u003e normal trice macro (with cycle counter) for everywhere                   %x %X\\n"
+	},
+	"57154": {
+		"Type": "trice8_4",
+		"Strg": "msg:  trice8_4  -\u003e normal trice function  (with cycle counter) for everywhere                   %x %X %u %d\\n"
+	},
 	"579": {
 		"Type": "TRICE8_8",
 		"Strg": "tst:TRICE8_1 %%d=%d, %%u=%u, 0x%%x=0x%x, 0x%%2x=0x%2x, 0x%%02x=0x%02x, 0x%%3x=0x%3x, 0x%%03x=0x%03x, %%b=%b\\n"
+	},
+	"57931": {
+		"Type": "TRICE16_3",
+		"Strg": "msg: TRICE16_3  -\u003e normal trice macro     (with cycle counter) for everywhere                   %x %X %u\\n"
+	},
+	"57957": {
+		"Type": "TRICE32_2",
+		"Strg": "msg: TRICE32_2  -\u003e normal trice macro (with cycle counter) for everywhere 0x%X 0x%x\\n"
+	},
+	"58373": {
+		"Type": "TRICE64_2",
+		"Strg": "msg: TRICE64_2  -\u003e normal trice macro (with cycle counter) for everywhere                   %x %X\\n"
+	},
+	"58845": {
+		"Type": "trice32_3",
+		"Strg": "msg: trice32_3  -\u003e normal trice function (with cycle counter) for everywhere                   %x %X %u\\n"
 	},
 	"59225": {
 		"Type": "trice16_1",
@@ -575,9 +1071,29 @@
 		"Type": "TRICE8_3",
 		"Strg": "tst:TRICE8_3 %02X %02X %02X\\n"
 	},
+	"59628": {
+		"Type": "trice32_4",
+		"Strg": "msg: trice32_4  -\u003e normal trice function  (with cycle counter) for everywhere                   %x %X %u %d\\n"
+	},
+	"59727": {
+		"Type": "TRICE8_2",
+		"Strg": "msg: TRICE8_2   -\u003e normal trice macro (with cycle counter) for everywhere                   %x %X\\n"
+	},
+	"59763": {
+		"Type": "trice64_2",
+		"Strg": "msg: trice64_2  -\u003e normal trice macro (with cycle counter) for everywhere                   %x %X\\n"
+	},
 	"6": {
 		"Type": "Trice16_1",
 		"Strg": "msg:%d\\n"
+	},
+	"60092": {
+		"Type": "trice8_4",
+		"Strg": "msg: trice8_4  -\u003e normal trice macro (with cycle counter) for everywhere                   %x %X %u %d\\n"
+	},
+	"60288": {
+		"Type": "TRICE64_1",
+		"Strg": "msg: TRICE64_1  -\u003e normal trice macro    (with cycle counter) for everywhere %u\\n"
 	},
 	"60735": {
 		"Type": "TRICE16_3",
@@ -587,6 +1103,18 @@
 		"Type": "trice16_1",
 		"Strg": "RD:read         message, SysTick is %6u\\n"
 	},
+	"61043": {
+		"Type": "trice8_3",
+		"Strg": "msg:  trice8_3  -\u003e normal trice function  (with cycle counter) for everywhere                   %x %X %u\\n"
+	},
+	"61262": {
+		"Type": "trice16_3",
+		"Strg": "msg: trice16_3  -\u003e normal trice function  (with cycle counter) for everywhere                   %x %X %u\\n"
+	},
+	"61470": {
+		"Type": "trice16_1",
+		"Strg": "msg: trice16_1  -\u003e normal trice function (with cycle counter) for everywhere %u\\n"
+	},
 	"61488": {
 		"Type": "TRICE8_4",
 		"Strg": "tst:TRICE8_4 %02x %02x %02x %02x\\n"
@@ -594,6 +1122,18 @@
 	"61495": {
 		"Type": "TRICE8_4",
 		"Strg": "tst:TRICE8_4 %02X %02X %02X %02X\\n"
+	},
+	"61588": {
+		"Type": "TRICE32_2",
+		"Strg": "msg: TRICE32_2  -\u003e normal trice macro (with cycle counter) for everywhere                   %x %X\\n\\n"
+	},
+	"62001": {
+		"Type": "TRICE64_2",
+		"Strg": "msg: TRICE64_2  -\u003e normal trice macro     (with cycle counter) for everywhere                   %x %X\\n"
+	},
+	"62081": {
+		"Type": "TRICE8_2",
+		"Strg": "msg: TRICE8_2   -\u003e normal trice macro (with cycle counter) for everywhere 0x%X 0x%x\\n"
 	},
 	"6214": {
 		"Type": "TRICE8_2",
@@ -603,13 +1143,49 @@
 		"Type": "TRICE8_8",
 		"Strg": "tst:trice8_8 %02X %02X %02X %02X %02X %02X %02X %02X\\n"
 	},
+	"62351": {
+		"Type": "TRICE32_2",
+		"Strg": "msg: TRICE32_2  -\u003e normal trice macro (with cycle counter) for everywhere                   %x %X\\n"
+	},
+	"62466": {
+		"Type": "trice8_3",
+		"Strg": "msg:  trice8_3  -\u003e normal trice function (with cycle counter) for everywhere                   %x %X %u\\n"
+	},
 	"62535": {
 		"Type": "trice16_1",
 		"Strg": "ERR:error       message, SysTick is %6u\\n"
 	},
+	"62542": {
+		"Type": "TRICE16_4",
+		"Strg": "msg: TRICE16_4  -\u003e normal trice macro (with cycle counter) for everywhere                   %x %X %u %d\\n"
+	},
 	"630": {
 		"Type": "Trice8_1i",
 		"Strg": "int:SysTick: %5d\\n"
+	},
+	"63361": {
+		"Type": "TRICE64_1",
+		"Strg": "msg: TRICE64_1  -\u003e normal trice macro    (with cycle counter) for everywhere                   %u\\n"
+	},
+	"63747": {
+		"Type": "TRICE8_4",
+		"Strg": "msg:  TRICE8_4  -\u003e normal trice macro     (with cycle counter) for everywhere                   %x %X %u %d\\n"
+	},
+	"63971": {
+		"Type": "trice16_2",
+		"Strg": "msg: Trice16_1 -\u003e short trice macro (no cycle counter) for everywhere 0x%X 0x%x\\n"
+	},
+	"64296": {
+		"Type": "trice32_4",
+		"Strg": "msg: trice32_4  -\u003e normal trice function (with cycle counter) for everywhere                   %x %X %u %d\\n"
+	},
+	"64447": {
+		"Type": "trice64_1",
+		"Strg": "msg: trice64_1  -\u003e normal trice function (with cycle counter) for everywhere                   %u\\n"
+	},
+	"64622": {
+		"Type": "trice32_2",
+		"Strg": "msg: trice32_2  -\u003e normal trice function (with cycle counter) for everywhere                   %x %X\\n"
 	},
 	"648": {
 		"Type": "Trice16_1",
@@ -618,6 +1194,14 @@
 	"64819": {
 		"Type": "TRICE8_5",
 		"Strg": "tst:trice8_5 %02X %02X %02X %02X %02X\\n"
+	},
+	"64855": {
+		"Type": "trice8_2",
+		"Strg": "msg: trice8_2   -\u003e normal trice macro (with cycle counter) for everywhere 0x%X 0x%x\\n"
+	},
+	"64951": {
+		"Type": "TRICE8_8",
+		"Strg": "msg:  TRICE8_8  -\u003e normal trice macro    (with cycle counter) for everywhere                   %x %X %u %d %x %X %u %d\\n"
 	},
 	"65002": {
 		"Type": "TRICE0",
@@ -678,6 +1262,10 @@
 	"65048": {
 		"Type": "TRICE32_1",
 		"Strg": "tst:TRICE32_1 %08x\\n"
+	},
+	"65049": {
+		"Type": "TRICE16_2",
+		"Strg": "msg: TRICE16_2  -\u003e normal trice macro     (with cycle counter) for everywhere                   %x %X\\n"
 	},
 	"65051": {
 		"Type": "TRICE16_1",
@@ -935,6 +1523,10 @@
 		"Type": "TRICE8_4",
 		"Strg": "tst:TRICE8_4   %%4d -\u003e %4d %4d %4d %4d\\n"
 	},
+	"65336": {
+		"Type": "TRICE0",
+		"Strg": "msg: TRICE0     -\u003e normal trice macro    (with cycle counter) for everywhere\\n"
+	},
 	"65344": {
 		"Type": "trice0",
 		"Strg": "message:J"
@@ -1135,6 +1727,10 @@
 		"Type": "trice32_3",
 		"Strg": "tst:trice32_3 %d %d %d\\n"
 	},
+	"6721": {
+		"Type": "Trice8_1i",
+		"Strg": "msg: Trice8_1i  -\u003e short  trice macro    (no   cycle counter) for only inside critical section %d\\n"
+	},
 	"6737": {
 		"Type": "TRICE8_1",
 		"Strg": "tst:TRICE8_1 %02X\\n"
@@ -1143,6 +1739,18 @@
 		"Type": "Trice8_2",
 		"Strg": "msg:%x, %x\\n"
 	},
+	"7101": {
+		"Type": "Trice8_1i",
+		"Strg": "msg: Trice8_1i -\u003e short trice macro (no cycle counter) for only inside critical section %d\\n"
+	},
+	"7279": {
+		"Type": "Trice8_1",
+		"Strg": "msg: Trice8_1   -\u003e short  trice macro    (no   cycle counter) for everywhere                   %u\\n"
+	},
+	"7431": {
+		"Type": "Trice8_1",
+		"Strg": "msg: Trice8_1  -\u003e short  trice macro    (no   cycle counter) for everywhere %u\\n"
+	},
 	"7473": {
 		"Type": "TRICE8_2",
 		"Strg": "tst:TRICE8_2 %u %u\\n"
@@ -1150,6 +1758,14 @@
 	"7500": {
 		"Type": "Trice0i",
 		"Strg": "INT:SysTick_Handler\\n"
+	},
+	"7815": {
+		"Type": "Trice8_1",
+		"Strg": "msg: Trice8_1   -\u003e short  trice macro    (no   cycle counter) for everywhere %u\\n"
+	},
+	"796": {
+		"Type": "Trice8_1i",
+		"Strg": "msg: Trice8_1i -\u003e short trice macro (no cycle counter) for only inside critical section\\n"
 	},
 	"8": {
 		"Type": "Trice16_1",
@@ -1166,6 +1782,10 @@
 	"8915": {
 		"Type": "Trice0",
 		"Strg": "att:SysTick_HandlerSysTick_HandlerSysTick_HandlerSysTick_HandlerSysTick_HandlerSysTick_Handler"
+	},
+	"9484": {
+		"Type": "Trice8_1",
+		"Strg": "msg:  Trice8_1  -\u003e short  trice macro    (no   cycle counter) for everywhere                   %u\\n"
 	},
 	"9549": {
 		"Type": "Trice16_1i",

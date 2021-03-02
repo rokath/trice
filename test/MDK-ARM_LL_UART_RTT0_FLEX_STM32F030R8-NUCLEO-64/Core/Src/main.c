@@ -95,9 +95,8 @@ int main(void)
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
     LL_USART_EnableIT_RXNE(TRICE_UART); // enable UART2 interrupt
-    TRICE64_2(Id(65391), "tst:TRICE64_2 %d %d\n", -111, -222); // 4
-    TRICE64_2(Id(65391), "tst:TRICE64_2 %d %d\n", -111, -222); // 4
     TRICE_HEADLINE;
+    trice64_2(Id(65262), "tst:trice64_2 %x %x\n", 0x13579bdffdb97531, 0xeca8642002468ace);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -108,7 +107,7 @@ int main(void)
     { // send some trices every few ms
         if( milliSecond >= lastTricesTime + 100 ){
             static int index = 0;
-            int select = index % 30;
+            int select = index % 50;
             #if TRICE_PACK2_ENCODING == TRICE_ENCODING
             TRICE16_2( Id(1047663),"MSG: triceFifoMaxDepth = %d, select = %d\n", triceFifoMaxDepth, select ); // bigID check
             #else

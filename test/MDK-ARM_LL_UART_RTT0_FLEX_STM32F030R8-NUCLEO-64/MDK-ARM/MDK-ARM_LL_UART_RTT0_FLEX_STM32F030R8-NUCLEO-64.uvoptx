@@ -157,9 +157,41 @@
         <Bp>
           <Number>0</Number>
           <Type>0</Type>
+          <LineNumber>117</LineNumber>
+          <EnabledFlag>1</EnabledFlag>
+          <Address>134220654</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>1</BreakIfRCount>
+          <Filename>&lt;6&gt;../Core/Src/main.c</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression>\\MDK_ARM_LL_UART_RTT0_FLEX_STM32F030R8_NUCLEO_64\../Core/Src/main.c\117</Expression>
+        </Bp>
+        <Bp>
+          <Number>1</Number>
+          <Type>0</Type>
+          <LineNumber>116</LineNumber>
+          <EnabledFlag>1</EnabledFlag>
+          <Address>134220648</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>1</BreakIfRCount>
+          <Filename>&lt;6&gt;../Core/Src/main.c</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression>\\MDK_ARM_LL_UART_RTT0_FLEX_STM32F030R8_NUCLEO_64\../Core/Src/main.c\116</Expression>
+        </Bp>
+        <Bp>
+          <Number>2</Number>
+          <Type>0</Type>
           <LineNumber>118</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134220832</Address>
+          <Address>134220660</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -169,22 +201,6 @@
           <Filename>&lt;6&gt;../Core/Src/main.c</Filename>
           <ExecCommand></ExecCommand>
           <Expression>\\\../Core/Src/main.c\118</Expression>
-        </Bp>
-        <Bp>
-          <Number>1</Number>
-          <Type>0</Type>
-          <LineNumber>117</LineNumber>
-          <EnabledFlag>1</EnabledFlag>
-          <Address>0</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>0</BreakIfRCount>
-          <Filename>&lt;6&gt;../Core/Src/main.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression></Expression>
         </Bp>
       </Breakpoint>
       <Tracepoint>
@@ -241,7 +257,7 @@
 
   <Group>
     <GroupName>Application/MDK-ARM</GroupName>
-    <tvExp>1</tvExp>
+    <tvExp>0</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -261,7 +277,7 @@
 
   <Group>
     <GroupName>Application/User/Core</GroupName>
-    <tvExp>1</tvExp>
+    <tvExp>0</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -428,8 +444,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\..\srcTrice.C\triceFifo.c</PathWithFileName>
-      <FilenameWithoutPath>triceFifo.c</FilenameWithoutPath>
+      <PathWithFileName>..\..\..\srcTrice.C\triceSeggerRTT.c</PathWithFileName>
+      <FilenameWithoutPath>triceSeggerRTT.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -440,8 +456,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\..\srcTrice.C\triceSeggerRTT.c</PathWithFileName>
-      <FilenameWithoutPath>triceSeggerRTT.c</FilenameWithoutPath>
+      <PathWithFileName>..\..\..\third_party\segger.com\SEGGER_RTT\RTT\SEGGER_RTT.c</PathWithFileName>
+      <FilenameWithoutPath>SEGGER_RTT.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -452,8 +468,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\..\third_party\segger.com\SEGGER_RTT\RTT\SEGGER_RTT.c</PathWithFileName>
-      <FilenameWithoutPath>SEGGER_RTT.c</FilenameWithoutPath>
+      <PathWithFileName>..\..\..\srcTrice.C\trice.c</PathWithFileName>
+      <FilenameWithoutPath>trice.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
