@@ -6,24 +6,17 @@ Trice bytes can be encodend in different flawors and it is easy to develop a dif
 
 ## Quick start recommendation
 
-- Use **pack2L** encoding if your target processor is a little endian mashine, otherwise use **pack2**
-- The `trice` tool assumes **pack2L** per default, so no need for commandline switch `-enc pack2L`.
+- Use **flexL** encoding if your target processor is a little endian mashine, otherwise use **flex**
+- The `trice` tool assumes **flexL** per default, so no need for commandline switch `-enc flexL`.
 
 ```c
-#define TRICE_ENCODING TRICE_PACK2_ENCODING
+#define TRICE_ENCODING TRICE_FLEX_ENCODING
 ```
 
 ## Overview
 
 Inside the target project specific triceConfig.h is selectable:
 
-- Encoding with more memory needs but a bit faster. (to do)
-  - The trice macros are expanded in Assembler code.
-  - If in the code only a few TRICE macrose this is the best choice.
-- Encoding with less memory needs but a bit slower.
-  - Each TRICE macro is a function call.
-  - Good choice if in the code many TRICE macros.
-  - Unused TRICE macro definitions could be deleted manually from the target code to reduce memory needs.
 - Encoding in little or big endian.
   - The encoding should match the target processor endiannes.
 
@@ -31,6 +24,7 @@ Inside the target project specific triceConfig.h is selectable:
   #define TRICE_TRANSFER_ENDIANNESS TRICE_LITTLE_ENDIANNESS
   ```
 
+<!---
 - Additionally an encoding can be wrapped with transport information. This setting is done by calling cyclically this function:
 
 ```c
@@ -40,6 +34,7 @@ triceServeFifoWrappedToBytesBuffer();
  As example checkout wrapped bare encoding.
 
 - Also it is possible to use encryption, which is shown as example for the wrapped bare encoding.
+--->
 
 Currently these encodings are supported:
 
@@ -56,7 +51,8 @@ Currently these encodings are supported:
 
 #### `flex` short sub-encoding
 
-This sub-encodig is mainly for _very_ small systems and 
+This sub-encodig is mainly for _very_ small systems and time critical stuff
+
 - `0IIIIIII IIIIIIII DDDDDDDD DDDDDDDD` : short, implicit count
 - An "implicit" count means coded in trice format resulting from trice-ID and therefore no check option.
 - Short encoding should be used for time and space critical cases.
@@ -152,6 +148,7 @@ DDDDDDDD DDDDDDDD DDDDDDDD 00000000
 
 ```
 
+<!---
 ### `pack2` & `pacl2L` encoding
 
 This is the recommended encoding.
@@ -414,8 +411,9 @@ This is the same as bare, but each trice atom is prefixed with a 4 byte wrap inf
 - 0x80 = source address
 - 0x81 = destination address
 - crc8 = 8 bit checksum over start byte, source and destination address, and the 4 bare bytes.
+--->
 
-## Encoding `esc`
+## Encoding `esc` (experimental)
 
 The `esc` encoding uses an escape character for syncing after some data loss. It is extendable.
 
