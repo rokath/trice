@@ -21,11 +21,11 @@ const (
 	// patSourceFile is a regex pattern matching any source file for patching
 	patSourceFile = "(\\.c|\\.h|\\.cc|\\.cpp|\\.hpp)$"
 
-	// patNbTRICE is a regex pattern matching any "TRICE*(Id(n), "", ... )". - see https://regex101.com/r/id0uSF/1, The (?U) says non-greedy
-	patNbTRICE = `(?U)(\bTRICE_S|trice_s|TRICE0|trice0|Trice0|Trice0i|TRICE8_[1-8]|trice8_[1-8]|Trice8_[1-2]|Trice8_[1-2]i|TRICE16_[1-4]|trice16_[1-4]|Trice16_1|Trice16_1i|TRICE32_[1-4]|trice32_[1-4]|TRICE64_[1-4]|trice64_[1-4]\b)\s*\(\s*\b(I|i)d\b\s*\(\s*.*[0-9]\s*\)\s*,\s*".*"\s*.*\)`
+	// patNbTRICE is a regex pattern matching any "TRICE*(Id(n), "", ... )". - see https://regex101.com/r/mllhNQ/1, The (?i) says case insensitive
+	patNbTRICE = `(?i)(\b((TRICE(_S|0|(8|16|32|64)_[1-8])))i*|\b)\s*\(\s*\bID\b\s*\(\s*.*[0-9]\s*\)\s*,\s*".*"\s*.*\)\s*;`
 
 	// patTypNameTRICE is a regex pattern matching "TRICE*" inside trice
-	patTypNameTRICE = `(\bTRICE_S\b|\bTRICE0\b|\bTrice0\b|\bTrice0i\b|\bTRICE8_[1-8]\b|\bTrice8_[1-2]\b|\bTrice8_[1-2]i\b|\bTrice16_1\b|\bTrice16_1i\b|\bTRICE16_[1-4]\b|\bTRICE32_[1-4]\b|\bTRICE64_[1-4]\b|\btrice_S\b|\btrice0\b|\btrice8_[1-8]\b|\btrice16_[1-4]\b|\btrice32_[1-4]\b|\btrice64_[1-4]\b)`
+	patTypNameTRICE = `(?i)(\b((TRICE(_S|0|(8|16|32|64)_[1-8])))i*|\b)`
 
 	// patNbID is a regex pattern matching any (first in string) "Id(n)" and usable in matches of matchNbTRICE
 	patNbID = `\b(I|i)d\s*\(\s*[0-9]*\s*\)`
@@ -37,13 +37,13 @@ const (
 	patNextFormatSpezifier = `(?:^|[^%])(%[0-9\.#]*(b|c|d|u|x|X|o|f))`
 
 	// https://regex101.com/r/hWMjhU/3 - match any kind of trice with or without len or ID
-	patFullAnyTrice = `(?U)\b(TRICE_S|trice_s|(TRICE|(t|T)rice)(0|8|16|32|64)(_[1-8])?i?)\s*\(\s*((I|i)d\s*\((\s*\d+)\s*\)\s*,)?\s*".*"\s*.*\)`
+	patFullAnyTrice = `(?i)(?U)\b(TRICE(_S|0|8|16|32|64)(_[1-8])?i?)\s*\(\s*(ID\s*\((\s*\d+)\s*\)\s*,)?\s*".*"\s*.*\)`
 
 	// patTriceNoLen finds next `TRICEn` without length specifier: https://regex101.com/r/oKjjic/1
-	patTriceNoLen = `(\b(TRICE|(T|t)rice)(8|16|32|64)i?\b)`
+	patTriceNoLen = `(?i)(\bTRICE(8|16|32|64)i?\b)`
 
 	// patAnyTriceStart finds a starting trice with opening '(': https://regex101.com/r/wPuT4M/1
-	patAnyTriceStart = `(\b(TRICE|(T|t)rice)(|0|8|16|32|64)_*(s|S|[1-8])*i?\b)\s*\(`
+	patAnyTriceStart = `(?i)(\bTRICE(|0|8|16|32|64)_*(S|[1-8])*i?\b)\s*\(`
 
 	// patIdInsideTrice finds if an `( Id(n) ,"` sequence exists inside trice
 	patIDInsideTrice = `(?U)\(\s*(I|i)d\s*\((\s*\d+)\s*\)\s*,\s*"`
