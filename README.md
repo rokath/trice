@@ -156,6 +156,7 @@ trice help
 ### Quick target setup
 
 - Compare the **not** instrumented test project [MDK-ARM_LL_generatedDemo_STM32F030R8-NUCLEO-64](https://github.com/rokath/trice/tree/master/test/MDK-ARM_LL_generatedDemo_STM32F030R8-NUCLEO-64) with one of the instrumented test projects in [test](https://github.com/rokath/trice/tree/master/test/) to see what to to.
+  - Recommendation: FLEX encoding
 - **Or** follow these steps for instrumentation information even your target processor is not an ARM (any bit width will do):
   - Install the free [STCubeMX](https://www.st.com/en/development-tools/stm32cubemx.html).
   - Choose from [test examples](https://github.com/rokath/trice/tree/master/test) the for you best fitting project `MyExample`.
