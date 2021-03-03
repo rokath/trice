@@ -168,7 +168,8 @@ func (p *Flex) readDataAndCheckPaddingBytes(cnt int) (ok bool) {
 	if cnt > 4 {
 		b = append(b[0:4], b[8:]...) // remove long count in copy
 	}
-	switch p.upperCaseTriceType { // for trice* too {
+	tt := strings.TrimRight(p.upperCaseTriceType, "I")
+	switch tt { // for trice* too {
 	case "TRICE0":
 		return true
 	case "TRICE32_4", "TRICE64_2":
@@ -197,7 +198,7 @@ func (p *Flex) readDataAndCheckPaddingBytes(cnt int) (ok bool) {
 		}
 	default:
 		p.d0 = p.readU32(b[4:8])
-		switch p.upperCaseTriceType {
+		switch tt {
 		case "TRICE8_1":
 			ok = p.d0 < (1 << 8)
 		case "TRICE8_2", "TRICE16_1":
@@ -206,7 +207,7 @@ func (p *Flex) readDataAndCheckPaddingBytes(cnt int) (ok bool) {
 			ok = p.d0 < (1 << 24)
 		default:
 			p.d1 = p.readU32(b[8:12])
-			switch p.upperCaseTriceType {
+			switch tt {
 			case "TRICE8_5":
 				ok = p.d1 < (1 << 8)
 			case "TRICE8_6", "TRICE16_3":
@@ -246,7 +247,8 @@ func (p *Flex) bytesCountOk(cnt int) bool {
 // expectedByteCount returns expected byte count for triceType.
 // It returns -1 for unknown triceType.
 func (p *Flex) expectedByteCount() int {
-	switch p.upperCaseTriceType {
+	s := strings.TrimRight(p.upperCaseTriceType, "I")
+	switch s {
 	case "TRICE0":
 		return 0
 	case "TRICE8_1":
@@ -284,6 +286,7 @@ type flexSelector struct {
 
 var flexSel = []flexSelector{
 	{"TRICE0", (*Flex).trice0},
+	//{"Trice0i", (*Flex).trice0},
 	{"TRICE8_1", (*Flex).trice81},
 	{"TRICE8_2", (*Flex).trice82},
 	{"TRICE8_3", (*Flex).trice83},
@@ -306,22 +309,19 @@ var flexSel = []flexSelector{
 	{"Trice8_1", (*Flex).trice81s},
 	{"Trice8_2", (*Flex).trice82s},
 	{"Trice16_1", (*Flex).trice161s},
-	{"Trice0i", (*Flex).trice0},
-	{"Trice8_1i", (*Flex).trice81s},
-	{"Trice8_2i", (*Flex).trice82s},
-	{"Trice16_1i", (*Flex).trice161s},
 	{"TRICE_S", (*Flex).triceSCount},
 }
 
 // sprintTrice generates the trice string.
 func (p *Flex) sprintTrice(cnt int) (n int, e error) {
 	// ID and count are ok
+	tt0 := strings.TrimRight(p.upperCaseTriceType, "I")
+	tt := strings.TrimRight(tt0, "i") // handle short trices
 	for _, s := range flexSel {
-		if s.triceType == p.upperCaseTriceType {
+		if s.triceType == tt {
 			return s.triceFn(p)
 		}
 	}
-
 	if "TRICE_S" == p.upperCaseTriceType {
 		return p.triceS(cnt)
 	}
