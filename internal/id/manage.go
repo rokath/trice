@@ -158,7 +158,7 @@ func (lu TriceIDLookUp) toFile(fn string) (err error) {
 	return
 }
 
-// reverse returns a reversed map. If different triceID's asigned to several equal TriceFmt only one of the TriceID gets it into tflu.
+// reverse returns a reversed map. If different triceID's assigned to several equal TriceFmt only one of the TriceID gets it into tflu.
 func (lu TriceIDLookUp) reverse() (tflu TriceFmtLookUp) {
 	tflu = make(TriceFmtLookUp)
 	for id, tF := range lu {
@@ -168,7 +168,7 @@ func (lu TriceIDLookUp) reverse() (tflu TriceFmtLookUp) {
 	return
 }
 
-//  // reverse returns a reversed map.  If different triceFmt's asigned to several equal TriceFmt, this is an unexpectd and unhandled error and only one of the TriceFmt's gets it into lu.
+//  // reverse returns a reversed map.  If different TriceFmt's assigned to several equal TriceFmt, this is an unexpected and unhandled error and only one of the TriceFmt's gets it into lu.
 //  func (tflu TriceFmtLookUp) reverse() (lu TriceIDLookUp) {
 //  	lu = make(TriceIDLookUp)
 //  	for fm, id := range tflu {
