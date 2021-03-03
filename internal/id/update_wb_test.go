@@ -19,15 +19,6 @@ type idCheck struct {
 
 func TestOptionallyExtendLenAndInsertID0(t *testing.T) {
 	text := `
-	Trice8i( "hi %d", 5);
-	Trice8i( "hi %d %6u", 5, 7);
-	Trice16i( "hi %04x\n", 5);
-	Trice0i( "hi" );
-	Trice0( "hi" );
-	TRICE0( "hi" );
-	TRICE8( "hi %d", 5);
-	Trice8( "hi %d", 5);
-	Trice16( "hi %d", 5);
 	_TRICE8( "hi %d", 5); // to not touch
 	TRICE8( Id(0), "hi %2d, %13u, %64b, %8x %02d, %013u, %032b, %016x",1,2,3,4,5,6,7,8 );
 	TRICE8( "hi %2d, %13u, %64b, %8x %02d, %013u, %032b, %016x",1,2,3,4,5,6,7,8 );
@@ -36,15 +27,6 @@ func TestOptionallyExtendLenAndInsertID0(t *testing.T) {
 	trice_s  ( "%s\n", "rts" );
 `
 	exp := `
-	Trice8_1i( Id(0), "hi %d", 5);
-	Trice8_2i( Id(0), "hi %d %6u", 5, 7);
-	Trice16_1i( Id(0), "hi %04x\n", 5);
-	Trice0i( Id(0), "hi" );
-	Trice0( Id(0), "hi" );
-	TRICE0( Id(0), "hi" );
-	TRICE8_1( Id(0), "hi %d", 5);
-	Trice8_1( Id(0), "hi %d", 5);
-	Trice16_1( Id(0), "hi %d", 5);
 	_TRICE8( "hi %d", 5); // to not touch
 	TRICE8_8( Id(0), "hi %2d, %13u, %64b, %8x %02d, %013u, %032b, %016x",1,2,3,4,5,6,7,8 );
 	TRICE8_8( Id(0), "hi %2d, %13u, %64b, %8x %02d, %013u, %032b, %016x",1,2,3,4,5,6,7,8 );
@@ -52,7 +34,6 @@ func TestOptionallyExtendLenAndInsertID0(t *testing.T) {
 	trice_s  ( Id(0), "%s\n", rts )
 	trice_s  ( Id(0), "%s\n", "rts" );
 `
-
 	act, _ := updateParamCountAndID0(text)
 	tst.Equal(t, exp, act)
 }
@@ -101,12 +82,6 @@ func TestRefreshIDListSingle1(t *testing.T) {
 	Trice16_1( Id(   13), "hi %13u\n", 3 );	
 	Trice16_1i( Id(   13), "hi %13u\n", 3 );	
 `
-	expText := `
-	TRICE16_3( Id(12345), "hi %2d, %13u, %64b\n",1,2,3 );	
-	TRICE16_3( Id(  123), "hi %2d, %13u, %64b\n",1,2,3 );	
-	Trice16_1( Id(   13), "hi %13u\n", 3 );	
-	Trice16_1i( Id(   13), "hi %13u\n", 3 );	
-`
 	expJSON := `{
 	"123": {
 		"Type": "TRICE16_3",
@@ -125,7 +100,6 @@ func TestRefreshIDListSingle1(t *testing.T) {
 	tflu := lu.reverse()
 	refreshIDs(text, lu, tflu)
 
-	tst.Equal(t, expText, text)
 	b, err := lu.toJSON()
 	tst.Equal(t, nil, err)
 	tst.Equal(t, expJSON, string(b))
@@ -133,12 +107,6 @@ func TestRefreshIDListSingle1(t *testing.T) {
 
 func TestRefreshIDListSingle2(t *testing.T) {
 	text := `
-	TRICE16_3( Id(12345), "hi %2d, %13u, %64b\n",1,2,3 );
-	trice16_3( Id(12345), "hi %2d, %13u, %64b\n",1,2,3 );
-	Trice16_1i( Id(12344), "ho %64b\n",1 );
-	Trice16_1( Id(12344), "ho %64b\n",1 );
-`
-	expText := `
 	TRICE16_3( Id(12345), "hi %2d, %13u, %64b\n",1,2,3 );
 	trice16_3( Id(12345), "hi %2d, %13u, %64b\n",1,2,3 );
 	Trice16_1i( Id(12344), "ho %64b\n",1 );
@@ -158,23 +126,9 @@ func TestRefreshIDListSingle2(t *testing.T) {
 	tflu := lu.reverse()
 	refreshIDs(text, lu, tflu)
 
-	tst.Equal(t, expText, text)
 	b, err := lu.toJSON()
 	tst.Equal(t, nil, err)
 	tst.Equal(t, expJSON, string(b))
-}
-
-func TestInsertParamCountAndIDSingle(t *testing.T) {
-	text := `
-	Trice16( "hi %016x", 8 );
-	TRICE8i( "hi %2d, %13u, %64b, %8x %02d, %013u, %032b, %016x",1,2,3,4,5,6,7,8 );
-`
-	exp := `
-	Trice16_1( Id(0), "hi %016x", 8 );
-	TRICE8_8i( Id(0), "hi %2d, %13u, %64b, %8x %02d, %013u, %032b, %016x",1,2,3,4,5,6,7,8 );
-`
-	act, _ := updateParamCountAndID0(text)
-	tst.Equal(t, exp, act)
 }
 
 // A wrong parameter count should not be corrected! THe compiler will complain and a decision should be made.
@@ -191,162 +145,87 @@ func TestDoNotCorrectWrongParamCountSingle(t *testing.T) {
 	tst.Equal(t, exp, act)
 }
 
-func TestInsertParamCountAndIDAll(t *testing.T) {
-	text := `
-	TRICE0 ( "hi");
-	TRICE0( "hi");
-	TRICE8( "hi %d", 5);
-	TRICE8( "hi %d, %u", 5, h);
-	TRICE8( "hi %d, %u, %b", d, u, b);
-	TRICE8( "hi %d, %u, %b, %x", d, u, b, h);
-	TRICE8( "hi %d, %u, %b, %x %d, %u, %b, %x", d, u, b, h, d, u, b, h);
-	TRICE8( "hi %2d, %13u, %64b, %8x %02d, %013u, %032b, %016x", d, u, b, h, d, u, b, h);
-	TRICE16( "hi %d", 5);
-	TRICE16( "hi %d, %u", 5, h);
-	TRICE16( "hi %d, %u, %b", d, u, b);
-	TRICE16( "hi %d, %u, %b, %x", d, u, b, h);
-	TRICE32( "hi %d", 5);
-	TRICE32( "hi %d, %u", 5, h);
-	TRICE32( "hi %d, %u, %b", d, u, b);
-	TRICE32( "hi %d, %u, %b, %x", d, u, b, h);
-	TRICE64( "hi %d", 5);
-	TRICE64( "hi %d, %u", 5, h);
-	trice0 ( "hi");
-	trice0( "hi");
-	trice8( "hi %d", 5);
-	trice8( "hi %d, %u", 5, h);
-	trice8( "hi %d, %u, %b", d, u, b);
-	trice8( "hi %d, %u, %b, %x", d, u, b, h);
-	trice8( "hi %d, %u, %b, %x %d, %u, %b, %x", d, u, b, h, d, u, b, h);
-	trice8( "hi %2d, %13u, %64b, %8x %02d, %013u, %032b, %016x", d, u, b, h, d, u, b, h);
-	trice16( "hi %d", 5);
-	trice16( "hi %d, %u", 5, h);
-	trice16( "hi %d, %u, %b", d, u, b);
-	trice16( "hi %d, %u, %b, %x", d, u, b, h);
-	trice32( "hi %d", 5);
-	trice32( "hi %d, %u", 5, h);
-	trice32( "hi %d, %u, %b", d, u, b);
-	trice32( "hi %d, %u, %b, %x", d, u, b, h);
-	trice64( "hi %d", 5);
-	trice64( "hi %d, %u", 5, h);
+func TestInsertSharedIDs0Param(t *testing.T) {
+	SearchMethod = "downward"
+	Min = 10
+	Max = 99
+	lu := make(TriceIDLookUp)
+	tflu := lu.reverse()
+	listModified := false
 
-	TRICE0i ( "hi");
-	TRICE0i( "hi");
-	TRICE8i( "hi %d", 5);
-	TRICE8i( "hi %d, %u", 5, h);
-	TRICE8i( "hi %d, %u, %b", d, u, b);
-	TRICE8i( "hi %d, %u, %b, %x", d, u, b, h);
-	TRICE8i( "hi %d, %u, %b, %x %d, %u, %b, %x", d, u, b, h, d, u, b, h);
-	TRICE8i( "hi %2d, %13u, %64b, %8x %02d, %013u, %032b, %016x", d, u, b, h, d, u, b, h);
-	TRICE16i( "hi %d", 5);
-	TRICE16i( "hi %d, %u", 5, h);
-	TRICE16i( "hi %d, %u, %b", d, u, b);
-	TRICE16i( "hi %d, %u, %b, %x", d, u, b, h);
-	TRICE32i( "hi %d", 5);
-	TRICE32i( "hi %d, %u", 5, h);
-	TRICE32i( "hi %d, %u, %b", d, u, b);
-	TRICE32i( "hi %d, %u, %b, %x", d, u, b, h);
-	TRICE64i( "hi %d", 5);
-	TRICE64i( "hi %d, %u", 5, h);
-	trice0i ( "hi");
-	trice0i( "hi");
-	trice8i( "hi %d", 5);
-	trice8i( "hi %d, %u", 5, h);
-	trice8i( "hi %d, %u, %b", d, u, b);
-	trice8i( "hi %d, %u, %b, %x", d, u, b, h);
-	trice8i( "hi %d, %u, %b, %x %d, %u, %b, %x", d, u, b, h, d, u, b, h);
-	trice8i( "hi %2d, %13u, %64b, %8x %02d, %013u, %032b, %016x", d, u, b, h, d, u, b, h);
-	trice16i( "hi %d", 5);
-	trice16i( "hi %d, %u", 5, h);
-	trice16i( "hi %d, %u, %b", d, u, b);
-	trice16i( "hi %d, %u, %b, %x", d, u, b, h);
-	trice32i( "hi %d", 5);
-	trice32i( "hi %d, %u", 5, h);
-	trice32i( "hi %d, %u, %b", d, u, b);
-	trice32i( "hi %d, %u, %b, %x", d, u, b, h);
-	trice64i( "hi %d", 5);
-	trice64i( "hi %d, %u", 5, h);
-	`
-	exp := `
-	TRICE0 ( Id(0), "hi");
-	TRICE0( Id(0), "hi");
-	TRICE8_1( Id(0), "hi %d", 5);
-	TRICE8_2( Id(0), "hi %d, %u", 5, h);
-	TRICE8_3( Id(0), "hi %d, %u, %b", d, u, b);
-	TRICE8_4( Id(0), "hi %d, %u, %b, %x", d, u, b, h);
-	TRICE8_8( Id(0), "hi %d, %u, %b, %x %d, %u, %b, %x", d, u, b, h, d, u, b, h);
-	TRICE8_8( Id(0), "hi %2d, %13u, %64b, %8x %02d, %013u, %032b, %016x", d, u, b, h, d, u, b, h);
-	TRICE16_1( Id(0), "hi %d", 5);
-	TRICE16_2( Id(0), "hi %d, %u", 5, h);
-	TRICE16_3( Id(0), "hi %d, %u, %b", d, u, b);
-	TRICE16_4( Id(0), "hi %d, %u, %b, %x", d, u, b, h);
-	TRICE32_1( Id(0), "hi %d", 5);
-	TRICE32_2( Id(0), "hi %d, %u", 5, h);
-	TRICE32_3( Id(0), "hi %d, %u, %b", d, u, b);
-	TRICE32_4( Id(0), "hi %d, %u, %b, %x", d, u, b, h);
-	TRICE64_1( Id(0), "hi %d", 5);
-	TRICE64_2( Id(0), "hi %d, %u", 5, h);
-	trice0 ( Id(0), "hi");
-	trice0( Id(0), "hi");
-	trice8_1( Id(0), "hi %d", 5);
-	trice8_2( Id(0), "hi %d, %u", 5, h);
-	trice8_3( Id(0), "hi %d, %u, %b", d, u, b);
-	trice8_4( Id(0), "hi %d, %u, %b, %x", d, u, b, h);
-	trice8_8( Id(0), "hi %d, %u, %b, %x %d, %u, %b, %x", d, u, b, h, d, u, b, h);
-	trice8_8( Id(0), "hi %2d, %13u, %64b, %8x %02d, %013u, %032b, %016x", d, u, b, h, d, u, b, h);
-	trice16_1( Id(0), "hi %d", 5);
-	trice16_2( Id(0), "hi %d, %u", 5, h);
-	trice16_3( Id(0), "hi %d, %u, %b", d, u, b);
-	trice16_4( Id(0), "hi %d, %u, %b, %x", d, u, b, h);
-	trice32_1( Id(0), "hi %d", 5);
-	trice32_2( Id(0), "hi %d, %u", 5, h);
-	trice32_3( Id(0), "hi %d, %u, %b", d, u, b);
-	trice32_4( Id(0), "hi %d, %u, %b, %x", d, u, b, h);
-	trice64_1( Id(0), "hi %d", 5);
-	trice64_2( Id(0), "hi %d, %u", 5, h);
-
-	TRICE0i ( Id(0), "hi");
-	TRICE0i( Id(0), "hi");
-	TRICE8_1i( Id(0), "hi %d", 5);
-	TRICE8_2i( Id(0), "hi %d, %u", 5, h);
-	TRICE8_3i( Id(0), "hi %d, %u, %b", d, u, b);
-	TRICE8_4i( Id(0), "hi %d, %u, %b, %x", d, u, b, h);
-	TRICE8_8i( Id(0), "hi %d, %u, %b, %x %d, %u, %b, %x", d, u, b, h, d, u, b, h);
-	TRICE8_8i( Id(0), "hi %2d, %13u, %64b, %8x %02d, %013u, %032b, %016x", d, u, b, h, d, u, b, h);
-	TRICE16_1i( Id(0), "hi %d", 5);
-	TRICE16_2i( Id(0), "hi %d, %u", 5, h);
-	TRICE16_3i( Id(0), "hi %d, %u, %b", d, u, b);
-	TRICE16_4i( Id(0), "hi %d, %u, %b, %x", d, u, b, h);
-	TRICE32_1i( Id(0), "hi %d", 5);
-	TRICE32_2i( Id(0), "hi %d, %u", 5, h);
-	TRICE32_3i( Id(0), "hi %d, %u, %b", d, u, b);
-	TRICE32_4i( Id(0), "hi %d, %u, %b, %x", d, u, b, h);
-	TRICE64_1i( Id(0), "hi %d", 5);
-	TRICE64_2i( Id(0), "hi %d, %u", 5, h);
-	trice0i ( Id(0), "hi");
-	trice0i( Id(0), "hi");
-	trice8_1i( Id(0), "hi %d", 5);
-	trice8_2i( Id(0), "hi %d, %u", 5, h);
-	trice8_3i( Id(0), "hi %d, %u, %b", d, u, b);
-	trice8_4i( Id(0), "hi %d, %u, %b, %x", d, u, b, h);
-	trice8_8i( Id(0), "hi %d, %u, %b, %x %d, %u, %b, %x", d, u, b, h, d, u, b, h);
-	trice8_8i( Id(0), "hi %2d, %13u, %64b, %8x %02d, %013u, %032b, %016x", d, u, b, h, d, u, b, h);
-	trice16_1i( Id(0), "hi %d", 5);
-	trice16_2i( Id(0), "hi %d, %u", 5, h);
-	trice16_3i( Id(0), "hi %d, %u, %b", d, u, b);
-	trice16_4i( Id(0), "hi %d, %u, %b, %x", d, u, b, h);
-	trice32_1i( Id(0), "hi %d", 5);
-	trice32_2i( Id(0), "hi %d, %u", 5, h);
-	trice32_3i( Id(0), "hi %d, %u, %b", d, u, b);
-	trice32_4i( Id(0), "hi %d, %u, %b, %x", d, u, b, h);
-	trice64_1i( Id(0), "hi %d", 5);
-	trice64_2i( Id(0), "hi %d, %u", 5, h);
-	`
-	act, _ := updateParamCountAndID0(text)
-	tst.Equal(t, exp, act)
+	tt := []insertParamCountAndID{
+		{`... Trice0 ( "hi"); ...`, `... Trice0 ( id(32767), "hi"); ...`},
+		{`... TRICE0 ( "hi"); ...`, `... TRICE0 ( Id(    99), "hi"); ...`},
+		{`... trice0 ( "hi"); ...`, `... trice0 ( Id(    99), "hi"); ...`},
+		{`... Trice0i( "hi"); ...`, `... Trice0i( id(32766), "hi"); ...`},
+		{`... TRICE0i( "hi"); ...`, `... TRICE0i( Id(    98), "hi"); ...`},
+		{`... trice0i( "hi"); ...`, `... trice0i( Id(    98), "hi"); ...`},
+	}
+	for _, x := range tt {
+		act0, _ := updateParamCountAndID0(x.text)
+		act, fileModified := updateIDsShared(act0, lu, tflu, &listModified)
+		fmt.Println(fileModified)
+		tst.Equal(t, true, fileModified)
+		tst.Equal(t, true, listModified)
+		tst.Equal(t, x.exp, act)
+	}
+	aList := fmt.Sprintln(lu)
+	eList := `map[98:{trice0i hi} 99:{trice0 hi} 32766:{Trice0i hi} 32767:{Trice0 hi}]
+`
+	tst.Equal(t, eList, aList)
 }
 
-func TestInsertSharedIDs(t *testing.T) {
+func TestInsertSharedIDs1Param(t *testing.T) {
+	SearchMethod = "upward"
+	Min = 40000
+	Max = 50000
+	MinShort = 10000
+	MaxShort = 20000
+	lu := make(TriceIDLookUp)
+	tflu := lu.reverse()
+	listModified := false
+
+	tt := []insertParamCountAndID{
+		{`...  Trice8 ( "hi %03u", 5); ...`, `...  Trice8_1 ( id(10000), "hi %03u", 5); ...`},
+		{`...  TRICE8 ( "hi %03u", 5); ...`, `...  TRICE8_1 ( Id( 40000), "hi %03u", 5); ...`},
+		{`...  trice8 ( "hi %03u", 5); ...`, `...  trice8_1 ( Id( 40000), "hi %03u", 5); ...`},
+		{`... Trice16 ( "hi %03u", 5); ...`, `... Trice16_1 ( id(10001), "hi %03u", 5); ...`},
+		{`... TRICE16 ( "hi %03u", 5); ...`, `... TRICE16_1 ( Id( 40001), "hi %03u", 5); ...`},
+		{`... trice16 ( "hi %03u", 5); ...`, `... trice16_1 ( Id( 40001), "hi %03u", 5); ...`},
+		{`... Trice32 ( "hi %03u", 5); ...`, `... Trice32_1 ( id(10002), "hi %03u", 5); ...`}, // does not exist but allowed to match
+		{`... TRICE32 ( "hi %03u", 5); ...`, `... TRICE32_1 ( Id( 40002), "hi %03u", 5); ...`},
+		{`... trice32 ( "hi %03u", 5); ...`, `... trice32_1 ( Id( 40002), "hi %03u", 5); ...`},
+		{`... Trice64 ( "hi %03u", 5); ...`, `... Trice64_1 ( id(10003), "hi %03u", 5); ...`},
+		{`... TRICE64 ( "hi %03u", 5); ...`, `... TRICE64_1 ( Id( 40003), "hi %03u", 5); ...`},
+		{`... trice64 ( "hi %03u", 5); ...`, `... trice64_1 ( Id( 40003), "hi %03u", 5); ...`},
+		{`...  Trice8i( "hi %03u", 5); ...`, `...  Trice8_1i( id(10004), "hi %03u", 5); ...`},
+		{`...  TRICE8i( "hi %03u", 5); ...`, `...  TRICE8_1i( Id( 40004), "hi %03u", 5); ...`},
+		{`...  trice8i( "hi %03u", 5); ...`, `...  trice8_1i( Id( 40004), "hi %03u", 5); ...`},
+		{`... Trice16i( "hi %03u", 5); ...`, `... Trice16_1i( id(10005), "hi %03u", 5); ...`},
+		{`... TRICE16i( "hi %03u", 5); ...`, `... TRICE16_1i( Id( 40005), "hi %03u", 5); ...`},
+		{`... trice16i( "hi %03u", 5); ...`, `... trice16_1i( Id( 40005), "hi %03u", 5); ...`},
+		{`... Trice32i( "hi %03u", 5); ...`, `... Trice32_1i( id(10006), "hi %03u", 5); ...`},
+		{`... TRICE32i( "hi %03u", 5); ...`, `... TRICE32_1i( Id( 40006), "hi %03u", 5); ...`},
+		{`... trice32i( "hi %03u", 5); ...`, `... trice32_1i( Id( 40006), "hi %03u", 5); ...`},
+		{`... Trice64i( "hi %03u", 5); ...`, `... Trice64_1i( id(10007), "hi %03u", 5); ...`},
+		{`... TRICE64i( "hi %03u", 5); ...`, `... TRICE64_1i( Id( 40007), "hi %03u", 5); ...`},
+		{`... trice64i( "hi %03u", 5); ...`, `... trice64_1i( Id( 40007), "hi %03u", 5); ...`},
+	}
+	for _, x := range tt {
+		act0, _ := updateParamCountAndID0(x.text)
+		act, fileModified := updateIDsShared(act0, lu, tflu, &listModified)
+		fmt.Println(fileModified)
+		tst.Equal(t, true, fileModified)
+		tst.Equal(t, true, listModified)
+		tst.Equal(t, x.exp, act)
+	}
+	aList := fmt.Sprintln(lu)
+	eList := `map[10000:{Trice8_1 hi %03u} 10001:{Trice16_1 hi %03u} 10002:{Trice32_1 hi %03u} 10003:{Trice64_1 hi %03u} 10004:{Trice8_1i hi %03u} 10005:{Trice16_1i hi %03u} 10006:{Trice32_1i hi %03u} 10007:{Trice64_1i hi %03u} 40000:{trice8_1 hi %03u} 40001:{trice16_1 hi %03u} 40002:{trice32_1 hi %03u} 40003:{trice64_1 hi %03u} 40004:{trice8_1i hi %03u} 40005:{trice16_1i hi %03u} 40006:{trice32_1i hi %03u} 40007:{trice64_1i hi %03u}]
+`
+	tst.Equal(t, eList, aList)
+}
+
+func _TestInsertSharedIDs0(t *testing.T) {
 	text := `
 	Trice0(id(0), "Trallala");
 	trice8_1( Id(0), "hi %d", 5); // first id
