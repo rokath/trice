@@ -96,7 +96,6 @@ int main(void)
   /* USER CODE BEGIN 2 */
     LL_USART_EnableIT_RXNE(TRICE_UART); // enable UART2 interrupt
     TRICE_HEADLINE;
-    trice64_2(Id(65262), "tst:trice64_2 %x %x\n", 0x13579bdffdb97531, 0xeca8642002468ace);
   /* USER CODE END 2 */
 
   /* Infinite loop */
