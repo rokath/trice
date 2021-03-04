@@ -119,28 +119,28 @@ func handleSIGTERM(rc io.ReadCloser) {
 func Translate(sw *emitter.TriceLineComposer, lut id.TriceIDLookUp, m *sync.RWMutex, rc io.ReadCloser) {
 	var dec Decoder //io.Reader
 	switch Encoding {
-	case "esc":
+	case "esc", "ESC":
 		dec = NewEscDecoder(lut, m, rc, bigEndian)
-	case "pack":
-		dec = NewPackDecoder(lut, m, rc, bigEndian)
-	case "packl", "packL":
-		dec = NewPackDecoder(lut, m, rc, littleEndian)
-	case "pack2":
-		dec = NewPack2Decoder(lut, m, rc, bigEndian)
-	case "pack2l", "pack2L":
-		dec = NewPack2Decoder(lut, m, rc, littleEndian)
+	//case "pack":
+	//	dec = NewPackDecoder(lut, m, rc, bigEndian)
+	//case "packl", "packL":
+	//	dec = NewPackDecoder(lut, m, rc, littleEndian)
+	//case "pack2":
+	//	dec = NewPack2Decoder(lut, m, rc, bigEndian)
+	//case "pack2l", "pack2L":
+	//	dec = NewPack2Decoder(lut, m, rc, littleEndian)
 	case "flex", "FLEX":
 		dec = NewFlexDecoder(lut, m, rc, bigEndian)
 	case "flexl", "flexL", "FLEXL":
 		dec = NewFlexDecoder(lut, m, rc, littleEndian)
-	case "bare":
-		dec = NewBareDecoder(lut, m, rc, bigEndian)
-	case "barel", "bareL":
-		dec = NewBareDecoder(lut, m, rc, littleEndian)
-	case "wrap":
-		dec = NewBareDecoder(lut, m, NewBareReaderFromWrap(rc), bigEndian)
-	case "wrapl", "wrapL":
-		dec = NewBareDecoder(lut, m, NewBareReaderFromWrap(rc), littleEndian)
+	//case "bare":
+	//	dec = NewBareDecoder(lut, m, rc, bigEndian)
+	//case "barel", "bareL":
+	//	dec = NewBareDecoder(lut, m, rc, littleEndian)
+	//case "wrap":
+	//	dec = NewBareDecoder(lut, m, NewBareReaderFromWrap(rc), bigEndian)
+	//case "wrapl", "wrapL":
+	//	dec = NewBareDecoder(lut, m, NewBareReaderFromWrap(rc), littleEndian)
 	default:
 		log.Fatalf(fmt.Sprintln("unknown encoding ", Encoding))
 	}

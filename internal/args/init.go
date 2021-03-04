@@ -55,9 +55,9 @@ func init() {
 }
 
 func init() {
-	fsScLog = flag.NewFlagSet("log", flag.ExitOnError)                                                                                                                                    // subcommand
-	fsScLog.StringVar(&decoder.Encoding, "encoding", "flexL", "The trice transmit data format type, options: 'pack2[l]|pack[l]|esc|bare[l]|wrap[l]'. Target device encoding must match.") // flag
-	fsScLog.StringVar(&decoder.Encoding, "e", "flexL", "Short for -encoding.")                                                                                                            // short flag
+	fsScLog = flag.NewFlagSet("log", flag.ExitOnError)                                                                                                                         // subcommand
+	fsScLog.StringVar(&decoder.Encoding, "encoding", "flexL", "The trice transmit data format type, options: 'esc|ESC|(flex|FLEX)[(l|L)'. Target device encoding must match.") // flag
+	fsScLog.StringVar(&decoder.Encoding, "e", "flexL", "Short for -encoding.")                                                                                                 // short flag
 	fsScLog.StringVar(&cipher.Password, "password", "none", `The decrypt passphrase. If you change this value you need to compile the target with the appropriate key (see -showKeys).
 This is recommended if you deliver firmware to customers and want protect the trice log output. This does work right now only with wrapped barel format.`) // flag
 	fsScLog.StringVar(&cipher.Password, "pw", "none", "Short for -password.") // short flag

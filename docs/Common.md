@@ -286,7 +286,7 @@ subcommand 'l|log': For displaying trice logs coming from port. With "trice log"
   -e string
         Short for -encoding. (default "flexL")
   -encoding string
-        The trice transmit data format type, options: 'pack2[l]|pack[l]|esc|bare[l]|wrap[l]'. Target device encoding must match. (default "flexL")
+        The trice transmit data format type, options: 'esc|ESC|(flex|FLEX)[(L|l)]'. Target device encoding must match. (default "flexL")
   -i string
         Short for '-idlist'.
          (default "til.json")

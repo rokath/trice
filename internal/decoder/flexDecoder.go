@@ -41,7 +41,7 @@ func NewFlexDecoder(lut id.TriceIDLookUp, m *sync.RWMutex, in io.Reader, endian 
 	return p
 }
 
-// Read is the provided read method for pack decoding of next string as byte slice.
+// Read is the provided read method for flex decoding of next string as byte slice.
 // It uses inner reader p.in and internal id look-up table to fill b with a string.
 // b is a slice of bytes with a len for the max expected string size.
 // n is the count of read bytes inside b.
@@ -54,7 +54,7 @@ func (p *Flex) Read(b []byte) (n int, err error) {
 		if Verbose { // time measure
 			p.lastInnerRead = time.Now()
 
-			// fill intermediate read buffer for pack encoding
+			// fill intermediate read buffer for flex encoding
 			m, err = p.in.Read(b) // use b as intermediate buffer to avoid allocation
 
 			duration := time.Since(p.lastInnerRead).Milliseconds()
@@ -62,7 +62,7 @@ func (p *Flex) Read(b []byte) (n int, err error) {
 				fmt.Println("Inner Read duration =", duration, "ms.")
 			}
 		} else { // no time measure
-			// fill intermediate read buffer for pack encoding
+			// fill intermediate read buffer for flex encoding
 			m, err = p.in.Read(b) // use b as intermediate buffer to avoid allocation
 		}
 		// p.syncBuffer can contain unprocessed bytes from last call.

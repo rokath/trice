@@ -29,7 +29,7 @@ var uTable1 = []u1Table{
 }
 
 func Test_trice81(t *testing.T) {
-	p := &Pack2{}
+	p := &Flex{}
 	p.b = make([]byte, defaultSize)
 	p.syncBuffer = make([]byte, defaultSize)
 	for _, v := range uTable1 {
@@ -60,7 +60,7 @@ var uTable2 = []u2Table{
 }
 
 func Test_trice82(t *testing.T) {
-	p := &Pack2{}
+	p := &Flex{}
 	p.b = make([]byte, defaultSize)
 	p.syncBuffer = make([]byte, defaultSize)
 	for _, v := range uTable2 {
@@ -88,7 +88,7 @@ var uTable4 = []uNTable{
 }
 
 func Test_trice84(t *testing.T) {
-	p := &Pack2{}
+	p := &Flex{}
 	p.b = make([]byte, defaultSize)
 	p.syncBuffer = make([]byte, defaultSize)
 	for _, v := range uTable4 {
@@ -108,12 +108,12 @@ func TestFlexL(t *testing.T) {
 	var table = testTable{ // little endian
 
 	}
-	doTableTest(t, NewPack2Decoder, littleEndian, table, "unwrapped")
+	doTableTest(t, NewFlexDecoder, littleEndian, table, "unwrapped")
 }
 
 func TestFlex(t *testing.T) {
 	var table = testTable{ // little endian
 
 	}
-	doTableTest(t, NewPack2Decoder, bigEndian, table, "unwrapped")
+	doTableTest(t, NewFlexDecoder, bigEndian, table, "unwrapped")
 }

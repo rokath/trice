@@ -34,8 +34,8 @@ func doTableTest(t *testing.T, f newDecoder, endianness bool, teTa testTable, in
 		in := ioutil.NopCloser(bytes.NewBuffer(x.in))
 		if "unwrapped" == inputDataType {
 			dec.setInput(in)
-		} else if "wrapped" == inputDataType {
-			dec.setInput(NewBareReaderFromWrap(in))
+			//  } else if "wrapped" == inputDataType {
+			//  	dec.setInput(NewBareReaderFromWrap(in))
 		} else {
 			t.Fail()
 		}

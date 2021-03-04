@@ -37,7 +37,7 @@ TRICE0( Id(17896), "s:                                                          
 //! TRICE_BIG_ENDIANNESS is network order.
 //! If TRICE_TRANSFER_ENDIANNESS is equal to TRICE_HARDWARE_ENDIANNESS the trice code is smaller and more efficient.
 //! When set to TRICE_LITTLE_ENDIANNESS the trice tool -enc format specifier is extended by a letter 'l' (small 'L').
-//! Example -enc "pack" -> -enc "packl".
+//! Example -enc "flex" -> -enc "flexl".
 #define TRICE_TRANSFER_ENDIANNESS TRICE_LITTLE_ENDIANNESS 
 
 //#define TRICE_U8PUSH(v) do{ /*triceU8PushSeggerRTT(v);*/ triceU8Push(v); } while(0) //!< Set trice out channel(s) 
