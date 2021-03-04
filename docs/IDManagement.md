@@ -1,5 +1,7 @@
 # TRICE ID management
 
+Normally, when using `flex[L]`encoding, no need to tread this.
+
 ## ID management internals & hints
 
 - The `flex` and `flexL` (default) encoding supports 20-bit IDs normally, so over 1 Million IDs possible. Short flex trices use 15-bit IDs. Other encodings can work with other ID sizes. The ESC encoding, a tryout implementation, uses 16-bit IDs.
@@ -16,6 +18,7 @@
   - This could be done by running `trice refresh`.
 - During `trice update` TRICE macros commented out are treated in the same way as actice TRICE macros. Even after deletion their content stays inside til.json. This is intensionally to get best stability.
 - The trice tool does treat trice statements inside comments or excluded by compiler switches also.
+
 ## ID management options
 
 - The trice ID 0 is a placeholder for "no ID", which is replaced automatically during the next `trice update` according to the used trice `-IDMethod`, `-IDMin[Short]` and `IDMax[Short]`.
