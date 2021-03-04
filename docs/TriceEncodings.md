@@ -2,7 +2,7 @@
 
 ## General
 
-Trice bytes can be encodend in different flawors and it is easy to develop a different encoding.
+Trice bytes can be encodend in different flawors and it is easy to develop a different encoding. The encoding `esc` is such a trial. It is not as good as the `flex` encoding but kept for reference.
 
 ## Quick start recommendation
 
@@ -38,7 +38,7 @@ triceServeFifoWrappedToBytesBuffer();
 
 Currently these encodings are supported:
 
-### `flex` encoding (idea)
+### `flex` encoding
 
 - `I` = **I**D bit
 - `D` = **D**ata bit
@@ -49,7 +49,7 @@ Currently these encodings are supported:
   - 0: short encoding
   - 1: medium and long encoding
 
-#### `flex` short sub-encoding
+#### *`flex` short sub-encoding*
 
 This sub-encodig is mainly for _very_ small systems and time critical stuff
 
@@ -63,6 +63,8 @@ This sub-encodig is mainly for _very_ small systems and time critical stuff
 0IIIIIII IIIIIIII DDDDDDDD DDDDDDDD : short, implicit count=1, Trice8_1, Trice16_1
 0IIIIIII IIIIIIII DDDDDDDD DDDDDDDD : short, implicit count=2, Trice8_2 
 ```
+
+#### *`flex` normal sub-encoding*
 
 - `1IIIIIII IIIIIIII IIIIINNN CCCCCCCC` : medium 3-bit count NNN
 - The medium 3-bit counts 5 and 6 are reserved for future extensions.
