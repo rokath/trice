@@ -1,6 +1,6 @@
 # TRICE ID management
 
-Normally, when using `flex[L]`encoding, no need to tread this.
+Normally, when using `flex[L]`encoding, no need to read this.
 
 ## ID management internals & hints
 
