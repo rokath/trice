@@ -170,6 +170,7 @@ trice help
 No need to read all this stuff - is is just for help and reference.
 
 - [Common.md](https://github.com/rokath/trice/tree/master/docs/Common.md)
+- [TriceEncodings.md](https://github.com/rokath/trice/tree/master/docs/TriceEncodings.md)
 - [ID management](https://github.com/rokath/trice/tree/master/docs/IDManagement.md)
 - [OneWireOption](https://github.com/rokath/trice/tree/master/docs/OneWireOption.md)
 - [SeggerRTT](https://github.com/rokath/trice/tree/master/docs/SeggerRTT.md)
