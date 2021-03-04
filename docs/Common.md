@@ -33,7 +33,7 @@ On execution the ID is pushed into a FIFO together with the optional trice param
 
 Please understand, that when debugging code containing TRICE\* statements, during a TRICE\* step-over only  one ore more 32 bit values go into the internal fifo buffer and no serial output
 is visible because of the stopped target. But the SEGGER debug probe reads out the RTT memory and this way also during debug stepping realtime trice output is visible. That is (right now) not true for the STLINK interface because the is only one USB enpoint.
-## `TRICE`, `Trice` or `trice` with or without ending letter 'i'?
+## trice instructions: `TRICE`, `Trice` or `trice` with or without ending letter 'i'?
 
 There are several types of trice statements. All trice statements can have an additional letter 'i'. This means **i**nside critical section. You can use these when it is sure not to get interrupted by other trices. If for example an interrupt contains a trice statement this can be an i-trice but other trices not allowed to be an i-trice, they need to be normal trices, which are protected against interruption. If you are not sure it is always safe to use normal trices (without ending 'i'). The i-trices are a bit faster what is not relevant in most cases because of the general speed.
 
@@ -42,15 +42,9 @@ There are several types of trice statements. All trice statements can have an ad
 - `trice0`, `trice8_1`, ... `trice8_8`, `trice16_1`, ... `trice16_4`, `trice32_1`, ... `trice32_4`, `trice64_1`, `trice64_2` are normal trice functions. The function call overhead is reasonable and the advantage is significant less code amount when many trices are used.
 - For most flexibility the code for each trice function can be enabled or not inside the triceConfig.h.
 
+## `trice` tool
 
-
-## `TRICE0` |`TRICE8` |`TRICE16` |`TRICE32` |`TRICE64` macro
-
-
-
-## `trice`
-
-Executing `trice update` at the root of your project source updates the TRICE* statements inside the source code and the ID list (only where changes occured). The `-src` switch can be used multiple times to keep the amount of parsed data small for better speed.
+Executing `trice update` at the root of your project source updates in case of changes the trice statements inside the source code and the ID list. The `-src` switch can be used multiple times to keep the amount of parsed data small for better speed.
 
 With `trice log -port COM12 -baud 115200` you can visualize the trices on the PC, 
 if for example `COM12` is receiving the data from the embedded device.
@@ -60,7 +54,7 @@ The following capture output comes from an example project inside`../test`
 ![life.gif](./README.media/life.gif)
 
 See [triceCheck.c](https://github.com/rokath/trice/blob/master/srcTrice.C/triceCheck.c) for reference.
-The trices can come mixed from inside interrupts (light blue `ISR:...`) or from normal code. For usage with a RTOS protect TRICE* against breaks. Regard the differences in the read SysTick values inside the GIF above These differeces are the MCU clocks needed for one trice (~0,25µs@48MHz).
+The trices can come mixed from inside interrupts (light blue `ISR:...`) or from normal code. For usage with a RTOS trices are protected against breaks (CRITICAL_SECTION). Regard the differences in the read SysTick values inside the GIF above These differeces are the MCU clocks needed for one trice (~0,25µs@48MHz).
 
 Use the `-color off` switch for piping output in a file.
 
@@ -93,17 +87,20 @@ Look at one of the appropriate test projects as example. In general:
 
 - Make sure the [trice.h](https://github.com/rokath/trice/blob/master/srcTrice.C/trice.h) header file is found by your compiler and for
 
+<!---
   - bare or wrap transfer format
     Include [triceBareFifo.c](https://github.com/rokath/trice/blob/master/srcTrice.C/triceBareFifo.c) together with [triceBareFifoToBytesBuffer.c](https://github.com/rokath/trice/blob/master/srcTrice.C/triceBareFifoToBytesBuffer.c) into your project.
 
+    Include [trice.c](https://github.com/rokath/trice/blob/master/srcTrice.C/trice.c)
+
   - esc transfer format
     Include [triceEscFifo.c](https://github.com/rokath/trice/blob/master/srcTrice.C/triceEscFifo.c) into your project.
-
+--->
 Next steps:
 
-- Add `#include "trice.h"` to your project files where to use TRICE macros and put `TRICE0( Id(0), "msg:Hello world!\n" );` after your initialization code.
+- Add `#include "trice.h"` to your project files where to use TRICE macros and put `TRICE0( "msg:Hello world!\n" );` after your initialization code.
 - Run `trice u` at the root of your source code. Afterwards:
-  - The `Id(0)` should have changed into `Id(12345)` as example. (The `12345` stays here for a 16-bit non-zero random number).
+  - It should have changed into `TRICE0( Id(12345), "msg:Hello world!\n" );` as example. (The `12345` stays here for a 16-bit non-zero random number).
   - A file [til.json](https://github.com/rokath/trice/blob/master/til.json)  (**t**race **i**d **l**ist) should be generated.
 - Set up timer and UART interrupt and main loop in the right way. Analyze the test example projects for advice.
 
