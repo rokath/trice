@@ -7,7 +7,7 @@
 //#define TRICE_CODE NO_CODE // enable this line to disable trice code generation in this file object
 #include "trice.h"
 
-#include "main.h" // __get_PRIMASK
+//#include "main.h" // __get_PRIMASK
 
 ///////////////////////////////////////////////////////////////////////////////
 // trice time measurement

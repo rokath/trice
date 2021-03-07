@@ -35,7 +35,7 @@ func TestRemoteDisplay(t *testing.T) {
 	assert.Equal(t, 9, len(expLines))
 	assert.Equal(t, 9, len(actLines))
 	assert.Equal(t, expLines[1:], actLines[1:])
-	assert.Nil(t, os.Remove(afn))
+	_ = os.Remove(afn)
 }
 
 func randomDynIPPort() (s string) {

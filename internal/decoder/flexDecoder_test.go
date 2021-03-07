@@ -106,7 +106,8 @@ func Test_trice84(t *testing.T) {
 
 func TestFlexL(t *testing.T) {
 	var table = testTable{ // little endian
-
+		{[]byte{0, 192, 248, 135}, `--------------------------------------------------`},
+		{[]byte{1, 192, 248, 135}, `--------------------------------------------------`},
 	}
 	doTableTest(t, NewFlexDecoder, littleEndian, table, "unwrapped")
 }

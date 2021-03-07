@@ -20,7 +20,7 @@ const defaultPrefix = "source: "
 
 var (
 	colorInfo = `The format strings can start with a lower or upper case channel information.
-See https://github.com/rokath/trice/blob/master/srcTrice.C/triceCheck.c for examples. Color options: 
+See https://github.com/rokath/trice/blob/master/pkg/src/triceCheck.c for examples. Color options: 
 "off": Disable ANSI color. The lower case channel information is kept: "w:x"-> "w:x" 
 "none": Disable ANSI color. The lower case channel information is removed: "w:x"-> "x"
 "default|color": Use ANSI color codes for known upper and lower case channel info are inserted and lower case channel information is removed.
@@ -197,8 +197,8 @@ Change the filename with "-logfile myName.txt" or switch logging off with "-logf
 func flagSrcs(p *flag.FlagSet) {
 	p.Var(&id.Srcs, "src", `Source dir or file, It has one parameter. Not usable in the form "-src *.c".
 This is a multi-flag switch. It can be used several times for directories and also for files. 
-Example: "trice `+p.Name()+` -dry-run -v -src ./test/ -src srcTrice.C/trice.h" will scan all C|C++ header and 
-source code files inside directory ./test and scan also file trice.h inside srcTrice.C directory. 
+Example: "trice `+p.Name()+` -dry-run -v -src ./test/ -src pkg/src/trice.h" will scan all C|C++ header and 
+source code files inside directory ./test and scan also file trice.h inside pkg/src directory. 
 Without the "-dry-run" switch it would create|extend a list file til.json in the current directory.
  (default "./")`) // multi flag
 	p.Var(&id.Srcs, "s", "Short for src.") // multi flag

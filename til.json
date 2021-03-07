@@ -191,6 +191,10 @@
 		"Type": "trice16_1",
 		"Strg": "ATT:attention   message, SysTick is %6u\\n"
 	},
+	"176": {
+		"Type": "trice0",
+		"Strg": "msg:hi"
+	},
 	"17896": {
 		"Type": "TRICE0",
 		"Strg": "s:                                                          \\ns:   MDK-ARM_LL_UART_WRAP_RTT0_BARE_STM32F030R8-NUCLEO-64   \\ns:                                                          \\n\\n"
@@ -510,6 +514,10 @@
 	"34417": {
 		"Type": "trice32_3",
 		"Strg": "msg: trice32_3  -\u003e normal trice function  (with cycle counter) for everywhere                   %x %X %u\\n"
+	},
+	"34481": {
+		"Type": "trice0",
+		"Strg": "msg:hi\\n"
 	},
 	"34736": {
 		"Type": "trice8_2",
@@ -1844,7 +1852,7 @@
 		"Strg": "RD:read         message, SysTick is %6d\\n"
 	},
 	"65439": {
-		"Type": "trice16_1",
+		"Type": "TRICE16_1",
 		"Strg": "TIM:timing      message, SysTick is %6d\\n"
 	},
 	"65442": {

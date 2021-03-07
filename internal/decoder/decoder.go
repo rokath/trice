@@ -121,26 +121,10 @@ func Translate(sw *emitter.TriceLineComposer, lut id.TriceIDLookUp, m *sync.RWMu
 	switch Encoding {
 	case "esc", "ESC":
 		dec = NewEscDecoder(lut, m, rc, bigEndian)
-	//case "pack":
-	//	dec = NewPackDecoder(lut, m, rc, bigEndian)
-	//case "packl", "packL":
-	//	dec = NewPackDecoder(lut, m, rc, littleEndian)
-	//case "pack2":
-	//	dec = NewPack2Decoder(lut, m, rc, bigEndian)
-	//case "pack2l", "pack2L":
-	//	dec = NewPack2Decoder(lut, m, rc, littleEndian)
 	case "flex", "FLEX":
 		dec = NewFlexDecoder(lut, m, rc, bigEndian)
 	case "flexl", "flexL", "FLEXL":
 		dec = NewFlexDecoder(lut, m, rc, littleEndian)
-	//case "bare":
-	//	dec = NewBareDecoder(lut, m, rc, bigEndian)
-	//case "barel", "bareL":
-	//	dec = NewBareDecoder(lut, m, rc, littleEndian)
-	//case "wrap":
-	//	dec = NewBareDecoder(lut, m, NewBareReaderFromWrap(rc), bigEndian)
-	//case "wrapl", "wrapL":
-	//	dec = NewBareDecoder(lut, m, NewBareReaderFromWrap(rc), littleEndian)
 	default:
 		log.Fatalf(fmt.Sprintln("unknown encoding ", Encoding))
 	}
@@ -257,14 +241,6 @@ func uReplaceN(i string) (o string, u []bool) {
 		locU := matchNextFormatUSpezifier.FindStringIndex(fm)
 		locX := matchNextFormatXSpezifier.FindStringIndex(fm)
 		if nil != locU { // a %nu found
-			//if 0 < loc[0] { // not at string start, so check for %%
-			//	x := s[loc[0]-1 : loc[0]]
-			//	if "%" == x { // a directly leading %, so cut both
-			//		s = s[loc[0]+1:]
-			//		offset += loc[0] + 1
-			//		continue
-			//	}
-			//}
 			o = o[:offset-1] + "d" + o[offset:] // replace %nu -> %nd
 			u = append(u, true)
 		} else if nil != locX && UnsignedHex { // a %nx or %nX or %nb found

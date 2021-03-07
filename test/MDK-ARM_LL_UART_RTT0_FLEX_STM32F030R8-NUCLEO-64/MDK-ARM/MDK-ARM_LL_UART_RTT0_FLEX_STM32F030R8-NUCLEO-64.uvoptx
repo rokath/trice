@@ -73,7 +73,7 @@
         <LExpSel>0</LExpSel>
       </OPTXL>
       <OPTFL>
-        <tvExp>0</tvExp>
+        <tvExp>1</tvExp>
         <tvExpOptDlg>0</tvExpOptDlg>
         <IsCurrentTarget>1</IsCurrentTarget>
       </OPTFL>
@@ -166,7 +166,7 @@
           <SizeOfObject>0</SizeOfObject>
           <BreakByAccess>0</BreakByAccess>
           <BreakIfRCount>1</BreakIfRCount>
-          <Filename>&lt;1&gt;..\..\..\srcTrice.C\triceCheck.c</Filename>
+          <Filename>C:\repos\trice\srcTrice.C\triceCheck.c</Filename>
           <ExecCommand></ExecCommand>
           <Expression>\\MDK_ARM_LL_UART_RTT0_FLEX_STM32F030R8_NUCLEO_64\../../../srcTrice.C/triceCheck.c\287</Expression>
         </Bp>
@@ -182,7 +182,7 @@
           <SizeOfObject>0</SizeOfObject>
           <BreakByAccess>0</BreakByAccess>
           <BreakIfRCount>0</BreakIfRCount>
-          <Filename>&lt;1&gt;..\..\..\srcTrice.C\triceCheck.c</Filename>
+          <Filename>C:\repos\trice\srcTrice.C\triceCheck.c</Filename>
           <ExecCommand></ExecCommand>
           <Expression></Expression>
         </Bp>
@@ -416,8 +416,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\..\srcTrice.C\triceCheck.c</PathWithFileName>
-      <FilenameWithoutPath>triceCheck.c</FilenameWithoutPath>
+      <PathWithFileName>..\..\..\third_party\segger.com\SEGGER_RTT\RTT\SEGGER_RTT.c</PathWithFileName>
+      <FilenameWithoutPath>SEGGER_RTT.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -428,8 +428,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\..\srcTrice.C\triceSeggerRTT.c</PathWithFileName>
-      <FilenameWithoutPath>triceSeggerRTT.c</FilenameWithoutPath>
+      <PathWithFileName>..\..\..\pkg\src\trice.c</PathWithFileName>
+      <FilenameWithoutPath>trice.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -437,11 +437,11 @@
       <GroupNumber>5</GroupNumber>
       <FileNumber>14</FileNumber>
       <FileType>1</FileType>
-      <tvExp>0</tvExp>
+      <tvExp>1</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\..\third_party\segger.com\SEGGER_RTT\RTT\SEGGER_RTT.c</PathWithFileName>
-      <FilenameWithoutPath>SEGGER_RTT.c</FilenameWithoutPath>
+      <PathWithFileName>..\..\..\pkg\src\triceCheck.c</PathWithFileName>
+      <FilenameWithoutPath>triceCheck.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -452,8 +452,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\..\srcTrice.C\trice.c</PathWithFileName>
-      <FilenameWithoutPath>trice.c</FilenameWithoutPath>
+      <PathWithFileName>..\..\..\pkg\src\triceSeggerRTT.c</PathWithFileName>
+      <FilenameWithoutPath>triceSeggerRTT.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>

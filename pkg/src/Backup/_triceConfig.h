@@ -25,9 +25,9 @@ TRICE0( Id(65422), "s:                                                   \ns:   
 
 ///////////////////////////////////////////////////////////////////////////////
 // select target trice method
-#define TRICE_ENCODING TRICE_PACK_ENCODING
+#define TRICE_ENCODING TRICE_FLEX_ENCODING
 
-#define TRICE_HARDWARE_ENDIANNESS TRICE_LITTLE_ENDIANNESS 
+#define TRICE_HARDWARE_ENDIANNNESS TRICE_LITTLE_ENDIANNESS 
 
 //! Set byte order according desired transfer format. Options: TRICE_BIG_ENDIANNESS, TRICE_LITTLE_ENDIANNESS. 
 //! TRICE_BIG_ENDIANNESS is network order.

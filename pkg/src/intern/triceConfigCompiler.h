@@ -29,7 +29,7 @@ extern "C" {
 //! \li __get_PRIMASK() is 1 when interrupts are disabled globally.
 //! If trices are used only outside critical sections or interrupts,
 //! you can leave this macro empty for more speed. Use only '{' in that case.
-#define TRICE_ENTER_CRITICAL_SECTION { uint32_t primaskstate = __get_PRIMASK(); __disable_irq(); {
+#define TRICE_ENTER_CRITICAL_SECTION { // to do
 #endif
 
 #ifndef TRICE_LEAVE_CRITICAL_SECTION
@@ -39,7 +39,7 @@ extern "C" {
 //! \li __get_PRIMASK() is 1 when interrupts are disabled globally.
 //! If trices are used only outside critical sections or interrupts,
 //! you can leave this macro pair empty for more speed. Use only '}' in that case.
-#define TRICE_LEAVE_CRITICAL_SECTION } __set_PRIMASK(primaskstate); }
+#define TRICE_LEAVE_CRITICAL_SECTION } // to do
 #endif
 
 #elif defined(__arm__) // ARMkeil IDE #########################################

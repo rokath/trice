@@ -104,10 +104,10 @@ int main(void)
   {
     static int lastTricesTime = 0;
     { // send some trices every few ms
-        if( milliSecond >= lastTricesTime + 100 ){
+        if( milliSecond >= lastTricesTime + 1000 ){
             static int index = 0;
             int select = index % 50;
-            #if TRICE_PACK2_ENCODING == TRICE_ENCODING
+            #if TRICE_FLEX_ENCODING == TRICE_ENCODING
             TRICE16_2( Id(1047663),"MSG: triceFifoMaxDepth = %d, select = %d\n", triceFifoMaxDepth, select ); // bigID check
             #else
             TRICE16_2( Id(47663),"MSG: triceFifoMaxDepth = %d, select = %d\n", triceFifoMaxDepth, select );
