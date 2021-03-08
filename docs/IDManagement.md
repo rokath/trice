@@ -31,5 +31,5 @@ Normally, when using `flex[L]`encoding, no need to read this.
 - The `til.json` file can be deleted and later regenerated from the sources anytime. In that case you get rid of all legacy strings but it is better to keep them for compability reasons. Sometimes you get a target board with older firmware and without the old references you cannot read the trice logs.
 - A good practice is to keep the `til.json` file under source control. To keep it clean from the daily development garbage one could delete the `til.json`, then check-out again and re-build just before check-in.
 - An other option is to delete `til.json` just before a release build and then check-in the new generated `til.json`.
-- The **flex[L]** encodings support 24-bit IDs, what gives an ID space of 1048574 IDs. This way even in a bigger project with, lest say 1000 different TRICEs, the chance to hit a false ID in out-of-sync case is less 1 promille.
+- The **flex[L]** encodings support 20-bit IDs, what gives an ID space of 1048574 IDs. This way even in a bigger project with, lest say 1000 different TRICEs, the chance to hit a false ID in out-of-sync case is less 1 promille.
 - With `trice zeroSourceTreeIds` all IDs in the given source tree are set to 0. This gives the option afterwards to set-up a new `til.json` according to a differend `-IDMethod`, `-IDMin[Short]` and `IDMax[Short]`.
