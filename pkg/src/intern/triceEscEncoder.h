@@ -11,10 +11,6 @@ extern "C" {
 
 #include <stdint.h>
 #include <string.h>
-#include "triceConfig.h"
-
-#if TRICE_ESC_ENCODING == TRICE_ENCODING 
-
 
 #define Id(n) (n) //!< Macro for improved trice readability and better source code parsing.
 
@@ -279,6 +275,26 @@ extern "C" {
     triceWriteEscP( sizeof(msg), msg ); \
 } while(0)
 
+// no distinction here
+#define TRICE0i       TRICE0
+#define TRICE8_1i   TRICE8_1
+#define TRICE8_2i   TRICE8_2
+#define TRICE8_3i   TRICE8_3
+#define TRICE8_4i   TRICE8_4
+#define TRICE8_5i   TRICE8_5
+#define TRICE8_6i   TRICE8_6
+#define TRICE8_7i   TRICE8_7
+#define TRICE8_8i   TRICE8_8
+#define TRICE16_1i TRICE16_1
+#define TRICE16_2i TRICE16_2
+#define TRICE16_3i TRICE16_3
+#define TRICE16_4i TRICE16_4
+#define TRICE32_1i TRICE32_1
+#define TRICE32_2i TRICE32_2
+#define TRICE32_3i TRICE32_3
+#define TRICE32_4i TRICE32_4
+#define TRICE64_1i TRICE64_1
+#define TRICE64_2i TRICE64_2
 
 TRICE_INLINE void triceWritePaddingBytes(int count) {
     while (count--) {
@@ -409,10 +425,6 @@ TRICE_INLINE void trice_s(uint16_t Id, char *dynString) {
     }
     TRICE_LEAVE_CRITICAL_SECTION
 }
-
-
-
-#endif // #if TRICE_ESC_ENCODING == TRICE_ENCODING
 
 #ifdef __cplusplus
 }

@@ -10,9 +10,7 @@ extern "C" {
 #endif
 
 #define TRICE_NO_CODE_ENCODING 10
-#define TRICE_BARE_ENCODING    20
 #define TRICE_ESC_ENCODING     30
-#define TRICE_PACK_ENCODING    40
 #define TRICE_FLEX_ENCODING    50
 
 #define TRICE_SPEED_OVER_SPACE 0x55aa
@@ -25,8 +23,22 @@ extern "C" {
 #include "intern/triceConfigCompiler.h"
 #include "intern/triceSeggerRTT.h"
 #ifdef ENCRYPT
-#include "intern/triceXteaCrypto.h"
-#endif
+void encrypt(uint8_t *p);
+void decrypt(uint8_t *p);
+
+//! little endian! change byte order for big endian machines
+#define XTEA_KEY(b00, b01, b02, b03, \
+                  b10, b11, b12, b13, \
+                  b20, b21, b22, b23, \
+                  b30, b31, b32, b33) { \
+    0x##b00##b01##b02##b03, \
+    0x##b10##b11##b12##b13, \
+    0x##b20##b21##b22##b23, \
+    0x##b30##b31##b32##b33 }
+
+void InitXteaTable(void);
+    
+#endif // #ifdef ENCRYPT
 
 #define TRICE_U8_JOIN(  first, second ) ((uint16_t)((((uint8_t )(first))<< 8)|((uint8_t )(second)))) //!< helper macro
 #define TRICE_U16_JOIN( first, second ) (          ((((uint32_t)(first))<<16)|((uint16_t)(second)))) //!< helper macro
@@ -111,27 +123,11 @@ int triceU32WriteU8ReadFifoDepth(void);
 
 #if TRICE_ESC_ENCODING == TRICE_ENCODING
 #include "intern/triceEscEncoder.h"
-#include "intern/triceFifoToBytesBuffer.h"
-#endif
-
-#if TRICE_BARE_ENCODING == TRICE_ENCODING
-#include "intern/triceBareEncoder.h"
-#include "intern/triceFifoToBytesBuffer.h"
-#endif
-
-#if TRICE_PACK_ENCODING == TRICE_ENCODING
-#include "intern/tricePackEncoder.h"
-#endif
-
-#if TRICE_PACK2_ENCODING == TRICE_ENCODING
-#include "intern/tricePack2Encoder.h"
 #endif
 
 #if TRICE_FLEX_ENCODING == TRICE_ENCODING
 #include "intern/triceFlexEncoder.h"
 #endif
-
-
 
 #ifndef TRICE_SYNC // some encoder define a sync trice
 #define TRICE_SYNC do{ } while(0)// otherwise empty definition for compability

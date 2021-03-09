@@ -46,11 +46,19 @@ TRICE_INLINE void triceDisableTxEmptyInterrupt(void) {
     LL_USART_DisableIT_TXE(TRICE_UART);
 }
 
-#ifdef TRICE_FIFO_TO_BYTES_BUFFER_H_
-//! triceServeBytesBufferTransmit must be called cyclically to proceed ongoing write out.
+#if TRICE_FLEX_ENCODING == TRICE_ENCODING && defined(ENCRYPT)
+extern uint8_t triceBytesBuffer[];
+extern int const triceBytesBufferIndexLimit;
+extern int triceBytesBufferIndex;
+
+TRICE_INLINE int triceBytesByfferDepth( void ){
+    return triceBytesBufferIndexLimit - triceBytesBufferIndex;
+}
+
+//! triceServeTransmit as triceServeBytesBufferTransmit must be called cyclically to proceed ongoing write out.
 //! A good place: sysTick ISR and UART ISR (both together).
 //! TODO: endianess with compiler macros.
-TRICE_INLINE void triceServeBytesBufferTransmit(void) {
+TRICE_INLINE void triceServeTransmit(void) {
     if (!triceTxDataRegisterEmpty()) {
         for (;;); // unexpected case
     }
@@ -64,17 +72,19 @@ TRICE_INLINE void triceServeBytesBufferTransmit(void) {
     }
 }
 
-
-TRICE_INLINE void triceTriggerBytesBufferTransmit(void){
+// triceTriggerTransmit as triceTriggerBytesBufferTransmit must be called cyclically to initialize write out.
+TRICE_INLINE void triceTriggerTransmit(void){
     if( triceBytesByfferDepth() && triceTxDataRegisterEmpty() ){
         triceEnableTxEmptyInterrupt(); // next bytes
     }
 }
-#endif
+#endif // #if TRICE_FLEX_ENCODING == TRICE_ENCODING && defined(ENCRYPT)
 
-//! triceServeU32WriteU8ReadFifoTransmit must be called cyclically to proceed ongoing write out.
+#if TRICE_FLEX_ENCODING == TRICE_ENCODING && !defined(ENCRYPT)
+
+//! triceServeTransmit as triceServeU32WriteU8ReadFifoTransmit must be called cyclically to proceed ongoing write out.
 //! A good place: sysTick ISR and UART ISR (both together).
-TRICE_INLINE void triceServeU32WriteU8ReadFifoTransmit(void) {
+TRICE_INLINE void triceServeTransmit(void) {
     if (!triceTxDataRegisterEmpty()) {
         for (;;); // unexpected case
     }
@@ -88,29 +98,34 @@ TRICE_INLINE void triceServeU32WriteU8ReadFifoTransmit(void) {
     }
 }
 
-
-TRICE_INLINE void triceTriggerU32WriteU8ReadFifoTransmit(void){
+// triceTriggerTransmit as triceTriggerU32WriteU8ReadFifoTransmit must be called cyclically to initialize write out.
+TRICE_INLINE void triceTriggerTransmit(void){
     if( triceU32WriteU8ReadFifoDepth() && triceTxDataRegisterEmpty() ){
         triceEnableTxEmptyInterrupt(); // next bytes
     }
 }
 
+#endif // #if TRICE_FLEX_ENCODING == TRICE_ENCODING && !defined(ENCRYPT)
 
-//! triceServeU8FifoTransmit must be called cyclically to proceed ongoing write out.
+#if TRICE_ESC_ENCODING == TRICE_ENCODING
+
+//! triceServeTransmit as triceServeU8FifoTransmit must be called cyclically to proceed ongoing write out.
 //! A good place is UART ISR.
-TRICE_INLINE void triceServeU8FifoTransmit(void) {
+TRICE_INLINE void triceServeTransmit(void) {
     triceTransmitData8(triceU8Pop());
     if (0 == triceU8FifoDepth()) { // no more bytes
         triceDisableTxEmptyInterrupt();
     }
 }
 
-TRICE_INLINE void triceTriggerU8FifoTransmit(void){
+// triceTriggerTransmit as triceTriggerU8FifoTransmit must be called cyclically to initialize write out.
+TRICE_INLINE void triceTriggerTransmit(void){
     if( triceU8FifoDepth() && triceTxDataRegisterEmpty() ){
         triceEnableTxEmptyInterrupt(); // next bytes
     }
 }
 
+#endif // #elif TRICE_ESC_ENCODING == TRICE_ENCODING
 
 #ifdef __cplusplus
 }

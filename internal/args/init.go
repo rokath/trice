@@ -58,9 +58,9 @@ func init() {
 	fsScLog = flag.NewFlagSet("log", flag.ExitOnError)                                                                                                                         // subcommand
 	fsScLog.StringVar(&decoder.Encoding, "encoding", "flexL", "The trice transmit data format type, options: 'esc|ESC|(flex|FLEX)[(l|L)'. Target device encoding must match.") // flag
 	fsScLog.StringVar(&decoder.Encoding, "e", "flexL", "Short for -encoding.")                                                                                                 // short flag
-	fsScLog.StringVar(&cipher.Password, "password", "none", `The decrypt passphrase. If you change this value you need to compile the target with the appropriate key (see -showKeys).
+	fsScLog.StringVar(&cipher.Password, "password", "", `The decrypt passphrase. If you change this value you need to compile the target with the appropriate key (see -showKeys).
 This is recommended if you deliver firmware to customers and want protect the trice log output. This does work right now only with wrapped barel format.`) // flag
-	fsScLog.StringVar(&cipher.Password, "pw", "none", "Short for -password.") // short flag
+	fsScLog.StringVar(&cipher.Password, "pw", "", "Short for -password.") // short flag
 	fsScLog.BoolVar(&cipher.ShowKey, "showKey", false, `Show encryption key. Use this switch for creating your own password keys. If applied together with "-password MySecret" it shows the encryption key.
 Simply copy this key than into the line "#define ENCRYPT XTEA_KEY( ea, bb, ec, 6f, 31, 80, 4e, b9, 68, e2, fa, ea, ae, f1, 50, 54 ); //!< -password MySecret" inside triceConfig.h.
 `+boolInfo)

@@ -1,7 +1,6 @@
 # Common information
 
-A trice instruction is avoiding all the internal overhead (space and time) of a `printf()` 
-statement but is easy to use. For example instead of writing 
+A trice instruction is avoiding all the internal overhead (space and time) of a `printf()` statement but is easy to use. For example instead of writing
 
 ```c
 printf("time is %d:%d:%d\n", hour, min, sec);
@@ -33,12 +32,13 @@ On execution the ID is pushed into a FIFO together with the optional trice param
 
 Please understand, that when debugging code containing TRICE\* statements, during a TRICE\* step-over only  one ore more 32 bit values go into the internal fifo buffer and no serial output
 is visible because of the stopped target. But the SEGGER debug probe reads out the RTT memory and this way also during debug stepping realtime trice output is visible. That is (right now) not true for the STLINK interface because the is only one USB enpoint.
+
 ## trice instructions: `TRICE`, `Trice` or `trice` with or without ending letter 'i'?
 
 There are several types of trice statements. All trice statements can have an additional letter 'i'. This means **i**nside critical section. You can use these when it is sure not to get interrupted by other trices. If for example an interrupt contains a trice statement this can be an i-trice but other trices not allowed to be an i-trice, they need to be normal trices, which are protected against interruption. If you are not sure it is always safe to use normal trices (without ending 'i'). The i-trices are a bit faster what is not relevant in most cases because of the general speed.
 
 - `Trice0`, `Trice8_1`, `Trice16_1` and `Trice8_2` are so called short trice macros. They use internal a smaller encoding and have only a 15-bit ID size, means ID's 1-32767 are usable. These are the fastest trices and with them the speed limit is reached. ![x](README.media/Trice16_1-Code.PNG)![x](README.media/Trice16_1i-Code.PNG)![x](README.media/Trice16_1i.PNG) The number in the blue lines is the current processor tick. For `Trice16_1i` the difference between neibours is about 13 clocks. Short trices need 'id(0)' instead 'Id(0)' as important difference to normal trices.
-- `TRICE0`, `TRICE8_1`, ... `TRICE8_8`, `TRICE16_1`, ... `TRICE16_4`, `TRICE32_1`, ... `TRICE32_4`, `TRICE64_1`, `TRICE64_2` are normal trice macros. They insert code directly (no function call) for better performance but the drawback is the rising code amount when many trices are used. 
+- `TRICE0`, `TRICE8_1`, ... `TRICE8_8`, `TRICE16_1`, ... `TRICE16_4`, `TRICE32_1`, ... `TRICE32_4`, `TRICE64_1`, `TRICE64_2` are normal trice macros. They insert code directly (no function call) for better performance but the drawback is the rising code amount when many trices are used.
 - `trice0`, `trice8_1`, ... `trice8_8`, `trice16_1`, ... `trice16_4`, `trice32_1`, ... `trice32_4`, `trice64_1`, `trice64_2` are normal trice functions. The function call overhead is reasonable and the advantage is significant less code amount when many trices are used.
 - For most flexibility the code for each trice function can be enabled or not inside the triceConfig.h.
 
@@ -46,8 +46,7 @@ There are several types of trice statements. All trice statements can have an ad
 
 Executing `trice update` at the root of your project source updates in case of changes the trice statements inside the source code and the ID list. The `-src` switch can be used multiple times to keep the amount of parsed data small for better speed.
 
-With `trice log -port COM12 -baud 115200` you can visualize the trices on the PC, 
-if for example `COM12` is receiving the data from the embedded device.
+With `trice log -port COM12 -baud 115200` you can visualize the trices on the PC, if for example `COM12` is receiving the data from the embedded device.
 
 The following capture output comes from an example project inside`../test`
 
@@ -68,7 +67,7 @@ cmd/trice      | `trice` tool command Go sources                         |
 docs/          | documentation                                           |
 internal/      | `trice` tool internal Go packages                       |
 pkg/           | `trice` tool common Go packages                         |
-srcTrice.C/    | C sources for trice instrumentation                     | 
+srcTrice.C/    | C sources for trice instrumentation                     |
 test/          | example target projects                                 |
 third_party/   | external components                                     |
 
@@ -128,7 +127,7 @@ Quick and dirty option
 - Now start your device and you should see the hello world message coming from your target. In fact the hello-world string never went to the embedded device, only the ID comes from  there and the string is found in the [til.json](../test/til.json) file of your project.
 - If you use a legacy project containing `printf()` statements you can simply transform them to **TRICE\*** statements. TRICE32 will do in most cases but for better performance take **TRCE8** or **TRICE16** where possible.
 - `printf(...)` statements containing string format specifier are quickly portable by using `TRICE_P(...)` but without the trice space and speed advantage. The TRICE_P() is intended only for the few dynamic strings in a ported  projekt.  Enable `TRICE_PRINTF_ADAPTER` increases the needed code size by a few KB.
-- It could be helpful to add `trice u ...` as prebuild step into your toolchain for each file or for the project as a whole. 
+- It could be helpful to add `trice u ...` as prebuild step into your toolchain for each file or for the project as a whole.
   This way you cannot forget the update step, it performs automatically.
 
 ## Memory needs (ARM example project)
@@ -142,16 +141,16 @@ Code=3808 RO-data=240 RW-data=36 ZI-data=1540|    TriceCheckSet()  |      512  |
 
 - The core instrumentation needs less 150 bytes FLASH and about 100 bytes RAM when buffer size is 64 bytes.
 - The about 50 trices in TriceCheckSet() allocate roughly 2100 (fast mode) or 1500 (small mode) bytes.
-- trices are removable without code changes by defining `TRICE_OFF` on file or project level. 
+- trices are removable without code changes by defining `TRICE_OFF` on file or project level.
 
-## 
+## Encryption
 
 - You can deliver your device with encrypted trices. This way nobody is able to read the trices despite the service guy.
 - Implementd is XTEA but this is easy exchangeable.
 - The 8 byte blocks can get enrypted by enabling `#define ENRYPT...` inside *triceConfig.h*. You need to add `-key test` as **log** switch and you're done.
 - Any password is usable instead of `test`. Simply add once the `-show` switch and copy the displayed passphrase into the *config.h* file.
 
-## Otions for `trice` tool
+## Options for `trice` tool
 
 The trice tool is very easy to use even it has a plenty of options. Most of them normally not needed.
 The trice tool can be started in several modes (subcommands), each with several mantadory or optional switches. Switches can have parameters or not.
@@ -518,8 +517,8 @@ example: 'trice zeroSourceTreeIds -src ../A': Sets all TRICE IDs to 0 in ../A. U
 
 `trice` generated logfiles with subcommand switch `-color off` are normal ASCII files. If they are with color codes, these are ANSI excape sequences.
 
-- One easy view option is `less -R trice.log`. The linux command `less` is also available inside the VScode terminal. 
-- Under Windows one could also download and use [ansifilter](https://sourceforge.net/projects/ansifilter/) for logfile viewing. A monospaced font is recommended. 
+- One easy view option is `less -R trice.log`. The linux command `less` is also available inside the VScode terminal.
+- Under Windows one could also download and use [ansifilter](https://sourceforge.net/projects/ansifilter/) for logfile viewing. A monospaced font is recommended.
 
 ### Color issues under Windows
 

@@ -66,7 +66,7 @@ func createCipher() (*xtea.Cipher, bool, error) {
 		return nil, false, errors.New("NewCipher returned error")
 	}
 	var e bool
-	if "none" != Password {
+	if "" != Password {
 		e = true
 		if true == ShowKey {
 			fmt.Printf("% 20x is XTEA encryption key\n", Key)

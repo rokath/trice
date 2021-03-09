@@ -12,6 +12,7 @@ import (
 
 	"github.com/rokath/trice/internal/emitter"
 	"github.com/rokath/trice/internal/id"
+	"github.com/rokath/trice/pkg/cipher"
 )
 
 // Flex is the Decoding instance for bare encoded trices.
@@ -22,6 +23,7 @@ type Flex struct {
 	cycle          int
 	cycleErrorFlag bool
 	sCount         int // for TRICE_S adaption
+	odd            []byte
 }
 
 // NewFlexDecoder provides an decoder instance.
@@ -37,8 +39,29 @@ func NewFlexDecoder(lut id.TriceIDLookUp, m *sync.RWMutex, in io.Reader, endian 
 	p.endian = endian
 	p.syncPacket = emitter.SyncPacketPattern
 	p.innerReadInterval = 100 * time.Millisecond
-	p.cycleErrorFlag = true // avoid cycle error message @ start
+	p.cycleErrorFlag = true    // avoid cycle error message @ start
+	p.odd = make([]byte, 0, 8) // holds not dercrypted last 1-7 read bytes
 	return p
+}
+
+// decrypt converts b and returns count of converted bytes.
+// Only multiple of 8 are convertable, so last 0-7 bytes are not convertable.
+func decrypt(b []byte) (i int) {
+	for i = 0; i+8 <= len(b); i += 8 {
+		d := cipher.Decrypt8(b[i : i+8])
+		_ = copy(b[i:], d)
+	}
+	return
+}
+
+// encrypt converts b and returns count of converted bytes.
+// Only multiple of 8 are convertable, so last 0-7 bytes are not convertable.
+func encrypt(b []byte) (i int) {
+	for i = 0; i+8 <= len(b); i += 8 {
+		d := cipher.Encrypt8(b[i : i+8])
+		_ = copy(b[i:], d)
+	}
+	return
 }
 
 // Read is the provided read method for flex decoding of next string as byte slice.
@@ -65,12 +88,22 @@ func (p *Flex) Read(b []byte) (n int, err error) {
 			// fill intermediate read buffer for flex encoding
 			m, err = p.in.Read(b) // use b as intermediate buffer to avoid allocation
 		}
-		// p.syncBuffer can contain unprocessed bytes from last call.
-		p.syncBuffer = append(p.syncBuffer, b[:m]...) // merge with leftovers
+		if "" != cipher.Password {
+			b = append(p.odd, b[:m]...)  // merge
+			l := decrypt(b)              // convert
+			c := copy(p.odd[0:8], b[l:]) // 0-7 not decrypted bytes
+			p.odd = p.odd[:c]            // keep
+			// p.syncBuffer can contain unprocessed bytes from last call.
+			p.syncBuffer = append(p.syncBuffer, b[:l]...) // merge with leftovers
+		} else {
+			// p.syncBuffer can contain unprocessed bytes from last call.
+			p.syncBuffer = append(p.syncBuffer, b[:m]...) // merge with leftovers
+		}
 		if nil != err && io.EOF != err {
 			return
 		}
 	}
+
 	// Even err could be io.EOF some valid data possibly in p.syncBuffer.
 	// In case of file input (JLINK usage) a plug off is not detectable here.
 	if len(p.syncBuffer) < 4 {

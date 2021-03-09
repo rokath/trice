@@ -12,7 +12,7 @@ import (
 )
 
 func TestPwdNone(t *testing.T) {
-	cipher.Password = "none"
+	cipher.Password = ""
 	cipher.ShowKey = false
 	tst.AssertNoErr(t, cipher.SetUp())
 

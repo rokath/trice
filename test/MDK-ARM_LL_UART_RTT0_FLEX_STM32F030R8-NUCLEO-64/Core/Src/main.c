@@ -104,16 +104,15 @@ int main(void)
   {
     static int lastTricesTime = 0;
     { // send some trices every few ms
-        if( milliSecond >= lastTricesTime + 1000 ){
+        if( milliSecond >= lastTricesTime + 100 ){
             static int index = 0;
-            int select = index % 50;
+            int select = index % 32;
             #if TRICE_FLEX_ENCODING == TRICE_ENCODING
             TRICE16_2( Id(1047663),"MSG: triceFifoMaxDepth = %d, select = %d\n", triceFifoMaxDepth, select ); // bigID check
             #else
             TRICE16_2( Id(47663),"MSG: triceFifoMaxDepth = %d, select = %d\n", triceFifoMaxDepth, select );
             #endif
-            triceCheckSetTime(select);
-            triceCheckSetSpace(select);
+            triceCheckSet(select);
             index++;
             lastTricesTime = milliSecond;
         }
@@ -125,7 +124,9 @@ int main(void)
             static int lastMs = 0;
             if( milliSecond >= lastMs + 1 ){
                 lastMs = milliSecond;
-                // nothing to do
+                #ifdef ENCRYPT
+                triceServeFifoEncryptedToBytesBuffer();
+                #endif
             }
         }
   }
