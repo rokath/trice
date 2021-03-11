@@ -314,7 +314,7 @@ subcommand 'l|log': For displaying trice logs coming from port. With "trice log"
         short for -port (default "J-LINK")
   -password string
         The decrypt passphrase. If you change this value you need to compile the target with the appropriate key (see -showKeys).
-        This is recommended if you deliver firmware to customers and want protect the trice log output. This does work right now only with wrapped barel format. (default "none")
+        Encryption is recommended if you deliver firmware to customers and want protect the trice log output. This does work right now only with flex and flexL format.
   -port string
         receiver device: 'ST-LINK'|'J-LINK'|serial name.
         The serial name is like 'COM12' for Windows or a Linux name like '/dev/tty/usb12'.

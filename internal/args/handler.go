@@ -104,7 +104,7 @@ type selector struct {
 
 // logLoop prepares writing and lut and provides a retry mechanism for unplugged UART.
 func logLoop() {
-	msg.OnErr(cipher.SetUp()) // does nothing when -password is ""
+	msg.FatalOnErr(cipher.SetUp()) // does nothing when -password is ""
 	if decoder.TestTableMode {
 		// set switches if they not set already
 		// trice l -ts off -prefix " }, ``" -suffix "\n``}," -color off
@@ -134,10 +134,6 @@ func logLoop() {
 	sw := emitter.New()
 	var interrupted bool
 	var counter int
-
-	if "" != cipher.Password {
-		msg.FatalOnErr(cipher.SetUp())
-	}
 
 	for {
 		rc, e := receiver.NewReadCloser(receiver.Port, receiver.PortArguments)
