@@ -75,14 +75,15 @@ type Decoder interface {
 // decoderData is the common data struct for all decoders.
 type decoderData struct {
 	in                 io.Reader        // inner reader
-	syncBuffer         []byte           // unprocessed bytes hold for next cycle
+	iBuf               []byte           // unprocessed (possibly decrypted) bytes for interpretation
+	inSync             bool             // flag for no need to re-sync
+	rubbed             int              // from interpret buffer removed bytes count
 	endian             bool             // littleEndian or bigEndian
 	lut                id.TriceIDLookUp // id look-up map for translation
 	lutMutex           *sync.RWMutex    // to avoid concurrent map read and map write during map refresh triggered by filewatcher
 	trice              id.TriceFmt      // id.TriceFmt // received trice
 	upperCaseTriceType string           // This is the to upper case converted received trice type.
 	b                  []byte           // read buffer
-	bc                 int              // trice specific bytes count
 	lastInnerRead      time.Time
 	innerReadInterval  time.Duration
 }
@@ -207,20 +208,22 @@ func (p *decoderData) rub(n int) {
 			emitter.NextLine = false
 			fmt.Printf("{ []byte{ ")
 		}
-		for _, b := range p.syncBuffer[0:n] { // just to see trice bytes per trice
+		for _, b := range p.iBuf[0:n] { // just to see trice bytes per trice
 			fmt.Printf("%3d,", b)
 		}
 	}
-	p.syncBuffer = p.syncBuffer[n:]
+	p.rubbed += n
+	p.iBuf = p.iBuf[n:]
 }
 
 // outOfSync generates an error message and removes first byte in input buffer.
 func (p *decoderData) outOfSync(msg string) (n int, e error) {
-	cnt := p.bc
-	if cnt > 20 {
-		cnt = 20
+	cnt := len(p.iBuf)
+	if cnt > 8 {
+		cnt = 8
 	}
-	n = copy(p.b, fmt.Sprintln("error:", msg, "ignoring first byte", p.syncBuffer[0:cnt]))
+	n = copy(p.b, fmt.Sprintln("error:", msg, "ignoring first byte", p.iBuf[0:cnt]))
+	p.inSync = false
 	p.rub(1)
 	return
 }

@@ -31,7 +31,7 @@ var uTable1 = []u1Table{
 func Test_trice81(t *testing.T) {
 	p := &Flex{}
 	p.b = make([]byte, defaultSize)
-	p.syncBuffer = make([]byte, defaultSize)
+	p.iBuf = make([]byte, defaultSize)
 	for _, v := range uTable1 {
 		p.b = p.b[:defaultSize]
 		p.trice.Strg = v.fmtStrg
@@ -62,7 +62,7 @@ var uTable2 = []u2Table{
 func Test_trice82(t *testing.T) {
 	p := &Flex{}
 	p.b = make([]byte, defaultSize)
-	p.syncBuffer = make([]byte, defaultSize)
+	p.iBuf = make([]byte, defaultSize)
 	for _, v := range uTable2 {
 		p.b = p.b[:defaultSize]
 		p.trice.Strg = v.fmtStrg
@@ -90,7 +90,7 @@ var uTable4 = []uNTable{
 func Test_trice84(t *testing.T) {
 	p := &Flex{}
 	p.b = make([]byte, defaultSize)
-	p.syncBuffer = make([]byte, defaultSize)
+	p.iBuf = make([]byte, defaultSize)
 	for _, v := range uTable4 {
 		p.b = p.b[:defaultSize]
 		p.trice.Strg = v.fmtStrg

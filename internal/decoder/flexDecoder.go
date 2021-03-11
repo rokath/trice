@@ -22,8 +22,9 @@ type Flex struct {
 	d0, d1, d2, d3 uint32 // read raw data
 	cycle          int
 	cycleErrorFlag bool
-	sCount         int // for TRICE_S adaption
-	odd            []byte
+	sCount         int    // for TRICE_S adaption
+	rBuf           []byte // unprocessed (possibly encrypted) bytes for reading
+	offset         int    // points to the not yet decrypted bytes inside rBuf in case of encryption
 }
 
 // NewFlexDecoder provides an decoder instance.
@@ -33,35 +34,16 @@ type Flex struct {
 func NewFlexDecoder(lut id.TriceIDLookUp, m *sync.RWMutex, in io.Reader, endian bool) Decoder {
 	p := &Flex{}
 	p.in = in
-	p.syncBuffer = make([]byte, 0, defaultSize)
+	p.rBuf = make([]byte, 0, defaultSize) // read buffer
+	p.iBuf = make([]byte, 0, defaultSize) // interpret buffer
 	p.lut = lut
 	p.lutMutex = m
 	p.endian = endian
 	p.syncPacket = emitter.SyncPacketPattern
 	p.innerReadInterval = 100 * time.Millisecond
-	p.cycleErrorFlag = true    // avoid cycle error message @ start
-	p.odd = make([]byte, 0, 8) // holds not dercrypted last 1-7 read bytes
+	p.cycleErrorFlag = true // avoid cycle error message @ start
+	p.inSync = true
 	return p
-}
-
-// decrypt converts b and returns count of converted bytes.
-// Only multiple of 8 are convertable, so last 0-7 bytes are not convertable.
-func decrypt(b []byte) (i int) {
-	for i = 0; i+8 <= len(b); i += 8 {
-		d := cipher.Decrypt8(b[i : i+8])
-		_ = copy(b[i:], d)
-	}
-	return
-}
-
-// encrypt converts b and returns count of converted bytes.
-// Only multiple of 8 are convertable, so last 0-7 bytes are not convertable.
-func encrypt(b []byte) (i int) {
-	for i = 0; i+8 <= len(b); i += 8 {
-		d := cipher.Encrypt8(b[i : i+8])
-		_ = copy(b[i:], d)
-	}
-	return
 }
 
 // Read is the provided read method for flex decoding of next string as byte slice.
@@ -76,29 +58,35 @@ func (p *Flex) Read(b []byte) (n int, err error) {
 		var m int
 		if Verbose { // time measure
 			p.lastInnerRead = time.Now()
-
-			// fill intermediate read buffer for flex encoding
-			m, err = p.in.Read(b) // use b as intermediate buffer to avoid allocation
-
+			m, err = p.in.Read(b) // use b as intermediate read buffer to avoid allocation
 			duration := time.Since(p.lastInnerRead).Milliseconds()
 			if 0 < duration {
 				fmt.Println("Inner Read duration =", duration, "ms.")
 			}
 		} else { // no time measure
-			// fill intermediate read buffer for flex encoding
-			m, err = p.in.Read(b) // use b as intermediate buffer to avoid allocation
+			m, err = p.in.Read(b) // use b as intermediate read buffer to avoid allocation
 		}
-		if "" != cipher.Password {
-			b = append(p.odd, b[:m]...)  // merge
-			l := decrypt(b)              // convert
-			c := copy(p.odd[0:8], b[l:]) // 0-7 not decrypted bytes
-			p.odd = p.odd[:c]            // keep
-			// p.syncBuffer can contain unprocessed bytes from last call.
-			p.syncBuffer = append(p.syncBuffer, b[:l]...) // merge with leftovers
-		} else {
-			// p.syncBuffer can contain unprocessed bytes from last call.
-			p.syncBuffer = append(p.syncBuffer, b[:m]...) // merge with leftovers
+		if "" == cipher.Password { // no encryption
+			p.iBuf = append(p.iBuf, b[:m]...) // merge with leftovers in interpret buffer
+		} else { // encrypted
+			// p.rBuf has same state since last Read.
+			// p.rBuf[:offset] was already decrypted and transferred to r.iBuf
+			// p.rBuf[offset:] is not decrypted yet
+			// p.rubbed is the amount of bytes removable
+			p.rBuf = p.rBuf[p.rubbed:] // remove
+			if p.inSync {
+				p.offset -= p.rubbed // adjust ofset value
+			} else {
+				p.offset = 0
+				p.inSync = true
+				p.iBuf = p.iBuf[:0] // discard complete interpret buffer
+			}
+			p.rBuf = append(p.rBuf, b[:m]...)        // add read data bytes
+			m = cipher.Decrypt(b, p.rBuf[p.offset:]) // convert what is not converted and reuse b again
+			p.iBuf = append(p.iBuf, b[:m]...)        // copy to interpret buffer
+			p.offset += m                            // adjust offset
 		}
+		p.rubbed = 0 // reset
 		if nil != err && io.EOF != err {
 			return
 		}
@@ -106,11 +94,10 @@ func (p *Flex) Read(b []byte) (n int, err error) {
 
 	// Even err could be io.EOF some valid data possibly in p.syncBuffer.
 	// In case of file input (JLINK usage) a plug off is not detectable here.
-	if len(p.syncBuffer) < 4 {
+	if len(p.iBuf) < 4 {
 		return // wait
 	}
-	p.bc = 4 // At least 4 bytes readable. Used by flex decoder only for displaying next few bytes in case out of sync.
-	head := p.readU32(p.syncBuffer[0:4])
+	head := p.readU32(p.iBuf[0:4])
 	if 0x89abcdef == head {
 		return p.syncTrice()
 	}
@@ -153,10 +140,10 @@ func (p *Flex) mediumAndLongSubEncoding(head uint32) (n int, err error) {
 	}
 
 	if 0x7 == count { // TRICE_LONGCOUNT(n), values 0-4 short counts, 0x7 is long count and 0x5 & 0x6 are reserved.
-		if len(p.syncBuffer) < 8 {
+		if len(p.iBuf) < 8 {
 			return // wait
 		}
-		countTransfer := p.readU32(p.syncBuffer[4:8])
+		countTransfer := p.readU32(p.iBuf[4:8])
 		count16 := int16(countTransfer >> 16)
 		count16invers := int16(countTransfer)
 		if count16 != ^count16invers {
@@ -197,7 +184,7 @@ func (p *Flex) mediumAndLongSubEncoding(head uint32) (n int, err error) {
 // after reading data and storing them as 32 bit chunks in p.d0, ... p.d3.
 func (p *Flex) readDataAndCheckPaddingBytes(cnt int) (ok bool) {
 	b := make([]byte, cnt+3+8) // max 3 more plus head plus possible long count
-	copy(b, p.syncBuffer)
+	copy(b, p.iBuf)
 	if cnt > 4 {
 		b = append(b[0:4], b[8:]...) // remove long count in copy
 	}
@@ -264,7 +251,7 @@ func (p *Flex) isTriceComplete(cnt int) bool {
 	}
 	cnt += 3
 	cnt &= ^3
-	if len(p.syncBuffer) < 4+longCountBytes+cnt {
+	if len(p.iBuf) < 4+longCountBytes+cnt {
 		return false
 	}
 	return true
@@ -367,9 +354,9 @@ func (p *Flex) triceSCount() (n int, e error) {
 
 func (p *Flex) triceS(cnt int) (n int, e error) {
 	if cnt > 4 {
-		n = copy(p.b, fmt.Sprintf(p.trice.Strg, string(p.syncBuffer[8:8+cnt])))
+		n = copy(p.b, fmt.Sprintf(p.trice.Strg, string(p.iBuf[8:8+cnt])))
 	} else {
-		n = copy(p.b, fmt.Sprintf(p.trice.Strg, string(p.syncBuffer[4:4+cnt])))
+		n = copy(p.b, fmt.Sprintf(p.trice.Strg, string(p.iBuf[4:4+cnt])))
 	}
 	p.rub4(cnt)
 	return
@@ -694,7 +681,7 @@ func (p *Flex) uReplace64(d []uint64) (s string, b []interface{}, e error) {
 	return
 }
 
-// rub4 removes leading bytes from sync buffer
+// rub4 removes leading bytes from interpret buffer.
 // It removes 4 bytes header plus data considering encoding
 func (p *Flex) rub4(count int) {
 	n := count + 3
@@ -705,10 +692,8 @@ func (p *Flex) rub4(count int) {
 	if TestTableMode {
 		p.printTestTableLine(count)
 	}
-	//if len(p.syncBuffer) < 4+n {
-	//	msg.FatalOnFalse(len(p.syncBuffer) >= 4+n, fmt.Sprintf("size %d smaller than %d", len(p.syncBuffer), 4+n))
-	//}
-	p.syncBuffer = p.syncBuffer[4+n:] // header and data
+	p.iBuf = p.iBuf[4+n:] // header and data
+	p.rubbed += 4 + n
 }
 
 // printTestTableLine is used to generate testdata
@@ -722,7 +707,7 @@ func (p *Flex) printTestTableLine(count int) {
 		emitter.NextLine = false
 		fmt.Printf("{ []byte{ ")
 	}
-	for _, b := range p.syncBuffer[0:4] { // just to see trice bytes per trice
+	for _, b := range p.iBuf[0:4] { // just to see trice bytes per trice
 		fmt.Printf("%3d,", b)
 	}
 	var dataIndex int
@@ -736,7 +721,7 @@ func (p *Flex) printTestTableLine(count int) {
 		}
 		dataIndex = 4
 	}
-	for _, b := range p.syncBuffer[dataIndex:n] { // just to see trice bytes per trice
+	for _, b := range p.iBuf[dataIndex:n] { // just to see trice bytes per trice
 		fmt.Printf("%3d,", b)
 	}
 }

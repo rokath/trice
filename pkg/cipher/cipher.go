@@ -28,11 +28,11 @@ var (
 	// cipher is a pointer to the cryptpo struct filled during initialization
 	ci *xtea.Cipher
 
-	// enabled set to true if a -password other than "none" was given
+	// enabled set to true if a -password other than "" was given
 	enabled bool
 )
 
-// SetUp uses the Password to create a cipher. If Password is "none" encryption/decryption is disabled.
+// SetUp uses the Password to create a cipher. If Password is "" encryption/decryption is disabled.
 func SetUp() error {
 	var err error
 	ci, enabled, err = createCipher()
@@ -78,7 +78,9 @@ func createCipher() (*xtea.Cipher, bool, error) {
 }
 
 //! tested with little endian embedded device
-func swap8Bytes(b []byte) []byte {
+func swap8Bytes(src []byte) []byte {
+	b := make([]byte, 8)
+	copy(b, src)
 	return []byte{b[3], b[2], b[1], b[0], b[7], b[6], b[5], b[4]}
 }
 
@@ -112,6 +114,54 @@ func Decrypt8(b []byte) (d []byte) {
 		d = swap8Bytes(dst)  // NtoH
 	} else {
 		d = b
+	}
+	return
+}
+
+// decrypt8 translates src, an encrypt protected byte slice, back in dst, a byte slice of length 8.
+//
+// Shorter slices are extented with 0 until length 8.
+// Langer slices are truncated to length 8.
+func decrypt8(dst, src []byte) {
+	swap := src
+	if enabled {
+		swap = swap8Bytes(src) // HtoN (not done in Target after encrypt)
+		ci.Decrypt(dst, swap)  // assumes network order
+		swap = swap8Bytes(dst) // NtoH
+	}
+	_ = copy(dst, swap)
+}
+
+// encrypt8 translates byte slice src, in an encrypt protected byte slice dst.
+//
+// Shorter slices are extented with 0 until length 8.
+// Langer slices are truncated to length 8.
+func encrypt8(dst, src []byte) {
+	swap := src
+	if enabled {
+		swap = swap8Bytes(src) // HtoN
+		ci.Encrypt(dst, swap)  // assumes network order
+		swap = swap8Bytes(dst) // NtoH (not done in Target after receive)
+	}
+	_ = copy(dst, swap)
+}
+
+// Decrypt converts src into dst and returns count of converted bytes.
+// Only multiple of 8 are convertable, so last 0-7 bytes are not convertable and c is a multiple of 8.
+// The smaller byte slice limits the conversion.
+func Decrypt(dst, src []byte) (c int) {
+	for c = 0; c+8 <= len(dst) && c+8 <= len(src); c += 8 {
+		decrypt8(dst[c:c+8], src[c:c+8])
+	}
+	return
+}
+
+// Encrypt converts src into dst and returns count of converted bytes.
+// Only multiple of 8 are convertable, so last 0-7 bytes are not convertable and c is a multiple of 8.
+// The smaller byte slice limits the conversion.
+func Encrypt(dst, src []byte) (c int) {
+	for c = 0; c+8 <= len(dst) && c+8 <= len(src); c += 8 {
+		encrypt8(dst[c:c+8], src[c:c+8])
 	}
 	return
 }
