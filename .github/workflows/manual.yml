@@ -8,8 +8,8 @@ on:
   workflow_dispatch:
     # Inputs the workflow accepts.
     inputs:
-      name: MyName
-        # Friendly description to be shown in the UI instead of 'name'
+      name:
+        # Friendly description to be shown in the UI instead of name
         description: 'Person to greet'
         # Default value if no value is explicitly provided
         default: 'World'
