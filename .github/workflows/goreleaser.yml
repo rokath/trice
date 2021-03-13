@@ -1,14 +1,15 @@
-name: goreleaser
+# The name of your workflow. GitHub displays the names of your workflows on your repository's actions page. 
+name: trice # If you omit name, GitHub sets it to the workflow file path relative to the root of the repository.
 
-on:
+on: # Required. The name of the GitHub event that triggers the workflow. 
   pull_request:
-  push:
+  push: # Triggered when code is pushed to any branch in a repository
 
 jobs:
-  goreleaser:
+  job1:
     runs-on: ubuntu-latest
     steps:
-      -
+       -
         name: Checkout
         uses: actions/checkout@v2
         with:
@@ -24,6 +25,7 @@ jobs:
         with:
           version: latest
           args: release --rm-dist
-          key: ${{ secrets.YOUR_PRIVATE_KEY }}
+          # Unexpected input(s) 'key', valid inputs are ['version', 'args', 'workdir', 'install-only']
+          # key: ${{ secrets.YOUR_PRIVATE_KEY }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
