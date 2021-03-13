@@ -1,15 +1,20 @@
-name: trice
+name: goreleaser
+
 on:
   pull_request:
   push:
+    tags:
+      - '*'
 
 jobs:
-  job1:
+  goreleaser:
     runs-on: ubuntu-latest
     steps:
-       -
+      -
         name: Checkout
         uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
       -
         name: Set up Go
         uses: actions/setup-go@v2
@@ -21,5 +26,6 @@ jobs:
         with:
           version: latest
           args: release --rm-dist
+          workdir: .
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
