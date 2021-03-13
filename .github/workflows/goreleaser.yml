@@ -27,4 +27,5 @@ jobs:
           version: latest
           args: release --rm-dist
         env:
+          DEFAULT_BRANCH: main
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
