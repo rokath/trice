@@ -1,9 +1,7 @@
-# The name of your workflow. GitHub displays the names of your workflows on your repository's actions page. 
-name: trice # If you omit name, GitHub sets it to the workflow file path relative to the root of the repository.
-
-on: # Required. The name of the GitHub event that triggers the workflow. 
+name: trice
+on:
   pull_request:
-  push: # Triggered when code is pushed to any branch in a repository
+  push:
 
 jobs:
   job1:
@@ -12,8 +10,6 @@ jobs:
        -
         name: Checkout
         uses: actions/checkout@v2
-        # with:
-        #   fetch-depth: 0 # You have an error in your yaml syntax on line 16
       -
         name: Set up Go
         uses: actions/setup-go@v2
@@ -25,7 +21,5 @@ jobs:
         with:
           version: latest
           args: release --rm-dist
-          # Unexpected input(s) 'key', valid inputs are ['version', 'args', 'workdir', 'install-only']
-          # key: ${{ secrets.YOUR_PRIVATE_KEY }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
