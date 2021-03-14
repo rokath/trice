@@ -7,4 +7,5 @@
 - Sebastian Kasanzev [@Sebkasanzew](https://github.com/Sebkasanzew)
   - pointed me to [screentogif](https://www.screentogif.com/)
 - Sebastian Lehmann [@bbnote](https://github.com/bbnote)
-  - discussed use cases 
+  - discussed use cases
+  - provided third_party/goST

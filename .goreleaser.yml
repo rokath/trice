@@ -106,7 +106,6 @@ archives:
       - README.md
       - CHANGELOG.md
       - docs/**/*
-      - src.C/**/*
       - test/**/*
       - third_party/**/*
       
@@ -151,4 +150,5 @@ changelog:
     - typo
     - minor
     - Update
+    - wip
 

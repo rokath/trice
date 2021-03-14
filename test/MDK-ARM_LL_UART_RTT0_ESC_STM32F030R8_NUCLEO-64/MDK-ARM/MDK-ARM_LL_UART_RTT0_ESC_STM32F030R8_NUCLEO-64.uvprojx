@@ -473,11 +473,6 @@
               <FileType>1</FileType>
               <FilePath>..\..\..\pkg\src\triceCheck.c</FilePath>
             </File>
-            <File>
-              <FileName>triceSeggerRTT.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\pkg\src\triceSeggerRTT.c</FilePath>
-            </File>
           </Files>
         </Group>
       </Groups>

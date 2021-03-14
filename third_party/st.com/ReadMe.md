@@ -11,7 +11,3 @@ Check for newer versions at [st.com](https://www.st.com).
 - ST-Link Upgrade and exchange software for all platforms
 - stsw-link007.zip is old version for some cases
 - To exchange ST-Link firmware with [../segger.com/STLinkReflash_190812.zip](../segger.com/STLinkReflash_190812.zip) utility The ST-Link firmware must be the (default) variant with Mass storage. With en.stsw-link007_V2-37-26.zip you can update the ST-Link firmware and also change its variant.
-
-## en.stsw-stm32068.zip
-
-- STM32F4-Discovery_FW_V1.1.0 demo firmware

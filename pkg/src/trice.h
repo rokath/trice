@@ -21,7 +21,33 @@ extern "C" {
 
 #include "triceConfig.h"
 #include "intern/triceConfigCompiler.h"
-#include "intern/triceSeggerRTT.h"
+
+#ifdef TRICE_RTT_CHANNEL
+#include "SEGGER_RTT.h"
+
+#define TRICE_RTT_CHANNEL 0
+
+//! put one trice into RTT0 buffer
+//! \param v trice
+//! trice time critical part
+TRICE_INLINE void triceU32PushSeggerRTT(uint32_t v) {
+    SEGGER_RTT_Write(TRICE_RTT_CHANNEL, &v, sizeof(v));
+}
+
+//! put one byte into RTT0 buffer
+//! \param v byte
+//! trice time critical part
+TRICE_INLINE void triceU8PushSeggerRTT(uint8_t v) {
+    SEGGER_RTT_Write(TRICE_RTT_CHANNEL, &v, sizeof(v));
+}
+
+#else // #ifdef TRICE_RTT_CHANNEL
+
+#define triceU8PushSeggerRTT(v)
+#define triceU32PushSeggerRTT(v)
+
+#endif // #else // #ifdef TRICE_RTT_CHANNEL
+
 #ifdef ENCRYPT
 void encrypt(uint8_t *p);
 void decrypt(uint8_t *p);
@@ -44,7 +70,7 @@ void InitXteaTable(void);
 #define TRICE_U16_JOIN( first, second ) (          ((((uint32_t)(first))<<16)|((uint16_t)(second)))) //!< helper macro
 
 
-#if TRICE_HARDWARE_ENDIANNNESS == TRICE_TRANSFER_ENDIANNESS
+#if TRICE_HARDWARE_ENDIANNESS == TRICE_TRANSFER_ENDIANNESS
 #define TRICE_HTONS(n) ((uint16_t)(n))
 #define TRICE_HTON(n)  ((uint32_t)(n))
 #else
