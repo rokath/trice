@@ -15,9 +15,9 @@
 ## OPTIONS
 
 - The **trice** command accepts one and only one sub-command (which can be inside the config file) followed by optional flags: `trice [s|subcommand [-f|flag [value]] [...]]`
-- The flags start with a single dash and are boolean or need a value separated by space or `=`. 
+- The flags start with a single dash and are boolean or need a value separated by space or `=`.
 - Flags in square brackets `[]` are optional. If omitted they have a default value depending on the context.
-- Some flags can occur several times. Check with `trice h` for multi-flags. 
+- Some flags can occur several times. Check with `trice h` for multi-flags.
 - Command line subcommand and flags are overwriting config file values.
 - A subcommand in the command line is the selected subcommand in config files if there is any.
 - You can place different subcommands with flags in a config file and specify only a subcommand in the command line for selection, like `trice u` and `trice l`.
@@ -88,16 +88,16 @@ Log trice messages from -source and display them line by line. Default destinati
 - `-postfix string` Add string as postfix to end of each trice log line. It defaults to *\n*. The value *\n* was internally removed before, so the default value results to the original string.
 - `-s|source COMn|filename|JLRTT|STRTT|RND|SIM [-p|param string]]` Use source as trice input. The switch -param is accordingly to source.
   - **COMn**: COM15 as example. The only possible parameter is the baud rate. *-param 115200* is default value.
-  - **filename**: 
+  - **filename**:
     - **NOT IMPLEMENTED** When filename is an executable it is started with a random temporary logfile, internally read from. -param is accordingly to the executable command line.
     - When filename is a binary file this file is read and data interpreted according to -format switch.
     - **NOT IMPLEMENTED** When filename is an ASCII file, lines are diplayed. Can be used with logfiles. Default logging is off in that case.
   - **JLRTT** Starts the *JLinkRTTLogger* executable which is expected in the trice executable directory together with acompanying libraries. The -param string is according to *JLinkRTTLogger* description.
   - **STRTT** **NOT IMPLEMENTED** Starts the *STLinkRTTLogger* executable which is expected in the trice executable directory together with acompanying libraries. The -param string is according to *STLinkRTTLogger* description.
   - **RND**: random data are used as input and interpreted according to -format switch. The switch -param is used as control for the random generator. Default is total random data. Usable for testing.
-    - *-param=wrap* generates valid wrap data with random payload. 
+    - *-param=wrap* generates valid wrap data with random payload.
   - **SIM**: inputDummy data are used as input and interpreted according to -format switch. The switch -param is used as control for the inputDummy generator. Usable for testing.
-    - *-param=name* uses simulation dataset *name*. 
+    - *-param=name* uses simulation dataset *name*.
 - `-color off|alternate` Switch color off or use alternate color set. Ignored when switch -remote is used.
 - `-r|remote no|ds|displayserver|IPaddr:IPport` Do not show loglines and send them to a displayserver instead. Default is no. localhost:61497.
 - `-a|autostart cmd` Start `cmd` in background. Try `trice ds` to start displayserver automatically.
@@ -149,13 +149,13 @@ trice
 trice -sd -r 192.168.1.23:45678
 ```
 
-- Play recorded wrap format binary file *log.bin* 
+- Play recorded wrap format binary file *log.bin*
 
 ```b
 trice l -s log.bin -f w
 ```
 
-- Start *JLinkRTTLogger* manually on Windows and use RTT channel 0. 
+- Start *JLinkRTTLogger* manually on Windows and use RTT channel 0.
 
 ```b
 trice log -s="C:\\Program Files (x86)\\SEGGER\\JLink\\JLinkRTTLogger.exe" -p="-Device STM32F030R8 -if SWD -RTTChannel 0" 

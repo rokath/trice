@@ -15,7 +15,7 @@ J-Link ist ja wahrscheinlich schon vorhanden und ist einen ersten Versuch wert, 
 
 (Alternativ dazu kann man sich ein eigenes Tool für den virtuellen COM-Port stricken)
 
-ST ist ebenfalls auf github aktiv: https://github.com/STMicroelectronics
+ST ist ebenfalls auf github aktiv: [https://github.com/STMicroelectronics](https://github.com/STMicroelectronics)
 
 Es gibt [STM32Cube expansion packages](https://www.st.com/en/embedded-software/stm32cube-expansion-packages.html#products)
 

@@ -46,8 +46,15 @@ Tiny & fast trace code for embedded device real-time PC logging (trace ID visual
 
 - Printf-like trace macros `TRICE` and PC `trice` tool (written in [Go](https://en.wikipedia.org/wiki/Go_(programming_language))) for automatic ID managing & logging.
 - Communication without string transfer, just with IDs. Prerequisite: byte transmission to PC, low bandwidth is ok:
-  - method does'nt matter: [UART](https://en.wikipedia.org/wiki/Universal_asynchronous_receiver-transmitter), [I²C](https://en.wikipedia.org/wiki/I%C2%B2C), [SPI](https://en.wikipedia.org/wiki/Serial_Peripheral_Interface), [GPIO](https://circuitcellar.com/cc-blog/a-trace-tool-for-embedded-systems/), [RTT](https://www.segger.com/products/debug-probes/j-link/technology/about-real-time-transfer/), [CAN](https://en.wikipedia.org/wiki/CAN_bus), [LIN](https://en.wikipedia.org/wiki/Local_Interconnect_Network), ...
-- "log in (a) trice" ([S>G](https://www.screentogif.com/)) ![ ](./docs/README.media/life0.gif) 
+  - method does'nt matter: \
+  [UART](https://en.wikipedia.org/wiki/Universal_asynchronous_receiver-transmitter), \
+  [I²C](https://en.wikipedia.org/wiki/I%C2%B2C), \
+  [SPI](https://en.wikipedia.org/wiki/Serial_Peripheral_Interface), \
+  [GPIO](https://circuitcellar.com/cc-blog/a-trace-tool-for-embedded-systems/), \
+  [RTT](https://www.segger.com/products/debug-probes/j-link/technology/about-real-time-transfer/), \
+  [CAN](https://en.wikipedia.org/wiki/CAN_bus), \
+  [LIN](https://en.wikipedia.org/wiki/Local_Interconnect_Network), ...
+- "log in (a) trice" ([S>G](https://www.screentogif.com/)) ![ ](./docs/README.media/life0.gif)
 - Main idea: Logging strings **not** into an embedded device to display them later on a PC but keep usage comfortable and simple.
 
 ## `TRICE` macros for C & C++ code
@@ -58,7 +65,7 @@ Tiny & fast trace code for embedded device real-time PC logging (trace ID visual
 ## Possible Use Cases
 
 - Using trice not only for **dynamic debugging** but also as **logging** technique
-    is possible and gives the advantage to have very short messages (no strings) for transmission, 
+    is possible and gives the advantage to have very short messages (no strings) for transmission,
     but keep in mind that the file [til.json](https://github.com/rokath/trice/blob/master/til.json) is the key to read all output if your devices in the field for 10 or more years.
 - You can consider TRICE also as a kind of **data compression** what could be interesting for IoT things, especially NB-IoT, where you have very low data rates.
 - Storing trices in FLASH for later log analysis saves memory because a `TRICE` occupies only 4 bytes.
@@ -77,7 +84,7 @@ Tiny & fast trace code for embedded device real-time PC logging (trace ID visual
 
 - Mixed case trice macros are short trices and the letter i at the end says **i**nside critical section. (FLEX encoding)
 - `Trice16_1s( "tim: myFunc %d\n", sysTick );` before and after a function call lets you easy measure the function execution time.
-- As graphical vizualisation you could use a tool similar to https://github.com/sqshq/sampler.
+- As graphical vizualisation you could use a tool similar to [https://github.com/sqshq/sampler](https://github.com/sqshq/sampler).
 - TRICE has intentionally no target timestamps for performance reasons. On the PC you can display the *reception timestampts*. But you can add own **timestamps as parameters** for exact embedded time measurements. Having several devices with trice timestamps, **network timing measurement** is possible.
 
 ## How it approximately works

@@ -13,8 +13,14 @@
     - Use some other Debug-Probe with target memory access (support welcome)
   - RTT channel selection (on target and on host)
     - RECOMMENDED:
-      - `trice l -p JLINK` or shorter `trice l` (default port is JLINK) starts in background a `JLinkRTTLogger.exe` which connects to J-Link and writes to a logfile which in turn is read by the trice tool. On exit the `JLinkRTTLogger.exe` is killed automatically. It expects a target sending messages over RTT channel 0 (other channels supported too). It is possible to start several instances on different channels as well as on different targets.
-      - `trice l -p STLINK` starts in background a `trice/third_party/goST/stRttLogger.exe` which connects to J-Link and writes to a logfile which in turn is read by the trice tool. On exit the `stRttLogger.exe` is killed automatically. It expects a target sending messages over RTT channel 0 (other channels supported too). It is possible to start several instances on different channels as well as on different targets.
+      - `trice l -p JLINK` or shorter `trice l` (default port is JLINK) starts in background a `JLinkRTTLogger.exe` which \
+      connects to J-Link and writes to a logfile which in turn is read by the trice tool. On exit the `JLinkRTTLogger.exe` is killed automatically.\
+      It expects a target sending messages over RTT channel 0 (other channels supported too).\
+      It is possible to start several instances on different channels as well as on different targets.
+      - `trice l -p STLINK` starts in background a `trice/third_party/goST/stRttLogger.exe` which connects to J-Link and\
+      writes to a logfile which in turn is read by the trice tool. On exit the `stRttLogger.exe` is killed automatically.\
+      It expects a target sending messages over RTT channel 0 (other channels supported too).\
+      It is possible to start several instances on different channels as well as on different targets.
       - If you have the choice prefer J-Link. It allowes parallel debugging and trice output.
 
 ## J-Link option
@@ -76,7 +82,7 @@ Following steps describe the needed action for a ST Microelectronics evaluation 
 
     - Play file with *-device RTTF*
 
-- `JLinkRTTClient.exe` can be used for simple text transmitting to the target, it also displays strings  from target coming over channel 0. It is not used by the trice tool. 
+- `JLinkRTTClient.exe` can be used for simple text transmitting to the target, it also displays strings  from target coming over channel 0. It is not used by the trice tool.
   - **PLUS:**
     - target stimulation with proprietary protocol over RTT down-channel 0 possible
   - **MINUS:**
@@ -86,18 +92,17 @@ Following steps describe the needed action for a ST Microelectronics evaluation 
 
 - Build and flash `../test/MDK-ARM_LL_UART_RTT0_PACK_STM32F030R8-NUCLEO-64`
   - Download [J-Link Software and Documentation Pack](https://www.segger.com/downloads/jlink/#J-LinkSoftwareAndDocumentationPack) and install.
-
-<!---
-
-  - Start `"C:\Program Files (x86)\SEGGER\JLink\JLinkRTTViewer.exe"` and connect to the J-Link. You only need this as a running server to connect to.
-    - Unfortunately the JLinkRTTViewer "steals" from time to time some trice data packages and displays them as data garbage.
-    - Better use JLink.exe or the *Segger J-Link SDK* instead.
-
--->
-
   - Run `trice log -port JLINK` or in short `trice l`.
   - Now the trice output is visible.
 - In the SeggerRTT example projects you see how to setup.
+
+<!---
+
+- Start `"C:\Program Files (x86)\SEGGER\JLink\JLinkRTTViewer.exe"` and connect to the J-Link. You only need this as a running server to connect to.
+  - Unfortunately the JLinkRTTViewer "steals" from time to time some trice data packages and displays them as data garbage.
+  - Better use JLink.exe or the *Segger J-Link SDK* instead.
+
+-->
 
 ## Segger RTT
 
@@ -136,10 +141,10 @@ Following steps describe the needed action for a ST Microelectronics evaluation 
 
 - The GoST project offers a way around JLINK. Used -port STLINK instead.
 - Maybe `libusb` together with `libjaylink` offer some options too.
-- Checkout [https://github.com/deadsy/jaylink[(https://github.com/deadsy/jaylink).
+- Checkout [https://github.com/deadsy/jaylink](https://github.com/deadsy/jaylink).
 - `"C:\Program Files (x86)\SEGGER\JLink\JMem.exe"` shows a memory dump.
 
-- Go to (https://libusb.info/)[https://libusb.info/] 
+- Go to [https://libusb.info/](https://libusb.info/)
   - -> Downloads -> Latest Windows Binaries
   - extract `libusb-1.0.23` (or later version)
 

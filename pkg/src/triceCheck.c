@@ -413,8 +413,6 @@ void triceCheckSet(int index) {
             Trice16_1( id(30902), "time: Trice16_1 %6u\n", SYSTICKVAL16);
             Trice16_1( id(13520), "rd: Trice16_1 %u\n", 65000);
             Trice16_1( id(30902), "time: Trice16_1 %6u\n", SYSTICKVAL16);
-            Trice16_1( id(13520), "rd: Trice16_1 %u\n", 65000);
-            Trice16_1( id(30902), "time: Trice16_1 %6u\n", SYSTICKVAL16);
         
             Trice0i   ( id(19001), "wr: Trice0i   short\n");
             Trice16_1i( id( 5678), "rd: Trice16_1i %d\n", 65000);
@@ -422,8 +420,6 @@ void triceCheckSet(int index) {
             Trice16_1i( id(22909), "time: Trice16_1i %6u\n", SYSTICKVAL16);
             Trice16_1i( id(22909), "time: Trice16_1i %6u\n", SYSTICKVAL16);
             Trice16_1i( id(22909), "time: Trice16_1i %6u\n", SYSTICKVAL16);
-            Trice16_1i( id(22909), "time: Trice16_1i %6u\n", SYSTICKVAL16);
-            Trice16_1i( id(13551), "rd: Trice16_1i %u\n", 65000);
             Trice16_1i( id(22909), "time: Trice16_1i %6u\n", SYSTICKVAL16);
             Trice16_1i( id(13551), "rd: Trice16_1i %u\n", 65000);
             Trice16_1i( id(22909), "time: Trice16_1i %6u\n", SYSTICKVAL16);

@@ -22,19 +22,16 @@ func TestMySecret2(t *testing.T) {
 
 func TestMySecret3(t *testing.T) {
 	Password = ""
-	tst.AssertNoErr(t, SetUp())
-
-	src := []byte{0, 1, 2, 3, 4, 5, 6, 7}
-	enc := Encrypt8(src)
-	dst := make([]byte, 8)
-	decrypt8(dst, enc)
-	tst.Equal(t, src, dst)
+	checkMix(t)
 }
 
 func TestMySecret4(t *testing.T) {
 	Password = "aSecret"
-	tst.AssertNoErr(t, SetUp())
+	checkMix(t)
+}
 
+func checkMix(t *testing.T) {
+	tst.AssertNoErr(t, SetUp())
 	src := []byte{0, 1, 2, 3, 4, 5, 6, 7}
 	enc := Encrypt8(src)
 	dst := make([]byte, 8)

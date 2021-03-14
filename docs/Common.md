@@ -28,18 +28,33 @@ Automatically the ID is added to an [ID list](https://github.com/rokath/trice/bl
 When the embedded project is compiled, only the ID goes to the binary
 but not the format string, what results in a smaller memory footprint.
 
-On execution the ID is pushed into a FIFO together with the optional trice parameters and that is the real fast and important part which could be finished within 12-14 processor clocks (measured on a ARM M0 with `Trice16_1i`). At 48 MHz the in time needed light travels less than 100 meters. Slightly delayed in the background the TRICE trace goes to the communication port, what is also fast compared to all the actions behind a `printf()` statement.
+On execution the ID is pushed into a FIFO together with the optional trice parameters and that is the real fast \
+and important part which could be finished within 12-14 processor clocks (measured on a ARM M0 with `Trice16_1i`). \
+At 48 MHz the in time needed light travels less than 100 meters. \
+Slightly delayed in the background the TRICE trace goes to the communication port, what is also fast compared to all the actions behind a `printf()` statement.
 
 Please understand, that when debugging code containing TRICE\* statements, during a TRICE\* step-over only  one ore more 32 bit values go into the internal fifo buffer and no serial output
 is visible because of the stopped target. But the SEGGER debug probe reads out the RTT memory and this way also during debug stepping realtime trice output is visible. That is (right now) not true for the STLINK interface because the is only one USB enpoint.
 
 ## trice instructions: `TRICE`, `Trice` or `trice` with or without ending letter 'i'?
 
-There are several types of trice statements. All trice statements can have an additional letter 'i'. This means **i**nside critical section. You can use these when it is sure not to get interrupted by other trices. If for example an interrupt contains a trice statement this can be an i-trice but other trices not allowed to be an i-trice, they need to be normal trices, which are protected against interruption. If you are not sure it is always safe to use normal trices (without ending 'i'). The i-trices are a bit faster what is not relevant in most cases because of the general speed.
+There are several types of trice statements. All trice statements can have an additional letter 'i'. This means **i**nside critical section. \
+You can use these when it is sure not to get interrupted by other trices. If for example an interrupt contains a trice statement this can be \
+an i-trice but other trices not allowed to be an i-trice, they need to be normal trices, which are protected against interruption. \
+If you are not sure it is always safe to use normal trices (without ending 'i'). The i-trices are a bit faster what is not relevant in most cases because of the general speed.
 
-- `Trice0`, `Trice8_1`, `Trice16_1` and `Trice8_2` are so called short trice macros. They use internal a smaller encoding and have only a 15-bit ID size, means ID's 1-32767 are usable. These are the fastest trices and with them the speed limit is reached. ![x](README.media/Trice16_1-Code.PNG)![x](README.media/Trice16_1i-Code.PNG)![x](README.media/Trice16_1i.PNG) The number in the blue lines is the current processor tick. For `Trice16_1i` the difference between neibours is about 13 clocks. Short trices need 'id(0)' instead 'Id(0)' as important difference to normal trices.
-- `TRICE0`, `TRICE8_1`, ... `TRICE8_8`, `TRICE16_1`, ... `TRICE16_4`, `TRICE32_1`, ... `TRICE32_4`, `TRICE64_1`, `TRICE64_2` are normal trice macros. They insert code directly (no function call) for better performance but the drawback is the rising code amount when many trices are used.
-- `trice0`, `trice8_1`, ... `trice8_8`, `trice16_1`, ... `trice16_4`, `trice32_1`, ... `trice32_4`, `trice64_1`, `trice64_2` are normal trice functions. The function call overhead is reasonable and the advantage is significant less code amount when many trices are used.
+- `Trice0`, `Trice8_1`, `Trice16_1` and `Trice8_2` are so called short trice macros.\
+They use internal a smaller encoding and have only a 15-bit ID size, means ID's 1-32767 are usable.\
+These are the fastest trices and with them the speed limit is reached.\
+![x](README.media/Trice16_1-Code.PNG)\
+![x](README.media/Trice16_1i-Code.PNG)\
+![x](README.media/Trice16_1i.PNG)\
+The number in the blue lines is the current processor tick. For `Trice16_1i` the difference between neibours is about 13 clocks. \
+Short trices need 'id(0)' instead 'Id(0)' as important difference to normal trices.
+- `TRICE0`, `TRICE8_1`, ... `TRICE8_8`, `TRICE16_1`, ... `TRICE16_4`, `TRICE32_1`, ... `TRICE32_4`, `TRICE64_1`, `TRICE64_2` are normal trice macros. \
+They insert code directly (no function call) for better performance but the drawback is the rising code amount when many trices are used.
+- `trice0`, `trice8_1`, ... `trice8_8`, `trice16_1`, ... `trice16_4`, `trice32_1`, ... `trice32_4`, `trice64_1`, `trice64_2` are normal trice functions. \
+The function call overhead is reasonable and the advantage is significant less code amount when many trices are used.
 - For most flexibility the code for each trice function can be enabled or not inside the triceConfig.h.
 
 ## `trice` tool
@@ -523,4 +538,7 @@ example: 'trice zeroSourceTreeIds -src ../A': Sets all TRICE IDs to 0 in ../A. U
 ### Color issues under Windows
 
 **Currently CMD console colors are not enabled by default in Win10**, so if you see no color but escape sequences on your powershell or cmd window, please refer to
-[Windows console with ANSI colors handling](https://superuser.com/questions/413073/windows-console-with-ansi-colors-handling/1050078#1050078) or simply use a Linux like terminal under windows, like git-bash. One option is also to install Microsoft *Windows Terminal (Preview)* from inside the Microsoft store and to start trice inside there. Unfortunally this can not be done automatically right now because of missing commandline switches.
+[Windows console with ANSI colors handling](https://superuser.com/questions/413073/windows-console-with-ansi-colors-handling/1050078#1050078)\
+or simply use a Linux like terminal under windows, like git-bash.\
+One option is also to install Microsoft *Windows Terminal (Preview)* from inside the Microsoft store\
+and to start trice inside there. Unfortunally this can not be done automatically right now because of missing commandline switches.

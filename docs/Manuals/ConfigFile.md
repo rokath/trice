@@ -6,7 +6,7 @@
 
 ## Rules
 
-- The `trice` command  can be called without parameters. 
+- The `trice` command  can be called without parameters.
   - In that case it needs to find at least one config file named *trice.conf.json*.
 - The `trice` command can be called with a single sub-command plus an optional dashed parameter list.
   - In that case it looks also for a config file named *trice.conf.json* for additional settings.

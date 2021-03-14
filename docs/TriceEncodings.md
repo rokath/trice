@@ -158,7 +158,7 @@ This is the recommended encoding.
 - with cycle counter
 - 20-bit IDs
 - runtime strings up to 65535 chars
-- target source: trice/srcTrice.C/intern/tricePack2Encoder.h 
+- target source: trice/srcTrice.C/intern/tricePack2Encoder.h
 - trice tool source: trice/internal/decoder/pack2Decoder.go
 - trice tool test file: trice/internal/decoder/pack2Decoder_test.go
 
@@ -181,7 +181,6 @@ The encoding is similar to `pack` & `packL` encoding with these differences:
 Bit pattern:
 
 ```b
-
 0IIIIIII IIIIIIII DDDDDDDD DDDDDDDD = mini
 1IIIIIII IIIIIIII IIIINNNN CCCCCCCC = pack2
 
@@ -228,17 +227,16 @@ DDDDDDDD DDDDDDDD DDDDDDDD DDDDDDDD
 
 1IIIIIII IIIIIIII IIII1101 CCCCCCCC = pack2 long count
 NNNNNNNN NNNNNNNN nnnnnnnn nnnnnnnn = 16-bit count N and bit invers n
-
 ```
 
 ### `pack` & `packL` encoding
 
-This is the pack2 & pack2L predecessor and kept for reference. 
+This is the pack2 & pack2L predecessor and kept for reference.
 
 - no cycle counter
 - 16-bit IDs
 - runtime strings up to 65535 chars
-- target source: trice/srcTrice.C/intern/tricePackEncoder.h 
+- target source: trice/srcTrice.C/intern/tricePackEncoder.h
 - trice tool source: trice/internal/decoder/packDecoder.go
 - trice tool test file: trice/internal/decoder/packDecoder_test.go
 
@@ -250,7 +248,6 @@ All values up to 32 bit are combined 32 bit units in big (=network) or little en
 - `IIII` = 16-bit ID
 - `CCCC` = byte count without counting padding bytes
 - 0-3 padding 0-bytes fill the last 32-bit unit
-
 
 ```b
 byte 3 2 1 0  | macro
@@ -320,7 +317,7 @@ This is a try-out escape sequence encoding implementation and kept for reference
 - no cycle counter
 - 16-bit IDs
 - runtime strings up to 255 chars
-- target source: trice/srcTrice.C/intern/triceEscEncoder.h 
+- target source: trice/srcTrice.C/intern/triceEscEncoder.h
 - trice tool source: trice/internal/decoder/escDecoder.go
 - trice tool test file: trice/internal/decoder/escDecoder_test.go
 
@@ -349,7 +346,6 @@ To implement a different encoding:
 - Copy trice/internal/decoder/*any*Decoder.go to trice/internal/decoder/**own**Decoder.go and adapt it.
 - Integrate *own*Decoder.go accordingly.
 - Write tests!
-
 
 ## Encoding `bare` & `bareL`
 
@@ -399,7 +395,9 @@ and so on...
 
 The bare transmit format is exactly the same as the bare internal storage format with these differences:
 
-During runtime normally only the 16-bit ID 12345 (together with the parameters like hour, min, sec) is copied to a buffer. Execution time for a TRICE16_1 (as example) on a 48 MHz ARM can be about 16 systicks resulting in 250 nanoseconds duration, so you can use `trice` also inside interrupts or the RTOS scheduler to analyze task timings. The needed buffer space is one 32 bit word per normal trice (for up to 2 data bytes). 
+During runtime normally only the 16-bit ID 12345 (together with the parameters like hour, min, sec) is copied to a buffer.
+Execution time for a TRICE16_1 (as example) on a 48 MHz ARM can be about 16 systicks resulting in 250 nanoseconds duration, so you can use `trice` also inside interrupts or the RTOS scheduler to analyze task timings.
+The needed buffer space is one 32 bit word per normal trice (for up to 2 data bytes).
 
 If the wrap format is desired as output the buffered 4 byte trice is transmitted as an 8 byte packet allowing start byte, sender and receiver addresses and CRC8 check to be used later in parallel with different software protocols.
 
