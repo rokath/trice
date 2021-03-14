@@ -518,7 +518,7 @@ example: 'trice zeroSourceTreeIds -src ../A': Sets all TRICE IDs to 0 in ../A. U
 ```
 
 <!---
-### Subcommand `check` 
+### Subcommand `check`
 - `trice check` will check the JSON list and emit all TRICE statements inside the list once with a dataset.
 
 #### `check` switch '-dataset'

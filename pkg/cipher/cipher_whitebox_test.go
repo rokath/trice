@@ -10,14 +10,14 @@ import (
 	"github.com/rokath/trice/pkg/tst"
 )
 
+func TestMySecret1(t *testing.T) {
+	Password = ""
+	checkBig(t)
+}
+
 func TestMySecret2(t *testing.T) {
 	Password = "aSecret"
-	tst.AssertNoErr(t, SetUp())
-
-	src := []byte{0, 1, 2, 3, 4, 5, 6, 7}
-	enc := Encrypt8(src)
-	dst := Decrypt8(enc)
-	tst.Equal(t, src, dst)
+	checkBig(t)
 }
 
 func TestMySecret3(t *testing.T) {
@@ -30,6 +30,23 @@ func TestMySecret4(t *testing.T) {
 	checkMix(t)
 }
 
+func TestMySecret5(t *testing.T) {
+	Password = ""
+	checkSmall(t)
+}
+func TestMySecret6(t *testing.T) {
+	Password = "aSecret"
+	checkSmall(t)
+}
+
+func checkBig(t *testing.T) {
+	tst.AssertNoErr(t, SetUp())
+	src := []byte{0, 1, 2, 3, 4, 5, 6, 7}
+	enc := Encrypt8(src)
+	dst := Decrypt8(enc)
+	tst.Equal(t, src, dst)
+}
+
 func checkMix(t *testing.T) {
 	tst.AssertNoErr(t, SetUp())
 	src := []byte{0, 1, 2, 3, 4, 5, 6, 7}
@@ -39,24 +56,12 @@ func checkMix(t *testing.T) {
 	tst.Equal(t, src, dst)
 }
 
-func TestMySecret5(t *testing.T) {
-	Password = ""
+func checkSmall(t *testing.T) {
 	tst.AssertNoErr(t, SetUp())
-
 	src := []byte{0, 1, 2, 3, 4, 5, 6, 7}
 	enc := make([]byte, 8)
 	encrypt8(enc, src)
 	dst := make([]byte, 8)
 	decrypt8(dst, enc)
-	tst.Equal(t, src, dst)
-}
-
-func TestMySecret6(t *testing.T) {
-	Password = "aSecret"
-	tst.AssertNoErr(t, SetUp())
-
-	src := []byte{0, 1, 2, 3, 4, 5, 6, 7}
-	enc := Encrypt8(src)
-	dst := Decrypt8(enc)
 	tst.Equal(t, src, dst)
 }

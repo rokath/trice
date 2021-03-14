@@ -3,6 +3,7 @@
 Tiny & fast trace code for embedded device real-time PC logging (trace ID visualization) over any port.
 
 ## Info shields
+
 ![GitHub Workflow Status](https://img.shields.io/github/workflow/status/rokath/trice/goreleaser)
 ![GitHub issues](https://img.shields.io/github/issues/rokath/trice)
 ![GitHub All Releases](https://img.shields.io/github/downloads/rokath/trice/total)
@@ -12,11 +13,13 @@ Tiny & fast trace code for embedded device real-time PC logging (trace ID visual
 ![GitHub commits since latest release](https://img.shields.io/github/commits-since/rokath/trice/latest)
 
 ## Link shields
-[![Go Report Card](https://goreportcard.com/badge/github.com/rokath/trice)](https://goreportcard.com/report/github.com/rokath/trice) 
+
+[![Go Report Card](https://goreportcard.com/badge/github.com/rokath/trice)](https://goreportcard.com/report/github.com/rokath/trice)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 [![Coverage Status](https://coveralls.io/repos/github/rokath/trice/badge.svg)](https://coveralls.io/github/rokath/trice)
 
 ## Search counters
+
 ![GitHub search hit counter](https://img.shields.io/github/search/rokath/trice/trace)
 ![GitHub search hit counter](https://img.shields.io/github/search/rokath/trice/instrumentation)
 ![GitHub search hit counter](https://img.shields.io/github/search/rokath/trice/embedded)
