@@ -1,9 +1,9 @@
 # https://docs.github.com/en/actions/learn-github-actions/introduction-to-github-actions
 name: learn-github-actions
-on: [push]
+on: [push, workflow_dispatch]
 jobs:
   check-bats-version:
-    runs-on: ubuntu-latest
+    runs-on: [ubuntu-latest, windows-latest]
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v1

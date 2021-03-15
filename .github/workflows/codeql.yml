@@ -19,6 +19,7 @@ on:
     branches: [ $default-branch ]
   schedule:
     - cron: $cron-weekly
+  workflow_dispatch:
 
 jobs:
   analyze:

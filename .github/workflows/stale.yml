@@ -4,8 +4,9 @@ on:
   push:
     tags:
     - '*'
-  # schedule:
-  # - cron: "30 1 * * *"
+  schedule:
+  - cron:  '*/15 * * * *'
+  workflow_dispatch:
 
 jobs:
   stale:
