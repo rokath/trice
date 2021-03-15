@@ -369,8 +369,8 @@ func (p *Flex) trice0() (n int, e error) {
 }
 
 func (p *Flex) trice81s() (n int, e error) {
-	d := make([]uint32, 1)
-	d[0] = 0xFF & p.d0
+	d := make([]uint64, 1)
+	d[0] = uint64(0xFF & p.d0)
 	s, b, e := p.uReplace8(d)
 	n = copy(p.b, fmt.Sprintf(s, b[0]))
 	p.rub4(0)
@@ -378,8 +378,8 @@ func (p *Flex) trice81s() (n int, e error) {
 }
 
 func (p *Flex) trice81() (n int, e error) {
-	d := make([]uint32, 1)
-	d[0] = 0xFF & p.d0
+	d := make([]uint64, 1)
+	d[0] = uint64(0xFF & p.d0)
 	s, b, e := p.uReplace8(d)
 	n = copy(p.b, fmt.Sprintf(s, b[0]))
 	p.rub4(1)
@@ -387,9 +387,9 @@ func (p *Flex) trice81() (n int, e error) {
 }
 
 func (p *Flex) trice82s() (n int, e error) {
-	d := make([]uint32, 2)
-	d[0] = 0xFF & (p.d0 >> 8)
-	d[1] = 0xFF & p.d0
+	d := make([]uint64, 2)
+	d[0] = uint64(0xFF & (p.d0 >> 8))
+	d[1] = uint64(0xFF & p.d0)
 	s, b, e := p.uReplace8(d)
 	n = copy(p.b, fmt.Sprintf(s, b[0], b[1]))
 	p.rub4(0)
@@ -397,9 +397,9 @@ func (p *Flex) trice82s() (n int, e error) {
 }
 
 func (p *Flex) trice82() (n int, e error) {
-	d := make([]uint32, 2)
-	d[0] = 0xFF & (p.d0 >> 8)
-	d[1] = 0xFF & p.d0
+	d := make([]uint64, 2)
+	d[0] = uint64(0xFF & (p.d0 >> 8))
+	d[1] = uint64(0xFF & p.d0)
 	s, b, e := p.uReplace8(d)
 	n = copy(p.b, fmt.Sprintf(s, b[0], b[1]))
 	p.rub4(2)
@@ -407,10 +407,10 @@ func (p *Flex) trice82() (n int, e error) {
 }
 
 func (p *Flex) trice83() (n int, e error) {
-	d := make([]uint32, 3)
-	d[0] = 0xFF & (p.d0 >> 16)
-	d[1] = 0xFF & (p.d0 >> 8)
-	d[2] = 0xFF & p.d0
+	d := make([]uint64, 3)
+	d[0] = uint64(0xFF & (p.d0 >> 16))
+	d[1] = uint64(0xFF & (p.d0 >> 8))
+	d[2] = uint64(0xFF & p.d0)
 	s, b, e := p.uReplace8(d)
 	n = copy(p.b, fmt.Sprintf(s, b[0], b[1], b[2]))
 	p.rub4(3)
@@ -418,11 +418,11 @@ func (p *Flex) trice83() (n int, e error) {
 }
 
 func (p *Flex) trice84() (n int, e error) {
-	d := make([]uint32, 4)
-	d[0] = 0xFF & (p.d0 >> 24)
-	d[1] = 0xFF & (p.d0 >> 16)
-	d[2] = 0xFF & (p.d0 >> 8)
-	d[3] = 0xFF & p.d0
+	d := make([]uint64, 4)
+	d[0] = uint64(0xFF & (p.d0 >> 24))
+	d[1] = uint64(0xFF & (p.d0 >> 16))
+	d[2] = uint64(0xFF & (p.d0 >> 8))
+	d[3] = uint64(0xFF & p.d0)
 	s, b, e := p.uReplace8(d)
 	n = copy(p.b, fmt.Sprintf(s, b[0], b[1], b[2], b[3]))
 	p.rub4(4)
@@ -430,12 +430,12 @@ func (p *Flex) trice84() (n int, e error) {
 }
 
 func (p *Flex) trice85() (n int, e error) {
-	d := make([]uint32, 5)
-	d[0] = 0xFF & (p.d0 >> 24)
-	d[1] = 0xFF & (p.d0 >> 16)
-	d[2] = 0xFF & (p.d0 >> 8)
-	d[3] = 0xFF & p.d0
-	d[4] = 0xFF & p.d1
+	d := make([]uint64, 5)
+	d[0] = uint64(0xFF & (p.d0 >> 24))
+	d[1] = uint64(0xFF & (p.d0 >> 16))
+	d[2] = uint64(0xFF & (p.d0 >> 8))
+	d[3] = uint64(0xFF & p.d0)
+	d[4] = uint64(0xFF & p.d1)
 	s, b, e := p.uReplace8(d)
 	n = copy(p.b, fmt.Sprintf(s, b[0], b[1], b[2], b[3], b[4]))
 	p.rub4(5)
@@ -443,13 +443,13 @@ func (p *Flex) trice85() (n int, e error) {
 }
 
 func (p *Flex) trice86() (n int, e error) {
-	d := make([]uint32, 6)
-	d[0] = 0xFF & (p.d0 >> 24)
-	d[1] = 0xFF & (p.d0 >> 16)
-	d[2] = 0xFF & (p.d0 >> 8)
-	d[3] = 0xFF & p.d0
-	d[4] = 0xFF & (p.d1 >> 8)
-	d[5] = 0xFF & p.d1
+	d := make([]uint64, 6)
+	d[0] = uint64(0xFF & (p.d0 >> 24))
+	d[1] = uint64(0xFF & (p.d0 >> 16))
+	d[2] = uint64(0xFF & (p.d0 >> 8))
+	d[3] = uint64(0xFF & p.d0)
+	d[4] = uint64(0xFF & (p.d1 >> 8))
+	d[5] = uint64(0xFF & p.d1)
 	s, b, e := p.uReplace8(d)
 	n = copy(p.b, fmt.Sprintf(s, b[0], b[1], b[2], b[3], b[4], b[5]))
 	p.rub4(6)
@@ -457,14 +457,14 @@ func (p *Flex) trice86() (n int, e error) {
 }
 
 func (p *Flex) trice87() (n int, e error) {
-	d := make([]uint32, 7)
-	d[0] = 0xFF & (p.d0 >> 24)
-	d[1] = 0xFF & (p.d0 >> 16)
-	d[2] = 0xFF & (p.d0 >> 8)
-	d[3] = 0xFF & p.d0
-	d[4] = 0xFF & (p.d1 >> 16)
-	d[5] = 0xFF & (p.d1 >> 8)
-	d[6] = 0xFF & p.d1
+	d := make([]uint64, 7)
+	d[0] = uint64(0xFF & (p.d0 >> 24))
+	d[1] = uint64(0xFF & (p.d0 >> 16))
+	d[2] = uint64(0xFF & (p.d0 >> 8))
+	d[3] = uint64(0xFF & p.d0)
+	d[4] = uint64(0xFF & (p.d1 >> 16))
+	d[5] = uint64(0xFF & (p.d1 >> 8))
+	d[6] = uint64(0xFF & p.d1)
 	s, b, e := p.uReplace8(d)
 	n = copy(p.b, fmt.Sprintf(s, b[0], b[1], b[2], b[3], b[4], b[5], b[6]))
 	p.rub4(7)
@@ -472,15 +472,15 @@ func (p *Flex) trice87() (n int, e error) {
 }
 
 func (p *Flex) trice88() (n int, e error) {
-	d := make([]uint32, 8)
-	d[0] = 0xFF & (p.d0 >> 24)
-	d[1] = 0xFF & (p.d0 >> 16)
-	d[2] = 0xFF & (p.d0 >> 8)
-	d[3] = 0xFF & p.d0
-	d[4] = 0xFF & (p.d1 >> 24)
-	d[5] = 0xFF & (p.d1 >> 16)
-	d[6] = 0xFF & (p.d1 >> 8)
-	d[7] = 0xFF & p.d1
+	d := make([]uint64, 8)
+	d[0] = uint64(0xFF & (p.d0 >> 24))
+	d[1] = uint64(0xFF & (p.d0 >> 16))
+	d[2] = uint64(0xFF & (p.d0 >> 8))
+	d[3] = uint64(0xFF & p.d0)
+	d[4] = uint64(0xFF & (p.d1 >> 24))
+	d[5] = uint64(0xFF & (p.d1 >> 16))
+	d[6] = uint64(0xFF & (p.d1 >> 8))
+	d[7] = uint64(0xFF & p.d1)
 	s, b, e := p.uReplace8(d)
 	n = copy(p.b, fmt.Sprintf(s, b[0], b[1], b[2], b[3], b[4], b[5], b[6], b[7]))
 	p.rub4(8)
@@ -488,8 +488,8 @@ func (p *Flex) trice88() (n int, e error) {
 }
 
 func (p *Flex) trice161s() (n int, e error) {
-	d := make([]uint32, 1)
-	d[0] = 0xFFFF & p.d0
+	d := make([]uint64, 1)
+	d[0] = uint64(0xFFFF & p.d0)
 	s, b, e := p.uReplace16(d)
 	n = copy(p.b, fmt.Sprintf(s, b[0]))
 	p.rub4(0)
@@ -497,8 +497,8 @@ func (p *Flex) trice161s() (n int, e error) {
 }
 
 func (p *Flex) trice161() (n int, e error) {
-	d := make([]uint32, 1)
-	d[0] = 0xFFFF & p.d0
+	d := make([]uint64, 1)
+	d[0] = uint64(0xFFFF & p.d0)
 	s, b, e := p.uReplace16(d)
 	n = copy(p.b, fmt.Sprintf(s, b[0]))
 	p.rub4(2)
@@ -506,9 +506,9 @@ func (p *Flex) trice161() (n int, e error) {
 }
 
 func (p *Flex) trice162() (n int, e error) {
-	d := make([]uint32, 2)
-	d[0] = 0xFFFF & (p.d0 >> 16)
-	d[1] = 0xFFFF & p.d0
+	d := make([]uint64, 2)
+	d[0] = uint64(0xFFFF & (p.d0 >> 16))
+	d[1] = uint64(0xFFFF & p.d0)
 	s, b, e := p.uReplace16(d)
 	n = copy(p.b, fmt.Sprintf(s, b[0], b[1]))
 	p.rub4(4)
@@ -516,10 +516,10 @@ func (p *Flex) trice162() (n int, e error) {
 }
 
 func (p *Flex) trice163() (n int, e error) {
-	d := make([]uint32, 3)
-	d[0] = 0xFFFF & (p.d0 >> 16)
-	d[1] = 0xFFFF & p.d0
-	d[2] = 0xFFFF & p.d1
+	d := make([]uint64, 3)
+	d[0] = uint64(0xFFFF & (p.d0 >> 16))
+	d[1] = uint64(0xFFFF & p.d0)
+	d[2] = uint64(0xFFFF & p.d1)
 	s, b, e := p.uReplace16(d)
 	n = copy(p.b, fmt.Sprintf(s, b[0], b[1], b[2]))
 	p.rub4(6)
@@ -527,11 +527,11 @@ func (p *Flex) trice163() (n int, e error) {
 }
 
 func (p *Flex) trice164() (n int, e error) {
-	d := make([]uint32, 4)
-	d[0] = 0xFFFF & (p.d0 >> 16)
-	d[1] = 0xFFFF & p.d0
-	d[2] = 0xFFFF & (p.d1 >> 16)
-	d[3] = 0xFFFF & p.d1
+	d := make([]uint64, 4)
+	d[0] = uint64(0xFFFF & (p.d0 >> 16))
+	d[1] = uint64(0xFFFF & p.d0)
+	d[2] = uint64(0xFFFF & (p.d1 >> 16))
+	d[3] = uint64(0xFFFF & p.d1)
 	s, b, e := p.uReplace16(d)
 	n = copy(p.b, fmt.Sprintf(s, b[0], b[1], b[2], b[3]))
 	p.rub4(8)
@@ -539,8 +539,8 @@ func (p *Flex) trice164() (n int, e error) {
 }
 
 func (p *Flex) trice321() (n int, e error) {
-	d := make([]uint32, 1)
-	d[0] = p.d0
+	d := make([]uint64, 1)
+	d[0] = uint64(p.d0)
 	s, b, e := p.uReplace32(d)
 	n = copy(p.b, fmt.Sprintf(s, b[0]))
 	p.rub4(4)
@@ -548,9 +548,9 @@ func (p *Flex) trice321() (n int, e error) {
 }
 
 func (p *Flex) trice322() (n int, e error) {
-	d := make([]uint32, 2)
-	d[0] = p.d0
-	d[1] = p.d1
+	d := make([]uint64, 2)
+	d[0] = uint64(p.d0)
+	d[1] = uint64(p.d1)
 	s, b, e := p.uReplace32(d)
 	n = copy(p.b, fmt.Sprintf(s, b[0], b[1]))
 	p.rub4(8)
@@ -558,10 +558,10 @@ func (p *Flex) trice322() (n int, e error) {
 }
 
 func (p *Flex) trice323() (n int, e error) {
-	d := make([]uint32, 3)
-	d[0] = p.d0
-	d[1] = p.d1
-	d[2] = p.d2
+	d := make([]uint64, 3)
+	d[0] = uint64(p.d0)
+	d[1] = uint64(p.d1)
+	d[2] = uint64(p.d2)
 	s, b, e := p.uReplace32(d)
 	n = copy(p.b, fmt.Sprintf(s, b[0], b[1], b[2]))
 	p.rub4(12)
@@ -569,11 +569,11 @@ func (p *Flex) trice323() (n int, e error) {
 }
 
 func (p *Flex) trice324() (n int, e error) {
-	d := make([]uint32, 4)
-	d[0] = p.d0
-	d[1] = p.d1
-	d[2] = p.d2
-	d[3] = p.d3
+	d := make([]uint64, 4)
+	d[0] = uint64(p.d0)
+	d[1] = uint64(p.d1)
+	d[2] = uint64(p.d2)
+	d[3] = uint64(p.d3)
 	s, b, e := p.uReplace32(d)
 	n = copy(p.b, fmt.Sprintf(s, b[0], b[1], b[2], b[3]))
 	p.rub4(16)
@@ -605,9 +605,10 @@ func (p *Flex) syncTrice() (n int, e error) {
 	return
 }
 
+/*
 // uReplace8 takes parameter values in d and returns them in b as uint8 or int8 according to %nu occurrences in format string.
 // It also returns the modified formatstring with replacments %nu -> %nd.
-func (p *Flex) uReplace8(d []uint32) (s string, b []interface{}, e error) {
+func (p *Flex) uReplace8a(d []uint32) (s string, b []interface{}, e error) {
 	b = make([]interface{}, len(d))
 	s, u := uReplaceN(p.trice.Strg)
 	if len(u) != len(b) {
@@ -626,7 +627,7 @@ func (p *Flex) uReplace8(d []uint32) (s string, b []interface{}, e error) {
 
 // uReplace16 takes parameter values in d and returns them in b as uint16 or int16 according to %nu occurrences in format string.
 // It also returns the modified formatstring with replacments %nu -> %nd.
-func (p *Flex) uReplace16(d []uint32) (s string, b []interface{}, e error) {
+func (p *Flex) uReplace16a(d []uint32) (s string, b []interface{}, e error) {
 	b = make([]interface{}, len(d))
 	s, u := uReplaceN(p.trice.Strg)
 	if len(u) != len(b) {
@@ -645,7 +646,7 @@ func (p *Flex) uReplace16(d []uint32) (s string, b []interface{}, e error) {
 
 // uReplace32 takes parameter values in d and returns them in b as uint32 or int32 according to %nu occurrences in format string.
 // It also returns the modified formatstring with replacments %nu -> %nd.
-func (p *Flex) uReplace32(d []uint32) (s string, b []interface{}, e error) {
+func (p *Flex) uReplace32a(d []uint32) (s string, b []interface{}, e error) {
 	b = make([]interface{}, len(d))
 	s, u := uReplaceN(p.trice.Strg)
 	if len(u) != len(b) {
@@ -676,6 +677,68 @@ func (p *Flex) uReplace64(d []uint64) (s string, b []interface{}, e error) {
 			b[i] = d[i] // is uint64
 		} else {
 			b[i] = int64(d[i])
+		}
+	}
+	return
+}
+*/
+
+// uReplace8 takes parameter values in d and returns them in b as uint8 or int8 according to %nu occurrences in format string.
+// It also returns the modified formatstring with replacments %nu -> %nd.
+func (p *Flex) uReplace8(d []uint64) (s string, b []interface{}, e error) {
+	return p.uReplace(8, d)
+}
+
+// uReplace16 takes parameter values in d and returns them in b as uint16 or int16 according to %nu occurrences in format string.
+// It also returns the modified formatstring with replacments %nu -> %nd.
+func (p *Flex) uReplace16(d []uint64) (s string, b []interface{}, e error) {
+	return p.uReplace(16, d)
+}
+
+// uReplace32 takes parameter values in d and returns them in b as uint32 or int32 according to %nu occurrences in format string.
+// It also returns the modified formatstring with replacments %nu -> %nd.
+func (p *Flex) uReplace32(d []uint64) (s string, b []interface{}, e error) {
+	return p.uReplace(32, d)
+}
+
+// uReplace64 takes parameter values in d and returns them in b as uint64 or int64 according to %nu occurrences in format string.
+// It also returns the modified formatstring with replacments %nu -> %nd.
+func (p *Flex) uReplace64(d []uint64) (s string, b []interface{}, e error) {
+	return p.uReplace(64, d)
+}
+
+// uReplace32 takes parameter values in d and returns them in b as uint32 or int32 according to %nu occurrences in format string.
+// It also returns the modified formatstring with replacments %nu -> %nd.
+func (p *Flex) uReplace(bitWidth int, d []uint64) (s string, b []interface{}, e error) {
+	b = make([]interface{}, len(d))
+	s, u := uReplaceN(p.trice.Strg)
+	if len(u) != len(b) {
+		e = fmt.Errorf("found %d format specifiers in '%s', expecting %d", len(u), p.trice.Strg, len(b))
+		return
+	}
+	for i := range u {
+		if u[i] {
+			switch bitWidth {
+			case 8:
+				b[i] = uint8(d[i])
+			case 16:
+				b[i] = uint16(d[i])
+			case 32:
+				b[i] = uint32(d[i])
+			case 64:
+				b[i] = uint64(d[i])
+			}
+		} else {
+			switch bitWidth {
+			case 8:
+				b[i] = int8(d[i])
+			case 16:
+				b[i] = int16(d[i])
+			case 32:
+				b[i] = int32(d[i])
+			case 64:
+				b[i] = int64(d[i])
+			}
 		}
 	}
 	return

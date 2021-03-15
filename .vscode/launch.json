@@ -31,7 +31,7 @@
             "mode": "auto",
             "program": "${workspaceFolder}/cmd/trice",
             "env": {},
-            "args": ["sd",
+            "args": ["sd"
             ]
         },
         {
@@ -48,7 +48,7 @@
                 "-rndMode", "ChaosMode",
                 "-color", "off", 
                 "-ts", "none",
-                "-key", "none",
+                "-key", "none"
             ]
         },              
         {
@@ -67,7 +67,7 @@
                      "-encoding",
                      "packl",
                      "-idlist",
-                     "${workspaceFolder}/til.json",
+                     "${workspaceFolder}/til.json"
             ]
         },
         {

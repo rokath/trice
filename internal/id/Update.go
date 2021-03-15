@@ -179,19 +179,27 @@ func sharedIDsUpdate(root string, lu TriceIDLookUp, tflu TriceFmtLookUp, pListMo
 	msg.FatalInfoOnErr(filepath.Walk(root, visitUpdate(lu, tflu, pListModified)), "failed to walk tree")
 }
 
+func readFile(path string, fi os.FileInfo, err error) (string, error) {
+	if err != nil || fi.IsDir() || !isSourceFile(fi) {
+		return "", err // forward any error and do nothing
+	}
+	if Verbose {
+		fmt.Println(path)
+	}
+	read, err := ioutil.ReadFile(path)
+	if nil != err {
+		return "", err
+	}
+	text := string(read)
+	return text, nil
+}
+
 func visitRefresh(lu TriceIDLookUp, tflu TriceFmtLookUp) filepath.WalkFunc {
 	return func(path string, fi os.FileInfo, err error) error {
-		if err != nil || fi.IsDir() || !isSourceFile(fi) {
-			return err // forward any error and do nothing
-		}
-		if Verbose {
-			fmt.Println(path)
-		}
-		read, err := ioutil.ReadFile(path)
+		text, err := readFile(path, fi, err)
 		if nil != err {
 			return err
 		}
-		text := string(read)
 		refreshIDs(text, lu, tflu) // update IDs: Id(0) -> Id(M)
 		return nil
 	}
@@ -214,17 +222,11 @@ func visitUpdate(lu TriceIDLookUp, tflu TriceFmtLookUp, pListModified *bool) fil
 	// when invoked on a non-directory file, Walk skips the remaining files in the
 	// containing directory.
 	return func(path string, fi os.FileInfo, err error) error {
-		if err != nil || fi.IsDir() || !isSourceFile(fi) {
-			return err // forward any error and do nothing
-		}
-		if Verbose {
-			fmt.Println(path)
-		}
-		read, err := ioutil.ReadFile(path)
+		text, err := readFile(path, fi, err)
 		if nil != err {
 			return err
 		}
-		text := string(read)
+		refreshIDs(text, lu, tflu)                                              // update IDs: Id(0) -> Id(M)
 		textN, fileModified0 := updateParamCountAndID0(text)                    // update parameter count: TRICE* to TRICE*_n and insert missing Id(0)
 		textU, fileModified1 := updateIDsShared(textN, lu, tflu, pListModified) // update IDs: Id(0) -> Id(M)
 
