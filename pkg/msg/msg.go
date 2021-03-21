@@ -48,7 +48,7 @@ func FatalOnErr(err error) {
 
 // FatalOnTrue ends in osExit(1) if flag is true.
 func FatalOnTrue(flag bool) {
-	if false == flag {
+	if !flag {
 		return
 	}
 	pc, fn, line, ok := runtime.Caller(1)
@@ -76,7 +76,7 @@ func PanicOnErr(err error, info string) {
 
 // OnFalse prints info and a common error message with location info when flag is false.
 func OnFalse(flag bool) {
-	if true == flag {
+	if flag {
 		return
 	}
 	pc, fn, line, ok := runtime.Caller(1)
@@ -85,7 +85,7 @@ func OnFalse(flag bool) {
 
 // OnTrue prints info and a common error message with location info when flag is true.
 func OnTrue(flag bool) {
-	if false == flag {
+	if !flag {
 		return
 	}
 	pc, fn, line, ok := runtime.Caller(1)
@@ -94,7 +94,7 @@ func OnTrue(flag bool) {
 
 // InfoOnFalse prints info and a common error message with location info when flag is false.
 func InfoOnFalse(flag bool, info string) {
-	if true == flag {
+	if flag {
 		return
 	}
 	pc, fn, line, ok := runtime.Caller(1)
@@ -103,7 +103,7 @@ func InfoOnFalse(flag bool, info string) {
 
 // InfoOnTrue prints info and a common error message with location info when flag is true.
 func InfoOnTrue(flag bool, info string) {
-	if false == flag {
+	if !flag {
 		return
 	}
 	pc, fn, line, ok := runtime.Caller(1)
@@ -112,7 +112,7 @@ func InfoOnTrue(flag bool, info string) {
 
 // FatalOnFalse prints info and a common error message with location info when err is not nil.
 func FatalOnFalse(flag bool, info string) {
-	if true == flag {
+	if flag {
 		return
 	}
 	fmt.Println(info)
@@ -131,7 +131,7 @@ func fmtMessage(pc uintptr, fn string, line int, ok bool, err error) {
 	if ok {
 		fmt.Printf(formatString, fileName, line, funcName, err)
 	} else {
-		fmt.Printf(seriousError)
+		fmt.Print(seriousError)
 	}
 }
 
@@ -141,6 +141,6 @@ func logMessage(pc uintptr, fn string, line int, ok bool, err error) {
 	if ok {
 		log.Fatalf(formatString, fileName, line, funcName, err)
 	} else {
-		log.Fatalf(seriousError)
+		log.Fatal(seriousError)
 	}
 }

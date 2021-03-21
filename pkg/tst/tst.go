@@ -57,7 +57,7 @@ func CaptureStdOut(f func()) string {
 	outC := make(chan string)
 	go func() {
 		var buf bytes.Buffer
-		_, err := io.Copy(&buf, r)
+		_, err = io.Copy(&buf, r)
 		msg.OnErr(err)
 		outC <- buf.String()
 	}()
@@ -89,8 +89,6 @@ func EqualStrings(t *testing.T, exp, act string) {
 func Equal(tb testing.TB, exp, act interface{}) {
 	if !reflect.DeepEqual(exp, act) {
 		_, file, line, _ := runtime.Caller(1)
-		//log.Println("expect:", exp)
-		//log.Println("actual:", act)
 		es := fmt.Sprintf("%v", exp)
 		as := fmt.Sprintf("%v", act)
 		log.Println("expect:", es)
@@ -144,7 +142,7 @@ func EqualTextFiles(t *testing.T, fn0, fn1 string) {
 // EqualFiles fails test if contence is NOT equal
 func EqualFiles(t *testing.T, fn0, fn1 string) {
 	ok := equalFileContent(fn0, fn1)
-	if false == ok {
+	if !ok {
 		t.FailNow()
 	}
 }
