@@ -353,11 +353,11 @@ func (p *Flex) triceSCount() (n int, e error) {
 }
 
 func (p *Flex) triceS(cnt int) (n int, e error) {
+	o := 4
 	if cnt > 4 {
-		n = copy(p.b, fmt.Sprintf(p.trice.Strg, string(p.iBuf[8:8+cnt])))
-	} else {
-		n = copy(p.b, fmt.Sprintf(p.trice.Strg, string(p.iBuf[4:4+cnt])))
+		o += 4
 	}
+	n = copy(p.b, fmt.Sprintf(p.trice.Strg, string(p.iBuf[o:o+cnt])))
 	p.rub4(cnt)
 	return
 }
@@ -368,25 +368,51 @@ func (p *Flex) trice0() (n int, e error) {
 	return
 }
 
-func (p *Flex) trice81s() (n int, e error) {
+func (p *Flex) trice81x() (n int, e error) {
 	d := make([]uint64, 1)
-	d[0] = uint64(0xFF & p.d0)
+	split1Byte(d, p.d0)
+	//d[0] = uint64(0xFF & p.d0)
 	s, b, e := p.uReplace8(d)
 	n = copy(p.b, fmt.Sprintf(s, b[0]))
+	return
+}
+
+func (p *Flex) trice81s() (n int, e error) {
+	n, e = p.trice81x()
 	p.rub4(0)
 	return
 }
 
 func (p *Flex) trice81() (n int, e error) {
-	d := make([]uint64, 1)
-	d[0] = uint64(0xFF & p.d0)
-	s, b, e := p.uReplace8(d)
-	n = copy(p.b, fmt.Sprintf(s, b[0]))
+	n, e = p.trice81x()
 	p.rub4(1)
 	return
 }
 
+func (p *Flex) trice82x() (n int, e error) {
+	d := make([]uint64, 2)
+	split2Bytes(d, p.d0)
+	//d[0] = uint64(0xFF & (p.d0 >> 8))
+	//d[1] = uint64(0xFF & p.d0)
+	s, b, e := p.uReplace8(d)
+	n = copy(p.b, fmt.Sprintf(s, b[0], b[1]))
+	return
+}
+
 func (p *Flex) trice82s() (n int, e error) {
+	n, e = p.trice82x()
+	p.rub4(0)
+	return
+}
+
+func (p *Flex) trice82() (n int, e error) {
+	n, e = p.trice82x()
+	p.rub4(2)
+	return
+}
+
+/*
+func (p *Flex) _trice82s() (n int, e error) {
 	d := make([]uint64, 2)
 	d[0] = uint64(0xFF & (p.d0 >> 8))
 	d[1] = uint64(0xFF & p.d0)
@@ -396,7 +422,7 @@ func (p *Flex) trice82s() (n int, e error) {
 	return
 }
 
-func (p *Flex) trice82() (n int, e error) {
+func (p *Flex) _trice82() (n int, e error) {
 	d := make([]uint64, 2)
 	d[0] = uint64(0xFF & (p.d0 >> 8))
 	d[1] = uint64(0xFF & p.d0)
@@ -406,23 +432,81 @@ func (p *Flex) trice82() (n int, e error) {
 	return
 }
 
-func (p *Flex) trice83() (n int, e error) {
+func (p *Flex) _trice83() (n int, e error) {
 	d := make([]uint64, 3)
-	d[0] = uint64(0xFF & (p.d0 >> 16))
-	d[1] = uint64(0xFF & (p.d0 >> 8))
-	d[2] = uint64(0xFF & p.d0)
+	split3Bytes(d, p.d0)
 	s, b, e := p.uReplace8(d)
 	n = copy(p.b, fmt.Sprintf(s, b[0], b[1], b[2]))
 	p.rub4(3)
 	return
 }
 
+func _split4Bytes(d []uint64, u uint32) {
+	d[0] = uint64(0xFF & (u >> 24))
+	d[1] = uint64(0xFF & (u >> 16))
+	d[2] = uint64(0xFF & (u >> 8))
+	d[3] = uint64(0xFF & u)
+}
+*/
+
+func (p *Flex) trice83() (n int, e error) {
+	d := make([]uint64, 3)
+	split3Bytes(d, p.d0)
+	//d[0] = uint64(0xFF & (p.d0 >> 16))
+	//d[1] = uint64(0xFF & (p.d0 >> 8))
+	//d[2] = uint64(0xFF & p.d0)
+	s, b, e := p.uReplace8(d)
+	n = copy(p.b, fmt.Sprintf(s, b[0], b[1], b[2]))
+	p.rub4(3)
+	return
+}
+
+func split1Byte(d []uint64, u uint32) {
+	d[0] = uint64(0xFF & u)
+}
+
+func split2Bytes(d []uint64, u uint32) {
+	d[0] = uint64(0xFF & (u >> 8))
+	split1Byte(d[1:], u)
+}
+
+func split3Bytes(d []uint64, u uint32) {
+	d[0] = uint64(0xFF & (u >> 16))
+	split2Bytes(d[1:], u)
+}
+
+func split4Bytes(d []uint64, u uint32) {
+	d[0] = uint64(0xFF & (u >> 24))
+	split3Bytes(d[1:], u)
+}
+
+func split5Bytes(d []uint64, u0, u1 uint32) {
+	split4Bytes(d, u0)
+	split1Byte(d[4:], u1)
+}
+
+func split6Bytes(d []uint64, u0, u1 uint32) {
+	split4Bytes(d, u0)
+	split2Bytes(d[4:], u1)
+}
+
+func split7Bytes(d []uint64, u0, u1 uint32) {
+	split4Bytes(d, u0)
+	split3Bytes(d[4:], u1)
+}
+
+func split8Bytes(d []uint64, u0, u1 uint32) {
+	split4Bytes(d, u0)
+	split4Bytes(d[4:], u1)
+}
+
 func (p *Flex) trice84() (n int, e error) {
 	d := make([]uint64, 4)
-	d[0] = uint64(0xFF & (p.d0 >> 24))
-	d[1] = uint64(0xFF & (p.d0 >> 16))
-	d[2] = uint64(0xFF & (p.d0 >> 8))
-	d[3] = uint64(0xFF & p.d0)
+	split4Bytes(d, p.d0)
+	//d[0] = uint64(0xFF & (p.d0 >> 24))
+	//d[1] = uint64(0xFF & (p.d0 >> 16))
+	//d[2] = uint64(0xFF & (p.d0 >> 8))
+	//d[3] = uint64(0xFF & p.d0)
 	s, b, e := p.uReplace8(d)
 	n = copy(p.b, fmt.Sprintf(s, b[0], b[1], b[2], b[3]))
 	p.rub4(4)
@@ -431,11 +515,12 @@ func (p *Flex) trice84() (n int, e error) {
 
 func (p *Flex) trice85() (n int, e error) {
 	d := make([]uint64, 5)
-	d[0] = uint64(0xFF & (p.d0 >> 24))
-	d[1] = uint64(0xFF & (p.d0 >> 16))
-	d[2] = uint64(0xFF & (p.d0 >> 8))
-	d[3] = uint64(0xFF & p.d0)
-	d[4] = uint64(0xFF & p.d1)
+	split5Bytes(d, p.d0, p.d1)
+	//d[0] = uint64(0xFF & (p.d0 >> 24))
+	//d[1] = uint64(0xFF & (p.d0 >> 16))
+	//d[2] = uint64(0xFF & (p.d0 >> 8))
+	//d[3] = uint64(0xFF & p.d0)
+	//d[4] = uint64(0xFF & p.d1)
 	s, b, e := p.uReplace8(d)
 	n = copy(p.b, fmt.Sprintf(s, b[0], b[1], b[2], b[3], b[4]))
 	p.rub4(5)
@@ -444,12 +529,13 @@ func (p *Flex) trice85() (n int, e error) {
 
 func (p *Flex) trice86() (n int, e error) {
 	d := make([]uint64, 6)
-	d[0] = uint64(0xFF & (p.d0 >> 24))
-	d[1] = uint64(0xFF & (p.d0 >> 16))
-	d[2] = uint64(0xFF & (p.d0 >> 8))
-	d[3] = uint64(0xFF & p.d0)
-	d[4] = uint64(0xFF & (p.d1 >> 8))
-	d[5] = uint64(0xFF & p.d1)
+	split6Bytes(d, p.d0, p.d1)
+	//d[0] = uint64(0xFF & (p.d0 >> 24))
+	//d[1] = uint64(0xFF & (p.d0 >> 16))
+	//d[2] = uint64(0xFF & (p.d0 >> 8))
+	//d[3] = uint64(0xFF & p.d0)
+	//d[4] = uint64(0xFF & (p.d1 >> 8))
+	//d[5] = uint64(0xFF & p.d1)
 	s, b, e := p.uReplace8(d)
 	n = copy(p.b, fmt.Sprintf(s, b[0], b[1], b[2], b[3], b[4], b[5]))
 	p.rub4(6)
@@ -458,13 +544,14 @@ func (p *Flex) trice86() (n int, e error) {
 
 func (p *Flex) trice87() (n int, e error) {
 	d := make([]uint64, 7)
-	d[0] = uint64(0xFF & (p.d0 >> 24))
-	d[1] = uint64(0xFF & (p.d0 >> 16))
-	d[2] = uint64(0xFF & (p.d0 >> 8))
-	d[3] = uint64(0xFF & p.d0)
-	d[4] = uint64(0xFF & (p.d1 >> 16))
-	d[5] = uint64(0xFF & (p.d1 >> 8))
-	d[6] = uint64(0xFF & p.d1)
+	split7Bytes(d, p.d0, p.d1)
+	//d[0] = uint64(0xFF & (p.d0 >> 24))
+	//d[1] = uint64(0xFF & (p.d0 >> 16))
+	//d[2] = uint64(0xFF & (p.d0 >> 8))
+	//d[3] = uint64(0xFF & p.d0)
+	//d[4] = uint64(0xFF & (p.d1 >> 16))
+	//d[5] = uint64(0xFF & (p.d1 >> 8))
+	//d[6] = uint64(0xFF & p.d1)
 	s, b, e := p.uReplace8(d)
 	n = copy(p.b, fmt.Sprintf(s, b[0], b[1], b[2], b[3], b[4], b[5], b[6]))
 	p.rub4(7)
@@ -473,34 +560,47 @@ func (p *Flex) trice87() (n int, e error) {
 
 func (p *Flex) trice88() (n int, e error) {
 	d := make([]uint64, 8)
-	d[0] = uint64(0xFF & (p.d0 >> 24))
-	d[1] = uint64(0xFF & (p.d0 >> 16))
-	d[2] = uint64(0xFF & (p.d0 >> 8))
-	d[3] = uint64(0xFF & p.d0)
-	d[4] = uint64(0xFF & (p.d1 >> 24))
-	d[5] = uint64(0xFF & (p.d1 >> 16))
-	d[6] = uint64(0xFF & (p.d1 >> 8))
-	d[7] = uint64(0xFF & p.d1)
+	split8Bytes(d, p.d0, p.d1)
+	//d[0] = uint64(0xFF & (p.d0 >> 24))
+	//d[1] = uint64(0xFF & (p.d0 >> 16))
+	//d[2] = uint64(0xFF & (p.d0 >> 8))
+	//d[3] = uint64(0xFF & p.d0)
+	//d[4] = uint64(0xFF & (p.d1 >> 24))
+	//d[5] = uint64(0xFF & (p.d1 >> 16))
+	//d[6] = uint64(0xFF & (p.d1 >> 8))
+	//d[7] = uint64(0xFF & p.d1)
 	s, b, e := p.uReplace8(d)
 	n = copy(p.b, fmt.Sprintf(s, b[0], b[1], b[2], b[3], b[4], b[5], b[6], b[7]))
 	p.rub4(8)
 	return
 }
 
-func (p *Flex) trice161s() (n int, e error) {
+func split1Val16(d []uint64, u uint32) {
+	d[0] = uint64(0xFFFF & u)
+}
+
+func split2Val16(d []uint64, u uint32) {
+	d[0] = uint64(0xFFFF & (u >> 8))
+	split1Val16(d[1:], u)
+}
+
+func (p *Flex) trice161x() (n int, e error) {
 	d := make([]uint64, 1)
-	d[0] = uint64(0xFFFF & p.d0)
+	split1Val16(d, p.d0)
+	//d[0] = uint64(0xFFFF & p.d0)
 	s, b, e := p.uReplace16(d)
 	n = copy(p.b, fmt.Sprintf(s, b[0]))
+	return
+}
+
+func (p *Flex) trice161s() (n int, e error) {
+	n, e = p.trice161x()
 	p.rub4(0)
 	return
 }
 
 func (p *Flex) trice161() (n int, e error) {
-	d := make([]uint64, 1)
-	d[0] = uint64(0xFFFF & p.d0)
-	s, b, e := p.uReplace16(d)
-	n = copy(p.b, fmt.Sprintf(s, b[0]))
+	n, e = p.trice161x()
 	p.rub4(2)
 	return
 }
