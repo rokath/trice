@@ -116,7 +116,7 @@ func updateParamCountAndID0(text string) (string, bool) {
 				fmt.Println(triceNameWithLen)
 			}
 		}
-		// here trice name in triceC contains _n and now we need to check for Id existence now.
+		// here trice name in triceC contains _n and now we need to check for Id existence.
 		// triceC could have been modified here but text is unchanged so far.
 		idLoc := matchIDInsideTrice.FindStringIndex(triceC)
 		if nil == idLoc { // no Id(n) inside trice, so we add it
