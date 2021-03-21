@@ -16,6 +16,37 @@
 #endif
 
 
+//#define TRICE8_GETNAME(_1,_2,_3,_4, NAME,...) NAME
+//#define TRICE8(id,frmt, ...) TRICE8_GETNAME(__VA_ARGS__,TRICE8_4,TRICE8_3,TRICE8_2,TRICE8_1)(id,frmt, __VA_ARGS__)
+
+
+
+
+#define TRICE8_COUNT(_1,_2,_3,_4,_5,_6,_7,_8, NAME,...) NAME
+#define TRICE8(id,frmt, ...) TRICE8_COUNT(__VA_ARGS__,TRICE8_8,TRICE8_7,TRICE8_6,TRICE8_5,TRICE8_4,TRICE8_3,TRICE8_2,TRICE8_1)(id,frmt, __VA_ARGS__)
+
+#define TRICE16_COUNT(_1,_2,_3,_4, NAME,...) NAME
+#define TRICE16(id,frmt, ...) TRICE16_COUNT(__VA_ARGS__,TRICE16_4,TRICE16_3,TRICE16_2,TRICE16_1)(id,frmt, __VA_ARGS__)
+
+#define TRICE32_COUNT(_1,_2,_3,_4, NAME,...) NAME
+#define TRICE32(id,frmt, ...) TRICE32_COUNT(__VA_ARGS__,TRICE32_4,TRICE32_3,TRICE32_2,TRICE32_1)(id,frmt, __VA_ARGS__)
+
+#define TRICE64_COUNT(_1,_2,_3,_4, NAME,...) NAME
+#define TRICE64(id,frmt, ...) TRICE_COUNT(__VA_ARGS__,TRICE64_4,TRICE64_3,TRICE64_2,TRICE64_1)(id,frmt, __VA_ARGS__)
+
+#define TRICE8_COUNTi(_1i,_2i,_3i,_4i,_5i,_6i,_7i,_8i, NAME,...) NAME
+#define TRICE8i(id,frmt, ...) TRICE8_COUNTi(__VA_ARGS__,TRICE8_8i,TRICE8_7i,TRICE8_6i,TRICE8_5i,TRICE8_4i,TRICE8_3i,TRICE8_2i,TRICE8_1i)(id,frmt, __VA_ARGS__)
+
+#define TRICE16_COUNTi(_1i,_2i,_3i,_4i, NAME,...) NAME
+#define TRICE16i(id,frmt, ...) TRICE16_COUNTi(__VA_ARGS__,TRICE16_4i,TRICE16_3i,TRICE16_2i,TRICE16_1i)(id,frmt, __VA_ARGS__)
+
+#define TRICE32_COUNTi(_1i,_2i,_3i,_4i, NAME,...) NAME
+#define TRICE32i(id,frmt, ...) TRICE32_COUNTi(__VA_ARGS__,TRICE32_4i,TRICE32_3i,TRICE32_2i,TRICE32_1i)(id,frmt, __VA_ARGS__)
+
+#define TRICE64_COUNTi(_1i,_2i,_3i,_4i, NAME,...) NAME
+#define TRICE64i(id,frmt, ...) TRICE_COUNTi(__VA_ARGS__,TRICE64_4i,TRICE64_3,iTRICE64_2i,TRICE64_1i)(id,frmt, __VA_ARGS__)
+
+
 //! triceRuntimeGeneratedStringUnbound can transfer runtime generated strings if TRICES_1 is not available.
 TRICE_INLINE void triceRuntimeGeneratedStringUnbound( const char* s ){
     size_t len = strlen( s );
@@ -24,7 +55,8 @@ TRICE_INLINE void triceRuntimeGeneratedStringUnbound( const char* s ){
         switch( len ){
             case  0: return;
             case  1: c1=*s++;
-                TRICE8_1( Id(65329), "%c", c1 ); return;
+                TRICE8( Id(65329), "%c", c1 ); return;
+                //TRICE8_1( Id(65329), "%c", c1 ); return;
             case  2: c1=*s++; c2=*s++;
                 TRICE8_2( Id(65279), "%c%c", c1, c2 ); return;
             case  3: c1=*s++; c2=*s++; c3=*s++;
