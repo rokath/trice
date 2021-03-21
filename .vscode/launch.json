@@ -182,7 +182,7 @@
                      "-dry-run"
             ]
         },
-        { // trice update -dry-run -v -src C:/repos/trice/test -IDMin 100 -IDMax 999 -IDMethod upward -idlist c:/repos/trice/til.json 
+        {
             "name": "update",
             "type": "go",
             "request": "launch",
