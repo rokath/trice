@@ -100,17 +100,11 @@ func SubCmdUpdate() error {
 		Srcs = append(Srcs, "./") // default value
 	}
 
-	if SharedIDs {
-		update = sharedIDsUpdate
-	} else {
-		update = separatedIDsUpdate
-	}
-
 	for i := range Srcs {
 		s := Srcs[i]
 		srcU := ConditionalFilePath(s)
 		if _, err := os.Stat(srcU); err == nil { // path exists
-			update(srcU, lu, tflu, &listModified)
+			IDsUpdate(srcU, lu, tflu, &listModified)
 		} else if os.IsNotExist(err) { // path does *not* exist
 			fmt.Println(s, " -> ", srcU, "does not exist!")
 		} else {
@@ -128,5 +122,3 @@ func SubCmdUpdate() error {
 	}
 	return nil
 }
-
-var update func(string, TriceIDLookUp, TriceFmtLookUp, *bool)
