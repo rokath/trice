@@ -8,6 +8,28 @@ import (
 	"github.com/rokath/trice/pkg/tst"
 )
 
+func TestVariadicInsertId0(t *testing.T) {
+	tt := []struct{ text, exp string }{
+		{
+			`Trice8( "hi %2d",1  );`,
+			`Trice8( Id(0), "hi %2d",1  );`},
+		{
+			`TRICE8( "hi %2d, %13u, %64b, %8x %02d, %013u, %032b, %016x",1,2,3,4,5,6,7,8 );`,
+			`TRICE8( Id(0), "hi %2d, %13u, %64b, %8x %02d, %013u, %032b, %016x",1,2,3,4,5,6,7,8 );`},
+		{
+			`trice16i( "hi %2d, %13u, %64b, %8x %02d, %013u, %032b, %016x",1,2,3,4,5,6,7,8 ); // does not exist but is allowed`,
+			`trice16i( Id(0), "hi %2d, %13u, %64b, %8x %02d, %013u, %032b, %016x",1,2,3,4,5,6,7,8 ); // does not exist but is allowed`},
+	}
+	checkTestTable0(t, tt)
+}
+
+func checkTestTable0(t *testing.T, tt []struct{ text, exp string }) {
+	for _, x := range tt {
+		act, _ := updateInsertID0(x.text)
+		tst.Equal(t, x.exp, act)
+	}
+}
+
 // A wrong parameter count should not be corrected! THe compiler will complain and a decision should be made.
 func TestDoNotCorrectWrongParamCountSingle(t *testing.T) {
 	tt := []struct{ text, exp string }{

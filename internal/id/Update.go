@@ -53,17 +53,90 @@ const (
 )
 
 var (
-	matchSourceFile          = regexp.MustCompile(patSourceFile)
-	matchNbTRICE             = regexp.MustCompile(patNbTRICE)
-	matchNbID                = regexp.MustCompile(patNbID)
-	matchTypNameTRICE        = regexp.MustCompile(patTypNameTRICE)
-	matchFmtString           = regexp.MustCompile(patFmtString)
-	matchNextFormatSpezifier = regexp.MustCompile(patNextFormatSpezifier)
-	matchFullAnyTrice        = regexp.MustCompile(patFullAnyTrice)
-	matchTriceNoLen          = regexp.MustCompile(patTriceNoLen)
-	matchIDInsideTrice       = regexp.MustCompile(patIDInsideTrice)
-	matchAnyTriceStart       = regexp.MustCompile(patAnyTriceStart)
+	matchSourceFile            = regexp.MustCompile(patSourceFile)
+	matchNbTRICE               = regexp.MustCompile(patNbTRICE)
+	matchNbID                  = regexp.MustCompile(patNbID)
+	matchTypNameTRICE          = regexp.MustCompile(patTypNameTRICE)
+	matchFmtString             = regexp.MustCompile(patFmtString)
+	matchNextFormatSpezifier   = regexp.MustCompile(patNextFormatSpezifier)
+	matchFullAnyTrice          = regexp.MustCompile(patFullAnyTrice)
+	matchTriceNoLen            = regexp.MustCompile(patTriceNoLen)
+	matchIDInsideTrice         = regexp.MustCompile(patIDInsideTrice)
+	matchAnyTriceStart         = regexp.MustCompile(patAnyTriceStart)
+	ExtendMacrosWithParamCount bool
 )
+
+// updateInsertID0 stays in text as long as trice statements are found.
+// If a TRICE* is found it is getting an Id(0) inserted and it is NOT extended by _n
+// according to the format specifier count inside the formatstring. Both only if not alreay existent.
+// A not with the format specifier count matching _n is intentionally not corrected.
+// About a not matching parameter count the compiler will complain.
+// trice statements ending with letter 'i' keep the 'i' ath the end.
+// Short trices like Trice0 or Trice16_1i need to have an id(0) instead of Id(0) but that gets corrected
+// automatically when the id n is inserted.
+// text is the full filecontents, which could be modified, therefore it is also returned with a modified flag
+func updateInsertID0(text string) (string, bool) {
+	var modified bool
+	subs := text[:] // create a copy of text and assign it to subs
+	for {
+		loc := matchFullAnyTrice.FindStringIndex(subs) // find the next TRICE location in file
+		if nil == loc {
+			return text, modified // done
+		}
+		trice := subs[loc[0]:loc[1]] // the whole TRICE*(*);
+		triceC := trice              // make a copy
+
+		// here trice name in triceC contains _n or not and now we need to check for Id existence.
+		// triceC could have been modified here but text is unchanged so far.
+		idLoc := matchIDInsideTrice.FindStringIndex(triceC)
+		if nil == idLoc { // no Id(n) inside trice, so we add it
+			triceO := matchAnyTriceStart.FindString(triceC) // TRICE*( part (the trice start)
+			triceU := triceO + " Id(0),"
+			triceC = strings.Replace(triceC, triceO, triceU, 1) // insert Id(0) into trice copy
+			modified = true
+			if Verbose {
+				fmt.Print(triceO)
+				fmt.Print(" -> ")
+				fmt.Println(triceU)
+			}
+		}
+		if modified {
+			text = strings.Replace(text, trice, triceC, 1) // this works, because a trice gets changed only once
+		}
+		subs = subs[loc[1]:] // The replacement makes text not shorter, so next search can start at loc[1]
+	}
+}
+
+// FormatSpecifierCount parses s for format specifier and returns the found count.
+func FormatSpecifierCount(s string) (count int) {
+	xs := "any"
+	for "" != xs {
+		lo := matchNextFormatSpezifier.FindStringIndex(s)
+		xs = matchNextFormatSpezifier.FindString(s)
+		if "" != xs { // found
+			count++
+			s = s[lo[1]:]
+		} else {
+			xs = ""
+		}
+	}
+	return
+}
+
+// addFormatSpecifierCount extends s or si with _n or _ni and returns it as sl
+func addFormatSpecifierCount(s string, n int) (sl string) {
+	if 0 < n && n < 9 { // patch
+		if 'i' == s[len(s)-1] { // last letter is 'i'
+			sl = fmt.Sprintf(s[:len(s)-1]+"_%di", n) // TRICE*_ni
+		} else {
+			sl = fmt.Sprintf(s+"_%d", n) // TRICE*_n
+		}
+	} else {
+		fmt.Println("Parse error: ", n, " % format specifier found inside ", s)
+		sl = s
+	}
+	return
+}
 
 // updateParamCountAndID0 stays in text as long as trice statements are found.
 // If a TRICE* is found it is getting an Id(0) inserted and it is also extended by _n
@@ -86,32 +159,10 @@ func updateParamCountAndID0(text string) (string, bool) {
 		triceC := trice                                    // make a copy
 		locNoLen := matchTriceNoLen.FindStringIndex(trice) // find the next TRICE no len location in trice
 		if nil != locNoLen {                               // need to add len to trice name
-			// count % format spezifier inside formatstring
+			n := FormatSpecifierCount(triceC)
 			triceNameNoLen := triceC[locNoLen[0]:locNoLen[1]]
-			var triceNameWithLen string
-			p := triceC
-			var n int
-			xs := "any"
-			for "" != xs {
-				lo := matchNextFormatSpezifier.FindStringIndex(p)
-				xs = matchNextFormatSpezifier.FindString(p)
-				if "" != xs { // found
-					n++
-					p = p[lo[1]:]
-				} else {
-					xs = ""
-				}
-			}
-			if 0 < n && n < 9 { // patch
-				if 'i' == triceNameNoLen[len(triceNameNoLen)-1] { // last letter is 'i'
-					triceNameWithLen = fmt.Sprintf(triceNameNoLen[:len(triceNameNoLen)-1]+"_%di", n) // TRICE*_ni
-				} else {
-					triceNameWithLen = fmt.Sprintf(triceNameNoLen+"_%d", n) // TRICE*_n
-				}
-				triceC = strings.Replace(triceC, triceNameNoLen, triceNameWithLen, 1) // insert _n
-			} else {
-				fmt.Println("Parse error: ", n, " % format specifier found inside ", trice)
-			}
+			triceNameWithLen := addFormatSpecifierCount(triceNameNoLen, n)
+			triceC = strings.Replace(triceC, triceNameNoLen, triceNameWithLen, 1) // insert _n
 			modified = true
 			if Verbose {
 				fmt.Print(triceNameNoLen)
@@ -144,10 +195,6 @@ func isSourceFile(fi os.FileInfo) bool {
 	return matchSourceFile.MatchString(fi.Name())
 }
 
-func separatedIDsUpdate(root string, lu TriceIDLookUp, tflu TriceFmtLookUp, pListModified *bool) {
-	// to do
-}
-
 func refreshList(root string, lu TriceIDLookUp, tflu TriceFmtLookUp) {
 	if Verbose {
 		fmt.Println("dir=", root)
@@ -174,7 +221,7 @@ func refreshList(root string, lu TriceIDLookUp, tflu TriceFmtLookUp) {
 // - replace.Type( Id(0), ...) with.Type( Id(n), ...)
 // - find duplicate.Type( Id(n), ...) and replace one of them if trices are not identical
 // - extend file fnIDList
-func sharedIDsUpdate(root string, lu TriceIDLookUp, tflu TriceFmtLookUp, pListModified *bool) {
+func IDsUpdate(root string, lu TriceIDLookUp, tflu TriceFmtLookUp, pListModified *bool) {
 	if Verbose {
 		fmt.Println("dir=", root)
 		fmt.Println("List=", FnJSON)
@@ -229,9 +276,24 @@ func visitUpdate(lu TriceIDLookUp, tflu TriceFmtLookUp, pListModified *bool) fil
 		if nil != err {
 			return err
 		}
-		refreshIDs(text, lu, tflu)                                              // update IDs: Id(0) -> Id(M)
-		textN, fileModified0 := updateParamCountAndID0(text)                    // update parameter count: TRICE* to TRICE*_n and insert missing Id(0)
-		textU, fileModified1 := updateIDsShared(textN, lu, tflu, pListModified) // update IDs: Id(0) -> Id(M)
+		refreshIDs(text, lu, tflu) // update IDs: Id(0) -> Id(M)
+
+		var updateID0 func(text string) (string, bool)
+		if ExtendMacrosWithParamCount {
+			updateID0 = updateParamCountAndID0
+		} else {
+			updateID0 = updateInsertID0
+		}
+
+		var updateIDs func(text string, lu TriceIDLookUp, tflu TriceFmtLookUp, pListModified *bool) (string, bool)
+		if SharedIDs {
+			updateIDs = updateIDsShared
+		} else {
+			updateIDs = updateIDsShared
+		}
+
+		textN, fileModified0 := updateID0(text)                           // update parameter count: TRICE* to TRICE*_n and insert missing Id(0)
+		textU, fileModified1 := updateIDs(textN, lu, tflu, pListModified) // update IDs: Id(0) -> Id(M)
 
 		// write out
 		fileModified := fileModified0 || fileModified1
@@ -397,6 +459,7 @@ func updateIDsShared(text string, lu TriceIDLookUp, tflu TriceFmtLookUp, pListMo
 				msg.FatalOnTrue(0 == id) // no id 0 allowed in map
 			} else { // no, we need a new one
 				id = lu.newID(st) // a prerequisite is a in a previous step refreshed lu
+				*pListModified = true
 			}
 			// patch the id into text
 			var nID string
@@ -413,7 +476,6 @@ func updateIDsShared(text string, lu TriceIDLookUp, tflu TriceFmtLookUp, pListMo
 			}
 			nbTRICE := strings.Replace(nbTRICE, invalID, nID, 1)
 			text = strings.Replace(text, invalTRICE, nbTRICE, 1)
-			*pListModified = true
 			fileModified = true
 		}
 		// update map: That is needed after an invalid trice or if id:tf is valid but not inside lu & tflu yet, for example after manual code changes or forgotten refresh before update.

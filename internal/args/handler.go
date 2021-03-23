@@ -127,8 +127,11 @@ func logLoop() {
 	defer cage.Stop(c)
 	lu := id.NewLut(id.FnJSON) // lut is a map, that means a pointer
 	m := new(sync.RWMutex)     // m is a pointer to a read write mutex for lu
+	m.Lock()
+	lu.AddFmtCount()
+	m.Unlock()
 	// Just in case the id list file FnJSON gets updated, the file watcher updates lut.
-	// This way trice needs not to be restarted during development process.
+	// This way trice needs NOT to be restarted during development process.
 	go lu.FileWatcher(m)
 
 	sw := emitter.New()

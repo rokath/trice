@@ -98,6 +98,100 @@ func TestGroupA(t *testing.T) {
 	testInsertSharedIDs0ParamA(t)
 	testInsertSharedIDs1ParamA(t)
 	testInsertSharedIDs0(t)
+	testInsertSharedIDs2ParamA(t)
+}
+
+// Because of the parallel test execution the global variables must be equal for all tests.
+// The trice map does distinguish between TRICE8 and TRICE8_2 for example, so even "sameID" is selected,
+// there are 2 different IDs used when the format string is identical.
+func testInsertSharedIDs2ParamA(t *testing.T) {
+	SearchMethod = "upward"
+	Min = 40000
+	Max = 50000
+	MinShort = 10000
+	MaxShort = 20000
+	tt := []struct {
+		text, exp        string
+		fileMod, listMod bool
+	}{
+		{`...  Trice8_2 ( "hi %03u, %5x", 5, 7); ...`, `...  Trice8_2 ( id(10000), "hi %03u, %5x", 5, 7); ...`, true, true},
+		{`...  Trice8_2 ( "hi %03u, %5x", 5, 7); ...`, `...  Trice8_2 ( id(10000), "hi %03u, %5x", 5, 7); ...`, true, false},
+		{`...  Trice8_2 ( id(10000), "hi %03u, %5x", 5, 7); ...`, `...  Trice8_2 ( id(10000), "hi %03u, %5x", 5, 7); ...`, false, false},
+
+		{`...  TRICE8 ( "hi %03u, %5x", 5, 7); ...`, `...  TRICE8 ( Id( 40000), "hi %03u, %5x", 5, 7); ...`, true, true},
+		{`...  trice8 ( "hi %03u, %5x", 5, 7); ...`, `...  trice8 ( Id( 40000), "hi %03u, %5x", 5, 7); ...`, true, false},
+
+		{`... Trice16 ( "hi %03u, %5x", 5, 7); ...`, `... Trice16 ( id(10001), "hi %03u, %5x", 5, 7); ...`, true, true},
+		{`... TRICE16 ( "hi %03u, %5x", 5, 7); ...`, `... TRICE16 ( Id( 40001), "hi %03u, %5x", 5, 7); ...`, true, true},
+		{`... trice16 ( "hi %03u, %5x", 5, 7); ...`, `... trice16 ( Id( 40001), "hi %03u, %5x", 5, 7); ...`, true, false},
+
+		{`... Trice32 ( "hi %03u, %5x", 5, 7); ...`, `... Trice32 ( id(10002), "hi %03u, %5x", 5, 7); ...`, true, true}, // does not exist but allowed to match
+		{`... TRICE32 ( "hi %03u, %5x", 5, 7); ...`, `... TRICE32 ( Id( 40002), "hi %03u, %5x", 5, 7); ...`, true, true},
+		{`... trice32 ( "hi %03u, %5x", 5, 7); ...`, `... trice32 ( Id( 40002), "hi %03u, %5x", 5, 7); ...`, true, false},
+
+		{`... Trice64 ( "hi %03u, %5x", 5, 7); ...`, `... Trice64 ( id(10003), "hi %03u, %5x", 5, 7); ...`, true, true}, // does not exist but allowed to match
+		{`... TRICE64 ( "hi %03u, %5x", 5, 7); ...`, `... TRICE64 ( Id( 40003), "hi %03u, %5x", 5, 7); ...`, true, true},
+		{`... trice64 ( "hi %03u, %5x", 5, 7); ...`, `... trice64 ( Id( 40003), "hi %03u, %5x", 5, 7); ...`, true, false},
+
+		{`...  Trice8i( "hi %03u, %5x", 5, 7); ...`, `...  Trice8i( id(10004), "hi %03u, %5x", 5, 7); ...`, true, true},
+		{`...  TRICE8i( "hi %03u, %5x", 5, 7); ...`, `...  TRICE8i( Id( 40004), "hi %03u, %5x", 5, 7); ...`, true, true},
+		{`...  trice8i( "hi %03u, %5x", 5, 7); ...`, `...  trice8i( Id( 40004), "hi %03u, %5x", 5, 7); ...`, true, false},
+
+		{`... Trice16i( "hi %03u, %5x", 5, 7); ...`, `... Trice16i( id(10005), "hi %03u, %5x", 5, 7); ...`, true, true},
+		{`... TRICE16i( "hi %03u, %5x", 5, 7); ...`, `... TRICE16i( Id( 40005), "hi %03u, %5x", 5, 7); ...`, true, true},
+		{`... trice16i( "hi %03u, %5x", 5, 7); ...`, `... trice16i( Id( 40005), "hi %03u, %5x", 5, 7); ...`, true, false},
+
+		{`... Trice32i( "hi %03u, %5x", 5, 7); ...`, `... Trice32i( id(10006), "hi %03u, %5x", 5, 7); ...`, true, true}, // does not exist but allowed to match
+		{`... TRICE32i( "hi %03u, %5x", 5, 7); ...`, `... TRICE32i( Id( 40006), "hi %03u, %5x", 5, 7); ...`, true, true},
+		{`... trice32i( "hi %03u, %5x", 5, 7); ...`, `... trice32i( Id( 40006), "hi %03u, %5x", 5, 7); ...`, true, false},
+
+		{`... Trice64i( "hi %03u, %5x", 5, 7); ...`, `... Trice64i( id(10007), "hi %03u, %5x", 5, 7); ...`, true, true}, // does not exist but allowed to match
+		{`... TRICE64i( "hi %03u, %5x", 5, 7); ...`, `... TRICE64i( Id( 40007), "hi %03u, %5x", 5, 7); ...`, true, true},
+		{`... trice64i( "hi %03u, %5x", 5, 7); ...`, `... trice64i( Id( 40007), "hi %03u, %5x", 5, 7); ...`, true, false},
+
+		{`... trice64_2i( "hi %03u, %5x", 5, 7); ...`, `... trice64_2i( Id( 40008), "hi %03u, %5x", 5, 7); ...`, true, true},
+	}
+	eList := `map[10000:{Trice8_2 hi %03u, %5x} 10001:{Trice16 hi %03u, %5x} 10002:{Trice32 hi %03u, %5x} 10003:{Trice64 hi %03u, %5x} 10004:{Trice8i hi %03u, %5x} 10005:{Trice16i hi %03u, %5x} 10006:{Trice32i hi %03u, %5x} 10007:{Trice64i hi %03u, %5x} 40000:{trice8 hi %03u, %5x} 40001:{trice16 hi %03u, %5x} 40002:{trice32 hi %03u, %5x} 40003:{trice64 hi %03u, %5x} 40004:{trice8i hi %03u, %5x} 40005:{trice16i hi %03u, %5x} 40006:{trice32i hi %03u, %5x} 40007:{trice64i hi %03u, %5x} 40008:{trice64_2i hi %03u, %5x}]
+`
+	eListN := `map[10000:{Trice8_2 hi %03u, %5x} 10001:{Trice16_2 hi %03u, %5x} 10002:{Trice32_2 hi %03u, %5x} 10003:{Trice64_2 hi %03u, %5x} 10004:{Trice8_2i hi %03u, %5x} 10005:{Trice16_2i hi %03u, %5x} 10006:{Trice32_2i hi %03u, %5x} 10007:{Trice64_2i hi %03u, %5x} 40000:{trice8_2 hi %03u, %5x} 40001:{trice16_2 hi %03u, %5x} 40002:{trice32_2 hi %03u, %5x} 40003:{trice64_2 hi %03u, %5x} 40004:{trice8_2i hi %03u, %5x} 40005:{trice16_2i hi %03u, %5x} 40006:{trice32_2i hi %03u, %5x} 40007:{trice64_2i hi %03u, %5x} 40008:{trice64_2i hi %03u, %5x}]
+`
+	checkList0(t, tt, eList, eListN)
+}
+
+func checkList0(t *testing.T, tt []struct {
+	text, exp        string
+	fileMod, listMod bool
+}, eList, eListN string) {
+	lu := make(TriceIDLookUp)
+	tflu := lu.reverse()
+	for _, x := range tt {
+		act0, _ := updateInsertID0(x.text)
+		listModified := false
+		act, fileModified := updateIDsShared(act0, lu, tflu, &listModified)
+		tst.Equal(t, x.fileMod, fileModified)
+		tst.Equal(t, x.listMod, listModified)
+		tst.Equal(t, x.exp, act)
+	}
+	aList := fmt.Sprintln(lu)
+	tst.Equal(t, eList, aList)
+	lu.AddFmtCount()
+	aListN := fmt.Sprintln(lu)
+	tst.Equal(t, eListN, aListN)
+}
+
+func checkList(t *testing.T, tt []struct{ text, exp string }, eList string, modFlag bool) {
+	lu := make(TriceIDLookUp)
+	tflu := lu.reverse()
+	listModified := false
+	for _, x := range tt {
+		act0, _ := updateParamCountAndID0(x.text)
+		act, fileModified := updateIDsShared(act0, lu, tflu, &listModified)
+		tst.Equal(t, modFlag, fileModified)
+		tst.Equal(t, modFlag, listModified)
+		tst.Equal(t, x.exp, act)
+	}
+	aList := fmt.Sprintln(lu)
+	tst.Equal(t, eList, aList)
 }
 
 // Because of the parallel test execution the global variables must be equal for all tests
@@ -215,21 +309,6 @@ func TestInsertSharedIDs00(t *testing.T) {
 	eList := `map[]
 `
 	checkList(t, tt, eList, false)
-}
-
-func checkList(t *testing.T, tt []struct{ text, exp string }, eList string, modFlag bool) {
-	lu := make(TriceIDLookUp)
-	tflu := lu.reverse()
-	listModified := false
-	for _, x := range tt {
-		act0, _ := updateParamCountAndID0(x.text)
-		act, fileModified := updateIDsShared(act0, lu, tflu, &listModified)
-		tst.Equal(t, modFlag, fileModified)
-		tst.Equal(t, modFlag, listModified)
-		tst.Equal(t, x.exp, act)
-	}
-	aList := fmt.Sprintln(lu)
-	tst.Equal(t, eList, aList)
 }
 
 var tryOkSet = []idCheck{

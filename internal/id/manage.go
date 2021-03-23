@@ -138,6 +138,21 @@ func (lu TriceIDLookUp) fromFile(fn string) error {
 	return lu.FromJSON(b)
 }
 
+// AddFmtCount adds inside lu to all trice type names without format specifier count the appropriate count.
+// example change:
+// `map[10000:{Trice8_2 hi %03u, %5x} 10001:{TRICE16 hi %03u, %5x}]
+// `map[10000:{Trice8_2 hi %03u, %5x} 10001:{TRICE16_2 hi %03u, %5x}]
+func (lu TriceIDLookUp) AddFmtCount() {
+	for i, x := range lu {
+		if strings.ContainsAny(x.Type, "0_") {
+			continue
+		}
+		n := FormatSpecifierCount(x.Strg)
+		x.Type = addFormatSpecifierCount(x.Type, n)
+		lu[i] = x
+	}
+}
+
 // toJSON converts lut into JSON byte slice in human readable form.
 func (lu TriceIDLookUp) toJSON() ([]byte, error) {
 	return json.MarshalIndent(lu, "", "\t")

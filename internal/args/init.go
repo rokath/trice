@@ -141,6 +141,7 @@ func init() {
 	fsScUpdate.Var(&id.MinShort, "IDMinShort", "Lower end of ID range for short trices.") // to do: this is no multi-flag.
 	fsScUpdate.Var(&id.MaxShort, "IDMaxShort", "Upper end of ID range for short trices.") // to do: this is no multi-flag.
 	fsScUpdate.StringVar(&id.SearchMethod, "IDMethod", "random", "Search method for new ID's in range- Options are 'upward', 'downward' & 'random'.")
+	fsScUpdate.BoolVar(&id.ExtendMacrosWithParamCount, "addParamCount", false, "Extend TRICE macro names with the parameter count _n to enable compile time checks.")
 	fsScUpdate.BoolVar(&id.SharedIDs, "sharedIDs", true, `New ID policy:
 true: TriceFmt's without TriceID get equal TriceID if an equal TriceFmt exists already.
 false: TriceFmt's without TriceID get a different TriceID if an equal TriceFmt exists already.`)
