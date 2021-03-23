@@ -164,8 +164,9 @@ func checkList0(t *testing.T, tt []struct {
 }, eList, eListN string) {
 	lu := make(TriceIDLookUp)
 	tflu := lu.reverse()
+	ExtendMacrosWithParamCount = false
 	for _, x := range tt {
-		act0, _ := updateInsertID0(x.text)
+		act0, _ := updateParamCountAndID0(x.text)
 		listModified := false
 		act, fileModified := updateIDsShared(act0, lu, tflu, &listModified)
 		tst.Equal(t, x.fileMod, fileModified)

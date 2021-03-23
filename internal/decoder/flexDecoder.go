@@ -107,12 +107,16 @@ func (p *Flex) Read(b []byte) (n int, err error) {
 	return p.mediumAndLongSubEncoding(head & 0x7fffffff) // clear mode bit
 }
 
-func (p *Flex) smallSubEncoding(head uint32) (n int, err error) {
-	triceID := id.TriceID(head >> 16) // bits 30...16 are the 15-bit ID
-	var ok bool
+func (p *Flex) checkLookUpTable(triceID id.TriceID) (ok bool) {
 	p.lutMutex.RLock()
 	p.trice, ok = p.lut[triceID] // check lookup table
 	p.lutMutex.RUnlock()
+	return
+}
+
+func (p *Flex) smallSubEncoding(head uint32) (n int, err error) {
+	triceID := id.TriceID(head >> 16) // bits 30...16 are the 15-bit ID
+	ok := p.checkLookUpTable(triceID)
 	if !ok {
 		return p.outOfSync(fmt.Sprintf("unknown triceID %5d", triceID))
 	}
@@ -152,10 +156,7 @@ func (p *Flex) mediumAndLongSubEncoding(head uint32) (n int, err error) {
 		count = int(count16)
 	}
 
-	var ok bool
-	p.lutMutex.RLock()
-	p.trice, ok = p.lut[triceID] // check lookup table
-	p.lutMutex.RUnlock()
+	ok := p.checkLookUpTable(triceID)
 	if !ok {
 		return p.outOfSync(fmt.Sprintf("unknown triceID %5d", triceID))
 	}

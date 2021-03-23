@@ -48,6 +48,10 @@ func SubCmdRefreshList() (err error) {
 	return updateList(lu)
 }
 
+func refreshListAdapter(root string, lu TriceIDLookUp, tflu TriceFmtLookUp, _ *bool) {
+	refreshList(root, lu, tflu)
+}
+
 func updateList(lu TriceIDLookUp) error {
 	tflu := lu.reverse()
 
@@ -56,24 +60,8 @@ func updateList(lu TriceIDLookUp) error {
 	for k, v := range lu {
 		lu0[k] = v
 	}
-
-	if 0 == len(Srcs) {
-		Srcs = append(Srcs, "./") // default value
-	}
-
-	for i := range Srcs {
-		s := Srcs[i]
-		srcU := ConditionalFilePath(s)
-		if _, err := os.Stat(srcU); err == nil { // path exists
-			refreshList(srcU, lu, tflu)
-		} else if os.IsNotExist(err) { // path does *not* exist
-			fmt.Println(s, " -> ", srcU, "does not exist!")
-		} else {
-			fmt.Println(s, "Schrodinger: file may or may not exist. See err for details.")
-			// Therefore, do *NOT* use !os.IsNotExist(err) to test for file existence
-			// https://stackoverflow.com/questions/12518876/how-to-check-if-a-file-exists-in-go
-		}
-	}
+	var listModified bool
+	walkSrcs(refreshListAdapter, lu, tflu, &listModified)
 
 	// listModified does not help here, because it indicates that some sources are updated and therefore the list needs an update too.
 	// But here we are only scanning the source tree, so if there would be some changes they are not relevant because sources are not changed here.
@@ -95,16 +83,25 @@ func SubCmdUpdate() error {
 	lu := NewLut(FnJSON)
 	tflu := lu.reverse()
 	var listModified bool
+	walkSrcs(IDsUpdate, lu, tflu, &listModified)
+	if Verbose {
+		fmt.Println(len(lu), "ID's in List", FnJSON, "listModified=", listModified)
+	}
+	if listModified && !DryRun {
+		msg.FatalOnErr(lu.toFile(FnJSON))
+	}
+	return nil
+}
 
+func walkSrcs(f func(root string, lu TriceIDLookUp, tflu TriceFmtLookUp, pListModified *bool), lu TriceIDLookUp, tflu TriceFmtLookUp, pListModified *bool) {
 	if 0 == len(Srcs) {
 		Srcs = append(Srcs, "./") // default value
 	}
-
 	for i := range Srcs {
 		s := Srcs[i]
 		srcU := ConditionalFilePath(s)
 		if _, err := os.Stat(srcU); err == nil { // path exists
-			IDsUpdate(srcU, lu, tflu, &listModified)
+			f(srcU, lu, tflu, pListModified)
 		} else if os.IsNotExist(err) { // path does *not* exist
 			fmt.Println(s, " -> ", srcU, "does not exist!")
 		} else {
@@ -113,12 +110,4 @@ func SubCmdUpdate() error {
 			// https://stackoverflow.com/questions/12518876/how-to-check-if-a-file-exists-in-go
 		}
 	}
-
-	if Verbose {
-		fmt.Println(len(lu), "ID's in List", FnJSON, "listModified=", listModified)
-	}
-	if listModified && !DryRun {
-		msg.FatalOnErr(lu.toFile(FnJSON))
-	}
-	return nil
 }

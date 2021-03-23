@@ -25,7 +25,7 @@ func TestVariadicInsertId0(t *testing.T) {
 
 func checkTestTable0(t *testing.T, tt []struct{ text, exp string }) {
 	for _, x := range tt {
-		act, _ := updateInsertID0(x.text)
+		act, _ := updateParamCountAndID0(x.text)
 		tst.Equal(t, x.exp, act)
 	}
 }
@@ -542,6 +542,7 @@ func TestOptionallyExtendLenAndInsertID0(t *testing.T) {
 }
 
 func checkTestTable(t *testing.T, tt []struct{ text, exp string }) {
+	ExtendMacrosWithParamCount = true
 	for _, x := range tt {
 		act, _ := updateParamCountAndID0(x.text)
 		tst.Equal(t, x.exp, act)
