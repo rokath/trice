@@ -59,7 +59,7 @@ func (lu TriceIDLookUp) newID(shortTrice bool) TriceID {
 func (lu TriceIDLookUp) newRandomID(min, max TriceID) (id TriceID) {
 	interval := int(max - min + 1)
 	freeIDs := interval - len(lu)
-	msg.FatalOnFalse(freeIDs > 0, "no new ID possible, "+fmt.Sprint(min, max, len(lu)))
+	msg.FatalInfoOnFalse(freeIDs > 0, "no new ID possible, "+fmt.Sprint(min, max, len(lu)))
 	wrnLimit := interval >> 2 // 25%
 	msg.InfoOnTrue(freeIDs < wrnLimit, "WARNING: Less than 25% IDs free!")
 	id = min + TriceID(rand.Intn(interval))
@@ -84,7 +84,7 @@ func (lu TriceIDLookUp) newRandomID(min, max TriceID) (id TriceID) {
 func (lu TriceIDLookUp) newUpwardID(min, max TriceID) (id TriceID) {
 	interval := int(max - min + 1)
 	freeIDs := interval - len(lu)
-	msg.FatalOnFalse(freeIDs > 0, "no new ID possible: "+fmt.Sprint("min=", min, ", max=", max, ", used=", len(lu)))
+	msg.FatalInfoOnFalse(freeIDs > 0, "no new ID possible: "+fmt.Sprint("min=", min, ", max=", max, ", used=", len(lu)))
 	id = min
 	if 0 == len(lu) {
 		return
@@ -106,7 +106,7 @@ func (lu TriceIDLookUp) newUpwardID(min, max TriceID) (id TriceID) {
 func (lu TriceIDLookUp) newDownwardID(min, max TriceID) (id TriceID) {
 	interval := int(max - min + 1)
 	freeIDs := interval - len(lu)
-	msg.FatalOnFalse(freeIDs > 0, "no new ID possible: "+fmt.Sprint("min=", min, ", max=", max, ", used=", len(lu)))
+	msg.FatalInfoOnFalse(freeIDs > 0, "no new ID possible: "+fmt.Sprint("min=", min, ", max=", max, ", used=", len(lu)))
 	id = max
 	if 0 == len(lu) {
 		return

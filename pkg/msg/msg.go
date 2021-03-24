@@ -18,21 +18,13 @@ func Info(info string) {
 	fmtMessage(pc, fn, line, ok, errors.New(info))
 }
 
+// OnErr
+
 // OnErr prints info and a common error message with location info when err is not nil.
 func OnErr(err error) {
 	if nil == err {
 		return
 	}
-	pc, fn, line, ok := runtime.Caller(1)
-	fmtMessage(pc, fn, line, ok, err)
-}
-
-// InfoOnErr prints info and a common error message with location info when err is not nil.
-func InfoOnErr(err error, info string) {
-	if nil == err {
-		return
-	}
-	fmt.Println(info)
 	pc, fn, line, ok := runtime.Caller(1)
 	fmtMessage(pc, fn, line, ok, err)
 }
@@ -46,13 +38,25 @@ func FatalOnErr(err error) {
 	logMessage(pc, fn, line, ok, err)
 }
 
-// FatalOnTrue ends in osExit(1) if flag is true.
-func FatalOnTrue(flag bool) {
-	if !flag {
+// PanicOnErr ends in panic if err not nil.
+func PanicOnErr(err error, info string) {
+	if nil == err {
 		return
 	}
+	log.Println(info)
+	panic(err)
+}
+
+// InfoOnErr
+
+// InfoOnErr prints info and a common error message with location info when err is not nil.
+func InfoOnErr(err error, info string) {
+	if nil == err {
+		return
+	}
+	fmt.Println(info)
 	pc, fn, line, ok := runtime.Caller(1)
-	logMessage(pc, fn, line, ok, nil)
+	fmtMessage(pc, fn, line, ok, err)
 }
 
 // FatalInfoOnErr ends in osExit(1) if err not nil.
@@ -65,27 +69,52 @@ func FatalInfoOnErr(err error, info string) {
 	logMessage(pc, fn, line, ok, err)
 }
 
-// PanicOnErr ends in panic if err not nil.
-func PanicOnErr(err error, info string) {
-	if nil == err {
-		return
-	}
-	log.Println(info)
-	panic(err)
-}
+// OnTrue
 
-// OnFalse prints info and a common error message with location info when flag is false.
-func OnFalse(flag bool) {
-	if flag {
+// OnTrue prints info and a common error message with location info when flag is true.
+func OnTrue(flag bool) {
+	if !flag {
 		return
 	}
 	pc, fn, line, ok := runtime.Caller(1)
 	fmtMessage(pc, fn, line, ok, nil)
 }
 
-// OnTrue prints info and a common error message with location info when flag is true.
-func OnTrue(flag bool) {
+// FatalOnTrue ends in osExit(1) if flag is true.
+func FatalOnTrue(flag bool) {
 	if !flag {
+		return
+	}
+	pc, fn, line, ok := runtime.Caller(1)
+	logMessage(pc, fn, line, ok, nil)
+}
+
+// InfoOnTrue
+
+// InfoOnTrue prints info and a common error message with location info when flag is true.
+func InfoOnTrue(flag bool, info string) {
+	if !flag {
+		return
+	}
+	pc, fn, line, ok := runtime.Caller(1)
+	fmtMessage(pc, fn, line, ok, errors.New(info))
+}
+
+// FatalInfoOnTrue prints info and a common error message with location info when err is not nil.
+func FatalInfoOnTrue(flag bool, info string) {
+	if !flag {
+		return
+	}
+	fmt.Println(info)
+	pc, fn, line, ok := runtime.Caller(1)
+	logMessage(pc, fn, line, ok, errors.New(info))
+}
+
+// OnFalse
+
+// OnFalse prints info and a common error message with location info when flag is false.
+func OnFalse(flag bool) {
+	if flag {
 		return
 	}
 	pc, fn, line, ok := runtime.Caller(1)
@@ -101,17 +130,8 @@ func InfoOnFalse(flag bool, info string) {
 	fmtMessage(pc, fn, line, ok, errors.New(info))
 }
 
-// InfoOnTrue prints info and a common error message with location info when flag is true.
-func InfoOnTrue(flag bool, info string) {
-	if !flag {
-		return
-	}
-	pc, fn, line, ok := runtime.Caller(1)
-	fmtMessage(pc, fn, line, ok, errors.New(info))
-}
-
-// FatalOnFalse prints info and a common error message with location info when err is not nil.
-func FatalOnFalse(flag bool, info string) {
+// FatalInfoOnFalse prints info and a common error message with location info when err is not nil.
+func FatalInfoOnFalse(flag bool, info string) {
 	if flag {
 		return
 	}
