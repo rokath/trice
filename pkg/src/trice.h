@@ -66,6 +66,30 @@ void InitXteaTable(void);
     
 #endif // #ifdef ENCRYPT
 
+#define TRICE8_COUNT(_1,_2,_3,_4,_5,_6,_7,_8, NAME,...) NAME
+#define TRICE8(id,frmt, ...) TRICE8_COUNT(__VA_ARGS__,TRICE8_8,TRICE8_7,TRICE8_6,TRICE8_5,TRICE8_4,TRICE8_3,TRICE8_2,TRICE8_1)(id,frmt, __VA_ARGS__)
+
+#define TRICE16_COUNT(_1,_2,_3,_4, NAME,...) NAME
+#define TRICE16(id,frmt, ...) TRICE16_COUNT(__VA_ARGS__,TRICE16_4,TRICE16_3,TRICE16_2,TRICE16_1)(id,frmt, __VA_ARGS__)
+
+#define TRICE32_COUNT(_1,_2,_3,_4, NAME,...) NAME
+#define TRICE32(id,frmt, ...) TRICE32_COUNT(__VA_ARGS__,TRICE32_4,TRICE32_3,TRICE32_2,TRICE32_1)(id,frmt, __VA_ARGS__)
+
+#define TRICE64_COUNT(_1,_2,_3,_4, NAME,...) NAME
+#define TRICE64(id,frmt, ...) TRICE64_COUNT(__VA_ARGS__,TRICE64_4,TRICE64_3,TRICE64_2,TRICE64_1)(id,frmt, __VA_ARGS__)
+
+#define TRICE8_COUNTi(_1i,_2i,_3i,_4i,_5i,_6i,_7i,_8i, NAME,...) NAME
+#define TRICE8i(id,frmt, ...) TRICE8_COUNTi(__VA_ARGS__,TRICE8_8i,TRICE8_7i,TRICE8_6i,TRICE8_5i,TRICE8_4i,TRICE8_3i,TRICE8_2i,TRICE8_1i)(id,frmt, __VA_ARGS__)
+
+#define TRICE16_COUNTi(_1i,_2i,_3i,_4i, NAME,...) NAME
+#define TRICE16i(id,frmt, ...) TRICE16_COUNTi(__VA_ARGS__,TRICE16_4i,TRICE16_3i,TRICE16_2i,TRICE16_1i)(id,frmt, __VA_ARGS__)
+
+#define TRICE32_COUNTi(_1i,_2i,_3i,_4i, NAME,...) NAME
+#define TRICE32i(id,frmt, ...) TRICE32_COUNTi(__VA_ARGS__,TRICE32_4i,TRICE32_3i,TRICE32_2i,TRICE32_1i)(id,frmt, __VA_ARGS__)
+
+#define TRICE64_COUNTi(_1i,_2i,_3i,_4i, NAME,...) NAME
+#define TRICE64i(id,frmt, ...) TRICE64_COUNTi(__VA_ARGS__,TRICE64_4i,TRICE64_3i,TRICE64_2i,TRICE64_1i)(id,frmt, __VA_ARGS__)
+
 #define TRICE_U8_JOIN(  first, second ) ((uint16_t)((((uint8_t )(first))<< 8)|((uint8_t )(second)))) //!< helper macro
 #define TRICE_U16_JOIN( first, second ) (          ((((uint32_t)(first))<<16)|((uint16_t)(second)))) //!< helper macro
 

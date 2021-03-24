@@ -107,6 +107,12 @@ TRICE16( "MSG: %d Kelvin\n", k );
 `trice update` (run it automatically in the tool chain) changes it to  
 
 ```c
+TRICE16( Id(12345), "MSG: %d Kelvin\n", k );
+```
+
+or (if `-addParamCount` is used)
+
+```c
 TRICE16_1( Id(12345), "MSG: %d Kelvin\n", k );
 ```
 
@@ -114,7 +120,7 @@ and adds the *ID 12345* together with *"MSG: %d Kelvin\n"* into a **t**rice **I*
 
 - The *12345* is a randomly generated 16 bit ID not used so far.
 - With the `16` in TRICE**16** you adjust the parameter size to 16 bit what allows more runtime efficient code compared to `32` or `64`.
-- The appended **_1** sets the expected parameter count to 1, allowing further optimization and also a compile time parameter count check.
+- The appended **_1** sets the expected parameter count to 1, allowing a compile time parameter count check.
 - During compilation the `TRICE16_1` macro is translated to only a *12345* reference and the variable *k*. The format string never sees the target.
 
 This is a slightly simplified view:
@@ -136,7 +142,7 @@ This is a slightly simplified view:
 
 ## How to start
 
-- Get [trice](https://github.com/rokath/trice) or download latest release assets for your system: Source code and compressed binaries
+- Get [trice](https://github.com/rokath/trice) or download latest release assets for your system: Source code and compressed binaries.
 - A port to Darwin should be easy possible.  
 
 ### Either use pre-compiled `trice` binary
@@ -165,6 +171,7 @@ trice help
 
 ### Quick target setup
 
+- It is sufficient for most cases just to use the `TRICE32` macro with max 4 parameters as a replacement for `printf` and to use the default settings.
 - Compare the **not** instrumented test project [MDK-ARM_LL_generatedDemo_STM32F030R8-NUCLEO-64](https://github.com/rokath/trice/tree/master/test/MDK-ARM_LL_generatedDemo_STM32F030R8-NUCLEO-64) with one of the instrumented test projects in [test](https://github.com/rokath/trice/tree/master/test/) to see what to to.
   - Recommendation: FLEX encoding
 - **Or** follow these steps for instrumentation information even your target processor is not an ARM (any bit width will do):
