@@ -8,28 +8,6 @@ import (
 	"github.com/rokath/trice/pkg/tst"
 )
 
-func TestVariadicInsertId0(t *testing.T) {
-	tt := []struct{ text, exp string }{
-		{
-			`Trice8( "hi %2d",1  );`,
-			`Trice8( Id(0), "hi %2d",1  );`},
-		{
-			`TRICE8( "hi %2d, %13u, %64b, %8x %02d, %013u, %032b, %016x",1,2,3,4,5,6,7,8 );`,
-			`TRICE8( Id(0), "hi %2d, %13u, %64b, %8x %02d, %013u, %032b, %016x",1,2,3,4,5,6,7,8 );`},
-		{
-			`trice16i( "hi %2d, %13u, %64b, %8x %02d, %013u, %032b, %016x",1,2,3,4,5,6,7,8 ); // does not exist but is allowed`,
-			`trice16i( Id(0), "hi %2d, %13u, %64b, %8x %02d, %013u, %032b, %016x",1,2,3,4,5,6,7,8 ); // does not exist but is allowed`},
-	}
-	checkTestTable0(t, tt)
-}
-
-func checkTestTable0(t *testing.T, tt []struct{ text, exp string }) {
-	for _, x := range tt {
-		act, _ := updateParamCountAndID0(x.text)
-		tst.Equal(t, x.exp, act)
-	}
-}
-
 // A wrong parameter count should not be corrected! THe compiler will complain and a decision should be made.
 func TestDoNotCorrectWrongParamCountSingle(t *testing.T) {
 	tt := []struct{ text, exp string }{
@@ -40,7 +18,7 @@ func TestDoNotCorrectWrongParamCountSingle(t *testing.T) {
 			`TRICE8_2( Id(0), "hi %2d, %13u, %64b, %8x %02d, %013u, %032b, %016x",1,2,3,4,5,6,7,8 );`,
 			`TRICE8_2( Id(0), "hi %2d, %13u, %64b, %8x %02d, %013u, %032b, %016x",1,2,3,4,5,6,7,8 );`},
 	}
-	checkTestTable(t, tt)
+	checkTestTable(t, tt, true)
 }
 
 func TestInsertParamCountAndIDNoParam(t *testing.T) {
@@ -52,7 +30,7 @@ func TestInsertParamCountAndIDNoParam(t *testing.T) {
 		{`... TRICE0i ( "hi"); ...`, `... TRICE0i ( Id(0), "hi"); ...`},
 		{`... trice0i ( "hi"); ...`, `... trice0i ( Id(0), "hi"); ...`},
 	}
-	checkTestTable(t, tt)
+	checkTestTable(t, tt, true)
 }
 
 func TestInsertParamCountAndIDOneParam(t *testing.T) {
@@ -82,7 +60,7 @@ func TestInsertParamCountAndIDOneParam(t *testing.T) {
 		{`... TRICE64i ( "hi %03u", 5); ...`, `... TRICE64_1i ( Id(0), "hi %03u", 5); ...`},
 		{`... trice64i ( "hi %03u", 5); ...`, `... trice64_1i ( Id(0), "hi %03u", 5); ...`},
 	}
-	checkTestTable(t, tt)
+	checkTestTable(t, tt, true)
 }
 
 func TestInsertParamCountAndIDTwoParam(t *testing.T) {
@@ -112,7 +90,7 @@ func TestInsertParamCountAndIDTwoParam(t *testing.T) {
 		{`...  TRICE64i( "hi %03u %03d", 5, 7 ); ...`, `...  TRICE64_2i( Id(0), "hi %03u %03d", 5, 7 ); ...`},
 		{`...  trice64i( "hi %03u %03d", 5, 7 ); ...`, `...  trice64_2i( Id(0), "hi %03u %03d", 5, 7 ); ...`},
 	}
-	checkTestTable(t, tt)
+	checkTestTable(t, tt, true)
 }
 
 func TestInsertParamCountAndIDThreeParam(t *testing.T) {
@@ -142,7 +120,7 @@ func TestInsertParamCountAndIDThreeParam(t *testing.T) {
 		{`...  TRICE64i( "hi %03u %03d %16b", 5, 7, 9 ); ...`, `...  TRICE64_3i( Id(0), "hi %03u %03d %16b", 5, 7, 9 ); ...`}, // does not exist but allowed to match
 		{`...  trice64i( "hi %03u %03d %16b", 5, 7, 9 ); ...`, `...  trice64_3i( Id(0), "hi %03u %03d %16b", 5, 7, 9 ); ...`}, // does not exist but allowed to match
 	}
-	checkTestTable(t, tt)
+	checkTestTable(t, tt, true)
 }
 
 func TestInsertParamCountAndIDFourParam(t *testing.T) {
@@ -172,7 +150,7 @@ func TestInsertParamCountAndIDFourParam(t *testing.T) {
 		{`...  TRICE64i( "hi %03u %03d %16b 0x%08x", 5, 7, 9, 3 ); ...`, `...  TRICE64_4i( Id(0), "hi %03u %03d %16b 0x%08x", 5, 7, 9, 3 ); ...`}, // does not exist but allowed to match
 		{`...  trice64i( "hi %03u %03d %16b 0x%08x", 5, 7, 9, 3 ); ...`, `...  trice64_4i( Id(0), "hi %03u %03d %16b 0x%08x", 5, 7, 9, 3 ); ...`}, // does not exist but allowed to match
 	}
-	checkTestTable(t, tt)
+	checkTestTable(t, tt, true)
 }
 
 func TestInsertParamCountAndIDFiveParam(t *testing.T) {
@@ -202,7 +180,7 @@ func TestInsertParamCountAndIDFiveParam(t *testing.T) {
 		{`...  TRICE64i( "hi %03u %03d %16b 0x%08x %X", 5, 7, 9, 3, 2 ); ...`, `...  TRICE64_5i( Id(0), "hi %03u %03d %16b 0x%08x %X", 5, 7, 9, 3, 2 ); ...`}, // does not exist but allowed to match
 		{`...  trice64i( "hi %03u %03d %16b 0x%08x %X", 5, 7, 9, 3, 2 ); ...`, `...  trice64_5i( Id(0), "hi %03u %03d %16b 0x%08x %X", 5, 7, 9, 3, 2 ); ...`}, // does not exist but allowed to match
 	}
-	checkTestTable(t, tt)
+	checkTestTable(t, tt, true)
 }
 
 func TestInsertParamCountAndIDSixParam(t *testing.T) {
@@ -232,7 +210,7 @@ func TestInsertParamCountAndIDSixParam(t *testing.T) {
 		{`...  TRICE64i( "hi %03u %03d %16b 0x%08x %X %17d", 5, 7, 9, 3, 2, 4 ); ...`, `...  TRICE64_6i( Id(0), "hi %03u %03d %16b 0x%08x %X %17d", 5, 7, 9, 3, 2, 4 ); ...`}, // does not exist but allowed to match
 		{`...  trice64i( "hi %03u %03d %16b 0x%08x %X %17d", 5, 7, 9, 3, 2, 4 ); ...`, `...  trice64_6i( Id(0), "hi %03u %03d %16b 0x%08x %X %17d", 5, 7, 9, 3, 2, 4 ); ...`}, // does not exist but allowed to match
 	}
-	checkTestTable(t, tt)
+	checkTestTable(t, tt, true)
 }
 
 func TestInsertParamCountAndIDSevenParam(t *testing.T) {
@@ -262,7 +240,7 @@ func TestInsertParamCountAndIDSevenParam(t *testing.T) {
 		{`...  TRICE64i( "hi %03u %03d %16b 0x%08x %X %17d %99u", 5, 7, 9, 3, 2, 4, 6 ); ...`, `...  TRICE64_7i( Id(0), "hi %03u %03d %16b 0x%08x %X %17d %99u", 5, 7, 9, 3, 2, 4, 6 ); ...`}, // does not exist but allowed to match
 		{`...  trice64i( "hi %03u %03d %16b 0x%08x %X %17d %99u", 5, 7, 9, 3, 2, 4, 6 ); ...`, `...  trice64_7i( Id(0), "hi %03u %03d %16b 0x%08x %X %17d %99u", 5, 7, 9, 3, 2, 4, 6 ); ...`}, // does not exist but allowed to match
 	}
-	checkTestTable(t, tt)
+	checkTestTable(t, tt, true)
 }
 
 func TestInsertParamCountAndIDEightParam(t *testing.T) {
@@ -292,7 +270,7 @@ func TestInsertParamCountAndIDEightParam(t *testing.T) {
 		{`...  TRICE64i( "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`, `...  TRICE64_8i( Id(0), "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`}, // does not exist but allowed to match
 		{`...  trice64i( "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`, `...  trice64_8i( Id(0), "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`}, // does not exist but allowed to match
 	}
-	checkTestTable(t, tt)
+	checkTestTable(t, tt, true)
 }
 
 func TestInsertParamCountAndIDAll0(t *testing.T) {
@@ -514,7 +492,7 @@ func TestInsertParamCountAndIDAll0(t *testing.T) {
 			`... trice64i( "hi %d, %u", 5, h); ...`,
 			`... trice64_2i( Id(0), "hi %d, %u", 5, h); ...`},
 	}
-	checkTestTable(t, tt)
+	checkTestTable(t, tt, true)
 }
 
 func TestOptionallyExtendLenAndInsertID0(t *testing.T) {
@@ -538,13 +516,27 @@ func TestOptionallyExtendLenAndInsertID0(t *testing.T) {
 			`trice_s  ( "%s\n", "rts" );`,
 			`trice_s  ( Id(0), "%s\n", "rts" );`},
 	}
-	checkTestTable(t, tt)
+	checkTestTable(t, tt, true)
 }
 
-func checkTestTable(t *testing.T, tt []struct{ text, exp string }) {
-	ExtendMacrosWithParamCount = true
+func TestVariadicInsertId0(t *testing.T) {
+	tt := []struct{ text, exp string }{
+		{
+			`Trice8( "hi %2d",1  );`,
+			`Trice8( Id(0), "hi %2d",1  );`},
+		{
+			`TRICE8( "hi %2d, %13u, %64b, %8x %02d, %013u, %032b, %016x",1,2,3,4,5,6,7,8 );`,
+			`TRICE8( Id(0), "hi %2d, %13u, %64b, %8x %02d, %013u, %032b, %016x",1,2,3,4,5,6,7,8 );`},
+		{
+			`trice16i( "hi %2d, %13u, %64b, %8x %02d, %013u, %032b, %016x",1,2,3,4,5,6,7,8 ); // does not exist but is allowed`,
+			`trice16i( Id(0), "hi %2d, %13u, %64b, %8x %02d, %013u, %032b, %016x",1,2,3,4,5,6,7,8 ); // does not exist but is allowed`},
+	}
+	checkTestTable(t, tt, false)
+}
+
+func checkTestTable(t *testing.T, tt []struct{ text, exp string }, extend bool) {
 	for _, x := range tt {
-		act, _ := updateParamCountAndID0(x.text)
+		act, _ := updateParamCountAndID0(x.text, extend)
 		tst.Equal(t, x.exp, act)
 	}
 }

@@ -149,12 +149,12 @@ void triceCheckSet(int index) {
             TRICE64i( Id( 52986), "rd:%d\n", 1 );
             TRICE64i( Id( 41911), "rd:%d, %d\n", 1, 2 );
         /*
-            trice0(Id(65304), "--------------------------------------------------\n");
-            trice0(Id(65304), "--------------------------------------------------\n");
-            trice16_1(Id(65168), "dbg:12345 as 16bit is %#016b\n", 12345);
-            trice0(Id(65304), "--------------------------------------------------\n");
-            trice0(Id(65010), "sig:This ASSERT error is just a demo and no real error:\n");
-            trice0(Id(65304), "--------------------------------------------------\n");
+            trice0(Id( 36646), "--------------------------------------------------\n");
+            trice0(Id( 51718), "--------------------------------------------------\n");
+            trice16_1(Id( 60271), "dbg:12345 as 16bit is %#016b\n", 12345);
+            trice0(Id( 43956), "--------------------------------------------------\n");
+            trice0(Id( 56427), "sig:This ASSERT error is just a demo and no real error:\n");
+            trice0(Id( 64938), "--------------------------------------------------\n");
 
             TRICE0(Id(65304), "--------------------------------------------------\n");
             TRICE0(Id(65304), "--------------------------------------------------\n");
@@ -162,18 +162,18 @@ void triceCheckSet(int index) {
             TRICE0(Id(65304), "--------------------------------------------------\n");
             TRICE0(Id(65010), "sig:This ASSERT error is just a demo and no real error:\n");
             TRICE0(Id(65304), "--------------------------------------------------\n");
-            trice16_1(Id(62535), "ERR:error       message, SysTick is %6u\n", SYSTICKVAL16);
-            trice16_1(Id(10761), "WRN:warning     message, SysTick is %6u\n", SYSTICKVAL16);
-            trice16_1(Id(17536), "ATT:attention   message, SysTick is %6u\n", SYSTICKVAL16);
-            trice16_1(Id(45064), "DIA:diagnostics message, SysTick is %6u\n", SYSTICKVAL16);
-            trice16_1(Id(59225), "TIM:timing      message, SysTick is %6u\n", SYSTICKVAL16);
-            trice16_1(Id( 8101), "DBG:debug       message, SysTick is %6u\n", SYSTICKVAL16);
-            trice16_1(Id(24194), "SIG:signal      message, SysTick is %6u\n", SYSTICKVAL16);
-            trice16_1(Id(61024), "RD:read         message, SysTick is %6u\n", SYSTICKVAL16);
-            trice16_1(Id(34882), "WR:write        message, SysTick is %6u\n", SYSTICKVAL16);
-            trice16_1(Id(31820), "ISR:interrupt   message, SysTick is %6u\n", SYSTICKVAL16);
-            trice16_1(Id(57007), "MSG:normal      message, SysTick is %6u\n", SYSTICKVAL16);
-            trice16_1(Id(13390), "INFO:informal   message, SysTick is %6u\n", SYSTICKVAL16);
+            trice16_1(Id( 62064), "ERR:error       message, SysTick is %6u\n", SYSTICKVAL16);
+            trice16_1(Id( 39944), "WRN:warning     message, SysTick is %6u\n", SYSTICKVAL16);
+            trice16_1(Id( 39100), "ATT:attention   message, SysTick is %6u\n", SYSTICKVAL16);
+            trice16_1(Id( 44117), "DIA:diagnostics message, SysTick is %6u\n", SYSTICKVAL16);
+            trice16_1(Id( 49379), "TIM:timing      message, SysTick is %6u\n", SYSTICKVAL16);
+            trice16_1(Id( 35238), "DBG:debug       message, SysTick is %6u\n", SYSTICKVAL16);
+            trice16_1(Id( 44967), "SIG:signal      message, SysTick is %6u\n", SYSTICKVAL16);
+            trice16_1(Id( 42601), "RD:read         message, SysTick is %6u\n", SYSTICKVAL16);
+            trice16_1(Id( 55715), "WR:write        message, SysTick is %6u\n", SYSTICKVAL16);
+            trice16_1(Id( 43733), "ISR:interrupt   message, SysTick is %6u\n", SYSTICKVAL16);
+            trice16_1(Id( 36351), "MSG:normal      message, SysTick is %6u\n", SYSTICKVAL16);
+            trice16_1(Id( 45671), "INFO:informal   message, SysTick is %6u\n", SYSTICKVAL16);
 
             TRICE16_1(Id(62535), "ERR:error       message, SysTick is %6u\n", SYSTICKVAL16);
             TRICE16_1(Id(10761), "WRN:warning     message, SysTick is %6u\n", SYSTICKVAL16);
@@ -192,11 +192,11 @@ void triceCheckSet(int index) {
         case 2:
             trice16_1(Id(21430), "tst:trice16_1   message, SysTick is %6u\n", SYSTICKVAL16);
             trice16_1(Id(21430), "tst:trice16_1   message, SysTick is %6u\n", SYSTICKVAL16);
+            trice16_1(Id( 40252), "tst:trice16_1   message, SysTick is %6u\n", SYSTICKVAL16);
             trice16_1(Id(21430), "tst:trice16_1   message, SysTick is %6u\n", SYSTICKVAL16);
-            trice16_1(Id(21430), "tst:trice16_1   message, SysTick is %6u\n", SYSTICKVAL16);
             trice32_1(Id(65462), "tst:trice32_1   message, SysTick is %6d\n", SYSTICKVAL16);
-            trice32_1(Id(65462), "tst:trice32_1   message, SysTick is %6d\n", SYSTICKVAL16);
-            trice32_1(Id(65462), "tst:trice32_1   message, SysTick is %6d\n", SYSTICKVAL16);
+            trice32_1(Id( 55290), "tst:trice32_1   message, SysTick is %6d\n", SYSTICKVAL16);
+            trice32_1(Id( 33633),"tst:trice32_1   message, SysTick is %6d\n", SYSTICKVAL16);
             trice32_1(Id(65462), "tst:trice32_1   message, SysTick is %6d\n", SYSTICKVAL16);
 
             TRICE16_1(Id(10813), "time:TRICE16_1   message, SysTick is %6u\n", SYSTICKVAL16);
@@ -307,17 +307,17 @@ void triceCheckSet(int index) {
             TRICE64_2(Id(65391), "tst:TRICE64_2 %d %d\n", -111, -222); // 4
             break;
         case 10:
-            trice0(Id(65184), "e:A");
-            trice0(Id(65042), "w:B");
-            trice0(Id(65167), "a:c");
-            trice0(Id(65443), "wr:d");
-            trice0(Id(65367), "rd:e\n");
-            trice0(Id(65090), "diag:f");
-            trice0(Id(65201), "d:G");
-            trice0(Id(65517), "t:H");
-            trice0(Id(65041), "time:i");
-            trice0(Id(65344), "message:J");
-            trice0(Id(65314), "dbg:k\n");                  
+            trice0(Id( 36633), "e:A");
+            trice0(Id( 35689), "w:B");
+            trice0(Id( 34130), "a:c");
+            trice0(Id( 46494), "wr:d");
+            trice0(Id( 51208), "rd:e\n");
+            trice0(Id( 52191), "diag:f");
+            trice0(Id( 63466), "d:G");
+            trice0(Id( 51003), "t:H");
+            trice0(Id( 36379), "time:i");
+            trice0(Id( 37773), "message:J");
+            trice0(Id( 56998), "dbg:k\n");                  
         
             TRICE0(Id(65184), "e:A");
             TRICE0(Id(65042), "w:B");
@@ -332,13 +332,13 @@ void triceCheckSet(int index) {
             TRICE0(Id(65314), "dbg:k\n");
             break;
         case 11:
-            trice0(Id(65228), "1");
-            trice0(Id(65161), "2");
-            trice0(Id(65109), "3");
-            trice0(Id(65219), "4");
-            trice0(Id(65046), "e:7");
-            trice0(Id(65005), "m:12");
-            trice0(Id(65385), "m:123\n");
+            trice0(Id( 51375), "1");
+            trice0(Id( 38569), "2");
+            trice0(Id( 34274), "3");
+            trice0(Id( 65459), "4");
+            trice0(Id( 38013), "e:7");
+            trice0(Id( 62317), "m:12");
+            trice0(Id( 43675), "m:123\n");
 
             TRICE0(Id(65228), "1");
             TRICE0(Id(65161), "2");

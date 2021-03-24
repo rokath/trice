@@ -75,7 +75,7 @@ var (
 // Short trices like Trice0 or Trice16_1i need to have an id(0) instead of Id(0) but that gets corrected
 // automatically when the id n is inserted.
 // text is the full filecontents, which could be modified, therefore it is also returned with a modified flag
-func updateParamCountAndID0(text string) (string, bool) {
+func updateParamCountAndID0(text string, extendMacroName bool) (string, bool) {
 	var modified bool
 	subs := text[:] // create a copy of text and assign it to subs
 	for {
@@ -85,7 +85,7 @@ func updateParamCountAndID0(text string) (string, bool) {
 		}
 		trice := subs[loc[0]:loc[1]] // the whole TRICE*(*);
 		triceC := trice              // make a copy
-		if ExtendMacrosWithParamCount {
+		if extendMacroName {
 			locNoLen := matchTriceNoLen.FindStringIndex(trice) // find the next TRICE no len location in trice
 			if nil != locNoLen {                               // need to add len to trice name
 				n := FormatSpecifierCount(triceC)
@@ -239,15 +239,8 @@ func visitUpdate(lu TriceIDLookUp, tflu TriceFmtLookUp, pListModified *bool) fil
 		}
 		refreshIDs(text, lu, tflu) // update IDs: Id(0) -> Id(M)
 
-		var updateIDs func(text string, lu TriceIDLookUp, tflu TriceFmtLookUp, pListModified *bool) (string, bool)
-		if SharedIDs {
-			updateIDs = updateIDsShared
-		} else {
-			updateIDs = updateIDsShared
-		}
-
-		textN, fileModified0 := updateParamCountAndID0(text)              // update parameter count: TRICE* to TRICE*_n and insert missing Id(0)
-		textU, fileModified1 := updateIDs(textN, lu, tflu, pListModified) // update IDs: Id(0) -> Id(M)
+		textN, fileModified0 := updateParamCountAndID0(text, ExtendMacrosWithParamCount) // update parameter count: TRICE* to TRICE*_n and insert missing Id(0)
+		textU, fileModified1 := updateIDsUniqOrShared(textN, lu, tflu, pListModified)    // update IDs: Id(0) -> Id(M)
 
 		// write out
 		fileModified := fileModified0 || fileModified1
@@ -360,7 +353,7 @@ func refreshIDs(text string, lu TriceIDLookUp, tflu TriceFmtLookUp) {
 	}
 }
 
-// updateIDsShared parses text for new or invalid trices 'tf' and gives them the legacy id if 'tf' is already in lu & tflu.
+// updateIDsUniqOrShared parses text for new or invalid trices 'tf' and gives them the legacy id if 'tf' is already in lu & tflu.
 // An invalid trice is a trice without Id(n) or with Id(0) or which changed somehow. Exampes: 'TRICE0( Id(12) ,"foo");' was changed to 'TRICE0( Id(12) ,"bar");'
 // If 'TRICE0( Id(99) ,"bar");' is in lu & tflu the invalid trice changes to 'TRICE0( Id(99) ,"bar");'. Otherwise instead of 99 a so far unused id is taken.
 // Or: 'TRICE0( Id(12) ,"foo");' was changed to 'TRICE0( Id(13) ,"foo");'. Than lu & tflu are extended accordingly, or, if 13 is already used, it is replaced with a new id.
@@ -370,7 +363,7 @@ func refreshIDs(text string, lu TriceIDLookUp, tflu TriceFmtLookUp) {
 // *pListModified in result is true if any file was changed.
 // tflu holds the tf in upper case.
 // lu holds the tf in source code case. If in source code upper and lower case occur, than only one can be in lu.
-func updateIDsShared(text string, lu TriceIDLookUp, tflu TriceFmtLookUp, pListModified *bool) (string, bool) {
+func updateIDsUniqOrShared(text string, lu TriceIDLookUp, tflu TriceFmtLookUp, pListModified *bool) (string, bool) {
 	var fileModified bool
 	subs := text[:] // create a copy of text and assign it to subs
 	for {
