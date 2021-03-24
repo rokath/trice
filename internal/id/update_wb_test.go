@@ -95,6 +95,7 @@ func check(t *testing.T, text, expJSON string) {
 
 // TestGroupA forces sequential execution of some tests using globlal variables with different values.
 func TestGroupA(t *testing.T) {
+	SharedIDs = true
 	testInsertSharedIDs0ParamA(t)
 	testInsertSharedIDs1ParamA(t)
 	testInsertSharedIDs0(t)

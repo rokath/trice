@@ -38,7 +38,7 @@ var (
 
 	// SharedIDs true: TriceFmt's without TriceID get equal TriceID if an equal TriceFmt exists already.
 	// SharedIDs false: TriceFmt's without TriceID get a different TriceID if an equal TriceFmt exists already.
-	SharedIDs = true
+	SharedIDs bool
 )
 
 // TriceID is the trice ID referencing to Fmt.

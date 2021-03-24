@@ -389,18 +389,18 @@ func updateIDsShared(text string, lu TriceIDLookUp, tflu TriceFmtLookUp, pListMo
 		}
 		tfS := tf
 		st := isShortTrice(tf)
-		if !st {
-			tfS.Type = strings.ToUpper(tfS.Type) // Lower case and upper case Type are not distinguished for normal trices.
+		if !st && SharedIDs {
+			tfS.Type = strings.ToUpper(tfS.Type) // Lower case and upper case Type are not distinguished for normal trices in shared IDs mode.
 		}
 		// In lu id could point to a different tf. So we need to check that and invalidate id in that case.
 		// - That typically happens after tf was changed in source but the id not.
 		// - Also the source file with id:tf could be added from a different project and refresh could not add it to lu because id is used differently.
 		if 0 != id {
 			if tfL, ok := lu[id]; ok { // found
-				if !st {
-					tfL.Type = strings.ToUpper(tfL.Type)
+				if !st && SharedIDs {
+					tfL.Type = strings.ToUpper(tfL.Type) // Lower case and upper case Type are not distinguished for normal trices in shared IDs mode.
 				}
-				if !reflect.DeepEqual(tfS, tfL) { // Lower case and upper case Type are not distinguished for normal trices.
+				if !reflect.DeepEqual(tfS, tfL) {
 					id = -id // mark as invalid
 				}
 			}
@@ -409,8 +409,8 @@ func updateIDsShared(text string, lu TriceIDLookUp, tflu TriceFmtLookUp, pListMo
 			invalID := nbID
 			invalTRICE := nbTRICE
 			// It is possible tf is already in tflu (and lu) here, so check it.
-			if id, ok = tflu[tfS]; ok { // yes, we can use it
-				msg.FatalOnTrue(0 == id) // no id 0 allowed in map
+			if id, ok = tflu[tfS]; SharedIDs && ok { // yes, we can use it in shared IDs mode
+				msg.FatalInfoOnTrue(0 == id, "no id 0 allowed in map")
 			} else { // no, we need a new one
 				id = lu.newID(st) // a prerequisite is a in a previous step refreshed lu
 				*pListModified = true
