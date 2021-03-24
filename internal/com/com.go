@@ -46,7 +46,7 @@ func NewCOMPortGoBugSt(comPortName string) *PortGoBugSt {
 			StopBits: serialgobugst.OneStopBit,
 		},
 	}
-	if true == Verbose {
+	if Verbose {
 		fmt.Println("NewCOMPortGoBugSt:", r)
 	}
 	return r
@@ -114,7 +114,7 @@ func NewCOMPortTarm(comPortName string) *PortTarm {
 	p.config.Baud = Baud
 	p.config.ReadTimeout = 100 * time.Millisecond
 	p.config.Size = 8
-	if true == Verbose {
+	if Verbose {
 		fmt.Println("NewCOMPortTarm:", p.config)
 	}
 	return p

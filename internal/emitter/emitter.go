@@ -85,10 +85,8 @@ func newLineWriter() (lwD LineWriter) {
 		}
 		p.ErrorFatal()
 		lwD = p
-		//keybcmd.ReadInput()
+		// keybcmd.ReadInput()
 	} else {
-		// NewColorDisplay creates a ColorlDisplay. It provides a Linewriter.
-		// It uses internally a local display combined with a line transformer.
 		lwD = NewColorDisplay(ColorPalette)
 	}
 	return

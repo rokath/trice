@@ -15,7 +15,6 @@ import (
 	"os/exec"
 	"strings"
 
-	"github.com/fsnotify/fsnotify"
 	"github.com/pkg/errors"
 	"github.com/rokath/trice/pkg/msg"
 )
@@ -93,8 +92,8 @@ func (p *Device) Close() error {
 	}
 	// CTRL-C sends SIGTERM also to the started command. It closes the temporary file and terminates itself.
 	// Todo: If trice is terminated not with CTRL-C kill automatically.
-	//p.Err = errors.Wrap(p.Err, p.cmd.Process.Kill().Error())
-	//p.Err = errors.Wrap(p.Err, p.tempLogFileHandle.Close().Error())
+	// p.Err = errors.Wrap(p.Err, p.cmd.Process.Kill().Error())
+	// p.Err = errors.Wrap(p.Err, p.tempLogFileHandle.Close().Error())
 	p.Err = errors.Wrap(p.Err, os.Remove(p.tempLogFileName).Error())
 	return p.Err
 }
@@ -120,13 +119,14 @@ func (p *Device) Open() error {
 	p.tempLogFileHandle, p.Err = os.Open(p.tempLogFileName) // Open() opens a file with read only flag.
 	p.ErrorFatal()
 
-	//p.watchLogfile() // todo: make it working well
+	// p.watchLogfile() // todo: make it working well
 	if Verbose {
 		fmt.Println("trice is watching and reading from", p.tempLogFileName)
 	}
 	return nil
 }
 
+/*
 // watchLogfile creates a new file watcher.
 func (p *Device) watchLogfile() {
 	var watcher *fsnotify.Watcher
@@ -141,7 +141,7 @@ func (p *Device) watchLogfile() {
 			select {
 			case event, ok = <-watcher.Events: // watch for events
 				if !ok {
-					continue //return
+					continue // return
 				}
 				fmt.Printf("EVENT! %#v\n", event)
 				if event.Op&fsnotify.Write == fsnotify.Write {
@@ -157,3 +157,4 @@ func (p *Device) watchLogfile() {
 	// out of the box fsnotify can watch a single file, or a single directory
 	p.Err = watcher.Add(p.tempLogFileName)
 }
+*/

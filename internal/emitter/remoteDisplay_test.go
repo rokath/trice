@@ -6,8 +6,11 @@ package emitter
 
 import (
 	"fmt"
+	"io/ioutil"
 	"math/rand"
 	"os"
+	"runtime"
+	"strings"
 	"testing"
 	"time"
 
@@ -43,5 +46,15 @@ func randomDynIPPort() (s string) {
 	min := 49152
 	max := 65535
 	s = fmt.Sprint(rand.Intn(max-min) + min)
+	return
+}
+
+func readLines(filename string) (lines []string, err error) {
+	content, err := ioutil.ReadFile(filename)
+	stringContent := string(content)
+	if runtime.GOOS == "windows" {
+		stringContent = strings.ReplaceAll(stringContent, "\r\n", "\n")
+	}
+	lines = strings.Split(stringContent, "\n")
 	return
 }

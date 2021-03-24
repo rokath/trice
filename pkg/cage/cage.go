@@ -89,8 +89,10 @@ func Start(fn string) *Container {
 	}
 
 	// open pipes
-	rStdout, wStdout, _ := os.Pipe()
-	rStderr, wStderr, _ := os.Pipe()
+	rStdout, wStdout, err := os.Pipe()
+	msg.FatalOnErr(err)
+	rStderr, wStderr, err := os.Pipe()
+	msg.FatalOnErr(err)
 
 	// create container for recovering
 	c := &Container{

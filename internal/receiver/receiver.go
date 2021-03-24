@@ -39,6 +39,8 @@ func NewReadCloser(port, args string) (r io.ReadCloser, err error) {
 			err = fmt.Errorf("can not open link device %s with args %s", port, args)
 		}
 		r = l
+	case "BUFFER":
+		r = ioutil.NopCloser(bytes.NewBufferString(args))
 	default: // assuming serial port
 		var c com.COMport   // interface type
 		if "TARM" == args { // for comparing dynamic behaviour
@@ -46,18 +48,16 @@ func NewReadCloser(port, args string) (r io.ReadCloser, err error) {
 		} else {
 			c = com.NewCOMPortGoBugSt(port)
 		}
-		if false == c.Open() {
+		if !c.Open() {
 			err = fmt.Errorf("can not open %s", port)
 		}
 		r = c
 		return
-	case "BUFFER":
-		r = ioutil.NopCloser(bytes.NewBufferString(args))
 	}
 	return
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
+// ////////////////////////////////////////////////////////////////////////////////////////////////
 // dynamic debug helper
 //
 
@@ -84,4 +84,4 @@ func (p *bytesViewer) Read(buf []byte) (count int, err error) {
 func (p *bytesViewer) Close() error { return nil }
 
 //
-///////////////////////////////////////////////////////////////////////////////////////////////////
+// ////////////////////////////////////////////////////////////////////////////////////////////////
