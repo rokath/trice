@@ -9,7 +9,7 @@ on:
 
 jobs:
   job1:
-    runs-on: [ubuntu-latest, windows-latest]
+    runs-on: ubuntu-latest # [ubuntu-latest, windows-latest]
     steps:
       -
         name: Checkout
