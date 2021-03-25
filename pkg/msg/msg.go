@@ -38,8 +38,8 @@ func FatalOnErr(err error) {
 	logMessage(pc, fn, line, ok, err)
 }
 
-// PanicOnErr ends in panic if err not nil.
-func PanicOnErr(err error, info string) {
+// PanicInfoOnErr ends in panic if err not nil.
+func PanicInfoOnErr(err error, info string) {
 	if nil == err {
 		return
 	}
@@ -119,6 +119,15 @@ func OnFalse(flag bool) {
 	}
 	pc, fn, line, ok := runtime.Caller(1)
 	fmtMessage(pc, fn, line, ok, nil)
+}
+
+// FatalOnFalse ends in osExit(1) if flag is false.
+func FatalOnFalse(flag bool) {
+	if !flag {
+		return
+	}
+	pc, fn, line, ok := runtime.Caller(1)
+	logMessage(pc, fn, line, ok, nil)
 }
 
 // InfoOnFalse prints info and a common error message with location info when flag is false.

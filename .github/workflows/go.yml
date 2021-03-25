@@ -15,17 +15,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
+    - uses: shogo82148/actions-goveralls@v1
+      with:
+        path-to-profile: profile.cov
+        repo-token: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Set up Go
       uses: actions/setup-go@v2
       with:
-        go-version: 1.16
+        go-version: 1.15
 
     - name: Check
       run: go vet -v ./...
 
-    - name: Test
-      run: go test ./cmd/... ./internal/...
+    # - name: Test
+    #   run: go test ./internal/...
 
     - name: Build
       run: go build -v ./...
