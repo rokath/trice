@@ -49,13 +49,14 @@ func SetUp() error {
 
 // createCipher prepares decryption, with password "none" the encryption flag is set false, otherwise true
 func createCipher() (*xtea.Cipher, bool, error) {
-	if "0000000000000000" == Password { // used for checking only
-		Key = []byte{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
-	} else if "1000000000000000" == Password { // used for checking only
-		Key = []byte{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
-	} else if "0001000000000000" == Password { // used for checking only
-		Key = []byte{0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
-	} else {
+	switch Password {
+	case "0000000000000000":
+		Key = []byte{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0} // used for checking only
+	case "1000000000000000":
+		Key = []byte{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0} // used for checking only
+	case "0001000000000000":
+		Key = []byte{0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0} // used for checking only
+	default:
 		h := sha1.New() // https://gobyexample.com/sha1-hashes
 		h.Write([]byte(Password))
 		Key = h.Sum(nil)
@@ -68,11 +69,9 @@ func createCipher() (*xtea.Cipher, bool, error) {
 	var e bool
 	if "" != Password {
 		e = true
-		if true == ShowKey {
+		if ShowKey {
 			fmt.Printf("% 20x is XTEA encryption key\n", Key)
 		}
-	} else if true == ShowKey {
-		fmt.Printf("no encryption\n")
 	}
 	return c, e, nil
 }

@@ -65,7 +65,7 @@ func NewDevice(port, arguments string) *Device {
 	p.args = strings.Split(arguments, " ")
 	// The -RTTSearchRanges "..." need to be written without "" and with _ istead of space.
 	for i := range p.args { // 0x20000000_0x1800 -> 0x20000000 0x1800
-		p.args[i] = strings.Replace(p.args[i], "_0x", " 0x", -1)
+		p.args[i] = strings.ReplaceAll(p.args[i], "_0x", " 0x")
 	}
 	p.args = append(p.args, p.tempLogFileName) // to do: check if slice could be passed directly.
 

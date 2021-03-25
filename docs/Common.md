@@ -21,14 +21,16 @@ TRICE8_3( Id(12345), "time is %d:%d:%d\n", hour, min, sec);
 ```
 
 where ```12345``` is an as ID generated 20-bit (15-bit for short trices) random (upward|downward also possible) number not used so far. This is valid for the recommended **flex[L]** encoding. It supports more than 1 Million different trice IDs.
-Automatically the ID is added to an [ID list](https://github.com/rokath/trice/blob/master/til.json) together with the appropriate format string information. The TRICE`8_3` means 3 bytes as parameters in this example and allows efficient code and a compile time check. From v0.26.0 on variadic macros supported. Per default the macro name `TRICE8` is not changed for a slightly more readable code. If you wish a compile time parameter count check use `-addParamCount` to the update command line to convert a `TRICE8` into a `TRICE8_3` in te above example. Legacy code with valid IDs is not modified. (You can use subcommand `zeroSourceTreeIds` to go around that.)
+Automatically the ID is added to an [ID list](https://github.com/rokath/trice/blob/master/til.json) together with the appropriate format string information.
+The TRICE`8_3` means 3 bytes as parameters in this example and allows efficient code and a compile time check. From v0.26.0 on variadic macros supported.
+Per default the macro name `TRICE8` is not changed for a slightly more readable code. If you wish a compile time parameter count check use `-addParamCount` to the update command line to convert a `TRICE8` into a `TRICE8_3` in te above example. Legacy code with valid IDs is not modified (You can use subcommand `zeroSourceTreeIds` to go around that.)
 
 *The total amount of data is currently limitated to 8 parameters for TRICE8 or 4 parameters for TRICE16 and TRICE32 and two parameters for TRICE64, but this is easy to extend if needed.*
 
-When the embedded project is compiled, only the ID goes to the binary
-but not the format string, what results in a smaller memory footprint.
+When the embedded project is compiled, only the ID goes to the binary but not the format string, what results in a smaller memory footprint.
 
-On execution the ID is pushed into a FIFO together with the optional trice parameters and that is the real fast and important part which could be finished within 12-14 processor clocks (measured on a ARM M0 with `Trice16_1i`). At 48 MHz the in time needed light travels less than 100 meters. Slightly delayed in the background the TRICE trace goes to the communication port, what is also fast compared to all the actions behind a `printf()` statement.
+On execution the ID is pushed into a FIFO together with the optional trice parameters and that is the real fast and important part which could be finished within 12-14 processor clocks (measured on a ARM M0 with `Trice16_1i`).
+At 48 MHz the in time needed light travels less than 100 meters. Slightly delayed in the background the TRICE trace goes to the communication port, what is also fast compared to all the actions behind a `printf()` statement.
 
 Please understand, that when debugging code containing TRICE\* statements, during a TRICE\* step-over only  one ore more 32 bit values go into the internal fifo buffer and no serial output
 is visible because of the stopped target. But the SEGGER debug probe reads out the RTT memory and this way also during debug stepping realtime trice output is visible. That is (right now) not true for the STLINK interface because the is only one USB endpoint.
