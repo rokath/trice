@@ -239,8 +239,8 @@ func visitUpdate(lu TriceIDLookUp, tflu TriceFmtLookUp, pListModified *bool) fil
 		}
 		refreshIDs(text, lu, tflu) // update IDs: Id(0) -> Id(M)
 
-		textN, fileModified0 := updateParamCountAndID0(text, ExtendMacrosWithParamCount) // update parameter count: TRICE* to TRICE*_n and insert missing Id(0)
-		textU, fileModified1 := updateIDsUniqOrShared(textN, lu, tflu, pListModified)    // update IDs: Id(0) -> Id(M)
+		textN, fileModified0 := updateParamCountAndID0(text, ExtendMacrosWithParamCount)                                       // update parameter count: TRICE* to TRICE*_n and insert missing Id(0)
+		textU, fileModified1 := updateIDsUniqOrShared(SharedIDs, MinShort, MaxShort, Min, Max, textN, lu, tflu, pListModified) // update IDs: Id(0) -> Id(M)
 
 		// write out
 		fileModified := fileModified0 || fileModified1
@@ -363,7 +363,7 @@ func refreshIDs(text string, lu TriceIDLookUp, tflu TriceFmtLookUp) {
 // *pListModified in result is true if any file was changed.
 // tflu holds the tf in upper case.
 // lu holds the tf in source code case. If in source code upper and lower case occur, than only one can be in lu.
-func updateIDsUniqOrShared(text string, lu TriceIDLookUp, tflu TriceFmtLookUp, pListModified *bool) (string, bool) {
+func updateIDsUniqOrShared(sharedIDs bool, smin, smax, min, max TriceID, text string, lu TriceIDLookUp, tflu TriceFmtLookUp, pListModified *bool) (string, bool) {
 	var fileModified bool
 	subs := text[:] // create a copy of text and assign it to subs
 	for {
@@ -382,7 +382,7 @@ func updateIDsUniqOrShared(text string, lu TriceIDLookUp, tflu TriceFmtLookUp, p
 		}
 		tfS := tf
 		st := isShortTrice(tf)
-		if !st && SharedIDs {
+		if !st && sharedIDs {
 			tfS.Type = strings.ToUpper(tfS.Type) // Lower case and upper case Type are not distinguished for normal trices in shared IDs mode.
 		}
 		// In lu id could point to a different tf. So we need to check that and invalidate id in that case.
@@ -390,7 +390,7 @@ func updateIDsUniqOrShared(text string, lu TriceIDLookUp, tflu TriceFmtLookUp, p
 		// - Also the source file with id:tf could be added from a different project and refresh could not add it to lu because id is used differently.
 		if 0 != id {
 			if tfL, ok := lu[id]; ok { // found
-				if !st && SharedIDs {
+				if !st && sharedIDs {
 					tfL.Type = strings.ToUpper(tfL.Type) // Lower case and upper case Type are not distinguished for normal trices in shared IDs mode.
 				}
 				if !reflect.DeepEqual(tfS, tfL) {
@@ -402,10 +402,14 @@ func updateIDsUniqOrShared(text string, lu TriceIDLookUp, tflu TriceFmtLookUp, p
 			invalID := nbID
 			invalTRICE := nbTRICE
 			// It is possible tf is already in tflu (and lu) here, so check it.
-			if id, ok = tflu[tfS]; SharedIDs && ok { // yes, we can use it in shared IDs mode
+			if id, ok = tflu[tfS]; sharedIDs && ok { // yes, we can use it in shared IDs mode
 				msg.FatalInfoOnTrue(0 == id, "no id 0 allowed in map")
 			} else { // no, we need a new one
-				id = lu.newID(st) // a prerequisite is a in a previous step refreshed lu
+				if st {
+					id = lu.newID(smin, smax) // a prerequisite is a in a previous step refreshed lu
+				} else {
+					id = lu.newID(min, max) // a prerequisite is a in a previous step refreshed lu
+				}
 				*pListModified = true
 			}
 			// patch the id into text

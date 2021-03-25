@@ -90,6 +90,45 @@ void InitXteaTable(void);
 #define TRICE64_COUNTi(_1i,_2i,_3i,_4i, NAME,...) NAME
 #define TRICE64i(id,frmt, ...) TRICE64_COUNTi(__VA_ARGS__,TRICE64_4i,TRICE64_3i,TRICE64_2i,TRICE64_1i)(id,frmt, __VA_ARGS__)
 
+
+#define Trice8_COUNT(_1,_2, NAME,...) NAME
+#define Trice8(id,frmt, ...) Trice8_COUNT(__VA_ARGS__, Trice8_2,Trice8_1)(id,frmt, __VA_ARGS__)
+
+#define Trice16_COUNT(_1, NAME,...) NAME
+#define Trice16(id,frmt, ...) Trice16_COUNT(__VA_ARGS__,Trice16_1)(id,frmt, __VA_ARGS__)
+
+#define Trice8_COUNTi(_1i,_2i, NAME,...) NAME
+#define Trice8i(id,frmt, ...) Trice8_COUNTi(__VA_ARGS__, Trice8_2i,Trice8_1i)(id,frmt, __VA_ARGS__)
+
+#define Trice16_COUNTi(_1i, NAME,...) NAME
+#define Trice16i(id,frmt, ...) Trice16_COUNTi(__VA_ARGS__,Trice16_1i)(id,frmt, __VA_ARGS__)
+
+
+#define trice8_COUNT(_1,_2,_3,_4,_5,_6,_7,_8, NAME,...) NAME
+#define trice8(id,frmt, ...) trice8_COUNT(__VA_ARGS__,trice8_8,trice8_7,trice8_6,trice8_5,trice8_4,trice8_3,trice8_2,trice8_1)(id,frmt, __VA_ARGS__)
+
+#define trice16_COUNT(_1,_2,_3,_4, NAME,...) NAME
+#define trice16(id,frmt, ...) trice16_COUNT(__VA_ARGS__,trice16_4,trice16_3,trice16_2,trice16_1)(id,frmt, __VA_ARGS__)
+
+#define trice32_COUNT(_1,_2,_3,_4, NAME,...) NAME
+#define trice32(id,frmt, ...) trice32_COUNT(__VA_ARGS__,trice32_4,trice32_3,trice32_2,trice32_1)(id,frmt, __VA_ARGS__)
+
+#define trice64_COUNT(_1,_2,_3,_4, NAME,...) NAME
+#define trice64(id,frmt, ...) trice64_COUNT(__VA_ARGS__,trice64_4,trice64_3,trice64_2,trice64_1)(id,frmt, __VA_ARGS__)
+
+#define trice8_COUNTi(_1i,_2i,_3i,_4i,_5i,_6i,_7i,_8i, NAME,...) NAME
+#define trice8i(id,frmt, ...) trice8_COUNTi(__VA_ARGS__,trice8_8i,trice8_7i,trice8_6i,trice8_5i,trice8_4i,trice8_3i,trice8_2i,trice8_1i)(id,frmt, __VA_ARGS__)
+
+#define trice16_COUNTi(_1i,_2i,_3i,_4i, NAME,...) NAME
+#define trice16i(id,frmt, ...) trice16_COUNTi(__VA_ARGS__,trice16_4i,trice16_3i,trice16_2i,trice16_1i)(id,frmt, __VA_ARGS__)
+
+#define trice32_COUNTi(_1i,_2i,_3i,_4i, NAME,...) NAME
+#define trice32i(id,frmt, ...) trice32_COUNTi(__VA_ARGS__,trice32_4i,trice32_3i,trice32_2i,trice32_1i)(id,frmt, __VA_ARGS__)
+
+#define trice64_COUNTi(_1i,_2i,_3i,_4i, NAME,...) NAME
+#define trice64i(id,frmt, ...) trice64_COUNTi(__VA_ARGS__,trice64_4i,trice64_3i,trice64_2i,trice64_1i)(id,frmt, __VA_ARGS__)
+
+
 #define TRICE_U8_JOIN(  first, second ) ((uint16_t)((((uint8_t )(first))<< 8)|((uint8_t )(second)))) //!< helper macro
 #define TRICE_U16_JOIN( first, second ) (          ((((uint32_t)(first))<<16)|((uint16_t)(second)))) //!< helper macro
 

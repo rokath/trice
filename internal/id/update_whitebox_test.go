@@ -93,33 +93,8 @@ func check(t *testing.T, text, expJSON string) {
 	tst.Equal(t, expJSON, string(b))
 }
 
-// TestGroupA forces sequential execution of some tests using globlal variables with different values.
-// Exchanging the test functions position could lead to test fail because of the additional global vars Min, Max, ShortMin, ShortMax.
-func TestGroupA(t *testing.T) {
-	SharedIDs = true
-	Min = 10
-	Max = 99
-	MinShort = 1
-	MaxShort = 32767
-
-	testInsertSharedIDs0ZeroParam(t)
-
-	Min = 40000
-	Max = 50000
-	MinShort = 10000
-	MaxShort = 20000
-	testInsertSharedIDs1WithExtendN(t)
-	testInsertSharedIDs2NoExtendN(t)
-
-	Min = 10
-	Max = 99
-	MinShort = 10000
-	MaxShort = 20000
-	testInsertSharedIDs0WithParamCount(t)
-}
-
 // Because of the parallel test execution the global variables must be equal for all tests
-func testInsertSharedIDs0ZeroParam(t *testing.T) {
+func TestInsertSharedIDs0ZeroParam(t *testing.T) {
 	SearchMethod = "downward"
 	tt := testTable{
 		{`... Trice0 ( "hi"); ...`, `... Trice0 ( id(32767), "hi"); ...`, true, true},
@@ -131,18 +106,12 @@ func testInsertSharedIDs0ZeroParam(t *testing.T) {
 	}
 	eList := `map[98:{trice0i hi} 99:{trice0 hi} 32766:{Trice0i hi} 32767:{Trice0 hi}]
 `
-	if 10 != Min || 99 != Max {
-		t.Fail()
-	}
-	if !SharedIDs {
-		t.Fail()
-	}
-	checkList(t, tt, eList, true)
-	checkList(t, tt, eList, false)
+	checkList(t, true, 1, 32767, 10, 99, tt, eList, true)
+	checkList(t, true, 1, 32767, 10, 99, tt, eList, false)
 }
 
 // Because of the parallel test execution the global variables must be equal for all tests
-func testInsertSharedIDs1WithExtendN(t *testing.T) {
+func TestInsertSharedIDs1WithExtendN(t *testing.T) {
 	SearchMethod = "upward"
 	tt := testTable{
 		{`...  Trice8 ( "hi %03u", 5); ...`, `...  Trice8_1 ( id(10000), "hi %03u", 5); ...`, true, true},
@@ -179,19 +148,13 @@ func testInsertSharedIDs1WithExtendN(t *testing.T) {
 	}
 	eList := `map[10000:{Trice8_1 hi %03u} 10001:{Trice16_1 hi %03u} 10002:{Trice32_1 hi %03u} 10003:{Trice64_1 hi %03u} 10004:{Trice8_1i hi %03u} 10005:{Trice16_1i hi %03u} 10006:{Trice32_1i hi %03u} 10007:{Trice64_1i hi %03u} 40000:{trice8_1 hi %03u} 40001:{trice16_1 hi %03u} 40002:{trice32_1 hi %03u} 40003:{trice64_1 hi %03u} 40004:{trice8_1i hi %03u} 40005:{trice16_1i hi %03u} 40006:{trice32_1i hi %03u} 40007:{trice64_1i hi %03u}]
 `
-	if 40000 != Min || 50000 != Max || 10000 != MinShort || 20000 != MaxShort {
-		t.Fail()
-	}
-	if !SharedIDs {
-		t.Fail()
-	}
-	checkList(t, tt, eList, true)
+	checkList(t, true, 10000, 20000, 40000, 50000, tt, eList, true)
 }
 
 // Because of the parallel test execution the global variables must be equal for all tests.
 // The trice map does distinguish between TRICE8 and TRICE8_2 for example, so even "sameID" is selected,
 // there are 2 different IDs used when the format string is identical.
-func testInsertSharedIDs2NoExtendN(t *testing.T) {
+func TestInsertSharedIDs2NoExtendN(t *testing.T) {
 	SearchMethod = "upward"
 	tt := []struct {
 		text, exp        string
@@ -236,17 +199,11 @@ func testInsertSharedIDs2NoExtendN(t *testing.T) {
 	}
 	eList := `map[10000:{Trice8_2 hi %03u, %5x} 10001:{Trice16_2 hi %03u, %5x} 10002:{Trice32_2 hi %03u, %5x} 10003:{Trice64_2 hi %03u, %5x} 10004:{Trice8_2i hi %03u, %5x} 10005:{Trice16_2i hi %03u, %5x} 10006:{Trice32_2i hi %03u, %5x} 10007:{Trice64_2i hi %03u, %5x} 40000:{trice8_2 hi %03u, %5x} 40001:{trice16_2 hi %03u, %5x} 40002:{trice32_2 hi %03u, %5x} 40003:{trice64_2 hi %03u, %5x} 40004:{trice8_2i hi %03u, %5x} 40005:{trice16_2i hi %03u, %5x} 40006:{trice32_2i hi %03u, %5x} 40007:{trice64_2i hi %03u, %5x} 40008:{trice64_2i hi %03u, %5x}]
 `
-	if 40000 != Min || 50000 != Max || 10000 != MinShort || 20000 != MaxShort {
-		t.Fail()
-	}
-	if !SharedIDs {
-		t.Fail()
-	}
-	checkList(t, tt, eList, false)
+	checkList(t, true, 10000, 20000, 40000, 50000, tt, eList, false)
 }
 
 // Because of the parallel test execution the global variables must be equal for all tests
-func testInsertSharedIDs0WithParamCount(t *testing.T) {
+func TestInsertSharedIDs0WithParamCount(t *testing.T) {
 	SearchMethod = "downward"
 
 	tt := testTable{
@@ -283,14 +240,8 @@ func testInsertSharedIDs0WithParamCount(t *testing.T) {
 	}
 	eList := `map[98:{TRICE8_1 Hi %d} 99:{trice8_1 hi %d} 19996:{Trice16_1i hi %d} 19997:{Trice16_1 hi %d} 19998:{Trice8_2 hi %d %u} 19999:{Trice8_1 hi %d} 20000:{Trice0 Trallala}]
 `
-	if 10 != Min || 99 != Max || 10000 != MinShort || 20000 != MaxShort {
-		t.Fail()
-	}
-	if !SharedIDs {
-		t.Fail()
-	}
-	checkList(t, tt, eList, true)
-	checkList(t, tt, eList, false)
+	checkList(t, true, 10000, 20000, 10, 99, tt, eList, true)
+	checkList(t, true, 10000, 20000, 10, 99, tt, eList, false)
 }
 
 func TestInsertSharedIDsInvalid0(t *testing.T) {
@@ -305,8 +256,8 @@ func TestInsertSharedIDsInvalid0(t *testing.T) {
 	}
 	eList := `map[]
 `
-	checkList(t, tt, eList, true)
-	checkList(t, tt, eList, false)
+	checkList(t, SharedIDs, 10000, 20000, 40000, 50000, tt, eList, true)
+	checkList(t, SharedIDs, 10000, 20000, 40000, 50000, tt, eList, false)
 }
 
 var tryOkSet = []idCheck{
@@ -386,13 +337,13 @@ type testTable []struct {
 	listMod bool   // expected list modification flag
 }
 
-func checkList(t *testing.T, tt testTable, eList string, extend bool) {
+func checkList(t *testing.T, sharedIDs bool, mins, maxs, min, max TriceID, tt testTable, eList string, extend bool) {
 	lu := make(TriceIDLookUp)
 	tflu := lu.reverse()
 	for _, x := range tt {
 		act0, _ := updateParamCountAndID0(x.text, extend)
 		listModified := false
-		act, fileModified := updateIDsUniqOrShared(act0, lu, tflu, &listModified)
+		act, fileModified := updateIDsUniqOrShared(sharedIDs, mins, maxs, min, max, act0, lu, tflu, &listModified)
 		tst.Equal(t, x.fileMod, fileModified)
 		tst.Equal(t, x.listMod, listModified)
 		tst.Equal(t, x.exp, act)

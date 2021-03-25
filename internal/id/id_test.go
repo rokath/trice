@@ -14,19 +14,19 @@ import (
 func TestNewID(t *testing.T) {
 	rand.Seed(0)
 	lut := make(TriceIDLookUp)
-	id := lut.newID(false)
+	id := lut.newID(32768, 65535)
 	tst.AssertTrue(t, 45050 == id)
 	SearchMethod = "downward"
-	id = lut.newID(false)
+	id = lut.newID(1, 65535)
 	tst.AssertTrue(t, 65535 == id)
 	SearchMethod = "upward"
-	id = lut.newID(false)
+	id = lut.newID(32768, 65535)
 	tst.AssertTrue(t, 32768 == id)
-	id = lut.newID(false)
+	id = lut.newID(32768, 65535)
 	tst.AssertTrue(t, 32768 == id)
 	var i TriceFmt
 	lut[id] = i
-	id = lut.newID(false)
+	id = lut.newID(32768, 65535)
 	tst.AssertTrue(t, 32769 == id)
 }
 

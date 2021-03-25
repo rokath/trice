@@ -78,6 +78,41 @@ void triceRuntimeStrings( int from, int limit){
 void triceCheckSet(int index) {
     switch (index) {
         case 0:
+            #if TRICE_ENCODING == TRICE_FLEX_ENCODING
+            Trice8( id(31424), "rd:%d\n", 1 );
+            Trice8i( id(31978), "rd:%d\n", 1 );
+            #endif
+            trice8( Id( 61896), "rd:%d\n", 1 );
+            TRICE8( Id( 47796), "rd:%d\n", 1 );
+        
+            #if TRICE_ENCODING == TRICE_FLEX_ENCODING
+            Trice8( id( 7946), "rd:%d, %d\n", 1, 2 );
+            Trice8i( id(10333), "rd:%d, %d\n", 1, 2 );
+            #endif
+            trice8( Id( 48178), "rd:%d, %d\n", 1, 2 );
+            TRICE8( Id( 65107), "rd:%d, %d\n", 1, 2 );
+        
+            #if TRICE_ENCODING == TRICE_FLEX_ENCODING
+            Trice16( id( 6726), "ATT:attention   message, SysTick is %6u\n", SYSTICKVAL16);
+            Trice16i( id(20104), "ATT:attention   message, SysTick is %6u\n", SYSTICKVAL16);
+            #endif
+            trice16( Id( 39459), "ATT:attention   message, SysTick is %6u\n", SYSTICKVAL16);
+            TRICE16( Id( 57618), "ATT:attention   message, SysTick is %6u\n", SYSTICKVAL16);
+        
+            trice32( Id( 56542),  "rd:%d\n", 1 );
+            TRICE32( Id( 33175),  "rd:%d\n", 1 );
+
+            trice64( Id( 59946),  "rd:%d\n", 1 );
+            TRICE64( Id( 39163),  "rd:%d\n", 1 );
+        
+            trice32( Id( 58503),  "rd:%d,%d\n", 1, 2 );
+            TRICE32( Id( 43030),  "rd:%d,%d\n", 1, 2 );
+
+            trice64( Id( 44173),  "rd:%d,%d\n", 1, 2 );
+            TRICE64( Id( 63610),  "rd:%d,%d\n", 1, 2 );
+
+        break;
+        case 1:
             TRICE8( Id( 47796), "rd:%d\n", 1 );
             TRICE8( Id( 65107), "rd:%d, %d\n", 1, 2 );
             TRICE8( Id( 50437), "rd:%d, %d, %d\n", 1, 2, 3 );
@@ -96,8 +131,7 @@ void triceCheckSet(int index) {
             TRICE32( Id( 54250), "rd:%d, %d, %d, %d\n", 1, 2, 3, 4 );
             TRICE64( Id( 59745), "rd:%d\n", 1 );
             TRICE64( Id( 42481), "rd:%d, %d\n", 1, 2 );
-            break;
-        case 1:
+
             TRICE8i( Id( 50930), "rd:%d\n", 1 );
             TRICE8i( Id( 58541), "rd:%d, %d\n", 1, 2 );
             TRICE8i( Id( 48322), "rd:%d, %d, %d\n", 1, 2, 3 );
@@ -116,7 +150,8 @@ void triceCheckSet(int index) {
             TRICE32i( Id( 52233), "rd:%d, %d, %d, %d\n", 1, 2, 3, 4 );
             TRICE64i( Id( 52986), "rd:%d\n", 1 );
             TRICE64i( Id( 41911), "rd:%d, %d\n", 1, 2 );
-        /*
+        break;
+        case 2:
             trice0(Id( 36646), "--------------------------------------------------\n");
             trice0(Id( 51718), "--------------------------------------------------\n");
             trice16_1(Id( 60271), "dbg:12345 as 16bit is %#016b\n", 12345);
@@ -155,9 +190,8 @@ void triceCheckSet(int index) {
             TRICE16_1(Id(31820), "ISR:interrupt   message, SysTick is %6u\n", SYSTICKVAL16);
             TRICE16_1(Id(57007), "MSG:normal      message, SysTick is %6u\n", SYSTICKVAL16);
             TRICE16_1(Id(13390), "INFO:informal   message, SysTick is %6u\n", SYSTICKVAL16);
-            */
             break;
-        case 2:
+        case 3:
             trice16_1(Id(21430), "tst:trice16_1   message, SysTick is %6u\n", SYSTICKVAL16);
             trice16_1(Id(21430), "tst:trice16_1   message, SysTick is %6u\n", SYSTICKVAL16);
             trice16_1(Id( 40252), "tst:trice16_1   message, SysTick is %6u\n", SYSTICKVAL16);
@@ -175,8 +209,7 @@ void triceCheckSet(int index) {
             TRICE32_1(Id(28071), "time:TRICE32_1   message, SysTick is %6d\n", SYSTICKVAL16);
             TRICE32_1(Id(28071), "time:TRICE32_1   message, SysTick is %6d\n", SYSTICKVAL16);
             TRICE32_1(Id(28071), "time:TRICE32_1   message, SysTick is %6d\n", SYSTICKVAL16);
-            break;
-        case 3:
+
             trice8_4( Id(65493), "tst:trice8_4  %%03x ->  %03x  %03x  %03x  %03x\n", 1, 0x7f, 0x80, 0xff);
             trice8_4( Id(65400), "tst:trice8_4   %%4d -> %4d %4d %4d %4d\n", 1, 0x7f, 0x80, 0xff);
             trice8_4( Id(65137), "tst:trice8_4   %%4o -> %4o %4o %4o %4o\n", 1, 0x7f, 0x80, 0xff);
