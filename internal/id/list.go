@@ -34,6 +34,7 @@ func ScZero(SrcZ string, cmd *flag.FlagSet) error {
 // SubCmdUpdate needs to know which IDs are used in the source tree to reliable add new IDs.
 func SubCmdReNewList() (err error) {
 	lu := make(TriceIDLookUp)
+	// Do not perform lu.AddFmtCount() here.
 	return updateList(lu)
 }
 
@@ -45,6 +46,7 @@ func SubCmdReNewList() (err error) {
 // SubCmdUpdate needs to know which IDs are used in the source tree to reliable add new IDs.
 func SubCmdRefreshList() (err error) {
 	lu := NewLut(FnJSON)
+	// Do not perform lu.AddFmtCount() here.
 	return updateList(lu)
 }
 

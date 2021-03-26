@@ -13,7 +13,7 @@ import (
 func ExampleInfo() {
 	msg.Info("code issue")
 	// Output:
-	// Error in msg_test.go:13: func 'github.com/rokath/trice/pkg/msg_test.ExampleInfo' -> code issue
+	// Error in msg_test.go:14: func 'github.com/rokath/trice/pkg/msg_test.ExampleInfo' -> code issue
 }
 
 func ExampleOnErr() {

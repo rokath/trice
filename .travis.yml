@@ -1,0 +1,8 @@
+language: go
+
+go:
+- 1.x
+
+before_install:
+- cp .netrc ~/.netrc
+- chmod 600 ~/.netrc

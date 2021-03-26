@@ -693,42 +693,27 @@ func (p *Flex) uReplace(bitWidth int, d []uint64) (s string, b []interface{}, e 
 func (p *Flex) rub4(count int) {
 	n := count + 3
 	n &= ^3 // only 4-byte groups
+	n += 4  // add header size
 	if count > 4 {
 		n += 4 // add long count
 	}
 	if TestTableMode {
-		p.printTestTableLine(count)
+		p.printTestTableLine(n)
 	}
-	p.iBuf = p.iBuf[4+n:] // header and data
-	p.rubbed += 4 + n
+	p.iBuf = p.iBuf[n:] // header and data
+	p.rubbed += n
 }
 
+var testTableVirgin = true
+
 // printTestTableLine is used to generate testdata
-func (p *Flex) printTestTableLine(count int) {
-	n := count + 3
-	n &= ^3
-	if count > 4 {
-		n += 4 // add long count
-	}
-	if emitter.NextLine {
+func (p *Flex) printTestTableLine(n int) {
+	if emitter.NextLine || testTableVirgin {
 		emitter.NextLine = false
+		testTableVirgin = false
 		fmt.Printf("{ []byte{ ")
 	}
-	for _, b := range p.iBuf[0:4] { // just to see trice bytes per trice
-		fmt.Printf("%3d,", b)
-	}
-	var dataIndex int
-	if count > 4 { // restore long count transfer bytes
-		hi := uint32(count << 16)
-		lo := uint16(^count)
-		countTransfer := hi | uint32(lo)
-		buf := p.writeU32(countTransfer)
-		for _, b := range buf.Bytes() {
-			fmt.Printf("%d,", b)
-		}
-		dataIndex = 4
-	}
-	for _, b := range p.iBuf[dataIndex:n] { // just to see trice bytes per trice
+	for _, b := range p.iBuf[0:n] { // just to see trice bytes per trice
 		fmt.Printf("%3d,", b)
 	}
 }

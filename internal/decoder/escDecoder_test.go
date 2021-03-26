@@ -6,7 +6,7 @@ package decoder
 import "testing"
 
 func TestEsc(t *testing.T) {
-	doTableTest(t, NewEscDecoder, bigEndian, escTestTable, "unwrapped")
+	doTableTest(t, NewEscDecoder, bigEndian, escTestTable)
 }
 
 var escTestTable = testTable{

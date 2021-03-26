@@ -111,7 +111,7 @@
             "program": "${workspaceFolder}/cmd/trice",
             "env": {},
             "args": ["log",
-                     "-verbose",
+                     "-testTable",
                      "-encoding",
                      "flexL",
                      "-port",
@@ -121,7 +121,7 @@
                      "-idlist",
                      "${workspaceFolder}/til.json",
                      "-password",
-                     "none"
+                     ""
             ]
         },       
         {

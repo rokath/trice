@@ -11,7 +11,7 @@ extern "C" {
 
 #include <stdint.h>
 // Enabling next line leads to XTEA encryption  with the key.
-#define ENCRYPT XTEA_KEY( ea, bb, ec, 6f, 31, 80, 4e, b9, 68, e2, fa, ea, ae, f1, 50, 54 ); //!< -password MySecret
+//#define ENCRYPT XTEA_KEY( ea, bb, ec, 6f, 31, 80, 4e, b9, 68, e2, fa, ea, ae, f1, 50, 54 ); //!< -password MySecret
 #ifdef ENCRYPT
 // #define DECRYPT // usually not needed
 void triceServeFifoEncryptedToBytesBuffer(void);
