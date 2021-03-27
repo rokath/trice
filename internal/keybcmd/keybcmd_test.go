@@ -4,6 +4,11 @@
 // whitebox test
 package keybcmd
 
+import "testing"
+
+func TestDummy(t *testing.T) {
+}
+
 //  // stimulate injects keys to the loop action and returns the captured output as byte slice.
 //  func stimulate(keys, ipa, ipp string) []byte {
 //
