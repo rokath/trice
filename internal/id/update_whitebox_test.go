@@ -340,6 +340,7 @@ type testTable []struct {
 func checkList(t *testing.T, sharedIDs bool, mins, maxs, min, max TriceID, tt testTable, eList string, extend bool) {
 	lu := make(TriceIDLookUp)
 	tflu := lu.reverse()
+	Verbose = true
 	for _, x := range tt {
 		act0, _ := updateParamCountAndID0(x.text, extend)
 		listModified := false

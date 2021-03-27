@@ -1,10 +1,7 @@
 language: go
-
 go:
-- 1.x
-
+  - tip
 before_install:
-- cp .netrc ~/.netrc
-- chmod 600 ~/.netrc
-
-script: "coverage test"
+  - go get github.com/mattn/goveralls
+script:
+  - $GOPATH/bin/goveralls -service=travis-ci
