@@ -13,7 +13,7 @@ import (
 func ExampleInfo() {
 	msg.Info("code issue")
 	// Output:
-	// Error in msg_test.go:14: func 'github.com/rokath/trice/pkg/msg_test.ExampleInfo' -> code issue
+	// Error in msg_blackbox_test.go:14: func 'github.com/rokath/trice/pkg/msg_test.ExampleInfo' -> code issue
 }
 
 func ExampleOnErr() {
@@ -22,7 +22,7 @@ func ExampleOnErr() {
 	e = errors.New("s.th. went wrong")
 	msg.OnErr(e)
 	// Output:
-	// Error in msg_test.go:23: func 'github.com/rokath/trice/pkg/msg_test.ExampleOnErr' -> s.th. went wrong
+	// Error in msg_blackbox_test.go:23: func 'github.com/rokath/trice/pkg/msg_test.ExampleOnErr' -> s.th. went wrong
 }
 
 func ExampleFatalOnErr() {
@@ -32,7 +32,7 @@ func ExampleFatalOnErr() {
 	e = errors.New("s.th. went wrong")
 	// msg.FatalOnErr(e)
 	// Output:
-	// Error in msg_test.go:33: func 'github.com/rokath/trice/pkg/msg_test.ExampleFatalOnErr' -> s.th. went wrong
+	// Error in msg_blackbox_test.go:33: func 'github.com/rokath/trice/pkg/msg_test.ExampleFatalOnErr' -> s.th. went wrong
 }
 
 func ExamplePanicInfoOnErr() {
@@ -42,7 +42,7 @@ func ExamplePanicInfoOnErr() {
 	e = errors.New("s.th. went wrong")
 	// msg.PanicInfoOnErr(e, "just in case")
 	// Output:
-	// Error in msg_test.go:33: func 'github.com/rokath/trice/pkg/msg_test.ExampleFatalOnErr' -> s.th. went wrong
+	// Error in msg_blackbox_test.go:33: func 'github.com/rokath/trice/pkg/msg_test.ExampleFatalOnErr' -> s.th. went wrong
 }
 
 func ExampleInfoOnErr() {
@@ -52,17 +52,17 @@ func ExampleInfoOnErr() {
 	msg.InfoOnErr(e, "just in case")
 	// Output:
 	// just in case
-	// Error in msg_test.go:52: func 'github.com/rokath/trice/pkg/msg_test.ExampleInfoOnErr' -> s.th. went wrong
+	// Error in msg_blackbox_test.go:52: func 'github.com/rokath/trice/pkg/msg_test.ExampleInfoOnErr' -> s.th. went wrong
 }
 
 func ExampleFatalInfoOnErr() {
 	var e error
-	msg.InfoOnErr(e, "just in case")
+	msg.FatalInfoOnErr(e, "just in case")
 	e = errors.New("s.th. went wrong")
-	// msg.InfoOnErr(e, "just in case")
+	// msg.FatalInfoOnErr(e, "just in case")
 	// Output:
 	// just in case
-	// Error in msg_test.go:52: func 'github.com/rokath/trice/pkg/msg_test.ExampleInfoOnErr' -> s.th. went wrong
+	// Error in msg_blackbox_test.go:52: func 'github.com/rokath/trice/pkg/msg_test.ExampleInfoOnErr' -> s.th. went wrong
 }
 
 func ExampleOnTrue() {
@@ -70,7 +70,7 @@ func ExampleOnTrue() {
 	msg.OnTrue(f)
 	msg.OnTrue(!f)
 	// Output:
-	// Error in msg_test.go:71: func 'github.com/rokath/trice/pkg/msg_test.ExampleOnTrue' -> <nil>
+	// Error in msg_blackbox_test.go:71: func 'github.com/rokath/trice/pkg/msg_test.ExampleOnTrue' -> <nil>
 }
 
 func ExampleFatalOnTrue() {
@@ -79,7 +79,7 @@ func ExampleFatalOnTrue() {
 	msg.FatalOnTrue(f)
 	//msg.FatalOnTrue(!f)
 	// Output:
-	// Error in msg_test.go:71: func 'github.com/rokath/trice/pkg/msg_test.ExampleOnTrue' -> <nil>
+	// Error in msg_blackbox_test.go:71: func 'github.com/rokath/trice/pkg/msg_test.ExampleOnTrue' -> <nil>
 }
 
 func ExampleInfoOnTrue() {
@@ -87,7 +87,7 @@ func ExampleInfoOnTrue() {
 	msg.InfoOnTrue(f, "just in case")
 	msg.InfoOnTrue(!f, "just in case")
 	// Output:
-	// Error in msg_test.go:88: func 'github.com/rokath/trice/pkg/msg_test.ExampleInfoOnTrue' -> just in case
+	// Error in msg_blackbox_test.go:88: func 'github.com/rokath/trice/pkg/msg_test.ExampleInfoOnTrue' -> just in case
 }
 
 func ExampleFatalInfoOnTrue() {
@@ -96,7 +96,7 @@ func ExampleFatalInfoOnTrue() {
 	msg.FatalInfoOnTrue(f, "just in case")
 	//msg.FatalInfoOnTrue(!f, "just in case")
 	// Output:
-	// Error in msg_test.go:71: func 'github.com/rokath/trice/pkg/msg_test.ExampleOnTrue' -> <nil>
+	// Error in msg_blackbox_test.go:71: func 'github.com/rokath/trice/pkg/msg_test.ExampleOnTrue' -> <nil>
 }
 
 func ExampleOnFalse() {
@@ -104,7 +104,7 @@ func ExampleOnFalse() {
 	msg.OnFalse(f)
 	msg.OnFalse(!f)
 	// Output:
-	// Error in msg_test.go:104: func 'github.com/rokath/trice/pkg/msg_test.ExampleOnFalse' -> <nil>
+	// Error in msg_blackbox_test.go:104: func 'github.com/rokath/trice/pkg/msg_test.ExampleOnFalse' -> <nil>
 }
 
 func ExampleFatalOnFalse() {
@@ -113,7 +113,7 @@ func ExampleFatalOnFalse() {
 	msg.FatalOnFalse(f)
 	//msg.FatalOnFalse(!f)
 	// Output:
-	// Error in msg_test.go:71: func 'github.com/rokath/trice/pkg/msg_test.ExampleOnFalse' -> <nil>
+	// Error in msg_blackbox_test.go:71: func 'github.com/rokath/trice/pkg/msg_test.ExampleOnFalse' -> <nil>
 }
 
 func ExampleInfoOnFalse() {
@@ -121,7 +121,7 @@ func ExampleInfoOnFalse() {
 	msg.InfoOnFalse(f, "just in case")
 	msg.InfoOnFalse(!f, "just in case")
 	// Output:
-	// Error in msg_test.go:121: func 'github.com/rokath/trice/pkg/msg_test.ExampleInfoOnFalse' -> just in case
+	// Error in msg_blackbox_test.go:121: func 'github.com/rokath/trice/pkg/msg_test.ExampleInfoOnFalse' -> just in case
 }
 
 func ExampleFatalInfoOnFalse() {
@@ -130,5 +130,5 @@ func ExampleFatalInfoOnFalse() {
 	msg.FatalInfoOnFalse(f, "just in case")
 	//msg.FatalInfoOnFalse(!f, "just in case")
 	// Output:
-	// Error in msg_test.go:71: func 'github.com/rokath/trice/pkg/msg_test.ExampleOnFalse' -> <nil>
+	// Error in msg_blackbox_test.go:71: func 'github.com/rokath/trice/pkg/msg_test.ExampleOnFalse' -> <nil>
 }

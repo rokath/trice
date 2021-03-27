@@ -123,7 +123,7 @@ func OnFalse(flag bool) {
 
 // FatalOnFalse ends in osExit(1) if flag is false.
 func FatalOnFalse(flag bool) {
-	if !flag {
+	if flag {
 		return
 	}
 	pc, fn, line, ok := runtime.Caller(1)
@@ -154,6 +154,10 @@ const (
 	seriousError = "Error: Could not recover caller information."
 )
 
+var (
+	logFatalf = log.Fatalf // https://stackoverflow.com/questions/30688554/how-to-test-go-function-containing-log-fatal/45380105
+)
+
 func fmtMessage(pc uintptr, fn string, line int, ok bool, err error) {
 	funcName := runtime.FuncForPC(pc).Name()
 	fileName := filepath.Base(fn)
@@ -168,8 +172,8 @@ func logMessage(pc uintptr, fn string, line int, ok bool, err error) {
 	funcName := runtime.FuncForPC(pc).Name()
 	fileName := filepath.Base(fn)
 	if ok {
-		log.Fatalf(formatString, fileName, line, funcName, err)
+		logFatalf(formatString, fileName, line, funcName, err)
 	} else {
-		log.Fatal(seriousError)
+		logFatalf("%s", seriousError)
 	}
 }
