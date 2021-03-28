@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/rokath/trice/pkg/tst"
+	"github.com/tj/assert"
 )
 
 func sampleLut0() (lu TriceIDLookUp) {
@@ -52,9 +53,9 @@ func TestLutToJSON(t *testing.T) {
 	lut := sampleLut0()
 	exp := sampleLutJSON0
 	b, e := lut.toJSON()
-	tst.AssertNoErr(t, e)
+	assert.Nil(t, e)
 	act := string(b)
-	tst.Equal(t, exp, act)
+	assert.Equal(t, exp, act)
 }
 
 // TestJSONToLutEmptyByteSlice checks empty case.
@@ -62,9 +63,9 @@ func TestJSONToLutEmptyByteSlice(t *testing.T) {
 	var b []byte
 	exp := "map[]"
 	lut := make(TriceIDLookUp)
-	tst.AssertNoErr(t, lut.FromJSON(b))
+	assert.Nil(t, lut.FromJSON(b))
 	act := fmt.Sprint(lut)
-	tst.Equal(t, exp, act)
+	assert.Equal(t, exp, act)
 }
 
 // TestJSONToLutMapUpdate checks if a prefilled map is extended and updated.
@@ -72,12 +73,12 @@ func TestJSONToLutMapUpdate(t *testing.T) {
 	b := []byte(sampleLutJSON0)
 	exp := "map[11:{t11 s11} 12:{t12 s12} 33:{t33 s33}]"
 	lut := make(TriceIDLookUp)
-	tst.AssertNoErr(t, lut.FromJSON(b))
+	assert.Nil(t, lut.FromJSON(b))
 	b1 := []byte(sampleLutJSON1)
 	err := lut.FromJSON(b1)
-	tst.AssertNoErr(t, err)
+	assert.Nil(t, err)
 	act := fmt.Sprint(lut)
-	tst.Equal(t, exp, act)
+	assert.Equal(t, exp, act)
 }
 
 // TestJSONToLut checks if JSON to lut works.
@@ -85,9 +86,9 @@ func TestJSONToLut(t *testing.T) {
 	b := []byte(sampleLutJSON0)
 	exp := sampleLutMap0
 	lut := make(TriceIDLookUp)
-	tst.AssertNoErr(t, lut.FromJSON(b))
+	assert.Nil(t, lut.FromJSON(b))
 	act := fmt.Sprint(lut)
-	tst.Equal(t, exp, act)
+	assert.Equal(t, exp, act)
 }
 
 // TestLutFileTransfer checks lut file transfer.
@@ -95,9 +96,9 @@ func TestLutFileTransfer(t *testing.T) {
 	wr := sampleLut0()
 	exp := sampleLutMap0
 	fn := tst.TempFileName("TestWriteLutToFile*.JSON")
-	tst.AssertNoErr(t, wr.toFile(fn))
+	assert.Nil(t, wr.toFile(fn))
 	rd := make(TriceIDLookUp)
-	tst.AssertNoErr(t, rd.fromFile(fn))
+	assert.Nil(t, rd.fromFile(fn))
 	act := fmt.Sprint(rd)
-	tst.Equal(t, exp, act)
+	assert.Equal(t, exp, act)
 }

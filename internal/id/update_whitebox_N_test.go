@@ -5,7 +5,7 @@ package id
 import (
 	"testing"
 
-	"github.com/rokath/trice/pkg/tst"
+	"github.com/stretchr/testify/assert"
 )
 
 // A wrong parameter count should not be corrected! THe compiler will complain and a decision should be made.
@@ -777,6 +777,6 @@ func TestVariadicInsertId0(t *testing.T) {
 func checkTestTable(t *testing.T, tt []struct{ text, exp string }, extend bool) {
 	for _, x := range tt {
 		act, _ := updateParamCountAndID0(x.text, extend)
-		tst.Equal(t, x.exp, act)
+		assert.Equal(t, x.exp, act)
 	}
 }

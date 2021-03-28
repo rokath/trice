@@ -8,26 +8,26 @@ import (
 	"math/rand"
 	"testing"
 
-	"github.com/rokath/trice/pkg/tst"
+	"github.com/tj/assert"
 )
 
 func TestNewID(t *testing.T) {
 	rand.Seed(0)
 	lut := make(TriceIDLookUp)
 	id := lut.newID(32768, 65535)
-	tst.AssertTrue(t, 45050 == id)
+	assert.True(t, 45050 == id)
 	SearchMethod = "downward"
 	id = lut.newID(1, 65535)
-	tst.AssertTrue(t, 65535 == id)
+	assert.True(t, 65535 == id)
 	SearchMethod = "upward"
 	id = lut.newID(32768, 65535)
-	tst.AssertTrue(t, 32768 == id)
+	assert.True(t, 32768 == id)
 	id = lut.newID(32768, 65535)
-	tst.AssertTrue(t, 32768 == id)
+	assert.True(t, 32768 == id)
 	var i TriceFmt
 	lut[id] = i
 	id = lut.newID(32768, 65535)
-	tst.AssertTrue(t, 32769 == id)
+	assert.True(t, 32769 == id)
 }
 
 func TestNewUpwardID(t *testing.T) {
@@ -38,14 +38,14 @@ func TestNewUpwardID(t *testing.T) {
 	lut[98] = i // add
 	lut[99] = i // add
 	id := lut.newUpwardID(min, max)
-	tst.AssertTrue(t, 97 == id)
+	assert.True(t, 97 == id)
 	lut[id] = i // add
 	id = lut.newUpwardID(min, max)
-	tst.AssertTrue(t, 100 == id)
+	assert.True(t, 100 == id)
 	delete(lut, 98)
 	delete(lut, 99)
 	id = lut.newUpwardID(min, max)
-	tst.AssertTrue(t, 98 == id)
+	assert.True(t, 98 == id)
 }
 
 func TestNewDownwardID(t *testing.T) {
@@ -56,14 +56,14 @@ func TestNewDownwardID(t *testing.T) {
 	lut[98] = i // add
 	lut[99] = i // add
 	id := lut.newDownwardID(min, max)
-	tst.AssertTrue(t, 100 == id)
+	assert.True(t, 100 == id)
 	lut[id] = i // add
 	id = lut.newDownwardID(min, max)
-	tst.AssertTrue(t, 97 == id)
+	assert.True(t, 97 == id)
 	delete(lut, 98)
 	delete(lut, 99)
 	id = lut.newDownwardID(min, max)
-	tst.AssertTrue(t, 99 == id)
+	assert.True(t, 99 == id)
 }
 
 func TestNewRandomID(t *testing.T) {
@@ -72,9 +72,9 @@ func TestNewRandomID(t *testing.T) {
 	max := TriceID(100)
 	lut := make(TriceIDLookUp, 4)
 	id := lut.newRandomID(min, max)
-	tst.AssertTrue(t, 56 == id)
+	assert.True(t, 56 == id)
 	id = lut.newRandomID(min, max)
-	tst.AssertTrue(t, 92 == id)
+	assert.True(t, 92 == id)
 	id = lut.newRandomID(92, 92)
-	tst.AssertTrue(t, 92 == id)
+	assert.True(t, 92 == id)
 }

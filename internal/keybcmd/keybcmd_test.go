@@ -39,7 +39,7 @@ func TestDummy(t *testing.T) {
 //  	act := string(b)
 //  	fmt.Println("*****************************************\n*****************************act=", act, "##############")
 //  	fmt.Println("exp=", exp, "##############")
-//  	tst.Equal(t, exp, act)
+//  	assert.Equal(t, exp, act)
 //  }
 
 //  // baseName returns basic filename of program without extension
@@ -62,5 +62,5 @@ func TestDummy(t *testing.T) {
 //  	}
 //  	exp := "127.0.0.1:" + p.IPPort + ": wsarecv: An existing connection was forcibly closed by the remote host.\n"
 //  	act := string(capt[discardLength:])
-//  	tst.Equal(t, exp, act)
+//  	assert.Equal(t, exp, act)
 //  }

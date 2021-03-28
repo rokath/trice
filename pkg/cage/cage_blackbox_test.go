@@ -12,6 +12,11 @@ import (
 	"github.com/rokath/trice/pkg/cage"
 )
 
+func TestStartVerbose(t *testing.T) {
+	cage.Verbose = true
+	TestStart(t)
+}
+
 func TestStart(t *testing.T) {
 	afn := "testdata/actCage.log"
 	efn := "testdata/expCage.log"
@@ -32,7 +37,7 @@ func TestStart(t *testing.T) {
 	assert.Nil(t, err)
 
 	cage.Stop(c)
-	tst.EqualFiles(t, afn, efn)
+	tst.AssertEqualFiles(t, afn, efn)
 
 	efh, err = os.OpenFile(efn, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	assert.Nil(t, err)

@@ -38,14 +38,14 @@ func FatalOnErr(err error) {
 	logMessage(pc, fn, line, ok, err)
 }
 
-// PanicInfoOnErr ends in panic if err not nil.
-func PanicInfoOnErr(err error, info string) {
-	if nil == err {
-		return
-	}
-	log.Println(info)
-	panic(err)
-}
+//  // PanicInfoOnErr ends in panic if err not nil.
+//  func PanicInfoOnErr(err error, info string) {
+//  	if nil == err {
+//  		return
+//  	}
+//  	log.Println(info)
+//  	panic(err)
+//  }
 
 // InfoOnErr
 

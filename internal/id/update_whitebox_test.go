@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/rokath/trice/pkg/tst"
+	"github.com/tj/assert"
 )
 
 type idCheck struct {
@@ -89,8 +89,8 @@ func check(t *testing.T, text, expJSON string) {
 	tflu := lu.reverse()
 	refreshIDs(text, lu, tflu)
 	b, err := lu.toJSON()
-	tst.Equal(t, nil, err)
-	tst.Equal(t, expJSON, string(b))
+	assert.Equal(t, nil, err)
+	assert.Equal(t, expJSON, string(b))
 }
 
 // Because of the parallel test execution the global variables must be equal for all tests
@@ -277,11 +277,11 @@ func TestTriceParseOK(t *testing.T) {
 	set := tryOkSet
 	for i := range set {
 		nbID, id, tf, ok := triceParse(set[i].nbTRICE)
-		tst.AssertTrue(t, ok == set[i].ok)
+		assert.True(t, ok == set[i].ok)
 		if ok {
 			checkID(t, set, i, id)
 			checkNbID(t, set, i, nbID)
-			tst.AssertTrueElseInfo(t, tf == tryOkSet[i].tf, fmt.Sprint(tf, tryOkSet[i].tf))
+			assert.True(t, tf == tryOkSet[i].tf, fmt.Sprint(tf, tryOkSet[i].tf))
 		}
 	}
 }
@@ -290,7 +290,7 @@ func TestTriceIDParseOK(t *testing.T) {
 	set := tryOkSet
 	for i := range set {
 		nbID, id, ok := triceIDParse(set[i].nbTRICE)
-		tst.AssertTrue(t, ok == set[i].ok)
+		assert.True(t, ok == set[i].ok)
 		if ok {
 			checkID(t, set, i, id)
 			checkNbID(t, set, i, nbID)
@@ -301,8 +301,8 @@ func TestTriceIDParseOK(t *testing.T) {
 func TestTriceFmtParse(t *testing.T) {
 	for i := range tryOkSet {
 		tf, ok := triceFmtParse(tryOkSet[i].nbTRICE)
-		tst.AssertTrue(t, ok == tryOkSet[i].ok)
-		tst.AssertTrueElseInfo(t, tf == tryOkSet[i].tf, fmt.Sprint(tf, tryOkSet[i].tf))
+		assert.True(t, ok == tryOkSet[i].ok)
+		assert.True(t, tf == tryOkSet[i].tf, fmt.Sprint(tf, tryOkSet[i].tf))
 	}
 }
 
@@ -314,7 +314,7 @@ func TestTriceIDParseNotOK(t *testing.T) {
 	set := tryNotOkSetID
 	for i := range set {
 		nbID, id, ok := triceIDParse(set[i].nbTRICE)
-		tst.AssertTrueElseInfo(t, ok == set[i].ok, fmt.Sprint(i))
+		assert.True(t, ok == set[i].ok, fmt.Sprint(i))
 		if ok {
 			checkID(t, set, i, id)
 			checkNbID(t, set, i, nbID)
@@ -323,11 +323,11 @@ func TestTriceIDParseNotOK(t *testing.T) {
 }
 
 func checkID(t *testing.T, set []idCheck, i int, id TriceID) {
-	tst.AssertTrueElseInfo(t, id == set[i].id, fmt.Sprint(i, id))
+	assert.True(t, id == set[i].id, fmt.Sprint(i, id))
 }
 
 func checkNbID(t *testing.T, set []idCheck, i int, nbID string) {
-	tst.AssertTrueElseInfo(t, nbID == set[i].nbID, fmt.Sprint(i, nbID))
+	assert.True(t, nbID == set[i].nbID, fmt.Sprint(i, nbID))
 }
 
 type testTable []struct {
@@ -345,11 +345,11 @@ func checkList(t *testing.T, sharedIDs bool, mins, maxs, min, max TriceID, tt te
 		act0, _ := updateParamCountAndID0(x.text, extend)
 		listModified := false
 		act, fileModified := updateIDsUniqOrShared(sharedIDs, mins, maxs, min, max, act0, lu, tflu, &listModified)
-		tst.Equal(t, x.fileMod, fileModified)
-		tst.Equal(t, x.listMod, listModified)
-		tst.Equal(t, x.exp, act)
+		assert.Equal(t, x.fileMod, fileModified)
+		assert.Equal(t, x.listMod, listModified)
+		assert.Equal(t, x.exp, act)
 	}
 	lu.AddFmtCount()
 	aListN := fmt.Sprintln(lu)
-	tst.Equal(t, eList, aListN)
+	assert.Equal(t, eList, aListN)
 }

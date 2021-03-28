@@ -8,7 +8,7 @@ import (
 	"testing"
 
 	"github.com/rokath/trice/pkg/cipher"
-	"github.com/rokath/trice/pkg/tst"
+	"github.com/tj/assert"
 )
 
 type testTable struct {
@@ -33,10 +33,10 @@ func Test12345678(t *testing.T) {
 func check12345678(t *testing.T, password string, exp []byte) {
 	cipher.Password = password
 	cipher.ShowKey = true
-	tst.AssertNoErr(t, cipher.SetUp())
+	assert.Nil(t, cipher.SetUp())
 	b := []byte{1, 2, 3, 4, 5, 6, 7, 8}
 	c := cipher.Encrypt8(b)
-	tst.Equal(t, exp, c)
+	assert.Equal(t, exp, c)
 	d := cipher.Decrypt8(c)
-	tst.Equal(t, b, d)
+	assert.Equal(t, b, d)
 }

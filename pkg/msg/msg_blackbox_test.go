@@ -35,15 +35,15 @@ func ExampleFatalOnErr() {
 	// Error in msg_blackbox_test.go:33: func 'github.com/rokath/trice/pkg/msg_test.ExampleFatalOnErr' -> s.th. went wrong
 }
 
-func ExamplePanicInfoOnErr() {
-	log.SetFlags(0)
-	var e error
-	msg.PanicInfoOnErr(e, "just in case")
-	e = errors.New("s.th. went wrong")
-	// msg.PanicInfoOnErr(e, "just in case")
-	// Output:
-	// Error in msg_blackbox_test.go:33: func 'github.com/rokath/trice/pkg/msg_test.ExampleFatalOnErr' -> s.th. went wrong
-}
+//  func ExamplePanicInfoOnErr() {
+//  	log.SetFlags(0)
+//  	var e error
+//  	msg.PanicInfoOnErr(e, "just in case")
+//  	e = errors.New("s.th. went wrong")
+//  	// msg.PanicInfoOnErr(e, "just in case")
+//  	// Output:
+//  	// Error in msg_blackbox_test.go:33: func 'github.com/rokath/trice/pkg/msg_test.ExampleFatalOnErr' -> s.th. went wrong
+//  }
 
 func ExampleInfoOnErr() {
 	var e error

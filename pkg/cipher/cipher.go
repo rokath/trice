@@ -8,7 +8,6 @@ package cipher
 
 import (
 	"crypto/sha1"
-	"errors"
 	"fmt"
 
 	"github.com/rokath/trice/pkg/msg"
@@ -36,14 +35,11 @@ var (
 func SetUp() error {
 	var err error
 	ci, enabled, err = createCipher()
-	if nil != err {
-		return err
-	}
+	msg.FatalOnErr(err)
+
 	bsize := ci.BlockSize()
-	if 8 != bsize {
-		fmt.Println("cipher blocksize", bsize)
-		return errors.New("unexpected value")
-	}
+	msg.FatalOnTrue(8 != bsize)
+
 	return nil
 }
 
@@ -63,9 +59,8 @@ func createCipher() (*xtea.Cipher, bool, error) {
 		Key = Key[:16] // only first 16 bytes needed as key
 	}
 	c, err := xtea.NewCipher(Key)
-	if err != nil {
-		return nil, false, errors.New("NewCipher returned error")
-	}
+	msg.FatalOnErr(err)
+
 	var e bool
 	if "" != Password {
 		e = true

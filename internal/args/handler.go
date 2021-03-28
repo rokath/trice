@@ -38,7 +38,7 @@ func Handler(args []string) error {
 	cage.DefaultLogfileName = "2006-01-02_1504-05_trice.log"
 
 	// Verify that a subcommand has been provided: os.Arg[0] is the main command (trice), os.Arg[1] will be the subcommand.
-	if len(os.Args) < 2 {
+	if len(args) < 2 {
 		m := "no args, try: 'trice help'"
 		return errors.New(m)
 	}
@@ -50,8 +50,7 @@ func Handler(args []string) error {
 	subArgs := args[2:]
 	switch subCmd { // Check which subcommand is invoked.
 	default:
-		fmt.Println("try: 'trice help|h'")
-		return nil
+		return fmt.Errorf("unknown subcommand '%s'. try: 'trice help|h'", subCmd)
 	case "h", "help":
 		msg.OnErr(fsScHelp.Parse(subArgs))
 		distributeArgs()
@@ -141,9 +140,7 @@ func logLoop() {
 	for {
 		rc, e := receiver.NewReadCloser(receiver.Port, receiver.PortArguments)
 		if nil != e {
-			if verbose {
-				fmt.Println(e)
-			}
+			fmt.Println(e)
 			if !interrupted {
 				cage.Stop(c)
 				return // hopeless
@@ -196,11 +193,11 @@ func replaceDefaultArgs() {
 	if strings.HasPrefix(receiver.Port, "COM") {
 		receiver.PortArguments = defaultCOMArgs
 	} else {
-		switch receiver.Port {
-		case "JLINK", "STLINK", "J-LINK", "ST-LINK":
-			receiver.PortArguments = defaultLinkArgs
-		case "BUFFER":
-			receiver.PortArguments = defaultBUFFERArgs
-		}
+		// switch receiver.Port {
+		// case "JLINK", "STLINK", "J-LINK", "ST-LINK":
+		receiver.PortArguments = defaultLinkArgs
+		//case "BUFFER":
+		//	receiver.PortArguments = defaultBUFFERArgs
+		//}
 	}
 }

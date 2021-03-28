@@ -19,13 +19,13 @@ import (
 func TestTempFileName(t *testing.T) {
 	s := tst.TempFileName("AB_*.CD")
 	b := filepath.Base(s)
-	tst.AssertTrue(t, strings.HasPrefix(b, "AB_"))
-	tst.AssertTrue(t, strings.HasSuffix(b, ".CD"))
-	tst.AssertTrue(t, len(s) > 10)
+	assert.True(t, strings.HasPrefix(b, "AB_"))
+	assert.True(t, strings.HasSuffix(b, ".CD"))
+	assert.True(t, len(s) > 10)
 }
 
 func TestEqual(t *testing.T) {
-	tst.Equal(t, 33, 33)
+	assert.Equal(t, 33, 33)
 }
 
 func TestEqualLines(t *testing.T) {

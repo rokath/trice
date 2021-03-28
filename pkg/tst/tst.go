@@ -9,11 +9,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
-	"log"
 	"os"
-	"path/filepath"
-	"reflect"
-	"runtime"
 	"strings"
 	"testing"
 
@@ -44,9 +40,8 @@ func CaptureStdOut(f func()) string {
 
 	// re-direct stdout
 	r, w, err := os.Pipe()
-	if nil != err {
-		return err.Error()
-	}
+	msg.FatalOnErr(err)
+
 	os.Stdout = w
 	defer func() {
 		// restoring the real stdout
@@ -66,58 +61,33 @@ func CaptureStdOut(f func()) string {
 	f()
 
 	// back to normal state
-	err = w.Close()
-	if nil != err {
-		return err.Error()
-	}
+	msg.FatalOnErr(w.Close())
 
 	// read output
 	return <-outC
-}
-
-// EqualStrings fails test if strings not identical.
-func EqualStrings(t *testing.T, exp, act string) {
-	if strings.Compare(act, exp) != 0 {
-		log.Println("")
-		log.Println("expect:", exp)
-		log.Println("actual:", act)
-		t.Fail()
-	}
-}
-
-// Equal fails the test if exp is not equal to act.
-func Equal(tb testing.TB, exp, act interface{}) {
-	if !reflect.DeepEqual(exp, act) {
-		_, file, line, _ := runtime.Caller(1)
-		es := fmt.Sprintf("%v", exp)
-		as := fmt.Sprintf("%v", act)
-		log.Println("expect:", es)
-		log.Println("actual:", as)
-		log.Println("expect:", []byte(es))
-		log.Println("actual:", []byte(as))
-		fmt.Println(filepath.Base(file), line)
-		tb.FailNow()
-	}
 }
 
 // EqualLines compares exp and act line by line ignoring lineendings and leading/trailing spaces.
 func EqualLines(tb testing.TB, exp, act string) {
 
 	// remove windows line endings
-	exp0 := strings.ReplaceAll(exp, "\r\n", "\n")
-	act0 := strings.ReplaceAll(act, "\r\n", "\n")
+	exp0 := strings.ReplaceAll(exp, "\r", "")
+	act0 := strings.ReplaceAll(act, "\r", "")
+	exp1 := strings.ReplaceAll(exp0, "\t", "")
+	act1 := strings.ReplaceAll(act0, "\t", "")
+	exp2 := strings.ReplaceAll(exp1, " ", "")
+	act2 := strings.ReplaceAll(act1, " ", "")
 
-	exp1 := strings.Split(exp0, "\n")
-	act1 := strings.Split(act0, "\n")
+	expS := strings.Split(exp2, "\n")
+	actS := strings.Split(act2, "\n")
 
-	if len(exp1) != len(act1) {
-		fmt.Println(len(exp1), len(act1))
-		tb.Fail()
-	}
-	for i, se := range exp1 {
-		expLine := strings.TrimSpace(se)
-		actLine := strings.TrimSpace(act1[i])
-		Equal(tb, expLine, actLine)
+	fmt.Println(len(expS), len(actS))
+	assert.True(tb, len(expS) == len(actS))
+
+	for i := range expS {
+		fmt.Println("expLine:" + expS[i])
+		fmt.Println("actLine:" + actS[i])
+		assert.Equal(tb, expS[i], actS[i])
 	}
 }
 
@@ -139,48 +109,10 @@ func EqualTextFiles(t *testing.T, fn0, fn1 string) {
 	EqualLines(t, s0, s1)
 }
 
-// EqualFiles fails test if contence is NOT equal
-func EqualFiles(t *testing.T, fn0, fn1 string) {
-	ok := equalFileContent(fn0, fn1)
-	if !ok {
-		t.FailNow()
-	}
-}
-
-// equalFileContent returns true if contece is equal
-func equalFileContent(fn0, fn1 string) bool {
+// AssertEqualFiles fails test if contence is NOT equal
+func AssertEqualFiles(t *testing.T, fn0, fn1 string) {
 	cmp := equalfile.New(nil, equalfile.Options{}) // compare using single mode
 	ok, err := cmp.CompareFile(fn0, fn1)
-	if nil != err {
-		ok = false
-	}
-	return ok
-}
-
-// AssertNoErr fails the test if err is not nil.
-func AssertNoErr(tb testing.TB, err error) {
-	if err != nil {
-		_, file, line, _ := runtime.Caller(1)
-		fmt.Println(err.Error(), filepath.Base(file), line)
-		tb.FailNow()
-	}
-}
-
-// AssertTrue fails the test if flag is false.
-func AssertTrue(tb testing.TB, flag bool) {
-	if !flag {
-		_, file, line, _ := runtime.Caller(1)
-		fmt.Println(flag, filepath.Base(file), line)
-		tb.FailNow()
-	}
-}
-
-// AssertTrueElseInfo fails the test if flag is false.
-func AssertTrueElseInfo(tb testing.TB, flag bool, info string) {
-	if !flag {
-		fmt.Println(info)
-		_, file, line, _ := runtime.Caller(1)
-		fmt.Println(flag, filepath.Base(file), line)
-		tb.FailNow()
-	}
+	assert.Nil(t, err)
+	assert.True(t, ok)
 }

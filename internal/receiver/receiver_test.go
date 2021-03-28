@@ -8,20 +8,20 @@ import (
 	"testing"
 
 	"github.com/rokath/trice/internal/receiver"
-	"github.com/rokath/trice/pkg/tst"
+	"github.com/tj/assert"
 )
 
 func Test1(t *testing.T) {
 	buf := string([]byte{7})
 	rc, err := receiver.NewReadCloser("BUFFER", buf)
-	tst.AssertNoErr(t, err)
+	assert.Nil(t, err)
 	b := make([]byte, 100)
 	n, err := rc.Read(b)
-	tst.AssertNoErr(t, err)
-	tst.AssertTrue(t, 1 == n)
-	tst.AssertTrue(t, 7 == b[0])
+	assert.Nil(t, err)
+	assert.True(t, 1 == n)
+	assert.True(t, 7 == b[0])
 	n, err = rc.Read(b)
-	tst.AssertTrue(t, 0 == n)
-	tst.AssertTrue(t, io.EOF == err)
-	tst.AssertNoErr(t, rc.Close())
+	assert.True(t, 0 == n)
+	assert.True(t, io.EOF == err)
+	assert.Nil(t, rc.Close())
 }

@@ -25,6 +25,11 @@ var (
 
 // main is the entry point.
 func main() {
+	doit()
+}
+
+// doit is the action.
+func doit() {
 
 	// inject values
 	args.Version = version
@@ -34,8 +39,6 @@ func main() {
 	rand.Seed(time.Now().UnixNano())
 	err := args.Handler(os.Args)
 	if nil != err {
-		fmt.Println(error.Error(err))
-		os.Exit(1)
+		fmt.Print(err)
 	}
-	os.Exit(0)
 }

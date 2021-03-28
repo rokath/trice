@@ -9,7 +9,7 @@ import (
 	"testing"
 
 	"github.com/rokath/trice/internal/com"
-	"github.com/rokath/trice/pkg/tst"
+	"github.com/tj/assert"
 )
 
 // To do: handle special cases:
@@ -24,13 +24,13 @@ import (
 //	Found port:  COM4
 func Test1(t *testing.T) {
 	ss, err := com.GetSerialPorts()
-	tst.AssertNoErr(t, err)
+	assert.Nil(t, err)
 
 	for i := range ss {
 		port := ss[i]
 		p := com.NewCOMPortGoBugSt(port)
 		if p.Open() {
-			tst.AssertNoErr(t, p.Close())
+			assert.Nil(t, p.Close())
 		}
 	}
 }
