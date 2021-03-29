@@ -12,6 +12,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/rokath/trice/internal/args"
+	"github.com/rokath/trice/internal/decoder"
+	"github.com/rokath/trice/internal/emitter"
 	"github.com/rokath/trice/internal/id"
 	"github.com/rokath/trice/pkg/msg"
 	"github.com/rokath/trice/pkg/tst"
@@ -35,28 +38,33 @@ func getTemporaryFileName(pattern string) string {
 }
 
 func Example_doit_a() {
+	m.Lock()
 	version = "1.2.3"
 	commit = "myCommit"
 	date = "2006-01-02_1504-05"
 	os.Args = []string{"trice", "ver"}
-	act := tst.CaptureStdOut(doit)
-	fmt.Print(act)
+	doit()
+	os.Args = os.Args[:0]
+	version = ""
+	commit = ""
+	date = ""
+	m.Unlock()
 	// Output:
 	// version=1.2.3, commit=myCommit, built at 2006-01-02_1504-05
 }
 
 func Example_doit_b() {
-	version = "1.2.3"
-	commit = "myCommit"
-	date = "2006-01-02_1504-05"
+	m.Lock()
 	os.Args = []string{"trice", "wrong"}
-	act := tst.CaptureStdOut(doit)
-	fmt.Print(act)
+	doit()
+	os.Args = os.Args[:0]
+	m.Unlock()
 	// Output:
 	// unknown subcommand 'wrong'. try: 'trice help|h'
 }
 
 func TestDoit_ver(t *testing.T) {
+	m.Lock()
 	version = "1.2.3"
 	commit = "myCommit"
 	date = "2006-01-02_1504-05"
@@ -66,29 +74,80 @@ func TestDoit_ver(t *testing.T) {
 	version = ""
 	commit = ""
 	date = ""
+	m.Unlock()
 	assert.Equal(t, exp, act)
 }
 
 func TestDoit_scan(t *testing.T) {
+	m.Lock()
 	os.Args = []string{"trice", "scan"}
 	act := tst.CaptureStdOut(doit)
+	m.Unlock()
 	assert.Equal(t, "", act[:0])
 }
 
+//for some reason this test disturbs in parallel execution
 func TestDoit_dssd(t *testing.T) {
+	m.Lock()
 	log.SetFlags(0)
-	os.Args = []string{"trice", "ds", "-color", "off"}
+	os.Args = []string{"trice", "ds", "-color", "off", "-ipp", "61496"}
 	var actDS string
 	go func() {
 		actDS = tst.CaptureStdOut(doit)
 	}()
 	time.Sleep(100 * time.Millisecond)
-	os.Args = []string{"trice", "sd"}
+
+	os.Args = []string{"trice", "sd", "-ipp", "61496"}
 	actSD := tst.CaptureStdOut(doit)
+	time.Sleep(100 * time.Millisecond)
+	os.Args = os.Args[:0]
+	m.Unlock()
 	fmt.Println(actDS)
-	assert.Equal(t, "displayServer @ localhost:61497\n", actDS)
+	assert.Equal(t, "displayServer @ localhost:61496\n", actDS)
 	actM := actSD[0:19] + "xxxxx" + actSD[24:]
-	assert.Equal(t, "\n\ndbg:displayServerxxxxxdown\n\n\naccept tcp 127.0.0.1:61497: use of closed network connection", actM)
+	assert.Equal(t, "\n\ndbg:displayServerxxxxxdown\n\n\naccept tcp 127.0.0.1:61496: use of closed network connection", actM)
+}
+
+func _TestDoit_dssd_a(t *testing.T) {
+	m.Lock()
+	log.SetFlags(0)
+	os.Args = []string{"trice", "ds", "-color", "off", "-ipp", "61498"}
+	var actDS string
+	go func() {
+		actDS = tst.CaptureStdOut(doit)
+	}()
+	time.Sleep(100 * time.Millisecond)
+
+	os.Args = append(osArgsBUFFER, "-ds")
+	act := tst.CaptureStdOut(doit)
+	fmt.Print(act)
+
+	os.Args = []string{"trice", "sd", "-ipp", "61498"}
+	actSD := tst.CaptureStdOut(doit)
+	os.Args = os.Args[:0]
+	time.Sleep(100 * time.Millisecond)
+
+	m.Unlock()
+	fmt.Println(actDS)
+	assert.Equal(t, "displayServer @ localhost:61498\nBUFFER: MSG: triceFifoMaxDepth = 4, select = 0\n", actDS)
+	actM := actSD[0:19] + "xxxxx" + actSD[24:]
+	assert.Equal(t, "\n\ndbg:displayServerxxxxxdown\n\n\naccept tcp 127.0.0.1:61498: use of closed network connection", actM)
+}
+
+func _TestDoit_dssd_b(t *testing.T) {
+	m.Lock()
+	os.Args = append(osArgsBUFFER, "-ds", "-autostart", "-ipp", "61499")
+	act := tst.CaptureStdOut(doit)
+	fmt.Print(act)
+	time.Sleep(100 * time.Millisecond)
+
+	os.Args = []string{"trice", "sd", "-ipp", "61499"}
+	actSD := tst.CaptureStdOut(doit)
+	os.Args = os.Args[:0]
+	time.Sleep(100 * time.Millisecond)
+	m.Unlock()
+	actM := actSD[0:19] + "xxxxx" + actSD[24:]
+	assert.Equal(t, "read tcp 127.0.0.1:xxxxx->127.0.0.1:61499: wsarecv: An existing connection was forcibly closed by the remote host.", actM)
 }
 
 // createTIL returns a name of a temporary file containing a valid trice id JSON map
@@ -127,12 +186,12 @@ func createCFile(dn string) (fn string) {
 
 var osArgsBUFFER []string
 
-func TestMain(m *testing.M) {
+func TestMain(t *testing.M) {
 	// do stuff before tests
 	fnTIL := createTIL()
 	osArgsBUFFER = []string{"trice", "log", "-p", "BUFFER", "-args", "2, 124, 227, 255, 0, 0, 4, 0", "-ts", "off", "-color", "off", "-idlist", fnTIL}
 
-	exitVal := m.Run() // tests
+	exitVal := t.Run() // tests
 
 	// do stuff after tests
 	msg.FatalOnErr(os.Remove(fnTIL))
@@ -145,6 +204,7 @@ func Example_doit_c() {
 
 	os.Args = osArgsBUFFER
 	act := tst.CaptureStdOut(doit)
+	os.Args = os.Args[:0]
 	fmt.Print(act)
 	m.Unlock()
 	// Output:
@@ -156,6 +216,9 @@ func Example_doit_d() {
 	os.Args = append(osArgsBUFFER, "-testTable", "-prefix", " }, `")
 	act := tst.CaptureStdOut(doit)
 	fmt.Print(act)
+	os.Args = os.Args[:0]
+	decoder.TestTableMode = false       // reset changed value
+	emitter.Prefix = args.DefaultPrefix // reset changed value
 	m.Unlock()
 	// Output:
 	//{ []byte{   2,124,227,255,  0,  0,  4,  0, }, `MSG: triceFifoMaxDepth = 4, select = 0`},
@@ -174,6 +237,7 @@ func Example_doit_e() {
 	fmt.Print(act)
 	msg.FatalOnErr(os.RemoveAll(dn))
 	id.DryRun = false // reset changed value
+	os.Args = os.Args[:0]
 	m.Unlock()
 	// Output:
 	// ... TRICE0( Id(100), "tata");...
@@ -192,6 +256,7 @@ func Example_doit_f() {
 	fmt.Print(string(b))
 	fmt.Print(act)
 	msg.FatalOnErr(os.RemoveAll(dn))
+	os.Args = os.Args[:0]
 	m.Unlock()
 	// Output:
 	// ... TRICE0( Id(0), "tata");...
@@ -210,6 +275,7 @@ func Example_doit_g() {
 	fmt.Print(string(b))
 	fmt.Print(act)
 	msg.FatalOnErr(os.RemoveAll(dn))
+	os.Args = os.Args[:0]
 	m.Unlock()
 	// Output:
 	// ... TRICE0( Id(0), "tata");...
@@ -228,6 +294,7 @@ func Example_scan() {
 	fmt.Print(string(b))
 	fmt.Print(act)
 	msg.FatalOnErr(os.RemoveAll(dn))
+	os.Args = os.Args[:0]
 	m.Unlock()
 	// Output:
 	// ... TRICE0( Id(0), "tata");...

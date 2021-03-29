@@ -16,7 +16,7 @@ import (
 	"github.com/rokath/trice/pkg/cipher"
 )
 
-const defaultPrefix = "source: "
+const DefaultPrefix = "source: "
 
 var (
 	colorInfo = `The format strings can start with a lower or upper case channel information.
@@ -75,7 +75,7 @@ If you need target timestamps you need to get the time inside the target and sen
 `) // flag
 
 	fsScLog.StringVar(&emitter.ColorPalette, "color", "default", colorInfo)                                                                                                                                        // flag
-	fsScLog.StringVar(&emitter.Prefix, "prefix", defaultPrefix, "Line prefix, options: any string or 'off|none' or 'source:' followed by 0-12 spaces, 'source:' will be replaced by source value e.g., 'COM17:'.") // flag
+	fsScLog.StringVar(&emitter.Prefix, "prefix", DefaultPrefix, "Line prefix, options: any string or 'off|none' or 'source:' followed by 0-12 spaces, 'source:' will be replaced by source value e.g., 'COM17:'.") // flag
 	fsScLog.StringVar(&emitter.Suffix, "suffix", "", "Append suffix to all lines, options: any string.")                                                                                                           // flag
 
 	info := fmt.Sprint(`receiver device: 'ST-LINK'|'J-LINK'|serial name. 

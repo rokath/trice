@@ -111,7 +111,7 @@ func logLoop() {
 		if "LOCmicro" == emitter.TimestampFormat {
 			emitter.TimestampFormat = "off"
 		}
-		if defaultPrefix == emitter.Prefix {
+		if DefaultPrefix == emitter.Prefix {
 			emitter.Prefix = " }, `"
 		}
 		if "" == emitter.Suffix {

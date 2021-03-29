@@ -167,6 +167,38 @@ func Example_help_a() {
 	// example 'trice h -help': Print help for help.
 }
 
+func Example_help_b() {
+	fn := func() {
+		err := Handler([]string{"trice", "help", "-sd", "-v"})
+		if nil != err {
+			fmt.Print(err)
+		}
+	}
+	h.Lock()
+	m.Lock()
+	act := tst.CaptureStdOut(fn)
+	m.Unlock()
+	h.Unlock()
+	fmt.Print(act)
+	// Output:
+	// *** https://github.com/rokath/trice ***
+	//
+	// If a non-multi parameter is used more than one times the last value wins.
+	// No logfile writing...
+	// syntax: 'trice subcommand' [params]
+	// subcommand 'sd|shutdown': Ends display server at IPA:IPP, works also on a remote mashine.
+	//   -ipa string
+	//     	IP address like '127.0.0.1'.
+	//     	You can specify this swich if you intend to use the remote display option to show the output on a different PC in the network.
+	//     	 (default "localhost")
+	//   -ipp string
+	//     	16 bit IP port number.
+	//     	You can specify this swich if you want to change the used port number for the remote display functionality.
+	//     	 (default "61497")
+	// example: 'trice sd': Shut down remote display server.
+	// No logfile writing...done
+}
+
 func TestHelp(t *testing.T) {
 	fn := func() {
 		err := Handler([]string{"trice", "help", "-help"})
