@@ -6,9 +6,11 @@ package emitter
 
 import (
 	"runtime"
+	"strings"
 
 	"github.com/rokath/trice/internal/receiver"
 	"github.com/rokath/trice/pkg/cage"
+	"github.com/rokath/trice/pkg/msg"
 )
 
 var (
@@ -106,38 +108,50 @@ func New() *TriceLineComposer {
 	return newLineComposer(newLineWriter())
 }
 
+//  // SetPrefix changes "source:" to e.g., "JLINK:".
+//  // to do: better implementation for example with strings.Split
+//  func SetPrefix() {
+//  	port := receiver.Port
+//  	switch Prefix {
+//  	case "source:":
+//  		Prefix = port + ":"
+//  	case "source: ":
+//  		Prefix = port + ": "
+//  	case "source:  ":
+//  		Prefix = port + ":  "
+//  	case "source:   ":
+//  		Prefix = port + ":   "
+//  	case "source:    ":
+//  		Prefix = port + ":    "
+//  	case "source:     ":
+//  		Prefix = port + ":     "
+//  	case "source:      ":
+//  		Prefix = port + ":      "
+//  	case "source:       ":
+//  		Prefix = port + ":       "
+//  	case "source:        ":
+//  		Prefix = port + ":        "
+//  	case "source:         ":
+//  		Prefix = port + ":         "
+//  	case "source:          ":
+//  		Prefix = port + ":          "
+//  	case "source:           ":
+//  		Prefix = port + ":           "
+//  	case "source:            ":
+//  		Prefix = port + ":            "
+//  	case "off", "none":
+//  		Prefix = ""
+//  	}
+//  }
+
 // SetPrefix changes "source:" to e.g., "JLINK:".
-// to do: better implementation for example with strings.Split
 func SetPrefix() {
-	port := receiver.Port
 	switch Prefix {
-	case "source:":
-		Prefix = port + ":"
-	case "source: ":
-		Prefix = port + ": "
-	case "source:  ":
-		Prefix = port + ":  "
-	case "source:   ":
-		Prefix = port + ":   "
-	case "source:    ":
-		Prefix = port + ":    "
-	case "source:     ":
-		Prefix = port + ":     "
-	case "source:      ":
-		Prefix = port + ":      "
-	case "source:       ":
-		Prefix = port + ":       "
-	case "source:        ":
-		Prefix = port + ":        "
-	case "source:         ":
-		Prefix = port + ":         "
-	case "source:          ":
-		Prefix = port + ":          "
-	case "source:           ":
-		Prefix = port + ":           "
-	case "source:            ":
-		Prefix = port + ":            "
 	case "off", "none":
 		Prefix = ""
+	default:
+		s := strings.Split(Prefix, ":")
+		msg.FatalOnFalse(2 == len(s))
+		Prefix = receiver.Port + ":" + s[1]
 	}
 }
