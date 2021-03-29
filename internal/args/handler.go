@@ -84,7 +84,7 @@ func Handler(args []string) error {
 	case "sd", "shutdown":
 		msg.OnErr(fsScSdSv.Parse(subArgs))
 		distributeArgs()
-		return emitter.ScShutdownRemoteDisplayServer(1)
+		return emitter.ScShutdownRemoteDisplayServer(0) // 0|1: 0=no 1=with shutdown timestamp in display server
 	case "ds", "displayServer":
 		msg.OnErr(fsScSv.Parse(subArgs))
 		distributeArgs()
@@ -112,11 +112,9 @@ func logLoop() {
 			emitter.TimestampFormat = "off"
 		}
 		if defaultPrefix == emitter.Prefix {
-			//emitter.Prefix = " }, \""
 			emitter.Prefix = " }, `"
 		}
 		if "" == emitter.Suffix {
-			//emitter.Suffix = "\\\\n\"},"
 			emitter.Suffix = "`},"
 		}
 		if "default" == emitter.ColorPalette {
@@ -152,15 +150,14 @@ func logLoop() {
 			continue
 		}
 		defer func() { msg.OnErr(rc.Close()) }()
+		interrupted = true
 		if receiver.ShowInputBytes {
 			rc = receiver.NewBytesViewer(rc)
 		}
-
 		e = decoder.Translate(sw, lu, m, rc)
 		if io.EOF == e {
 			return // end of predefined buffer
 		}
-		interrupted = true
 	}
 }
 
