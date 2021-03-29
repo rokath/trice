@@ -112,6 +112,20 @@ func Test_trice84(t *testing.T) {
 	}
 }
 
+func TestFlexLoutOfSync(t *testing.T) {
+	tt := testTable{ // little endian
+		{[]byte{81, 48, 80, 134}, `--------------------------------------------------`},
+		{[]byte{81, 48, 80, 134}, "warning:Cycle 81 does not match expected cyle 82 - lost trice messages?\n--------------------------------------------------"},
+		{[]byte{88, 82, 48, 80, 134}, "error: unknown triceID 20528 ignoring first byte [88 82 48 80 134]\n--------------------------------------------------"},
+		{[]byte{188, 83, 48, 80, 134}, "error: unknown triceID 20528 ignoring first byte [188 83 48 80 134]\n--------------------------------------------------"},
+		{[]byte{88, 88, 83, 48, 80, 134}, "error: unknown triceID 12371 ignoring first byte [88 88 83 48 80 134]\nerror: unknown triceID 20528 ignoring first byte [88 83 48 80 134]\nwarning:Cycle 83 does not match expected cyle 84 - lost trice messages?\n--------------------------------------------------"},
+		{[]byte{1, 124, 227, 255, 0, 0, 4, 0}, "warning:Cycle 1 does not match expected cyle 84 - lost trice messages?\nMSG: triceFifoMaxDepth = 4, select = 0"},
+		{[]byte{2, 124, 227, 255, 0, 0, 4, 0}, "MSG: triceFifoMaxDepth = 4, select = 0"},
+		{[]byte{88, 3, 124, 227, 255, 0, 0, 4, 0}, "error: unknown triceID 814976 ignoring first byte [88 3 124 227 255 0 0 4]\nMSG: triceFifoMaxDepth = 4, select = 0"},
+	}
+	doTableTest(t, NewFlexDecoder, littleEndian, tt)
+}
+
 func TestFlexL(t *testing.T) {
 	doTableTest(t, NewFlexDecoder, littleEndian, tableL)
 }

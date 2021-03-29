@@ -5,7 +5,6 @@
 package decoder
 
 import (
-	"bytes"
 	"encoding/binary"
 	"fmt"
 	"io"
@@ -19,6 +18,7 @@ import (
 
 	"github.com/rokath/trice/internal/emitter"
 	"github.com/rokath/trice/internal/id"
+	"github.com/rokath/trice/internal/receiver"
 	"github.com/rokath/trice/pkg/msg"
 )
 
@@ -117,7 +117,7 @@ func handleSIGTERM(rc io.ReadCloser) {
 // Bytes are read with rc. Then according decoder.Encoding they are translated into strings.
 // Each read returns the amount of bytes for one trice. rc is called on every
 // Translate returns true on io.EOF or false on hard read error or sigterm.
-func Translate(sw *emitter.TriceLineComposer, lut id.TriceIDLookUp, m *sync.RWMutex, rc io.ReadCloser) {
+func Translate(sw *emitter.TriceLineComposer, lut id.TriceIDLookUp, m *sync.RWMutex, rc io.ReadCloser) error {
 	var dec Decoder //io.Reader
 	switch Encoding {
 	case "esc", "ESC":
@@ -130,15 +130,18 @@ func Translate(sw *emitter.TriceLineComposer, lut id.TriceIDLookUp, m *sync.RWMu
 		log.Fatalf(fmt.Sprintln("unknown encoding ", Encoding))
 	}
 	go handleSIGTERM(rc)
-	decodeAndComposeLoop(sw, dec)
+	return decodeAndComposeLoop(sw, dec)
 }
 
-func decodeAndComposeLoop(sw *emitter.TriceLineComposer, dec Decoder) {
+func decodeAndComposeLoop(sw *emitter.TriceLineComposer, dec Decoder) error {
 	// intermediate trice string buffer for a single trice
 	b := make([]byte, defaultSize)
 	for {
 		n, err := dec.Read(b) // Code to measure
 		if io.EOF == err {
+			if "BUFFER" == receiver.Port { // do not wait for a predefined buffer
+				return err
+			}
 			if Verbose {
 				fmt.Println(err)
 			}
@@ -152,7 +155,7 @@ func decodeAndComposeLoop(sw *emitter.TriceLineComposer, dec Decoder) {
 			if Verbose {
 				fmt.Println(err)
 			}
-			return // try again
+			return nil // try again
 		}
 		start := time.Now()
 		m, err := sw.Write(b[:n])
@@ -180,18 +183,18 @@ func (p *decoderData) readU32(b []byte) uint32 {
 	return binary.BigEndian.Uint32(b)
 }
 
-// writeU32 returns the 4 bytes as uint32 in b according the specified endianness
-func (p *decoderData) writeU32(v uint32) (b *bytes.Buffer) {
-	var err error
-	b = new(bytes.Buffer)
-	if littleEndian == p.endian {
-		err = binary.Write(b, binary.LittleEndian, v)
-	} else {
-		err = binary.Write(b, binary.BigEndian, v)
-	}
-	msg.InfoOnErr(err, "binary.Write failed:")
-	return
-}
+//  // writeU32 returns the 4 bytes as uint32 in b according the specified endianness
+//  func (p *decoderData) writeU32(v uint32) (b *bytes.Buffer) {
+//  	var err error
+//  	b = new(bytes.Buffer)
+//  	if littleEndian == p.endian {
+//  		err = binary.Write(b, binary.LittleEndian, v)
+//  	} else {
+//  		err = binary.Write(b, binary.BigEndian, v)
+//  	}
+//  	msg.InfoOnErr(err, "binary.Write failed:")
+//  	return
+//  }
 
 // readU64 returns the 8 b bytes as uint64 according the specified endianness
 func (p *decoderData) readU64(b []byte) uint64 {
@@ -201,7 +204,7 @@ func (p *decoderData) readU64(b []byte) uint64 {
 	return binary.BigEndian.Uint64(b)
 }
 
-// rub removes leading bytes from sync buffer
+// rub removes leading bytes from interpret buffer
 func (p *decoderData) rub(n int) {
 	if TestTableMode {
 		if emitter.NextLine {

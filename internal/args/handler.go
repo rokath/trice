@@ -7,6 +7,7 @@ package args
 import (
 	"errors"
 	"fmt"
+	"io"
 	"os"
 	"strings"
 	"sync"
@@ -155,7 +156,10 @@ func logLoop() {
 			rc = receiver.NewBytesViewer(rc)
 		}
 
-		decoder.Translate(sw, lu, m, rc)
+		e = decoder.Translate(sw, lu, m, rc)
+		if io.EOF == e {
+			return // end of predefined buffer
+		}
 		interrupted = true
 	}
 }
@@ -190,14 +194,16 @@ func distributeArgs() {
 
 // replaceDefaultArgs assigns port specific default strings.
 func replaceDefaultArgs() {
-	if strings.HasPrefix(receiver.Port, "COM") {
-		receiver.PortArguments = defaultCOMArgs
-	} else {
-		// switch receiver.Port {
-		// case "JLINK", "STLINK", "J-LINK", "ST-LINK":
-		receiver.PortArguments = defaultLinkArgs
-		//case "BUFFER":
-		//	receiver.PortArguments = defaultBUFFERArgs
-		//}
+	if "" == receiver.PortArguments { // nothing assigned in args
+		if strings.HasPrefix(receiver.Port, "COM") {
+			receiver.PortArguments = defaultCOMArgs
+		} else {
+			switch receiver.Port {
+			case "JLINK", "STLINK", "J-LINK", "ST-LINK":
+				receiver.PortArguments = defaultLinkArgs
+			case "BUFFER":
+				receiver.PortArguments = defaultBUFFERArgs
+			}
+		}
 	}
 }

@@ -222,6 +222,10 @@ func flagIDList(p *flag.FlagSet) {
 	p.StringVar(&id.FnJSON, "idlist", "til.json", `The trice ID list file.
 The specified JSON file is needed to display the ID coded trices during runtime and should be under version control.
 `) // flag
+	p.StringVar(&id.FnJSON, "til", "til.json", `Short for '-idlist'.
+`) // flag
+	p.StringVar(&id.FnJSON, "idList", "til.json", `Alternate for '-idlist'.
+`) // flag
 	p.StringVar(&id.FnJSON, "i", "til.json", `Short for '-idlist'.
 `) // flag
 }

@@ -9,9 +9,11 @@ import (
 	"io"
 	"io/ioutil"
 	"log"
+	"strings"
 
 	"github.com/rokath/trice/internal/com"
 	"github.com/rokath/trice/internal/link"
+	"github.com/rokath/trice/pkg/msg"
 )
 
 var (
@@ -24,6 +26,25 @@ var (
 	// PortArguments are the trice receiver device specific arguments.
 	PortArguments string
 )
+
+// scanBytes assumes in s whitespace separated decimal numbers between 0 and 255 and returns them in buf
+func scanBytes(s string) (buf []byte) {
+	s = strings.ReplaceAll(s, ",", " ")
+	s = strings.ReplaceAll(s, "\t", " ")
+	s = strings.ReplaceAll(s, "\r", " ")
+	s = strings.ReplaceAll(s, "\n", " ")
+	s = strings.ReplaceAll(s, "  ", " ")
+	as := strings.Split(s, " ")
+	buf = make([]byte, 0)
+	for _, a := range as {
+		var b byte
+		n, e := fmt.Sscan(a, &b)
+		msg.FatalOnFalse(1 == n)
+		msg.FatalOnErr(e)
+		buf = append(buf, b)
+	}
+	return
+}
 
 // NewReadCloser returns a ReadCloser for the specified port and its args.
 // err is nil on successful open.
@@ -40,7 +61,9 @@ func NewReadCloser(port, args string) (r io.ReadCloser, err error) {
 		}
 		r = l
 	case "BUFFER":
-		r = ioutil.NopCloser(bytes.NewBufferString(args))
+		//r = ioutil.NopCloser(bytes.NewBufferString(args))
+		buf := scanBytes(args)
+		r = ioutil.NopCloser(bytes.NewBuffer(buf))
 	default: // assuming serial port
 		var c com.COMport   // interface type
 		if "TARM" == args { // for comparing dynamic behaviour
