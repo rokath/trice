@@ -5,6 +5,8 @@
 package emitter
 
 import (
+	"os"
+	"path/filepath"
 	"runtime"
 	"strings"
 
@@ -65,15 +67,15 @@ type LineWriter interface {
 
 // baseName returns basic filename of program without extension
 func baseName() string {
-	// a0 := os.Args[0]
-	// b0 := filepath.Base(a0)
-	// e0 := filepath.Ext(a0)
-	// s := strings.TrimSuffix(b0, e0)
-	// return strings.TrimSuffix(s, ".test") // for Example tests only
+	a0 := os.Args[0]
+	b0 := filepath.Base(a0)
+	e0 := filepath.Ext(a0)
+	s := strings.TrimSuffix(b0, e0)
+	b := strings.TrimSuffix(s, ".test") // for Example tests only
 	if runtime.GOOS == "windows" {
 		return "trice.exe"
 	}
-	return "trice"
+	return b
 }
 
 // newLineWriter provides a LineWriter which can be a remote Display or the local console.
