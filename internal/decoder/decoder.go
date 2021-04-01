@@ -48,6 +48,12 @@ var (
 	// Verbose gives mor information on output if set. The value is injected from main packages.
 	Verbose bool
 
+	// ShowID is used as format string for displaying the first trice ID at the start of each line if not "".
+	ShowID string
+
+	// LastTriceID is last decoded ID. It is used for switch -showID.
+	LastTriceID id.TriceID
+
 	// Encoding describes the way the byte stream is coded.
 	Encoding string
 
@@ -158,6 +164,11 @@ func decodeAndComposeLoop(sw *emitter.TriceLineComposer, dec Decoder) error {
 			return nil // try again
 		}
 		start := time.Now()
+		if "" != ShowID && 0 == len(sw.Line) {
+			s := fmt.Sprintf(ShowID, LastTriceID)
+			_, err := sw.Write([]byte(s))
+			msg.OnErr(err)
+		}
 		m, err := sw.Write(b[:n])
 		duration := time.Since(start).Milliseconds()
 		if duration > 100 {

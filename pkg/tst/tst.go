@@ -82,12 +82,15 @@ func EqualLines(tb testing.TB, exp, act string) {
 	actS := strings.Split(act2, "\n")
 
 	fmt.Println(len(expS), len(actS))
-	assert.True(tb, len(expS) == len(actS))
+	//assert.True(tb, len(expS) == len(actS))
 
 	for i := range expS {
-		fmt.Println("expLine:" + expS[i])
-		fmt.Println("actLine:" + actS[i])
-		assert.Equal(tb, expS[i], actS[i])
+		if expS[i] != actS[i] {
+			fmt.Println(i, "expLine:"+expS[i])
+			fmt.Println(i, "actLine:"+actS[i])
+			tb.Fail()
+			return
+		}
 	}
 }
 

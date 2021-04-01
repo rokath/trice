@@ -69,13 +69,13 @@ type LineWriter interface {
 func baseName() string {
 	a0 := os.Args[0]
 	b0 := filepath.Base(a0)
-	e0 := filepath.Ext(a0)
-	s := strings.TrimSuffix(b0, e0)
-	b := strings.TrimSuffix(s, ".test") // for Example tests only
+	// e0 := filepath.Ext(a0)
+	// s := strings.TrimSuffix(b0, e0)
+	// b := strings.TrimSuffix(s, ".test") // for Example tests only
 	if runtime.GOOS == "windows" {
 		return "trice.exe"
 	}
-	return b
+	return b0
 }
 
 // newLineWriter provides a LineWriter which can be a remote Display or the local console.
@@ -109,42 +109,6 @@ func New() *TriceLineComposer {
 	// The line composer scans the trice strings and composes lines out of them according to its properties.
 	return newLineComposer(newLineWriter())
 }
-
-//  // SetPrefix changes "source:" to e.g., "JLINK:".
-//  // to do: better implementation for example with strings.Split
-//  func SetPrefix() {
-//  	port := receiver.Port
-//  	switch Prefix {
-//  	case "source:":
-//  		Prefix = port + ":"
-//  	case "source: ":
-//  		Prefix = port + ": "
-//  	case "source:  ":
-//  		Prefix = port + ":  "
-//  	case "source:   ":
-//  		Prefix = port + ":   "
-//  	case "source:    ":
-//  		Prefix = port + ":    "
-//  	case "source:     ":
-//  		Prefix = port + ":     "
-//  	case "source:      ":
-//  		Prefix = port + ":      "
-//  	case "source:       ":
-//  		Prefix = port + ":       "
-//  	case "source:        ":
-//  		Prefix = port + ":        "
-//  	case "source:         ":
-//  		Prefix = port + ":         "
-//  	case "source:          ":
-//  		Prefix = port + ":          "
-//  	case "source:           ":
-//  		Prefix = port + ":           "
-//  	case "source:            ":
-//  		Prefix = port + ":            "
-//  	case "off", "none":
-//  		Prefix = ""
-//  	}
-//  }
 
 // SetPrefix changes "source:" to e.g., "JLINK:".
 func SetPrefix() {

@@ -115,10 +115,10 @@ func (p *Flex) checkLookUpTable(triceID id.TriceID) (ok bool) {
 }
 
 func (p *Flex) smallSubEncoding(head uint32) (n int, err error) {
-	triceID := id.TriceID(head >> 16) // bits 30...16 are the 15-bit ID
-	ok := p.checkLookUpTable(triceID)
+	LastTriceID = id.TriceID(head >> 16) // bits 30...16 are the 15-bit ID
+	ok := p.checkLookUpTable(LastTriceID)
 	if !ok {
-		return p.outOfSync(fmt.Sprintf("unknown triceID %5d", triceID))
+		return p.outOfSync(fmt.Sprintf("unknown triceID %5d", LastTriceID))
 	}
 	p.d0 = 0xffff & head
 	p.upperCaseTriceType = p.trice.Type // no conversion here, but a copy is needed
@@ -132,9 +132,9 @@ func (p *Flex) smallSubEncoding(head uint32) (n int, err error) {
 }
 
 func (p *Flex) mediumAndLongSubEncoding(head uint32) (n int, err error) {
-	triceID := id.TriceID(head >> (31 - 20)) // bits 30...11 are the 20-bit ID
-	count := int((0x00000700 & head) >> 8)   // this nibble is the 3-bit count
-	cycle := int(0x000000ff & head)          // least significant byte is the cycle
+	LastTriceID = id.TriceID(head >> (31 - 20)) // bits 30...11 are the 20-bit ID
+	count := int((0x00000700 & head) >> 8)      // this nibble is the 3-bit count
+	cycle := int(0x000000ff & head)             // least significant byte is the cycle
 	var cycleWarning string
 	if cycle != 0xff&(p.cycle+1) { // lost trices or out of sync
 		if !p.cycleErrorFlag {
@@ -156,9 +156,9 @@ func (p *Flex) mediumAndLongSubEncoding(head uint32) (n int, err error) {
 		count = int(count16)
 	}
 
-	ok := p.checkLookUpTable(triceID)
+	ok := p.checkLookUpTable(LastTriceID)
 	if !ok {
-		return p.outOfSync(fmt.Sprintf("unknown triceID %5d", triceID))
+		return p.outOfSync(fmt.Sprintf("unknown triceID %5d", LastTriceID))
 	}
 	p.upperCaseTriceType = strings.ToUpper(p.trice.Type) // for trice* too
 	if !p.bytesCountOk(count) {

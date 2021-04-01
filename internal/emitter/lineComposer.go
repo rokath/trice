@@ -17,7 +17,7 @@ type TriceLineComposer struct {
 	timestampFormat string
 	prefix          string
 	suffix          string
-	line            []string // line collector
+	Line            []string // line collector
 	err             error
 }
 
@@ -93,32 +93,32 @@ func (p *TriceLineComposer) WriteString(s string) (n int, err error) {
 	// it keeps its original timestamp, but if following lines inside s they get a new timestamp.
 	ts := p.timestamp()
 	for _, sx := range ss {
-		if 0 == len(p.line) && 0 < lineEndCount { // start new line && and complete line
-			p.line = append(p.line, ts, p.prefix, sx, p.suffix)
+		if 0 == len(p.Line) && 0 < lineEndCount { // start new line && and complete line
+			p.Line = append(p.Line, ts, p.prefix, sx, p.suffix)
 			p.completeLine()
 			lineEndCount--
-		} else if 0 == len(p.line) && 0 == lineEndCount { // start new line
-			p.line = append(p.line, ts, p.prefix, sx)
+		} else if 0 == len(p.Line) && 0 == lineEndCount { // start new line
+			p.Line = append(p.Line, ts, p.prefix, sx)
 			if 0 == len(sx) { // A new line with an empty string was started.
 				// This could cause unwanted timestamp offsets if the next line is significantly delayed.
 				emptyLine = true
 			}
-		} else if 0 < len(p.line) && 0 < lineEndCount { // complete line
-			p.line = append(p.line, sx, p.suffix)
+		} else if 0 < len(p.Line) && 0 < lineEndCount { // complete line
+			p.Line = append(p.Line, sx, p.suffix)
 			p.completeLine()
 			lineEndCount--
-		} else if 0 < len(p.line) && 0 == lineEndCount { // extend line
-			p.line = append(p.line, sx)
+		} else if 0 < len(p.Line) && 0 == lineEndCount { // extend line
+			p.Line = append(p.Line, sx)
 		}
 	}
 	if emptyLine { // clean up
-		p.line = p.line[:0]
+		p.Line = p.Line[:0]
 	}
 	return
 }
 
 func (p *TriceLineComposer) completeLine() {
-	p.lw.writeLine(p.line)
-	p.line = p.line[:0]
+	p.lw.writeLine(p.Line)
+	p.Line = p.Line[:0]
 	NextLine = true
 }
