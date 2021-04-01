@@ -177,3 +177,26 @@ func logMessage(pc uintptr, fn string, line int, ok bool, err error) {
 		logFatalf("%s", seriousError)
 	}
 }
+
+// -----------------------------------------------
+
+type origLogFatalf func(format string, v ...interface{})
+
+// OsExitOff replace the original fatal function
+func OsExitOff() (o origLogFatalf) {
+	o = logFatalf
+
+	logFatalf = func(format string, args ...interface{}) {
+		if len(args) > 0 {
+			fmt.Printf(format, args)
+		} else {
+			fmt.Print(format)
+		}
+	}
+	return
+}
+
+// OsExitOn place the original fatal function back
+func OsExitOn(o origLogFatalf) {
+	logFatalf = o
+}

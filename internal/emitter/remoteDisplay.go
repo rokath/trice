@@ -12,6 +12,8 @@ import (
 	"runtime"
 	"strings"
 	"time"
+
+	"github.com/rokath/trice/pkg/msg"
 )
 
 // RemoteDisplay is transferring to a remote display object.
@@ -105,7 +107,8 @@ func (p *RemoteDisplay) Connect() {
 		fmt.Println("dialing " + addr + " ...")
 	}
 	p.PtrRPC, p.Err = rpc.Dial("tcp", addr)
-	p.ErrorFatal()
+	msg.FatalOnErr(p.Err)
+	//p.ErrorFatal()
 	if Verbose {
 		fmt.Println("...remoteDisplay @ " + addr + " connected.")
 	}

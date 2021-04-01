@@ -1,10 +1,10 @@
 name: goreleaser
 
 on:
-  pull_request:
-  push:
-    tags:
-      - '*'
+  # pull_request:
+  # push:
+  #   tags:
+  #     - '*'
   workflow_dispatch:
 
 jobs:

@@ -1,6 +1,6 @@
 # https://docs.github.com/en/actions/learn-github-actions/introduction-to-github-actions
 name: learn-github-actions
-on: [push, workflow_dispatch]
+on: [workflow_dispatch]
 jobs:
   check-bats-version:
     runs-on: ubuntu-latest

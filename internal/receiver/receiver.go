@@ -61,7 +61,6 @@ func NewReadCloser(port, args string) (r io.ReadCloser, err error) {
 		}
 		r = l
 	case "BUFFER":
-		//r = ioutil.NopCloser(bytes.NewBufferString(args))
 		buf := scanBytes(args)
 		r = ioutil.NopCloser(bytes.NewBuffer(buf))
 	default: // assuming serial port

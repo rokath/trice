@@ -224,12 +224,12 @@ func Example_doit_d() {
 	//{ []byte{   2,124,227,255,  0,  0,  4,  0, }, `MSG: triceFifoMaxDepth = 4, select = 0`},
 }
 
-func Example_doit_e() {
+func example(args []string) {
 	m.Lock()
 	dn, e := ioutil.TempDir("", "sampledir")
 	msg.FatalOnErr(e)
 	fn := createCFile(dn)
-	os.Args = []string{"trice", "zeroSourceTreeIds", "-src", dn, "-dry-run"}
+	os.Args = append(args, "-src", dn)
 	act := tst.CaptureStdOut(doit)
 	b, e := os.ReadFile(fn)
 	msg.FatalOnErr(e)
@@ -239,63 +239,17 @@ func Example_doit_e() {
 	id.DryRun = false // reset changed value
 	os.Args = os.Args[:0]
 	m.Unlock()
+}
+
+func Example_doit_e() {
+	example([]string{"trice", "zeroSourceTreeIds", "-dry-run"})
 	// Output:
 	// ... TRICE0( Id(100), "tata");...
 	// Id(100)  ->  Id(0)
 }
 
 func Example_doit_f() {
-	m.Lock()
-	dn, e := ioutil.TempDir("", "sampledir")
-	msg.FatalOnErr(e)
-	fn := createCFile(dn)
-	os.Args = []string{"trice", "zeroSourceTreeIds", "-src", dn}
-	act := tst.CaptureStdOut(doit)
-	b, e := os.ReadFile(fn)
-	msg.FatalOnErr(e)
-	fmt.Print(string(b))
-	fmt.Print(act)
-	msg.FatalOnErr(os.RemoveAll(dn))
-	os.Args = os.Args[:0]
-	m.Unlock()
-	// Output:
-	// ... TRICE0( Id(0), "tata");...
-	// Id(100)  ->  Id(0)
-}
-
-func Example_doit_g() {
-	m.Lock()
-	dn, e := ioutil.TempDir("", "sampledir")
-	msg.FatalOnErr(e)
-	fn := createCFile(dn)
-	os.Args = []string{"trice", "zeroSourceTreeIds", "-src", dn}
-	act := tst.CaptureStdOut(doit)
-	b, e := os.ReadFile(fn)
-	msg.FatalOnErr(e)
-	fmt.Print(string(b))
-	fmt.Print(act)
-	msg.FatalOnErr(os.RemoveAll(dn))
-	os.Args = os.Args[:0]
-	m.Unlock()
-	// Output:
-	// ... TRICE0( Id(0), "tata");...
-	// Id(100)  ->  Id(0)
-}
-
-func Example_scan() {
-	m.Lock()
-	dn, e := ioutil.TempDir("", "sampledir")
-	msg.FatalOnErr(e)
-	fn := createCFile(dn)
-	os.Args = []string{"trice", "zeroSourceTreeIds", "-src", dn}
-	act := tst.CaptureStdOut(doit)
-	b, e := os.ReadFile(fn)
-	msg.FatalOnErr(e)
-	fmt.Print(string(b))
-	fmt.Print(act)
-	msg.FatalOnErr(os.RemoveAll(dn))
-	os.Args = os.Args[:0]
-	m.Unlock()
+	example([]string{"trice", "zeroSourceTreeIds"})
 	// Output:
 	// ... TRICE0( Id(0), "tata");...
 	// Id(100)  ->  Id(0)

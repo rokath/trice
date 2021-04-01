@@ -1,11 +1,11 @@
 name: Mark stale issues and pull requests
 
 on:
-  push:
-    tags:
-    - '*'
-  schedule:
-  - cron:  '*/15 * * * *'
+  # push:
+  #   tags:
+  #   - '*'
+  # schedule:
+  # - cron:  '*/15 * * * *'
   workflow_dispatch:
 
 jobs:

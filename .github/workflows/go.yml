@@ -1,12 +1,12 @@
 name: Go
 
 on:
-  push:
-    tags:
-    - '*'
-    # branches: [ $default-branch ]
-  pull_request:
-    branches: [ $default-branch ]
+  # push:
+  #   tags:
+  #   - '*'
+  #   # branches: [ $default-branch ]
+  # pull_request:
+  #   branches: [ $default-branch ]
   workflow_dispatch:
 
 jobs:

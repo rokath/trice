@@ -87,7 +87,8 @@ func newLineWriter() (lwD LineWriter) {
 		} else {
 			p = NewRemoteDisplay()
 		}
-		p.ErrorFatal()
+		//p.ErrorFatal()
+		msg.FatalOnErr(p.Err)
 		lwD = p
 		// keybcmd.ReadInput()
 	} else {
@@ -112,12 +113,10 @@ func New() *TriceLineComposer {
 
 // SetPrefix changes "source:" to e.g., "JLINK:".
 func SetPrefix() {
-	switch Prefix {
-	case "off", "none":
+	defaultPrefix := "source:"
+	if strings.HasPrefix(Prefix, defaultPrefix) {
+		Prefix = receiver.Port + ":" + Prefix[len(defaultPrefix):]
+	} else if Prefix == "off" || Prefix == "none" {
 		Prefix = ""
-	default:
-		s := strings.Split(Prefix, ":")
-		msg.FatalOnFalse(2 == len(s))
-		Prefix = receiver.Port + ":" + s[1]
 	}
 }

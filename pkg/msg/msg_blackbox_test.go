@@ -29,21 +29,8 @@ func ExampleFatalOnErr() {
 	log.SetFlags(0)
 	var e error
 	msg.FatalOnErr(e)
-	e = errors.New("s.th. went wrong")
-	// msg.FatalOnErr(e)
 	// Output:
-	// Error in msg_blackbox_test.go:33: func 'github.com/rokath/trice/pkg/msg_test.ExampleFatalOnErr' -> s.th. went wrong
 }
-
-//  func ExamplePanicInfoOnErr() {
-//  	log.SetFlags(0)
-//  	var e error
-//  	msg.PanicInfoOnErr(e, "just in case")
-//  	e = errors.New("s.th. went wrong")
-//  	// msg.PanicInfoOnErr(e, "just in case")
-//  	// Output:
-//  	// Error in msg_blackbox_test.go:33: func 'github.com/rokath/trice/pkg/msg_test.ExampleFatalOnErr' -> s.th. went wrong
-//  }
 
 func ExampleInfoOnErr() {
 	var e error
@@ -52,83 +39,59 @@ func ExampleInfoOnErr() {
 	msg.InfoOnErr(e, "just in case")
 	// Output:
 	// just in case
-	// Error in msg_blackbox_test.go:52: func 'github.com/rokath/trice/pkg/msg_test.ExampleInfoOnErr' -> s.th. went wrong
+	// Error in msg_blackbox_test.go:39: func 'github.com/rokath/trice/pkg/msg_test.ExampleInfoOnErr' -> s.th. went wrong
 }
 
 func ExampleFatalInfoOnErr() {
 	var e error
 	msg.FatalInfoOnErr(e, "just in case")
-	e = errors.New("s.th. went wrong")
-	// msg.FatalInfoOnErr(e, "just in case")
 	// Output:
-	// just in case
-	// Error in msg_blackbox_test.go:52: func 'github.com/rokath/trice/pkg/msg_test.ExampleInfoOnErr' -> s.th. went wrong
 }
 
 func ExampleOnTrue() {
-	var f bool
-	msg.OnTrue(f)
-	msg.OnTrue(!f)
+	msg.OnTrue(false)
+	msg.OnTrue(true)
 	// Output:
-	// Error in msg_blackbox_test.go:71: func 'github.com/rokath/trice/pkg/msg_test.ExampleOnTrue' -> <nil>
+	// Error in msg_blackbox_test.go:53: func 'github.com/rokath/trice/pkg/msg_test.ExampleOnTrue' -> <nil>
 }
 
 func ExampleFatalOnTrue() {
-	log.SetFlags(0)
-	var f bool
-	msg.FatalOnTrue(f)
-	//msg.FatalOnTrue(!f)
+	msg.FatalOnTrue(false)
 	// Output:
-	// Error in msg_blackbox_test.go:71: func 'github.com/rokath/trice/pkg/msg_test.ExampleOnTrue' -> <nil>
 }
 
 func ExampleInfoOnTrue() {
-	var f bool
-	msg.InfoOnTrue(f, "just in case")
-	msg.InfoOnTrue(!f, "just in case")
+	msg.InfoOnTrue(false, "just in case")
+	msg.InfoOnTrue(true, "just in case")
 	// Output:
-	// Error in msg_blackbox_test.go:88: func 'github.com/rokath/trice/pkg/msg_test.ExampleInfoOnTrue' -> just in case
+	// Error in msg_blackbox_test.go:65: func 'github.com/rokath/trice/pkg/msg_test.ExampleInfoOnTrue' -> just in case
 }
 
 func ExampleFatalInfoOnTrue() {
-	log.SetFlags(0)
-	var f bool
-	msg.FatalInfoOnTrue(f, "just in case")
-	//msg.FatalInfoOnTrue(!f, "just in case")
+	msg.FatalInfoOnTrue(false, "just in case")
 	// Output:
-	// Error in msg_blackbox_test.go:71: func 'github.com/rokath/trice/pkg/msg_test.ExampleOnTrue' -> <nil>
 }
 
 func ExampleOnFalse() {
-	var f bool
-	msg.OnFalse(f)
-	msg.OnFalse(!f)
+	msg.OnFalse(true)
+	msg.OnFalse(false)
 	// Output:
-	// Error in msg_blackbox_test.go:104: func 'github.com/rokath/trice/pkg/msg_test.ExampleOnFalse' -> <nil>
+	// Error in msg_blackbox_test.go:77: func 'github.com/rokath/trice/pkg/msg_test.ExampleOnFalse' -> <nil>
 }
 
 func ExampleFatalOnFalse() {
-	log.SetFlags(0)
-	var f bool
-	msg.FatalOnFalse(f)
-	//msg.FatalOnFalse(!f)
+	msg.FatalOnFalse(true)
 	// Output:
-	// Error in msg_blackbox_test.go:71: func 'github.com/rokath/trice/pkg/msg_test.ExampleOnFalse' -> <nil>
 }
 
 func ExampleInfoOnFalse() {
-	var f bool
-	msg.InfoOnFalse(f, "just in case")
-	msg.InfoOnFalse(!f, "just in case")
+	msg.InfoOnFalse(true, "just in case")
+	msg.InfoOnFalse(false, "just in case")
 	// Output:
-	// Error in msg_blackbox_test.go:121: func 'github.com/rokath/trice/pkg/msg_test.ExampleInfoOnFalse' -> just in case
+	// Error in msg_blackbox_test.go:89: func 'github.com/rokath/trice/pkg/msg_test.ExampleInfoOnFalse' -> just in case
 }
 
 func ExampleFatalInfoOnFalse() {
-	log.SetFlags(0)
-	var f bool
-	msg.FatalInfoOnFalse(f, "just in case")
-	//msg.FatalInfoOnFalse(!f, "just in case")
+	msg.FatalInfoOnFalse(true, "just in case")
 	// Output:
-	// Error in msg_blackbox_test.go:71: func 'github.com/rokath/trice/pkg/msg_test.ExampleOnFalse' -> <nil>
 }

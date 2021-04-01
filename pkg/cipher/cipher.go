@@ -150,12 +150,12 @@ func Decrypt(dst, src []byte) (c int) {
 	return
 }
 
-// Encrypt converts src into dst and returns count of converted bytes.
-// Only multiple of 8 are convertable, so last 0-7 bytes are not convertable and c is a multiple of 8.
-// The smaller byte slice limits the conversion.
-func Encrypt(dst, src []byte) (c int) {
-	for c = 0; c+8 <= len(dst) && c+8 <= len(src); c += 8 {
-		encrypt8(dst[c:c+8], src[c:c+8])
-	}
-	return
-}
+//  // Encrypt converts src into dst and returns count of converted bytes.
+//  // Only multiple of 8 are convertable, so last 0-7 bytes are not convertable and c is a multiple of 8.
+//  // The smaller byte slice limits the conversion.
+//  func Encrypt(dst, src []byte) (c int) {
+//  	for c = 0; c+8 <= len(dst) && c+8 <= len(src); c += 8 {
+//  		encrypt8(dst[c:c+8], src[c:c+8])
+//  	}
+//  	return
+//  }
