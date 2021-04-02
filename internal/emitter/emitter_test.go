@@ -38,29 +38,29 @@ func TestNew(t *testing.T) {
 }
 
 func TestNewLineWriter(t *testing.T) {
-	o := msg.OsExitOff()
-	defer msg.OsExitOn(o)
+	o := msg.OsExitDisallow()
+	defer msg.OsExitAllow(o)
 	DisplayRemote = true
 	_ = newLineWriter()
 }
 
 func TestNewLineWriter2(t *testing.T) {
-	o := msg.OsExitOff()
-	defer msg.OsExitOn(o)
+	o := msg.OsExitDisallow()
+	defer msg.OsExitAllow(o)
 	DisplayRemote = true
 	Autostart = true
 	_ = newLineWriter()
 }
 
 func TestNewRemoteDisplay(t *testing.T) {
-	o := msg.OsExitOff()
-	defer msg.OsExitOn(o)
+	o := msg.OsExitDisallow()
+	defer msg.OsExitAllow(o)
 	_ = NewRemoteDisplay()
 }
 
 func ExampleNewRemoteDisplay() {
-	o := msg.OsExitOff()
-	defer msg.OsExitOn(o)
+	o := msg.OsExitDisallow()
+	defer msg.OsExitAllow(o)
 	_ = NewRemoteDisplay("", "-lg off", "localhost", "11111")
 	// Output:
 	// Error in [remoteDisplay.go %!s(int=110) github.com/rokath/trice/internal/emitter.(*RemoteDisplay).Connect dial tcp [::1]:11111: connectex: No connection could be made because the target machine actively refused it.]:%!d(MISSING): func '%!s(MISSING)' -> %!v(MISSING)

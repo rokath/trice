@@ -10,6 +10,7 @@ import (
 	"log"
 	"path/filepath"
 	"runtime"
+	"sync"
 )
 
 // Info prints info with location info.
@@ -182,8 +183,15 @@ func logMessage(pc uintptr, fn string, line int, ok bool, err error) {
 
 type origLogFatalf func(format string, v ...interface{})
 
+var m *sync.RWMutex
+
+func init() {
+	m = new(sync.RWMutex)
+}
+
 // OsExitOff replace the original fatal function
-func OsExitOff() (o origLogFatalf) {
+func OsExitDisallow() (o origLogFatalf) {
+	m.Lock()
 	o = logFatalf
 
 	logFatalf = func(format string, args ...interface{}) {
@@ -197,6 +205,7 @@ func OsExitOff() (o origLogFatalf) {
 }
 
 // OsExitOn place the original fatal function back
-func OsExitOn(o origLogFatalf) {
+func OsExitAllow(o origLogFatalf) {
 	logFatalf = o
+	m.Unlock()
 }

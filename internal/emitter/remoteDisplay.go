@@ -138,4 +138,5 @@ func (p *RemoteDisplay) stopServer(ts int64) {
 		fmt.Println("sending Server.Shutdown...")
 	}
 	p.Err = p.PtrRPC.Call("Server.Shutdown", []int64{ts}, nil) // if 1st param nil -> gob: cannot encode nil value
+	msg.FatalOnErr(p.Err)
 }

@@ -66,6 +66,42 @@ func TestVersion(t *testing.T) {
 	m.Unlock()
 }
 
+func TestScan(t *testing.T) {
+	fn := func() {
+		err := Handler([]string{"trice", "scan"})
+		if nil != err {
+			fmt.Print(err)
+		}
+	}
+	fn()
+	act := tst.CaptureStdOut(fn)
+	fmt.Print(act)
+	s := "Found port:"
+	assert.Equal(t, s, act[:len(s)])
+}
+
+/*
+func TestShutdown(t *testing.T) {
+
+	//defer func() {
+	//	msg.OsExitAllow(o)
+	//}()
+	log.SetFlags(0)
+	fn := func() {
+		o := msg.OsExitDisallow()
+		err := Handler([]string{"trice", "sd"})
+		if nil != err {
+			fmt.Print(err)
+		}
+		msg.OsExitAllow(o)
+	}
+	act := tst.CaptureStdOut(fn)
+	fmt.Print(act)
+	s := "Found port:"
+	assert.Equal(t, s, act[:len(s)])
+
+}
+*/
 func Example_handlerNone() {
 	fn := func() {
 		err := Handler([]string{"trice"})
