@@ -9,3 +9,5 @@
 - Sebastian Lehmann [@bbnote](https://github.com/bbnote)
   - discussed use cases
   - provided third_party/goST
+- Ida Höhenleitner (my little doughter)
+  - designed the lovely Trice
