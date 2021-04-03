@@ -1,5 +1,5 @@
 # **trice** - **TR**ace **I**ds **C** **E**mbedded
-
+![TriceGirl.jpg](./docs/README.media/TriceGirl.jpg)
 Tiny & fast trace code for embedded device real-time PC logging (trace ID visualization) over any port.
 
 ## Info shields
