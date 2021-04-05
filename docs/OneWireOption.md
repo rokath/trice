@@ -1,7 +1,7 @@
 
 # How to use trice without UART
 
-Because the trice tool needs only to receive, a single UART-TX pin will do. But is is also possible to use a GPIO-Pin for trice messages transfer without occupying a UART ressource.
+Because the trice tool needs only to receive, a single UART-TX pin will do. But it is also possible to use a GPIO-Pin for trice messages transfer without occupying a UART ressource.
 
 - This slow path is usable because trice needs only few bytes for transmission.
 - You can transmit each basic trice (4 or 8 bytes) as bare messages over one pin:
