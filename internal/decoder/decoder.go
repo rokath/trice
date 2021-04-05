@@ -164,7 +164,8 @@ func decodeAndComposeLoop(sw *emitter.TriceLineComposer, dec Decoder) error {
 			return nil // try again
 		}
 		start := time.Now()
-		if "" != ShowID && 0 == len(sw.Line) {
+		if 0 < n && "" != ShowID && 0 == len(sw.Line) {
+			// dec.Read can return n=0 in some cases and then wait.
 			s := fmt.Sprintf(ShowID, LastTriceID)
 			_, err := sw.Write([]byte(s))
 			msg.OnErr(err)

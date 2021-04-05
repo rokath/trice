@@ -16,7 +16,7 @@ extern "C" {
 // #define DECRYPT // usually not needed
 void triceServeFifoEncryptedToBytesBuffer(void);
 #endif
-#define TRICE_RTT_CHANNEL 0 //!< Uncomment and set channel number for SeggerRTT usage
+// #define TRICE_RTT_CHANNEL 0 //!< Uncomment and set channel number for SeggerRTT usage
 
 #define TRICE_HEADLINE \
 TRICE0( Id( 41511), "s:                                                   \ns:   MDK-ARM_LL_UART_RTT0_FLEX_STM32F030_NUCLEO-64   \ns:                                                   \n\n");

@@ -18,7 +18,15 @@ import (
 	"github.com/tj/assert"
 )
 
+var glob *sync.RWMutex // tests changing global values need to exclude each other
+
+func init() {
+	glob = new(sync.RWMutex)
+}
+
 func TestTranslate(t *testing.T) {
+	glob.Lock()
+	defer glob.Unlock()
 	sw := emitter.New()
 	lu := make(id.TriceIDLookUp) // empty
 	assert.Nil(t, lu.FromJSON([]byte(til)))
@@ -26,6 +34,9 @@ func TestTranslate(t *testing.T) {
 	Encoding = "flexL"
 	receiver.Port = "BUFFER"
 	ShowID = "%d"
+	defer func() {
+		ShowID = "" // reset to default
+	}()
 	rc, err := receiver.NewReadCloser(receiver.Port, "2, 124, 227, 255, 0, 0, 4, 0")
 	assert.Nil(t, err)
 	err = Translate(sw, lu, m, rc)
@@ -40,15 +51,16 @@ type testTable []struct {
 
 // doTableTest is the universal decoder test sequence.
 func doTableTest(t *testing.T, f newDecoder, endianness bool, teTa testTable) {
-	lut := make(id.TriceIDLookUp)
-	m := new(sync.RWMutex)
-	assert.Nil(t, lut.FromJSON([]byte(til)))
-	lut.AddFmtCount()
+	lu := make(id.TriceIDLookUp)
+	luM := new(sync.RWMutex)
+	assert.Nil(t, lu.FromJSON([]byte(til)))
+	lu.AddFmtCount()
 	buf := make([]byte, defaultSize)
-	dec := f(lut, m, nil, endianness) // p is a new decoder instance
+	dec := f(lu, luM, nil, endianness) // p is a new decoder instance
 	for _, x := range teTa {
 		in := ioutil.NopCloser(bytes.NewBuffer(x.in))
 		dec.setInput(in)
+		lineStart := true
 		var err error
 		var n int
 		var act string
@@ -57,14 +69,18 @@ func doTableTest(t *testing.T, f newDecoder, endianness bool, teTa testTable) {
 			if io.EOF == err && 0 == n {
 				break
 			}
+			if "" != ShowID && lineStart {
+				act += fmt.Sprintf(ShowID, LastTriceID)
+			}
 			a := fmt.Sprint(string(buf[:n]))
-			if emitter.SyncPacketPattern != a {
+			if emitter.SyncPacketPattern != a { // to do: Handle ShowID in that case.
 				act += a // ignore sync packets
 			}
+			lineStart = false
 		}
-		a := strings.TrimSuffix(act, "\\n")
-		ab := strings.TrimSuffix(a, "\n")
-		assert.Equal(t, x.exp, ab)
+		act = strings.TrimSuffix(act, "\\n")
+		act = strings.TrimSuffix(act, "\n")
+		assert.Equal(t, x.exp, act)
 	}
 }
 

@@ -25,8 +25,6 @@ extern "C" {
 #ifdef TRICE_RTT_CHANNEL
 #include "SEGGER_RTT.h"
 
-#define TRICE_RTT_CHANNEL 0
-
 //! put one trice into RTT0 buffer
 //! \param v trice
 //! trice time critical part
