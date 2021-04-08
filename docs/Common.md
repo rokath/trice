@@ -96,7 +96,7 @@ third_party/   | external components                                     |
 
 Look at one of the appropriate test projects as example. In general:
 
-- Copy [triceConfig.h](https://github.com/rokath/trice/tree/master/pkg/src/internal/triceConfig.h) and adapt to your needs.
+- Copy [triceConfig.h](https://github.com/rokath/trice/tree/master/pkg/src/intern/triceConfig.h) and adapt to your needs.
 
 - Make sure the [trice.h](https://github.com/rokath/trice/blob/master/pkg/src/trice.h) header file is found by your compiler.
     
