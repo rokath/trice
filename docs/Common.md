@@ -49,7 +49,7 @@ These are the fastest trices and with them the speed limit is reached.\
 ![x](README.media/Trice16_1i-Code.PNG)\
 ![x](README.media/Trice16_1i.PNG)\
 The number in the blue lines is the current processor tick. For `Trice16_1i` the difference between neibours is about 13 clocks. \
-Short trices need 'id(0)' instead 'Id(0)' as important difference to normal trices.
+Short trices need 'id(0)' instead 'Id(0)' as important difference to normal trices. The `trice` tool will handle that for you.
 - Upper case `TRICE0`, `TRICE8_1`, ... `TRICE8_8`, `TRICE16_1`, ... `TRICE16_4`, `TRICE32_1`, ... `TRICE32_4`, `TRICE64_1`, `TRICE64_2` are normal trice macros. \
 They insert code directly (no function call) for better performance but the drawback is the rising code amount when many trices are used.
 - Lower case `trice0`, `trice8_1`, ... `trice8_8`, `trice16_1`, ... `trice16_4`, `trice32_1`, ... `trice32_4`, `trice64_1`, `trice64_2` are normal trice functions. \
