@@ -42,7 +42,7 @@ Currently these encodings are supported:
 
 - `I` = **I**D bit
 - `D` = **D**ata bit
-- `N` = **N**unber of bytes bit
+- `N` = **N**umber of bytes bit
 - `C` = **C**ycle counter bit
 
 - The bit 31 is the mode bit.
