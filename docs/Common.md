@@ -66,7 +66,7 @@ The following capture output comes from an example project inside`../test`
 
 ![life.gif](./README.media/life.gif)
 
-See [triceCheck.c](https://github.com/rokath/trice/blob/master/srcTrice.C/triceCheck.c) for reference.
+See [triceCheck.c](https://github.com/rokath/trice/blob/master/pkg/src/triceCheck.c) for reference.
 The trices can come mixed from inside interrupts (light blue `ISR:...`) or from normal code. For usage with a RTOS trices are protected against breaks (CRITICAL_SECTION). Regard the differences in the read SysTick values inside the GIF above These differeces are the MCU clocks needed for one trice (~0,25µs@48MHz).
 
 Use the `-color off` switch for piping output in a file.
@@ -81,7 +81,7 @@ cmd/trice      | `trice` tool command Go sources                         |
 docs/          | documentation                                           |
 internal/      | `trice` tool internal Go packages                       |
 pkg/           | `trice` tool common Go packages                         |
-srcTrice.C/    | C sources for trice instrumentation                     |
+pkg/src/       | C sources for trice instrumentation                     |
 test/          | example target projects                                 |
 third_party/   | external components                                     |
 
@@ -96,24 +96,17 @@ third_party/   | external components                                     |
 
 Look at one of the appropriate test projects as example. In general:
 
-- Copy [_triceConfig.h](https://github.com/rokath/trice/tree/master/srcTrice.C/_triceConfig.h), rename to `triceConfig.h` and adapt to your needs.
+- Copy [triceConfig.h](https://github.com/rokath/trice/tree/master/pkg/src/internal/triceConfig.h) and adapt to your needs.
 
-- Make sure the [trice.h](https://github.com/rokath/trice/blob/master/srcTrice.C/trice.h) header file is found by your compiler and for
+- Make sure the [trice.h](https://github.com/rokath/trice/blob/master/pkg/src/trice.h) header file is found by your compiler.
+    
+- Include [trice.c](https://github.com/rokath/trice/blob/master/pkg/src/trice.c)
 
-<!---
-  - bare or wrap transfer format
-    Include [triceBareFifo.c](https://github.com/rokath/trice/blob/master/srcTrice.C/triceBareFifo.c) together with [triceBareFifoToBytesBuffer.c](https://github.com/rokath/trice/blob/master/srcTrice.C/triceBareFifoToBytesBuffer.c) into your project.
-
-    Include [trice.c](https://github.com/rokath/trice/blob/master/srcTrice.C/trice.c)
-
-  - esc transfer format
-    Include [triceEscFifo.c](https://github.com/rokath/trice/blob/master/srcTrice.C/triceEscFifo.c) into your project.
---->
 Next steps:
 
 - Add `#include "trice.h"` to your project files where to use TRICE macros and put `TRICE0( "msg:Hello world!\n" );` after your initialization code.
 - Run `trice u` at the root of your source code. Afterwards:
-  - It should have changed into `TRICE0( Id(12345), "msg:Hello world!\n" );` as example. (The `12345` stays here for a 16-bit non-zero random number).
+  - It should have changed into `TRICE0( Id(12345), "msg:Hello world!\n" );` as example. (The `12345` stays here for a 20-bit non-zero random number).
   - A file [til.json](https://github.com/rokath/trice/blob/master/til.json)  (**t**race **i**d **l**ist) should be generated.
 - Set up timer and UART interrupt and main loop in the right way. Analyze the test example projects for advice.
 
