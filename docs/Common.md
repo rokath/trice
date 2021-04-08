@@ -42,7 +42,7 @@ You can use these when it is sure not to get interrupted by other trices. If for
 an i-trice but other trices not allowed to be an i-trice, they need to be normal trices, which are protected against interruption. \
 If you are not sure it is always safe to use normal trices (without ending 'i'). The i-trices are a bit faster what is not relevant in most cases because of the general speed.
 
-- `Trice0`, `Trice8_1`, `Trice16_1` and `Trice8_2` are so called short trice macros.\
+- Mixed case `Trice0`, `Trice8_1`, `Trice16_1` and `Trice8_2` are so called short trice macros.\
 They use internal a smaller encoding and have only a 15-bit ID size, means ID's 1-32767 are usable.\
 These are the fastest trices and with them the speed limit is reached.\
 ![x](README.media/Trice16_1-Code.PNG)\
@@ -50,9 +50,9 @@ These are the fastest trices and with them the speed limit is reached.\
 ![x](README.media/Trice16_1i.PNG)\
 The number in the blue lines is the current processor tick. For `Trice16_1i` the difference between neibours is about 13 clocks. \
 Short trices need 'id(0)' instead 'Id(0)' as important difference to normal trices.
-- `TRICE0`, `TRICE8_1`, ... `TRICE8_8`, `TRICE16_1`, ... `TRICE16_4`, `TRICE32_1`, ... `TRICE32_4`, `TRICE64_1`, `TRICE64_2` are normal trice macros. \
+- Upper case `TRICE0`, `TRICE8_1`, ... `TRICE8_8`, `TRICE16_1`, ... `TRICE16_4`, `TRICE32_1`, ... `TRICE32_4`, `TRICE64_1`, `TRICE64_2` are normal trice macros. \
 They insert code directly (no function call) for better performance but the drawback is the rising code amount when many trices are used.
-- `trice0`, `trice8_1`, ... `trice8_8`, `trice16_1`, ... `trice16_4`, `trice32_1`, ... `trice32_4`, `trice64_1`, `trice64_2` are normal trice functions. \
+- Lower case `trice0`, `trice8_1`, ... `trice8_8`, `trice16_1`, ... `trice16_4`, `trice32_1`, ... `trice32_4`, `trice64_1`, `trice64_2` are normal trice functions. \
 The function call overhead is reasonable and the advantage is significant less code amount when many trices are used.
 - For most flexibility the code for each trice function can be enabled or not inside the triceConfig.h.
 
