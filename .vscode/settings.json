@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "trice.h": "c",
+        "triceconfig.h": "c"
+    }
+}

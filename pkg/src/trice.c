@@ -62,7 +62,7 @@ void trice0i( uint32_t id, char* pFmt ){
 #endif
 
 #ifndef trice0
-//! trice0i does trace id protected (outside critical section).
+//! trice0 does trace id protected (outside critical section).
 //! \param id trice identifier
 //! \param pFmt formatstring for trice
 void trice0( uint32_t id, char* pFmt ){
