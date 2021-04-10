@@ -56,7 +56,7 @@ func trice8_1(byteCount, id int, fmt string, b0 byte) []byte {
 	return read(byteCount)
 }
 
-// trice8_2i calls the C function trice8_2i with the appropriate transformed id and the format string fmt with one byte as parameter.
+// trice8_2i calls the C function trice8_2i with the appropriate transformed id and the format string fmt with 2 bytes as parameter.
 // fmt can be an empty string "" because C.trice8_1i executes the C code behind macro TRICE0i and that ignores fmt.
 // trice8_2i returns a byte slice with len byteCount containing the trice transfer bytes.
 func trice8_2i(byteCount, id int, fmt string, b0, b1 byte) []byte {
@@ -64,7 +64,7 @@ func trice8_2i(byteCount, id int, fmt string, b0, b1 byte) []byte {
 	return read(byteCount)
 }
 
-// trice8_2 calls the C function trice8_2 with the appropriate transformed id and the format string fmt with one byte as parameter.
+// trice8_2 calls the C function trice8_2 with the appropriate transformed id and the format string fmt with 2 bytes as parameter.
 // fmt can be an empty string "" because C.trice8_1 executes the C code behind macro TRICE0i and that ignores fmt.
 // trice8_2 returns a byte slice with len byteCount containing the trice transfer bytes.
 func trice8_2(byteCount, id int, fmt string, b0, b1 byte) []byte {
