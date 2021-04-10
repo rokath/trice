@@ -11,5 +11,5 @@
 ## Files src.go and src_test.go
 
 - The package src is not needed for the `trice` tool.
-- File src_test.go contains test functione to execute the C code during `go test ./...`
+- File src_test.go contains test functions to execute the C code during `go test ./...`
 - File src.go does the cgo connection. cgo is not supported inside test files.
