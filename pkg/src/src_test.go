@@ -14,7 +14,7 @@ type t0 []struct {
 
 // Cannot check cycle counter because of parallel test execution.
 
-func Test1_trice0i(t *testing.T) {
+func Test_trice0i(t *testing.T) {
 	tt := t0{
 		{34481, "", []byte{0, 136, 53, 132}},
 		{34481, "", []byte{1, 136, 53, 132}},
@@ -26,7 +26,7 @@ func Test1_trice0i(t *testing.T) {
 	}
 }
 
-func Test1_trice0(t *testing.T) {
+func Test_trice0(t *testing.T) {
 	tt := t0{
 		{34481, "", []byte{0, 136, 53, 132}},
 		{34481, "", []byte{1, 136, 53, 132}},
@@ -44,7 +44,7 @@ type t81 []struct {
 	b   []byte
 }
 
-func Test1_trice8_1i(t *testing.T) {
+func Test_trice8_1i(t *testing.T) {
 	tt := t81{
 		{34481, "", 81, []byte{0, 137, 53, 132, 81, 0, 0, 0}},
 		{34481, "", 81, []byte{1, 137, 53, 132, 81, 0, 0, 0}},
@@ -55,7 +55,7 @@ func Test1_trice8_1i(t *testing.T) {
 	}
 }
 
-func Test1_trice8_1(t *testing.T) {
+func Test_trice8_1(t *testing.T) {
 	tt := t81{
 		{34481, "", 81, []byte{0, 137, 53, 132, 81, 0, 0, 0}},
 		{34481, "", 81, []byte{1, 137, 53, 132, 81, 0, 0, 0}},
@@ -73,7 +73,7 @@ type t82 []struct {
 	b      []byte
 }
 
-func Test1_trice8_2i(t *testing.T) {
+func Test_trice8_2i(t *testing.T) {
 	tt := t82{
 		{34481, "", 81, 82, []byte{0, 138, 53, 132, 82, 81, 0, 0}},
 		{34481, "", 81, 82, []byte{1, 138, 53, 132, 82, 81, 0, 0}},
@@ -84,7 +84,7 @@ func Test1_trice8_2i(t *testing.T) {
 	}
 }
 
-func Test1_trice8_2(t *testing.T) {
+func Test_trice8_2(t *testing.T) {
 	tt := t82{
 		{34481, "", 81, 82, []byte{0, 138, 53, 132, 82, 81, 0, 0}},
 		{34481, "", 81, 82, []byte{1, 138, 53, 132, 82, 81, 0, 0}},
