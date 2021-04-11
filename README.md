@@ -130,7 +130,7 @@ This is a slightly simplified view:
 
 - When the programflow passes the line `TRICE16_1( Id(12345), "MSG: %d Kelvin\n", k );` the 16 bit ID *12345* and the 16 bit temperature value are transfered as one combined 32 bit value into the triceFifo, what goes really fast. Different encodings are possible. The program flow is nearly undisturbed, so **TRICE macros are usable also inside interrupts or in the scheduler**.
 - For visualization a background service is needed. In the simplest case it is just an UART triggered interrupt for triceFIFO reading.
-- During runtime the PC trice tool receives the trice as a 4 byte package `0x30 0x39 0x00 0x0F` from the UART port.
+- During runtime the PC trice tool receives the trice as a 4 byte package `0x30 0x39 0x00 0x0e` from the UART port.
 - The `0x30 0x39` is the ID 12345 and a map lookup delivers the format string *"MSG: %d Kelvin\n"* and also the format information *"TRICE16_1"*. Now the trice tool is able to execute `printf("MSG: %d Kelvin\n", 0x000e);` and the full log information is displayed.
 - Only the parameter count and size affect encoding size but not the format string length.
 
