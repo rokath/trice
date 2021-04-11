@@ -21,7 +21,7 @@ void triceServeFifoEncryptedToBytesBuffer(void);
 #define TRICE_HEADLINE \
 TRICE0( Id(65422), "s:                                                   \ns:                     myProject                     \ns:                                                   \n\n")
 
-#define TRICE_FIFO_BYTE_SIZE 2048 //!< must be a power of 2
+#define TRICE_FIFO_BYTE_SIZE 2048 //!< must be a power of 2, 32 could be ok in dependence of the maximum trice density
 
 #define TRICE_ENCODING TRICE_FLEX_ENCODING //!< Select target trice transfer encoding.
 
