@@ -1,6 +1,6 @@
-# MDK-ARM_LL_UART_RTT0_FLEX_STM32F030R8-NUCLEO-64
+# MDK-ARM_LL_UART_RTT0_FLEX_STM32F070RB-NUCLEO-64
 
-Delivers TRICE logs over UART and RTT channel 0 in "flexL" encoding.
+Delivers TRICE logs over UART and RTT channel 0 in "flexL" encoding:
 
 ## Usage
 

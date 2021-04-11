@@ -1203,6 +1203,10 @@
 		"Type": "trice8_1",
 		"Strg": "tst:trice8_1 %d\\n"
 	},
+	"65114": {
+		"Type": "TRICE0",
+		"Strg": "s:                                                   \\ns:   MDK-ARM_LL_UART_RTT0_FLEX_STM32F070_NUCLEO-64   \\ns:                                                   \\n\\n"
+	},
 	"65115": {
 		"Type": "trice8_3",
 		"Strg": "tst:trice8_3 %d %d %d\\n"

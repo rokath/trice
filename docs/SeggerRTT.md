@@ -13,7 +13,7 @@
     - Use some other Debug-Probe with target memory access (support welcome)
   - RTT channel selection (on target and on host)
     - RECOMMENDED:
-      - `trice l -p JLINK` or shorter `trice l` (default port is JLINK) starts in background a `JLinkRTTLogger.exe` which \
+      - `trice l -p JLINK` or shorter `trice l` for STM32F030R8 (default port is JLINK) starts in background a `JLinkRTTLogger.exe` which \
       connects to J-Link and writes to a logfile which in turn is read by the trice tool. On exit the `JLinkRTTLogger.exe` is killed automatically.\
       It expects a target sending messages over RTT channel 0 (other channels supported too).\
       It is possible to start several instances on different channels as well as on different targets.
@@ -21,7 +21,23 @@
       writes to a logfile which in turn is read by the trice tool. On exit the `stRttLogger.exe` is killed automatically.\
       It expects a target sending messages over RTT channel 0 (other channels supported too).\
       It is possible to start several instances on different channels as well as on different targets.
-      - If you have the choice prefer J-Link. It allowes parallel debugging and trice output.
+      - If you have the choice, prefer J-Link. It allowes parallel debugging and trice output.
+      - The full -args string is normally required and depends on the used device. Example: `trice l -args="-Device STM32F070RB -if SWD -Speed 4000 -RTTChannel 0 -RTTSearchRanges 0x20000000_0x1000"`. Enter `trice h -log` and read info for `-args` switch:
+
+```
+        -args string
+        Use to pass port specific parameters. The "default" value depends on the used port:
+        port "COMn": default="", use "TARM" for a different driver. (For baud rate settings see -baud.)
+        port "J-LINK": default="-Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0 -RTTSearchRanges 0x20000000_0x1000",
+                The -RTTSearchRanges "..." need to be written without "" and with _ istead of space.
+                For args options see JLinkRTTLogger in SEGGER UM08001_JLink.pdf.
+        port "ST-LINK": default="-Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0 -RTTSearchRanges 0x20000000_0x1000",
+                The -RTTSearchRanges "..." need to be written without "" and with _ istead of space.
+                For args options see JLinkRTTLogger in SEGGER UM08001_JLink.pdf.
+        port "BUFFER": default="0 0 0 0", Option for args is any byte sequence.
+         (default "default")
+ ```
+
 
 ## J-Link option
 
@@ -47,8 +63,8 @@ Following steps describe the needed action for a ST Microelectronics evaluation 
 
 - `JLink.exe` is the SEGGER J-Link commander. It starts the **J-Link driver/server** and the `trice` tool can connect to it:
   - Example:
-    - Compile and flash `../test/MDK-ARM_LL_UART_RTT0_PACK_STM32F030R8-NUCLEO-64` project
-    - Open a commandline and run:
+    - Compile and flash `../test/MDK-ARM_LL_UART_RTT0_FLEX_STM32F030R8-NUCLEO-64` project
+    - Open a commandline and run (for a different device add the `-args` switch with configuration):
 
       ```b
       trice log -p JLINK

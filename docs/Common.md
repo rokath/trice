@@ -116,13 +116,30 @@ Next steps:
   - `../test/MDK-ARM_LL_generatedDemo_STM32F030R8-NUCLEO-64` - It is just the STM32 CubeMX generated code.
   - `../test/MDK-ARM_LL_UART_RTT0_FLEX_STM32F030R8-NUCLEO-64` - It is a copy of the above enhanced with trice check code.
 
+- Add your compiler definitions to `trice/pkg/src/intern/triceConfigCompiler.h`
+- Make a copy of `trice/pkg/src/intern/triceUART_LL_STM32.h`, rename the copy appropriate an fill these 4 functions with the hardware specific code:
+
 ```b
-Quick and dirty option
-======================
+TRICE_INLINE uint32_t triceTxDataRegisterEmpty(void){
+}
+
+TRICE_INLINE void triceTransmitData8(uint8_t v) {
+}
+
+TRICE_INLINE void triceEnableTxEmptyInterrupt(void) {
+}
+
+TRICE_INLINE void triceDisableTxEmptyInterrupt(void) {
+}
+```
+
+Quick workaround:
+
+```b
 - Leave these definitions empty: 
-  - TRICE_ENTER_CRITICAL_SECTION & TRICE_LEAVE_CRITICAL_SECTION
   - triceTxDataRegisterEmpty()
-  - triceEableTxEmptyInterrupt() & triceDisableTxEmptyInterrupt()
+  - triceEableTxEmptyInterrupt()
+  - triceDisableTxEmptyInterrupt()
 - Use:
   - void triceTransmitData8( uint8_t d ){
     my_putchar( (char)d); // your code
@@ -143,8 +160,8 @@ Program Size (STM32-F030R8 demo project)     |trice instrumentation|buffer size|
 ---------------------------------------------|------------------------|-----------|-------------------------|-----------------------------
 Code=1592 RO-data=236 RW-data= 4 ZI-data=1028|        none            |        0  |         off             | CubeMX generated, no trice
 Code=1712 RO-data=240 RW-data=24 ZI-data=1088|        core            |       64  |         off             | core added without trices
-Code=3208 RO-data=240 RW-data=36 ZI-data=1540|    TriceCheckSet()  |      512  |         off             | TRICE_SHORT_MEMORY is 1 (small)
-Code=3808 RO-data=240 RW-data=36 ZI-data=1540|    TriceCheckSet()  |      512  |         on              | TRICE_SHORT_MEMORY is 0 (fast)
+Code=3208 RO-data=240 RW-data=36 ZI-data=1540|    TriceCheckSet()     |      512  |         off             | TRICE_SHORT_MEMORY is 1 (small)
+Code=3808 RO-data=240 RW-data=36 ZI-data=1540|    TriceCheckSet()     |      512  |         on              | TRICE_SHORT_MEMORY is 0 (fast)
 
 - The core instrumentation needs less 150 bytes FLASH and about 100 bytes RAM when buffer size is 64 bytes.
 - The about 50 trices in TriceCheckSet() allocate roughly 2100 (fast mode) or 1500 (small mode) bytes.
