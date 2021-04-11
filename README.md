@@ -64,7 +64,7 @@ Tiny & fast trace code for embedded device real-time PC logging (trace ID visual
 ## `TRICE` macros for C & C++ code
 
 - Real fast (**12 CPU clocks per trice possible!!!**)
-- TRICE in your code **reduces the needed FLASH memory** because the instrumentation code is very small (can be less 150 bytes FLASH and about 100 bytes RAM) and no printf library code nor log strings are inside the embedded device anymore.
+- TRICE in your code **reduces the needed FLASH memory** because the instrumentation code is very small (can be less 200 bytes FLASH and about 100 bytes RAM) and no printf library code nor log strings are inside the embedded device anymore.
 
 ## Possible Use Cases
 
