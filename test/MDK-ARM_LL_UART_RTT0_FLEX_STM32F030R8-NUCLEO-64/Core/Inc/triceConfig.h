@@ -10,20 +10,26 @@ extern "C" {
 #endif
 
 #include <stdint.h>
-// Enabling next line leads to XTEA encryption  with the key.
+// Enabling next line results in XTEA encryption  with the key.
 //#define ENCRYPT XTEA_KEY( ea, bb, ec, 6f, 31, 80, 4e, b9, 68, e2, fa, ea, ae, f1, 50, 54 ); //!< -password MySecret
 #ifdef ENCRYPT
-// #define DECRYPT // usually not needed
+// #define DECRYPT //!< usually not needed
 void triceServeFifoEncryptedToBytesBuffer(void);
 #endif
+
 // #define TRICE_RTT_CHANNEL 0 //!< Uncomment and set channel number for SeggerRTT usage
 
+//! Use and adapt this as you like
 #define TRICE_HEADLINE \
 TRICE0( Id( 41511), "s:                                                   \ns:   MDK-ARM_LL_UART_RTT0_FLEX_STM32F030_NUCLEO-64   \ns:                                                   \n\n");
 
-#define TRICE_FIFO_BYTE_SIZE 2048 //!< must be a power of 2
+#define TRICE_FIFO_BYTE_SIZE 2048 //!< must be a power of 2, 32 could be ok in dependence of the maximum trice density
 
+#ifdef TRICE_NO_CODE_GENERATION
+#define TRICE_ENCODING TRICE_NOCODE_ENCODING //!< Select target trice transfer encoding.
+#else
 #define TRICE_ENCODING TRICE_FLEX_ENCODING //!< Select target trice transfer encoding.
+#endif
 
 //! Set endianess according to target hardware. Options: TRICE_BIG_ENDIANNESS, TRICE_LITTLE_ENDIANNESS.
 //! Some compiler offer an automatic detection for this.
@@ -36,10 +42,11 @@ TRICE0( Id( 41511), "s:                                                   \ns:  
 //! Example -encoding "flexL".
 #define TRICE_TRANSFER_ENDIANNESS TRICE_LITTLE_ENDIANNESS 
 
-#define TRICE_U8PUSH(v)  do{ triceU8PushSeggerRTT(v);  triceU8Push(v); } while(0) //!< Set trice out channel(s) 
-#define TRICE_U32PUSH(v) do{ triceU32PushSeggerRTT(v); triceU32Push(v); } while(0) //!< Set trice out channel(s) 
+#define TRICE_U8PUSH(v)  do{ /*triceU8PushSeggerRTT(v);  */ triceU8Push(v); } while(0) //!< Set trice out channel(s) 
+#define TRICE_U32PUSH(v) do{ /*triceU32PushSeggerRTT(v); */ triceU32Push(v); } while(0) //!< Set trice out channel(s) 
 
-#define TRICE_UART USART2 //!< set UART number, uncomment for trice UART transfer format
+#define UART_LL_STM32 //!< set UART hardware dependency
+#define TRICE_UART USART2 //!< set UART number if UART is used
 
 // These macros can help to reduce code size if the project contains many TRICE macros.
 // If a macro is commented out here, inside trice.c an appropriate function is enabled containing the TRICE macro.

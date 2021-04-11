@@ -6,45 +6,19 @@
 #define TRICE_INTERFACE_UART_H_
 
 #include <stdint.h>
-#include "main.h" // hardware specific stuff
+#ifdef UART_LL_STM32
+#include "triceUART_LL_STM32.h" // LL STM32 hardware specific stuff
+#elif defined(UART_XXX)
+#include "triceUART_XXX.h" // any hardware specific stuff
+#else
+#error "missing interface"
+#endif
 #include "trice.h"
-
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-//! Set according to hardware
-#ifndef TRICE_UART
-#error "Need '#define TRICE_UART USARTn' in config file. Example: '#define TRICE_UART USART2'"
-#endif
-
-//! Check if a new byte can be written into trice transmit register.
-//! \retval 0 == not empty
-//! \retval !0 == empty
-//! User must provide this function.
-TRICE_INLINE uint32_t triceTxDataRegisterEmpty(void) {
-    return LL_USART_IsActiveFlag_TXE(TRICE_UART);
-}
-
-//! Write value v into trice transmit register.
-//! \param v byte to transmit
-//! User must provide this function.
-TRICE_INLINE void triceTransmitData8(uint8_t v) {
-    LL_USART_TransmitData8(TRICE_UART, v);
-}
-
-//! Allow interrupt for empty trice data transmit register.
-//! User must provide this function.
-TRICE_INLINE void triceEnableTxEmptyInterrupt(void) {
-    LL_USART_EnableIT_TXE(TRICE_UART);
-}
-
-//! Disallow interrupt for empty trice data transmit register.
-//! User must provide this function.
-TRICE_INLINE void triceDisableTxEmptyInterrupt(void) {
-    LL_USART_DisableIT_TXE(TRICE_UART);
-}
 
 #if TRICE_FLEX_ENCODING == TRICE_ENCODING && defined(ENCRYPT)
 extern uint8_t triceBytesBuffer[];

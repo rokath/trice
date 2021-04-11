@@ -4,7 +4,9 @@
 \author thomas.hoehenleitner [at] seerose.net
 *******************************************************************************/
 
-//#define TRICE_CODE NO_CODE // enable this line to disable trice code generation in this file object
+#include <string.h> // strlen
+
+// #define TRICE_NO_CODE_GENERATION // enable this line to disable trice code generation in this file object
 #include "trice.h"
 
 ///////////////////////////////////////////////////////////////////////////////

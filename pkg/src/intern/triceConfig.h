@@ -24,7 +24,11 @@ TRICE0( Id(65422), "s:                                                   \ns:   
 
 #define TRICE_FIFO_BYTE_SIZE 2048 //!< must be a power of 2, 32 could be ok in dependence of the maximum trice density
 
+#ifdef TRICE_NO_CODE_GENERATION
+#define TRICE_ENCODING TRICE_NOCODE_ENCODING //!< Select target trice transfer encoding.
+#else
 #define TRICE_ENCODING TRICE_FLEX_ENCODING //!< Select target trice transfer encoding.
+#endif
 
 //! Set endianess according to target hardware. Options: TRICE_BIG_ENDIANNESS, TRICE_LITTLE_ENDIANNESS.
 //! Some compiler offer an automatic detection for this.
@@ -40,6 +44,7 @@ TRICE0( Id(65422), "s:                                                   \ns:   
 #define TRICE_U8PUSH(v)  do{ triceU8PushSeggerRTT(v);  triceU8Push(v); } while(0) //!< Set trice out channel(s) 
 #define TRICE_U32PUSH(v) do{ triceU32PushSeggerRTT(v); triceU32Push(v); } while(0) //!< Set trice out channel(s) 
 
+#define UART_LL_STM32 //!< set UART hardware dependency
 #define TRICE_UART USART2 //!< set UART number if UART is used
 
 // These macros can help to reduce code size if the project contains many TRICE macros.
