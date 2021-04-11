@@ -39,7 +39,7 @@ TRICE0( Id(65422), "s:                                                   \ns:   
 #define TRICE_U8PUSH(v)  do{ triceU8PushSeggerRTT(v);  triceU8Push(v); } while(0) //!< Set trice out channel(s) 
 #define TRICE_U32PUSH(v) do{ triceU32PushSeggerRTT(v); triceU32Push(v); } while(0) //!< Set trice out channel(s) 
 
-#define TRICE_UART USART2 //!< set UART number, uncomment for trice UART transfer format
+#define TRICE_UART USART2 //!< set UART number if UART is used
 
 // These macros can help to reduce code size if the project contains many TRICE macros.
 // If a macro is commented out here, inside trice.c an appropriate function is enabled containing the TRICE macro.
