@@ -13,8 +13,8 @@ extern "C" {
 #define TRICE_ESC_ENCODING     30
 #define TRICE_FLEX_ENCODING    50
 
-#define TRICE_SPEED_OVER_SPACE 0x55aa
-#define TRICE_SPACE_OVER_SPEED 0xaa55
+// #define TRICE_SPEED_OVER_SPACE 0x55aa
+// #define TRICE_SPACE_OVER_SPEED 0xaa55
 
 #define TRICE_LITTLE_ENDIANNESS 0x00112233
 #define TRICE_BIG_ENDIANNESS    0x33221100
@@ -88,7 +88,6 @@ void InitXteaTable(void);
 #define TRICE64_COUNTi(_1i,_2i,_3i,_4i, NAME,...) NAME
 #define TRICE64i(id,frmt, ...) TRICE64_COUNTi(__VA_ARGS__,TRICE64_4i,TRICE64_3i,TRICE64_2i,TRICE64_1i)(id,frmt, __VA_ARGS__)
 
-
 #define Trice8_COUNT(_1,_2, NAME,...) NAME
 #define Trice8(id,frmt, ...) Trice8_COUNT(__VA_ARGS__, Trice8_2,Trice8_1)(id,frmt, __VA_ARGS__)
 
@@ -100,7 +99,6 @@ void InitXteaTable(void);
 
 #define Trice16_COUNTi(_1i, NAME,...) NAME
 #define Trice16i(id,frmt, ...) Trice16_COUNTi(__VA_ARGS__,Trice16_1i)(id,frmt, __VA_ARGS__)
-
 
 #define trice8_COUNT(_1,_2,_3,_4,_5,_6,_7,_8, NAME,...) NAME
 #define trice8(id,frmt, ...) trice8_COUNT(__VA_ARGS__,trice8_8,trice8_7,trice8_6,trice8_5,trice8_4,trice8_3,trice8_2,trice8_1)(id,frmt, __VA_ARGS__)
@@ -126,10 +124,8 @@ void InitXteaTable(void);
 #define trice64_COUNTi(_1i,_2i,_3i,_4i, NAME,...) NAME
 #define trice64i(id,frmt, ...) trice64_COUNTi(__VA_ARGS__,trice64_4i,trice64_3i,trice64_2i,trice64_1i)(id,frmt, __VA_ARGS__)
 
-
 #define TRICE_U8_JOIN(  first, second ) ((uint16_t)((((uint8_t )(first))<< 8)|((uint8_t )(second)))) //!< helper macro
 #define TRICE_U16_JOIN( first, second ) (          ((((uint32_t)(first))<<16)|((uint16_t)(second)))) //!< helper macro
-
 
 #if TRICE_HARDWARE_ENDIANNESS == TRICE_TRANSFER_ENDIANNESS
 #define TRICE_HTONS(n) ((uint16_t)(n))
@@ -143,8 +139,6 @@ void InitXteaTable(void);
 #define TRICE_HTON(n) ((TRICE_LL(n)<<24)|(TRICE_LH(n)<<16)|(TRICE_HL(n)<<8)|TRICE_HH(n) )
 #endif
 #define TRICE_HTON_U32PUSH(v) TRICE_U32PUSH( TRICE_HTON(v) )
-
-
 
 //! TRICE_FIFO_BYTE_SIZE must be a power of 2, one trice needs typically 4 or 8 bytes, max 32 bytes.
 //! The fifo has to hold trice bursts until they are transmitted.
@@ -203,7 +197,6 @@ int triceU32FifoDepth(void);
 int triceU8FifoDepth(void);
 int triceU32WriteU8ReadFifoDepth(void);
 
-
 #if TRICE_NOCODE_ENCODING == TRICE_ENCODING
 #include "intern/triceNoCode.h"
 #endif
@@ -219,35 +212,6 @@ int triceU32WriteU8ReadFifoDepth(void);
 #ifndef TRICE_SYNC // some encoder define a sync trice
 #define TRICE_SYNC do{ } while(0)// otherwise empty definition for compability
 #endif
-
-
-/*
-#ifndef trice0
-#define trice_sync TRICE_SYNC
-#define trice0     TRICE0
-#define trice8_1   TRICE8_1
-#define trice8_2   TRICE8_2
-#define trice8_3   TRICE8_3
-#define trice8_4   TRICE8_4
-#define trice8_5   TRICE8_5
-#define trice8_6   TRICE8_6
-#define trice8_7   TRICE8_7
-#define trice8_8   TRICE8_8
-#define trice16_1  TRICE16_1
-#define trice16_2  TRICE16_2
-#define trice16_3  TRICE16_3
-#define trice16_4  TRICE16_4
-#define trice32_1  TRICE32_1
-#define trice32_2  TRICE32_2
-#define trice32_3  TRICE32_3
-#define trice32_4  TRICE32_4
-#define trice64_1  TRICE64_1
-#define trice64_2  TRICE64_2
-#endif // #ifndef trice0
-*/
-
-
-
 
 #ifndef trice0i
 void trice0i( uint32_t id, char* pFmt );
@@ -297,7 +261,6 @@ void trice8_5i( uint32_t id, char* pFmt, int8_t d0, int8_t d1, int8_t d2, int8_t
 void trice8_5( uint32_t id, char* pFmt, int8_t d0, int8_t d1, int8_t d2, int8_t d3, int8_t d4 );
 #endif
 
-
 #ifndef trice8_6i
 void trice8_6i( uint32_t id, char* pFmt, int8_t d0, int8_t d1, int8_t d2, int8_t d3, int8_t d4, int8_t d5 );
 #endif
@@ -321,7 +284,6 @@ void trice8_8i( uint32_t id, char* pFmt, int8_t d0, int8_t d1, int8_t d2, int8_t
 #ifndef trice8_8
 void trice8_8( uint32_t id, char* pFmt, int8_t d0, int8_t d1, int8_t d2, int8_t d3, int8_t d4, int8_t d5, int8_t d6, int8_t d7 );
 #endif
-
 
 #ifndef trice16_1i
 void trice16_1i( uint32_t id, char* pFmt, int16_t d0 );
