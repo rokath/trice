@@ -1,5 +1,9 @@
 # Third party Software
 
+## alacritty
+
+- A fast, cross-platform, OpenGL terminal emulator
+
 ## goST
 
 - see Segger RTT over STLINK
