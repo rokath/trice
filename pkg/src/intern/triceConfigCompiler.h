@@ -86,7 +86,7 @@ extern "C" {
 // trice time measurement
 //
 
-#if defined( __arm__ )       /* Defined by GNU C and RealView */ \
+#if defined( __arm__ )    /* Defined by GNU C and RealView */ \
  || defined( __thumb__ )  /* Defined by GNU C and RealView in Thumb mode */ \
  || defined( _ARM )       /* Defined by ImageCraft C */ \
  || defined( _M_ARM )     /* Defined by Visual Studio */ \
