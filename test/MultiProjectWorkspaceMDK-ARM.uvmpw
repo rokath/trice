@@ -22,4 +22,8 @@
     <NodeIsExpanded>1</NodeIsExpanded>
   </project>
 
+  <project>
+    <PathAndName>.\MDK-ARM_LL_UART_RTT0_FLEX_STM32F070RB_NUCLEO-64\MDK-ARM\MDK-ARM_LL_UART_RTT0_FLEX_STM32F070RB_NUCLEO-64.uvprojx</PathAndName>
+  </project>
+
 </ProjectWorkspace>
