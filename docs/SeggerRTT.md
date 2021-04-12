@@ -7,7 +7,7 @@
 - The trice tool can use the SEGGER RTT protocol in different ways.
   - Hardware paths:
     - Use [J-Link](https://www.segger.com/products/debug-probes/j-link/) or [J-Link OB (on-board)](https://www.segger.com/products/debug-probes/j-link/models/j-link-ob/).
-      J-Link OB is flashable to many ST Microelectronics evaluation boards (v2.0 link hardware) and for example also usable with NXP and Atmel. For that you need jumper changes and breakout wires.
+      J-Link OB is flashable to many ST Microelectronics evaluation boards (v2.0 link hardware) and for example also usable with NXP and Atmel. For that you can also use a spare STM32 evaluation board (10 EUR) with jumper changes and breakout wires.
     - Use ST-Link with [gostlink](https://github.com/rokath/trice/blob/master/third_party/goST/ReadMe.md).
       It uses only one USB endpoint so debugging and trice output in parallel is not possible.
     - Use some other Debug-Probe with target memory access (support welcome)
