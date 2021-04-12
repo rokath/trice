@@ -80,14 +80,14 @@ Tiny & fast trace code for embedded device real-time PC logging (trace ID visual
 - Using trice with an **RTOS** gives the option for detailed **task timing analysis**. Because of the very short execution time of a trice you could add
 
 ```c
-    Trice8_2i( "sig:task %d -> %d: ", previousTaskID, nexTaskID );
-    Trice16_1i( "tim:tick=%d\n", clock );
+    Trice8i( "sig:task %d -> %d: ", previousTaskID, nexTaskID );
+    Trice16i( "tim:tick=%d\n", clock );
 ```
 
  to the scheduler and vizualize the output on PC. The same is possible for **interrupt timing analysis**.
 
 - Mixed case trice macros are short trices and the letter i at the end says **i**nside critical section. (FLEX encoding)
-- `Trice16_1( "tim: myFunc %d\n", sysTick );` before and after a function call lets you easy measure the function execution time.
+- `Trice16( "tim: myFunc %d\n", sysTick );` before and after a function call lets you easy measure the function execution time.
 - As graphical vizualisation you could use a tool similar to [https://github.com/sqshq/sampler](https://github.com/sqshq/sampler).
 - TRICE has intentionally no target timestamps for performance reasons. On the PC you can display the *reception timestampts*. But you can add own **timestamps as parameters** for exact embedded time measurements. Having several devices with trice timestamps, **network timing measurement** is possible.
 
