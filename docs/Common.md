@@ -17,10 +17,13 @@ into a source file of your project. The `8` stands here for 8 bit values (`0`, `
 When performing `trice update` the source (tree) is parsed and in result this line changes to
 
 ```c
+TRICE8( Id(12345), "time is %d:%d:%d\n", hour, min, sec);
+```
+or 
+```c
 TRICE8_3( Id(12345), "time is %d:%d:%d\n", hour, min, sec);
 ```
-
-where ```12345``` is an as ID generated 20-bit (15-bit for short trices) random (upward|downward also possible) number not used so far. This is valid for the recommended **flex[L]** encoding. It supports more than 1 Million different trice IDs.
+as you like where ```12345``` is an as ID generated 20-bit (15-bit for short trices) random (upward|downward also possible) number not used so far. This is valid for the recommended **flex[L]** encoding. It supports more than 1 Million different trice IDs.
 Automatically the ID is added to an [ID list](https://github.com/rokath/trice/blob/master/til.json) together with the appropriate format string information.
 The TRICE`8_3` means 3 bytes as parameters in this example and allows efficient code and a compile time check. From v0.26.0 on variadic macros supported.
 Per default the macro name `TRICE8` is not changed for a slightly more readable code. If you wish a compile time parameter count check use `-addParamCount` to the update command line to convert a `TRICE8` into a `TRICE8_3` in te above example. Legacy code with valid IDs is not modified (You can use subcommand `zeroSourceTreeIds` to go around that.)
