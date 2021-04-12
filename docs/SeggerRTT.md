@@ -7,7 +7,7 @@
 - The trice tool can use the SEGGER RTT protocol in different ways.
   - Hardware paths:
     - Use [J-Link](https://www.segger.com/products/debug-probes/j-link/) or [J-Link OB (on-board)](https://www.segger.com/products/debug-probes/j-link/models/j-link-ob/).
-      J-Link OB one is flashable to many ST Microelectronics evaluation boards (v2.0 link hardware) and for example also usable with NXP and Atmel
+      J-Link OB is flashable to many ST Microelectronics evaluation boards (v2.0 link hardware) and for example also usable with NXP and Atmel. For that you need jumper changes and breakout wires.
     - Use ST-Link with [gostlink](https://github.com/rokath/trice/blob/master/third_party/goST/ReadMe.md).
       It uses only one USB endpoint so debugging and trice output in parallel is not possible.
     - Use some other Debug-Probe with target memory access (support welcome)
@@ -29,10 +29,10 @@
         Use to pass port specific parameters. The "default" value depends on the used port:
         port "COMn": default="", use "TARM" for a different driver. (For baud rate settings see -baud.)
         port "J-LINK": default="-Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0 -RTTSearchRanges 0x20000000_0x1000",
-                The -RTTSearchRanges "..." need to be written without "" and with _ istead of space.
+                The -RTTSearchRanges "..." need to be written without extra "" and with _ istead of space.
                 For args options see JLinkRTTLogger in SEGGER UM08001_JLink.pdf.
         port "ST-LINK": default="-Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0 -RTTSearchRanges 0x20000000_0x1000",
-                The -RTTSearchRanges "..." need to be written without "" and with _ istead of space.
+                The -RTTSearchRanges "..." need to be written without extra "" and with _ istead of space.
                 For args options see JLinkRTTLogger in SEGGER UM08001_JLink.pdf.
         port "BUFFER": default="0 0 0 0", Option for args is any byte sequence.
          (default "default")
