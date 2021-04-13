@@ -9,7 +9,6 @@
 extern "C" {
 #endif
 
-#define TRICE_OFF              10
 #define TRICE_ESC_ENCODING     30
 #define TRICE_FLEX_ENCODING    50
 
@@ -194,16 +193,14 @@ int triceU32FifoDepth(void);
 int triceU8FifoDepth(void);
 int triceU32WriteU8ReadFifoDepth(void);
 
-#if TRICE_OFF == TRICE_ENCODING
+#ifdef TRICE_OFF
 #include "intern/triceNoCode.h"
-#endif
-
-#if TRICE_ESC_ENCODING == TRICE_ENCODING
+#elif  TRICE_ESC_ENCODING == TRICE_ENCODING
 #include "intern/triceEscEncoder.h"
-#endif
-
-#if TRICE_FLEX_ENCODING == TRICE_ENCODING
+#elif TRICE_FLEX_ENCODING == TRICE_ENCODING
 #include "intern/triceFlexEncoder.h"
+#else
+#error "wrong configuration"
 #endif
 
 #ifndef TRICE_SYNC // some encoder define a sync trice
