@@ -143,7 +143,7 @@ This is a slightly simplified view:
 
 ## Structured Logging?
 
-- According to the design aim **"Keep embedded device code small and fast"** there is no structuring code inside the target device, **but** you can add output levels as channel information to the trice log strings:
+According to the design aim **"Keep embedded device code small and fast"** there is no structuring code inside the target device, **but** you can add output levels as channel information to the trice log strings:
 
 ```c
 trice32( Id(12345), "Verbose: bla bla")
