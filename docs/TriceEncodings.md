@@ -2,7 +2,7 @@
 
 ## General
 
-Trice bytes can be encodend in different flawors and it is easy to develop a different encoding. The encoding `esc` is such a trial. It is not as good as the `flex` encoding but kept for reference.
+Trice bytes can be encodend in different flawors and it is easy to devvelop a new encoding. The encoding `esc` is such a trial. It is not as good as the `flex` encoding but kept for reference.
 
 ## Quick start recommendation
 
