@@ -141,6 +141,30 @@ This is a slightly simplified view:
 - Can receive trices on several PCs and display them on a remote display server.
 - Written in [Go](https://github.com/golang/go), simply usage, no installer, needs to be in $PATH.
 
+## Structured Logging?
+
+- According to the design aim **"Keep embedded device code small and fast"** there is no structuring code inside the target device, **but** you can add output levels as channel information to the trice log strings:
+
+```c
+trice32( Id(12345), "Verbose: bla bla")
+```
+
+Look into `lineTransformerANSI.go` for options or extensions.
+
+Also you can disable trice code generation on file level with `#define TRICE_OFF` before including `trice.h`.
+
+Because one trice consists typically only of 4 to 8 bytes there is usually no need to dynamically switch trices on and off inside the embedded device. This can be done on the display side inside the trice tool for example with command line switches (coming soon).
+
+The trice tool can also perform further tasks like JSON encoding with additional log infomation and transferring this information to some webserver in the future.
+
+## Display server?
+
+Yes, you can simply start `trice ds` inside a console (option: `third_party/alacritty`) locally or on a remote PC and connect with several trice tool instances.
+
+## How to keep ID reference file til.json for a long period?
+
+- Of course `git`, **but** it is not forbidden to compile til.json as a ressource into the embedded device and get it later back if you have enough flash memory.
+
 ## How to start
 
 - Get [trice](https://github.com/rokath/trice) or download latest release assets for your system: Source code and compressed binaries.
