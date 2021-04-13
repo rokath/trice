@@ -6,7 +6,7 @@
 
 #include <string.h> // strlen
 
-#define TRICE_NO_CODE_GENERATION // enable this line to disable trice code generation in this file object
+#define TRICE_OFF // enable this line to disable trice code generation in this file object
 #include "trice.h"
 
 ///////////////////////////////////////////////////////////////////////////////
