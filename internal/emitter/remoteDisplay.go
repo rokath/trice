@@ -7,11 +7,10 @@ import (
 	"fmt"
 	"log"
 	"net/rpc"
-	"os/exec"
+	"os"
 	"path/filepath"
 	"runtime"
 	"strings"
-	"time"
 
 	"github.com/rokath/trice/pkg/msg"
 )
@@ -36,31 +35,18 @@ type RemoteDisplay struct {
 // This value is used only if the remote server gets started.
 // args[2] (ipa) is the IP address to be used to connect to the remote display.
 // args[3] (ipp) is the IP port to be used to connect to the remote display.
-func NewRemoteDisplay(args ...string) *RemoteDisplay {
-	args = append(args, "", "", "", "") // make sure to have at least 4 elements in args.
+func NewRemoteDisplay(args []string) *RemoteDisplay {
 	p := &RemoteDisplay{
 		Err:    nil,
-		Cmd:    "",        // per default assume remote display is already active.
-		Params: "-lg off", // no logfile as default when remote display is launched.
+		Cmd:    args[0],
+		Params: strings.Join(args[1:], " "),
 		IPAddr: IPAddr,
 		IPPort: IPPort,
 		PtrRPC: nil,
 	}
-	if "" != args[0] {
-		p.Cmd = args[0]
-	}
-	if "" != args[1] {
-		p.Params = args[1]
-	}
-	if "" != args[2] {
-		p.IPAddr = args[2]
-	}
-	if "" != args[3] {
-		p.IPPort = args[3]
-	}
-	if "" != p.Cmd {
-		p.startServer()
-	}
+	//  if Autostart {
+	//  	p.startServer()
+	//  }
 	p.Connect()
 	return p
 }
@@ -80,17 +66,16 @@ func (p *RemoteDisplay) writeLine(line []string) {
 	p.Err = p.PtrRPC.Call("Server.WriteLine", line, nil) // TODO: Change to "Server.WriteLine"
 }
 
-// startServer starts a display server with the filename exe (if not already running).
-func (p *RemoteDisplay) startServer() {
-	var cmd *exec.Cmd
-	s := strings.Fields("ds -ipa " + p.IPAddr + " -ipp " + p.IPPort + " " + p.Params)
-	cmd = exec.Command(p.Cmd, s...) // ... expands slice into individual string arguments
-	go func() {
-		p.Err = cmd.Run()
-		p.ErrorFatal()
-	}()
-	time.Sleep(1000 * time.Millisecond)
-}
+//  // startServer starts a display server with the filename exe (if not already running).
+//  func (p *RemoteDisplay) startServer() {
+//  	var cmd *exec.Cmd
+//  	s := strings.Fields("ds -ipa " + p.IPAddr + " -ipp " + p.IPPort + " " + p.Params) // to do: write test for this
+//  	cmd = exec.Command(p.Cmd, s...)                                                   // ... expands slice into individual string arguments
+//  	go func() {
+//  		msg.FatalOnErr(cmd.Run())
+//  	}()
+//  	time.Sleep(1000 * time.Millisecond)
+//  }
 
 // Connect is called by the client and tries to dial.
 // On success PtrRpc is valid afterwards and the output is re-directed.
@@ -122,8 +107,8 @@ func (p *RemoteDisplay) Connect() {
 // args[0] (ipa) is the IP address to be used to connect to the remote display.
 // args[1] (ipp) is the IP port to be used to connect to the remote display.
 func ScShutdownRemoteDisplayServer(timeStamp int64, args ...string) error {
-	args = append(args, "", "") // make sure to have at least 2 elements in args.
-	p := NewRemoteDisplay("", "", args[0], args[1])
+	args = append(args, "", "")    // make sure to have at least 2 elements in args.
+	p := NewRemoteDisplay(os.Args) //"", "", args[0], args[1])
 	if nil == p.PtrRPC {
 		p.Connect()
 	}

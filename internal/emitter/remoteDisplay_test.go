@@ -8,18 +8,16 @@ import (
 	"fmt"
 	"io/ioutil"
 	"math/rand"
-	"os"
 	"runtime"
 	"strings"
 	"testing"
 	"time"
-
-	"github.com/stretchr/testify/assert"
 )
 
 func TestDummy(t *testing.T) {
 }
 
+/*
 // to do: avoid direct call of trice - it fails on github
 func _TestRemoteDisplay(t *testing.T) {
 	// prepare
@@ -44,6 +42,7 @@ func _TestRemoteDisplay(t *testing.T) {
 	assert.Equal(t, expLines[1:], actLines[1:])
 	_ = os.Remove(afn)
 }
+*/
 
 func randomDynIPPort() (s string) {
 	rand.Seed(time.Now().UTC().UnixNano())

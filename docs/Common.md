@@ -276,7 +276,6 @@ example 'trice h': Print short help.
 example 'trice h -all': Print all help.
 example 'trice h -log': Print log help.
 subcommand 'l|log': For displaying trice logs coming from port. With "trice log" the trice tool display mode is activated.
-  -a    Short for '-autostart'.
   -args string
         Use to pass port specific parameters. The "default" value depends on the used port:
         port "COMn": default="", use "TARM" for a different driver. (For baud rate settings see -baud.)
@@ -288,11 +287,6 @@ subcommand 'l|log': For displaying trice logs coming from port. With "trice log"
                 For args options see JLinkRTTLogger in SEGGER UM08001_JLink.pdf.
         port "BUFFER": default="0 0 0 0", Option for args is any byte sequence.
          (default "default")
-  -autostart
-        Autostart displayserver @ ipa:ipp.
-        Works not perfect with windows, because of cmd and powershell color issues and missing cli params in wt and gitbash.
-        Example: "trice l -port COM38 -displayserver -autostart" opens a separate display window automatically on the same PC.
-        This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true.
   -baud int
         Set the serial port baudrate.
         It is the only setup parameter. The other values default to 8N1 (8 data bits, no parity, one stopbit).
