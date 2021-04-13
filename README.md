@@ -149,7 +149,7 @@ This is a slightly simplified view:
 trice32( Id(12345), "Verbose: bla bla")
 ```
 
-Look into `lineTransformerANSI.go` for options or extensions.
+Look into [lineTransformerANSI.go](./internal/emitter/lineTransformerANSI.go) for options or extensions.
 
 Also you can disable trice code generation on file level with `#define TRICE_OFF` before including `trice.h`.
 
