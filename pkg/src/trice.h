@@ -9,7 +9,7 @@
 extern "C" {
 #endif
 
-#define TRICE_NO_CODE_ENCODING 10
+#define TRICE_OFF              10
 #define TRICE_ESC_ENCODING     30
 #define TRICE_FLEX_ENCODING    50
 
@@ -197,7 +197,7 @@ int triceU32FifoDepth(void);
 int triceU8FifoDepth(void);
 int triceU32WriteU8ReadFifoDepth(void);
 
-#if TRICE_NOCODE_ENCODING == TRICE_ENCODING
+#if TRICE_OFF == TRICE_ENCODING
 #include "intern/triceNoCode.h"
 #endif
 
