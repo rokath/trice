@@ -42,6 +42,15 @@ var (
 	colorizeSIGNAL    = ansi.ColorFunc("118+i")
 	colorizeTEST      = ansi.ColorFunc("yellow+h:black")
 	colorizeINFO      = ansi.ColorFunc("121+i")
+	colorizeDEFAULT   = ansi.ColorFunc("121+i")
+	colorizeNOTICE    = ansi.ColorFunc("121+i")
+	colorizeCRITICAL  = ansi.ColorFunc("121+i")
+	colorizeALERT     = ansi.ColorFunc("121+i")
+	colorizeEMERGENCY = ansi.ColorFunc("121+i")
+	colorizeFATAL     = ansi.ColorFunc("121+i")
+	colorizeTRACE     = ansi.ColorFunc("121+i")
+	colorizeASSERT    = ansi.ColorFunc("121+i")
+	colorizeVERBOSE   = ansi.ColorFunc("121+i")
 )
 
 func isLower(s string) bool {
@@ -60,18 +69,28 @@ type ansiSelector struct {
 
 var ansiSel = []ansiSelector{
 	{[]string{"e", "err", "error", "E", "ERR", "ERROR"}, colorizeERROR},
-	{[]string{"w", "wrn", "warning", "W", "WRN", "WARNING"}, colorizeWARNING},
 	{[]string{"m", "msg", "message", "M", "MSG", "MESSAGE"}, colorizeMESSAGE},
 	{[]string{"rd", "rd_", "RD", "RD_"}, colorizeREAD},
 	{[]string{"wr", "wr_", "WR", "WR_"}, colorizeWRITE},
-	{[]string{"tim", "time", "TIM", "TIME"}, colorizeTIME},
+	{[]string{"Timestamp", "tim", "time", "TIM", "TIME", "TIMESTAMP", "timestamp"}, colorizeTIME},
 	{[]string{"att", "attention", "ATT", "ATTENTION"}, colorizeATTENTION},
-	{[]string{"d", "db", "dbg", "debug", "D", "DB", "DBG", "DEBUG"}, colorizeDEBUG},
 	{[]string{"dia", "diag", "DIA", "DIAG"}, colorizeDIAG},
 	{[]string{"int", "isr", "ISR", "INT", "interrupt", "INTERRUPT"}, colorizeINTERRUPT},
 	{[]string{"s", "sig", "signal", "S", "SIG", "SIGNAL"}, colorizeSIGNAL},
 	{[]string{"t", "tst", "test", "T", "TST", "TEST"}, colorizeTEST},
-	{[]string{"i", "inf", "info", "informal", "I", "INF", "INFO", "INFORMAL"}, colorizeINFO},
+	{[]string{"Default", "DEFAULT", "default"}, colorizeDEFAULT},
+	{[]string{"Debug", "d", "db", "dbg", "debug", "D", "DB", "DBG", "DEBUG"}, colorizeDEBUG},
+	{[]string{"Info", "i", "inf", "info", "informal", "I", "INF", "INFO", "INFORMAL"}, colorizeINFO},
+	{[]string{"Notice", "NOTICE", "notice", "Note", "note", "NOTE"}, colorizeNOTICE},
+	{[]string{"Warning", "w", "wrn", "warning", "W", "WRN", "WARNING", "Warn", "warn", "WARN"}, colorizeWARNING},
+	{[]string{"Error", "e", "err", "error", "E", "ERR", "ERROR"}, colorizeERROR},
+	{[]string{"Critical", "critical", "CRITICAL", "crit", "Crit", "CRIT"}, colorizeCRITICAL},
+	{[]string{"ALert", "alert", "ALERT"}, colorizeALERT},
+	{[]string{"Emergency", "emergency", "EMERGENCY"}, colorizeEMERGENCY},
+	{[]string{"Fatal", "fatal", "FATAL"}, colorizeFATAL},
+	{[]string{"Trace", "trace", "TRACE"}, colorizeTRACE},
+	{[]string{"Assert", "assert", "ASSERT"}, colorizeASSERT},
+	{[]string{"Verbose", "verbose", "VERBOSE"}, colorizeVERBOSE},
 }
 
 func isChannel(ch string) bool {
