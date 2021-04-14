@@ -63,7 +63,8 @@ Tiny & fast trace code for embedded device real-time PC logging (trace ID visual
 
 ## `TRICE` macros for C & C++ code
 
-- Real fast (**12 CPU clocks per trice possible!!!**)
+- Real fast: **12 CPU clocks per (short) trice possible!!!**
+  - With a 48MHz clock this is 250ns. Light travels about 80 meters in that time.
 - TRICE in your code **reduces the needed FLASH memory** because the instrumentation code is very small (can be less 200 bytes FLASH and about 100 bytes RAM) and no printf library code nor log strings are inside the embedded device anymore.
 
 ## Possible Use Cases
@@ -72,7 +73,7 @@ Tiny & fast trace code for embedded device real-time PC logging (trace ID visual
     is possible and gives the advantage to have very short messages (no strings) for transmission,
     but keep in mind that the file [til.json](https://github.com/rokath/trice/blob/master/til.json) is the key to read all output if your devices in the field for 10 or more years.
 - You can consider TRICE also as a kind of **data compression** what could be interesting for IoT things, especially NB-IoT, where you have very low data rates.
-- Storing trices in FLASH for later log analysis saves memory because a `TRICE` occupies only 4 bytes.
+- Storing trices in FLASH for later log analysis saves memory because a typical `TRICE` occupies only 4 or 8 bytes.
 - Also it is possible to **encrypt** the trice transfer packets to get a reasonable protection for many cases.
   - This way you can deliver firmware images with encrypted TRICE output only readable with the appropriate key and til.json.
   - XTEA is implemented as one option.
@@ -80,8 +81,8 @@ Tiny & fast trace code for embedded device real-time PC logging (trace ID visual
 - Using trice with an **RTOS** gives the option for detailed **task timing analysis**. Because of the very short execution time of a trice you could add
 
 ```c
-    Trice8i( "sig:task %d -> %d: ", previousTaskID, nexTaskID );
-    Trice16i( "tim:tick=%d\n", clock );
+    Trice16i( "tim:@tick %5u ", clock );
+    Trice8i( "sig:task %u -> %u\n", previousTaskID, nexTaskID );
 ```
 
  to the scheduler and vizualize the output on PC. The same is possible for **interrupt timing analysis**.
@@ -102,36 +103,37 @@ printf( "MSG: %d Kelvin\n", k );
 into
 
 ```c
-TRICE16( "MSG: %d Kelvin\n", k );
+Trice16( "MSG: %d Kelvin\n", k );
 ```
 
 `trice update` (run it automatically in the tool chain) changes it to  
 
 ```c
-TRICE16( Id(12345), "MSG: %d Kelvin\n", k );
+Trice16( Id(12345), "MSG: %d Kelvin\n", k );
 ```
 
 or (if `-addParamCount` is used)
 
 ```c
-TRICE16_1( Id(12345), "MSG: %d Kelvin\n", k );
+Trice16_1( Id(12345), "MSG: %d Kelvin\n", k );
 ```
 
 and adds the *ID 12345* together with *"MSG: %d Kelvin\n"* into a **t**rice **I**D **l**ist, a JSON referece file named [til.json](https://github.com/rokath/trice/blob/master/til.json).
 
-- The *12345* is a randomly generated 16 bit ID not used so far.
-- With the `16` in TRICE**16** you adjust the parameter size to 16 bit what allows more runtime efficient code compared to `32` or `64`.
-- The appended **_1** sets the expected parameter count to 1, allowing a compile time parameter count check.
-- During compilation the `TRICE16_1` macro is translated to only a *12345* reference and the variable *k*. The format string never sees the target.
+- The *12345* is a randomly or policy generated ID not used so far.
+- With the `16` in Trice**16** you adjust the parameter size to 16 bit what allows more runtime efficient code compared to `32` or `64`.
+- The optional appended **_1** sets the expected parameter count to 1, allowing a compile time parameter count check.
+- During compilation the `Trice16[_1]` macro is translated to only a *12345* reference and the variable *k*. The format string never sees the target.
 
 This is a slightly simplified view:
 
 ![trice](./docs/README.media/trice4BlockDiagram.svg)
 
-- When the programflow passes the line `TRICE16_1( Id(12345), "MSG: %d Kelvin\n", k );` the 16 bit ID *12345* and the 16 bit temperature value are transfered as one combined 32 bit value into the triceFifo, what goes really fast. Different encodings are possible. The program flow is nearly undisturbed, so **TRICE macros are usable also inside interrupts or in the scheduler**.
+- When the programflow passes the line `Trice16( Id(12345), "MSG: %d Kelvin\n", k );` the ID *12345* and the 16 bit temperature value are transfered as one combined 32 bit value into the triceFifo, what goes really fast. Different encodings are possible. The program flow is nearly undisturbed, so **TRICE macros are usable also inside interrupts or in the scheduler**.
 - For visualization a background service is needed. In the simplest case it is just an UART triggered interrupt for triceFIFO reading.
+- So the whole target instrumentation are the trice macros, the trice fifo and the UART  ISR.
 - During runtime the PC trice tool receives the trice as a 4 byte package `0x30 0x39 0x00 0x0e` from the UART port.
-- The `0x30 0x39` is the ID 12345 and a map lookup delivers the format string *"MSG: %d Kelvin\n"* and also the format information *"TRICE16_1"*. Now the trice tool is able to execute `printf("MSG: %d Kelvin\n", 0x000e);` and the full log information is displayed.
+- The `0x30 0x39` is the ID 12345 and a map lookup delivers the format string *"MSG: %d Kelvin\n"* and also the format information *"TRICE16_1"*. Now the trice tool is able to execute `printf("MSG: %d Kelvin\n", 0x000e);` and the full log information is displayed in the MSG color.
 - Only the parameter count and size affect encoding size but not the format string length.
 
 ## `trice` PC tool
@@ -151,7 +153,7 @@ trice32( Id(12345), "Verbose: bla bla")
 
 Look into [lineTransformerANSI.go](./internal/emitter/lineTransformerANSI.go) for options or extensions.
 
-Also you can disable trice code generation on file level with `#define TRICE_OFF` before including `trice.h`.
+Also you can at compile time disable trice code generation on file level with `#define TRICE_OFF` before including `trice.h`.
 
 Because one trice consists typically only of 4 to 8 bytes there is usually no need to dynamically switch trices on and off inside the embedded device. This can be done on the display side inside the trice tool for example with command line switches (coming soon).
 
