@@ -145,17 +145,22 @@ This is a slightly simplified view:
 
 ## Structured Logging?
 
-According to the design aim **"Keep embedded device code small and fast"** there is no structuring code inside the target device, **but** you can add output levels as channel information to the trice log strings:
+Right now only event logging is implemented.
+
+According to the design aim **"Keep embedded device code small and fast"** there is no structuring code inside the target device, **but** you can add channel information to the trice log strings:
 
 ```c
 trice32( Id(12345), "Verbose: bla bla")
 ```
 
+These can be understood as tags too. But only one tag per trice right now.
 Look into [lineTransformerANSI.go](./internal/emitter/lineTransformerANSI.go) for options or extensions.
 
 Also you can at compile time disable trice code generation on file level with `#define TRICE_OFF` before including `trice.h`.
 
 Because one trice consists typically only of 4 to 8 bytes there is usually no need to dynamically switch trices on and off inside the embedded device. This can be done on the display side inside the trice tool for example with command line switches (coming soon).
+Switching trices on and off inside the target increases the overhead and demands some kind of command interface.
+If needed always an `if` is usable.
 
 The trice tool can also perform further tasks like JSON encoding with additional log infomation and transferring this information to some webserver in the future.
 
@@ -220,3 +225,7 @@ No need to read all this stuff - is is just for help and reference.
 - [ID management](https://github.com/rokath/trice/tree/master/docs/IDManagement.md)
 - [OneWireOption](https://github.com/rokath/trice/tree/master/docs/OneWireOption.md)
 - [SeggerRTT](https://github.com/rokath/trice/tree/master/docs/SeggerRTT.md)
+
+## Support?
+
+Yes please: May be you have a cool idea, a port to other hardware, create a graphical display server or simply give it a ☆. ☺
