@@ -228,4 +228,4 @@ No need to read all this stuff - is is just for help and reference.
 
 ## Support?
 
-Yes please: May be you have a cool idea, a port to other hardware, create a graphical display server or simply give it a ☆. ☺
+Yes please: May be you have a cool idea, a port to other hardware, create a graphical display server or simply :star: it. ☺
