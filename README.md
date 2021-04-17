@@ -160,7 +160,7 @@ Also you can at compile time disable trice code generation on file level with `#
 
 Because one trice consists typically only of 4 to 8 bytes there is usually no need to dynamically switch trices on and off inside the embedded device. This can be done on the display side inside the trice tool for example with command line switches (coming soon).
 Switching trices on and off inside the target increases the overhead and demands some kind of command interface.
-If needed always an `if` is usable.
+If needed, always an `if` is usable.
 
 The trice tool can also perform further tasks like JSON encoding with additional log infomation and transferring this information to some webserver in the future.
 
