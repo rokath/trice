@@ -78,14 +78,14 @@ Tiny & fast trace code for embedded device real-time PC logging (trace ID visual
   - This way you can deliver firmware images with encrypted TRICE output only readable with the appropriate key and til.json.
   - XTEA is implemented as one option.
 - You can even translate the til.json in **different languages**, so changing a language is just changing the til.json file.
-- Using trice with an **RTOS** gives the option for detailed **task timing analysis**. Because of the very short execution time of a trice you could add
+- Using trice with an **RTOS** gives the option for detailed **task timing analysis**. Because of the very short execution time of a trice you could add to the scheduler:
 
 ```c
     Trice16i( "tim:@tick %5u ", clock );
     Trice8i( "sig:task %u -> %u\n", previousTaskID, nexTaskID );
 ```
 
- to the scheduler and vizualize the output on PC. The same is possible for **interrupt timing analysis**.
+ The execution of this code block produces totally 8 log bytes to vizualize the output on PC. The same is possible for **interrupt timing analysis**.
 
 - Mixed case trice macros are short trices and the letter i at the end says **i**nside critical section. (FLEX encoding)
 - `Trice16( "tim: myFunc %d\n", sysTick );` before and after a function call lets you easy measure the function execution time.
