@@ -164,7 +164,7 @@ If needed always an `if` is usable.
 
 The trice tool can also perform further tasks like JSON encoding with additional log infomation and transferring this information to some webserver in the future.
 
-## Display server?
+## Display server option?
 
 Yes, you can simply start `trice ds` inside a console, option: [third_party/alacritty](./third_party/alacritty), locally or on a remote PC and connect with several trice tool instances with `trice log -p COM15 -ds` for example.
 
