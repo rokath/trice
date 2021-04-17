@@ -213,8 +213,8 @@ trice help
   - Make an empty directory `MyProject` inside the `test` folder and copy the `MyExample.ioc` there and rename it to `MyProject.ioc`.
   - Open `MyProject.ioc` with [STCubeMX](https://www.waveshare.com/wiki/STM32CubeMX_Tutorial_Series:_Overview), change in projects settings `MyExample` to `MyProject` and generate.
   - Now compare the directories `MyExample` and `MyProject` to see the trice instrumentation as differences.
-- For compiler adaption see [triceConfigCompiler.h](trice/pkg/src/intern/triceConfigCompiler.h).
-- For hardware adaption see [triceUART_LL_STM32](trice/pkg/src/intern/triceUART_LL_STM32.h)
+- For compiler adaption see [triceConfigCompiler.h](./pkg/src/intern/triceConfigCompiler.h).
+- For hardware adaption see [triceUART_LL_STM32](./pkg/src/intern/triceUART_LL_STM32.h)
 
 ## Documentation
 
