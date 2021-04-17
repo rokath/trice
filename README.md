@@ -125,7 +125,7 @@ and adds the *ID 12345* together with *"MSG: %d Kelvin\n"* into a **t**rice **I*
 - The optional appended **_1** sets the expected parameter count to 1, allowing a compile time parameter count check.
 - During compilation the `Trice16[_1]` macro is translated to only a *12345* reference and the variable *k*. The format string never sees the target.
 
-This is a slightly simplified view:
+This is a slightly simplified [view](https://github.com/jgraph/drawio):
 
 ![trice](./docs/README.media/trice4BlockDiagram.svg)
 
