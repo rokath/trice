@@ -203,7 +203,7 @@ trice help
 
 ### Quick target setup
 
-- It is sufficient for most cases just to use the `TRICE32` macro with max 4 parameters as a replacement for `printf` and to use the default settings.
+- It is sufficient for most cases just to use the `trice32` macro with max 4 parameters as a replacement for `printf` and to use the default settings.
 - Compare the **not** instrumented test project [MDK-ARM_LL_generatedDemo_STM32F030R8-NUCLEO-64](https://github.com/rokath/trice/tree/master/test/MDK-ARM_LL_generatedDemo_STM32F030R8-NUCLEO-64) with one of the instrumented test projects in [test](https://github.com/rokath/trice/tree/master/test/) to see what to to.
   - Recommendation: FLEX encoding
 - **Or** follow these steps for instrumentation information even your target processor is not an ARM (any bit width will do):
