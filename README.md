@@ -166,7 +166,7 @@ The trice tool can also perform further tasks like JSON encoding with additional
 
 ## Display server?
 
-Yes, you can simply start `trice ds` inside a console (option: `third_party/alacritty`) locally or on a remote PC and connect with several trice tool instances with `trice log -p COM15 -ds` for example.
+Yes, you can simply start `trice ds` inside a console, option: [third_party/alacritty](./third_party/alacritty), locally or on a remote PC and connect with several trice tool instances with `trice log -p COM15 -ds` for example.
 
 ## How to keep ID reference file til.json for a long period?
 
