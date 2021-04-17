@@ -1,6 +1,6 @@
 # ![TriceGirlS.png](./docs/README.media/TriceGirl-167x222.png) **Trice** -> **TR**~~ace~~ **I**~~ds~~ **C** **E**~~mbedded~~  
 
-Tiny & fast trace code for embedded device real-time PC logging (trace ID visualization) over any port.
+Tiny & fast tracer code for embedded device real-time PC logging (trace ID visualization) over any port.
 
 ## Info shields
 
