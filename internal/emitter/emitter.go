@@ -156,3 +156,42 @@ func SetPrefix() {
 		Prefix = ""
 	}
 }
+
+// BanOrPickFilter returns len of b if b ist not filtererd out, otherwise 0.
+// If Ban and Pick are nil nothing is filtered out.
+// If Ban and Pick are both not nil this is a fatal error (os.Exit).
+// If b starts with a known channel specifier existent in Ban 0, is returned.
+// If b starts with a known channel specifier existent in Pick len of b, is returned.
+func BanOrPickFilter(b []byte) (n int) {
+	return banOrPickFilter(Ban, Pick, b)
+}
+
+func banOrPickFilter(ban, pick ChannelArrayFlag, b []byte) (n int) {
+	if nil == Ban && nil == Pick {
+		return len(b) // nothing to filter
+	}
+	msg.FatalInfoOnTrue(nil != Ban && nil != Pick, "switches -ban and -pick cannot be used together")
+	s := string(b)
+	sc := strings.SplitN(s, ":", 2) // example: "deb" -> []string{ "deb"} "deb:" -> []string{ "deb", "" }
+	if nil != Ban {
+		if len(sc) < 2 { // no color separator
+			return len(b) // nothing to filter
+		}
+		for _, c := range Ban {
+			if sc[0] == c {
+				return 0 // filter match
+			}
+		}
+		return len(b) // no filter match
+	} else { // Pick is set
+		if len(sc) < 2 { // no color separator
+			return 0 // filter out
+		}
+		for _, c := range Pick {
+			if sc[0] == c {
+				return len(b) // filter match
+			}
+		}
+		return 0 // no filter match	}
+	}
+}

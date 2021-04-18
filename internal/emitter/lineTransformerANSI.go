@@ -113,14 +113,6 @@ func isChannel(ch string) bool {
 		return false
 	}
 	return true
-	//  for _, s := range ansiSel {
-	//  	for _, c := range s.channel {
-	//  		if c == ch {
-	//  			return true
-	//  		}
-	//  	}
-	//  }
-	//  return false
 }
 
 // colorize prefixes s with an ansi color code according to this conditions:

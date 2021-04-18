@@ -163,6 +163,10 @@ func decodeAndComposeLoop(sw *emitter.TriceLineComposer, dec Decoder) error {
 			}
 			return nil // try again
 		}
+
+		// Filtering is done here to suppress the id display as well for the filtered items.
+		n = emitter.BanOrPickFilter(b[:n])
+
 		start := time.Now()
 		if 0 < n && "" != ShowID && 0 == len(sw.Line) {
 			// dec.Read can return n=0 in some cases and then wait.

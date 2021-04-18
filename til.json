@@ -1,4 +1,8 @@
 {
+	"10240": {
+		"Type": "Trice8i",
+		"Strg": "sig:task %u -\u003e %u\\n"
+	},
 	"10407": {
 		"Type": "trice8_1",
 		"Strg": "tst:trice8_1 %02X\\n"
@@ -18,6 +22,10 @@
 	"10813": {
 		"Type": "TRICE16_1",
 		"Strg": "time:TRICE16_1   message, SysTick is %6u\\n"
+	},
+	"11934": {
+		"Type": "Trice8i",
+		"Strg": "sig:task %u -\u003e %u\\n"
 	},
 	"12051": {
 		"Type": "TRICE64_2",
@@ -43,6 +51,10 @@
 		"Type": "TRICE8_3",
 		"Strg": "tst:TRICE8_3 %u %u %u\\n"
 	},
+	"14039": {
+		"Type": "Trice8i",
+		"Strg": "sig:task %u -\u003e %u\\n"
+	},
 	"15380": {
 		"Type": "Trice0i",
 		"Strg": "msg: Trice0i    -\u003e short  trice macro    (no   cycle counter) for only inside critical section\\n"
@@ -62,6 +74,10 @@
 	"20096": {
 		"Type": "TRICE8_2",
 		"Strg": "tst:TRICE8_2 %02x %02x\\n"
+	},
+	"20413": {
+		"Type": "Trice16i",
+		"Strg": "tim:@tick %5u "
 	},
 	"21201": {
 		"Type": "TRICE8_1",
@@ -671,6 +687,10 @@
 		"Type": "TRICE8_3",
 		"Strg": "tst:TRICE8_3 %02x %02x %02x\\n"
 	},
+	"5112": {
+		"Type": "Trice16i",
+		"Strg": "tim:@tick %5u "
+	},
 	"51156": {
 		"Type": "trice32i",
 		"Strg": "rd:%d, %d\\n"
@@ -834,6 +854,10 @@
 	"56442": {
 		"Type": "trice8_7",
 		"Strg": "msg:  trice8_7  -\u003e normal trice function (with cycle counter) for everywhere                   %x %X %u %d %x %X %u\\n"
+	},
+	"5645": {
+		"Type": "Trice16i",
+		"Strg": "tim:@tick %5u "
 	},
 	"56533": {
 		"Type": "trice32",

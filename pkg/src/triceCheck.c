@@ -6,7 +6,7 @@
 
 #include <string.h> // strlen
 
-#define TRICE_OFF // enable this line to disable trice code generation in this file object
+//#define TRICE_OFF // enable this line to disable trice code generation in this file object
 #include "trice.h"
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -636,6 +636,14 @@ void triceCheckSet(int index) {
              TRICE8_8( Id( 64951),  "msg:  TRICE8_8  -> normal trice macro    (with cycle counter) for everywhere                   %x %X %u %d %x %X %u %d\n", 0x1a, 0x2a, 0x3a, 0x4a, 0x5a, 0x6a, 0x7a, 0x8a );
              trice8_8( Id( 48424),  "msg:  trice8_8  -> normal trice function (with cycle counter) for everywhere                   %x %X %u %d %x %X %u %d\n", 0x1a, 0x2a, 0x3a, 0x4a, 0x5a, 0x6a, 0x7a, 0x8a );
              break;
+        case 31:
+            Trice16i( id( 5112), "tim:@tick %5u ", SYSTICKVAL16 );
+            Trice8i( id(10240), "sig:task %u -> %u\n", 7, 3 );
+            Trice16i( id(20413), "tim:@tick %5u ", SYSTICKVAL16 );
+            Trice8i( id(11934), "sig:task %u -> %u\n", 3, 6 );
+            Trice16i( id( 5645), "tim:@tick %5u ", SYSTICKVAL16 );
+            Trice8i( id(14039), "sig:task %u -> %u\n", 6, 7 );
+            break;
             #endif // #if TRICE_ENCODING == TRICE_FLEX_ENCODING
         default:
             break;
