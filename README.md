@@ -85,7 +85,15 @@ Tiny & fast tracer code for embedded device real-time PC logging (trace ID visua
     Trice8i( "sig:task %u -> %u\n", previousTaskID, nexTaskID );
 ```
 
- The execution of this code block produces totally 8 log bytes to vizualize the output on PC. The same is possible for **interrupt timing analysis**.
+ The execution of this code block produces totally 8 log bytes to vizualize the output on PC, what looks similar to this for 3 task switches:
+
+![alt](./docs/ReadMe.media/taskSwitchTimesExample.PNG)
+
+First are the PC reception timestamps and after the port info are the used trice ids just for easy location inside the source code. See the diferences between the (blue) ticks in this 3 lines. These are 28 or 36 processor clocks only. The code producing this is:
+
+![alt](./docs/ReadMe.media/taskSwitchTimesExampleCode.PNG)
+
+  The same is possible for **interrupt timing analysis**.
 
 - Mixed case trice macros are short trices and the letter i at the end says **i**nside critical section. (FLEX encoding)
 - `Trice16( "tim: myFunc %d\n", sysTick );` before and after a function call lets you easy measure the function execution time.
@@ -158,7 +166,7 @@ Look into [lineTransformerANSI.go](./internal/emitter/lineTransformerANSI.go) fo
 
 Also you can at compile time disable trice code generation on file level with `#define TRICE_OFF` before including `trice.h`.
 
-Because one trice consists typically only of 4 to 8 bytes there is usually no need to dynamically switch trices on and off inside the embedded device. This can be done on the display side inside the trice tool for example with command line switches (coming soon).
+Because one trice consists typically only of 4 to 8 bytes there is usually no need to dynamically switch trices on and off inside the embedded device. This can be done on the display side inside the trice tool with the command line switches `-ban` or `-pick`. For example `-pick err,wrn` disables all output despite error and warning messages.
 Switching trices on and off inside the target increases the overhead and demands some kind of command interface.
 If needed, always an `if` is usable.
 
