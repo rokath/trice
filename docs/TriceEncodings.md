@@ -38,7 +38,7 @@ triceServeFifoWrappedToBytesBuffer();
 
 Currently these encodings are supported:
 
-### `flex` encoding
+### flex encoding
 
 - `I` = **I**D bit
 - `D` = **D**ata bit
