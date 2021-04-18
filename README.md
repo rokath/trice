@@ -95,7 +95,7 @@ First are the PC reception timestamps and after the port info are the used trice
 
   The same is possible for **interrupt timing analysis**.
 
-- Mixed case trice macros are short trices and the letter i at the end says **i**nside critical section. (FLEX encoding)
+- Mixed case trice macros are [short](./docs/TriceEncodings.md#flex-short-sub-encoding) trices and the letter i at the end says **i**nside critical section. (FLEX encoding)
 - `Trice16( "tim: myFunc %d\n", sysTick );` before and after a function call lets you easy measure the function execution time.
 - As graphical vizualisation you could use a tool similar to [https://github.com/sqshq/sampler](https://github.com/sqshq/sampler).
 - TRICE has intentionally no target timestamps for performance reasons. On the PC you can display the *reception timestampts*. But you can add own **timestamps as parameters** for exact embedded time measurements. Having several devices with trice timestamps, **network timing measurement** is possible.
