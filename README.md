@@ -87,11 +87,11 @@ Tiny & fast tracer code for embedded device real-time PC logging (trace ID visua
 
  The execution of this code block produces totally 8 log bytes to vizualize the output on PC, what looks similar to this for 3 task switches:
 
-![alt](./docs/ReadMe.media/taskSwitchTimesExample.PNG)
+![alt](./docs/README.media/taskSwitchTimesExample.PNG)
 
 First are the PC reception timestamps and after the port info are the used trice ids just for easy location inside the source code. See the diferences between the (blue) ticks in this 3 lines. These are 28 or 36 processor clocks only. The code producing this is:
 
-![alt](./docs/ReadMe.media/taskSwitchTimesExampleCode.PNG)
+![alt](./docs/README.media/taskSwitchTimesExampleCode.PNG)
 
   The same is possible for **interrupt timing analysis**.
 
