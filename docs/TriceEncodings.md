@@ -38,7 +38,7 @@ triceServeFifoWrappedToBytesBuffer();
 
 Currently these encodings are supported:
 
-### `flex` encoding
+### flex encoding
 
 - `I` = **I**D bit
 - `D` = **D**ata bit
@@ -49,7 +49,7 @@ Currently these encodings are supported:
   - 0: short encoding
   - 1: medium and long encoding
 
-#### *`flex` short sub-encoding*
+#### *`flex` short sub-encoding* 
 
 This sub-encodig is mainly for _very_ small systems and time critical stuff
 
@@ -149,6 +149,8 @@ DDDDDDDD DDDDDDDD DDDDDDDD DDDDDDDD
 DDDDDDDD DDDDDDDD DDDDDDDD 00000000
 
 ```
+
+
 
 <!---
 ### `pack2` & `pacl2L` encoding
