@@ -13,10 +13,6 @@
 // trice time measurement
 //
 
-#ifndef TRICE_S
-#define TRICE_S( i, p, s )
-#endif
-
 //! triceRuntimeGeneratedStringUnbound can transfer runtime generated strings if TRICES_1 is not available.
 TRICE_INLINE void triceRuntimeGeneratedStringUnbound( const char* s ){
     size_t len = strlen( s );

@@ -5,6 +5,7 @@
 package emitter
 
 import (
+	"fmt"
 	"os"
 	"strings"
 
@@ -54,7 +55,42 @@ var (
 
 	// NextLine is set true as help for decoder.TestTableMode, where it is clreared at line start.
 	NextLine bool
+
+	// Ban is a string slice containing all channel descriptors to suppress
+	Ban ChannelArrayFlag
+
+	// Pick is a string slice containing all channel descriptors only to display
+	Pick ChannelArrayFlag
 )
+
+type ChannelArrayFlag []string
+
+// String method is the needed for interface satisfaction.
+func (i *ChannelArrayFlag) String() string {
+	return fmt.Sprintf("%v", *i)
+}
+
+// https://stackoverflow.com/questions/9251234/go-append-if-unique
+func appendIfMissing(slice []string, i string) []string {
+	for _, ele := range slice {
+		if ele == i {
+			return slice
+		}
+	}
+	return append(slice, i)
+}
+
+// Set is a needed method for multi flags.
+func (i *ChannelArrayFlag) Set(value string) error {
+	ss := strings.Split(value, ":")
+	for _, s := range ss {
+		cv := channelVariants(s)
+		for _, c := range cv {
+			*i = appendIfMissing(*i, c)
+		}
+	}
+	return nil
+}
 
 // LineWriter is the common interface for output devices.
 // The string slice `line` contains all string parts of one line including prefix and suffix.

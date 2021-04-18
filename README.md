@@ -1,4 +1,4 @@
-# ![TriceGirlS.png](./docs/README.media/TriceGirl-167x222.png) **Trice** -> **TR**~~ace~~ **I**~~ds~~ **C** **E**~~mbedded~~  
+# ![TriceGirlS.png](./docs/README.media/TriceGirl-167x222.png) **Trice** <- **TR**~~ace~~ **I**~~ds~~ **C** **E**~~mbedded~~  
 
 Tiny & fast tracer code for embedded device real-time PC logging (trace ID visualization) over any port.
 
@@ -229,3 +229,9 @@ No need to read all this stuff - is is just for help and reference.
 ## Support?
 
 Yes please: May be you create a graphical display server, have a cool idea, a port to other hardware, some correction or simply like to :star: it. ☺
+
+## Cloning the repo
+
+```b
+git clone https://github.com/rokath/trice.git
+```

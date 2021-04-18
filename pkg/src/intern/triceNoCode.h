@@ -9,6 +9,10 @@
 extern "C" {
 #endif
 
+#define TRICE_S( i, p, s )  do{ ((void)(i)); ((void)(p)); ((void)(s)); }while(0)
+#define Id(n) (n)
+#define id(n) (n)
+
 #define Trice0i( id, pFmt )
 #define Trice8_1i( id, pFmt, v0                             ) do{ ((void)(v0)); }while(0)
 #define Trice8_2i( id, pFmt, v0, v1                         ) do{ ((void)(v0)); ((void)(v1)); }while(0)

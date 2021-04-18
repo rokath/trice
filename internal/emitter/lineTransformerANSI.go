@@ -93,15 +93,34 @@ var ansiSel = []ansiSelector{
 	{[]string{"Verbose", "verbose", "VERBOSE"}, colorizeVERBOSE},
 }
 
-func isChannel(ch string) bool {
+// channelVariants returns all variants of ch as string slice.
+// If ch is not inside ansiSel nil is returned.
+func channelVariants(ch string) []string {
 	for _, s := range ansiSel {
 		for _, c := range s.channel {
 			if c == ch {
-				return true
+				return s.channel
 			}
 		}
 	}
-	return false
+	return nil
+}
+
+// isChannel returns true if ch is any ansiSel string.
+func isChannel(ch string) bool {
+	cv := channelVariants(ch)
+	if nil == cv {
+		return false
+	}
+	return true
+	//  for _, s := range ansiSel {
+	//  	for _, c := range s.channel {
+	//  		if c == ch {
+	//  			return true
+	//  		}
+	//  	}
+	//  }
+	//  return false
 }
 
 // colorize prefixes s with an ansi color code according to this conditions:
