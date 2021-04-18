@@ -49,7 +49,9 @@ Currently these encodings are supported:
   - 0: short encoding
   - 1: medium and long encoding
 
-#### *`flex` short sub-encoding* 
+#### *`flex` short sub-encoding*
+
+- Maximun payload 2 bytes
 
 This sub-encodig is mainly for _very_ small systems and time critical stuff
 
@@ -65,6 +67,8 @@ This sub-encodig is mainly for _very_ small systems and time critical stuff
 ```
 
 #### *`flex` normal sub-encoding*
+
+- Maximun payload 4 bytes
 
 - `1IIIIIII IIIIIIII IIIIINNN CCCCCCCC` : medium 3-bit count NNN
 - The medium 3-bit counts 5 and 6 are reserved for future extensions.
@@ -90,6 +94,10 @@ DDDDDDDD DDDDDDDD DDDDDDDD DDDDDDDD
 1IIIIIII IIIIIIII IIIII110 CCCCCCCC : reserved
 ...
 ```
+
+#### *`flex` long sub-encoding*
+
+- Maximun payload 65535 bytes
 
 - `1IIIIIII IIIIIIII IIIII111 CCCCCCCC` : long 16-bit count with 16 bit eXor checksum follows
 - `NNNNNNNN NNNNNNNN cccccccc cccccccc` : 16-bit count NNNNNNNN NNNNNNNN==^cccccccc cccccccc
