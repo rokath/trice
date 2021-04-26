@@ -40,6 +40,11 @@ Currently these encodings are supported:
 
 ### `flex` encoding
 
+The 3 formats **short**, **medium** and **long** are usable parallel. String transfer is done not in the short format.
+A format extension is possible by using the 2 reserved patterns in medium format.
+In fact the ID contains information how the payload bytes are structured. This is in the first place
+the format string, but could also be some (packed) structs and the ID refers to a function taking the payload as parameters.
+
 - `I` = **I**D bit
 - `D` = **D**ata bit
 - `N` = **N**umber of bytes bit
@@ -66,7 +71,7 @@ This sub-encodig is mainly for _very_ small systems and time critical stuff
 0IIIIIII IIIIIIII DDDDDDDD DDDDDDDD : short, implicit count=2, Trice8_2 
 ```
 
-#### *`flex` normal sub-encoding*
+#### *`flex` medium sub-encoding*
 
 - Maximun payload 4 bytes
 
