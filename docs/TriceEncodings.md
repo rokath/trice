@@ -56,7 +56,7 @@ the format string, but could also be some (packed) structs and the ID refers to 
 
 #### *`flex` short sub-encoding*
 
-- Maximun payload 2 bytes
+- Maximum payload 2 bytes
 
 This sub-encodig is mainly for _very_ small systems and time critical stuff
 
