@@ -76,6 +76,7 @@ void triceRuntimeStrings( int from, int limit){
 void triceCheckSet(int index) {
     switch (index) {
         case 0:
+        // TriceRpc0( id(0), "cmd:LED %d", 1); // experimental
         break;
         case 1:
         break;
