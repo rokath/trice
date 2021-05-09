@@ -123,6 +123,8 @@ func (p *Flex) smallSubEncoding(head uint32) (n int, err error) {
 	p.d0 = 0xffff & head
 	p.upperCaseTriceType = p.trice.Type // no conversion here, but a copy is needed
 	switch p.trice.Type {
+	case "TriceRRPC0", "TriceRRPC0i":
+		return p.triceRPC(LastTriceID, 0)
 	case "Trice0", "Trice0i":
 		return p.sprintTrice(0)
 	case "Trice8_1", "Trice8_1i":
@@ -327,6 +329,23 @@ var flexSel = []flexSelector{
 	{"Trice8_2", (*Flex).trice82s},
 	{"Trice16_1", (*Flex).trice161s},
 	{"TRICE_S", (*Flex).triceSCount},
+}
+
+// triceRPC generates executes a command according to the id.
+// The string inside til.json is usable to find the function pointer, but it is more effective to associate the id with a function pointer.
+func (p *Flex) triceRPC(_ id.TriceID, cnt int) (n int, e error) {
+	// ID and count are ok
+	tt0 := strings.TrimRight(p.upperCaseTriceType, "I")
+	tt := strings.TrimRight(tt0, "i") // handle short trices
+	for _, s := range flexSel {
+		if s.triceType == tt {
+			return s.triceFn(p)
+		}
+	}
+	if "TRICE_S" == p.upperCaseTriceType {
+		return p.triceS(cnt)
+	}
+	return p.outOfSync(fmt.Sprintf("Unexpected trice.Type %s", p.trice.Type))
 }
 
 // sprintTrice generates the trice string.

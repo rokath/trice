@@ -70,12 +70,26 @@ void triceRuntimeStrings( int from, int limit){
     }
 }
 
+volatile uint8_t led = 0;
+
+void SetLED( uint8_t state ){
+    led = state;
+}
+
+#define TriceRpc0( id, pfmt, pFn )
+
+void triceRpcList( void ){
+     TriceRpc0( id(0), "cmd:LED %d", SetLed); // experimental send command
+}
+
+
 //! triceCheckSet writes out all types of trices with fixed values for testing
 //! \details One trice has one subtrace, if param size max 2 bytes. 
 //! Traces with more bytes as parameter consist of several subtraces.
 void triceCheckSet(int index) {
     switch (index) {
         case 0:
+        // TriceRpc0( id(0), "cmd:LED %d", 1); // experimental send command
         break;
         case 1:
         break;
