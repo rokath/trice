@@ -89,7 +89,11 @@ void triceRpcList( void ){
 void triceCheckSet(int index) {
     switch (index) {
         case 0:
+<<<<<<< HEAD
         // TriceRpc0( id(0), "cmd:LED %d", 1); // experimental send command
+=======
+        // TriceRpc0( id(0), "cmd:LED %d", 1); // experimental
+>>>>>>> rpc
         break;
         case 1:
         break;
