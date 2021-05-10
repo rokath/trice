@@ -192,6 +192,10 @@ Yes, you can simply start `trice ds` inside a console, option: [third_party/alac
 ### Or build `trice` from Go sources
 
 - Install [Go](https://golang.org/).
+- On Windows you need to install [TDM-GCC](https://jmeubank.github.io/tdm-gcc/download/) - recommendation: Minimal online installer.
+  - GCC is only needed for [./pkg/src/src.go](https://github.com/rokath/trice/blob/master/pkg/src/src.go), what gives the option to test the C-code on the host.
+  - Make sure TDM-GCC is found first in the path.
+  - Other gcc variants could work also but not tested.
 - Open a console inside the `trice` directory.
 - Check and install:
 
