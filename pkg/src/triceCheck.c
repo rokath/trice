@@ -76,7 +76,7 @@ void SetLED( uint8_t state ){
     led = state;
 }
 
-#define TriceRpc0( id, pfmt, pFn )
+#define TriceRpc0( id, pfmt, n )
 
 void triceRpcList( void ){
      TriceRpc0( id(0), "cmd:LED %d", SetLed); // experimental send command
@@ -89,11 +89,7 @@ void triceRpcList( void ){
 void triceCheckSet(int index) {
     switch (index) {
         case 0:
-<<<<<<< HEAD
-        // TriceRpc0( id(0), "cmd:LED %d", 1); // experimental send command
-=======
-        // TriceRpc0( id(0), "cmd:LED %d", 1); // experimental
->>>>>>> rpc
+        // TriceWrite8( id(0), "%d:LED %d", addr, 1); // experimental send command
         break;
         case 1:
         break;
