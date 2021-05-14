@@ -38,7 +38,7 @@ triceServeFifoWrappedToBytesBuffer();
 
 Currently these encodings are supported:
 
-### `flex` encoding
+### `flex` & `flex2` encoding
 
 The 3 formats **short**, **medium** and **long** are usable parallel. String transfer is done not in the short format.
 A format extension is possible by using the 2 reserved patterns in medium format.
@@ -54,7 +54,48 @@ the format string, but could also be some (packed) structs and the ID refers to 
   - 0: short encoding
   - 1: medium and long encoding
 
-#### *`flex` short sub-encoding*
+#### `flex2` short sub-encoding (influenced by UTF-8 encoding)
+
+- UTF-8
+  - `0xxxxxxx` : 1-byte, 7-bit usable
+  - `110xxxxx 10xxxxxx` : 2-byte, 11-bit usable
+  - `1110xxxx 10xxxxxx 10xxxxxx` : 3-byte, 16-bit usable
+  - `11110xxx 10xxxxxx 10xxxxxx 10xxxxxx` : 4-byte, 21-bit usable
+
+- FLEX-2
+  - `0xxxxxxx` : 1-byte, 7-bit usable
+  - `110xxxxx 10xxxxxx` : 2-byte, 11-bit usable
+  - `1110xxxx 10xxxxxx 10xxxxxx` : 3-byte, 16-bit usable
+  - `11110ccc` + n * `01xxxxxx` : (n+1)-byte, (6*n)-bit usable, n coded according ccc table
+  - `111110xx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx` : 6-byte, 32-bit usable
+
+  - ccc table
+   - |  ccc  |    n   | bytes  |  usable bits | efficiency | remark
+     |   -:  |  ----: |  ---:  |  ----------: | ---------: | ------
+     |  000  |   11   |  12    |     66/96    |    0.68    | good for 64-bit value
+     |  010  | max64  |  65    |     384      |            | 48 bytes, count of following bytes is coded in first byte
+     |  011  | max4096| 4098   |              |            | 3072 bytes, count of following bytes is coded in next two bytes
+     |  001  |        |        |              |            | reserved
+
+  - `01111xxx` + n * `01xxxxxx` : (n+1)-byte, x-bit usable
+    - |   n   |  bytes |   usable bits
+      |   -:  |  ----: |   ----------:
+      |   0   |   1    |      3
+      |   1   |   2    |      9
+      |   2   |   3    |      15
+      |   3   |   4    |      21
+      |   4   |   5    |      27
+      |   5   |   6    |      33
+      |   6   |   7    |      39
+      |   7   |   8    |      45
+      |   8   |   9    |      51
+      |   9   |  10    |      57
+      |  10   |  11    |      63
+      |  11   |  12    |      69
+- `011111xx 01xxxxxx 01xxxxxx 01xxxxxx 01xxxxxx 01xxxxxx 01xxxxxx 01xxxxxx 01xxxxxx 01xxxxxx 01xxxxxx 01xxxxxx 01xxxxxx 01xxxxxx 01xxxxxx 01xxxxxx 01xxxxxx` : 16-byte, 92-bit usable
+- `0111111x 01xxxxxx 01xxxxxx 01xxxxxx 01xxxxxx 01xxxxxx 01xxxxxx 01xxxxxx 01xxxxxx 01xxxxxx 01xxxxxx 01xxxxxx 01xxxxxx 01xxxxxx 01xxxxxx 01xxxxxx 01xxxxxx` : 16-byte, 92-bit usable
+
+#### `flex` short sub-encoding
 
 - Maximum payload 2 bytes
 
