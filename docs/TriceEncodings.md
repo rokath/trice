@@ -66,9 +66,37 @@ the format string, but could also be some (packed) structs and the ID refers to 
   - `0xxxxxxx` : 1-byte, 7-bit usable
   - `110xxxxx 10xxxxxx` : 2-byte, 11-bit usable
   - `1110xxxx 10xxxxxx 10xxxxxx` : 3-byte, 16-bit usable
-  - `11110ccc` + n * `01xxxxxx` : (n+1)-byte, (6*n)-bit usable, n coded according ccc table
+  - `11110xxx 10xxxxxx ...` reserved
   - `111110xx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx` : 6-byte, 32-bit usable
+  - `1111110x 10xxxxxx ...` reserved
+  - `11111110 10xxxxxx ...` reserved
+  - `11111111 10xxxxxx ...` reserved
 
+- COBS/R with excluded special cases
+  - 00
+  - 02 00 ... ff 00 use 10 00 ... ff 00 only
+  - bb bb 00 ...
+
+- aa
+  - `0xxxxxxx` followed by optional 0 if yes
+  - use 02 00 ... 0f 00 only
+  - during aa when no device answered with 0 master sends 0
+
+- COBS/R conform aa and triggering
+| Byte sequence | meaning
+| :------------ | -----
+| 00            | resync byte parser
+| 00 00         | unused
+| 01 00         | unused 
+| qq            | aa query, ignored when id exists, qq=02...0f
+|    00         | means "yes" as aa query answer
+|       00      | send by controller, if no "yes" Was answered
+| qq 00         | ignored as command 
+| qq     00     | ignored as command
+| xx 00         | trigger command xx=10...ff, 
+
+  - `11110ccc` + n * `01xxxxxx` : (n+1)-byte, (6*n)-bit usable, n coded according ccc table
+  
   - ccc table
    - |  ccc  |    n   | bytes  |  usable bits | efficiency | remark
      |   -:  |  ----: |  ---:  |  ----------: | ---------: | ------
