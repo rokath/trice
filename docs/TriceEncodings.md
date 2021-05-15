@@ -83,6 +83,7 @@ the format string, but could also be some (packed) structs and the ID refers to 
   - during aa when no device answered with 0 master sends 0
 
 - COBS/R conform aa and triggering
+
 | Byte sequence | meaning
 | :------------ | -----
 | 00            | resync byte parser
