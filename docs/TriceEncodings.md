@@ -98,7 +98,7 @@ the format string, but could also be some (packed) structs and the ID refers to 
   - `11110ccc` + n * `01xxxxxx` : (n+1)-byte, (6*n)-bit usable, n coded according ccc table
   
   - ccc table
-   - |  ccc  |    n   | bytes  |  usable bits | efficiency | remark
+     |  ccc  |    n   | bytes  |  usable bits | efficiency | remark
      |   -:  |  ----: |  ---:  |  ----------: | ---------: | ------
      |  000  |   11   |  12    |     66/96    |    0.68    | good for 64-bit value
      |  010  | max64  |  65    |     384      |            | 48 bytes, count of following bytes is coded in first byte
@@ -120,6 +120,7 @@ the format string, but could also be some (packed) structs and the ID refers to 
       |   9   |  10    |      57
       |  10   |  11    |      63
       |  11   |  12    |      69
+
 - `011111xx 01xxxxxx 01xxxxxx 01xxxxxx 01xxxxxx 01xxxxxx 01xxxxxx 01xxxxxx 01xxxxxx 01xxxxxx 01xxxxxx 01xxxxxx 01xxxxxx 01xxxxxx 01xxxxxx 01xxxxxx 01xxxxxx` : 16-byte, 92-bit usable
 - `0111111x 01xxxxxx 01xxxxxx 01xxxxxx 01xxxxxx 01xxxxxx 01xxxxxx 01xxxxxx 01xxxxxx 01xxxxxx 01xxxxxx 01xxxxxx 01xxxxxx 01xxxxxx 01xxxxxx 01xxxxxx 01xxxxxx` : 16-byte, 92-bit usable
 
