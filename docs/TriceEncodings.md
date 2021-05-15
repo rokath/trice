@@ -90,10 +90,10 @@ the format string, but could also be some (packed) structs and the ID refers to 
 | 00 00         | unused
 | 01 00         | unused 
 | qq            | aa query, ignored when id exists, qq=02...0f
-|    00         | means "yes" as aa query answer
-|       00      | send by controller, if no "yes" Was answered
+| __ 00         | means "yes" as aa query answer
+| __ __ 00      | send by controller, if no "yes" Was answered
 | qq 00         | ignored as command 
-| qq     00     | ignored as command
+| qq __ 00      | ignored as command
 | xx 00         | trigger command xx=10...ff, 
 
   - `11110ccc` + n * `01xxxxxx` : (n+1)-byte, (6*n)-bit usable, n coded according ccc table
