@@ -38,7 +38,181 @@ triceServeFifoWrappedToBytesBuffer();
 
 Currently these encodings are supported:
 
-### `flex` & `flex2` encoding
+### COBS/R encoding
+
+Packages are COBS/R encoded (without containing `00` bytes) and separated by a `00` byte. This allows the transfer of n-byte packages without the need to decide the meaning of the payload, means, how many bits are ID and how many bits are value is simply a configuration question. The COBS/R encoding usually has the same length as the unencoded data and sometimes has one byte more but an additional 00 is needed for secure package separation. This way the ID bit count is adjustable to the real communication needs because a data disturbance is easily detectable by just waiting for the next 0.
+
+
+#### COBS/R encoding for 1-byte packages
+
+| raw  | COBS/R (all followed by a not shown 00)| remark
+| :--  | :-----                                 | ---------------------------
+| 00   |  01 01                                 | starting byte 00 prolongs code
+| 01   |  02 01                                 | starting byte 01 prolongs code
+| 02   |  02                                    |
+| 03   |  03                                    |
+| ...  |  ...                                   |
+| fc   |  fc                                    |
+| fd   |  fd                                    |
+| fe   |  fe                                    |
+| ff   |  ff                                    |
+
+
+#### COBS/R encoding for 2-byte packages
+
+| raw  | COBS/R (all followed by a not shown 00)| remark
+| :--  | :-----                                 | ---------------------------
+| 0000 |  01 01 01                              | starting bytes 00, 01 and 02 prolong code usually
+| 0001 |  02 01 01                              |
+| 0002 |  02 02 01                              |
+| 0003 |  02 03 01                              |
+| ...  |  ...                                   |
+| 00fc |  02 fc 01                              |
+| 00fd |  02 fd 01                              |
+| 00fe |  02 fe 01                              |
+| 00ff |  02 ff 01                              |
+| ...  |  ...                                   |
+| 0100 |  01 02 01                              |
+| 0101 |  03 01 01                              |
+| 0102 |  03 02 01                              |
+| 0103 |  03 03 01                              |
+| ...  |  ...                                   |
+| 01fc |  03 fc 01                              |
+| 01fd |  03 fd 01                              |
+| 01fe |  03 fe 01                              |
+| 01ff |  03 ff 01                              |
+| ...  |  ...                                   |
+| 0200 |  01 02                                 | special case
+| 0201 |  03 01 02                              |
+| 0202 |  03 02 02                              |
+| 0203 |  03 03 02                              |
+| ...  |  ...                                   |
+| 02fc |  03 fc 02                              |
+| 02fd |  03 fd 02                              |
+| 02fe |  03 fe 02                              |
+| 02ff |  03 ff 02                              |
+| ...  |  ...                                   |
+| 0300 |  01 03                                 |
+| 0301 |  03 01                                 |
+| 0302 |  03 02                                 |
+| 0303 |  03 03                                 |
+| ...  |  ...                                   |
+| 03fc |  03 fc                                 |
+| 03fd |  03 fd                                 |
+| 03fe |  03 fe                                 |
+| 03ff |  03 ff                                 |
+| ...  |  ...                                   |
+| fc00 |  01 fc                                 |
+| fc01 |  fc 01                                 |
+| fc02 |  fc 02                                 |
+| fc03 |  fc 03                                 |
+| ...  |  ...                                   |
+| fcfc |  fc fc                                 |
+| fcfd |  fc fd                                 |
+| fcfe |  fc fe                                 |
+| fcff |  fc ff                                 |
+| ...  |  ...                                   |
+| fd00 |  01 fd                                 |
+| fd01 |  fd 01                                 |
+| fd02 |  fd 02                                 |
+| fd03 |  fd 03                                 |
+| ...  |  ...                                   |
+| fdfc |  fd fc                                 |
+| fdfd |  fd fd                                 |
+| fdfe |  fd fe                                 |
+| fdff |  fd ff                                 |
+| ...  |  ...                                   |
+| fe00 |  01 fe                                 |
+| fe01 |  fe 01                                 |
+| fe02 |  fe 02                                 |
+| fe03 |  fe 03                                 |
+| ...  |  ...                                   |
+| fefc |  fe fc                                 |
+| fefd |  fe fd                                 |
+| fefe |  fe fe                                 |
+| feff |  fe ff                                 |
+| ...  |  ...                                   |
+| ff00 |  01 ff                                 |
+| ff01 |  ff 01                                 |
+| ff02 |  ff 02                                 |
+| ff03 |  ff 03                                 |
+| ...  |  ...                                   |
+| fffc |  ff fc                                 |
+| fffd |  ff fd                                 |
+| fffe |  ff fe                                 |
+| ffff |  ff ff                                 |
+
+#### COBS/R encoding for n-byte packages
+
+This looks similar to 1-byte and 2-byte encoding and is not shown here.
+
+#### Decoded COBS/R package interpreter
+
+How the packages are to interpret is a question of software configuration. When a decoded COBS/R package is to decode the decoder can use the known package length to choose the right interpreter. For example all multiple of 8 length packages are possibly XTEA encrypted. Also a fixed-size ID is usable. It is also possible to have several `trice` messages inside a packet.
+
+- Examples for ID - value apportionment (these are only thinkable options):
+
+Hint: The value space itself is usable according to ID, for example a 32 bit value space could be a 16-bit and two 8-bit values.
+
+| package byte count |   optional usage                      | apportionment example
+| -----------------: |   --------------------------          | :-
+|                  2 |   on|off time measurement             | `Ivvvvvvv vvvvvvvv`
+|                  2 |   256 different value events          | `IIIIIIII vvvvvvvv`
+|                  8 | **XTEA, 256 different 56 bit values** | `IIIIIIII vvvvvvvv vvvvvvvv vvvvvvvv vvvvvvvv vvvvvvvv vvvvvvvv vvvvvvvv`
+|                 10 |   65535 different 64 bit values       | `IIIIIIII IIIIIIII vvvvvvvv vvvvvvvv vvvvvvvv vvvvvvvv vvvvvvvv vvvvvvvv vvvvvvvv vvvvvvvv`
+|                  6 |   65535 different 32 bit values       | `IIIIIIII IIIIIIII vvvvvvvv vvvvvvvv vvvvvvvv vvvvvvvv`
+|                  4 |   65535 different 16 bit values       | `IIIIIIII IIIIIIII vvvvvvvv vvvvvvvv`
+|                  3 |   65535 different  8 bit values       | `IIIIIIII IIIIIIII vvvvvvvv`
+|                  2 |   65535 different no-value messages   | `IIIIIIII IIIIIIII`
+|                  1 |   8 different  5 bit values           | `IIIvvvvv`
+|                  1 |   256 different no-value messages     | `IIIIIIII`
+|                  4 |   32768 different 17-bit messages     | `IIIIIIII IIIIIIIx vvvvvvvv vvvvvvvv`
+|                  8 |   XTEA, 2 messages in one packet      | `IIIIIIII IIIIIIII vvvvvvvv vvvvvvvv vvvvvvvv vvvvvvvv IIIIIIII vvvvvvvv`
+|                 16 |   XTEA, 5 messages in one packet      | `IIIIIIII IIIIIIII vvvvvvvv vvvvvvvv vvvvvvvv vvvvvvvv IIIIIIII vvvvvvvv IIIIIIII IIIIIIII vvvvvvvv vvvvvvvv IIIIIIII vvvvvvvv IIIIIIII IIIIIIII`
+
+- When an COBS/R package was successfully transmitted and decoded its interpretation is a matter of the general configuration.
+<!---
+- To keeps things simple:
+- The first byte in a package is an ID byte optionally followed by more ID bytes
+
+| ID coding                    | ID bits |         ID range  | remark
+| ---------------------------: | ------: | ----------------: | -
+| `0IIIIIII`                   |  7      |     0 ...     127 | 
+| `10IIIIII IIIIIIII`          | 14      |   128 ...   16383 | 0 ...   127 unused (reserved)
+| `100IIIII IIIIIIII IIIIIIII` | 21      | 16384 ... 2097151 | 0 ... 16383 unused (reserved)
+
+- How many value bits are following an ID and how they are to interpret is coded inside the ID information.
+-->
+
+
+| ID coding                                                       | package length | ID bits |        ID range  | remark
+| :-----------------------------------------------------          | -------------: | ------: | ---------------: | -
+| ``                                                              |       0        |  0      |              0   | reserved, usable as a special very short message
+| `000IIIII`                                                      |       1        |  5      |    0 ...      31 | no values are following
+| `001IIIII vvvvvvvv`                                             |       2        |  5      |    0 ...      31 | 1 value byte follows
+| `xxxxxxxx xxxxxxxx xxxxxxxx`                                    |       3        |         |                  | reserved, usable as a special 3-bytes message
+| `010IIIII vvvvvvvv vvvvvvvv vvvvvvvv`                           |       4        |  5      |    0 ...      31 | 3 value bytes follow
+| 5 ... 7 * `xxxxxxxx`                                            |     5,6,7      |         |                  | reserved, usable as a special 5-7-bytes message
+| `011IIIII` + 7 * `vvvvvvvv`                                     |       8        |  5      |    0 ...      31 | 7 value bytes follow
+| 9 * `xxxxxxxx`                                                  |       9        |         |                  | reserved, usable as a special 9-bytes message
+| `1000IIII IIIIIIII`                                             |       2        | 12      |   64 ...    4095 | 0 ...   63 unused (reserved), no value bytes follow
+| `1001IIII IIIIIIII` + 2 * `vvvvvvvv`                            |       4        | 12      |   64 ...    4095 | 0 ...   63 unused (reserved),  2 value bytes follow
+| `1010IIII IIIIIIII` + 6 * `vvvvvvvv`                            |       8        | 12      |   64 ...    4095 | 0 ...   63 unused (reserved),  6 value bytes follow
+| `1011IIII IIIIIIII` + 8 * `vvvvvvvv`                            |      10        | 12      |   64 ...    4095 | 0 ...   63 unused (reserved),  8 value bytes follow
+| `11000III IIIIIIII IIIIIIII vvvvvvvv`                           |       4        | 19      | 4096 ...  524287 | 0 ... 4095 unused (reserved),  1 value byte follows
+| `11001III IIIIIIII IIIIIIII` +  5 * `vvvvvvvv`                  |       8        | 19      | 4096 ...  524287 | 0 ... 4095 unused (reserved),  5 value bytes follow
+| `11100III IIIIIIII IIIIIIII cccccccc` + C * `vvvvvvvv`          | 16,24,...,2056 | 19      | 4096 ...  524287 | 0 ... 4095 unused (reserved), 4 + 8 * (C+1) = 12, 20, 28, ... 2052 value bytes follow, C = cccccccc
+| `11101xxx` ...                                                  |                |         |                  | reserved
+| `1111xxxx` ...                                                  |                |         |                  | reserved
+
+| ID coding                                                       | package length | ID bits |        ID range  | remark
+| :-----------------------------------------------------          | -------------: | ------: | ---------------: | -
+| `11111III IIIIIIII IIIIIIII ...`                                |                | 19      | 4096 ...  524287 | 0 ... 4095 unused (reserved), reserved
+| `11010III IIIIIIII IIIIIIII` + 13 * `vvvvvvvv`                  |      16        | 19      | 4096 ...  524287 | 0 ... 4095 unused (reserved), 13 value bytes follow
+| `11011III IIIIIIII IIIIIIII` + 29 * `vvvvvvvv`                  |      32        | 19      | 4096 ...  524287 | 0 ... 4095 unused (reserved), 29 value bytes follow
+| `11101III IIIIIIII IIIIIIII cccccccc cccccccc` + C * `vvvvvvvv` |                | 19      | 4096 ...  524287 | 0 ... 4095 unused (reserved), 1...65536 value bytes follow, C = count-1
+
+### `flex` encoding
 
 The 3 formats **short**, **medium** and **long** are usable parallel. String transfer is done not in the short format.
 A format extension is possible by using the 2 reserved patterns in medium format.
@@ -53,78 +227,6 @@ the format string, but could also be some (packed) structs and the ID refers to 
 - The bit 31 is the mode bit.
   - 0: short encoding
   - 1: medium and long encoding
-
-#### `flex2` short sub-encoding (influenced by UTF-8 encoding)
-
-- UTF-8
-  - `0xxxxxxx` : 1-byte, 7-bit usable
-  - `110xxxxx 10xxxxxx` : 2-byte, 11-bit usable
-  - `1110xxxx 10xxxxxx 10xxxxxx` : 3-byte, 16-bit usable
-  - `11110xxx 10xxxxxx 10xxxxxx 10xxxxxx` : 4-byte, 21-bit usable
-
-- FLEX-2
-  - `0xxxxxxx` : 1-byte, 7-bit usable
-  - `110xxxxx 10xxxxxx` : 2-byte, 11-bit usable
-  - `1110xxxx 10xxxxxx 10xxxxxx` : 3-byte, 16-bit usable
-  - `11110xxx 10xxxxxx ...` reserved
-  - `111110xx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx` : 6-byte, 32-bit usable
-  - `1111110x 10xxxxxx ...` reserved
-  - `11111110 10xxxxxx ...` reserved
-  - `11111111 10xxxxxx ...` reserved
-
-- COBS/R with excluded special cases
-  - 00
-  - 02 00 ... ff 00 use 10 00 ... ff 00 only
-  - bb bb 00 ...
-
-- aa
-  - `0xxxxxxx` followed by optional 0 if yes
-  - use 02 00 ... 0f 00 only
-  - during aa when no device answered with 0 master sends 0
-
-- COBS/R conform aa and triggering
-
-| Byte sequence | meaning
-| :------------ | -----
-| 00            | resync byte parser
-| 00 00         | unused
-| 01 00         | unused 
-| qq            | aa query, ignored when id exists, qq=02...0f
-| __ 00         | means "yes" as aa query answer
-| __ __ 00      | send by controller, if no "yes" Was answered
-| qq 00         | ignored as command 
-| qq __ 00      | ignored as command
-| xx 00         | trigger command xx=10...ff, 
-
-  - `11110ccc` + n * `01xxxxxx` : (n+1)-byte, (6*n)-bit usable, n coded according ccc table
-  
-  - ccc table
-     |  ccc  |    n   | bytes  |  usable bits | efficiency | remark
-     |   -:  |  ----: |  ---:  |  ----------: | ---------: | ------
-     |  000  |   11   |  12    |     66/96    |    0.68    | good for 64-bit value
-     |  010  | max64  |  65    |     384      |            | 48 bytes, count of following bytes is coded in first byte
-     |  011  | max4096| 4098   |              |            | 3072 bytes, count of following bytes is coded in next two bytes
-     |  001  |        |        |              |            | reserved
-
-  - `01111xxx` + n * `01xxxxxx` : (n+1)-byte, x-bit usable
-    - |   n   |  bytes |   usable bits
-      |   -:  |  ----: |   ----------:
-      |   0   |   1    |      3
-      |   1   |   2    |      9
-      |   2   |   3    |      15
-      |   3   |   4    |      21
-      |   4   |   5    |      27
-      |   5   |   6    |      33
-      |   6   |   7    |      39
-      |   7   |   8    |      45
-      |   8   |   9    |      51
-      |   9   |  10    |      57
-      |  10   |  11    |      63
-      |  11   |  12    |      69
-
-- `011111xx 01xxxxxx 01xxxxxx 01xxxxxx 01xxxxxx 01xxxxxx 01xxxxxx 01xxxxxx 01xxxxxx 01xxxxxx 01xxxxxx 01xxxxxx 01xxxxxx 01xxxxxx 01xxxxxx 01xxxxxx 01xxxxxx` : 16-byte, 92-bit usable
-- `0111111x 01xxxxxx 01xxxxxx 01xxxxxx 01xxxxxx 01xxxxxx 01xxxxxx 01xxxxxx 01xxxxxx 01xxxxxx 01xxxxxx 01xxxxxx 01xxxxxx 01xxxxxx 01xxxxxx 01xxxxxx 01xxxxxx` : 16-byte, 92-bit usable
-
 #### `flex` short sub-encoding
 
 - Maximum payload 2 bytes
