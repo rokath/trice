@@ -57,6 +57,7 @@ Packages are COBS/R encoded (without containing `00` bytes) and separated by a `
 | fe   |  fe                                    |
 | ff   |  ff                                    |
 
+One byte packages are fast COBS/R codable by simply appending 01 for the 2 values 00 and 01.
 
 #### COBS/R encoding for 2-byte packages
 
@@ -142,14 +143,17 @@ Packages are COBS/R encoded (without containing `00` bytes) and separated by a `
 | fffe |  ff fe                                 |
 | ffff |  ff ff                                 |
 
+Two byte packages are fast COBS/R codable by simply using the subset >= 0300 and using it directly but replacing a possible 2nd 00 with the first byte and putting 01 on the first position.
 #### COBS/R encoding for n-byte packages
 
 This looks similar to 1-byte and 2-byte encoding and is not shown here.
+Some super fast code for 3- and 4-byte packet encoding is also possible.
 
 #### Decoded COBS/R package interpreter
 
-How the packages are to interpret is a question of software configuration. When a decoded COBS/R package is to decode the decoder can use the known package length to choose the right interpreter. For example all multiple of 8 length packages are possibly XTEA encrypted. Also a fixed-size ID is usable. It is also possible to have several `trice` messages inside a packet.
+How the packages are to interpret is a question of software configuration. When a decoded COBS/R package is to interpret, the known package length is used to choose the right interpreter. For example all multiple of 8 length packages are possibly XTEA encrypted. Also a fixed-size ID is usable. It is also possible to have several `trice` messages inside a packet. That makes sense to reach a multiple of 8-byte message length good for encryption.
 
+<!---
 - Examples for ID - value apportionment (these are only thinkable options):
 
 Hint: The value space itself is usable according to ID, for example a 32 bit value space could be a 16-bit and two 8-bit values.
@@ -170,8 +174,6 @@ Hint: The value space itself is usable according to ID, for example a 32 bit val
 |                  8 |   XTEA, 2 messages in one packet      | `IIIIIIII IIIIIIII vvvvvvvv vvvvvvvv vvvvvvvv vvvvvvvv IIIIIIII vvvvvvvv`
 |                 16 |   XTEA, 5 messages in one packet      | `IIIIIIII IIIIIIII vvvvvvvv vvvvvvvv vvvvvvvv vvvvvvvv IIIIIIII vvvvvvvv IIIIIIII IIIIIIII vvvvvvvv vvvvvvvv IIIIIIII vvvvvvvv IIIIIIII IIIIIIII`
 
-- When an COBS/R package was successfully transmitted and decoded its interpretation is a matter of the general configuration.
-<!---
 - To keeps things simple:
 - The first byte in a package is an ID byte optionally followed by more ID bytes
 
@@ -184,33 +186,50 @@ Hint: The value space itself is usable according to ID, for example a 32 bit val
 - How many value bits are following an ID and how they are to interpret is coded inside the ID information.
 -->
 
+- When an COBS/R package was successfully transmitted and decoded its interpretation is a matter of the general configuration.
 
-| ID coding                                                       | package length | ID bits |        ID range  | remark
-| :-----------------------------------------------------          | -------------: | ------: | ---------------: | -
-| ``                                                              |       0        |  0      |              0   | reserved, usable as a special very short message
-| `000IIIII`                                                      |       1        |  5      |    0 ...      31 | no values are following
-| `001IIIII vvvvvvvv`                                             |       2        |  5      |    0 ...      31 | 1 value byte follows
-| `xxxxxxxx xxxxxxxx xxxxxxxx`                                    |       3        |         |                  | reserved, usable as a special 3-bytes message
-| `010IIIII vvvvvvvv vvvvvvvv vvvvvvvv`                           |       4        |  5      |    0 ...      31 | 3 value bytes follow
-| 5 ... 7 * `xxxxxxxx`                                            |     5,6,7      |         |                  | reserved, usable as a special 5-7-bytes message
-| `011IIIII` + 7 * `vvvvvvvv`                                     |       8        |  5      |    0 ...      31 | 7 value bytes follow
-| 9 * `xxxxxxxx`                                                  |       9        |         |                  | reserved, usable as a special 9-bytes message
-| `1000IIII IIIIIIII`                                             |       2        | 12      |   64 ...    4095 | 0 ...   63 unused (reserved), no value bytes follow
-| `1001IIII IIIIIIII` + 2 * `vvvvvvvv`                            |       4        | 12      |   64 ...    4095 | 0 ...   63 unused (reserved),  2 value bytes follow
-| `1010IIII IIIIIIII` + 6 * `vvvvvvvv`                            |       8        | 12      |   64 ...    4095 | 0 ...   63 unused (reserved),  6 value bytes follow
-| `1011IIII IIIIIIII` + 8 * `vvvvvvvv`                            |      10        | 12      |   64 ...    4095 | 0 ...   63 unused (reserved),  8 value bytes follow
-| `11000III IIIIIIII IIIIIIII vvvvvvvv`                           |       4        | 19      | 4096 ...  524287 | 0 ... 4095 unused (reserved),  1 value byte follows
-| `11001III IIIIIIII IIIIIIII` +  5 * `vvvvvvvv`                  |       8        | 19      | 4096 ...  524287 | 0 ... 4095 unused (reserved),  5 value bytes follow
-| `11100III IIIIIIII IIIIIIII cccccccc` + C * `vvvvvvvv`          | 16,24,...,2056 | 19      | 4096 ...  524287 | 0 ... 4095 unused (reserved), 4 + 8 * (C+1) = 12, 20, 28, ... 2052 value bytes follow, C = cccccccc
-| `11101xxx` ...                                                  |                |         |                  | reserved
-| `1111xxxx` ...                                                  |                |         |                  | reserved
+| ID coding                              | package length    | ID bits |   ID range  |   ID map area   |  remark
+| :------------------------------------- | -------------:    | ------: | ----------: |         -:      |  :-
+| ``                                     |       0           |    0    |         0   |                 |  reserved, usable as a special very short message consisting of only one 0-byte as COBS/R message|
+| `IIIIIIIv`                             |       1           |    7    | 0 ...   127 |     0 ...   127 |  one value bit, avoid IDs 0 and 1 for fast COBS/R encoding
+| `1IIIIIII vvvvvvvv`                    |       2           |    7    | 0 ...   127 |   256 ...   383 |  1 value byte
+| `00IIIIII IIIIIIII`                    |       2           |   14    | 0 ... 16383 |  1024 ... 16383 |  0 ... 1023 unused, no value bytes
+| `01xxxxxx xxxxxxxx`                    |       2           |         |             |        -        |  2^14 packets unused (reserved), usable as a special 2-bytes message
+| `1IIIIIII vvvvvvvv vvvvvvvv`           |       3           |    7    | 0 ...   127 |   384 ...   511 |  2 value bytes, avoid IDs 0 and 1 for fast COBS/R encoding
+| `00IIIIII IIIIIIII vvvvvvvv`           |       3           |   14    | 0 ... 16383 | 16384 ... 32767 |  1 value byte
+| `01xxxxxx xxxxxxxx xxxxxxxx`           |       3           |         |             |        -        |  2^22 packets unused (reserved), usable as a special 3-bytes message
+| `1IIIIIII vvvvvvvv vvvvvvvv vvvvvvvv`  |       4           |    7    | 0 ...   127 |   512       639 |  3 value bytes, avoid IDs 0 and 1 for fast COBS/R encoding
+| `00IIIIII IIIIIIII vvvvvvvv vvvvvvvv`  |       4           |   14    | 0 ... 16383 | 32768 ... 49151 |  2 value bytes
+| `01xxxxxx xxxxxxxx xxxxxxxx xxxxxxxx`  |       4           |         |             |        -        |  2^14 packets unused (reserved), usable as a special 4-bytes message
+| 5 ... 7 `xxxxxxxx`                     |     5,6,7         |         |             |        -        |  reserved, usable as a special 5-7-bytes message
+| `1IIIIIII` + 7 `vvvvvvvv`              |       8           |    7    | 0 ...   127 |   640 ...   767 |  7 value bytes, avoid IDs 0 and 1 for fast COBS/R encoding
+| `00IIIIII IIIIIIII` + 6 `vvvvvvvv`     |       8           |   14    | 0 ... 16383 | 49152 ... 65535 |  6 value bytes
+| `01xxxxxx` + 7 `xxxxxxx`               |       8           |         |             |        -        |  2^30 packets unused (reserved), usable as a special 4-bytes message
+| 9 ... 15 `xxxxxxxx`                    |9,10,11,12,13,14,15|         |             |        -        |  reserved, usable as a special 9-15-bytes message
+| `1IIIIIII` + 15 `vvvvvvvv`             |      16           |    7    | 0 ...   127 |   768 ...   895 | 15 value bytes
+| `00IIIIII IIIIIIII` + 14 `vvvvvvvv`    |      16           |   14    | 0 ... 16383 | 65536 ... 81919 | 14 value bytes
+| `01xxxxxx` + 15 `xxxxxxxx`             |      16           |         |             |        -        |  2^30 packets unused (reserved), usable as a special 4-bytes message
+| n `xxxxxxxx`                           |       n           |         |             |        -        |  n > 16, n mod 8 != 0, reserved, usable as a special n-bytes message
+| `1IIIIIII` + (n-1) `vvvvvvvv`          |       n           |    7    | 0 ...   127 |   896 ...  1023 |  n > 16, n mod 8 == 0, n-1 value bytes
+| `00IIIIII IIIIIIII` + (n-2) `vvvvvvvv` |       n           |   14    | 0 ... 16383 | 81920 ... 98304 |  n > 16, n mod 8 == 0, n-2 value bytes
+| `01xxxxxx` + (n-1) `xxxxxxxx`          |       n           |         |             |        -        |  n > 16, n mod 8 == 0, n-2 value bytes, 2^((n-1)*8+6) packets unused (reserved), usable as a special 4-bytes message
 
-| ID coding                                                       | package length | ID bits |        ID range  | remark
-| :-----------------------------------------------------          | -------------: | ------: | ---------------: | -
-| `11111III IIIIIIII IIIIIIII ...`                                |                | 19      | 4096 ...  524287 | 0 ... 4095 unused (reserved), reserved
-| `11010III IIIIIIII IIIIIIII` + 13 * `vvvvvvvv`                  |      16        | 19      | 4096 ...  524287 | 0 ... 4095 unused (reserved), 13 value bytes follow
-| `11011III IIIIIIII IIIIIIII` + 29 * `vvvvvvvv`                  |      32        | 19      | 4096 ...  524287 | 0 ... 4095 unused (reserved), 29 value bytes follow
-| `11101III IIIIIIII IIIIIIII cccccccc cccccccc` + C * `vvvvvvvv` |                | 19      | 4096 ...  524287 | 0 ... 4095 unused (reserved), 1...65536 value bytes follow, C = count-1
+If less value bytes are needed padding bytes are used.
+
+`Trice( DESCRIPTOR, Id(0), "fmtString", ... )`
+
+| Legacy notation                    | COBSR notation                       | ID coding
+| :-                                 | :-                                   | :-
+| Trice0( id(0), "text" );           | Trice0( IDE(0), "text" );            | `00IIIIII IIIIIIII`
+|                                    | TriceB( ID7(0), "text", 1 );         | `IIIIIIIv`
+| Trice8( id(0), "text", 255 );      | Trice8( ID7(0), "text", 255 );       | `1IIIIIII vvvvvvvv`
+| Trice8( id(0), "text", 255, 255 ); | Trice8( ID7(0), "text", 255, 255 );  | `1IIIIIII vvvvvvvv vvvvvvvv`
+| Trice16( id(0), "text", 65535 );   | Trice16( ID7(0), "text", 65535 );    | `1IIIIIII vvvvvvvv vvvvvvvv`
+| trice8( Id(0), "text" );           | Trice8( IDE(0), "text", 255 );       | `00IIIIII IIIIIIII vvvvvvvv` 
+| trice16( Id(0), "text" );          | Trice16( IDE(0), "text", 65535 );    | `00IIIIII IIIIIIII vvvvvvvv vvvvvvvv`
+
+ID7(n) =  7-bit ID
+IDE(n) = 14-bit ID
 
 ### `flex` encoding
 
