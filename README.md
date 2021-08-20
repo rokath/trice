@@ -247,3 +247,7 @@ Yes please: May be you create a graphical display server, have a cool idea, a po
 ```b
 git clone https://github.com/rokath/trice.git
 ```
+
+## Similar projects
+
+[http://baical.net/up7.html](http://baical.net/up7.html)
