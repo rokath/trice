@@ -232,11 +232,13 @@ trice help
 
 No need to read all this stuff - is is just for help and reference.
 
-- [Common.md](https://github.com/rokath/trice/tree/master/docs/Common.md)
-- [TriceEncodings.md](https://github.com/rokath/trice/tree/master/docs/TriceEncodings.md)
-- [ID management](https://github.com/rokath/trice/tree/master/docs/IDManagement.md)
-- [OneWireOption](https://github.com/rokath/trice/tree/master/docs/OneWireOption.md)
-- [SeggerRTT](https://github.com/rokath/trice/tree/master/docs/SeggerRTT.md)
+- [fix color issues under windows](./docs/Common.md#color-issues-under-windows)
+- [Command Line Examples](./docs/CommandLineExamples.md)
+- [Common.md](./docs/Common.md)
+- [TriceEncodings.md](./docs/TriceEncodings.md)
+- [ID management](./docs/IDManagement.md)
+- [OneWireOption](./docs/OneWireOption.md)
+- [SeggerRTT](./docs/SeggerRTT.md)
 
 ## Support?
 
@@ -247,3 +249,7 @@ Yes please: May be you create a graphical display server, have a cool idea, a po
 ```b
 git clone https://github.com/rokath/trice.git
 ```
+
+## Alternative solution
+
+Maybe you find this project interesting too: [baical.net](http://baical.net/index.html)
