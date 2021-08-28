@@ -85,11 +85,13 @@ func SubCmdUpdate() error {
 	lu := NewLut(FnJSON)
 	tflu := lu.reverse()
 	var listModified bool
+	o := len(lu)
 	walkSrcs(IDsUpdate, lu, tflu, &listModified)
 	if Verbose {
 		fmt.Println(len(lu), "ID's in List", FnJSON, "listModified=", listModified)
 	}
-	if listModified && !DryRun {
+
+	if (len(lu) != o || listModified) && !DryRun {
 		msg.FatalOnErr(lu.toFile(FnJSON))
 	}
 	return nil
