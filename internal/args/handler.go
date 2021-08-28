@@ -1,7 +1,7 @@
 // Copyright 2020 Thomas.Hoehenleitner [at] seerose.net
 // Use of this source code is governed by a license that can be found in the LICENSE file.
 
-// Package args implemets the commandline interface and calls the appropriate commands.
+// Package args implements the commandline interface and calls the appropriate commands.
 package args
 
 import (
@@ -30,7 +30,7 @@ func Handler(args []string) error {
 
 	id.FnJSON = id.ConditionalFilePath(id.FnJSON)
 
-	if "" == Date { // goreleaser will set Date, otherwise use file info.
+	if Date == "" { // goreleaser will set Date, otherwise use file info.
 		fi, err := os.Stat(os.Args[0])
 		if nil == err { // On running main tests fileinfo is invalid, so do not use in that case.
 			Date = fi.ModTime().String()
@@ -108,16 +108,16 @@ func logLoop() {
 	if decoder.TestTableMode {
 		// set switches if they not set already
 		// trice l -ts off -prefix " }, ``" -suffix "\n``}," -color off
-		if "LOCmicro" == emitter.TimestampFormat {
+		if emitter.TimestampFormat == "LOCmicro" {
 			emitter.TimestampFormat = "off"
 		}
 		if DefaultPrefix == emitter.Prefix {
 			emitter.Prefix = " }, `"
 		}
-		if "" == emitter.Suffix {
+		if emitter.Suffix == "" {
 			emitter.Suffix = "`},"
 		}
-		if "default" == emitter.ColorPalette {
+		if emitter.ColorPalette == "default" {
 			emitter.ColorPalette = "off"
 		}
 	}
@@ -168,7 +168,7 @@ func scVersion() error {
 	if verbose {
 		fmt.Println("https://github.com/rokath/trice")
 	}
-	if "" != Version {
+	if Version != "" {
 		fmt.Printf("version=%v, commit=%v, built at %v\n", Version, Commit, Date)
 	} else {
 		fmt.Printf("version=devel, built %s\n", Date)
@@ -176,7 +176,7 @@ func scVersion() error {
 	return nil
 }
 
-// distributeArgs is distibuting values used in several packages.
+// distributeArgs is distributing values used in several packages.
 // It must not be called before the appropriate arg parsing.
 func distributeArgs() {
 	replaceDefaultArgs()
@@ -191,7 +191,7 @@ func distributeArgs() {
 
 // replaceDefaultArgs assigns port specific default strings.
 func replaceDefaultArgs() {
-	if "" == receiver.PortArguments { // nothing assigned in args
+	if receiver.PortArguments == "" { // nothing assigned in args
 		if strings.HasPrefix(receiver.Port, "COM") {
 			receiver.PortArguments = defaultCOMArgs
 		} else {

@@ -222,14 +222,14 @@ func Example_help_b() {
 	// If a non-multi parameter is used more than one times the last value wins.
 	// No logfile writing...
 	// syntax: 'trice sub-command' [params]
-	// sub-command 'sd|shutdown': Ends display server at IPA:IPP, works also on a remote mashine.
+	// sub-command 'sd|shutdown': Ends display server at IPA:IPP, works also on a remote machine.
 	//   -ipa string
 	//     	IP address like '127.0.0.1'.
-	//     	You can specify this swich if you intend to use the remote display option to show the output on a different PC in the network.
+	//     	You can specify this switch if you intend to use the remote display option to show the output on a different PC in the network.
 	//     	 (default "localhost")
 	//   -ipp string
 	//     	16 bit IP port number.
-	//     	You can specify this swich if you want to change the used port number for the remote display functionality.
+	//     	You can specify this switch if you want to change the used port number for the remote display functionality.
 	//     	 (default "61497")
 	// example: 'trice sd': Shut down remote display server.
 	// No logfile writing...done
@@ -289,11 +289,11 @@ func TestHelpAll(t *testing.T) {
              (default "default")
       -ipa string
             IP address like '127.0.0.1'.
-            You can specify this swich if you intend to use the remote display option to show the output on a different PC in the network.
+            You can specify this switch if you intend to use the remote display option to show the output on a different PC in the network.
              (default "localhost")
       -ipp string
             16 bit IP port number.
-            You can specify this swich if you want to change the used port number for the remote display functionality.
+            You can specify this switch if you want to change the used port number for the remote display functionality.
              (default "61497")
       -logfile string
             Append all output to logfile. Options are: 'off|none|filename|auto':
@@ -363,16 +363,16 @@ func TestHelpAll(t *testing.T) {
             Use to pass port specific parameters. The "default" value depends on the used port:
             port "COMn": default="", use "TARM" for a different driver. (For baud rate settings see -baud.)
             port "J-LINK": default="-Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0 -RTTSearchRanges 0x20000000_0x1000",
-                    The -RTTSearchRanges "..." need to be written without "" and with _ istead of space.
+                    The -RTTSearchRanges "..." need to be written without "" and with _ instead of space.
                     For args options see JLinkRTTLogger in SEGGER UM08001_JLink.pdf.
             port "ST-LINK": default="-Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0 -RTTSearchRanges 0x20000000_0x1000",
-                    The -RTTSearchRanges "..." need to be written without "" and with _ istead of space.
+                    The -RTTSearchRanges "..." need to be written without "" and with _ instead of space.
                     For args options see JLinkRTTLogger in SEGGER UM08001_JLink.pdf.
             port "BUFFER": default="0 0 0 0", Option for args is any byte sequence.
              (default "default")
       -ban value
             Channel(s) to ignore. This is a multi-flag switch. It can be used several times with a colon separated list of channel descriptors not to display.
-            Example: "-ban dbg:wrn -ban diag" results in suppressing all as debug, diag and warning tagged messages. Not usable in conjuction with "-pick".
+            Example: "-ban dbg:wrn -ban diag" results in suppressing all as debug, diag and warning tagged messages. Not usable in conjunction with "-pick".
       -baud int
             Set the serial port baudrate.
             It is the only setup parameter. The other values default to 8N1 (8 data bits, no parity, one stopbit).
@@ -405,11 +405,11 @@ func TestHelpAll(t *testing.T) {
              (default "til.json")
       -ipa string
             IP address like '127.0.0.1'.
-            You can specify this swich if you intend to use the remote display option to show the output on a different PC in the network.
+            You can specify this switch if you intend to use the remote display option to show the output on a different PC in the network.
              (default "localhost")
       -ipp string
             16 bit IP port number.
-            You can specify this swich if you want to change the used port number for the remote display functionality.
+            You can specify this switch if you want to change the used port number for the remote display functionality.
              (default "61497")
       -logfile string
             Append all output to logfile. Options are: 'off|none|filename|auto':
@@ -427,7 +427,7 @@ func TestHelpAll(t *testing.T) {
             Encryption is recommended if you deliver firmware to customers and want protect the trice log output. This does work right now only with flex and flexL format.
       -pick value
             Channel(s) to display. This is a multi-flag switch. It can be used several times with a colon separated list of channel descriptors only to display.
-            Example: "-pick err:wrn -pick default" results in suppressing all messages despite of as error, warning and default tagged messages. Not usable in conjuction with "-ban".
+            Example: "-pick err:wrn -pick default" results in suppressing all messages despite of as error, warning and default tagged messages. Not usable in conjunction with "-ban".
       -port string
             receiver device: 'ST-LINK'|'J-LINK'|serial name.
             The serial name is like 'COM12' for Windows or a Linux name like '/dev/tty/usb12'.
@@ -483,7 +483,7 @@ func TestHelpAll(t *testing.T) {
             If you do not refresh the list after adding source files and perform an "trice update" new generated IDs could be equal to
             IDs used in the added sources with the result that IDs in the added sources could get changed what you may not want.
             Using "trice u -IDMethod random" (default) makes the chance for such conflicts very low.
-            The "refresh" sub-command has no mantadory switches. Omitted optional switches are used with their default parameters.
+            The "refresh" sub-command has no mandatory switches. Omitted optional switches are used with their default parameters.
       -dry-run
             No changes applied but output shows what would happen.
             "trice refresh -dry-run" will change nothing but show changes it would perform without the "-dry-run" switch.
@@ -551,18 +551,18 @@ func TestHelpAll(t *testing.T) {
     example: 'trice renew': Rebuild ID list from source tree, discard old IDs.
     sub-command 's|scan': Shows available serial ports)
     example: 'trice s': Show COM ports.
-    sub-command 'sd|shutdown': Ends display server at IPA:IPP, works also on a remote mashine.
+    sub-command 'sd|shutdown': Ends display server at IPA:IPP, works also on a remote machine.
       -ipa string
             IP address like '127.0.0.1'.
-            You can specify this swich if you intend to use the remote display option to show the output on a different PC in the network.
+            You can specify this switch if you intend to use the remote display option to show the output on a different PC in the network.
              (default "localhost")
       -ipp string
             16 bit IP port number.
-            You can specify this swich if you want to change the used port number for the remote display functionality.
+            You can specify this switch if you want to change the used port number for the remote display functionality.
              (default "61497")
     example: 'trice sd': Shut down remote display server.
     sub-command 'ver|version': For displaying version information.
-            "trice v" will print the version information. In trice is unversioned the build time will be displayed instead.
+            "trice v" will print the version information. If trice is not versioned the build time will be displayed instead.
       -logfile string
             Append all output to logfile. Options are: 'off|none|filename|auto':
             "off": no logfile (same as "none")
@@ -579,7 +579,7 @@ func TestHelpAll(t *testing.T) {
             This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true.
     sub-command 'u|update': For updating ID list and source files.
             "trice update" will parse source tree(s) for new or changed TRICE macros, modify them appropriate and update/generate the JSON list.
-            The "update" sub-command has no mantadory switches. Omitted optional switches are used with their default parameters.
+            The "update" sub-command has no mandatory switches. Omitted optional switches are used with their default parameters.
       -IDMax value
             Upper end of ID range for normal trices. (default 65535)
       -IDMaxShort value
@@ -629,7 +629,7 @@ func TestHelpAll(t *testing.T) {
             This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true.
     example: 'trice update -src ../A -src ../../B': Parse ../A and ../../B with all subdirectories for TRICE IDs to update and adjusts til.json
     sub-command 'zeroSourceTreeIds': Set all Id(n) inside source tree dir to Id(0).
-            Avoid using this sub-command normally. The switch "-src" is mantadory and no multi-flag here.
+            Avoid using this sub-command normally. The switch "-src" is mandatory and no multi-flag here.
             This sub-command is mainly for testing. For several source directories you need several runs.
       -dry-run
             No changes applied but output shows what would happen.

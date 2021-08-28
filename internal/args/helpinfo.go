@@ -90,7 +90,7 @@ func refreshInfo() error {
 	If you do not refresh the list after adding source files and perform an "trice update" new generated IDs could be equal to 
 	IDs used in the added sources with the result that IDs in the added sources could get changed what you may not want.
 	Using "trice u -IDMethod random" (default) makes the chance for such conflicts very low.
-	The "refresh" sub-command has no mantadory switches. Omitted optional switches are used with their default parameters.`)
+	The "refresh" sub-command has no mandatory switches. Omitted optional switches are used with their default parameters.`)
 	fsScRefresh.SetOutput(os.Stdout)
 	fsScRefresh.PrintDefaults()
 	fmt.Println("example: 'trice refresh': Update ID list from source tree.")
@@ -114,7 +114,7 @@ func scanInfo() error {
 }
 
 func shutdownInfo() error {
-	_, e := fmt.Println("sub-command 'sd|shutdown': Ends display server at IPA:IPP, works also on a remote mashine.")
+	_, e := fmt.Println("sub-command 'sd|shutdown': Ends display server at IPA:IPP, works also on a remote machine.")
 	fsScSdSv.SetOutput(os.Stdout)
 	fsScSdSv.PrintDefaults()
 	fmt.Println("example: 'trice sd': Shut down remote display server.")
@@ -124,7 +124,7 @@ func shutdownInfo() error {
 func updateInfo() error {
 	_, e := fmt.Println(`sub-command 'u|update': For updating ID list and source files.
 	"trice update" will parse source tree(s) for new or changed TRICE macros, modify them appropriate and update/generate the JSON list.
-	The "update" sub-command has no mantadory switches. Omitted optional switches are used with their default parameters.`)
+	The "update" sub-command has no mandatory switches. Omitted optional switches are used with their default parameters.`)
 	fsScUpdate.SetOutput(os.Stdout)
 	fsScUpdate.PrintDefaults()
 	fmt.Println("example: 'trice update -src ../A -src ../../B': Parse ../A and ../../B with all subdirectories for TRICE IDs to update and adjusts til.json")
@@ -133,7 +133,7 @@ func updateInfo() error {
 
 func versionInfo() error {
 	_, e := fmt.Println(`sub-command 'ver|version': For displaying version information.
-	"trice v" will print the version information. In trice is unversioned the build time will be displayed instead.`)
+	"trice v" will print the version information. If trice is not versioned the build time will be displayed instead.`)
 	fsScVersion.SetOutput(os.Stdout)
 	fsScVersion.PrintDefaults()
 	return e
@@ -141,7 +141,7 @@ func versionInfo() error {
 
 func zeroIDsInfo() error {
 	fmt.Println(`sub-command 'zeroSourceTreeIds': Set all Id(n) inside source tree dir to Id(0). 
-	Avoid using this sub-command normally. The switch "-src" is mantadory and no multi-flag here.
+	Avoid using this sub-command normally. The switch "-src" is mandatory and no multi-flag here.
 	This sub-command is mainly for testing. For several source directories you need several runs.`)
 	fsScZero.SetOutput(os.Stdout)
 	fsScZero.PrintDefaults()

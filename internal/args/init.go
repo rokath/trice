@@ -78,11 +78,10 @@ If you need target timestamps you need to get the time inside the target and sen
 	fsScLog.StringVar(&emitter.Prefix, "prefix", DefaultPrefix, "Line prefix, options: any string or 'off|none' or 'source:' followed by 0-12 spaces, 'source:' will be replaced by source value e.g., 'COM17:'.") // flag
 	fsScLog.StringVar(&emitter.Suffix, "suffix", "", "Append suffix to all lines, options: any string.")                                                                                                           // flag
 
-	info := fmt.Sprint(`receiver device: 'ST-LINK'|'J-LINK'|serial name. 
+	info := `receiver device: 'ST-LINK'|'J-LINK'|serial name. 
 The serial name is like 'COM12' for Windows or a Linux name like '/dev/tty/usb12'. 
 Using a virtual serial COM port on the PC over a FTDI USB adapter is a most likely variant.
-`)
-
+`
 	fsScLog.StringVar(&receiver.Port, "port", "J-LINK", info)           // flag
 	fsScLog.StringVar(&receiver.Port, "p", "J-LINK", "short for -port") // short flag
 	fsScLog.IntVar(&com.Baud, "baud", 115200, `Set the serial port baudrate.
@@ -90,7 +89,7 @@ It is the only setup parameter. The other values default to 8N1 (8 data bits, no
 `) // flag flag
 
 	linkArgsInfo := `
-	The -RTTSearchRanges "..." need to be written without "" and with _ istead of space.
+	The -RTTSearchRanges "..." need to be written without "" and with _ instead of space.
 	For args options see JLinkRTTLogger in SEGGER UM08001_JLink.pdf.`
 
 	argsInfo := fmt.Sprint(`Use to pass port specific parameters. The "default" value depends on the used port:
@@ -122,9 +121,9 @@ Example: "trice l -port COM38 -ds -ipa 192.168.178.44" sends trice output to a p
 	flagIDList(fsScLog)
 	flagIPAddress(fsScLog)
 	fsScLog.Var(&emitter.Ban, "ban", `Channel(s) to ignore. This is a multi-flag switch. It can be used several times with a colon separated list of channel descriptors not to display.
-Example: "-ban dbg:wrn -ban diag" results in suppressing all as debug, diag and warning tagged messages. Not usable in conjuction with "-pick".`) // multi flag
+Example: "-ban dbg:wrn -ban diag" results in suppressing all as debug, diag and warning tagged messages. Not usable in conjunction with "-pick".`) // multi flag
 	fsScLog.Var(&emitter.Pick, "pick", `Channel(s) to display. This is a multi-flag switch. It can be used several times with a colon separated list of channel descriptors only to display.
-Example: "-pick err:wrn -pick default" results in suppressing all messages despite of as error, warning and default tagged messages. Not usable in conjuction with "-ban".`) // multi flag
+Example: "-pick err:wrn -pick default" results in suppressing all messages despite of as error, warning and default tagged messages. Not usable in conjunction with "-ban".`) // multi flag
 
 }
 
@@ -237,10 +236,10 @@ The specified JSON file is needed to display the ID coded trices during runtime 
 
 func flagIPAddress(p *flag.FlagSet) {
 	p.StringVar(&emitter.IPAddr, "ipa", "localhost", `IP address like '127.0.0.1'.
-You can specify this swich if you intend to use the remote display option to show the output on a different PC in the network.
+You can specify this switch if you intend to use the remote display option to show the output on a different PC in the network.
 `) // flag
 
 	p.StringVar(&emitter.IPPort, "ipp", "61497", `16 bit IP port number.
-You can specify this swich if you want to change the used port number for the remote display functionality.
+You can specify this switch if you want to change the used port number for the remote display functionality.
 `) // flag
 }

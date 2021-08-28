@@ -50,7 +50,7 @@ Tiny & super fast tracer code for embedded device real-time PC logging (trace ID
 
 - Printf-like trace macros `TRICE` and PC `trice` tool (written in [Go](https://en.wikipedia.org/wiki/Go_(programming_language))) for automatic ID managing & logging.
 - Communication without string transfer, just with IDs. Prerequisite: byte transmission to PC, low bandwidth is ok:
-  - method does'nt matter: \
+  - method does not matter: \
   [UART](https://en.wikipedia.org/wiki/Universal_asynchronous_receiver-transmitter), \
   [I²C](https://en.wikipedia.org/wiki/I%C2%B2C), \
   [SPI](https://en.wikipedia.org/wiki/Serial_Peripheral_Interface), \
@@ -85,7 +85,7 @@ Tiny & super fast tracer code for embedded device real-time PC logging (trace ID
     Trice8i( "sig:task %u -> %u\n", previousTaskID, nexTaskID );
 ```
 
- The execution of this code block produces totally 8 log bytes to vizualize the output on PC, what looks similar to this for 3 task switches:
+ The execution of this code block produces totally 8 log bytes to visualize the output on PC, what looks similar to this for 3 task switches:
 
 ![alt](./docs/README.media/taskSwitchTimesExample.PNG)
 
@@ -97,7 +97,7 @@ First are the PC reception timestamps and after the port info are the used trice
 
 - Mixed case trice macros are [short](./docs/TriceEncodings.md#flex-short-sub-encoding) trices and the letter i at the end says **i**nside critical section. (FLEX encoding)
 - `Trice16( "tim: myFunc %d\n", sysTick );` before and after a function call lets you easy measure the function execution time.
-- As graphical vizualisation you could use a tool similar to [https://github.com/sqshq/sampler](https://github.com/sqshq/sampler).
+- As graphical visualization you could use a tool similar to [https://github.com/sqshq/sampler](https://github.com/sqshq/sampler).
 
 ## Target timestamps?
 
@@ -140,7 +140,7 @@ or (if `-addParamCount` is used)
 Trice16_1( Id(12345), "MSG: %d Kelvin\n", k );
 ```
 
-and adds the *ID 12345* together with *"MSG: %d Kelvin\n"* into a **t**rice **I**D **l**ist, a JSON referece file named [til.json](https://github.com/rokath/trice/blob/master/til.json).
+and adds the *ID 12345* together with *"MSG: %d Kelvin\n"* into a **t**rice **I**D **l**ist, a JSON reference file named [til.json](https://github.com/rokath/trice/blob/master/til.json).
 
 - The *12345* is a randomly or policy generated ID not used so far.
 - With the `16` in Trice**16** you adjust the parameter size to 16 bit what allows more runtime efficient code compared to `32` or `64`.
@@ -151,7 +151,7 @@ This is a slightly simplified [view](https://github.com/jgraph/drawio):
 
 ![trice](./docs/README.media/trice4BlockDiagram.svg)
 
-- When the program flow passes the line `Trice16( Id(12345), "MSG: %d Kelvin\n", k );` the ID *12345* and the 16 bit temperature value are transfered as one combined 32 bit value into the triceFifo, what goes really fast. Different encodings are possible. The program flow is nearly undisturbed, so **TRICE macros are usable also inside interrupts or in the scheduler**.
+- When the program flow passes the line `Trice16( Id(12345), "MSG: %d Kelvin\n", k );` the ID *12345* and the 16 bit temperature value are transferred as one combined 32 bit value into the triceFifo, what goes really fast. Different encodings are possible. The program flow is nearly undisturbed, so **TRICE macros are usable also inside interrupts or in the scheduler**.
 - For visualization a background service is needed. In the simplest case it is just an UART triggered interrupt for triceFIFO reading. Or you can use [RTT](./docs/SeggerRTT.md).
 - So the whole target instrumentation are the trice macros, the trice fifo and the UART  ISR.
 - During runtime the PC trice tool receives the trice as a 4 byte package `0x30 0x39 0x00 0x0e` from the UART port.
@@ -161,7 +161,7 @@ This is a slightly simplified [view](https://github.com/jgraph/drawio):
 ## `trice` PC tool
 
 - Manages `TRICE` macro IDs inside a C or C++ source tree and extracts the strings in an ID-string list during target device compile time.
-- Displays `TRICE` macros like printf() output in realtime during target device runtime. The received IDs and parameters are printed out.
+- Displays `TRICE` macros like printf() output in real-time during target device runtime. The received IDs and parameters are printed out.
 - Can receive trices on several PCs and display them on a remote display server.
 - Written in [Go](https://github.com/golang/go), simply usage, no installer, needs to be in $PATH.
 
@@ -184,7 +184,7 @@ Because [one trice consists typically only of 4 to 8 bytes](./docs/TriceEncoding
 Switching trices on and off inside the target increases the overhead and demands some kind of command interface.
 If needed, always an `if` is usable.
 
-The trice tool can also perform further tasks like JSON encoding with additional log infomation and transferring this information to some webserver in the future.
+The trice tool can also perform further tasks like JSON encoding with additional log information and transferring this information to some webserver in the future.
 
 ## Display server option?
 
@@ -192,7 +192,7 @@ Yes, you can simply start `trice ds` inside a console, option: [third_party/alac
 
 ## How to keep ID reference file til.json for a long period?
 
-- Of course `git`, **but** it is not forbidden to compile til.json as a ressource into the embedded device and get it later back if you have enough flash memory.
+- Of course `git`, **but** it is not forbidden to compile til.json as a resource into the embedded device and get it later back if you have enough flash memory.
 
 ## How to start
 

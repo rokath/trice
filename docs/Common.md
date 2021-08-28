@@ -12,7 +12,7 @@ you can write
 TRICE8("time is %d:%d:%d\n", hour, min, sec);
 ```
 
-into a source file of your project. The `8` stands here for 8 bit values (`0`, `16`, `32` and `64` also possibe). Only values of the same size are allowed in one TRICE* statement, but you can use `TRICE32` consequently to match most cases for the prize of little overhead.
+into a source file of your project. The `8` stands here for 8 bit values (`0`, `16`, `32` and `64` also possible). Only values of the same size are allowed in one TRICE* statement, but you can use `TRICE32` consequently to match most cases for the prize of little overhead.
 
 When performing `trice update` the source (tree) is parsed and in result this line changes to
 
@@ -28,7 +28,7 @@ Automatically the ID is added to an [ID list](https://github.com/rokath/trice/bl
 The TRICE`8_3` means 3 bytes as parameters in this example and allows efficient code and a compile time check. From v0.26.0 on variadic macros supported.
 Per default the macro name `TRICE8` is not changed for a slightly more readable code. If you wish a compile time parameter count check use `-addParamCount` to the update command line to convert a `TRICE8` into a `TRICE8_3` in te above example. Legacy code with valid IDs is not modified (You can use sub-command `zeroSourceTreeIds` to go around that.)
 
-*The total amount of data is currently limitated to 8 parameters for TRICE8 or 4 parameters for TRICE16 and TRICE32 and two parameters for TRICE64, but this is easy to extend if needed.*
+*The total amount of data is currently limited to 8 parameters for TRICE8 or 4 parameters for TRICE16 and TRICE32 and two parameters for TRICE64, but this is easy to extend if needed.*
 
 When the embedded project is compiled, only the ID goes to the binary but not the format string, what results in a smaller memory footprint.
 
@@ -36,7 +36,7 @@ On execution the ID is pushed into a FIFO together with the optional trice param
 At 48 MHz the in time needed light travels less than 100 meters. Slightly delayed in the background the TRICE trace goes to the communication port, what is also fast compared to all the actions behind a `printf()` statement.
 
 Please understand, that when debugging code containing TRICE\* statements, during a TRICE\* step-over only  one ore more 32 bit values go into the internal fifo buffer and no serial output
-is visible because of the stopped target. But the SEGGER debug probe reads out the RTT memory and this way also during debug stepping realtime trice output is visible. That is (right now) not true for the STLINK interface because there is only one USB endpoint.
+is visible because of the stopped target. But the SEGGER debug probe reads out the RTT memory and this way also during debug stepping real-time trice output is visible. That is (right now) not true for the STLINK interface because there is only one USB endpoint.
 
 ## trice instructions: `TRICE`, `Trice` or `trice` with or without ending letter 'i'?
 
@@ -51,7 +51,7 @@ These are the fastest trices and with them the speed limit is reached.\
 ![x](README.media/Trice16_1-Code.PNG)\
 ![x](README.media/Trice16_1i-Code.PNG)\
 ![x](README.media/Trice16_1i.PNG)\
-The number in the blue lines is the current processor tick. For `Trice16_1i` the difference between neibours is about 13 clocks. \
+The number in the blue lines is the current processor tick. For `Trice16_1i` the difference between neighbors is about 13 clocks. \
 Short trices need 'id(0)' instead 'Id(0)' as important difference to normal trices. The `trice` tool will handle that for you.
 - Upper case `TRICE0`, `TRICE8_1`, ... `TRICE8_8`, `TRICE16_1`, ... `TRICE16_4`, `TRICE32_1`, ... `TRICE32_4`, `TRICE64_1`, `TRICE64_2` are normal trice macros. \
 They insert code directly (no function call) for better performance but the drawback is the rising code amount when many trices are used.
@@ -70,7 +70,7 @@ The following capture output comes from an example project inside`../test`
 ![life.gif](./README.media/life.gif)
 
 See [triceCheck.c](https://github.com/rokath/trice/blob/master/pkg/src/triceCheck.c) for reference.
-The trices can come mixed from inside interrupts (light blue `ISR:...`) or from normal code. For usage with a RTOS trices are protected against breaks (CRITICAL_SECTION). Regard the differences in the read SysTick values inside the GIF above These differeces are the MCU clocks needed for one trice (~0,25µs@48MHz).
+The trices can come mixed from inside interrupts (light blue `ISR:...`) or from normal code. For usage with a RTOS trices are protected against breaks (CRITICAL_SECTION). Regard the differences in the read SysTick values inside the GIF above These differences are the MCU clocks needed for one trice (~0,25µs@48MHz).
 
 Use the `-color off` switch for piping output in a file.
 
@@ -147,19 +147,19 @@ Quick workaround:
   - void triceTransmitData8( uint8_t d ){
     my_putchar( (char)d); // your code
   }
-  Call TxStart();TxContinue(); cyclicylly in sufficient long intervals like 1 ms
+  Call TxStart();TxContinue(); cyclically in sufficient long intervals like 1 ms
 ```
 
 - After compiling and flashing run `trice -port COMn -baud m` with n and m set to correct values
 - Now start your device and you should see the hello world message coming from your target. In fact the hello-world string never went to the embedded device, only the ID comes from  there and the string is found in the [til.json](https://github.com/rokath/trice/blob/master/til.json) file of your project.
-- If you use a legacy project containing `printf()` statements you can simply transform them to **TRICE\*** statements. TRICE32 will do in most cases but for better performance take **TRCE8** or **TRICE16** where possible.
-- `printf(...)` statements containing string format specifier are quickly portable by using `TRICE_P(...)` but without the trice space and speed advantage. The TRICE_P() is intended only for the few dynamic strings in a ported  projekt.  Enable `TRICE_PRINTF_ADAPTER` increases the needed code size by a few KB.
+- If you use a legacy project containing `printf()` statements you can simply transform them to **TRICE\*** statements. TRICE32 will do in most cases but for better performance take **TRICE8** or **TRICE16** where possible.
+- `printf(...)` statements containing string format specifier are quickly portable by using `TRICE_P(...)` but without the trice space and speed advantage. The TRICE_P() is intended only for the few dynamic strings in a ported  project.  Enable `TRICE_PRINTF_ADAPTER` increases the needed code size by a few KB.
 - It could be helpful to add `trice u ...` as prebuild step into your toolchain for each file or for the project as a whole.
   This way you cannot forget the update step, it performs automatically.
 
 ## Memory needs (ARM example project)
 
-Program Size (STM32-F030R8 demo project)     |trice instrumentation|buffer size|compiler optimze for time| comment
+Program Size (STM32-F030R8 demo project)     |trice instrumentation|buffer size|compiler optimize for time| comment
 ---------------------------------------------|------------------------|-----------|-------------------------|-----------------------------
 Code=1592 RO-data=236 RW-data= 4 ZI-data=1028|        none            |        0  |         off             | CubeMX generated, no trice
 Code=1712 RO-data=240 RW-data=24 ZI-data=1088|        core            |       64  |         off             | core added without trices
@@ -206,11 +206,11 @@ sub-command 'ds|displayServer': Starts a display server.
          (default "default")
   -ipa string
         IP address like '127.0.0.1'.
-        You can specify this swich if you intend to use the remote display option to show the output on a different PC in the network.
+        You can specify this switch if you intend to use the remote display option to show the output on a different PC in the network.
          (default "localhost")
   -ipp string
         16 bit IP port number.
-        You can specify this swich if you want to change the used port number for the remote display functionality.
+        You can specify this switch if you want to change the used port number for the remote display functionality.
          (default "61497")
   -logfile string
         Append all output to logfile. Options are: 'off|none|filename|auto':
@@ -218,7 +218,7 @@ sub-command 'ds|displayServer': Starts a display server.
         "none": no logfile (same as "off")
         "auto": Use as logfile name "2006-01-02_1504-05_trice.log" with actual time.
         "filename": Any other string than "auto", "none" or "off" is treated as a filename. If the file exists, logs are appended.
-        All trice output of the appropriate subcommands is appended per default into the logfile trice additionally to the normal output.
+        All trice output of the appropriate sub-commands is appended per default into the logfile trice additionally to the normal output.
         Change the filename with "-logfile myName.txt" or switch logging off with "-logfile none".
          (default "off")
 example: 'trice ds': Start display server.
@@ -242,7 +242,7 @@ sub-command 'h|help': For command line usage.
         "none": no logfile (same as "off")
         "auto": Use as logfile name "2006-01-02_1504-05_trice.log" with actual time.
         "filename": Any other string than "auto", "none" or "off" is treated as a filename. If the file exists, logs are appended.
-        All trice output of the appropriate subcommands is appended per default into the logfile trice additionally to the normal output.
+        All trice output of the appropriate sub-commands is appended per default into the logfile trice additionally to the normal output.
         Change the filename with "-logfile myName.txt" or switch logging off with "-logfile none".
          (default "off")
   -r    Show r|refresh specific help.
@@ -280,10 +280,10 @@ sub-command 'l|log': For displaying trice logs coming from port. With "trice log
         Use to pass port specific parameters. The "default" value depends on the used port:
         port "COMn": default="", use "TARM" for a different driver. (For baud rate settings see -baud.)
         port "J-LINK": default="-Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0 -RTTSearchRanges 0x20000000_0x1000",
-                The -RTTSearchRanges "..." need to be written without "" and with _ istead of space.
+                The -RTTSearchRanges "..." need to be written without "" and with _ instead of space.
                 For args options see JLinkRTTLogger in SEGGER UM08001_JLink.pdf.
         port "ST-LINK": default="-Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0 -RTTSearchRanges 0x20000000_0x1000",
-                The -RTTSearchRanges "..." need to be written without "" and with _ istead of space.
+                The -RTTSearchRanges "..." need to be written without "" and with _ instead of space.
                 For args options see JLinkRTTLogger in SEGGER UM08001_JLink.pdf.
         port "BUFFER": default="0 0 0 0", Option for args is any byte sequence.
          (default "default")
@@ -316,11 +316,11 @@ sub-command 'l|log': For displaying trice logs coming from port. With "trice log
          (default "til.json")
   -ipa string
         IP address like '127.0.0.1'.
-        You can specify this swich if you intend to use the remote display option to show the output on a different PC in the network.
+        You can specify this switch if you intend to use the remote display option to show the output on a different PC in the network.
          (default "localhost")
   -ipp string
         16 bit IP port number.
-        You can specify this swich if you want to change the used port number for the remote display functionality.
+        You can specify this switch if you want to change the used port number for the remote display functionality.
          (default "61497")
   -logfile string
         Append all output to logfile. Options are: 'off|none|filename|auto':
@@ -328,7 +328,7 @@ sub-command 'l|log': For displaying trice logs coming from port. With "trice log
         "none": no logfile (same as "off")
         "auto": Use as logfile name "2006-01-02_1504-05_trice.log" with actual time.
         "filename": Any other string than "auto", "none" or "off" is treated as a filename. If the file exists, logs are appended.
-        All trice output of the appropriate subcommands is appended per default into the logfile trice additionally to the normal output.
+        All trice output of the appropriate sub-commands is appended per default into the logfile trice additionally to the normal output.
         Change the filename with "-logfile myName.txt" or switch logging off with "-logfile none".
          (default "off")
   -p string
@@ -378,15 +378,15 @@ example: 'trice l': Display flexL data format trice log messages from default so
 example: 'trice l -port ST-LINK -v -s': Shows verbose version information and also the received raw bytes.
 sub-command 'r|refresh': For updating ID list from source files but does not change the source files.
         "trice refresh" will parse source tree(s) for TRICE macros, and refresh/generate the JSON list.
-        This command should be run on adding souce files to the project before the first time "trice update" is called.
+        This command should be run on adding source files to the project before the first time "trice update" is called.
         If the new source files contain TRICE macros with IDs these are added to til.json if not already used.
-        Already used IDs are reported, so you have the chance to remnove them from til.son and then do "trice u" again.
+        Already used IDs are reported, so you have the chance to remove them from til.son and then do "trice u" again.
         This way you can make sure to get the new sources unchanged in your list. (to do: -force switch)
         Already used IDs are replaced by new IDs during the next "trice update", so the old IDs in the list will survive.
         If you do not refresh the list after adding source files and perform an "trice update" new generated IDs could be equal to
         IDs used in the added sources with the result that IDs in the added sources could get changed what you may not want.
         Using "trice u -IDMethod random" (default) makes the chance for such conflicts very low.
-        The "refresh" sub-command has no mantadory switches. Omitted optional switches are used with their default parameters.
+        The "refresh" sub-command has no mandatory switches. Omitted optional switches are used with their default parameters.
   -dry-run
         No changes applied but output shows what would happen.
         "trice refresh -dry-run" will change nothing but show changes it would perform without the "-dry-run" switch.
@@ -442,25 +442,25 @@ sub-command 'renew': It is like refresh, but til.json is cleared first, so all '
 example: 'trice renew': Rebuild ID list from source tree, discard old IDs.
 sub-command 's|scan': Shows available serial ports)
 example: 'trice s': Show COM ports.
-sub-command 'sd|shutdown': Ends display server at IPA:IPP, works also on a remote mashine.
+sub-command 'sd|shutdown': Ends display server at IPA:IPP, works also on a remote machine.
   -ipa string
         IP address like '127.0.0.1'.
-        You can specify this swich if you intend to use the remote display option to show the output on a different PC in the network.
+        You can specify this switch if you intend to use the remote display option to show the output on a different PC in the network.
          (default "localhost")
   -ipp string
         16 bit IP port number.
-        You can specify this swich if you want to change the used port number for the remote display functionality.
+        You can specify this switch if you want to change the used port number for the remote display functionality.
          (default "61497")
 example: 'trice sd': Shut down remote display server.
 sub-command 'ver|version': For displaying version information.
-        "trice v" will print the version information. In trice is unversioned the build time will be displayed instead.
+        "trice v" will print the version information. If trice is not versioned the build time will be displayed instead.
   -logfile string
         Append all output to logfile. Options are: 'off|none|filename|auto':
         "off": no logfile (same as "none")
         "none": no logfile (same as "off")
         "auto": Use as logfile name "2006-01-02_1504-05_trice.log" with actual time.
         "filename": Any other string than "auto", "none" or "off" is treated as a filename. If the file exists, logs are appended.
-        All trice output of the appropriate subcommands is appended per default into the logfile trice additionally to the normal output.
+        All trice output of the appropriate sub-commands is appended per default into the logfile trice additionally to the normal output.
         Change the filename with "-logfile myName.txt" or switch logging off with "-logfile none".
          (default "off")
   -v    short for verbose
@@ -470,7 +470,7 @@ sub-command 'ver|version': For displaying version information.
         This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true.
 sub-command 'u|update': For updating ID list and source files.
         "trice update" will parse source tree(s) for new or changed TRICE macros, modify them appropriate and update/generate the JSON list.
-        The "update" sub-command has no mantadory switches. Omitted optional switches are used with their default parameters.
+        The "update" sub-command has no mandatory switches. Omitted optional switches are used with their default parameters.
   -IDMax value
         Upper end of ID range for normal trices. (default 65535)
   -IDMaxShort value
@@ -512,7 +512,7 @@ sub-command 'u|update': For updating ID list and source files.
         This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true.
 example: 'trice update -src ../A -src ../../B': Parse ../A and ../../B with all subdirectories for TRICE IDs to update and adjusts til.json
 sub-command 'zeroSourceTreeIds': Set all Id(n) inside source tree dir to Id(0).
-        Avoid using this sub-command normally. The switch "-src" is mantadory and no multi-flag here.
+        Avoid using this sub-command normally. The switch "-src" is mandatory and no multi-flag here.
         This sub-command is mainly for testing. For several source directories you need several runs.
   -dry-run
         No changes applied but output shows what would happen.
@@ -536,9 +536,9 @@ example: 'trice zeroSourceTreeIds -src ../A': Sets all TRICE IDs to 0 in ../A. U
 
 ### Logfile viewing
 
-`trice` generated logfiles with sub-command switch `-color off` are normal ASCII files. If they are with color codes, these are ANSI excape sequences.
+`trice` generated logfiles with sub-command switch `-color off` are normal ASCII files. If they are with color codes, these are ANSI escape sequences.
 
-- One easy view option is `less -R trice.log`. The linux command `less` is also available inside the VScode terminal.
+- One easy view option is `less -R trice.log`. The Linux command `less` is also available inside the VScode terminal.
 - Under Windows one could also download and use [ansifilter](https://sourceforge.net/projects/ansifilter/) for logfile viewing. A monospaced font is recommended.
 
 ### Color issues under Windows
@@ -547,4 +547,4 @@ example: 'trice zeroSourceTreeIds -src ../A': Sets all TRICE IDs to 0 in ../A. U
 [Windows console with ANSI colors handling](https://superuser.com/questions/413073/windows-console-with-ansi-colors-handling/1050078#1050078)\
 or simply use a Linux like terminal under windows, like git-bash.\
 One option is also to install Microsoft *Windows Terminal (Preview)* from inside the Microsoft store\
-and to start trice inside there. Unfortunally this can not be done automatically right now because of missing commandline switches.
+and to start trice inside there. Unfortunately this can not be done automatically right now because of missing commandline switches.

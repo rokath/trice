@@ -35,7 +35,7 @@ trice log -i ./myProject/til.json -p=COM3
 trice l -s COM3 -baud=9600 -format esc
 ```
 
-- Start displayserver on ip 127.0.0.1 (locahost) and port 61497
+- Start displayserver on ip 127.0.0.1 (localhost) and port 61497
 
 ```b
 trice ds
