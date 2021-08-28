@@ -51,7 +51,7 @@ func Handler(args []string) error {
 	subArgs := args[2:]
 	switch subCmd { // Check which sub-command is invoked.
 	default:
-		return fmt.Errorf("unknown subcommand '%s'. try: 'trice help|h'", subCmd)
+		return fmt.Errorf("unknown sub-command '%s'. try: 'trice help|h'", subCmd)
 	case "h", "help":
 		msg.OnErr(fsScHelp.Parse(subArgs))
 		distributeArgs()
