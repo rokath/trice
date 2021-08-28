@@ -80,7 +80,7 @@ func updateList(lu TriceIDLookUp) error {
 	return nil // SubCmdUpdate() // to do
 }
 
-// SubCmdUpdate is subcommand update
+// SubCmdUpdate is sub-command update
 func SubCmdUpdate() error {
 	lu := NewLut(FnJSON)
 	tflu := lu.reverse()

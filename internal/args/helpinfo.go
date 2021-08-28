@@ -12,7 +12,7 @@ import (
 	"github.com/rokath/trice/pkg/msg"
 )
 
-// scHelp is subcommand help. It prits usage to stdout.
+// scHelp is sub-command help. It prits usage to stdout.
 func scHelp() error {
 	if verbose {
 		fmt.Printf("\n*** https://github.com/rokath/trice ***\n\n")

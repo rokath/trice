@@ -9,7 +9,7 @@
 
 ### Config file options (not implemented yet)
 
-- The **trice** command accepts one and only one sub-command (which can be inside the config file) followed by optional flags: `trice [s|subcommand [-f|flag [value]] [...]]`
+- The **trice** command accepts one and only one sub-command (which can be inside the config file) followed by optional flags: `trice [s|sub-command [-f|flag [value]] [...]]`
 - The flags start with a single dash and are boolean or need a value separated by space or `=`.
 - Flags in square brackets `[]` are optional. If omitted they have a default value depending on the context.
 - Some flags can occur several times. Check with `trice h` for multi-flags.
@@ -37,4 +37,4 @@ Display help and locations of config files named *trice.conf* and all list files
 
 ### `trice c|config filename [...]`
 
-Use filename as config file and ignore all config files named *trice.conf*. If filename is *[path/]trice.conf* no other *trice.conf* is evaluated and it is searched only in the current directory or the specified path location. The config file must contain one and only one subcommand or a subcommand must be inside the command line.
+Use filename as config file and ignore all config files named *trice.conf*. If filename is *[path/]trice.conf* no other *trice.conf* is evaluated and it is searched only in the current directory or the specified path location. The config file must contain one and only one sub-command or a sub-command must be inside the command line.

@@ -38,18 +38,18 @@ func Handler(args []string) error {
 	}
 	cage.DefaultLogfileName = "2006-01-02_1504-05_trice.log"
 
-	// Verify that a subcommand has been provided: os.Arg[0] is the main command (trice), os.Arg[1] will be the subcommand.
+	// Verify that a sub-command has been provided: os.Arg[0] is the main command (trice), os.Arg[1] will be the sub-command.
 	if len(args) < 2 {
 		m := "no args, try: 'trice help'"
 		return errors.New(m)
 	}
 
-	// Switch on the subcommand. Parse the flags for appropriate FlagSet.
+	// Switch on the sub-command. Parse the flags for appropriate FlagSet.
 	// FlagSet.Parse() requires a set of arguments to parse as input.
-	// os.Args[2:] will be all arguments starting after the subcommand at os.Args[1]
+	// os.Args[2:] will be all arguments starting after the sub-command at os.Args[1]
 	subCmd := args[1]
 	subArgs := args[2:]
-	switch subCmd { // Check which subcommand is invoked.
+	switch subCmd { // Check which sub-command is invoked.
 	default:
 		return fmt.Errorf("unknown subcommand '%s'. try: 'trice help|h'", subCmd)
 	case "h", "help":
@@ -161,7 +161,7 @@ func logLoop() {
 	}
 }
 
-// scVersion is subcommand 'version'. It prints version information.
+// scVersion is sub-command 'version'. It prints version information.
 func scVersion() error {
 	cage.Enable()
 	defer cage.Disable()

@@ -29,7 +29,7 @@ See https://github.com/rokath/trice/blob/master/pkg/src/triceCheck.c for example
 )
 
 func init() {
-	fsScHelp = flag.NewFlagSet("help", flag.ContinueOnError) // subcommand
+	fsScHelp = flag.NewFlagSet("help", flag.ContinueOnError) // sub-command
 	fsScHelp.BoolVar(&allHelp, "all", false, "Show all help.")
 	fsScHelp.BoolVar(&displayServerHelp, "displayserver", false, "Show ds|displayserver specific help.")
 	fsScHelp.BoolVar(&displayServerHelp, "ds", false, "Show ds|displayserver specific help.")
@@ -55,7 +55,7 @@ func init() {
 }
 
 func init() {
-	fsScLog = flag.NewFlagSet("log", flag.ExitOnError)                                                                                                                         // subcommand
+	fsScLog = flag.NewFlagSet("log", flag.ExitOnError)                                                                                                                         // sub-command
 	fsScLog.StringVar(&decoder.Encoding, "encoding", "flexL", "The trice transmit data format type, options: 'esc|ESC|(flex|FLEX)[(l|L)'. Target device encoding must match.") // flag
 	fsScLog.StringVar(&decoder.Encoding, "e", "flexL", "Short for -encoding.")                                                                                                 // short flag
 	fsScLog.StringVar(&cipher.Password, "password", "", `The decrypt passphrase. If you change this value you need to compile the target with the appropriate key (see -showKeys).
@@ -129,17 +129,17 @@ Example: "-pick err:wrn -pick default" results in suppressing all messages despi
 }
 
 func init() {
-	fsScRefresh = flag.NewFlagSet("refresh", flag.ExitOnError) // subcommand
+	fsScRefresh = flag.NewFlagSet("refresh", flag.ExitOnError) // sub-command
 	flagsRefreshAndUpdate(fsScRefresh)
 }
 
 func init() {
-	fsScRenew = flag.NewFlagSet("renew", flag.ExitOnError) // subcommand
+	fsScRenew = flag.NewFlagSet("renew", flag.ExitOnError) // sub-command
 	flagsRefreshAndUpdate(fsScRenew)
 }
 
 func init() {
-	fsScUpdate = flag.NewFlagSet("update", flag.ExitOnError) // subcommand
+	fsScUpdate = flag.NewFlagSet("update", flag.ExitOnError) // sub-command
 	flagsRefreshAndUpdate(fsScUpdate)
 	fsScUpdate.Var(&id.Min, "IDMin", "Lower end of ID range for normal trices.")          // to do: this is no multi-flag.
 	fsScUpdate.Var(&id.Max, "IDMax", "Upper end of ID range for normal trices.")          // to do: this is no multi-flag.
@@ -159,24 +159,24 @@ func init() {
 }
 
 func init() {
-	fsScVersion = flag.NewFlagSet("version", flag.ContinueOnError) // subcommand
+	fsScVersion = flag.NewFlagSet("version", flag.ContinueOnError) // sub-command
 	flagLogfile(fsScVersion)
 	flagVerbosity(fsScVersion)
 }
 
 func init() {
-	fsScSv = flag.NewFlagSet("displayServer", flag.ExitOnError)            // subcommand
+	fsScSv = flag.NewFlagSet("displayServer", flag.ExitOnError)            // sub-command
 	fsScSv.StringVar(&emitter.ColorPalette, "color", "default", colorInfo) // flag
 	flagLogfile(fsScSv)
 	flagIPAddress(fsScSv)
 }
 
 func init() {
-	fsScScan = flag.NewFlagSet("scan", flag.ContinueOnError) // subcommand
+	fsScScan = flag.NewFlagSet("scan", flag.ContinueOnError) // sub-command
 }
 
 func init() {
-	fsScSdSv = flag.NewFlagSet("shutdownServer", flag.ExitOnError) // subcommand
+	fsScSdSv = flag.NewFlagSet("shutdownServer", flag.ExitOnError) // sub-command
 	flagIPAddress(fsScSdSv)
 }
 

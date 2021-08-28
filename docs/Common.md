@@ -26,7 +26,7 @@ TRICE8_3( Id(12345), "time is %d:%d:%d\n", hour, min, sec);
 as you like where ```12345``` is an as ID generated 20-bit (15-bit for short trices) random (upward|downward also possible) number not used so far. This is valid for the recommended **flex[L]** encoding. It supports more than 1 Million different trice IDs.
 Automatically the ID is added to an [ID list](https://github.com/rokath/trice/blob/master/til.json) together with the appropriate format string information.
 The TRICE`8_3` means 3 bytes as parameters in this example and allows efficient code and a compile time check. From v0.26.0 on variadic macros supported.
-Per default the macro name `TRICE8` is not changed for a slightly more readable code. If you wish a compile time parameter count check use `-addParamCount` to the update command line to convert a `TRICE8` into a `TRICE8_3` in te above example. Legacy code with valid IDs is not modified (You can use subcommand `zeroSourceTreeIds` to go around that.)
+Per default the macro name `TRICE8` is not changed for a slightly more readable code. If you wish a compile time parameter count check use `-addParamCount` to the update command line to convert a `TRICE8` into a `TRICE8_3` in te above example. Legacy code with valid IDs is not modified (You can use sub-command `zeroSourceTreeIds` to go around that.)
 
 *The total amount of data is currently limitated to 8 parameters for TRICE8 or 4 parameters for TRICE16 and TRICE32 and two parameters for TRICE64, but this is easy to extend if needed.*
 
@@ -173,27 +173,27 @@ Code=3808 RO-data=240 RW-data=36 ZI-data=1540|    TriceCheckSet()     |      512
 ## Encryption
 
 - You can deliver your device with encrypted trices. This way nobody is able to read the trices despite the service guy.
-- Implementd is XTEA but this is easy exchangeable.
-- The 8 byte blocks can get enrypted by enabling `#define ENRYPT...` inside *triceConfig.h*. You need to add `-key test` as **log** switch and you're done.
+- Implemented is XTEA but this is easy exchangeable.
+- The 8 byte blocks can get encrypted by enabling `#define ENCRYPT...` inside *triceConfig.h*. You need to add `-key test` as **log** switch and you're done.
 - Any password is usable instead of `test`. Simply add once the `-show` switch and copy the displayed passphrase into the *config.h* file.
 
 ## Options for `trice` tool
 
 The trice tool is very easy to use even it has a plenty of options. Most of them normally not needed.
-The trice tool can be started in several modes (subcommands), each with several mantadory or optional switches. Switches can have parameters or not.
+The trice tool can be started in several modes (sub-commands), each with several mandatory or optional switches. Switches can have parameters or not.
 
 ```b
-trice subcommand -switch1 -switch2 parameter -switch3 ...
+trice sub-command -switch1 -switch2 parameter -switch3 ...
 ```
 
-Which subcommand switches are usable for each subcommand is shown with `trice help -all`. This gives also information about their default values.
+Which sub-command switches are usable for each sub-command is shown with `trice help -all`. This gives also information about their default values.
 
 Output of `trice h -all`: (Actual version could slightly differ)
 
 ```b
 $ trice help -all
-syntax: 'trice subcommand' [params]
-subcommand 'ds|displayServer': Starts a display server.
+syntax: 'trice sub-command' [params]
+sub-command 'ds|displayServer': Starts a display server.
         Use in a separate console. On Windows use wt (https://github.com/microsoft/terminal) or a linux shell like git-bash to avoid ANSI color issues.
         Running "trice ds" inside a console opens a display server to be used for displaying the TRICE logs remotely.
         Several instances of 'trice l -ds -port ...' (for different ports) will send output there in parallel.
@@ -222,7 +222,7 @@ subcommand 'ds|displayServer': Starts a display server.
         Change the filename with "-logfile myName.txt" or switch logging off with "-logfile none".
          (default "off")
 example: 'trice ds': Start display server.
-subcommand 'h|help': For command line usage.
+sub-command 'h|help': For command line usage.
         "trice h" will print this help text as a whole.
   -all
         Show all help.
@@ -275,7 +275,7 @@ subcommand 'h|help': For command line usage.
 example 'trice h': Print short help.
 example 'trice h -all': Print all help.
 example 'trice h -log': Print log help.
-subcommand 'l|log': For displaying trice logs coming from port. With "trice log" the trice tool display mode is activated.
+sub-command 'l|log': For displaying trice logs coming from port. With "trice log" the trice tool display mode is activated.
   -args string
         Use to pass port specific parameters. The "default" value depends on the used port:
         port "COMn": default="", use "TARM" for a different driver. (For baud rate settings see -baud.)
@@ -376,7 +376,7 @@ subcommand 'l|log': For displaying trice logs coming from port. With "trice log"
 example: 'trice l -p COM15 -baud 38400': Display trice log messages from serial port COM15
 example: 'trice l': Display flexL data format trice log messages from default source J-LINK over Segger RTT protocol.
 example: 'trice l -port ST-LINK -v -s': Shows verbose version information and also the received raw bytes.
-subcommand 'r|refresh': For updating ID list from source files but does not change the source files.
+sub-command 'r|refresh': For updating ID list from source files but does not change the source files.
         "trice refresh" will parse source tree(s) for TRICE macros, and refresh/generate the JSON list.
         This command should be run on adding souce files to the project before the first time "trice update" is called.
         If the new source files contain TRICE macros with IDs these are added to til.json if not already used.
@@ -386,7 +386,7 @@ subcommand 'r|refresh': For updating ID list from source files but does not chan
         If you do not refresh the list after adding source files and perform an "trice update" new generated IDs could be equal to
         IDs used in the added sources with the result that IDs in the added sources could get changed what you may not want.
         Using "trice u -IDMethod random" (default) makes the chance for such conflicts very low.
-        The "refresh" subcommand has no mantadory switches. Omitted optional switches are used with their default parameters.
+        The "refresh" sub-command has no mantadory switches. Omitted optional switches are used with their default parameters.
   -dry-run
         No changes applied but output shows what would happen.
         "trice refresh -dry-run" will change nothing but show changes it would perform without the "-dry-run" switch.
@@ -413,7 +413,7 @@ subcommand 'r|refresh': For updating ID list from source files but does not chan
         For example "trice u -dry-run -v" is the same as "trice u -dry-run" but with more descriptive output.
         This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true.
 example: 'trice refresh': Update ID list from source tree.
-subcommand 'renew': It is like refresh, but til.json is cleared first, so all 'old' trices are removed. Use with care.
+sub-command 'renew': It is like refresh, but til.json is cleared first, so all 'old' trices are removed. Use with care.
   -dry-run
         No changes applied but output shows what would happen.
         "trice renew -dry-run" will change nothing but show changes it would perform without the "-dry-run" switch.
@@ -440,9 +440,9 @@ subcommand 'renew': It is like refresh, but til.json is cleared first, so all 'o
         For example "trice u -dry-run -v" is the same as "trice u -dry-run" but with more descriptive output.
         This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true.
 example: 'trice renew': Rebuild ID list from source tree, discard old IDs.
-subcommand 's|scan': Shows available serial ports)
+sub-command 's|scan': Shows available serial ports)
 example: 'trice s': Show COM ports.
-subcommand 'sd|shutdown': Ends display server at IPA:IPP, works also on a remote mashine.
+sub-command 'sd|shutdown': Ends display server at IPA:IPP, works also on a remote mashine.
   -ipa string
         IP address like '127.0.0.1'.
         You can specify this swich if you intend to use the remote display option to show the output on a different PC in the network.
@@ -452,7 +452,7 @@ subcommand 'sd|shutdown': Ends display server at IPA:IPP, works also on a remote
         You can specify this swich if you want to change the used port number for the remote display functionality.
          (default "61497")
 example: 'trice sd': Shut down remote display server.
-subcommand 'ver|version': For displaying version information.
+sub-command 'ver|version': For displaying version information.
         "trice v" will print the version information. In trice is unversioned the build time will be displayed instead.
   -logfile string
         Append all output to logfile. Options are: 'off|none|filename|auto':
@@ -468,9 +468,9 @@ subcommand 'ver|version': For displaying version information.
         Gives more informal output if used. Can be helpful during setup.
         For example "trice u -dry-run -v" is the same as "trice u -dry-run" but with more descriptive output.
         This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true.
-subcommand 'u|update': For updating ID list and source files.
+sub-command 'u|update': For updating ID list and source files.
         "trice update" will parse source tree(s) for new or changed TRICE macros, modify them appropriate and update/generate the JSON list.
-        The "update" subcommand has no mantadory switches. Omitted optional switches are used with their default parameters.
+        The "update" sub-command has no mantadory switches. Omitted optional switches are used with their default parameters.
   -IDMax value
         Upper end of ID range for normal trices. (default 65535)
   -IDMaxShort value
@@ -511,9 +511,9 @@ subcommand 'u|update': For updating ID list and source files.
         For example "trice u -dry-run -v" is the same as "trice u -dry-run" but with more descriptive output.
         This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true.
 example: 'trice update -src ../A -src ../../B': Parse ../A and ../../B with all subdirectories for TRICE IDs to update and adjusts til.json
-subcommand 'zeroSourceTreeIds': Set all Id(n) inside source tree dir to Id(0).
-        Avoid using this subcommand normally. The switch "-src" is mantadory and no multi-flag here.
-        This subcommand is mainly for testing. For several source directories you need several runs.
+sub-command 'zeroSourceTreeIds': Set all Id(n) inside source tree dir to Id(0).
+        Avoid using this sub-command normally. The switch "-src" is mantadory and no multi-flag here.
+        This sub-command is mainly for testing. For several source directories you need several runs.
   -dry-run
         No changes applied but output shows what would happen.
         "trice zeroSourceTreeIds -dry-run" will change nothing but show changes it would perform without the "-dry-run" switch.
@@ -524,7 +524,7 @@ example: 'trice zeroSourceTreeIds -src ../A': Sets all TRICE IDs to 0 in ../A. U
 ```
 
 <!---
-### Subcommand `check`
+### Sub-command `check`
 - `trice check` will check the JSON list and emit all TRICE statements inside the list once with a dataset.
 
 #### `check` switch '-dataset'
@@ -536,7 +536,7 @@ example: 'trice zeroSourceTreeIds -src ../A': Sets all TRICE IDs to 0 in ../A. U
 
 ### Logfile viewing
 
-`trice` generated logfiles with subcommand switch `-color off` are normal ASCII files. If they are with color codes, these are ANSI excape sequences.
+`trice` generated logfiles with sub-command switch `-color off` are normal ASCII files. If they are with color codes, these are ANSI excape sequences.
 
 - One easy view option is `less -R trice.log`. The linux command `less` is also available inside the VScode terminal.
 - Under Windows one could also download and use [ansifilter](https://sourceforge.net/projects/ansifilter/) for logfile viewing. A monospaced font is recommended.
