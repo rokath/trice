@@ -192,12 +192,11 @@ Hint: The value space itself is usable according to ID, for example a 32 bit val
 
 | ID coding                              | package length    | ID bits |   ID range  |   ID map area   |  remark
 | :------------------------------------- | -------------:    | ------: | ----------: |         -:      |  :-
-| ``                                     |       0           |    0    |         0   |                 |  reserved, usable as a special very short message consisting of only one 0-byte as COBS/R message|
-| `xxxxxxxx`                             |       1           |         |             |        -        |  256 reserved for other protocol
+| ``                                     |       0           |    0    |         0   |                 |  reserved
+| `xxxxxxxx`                             |       1           |         |             |                 |  256 reserved for other protocol
 | `1IIIIIII vvvvvvvv`                    |       2           |    7    | 0 ...   127 |     0 ...   127 |  128 Id's for 8-bit payload
 | `01IIIIII IIIIIIII`                    |       2           |   14    | 0 ... 16383 |     0 ... 16383 |  2^14 Id's for no payload
-| `00xxxxxx xxxxxxxx`                    |       2           |         |             |                 |  reserved for other protocol
-
+| `00xxxxxx xxxxxxxx`                    |       2           |         |             |                 |  reserved
 
 
 | ID coding                              | package length    | ID bits |   ID range  |   ID map area   |  remark
