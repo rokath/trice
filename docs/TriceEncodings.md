@@ -200,6 +200,8 @@ Hint: The value space itself is usable according to ID, for example a 32 bit val
 
 
 
+| ID coding                              | package length    | ID bits |   ID range  |   ID map area   |  remark
+| :------------------------------------- | -------------:    | ------: | ----------: |         -:      |  :-
 | `1IIIIIII vvvvvvvv vvvvvvvv`           |       3           |    7    | 0 ...   127 |   384 ...   511 |  2 value bytes, avoid IDs 0 and 1 for fast COBS/R encoding
 | `00IIIIII IIIIIIII vvvvvvvv`           |       3           |   14    | 0 ... 16383 | 16384 ... 32767 |  1 value byte
 | `01xxxxxx xxxxxxxx xxxxxxxx`           |       3           |         |             |        -        |  2^22 packets unused (reserved), usable as a special 3-bytes message
