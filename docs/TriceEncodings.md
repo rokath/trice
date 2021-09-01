@@ -193,10 +193,13 @@ Hint: The value space itself is usable according to ID, for example a 32 bit val
 | ID coding                              | package length    | ID bits |   ID range  |   ID map area   |  remark
 | :------------------------------------- | -------------:    | ------: | ----------: |         -:      |  :-
 | ``                                     |       0           |    0    |         0   |                 |  reserved, usable as a special very short message consisting of only one 0-byte as COBS/R message|
-| `IIIIIIIv`                             |       1           |    7    | 0 ...   127 |     0 ...   127 |  one value bit, avoid IDs 0 and 1 for fast COBS/R encoding
-| `1IIIIIII vvvvvvvv`                    |       2           |    7    | 0 ...   127 |   256 ...   383 |  1 value byte
-| `00IIIIII IIIIIIII`                    |       2           |   14    | 0 ... 16383 |  1024 ... 16383 |  0 ... 1023 unused, no value bytes
-| `01xxxxxx xxxxxxxx`                    |       2           |         |             |        -        |  2^14 packets unused (reserved), usable as a special 2-bytes message
+| `xxxxxxxx`                             |       1           |         |             |        -        |  256 reserved for other protocol
+| `1IIIIIII vvvvvvvv`                    |       2           |    7    | 0 ...   127 |     0 ...   127 |  128 Id's for 8-bit payload
+| `01IIIIII IIIIIIII`                    |       2           |   14    | 0 ... 16383 |     0 ... 16383 |  2^14 Id's for no payload
+| `00xxxxxx xxxxxxxx`                    |       2           |         |             |                 |  reserved for other protocol
+
+
+
 | `1IIIIIII vvvvvvvv vvvvvvvv`           |       3           |    7    | 0 ...   127 |   384 ...   511 |  2 value bytes, avoid IDs 0 and 1 for fast COBS/R encoding
 | `00IIIIII IIIIIIII vvvvvvvv`           |       3           |   14    | 0 ... 16383 | 16384 ... 32767 |  1 value byte
 | `01xxxxxx xxxxxxxx xxxxxxxx`           |       3           |         |             |        -        |  2^22 packets unused (reserved), usable as a special 3-bytes message
