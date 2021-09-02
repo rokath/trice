@@ -632,7 +632,7 @@ extern uint8_t triceCycle;
 //! c0     c1     c2       c3
 //! ...
 //! cLen-3 cLen-2 cLen-1   cLen
-//! \todo code needs to be checked on a big endian mashine.
+//! \todo code needs to be checked on a big endian machine.
 TRICE_INLINE void trice_s(uint32_t id, char *s) {
     TRICE_ENTER_CRITICAL_SECTION
     int i = 0;
