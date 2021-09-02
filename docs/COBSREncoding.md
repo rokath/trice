@@ -125,7 +125,50 @@ One byte packages are fast COBS/R codable by simply incrementing the 2 values `0
 
 ## Decoded COBS/R package interpreter
 
-How the packages are to interpret is a question of software configuration. When a decoded COBS/R package is to interpret, the known package length is used to choose the right interpreter. For example all multiple of 8 length packages are possibly XTEA encrypted. Also a fixed-size ID is usable. It is also possible to have several `trice` messages inside a packet. That makes sense to reach a multiple of 8-byte message length good for encryption.
+- How the packages are to interpret is a question of software configuration.
+- When a decoded COBS/R package is to interpret, the known package length is used to choose the right interpreter. 
+  - For example all multiple of 8 length packages are possibly XTEA encrypted.
+  - Also a fixed-size ID is usable. 
+  - It is also possible to have several `trice` messages inside a packet. That makes sense to reach a multiple of 8-byte message length good for encryption.
+- When an COBS/R package was successfully transmitted and decoded its interpretation is a matter of the general configuration.
+- The package length after COBS/R decoding and optionally the first bits are the key for the package interpretation.
+  - For example package lengths 0, 1, 5, 7, 9, 11-17, 19 and more are free usable for other protocols.
+  - Package lengths 2, 3, 4, 6, 10 starting with a 1 are trice logs.  
+  - Package lengths 2, 3, 4, 6, 10 starting with a 0 are free usable for other protocols.  
+
+| ID coding                                                                                   | package length    | ID bits |   ID range  |   ID map area   |  remark
+| :-------------------------------------                                                      | -------------:    | ------: | ----------: |         -:      |  :-
+| ``                                                                                          |       0           |         |             |                 | reserved
+| `xxxxxxxx`                                                                                  |       1           |         |             |                 | reserved
+| `1IIIIIII IIIIIIII`                                                                         |       2           |   15    | 0 ... 32767 |                 | 2^15  Id's for no payload
+| `0xxxxxxx xxxxxxxx`                                                                         |       2           |         |             |                 | reserved
+| `1IIIIIII IIIIIIII vvvvvvvv`                                                                |       3           |   15    | 0 ... 32767 |                 | 2^15  Id's for a 1-byte payload
+| `0xxxxxxx xxxxxxxx xxxxxxxx`                                                                |       3           |         |             |                 | reserved
+| `1IIIIIII IIIIIIII vvvvvvvv vvvvvvvv`                                                       |       4           |   15    | 0 ... 32767 |                 | 2^15  Id's for a 2-bytes payload
+| `0xxxxxxx xxxxxxxx xxxxxxxx xxxxxxxx`                                                       |       4           |         |             |                 | reserved
+| `xxxxxxxx xxxxxxxx xxxxxxxx xxxxxxxx xxxxxxxx`                                              |       5           |         |             |                 | reserved
+| `1IIIIIII IIIIIIII vvvvvvvv vvvvvvvv vvvvvvvv vvvvvvvv`                                     |       6           |   15    | 0 ... 32767 |                 | 2^15  Id's for a 4-bytes payload
+| `0xxxxxxx xxxxxxxx xxxxxxxx xxxxxxxx xxxxxxxx xxxxxxxx`                                     |       6           |         |             |                 | reserved
+| `xxxxxxxx xxxxxxxx xxxxxxxx xxxxxxxx xxxxxxxx xxxxxxxx xxxxxxxx`                            |       7           |         |             |                 | reserved
+| `eeeeeeee eeeeeeee eeeeeeee eeeeeeee eeeeeeee eeeeeeee eeeeeeee eeeeeeee`                   |       8           |         |             |                 | encrypted message
+| `dddddddd dddddddd dddddddd dddddddd dddddddd dddddddd dddddddd dddddddd`                   |       8           |         |             |                 | decrypted message (details tbd.)
+| `xxxxxxxx xxxxxxxx xxxxxxxx xxxxxxxx xxxxxxxx xxxxxxxx xxxxxxxx xxxxxxxx xxxxxxxx`          |       9           |         |             |                 | reserved
+| `1IIIIIII IIIIIIII vvvvvvvv vvvvvvvv vvvvvvvv vvvvvvvv vvvvvvvv vvvvvvvv vvvvvvvv vvvvvvvv` |      10           |   15    | 0 ... 32767 |                 | 2^15  Id's for a 8-bytes payload
+| `0xxxxxxx xxxxxxxx xxxxxxxx xxxxxxxx xxxxxxxx xxxxxxxx xxxxxxxx xxxxxxxx xxxxxxxx xxxxxxxx` |      10           |         |             |                 | reserved
+| `X * xxxxxxxx`                                                                              | 11\-17 & 19\-...  |         |             |                 | reserved
+| `1IIIIIII IIIIIIII + 16 * vvvvvvvv`                                                         |      18           |   15    | 0 ... 32767 |                 | 2^15  Id's for a 16 bytes payload
+
+## Data encryption and double COBS/R encoding
+
+- All decoded COBS/R packets with a byte count not equal 8, 16, 32, 64 or 128 are not encrypted.
+- Decoded COBS/R packets with a byte count equal 8, 16, 32, 64 or 128 are assumed to be encrypted.
+- Despite encrypted or not, these form after a possible decryption or directly a separate COBS/R sequence. That means, these packet lengths are double COBS/R encoded.
+  - So lets receive 5 COBS/R packages (delimited by a `00`), which after decoding are all together a 40 bytes stream, which can contain some `00` bytes.
+  - Probably some padding `00` bytes too at the end.
+  - Than this is treated again as COBS/R encoded stream to get the original packages for interpretation.
+
+
+
 
 
 - Examples for ID - value apportionment (these are only thinkable options):
@@ -160,15 +203,6 @@ Hint: The value space itself is usable according to ID, for example a 32 bit val
 - How many value bits are following an ID and how they are to interpret is coded inside the ID information.
 -->
 
-- When an COBS/R package was successfully transmitted and decoded its interpretation is a matter of the general configuration.
-
-| ID coding                              | package length    | ID bits |   ID range  |   ID map area   |  remark
-| :------------------------------------- | -------------:    | ------: | ----------: |         -:      |  :-
-| ``                                     |       0           |    0    |         0   |                 |  reserved
-| `xxxxxxxx`                             |       1           |         |             |                 |  256 reserved for other protocol
-| `1IIIIIII vvvvvvvv`                    |       2           |    7    | 0 ...   127 |     0 ...   127 |  128 Id's for 8-bit payload
-| `01IIIIII IIIIIIII`                    |       2           |   14    | 0 ... 16383 |     0 ... 16383 |  2^14 Id's for no payload
-| `00xxxxxx xxxxxxxx`                    |       2           |         |             |                 |  reserved
 
 
 | ID coding                              | package length    | ID bits |   ID range  |   ID map area   |  remark
