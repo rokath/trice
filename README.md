@@ -59,7 +59,7 @@ Tiny & super fast tracer code for embedded device real-time PC logging (trace ID
   [CAN](https://en.wikipedia.org/wiki/CAN_bus), \
   [LIN](https://en.wikipedia.org/wiki/Local_Interconnect_Network), ...
 - "log in (a) trice" ([S>G](https://www.screentogif.com/)) ![ ](./docs/README.media/life0.gif)
-- Main idea: Logging strings **not** into an embedded device to display them later on a PC but keep usage comfortable and simple.
+- Main idea: Logging strings **not** into an embedded device to display them later on a PC but keep **usage comfortable and simple**.
 
 ## `TRICE` macros for C & C++ code
 
