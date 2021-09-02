@@ -265,6 +265,6 @@ Yes please: May be you create a graphical display server, have a cool idea, a po
 git clone https://github.com/rokath/trice.git
 ```
 
-## Alternative solution
+## Similar projects
 
-Maybe you find this project interesting too: [baical.net](http://baical.net/index.html)
+[http://baical.net](http://baical.net)
