@@ -60,7 +60,7 @@ func Example_doit_b() {
 	os.Args = os.Args[:0]
 	m.Unlock()
 	// Output:
-	// unknown subcommand 'wrong'. try: 'trice help|h'
+	// unknown sub-command 'wrong'. try: 'trice help|h'
 }
 
 func TestDoit_ver(t *testing.T) {
