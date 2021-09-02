@@ -7,7 +7,7 @@
 - The trice tool can use the SEGGER RTT protocol in different ways.
   - Hardware paths:
     - Use [J-Link](https://www.segger.com/products/debug-probes/j-link/) or [J-Link OB (on-board)](https://www.segger.com/products/debug-probes/j-link/models/j-link-ob/).
-      J-Link OB is flashable to many ST Microelectronics evaluation boards (v2.0 link hardware) and for example also usable with NXP and Atmel. For that you can also use a spare STM32 evaluation board (10 EUR) with jumper changes and breakout wires.
+      J-Link OB can be flashed to many ST Microelectronics evaluation boards (v2.0 link hardware) and for example also usable with NXP and Atmel. For that you can also use a spare STM32 evaluation board (10 EUR) with jumper changes and breakout wires.
     - Use ST-Link with [gostlink](https://github.com/rokath/trice/blob/master/third_party/goST/ReadMe.md).
       It uses only one USB endpoint so debugging and trice output in parallel is not possible.
     - Use some other Debug-Probe with target memory access (support welcome)
@@ -21,7 +21,7 @@
       writes to a logfile which in turn is read by the trice tool. On exit the `stRttLogger.exe` is killed automatically.\
       It expects a target sending messages over RTT channel 0 (other channels supported too).\
       It is possible to start several instances on different channels as well as on different targets.
-      - If you have the choice, prefer J-Link. It allowes parallel debugging and trice output.
+      - If you have the choice, prefer J-Link. It allows parallel debugging and trice output.
       - The full -args string is normally required and depends on the used device. Example: `trice l -args="-Device STM32F070RB -if SWD -Speed 4000 -RTTChannel 0 -RTTSearchRanges 0x20000000_0x1000"`. Enter `trice h -log` and read info for `-args` switch:
 
 ```
@@ -29,10 +29,10 @@
         Use to pass port specific parameters. The "default" value depends on the used port:
         port "COMn": default="", use "TARM" for a different driver. (For baud rate settings see -baud.)
         port "J-LINK": default="-Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0 -RTTSearchRanges 0x20000000_0x1000",
-                The -RTTSearchRanges "..." need to be written without extra "" and with _ istead of space.
+                The -RTTSearchRanges "..." need to be written without extra "" and with _ instead of space.
                 For args options see JLinkRTTLogger in SEGGER UM08001_JLink.pdf.
         port "ST-LINK": default="-Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0 -RTTSearchRanges 0x20000000_0x1000",
-                The -RTTSearchRanges "..." need to be written without extra "" and with _ istead of space.
+                The -RTTSearchRanges "..." need to be written without extra "" and with _ instead of space.
                 For args options see JLinkRTTLogger in SEGGER UM08001_JLink.pdf.
         port "BUFFER": default="0 0 0 0", Option for args is any byte sequence.
          (default "default")
@@ -70,7 +70,7 @@ Following steps describe the needed action for a ST Microelectronics evaluation 
       trice log -p JLINK
       ```
 
-    - trice outout is visible
+    - trice output is visible
     - With `h`alt and `g`o inside the Jlink window the MCU can get haltes and released
     - It is possible in parallel to debug-step with a debugger (tested with ARM-MDK)
 
@@ -90,7 +90,7 @@ Following steps describe the needed action for a ST Microelectronics evaluation 
     - Logs in a file, so `trice` needs to read from that file
     - ...
   - **UNKNOWN:**
-    - If several instances can watch on different RTT chanels and all goes in parallel to debugging.
+    - If several instances can watch on different RTT channels and all goes in parallel to debugging.
   - **TESTED:**
     - Create file
 

@@ -6,7 +6,7 @@ Trice bytes can be encodend in different flawors and it is easy to devvelop a ne
 
 ## Quick start recommendation
 
-- Use **flexL** encoding if your target processor is a little endian mashine, otherwise use **flex**
+- Use **flexL** encoding if your target processor is a little endian machine, otherwise use **flex**
 - The `trice` tool assumes **flexL** per default, so no need for commandline switch `-enc flexL`.
 
 ```c

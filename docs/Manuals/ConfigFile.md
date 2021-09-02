@@ -12,7 +12,7 @@
   - In that case it looks also for a config file named *trice.conf.json* for additional settings.
   - Settings in the commandline have always higher priority.
   - The search for a config file named *trice.conf.json* can be suppressed by **-no-conf**
-- The `trice` command accepts a config *filename.json* followed optionally by a subcommand plus parameters.
+- The `trice` command accepts a config *filename.json* followed optionally by a sub-command plus parameters.
   - In that case no search for a config file named *trice.conf.json* is done.
   - Settings in the commandline have always higher priority.
 
@@ -28,5 +28,5 @@
   - Additional a config file can be specified in the command line as first parameter
   - command line parameters
 - If the */trice/executable/folder* is part of */path/to/current/folder/*, the config file */trice/executable/folder/trice.conf.json* is loaded twice resulting the the appropriate config priority
-- The last subcommand is the winner.
+- The last sub-command is the winner.
 - Parameters of other subcommands are ignored.

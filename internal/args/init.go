@@ -29,7 +29,7 @@ See https://github.com/rokath/trice/blob/master/pkg/src/triceCheck.c for example
 )
 
 func init() {
-	fsScHelp = flag.NewFlagSet("help", flag.ContinueOnError) // subcommand
+	fsScHelp = flag.NewFlagSet("help", flag.ContinueOnError) // sub-command
 	fsScHelp.BoolVar(&allHelp, "all", false, "Show all help.")
 	fsScHelp.BoolVar(&displayServerHelp, "displayserver", false, "Show ds|displayserver specific help.")
 	fsScHelp.BoolVar(&displayServerHelp, "ds", false, "Show ds|displayserver specific help.")
@@ -55,7 +55,7 @@ func init() {
 }
 
 func init() {
-	fsScLog = flag.NewFlagSet("log", flag.ExitOnError)                                                                                                                         // subcommand
+	fsScLog = flag.NewFlagSet("log", flag.ExitOnError)                                                                                                                         // sub-command
 	fsScLog.StringVar(&decoder.Encoding, "encoding", "flexL", "The trice transmit data format type, options: 'esc|ESC|(flex|FLEX)[(l|L)'. Target device encoding must match.") // flag
 	fsScLog.StringVar(&decoder.Encoding, "e", "flexL", "Short for -encoding.")                                                                                                 // short flag
 	fsScLog.StringVar(&cipher.Password, "password", "", `The decrypt passphrase. If you change this value you need to compile the target with the appropriate key (see -showKeys).
@@ -78,11 +78,10 @@ If you need target timestamps you need to get the time inside the target and sen
 	fsScLog.StringVar(&emitter.Prefix, "prefix", DefaultPrefix, "Line prefix, options: any string or 'off|none' or 'source:' followed by 0-12 spaces, 'source:' will be replaced by source value e.g., 'COM17:'.") // flag
 	fsScLog.StringVar(&emitter.Suffix, "suffix", "", "Append suffix to all lines, options: any string.")                                                                                                           // flag
 
-	info := fmt.Sprint(`receiver device: 'ST-LINK'|'J-LINK'|serial name. 
+	info := `receiver device: 'ST-LINK'|'J-LINK'|serial name. 
 The serial name is like 'COM12' for Windows or a Linux name like '/dev/tty/usb12'. 
 Using a virtual serial COM port on the PC over a FTDI USB adapter is a most likely variant.
-`)
-
+`
 	fsScLog.StringVar(&receiver.Port, "port", "J-LINK", info)           // flag
 	fsScLog.StringVar(&receiver.Port, "p", "J-LINK", "short for -port") // short flag
 	fsScLog.IntVar(&com.Baud, "baud", 115200, `Set the serial port baudrate.
@@ -90,7 +89,7 @@ It is the only setup parameter. The other values default to 8N1 (8 data bits, no
 `) // flag flag
 
 	linkArgsInfo := `
-	The -RTTSearchRanges "..." need to be written without "" and with _ istead of space.
+	The -RTTSearchRanges "..." need to be written without "" and with _ instead of space.
 	For args options see JLinkRTTLogger in SEGGER UM08001_JLink.pdf.`
 
 	argsInfo := fmt.Sprint(`Use to pass port specific parameters. The "default" value depends on the used port:
@@ -122,24 +121,24 @@ Example: "trice l -port COM38 -ds -ipa 192.168.178.44" sends trice output to a p
 	flagIDList(fsScLog)
 	flagIPAddress(fsScLog)
 	fsScLog.Var(&emitter.Ban, "ban", `Channel(s) to ignore. This is a multi-flag switch. It can be used several times with a colon separated list of channel descriptors not to display.
-Example: "-ban dbg:wrn -ban diag" results in suppressing all as debug, diag and warning tagged messages. Not usable in conjuction with "-pick".`) // multi flag
+Example: "-ban dbg:wrn -ban diag" results in suppressing all as debug, diag and warning tagged messages. Not usable in conjunction with "-pick".`) // multi flag
 	fsScLog.Var(&emitter.Pick, "pick", `Channel(s) to display. This is a multi-flag switch. It can be used several times with a colon separated list of channel descriptors only to display.
-Example: "-pick err:wrn -pick default" results in suppressing all messages despite of as error, warning and default tagged messages. Not usable in conjuction with "-ban".`) // multi flag
+Example: "-pick err:wrn -pick default" results in suppressing all messages despite of as error, warning and default tagged messages. Not usable in conjunction with "-ban".`) // multi flag
 
 }
 
 func init() {
-	fsScRefresh = flag.NewFlagSet("refresh", flag.ExitOnError) // subcommand
+	fsScRefresh = flag.NewFlagSet("refresh", flag.ExitOnError) // sub-command
 	flagsRefreshAndUpdate(fsScRefresh)
 }
 
 func init() {
-	fsScRenew = flag.NewFlagSet("renew", flag.ExitOnError) // subcommand
+	fsScRenew = flag.NewFlagSet("renew", flag.ExitOnError) // sub-command
 	flagsRefreshAndUpdate(fsScRenew)
 }
 
 func init() {
-	fsScUpdate = flag.NewFlagSet("update", flag.ExitOnError) // subcommand
+	fsScUpdate = flag.NewFlagSet("update", flag.ExitOnError) // sub-command
 	flagsRefreshAndUpdate(fsScUpdate)
 	fsScUpdate.Var(&id.Min, "IDMin", "Lower end of ID range for normal trices.")          // to do: this is no multi-flag.
 	fsScUpdate.Var(&id.Max, "IDMax", "Upper end of ID range for normal trices.")          // to do: this is no multi-flag.
@@ -159,24 +158,24 @@ func init() {
 }
 
 func init() {
-	fsScVersion = flag.NewFlagSet("version", flag.ContinueOnError) // subcommand
+	fsScVersion = flag.NewFlagSet("version", flag.ContinueOnError) // sub-command
 	flagLogfile(fsScVersion)
 	flagVerbosity(fsScVersion)
 }
 
 func init() {
-	fsScSv = flag.NewFlagSet("displayServer", flag.ExitOnError)            // subcommand
+	fsScSv = flag.NewFlagSet("displayServer", flag.ExitOnError)            // sub-command
 	fsScSv.StringVar(&emitter.ColorPalette, "color", "default", colorInfo) // flag
 	flagLogfile(fsScSv)
 	flagIPAddress(fsScSv)
 }
 
 func init() {
-	fsScScan = flag.NewFlagSet("scan", flag.ContinueOnError) // subcommand
+	fsScScan = flag.NewFlagSet("scan", flag.ContinueOnError) // sub-command
 }
 
 func init() {
-	fsScSdSv = flag.NewFlagSet("shutdownServer", flag.ExitOnError) // subcommand
+	fsScSdSv = flag.NewFlagSet("shutdownServer", flag.ExitOnError) // sub-command
 	flagIPAddress(fsScSdSv)
 }
 
@@ -237,10 +236,10 @@ The specified JSON file is needed to display the ID coded trices during runtime 
 
 func flagIPAddress(p *flag.FlagSet) {
 	p.StringVar(&emitter.IPAddr, "ipa", "localhost", `IP address like '127.0.0.1'.
-You can specify this swich if you intend to use the remote display option to show the output on a different PC in the network.
+You can specify this switch if you intend to use the remote display option to show the output on a different PC in the network.
 `) // flag
 
 	p.StringVar(&emitter.IPPort, "ipp", "61497", `16 bit IP port number.
-You can specify this swich if you want to change the used port number for the remote display functionality.
+You can specify this switch if you want to change the used port number for the remote display functionality.
 `) // flag
 }
