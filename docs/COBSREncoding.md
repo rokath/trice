@@ -130,7 +130,7 @@ One byte packages are fast COBS/R codable by simply incrementing the 2 values `0
   - For example all multiple of 8 length packages are possibly XTEA encrypted.
   - Also a fixed-size ID is usable. 
   - It is also possible to have several `trice` messages inside a packet. That makes sense to reach a multiple of 8-byte message length good for encryption.
-- When an COBS/R package was successfully transmitted and decoded its interpretation is a matter of the general configuration.
+- When an COBS/R package was successfully transmitted and decoded, its interpretation is a matter of the general configuration.
 - The package length after COBS/R decoding and optionally the first bits are the key for the package interpretation.
   - For example package lengths 0, 1, 5, 7, 9, 11-17, 19 and more are free usable for other protocols.
   - Package lengths 2, 3, 4, 6, 10 starting with a 1 are trice logs.  
@@ -162,14 +162,14 @@ One byte packages are fast COBS/R codable by simply incrementing the 2 values `0
 
 - All decoded COBS/R packets with a byte count not equal 8, 16, 32, 64 or 128 are not encrypted.
 - Decoded COBS/R packets with a byte count equal 8, 16, 32, 64 or 128 are assumed to be encrypted.
-- Despite encrypted or not, these form after a possible decryption or directly a separate COBS/R sequence. That means, these packet lengths are double COBS/R encoded.
-  - So lets receive 5 COBS/R packages (delimited by a `00`), which after decoding are all together a 40 bytes stream, which can contain some `00` bytes.
-  - Probably some padding `00` bytes too at the end.
+- Despite encrypted or not, these form after a possible decryption, or directly, a separate COBS/R sequence. That means, these packet lengths are double COBS/R encoded.
+  - So lets receive 5 COBS/R packages (delimited by a `00`), which after decoding each 8 bytes, all together a 40 bytes stream, which can contain some `00` bytes.
+  - Probably some padding `00` bytes at the end.
   - Than this is treated again as COBS/R encoded stream to get the original packages for interpretation.
 
 
 
-
+### Legacy stuff
 
 - Examples for ID - value apportionment (these are only thinkable options):
 
