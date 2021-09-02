@@ -29,7 +29,7 @@ const (
 	patFmtString = `"(.*)"`
 
 	// patNbTRICE is a regex pattern matching any "TRICE*(Id(n), "", ... )". - see https://regex101.com/r/mllhNQ/1
-	patNbTRICE = patTypNameTRICE + `\s*\(` + patID + `\(\s*.*[0-9]\s*\)\s*,\s*` + patFmtString + `\s*.*\)\s*;`
+	patNbTRICE = patTypNameTRICE + `\s*\(` + patID + `\(\s*.*[0-9]\s*\)\s*,\s*` + patFmtString + `\s*.*\)`
 
 	// https://regex101.com/r/hWMjhU/3 - match any kind of trice with or without len or ID
 	patFullAnyTrice = patTypNameTRICE + `\s*\(\s*(` + patID + `\((\s*\d+)\s*\)\s*,)?\s*` + patFmtString + `\s*.*\)`

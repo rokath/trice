@@ -51,7 +51,7 @@ type ColorDisplay struct {
 	lw      LineWriter
 }
 
-// NewColorDisplay creates a ColorlDisplay. It provides a Linewriter.
+// NewColorDisplay creates a ColorDisplay. It provides a Linewriter.
 // It uses internally a local display combined with a line transformer.
 func NewColorDisplay(colorPalette string) *ColorDisplay {
 

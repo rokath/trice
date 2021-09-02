@@ -1,6 +1,6 @@
 # ![TriceGirlS.png](./docs/README.media/TriceGirl-167x222.png) **Trice** <- **TR**~~ace~~ **I**~~ds~~ **C** **E**~~mbedded~~  
 
-Tiny & fast tracer code for embedded device real-time PC logging (trace ID visualization) over any port.
+Tiny & super fast tracer code for embedded device real-time PC logging (trace ID visualization) over any port. The **trice** tool is written in [Go](https://golang.org/) and therefore usable on all platforms Go supports.
 
 ## Info shields
 
@@ -60,7 +60,7 @@ Tiny & fast tracer code for embedded device real-time PC logging (trace ID visua
   [CAN](https://en.wikipedia.org/wiki/CAN_bus), \
   [LIN](https://en.wikipedia.org/wiki/Local_Interconnect_Network), ...
 - "log in (a) trice" ([S>G](https://www.screentogif.com/)) ![ ](./docs/README.media/life0.gif)
-- Main idea: Logging strings **not** into an embedded device to display them later on a PC but keep usage comfortable and simple.
+- Main idea: Logging strings **not** into an embedded device to display them later on a PC but keep **usage comfortable and simple**.
 
 ## `TRICE` macros for C & C++ code
 
@@ -86,7 +86,7 @@ Tiny & fast tracer code for embedded device real-time PC logging (trace ID visua
     Trice8i( "sig:task %u -> %u\n", previousTaskID, nexTaskID );
 ```
 
- The execution of this code block produces totally 8 log bytes to vizualize the output on PC, what looks similar to this for 3 task switches:
+ The execution of this code block produces totally 8 log bytes to visualize the output on PC, what looks similar to this for 3 task switches:
 
 ![alt](./docs/README.media/taskSwitchTimesExample.PNG)
 
@@ -98,8 +98,22 @@ First are the PC reception timestamps and after the port info are the used trice
 
 - Mixed case trice macros are [short](./docs/TriceEncodings.md#flex-short-sub-encoding) trices and the letter i at the end says **i**nside critical section. (FLEX encoding)
 - `Trice16( "tim: myFunc %d\n", sysTick );` before and after a function call lets you easy measure the function execution time.
-- As graphical vizualisation you could use a tool similar to [https://github.com/sqshq/sampler](https://github.com/sqshq/sampler).
-- TRICE has intentionally no target timestamps for performance reasons. On the PC you can display the *reception timestampts*. But you can add own **timestamps as parameters** for exact embedded time measurements. Having several devices with trice timestamps, **network timing measurement** is possible.
+- As graphical visualization you could use a tool similar to [https://github.com/sqshq/sampler](https://github.com/sqshq/sampler).
+
+## Target timestamps?
+
+- TRICE has intentionally no target timestamps for performance reasons. Also it is not foreseeable which time base is needed in which application. On the PC you can display the *reception timestamps*.
+- Because several trice statements can form a single log line, a generally added timestamp would cause difficulties with that. This could be handled but adds complexity not worth the effort.
+- But you can add own **timestamps as parameters** for exact embedded time measurements. Having several devices with trice timestamps, **network timing measurement** is possible.
+
+### Target timestamp examples
+
+- Lets say you have a 16 bit systick, called `SYSTICKVAL16` and 16 bit timestamps are fine for you:
+  - Simply add `trice16( "time:@%5u:", SYSTICKVAL16 );` everywhere you need exact time.
+  - Or use `trice16( "time:@%5u:My values are %d, %d, %d\n", SYSTICKVAL16, my0, my1, my2 );`
+- Same with a 32 bit systick, called `SYSTICKVAL32`:
+  - Simply add `trice32( "time:@%9u:", SYSTICKVAL32 );` everywhere you need exact time.
+  - Or use `trice32( "time:@%9u:My values are %d, %d, %d\n", SYSTICKVAL32, my0, my1, my2 );`
 
 ## How it approximately works
 
@@ -127,7 +141,7 @@ or (if `-addParamCount` is used)
 Trice16_1( Id(12345), "MSG: %d Kelvin\n", k );
 ```
 
-and adds the *ID 12345* together with *"MSG: %d Kelvin\n"* into a **t**rice **I**D **l**ist, a JSON referece file named [til.json](https://github.com/rokath/trice/blob/master/til.json).
+and adds the *ID 12345* together with *"MSG: %d Kelvin\n"* into a **t**rice **I**D **l**ist, a JSON reference file named [til.json](https://github.com/rokath/trice/blob/master/til.json).
 
 - The *12345* is a randomly or policy generated ID not used so far.
 - With the `16` in Trice**16** you adjust the parameter size to 16 bit what allows more runtime efficient code compared to `32` or `64`.
@@ -138,7 +152,7 @@ This is a slightly simplified [view](https://github.com/jgraph/drawio):
 
 ![trice](./docs/README.media/trice4BlockDiagram.svg)
 
-- When the program flow passes the line `Trice16( Id(12345), "MSG: %d Kelvin\n", k );` the ID *12345* and the 16 bit temperature value are transfered as one combined 32 bit value into the triceFifo, what goes really fast. Different encodings are possible. The program flow is nearly undisturbed, so **TRICE macros are usable also inside interrupts or in the scheduler**.
+- When the program flow passes the line `Trice16( Id(12345), "MSG: %d Kelvin\n", k );` the ID *12345* and the 16 bit temperature value are transferred as one combined 32 bit value into the triceFifo, what goes really fast. Different encodings are possible. The program flow is nearly undisturbed, so **TRICE macros are usable also inside interrupts or in the scheduler**.
 - For visualization a background service is needed. In the simplest case it is just an UART triggered interrupt for triceFIFO reading. Or you can use [RTT](./docs/SeggerRTT.md).
 - So the whole target instrumentation are the trice macros, the trice fifo and the UART  ISR.
 - During runtime the PC trice tool receives the trice as a 4 byte package `0x30 0x39 0x00 0x0e` from the UART port.
@@ -148,7 +162,7 @@ This is a slightly simplified [view](https://github.com/jgraph/drawio):
 ## `trice` PC tool
 
 - Manages `TRICE` macro IDs inside a C or C++ source tree and extracts the strings in an ID-string list during target device compile time.
-- Displays `TRICE` macros like printf() output in realtime during target device runtime. The received IDs and parameters are printed out.
+- Displays `TRICE` macros like printf() output in real-time during target device runtime. The received IDs and parameters are printed out.
 - Can receive trices on several PCs and display them on a remote display server.
 - Written in [Go](https://github.com/golang/go), simply usage, no installer, needs to be in $PATH.
 
@@ -171,7 +185,7 @@ Because [one trice consists typically only of 4 to 8 bytes](./docs/TriceEncoding
 Switching trices on and off inside the target increases the overhead and demands some kind of command interface.
 If needed, always an `if` is usable.
 
-The trice tool can also perform further tasks like JSON encoding with additional log infomation and transferring this information to some webserver in the future.
+The trice tool can also perform further tasks like JSON encoding with additional log information and transferring this information to some webserver in the future.
 
 ## Display server option?
 
@@ -179,7 +193,7 @@ Yes, you can simply start `trice ds` inside a console, option: [third_party/alac
 
 ## How to keep ID reference file til.json for a long period?
 
-- Of course `git`, **but** it is not forbidden to compile til.json as a ressource into the embedded device and get it later back if you have enough flash memory.
+- Of course `git`, **but** it is not forbidden to compile til.json as a resource into the embedded device and get it later back if you have enough flash memory.
 
 ## How to start
 
@@ -233,11 +247,13 @@ trice help
 
 No need to read all this stuff - is is just for help and reference.
 
-- [Common.md](https://github.com/rokath/trice/tree/master/docs/Common.md)
-- [TriceEncodings.md](https://github.com/rokath/trice/tree/master/docs/TriceEncodings.md)
-- [ID management](https://github.com/rokath/trice/tree/master/docs/IDManagement.md)
-- [OneWireOption](https://github.com/rokath/trice/tree/master/docs/OneWireOption.md)
-- [SeggerRTT](https://github.com/rokath/trice/tree/master/docs/SeggerRTT.md)
+- [fix color issues under windows](./docs/Common.md#color-issues-under-windows)
+- [Command Line Examples](./docs/CommandLineExamples.md)
+- [Common.md](./docs/Common.md)
+- [TriceEncodings.md](./docs/TriceEncodings.md)
+- [ID management](./docs/IDManagement.md)
+- [OneWireOption](./docs/OneWireOption.md)
+- [SeggerRTT](./docs/SeggerRTT.md)
 
 ## Support?
 
@@ -248,3 +264,7 @@ Yes please: May be you create a graphical display server, have a cool idea, a po
 ```b
 git clone https://github.com/rokath/trice.git
 ```
+
+## Alternative solution
+
+Maybe you find this project interesting too: [baical.net](http://baical.net/index.html)
