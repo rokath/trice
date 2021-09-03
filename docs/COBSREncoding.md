@@ -18,18 +18,20 @@
 ## Preface
 
 - Packages are [COBS/R](https://pythonhosted.org/cobs/cobsr-intro.html) encoded.
-- Separator byte is `00`. That means the packages are without containing `00` bytes and separated by a `00` byte.
-- This allows the transfer of n-byte packages without the need to decide the meaning of the payload, means, how many bits are ID and how many bits are value is simply a configuration question.
-- The COBS/R encoding usually has the same length as the unencoded data and sometimes has one byte more but an additional 00 is needed for secure package separation.
-- This way the ID bit count is adjustable to the real communication needs because a data disturbance is easily detectable by just waiting for the next 0.
+- Selected separator byte is `00`. That means the COBS/R encoded packages contain no `00` bytes and separated by a `00` byte.
+- After a transfer interruption a very easy resync mechanism used: simply wait for the next `00` byte.
+- The COBS/R encoding usually has the same length as the unencoded data and sometimes has one byte more but an additional `00` is needed for package separation.
+- This way the ID bit count is adjustable to the real communication needs.
 - One important point is the possibility to embed additional protocols in the data stream.
 
-## COBS/R encoding for 0-byte packages
+## COBS/R encoding examples
+
+### COBS/R encoding for 0-byte packages
 
 - This is simply an empty package. Just the `00` package separator byte is transmitted.
 - It is normally used as padding byte to reach a multiple of 8 bytes package length.
 
-## COBS/R encoding for 1-byte packages
+### COBS/R encoding for 1-byte packages
 
 - One byte COBS/R packages are a 1:1 transformation despite for the values `00` and `01`.
 
@@ -47,7 +49,7 @@
 
 One byte packages are fast COBS/R codable by simply incrementing the 2 values `00` and `01` and appending a `01`.
 
-## COBS/R encoding for 2-byte packages
+### COBS/R encoding for 2-byte packages
 
 - Two bytes COBS/R packages are often a 1:1 transformation despite some cases as seen in the following table.
 
@@ -135,7 +137,7 @@ One byte packages are fast COBS/R codable by simply incrementing the 2 values `0
 
 - Two byte packages are fast COBS/R codable by simply using the subset >= 0300 and using it directly but replacing a possible 2nd 00 with the first byte and putting 01 on the first position.
 
-## COBS/R encoding for n-byte packages
+### COBS/R encoding for n-byte packages
 
 - This looks similar to 1-byte and 2-byte encoding and is not shown here.
 - Some super fast code for 3- and 4-byte packet encoding is also possible.
@@ -145,11 +147,11 @@ One byte packages are fast COBS/R codable by simply incrementing the 2 values `0
 
 - After receiving and decoding a COBS/R package, the receiver can decide according to the package length and its starting bits what to do with it:
   - Package lengths 2, 3, 4, 6, 10, 18, 34, 66 starting with four 0-bits are trice logs.
-    - Treat as received *trice* message
-  - Multiple of 8 bytes packages are intended for XTEA encryption.
-    - The decrypted packet is treated again as a COBS/R encoded byte stream and handled recursive the same way.
+    - Treat as received *trice* message.
+  - Multiple of 8 bytes packages are used for XTEA encryption.
+    - The decrypted packet is treated again as a COBS/R encoded byte stream and handled recursively the same way.
     - This way several COBS/R encoded data packages can be joint in one package for encryption.
-      - Empty COBS/R packages are `00` bytes and used to reach a multiple of 8-bytes COBS/R sequence.
+      - Empty COBS/R packages are `00` bytes and used to reach the next multiple of 8-bytes COBS/R sequence.
   - All other packages are useable for other protocols (marked as reserved).
     - Ignore, route forward or call user handler.
     - 1-byte COBS/R packages are not recommended for numerous data. Because of the delimiter byte, are only ~50% bandwidth usable.
