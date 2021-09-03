@@ -1,8 +1,8 @@
-# COBS/R encoding
+# COBS/R encoding design draft
 
 ## Table of Contents
 
-- [COBS/R encoding](#cobsr-encoding)
+- [COBS/R encoding design draft](#cobsr-encoding-design-draft)
   - [Table of Contents](#table-of-contents)
   - [Preface](#preface)
   - [COBS/R encoding for 0\-byte packages](#cobsr-encoding-for-0-byte-packages)
