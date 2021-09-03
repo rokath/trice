@@ -5,11 +5,12 @@
 - [COBS/R encoding design draft](#cobsr-encoding-design-draft)
   - [Table of Contents](#table-of-contents)
   - [Preface](#preface)
-  - [COBS/R encoding for 0\-byte packages](#cobsr-encoding-for-0-byte-packages)
-  - [COBS/R encoding for 1\-byte packages](#cobsr-encoding-for-1-byte-packages)
-  - [COBS/R encoding for 2\-byte packages](#cobsr-encoding-for-2-byte-packages)
-  - [COBS/R encoding for n\-byte packages](#cobsr-encoding-for-n-byte-packages)
-  - [Decoded COBS/R package interpreter](#decoded-cobsr-package-interpreter)
+  - [COBS/R encoding examples](#cobsr-encoding-examples)
+    - [COBS/R encoding for 0-byte packages](#cobsr-encoding-for-0-byte-packages)
+    - [COBS/R encoding for 1-byte packages](#cobsr-encoding-for-1-byte-packages)
+    - [COBS/R encoding for 2-byte packages](#cobsr-encoding-for-2-byte-packages)
+    - [COBS/R encoding for n-byte packages](#cobsr-encoding-for-n-byte-packages)
+  - [Interpreter for decoded COBS/R package](#interpreter-for-decoded-cobsr-package)
     - [Encoding table legend](#encoding-table-legend)
     - [Encoding table](#encoding-table)
 
@@ -19,7 +20,7 @@
 
 - Packages are [COBS/R](https://pythonhosted.org/cobs/cobsr-intro.html) encoded.
 - Selected separator byte is `00`. That means the COBS/R encoded packages contain no `00` bytes and separated by a `00` byte.
-- After a transfer interruption a very easy resync mechanism used: simply wait for the next `00` byte.
+- After a transfer interruption a very easy resync mechanism is usable: simply wait for the next `00` byte.
 - The COBS/R encoding usually has the same length as the unencoded data and sometimes has one byte more but an additional `00` is needed for package separation.
 - This way the ID bit count is adjustable to the real communication needs.
 - One important point is the possibility to embed additional protocols in the data stream.
@@ -29,7 +30,7 @@
 ### COBS/R encoding for 0-byte packages
 
 - This is simply an empty package. Just the `00` package separator byte is transmitted.
-- It is normally used as padding byte to reach a multiple of 8 bytes package length.
+- It is normally used as padding byte to reach a multiple of 8 bytes package length when putting several COBS/R packages into one encryption packet.
 
 ### COBS/R encoding for 1-byte packages
 
@@ -143,8 +144,9 @@ One byte packages are fast COBS/R codable by simply incrementing the 2 values `0
 - Some super fast code for 3- and 4-byte packet encoding is also possible.
 - All *trice* packages are much shorter than 255 bytes so the COBS/R encoding is cheap.
 
-## Decoded COBS/R package interpreter
+## Interpreter for decoded COBS/R package
 
+[!IMPORTANT]
 - After receiving and decoding a COBS/R package, the receiver can decide according to the package length and its starting bits what to do with it:
   - Package lengths 2, 3, 4, 6, 10, 18, 34, 66 starting with four 0-bits are trice logs.
     - Treat as received *trice* message.
