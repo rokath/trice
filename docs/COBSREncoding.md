@@ -125,22 +125,57 @@ One byte packages are fast COBS/R codable by simply incrementing the 2 values `0
 
 ## Decoded COBS/R package interpreter
 
-- How the packages are to interpret is a question of software configuration.
-- When a decoded COBS/R package is to interpret, the known package length is used to choose the right interpreter. 
-  - For example all multiple of 8 length packages are possibly XTEA encrypted.
-  - Also a fixed-size ID is usable. 
-  - It is also possible to have several `trice` messages inside a packet. That makes sense to reach a multiple of 8-byte message length good for encryption.
-- When an COBS/R package was successfully transmitted and decoded, its interpretation is a matter of the general configuration.
-- The package length after COBS/R decoding and optionally the first bits are the key for the package interpretation.
-  - For example package lengths 0, 1, 5, 7, 9, 11-17, 19 and more are free usable for other protocols.
-  - Package lengths 2, 3, 4, 6, 10 starting with a 1 are trice logs.  
-  - Package lengths 2, 3, 4, 6, 10 starting with a 0 are free usable for other protocols.  
+- After receiving and decoding a COBS/R package, the receiver can decide according to the package length and its starting bits what to do with it:
+  - Package lengths 2, 3, 4, 6, 10, 18, 34, 66 starting with four 0-bits are trice logs.
+    - Treat as received *trice* message
+  - Multiple of 8 bytes packages are intended for XTEA encryption.
+    - The decoded packet is treated again as a COBS/R encoded byte stream and handled recursive the same way.
+    - This way several COBS/R encoded data packages can be joint in one package for encryption. Padding `00` bytes are used to reach a multiple of 8 package length.  
+  - All other packages are useable for user protocols (marked as reserved).
+    - Ignore, Route forward or call user handler.
+    - 1-byte COBS/R packages are not recommended for numerous data, because of the delimiter byte are only ~50% bandwidth usable.
+
+### Encoding table legend
+
+| Legend | Meaning                                                           |
+| :-     | :---------------------------------------------------------------- |
+| ...n   | totally n times                                                   |
+| I\|iiii| 4 Id-bits (half byte)                                             |
+| V\|vvvv| 4 value bits                                                      |
+| X\|xxxx| 4 arbitrary bits (any half byte )                                 |
+| Y\|yyyy| 4 arbitrary bits, but at least one must be 1 (any half byte != 0) |
+
+### Encoding table
+
+|half bytes     |as bits                          | bytes|ID bits| ID range|ID map| remark
+|:-             |:--------------------------------|-----:| ----: |--------:|    -:| :-
+|` `            | ` `                             |    0 |       |         |      | used as padding byte in a COBS/R sequence
+|`0I II`        |`0000iiii iiiiiiii`              |    2 |   12  | 0\-4095 |  0   | 2^12  Id's for no payload
+|`YX XX`        |`yyyyxxxx xxxxxxxx`              |    2 |       |         |      | reserved
+|`0I II VV`     |`0000iiii iiiiiiii vvvvvvvv`     |    3 |   12  | 0\-4095 |  1   | 2^12  Id's for a 1-byte payload
+|`YX XX XX`     |`yyyyxxxx xxxxxxxx xxxxxxxx`     |    3 |       |         |      | reserved
+|`0I II VV VV`  |`0000iiii iiiiiiii vvvvvvvv...2` |    4 |   12  | 0\-4095 |  2   | 2^12  Id's for a 2-bytes payload
+|`YX XX XX XX`  |`yyyyxxxx xxxxxxxx xxxxxxxx...2` |    4 |       |         |      | reserved
+|`0I II VV...4` |`0000iiii iiiiiiii vvvvvvvv...4` |    6 |   12  | 0\-4095 |  3   | 2^12  Id's for a 4-bytes payload
+|`YX XX XX...4` |`yyyyxxxx xxxxxxxx xxxxxxxx...4` |    6 |       |         |      | reserved
+|`0I II VV...8` |`0000iiii iiiiiiii vvvvvvvv...8` |   10 |   12  | 0\-4095 |  4   | 2^12  Id's for a 8-bytes payload
+|`YX XX XX...8` |`yyyyxxxx xxxxxxxx xxxxxxxx...8` |   10 |       |         |      | reserved
+|`0I II VV...16`|`0000iiii iiiiiiii vvvvvvvv...16`|   18 |   12  | 0\-4095 |  5   | 2^12  Id's for a 16 bytes payload
+|`YX XX XX...16`|`yyyyxxxx xxxxxxxx xxxxxxxx...16`|   18 |       |         |      | reserved
+|`0I II VV...32`|`0000iiii iiiiiiii vvvvvvvv...32`|   34 |   12  | 0\-4095 |  6   | 2^12  Id's for a 32 bytes payload
+|`YX XX XX...32`|`yyyyxxxx xxxxxxxx xxxxxxxx...32`|   34 |       |         |      | reserved
+|`0I II VV...64`|`0000iiii iiiiiiii vvvvvvvv...64`|   66 |   12  | 0\-4095 |  7   | 2^12  Id's for a 16 bytes payload
+|`YX XX XX...64`|`yyyyxxxx xxxxxxxx xxxxxxxx...64`|   66 |       |         |      | reserved
+|`XX...8*n`     |`xxxxxxxx...8*n`                 |  8*n |       |         |      | encrypted or reserved
+|`XX...n`       |`xxxxxxxx...n`                   |    n |       |         |      | reserved n%8 !=0
+
+- The ID map number can be deduced from the package length and needs no transmission.
 
 | ID coding                                                                                   | package length    | ID bits |   ID range  |   ID map area   |  remark
 | :-------------------------------------                                                      | -------------:    | ------: | ----------: |         -:      |  :-
 | ``                                                                                          |       0           |         |             |                 | reserved
 | `xxxxxxxx`                                                                                  |       1           |         |             |                 | reserved
-| `1IIIIIII IIIIIIII`                                                                         |       2           |   15    | 0 ... 32767 |                 | 2^15  Id's for no payload
+| `1000IIII IIIIIIII`                                                                         |       2           |   15    | 0 ... 32767 |                 | 2^15  Id's for no payload
 | `0xxxxxxx xxxxxxxx`                                                                         |       2           |         |             |                 | reserved
 | `1IIIIIII IIIIIIII vvvvvvvv`                                                                |       3           |   15    | 0 ... 32767 |                 | 2^15  Id's for a 1-byte payload
 | `0xxxxxxx xxxxxxxx xxxxxxxx`                                                                |       3           |         |             |                 | reserved
