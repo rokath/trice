@@ -1,5 +1,24 @@
 # Trice encodings
 
+## Table of content
+
+- [Trice encodings](#trice-encodings)
+  - [Table of content](#table-of-content)
+  - [General](#general)
+  - [Quick start recommendation](#quick-start-recommendation)
+  - [Overview](#overview)
+    - [flex encoding](#flex-encoding)
+      - [<em>flex short sub\-encoding</em>](#flex-short-sub-encoding)
+      - [<em>flex medium sub\-encoding</em>](#flex-medium-sub-encoding)
+      - [<em>flex long sub\-encoding</em>](#flex-long-sub-encoding)
+  - [Encoding esc (experimental)](#encoding-esc-experimental)
+    - [Start byte EC](#start-byte-ec)
+    - [Length Code LC](#length-code-lc)
+    - [TriceID IH and IL](#triceid-ih-and-il)
+    - [Payload](#payload)
+  - [Sync packages](#sync-packages)
+
+(Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc.go))
 ## General
 
 Trice bytes can be encodend in different flawors and it is easy to devvelop a new encoding. The encoding `esc` is such a trial. It is not as good as the `flex` encoding but kept for reference.
