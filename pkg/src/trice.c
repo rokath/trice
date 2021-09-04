@@ -5,7 +5,7 @@
 #include <string.h> // strlen
 #include "trice.h"
 
-#if TRICE_ENCODING == TRICE_FLEX_ENCODING 
+#if ((TRICE_ENCODING == TRICE_FLEX_ENCODING) || (TRICE_ENCODING == TRICE_COBSR_ENCODING))
 uint8_t triceCycle = 0;
 #endif
 

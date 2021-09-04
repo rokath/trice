@@ -77,7 +77,10 @@ void triceCheckSet(int index) {
     switch (index) {
         case 0:
         break;
-        case 1:
+        case 1: {
+            void COBSRLoopCheck( void );
+            COBSRLoopCheck();
+        }
         break;
         case 2:
             #if TRICE_ENCODING == TRICE_FLEX_ENCODING

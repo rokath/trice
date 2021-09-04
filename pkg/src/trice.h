@@ -11,6 +11,7 @@ extern "C" {
 
 #define TRICE_ESC_ENCODING     30
 #define TRICE_FLEX_ENCODING    50
+#define TRICE_COBSR_ENCODING   70
 
 #define TRICE_LITTLE_ENDIANNESS 0x00112233
 #define TRICE_BIG_ENDIANNESS    0x33221100
@@ -199,6 +200,8 @@ int triceU32WriteU8ReadFifoDepth(void);
 #include "intern/triceEscEncoder.h"
 #elif TRICE_FLEX_ENCODING == TRICE_ENCODING
 #include "intern/triceFlexEncoder.h"
+#elif TRICE_COBSR_ENCODING == TRICE_ENCODING
+#include "intern/triceCobsrEncoder.h"
 #else
 #error "wrong configuration"
 #endif

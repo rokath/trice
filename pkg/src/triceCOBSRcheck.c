@@ -1,53 +1,66 @@
-/*
-volatile uint8_t led = 0;
 
-void SetLED( uint8_t state ){
-    led = state;
-}
-
-#define TriceRpc0( id, pfmt, n )
-
-void triceRpcList( void ){
-     TriceRpc0( id(0), "cmd:LED %d", SetLed); // experimental send command
-}
-*/
-
+#include "trice.h"
 #include "cobsr.h"
 
+//! cobsrShortEncode does the same as the cobsr_encode function but a bit faster.
+//! \param dst is the result buffer. It must be at least 1 byte longer than len.
+//! \param src is the source buffer.
+//! \param len is count of valid data inside the the source buffer.
+//! \retval is the count of valid data inside the the result buffer.
+size_t cobsrShortEncode(uint8_t *dst, const uint8_t *src, size_t len){
+    switch( len ){
+        case 1: {
+            uint8_t tv = *src;
+            if (tv < 2 ) {
+                dst[0] = tv + 13;
+                dst[1] = 1;
+                return 2;
+            }else{
+                dst[0] = tv;
+                return 1;
+            }
+        }
+        case 2:
+        default: {
+            cobsr_encode_result COBSEncResult = cobsr_encode( 
+            dst,           // void * dst_buf_ptr, 
+            257,           // size_t dst_buf_len,
+            src,           // const void * src_ptr, 
+            len );         // size_t src_len)
+        return COBSEncResult.out_len;
+        }
+    }
+}
+
+
+
 void COBSRCheck( void* pTestValue, int byteWidth ){
-    cobsr_encode_result COBSEncResult = {0};
+
     cobsr_decode_result COBSDecResult = {0};
-    uint8_t COBSEncBuf[12], COBSDecBuf[12];
-    //static int lastMs = 0;
-    //extern int milliSecond;
-    ////while( milliSecond < lastMs + 10 );
-    //lastMs = milliSecond;
-    switch( byteWidth ){
+    uint8_t enc[12], dec[12];
+    size_t len;
+
+    switch( byteWidth ){ // print left side
         case 1: TRICE16( Id( 47229), "msg:%02x -> ", *(uint8_t*)pTestValue ); break;
         case 2: TRICE32( Id( 59542), "msg:%04x -> ", *(uint16_t*)pTestValue ); break;
         default: return;
     }
-    COBSEncResult = cobsr_encode( 
-        COBSEncBuf,           //void * dst_buf_ptr, 
-        sizeof( COBSEncBuf ), // size_t dst_buf_len,
-        pTestValue,           // const void * src_ptr, 
-        byteWidth );          // size_t src_len)
-    if( COBSR_ENCODE_OK != COBSEncResult.status ){
-        TRICE16( Id( 55427), "err: i = %d, COBSEncResult.status = %d\n", 0, COBSEncResult.status );
-    }else{
-        switch( COBSEncResult.out_len ){
-            case 1: TRICE16( Id( 37961), "sig:%02x\n", COBSEncBuf[0]); break;
-            case 2: TRICE16( Id( 41310), "sig:%02x %02x\n", COBSEncBuf[0], COBSEncBuf[1]); break;
-            case 3: TRICE16( Id( 32787), "sig:%02x %02x %02x\n", COBSEncBuf[0], COBSEncBuf[1], COBSEncBuf[2]); break;
-            case 4: TRICE16( Id( 37461), "sig:%02x %02x %02x %02x\n", COBSEncBuf[0], COBSEncBuf[1], COBSEncBuf[2], COBSEncBuf[3]); break;
-        }
-    }
     
+    len = cobsrShortEncode(enc, pTestValue, byteWidth);
+
+    // print right side
+    switch( len ){
+        case 1: TRICE16( Id( 37961), "sig:%02x\n", enc[0]); break;
+        case 2: TRICE16( Id( 41310), "sig:%02x %02x\n", enc[0], enc[1]); break;
+        case 3: TRICE16( Id( 32787), "sig:%02x %02x %02x\n", enc[0], enc[1], enc[2]); break;
+        case 4: TRICE16( Id( 37461), "sig:%02x %02x %02x %02x\n", enc[0], enc[1], enc[2], enc[3]); break;
+    }
+
     COBSDecResult = cobsr_decode(
-        COBSDecBuf,             // void * dst_buf_ptr, 
-        sizeof( COBSDecBuf ),   // size_t dst_buf_len,
-        COBSEncBuf,             // const void * src_ptr,
-        COBSEncResult.out_len); // size_t src_len);
+        dec,             // void * dst_buf_ptr, 
+        sizeof( dec ),   // size_t dst_buf_len,
+        enc,             // const void * src_ptr,
+        len);                   // size_t src_len);
     
     if( COBSR_DECODE_OK != COBSDecResult.status ){
         TRICE16( Id( 35623), "err: i = %d, COBSDecResult.status = %d\n", 0, COBSDecResult.status );
@@ -56,13 +69,19 @@ void COBSRCheck( void* pTestValue, int byteWidth ){
             TRICE16( Id( 53032), "err: COBSDecResult.out_len = %d != byteWidth = %x\n", COBSDecResult.out_len, byteWidth);
             return;
         }
-        switch( byteWidth ) {
-            case 1: if( uint8_t tv = *(uint8_t*)pTestValue != COBSDecBuf[0] ){
-                TRICE8_2( Id(0), "err:pTestValue %02x != COBSDecBuf[0] = %02x\n", tv, COBSDecBuf[0] );
+        switch( byteWidth ) { // check backward step
+            case 1: {  
+            uint8_t tv = *(uint8_t*)pTestValue;              
+                if( tv != dec[0] ){
+                    TRICE8_2( Id( 51824), "err:pTestValue %02x != dec[0] = %02x\n", tv, dec[0] );
+                }
             }
             return;
-            case 2: if( uint16_t tv = *(uint16_t*)pTestValue != *(uint16_t*)COBSDecBuf ){
-                TRICE16_2( Id(0), "err:pTestValue %04x != COBSDecBuf[0] = %04x\n", tv, *(uint16_t*)COBSDecBuf );
+            case 2: {
+                uint16_t tv = *(uint16_t*)pTestValue;
+                if( tv != *(uint16_t*)dec ){
+                TRICE16_2( Id( 58850), "err:pTestValue %04x != dec[0] = %04x\n", tv, *(uint16_t*)dec );
+                }
             }
             return;
         }
@@ -152,7 +171,7 @@ uint16_t twoByteArray[] = {
     // fefe -> fe fe
     // feff -> fe ff
 
-    0xff00, 0xff01, 0xff02, 0xff03, 0xfffc, 0xfffd, 0xfffe, 0xffff 
+    0xff00, 0xff01, 0xff02, 0xff03, 0xfffc, 0xfffd, 0xfffe, 0xffff,
     // ff00 -> 01 ff
     // ff01 -> ff 01
     // ff02 -> ff 02
@@ -172,3 +191,20 @@ void COBSRLoopCheck( void ){
         COBSRCheck( &twoByteArray[i], 2 );
     }
 }
+
+
+
+
+/*
+volatile uint8_t led = 0;
+
+void SetLED( uint8_t state ){
+    led = state;
+}
+
+#define TriceRpc0( id, pfmt, n )
+
+void triceRpcList( void ){
+     TriceRpc0( id(0), "cmd:LED %d", SetLed); // experimental send command
+}
+*/
