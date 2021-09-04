@@ -6,6 +6,7 @@
 #define TRICE_INTERFACE_UART_H_
 
 #include <stdint.h>
+#include "trice.h"
 #ifdef UART_LL_STM32
 #include "triceUART_LL_STM32.h" // LL STM32 hardware specific stuff
 #elif defined(UART_XXX)
@@ -13,14 +14,15 @@
 #else
 #error "missing interface"
 #endif
-#include "trice.h"
+
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 
-#if TRICE_FLEX_ENCODING == TRICE_ENCODING && defined(ENCRYPT)
+#ifdef ENCRYPT
+#if ((TRICE_FLEX_ENCODING == TRICE_ENCODING) || (TRICE_COBSR_ENCODING == TRICE_ENCODING))
 extern uint8_t triceBytesBuffer[];
 extern int const triceBytesBufferIndexLimit;
 extern int triceBytesBufferIndex;
@@ -52,9 +54,9 @@ TRICE_INLINE void triceTriggerTransmit(void){
         triceEnableTxEmptyInterrupt(); // next bytes
     }
 }
-#endif // #if TRICE_FLEX_ENCODING == TRICE_ENCODING && defined(ENCRYPT)
-
-#if TRICE_FLEX_ENCODING == TRICE_ENCODING && !defined(ENCRYPT)
+#endif
+#else // #ifdef ENCRYPT
+#if ((TRICE_FLEX_ENCODING == TRICE_ENCODING) || (TRICE_COBSR_ENCODING == TRICE_ENCODING))
 
 //! triceServeTransmit as triceServeU32WriteU8ReadFifoTransmit must be called cyclically to proceed ongoing write out.
 //! A good place: sysTick ISR and UART ISR (both together).
@@ -78,8 +80,8 @@ TRICE_INLINE void triceTriggerTransmit(void){
         triceEnableTxEmptyInterrupt(); // next bytes
     }
 }
-
-#endif // #if TRICE_FLEX_ENCODING == TRICE_ENCODING && !defined(ENCRYPT)
+#endif
+#endif
 
 #if TRICE_ESC_ENCODING == TRICE_ENCODING
 
