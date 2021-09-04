@@ -2,6 +2,10 @@
 #include "trice.h"
 #include "cobsr.h"
 
+
+
+
+
 //! cobsrShortEncode does the same as the cobsr_encode function but a bit faster.
 //! \param dst is the result buffer. It must be at least 1 byte longer than len.
 //! \param src is the source buffer.
@@ -12,7 +16,7 @@ size_t cobsrShortEncode(uint8_t *dst, const uint8_t *src, size_t len){
         case 1: {
             uint8_t tv = *src;
             if (tv < 2 ) {
-                dst[0] = tv + 13;
+                dst[0] = tv + 1;
                 dst[1] = 1;
                 return 2;
             }else{
@@ -73,14 +77,14 @@ void COBSRCheck( void* pTestValue, int byteWidth ){
             case 1: {  
             uint8_t tv = *(uint8_t*)pTestValue;              
                 if( tv != dec[0] ){
-                    TRICE8_2( Id( 51824), "err:pTestValue %02x != dec[0] = %02x\n", tv, dec[0] );
+                    TRICE8_2( Id( 47513), "err:pTestValue %02x != dec[0] = %02x\n", tv, dec[0] );
                 }
             }
             return;
             case 2: {
                 uint16_t tv = *(uint16_t*)pTestValue;
                 if( tv != *(uint16_t*)dec ){
-                TRICE16_2( Id( 58850), "err:pTestValue %04x != dec[0] = %04x\n", tv, *(uint16_t*)dec );
+                TRICE16_2( Id( 61341), "err:pTestValue %04x != dec[0] = %04x\n", tv, *(uint16_t*)dec );
                 }
             }
             return;

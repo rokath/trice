@@ -183,6 +183,10 @@
 		"Type": "TRICE8_1",
 		"Strg": "tst:TRICE8_1 %u\\n"
 	},
+	"32787": {
+		"Type": "TRICE16",
+		"Strg": "sig:%02x %02x %02x\\n"
+	},
 	"32800": {
 		"Type": "TRICE64",
 		"Strg": "rd:TRICE64 line %d,%d\\n"
@@ -271,6 +275,10 @@
 		"Type": "trice16_1",
 		"Strg": "DBG:debug       message, SysTick is %6u\\n"
 	},
+	"35623": {
+		"Type": "TRICE16",
+		"Strg": "err: i = %d, COBSDecResult.status = %d\\n"
+	},
 	"35689": {
 		"Type": "trice0",
 		"Strg": "w:B"
@@ -315,6 +323,10 @@
 		"Type": "TRICE8_8i",
 		"Strg": "msg:  TRICE8_8i -\u003e normal trice macro    (with cycle counter) for only inside critical section %x %X %u %d %x %X %u %d\\n"
 	},
+	"37461": {
+		"Type": "TRICE16",
+		"Strg": "sig:%02x %02x %02x %02x\\n"
+	},
 	"37773": {
 		"Type": "trice0",
 		"Strg": "message:J"
@@ -322,6 +334,10 @@
 	"37880": {
 		"Type": "TRICE8",
 		"Strg": "rd:%d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"37961": {
+		"Type": "TRICE16",
+		"Strg": "sig:%02x\\n"
 	},
 	"38013": {
 		"Type": "trice0",
@@ -414,6 +430,10 @@
 	"40865": {
 		"Type": "TRICE16_1",
 		"Strg": "tst:TRICE16_1 %u\\n"
+	},
+	"41310": {
+		"Type": "TRICE16",
+		"Strg": "sig:%02x %02x\\n"
 	},
 	"41366": {
 		"Type": "TRICE8",
@@ -575,6 +595,10 @@
 		"Type": "trice8i",
 		"Strg": "rd:%d, %d, %d, %d, %d, %d\\n"
 	},
+	"47229": {
+		"Type": "TRICE16",
+		"Strg": "msg:%02x -\u003e "
+	},
 	"47395": {
 		"Type": "trice16_4i",
 		"Strg": "msg: trice16_4i -\u003e normal trice function (with cycle counter) for only inside critical section %x %X %u %d\\n"
@@ -586,6 +610,10 @@
 	"47472": {
 		"Type": "trice8_8i",
 		"Strg": "msg:  trice8_8i -\u003e normal trice function (with cycle counter) for only inside critical section %x %X %u %d %x %X %u %d\\n"
+	},
+	"47513": {
+		"Type": "TRICE8_2",
+		"Strg": "err:pTestValue %02x != dec[0] = %02x\\n"
 	},
 	"47530": {
 		"Type": "TRICE32_2",
@@ -602,6 +630,10 @@
 	"47820": {
 		"Type": "trice8_2i",
 		"Strg": "msg:  trice8_2i -\u003e normal trice function (with cycle counter) for only inside critical section %x %X\\n"
+	},
+	"48003": {
+		"Type": "TRICE16_2",
+		"Strg": "err:pTestValue %04x != dec[0] = %04x\\n"
 	},
 	"48203": {
 		"Type": "TRICE16_4i",
@@ -707,6 +739,10 @@
 		"Type": "trice0",
 		"Strg": "1"
 	},
+	"51472": {
+		"Type": "TRICE8_2",
+		"Strg": "err:pTestValue %02x != dec[0] = %02x\\n"
+	},
 	"51484": {
 		"Type": "trice8i",
 		"Strg": "rd:%d, %d, %d, %d, %d, %d, %d, %d\\n"
@@ -722,6 +758,10 @@
 	"51750": {
 		"Type": "trice8_4i",
 		"Strg": "msg:  trice8_4i -\u003e normal trice function (with cycle counter) for only inside critical section %x %X %u %d\\n"
+	},
+	"51824": {
+		"Type": "TRICE8_2",
+		"Strg": "err:pTestValue %02x != dec[0] = %02x\\n"
 	},
 	"52174": {
 		"Type": "TRICE8_1",
@@ -750,6 +790,10 @@
 	"53022": {
 		"Type": "trice64",
 		"Strg": "rd:trice64 line %d,%d\\n"
+	},
+	"53032": {
+		"Type": "TRICE16",
+		"Strg": "err: COBSDecResult.out_len = %d != byteWidth = %x\\n"
 	},
 	"53154": {
 		"Type": "trice16i",
@@ -791,6 +835,10 @@
 		"Type": "TRICE8",
 		"Strg": "rd:%d\\n"
 	},
+	"54749": {
+		"Type": "TRICE8_2",
+		"Strg": "err:pTestValue %02x != COBSDecBuf[0] = %02x\\n"
+	},
 	"55218": {
 		"Type": "TRICE8",
 		"Strg": "rd:%d, %d, %d, %d, %d, %d\\n"
@@ -806,6 +854,10 @@
 	"55382": {
 		"Type": "trice64",
 		"Strg": "rd:trice64 %d\\n"
+	},
+	"55427": {
+		"Type": "TRICE16",
+		"Strg": "err: i = %d, COBSEncResult.status = %d\\n"
 	},
 	"55451": {
 		"Type": "trice8_6",
@@ -838,6 +890,10 @@
 	"55892": {
 		"Type": "trice16_4",
 		"Strg": "msg: trice16_4  -\u003e normal trice function (with cycle counter) for everywhere                   %x %X %u %d\\n"
+	},
+	"56040": {
+		"Type": "TRICE16_2",
+		"Strg": "err:pTestValue %04x != COBSDecBuf[0] = %04x\\n"
 	},
 	"56183": {
 		"Type": "TRICE8_5i",
@@ -911,6 +967,10 @@
 		"Type": "trice32_3",
 		"Strg": "msg: trice32_3  -\u003e normal trice function (with cycle counter) for everywhere                   %x %X %u\\n"
 	},
+	"58850": {
+		"Type": "TRICE16_2",
+		"Strg": "err:pTestValue %04x != dec[0] = %04x\\n"
+	},
 	"59167": {
 		"Type": "TRICE8_3i",
 		"Strg": "msg:  TRICE8_3i -\u003e normal trice macro    (with cycle counter) for only inside critical section %x %X %u\\n"
@@ -926,6 +986,10 @@
 	"59253": {
 		"Type": "TRICE8_1i",
 		"Strg": "msg:  TRICE8_1i -\u003e normal trice macro    (with cycle counter) for only inside critical section %d\\n"
+	},
+	"59542": {
+		"Type": "TRICE32",
+		"Strg": "msg:%04x -\u003e "
 	},
 	"59595": {
 		"Type": "trice32_1i",
@@ -966,6 +1030,10 @@
 	"61024": {
 		"Type": "TRICE16_1",
 		"Strg": "RD:read         message, SysTick is %6u\\n"
+	},
+	"61341": {
+		"Type": "TRICE16_2",
+		"Strg": "err:pTestValue %04x != dec[0] = %04x\\n"
 	},
 	"61488": {
 		"Type": "TRICE8_4",
