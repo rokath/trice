@@ -1,4 +1,4 @@
-/*! \file tricePack2Encoder.h
+/*! \file triceFlexEncoder.h
 \author Thomas.Hoehenleitner [at] seerose.net
 *******************************************************************************/
 
