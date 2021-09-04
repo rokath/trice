@@ -11,8 +11,10 @@
     - [COBS/R encoding for 2-byte packages](#cobsr-encoding-for-2-byte-packages)
     - [COBS/R encoding for n-byte packages](#cobsr-encoding-for-n-byte-packages)
   - [Interpreter for decoded COBS/R package](#interpreter-for-decoded-cobsr-package)
-    - [Encoding table legend](#encoding-table-legend)
-    - [Encoding table](#encoding-table)
+    - [Encoding table 0 legend](#encoding-table-0-legend)
+    - [Encoding table 0 (without cycle counter)](#encoding-table-0-without-cycle-counter)
+    - [Encoding table 1 legend](#encoding-table-1-legend)
+    - [Encoding table 1 (with 4-bit cycle counter)](#encoding-table-1-with-4-bit-cycle-counter)
 
 (Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc.go))
 
@@ -158,7 +160,7 @@ One byte packages are fast COBS/R codable by simply incrementing the 2 values `0
     - Ignore, route forward or call user handler.
     - 1-byte COBS/R packages are not recommended for numerous data. Because of the delimiter byte, are only ~50% bandwidth usable.
 
-### Encoding table legend
+### Encoding table 0 legend
 
 | Legend | Meaning                                                           |
 | :-     | :---------------------------------------------------------------- |
@@ -168,7 +170,7 @@ One byte packages are fast COBS/R codable by simply incrementing the 2 values `0
 | X\|xxxx| 4 arbitrary bits (any half byte )                                 |
 | Y\|yyyy| 4 arbitrary bits, but at least one must be 1 (any half byte != 0) |
 
-### Encoding table
+### Encoding table 0 (without cycle counter)
 
 |half bytes      | same as bits                     | bytes|ID bits| ID range    |ID map| remark                                                                      |
 | -              | -------------------------------- |:----:| :---: | :------:    |  :-: |     :-                                                                      |
@@ -189,3 +191,29 @@ One byte packages are fast COBS/R codable by simply incrementing the 2 values `0
 - All packages are as encoded COBS/R sometimes 1 byte longer and always followed by the delimiter `00`byte.
 - The ID map number can be deduced from the package length and needs no transmission.
   - So only the 12 lower ID bits are transmitted.
+
+### Encoding table 1 legend
+
+| Legend | Meaning                           |
+| :-     | :---------------------------------|
+| ...n   | totally n times                   |
+| I\|iiii| 4 Id-bits (half byte)             |
+| V\|vvvv| 4 value bits                      |
+| X\|xxxx| 4 arbitrary bits (any half byte ) |
+| C\|cccc| 4 cycle counter bits              |
+
+### Encoding table 1 (with 4-bit cycle counter)
+
+|half bytes      | same as bits                     | bytes|ID bits| ID range    |ID map| remark                                                                      |
+| -              | -------------------------------- |:----:| :---: | :------:    |  :-: |     :-                                                                      |
+|` `             | ` `                              |    0 |       |             |      | COBS/R padding byte                                                         |
+|`II IC`         |`iiiiiiii iiiicccc`               |    2 |   12  | 0\-4095     |  0   | `TRICE0`                                                                    |
+|`II IC VV`      |`iiiiiiii iiiicccc vvvvvvvv`      |    3 |   12  | 4096\- 8191 |  1   | `TRICE8_1`                                                                  |
+|`II IC VV VV`   |`iiiiiiii iiiicccc vvvvvvvv...2`  |    4 |   12  | 8192\-12287 |  2   | `TRICE8_2`, `TRICE16_1`                                                     |
+|`II IC VV...4`  |`iiiiiiii iiiicccc vvvvvvvv...4`  |    6 |   12  |12288\-16383 |  3   | `TRICE8_3`, `TRICE8_4`, `TRICE16_1`, `TRICE16_2`,  `TRICE32_1`              |
+|`II IC VV...8`  |`iiiiiiii iiiicccc vvvvvvvv...8`  |   10 |   12  |16384\-20479 |  4   | `TRICE8_5`...`TRICE8_8`, `TRICE16_3`, `TRICE16_4`, `TRICE32_2`, `TRICE64_1` |
+|`II IC VV...16` |`iiiiiiii iiiicccc vvvvvvvv...16` |   18 |   12  |20480\-24575 |  5   | `TRICE116_5`...`TRICE16_8`, `TRICE32_3`...`TRICE32_4`, `TRICE64_2`          |
+|`II IC VV...32` |`iiiiiiii iiiicccc vvvvvvvv...32` |   34 |   12  |24576\-28671 |  6   | `TRICE32_5`...`TRICE32_8`, `TRICE64_3`...`TRICE64_4`                        |
+|`II IC VV...64` |`iiiiiiii iiiicccc vvvvvvvv...64` |   66 |   12  |28672\-32767 |  7   | `TRICE64_5`...`TRICE64_8`                                                   |
+|`XX...8*n`      |`xxxxxxxx...8*n`                  |  8*n |       |             |      | encrypted                                                                   |
+|`XX...n`        |`xxxxxxxx...n`                    |    n |       |             |      | reserved, n%8 != 0 && n != 0, 2, 3, 4, 6, 10, 18, 34, 66                    |
