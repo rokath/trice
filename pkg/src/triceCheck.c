@@ -9,6 +9,8 @@
 //#define TRICE_OFF // enable this line to disable trice code generation in this file object
 #include "trice.h"
 
+#if TRICE_ENCODING == TRICE_FLEX_ENCODING
+
 ///////////////////////////////////////////////////////////////////////////////
 // trice time measurement
 //
@@ -22,7 +24,6 @@ TRICE_INLINE void triceRuntimeGeneratedStringUnbound( const char* s ){
             case  0: return;
             case  1: c1=*s++;
                 TRICE8_1( Id(65329), "%c", c1 ); return;
-                //TRICE8_1( Id(65329), "%c", c1 ); return;
             case  2: c1=*s++; c2=*s++;
                 TRICE8_2( Id(65279), "%c%c", c1, c2 ); return;
             case  3: c1=*s++; c2=*s++; c3=*s++;
@@ -70,13 +71,22 @@ void triceRuntimeStrings( int from, int limit){
     }
 }
 
+#endif // #if TRICE_ENCODING == TRICE_FLEX_ENCODING
+
+
 //! triceCheckSet writes out all types of trices with fixed values for testing
 //! \details One trice has one subtrace, if param size max 2 bytes. 
 //! Traces with more bytes as parameter consist of several subtraces.
 void triceCheckSet(int index) {
     switch (index) {
         case 0:
+            TRICE0( Id( 48738), "tst:Hi!\n" );
+            TRICE8_1( Id( 36005), "tst:Hi! %d\n", 1 );
+            TRICE8_2( Id( 53180), "tst:Hi! %d %d\n", 1, 2 );
+            TRICE8_3( Id( 37316), "tst:Hi! %d %d %d\n", 1, 2, 3 );
+            TRICE16_1( Id( 44374), "tst:Hi! %x\n", 0x1122 );
         break;
+#if 0 // TRICE_ENCODING == TRICE_FLEX_ENCODING        
         case 1: {
             void COBSREncodingCheck128( void );
             COBSREncodingCheck128();
@@ -648,6 +658,7 @@ void triceCheckSet(int index) {
             Trice8i( id(14039), "sig:task %u -> %u\n", 6, 7 );
             break;
             #endif // #if TRICE_ENCODING == TRICE_FLEX_ENCODING
+#endif // #if TRICE_ENCODING == TRICE_FLEX_ENCODING            
         default:
             break;
     }

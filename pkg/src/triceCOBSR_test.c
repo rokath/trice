@@ -1,55 +1,7 @@
 
 #include "trice.h"
 #include "cobsr.h"
-
-//! COBSREncode does the same as the cobsr_encode function but a bit faster.
-//! by leaving out some checks, assuming max 254 source bytes and uses a simpler signature.
-//! See https://github.com/ctrl-labs/cobs-c for more details.
-//! \param dst is the result buffer. It must be at least 1 byte longer than len.
-//! \param src is the source buffer.
-//! \param len is count of valid data inside the the source buffer. Assumption: 0 < len < 255.
-//! \retval is the count of valid data inside the the result buffer. It is len or len+1.
-size_t COBSREncode(uint8_t *dst, const uint8_t * src, size_t len){
-    const uint8_t* limit = src + len; // end of source 
-    uint8_t*       code  = dst;       // next code position
-    uint8_t*       data  = dst + 1;   // next data position
-    uint8_t        leg   = 1;         // search length
-    uint8_t        by;                // byte
-    for (;;) { // Iterate over the source bytes
-        by = *src++;
-        if (by == 0) { // We found a zero byte
-            *code = leg;
-            code = data++;
-            leg = 1;
-            if (src >= limit){
-                break;
-            }
-        } else { // Copy the non-zero byte to the destination buffer
-            *data++ = by;
-            leg++;
-            if (src >= limit){
-                break;
-            }
-        }
-    }
-    // We've reached the end of the source data (or possibly run out of output buffer)
-    // Finalise the remaining output. In particular, write the code (length) byte.
-    //
-    // For COBS/R, the final code (length) byte is special: if the final data byte is
-    // greater than or equal to what would normally be the final code (length) byte,
-    // then replace the final code byte with the final data byte, and remove the final
-    // data byte from the end of the sequence. This saves one byte in the output.
-    //
-    // Update the pointer to calculate the final output length.
-    if (by < leg){ // Encoding same as plain COBS 
-        *code = leg;
-    } else { // Special COBS/R encoding: length code is final byte, and final byte is removed from data sequence.
-        *code = by;
-        return len; // data--;
-    }
-    return len+1; //data - dst; // Calculate the output length, from the value of code
-}
-
+#if 0
 //! COBSREncodeWithShortRules does the same as the COBSREncode function but a bit faster for len 1,2,3,4 when first 2 bytes both !=0.
 //! \param dst is the result buffer. It must be at least 1 byte longer than len.
 //! \param src is the source buffer.
@@ -156,7 +108,7 @@ size_t COBSREncodeWithShortRules(uint8_t *dst, const uint8_t *src, size_t len){
             // fffe -> ff fe
             // ffff -> ff ff
             if( src[0] <= 3 || src[1] == 0 ){
-                return COBSREncode( dst, src, len );
+                return triceCOBSREncode( dst, src, len );
             }
             dst[0] = src[1];
             dst[1] = src[0];
@@ -261,7 +213,7 @@ size_t COBSREncodeWithShortRules(uint8_t *dst, const uint8_t *src, size_t len){
         }
         #endif
         default:
-            return COBSREncode( dst, src, len );
+            return triceCOBSREncode( dst, src, len );
     }
 }
 
@@ -278,7 +230,7 @@ static void COBSRCheck12( void* pTestValue, int byteWidth ){
         default: return;
     }
     
-    len = COBSREncode(enc, pTestValue, byteWidth);
+    len = triceCOBSREncode(enc, pTestValue, byteWidth);
 
     // print right side
     switch( len ){
@@ -457,7 +409,7 @@ void COBSREncodingCheck3( void ){
     src[0] = 0x11;
     src[1] = 0x1c;
     src[2] = idx;
-    dlen = COBSREncode( dst, src, len );
+    dlen = triceCOBSREncode( dst, src, len );
     trice8( Id( 39801), "msg:%02x %02x %02x -> %02x %02x %02x ", src[0], src[1], src[2], dst[0], dst[1], dst[2] );
     if( 4 == dlen ){
         trice8( Id( 49285), "msg:%02x\n", dst[3] );
@@ -508,7 +460,7 @@ void COBSREncodingCheck4( void ){
     src[1] = 0x1c;
     src[2] = idx;
     src[3] = 0x00;
-    dlen = COBSREncode( dst, src, len );
+    dlen = triceCOBSREncode( dst, src, len );
     trice8( Id( 63981), "msg:%02x %02x %02x %02x -> %02x %02x %02x %02x ", src[0], src[1], src[2], src[3], dst[0], dst[1], dst[2], dst[3] );
     if( 5 == dlen ){
         trice8( Id( 49285), "msg:%02x\n", dst[4] );
@@ -582,6 +534,7 @@ void COBSREncodingCheck128( void ){
     len = (0 < len && len < 128) ? len + 1 : 1;
 }
 
+#endif
 
 //  //! Wrap_cobsr_encode calls the original cobsr_encode function but has a simpler sinature.
 //  //! It is usable for verifying.

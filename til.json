@@ -259,6 +259,10 @@
 		"Type": "trice0",
 		"Strg": "3"
 	},
+	"34357": {
+		"Type": "TRICE16_1",
+		"Strg": "tst:Hi! %x\\n"
+	},
 	"34810": {
 		"Type": "trice32",
 		"Strg": "dbg:i=%u\\n"
@@ -319,6 +323,10 @@
 		"Type": "trice32",
 		"Strg": "dbg:i=%u\\n"
 	},
+	"36005": {
+		"Type": "TRICE8_1",
+		"Strg": "tst:Hi! %d\\n"
+	},
 	"36106": {
 		"Type": "trice16",
 		"Strg": "time:len=%u, ticks=%d, equal=%u, longer=%u\\n"
@@ -362,6 +370,10 @@
 	"37242": {
 		"Type": "trice8",
 		"Strg": "att: %02x %02x -\u003e %02x %02x %02x\\n"
+	},
+	"37316": {
+		"Type": "TRICE8_3",
+		"Strg": "tst:Hi! %d %d %d\\n"
 	},
 	"37353": {
 		"Type": "TRICE16i",
@@ -487,6 +499,10 @@
 		"Type": "trice16_1",
 		"Strg": "tst:trice16_1   message, SysTick is %6u\\n"
 	},
+	"40370": {
+		"Type": "TRICE8_2",
+		"Strg": "tst:Hi! %d %d\\n"
+	},
 	"40865": {
 		"Type": "TRICE16_1",
 		"Strg": "tst:TRICE16_1 %u\\n"
@@ -606,6 +622,14 @@
 	"44324": {
 		"Type": "TRICE8",
 		"Strg": "rd:TRICE8 line %d, %d\\n"
+	},
+	"44374": {
+		"Type": "TRICE16_1",
+		"Strg": "tst:Hi! %x\\n"
+	},
+	"44880": {
+		"Type": "TRICE8_1",
+		"Strg": "tst:Hi! %d\\n"
 	},
 	"44960": {
 		"Type": "TRICE32_1",
@@ -750,6 +774,10 @@
 	"48736": {
 		"Type": "trice8",
 		"Strg": "msg:%02x %02x %02x %02x -\u003e %02x %02x %02x %02x "
+	},
+	"48738": {
+		"Type": "TRICE0",
+		"Strg": "tst:Hi!\\n"
 	},
 	"48750": {
 		"Type": "trice8",
@@ -922,6 +950,10 @@
 	"53154": {
 		"Type": "trice16i",
 		"Strg": "rd:%d\\n"
+	},
+	"53180": {
+		"Type": "TRICE8_2",
+		"Strg": "tst:Hi! %d %d\\n"
 	},
 	"53200": {
 		"Type": "TRICE8_5",

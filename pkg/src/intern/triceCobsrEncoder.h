@@ -13,13 +13,13 @@ extern "C" {
 #include <string.h>
 
 
-#define id(n) ((((uint32_t)(n))<<(32-16)) & ~0x80000000) //!< Prepare 15-bit ID for transmission, bit 31 is 0
-#define Id(n) ((((uint32_t)(n))<<(32-21)) |  0x80000000) //!< Prepare 20-bit ID for transmission, bit 31 is 1
+//#define Id(n) ((((uint32_t)(n))<<(32-21)) |  0x80000000) //!< Prepare 20-bit ID for transmission, bit 31 is 1
 
 //! TRICE_LONGCOUNT is an internal helper.
-#define TRICE_LONGCOUNT( n ) (((n) << 16) | (0xffff & ~(n)) )
+//#define TRICE_LONGCOUNT( n ) (((n) << 16) | (0xffff & ~(n)) )
 
 #if 0
+#define id(n) ((((uint32_t)(n))<<(32-16)) & ~0x80000000) //!< Prepare 15-bit ID for transmission, bit 31 is 0
 
 //! Trice0 does trace id unprotected (inside critical section) in short mode.
 //! \param id trice identifier
@@ -94,17 +94,26 @@ extern "C" {
 
 extern uint8_t triceCycle;
 
-#define TRICE_HTON_U16_COBSR_PUSH(a)
-#define TRICE_HTON_U32_COBSR_PUSH(a)
-#error
+#define Id(n) ((uint16_t)(((uint16_t)(n))<<4)) //!< Prepare 12-bit ID for transmission, bit 16-19 are deleted 1
+
+
+#define TRICE_HTON_U16_COBSR_PUSH(a) do { \
+    TRICE_U8PUSH( a>>8 ); TRICE_U8PUSH( a ); \
+} while(0)
+
+
+
+
 
 //! TRICE0i does trace id unprotected (inside critical section).
 //! \param id trice identifier
 //! \param pFmt formatstring for trice
 //! This is a time optinized implementation.
 #define TRICE0i( id, pFmt ) do{ \
-    TRICE_HTON_U16_COBSR_PUSH( id | (0x0f & triceCycle) ); \
-    triceCycle++; \
+    uint8_t ii = (uint8_t)(id >> 8); \
+    uint8_t ic = (uint8_t)(id | triceCycle++); \
+    triceCycle &= 0x0f; \
+    TRICE_U8PUSH( ic ); TRICE_U8PUSH( ii ); TRICE_U8PUSH( 0 ); \
 } while(0)
 
 //! TRICE0 does trace id protected (outside critical section).
@@ -123,9 +132,12 @@ extern uint8_t triceCycle;
 //! \param 8-bit payload
 //! This is a time optinized implementation.
 #define TRICE8_1i( id, pFmt, d0 ) do{ \
-    TRICE_HTON_U32_COBSR_PUSH( id | (0x0f & triceCycle ) | d0 ); \
-    triceCycle++; \
-    TRICE_HTON_U32PUSH( (uint8_t)(d0) ); \
+    uint8_t ii = (uint8_t)(id >> 8); \
+    uint8_t ic = (uint8_t)(id | triceCycle++); \
+    triceCycle &= 0x0f; \
+         if ( d0  > 3 ){ TRICE_U8PUSH( d0); TRICE_U8PUSH( ii ); TRICE_U8PUSH( ic ); TRICE_U8PUSH( 0 ); } \
+    else if ( d0 == 0 ){ TRICE_U8PUSH( 3 ); TRICE_U8PUSH( ii ); TRICE_U8PUSH( ic ); TRICE_U8PUSH( 1 ); TRICE_U8PUSH( 0 ); } \
+    else               { TRICE_U8PUSH( 4 ); TRICE_U8PUSH( ii ); TRICE_U8PUSH( ic ); TRICE_U8PUSH(d0 ); TRICE_U8PUSH( 0 ); } \
 } while(0)
 
 //! TRICE8_1 does trace id and 8-bit value protected (outside critical section).
@@ -146,8 +158,14 @@ extern uint8_t triceCycle;
 //! \param d1 payload
 //! This is a time optinized implementation.
 #define TRICE8_2i( id, pFmt, d0, d1 ) do{ \
-    TRICE_HTON_U32_COBSR_PUSH( id|(0x0f & triceCycle)|(d0<<8)|d1); \
-    triceCycle++; \
+    uint8_t ii = (uint8_t)(id >> 8); \
+    uint8_t ic = (uint8_t)(id | triceCycle++); \
+    triceCycle &= 0x0f; \
+         if( d0 == 00 && d1 != 00 ) { TRICE_U8PUSH( 3); TRICE_U8PUSH( ii ); TRICE_U8PUSH( ic ); TRICE_U8PUSH(d1); } \
+    else if( d0 == 00 && d1 == 00 ) { TRICE_U8PUSH( 3); TRICE_U8PUSH( ii ); TRICE_U8PUSH( ic ); TRICE_U8PUSH( 1); TRICE_U8PUSH( 1); } \
+    else if( d0 != 00 && d1 == 00 ) { TRICE_U8PUSH( 4); TRICE_U8PUSH( ii ); TRICE_U8PUSH( ic ); TRICE_U8PUSH(d0); TRICE_U8PUSH( 1); } \
+    else if( d0 != 00 && d1  <  5 ) { TRICE_U8PUSH( 5); TRICE_U8PUSH( ii ); TRICE_U8PUSH( ic ); TRICE_U8PUSH(d0); TRICE_U8PUSH(d1); } \
+    else                            { TRICE_U8PUSH(d1); TRICE_U8PUSH( ii ); TRICE_U8PUSH( ic ); TRICE_U8PUSH(d0); } \
 } while(0)
 
 //! TRICE8_2 does trace id and 8-bit values protected (outside critical section).
@@ -170,9 +188,12 @@ extern uint8_t triceCycle;
 //! \param d2 payload
 //! This is a time optinized implementation.
 #define TRICE8_3i( id, pFmt, d0, d1, d2 ) do{ \
-    TRICE_HTON_U32PUSH( id|0x0300|triceCycle ); \
-    triceCycle++; \
-    TRICE_HTON_U32PUSH( ((uint32_t)TRICE_U8_JOIN( 0,d0)<<16) | TRICE_U8_JOIN(d1,d2) ); \
+    uint8_t src[5] = { (uint8_t)(id >> 8), (uint8_t)(id | triceCycle++), d0, d1, d2 }; \
+    uint8_t len, dst[6]; \
+    triceCycle &= 0x0f; \
+    len = triceCOBSREncode(dst, src, 5); \
+    for( int i = 0; i < len; i++ ){ TRICE_U8PUSH( dst[i] ); } \
+    TRICE_U8PUSH(d0); \
 } while(0)
 
 //! TRICE8_3 does trace id and 8-bit values protected (outside critical section).
@@ -360,12 +381,20 @@ extern uint8_t triceCycle;
 //! TRICE16_1i does trace id and 16-bit value unprotected (inside critical section).
 //! \param id trice identifier
 //! \param pFmt formatstring for trice
-//! \param d0 payload
+//! \param v0 payload
 //! This is a time optinized implementation.
-#define TRICE16_1i( id, pFmt, d0 ) do{ \
-    TRICE_HTON_U32PUSH( id|0x0200|triceCycle ); \
-    triceCycle++; \
-    TRICE_HTON_U32PUSH( (uint16_t)d0 ); \
+#define TRICE16_1i( id, pFmt, v0 ) do{ \
+    uint8_t ii = (uint8_t)(id >> 8); \
+    uint8_t ic = (uint8_t)(id | triceCycle++); \
+    uint8_t d0, d1; \
+    triceCycle &= 0x0f; \
+    d0 = (uint8_t)(v0); \
+    d1 = (uint8_t)(v0>>8); \
+         if( d0 == 00 && d1 != 00 ) { TRICE_U8PUSH( 3); TRICE_U8PUSH( ii ); TRICE_U8PUSH( ic ); TRICE_U8PUSH(d1); } \
+    else if( d0 == 00 && d1 == 00 ) { TRICE_U8PUSH( 3); TRICE_U8PUSH( ii ); TRICE_U8PUSH( ic ); TRICE_U8PUSH( 1); TRICE_U8PUSH( 1); } \
+    else if( d0 != 00 && d1 == 00 ) { TRICE_U8PUSH( 4); TRICE_U8PUSH( ii ); TRICE_U8PUSH( ic ); TRICE_U8PUSH(d0); TRICE_U8PUSH( 1); } \
+    else if( d0 != 00 && d1  <  5 ) { TRICE_U8PUSH( 5); TRICE_U8PUSH( ii ); TRICE_U8PUSH( ic ); TRICE_U8PUSH(d0); TRICE_U8PUSH(d1); } \
+    else                            { TRICE_U8PUSH(d1); TRICE_U8PUSH( ii ); TRICE_U8PUSH( ic ); TRICE_U8PUSH(d0); } \
 } while(0)
 
 //! TRICE16_1 does trace id and 16-bit value protected (outside critical section).
@@ -634,7 +663,7 @@ extern uint8_t triceCycle;
     TRICE_LEAVE_CRITICAL_SECTION \
 } while(0)
 
-
+#if 0
 //! string transfer format: 
 //!     id       count    cycle <--- id value in trice transfer order
 //! c0     c1     c2       c3
@@ -684,7 +713,7 @@ TRICE_INLINE void trice_s(uint32_t id, char *s) {
 //! \param dynString 0-terminated runtime generated string
 //! After the 4 byte trice message header are following 2^n bytes 
 #define TRICE_S(id, pFmt, dynString) do{ trice_s(id, dynString); }while(0)
-
+#endif
 
 #ifdef __cplusplus
 }
