@@ -78,8 +78,8 @@ void triceCheckSet(int index) {
         case 0:
         break;
         case 1: {
-            void COBSRLoopCheck( void );
-            COBSRLoopCheck();
+            void COBSREncodingCheck128( void );
+            COBSREncodingCheck128();
         }
         break;
         case 2:

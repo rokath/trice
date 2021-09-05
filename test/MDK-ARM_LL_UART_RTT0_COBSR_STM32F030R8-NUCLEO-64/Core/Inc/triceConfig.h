@@ -23,7 +23,7 @@ void triceServeFifoEncryptedToBytesBuffer(void);
 #define TRICE_HEADLINE \
 TRICE0( Id( 41511), "s:                                                   \ns:   MDK-ARM_LL_UART_RTT0_FLEX_STM32F030_NUCLEO-64   \ns:                                                   \n\n");
 
-#define TRICE_FIFO_BYTE_SIZE 2048 //!< must be a power of 2, 32 could be ok in dependence of the maximum trice density
+#define TRICE_FIFO_BYTE_SIZE 4096 //!< must be a power of 2, 32 could be ok in dependence of the maximum trice density
 
 #ifdef TRICE_NO_CODE_GENERATION
 #define TRICE_ENCODING TRICE_NOCODE_ENCODING //!< Select target trice transfer encoding.

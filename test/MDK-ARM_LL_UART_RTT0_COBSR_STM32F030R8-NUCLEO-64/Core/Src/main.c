@@ -22,7 +22,9 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include <stdlib.h>
 #include "trice.h"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -96,6 +98,7 @@ int main(void)
   /* USER CODE BEGIN 2 */
     LL_USART_EnableIT_RXNE(TRICE_UART); // enable UART2 interrupt
     TRICE_HEADLINE;
+    srand(SYSTICKVAL16);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -112,7 +115,7 @@ int main(void)
             #else
             TRICE16_2( Id(47663),"MSG: triceFifoMaxDepth = %d, select = %d\n", triceFifoMaxDepth, select );
             #endif
-            triceCheckSet(select);
+            triceCheckSet(index);
             index++;
             lastTricesTime = milliSecond;
         }

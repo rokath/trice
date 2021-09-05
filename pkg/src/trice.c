@@ -5,6 +5,58 @@
 #include <string.h> // strlen
 #include "trice.h"
 
+#if 1 // (TRICE_ENCODING == TRICE_COBSR_ENCODING)
+
+//! triceCOBSREncode does the same as the cobsr_encode function but a bit faster.
+//! by leaving out some checks, assuming max 254 source bytes and uses a simpler signature.
+//! See https://github.com/ctrl-labs/cobs-c for more details.
+//! \param dst is the result buffer. It must be at least 1 byte longer than len.
+//! \param src is the source buffer.
+//! \param len is count of valid data inside the the source buffer. Assumption: 0 < len < 255.
+//! \retval is the count of valid data inside the the result buffer. It is len or len+1.
+uint8_t triceCOBSREncode(uint8_t *dst, const uint8_t * src, uint8_t len){
+    const uint8_t* limit = src + len; // end of source 
+    uint8_t*       code  = dst;       // next code position
+    uint8_t*       data  = dst + 1;   // next data position
+    uint8_t        leg   = 1;         // search length
+    uint8_t        by;                // byte
+    for (;;) { // Iterate over the source bytes
+        by = *src++;
+        if (by == 0) { // We found a zero byte
+            *code = leg;
+            code = data++;
+            leg = 1;
+            if (src >= limit){
+                break;
+            }
+        } else { // Copy the non-zero byte to the destination buffer
+            *data++ = by;
+            leg++;
+            if (src >= limit){
+                break;
+            }
+        }
+    }
+    // We've reached the end of the source data (or possibly run out of output buffer)
+    // Finalise the remaining output. In particular, write the code (length) byte.
+    //
+    // For COBS/R, the final code (length) byte is special: if the final data byte is
+    // greater than or equal to what would normally be the final code (length) byte,
+    // then replace the final code byte with the final data byte, and remove the final
+    // data byte from the end of the sequence. This saves one byte in the output.
+    //
+    // Update the pointer to calculate the final output length.
+    if (by < leg){ // Encoding same as plain COBS 
+        *code = leg;
+    } else { // Special COBS/R encoding: length code is final byte, and final byte is removed from data sequence.
+        *code = by;
+        return len; // data--;
+    }
+    return len+1; //data - dst; // Calculate the output length, from the value of code
+}
+
+#endif // #if (TRICE_ENCODING == TRICE_COBSR_ENCODING)
+
 #if ((TRICE_ENCODING == TRICE_FLEX_ENCODING) || (TRICE_ENCODING == TRICE_COBSR_ENCODING))
 uint8_t triceCycle = 0;
 #endif
