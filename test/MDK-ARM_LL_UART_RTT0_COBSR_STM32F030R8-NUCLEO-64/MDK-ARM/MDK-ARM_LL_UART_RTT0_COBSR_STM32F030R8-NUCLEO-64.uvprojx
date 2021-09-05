@@ -474,14 +474,14 @@
               <FilePath>..\..\..\pkg\src\triceCheck.c</FilePath>
             </File>
             <File>
-              <FileName>triceCOBSRcheck.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\pkg\src\triceCOBSRcheck.c</FilePath>
-            </File>
-            <File>
               <FileName>cobsr.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\third_party\cobs-c-version_1.0\cobsr.c</FilePath>
+            </File>
+            <File>
+              <FileName>triceCOBSR_test.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\pkg\src\triceCOBSR_test.c</FilePath>
             </File>
           </Files>
         </Group>
