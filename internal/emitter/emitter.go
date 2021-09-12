@@ -157,7 +157,7 @@ func SetPrefix() {
 	}
 }
 
-// BanOrPickFilter returns len of b if b ist not filtererd out, otherwise 0.
+// BanOrPickFilter returns len of b if b ist not filtered out, otherwise 0.
 // If Ban and Pick are nil nothing is filtered out.
 // If Ban and Pick are both not nil this is a fatal error (os.Exit).
 // If b starts with a known channel specifier existent in Ban 0, is returned.
