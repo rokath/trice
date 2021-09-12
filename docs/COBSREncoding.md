@@ -138,7 +138,14 @@ One byte packages are fast COBS/R codable by simply incrementing the 2 values `0
 | `ff fe` |  `ff fe`                                 |
 | `ff ff` |  `ff ff`                                 |
 
-- Two byte packages are fast COBS/R codable by simply using the subset >= 0300 and using it directly but replacing a possible 2nd 00 with the first byte and putting 01 on the first position.
+- Two byte packages are fast COBS/R codable by simply using an Id subset having no first byte 0, 1, 2 and no 0 in the 2nd byte higher nibble:
+- Using `II IC`, where C is a 4 bit cycle counter assumed to sometimes 0 :
+  - Id = 0xIII0 = range 4096 
+  - Id = 0x00n = range 16 is forbidden
+  - Id = 0x01n = range 16 is forbidden // only for trice0
+  - Id = 0x02n = range 16 is forbidden // only for trice0
+  - Id = 0xnn0 = range 256 is forbidden, but not if cycle counter moves only between 1 and 15.
+  - -> 3792 different Ids allowed
 
 ### COBS/R encoding for n-byte packages
 
