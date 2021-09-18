@@ -140,12 +140,12 @@ func (p *Flex) mediumAndLongSubEncoding(head uint32) (n int, err error) {
 	var cycleWarning string
 	if cycle != 0xff&(p.cycle+1) { // lost trices or out of sync
 		if !p.cycleErrorFlag {
-			cycleWarning = fmt.Sprintln("warning:Cycle", cycle, "does not match expected cyle", p.cycle+1, "- lost trice messages?")
+			cycleWarning = fmt.Sprintln("warning:Cycle", cycle, "does not match expected cycle", p.cycle+1, "- lost trice messages?")
 			p.cycleErrorFlag = true
 		}
 	}
 
-	if 0x7 == count { // TRICE_LONGCOUNT(n), values 0-4 short counts, 0x7 is long count and 0x5 & 0x6 are reserved.
+	if count == 0x7 { // TRICE_LONGCOUNT(n), values 0-4 short counts, 0x7 is long count and 0x5 & 0x6 are reserved.
 		if len(p.iBuf) < 8 {
 			return // wait
 		}
@@ -163,14 +163,15 @@ func (p *Flex) mediumAndLongSubEncoding(head uint32) (n int, err error) {
 		return p.outOfSync(fmt.Sprintf("unknown triceID %5d", LastTriceID))
 	}
 	p.upperCaseTriceType = strings.ToUpper(p.trice.Type) // for trice* too
+	p.sCount = count                                     // keep for triceSCount
 	if !p.bytesCountOk(count) {
-		return p.outOfSync(fmt.Sprintf("unecpected byteCount, it is not %d", count))
+		return p.outOfSync(fmt.Sprintf("unexpected byteCount, it is not %d -> Hint: Check your target source code line for correct balance of format specifier and parameter count.", count))
 	}
 	if !p.isTriceComplete(count) {
 		return // try later again
 	}
 	if !p.readDataAndCheckPaddingBytes(count) {
-		return p.outOfSync(fmt.Sprintf("error:padding bytes not zero"))
+		return p.outOfSync("error:padding bytes not zero")
 	}
 
 	// ID and count are ok
@@ -251,17 +252,22 @@ func (p *Flex) isTriceComplete(cnt int) bool {
 	}
 	cnt += 3
 	cnt &= ^3
-	if len(p.iBuf) < 4+longCountBytes+cnt {
-		return false
-	}
-	return true
+	return len(p.iBuf) >= 4+longCountBytes+cnt
+	// above line is same as is same as:
+	// if len(p.iBuf) < 4+longCountBytes+cnt {
+	// 	return false
+	// }
+	// return true
 }
 
 // bytesCountOk returns true if the transmitted count information matches the expected count.
 func (p *Flex) bytesCountOk(cnt int) bool {
-	p.sCount = cnt // keep for triceSCount
 	bytesCount := p.expectedByteCount()
-	return cnt == bytesCount
+	if cnt != bytesCount {
+		fmt.Printf("cnt %d != bytesCount %d\n", cnt, bytesCount)
+		return false
+	}
+	return true
 }
 
 // expectedByteCount returns expected byte count for triceType.
@@ -294,7 +300,8 @@ func (p *Flex) expectedByteCount() int {
 	case "TRICE_S":
 		return p.sCount // cannot check count
 	default:
-		return -1 // unknown trice type
+		fmt.Printf("unknown trice type %s\n", s)
+		return -1
 	}
 }
 
