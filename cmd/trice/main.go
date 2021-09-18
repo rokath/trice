@@ -39,6 +39,8 @@ func doit() {
 	rand.Seed(time.Now().UnixNano())
 	err := args.Handler(os.Args)
 	if nil != err {
-		fmt.Print(err)
+		fmt.Println(error.Error(err))
+		os.Exit(1)
 	}
+	os.Exit(0)
 }
