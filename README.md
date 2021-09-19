@@ -50,11 +50,7 @@ Tiny & super fast tracer code for embedded device real-time PC logging (trace ID
 
 - Printf-like trace macros `TRICE` and PC `trice` tool (written in [Go](https://en.wikipedia.org/wiki/Go_(programming_language))) for automatic ID managing & logging.
 - Communication without string transfer, just with IDs. Prerequisite: byte transmission to PC, low bandwidth is ok:
-<<<<<<< HEAD
   - method does not matter: \
-=======
-  - method does'nt matter: \
->>>>>>> 910dbbf (manually merged)
   USB via virtual COM using FTDI \
   [UART](https://en.wikipedia.org/wiki/Universal_asynchronous_receiver-transmitter), \
   [I²C](https://en.wikipedia.org/wiki/I%C2%B2C), \
