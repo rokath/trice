@@ -88,12 +88,9 @@ void triceRpcList( void ){
 
 #include "cobsr.h"
 
-<<<<<<< HEAD
-=======
 
    
 
->>>>>>> 910dbbf (manually merged)
 void COBSRCheck( void* pTestValue, int byteWidth ){
     cobsr_encode_result COBSEncResult = {0};
     cobsr_decode_result COBSDecResult = {0};
@@ -309,8 +306,6 @@ void triceCheckSet2(int index) {
             COBSRLoopCheck();
         }
         break;
-<<<<<<< HEAD
-=======
         case 2:
             #if TRICE_ENCODING == TRICE_FLEX_ENCODING
             Trice8( id(25308), "rd:Trice8 line %d\n", __LINE__ );
@@ -350,7 +345,6 @@ void triceCheckSet2(int index) {
             COBSRLoopCheck();
         }
         break;
->>>>>>> 910dbbf (manually merged)
         case 1: // 2 byte
         // TriceWrite8( id(0), "%d:LED %d", addr, 1); // experimental send command
 
