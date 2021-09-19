@@ -1695,6 +1695,10 @@
 		"Type": "trice16_4",
 		"Strg": "tst:trice16_4   %%7o -\u003e %7o %7o %7o %7o\\n"
 	},
+	"65422": {
+		"Type": "TRICE0",
+		"Strg": "s:                                                   \\ns:                     myProject                     \\ns:                                                   \\n\\n"
+	},
 	"65424": {
 		"Type": "trice16_1",
 		"Strg": "tst:trice16_1 %d\\n"
