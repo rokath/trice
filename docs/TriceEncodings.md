@@ -265,6 +265,7 @@ the format string, but could also be some (packed) structs and the ID refers to 
 - The bit 31 is the mode bit.
   - 0: short encoding
   - 1: medium and long encoding
+
 #### `flex` short sub-encoding
 
 - Maximum payload 2 bytes
