@@ -262,6 +262,7 @@ func (p *Flex) isTriceComplete(cnt int) bool {
 
 // bytesCountOk returns true if the transmitted count information matches the expected count.
 func (p *Flex) bytesCountOk(cnt int) bool {
+	p.sCount = cnt // keep for triceSCount
 	bytesCount := p.expectedByteCount()
 	if cnt != bytesCount {
 		fmt.Printf("cnt %d != bytesCount %d\n", cnt, bytesCount)
