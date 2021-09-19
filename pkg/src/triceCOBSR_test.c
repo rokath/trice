@@ -1,7 +1,8 @@
 
 #include "trice.h"
-#include "cobsr.h"
+
 #if 0
+#include "cobsr.h"
 //! COBSREncodeWithShortRules does the same as the COBSREncode function but a bit faster for len 1,2,3,4 when first 2 bytes both !=0.
 //! \param dst is the result buffer. It must be at least 1 byte longer than len.
 //! \param src is the source buffer.

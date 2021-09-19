@@ -4,10 +4,21 @@ package id
 
 import (
 	"fmt"
+	"os"
 	"testing"
 
 	"github.com/tj/assert"
 )
+
+func Testmain(m *testing.M) {
+	ExtendMacrosWithParamCount = true
+	i := m.Run()
+	if i != 0 {
+		os.Exit(i)
+	}
+	ExtendMacrosWithParamCount = false
+	os.Exit(m.Run())
+}
 
 type idCheck struct {
 	nbTRICE string

@@ -86,10 +86,7 @@ void triceRpcList( void ){
      TriceRpc0( id(0), "cmd:LED %d", SetLed); // experimental send command
 }
 
-#include "cobsr.h"
-
-
-   
+#include "intern/cobsr.h"
 
 void COBSRCheck( void* pTestValue, int byteWidth ){
     cobsr_encode_result COBSEncResult = {0};

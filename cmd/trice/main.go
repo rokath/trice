@@ -40,7 +40,5 @@ func doit() {
 	err := args.Handler(os.Args)
 	if nil != err {
 		fmt.Println(error.Error(err))
-		os.Exit(1)
 	}
-	os.Exit(0)
 }
