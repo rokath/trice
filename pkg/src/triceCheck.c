@@ -70,6 +70,17 @@ void triceRuntimeStrings( int from, int limit){
 
 #endif // #if TRICE_ENCODING == TRICE_FLEX_ENCODING
 
+//  volatile uint8_t led = 0;
+//  
+//  void SetLED( uint8_t state ){
+//      led = state;
+//  }
+//  
+//  #define TriceRpc0( id, pfmt, n )
+//  
+//  void triceRpcList( void ){
+//       TriceRpc0( id(0), "cmd:LED %d", SetLed); // experimental send command
+//  }
 
 //! triceCheckSet writes out all types of trices with fixed values for testing
 //! \details One trice has one subtrace, if param size max 2 bytes. 
@@ -83,7 +94,10 @@ void triceCheckSet(int index) {
             TRICE8_3( Id( 37316), "tst:Hi! %d %d %d\n", 1, 2, 3 );
             TRICE16_1( Id( 44374), "tst:Hi! %x\n", 0x1122 );
         break;
-        case 1:
+        case 1: {
+            void COBSREncodingCheck128( void );
+            // COBSREncodingCheck128();
+        }
         break;
         case 2:
             #if TRICE_ENCODING == TRICE_FLEX_ENCODING

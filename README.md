@@ -267,4 +267,4 @@ git clone https://github.com/rokath/trice.git
 
 ## Similar projects
 
-[http://baical.net](http://baical.net)
+Maybe you find this project interesting too: [baical.net](http://baical.net/index.html)
