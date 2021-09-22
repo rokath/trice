@@ -7,7 +7,7 @@ package src
 
 // #include "trice.h"
 // unsigned SEGGER_RTT_Write(unsigned BufferIndex, const void* pBuffer, unsigned NumBytes){ return 0; } // to make gcc happy
-// #cgo CFLAGS: -g -Wall -I intern -I "C:/repos/trice/third_party/segger.com/SEGGER_RTT/RTT"
+// #cgo CFLAGS: -g -Wall -I intern -I "../../third_party/segger.com/SEGGER_RTT/RTT" -I "../../third_party/cobs-c-0.5.0"
 import "C"
 
 // read reads from the C source fifo count bytes

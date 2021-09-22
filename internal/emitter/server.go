@@ -66,6 +66,18 @@ func (p *Server) Shutdown(ts []int64, _ *int64) error {
 	defer func() {
 		msg.OnErr(listener.Close())
 		exit = true // do not set true before closing listener, otherwise panic!
+		//  // no need for this code
+		//  if nil != conn {
+		//  	fmt.Println("Calling net.Conn conn.Close()...")
+		//  	err = conn.Close()
+		//  	if nil != err {
+		//  		fmt.Println(err)
+		//  	} else {
+		//  		fmt.Println("Calling conn.Close()...done")
+		//  	}
+		//  } else {
+		//  	fmt.Println("'conn' is nil, cannot call conn.Close()")
+		//  }
 	}()
 	return nil
 }
@@ -102,8 +114,10 @@ func ScDisplayServer() error {
 		conn, err = listener.Accept()
 		if nil != err {
 			if true == exit {
+				//fmt.Println("exit...done")
 				return err
 			}
+			//fmt.Println(err)
 			continue
 		}
 		go rpc.ServeConn(conn)

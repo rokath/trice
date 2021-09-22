@@ -10,7 +10,7 @@ import (
 	"github.com/tj/assert"
 )
 
-func Testmain(m *testing.M) {
+func TestMain(m *testing.M) {
 	ExtendMacrosWithParamCount = true
 	i := m.Run()
 	if i != 0 {
