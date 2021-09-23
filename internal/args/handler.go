@@ -187,6 +187,7 @@ func distributeArgs() {
 	decoder.Verbose = verbose
 	emitter.Verbose = verbose
 	emitter.TestTableMode = decoder.TestTableMode
+	evaluateColorPalette()
 }
 
 // replaceDefaultArgs assigns port specific default strings.
@@ -202,5 +203,16 @@ func replaceDefaultArgs() {
 				receiver.PortArguments = defaultBUFFERArgs
 			}
 		}
+	}
+}
+
+// evaluateColorPalette
+func evaluateColorPalette() {
+	switch emitter.ColorPalette {
+	case "off", "none", "default", "color":
+		return
+	default:
+		fmt.Println("Ignoring unknown -color", emitter.ColorPalette, "using default.")
+		emitter.ColorPalette = "default"
 	}
 }
