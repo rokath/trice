@@ -8,7 +8,6 @@ import (
 	"testing"
 
 	"github.com/rokath/trice/internal/receiver"
-	"github.com/rokath/trice/pkg/lib"
 	"github.com/tj/assert"
 )
 
@@ -24,9 +23,4 @@ func Test1(t *testing.T) {
 	assert.True(t, 0 == n)
 	assert.True(t, io.EOF == err)
 	assert.Nil(t, rc.Close())
-}
-
-// Test is just to have a test
-func TestDummy(t *testing.T) {
-	lib.Ok(t, nil)
 }
