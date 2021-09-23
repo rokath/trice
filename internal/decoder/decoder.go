@@ -32,16 +32,16 @@ const (
 	// flag
 	bigEndian = false
 
-	// patNextFormatSpezifier is a regex to find next format specifier in a string (exclude %%*)
-	patNextFormatSpezifier = `(?:^|[^%])(%[0-9\.#]*(b|c|d|u|x|X|o|f))`
+	// patNextFormatSpecifier is a regex to find next format specifier in a string (exclude %%*)
+	patNextFormatSpecifier = `(?:^|[^%])(%[0-9\.#]*(b|c|d|u|x|X|o|f))`
 
-	// patNextFormatSpezifier is a regex to find next format u specifier in a string
+	// patNextFormatSpecifier is a regex to find next format u specifier in a string
 	// It does also match %%u positions! so an additional check must follow.
-	patNextFormatUSpezifier = `(?:%[0-9]*u)`
+	patNextFormatUSpecifier = `(?:%[0-9]*u)`
 
-	// patNextFormatSpezifier is a regex to find next format u specifier in a string
+	// patNextFormatSpecifier is a regex to find next format u specifier in a string
 	// It does also match %%u positions! so an additional check must follow.
-	patNextFormatXSpezifier = `(?:%[0-9]*(x|X|b))`
+	patNextFormatXSpecifier = `(?:%[0-9]*(x|X|b))`
 )
 
 var (
@@ -63,9 +63,9 @@ var (
 	// UnsignedHex if true, forces hex and in values printed as unsigned values.
 	UnsignedHex bool
 
-	matchNextFormatSpezifier  = regexp.MustCompile(patNextFormatSpezifier)
-	matchNextFormatUSpezifier = regexp.MustCompile(patNextFormatUSpezifier)
-	matchNextFormatXSpezifier = regexp.MustCompile(patNextFormatXSpezifier)
+	matchNextFormatSpecifier  = regexp.MustCompile(patNextFormatSpecifier)
+	matchNextFormatUSpecifier = regexp.MustCompile(patNextFormatUSpecifier)
+	matchNextFormatXSpecifier = regexp.MustCompile(patNextFormatXSpecifier)
 )
 
 // newDecoder abstracts the function type for a new decoder.
@@ -254,14 +254,14 @@ func uReplaceN(i string) (o string, u []bool) {
 	s := i
 	var offset int
 	for {
-		loc := matchNextFormatSpezifier.FindStringIndex(s)
+		loc := matchNextFormatSpecifier.FindStringIndex(s)
 		if nil == loc { // no (more) fm found
 			return
 		}
 		offset += loc[1] // track position
 		fm := s[loc[0]:loc[1]]
-		locU := matchNextFormatUSpezifier.FindStringIndex(fm)
-		locX := matchNextFormatXSpezifier.FindStringIndex(fm)
+		locU := matchNextFormatUSpecifier.FindStringIndex(fm)
+		locX := matchNextFormatXSpecifier.FindStringIndex(fm)
 		if nil != locU { // a %nu found
 			o = o[:offset-1] + "d" + o[offset:] // replace %nu -> %nd
 			u = append(u, true)

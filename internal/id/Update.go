@@ -37,10 +37,10 @@ const (
 	// patAnyTriceStart finds a starting trice with opening '(': https://regex101.com/r/wPuT4M/1
 	patAnyTriceStart = patTypNameTRICE + `\s*\(`
 
-	// patNextFormatSpezifier is a regex to find next format specifier in a string (exclude %%*)
-	patNextFormatSpezifier = `(?:^|[^%])(%[0-9\.#]*(b|c|d|u|x|X|o|f))`
+	// patNextFormatSpecifier is a regex to find next format specifier in a string (exclude %%*)
+	patNextFormatSpecifier = `(?:^|[^%])(%[0-9\.#]*(b|c|d|u|x|X|o|f))`
 
-	// patTriceNoLen finds next `TRICEn` without length specifier: https://regex101.com/r/oKjjic/1
+	// patTriceNoLen finds next `TRICEn` without length specifier: https://regex101.com/r/vSvOEc/1
 	patTriceNoLen = `(?i)(\bTRICE(8|16|32|64)i?\b)`
 
 	patID = `\s*\b(I|i)d\b\s*`
@@ -58,7 +58,7 @@ var (
 	matchNbID                  = regexp.MustCompile(patNbID)
 	matchTypNameTRICE          = regexp.MustCompile(patTypNameTRICE)
 	matchFmtString             = regexp.MustCompile(patFmtString)
-	matchNextFormatSpezifier   = regexp.MustCompile(patNextFormatSpezifier)
+	matchNextFormatSpecifier   = regexp.MustCompile(patNextFormatSpecifier)
 	matchFullAnyTrice          = regexp.MustCompile(patFullAnyTrice)
 	matchTriceNoLen            = regexp.MustCompile(patTriceNoLen)
 	matchIDInsideTrice         = regexp.MustCompile(patIDInsideTrice)
@@ -68,9 +68,9 @@ var (
 
 // updateParamCountAndID0 stays in text as long as trice statements are found.
 // If a TRICE* is found it is getting an Id(0) inserted and it is also extended by _n
-// according to the format specifier count inside the formatstring. Both only if not alreay existent.
+// according to the format specifier count inside the formatstring. Both only if not already existent.
 // A not with the format specifier count matching _n is intentionally not corrected.
-// About a not matching parameter count the compiler will complain.
+// About a not matching parameter count the C compiler will complain later.
 // trice statements ending with letter 'i' keep the 'i' ath the end.
 // Short trices like Trice0 or Trice16_1i need to have an id(0) instead of Id(0) but that gets corrected
 // automatically when the id n is inserted.
@@ -91,7 +91,13 @@ func updateParamCountAndID0(text string, extendMacroName bool) (string, bool) {
 				n := FormatSpecifierCount(triceC)
 				triceNameNoLen := triceC[locNoLen[0]:locNoLen[1]]
 				triceNameWithLen := addFormatSpecifierCount(triceNameNoLen, n)
-				triceC = strings.Replace(triceC, triceNameNoLen, triceNameWithLen, 1) // insert _n
+				// In this example `Trice8_1( id(  800), "rd:Trice8 line %d, %d\n", __LINE__, 2 );` triceNameNoLen is "Trice8",
+				// that is the Trice8 after "rd:" and triceNameWithLen is Trice8_1.
+				// The following line would replace the first `Trice8` which is part of `Trice8_1` with `Trice8_1` resulting in
+				// `Trice8_1_1( id(  800), "rd:Trice8 line %d, %d\n", __LINE__, 2 );` what is a bug.
+				// triceC = strings.Replace(triceC, triceNameNoLen, triceNameWithLen, 1) // insert _n
+				// Therefore the replacement is donne manually:
+				triceC = triceC[:locNoLen[0]] + triceNameWithLen + triceC[locNoLen[1]:] // insert _n
 				modified = true
 				if Verbose {
 					fmt.Print(triceNameNoLen)
@@ -125,8 +131,8 @@ func updateParamCountAndID0(text string, extendMacroName bool) (string, bool) {
 func FormatSpecifierCount(s string) (count int) {
 	xs := "any"
 	for "" != xs {
-		lo := matchNextFormatSpezifier.FindStringIndex(s)
-		xs = matchNextFormatSpezifier.FindString(s)
+		lo := matchNextFormatSpecifier.FindStringIndex(s)
+		xs = matchNextFormatSpecifier.FindString(s)
 		if "" != xs { // found
 			count++
 			s = s[lo[1]:]
