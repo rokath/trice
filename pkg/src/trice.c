@@ -5,7 +5,7 @@
 #include <string.h> // strlen
 #include "trice.h"
 
-#if 1 // (TRICE_ENCODING == TRICE_COBSR_ENCODING)
+#if (TRICE_ENCODING == TRICE_COBSR_ENCODING)
 
 //! triceCOBSREncode does the same as the cobsr_encode function but a bit faster.
 //! by leaving out some checks, assuming max 254 source bytes and uses a simpler signature.

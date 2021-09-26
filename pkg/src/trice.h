@@ -19,7 +19,7 @@ extern "C" {
 #include "triceConfig.h"
 #include "intern/triceConfigCompiler.h"
 
-#if 1 // (TRICE_ENCODING == TRICE_COBSR_ENCODING)
+#if (TRICE_ENCODING == TRICE_COBSR_ENCODING)
 uint8_t triceCOBSREncode(uint8_t *dst, const uint8_t * src, uint8_t len);
 #endif
 
