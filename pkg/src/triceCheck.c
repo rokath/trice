@@ -9,8 +9,6 @@
 //#define TRICE_OFF // enable this line to disable trice code generation in this file object
 #include "trice.h"
 
-#if TRICE_ENCODING == TRICE_FLEX_ENCODING
-
 //! triceRuntimeGeneratedStringUnbound can transfer runtime generated strings if TRICES_1 is not available.
 TRICE_INLINE void triceRuntimeGeneratedStringUnbound( const char* s ){
     size_t len = strlen( s );
@@ -68,8 +66,6 @@ void triceRuntimeStrings( int from, int limit){
     }
 }
 
-#endif // #if TRICE_ENCODING == TRICE_FLEX_ENCODING
-
 //  volatile uint8_t led = 0;
 //  
 //  void SetLED( uint8_t state ){
@@ -100,38 +96,45 @@ void triceCheckSet(int index) {
         }
         break;
         case 2:
-            #if TRICE_ENCODING == TRICE_FLEX_ENCODING
-            Trice8( id(25308), "rd:Trice8 line %d\n", __LINE__ );
-            Trice8i( id(17181), "rd:Trice8i line %d\n", __LINE__ );
-            #endif
-            trice8( Id( 64238), "rd:trice8 line %d\n", 1 );
-            TRICE8( Id( 33304), "rd:TRICE8 line %d\n", 1 );
+            //#if TRICE_ENCODING == TRICE_FLEX_ENCODING
+            //Trice8( id(25308), "rd:Trice8 line %d\n", __LINE__ );
+            //Trice8i( id(17181), "rd:Trice8i line %d\n", __LINE__ );
+            //#endif
+            //trice8( Id( 64238), "rd:trice8 line %d\n", 1 );
+            //TRICE8( Id( 33304), "rd:TRICE8 line %d\n", 1 );
+            //
+            //#if TRICE_ENCODING == TRICE_FLEX_ENCODING
+            //Trice8( id(24616), "rd:Trice8 line %d, %d\n", __LINE__, 2 );
+            //Trice8i( id(21324), "rd:Trice8i line %d, %d\n", __LINE__, 2 );
+            //#endif
+            //trice8( Id( 62651), "rd:trice8 line %d, %d\n", __LINE__, 2 );
+            //TRICE8( Id( 44324), "rd:TRICE8 line %d, %d\n", __LINE__, 2 );
             
             #if TRICE_ENCODING == TRICE_FLEX_ENCODING
-            Trice8( id(24616), "rd:Trice8 line %d, %d\n", __LINE__, 2 );
-            Trice8i( id(21324), "rd:Trice8i line %d, %d\n", __LINE__, 2 );
+            //Trice16(  id(  337), "ATT:Trice16  attention   message, SysTick is %6u\n", SYSTICKVAL16);
+            //Trice16i( id( 7132), "ATT:Trice16i attention   message, SysTick is %6u\n", SYSTICKVAL16);
             #endif
-            trice8( Id( 62651), "rd:trice8 line %d, %d\n", __LINE__, 2 );
-            TRICE8( Id( 44324), "rd:TRICE8 line %d, %d\n", __LINE__, 2 );
-            
-            #if TRICE_ENCODING == TRICE_FLEX_ENCODING
-            Trice16(  id(  337), "ATT:Trice16  attention   message, SysTick is %6u\n", SYSTICKVAL16);
-            Trice16i( id( 7132), "ATT:Trice16i attention   message, SysTick is %6u\n", SYSTICKVAL16);
-            #endif
-            trice16( Id( 35055), "ATT:trice16 attention   message, SysTick is %6u\n", SYSTICKVAL16);
+            trice16( Id( 64324), "ATT:trice16 attention   message, SysTick is %6u, ", SYSTICKVAL16);
+            trice16( Id( 64324), "ATT:trice16 attention   message, SysTick is %6u, ", SYSTICKVAL16);
+            trice16( Id( 64324), "ATT:trice16 attention   message, SysTick is %6u, ", SYSTICKVAL16);
+            trice16( Id( 64324), "ATT:trice16 attention   message, SysTick is %6u, ", SYSTICKVAL16);
+            trice16( Id( 64324), "ATT:trice16 attention   message, SysTick is %6u, ", SYSTICKVAL16);
+            trice16( Id( 64324), "ATT:trice16 attention   message, SysTick is %6u, ", SYSTICKVAL16);
+            trice16( Id( 64324), "ATT:trice16 attention   message, SysTick is %6u, ", SYSTICKVAL16);
+            trice16( Id( 64324), "ATT:trice16 attention   message, SysTick is %6u, ", SYSTICKVAL16);
             TRICE16( Id( 35199), "ATT:TRICE16 attention   message, SysTick is %6u\n", SYSTICKVAL16);
             
-            trice32( Id( 39197),  "rd:trice32 line %d\n", __LINE__ );
-            TRICE32( Id( 58039),  "rd:TRICE32 line %d\n", __LINE__ );
-            
-            trice64( Id( 55382),  "rd:trice64 %d\n", __LINE__ );
-            TRICE64( Id( 50571),  "rd:TRICE64 %d\n", __LINE__ );
-        
-            trice32( Id( 51112),  "rd:trice32 line %d,%d\n", __LINE__, 2 );
-            TRICE32( Id( 54294),  "rd:TRICE32 line %d,%d\n", __LINE__, 2 );
-            
-            trice64( Id( 53022),  "rd:trice64 line %d,%d\n", __LINE__, 2 );
-            TRICE64( Id( 32800),  "rd:TRICE64 line %d,%d\n", __LINE__, 2 );
+            //trice32( Id( 39197),  "rd:trice32 line %d\n", __LINE__ );
+            //TRICE32( Id( 58039),  "rd:TRICE32 line %d\n", __LINE__ );
+            //
+            //trice64( Id( 55382),  "rd:trice64 %d\n", __LINE__ );
+            //TRICE64( Id( 50571),  "rd:TRICE64 %d\n", __LINE__ );
+            //
+            //trice32( Id( 51112),  "rd:trice32 line %d,%d\n", __LINE__, 2 );
+            //TRICE32( Id( 54294),  "rd:TRICE32 line %d,%d\n", __LINE__, 2 );
+            //
+            //trice64( Id( 53022),  "rd:trice64 line %d,%d\n", __LINE__, 2 );
+            //TRICE64( Id( 32800),  "rd:TRICE64 line %d,%d\n", __LINE__, 2 );
         break;
         case 3:
             TRICE8( Id( 54733), "rd:%d\n", 1 );
@@ -152,7 +155,7 @@ void triceCheckSet(int index) {
             TRICE32( Id( 62360), "rd:%d, %d, %d, %d\n", 1, 2, 3, 4 );
             TRICE64( Id( 58278), "rd:%d\n", 1 );
             TRICE64( Id( 58787), "rd:%d, %d\n", 1, 2 );
-
+#if TRICE_ENCODING == TRICE_FLEX_ENCODING 
             TRICE8i( Id( 55609), "rd:%d\n", 1 );
             TRICE8i( Id( 51264), "rd:%d, %d\n", 1, 2 );
             TRICE8i( Id( 40040), "rd:%d, %d, %d\n", 1, 2, 3 );
@@ -171,6 +174,7 @@ void triceCheckSet(int index) {
             TRICE32i( Id( 41613), "rd:%d, %d, %d, %d\n", 1, 2, 3, 4 );
             TRICE64i( Id( 38727), "rd:%d\n", 1 );
             TRICE64i( Id( 39062), "rd:%d, %d\n", 1, 2 );
+#endif
         break;
         case 4:
             trice8( Id( 47796), "rd:%d\n", 1 );
@@ -191,7 +195,7 @@ void triceCheckSet(int index) {
             trice32( Id( 54250), "rd:%d, %d, %d, %d\n", 1, 2, 3, 4 );
             trice64( Id( 59745), "rd:%d\n", 1 );
             trice64( Id( 42481), "rd:%d, %d\n", 1, 2 );
-
+#if TRICE_ENCODING == TRICE_FLEX_ENCODING
             trice8i( Id( 50930), "rd:%d\n", 1 );
             trice8i( Id( 58541), "rd:%d, %d\n", 1, 2 );
             trice8i( Id( 48322), "rd:%d, %d, %d\n", 1, 2, 3 );
@@ -210,6 +214,7 @@ void triceCheckSet(int index) {
             trice32i( Id( 52233), "rd:%d, %d, %d, %d\n", 1, 2, 3, 4 );
             trice64i( Id( 52986), "rd:%d\n", 1 );
             trice64i( Id( 41911), "rd:%d, %d\n", 1, 2 );
+#endif
         break;
         case 5:
             trice0(Id( 36646), "--------------------------------------------------\n");
@@ -663,7 +668,7 @@ void triceCheckSet(int index) {
             Trice16i( id( 5645), "tim:@tick %5u ", SYSTICKVAL16 );
             Trice8i( id(14039), "sig:task %u -> %u\n", 6, 7 );
             break;
-            #endif // #if TRICE_ENCODING == TRICE_FLEX_ENCODING         
+            #endif // #if TRICE_ENCODING == TRICE_FLEX_ENCODING                   
         default:
             break;
     }
