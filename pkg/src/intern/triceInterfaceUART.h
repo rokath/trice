@@ -22,7 +22,7 @@ extern "C" {
 
 
 #ifdef ENCRYPT
-#if ((TRICE_FLEX_ENCODING == TRICE_ENCODING) || (TRICE_COBSR_ENCODING == TRICE_ENCODING))
+#if TRICE_FLEX_ENCODING == TRICE_ENCODING
 extern uint8_t triceBytesBuffer[];
 extern int const triceBytesBufferIndexLimit;
 extern int triceBytesBufferIndex;
@@ -56,7 +56,7 @@ TRICE_INLINE void triceTriggerTransmit(void){
 }
 #endif
 #else // #ifdef ENCRYPT
-#if ((TRICE_FLEX_ENCODING == TRICE_ENCODING) || (TRICE_COBSR_ENCODING == TRICE_ENCODING))
+#if TRICE_FLEX_ENCODING == TRICE_ENCODING
 
 //! triceServeTransmit as triceServeU32WriteU8ReadFifoTransmit must be called cyclically to proceed ongoing write out.
 //! A good place: sysTick ISR and UART ISR (both together).
@@ -83,7 +83,7 @@ TRICE_INLINE void triceTriggerTransmit(void){
 #endif
 #endif
 
-#if TRICE_ESC_ENCODING == TRICE_ENCODING
+#if ((TRICE_ESC_ENCODING == TRICE_ENCODING) || (TRICE_COBSR_ENCODING == TRICE_ENCODING))
 
 //! triceServeTransmit as triceServeU8FifoTransmit must be called cyclically to proceed ongoing write out.
 //! A good place is UART ISR.
