@@ -12,6 +12,252 @@ extern "C" {
 #include <stdint.h>
 #include <string.h>
 
+//! TRICE0 writes trice data as fast as possible in a buffer.
+//! \param id is a 16 bit Trice id
+#define TRICE0( id ) \
+    TRICE_ENTER_CRITICAL_SECTION \
+    *wTb++ = 4; \
+    *wTb++ = cycle++; \
+    *(uint16_t*)wTb++ = id; \
+    *(uint32_t*)wTb++ = v0; \
+    TRICE_LEAVE_CRITICAL_SECTION
+
+//! TRICE8_1 writes trice data as fast as possible in a buffer.
+//! \param id is a 16 bit Trice id
+//! \param v0 a 8 bit bit value
+#define TRICE8_1( id, v0 ) \
+    TRICE_ENTER_CRITICAL_SECTION \
+    *wTb++ = 5; \
+    *wTb++ = cycle++; \
+    *(uint16_t*)wTb++ = id; \
+    *wTb++ = v0; \
+    TRICE_LEAVE_CRITICAL_SECTION
+
+//! TRICE8_2 writes trice data as fast as possible in a buffer.
+//! \param id is a 16 bit Trice id
+//! \param v0 - v1 are 8 bit bit values
+#define TRICE8_2( id, v0, v1 ) \
+    TRICE_ENTER_CRITICAL_SECTION \
+    *wTb++ = 6; \
+    *wTb++ = cycle++; \
+    *(uint16_t*)wTb++ = id; \
+    *wTb++ = v0; *wTb++ = v1; \
+    TRICE_LEAVE_CRITICAL_SECTION
+
+//! TRICE8_3 writes trice data as fast as possible in a buffer.
+//! \param id is a 16 bit Trice id
+//! \param v0 - v2 are 8 bit bit values
+#define TRICE8_3( id, v0, v1, v2 ) \
+    TRICE_ENTER_CRITICAL_SECTION \
+    *wTb++ = 7; \
+    *wTb++ = cycle++; \
+    *(uint16_t*)wTb++ = id; \
+    *wTb++ = v0; *wTb++ = v1; *wTb++ = v2; \
+    TRICE_LEAVE_CRITICAL_SECTION
+
+//! TRICE8_4 writes trice data as fast as possible in a buffer.
+//! \param id is a 16 bit Trice id
+//! \param v0 - v3 are 8 bit bit values
+#define TRICE8_4( id, v0, v1, v2, v3 ) \
+    TRICE_ENTER_CRITICAL_SECTION \
+    *wTb++ = 8; \
+    *wTb++ = cycle++; \
+    *(uint16_t*)wTb++ = id; \
+    *wTb++ = v0; *wTb++ = v1; *wTb++ = v2; *wTb++ = v3; \
+    TRICE_LEAVE_CRITICAL_SECTION
+
+//! TRICE8_5 writes trice data as fast as possible in a buffer.
+//! \param id is a 16 bit Trice id
+//! \param v0 - v4 are 8 bit bit values
+#define TRICE8_5( id, v0, v1, v2, v3, v4 ) \
+    TRICE_ENTER_CRITICAL_SECTION \
+    *wTb++ = 9; \
+    *wTb++ = cycle++; \
+    *(uint16_t*)wTb++ = id; \
+    *wTb++ = v0; *wTb++ = v1; *wTb++ = v2; *wTb++ = v3; *wTb++ = v4; \
+    TRICE_LEAVE_CRITICAL_SECTION
+
+//! TRICE8_6 writes trice data as fast as possible in a buffer.
+//! \param id is a 16 bit Trice id
+//! \param v0 - v5 are 8 bit bit values
+#define TRICE8_6( id, v0, v1, v2, v3, v4, v5 ) \
+    TRICE_ENTER_CRITICAL_SECTION \
+    *wTb++ = 10; \
+    *wTb++ = cycle++; \
+    *(uint16_t*)wTb++ = id; \
+    *wTb++ = v0; *wTb++ = v1; *wTb++ = v2; *wTb++ = v3; *wTb++ = v4; *wTb++ = v5; \
+    TRICE_LEAVE_CRITICAL_SECTION
+
+//! TRICE8_8 writes trice data as fast as possible in a buffer.
+//! \param id is a 16 bit Trice id
+//! \param v0 - v6 are 8 bit bit values
+#define TRICE8_7( id, v0, v1, v2, v3, v4, v5, v6 ) \
+    TRICE_ENTER_CRITICAL_SECTION \
+    *wTb++ = 11; \
+    *wTb++ = cycle++; \
+    *(uint16_t*)wTb++ = id; \
+    *wTb++ = v0; *wTb++ = v1; *wTb++ = v2; *wTb++ = v3; *wTb++ = v4; *wTb++ = v5; *wTb++ = v6; \
+    TRICE_LEAVE_CRITICAL_SECTION
+
+//! TRICE8_8 writes trice data as fast as possible in a buffer.
+//! \param id is a 16 bit Trice id
+//! \param v0 - v7 are 8 bit bit values
+#define TRICE8_8( id, v0, v1, v2, v3, v4, v5, v6, v7 ) \
+    TRICE_ENTER_CRITICAL_SECTION \
+    *wTb++ = 12; \
+    *wTb++ = cycle++; \
+    *(uint16_t*)wTb++ = id; \
+    *wTb++ = v0; *wTb++ = v1; *wTb++ = v2; *wTb++ = v3; *wTb++ = v4; *wTb++ = v5; *wTb++ = v6; *wTb++ = v7; \
+    TRICE_LEAVE_CRITICAL_SECTION
+
+//! TRICE16_1 writes trice data as fast as possible in a buffer.
+//! \param id is a 16 bit Trice id
+//! \param v0 a 16 bit value
+#define TRICE16_1( id, v0 ) \
+    TRICE_ENTER_CRITICAL_SECTION \
+    *wTb++ = 6; \
+    *wTb++ = cycle++; \
+    *(uint16_t*)wTb++ = id; \
+    *(uint16_t*)wTb++ = v0; \
+    TRICE_LEAVE_CRITICAL_SECTION
+
+//! TRICE16_2 writes trice data as fast as possible in a buffer.
+//! \param id is a 16 bit Trice id
+//! \param v0 - v1 are 16 bit values
+#define TRICE16_2( id, v0, v1 ) \
+    TRICE_ENTER_CRITICAL_SECTION \
+    *wTb++ = 8; \
+    *wTb++ = cycle++; \
+    *(uint16_t*)wTb++ = id; \
+    *(uint16_t*)wTb++ = v0; *(uint16_t*)wTb++ = v1; \
+    TRICE_LEAVE_CRITICAL_SECTION
+
+//! TRICE16_3 writes trice data as fast as possible in a buffer.
+//! \param id is a 16 bit Trice id
+//! \param v0 - v2 are 16 bit values
+#define TRICE16_3( id, v0, v1, v2 ) \
+    TRICE_ENTER_CRITICAL_SECTION \
+    *wTb++ = 10; \
+    *wTb++ = cycle++; \
+    *(uint16_t*)wTb++ = id; \
+    *(uint16_t*)wTb++ = v0; *(uint16_t*)wTb++ = v1; *(uint16_t*)wTb++ = v2; \
+    TRICE_LEAVE_CRITICAL_SECTION
+
+//! TRICE16_4 writes trice data as fast as possible in a buffer.
+//! \param id is a 16 bit Trice id
+//! \param v0 - v3 are 16 bit values
+#define TRICE16_4( id, v0, v1, v2, v3 ) \
+    TRICE_ENTER_CRITICAL_SECTION \
+    *wTb++ = 8; \
+    *wTb++ = cycle++; \
+    *(uint16_t*)wTb++ = id; \
+    *(uint16_t*)wTb++ = v0; *(uint16_t*)wTb++ = v1; *(uint16_t*)wTb++ = v2; *(uint16_t*)wTb++ = v3; \
+    TRICE_LEAVE_CRITICAL_SECTION
+
+//! TRICE32_1 writes trice data as fast as possible in a buffer.
+//! \param id is a 16 bit Trice id
+//! \param v0 the 32 bit value
+#define TRICE32_1( id, v0 ) \
+    TRICE_ENTER_CRITICAL_SECTION \
+    *wTb++ = 8; \
+    *wTb++ = cycle++; \
+    *(uint16_t*)wTb++ = id; \
+    *(uint32_t*)wTb++ = v0; \
+    TRICE_LEAVE_CRITICAL_SECTION
+
+//! TRICE32_2 writes trice data as fast as possible in a buffer.
+//! \param id is a 16 bit Trice id
+//! \param v0 - v1 are 32 bit values
+#define TRICE32_2( id, v0, v1 ) \
+    TRICE_ENTER_CRITICAL_SECTION \
+    *wTb++ = 12; \
+    *wTb++ = cycle++; \
+    *(uint16_t*)wTb++ = id; \
+    *(uint32_t*)wTb++ = v0; *(uint32_t*)wTb++ = v1; \
+    TRICE_LEAVE_CRITICAL_SECTION
+
+//! TRICE32_3 writes trice data as fast as possible in a buffer.
+//! \param id is a 16 bit Trice id
+//! \param v0 - v2 are 32 bit values
+#define TRICE32_3( id, v0, v1, v2 ) \
+    TRICE_ENTER_CRITICAL_SECTION \
+    *wTb++ = 16; \
+    *wTb++ = cycle++; \
+    *(uint16_t*)wTb++ = id; \
+    *(uint32_t*)wTb++ = v0; *(uint32_t*)wTb++ = v1; *(uint32_t*)wTb++ = v2; *(uint32_t*)wTb++ = v3; \
+    TRICE_LEAVE_CRITICAL_SECTION
+
+//! TRICE32_4 writes trice data as fast as possible in a buffer.
+//! \param id is a 16 bit Trice id
+//! \param v0 - v3 are 32 bit values
+#define TRICE32_4( id, v0, v1, v2, v3 ) \
+    TRICE_ENTER_CRITICAL_SECTION \
+    *wTb++ = 20; \
+    *wTb++ = cycle++; \
+    *(uint16_t*)wTb++ = id; \
+    *(uint32_t*)wTb++ = v0; *(uint32_t*)wTb++ = v1; *(uint32_t*)wTb++ = v2; *(uint32_t*)wTb++ = v3; \
+    TRICE_LEAVE_CRITICAL_SECTION
+
+//! TRICE64_1 writes trice data as fast as possible in a buffer.
+//! \param id is a 16 bit Trice id
+//! \param v0 is a 64 bit values
+#define TRICE64_1( id, v0 ) \
+    TRICE_ENTER_CRITICAL_SECTION \
+    *wTb++ = 36; \
+    *wTb++ = cycle++; \
+    *(uint16_t*)wTb++ = id; \
+    *(uint64_t*)wTb++ = v0; \
+    TRICE_LEAVE_CRITICAL_SECTION
+
+
+//! TRICE64_2 writes trice data as fast as possible in a buffer.
+//! \param id is a 16 bit Trice id
+//! \param v0 - v1 are 64 bit values
+#define TRICE64_2( id, v0, v1 ) \
+    TRICE_ENTER_CRITICAL_SECTION \
+    *wTb++ = 44; \
+    *wTb++ = cycle++; \
+    *(uint16_t*)wTb++ = id; \
+    *(uint64_t*)wTb++ = v0; *(uint64_t*)wTb++ = v1; \
+    TRICE_LEAVE_CRITICAL_SECTION
+
+
+//! TRICE64_3 writes trice data as fast as possible in a buffer.
+//! \param id is a 16 bit Trice id
+//! \param v0 - v2 are 64 bit values
+#define TRICE64_3( id, v0, v1, v2 ) \
+    TRICE_ENTER_CRITICAL_SECTION \
+    *wTb++ = 52; \
+    *wTb++ = cycle++; \
+    *(uint16_t*)wTb++ = id; \
+    *(uint64_t*)wTb++ = v0; *(uint64_t*)wTb++ = v1; *(uint64_t*)wTb++ = v2;  \
+    TRICE_LEAVE_CRITICAL_SECTION
+
+
+//! TRICE64_4 writes trice data as fast as possible in a buffer.
+//! \param id is a 16 bit Trice id
+//! \param v0 - v3 are 64 bit values
+#define TRICE64_4( id, v0, v1, v2, v3 ) \
+    TRICE_ENTER_CRITICAL_SECTION \
+    *wTb++ = 36; \
+    *wTb++ = cycle++; \
+    *(uint16_t*)wTb++ = id; \
+    *(uint64_t*)wTb++ = v0; *(uint64_t*)wTb++ = v1; *(uint64_t*)wTb++ = v2; *(uint64_t*)wTb++ = v3; \
+    TRICE_LEAVE_CRITICAL_SECTION
+
+
+
+
+
+
+
+
+
+
+
+
+
+#if 0 // legacy
 
 //#define Id(n) ((((uint32_t)(n))<<(32-21)) |  0x80000000) //!< Prepare 20-bit ID for transmission, bit 31 is 1
 
@@ -712,6 +958,8 @@ TRICE_INLINE void trice_s(uint32_t id, char *s) {
 //! After the 4 byte trice message header are following 2^n bytes 
 #define TRICE_S(id, pFmt, dynString) do{ trice_s(id, dynString); }while(0)
 #endif
+
+#endif // legacy
 
 #ifdef __cplusplus
 }

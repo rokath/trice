@@ -15,6 +15,8 @@
     - [Encoding table 0 (without cycle counter)](#encoding-table-0-without-cycle-counter)
     - [Encoding table 1 legend](#encoding-table-1-legend)
     - [Encoding table 1 (with 4-bit cycle counter)](#encoding-table-1-with-4-bit-cycle-counter)
+    - [Encoding table 2 (with 8-bit cycle counter)](#encoding-table-2-with-8-bit-cycle-counter)
+  - [Fast TRICE data storing](#fast-trice-data-storing)
 
 (Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc.go))
 
@@ -224,3 +226,22 @@ One byte packages are fast COBS/R codable by simply incrementing the 2 values `0
 |`II IC VV...64` |`iiiiiiii iiiicccc vvvvvvvv...64` |   66 |   12  |28672\-32767 |  7   | `TRICE64_5`...`TRICE64_8`                                                   |
 |`XX...8*n`      |`xxxxxxxx...8*n`                  |  8*n |       |             |      | encrypted                                                                   |
 |`XX...n`        |`xxxxxxxx...n`                    |    n |       |             |      | reserved, n%8 != 0 && n != 0, 2, 3, 4, 6, 10, 18, 34, 66                    |
+
+### Encoding table 2 (with 8-bit cycle counter)
+
+|half bytes      | same as bits                              | bytes|ID bits| ID range  |ID map| remark                                                                      |
+| -              | --------------------------------          |:----:| :---: | :------:  |  :-: |     :-                                                                      |
+|` `             | ` `                                       |    0 |       |           |      | COBS/R padding byte                                                         |
+|`II IC`         |`iiiiiiii iiiiiiii cccccccc`               |    3 |   16  | 1 - 65535 |  0   | `TRICE0`                                                                    |
+|`II IC VV`      |`iiiiiiii iiiiiiii cccccccc vvvvvvvv`      |    4 |   16  | 1 - 65535 |  1   | `TRICE8_1`                                                                  |
+|`II IC VV VV`   |`iiiiiiii iiiiiiii cccccccc vvvvvvvv...2`  |    5 |   16  | 1 - 65535 |  2   | `TRICE8_2`, `TRICE16_1`                                                     |
+|`II IC VV...4`  |`iiiiiiii iiiiiiii cccccccc vvvvvvvv...4`  |    7 |   16  | 1 - 65535 |  3   | `TRICE8_3`, `TRICE8_4`, `TRICE16_1`, `TRICE16_2`,  `TRICE32_1`              |
+|`II IC VV...8`  |`iiiiiiii iiiiiiii cccccccc vvvvvvvv...8`  |   17 |   16  | 1 - 65535 |  4   | `TRICE8_5`...`TRICE8_8`, `TRICE16_3`, `TRICE16_4`, `TRICE32_2`, `TRICE64_1` |
+|`II IC VV...16` |`iiiiiiii iiiiiiii cccccccc vvvvvvvv...16` |   19 |   16  | 1 - 65535 |  5   | `TRICE16_5`...`TRICE16_8`, `TRICE32_3`...`TRICE32_4`, `TRICE64_2`           |
+|`II IC VV...32` |`iiiiiiii iiiiiiii cccccccc vvvvvvvv...32` |   35 |   16  | 1 - 65535 |  6   | `TRICE32_5`...`TRICE32_8`, `TRICE64_3`...`TRICE64_4`                        |
+|`II IC VV...64` |`iiiiiiii iiiiiiii cccccccc vvvvvvvv...64` |   67 |   16  | 1 - 65535 |  7   | `TRICE64_5`...`TRICE64_8`                                                   |
+|`XX...8*n`      |`xxxxxxxx...8*n`                           |  8*n |       |           |      | encrypted                                                                   |
+|`XX...n`        |`xxxxxxxx...n`                             |    n |       |           |      | reserved, n%8 != 0 && n != 0, 2, 3, 4, 6, 10, 18, 34, 66                    |
+
+## Fast TRICE data storing
+

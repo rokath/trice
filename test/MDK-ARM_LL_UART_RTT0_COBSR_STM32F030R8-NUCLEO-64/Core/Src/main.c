@@ -56,6 +56,43 @@ static void MX_USART2_UART_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+#define TRICE_BUFFER_SIZE 1000
+
+static uint8_t triceBuffer[2][TRICE_BUFFER_SIZE] = {0}; //!< triceBuffer is double buffer for better write speed.
+int TriceMaxDepth = 0; //!< TriceMaxDepth is a diagnostics value.
+#define TRICE_ACTIVE 0 //!< TRICE_ACTIVE is the init value for swap.
+static int swap = TRICE_ACTIVE; //!< swap is the active write buffer. !swap is the active read buffer.
+static uint8_t* wTb = &triceBuffer[TRICE_ACTIVE][0]; //!< wTb is the active write position.
+static uint8_t const* rTb = &triceBuffer[!TRICE_ACTIVE][0]; //!< rTb is the active read position.
+static uint8_t cycle = 0; //!< trice cycle counter
+
+
+//! triceRead returns a pointer to next complete trice message, starting with its size or it returns NULL if no data to process.
+//! If in a first try the buffer is empty a buffer swap is done:
+//! \li Switch next write to this buffer here, because it is empty.
+//! \li Switch next read to the other buffer, may be there is stuff to read.
+//! If both buffers empty each triceRead call results in a buffer swap, what is ok.
+//! There is no wTp overflow check! The read buffer must be read out fast enough to be swapped before the write buffer can overflow.
+uint8_t* triceRead( void ){
+    uint8_t* p;
+    int triceDepth = &triceBuffer[swap][0] - wTb;                            // diagnostics
+    TriceMaxDepth = triceDepth < TriceMaxDepth ? TriceMaxDepth : triceDepth; // diagnostics
+    if( 0 == *rTb ){ // This buffer is empty
+        TRICE_ENTER_CRITICAL_SECTION
+        *wTb = 0; // write end marker
+        swap = !swap;
+        wTb = &triceBuffer[swap][0];
+        *wTb = 0; // write clear marker 
+        rTb = &triceBuffer[!swap][0];
+        TRICE_LEAVE_CRITICAL_SECTION
+        if( 0 == *rTb ){ // This buffer is empty
+            return (uint8_t*)0;
+        }
+    } 
+    p = rTb;
+    rTb += *rTb; // step to next entry
+    return p;
+}
 
 /* USER CODE END 0 */
 
