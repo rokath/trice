@@ -94,15 +94,13 @@ extern "C" {
 
 extern uint8_t triceCycle;
 
-#define Id(n) ((uint16_t)(((uint16_t)(n))<<4)) //!< Prepare 12-bit ID for transmission, bit 16-19 are deleted 1
+#define Id(n) ((uint16_t)(((uint16_t)(n))<<4)) //!< Prepare 12-bit ID for transmission, bit 16-19 are deleted
+
 
 
 #define TRICE_HTON_U16_COBSR_PUSH(a) do { \
     TRICE_U8PUSH( a>>8 ); TRICE_U8PUSH( a ); \
 } while(0)
-
-
-
 
 
 //! TRICE0i does trace id unprotected (inside critical section).
@@ -161,11 +159,11 @@ extern uint8_t triceCycle;
     uint8_t ii = (uint8_t)(id >> 8); \
     uint8_t ic = (uint8_t)(id | triceCycle++); \
     triceCycle &= 0x0f; \
-         if( d0 == 00 && d1 != 00 ) { TRICE_U8PUSH( 3); TRICE_U8PUSH( ii ); TRICE_U8PUSH( ic ); TRICE_U8PUSH(d1); } \
-    else if( d0 == 00 && d1 == 00 ) { TRICE_U8PUSH( 3); TRICE_U8PUSH( ii ); TRICE_U8PUSH( ic ); TRICE_U8PUSH( 1); TRICE_U8PUSH( 1); } \
-    else if( d0 != 00 && d1 == 00 ) { TRICE_U8PUSH( 4); TRICE_U8PUSH( ii ); TRICE_U8PUSH( ic ); TRICE_U8PUSH(d0); TRICE_U8PUSH( 1); } \
-    else if( d0 != 00 && d1  <  5 ) { TRICE_U8PUSH( 5); TRICE_U8PUSH( ii ); TRICE_U8PUSH( ic ); TRICE_U8PUSH(d0); TRICE_U8PUSH(d1); } \
-    else                            { TRICE_U8PUSH(d1); TRICE_U8PUSH( ii ); TRICE_U8PUSH( ic ); TRICE_U8PUSH(d0); } \
+         if( d0 == 00 && d1 != 00 ) { TRICE_U8PUSH( 3); TRICE_U8PUSH( ii ); TRICE_U8PUSH( ic ); TRICE_U8PUSH(d1); TRICE_U8PUSH( 0 ); } \
+    else if( d0 == 00 && d1 == 00 ) { TRICE_U8PUSH( 3); TRICE_U8PUSH( ii ); TRICE_U8PUSH( ic ); TRICE_U8PUSH( 1); TRICE_U8PUSH( 1); TRICE_U8PUSH( 0 ); } \
+    else if( d0 != 00 && d1 == 00 ) { TRICE_U8PUSH( 4); TRICE_U8PUSH( ii ); TRICE_U8PUSH( ic ); TRICE_U8PUSH(d0); TRICE_U8PUSH( 1); TRICE_U8PUSH( 0 ); } \
+    else if( d0 != 00 && d1  <  5 ) { TRICE_U8PUSH( 5); TRICE_U8PUSH( ii ); TRICE_U8PUSH( ic ); TRICE_U8PUSH(d0); TRICE_U8PUSH(d1); TRICE_U8PUSH( 0 ); } \
+    else                            { TRICE_U8PUSH(d1); TRICE_U8PUSH( ii ); TRICE_U8PUSH( ic ); TRICE_U8PUSH(d0); TRICE_U8PUSH( 0 ); } \
 } while(0)
 
 //! TRICE8_2 does trace id and 8-bit values protected (outside critical section).
@@ -193,7 +191,7 @@ extern uint8_t triceCycle;
     triceCycle &= 0x0f; \
     len = triceCOBSREncode(dst, src, 5); \
     for( int i = 0; i < len; i++ ){ TRICE_U8PUSH( dst[i] ); } \
-    TRICE_U8PUSH(d0); \
+    TRICE_U8PUSH(0); \
 } while(0)
 
 //! TRICE8_3 does trace id and 8-bit values protected (outside critical section).
@@ -390,11 +388,11 @@ extern uint8_t triceCycle;
     triceCycle &= 0x0f; \
     d0 = (uint8_t)(v0); \
     d1 = (uint8_t)(v0>>8); \
-         if( d0 == 00 && d1 != 00 ) { TRICE_U8PUSH( 3); TRICE_U8PUSH( ii ); TRICE_U8PUSH( ic ); TRICE_U8PUSH(d1); } \
-    else if( d0 == 00 && d1 == 00 ) { TRICE_U8PUSH( 3); TRICE_U8PUSH( ii ); TRICE_U8PUSH( ic ); TRICE_U8PUSH( 1); TRICE_U8PUSH( 1); } \
-    else if( d0 != 00 && d1 == 00 ) { TRICE_U8PUSH( 4); TRICE_U8PUSH( ii ); TRICE_U8PUSH( ic ); TRICE_U8PUSH(d0); TRICE_U8PUSH( 1); } \
-    else if( d0 != 00 && d1  <  5 ) { TRICE_U8PUSH( 5); TRICE_U8PUSH( ii ); TRICE_U8PUSH( ic ); TRICE_U8PUSH(d0); TRICE_U8PUSH(d1); } \
-    else                            { TRICE_U8PUSH(d1); TRICE_U8PUSH( ii ); TRICE_U8PUSH( ic ); TRICE_U8PUSH(d0); } \
+         if( d0 == 00 && d1 != 00 ) { TRICE_U8PUSH( 3); TRICE_U8PUSH( ii ); TRICE_U8PUSH( ic ); TRICE_U8PUSH(d1); TRICE_U8PUSH( 0 ); } \
+    else if( d0 == 00 && d1 == 00 ) { TRICE_U8PUSH( 3); TRICE_U8PUSH( ii ); TRICE_U8PUSH( ic ); TRICE_U8PUSH( 1); TRICE_U8PUSH( 1); TRICE_U8PUSH( 0 ); } \
+    else if( d0 != 00 && d1 == 00 ) { TRICE_U8PUSH( 4); TRICE_U8PUSH( ii ); TRICE_U8PUSH( ic ); TRICE_U8PUSH(d0); TRICE_U8PUSH( 1); TRICE_U8PUSH( 0 ); } \
+    else if( d0 != 00 && d1  <  5 ) { TRICE_U8PUSH( 5); TRICE_U8PUSH( ii ); TRICE_U8PUSH( ic ); TRICE_U8PUSH(d0); TRICE_U8PUSH(d1); TRICE_U8PUSH( 0 ); } \
+    else                            { TRICE_U8PUSH(d1); TRICE_U8PUSH( ii ); TRICE_U8PUSH( ic ); TRICE_U8PUSH(d0); TRICE_U8PUSH( 0 ); } \
 } while(0)
 
 //! TRICE16_1 does trace id and 16-bit value protected (outside critical section).
