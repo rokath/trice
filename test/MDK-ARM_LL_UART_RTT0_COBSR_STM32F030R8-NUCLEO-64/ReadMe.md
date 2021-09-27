@@ -1,4 +1,4 @@
-# MDK-ARM_LL_UART_RTT0_FLEX_STM32F030R8-NUCLEO-64
+# MDK-ARM_LL_UART_RTT0_COBSR_STM32F030R8-NUCLEO-64
 
 Delivers TRICE logs over UART and RTT channel 0 in "flexL" encoding.
 
@@ -12,6 +12,6 @@ Delivers TRICE logs over UART and RTT channel 0 in "flexL" encoding.
 
 ## Infos
 
-- The trices are stored in `flexL` format and read out byte by byte.
+- The trices are stored in `cobsr` format and read out byte by byte.
 - The transfer goes over RTT channel 0 and UART.
 - A sync package is inserted from time to time in UART transfer.
