@@ -12,14 +12,14 @@ extern "C" {
 #include <stdint.h>
 #include <string.h>
 
+// 15 bit id 0-32767
+// 9 bit count 4-260 (max 511)
+    
 //! TRICE0 writes trice data as fast as possible in a buffer.
 //! \param id is a 16 bit Trice id
 #define TRICE0( id ) \
     TRICE_ENTER_CRITICAL_SECTION \
-    *wTb++ = 4; \
-    *wTb++ = cycle++; \
-    *(uint16_t*)wTb++ = id; \
-    *(uint32_t*)wTb++ = v0; \
+    *(uint32_t*)wTb++ = ((id<<17) | 0x0400) | cyle++ ; \
     TRICE_LEAVE_CRITICAL_SECTION
 
 //! TRICE8_1 writes trice data as fast as possible in a buffer.
@@ -27,9 +27,7 @@ extern "C" {
 //! \param v0 a 8 bit bit value
 #define TRICE8_1( id, v0 ) \
     TRICE_ENTER_CRITICAL_SECTION \
-    *wTb++ = 5; \
-    *wTb++ = cycle++; \
-    *(uint16_t*)wTb++ = id; \
+    *(uint32_t*)wTb++ = ((id<<17) | 0x0500) | cyle++ ; \
     *wTb++ = v0; \
     TRICE_LEAVE_CRITICAL_SECTION
 
