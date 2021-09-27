@@ -82,7 +82,6 @@ uint8_t* triceRead( void ){
         *wTb = 0; // write end marker
         swap = !swap;
         wTb = &triceBuffer[swap][0];
-        *wTb = 0; // write clear marker 
         rTb = &triceBuffer[!swap][0];
         TRICE_LEAVE_CRITICAL_SECTION
         if( 0 == *rTb ){ // This buffer is empty
