@@ -825,11 +825,6 @@
               <FileType>1</FileType>
               <FilePath>..\..\..\pkg\src\trice.c</FilePath>
             </File>
-            <File>
-              <FileName>cobsr.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\third_party\cobs-c-version_1.0\cobsr.c</FilePath>
-            </File>
           </Files>
         </Group>
         <Group>

@@ -56,15 +56,15 @@ static void MX_USART2_UART_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-#define TRICE_BUFFER_SIZE 1000
+#define TRICE_BUFFER_SIZE 256
 
-static uint8_t triceBuffer[2][TRICE_BUFFER_SIZE] = {0}; //!< triceBuffer is double buffer for better write speed.
+static uint32_t triceBuffer[2][TRICE_BUFFER_SIZE>>2] = {0}; //!< triceBuffer is double buffer for better write speed.
 int TriceDepthMax = 0; //!< TriceDepthMax is a diagnostics value.
 #define TRICE_ACTIVE 0 //!< TRICE_ACTIVE is the init value for swap.
 static int swap = TRICE_ACTIVE; //!< swap is the active write buffer. !swap is the active read buffer.
-static uint8_t* wTb = &triceBuffer[TRICE_ACTIVE][0]; //!< wTb is the active write position.
-static uint8_t const* rTb = &triceBuffer[!TRICE_ACTIVE][0]; //!< rTb is the active read position.
-static uint8_t cycle = 0; //!< trice cycle counter
+static uint32_t* wTb = &triceBuffer[TRICE_ACTIVE][0]; //!< wTb is the active write position.
+static uint32_t* rTb = &triceBuffer[!TRICE_ACTIVE][0]; //!< rTb is the active read position.
+static uint8_t cycle = 80; //!< trice cycle counter
 
 
 //! triceRead returns a pointer to next complete trice message, starting with its size or it returns NULL if no data to process.
@@ -73,7 +73,7 @@ static uint8_t cycle = 0; //!< trice cycle counter
 //! \li Switch next read to the other buffer, may be there is stuff to read.
 //! If both buffers empty each triceRead call results in a buffer swap, what is ok.
 //! There is no wTp overflow check! The read buffer must be read out fast enough to be swapped before the write buffer can overflow.
-uint8_t* triceRead( void ){
+uint32_t* triceRead( void ){
     uint8_t* p;
     int triceDepth = &triceBuffer[swap][0] - wTb;                            // diagnostics
     TriceDepthMax = triceDepth < TriceDepthMax ? TriceDepthMax : triceDepth; // diagnostics
@@ -85,12 +85,35 @@ uint8_t* triceRead( void ){
         rTb = &triceBuffer[!swap][0];
         TRICE_LEAVE_CRITICAL_SECTION
         if( 0 == *rTb ){ // This buffer is empty
-            return (uint8_t*)0;
+            return (uint32_t*)0;
         }
     } 
-    p = rTb;
-    rTb += *rTb; // step to next entry
-    return p;
+    p = (uint8_t*)rTb;
+    rTb += (p[1]+7)>>2; // step to next entry (little endian)
+    return (uint32_t*)p;
+}
+
+void ServeTriceTranslation( void ){
+    uint32_t* p;
+    uint8_t clen, tlen;
+    uint8_t* q;
+    if( triceU8FifoDepth() ){
+        return; // transmission not done yet
+    }
+    p = triceRead();
+    if( (uint32_t*)0 == p ){
+        return; // no trice data to transmit
+    }
+    q = (uint8_t*)p;
+    tlen = q[1] + 4; // little endian
+    q[1] = q[0]; // write cycle to 2nd position (little endian assumed!)
+    clen = triceCOBSREncode(triceU8Fifo, &q[1], tlen);
+    triceU8Fifo[clen] = 0; // add 0-delimiter
+    //memcpy(triceU8Fifo, q, tlen );
+    TRICE_ENTER_CRITICAL_SECTION
+    triceU8FifoWriteIndex = clen+1;
+    triceU8FifoReadIndex = 0;
+    TRICE_LEAVE_CRITICAL_SECTION
 }
 
 /* USER CODE END 0 */
@@ -144,10 +167,11 @@ int main(void)
     static int lastTricesTime = 0;
     { // send some trices every few ms
         if( milliSecond >= lastTricesTime + 1000 ){
-          //TRICE0( Id( 48738), "tst:Hi!\n" );                     // [33 230 0]        ...  [34 230 0]
-          //TRICE8_1( Id( 36005), "tst:Hi! %d\n", 1 );             // [4 202 81 1 0]    ...  [4 202 82 1 0]
-          //TRICE8_2( Id( 53180), "tst:Hi! %d %d\n", 1, 2 );       // [5 251 195 1 2 0] ...  [5 251 196 1 2 0]
-            TRICE8_3( Id( 37316), "tst:Hi! %d %d %d\n", 1, 2, 3 ); // [6 28 67 1 2 3 0] ...  [6 28 68 1 2 3 0]
+            TRICE0( Id( 48738), "tst:Hi!\n" );                     // [33 230 0]        ...  [34 230 0]
+            TRICE8_1( Id( 36005), "tst:Hi! %d\n", 1 );             // [4 202 81 1 0]    ...  [4 202 82 1 0]
+            TRICE8_2( Id( 53180), "tst:Hi! %d %d\n", 1, 2 );       // [5 251 195 1 2 0] ...  [5 251 196 1 2 0]
+            TRICE8_3( Id( (5*256 + 6)), "tst:Hi! %d %d %d\n", 1, 2, 3 ); // [6 28 67 1 2 3 0] ...  [6 28 68 1 2 3 0]
+            TRICE8_3( Id( (8*256 + 9)), "tst:Hi! %d %d %d\n", 11, 12, 13 ); // [6 28 67 1 2 3 0] ...  [6 28 68 1 2 3 0]
           //TRICE16_1( Id( 44374), "tst:Hi! %x\n", 0x1213 );       // [18 213 103 19 0] ...  [18 213 103 19 0]
 
 
@@ -168,8 +192,9 @@ int main(void)
     /* USER CODE BEGIN 3 */
         { // serve every few ms
             static int lastMs = 0;
-            if( milliSecond >= lastMs + 1 ){
+            if( milliSecond >= lastMs + 100 ){
                 lastMs = milliSecond;
+                ServeTriceTranslation();
                 #ifdef ENCRYPT
                 triceServeFifoEncryptedToBytesBuffer();
                 #endif
