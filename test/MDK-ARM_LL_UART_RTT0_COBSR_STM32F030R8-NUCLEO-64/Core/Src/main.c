@@ -59,7 +59,7 @@ static void MX_USART2_UART_Init(void);
 #define TRICE_BUFFER_SIZE 1000
 
 static uint8_t triceBuffer[2][TRICE_BUFFER_SIZE] = {0}; //!< triceBuffer is double buffer for better write speed.
-int TriceMaxDepth = 0; //!< TriceMaxDepth is a diagnostics value.
+int TriceDepthMax = 0; //!< TriceDepthMax is a diagnostics value.
 #define TRICE_ACTIVE 0 //!< TRICE_ACTIVE is the init value for swap.
 static int swap = TRICE_ACTIVE; //!< swap is the active write buffer. !swap is the active read buffer.
 static uint8_t* wTb = &triceBuffer[TRICE_ACTIVE][0]; //!< wTb is the active write position.
@@ -76,7 +76,7 @@ static uint8_t cycle = 0; //!< trice cycle counter
 uint8_t* triceRead( void ){
     uint8_t* p;
     int triceDepth = &triceBuffer[swap][0] - wTb;                            // diagnostics
-    TriceMaxDepth = triceDepth < TriceMaxDepth ? TriceMaxDepth : triceDepth; // diagnostics
+    TriceDepthMax = triceDepth < TriceDepthMax ? TriceDepthMax : triceDepth; // diagnostics
     if( 0 == *rTb ){ // This buffer is empty
         TRICE_ENTER_CRITICAL_SECTION
         *wTb = 0; // write end marker
