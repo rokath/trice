@@ -84,7 +84,7 @@ uint32_t* triceRead( void ){
         wTb = &triceBuffer[swap][0];
         rTb = &triceBuffer[!swap][0];
         TRICE_LEAVE_CRITICAL_SECTION
-        if( 0 == *rTb ){ // This buffer is empty
+        if( (uint32_t*)0 == *rTb ){ // This buffer is empty
             return (uint32_t*)0;
         }
     } 
