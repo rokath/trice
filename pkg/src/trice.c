@@ -18,17 +18,17 @@ static uint8_t triceCOBSREncode(uint8_t *dst, const uint8_t * src, uint8_t len){
     const uint8_t* limit = src + len; // end of source 
     uint8_t*       code  = dst;       // next code position
     uint8_t*       data  = dst + 1;   // next data position
-    uint8_t        leg   = 1;         // search length
+    uint8_t        sl    = 1;         // search length
     uint8_t        by;                // byte
     do{ // Iterate over the source bytes
         by = *src++;
         if (by == 0) { // We found a zero byte
-            *code = leg;
+            *code = sl;
             code = data++;
-            leg = 1;
+            sl = 1;
         } else { // Copy the non-zero byte to the destination buffer
             *data++ = by;
-            leg++;
+            sl++;
         }
     }while( src < limit);
     // We've reached the end of the source data (or possibly run out of output buffer)
@@ -41,12 +41,12 @@ static uint8_t triceCOBSREncode(uint8_t *dst, const uint8_t * src, uint8_t len){
     //
     // Update the pointer to calculate the final output length.
     if (by < leg){ // Encoding same as plain COBS 
-        *code = leg;
+        *code = sl;
     } else { // Special COBS/R encoding: length code is final byte, and final byte is removed from data sequence.
         *code = by;
-        return len; // data--;
+        return sl; // data--;
     }
-    return len+1; //data - dst; // Calculate the output length, from the value of code
+    return len+1; // data - dst; // Calculate the output length, from the value of code
 }
 
 #define TRICE_BUFFER_SIZE 256
