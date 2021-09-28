@@ -63,7 +63,7 @@ int TriceDepthMax = 0; //!< TriceDepthMax is a diagnostics value.
 static int swap = TRICE_ACTIVE; //!< swap is the active write buffer. !swap is the active read buffer.
 uint32_t* wTb = &triceBuffer[TRICE_ACTIVE][0]; //!< wTb is the active write position.
 static uint32_t* rTb = &triceBuffer[!TRICE_ACTIVE][0]; //!< rTb is the active read position.
-uint8_t cycle = TRICE_CYCLE_START; //!< trice cycle counter
+uint8_t TriceCycle = TRICE_CYCLE_START; //!< trice cycle counter
 
 #ifndef NULL
 #define NULL (void*)0
