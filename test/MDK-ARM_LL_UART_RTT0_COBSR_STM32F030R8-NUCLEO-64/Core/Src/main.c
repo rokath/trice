@@ -68,7 +68,7 @@ static uint8_t cycle = 80; //!< trice cycle counter
 
 
 //! triceRead returns a pointer to next complete trice message or it returns NULL if no data to process.
-//! If in a first try the buffer is empty a buffer swap is done:
+//! If in a first try the read buffer is empty a buffer swap is done:
 //! \li Switch next write to this buffer here, because it is empty.
 //! \li Switch next read to the other buffer, may be there is stuff to read.
 //! If both buffers empty each triceRead call results in a buffer swap, what is ok.
