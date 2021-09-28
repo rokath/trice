@@ -76,8 +76,8 @@ static uint8_t cycle = 80; //!< trice cycle counter
 //! \li Switch next read to the other buffer, may be there is stuff to read.
 //! If both buffers empty, each triceRead call results in a buffer swap, what is ok.
 //! There is no wTp overflow check! The read buffer must be read out fast enough to be swapped before the write buffer can overflow.
-uint32_t* triceRead( void ){
-    uint32_t* p;
+uint8_t* triceRead( void ){
+    uint8_t* p;
     int triceDepth = &triceBuffer[swap][0] - wTb;                            // diagnostics
     TriceDepthMax = triceDepth < TriceDepthMax ? TriceDepthMax : triceDepth; // diagnostics
     if( NULL == *rTb ){ // This buffer is empty
@@ -91,15 +91,14 @@ uint32_t* triceRead( void ){
             return NULL;
         }
     } 
-    p = rTb;
-    rTb += ((uint8_t*)p[1]+7)>>2; // step to next entry (little endian)
+    p = (uint8_t*)rTb;
+    rTb += (p[1]+7)>>2; // step to next entry (little endian)
     return p;
 }
 
 void ServeTriceTranslation( void ){
-    uint32_t* p;
+    uint8_t* p;
     uint8_t clen, tlen;
-    uint8_t* q;
     if( triceU8FifoDepth() ){
         return; // transmission not done yet
     }
@@ -107,12 +106,10 @@ void ServeTriceTranslation( void ){
     if( NULL == p ){
         return; // no trice data to transmit
     }
-    q = (uint8_t*)p;
-    tlen = q[1] + 4; // little endian
-    q[1] = q[0]; // write cycle to 2nd position (little endian assumed!)
-    clen = triceCOBSREncode(triceU8Fifo, &q[1], tlen);
+    tlen = p[1] + 4; // little endian
+    p[1] = p[0]; // write cycle to 2nd position (little endian assumed!)
+    clen = triceCOBSREncode(triceU8Fifo, &p[1], tlen);
     triceU8Fifo[clen] = 0; // add 0-delimiter
-    //memcpy(triceU8Fifo, q, tlen );
     TRICE_ENTER_CRITICAL_SECTION
     triceU8FifoWriteIndex = clen+1;
     triceU8FifoReadIndex = 0;
