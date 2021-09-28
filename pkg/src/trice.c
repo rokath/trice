@@ -22,7 +22,7 @@ static uint8_t triceCOBSREncode(uint8_t *dst, const uint8_t * src, uint8_t len){
     uint8_t        by;                // byte
     do{ // Iterate over the source bytes
         by = *src++;
-        if (by == 0) { // We found a zero byte
+        if( by == 0 ) { // We found a zero byte
             *code = sl;
             code = data++;
             sl = 1;
@@ -30,7 +30,7 @@ static uint8_t triceCOBSREncode(uint8_t *dst, const uint8_t * src, uint8_t len){
             *data++ = by;
             sl++;
         }
-    }while( src < limit);
+    }while( src < limit );
     // We've reached the end of the source data (or possibly run out of output buffer)
     // Finalise the remaining output. In particular, write the code (length) byte.
     //
@@ -40,7 +40,7 @@ static uint8_t triceCOBSREncode(uint8_t *dst, const uint8_t * src, uint8_t len){
     // data byte from the end of the sequence. This saves one byte in the output.
     //
     // Update the pointer to calculate the final output length.
-    if (by < sl){ // Encoding same as plain COBS 
+    if( by < sl ){ // Encoding same as plain COBS 
         *code = sl;
     } else { // Special COBS/R encoding: length code is final byte, and final byte is removed from data sequence.
         *code = by;
