@@ -77,7 +77,7 @@ static uint8_t cycle = 80; //!< trice cycle counter
 //! If both buffers empty, each triceRead call results in a buffer swap, what is ok.
 //! There is no wTp overflow check! The read buffer must be read out fast enough to be swapped before the write buffer can overflow.
 uint32_t* triceRead( void ){
-    uint8_t* p;
+    uint32_t* p;
     int triceDepth = &triceBuffer[swap][0] - wTb;                            // diagnostics
     TriceDepthMax = triceDepth < TriceDepthMax ? TriceDepthMax : triceDepth; // diagnostics
     if( NULL == *rTb ){ // This buffer is empty
@@ -91,9 +91,9 @@ uint32_t* triceRead( void ){
             return NULL;
         }
     } 
-    p = (uint8_t*)rTb;
-    rTb += (p[1]+7)>>2; // step to next entry (little endian)
-    return (uint32_t*)p;
+    p = rTb;
+    rTb += ((uint8_t*)p[1]+7)>>2; // step to next entry (little endian)
+    return p;
 }
 
 void ServeTriceTranslation( void ){
