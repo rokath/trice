@@ -77,7 +77,7 @@ uint32_t* triceRead( void ){
     uint8_t* p;
     int triceDepth = &triceBuffer[swap][0] - wTb;                            // diagnostics
     TriceDepthMax = triceDepth < TriceDepthMax ? TriceDepthMax : triceDepth; // diagnostics
-    if( 0 == *rTb ){ // This buffer is empty
+    if( (uint32_t*)0 == *rTb ){ // This buffer is empty
         TRICE_ENTER_CRITICAL_SECTION
         *wTb = 0; // write end marker
         swap = !swap;
