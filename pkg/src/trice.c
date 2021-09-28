@@ -40,7 +40,7 @@ static uint8_t triceCOBSREncode(uint8_t *dst, const uint8_t * src, uint8_t len){
     // data byte from the end of the sequence. This saves one byte in the output.
     //
     // Update the pointer to calculate the final output length.
-    if (by < leg){ // Encoding same as plain COBS 
+    if (by < sl){ // Encoding same as plain COBS 
         *code = sl;
     } else { // Special COBS/R encoding: length code is final byte, and final byte is removed from data sequence.
         *code = by;
