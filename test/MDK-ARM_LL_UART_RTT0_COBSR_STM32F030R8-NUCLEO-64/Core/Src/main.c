@@ -66,6 +66,9 @@ static uint32_t* wTb = &triceBuffer[TRICE_ACTIVE][0]; //!< wTb is the active wri
 static uint32_t* rTb = &triceBuffer[!TRICE_ACTIVE][0]; //!< rTb is the active read position.
 static uint8_t cycle = 80; //!< trice cycle counter
 
+#ifndef NULL
+#define NULL (void*)0
+#endif
 
 //! triceRead returns a pointer to next complete trice message or it returns NULL if no data to process.
 //! If in a first try the read buffer is empty, a buffer swap is done:
@@ -77,15 +80,15 @@ uint32_t* triceRead( void ){
     uint8_t* p;
     int triceDepth = &triceBuffer[swap][0] - wTb;                            // diagnostics
     TriceDepthMax = triceDepth < TriceDepthMax ? TriceDepthMax : triceDepth; // diagnostics
-    if( (uint32_t*)0 == *rTb ){ // This buffer is empty
+    if( NULL == *rTb ){ // This buffer is empty
         TRICE_ENTER_CRITICAL_SECTION
         *wTb = 0; // write end marker
         swap = !swap;
         wTb = &triceBuffer[swap][0];
         rTb = &triceBuffer[!swap][0];
         TRICE_LEAVE_CRITICAL_SECTION
-        if( (uint32_t*)0 == *rTb ){ // This buffer is empty
-            return (uint32_t*)0;
+        if( NULL == *rTb ){ // This buffer is empty
+            return NULL;
         }
     } 
     p = (uint8_t*)rTb;
@@ -101,7 +104,7 @@ void ServeTriceTranslation( void ){
         return; // transmission not done yet
     }
     p = triceRead();
-    if( (uint32_t*)0 == p ){
+    if( NULL == p ){
         return; // no trice data to transmit
     }
     q = (uint8_t*)p;
