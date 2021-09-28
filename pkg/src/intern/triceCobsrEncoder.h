@@ -16,7 +16,7 @@ extern "C" {
 // 8 bit count 0-255
 
 #define Id(n) ((uint32_t)n<<16)
-#define TRICE_CYCLE cycle++
+#define TRICE_CYCLE TRICE_CYCLE_START // TriceCycle++
 
 //! TRICE0 writes trice data as fast as possible in a buffer.
 //! \param id is a 16 bit Trice id
