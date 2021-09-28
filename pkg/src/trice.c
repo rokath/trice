@@ -20,23 +20,17 @@ static uint8_t triceCOBSREncode(uint8_t *dst, const uint8_t * src, uint8_t len){
     uint8_t*       data  = dst + 1;   // next data position
     uint8_t        leg   = 1;         // search length
     uint8_t        by;                // byte
-    for (;;) { // Iterate over the source bytes
+    do{ // Iterate over the source bytes
         by = *src++;
         if (by == 0) { // We found a zero byte
             *code = leg;
             code = data++;
             leg = 1;
-            if (src >= limit){
-                break;
-            }
         } else { // Copy the non-zero byte to the destination buffer
             *data++ = by;
             leg++;
-            if (src >= limit){
-                break;
-            }
         }
-    }
+    }while( src < limit);
     // We've reached the end of the source data (or possibly run out of output buffer)
     // Finalise the remaining output. In particular, write the code (length) byte.
     //
