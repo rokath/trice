@@ -1335,6 +1335,10 @@
 		"Type": "trice32_4",
 		"Strg": "msg: trice32_4  -\u003e normal trice function (with cycle counter) for everywhere                   %x %X %u %d\\n"
 	},
+	"64324": {
+		"Type": "trice16",
+		"Strg": "ATT:trice16 attention   message, SysTick is %6u, "
+	},
 	"64447": {
 		"Type": "trice64_1",
 		"Strg": "msg: trice64_1  -\u003e normal trice function (with cycle counter) for everywhere                   %u\\n"

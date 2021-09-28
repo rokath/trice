@@ -50,71 +50,16 @@ int milliSecond = 0;
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_USART2_UART_Init(void);
+void ServeTriceTranslation( void );
+extern uint32_t* wTb; //!< wTb is the active write position.
+extern uint8_t cycle; //!< trice cycle counter
+
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-#define TRICE_BUFFER_SIZE 256
-
-static uint32_t triceBuffer[2][TRICE_BUFFER_SIZE>>2] = {0}; //!< triceBuffer is double buffer for better write speed.
-int TriceDepthMax = 0; //!< TriceDepthMax is a diagnostics value.
-#define TRICE_ACTIVE 0 //!< TRICE_ACTIVE is the init value for swap.
-static int swap = TRICE_ACTIVE; //!< swap is the active write buffer. !swap is the active read buffer.
-static uint32_t* wTb = &triceBuffer[TRICE_ACTIVE][0]; //!< wTb is the active write position.
-static uint32_t* rTb = &triceBuffer[!TRICE_ACTIVE][0]; //!< rTb is the active read position.
-static uint8_t cycle = 80; //!< trice cycle counter
-
-#ifndef NULL
-#define NULL (void*)0
-#endif
-
-//! triceRead returns a pointer to next complete trice message or it returns NULL if no data to process.
-//! If in a first try the read buffer is empty, a buffer swap is done:
-//! \li Switch next write to this buffer here, because it is empty.
-//! \li Switch next read to the other buffer, may be there is stuff to read.
-//! If both buffers empty, each triceRead call results in a buffer swap, what is ok.
-//! There is no wTp overflow check! The read buffer must be read out fast enough to be swapped before the write buffer can overflow.
-uint8_t* triceRead( void ){
-    uint8_t* p;
-    int triceDepth = &triceBuffer[swap][0] - wTb;                            // diagnostics
-    TriceDepthMax = triceDepth < TriceDepthMax ? TriceDepthMax : triceDepth; // diagnostics
-    if( NULL == *rTb ){ // This buffer is empty
-        TRICE_ENTER_CRITICAL_SECTION
-        *wTb = 0; // write end marker
-        swap = !swap;
-        wTb = &triceBuffer[swap][0];
-        rTb = &triceBuffer[!swap][0];
-        TRICE_LEAVE_CRITICAL_SECTION
-        if( NULL == *rTb ){ // This buffer is empty
-            return NULL;
-        }
-    } 
-    p = (uint8_t*)rTb;
-    rTb += (p[1]+7)>>2; // step to next entry (little endian)
-    return p;
-}
-
-void ServeTriceTranslation( void ){
-    uint8_t* p;
-    uint8_t clen, tlen;
-    if( triceU8FifoDepth() ){
-        return; // transmission not done yet
-    }
-    p = triceRead();
-    if( NULL == p ){
-        return; // no trice data to transmit
-    }
-    tlen = p[1] + 4; // little endian
-    p[1] = p[0]; // write cycle to 2nd position (little endian assumed!)
-    clen = triceCOBSREncode(triceU8Fifo, &p[1], tlen);
-    triceU8Fifo[clen] = 0; // add 0-delimiter
-    TRICE_ENTER_CRITICAL_SECTION
-    triceU8FifoWriteIndex = clen+1;
-    triceU8FifoReadIndex = 0;
-    TRICE_LEAVE_CRITICAL_SECTION
-}
 
 /* USER CODE END 0 */
 
@@ -167,6 +112,8 @@ int main(void)
     static int lastTricesTime = 0;
     { // send some trices every few ms
         if( milliSecond >= lastTricesTime + 1000 ){
+            TRICE0( Id( 48738), "tst:Hi!\n" );                     // [33 230 0]        ...  [34 230 0]
+            TRICE0( Id( 48738), "tst:Hi!\n" );                     // [33 230 0]        ...  [34 230 0]
             TRICE0( Id( 48738), "tst:Hi!\n" );                     // [33 230 0]        ...  [34 230 0]
             TRICE8_1( Id( 36005), "tst:Hi! %d\n", 1 );             // [4 202 81 1 0]    ...  [4 202 82 1 0]
             TRICE8_2( Id( 53180), "tst:Hi! %d %d\n", 1, 2 );       // [5 251 195 1 2 0] ...  [5 251 196 1 2 0]
