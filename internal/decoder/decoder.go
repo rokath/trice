@@ -12,6 +12,7 @@ import (
 	"os"
 	"os/signal"
 	"regexp"
+	"strings"
 	"sync"
 	"syscall"
 	"time"
@@ -125,12 +126,14 @@ func handleSIGTERM(rc io.ReadCloser) {
 // Translate returns true on io.EOF or false on hard read error or sigterm.
 func Translate(sw *emitter.TriceLineComposer, lut id.TriceIDLookUp, m *sync.RWMutex, rc io.ReadCloser) error {
 	var dec Decoder //io.Reader
-	switch Encoding {
-	case "esc", "ESC":
+	switch strings.ToUpper(Encoding) {
+	case "COBS", "COBS/R", "COBSR":
+		dec = NewCOBSRDecoder(lut, m, rc, littleEndian)
+	case "ESC":
 		dec = NewEscDecoder(lut, m, rc, bigEndian)
-	case "flex", "FLEX":
+	case "FLEX":
 		dec = NewFlexDecoder(lut, m, rc, bigEndian)
-	case "flexl", "flexL", "FLEXL":
+	case "FLEXL":
 		dec = NewFlexDecoder(lut, m, rc, littleEndian)
 	default:
 		log.Fatalf(fmt.Sprintln("unknown encoding ", Encoding))
