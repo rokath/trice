@@ -58,9 +58,9 @@ func (p *Esc) Read(b []byte) (n int, err error) {
 	}
 
 	// Even err could be io.EOF some valid data possibly in p.syncBuffer.
-	// In case of file input (JLINK usage) a plug off is not detectable here.
+	// In case of file input (J-LINK usage) a plug off is not detectable here.
 
-	p.bc = len(p.iBuf) // intermediade assignment for better error tracking
+	p.bc = len(p.iBuf) // intermediate assignment for better error tracking
 	if p.bc < 4 {
 		return // wait
 	}
