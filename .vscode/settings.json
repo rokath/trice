@@ -2,5 +2,8 @@
     "files.associations": {
         "trice.h": "c",
         "triceconfig.h": "c"
-    }
+    },
+    "cSpell.words": [
+        "COBSR"
+    ]
 }
