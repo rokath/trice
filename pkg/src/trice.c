@@ -6,7 +6,7 @@
 #include "trice.h"
 
 #if (TRICE_ENCODING == TRICE_COBSR_ENCODING)
-
+#if 0
 //! triceCOBSREncode does the same as the cobsr_encode function but a bit faster.
 //! by leaving out some checks, assuming max 254 source bytes and uses a simpler signature.
 //! See https://github.com/ctrl-labs/cobs-c for more details.
@@ -47,6 +47,46 @@ static uint8_t triceCOBSREncode(uint8_t *dst, const uint8_t * src, uint8_t len){
         return sl; // data--;
     }
     return len+1; // data - dst; // Calculate the output length, from the value of code
+}
+#endif
+
+// https://github.com/jacquesf/COBS-Consistent-Overhead-Byte-Stuffing/blob/master/cobs.c
+/* Stuffs "length" bytes of data at the location pointed to by
+ * "input", writing the output to the location pointed to by
+ * "output". Returns the number of bytes written to "output".
+ *
+ * Remove the "restrict" qualifiers if compiling with a
+ * pre-C99 C dialect.
+ */
+//size_t cobs_encode(const uint8_t * /*restrict*/ input, size_t length, uint8_t * /*restrict*/ output)
+static uint8_t triceCOBSREncode(uint8_t *output, const uint8_t * input, uint8_t length){
+    size_t read_index = 0;
+    size_t write_index = 1;
+    size_t code_index = 0;
+    uint8_t code = 1;
+    while(read_index < length)
+    {
+        if(input[read_index] == 0)
+        {
+            output[code_index] = code;
+            code = 1;
+            code_index = write_index++;
+            read_index++;
+        }
+        else
+        {
+            output[write_index++] = input[read_index++];
+            code++;
+            if(code == 0xFF)
+            {
+                output[code_index] = code;
+                code = 1;
+                code_index = write_index++;
+            }
+        }
+    }
+    output[code_index] = code;
+    return (uint8_t)write_index;
 }
 
 #define TRICE_BUFFER_SIZE 256
