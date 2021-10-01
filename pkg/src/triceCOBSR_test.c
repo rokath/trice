@@ -1,4 +1,6 @@
 
+#if 0
+/*
 #include "trice.h"
 #include "intern/cobsr.h"
 
@@ -533,7 +535,7 @@ void COBSREncodingCheck128( void ){
     }
     len = (0 < len && len < 128) ? len + 1 : 1;
 }
-
+*/
 
 //  //! Wrap_cobsr_encode calls the original cobsr_encode function but has a simpler sinature.
 //  //! It is usable for verifying.
@@ -661,3 +663,4 @@ void testtest( void ){
     // TriceWrite8( id(0), "%d:LED %d", addr, 1); // experimental send command
 }
 
+#endif
