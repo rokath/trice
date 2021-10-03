@@ -21,7 +21,6 @@ extern "C" {
 
 #if (TRICE_ENCODING == TRICE_COBSR_ENCODING)
 uint8_t triceCOBSREncode(uint8_t *dst, const uint8_t * src, uint8_t len);
-extern uint8_t TriceCycle;
 #endif
 
 #ifdef TRICE_RTT_CHANNEL

@@ -97,7 +97,6 @@ int TriceDepthMax = 0; //!< TriceDepthMax is a diagnostics value.
 static int swap = TRICE_ACTIVE; //!< swap is the active write buffer. !swap is the active read buffer.
 uint32_t* wTb = &triceBuffer[TRICE_ACTIVE][0]; //!< wTb is the active write position.
 static uint32_t* rTb = &triceBuffer[!TRICE_ACTIVE][0]; //!< rTb is the active read position.
-uint8_t TriceCycle = TRICE_CYCLE_START; //!< trice cycle counter
 
 #ifndef NULL
 #define NULL (void*)0
@@ -139,14 +138,14 @@ void ServeTriceTranslation( void ){
     if( NULL == p ){
         return; // no trice data to transmit
     }
-    #if TRICE_CYCLE == TRICE_CYCLE_START // no cycle counter used
-    tlen = p[1] + 2; // little endian, add id size
-    clen = triceCOBSREncode(triceU8Fifo, &p[2], tlen);
-    #else // with cycle counter
+#ifdef TRICE_CYCLE_COUNTER // with cycle counter
     tlen = p[1] + 3; // little endian, add id size and cycle size
     p[1] = p[0]; // write cycle to 2nd position (little endian assumed!)
     clen = triceCOBSREncode(triceU8Fifo, &p[1], tlen);
-    #endif
+#else // no cycle counter used
+    tlen = p[1] + 2; // little endian, add id size
+    clen = triceCOBSREncode(triceU8Fifo, &p[2], tlen);
+#endif
     triceU8Fifo[clen] = 0; // add 0-delimiter
     TRICE_ENTER_CRITICAL_SECTION
     triceU8FifoWriteIndex = clen+1;
@@ -157,7 +156,7 @@ void ServeTriceTranslation( void ){
 #endif // #if (TRICE_ENCODING == TRICE_COBSR_ENCODING)
 
 #if ((TRICE_ENCODING == TRICE_FLEX_ENCODING) || (TRICE_ENCODING == TRICE_COBSR_ENCODING))
-uint8_t triceCycle = 0;
+uint8_t triceCycle = 0xc0; //!< trice cycle counter
 #endif
 
 //! trice fifo instance, here are the trices buffered.

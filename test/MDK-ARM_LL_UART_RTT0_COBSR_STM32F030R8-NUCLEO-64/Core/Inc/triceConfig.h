@@ -17,6 +17,8 @@ extern "C" {
 void triceServeFifoEncryptedToBytesBuffer(void);
 #endif
 
+#define TRICE_CYCLE_COUNTER //! add cycle counter
+
 // #define TRICE_RTT_CHANNEL 0 //!< Uncomment and set channel number for SeggerRTT usage
 
 //! Use and adapt this as you like
