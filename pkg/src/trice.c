@@ -89,10 +89,8 @@ static uint8_t triceCOBSREncode(uint8_t *output, const uint8_t * input, uint8_t 
     return (uint8_t)write_index;
 }
 
-#define TRICE_BUFFER_SIZE 256
-
-static uint32_t triceBuffer[2][TRICE_BUFFER_SIZE>>2] = {0}; //!< triceBuffer is double buffer for better write speed.
-int TriceDepthMax = 0; //!< TriceDepthMax is a diagnostics value.
+static uint32_t triceBuffer[2][(TRICE_BUFFER_SIZE+3)>>3] = {0}; //!< triceBuffer is double buffer for better write speed.
+uint16_t TriceDepthMax = 0; //!< TriceDepthMax is a diagnostics value.
 #define TRICE_ACTIVE 0 //!< TRICE_ACTIVE is the init value for swap.
 static int swap = TRICE_ACTIVE; //!< swap is the active write buffer. !swap is the active read buffer.
 uint32_t* wTb = &triceBuffer[TRICE_ACTIVE][0]; //!< wTb is the active write position.
@@ -110,7 +108,7 @@ static uint32_t* rTb = &triceBuffer[!TRICE_ACTIVE][0]; //!< rTb is the active re
 //! There is no wTp overflow check! The read buffer must be read out fast enough to be swapped before the write buffer can overflow.
 static uint8_t* triceRead( void ){
     uint8_t* p;
-    int triceDepth = &triceBuffer[swap][0] - wTb;                            // diagnostics
+    uint16_t triceDepth = sizeof(uint32_t) * (wTb - &triceBuffer[swap][0]);  // diagnostics
     TriceDepthMax = triceDepth < TriceDepthMax ? TriceDepthMax : triceDepth; // diagnostics
     if( NULL == *rTb ){ // This buffer is empty
         TRICE_ENTER_CRITICAL_SECTION

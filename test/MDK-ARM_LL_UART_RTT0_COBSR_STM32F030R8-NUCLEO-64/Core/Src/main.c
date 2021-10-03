@@ -112,25 +112,25 @@ int main(void)
     static int lastTricesTime = 0;
     { // send some trices every few ms
         if( milliSecond >= lastTricesTime + 1000 ){
-            TRICE0( Id( 48738), "tst:Hi!\n" );                     // [33 230 0]        ...  [34 230 0]
-            TRICE0( Id( 48738), "tst:Hi!\n" );                     // [33 230 0]        ...  [34 230 0]
-            TRICE0( Id( 48738), "tst:Hi!\n" );                     // [33 230 0]        ...  [34 230 0]
-            TRICE8_1( Id( 36005), "tst:Hi! %d\n", 1 );             // [4 202 81 1 0]    ...  [4 202 82 1 0]
-            TRICE8_2( Id( 53180), "tst:Hi! %d %d\n", 1, 2 );       // [5 251 195 1 2 0] ...  [5 251 196 1 2 0]
-            TRICE8_3( Id( (5*256 + 6)), "tst:Hi! %d %d %d\n", 9, 8, 7 ); // [6 28 67 1 2 3 0] ...  [6 28 68 1 2 3 0]
-            TRICE8_3( Id( (8*256 + 9)), "tst:Hi! %d %d %d\n", 11, 12, 13 ); // [6 28 67 1 2 3 0] ...  [6 28 68 1 2 3 0]
-            TRICE16_1( Id( 44374), "tst:Hi! %x\n", 0x1213 );       // [18 213 103 19 0] ...  [18 213 103 19 0]
+            //TRICE0( Id( 48738), "tst:Hi!\n" );                     // [33 230 0]        ...  [34 230 0]
+            //TRICE0( Id( 48738), "tst:Hi!\n" );                     // [33 230 0]        ...  [34 230 0]
+            //TRICE0( Id( 48738), "tst:Hi!\n" );                     // [33 230 0]        ...  [34 230 0]
+            //TRICE8_1( Id( 36005), "tst:Hi! %d\n", 1 );             // [4 202 81 1 0]    ...  [4 202 82 1 0]
+            //TRICE8_2( Id( 53180), "tst:Hi! %d %d\n", 1, 2 );       // [5 251 195 1 2 0] ...  [5 251 196 1 2 0]
+            //TRICE8_3( Id( (5*256 + 6)), "tst:Hi! %d %d %d\n", 9, 8, 7 ); // [6 28 67 1 2 3 0] ...  [6 28 68 1 2 3 0]
+            //TRICE8_3( Id( (8*256 + 9)), "tst:Hi! %d %d %d\n", 11, 12, 13 ); // [6 28 67 1 2 3 0] ...  [6 28 68 1 2 3 0]
+            //TRICE16_1( Id( 44374), "tst:Hi! %x\n", 0x1213 );       // [18 213 103 19 0] ...  [18 213 103 19 0]
 
 
-            //static int index = 0;
-            //int select = index % 2;
-            //#if TRICE_FLEX_ENCODING == TRICE_ENCODING
-            //TRICE16_2( Id(1047663),"MSG: triceFifoMaxDepth = %d, select = %d\n", triceFifoMaxDepth, select ); // bigID check
-            //#else
-            //TRICE16_2( Id(47663),"MSG: triceFifoMaxDepth = %d, select = %d\n", triceFifoMaxDepth, select );
-            //#endif
-            //triceCheckSet(select);
-            //index++;
+            static int index = 0;
+            int select = index % 32;
+            #if TRICE_FLEX_ENCODING == TRICE_ENCODING
+            TRICE16_2( Id(1047663),"MSG: triceFifoMaxDepth = %d, select = %d\n", triceFifoMaxDepth, select ); // bigID check
+            #else
+            TRICE16_3( Id( 33152),"MSG: triceFifoMaxDepth = %d, select = %d, TriceDepthMax =%d\n", triceFifoMaxDepth, select, 2*TriceDepthMax );
+            #endif
+            triceCheckSet(select);
+            index++;
             lastTricesTime = milliSecond;
         }
     }

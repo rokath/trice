@@ -130,11 +130,14 @@ func handleSIGTERM(rc io.ReadCloser) {
 func Translate(sw *emitter.TriceLineComposer, lut id.TriceIDLookUp, m *sync.RWMutex, rc io.ReadCloser) error {
 	var dec Decoder //io.Reader
 	switch strings.ToUpper(Encoding) {
-	case "COBSLENOCC", "COBSNOCC":
+	case "COBSN", "COBSNL":
 		CycleCounter = false
-		fallthrough
-	case "COBSLE", "COBSL", "COBS", "COBS/R", "COBSR":
+		MinPackageLength = 2
 		dec = NewCOBSRDecoder(lut, m, rc, littleEndian)
+	case "COBS", "COBSL":
+		MinPackageLength = 3
+		dec = NewCOBSRDecoder(lut, m, rc, littleEndian)
+	//case "COBS", "COBS/R", "COBSR":
 	case "ESC":
 		dec = NewEscDecoder(lut, m, rc, bigEndian)
 	case "FLEX":
