@@ -49,7 +49,7 @@ func (p *Esc) Read(b []byte) (n int, err error) {
 
 	// use b as intermediate read buffer to avoid allocation
 	n, err = p.in.Read(b)
-	// p.syncBuffer can contain unprocessed bytes from last call.
+	// p.iBuf can contain unprocessed bytes from last call.
 	p.iBuf = append(p.iBuf, b[:n]...) // merge with leftovers
 	n = 0
 	if nil != err && io.EOF != err {

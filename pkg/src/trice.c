@@ -139,9 +139,14 @@ void ServeTriceTranslation( void ){
     if( NULL == p ){
         return; // no trice data to transmit
     }
-    tlen = p[1] + 3; // little endian, add header size minus first position
+    #if TRICE_CYCLE == TRICE_CYCLE_START // no cycle counter used
+    tlen = p[1] + 2; // little endian, add id size
+    clen = triceCOBSREncode(triceU8Fifo, &p[2], tlen);
+    #else // with cycle counter
+    tlen = p[1] + 3; // little endian, add id size and cycle size
     p[1] = p[0]; // write cycle to 2nd position (little endian assumed!)
     clen = triceCOBSREncode(triceU8Fifo, &p[1], tlen);
+    #endif
     triceU8Fifo[clen] = 0; // add 0-delimiter
     TRICE_ENTER_CRITICAL_SECTION
     triceU8FifoWriteIndex = clen+1;

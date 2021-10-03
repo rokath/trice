@@ -67,6 +67,9 @@ var (
 	matchNextFormatSpecifier  = regexp.MustCompile(patNextFormatSpecifier)
 	matchNextFormatUSpecifier = regexp.MustCompile(patNextFormatUSpecifier)
 	matchNextFormatXSpecifier = regexp.MustCompile(patNextFormatXSpecifier)
+
+	// flag
+	CycleCounter = true
 )
 
 // newDecoder abstracts the function type for a new decoder.
@@ -127,7 +130,10 @@ func handleSIGTERM(rc io.ReadCloser) {
 func Translate(sw *emitter.TriceLineComposer, lut id.TriceIDLookUp, m *sync.RWMutex, rc io.ReadCloser) error {
 	var dec Decoder //io.Reader
 	switch strings.ToUpper(Encoding) {
-	case "COBS", "COBS/R", "COBSR":
+	case "COBSLENOCC", "COBSNOCC":
+		CycleCounter = false
+		fallthrough
+	case "COBSLE", "COBSL", "COBS", "COBS/R", "COBSR":
 		dec = NewCOBSRDecoder(lut, m, rc, littleEndian)
 	case "ESC":
 		dec = NewEscDecoder(lut, m, rc, bigEndian)

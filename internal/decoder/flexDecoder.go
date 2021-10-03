@@ -75,7 +75,7 @@ func (p *Flex) Read(b []byte) (n int, err error) {
 			// p.rubbed is the amount of bytes removable
 			p.rBuf = p.rBuf[p.rubbed:] // remove
 			if p.inSync {
-				p.offset -= p.rubbed // adjust ofset value
+				p.offset -= p.rubbed // adjust offset value
 			} else {
 				p.offset = 0
 				p.inSync = true
@@ -93,7 +93,7 @@ func (p *Flex) Read(b []byte) (n int, err error) {
 	}
 
 	// Even err could be io.EOF some valid data possibly in p.syncBuffer.
-	// In case of file input (JLINK usage) a plug off is not detectable here.
+	// In case of file input (J-LINK usage) a plug off is not detectable here.
 	if len(p.iBuf) < 4 {
 		return // wait
 	}

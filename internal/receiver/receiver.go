@@ -37,7 +37,6 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
-	"log"
 	"strings"
 
 	"github.com/rokath/trice/internal/com"
@@ -125,7 +124,10 @@ func NewBytesViewer(from io.ReadCloser) (in io.ReadCloser) {
 func (p *bytesViewer) Read(buf []byte) (count int, err error) {
 	count, err = p.r.Read(buf)
 	if 0 < count || (nil != err && io.EOF != err) {
-		log.Println("input bytes:", err, count, buf[:count])
+		//log.Println("input bytes:", err, count, buf[:count])
+		for _, x := range buf[:count] {
+			fmt.Printf("%02x ", x)
+		}
 	}
 	return
 }

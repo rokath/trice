@@ -17,7 +17,8 @@ import (
 // COBSR is the Decoding instance for COBSR encoded trices.
 type COBSR struct {
 	decoderData
-	bc int // trice specific bytes count
+	cycle uint8
+	bc    int // trice specific bytes count
 }
 
 // NewEscDecoder provides an EscDecoder instance.
@@ -25,6 +26,7 @@ type COBSR struct {
 // in is the usable reader for the input bytes.
 func NewCOBSRDecoder(lut id.TriceIDLookUp, m *sync.RWMutex, in io.Reader, endian bool) Decoder {
 	p := &COBSR{}
+	p.cycle = 0xc0 // start value
 	p.in = in
 	p.iBuf = make([]byte, 0, defaultSize)
 	p.lut = lut
@@ -50,7 +52,7 @@ func (p *COBSR) Read(b []byte) (n int, err error) {
 
 	// use b as intermediate read buffer to avoid allocation
 	n, err = p.in.Read(b)
-	// p.syncBuffer can contain unprocessed bytes from last call.
+	// p.iBuf can contain unprocessed bytes from last call.
 	p.iBuf = append(p.iBuf, b[:n]...) // merge with leftovers
 	n = 0
 	if nil != err && io.EOF != err {
@@ -58,7 +60,7 @@ func (p *COBSR) Read(b []byte) (n int, err error) {
 		return
 	}
 
-	// Even err could be io.EOF some valid data possibly in p.syncBuffer.
+	// Even err could be io.EOF some valid data possibly in p.iBUf.
 	// In case of file input (J-LINK usage) a plug off is not detectable here.
 
 	// p.bc = len(p.iBuf) // intermediate assignment for better error tracking
@@ -66,18 +68,43 @@ func (p *COBSR) Read(b []byte) (n int, err error) {
 	//	return // wait
 	//}
 	for {
-		index := bytes.IndexByte(p.iBuf, 0)
+		if n > 0 {
+			return
+		}
+		index := bytes.IndexByte(p.iBuf, 0) // find terminating 0
 		if index == -1 {
-			return 0, io.EOF
+			return 0, io.EOF // no terminating 0
 		}
 
 		d := cobs.Decode(p.iBuf[:index+1])
 
-		id := binary.LittleEndian.Uint16(d[1:3])
+		// Debug output
+		for _, x := range p.iBuf[:index+1] {
+			fmt.Printf("%02x ", x)
+		}
+		fmt.Print("\n-> ")
+		for _, x := range d {
+			fmt.Printf("%02x ", x)
+		}
+		fmt.Println("")
 
-		fmt.Println(index, p.iBuf[:index+1], " -> ", d, "id = ", id)
+		p.iBuf = p.iBuf[index+1:] // step forward
 
-		p.iBuf = p.iBuf[index+1:]
+		if CycleCounter {
+			cycle := d[0] // little endian target
+			if cycle != p.cycle {
+				n += copy(b, fmt.Sprintln("error:Cycle gap:", cycle, "not equal expected value", p.cycle))
+				p.cycle = cycle // adjust cycle
+			}
+			p.cycle++
+			id := binary.LittleEndian.Uint16(d[1:3])
+			byteCount := len(d) - 3
+			n += copy(b[n:], fmt.Sprintln("msg:-> cycle", cycle, "id", id, "byteCount", byteCount))
+		} else { // without cycle
+			id := binary.LittleEndian.Uint16(d[:2])
+			byteCount := len(d) - 2
+			n += copy(b[n:], fmt.Sprintln("msg:-> id", id, "byteCount", byteCount))
+		}
 	}
 
 	//  if 0xec != p.iBuf[0] { // 0xec == 236
