@@ -110,14 +110,14 @@ static uint8_t* triceRead( void ){
     uint8_t* p;
     uint16_t triceDepth = sizeof(uint32_t) * (wTb - &triceBuffer[swap][0]);  // diagnostics
     TriceDepthMax = triceDepth < TriceDepthMax ? TriceDepthMax : triceDepth; // diagnostics
-    if( NULL == *rTb ){ // This buffer is empty
+    if( 0 == *rTb ){ // This buffer is empty
         TRICE_ENTER_CRITICAL_SECTION
         *wTb = 0; // write end marker
         swap = !swap;
         wTb = &triceBuffer[swap][0];
         rTb = &triceBuffer[!swap][0];
         TRICE_LEAVE_CRITICAL_SECTION
-        if( NULL == *rTb ){ // This buffer is empty
+        if( 0 == *rTb ){ // This buffer is empty
             return NULL;
         }
     } 
@@ -126,7 +126,7 @@ static uint8_t* triceRead( void ){
     return p;
 }
 
-void ServeTriceTranslation( void ){
+void TriceReadAndTranslate( void ){
     uint8_t* p;
     uint8_t clen, tlen;
     if( triceU8FifoDepth() ){
@@ -149,9 +149,9 @@ void ServeTriceTranslation( void ){
     triceU8FifoWriteIndex = clen+1;
     triceU8FifoReadIndex = 0;
     TRICE_LEAVE_CRITICAL_SECTION
-		#ifdef ENCRYPT
-		triceServeFifoEncryptedToBytesBuffer();
-		#endif
+#ifdef ENCRYPT
+    triceServeFifoEncryptedToBytesBuffer();
+#endif
 }
 
 #endif // #if (TRICE_ENCODING == TRICE_COBSR_ENCODING)
