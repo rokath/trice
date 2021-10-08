@@ -17,22 +17,35 @@ extern "C" {
 void triceServeFifoEncryptedToBytesBuffer(void);
 #endif
 
-//#define TRICE_CYCLE_COUNTER //! add cycle counter
+//! Double Buffering, ...
+#if 1
+//! Use and adapt this as you like
+#define TRICE_HEADLINE \
+    trice0( Id( 46700), "s:                                          \ns:     " ); \
+    trice0( Id( 35077), "att:          COBS Test Code        " ); \
+    trice0( Id( 46377),"s:     \ns:                                          \n");
+#define TRICE_BUFFER_SIZE 5000 //!< This is the size of both buffers together
+#define TRICE_FIFO_BYTE_SIZE 256 //!< must be a power of 2, 32 could be ok in dependence of the maximum trice density
+#define TRICE_ENCODING TRICE_COBSR_ENCODING
+#define TRICE_CYCLE_COUNTER 0 //! add cycle counter
+#define PUT(x) do{ *wTb++ = x; }while(0)
+#define PUT_BUFFER( dynString, len ) do{ \
+    memcpy( wTb, dynString, len ); \
+    wTb += (len+3)>>2; }while(0)
+#define TRICE_ENTER TRICE_ENTER_CRITICAL_SECTION { 
+#define TRICE_LEAVE TRICE_LEAVE_CRITICAL_SECTION }
+#endif
+
+
 
 // #define TRICE_RTT_CHANNEL 0 //!< Uncomment and set channel number for SeggerRTT usage
 
-//! Use and adapt this as you like
-#define TRICE_HEADLINE \
-//TRICE0( Id( 41511), "s:                                                   \ns:   MDK-ARM_LL_UART_RTT0_FLEX_STM32F030_NUCLEO-64   \ns:                                                   \n\n");
 
-#define TRICE_BUFFER_SIZE 3000 //!< This is the size of both buffers together
-#define TRICE_FIFO_BYTE_SIZE 256 //!< must be a power of 2, 32 could be ok in dependence of the maximum trice density
-
-#ifdef TRICE_NO_CODE_GENERATION
-#define TRICE_ENCODING TRICE_NOCODE_ENCODING //!< Select target trice transfer encoding.
-#else
-#define TRICE_ENCODING TRICE_COBSR_ENCODING //!< Select target trice transfer encoding.
-#endif
+//  #ifdef TRICE_NO_CODE_GENERATION
+//  #define TRICE_ENCODING TRICE_NOCODE_ENCODING //!< Select target trice transfer encoding.
+//  #else
+//  #define TRICE_ENCODING TRICE_COBSR_ENCODING //!< Select target trice transfer encoding.
+//  #endif
 
 //! Set endianess according to target hardware. Options: TRICE_BIG_ENDIANNESS, TRICE_LITTLE_ENDIANNESS.
 //! Some compiler offer an automatic detection for this.

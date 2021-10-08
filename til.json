@@ -307,6 +307,10 @@
 		"Type": "trice16",
 		"Strg": "ATT:trice16 attention   message, SysTick is %6u\\n"
 	},
+	"35077": {
+		"Type": "trice0",
+		"Strg": "att:          COBS Test Code        "
+	},
 	"35199": {
 		"Type": "TRICE16",
 		"Strg": "ATT:TRICE16 attention   message, SysTick is %6u\\n"
@@ -426,6 +430,10 @@
 	"37880": {
 		"Type": "TRICE8",
 		"Strg": "rd:%d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"37891": {
+		"Type": "trice0",
+		"Strg": "s:     \\ns:                                          \\ns:     "
 	},
 	"37961": {
 		"Type": "TRICE16",
@@ -771,6 +779,14 @@
 		"Type": "TRICE8_7",
 		"Strg": "msg:  TRICE8_7  -\u003e normal trice macro    (with cycle counter) for everywhere                   %x %X %u %d %x %X %u\\n"
 	},
+	"45972": {
+		"Type": "TRICE8_4",
+		"Strg": "inf:Version %02d.%02d.%02d-rc%02d"
+	},
+	"46377": {
+		"Type": "trice0",
+		"Strg": "s:     \\ns:                                          \\n"
+	},
 	"46455": {
 		"Type": "trice8",
 		"Strg": "att: %02u %02u -\u003e %02u %02u %02u\\n"
@@ -778,6 +794,14 @@
 	"46494": {
 		"Type": "trice0",
 		"Strg": "wr:d"
+	},
+	"46676": {
+		"Type": "trice0",
+		"Strg": "s:     \\ns:     "
+	},
+	"46700": {
+		"Type": "trice0",
+		"Strg": "s:                                          \\ns:     "
 	},
 	"47044": {
 		"Type": "trice64_1",
@@ -883,6 +907,10 @@
 		"Type": "trice8",
 		"Strg": "msg:%02x\\n"
 	},
+	"49306": {
+		"Type": "trice0",
+		"Strg": "s:     \\ns:                                          \\n\\n"
+	},
 	"49379": {
 		"Type": "trice16_1",
 		"Strg": "TIM:timing      message, SysTick is %6u\\n"
@@ -894,6 +922,10 @@
 	"49818": {
 		"Type": "trice0",
 		"Strg": "msg:\\n"
+	},
+	"50017": {
+		"Type": "trice32_1",
+		"Strg": "time:UTC second since 1970:%d"
 	},
 	"50329": {
 		"Type": "trice0",
@@ -1103,6 +1135,10 @@
 		"Type": "trice16",
 		"Strg": "rd:trice16 %d, %d\\n"
 	},
+	"53831": {
+		"Type": "TRICE32",
+		"Strg": "time:RUTRONIK Techday, SysTick is %6d\\n"
+	},
 	"54079": {
 		"Type": "TRICE8_2i",
 		"Strg": "msg:  TRICE8_2i -\u003e normal trice macro    (with cycle counter) for only inside critical section %x %X\\n"
@@ -1110,6 +1146,10 @@
 	"54191": {
 		"Type": "trice8",
 		"Strg": "rd:trice8 %d, %d\\n"
+	},
+	"54206": {
+		"Type": "trice0",
+		"Strg": "att:LED Detector  (UKMFT625-Gateway)"
 	},
 	"54250": {
 		"Type": "trice32",
@@ -1355,6 +1395,10 @@
 		"Type": "trice16_1",
 		"Strg": "dbg:12345 as 16bit is %#016b\\n"
 	},
+	"60309": {
+		"Type": "trice32_1",
+		"Strg": "inf: (%08x)"
+	},
 	"60551": {
 		"Type": "trice16_1i",
 		"Strg": "msg: trice16_1i -\u003e normal trice function (with cycle counter) for only inside critical section %d\\n"
@@ -1530,6 +1574,10 @@
 	"64819": {
 		"Type": "trice8_5",
 		"Strg": "tst:trice8_5 %02X %02X %02X %02X %02X\\n"
+	},
+	"64894": {
+		"Type": "TRICE8_6",
+		"Strg": "time:Build time: 20%02d-%02d-%02d  %02d:%02d:%02d"
 	},
 	"64905": {
 		"Type": "TRICE32",

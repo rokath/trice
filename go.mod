@@ -4,7 +4,7 @@ go 1.13
 
 require (
 	github.com/awesome-gocui/gocui v1.0.1
-	github.com/dim13/cobs v1.0.0 // indirect
+	github.com/dim13/cobs v1.0.0
 	github.com/fsnotify/fsnotify v1.4.9
 	github.com/mattn/go-colorable v0.1.6 // indirect
 	github.com/mgutz/ansi v0.0.0-20170206155736-9520e82c474b

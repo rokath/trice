@@ -9,36 +9,36 @@
 //#define TRICE_OFF // enable this line to disable trice code generation in this file object
 #include "trice.h"
 
-//! triceRuntimeGeneratedStringUnbound can transfer runtime generated strings if TRICES_1 is not available.
-TRICE_INLINE void triceRuntimeGeneratedStringUnbound( const char* s ){
-    size_t len = strlen( s );
-    char c1, c2, c3, c4, c5, c6, c7, c8;
-    while( len ){
-        switch( len ){
-            case  0: return;
-            case  1: c1=*s++;
-                TRICE8_1( Id(65329), "%c", c1 ); return;
-                //TRICE8_1( Id(65329), "%c", c1 ); return;
-            case  2: c1=*s++; c2=*s++;
-                TRICE8_2( Id(65279), "%c%c", c1, c2 ); return;
-            case  3: c1=*s++; c2=*s++; c3=*s++;
-                TRICE8_3( Id(65057), "%c%c%c", c1, c2, c3 ); return;
-            case  4: c1=*s++; c2=*s++; c3=*s++; c4=*s++;
-                TRICE8_4( Id(65052), "%c%c%c%c", c1, c2, c3, c4 ); return;
-            case  5: c1=*s++; c2=*s++; c3=*s++; c4=*s++; c5=*s++;
-                TRICE8_5( Id(65088), "%c%c%c%c%c", c1, c2, c3, c4, c5 ); return;
-            case  6: c1=*s++; c2=*s++; c3=*s++; c4=*s++; c5=*s++; c6=*s++;
-                TRICE8_6( Id(65473), "%c%c%c%c%c%c", c1, c2, c3, c4, c5, c6 ); return;
-            case  7: c1=*s++; c2=*s++; c3=*s++; c4=*s++; c5=*s++; c6=*s++; c7=*s++;
-                TRICE8_7( Id(65121), "%c%c%c%c%c%c%c", c1, c2, c3, c4, c5, c6, c7); return;
-            case  8:
-            default: c1 = *s++; c2 = *s++; c3 = *s++; c4 = *s++; c5 = *s++; c6 = *s++; c7 = *s++; c8 = *s++;
-                TRICE8_8( Id(65468), "%c%c%c%c%c%c%c%c", c1, c2, c3, c4, c5, c6, c7, c8 );
-                len -= 8;
-        }
-    }
-    return;
-}
+//  //! triceRuntimeGeneratedStringUnbound can transfer runtime generated strings if TRICES_1 is not available.
+//  TRICE_INLINE void triceRuntimeGeneratedStringUnbound( const char* s ){
+//      size_t len = strlen( s );
+//      char c1, c2, c3, c4, c5, c6, c7, c8;
+//      while( len ){
+//          switch( len ){
+//              case  0: return;
+//              case  1: c1=*s++;
+//                  TRICE8_1( Id(65329), "%c", c1 ); return;
+//                  //TRICE8_1( Id(65329), "%c", c1 ); return;
+//              case  2: c1=*s++; c2=*s++;
+//                  TRICE8_2( Id(65279), "%c%c", c1, c2 ); return;
+//              case  3: c1=*s++; c2=*s++; c3=*s++;
+//                  TRICE8_3( Id(65057), "%c%c%c", c1, c2, c3 ); return;
+//              case  4: c1=*s++; c2=*s++; c3=*s++; c4=*s++;
+//                  TRICE8_4( Id(65052), "%c%c%c%c", c1, c2, c3, c4 ); return;
+//              case  5: c1=*s++; c2=*s++; c3=*s++; c4=*s++; c5=*s++;
+//                  TRICE8_5( Id(65088), "%c%c%c%c%c", c1, c2, c3, c4, c5 ); return;
+//              case  6: c1=*s++; c2=*s++; c3=*s++; c4=*s++; c5=*s++; c6=*s++;
+//                  TRICE8_6( Id(65473), "%c%c%c%c%c%c", c1, c2, c3, c4, c5, c6 ); return;
+//              case  7: c1=*s++; c2=*s++; c3=*s++; c4=*s++; c5=*s++; c6=*s++; c7=*s++;
+//                  TRICE8_7( Id(65121), "%c%c%c%c%c%c%c", c1, c2, c3, c4, c5, c6, c7); return;
+//              case  8:
+//              default: c1 = *s++; c2 = *s++; c3 = *s++; c4 = *s++; c5 = *s++; c6 = *s++; c7 = *s++; c8 = *s++;
+//                  TRICE8_8( Id(65468), "%c%c%c%c%c%c%c%c", c1, c2, c3, c4, c5, c6, c7, c8 );
+//                  len -= 8;
+//          }
+//      }
+//      return;
+//  }
 
 //! trice runtime string
 #define TRICE_RTS(dynString) do{ triceRuntimeGeneratedStringUnbound(dynString); }while(0)
@@ -115,15 +115,15 @@ void triceCheckSet(int index) {
             //Trice16(  id(  337), "ATT:Trice16  attention   message, SysTick is %6u\n", SYSTICKVAL16);
             //Trice16i( id( 7132), "ATT:Trice16i attention   message, SysTick is %6u\n", SYSTICKVAL16);
             #endif
+            TRICE32( Id( 53831), "time:RUTRONIK Techday, SysTick is %6d\n", SYSTICKVAL16);
             TRICE32( Id( 47147), "ATT:trice16 attention message, SysTick is %6d\n", SYSTICKVAL16);
-            TRICE32( Id( 57806), "ATT:trice16 attention message, SysTick is %6d\n", SYSTICKVAL16);
-            TRICE32( Id( 61336), "ATT:trice16 attention message, SysTick is %6d\n", SYSTICKVAL16);
-            TRICE32( Id( 64905), "ATT:trice16 attention message, SysTick is %6d\n", SYSTICKVAL16);
-            TRICE32( Id( 38284), "ATT:trice16 attention message, SysTick is %6d\n", SYSTICKVAL16);
-            TRICE32( Id( 52303), "ATT:trice16 attention message, SysTick is %6d\n", SYSTICKVAL16);
-            TRICE32( Id( 64803), "ATT:trice16 attention message, SysTick is %6d\n", SYSTICKVAL16);
-            TRICE32( Id( 57385), "ATT:trice16 attention message, SysTick is %6d\n", SYSTICKVAL16);
-            TRICE32( Id( 41533), "ATT:TRICE16 attention message, SysTick is %6d\n", SYSTICKVAL16);
+            TRICE32( Id( 47147), "ATT:trice16 attention message, SysTick is %6d\n", SYSTICKVAL16);
+            TRICE32( Id( 47147), "ATT:trice16 attention message, SysTick is %6d\n", SYSTICKVAL16);
+            TRICE32( Id( 47147), "ATT:trice16 attention message, SysTick is %6d\n", SYSTICKVAL16);
+            TRICE32( Id( 47147), "ATT:trice16 attention message, SysTick is %6d\n", SYSTICKVAL16);
+            TRICE32( Id( 47147), "ATT:trice16 attention message, SysTick is %6d\n", SYSTICKVAL16);
+            TRICE32( Id( 47147), "ATT:trice16 attention message, SysTick is %6d\n", SYSTICKVAL16);
+            TRICE32( Id( 47147), "ATT:trice16 attention message, SysTick is %6d\n", SYSTICKVAL16);
             
             trice32( Id( 39197),  "rd:trice32 line %d\n", __LINE__ );
             TRICE32( Id( 58039),  "rd:TRICE32 line %d\n", __LINE__ );
@@ -435,6 +435,7 @@ void triceCheckSet(int index) {
             TRICE8_8(Id(65264), "tst:TRICE8_8 %d %d %d %d %d %d %d %d\n", 1, 2, 3, 4, 5, 6, 7, 8);
             break;
         case 13:
+					/*
             trice_rts( "an_example_string\n" );
             trice_rts( "" );
             trice_rts( "\n" );
@@ -476,6 +477,7 @@ void triceCheckSet(int index) {
             TRICE_RTS( "an_example_stri\n" );
             TRICE_RTS( "an_example_strin\n" );
             TRICE_RTS( "an_example_string\n" );
+						*/
             break;
         case 14:
             triceRuntimeStrings(0, 20);

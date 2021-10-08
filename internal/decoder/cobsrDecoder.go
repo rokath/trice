@@ -58,10 +58,12 @@ func (p *COBSR) Read(b []byte) (n int, err error) {
 		return
 	}
 
+	bb := make([]byte, defaultSize)
+
 	// use b as intermediate read buffer to avoid allocation
-	n, err = p.in.Read(b)
+	n, err = p.in.Read(bb)
 	// p.iBuf can contain unprocessed bytes from last call.
-	p.iBuf = append(p.iBuf, b[:n]...) // merge with leftovers
+	p.iBuf = append(p.iBuf, bb[:n]...) // merge with leftovers
 
 	// SEEMS NOT TO WORK
 	//  buf := make([]byte, 0, defaultSize)
@@ -88,6 +90,8 @@ func (p *COBSR) Read(b []byte) (n int, err error) {
 		p.iBuf = p.iBuf[index+1:] // step forward
 		n += copy(b[n:], fmt.Sprintln("err:package len", len(d), "is too short - ignoring package."))
 		n += copy(b[n:], fmt.Sprintln("att:Hint:Target buffer overflow?"))
+		n += copy(b[n:], fmt.Sprintln("att:Hint:til.json?"))
+		n += copy(b[n:], fmt.Sprintln("att:Hint:encoding?"))
 		return
 	}
 
@@ -131,6 +135,8 @@ func (p *COBSR) Read(b []byte) (n int, err error) {
 	if !ok { // unknown id
 		n += copy(b[n:], fmt.Sprintln("wrn:unknown ID ", triceID, "- ignoring package."))
 		n += copy(b[n:], fmt.Sprintln("att:Hint:Target buffer overflow?"))
+		n += copy(b[n:], fmt.Sprintln("att:Hint:til.json?"))
+		n += copy(b[n:], fmt.Sprintln("att:Hint:encoding?"))
 		return
 	}
 
@@ -139,6 +145,8 @@ func (p *COBSR) Read(b []byte) (n int, err error) {
 	if p.expectedByteCount() != p.bc {
 		n += copy(b[n:], fmt.Sprintln("err:trice.Type ", p.trice.Type, " with not matching parameter byte count ", p.bc, "- ignoring package"))
 		n += copy(b[n:], fmt.Sprintln("att:Hint:Target buffer overflow?"))
+		n += copy(b[n:], fmt.Sprintln("att:Hint:til.json?"))
+		n += copy(b[n:], fmt.Sprintln("att:Hint:encoding?"))
 		return
 	}
 

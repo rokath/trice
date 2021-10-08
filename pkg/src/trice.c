@@ -136,7 +136,7 @@ void ServeTriceTranslation( void ){
     if( NULL == p ){
         return; // no trice data to transmit
     }
-#ifdef TRICE_CYCLE_COUNTER // with cycle counter
+#if TRICE_CYCLE_COUNTER == 1 // with cycle counter
     tlen = p[1] + 3; // little endian, add id size and cycle size
     p[1] = p[0]; // write cycle to 2nd position (little endian assumed!)
     clen = triceCOBSREncode(triceU8Fifo, &p[1], tlen);
@@ -149,6 +149,9 @@ void ServeTriceTranslation( void ){
     triceU8FifoWriteIndex = clen+1;
     triceU8FifoReadIndex = 0;
     TRICE_LEAVE_CRITICAL_SECTION
+		#ifdef ENCRYPT
+		triceServeFifoEncryptedToBytesBuffer();
+		#endif
 }
 
 #endif // #if (TRICE_ENCODING == TRICE_COBSR_ENCODING)

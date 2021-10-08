@@ -50,10 +50,6 @@ int milliSecond = 0;
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_USART2_UART_Init(void);
-void ServeTriceTranslation( void );
-extern uint32_t* wTb; //!< wTb is the active write position.
-extern uint8_t cycle; //!< trice cycle counter
-
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -100,53 +96,35 @@ int main(void)
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
     LL_USART_EnableIT_RXNE(TRICE_UART); // enable UART2 interrupt
-    //TRICE_HEADLINE;
+    TRICE_HEADLINE;
     //TRICE16_1( Id( 44374), "tst:Hi! %x\n", 0x1122 );
     srand(SYSTICKVAL16);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  while (1)
-  {
+  while (1){
+			// serve every few ms
+			static int lastMs = 0;
+			if( milliSecond >= lastMs + 10 ){
+					lastMs = milliSecond;
+					ServeTriceTranslation();
+			}
+    /* USER CODE END WHILE */
+
+    /* USER CODE BEGIN 3 */
+	{
     static int lastTricesTime = 0;
-    { // send some trices every few ms
-        if( milliSecond >= lastTricesTime + 1000 ){
-            //TRICE0( Id( 48738), "tst:Hi!\n" );                     // [33 230 0]        ...  [34 230 0]
-            //TRICE0( Id( 48738), "tst:Hi!\n" );                     // [33 230 0]        ...  [34 230 0]
-            //TRICE0( Id( 48738), "tst:Hi!\n" );                     // [33 230 0]        ...  [34 230 0]
-            //TRICE8_1( Id( 36005), "tst:Hi! %d\n", 1 );             // [4 202 81 1 0]    ...  [4 202 82 1 0]
-            //TRICE8_2( Id( 53180), "tst:Hi! %d %d\n", 1, 2 );       // [5 251 195 1 2 0] ...  [5 251 196 1 2 0]
-            //TRICE8_3( Id( (5*256 + 6)), "tst:Hi! %d %d %d\n", 9, 8, 7 ); // [6 28 67 1 2 3 0] ...  [6 28 68 1 2 3 0]
-            //TRICE8_3( Id( (8*256 + 9)), "tst:Hi! %d %d %d\n", 11, 12, 13 ); // [6 28 67 1 2 3 0] ...  [6 28 68 1 2 3 0]
-            //TRICE16_1( Id( 44374), "tst:Hi! %x\n", 0x1213 );       // [18 213 103 19 0] ...  [18 213 103 19 0]
-
-
+    // send some trices every few ms
+        if( milliSecond >= lastTricesTime + 3000 ){
             static int index = 0;
             int select = index % 32;
-            #if TRICE_FLEX_ENCODING == TRICE_ENCODING
-            TRICE16_2( Id(1047663),"MSG: triceFifoMaxDepth = %d, select = %d\n", triceFifoMaxDepth, select ); // bigID check
-            #else
             TRICE16_3( Id( 33152),"MSG: triceFifoMaxDepth = %d, select = %d, TriceDepthMax =%d\n", triceFifoMaxDepth, select, 2*TriceDepthMax );
-            #endif
             triceCheckSet(select);
             index++;
             lastTricesTime = milliSecond;
         }
     }
-    /* USER CODE END WHILE */
-
-    /* USER CODE BEGIN 3 */
-        { // serve every few ms
-            static int lastMs = 0;
-            if( milliSecond >= lastMs + 100 ){
-                lastMs = milliSecond;
-                ServeTriceTranslation();
-                #ifdef ENCRYPT
-                triceServeFifoEncryptedToBytesBuffer();
-                #endif
-            }
-        }
   }
   /* USER CODE END 3 */
 }
