@@ -1255,6 +1255,10 @@
 		"Type": "TRICE8_5",
 		"Strg": "msg:  TRICE8_5  -\u003e normal trice macro    (with cycle counter) for everywhere                   %x %X %u %u %d\\n"
 	},
+	"56296": {
+		"Type": "trice0",
+		"Strg": "att: COBS, double buf, ~cycle, ~int "
+	},
 	"56427": {
 		"Type": "trice0",
 		"Strg": "sig:This ASSERT error is just a demo and no real error:\\n"
