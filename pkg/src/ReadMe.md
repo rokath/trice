@@ -1,6 +1,6 @@
 # How to setup a target project
 
-- Copy `intern/triceConfig.h` to local project and adapt.
+- Copy `config/triceConfig.h` to local project and adapt.
 - Add this folder to the target compiler header include path.
 - Do **not** add ./intern to header search path.
 - Do `#include "trice.h"` to your project files files where to use `TRICE` macros.
