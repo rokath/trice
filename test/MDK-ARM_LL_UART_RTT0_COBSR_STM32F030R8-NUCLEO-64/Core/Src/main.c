@@ -108,7 +108,7 @@ int main(void)
 			static int lastMs = 0;
 			if( milliSecond >= lastMs + 10 ){
 					lastMs = milliSecond;
-					ServeTriceTranslation();
+					TriceReadAndTranslate();
 			}
     /* USER CODE END WHILE */
 
