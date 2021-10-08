@@ -75,6 +75,8 @@ If you need target timestamps you need to get the time inside the target and sen
 `) // flag
 	fsScLog.StringVar(&decoder.ShowID, "showID", "", `Format string for displaying first trice ID at start of each line. Example: "debug:%7d ". Default is "". If several trices form a log line only the first trice ID ist displayed.`)
 	fsScLog.BoolVar(&decoder.DebugOut, "debug", false, "Show additional debug information")
+	fsScLog.BoolVar(&decoder.CycleCounter, "cycleCounter", true, "Expect cycle counter in binary trice messages")
+	fsScLog.BoolVar(&decoder.CycleCounter, "cc", true, "Short for cycleCounter")
 	fsScLog.StringVar(&emitter.ColorPalette, "color", "default", colorInfo)                                                                                                                                        // flag
 	fsScLog.StringVar(&emitter.Prefix, "prefix", DefaultPrefix, "Line prefix, options: any string or 'off|none' or 'source:' followed by 0-12 spaces, 'source:' will be replaced by source value e.g., 'COM17:'.") // flag
 	fsScLog.StringVar(&emitter.Suffix, "suffix", "", "Append suffix to all lines, options: any string.")                                                                                                           // flag

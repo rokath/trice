@@ -132,15 +132,19 @@ func handleSIGTERM(rc io.ReadCloser) {
 // Translate returns true on io.EOF or false on hard read error or sigterm.
 func Translate(sw *emitter.TriceLineComposer, lut id.TriceIDLookUp, m *sync.RWMutex, rc io.ReadCloser) error {
 	var dec Decoder //io.Reader
+	if Verbose {
+		fmt.Println("Encoding is", Encoding, "and CycleCounter is", CycleCounter)
+	}
 	switch strings.ToUpper(Encoding) {
-	case "COBSN", "COBSNL":
-		CycleCounter = false
-		MinPackageLength = 2
-		dec = NewCOBSRDecoder(lut, m, rc, littleEndian)
-	case "COBS", "COBSL":
-		MinPackageLength = 3
+	case "COBS":
+		if CycleCounter {
+			MinPackageLength = 3
+		} else {
+			MinPackageLength = 2
+		}
 		dec = NewCOBSRDecoder(lut, m, rc, littleEndian)
 	//case "COBS", "COBS/R", "COBSR":
+
 	case "ESC":
 		dec = NewEscDecoder(lut, m, rc, bigEndian)
 	case "FLEX":
