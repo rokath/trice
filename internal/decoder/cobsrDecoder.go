@@ -133,7 +133,7 @@ func (p *COBSR) Read(b []byte) (n int, err error) {
 	p.lutMutex.RUnlock()
 	if !ok { // unknown id
 		n += copy(b[n:], fmt.Sprintln("wrn:unknown ID ", triceID, "- ignoring package."))
-		n += copy(b[n:], fmt.Sprintln("att:Hint:Target buffer overflow?"))
+		n += copy(b[n:], fmt.Sprintln("att:Hints:Target buffer overflow? Wrong til.json file?"))
 		return
 	}
 
@@ -141,7 +141,7 @@ func (p *COBSR) Read(b []byte) (n int, err error) {
 
 	if p.expectedByteCount() != p.bc {
 		n += copy(b[n:], fmt.Sprintln("err:trice.Type ", p.trice.Type, " with not matching parameter byte count ", p.bc, "- ignoring package"))
-		n += copy(b[n:], fmt.Sprintln("att:Hint:Target buffer overflow?"))
+		n += copy(b[n:], fmt.Sprintln("att:Hints:Target buffer overflow? Wrong til.json file?"))
 		return
 	}
 
