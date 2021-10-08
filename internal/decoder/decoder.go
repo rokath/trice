@@ -70,6 +70,9 @@ var (
 
 	// flag
 	CycleCounter = true
+
+	// show debug information
+	DebugOut = false
 )
 
 // newDecoder abstracts the function type for a new decoder.

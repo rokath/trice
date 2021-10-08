@@ -16,7 +16,6 @@ import (
 )
 
 var (
-	debugOut         = false
 	MinPackageLength int
 )
 
@@ -95,7 +94,7 @@ func (p *COBSR) Read(b []byte) (n int, err error) {
 		return
 	}
 
-	if debugOut { // Debug output
+	if DebugOut { // Debug output
 		for _, x := range p.iBuf[:index+1] {
 			fmt.Printf("%02x ", x)
 		}
@@ -115,7 +114,7 @@ func (p *COBSR) Read(b []byte) (n int, err error) {
 			n += copy(b, fmt.Sprintln("wrn:Cycle", cycle, "not equal expected value", p.cycle, "- adjusting cycle."))
 			p.cycle = cycle // adjust cycle
 		}
-		if debugOut { // Debug output
+		if DebugOut { // Debug output
 			n += copy(b[n:], fmt.Sprintln("dbg:-> cycle", cycle))
 		}
 		p.cycle++
@@ -124,7 +123,7 @@ func (p *COBSR) Read(b []byte) (n int, err error) {
 	triceID = id.TriceID(binary.LittleEndian.Uint16(d[:2]))
 	p.b = d[2:] // drop id and transfer values
 	p.bc = len(p.b)
-	if debugOut { // Debug output
+	if DebugOut { // Debug output
 		n += copy(b[n:], fmt.Sprintln("dbg:-> id", triceID, "byteCount", p.bc))
 	}
 
@@ -135,8 +134,6 @@ func (p *COBSR) Read(b []byte) (n int, err error) {
 	if !ok { // unknown id
 		n += copy(b[n:], fmt.Sprintln("wrn:unknown ID ", triceID, "- ignoring package."))
 		n += copy(b[n:], fmt.Sprintln("att:Hint:Target buffer overflow?"))
-		n += copy(b[n:], fmt.Sprintln("att:Hint:til.json?"))
-		n += copy(b[n:], fmt.Sprintln("att:Hint:encoding?"))
 		return
 	}
 
@@ -145,8 +142,6 @@ func (p *COBSR) Read(b []byte) (n int, err error) {
 	if p.expectedByteCount() != p.bc {
 		n += copy(b[n:], fmt.Sprintln("err:trice.Type ", p.trice.Type, " with not matching parameter byte count ", p.bc, "- ignoring package"))
 		n += copy(b[n:], fmt.Sprintln("att:Hint:Target buffer overflow?"))
-		n += copy(b[n:], fmt.Sprintln("att:Hint:til.json?"))
-		n += copy(b[n:], fmt.Sprintln("att:Hint:encoding?"))
 		return
 	}
 

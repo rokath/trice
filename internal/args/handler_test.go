@@ -384,6 +384,8 @@ func TestHelpAll(t *testing.T) {
             "none": Disable ANSI color. The lower case channel information is removed: "w:x"-> "x"
             "default|color": Use ANSI color codes for known upper and lower case channel info are inserted and lower case channel information is removed.
              (default "default")
+      -debug
+            Show additional debug information
       -displayserver
             Send trice lines to displayserver @ ipa:ipp.
             Example: "trice l -port COM38 -ds -ipa 192.168.178.44" sends trice output to a previously started display server in the same network.

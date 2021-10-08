@@ -368,6 +368,41 @@ void trice64_2i( uint32_t id, char* pFmt, int64_t d0, int64_t d1 );
 void trice64_2( uint32_t id, char* pFmt, int64_t d0, int64_t d1 );
 #endif
 
+//! triceRuntimeGeneratedStringUnbound can transfer runtime generated strings if TRICES_1 is not available.
+TRICE_INLINE void triceRuntimeGeneratedStringUnbound( const char* s ){
+    size_t len = strlen( s );
+    char c1, c2, c3, c4, c5, c6, c7, c8;
+    while( len ){
+        switch( len ){
+            case  0: return;
+            case  1: c1=*s++;
+                TRICE8_1( Id(65329), "%c", c1 ); return;
+                //TRICE8_1( Id(65329), "%c", c1 ); return;
+            case  2: c1=*s++; c2=*s++;
+                TRICE8_2( Id(65279), "%c%c", c1, c2 ); return;
+            case  3: c1=*s++; c2=*s++; c3=*s++;
+                TRICE8_3( Id(65057), "%c%c%c", c1, c2, c3 ); return;
+            case  4: c1=*s++; c2=*s++; c3=*s++; c4=*s++;
+                TRICE8_4( Id(65052), "%c%c%c%c", c1, c2, c3, c4 ); return;
+            case  5: c1=*s++; c2=*s++; c3=*s++; c4=*s++; c5=*s++;
+                TRICE8_5( Id(65088), "%c%c%c%c%c", c1, c2, c3, c4, c5 ); return;
+            case  6: c1=*s++; c2=*s++; c3=*s++; c4=*s++; c5=*s++; c6=*s++;
+                TRICE8_6( Id(65473), "%c%c%c%c%c%c", c1, c2, c3, c4, c5, c6 ); return;
+            case  7: c1=*s++; c2=*s++; c3=*s++; c4=*s++; c5=*s++; c6=*s++; c7=*s++;
+                TRICE8_7( Id(65121), "%c%c%c%c%c%c%c", c1, c2, c3, c4, c5, c6, c7); return;
+            case  8:
+            default: c1 = *s++; c2 = *s++; c3 = *s++; c4 = *s++; c5 = *s++; c6 = *s++; c7 = *s++; c8 = *s++;
+                TRICE8_8( Id(65468), "%c%c%c%c%c%c%c%c", c1, c2, c3, c4, c5, c6, c7, c8 );
+                len -= 8;
+        }
+    }
+    return;
+}
+
+
+//! trice runtime string
+#define TRICE_RTS(dynString) do{ triceRuntimeGeneratedStringUnbound(dynString); }while(0)
+
 #ifdef __cplusplus
 }
 #endif
