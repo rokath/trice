@@ -17,7 +17,7 @@ extern uint32_t* wTb;
 
 #define Id(n) ((uint32_t)n<<16) //!< Id() is a 16 bit id 0-65535 as upper 2 bytes in head
 
-#ifdef TRICE_CYCLE_COUNTER
+#if TRICE_CYCLE_COUNTER == 1
 extern uint8_t triceCycle;
 #define TRICE_CYCLE triceCycle++ //! TRICE_CYCLE is the trice cycle counter as 8 bit count 0-255.
 #else
