@@ -20,10 +20,10 @@ extern "C" {
 #include "intern/triceConfigCompiler.h"
 
 #if (TRICE_ENCODING == TRICE_COBSR_ENCODING)
-uint8_t triceCOBSREncode(uint8_t *dst, const uint8_t * src, uint8_t len);
 extern uint16_t TriceDepthMax;
-void ServeTriceTranslation( void );
 #endif
+
+void TriceReadAndTranslate( void );
 
 #ifdef TRICE_RTT_CHANNEL
 #include "SEGGER_RTT.h"
