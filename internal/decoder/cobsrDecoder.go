@@ -57,18 +57,10 @@ func (p *COBSR) Read(b []byte) (n int, err error) {
 		return
 	}
 
-	bb := make([]byte, defaultSize)
-
+	bb := make([]byte, 256)
 	// use b as intermediate read buffer to avoid allocation
 	n, err = p.in.Read(bb)
-	// p.iBuf can contain unprocessed bytes from last call.
 	p.iBuf = append(p.iBuf, bb[:n]...) // merge with leftovers
-
-	// SEEMS NOT TO WORK
-	//  buf := make([]byte, 0, defaultSize)
-	//  n, err = p.in.Read(buf)
-	//  // p.iBuf can contain unprocessed bytes from last call.
-	//  p.iBuf = append(p.iBuf, buf[:n]...) // merge with leftovers
 
 	n = 0
 	if nil != err && io.EOF != err {
