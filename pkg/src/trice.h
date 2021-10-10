@@ -5,49 +5,166 @@
 #ifndef TRICE_H_
 #define TRICE_H_
 
+#include "triceConfig.h"
+#include <stdint.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#define TRICE_ESC_ENCODING     30
-#define TRICE_FLEX_ENCODING    50
-#define TRICE_COBSR_ENCODING   70
+///////////////////////////////////////////////////////////////////////////////
+// compiler adjustment
+//
+
+#if defined( __GNUC__ ) /* gnu compiler ###################################### */ \
+ || defined(__IAR_SYSTEMS_ICC__) /* IAR compiler ############################# */ \
+ || defined(__TASKING__) /* TASKING compiler (same bugs as GNU!)############## */
+
+#define TRICE_INLINE static inline //! used for trice code
+
+#define ALIGN4                                  //!< align to 4 byte boundary preamble
+#define ALIGN4_END __attribute__ ((aligned(4))) //!< align to 4 byte boundary post declaration
+#define PACKED                                  //!< pack data preamble
+#define PACKED_END __attribute__ ((packed))     //!< pack data post declaration
+
+#ifndef TRICE_ENTER_CRITICAL_SECTION
+//! TRICE_ENTER_CRITICAL_SECTION saves interrupt state and disables Interrupts.
+//! \details Workaround for ARM Cortex M0 and M0+:
+//! \li __get_PRIMASK() is 0 when interrupts are enabled globally.
+//! \li __get_PRIMASK() is 1 when interrupts are disabled globally.
+//! If trices are used only outside critical sections or interrupts,
+//! you can leave this macro empty for more speed. Use only '{' in that case.
+#define TRICE_ENTER_CRITICAL_SECTION { // to do
+#endif
+
+#ifndef TRICE_LEAVE_CRITICAL_SECTION
+//! TRICE_LEAVE_CRITICAL_SECTION restores interrupt state.
+//! \details Workaround for ARM Cortex M0 and M0+:
+//! \li __get_PRIMASK() is 0 when interrupts are enabled globally.
+//! \li __get_PRIMASK() is 1 when interrupts are disabled globally.
+//! If trices are used only outside critical sections or interrupts,
+//! you can leave this macro pair empty for more speed. Use only '}' in that case.
+#define TRICE_LEAVE_CRITICAL_SECTION } // to do
+#endif
+
+#elif defined(__arm__) // ARMkeil IDE #########################################
+
+#include <cmsis_armcc.h>
+
+#define TRICE_INLINE static inline //! used for trice code
+
+#define ALIGN4 __align(4) //!< align to 4 byte boundary preamble
+#define ALIGN4_END        //!< align to 4 byte boundary post declaration
+#define PACKED __packed   //!< pack data preamble
+#define PACKED_END        //!< pack data post declaration
+
+#ifndef TRICE_ENTER_CRITICAL_SECTION
+//! TRICE_ENTER_CRITICAL_SECTION saves interrupt state and disables Interrupts.
+//! \details Workaround for ARM Cortex M0 and M0+:
+//! \li __get_PRIMASK() is 0 when interrupts are enabled globally.
+//! \li __get_PRIMASK() is 1 when interrupts are disabled globally.
+//! If trices are used only outside critical sections or interrupts,
+//! you can leave this macro empty for more speed. Use only '{' in that case.
+#define TRICE_ENTER_CRITICAL_SECTION { uint32_t primaskstate = __get_PRIMASK(); __disable_irq(); {
+#endif 
+
+#ifndef TRICE_LEAVE_CRITICAL_SECTION
+//! TRICE_LEAVE_CRITICAL_SECTION restores interrupt state.
+//! \details Workaround for ARM Cortex M0 and M0+:
+//! \li __get_PRIMASK() is 0 when interrupts are enabled globally.
+//! \li __get_PRIMASK() is 1 when interrupts are disabled globally.
+//! If trices are used only outside critical sections or interrupts,
+//! you can leave this macro pair empty for more speed. Use only '}' in that case.
+#define TRICE_LEAVE_CRITICAL_SECTION } __set_PRIMASK(primaskstate); }
+#endif
+
+#elif 1 // ####################################################################
+#error "add new compiler here"
+#else // ######################################################################
+#error unknown compliler
+#endif // compiler adaptions ##################################################
+
+//
+///////////////////////////////////////////////////////////////////////////////
+
+///////////////////////////////////////////////////////////////////////////////
+// trice time measurement
+//
+
+#if defined( __arm__ )    /* Defined by GNU C and RealView */ \
+ || defined( __thumb__ )  /* Defined by GNU C and RealView in Thumb mode */ \
+ || defined( _ARM )       /* Defined by ImageCraft C */ \
+ || defined( _M_ARM )     /* Defined by Visual Studio */ \
+ || defined( _M_ARMT )    /* Defined by Visual Studio in Thumb mode */ \
+ || defined( __arm )      /* Defined by Diab */ \
+ || defined( __ICCARM__ ) /* IAR */ \
+ || defined( __CC_ARM )   /* ARM's (RealView) compiler */ \
+ || defined( __ARM__ )    /* TASKING VX ARM toolset C compiler */ \
+ || defined( __CARM__ )   /* TASKING VX ARM toolset C compiler */ \
+ || defined( __CPARM__ )  /* TASKING VX ARM toolset C++ compiler */
+#define SYSTICKVAL32 (*(volatile uint32_t*)0xE000E018UL)
+#else
+#error "unknown architecture"
+#define SYSTICKVAL32 0
+#endif
+
+#define SYSTICKVAL16 (SYSTICKVAL32)
+
+//
+///////////////////////////////////////////////////////////////////////////////
+
+///////////////////////////////////////////////////////////////////////////////
+// UART interface
+//
+
+#include "main.h" // hardware specific stuff
+
+#define TRICE_UART USART2 //!< set UART number if UART is used
+
+//! Check if a new byte can be written into trice transmit register.
+//! \retval 0 == not empty
+//! \retval !0 == empty
+//! User must provide this function.
+TRICE_INLINE uint32_t triceTxDataRegisterEmpty(void) {
+    return LL_USART_IsActiveFlag_TXE(TRICE_UART);
+}
+
+//! Write value v into trice transmit register.
+//! \param v byte to transmit
+//! User must provide this function.
+TRICE_INLINE void triceTransmitData8(uint8_t v) {
+    LL_USART_TransmitData8(TRICE_UART, v);
+}
+
+//! Allow interrupt for empty trice data transmit register.
+//! User must provide this function.
+TRICE_INLINE void triceEnableTxEmptyInterrupt(void) {
+    LL_USART_EnableIT_TXE(TRICE_UART);
+}
+
+//! Disallow interrupt for empty trice data transmit register.
+//! User must provide this function.
+TRICE_INLINE void triceDisableTxEmptyInterrupt(void) {
+    LL_USART_DisableIT_TXE(TRICE_UART);
+}
+//
+///////////////////////////////////////////////////////////////////////////////
+
+
+#define TRICE_U8_FIFO_MASK ((TRICE_FIFO_BYTE_SIZE)-1) //!< max possible bytes count in fifo
+
+int triceU8FifoDepth(void);
+extern uint8_t* const triceU8Fifo;
+extern int triceU8FifoWriteIndex;
+extern int triceU8FifoReadIndex;
+extern uint16_t TriceDepthMax;
+void TriceReadAndTranslate( void );
 
 #define TRICE_LITTLE_ENDIANNESS 0x00112233
 #define TRICE_BIG_ENDIANNESS    0x33221100
 
-#include "triceConfig.h"
-#include "intern/triceConfigCompiler.h"
-
-#if (TRICE_ENCODING == TRICE_COBSR_ENCODING)
-extern uint16_t TriceDepthMax;
-#endif
-
-void TriceReadAndTranslate( void );
-
-#ifdef TRICE_RTT_CHANNEL
-#include "SEGGER_RTT.h"
-
-//! put one trice into RTT0 buffer
-//! \param v trice
-//! trice time critical part
-TRICE_INLINE void triceU32PushSeggerRTT(uint32_t v) {
-    SEGGER_RTT_Write(TRICE_RTT_CHANNEL, &v, sizeof(v));
-}
-
-//! put one byte into RTT0 buffer
-//! \param v byte
-//! trice time critical part
-TRICE_INLINE void triceU8PushSeggerRTT(uint8_t v) {
-    SEGGER_RTT_Write(TRICE_RTT_CHANNEL, &v, sizeof(v));
-}
-
-#else // #ifdef TRICE_RTT_CHANNEL
-
-#define triceU8PushSeggerRTT(v)
-#define triceU32PushSeggerRTT(v)
-
-#endif // #else // #ifdef TRICE_RTT_CHANNEL
+#define TRICE_SINGLE_MESSAGE 1
+#define TRICE_MULTI_MESSAGE  2
 
 #ifdef ENCRYPT
 void encrypt(uint8_t *p);
@@ -79,68 +196,315 @@ void InitXteaTable(void);
 #define TRICE64_COUNT(_1,_2,_3,_4, NAME,...) NAME
 #define TRICE64(id,frmt, ...) TRICE64_COUNT(__VA_ARGS__,TRICE64_4,TRICE64_3,TRICE64_2,TRICE64_1)(id,frmt, __VA_ARGS__)
 
-#define TRICE8_COUNTi(_1i,_2i,_3i,_4i,_5i,_6i,_7i,_8i, NAME,...) NAME
-#define TRICE8i(id,frmt, ...) TRICE8_COUNTi(__VA_ARGS__,TRICE8_8i,TRICE8_7i,TRICE8_6i,TRICE8_5i,TRICE8_4i,TRICE8_3i,TRICE8_2i,TRICE8_1i)(id,frmt, __VA_ARGS__)
-
-#define TRICE16_COUNTi(_1i,_2i,_3i,_4i, NAME,...) NAME
-#define TRICE16i(id,frmt, ...) TRICE16_COUNTi(__VA_ARGS__,TRICE16_4i,TRICE16_3i,TRICE16_2i,TRICE16_1i)(id,frmt, __VA_ARGS__)
-
-#define TRICE32_COUNTi(_1i,_2i,_3i,_4i, NAME,...) NAME
-#define TRICE32i(id,frmt, ...) TRICE32_COUNTi(__VA_ARGS__,TRICE32_4i,TRICE32_3i,TRICE32_2i,TRICE32_1i)(id,frmt, __VA_ARGS__)
-
-#define TRICE64_COUNTi(_1i,_2i,_3i,_4i, NAME,...) NAME
-#define TRICE64i(id,frmt, ...) TRICE64_COUNTi(__VA_ARGS__,TRICE64_4i,TRICE64_3i,TRICE64_2i,TRICE64_1i)(id,frmt, __VA_ARGS__)
-
-#define Trice8_COUNT(_1,_2, NAME,...) NAME
-#define Trice8(id,frmt, ...) Trice8_COUNT(__VA_ARGS__, Trice8_2,Trice8_1)(id,frmt, __VA_ARGS__)
-
-#define Trice16_COUNT(_1, NAME,...) NAME
-#define Trice16(id,frmt, ...) Trice16_COUNT(__VA_ARGS__,Trice16_1)(id,frmt, __VA_ARGS__)
-
-#define Trice8_COUNTi(_1i,_2i, NAME,...) NAME
-#define Trice8i(id,frmt, ...) Trice8_COUNTi(__VA_ARGS__, Trice8_2i,Trice8_1i)(id,frmt, __VA_ARGS__)
-
-#define Trice16_COUNTi(_1i, NAME,...) NAME
-#define Trice16i(id,frmt, ...) Trice16_COUNTi(__VA_ARGS__,Trice16_1i)(id,frmt, __VA_ARGS__)
-
-#define trice8_COUNT(_1,_2,_3,_4,_5,_6,_7,_8, NAME,...) NAME
-#define trice8(id,frmt, ...) trice8_COUNT(__VA_ARGS__,trice8_8,trice8_7,trice8_6,trice8_5,trice8_4,trice8_3,trice8_2,trice8_1)(id,frmt, __VA_ARGS__)
-
-#define trice16_COUNT(_1,_2,_3,_4, NAME,...) NAME
-#define trice16(id,frmt, ...) trice16_COUNT(__VA_ARGS__,trice16_4,trice16_3,trice16_2,trice16_1)(id,frmt, __VA_ARGS__)
-
-#define trice32_COUNT(_1,_2,_3,_4, NAME,...) NAME
-#define trice32(id,frmt, ...) trice32_COUNT(__VA_ARGS__,trice32_4,trice32_3,trice32_2,trice32_1)(id,frmt, __VA_ARGS__)
-
-#define trice64_COUNT(_1,_2,_3,_4, NAME,...) NAME
-#define trice64(id,frmt, ...) trice64_COUNT(__VA_ARGS__,trice64_4,trice64_3,trice64_2,trice64_1)(id,frmt, __VA_ARGS__)
-
-#define trice8_COUNTi(_1i,_2i,_3i,_4i,_5i,_6i,_7i,_8i, NAME,...) NAME
-#define trice8i(id,frmt, ...) trice8_COUNTi(__VA_ARGS__,trice8_8i,trice8_7i,trice8_6i,trice8_5i,trice8_4i,trice8_3i,trice8_2i,trice8_1i)(id,frmt, __VA_ARGS__)
-
-#define trice16_COUNTi(_1i,_2i,_3i,_4i, NAME,...) NAME
-#define trice16i(id,frmt, ...) trice16_COUNTi(__VA_ARGS__,trice16_4i,trice16_3i,trice16_2i,trice16_1i)(id,frmt, __VA_ARGS__)
-
-#define trice32_COUNTi(_1i,_2i,_3i,_4i, NAME,...) NAME
-#define trice32i(id,frmt, ...) trice32_COUNTi(__VA_ARGS__,trice32_4i,trice32_3i,trice32_2i,trice32_1i)(id,frmt, __VA_ARGS__)
-
-#define trice64_COUNTi(_1i,_2i,_3i,_4i, NAME,...) NAME
-#define trice64i(id,frmt, ...) trice64_COUNTi(__VA_ARGS__,trice64_4i,trice64_3i,trice64_2i,trice64_1i)(id,frmt, __VA_ARGS__)
-
-#define TRICE_U8_JOIN(  first, second ) ((uint16_t)((((uint8_t )(first))<< 8)|((uint8_t )(second)))) //!< helper macro
-#define TRICE_U16_JOIN( first, second ) (          ((((uint32_t)(first))<<16)|((uint16_t)(second)))) //!< helper macro
-
-#if TRICE_HARDWARE_ENDIANNESS == TRICE_TRANSFER_ENDIANNESS
-#define TRICE_HTONS(n) ((uint16_t)(n))
-#define TRICE_HTON(n)  ((uint32_t)(n))
+#ifdef TRICE_OFF
+#define Id(n) (n)
+#define TRICE_S( id, p, s )  do{ ((void)(id)); ((void)(p)); ((void)(s)); }while(0)
+#define TRICE0( id, pFmt )
+#define TRICE8_1( id, pFmt, v0                              ) do{ ((void)(v0)); }while(0)
+#define TRICE8_2( id, pFmt, v0, v1                          ) do{ ((void)(v0)); ((void)(v1)); }while(0)
+#define TRICE8_3( id, pFmt, v0, v1, v2                      ) do{ ((void)(v0)); ((void)(v1)); ((void)(v2)); }while(0)
+#define TRICE8_4( id, pFmt, v0, v1, v2, v3                  ) do{ ((void)(v0)); ((void)(v1)); ((void)(v2)); ((void)(v3)); }while(0)
+#define TRICE8_5( id, pFmt, v0, v1, v2, v3, v4              ) do{ ((void)(v0)); ((void)(v1)); ((void)(v2)); ((void)(v3)); ((void)(v4)); }while(0)
+#define TRICE8_6( id, pFmt, v0, v1, v2, v3, v4, v5          ) do{ ((void)(v0)); ((void)(v1)); ((void)(v2)); ((void)(v3)); ((void)(v4)); ((void)(v5)); }while(0)
+#define TRICE8_7( id, pFmt, v0, v1, v2, v3, v4, v5, v6      ) do{ ((void)(v0)); ((void)(v1)); ((void)(v2)); ((void)(v3)); ((void)(v4)); ((void)(v5)); ((void)(v6)); }while(0)
+#define TRICE8_8( id, pFmt, v0, v1, v2, v3, v4, v5, v6, v7  ) do{ ((void)(v0)); ((void)(v1)); ((void)(v2)); ((void)(v3)); ((void)(v4)); ((void)(v5)); ((void)(v6)); ((void)(v7)); }while(0)
+#define TRICE16_1( id, pFmt, v0                             ) do{ ((void)(v0)); }while(0)
+#define TRICE16_2( id, pFmt, v0, v1                         ) do{ ((void)(v0)); ((void)(v1)); }while(0)
+#define TRICE16_3( id, pFmt, v0, v1, v2                     ) do{ ((void)(v0)); ((void)(v1)); ((void)(v2)); }while(0)
+#define TRICE16_4( id, pFmt, v0, v1, v2, v3                 ) do{ ((void)(v0)); ((void)(v1)); ((void)(v2)); ((void)(v3)); }while(0)
+#define TRICE32_1( id, pFmt, v0                             ) do{ ((void)(v0)); }while(0)
+#define TRICE32_2( id, pFmt, v0, v1                         ) do{ ((void)(v0)); ((void)(v1)); }while(0)
+#define TRICE32_3( id, pFmt, v0, v1, v2                     ) do{ ((void)(v0)); ((void)(v1)); ((void)(v2)); }while(0)
+#define TRICE32_4( id, pFmt, v0, v1, v2, v3                 ) do{ ((void)(v0)); ((void)(v1)); ((void)(v2)); ((void)(v3)); }while(0)
+#define TRICE64_1( id, pFmt, v0                             ) do{ ((void)(v0)); }while(0)
+#define TRICE64_2( id, pFmt, v0, v1                         ) do{ ((void)(v0)); ((void)(v1)); }while(0)
 #else
-#define TRICE_HTONS(n) ( (((uint16_t)(n))>>8) | (((uint16_t)(n))<<8) )
-#define TRICE_HH(n)                     ((uint32_t)(n)>>24)
-#define TRICE_HL(n) ((uint32_t)(uint8_t)((uint32_t)(n)>>16))
-#define TRICE_LH(n) ((uint32_t)         ((uint16_t)(n)>> 8))
-#define TRICE_LL(n) ((uint32_t)         (( uint8_t)(n)    ))
-#define TRICE_HTON(n) ((TRICE_LL(n)<<24)|(TRICE_LH(n)<<16)|(TRICE_HL(n)<<8)|TRICE_HH(n) )
+
+#include <stdint.h>
+#include <string.h>
+
+extern uint32_t* wTb;
+
+#define Id(n) ((uint32_t)n<<16) //!< Id() is a 16 bit id 0-65535 as upper 2 bytes in head
+
+#if TRICE_CYCLE_COUNTER == 1
+extern uint8_t triceCycle;
+#define TRICE_CYCLE triceCycle++ //! TRICE_CYCLE is the trice cycle counter as 8 bit count 0-255.
+#else
+#define TRICE_CYCLE 0xC0 //! TRICE_CYCLE is no trice cycle counter, just a static value.
 #endif
+
+//! TRICE0 writes trice data as fast as possible in a buffer.
+//! \param id is a 16 bit Trice id
+#define TRICE0( id, pFmt ) \
+    TRICE_ENTER \
+    PUT( id | 0x0000 | TRICE_CYCLE ); \
+    TRICE_LEAVE
+
+//! TRICE8_1 writes trice data as fast as possible in a buffer.
+//! \param id is a 16 bit Trice id
+//! \param v0 a 8 bit bit value
+#define TRICE8_1( id, pFmt, v0 ) \
+    TRICE_ENTER \
+    PUT( id | 0x0100 | TRICE_CYCLE ); \
+    PUT( (uint8_t)(v0) ); /* little endian*/ \
+    TRICE_LEAVE
+
+//! TRICE8_2 writes trice data as fast as possible in a buffer.
+//! \param id is a 16 bit Trice id
+//! \param v0 - v1 are 8 bit bit values
+#define TRICE8_2( id, pFmt, v0, v1 ) \
+    TRICE_ENTER \
+    PUT( id | 0x0200 | TRICE_CYCLE ); \
+    PUT( (uint8_t)(v0) | ((uint16_t)(v1)<<8) ); \
+    TRICE_LEAVE
+
+//! TRICE8_3 writes trice data as fast as possible in a buffer.
+//! \param id is a 16 bit Trice id
+//! \param v0 - v2 are 8 bit bit values
+#define TRICE8_3( id, pFmt, v0, v1, v2 ) \
+    TRICE_ENTER \
+    PUT( id | 0x0300 | TRICE_CYCLE ); \
+    PUT( (uint8_t)(v0) | ((uint16_t)(v1)<<8) | ((uint32_t)(0xff&(v2))<<16) ); \
+    TRICE_LEAVE
+
+//! TRICE8_4 writes trice data as fast as possible in a buffer.
+//! \param id is a 16 bit Trice id
+//! \param v0 - v3 are 8 bit bit values
+#define TRICE8_4( id, pFmt, v0, v1, v2, v3 ) \
+    TRICE_ENTER \
+    PUT( id | 0x0400 | TRICE_CYCLE ); \
+    PUT( (uint8_t)(v0) | ((uint16_t)(v1)<<8) | ((uint32_t)(0xff&(v2))<<16) | ((uint32_t)(v3)<<24) ); \
+    TRICE_LEAVE
+
+//! TRICE8_5 writes trice data as fast as possible in a buffer.
+//! \param id is a 16 bit Trice id
+//! \param v0 - v4 are 8 bit bit values
+#define TRICE8_5( id, pFmt, v0, v1, v2, v3, v4 ) \
+    TRICE_ENTER \
+    PUT( id | 0x0500 | TRICE_CYCLE ); \
+    PUT( (uint8_t)(v0) | ((uint16_t)(v1)<<8) | ((uint32_t)(0xff&(v2))<<16) | ((uint32_t)(v3)<<24) ); \
+    PUT( (uint8_t)(v4) ); \
+    TRICE_LEAVE
+
+//! TRICE8_6 writes trice data as fast as possible in a buffer.
+//! \param id is a 16 bit Trice id
+//! \param v0 - v5 are 8 bit bit values
+#define TRICE8_6( id, pFmt, v0, v1, v2, v3, v4, v5 ) \
+    TRICE_ENTER \
+    PUT( id | 0x0600 | TRICE_CYCLE ); \
+    PUT( (uint8_t)(v0) | ((uint16_t)(v1)<<8) | ((uint32_t)(0xff&(v2))<<16) | ((uint32_t)(v3)<<24) ); \
+    PUT( (uint8_t)(v4) | ((uint16_t)(v5)<<8) ); \
+    TRICE_LEAVE
+
+//! TRICE8_8 writes trice data as fast as possible in a buffer.
+//! \param id is a 16 bit Trice id
+//! \param v0 - v6 are 8 bit bit values
+#define TRICE8_7( id, pFmt, v0, v1, v2, v3, v4, v5, v6 ) \
+    TRICE_ENTER \
+    PUT( id | 0x0700 | TRICE_CYCLE ); \
+    PUT( (uint8_t)(v0) | ((uint16_t)(v1)<<8) | ((uint32_t)(0xff&(v2))<<16) | ((uint32_t)(v3)<<24) ); \
+    PUT( (uint8_t)(v4) | ((uint16_t)(v5)<<8) | ((uint32_t)(0xff&(v6))<<16) ); \
+    TRICE_LEAVE
+
+//! TRICE8_8 writes trice data as fast as possible in a buffer.
+//! \param id is a 16 bit Trice id
+//! \param v0 - v7 are 8 bit bit values
+#define TRICE8_8( id, pFmt, v0, v1, v2, v3, v4, v5, v6, v7 ) \
+    TRICE_ENTER \
+    PUT( id | 0x0800 | TRICE_CYCLE ); \
+    PUT( (uint8_t)(v0) | ((uint16_t)(v1)<<8) | ((uint32_t)(0xff&(v2))<<16) | ((uint32_t)(v3)<<24) ); \
+    PUT( (uint8_t)(v4) | ((uint16_t)(v5)<<8) | ((uint32_t)(0xff&(v6))<<16) | ((uint32_t)(v7)<<24) ); \
+    TRICE_LEAVE
+
+//! TRICE16_1 writes trice data as fast as possible in a buffer.
+//! \param id is a 16 bit Trice id
+//! \param v0 a 16 bit value
+#define TRICE16_1( id, pFmt, v0 ) \
+    TRICE_ENTER \
+    PUT( id | 0x0200 | TRICE_CYCLE ); \
+    PUT( (uint16_t)(v0) ); \
+    TRICE_LEAVE
+
+//! TRICE16_2 writes trice data as fast as possible in a buffer.
+//! \param id is a 16 bit Trice id
+//! \param v0 - v1 are 16 bit values
+#define TRICE16_2( id, pFmt, v0, v1 ) \
+    TRICE_ENTER \
+    PUT( id | 0x0400 | TRICE_CYCLE ); \
+    PUT((uint16_t)(v0) | ((uint32_t)(v1)<<16) ); \
+    TRICE_LEAVE
+
+//! TRICE16_3 writes trice data as fast as possible in a buffer.
+//! \param id is a 16 bit Trice id
+//! \param v0 - v2 are 16 bit values
+#define TRICE16_3( id, pFmt, v0, v1, v2 ) \
+    TRICE_ENTER \
+    PUT( id | 0x0600 | TRICE_CYCLE ); \
+    PUT((uint16_t)(v0) | ((uint32_t)(v1)<<16) ); \
+    PUT( (uint16_t)(v2) ); \
+    TRICE_LEAVE
+
+//! TRICE16_4 writes trice data as fast as possible in a buffer.
+//! \param id is a 16 bit Trice id
+//! \param v0 - v3 are 16 bit values
+#define TRICE16_4( id, pFmt, v0, v1, v2, v3 ) \
+    TRICE_ENTER \
+    PUT( id | 0x0800 | TRICE_CYCLE ); \
+    PUT((uint16_t)(v0) | ((uint32_t)(v1)<<16) ); \
+    PUT((uint16_t)(v2) | ((uint32_t)(v3)<<16) ); \
+    TRICE_LEAVE
+
+//! TRICE32_1 writes trice data as fast as possible in a buffer.
+//! \param id is a 16 bit Trice id
+//! \param v0 the 32 bit value
+#define TRICE32_1( id, pFmt, v0 ) \
+    TRICE_ENTER \
+    PUT( id | 0x0400 | TRICE_CYCLE); \
+    PUT( (uint32_t)(v0) ); /* little endian*/ \
+    TRICE_LEAVE
+
+//! TRICE32_2 writes trice data as fast as possible in a buffer.
+//! \param id is a 16 bit Trice id
+//! \param v0 - v1 are 32 bit values
+#define TRICE32_2( id, pFmt, v0, v1 ) \
+    TRICE_ENTER \
+    PUT(id | 0x0800 | TRICE_CYCLE ); \
+    PUT( (uint32_t)(v0) ); \
+    PUT( (uint32_t)(v1) ); \
+    TRICE_LEAVE
+
+//! TRICE32_3 writes trice data as fast as possible in a buffer.
+//! \param id is a 16 bit Trice id
+//! \param v0 - v2 are 32 bit values
+#define TRICE32_3( id, pFmt, v0, v1, v2 ) \
+    TRICE_ENTER \
+    PUT( id | 0x0c00 | TRICE_CYCLE ); \
+    PUT( (uint32_t)(v0) ); \
+    PUT( (uint32_t)(v1) ); \
+    PUT( (uint32_t)(v2) ); \
+    TRICE_LEAVE
+
+//! TRICE32_4 writes trice data as fast as possible in a buffer.
+//! \param id is a 16 bit Trice id
+//! \param v0 - v3 are 32 bit values
+#define TRICE32_4( id, pFmt, v0, v1, v2, v3 ) \
+    TRICE_ENTER \
+    PUT( id | 0x1000 | TRICE_CYCLE ); \
+    PUT( (uint32_t)(v0) ); \
+    PUT( (uint32_t)(v1) ); \
+    PUT( (uint32_t)(v2) ); \
+    PUT( (uint32_t)(v3) ); \
+    TRICE_LEAVE
+
+#if TRICE_HARDWARE_ENDIANNESS == TRICE_LITTLE_ENDIANNESS
+
+//! TRICE64_1 writes trice data as fast as possible in a buffer.
+//! \param id is a 16 bit Trice id
+//! \param v0 is a 64 bit values
+#define TRICE64_1( id, pFmt, v0 ) \
+    TRICE_ENTER \
+    PUT( id | 0x0800 | TRICE_CYCLE ); \
+    PUT( (uint32_t)(v0) ); \
+    PUT( (uint32_t)((uint64_t)(v0)>>32) ); \
+    TRICE_LEAVE
+
+//! TRICE64_2 writes trice data as fast as possible in a buffer.
+//! \param id is a 16 bit Trice id
+//! \param v0 - v1 are 64 bit values
+#define TRICE64_2( id, pFmt, v0, v1 ) \
+    TRICE_ENTER \
+    PUT( id | 0x1000 | TRICE_CYCLE ); \
+    PUT( (uint32_t)(v0) ); \
+    PUT( (uint32_t)((uint64_t)(v0)>>32) ); \
+    PUT( (uint32_t)(v1) ); \
+    PUT( (uint32_t)((uint64_t)(v1)>>32) ); \
+    TRICE_LEAVE
+
+//! TRICE64_3 writes trice data as fast as possible in a buffer.
+//! \param id is a 16 bit Trice id
+//! \param v0 - v2 are 64 bit values
+#define TRICE64_3( id, pFmt, v0, v1, v2 ) \
+    TRICE_ENTER \
+    PUT( id | 0x1800 | TRICE_CYCLE ); \
+    PUT( (uint32_t)(v0) ); \
+    PUT( (uint32_t)(v0>>32) ); \
+    PUT( (uint32_t)(v1) ); \
+    PUT( (uint32_t)(v1>>32) ); \
+    PUT( (uint32_t)(v2) ); \
+    PUT( (uint32_t)(v2>>32) ); \
+    TRICE_LEAVE
+
+
+//! TRICE64_4 writes trice data as fast as possible in a buffer.
+//! \param id is a 16 bit Trice id
+//! \param v0 - v3 are 64 bit values
+#define TRICE64_4( id, pFmt, v0, v1, v2, v3 ) \
+    TRICE_ENTER \
+    PUT( id | 0x2000 | TRICE_CYCLE ); \
+    PUT( (uint32_t)(v0) ); \
+    PUT( (uint32_t)(v0>>32) ); \
+    PUT( (uint32_t)(v1) ); \
+    PUT( (uint32_t)(v1>>32) ); \
+    PUT( (uint32_t)(v2) ); \
+    PUT( (uint32_t)(v2>>32) ); \
+    PUT( (uint32_t)(v3) ); \
+    PUT( (uint32_t)(v3>>32) ); \
+    TRICE_LEAVE
+
+#else // #if TRICE_HARDWARE_ENDIANNESS == TRICE_LITTLE_ENDIANNESS
+
+#endif // #else // #if TRICE_HARDWARE_ENDIANNESS == TRICE_LITTLE_ENDIANNESS
+
+//! TRICE_S writes id and dynString.
+//! \param id trice identifier
+//! \param pFmt formatstring for trice (ignored here but used by the trice tool)
+//! \param dynString 0-terminated runtime generated string
+//! After the 4 byte trice message header are following 2^n bytes 
+//! string transfer format: 
+//! idH    idL    len    cycle
+//! c0     c1     c2     c3
+//! ...
+//! cLen-3 cLen-2 cLen-1 cLen
+#define TRICE_S( id, pFmt, dynString) do { \
+    int len = strlen( dynString ); \
+    if( len > 255 ){ \
+        dynString[255] = 0; \
+        len = 255; \
+    } \
+    TRICE_ENTER \
+    PUT( id | (len<<8) | TRICE_CYCLE ); \
+    PUT_BUFFER( dynString, len ); \
+    TRICE_LEAVE \
+} while(0)
+
+#endif
+
+/*
+#ifdef TRICE_RTT_CHANNEL
+#include "SEGGER_RTT.h"
+
+//! put one trice into RTT0 buffer
+//! \param v trice
+//! trice time critical part
+TRICE_INLINE void triceU32PushSeggerRTT(uint32_t v) {
+    SEGGER_RTT_Write(TRICE_RTT_CHANNEL, &v, sizeof(v));
+}
+
+//! put one byte into RTT0 buffer
+//! \param v byte
+//! trice time critical part
+TRICE_INLINE void triceU8PushSeggerRTT(uint8_t v) {
+    SEGGER_RTT_Write(TRICE_RTT_CHANNEL, &v, sizeof(v));
+}
+
+#else // #ifdef TRICE_RTT_CHANNEL
+
+#define triceU8PushSeggerRTT(v)
+#define triceU32PushSeggerRTT(v)
+
+#endif // #else // #ifdef TRICE_RTT_CHANNEL
+
 #define TRICE_HTON_U32PUSH(v) TRICE_U32PUSH( TRICE_HTON(v) )
 
 //! TRICE_FIFO_BYTE_SIZE must be a power of 2, one trice needs typically 4 or 8 bytes, max 32 bytes.
@@ -151,16 +515,13 @@ void InitXteaTable(void);
 #endif
 
 #define TRICE_U32_FIFO_MASK (((TRICE_FIFO_BYTE_SIZE)>>2)-1) //!< max possible int32 count in fifo
-#define TRICE_U8_FIFO_MASK ((TRICE_FIFO_BYTE_SIZE)-1) //!< max possible bytes count in fifo
 
 extern uint32_t triceU32Fifo[ TRICE_FIFO_BYTE_SIZE>>2 ];
-extern uint8_t* const triceU8Fifo;
+
 
 extern int triceU32FifoWriteIndex;
 extern int triceU32FifoReadIndex;
 
-extern int triceU8FifoWriteIndex;
-extern int triceU8FifoReadIndex;
 
 extern int triceFifoMaxDepth;
 
@@ -188,6 +549,13 @@ TRICE_INLINE uint32_t triceU32Pop(void) {
     return v;
 }
 
+
+int triceU32FifoDepth(void);
+
+int triceU32WriteU8ReadFifoDepth(void);
+*/
+
+
 //! triceU8Pop gets one trice from trice fifo.
 //! \return trice id with 2 byte data in one uint32_t.
 TRICE_INLINE uint8_t triceU8Pop(void) {
@@ -196,212 +564,24 @@ TRICE_INLINE uint8_t triceU8Pop(void) {
     return v;
 }
 
-int triceU32FifoDepth(void);
-int triceU8FifoDepth(void);
-int triceU32WriteU8ReadFifoDepth(void);
 
-#ifdef TRICE_OFF
-#include "intern/triceNoCode.h"
-#elif  TRICE_ESC_ENCODING == TRICE_ENCODING
-#include "intern/triceEscEncoder.h"
-#elif TRICE_FLEX_ENCODING == TRICE_ENCODING
-#include "intern/triceFlexEncoder.h"
-#elif TRICE_COBSR_ENCODING == TRICE_ENCODING
-#include "intern/triceCobsrEncoder.h"
-#else
-#error "wrong configuration"
-#endif
 
-#ifndef TRICE_SYNC // some encoder define a sync trice
-#define TRICE_SYNC do{ } while(0)// otherwise empty definition for compability
-#endif
-
-#ifndef trice0i
-void trice0i( uint32_t id, char* pFmt );
-#endif
-
-#ifndef trice0
-void trice0( uint32_t id, char* pFmt );
-#endif
-
-#ifndef trice8_1i
-void trice8_1i( uint32_t id, char* pFmt, int8_t d0 );
-#endif
-
-#ifndef trice8_1
-void trice8_1( uint32_t id, char* pFmt, int8_t d0 );
-#endif
-
-#ifndef trice8_2i
-void trice8_2i( uint32_t id, char* pFmt, int8_t d0, int8_t d1 );
-#endif
-
-#ifndef trice8_2
-void trice8_2( uint32_t id, char* pFmt, int8_t d0, int8_t d1 );
-#endif
-
-#ifndef trice8_3i
-void trice8_3i( uint32_t id, char* pFmt, int8_t d0, int8_t d1, int8_t d2 );
-#endif
-
-#ifndef trice8_3
-void trice8_3( uint32_t id, char* pFmt, int8_t d0, int8_t d1, int8_t d2 );
-#endif
-
-#ifndef trice8_4i
-void trice8_4i( uint32_t id, char* pFmt, int8_t d0, int8_t d1, int8_t d2, int8_t d3 );
-#endif
-
-#ifndef trice8_4
-void trice8_4( uint32_t id, char* pFmt, int8_t d0, int8_t d1, int8_t d2, int8_t d3 );
-#endif
-
-#ifndef trice8_5i
-void trice8_5i( uint32_t id, char* pFmt, int8_t d0, int8_t d1, int8_t d2, int8_t d3, int8_t d4 );
-#endif
-
-#ifndef trice8_5
-void trice8_5( uint32_t id, char* pFmt, int8_t d0, int8_t d1, int8_t d2, int8_t d3, int8_t d4 );
-#endif
-
-#ifndef trice8_6i
-void trice8_6i( uint32_t id, char* pFmt, int8_t d0, int8_t d1, int8_t d2, int8_t d3, int8_t d4, int8_t d5 );
-#endif
-
-#ifndef trice8_6
-void trice8_6( uint32_t id, char* pFmt, int8_t d0, int8_t d1, int8_t d2, int8_t d3, int8_t d4, int8_t d5 );
-#endif
-
-#ifndef trice8_7i
-void trice8_7i( uint32_t id, char* pFmt, int8_t d0, int8_t d1, int8_t d2, int8_t d3, int8_t d4, int8_t d5, int8_t d6 );
-#endif
-
-#ifndef trice8_7
-void trice8_7( uint32_t id, char* pFmt, int8_t d0, int8_t d1, int8_t d2, int8_t d3, int8_t d4, int8_t d5, int8_t d6 );
-#endif
-
-#ifndef trice8_8i
-void trice8_8i( uint32_t id, char* pFmt, int8_t d0, int8_t d1, int8_t d2, int8_t d3, int8_t d4, int8_t d5, int8_t d6, int8_t d7 );
-#endif
-
-#ifndef trice8_8
-void trice8_8( uint32_t id, char* pFmt, int8_t d0, int8_t d1, int8_t d2, int8_t d3, int8_t d4, int8_t d5, int8_t d6, int8_t d7 );
-#endif
-
-#ifndef trice16_1i
-void trice16_1i( uint32_t id, char* pFmt, int16_t d0 );
-#endif
-
-#ifndef trice16_1
-void trice16_1( uint32_t id, char* pFmt, int16_t d0 );
-#endif
-
-#ifndef trice16_2i
-void trice16_2i( uint32_t id, char* pFmt, int16_t d0, int16_t d1 );
-#endif
-
-#ifndef trice16_2
-void trice16_2( uint32_t id, char* pFmt, int16_t d0, int16_t d1 );
-#endif
-
-#ifndef trice16_3i
-void trice16_3i( uint32_t id, char* pFmt, int16_t d0, int16_t d1, int16_t d2 );
-#endif
-
-#ifndef trice16_3
-void trice16_3( uint32_t id, char* pFmt, int16_t d0, int16_t d1, int16_t d2 );
-#endif
-
-#ifndef trice16_4i
-void trice16_4i( uint32_t id, char* pFmt, int16_t d0, int16_t d1, int16_t d2, int16_t d3 );
-#endif
-
-#ifndef trice16_4
-void trice16_4( uint32_t id, char* pFmt, int16_t d0, int16_t d1, int16_t d2, int16_t d3 );
-#endif
-
-#ifndef trice32_1i
-void trice32_1i( uint32_t id, char* pFmt, int32_t d0 );
-#endif
-
-#ifndef trice32_1
-void trice32_1( uint32_t id, char* pFmt, int32_t d0 );
-#endif
-
-#ifndef trice32_2i
-void trice32_2i( uint32_t id, char* pFmt, int32_t d0, int32_t d1 );
-#endif
-
-#ifndef trice32_2
-void trice32_2( uint32_t id, char* pFmt, int32_t d0, int32_t d1 );
-#endif
-
-#ifndef trice32_3i
-void trice32_3i( uint32_t id, char* pFmt, int32_t d0, int32_t d1, int32_t d2 );
-#endif
-
-#ifndef trice32_3
-void trice32_3( uint32_t id, char* pFmt, int32_t d0, int32_t d1, int32_t d2 );
-#endif
-
-#ifndef trice32_4i
-void trice32_4i( uint32_t id, char* pFmt, int32_t d0, int32_t d1, int32_t d2, int32_t d3 );
-#endif
-
-#ifndef trice32_4
-void trice32_4( uint32_t id, char* pFmt, int32_t d0, int32_t d1, int32_t d2, int32_t d3 );
-#endif
-
-#ifndef trice64_1i
-void trice64_1i( uint32_t id, char* pFmt, int64_t d0 );
-#endif
-
-#ifndef trice64_1
-void trice64_1( uint32_t id, char* pFmt, int64_t d0 );
-#endif
-
-#ifndef trice64_2i
-void trice64_2i( uint32_t id, char* pFmt, int64_t d0, int64_t d1 );
-#endif
-
-#ifndef trice64_2
-void trice64_2( uint32_t id, char* pFmt, int64_t d0, int64_t d1 );
-#endif
-
-//! triceRuntimeGeneratedStringUnbound can transfer runtime generated strings if TRICES_1 is not available.
-TRICE_INLINE void triceRuntimeGeneratedStringUnbound( const char* s ){
-    size_t len = strlen( s );
-    char c1, c2, c3, c4, c5, c6, c7, c8;
-    while( len ){
-        switch( len ){
-            case  0: return;
-            case  1: c1=*s++;
-                TRICE8_1( Id(65329), "%c", c1 ); return;
-                //TRICE8_1( Id(65329), "%c", c1 ); return;
-            case  2: c1=*s++; c2=*s++;
-                TRICE8_2( Id(65279), "%c%c", c1, c2 ); return;
-            case  3: c1=*s++; c2=*s++; c3=*s++;
-                TRICE8_3( Id(65057), "%c%c%c", c1, c2, c3 ); return;
-            case  4: c1=*s++; c2=*s++; c3=*s++; c4=*s++;
-                TRICE8_4( Id(65052), "%c%c%c%c", c1, c2, c3, c4 ); return;
-            case  5: c1=*s++; c2=*s++; c3=*s++; c4=*s++; c5=*s++;
-                TRICE8_5( Id(65088), "%c%c%c%c%c", c1, c2, c3, c4, c5 ); return;
-            case  6: c1=*s++; c2=*s++; c3=*s++; c4=*s++; c5=*s++; c6=*s++;
-                TRICE8_6( Id(65473), "%c%c%c%c%c%c", c1, c2, c3, c4, c5, c6 ); return;
-            case  7: c1=*s++; c2=*s++; c3=*s++; c4=*s++; c5=*s++; c6=*s++; c7=*s++;
-                TRICE8_7( Id(65121), "%c%c%c%c%c%c%c", c1, c2, c3, c4, c5, c6, c7); return;
-            case  8:
-            default: c1 = *s++; c2 = *s++; c3 = *s++; c4 = *s++; c5 = *s++; c6 = *s++; c7 = *s++; c8 = *s++;
-                TRICE8_8( Id(65468), "%c%c%c%c%c%c%c%c", c1, c2, c3, c4, c5, c6, c7, c8 );
-                len -= 8;
-        }
+//! triceServeTransmit as triceServeU8FifoTransmit must be called cyclically to proceed ongoing write out.
+//! A good place is UART ISR.
+TRICE_INLINE void triceServeTransmit(void) {
+    triceTransmitData8(triceU8Pop());
+    if (0 == triceU8FifoDepth()) { // no more bytes
+        triceDisableTxEmptyInterrupt();
     }
-    return;
 }
 
+// triceTriggerTransmit as triceTriggerU8FifoTransmit must be called cyclically to initialize write out.
+TRICE_INLINE void triceTriggerTransmit(void){
+    if( triceU8FifoDepth() && triceTxDataRegisterEmpty() ){
+        triceEnableTxEmptyInterrupt(); // next bytes
+    }
+}
 
-//! trice runtime string
-#define TRICE_RTS(dynString) do{ triceRuntimeGeneratedStringUnbound(dynString); }while(0)
 
 #ifdef __cplusplus
 }

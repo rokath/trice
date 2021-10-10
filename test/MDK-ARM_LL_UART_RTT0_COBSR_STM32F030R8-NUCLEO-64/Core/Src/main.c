@@ -104,22 +104,22 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1){
-			// serve every few ms
-			static int lastMs = 0;
-			if( milliSecond >= lastMs + 10 ){
-					lastMs = milliSecond;
-					TriceReadAndTranslate();
-			}
+      // serve every few ms
+      static int lastMs = 0;
+      if( milliSecond >= lastMs + TRICE_READ_AND_TRANSLATE_INTERVAL_MS ){
+          lastMs = milliSecond;
+          TriceReadAndTranslate();
+      }
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	{
+  {
     static int lastTricesTime = 0;
     // send some trices every few ms
-        if( milliSecond >= lastTricesTime + 3000 ){
+        if( milliSecond >= lastTricesTime + 300 ){
             static int index = 0;
-            int select = index % 32;
-            TRICE16_3( Id( 33152),"MSG: triceFifoMaxDepth = %d, select = %d, TriceDepthMax =%d\n", triceFifoMaxDepth, select, 2*TriceDepthMax );
+            int select = index % 15;
+            TRICE16_2( Id( 45567),"MSG: select = %d, TriceDepthMax =%d\n", select, 2*TriceDepthMax );
             triceCheckSet(select);
             index++;
             lastTricesTime = milliSecond;

@@ -5,51 +5,6 @@
 #include <string.h> // strlen
 #include "trice.h"
 
-#if (TRICE_ENCODING == TRICE_COBSR_ENCODING)
-#if 0
-//! triceCOBSREncode does the same as the cobsr_encode function but a bit faster.
-//! by leaving out some checks, assuming max 254 source bytes and uses a simpler signature.
-//! See https://github.com/ctrl-labs/cobs-c for more details.
-//! \param dst is the result buffer. It must be at least 1 byte longer than len.
-//! \param src is the source buffer.
-//! \param len is count of valid data inside the the source buffer. Assumption: 0 < len < 255.
-//! \retval is the count of valid data inside the the result buffer. It is len or len+1.
-static uint8_t triceCOBSREncode(uint8_t *dst, const uint8_t * src, uint8_t len){
-    const uint8_t* limit = src + len; // end of source 
-    uint8_t*       code  = dst;       // next code position
-    uint8_t*       data  = dst + 1;   // next data position
-    uint8_t        sl    = 1;         // search length
-    uint8_t        by;                // byte
-    do{ // Iterate over the source bytes
-        by = *src++;
-        if( by == 0 ) { // We found a zero byte
-            *code = sl;
-            code = data++;
-            sl = 1;
-        } else { // Copy the non-zero byte to the destination buffer
-            *data++ = by;
-            sl++;
-        }
-    }while( src < limit );
-    // We've reached the end of the source data (or possibly run out of output buffer)
-    // Finalise the remaining output. In particular, write the code (length) byte.
-    //
-    // For COBS/R, the final code (length) byte is special: if the final data byte is
-    // greater than or equal to what would normally be the final code (length) byte,
-    // then replace the final code byte with the final data byte, and remove the final
-    // data byte from the end of the sequence. This saves one byte in the output.
-    //
-    // Update the pointer to calculate the final output length.
-    if( by < sl ){ // Encoding same as plain COBS 
-        *code = sl;
-    } else { // Special COBS/R encoding: length code is final byte, and final byte is removed from data sequence.
-        *code = by;
-        return sl; // data--;
-    }
-    return len+1; // data - dst; // Calculate the output length, from the value of code
-}
-#endif
-
 // https://github.com/jacquesf/COBS-Consistent-Overhead-Byte-Stuffing/blob/master/cobs.c
 /* Stuffs "length" bytes of data at the location pointed to by
  * "input", writing the output to the location pointed to by
@@ -59,7 +14,7 @@ static uint8_t triceCOBSREncode(uint8_t *dst, const uint8_t * src, uint8_t len){
  * pre-C99 C dialect.
  */
 //size_t cobs_encode(const uint8_t * /*restrict*/ input, size_t length, uint8_t * /*restrict*/ output)
-static uint8_t triceCOBSREncode(uint8_t *output, const uint8_t * input, uint8_t length){
+static uint8_t triceCOBSEncode(uint8_t *output, const uint8_t * input, uint8_t length){
     size_t read_index = 0;
     size_t write_index = 1;
     size_t code_index = 0;
@@ -120,12 +75,13 @@ static uint8_t* triceRead( void ){
         if( 0 == *rTb ){ // This buffer is empty
             return NULL;
         }
-    } 
+    }
     p = (uint8_t*)rTb;
     rTb += (p[1]+7)>>2; // step to next entry (little endian)
     return p;
 }
 
+#if TRICE_TRANSFER_MESSAGE == TRICE_SINGLE_MESSAGE
 void TriceReadAndTranslate( void ){
     uint8_t* p;
     uint8_t clen, tlen;
@@ -136,14 +92,80 @@ void TriceReadAndTranslate( void ){
     if( NULL == p ){
         return; // no trice data to transmit
     }
-#if TRICE_CYCLE_COUNTER == 1 // with cycle counter
-    tlen = p[1] + 3; // little endian, add id size and cycle size
-    p[1] = p[0]; // write cycle to 2nd position (little endian assumed!)
-    clen = triceCOBSREncode(triceU8Fifo, &p[1], tlen);
-#else // no cycle counter used
-    tlen = p[1] + 2; // little endian, add id size
-    clen = triceCOBSREncode(triceU8Fifo, &p[2], tlen);
+
+// The trice data stream is little endian, as most embedded MCUs use litte endian format.
+// For big endian embedded MCUs the trice tool  should get an -bigEndian switch to avoid transcoding here.
+// The buffer tail contains wholes on big endian MCUs for TRICE8_1, TRICE8_2, TRICE8_3, TRICE8_5, TRICE8_6, TRICE8_7, TRICE16_1, TRICE16_3 and needs adjustment then.
+#if TRICE_HARDWARE_ENDIANNESS == TRICE_LITTLE_ENDIANNESS
+    #if TRICE_CYCLE_COUNTER == 1 // with cycle counter
+        tlen = p[1] + 3; // little endian, add id size and cycle size
+        p[1] = p[0]; // write cycle to 2nd position (little endian assumed!)
+        #if TRICE_TRANSFER_MESSAGE == TRICE_SINGLE_MESSAGE
+            clen = triceCOBSEncode(triceU8Fifo, &p[1], tlen);
+        #elif TRICE_TRANSFER_MESSAGE == TRICE_MULTI_MESSAGE
+            p[0] = tlen; // add count of following bytes
+            clen = triceCOBSEncode(triceU8Fifo, &p[0], tlen+1);
+        #endif
+    #else // no cycle counter used
+        tlen = p[1] + 2; // little endian, add id size
+        #if TRICE_TRANSFER_MESSAGE == TRICE_SINGLE_MESSAGE
+            clen = triceCOBSEncode(triceU8Fifo, &p[2], tlen);
+        #elif TRICE_TRANSFER_MESSAGE == TRICE_MULTI_MESSAGE
+            p[1] = tlen; // add count of following bytes
+            clen = triceCOBSEncode(triceU8Fifo, &p[1], tlen+1);
+        #endif
+    #endif
+#else // #if TRICE_HARDWARE_ENDIANNESS == TRICE_LITTLE_ENDIANNESS
+    #error "todo: TRICE_HARDWARE_ENDIANNESS == TRICE_BIG_ENDIANNESS"
+#endif // #else // #if TRICE_HARDWARE_ENDIANNESS == TRICE_LITTLE_ENDIANNESS
+    triceU8Fifo[clen] = 0; // add 0-delimiter
+    TRICE_ENTER_CRITICAL_SECTION
+    triceU8FifoWriteIndex = clen+1;
+    triceU8FifoReadIndex = 0;
+    TRICE_LEAVE_CRITICAL_SECTION
+#ifdef ENCRYPT
+    triceServeFifoEncryptedToBytesBuffer();
 #endif
+}
+#endif // #if TRICE_TRANSFER_MESSAGE == TRICE_SINGLE_MESSAGE
+
+#if TRICE_TRANSFER_MESSAGE == TRICE_MULTI_MESSAGE
+void TriceReadAndTranslate( void ){
+    uint8_t* p;
+    uint8_t clen, tlen;
+    if( triceU8FifoDepth() ){
+        return; // transmission not done yet
+    }
+    p = triceRead();
+    if( NULL == p ){
+        return; // no trice data to transmit
+    }
+
+// The trice data stream is little endian, as most embedded MCUs use litte endian format.
+// For big endian embedded MCUs the trice tool  should get an -bigEndian switch to avoid transcoding here.
+// The buffer tail contains wholes on big endian MCUs for TRICE8_1, TRICE8_2, TRICE8_3, TRICE8_5, TRICE8_6, TRICE8_7, TRICE16_1, TRICE16_3 and needs adjustment then.
+#if TRICE_HARDWARE_ENDIANNESS == TRICE_LITTLE_ENDIANNESS
+    #if TRICE_CYCLE_COUNTER == 1 // with cycle counter
+        tlen = p[1] + 3; // little endian, add id size and cycle size
+        p[1] = p[0]; // write cycle to 2nd position (little endian assumed!)
+        #if TRICE_TRANSFER_MESSAGE == TRICE_SINGLE_MESSAGE
+            clen = triceCOBSEncode(triceU8Fifo, &p[1], tlen);
+        #elif TRICE_TRANSFER_MESSAGE == TRICE_MULTI_MESSAGE
+            p[0] = tlen; // add count of following bytes
+            clen = triceCOBSEncode(triceU8Fifo, &p[0], tlen+1);
+        #endif
+    #else // no cycle counter used
+        tlen = p[1] + 2; // little endian, add id size
+        #if TRICE_TRANSFER_MESSAGE == TRICE_SINGLE_MESSAGE
+            clen = triceCOBSREncode(triceU8Fifo, &p[2], tlen);
+        #elif TRICE_TRANSFER_MESSAGE == TRICE_MULTI_MESSAGE
+            p[1] = tlen; // add count of following bytes
+            clen = triceCOBSREncode(triceU8Fifo, &p[1], tlen+1);
+        #endif
+    #endif
+#else // #if TRICE_HARDWARE_ENDIANNESS == TRICE_LITTLE_ENDIANNESS
+    #error "todo: TRICE_HARDWARE_ENDIANNESS == TRICE_BIG_ENDIANNESS"
+#endif // #else // #if TRICE_HARDWARE_ENDIANNESS == TRICE_LITTLE_ENDIANNESS
     triceU8Fifo[clen] = 0; // add 0-delimiter
     TRICE_ENTER_CRITICAL_SECTION
     triceU8FifoWriteIndex = clen+1;
@@ -154,11 +176,11 @@ void TriceReadAndTranslate( void ){
 #endif
 }
 
-#endif // #if (TRICE_ENCODING == TRICE_COBSR_ENCODING)
+#endif 
 
-#if ((TRICE_ENCODING == TRICE_FLEX_ENCODING) || (TRICE_ENCODING == TRICE_COBSR_ENCODING))
+
 uint8_t triceCycle = 0xc0; //!< trice cycle counter
-#endif
+
 
 //! trice fifo instance, here are the trices buffered.
 ALIGN4 uint32_t
@@ -167,14 +189,14 @@ ALIGN4_END;
 
 uint8_t* const triceU8Fifo = (uint8_t*)triceU32Fifo;
 
-int triceU32FifoWriteIndex = 0; //!< trice fifo write index, used inside macros, so must be visible
-int triceU32FifoReadIndex = 0; //!< trice fifo read index for 32 bit values
+//int triceU32FifoWriteIndex = 0; //!< trice fifo write index, used inside macros, so must be visible
+//int triceU32FifoReadIndex = 0; //!< trice fifo read index for 32 bit values
 
 int triceU8FifoWriteIndex = 0; //!< trice fifo write index, used inside macros, so must be visible
 int triceU8FifoReadIndex = 0; //!< trice fifo read index
 
 int triceFifoMaxDepth = 0; //!< diagnostics
-
+/*
 //! triceU32FifoDepth determines bytes count inside trice fifo.
 //! Assumption: Only int32 access for push and pop.
 //! \return count of buffered bytes
@@ -184,6 +206,7 @@ int triceU32FifoDepth(void) {
     triceFifoMaxDepth = triceFifoMaxDepth < depth ? depth : triceFifoMaxDepth; // diagnostics
     return depth;
 }
+*/
 
 //! triceU8UsageFifoDepth determines bytes count inside trice fifo.
 //! Assumption: Only int8 access for push and pop.
@@ -194,15 +217,16 @@ int triceU8FifoDepth(void) {
     return depth;
 }
 
-//! triceU32WriteU8ReadFifoDepth determines bytes count inside trice fifo.
-//! Assumption: Only int32 for push and only int8 for pop.
-//! \return count of buffered bytes
-int triceU32WriteU8ReadFifoDepth(void) {
-    int depth = ((triceU32FifoWriteIndex<<2) - triceU8FifoReadIndex) & TRICE_U8_FIFO_MASK;
-    triceFifoMaxDepth = triceFifoMaxDepth < depth ? depth : triceFifoMaxDepth; // diagnostics
-    return depth;
-}
-
+//  //! triceU32WriteU8ReadFifoDepth determines bytes count inside trice fifo.
+//  //! Assumption: Only int32 for push and only int8 for pop.
+//  //! \return count of buffered bytes
+//  int triceU32WriteU8ReadFifoDepth(void) {
+//      int depth = ((triceU32FifoWriteIndex<<2) - triceU8FifoReadIndex) & TRICE_U8_FIFO_MASK;
+//      triceFifoMaxDepth = triceFifoMaxDepth < depth ? depth : triceFifoMaxDepth; // diagnostics
+//      return depth;
+//  }
+//  
+/*
 #ifndef trice0i
 //! trice0i does trace id unprotected (inside critical section).
 //! \param id trice identifier
@@ -664,7 +688,7 @@ void trice64_2( uint32_t id, char* pFmt, int64_t d0, int64_t d1 ){
     TRICE64_2( id, pFmt, d0, d1 );
 }
 #endif
-
+*/
 #ifdef ENCRYPT
 //! golang XTEA works with 64 rounds
 static const unsigned int numRounds = 64;
@@ -754,3 +778,58 @@ void triceServeFifoEncryptedToBytesBuffer(void) {
 
 
 #endif // #ifdef ENCRYPT
+
+
+//  //! triceCOBSREncode does the same as the cobsr_encode function but a bit faster.
+//  //! by leaving out some checks, assuming max 254 source bytes and uses a simpler signature.
+//  //! See https://github.com/ctrl-labs/cobs-c for more details.
+//  //! \param dst is the result buffer. It must be at least 1 byte longer than len.
+//  //! \param src is the source buffer.
+//  //! \param len is count of valid data inside the the source buffer. Assumption: 0 < len < 255.
+//  //! \retval is the count of valid data inside the the result buffer. It is len or len+1.
+//  static uint8_t triceCOBSREncode(uint8_t *dst, const uint8_t * src, uint8_t len){
+//      const uint8_t* limit = src + len; // end of source 
+//      uint8_t*       code  = dst;       // next code position
+//      uint8_t*       data  = dst + 1;   // next data position
+//      uint8_t        sl    = 1;         // search length
+//      uint8_t        by;                // byte
+//      do{ // Iterate over the source bytes
+//          by = *src++;
+//          if( by == 0 ) { // We found a zero byte
+//              *code = sl;
+//              code = data++;
+//              sl = 1;
+//          } else { // Copy the non-zero byte to the destination buffer
+//              *data++ = by;
+//              sl++;
+//          }
+//      }while( src < limit );
+//      // We've reached the end of the source data (or possibly run out of output buffer)
+//      // Finalise the remaining output. In particular, write the code (length) byte.
+//      //
+//      // For COBS/R, the final code (length) byte is special: if the final data byte is
+//      // greater than or equal to what would normally be the final code (length) byte,
+//      // then replace the final code byte with the final data byte, and remove the final
+//      // data byte from the end of the sequence. This saves one byte in the output.
+//      //
+//      // Update the pointer to calculate the final output length.
+//      if( by < sl ){ // Encoding same as plain COBS 
+//          *code = sl;
+//      } else { // Special COBS/R encoding: length code is final byte, and final byte is removed from data sequence.
+//          *code = by;
+//          return sl; // data--;
+//      }
+//      return len+1; // data - dst; // Calculate the output length, from the value of code
+//  }
+
+//  #if TRICE_HARDWARE_ENDIANNESS == TRICE_TRANSFER_ENDIANNESS
+//  #define TRICE_HTONS(n) ((uint16_t)(n))
+//  #define TRICE_HTON(n)  ((uint32_t)(n))
+//  #else
+//  #define TRICE_HTONS(n) ( (((uint16_t)(n))>>8) | (((uint16_t)(n))<<8) )
+//  #define TRICE_HH(n)                     ((uint32_t)(n)>>24)
+//  #define TRICE_HL(n) ((uint32_t)(uint8_t)((uint32_t)(n)>>16))
+//  #define TRICE_LH(n) ((uint32_t)         ((uint16_t)(n)>> 8))
+//  #define TRICE_LL(n) ((uint32_t)         (( uint8_t)(n)    ))
+//  #define TRICE_HTON(n) ((TRICE_LL(n)<<24)|(TRICE_LH(n)<<16)|(TRICE_HL(n)<<8)|TRICE_HH(n) )
+//  #endif

@@ -1,4 +1,4 @@
-/*! \file triceInterfaceUART.h
+/*! \file triceUART_LL_STM32.h
 \author Thomas.Hoehenleitner [at] seerose.net
 *******************************************************************************/
 

@@ -355,6 +355,10 @@
 		"Type": "TRICE8_1",
 		"Strg": "tst:Hi! %d\\n"
 	},
+	"36046": {
+		"Type": "TRICE0",
+		"Strg": "att: COBS, double buf, +cycle, +int "
+	},
 	"36106": {
 		"Type": "trice16",
 		"Strg": "time:len=%u, ticks=%d, equal=%u, longer=%u\\n"
@@ -758,6 +762,10 @@
 	"45348": {
 		"Type": "trice16_2",
 		"Strg": "msg: trice16_2  -\u003e normal trice function (with cycle counter) for everywhere                   %x %X\\n"
+	},
+	"45567": {
+		"Type": "TRICE16_2",
+		"Strg": "MSG: select = %d, TriceDepthMax =%d\\n"
 	},
 	"45598": {
 		"Type": "trice32_4i",
@@ -1256,7 +1264,7 @@
 		"Strg": "msg:  TRICE8_5  -\u003e normal trice macro    (with cycle counter) for everywhere                   %x %X %u %u %d\\n"
 	},
 	"56296": {
-		"Type": "trice0",
+		"Type": "TRICE0",
 		"Strg": "att: COBS, double buf, ~cycle, ~int "
 	},
 	"56427": {
