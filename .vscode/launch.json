@@ -185,6 +185,24 @@
             ]
         },
         {
+            "name": "l -e DUMP",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}/cmd/trice",
+            "env": {},
+            "args": ["log",
+                    "-til",
+                    "${workspaceFolder}/til.json",
+                     "-p",
+                     "COM5",
+                     "-baud",
+                     "57600",
+                     "-e",
+                     "DUMP"
+            ]
+        },
+        {
             "name": "update",
             "type": "go",
             "request": "launch",
