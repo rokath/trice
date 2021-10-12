@@ -123,11 +123,11 @@ func TestFlexLoutOfSync(t *testing.T) {
 		{[]byte{2, 124, 227, 255, 0, 0, 4, 0}, "MSG: triceFifoMaxDepth = 4, select = 0"},
 		{[]byte{88, 3, 124, 227, 255, 0, 0, 4, 0}, "error: unknown triceID 814976 ignoring first byte [88 3 124 227 255 0 0 4]\nMSG: triceFifoMaxDepth = 4, select = 0"},
 	}
-	doTableTest(t, NewFlexDecoder, littleEndian, tt)
+	doTableTest(t, NewFlexDecoder, LittleEndian, tt)
 }
 
 func TestFlexL(t *testing.T) {
-	doTableTest(t, NewFlexDecoder, littleEndian, tableL)
+	doTableTest(t, NewFlexDecoder, LittleEndian, tableL)
 }
 
 func TestFlex(t *testing.T) {
@@ -137,7 +137,7 @@ func TestFlex(t *testing.T) {
 		ShowID = "" // reset to default
 		glob.Unlock()
 	}()
-	doTableTest(t, NewFlexDecoder, bigEndian, tableB)
+	doTableTest(t, NewFlexDecoder, BigEndian, tableB)
 }
 
 func Example_rub4() {
@@ -153,7 +153,7 @@ func Example_rub4() {
 	msg.OnErr(lut.FromJSON([]byte(til)))
 	lut.AddFmtCount()
 	buf := make([]byte, defaultSize)
-	dec := NewFlexDecoder(lut, m, nil, littleEndian) // p is a new decoder instance
+	dec := NewFlexDecoder(lut, m, nil, LittleEndian) // p is a new decoder instance
 
 	table := testTable{
 		{[]byte{1, 124, 227, 255, 0, 0, 4, 0}, `MSG: triceFifoMaxDepth = 4, select = 0`},

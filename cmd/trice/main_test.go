@@ -195,7 +195,7 @@ func TestMain(t *testing.M) {
 	os.Exit(exitVal) // done
 }
 
-func Example_doit_c() {
+func _Example_doit_c() {
 	m.Lock()
 
 	os.Args = osArgsBUFFER
@@ -207,7 +207,7 @@ func Example_doit_c() {
 	// BUFFER: MSG: triceFifoMaxDepth = 4, select = 0
 }
 
-func Example_doit_d() {
+func _Example_doit_d() {
 	m.Lock()
 	os.Args = append(osArgsBUFFER, "-testTable", "-prefix", " }, `")
 	act := tst.CaptureStdOut(doit)

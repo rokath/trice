@@ -16,7 +16,8 @@ import (
 )
 
 var (
-	MinPackageLength int
+	MinPackageLength  int
+	DumpLineByteCount int
 )
 
 // COBSR is the Decoding instance for COBSR encoded trices.
@@ -26,7 +27,17 @@ type COBSR struct {
 	bc    int // trice specific bytes count
 }
 
-// NewEscDecoder provides an EscDecoder instance.
+// DUMP is the Decoding instance for DUMP encoded trices.
+type DUMP struct {
+	decoderData
+}
+
+// CHAR is the Decoding instance for DUMP encoded trices.
+type CHAR struct {
+	decoderData
+}
+
+// NewCOBSRDecoder provides an EscDecoder instance.
 // l is the trice id list in slice of struct format.
 // in is the usable reader for the input bytes.
 func NewCOBSRDecoder(lut id.TriceIDLookUp, m *sync.RWMutex, in io.Reader, endian bool) Decoder {
@@ -38,6 +49,52 @@ func NewCOBSRDecoder(lut id.TriceIDLookUp, m *sync.RWMutex, in io.Reader, endian
 	p.lutMutex = m
 	p.endian = endian
 	return p
+}
+
+func NewDUMPDecoder(lut id.TriceIDLookUp, m *sync.RWMutex, in io.Reader, endian bool) Decoder {
+	p := &DUMP{}
+	p.in = in
+	p.iBuf = make([]byte, 0, defaultSize)
+	p.lut = lut
+	p.lutMutex = m
+	p.endian = endian
+	return p
+}
+
+func NewCHARDecoder(lut id.TriceIDLookUp, m *sync.RWMutex, in io.Reader, endian bool) Decoder {
+	p := &CHAR{}
+	p.in = in
+	p.iBuf = make([]byte, 0, defaultSize)
+	p.lut = lut
+	p.lutMutex = m
+	p.endian = endian
+	return p
+}
+
+var dumpCnt int
+
+func (p *DUMP) Read(b []byte) (n int, err error) {
+	bb := make([]byte, 1024)
+	m, err := p.in.Read(bb)
+	for _, x := range bb[:m] {
+		//n += copy(b, fmt.Sprintf("%02x ", uint8(x))) // somehow buggy
+		fmt.Printf("%02X ", uint8(x)) // workaround
+		dumpCnt++
+		if dumpCnt == DumpLineByteCount {
+			//n += copy(b, fmt.Sprintln("")) // somehow buggy
+			fmt.Println("") // workaround
+			dumpCnt = 0
+		}
+	}
+	//fmt.Printf("m=%d, n=%d\n\n", m, n) // for debug
+	return n, err
+}
+
+func (p *CHAR) Read(b []byte) (n int, err error) {
+	bb := make([]byte, 256)
+	m, err := p.in.Read(bb)
+	fmt.Print(string(bb[:m]))
+	return n, err
 }
 
 // Read is the provided read method for COBS decoding of next string as byte slice.

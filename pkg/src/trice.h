@@ -104,7 +104,7 @@ extern "C" {
  || defined( __CPARM__ )  /* TASKING VX ARM toolset C++ compiler */
 #define SYSTICKVAL32 (*(volatile uint32_t*)0xE000E018UL)
 #else
-#error "unknown architecture"
+//#error "unknown architecture"
 #define SYSTICKVAL32 0
 #endif
 

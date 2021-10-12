@@ -50,9 +50,9 @@ func (p *TriceLineComposer) timestamp() string {
 // Write treats received buffer as a string.
 func (p *TriceLineComposer) Write(b []byte) (n int, err error) {
 	s := string(b)
-	if SyncPacketPattern == s {
-		s = "" // don't show
-	}
+	//  if SyncPacketPattern == s {
+	//  	s = "" // don't show
+	//  }
 	return p.WriteString(s)
 }
 
@@ -66,7 +66,7 @@ func (p *TriceLineComposer) Write(b []byte) (n int, err error) {
 // That means it writes internally a separate line for each substring (in s) ending with a newline.
 func (p *TriceLineComposer) WriteString(s string) (n int, err error) {
 	n = len(s)
-	if 0 == n {
+	if n == 0 {
 		return
 	}
 	var emptyLine bool
@@ -93,13 +93,13 @@ func (p *TriceLineComposer) WriteString(s string) (n int, err error) {
 	// it keeps its original timestamp, but if following lines inside s they get a new timestamp.
 	ts := p.timestamp()
 	for _, sx := range ss {
-		if 0 == len(p.Line) && 0 < lineEndCount { // start new line && and complete line
+		if len(p.Line) == 0 && 0 < lineEndCount { // start new line && and complete line
 			p.Line = append(p.Line, ts, p.prefix, sx, p.suffix)
 			p.completeLine()
 			lineEndCount--
-		} else if 0 == len(p.Line) && 0 == lineEndCount { // start new line
+		} else if len(p.Line) == 0 && lineEndCount == 0 { // start new line
 			p.Line = append(p.Line, ts, p.prefix, sx)
-			if 0 == len(sx) { // A new line with an empty string was started.
+			if len(sx) == 0 { // A new line with an empty string was started.
 				// This could cause unwanted timestamp offsets if the next line is significantly delayed.
 				emptyLine = true
 			}

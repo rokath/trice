@@ -27,11 +27,11 @@ const (
 	// receive and sync buffer size
 	defaultSize = 4096
 
-	// flag
-	littleEndian = true
+	// flag value for TargetEndianess
+	LittleEndian = true
 
-	// flag
-	bigEndian = false
+	// flag value for TargetEndianess
+	BigEndian = false
 
 	// patNextFormatSpecifier is a regex to find next format specifier in a string (exclude %%*)
 	patNextFormatSpecifier = `(?:^|[^%])(%[0-9\.#]*(b|c|d|u|x|X|o|f))`
@@ -57,6 +57,10 @@ var (
 
 	// Encoding describes the way the byte stream is coded.
 	Encoding string
+
+	// TargetEndianess, if bigEndian assumes a big endian encoded trice stream from the target.
+	// To keep target load small, the encoded trice stream from the target matches the target endianess, what us usually littleEndian.
+	TargetEndianess string
 
 	// TestTableMode is a special option for easy decoder test table generation.
 	TestTableMode bool
@@ -91,7 +95,7 @@ type decoderData struct {
 	iBuf               []byte           // unprocessed (possibly decrypted) bytes for interpretation
 	inSync             bool             // flag for no need to re-sync
 	rubbed             int              // from interpret buffer removed bytes count
-	endian             bool             // littleEndian or bigEndian
+	endian             bool             // LittleEndian or BigEndian
 	lut                id.TriceIDLookUp // id look-up map for translation
 	lutMutex           *sync.RWMutex    // to avoid concurrent map read and map write during map refresh triggered by filewatcher
 	trice              id.TriceFmt      // id.TriceFmt // received trice
@@ -135,6 +139,15 @@ func Translate(sw *emitter.TriceLineComposer, lut id.TriceIDLookUp, m *sync.RWMu
 	if Verbose {
 		fmt.Println("Encoding is", Encoding, "and CycleCounter is", CycleCounter)
 	}
+	var endian bool
+	switch TargetEndianess {
+	case "littleEndian":
+		endian = LittleEndian
+	case "bigEndian":
+		endian = BigEndian
+	default:
+		log.Fatalf(fmt.Sprintln("unknown endianness ", TargetEndianess, "-accepting litteEndian or bigEndian."))
+	}
 	switch strings.ToUpper(Encoding) {
 	case "COBS":
 		if CycleCounter {
@@ -142,15 +155,16 @@ func Translate(sw *emitter.TriceLineComposer, lut id.TriceIDLookUp, m *sync.RWMu
 		} else {
 			MinPackageLength = 2
 		}
-		dec = NewCOBSRDecoder(lut, m, rc, littleEndian)
-	//case "COBS", "COBS/R", "COBSR":
-
+		dec = NewCOBSRDecoder(lut, m, rc, endian)
+	//case "COBS/R", "COBSR":
+	case "CHAR":
+		dec = NewCHARDecoder(lut, m, rc, endian)
+	case "DUMP":
+		dec = NewDUMPDecoder(lut, m, rc, endian)
 	case "ESC":
-		dec = NewEscDecoder(lut, m, rc, bigEndian)
+		dec = NewEscDecoder(lut, m, rc, endian)
 	case "FLEX":
-		dec = NewFlexDecoder(lut, m, rc, bigEndian)
-	case "FLEXL":
-		dec = NewFlexDecoder(lut, m, rc, littleEndian)
+		dec = NewFlexDecoder(lut, m, rc, endian)
 	default:
 		log.Fatalf(fmt.Sprintln("unknown encoding ", Encoding))
 	}
@@ -164,7 +178,7 @@ func decodeAndComposeLoop(sw *emitter.TriceLineComposer, dec Decoder) error {
 	for {
 		n, err := dec.Read(b) // Code to measure
 		if io.EOF == err {
-			if "BUFFER" == receiver.Port { // do not wait for a predefined buffer
+			if receiver.Port == "BUFFER" { // do not wait for a predefined buffer
 				return err
 			}
 			if Verbose {
@@ -187,13 +201,17 @@ func decodeAndComposeLoop(sw *emitter.TriceLineComposer, dec Decoder) error {
 		n = emitter.BanOrPickFilter(b[:n])
 
 		start := time.Now()
-		if 0 < n && "" != ShowID && 0 == len(sw.Line) {
+		if 0 < n && ShowID != "" && len(sw.Line) == 0 {
 			// dec.Read can return n=0 in some cases and then wait.
 			s := fmt.Sprintf(ShowID, LastTriceID)
 			_, err := sw.Write([]byte(s))
 			msg.OnErr(err)
 		}
 		m, err := sw.Write(b[:n])
+
+		//  for _, x := range b[:n] {
+		//  	fmt.Printf("%02X ", uint8(x))
+		//  }
 		duration := time.Since(start).Milliseconds()
 		if duration > 100 {
 			fmt.Println("TriceLineComposer.Write duration =", duration, "ms.")
@@ -204,7 +222,7 @@ func decodeAndComposeLoop(sw *emitter.TriceLineComposer, dec Decoder) error {
 
 // readU16 returns the 2 b bytes as uint16 according the specified endianness
 func (p *decoderData) readU16(b []byte) uint16 {
-	if littleEndian == p.endian {
+	if p.endian == LittleEndian {
 		return binary.LittleEndian.Uint16(b)
 	}
 	return binary.BigEndian.Uint16(b)
@@ -212,7 +230,7 @@ func (p *decoderData) readU16(b []byte) uint16 {
 
 // readU32 returns the 4 b bytes as uint32 according the specified endianness
 func (p *decoderData) readU32(b []byte) uint32 {
-	if littleEndian == p.endian {
+	if p.endian == LittleEndian {
 		return binary.LittleEndian.Uint32(b)
 	}
 	return binary.BigEndian.Uint32(b)
@@ -233,7 +251,7 @@ func (p *decoderData) readU32(b []byte) uint32 {
 
 // readU64 returns the 8 b bytes as uint64 according the specified endianness
 func (p *decoderData) readU64(b []byte) uint64 {
-	if littleEndian == p.endian {
+	if p.endian == LittleEndian {
 		return binary.LittleEndian.Uint64(b)
 	}
 	return binary.BigEndian.Uint64(b)
