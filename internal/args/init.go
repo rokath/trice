@@ -55,9 +55,16 @@ func init() {
 }
 
 func init() {
-	fsScLog = flag.NewFlagSet("log", flag.ExitOnError)                                                                                                                         // sub-command
-	fsScLog.StringVar(&decoder.Encoding, "encoding", "flexL", "The trice transmit data format type, options: 'esc|ESC|(flex|FLEX)[(l|L)'. Target device encoding must match.") // flag
-	fsScLog.StringVar(&decoder.Encoding, "e", "flexL", "Short for -encoding.")                                                                                                 // short flag
+	fsScLog = flag.NewFlagSet("log", flag.ExitOnError) // sub-command
+	fsScLog.StringVar(&decoder.Encoding, "encoding", "COBS", `The trice transmit data format type, options: '(CHAR|COBS|DUMP|ESC|FLEX)'. Target device encoding must match. 
+		  CHAR prints the received bytes as characters.
+		  COBS expects 0 delimited byte sequences.
+		  DUMP prints the received bytes as hex code (see switch -dc too).
+		  ESC is a legacy format and will be removed in the future.
+		  FLEX is a legacy format and will be removed in the future.
+`) // flag
+	fsScLog.StringVar(&decoder.Encoding, "e", "COBS", "Short for -encoding.") // short flag
+	fsScLog.IntVar(&decoder.DumpLineByteCount, "dc", 32, `Dumped bytes per line when "-encoding DUMP"`)
 	fsScLog.StringVar(&cipher.Password, "password", "", `The decrypt passphrase. If you change this value you need to compile the target with the appropriate key (see -showKeys).
 Encryption is recommended if you deliver firmware to customers and want protect the trice log output. This does work right now only with flex and flexL format.`) // flag
 	fsScLog.StringVar(&cipher.Password, "pw", "", "Short for -password.") // short flag
@@ -77,6 +84,7 @@ If you need target timestamps you need to get the time inside the target and sen
 	fsScLog.BoolVar(&decoder.DebugOut, "debug", false, "Show additional debug information")
 	fsScLog.BoolVar(&decoder.CycleCounter, "cycleCounter", true, "Expect cycle counter in binary trice messages")
 	fsScLog.BoolVar(&decoder.CycleCounter, "cc", true, "Short for cycleCounter")
+	fsScLog.StringVar(&decoder.TargetEndianess, "targetEndianess", "littleEndian", `Target endianness trice data stream. Option: "bigEndian".`)
 	fsScLog.StringVar(&emitter.ColorPalette, "color", "default", colorInfo)                                                                                                                                        // flag
 	fsScLog.StringVar(&emitter.Prefix, "prefix", DefaultPrefix, "Line prefix, options: any string or 'off|none' or 'source:' followed by 0-12 spaces, 'source:' will be replaced by source value e.g., 'COM17:'.") // flag
 	fsScLog.StringVar(&emitter.Suffix, "suffix", "", "Append suffix to all lines, options: any string.")                                                                                                           // flag
@@ -89,7 +97,7 @@ Using a virtual serial COM port on the PC over a FTDI USB adapter is a most like
 	fsScLog.StringVar(&receiver.Port, "p", "J-LINK", "short for -port") // short flag
 	fsScLog.IntVar(&com.Baud, "baud", 115200, `Set the serial port baudrate.
 It is the only setup parameter. The other values default to 8N1 (8 data bits, no parity, one stopbit).
-`) // flag flag
+`)
 
 	linkArgsInfo := `
 	The -RTTSearchRanges "..." need to be written without "" and with _ instead of space.

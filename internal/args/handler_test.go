@@ -388,6 +388,8 @@ func TestHelpAll(t *testing.T) {
               (default "default")
       -cycleCounter
              Expect cycle counter in binary trice messages (default true)
+      -dc int
+            Dumped bytes per line when "-encoding DUMP" (default 32)
       -debug
             Show additional debug information
       -displayserver
@@ -396,9 +398,15 @@ func TestHelpAll(t *testing.T) {
       -ds
             Short for '-displayserver'.
       -e string
-            Short for -encoding. (default "flexL")
+            Short for -encoding. (default "COBS")
       -encoding string
-            The trice transmit data format type, options: 'esc|ESC|(flex|FLEX)[(l|L)'. Target device encoding must match. (default "flexL")
+            The trice transmit data format type, options: '(CHAR|COBS|DUMP|ESC|FLEX)'. Target device encoding must match. 
+                  CHAR prints the received bytes as characters.
+                  COBS expects 0 delimited byte sequences.
+                  DUMP prints the received bytes as hex code (see switch -dc too).
+                  ESC is a legacy format and will be removed in the future.
+                  FLEX is a legacy format and will be removed in the future.
+            (default "COBS")
       -i string
             Short for '-idlist'.
              (default "til.json")
@@ -455,6 +463,8 @@ func TestHelpAll(t *testing.T) {
             This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true.
       -suffix string
             Append suffix to all lines, options: any string.
+      -targetEndianess string
+            Target endianness trice data stream. Option: "bigEndian". (default "littleEndian")
       -testTable
             Generate testTable output and ignore -prefix, -suffix, -ts, -color. This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true.
       -til string
