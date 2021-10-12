@@ -14,7 +14,7 @@
  * pre-C99 C dialect.
  */
 //size_t cobs_encode(const uint8_t * /*restrict*/ input, size_t length, uint8_t * /*restrict*/ output)
-static uint8_t triceCOBSEncode(uint8_t *output, const uint8_t * input, uint8_t length){
+uint8_t triceCOBSEncode(uint8_t *output, const uint8_t * input, uint8_t length){
     size_t read_index = 0;
     size_t write_index = 1;
     size_t code_index = 0;
