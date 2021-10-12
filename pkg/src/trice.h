@@ -116,7 +116,7 @@ extern "C" {
 ///////////////////////////////////////////////////////////////////////////////
 // UART interface
 //
-
+#ifdef TRICE_STM32
 #include "main.h" // hardware specific stuff
 
 #define TRICE_UART USART2 //!< set UART number if UART is used
@@ -147,6 +147,24 @@ TRICE_INLINE void triceEnableTxEmptyInterrupt(void) {
 TRICE_INLINE void triceDisableTxEmptyInterrupt(void) {
     LL_USART_DisableIT_TXE(TRICE_UART);
 }
+
+//! triceServeTransmit as triceServeU8FifoTransmit must be called cyclically to proceed ongoing write out.
+//! A good place is UART ISR.
+TRICE_INLINE void triceServeTransmit(void) {
+    triceTransmitData8(triceU8Pop());
+    if (0 == triceU8FifoDepth()) { // no more bytes
+        triceDisableTxEmptyInterrupt();
+    }
+}
+
+// triceTriggerTransmit as triceTriggerU8FifoTransmit must be called cyclically to initialize write out.
+TRICE_INLINE void triceTriggerTransmit(void){
+    if( triceU8FifoDepth() && triceTxDataRegisterEmpty() ){
+        triceEnableTxEmptyInterrupt(); // next bytes
+    }
+}
+
+#endif // #ifdef TRICE_STM32
 //
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -159,12 +177,21 @@ extern int triceU8FifoWriteIndex;
 extern int triceU8FifoReadIndex;
 extern uint16_t TriceDepthMax;
 void TriceReadAndTranslate( void );
+uint8_t triceCOBSEncode(uint8_t *output, const uint8_t * input, uint8_t length);
 
 #define TRICE_LITTLE_ENDIANNESS 0x00112233
 #define TRICE_BIG_ENDIANNESS    0x33221100
 
 #define TRICE_SINGLE_MESSAGE 1
 #define TRICE_MULTI_MESSAGE  2
+
+//! triceU8Pop gets one trice from trice fifo.
+//! \return trice id with 2 byte data in one uint32_t.
+TRICE_INLINE uint8_t triceU8Pop(void) {
+    uint8_t v = triceU8Fifo[triceU8FifoReadIndex++];
+    triceU8FifoReadIndex &= TRICE_U8_FIFO_MASK;
+    return v;
+}
 
 #ifdef ENCRYPT
 void encrypt(uint8_t *p);
@@ -554,33 +581,6 @@ int triceU32FifoDepth(void);
 
 int triceU32WriteU8ReadFifoDepth(void);
 */
-
-
-//! triceU8Pop gets one trice from trice fifo.
-//! \return trice id with 2 byte data in one uint32_t.
-TRICE_INLINE uint8_t triceU8Pop(void) {
-    uint8_t v = triceU8Fifo[triceU8FifoReadIndex++];
-    triceU8FifoReadIndex &= TRICE_U8_FIFO_MASK;
-    return v;
-}
-
-
-
-//! triceServeTransmit as triceServeU8FifoTransmit must be called cyclically to proceed ongoing write out.
-//! A good place is UART ISR.
-TRICE_INLINE void triceServeTransmit(void) {
-    triceTransmitData8(triceU8Pop());
-    if (0 == triceU8FifoDepth()) { // no more bytes
-        triceDisableTxEmptyInterrupt();
-    }
-}
-
-// triceTriggerTransmit as triceTriggerU8FifoTransmit must be called cyclically to initialize write out.
-TRICE_INLINE void triceTriggerTransmit(void){
-    if( triceU8FifoDepth() && triceTxDataRegisterEmpty() ){
-        triceEnableTxEmptyInterrupt(); // next bytes
-    }
-}
 
 
 #ifdef __cplusplus
