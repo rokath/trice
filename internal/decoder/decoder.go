@@ -187,7 +187,8 @@ func decodeAndComposeLoop(sw *emitter.TriceLineComposer, dec Decoder) error {
 			continue // read again
 		}
 
-		// b contains here several complete trice strings!
+		// b contains here no or several complete trice strings.
+		// If several, they end with a newline, despite the last one which optionally ends with a newline.
 
 		// Filtering is done here to suppress the id display as well for the filtered items.
 		n = emitter.BanOrPickFilter(b[:n]) // to do: b can contain several trices - handle that!
