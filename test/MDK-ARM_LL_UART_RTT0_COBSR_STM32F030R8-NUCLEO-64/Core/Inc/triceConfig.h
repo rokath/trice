@@ -119,11 +119,15 @@ void triceServeFifoEncryptedToBytesBuffer(void);
 #define TRICE_ENTER TRICE_ENTER_CRITICAL_SECTION
 #define TRICE_LEAVE TRICE_LEAVE_CRITICAL_SECTION
 #define PUT(x) do{ *wTb++ = x; }while(0)
-#define PUT_BUFFER( dynString, len ) do{ memcpy( wTb, dynString, len ); wTb += (len+3)>>2; }while(0)
+#define PUT_BUFFER( buf, len ) do{ \
+    *wTb++ = len; /* len is needed for non string buffers because the last 2 bits not stored in head. */ \
+                                                  /* All trices know the data length but not TRICE8B. */ \
+    memcpy( wTb, buf, len ); /* copy buffer */ \
+    wTb += (len+3)>>2; }while(0) // step wTb forward according to len
 #define TRICE_TRANSFER_MESSAGE TRICE_SINGLE_MESSAGE
 #define TRICE_READ_AND_TRANSLATE_INTERVAL_MS 10
-#define TRICE_BUFFER_SIZE 5000 //!< This is the size of both buffers together
-#define TRICE_FIFO_BYTE_SIZE 256 //!< must be a power of 2, 32 could be ok in dependence of the maximum param count
+#define TRICE_BUFFER_SIZE 2500 //!< This is the size of both buffers together
+#define TRICE_FIFO_BYTE_SIZE 1024 //!< must be a power of 2, 32 could be ok in dependence of the maximum param count
 #endif
 
 

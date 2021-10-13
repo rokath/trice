@@ -135,6 +135,10 @@
 		"Type": "Trice8",
 		"Strg": "rd:Trice8 line %d\\n"
 	},
+	"257": {
+		"Type": "TRICE8_8",
+		"Strg": "dbg:%d %d %d %d %d %d %d %d\\n"
+	},
 	"25873": {
 		"Type": "Trice8_2",
 		"Strg": "diag: Trice8_2  0x%02X, 0x%02x\\n"
@@ -491,6 +495,10 @@
 		"Type": "trice16_1",
 		"Strg": "msg: trice16_1  -\u003e normal trice function (with cycle counter) for everywhere                   %u\\n"
 	},
+	"39031": {
+		"Type": "TRICE_S",
+		"Strg": "MESSAGE:%s\\n"
+	},
 	"39062": {
 		"Type": "TRICE64i",
 		"Strg": "rd:%d, %d\\n"
@@ -619,6 +627,10 @@
 		"Type": "trice64i",
 		"Strg": "rd:%d, %d\\n"
 	},
+	"41924": {
+		"Type": "TRICE16_3",
+		"Strg": "MSG: select = %d, TriceDepthMax =%d of %d STOP\\n"
+	},
 	"42006": {
 		"Type": "trice8",
 		"Strg": "msg:%02x %02x %02x -\u003e %02x %02x %02x\\n"
@@ -662,6 +674,10 @@
 	"42804": {
 		"Type": "trice8",
 		"Strg": "msg:%02x %02x %02x -\u003e %02x %02x %02x "
+	},
+	"42834": {
+		"Type": "TRICE_S",
+		"Strg": "sig:%s\\n"
 	},
 	"42903": {
 		"Type": "trice16",
@@ -743,6 +759,10 @@
 		"Type": "TRICE8",
 		"Strg": "rd:%d, %d, %d, %d, %d, %d, %d, %d\\n"
 	},
+	"45105": {
+		"Type": "TRICE_S",
+		"Strg": "MESSAGE:%s\\n"
+	},
 	"45163": {
 		"Type": "trice32",
 		"Strg": "rd:trice32 %d\\n"
@@ -810,6 +830,10 @@
 	"46494": {
 		"Type": "trice0",
 		"Strg": "wr:d"
+	},
+	"46512": {
+		"Type": "TRICE_S",
+		"Strg": "MESSAGE:%s\\n"
 	},
 	"46676": {
 		"Type": "trice0",
@@ -1007,6 +1031,10 @@
 		"Type": "trice32",
 		"Strg": "rd:trice32 line %d,%d\\n"
 	},
+	"51113": {
+		"Type": "TRICE16_3",
+		"Strg": "MSG: select = %d, TriceDepthMax =%d of %d STOP\\n"
+	},
 	"51119": {
 		"Type": "TRICE8_3",
 		"Strg": "tst:TRICE8_3 %02x %02x %02x\\n"
@@ -1066,6 +1094,10 @@
 	"52082": {
 		"Type": "trice8",
 		"Strg": "rd:trice8 %d, %d, %d\\n"
+	},
+	"52122": {
+		"Type": "TRICE_S",
+		"Strg": "sig:%s\\n\", \"dynString"
 	},
 	"52171": {
 		"Type": "TRICE16",
@@ -1171,6 +1203,10 @@
 		"Type": "trice0",
 		"Strg": "att:LED Detector  (UKMFT625-Gateway)"
 	},
+	"54212": {
+		"Type": "TRICE_S",
+		"Strg": "sig:%s\\n"
+	},
 	"54250": {
 		"Type": "trice32",
 		"Strg": "rd:%d, %d, %d, %d\\n"
@@ -1258,6 +1294,10 @@
 	"55780": {
 		"Type": "trice32_2i",
 		"Strg": "msg: trice32_2i -\u003e normal trice function (with cycle counter) for only inside critical section %x %X\\n"
+	},
+	"55790": {
+		"Type": "TRICE16_1",
+		"Strg": "dbg:len=%d, "
 	},
 	"55892": {
 		"Type": "trice16_4",
@@ -1467,6 +1507,10 @@
 		"Type": "trice8i",
 		"Strg": "rd:%d, %d, %d, %d, %d, %d, %d\\n"
 	},
+	"61873": {
+		"Type": "TRICE16_3",
+		"Strg": "MSG: select = %d, TriceDepthMax =%d of %d, START\\n"
+	},
 	"62059": {
 		"Type": "TRICE16_2",
 		"Strg": "MSG: select = %d, TriceDepthMax =%d START\\n"
@@ -1490,6 +1534,10 @@
 	"62238": {
 		"Type": "trice8_8",
 		"Strg": "tst:trice8_8 %02X %02X %02X %02X %02X %02X %02X %02X\\n"
+	},
+	"62316": {
+		"Type": "TRICE_S",
+		"Strg": "sig:%s\\n"
 	},
 	"62317": {
 		"Type": "trice0",
@@ -1558,6 +1606,10 @@
 	"63518": {
 		"Type": "TRICE8i",
 		"Strg": "rd:%d, %d, %d, %d\\n"
+	},
+	"63860": {
+		"Type": "TRICE16_3",
+		"Strg": "MSG: select = %d, TriceDepthMax =%d of %d, START\\n"
 	},
 	"63981": {
 		"Type": "trice8",

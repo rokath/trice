@@ -13,11 +13,11 @@
  * Remove the "restrict" qualifiers if compiling with a
  * pre-C99 C dialect.
  */
-//size_t cobs_encode(const uint8_t * /*restrict*/ input, size_t length, uint8_t * /*restrict*/ output)
-uint8_t triceCOBSEncode(uint8_t *output, const uint8_t * input, uint8_t length){
-    size_t read_index = 0;
-    size_t write_index = 1;
-    size_t code_index = 0;
+//           size_t cobs_encode(const uint8_t * /*restrict*/ input, size_t length, uint8_t * /*restrict*/ output)
+TRICE_INLINE unsigned COBSEncode( uint8_t* restrict output, const uint8_t * restrict input, unsigned length){
+    unsigned read_index = 0;
+    unsigned write_index = 1;
+    unsigned code_index = 0;
     uint8_t code = 1;
     while(read_index < length)
     {
@@ -41,7 +41,7 @@ uint8_t triceCOBSEncode(uint8_t *output, const uint8_t * input, uint8_t length){
         }
     }
     output[code_index] = code;
-    return (uint8_t)write_index;
+    return write_index;
 }
 
 static uint32_t triceBuffer[2][(TRICE_BUFFER_SIZE+3)>>3] = {0}; //!< triceBuffer is double buffer for better write speed.
@@ -81,10 +81,47 @@ static uint8_t* triceRead( void ){
     return p;
 }
 
+//#define TRICE_PAYLOAD_MAX 128 //!< up to 1020 possible (255*4)
+//static uint8_t out[TRICE_PAYLOAD_MAX];
+
+
+//! triceToCOBS converts an in t stored trice into a cobs sequence into o with appended 0 as delimiter.
+//! For performance reasons t is manipulated afterwards.
+unsigned triceToCOBS( uint8_t * t, uint8_t* o ){
+    unsigned tlen, olen;
+// The trice data stream is little endian, as most embedded MCUs use litte endian format.
+// For big endian embedded MCUs the trice tool  should get an -bigEndian switch to avoid transcoding here.
+// The buffer tail contains wholes on big endian MCUs for TRICE8_1, TRICE8_2, TRICE8_3, TRICE8_5, TRICE8_6, TRICE8_7, TRICE16_1, TRICE16_3 and needs adjustment then.
+#if TRICE_HARDWARE_ENDIANNESS == TRICE_LITTLE_ENDIANNESS
+    #if TRICE_CYCLE_COUNTER == 1 // with cycle counter
+        tlen = t[1] + 3; // little endian, add id size and cycle size
+        t[1] = t[0]; // write cycle to 2nd position (little endian assumed!)
+        #if TRICE_TRANSFER_MESSAGE == TRICE_SINGLE_MESSAGE
+            olen = COBSEncode(o, &t[1], tlen);
+        #elif TRICE_TRANSFER_MESSAGE == TRICE_MULTI_MESSAGE
+            t[0] = tlen; // add count of following bytes
+            olen = COBSEncode(o, &t[0], tlen+1);
+        #endif
+    #else // no cycle counter used
+        tlen = t[1] + 2; // little endian, add id size
+        #if TRICE_TRANSFER_MESSAGE == TRICE_SINGLE_MESSAGE
+            olen = COBSEncode(o, &t[2], tlen);
+        #elif TRICE_TRANSFER_MESSAGE == TRICE_MULTI_MESSAGE
+            t[1] = tlen; // add count of following bytes
+            olen = COBSEncode(o, &t[1], tlen+1);
+        #endif
+    #endif
+#else // #if TRICE_HARDWARE_ENDIANNESS == TRICE_LITTLE_ENDIANNESS
+    #error "todo: TRICE_HARDWARE_ENDIANNESS == TRICE_BIG_ENDIANNESS"
+#endif // #else // #if TRICE_HARDWARE_ENDIANNESS == TRICE_LITTLE_ENDIANNESS
+    o[olen] = 0; // add 0-delimiter
+    return olen;
+}
+
 #if TRICE_TRANSFER_MESSAGE == TRICE_SINGLE_MESSAGE
 void TriceReadAndTranslate( void ){
     uint8_t* p;
-    uint8_t clen, tlen;
+    uint16_t clen; // uint8_t clen, tlen;
     if( triceU8FifoDepth() ){
         return; // transmission not done yet
     }
@@ -92,7 +129,7 @@ void TriceReadAndTranslate( void ){
     if( NULL == p ){
         return; // no trice data to transmit
     }
-
+/*
 // The trice data stream is little endian, as most embedded MCUs use litte endian format.
 // For big endian embedded MCUs the trice tool  should get an -bigEndian switch to avoid transcoding here.
 // The buffer tail contains wholes on big endian MCUs for TRICE8_1, TRICE8_2, TRICE8_3, TRICE8_5, TRICE8_6, TRICE8_7, TRICE16_1, TRICE16_3 and needs adjustment then.
@@ -101,24 +138,26 @@ void TriceReadAndTranslate( void ){
         tlen = p[1] + 3; // little endian, add id size and cycle size
         p[1] = p[0]; // write cycle to 2nd position (little endian assumed!)
         #if TRICE_TRANSFER_MESSAGE == TRICE_SINGLE_MESSAGE
-            clen = triceCOBSEncode(triceU8Fifo, &p[1], tlen);
+            clen = COBSEncode(triceU8Fifo, &p[1], tlen);
         #elif TRICE_TRANSFER_MESSAGE == TRICE_MULTI_MESSAGE
             p[0] = tlen; // add count of following bytes
-            clen = triceCOBSEncode(triceU8Fifo, &p[0], tlen+1);
+            clen = COBSEncode(triceU8Fifo, &p[0], tlen+1);
         #endif
     #else // no cycle counter used
         tlen = p[1] + 2; // little endian, add id size
         #if TRICE_TRANSFER_MESSAGE == TRICE_SINGLE_MESSAGE
-            clen = triceCOBSEncode(triceU8Fifo, &p[2], tlen);
+            clen = COBSEncode(triceU8Fifo, &p[2], tlen);
         #elif TRICE_TRANSFER_MESSAGE == TRICE_MULTI_MESSAGE
             p[1] = tlen; // add count of following bytes
-            clen = triceCOBSEncode(triceU8Fifo, &p[1], tlen+1);
+            clen = COBSEncode(triceU8Fifo, &p[1], tlen+1);
         #endif
     #endif
 #else // #if TRICE_HARDWARE_ENDIANNESS == TRICE_LITTLE_ENDIANNESS
     #error "todo: TRICE_HARDWARE_ENDIANNESS == TRICE_BIG_ENDIANNESS"
 #endif // #else // #if TRICE_HARDWARE_ENDIANNESS == TRICE_LITTLE_ENDIANNESS
     triceU8Fifo[clen] = 0; // add 0-delimiter
+*/
+    clen = triceToCOBS( p, triceU8Fifo );
     TRICE_ENTER_CRITICAL_SECTION
     triceU8FifoWriteIndex = clen+1;
     triceU8FifoReadIndex = 0;
@@ -192,8 +231,8 @@ uint8_t* const triceU8Fifo = (uint8_t*)triceU32Fifo;
 //int triceU32FifoWriteIndex = 0; //!< trice fifo write index, used inside macros, so must be visible
 //int triceU32FifoReadIndex = 0; //!< trice fifo read index for 32 bit values
 
-int triceU8FifoWriteIndex = 0; //!< trice fifo write index, used inside macros, so must be visible
-int triceU8FifoReadIndex = 0; //!< trice fifo read index
+unsigned triceU8FifoWriteIndex = 0; //!< trice fifo write index, used inside macros, so must be visible
+unsigned triceU8FifoReadIndex = 0; //!< trice fifo read index
 
 int triceFifoMaxDepth = 0; //!< diagnostics
 /*

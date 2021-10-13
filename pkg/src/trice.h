@@ -90,8 +90,8 @@ extern "C" {
 #define TRICE_U8_FIFO_MASK ((TRICE_FIFO_BYTE_SIZE)-1) //!< max possible bytes count in fifo
 int triceU8FifoDepth(void);
 extern uint8_t* const triceU8Fifo;
-extern int triceU8FifoWriteIndex;
-extern int triceU8FifoReadIndex;
+extern unsigned triceU8FifoWriteIndex;
+extern unsigned triceU8FifoReadIndex;
 extern uint16_t TriceDepthMax;
 void TriceReadAndTranslate( void );
 uint8_t triceCOBSEncode(uint8_t *output, const uint8_t * input, uint8_t length);
@@ -509,12 +509,12 @@ extern uint8_t triceCycle;
 //! cLen-3 cLen-2 cLen-1 cLen
 #define TRICE_S( id, pFmt, dynString) do { \
     int len = strlen( dynString ); \
-    if( len > 4*255 ){ \
-        dynString[4*255] = 0; \
-        len = 4*255; \
+    if( len > 4*254 ){ \
+        dynString[4*254] = 0; \
+        len = 4*254; \
     } \
     TRICE_ENTER \
-    PUT( id | (len<<8) | TRICE_CYCLE ); \
+    PUT( id | ((len+4)<<8) | TRICE_CYCLE ); /* +4 for the buf size value transmitted in the payload to get the last 2 bits. */ \
     PUT_BUFFER( dynString, len ); \
     TRICE_LEAVE \
 } while(0)

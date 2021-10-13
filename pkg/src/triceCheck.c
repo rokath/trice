@@ -62,7 +62,8 @@ char* nextRuntimeString( int length ){
 void triceRuntimeStrings( int from, int limit){
     for( int i = from; i < limit; i++ ){
         char* dynString =  nextRuntimeString(i);
-        TRICE_S( Id(65213), "%s\n", dynString );   
+        TRICE16_1( Id( 55790), "dbg:len=%d, ", strlen(dynString) )
+        TRICE_S( Id( 46512), "MESSAGE:%s\n", dynString );   
     }
 }
 
@@ -236,6 +237,50 @@ void triceCheckSet(int index) {
             TRICE8_8(Id(65264), "tst:TRICE8_8 %d %d %d %d %d %d %d %d\n", 1, 2, 3, 4, 5, 6, 7, 8);
             break;
         case 13:
+            TRICE8_8(Id(  579), "tst:TRICE8_1 %%d=%d, %%u=%u, 0x%%x=0x%x, 0x%%2x=0x%2x, 0x%%02x=0x%02x, 0x%%3x=0x%3x, 0x%%03x=0x%03x, %%b=%b\n", 0x81, 0x81, 0x81, 0x81, 0x81, 0x81, 0x81, 0x81);
+            TRICE16_1(Id(21394), "tst:TRICE16_1 0x%04x\n", 0xa0);
+            TRICE8_1(Id(21201), "tst:TRICE8_1 0x%02x\n", 0xa0);
+            TRICE8_1(Id(21201), "tst:TRICE8_1 0x%02x\n", 0xa0);
+            TRICE8_1(Id(32742), "tst:TRICE8_1 %u\n", 201);
+            TRICE8_2(Id( 7473), "tst:TRICE8_2 %u %u\n", 201, 202);
+            TRICE8_3(Id(14014), "tst:TRICE8_3 %u %u %u\n", 201, 202, 203);
+            TRICE8_4(Id(31376), "tst:TRICE8_4 %u %u %u %u\n", 201, 202, 203, 204);
+            TRICE8_5(Id(41604), "tst:TRICE8_5 %u %u %u %u %u\n", 201, 202, 203, 204, 205);
+            TRICE8_6(Id(24615), "tst:TRICE8_6 %u %u %u %u %u %u\n", 201, 202, 203, 204, 205, 206);
+            TRICE8_7(Id(55697), "tst:TRICE8_7 %u %u %u %u %u %u %u\n", 201, 202, 203, 204, 205, 206, 207);
+            TRICE8_8(Id(36547), "tst:TRICE8_8 %u %u %u %u %u %u %u %u\n", 201, 202, 203, 204, 205, 206, 207, 208);
+            TRICE16_1(Id(40865), "tst:TRICE16_1 %u\n", 60001);
+            TRICE16_2(Id(30623), "tst:TRICE16_2 %u %u\n", 60001, 60002);
+            TRICE16_3(Id(60735), "tst:TRICE16_3 %u %u %u\n", 60001, 60002, 60003);
+            TRICE16_4(Id(12478), "tst:TRICE16_4 %u %u %u %u\n", 60001, 60002, 60003, 60004);
+            TRICE32_1(Id(24267), "tst:TRICE32_1 %u\n", 4000000001);
+            TRICE32_2(Id(38214), "tst:TRICE32_2 %u %u\n", 4000000001, 4000000002);
+            TRICE32_3(Id(59229), "tst:TRICE32_3 %u %u %u\n", 4000000001, 4000000002, 4000000003);
+            TRICE32_4(Id(38168), "tst:TRICE32_4 %u %u %u %u\n", 4000000001, 4000000002, 4000000003, 4000000004);
+            TRICE64_1(Id(45250), "tst:TRICE64_1 %u\n", -1);
+            TRICE64_2(Id(12051), "tst:TRICE64_2 %u %u\n", -1, -2);
+        break;
+        case 14:
+            TRICE8_8( Id(257), "dbg:%d %d %d %d %d %d %d %d\n", 8, 8, 8, 8, 8, 8, 8, 8 );
+        {
+            char* s = "AAAABBBBCCCC";
+            TRICE_S( Id( 42834), "sig:%s\n", s ); 
+            triceRuntimeStrings(0, 20);
+        }
+        break;
+        case 15: 
+            triceRuntimeStrings(30, 35 );
+        break;
+        case 16: 
+            triceRuntimeStrings(126, 132);
+        break;
+        case 17: 
+            triceRuntimeStrings(250, 252); // Count byte is fb=251
+        break;
+        case 18: 
+            //triceRuntimeStrings(252, 253); // 252 not possible
+        break;
+        case 19:
 #ifdef ENCRYPT
         {
             uint8_t b[8] = {1,2,3,4,5,6,7,8};
@@ -256,7 +301,7 @@ void triceCheckSet(int index) {
         TRICE0 (Id(65029), "--------------------------------------------------\n\n" );
 #endif
         break;
-        case 14:
+        case 20:
             TRICE8_8(Id(  579), "tst:TRICE8_1 %%d=%d, %%u=%u, 0x%%x=0x%x, 0x%%2x=0x%2x, 0x%%02x=0x%02x, 0x%%3x=0x%3x, 0x%%03x=0x%03x, %%b=%b\n", 0x81, 0x81, 0x81, 0x81, 0x81, 0x81, 0x81, 0x81);
             TRICE16_1(Id(21394), "tst:TRICE16_1 0x%04x\n", 0xa0);
             TRICE8_1(Id(21201), "tst:TRICE8_1 0x%02x\n", 0xa0);

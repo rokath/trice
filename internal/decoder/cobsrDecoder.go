@@ -285,6 +285,9 @@ func (p *COBSR) sprintTrice(b []byte) int {
 }
 
 func (p *COBSR) triceS(b []byte) int {
+	if DebugOut {
+		fmt.Println(p.b)
+	}
 	return copy(b, fmt.Sprintf(p.trice.Strg, string(p.b[4:]))) // first 4 bytes are the payload length
 }
 
