@@ -114,12 +114,11 @@ func (p *COBSR) Read(b []byte) (n int, err error) {
 		return
 	}
 
-	bb := make([]byte, 256)
+	bb := make([]byte, defaultSize)
 	// use b as intermediate read buffer to avoid allocation
-	n, err = p.in.Read(bb)
-	p.iBuf = append(p.iBuf, bb[:n]...) // merge with leftovers
+	m, err := p.in.Read(bb)
+	p.iBuf = append(p.iBuf, bb[:m]...) // merge with leftovers
 
-	n = 0
 	if nil != err && io.EOF != err {
 		n = copy(b, fmt.Sprintln("error:internal reader error ", err))
 		return
@@ -133,13 +132,12 @@ func (p *COBSR) Read(b []byte) (n int, err error) {
 		return 0, io.EOF // no terminating 0
 	}
 
+	hints := "att:Hints:Baudrate? Target buffer overflow? til.json? Encoding?"
 	d := cobs.Decode(p.iBuf[:index+1])
 	if len(d) < MinPackageLength {
-		p.iBuf = p.iBuf[index+1:] // step forward
+		p.iBuf = p.iBuf[index+1:] // step forward (drop package)
 		n += copy(b[n:], fmt.Sprintln("err:package len", len(d), "is too short - ignoring package."))
-		n += copy(b[n:], fmt.Sprintln("att:Hint:Target buffer overflow?"))
-		n += copy(b[n:], fmt.Sprintln("att:Hint:til.json?"))
-		n += copy(b[n:], fmt.Sprintln("att:Hint:encoding?"))
+		n += copy(b[n:], fmt.Sprintln(hints))
 		return
 	}
 
@@ -154,7 +152,7 @@ func (p *COBSR) Read(b []byte) (n int, err error) {
 		fmt.Println("")
 	}
 
-	p.iBuf = p.iBuf[index+1:] // step forward
+	p.iBuf = p.iBuf[index+1:] // step forward (use package d)
 
 	var triceID id.TriceID
 	if CycleCounter {
@@ -182,7 +180,7 @@ func (p *COBSR) Read(b []byte) (n int, err error) {
 	p.lutMutex.RUnlock()
 	if !ok { // unknown id
 		n += copy(b[n:], fmt.Sprintln("wrn:unknown ID ", triceID, "- ignoring package."))
-		n += copy(b[n:], fmt.Sprintln("att:Hints:Target buffer overflow? Wrong til.json file?"))
+		n += copy(b[n:], fmt.Sprintln(hints))
 		return
 	}
 
@@ -190,13 +188,10 @@ func (p *COBSR) Read(b []byte) (n int, err error) {
 
 	if p.expectedByteCount() != p.bc {
 		n += copy(b[n:], fmt.Sprintln("err:trice.Type ", p.trice.Type, " with not matching parameter byte count ", p.bc, "- ignoring package"))
-		n += copy(b[n:], fmt.Sprintln("att:Hints:Target buffer overflow? Wrong til.json file?"))
+		n += copy(b[n:], fmt.Sprintln(hints))
 		return
 	}
-
-	o := n
-	n, err = p.sprintTrice(b[o:])
-	n += o
+	n += p.sprintTrice(b[n:])
 	return
 }
 
@@ -235,7 +230,7 @@ func (p *COBSR) expectedByteCount() int {
 
 type triceTypeFn struct {
 	triceType string
-	triceFn   func(p *COBSR, b []byte) (int, error)
+	triceFn   func(p *COBSR, b []byte) int
 }
 
 // cobsFunctionPtrList is a function pointer list.
@@ -261,7 +256,7 @@ var cobsFunctionPtrList = []triceTypeFn{
 	{"TRICE64_2", (*COBSR).trice642},
 }
 
-func (p *COBSR) sprintTrice(b []byte) (n int, e error) {
+func (p *COBSR) sprintTrice(b []byte) int {
 	if "TRICE_S" == p.trice.Type { // special case
 		return p.triceS(b)
 	}
@@ -272,72 +267,63 @@ func (p *COBSR) sprintTrice(b []byte) (n int, e error) {
 			return s.triceFn(p, b)
 		}
 	}
-	n = copy(b, fmt.Sprintf("err:Unexpected trice.Type %s\n", p.trice.Type))
-	return
+	return copy(b, fmt.Sprintf("err:Unexpected trice.Type %s\n", p.trice.Type))
 }
 
-func (p *COBSR) triceS(b []byte) (n int, e error) {
-	n = copy(b, fmt.Sprintf(p.trice.Strg, string(p.b)))
-	return
+func (p *COBSR) triceS(b []byte) int {
+	return copy(b, fmt.Sprintf(p.trice.Strg, string(p.b)))
 }
 
-func (p *COBSR) trice0(b []byte) (n int, e error) {
-	n = copy(b, fmt.Sprintf(p.trice.Strg))
-	return
+func (p *COBSR) trice0(b []byte) int {
+	return copy(b, fmt.Sprintf(p.trice.Strg))
 }
 
-func (p *COBSR) trice81(b []byte) (n int, e error) {
+func (p *COBSR) trice81(b []byte) int {
 	b0 := int8(p.b[0]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	n = copy(b, fmt.Sprintf(p.trice.Strg, b0))
-	return
+	return copy(b, fmt.Sprintf(p.trice.Strg, b0))
 }
 
-func (p *COBSR) trice82(b []byte) (n int, e error) {
+func (p *COBSR) trice82(b []byte) int {
 	b0 := int8(p.b[0]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
 	b1 := int8(p.b[1]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	n = copy(b, fmt.Sprintf(p.trice.Strg, b0, b1))
-	return
+	return copy(b, fmt.Sprintf(p.trice.Strg, b0, b1))
 }
 
-func (p *COBSR) trice83(b []byte) (n int, e error) {
+func (p *COBSR) trice83(b []byte) int {
 	b0 := int8(p.b[0]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
 	b1 := int8(p.b[1]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
 	b2 := int8(p.b[2]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	n = copy(b, fmt.Sprintf(p.trice.Strg, b0, b1, b2))
-	return
+	return copy(b, fmt.Sprintf(p.trice.Strg, b0, b1, b2))
 }
 
-func (p *COBSR) trice84(b []byte) (n int, e error) {
+func (p *COBSR) trice84(b []byte) int {
 	b0 := int8(p.b[0]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
 	b1 := int8(p.b[1]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
 	b2 := int8(p.b[2]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
 	b3 := int8(p.b[3]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	n = copy(b, fmt.Sprintf(p.trice.Strg, b0, b1, b2, b3))
-	return
+	return copy(b, fmt.Sprintf(p.trice.Strg, b0, b1, b2, b3))
 }
 
-func (p *COBSR) trice85(b []byte) (n int, e error) {
+func (p *COBSR) trice85(b []byte) int {
 	b0 := int8(p.b[0]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
 	b1 := int8(p.b[1]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
 	b2 := int8(p.b[2]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
 	b3 := int8(p.b[3]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
 	b4 := int8(p.b[4]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	n = copy(b, fmt.Sprintf(p.trice.Strg, b0, b1, b2, b3, b4))
-	return
+	return copy(b, fmt.Sprintf(p.trice.Strg, b0, b1, b2, b3, b4))
 }
 
-func (p *COBSR) trice86(b []byte) (n int, e error) {
+func (p *COBSR) trice86(b []byte) int {
 	b0 := int8(p.b[0]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
 	b1 := int8(p.b[1]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
 	b2 := int8(p.b[2]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
 	b3 := int8(p.b[3]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
 	b4 := int8(p.b[4]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
 	b5 := int8(p.b[5]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	n = copy(b, fmt.Sprintf(p.trice.Strg, b0, b1, b2, b3, b4, b5))
-	return
+	return copy(b, fmt.Sprintf(p.trice.Strg, b0, b1, b2, b3, b4, b5))
 }
 
-func (p *COBSR) trice87(b []byte) (n int, e error) {
+func (p *COBSR) trice87(b []byte) int {
 	b0 := int8(p.b[0]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
 	b1 := int8(p.b[1]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
 	b2 := int8(p.b[2]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
@@ -345,11 +331,10 @@ func (p *COBSR) trice87(b []byte) (n int, e error) {
 	b4 := int8(p.b[4]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
 	b5 := int8(p.b[5]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
 	b6 := int8(p.b[6]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	n = copy(b, fmt.Sprintf(p.trice.Strg, b0, b1, b2, b3, b4, b5, b6))
-	return
+	return copy(b, fmt.Sprintf(p.trice.Strg, b0, b1, b2, b3, b4, b5, b6))
 }
 
-func (p *COBSR) trice88(b []byte) (n int, e error) {
+func (p *COBSR) trice88(b []byte) int {
 	b0 := int8(p.b[0]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
 	b1 := int8(p.b[1]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
 	b2 := int8(p.b[2]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
@@ -358,79 +343,68 @@ func (p *COBSR) trice88(b []byte) (n int, e error) {
 	b5 := int8(p.b[5]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
 	b6 := int8(p.b[6]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
 	b7 := int8(p.b[7]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	n = copy(p.b, fmt.Sprintf(p.trice.Strg, b0, b1, b2, b3, b4, b5, b6, b7))
-	return
+	return copy(p.b, fmt.Sprintf(p.trice.Strg, b0, b1, b2, b3, b4, b5, b6, b7))
 }
 
-func (p *COBSR) trice161(b []byte) (n int, e error) {
+func (p *COBSR) trice161(b []byte) int {
 	d0 := int16(p.readU16(p.b[0:2])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	n = copy(b, fmt.Sprintf(p.trice.Strg, d0))
-	return
+	return copy(b, fmt.Sprintf(p.trice.Strg, d0))
 }
 
-func (p *COBSR) trice162(b []byte) (n int, e error) {
+func (p *COBSR) trice162(b []byte) int {
 	d0 := int16(p.readU16(p.b[0:2])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
 	d1 := int16(p.readU16(p.b[2:4])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	n = copy(b, fmt.Sprintf(p.trice.Strg, d0, d1))
-	return
+	return copy(b, fmt.Sprintf(p.trice.Strg, d0, d1))
 }
 
-func (p *COBSR) trice163(b []byte) (n int, e error) {
+func (p *COBSR) trice163(b []byte) int {
 	d0 := int16(p.readU16(p.b[0:2])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
 	d1 := int16(p.readU16(p.b[2:4])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
 	d2 := int16(p.readU16(p.b[4:6])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	n = copy(b, fmt.Sprintf(p.trice.Strg, d0, d1, d2))
-	return
+	return copy(b, fmt.Sprintf(p.trice.Strg, d0, d1, d2))
 }
 
-func (p *COBSR) trice164(b []byte) (n int, e error) {
+func (p *COBSR) trice164(b []byte) int {
 	d0 := int16(p.readU16(p.b[0:2])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
 	d1 := int16(p.readU16(p.b[2:4])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
 	d2 := int16(p.readU16(p.b[4:6])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
 	d3 := int16(p.readU16(p.b[6:8])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	n = copy(p.b, fmt.Sprintf(p.trice.Strg, d0, d1, d2, d3))
-	return
+	return copy(p.b, fmt.Sprintf(p.trice.Strg, d0, d1, d2, d3))
 }
 
-func (p *COBSR) trice321(b []byte) (n int, e error) {
+func (p *COBSR) trice321(b []byte) int {
 	d0 := int32(p.readU32(p.b[0:4])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	n = copy(b, fmt.Sprintf(p.trice.Strg, d0))
-	return
+	return copy(b, fmt.Sprintf(p.trice.Strg, d0))
 }
 
-func (p *COBSR) trice322(b []byte) (n int, e error) {
+func (p *COBSR) trice322(b []byte) int {
 	d0 := int32(p.readU32(p.b[0:4])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
 	d1 := int32(p.readU32(p.b[4:8])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	n = copy(b, fmt.Sprintf(p.trice.Strg, d0, d1))
-	return
+	return copy(b, fmt.Sprintf(p.trice.Strg, d0, d1))
 }
 
-func (p *COBSR) trice323(b []byte) (n int, e error) {
+func (p *COBSR) trice323(b []byte) int {
 	d0 := int32(p.readU32(p.b[0:4]))  // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
 	d1 := int32(p.readU32(p.b[4:8]))  // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
 	d2 := int32(p.readU32(p.b[8:12])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	n = copy(b, fmt.Sprintf(p.trice.Strg, d0, d1, d2))
-	return
+	return copy(b, fmt.Sprintf(p.trice.Strg, d0, d1, d2))
 }
 
-func (p *COBSR) trice324(b []byte) (n int, e error) {
+func (p *COBSR) trice324(b []byte) int {
 	d0 := int32(p.readU32(p.b[0:4]))   // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
 	d1 := int32(p.readU32(p.b[4:8]))   // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
 	d2 := int32(p.readU32(p.b[8:12]))  // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
 	d3 := int32(p.readU32(p.b[12:16])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	n = copy(b, fmt.Sprintf(p.trice.Strg, d0, d1, d2, d3))
-	return
+	return copy(b, fmt.Sprintf(p.trice.Strg, d0, d1, d2, d3))
 }
 
-func (p *COBSR) trice641(b []byte) (n int, e error) {
+func (p *COBSR) trice641(b []byte) int {
 	d0 := int64(p.readU64(p.b[0:8])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	n = copy(b, fmt.Sprintf(p.trice.Strg, d0))
-	return
+	return copy(b, fmt.Sprintf(p.trice.Strg, d0))
 }
 
-func (p *COBSR) trice642(b []byte) (n int, e error) {
+func (p *COBSR) trice642(b []byte) int {
 	d0 := int64(p.readU64(p.b[0:8]))  // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
 	d1 := int64(p.readU64(p.b[8:16])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	n = copy(b, fmt.Sprintf(p.trice.Strg, d0, d1))
-	return
+	return copy(b, fmt.Sprintf(p.trice.Strg, d0, d1))
 }
