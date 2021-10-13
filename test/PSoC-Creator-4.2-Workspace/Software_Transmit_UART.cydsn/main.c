@@ -86,11 +86,10 @@ int main()
     
     /* Start the SW_Tx_UART Component */
     SW_Tx_UART_Start();
-    
+    TRICE_HEADLINE
     for(;;)
     {
-        /* Transmit different data types through the UART */
-        TRICE_HEADLINE
+        /* Transmit different data types through the UART */   
         TRICE0( Id( 49959),"\natt:Software Transmit UART Component demo\n");
         TRICE8( Id( 34275),"ERROR:Sending 254 as single byte hex: %02x\n", 254);
         TRICE16( Id( 37952),"d:Sending uint16 counter as two byte hex: %x\n", cnt);
