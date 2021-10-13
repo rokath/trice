@@ -695,6 +695,14 @@
 		"Type": "trice0",
 		"Strg": "--------------------------------------------------\\n"
 	},
+	"44009": {
+		"Type": "TRICE16_2",
+		"Strg": "MSG: select = %d, TriceDepthMax =%d STOP\\n"
+	},
+	"44088": {
+		"Type": "TRICE16_2",
+		"Strg": "MSG: select = %d, TriceDepthMax =%d STOP\\n"
+	},
 	"44117": {
 		"Type": "trice16_1",
 		"Strg": "DIA:diagnostics message, SysTick is %6u\\n"
@@ -1042,6 +1050,10 @@
 	"51750": {
 		"Type": "trice8_4i",
 		"Strg": "msg:  trice8_4i -\u003e normal trice function (with cycle counter) for only inside critical section %x %X %u %d\\n"
+	},
+	"51768": {
+		"Type": "TRICE16_2",
+		"Strg": "MSG: select = %d, TriceDepthMax =%d START\\n"
 	},
 	"51824": {
 		"Type": "TRICE8_2",
@@ -1395,6 +1407,10 @@
 		"Type": "trice16",
 		"Strg": "rd:%d, %d, %d, %d\\n"
 	},
+	"60071": {
+		"Type": "TRICE16_2",
+		"Strg": "MSG: select = %d, TriceDepthMax =%d STOP 2\\n"
+	},
 	"60145": {
 		"Type": "TRICE32_2i",
 		"Strg": "msg: TRICE32_2i -\u003e normal trice macro    (with cycle counter) for only inside critical section %x %X\\n"
@@ -1450,6 +1466,10 @@
 	"61677": {
 		"Type": "trice8i",
 		"Strg": "rd:%d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"62059": {
+		"Type": "TRICE16_2",
+		"Strg": "MSG: select = %d, TriceDepthMax =%d START\\n"
 	},
 	"62064": {
 		"Type": "trice16_1",

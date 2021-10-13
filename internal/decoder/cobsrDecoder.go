@@ -101,11 +101,17 @@ func (p *CHAR) Read(b []byte) (n int, err error) {
 // It uses inner reader p.in and internal id look-up table to fill b with a string.
 // b is a slice of bytes with a len for the max expected string size.
 // n is the count of read bytes inside b.
-// Read returns usually one trice string or nothing.
+// Read returns usually one complete trice strings or nothing but can return concatenated
+// trice strings, each ending with a newline despite the last one, when messages added.
+// Read does not process all internally read complete trice packages to
+// separate trices within one line to keep them separated for color processing.
+// Therefore reads needs to be called cyclically even after returning io.EOF to process internal data.
+// When Read returns n=0, all processable complete trice packages are done,
+// but the start of a following trice package can be already inside the internal buffer.
 // In case of a not matching cycle, a warning message in trice format is prefixed.
 // In case of invalid package data, error messages in trice format are returned and the package is dropped.
 func (p *COBSR) Read(b []byte) (n int, err error) {
-	sizeMsg := fmt.Sprintln("e:buf too small, expecting", defaultSize, "bytes.")
+	sizeMsg := fmt.Sprintln("ERROR:buf too small, expecting", defaultSize, "bytes.")
 	if len(b) < len(sizeMsg) {
 		return
 	}
@@ -115,28 +121,30 @@ func (p *COBSR) Read(b []byte) (n int, err error) {
 	}
 
 	bb := make([]byte, defaultSize)
-	// use b as intermediate read buffer to avoid allocation
+	// use bb as intermediate read buffer
 	m, err := p.in.Read(bb)
 	p.iBuf = append(p.iBuf, bb[:m]...) // merge with leftovers
 
-	if nil != err && io.EOF != err {
-		n = copy(b, fmt.Sprintln("error:internal reader error ", err))
+	if err != nil && err != io.EOF {
+		n = copy(b, fmt.Sprintln("ERROR:internal reader error", err))
 		return
 	}
 
 	// Even err could be io.EOF, some valid data possibly in p.iBUf.
 	// In case of file input (J-LINK usage) a plug off is not detectable here.
 
+	// Here p.iBuf contains all available bytes, what can be several trice messages.
+
 	index := bytes.IndexByte(p.iBuf, 0) // find terminating 0
 	if index == -1 {
-		return 0, io.EOF // no terminating 0
+		return n, io.EOF // no terminating 0, nothing to do
 	}
 
-	hints := "att:Hints:Baudrate? Target buffer overflow? til.json? Encoding?"
+	hints := "att:Hints:Baudrate? Buffer overflow? til.json? Encoding? Interrupt?"
 	d := cobs.Decode(p.iBuf[:index+1])
 	if len(d) < MinPackageLength {
 		p.iBuf = p.iBuf[index+1:] // step forward (drop package)
-		n += copy(b[n:], fmt.Sprintln("err:package len", len(d), "is too short - ignoring package."))
+		n += copy(b[n:], fmt.Sprintln("ERROR:package len", len(d), "is too short - ignoring package."))
 		n += copy(b[n:], fmt.Sprintln(hints))
 		return
 	}
@@ -152,34 +160,34 @@ func (p *COBSR) Read(b []byte) (n int, err error) {
 		fmt.Println("")
 	}
 
-	p.iBuf = p.iBuf[index+1:] // step forward (use package d)
+	p.iBuf = p.iBuf[index+1:] // step forward (data in package d)
 
 	var triceID id.TriceID
 	if CycleCounter {
 		cycle := d[0] // little endian target
 		if cycle != p.cycle {
-			n += copy(b, fmt.Sprintln("wrn:Cycle", cycle, "not equal expected value", p.cycle, "- adjusting cycle."))
+			n += copy(b, fmt.Sprintln("INFO:Cycle", cycle, "not equal expected value", p.cycle, "- adjusting cycle."))
 			p.cycle = cycle // adjust cycle
 		}
-		if DebugOut { // Debug output
-			n += copy(b[n:], fmt.Sprintln("dbg:-> cycle", cycle))
-		}
+		//  if DebugOut { // Debug output
+		//  	n += copy(b[n:], fmt.Sprintln("dbg:-> cycle", cycle))
+		//  }
 		p.cycle++
 		d = d[1:] // drop cycle count
 	}
 	triceID = id.TriceID(binary.LittleEndian.Uint16(d[:2]))
 	p.b = d[2:] // drop id and transfer values
 	p.bc = len(p.b)
-	if DebugOut { // Debug output
-		n += copy(b[n:], fmt.Sprintln("dbg:-> id", triceID, "byteCount", p.bc))
-	}
+	//  if DebugOut { // Debug output
+	//  	n += copy(b[n:], fmt.Sprintln("dbg:-> id", triceID, "byteCount", p.bc))
+	//  }
 
 	var ok bool
 	p.lutMutex.RLock()
 	p.trice, ok = p.lut[triceID]
 	p.lutMutex.RUnlock()
 	if !ok { // unknown id
-		n += copy(b[n:], fmt.Sprintln("wrn:unknown ID ", triceID, "- ignoring package."))
+		n += copy(b[n:], fmt.Sprintln("WARNING:unknown ID ", triceID, "- ignoring package."))
 		n += copy(b[n:], fmt.Sprintln(hints))
 		return
 	}
@@ -191,7 +199,13 @@ func (p *COBSR) Read(b []byte) (n int, err error) {
 		n += copy(b[n:], fmt.Sprintln(hints))
 		return
 	}
+	//  if DebugOut { // Debug output
+	//  	fmt.Println("DEBUG0:", string(b[:n]))
+	//  }
 	n += p.sprintTrice(b[n:])
+	//  if DebugOut { // Debug output
+	//  	fmt.Println("DEBUG1:", string(b[:n]))
+	//  }
 	return
 }
 
@@ -222,7 +236,7 @@ func (p *COBSR) expectedByteCount() int {
 	case "TRICE32_4", "TRICE64_2":
 		return 16
 	case "TRICE_S":
-		return p.bc
+		return p.bc // fake value for the check. To do: Check len with transmitted length.
 	default:
 		return -1 // unknown trice type
 	}
@@ -271,7 +285,7 @@ func (p *COBSR) sprintTrice(b []byte) int {
 }
 
 func (p *COBSR) triceS(b []byte) int {
-	return copy(b, fmt.Sprintf(p.trice.Strg, string(p.b)))
+	return copy(b, fmt.Sprintf(p.trice.Strg, string(p.b[4:]))) // first 4 bytes are the payload length
 }
 
 func (p *COBSR) trice0(b []byte) int {
@@ -343,7 +357,7 @@ func (p *COBSR) trice88(b []byte) int {
 	b5 := int8(p.b[5]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
 	b6 := int8(p.b[6]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
 	b7 := int8(p.b[7]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	return copy(p.b, fmt.Sprintf(p.trice.Strg, b0, b1, b2, b3, b4, b5, b6, b7))
+	return copy(b, fmt.Sprintf(p.trice.Strg, b0, b1, b2, b3, b4, b5, b6, b7))
 }
 
 func (p *COBSR) trice161(b []byte) int {
@@ -369,7 +383,7 @@ func (p *COBSR) trice164(b []byte) int {
 	d1 := int16(p.readU16(p.b[2:4])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
 	d2 := int16(p.readU16(p.b[4:6])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
 	d3 := int16(p.readU16(p.b[6:8])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	return copy(p.b, fmt.Sprintf(p.trice.Strg, d0, d1, d2, d3))
+	return copy(b, fmt.Sprintf(p.trice.Strg, d0, d1, d2, d3))
 }
 
 func (p *COBSR) trice321(b []byte) int {

@@ -166,7 +166,7 @@ func BanOrPickFilter(b []byte) (n int) {
 	return banOrPickFilter(Ban, Pick, b)
 }
 
-func banOrPickFilter(ban, pick ChannelArrayFlag, b []byte) (n int) {
+func banOrPickFilter(ban, pick ChannelArrayFlag, b []byte) int {
 	if nil == Ban && nil == Pick {
 		return len(b) // nothing to filter
 	}

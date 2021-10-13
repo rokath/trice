@@ -85,10 +85,10 @@ void triceCheckSet(int index) {
     switch (index) {
         case 1:
             TRICE8( Id( 38402), "rd:TRICE8 %d, %d\n", 1, 2 );
-            TRICE8( Id( 38402), "rd:TRICE8 %d, %d\n", 11, 12 );
-            TRICE8( Id( 38402), "rd:TRICE8 %d, %d\n", 21, 22 );
-            TRICE8( Id( 38402), "rd:TRICE8 %d, %d\n", 31, 32 );
-            TRICE8( Id( 38402), "rd:TRICE8 %d, %d\n", 41, 42 );
+            TRICE8( Id( 38402), "rd:TRICE8 %d, %d\n", 2, 3 );
+            TRICE8( Id( 38402), "rd:TRICE8 %d, %d\n", 3, 4 );
+            TRICE8( Id( 38402), "rd:TRICE8 %d, %d\n", 4, 5 );
+            TRICE8( Id( 38402), "rd:TRICE8 %d, %d\n", 5, 6 );
             TRICE8( Id( 33304), "rd:TRICE8 line %d\n", 1 );
             TRICE8( Id( 44324), "rd:TRICE8 line %d, %d\n", __LINE__, 2 );
         break;

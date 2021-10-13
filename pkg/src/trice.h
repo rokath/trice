@@ -87,6 +87,20 @@ extern "C" {
 //
 ///////////////////////////////////////////////////////////////////////////////
 
+#define TRICE_U8_FIFO_MASK ((TRICE_FIFO_BYTE_SIZE)-1) //!< max possible bytes count in fifo
+int triceU8FifoDepth(void);
+extern uint8_t* const triceU8Fifo;
+extern int triceU8FifoWriteIndex;
+extern int triceU8FifoReadIndex;
+extern uint16_t TriceDepthMax;
+void TriceReadAndTranslate( void );
+uint8_t triceCOBSEncode(uint8_t *output, const uint8_t * input, uint8_t length);
+TRICE_INLINE uint8_t triceU8Pop(void);
+#define TRICE_LITTLE_ENDIANNESS 0x00112233
+#define TRICE_BIG_ENDIANNESS    0x33221100
+#define TRICE_SINGLE_MESSAGE 1
+#define TRICE_MULTI_MESSAGE  2
+
 ///////////////////////////////////////////////////////////////////////////////
 // trice time measurement
 //
@@ -168,23 +182,6 @@ TRICE_INLINE void triceTriggerTransmit(void){
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-
-#define TRICE_U8_FIFO_MASK ((TRICE_FIFO_BYTE_SIZE)-1) //!< max possible bytes count in fifo
-
-int triceU8FifoDepth(void);
-extern uint8_t* const triceU8Fifo;
-extern int triceU8FifoWriteIndex;
-extern int triceU8FifoReadIndex;
-extern uint16_t TriceDepthMax;
-void TriceReadAndTranslate( void );
-uint8_t triceCOBSEncode(uint8_t *output, const uint8_t * input, uint8_t length);
-
-#define TRICE_LITTLE_ENDIANNESS 0x00112233
-#define TRICE_BIG_ENDIANNESS    0x33221100
-
-#define TRICE_SINGLE_MESSAGE 1
-#define TRICE_MULTI_MESSAGE  2
-
 //! triceU8Pop gets one trice from trice fifo.
 //! \return trice id with 2 byte data in one uint32_t.
 TRICE_INLINE uint8_t triceU8Pop(void) {
@@ -245,7 +242,7 @@ void InitXteaTable(void);
 #define TRICE32_4( id, pFmt, v0, v1, v2, v3                 ) do{ ((void)(v0)); ((void)(v1)); ((void)(v2)); ((void)(v3)); }while(0)
 #define TRICE64_1( id, pFmt, v0                             ) do{ ((void)(v0)); }while(0)
 #define TRICE64_2( id, pFmt, v0, v1                         ) do{ ((void)(v0)); ((void)(v1)); }while(0)
-#else
+#else // #ifdef TRICE_OFF
 
 #include <stdint.h>
 #include <string.h>
@@ -261,6 +258,7 @@ extern uint8_t triceCycle;
 #define TRICE_CYCLE 0xC0 //! TRICE_CYCLE is no trice cycle counter, just a static value.
 #endif
 
+#if 1 // uint32_t count
 //! TRICE0 writes trice data as fast as possible in a buffer.
 //! \param id is a 16 bit Trice id
 #define TRICE0( id, pFmt ) \
@@ -483,6 +481,22 @@ extern uint8_t triceCycle;
 
 #endif // #else // #if TRICE_HARDWARE_ENDIANNESS == TRICE_LITTLE_ENDIANNESS
 
+#define TRICE8P( id, pFmt, buf, len) do { \
+    /*int len4;*/ \
+    if( len <= 0 ){ \
+        break; \
+    } \
+    if( len > 4*255 ){ \
+        len = 4*255; \
+    } \
+    /*len4 = len>>2;*/ \
+    TRICE_ENTER \
+    PUT( id | (len<<8) | TRICE_CYCLE ); \
+    PUT( len ); /* len4 does not contain the exact buf len anymore, so transmit it to the host */ \
+    PUT_BUFFER( dynString, len ); \
+    TRICE_LEAVE \
+} while(0)
+
 //! TRICE_S writes id and dynString.
 //! \param id trice identifier
 //! \param pFmt formatstring for trice (ignored here but used by the trice tool)
@@ -495,9 +509,9 @@ extern uint8_t triceCycle;
 //! cLen-3 cLen-2 cLen-1 cLen
 #define TRICE_S( id, pFmt, dynString) do { \
     int len = strlen( dynString ); \
-    if( len > 255 ){ \
-        dynString[255] = 0; \
-        len = 255; \
+    if( len > 4*255 ){ \
+        dynString[4*255] = 0; \
+        len = 4*255; \
     } \
     TRICE_ENTER \
     PUT( id | (len<<8) | TRICE_CYCLE ); \
@@ -505,7 +519,9 @@ extern uint8_t triceCycle;
     TRICE_LEAVE \
 } while(0)
 
-#endif
+#else // #if 1 // uint32_t count
+#endif // #else // #if 1 // uint32_t count
+#endif // #else // #ifdef TRICE_OFF
 
 /*
 #ifdef TRICE_RTT_CHANNEL

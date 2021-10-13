@@ -173,32 +173,24 @@ func Translate(sw *emitter.TriceLineComposer, lut id.TriceIDLookUp, m *sync.RWMu
 }
 
 func decodeAndComposeLoop(sw *emitter.TriceLineComposer, dec Decoder) error {
-	// intermediate trice string buffer for a single trice
-	b := make([]byte, defaultSize)
+	b := make([]byte, defaultSize) // intermediate trice string buffer
 	for {
 		n, err := dec.Read(b) // Code to measure
-		if io.EOF == err {
+		if io.EOF == err && n == 0 {
 			if receiver.Port == "BUFFER" { // do not wait for a predefined buffer
 				return err
 			}
 			if Verbose {
-				fmt.Println(err)
+				fmt.Println(err, "-> WAITING...")
 			}
-			if Verbose {
-				fmt.Println("WAITING...")
-			}
-			time.Sleep(100 * time.Millisecond) // limit try again speed
-			continue                           // read again
-		}
-		if nil != err {
-			if Verbose {
-				fmt.Println(err)
-			}
-			return nil // try again
+			//time.Sleep(100 * time.Millisecond) // limit try again speed
+			continue // read again
 		}
 
+		// b contains here several complete trice strings!
+
 		// Filtering is done here to suppress the id display as well for the filtered items.
-		n = emitter.BanOrPickFilter(b[:n])
+		n = emitter.BanOrPickFilter(b[:n]) // to do: b can contain several trices - handle that!
 
 		start := time.Now()
 		if 0 < n && ShowID != "" && len(sw.Line) == 0 {

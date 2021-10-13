@@ -17,6 +17,7 @@ extern "C" {
 void triceServeFifoEncryptedToBytesBuffer(void);
 #endif
 
+#define TRICE_STM32
 
 //! Set endianess according to target hardware. Options: TRICE_BIG_ENDIANNESS, TRICE_LITTLE_ENDIANNESS.
 //! Some compiler offer an automatic detection for this.
