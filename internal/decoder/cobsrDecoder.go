@@ -8,6 +8,7 @@ import (
 	"encoding/binary"
 	"fmt"
 	"io"
+	"log"
 	"strings"
 	"sync"
 
@@ -126,8 +127,8 @@ func (p *COBSR) Read(b []byte) (n int, err error) {
 	p.iBuf = append(p.iBuf, bb[:m]...) // merge with leftovers
 
 	if err != nil && err != io.EOF {
-		n = copy(b, fmt.Sprintln("ERROR:internal reader error", err))
-		return
+		log.Fatal("ERROR:internal reader error", err)
+		// exit
 	}
 
 	// Even err could be io.EOF, some valid data possibly in p.iBUf.
@@ -140,7 +141,7 @@ func (p *COBSR) Read(b []byte) (n int, err error) {
 		return n, io.EOF // no terminating 0, nothing to do
 	}
 
-	hints := "att:Hints:Baudrate? Buffer overflow? til.json? Encoding? Interrupt?"
+	hints := "att:Hints:Baudrate? Overflow? Encoding? Interrupt? CycleCounter? til.json?"
 	d := cobs.Decode(p.iBuf[:index+1])
 	if len(d) < MinPackageLength {
 		p.iBuf = p.iBuf[index+1:] // step forward (drop package)
