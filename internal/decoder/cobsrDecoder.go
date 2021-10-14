@@ -177,7 +177,8 @@ func (p *COBSR) Read(b []byte) (n int, err error) {
 		d = d[1:] // drop cycle count
 	}
 	triceID = id.TriceID(binary.LittleEndian.Uint16(d[:2]))
-	p.b = d[2:] // drop id and transfer values
+	LastTriceID = triceID // used for showID
+	p.b = d[2:]           // drop id and transfer values
 	p.bc = len(p.b)
 	//  if DebugOut { // Debug output
 	//  	n += copy(b[n:], fmt.Sprintln("dbg:-> id", triceID, "byteCount", p.bc))
