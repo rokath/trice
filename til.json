@@ -255,6 +255,10 @@
 		"Type": "TRICE16i",
 		"Strg": "rd:%d\\n"
 	},
+	"34070": {
+		"Type": "TRICE0",
+		"Strg": "att:  Direct to UART, -cycle, -int  "
+	},
 	"34130": {
 		"Type": "trice0",
 		"Strg": "a:c"
@@ -695,6 +699,10 @@
 		"Type": "trice32_1",
 		"Strg": "msg: trice32_1  -\u003e normal trice function (with cycle counter) for everywhere                   %u\\n"
 	},
+	"43505": {
+		"Type": "TRICE0",
+		"Strg": "att:  Direct to UART, +cycle, -int  "
+	},
 	"43675": {
 		"Type": "trice0",
 		"Strg": "m:123\\n"
@@ -710,6 +718,10 @@
 	"43956": {
 		"Type": "trice0",
 		"Strg": "--------------------------------------------------\\n"
+	},
+	"43974": {
+		"Type": "TRICE0",
+		"Strg": "att:  Direct to UART, +cycle, +int  "
 	},
 	"44009": {
 		"Type": "TRICE16_2",
@@ -734,6 +746,10 @@
 	"44649": {
 		"Type": "TRICE8",
 		"Strg": "rd:TRICE8 %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"44776": {
+		"Type": "TRICE32_1",
+		"Strg": "time:TRICE32_1   message, SysTick is %6u\\n"
 	},
 	"44880": {
 		"Type": "TRICE8_1",
@@ -820,7 +836,7 @@
 		"Strg": "inf:Version %02d.%02d.%02d-rc%02d"
 	},
 	"46377": {
-		"Type": "trice0",
+		"Type": "TRICE0",
 		"Strg": "s:     \\ns:                                          \\n"
 	},
 	"46455": {
@@ -840,7 +856,7 @@
 		"Strg": "s:     \\ns:     "
 	},
 	"46700": {
-		"Type": "trice0",
+		"Type": "TRICE0",
 		"Strg": "s:                                          \\ns:     "
 	},
 	"47044": {
@@ -1175,6 +1191,10 @@
 		"Type": "TRICE8",
 		"Strg": "rd:TRICE8 %d\\n"
 	},
+	"53424": {
+		"Type": "TRICE0",
+		"Strg": "att:  Direct to UART, +cycle, +int  "
+	},
 	"53626": {
 		"Type": "trice64_1",
 		"Strg": "att:trice64_1 %16x\\n"
@@ -1214,6 +1234,10 @@
 	"54294": {
 		"Type": "TRICE32",
 		"Strg": "rd:TRICE32 line %d,%d\\n"
+	},
+	"54439": {
+		"Type": "TRICE0",
+		"Strg": "att: Triple buff UART, ~cycle, ~int "
 	},
 	"54544": {
 		"Type": "trice8",
@@ -1270,6 +1294,10 @@
 	"55451": {
 		"Type": "trice8_6",
 		"Strg": "msg:  trice6_5  -\u003e normal trice function (with cycle counter) for everywhere                   %x %X %u %d %x %X\\n"
+	},
+	"55474": {
+		"Type": "TRICE0",
+		"Strg": "att: Triple buff UART, +cycle, +int "
 	},
 	"55537": {
 		"Type": "TRICE8i",
@@ -1354,6 +1382,10 @@
 	"57385": {
 		"Type": "TRICE32",
 		"Strg": "ATT:trice16 attention message, SysTick is %6d\\n"
+	},
+	"57666": {
+		"Type": "TRICE32_1",
+		"Strg": "time:TRICE16_1   message, SysTick is %6u\\n"
 	},
 	"57806": {
 		"Type": "TRICE32",
@@ -1466,6 +1498,10 @@
 	"60309": {
 		"Type": "trice32_1",
 		"Strg": "inf: (%08x)"
+	},
+	"60513": {
+		"Type": "TRICE0",
+		"Strg": "att: COBS, direct out, -cycle, -int "
 	},
 	"60551": {
 		"Type": "trice16_1i",
@@ -1607,6 +1643,10 @@
 		"Type": "TRICE8i",
 		"Strg": "rd:%d, %d, %d, %d\\n"
 	},
+	"63683": {
+		"Type": "TRICE0",
+		"Strg": "att: COBS, direct out, +cycle, -int "
+	},
 	"63860": {
 		"Type": "TRICE16_3",
 		"Strg": "MSG: select = %d, TriceDepthMax =%d of %d, START\\n"
@@ -1642,6 +1682,10 @@
 	"64447": {
 		"Type": "trice64_1",
 		"Strg": "msg: trice64_1  -\u003e normal trice function (with cycle counter) for everywhere                   %u\\n"
+	},
+	"64478": {
+		"Type": "TRICE0",
+		"Strg": "att:  Direct to UART, +cycle, +int  "
 	},
 	"64622": {
 		"Type": "trice32_2",

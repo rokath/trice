@@ -5,6 +5,11 @@
 #include <string.h> // strlen
 #include "trice.h"
 
+uint16_t TriceDepthMax = 0; //!< TriceDepthMax is a diagnostics value.
+uint8_t triceCycle = 0xc0; //!< trice cycle counter
+
+
+
 // https://github.com/jacquesf/COBS-Consistent-Overhead-Byte-Stuffing/blob/master/cobs.c
 /* Stuffs "length" bytes of data at the location pointed to by
  * "input", writing the output to the location pointed to by
@@ -44,8 +49,34 @@ TRICE_INLINE unsigned COBSEncode( uint8_t* restrict output, const uint8_t * rest
     return write_index;
 }
 
+// The trice data stream is little endian, as most embedded MCUs use litte endian format.
+// For big endian embedded MCUs the trice tool has an -targetEndianess switch to avoid transcoding in the target processor.
+// The buffer tail contains wholes on big endian MCUs for TRICE8_1, TRICE8_2, TRICE8_3, TRICE8_5, TRICE8_6, TRICE8_7, TRICE16_1, TRICE16_3 and needs adjustment then.
+#if TRICE_HARDWARE_ENDIANNESS == TRICE_LITTLE_ENDIANNESS
+
+//! triceToCOBS converts an in t stored trice into a cobs sequence into c with appended 0 as delimiter.
+//! For performance reasons t is manipulated afterwards.
+unsigned triceToCOBS( uint8_t* co, uint8_t * tr ){
+    unsigned tlen, clen;
+    #if TRICE_CYCLE_COUNTER == 1 // with cycle counter
+        tlen = tr[1] + 3; // little endian, add id size and cycle size
+        tr[1] = tr[0]; // write cycle to 2nd position (little endian assumed!)
+        clen = COBSEncode(co, &tr[1], tlen);
+    #else // no cycle counter used
+        tlen = tr[1] + 2; // little endian, add id size
+        clen = COBSEncode(co, &tr[2], tlen);
+    #endif
+    co[clen] = 0; // add 0-delimiter
+    return clen + 1;
+}
+
+#else // #if TRICE_HARDWARE_ENDIANNESS == TRICE_LITTLE_ENDIANNESS
+    #error "todo: TRICE_HARDWARE_ENDIANNESS == TRICE_BIG_ENDIANNESS"
+#endif // #else // #if TRICE_HARDWARE_ENDIANNESS == TRICE_LITTLE_ENDIANNESS
+
+#if TRICE_MODE > 100
+
 static uint32_t triceBuffer[2][(TRICE_BUFFER_SIZE+3)>>3] = {0}; //!< triceBuffer is double buffer for better write speed.
-uint16_t TriceDepthMax = 0; //!< TriceDepthMax is a diagnostics value.
 #define TRICE_ACTIVE 0 //!< TRICE_ACTIVE is the init value for swap.
 static int swap = TRICE_ACTIVE; //!< swap is the active write buffer. !swap is the active read buffer.
 uint32_t* wTb = &triceBuffer[TRICE_ACTIVE][0]; //!< wTb is the active write position.
@@ -81,145 +112,32 @@ static uint8_t* triceRead( void ){
     return p;
 }
 
+
+
 //#define TRICE_PAYLOAD_MAX 128 //!< up to 1020 possible (255*4)
 //static uint8_t out[TRICE_PAYLOAD_MAX];
 
 
-//! triceToCOBS converts an in t stored trice into a cobs sequence into o with appended 0 as delimiter.
-//! For performance reasons t is manipulated afterwards.
-unsigned triceToCOBS( uint8_t * t, uint8_t* o ){
-    unsigned tlen, olen;
-// The trice data stream is little endian, as most embedded MCUs use litte endian format.
-// For big endian embedded MCUs the trice tool  should get an -bigEndian switch to avoid transcoding here.
-// The buffer tail contains wholes on big endian MCUs for TRICE8_1, TRICE8_2, TRICE8_3, TRICE8_5, TRICE8_6, TRICE8_7, TRICE16_1, TRICE16_3 and needs adjustment then.
-#if TRICE_HARDWARE_ENDIANNESS == TRICE_LITTLE_ENDIANNESS
-    #if TRICE_CYCLE_COUNTER == 1 // with cycle counter
-        tlen = t[1] + 3; // little endian, add id size and cycle size
-        t[1] = t[0]; // write cycle to 2nd position (little endian assumed!)
-        #if TRICE_TRANSFER_MESSAGE == TRICE_SINGLE_MESSAGE
-            olen = COBSEncode(o, &t[1], tlen);
-        #elif TRICE_TRANSFER_MESSAGE == TRICE_MULTI_MESSAGE
-            t[0] = tlen; // add count of following bytes
-            olen = COBSEncode(o, &t[0], tlen+1);
-        #endif
-    #else // no cycle counter used
-        tlen = t[1] + 2; // little endian, add id size
-        #if TRICE_TRANSFER_MESSAGE == TRICE_SINGLE_MESSAGE
-            olen = COBSEncode(o, &t[2], tlen);
-        #elif TRICE_TRANSFER_MESSAGE == TRICE_MULTI_MESSAGE
-            t[1] = tlen; // add count of following bytes
-            olen = COBSEncode(o, &t[1], tlen+1);
-        #endif
-    #endif
-#else // #if TRICE_HARDWARE_ENDIANNESS == TRICE_LITTLE_ENDIANNESS
-    #error "todo: TRICE_HARDWARE_ENDIANNESS == TRICE_BIG_ENDIANNESS"
-#endif // #else // #if TRICE_HARDWARE_ENDIANNESS == TRICE_LITTLE_ENDIANNESS
-    o[olen] = 0; // add 0-delimiter
-    return olen;
-}
 
-#if TRICE_TRANSFER_MESSAGE == TRICE_SINGLE_MESSAGE
 void TriceReadAndTranslate( void ){
-    uint8_t* p;
+    uint8_t* t;
     uint16_t clen; // uint8_t clen, tlen;
     if( triceU8FifoDepth() ){
         return; // transmission not done yet
     }
-    p = triceRead();
-    if( NULL == p ){
+    t = triceRead();
+    if( NULL == t ){
         return; // no trice data to transmit
     }
-/*
-// The trice data stream is little endian, as most embedded MCUs use litte endian format.
-// For big endian embedded MCUs the trice tool  should get an -bigEndian switch to avoid transcoding here.
-// The buffer tail contains wholes on big endian MCUs for TRICE8_1, TRICE8_2, TRICE8_3, TRICE8_5, TRICE8_6, TRICE8_7, TRICE16_1, TRICE16_3 and needs adjustment then.
-#if TRICE_HARDWARE_ENDIANNESS == TRICE_LITTLE_ENDIANNESS
-    #if TRICE_CYCLE_COUNTER == 1 // with cycle counter
-        tlen = p[1] + 3; // little endian, add id size and cycle size
-        p[1] = p[0]; // write cycle to 2nd position (little endian assumed!)
-        #if TRICE_TRANSFER_MESSAGE == TRICE_SINGLE_MESSAGE
-            clen = COBSEncode(triceU8Fifo, &p[1], tlen);
-        #elif TRICE_TRANSFER_MESSAGE == TRICE_MULTI_MESSAGE
-            p[0] = tlen; // add count of following bytes
-            clen = COBSEncode(triceU8Fifo, &p[0], tlen+1);
-        #endif
-    #else // no cycle counter used
-        tlen = p[1] + 2; // little endian, add id size
-        #if TRICE_TRANSFER_MESSAGE == TRICE_SINGLE_MESSAGE
-            clen = COBSEncode(triceU8Fifo, &p[2], tlen);
-        #elif TRICE_TRANSFER_MESSAGE == TRICE_MULTI_MESSAGE
-            p[1] = tlen; // add count of following bytes
-            clen = COBSEncode(triceU8Fifo, &p[1], tlen+1);
-        #endif
+    #ifdef ENCRYPT
+    triceServeFifoEncryptedToBytesBuffer(); // To do: rework obsolete code
     #endif
-#else // #if TRICE_HARDWARE_ENDIANNESS == TRICE_LITTLE_ENDIANNESS
-    #error "todo: TRICE_HARDWARE_ENDIANNESS == TRICE_BIG_ENDIANNESS"
-#endif // #else // #if TRICE_HARDWARE_ENDIANNESS == TRICE_LITTLE_ENDIANNESS
-    triceU8Fifo[clen] = 0; // add 0-delimiter
-*/
-    clen = triceToCOBS( p, triceU8Fifo );
+    clen = triceToCOBS( triceU8Fifo, t );
     TRICE_ENTER_CRITICAL_SECTION
-    triceU8FifoWriteIndex = clen+1;
+    triceU8FifoWriteIndex = clen;
     triceU8FifoReadIndex = 0;
     TRICE_LEAVE_CRITICAL_SECTION
-#ifdef ENCRYPT
-    triceServeFifoEncryptedToBytesBuffer();
-#endif
 }
-#endif // #if TRICE_TRANSFER_MESSAGE == TRICE_SINGLE_MESSAGE
-
-#if TRICE_TRANSFER_MESSAGE == TRICE_MULTI_MESSAGE
-void TriceReadAndTranslate( void ){
-    uint8_t* p;
-    uint8_t clen, tlen;
-    if( triceU8FifoDepth() ){
-        return; // transmission not done yet
-    }
-    p = triceRead();
-    if( NULL == p ){
-        return; // no trice data to transmit
-    }
-
-// The trice data stream is little endian, as most embedded MCUs use litte endian format.
-// For big endian embedded MCUs the trice tool  should get an -bigEndian switch to avoid transcoding here.
-// The buffer tail contains wholes on big endian MCUs for TRICE8_1, TRICE8_2, TRICE8_3, TRICE8_5, TRICE8_6, TRICE8_7, TRICE16_1, TRICE16_3 and needs adjustment then.
-#if TRICE_HARDWARE_ENDIANNESS == TRICE_LITTLE_ENDIANNESS
-    #if TRICE_CYCLE_COUNTER == 1 // with cycle counter
-        tlen = p[1] + 3; // little endian, add id size and cycle size
-        p[1] = p[0]; // write cycle to 2nd position (little endian assumed!)
-        #if TRICE_TRANSFER_MESSAGE == TRICE_SINGLE_MESSAGE
-            clen = triceCOBSEncode(triceU8Fifo, &p[1], tlen);
-        #elif TRICE_TRANSFER_MESSAGE == TRICE_MULTI_MESSAGE
-            p[0] = tlen; // add count of following bytes
-            clen = triceCOBSEncode(triceU8Fifo, &p[0], tlen+1);
-        #endif
-    #else // no cycle counter used
-        tlen = p[1] + 2; // little endian, add id size
-        #if TRICE_TRANSFER_MESSAGE == TRICE_SINGLE_MESSAGE
-            clen = triceCOBSREncode(triceU8Fifo, &p[2], tlen);
-        #elif TRICE_TRANSFER_MESSAGE == TRICE_MULTI_MESSAGE
-            p[1] = tlen; // add count of following bytes
-            clen = triceCOBSREncode(triceU8Fifo, &p[1], tlen+1);
-        #endif
-    #endif
-#else // #if TRICE_HARDWARE_ENDIANNESS == TRICE_LITTLE_ENDIANNESS
-    #error "todo: TRICE_HARDWARE_ENDIANNESS == TRICE_BIG_ENDIANNESS"
-#endif // #else // #if TRICE_HARDWARE_ENDIANNESS == TRICE_LITTLE_ENDIANNESS
-    triceU8Fifo[clen] = 0; // add 0-delimiter
-    TRICE_ENTER_CRITICAL_SECTION
-    triceU8FifoWriteIndex = clen+1;
-    triceU8FifoReadIndex = 0;
-    TRICE_LEAVE_CRITICAL_SECTION
-#ifdef ENCRYPT
-    triceServeFifoEncryptedToBytesBuffer();
-#endif
-}
-
-#endif 
-
-
-uint8_t triceCycle = 0xc0; //!< trice cycle counter
-
 
 //! trice fifo instance, here are the trices buffered.
 ALIGN4 uint32_t
@@ -264,470 +182,16 @@ int triceU8FifoDepth(void) {
 //      triceFifoMaxDepth = triceFifoMaxDepth < depth ? depth : triceFifoMaxDepth; // diagnostics
 //      return depth;
 //  }
-//  
-/*
-#ifndef trice0i
-//! trice0i does trace id unprotected (inside critical section).
-//! \param id trice identifier
-//! \param pFmt formatstring for trice
-void trice0i( uint32_t id, char* pFmt ){
-    TRICE0i( id, pFmt );
-}
-#endif
 
-#ifndef trice0
-//! trice0 does trace id protected (outside critical section).
-//! \param id trice identifier
-//! \param pFmt formatstring for trice
-void trice0( uint32_t id, char* pFmt ){
-    TRICE0( id, pFmt );
-}
-#endif
-
-#ifndef trice8_1i
-//! trice8_1i does trace id and 8-bit values protected (outside critical section).
-//! \param id trice identifier
-//! \param pFmt formatstring for trice
-//! \param d0 payload
-void trice8_1i( uint32_t id, char* pFmt, int8_t d0 ){
-    TRICE8_1i( id, pFmt, d0 );
-}
-#endif
-
-#ifndef trice8_1
-//! trice8_1 does trace id and 8-bit values protected (outside critical section).
-//! \param id trice identifier
-//! \param pFmt formatstring for trice
-//! \param d0 payload
-void trice8_1( uint32_t id, char* pFmt, int8_t d0 ){
-    TRICE8_1( id, pFmt, d0 );
-}
-#endif
-
-#ifndef trice8_2i
-//! trice8_2i does trace id and 8-bit values protected (outside critical section).
-//! \param id trice identifier
-//! \param pFmt formatstring for trice
-//! \param d0 payload
-//! \param d1 payload
-void trice8_2i( uint32_t id, char* pFmt, int8_t d0, int8_t d1 ){
-    TRICE8_2i( id, pFmt, d0, d1 );
-}
-#endif
-
-#ifndef trice8_2
-//! trice8_2 does trace id and 8-bit values protected (outside critical section).
-//! \param id trice identifier
-//! \param pFmt formatstring for trice
-//! \param d0 payload
-//! \param d1 payload
-void trice8_2( uint32_t id, char* pFmt, int8_t d0, int8_t d1 ){
-    TRICE8_2( id, pFmt, d0, d1 );
-}
-#endif
-
-#ifndef trice8_3i
-//! trice8_3i does trace id and 8-bit values protected (outside critical section).
-//! \param id trice identifier
-//! \param pFmt formatstring for trice
-//! \param d0 payload
-//! \param d1 payload
-//! \param d2 payload
-void trice8_3i( uint32_t id, char* pFmt, int8_t d0, int8_t d1, int8_t d2 ){
-    TRICE8_3i( id, pFmt, d0, d1, d2 );
-}
-#endif
-
-#ifndef trice8_3
-//! trice8_3 does trace id and 8-bit values protected (outside critical section).
-//! \param id trice identifier
-//! \param pFmt formatstring for trice
-//! \param d0 payload
-//! \param d1 payload
-//! \param d2 payload
-void trice8_3( uint32_t id, char* pFmt, int8_t d0, int8_t d1, int8_t d2 ){
-    TRICE8_3( id, pFmt, d0, d1, d2 );
-}
-#endif
-
-#ifndef trice8_4i
-//! trice8_4i does trace id and 8-bit values protected (outside critical section).
-//! \param id trice identifier
-//! \param pFmt formatstring for trice
-//! \param d0 payload
-//! \param d1 payload
-//! \param d2 payload
-//! \param d3 payload
-void trice8_4i( uint32_t id, char* pFmt, int8_t d0, int8_t d1, int8_t d2, int8_t d3 ){
-    TRICE8_4i( id, pFmt, d0, d1, d2, d3 );
-}
-#endif
-
-#ifndef trice8_4
-//! trice8_4 does trace id and 8-bit values protected (outside critical section).
-//! \param id trice identifier
-//! \param pFmt formatstring for trice
-//! \param d0 payload
-//! \param d1 payload
-//! \param d2 payload
-//! \param d3 payload
-void trice8_4( uint32_t id, char* pFmt, int8_t d0, int8_t d1, int8_t d2, int8_t d3 ){
-    TRICE8_4( id, pFmt, d0, d1, d2, d3 );
-}
-#endif
-
-#ifndef trice8_5i
-//! trice8_6i does trace id and 8-bit values protected (outside critical section).
-//! \param id trice identifier
-//! \param pFmt formatstring for trice
-//! \param d0 payload
-//! \param d1 payload
-//! \param d2 payload
-//! \param d3 payload
-//! \param d4 payload
-void trice8_5i( uint32_t id, char* pFmt, int8_t d0, int8_t d1, int8_t d2, int8_t d3, int8_t d4 ){
-    TRICE8_5i( id, pFmt, d0, d1, d2, d3, d4 );
-}
-#endif
-
-#ifndef trice8_5
-//! trice8_6 does trace id and 8-bit values protected (outside critical section).
-//! \param id trice identifier
-//! \param pFmt formatstring for trice
-//! \param d0 payload
-//! \param d1 payload
-//! \param d2 payload
-//! \param d3 payload
-//! \param d4 payload
-void trice8_5( uint32_t id, char* pFmt, int8_t d0, int8_t d1, int8_t d2, int8_t d3, int8_t d4 ){
-    TRICE8_5( id, pFmt, d0, d1, d2, d3, d4 );
-}
-#endif
+#endif // #if TRICE_MODE > 100
 
 
-#ifndef trice8_6i
-//! trice8_6i does trace id and 8-bit values protected (outside critical section).
-//! \param id trice identifier
-//! \param pFmt formatstring for trice
-//! \param d0 payload
-//! \param d1 payload
-//! \param d2 payload
-//! \param d3 payload
-//! \param d4 payload
-//! \param d5 payload
-void trice8_6i( uint32_t id, char* pFmt, int8_t d0, int8_t d1, int8_t d2, int8_t d3, int8_t d4, int8_t d5 ){
-    TRICE8_6i( id, pFmt, d0, d1, d2, d3, d4, d5 );
-}
-#endif
-
-#ifndef trice8_6
-//! trice8_6 does trace id and 8-bit values protected (outside critical section).
-//! \param id trice identifier
-//! \param pFmt formatstring for trice
-//! \param d0 payload
-//! \param d1 payload
-//! \param d2 payload
-//! \param d3 payload
-//! \param d4 payload
-//! \param d5 payload
-void trice8_6( uint32_t id, char* pFmt, int8_t d0, int8_t d1, int8_t d2, int8_t d3, int8_t d4, int8_t d5 ){
-    TRICE8_6( id, pFmt, d0, d1, d2, d3, d4, d5 );
-}
-#endif
-
-#ifndef trice8_7i
-//! trice8_7i does trace id and 8-bit values protected (outside critical section).
-//! \param id trice identifier
-//! \param pFmt formatstring for trice
-//! \param d0 payload
-//! \param d1 payload
-//! \param d2 payload
-//! \param d3 payload
-//! \param d4 payload
-//! \param d5 payload
-//! \param d6 payload
-void trice8_7i( uint32_t id, char* pFmt, int8_t d0, int8_t d1, int8_t d2, int8_t d3, int8_t d4, int8_t d5, int8_t d6 ){
-    TRICE8_7i( id, pFmt, d0, d1, d2, d3, d4, d5, d6 );
-}
-#endif
-
-#ifndef trice8_7
-//! trice8_7 does trace id and 8-bit values protected (outside critical section).
-//! \param id trice identifier
-//! \param pFmt formatstring for trice
-//! \param d0 payload
-//! \param d1 payload
-//! \param d2 payload
-//! \param d3 payload
-//! \param d4 payload
-//! \param d5 payload
-//! \param d6 payload
-void trice8_7( uint32_t id, char* pFmt, int8_t d0, int8_t d1, int8_t d2, int8_t d3, int8_t d4, int8_t d5, int8_t d6 ){
-    TRICE8_7( id, pFmt, d0, d1, d2, d3, d4, d5, d6 );
-}
-#endif
-
-#ifndef trice8_8i
-//! trice8_8i does trace id and 8-bit values protected (outside critical section).
-//! \param id trice identifier
-//! \param pFmt formatstring for trice
-//! \param d0 payload
-//! \param d1 payload
-//! \param d2 payload
-//! \param d3 payload
-//! \param d4 payload
-//! \param d5 payload
-//! \param d6 payload
-//! \param d7 payload
-void trice8_8i( uint32_t id, char* pFmt, int8_t d0, int8_t d1, int8_t d2, int8_t d3, int8_t d4, int8_t d5, int8_t d6, int8_t d7 ){
-    TRICE8_8i( id, pFmt, d0, d1, d2, d3, d4, d5, d6, d7 );
-}
-#endif
-
-#ifndef trice8_8
-//! trice8_8 does trace id and 8-bit values protected (outside critical section).
-//! \param id trice identifier
-//! \param pFmt formatstring for trice
-//! \param d0 payload
-//! \param d1 payload
-//! \param d2 payload
-//! \param d3 payload
-//! \param d4 payload
-//! \param d5 payload
-//! \param d6 payload
-//! \param d7 payload
-void trice8_8( uint32_t id, char* pFmt, int8_t d0, int8_t d1, int8_t d2, int8_t d3, int8_t d4, int8_t d5, int8_t d6, int8_t d7 ){
-    TRICE8_8( id, pFmt, d0, d1, d2, d3, d4, d5, d6, d7 );
-}
-#endif
 
 
-#ifndef trice16_1i
-//! trice16_1i does trace id and 16-bit values protected (outside critical section).
-//! \param id trice identifier
-//! \param pFmt formatstring for trice
-//! \param d0 payload
-void trice16_1i( uint32_t id, char* pFmt, int16_t d0 ){
-    TRICE16_1i( id, pFmt, d0 );
-}
-#endif
 
-#ifndef trice16_1
-//! trice16_1 does trace id and 16-bit values protected (outside critical section).
-//! \param id trice identifier
-//! \param pFmt formatstring for trice
-//! \param d0 payload
-void trice16_1( uint32_t id, char* pFmt, int16_t d0 ){
-    TRICE16_1( id, pFmt, d0 );
-}
-#endif
 
-#ifndef trice16_2i
-//! trice16_2i does trace id and 16-bit values protected (outside critical section).
-//! \param id trice identifier
-//! \param pFmt formatstring for trice
-//! \param d0 payload
-//! \param d1 payload
-void trice16_2i( uint32_t id, char* pFmt, int16_t d0, int16_t d1 ){
-    TRICE16_2i( id, pFmt, d0, d1 );
-}
-#endif
 
-#ifndef trice16_2
-//! trice16_2 does trace id and 16-bit values protected (outside critical section).
-//! \param id trice identifier
-//! \param pFmt formatstring for trice
-//! \param d0 payload
-//! \param d1 payload
-void trice16_2( uint32_t id, char* pFmt, int16_t d0, int16_t d1 ){
-    TRICE16_2( id, pFmt, d0, d1 );
-}
-#endif
 
-#ifndef trice16_3i
-//! trice16_3i does trace id and 16-bit values protected (outside critical section).
-//! \param id trice identifier
-//! \param pFmt formatstring for trice
-//! \param d0 payload
-//! \param d1 payload
-//! \param d2 payload
-void trice16_3i( uint32_t id, char* pFmt, int16_t d0, int16_t d1, int16_t d2 ){
-    TRICE16_3i( id, pFmt, d0, d1, d2 );
-}
-#endif
-
-#ifndef trice16_3
-//! trice16_3 does trace id and 16-bit values protected (outside critical section).
-//! \param id trice identifier
-//! \param pFmt formatstring for trice
-//! \param d0 payload
-//! \param d1 payload
-//! \param d2 payload
-void trice16_3( uint32_t id, char* pFmt, int16_t d0, int16_t d1, int16_t d2 ){
-    TRICE16_3( id, pFmt, d0, d1, d2 );
-}
-#endif
-
-#ifndef trice16_4i
-//! trice16_4i does trace id and 16-bit values protected (outside critical section).
-//! \param id trice identifier
-//! \param pFmt formatstring for trice
-//! \param d0 payload
-//! \param d1 payload
-//! \param d2 payload
-//! \param d3 payload
-void trice16_4i( uint32_t id, char* pFmt, int16_t d0, int16_t d1, int16_t d2, int16_t d3 ){
-    TRICE16_4i( id, pFmt, d0, d1, d2, d3 );
-}
-#endif
-
-#ifndef trice16_4
-//! trice16_4 does trace id and 16-bit values protected (outside critical section).
-//! \param id trice identifier
-//! \param pFmt formatstring for trice
-//! \param d0 payload
-//! \param d1 payload
-//! \param d2 payload
-//! \param d3 payload
-void trice16_4( uint32_t id, char* pFmt, int16_t d0, int16_t d1, int16_t d2, int16_t d3 ){
-    TRICE16_4( id, pFmt, d0, d1, d2, d3 );
-}
-#endif
-
-#ifndef trice32_1i
-//! trice32_1i does trace id and 32-bit values protected (outside critical section).
-//! \param id trice identifier
-//! \param pFmt formatstring for trice
-//! \param d0 payload
-void trice32_1i( uint32_t id, char* pFmt, int32_t d0 ){
-    TRICE32_1i( id, pFmt, d0 );
-}
-#endif
-
-#ifndef trice32_1
-//! trice32_1 does trace id and 32-bit values protected (outside critical section).
-//! \param id trice identifier
-//! \param pFmt formatstring for trice
-//! \param d0 payload
-void trice32_1( uint32_t id, char* pFmt, int32_t d0 ){
-    TRICE32_1( id, pFmt, d0 );
-}
-#endif
-
-#ifndef trice32_2i
-//! trice32_2i does trace id and 32-bit values protected (outside critical section).
-//! \param id trice identifier
-//! \param pFmt formatstring for trice
-//! \param d0 payload
-//! \param d1 payload
-void trice32_2i( uint32_t id, char* pFmt, int32_t d0, int32_t d1 ){
-    TRICE32_2i( id, pFmt, d0, d1 );
-}
-#endif
-
-#ifndef trice32_2
-//! trice32_2 does trace id and 32-bit values protected (outside critical section).
-//! \param id trice identifier
-//! \param pFmt formatstring for trice
-//! \param d0 payload
-//! \param d1 payload
-void trice32_2( uint32_t id, char* pFmt, int32_t d0, int32_t d1 ){
-    TRICE32_2( id, pFmt, d0, d1 );
-}
-#endif
-
-#ifndef trice32_3i
-//! trice32_3i does trace id and 32-bit values protected (outside critical section).
-//! \param id trice identifier
-//! \param pFmt formatstring for trice
-//! \param d0 payload
-//! \param d1 payload
-//! \param d2 payload
-void trice32_3i( uint32_t id, char* pFmt, int32_t d0, int32_t d1, int32_t d2 ){
-    TRICE32_3i( id, pFmt, d0, d1, d2 );
-}
-#endif
-
-#ifndef trice32_3
-//! trice32_3 does trace id and 32-bit values protected (outside critical section).
-//! \param id trice identifier
-//! \param pFmt formatstring for trice
-//! \param d0 payload
-//! \param d1 payload
-//! \param d2 payload
-void trice32_3( uint32_t id, char* pFmt, int32_t d0, int32_t d1, int32_t d2 ){
-    TRICE32_3( id, pFmt, d0, d1, d2 );
-}
-#endif
-
-#ifndef trice32_4i
-//! trice32_4i does trace id and 32-bit values protected (outside critical section).
-//! \param id trice identifier
-//! \param pFmt formatstring for trice
-//! \param d0 payload
-//! \param d1 payload
-//! \param d2 payload
-//! \param d3 payload
-void trice32_4i( uint32_t id, char* pFmt, int32_t d0, int32_t d1, int32_t d2, int32_t d3 ){
-    TRICE32_4i( id, pFmt, d0, d1, d2, d3 );
-}
-#endif
-
-#ifndef trice32_4
-//! trice32_4 does trace id and 32-bit values protected (outside critical section).
-//! \param id trice identifier
-//! \param pFmt formatstring for trice
-//! \param d0 payload
-//! \param d1 payload
-//! \param d2 payload
-//! \param d3 payload
-void trice32_4( uint32_t id, char* pFmt, int32_t d0, int32_t d1, int32_t d2, int32_t d3 ){
-    TRICE32_4( id, pFmt, d0, d1, d2, d3 );
-}
-#endif
-
-#ifndef trice64_1i
-//! trice64_1i does trace id and 64-bit values unprotected (inside critical section).
-//! \param id trice identifier
-//! \param pFmt formatstring for trice
-//! \param d0 payload
-void trice64_1i( uint32_t id, char* pFmt, int64_t d0 ){
-    TRICE64_1i( id, pFmt, d0 );
-}
-#endif
-
-#ifndef trice64_1
-//! trice64_1 does trace id and 64-bit values protected (outside critical section).
-//! \param id trice identifier
-//! \param pFmt formatstring for trice
-//! \param d0 payload
-void trice64_1( uint32_t id, char* pFmt, int64_t d0 ){
-    TRICE64_1( id, pFmt, d0 );
-}
-#endif
-
-#ifndef trice64_2i
-//! trice64_2i does trace id and 64-bit values unprotected (inside critical section).
-//! \param id trice identifier
-//! \param pFmt formatstring for trice
-//! \param d0 payload
-//! \param d1 payload
-void trice64_2i( uint32_t id, char* pFmt, int64_t d0, int64_t d1 ){
-    TRICE64_2i( id, pFmt, d0, d1 );
-}
-#endif
-
-#ifndef trice64_2
-//! trice64_2 does trace id and 64-bit values protected (outside critical section).
-//! \param id trice identifier
-//! \param pFmt formatstring for trice
-//! \param d0 payload
-//! \param d1 payload
-void trice64_2( uint32_t id, char* pFmt, int64_t d0, int64_t d1 ){
-    TRICE64_2( id, pFmt, d0, d1 );
-}
-#endif
-*/
 #ifdef ENCRYPT
 //! golang XTEA works with 64 rounds
 static const unsigned int numRounds = 64;
@@ -817,6 +281,11 @@ void triceServeFifoEncryptedToBytesBuffer(void) {
 
 
 #endif // #ifdef ENCRYPT
+
+
+
+
+
 
 
 //  //! triceCOBSREncode does the same as the cobsr_encode function but a bit faster.

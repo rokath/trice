@@ -148,15 +148,18 @@ void triceCheckSet(int index) {
             TRICE16_1(Id(13390), "INFO:informal   message, SysTick is %6u\n", SYSTICKVAL16);
         break;
         case 5:
-            TRICE16_1(Id(10813), "time:TRICE16_1   message, SysTick is %6u\n", SYSTICKVAL16);
-            TRICE16_1(Id(10813), "time:TRICE16_1   message, SysTick is %6u\n", SYSTICKVAL16);
-            TRICE16_1(Id(10813), "time:TRICE16_1   message, SysTick is %6u\n", SYSTICKVAL16);
-            TRICE16_1(Id(10813), "time:TRICE16_1   message, SysTick is %6u\n", SYSTICKVAL16);
-            TRICE32_1(Id(28071), "time:TRICE32_1   message, SysTick is %6d\n", SYSTICKVAL16);
-            TRICE32_1(Id(28071), "time:TRICE32_1   message, SysTick is %6d\n", SYSTICKVAL16);
-            TRICE32_1(Id(28071), "time:TRICE32_1   message, SysTick is %6d\n", SYSTICKVAL16);
-            TRICE32_1(Id(28071), "time:TRICE32_1   message, SysTick is %6d\n", SYSTICKVAL16);
-            break;
+            TRICE32_1(Id( 44776), "time:TRICE32_1   message, SysTick is %6u\n", SYSTICKVAL32);
+            TRICE32_1(Id( 44776), "time:TRICE32_1   message, SysTick is %6u\n", SYSTICKVAL32);
+            TRICE32_1(Id( 44776), "time:TRICE32_1   message, SysTick is %6u\n", SYSTICKVAL32);
+            TRICE32_1(Id( 44776), "time:TRICE32_1   message, SysTick is %6u\n", SYSTICKVAL32);
+            TRICE32_1(Id( 44776), "time:TRICE32_1   message, SysTick is %6u\n", SYSTICKVAL32);
+            TRICE32_1(Id( 44776), "time:TRICE32_1   message, SysTick is %6u\n", SYSTICKVAL32);
+            TRICE32_1(Id( 44776), "time:TRICE32_1   message, SysTick is %6u\n", SYSTICKVAL32);
+            TRICE32_1(Id( 44776), "time:TRICE32_1   message, SysTick is %6u\n", SYSTICKVAL32);
+            TRICE32_1(Id( 44776), "time:TRICE32_1   message, SysTick is %6u\n", SYSTICKVAL32);
+            TRICE32_1(Id( 44776), "time:TRICE32_1   message, SysTick is %6u\n", SYSTICKVAL32);
+            TRICE32_1(Id( 44776), "time:TRICE32_1   message, SysTick is %6u\n", SYSTICKVAL32);
+        break;
         case 6:
             TRICE8_4( Id(65492), "tst:TRICE8_4  %%03x ->  %03x  %03x  %03x  %03x\n", 1, 0x7f, 0x80, 0xff);
             TRICE8_4( Id(65331), "tst:TRICE8_4   %%4d -> %4d %4d %4d %4d\n", 1, 0x7f, 0x80, 0xff);
@@ -272,10 +275,10 @@ void triceCheckSet(int index) {
             triceRuntimeStrings(30, 35 );
         break;
         case 16: 
-            triceRuntimeStrings(126, 132);
+            //triceRuntimeStrings(126, 132);
         break;
         case 17: 
-            triceRuntimeStrings(250, 252); // Count byte is fb=251
+            //triceRuntimeStrings(250, 252); // Count byte is fb=251
         break;
         case 18: 
             //triceRuntimeStrings(252, 253); // 252 not possible
