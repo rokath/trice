@@ -16,3 +16,5 @@
 #_tryout/*
 internal/decoder/debug.test
 .netrc
+
+test/PSoC-Creator-4.2-Workspace/PSoC-Creator-4.2-Workspace.cywrk.ms
