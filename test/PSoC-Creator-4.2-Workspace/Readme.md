@@ -1,4 +1,4 @@
-# Steps
+# Steps (as guide to follow)
 
 - Download [CY8CKIT-149 PSoC 4100S Plus Prototyping Kit.iso](https://www.cypress.com/documentation/development-kitsboards/cy8ckit-149-psoc-4100s-plus-prototyping-kit)
 - Install & Open `PSoC Creator`
@@ -27,14 +27,13 @@ Sending uint16 counter as two byte hex: 0110
 Sending array: DataArray[13]
 ...
 ```
+- Copy template `_triceConfig.h` to file "C:\repos\trice\test\PSoC-Creator-4.2-Workspace\Software_Transmit_UART.cydsn\triceConfig.h"
 - Right click Source Files and add existing files
   - trice.c
   - ~~triceCheck.c~~
 - Right click Header Files and add existing files
   - trice.h
   - triceConfig.h
- 
-- Copy template `_triceConfig.h` to file "C:\repos\trice\test\PSoC-Creator-4.2-Workspace\Software_Transmit_UART.cydsn\triceConfig.h"
 - Add `trice.h` to compiler include path: Project -> Context -> Build Settings -> Compiler -> General -> Additional Include Directories: `..\..\..\pkg\src`
 - Add `triceConfig.h` to compiler include path: Project -> Context -> Build Settings -> Compiler -> General -> Additional Include Directories: `.` (C:\repos\trice\test\PSoC-Creator-4.2-Workspace\Software_Transmit_UART.cydsn)
 - Add `#include "trice.h"` to `main.c`

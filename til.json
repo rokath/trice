@@ -447,6 +447,10 @@
 		"Type": "trice0",
 		"Strg": "s:     \\ns:                                          \\ns:     "
 	},
+	"37952": {
+		"Type": "TRICE16",
+		"Strg": "d:Sending uint16 counter as two byte hex: %x\\n"
+	},
 	"37961": {
 		"Type": "TRICE16",
 		"Strg": "sig:%02x\\n"
@@ -707,6 +711,10 @@
 		"Type": "trice0",
 		"Strg": "m:123\\n"
 	},
+	"43676": {
+		"Type": "TRICE_S",
+		"Strg": "msg:Sending array: %s\\n"
+	},
 	"43733": {
 		"Type": "trice16_1",
 		"Strg": "ISR:interrupt   message, SysTick is %6u\\n"
@@ -835,6 +843,10 @@
 		"Type": "TRICE8_4",
 		"Strg": "inf:Version %02d.%02d.%02d-rc%02d"
 	},
+	"45991": {
+		"Type": "TRICE8",
+		"Strg": "wr:Sending 254 as single byte hex: %02x\\n"
+	},
 	"46377": {
 		"Type": "TRICE0",
 		"Strg": "s:     \\ns:                                          \\n"
@@ -939,6 +951,10 @@
 		"Type": "trice8_8",
 		"Strg": "msg:  trice8_8  -\u003e normal trice function (with cycle counter) for everywhere                   %x %X %u %d %x %X %u %d\\n"
 	},
+	"48455": {
+		"Type": "TRICE8",
+		"Strg": "wrn:Sending 254 as single byte hex: %02x\\n"
+	},
 	"48736": {
 		"Type": "trice8",
 		"Strg": "msg:%02x %02x %02x %02x -\u003e %02x %02x %02x %02x "
@@ -978,6 +994,10 @@
 	"49818": {
 		"Type": "trice0",
 		"Strg": "msg:\\n"
+	},
+	"49959": {
+		"Type": "TRICE0",
+		"Strg": "\\natt:Software Transmit UART Component demo\\n"
 	},
 	"50017": {
 		"Type": "trice32_1",
@@ -1630,6 +1650,10 @@
 	"63167": {
 		"Type": "trice8_3i",
 		"Strg": "msg:  trice8_3i -\u003e normal trice function (with cycle counter) for only inside critical section %x %X %u\\n"
+	},
+	"63294": {
+		"Type": "TRICE32",
+		"Strg": "tim:SysTick=%d\\n"
 	},
 	"63361": {
 		"Type": "TRICE64_1",

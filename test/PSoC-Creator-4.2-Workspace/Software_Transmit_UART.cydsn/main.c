@@ -52,22 +52,6 @@
 #define SEND_INTERVAL       (2000u)
 
 
-
-//! triceServeTransmit as triceServeU8FifoTransmit must be called cyclically to proceed ongoing write out.
-//! A good place is UART ISR.
-TRICE_INLINE void triceServeTransmit(void) {
-    if (triceU8FifoDepth()) { // more bytes
-        SW_Tx_UART_PutChar(triceU8Pop());
-    }
-}
-
-void ActiveDelay(uint32 ms)
-{
-    for( unsigned long int i = 0; i < ms; i++ ){
-        triceServeTransmit();
-    }
-}
-
 /******************************************************************************
 * Function Name: main
 *******************************************************************************
@@ -81,17 +65,19 @@ void ActiveDelay(uint32 ms)
 int main()
 {
     uint16 cnt = 0;
-    char *dataArray = "D      a      t      a      A      r      r      a      y      [      1      3      ]";
+    char *dataArray = "DataArray[13]";
     /* The array with characters to send */
     
     /* Start the SW_Tx_UART Component */
     SW_Tx_UART_Start();
+    CyDelay(SEND_INTERVAL);
     TRICE_HEADLINE
+    CyDelay(SEND_INTERVAL);
     for(;;)
     {
         /* Transmit different data types through the UART */   
         TRICE0( Id( 49959),"\natt:Software Transmit UART Component demo\n");
-        TRICE8( Id( 34275),"ERROR:Sending 254 as single byte hex: %02x\n", 254);
+        TRICE8( Id( 48455),"wrn:Sending 254 as single byte hex: %02x\n", 254);
         TRICE16( Id( 37952),"d:Sending uint16 counter as two byte hex: %x\n", cnt);
         TRICE_S( Id( 43676),"msg:Sending array: %s\n", dataArray);
         TRICE32( Id( 63294), "tim:SysTick=%d\n", SYSTICKVAL32 );
