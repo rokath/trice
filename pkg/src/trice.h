@@ -158,7 +158,9 @@ extern unsigned triceU8FifoReadIndex;
 extern uint16_t TriceDepthMax;
 void triceCheckSet( int index ); //!< tests
 void TriceReadAndTranslate( void );
-TRICE_INLINE uint8_t triceU8Pop(void); // for TRICE_MODE > 100
+#if TRICE_MODE > 100
+TRICE_INLINE uint8_t triceU8Pop(void);
+#endif
 #define TRICE_LITTLE_ENDIANNESS 0x00112233 //!< TRICE_LITTLE_ENDIANNESS is the default for TRICE_HARDWARE_ENDIANNESS and TRICE_TRANSFER_ENDIANNESS.
 #define TRICE_BIG_ENDIANNESS    0x33221100 //!< TRICE_BIG_ENDIANNESS is the option for TRICE_HARDWARE_ENDIANNESS and TRICE_TRANSFER_ENDIANNESS.
 
@@ -166,8 +168,8 @@ TRICE_INLINE uint8_t triceU8Pop(void); // for TRICE_MODE > 100
 ///////////////////////////////////////////////////////////////////////////////
 
 
-//! Direct output to UART with cycle counter. Trices inside interrupts allowed.
-//! trice log -p COM1 -baud 115200
+//! Direct output to UART with cycle counter. Trices inside interrupts allowed. Direct TRICE macro execution.
+//! Command line similar to: "trice log -p COM1 -baud 115200"
 #if TRICE_MODE == 1
 #define TRICE_HEADLINE \
     TRICE0( Id( 46700), "s:                                          \ns:     " ); \
@@ -183,44 +185,13 @@ TRICE_INLINE uint8_t triceU8Pop(void); // for TRICE_MODE > 100
 #define TRICE_LEAVE { \
     unsigned clen = triceToCOBS( co, tr ); \
     TriceDepthMax = clen < TriceDepthMax ? TriceDepthMax : clen; /* diagnostics */ \
-    for( int i = 0; i < clen; i++ ){ TRICE_PUTCHAR( co[i] ); } \
+    for( unsigned i = 0; i < clen; i++ ){ TRICE_PUTCHAR( co[i] ); } \
     } } TRICE_LEAVE_CRITICAL_SECTION
 #endif
 
-//! Direct output to UART without cycle counter. No trices inside interrupts allowed.
-//! trice log -p COM1 -baud 115200 -cc=false
-#if TRICE_MODE == 2
-#define TRICE_HEADLINE \
-    TRICE0( Id( 46700), "s:                                          \ns:     " ); \
-    TRICE0( Id( 34070), "att:  Direct to UART, -cycle, -int  " ); \
-    TRICE0( Id( 46377), "s:     \ns:                                          \n");
-#define TRICE_CYCLE_COUNTER 0 //! no cycle counter
-#define TRICE_BUFFER_SIZE 40 //!< This is stack space and be capable to hold the longest used TRICE.
-#define TRICE_ENTER { uint8_t tr[TRICE_BUFFER_SIZE]; uint32_t* wTb = (uint32_t*)tr;
-#define PUT(x) do{ *wTb++ = x; }while(0)
-#define PUT_BUFFER( dynString, len ) do{ memcpy( wTb, dynString, len ); wTb += (len+3)>>2; }while(0)
-#define TRICE_LEAVE { uint8_t co[TRICE_BUFFER_SIZE]; unsigned clen = triceToCOBS( co, tr ); for( int i = 0; i < clen; i++ ){ TRICE_PUTCHAR( co[i] ); } } }
-#endif
-
-//! Triple Buffering output to UART without cycle counter. No trices inside interrupts allowed.
-//! trice log -p COM1 -baud 115200 -cc=false
+//! Triple Buffering output to UART with cycle counter. Trices inside interrupts allowed. Fast TRICE macro execution. 
+//! Command line similar to: "trice log -p COM1 -baud 115200"
 #if TRICE_MODE == 101
-#define TRICE_HEADLINE \
-    TRICE0( Id( 46700), "s:                                          \ns:     " ); \
-    TRICE0( Id( 54439), "att: Triple buff UART, ~cycle, ~int " ); \
-    TRICE0( Id( 46377), "s:     \ns:                                          \n");
-#define TRICE_CYCLE_COUNTER 0 //! add cycle counter
-#define TRICE_ENTER 
-#define TRICE_LEAVE
-#define PUT(x) do{ *wTb++ = x; }while(0)
-#define PUT_BUFFER( dynString, len ) do{ memcpy( wTb, dynString, len ); wTb += (len+3)>>2; }while(0)
-#define TRICE_READ_AND_TRANSLATE_INTERVAL_MS 10
-#define TRICE_BUFFER_SIZE 2500 //!< This is the size of both buffers together
-#define TRICE_FIFO_BYTE_SIZE 1024 //!< must be a power of 2, 32 could be ok in dependence of the maximum param count
-#endif
-
-//! Triple Buffering output to UART with cycle counter. Trices inside interrupts allowed.
-#if TRICE_MODE == 102
 #define TRICE_HEADLINE \
     TRICE0( Id( 46700), "s:                                          \ns:     " ); \
     TRICE0( Id( 55474), "att: Triple buff UART, +cycle, +int " ); \
@@ -232,6 +203,23 @@ TRICE_INLINE uint8_t triceU8Pop(void); // for TRICE_MODE > 100
 #define PUT_BUFFER( buf, len ) do{ \
     memcpy( wTb, buf, len ); \
     wTb += (len+3)>>2; }while(0) // step wTb forward according to len
+#define TRICE_READ_AND_TRANSLATE_INTERVAL_MS 10
+#define TRICE_BUFFER_SIZE 2500 //!< This is the size of both buffers together
+#define TRICE_FIFO_BYTE_SIZE 1024 //!< must be a power of 2, 32 could be ok in dependence of the maximum param count
+#endif
+
+//! Triple Buffering output to UART without cycle counter. No trices inside interrupts allowed. Super fast TRICE macro execution. 
+//! Command line similar to: "trice log -p COM1 -baud 115200  -cc=false"
+#if TRICE_MODE == 102
+#define TRICE_HEADLINE \
+    TRICE0( Id( 46700), "s:                                          \ns:     " ); \
+    TRICE0( Id( 54439), "att: Triple buff UART, ~cycle, ~int " ); \
+    TRICE0( Id( 46377), "s:     \ns:                                          \n");
+#define TRICE_CYCLE_COUNTER 0 //! add cycle counter
+#define TRICE_ENTER 
+#define TRICE_LEAVE
+#define PUT(x) do{ *wTb++ = x; }while(0)
+#define PUT_BUFFER( dynString, len ) do{ memcpy( wTb, dynString, len ); wTb += (len+3)>>2; }while(0)
 #define TRICE_READ_AND_TRANSLATE_INTERVAL_MS 10
 #define TRICE_BUFFER_SIZE 2500 //!< This is the size of both buffers together
 #define TRICE_FIFO_BYTE_SIZE 1024 //!< must be a power of 2, 32 could be ok in dependence of the maximum param count
