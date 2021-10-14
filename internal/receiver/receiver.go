@@ -124,16 +124,20 @@ func NewBytesViewer(from io.ReadCloser) (in io.ReadCloser) {
 func (p *bytesViewer) Read(buf []byte) (count int, err error) {
 	count, err = p.r.Read(buf)
 	if 0 < count || (nil != err && io.EOF != err) {
-		fmt.Print("Input( ")
-		for _, x := range buf[:count] {
-			fmt.Printf("%02x ", x)
+		fmt.Print("(")
+		for i, x := range buf[:count] {
+			if i < count-1 {
+				fmt.Printf("%02x ", x)
+			} else {
+				fmt.Printf("%02x", x)
+			}
 		}
-		fmt.Println(")")
+		fmt.Print(")")
 	}
 	return
 }
 
-// Close is needed to satify the ReadCloser interface.
+// Close is needed to satisfy the ReadCloser interface.
 func (p *bytesViewer) Close() error { return nil }
 
 //                                                                                               //
