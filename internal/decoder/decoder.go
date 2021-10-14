@@ -183,8 +183,8 @@ func decodeAndComposeLoop(sw *emitter.TriceLineComposer, dec Decoder) error {
 			if Verbose {
 				fmt.Println(err, "-> WAITING...")
 			}
-			//time.Sleep(100 * time.Millisecond) // limit try again speed
-			continue // read again
+			time.Sleep(10 * time.Millisecond) // limit try again speed
+			continue                          // read again
 		}
 
 		// b contains here no or several complete trice strings.
