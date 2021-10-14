@@ -6,7 +6,7 @@
 #include "trice.h"
 
 uint16_t TriceDepthMax = 0; //!< TriceDepthMax is a diagnostics value.
-uint8_t triceCycle = 0xc0; //!< trice cycle counter
+uint8_t  TriceCycle = 0xc0; //!< trice cycle counter
 
 
 
