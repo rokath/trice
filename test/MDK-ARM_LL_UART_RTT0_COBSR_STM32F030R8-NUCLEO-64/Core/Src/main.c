@@ -96,6 +96,8 @@ int main(void)
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
     LL_USART_EnableIT_RXNE(TRICE_UART); // enable UART2 interrupt
+    //SEGGER_RTT_Init();
+    //SEGGER_RTT_SetTerminal(0);
     TRICE_HEADLINE;
     //TRICE16_1( Id( 44374), "tst:Hi! %x\n", 0x1122 );
     srand(SYSTICKVAL16);

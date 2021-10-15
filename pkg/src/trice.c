@@ -74,13 +74,20 @@ unsigned triceToCOBS( uint8_t* co, uint8_t * tr ){
     #error "todo: TRICE_HARDWARE_ENDIANNESS == TRICE_BIG_ENDIANNESS"
 #endif // #else // #if TRICE_HARDWARE_ENDIANNESS == TRICE_LITTLE_ENDIANNESS
 
-#if TRICE_MODE > 100
+
+
+
+
+
+
+#if TRICE_MODE > 2
 
 static uint32_t triceBuffer[2][(TRICE_BUFFER_SIZE+3)>>3] = {0}; //!< triceBuffer is double buffer for better write speed.
 #define TRICE_ACTIVE 0 //!< TRICE_ACTIVE is the init value for swap.
 static int swap = TRICE_ACTIVE; //!< swap is the active write buffer. !swap is the active read buffer.
 uint32_t* wTb = &triceBuffer[TRICE_ACTIVE][0]; //!< wTb is the active write position.
 static uint32_t* rTb = &triceBuffer[!TRICE_ACTIVE][0]; //!< rTb is the active read position.
+
 
 #ifndef NULL
 #define NULL (void*)0
@@ -111,13 +118,33 @@ static uint8_t* triceRead( void ){
     rTb += (p[1]+7)>>2; // step to next entry (little endian)
     return p;
 }
+#endif
 
+#if defined(RTT_WRITE) && defined(TRICE_MAX_SIZE)
+void TriceReadAndRTTWrite( void ){
+    uint8_t co[TRICE_MAX_SIZE];
+    uint8_t* t;
+    uint16_t clen; // uint8_t clen, tlen;
+    //if( triceU8FifoDepth() ){
+    //    return; // transmission not done yet
+    //}
+    t = triceRead();
+    if( NULL == t ){
+        return; // no trice data to transmit
+    }
+    #ifdef ENCRYPT
+    triceServeFifoEncryptedToBytesBuffer(); // To do: rework obsolete code
+    #endif
+    clen = triceToCOBS( co, t );
+    RTT_WRITE( co, clen ); 
+}
+#endif
 
 
 //#define TRICE_PAYLOAD_MAX 128 //!< up to 1020 possible (255*4)
 //static uint8_t out[TRICE_PAYLOAD_MAX];
 
-
+#ifdef TRICE_FIFO_BYTE_SIZE
 
 void TriceReadAndTranslate( void ){
     uint8_t* t;
@@ -139,24 +166,7 @@ void TriceReadAndTranslate( void ){
     TRICE_LEAVE_CRITICAL_SECTION
 }
 
-#ifdef RTT_WRITE
-void TriceReadAndRTTWrite( void ){
-    uint8_t* t;
-    uint16_t clen; // uint8_t clen, tlen;
-    //if( triceU8FifoDepth() ){
-    //    return; // transmission not done yet
-    //}
-    t = triceRead();
-    if( NULL == t ){
-        return; // no trice data to transmit
-    }
-    #ifdef ENCRYPT
-    triceServeFifoEncryptedToBytesBuffer(); // To do: rework obsolete code
-    #endif
-    clen = triceToCOBS( triceU8Fifo, t );
-    RTT_WRITE( triceU8Fifo, clen ); 
-}
-#endif
+
 
 
 //! trice fifo instance, here are the trices buffered.
@@ -203,13 +213,7 @@ int triceU8FifoDepth(void) {
 //      return depth;
 //  }
 
-#endif // #if TRICE_MODE > 100
-
-
-
-
-
-
+#endif // #ifdef TRICE_FIFO_BYTE_SIZE
 
 
 #ifdef ENCRYPT
