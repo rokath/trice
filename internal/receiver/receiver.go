@@ -124,7 +124,7 @@ func NewBytesViewer(from io.ReadCloser) (in io.ReadCloser) {
 func (p *bytesViewer) Read(buf []byte) (count int, err error) {
 	count, err = p.r.Read(buf)
 	if 0 < count || (nil != err && io.EOF != err) {
-		fmt.Print("(")
+		fmt.Print("Input(")
 		for i, x := range buf[:count] {
 			if i < count-1 {
 				fmt.Printf("%02x ", x)
@@ -132,7 +132,7 @@ func (p *bytesViewer) Read(buf []byte) (count int, err error) {
 				fmt.Printf("%02x", x)
 			}
 		}
-		fmt.Print(")")
+		fmt.Println(")")
 	}
 	return
 }
