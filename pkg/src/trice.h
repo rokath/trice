@@ -158,6 +158,7 @@ extern unsigned triceU8FifoReadIndex;
 extern uint16_t TriceDepthMax;
 void triceCheckSet( int index ); //!< tests
 void TriceReadAndTranslate( void );
+void TriceReadAndRTTWrite( void );
 #if TRICE_MODE > 100
 TRICE_INLINE uint8_t triceU8Pop(void);
 #endif
@@ -176,7 +177,7 @@ TRICE_INLINE uint8_t triceU8Pop(void);
     TRICE0( Id( 64478), "att:  Direct to UART, +cycle, +int  " ); \
     TRICE0( Id( 46377), "s:     \ns:                                          \n");
 #define TRICE_CYCLE_COUNTER 1 //! Use cycle counter.
-#define TRICE_BUFFER_SIZE 40 //!< This is stack space and be capable to hold the longest used TRICE.
+#define TRICE_BUFFER_SIZE 80 //!< This is stack space and must be capable to hold the longest used TRICE.
 #define TRICE_ENTER TRICE_ENTER_CRITICAL_SECTION { \
     uint8_t co[TRICE_BUFFER_SIZE]; uint8_t* tr = co + 4; /* use same buffer twice */ \
     uint32_t* wTb = (uint32_t*)tr;
@@ -195,13 +196,14 @@ TRICE_INLINE uint8_t triceU8Pop(void);
 //! J-LINK Command line similar to: `trice log -args="-Device STM32G071RB -if SWD -Speed 4000 -RTTChannel 0 -RTTSearchRanges 0x20000000_0x1000"`
 //! ST-LINK Command line similar to: `trice log -p ST-LINK -args="-Device STM32G071RB -if SWD -Speed 4000 -RTTChannel 0 -RTTSearchRanges 0x20000000_0x1000"`
 #if TRICE_MODE == 2
-#include "SEGGER_RTT.h" // optional
+#include "SEGGER_RTT.h"
+#define RTT_WRITE( buf, len ) do{ SEGGER_RTT_Write(0 /*BufferIndex*/, buf, len ); }while(0)
 #define TRICE_HEADLINE \
     TRICE0( Id( 46700), "s:                                          \ns:     " ); \
     TRICE0( Id( 43538), "att:  Direct to RTT, +cycle, +int   " ); \
     TRICE0( Id( 46377), "s:     \ns:                                          \n");
 #define TRICE_CYCLE_COUNTER 1 //! Use cycle counter.
-#define TRICE_BUFFER_SIZE 40 //!< This is stack space and be capable to hold the longest used TRICE.
+#define TRICE_BUFFER_SIZE 80 //!< This is stack space and be capable to hold the longest used TRICE.
 #define TRICE_ENTER TRICE_ENTER_CRITICAL_SECTION { \
     uint8_t co[TRICE_BUFFER_SIZE]; uint8_t* tr = co + 4; /* use same buffer twice */ \
     uint32_t* wTb = (uint32_t*)tr;
@@ -231,11 +233,36 @@ TRICE_INLINE uint8_t triceU8Pop(void);
 #define TRICE_READ_AND_TRANSLATE_INTERVAL_MS 10
 #define TRICE_BUFFER_SIZE 2500 //!< This is the size of both buffers together
 #define TRICE_FIFO_BYTE_SIZE 1024 //!< must be a power of 2, 32 could be ok in dependence of the maximum param count
+#define TRICE_READ_AND_TRANSFER TriceReadAndTranslate
 #endif
+
+//! Triple Buffering output to UART with cycle counter. Trices inside interrupts allowed. Fast TRICE macro execution. 
+//! Command line similar to: "trice log -p COM1 -baud 115200"
+#if TRICE_MODE == 102
+#include "SEGGER_RTT.h"
+#define RTT_WRITE( buf, len ) do{ SEGGER_RTT_Write(0 /*BufferIndex*/, buf, len ); }while(0)
+#define TRICE_HEADLINE \
+    TRICE0( Id( 46700), "s:                                          \ns:     " ); \
+    TRICE0( Id( 64204), "att: Triple buff RTT, +cycle, +int  " ); \
+    TRICE0( Id( 46377), "s:     \ns:                                          \n");
+#define TRICE_CYCLE_COUNTER 1 //! add cycle counter
+#define TRICE_ENTER TRICE_ENTER_CRITICAL_SECTION
+#define TRICE_LEAVE TRICE_LEAVE_CRITICAL_SECTION
+#define PUT(x) do{ *wTb++ = x; }while(0)
+#define PUT_BUFFER( buf, len ) do{ \
+    memcpy( wTb, buf, len ); \
+    wTb += (len+3)>>2; }while(0) // step wTb forward according to len
+#define TRICE_READ_AND_TRANSLATE_INTERVAL_MS 10
+#define TRICE_BUFFER_SIZE 2500 //!< This is the size of both buffers together
+#define TRICE_FIFO_BYTE_SIZE 1024 //!< must be a power of 2, 32 could be ok in dependence of the maximum param count
+#define TRICE_READ_AND_TRANSFER TriceReadAndRTTWrite
+#endif
+
+
 
 //! Triple Buffering output to UART without cycle counter. No trices inside interrupts allowed. Super fast TRICE macro execution. 
 //! Command line similar to: "trice log -p COM1 -baud 115200  -cc=false"
-#if TRICE_MODE == 102
+#if TRICE_MODE == 103
 #define TRICE_HEADLINE \
     TRICE0( Id( 46700), "s:                                          \ns:     " ); \
     TRICE0( Id( 54439), "att: Triple buff UART, ~cycle, ~int " ); \
@@ -248,6 +275,7 @@ TRICE_INLINE uint8_t triceU8Pop(void);
 #define TRICE_READ_AND_TRANSLATE_INTERVAL_MS 10
 #define TRICE_BUFFER_SIZE 2500 //!< This is the size of both buffers together
 #define TRICE_FIFO_BYTE_SIZE 1024 //!< must be a power of 2, 32 could be ok in dependence of the maximum param count
+#define TRICE_READ_AND_TRANSFER TriceReadAndTranslate
 #endif
 //
 ///////////////////////////////////////////////////////////////////////////////

@@ -279,6 +279,13 @@ void triceCheckSet(int index) {
         break;
         case 17: 
             //triceRuntimeStrings(250, 252); // Count byte is fb=251
+            {
+            static uint16_t cnt = 0;
+            char *dataArray = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"; // The array with characters to send
+            TRICE16( Id( 37952),"d:Sending uint16 counter as two byte hex: %x\n", cnt);
+            TRICE_S( Id( 43676),"msg:Sending array: %s\n", dataArray);
+            cnt++; 
+        }
         break;
         case 18: 
             //triceRuntimeStrings(252, 253); // 252 not possible

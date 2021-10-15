@@ -283,6 +283,10 @@
 		"Type": "TRICE16_1",
 		"Strg": "tst:Hi! %x\\n"
 	},
+	"34602": {
+		"Type": "TRICE0",
+		"Strg": "att: Triple buff RTT, +cycle, +int  "
+	},
 	"34692": {
 		"Type": "trice8",
 		"Strg": "rd:trice8 %d\\n"
@@ -1698,6 +1702,10 @@
 	"64054": {
 		"Type": "trice8",
 		"Strg": "rd:%d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"64204": {
+		"Type": "TRICE0",
+		"Strg": "att: Triple buff RTT, +cycle, +int  "
 	},
 	"64238": {
 		"Type": "trice8",

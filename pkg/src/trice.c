@@ -139,6 +139,26 @@ void TriceReadAndTranslate( void ){
     TRICE_LEAVE_CRITICAL_SECTION
 }
 
+#ifdef RTT_WRITE
+void TriceReadAndRTTWrite( void ){
+    uint8_t* t;
+    uint16_t clen; // uint8_t clen, tlen;
+    //if( triceU8FifoDepth() ){
+    //    return; // transmission not done yet
+    //}
+    t = triceRead();
+    if( NULL == t ){
+        return; // no trice data to transmit
+    }
+    #ifdef ENCRYPT
+    triceServeFifoEncryptedToBytesBuffer(); // To do: rework obsolete code
+    #endif
+    clen = triceToCOBS( triceU8Fifo, t );
+    RTT_WRITE( triceU8Fifo, clen ); 
+}
+#endif
+
+
 //! trice fifo instance, here are the trices buffered.
 ALIGN4 uint32_t
 triceU32Fifo[ TRICE_FIFO_BYTE_SIZE>>2 ]

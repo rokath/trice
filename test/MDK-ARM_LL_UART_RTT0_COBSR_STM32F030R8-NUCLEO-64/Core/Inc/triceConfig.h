@@ -12,12 +12,13 @@ extern "C" {
 #include <stdint.h>
 
 #define TRICE_STM32
-#define TRICE_MODE 2
+#define TRICE_MODE 101
 
 #if TRICE_MODE < 10 // direct modes
 #define TRICE_PUTCHAR( c ) do{ while( !triceTxDataRegisterEmpty() ); triceTransmitData8( c ); }while(0)
-#define RTT_WRITE( buf, len ) do{ SEGGER_RTT_Write(0 /*BufferIndex*/, buf, len ); }while(0)
 #endif
+
+
 
 // #define TRICE_RTT_CHANNEL 0 //!< Uncomment and set channel number for SeggerRTT usage
 
