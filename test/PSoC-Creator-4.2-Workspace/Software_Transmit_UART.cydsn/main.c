@@ -63,11 +63,7 @@
 *
 ******************************************************************************/
 int main()
-{
-    uint16 cnt = 0;
-    char *dataArray = "DataArray[13]";
-    /* The array with characters to send */
-    
+{    
     /* Start the SW_Tx_UART Component */
     SW_Tx_UART_Start();
     CyDelay(SEND_INTERVAL);
@@ -75,6 +71,8 @@ int main()
     CyDelay(SEND_INTERVAL);
     for(;;)
     {
+        uint16 cnt = 0;
+        char *dataArray = "DataArray[13]"; // The array with characters to send
         /* Transmit different data types through the UART */   
         TRICE0( Id( 49959),"\natt:Software Transmit UART Component demo\n");
         TRICE8( Id( 48455),"wrn:Sending 254 as single byte hex: %02x\n", 254);

@@ -282,6 +282,18 @@ void triceCheckSet(int index) {
         break;
         case 18: 
             //triceRuntimeStrings(252, 253); // 252 not possible
+        {
+            uint16_t cnt = 0;
+            char *dataArray = "DataArray[13]"; // The array with characters to send
+            /* Transmit different data types through the UART */   
+            TRICE0( Id( 49959),"\natt:Software Transmit UART Component demo\n");
+            TRICE8( Id( 48455),"wrn:Sending 254 as single byte hex: %02x\n", 254);
+            TRICE16( Id( 37952),"d:Sending uint16 counter as two byte hex: %x\n", cnt);
+            TRICE_S( Id( 43676),"msg:Sending array: %s\n", dataArray);
+            TRICE32( Id( 63294), "tim:SysTick=%d\n", SYSTICKVAL32 );
+            TRICE32( Id( 63294), "tim:SysTick=%d\n", SYSTICKVAL32 );
+            cnt++; 
+        }
         break;
         case 19:
 #ifdef ENCRYPT
