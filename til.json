@@ -459,6 +459,10 @@
 		"Type": "trice0",
 		"Strg": "e:7"
 	},
+	"38127": {
+		"Type": "TRICE0",
+		"Strg": "att:  Direct to RTT, +cycle, +int   "
+	},
 	"38168": {
 		"Type": "TRICE32_4",
 		"Strg": "tst:TRICE32_4 %u %u %u %u\\n"
@@ -498,6 +502,10 @@
 	"38736": {
 		"Type": "TRICE64_2",
 		"Strg": "msg: TRICE64_2  -\u003e normal trice macro    (with cycle counter) for everywhere                   %x %X\\n"
+	},
+	"38761": {
+		"Type": "TRICE0",
+		"Strg": "att:  Direct to RTT, +cycle, +int   "
 	},
 	"38837": {
 		"Type": "trice16_1",
@@ -706,6 +714,10 @@
 	"43505": {
 		"Type": "TRICE0",
 		"Strg": "att:  Direct to UART, +cycle, -int  "
+	},
+	"43538": {
+		"Type": "TRICE0",
+		"Strg": "att:  Direct to RTT, +cycle, +int   "
 	},
 	"43675": {
 		"Type": "trice0",

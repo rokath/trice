@@ -283,7 +283,7 @@ void triceCheckSet(int index) {
         case 18: 
             //triceRuntimeStrings(252, 253); // 252 not possible
         {
-            uint16_t cnt = 0;
+            static uint16_t cnt = 0;
             char *dataArray = "DataArray[13]"; // The array with characters to send
             /* Transmit different data types through the UART */   
             TRICE0( Id( 49959),"\natt:Software Transmit UART Component demo\n");

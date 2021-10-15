@@ -189,6 +189,31 @@ TRICE_INLINE uint8_t triceU8Pop(void);
     } } TRICE_LEAVE_CRITICAL_SECTION
 #endif
 
+
+//! Direct output to SEGGER RTT with cycle counter. Trices inside interrupts allowed. Direct TRICE macro execution.
+//! Needs additional tools installed - see RTT documentation.
+//! J-LINK Command line similar to: `trice log -args="-Device STM32G071RB -if SWD -Speed 4000 -RTTChannel 0 -RTTSearchRanges 0x20000000_0x1000"`
+//! ST-LINK Command line similar to: `trice log -p ST-LINK -args="-Device STM32G071RB -if SWD -Speed 4000 -RTTChannel 0 -RTTSearchRanges 0x20000000_0x1000"`
+#if TRICE_MODE == 2
+#include "SEGGER_RTT.h" // optional
+#define TRICE_HEADLINE \
+    TRICE0( Id( 46700), "s:                                          \ns:     " ); \
+    TRICE0( Id( 43538), "att:  Direct to RTT, +cycle, +int   " ); \
+    TRICE0( Id( 46377), "s:     \ns:                                          \n");
+#define TRICE_CYCLE_COUNTER 1 //! Use cycle counter.
+#define TRICE_BUFFER_SIZE 40 //!< This is stack space and be capable to hold the longest used TRICE.
+#define TRICE_ENTER TRICE_ENTER_CRITICAL_SECTION { \
+    uint8_t co[TRICE_BUFFER_SIZE]; uint8_t* tr = co + 4; /* use same buffer twice */ \
+    uint32_t* wTb = (uint32_t*)tr;
+#define PUT(x) do{ *wTb++ = x; }while(0)
+#define PUT_BUFFER( buf, len ) do{ memcpy( wTb, buf, len ); wTb += (len+3)>>2; }while(0)
+#define TRICE_LEAVE { \
+    unsigned clen = triceToCOBS( co, tr ); \
+    TriceDepthMax = clen < TriceDepthMax ? TriceDepthMax : clen; /* diagnostics */ \
+    RTT_WRITE( co, clen ); \
+    } } TRICE_LEAVE_CRITICAL_SECTION
+#endif
+
 //! Triple Buffering output to UART with cycle counter. Trices inside interrupts allowed. Fast TRICE macro execution. 
 //! Command line similar to: "trice log -p COM1 -baud 115200"
 #if TRICE_MODE == 101

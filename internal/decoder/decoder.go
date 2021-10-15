@@ -184,8 +184,8 @@ func decodeAndComposeLoop(sw *emitter.TriceLineComposer, dec Decoder) error {
 				fmt.Println(err, "-> WAITING...")
 			}
 			// The following line has heavy influence on inside sticking trices.
-			//time.Sleep(10 * time.Millisecond) // limit try again speed
-			continue // read again
+			time.Sleep(1 * time.Millisecond) // limit try again speed
+			continue                         // read again
 		}
 
 		// b contains here no or several complete trice strings.
