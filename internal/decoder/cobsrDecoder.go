@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"io"
 	"log"
-	"strings"
 	"sync"
 
 	"github.com/dim13/cobs"
@@ -120,36 +119,25 @@ func (p *COBSR) Read(b []byte) (n int, err error) {
 		n = copy(b, sizeMsg)
 		return
 	}
-
-	bb := make([]byte, defaultSize)
-	// use bb as intermediate read buffer
-	m, err := p.in.Read(bb)
-	p.iBuf = append(p.iBuf, bb[:m]...) // merge with leftovers
-
-	if err != nil && err != io.EOF {
-		log.Fatal("ERROR:internal reader error", err)
-		// exit
-	}
-
-	// Even err could be io.EOF, some valid data possibly in p.iBUf.
-	// In case of file input (J-LINK usage) a plug off is not detectable here.
-
-	// Here p.iBuf contains all available bytes, what can be several trice messages.
-
+	// Here p.iBuf contains no or available bytes, what can be several trice messages.
+	// So first try to process p.iBuf
 	index := bytes.IndexByte(p.iBuf, 0) // find terminating 0
-	if index == -1 {
-		return n, io.EOF // no terminating 0, nothing to do
+	if index == -1 {                    // p.iBuf has no complete trice data, so try to read more input
+		bb := make([]byte, 1024)           // intermediate buffer
+		m, err := p.in.Read(bb)            // use bb as bytes read buffer
+		p.iBuf = append(p.iBuf, bb[:m]...) // merge with leftovers
+		if err != nil && err != io.EOF {   // some serious error
+			log.Fatal("ERROR:internal reader error", err) // exit
+		}
+		index = bytes.IndexByte(p.iBuf, 0) // find terminating 0
+		if index == -1 {                   // p.iBuf has no complete trice data, so leave
+			// Even err could be io.EOF, some valid data possibly in p.iBUf.
+			// In case of file input (J-LINK usage) a plug off is not detectable here.
+			return n, io.EOF // no terminating 0, nothing to do, n is 0 here
+		}
 	}
-
 	hints := "att:Hints:Baudrate? Overflow? Encoding? Interrupt? CycleCounter? til.json?"
 	d := cobs.Decode(p.iBuf[:index+1])
-	if len(d) < MinPackageLength {
-		p.iBuf = p.iBuf[index+1:] // step forward (drop package)
-		n += copy(b[n:], fmt.Sprintln("ERROR:package len", len(d), "is too short - ignoring package."))
-		n += copy(b[n:], fmt.Sprintln(hints))
-		return
-	}
-
 	if DebugOut { // Debug output
 		for _, x := range p.iBuf[:index+1] {
 			fmt.Printf("%02x ", x)
@@ -160,12 +148,15 @@ func (p *COBSR) Read(b []byte) (n int, err error) {
 		}
 		fmt.Println("")
 	}
-
-	p.iBuf = p.iBuf[index+1:] // step forward (data in package d)
-
+	p.iBuf = p.iBuf[index+1:] // step forward (next package data in d now)
+	if len(d) < MinPackageLength {
+		n += copy(b[n:], fmt.Sprintln("ERROR:package len", len(d), "is too short - ignoring package", d))
+		n += copy(b[n:], fmt.Sprintln(hints))
+		return
+	}
 	var triceID id.TriceID
 	if CycleCounter {
-		cycle := d[0] // little endian target
+		cycle := d[0] // little endian transfer format
 		if cycle != p.cycle {
 			n += copy(b, fmt.Sprintln("INFO:Cycle", cycle, "not equal expected value", p.cycle, "- adjusting cycle."))
 			p.cycle = cycle // adjust cycle
@@ -183,21 +174,18 @@ func (p *COBSR) Read(b []byte) (n int, err error) {
 	//  if DebugOut { // Debug output
 	//  	n += copy(b[n:], fmt.Sprintln("dbg:-> id", triceID, "byteCount", p.bc))
 	//  }
-
 	var ok bool
 	p.lutMutex.RLock()
 	p.trice, ok = p.lut[triceID]
 	p.lutMutex.RUnlock()
 	if !ok { // unknown id
-		n += copy(b[n:], fmt.Sprintln("WARNING:unknown ID ", triceID, "- ignoring package."))
+		n += copy(b[n:], fmt.Sprintln("WARNING:unknown ID ", triceID, "- ignoring package", d))
 		n += copy(b[n:], fmt.Sprintln(hints))
 		return
 	}
-
-	p.upperCaseTriceType = strings.ToUpper(p.trice.Type) // for trice* too
-
+	p.upperCaseTriceType = p.trice.Type // strings.ToUpper(p.trice.Type) // for trice* too
 	if p.expectedByteCount() != p.bc {
-		n += copy(b[n:], fmt.Sprintln("err:trice.Type ", p.trice.Type, " with not matching parameter byte count ", p.bc, "- ignoring package"))
+		n += copy(b[n:], fmt.Sprintln("err:trice.Type ", p.trice.Type, " with not matching parameter byte count ", p.bc, "- ignoring package", d))
 		n += copy(b[n:], fmt.Sprintln(hints))
 		return
 	}
