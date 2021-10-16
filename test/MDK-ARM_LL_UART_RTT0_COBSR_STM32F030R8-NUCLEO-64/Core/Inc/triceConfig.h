@@ -12,7 +12,7 @@ extern "C" {
 #include <stdint.h>
 
 #define TRICE_STM32
-#define TRICE_MODE 102
+#define TRICE_MODE 110
 
 #if TRICE_MODE < 10 // direct modes
 #define TRICE_PUTCHAR( c ) do{ while( !triceTxDataRegisterEmpty() ); triceTransmitData8( c ); }while(0)

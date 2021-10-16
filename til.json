@@ -435,6 +435,10 @@
 		"Type": "TRICE8_8i",
 		"Strg": "msg:  TRICE8_8i -\u003e normal trice macro    (with cycle counter) for only inside critical section %x %X %u %d %x %X %u %d\\n"
 	},
+	"37445": {
+		"Type": "TRICE8",
+		"Strg": "s:          TRICE_MODE %3d                  \\ns:     "
+	},
 	"37461": {
 		"Type": "TRICE16",
 		"Strg": "sig:%02x %02x %02x %02x\\n"
@@ -450,6 +454,10 @@
 	"37891": {
 		"Type": "trice0",
 		"Strg": "s:     \\ns:                                          \\ns:     "
+	},
+	"37906": {
+		"Type": "TRICE8",
+		"Strg": "s:  TRICE_MODE %3d                          \\n"
 	},
 	"37952": {
 		"Type": "TRICE16",
@@ -1007,6 +1015,10 @@
 		"Type": "TRICE8_4i",
 		"Strg": "msg:  TRICE8_4i -\u003e normal trice macro    (with cycle counter) for only inside critical section %x %X %u %d\\n"
 	},
+	"49675": {
+		"Type": "TRICE8",
+		"Strg": "s:  TRICE_MODE %3d                          \\ns:     "
+	},
 	"49818": {
 		"Type": "trice0",
 		"Strg": "msg:\\n"
@@ -1138,6 +1150,10 @@
 	"51824": {
 		"Type": "TRICE8_2",
 		"Strg": "err:pTestValue %02x != dec[0] = %02x\\n"
+	},
+	"51851": {
+		"Type": "TRICE8",
+		"Strg": "s:  TRICE_MODE %3d                          \\n"
 	},
 	"51855": {
 		"Type": "trice64",
@@ -1419,6 +1435,10 @@
 		"Type": "TRICE32",
 		"Strg": "ATT:trice16 attention message, SysTick is %6d\\n"
 	},
+	"57449": {
+		"Type": "TRICE0",
+		"Strg": "s:                                          \\n"
+	},
 	"57666": {
 		"Type": "TRICE32_1",
 		"Strg": "time:TRICE16_1   message, SysTick is %6u\\n"
@@ -1579,6 +1599,10 @@
 		"Type": "trice8i",
 		"Strg": "rd:%d, %d, %d, %d, %d, %d, %d\\n"
 	},
+	"61754": {
+		"Type": "TRICE8",
+		"Strg": "s:  TRICE_MODE %3d                          \\n"
+	},
 	"61873": {
 		"Type": "TRICE16_3",
 		"Strg": "MSG: select = %d, TriceDepthMax =%d of %d, START\\n"
@@ -1626,6 +1650,10 @@
 	"62387": {
 		"Type": "trice8_6i",
 		"Strg": "msg:  trice6_5i -\u003e normal trice function (with cycle counter) for only inside critical section %x %X %u %d %x %X\\n"
+	},
+	"62424": {
+		"Type": "TRICE8",
+		"Strg": "s:  TRICE_MODE %3d                          \\n"
 	},
 	"62466": {
 		"Type": "trice8_3",
@@ -1686,6 +1714,10 @@
 	"63683": {
 		"Type": "TRICE0",
 		"Strg": "att: COBS, direct out, +cycle, -int "
+	},
+	"63820": {
+		"Type": "TRICE8",
+		"Strg": "s:  TRICE_MODE %3d                          \\n"
 	},
 	"63860": {
 		"Type": "TRICE16_3",
