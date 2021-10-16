@@ -71,7 +71,7 @@ type ColorChannel struct {
 }
 
 var ColorChannels = []ColorChannel{
-	{0, []string{"e", "err", "error", "E", "ERR", "ERROR"}, colorizeERROR},
+	{0, []string{"Error", "e", "err", "error", "E", "ERR", "ERROR"}, colorizeERROR},
 	{0, []string{"m", "msg", "message", "M", "MSG", "MESSAGE"}, colorizeMESSAGE},
 	{0, []string{"rd", "rd_", "RD", "RD_"}, colorizeREAD},
 	{0, []string{"wr", "wr_", "WR", "WR_"}, colorizeWRITE},
@@ -86,9 +86,8 @@ var ColorChannels = []ColorChannel{
 	{0, []string{"Info", "i", "inf", "info", "informal", "I", "INF", "INFO", "INFORMAL"}, colorizeINFO},
 	{0, []string{"Notice", "NOTICE", "notice", "Note", "note", "NOTE"}, colorizeNOTICE},
 	{0, []string{"Warning", "w", "wrn", "warning", "W", "WRN", "WARNING", "Warn", "warn", "WARN"}, colorizeWARNING},
-	{0, []string{"Error", "e", "err", "error", "E", "ERR", "ERROR"}, colorizeERROR},
 	{0, []string{"Critical", "critical", "CRITICAL", "crit", "Crit", "CRIT"}, colorizeCRITICAL},
-	{0, []string{"ALert", "alert", "ALERT"}, colorizeALERT},
+	{0, []string{"Alert", "alert", "ALERT"}, colorizeALERT},
 	{0, []string{"Emergency", "emergency", "EMERGENCY"}, colorizeEMERGENCY},
 	{0, []string{"Fatal", "fatal", "FATAL"}, colorizeFATAL},
 	{0, []string{"Trace", "trace", "TRACE"}, colorizeTRACE},
