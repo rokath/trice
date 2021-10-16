@@ -123,6 +123,7 @@ func handleSIGTERM(rc io.ReadCloser) {
 			if Verbose {
 				fmt.Println("####################################", sig, "####################################")
 			}
+			emitter.PrintColorChannelEvents()
 			msg.FatalOnErr(rc.Close())
 			os.Exit(0) // end
 		case <-ticker.C:
@@ -184,8 +185,8 @@ func decodeAndComposeLoop(sw *emitter.TriceLineComposer, dec Decoder) error {
 				fmt.Println(err, "-> WAITING...")
 			}
 			// The following line has heavy influence on inside sticking trices.
-			time.Sleep(100 * time.Millisecond) // limit try again speed
-			continue                           // read again
+			//time.Sleep(100 * time.Millisecond) // limit try again speed
+			continue // read again
 		}
 
 		// b contains here no or several complete trice strings.

@@ -12,6 +12,7 @@ import (
 	"sync"
 
 	"github.com/dim13/cobs"
+	"github.com/rokath/trice/internal/emitter"
 	"github.com/rokath/trice/internal/id"
 )
 
@@ -158,7 +159,7 @@ func (p *COBSR) Read(b []byte) (n int, err error) {
 	if CycleCounter {
 		cycle := d[0] // little endian transfer format
 		if cycle != p.cycle {
-			n += copy(b, fmt.Sprintln("INFO:Cycle", cycle, "not equal expected value", p.cycle, "- adjusting cycle."))
+			n += copy(b, fmt.Sprintln("CYCLE:", cycle, "not equal expected value", p.cycle, "- adjusting. Now", emitter.ColorChannelEvents("CYCLE")+1, "CycleEvents"))
 			p.cycle = cycle // adjust cycle
 		}
 		//  if DebugOut { // Debug output
@@ -261,7 +262,7 @@ var cobsFunctionPtrList = []triceTypeFn{
 }
 
 func (p *COBSR) sprintTrice(b []byte) int {
-	if "TRICE_S" == p.trice.Type { // special case
+	if p.trice.Type == "TRICE_S" { // special case
 		return p.triceS(b)
 	}
 	// p.rub(4) // remove header
