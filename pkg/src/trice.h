@@ -176,6 +176,7 @@ void TriceReadAndRTTWrite( void );
     TRICE0( Id( 46377), "s:     \ns:                                          \n");
 #define TRICE_CYCLE_COUNTER 1 //! Use cycle counter.
 #define TRICE_BUFFER_SIZE 80 //!< This is stack space and must be capable to hold the longest used TRICE.
+#define TRICE_PUTCHAR( c ) do{ while( !triceTxDataRegisterEmpty() ); triceTransmitData8( c ); }while(0)
 #define TRICE_ENTER TRICE_ENTER_CRITICAL_SECTION { \
     uint8_t co[TRICE_BUFFER_SIZE]; uint8_t* tr = co + 4; /* use same buffer twice */ \
     uint32_t* wTb = (uint32_t*)tr;
@@ -193,24 +194,7 @@ void TriceReadAndRTTWrite( void );
 //! Needs additional tools installed - see RTT documentation.
 //! J-LINK Command line similar to: `trice log -args="-Device STM32G071RB -if SWD -Speed 4000 -RTTChannel 0 -RTTSearchRanges 0x20000000_0x1000"`
 //! ST-LINK Command line similar to: `trice log -p ST-LINK -args="-Device STM32G071RB -if SWD -Speed 4000 -RTTChannel 0 -RTTSearchRanges 0x20000000_0x1000"`
-#if TRICE_MODE == 10 // seldom cycle issue: (buffer handling?)
-/*
-Oct 16 16:46:46.702422  J-LINK: MSG: select = 9, TriceDepthMax =43 of 80 STOP
-Oct 16 16:46:46.702422  J-LINK: MSG: select = 10, TriceDepthMax =43 of 80, START
-Oct 16 16:46:46.702422  J-LINK: ABa:cde
-Oct 16 16:46:46.702422  J-LINK: fGHiJk
-Oct 16 16:46:46.702422  J-LINK: MSG: select = 10, TriceDepthMax =43 of 80 STOP
-Oct 16 16:46:46.702422  J-LINK: MSG: select = 11, TriceDepthMax =43 of 80, START
-Oct 16 16:46:46.702422  J-LINK: 1CYCLE: 253 not equal expected value 15 - adjusting. Now 2 CycleEvents
-Oct 16 16:46:46.723422  J-LINK: MSG: select = 10, TriceDepthMax =43 of 80, START
-Oct 16 16:46:46.723422  J-LINK: ABa:cde
-Oct 16 16:46:46.723422  J-LINK: fGHiJk
-Oct 16 16:46:46.723422  J-LINK: MSG: select = 10, TriceDepthMax =43 of 80 STOP
-Oct 16 16:46:46.922980  J-LINK: MSG: select = 11, TriceDepthMax =43 of 80, START
-Oct 16 16:46:46.922980  J-LINK: 1234712123
-Oct 16 16:46:46.922980  J-LINK: MSG: select = 11, TriceDepthMax =43 of 80 STOP
-Oct 16 16:46:47.115513  J-LINK: MSG: select = 12, TriceDepthMax =43 of 80, START
-*/
+#if TRICE_MODE == 10 // ok
 #include "SEGGER_RTT.h"
 #define RTT_WRITE( buf, len ) do{ SEGGER_RTT_Write(0 /*BufferIndex*/, buf, len ); }while(0)
 #define TRICE_HEADLINE \
@@ -277,7 +261,7 @@ Oct 16 16:46:47.115513  J-LINK: MSG: select = 12, TriceDepthMax =43 of 80, START
 
 //! Triple Buffering output to RTT with cycle counter. Trices inside interrupts allowed. Fast TRICE macro execution. 
 //! Command line similar to: `trice l -args="-Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0 -RTTSearchRanges 0x20000000_0x1000"`
-#if TRICE_MODE == 110 // some cycle counter errors
+#if TRICE_MODE == 110 // ok
 #include "SEGGER_RTT.h"
 #define RTT_WRITE( buf, len ) do{ SEGGER_RTT_Write(0 /*BufferIndex*/, buf, len ); }while(0)
 //#define RTT_WRITE( buf, len )do{ unsigned x; do{ x=SEGGER_RTT_WriteSkipNoLock(0 /*BufferIndex*/, buf, len ); }while(x==0); }while(0)
@@ -301,6 +285,11 @@ Oct 16 16:46:47.115513  J-LINK: MSG: select = 12, TriceDepthMax =43 of 80, START
 #endif
 //
 ///////////////////////////////////////////////////////////////////////////////
+
+#ifdef ENCRYPT // to do
+// #define DECRYPT //!< usually not needed
+void triceServeFifoEncryptedToBytesBuffer(void);
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 // Derived macros
@@ -338,8 +327,6 @@ Oct 16 16:46:47.115513  J-LINK: MSG: select = 12, TriceDepthMax =43 of 80, START
 //
 #ifdef TRICE_STM32
 #include "main.h" // hardware specific stuff
-
-#define TRICE_UART USART2 //!< set UART number if UART is used
 
 //! Check if a new byte can be written into trice transmit register.
 //! \retval 0 == not empty

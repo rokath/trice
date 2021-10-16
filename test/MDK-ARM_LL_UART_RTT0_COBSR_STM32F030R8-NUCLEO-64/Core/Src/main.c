@@ -120,7 +120,7 @@ int main(void)
   {
     static int lastTricesTime = 0;
     // send some trices every few ms
-        if( milliSecond >= lastTricesTime + 200 ){
+        if( milliSecond >= lastTricesTime + 1000 ){
             static int index = 0;
             int select = index % 20;
             TRICE16_3( Id( 63860),"MSG: select = %d, TriceDepthMax =%d of %d, START\n", select, TriceDepthMax, TRICE_BUFFER_SIZE );

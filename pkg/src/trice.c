@@ -74,20 +74,13 @@ unsigned triceToCOBS( uint8_t* co, uint8_t * tr ){
     #error "todo: TRICE_HARDWARE_ENDIANNESS == TRICE_BIG_ENDIANNESS"
 #endif // #else // #if TRICE_HARDWARE_ENDIANNESS == TRICE_LITTLE_ENDIANNESS
 
-
-
-
-
-
-
-#if TRICE_MODE > 2
+#if TRICE_MODE >= 100 // buffering
 
 static uint32_t triceBuffer[2][(TRICE_BUFFER_SIZE+3)>>3] = {0}; //!< triceBuffer is double buffer for better write speed.
 #define TRICE_ACTIVE 0 //!< TRICE_ACTIVE is the init value for swap.
 static int swap = TRICE_ACTIVE; //!< swap is the active write buffer. !swap is the active read buffer.
 uint32_t* wTb = &triceBuffer[TRICE_ACTIVE][0]; //!< wTb is the active write position.
 static uint32_t* rTb = &triceBuffer[!TRICE_ACTIVE][0]; //!< rTb is the active read position.
-
 
 #ifndef NULL
 #define NULL (void*)0
