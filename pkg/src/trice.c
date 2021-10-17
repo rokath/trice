@@ -133,9 +133,62 @@ void TriceReadAndRTTWrite( void ){
 }
 #endif
 
+#if 0 // try out idea
+//! TriceNonBlockingWrite
+size_t TriceNonBlockingWrite( const void* buf, size_t nByte ){
+    // to do
+    return nByte;
+}
 
-//#define TRICE_PAYLOAD_MAX 128 //!< up to 1020 possible (255*4)
-//static uint8_t out[TRICE_PAYLOAD_MAX];
+//! TriceTransferBusy is set before TriceNonBlockingWrite is called and needs to be cleared somehow, when last byte was written.
+int TriceTransferBusy = 0;
+
+#define TRICE_WRITE( buf, len ) do{ \
+    size_t cnt = (size_t)(len); \
+    TriceTransferBusy = 1; do{ \
+    cnt = TriceNonBlockingWrite( buf, cnt ); }while(cnt); \
+    } while(0)
+
+#define TRICE_DATA_OFFSET 8 //! Free bytes in front of stored trice bytes, must be a multiple of 4
+
+//! TriceBufferSwap swaps the trice double buffer and returns the transfer buffer address.
+uint32_t* TriceBufferSwap( void ){
+    TRICE_ENTER_CRITICAL_SECTION
+    *wTb = 0; // write end marker
+    swap = !swap;
+    rTb = wTb; // keep end position
+    wTb = &triceBuffer[swap][TRICE_DATA_OFFSET>>2];
+    TRICE_LEAVE_CRITICAL_SECTION
+    return &triceBuffer[!swap][0];
+}
+
+//! TriceTransferDepth parses tb and returns the total trice byte count ready for transfer.
+//! The trice data start at tp + TRICE_DATA_OFFSET.
+//! The returned depth is without the TRICE_DATA_OFFSET offset.
+size_t TriceTransferDepth( uint32_t* tb ){
+    size_t triceDepth = (rTb - tb)<<2;  // diagnostics
+    TriceDepthMax = triceDepth < TriceDepthMax ? TriceDepthMax : triceDepth; // diagnostics
+    return triceDepth - TRICE_DATA_OFFSET;
+}
+
+void TriceTransfer( void ){
+    if( TriceTransferBusy ){
+        return;
+    }
+    {
+        uint32_t* tb = TriceBufferSwap(); 
+        size_t tlen = TriceTransferDepth(tb);
+        if( tlen ){
+            uint8_t* co = (uint8_t*)tb;
+            uint8_t* tr = co + TRICE_DATA_OFFSET;
+            size_t clen = COBSEncode(co, tr, tlen);
+            size_t count;
+            TRICE_WRITE( co, clen );
+        }
+    }
+    
+}
+#endif
 
 #ifdef TRICE_FIFO_BYTE_SIZE
 
