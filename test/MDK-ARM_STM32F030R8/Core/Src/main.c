@@ -99,7 +99,6 @@ int main(void)
     //SEGGER_RTT_Init();
     //SEGGER_RTT_SetTerminal(0);
     TRICE_HEADLINE;
-    //TRICE16_1( Id( 44374), "tst:Hi! %x\n", 0x1122 );
     srand(SYSTICKVAL16);
   /* USER CODE END 2 */
 
@@ -124,7 +123,6 @@ int main(void)
             static int index = 0;
             int select = index % 20;
             TRICE16_3( Id( 63860),"MSG: select = %d, TriceDepthMax =%d of %d, START\n", select, TriceDepthMax, TRICE_BUFFER_SIZE );
-            //select = 18;
             triceCheckSet(select);
             TRICE16_3( Id( 51113),"MSG: select = %d, TriceDepthMax =%d of %d STOP\n", select, TriceDepthMax, TRICE_BUFFER_SIZE );
             index++;
