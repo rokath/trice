@@ -22,7 +22,6 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include <stdlib.h> // srand
 #include "trice.h"
 /* USER CODE END Includes */
 
@@ -66,9 +65,7 @@ static void MX_USART2_UART_Init(void);
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-#ifdef ENCRYPT
-    InitXteaTable();
-#endif
+
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -95,11 +92,10 @@ int main(void)
   MX_GPIO_Init();
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
+    #ifdef TRICE_STM32
     LL_USART_EnableIT_RXNE(TRICE_UART); // enable UART2 interrupt
-    //SEGGER_RTT_Init();
-    //SEGGER_RTT_SetTerminal(0);
+    #endif
     TRICE_HEADLINE;
-    srand(SYSTICKVAL16);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -122,9 +118,9 @@ int main(void)
         if( milliSecond >= lastTricesTime + 1000 ){
             static int index = 0;
             int select = index % 20;
-            TRICE16_3( Id( 63860),"MSG: select = %d, TriceDepthMax =%d of %d, START\n", select, TriceDepthMax, TRICE_BUFFER_SIZE );
+            TRICE16( Id( 63239),"MSG: START select = %d, TriceDepthMax =%d\n", select, TriceDepthMax );
             triceCheckSet(select);
-            TRICE16_3( Id( 51113),"MSG: select = %d, TriceDepthMax =%d of %d STOP\n", select, TriceDepthMax, TRICE_BUFFER_SIZE );
+            TRICE16( Id( 57510),"MSG: STOP select = %d, TriceDepthMax =%d\n", select, TriceDepthMax );
             index++;
             lastTricesTime = milliSecond;
         }

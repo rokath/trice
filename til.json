@@ -1315,6 +1315,10 @@
 		"Type": "TRICE8",
 		"Strg": "rd:TRICE8 %d, %d, %d, %d\\n"
 	},
+	"55144": {
+		"Type": "TRICE0",
+		"Strg": "att: Double buff RTT, +cycle, +int  "
+	},
 	"55218": {
 		"Type": "TRICE8",
 		"Strg": "rd:%d, %d, %d, %d, %d, %d\\n"
@@ -1435,9 +1439,17 @@
 		"Type": "TRICE32",
 		"Strg": "ATT:trice16 attention message, SysTick is %6d\\n"
 	},
+	"57445": {
+		"Type": "TRICE0",
+		"Strg": "att: Double buff UART, +cycle, +int "
+	},
 	"57449": {
 		"Type": "TRICE0",
 		"Strg": "s:                                          \\n"
+	},
+	"57510": {
+		"Type": "TRICE16",
+		"Strg": "MSG: STOP select = %d, TriceDepthMax =%d\\n"
 	},
 	"57666": {
 		"Type": "TRICE32_1",
@@ -1546,6 +1558,10 @@
 	"60229": {
 		"Type": "trice16_2i",
 		"Strg": "msg: trice16_2i -\u003e normal trice function (with cycle counter) for only inside critical section %x %X\\n"
+	},
+	"60240": {
+		"Type": "TRICE0",
+		"Strg": "att: Double buff UART, ~cycle, ~int "
 	},
 	"60271": {
 		"Type": "trice16_1",
@@ -1694,6 +1710,10 @@
 	"63167": {
 		"Type": "trice8_3i",
 		"Strg": "msg:  trice8_3i -\u003e normal trice function (with cycle counter) for only inside critical section %x %X %u\\n"
+	},
+	"63239": {
+		"Type": "TRICE16",
+		"Strg": "MSG: START select = %d, TriceDepthMax =%d\\n"
 	},
 	"63294": {
 		"Type": "TRICE32",

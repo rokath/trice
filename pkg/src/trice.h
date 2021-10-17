@@ -12,70 +12,59 @@
 extern "C" {
 #endif
 
-/* !!! DOKUMETATION !!! 
-
-#define TRICE_HEADLINE ...
-- It is the very first TRICE message after reset. Customize as you like.
-
-#define TRICE_CYCLE_COUNTER 0
-- The TRICE macros are a bit faster.
-- The TRICE transfer message is a byte shorter. 
-- Lost TRICEs are not detected and the additional trice log switch "-cc=false" is needed.
-
-#define TRICE_CYCLE_COUNTER 1
-- The TRICE macros are a bit slower.
-- The TRICE transfer message is a byte longer.
-- Lost TRICEs are detected and no additional trice log switch is needed.
-
-#define TRICE_ENTER
-#define TRICE_LEAVE
-- The TRICE macros are a bit faster.
-- Inside interrupts TRICE macros forbidden.
-
-#define TRICE_ENTER TRICE_ENTER_CRITICAL_SECTION
-#define TRICE_LEAVE TRICE_LEAVE_CRITICAL_SECTION
-- The TRICE macros are a bit slower.
-- Inside interrupts TRICE macros allowed.
-
-#define PUT(x) do{ *wTb++ = x; }while(0)
-#define PUT_BUFFER( dynString, len ) do{ memcpy( wTb, dynString, len ); wTb += (len+3)>>2; }while(0)
-- Double buffering is used for fastest TRICE macro execution.
-- The read buffer gets the write buffer, when read buffer is empty.
-- The read buffer must be read out completely before the write buffer can overflow.
-
-#define TRICE_TRANSFER_MESSAGE TRICE_SINGLE_MESSAGE
-- The TRICE data stream is COBS or COBS/R encoded and each packages contains exactly one TRICE message.
-- This ok for most cases, but could add too much padding bytes when encryption is used.
-
-#define TRICE_TRANSFER_MESSAGE TRICE_MULTI_MESSAGE
-- The TRICE data stream is COBS or COBS/R encoded and each packages can contain more than one TRICE message.
-- This ok for most cases, but could need less padding bytes when encryption is used.
-- This allows the complete read out of one double buffer half within one TRICE_READ_AND_TRANSLATE_INTERVAL_MS.
-- In turn the TRICE_FIFO_BYTE_SIZE must be big enough to hold a complete TRICE burst.
-- But on the other hand the TRICE_BUFFER_SIZE can get smaller twice that size.
-- That means de-facto triple buffering.
-
-#define TRICE_READ_AND_TRANSLATE_INTERVAL_MS 10
-- This is the milliseconds interval for TRICE buffer read out.
-- This time should be shorter than visible delays.
-- When TRICE_TRANSFER_MESSAGE is TRICE_SINGLE_MESSAGE, max one TRICE message is read in this interval.
-  - When in the average more than one trice messages occur in this interval, the write buffer will overflow.
-
-#define TRICE_BUFFER_SIZE 1200
-- This is the size of both buffers together.
-- One buffer must be able to hold the max TRICE burst count.
-- Start with a big value and use the diagnostics value TriceDepthMax to minimize the RAM needs.
-
-#define TRICE_FIFO_BYTE_SIZE 1024 
-- Must be a power of 2.
-- 32 could be ok in dependence of the maximum used param count when TRICE_TRANSFER_MESSAGE is TRICE_SINGLE_MESSAGE.
-- Must hold only one TRICE message when TRICE_TRANSFER_MESSAGE is TRICE_SINGLE_MESSAGE.
-*/
+///////////////////////////////////////////////////////////////////////////////
+//  DOKUMETATION
+//  
+//  #define TRICE_HEADLINE ...
+//  - It is the very first TRICE message after reset. Customize as you like.
+//  
+//  #define TRICE_CYCLE_COUNTER 0
+//  - The TRICE macros are a bit faster.
+//  - The TRICE transfer message is a byte shorter. 
+//  - Lost TRICEs are not detected and the additional trice log switch "-cc=false" is needed.
+//  
+//  #define TRICE_CYCLE_COUNTER 1
+//  - The TRICE macros are a bit slower.
+//  - The TRICE transfer message is a byte longer.
+//  - Lost TRICEs are detected and no additional trice log switch is needed.
+//  
+//  #define TRICE_ENTER
+//  #define TRICE_LEAVE
+//  - The TRICE macros are a bit faster.
+//  - Inside interrupts TRICE macros forbidden.
+//  
+//  #define TRICE_ENTER TRICE_ENTER_CRITICAL_SECTION
+//  #define TRICE_LEAVE TRICE_LEAVE_CRITICAL_SECTION
+//  - The TRICE macros are a bit slower.
+//  - Inside interrupts TRICE macros allowed.
+//  
+//  #define PUT(x) do{ *wTb++ = x; }while(0)
+//  #define PUT_BUFFER( dynString, len ) do{ memcpy( wTb, dynString, len ); wTb += (len+3)>>2; }while(0)
+//  - Double buffering is used for fastest TRICE macro execution.
+//  - The read buffer gets the write buffer, when read buffer is empty.
+//  - The read buffer must be read out completely before the write buffer can overflow.
+//  
+//  #define TRICE_READ_AND_TRANSLATE_INTERVAL_MS 10
+//  - This is the milliseconds interval for TRICE buffer read out.
+//  - This time should be shorter than visible delays.
+//  - When TRICE_TRANSFER_MESSAGE is TRICE_SINGLE_MESSAGE, max one TRICE message is read in this interval.
+//    - When in the average more than one trice messages occur in this interval, the write buffer will overflow.
+//  
+//  #define TRICE_BUFFER_SIZE 1200
+//  - This is the size of both buffers together.
+//  - One buffer must be able to hold the max TRICE burst count.
+//  - Start with a big value and use the diagnostics value TriceDepthMax to minimize the RAM needs.
+//  
+//  #define TRICE_FIFO_BYTE_SIZE 1024 
+//  - Must be a power of 2.
+//  - 32 could be ok in dependence of the maximum used param count when TRICE_TRANSFER_MESSAGE is TRICE_SINGLE_MESSAGE.
+//  - Must hold only one TRICE message when TRICE_TRANSFER_MESSAGE is TRICE_SINGLE_MESSAGE.
+//
+///////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////////
 // compiler adaption
 //
-
 #if defined( __GNUC__ ) /* gnu compiler ###################################### */ \
  || defined(__IAR_SYSTEMS_ICC__) /* IAR compiler ############################# */ \
  || defined(__TASKING__) /* TASKING compiler (same bugs as GNU!)############## */
@@ -84,10 +73,7 @@ extern "C" {
 
 #define ALIGN4                                  //!< align to 4 byte boundary preamble
 #define ALIGN4_END __attribute__ ((aligned(4))) //!< align to 4 byte boundary post declaration
-#define PACKED                                  //!< pack data preamble
-#define PACKED_END __attribute__ ((packed))     //!< pack data post declaration
 
-#ifndef TRICE_ENTER_CRITICAL_SECTION
 //! TRICE_ENTER_CRITICAL_SECTION saves interrupt state and disables Interrupts.
 //! \details Workaround for ARM Cortex M0 and M0+:
 //! \li __get_PRIMASK() is 0 when interrupts are enabled globally.
@@ -95,9 +81,7 @@ extern "C" {
 //! If trices are used only outside critical sections or interrupts,
 //! you can leave this macro empty for more speed. Use only '{' in that case.
 #define TRICE_ENTER_CRITICAL_SECTION { // to do
-#endif
 
-#ifndef TRICE_LEAVE_CRITICAL_SECTION
 //! TRICE_LEAVE_CRITICAL_SECTION restores interrupt state.
 //! \details Workaround for ARM Cortex M0 and M0+:
 //! \li __get_PRIMASK() is 0 when interrupts are enabled globally.
@@ -105,7 +89,6 @@ extern "C" {
 //! If trices are used only outside critical sections or interrupts,
 //! you can leave this macro pair empty for more speed. Use only '}' in that case.
 #define TRICE_LEAVE_CRITICAL_SECTION } // to do
-#endif
 
 #elif defined(__arm__) // ARMkeil IDE #########################################
 
@@ -115,10 +98,9 @@ extern "C" {
 
 #define ALIGN4 __align(4) //!< align to 4 byte boundary preamble
 #define ALIGN4_END        //!< align to 4 byte boundary post declaration
-#define PACKED __packed   //!< pack data preamble
-#define PACKED_END        //!< pack data post declaration
+//#define PACKED __packed   //!< pack data preamble
+//#define PACKED_END        //!< pack data post declaration
 
-#ifndef TRICE_ENTER_CRITICAL_SECTION
 //! TRICE_ENTER_CRITICAL_SECTION saves interrupt state and disables Interrupts.
 //! \details Workaround for ARM Cortex M0 and M0+:
 //! \li __get_PRIMASK() is 0 when interrupts are enabled globally.
@@ -126,9 +108,7 @@ extern "C" {
 //! If trices are used only outside critical sections or interrupts,
 //! you can leave this macro empty for more speed. Use only '{' in that case.
 #define TRICE_ENTER_CRITICAL_SECTION { uint32_t primaskstate = __get_PRIMASK(); __disable_irq(); {
-#endif 
 
-#ifndef TRICE_LEAVE_CRITICAL_SECTION
 //! TRICE_LEAVE_CRITICAL_SECTION restores interrupt state.
 //! \details Workaround for ARM Cortex M0 and M0+:
 //! \li __get_PRIMASK() is 0 when interrupts are enabled globally.
@@ -136,49 +116,44 @@ extern "C" {
 //! If trices are used only outside critical sections or interrupts,
 //! you can leave this macro pair empty for more speed. Use only '}' in that case.
 #define TRICE_LEAVE_CRITICAL_SECTION } __set_PRIMASK(primaskstate); }
-#endif
 
 #elif 1 // ####################################################################
 #error "add new compiler here"
 #else // ######################################################################
 #error unknown compliler
 #endif // compiler adaptions ##################################################
-
 //
 ///////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////////
 // Declarations
 
-int triceU8FifoDepth(void);
 unsigned triceToCOBS( uint8_t* c, uint8_t * t );
+extern uint16_t TriceDepthMax;
+
+int triceU8FifoDepth(void);
 extern uint8_t* const triceU8Fifo;
 extern unsigned triceU8FifoWriteIndex;
 extern unsigned triceU8FifoReadIndex;
-extern uint16_t TriceDepthMax;
+
 void triceCheckSet( int index ); //!< tests
 void TriceReadAndTranslate( void );
 void TriceReadAndRTTWrite( void );
+
 #define TRICE_LITTLE_ENDIANNESS 0x00112233 //!< TRICE_LITTLE_ENDIANNESS is the default for TRICE_HARDWARE_ENDIANNESS and TRICE_TRANSFER_ENDIANNESS.
 #define TRICE_BIG_ENDIANNESS    0x33221100 //!< TRICE_BIG_ENDIANNESS is the option for TRICE_HARDWARE_ENDIANNESS and TRICE_TRANSFER_ENDIANNESS.
 
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-
 //! Direct output to UART with cycle counter. Trices inside interrupts allowed. Direct TRICE macro execution.
 //! Command line similar to: "trice log -p COM1 -baud 115200"
-#if TRICE_MODE == 0 // ok
-#define TRICE_HEADLINE \
-    TRICE0( Id( 57449), "s:                                          \n" ); \
-    TRICE8( Id( 49675), "s:  TRICE_MODE %3d                          \ns:     ", TRICE_MODE ); \
-    TRICE0( Id( 64478), "att:  Direct to UART, +cycle, +int  " ); \
-    TRICE0( Id( 46377), "s:     \ns:                                          \n");
+#if TRICE_MODE == 0
 #define TRICE_CYCLE_COUNTER 1 //! Use cycle counter.
-#define TRICE_BUFFER_SIZE 80 //!< This is stack space and must be capable to hold the longest used TRICE.
 #define TRICE_PUTCHAR( c ) do{ while( !triceTxDataRegisterEmpty() ); triceTransmitData8( c ); }while(0)
 #define TRICE_ENTER TRICE_ENTER_CRITICAL_SECTION { \
-    uint8_t co[TRICE_BUFFER_SIZE]; uint8_t* tr = co + 4; /* use same buffer twice */ \
+    ALIGN4 uint8_t co[80]; ALIGN4_END /* This is stack space and must be capable to hold the longest used TRICE plus 4 */ \
+    uint8_t* tr = co + 4; /* use same buffer twice, offset must be a multiple of uint32_t */ \
     uint32_t* wTb = (uint32_t*)tr;
 #define PUT(x) do{ *wTb++ = x; }while(0)
 #define PUT_BUFFER( buf, len ) do{ memcpy( wTb, buf, len ); wTb += (len+3)>>2; }while(0)
@@ -189,43 +164,30 @@ void TriceReadAndRTTWrite( void );
     } } TRICE_LEAVE_CRITICAL_SECTION
 #endif
 
-
 //! Direct output to SEGGER RTT with cycle counter. Trices inside interrupts allowed. Direct TRICE macro execution.
 //! Needs additional tools installed - see RTT documentation.
 //! J-LINK Command line similar to: `trice log -args="-Device STM32G071RB -if SWD -Speed 4000 -RTTChannel 0 -RTTSearchRanges 0x20000000_0x1000"`
 //! ST-LINK Command line similar to: `trice log -p ST-LINK -args="-Device STM32G071RB -if SWD -Speed 4000 -RTTChannel 0 -RTTSearchRanges 0x20000000_0x1000"`
-#if TRICE_MODE == 10 // ok
+#if TRICE_MODE == 10
 #include "SEGGER_RTT.h"
-#define RTT_WRITE( buf, len ) do{ SEGGER_RTT_Write(0 /*BufferIndex*/, buf, len ); }while(0)
-#define TRICE_HEADLINE \
-    TRICE0( Id( 57449), "s:                                          \n" ); \
-    TRICE8( Id( 63820), "s:  TRICE_MODE %3d                          \n", TRICE_MODE ); \
-    TRICE0( Id( 46700), "s:                                          \ns:     " ); \
-    TRICE0( Id( 43538), "att:  Direct to RTT, +cycle, +int   " ); \
-    TRICE0( Id( 46377), "s:     \ns:                                          \n");
+#define TRICE_WRITE( buf, len ) do{ SEGGER_RTT_Write(0 /*BufferIndex*/, buf, len ); }while(0)
 #define TRICE_CYCLE_COUNTER 1 //! Use cycle counter.
-#define TRICE_BUFFER_SIZE 80 //!< This is stack space and be capable to hold the longest used TRICE.
 #define TRICE_ENTER TRICE_ENTER_CRITICAL_SECTION { \
-    uint8_t co[TRICE_BUFFER_SIZE]; uint8_t* tr = co + 4; /* use same buffer twice */ \
+    ALIGN4 uint8_t co[80]; ALIGN4_END /* This is stack space and must be capable to hold the longest used TRICE plus 4 (offset) */ \
+    uint8_t* tr = co + 4; /* use same buffer twice, offset must be a multiple of uint32_t */ \
     uint32_t* wTb = (uint32_t*)tr;
 #define PUT(x) do{ *wTb++ = x; }while(0)
 #define PUT_BUFFER( buf, len ) do{ memcpy( wTb, buf, len ); wTb += (len+3)>>2; }while(0)
 #define TRICE_LEAVE { \
     unsigned clen = triceToCOBS( co, tr ); \
     TriceDepthMax = clen < TriceDepthMax ? TriceDepthMax : clen; /* diagnostics */ \
-    RTT_WRITE( co, clen ); \
+    TRICE_WRITE( co, clen ); \
     } } TRICE_LEAVE_CRITICAL_SECTION
 #endif
 
-//! Triple Buffering output to UART with cycle counter. Trices inside interrupts allowed. Fast TRICE macro execution. 
+//! Double Buffering output to UART with cycle counter. Trices inside interrupts allowed. Fast TRICE macro execution. 
 //! Command line similar to: "trice log -p COM1 -baud 115200"
-#if TRICE_MODE == 100 // ok
-#define TRICE_HEADLINE \
-    TRICE0( Id( 57449), "s:                                          \n" ); \
-    TRICE8( Id( 37906), "s:  TRICE_MODE %3d                          \n", TRICE_MODE ); \
-    TRICE0( Id( 46700), "s:                                          \ns:     " ); \
-    TRICE0( Id( 55474), "att: Triple buff UART, +cycle, +int " ); \
-    TRICE0( Id( 46377), "s:     \ns:                                          \n");
+#if TRICE_MODE == 100
 #define TRICE_CYCLE_COUNTER 1 //! add cycle counter
 #define TRICE_ENTER TRICE_ENTER_CRITICAL_SECTION
 #define TRICE_LEAVE TRICE_LEAVE_CRITICAL_SECTION
@@ -239,15 +201,9 @@ void TriceReadAndRTTWrite( void );
 #define TRICE_READ_AND_TRANSFER TriceReadAndTranslate
 #endif
 
-//! Triple Buffering output to UART without cycle counter. No trices inside interrupts allowed. Super fast TRICE macro execution. 
+//! Double Buffering output to UART without cycle counter. No trices inside interrupts allowed. Super fast TRICE macro execution. 
 //! Command line similar to: `trice log -p COM1 -baud 115200  -cc=false`
-#if TRICE_MODE == 101 // ok
-#define TRICE_HEADLINE \
-    TRICE0( Id( 57449), "s:                                          \n" ); \
-    TRICE8( Id( 51851), "s:  TRICE_MODE %3d                          \n", TRICE_MODE ); \
-    TRICE0( Id( 46700), "s:                                          \ns:     " ); \
-    TRICE0( Id( 54439), "att: Triple buff UART, ~cycle, ~int " ); \
-    TRICE0( Id( 46377), "s:     \ns:                                          \n");
+#if TRICE_MODE == 101
 #define TRICE_CYCLE_COUNTER 0 //! add cycle counter
 #define TRICE_ENTER 
 #define TRICE_LEAVE
@@ -259,18 +215,11 @@ void TriceReadAndRTTWrite( void );
 #define TRICE_READ_AND_TRANSFER TriceReadAndTranslate
 #endif
 
-//! Triple Buffering output to RTT with cycle counter. Trices inside interrupts allowed. Fast TRICE macro execution. 
+//! Double Buffering output to RTT with cycle counter. Trices inside interrupts allowed. Fast TRICE macro execution. 
 //! Command line similar to: `trice l -args="-Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0 -RTTSearchRanges 0x20000000_0x1000"`
-#if TRICE_MODE == 110 // ok
+#if TRICE_MODE == 110
 #include "SEGGER_RTT.h"
-#define RTT_WRITE( buf, len ) do{ SEGGER_RTT_Write(0 /*BufferIndex*/, buf, len ); }while(0)
-//#define RTT_WRITE( buf, len )do{ unsigned x; do{ x=SEGGER_RTT_WriteSkipNoLock(0 /*BufferIndex*/, buf, len ); }while(x==0); }while(0)
-#define TRICE_HEADLINE \
-    TRICE0( Id( 57449), "s:                                          \n" ); \
-    TRICE8( Id( 61754), "s:  TRICE_MODE %3d                          \n", TRICE_MODE ); \
-    TRICE0( Id( 46700), "s:                                          \ns:     " ); \
-    TRICE0( Id( 64204), "att: Triple buff RTT, +cycle, +int  " ); \
-    TRICE0( Id( 46377), "s:     \ns:                                          \n");
+#define TRICE_WRITE( buf, len ) do{ SEGGER_RTT_Write(0 /*BufferIndex*/, buf, len ); }while(0)
 #define TRICE_CYCLE_COUNTER 1 //! add cycle counter
 #define TRICE_ENTER TRICE_ENTER_CRITICAL_SECTION
 #define TRICE_LEAVE TRICE_LEAVE_CRITICAL_SECTION
@@ -343,10 +292,6 @@ TRICE_INLINE void triceTransmitData8(uint8_t v) {
     LL_USART_TransmitData8(TRICE_UART, v);
 }
 
-#ifdef TRICE_FIFO_BYTE_SIZE
-
-TRICE_INLINE uint8_t triceU8Pop(void);
-
 //! Allow interrupt for empty trice data transmit register.
 //! User must provide this function.
 TRICE_INLINE void triceEnableTxEmptyInterrupt(void) {
@@ -358,24 +303,6 @@ TRICE_INLINE void triceEnableTxEmptyInterrupt(void) {
 TRICE_INLINE void triceDisableTxEmptyInterrupt(void) {
     LL_USART_DisableIT_TXE(TRICE_UART);
 }
-
-//! triceServeTransmit as triceServeU8FifoTransmit must be called cyclically to proceed ongoing write out.
-//! A good place is UART ISR.
-TRICE_INLINE void triceServeTransmit(void) {
-    triceTransmitData8(triceU8Pop());
-    if (0 == triceU8FifoDepth()) { // no more bytes
-        triceDisableTxEmptyInterrupt();
-    }
-}
-
-// triceTriggerTransmit as triceTriggerU8FifoTransmit must be called cyclically to initialize write out.
-TRICE_INLINE void triceTriggerTransmit(void){
-    if( triceU8FifoDepth() && triceTxDataRegisterEmpty() ){
-        triceEnableTxEmptyInterrupt(); // next bytes
-    }
-}
-
-#endif // #if TRICE_MODE > 100
 
 #endif // #ifdef TRICE_STM32
 //
@@ -409,7 +336,24 @@ TRICE_INLINE uint8_t triceU8Pop(void) {
     triceU8FifoReadIndex &= TRICE_U8_FIFO_MASK;
     return v;
 }
-#endif
+
+//! triceServeTransmit as triceServeU8FifoTransmit must be called cyclically to proceed ongoing write out.
+//! A good place is UART ISR.
+TRICE_INLINE void triceServeTransmit(void) {
+    triceTransmitData8(triceU8Pop());
+    if (0 == triceU8FifoDepth()) { // no more bytes
+        triceDisableTxEmptyInterrupt();
+    }
+}
+
+// triceTriggerTransmit as triceTriggerU8FifoTransmit must be called cyclically to initialize write out.
+TRICE_INLINE void triceTriggerTransmit(void){
+    if( triceU8FifoDepth() && triceTxDataRegisterEmpty() ){
+        triceEnableTxEmptyInterrupt(); // next bytes
+    }
+}
+#endif // #ifdef TRICE_FIFO_BYTE_SIZE
+
 
 ///////////////////////////////////////////////////////////////////////////////
 // Encryption
@@ -763,71 +707,6 @@ extern uint8_t TriceCycle;
 #endif // #else // #if 1 // uint32_t count
 #endif // #else // #ifdef TRICE_OFF
 
-//  #ifdef TRICE_RTT_CHANNEL
-//  #include "SEGGER_RTT.h"
-//  
-//  //! put one trice into RTT0 buffer
-//  //! \param v trice
-//  //! trice time critical part
-//  TRICE_INLINE void triceU32PushSeggerRTT(uint32_t v) {
-//      SEGGER_RTT_Write(TRICE_RTT_CHANNEL, &v, sizeof(v));
-//  }
-//  
-//  //! put one byte into RTT0 buffer
-//  //! \param v byte
-//  //! trice time critical part
-//  TRICE_INLINE void triceU8PushSeggerRTT(uint8_t v) {
-//      SEGGER_RTT_Write(TRICE_RTT_CHANNEL, &v, sizeof(v));
-//  }
-//  
-//  #else // #ifdef TRICE_RTT_CHANNEL
-//  
-//  #define triceU8PushSeggerRTT(v)
-//  #define triceU32PushSeggerRTT(v)
-//  
-//  #endif // #else // #ifdef TRICE_RTT_CHANNEL
-//  
-//  #define TRICE_HTON_U32PUSH(v) TRICE_U32PUSH( TRICE_HTON(v) )
-//  
-//  //! TRICE_FIFO_BYTE_SIZE must be a power of 2, one trice needs typically 4 or 8 bytes, max 32 bytes.
-//  //! The fifo has to hold trice bursts until they are transmitted.
-//  //! It is transmitted with lower priority in the background for example with the UART tx interrupt.
-//  #ifndef TRICE_FIFO_BYTE_SIZE
-//  #define TRICE_FIFO_BYTE_SIZE (2048)
-//  #endif
-//  
-//  #define TRICE_U32_FIFO_MASK (((TRICE_FIFO_BYTE_SIZE)>>2)-1) //!< max possible int32 count in fifo
-//  extern uint32_t triceU32Fifo[ TRICE_FIFO_BYTE_SIZE>>2 ];
-//  extern int triceU32FifoWriteIndex;
-//  extern int triceU32FifoReadIndex;
-//  extern int triceFifoMaxDepth;
-//  
-//  //! triceU32Push puts one trice into trice fifo.
-//  //! This is a trice time critical part.
-//  //! \param v trice id with 2 byte data
-//  TRICE_INLINE void triceU32Push(uint32_t v) {
-//      triceU32Fifo[triceU32FifoWriteIndex++] = v;
-//      triceU32FifoWriteIndex &= TRICE_U32_FIFO_MASK;
-//  }
-//  
-//  //! triceU8Push puts one byte into trice fifo.
-//  //! This is a trice time critical part.
-//  //! \param v trice id with 2 byte data
-//  TRICE_INLINE void triceU8Push(uint8_t v) {
-//      triceU8Fifo[triceU8FifoWriteIndex++] = v;
-//      triceU8FifoWriteIndex &= TRICE_U8_FIFO_MASK;
-//  }
-//  
-//  //! triceU32Pop gets one trice from trice fifo.
-//  //! \return trice id with 2 byte data in one uint32_t.
-//  TRICE_INLINE uint32_t triceU32Pop(void) {
-//      uint32_t v = triceU32Fifo[triceU32FifoReadIndex++];
-//      triceU32FifoReadIndex &= TRICE_U32_FIFO_MASK;
-//      return v;
-//  }
-//  
-//  int triceU32FifoDepth(void);
-//  int triceU32WriteU8ReadFifoDepth(void);
 
 
 #ifdef __cplusplus
