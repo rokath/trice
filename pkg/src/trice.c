@@ -182,7 +182,6 @@ void TriceTransfer( void ){
             uint8_t* co = (uint8_t*)tb;
             uint8_t* tr = co + TRICE_DATA_OFFSET;
             size_t clen = COBSEncode(co, tr, tlen);
-            size_t count;
             TRICE_WRITE( co, clen );
         }
     }
