@@ -22,7 +22,7 @@
   </DaveTm>
 
   <Target>
-    <TargetName>MDK-ARM_LL_generatedDemo_STM32F030R8-NUCKEO-64</TargetName>
+    <TargetName>MDK-ARM_STM32F030R8_generated</TargetName>
     <ToolsetNumber>0x4</ToolsetNumber>
     <ToolsetName>ARM-ADS</ToolsetName>
     <TargetOption>
