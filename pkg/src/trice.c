@@ -162,11 +162,11 @@ uint32_t* TriceBufferSwap( void ){
     return &triceBuffer[!swap][0];
 }
 
-//! TriceTransferDepth parses tb and returns the total trice byte count ready for transfer.
+//! TriceTransferDepth returns the total trice byte count ready for transfer.
 //! The trice data start at tp + TRICE_DATA_OFFSET.
 //! The returned depth is without the TRICE_DATA_OFFSET offset.
 size_t TriceTransferDepth( uint32_t* tb ){
-    size_t triceDepth = (rTb - tb)<<2;  // diagnostics
+    size_t triceDepth = (rTb - tb)<<2;
     TriceDepthMax = triceDepth < TriceDepthMax ? TriceDepthMax : triceDepth; // diagnostics
     return triceDepth - TRICE_DATA_OFFSET;
 }
