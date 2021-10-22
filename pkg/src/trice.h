@@ -128,7 +128,7 @@ extern "C" {
 ///////////////////////////////////////////////////////////////////////////////
 // Declarations
 
-unsigned triceToCOBS( uint8_t* c, uint8_t * t );
+unsigned TriceSingleToCOBS( uint8_t* co, uint8_t * tr );
 extern uint16_t TriceDepthMax;
 
 int triceU8FifoDepth(void);
@@ -137,8 +137,9 @@ extern unsigned triceU8FifoWriteIndex;
 extern unsigned triceU8FifoReadIndex;
 
 void triceCheckSet( int index ); //!< tests
-void TriceReadAndTranslate( void );
-void TriceReadAndRTTWrite( void );
+void TriceSingleReadAndTranslate( void );
+void TriceSingleReadAndRTTWrite( void );
+void TriceMultiReadAndRTTWrite( void );
 
 #define TRICE_LITTLE_ENDIANNESS 0x00112233 //!< TRICE_LITTLE_ENDIANNESS is the default for TRICE_HARDWARE_ENDIANNESS and TRICE_TRANSFER_ENDIANNESS.
 #define TRICE_BIG_ENDIANNESS    0x33221100 //!< TRICE_BIG_ENDIANNESS is the option for TRICE_HARDWARE_ENDIANNESS and TRICE_TRANSFER_ENDIANNESS.
@@ -146,18 +147,20 @@ void TriceReadAndRTTWrite( void );
 //
 ///////////////////////////////////////////////////////////////////////////////
 
+#define PUT(x) do{ *wTb++ = x; }while(0) //! PUT copies a 32 bit x into the TRICE buffer.
+#define PUT_BUFFER( buf, len ) do{ memcpy( wTb, buf, len ); wTb += (len+3)>>2; }while(0) //! PUT_BUFFER copies a buffer into the TRICE buffer.
+
 //! Direct output to UART with cycle counter. Trices inside interrupts allowed. Direct TRICE macro execution.
 //! Command line similar to: "trice log -p COM1 -baud 115200"
 #if TRICE_MODE == 0
 #define TRICE_CYCLE_COUNTER 1 //! Use cycle counter.
 #define TRICE_PUTCHAR( c ) do{ while( !triceTxDataRegisterEmpty() ); triceTransmitData8( c ); }while(0)
-#define TRICE_ENTER TRICE_ENTER_CRITICAL_SECTION { \
+#define TRICE_ENTER /*! Start of TRICE macro */ \
+    TRICE_ENTER_CRITICAL_SECTION { \
     ALIGN4 uint8_t co[80]; ALIGN4_END /* This is stack space and must be capable to hold the longest used TRICE plus 4 */ \
     uint8_t* tr = co + 4; /* use same buffer twice, offset must be a multiple of uint32_t */ \
     uint32_t* wTb = (uint32_t*)tr;
-#define PUT(x) do{ *wTb++ = x; }while(0)
-#define PUT_BUFFER( buf, len ) do{ memcpy( wTb, buf, len ); wTb += (len+3)>>2; }while(0)
-#define TRICE_LEAVE { \
+#define TRICE_LEAVE { /*! End of TRICE macro */ \
     unsigned clen = triceToCOBS( co, tr ); \
     TriceDepthMax = clen < TriceDepthMax ? TriceDepthMax : clen; /* diagnostics */ \
     for( unsigned i = 0; i < clen; i++ ){ TRICE_PUTCHAR( co[i] ); } \
@@ -172,14 +175,13 @@ void TriceReadAndRTTWrite( void );
 #include "SEGGER_RTT.h"
 #define TRICE_WRITE( buf, len ) do{ SEGGER_RTT_Write(0 /*BufferIndex*/, buf, len ); }while(0)
 #define TRICE_CYCLE_COUNTER 1 //! Use cycle counter.
-#define TRICE_ENTER TRICE_ENTER_CRITICAL_SECTION { \
+#define TRICE_ENTER /*! Start of TRICE macro */ \
+    TRICE_ENTER_CRITICAL_SECTION { \
     ALIGN4 uint8_t co[80]; ALIGN4_END /* This is stack space and must be capable to hold the longest used TRICE plus 4 (offset) */ \
     uint8_t* tr = co + 4; /* use same buffer twice, offset must be a multiple of uint32_t */ \
     uint32_t* wTb = (uint32_t*)tr;
-#define PUT(x) do{ *wTb++ = x; }while(0)
-#define PUT_BUFFER( buf, len ) do{ memcpy( wTb, buf, len ); wTb += (len+3)>>2; }while(0)
-#define TRICE_LEAVE { \
-    unsigned clen = triceToCOBS( co, tr ); \
+#define TRICE_LEAVE { /*! End of TRICE macro */ \
+    unsigned clen = TriceSingleToCOBS( co, tr ); \
     TriceDepthMax = clen < TriceDepthMax ? TriceDepthMax : clen; /* diagnostics */ \
     TRICE_WRITE( co, clen ); \
     } } TRICE_LEAVE_CRITICAL_SECTION
@@ -189,30 +191,26 @@ void TriceReadAndRTTWrite( void );
 //! Command line similar to: "trice log -p COM1 -baud 115200"
 #if TRICE_MODE == 100
 #define TRICE_CYCLE_COUNTER 1 //! add cycle counter
-#define TRICE_ENTER TRICE_ENTER_CRITICAL_SECTION
-#define TRICE_LEAVE TRICE_LEAVE_CRITICAL_SECTION
-#define PUT(x) do{ *wTb++ = x; }while(0)
-#define PUT_BUFFER( buf, len ) do{ \
-    memcpy( wTb, buf, len ); \
-    wTb += (len+3)>>2; }while(0) // step wTb forward according to len
+#define TRICE_ENTER /*! Start of TRICE macro */ \
+    TRICE_ENTER_CRITICAL_SECTION
+#define TRICE_LEAVE /*! End of TRICE macro */ \
+    TRICE_LEAVE_CRITICAL_SECTION
 #define TRICE_READ_AND_TRANSLATE_INTERVAL_MS 10
 #define TRICE_BUFFER_SIZE 2500 //!< This is the size of both buffers together
 #define TRICE_FIFO_BYTE_SIZE 1024 //!< must be a power of 2, 32 could be ok in dependence of the maximum param count
-#define TRICE_READ_AND_TRANSFER TriceReadAndTranslate
+#define TRICE_READ_AND_TRANSFER TriceSingleReadAndTranslate
 #endif
 
 //! Double Buffering output to UART without cycle counter. No trices inside interrupts allowed. Super fast TRICE macro execution. 
 //! Command line similar to: `trice log -p COM1 -baud 115200  -cc=false`
 #if TRICE_MODE == 101
 #define TRICE_CYCLE_COUNTER 0 //! add cycle counter
-#define TRICE_ENTER 
-#define TRICE_LEAVE
-#define PUT(x) do{ *wTb++ = x; }while(0)
-#define PUT_BUFFER( dynString, len ) do{ memcpy( wTb, dynString, len ); wTb += (len+3)>>2; }while(0)
+#define TRICE_ENTER /*! Start of TRICE macro */
+#define TRICE_LEAVE /*! End of TRICE macro */
 #define TRICE_READ_AND_TRANSLATE_INTERVAL_MS 10
 #define TRICE_BUFFER_SIZE 2500 //!< This is the size of both buffers together
 #define TRICE_FIFO_BYTE_SIZE 1024 //!< must be a power of 2, 32 could be ok in dependence of the maximum param count
-#define TRICE_READ_AND_TRANSFER TriceReadAndTranslate
+#define TRICE_READ_AND_TRANSFER TriceSingleReadAndTranslate
 #endif
 
 //! Double Buffering output to RTT with cycle counter. Trices inside interrupts allowed. Fast TRICE macro execution. 
@@ -221,16 +219,30 @@ void TriceReadAndRTTWrite( void );
 #include "SEGGER_RTT.h"
 #define TRICE_WRITE( buf, len ) do{ SEGGER_RTT_Write(0 /*BufferIndex*/, buf, len ); }while(0)
 #define TRICE_CYCLE_COUNTER 1 //! add cycle counter
-#define TRICE_ENTER TRICE_ENTER_CRITICAL_SECTION
-#define TRICE_LEAVE TRICE_LEAVE_CRITICAL_SECTION
-#define PUT(x) do{ *wTb++ = x; }while(0)
-#define PUT_BUFFER( buf, len ) do{ \
-    memcpy( wTb, buf, len ); \
-    wTb += (len+3)>>2; }while(0) // step wTb forward according to len
+#define TRICE_ENTER /*! Start of TRICE macro */ \
+    TRICE_ENTER_CRITICAL_SECTION
+#define TRICE_LEAVE /*! End of TRICE macro */ \
+    TRICE_LEAVE_CRITICAL_SECTION
 #define TRICE_READ_AND_TRANSLATE_INTERVAL_MS 10
 #define TRICE_BUFFER_SIZE 1500 //!< This is the size of both buffers together
 #define TRICE_MAX_SIZE 80 //!< This is stack space and must be capable to hold the longest used TRICE.
-#define TRICE_READ_AND_TRANSFER TriceReadAndRTTWrite
+#define TRICE_READ_AND_TRANSFER TriceSingleReadAndRTTWrite
+#endif
+
+//! Double Buffering output to RTT with cycle counter. Trices inside interrupts allowed. Fast TRICE macro execution. 
+//! Command line similar to: `trice l -args="-Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0 -RTTSearchRanges 0x20000000_0x1000"`
+#if TRICE_MODE == 200
+#include "SEGGER_RTT.h"
+#define TRICE_WRITE( buf, len ) do{ SEGGER_RTT_Write(0 /*BufferIndex*/, buf, len ); }while(0)
+#define TRICE_CYCLE_COUNTER 1 //! add cycle counter
+#define TRICE_ENTER /*! Start of TRICE macro */ \
+    TRICE_ENTER_CRITICAL_SECTION
+#define TRICE_LEAVE /*! End of TRICE macro */ \
+    TRICE_LEAVE_CRITICAL_SECTION
+#define TRICE_READ_AND_TRANSLATE_INTERVAL_MS 10
+#define TRICE_BUFFER_SIZE 1500 //!< This is the size of both buffers together
+//#define TRICE_MAX_SIZE 80 //!< This is stack space and must be capable to hold the longest used TRICE.
+#define TRICE_READ_AND_TRANSFER TriceMultiReadAndRTTWrite
 #endif
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -458,7 +470,7 @@ extern uint8_t TriceCycle;
 //! \param v0 - v1 are 8 bit bit values
 #define TRICE8_2( id, pFmt, v0, v1 ) \
     TRICE_ENTER \
-    PUT( id | 0x0200 | TRICE_CYCLE ); \
+    PUT( id | 0x0100 | TRICE_CYCLE ); \
     PUT( (uint8_t)(v0) | ((uint16_t)(v1)<<8) ); \
     TRICE_LEAVE
 
@@ -467,7 +479,7 @@ extern uint8_t TriceCycle;
 //! \param v0 - v2 are 8 bit bit values
 #define TRICE8_3( id, pFmt, v0, v1, v2 ) \
     TRICE_ENTER \
-    PUT( id | 0x0300 | TRICE_CYCLE ); \
+    PUT( id | 0x0100 | TRICE_CYCLE ); \
     PUT( (uint8_t)(v0) | ((uint16_t)(v1)<<8) | ((uint32_t)(0xff&(v2))<<16) ); \
     TRICE_LEAVE
 
@@ -476,7 +488,7 @@ extern uint8_t TriceCycle;
 //! \param v0 - v3 are 8 bit bit values
 #define TRICE8_4( id, pFmt, v0, v1, v2, v3 ) \
     TRICE_ENTER \
-    PUT( id | 0x0400 | TRICE_CYCLE ); \
+    PUT( id | 0x0100 | TRICE_CYCLE ); \
     PUT( (uint8_t)(v0) | ((uint16_t)(v1)<<8) | ((uint32_t)(0xff&(v2))<<16) | ((uint32_t)(v3)<<24) ); \
     TRICE_LEAVE
 
@@ -485,7 +497,7 @@ extern uint8_t TriceCycle;
 //! \param v0 - v4 are 8 bit bit values
 #define TRICE8_5( id, pFmt, v0, v1, v2, v3, v4 ) \
     TRICE_ENTER \
-    PUT( id | 0x0500 | TRICE_CYCLE ); \
+    PUT( id | 0x0200 | TRICE_CYCLE ); \
     PUT( (uint8_t)(v0) | ((uint16_t)(v1)<<8) | ((uint32_t)(0xff&(v2))<<16) | ((uint32_t)(v3)<<24) ); \
     PUT( (uint8_t)(v4) ); \
     TRICE_LEAVE
@@ -495,7 +507,7 @@ extern uint8_t TriceCycle;
 //! \param v0 - v5 are 8 bit bit values
 #define TRICE8_6( id, pFmt, v0, v1, v2, v3, v4, v5 ) \
     TRICE_ENTER \
-    PUT( id | 0x0600 | TRICE_CYCLE ); \
+    PUT( id | 0x0200 | TRICE_CYCLE ); \
     PUT( (uint8_t)(v0) | ((uint16_t)(v1)<<8) | ((uint32_t)(0xff&(v2))<<16) | ((uint32_t)(v3)<<24) ); \
     PUT( (uint8_t)(v4) | ((uint16_t)(v5)<<8) ); \
     TRICE_LEAVE
@@ -505,7 +517,7 @@ extern uint8_t TriceCycle;
 //! \param v0 - v6 are 8 bit bit values
 #define TRICE8_7( id, pFmt, v0, v1, v2, v3, v4, v5, v6 ) \
     TRICE_ENTER \
-    PUT( id | 0x0700 | TRICE_CYCLE ); \
+    PUT( id | 0x0200 | TRICE_CYCLE ); \
     PUT( (uint8_t)(v0) | ((uint16_t)(v1)<<8) | ((uint32_t)(0xff&(v2))<<16) | ((uint32_t)(v3)<<24) ); \
     PUT( (uint8_t)(v4) | ((uint16_t)(v5)<<8) | ((uint32_t)(0xff&(v6))<<16) ); \
     TRICE_LEAVE
@@ -515,7 +527,7 @@ extern uint8_t TriceCycle;
 //! \param v0 - v7 are 8 bit bit values
 #define TRICE8_8( id, pFmt, v0, v1, v2, v3, v4, v5, v6, v7 ) \
     TRICE_ENTER \
-    PUT( id | 0x0800 | TRICE_CYCLE ); \
+    PUT( id | 0x0200 | TRICE_CYCLE ); \
     PUT( (uint8_t)(v0) | ((uint16_t)(v1)<<8) | ((uint32_t)(0xff&(v2))<<16) | ((uint32_t)(v3)<<24) ); \
     PUT( (uint8_t)(v4) | ((uint16_t)(v5)<<8) | ((uint32_t)(0xff&(v6))<<16) | ((uint32_t)(v7)<<24) ); \
     TRICE_LEAVE
@@ -525,7 +537,7 @@ extern uint8_t TriceCycle;
 //! \param v0 a 16 bit value
 #define TRICE16_1( id, pFmt, v0 ) \
     TRICE_ENTER \
-    PUT( id | 0x0200 | TRICE_CYCLE ); \
+    PUT( id | 0x0100 | TRICE_CYCLE ); \
     PUT( (uint16_t)(v0) ); \
     TRICE_LEAVE
 
@@ -534,7 +546,7 @@ extern uint8_t TriceCycle;
 //! \param v0 - v1 are 16 bit values
 #define TRICE16_2( id, pFmt, v0, v1 ) \
     TRICE_ENTER \
-    PUT( id | 0x0400 | TRICE_CYCLE ); \
+    PUT( id | 0x0100 | TRICE_CYCLE ); \
     PUT((uint16_t)(v0) | ((uint32_t)(v1)<<16) ); \
     TRICE_LEAVE
 
@@ -543,7 +555,7 @@ extern uint8_t TriceCycle;
 //! \param v0 - v2 are 16 bit values
 #define TRICE16_3( id, pFmt, v0, v1, v2 ) \
     TRICE_ENTER \
-    PUT( id | 0x0600 | TRICE_CYCLE ); \
+    PUT( id | 0x0200 | TRICE_CYCLE ); \
     PUT((uint16_t)(v0) | ((uint32_t)(v1)<<16) ); \
     PUT( (uint16_t)(v2) ); \
     TRICE_LEAVE
@@ -553,7 +565,7 @@ extern uint8_t TriceCycle;
 //! \param v0 - v3 are 16 bit values
 #define TRICE16_4( id, pFmt, v0, v1, v2, v3 ) \
     TRICE_ENTER \
-    PUT( id | 0x0800 | TRICE_CYCLE ); \
+    PUT( id | 0x0200 | TRICE_CYCLE ); \
     PUT((uint16_t)(v0) | ((uint32_t)(v1)<<16) ); \
     PUT((uint16_t)(v2) | ((uint32_t)(v3)<<16) ); \
     TRICE_LEAVE
@@ -563,7 +575,7 @@ extern uint8_t TriceCycle;
 //! \param v0 the 32 bit value
 #define TRICE32_1( id, pFmt, v0 ) \
     TRICE_ENTER \
-    PUT( id | 0x0400 | TRICE_CYCLE); \
+    PUT( id | 0x0100 | TRICE_CYCLE); \
     PUT( (uint32_t)(v0) ); /* little endian*/ \
     TRICE_LEAVE
 
@@ -572,7 +584,7 @@ extern uint8_t TriceCycle;
 //! \param v0 - v1 are 32 bit values
 #define TRICE32_2( id, pFmt, v0, v1 ) \
     TRICE_ENTER \
-    PUT(id | 0x0800 | TRICE_CYCLE ); \
+    PUT(id | 0x0200 | TRICE_CYCLE ); \
     PUT( (uint32_t)(v0) ); \
     PUT( (uint32_t)(v1) ); \
     TRICE_LEAVE
@@ -582,7 +594,7 @@ extern uint8_t TriceCycle;
 //! \param v0 - v2 are 32 bit values
 #define TRICE32_3( id, pFmt, v0, v1, v2 ) \
     TRICE_ENTER \
-    PUT( id | 0x0c00 | TRICE_CYCLE ); \
+    PUT( id | 0x0300 | TRICE_CYCLE ); \
     PUT( (uint32_t)(v0) ); \
     PUT( (uint32_t)(v1) ); \
     PUT( (uint32_t)(v2) ); \
@@ -593,7 +605,7 @@ extern uint8_t TriceCycle;
 //! \param v0 - v3 are 32 bit values
 #define TRICE32_4( id, pFmt, v0, v1, v2, v3 ) \
     TRICE_ENTER \
-    PUT( id | 0x1000 | TRICE_CYCLE ); \
+    PUT( id | 0x0400 | TRICE_CYCLE ); \
     PUT( (uint32_t)(v0) ); \
     PUT( (uint32_t)(v1) ); \
     PUT( (uint32_t)(v2) ); \
@@ -607,7 +619,7 @@ extern uint8_t TriceCycle;
 //! \param v0 is a 64 bit values
 #define TRICE64_1( id, pFmt, v0 ) \
     TRICE_ENTER \
-    PUT( id | 0x0800 | TRICE_CYCLE ); \
+    PUT( id | 0x0200 | TRICE_CYCLE ); \
     PUT( (uint32_t)(v0) ); \
     PUT( (uint32_t)((uint64_t)(v0)>>32) ); \
     TRICE_LEAVE
@@ -617,7 +629,7 @@ extern uint8_t TriceCycle;
 //! \param v0 - v1 are 64 bit values
 #define TRICE64_2( id, pFmt, v0, v1 ) \
     TRICE_ENTER \
-    PUT( id | 0x1000 | TRICE_CYCLE ); \
+    PUT( id | 0x0400 | TRICE_CYCLE ); \
     PUT( (uint32_t)(v0) ); \
     PUT( (uint32_t)((uint64_t)(v0)>>32) ); \
     PUT( (uint32_t)(v1) ); \
@@ -629,7 +641,7 @@ extern uint8_t TriceCycle;
 //! \param v0 - v2 are 64 bit values
 #define TRICE64_3( id, pFmt, v0, v1, v2 ) \
     TRICE_ENTER \
-    PUT( id | 0x1800 | TRICE_CYCLE ); \
+    PUT( id | 0x0600 | TRICE_CYCLE ); \
     PUT( (uint32_t)(v0) ); \
     PUT( (uint32_t)(v0>>32) ); \
     PUT( (uint32_t)(v1) ); \
@@ -644,7 +656,7 @@ extern uint8_t TriceCycle;
 //! \param v0 - v3 are 64 bit values
 #define TRICE64_4( id, pFmt, v0, v1, v2, v3 ) \
     TRICE_ENTER \
-    PUT( id | 0x2000 | TRICE_CYCLE ); \
+    PUT( id | 0x0800 | TRICE_CYCLE ); \
     PUT( (uint32_t)(v0) ); \
     PUT( (uint32_t)(v0>>32) ); \
     PUT( (uint32_t)(v1) ); \
@@ -660,17 +672,15 @@ extern uint8_t TriceCycle;
 #endif // #else // #if TRICE_HARDWARE_ENDIANNESS == TRICE_LITTLE_ENDIANNESS
 #if 0
 #define TRICE8P( id, pFmt, buf, len) do { \
-    /*int len4;*/ \
     if( len <= 0 ){ \
         break; \
     } \
-    if( len > 4*255 ){ \
-        len = 4*255; \
+    if( len > 1000 ){ \
+        len = 1000; \
     } \
-    /*len4 = len>>2;*/ \
     TRICE_ENTER \
-    PUT( id | (len<<8) | TRICE_CYCLE ); \
-    PUT( len ); /* len4 does not contain the exact buf len anymore, so transmit it to the host */ \
+    PUT( id | (0xff00 & ((len+4)<<6)) | TRICE_CYCLE ); /* +4 for the buf size value transmitted in the payload to get the last 2 bits. */ \
+    PUT( len ); /* len does not contain the exact buf len anymore, so transmit it to the host */ \
            /* len is needed for non string buffers because the last 2 bits not stored in head. */ \
                                            /* All trices know the data length but not TRICE8B. */ \
     PUT_BUFFER( buf, len ); \
@@ -690,15 +700,15 @@ extern uint8_t TriceCycle;
 //! cLen-3 cLen-2 cLen-1 cLen
 #define TRICE_S( id, pFmt, dynString) do { \
     int len = strlen( dynString ); \
-    if( len > 4*254 ){ \
-        dynString[4*254] = 0; \
-        len = 4*254; \
+    if( len > 1000 ){ \
+        dynString[1000] = 0; \
+        len = 1000; \
     } \
     TRICE_ENTER \
-    PUT( id | ((len+4)<<8) | TRICE_CYCLE ); /* +4 for the buf size value transmitted in the payload to get the last 2 bits. */ \
-    PUT( len ); /* len4 does not contain the exact buf len anymore, so transmit it to the host */ \
+    PUT( id | (0xff00 & ((len+4)<<6)) | TRICE_CYCLE ); /* +4 for the buf size value transmitted in the payload to get the last 2 bits. */ \
+    PUT( len ); /* len as byte does not contain the exact buf len anymore, so transmit it to the host */ \
     /* len is needed for non string buffers because the last 2 bits not stored in head. */ \
-                                    /* All trices know the data length but not TRICE8B. */ \
+    /* All trices know the data length but not TRICE8P. len byte values 0xFC, xFD, xFE, xFF are reserved for future extensions. */ \
     PUT_BUFFER( dynString, len ); \
     TRICE_LEAVE \
 } while(0)

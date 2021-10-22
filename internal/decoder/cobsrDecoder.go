@@ -155,10 +155,9 @@ func (p *COBSR) Read(b []byte) (n int, err error) {
 		n += copy(b[n:], fmt.Sprintln(hints))
 		return
 	}
-	var triceID id.TriceID
 	if CycleCounter {
-		cycle := d[0] // little endian transfer format
-		if cycle != p.cycle {
+		cycle := d[0]                              // little endian transfer format
+		if /*cycle != 0xc0 &&*/ cycle != p.cycle { // no cycle check for 0xc0 to avoid messages on every target reset and when no cycle counter is active
 			n += copy(b, fmt.Sprintln("CYCLE:", cycle, "not equal expected value", p.cycle, "- adjusting. Now", emitter.ColorChannelEvents("CYCLE")+1, "CycleEvents"))
 			p.cycle = cycle // adjust cycle
 		}
@@ -166,12 +165,13 @@ func (p *COBSR) Read(b []byte) (n int, err error) {
 		//  	n += copy(b[n:], fmt.Sprintln("dbg:-> cycle", cycle))
 		//  }
 		p.cycle++
-		d = d[1:] // drop cycle count
+		//d = d[1:] // drop cycle count
 	}
-	triceID = id.TriceID(binary.LittleEndian.Uint16(d[:2]))
+	u32cnt := int(d[1])
+	triceID := id.TriceID(binary.LittleEndian.Uint16(d[2:4]))
 	LastTriceID = triceID // used for showID
-	p.b = d[2:]           // drop id and transfer values
-	p.bc = len(p.b)
+	p.b = d[4:]           // drop head
+	p.bc = u32cnt * 4     // unsafe.Sizeof(uint32)        // len(p.b)
 	//  if DebugOut { // Debug output
 	//  	n += copy(b[n:], fmt.Sprintln("dbg:-> id", triceID, "byteCount", p.bc))
 	//  }
@@ -185,7 +185,7 @@ func (p *COBSR) Read(b []byte) (n int, err error) {
 		return
 	}
 	p.upperCaseTriceType = p.trice.Type // strings.ToUpper(p.trice.Type) // for trice* too
-	if p.expectedByteCount() != p.bc {
+	if p.expectedU32Count() != u32cnt { // p.bc {
 		n += copy(b[n:], fmt.Sprintln("err:trice.Type ", p.trice.Type, " with not matching parameter byte count ", p.bc, "- ignoring package", d))
 		n += copy(b[n:], fmt.Sprintln(hints))
 		return
@@ -198,6 +198,39 @@ func (p *COBSR) Read(b []byte) (n int, err error) {
 	//  	fmt.Println("DEBUG1:", string(b[:n]))
 	//  }
 	return
+}
+
+// byteCount returns expected byte count for triceType.
+// It returns -1 for an unknown value an -2 for unknown triceType.
+func (p *COBSR) expectedU32Count() int {
+	switch p.upperCaseTriceType {
+	case "TRICE0":
+		return 0
+	case "TRICE8_1":
+		return 1
+	case "TRICE8_2", "TRICE16_1":
+		return 1
+	case "TRICE8_3":
+		return 1
+	case "TRICE8_4", "TRICE16_2", "TRICE32_1":
+		return 1
+	case "TRICE8_5":
+		return 2
+	case "TRICE8_6", "TRICE16_3":
+		return 2
+	case "TRICE8_7":
+		return 2
+	case "TRICE8_8", "TRICE16_4", "TRICE32_2", "TRICE64_1":
+		return 2
+	case "TRICE32_3":
+		return 3
+	case "TRICE32_4", "TRICE64_2":
+		return 4
+	case "TRICE_S":
+		return p.bc >> 2 // fake value for the check. To do: Check len with transmitted length.
+	default:
+		return -1 // unknown trice type
+	}
 }
 
 // byteCount returns expected byte count for triceType.
