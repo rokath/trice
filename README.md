@@ -48,7 +48,7 @@ Tiny & super fast tracer **C** code for embedded device real-time PC logging (tr
 
 ## ATTENTION
 
-Currently the **TRICE** technique is changing heavily. The `flex` and `esc` encodings will be replaced by a [COBS](https://en.wikipedia.org/wiki/Consistent_Overhead_Byte_Stuffing) encoding which will be the default in the future. The stuff works already well but is not in its final state and is not documented vet. The internal speed goes to its limit (~6 clocks per trice) by using a double buffer instead of a fifo. Also porting will get easier. I will make a release until december 2021 but feel free us use the sources directly.
+Currently the **TRICE** technique is changing heavily. The `flex` and `esc` encodings will be replaced by a [COBS](https://en.wikipedia.org/wiki/Consistent_Overhead_Byte_Stuffing) encoding which will be the default in the future. The stuff works already well but is not in its final state and is not documented vet. The internal speed goes to its limit (~6 clocks per trice) by using a double buffer instead of a fifo. Also porting will get easier. I will make a release until december 2021 but you can use the sources already.
 
 ## About
 
