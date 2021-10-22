@@ -11,7 +11,7 @@ extern "C" {
 
 #include <stdint.h>
 
-#define TRICE_MODE 0
+#define TRICE_MODE 200
 
 //! Direct output to UART with cycle counter. Trices inside interrupts allowed. Direct TRICE macro execution.
 //! Command line similar to: "trice log -p COM1 -baud 115200"
@@ -79,6 +79,23 @@ extern "C" {
     TRICE0( Id( 55144), "att: Double buff RTT, +cycle, +int  " ); \
     TRICE0( Id( 46377), "s:     \ns:                                          \n");
 #endif
+
+
+//! Double Buffering output to RTT with cycle counter. Trices inside interrupts allowed. Fast TRICE macro execution. 
+//! Command line similar to: `trice l -args="-Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0 -RTTSearchRanges 0x20000000_0x1000"`
+#if TRICE_MODE == 200
+#include "SEGGER_RTT.h"
+#define RTT_WRITE( buf, len ) do{ SEGGER_RTT_Write(0 /*BufferIndex*/, buf, len ); }while(0)
+//#define RTT_WRITE( buf, len )do{ unsigned x; do{ x=SEGGER_RTT_WriteSkipNoLock(0 /*BufferIndex*/, buf, len ); }while(x==0); }while(0)
+#define TRICE_HEADLINE \
+    TRICE0( Id( 57449), "s:                                          \n" ); \
+    TRICE8( Id( 61754), "s:  TRICE_MODE %3d                          \n", TRICE_MODE ); \
+    TRICE0( Id( 46700), "s:                                          \ns:     " ); \
+    TRICE0( Id( 55144), "att: Double buff RTT, +cycle, +int  " ); \
+    TRICE0( Id( 46377), "s:     \ns:                                          \n");
+#endif
+
+
 
 // #define TRICE_RTT_CHANNEL 0 //!< Uncomment and set channel number for SeggerRTT usage
 
