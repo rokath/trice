@@ -11,7 +11,7 @@ extern "C" {
 
 #include <stdint.h>
 
-#define TRICE_MODE 0 // 100, 101, 10, 110 ok, 200 needs trice tool modification but works on target side
+#define TRICE_MODE 200 // 100, 101, 10, 110 ok, 200 needs trice tool modification but works on target side
 
 //! Direct output to UART with cycle counter. Trices inside interrupts allowed. Direct TRICE macro execution.
 //! Command line similar to: "trice log -p COM1 -baud 115200"

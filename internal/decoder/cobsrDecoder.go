@@ -184,7 +184,7 @@ func (p *COBSR) Read(b []byte) (n int, err error) {
 		n += copy(b[n:], fmt.Sprintln(hints))
 		return
 	}
-	p.upperCaseTriceType = p.trice.Type // strings.ToUpper(p.trice.Type) // for trice* too
+	//p.upperCaseTriceType = p.trice.Type // strings.ToUpper(p.trice.Type) // for trice* too
 	if p.expectedU32Count() != u32cnt { // p.bc {
 		n += copy(b[n:], fmt.Sprintln("err:trice.Type ", p.trice.Type, " with not matching parameter byte count ", p.bc, "- ignoring package", d))
 		n += copy(b[n:], fmt.Sprintln(hints))
@@ -203,7 +203,7 @@ func (p *COBSR) Read(b []byte) (n int, err error) {
 // byteCount returns expected byte count for triceType.
 // It returns -1 for an unknown value an -2 for unknown triceType.
 func (p *COBSR) expectedU32Count() int {
-	switch p.upperCaseTriceType {
+	switch p.triceType {
 	case "TRICE0":
 		return 0
 	case "TRICE8_1":
@@ -228,39 +228,6 @@ func (p *COBSR) expectedU32Count() int {
 		return 4
 	case "TRICE_S":
 		return p.bc >> 2 // fake value for the check. To do: Check len with transmitted length.
-	default:
-		return -1 // unknown trice type
-	}
-}
-
-// byteCount returns expected byte count for triceType.
-// It returns -1 for an unknown value an -2 for unknown triceType.
-func (p *COBSR) expectedByteCount() int {
-	switch p.upperCaseTriceType {
-	case "TRICE0":
-		return 0
-	case "TRICE8_1":
-		return 1
-	case "TRICE8_2", "TRICE16_1":
-		return 2
-	case "TRICE8_3":
-		return 3
-	case "TRICE8_4", "TRICE16_2", "TRICE32_1":
-		return 4
-	case "TRICE8_5":
-		return 5
-	case "TRICE8_6", "TRICE16_3":
-		return 6
-	case "TRICE8_7":
-		return 7
-	case "TRICE8_8", "TRICE16_4", "TRICE32_2", "TRICE64_1":
-		return 8
-	case "TRICE32_3":
-		return 12
-	case "TRICE32_4", "TRICE64_2":
-		return 16
-	case "TRICE_S":
-		return p.bc // fake value for the check. To do: Check len with transmitted length.
 	default:
 		return -1 // unknown trice type
 	}
@@ -301,9 +268,9 @@ func (p *COBSR) sprintTrice(b []byte) int {
 	// p.rub(4) // remove header
 
 	for _, s := range cobsFunctionPtrList {
-		if s.triceType == p.upperCaseTriceType {
-			return s.triceFn(p, b)
-		}
+		//if s.triceType == p.upperCaseTriceType {
+		return s.triceFn(p, b)
+		//}
 	}
 	return copy(b, fmt.Sprintf("err:Unexpected trice.Type %s\n", p.trice.Type))
 }

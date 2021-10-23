@@ -162,10 +162,10 @@ func Translate(sw *emitter.TriceLineComposer, lut id.TriceIDLookUp, m *sync.RWMu
 		dec = NewCHARDecoder(lut, m, rc, endian)
 	case "DUMP":
 		dec = NewDUMPDecoder(lut, m, rc, endian)
-	case "ESC":
-		dec = NewEscDecoder(lut, m, rc, endian)
-	case "FLEX":
-		dec = NewFlexDecoder(lut, m, rc, endian)
+	//  case "ESC":
+	//  	dec = NewEscDecoder(lut, m, rc, endian)
+	//  case "FLEX":
+	//  	dec = NewFlexDecoder(lut, m, rc, endian)
 	default:
 		log.Fatalf(fmt.Sprintln("unknown encoding ", Encoding))
 	}
