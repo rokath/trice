@@ -91,18 +91,72 @@ type Decoder interface {
 
 // decoderData is the common data struct for all decoders.
 type decoderData struct {
-	in                 io.Reader        // inner reader
-	iBuf               []byte           // unprocessed (possibly decrypted) bytes for interpretation
-	inSync             bool             // flag for no need to re-sync
-	rubbed             int              // from interpret buffer removed bytes count
-	endian             bool             // LittleEndian or BigEndian
-	lut                id.TriceIDLookUp // id look-up map for translation
-	lutMutex           *sync.RWMutex    // to avoid concurrent map read and map write during map refresh triggered by filewatcher
-	trice              id.TriceFmt      // id.TriceFmt // received trice
-	upperCaseTriceType string           // This is the to upper case converted received trice type.
-	b                  []byte           // read buffer
-	lastInnerRead      time.Time
-	innerReadInterval  time.Duration
+	in                io.Reader        // in is the inner reader, which is used to get raw bytes
+	iBuf              []byte           // iBuf holds unprocessed (raw) bytes for interpretation.
+	b                 []byte           // read buffer holds a single decoded COBS package, which can contain several trices.
+	endian            bool             // endian is LittleEndian or BigEndian
+	lut               id.TriceIDLookUp // id look-up map for translation
+	lutMutex          *sync.RWMutex    // to avoid concurrent map read and map write during map refresh triggered by filewatcher
+	trice             id.TriceFmt      // id.TriceFmt // received trice
+	lastInnerRead     time.Time
+	innerReadInterval time.Duration
+}
+
+// DUMP is the Decoding instance for DUMP encoded trices.
+type DUMP struct {
+	decoderData
+	dumpCnt int
+}
+
+// NewDUMPDecoder provides a hex dump option for incoming bytes.
+func NewDUMPDecoder(lut id.TriceIDLookUp, m *sync.RWMutex, in io.Reader, endian bool) Decoder {
+	p := &DUMP{}
+	p.in = in
+	p.iBuf = make([]byte, 0, defaultSize)
+	p.lut = lut
+	p.lutMutex = m
+	p.endian = endian
+	return p
+}
+
+func (p *DUMP) Read(b []byte) (n int, err error) {
+	bb := make([]byte, 1024)
+	m, err := p.in.Read(bb)
+	for _, x := range bb[:m] {
+		//n += copy(b, fmt.Sprintf("%02x ", uint8(x))) // somehow buggy
+		fmt.Printf("%02X ", uint8(x)) // workaround
+		p.dumpCnt++
+		if p.dumpCnt == DumpLineByteCount {
+			//n += copy(b, fmt.Sprintln("")) // somehow buggy
+			fmt.Println("") // workaround
+			p.dumpCnt = 0
+		}
+	}
+	//fmt.Printf("m=%d, n=%d\n\n", m, n) // for debug
+	return n, err
+}
+
+// CHAR is the Decoding instance for DUMP encoded trices.
+type CHAR struct {
+	decoderData
+}
+
+// NewCHARDecoder provides a character terminal output option for the trice tool.
+func NewCHARDecoder(lut id.TriceIDLookUp, m *sync.RWMutex, in io.Reader, endian bool) Decoder {
+	p := &CHAR{}
+	p.in = in
+	p.iBuf = make([]byte, 0, defaultSize)
+	p.lut = lut
+	p.lutMutex = m
+	p.endian = endian
+	return p
+}
+
+func (p *CHAR) Read(b []byte) (n int, err error) {
+	bb := make([]byte, 256)
+	m, err := p.in.Read(bb)
+	fmt.Print(string(bb[:m]))
+	return n, err
 }
 
 // setInput allows switching the input stream to a different source.
@@ -112,6 +166,7 @@ func (p *decoderData) setInput(r io.Reader) {
 	p.in = r
 }
 
+// handleSIGTERM is called on CTRL-C shutdown.
 func handleSIGTERM(rc io.ReadCloser) {
 	// prepare CTRL-C shutdown reaction
 	sigs := make(chan os.Signal, 1)
@@ -151,11 +206,6 @@ func Translate(sw *emitter.TriceLineComposer, lut id.TriceIDLookUp, m *sync.RWMu
 	}
 	switch strings.ToUpper(Encoding) {
 	case "COBS":
-		if CycleCounter {
-			MinPackageLength = 3
-		} else {
-			MinPackageLength = 2
-		}
 		dec = NewCOBSRDecoder(lut, m, rc, endian)
 	//case "COBS/R", "COBSR":
 	case "CHAR":
@@ -252,32 +302,32 @@ func (p *decoderData) readU64(b []byte) uint64 {
 	return binary.BigEndian.Uint64(b)
 }
 
-// rub removes leading bytes from interpret buffer
-func (p *decoderData) rub(n int) {
-	if TestTableMode {
-		if emitter.NextLine {
-			emitter.NextLine = false
-			fmt.Printf("{ []byte{ ")
-		}
-		for _, b := range p.iBuf[0:n] { // just to see trice bytes per trice
-			fmt.Printf("%3d,", b)
-		}
-	}
-	p.rubbed += n
-	p.iBuf = p.iBuf[n:]
-}
+//  // rub removes leading bytes from interpret buffer
+//  func (p *decoderData) rub(n int) {
+//  	if TestTableMode {
+//  		if emitter.NextLine {
+//  			emitter.NextLine = false
+//  			fmt.Printf("{ []byte{ ")
+//  		}
+//  		for _, b := range p.iBuf[0:n] { // just to see trice bytes per trice
+//  			fmt.Printf("%3d,", b)
+//  		}
+//  	}
+//  	p.rubbed += n
+//  	p.iBuf = p.iBuf[n:]
+//  }
 
-// outOfSync generates an error message and removes first byte in input buffer.
-func (p *decoderData) outOfSync(msg string) (n int, e error) {
-	cnt := len(p.iBuf)
-	if cnt > 8 {
-		cnt = 8
-	}
-	n = copy(p.b, fmt.Sprintln("error:", msg, "ignoring first byte", p.iBuf[0:cnt]))
-	p.inSync = false
-	p.rub(1)
-	return
-}
+//  // outOfSync generates an error message and removes first byte in input buffer.
+//  func (p *decoderData) outOfSync(msg string) (n int, e error) {
+//  	cnt := len(p.iBuf)
+//  	if cnt > 8 {
+//  		cnt = 8
+//  	}
+//  	n = copy(p.b, fmt.Sprintln("error:", msg, "ignoring first byte", p.iBuf[0:cnt]))
+//  	p.inSync = false
+//  	p.rub(1)
+//  	return
+//  }
 
 // uReplaceN checks all format specifier in i and replaces %nu with %nd and returns that result as o.
 // If a replacement took place on position k u[k] is true. Afterwards len(u) is amount of found format specifiers.

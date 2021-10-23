@@ -17,7 +17,6 @@ import (
 )
 
 var (
-	MinPackageLength  int
 	DumpLineByteCount int
 )
 
@@ -25,17 +24,6 @@ var (
 type COBSR struct {
 	decoderData
 	cycle uint8
-	bc    int // trice specific bytes count
-}
-
-// DUMP is the Decoding instance for DUMP encoded trices.
-type DUMP struct {
-	decoderData
-}
-
-// CHAR is the Decoding instance for DUMP encoded trices.
-type CHAR struct {
-	decoderData
 }
 
 // NewCOBSRDecoder provides an EscDecoder instance.
@@ -46,84 +34,47 @@ func NewCOBSRDecoder(lut id.TriceIDLookUp, m *sync.RWMutex, in io.Reader, endian
 	p.cycle = 0xc0 // start value
 	p.in = in
 	p.iBuf = make([]byte, 0, defaultSize)
+	p.b = make([]byte, 0, defaultSize)
 	p.lut = lut
 	p.lutMutex = m
 	p.endian = endian
 	return p
 }
 
-func NewDUMPDecoder(lut id.TriceIDLookUp, m *sync.RWMutex, in io.Reader, endian bool) Decoder {
-	p := &DUMP{}
-	p.in = in
-	p.iBuf = make([]byte, 0, defaultSize)
-	p.lut = lut
-	p.lutMutex = m
-	p.endian = endian
-	return p
-}
-
-func NewCHARDecoder(lut id.TriceIDLookUp, m *sync.RWMutex, in io.Reader, endian bool) Decoder {
-	p := &CHAR{}
-	p.in = in
-	p.iBuf = make([]byte, 0, defaultSize)
-	p.lut = lut
-	p.lutMutex = m
-	p.endian = endian
-	return p
-}
-
-var dumpCnt int
-
-func (p *DUMP) Read(b []byte) (n int, err error) {
-	bb := make([]byte, 1024)
-	m, err := p.in.Read(bb)
-	for _, x := range bb[:m] {
-		//n += copy(b, fmt.Sprintf("%02x ", uint8(x))) // somehow buggy
-		fmt.Printf("%02X ", uint8(x)) // workaround
-		dumpCnt++
-		if dumpCnt == DumpLineByteCount {
-			//n += copy(b, fmt.Sprintln("")) // somehow buggy
-			fmt.Println("") // workaround
-			dumpCnt = 0
-		}
+// decodeCOBS expects in slice rd a byte sequence ending with a 0, writes the COBS decoded data to wr and returns len(wr).
+// If rd contains more bytes after the first 0 byte, these are ignored.
+// Needs to be written in a better way.
+func decodeCOBS(wr, rd []byte) int {
+	if len(wr) < len(rd) {
+		log.Fatalf("ERROR: len(wr) = %d < len(rd) = %d\n", len(wr), len(rd))
 	}
-	//fmt.Printf("m=%d, n=%d\n\n", m, n) // for debug
-	return n, err
+	d := cobs.Decode(rd) // to do: avoid allocation
+	if d == nil {
+		return 0
+	}
+	// fmt.Printf("################## len(d)=%d, len(rd)=%d\n", len(d), len(rd) )
+	// fmt.Printf("################## len(d)=%d, len(rd)=%d\n", len(d), len(rd) )
+	// fmt.Printf("################## len(d)=%d, len(rd)=%d\n", len(d), len(rd) )
+	// fmt.Printf("################## len(d)=%d, len(rd)=%d\n", len(d), len(rd) )
+	// fmt.Printf("################## len(d)=%d, len(rd)=%d\n", len(d), len(rd) )
+	// fmt.Printf("################## len(d)=%d, len(rd)=%d\n", len(d), len(rd) )
+	// fmt.Printf("################## len(d)=%d, len(rd)=%d\n", len(d), len(rd) )
+	return copy(wr, d)
 }
 
-func (p *CHAR) Read(b []byte) (n int, err error) {
-	bb := make([]byte, 256)
-	m, err := p.in.Read(bb)
-	fmt.Print(string(bb[:m]))
-	return n, err
-}
-
-// Read is the provided read method for COBS decoding of next string as byte slice.
-// It uses inner reader p.in and internal id look-up table to fill b with a string.
-// b is a slice of bytes with a len for the max expected string size.
-// n is the count of read bytes inside b.
-// Read returns usually one complete trice strings or nothing but can return concatenated
-// trice strings, each ending with a newline despite the last one, when messages added.
-// Read does not process all internally read complete trice packages to
-// separate trices within one line to keep them separated for color processing.
-// Therefore reads needs to be called cyclically even after returning io.EOF to process internal data.
-// When Read returns n=0, all processable complete trice packages are done,
-// but the start of a following trice package can be already inside the internal buffer.
-// In case of a not matching cycle, a warning message in trice format is prefixed.
-// In case of invalid package data, error messages in trice format are returned and the package is dropped.
-func (p *COBSR) Read(b []byte) (n int, err error) {
-	sizeMsg := fmt.Sprintln("ERROR:buf too small, expecting", defaultSize, "bytes.")
-	if len(b) < len(sizeMsg) {
-		return
-	}
-	if len(b) < defaultSize {
-		n = copy(b, sizeMsg)
-		return
-	}
+// nextCOBSpackage reads with an inner reader a COBS encoded byte stream.
+//
+// When no terminating 0 is found in the incoming bytes nextCOBSpackage returns without action.
+// That means the incoming data stream is exhausted and a next try should be started a bit later.
+// Some arrived bytes are kept internally and concatenated with the following bytes in a next Read.
+// When a terminating 0 is found in the incoming bytes ReadFromCOBS decodes the COBS package
+// and returns it in b and its len in n. If more data arrived after the first terminating 0,
+// these are kept internally and concatenated with the following bytes in a next Read.
+func (p *COBSR) nextCOBSpackage() {
 	// Here p.iBuf contains no or available bytes, what can be several trice messages.
 	// So first try to process p.iBuf
 	index := bytes.IndexByte(p.iBuf, 0) // find terminating 0
-	if index == -1 {                    // p.iBuf has no complete trice data, so try to read more input
+	if index == -1 {                    // p.iBuf has no complete COBS data, so try to read more input
 		bb := make([]byte, 1024)           // intermediate buffer
 		m, err := p.in.Read(bb)            // use bb as bytes read buffer
 		p.iBuf = append(p.iBuf, bb[:m]...) // merge with leftovers
@@ -131,79 +82,116 @@ func (p *COBSR) Read(b []byte) (n int, err error) {
 			log.Fatal("ERROR:internal reader error", err) // exit
 		}
 		index = bytes.IndexByte(p.iBuf, 0) // find terminating 0
-		if index == -1 {                   // p.iBuf has no complete trice data, so leave
+		if index == -1 {                   // p.iBuf has no complete COBS data, so leave
 			// Even err could be io.EOF, some valid data possibly in p.iBUf.
 			// In case of file input (J-LINK usage) a plug off is not detectable here.
-			return n, io.EOF // no terminating 0, nothing to do, n is 0 here
+			return // no terminating 0, nothing to do
 		}
 	}
-	hints := "att:Hints:Baudrate? Overflow? Encoding? Interrupt? CycleCounter? til.json?"
-	d := cobs.Decode(p.iBuf[:index+1])
+	// here a complete COBS package exists
+	p.b = make([]byte, defaultSize)
+	n := decodeCOBS(p.b, p.iBuf[:index+1])
+	p.b = p.b[:n]
 	if DebugOut { // Debug output
 		for _, x := range p.iBuf[:index+1] {
 			fmt.Printf("%02x ", x)
 		}
 		fmt.Print("\n-> ")
-		for _, x := range d {
+		for _, x := range p.b {
 			fmt.Printf("%02x ", x)
 		}
 		fmt.Println("")
 	}
-	p.iBuf = p.iBuf[index+1:] // step forward (next package data in d now)
-	if len(d) < MinPackageLength {
-		n += copy(b[n:], fmt.Sprintln("ERROR:package len", len(d), "is too short - ignoring package", d))
+	p.iBuf = p.iBuf[index+1:] // step forward (next package data in p.iBuf now, if any)
+	return
+}
+
+// Read is the provided read method for COBS decoding and provides next string as byte slice.
+// It uses inner reader p.in and internal id look-up table to fill b with a string.
+// b is a slice of bytes with a len for the max expected string size.
+// n is the count of read bytes inside b.
+// Read returns usually one complete trice string or nothing but can return concatenated
+// trice strings, each ending with a newline despite the last one, when messages added.
+// Read does not process all internally read complete trice packages to be able later to
+// separate trices within one line to keep them separated for color processing.
+// Therefore Read needs to be called cyclically even after returning io.EOF to process internal data.
+// When Read returns n=0, all processable complete trice packages are done,
+// but the start of a following trice package can be already inside the internal buffer.
+// In case of a not matching cycle, a warning message in trice format is prefixed.
+// In case of invalid package data, error messages in trice format are returned and the package is dropped.
+func (p *COBSR) Read(b []byte) (n int, err error) {
+	if len(p.b) == 0 { // last decoded COBS package exhausted
+		p.nextCOBSpackage()
+	}
+	if len(p.b) == 0 { // not enough data for a next package
+		return
+	}
+	// Inside p.pkg is here one or a partial package, what means one or more trice messages.
+	hints := "att:Hints:Baudrate? Overflow? Encoding? Interrupt? CycleCounter? til.json?"
+	if len(p.b) < 4 {
+		n += copy(b[n:], fmt.Sprintln("ERROR:package len", len(p.b), "is too short - ignoring package", p.b))
 		n += copy(b[n:], fmt.Sprintln(hints))
 		return
 	}
+	var head uint32
+	if p.endian == LittleEndian {
+		head = binary.LittleEndian.Uint32(p.b[0:4])
+	} else {
+		head = binary.BigEndian.Uint32(p.b[0:4])
+	}
 	if CycleCounter {
-		cycle := d[0]                              // little endian transfer format
-		if /*cycle != 0xc0 &&*/ cycle != p.cycle { // no cycle check for 0xc0 to avoid messages on every target reset and when no cycle counter is active
+		cycle := uint8(head)
+		if cycle != p.cycle { // no cycle check for 0xc0 to avoid messages on every target reset and when no cycle counter is active
 			n += copy(b, fmt.Sprintln("CYCLE:", cycle, "not equal expected value", p.cycle, "- adjusting. Now", emitter.ColorChannelEvents("CYCLE")+1, "CycleEvents"))
 			p.cycle = cycle // adjust cycle
 		}
-		//  if DebugOut { // Debug output
-		//  	n += copy(b[n:], fmt.Sprintln("dbg:-> cycle", cycle))
-		//  }
 		p.cycle++
-		//d = d[1:] // drop cycle count
 	}
-	u32cnt := int(d[1])
-	triceID := id.TriceID(binary.LittleEndian.Uint16(d[2:4]))
+	u32Cnt := int(uint8(head >> 8))
+	triceID := id.TriceID(uint16(head >> 16))
 	LastTriceID = triceID // used for showID
-	p.b = d[4:]           // drop head
-	p.bc = u32cnt * 4     // unsafe.Sizeof(uint32)        // len(p.b)
-	//  if DebugOut { // Debug output
-	//  	n += copy(b[n:], fmt.Sprintln("dbg:-> id", triceID, "byteCount", p.bc))
-	//  }
+	triceSize := 4 + 4*u32Cnt
+	if len(p.b) < triceSize {
+		n += copy(b[n:], fmt.Sprintln("ERROR:package len", len(p.b), "is too short - ignoring package", p.b))
+		n += copy(b[n:], fmt.Sprintln(hints))
+		return
+	}
 	var ok bool
 	p.lutMutex.RLock()
 	p.trice, ok = p.lut[triceID]
 	p.lutMutex.RUnlock()
 	if !ok { // unknown id
-		n += copy(b[n:], fmt.Sprintln("WARNING:unknown ID ", triceID, "- ignoring package", d))
+		n += copy(b[n:], fmt.Sprintln("WARNING:unknown ID ", triceID, "- ignoring trice", p.b[:triceSize]))
 		n += copy(b[n:], fmt.Sprintln(hints))
+		p.b = p.b[triceSize:]
 		return
 	}
-	//p.upperCaseTriceType = p.trice.Type // strings.ToUpper(p.trice.Type) // for trice* too
-	if p.expectedU32Count() != u32cnt { // p.bc {
-		n += copy(b[n:], fmt.Sprintln("err:trice.Type ", p.trice.Type, " with not matching parameter byte count ", p.bc, "- ignoring package", d))
+	expU32Cnt := p.expectedU32Count()
+	if expU32Cnt == -1 {
+		n += copy(b[n:], fmt.Sprintln("err:Unknown trice.Type ", p.trice.Type, "- ignoring trice", p.b[:triceSize]))
 		n += copy(b[n:], fmt.Sprintln(hints))
+		p.b = p.b[triceSize:]
 		return
 	}
-	//  if DebugOut { // Debug output
-	//  	fmt.Println("DEBUG0:", string(b[:n]))
-	//  }
+	if expU32Cnt == -2 { // no check for strings here
+		expU32Cnt = u32Cnt
+	}
+	if expU32Cnt != u32Cnt {
+		n += copy(b[n:], fmt.Sprintln("err:trice.Type ", p.trice.Type, " with not matching parameter uint32 count ", u32Cnt, "- ignoring trice", p.b[:triceSize]))
+		n += copy(b[n:], fmt.Sprintln(hints))
+		p.b = p.b[triceSize:]
+		return
+	}
+	p.b = p.b[4:]
 	n += p.sprintTrice(b[n:])
-	//  if DebugOut { // Debug output
-	//  	fmt.Println("DEBUG1:", string(b[:n]))
-	//  }
+	p.b = p.b[triceSize-4:]
 	return
 }
 
-// byteCount returns expected byte count for triceType.
-// It returns -1 for an unknown value an -2 for unknown triceType.
+// expectedU32Count returns expected uint32 count for triceType.
+// It returns -2 for an unknown value (strings) and -1 for unknown triceType.
 func (p *COBSR) expectedU32Count() int {
-	switch p.triceType {
+	switch p.trice.Type {
 	case "TRICE0":
 		return 0
 	case "TRICE8_1":
@@ -227,7 +215,7 @@ func (p *COBSR) expectedU32Count() int {
 	case "TRICE32_4", "TRICE64_2":
 		return 4
 	case "TRICE_S":
-		return p.bc >> 2 // fake value for the check. To do: Check len with transmitted length.
+		return -2 // fake value for the check. To do: Check len with transmitted length.
 	default:
 		return -1 // unknown trice type
 	}
@@ -265,12 +253,10 @@ func (p *COBSR) sprintTrice(b []byte) int {
 	if p.trice.Type == "TRICE_S" { // special case
 		return p.triceS(b)
 	}
-	// p.rub(4) // remove header
-
 	for _, s := range cobsFunctionPtrList {
-		//if s.triceType == p.upperCaseTriceType {
-		return s.triceFn(p, b)
-		//}
+		if s.triceType == p.trice.Type {
+			return s.triceFn(p, b)
+		}
 	}
 	return copy(b, fmt.Sprintf("err:Unexpected trice.Type %s\n", p.trice.Type))
 }
@@ -279,7 +265,15 @@ func (p *COBSR) triceS(b []byte) int {
 	if DebugOut {
 		fmt.Println(p.b)
 	}
-	return copy(b, fmt.Sprintf(p.trice.Strg, string(p.b[4:]))) // first 4 bytes are the payload length
+	var len uint32
+	if p.endian == LittleEndian {
+		len = binary.LittleEndian.Uint32(p.b[0:4])
+	} else {
+		len = binary.BigEndian.Uint32(p.b[0:4])
+	}
+	//p.b = p.b[4:] // The first 4 bytes are the payload length, drop length info.
+	s := p.b[4:len]
+	return copy(b, fmt.Sprintf(p.trice.Strg, string(s)))
 }
 
 func (p *COBSR) trice0(b []byte) int {

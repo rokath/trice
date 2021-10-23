@@ -24,7 +24,7 @@ func init() {
 	glob = new(sync.RWMutex)
 }
 
-func TestTranslate(t *testing.T) {
+func _TestTranslate(t *testing.T) {
 	glob.Lock()
 	defer glob.Unlock()
 	sw := emitter.New()
