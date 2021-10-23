@@ -129,12 +129,13 @@ uint32_t* wTb = &triceBuffer[TRICE_ACTIVE][TRICE_DATA_OFFSET>>2]; //!< wTb is th
 static uint32_t* rTb; //!< rTb is the active read position.
 #endif
 
-uint8_t co2[TRICE_BUFFER_SIZE]; // to do
 
-#if defined(RTT_WRITE) && defined(TRICE_MAX_SIZE)
+
+#if defined(RTT_WRITE) && defined(TRICE_SINGLE_MAX_SIZE)
 void TriceSingleReadAndRTTWrite( void ){
     uint8_t* t;
     uint16_t clen; // uint8_t clen, tlen;
+    static uint8_t co2[TRICE_SINGLE_MAX_SIZE]; // to do
     //if( triceU8FifoDepth() ){
     //    return; // transmission not done yet
     //}

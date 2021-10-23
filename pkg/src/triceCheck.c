@@ -99,7 +99,7 @@ void triceCheckSet(int index) {
             TRICE32_1( Id( 59357), "ATT:trice16_1 attention message, SysTick is %6d\n", SYSTICKVAL16);
             TRICE32_1( Id( 55647), "ATT:trice16_1 attention message, SysTick is %6d\n", SYSTICKVAL16);
             TRICE32_1( Id( 43058), "ATT:trice16_1 attention message, SysTick is %6d\n", SYSTICKVAL16);
-            TRICE32_1( Id( 58324), "ATT:trice16_1 attention message, SysTick is %6d\n", SYSTICKVAL16);
+            TRICE32_1( Id( 40194), "ATT:trice16_1 attention message, SysTick is %6d\n", SYSTICKVAL16);
             TRICE32_1( Id( 50626), "ATT:trice16_1 attention message, SysTick is %6d\n", SYSTICKVAL16);
             TRICE32_1( Id( 43507), "ATT:trice16_1 attention message, SysTick is %6d\n", SYSTICKVAL16);
             TRICE32_1( Id( 42521),  "rd:TRICE32_1 line %d\n", __LINE__ );
@@ -174,7 +174,7 @@ void triceCheckSet(int index) {
         case 7:
             TRICE8_1(Id( 52582), "tst:TRICE8_1 %02x\n", 0xA1);
             TRICE8_2(Id( 58020), "tst:TRICE8_2 %02x %02x\n", 0xA1, 0xA2);
-            TRICE8_3(Id( 39412), "tst:TRICE8_3 %02x %02x %02x\n", 0xA1, 0xA2, 0xA3);
+            TRICE8_3(Id( 40122), "tst:TRICE8_3 %02x %02x %02x\n", 0xA1, 0xA2, 0xA3);
             TRICE8_4(Id( 50551), "tst:TRICE8_4 %02x %02x %02x %02x\n", 0xA1, 0xA2, 0xA3, 0xA4);
             TRICE8_5(Id( 33857), "tst:TRICE8_5 %02x %02x %02x %02x %02x\n", 0xA1, 0xA2, 0xA3, 0xA4, 0xA5 );
             TRICE8_6(Id( 55004), "tst:TRICE8_6 %02x %02x %02x %02x %02x %02x\n", 0xA1, 0xA2, 0xA3, 0xA4, 0xA5, 0xA6);
@@ -272,13 +272,14 @@ void triceCheckSet(int index) {
         }
         break;
         case 15: 
-            triceRuntimeStrings(30, 35 );
+            triceRuntimeStrings(30, 32 );
         break;
+#if TRICE_MODE > 99 // direct modes have not enough buffer (or increase buffer size on stack ig possible=
         case 16: 
-            //triceRuntimeStrings(126, 132);
+            triceRuntimeStrings(132, 136);
         break;
         case 17: 
-            //triceRuntimeStrings(250, 252); // Count byte is fb=251
+            triceRuntimeStrings(250, 252); // Count byte is fb=251
             {
             static uint16_t cnt = 0;
             char *dataArray = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"; // The array with characters to send
@@ -287,6 +288,7 @@ void triceCheckSet(int index) {
             cnt++; 
         }
         break;
+#endif // #if TRICE_MODE > 99 
         case 18: 
             //triceRuntimeStrings(252, 253); // 252 not possible
         {

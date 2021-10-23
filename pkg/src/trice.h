@@ -157,11 +157,11 @@ void TriceMultiReadAndRTTWrite( void );
 #define TRICE_PUTCHAR( c ) do{ while( !triceTxDataRegisterEmpty() ); triceTransmitData8( c ); }while(0)
 #define TRICE_ENTER /*! Start of TRICE macro */ \
     TRICE_ENTER_CRITICAL_SECTION { \
-    ALIGN4 uint8_t co[80]; ALIGN4_END /* This is stack space and must be capable to hold the longest used TRICE plus 4 */ \
+    ALIGN4 uint8_t co[80]; ALIGN4_END /* This is stack space and must be capable to hold the longest used TRICE plus 4 (offset). Check TriceDepthMax at runtime. */ \
     uint8_t* tr = co + 4; /* use same buffer twice, offset must be a multiple of uint32_t */ \
     uint32_t* wTb = (uint32_t*)tr;
 #define TRICE_LEAVE { /*! End of TRICE macro */ \
-    unsigned clen = triceToCOBS( co, tr ); \
+    unsigned clen = TriceSingleToCOBS( co, tr ); \
     TriceDepthMax = clen < TriceDepthMax ? TriceDepthMax : clen; /* diagnostics */ \
     for( unsigned i = 0; i < clen; i++ ){ TRICE_PUTCHAR( co[i] ); } \
     } } TRICE_LEAVE_CRITICAL_SECTION
@@ -177,7 +177,7 @@ void TriceMultiReadAndRTTWrite( void );
 #define TRICE_CYCLE_COUNTER 1 //! Use cycle counter.
 #define TRICE_ENTER /*! Start of TRICE macro */ \
     TRICE_ENTER_CRITICAL_SECTION { \
-    ALIGN4 uint8_t co[80]; ALIGN4_END /* This is stack space and must be capable to hold the longest used TRICE plus 4 (offset) */ \
+    ALIGN4 uint8_t co[80]; ALIGN4_END /* This is stack space and must be capable to hold the longest used TRICE plus 4 (offset). Check TriceDepthMax at runtime. */ \
     uint8_t* tr = co + 4; /* use same buffer twice, offset must be a multiple of uint32_t */ \
     uint32_t* wTb = (uint32_t*)tr;
 #define TRICE_LEAVE { /*! End of TRICE macro */ \
@@ -225,7 +225,7 @@ void TriceMultiReadAndRTTWrite( void );
     TRICE_LEAVE_CRITICAL_SECTION
 #define TRICE_READ_AND_TRANSLATE_INTERVAL_MS 10
 #define TRICE_BUFFER_SIZE 1500 //!< This is the size of both buffers together
-#define TRICE_MAX_SIZE 80 //!< This is stack space and must be capable to hold the longest used TRICE.
+#define TRICE_SINGLE_MAX_SIZE 80 //!< This is stack space and must be capable to hold the longest used TRICE.
 #define TRICE_READ_AND_TRANSFER TriceSingleReadAndRTTWrite
 #endif
 
@@ -241,7 +241,6 @@ void TriceMultiReadAndRTTWrite( void );
     TRICE_LEAVE_CRITICAL_SECTION
 #define TRICE_READ_AND_TRANSLATE_INTERVAL_MS 10
 #define TRICE_BUFFER_SIZE 1500 //!< This is the size of both buffers together
-//#define TRICE_MAX_SIZE 80 //!< This is stack space and must be capable to hold the longest used TRICE.
 #define TRICE_READ_AND_TRANSFER TriceMultiReadAndRTTWrite
 #endif
 //
@@ -705,7 +704,7 @@ extern uint8_t TriceCycle;
         len = 1000; \
     } \
     TRICE_ENTER \
-    PUT( id | (0xff00 & ((len+4)<<6)) | TRICE_CYCLE ); /* +4 for the buf size value transmitted in the payload to get the last 2 bits. */ \
+    PUT( id | (0xff00 & ((len+7)<<6)) | TRICE_CYCLE ); /* +3 for padding, +4 for the buf size value transmitted in the payload to get the last 2 bits. */ \
     PUT( len ); /* len as byte does not contain the exact buf len anymore, so transmit it to the host */ \
     /* len is needed for non string buffers because the last 2 bits not stored in head. */ \
     /* All trices know the data length but not TRICE8P. len byte values 0xFC, xFD, xFE, xFF are reserved for future extensions. */ \
