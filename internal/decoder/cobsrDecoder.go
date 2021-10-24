@@ -53,6 +53,14 @@ func decodeCOBS(wr, rd []byte) int {
 	return copy(wr, d)
 }
 
+// dump prints the byte slice as hex in one line
+func dump(b []byte) {
+	for _, x := range b {
+		fmt.Printf("%02x ", x)
+	}
+	fmt.Println("")
+}
+
 // nextCOBSpackage reads with an inner reader a COBS encoded byte stream.
 //
 // When no terminating 0 is found in the incoming bytes nextCOBSpackage returns without action.
@@ -84,14 +92,10 @@ func (p *COBS) nextCOBSpackage() {
 	n := decodeCOBS(p.b, p.iBuf[:index+1])
 	p.b = p.b[:n]
 	if DebugOut { // Debug output
-		for _, x := range p.iBuf[:index+1] {
-			fmt.Printf("%02x ", x)
-		}
-		fmt.Print("\n-> ")
-		for _, x := range p.b {
-			fmt.Printf("%02x ", x)
-		}
-		fmt.Println("")
+		fmt.Print("COBS: ")
+		dump(p.iBuf[:index+1])
+		fmt.Print("-> PKG:  ")
+		dump(p.b)
 	}
 	p.iBuf = p.iBuf[index+1:] // step forward (next package data in p.iBuf now, if any)
 	return
@@ -169,6 +173,10 @@ func (p *COBS) Read(b []byte) (n int, err error) {
 		n += copy(b[n:], fmt.Sprintln(hints))
 		p.b = p.b[p.triceSize:]
 		return
+	}
+	if DebugOut {
+		fmt.Print("TRICE: ")
+		dump(p.b[:p.triceSize])
 	}
 	var ok bool
 	p.lutMutex.RLock()
