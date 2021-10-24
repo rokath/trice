@@ -377,8 +377,6 @@ func TestHelpAll(t *testing.T) {
             Set the serial port baudrate.
             It is the only setup parameter. The other values default to 8N1 (8 data bits, no parity, one stopbit).
              (default 115200)
-      -cc
-             Short for cycleCounter (default true)
       -color string
              The format strings can start with a lower or upper case channel information.
              See https://github.com/rokath/trice/blob/master/pkg/src/triceCheck.c for examples. Color options:
@@ -386,8 +384,6 @@ func TestHelpAll(t *testing.T) {
              "none": Disable ANSI color. The lower case channel information is removed: "w:x"-> "x"
              "default|color": Use ANSI color codes for known upper and lower case channel info are inserted and lower case channel information is removed.
               (default "default")
-      -cycleCounter
-             Expect cycle counter in binary trice messages (default true)
       -dc int
             Dumped bytes per line when "-encoding DUMP" (default 32)
       -debug

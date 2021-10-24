@@ -131,14 +131,35 @@ func (p *COBS) Read(b []byte) (n int, err error) {
 	} else {
 		head = binary.BigEndian.Uint32(p.b[0:4])
 	}
-	if CycleCounter {
-		cycle := uint8(head)
+
+	// cycle counter automatic & check
+	cycle := uint8(head)
+	if cycle == 0xc0 && p.cycle != 0xc0 && initialCycle == true { // with cycle counter and seems to be a target reset
+		n += copy(b[n:], fmt.Sprintln("warning:   Target Reset?   "))
+		p.cycle = cycle + 1 // adjust cycle
+		initialCycle = false
+	}
+	if cycle == 0xc0 && p.cycle != 0xc0 && initialCycle == false { // with cycle counter and seems to be a target reset
+		//n += copy(b[n:], fmt.Sprintln("info:   Target Reset?   ")) // to do: This line is ok with cycle counter but not without cycle counter
+		p.cycle = cycle + 1 // adjust cycle
+	}
+	if cycle == 0xc0 && p.cycle == 0xc0 && initialCycle == true { // with or without cycle counter and seems to be a target reset
+		n += copy(b[n:], fmt.Sprintln("warning:   Restart?   "))
+		p.cycle = cycle + 1 // adjust cycle
+		initialCycle = false
+	}
+	if cycle == 0xc0 && p.cycle == 0xc0 && initialCycle == false { // with or without cycle counter and seems to be a normal case
+		p.cycle = cycle + 1 // adjust cycle
+	}
+	if cycle != 0xc0 { // with cycle counter and s.th. lost
 		if cycle != p.cycle { // no cycle check for 0xc0 to avoid messages on every target reset and when no cycle counter is active
 			n += copy(b[n:], fmt.Sprintln("CYCLE:", cycle, "not equal expected value", p.cycle, "- adjusting. Now", emitter.ColorChannelEvents("CYCLE")+1, "CycleEvents"))
 			p.cycle = cycle // adjust cycle
 		}
+		initialCycle = false
 		p.cycle++
 	}
+
 	p.paramSpace = int((0x0000FF00 & head) >> 6)
 	p.triceSize = headSize + p.paramSpace
 	triceID := id.TriceID(uint16(head >> 16))

@@ -72,14 +72,14 @@ var (
 	matchNextFormatUSpecifier = regexp.MustCompile(patNextFormatUSpecifier)
 	matchNextFormatXSpecifier = regexp.MustCompile(patNextFormatXSpecifier)
 
-	// flag
-	CycleCounter = true
-
 	// DebugOut enables debug information.
 	DebugOut = false
 
 	// DumpLineByteCount is the bytes per line for the DUMP decoder.
 	DumpLineByteCount int
+
+	// initialCycle is a helper for the cycle counter automatic.
+	initialCycle = true
 )
 
 const (
@@ -87,7 +87,7 @@ const (
 	headSize = 4
 
 	// hints is the help information in case of errors.
-	hints = "att:Hints:Baudrate? Overflow? Encoding? Interrupt? CycleCounter? til.json?"
+	hints = "att:Hints:Baudrate? Overflow? Encoding? Interrupt? til.json?"
 )
 
 // newDecoder abstracts the function type for a new decoder.
@@ -208,7 +208,7 @@ func handleSIGTERM(rc io.ReadCloser) {
 func Translate(sw *emitter.TriceLineComposer, lut id.TriceIDLookUp, m *sync.RWMutex, rc io.ReadCloser) error {
 	var dec Decoder //io.Reader
 	if Verbose {
-		fmt.Println("Encoding is", Encoding, "and CycleCounter is", CycleCounter)
+		fmt.Println("Encoding is", Encoding)
 	}
 	var endian bool
 	switch TargetEndianess {
