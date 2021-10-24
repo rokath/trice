@@ -11,50 +11,77 @@ extern "C" {
 
 #include <stdint.h>
 
-#define TRICE_MODE 200 // 100, 101, 10, 110 ok, 200 needs trice tool modification but works on target side
 
-//! Direct output to UART with cycle counter. Trices inside interrupts allowed. Direct TRICE macro execution.
-//! Command line similar to: "trice log -p COM1 -baud 115200"
-#if TRICE_MODE == 0
-#define TRICE_HEADLINE \
-    TRICE0( Id( 57449), "s:                                          \n" ); \
-    TRICE8( Id( 49675), "s:  TRICE_MODE %3d                          \ns:     ", TRICE_MODE ); \
-    TRICE0( Id( 64478), "att:  Direct to UART, +cycle, +int  " ); \
-    TRICE0( Id( 46377), "s:     \ns:                                          \n");
-#define TRICE_STM32
-#define TRICE_UART USART2 //!< set UART number if UART is used
+///////////////////////////////////////////////////////////////////////////////
+// select RTT or UART for double buffer modes
+//
+//#define TRICE_RTT_CHANNEL 0 //!< Uncomment and set channel number for SeggerRTT usage
+#ifdef TRICE_RTT_CHANNEL
+#include "SEGGER_RTT.h"
+#define TRICE_WRITE( buf, len ) do{ SEGGER_RTT_Write(TRICE_RTT_CHANNEL, buf, len ); }while(0)
+//#define TRICE_WRITE( buf, len )do{ unsigned x; do{ x=SEGGER_RTT_WriteSkipNoLock(0 /*BufferIndex*/, buf, len ); }while(x==0); }while(0)
+static inline int TriceWriteDepth( void ){ return 0; }
 #endif
 
-//! Direct output to SEGGER RTT with cycle counter. Trices inside interrupts allowed. Direct TRICE macro execution.
-//! Needs additional tools installed - see RTT documentation.
+#define TRICE_UART USART2 //!< Uncomment and set UART number for STM32
+#ifdef TRICE_UART
+#define TRICE_WRITE( buf, len ) do{ TriceNonBlockingWrite( buf, len ); }while(0)
+#endif
+//
+///////////////////////////////////////////////////////////////////////////////
+
+#define TRICE_MODE 200
+
+//! Direct output to UART or RTT with cycle counter. Trices inside interrupts allowed. Direct TRICE macro execution.
+//! RTT needs additional tools installed - see RTT documentation.
 //! J-LINK Command line similar to: `trice log -args="-Device STM32G071RB -if SWD -Speed 4000 -RTTChannel 0 -RTTSearchRanges 0x20000000_0x1000"`
 //! ST-LINK Command line similar to: `trice log -p ST-LINK -args="-Device STM32G071RB -if SWD -Speed 4000 -RTTChannel 0 -RTTSearchRanges 0x20000000_0x1000"`
-#if TRICE_MODE == 10
-#include "SEGGER_RTT.h"
-#define RTT_WRITE( buf, len ) do{ SEGGER_RTT_Write(0 /*BufferIndex*/, buf, len ); }while(0)
+#if TRICE_MODE == 0
+#define TRICE_UART USART2 
+#define TRICE_PUTCHAR( c ) do{ while( !triceTxDataRegisterEmpty() ); triceTransmitData8( c ); }while(0)
+#define TRICE_WRITE( buf, len ) for( unsigned i = 0; i < clen; i++ ){ TRICE_PUTCHAR( co[i] ); }
+#define TRICE_DIRECT_MAX_SIZE 80 //!< TRICE_DIRECT_MAX_SIZE is the max allowed single trice size. Usually ~40 is enough. This is stack size!
 #define TRICE_HEADLINE \
     TRICE0( Id( 57449), "s:                                          \n" ); \
     TRICE8( Id( 63820), "s:  TRICE_MODE %3d                          \n", TRICE_MODE ); \
     TRICE0( Id( 46700), "s:                                          \ns:     " ); \
     TRICE0( Id( 43538), "att:  Direct to RTT, +cycle, +int   " ); \
     TRICE0( Id( 46377), "s:     \ns:                                          \n");
+#define TRICE_ENTER /*! Start of TRICE macro */ \
+    TRICE_ENTER_CRITICAL_SECTION { \
+    ALIGN4 uint8_t co[TRICE_DIRECT_MAX_SIZE]; ALIGN4_END /* This must be capable to hold the longest used TRICE plus 4 (offset). Check TriceDepthMax at runtime. */ \
+    uint8_t* tr = co + 4; /* use same buffer twice, offset must be a multiple of uint32_t */ \
+    uint32_t* wTb = (uint32_t*)tr;
+#define TRICE_LEAVE { /*! End of TRICE macro */ \
+    unsigned clen = TriceSingleToCOBS( co, tr ); \
+    TriceDepthMax = clen < TriceDepthMax ? TriceDepthMax : clen; /* diagnostics */ \
+    TRICE_WRITE( co, clen ); \
+    } } TRICE_LEAVE_CRITICAL_SECTION
 #endif
 
-//! Double Buffering output to UART with cycle counter. Trices inside interrupts allowed. Fast TRICE macro execution. 
-//! Command line similar to: "trice log -p COM1 -baud 115200"
+
+//! Double Buffering output to RTT or UART with cycle counter. Trices inside interrupts allowed. Fast TRICE macro execution. 
+//! UART Command line similar to: `trice log -p COM1 -baud 115200`
+//! RTT Command line similar to: `trice l -args="-Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0 -RTTSearchRanges 0x20000000_0x1000"`
 #if TRICE_MODE == 100
 #define TRICE_HEADLINE \
     TRICE0( Id( 57449), "s:                                          \n" ); \
-    TRICE8( Id( 37906), "s:  TRICE_MODE %3d                          \n", TRICE_MODE ); \
+    TRICE8( Id( 61754), "s:  TRICE_MODE %3d                          \n", TRICE_MODE ); \
     TRICE0( Id( 46700), "s:                                          \ns:     " ); \
-    TRICE0( Id( 57445), "att: Double buff UART, +cycle, +int " ); \
+    TRICE0( Id( 55144), "att: Double buff RTT, +cycle, +int  " ); \
     TRICE0( Id( 46377), "s:     \ns:                                          \n");
-#define TRICE_STM32
-#define TRICE_UART USART2 //!< set UART number if UART is used
+#define TRICE_ENTER /*! Start of TRICE macro */ \
+    TRICE_ENTER_CRITICAL_SECTION
+#define TRICE_LEAVE /*! End of TRICE macro */ \
+    TRICE_LEAVE_CRITICAL_SECTION
+#define TRICE_READ_AND_TRANSLATE_INTERVAL_MS 10
+#define TRICE_DOUBLE_BUFFER_SIZE 1600 //!< This is the size of both buffers together
+#define TRICE_READ_AND_TRANSFER TriceSingleReadAndWrite
 #endif
 
+
 //! Double Buffering output to UART without cycle counter. No trices inside interrupts allowed. Super fast TRICE macro execution. 
-//! Command line similar to: `trice log -p COM1 -baud 115200 -cc=false`
+//! Command line similar to: `trice log -p COM1 -baud 115200`
 #if TRICE_MODE == 101
 #define TRICE_HEADLINE \
     TRICE0( Id( 57449), "s:                                          \n" ); \
@@ -62,42 +89,52 @@ extern "C" {
     TRICE0( Id( 46700), "s:                                          \ns:     " ); \
     TRICE0( Id( 60240), "att: Double buff UART, ~cycle, ~int " ); \
     TRICE0( Id( 46377), "s:     \ns:                                          \n");
-#define TRICE_STM32
-#define TRICE_UART USART2 //!< set UART number if UART is used
-#endif
-
-//! Double Buffering output to RTT with cycle counter. Trices inside interrupts allowed. Fast TRICE macro execution. 
-//! Command line similar to: `trice l -args="-Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0 -RTTSearchRanges 0x20000000_0x1000"`
-#if TRICE_MODE == 110
-#include "SEGGER_RTT.h"
-#define RTT_WRITE( buf, len ) do{ SEGGER_RTT_Write(0 /*BufferIndex*/, buf, len ); }while(0)
-//#define RTT_WRITE( buf, len )do{ unsigned x; do{ x=SEGGER_RTT_WriteSkipNoLock(0 /*BufferIndex*/, buf, len ); }while(x==0); }while(0)
-#define TRICE_HEADLINE \
-    TRICE0( Id( 57449), "s:                                          \n" ); \
-    TRICE8( Id( 61754), "s:  TRICE_MODE %3d                          \n", TRICE_MODE ); \
-    TRICE0( Id( 46700), "s:                                          \ns:     " ); \
-    TRICE0( Id( 55144), "att: Double buff RTT, +cycle, +int  " ); \
-    TRICE0( Id( 46377), "s:     \ns:                                          \n");
+#define TRICE_CYCLE_COUNTER 0 //! no cycle counter for speed
+#define TRICE_ENTER /*! Start of TRICE macro */
+#define TRICE_LEAVE /*! End of TRICE macro */
+#define TRICE_READ_AND_TRANSLATE_INTERVAL_MS 10
+#define TRICE_DOUBLE_BUFFER_SIZE 1600 //!< This is the size of both buffers together
+#define TRICE_READ_AND_TRANSFER TriceSingleReadAndWrite
 #endif
 
 
-//! Double Buffering output to RTT with cycle counter. Trices inside interrupts allowed. Fast TRICE macro execution. 
-//! Command line similar to: `trice l -args="-Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0 -RTTSearchRanges 0x20000000_0x1000"`
+//! Double Buffering output to RTT or UART with cycle counter. Trices inside interrupts allowed. Fast TRICE macro execution. 
+//! UART Command line similar to: `trice log -p COM1 -baud 115200`
+//! RTT Command line similar to: `trice l -args="-Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0 -RTTSearchRanges 0x20000000_0x1000"`
 #if TRICE_MODE == 200
-#include "SEGGER_RTT.h"
-#define RTT_WRITE( buf, len ) do{ SEGGER_RTT_Write(0 /*BufferIndex*/, buf, len ); }while(0)
-//#define RTT_WRITE( buf, len )do{ unsigned x; do{ x=SEGGER_RTT_WriteSkipNoLock(0 /*BufferIndex*/, buf, len ); }while(x==0); }while(0)
 #define TRICE_HEADLINE \
     TRICE0( Id( 57449), "s:                                          \n" ); \
     TRICE8( Id( 61754), "s:  TRICE_MODE %3d                          \n", TRICE_MODE ); \
     TRICE0( Id( 46700), "s:                                          \ns:     " ); \
-    TRICE0( Id( 55144), "att: Double buff RTT, +cycle, +int  " ); \
+    TRICE0( Id( 39557), "att:Double buff, multi, +cycle, +int" ); \
     TRICE0( Id( 46377), "s:     \ns:                                          \n");
+#define TRICE_ENTER /*! Start of TRICE macro */ \
+    TRICE_ENTER_CRITICAL_SECTION
+#define TRICE_LEAVE /*! End of TRICE macro */ \
+    TRICE_LEAVE_CRITICAL_SECTION
+#define TRICE_READ_AND_TRANSLATE_INTERVAL_MS 10
+#define TRICE_DOUBLE_BUFFER_SIZE 1600 //!< This is the size of both buffers together
+#define TRICE_READ_AND_TRANSFER TriceMultiReadAndWrite
 #endif
 
 
+//! Double Buffering output to UART without cycle counter. No trices inside interrupts allowed. Super fast TRICE macro execution. 
+//! Command line similar to: `trice log -p COM1 -baud 115200`
+#if TRICE_MODE == 201
+#define TRICE_HEADLINE \
+    TRICE0( Id( 57449), "s:                                          \n" ); \
+    TRICE8( Id( 51851), "s:  TRICE_MODE %3d                          \n", TRICE_MODE ); \
+    TRICE0( Id( 46700), "s:                                          \ns:     " ); \
+    TRICE0( Id( 60240), "att: Double buff UART, ~cycle, ~int " ); \
+    TRICE0( Id( 46377), "s:     \ns:                                          \n");
+#define TRICE_CYCLE_COUNTER 0 //! no cycle counter for speed
+#define TRICE_ENTER /*! Start of TRICE macro */
+#define TRICE_LEAVE /*! End of TRICE macro */
+#define TRICE_READ_AND_TRANSLATE_INTERVAL_MS 10
+#define TRICE_DOUBLE_BUFFER_SIZE 1600 //!< This is the size of both buffers together
+#define TRICE_READ_AND_TRANSFER TriceMultiReadAndWrite
+#endif
 
-// #define TRICE_RTT_CHANNEL 0 //!< Uncomment and set channel number for SeggerRTT usage
 
 //  #ifdef TRICE_NO_CODE_GENERATION
 //  #define TRICE_ENCODING TRICE_NOCODE_ENCODING //!< Select target trice transfer encoding.

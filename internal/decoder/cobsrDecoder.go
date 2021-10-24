@@ -175,7 +175,7 @@ func (p *COBS) Read(b []byte) (n int, err error) {
 		return
 	}
 	if DebugOut {
-		fmt.Print("TRICE: ")
+		fmt.Print("TRICE -> ")
 		dump(p.b[:p.triceSize])
 	}
 	var ok bool

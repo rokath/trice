@@ -132,7 +132,7 @@ void SysTick_Handler(void)
   /* USER CODE END SysTick_IRQn 0 */
 
   /* USER CODE BEGIN SysTick_IRQn 1 */
-#ifdef TRICE_FIFO_BYTE_SIZE
+#ifdef TRICE_UART
     triceTriggerTransmit();
 #endif
   /* USER CODE END SysTick_IRQn 1 */
@@ -154,7 +154,7 @@ void USART2_IRQHandler(void)
 
   /* USER CODE END USART2_IRQn 0 */
   /* USER CODE BEGIN USART2_IRQn 1 */
-#ifdef TRICE_FIFO_BYTE_SIZE
+#ifdef TRICE_UART
     triceServeTransmit();
 #endif
   /* USER CODE END USART2_IRQn 1 */

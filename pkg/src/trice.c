@@ -5,10 +5,9 @@
 #include <string.h> // strlen
 #include "trice.h"
 
-uint16_t TriceDepthMax = 0; //!< TriceDepthMax is a diagnostics value.
+#define TRICE_DATA_OFFSET 8 //! TRICE_DATA_OFFSET is the space in front of trice data for in-buffer COBS encoding.
+uint16_t TriceDepthMax = 0; //!< TriceDepthMax is a diagnostics value usable to optimize buffer size.
 uint8_t  TriceCycle = 0xc0; //!< trice cycle counter
-
-
 
 // https://github.com/jacquesf/COBS-Consistent-Overhead-Byte-Stuffing/blob/master/cobs.c
 /* Stuffs "length" bytes of data at the location pointed to by
@@ -53,45 +52,27 @@ TRICE_INLINE unsigned COBSEncode( uint8_t* restrict output, const uint8_t * rest
 // For big endian embedded MCUs the trice tool has an -targetEndianess switch to avoid transcoding in the target processor.
 // The buffer tail contains wholes on big endian MCUs for TRICE8_1, TRICE8_2, TRICE8_3, TRICE8_5, TRICE8_6, TRICE8_7, TRICE16_1, TRICE16_3 and needs adjustment then.
 #if TRICE_HARDWARE_ENDIANNESS == TRICE_LITTLE_ENDIANNESS
-#define PREPARE_MULTI
 //! TriceSingleToCOBS converts an in t stored trice into a cobs sequence into c with appended 0 as delimiter.
 //! For performance reasons t is manipulated afterwards.
 unsigned TriceSingleToCOBS( uint8_t* co, uint8_t * tr ){
     unsigned tlen, clen;
-#ifdef PREPARE_MULTI
-    // keep length and cycle endianness independent
     uint32_t* Tr =(uint32_t*)tr;
     uint32_t head = *Tr;
     tlen = sizeof(uint32_t) * (uint8_t)(head>>8) + sizeof(head);
     clen = COBSEncode(co, tr, tlen);
-#else
-    #if TRICE_CYCLE_COUNTER == 1 // with cycle counter
-        tlen = tr[1] + 3; // little endian, add id size and cycle size
-        tr[1] = tr[0]; // write cycle to 2nd position (little endian assumed!)
-        clen = COBSEncode(co, &tr[1], tlen);
-    #else // no cycle counter used
-        tlen = tr[1] + 2; // little endian, add id size
-        clen = COBSEncode(co, &tr[2], tlen);
-    #endif
-#endif
     co[clen] = 0; // add 0-delimiter
     return clen + 1;
 }
-
 #else // #if TRICE_HARDWARE_ENDIANNESS == TRICE_LITTLE_ENDIANNESS
     #error "todo: TRICE_HARDWARE_ENDIANNESS == TRICE_BIG_ENDIANNESS"
 #endif // #else // #if TRICE_HARDWARE_ENDIANNESS == TRICE_LITTLE_ENDIANNESS
 
-#if 100 <= TRICE_MODE && TRICE_MODE < 200
-#ifndef NULL
-#define NULL (void*)0
-#endif
-static uint32_t triceBuffer[2][(TRICE_BUFFER_SIZE+3)>>3] = {0}; //!< triceBuffer is double buffer for better write speed.
-#define TRICE_ACTIVE 0 //!< TRICE_ACTIVE is the init value for swap.
-static int swap = TRICE_ACTIVE; //!< swap is the active write buffer. !swap is the active read buffer.
-uint32_t* wTb = &triceBuffer[TRICE_ACTIVE][0]; //!< wTb is the active write position.
 
-static uint32_t* rTb = &triceBuffer[!TRICE_ACTIVE][0]; //!< rTb is the active read position.
+#ifdef TRICE_DOUBLE_BUFFER_SIZE
+static uint32_t triceBuffer[2][(TRICE_DOUBLE_BUFFER_SIZE+3)>>3] = {0}; //!< triceBuffer is double buffer for better write speed.
+static int swap = 0; //!< swap is the index of the active write buffer. !swap is the active read buffer.
+uint32_t* wTb = &triceBuffer[0][0]; //!< wTb is the active write position.
+static uint32_t* rTb = &triceBuffer[1][0]; //!< rTb is the active read position. 
 
 //! triceRead returns a pointer to next complete trice message or it returns NULL if no data to process.
 //! If in a first try the read buffer is empty, a buffer swap is done:
@@ -100,73 +81,28 @@ static uint32_t* rTb = &triceBuffer[!TRICE_ACTIVE][0]; //!< rTb is the active re
 //! If both buffers empty, each triceRead call results in a buffer swap, what is ok.
 //! There is no wTp overflow check! The read buffer must be read out fast enough to be swapped before the write buffer can overflow.
 static uint8_t* triceRead( void ){
+    uint32_t head;
+    int triceU32cnt;
     uint8_t* p;
     uint16_t triceDepth = sizeof(uint32_t) * (wTb - &triceBuffer[swap][0]);  // diagnostics
     TriceDepthMax = triceDepth < TriceDepthMax ? TriceDepthMax : triceDepth; // diagnostics
     if( 0 == *rTb ){ // This buffer is empty
         TRICE_ENTER_CRITICAL_SECTION
         *wTb = 0; // write end marker
-        swap = !swap;
-        wTb = &triceBuffer[swap][0];
-        rTb = &triceBuffer[!swap][0];
+        swap = !swap; // From section 6.5.3.3/5 of the ISO C99 standard: The result of the logical negation operator ! is 0 if the value of its operand compares unequal to 0, 1 if the value of its operand compares equal to 0.
+        wTb = &triceBuffer[swap][TRICE_DATA_OFFSET];
+        rTb = &triceBuffer[!swap][TRICE_DATA_OFFSET];
         TRICE_LEAVE_CRITICAL_SECTION
         if( 0 == *rTb ){ // This buffer is empty
-            return NULL;
+            return (void*)0;
         }
     }
     p = (uint8_t*)rTb;
-    rTb += 1 + p[1]; // step to next entry (little endian)
+    head = *rTb;
+    triceU32cnt = ((0x0000FF00 & head) >> 8 ) + 1;
+    rTb += triceU32cnt; // step to next entry (little endian)
     return p;
 }
-#endif
-
-#if TRICE_MODE == 200
-static uint32_t triceBuffer[2][(TRICE_BUFFER_SIZE+3)>>3] = {0}; //!< triceBuffer is double buffer for better write speed.
-#define TRICE_ACTIVE 0 //!< TRICE_ACTIVE is the init value for swap.
-static int swap = TRICE_ACTIVE; //!< swap is the active write buffer. !swap is the active read buffer.
-#define TRICE_DATA_OFFSET 8 //! Free bytes in front of stored trice bytes, must be a multiple of 4
-uint32_t* wTb = &triceBuffer[TRICE_ACTIVE][TRICE_DATA_OFFSET>>2]; //!< wTb is the active write position.
-static uint32_t* rTb; //!< rTb is the active read position.
-#endif
-
-
-
-#if defined(RTT_WRITE) && defined(TRICE_SINGLE_MAX_SIZE)
-void TriceSingleReadAndRTTWrite( void ){
-    uint8_t* t;
-    uint16_t clen; // uint8_t clen, tlen;
-    static uint8_t co2[TRICE_SINGLE_MAX_SIZE]; // to do
-    //if( triceU8FifoDepth() ){
-    //    return; // transmission not done yet
-    //}
-    t = triceRead();
-    if( NULL == t ){
-        return; // no trice data to transmit
-    }
-    #ifdef ENCRYPT
-    triceServeFifoEncryptedToBytesBuffer(); // To do: rework obsolete code
-    #endif
-    clen = TriceSingleToCOBS( co2, t );
-    RTT_WRITE( co2, clen ); 
-}
-#endif
-
-#if TRICE_MODE == 200 // try out idea
-//  //! TriceNonBlockingWrite
-//  size_t TriceNonBlockingWrite( const void* buf, size_t nByte ){
-//      // to do
-//      return nByte;
-//  }
-//  
-//  #define TRICE_WRITE( buf, len ) do{ \
-//      size_t cnt = (size_t)(len); \
-//      TriceTransferBusy = 1; do{ \
-//      cnt = TriceNonBlockingWrite( buf, cnt ); }while(cnt); \
-//      } while(0)
-
-
-//! TriceTransferBusy is set before TriceNonBlockingWrite is called and needs to be cleared somehow, when last byte was written.
-int TriceTransferBusy = 0;
 
 //! TriceBufferSwap swaps the trice double buffer and returns the transfer buffer address.
 uint32_t* TriceBufferSwap( void ){
@@ -182,18 +118,15 @@ uint32_t* TriceBufferSwap( void ){
 //! TriceTransferDepth returns the total trice byte count ready for transfer.
 //! The trice data start at tp + TRICE_DATA_OFFSET.
 //! The returned depth is without the TRICE_DATA_OFFSET offset.
-size_t TriceTransferDepth( uint32_t* tb ){
+static size_t TriceTransferDepth( uint32_t* tb ){
     size_t triceDepth = (rTb - tb)<<2;
     TriceDepthMax = triceDepth < TriceDepthMax ? TriceDepthMax : triceDepth; // diagnostics
     return triceDepth - TRICE_DATA_OFFSET;
 }
 
 //! TriceMultiReadAndRTTWrite swaps the double buffer and initiates a write if possible.
-void TriceMultiReadAndRTTWrite( void ){
-    if( TriceTransferBusy ){
-        return;
-    }
-    {
+void TriceMultiReadAndWrite( void ){
+    if( 0 == TriceWriteDepth() ){ // transmission done
         uint32_t* tb = TriceBufferSwap(); 
         size_t tlen = TriceTransferDepth(tb);
         if( tlen ){
@@ -203,16 +136,13 @@ void TriceMultiReadAndRTTWrite( void ){
             co[clen] = 0;
             TRICE_WRITE( co, clen+1 );
         }
-    }
+    } // else: transmission not done yet
 }
-#endif
 
-#ifdef TRICE_FIFO_BYTE_SIZE
-
-void TriceSingleReadAndTranslate( void ){
-    uint8_t* t;
+void TriceSingleReadAndWrite( void ){
+    uint8_t *co, *t;
     uint16_t clen; // uint8_t clen, tlen;
-    if( triceU8FifoDepth() ){
+    if( TriceWriteDepth() ){
         return; // transmission not done yet
     }
     t = triceRead();
@@ -222,62 +152,35 @@ void TriceSingleReadAndTranslate( void ){
     #ifdef ENCRYPT
     triceServeFifoEncryptedToBytesBuffer(); // To do: rework obsolete code
     #endif
-    clen = TriceSingleToCOBS( triceU8Fifo, t );
-    TRICE_ENTER_CRITICAL_SECTION
-    triceU8FifoWriteIndex = clen;
-    triceU8FifoReadIndex = 0;
-    TRICE_LEAVE_CRITICAL_SECTION
+    co = t-TRICE_DATA_OFFSET; 
+    clen = TriceSingleToCOBS( co, t );
+    TRICE_WRITE( co, clen );
 }
 
+#endif // #ifdef TRICE_DOUBLE_BUFFER_SIZE
 
+#ifdef TRICE_UART
+static uint8_t const * triceWriteOutBuffer;
+static int triceWriteOutCount = 0;
+static int triceWriteOutIndex = 0;
 
-
-//! trice fifo instance, here are the trices buffered.
-ALIGN4 uint32_t
-triceU32Fifo[ TRICE_FIFO_BYTE_SIZE>>2 ]
-ALIGN4_END;
-
-uint8_t* const triceU8Fifo = (uint8_t*)triceU32Fifo;
-
-//int triceU32FifoWriteIndex = 0; //!< trice fifo write index, used inside macros, so must be visible
-//int triceU32FifoReadIndex = 0; //!< trice fifo read index for 32 bit values
-
-unsigned triceU8FifoWriteIndex = 0; //!< trice fifo write index, used inside macros, so must be visible
-unsigned triceU8FifoReadIndex = 0; //!< trice fifo read index
-
-int triceFifoMaxDepth = 0; //!< diagnostics
-/*
-//! triceU32FifoDepth determines bytes count inside trice fifo.
-//! Assumption: Only int32 access for push and pop.
-//! \return count of buffered bytes
-int triceU32FifoDepth(void) {
-    int triceCount = (triceU32FifoWriteIndex - triceU32FifoReadIndex) & TRICE_U32_FIFO_MASK;
-    int depth = triceCount*sizeof(uint32_t);
-    triceFifoMaxDepth = triceFifoMaxDepth < depth ? depth : triceFifoMaxDepth; // diagnostics
-    return depth;
-}
-*/
-
-//! triceU8UsageFifoDepth determines bytes count inside trice fifo.
-//! Assumption: Only int8 access for push and pop.
-//! \return count of buffered bytes
-int triceU8FifoDepth(void) {
-    int depth = (triceU8FifoWriteIndex - triceU8FifoReadIndex) & TRICE_U8_FIFO_MASK;
-    triceFifoMaxDepth = triceFifoMaxDepth < depth ? depth : triceFifoMaxDepth; // diagnostics
-    return depth;
+//! TriceNonBlockingWrite
+int TriceNonBlockingWrite( void const * buf, int nByte ){
+    triceWriteOutIndex = 0;
+    triceWriteOutBuffer = buf;
+    triceWriteOutCount = nByte;
+    return nByte;
 }
 
-//  //! triceU32WriteU8ReadFifoDepth determines bytes count inside trice fifo.
-//  //! Assumption: Only int32 for push and only int8 for pop.
-//  //! \return count of buffered bytes
-//  int triceU32WriteU8ReadFifoDepth(void) {
-//      int depth = ((triceU32FifoWriteIndex<<2) - triceU8FifoReadIndex) & TRICE_U8_FIFO_MASK;
-//      triceFifoMaxDepth = triceFifoMaxDepth < depth ? depth : triceFifoMaxDepth; // diagnostics
-//      return depth;
-//  }
+int TriceWriteDepth( void ){
+    return triceWriteOutCount - triceWriteOutIndex;
+}
 
-#endif // #ifdef TRICE_FIFO_BYTE_SIZE
+uint8_t TriceNextUint8( void ){
+    return triceWriteOutBuffer[triceWriteOutIndex++];
+}
 
+#endif
 
 #ifdef ENCRYPT
 //! golang XTEA works with 64 rounds

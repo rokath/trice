@@ -687,6 +687,10 @@
 		"Type": "TRICE64_2",
 		"Strg": "tst:TRICE64_2 %u %u\\n"
 	},
+	"39557": {
+		"Type": "TRICE0",
+		"Strg": "att:Double buff, multi, +cycle, +int"
+	},
 	"39639": {
 		"Type": "TRICE16_1",
 		"Strg": "rd:TRICE16_1 %d\\n"
