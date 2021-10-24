@@ -16,21 +16,18 @@ import (
 	"github.com/rokath/trice/internal/id"
 )
 
-var (
-	DumpLineByteCount int
-)
-
-// COBSR is the Decoding instance for COBSR encoded trices.
-type COBSR struct {
+// COBS is the Decoding instance for COBS encoded trices.
+type COBS struct {
 	decoderData
 	cycle uint8
 }
 
 // NewCOBSRDecoder provides an EscDecoder instance.
+//
 // l is the trice id list in slice of struct format.
 // in is the usable reader for the input bytes.
 func NewCOBSRDecoder(lut id.TriceIDLookUp, m *sync.RWMutex, in io.Reader, endian bool) Decoder {
-	p := &COBSR{}
+	p := &COBS{}
 	p.cycle = 0xc0 // start value
 	p.in = in
 	p.iBuf = make([]byte, 0, defaultSize)
@@ -42,6 +39,7 @@ func NewCOBSRDecoder(lut id.TriceIDLookUp, m *sync.RWMutex, in io.Reader, endian
 }
 
 // decodeCOBS expects in slice rd a byte sequence ending with a 0, writes the COBS decoded data to wr and returns len(wr).
+//
 // If rd contains more bytes after the first 0 byte, these are ignored.
 // Needs to be written in a better way.
 func decodeCOBS(wr, rd []byte) int {
@@ -52,13 +50,6 @@ func decodeCOBS(wr, rd []byte) int {
 	if d == nil {
 		return 0
 	}
-	// fmt.Printf("################## len(d)=%d, len(rd)=%d\n", len(d), len(rd) )
-	// fmt.Printf("################## len(d)=%d, len(rd)=%d\n", len(d), len(rd) )
-	// fmt.Printf("################## len(d)=%d, len(rd)=%d\n", len(d), len(rd) )
-	// fmt.Printf("################## len(d)=%d, len(rd)=%d\n", len(d), len(rd) )
-	// fmt.Printf("################## len(d)=%d, len(rd)=%d\n", len(d), len(rd) )
-	// fmt.Printf("################## len(d)=%d, len(rd)=%d\n", len(d), len(rd) )
-	// fmt.Printf("################## len(d)=%d, len(rd)=%d\n", len(d), len(rd) )
 	return copy(wr, d)
 }
 
@@ -70,7 +61,7 @@ func decodeCOBS(wr, rd []byte) int {
 // When a terminating 0 is found in the incoming bytes ReadFromCOBS decodes the COBS package
 // and returns it in b and its len in n. If more data arrived after the first terminating 0,
 // these are kept internally and concatenated with the following bytes in a next Read.
-func (p *COBSR) nextCOBSpackage() {
+func (p *COBS) nextCOBSpackage() {
 	// Here p.iBuf contains no or available bytes, what can be several trice messages.
 	// So first try to process p.iBuf
 	index := bytes.IndexByte(p.iBuf, 0) // find terminating 0
@@ -107,6 +98,7 @@ func (p *COBSR) nextCOBSpackage() {
 }
 
 // Read is the provided read method for COBS decoding and provides next string as byte slice.
+//
 // It uses inner reader p.in and internal id look-up table to fill b with a string.
 // b is a slice of bytes with a len for the max expected string size.
 // n is the count of read bytes inside b.
@@ -119,21 +111,21 @@ func (p *COBSR) nextCOBSpackage() {
 // but the start of a following trice package can be already inside the internal buffer.
 // In case of a not matching cycle, a warning message in trice format is prefixed.
 // In case of invalid package data, error messages in trice format are returned and the package is dropped.
-func (p *COBSR) Read(b []byte) (n int, err error) {
+func (p *COBS) Read(b []byte) (n int, err error) {
 	if len(p.b) == 0 { // last decoded COBS package exhausted
 		p.nextCOBSpackage()
 	}
 	if len(p.b) == 0 { // not enough data for a next package
 		return
 	}
+
 	// Inside p.pkg is here one or a partial package, what means one or more trice messages.
-	hints := "att:Hints:Baudrate? Overflow? Encoding? Interrupt? CycleCounter? til.json?"
 	if len(p.b) < 4 {
 		n += copy(b[n:], fmt.Sprintln("ERROR:package len", len(p.b), "is too short - ignoring package", p.b))
 		n += copy(b[n:], fmt.Sprintln(hints))
 		return
 	}
-	var head uint32
+	var head uint32 // 16 bit ID in upper 2 bytes, 8 bit parameter size as u32Count, 8 bit cycle counter least significant byte
 	if p.endian == LittleEndian {
 		head = binary.LittleEndian.Uint32(p.b[0:4])
 	} else {
@@ -142,163 +134,134 @@ func (p *COBSR) Read(b []byte) (n int, err error) {
 	if CycleCounter {
 		cycle := uint8(head)
 		if cycle != p.cycle { // no cycle check for 0xc0 to avoid messages on every target reset and when no cycle counter is active
-			n += copy(b, fmt.Sprintln("CYCLE:", cycle, "not equal expected value", p.cycle, "- adjusting. Now", emitter.ColorChannelEvents("CYCLE")+1, "CycleEvents"))
+			n += copy(b[n:], fmt.Sprintln("CYCLE:", cycle, "not equal expected value", p.cycle, "- adjusting. Now", emitter.ColorChannelEvents("CYCLE")+1, "CycleEvents"))
 			p.cycle = cycle // adjust cycle
 		}
 		p.cycle++
 	}
-	u32Cnt := int(uint8(head >> 8))
+	p.paramSpace = int((0x0000FF00 & head) >> 6)
+	p.triceSize = headSize + p.paramSpace
 	triceID := id.TriceID(uint16(head >> 16))
 	LastTriceID = triceID // used for showID
-	triceSize := 4 + 4*u32Cnt
-	if len(p.b) < triceSize {
+	if len(p.b) < p.triceSize {
 		n += copy(b[n:], fmt.Sprintln("ERROR:package len", len(p.b), "is too short - ignoring package", p.b))
 		n += copy(b[n:], fmt.Sprintln(hints))
+		p.b = p.b[p.triceSize:]
 		return
 	}
 	var ok bool
 	p.lutMutex.RLock()
 	p.trice, ok = p.lut[triceID]
 	p.lutMutex.RUnlock()
-	if !ok { // unknown id
-		n += copy(b[n:], fmt.Sprintln("WARNING:unknown ID ", triceID, "- ignoring trice", p.b[:triceSize]))
+	if !ok {
+		n += copy(b[n:], fmt.Sprintln("WARNING:unknown ID ", triceID, "- ignoring trice", p.b[:p.triceSize]))
 		n += copy(b[n:], fmt.Sprintln(hints))
-		p.b = p.b[triceSize:]
+		p.b = p.b[p.triceSize:]
 		return
 	}
-	expU32Cnt := p.expectedU32Count()
-	if expU32Cnt == -1 {
-		n += copy(b[n:], fmt.Sprintln("err:Unknown trice.Type ", p.trice.Type, "- ignoring trice", p.b[:triceSize]))
-		n += copy(b[n:], fmt.Sprintln(hints))
-		p.b = p.b[triceSize:]
-		return
-	}
-	if expU32Cnt == -2 { // no check for strings here
-		expU32Cnt = u32Cnt
-	}
-	if expU32Cnt != u32Cnt {
-		n += copy(b[n:], fmt.Sprintln("err:trice.Type ", p.trice.Type, " with not matching parameter uint32 count ", u32Cnt, "- ignoring trice", p.b[:triceSize]))
-		n += copy(b[n:], fmt.Sprintln(hints))
-		p.b = p.b[triceSize:]
-		return
-	}
-	p.b = p.b[4:]
-	n += p.sprintTrice(b[n:])
-	p.b = p.b[triceSize-4:]
+	p.b = p.b[headSize:]      // drop used head info
+	n += p.sprintTrice(b[n:]) // use param info
+	p.b = p.b[p.paramSpace:]  // drop param info
 	return
 }
 
-// expectedU32Count returns expected uint32 count for triceType.
-// It returns -2 for an unknown value (strings) and -1 for unknown triceType.
-func (p *COBSR) expectedU32Count() int {
-	switch p.trice.Type {
-	case "TRICE0":
-		return 0
-	case "TRICE8_1":
-		return 1
-	case "TRICE8_2", "TRICE16_1":
-		return 1
-	case "TRICE8_3":
-		return 1
-	case "TRICE8_4", "TRICE16_2", "TRICE32_1":
-		return 1
-	case "TRICE8_5":
-		return 2
-	case "TRICE8_6", "TRICE16_3":
-		return 2
-	case "TRICE8_7":
-		return 2
-	case "TRICE8_8", "TRICE16_4", "TRICE32_2", "TRICE64_1":
-		return 2
-	case "TRICE32_3":
-		return 3
-	case "TRICE32_4", "TRICE64_2":
-		return 4
-	case "TRICE_S":
-		return -2 // fake value for the check. To do: Check len with transmitted length.
-	default:
-		return -1 // unknown trice type
+// sprintTrice writes a trice string or appropriate message into b and returns that len.
+func (p *COBS) sprintTrice(b []byte) (n int) {
+
+	if p.trice.Type == "TRICE_S" { // patch table paramSpace in that case
+		if p.endian == LittleEndian {
+			p.sLen = int(binary.LittleEndian.Uint32(p.b[0:4]))
+		} else {
+			p.sLen = int(binary.BigEndian.Uint32(p.b[0:4]))
+		}
+		cobsFunctionPtrList[0].paramSpace = (p.sLen + 7) & ^3 // +4 for 4 bytes sLen, +3^3 is alignment to 4
 	}
+
+	for _, s := range cobsFunctionPtrList {
+		if s.triceType == p.trice.Type {
+			if s.paramSpace == p.paramSpace {
+				if len(p.b) < p.paramSpace {
+					n += copy(b[n:], fmt.Sprintln("err:len(p.b) =", len(p.b), "< p.paramSpace = ", p.paramSpace, "- ignoring package", p.b[:len(p.b)]))
+					n += copy(b[n:], fmt.Sprintln(hints))
+					return
+				}
+				n += s.triceFn(p, b)
+				return
+			} else {
+				n += copy(b[n:], fmt.Sprintln("err:trice.Type", p.trice.Type, ": s.paramSpace", s.paramSpace, "!= p.paramSpace", p.paramSpace, "- ignoring data", p.b[:p.paramSpace]))
+				n += copy(b[n:], fmt.Sprintln(hints))
+				return
+			}
+		}
+	}
+	n += copy(b[n:], fmt.Sprintln("err:Unknown trice.Type ", p.trice.Type, "- ignoring trice data", p.b[:p.paramSpace]))
+	n += copy(b[n:], fmt.Sprintln(hints))
+	p.b = p.b[p.paramSpace:]
+	return
 }
 
+// triceTypeFn is the type for cobsFunctionPtrList elements.
 type triceTypeFn struct {
-	triceType string
-	triceFn   func(p *COBSR, b []byte) int
+	triceType  string
+	triceFn    func(p *COBS, b []byte) int
+	paramSpace int
 }
 
 // cobsFunctionPtrList is a function pointer list.
-var cobsFunctionPtrList = []triceTypeFn{
-	{"TRICE0", (*COBSR).trice0},
-	{"TRICE8_1", (*COBSR).trice81},
-	{"TRICE8_2", (*COBSR).trice82},
-	{"TRICE8_3", (*COBSR).trice83},
-	{"TRICE8_4", (*COBSR).trice84},
-	{"TRICE8_5", (*COBSR).trice85},
-	{"TRICE8_6", (*COBSR).trice86},
-	{"TRICE8_7", (*COBSR).trice87},
-	{"TRICE8_8", (*COBSR).trice88},
-	{"TRICE16_1", (*COBSR).trice161},
-	{"TRICE16_2", (*COBSR).trice162},
-	{"TRICE16_3", (*COBSR).trice163},
-	{"TRICE16_4", (*COBSR).trice164},
-	{"TRICE32_1", (*COBSR).trice321},
-	{"TRICE32_2", (*COBSR).trice322},
-	{"TRICE32_3", (*COBSR).trice323},
-	{"TRICE32_4", (*COBSR).trice324},
-	{"TRICE64_1", (*COBSR).trice641},
-	{"TRICE64_2", (*COBSR).trice642},
+var cobsFunctionPtrList = [...]triceTypeFn{
+	{"TRICE_S", (*COBS).triceS, -1}, // do not remove from first position, see cobsFunctionPtrList[0].paramSpace = ...
+	{"TRICE0", (*COBS).trice0, 0},
+	{"TRICE8_1", (*COBS).trice81, 4},
+	{"TRICE8_2", (*COBS).trice82, 4},
+	{"TRICE8_3", (*COBS).trice83, 4},
+	{"TRICE8_4", (*COBS).trice84, 4},
+	{"TRICE8_5", (*COBS).trice85, 8},
+	{"TRICE8_6", (*COBS).trice86, 8},
+	{"TRICE8_7", (*COBS).trice87, 8},
+	{"TRICE8_8", (*COBS).trice88, 8},
+	{"TRICE16_1", (*COBS).trice161, 4},
+	{"TRICE16_2", (*COBS).trice162, 4},
+	{"TRICE16_3", (*COBS).trice163, 8},
+	{"TRICE16_4", (*COBS).trice164, 8},
+	{"TRICE32_1", (*COBS).trice321, 4},
+	{"TRICE32_2", (*COBS).trice322, 8},
+	{"TRICE32_3", (*COBS).trice323, 12},
+	{"TRICE32_4", (*COBS).trice324, 16},
+	{"TRICE64_1", (*COBS).trice641, 8},
+	{"TRICE64_2", (*COBS).trice642, 16},
 }
 
-func (p *COBSR) sprintTrice(b []byte) int {
-	if p.trice.Type == "TRICE_S" { // special case
-		return p.triceS(b)
-	}
-	for _, s := range cobsFunctionPtrList {
-		if s.triceType == p.trice.Type {
-			return s.triceFn(p, b)
-		}
-	}
-	return copy(b, fmt.Sprintf("err:Unexpected trice.Type %s\n", p.trice.Type))
-}
-
-func (p *COBSR) triceS(b []byte) int {
+func (p *COBS) triceS(b []byte) int {
 	if DebugOut {
 		fmt.Println(p.b)
 	}
-	var len uint32
-	if p.endian == LittleEndian {
-		len = binary.LittleEndian.Uint32(p.b[0:4])
-	} else {
-		len = binary.BigEndian.Uint32(p.b[0:4])
-	}
-	//p.b = p.b[4:] // The first 4 bytes are the payload length, drop length info.
-	s := p.b[4:len]
+	s := p.b[4 : 4+p.sLen]
 	return copy(b, fmt.Sprintf(p.trice.Strg, string(s)))
 }
 
-func (p *COBSR) trice0(b []byte) int {
+func (p *COBS) trice0(b []byte) int {
 	return copy(b, fmt.Sprintf(p.trice.Strg))
 }
 
-func (p *COBSR) trice81(b []byte) int {
+func (p *COBS) trice81(b []byte) int {
 	b0 := int8(p.b[0]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
 	return copy(b, fmt.Sprintf(p.trice.Strg, b0))
 }
 
-func (p *COBSR) trice82(b []byte) int {
+func (p *COBS) trice82(b []byte) int {
 	b0 := int8(p.b[0]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
 	b1 := int8(p.b[1]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
 	return copy(b, fmt.Sprintf(p.trice.Strg, b0, b1))
 }
 
-func (p *COBSR) trice83(b []byte) int {
+func (p *COBS) trice83(b []byte) int {
 	b0 := int8(p.b[0]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
 	b1 := int8(p.b[1]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
 	b2 := int8(p.b[2]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
 	return copy(b, fmt.Sprintf(p.trice.Strg, b0, b1, b2))
 }
 
-func (p *COBSR) trice84(b []byte) int {
+func (p *COBS) trice84(b []byte) int {
 	b0 := int8(p.b[0]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
 	b1 := int8(p.b[1]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
 	b2 := int8(p.b[2]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
@@ -306,7 +269,7 @@ func (p *COBSR) trice84(b []byte) int {
 	return copy(b, fmt.Sprintf(p.trice.Strg, b0, b1, b2, b3))
 }
 
-func (p *COBSR) trice85(b []byte) int {
+func (p *COBS) trice85(b []byte) int {
 	b0 := int8(p.b[0]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
 	b1 := int8(p.b[1]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
 	b2 := int8(p.b[2]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
@@ -315,7 +278,7 @@ func (p *COBSR) trice85(b []byte) int {
 	return copy(b, fmt.Sprintf(p.trice.Strg, b0, b1, b2, b3, b4))
 }
 
-func (p *COBSR) trice86(b []byte) int {
+func (p *COBS) trice86(b []byte) int {
 	b0 := int8(p.b[0]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
 	b1 := int8(p.b[1]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
 	b2 := int8(p.b[2]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
@@ -325,7 +288,7 @@ func (p *COBSR) trice86(b []byte) int {
 	return copy(b, fmt.Sprintf(p.trice.Strg, b0, b1, b2, b3, b4, b5))
 }
 
-func (p *COBSR) trice87(b []byte) int {
+func (p *COBS) trice87(b []byte) int {
 	b0 := int8(p.b[0]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
 	b1 := int8(p.b[1]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
 	b2 := int8(p.b[2]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
@@ -336,7 +299,7 @@ func (p *COBSR) trice87(b []byte) int {
 	return copy(b, fmt.Sprintf(p.trice.Strg, b0, b1, b2, b3, b4, b5, b6))
 }
 
-func (p *COBSR) trice88(b []byte) int {
+func (p *COBS) trice88(b []byte) int {
 	b0 := int8(p.b[0]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
 	b1 := int8(p.b[1]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
 	b2 := int8(p.b[2]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
@@ -348,25 +311,25 @@ func (p *COBSR) trice88(b []byte) int {
 	return copy(b, fmt.Sprintf(p.trice.Strg, b0, b1, b2, b3, b4, b5, b6, b7))
 }
 
-func (p *COBSR) trice161(b []byte) int {
+func (p *COBS) trice161(b []byte) int {
 	d0 := int16(p.readU16(p.b[0:2])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
 	return copy(b, fmt.Sprintf(p.trice.Strg, d0))
 }
 
-func (p *COBSR) trice162(b []byte) int {
+func (p *COBS) trice162(b []byte) int {
 	d0 := int16(p.readU16(p.b[0:2])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
 	d1 := int16(p.readU16(p.b[2:4])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
 	return copy(b, fmt.Sprintf(p.trice.Strg, d0, d1))
 }
 
-func (p *COBSR) trice163(b []byte) int {
+func (p *COBS) trice163(b []byte) int {
 	d0 := int16(p.readU16(p.b[0:2])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
 	d1 := int16(p.readU16(p.b[2:4])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
 	d2 := int16(p.readU16(p.b[4:6])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
 	return copy(b, fmt.Sprintf(p.trice.Strg, d0, d1, d2))
 }
 
-func (p *COBSR) trice164(b []byte) int {
+func (p *COBS) trice164(b []byte) int {
 	d0 := int16(p.readU16(p.b[0:2])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
 	d1 := int16(p.readU16(p.b[2:4])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
 	d2 := int16(p.readU16(p.b[4:6])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
@@ -374,25 +337,25 @@ func (p *COBSR) trice164(b []byte) int {
 	return copy(b, fmt.Sprintf(p.trice.Strg, d0, d1, d2, d3))
 }
 
-func (p *COBSR) trice321(b []byte) int {
+func (p *COBS) trice321(b []byte) int {
 	d0 := int32(p.readU32(p.b[0:4])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
 	return copy(b, fmt.Sprintf(p.trice.Strg, d0))
 }
 
-func (p *COBSR) trice322(b []byte) int {
+func (p *COBS) trice322(b []byte) int {
 	d0 := int32(p.readU32(p.b[0:4])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
 	d1 := int32(p.readU32(p.b[4:8])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
 	return copy(b, fmt.Sprintf(p.trice.Strg, d0, d1))
 }
 
-func (p *COBSR) trice323(b []byte) int {
+func (p *COBS) trice323(b []byte) int {
 	d0 := int32(p.readU32(p.b[0:4]))  // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
 	d1 := int32(p.readU32(p.b[4:8]))  // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
 	d2 := int32(p.readU32(p.b[8:12])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
 	return copy(b, fmt.Sprintf(p.trice.Strg, d0, d1, d2))
 }
 
-func (p *COBSR) trice324(b []byte) int {
+func (p *COBS) trice324(b []byte) int {
 	d0 := int32(p.readU32(p.b[0:4]))   // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
 	d1 := int32(p.readU32(p.b[4:8]))   // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
 	d2 := int32(p.readU32(p.b[8:12]))  // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
@@ -400,12 +363,12 @@ func (p *COBSR) trice324(b []byte) int {
 	return copy(b, fmt.Sprintf(p.trice.Strg, d0, d1, d2, d3))
 }
 
-func (p *COBSR) trice641(b []byte) int {
+func (p *COBS) trice641(b []byte) int {
 	d0 := int64(p.readU64(p.b[0:8])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
 	return copy(b, fmt.Sprintf(p.trice.Strg, d0))
 }
 
-func (p *COBSR) trice642(b []byte) int {
+func (p *COBS) trice642(b []byte) int {
 	d0 := int64(p.readU64(p.b[0:8]))  // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
 	d1 := int64(p.readU64(p.b[8:16])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
 	return copy(b, fmt.Sprintf(p.trice.Strg, d0, d1))

@@ -24,10 +24,10 @@ import (
 )
 
 const (
-	// receive and sync buffer size
+	// defaultSize is the beginning receive and sync buffer size.
 	defaultSize = 4096
 
-	// flag value for TargetEndianess
+	// LittleEndian is true for little endian trice data.
 	LittleEndian = true
 
 	// flag value for TargetEndianess
@@ -75,8 +75,19 @@ var (
 	// flag
 	CycleCounter = true
 
-	// show debug information
+	// DebugOut enables debug information.
 	DebugOut = false
+
+	// DumpLineByteCount is the bytes per line for the DUMP decoder.
+	DumpLineByteCount int
+)
+
+const (
+	// headSize is 4; each trice message starts with a head of 4 bytes.
+	headSize = 4
+
+	// hints is the help information in case of errors.
+	hints = "att:Hints:Baudrate? Overflow? Encoding? Interrupt? CycleCounter? til.json?"
 )
 
 // newDecoder abstracts the function type for a new decoder.
@@ -95,6 +106,9 @@ type decoderData struct {
 	iBuf              []byte           // iBuf holds unprocessed (raw) bytes for interpretation.
 	b                 []byte           // read buffer holds a single decoded COBS package, which can contain several trices.
 	endian            bool             // endian is LittleEndian or BigEndian
+	triceSize         int              // trice head and payload size as number of bytes
+	paramSpace        int              // trice payload size after head
+	sLen              int              // string length for TRICE_S
 	lut               id.TriceIDLookUp // id look-up map for translation
 	lutMutex          *sync.RWMutex    // to avoid concurrent map read and map write during map refresh triggered by filewatcher
 	trice             id.TriceFmt      // id.TriceFmt // received trice
@@ -187,6 +201,7 @@ func handleSIGTERM(rc io.ReadCloser) {
 }
 
 // Translate performs the trice log task.
+//
 // Bytes are read with rc. Then according decoder.Encoding they are translated into strings.
 // Each read returns the amount of bytes for one trice. rc is called on every
 // Translate returns true on io.EOF or false on hard read error or sigterm.
@@ -223,6 +238,7 @@ func Translate(sw *emitter.TriceLineComposer, lut id.TriceIDLookUp, m *sync.RWMu
 	return decodeAndComposeLoop(sw, dec)
 }
 
+// decodeAndComposeLoop does not return.
 func decodeAndComposeLoop(sw *emitter.TriceLineComposer, dec Decoder) error {
 	b := make([]byte, defaultSize) // intermediate trice string buffer
 	for {
@@ -234,11 +250,8 @@ func decodeAndComposeLoop(sw *emitter.TriceLineComposer, dec Decoder) error {
 			if Verbose {
 				fmt.Println(err, "-> WAITING...")
 			}
-			// The following line has heavy influence on inside sticking trices.
-			//time.Sleep(100 * time.Millisecond) // limit try again speed
 			continue // read again
 		}
-
 		// b contains here no or several complete trice strings.
 		// If several, they end with a newline, despite the last one which optionally ends with a newline.
 
@@ -253,10 +266,6 @@ func decodeAndComposeLoop(sw *emitter.TriceLineComposer, dec Decoder) error {
 			msg.OnErr(err)
 		}
 		m, err := sw.Write(b[:n])
-
-		//  for _, x := range b[:n] {
-		//  	fmt.Printf("%02X ", uint8(x))
-		//  }
 		duration := time.Since(start).Milliseconds()
 		if duration > 100 {
 			fmt.Println("TriceLineComposer.Write duration =", duration, "ms.")
@@ -281,19 +290,6 @@ func (p *decoderData) readU32(b []byte) uint32 {
 	return binary.BigEndian.Uint32(b)
 }
 
-//  // writeU32 returns the 4 bytes as uint32 in b according the specified endianness
-//  func (p *decoderData) writeU32(v uint32) (b *bytes.Buffer) {
-//  	var err error
-//  	b = new(bytes.Buffer)
-//  	if littleEndian == p.endian {
-//  		err = binary.Write(b, binary.LittleEndian, v)
-//  	} else {
-//  		err = binary.Write(b, binary.BigEndian, v)
-//  	}
-//  	msg.InfoOnErr(err, "binary.Write failed:")
-//  	return
-//  }
-
 // readU64 returns the 8 b bytes as uint64 according the specified endianness
 func (p *decoderData) readU64(b []byte) uint64 {
 	if p.endian == LittleEndian {
@@ -302,34 +298,8 @@ func (p *decoderData) readU64(b []byte) uint64 {
 	return binary.BigEndian.Uint64(b)
 }
 
-//  // rub removes leading bytes from interpret buffer
-//  func (p *decoderData) rub(n int) {
-//  	if TestTableMode {
-//  		if emitter.NextLine {
-//  			emitter.NextLine = false
-//  			fmt.Printf("{ []byte{ ")
-//  		}
-//  		for _, b := range p.iBuf[0:n] { // just to see trice bytes per trice
-//  			fmt.Printf("%3d,", b)
-//  		}
-//  	}
-//  	p.rubbed += n
-//  	p.iBuf = p.iBuf[n:]
-//  }
-
-//  // outOfSync generates an error message and removes first byte in input buffer.
-//  func (p *decoderData) outOfSync(msg string) (n int, e error) {
-//  	cnt := len(p.iBuf)
-//  	if cnt > 8 {
-//  		cnt = 8
-//  	}
-//  	n = copy(p.b, fmt.Sprintln("error:", msg, "ignoring first byte", p.iBuf[0:cnt]))
-//  	p.inSync = false
-//  	p.rub(1)
-//  	return
-//  }
-
 // uReplaceN checks all format specifier in i and replaces %nu with %nd and returns that result as o.
+//
 // If a replacement took place on position k u[k] is true. Afterwards len(u) is amount of found format specifiers.
 func uReplaceN(i string) (o string, u []bool) {
 	o = i
