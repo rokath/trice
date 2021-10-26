@@ -124,19 +124,31 @@ extern "C" {
 ///////////////////////////////////////////////////////////////////////////////
 // Declarations
 
-unsigned TriceSingleToCOBS( uint8_t* co, uint8_t * tr );
-extern uint16_t TriceDepthMax;
-
-void triceCheckSet( int index ); //!< tests
-void TriceSingleReadAndWrite( void );
-void TriceMultiReadAndWrite( void );
-
 #define TRICE_LITTLE_ENDIANNESS 0x00112233 //!< TRICE_LITTLE_ENDIANNESS is the default for TRICE_HARDWARE_ENDIANNESS and TRICE_TRANSFER_ENDIANNESS.
 #define TRICE_BIG_ENDIANNESS    0x33221100 //!< TRICE_BIG_ENDIANNESS is the option for TRICE_HARDWARE_ENDIANNESS and TRICE_TRANSFER_ENDIANNESS.
+
+#ifndef TRICE_DATA_OFFSET
+
+#endif
 
 #ifndef TRICE_CYCLE_COUNTER
 #define TRICE_CYCLE_COUNTER 1 //! add cycle counter
 #endif
+
+#ifndef TRICE_SINGLE_MAX_SIZE
+#define TRICE_SINGLE_MAX_SIZE 1008 //!< TRICE_SINGLE_MAX_SIZE ist the head size plus string length size plus max dynamic string size. Must be a multiple of 4. 1008 is the max allowed value.
+#endif
+
+#if TRICE_SINGLE_MAX_SIZE < 256
+#define TRICE_DATA_OFFSET 4 //! TRICE_DATA_OFFSET is the space in front of trice data for in-buffer COBS encoding. It be a multiple of uint32_t.
+#else
+#define TRICE_DATA_OFFSET 8 //! TRICE_DATA_OFFSET is the space in front of trice data for in-buffer COBS encoding. It be a multiple of uint32_t.
+#endif
+
+extern unsigned TriceDepthMax;
+unsigned COBSEncode( uint8_t* restrict output, const uint8_t * restrict input, unsigned length);
+void TriceMultiReadAndWrite( void );
+void triceCheckSet( int index ); //!< tests
 
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -232,21 +244,21 @@ TRICE_INLINE void triceDisableTxEmptyInterrupt(void) {
 
 #ifdef TRICE_UART
 int TriceNonBlockingWrite( void const * buf, int nByte );
-int TriceWriteDepth( void );
+int TriceWriteOutDepth( void );
 uint8_t TriceNextUint8( void );
 
 //! triceServeTransmit as triceServeU8FifoTransmit must be called cyclically to proceed ongoing write out.
 //! A good place is UART ISR.
 TRICE_INLINE void triceServeTransmit(void) {
     triceTransmitData8(TriceNextUint8());
-    if (0 == TriceWriteDepth()) { // no more bytes
+    if (0 == TriceWriteOutDepth()) { // no more bytes
         triceDisableTxEmptyInterrupt();
     }
 }
 
 // triceTriggerTransmit as triceTriggerU8FifoTransmit must be called cyclically to initialize write out.
 TRICE_INLINE void triceTriggerTransmit(void){
-    if( TriceWriteDepth() && triceTxDataRegisterEmpty() ){
+    if( TriceWriteOutDepth() && triceTxDataRegisterEmpty() ){
         triceEnableTxEmptyInterrupt(); // next bytes
     }
 }
@@ -585,9 +597,9 @@ extern uint8_t TriceCycle;
 //! cLen-3 cLen-2 cLen-1 cLen
 #define TRICE_S( id, pFmt, dynString) do { \
     int len = strlen( dynString ); \
-    if( len > 1000 ){ \
-        dynString[1000] = 0; \
-        len = 1000; \
+    if( len > TRICE_SINGLE_MAX_SIZE-8 ){ \
+        dynString[TRICE_SINGLE_MAX_SIZE-8] = 0; \
+        len = TRICE_SINGLE_MAX_SIZE-8; \
     } \
     TRICE_ENTER \
     PUT( id | (0xff00 & ((len+7)<<6)) | TRICE_CYCLE ); /* +3 for padding, +4 for the buf size value transmitted in the payload to get the last 2 bits. */ \

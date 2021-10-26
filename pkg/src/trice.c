@@ -5,11 +5,10 @@
 #include <string.h> // strlen
 #include "trice.h"
 
-#define TRICE_DATA_OFFSET 8 //! TRICE_DATA_OFFSET is the space in front of trice data for in-buffer COBS encoding.
-uint16_t TriceDepthMax = 0; //!< TriceDepthMax is a diagnostics value usable to optimize buffer size.
+unsigned TriceDepthMax = 0; //!< TriceDepthMax is a diagnostics value usable to optimize buffer size.
 uint8_t  TriceCycle = 0xc0; //!< trice cycle counter
 
-// https://github.com/jacquesf/COBS-Consistent-Overhead-Byte-Stuffing/blob/master/cobs.c
+// copied from https://github.com/jacquesf/COBS-Consistent-Overhead-Byte-Stuffing/blob/master/cobs.c
 /* Stuffs "length" bytes of data at the location pointed to by
  * "input", writing the output to the location pointed to by
  * "output". Returns the number of bytes written to "output".
@@ -17,8 +16,8 @@ uint8_t  TriceCycle = 0xc0; //!< trice cycle counter
  * Remove the "restrict" qualifiers if compiling with a
  * pre-C99 C dialect.
  */
-//           size_t cobs_encode(const uint8_t * /*restrict*/ input, size_t length, uint8_t * /*restrict*/ output)
-TRICE_INLINE unsigned COBSEncode( uint8_t* restrict output, const uint8_t * restrict input, unsigned length){
+//size_t cobs_encode(const uint8_t * /*restrict*/ input, size_t length, uint8_t * /*restrict*/ output)
+unsigned COBSEncode( uint8_t* restrict output, const uint8_t * restrict input, unsigned length){
     unsigned read_index = 0;
     unsigned write_index = 1;
     unsigned code_index = 0;
@@ -48,6 +47,7 @@ TRICE_INLINE unsigned COBSEncode( uint8_t* restrict output, const uint8_t * rest
     return write_index;
 }
 
+
 // The trice data stream is little endian, as most embedded MCUs use litte endian format.
 // For big endian embedded MCUs the trice tool has an -targetEndianess switch to avoid transcoding in the target processor.
 // The buffer tail contains wholes on big endian MCUs for TRICE8_1, TRICE8_2, TRICE8_3, TRICE8_5, TRICE8_6, TRICE8_7, TRICE16_1, TRICE16_3 and needs adjustment then.
@@ -71,38 +71,8 @@ unsigned TriceSingleToCOBS( uint8_t* co, uint8_t * tr ){
 #ifdef TRICE_DOUBLE_BUFFER_SIZE
 static uint32_t triceBuffer[2][(TRICE_DOUBLE_BUFFER_SIZE+3)>>3] = {0}; //!< triceBuffer is double buffer for better write speed.
 static int swap = 0; //!< swap is the index of the active write buffer. !swap is the active read buffer.
-uint32_t* wTb = &triceBuffer[0][0]; //!< wTb is the active write position.
+uint32_t* wTb = &triceBuffer[0][TRICE_DATA_OFFSET>>2]; //!< wTb is the active write position.
 static uint32_t* rTb = &triceBuffer[1][0]; //!< rTb is the active read position. 
-
-//! triceRead returns a pointer to next complete trice message or it returns NULL if no data to process.
-//! If in a first try the read buffer is empty, a buffer swap is done:
-//! \li Switch next write to this buffer here, because it is empty.
-//! \li Switch next read to the other buffer, may be there is stuff to read.
-//! If both buffers empty, each triceRead call results in a buffer swap, what is ok.
-//! There is no wTp overflow check! The read buffer must be read out fast enough to be swapped before the write buffer can overflow.
-static uint8_t* triceRead( void ){
-    uint32_t head;
-    int triceU32cnt;
-    uint8_t* p;
-    uint16_t triceDepth = sizeof(uint32_t) * (wTb - &triceBuffer[swap][0]);  // diagnostics
-    TriceDepthMax = triceDepth < TriceDepthMax ? TriceDepthMax : triceDepth; // diagnostics
-    if( 0 == *rTb ){ // This buffer is empty
-        TRICE_ENTER_CRITICAL_SECTION
-        *wTb = 0; // write end marker
-        swap = !swap; // From section 6.5.3.3/5 of the ISO C99 standard: The result of the logical negation operator ! is 0 if the value of its operand compares unequal to 0, 1 if the value of its operand compares equal to 0.
-        wTb = &triceBuffer[swap][TRICE_DATA_OFFSET];
-        rTb = &triceBuffer[!swap][TRICE_DATA_OFFSET];
-        TRICE_LEAVE_CRITICAL_SECTION
-        if( 0 == *rTb ){ // This buffer is empty
-            return (void*)0;
-        }
-    }
-    p = (uint8_t*)rTb;
-    head = *rTb;
-    triceU32cnt = ((0x0000FF00 & head) >> 8 ) + 1;
-    rTb += triceU32cnt; // step to next entry (little endian)
-    return p;
-}
 
 //! TriceBufferSwap swaps the trice double buffer and returns the transfer buffer address.
 uint32_t* TriceBufferSwap( void ){
@@ -126,35 +96,17 @@ static size_t TriceTransferDepth( uint32_t* tb ){
 
 //! TriceMultiReadAndRTTWrite swaps the double buffer and initiates a write if possible.
 void TriceMultiReadAndWrite( void ){
-    if( 0 == TriceWriteDepth() ){ // transmission done
+    if( 0 == TriceWriteOutDepth() ){ // transmission done
         uint32_t* tb = TriceBufferSwap(); 
         size_t tlen = TriceTransferDepth(tb);
         if( tlen ){
             uint8_t* co = (uint8_t*)tb;
             uint8_t* tr = co + TRICE_DATA_OFFSET;
             size_t clen = COBSEncode(co, tr, tlen);
-            co[clen] = 0;
-            TRICE_WRITE( co, clen+1 );
+            co[clen++] = 0;
+            TRICE_WRITE( co, clen );
         }
     } // else: transmission not done yet
-}
-
-void TriceSingleReadAndWrite( void ){
-    uint8_t *co, *t;
-    uint16_t clen; // uint8_t clen, tlen;
-    if( TriceWriteDepth() ){
-        return; // transmission not done yet
-    }
-    t = triceRead();
-    if( NULL == t ){
-        return; // no trice data to transmit
-    }
-    #ifdef ENCRYPT
-    triceServeFifoEncryptedToBytesBuffer(); // To do: rework obsolete code
-    #endif
-    co = t-TRICE_DATA_OFFSET; 
-    clen = TriceSingleToCOBS( co, t );
-    TRICE_WRITE( co, clen );
 }
 
 #endif // #ifdef TRICE_DOUBLE_BUFFER_SIZE
@@ -172,7 +124,7 @@ int TriceNonBlockingWrite( void const * buf, int nByte ){
     return nByte;
 }
 
-int TriceWriteDepth( void ){
+int TriceWriteOutDepth( void ){
     return triceWriteOutCount - triceWriteOutIndex;
 }
 
@@ -273,10 +225,59 @@ void triceServeFifoEncryptedToBytesBuffer(void) {
 #endif // #ifdef ENCRYPT
 
 
+// Backup //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//
 
 
-
-
+//  
+//  
+//  //! triceRead returns a pointer to next complete trice message or it returns NULL if no data to process.
+//  //! If in a first try the read buffer is empty, a buffer swap is done:
+//  //! \li Switch next write to this buffer here, because it is empty.
+//  //! \li Switch next read to the other buffer, may be there is stuff to read.
+//  //! If both buffers empty, each triceRead call results in a buffer swap, what is ok.
+//  //! There is no wTp overflow check! The read buffer must be read out fast enough to be swapped before the write buffer can overflow.
+//  static uint8_t* triceRead( void ){
+//      uint32_t head;
+//      int triceU32cnt;
+//      uint8_t* p;
+//      uint16_t triceDepth = sizeof(uint32_t) * (wTb - &triceBuffer[swap][0]);  // diagnostics
+//      TriceDepthMax = triceDepth < TriceDepthMax ? TriceDepthMax : triceDepth; // diagnostics
+//      if( 0 == *rTb ){ // This buffer is empty
+//          TRICE_ENTER_CRITICAL_SECTION
+//          *wTb = 0; // write end marker
+//          swap = !swap; // From section 6.5.3.3/5 of the ISO C99 standard: The result of the logical negation operator ! is 0 if the value of its operand compares unequal to 0, 1 if the value of its operand compares equal to 0.
+//          wTb = &triceBuffer[swap][TRICE_DATA_OFFSET];
+//          rTb = &triceBuffer[!swap][TRICE_DATA_OFFSET];
+//          TRICE_LEAVE_CRITICAL_SECTION
+//          if( 0 == *rTb ){ // This buffer is empty
+//              return (void*)0;
+//          }
+//      }
+//      p = (uint8_t*)rTb;
+//      head = *rTb;
+//      triceU32cnt = ((0x0000FF00 & head) >> 8 ) + 1;
+//      rTb += triceU32cnt; // step to next entry (little endian)
+//      return p;
+//  }
+//  
+//  void TriceSingleReadAndWrite( void ){
+//      uint8_t *co, *t;
+//      uint16_t clen; // uint8_t clen, tlen;
+//      if( TriceWriteOutDepth() ){
+//          return; // transmission not done yet
+//      }
+//      t = triceRead();
+//      if( NULL == t ){
+//          return; // no trice data to transmit
+//      }
+//      #ifdef ENCRYPT
+//      triceServeFifoEncryptedToBytesBuffer(); // To do: rework obsolete code
+//      #endif
+//      co = t-TRICE_DATA_OFFSET; 
+//      clen = TriceSingleToCOBS( co, t );
+//      TRICE_WRITE( co, clen );
+//  }
 
 //  //! triceCOBSREncode does the same as the cobsr_encode function but a bit faster.
 //  //! by leaving out some checks, assuming max 254 source bytes and uses a simpler signature.

@@ -571,6 +571,10 @@
 		"Type": "TRICE16",
 		"Strg": "sig:%02x\\n"
 	},
+	"37965": {
+		"Type": "TRICE0",
+		"Strg": "att:Direct TRICE write, +cycle, +int"
+	},
 	"38012": {
 		"Type": "TRICE32_1",
 		"Strg": "time:TRICE32_1   message, SysTick is %6u\\n"
@@ -1347,6 +1351,10 @@
 		"Type": "TRICE64_1",
 		"Strg": "tst:TRICE64_1 %u\\n"
 	},
+	"48724": {
+		"Type": "TRICE0",
+		"Strg": "att:Direct TRICE write, +cycle, +int"
+	},
 	"48736": {
 		"Type": "trice8",
 		"Strg": "msg:%02x %02x %02x %02x -\u003e %02x %02x %02x %02x "
@@ -2086,6 +2094,10 @@
 	"57666": {
 		"Type": "TRICE32_1",
 		"Strg": "time:TRICE16_1   message, SysTick is %6u\\n"
+	},
+	"57686": {
+		"Type": "TRICE0",
+		"Strg": "att:Direct TRICE write, +cycle, +int"
 	},
 	"57806": {
 		"Type": "TRICE32",
