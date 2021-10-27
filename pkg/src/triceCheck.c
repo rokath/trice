@@ -90,7 +90,23 @@ void triceCheckSet(int index) {
             TRICE8_2( Id( 49739), "rd:TRICE8_2 %d, %d\n", 3, 4 );
             TRICE8_2( Id( 57430), "rd:TRICE8_2 %d, %d\n", 4, 5 );
             TRICE8_2( Id( 47602), "rd:TRICE8_2 %d, %d\n", 5, 6 );
-            TRICE8_1( Id( 34166), "rd:TRICE8_1 line %d\n", 1 );
+            TRICE8_1( Id( 63474), "rd:TRICE8_1 line %d (%%d -1)\n", -1 );
+            TRICE8_1( Id( 61213), "rd:TRICE8_1 line %u (%%u -1)\n", -1 );
+            TRICE8_1( Id( 56571), "rd:TRICE8_1 line %b (%%b -1)\n", -1 );
+            TRICE8_1( Id( 63602), "rd:TRICE8_1 line %x (%%x -1)\n", -1 );
+            TRICE16_1( Id( 54350), "rd:TRICE16_1 line %d (%%d -1)\n", -1 );
+            TRICE16_1( Id( 35169), "rd:TRICE16_1 line %u (%%u -1)\n", -1 );
+            TRICE16_1( Id( 35133), "rd:TRICE16_1 line %b (%%b -1)\n", -1 );
+            TRICE16_1( Id( 53632), "rd:TRICE16_1 line %x (%%x -1)\n", -1 );
+            TRICE32_1( Id( 45750), "rd:TRICE32_1 line %d (%%d -1)\n", -1 );
+            TRICE32_1( Id( 49915), "rd:TRICE32_1 line %u (%%u -1)\n", -1 );
+            TRICE32_1( Id( 39033), "rd:TRICE32_1 line %b (%%b -1)\n", -1 );
+            TRICE32_1( Id( 48655), "rd:TRICE32_1 line %x (%%x -1)\n", -1 );
+            TRICE64_1( Id( 41928), "rd:TRICE64_1 line %d (%%d -1)\n", -1 );
+            TRICE64_1( Id( 48160), "rd:TRICE64_1 line %u (%%u -1)\n", -1 );
+            TRICE64_1( Id( 33464), "rd:TRICE64_1 line %b (%%b -1)\n", -1 );
+            TRICE64_1( Id( 49762), "rd:TRICE64_1 line %x (%%x -1)\n", -1 );
+
             TRICE8_2( Id( 58835), "rd:TRICE8_2 line %d, %d\n", __LINE__, 2 );
         break;
         case 2:
@@ -260,8 +276,12 @@ void triceCheckSet(int index) {
             TRICE32_2(Id( 64117), "tst:TRICE32_2 %u %u\n", 4000000001, 4000000002);
             TRICE32_3(Id( 46431), "tst:TRICE32_3 %u %u %u\n", 4000000001, 4000000002, 4000000003);
             TRICE32_4(Id( 50279), "tst:TRICE32_4 %u %u %u %u\n", 4000000001, 4000000002, 4000000003, 4000000004);
+            TRICE64_1(Id( 59485), "tst:TRICE64_1 %x\n", -1);
+            TRICE64_2(Id( 63675), "tst:TRICE64_2 %x %x\n", -1, -2);
             TRICE64_1(Id( 49602), "tst:TRICE64_1 %u\n", -1);
             TRICE64_2(Id( 39532), "tst:TRICE64_2 %u %u\n", -1, -2);
+            TRICE64_1(Id( 39510), "tst:TRICE64_1 %s\n", -1);
+            TRICE64_2(Id( 50297), "tst:TRICE64_2 %s %u\n", -1, -2);
         break;
         case 14:
             TRICE8_8( Id( 48310), "dbg:%d %d %d %d %d %d %d %d\n", 8, 8, 8, 8, 8, 8, 8, 8 );

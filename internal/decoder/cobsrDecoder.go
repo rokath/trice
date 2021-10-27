@@ -214,7 +214,7 @@ func (p *COBS) sprintTrice(b []byte) (n int) {
 					n += copy(b[n:], fmt.Sprintln(hints))
 					return
 				}
-				n += s.triceFn(p, b)
+				n += s.triceFn(p, b, s.bitWidth, s.paramCount) // n += s.triceFn(p, b, cobsFunctionPtrList[i].bitWidth, cobsFunctionPtrList[i].paramCount)
 				return
 			} else {
 				n += copy(b[n:], fmt.Sprintln("err:trice.Type", p.trice.Type, ": s.paramSpace", s.paramSpace, "!= p.paramSpace", p.paramSpace, "- ignoring data", p.b[:p.paramSpace]))
@@ -231,36 +231,39 @@ func (p *COBS) sprintTrice(b []byte) (n int) {
 
 // triceTypeFn is the type for cobsFunctionPtrList elements.
 type triceTypeFn struct {
-	triceType  string
-	triceFn    func(p *COBS, b []byte) int
-	paramSpace int
+	triceType  string                                           // triceType describes if parameters, the parameter bit width or it the parameter is a string
+	triceFn    func(p *COBS, b []byte, bitwidth, count int) int // triceFn performs the conversion to the output string.
+	paramSpace int                                              // paramSpace is the count of bytes allocated for the parameters.
+	bitWidth   int                                              // bitWidth is the individual parameter width.
+	paramCount int                                              // paramCount is the amount pf parameters for the format string, which must match the count of format specifiers.
 }
 
 // cobsFunctionPtrList is a function pointer list.
 var cobsFunctionPtrList = [...]triceTypeFn{
-	{"TRICE_S", (*COBS).triceS, -1}, // do not remove from first position, see cobsFunctionPtrList[0].paramSpace = ...
-	{"TRICE0", (*COBS).trice0, 0},
-	{"TRICE8_1", (*COBS).trice81, 4},
-	{"TRICE8_2", (*COBS).trice82, 4},
-	{"TRICE8_3", (*COBS).trice83, 4},
-	{"TRICE8_4", (*COBS).trice84, 4},
-	{"TRICE8_5", (*COBS).trice85, 8},
-	{"TRICE8_6", (*COBS).trice86, 8},
-	{"TRICE8_7", (*COBS).trice87, 8},
-	{"TRICE8_8", (*COBS).trice88, 8},
-	{"TRICE16_1", (*COBS).trice161, 4},
-	{"TRICE16_2", (*COBS).trice162, 4},
-	{"TRICE16_3", (*COBS).trice163, 8},
-	{"TRICE16_4", (*COBS).trice164, 8},
-	{"TRICE32_1", (*COBS).trice321, 4},
-	{"TRICE32_2", (*COBS).trice322, 8},
-	{"TRICE32_3", (*COBS).trice323, 12},
-	{"TRICE32_4", (*COBS).trice324, 16},
-	{"TRICE64_1", (*COBS).trice641, 8},
-	{"TRICE64_2", (*COBS).trice642, 16},
+	{"TRICE_S", (*COBS).triceS, -1, 0, 0}, // do not remove from first position, see cobsFunctionPtrList[0].paramSpace = ...
+	{"TRICE0", (*COBS).trice0, 0, 0, 0},
+	{"TRICE8_1", (*COBS).unSignedOrSignedOut, 4, 8, 1},
+	{"TRICE8_2", (*COBS).unSignedOrSignedOut, 4, 8, 2},
+	{"TRICE8_3", (*COBS).unSignedOrSignedOut, 4, 8, 3},
+	{"TRICE8_4", (*COBS).unSignedOrSignedOut, 4, 8, 4},
+	{"TRICE8_5", (*COBS).unSignedOrSignedOut, 8, 8, 5},
+	{"TRICE8_6", (*COBS).unSignedOrSignedOut, 8, 8, 6},
+	{"TRICE8_7", (*COBS).unSignedOrSignedOut, 8, 8, 7},
+	{"TRICE8_8", (*COBS).unSignedOrSignedOut, 8, 8, 8},
+	{"TRICE16_1", (*COBS).unSignedOrSignedOut, 4, 16, 1},
+	{"TRICE16_2", (*COBS).unSignedOrSignedOut, 4, 16, 2},
+	{"TRICE16_3", (*COBS).unSignedOrSignedOut, 8, 16, 3},
+	{"TRICE16_4", (*COBS).unSignedOrSignedOut, 8, 16, 4},
+	{"TRICE32_1", (*COBS).unSignedOrSignedOut, 4, 32, 1},
+	{"TRICE32_2", (*COBS).unSignedOrSignedOut, 8, 32, 2},
+	{"TRICE32_3", (*COBS).unSignedOrSignedOut, 12, 32, 3},
+	{"TRICE32_4", (*COBS).unSignedOrSignedOut, 16, 32, 4},
+	{"TRICE64_1", (*COBS).unSignedOrSignedOut, 8, 64, 1},
+	{"TRICE64_2", (*COBS).unSignedOrSignedOut, 16, 64, 2},
 }
 
-func (p *COBS) triceS(b []byte) int {
+// triceS converts dynamic strings.
+func (p *COBS) triceS(b []byte, _ int, _ int) int {
 	if DebugOut {
 		fmt.Println(p.b)
 	}
@@ -268,165 +271,54 @@ func (p *COBS) triceS(b []byte) int {
 	return copy(b, fmt.Sprintf(p.trice.Strg, string(s)))
 }
 
-func (p *COBS) trice0(b []byte) int {
+// trice0 prints the trice format string.
+func (p *COBS) trice0(b []byte, _ int, _ int) int {
 	return copy(b, fmt.Sprintf(p.trice.Strg))
 }
 
-//  func (p *Flex) trice81x() (n int, e error) {
-//  	d := make([]uint64, 1)
-//  	split1Byte(d, p.d0)
-//  	s, b, e := p.uReplace8(d)
-//  	n = copy(p.b, fmt.Sprintf(s, b[0]))
-//  	return
-//  }
-
-func (p *COBS) _trice81(b []byte) int {
-	b0 := int8(p.b[0]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	return copy(b, fmt.Sprintf(p.trice.Strg, b0))
-}
-
-// func uReplace8(pFmt string, d []uint64) (s string, b []interface{}, e error) {
-
-func (p *COBS) trice81(b []byte) int {
-	d := make([]uint64, 1)
-	split1Byte(d, p.d0)
-	pFmt := p.trice.Strg
-	s, b, _ := uReplace8(pFmt, d)
-	return copy(b, fmt.Sprintf(s, p.b[0]))
-	//b0 := int8(p.b[0]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	//return copy(b, fmt.Sprintf(s, b0))
-}
-
-//  func (p *Flex) trice82x() (n int, e error) {
-//  	d := make([]uint64, 2)
-//  	split2Bytes(d, p.d0)
-//  	s, b, e := p.uReplace8(d)
-//  	n = copy(p.b, fmt.Sprintf(s, b[0], b[1]))
-//  	return
-//  }
-
-func (p *COBS) trice82(b []byte) int {
-	b0 := int8(p.b[0]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	b1 := int8(p.b[1]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	return copy(b, fmt.Sprintf(p.trice.Strg, b0, b1))
-}
-
-func (p *COBS) trice83(b []byte) int {
-	b0 := int8(p.b[0]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	b1 := int8(p.b[1]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	b2 := int8(p.b[2]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	return copy(b, fmt.Sprintf(p.trice.Strg, b0, b1, b2))
-}
-
-func (p *COBS) trice84(b []byte) int {
-	b0 := int8(p.b[0]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	b1 := int8(p.b[1]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	b2 := int8(p.b[2]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	b3 := int8(p.b[3]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	return copy(b, fmt.Sprintf(p.trice.Strg, b0, b1, b2, b3))
-}
-
-func (p *COBS) trice85(b []byte) int {
-	b0 := int8(p.b[0]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	b1 := int8(p.b[1]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	b2 := int8(p.b[2]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	b3 := int8(p.b[3]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	b4 := int8(p.b[4]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	return copy(b, fmt.Sprintf(p.trice.Strg, b0, b1, b2, b3, b4))
-}
-
-func (p *COBS) trice86(b []byte) int {
-	b0 := int8(p.b[0]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	b1 := int8(p.b[1]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	b2 := int8(p.b[2]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	b3 := int8(p.b[3]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	b4 := int8(p.b[4]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	b5 := int8(p.b[5]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	return copy(b, fmt.Sprintf(p.trice.Strg, b0, b1, b2, b3, b4, b5))
-}
-
-func (p *COBS) trice87(b []byte) int {
-	b0 := int8(p.b[0]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	b1 := int8(p.b[1]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	b2 := int8(p.b[2]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	b3 := int8(p.b[3]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	b4 := int8(p.b[4]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	b5 := int8(p.b[5]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	b6 := int8(p.b[6]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	return copy(b, fmt.Sprintf(p.trice.Strg, b0, b1, b2, b3, b4, b5, b6))
-}
-
-func (p *COBS) trice88(b []byte) int {
-	b0 := int8(p.b[0]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	b1 := int8(p.b[1]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	b2 := int8(p.b[2]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	b3 := int8(p.b[3]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	b4 := int8(p.b[4]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	b5 := int8(p.b[5]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	b6 := int8(p.b[6]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	b7 := int8(p.b[7]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	return copy(b, fmt.Sprintf(p.trice.Strg, b0, b1, b2, b3, b4, b5, b6, b7))
-}
-
-func (p *COBS) trice161(b []byte) int {
-	d0 := int16(p.readU16(p.b[0:2])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	return copy(b, fmt.Sprintf(p.trice.Strg, d0))
-}
-
-func (p *COBS) trice162(b []byte) int {
-	d0 := int16(p.readU16(p.b[0:2])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	d1 := int16(p.readU16(p.b[2:4])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	return copy(b, fmt.Sprintf(p.trice.Strg, d0, d1))
-}
-
-func (p *COBS) trice163(b []byte) int {
-	d0 := int16(p.readU16(p.b[0:2])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	d1 := int16(p.readU16(p.b[2:4])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	d2 := int16(p.readU16(p.b[4:6])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	return copy(b, fmt.Sprintf(p.trice.Strg, d0, d1, d2))
-}
-
-func (p *COBS) trice164(b []byte) int {
-	d0 := int16(p.readU16(p.b[0:2])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	d1 := int16(p.readU16(p.b[2:4])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	d2 := int16(p.readU16(p.b[4:6])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	d3 := int16(p.readU16(p.b[6:8])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	return copy(b, fmt.Sprintf(p.trice.Strg, d0, d1, d2, d3))
-}
-
-func (p *COBS) trice321(b []byte) int {
-	d0 := int32(p.readU32(p.b[0:4])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	return copy(b, fmt.Sprintf(p.trice.Strg, d0))
-}
-
-func (p *COBS) trice322(b []byte) int {
-	d0 := int32(p.readU32(p.b[0:4])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	d1 := int32(p.readU32(p.b[4:8])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	return copy(b, fmt.Sprintf(p.trice.Strg, d0, d1))
-}
-
-func (p *COBS) trice323(b []byte) int {
-	d0 := int32(p.readU32(p.b[0:4]))  // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	d1 := int32(p.readU32(p.b[4:8]))  // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	d2 := int32(p.readU32(p.b[8:12])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	return copy(b, fmt.Sprintf(p.trice.Strg, d0, d1, d2))
-}
-
-func (p *COBS) trice324(b []byte) int {
-	d0 := int32(p.readU32(p.b[0:4]))   // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	d1 := int32(p.readU32(p.b[4:8]))   // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	d2 := int32(p.readU32(p.b[8:12]))  // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	d3 := int32(p.readU32(p.b[12:16])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	return copy(b, fmt.Sprintf(p.trice.Strg, d0, d1, d2, d3))
-}
-
-func (p *COBS) trice641(b []byte) int {
-	d0 := int64(p.readU64(p.b[0:8])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	return copy(b, fmt.Sprintf(p.trice.Strg, d0))
-}
-
-func (p *COBS) trice642(b []byte) int {
-	d0 := int64(p.readU64(p.b[0:8]))  // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	d1 := int64(p.readU64(p.b[8:16])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	return copy(b, fmt.Sprintf(p.trice.Strg, d0, d1))
+// unSignedOrSignedOut prints p.b according to the format string.
+func (p *COBS) unSignedOrSignedOut(b []byte, bitwidth, count int) int {
+	pFmt, u := uReplaceN(p.trice.Strg)
+	if len(u) != count {
+		return copy(b, fmt.Sprintln("ERROR: Invalid format specifier count inside", p.trice.Type, p.trice.Strg))
+	}
+	v := make([]interface{}, 32)
+	switch bitwidth {
+	case 8:
+		for i, f := range u {
+			if f {
+				v[i] = uint8(p.b[i])
+			} else {
+				v[i] = int8(p.b[i])
+			}
+		}
+	case 16:
+		for i, f := range u {
+			n := p.readU16(p.b[2*i:])
+			if f {
+				v[i] = n
+			} else {
+				v[i] = int16(n)
+			}
+		}
+	case 32:
+		for i, f := range u {
+			n := p.readU32(p.b[4*i:])
+			if !f {
+				v[i] = n
+			} else {
+				v[i] = int32(n)
+			}
+		}
+	case 64:
+		for i, f := range u {
+			n := p.readU64(p.b[8*i:])
+			if f {
+				v[i] = n
+			} else {
+				v[i] = int64(n)
+			}
+		}
+	}
+	return copy(b, fmt.Sprintf(pFmt, v[:len(u)]...))
 }
