@@ -272,10 +272,38 @@ func (p *COBS) trice0(b []byte) int {
 	return copy(b, fmt.Sprintf(p.trice.Strg))
 }
 
-func (p *COBS) trice81(b []byte) int {
+//  func (p *Flex) trice81x() (n int, e error) {
+//  	d := make([]uint64, 1)
+//  	split1Byte(d, p.d0)
+//  	s, b, e := p.uReplace8(d)
+//  	n = copy(p.b, fmt.Sprintf(s, b[0]))
+//  	return
+//  }
+
+func (p *COBS) _trice81(b []byte) int {
 	b0 := int8(p.b[0]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
 	return copy(b, fmt.Sprintf(p.trice.Strg, b0))
 }
+
+// func uReplace8(pFmt string, d []uint64) (s string, b []interface{}, e error) {
+
+func (p *COBS) trice81(b []byte) int {
+	d := make([]uint64, 1)
+	split1Byte(d, p.d0)
+	pFmt := p.trice.Strg
+	s, b, _ := uReplace8(pFmt, d)
+	return copy(b, fmt.Sprintf(s, p.b[0]))
+	//b0 := int8(p.b[0]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
+	//return copy(b, fmt.Sprintf(s, b0))
+}
+
+//  func (p *Flex) trice82x() (n int, e error) {
+//  	d := make([]uint64, 2)
+//  	split2Bytes(d, p.d0)
+//  	s, b, e := p.uReplace8(d)
+//  	n = copy(p.b, fmt.Sprintf(s, b[0], b[1]))
+//  	return
+//  }
 
 func (p *COBS) trice82(b []byte) int {
 	b0 := int8(p.b[0]) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8

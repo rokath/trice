@@ -441,45 +441,6 @@ func (p *Flex) trice83() (n int, e error) {
 	return
 }
 
-func split1Byte(d []uint64, u uint32) {
-	d[0] = uint64(0xFF & u)
-}
-
-func split2Bytes(d []uint64, u uint32) {
-	d[0] = uint64(0xFF & (u >> 8))
-	split1Byte(d[1:], u)
-}
-
-func split3Bytes(d []uint64, u uint32) {
-	d[0] = uint64(0xFF & (u >> 16))
-	split2Bytes(d[1:], u)
-}
-
-func split4Bytes(d []uint64, u uint32) {
-	d[0] = uint64(0xFF & (u >> 24))
-	split3Bytes(d[1:], u)
-}
-
-func split5Bytes(d []uint64, u0, u1 uint32) {
-	split4Bytes(d, u0)
-	split1Byte(d[4:], u1)
-}
-
-func split6Bytes(d []uint64, u0, u1 uint32) {
-	split4Bytes(d, u0)
-	split2Bytes(d[4:], u1)
-}
-
-func split7Bytes(d []uint64, u0, u1 uint32) {
-	split4Bytes(d, u0)
-	split3Bytes(d[4:], u1)
-}
-
-func split8Bytes(d []uint64, u0, u1 uint32) {
-	split4Bytes(d, u0)
-	split4Bytes(d[4:], u1)
-}
-
 func (p *Flex) trice84() (n int, e error) {
 	d := make([]uint64, 4)
 	split4Bytes(d, p.d0)
@@ -523,15 +484,6 @@ func (p *Flex) trice88() (n int, e error) {
 	n = copy(p.b, fmt.Sprintf(s, b[0], b[1], b[2], b[3], b[4], b[5], b[6], b[7]))
 	p.rub4(8)
 	return
-}
-
-func split1Val16(d []uint64, u uint32) {
-	d[0] = uint64(0xFFFF & u)
-}
-
-func split2Val16(d []uint64, u uint32) {
-	d[0] = uint64(0xFFFF & (u >> 8))
-	split1Val16(d[1:], u)
 }
 
 func (p *Flex) trice161x() (n int, e error) {
@@ -655,31 +607,31 @@ func (p *Flex) syncTrice() (n int, e error) {
 }
 
 // uReplace8 takes parameter values in d and returns them in b as uint8 or int8 according to %nu occurrences in format string.
-// It also returns the modified formatstring with replacments %nu -> %nd.
+// It also returns the modified formatstring with replacements %nu -> %nd.
 func (p *Flex) uReplace8(d []uint64) (s string, b []interface{}, e error) {
 	return p.uReplace(8, d)
 }
 
 // uReplace16 takes parameter values in d and returns them in b as uint16 or int16 according to %nu occurrences in format string.
-// It also returns the modified formatstring with replacments %nu -> %nd.
+// It also returns the modified formatstring with replacements %nu -> %nd.
 func (p *Flex) uReplace16(d []uint64) (s string, b []interface{}, e error) {
 	return p.uReplace(16, d)
 }
 
 // uReplace32 takes parameter values in d and returns them in b as uint32 or int32 according to %nu occurrences in format string.
-// It also returns the modified formatstring with replacments %nu -> %nd.
+// It also returns the modified formatstring with replacements %nu -> %nd.
 func (p *Flex) uReplace32(d []uint64) (s string, b []interface{}, e error) {
 	return p.uReplace(32, d)
 }
 
 // uReplace64 takes parameter values in d and returns them in b as uint64 or int64 according to %nu occurrences in format string.
-// It also returns the modified formatstring with replacments %nu -> %nd.
+// It also returns the modified formatstring with replacements %nu -> %nd.
 func (p *Flex) uReplace64(d []uint64) (s string, b []interface{}, e error) {
 	return p.uReplace(64, d)
 }
 
 // uReplace32 takes parameter values in d and returns them in b as uint32 or int32 according to %nu occurrences in format string.
-// It also returns the modified formatstring with replacments %nu -> %nd.
+// It also returns the modified formatstring with replacements %nu -> %nd.
 func (p *Flex) uReplace(bitWidth int, d []uint64) (s string, b []interface{}, e error) {
 	b = make([]interface{}, len(d))
 	s, u := uReplaceN(p.trice.Strg)
