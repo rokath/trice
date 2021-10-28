@@ -102,11 +102,11 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1){
       // serve every few ms
-#ifdef TRICE_READ_AND_TRANSLATE_INTERVAL_MS
+#ifdef TRICE_HALF_BUFFER_SIZE
       static int lastMs = 0;
-      if( milliSecond >= lastMs + TRICE_READ_AND_TRANSLATE_INTERVAL_MS ){
+      if( milliSecond >= lastMs + TRICE_TRANSFER_INTERVAL_MS ){
           lastMs = milliSecond;
-          TRICE_READ_AND_TRANSFER();
+          TriceTransfer();
       }
 #endif
     /* USER CODE END WHILE */
@@ -118,9 +118,9 @@ int main(void)
         if( milliSecond >= lastTricesTime + 1000 ){
             static int index = 0;
             int select = index % 20;
-            TRICE16( Id( 63239),"MSG: START select = %d, TriceDepthMax =%d\n", select, TriceDepthMax );
+            TRICE16( Id( 48324),"MSG: START select = %d, TriceDepthMax =%4u\n", select, TriceDepthMax );
             triceCheckSet(select);
-            TRICE16( Id( 57510),"MSG: STOP select = %d, TriceDepthMax =%d\n", select, TriceDepthMax );
+            TRICE16( Id( 53709),"MSG: STOP  select = %d, TriceDepthMax =%4u\n", select, TriceDepthMax );
             index++;
             lastTricesTime = milliSecond;
         }

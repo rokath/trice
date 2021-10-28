@@ -13,53 +13,7 @@ extern "C" {
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////
-//  DOKUMETATION
-//  
-//  #define TRICE_HEADLINE ...
-//  - It is the very first TRICE message after reset. Customize as you like.
-//  
-//  #define TRICE_CYCLE_COUNTER 0
-//  - The TRICE macros are a bit faster.
-//  - The TRICE transfer message is a byte shorter. 
-//  - Lost TRICEs are not detected and the additional trice log switch "-cc=false" is needed.
-//  
-//  #define TRICE_CYCLE_COUNTER 1
-//  - The TRICE macros are a bit slower.
-//  - The TRICE transfer message is a byte longer.
-//  - Lost TRICEs are detected and no additional trice log switch is needed.
-//  
-//  #define TRICE_ENTER
-//  #define TRICE_LEAVE
-//  - The TRICE macros are a bit faster.
-//  - Inside interrupts TRICE macros forbidden.
-//  
-//  #define TRICE_ENTER TRICE_ENTER_CRITICAL_SECTION
-//  #define TRICE_LEAVE TRICE_LEAVE_CRITICAL_SECTION
-//  - The TRICE macros are a bit slower.
-//  - Inside interrupts TRICE macros allowed.
-//  
-//  #define PUT(x) do{ *wTb++ = x; }while(0)
-//  #define PUT_BUFFER( dynString, len ) do{ memcpy( wTb, dynString, len ); wTb += (len+3)>>2; }while(0)
-//  - Double buffering is used for fastest TRICE macro execution.
-//  - The read buffer gets the write buffer, when read buffer is empty.
-//  - The read buffer must be read out completely before the write buffer can overflow.
-//  
-//  #define TRICE_READ_AND_TRANSLATE_INTERVAL_MS 10
-//  - This is the milliseconds interval for TRICE buffer read out.
-//  - This time should be shorter than visible delays.
-//  - When TRICE_TRANSFER_MESSAGE is TRICE_SINGLE_MESSAGE, max one TRICE message is read in this interval.
-//    - When in the average more than one trice messages occur in this interval, the write buffer will overflow.
-//  
-//  #define TRICE_DOUBLE_BUFFER_SIZE 1200
-//  - This is the size of both buffers together.
-//  - One buffer must be able to hold the max TRICE burst count.
-//  - Start with a big value and use the diagnostics value TriceDepthMax to minimize the RAM needs.
-//  
-//
-///////////////////////////////////////////////////////////////////////////////
-
-///////////////////////////////////////////////////////////////////////////////
-// compiler adaption
+// Compiler Adaption
 //
 #if defined( __GNUC__ ) /* gnu compiler ###################################### */ \
  || defined(__IAR_SYSTEMS_ICC__) /* IAR compiler ############################# */ \
@@ -71,19 +25,9 @@ extern "C" {
 #define ALIGN4_END __attribute__ ((aligned(4))) //!< align to 4 byte boundary post declaration
 
 //! TRICE_ENTER_CRITICAL_SECTION saves interrupt state and disables Interrupts.
-//! \details Workaround for ARM Cortex M0 and M0+:
-//! \li __get_PRIMASK() is 0 when interrupts are enabled globally.
-//! \li __get_PRIMASK() is 1 when interrupts are disabled globally.
-//! If trices are used only outside critical sections or interrupts,
-//! you can leave this macro empty for more speed. Use only '{' in that case.
 #define TRICE_ENTER_CRITICAL_SECTION { // to do
 
 //! TRICE_LEAVE_CRITICAL_SECTION restores interrupt state.
-//! \details Workaround for ARM Cortex M0 and M0+:
-//! \li __get_PRIMASK() is 0 when interrupts are enabled globally.
-//! \li __get_PRIMASK() is 1 when interrupts are disabled globally.
-//! If trices are used only outside critical sections or interrupts,
-//! you can leave this macro pair empty for more speed. Use only '}' in that case.
 #define TRICE_LEAVE_CRITICAL_SECTION } // to do
 
 #elif defined(__arm__) // ARMkeil IDE #########################################
@@ -122,21 +66,23 @@ extern "C" {
 ///////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////////
-// Declarations
+// Declarations and Defaults
 
 #define TRICE_LITTLE_ENDIANNESS 0x00112233 //!< TRICE_LITTLE_ENDIANNESS is the default for TRICE_HARDWARE_ENDIANNESS and TRICE_TRANSFER_ENDIANNESS.
 #define TRICE_BIG_ENDIANNESS    0x33221100 //!< TRICE_BIG_ENDIANNESS is the option for TRICE_HARDWARE_ENDIANNESS and TRICE_TRANSFER_ENDIANNESS.
 
-#ifndef TRICE_DATA_OFFSET
-
-#endif
-
 #ifndef TRICE_CYCLE_COUNTER
-#define TRICE_CYCLE_COUNTER 1 //! add cycle counter
+#define TRICE_CYCLE_COUNTER 1 //! TRICE_CYCLE_COUNTER adds a cycle counter to each trice message. The TRICE macros are a bit slower. Lost TRICEs are detectable by the trice tool.
 #endif
 
 #ifndef TRICE_SINGLE_MAX_SIZE
 #define TRICE_SINGLE_MAX_SIZE 1008 //!< TRICE_SINGLE_MAX_SIZE ist the head size plus string length size plus max dynamic string size. Must be a multiple of 4. 1008 is the max allowed value.
+#endif
+
+#ifndef TRICE_TRANSFER_INTERVAL_MS
+//! TRICE_TRANSFER_INTERVAL_MS is the milliseconds interval for TRICE buffer read out.
+//! This time should be shorter than visible delays. The TRICE_HALF_BUFFER_SIZE must be able to hold all trice messages possibly occouring in this time.
+#define TRICE_TRANSFER_INTERVAL_MS 10
 #endif
 
 #if TRICE_SINGLE_MAX_SIZE < 256
@@ -146,8 +92,8 @@ extern "C" {
 #endif
 
 extern unsigned TriceDepthMax;
-unsigned COBSEncode( uint8_t* restrict output, const uint8_t * restrict input, unsigned length);
-void TriceMultiReadAndWrite( void );
+unsigned TriceCOBSEncode( uint8_t* restrict output, const uint8_t * restrict input, unsigned length);
+void TriceTransfer( void );
 void triceCheckSet( int index ); //!< tests
 
 //
@@ -162,7 +108,7 @@ void triceServeFifoEncryptedToBytesBuffer(void);
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////
-// trice time measurement
+// trice time measurement (STM32 only?)
 //
 #if defined( __arm__ )    /* Defined by GNU C and RealView */ \
  || defined( __thumb__ )  /* Defined by GNU C and RealView in Thumb mode */ \
@@ -175,13 +121,12 @@ void triceServeFifoEncryptedToBytesBuffer(void);
  || defined( __ARM__ )    /* TASKING VX ARM toolset C compiler */ \
  || defined( __CARM__ )   /* TASKING VX ARM toolset C compiler */ \
  || defined( __CPARM__ )  /* TASKING VX ARM toolset C++ compiler */
-#define SYSTICKVAL32 (*(volatile uint32_t*)0xE000E018UL)
+#define SYSTICKVAL (*(volatile uint32_t*)0xE000E018UL)
 #else
 //#error "unknown architecture"
-#define SYSTICKVAL32 0
+#define SYSTICKVAL 0
 #endif
 
-#define SYSTICKVAL16 (SYSTICKVAL32)
 //
 ///////////////////////////////////////////////////////////////////////////////
 

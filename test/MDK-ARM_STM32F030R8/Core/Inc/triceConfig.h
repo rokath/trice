@@ -14,7 +14,7 @@ extern "C" {
 
   #define TRICE_MODE 0   // needs TRICE_UART
 //#define TRICE_MODE 1   // needs TRICE_RTT_CHANNEL
-//#define TRICE_MODE 200 // needs TRICE_UART or TRICE_RTT_CHANNEL
+//#define TRICE_MODE 201 // needs TRICE_UART or TRICE_RTT_CHANNEL
 
 ///////////////////////////////////////////////////////////////////////////////
 // select RTT or UART for double buffer modes
@@ -41,12 +41,7 @@ static inline int TriceWriteOutDepth( void ){ return 0; }
 #if TRICE_MODE == 0
 #define TRICE_PUTCHAR( c ) do{ while( !triceTxDataRegisterEmpty() ); triceTransmitData8( c ); }while(0)
 #define TRICE_SINGLE_MAX_SIZE 80 //!< TRICE_SINGLE_MAX_SIZE is the max allowed single trice size. Usually ~40 is enough. This plus TRICE_DATA_OFFSET is stack size!
-#define TRICE_HEADLINE \
-    TRICE0( Id( 57449), "s:                                          \n" ); \
-    TRICE8( Id( 63820), "s:  TRICE_MODE %3d                          \n", TRICE_MODE ); \
-    TRICE0( Id( 46700), "s:                                          \ns:     " ); \
-    TRICE0( Id( 48724), "att:Direct TRICE write, +cycle, +int" ); \
-    TRICE0( Id( 46377), "s:     \ns:                                          \n");
+#define TRICE_BUFFER_INFO do{ TRICE32( Id( 58745), "att:Single Trice Stack buf size: %3u", TRICE_SINGLE_MAX_SIZE + TRICE_DATA_OFFSET ); } while(0)
 #define TRICE_ENTER /*! Start of TRICE macro */ \
     TRICE_ENTER_CRITICAL_SECTION { \
     ALIGN4 uint8_t co[TRICE_SINGLE_MAX_SIZE+TRICE_DATA_OFFSET]; ALIGN4_END /* This must be capable to hold the longest used TRICE plus 4 (offset). Check TriceDepthMax at runtime. */ \
@@ -54,7 +49,7 @@ static inline int TriceWriteOutDepth( void ){ return 0; }
     uint32_t* wTb = (uint32_t*)tr;
 #define TRICE_LEAVE { /*! End of TRICE macro */ \
     unsigned tlen = (uint8_t*)wTb - tr; \
-    unsigned clen = COBSEncode( co, tr, tlen); \
+    unsigned clen = TriceCOBSEncode( co, tr, tlen); \
     co[clen++] = 0; \
     TriceDepthMax = clen < TriceDepthMax ? TriceDepthMax : clen; /* diagnostics */ \
     do { for( unsigned i = 0; i < clen; i++ ){ TRICE_PUTCHAR( co[i] ); } }while(0); \
@@ -68,12 +63,7 @@ static inline int TriceWriteOutDepth( void ){ return 0; }
 //! ST-LINK Command line similar to: `trice log -p ST-LINK -args="-Device STM32G071RB -if SWD -Speed 4000 -RTTChannel 0 -RTTSearchRanges 0x20000000_0x1000"`
 #if TRICE_MODE == 1
 #define TRICE_SINGLE_MAX_SIZE 80 //!< TRICE_SINGLE_MAX_SIZE is the max allowed single trice size. Usually ~40 is enough. This plus TRICE_DATA_OFFSET is stack size!
-#define TRICE_HEADLINE \
-    TRICE0( Id( 57449), "s:                                          \n" ); \
-    TRICE8( Id( 63820), "s:  TRICE_MODE %3d                          \n", TRICE_MODE ); \
-    TRICE0( Id( 46700), "s:                                          \ns:     " ); \
-    TRICE0( Id( 48724), "att:Direct TRICE write, +cycle, +int" ); \
-    TRICE0( Id( 46377), "s:     \ns:                                          \n");
+#define TRICE_BUFFER_INFO do{ TRICE32( Id( 46106), "att:Single Trice Stack buf size: %3u", TRICE_SINGLE_MAX_SIZE + TRICE_DATA_OFFSET ); } while(0)
 #define TRICE_ENTER /*! Start of TRICE macro */ \
     TRICE_ENTER_CRITICAL_SECTION { \
     ALIGN4 uint8_t co[TRICE_SINGLE_MAX_SIZE+TRICE_DATA_OFFSET]; ALIGN4_END /* This must be capable to hold the longest used TRICE plus 4 (offset). Check TriceDepthMax at runtime. */ \
@@ -81,7 +71,7 @@ static inline int TriceWriteOutDepth( void ){ return 0; }
     uint32_t* wTb = (uint32_t*)tr;
 #define TRICE_LEAVE { /*! End of TRICE macro */ \
     unsigned tlen = (uint8_t*)wTb - tr; \
-    unsigned clen = COBSEncode( co, tr, tlen); \
+    unsigned clen = TriceCOBSEncode( co, tr, tlen); \
     co[clen++] = 0; \
     TriceDepthMax = clen < TriceDepthMax ? TriceDepthMax : clen; /* diagnostics */ \
     TRICE_WRITE( co, clen ); \
@@ -93,39 +83,29 @@ static inline int TriceWriteOutDepth( void ){ return 0; }
 //! UART Command line similar to: `trice log -p COM1 -baud 115200`
 //! RTT Command line similar to: `trice l -args="-Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0 -RTTSearchRanges 0x20000000_0x1000"`
 #if TRICE_MODE == 200
-#define TRICE_HEADLINE \
-    TRICE0( Id( 57449), "s:                                          \n" ); \
-    TRICE8( Id( 61754), "s:  TRICE_MODE %3d                          \n", TRICE_MODE ); \
-    TRICE0( Id( 46700), "s:                                          \ns:     " ); \
-    TRICE0( Id( 39557), "att:Double buff, multi, +cycle, +int" ); \
-    TRICE0( Id( 46377), "s:     \ns:                                          \n");
-#define TRICE_ENTER /*! Start of TRICE macro */ \
-    TRICE_ENTER_CRITICAL_SECTION
-#define TRICE_LEAVE /*! End of TRICE macro */ \
-    TRICE_LEAVE_CRITICAL_SECTION
-#define TRICE_READ_AND_TRANSLATE_INTERVAL_MS 10
-#define TRICE_HALF_BUFFER_SIZE 800 //!< This is the size of each of both buffers 
-#define TRICE_READ_AND_TRANSFER TriceMultiReadAndWrite
+#define TRICE_ENTER TRICE_ENTER_CRITICAL_SECTION //! TRICE_ENTER is the start of TRICE macro. The TRICE macros are a bit slower. Inside interrupts TRICE macros allowed.
+#define TRICE_LEAVE TRICE_LEAVE_CRITICAL_SECTION //! TRICE_LEAVE is the end of TRICE macro.
+#define TRICE_HALF_BUFFER_SIZE 720 //!< This is the size of each of both buffers. Must be able to hold the max TRICE burst count within TRICE_TRANSFER_INTERVAL_MS or even more, if the write out speed is small.
+#define TRICE_BUFFER_INFO do{ TRICE32( Id( 52237), "att: Trice 2x half buffer size: %3u ", TRICE_HALF_BUFFER_SIZE ); } while(0)
 #endif
 
 
-//! Double Buffering output to UART without cycle counter. No trices inside interrupts allowed. Super fast TRICE macro execution. 
+//! Double Buffering output to UART without cycle counter. No trices inside interrupts allowed. Fastest TRICE macro execution. 
 //! Command line similar to: `trice log -p COM1 -baud 115200`
 #if TRICE_MODE == 201
-#define TRICE_HEADLINE \
-    TRICE0( Id( 57449), "s:                                          \n" ); \
-    TRICE8( Id( 51851), "s:  TRICE_MODE %3d                          \n", TRICE_MODE ); \
-    TRICE0( Id( 46700), "s:                                          \ns:     " ); \
-    TRICE0( Id( 60240), "att: Double buff UART, ~cycle, ~int " ); \
-    TRICE0( Id( 46377), "s:     \ns:                                          \n");
-#define TRICE_CYCLE_COUNTER 0 //! no cycle counter for speed
-#define TRICE_ENTER /*! Start of TRICE macro */
-#define TRICE_LEAVE /*! End of TRICE macro */
-#define TRICE_READ_AND_TRANSLATE_INTERVAL_MS 10
-#define TRICE_HALF_BUFFER_SIZE 800 //!< This is the size each of of both buffers
-#define TRICE_READ_AND_TRANSFER TriceMultiReadAndWrite
+#define TRICE_CYCLE_COUNTER 0 //! Do not add cycle counter, The TRICE macros are a bit faster. Lost TRICEs are not detectable by the trice tool.
+#define TRICE_ENTER //! TRICE_ENTER is the start of TRICE macro. The TRICE macros are a bit faster. Inside interrupts TRICE macros forbidden.
+#define TRICE_LEAVE //! TRICE_LEAVE is the end of TRICE macro.
+#define TRICE_HALF_BUFFER_SIZE 720 //!< This is the size each of of both buffers. Must be able to hold the max TRICE burst count within TRICE_TRANSFER_INTERVAL_MS or even more, if the write out speed is small.
+#define TRICE_BUFFER_INFO do{ TRICE32( Id( 34539), "att: Trice 2x half buffer size: %3u ", TRICE_HALF_BUFFER_SIZE ); } while(0)
 #endif
 
+#define TRICE_HEADLINE \
+    TRICE0( Id( 57449), "s:                                          \n" ); \
+    TRICE8( Id( 38478), "s:  TRICE_MODE %3u                          \n", TRICE_MODE ); \
+    TRICE0( Id( 46700), "s:                                          \ns:     " ); \
+    TRICE_BUFFER_INFO; \
+    TRICE0( Id( 46377), "s:     \ns:                                          \n");
 
 
 //  #ifdef TRICE_NO_CODE_GENERATION
@@ -133,13 +113,6 @@ static inline int TriceWriteOutDepth( void ){ return 0; }
 //  #else
 //  #define TRICE_ENCODING TRICE_COBSR_ENCODING //!< Select target trice transfer encoding.
 //  #endif
-
-//  #define TRICE_U8PUSH(v)  do{ /*triceU8PushSeggerRTT(v);  */ triceU8Push(v); } while(0) //!< Set trice out channel(s) 
-//  #define TRICE_U32PUSH(v) do{ /*triceU32PushSeggerRTT(v); */ triceU32Push(v); } while(0) //!< Set trice out channel(s) 
-
-//#define UART_LL_STM32 //!< set UART hardware dependency
-//#define TRICE_UART USART2 //!< set UART number if UART is used
-
 
 
 // Enabling next line results in XTEA encryption  with the key.

@@ -110,14 +110,14 @@ void triceCheckSet(int index) {
             TRICE8_2( Id( 58835), "rd:TRICE8_2 line %d, %d\n", __LINE__, 2 );
         break;
         case 2:
-            TRICE32_1( Id( 61654), "ATT:trice16_1 attention message, SysTick is %6d\n", SYSTICKVAL16);
-            TRICE32_1( Id( 63097), "ATT:trice16_1 attention message, SysTick is %6d\n", SYSTICKVAL16);
-            TRICE32_1( Id( 59357), "ATT:trice16_1 attention message, SysTick is %6d\n", SYSTICKVAL16);
-            TRICE32_1( Id( 55647), "ATT:trice16_1 attention message, SysTick is %6d\n", SYSTICKVAL16);
-            TRICE32_1( Id( 43058), "ATT:trice16_1 attention message, SysTick is %6d\n", SYSTICKVAL16);
-            TRICE32_1( Id( 40194), "ATT:trice16_1 attention message, SysTick is %6d\n", SYSTICKVAL16);
-            TRICE32_1( Id( 50626), "ATT:trice16_1 attention message, SysTick is %6d\n", SYSTICKVAL16);
-            TRICE32_1( Id( 43507), "ATT:trice16_1 attention message, SysTick is %6d\n", SYSTICKVAL16);
+            TRICE32_1( Id( 61654), "ATT:trice16_1 attention message, SysTick is %6d\n", SYSTICKVAL);
+            TRICE32_1( Id( 63097), "ATT:trice16_1 attention message, SysTick is %6d\n", SYSTICKVAL);
+            TRICE32_1( Id( 59357), "ATT:trice16_1 attention message, SysTick is %6d\n", SYSTICKVAL);
+            TRICE32_1( Id( 55647), "ATT:trice16_1 attention message, SysTick is %6d\n", SYSTICKVAL);
+            TRICE32_1( Id( 43058), "ATT:trice16_1 attention message, SysTick is %6d\n", SYSTICKVAL);
+            TRICE32_1( Id( 40194), "ATT:trice16_1 attention message, SysTick is %6d\n", SYSTICKVAL);
+            TRICE32_1( Id( 50626), "ATT:trice16_1 attention message, SysTick is %6d\n", SYSTICKVAL);
+            TRICE32_1( Id( 43507), "ATT:trice16_1 attention message, SysTick is %6d\n", SYSTICKVAL);
             TRICE32_1( Id( 42521),  "rd:TRICE32_1 line %d\n", __LINE__ );
             TRICE64_1( Id( 51133),  "rd:TRICE64_1 %d\n", __LINE__ );
             TRICE32_2( Id( 55925),  "rd:TRICE32_2 line %d,%d\n", __LINE__, 2 );
@@ -150,31 +150,31 @@ void triceCheckSet(int index) {
             TRICE0(Id( 45734), "--------------------------------------------------\n");
             TRICE0(Id( 48439), "sig:This ASSERT error is just a demo and no real error:\n");
             TRICE0(Id( 36621), "--------------------------------------------------\n");
-            TRICE16_1(Id( 62486), "ERR:error       message, SysTick is %6u\n", SYSTICKVAL16);
-            TRICE16_1(Id( 50106), "WRN:warning     message, SysTick is %6u\n", SYSTICKVAL16);
-            TRICE16_1(Id( 55534), "ATT:attention   message, SysTick is %6u\n", SYSTICKVAL16);
-            TRICE16_1(Id( 39816), "DIA:diagnostics message, SysTick is %6u\n", SYSTICKVAL16);
-            TRICE16_1(Id( 60853), "TIM:timing      message, SysTick is %6u\n", SYSTICKVAL16);
-            TRICE16_1(Id( 64581), "DBG:debug       message, SysTick is %6u\n", SYSTICKVAL16);
-            TRICE16_1(Id( 46649), "SIG:signal      message, SysTick is %6u\n", SYSTICKVAL16);
-            TRICE16_1(Id( 45449), "RD:read         message, SysTick is %6u\n", SYSTICKVAL16);
-            TRICE16_1(Id( 38091), "WR:write        message, SysTick is %6u\n", SYSTICKVAL16);
-            TRICE16_1(Id( 56748), "ISR:interrupt   message, SysTick is %6u\n", SYSTICKVAL16);
-            TRICE16_1(Id( 51343), "MSG:normal      message, SysTick is %6u\n", SYSTICKVAL16);
-            TRICE16_1(Id( 59255), "INFO:informal   message, SysTick is %6u\n", SYSTICKVAL16);
+            TRICE16_1(Id( 62486), "ERR:error       message, SysTick is %6u\n", SYSTICKVAL);
+            TRICE16_1(Id( 50106), "WRN:warning     message, SysTick is %6u\n", SYSTICKVAL);
+            TRICE16_1(Id( 55534), "ATT:attention   message, SysTick is %6u\n", SYSTICKVAL);
+            TRICE16_1(Id( 39816), "DIA:diagnostics message, SysTick is %6u\n", SYSTICKVAL);
+            TRICE16_1(Id( 60853), "TIM:timing      message, SysTick is %6u\n", SYSTICKVAL);
+            TRICE16_1(Id( 64581), "DBG:debug       message, SysTick is %6u\n", SYSTICKVAL);
+            TRICE16_1(Id( 46649), "SIG:signal      message, SysTick is %6u\n", SYSTICKVAL);
+            TRICE16_1(Id( 45449), "RD:read         message, SysTick is %6u\n", SYSTICKVAL);
+            TRICE16_1(Id( 38091), "WR:write        message, SysTick is %6u\n", SYSTICKVAL);
+            TRICE16_1(Id( 56748), "ISR:interrupt   message, SysTick is %6u\n", SYSTICKVAL);
+            TRICE16_1(Id( 51343), "MSG:normal      message, SysTick is %6u\n", SYSTICKVAL);
+            TRICE16_1(Id( 59255), "INFO:informal   message, SysTick is %6u\n", SYSTICKVAL);
         break;
         case 5:
-            TRICE32_1(Id( 38012), "time:TRICE32_1   message, SysTick is %6u\n", SYSTICKVAL32);
-            TRICE32_1(Id( 33478), "time:TRICE32_1   message, SysTick is %6u\n", SYSTICKVAL32);
-            TRICE32_1(Id( 57446), "time:TRICE32_1   message, SysTick is %6u\n", SYSTICKVAL32);
-            TRICE32_1(Id( 51946), "time:TRICE32_1   message, SysTick is %6u\n", SYSTICKVAL32);
-            TRICE32_1(Id( 34576), "time:TRICE32_1   message, SysTick is %6u\n", SYSTICKVAL32);
-            TRICE32_1(Id( 42368), "time:TRICE32_1   message, SysTick is %6u\n", SYSTICKVAL32);
-            TRICE32_1(Id( 63633), "time:TRICE32_1   message, SysTick is %6u\n", SYSTICKVAL32);
-            TRICE32_1(Id( 53889), "time:TRICE32_1   message, SysTick is %6u\n", SYSTICKVAL32);
-            TRICE32_1(Id( 42207), "time:TRICE32_1   message, SysTick is %6u\n", SYSTICKVAL32);
-            TRICE32_1(Id( 38326), "time:TRICE32_1   message, SysTick is %6u\n", SYSTICKVAL32);
-            TRICE32_1(Id( 61267), "time:TRICE32_1   message, SysTick is %6u\n", SYSTICKVAL32);
+            TRICE32_1(Id( 38012), "time:TRICE32_1   message, SysTick is %6u\n", SYSTICKVAL);
+            TRICE32_1(Id( 33478), "time:TRICE32_1   message, SysTick is %6u\n", SYSTICKVAL);
+            TRICE32_1(Id( 57446), "time:TRICE32_1   message, SysTick is %6u\n", SYSTICKVAL);
+            TRICE32_1(Id( 51946), "time:TRICE32_1   message, SysTick is %6u\n", SYSTICKVAL);
+            TRICE32_1(Id( 34576), "time:TRICE32_1   message, SysTick is %6u\n", SYSTICKVAL);
+            TRICE32_1(Id( 42368), "time:TRICE32_1   message, SysTick is %6u\n", SYSTICKVAL);
+            TRICE32_1(Id( 63633), "time:TRICE32_1   message, SysTick is %6u\n", SYSTICKVAL);
+            TRICE32_1(Id( 53889), "time:TRICE32_1   message, SysTick is %6u\n", SYSTICKVAL);
+            TRICE32_1(Id( 42207), "time:TRICE32_1   message, SysTick is %6u\n", SYSTICKVAL);
+            TRICE32_1(Id( 38326), "time:TRICE32_1   message, SysTick is %6u\n", SYSTICKVAL);
+            TRICE32_1(Id( 61267), "time:TRICE32_1   message, SysTick is %6u\n", SYSTICKVAL);
         break;
         case 6:
             TRICE8_4( Id( 43420), "tst:TRICE8_4  %%03x ->  %03x  %03x  %03x  %03x\n", 1, 0x7f, 0x80, 0xff);
@@ -319,8 +319,8 @@ void triceCheckSet(int index) {
             TRICE8_1( Id( 35344),"wrn:Sending 254 as single byte hex: %02x\n", 254);
             TRICE16_1( Id( 54723),"d:Sending uint16 counter as two byte hex: %x\n", cnt);
             TRICE_S( Id( 54661),"msg:Sending array: %s\n", dataArray);
-            TRICE32_1( Id( 45696), "tim:SysTick=%d\n", SYSTICKVAL32 );
-            TRICE32_1( Id( 51893), "tim:SysTick=%d\n", SYSTICKVAL32 );
+            TRICE32_1( Id( 45696), "tim:SysTick=%d\n", SYSTICKVAL );
+            TRICE32_1( Id( 51893), "tim:SysTick=%d\n", SYSTICKVAL );
             cnt++; 
         }
         break;
@@ -329,16 +329,16 @@ void triceCheckSet(int index) {
         {
             uint8_t b[8] = {1,2,3,4,5,6,7,8};
             TRICE8_8(  Id( 48446), "msg: message = %03x %03x %03x %03x %03x %03x %03x %03x\n", b[0], b[1], b[2], b[3], b[4], b[5], b[6], b[7] );
-            TRICE16_1( Id( 44144), "tim: pre encryption SysTick=%d\n", SYSTICKVAL16 );
+            TRICE16_1( Id( 44144), "tim: pre encryption SysTick=%d\n", SYSTICKVAL );
             encrypt(b);
-            TRICE16_1( Id( 53394), "tim: post encryption SysTick=%d\n", SYSTICKVAL16 );
+            TRICE16_1( Id( 53394), "tim: post encryption SysTick=%d\n", SYSTICKVAL );
             TRICE8_8(  Id( 64246), "att: encrypted = %03x %03x %03x %03x %03x %03x %03x %03x\n", b[0], b[1], b[2], b[3], b[4], b[5], b[6], b[7] );
             TRICE16_4( Id( 51043), "att: encrypted = %d,%d,%d,%d,", b[0], b[1], b[2], b[3] );
             TRICE16_4( Id( 48135), "att: %d,%d,%d,%d\n", b[4], b[5], b[6], b[7] );
             #ifdef DECRYPT
-            TRICE16_1( Id( 61189), "tim: pre decryption SysTick=%d\n", SYSTICKVAL16 );
+            TRICE16_1( Id( 61189), "tim: pre decryption SysTick=%d\n", SYSTICKVAL );
             decrypt(b);
-            TRICE16_1( Id( 38266), "tim: post decryption SysTick=%d\n", SYSTICKVAL16 );
+            TRICE16_1( Id( 38266), "tim: post decryption SysTick=%d\n", SYSTICKVAL );
             #endif
             TRICE8_8(  Id( 51031), "msg: messge = %03x %03x %03x %03x %03x %03x %03x %03x\n", b[0], b[1], b[2], b[3], b[4], b[5], b[6], b[7] );
         }

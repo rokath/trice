@@ -335,6 +335,10 @@
 		"Type": "TRICE8_1",
 		"Strg": "tst:TRICE8_1 0x%02x\\n"
 	},
+	"34539": {
+		"Type": "TRICE32",
+		"Strg": "att: Trice 2x half buffer size: %3u "
+	},
 	"34576": {
 		"Type": "TRICE32_1",
 		"Strg": "time:TRICE32_1   message, SysTick is %6u\\n"
@@ -631,6 +635,10 @@
 		"Type": "TRICE8",
 		"Strg": "rd:TRICE8 %d, %d\\n"
 	},
+	"38478": {
+		"Type": "TRICE8",
+		"Strg": "s:  TRICE_MODE %3u                          \\n"
+	},
 	"38569": {
 		"Type": "trice0",
 		"Strg": "2"
@@ -830,6 +838,10 @@
 	"40975": {
 		"Type": "trice8",
 		"Strg": "rd:trice8 %d, %d, %d, %d\\n"
+	},
+	"40985": {
+		"Type": "TRICE16",
+		"Strg": "MSG: STOP  select = %d, TriceDepthMax =%4u\\n"
 	},
 	"41310": {
 		"Type": "TRICE16",
@@ -1207,6 +1219,10 @@
 		"Type": "TRICE8",
 		"Strg": "wr:Sending 254 as single byte hex: %02x\\n"
 	},
+	"46106": {
+		"Type": "TRICE32",
+		"Strg": "att:Single Trice Stack buf size: %3u"
+	},
 	"46159": {
 		"Type": "TRICE64_2",
 		"Strg": "tst:TRICE64_2 %d %d\\n"
@@ -1362,6 +1378,10 @@
 	"48322": {
 		"Type": "trice8i",
 		"Strg": "rd:%d, %d, %d\\n"
+	},
+	"48324": {
+		"Type": "TRICE16",
+		"Strg": "MSG: START select = %d, TriceDepthMax =%4u\\n"
 	},
 	"48411": {
 		"Type": "TRICE16_3",
@@ -1735,6 +1755,10 @@
 		"Type": "TRICE8_8",
 		"Strg": "tst:TRICE8_8 %u %u %u %u %u %u %u %u\\n"
 	},
+	"52237": {
+		"Type": "TRICE32",
+		"Strg": "att: Trice 2x half buffer size: %3u "
+	},
 	"52303": {
 		"Type": "TRICE32",
 		"Strg": "ATT:trice16 attention message, SysTick is %6d\\n"
@@ -1842,6 +1866,10 @@
 	"53687": {
 		"Type": "trice16",
 		"Strg": "rd:trice16 %d, %d\\n"
+	},
+	"53709": {
+		"Type": "TRICE16",
+		"Strg": "MSG: STOP  select = %d, TriceDepthMax =%4u\\n"
 	},
 	"53769": {
 		"Type": "TRICE0",
@@ -2131,6 +2159,10 @@
 		"Type": "trice16",
 		"Strg": "rd:%d, %d\\n"
 	},
+	"57169": {
+		"Type": "TRICE16",
+		"Strg": "MSG: START select = %d, TriceDepthMax =%4u\\n"
+	},
 	"57385": {
 		"Type": "TRICE32",
 		"Strg": "ATT:trice16 attention message, SysTick is %6d\\n"
@@ -2210,6 +2242,10 @@
 	"58681": {
 		"Type": "TRICE64_1",
 		"Strg": "rd:TRICE64_1 %d\\n"
+	},
+	"58745": {
+		"Type": "TRICE32",
+		"Strg": "att:Single Trice Stack buf size: %3u"
 	},
 	"58747": {
 		"Type": "TRICE32_4",
