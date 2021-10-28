@@ -82,7 +82,7 @@ void TriceTransfer( void ){
     } // else: transmission not done yet
 }
 
-#endif // #ifdef TRICE_DOUBLE_BUFFER_SIZE
+#endif // #ifdef TRICE_HALF_BUFFER_SIZE
 
 #ifdef TRICE_UART
 static uint8_t const * triceWriteOutBuffer;
