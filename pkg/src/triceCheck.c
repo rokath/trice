@@ -4,48 +4,11 @@
 \author thomas.hoehenleitner [at] seerose.net
 *******************************************************************************/
 
-#include <string.h> // strlen
-
 //#define TRICE_OFF // enable this line to disable trice code generation in this file object
 #include "trice.h"
 
-//  //! triceRuntimeGeneratedStringUnbound can transfer runtime generated strings if TRICES_1 is not available.
-//  TRICE_INLINE void triceRuntimeGeneratedStringUnbound( const char* s ){
-//      size_t len = strlen( s );
-//      char c1, c2, c3, c4, c5, c6, c7, c8;
-//      while( len ){
-//          switch( len ){
-//              case  0: return;
-//              case  1: c1=*s++;
-//                  TRICE8_1( Id( 63979), "%c", c1 ); return;
-//                  //TRICE8_1( Id( 56101), "%c", c1 ); return;
-//              case  2: c1=*s++; c2=*s++;
-//                  TRICE8_2( Id( 59333), "%c%c", c1, c2 ); return;
-//              case  3: c1=*s++; c2=*s++; c3=*s++;
-//                  TRICE8_3( Id( 33340), "%c%c%c", c1, c2, c3 ); return;
-//              case  4: c1=*s++; c2=*s++; c3=*s++; c4=*s++;
-//                  TRICE8_4( Id( 50251), "%c%c%c%c", c1, c2, c3, c4 ); return;
-//              case  5: c1=*s++; c2=*s++; c3=*s++; c4=*s++; c5=*s++;
-//                  TRICE8_5( Id( 41799), "%c%c%c%c%c", c1, c2, c3, c4, c5 ); return;
-//              case  6: c1=*s++; c2=*s++; c3=*s++; c4=*s++; c5=*s++; c6=*s++;
-//                  TRICE8_6( Id( 33338), "%c%c%c%c%c%c", c1, c2, c3, c4, c5, c6 ); return;
-//              case  7: c1=*s++; c2=*s++; c3=*s++; c4=*s++; c5=*s++; c6=*s++; c7=*s++;
-//                  TRICE8_7( Id( 55097), "%c%c%c%c%c%c%c", c1, c2, c3, c4, c5, c6, c7); return;
-//              case  8:
-//              default: c1 = *s++; c2 = *s++; c3 = *s++; c4 = *s++; c5 = *s++; c6 = *s++; c7 = *s++; c8 = *s++;
-//                  TRICE8_8( Id( 46618), "%c%c%c%c%c%c%c%c", c1, c2, c3, c4, c5, c6, c7, c8 );
-//                  len -= 8;
-//          }
-//      }
-//      return;
-//  }
-
-//! trice runtime string
-#define TRICE_RTS(dynString) do{ triceRuntimeGeneratedStringUnbound(dynString); }while(0)
-#define trice_rts TRICE_RTS
-
 // nextRuntimeString returns a in length changing string from 0 to 250 bytes.
-char* nextRuntimeString( int length ){
+static char* nextRuntimeString( int length ){
     static char rts[300] = {0};
     for( int i = 0; i < length; i++ ){
        char c = 0x7f & (0x20 + i);
@@ -59,25 +22,13 @@ char* nextRuntimeString( int length ){
 }
 
 // triceRuntimeStrings sends n stings to the trice port.
-void triceRuntimeStrings( int from, int limit){
+static void triceRuntimeStrings( int from, int limit){
     for( int i = from; i < limit; i++ ){
         char* dynString =  nextRuntimeString(i);
-        TRICE16_1( Id( 45910), "dbg:len=%d, ", strlen(dynString) )
+        TRICE16_1( Id( 45910), "dbg:len=%d, ", strlen(dynString) );
         TRICE_S( Id( 47417), "MESSAGE:%s\n", dynString );   
     }
 }
-
-//  volatile uint8_t led = 0;
-//  
-//  void SetLED( uint8_t state ){
-//      led = state;
-//  }
-//  
-//  #define TriceRpc0( id, pfmt, n )
-//  
-//  void triceRpcList( void ){
-//       TriceRpc0( id(0), "cmd:LED %d", SetLed); // experimental send command
-//  }
 
 //! triceCheckSet writes out all types of trices with fixed values for testing
 //! \details One trice has one subtrace, if param size max 2 bytes. 
