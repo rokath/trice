@@ -4,7 +4,10 @@
 #include "trice.h"
 
 unsigned TriceDepthMax = 0; //!< TriceDepthMax is a diagnostics value usable to optimize buffer size.
+
+#if TRICE_CYCLE_COUNTER == 1
 uint8_t  TriceCycle = 0xc0; //!< TriceCycle is increased and transmitted with each trice message, if enabled.
+#endif
 
 //! TriceCOBSEncode stuffs "length" bytes of data at the location pointed to by "input"
 //! and writes the output to the location pointed to by "output".
