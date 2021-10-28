@@ -104,7 +104,7 @@ static inline int TriceWriteOutDepth( void ){ return 0; }
 #define TRICE_LEAVE /*! End of TRICE macro */ \
     TRICE_LEAVE_CRITICAL_SECTION
 #define TRICE_READ_AND_TRANSLATE_INTERVAL_MS 10
-#define TRICE_DOUBLE_BUFFER_SIZE 1600 //!< This is the size of both buffers together
+#define TRICE_HALF_BUFFER_SIZE 800 //!< This is the size of each of both buffers 
 #define TRICE_READ_AND_TRANSFER TriceMultiReadAndWrite
 #endif
 
@@ -122,7 +122,7 @@ static inline int TriceWriteOutDepth( void ){ return 0; }
 #define TRICE_ENTER /*! Start of TRICE macro */
 #define TRICE_LEAVE /*! End of TRICE macro */
 #define TRICE_READ_AND_TRANSLATE_INTERVAL_MS 10
-#define TRICE_DOUBLE_BUFFER_SIZE 1600 //!< This is the size of both buffers together
+#define TRICE_HALF_BUFFER_SIZE 800 //!< This is the size each of of both buffers
 #define TRICE_READ_AND_TRANSFER TriceMultiReadAndWrite
 #endif
 
