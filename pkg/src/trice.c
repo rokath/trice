@@ -42,6 +42,7 @@ unsigned TriceCOBSEncode( uint8_t* restrict output, const uint8_t * restrict inp
 }
 
 #ifdef TRICE_HALF_BUFFER_SIZE
+
 static uint32_t triceBuffer[2][(TRICE_HALF_BUFFER_SIZE+TRICE_DATA_OFFSET)>>2] = {0}; //!< triceBuffer is double buffer for better write speed.
 static int swap = 0; //!< swap is the index of the active write buffer. !swap is the active read buffer index.
 uint32_t* wTb = &triceBuffer[0][TRICE_DATA_OFFSET>>2]; //!< wTb is the active write position.
