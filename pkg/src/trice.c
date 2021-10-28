@@ -70,7 +70,7 @@ unsigned TriceSingleToCOBS( uint8_t* co, uint8_t * tr ){
 
 #ifdef TRICE_HALF_BUFFER_SIZE
 static uint32_t triceBuffer[2][(TRICE_HALF_BUFFER_SIZE+3)>>2] = {0}; //!< triceBuffer is double buffer for better write speed.
-static int swap = 0; //!< swap is the index of the active write buffer. !swap is the active read buffer.
+static int swap = 0; //!< swap is the index of the active write buffer. !swap is the active read buffer index.
 uint32_t* wTb = &triceBuffer[0][TRICE_DATA_OFFSET>>2]; //!< wTb is the active write position.
 static uint32_t* rTb = &triceBuffer[1][0]; //!< rTb is the active read position. 
 
