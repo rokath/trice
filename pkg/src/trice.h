@@ -17,7 +17,7 @@ extern "C" {
 // Declarations and Defaults
 
 extern unsigned TriceDepthMax;
-extern uint32_t* wTb;
+extern uint32_t* triceBufferWritePosition;
 unsigned TriceCOBSEncode( uint8_t* restrict output, const uint8_t * restrict input, unsigned length);
 void TriceTransfer( void );
 void triceCheckSet( int index ); //!< tests
@@ -66,7 +66,7 @@ extern uint8_t TriceCycle;
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#define PUT(x) do{ *wTb++ = x; }while(0) //! PUT copies a 32 bit x into the TRICE buffer.
+#define PUT(x) do{ *triceBufferWritePosition++ = x; }while(0) //! PUT copies a 32 bit x into the TRICE buffer.
 
 #ifdef TRICE_BIG_ENDIANNESS
 #define PUT64(x) PUT( (uint32_t)((uint64_t)(x)>>32) ); PUT( (uint32_t)(x) ); 
@@ -74,7 +74,7 @@ extern uint8_t TriceCycle;
 #define PUT64(x) PUT( (uint32_t)(x) ); PUT( (uint32_t)((uint64_t)(x)>>32) );
 #endif
 
-#define PUT_BUFFER( buf, len ) do{ memcpy( wTb, buf, len ); wTb += (len+3)>>2; }while(0) //! PUT_BUFFER copies a buffer into the TRICE buffer.
+#define PUT_BUFFER( buf, len ) do{ memcpy( triceBufferWritePosition, buf, len ); triceBufferWritePosition += (len+3)>>2; }while(0) //! PUT_BUFFER copies a buffer into the TRICE buffer.
 
 #ifdef ENCRYPT // to do
 // #define DECRYPT //!< usually not needed

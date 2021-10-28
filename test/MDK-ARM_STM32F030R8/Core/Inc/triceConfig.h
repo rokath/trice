@@ -15,7 +15,7 @@ extern "C" {
 // Select trice mode and RTT or UART for trice output.
 //
 
-  #define TRICE_MODE 0 //! TRICE_MODE is a predefined trice transfer method.
+  #define TRICE_MODE 200 //! TRICE_MODE is a predefined trice transfer method.
 
   #define TRICE_RTT_CHANNEL 0 //!< Uncomment and set channel number for SeggerRTT usage.
 //#define TRICE_UART USART2   //!< Uncomment and set UART for serial output.
@@ -40,9 +40,9 @@ extern "C" {
 #define TRICE_ENTER { /*! Start of TRICE macro */ \
     ALIGN4 uint8_t co[TRICE_SINGLE_MAX_SIZE+TRICE_DATA_OFFSET]; ALIGN4_END /* This must be capable to hold the longest used TRICE plus 4 (offset). Check TriceDepthMax at runtime. */ \
     uint8_t* tr = co + TRICE_DATA_OFFSET; \
-    uint32_t* wTb = (uint32_t*)tr;
+    uint32_t* triceBufferWritePosition = (uint32_t*)tr;
 #define TRICE_LEAVE { /*! End of TRICE macro */ \
-    unsigned tlen = (uint8_t*)wTb - tr; \
+    unsigned tlen = (uint8_t*)triceBufferWritePosition - tr; \
     unsigned clen = TriceCOBSEncode( co, tr, tlen); \
     co[clen++] = 0; \
     TRICE_WRITE(co, clen); } }

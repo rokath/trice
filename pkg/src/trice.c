@@ -9,19 +9,18 @@ unsigned TriceDepthMax = 0; //!< TriceDepthMax is a diagnostics value usable to 
 uint8_t  TriceCycle = 0xc0; //!< TriceCycle is increased and transmitted with each trice message, if enabled.
 #endif
 
-#ifdef TRICE_HALF_BUFFER_SIZE
+#ifdef TRICE_HALF_BUFFER_SIZE // TRICE_MODE != 0
 static uint32_t triceBuffer[2][(TRICE_HALF_BUFFER_SIZE+TRICE_DATA_OFFSET)>>2] = {0}; //!< triceBuffer is double buffer for better write speed.
 static int swap = 0; //!< swap is the index of the active write buffer. !swap is the active read buffer index.
-uint32_t* wTb = &triceBuffer[0][TRICE_DATA_OFFSET>>2]; //!< wTb is the active write position.
-static uint32_t* rTb = &triceBuffer[1][0]; //!< rTb is the active read position. 
+uint32_t* triceBufferWritePosition = &triceBuffer[0][TRICE_DATA_OFFSET>>2]; //!< triceBufferWritePosition is the active write position.
+static uint32_t* triceBufferWriteLimit = &triceBuffer[1][0]; //!< triceBufferWriteLimit is the triceBuffer written limit. 
 
 //! TriceBufferSwap swaps the trice double buffer and returns the transfer buffer address.
 uint32_t* TriceBufferSwap( void ){
     TRICE_ENTER_CRITICAL_SECTION
-    *wTb = 0; // write end marker
-    rTb = wTb; // keep end position
+    triceBufferWriteLimit = triceBufferWritePosition; // keep end position
     swap = !swap;
-    wTb = &triceBuffer[swap][TRICE_DATA_OFFSET>>2]; // set write position for next TRICE
+    triceBufferWritePosition = &triceBuffer[swap][TRICE_DATA_OFFSET>>2]; // set write position for next TRICE
     TRICE_LEAVE_CRITICAL_SECTION
     return &triceBuffer[!swap][0];
 }
@@ -30,7 +29,7 @@ uint32_t* TriceBufferSwap( void ){
 //! The trice data start at tp + TRICE_DATA_OFFSET.
 //! The returned depth is without the TRICE_DATA_OFFSET offset.
 static size_t TriceTransferDepth( uint32_t* tb ){
-    size_t triceDepth = (rTb - tb)<<2;
+    size_t triceDepth = (triceBufferWriteLimit - tb)<<2;
     return triceDepth - TRICE_DATA_OFFSET;
 }
 
