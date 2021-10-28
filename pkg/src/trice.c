@@ -47,7 +47,7 @@ unsigned COBSEncode( uint8_t* restrict output, const uint8_t * restrict input, u
     return write_index;
 }
 
-
+/*
 // The trice data stream is little endian, as most embedded MCUs use litte endian format.
 // For big endian embedded MCUs the trice tool has an -targetEndianess switch to avoid transcoding in the target processor.
 // The buffer tail contains wholes on big endian MCUs for TRICE8_1, TRICE8_2, TRICE8_3, TRICE8_5, TRICE8_6, TRICE8_7, TRICE16_1, TRICE16_3 and needs adjustment then.
@@ -66,10 +66,10 @@ unsigned TriceSingleToCOBS( uint8_t* co, uint8_t * tr ){
 #else // #if TRICE_HARDWARE_ENDIANNESS == TRICE_LITTLE_ENDIANNESS
     #error "todo: TRICE_HARDWARE_ENDIANNESS == TRICE_BIG_ENDIANNESS"
 #endif // #else // #if TRICE_HARDWARE_ENDIANNESS == TRICE_LITTLE_ENDIANNESS
+*/
 
-
-#ifdef TRICE_DOUBLE_BUFFER_SIZE
-static uint32_t triceBuffer[2][(TRICE_DOUBLE_BUFFER_SIZE+3)>>3] = {0}; //!< triceBuffer is double buffer for better write speed.
+#ifdef TRICE_HALF_BUFFER_SIZE
+static uint32_t triceBuffer[2][(TRICE_HALF_BUFFER_SIZE+3)>>2] = {0}; //!< triceBuffer is double buffer for better write speed.
 static int swap = 0; //!< swap is the index of the active write buffer. !swap is the active read buffer.
 uint32_t* wTb = &triceBuffer[0][TRICE_DATA_OFFSET>>2]; //!< wTb is the active write position.
 static uint32_t* rTb = &triceBuffer[1][0]; //!< rTb is the active read position. 
