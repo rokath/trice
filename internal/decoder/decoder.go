@@ -43,6 +43,12 @@ const (
 	// patNextFormatSpecifier is a regex to find next format u specifier in a string
 	// It does also match %%u positions! so an additional check must follow.
 	patNextFormatXSpecifier = `(?:%[0-9]*(x|X|b))`
+
+	// headSize is 4; each trice message starts with a head of 4 bytes.
+	headSize = 4
+
+	// hints is the help information in case of errors.
+	hints = "att:Hints:Baudrate? Overflow? Encoding? Interrupt? til.json?"
 )
 
 var (
@@ -80,14 +86,6 @@ var (
 
 	// initialCycle is a helper for the cycle counter automatic.
 	initialCycle = true
-)
-
-const (
-	// headSize is 4; each trice message starts with a head of 4 bytes.
-	headSize = 4
-
-	// hints is the help information in case of errors.
-	hints = "att:Hints:Baudrate? Overflow? Encoding? Interrupt? til.json?"
 )
 
 // newDecoder abstracts the function type for a new decoder.
