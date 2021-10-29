@@ -1,6 +1,6 @@
 # ![TriceGirlS.png](./docs/README.media/TriceGirl-167x222.png) **Trice** <- **TR**~~ace~~ **I**~~ds~~ **C** **E**~~mbedded~~  
 
-Tiny & super fast tracer **C** code for embedded device real-time PC logging (trace ID visualization) over any port. The PC **trice** tool itself is written in [Go](https://golang.org/) and therefore usable on all platforms Go supports.
+Trice consists of 2 parts: Tiny & super fast embedded device real-time trace **C** code (`TRICE` macros) and PC tool `trice` for managing and visualization over any port. The aim is to replace `printf` in a conveinient and much faster way. The PC **trice** tool itself is written in [Go](https://golang.org/) and therefore usable on all platforms Go supports.
 
 ## Info shields
 
