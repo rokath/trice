@@ -17,16 +17,16 @@ extern "C" {
 // Declarations and Defaults
 
 extern unsigned TriceDepthMax;
-extern uint32_t* triceBufferWritePosition;
+extern uint32_t* TriceBufferWritePosition;
 unsigned TriceCOBSEncode( uint8_t* restrict output, const uint8_t * restrict input, unsigned length);
 void TriceTransfer( void );
-void triceCheckSet( int index ); //!< tests
+void TriceCheckSet( int index ); //!< tests
 
-#if defined( TRICE_UART ) && TRICE_MODE == 0
+#if defined( TRICE_UART ) && !defined( TRICE_HALF_BUFFER_SIZE ) // direct out to UART
 #define TRICE_WRITE( buf, len ) do{ TriceBlockingWrite( buf, len ); }while(0)
 #endif
 
-#if defined( TRICE_UART ) && TRICE_MODE != 0
+#if defined( TRICE_UART ) && defined( TRICE_HALF_BUFFER_SIZE ) // buffered out to UART
 #define TRICE_WRITE( buf, len ) do{ TriceNonBlockingWrite( buf, len ); }while(0)
 #endif
 
@@ -66,7 +66,7 @@ extern uint8_t TriceCycle;
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#define PUT(x) do{ *triceBufferWritePosition++ = x; }while(0) //! PUT copies a 32 bit x into the TRICE buffer.
+#define PUT(x) do{ *TriceBufferWritePosition++ = x; }while(0) //! PUT copies a 32 bit x into the TRICE buffer.
 
 #ifdef TRICE_BIG_ENDIANNESS
 #define PUT64(x) PUT( (uint32_t)((uint64_t)(x)>>32) ); PUT( (uint32_t)(x) ); 
@@ -74,7 +74,7 @@ extern uint8_t TriceCycle;
 #define PUT64(x) PUT( (uint32_t)(x) ); PUT( (uint32_t)((uint64_t)(x)>>32) );
 #endif
 
-#define PUT_BUFFER( buf, len ) do{ memcpy( triceBufferWritePosition, buf, len ); triceBufferWritePosition += (len+3)>>2; }while(0) //! PUT_BUFFER copies a buffer into the TRICE buffer.
+#define PUT_BUFFER( buf, len ) do{ memcpy( TriceBufferWritePosition, buf, len ); TriceBufferWritePosition += (len+3)>>2; }while(0) //! PUT_BUFFER copies a buffer into the TRICE buffer.
 
 #ifdef ENCRYPT // to do
 // #define DECRYPT //!< usually not needed
@@ -108,12 +108,12 @@ void triceServeFifoEncryptedToBytesBuffer(void);
 // UART interface
 //
 
-#if defined( TRICE_UART ) && TRICE_MODE == 0
+#if defined( TRICE_UART ) && !defined( TRICE_HALF_BUFFER_SIZE ) // direct out to UART
 void TriceBlockingPutChar( uint8_t c );
 void TriceBlockingWrite( uint8_t const * buf, int len );
-#endif // #if defined( TRICE_UART ) && TRICE_MODE == 0
+#endif
 
-#if defined( TRICE_UART ) && TRICE_MODE != 0
+#if defined( TRICE_UART ) && defined( TRICE_HALF_BUFFER_SIZE ) // buffered out to UART
 int TriceNonBlockingWrite( void const * buf, int nByte );
 int TriceWriteOutDepth( void );
 uint8_t TriceNextUint8( void );
@@ -183,9 +183,9 @@ void InitXteaTable(void);
 //! cLen-3 cLen-2 cLen-1 cLen
 #define TRICE_S( id, pFmt, dynString) do { \
     int len = strlen( dynString ); \
-    if( len > TRICE_SINGLE_MAX_SIZE-8 ){ \
-        dynString[TRICE_SINGLE_MAX_SIZE-8] = 0; \
-        len = TRICE_SINGLE_MAX_SIZE-8; \
+    if( len > TRICE_SINGLE_MAX_SIZE-TRICE_DATA_OFFSET ){ \
+        dynString[TRICE_SINGLE_MAX_SIZE-TRICE_DATA_OFFSET] = 0; \
+        len = TRICE_SINGLE_MAX_SIZE-TRICE_DATA_OFFSET; \
     } \
     TRICE_ENTER \
     PUT( id | (0xff00 & ((len+7)<<6)) | TRICE_CYCLE ); /* +3 for padding, +4 for the buf size value transmitted in the payload to get the last 2 bits. */ \

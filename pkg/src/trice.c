@@ -11,33 +11,34 @@ uint8_t  TriceCycle = 0xc0; //!< TriceCycle is increased and transmitted with ea
 
 #ifdef TRICE_HALF_BUFFER_SIZE // TRICE_MODE != 0
 static uint32_t triceBuffer[2][(TRICE_HALF_BUFFER_SIZE+TRICE_DATA_OFFSET)>>2] = {0}; //!< triceBuffer is double buffer for better write speed.
-static int swap = 0; //!< swap is the index of the active write buffer. !swap is the active read buffer index.
-uint32_t* triceBufferWritePosition = &triceBuffer[0][TRICE_DATA_OFFSET>>2]; //!< triceBufferWritePosition is the active write position.
+static int triceSwap = 0; //!< triceSwap is the index of the active write buffer. !triceSwap is the active read buffer index.
+uint32_t* TriceBufferWritePosition = &triceBuffer[0][TRICE_DATA_OFFSET>>2]; //!< TriceBufferWritePosition is the active write position.
 static uint32_t* triceBufferWriteLimit = &triceBuffer[1][0]; //!< triceBufferWriteLimit is the triceBuffer written limit. 
 
-//! TriceBufferSwap swaps the trice double buffer and returns the transfer buffer address.
-uint32_t* TriceBufferSwap( void ){
+//! triceBufferSwap swaps the trice double buffer and returns the transfer buffer address.
+static uint32_t* triceBufferSwap( void ){
     TRICE_ENTER_CRITICAL_SECTION
-    triceBufferWriteLimit = triceBufferWritePosition; // keep end position
-    swap = !swap;
-    triceBufferWritePosition = &triceBuffer[swap][TRICE_DATA_OFFSET>>2]; // set write position for next TRICE
+    triceBufferWriteLimit = TriceBufferWritePosition; // keep end position
+    triceSwap = !triceSwap;
+    TriceBufferWritePosition = &triceBuffer[triceSwap][TRICE_DATA_OFFSET>>2]; // set write position for next TRICE
     TRICE_LEAVE_CRITICAL_SECTION
-    return &triceBuffer[!swap][0];
+    return &triceBuffer[!triceSwap][0];
 }
 
-//! TriceTransferDepth returns the total trice byte count ready for transfer.
+//! triceDepth returns the total trice byte count ready for transfer.
 //! The trice data start at tp + TRICE_DATA_OFFSET.
 //! The returned depth is without the TRICE_DATA_OFFSET offset.
-static size_t TriceTransferDepth( uint32_t* tb ){
-    size_t triceDepth = (triceBufferWriteLimit - tb)<<2;
-    return triceDepth - TRICE_DATA_OFFSET;
+static size_t triceDepth( uint32_t* tb ){
+    size_t depth = (triceBufferWriteLimit - tb)<<2;
+    return depth - TRICE_DATA_OFFSET;
 }
 
 //! TriceTransfer, if possible, swaps the double buffer and initiates a write.
+//! It is the resposibility of the app to call this function once every 10-100 milliseconds.
 void TriceTransfer( void ){
     if( 0 == TriceWriteOutDepth() ){ // transmission done
-        uint32_t* tb = TriceBufferSwap(); 
-        size_t tlen = TriceTransferDepth(tb);
+        uint32_t* tb = triceBufferSwap(); 
+        size_t tlen = triceDepth(tb);
         if( tlen ){
             uint8_t* co = (uint8_t*)tb;
             uint8_t* tr = co + TRICE_DATA_OFFSET;
@@ -49,7 +50,7 @@ void TriceTransfer( void ){
 }
 #endif // #ifdef TRICE_HALF_BUFFER_SIZE
 
-#if defined( TRICE_UART ) && TRICE_MODE == 0
+#if defined( TRICE_UART ) && !defined( TRICE_HALF_BUFFER_SIZE )// direct out to UART
 //! TriceBlockingPutChar returns after c was successfully written.
 void TriceBlockingPutChar( uint8_t c ){
     while( !triceTxDataRegisterEmpty() );
@@ -61,9 +62,9 @@ void TriceBlockingWrite( uint8_t const * buf, int len ){
     for( unsigned i = 0; i < len; i++ ){ 
         TriceBlockingPutChar( buf[i] ); }
 }
-#endif // #if defined( TRICE_UART ) && TRICE_MODE == 0
+#endif
 
-#if defined( TRICE_UART ) && TRICE_MODE != 0
+#if defined( TRICE_UART ) && defined( TRICE_HALF_BUFFER_SIZE ) // buffered out to UART
 static uint8_t const * triceWriteOutBuffer;
 static int triceWriteOutCount = 0;
 static int triceWriteOutIndex = 0;
@@ -197,14 +198,14 @@ static void decipher( uint32_t v[2] ) {
 //! re-convert from xtea cipher
 //! \param p pointer to 8 byte buffer
 void decrypt( uint8_t* p ){
-    decipher( (uint32_t*)p ); // byte swap is done inside trice tool
+    decipher( (uint32_t*)p ); // byte triceSwap is done inside trice tool
 }
 #endif // #ifdef DECRYPT
 
 //! convert to xtea cipher
 //! \param p pointer to 8 byte buffer
 void encrypt( uint8_t* p ){
-    encipher( (uint32_t*)p ); // byte swap is done inside trice tool
+    encipher( (uint32_t*)p ); // byte triceSwap is done inside trice tool
 }
 
 uint8_t triceBytesBuffer[8]; //!< bytes transmit buffer
