@@ -2431,6 +2431,10 @@
 		"Type": "trice0",
 		"Strg": "msg:\\n"
 	},
+	"60956": {
+		"Type": "TRICE32",
+		"Strg": "dbg:len=%u: "
+	},
 	"61023": {
 		"Type": "TRICE16_4",
 		"Strg": "tst:TRICE16_4   %%7o -\u003e %7o %7o %7o %7o\\n"

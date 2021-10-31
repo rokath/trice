@@ -17,8 +17,8 @@ extern "C" {
 
   #define TRICE_MODE 200 //! TRICE_MODE is a predefined trice transfer method.
 
-  #define TRICE_RTT_CHANNEL 0 //!< Uncomment and set channel number for SeggerRTT usage.
-//#define TRICE_UART USART2   //!< Uncomment and set UART for serial output.
+//#define TRICE_RTT_CHANNEL 0 //!< Uncomment and set channel number for SeggerRTT usage.
+  #define TRICE_UART USART2   //!< Uncomment and set UART for serial output.
 
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -40,13 +40,13 @@ extern "C" {
 #define TRICE_ENTER { /*! Start of TRICE macro */ \
     ALIGN4 uint8_t co[TRICE_SINGLE_MAX_SIZE+TRICE_DATA_OFFSET]; ALIGN4_END /* This must be capable to hold the longest used TRICE plus 4 (offset). Check TriceDepthMax at runtime. */ \
     uint8_t* tr = co + TRICE_DATA_OFFSET; \
-    uint32_t* triceBufferWritePosition = (uint32_t*)tr;
+    uint32_t* TriceBufferWritePosition = (uint32_t*)tr;
 #define TRICE_LEAVE { /*! End of TRICE macro */ \
-    unsigned tlen = (uint8_t*)triceBufferWritePosition - tr; \
+    unsigned tlen = (uint8_t*)TriceBufferWritePosition - tr; \
     unsigned clen = TriceCOBSEncode( co, tr, tlen); \
     co[clen++] = 0; \
     TRICE_WRITE(co, clen); } }
-#endif // #if TRICE_MODE == 0
+#endif
 
     
 //! Double Buffering output to RTT or UART with cycle counter. Trices inside interrupts allowed. Fast TRICE macro execution. 
@@ -55,7 +55,7 @@ extern "C" {
 #if TRICE_MODE == 200
 #define TRICE_ENTER TRICE_ENTER_CRITICAL_SECTION //! TRICE_ENTER is the start of TRICE macro. The TRICE macros are a bit slower. Inside interrupts TRICE macros allowed.
 #define TRICE_LEAVE TRICE_LEAVE_CRITICAL_SECTION //! TRICE_LEAVE is the end of TRICE macro.
-#define TRICE_HALF_BUFFER_SIZE 720 //!< This is the size of each of both buffers. Must be able to hold the max TRICE burst count within TRICE_TRANSFER_INTERVAL_MS or even more, if the write out speed is small.
+#define TRICE_HALF_BUFFER_SIZE 1200 //!< This is the size of each of both buffers. Must be able to hold the max TRICE burst count within TRICE_TRANSFER_INTERVAL_MS or even more, if the write out speed is small.
 #define TRICE_BUFFER_INFO do{ TRICE32( Id( 52237), "att: Trice 2x half buffer size: %3u ", TRICE_HALF_BUFFER_SIZE ); } while(0)
 #endif
 

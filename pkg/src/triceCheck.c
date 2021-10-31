@@ -7,33 +7,35 @@
 //#define TRICE_OFF // enable this line to disable trice code generation in this file object
 #include "trice.h"
 
-// nextRuntimeString returns a in length changing string from 0 to 250 bytes.
-static char* nextRuntimeString( int length ){
-    static char rts[300] = {0};
-    for( int i = 0; i < length; i++ ){
-       char c = 0x7f & (0x20 + i);
-        c = c < 0x20 ? c + 0x20 : c; // exclude control characters
-        c = '`' == c ? 0x20 : c; // exclude back tick for easy testTable generation
-        c = 127 == c ? 0x20 : c; // exclude DEL control character
-        rts[i] = c;
-    }
-    rts[length] = 0;
-    return rts;
-}
+//  // nextRuntimeString returns a in length changing string from 0 to 250 bytes.
+//  static char* nextRuntimeString( int length ){
+//      static char rts[TRICE_SINGLE_MAX_SIZE-TRICE_DATA_OFFSET] = {0};
+//      length = length < TRICE_SINGLE_MAX_SIZE-TRICE_DATA_OFFSET ? length : TRICE_SINGLE_MAX_SIZE-TRICE_DATA_OFFSET;
+//      for( int i = 0; i < length; i++ ){
+//         char c = 0x7f & (0x20 + i);
+//          c = c < 0x20 ? c + 0x20 : c; // exclude control characters
+//          c = '`' == c ? 0x20 : c; // exclude back tick for easy testTable generation
+//          c = 127 == c ? 0x20 : c; // exclude DEL control character
+//          rts[i] = c;
+//      }
+//      rts[length] = 0;
+//      return rts;
+//  }
+//  
+//  // triceRuntimeStrings sends n stings to the trice port.
+//  static void triceRuntimeStrings( int from, int limit){
+//      for( int i = from; i < limit; i++ ){
+//          char* dynString =  nextRuntimeString(i);
+//          TRICE16_1( Id( 45910), "dbg:len=%d, ", strlen(dynString) );
+//          TRICE_S( Id( 47417), "MESSAGE:%s\n", dynString );   
+//      }
+//  }
 
-// triceRuntimeStrings sends n stings to the trice port.
-static void triceRuntimeStrings( int from, int limit){
-    for( int i = from; i < limit; i++ ){
-        char* dynString =  nextRuntimeString(i);
-        TRICE16_1( Id( 45910), "dbg:len=%d, ", strlen(dynString) );
-        TRICE_S( Id( 47417), "MESSAGE:%s\n", dynString );   
-    }
-}
-
-//! triceCheckSet writes out all types of trices with fixed values for testing
+//! TriceCheckSet writes out all types of trices with fixed values for testing
 //! \details One trice has one subtrace, if param size max 2 bytes. 
 //! Traces with more bytes as parameter consist of several subtraces.
-void triceCheckSet(int index) {
+void TriceCheckSet(int index) {
+    char* s;
     switch (index) {
         case 1:
             TRICE8_2( Id( 40707), "rd:TRICE8_2 %d, %d\n", 1, 2 );
@@ -231,51 +233,67 @@ void triceCheckSet(int index) {
             TRICE64_2(Id( 63675), "tst:TRICE64_2 %x %x\n", -1, -2);
             TRICE64_1(Id( 49602), "tst:TRICE64_1 %u\n", -1);
             TRICE64_2(Id( 39532), "tst:TRICE64_2 %u %u\n", -1, -2);
-            TRICE64_1(Id( 39510), "tst:TRICE64_1 %s\n", -1);
-            TRICE64_2(Id( 50297), "tst:TRICE64_2 %s %u\n", -1, -2);
         break;
-        case 14:
+        case 15:
             TRICE8_8( Id( 48310), "dbg:%d %d %d %d %d %d %d %d\n", 8, 8, 8, 8, 8, 8, 8, 8 );
-        {
-            char* s = "AAAABBBBCCCC";
+            s = "AAAAAAAAAAAA";
+            TRICE32( Id( 60956), "dbg:len=%u: ", strlen(s) );
             TRICE_S( Id( 43140), "sig:%s\n", s ); 
-            triceRuntimeStrings(0, 20);
-        }
         break;
-        case 15: 
-            triceRuntimeStrings(30, 32 );
+#ifdef TRICE_HALF_BUFFER_SIZE // direct modes have not enough buffer (or increase buffer size on stack ig possible=
+        case 16:
+            s = "\
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\
+BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB\
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC\
+DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD\
+EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE\
+";
+            TRICE32( Id( 60956), "dbg:len=%u: ", strlen(s) );
+            TRICE_S( Id( 43140), "sig:%s\n", s );
         break;
-#if TRICE_MODE > 99 // direct modes have not enough buffer (or increase buffer size on stack ig possible=
-        case 16: 
-            triceRuntimeStrings(132, 136);
-        break;
-        case 17: 
-            triceRuntimeStrings(250, 252); // Count byte is fb=251
-            {
-            static uint16_t cnt = 0;
-            char *dataArray = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"; // The array with characters to send
-            TRICE16_1( Id( 63480),"d:Sending uint16 counter as two byte hex: %x\n", cnt);
-            TRICE_S( Id( 64963),"msg:Sending array: %s\n", dataArray);
-            cnt++; 
-        }
-        break;
-#endif // #if TRICE_MODE > 99 
-        case 18: 
-            //triceRuntimeStrings(252, 253); // 252 not possible
-        {
-            static uint16_t cnt = 0;
-            char *dataArray = "DataArray[13]"; // The array with characters to send
-            /* Transmit different data types through the UART */   
-            TRICE0( Id( 40819),"\natt:Software Transmit UART Component demo\n");
-            TRICE8_1( Id( 35344),"wrn:Sending 254 as single byte hex: %02x\n", 254);
-            TRICE16_1( Id( 54723),"d:Sending uint16 counter as two byte hex: %x\n", cnt);
-            TRICE_S( Id( 54661),"msg:Sending array: %s\n", dataArray);
-            TRICE32_1( Id( 45696), "tim:SysTick=%d\n", SYSTICKVAL );
-            TRICE32_1( Id( 51893), "tim:SysTick=%d\n", SYSTICKVAL );
-            cnt++; 
-        }
-        break;
+//        case 17:
+//            s = "\
+//AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\
+//BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB\
+//CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC\
+//DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD\
+//EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE\
+//";
+//            TRICE32( Id( 60956), "dbg:len=%u: ", strlen(s) );
+//            TRICE_S( Id( 43140), "sig:%s\n", s );
+//        break;
+#endif
+//        case 18:
+//            s = "\
+//AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\
+//BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB\
+//CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC\
+//DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD\
+//EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE\
+//AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\
+//BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB\
+//CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC\
+//DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD\
+//";
+//            TRICE32( Id( 60956), "dbg:len=%u: ", strlen(s) );
+//            TRICE_S( Id( 43140), "sig:%s\n", s );
+//        break;
         case 19:
+//            s = "\
+//AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\
+//BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB\
+//CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC\
+//DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD\
+//EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE\
+//AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\
+//BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB\
+//CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC\
+//DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD\
+//EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE\
+//";
+//            TRICE_S( Id( 43140), "sig:%s\n", s );
+
 #ifdef ENCRYPT
         {
             uint8_t b[8] = {1,2,3,4,5,6,7,8};
