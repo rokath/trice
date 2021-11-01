@@ -44,6 +44,10 @@ static inline int TriceWriteOutDepth( void ){ return 0; }
 #define TRICE_SINGLE_MAX_SIZE 1008 //!< TRICE_SINGLE_MAX_SIZE ist the head size plus string length size plus max dynamic string size. Must be a multiple of 4. 1008 is the max allowed value.
 #endif
 
+#if TRICE_SINGLE_MAX_SIZE > 1008
+#error
+#endif
+
 #ifndef TRICE_TRANSFER_INTERVAL_MS
 //! TRICE_TRANSFER_INTERVAL_MS is the milliseconds interval for TRICE buffer read out.
 //! This time should be shorter than visible delays. The TRICE_HALF_BUFFER_SIZE must be able to hold all trice messages possibly occouring in this time.
@@ -182,10 +186,11 @@ void InitXteaTable(void);
 //! ...
 //! cLen-3 cLen-2 cLen-1 cLen
 #define TRICE_S( id, pFmt, dynString) do { \
-    int len = strlen( dynString ); \
-    if( len > TRICE_SINGLE_MAX_SIZE-TRICE_DATA_OFFSET ){ \
-        dynString[TRICE_SINGLE_MAX_SIZE-TRICE_DATA_OFFSET] = 0; \
-        len = TRICE_SINGLE_MAX_SIZE-TRICE_DATA_OFFSET; \
+    uint32_t len = strlen( dynString ); \
+    uint32_t limit = TRICE_SINGLE_MAX_SIZE-TRICE_DATA_OFFSET; \
+    if( len > limit ){ \
+        TRICE32( Id( 54343), "wrn:Dynamic string truncated from %u to %u\n", len, limit ); \
+        len = limit; \
     } \
     TRICE_ENTER \
     PUT( id | (0xff00 & ((len+7)<<6)) | TRICE_CYCLE ); /* +3 for padding, +4 for the buf size value transmitted in the payload to get the last 2 bits. */ \

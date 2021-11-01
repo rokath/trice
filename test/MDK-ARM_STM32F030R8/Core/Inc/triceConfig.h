@@ -17,8 +17,8 @@ extern "C" {
 
   #define TRICE_MODE 200 //! TRICE_MODE is a predefined trice transfer method.
 
-//#define TRICE_RTT_CHANNEL 0 //!< Uncomment and set channel number for SeggerRTT usage.
-  #define TRICE_UART USART2   //!< Uncomment and set UART for serial output.
+  #define TRICE_RTT_CHANNEL 0 //!< Uncomment and set channel number for SeggerRTT usage.
+//#define TRICE_UART USART2   //!< Uncomment and set UART for serial output.
 
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -54,7 +54,8 @@ extern "C" {
 #if TRICE_MODE == 200
 #define TRICE_ENTER TRICE_ENTER_CRITICAL_SECTION //! TRICE_ENTER is the start of TRICE macro. The TRICE macros are a bit slower. Inside interrupts TRICE macros allowed.
 #define TRICE_LEAVE TRICE_LEAVE_CRITICAL_SECTION //! TRICE_LEAVE is the end of TRICE macro.
-#define TRICE_HALF_BUFFER_SIZE 1200 //!< This is the size of each of both buffers. Must be able to hold the max TRICE burst count within TRICE_TRANSFER_INTERVAL_MS or even more, if the write out speed is small.
+#define TRICE_HALF_BUFFER_SIZE 1024 //!< This is the size of each of both buffers. Must be able to hold the max TRICE burst count within TRICE_TRANSFER_INTERVAL_MS or even more, if the write out speed is small. Must not exceed SEGGER BUFFER_SIZE_UP
+#define TRICE_SINGLE_MAX_SIZE 800
 #endif
 
 
@@ -69,9 +70,9 @@ extern "C" {
 
 
 #ifdef TRICE_HALF_BUFFER_SIZE
-#define TRICE_BUFFER_INFO do{ TRICE32( Id( 52237), "att: Trice 2x half buffer size: %3u ", TRICE_HALF_BUFFER_SIZE ); } while(0)
+#define TRICE_BUFFER_INFO do{ TRICE32( Id( 41052), "att: Trice 2x half buffer size:%4u ", TRICE_HALF_BUFFER_SIZE ); } while(0)
 #else
-#define TRICE_BUFFER_INFO do{ TRICE32( Id( 58745), "att:Single Trice Stack buf size: %3u", TRICE_SINGLE_MAX_SIZE + TRICE_DATA_OFFSET ); } while(0)
+#define TRICE_BUFFER_INFO do{ TRICE32( Id( 37130), "att:Single Trice Stack buf size:%4u", TRICE_SINGLE_MAX_SIZE + TRICE_DATA_OFFSET ); } while(0)
 #endif
 
 //! This is usable as the very first trice sequence after restart. Adapt and use it or ignore it.

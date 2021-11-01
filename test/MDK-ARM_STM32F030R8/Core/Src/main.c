@@ -92,7 +92,7 @@ int main(void)
   MX_GPIO_Init();
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
-    #ifdef TRICE_STM32
+    #ifdef TRICE_UART
     LL_USART_EnableIT_RXNE(TRICE_UART); // enable UART2 interrupt
     #endif
     TRICE_HEADLINE;
