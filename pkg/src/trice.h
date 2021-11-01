@@ -26,14 +26,10 @@ void TriceCheckSet( int index ); //!< tests
 #define TRICE_WRITE( buf, len ) do{ TriceBlockingWrite( buf, len ); }while(0)
 #endif
 
-#if defined( TRICE_UART ) && defined( TRICE_HALF_BUFFER_SIZE ) // buffered out to UART
-#define TRICE_WRITE( buf, len ) do{ TriceNonBlockingWrite( buf, len ); }while(0)
-#endif
-
 #ifdef TRICE_RTT_CHANNEL
 #include "SEGGER_RTT.h"
 #define TRICE_WRITE( buf, len ) do{ SEGGER_RTT_Write(TRICE_RTT_CHANNEL, buf, len ); }while(0)
-static inline int TriceWriteOutDepth( void ){ return 0; }
+static inline int TriceOutDepth( void ){ return 0; }
 #endif
 
 #ifndef TRICE_CYCLE_COUNTER
@@ -82,7 +78,7 @@ extern uint8_t TriceCycle;
 
 #ifdef ENCRYPT // to do
 // #define DECRYPT //!< usually not needed
-void triceServeFifoEncryptedToBytesBuffer(void);
+void TriceServeFifoEncryptedToBytesBuffer(void);
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -113,18 +109,14 @@ void triceServeFifoEncryptedToBytesBuffer(void);
 //
 
 #if defined( TRICE_UART ) && !defined( TRICE_HALF_BUFFER_SIZE ) // direct out to UART
-void TriceBlockingPutChar( uint8_t c );
 void TriceBlockingWrite( uint8_t const * buf, int len );
 #endif
 
 #if defined( TRICE_UART ) && defined( TRICE_HALF_BUFFER_SIZE ) // buffered out to UART
-int TriceNonBlockingWrite( void const * buf, int nByte );
-int TriceWriteOutDepth( void );
 uint8_t TriceNextUint8( void );
 void triceServeTransmit(void);
 void triceTriggerTransmit(void);
-int TriceNonBlockingWrite( void const * buf, int nByte );
-int TriceWriteOutDepth( void );
+int TriceOutDepth( void );
 uint8_t TriceNextUint8( void );
 #endif // #if defined( TRICE_UART ) && TRICE_MODE != 0
 

@@ -15,6 +15,11 @@ static int triceSwap = 0; //!< triceSwap is the index of the active write buffer
 uint32_t* TriceBufferWritePosition = &triceBuffer[0][TRICE_DATA_OFFSET>>2]; //!< TriceBufferWritePosition is the active write position.
 static uint32_t* triceBufferWriteLimit = &triceBuffer[1][0]; //!< triceBufferWriteLimit is the triceBuffer written limit. 
 
+#if defined( TRICE_UART ) && defined( TRICE_HALF_BUFFER_SIZE ) // buffered out to UART
+static int triceNonBlockingWrite( void const * buf, int nByte );
+#define TRICE_WRITE( buf, len ) do{ triceNonBlockingWrite( buf, len ); }while(0)
+#endif
+
 //! triceBufferSwap swaps the trice double buffer and returns the transfer buffer address.
 static uint32_t* triceBufferSwap( void ){
     TRICE_ENTER_CRITICAL_SECTION
@@ -36,7 +41,7 @@ static size_t triceDepth( uint32_t* tb ){
 //! TriceTransfer, if possible, swaps the double buffer and initiates a write.
 //! It is the resposibility of the app to call this function once every 10-100 milliseconds.
 void TriceTransfer( void ){
-    if( 0 == TriceWriteOutDepth() ){ // transmission done
+    if( 0 == TriceOutDepth() ){ // transmission done
         uint32_t* tb = triceBufferSwap(); 
         size_t tlen = triceDepth(tb);
         if( tlen ){
@@ -44,6 +49,7 @@ void TriceTransfer( void ){
             uint8_t* tr = co + TRICE_DATA_OFFSET;
             size_t clen = TriceCOBSEncode(co, tr, tlen);
             co[clen++] = 0;
+            TriceDepthMax = tlen + TRICE_DATA_OFFSET < TriceDepthMax ? TriceDepthMax : tlen + TRICE_DATA_OFFSET; // diagnostics
             TRICE_WRITE( co, clen );
         }
     } // else: transmission not done yet
@@ -51,8 +57,8 @@ void TriceTransfer( void ){
 #endif // #ifdef TRICE_HALF_BUFFER_SIZE
 
 #if defined( TRICE_UART ) && !defined( TRICE_HALF_BUFFER_SIZE )// direct out to UART
-//! TriceBlockingPutChar returns after c was successfully written.
-void TriceBlockingPutChar( uint8_t c ){
+//! triceBlockingPutChar returns after c was successfully written.
+static void triceBlockingPutChar( uint8_t c ){
     while( !triceTxDataRegisterEmpty() );
     triceTransmitData8( c );
 } 
@@ -60,45 +66,45 @@ void TriceBlockingPutChar( uint8_t c ){
 //! TriceBlockingWrite returns after buf was complketely written.
 void TriceBlockingWrite( uint8_t const * buf, int len ){
     for( unsigned i = 0; i < len; i++ ){ 
-        TriceBlockingPutChar( buf[i] ); }
+        triceBlockingPutChar( buf[i] ); }
 }
 #endif
 
 #if defined( TRICE_UART ) && defined( TRICE_HALF_BUFFER_SIZE ) // buffered out to UART
-static uint8_t const * triceWriteOutBuffer;
-static int triceWriteOutCount = 0;
-static int triceWriteOutIndex = 0;
+static uint8_t const * triceOutBuffer;
+static int triceOutCount = 0;
+static int triceOutIndex = 0;
 
-//! TriceNonBlockingWrite
-int TriceNonBlockingWrite( void const * buf, int nByte ){
-    triceWriteOutBuffer = buf;
-    triceWriteOutIndex = 0;
-    triceWriteOutCount = nByte;
+//! triceNonBlockingWrite
+static int triceNonBlockingWrite( void const * buf, int nByte ){
+    triceOutBuffer = buf;
+    triceOutIndex = 0;
+    triceOutCount = nByte;
     return nByte;
 }
 
-//! TriceWriteOutDepth returns the amount of bytes not written yet.
-int TriceWriteOutDepth( void ){
-    return triceWriteOutCount - triceWriteOutIndex;
+//! TriceOutDepth returns the amount of bytes not written yet.
+int TriceOutDepth( void ){
+    return triceOutCount - triceOutIndex;
 }
 
 //! TriceNextUint8 returns the next trice byte for transmission.
 uint8_t TriceNextUint8( void ){
-    return triceWriteOutBuffer[triceWriteOutIndex++];
+    return triceOutBuffer[triceOutIndex++];
 }
 
 //! triceServeTransmit as triceServeU8FifoTransmit must be called cyclically to proceed ongoing write out.
 //! A good place is UART ISR.
 void triceServeTransmit(void) {
     triceTransmitData8(TriceNextUint8());
-    if (0 == TriceWriteOutDepth()) { // no more bytes
+    if (0 == TriceOutDepth()) { // no more bytes
         triceDisableTxEmptyInterrupt();
     }
 }
 
 // triceTriggerTransmit as triceTriggerU8FifoTransmit must be called cyclically to initialize write out.
 void triceTriggerTransmit(void){
-    if( TriceWriteOutDepth() && triceTxDataRegisterEmpty() ){
+    if( TriceOutDepth() && triceTxDataRegisterEmpty() ){
         triceEnableTxEmptyInterrupt(); // next bytes
     }
 }
@@ -114,7 +120,6 @@ unsigned TriceCOBSEncode( uint8_t* restrict output, const uint8_t * restrict inp
     unsigned write_index = 1;
     unsigned code_index = 0;
     uint8_t code = 1;
-    TriceDepthMax = length + TRICE_DATA_OFFSET < TriceDepthMax ? TriceDepthMax : length + TRICE_DATA_OFFSET; // diagnostics
     while(read_index < length)
     {
         if(input[read_index] == 0)

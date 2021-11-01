@@ -17,8 +17,8 @@ extern "C" {
 
   #define TRICE_MODE 200 //! TRICE_MODE is a predefined trice transfer method.
 
-  #define TRICE_RTT_CHANNEL 0 //!< Uncomment and set channel number for SeggerRTT usage.
-//#define TRICE_UART USART2   //!< Uncomment and set UART for serial output.
+//#define TRICE_RTT_CHANNEL 0 //!< Uncomment and set channel number for SeggerRTT usage.
+  #define TRICE_UART USART2   //!< Uncomment and set UART for serial output.
 
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -35,7 +35,7 @@ extern "C" {
 //! J-LINK Command line similar to: `trice log -args="-Device STM32G071RB -if SWD -Speed 4000 -RTTChannel 0 -RTTSearchRanges 0x20000000_0x1000"`
 //! ST-LINK Command line similar to: `trice log -p ST-LINK -args="-Device STM32G071RB -if SWD -Speed 4000 -RTTChannel 0 -RTTSearchRanges 0x20000000_0x1000"`
 #if TRICE_MODE == 0
-#define TRICE_SINGLE_MAX_SIZE 80 //!< TRICE_SINGLE_MAX_SIZE is the max allowed single trice size. Usually ~40 is enough. This plus TRICE_DATA_OFFSET is stack size!
+#define TRICE_SINGLE_MAX_SIZE 64 //!< TRICE_SINGLE_MAX_SIZE is the max allowed single trice size. Usually ~40 is enough. This plus TRICE_DATA_OFFSET is stack size!
 #define TRICE_ENTER { /*! Start of TRICE macro */ \
     ALIGN4 uint8_t co[TRICE_SINGLE_MAX_SIZE+TRICE_DATA_OFFSET]; ALIGN4_END /* This must be capable to hold the longest used TRICE plus 4 (offset). Check TriceDepthMax at runtime. */ \
     uint8_t* tr = co + TRICE_DATA_OFFSET; \
@@ -44,6 +44,7 @@ extern "C" {
     unsigned tlen = (uint8_t*)TriceBufferWritePosition - tr; \
     unsigned clen = TriceCOBSEncode( co, tr, tlen); \
     co[clen++] = 0; \
+    TriceDepthMax = tlen + TRICE_DATA_OFFSET < TriceDepthMax ? TriceDepthMax : tlen + TRICE_DATA_OFFSET; /* diagnostics */ \
     TRICE_WRITE(co, clen); } }
 #endif
 
@@ -55,7 +56,7 @@ extern "C" {
 #define TRICE_ENTER TRICE_ENTER_CRITICAL_SECTION //! TRICE_ENTER is the start of TRICE macro. The TRICE macros are a bit slower. Inside interrupts TRICE macros allowed.
 #define TRICE_LEAVE TRICE_LEAVE_CRITICAL_SECTION //! TRICE_LEAVE is the end of TRICE macro.
 #define TRICE_HALF_BUFFER_SIZE 1024 //!< This is the size of each of both buffers. Must be able to hold the max TRICE burst count within TRICE_TRANSFER_INTERVAL_MS or even more, if the write out speed is small. Must not exceed SEGGER BUFFER_SIZE_UP
-#define TRICE_SINGLE_MAX_SIZE 800
+#define TRICE_SINGLE_MAX_SIZE 800 //!< must not exeed TRICE_HALF_BUFFER_SIZE!
 #endif
 
 
@@ -65,7 +66,8 @@ extern "C" {
 #define TRICE_CYCLE_COUNTER 0 //! Do not add cycle counter, The TRICE macros are a bit faster. Lost TRICEs are not detectable by the trice tool.
 #define TRICE_ENTER //! TRICE_ENTER is the start of TRICE macro. The TRICE macros are a bit faster. Inside interrupts TRICE macros forbidden.
 #define TRICE_LEAVE //! TRICE_LEAVE is the end of TRICE macro.
-#define TRICE_HALF_BUFFER_SIZE 720 //!< This is the size each of of both buffers. Must be able to hold the max TRICE burst count within TRICE_TRANSFER_INTERVAL_MS or even more, if the write out speed is small.
+#define TRICE_HALF_BUFFER_SIZE 1024 //!< This is the size of each of both buffers. Must be able to hold the max TRICE burst count within TRICE_TRANSFER_INTERVAL_MS or even more, if the write out speed is small. Must not exceed SEGGER BUFFER_SIZE_UP
+#define TRICE_SINGLE_MAX_SIZE 800 //!< must not exeed TRICE_HALF_BUFFER_SIZE!
 #endif
 
 
