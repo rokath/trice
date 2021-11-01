@@ -36,7 +36,6 @@ extern "C" {
 //! ST-LINK Command line similar to: `trice log -p ST-LINK -args="-Device STM32G071RB -if SWD -Speed 4000 -RTTChannel 0 -RTTSearchRanges 0x20000000_0x1000"`
 #if TRICE_MODE == 0
 #define TRICE_SINGLE_MAX_SIZE 80 //!< TRICE_SINGLE_MAX_SIZE is the max allowed single trice size. Usually ~40 is enough. This plus TRICE_DATA_OFFSET is stack size!
-#define TRICE_BUFFER_INFO do{ TRICE32( Id( 58745), "att:Single Trice Stack buf size: %3u", TRICE_SINGLE_MAX_SIZE + TRICE_DATA_OFFSET ); } while(0)
 #define TRICE_ENTER { /*! Start of TRICE macro */ \
     ALIGN4 uint8_t co[TRICE_SINGLE_MAX_SIZE+TRICE_DATA_OFFSET]; ALIGN4_END /* This must be capable to hold the longest used TRICE plus 4 (offset). Check TriceDepthMax at runtime. */ \
     uint8_t* tr = co + TRICE_DATA_OFFSET; \
@@ -56,7 +55,6 @@ extern "C" {
 #define TRICE_ENTER TRICE_ENTER_CRITICAL_SECTION //! TRICE_ENTER is the start of TRICE macro. The TRICE macros are a bit slower. Inside interrupts TRICE macros allowed.
 #define TRICE_LEAVE TRICE_LEAVE_CRITICAL_SECTION //! TRICE_LEAVE is the end of TRICE macro.
 #define TRICE_HALF_BUFFER_SIZE 1200 //!< This is the size of each of both buffers. Must be able to hold the max TRICE burst count within TRICE_TRANSFER_INTERVAL_MS or even more, if the write out speed is small.
-#define TRICE_BUFFER_INFO do{ TRICE32( Id( 52237), "att: Trice 2x half buffer size: %3u ", TRICE_HALF_BUFFER_SIZE ); } while(0)
 #endif
 
 
@@ -67,9 +65,14 @@ extern "C" {
 #define TRICE_ENTER //! TRICE_ENTER is the start of TRICE macro. The TRICE macros are a bit faster. Inside interrupts TRICE macros forbidden.
 #define TRICE_LEAVE //! TRICE_LEAVE is the end of TRICE macro.
 #define TRICE_HALF_BUFFER_SIZE 720 //!< This is the size each of of both buffers. Must be able to hold the max TRICE burst count within TRICE_TRANSFER_INTERVAL_MS or even more, if the write out speed is small.
-#define TRICE_BUFFER_INFO do{ TRICE32( Id( 34539), "att: Trice 2x half buffer size: %3u ", TRICE_HALF_BUFFER_SIZE ); } while(0)
 #endif
 
+
+#ifdef TRICE_HALF_BUFFER_SIZE
+#define TRICE_BUFFER_INFO do{ TRICE32( Id( 52237), "att: Trice 2x half buffer size: %3u ", TRICE_HALF_BUFFER_SIZE ); } while(0)
+#else
+#define TRICE_BUFFER_INFO do{ TRICE32( Id( 58745), "att:Single Trice Stack buf size: %3u", TRICE_SINGLE_MAX_SIZE + TRICE_DATA_OFFSET ); } while(0)
+#endif
 
 //! This is usable as the very first trice sequence after restart. Adapt and use it or ignore it.
 #define TRICE_HEADLINE \
