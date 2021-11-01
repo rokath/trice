@@ -474,9 +474,9 @@ func TestHelpAll(t *testing.T) {
             When set to "off" no PC timestamps displayed.
             If you need target timestamps you need to get the time inside the target and send it as TRICE* parameter.
              (default "LOCmicro")
-      -u    Short for '-unsignedHex'.
-      -unsignedHex
-            Hex and Bin values are printed as unsigned values.
+      -u    Short for '-unsigned'. (default true)
+      -unsigned
+            Hex, Octal and Bin values are printed as unsigned values. (default true)
       -v    short for verbose
       -verbose
             Gives more informal output if used. Can be helpful during setup.

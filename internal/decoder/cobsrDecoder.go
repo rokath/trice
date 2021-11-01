@@ -282,7 +282,7 @@ func (p *COBS) unSignedOrSignedOut(b []byte, bitwidth, count int) int {
 	if len(u) != count {
 		return copy(b, fmt.Sprintln("ERROR: Invalid format specifier count inside", p.trice.Type, p.trice.Strg))
 	}
-	v := make([]interface{}, 32)
+	v := make([]interface{}, 1000) // theoretical 1000 bytes could arrive
 	switch bitwidth {
 	case 8:
 		for i, f := range u {
@@ -304,7 +304,7 @@ func (p *COBS) unSignedOrSignedOut(b []byte, bitwidth, count int) int {
 	case 32:
 		for i, f := range u {
 			n := p.readU32(p.b[4*i:])
-			if !f {
+			if f {
 				v[i] = n
 			} else {
 				v[i] = int32(n)

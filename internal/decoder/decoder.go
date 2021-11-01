@@ -33,16 +33,20 @@ const (
 	// flag value for TargetEndianess
 	BigEndian = false
 
-	// patNextFormatSpecifier is a regex to find next format specifier in a string (exclude %%*)
-	patNextFormatSpecifier = `(?:^|[^%])(%[0-9\.#]*(b|c|d|u|x|X|o|f))`
+	// patNextFormatSpecifier is a regex to find next format specifier in a string (exclude %%*) and ignoring %s
+	//
+	// Language C plus from language Go: %b, %F, %q
+	// Partial implemented: %hi, %hu, %ld, %li, %lf, %Lf, %Lu, %lli, %lld
+	// Not implemented: %s
+	patNextFormatSpecifier = `(?:^|[^%])(%[0-9\.#]*(-|c|d|e|E|f|F|g|G|h|i|l|L|o|O|p|q|u|x|X|n|b))`
 
-	// patNextFormatSpecifier is a regex to find next format u specifier in a string
+	// patNextFormatUSpecifier is a regex to find next format u specifier in a string
 	// It does also match %%u positions! so an additional check must follow.
 	patNextFormatUSpecifier = `(?:%[0-9]*u)`
 
-	// patNextFormatSpecifier is a regex to find next format u specifier in a string
-	// It does also match %%u positions! so an additional check must follow.
-	patNextFormatXSpecifier = `(?:%[0-9]*(x|X|b))`
+	// patNextFormatXSpecifier is a regex to find next format x specifier in a string
+	// It does also match %%x positions! so an additional check must follow.
+	patNextFormatXSpecifier = `(?:%[0-9]*(l|o|O|x|X|b))`
 
 	// headSize is 4; each trice message starts with a head of 4 bytes.
 	headSize = 4
@@ -71,8 +75,8 @@ var (
 	// TestTableMode is a special option for easy decoder test table generation.
 	TestTableMode bool
 
-	// UnsignedHex if true, forces hex and in values printed as unsigned values.
-	UnsignedHex bool
+	// Unsigned if true, forces hex and in values printed as unsigned values.
+	Unsigned bool
 
 	matchNextFormatSpecifier  = regexp.MustCompile(patNextFormatSpecifier)
 	matchNextFormatUSpecifier = regexp.MustCompile(patNextFormatUSpecifier)
@@ -299,6 +303,7 @@ func (p *decoderData) readU64(b []byte) uint64 {
 // uReplaceN checks all format specifier in i and replaces %nu with %nd and returns that result as o.
 //
 // If a replacement took place on position k u[k] is true. Afterwards len(u) is amount of found format specifiers.
+// Additionall, if UnsignedHex is true, for FormatX specifiers u[k] is also true.
 func uReplaceN(i string) (o string, u []bool) {
 	o = i
 	s := i
@@ -315,7 +320,7 @@ func uReplaceN(i string) (o string, u []bool) {
 		if nil != locU { // a %nu found
 			o = o[:offset-1] + "d" + o[offset:] // replace %nu -> %nd
 			u = append(u, true)
-		} else if nil != locX && UnsignedHex { // a %nx or %nX or %nb found
+		} else if nil != locX && Unsigned { // a %nx, %nX or, %no, %nO or %nb found
 			u = append(u, true) // no negative values
 		} else { // keep sign
 			u = append(u, false)
