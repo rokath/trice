@@ -51,56 +51,56 @@ void TriceCheckSet(int index) {
             TRICE64_1( Id( 51133),  "rd:TRICE64_1 %d\n", __LINE__ );
             TRICE32_2( Id( 55925),  "rd:TRICE32_2 line %d,%d\n", __LINE__, 2 );
             TRICE64_2( Id( 36492),  "rd:TRICE64_2 line %d,%d\n", __LINE__, 2 );
-/* to do            
-            TRICE8( Id( 42572), "rd:TRICE8_1 %d\n", 1 );
-            TRICE8( Id( 55696), "rd:TRICE8_2 %d, %d\n", 1, 2 );
-            TRICE8( Id( 48713), "rd:TRICE8_3 %d, %d, %d\n", 1, 2, 3 );
-            TRICE8( Id( 64540), "rd:TRICE8_4 %d, %d, %d, %d\n", 1, 2, 3, 4 );
-            TRICE8( Id( 59448), "rd:TRICE8_5 %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5 );
-            TRICE8( Id( 50721), "rd:TRICE8_6 %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6 );
-            TRICE8( Id( 60314), "rd:TRICE8_7 %d, %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6, 7);
-            TRICE8( Id( 34932), "rd:TRICE8_8 %d, %d, %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6, 7, 8 );      
-            TRICE8( Id( 64200), "rd:TRICE8_9 %d, %d, %d, %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6, 7, 8, 9 );      
-            TRICE8( Id( 61751), "rd:TRICE8_10 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10);      
-            TRICE8( Id( 37168), "rd:TRICE8_11 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 );      
-            TRICE8( Id( 53614), "rd:TRICE8_12 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 );      
-            TRICE16( Id( 43382), "rd:TRICE16_1 %d\n", 1 );
-            TRICE16( Id( 50539), "rd:TRICE16_2 %d, %d\n", 1, 2 );
-            TRICE16( Id( 58921), "rd:TRICE16_3 %d, %d, %d\n", 1, 2, 3 );
-            TRICE16( Id( 51327), "rd:TRICE16_4 %d, %d, %d, %d\n", 1, 2, 3, 4 );
-            TRICE16( Id( 47597), "rd:TRICE16_5 %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5 );
-            TRICE16( Id( 65506), "rd:TRICE16_6 %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6 );
-            TRICE16( Id( 34605), "rd:TRICE16_7 %d, %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6, 7);
-            TRICE16( Id( 44018), "rd:TRICE16_8 %d, %d, %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6, 7, 8 );      
-            TRICE16( Id( 62421), "rd:TRICE16_9 %d, %d, %d, %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6, 7, 8, 9 );      
-            TRICE16( Id( 60090), "rd:TRICE16_10 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10);      
-            TRICE16( Id( 37386), "rd:TRICE16_11 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 );      
-            TRICE16( Id( 44205), "rd:TRICE16_12 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 );      
-            TRICE32( Id( 58306), "rd:TRICE32_1 %d\n", 1 );
-            TRICE32( Id( 54712), "rd:TRICE32_2 %d, %d\n", 1, 2 );
-            TRICE32( Id( 60281), "rd:TRICE32_3 %d, %d, %d\n", 1, 2, 3 );
-            TRICE32( Id( 59334), "rd:TRICE32_4 %d, %d, %d, %d\n", 1, 2, 3, 4 );
-            TRICE32( Id( 39902), "rd:TRICE32_5 %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5 );
-            TRICE32( Id( 49219), "rd:TRICE32_6 %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6 );
-            TRICE32( Id( 34710), "rd:TRICE32_7 %d, %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6, 7);
-            TRICE32( Id( 53822), "rd:TRICE32_8 %d, %d, %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6, 7, 8 );      
-            TRICE32( Id( 35426), "rd:TRICE32_9 %d, %d, %d, %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6, 7, 8, 9 );      
-            TRICE32( Id( 41711), "rd:TRICE32_10 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10);      
-            TRICE32( Id( 57061), "rd:TRICE32_11 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 );      
-            TRICE32( Id( 52368), "rd:TRICE32_12 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 );      
-            TRICE64( Id( 45272), "rd:TRICE64_1 %d\n", 1 );
-            TRICE64( Id( 42808), "rd:TRICE64_2 %d, %d\n", 1, 2 );
-            TRICE64( Id( 64863), "rd:TRICE64_3 %d, %d, %d\n", 1, 2, 3 );
-            TRICE64( Id( 56503), "rd:TRICE64_4 %d, %d, %d, %d\n", 1, 2, 3, 4 );
-            TRICE64( Id( 55589), "rd:TRICE64_5 %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5 );
-            TRICE64( Id( 61381), "rd:TRICE64_6 %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6 );
-            TRICE64( Id( 41982), "rd:TRICE64_7 %d, %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6, 7);
-            TRICE64( Id( 43714), "rd:TRICE64_8 %d, %d, %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6, 7, 8 );      
-            TRICE64( Id( 44845), "rd:TRICE64_9 %d, %d, %d, %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6, 7, 8, 9 );      
-            TRICE64( Id( 39514), "rd:TRICE64_10 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10);      
-            TRICE64( Id( 37357), "rd:TRICE64_11 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 );      
-            TRICE64( Id( 62329), "rd:TRICE64_12 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 );   
-*/            
+            
+            TRICE8( Id( 63495), "rd:TRICE8 %d\n", 1 );
+            TRICE8( Id( 40220), "rd:TRICE8 %d, %d\n", 1, 2 );
+            TRICE8( Id( 56315), "rd:TRICE8 %d, %d, %d\n", 1, 2, 3 );
+            TRICE8( Id( 35199), "rd:TRICE8 %d, %d, %d, %d\n", 1, 2, 3, 4 );
+            TRICE8( Id( 64677), "rd:TRICE8 %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5 );
+            TRICE8( Id( 63697), "rd:TRICE8 %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6 );
+            TRICE8( Id( 62807), "rd:TRICE8 %d, %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6, 7);
+            TRICE8( Id( 59840), "rd:TRICE8 %d, %d, %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6, 7, 8 );      
+            TRICE8( Id( 40569), "rd:TRICE8 %d, %d, %d, %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6, 7, 8, 9 );      
+            TRICE8( Id( 45470), "rd:TRICE8 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10);      
+            TRICE8( Id( 38100), "rd:TRICE8 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 );      
+            TRICE8( Id( 39583), "rd:TRICE8 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 );      
+            TRICE16( Id( 61035), "rd:TRICE16 %d\n", 1 );
+            TRICE16( Id( 48938), "rd:TRICE16 %d, %d\n", 1, 2 );
+            TRICE16( Id( 50921), "rd:TRICE16 %d, %d, %d\n", 1, 2, 3 );
+            TRICE16( Id( 38261), "rd:TRICE16 %d, %d, %d, %d\n", 1, 2, 3, 4 );
+            TRICE16( Id( 36236), "rd:TRICE16 %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5 );
+            TRICE16( Id( 43535), "rd:TRICE16 %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6 );
+            TRICE16( Id( 43174), "rd:TRICE16 %d, %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6, 7);
+            TRICE16( Id( 34224), "rd:TRICE16 %d, %d, %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6, 7, 8 );      
+            TRICE16( Id( 50005), "rd:TRICE16 %d, %d, %d, %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6, 7, 8, 9 );      
+            TRICE16( Id( 54783), "rd:TRICE16 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10);      
+            TRICE16( Id( 50159), "rd:TRICE16 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 );      
+            TRICE16( Id( 39046), "rd:TRICE16 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 );      
+            TRICE32( Id( 55538), "rd:TRICE32 %d\n", 1 );
+            TRICE32( Id( 32781), "rd:TRICE32 %d, %d\n", 1, 2 );
+            TRICE32( Id( 63220), "rd:TRICE32 %d, %d, %d\n", 1, 2, 3 );
+            TRICE32( Id( 36754), "rd:TRICE32 %d, %d, %d, %d\n", 1, 2, 3, 4 );
+            TRICE32( Id( 58412), "rd:TRICE32 %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5 );
+            TRICE32( Id( 56253), "rd:TRICE32 %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6 );
+            TRICE32( Id( 33150), "rd:TRICE32 %d, %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6, 7);
+            TRICE32( Id( 56467), "rd:TRICE32 %d, %d, %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6, 7, 8 );      
+            TRICE32( Id( 36162), "rd:TRICE32 %d, %d, %d, %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6, 7, 8, 9 );      
+            TRICE32( Id( 64739), "rd:TRICE32 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10);      
+            TRICE32( Id( 38603), "rd:TRICE32 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 );      
+            TRICE32( Id( 62356), "rd:TRICE32 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 );      
+            TRICE64( Id( 63433), "rd:TRICE64 %d\n", 1 );
+            TRICE64( Id( 52183), "rd:TRICE64 %d, %d\n", 1, 2 );
+            TRICE64( Id( 58343), "rd:TRICE64 %d, %d, %d\n", 1, 2, 3 );
+            TRICE64( Id( 59098), "rd:TRICE64 %d, %d, %d, %d\n", 1, 2, 3, 4 );
+            TRICE64( Id( 36354), "rd:TRICE64 %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5 );
+            TRICE64( Id( 58425), "rd:TRICE64 %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6 );
+            TRICE64( Id( 63581), "rd:TRICE64 %d, %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6, 7);
+            TRICE64( Id( 52575), "rd:TRICE64 %d, %d, %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6, 7, 8 );      
+            TRICE64( Id( 65307), "rd:TRICE64 %d, %d, %d, %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6, 7, 8, 9 );      
+            TRICE64( Id( 33102), "rd:TRICE64 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10);      
+            TRICE64( Id( 51678), "rd:TRICE64 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 );      
+            TRICE64( Id( 39543), "rd:TRICE64 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 );   
+            
         break;
         case 3:
             TRICE8_1( Id( 46820),   "rd:TRICE8_1 %d\n", 1 );
@@ -155,7 +155,7 @@ void TriceCheckSet(int index) {
         case 4:
             TRICE0(Id( 55247), "--------------------------------------------------\n");
             TRICE0(Id( 51804), "--------------------------------------------------\n");
-            TRICE16_1(Id( 56252), "dbg:12345 as 16bit is %#016b\n", 12345);
+            TRICE16_1(Id( 55922), "dbg:12345 as 16bit is %016b\n", 12345);
             TRICE0(Id( 45734), "--------------------------------------------------\n");
             TRICE0(Id( 48439), "sig:This ASSERT error is just a demo and no real error:\n");
             TRICE0(Id( 36621), "--------------------------------------------------\n");
@@ -194,7 +194,7 @@ void TriceCheckSet(int index) {
             TRICE16_4(Id( 61023), "tst:TRICE16_4   %%7o -> %7o %7o %7o %7o\n", 1, 0x7fff, 0x8000, 0xffff);
             TRICE32_4(Id( 47740), "tst:TRICE32_4 %%09x ->      %09x      %09x       %09x     %09x\n", 1, 0x7fffffff, 0x80000000, 0xffffffff); // 4
             TRICE32_4(Id( 46761), "tst:TRICE32_4 %%10d ->     %10d     %10d     %10d    %10x\n", 1, 0x7fffffff, 0x80000000, 0xffffffff); // 4
-            TRICE64_1(Id( 49603), "att:TRICE64_1 %#b\n", 0x1122334455667788);
+            TRICE64_1(Id( 52189), "att:TRICE64_1 %b\n", 0x1122334455667788);
         break;
         case 7:
             TRICE8_1(Id( 52582), "tst:TRICE8_1 %02x\n", 0xA1);

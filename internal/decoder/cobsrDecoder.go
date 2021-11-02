@@ -206,8 +206,10 @@ func (p *COBS) sprintTrice(b []byte) (n int) {
 		cobsFunctionPtrList[0].paramSpace = (p.sLen + 7) & ^3 // +4 for 4 bytes sLen, +3^3 is alignment to 4
 	}
 
+	x := formatSpecifierCount(p.trice.Strg)
+	triceType := fmt.Sprintf(p.trice.Type+"_%d", x) // append count
 	for _, s := range cobsFunctionPtrList {
-		if s.triceType == p.trice.Type {
+		if s.triceType == p.trice.Type || s.triceType == triceType {
 			if s.paramSpace == p.paramSpace {
 				if len(p.b) < p.paramSpace {
 					n += copy(b[n:], fmt.Sprintln("err:len(p.b) =", len(p.b), "< p.paramSpace = ", p.paramSpace, "- ignoring package", p.b[:len(p.b)]))
@@ -223,7 +225,7 @@ func (p *COBS) sprintTrice(b []byte) (n int) {
 			}
 		}
 	}
-	n += copy(b[n:], fmt.Sprintln("err:Unknown trice.Type ", p.trice.Type, "- ignoring trice data", p.b[:p.paramSpace]))
+	n += copy(b[n:], fmt.Sprintln("err:Unknown trice.Type:", p.trice.Type, "and", triceType, "not matching - ignoring trice data", p.b[:p.paramSpace]))
 	n += copy(b[n:], fmt.Sprintln(hints))
 	p.b = p.b[p.paramSpace:]
 	return
@@ -304,6 +306,12 @@ func (p *COBS) triceS(b []byte, _ int, _ int) int {
 // trice0 prints the trice format string.
 func (p *COBS) trice0(b []byte, _ int, _ int) int {
 	return copy(b, fmt.Sprintf(p.trice.Strg))
+}
+
+// formatSpecifierCount returns amount of found format specifiers in s
+func formatSpecifierCount(s string) int {
+	_, u := uReplaceN(s)
+	return len(u)
 }
 
 // unSignedOrSignedOut prints p.b according to the format string.

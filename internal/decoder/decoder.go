@@ -38,7 +38,7 @@ const (
 	// Language C plus from language Go: %b, %F, %q
 	// Partial implemented: %hi, %hu, %ld, %li, %lf, %Lf, %Lu, %lli, %lld
 	// Not implemented: %s
-	patNextFormatSpecifier = `(?:^|[^%])(%[0-9\.#]*(-|c|d|e|E|f|F|g|G|h|i|l|L|o|O|p|q|u|x|X|n|b))`
+	patNextFormatSpecifier = `(?:^|[^%])(%[0-9]*(-|c|d|e|E|f|F|g|G|h|i|l|L|o|O|p|q|u|x|X|n|b))`
 
 	// patNextFormatUSpecifier is a regex to find next format u specifier in a string
 	// It does also match %%u positions! so an additional check must follow.

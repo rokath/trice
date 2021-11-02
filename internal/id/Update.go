@@ -67,11 +67,11 @@ var (
 )
 
 // updateParamCountAndID0 stays in text as long as trice statements are found.
-// If a TRICE* is found it is getting an Id(0) inserted and it is also extended by _n
+// If a TRICE* is found, it is getting an Id(0) inserted and it is also extended by _n
 // according to the format specifier count inside the formatstring. Both only if not already existent.
 // A not with the format specifier count matching _n is intentionally not corrected.
 // About a not matching parameter count the C compiler will complain later.
-// trice statements ending with letter 'i' keep the 'i' ath the end.
+// trice statements ending with letter 'i' keep the 'i' at the end.
 // Short trices like Trice0 or Trice16_1i need to have an id(0) instead of Id(0) but that gets corrected
 // automatically when the id n is inserted.
 // text is the full filecontents, which could be modified, therefore it is also returned with a modified flag
@@ -145,7 +145,7 @@ func FormatSpecifierCount(s string) (count int) {
 
 // addFormatSpecifierCount extends s or si with _n or _ni and returns it as sl
 func addFormatSpecifierCount(s string, n int) (sl string) {
-	if 0 < n && n < 9 { // patch
+	if 0 < n && n < 99 { // patch
 		if 'i' == s[len(s)-1] { // last letter is 'i'
 			sl = fmt.Sprintf(s[:len(s)-1]+"_%di", n) // TRICE*_ni
 		} else {
