@@ -50,6 +50,24 @@ Trice consists of 2 parts: Tiny & super fast embedded device real-time trace **C
 
 Currently the **TRICE** technique changed heavily between release 0.33.0 and 0.34.0. The `flex` and `esc` encodings are replaced by a [COBS](https://en.wikipedia.org/wiki/Consistent_Overhead_Byte_Stuffing) encoding which will be the default now. The stuff works already well but is not in its final state and is not documented vet. It lacks also automated tests. The internal speed goes to its limit (~6 clocks per trice on M0+ possible) by using a double buffer instead of a fifo. Also porting is easier now. The documentation is outdated but gets updated soon. But first the tests. If you have a project with `flex` or `esc` encoding, please update the target code or stay with version 0.33.0.
 
+## Quick start guide
+
+- Copy 3 files to your embedded project:
+  - `./pkg/src/trice.h`
+  - `./pkg/src/trice.c`
+  - `./test/.../triceConfig.h`
+- In your source.c: `#include "trice.h"`
+- In a function: `TRICE0( "Hi!\n" );`
+- In project root:
+  - Create emty file: `touch til.json`
+  - run `trice u` should 
+    - patch source.c to `TRICE0( Id(12345), "Hi!\n" );`
+    - extend `til.json`
+- Modify triceConfig.h acording your needs
+  - With TRICE_MODE 0 just provide a putchar() function
+- Compile load your app
+- In project root: `trice l -p COM1` should show `Hi!` after app start.
+
 ## About
 
 - Printf-like trace macros `TRICE` and PC `trice` tool (written in [Go](https://en.wikipedia.org/wiki/Go_(programming_language))) for automatic ID managing & logging.
