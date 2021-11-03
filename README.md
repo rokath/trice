@@ -1,6 +1,7 @@
 # ![TriceGirlS.png](./docs/README.media/TriceGirl-167x222.png) **Trice** <- **TR**~~ace~~ **I**~~ds~~ **C** **E**~~mbedded~~  
 
-Trice consists of 2 parts: Tiny & super fast embedded device real-time trace **C** code (`TRICE` macros) and PC tool `trice` for managing and visualization. The aim is to replace `printf` in a conveinient and much faster way. The PC **trice** tool itself is written in [Go](https://golang.org/) and therefore usable on all platforms Go supports.
+Trice consists of 2 parts: Tiny & super fast embedded device real-time trace **C** code (`TRICE` macros) and PC tool `trice` for managing and visualization. The aim is to replace `printf` in a conveinient and much faster way. The PC **trice** tool itself is written in [Go](https://golang.org/) and therefore usable on all platforms Go supports. 
+It is easy to receive the COBS packges, exchange the IDs with the format string and to print out in your own environment.
 
 ## Info shields
 
@@ -48,7 +49,7 @@ Trice consists of 2 parts: Tiny & super fast embedded device real-time trace **C
 
 ## ATTENTION
 
-Currently the **TRICE** technique changed heavily between release 0.33.0 and 0.34.0. The `flex` and `esc` encodings are replaced by a [COBS](https://en.wikipedia.org/wiki/Consistent_Overhead_Byte_Stuffing) encoding which will be the default now. The stuff works already well but is not in its final state and is not documented vet. It lacks also automated tests. The internal speed goes to its limit (~6 clocks per trice on M0+ possible) by using a double buffer instead of a fifo. Also porting is easier now. The documentation is outdated but gets updated soon. But first the tests. If you have a project with `flex` or `esc` encoding, please update the target code or stay with version 0.33.0.
+The **TRICE** technique changed heavily between release 0.33.0 and 0.34.0. The `flex` and `esc` encodings are replaced by a [COBS](https://en.wikipedia.org/wiki/Consistent_Overhead_Byte_Stuffing) encoding which will be the default now. The stuff works already well but is not in its final state and is not documented vet. It lacks also automated tests. The internal speed goes to its limit (~6 clocks per trice on M0+ possible) by using a double buffer instead of a fifo. Also porting is easier now. The documentation is outdated but gets updated soon. But first the tests. If you have a project with `flex` or `esc` encoding, please update the target code or stay with version 0.33.0.
 
 ## Quick start guide
 
