@@ -60,13 +60,13 @@ The **TRICE** technique changed heavily between release 0.33.0 and 0.34.0. The `
 - In your source.c: `#include "trice.h"`
 - In a function: `TRICE0( "Hi!\n" );`
 - In project root:
-  - Create emty file: `touch til.json`
-  - run `trice u` should 
+  - Create emty file: `touch til.json`.
+  - Run `trice u` should:
     - patch source.c to `TRICE0( Id(12345), "Hi!\n" );`
     - extend `til.json`
-- Modify triceConfig.h acording your needs
-  - With TRICE_MODE 0 just provide a putchar() function
-- Compile load your app
+- Modify `triceConfig.h` acording your needs.
+  - With TRICE_MODE 0 just provide a **putchar()** function.
+- Compile & load your app.
 - In project root: `trice l -p COM1` should show `Hi!` after app start.
 
 ## About
