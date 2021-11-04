@@ -19,7 +19,8 @@ import (
 // COBS is the Decoding instance for COBS encoded trices.
 type COBS struct {
 	decoderData
-	cycle uint8
+	cycle              uint8
+	COBSModeDescriptor uint8
 }
 
 // NewCOBSRDecoder provides an EscDecoder instance.
@@ -91,6 +92,10 @@ func (p *COBS) nextCOBSpackage() {
 	p.b = make([]byte, defaultSize)
 	n := decodeCOBS(p.b, p.iBuf[:index+1])
 	p.b = p.b[:n]
+	if n >= 1 {
+		p.COBSModeDescriptor = p.b[0]
+		p.b = p.b[1:] // drop COBS package descriptor
+	}
 	if DebugOut { // Debug output
 		fmt.Print("COBS: ")
 		dump(p.iBuf[:index+1])
@@ -99,6 +104,18 @@ func (p *COBS) nextCOBSpackage() {
 	}
 	p.iBuf = p.iBuf[index+1:] // step forward (next package data in p.iBuf now, if any)
 	return
+}
+
+func (p *COBS) handleCOBSModeDescriptor() {
+	if p.COBSModeDescriptor == 1 {
+		if p.endian == LittleEndian {
+			targetTimestamp = binary.LittleEndian.Uint32(p.b[0:4])
+		} else {
+			targetTimestamp = binary.BigEndian.Uint32(p.b[0:4])
+		}
+		targetTimestampExists = true
+		p.b = p.b[4:] // drop target timestamp
+	}
 }
 
 // Read is the provided read method for COBS decoding and provides next string as byte slice.
@@ -129,6 +146,9 @@ func (p *COBS) Read(b []byte) (n int, err error) {
 		n += copy(b[n:], fmt.Sprintln(hints))
 		return
 	}
+
+	p.handleCOBSModeDescriptor()
+
 	var head uint32 // 16 bit ID in upper 2 bytes, 8 bit parameter size as u32Count, 8 bit cycle counter least significant byte
 	if p.endian == LittleEndian {
 		head = binary.LittleEndian.Uint32(p.b[0:4])
@@ -148,7 +168,7 @@ func (p *COBS) Read(b []byte) (n int, err error) {
 		p.cycle = cycle + 1 // adjust cycle
 	}
 	if cycle == 0xc0 && p.cycle == 0xc0 && initialCycle == true { // with or without cycle counter and seems to be a target reset
-		n += copy(b[n:], fmt.Sprintln("warning:   Restart?   "))
+		//n += copy(b[n:], fmt.Sprintln("warning:   Restart?   "))
 		p.cycle = cycle + 1 // adjust cycle
 		initialCycle = false
 	}

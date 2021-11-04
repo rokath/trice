@@ -20,6 +20,9 @@ extern "C" {
 //#define TRICE_RTT_CHANNEL 0 //!< Uncomment and set channel number for SeggerRTT usage.
   #define TRICE_UART USART2   //!< Uncomment and set UART for serial output.
 
+extern int milliSecond;
+#define TRICE_TIMESTAMP_VALUE milliSecond //!< Uncomment if you do not need target timestamps. Instead of SYSTICKVAL, you can use any other up to 32-bit value.
+
 //
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -81,9 +84,11 @@ extern "C" {
 #define TRICE_HEADLINE \
     TRICE0( Id( 57449), "s:                                          \n" ); \
     TRICE8( Id( 38478), "s:  TRICE_MODE %3u                          \n", TRICE_MODE ); \
-    TRICE0( Id( 46700), "s:                                          \ns:     " ); \
+    TRICE0( Id( 34640), "s:                                          \n" ); \
+    TRICE0( Id( 52064), "s:     " ); \
     TRICE_BUFFER_INFO; \
-    TRICE0( Id( 46377), "s:     \ns:                                          \n");
+    TRICE0( Id( 46427), "s:     \n" ); \
+    TRICE0( Id( 56816), "s:                                          \n");
 
 
 // Enabling next line results in XTEA encryption  with the key.

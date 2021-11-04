@@ -63,6 +63,10 @@
 		"Type": "TRICE32_1",
 		"Strg": "time:TRICE32_1   message, SysTick is %6u\\n"
 	},
+	"34640": {
+		"Type": "TRICE0",
+		"Strg": "s:                                          \\n"
+	},
 	"34659": {
 		"Type": "TRICE32_1",
 		"Strg": "rd:TRICE32_1 line %d (%%d -1)\\n"
@@ -423,6 +427,10 @@
 		"Type": "TRICE0",
 		"Strg": "s:     \\ns:                                          \\n"
 	},
+	"46427": {
+		"Type": "TRICE0",
+		"Strg": "s:     \\n"
+	},
 	"46431": {
 		"Type": "TRICE32_3",
 		"Strg": "tst:TRICE32_3 %u %u %u\\n"
@@ -663,6 +671,10 @@
 		"Type": "TRICE32_1",
 		"Strg": "time:TRICE32_1   message, SysTick is %6u\\n"
 	},
+	"52064": {
+		"Type": "TRICE0",
+		"Strg": "s:     "
+	},
 	"52118": {
 		"Type": "TRICE0",
 		"Strg": "message:J"
@@ -850,6 +862,10 @@
 	"56748": {
 		"Type": "TRICE16_1",
 		"Strg": "ISR:interrupt   message, SysTick is %6u\\n"
+	},
+	"56816": {
+		"Type": "TRICE0",
+		"Strg": "s:                                          \\n"
 	},
 	"56936": {
 		"Type": "TRICE32_7",

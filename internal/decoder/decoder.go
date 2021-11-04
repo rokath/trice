@@ -90,6 +90,12 @@ var (
 
 	// initialCycle is a helper for the cycle counter automatic.
 	initialCycle = true
+
+	targetTimestamp uint32
+
+	ShowTargetTimestamp string
+
+	targetTimestampExists bool
 )
 
 // newDecoder abstracts the function type for a new decoder.
@@ -261,11 +267,23 @@ func decodeAndComposeLoop(sw *emitter.TriceLineComposer, dec Decoder) error {
 		n = emitter.BanOrPickFilter(b[:n]) // to do: b can contain several trices - handle that!
 
 		start := time.Now()
-		if 0 < n && ShowID != "" && len(sw.Line) == 0 {
+
+		var tts bool
+		if targetTimestampExists && 0 < n && ShowTargetTimestamp != "" && len(sw.Line) == 0 {
+			s := fmt.Sprintf(ShowTargetTimestamp, targetTimestamp)
+			_, err := sw.Write([]byte(s))
+			msg.OnErr(err)
+			if ShowID != "" {
+				tts = true
+			}
+		}
+
+		if tts || (0 < n && ShowID != "" && len(sw.Line) == 0) {
 			// dec.Read can return n=0 in some cases and then wait.
 			s := fmt.Sprintf(ShowID, LastTriceID)
 			_, err := sw.Write([]byte(s))
 			msg.OnErr(err)
+			tts = false
 		}
 		m, err := sw.Write(b[:n])
 		duration := time.Since(start).Milliseconds()

@@ -45,9 +45,11 @@ void TriceTransfer( void ){
         uint32_t* tb = triceBufferSwap(); 
         size_t tlen = triceDepth(tb);
         if( tlen ){
+            size_t clen;
             uint8_t* co = (uint8_t*)tb;
-            uint8_t* tr = co + TRICE_DATA_OFFSET;
-            size_t clen = TriceCOBSEncode(co, tr, tlen);
+            uint8_t* tr = co + TRICE_DATA_OFFSET; // start of trice data
+            *--tr = TRICE_COBS_PACKAGE_MODE; // add COBS package mode descriptor in front of trice data
+            clen = TriceCOBSEncode(co, tr, tlen+1);
             co[clen++] = 0;
             TriceDepthMax = tlen + TRICE_DATA_OFFSET < TriceDepthMax ? TriceDepthMax : tlen + TRICE_DATA_OFFSET; // diagnostics
             TRICE_WRITE( co, clen );
