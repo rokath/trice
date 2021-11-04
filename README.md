@@ -65,7 +65,7 @@ The **TRICE** technique changed heavily between release 0.33.0 and 0.34.0. The `
     - patch source.c to `TRICE0( Id(12345), "Hi!\n" );`
     - extend `til.json`
 - Modify `triceConfig.h` acording your needs.
-  - With TRICE_MODE 0 just provide a **putchar()** function.
+  - With `#define TRICE_MODE 0` just provide a **putchar()** function.
 - Compile & load your app.
 - In project root: `trice l -p COM1` should show `Hi!` after app start.
 
