@@ -127,6 +127,7 @@ First are the PC reception timestamps and after the port info are the used trice
 - `Trice16( "tim: myFunc %d\n", sysTick );` before and after a function call lets you easy measure the function execution time.
 - As graphical visualization you could use a tool similar to [https://github.com/sqshq/sampler](https://github.com/sqshq/sampler).
 
+<!---
 ## Target timestamps?
 
 - TRICE has intentionally no target timestamps for performance reasons. Also it is not foreseeable which time base is needed in which application. On the PC you can display the *reception timestamps*.
@@ -141,6 +142,7 @@ First are the PC reception timestamps and after the port info are the used trice
 - Same with a 32 bit systick, called `SYSTICKVAL32`:
   - Simply add `trice32( "time:@%9u:", SYSTICKVAL32 );` everywhere you need exact time.
   - Or use `trice32( "time:@%9u:My values are %d, %d, %d\n", SYSTICKVAL32, my0, my1, my2 );`
+--->
 
 ## How it approximately works
 
