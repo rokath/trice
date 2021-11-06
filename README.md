@@ -100,8 +100,8 @@ The **TRICE** technique changed heavily between release 0.33.0 and 0.34.0. The `
 - Using trice not only for **dynamic debugging** but also as **logging** technique
     is possible and gives the advantage to have very short messages (no strings) for transmission,
     but keep in mind that the file [til.json](https://github.com/rokath/trice/blob/master/til.json) is the key to read all output if your devices in the field for 10 or more years.
-  - Consider adding til.json as a (compressed) resource.
-- You can consider TRICE also as a kind of **data compression** what could be interesting for IoT things, especially NB-IoT, where you have very low data rates.
+  - Optionally add til.json as a (compressed) resource.
+- You can see TRICE also as a kind of **data compression** what could be interesting for IoT things, especially NB-IoT, where you have very low data rates.
 - Storing trices in FLASH for later log analysis saves memory because a typical `TRICE` occupies only 4 or 8 bytes.
 - Also it is possible to **encrypt** the trice transfer packets to get a reasonable protection for many cases.
   - This way you can deliver firmware images with encrypted TRICE output only readable with the appropriate key and til.json.
