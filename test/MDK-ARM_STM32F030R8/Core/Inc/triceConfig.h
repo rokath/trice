@@ -23,6 +23,9 @@ extern "C" {
 extern int milliSecond;
 #define TRICE_TIMESTAMP_VALUE milliSecond //!< Uncomment if you do not need target timestamps. Instead of SYSTICKVAL, you can use any other up to 32-bit value.
 
+
+// #define TRICE_BIG_ENDIANNESS //!< TRICE_BIG_ENDIANNESS needs to be defined for TRICE64 macros on big endian devices.
+
 //
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -188,8 +191,6 @@ TRICE_INLINE void triceDisableTxEmptyInterrupt(void) {
 
 //
 ///////////////////////////////////////////////////////////////////////////////
-
-// #define TRICE_BIG_ENDIANNESS //!< TRICE_BIG_ENDIANNESS needs to be defined for TRICE64 macros on big endian devices.
 
 #ifdef __cplusplus
 }
