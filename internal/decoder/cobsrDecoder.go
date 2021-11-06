@@ -5,7 +5,6 @@ package decoder
 
 import (
 	"bytes"
-	"encoding/binary"
 	"fmt"
 	"io"
 	"log"
@@ -14,13 +13,14 @@ import (
 	"github.com/dim13/cobs"
 	"github.com/rokath/trice/internal/emitter"
 	"github.com/rokath/trice/internal/id"
+	"github.com/rokath/trice/pkg/cipher"
 )
 
 // COBS is the Decoding instance for COBS encoded trices.
 type COBS struct {
 	decoderData
 	cycle              uint8
-	COBSModeDescriptor uint8
+	COBSModeDescriptor uint32
 }
 
 // NewCOBSRDecoder provides an EscDecoder instance.
@@ -89,30 +89,44 @@ func (p *COBS) nextCOBSpackage() {
 		}
 	}
 	// here a complete COBS package exists
-	p.b = make([]byte, defaultSize)
-	n := decodeCOBS(p.b, p.iBuf[:index+1])
-	p.b = p.b[:n]
-	if n >= 1 {
-		p.COBSModeDescriptor = p.b[0]
-		p.b = p.b[1:] // drop COBS package descriptor
-	}
 	if DebugOut { // Debug output
 		fmt.Print("COBS: ")
 		dump(p.iBuf[:index+1])
+	}
+
+	p.b = make([]byte, defaultSize)
+	n := decodeCOBS(p.b, p.iBuf[:index+1])
+	p.iBuf = p.iBuf[index+1:] // step forward (next package data in p.iBuf now, if any)
+	p.b = p.b[:n]             // decoded trice COBS packages have a multiple of 4 len
+	if n&3 != 0 {
+		dump(p.b)
+		log.Fatal("ERROR:Decoded trice COBS package has not expected  multiple of 4 len.", n, "=len") // exit
+	}
+
+	if DebugOut { // Debug output
 		fmt.Print("-> PKG:  ")
 		dump(p.b)
 	}
-	p.iBuf = p.iBuf[index+1:] // step forward (next package data in p.iBuf now, if any)
+
+	if cipher.Password != "" { // encrypted
+		cipher.Decrypt(p.b, p.b)
+		if DebugOut { // Debug output
+			fmt.Print("-> DEC:  ")
+			dump(p.b)
+		}
+	}
+
+	if n >= 4 {
+		p.COBSModeDescriptor = p.readU32(p.b)
+		p.b = p.b[4:] // drop COBS package descriptor
+	}
+
 	return
 }
 
 func (p *COBS) handleCOBSModeDescriptor() {
 	if p.COBSModeDescriptor == 1 {
-		if p.endian == LittleEndian {
-			targetTimestamp = binary.LittleEndian.Uint32(p.b[0:4])
-		} else {
-			targetTimestamp = binary.BigEndian.Uint32(p.b[0:4])
-		}
+		targetTimestamp = p.readU32(p.b)
 		targetTimestampExists = true
 		p.b = p.b[4:] // drop target timestamp
 	}
@@ -133,10 +147,10 @@ func (p *COBS) handleCOBSModeDescriptor() {
 // In case of a not matching cycle, a warning message in trice format is prefixed.
 // In case of invalid package data, error messages in trice format are returned and the package is dropped.
 func (p *COBS) Read(b []byte) (n int, err error) {
-	if len(p.b) == 0 { // last decoded COBS package exhausted
+	if len(p.b) <= 4 { // last decoded COBS package exhausted
 		p.nextCOBSpackage()
 	}
-	if len(p.b) == 0 { // not enough data for a next package
+	if len(p.b) < 8 { // not enough data for a next package
 		return
 	}
 
@@ -146,15 +160,8 @@ func (p *COBS) Read(b []byte) (n int, err error) {
 		n += copy(b[n:], fmt.Sprintln(hints))
 		return
 	}
-
 	p.handleCOBSModeDescriptor()
-
-	var head uint32 // 16 bit ID in upper 2 bytes, 8 bit parameter size as u32Count, 8 bit cycle counter least significant byte
-	if p.endian == LittleEndian {
-		head = binary.LittleEndian.Uint32(p.b[0:4])
-	} else {
-		head = binary.BigEndian.Uint32(p.b[0:4])
-	}
+	head := p.readU32(p.b)
 
 	// cycle counter automatic & check
 	cycle := uint8(head)
@@ -191,6 +198,9 @@ func (p *COBS) Read(b []byte) (n int, err error) {
 	if len(p.b) < p.triceSize {
 		n += copy(b[n:], fmt.Sprintln("ERROR:package len", len(p.b), "is too short - ignoring package", p.b))
 		n += copy(b[n:], fmt.Sprintln(hints))
+		if p.triceSize > len(p.b) {
+			log.Fatal("Data garbage, aborting.")
+		}
 		p.b = p.b[p.triceSize:]
 		return
 	}
@@ -218,11 +228,7 @@ func (p *COBS) Read(b []byte) (n int, err error) {
 func (p *COBS) sprintTrice(b []byte) (n int) {
 
 	if p.trice.Type == "TRICE_S" { // patch table paramSpace in that case
-		if p.endian == LittleEndian {
-			p.sLen = int(binary.LittleEndian.Uint32(p.b[0:4]))
-		} else {
-			p.sLen = int(binary.BigEndian.Uint32(p.b[0:4]))
-		}
+		p.sLen = int(p.readU32(p.b))
 		cobsFunctionPtrList[0].paramSpace = (p.sLen + 7) & ^3 // +4 for 4 bytes sLen, +3^3 is alignment to 4
 	}
 

@@ -34,7 +34,7 @@ static inline int TriceOutDepth( void ){ return 0; }
 
 #ifdef TRICE_TIMESTAMP_VALUE
 #define TRICE_COBS_PACKAGE_MODE 1 //! COBS package mode descriptor, 0: no timestamps, 1: 32-bit timestamps
-#define TRICE_PUT_TIMESTAMP do{ PUT(TRICE_TIMESTAMP_VALUE); }while(0)
+#define TRICE_PUT_TIMESTAMP do{ TRICE_PUT(TRICE_TIMESTAMP_VALUE); }while(0)
 #else
 #define TRICE_COBS_PACKAGE_MODE 0 //! COBS package mode descriptor, 0: no timestamps, 1: 32-bit timestamps
 #define TRICE_PUTTIMESTAMP
@@ -59,9 +59,9 @@ static inline int TriceOutDepth( void ){ return 0; }
 #endif
 
 #if TRICE_SINGLE_MAX_SIZE < 256
-#define TRICE_DATA_OFFSET 4 //! TRICE_DATA_OFFSET is the space in front of trice data for in-buffer COBS encoding. It be a multiple of uint32_t.
+#define TRICE_DATA_OFFSET 8 //! TRICE_DATA_OFFSET is the space in front of trice data for in-buffer COBS encoding. It must be be a multiple of uint32_t.
 #else
-#define TRICE_DATA_OFFSET 8 //! TRICE_DATA_OFFSET is the space in front of trice data for in-buffer COBS encoding. It be a multiple of uint32_t.
+#define TRICE_DATA_OFFSET 12 //! TRICE_DATA_OFFSET is the space in front of trice data for in-buffer COBS encoding. It must be a multiple of uint32_t.
 #endif
 
 #if TRICE_CYCLE_COUNTER == 1
@@ -74,7 +74,7 @@ extern uint8_t TriceCycle;
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#define PUT(x) do{ *TriceBufferWritePosition++ = x; }while(0) //! PUT copies a 32 bit x into the TRICE buffer.
+#define TRICE_PUT(x) do{ *TriceBufferWritePosition++ = x; }while(0) //! PUT copies a 32 bit x into the TRICE buffer.
 
 #ifdef TRICE_BIG_ENDIANNESS
 #define TRICE_PUT64(x) TRICE_PUT( (uint32_t)((uint64_t)(x)>>32) ); TRICE_PUT( (uint32_t)(x) ); 
@@ -83,6 +83,11 @@ extern uint8_t TriceCycle;
 #endif
 
 #define TRICE_PUTBUFFER( buf, len ) do{ memcpy( TriceBufferWritePosition, buf, len ); TriceBufferWritePosition += (len+3)>>2; }while(0) //! TRICE_PUTBUFFER copies a buffer into the TRICE buffer.
+
+#ifdef ENCRYPT // to do
+// #define DECRYPT //!< usually not needed
+void TriceServeFifoEncryptedToBytesBuffer(void);
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 // trice time measurement (STM32 only?)
@@ -131,8 +136,8 @@ uint8_t TriceNextUint8( void );
 //
 #ifdef TRICE_ENCRYPT
 
-unsigned TriceEncrypt( uint8_t* p, unsigned len );
-unsigned TriceDecrypt( uint8_t* p, unsigned len );
+void TriceEncrypt( uint32_t* p, unsigned count );
+void TriceDecrypt( uint32_t* p, unsigned count );
 
 //! little endian! change byte order for big endian machines
 #define XTEA_KEY(b00, b01, b02, b03, \
@@ -190,8 +195,8 @@ void TriceInitXteaTable(void);
     } \
     TRICE_ENTER \
     TRICE_PUT_TIMESTAMP; \
-    PUT( id | (0xff00 & ((len+7)<<6)) | TRICE_CYCLE ); /* +3 for padding, +4 for the buf size value transmitted in the payload to get the last 2 bits. */ \
-    PUT( len ); /* len as byte does not contain the exact buf len anymore, so transmit it to the host */ \
+    TRICE_PUT( id | (0xff00 & ((len+7)<<6)) | TRICE_CYCLE ); /* +3 for padding, +4 for the buf size value transmitted in the payload to get the last 2 bits. */ \
+    TRICE_PUT( len ); /* len as byte does not contain the exact buf len anymore, so transmit it to the host */ \
     /* len is needed for non string buffers because the last 2 bits not stored in head. */ \
     /* All trices know the data length but not TRICE8P. len byte values 0xFC, xFD, xFE, xFF are reserved for future extensions. */ \
     TRICE_PUTBUFFER( dynString, len ); \
@@ -202,7 +207,7 @@ void TriceInitXteaTable(void);
 #undef  TRICE_ENTER
 #define TRICE_ENTER
 #undef  PUT
-#define PUT(n)
+#define TRICE_PUT(n)
 #undef  TRICE_PUT_TIMESTAMP
 #define TRICE_PUT_TIMESTAMP
 #undef  PUT_BUFFER
@@ -220,7 +225,7 @@ void TriceInitXteaTable(void);
 #define TRICE0( id, pFmt ) \
     TRICE_ENTER \
     TRICE_PUT_TIMESTAMP; \
-    PUT( id | 0x0000 | TRICE_CYCLE ); \
+    TRICE_PUT( id | 0x0000 | TRICE_CYCLE ); \
     TRICE_LEAVE
 
 //! TRICE8_1 writes trice data as fast as possible in a buffer.
@@ -229,8 +234,8 @@ void TriceInitXteaTable(void);
 #define TRICE8_1( id, pFmt, v0 ) \
     TRICE_ENTER \
     TRICE_PUT_TIMESTAMP; \
-    PUT( id | 0x0100 | TRICE_CYCLE ); \
-    PUT( (uint8_t)(v0) ); /* little endian*/ \
+    TRICE_PUT( id | 0x0100 | TRICE_CYCLE ); \
+    TRICE_PUT( (uint8_t)(v0) ); /* little endian*/ \
     TRICE_LEAVE
 
 //! TRICE8_2 writes trice data as fast as possible in a buffer.
@@ -239,8 +244,8 @@ void TriceInitXteaTable(void);
 #define TRICE8_2( id, pFmt, v0, v1 ) \
     TRICE_ENTER \
     TRICE_PUT_TIMESTAMP; \
-    PUT( id | 0x0100 | TRICE_CYCLE ); \
-    PUT( (uint8_t)(v0) | ((uint16_t)(v1)<<8) ); \
+    TRICE_PUT( id | 0x0100 | TRICE_CYCLE ); \
+    TRICE_PUT( (uint8_t)(v0) | ((uint16_t)(v1)<<8) ); \
     TRICE_LEAVE
 
 //! TRICE8_3 writes trice data as fast as possible in a buffer.
@@ -249,8 +254,8 @@ void TriceInitXteaTable(void);
 #define TRICE8_3( id, pFmt, v0, v1, v2 ) \
     TRICE_ENTER \
     TRICE_PUT_TIMESTAMP; \
-    PUT( id | 0x0100 | TRICE_CYCLE ); \
-    PUT( (uint8_t)(v0) | ((uint16_t)(v1)<<8) | ((uint32_t)(0xff&(v2))<<16) ); \
+    TRICE_PUT( id | 0x0100 | TRICE_CYCLE ); \
+    TRICE_PUT( (uint8_t)(v0) | ((uint16_t)(v1)<<8) | ((uint32_t)(0xff&(v2))<<16) ); \
     TRICE_LEAVE
 
 //! TRICE8_4 writes trice data as fast as possible in a buffer.
@@ -259,8 +264,8 @@ void TriceInitXteaTable(void);
 #define TRICE8_4( id, pFmt, v0, v1, v2, v3 ) \
     TRICE_ENTER \
     TRICE_PUT_TIMESTAMP; \
-    PUT( id | 0x0100 | TRICE_CYCLE ); \
-    PUT( (uint8_t)(v0) | ((uint16_t)(v1)<<8) | ((uint32_t)(0xff&(v2))<<16) | ((uint32_t)(v3)<<24) ); \
+    TRICE_PUT( id | 0x0100 | TRICE_CYCLE ); \
+    TRICE_PUT( (uint8_t)(v0) | ((uint16_t)(v1)<<8) | ((uint32_t)(0xff&(v2))<<16) | ((uint32_t)(v3)<<24) ); \
     TRICE_LEAVE
 
 //! TRICE8_5 writes trice data as fast as possible in a buffer.
@@ -269,9 +274,9 @@ void TriceInitXteaTable(void);
 #define TRICE8_5( id, pFmt, v0, v1, v2, v3, v4 ) \
     TRICE_ENTER \
     TRICE_PUT_TIMESTAMP; \
-    PUT( id | 0x0200 | TRICE_CYCLE ); \
-    PUT( (uint8_t)(v0) | ((uint16_t)(v1)<<8) | ((uint32_t)(0xff&(v2))<<16) | ((uint32_t)(v3)<<24) ); \
-    PUT( (uint8_t)(v4) ); \
+    TRICE_PUT( id | 0x0200 | TRICE_CYCLE ); \
+    TRICE_PUT( (uint8_t)(v0) | ((uint16_t)(v1)<<8) | ((uint32_t)(0xff&(v2))<<16) | ((uint32_t)(v3)<<24) ); \
+    TRICE_PUT( (uint8_t)(v4) ); \
     TRICE_LEAVE
 
 //! TRICE8_6 writes trice data as fast as possible in a buffer.
@@ -280,9 +285,9 @@ void TriceInitXteaTable(void);
 #define TRICE8_6( id, pFmt, v0, v1, v2, v3, v4, v5 ) \
     TRICE_ENTER \
     TRICE_PUT_TIMESTAMP; \
-    PUT( id | 0x0200 | TRICE_CYCLE ); \
-    PUT( (uint8_t)(v0) | ((uint16_t)(v1)<<8) | ((uint32_t)(0xff&(v2))<<16) | ((uint32_t)(v3)<<24) ); \
-    PUT( (uint8_t)(v4) | ((uint16_t)(v5)<<8) ); \
+    TRICE_PUT( id | 0x0200 | TRICE_CYCLE ); \
+    TRICE_PUT( (uint8_t)(v0) | ((uint16_t)(v1)<<8) | ((uint32_t)(0xff&(v2))<<16) | ((uint32_t)(v3)<<24) ); \
+    TRICE_PUT( (uint8_t)(v4) | ((uint16_t)(v5)<<8) ); \
     TRICE_LEAVE
 
 //! TRICE8_8 writes trice data as fast as possible in a buffer.
@@ -291,9 +296,9 @@ void TriceInitXteaTable(void);
 #define TRICE8_7( id, pFmt, v0, v1, v2, v3, v4, v5, v6 ) \
     TRICE_ENTER \
     TRICE_PUT_TIMESTAMP; \
-    PUT( id | 0x0200 | TRICE_CYCLE ); \
-    PUT( (uint8_t)(v0) | ((uint16_t)(v1)<<8) | ((uint32_t)(0xff&(v2))<<16) | ((uint32_t)(v3)<<24) ); \
-    PUT( (uint8_t)(v4) | ((uint16_t)(v5)<<8) | ((uint32_t)(0xff&(v6))<<16) ); \
+    TRICE_PUT( id | 0x0200 | TRICE_CYCLE ); \
+    TRICE_PUT( (uint8_t)(v0) | ((uint16_t)(v1)<<8) | ((uint32_t)(0xff&(v2))<<16) | ((uint32_t)(v3)<<24) ); \
+    TRICE_PUT( (uint8_t)(v4) | ((uint16_t)(v5)<<8) | ((uint32_t)(0xff&(v6))<<16) ); \
     TRICE_LEAVE
 
 //! TRICE8_8 writes trice data as fast as possible in a buffer.
@@ -302,9 +307,9 @@ void TriceInitXteaTable(void);
 #define TRICE8_8( id, pFmt, v0, v1, v2, v3, v4, v5, v6, v7 ) \
     TRICE_ENTER \
     TRICE_PUT_TIMESTAMP; \
-    PUT( id | 0x0200 | TRICE_CYCLE ); \
-    PUT( (uint8_t)(v0) | ((uint16_t)(v1)<<8) | ((uint32_t)(0xff&(v2))<<16) | ((uint32_t)(v3)<<24) ); \
-    PUT( (uint8_t)(v4) | ((uint16_t)(v5)<<8) | ((uint32_t)(0xff&(v6))<<16) | ((uint32_t)(v7)<<24) ); \
+    TRICE_PUT( id | 0x0200 | TRICE_CYCLE ); \
+    TRICE_PUT( (uint8_t)(v0) | ((uint16_t)(v1)<<8) | ((uint32_t)(0xff&(v2))<<16) | ((uint32_t)(v3)<<24) ); \
+    TRICE_PUT( (uint8_t)(v4) | ((uint16_t)(v5)<<8) | ((uint32_t)(0xff&(v6))<<16) | ((uint32_t)(v7)<<24) ); \
     TRICE_LEAVE
 
 //! TRICE8_8 writes trice data as fast as possible in a buffer.
@@ -313,10 +318,10 @@ void TriceInitXteaTable(void);
 #define TRICE8_9( id, pFmt, v0, v1, v2, v3, v4, v5, v6, v7, v8 ) \
     TRICE_ENTER \
     TRICE_PUT_TIMESTAMP; \
-    PUT( id | 0x0300 | TRICE_CYCLE ); \
-    PUT( (uint8_t)(v0) | ((uint16_t)(v1)<<8) | ((uint32_t)(0xff&(v2))<<16) | ((uint32_t)(v3)<<24) ); \
-    PUT( (uint8_t)(v4) | ((uint16_t)(v5)<<8) | ((uint32_t)(0xff&(v6))<<16) | ((uint32_t)(v7)<<24) ); \
-    PUT( (uint8_t)(v8) ); \
+    TRICE_PUT( id | 0x0300 | TRICE_CYCLE ); \
+    TRICE_PUT( (uint8_t)(v0) | ((uint16_t)(v1)<<8) | ((uint32_t)(0xff&(v2))<<16) | ((uint32_t)(v3)<<24) ); \
+    TRICE_PUT( (uint8_t)(v4) | ((uint16_t)(v5)<<8) | ((uint32_t)(0xff&(v6))<<16) | ((uint32_t)(v7)<<24) ); \
+    TRICE_PUT( (uint8_t)(v8) ); \
     TRICE_LEAVE
 
 //! TRICE8_8 writes trice data as fast as possible in a buffer.
@@ -325,10 +330,10 @@ void TriceInitXteaTable(void);
 #define TRICE8_10( id, pFmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9 ) \
     TRICE_ENTER \
     TRICE_PUT_TIMESTAMP; \
-    PUT( id | 0x0300 | TRICE_CYCLE ); \
-    PUT( (uint8_t)(v0) | ((uint16_t)(v1)<<8) | ((uint32_t)(0xff&(v2))<<16) | ((uint32_t)(v3)<<24) ); \
-    PUT( (uint8_t)(v4) | ((uint16_t)(v5)<<8) | ((uint32_t)(0xff&(v6))<<16) | ((uint32_t)(v7)<<24) ); \
-    PUT( (uint8_t)(v8) | ((uint16_t)(v9)<<8) ); \
+    TRICE_PUT( id | 0x0300 | TRICE_CYCLE ); \
+    TRICE_PUT( (uint8_t)(v0) | ((uint16_t)(v1)<<8) | ((uint32_t)(0xff&(v2))<<16) | ((uint32_t)(v3)<<24) ); \
+    TRICE_PUT( (uint8_t)(v4) | ((uint16_t)(v5)<<8) | ((uint32_t)(0xff&(v6))<<16) | ((uint32_t)(v7)<<24) ); \
+    TRICE_PUT( (uint8_t)(v8) | ((uint16_t)(v9)<<8) ); \
     TRICE_LEAVE
 
 //! TRICE8_8 writes trice data as fast as possible in a buffer.
@@ -337,10 +342,10 @@ void TriceInitXteaTable(void);
 #define TRICE8_11( id, pFmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10 ) \
     TRICE_ENTER \
     TRICE_PUT_TIMESTAMP; \
-    PUT( id | 0x0300 | TRICE_CYCLE ); \
-    PUT( (uint8_t)(v0) | ((uint16_t)(v1)<<8) | ((uint32_t)(0xff&(v2))<<16) | ((uint32_t)(v3)<<24) ); \
-    PUT( (uint8_t)(v4) | ((uint16_t)(v5)<<8) | ((uint32_t)(0xff&(v6))<<16) | ((uint32_t)(v7)<<24) ); \
-    PUT( (uint8_t)(v8) | ((uint16_t)(v9)<<8) | ((uint32_t)(0xff&(v10))<<16) ); \
+    TRICE_PUT( id | 0x0300 | TRICE_CYCLE ); \
+    TRICE_PUT( (uint8_t)(v0) | ((uint16_t)(v1)<<8) | ((uint32_t)(0xff&(v2))<<16) | ((uint32_t)(v3)<<24) ); \
+    TRICE_PUT( (uint8_t)(v4) | ((uint16_t)(v5)<<8) | ((uint32_t)(0xff&(v6))<<16) | ((uint32_t)(v7)<<24) ); \
+    TRICE_PUT( (uint8_t)(v8) | ((uint16_t)(v9)<<8) | ((uint32_t)(0xff&(v10))<<16) ); \
     TRICE_LEAVE
 
 //! TRICE8_12 writes trice data as fast as possible in a buffer.
@@ -349,10 +354,10 @@ void TriceInitXteaTable(void);
 #define TRICE8_12( id, pFmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 ) \
     TRICE_ENTER \
     TRICE_PUT_TIMESTAMP; \
-    PUT( id | 0x0300 | TRICE_CYCLE ); \
-    PUT( (uint8_t)(v0) | ((uint16_t)(v1)<<8) | ((uint32_t)(0xff&(v2))<<16) | ((uint32_t)(v3)<<24) ); \
-    PUT( (uint8_t)(v4) | ((uint16_t)(v5)<<8) | ((uint32_t)(0xff&(v6))<<16) | ((uint32_t)(v7)<<24) ); \
-    PUT( (uint8_t)(v8) | ((uint16_t)(v9)<<8) | ((uint32_t)(0xff&(v10))<<16)| ((uint32_t)(v11)<<24) ); \
+    TRICE_PUT( id | 0x0300 | TRICE_CYCLE ); \
+    TRICE_PUT( (uint8_t)(v0) | ((uint16_t)(v1)<<8) | ((uint32_t)(0xff&(v2))<<16) | ((uint32_t)(v3)<<24) ); \
+    TRICE_PUT( (uint8_t)(v4) | ((uint16_t)(v5)<<8) | ((uint32_t)(0xff&(v6))<<16) | ((uint32_t)(v7)<<24) ); \
+    TRICE_PUT( (uint8_t)(v8) | ((uint16_t)(v9)<<8) | ((uint32_t)(0xff&(v10))<<16)| ((uint32_t)(v11)<<24) ); \
     TRICE_LEAVE
 
 //! TRICE16_1 writes trice data as fast as possible in a buffer.
@@ -361,8 +366,8 @@ void TriceInitXteaTable(void);
 #define TRICE16_1( id, pFmt, v0 ) \
     TRICE_ENTER \
     TRICE_PUT_TIMESTAMP; \
-    PUT( id | 0x0100 | TRICE_CYCLE ); \
-    PUT( (uint16_t)(v0) ); \
+    TRICE_PUT( id | 0x0100 | TRICE_CYCLE ); \
+    TRICE_PUT( (uint16_t)(v0) ); \
     TRICE_LEAVE
 
 //! TRICE16_2 writes trice data as fast as possible in a buffer.
@@ -371,8 +376,8 @@ void TriceInitXteaTable(void);
 #define TRICE16_2( id, pFmt, v0, v1 ) \
     TRICE_ENTER \
     TRICE_PUT_TIMESTAMP; \
-    PUT( id | 0x0100 | TRICE_CYCLE ); \
-    PUT((uint16_t)(v0) | ((uint32_t)(v1)<<16) ); \
+    TRICE_PUT( id | 0x0100 | TRICE_CYCLE ); \
+    TRICE_PUT((uint16_t)(v0) | ((uint32_t)(v1)<<16) ); \
     TRICE_LEAVE
 
 //! TRICE16_3 writes trice data as fast as possible in a buffer.
@@ -381,9 +386,9 @@ void TriceInitXteaTable(void);
 #define TRICE16_3( id, pFmt, v0, v1, v2 ) \
     TRICE_ENTER \
     TRICE_PUT_TIMESTAMP; \
-    PUT( id | 0x0200 | TRICE_CYCLE ); \
-    PUT((uint16_t)(v0) | ((uint32_t)(v1)<<16) ); \
-    PUT( (uint16_t)(v2) ); \
+    TRICE_PUT( id | 0x0200 | TRICE_CYCLE ); \
+    TRICE_PUT((uint16_t)(v0) | ((uint32_t)(v1)<<16) ); \
+    TRICE_PUT( (uint16_t)(v2) ); \
     TRICE_LEAVE
 
 //! TRICE16_4 writes trice data as fast as possible in a buffer.
@@ -392,9 +397,9 @@ void TriceInitXteaTable(void);
 #define TRICE16_4( id, pFmt, v0, v1, v2, v3 ) \
     TRICE_ENTER \
     TRICE_PUT_TIMESTAMP; \
-    PUT( id | 0x0200 | TRICE_CYCLE ); \
-    PUT((uint16_t)(v0) | ((uint32_t)(v1)<<16) ); \
-    PUT((uint16_t)(v2) | ((uint32_t)(v3)<<16) ); \
+    TRICE_PUT( id | 0x0200 | TRICE_CYCLE ); \
+    TRICE_PUT((uint16_t)(v0) | ((uint32_t)(v1)<<16) ); \
+    TRICE_PUT((uint16_t)(v2) | ((uint32_t)(v3)<<16) ); \
     TRICE_LEAVE
 
 //! TRICE16_5 writes trice data as fast as possible in a buffer.
@@ -403,10 +408,10 @@ void TriceInitXteaTable(void);
 #define TRICE16_5( id, pFmt, v0, v1, v2, v3, v4 ) \
     TRICE_ENTER \
     TRICE_PUT_TIMESTAMP; \
-    PUT( id | 0x0300 | TRICE_CYCLE ); \
-    PUT((uint16_t)(v0) | ((uint32_t)(v1)<<16) ); \
-    PUT((uint16_t)(v2) | ((uint32_t)(v3)<<16) ); \
-    PUT((uint16_t)(v4) ); \
+    TRICE_PUT( id | 0x0300 | TRICE_CYCLE ); \
+    TRICE_PUT((uint16_t)(v0) | ((uint32_t)(v1)<<16) ); \
+    TRICE_PUT((uint16_t)(v2) | ((uint32_t)(v3)<<16) ); \
+    TRICE_PUT((uint16_t)(v4) ); \
     TRICE_LEAVE
 
 //! TRICE16_6 writes trice data as fast as possible in a buffer.
@@ -415,10 +420,10 @@ void TriceInitXteaTable(void);
 #define TRICE16_6( id, pFmt, v0, v1, v2, v3, v4, v5 ) \
     TRICE_ENTER \
     TRICE_PUT_TIMESTAMP; \
-    PUT( id | 0x0300 | TRICE_CYCLE ); \
-    PUT((uint16_t)(v0) | ((uint32_t)(v1)<<16) ); \
-    PUT((uint16_t)(v2) | ((uint32_t)(v3)<<16) ); \
-    PUT((uint16_t)(v4) | ((uint32_t)(v5)<<16) ); \
+    TRICE_PUT( id | 0x0300 | TRICE_CYCLE ); \
+    TRICE_PUT((uint16_t)(v0) | ((uint32_t)(v1)<<16) ); \
+    TRICE_PUT((uint16_t)(v2) | ((uint32_t)(v3)<<16) ); \
+    TRICE_PUT((uint16_t)(v4) | ((uint32_t)(v5)<<16) ); \
     TRICE_LEAVE
 
 //! TRICE16_7 writes trice data as fast as possible in a buffer.
@@ -427,11 +432,11 @@ void TriceInitXteaTable(void);
 #define TRICE16_7( id, pFmt, v0, v1, v2, v3, v4, v5, v6 ) \
     TRICE_ENTER \
     TRICE_PUT_TIMESTAMP; \
-    PUT( id | 0x0400 | TRICE_CYCLE ); \
-    PUT((uint16_t)(v0) | ((uint32_t)(v1)<<16) ); \
-    PUT((uint16_t)(v2) | ((uint32_t)(v3)<<16) ); \
-    PUT((uint16_t)(v4) | ((uint32_t)(v5)<<16) ); \
-    PUT((uint16_t)(v6) ); \
+    TRICE_PUT( id | 0x0400 | TRICE_CYCLE ); \
+    TRICE_PUT((uint16_t)(v0) | ((uint32_t)(v1)<<16) ); \
+    TRICE_PUT((uint16_t)(v2) | ((uint32_t)(v3)<<16) ); \
+    TRICE_PUT((uint16_t)(v4) | ((uint32_t)(v5)<<16) ); \
+    TRICE_PUT((uint16_t)(v6) ); \
     TRICE_LEAVE
 
 //! TRICE16_8 writes trice data as fast as possible in a buffer.
@@ -440,11 +445,11 @@ void TriceInitXteaTable(void);
 #define TRICE16_8( id, pFmt, v0, v1, v2, v3, v4, v5, v6, v7 ) \
     TRICE_ENTER \
     TRICE_PUT_TIMESTAMP; \
-    PUT( id | 0x0400 | TRICE_CYCLE ); \
-    PUT((uint16_t)(v0) | ((uint32_t)(v1)<<16) ); \
-    PUT((uint16_t)(v2) | ((uint32_t)(v3)<<16) ); \
-    PUT((uint16_t)(v4) | ((uint32_t)(v5)<<16) ); \
-    PUT((uint16_t)(v6) | ((uint32_t)(v7)<<16) ); \
+    TRICE_PUT( id | 0x0400 | TRICE_CYCLE ); \
+    TRICE_PUT((uint16_t)(v0) | ((uint32_t)(v1)<<16) ); \
+    TRICE_PUT((uint16_t)(v2) | ((uint32_t)(v3)<<16) ); \
+    TRICE_PUT((uint16_t)(v4) | ((uint32_t)(v5)<<16) ); \
+    TRICE_PUT((uint16_t)(v6) | ((uint32_t)(v7)<<16) ); \
     TRICE_LEAVE
     
 //! TRICE16_9 writes trice data as fast as possible in a buffer.
@@ -453,12 +458,12 @@ void TriceInitXteaTable(void);
 #define TRICE16_9( id, pFmt, v0, v1, v2, v3, v4, v5, v6, v7, v8 ) \
     TRICE_ENTER \
     TRICE_PUT_TIMESTAMP; \
-    PUT( id | 0x0500 | TRICE_CYCLE ); \
-    PUT((uint16_t)(v0) | ((uint32_t)(v1)<<16) ); \
-    PUT((uint16_t)(v2) | ((uint32_t)(v3)<<16) ); \
-    PUT((uint16_t)(v4) | ((uint32_t)(v5)<<16) ); \
-    PUT((uint16_t)(v6) | ((uint32_t)(v7)<<16) ); \
-    PUT((uint16_t)(v8) ); \
+    TRICE_PUT( id | 0x0500 | TRICE_CYCLE ); \
+    TRICE_PUT((uint16_t)(v0) | ((uint32_t)(v1)<<16) ); \
+    TRICE_PUT((uint16_t)(v2) | ((uint32_t)(v3)<<16) ); \
+    TRICE_PUT((uint16_t)(v4) | ((uint32_t)(v5)<<16) ); \
+    TRICE_PUT((uint16_t)(v6) | ((uint32_t)(v7)<<16) ); \
+    TRICE_PUT((uint16_t)(v8) ); \
     TRICE_LEAVE
 
 //! TRICE16_10 writes trice data as fast as possible in a buffer.
@@ -467,12 +472,12 @@ void TriceInitXteaTable(void);
 #define TRICE16_10( id, pFmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9 ) \
     TRICE_ENTER \
     TRICE_PUT_TIMESTAMP; \
-    PUT( id | 0x0500 | TRICE_CYCLE ); \
-    PUT((uint16_t)(v0) | ((uint32_t)(v1)<<16) ); \
-    PUT((uint16_t)(v2) | ((uint32_t)(v3)<<16) ); \
-    PUT((uint16_t)(v4) | ((uint32_t)(v5)<<16) ); \
-    PUT((uint16_t)(v6) | ((uint32_t)(v7)<<16) ); \
-    PUT((uint16_t)(v8) | ((uint32_t)(v9)<<16) ); \
+    TRICE_PUT( id | 0x0500 | TRICE_CYCLE ); \
+    TRICE_PUT((uint16_t)(v0) | ((uint32_t)(v1)<<16) ); \
+    TRICE_PUT((uint16_t)(v2) | ((uint32_t)(v3)<<16) ); \
+    TRICE_PUT((uint16_t)(v4) | ((uint32_t)(v5)<<16) ); \
+    TRICE_PUT((uint16_t)(v6) | ((uint32_t)(v7)<<16) ); \
+    TRICE_PUT((uint16_t)(v8) | ((uint32_t)(v9)<<16) ); \
     TRICE_LEAVE
     
 //! TRICE16_11 writes trice data as fast as possible in a buffer.
@@ -481,13 +486,13 @@ void TriceInitXteaTable(void);
 #define TRICE16_11( id, pFmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10 ) \
     TRICE_ENTER \
     TRICE_PUT_TIMESTAMP; \
-    PUT( id | 0x0600 | TRICE_CYCLE ); \
-    PUT((uint16_t)(v0) | ((uint32_t)(v1)<<16) ); \
-    PUT((uint16_t)(v2) | ((uint32_t)(v3)<<16) ); \
-    PUT((uint16_t)(v4) | ((uint32_t)(v5)<<16) ); \
-    PUT((uint16_t)(v6) | ((uint32_t)(v7)<<16) ); \
-    PUT((uint16_t)(v8) | ((uint32_t)(v9)<<16) ); \
-    PUT((uint16_t)(v10) ); \
+    TRICE_PUT( id | 0x0600 | TRICE_CYCLE ); \
+    TRICE_PUT((uint16_t)(v0) | ((uint32_t)(v1)<<16) ); \
+    TRICE_PUT((uint16_t)(v2) | ((uint32_t)(v3)<<16) ); \
+    TRICE_PUT((uint16_t)(v4) | ((uint32_t)(v5)<<16) ); \
+    TRICE_PUT((uint16_t)(v6) | ((uint32_t)(v7)<<16) ); \
+    TRICE_PUT((uint16_t)(v8) | ((uint32_t)(v9)<<16) ); \
+    TRICE_PUT((uint16_t)(v10) ); \
     TRICE_LEAVE
     
 //! TRICE16_12 writes trice data as fast as possible in a buffer.
@@ -496,13 +501,13 @@ void TriceInitXteaTable(void);
 #define TRICE16_12( id, pFmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 ) \
     TRICE_ENTER \
     TRICE_PUT_TIMESTAMP; \
-    PUT( id | 0x0600 | TRICE_CYCLE ); \
-    PUT((uint16_t)(v0) | ((uint32_t)(v1)<<16) ); \
-    PUT((uint16_t)(v2) | ((uint32_t)(v3)<<16) ); \
-    PUT((uint16_t)(v4) | ((uint32_t)(v5)<<16) ); \
-    PUT((uint16_t)(v6) | ((uint32_t)(v7)<<16) ); \
-    PUT((uint16_t)(v8) | ((uint32_t)(v9)<<16) ); \
-    PUT((uint16_t)(v10)| ((uint32_t)(v11)<<16) ); \
+    TRICE_PUT( id | 0x0600 | TRICE_CYCLE ); \
+    TRICE_PUT((uint16_t)(v0) | ((uint32_t)(v1)<<16) ); \
+    TRICE_PUT((uint16_t)(v2) | ((uint32_t)(v3)<<16) ); \
+    TRICE_PUT((uint16_t)(v4) | ((uint32_t)(v5)<<16) ); \
+    TRICE_PUT((uint16_t)(v6) | ((uint32_t)(v7)<<16) ); \
+    TRICE_PUT((uint16_t)(v8) | ((uint32_t)(v9)<<16) ); \
+    TRICE_PUT((uint16_t)(v10)| ((uint32_t)(v11)<<16) ); \
     TRICE_LEAVE
 
 //! TRICE32_1 writes trice data as fast as possible in a buffer.
@@ -511,8 +516,8 @@ void TriceInitXteaTable(void);
 #define TRICE32_1( id, pFmt, v0 ) \
     TRICE_ENTER \
     TRICE_PUT_TIMESTAMP; \
-    PUT( id | 0x0100 | TRICE_CYCLE); \
-    PUT( (uint32_t)(v0) ); \
+    TRICE_PUT( id | 0x0100 | TRICE_CYCLE); \
+    TRICE_PUT( (uint32_t)(v0) ); \
     TRICE_LEAVE
 
 //! TRICE32_2 writes trice data as fast as possible in a buffer.
@@ -521,9 +526,9 @@ void TriceInitXteaTable(void);
 #define TRICE32_2( id, pFmt, v0, v1 ) \
     TRICE_ENTER \
     TRICE_PUT_TIMESTAMP; \
-    PUT(id | 0x0200 | TRICE_CYCLE ); \
-    PUT( (uint32_t)(v0) ); \
-    PUT( (uint32_t)(v1) ); \
+    TRICE_PUT(id | 0x0200 | TRICE_CYCLE ); \
+    TRICE_PUT( (uint32_t)(v0) ); \
+    TRICE_PUT( (uint32_t)(v1) ); \
     TRICE_LEAVE
 
 //! TRICE32_3 writes trice data as fast as possible in a buffer.
@@ -532,10 +537,10 @@ void TriceInitXteaTable(void);
 #define TRICE32_3( id, pFmt, v0, v1, v2 ) \
     TRICE_ENTER \
     TRICE_PUT_TIMESTAMP; \
-    PUT( id | 0x0300 | TRICE_CYCLE ); \
-    PUT( (uint32_t)(v0) ); \
-    PUT( (uint32_t)(v1) ); \
-    PUT( (uint32_t)(v2) ); \
+    TRICE_PUT( id | 0x0300 | TRICE_CYCLE ); \
+    TRICE_PUT( (uint32_t)(v0) ); \
+    TRICE_PUT( (uint32_t)(v1) ); \
+    TRICE_PUT( (uint32_t)(v2) ); \
     TRICE_LEAVE
 
 //! TRICE32_4 writes trice data as fast as possible in a buffer.
@@ -544,11 +549,11 @@ void TriceInitXteaTable(void);
 #define TRICE32_4( id, pFmt, v0, v1, v2, v3 ) \
     TRICE_ENTER \
     TRICE_PUT_TIMESTAMP; \
-    PUT( id | 0x0400 | TRICE_CYCLE ); \
-    PUT( (uint32_t)(v0) ); \
-    PUT( (uint32_t)(v1) ); \
-    PUT( (uint32_t)(v2) ); \
-    PUT( (uint32_t)(v3) ); \
+    TRICE_PUT( id | 0x0400 | TRICE_CYCLE ); \
+    TRICE_PUT( (uint32_t)(v0) ); \
+    TRICE_PUT( (uint32_t)(v1) ); \
+    TRICE_PUT( (uint32_t)(v2) ); \
+    TRICE_PUT( (uint32_t)(v3) ); \
     TRICE_LEAVE
 
 //! TRICE32_5 writes trice data as fast as possible in a buffer.
@@ -557,12 +562,12 @@ void TriceInitXteaTable(void);
 #define TRICE32_5( id, pFmt,  v0, v1, v2, v3, v4 ) \
     TRICE_ENTER \
     TRICE_PUT_TIMESTAMP; \
-    PUT( id | 0x0500 | TRICE_CYCLE ); \
-    PUT( (uint32_t)(v0) ); \
-    PUT( (uint32_t)(v1) ); \
-    PUT( (uint32_t)(v2) ); \
-    PUT( (uint32_t)(v3) ); \
-    PUT( (uint32_t)(v4) ); \
+    TRICE_PUT( id | 0x0500 | TRICE_CYCLE ); \
+    TRICE_PUT( (uint32_t)(v0) ); \
+    TRICE_PUT( (uint32_t)(v1) ); \
+    TRICE_PUT( (uint32_t)(v2) ); \
+    TRICE_PUT( (uint32_t)(v3) ); \
+    TRICE_PUT( (uint32_t)(v4) ); \
     TRICE_LEAVE
 
 //! TRICE32_6 writes trice data as fast as possible in a buffer.
@@ -571,13 +576,13 @@ void TriceInitXteaTable(void);
 #define TRICE32_6( id, pFmt,  v0, v1, v2, v3, v4, v5 ) \
     TRICE_ENTER \
     TRICE_PUT_TIMESTAMP; \
-    PUT( id | 0x0600 | TRICE_CYCLE ); \
-    PUT( (uint32_t)(v0) ); \
-    PUT( (uint32_t)(v1) ); \
-    PUT( (uint32_t)(v2) ); \
-    PUT( (uint32_t)(v3) ); \
-    PUT( (uint32_t)(v4) ); \
-    PUT( (uint32_t)(v5) ); \
+    TRICE_PUT( id | 0x0600 | TRICE_CYCLE ); \
+    TRICE_PUT( (uint32_t)(v0) ); \
+    TRICE_PUT( (uint32_t)(v1) ); \
+    TRICE_PUT( (uint32_t)(v2) ); \
+    TRICE_PUT( (uint32_t)(v3) ); \
+    TRICE_PUT( (uint32_t)(v4) ); \
+    TRICE_PUT( (uint32_t)(v5) ); \
     TRICE_LEAVE
 
 //! TRICE32_7 writes trice data as fast as possible in a buffer.
@@ -586,14 +591,14 @@ void TriceInitXteaTable(void);
 #define TRICE32_7( id, pFmt,  v0, v1, v2, v3, v4, v5, v6 ) \
     TRICE_ENTER \
     TRICE_PUT_TIMESTAMP; \
-    PUT( id | 0x0700 | TRICE_CYCLE ); \
-    PUT( (uint32_t)(v0) ); \
-    PUT( (uint32_t)(v1) ); \
-    PUT( (uint32_t)(v2) ); \
-    PUT( (uint32_t)(v3) ); \
-    PUT( (uint32_t)(v4) ); \
-    PUT( (uint32_t)(v5) ); \
-    PUT( (uint32_t)(v6) ); \
+    TRICE_PUT( id | 0x0700 | TRICE_CYCLE ); \
+    TRICE_PUT( (uint32_t)(v0) ); \
+    TRICE_PUT( (uint32_t)(v1) ); \
+    TRICE_PUT( (uint32_t)(v2) ); \
+    TRICE_PUT( (uint32_t)(v3) ); \
+    TRICE_PUT( (uint32_t)(v4) ); \
+    TRICE_PUT( (uint32_t)(v5) ); \
+    TRICE_PUT( (uint32_t)(v6) ); \
     TRICE_LEAVE
 
 //! TRICE32_8 writes trice data as fast as possible in a buffer.
@@ -602,15 +607,15 @@ void TriceInitXteaTable(void);
 #define TRICE32_8( id, pFmt,  v0, v1, v2, v3, v4, v5, v6, v7 ) \
     TRICE_ENTER \
     TRICE_PUT_TIMESTAMP; \
-    PUT( id | 0x0800 | TRICE_CYCLE ); \
-    PUT( (uint32_t)(v0) ); \
-    PUT( (uint32_t)(v1) ); \
-    PUT( (uint32_t)(v2) ); \
-    PUT( (uint32_t)(v3) ); \
-    PUT( (uint32_t)(v4) ); \
-    PUT( (uint32_t)(v5) ); \
-    PUT( (uint32_t)(v6) ); \
-    PUT( (uint32_t)(v7) ); \
+    TRICE_PUT( id | 0x0800 | TRICE_CYCLE ); \
+    TRICE_PUT( (uint32_t)(v0) ); \
+    TRICE_PUT( (uint32_t)(v1) ); \
+    TRICE_PUT( (uint32_t)(v2) ); \
+    TRICE_PUT( (uint32_t)(v3) ); \
+    TRICE_PUT( (uint32_t)(v4) ); \
+    TRICE_PUT( (uint32_t)(v5) ); \
+    TRICE_PUT( (uint32_t)(v6) ); \
+    TRICE_PUT( (uint32_t)(v7) ); \
     TRICE_LEAVE
 
 //! TRICE32_9 writes trice data as fast as possible in a buffer.
@@ -619,16 +624,16 @@ void TriceInitXteaTable(void);
 #define TRICE32_9( id, pFmt,  v0, v1, v2, v3, v4, v5, v6, v7, v8 ) \
     TRICE_ENTER \
     TRICE_PUT_TIMESTAMP; \
-    PUT( id | 0x0900 | TRICE_CYCLE ); \
-    PUT( (uint32_t)(v0) ); \
-    PUT( (uint32_t)(v1) ); \
-    PUT( (uint32_t)(v2) ); \
-    PUT( (uint32_t)(v3) ); \
-    PUT( (uint32_t)(v4) ); \
-    PUT( (uint32_t)(v5) ); \
-    PUT( (uint32_t)(v6) ); \
-    PUT( (uint32_t)(v7) ); \
-    PUT( (uint32_t)(v8) ); \
+    TRICE_PUT( id | 0x0900 | TRICE_CYCLE ); \
+    TRICE_PUT( (uint32_t)(v0) ); \
+    TRICE_PUT( (uint32_t)(v1) ); \
+    TRICE_PUT( (uint32_t)(v2) ); \
+    TRICE_PUT( (uint32_t)(v3) ); \
+    TRICE_PUT( (uint32_t)(v4) ); \
+    TRICE_PUT( (uint32_t)(v5) ); \
+    TRICE_PUT( (uint32_t)(v6) ); \
+    TRICE_PUT( (uint32_t)(v7) ); \
+    TRICE_PUT( (uint32_t)(v8) ); \
     TRICE_LEAVE
 
 //! TRICE32_10 writes trice data as fast as possible in a buffer.
@@ -637,17 +642,17 @@ void TriceInitXteaTable(void);
 #define TRICE32_10( id, pFmt,  v0, v1, v2, v3, v4, v5, v6, v7, v8, v9 ) \
     TRICE_ENTER \
     TRICE_PUT_TIMESTAMP; \
-    PUT( id | 0x0a00 | TRICE_CYCLE ); \
-    PUT( (uint32_t)(v0) ); \
-    PUT( (uint32_t)(v1) ); \
-    PUT( (uint32_t)(v2) ); \
-    PUT( (uint32_t)(v3) ); \
-    PUT( (uint32_t)(v4) ); \
-    PUT( (uint32_t)(v5) ); \
-    PUT( (uint32_t)(v6) ); \
-    PUT( (uint32_t)(v7) ); \
-    PUT( (uint32_t)(v8) ); \
-    PUT( (uint32_t)(v9) ); \
+    TRICE_PUT( id | 0x0a00 | TRICE_CYCLE ); \
+    TRICE_PUT( (uint32_t)(v0) ); \
+    TRICE_PUT( (uint32_t)(v1) ); \
+    TRICE_PUT( (uint32_t)(v2) ); \
+    TRICE_PUT( (uint32_t)(v3) ); \
+    TRICE_PUT( (uint32_t)(v4) ); \
+    TRICE_PUT( (uint32_t)(v5) ); \
+    TRICE_PUT( (uint32_t)(v6) ); \
+    TRICE_PUT( (uint32_t)(v7) ); \
+    TRICE_PUT( (uint32_t)(v8) ); \
+    TRICE_PUT( (uint32_t)(v9) ); \
     TRICE_LEAVE
 
 //! TRICE32_11 writes trice data as fast as possible in a buffer.
@@ -656,18 +661,18 @@ void TriceInitXteaTable(void);
 #define TRICE32_11( id, pFmt,  v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10 ) \
     TRICE_ENTER \
     TRICE_PUT_TIMESTAMP; \
-    PUT( id | 0x0b00 | TRICE_CYCLE ); \
-    PUT( (uint32_t)(v0) ); \
-    PUT( (uint32_t)(v1) ); \
-    PUT( (uint32_t)(v2) ); \
-    PUT( (uint32_t)(v3) ); \
-    PUT( (uint32_t)(v4) ); \
-    PUT( (uint32_t)(v5) ); \
-    PUT( (uint32_t)(v6) ); \
-    PUT( (uint32_t)(v7) ); \
-    PUT( (uint32_t)(v8) ); \
-    PUT( (uint32_t)(v9) ); \
-    PUT( (uint32_t)(v10) ); \
+    TRICE_PUT( id | 0x0b00 | TRICE_CYCLE ); \
+    TRICE_PUT( (uint32_t)(v0) ); \
+    TRICE_PUT( (uint32_t)(v1) ); \
+    TRICE_PUT( (uint32_t)(v2) ); \
+    TRICE_PUT( (uint32_t)(v3) ); \
+    TRICE_PUT( (uint32_t)(v4) ); \
+    TRICE_PUT( (uint32_t)(v5) ); \
+    TRICE_PUT( (uint32_t)(v6) ); \
+    TRICE_PUT( (uint32_t)(v7) ); \
+    TRICE_PUT( (uint32_t)(v8) ); \
+    TRICE_PUT( (uint32_t)(v9) ); \
+    TRICE_PUT( (uint32_t)(v10) ); \
     TRICE_LEAVE
 
 //! TRICE32_12 writes trice data as fast as possible in a buffer.
@@ -676,19 +681,19 @@ void TriceInitXteaTable(void);
 #define TRICE32_12( id, pFmt,  v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 ) \
     TRICE_ENTER \
     TRICE_PUT_TIMESTAMP; \
-    PUT( id | 0x0c00 | TRICE_CYCLE ); \
-    PUT( (uint32_t)(v0) ); \
-    PUT( (uint32_t)(v1) ); \
-    PUT( (uint32_t)(v2) ); \
-    PUT( (uint32_t)(v3) ); \
-    PUT( (uint32_t)(v4) ); \
-    PUT( (uint32_t)(v5) ); \
-    PUT( (uint32_t)(v6) ); \
-    PUT( (uint32_t)(v7) ); \
-    PUT( (uint32_t)(v8) ); \
-    PUT( (uint32_t)(v9) ); \
-    PUT( (uint32_t)(v10) ); \
-    PUT( (uint32_t)(v11) ); \
+    TRICE_PUT( id | 0x0c00 | TRICE_CYCLE ); \
+    TRICE_PUT( (uint32_t)(v0) ); \
+    TRICE_PUT( (uint32_t)(v1) ); \
+    TRICE_PUT( (uint32_t)(v2) ); \
+    TRICE_PUT( (uint32_t)(v3) ); \
+    TRICE_PUT( (uint32_t)(v4) ); \
+    TRICE_PUT( (uint32_t)(v5) ); \
+    TRICE_PUT( (uint32_t)(v6) ); \
+    TRICE_PUT( (uint32_t)(v7) ); \
+    TRICE_PUT( (uint32_t)(v8) ); \
+    TRICE_PUT( (uint32_t)(v9) ); \
+    TRICE_PUT( (uint32_t)(v10) ); \
+    TRICE_PUT( (uint32_t)(v11) ); \
     TRICE_LEAVE
 
 //! TRICE64_1 writes trice data as fast as possible in a buffer.
@@ -697,8 +702,8 @@ void TriceInitXteaTable(void);
 #define TRICE64_1( id, pFmt, v0 ) \
     TRICE_ENTER \
     TRICE_PUT_TIMESTAMP; \
-    PUT( id | 0x0200 | TRICE_CYCLE ); \
-    PUT64( v0 ); \
+    TRICE_PUT( id | 0x0200 | TRICE_CYCLE ); \
+    TRICE_PUT64( v0 ); \
     TRICE_LEAVE
 
 //! TRICE64_2 writes trice data as fast as possible in a buffer.
@@ -707,9 +712,9 @@ void TriceInitXteaTable(void);
 #define TRICE64_2( id, pFmt, v0, v1 ) \
     TRICE_ENTER \
     TRICE_PUT_TIMESTAMP; \
-    PUT( id | 0x0400 | TRICE_CYCLE ); \
-    PUT64( v0 ); \
-    PUT64( v1 ); \
+    TRICE_PUT( id | 0x0400 | TRICE_CYCLE ); \
+    TRICE_PUT64( v0 ); \
+    TRICE_PUT64( v1 ); \
     TRICE_LEAVE
 
 //! TRICE64_3 writes trice data as fast as possible in a buffer.
@@ -718,10 +723,10 @@ void TriceInitXteaTable(void);
 #define TRICE64_3( id, pFmt, v0, v1, v2 ) \
     TRICE_ENTER \
     TRICE_PUT_TIMESTAMP; \
-    PUT( id | 0x0600 | TRICE_CYCLE ); \
-    PUT64( v0 ); \
-    PUT64( v1 ); \
-    PUT64( v2 ); \
+    TRICE_PUT( id | 0x0600 | TRICE_CYCLE ); \
+    TRICE_PUT64( v0 ); \
+    TRICE_PUT64( v1 ); \
+    TRICE_PUT64( v2 ); \
     TRICE_LEAVE
 
 
@@ -731,11 +736,11 @@ void TriceInitXteaTable(void);
 #define TRICE64_4( id, pFmt, v0, v1, v2, v3 ) \
     TRICE_ENTER \
     TRICE_PUT_TIMESTAMP; \
-    PUT( id | 0x0800 | TRICE_CYCLE ); \
-    PUT64( v0 ); \
-    PUT64( v1 ); \
-    PUT64( v2 ); \
-    PUT64( v3 ); \
+    TRICE_PUT( id | 0x0800 | TRICE_CYCLE ); \
+    TRICE_PUT64( v0 ); \
+    TRICE_PUT64( v1 ); \
+    TRICE_PUT64( v2 ); \
+    TRICE_PUT64( v3 ); \
     TRICE_LEAVE
 
 //! TRICE64_5 writes trice data as fast as possible in a buffer.
@@ -744,12 +749,12 @@ void TriceInitXteaTable(void);
 #define TRICE64_5( id, pFmt,  v0, v1, v2, v3, v4 ) \
     TRICE_ENTER \
     TRICE_PUT_TIMESTAMP; \
-    PUT( id | 0x0a00 | TRICE_CYCLE ); \
-    PUT64( v0 ); \
-    PUT64( v1 ); \
-    PUT64( v2 ); \
-    PUT64( v3 ); \
-    PUT64( v4 ); \
+    TRICE_PUT( id | 0x0a00 | TRICE_CYCLE ); \
+    TRICE_PUT64( v0 ); \
+    TRICE_PUT64( v1 ); \
+    TRICE_PUT64( v2 ); \
+    TRICE_PUT64( v3 ); \
+    TRICE_PUT64( v4 ); \
     TRICE_LEAVE
 
 //! TRICE64_6 writes trice data as fast as possible in a buffer.
@@ -758,13 +763,13 @@ void TriceInitXteaTable(void);
 #define TRICE64_6( id, pFmt,  v0, v1, v2, v3, v4, v5 ) \
     TRICE_ENTER \
     TRICE_PUT_TIMESTAMP; \
-    PUT( id | 0x0c00 | TRICE_CYCLE ); \
-    PUT64( v0 ); \
-    PUT64( v1 ); \
-    PUT64( v2 ); \
-    PUT64( v3 ); \
-    PUT64( v4 ); \
-    PUT64( v5 ); \
+    TRICE_PUT( id | 0x0c00 | TRICE_CYCLE ); \
+    TRICE_PUT64( v0 ); \
+    TRICE_PUT64( v1 ); \
+    TRICE_PUT64( v2 ); \
+    TRICE_PUT64( v3 ); \
+    TRICE_PUT64( v4 ); \
+    TRICE_PUT64( v5 ); \
     TRICE_LEAVE
 
 //! TRICE64_7 writes trice data as fast as possible in a buffer.
@@ -773,14 +778,14 @@ void TriceInitXteaTable(void);
 #define TRICE64_7( id, pFmt,  v0, v1, v2, v3, v4, v5, v6 ) \
     TRICE_ENTER \
     TRICE_PUT_TIMESTAMP; \
-    PUT( id | 0x0e00 | TRICE_CYCLE ); \
-    PUT64( v0 ); \
-    PUT64( v1 ); \
-    PUT64( v2 ); \
-    PUT64( v3 ); \
-    PUT64( v4 ); \
-    PUT64( v5 ); \
-    PUT64( v6 ); \
+    TRICE_PUT( id | 0x0e00 | TRICE_CYCLE ); \
+    TRICE_PUT64( v0 ); \
+    TRICE_PUT64( v1 ); \
+    TRICE_PUT64( v2 ); \
+    TRICE_PUT64( v3 ); \
+    TRICE_PUT64( v4 ); \
+    TRICE_PUT64( v5 ); \
+    TRICE_PUT64( v6 ); \
     TRICE_LEAVE
     
 //! TRICE64_8 writes trice data as fast as possible in a buffer.
@@ -789,15 +794,15 @@ void TriceInitXteaTable(void);
 #define TRICE64_8( id, pFmt,  v0, v1, v2, v3, v4, v5, v6, v7 ) \
     TRICE_ENTER \
     TRICE_PUT_TIMESTAMP; \
-    PUT( id | 0x1000 | TRICE_CYCLE ); \
-    PUT64( v0 ); \
-    PUT64( v1 ); \
-    PUT64( v2 ); \
-    PUT64( v3 ); \
-    PUT64( v4 ); \
-    PUT64( v5 ); \
-    PUT64( v6 ); \
-    PUT64( v7 ); \
+    TRICE_PUT( id | 0x1000 | TRICE_CYCLE ); \
+    TRICE_PUT64( v0 ); \
+    TRICE_PUT64( v1 ); \
+    TRICE_PUT64( v2 ); \
+    TRICE_PUT64( v3 ); \
+    TRICE_PUT64( v4 ); \
+    TRICE_PUT64( v5 ); \
+    TRICE_PUT64( v6 ); \
+    TRICE_PUT64( v7 ); \
     TRICE_LEAVE
 
 //! TRICE64_9 writes trice data as fast as possible in a buffer.
@@ -806,16 +811,16 @@ void TriceInitXteaTable(void);
 #define TRICE64_9( id, pFmt,  v0, v1, v2, v3, v4, v5, v6, v7, v8 ) \
     TRICE_ENTER \
     TRICE_PUT_TIMESTAMP; \
-    PUT( id | 0x1200 | TRICE_CYCLE ); \
-    PUT64( v0 ); \
-    PUT64( v1 ); \
-    PUT64( v2 ); \
-    PUT64( v3 ); \
-    PUT64( v4 ); \
-    PUT64( v5 ); \
-    PUT64( v6 ); \
-    PUT64( v7 ); \
-    PUT64( v8 ); \
+    TRICE_PUT( id | 0x1200 | TRICE_CYCLE ); \
+    TRICE_PUT64( v0 ); \
+    TRICE_PUT64( v1 ); \
+    TRICE_PUT64( v2 ); \
+    TRICE_PUT64( v3 ); \
+    TRICE_PUT64( v4 ); \
+    TRICE_PUT64( v5 ); \
+    TRICE_PUT64( v6 ); \
+    TRICE_PUT64( v7 ); \
+    TRICE_PUT64( v8 ); \
     TRICE_LEAVE
 
 //! TRICE64_10 writes trice data as fast as possible in a buffer.
@@ -824,17 +829,17 @@ void TriceInitXteaTable(void);
 #define TRICE64_10( id, pFmt,  v0, v1, v2, v3, v4, v5, v6, v7, v8, v9 ) \
     TRICE_ENTER \
     TRICE_PUT_TIMESTAMP; \
-    PUT( id | 0x1400 | TRICE_CYCLE ); \
-    PUT64( v0 ); \
-    PUT64( v1 ); \
-    PUT64( v2 ); \
-    PUT64( v3 ); \
-    PUT64( v4 ); \
-    PUT64( v5 ); \
-    PUT64( v6 ); \
-    PUT64( v7 ); \
-    PUT64( v8 ); \
-    PUT64( v9 ); \
+    TRICE_PUT( id | 0x1400 | TRICE_CYCLE ); \
+    TRICE_PUT64( v0 ); \
+    TRICE_PUT64( v1 ); \
+    TRICE_PUT64( v2 ); \
+    TRICE_PUT64( v3 ); \
+    TRICE_PUT64( v4 ); \
+    TRICE_PUT64( v5 ); \
+    TRICE_PUT64( v6 ); \
+    TRICE_PUT64( v7 ); \
+    TRICE_PUT64( v8 ); \
+    TRICE_PUT64( v9 ); \
     TRICE_LEAVE
 
 //! TRICE64_11 writes trice data as fast as possible in a buffer.
@@ -843,18 +848,18 @@ void TriceInitXteaTable(void);
 #define TRICE64_11( id, pFmt,  v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10 ) \
     TRICE_ENTER \
     TRICE_PUT_TIMESTAMP; \
-    PUT( id | 0x1600 | TRICE_CYCLE ); \
-    PUT64( v0 ); \
-    PUT64( v1 ); \
-    PUT64( v2 ); \
-    PUT64( v3 ); \
-    PUT64( v4 ); \
-    PUT64( v5 ); \
-    PUT64( v6 ); \
-    PUT64( v7 ); \
-    PUT64( v8 ); \
-    PUT64( v9 ); \
-    PUT64( v10 ); \
+    TRICE_PUT( id | 0x1600 | TRICE_CYCLE ); \
+    TRICE_PUT64( v0 ); \
+    TRICE_PUT64( v1 ); \
+    TRICE_PUT64( v2 ); \
+    TRICE_PUT64( v3 ); \
+    TRICE_PUT64( v4 ); \
+    TRICE_PUT64( v5 ); \
+    TRICE_PUT64( v6 ); \
+    TRICE_PUT64( v7 ); \
+    TRICE_PUT64( v8 ); \
+    TRICE_PUT64( v9 ); \
+    TRICE_PUT64( v10 ); \
     TRICE_LEAVE
 
 //! TRICE64_12 writes trice data as fast as possible in a buffer.
@@ -863,19 +868,19 @@ void TriceInitXteaTable(void);
 #define TRICE64_12( id, pFmt,  v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 ) \
     TRICE_ENTER \
     TRICE_PUT_TIMESTAMP; \
-    PUT( id | 0x1800 | TRICE_CYCLE ); \
-    PUT64( v0 ); \
-    PUT64( v1 ); \
-    PUT64( v2 ); \
-    PUT64( v3 ); \
-    PUT64( v4 ); \
-    PUT64( v5 ); \
-    PUT64( v6 ); \
-    PUT64( v7 ); \
-    PUT64( v8 ); \
-    PUT64( v9 ); \
-    PUT64( v10 ); \
-    PUT64( v11 ); \
+    TRICE_PUT( id | 0x1800 | TRICE_CYCLE ); \
+    TRICE_PUT64( v0 ); \
+    TRICE_PUT64( v1 ); \
+    TRICE_PUT64( v2 ); \
+    TRICE_PUT64( v3 ); \
+    TRICE_PUT64( v4 ); \
+    TRICE_PUT64( v5 ); \
+    TRICE_PUT64( v6 ); \
+    TRICE_PUT64( v7 ); \
+    TRICE_PUT64( v8 ); \
+    TRICE_PUT64( v9 ); \
+    TRICE_PUT64( v10 ); \
+    TRICE_PUT64( v11 ); \
     TRICE_LEAVE
 
 #ifdef __cplusplus

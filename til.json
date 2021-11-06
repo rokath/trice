@@ -75,6 +75,10 @@
 		"Type": "TRICE8_4",
 		"Strg": "tst:TRICE8_4 %d %d %d %d\\n"
 	},
+	"34721": {
+		"Type": "TRICE32",
+		"Strg": "msg: message = %08x %08x %08x %08x %08x %08x\\n"
+	},
 	"34827": {
 		"Type": "TRICE8_1",
 		"Strg": "rd:TRICE8_1 line %o (%%o -1)\\n"
@@ -307,6 +311,10 @@
 		"Type": "TRICE16_1",
 		"Strg": "tim: post TriceEncryption SysTick=%d\\n"
 	},
+	"42011": {
+		"Type": "TRICE32",
+		"Strg": "tim: pre TriceEncryption SysTick=%d\\n"
+	},
 	"42047": {
 		"Type": "TRICE32_2",
 		"Strg": "tst:TRICE32_2 %u %u\\n"
@@ -338,6 +346,10 @@
 	"42772": {
 		"Type": "TRICE8_4",
 		"Strg": "rd:TRICE8_4 %d, %d, %d, %d\\n"
+	},
+	"42922": {
+		"Type": "TRICE32",
+		"Strg": "att: TriceEncrypted = %02x %02x %02x %02x %02x %02x %02x %02x\\n"
 	},
 	"42984": {
 		"Type": "TRICE0",
@@ -595,6 +607,10 @@
 		"Type": "TRICE16_1",
 		"Strg": "WRN:warning     message, SysTick is %6u\\n"
 	},
+	"50134": {
+		"Type": "TRICE32",
+		"Strg": "att: TriceEncrypted =  %08x %08x %08x %08x %08x %08x\\n"
+	},
 	"50159": {
 		"Type": "TRICE16",
 		"Strg": "rd:TRICE16 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
@@ -686,6 +702,10 @@
 	"51804": {
 		"Type": "TRICE0",
 		"Strg": "--------------------------------------------------\\n"
+	},
+	"51827": {
+		"Type": "TRICE32",
+		"Strg": "msg: message = %02x %02x %02x %02x %02x %02x\\n"
 	},
 	"51895": {
 		"Type": "TRICE16_4",
@@ -799,6 +819,10 @@
 		"Type": "TRICE8_6",
 		"Strg": "tst:TRICE8_6 %02x %02x %02x %02x %02x %02x\\n"
 	},
+	"55234": {
+		"Type": "TRICE32",
+		"Strg": "att: TriceEncrypted = %02x %02x %02x %02x %02x %02x %02x %02x\\n"
+	},
 	"55247": {
 		"Type": "TRICE0",
 		"Strg": "--------------------------------------------------\\n"
@@ -871,6 +895,10 @@
 		"Type": "TRICE8_5",
 		"Strg": "tst:TRICE8_5 %u %u %u %u %u\\n"
 	},
+	"56384": {
+		"Type": "TRICE32",
+		"Strg": "msg: messge = %02x %02x %02x %02x %02x %02x %02x %02x\\n"
+	},
 	"56467": {
 		"Type": "TRICE32",
 		"Strg": "rd:TRICE32 %d, %d, %d, %d, %d, %d, %d, %d\\n"
@@ -922,6 +950,10 @@
 	"57449": {
 		"Type": "TRICE0",
 		"Strg": "s:                                          \\n"
+	},
+	"57611": {
+		"Type": "TRICE32",
+		"Strg": "msg: messge = %08x %08x %08x %08x %08x %08x\\n"
 	},
 	"58020": {
 		"Type": "TRICE8_2",
@@ -1102,6 +1134,10 @@
 	"62486": {
 		"Type": "TRICE16_1",
 		"Strg": "ERR:error       message, SysTick is %6u\\n"
+	},
+	"62571": {
+		"Type": "TRICE32",
+		"Strg": "tim: post TriceEncryption SysTick=%d\\n"
 	},
 	"62807": {
 		"Type": "TRICE8",

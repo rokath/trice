@@ -47,9 +47,14 @@ It is also easy to receive the COBS packges, exchange the IDs with the format st
 
 - [github.io/trice/](https://rokath.github.io/trice/)
 
+## ATTENTION 3
+
+In release v0.39.0 now encryption works again. To implement it well and open for future, the additional COBS package descriptor is now 4 bytes long. That means the trice tool version 0.39.0 does not work with older target code. Please update your target code or stay with an older release.
+Probably the COBS encoding will not change in the next time anymore.
+
 ## ATTENTION 2
 
-In release v0.38.0 now target timestamps possible. To implement it well and open for future, an additional COBS package descriptor byte was added. That means the trice tool version 0.38.0 does not work with older target code. Please update yor target code or stay with an older release.
+In release v0.38.0 now target timestamps possible. To implement it well and open for future, an additional COBS package descriptor byte was added. That means the trice tool version 0.38.0 does not work with older target code. Please update your target code or stay with an older release.
 
 ## ATTENTION
 

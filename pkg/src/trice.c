@@ -43,21 +43,24 @@ static size_t triceDepth( uint32_t* tb ){
 void TriceTransfer( void ){
     if( 0 == TriceOutDepth() ){ // transmission done
         uint32_t* tb = triceBufferSwap(); 
-        size_t tlen = triceDepth(tb);
-        if( tlen ){
-            size_t clen;
-            uint8_t* co = (uint8_t*)tb;
-            uint8_t* tr = co + TRICE_DATA_OFFSET; // start of trice data
-            *--tr = TRICE_COBS_PACKAGE_MODE; // add COBS package mode descriptor in front of trice data
-            tlen++;
-            #if 0 //def TRICE_ENCRYPT
-            tlen = (tlen + 7) & ~7; // only multiple of 8 encryptable
-            TriceEncrypt( tr, tlen );
+        size_t tLen = triceDepth(tb); // tlen is always a multiple of 4
+        size_t eLen;
+        if( tLen ){
+            size_t cLen;
+            uint8_t* co = (uint8_t*)tb; // encoded COBS data starting address
+            uint32_t* da = tb + (TRICE_DATA_OFFSET>>2)-1; // start of unencoded COBS package data: descriptor and trice data
+            *da = TRICE_COBS_PACKAGE_MODE; // add a 32-bit COBS package mode descriptor in front of trice data. That allowes to inject third-party non-trice COBS packages.
+            eLen = tLen + 4; // add COBS package mode descriptor length 
+            #ifdef TRICE_ENCRYPT
+            eLen = (tLen + 4) & ~7; // only multiple of 8 encryptable
+            TriceEncrypt( da, eLen>>2 );
             #endif
-            clen = TriceCOBSEncode(co, tr, tlen);
-            co[clen++] = 0;
-            TriceDepthMax = tlen + TRICE_DATA_OFFSET < TriceDepthMax ? TriceDepthMax : tlen + TRICE_DATA_OFFSET; // diagnostics
-            TRICE_WRITE( co, clen );
+            cLen = TriceCOBSEncode(co, (uint8_t*)da, eLen);
+            do{                 // add 1 to 4 zeroes as COBS package delimiter
+                co[cLen++] = 0; // one is ok, but padding to an uit32_t border could make TRICE_WRITE faster
+            }while( cLen & 3 );
+            TRICE_WRITE( co, cLen );
+            TriceDepthMax = tLen + TRICE_DATA_OFFSET < TriceDepthMax ? TriceDepthMax : tLen + TRICE_DATA_OFFSET; // diagnostics
         }
     } // else: transmission not done yet
 }
@@ -209,29 +212,19 @@ static void decipher( uint32_t v[2] ) {
 
 //! re-convert from xtea cipher
 //! \param p pointer to 8 byte buffer
-unsigned TriceDecrypt( uint8_t* p, unsigned len ){
-    uint32_t* p32 = (uint32_t*)p;
-    if( len & ~7 ){ // only multiple of 8 are decryptable
-        return 0;
+void TriceDecrypt( uint32_t* p, unsigned count ){
+    for( int i = 0; i < count; i +=2 ){
+        decipher( &p[i]); // byte triceSwap is done inside trice tool
     }
-    for( int i = 0; i < (len>>2); i +=2 ){
-        decipher( &p32[i]); // byte triceSwap is done inside trice tool
-    }
-    return len;
 }
 #endif // #ifdef TRICE_DECRYPT
 
 //! convert to xtea cipher
 //! \param p pointer to 8 byte buffer
-unsigned TriceEncrypt( uint8_t* p, unsigned len ){
-    uint32_t* p32 = (uint32_t*)p;
-    if( len & ~7 ){ // only multiple of 8 are encryptable
-        return 0;
+void TriceEncrypt( uint32_t* p, unsigned count ){
+    for( int i = 0; i < count; i +=2 ){
+        encipher( &p[i] ); // byte triceSwap is done inside trice tool
     }
-    for( int i = 0; i < (len>>2); i +=2 ){
-        encipher( &p32[i] ); // byte triceSwap is done inside trice tool
-    }
-    return len;
 }
 
 //  uint8_t triceBytesBuffer[8]; //!< bytes transmit buffer
