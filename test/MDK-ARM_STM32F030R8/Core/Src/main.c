@@ -92,6 +92,9 @@ int main(void)
   MX_GPIO_Init();
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
+  #ifdef TRICE_ENCRYPT
+    TriceInitXteaTable();
+  #endif
     #ifdef TRICE_UART
     LL_USART_EnableIT_RXNE(TRICE_UART); // enable UART2 interrupt
     #endif
@@ -117,7 +120,7 @@ int main(void)
     // send some trices every few ms
         if( milliSecond >= lastTricesTime + 1500 ){
             static int index = 0;
-            int select = index % 20;
+            int select = 20; //index % 20;
             TRICE16( Id( 48324),"MSG: START select = %d, TriceDepthMax =%4u\n", select, TriceDepthMax );
             TriceCheckSet(select);
             TRICE16( Id( 53709),"MSG: STOP  select = %d, TriceDepthMax =%4u\n", select, TriceDepthMax );

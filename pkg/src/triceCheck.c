@@ -348,28 +348,26 @@ EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
 ";
           TRICE32( Id( 60956), "dbg:len=%u: ", strlen(s) );  
           TRICE_S( Id( 43140), "sig:%s\n", s );
-      break;
-#ifdef ENCRYPT
-        {
-            uint8_t b[8] = {1,2,3,4,5,6,7,8};
-            TRICE8_8(  Id( 48446), "msg: message = %03x %03x %03x %03x %03x %03x %03x %03x\n", b[0], b[1], b[2], b[3], b[4], b[5], b[6], b[7] );
-            TRICE16_1( Id( 44144), "tim: pre encryption SysTick=%d\n", SYSTICKVAL );
-            encrypt(b);
-            TRICE16_1( Id( 53394), "tim: post encryption SysTick=%d\n", SYSTICKVAL );
-            TRICE8_8(  Id( 64246), "att: encrypted = %03x %03x %03x %03x %03x %03x %03x %03x\n", b[0], b[1], b[2], b[3], b[4], b[5], b[6], b[7] );
-            TRICE16_4( Id( 51043), "att: encrypted = %d,%d,%d,%d,", b[0], b[1], b[2], b[3] );
-            TRICE16_4( Id( 48135), "att: %d,%d,%d,%d\n", b[4], b[5], b[6], b[7] );
-            #ifdef DECRYPT
-            TRICE16_1( Id( 61189), "tim: pre decryption SysTick=%d\n", SYSTICKVAL );
-            decrypt(b);
-            TRICE16_1( Id( 38266), "tim: post decryption SysTick=%d\n", SYSTICKVAL );
-            #endif
-            TRICE8_8(  Id( 51031), "msg: messge = %03x %03x %03x %03x %03x %03x %03x %03x\n", b[0], b[1], b[2], b[3], b[4], b[5], b[6], b[7] );
-        }
-        TRICE0 (Id( 51749), "--------------------------------------------------\n\n" );
-#endif
-
+        break;
         case 20:
+#ifdef TRICE_ENCRYPT
+        TRICE0 (Id( 48705), "--------------------------------------------------\n" );
+        {
+            uint8_t by[8] = {1,2,3,4,5,6,7,8};
+            TRICE8_8(  Id( 40188), "msg: message = %02x %02x %02x %02x %02x %02x %02x %02x\n", by[0], by[1], by[2], by[3], by[4], by[5], by[6], by[7] );
+            TRICE16_1( Id( 51928), "tim: pre TriceEncryption SysTick=%d\n", SYSTICKVAL );
+            TriceEncrypt(by, 8);
+            TRICE16_1( Id( 41956), "tim: post TriceEncryption SysTick=%d\n", SYSTICKVAL );
+            TRICE8_8(  Id( 49667), "att: TriceEncrypted = %02x %02x %02x %02x %02x %02x %02x %02x\n", by[0], by[1], by[2], by[3], by[4], by[5], by[6], by[7] );
+            #ifdef TRICE_DECRYPT
+            TRICE16_1( Id( 45804), "tim: pre TriceDecryption SysTick=%d\n", SYSTICKVAL );
+            TriceDecrypt(by, 8);
+            TRICE16_1( Id( 42353), "tim: post TriceDecryption SysTick=%d\n", SYSTICKVAL );
+            #endif
+            TRICE8_8(  Id( 57068), "msg: messge = %02x %02x %02x %02x %02x %02x %02x %02x\n", by[0], by[1], by[2], by[3], by[4], by[5], by[6], by[7] );
+        }
+        TRICE0 (Id( 48705), "--------------------------------------------------\n" );
+#endif
             TRICE8_8(Id( 33702), "tst:TRICE8_1 %%d=%d, %%u=%u, 0x%%x=0x%x, 0x%%2x=0x%2x, 0x%%02x=0x%02x, 0x%%3x=0x%3x, 0x%%03x=0x%03x, %%b=%b\n", 0x81, 0x81, 0x81, 0x81, 0x81, 0x81, 0x81, 0x81);
             TRICE16_1(Id( 34004), "tst:TRICE16_1 0x%04x\n", 0xa0);
             TRICE8_1(Id( 62342), "tst:TRICE8_1 0x%02x\n", 0xa0);

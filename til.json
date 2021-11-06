@@ -267,6 +267,10 @@
 		"Type": "TRICE8_3",
 		"Strg": "tst:TRICE8_3 %02x %02x %02x\\n"
 	},
+	"40188": {
+		"Type": "TRICE8_8",
+		"Strg": "msg: message = %02x %02x %02x %02x %02x %02x %02x %02x\\n"
+	},
 	"40194": {
 		"Type": "TRICE32_1",
 		"Strg": "ATT:trice16_1 attention message, SysTick is %6d\\n"
@@ -299,6 +303,10 @@
 		"Type": "TRICE64_10",
 		"Strg": "rd:TRICE64_10 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
 	},
+	"41956": {
+		"Type": "TRICE16_1",
+		"Strg": "tim: post TriceEncryption SysTick=%d\\n"
+	},
 	"42047": {
 		"Type": "TRICE32_2",
 		"Strg": "tst:TRICE32_2 %u %u\\n"
@@ -306,6 +314,10 @@
 	"42207": {
 		"Type": "TRICE32_1",
 		"Strg": "time:TRICE32_1   message, SysTick is %6u\\n"
+	},
+	"42353": {
+		"Type": "TRICE16_1",
+		"Strg": "tim: post TriceDecryption SysTick=%d\\n"
 	},
 	"42368": {
 		"Type": "TRICE32_1",
@@ -419,6 +431,10 @@
 		"Type": "TRICE0",
 		"Strg": "--------------------------------------------------\\n"
 	},
+	"45804": {
+		"Type": "TRICE16_1",
+		"Strg": "tim: pre TriceDecryption SysTick=%d\\n"
+	},
 	"46159": {
 		"Type": "TRICE64_2",
 		"Strg": "tst:TRICE64_2 %d %d\\n"
@@ -515,6 +531,10 @@
 		"Type": "TRICE64_1",
 		"Strg": "rd:TRICE64_1 line %u (%%u -1)\\n"
 	},
+	"48705": {
+		"Type": "TRICE0",
+		"Strg": "--------------------------------------------------\\n"
+	},
 	"48938": {
 		"Type": "TRICE16",
 		"Strg": "rd:TRICE16 %d, %d\\n"
@@ -546,6 +566,10 @@
 	"49602": {
 		"Type": "TRICE64_1",
 		"Strg": "tst:TRICE64_1 %u\\n"
+	},
+	"49667": {
+		"Type": "TRICE8_8",
+		"Strg": "att: TriceEncrypted = %02x %02x %02x %02x %02x %02x %02x %02x\\n"
 	},
 	"49746": {
 		"Type": "TRICE0",
@@ -666,6 +690,10 @@
 	"51895": {
 		"Type": "TRICE16_4",
 		"Strg": "tst:TRICE16_4 %u %u %u %u\\n"
+	},
+	"51928": {
+		"Type": "TRICE16_1",
+		"Strg": "tim: pre TriceEncryption SysTick=%d\\n"
 	},
 	"51946": {
 		"Type": "TRICE32_1",
@@ -875,6 +903,10 @@
 		"Type": "TRICE8_2",
 		"Strg": "rd:TRICE8_2 %d, %d\\n"
 	},
+	"57068": {
+		"Type": "TRICE8_8",
+		"Strg": "msg: messge = %02x %02x %02x %02x %02x %02x %02x %02x\\n"
+	},
 	"57073": {
 		"Type": "TRICE0",
 		"Strg": "rd:e\\n"
@@ -1030,6 +1062,10 @@
 	"61267": {
 		"Type": "TRICE32_1",
 		"Strg": "time:TRICE32_1   message, SysTick is %6u\\n"
+	},
+	"61443": {
+		"Type": "TRICE8_8",
+		"Strg": "att: encrypted = %02x %02x %02x %02x %02x %02x %02x %02x\\n"
 	},
 	"61543": {
 		"Type": "TRICE0",

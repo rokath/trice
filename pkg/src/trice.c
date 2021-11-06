@@ -49,7 +49,12 @@ void TriceTransfer( void ){
             uint8_t* co = (uint8_t*)tb;
             uint8_t* tr = co + TRICE_DATA_OFFSET; // start of trice data
             *--tr = TRICE_COBS_PACKAGE_MODE; // add COBS package mode descriptor in front of trice data
-            clen = TriceCOBSEncode(co, tr, tlen+1);
+            tlen++;
+            #if 0 //def TRICE_ENCRYPT
+            tlen = (tlen + 7) & ~7; // only multiple of 8 encryptable
+            TriceEncrypt( tr, tlen );
+            #endif
+            clen = TriceCOBSEncode(co, tr, tlen);
             co[clen++] = 0;
             TriceDepthMax = tlen + TRICE_DATA_OFFSET < TriceDepthMax ? TriceDepthMax : tlen + TRICE_DATA_OFFSET; // diagnostics
             TRICE_WRITE( co, clen );
@@ -147,12 +152,12 @@ unsigned TriceCOBSEncode( uint8_t* restrict output, const uint8_t * restrict inp
     return write_index;
 }
 
-#if 0 // def ENCRYPT // needs a re-design
+#ifdef TRICE_ENCRYPT // needs a re-design
 //! golang XTEA works with 64 rounds
 static const unsigned int numRounds = 64;
 
 //! 128 bit static key
-static const uint32_t k[4] = ENCRYPT; 
+static const uint32_t k[4] = TRICE_ENCRYPT; 
 
 //! internal constant
 static const uint32_t delta = 0x9E3779B9;
@@ -162,7 +167,7 @@ static uint32_t table[64];
 
 //! Precalculate the table
 //! It is possible to put this table completely into FLASH by precomputing it during compile time
-void InitXteaTable( void ){
+void TriceInitXteaTable( void ){
     uint32_t sum = 0;
     // Two rounds of XTEA applied per loop
     for( int i = 0; i < numRounds; ) {
@@ -175,7 +180,7 @@ void InitXteaTable( void ){
 }
 
 //!code taken and adapted from xtea\block.go
-//!\param v take 64 bits of data in v[0] and v[1]
+//!\param v 64 bits of data in v[0] and v[1] are encoded in place
 static void encipher( uint32_t v[2] ) {
     uint32_t v0 = v[0], v1 = v[1];
     for( int i=0; i < numRounds; ) {
@@ -187,9 +192,9 @@ static void encipher( uint32_t v[2] ) {
     v[0] = v0; v[1] = v1;
 }
 
-#ifdef DECRYPT
+#ifdef TRICE_DECRYPT
 //!code taken and adapted from xtea\block.go
-//!\param v take 64 bits of data in v[0] and v[1]
+//!\param v 64 bits of data in v[0] and v[1] are decoded in place
 static void decipher( uint32_t v[2] ) {
     uint32_t v0 = v[0], v1 = v[1];
     for( int i=numRounds; i > 0; ) {
@@ -204,36 +209,50 @@ static void decipher( uint32_t v[2] ) {
 
 //! re-convert from xtea cipher
 //! \param p pointer to 8 byte buffer
-void decrypt( uint8_t* p ){
-    decipher( (uint32_t*)p ); // byte triceSwap is done inside trice tool
+unsigned TriceDecrypt( uint8_t* p, unsigned len ){
+    uint32_t* p32 = (uint32_t*)p;
+    if( len & ~7 ){ // only multiple of 8 are decryptable
+        return 0;
+    }
+    for( int i = 0; i < (len>>2); i +=2 ){
+        decipher( &p32[i]); // byte triceSwap is done inside trice tool
+    }
+    return len;
 }
-#endif // #ifdef DECRYPT
+#endif // #ifdef TRICE_DECRYPT
 
 //! convert to xtea cipher
 //! \param p pointer to 8 byte buffer
-void encrypt( uint8_t* p ){
-    encipher( (uint32_t*)p ); // byte triceSwap is done inside trice tool
-}
-
-uint8_t triceBytesBuffer[8]; //!< bytes transmit buffer
-int const triceBytesBufferIndexLimit = sizeof(triceBytesBuffer);
-int triceBytesBufferIndex = triceBytesBufferIndexLimit;
-
-void triceServeFifoEncryptedToBytesBuffer(void) {
-    if (triceBytesBufferIndexLimit == triceBytesBufferIndex) { // bytes buffer empty and tx finished
-        // next trice
-        int n = triceU32FifoDepth();
-        if ( n >= 8 ) { // a trice to transmit
-            *(uint32_t*)&triceBytesBuffer[0] = triceU32Pop();
-            *(uint32_t*)&triceBytesBuffer[4] = triceU32Pop();
-            encrypt( triceBytesBuffer );
-            triceBytesBufferIndex = 0;
-        }else if ( 4 == n ) {
-            TRICE_SYNC; // avoid delay of a single last trice
-        }
+unsigned TriceEncrypt( uint8_t* p, unsigned len ){
+    uint32_t* p32 = (uint32_t*)p;
+    if( len & ~7 ){ // only multiple of 8 are encryptable
+        return 0;
     }
+    for( int i = 0; i < (len>>2); i +=2 ){
+        encipher( &p32[i] ); // byte triceSwap is done inside trice tool
+    }
+    return len;
 }
 
+//  uint8_t triceBytesBuffer[8]; //!< bytes transmit buffer
+//  int const triceBytesBufferIndexLimit = sizeof(triceBytesBuffer);
+//  int triceBytesBufferIndex = triceBytesBufferIndexLimit;
+//  
+//  void triceServeFifoEncryptedToBytesBuffer(void) {
+//      if (triceBytesBufferIndexLimit == triceBytesBufferIndex) { // bytes buffer empty and tx finished
+//          // next trice
+//          int n = triceU32FifoDepth();
+//          if ( n >= 8 ) { // a trice to transmit
+//              *(uint32_t*)&triceBytesBuffer[0] = triceU32Pop();
+//              *(uint32_t*)&triceBytesBuffer[4] = triceU32Pop();
+//              TriceEncrypt( triceBytesBuffer );
+//              triceBytesBufferIndex = 0;
+//          }else if ( 4 == n ) {
+//              TRICE_SYNC; // avoid delay of a single last trice
+//          }
+//      }
+//  }
 
-#endif // #ifdef ENCRYPT
+
+#endif // #ifdef TRICE_ENCRYPT
 
