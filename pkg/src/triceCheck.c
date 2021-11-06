@@ -39,18 +39,18 @@ void TriceCheckSet(int index) {
             TRICE64_1( Id( 49042), "rd:TRICE64_1 line %d (%%d -1)\n", -1 ); 
         break;
         case 2:
-            TRICE32_1( Id( 61654), "ATT:trice16_1 attention message, SysTick is %6d\n", SYSTICKVAL);
-            TRICE32_1( Id( 63097), "ATT:trice16_1 attention message, SysTick is %6d\n", SYSTICKVAL);
-            TRICE32_1( Id( 59357), "ATT:trice16_1 attention message, SysTick is %6d\n", SYSTICKVAL);
-            TRICE32_1( Id( 55647), "ATT:trice16_1 attention message, SysTick is %6d\n", SYSTICKVAL);
-            TRICE32_1( Id( 43058), "ATT:trice16_1 attention message, SysTick is %6d\n", SYSTICKVAL);
-            TRICE32_1( Id( 40194), "ATT:trice16_1 attention message, SysTick is %6d\n", SYSTICKVAL);
-            TRICE32_1( Id( 50626), "ATT:trice16_1 attention message, SysTick is %6d\n", SYSTICKVAL);
-            TRICE32_1( Id( 43507), "ATT:trice16_1 attention message, SysTick is %6d\n", SYSTICKVAL);
-            TRICE32_1( Id( 42521),  "rd:TRICE32_1 line %d\n", __LINE__ );
-            TRICE64_1( Id( 51133),  "rd:TRICE64_1 %d\n", __LINE__ );
-            TRICE32_2( Id( 55925),  "rd:TRICE32_2 line %d,%d\n", __LINE__, 2 );
-            TRICE64_2( Id( 36492),  "rd:TRICE64_2 line %d,%d\n", __LINE__, 2 );
+            //TRICE32_1( Id( 61654), "ATT:trice16_1 attention message, SysTick is %6d\n", SYSTICKVAL);
+            //TRICE32_1( Id( 63097), "ATT:trice16_1 attention message, SysTick is %6d\n", SYSTICKVAL);
+            //TRICE32_1( Id( 59357), "ATT:trice16_1 attention message, SysTick is %6d\n", SYSTICKVAL);
+            //TRICE32_1( Id( 55647), "ATT:trice16_1 attention message, SysTick is %6d\n", SYSTICKVAL);
+            //TRICE32_1( Id( 43058), "ATT:trice16_1 attention message, SysTick is %6d\n", SYSTICKVAL);
+            //TRICE32_1( Id( 40194), "ATT:trice16_1 attention message, SysTick is %6d\n", SYSTICKVAL);
+            //TRICE32_1( Id( 50626), "ATT:trice16_1 attention message, SysTick is %6d\n", SYSTICKVAL);
+            //TRICE32_1( Id( 43507), "ATT:trice16_1 attention message, SysTick is %6d\n", SYSTICKVAL);
+            //TRICE32_1( Id( 42521),  "rd:TRICE32_1 line %d\n", __LINE__ );
+            //TRICE64_1( Id( 51133),  "rd:TRICE64_1 %d\n", __LINE__ );
+            //TRICE32_2( Id( 55925),  "rd:TRICE32_2 line %d,%d\n", __LINE__, 2 );
+            //TRICE64_2( Id( 36492),  "rd:TRICE64_2 line %d,%d\n", __LINE__, 2 );
             
             TRICE8( Id( 63495), "rd:TRICE8 %d\n", 1 );
             TRICE8( Id( 40220), "rd:TRICE8 %d, %d\n", 1, 2 );
@@ -76,30 +76,30 @@ void TriceCheckSet(int index) {
             TRICE16( Id( 54783), "rd:TRICE16 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10);      
             TRICE16( Id( 50159), "rd:TRICE16 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 );      
             TRICE16( Id( 39046), "rd:TRICE16 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 );      
-            TRICE32( Id( 55538), "rd:TRICE32 %d\n", 1 );
-            TRICE32( Id( 32781), "rd:TRICE32 %d, %d\n", 1, 2 );
-            TRICE32( Id( 63220), "rd:TRICE32 %d, %d, %d\n", 1, 2, 3 );
-            TRICE32( Id( 36754), "rd:TRICE32 %d, %d, %d, %d\n", 1, 2, 3, 4 );
-            TRICE32( Id( 58412), "rd:TRICE32 %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5 );
-            TRICE32( Id( 56253), "rd:TRICE32 %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6 );
-            TRICE32( Id( 33150), "rd:TRICE32 %d, %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6, 7);
-            TRICE32( Id( 56467), "rd:TRICE32 %d, %d, %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6, 7, 8 );      
-            TRICE32( Id( 36162), "rd:TRICE32 %d, %d, %d, %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6, 7, 8, 9 );      
-            TRICE32( Id( 64739), "rd:TRICE32 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10);      
-            TRICE32( Id( 38603), "rd:TRICE32 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 );      
-            TRICE32( Id( 62356), "rd:TRICE32 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 );      
-            TRICE64( Id( 63433), "rd:TRICE64 %d\n", 1 );
-            TRICE64( Id( 52183), "rd:TRICE64 %d, %d\n", 1, 2 );
-            TRICE64( Id( 58343), "rd:TRICE64 %d, %d, %d\n", 1, 2, 3 );
-            TRICE64( Id( 59098), "rd:TRICE64 %d, %d, %d, %d\n", 1, 2, 3, 4 );
-            TRICE64( Id( 36354), "rd:TRICE64 %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5 );
-            TRICE64( Id( 58425), "rd:TRICE64 %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6 );
-            TRICE64( Id( 63581), "rd:TRICE64 %d, %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6, 7);
-            TRICE64( Id( 52575), "rd:TRICE64 %d, %d, %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6, 7, 8 );      
-            TRICE64( Id( 65307), "rd:TRICE64 %d, %d, %d, %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6, 7, 8, 9 );      
-            TRICE64( Id( 33102), "rd:TRICE64 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10);      
-            TRICE64( Id( 51678), "rd:TRICE64 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 );      
-            TRICE64( Id( 39543), "rd:TRICE64 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 );   
+            //TRICE32( Id( 55538), "rd:TRICE32 %d\n", 1 );
+            //TRICE32( Id( 32781), "rd:TRICE32 %d, %d\n", 1, 2 );
+            //TRICE32( Id( 63220), "rd:TRICE32 %d, %d, %d\n", 1, 2, 3 );
+            //TRICE32( Id( 36754), "rd:TRICE32 %d, %d, %d, %d\n", 1, 2, 3, 4 );
+            //TRICE32( Id( 58412), "rd:TRICE32 %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5 );
+            //TRICE32( Id( 56253), "rd:TRICE32 %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6 );
+            //TRICE32( Id( 33150), "rd:TRICE32 %d, %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6, 7);
+            //TRICE32( Id( 56467), "rd:TRICE32 %d, %d, %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6, 7, 8 );      
+            //TRICE32( Id( 36162), "rd:TRICE32 %d, %d, %d, %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6, 7, 8, 9 );      
+            //TRICE32( Id( 64739), "rd:TRICE32 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10);      
+            //TRICE32( Id( 38603), "rd:TRICE32 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 );      
+            //TRICE32( Id( 62356), "rd:TRICE32 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 );      
+            //TRICE64( Id( 63433), "rd:TRICE64 %d\n", 1 );
+            //TRICE64( Id( 52183), "rd:TRICE64 %d, %d\n", 1, 2 );
+            //TRICE64( Id( 58343), "rd:TRICE64 %d, %d, %d\n", 1, 2, 3 );
+            //TRICE64( Id( 59098), "rd:TRICE64 %d, %d, %d, %d\n", 1, 2, 3, 4 );
+            //TRICE64( Id( 36354), "rd:TRICE64 %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5 );
+            //TRICE64( Id( 58425), "rd:TRICE64 %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6 );
+            //TRICE64( Id( 63581), "rd:TRICE64 %d, %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6, 7);
+            //TRICE64( Id( 52575), "rd:TRICE64 %d, %d, %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6, 7, 8 );      
+            //TRICE64( Id( 65307), "rd:TRICE64 %d, %d, %d, %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6, 7, 8, 9 );      
+            //TRICE64( Id( 33102), "rd:TRICE64 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10);      
+            //TRICE64( Id( 51678), "rd:TRICE64 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 );      
+            //TRICE64( Id( 39543), "rd:TRICE64 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 );   
             
         break;
         case 3:
@@ -349,7 +349,7 @@ EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
           TRICE32( Id( 60956), "dbg:len=%u: ", strlen(s) );  
           TRICE_S( Id( 43140), "sig:%s\n", s );
         break;
-        case 20:
+        case 0:
 #ifdef TRICE_ENCRYPT
         TRICE0 (Id( 48705), "--------------------------------------------------\n" );
         {
