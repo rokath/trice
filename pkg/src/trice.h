@@ -87,11 +87,6 @@ extern uint8_t TriceCycle;
 
 #define TRICE_PUTBUFFER( buf, len ) do{ memcpy( TriceBufferWritePosition, buf, len ); TriceBufferWritePosition += (len+3)>>2; }while(0) //! TRICE_PUTBUFFER copies a buffer into the TRICE buffer.
 
-#ifdef ENCRYPT // to do
-// #define DECRYPT //!< usually not needed
-void TriceServeFifoEncryptedToBytesBuffer(void);
-#endif
-
 ///////////////////////////////////////////////////////////////////////////////
 // trice time measurement (STM32 only?)
 //
