@@ -82,14 +82,13 @@ The **TRICE** technique changed heavily between release 0.33.0 and 0.34.0. The `
 
 - Printf-like trace macros `TRICE` and PC `trice` tool (written in [Go](https://en.wikipedia.org/wiki/Go_(programming_language))) for automatic ID managing & logging.
 - Communication without string transfer, just with IDs. Prerequisite: byte transmission to PC, low bandwidth is ok:
-  - method does not matter: \
-  USB via virtual COM using FTDI \
-  [UART](https://en.wikipedia.org/wiki/Universal_asynchronous_receiver-transmitter), \
-  [I²C](https://en.wikipedia.org/wiki/I%C2%B2C), \
-  [SPI](https://en.wikipedia.org/wiki/Serial_Peripheral_Interface), \
-  [GPIO](https://circuitcellar.com/cc-blog/a-trace-tool-for-embedded-systems/), \
-  [RTT](https://www.segger.com/products/debug-probes/j-link/technology/about-real-time-transfer/), \
-  [CAN](https://en.wikipedia.org/wiki/CAN_bus), \
+  - method does not matter: USB via virtual COM using FTDI and [UART](https://en.wikipedia.org/wiki/Universal_asynchronous_receiver-transmitter) 
+or [RTT](https://www.segger.com/products/debug-probes/j-link/technology/about-real-time-transfer/).
+  - A small separate micro controller is usable as bridge to UART or USB for other Interfaces like:
+  [I²C](https://en.wikipedia.org/wiki/I%C2%B2C), 
+  [SPI](https://en.wikipedia.org/wiki/Serial_Peripheral_Interface), 
+  [GPIO](https://circuitcellar.com/cc-blog/a-trace-tool-for-embedded-systems/), 
+  [CAN](https://en.wikipedia.org/wiki/CAN_bus), 
   [LIN](https://en.wikipedia.org/wiki/Local_Interconnect_Network), ...
 - "log in (a) trice" ([S>G](https://www.screentogif.com/)) ![ ](./docs/README.media/life0.gif)
 - Main idea: Logging strings **not** into an embedded device to display them later on a PC but keep **usage comfortable and simple**.
