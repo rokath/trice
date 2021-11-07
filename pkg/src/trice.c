@@ -10,7 +10,7 @@ uint8_t  TriceCycle = 0xc0; //!< TriceCycle is increased and transmitted with ea
 #endif
 
 #ifdef TRICE_HALF_BUFFER_SIZE
-static uint32_t triceBuffer[2][(TRICE_HALF_BUFFER_SIZE+TRICE_DATA_OFFSET)>>2] = {0}; //!< triceBuffer is double buffer for better write speed.
+static uint32_t triceBuffer[2][TRICE_HALF_BUFFER_SIZE>>2] = {0}; //!< triceBuffer is double buffer for better write speed.
 static int triceSwap = 0; //!< triceSwap is the index of the active write buffer. !triceSwap is the active read buffer index.
 uint32_t* TriceBufferWritePosition = &triceBuffer[0][TRICE_DATA_OFFSET>>2]; //!< TriceBufferWritePosition is the active write position.
 static uint32_t* triceBufferWriteLimit = &triceBuffer[1][0]; //!< triceBufferWriteLimit is the triceBuffer written limit. 
