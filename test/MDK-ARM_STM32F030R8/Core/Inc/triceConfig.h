@@ -17,15 +17,15 @@ extern "C" {
 
   #define TRICE_MODE 0 //! TRICE_MODE is a predefined trice transfer method.
 
-#define TRICE_RTT_CHANNEL 0 //!< Uncomment and set channel number for SeggerRTT usage.
-//#define TRICE_UART USART2   //!< Uncomment and set UART for serial output.
+//#define TRICE_RTT_CHANNEL 0 //!< Uncomment and set channel number for SeggerRTT usage.
+#define TRICE_UART USART2   //!< Uncomment and set UART for serial output.
 
 extern int milliSecond;
 #define TRICE_TIMESTAMP_VALUE milliSecond //!< Uncomment if you do not need target timestamps. Instead of SYSTICKVAL, you can use any other up to 32-bit value.
 
 // Enabling next 2 lines results in XTEA TriceEncryption  with the key.
-#define TRICE_ENCRYPT XTEA_KEY( ea, bb, ec, 6f, 31, 80, 4e, b9, 68, e2, fa, ea, ae, f1, 50, 54 ); //!< -password MySecret
-#define TRICE_DECRYPT //!< TRICE_DECRYPT is usually not needed. Enable for checks.
+//#define TRICE_ENCRYPT XTEA_KEY( ea, bb, ec, 6f, 31, 80, 4e, b9, 68, e2, fa, ea, ae, f1, 50, 54 ); //!< -password MySecret
+//#define TRICE_DECRYPT //!< TRICE_DECRYPT is usually not needed. Enable for checks.
 
 //#define TRICE_BIG_ENDIANNESS //!< TRICE_BIG_ENDIANNESS needs to be defined for TRICE64 macros on big endian devices. (Untested!)
 
@@ -37,7 +37,7 @@ extern int milliSecond;
 //
 //! Direct output to UART or RTT with cycle counter. Trices inside interrupts forbidden. Direct TRICE macro execution.
 //! This mode is mainly for a quick tryout start or if no timing constrains for the TRICE macros exist.
-//! Only a putchar() function is required.
+//! Only a putchar() function is required - look for triceBlockingPutChar().
 //! UART Command line similar to: `trice log -p COM1 -baud 115200`
 //! RTT needs additional tools installed - see RTT documentation.
 //! J-LINK Command line similar to: `trice log -args="-Device STM32G071RB -if SWD -Speed 4000 -RTTChannel 0 -RTTSearchRanges 0x20000000_0x1000"`

@@ -165,6 +165,11 @@
           <WinNumber>1</WinNumber>
           <ItemText>eLen</ItemText>
         </Ww>
+        <Ww>
+          <count>2</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>NumBytes</ItemText>
+        </Ww>
       </WatchWindow1>
       <MemoryWindow1>
         <Mm>
