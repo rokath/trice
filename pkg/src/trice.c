@@ -44,27 +44,35 @@ void TriceTransfer( void ){
     if( 0 == TriceOutDepth() ){ // transmission done
         uint32_t* tb = triceBufferSwap(); 
         size_t tLen = triceDepth(tb); // tlen is always a multiple of 4
-        size_t eLen;
         if( tLen ){
-            size_t cLen;
-            uint8_t* co = (uint8_t*)tb; // encoded COBS data starting address
-            uint32_t* da = tb + (TRICE_DATA_OFFSET>>2)-1; // start of unencoded COBS package data: descriptor and trice data
-            *da = TRICE_COBS_PACKAGE_MODE; // add a 32-bit COBS package mode descriptor in front of trice data. That allowes to inject third-party non-trice COBS packages.
-            eLen = tLen + 4; // add COBS package mode descriptor length 
-            #ifdef TRICE_ENCRYPT
-            eLen = (tLen + 4) & ~7; // only multiple of 8 encryptable
-            TriceEncrypt( da, eLen>>2 );
-            #endif
-            cLen = TriceCOBSEncode(co, (uint8_t*)da, eLen);
-            do{                 // add 1 to 4 zeroes as COBS package delimiter
-                co[cLen++] = 0; // one is ok, but padding to an uit32_t border could make TRICE_WRITE faster
-            }while( cLen & 3 );
-            TRICE_WRITE( co, cLen );
-            TriceDepthMax = tLen + TRICE_DATA_OFFSET < TriceDepthMax ? TriceDepthMax : tLen + TRICE_DATA_OFFSET; // diagnostics
+            TriceOut( tb, tLen );
         }
     } // else: transmission not done yet
 }
+
 #endif // #ifdef TRICE_HALF_BUFFER_SIZE
+
+//! TriceOut converts trice data and transmits them to the output.
+//! \param tb ist start of uint32_t* trice buffer. TRICE_DATA_OFFSET>>2 at start for in buffer COBS encoding. 
+//! TRICE_COBS_PACKAGE_MODE afterwards and then the trice data
+//! \param tLen is length of trice data. tlen is always a multiple of 4 and counts after TRICE_COBS_PACKAGE_MODE.
+void TriceOut( uint32_t* tb, size_t tLen ){
+    size_t eLen, cLen;
+    uint8_t* co = (uint8_t*)tb; // encoded COBS data starting address
+    uint32_t* da = tb + (TRICE_DATA_OFFSET>>2)-1; // start of unencoded COBS package data: descriptor and trice data
+    *da = TRICE_COBS_PACKAGE_MODE; // add a 32-bit COBS package mode descriptor in front of trice data. That allowes to inject third-party non-trice COBS packages.
+    eLen = tLen + 4; // add COBS package mode descriptor length 
+    #ifdef TRICE_ENCRYPT
+    eLen = (eLen + 4) & ~7; // only multiple of 8 encryptable
+    TriceEncrypt( da, eLen>>2 );
+    #endif
+    cLen = TriceCOBSEncode(co, (uint8_t*)da, eLen);
+    do{                 // add 1 to 4 zeroes as COBS package delimiter
+        co[cLen++] = 0; // one is ok, but padding to an uit32_t border could make TRICE_WRITE faster
+    }while( cLen & 3 );
+    TRICE_WRITE( co, cLen );
+    TriceDepthMax = tLen + TRICE_DATA_OFFSET < TriceDepthMax ? TriceDepthMax : tLen + TRICE_DATA_OFFSET; // diagnostics
+}
 
 #if defined( TRICE_UART ) && !defined( TRICE_HALF_BUFFER_SIZE )// direct out to UART
 //! triceBlockingPutChar returns after c was successfully written.
@@ -226,26 +234,6 @@ void TriceEncrypt( uint32_t* p, unsigned count ){
         encipher( &p[i] ); // byte triceSwap is done inside trice tool
     }
 }
-
-//  uint8_t triceBytesBuffer[8]; //!< bytes transmit buffer
-//  int const triceBytesBufferIndexLimit = sizeof(triceBytesBuffer);
-//  int triceBytesBufferIndex = triceBytesBufferIndexLimit;
-//  
-//  void triceServeFifoEncryptedToBytesBuffer(void) {
-//      if (triceBytesBufferIndexLimit == triceBytesBufferIndex) { // bytes buffer empty and tx finished
-//          // next trice
-//          int n = triceU32FifoDepth();
-//          if ( n >= 8 ) { // a trice to transmit
-//              *(uint32_t*)&triceBytesBuffer[0] = triceU32Pop();
-//              *(uint32_t*)&triceBytesBuffer[4] = triceU32Pop();
-//              TriceEncrypt( triceBytesBuffer );
-//              triceBytesBufferIndex = 0;
-//          }else if ( 4 == n ) {
-//              TRICE_SYNC; // avoid delay of a single last trice
-//          }
-//      }
-//  }
-
 
 #endif // #ifdef TRICE_ENCRYPT
 

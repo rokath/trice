@@ -147,10 +147,14 @@ func (p *COBS) handleCOBSModeDescriptor() {
 // In case of a not matching cycle, a warning message in trice format is prefixed.
 // In case of invalid package data, error messages in trice format are returned and the package is dropped.
 func (p *COBS) Read(b []byte) (n int, err error) {
-	if len(p.b) <= 4 { // last decoded COBS package exhausted
+	minPkgSize := headSize
+	if targetTimestampExists {
+		minPkgSize += 4
+	}
+	if len(p.b) < minPkgSize { // last decoded COBS package exhausted
 		p.nextCOBSpackage()
 	}
-	if len(p.b) < 8 { // not enough data for a next package
+	if len(p.b) < minPkgSize { // not enough data for a next package
 		return
 	}
 
@@ -196,6 +200,7 @@ func (p *COBS) Read(b []byte) (n int, err error) {
 	triceID := id.TriceID(uint16(head >> 16))
 	LastTriceID = triceID // used for showID
 	if len(p.b) < p.triceSize {
+		fmt.Println("ERROR:package len", len(p.b), "is <", p.triceSize, " - ignoring package", p.b)
 		n += copy(b[n:], fmt.Sprintln("ERROR:package len", len(p.b), "is too short - ignoring package", p.b))
 		n += copy(b[n:], fmt.Sprintln(hints))
 		if p.triceSize > len(p.b) {

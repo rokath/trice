@@ -19,6 +19,7 @@ extern "C" {
 extern unsigned TriceDepthMax;
 extern uint32_t* TriceBufferWritePosition;
 unsigned TriceCOBSEncode( uint8_t* restrict output, const uint8_t * restrict input, unsigned length);
+void TriceOut( uint32_t* tb, size_t tLen );
 void TriceTransfer( void );
 void TriceCheckSet( int index ); //!< tests
 
@@ -35,9 +36,11 @@ static inline int TriceOutDepth( void ){ return 0; }
 #ifdef TRICE_TIMESTAMP_VALUE
 #define TRICE_COBS_PACKAGE_MODE 1 //! COBS package mode descriptor, 0: no timestamps, 1: 32-bit timestamps
 #define TRICE_PUT_TIMESTAMP do{ TRICE_PUT(TRICE_TIMESTAMP_VALUE); }while(0)
+#define TRICE_TIMESTAMP_SIZE 4
 #else
 #define TRICE_COBS_PACKAGE_MODE 0 //! COBS package mode descriptor, 0: no timestamps, 1: 32-bit timestamps
-#define TRICE_PUTTIMESTAMP
+#define TRICE_PUT_TIMESTAMP
+#define TRICE_TIMESTAMP_SIZE 0
 #endif
 
 #ifndef TRICE_CYCLE_COUNTER
@@ -188,7 +191,7 @@ void TriceInitXteaTable(void);
 //! cLen-3 cLen-2 cLen-1 cLen
 #define TRICE_S( id, pFmt, dynString) do { \
     uint32_t len = strlen( dynString ); \
-    uint32_t limit = TRICE_SINGLE_MAX_SIZE-TRICE_DATA_OFFSET; \
+    uint32_t limit = TRICE_SINGLE_MAX_SIZE-TRICE_DATA_OFFSET-TRICE_TIMESTAMP_SIZE-8; /* 8 = head size plus len size */ \
     if( len > limit ){ \
         TRICE32( Id( 54343), "wrn:Dynamic string truncated from %u to %u\n", len, limit ); \
         len = limit; \
