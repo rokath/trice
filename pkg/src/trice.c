@@ -20,7 +20,7 @@ static int triceNonBlockingWrite( void const * buf, int nByte );
 #define TRICE_WRITE( buf, len ) do{ triceNonBlockingWrite( buf, len ); }while(0)
 #endif
 
-//! triceBufferSwap swaps the trice double buffer and returns the transfer buffer address.
+//! triceBufferSwap swaps the trice double buffer and returns the read buffer address.
 static uint32_t* triceBufferSwap( void ){
     TRICE_ENTER_CRITICAL_SECTION
     triceBufferWriteLimit = TriceBufferWritePosition; // keep end position
