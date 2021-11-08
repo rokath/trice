@@ -190,6 +190,29 @@ TRICE_INLINE void triceDisableTxEmptyInterrupt(void) {
 //
 ///////////////////////////////////////////////////////////////////////////////
 
+
+#define TRICEX_0  TRICE0
+#define TRICEX_1  TRICE32_1 //!< Default parameter bit width for TRICE is 32, change for a different value.
+#define TRICEX_2  TRICE32_2 //!< Default parameter bit width for TRICE is 32, change for a different value.
+
+//#define TRICE32_0 TRICE0
+#define TRICE_0  TRICE32_0  //!< Default parameter bit width for TRICE is 32, change for a different value.
+#define TRICE_1  TRICE32_1  //!< Default parameter bit width for TRICE is 32, change for a different value.
+#define TRICE_2  TRICE32_2  //!< Default parameter bit width for TRICE is 32, change for a different value.
+#define TRICE_3  TRICE32_3  //!< Default parameter bit width for TRICE is 32, change for a different value.
+#define TRICE_4  TRICE32_4  //!< Default parameter bit width for TRICE is 32, change for a different value.
+#define TRICE_5  TRICE32_5  //!< Default parameter bit width for TRICE is 32, change for a different value.
+#define TRICE_6  TRICE32_6  //!< Default parameter bit width for TRICE is 32, change for a different value.
+#define TRICE_7  TRICE32_7  //!< Default parameter bit width for TRICE is 32, change for a different value.
+#define TRICE_8  TRICE32_8  //!< Default parameter bit width for TRICE is 32, change for a different value.
+#define TRICE_9  TRICE32_9  //!< Default parameter bit width for TRICE is 32, change for a different value.
+#define TRICE_10 TRICE32_10 //!< Default parameter bit width for TRICE is 32, change for a different value.
+#define TRICE_11 TRICE32_11 //!< Default parameter bit width for TRICE is 32, change for a different value.
+#define TRICE_12 TRICE32_12 //!< Default parameter bit width for TRICE is 32, change for a different value.
+
+
+
+
 #ifdef __cplusplus
 }
 #endif

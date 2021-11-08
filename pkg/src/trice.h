@@ -161,7 +161,7 @@ void TriceInitXteaTable(void);
 ///////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////////
-// Variadic macros
+// Variadic macros (https://github.com/pfultz2/Cloak/wiki/C-Preprocessor-tricks,-tips,-and-idioms)
 // This is extendable until a 1000 bytes payload.
 #define TRICE8_COUNT(_1,_2,_3,_4,_5,_6,_7,_8,_9,_10,_11,_12, NAME,...) NAME
 #define TRICE8(id,frmt, ...) TRICE8_COUNT(__VA_ARGS__,TRICE8_12,TRICE8_11,TRICE8_10,TRICE8_9,TRICE8_8,TRICE8_7,TRICE8_6,TRICE8_5,TRICE8_4,TRICE8_3,TRICE8_2,TRICE8_1)(id,frmt, __VA_ARGS__)
@@ -174,6 +174,17 @@ void TriceInitXteaTable(void);
 
 #define TRICE64_COUNT(_1,_2,_3,_4,_5,_6,_7,_8,_9,_10,_11,_12, NAME,...) NAME
 #define TRICE64(id,frmt, ...) TRICE64_COUNT(__VA_ARGS__,TRICE64_12,TRICE64_11,TRICE64_10,TRICE64_9,TRICE64_8,TRICE64_7,TRICE64_6,TRICE64_5,TRICE64_4,TRICE64_3,TRICE64_2,TRICE64_1)(id,frmt, __VA_ARGS__)
+
+#define TRICE_COUNT(_1,_2,_3,_4,_5,_6,_7,_8,_9,_10,_11,_12, NAME,...) NAME
+#define TRICE(id,frmt, ...) TRICE_COUNT(__VA_ARGS__,TRICE_12,TRICE_11,TRICE_10,TRICE_9,TRICE_8,TRICE_7,TRICE_6,TRICE_5,TRICE_4,TRICE_3,TRICE_2,TRICE_1)(id,frmt, __VA_ARGS__)
+
+
+//  // https://codecraft.co/2014/11/25/variadic-macros-tricks/
+//  #define CAT(a,b, NAME,...) NAME
+//  #define TRICEX(id,frmt, ...) CAT(__VA_ARGS__,TRICE_1,TRICE0)(id,frmt, ##__VA_ARGS__)
+
+
+
 //
 ///////////////////////////////////////////////////////////////////////////////
 
