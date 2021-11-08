@@ -49,7 +49,7 @@ extern int milliSecond;
     uint32_t co[TRICE_STACK_BUFFER_MAX_SIZE>>2]; /* Check TriceDepthMax at runtime. */ \
     uint32_t* TriceBufferWritePosition = co + (TRICE_DATA_OFFSET>>2);
 #define TRICE_LEAVE { /*! End of TRICE macro */ \
-    unsigned tLen = ((TriceBufferWritePosition - co)<<2)- TRICE_DATA_OFFSET; \
+    unsigned tLen = ((TriceBufferWritePosition - co)<<2) - TRICE_DATA_OFFSET; \
     TriceOut( co, tLen ); } }
 #endif
 
