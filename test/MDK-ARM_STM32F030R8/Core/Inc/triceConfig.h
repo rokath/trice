@@ -46,7 +46,7 @@ extern int milliSecond;
 #if TRICE_MODE == 0 // must not use TRICE_ENCRYPT!
 #define TRICE_SINGLE_MAX_SIZE 128 //!< TRICE_SINGLE_MAX_SIZE is the max allowed single trice size. Usually ~40 is enough. This plus TRICE_DATA_OFFSET is stack size!
 #define TRICE_ENTER { /*! Start of TRICE macro */ \
-    uint32_t co[(TRICE_SINGLE_MAX_SIZE+TRICE_DATA_OFFSET)>>2]; /* This must be capable to hold the longest used TRICE plus 4 (offset). Check TriceDepthMax at runtime. */ \
+    uint32_t co[(TRICE_SINGLE_MAX_SIZE+TRICE_DATA_OFFSET)>>2]; /* This must be capable to hold the longest used TRICE plus TRICE_DATA_OFFSET. Check TriceDepthMax at runtime. */ \
     uint32_t* TriceBufferWritePosition = co + (TRICE_DATA_OFFSET>>2);
 #define TRICE_LEAVE { /*! End of TRICE macro */ \
     unsigned tLen = ((TriceBufferWritePosition - co)<<2)- TRICE_DATA_OFFSET; \
