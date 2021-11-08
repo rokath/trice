@@ -71,7 +71,8 @@ void TriceOut( uint32_t* tb, size_t tLen ){
         co[cLen++] = 0; // one is ok, but padding to an uit32_t border could make TRICE_WRITE faster
     }while( cLen & 3 );
     TRICE_WRITE( co, cLen );
-    TriceDepthMax = tLen + TRICE_DATA_OFFSET < TriceDepthMax ? TriceDepthMax : tLen + TRICE_DATA_OFFSET; // diagnostics
+    tLen += TRICE_DATA_OFFSET; // diagnostics
+    TriceDepthMax = tLen < TriceDepthMax ? TriceDepthMax : tLen;
 }
 
 #if defined( TRICE_UART ) && !defined( TRICE_HALF_BUFFER_SIZE )// direct out to UART
