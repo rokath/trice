@@ -44,7 +44,7 @@ extern int milliSecond;
 //! J-LINK Command line similar to: `trice log -args="-Device STM32G071RB -if SWD -Speed 4000 -RTTChannel 0 -RTTSearchRanges 0x20000000_0x1000"`
 //! ST-LINK Command line similar to: `trice log -p ST-LINK -args="-Device STM32G071RB -if SWD -Speed 4000 -RTTChannel 0 -RTTSearchRanges 0x20000000_0x1000"`
 #if TRICE_MODE == 0 // must not use TRICE_ENCRYPT!
-#define TRICE_STACK_BUFFER_MAX_SIZE 128 //!< This  minus TRICE_DATA_OFFSET the max allowed single trice size. Usually ~40 is enough. This plus TRICE_DATA_OFFSET is stack size!
+#define TRICE_STACK_BUFFER_MAX_SIZE 128 //!< This  minus TRICE_DATA_OFFSET the max allowed single trice size. Usually ~40 is enough.
 #define TRICE_ENTER { /*! Start of TRICE macro */ \
     uint32_t co[TRICE_STACK_BUFFER_MAX_SIZE>>2]; /* Check TriceDepthMax at runtime. */ \
     uint32_t* TriceBufferWritePosition = co + (TRICE_DATA_OFFSET>>2);
