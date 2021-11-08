@@ -32,6 +32,9 @@ void TriceCheckSet( int index ); //!< tests
 #if defined(TRICE_HALF_BUFFER_SIZE) && TRICE_HALF_BUFFER_SIZE > SEGGER BUFFER_SIZE_UP
 #error
 #endif
+#if defined(TRICE_STACK_BUFFER_SIZE) && TRICE_STACK_BUFFER_SIZE > SEGGER BUFFER_SIZE_UP
+#error
+#endif
 #define TRICE_WRITE( buf, len ) do{ SEGGER_RTT_Write(TRICE_RTT_CHANNEL, buf, len ); }while(0)
 static inline int TriceOutDepth( void ){ return 0; }
 #endif // #ifdef TRICE_RTT_CHANNEL
