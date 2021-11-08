@@ -29,9 +29,12 @@ void TriceCheckSet( int index ); //!< tests
 
 #ifdef TRICE_RTT_CHANNEL
 #include "SEGGER_RTT.h"
+#if TRICE_HALF_BUFFER_SIZE > SEGGER BUFFER_SIZE_UP
+#error
+#endif
 #define TRICE_WRITE( buf, len ) do{ SEGGER_RTT_Write(TRICE_RTT_CHANNEL, buf, len ); }while(0)
 static inline int TriceOutDepth( void ){ return 0; }
-#endif
+#endif // #ifdef TRICE_RTT_CHANNEL
 
 #ifdef TRICE_TIMESTAMP_VALUE
 #define TRICE_COBS_PACKAGE_MODE 1 //! COBS package mode descriptor, 0: no timestamps, 1: 32-bit timestamps
