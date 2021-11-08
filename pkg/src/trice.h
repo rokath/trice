@@ -29,7 +29,7 @@ void TriceCheckSet( int index ); //!< tests
 
 #ifdef TRICE_RTT_CHANNEL
 #include "SEGGER_RTT.h"
-#if TRICE_HALF_BUFFER_SIZE > SEGGER BUFFER_SIZE_UP
+#if defined(TRICE_HALF_BUFFER_SIZE) && TRICE_HALF_BUFFER_SIZE > SEGGER BUFFER_SIZE_UP
 #error
 #endif
 #define TRICE_WRITE( buf, len ) do{ SEGGER_RTT_Write(TRICE_RTT_CHANNEL, buf, len ); }while(0)
