@@ -35,6 +35,7 @@ extern int milliSecond;
 ///////////////////////////////////////////////////////////////////////////////
 // Predefined trice modes: Adapt or creeate your own trice mode.
 //
+
 //! Direct output to UART or RTT with cycle counter. Trices inside interrupts forbidden. Direct TRICE macro execution.
 //! This mode is mainly for a quick tryout start or if no timing constrains for the TRICE macros exist.
 //! Only a putchar() function is required - look for triceBlockingPutChar().
@@ -74,6 +75,8 @@ extern int milliSecond;
 #define TRICE_SINGLE_MAX_SIZE 800 //!< must not exeed TRICE_HALF_BUFFER_SIZE!
 #endif
 
+//
+///////////////////////////////////////////////////////////////////////////////
 
 #ifdef TRICE_HALF_BUFFER_SIZE
 #define TRICE_BUFFER_INFO do{ TRICE32( Id( 41052), "att: Trice 2x half buffer size:%4u ", TRICE_HALF_BUFFER_SIZE ); } while(0)
