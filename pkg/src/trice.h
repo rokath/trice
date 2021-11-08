@@ -29,10 +29,10 @@ void TriceCheckSet( int index ); //!< tests
 
 #ifdef TRICE_RTT_CHANNEL
 #include "SEGGER_RTT.h"
-#if defined(TRICE_HALF_BUFFER_SIZE) && TRICE_HALF_BUFFER_SIZE > SEGGER BUFFER_SIZE_UP
+#if defined(TRICE_HALF_BUFFER_SIZE) && TRICE_HALF_BUFFER_SIZE > BUFFER_SIZE_UP
 #error
 #endif
-#if defined(TRICE_STACK_BUFFER_SIZE) && TRICE_STACK_BUFFER_SIZE > SEGGER BUFFER_SIZE_UP
+#if defined(TRICE_STACK_BUFFER_SIZE) && TRICE_STACK_BUFFER_SIZE > BUFFER_SIZE_UP
 #error
 #endif
 #define TRICE_WRITE( buf, len ) do{ SEGGER_RTT_Write(TRICE_RTT_CHANNEL, buf, len ); }while(0)
@@ -53,6 +53,13 @@ static inline int TriceOutDepth( void ){ return 0; }
 #define TRICE_CYCLE_COUNTER 1 //! TRICE_CYCLE_COUNTER adds a cycle counter to each trice message. The TRICE macros are a bit slower. Lost TRICEs are detectable by the trice tool.
 #endif
 
+//! TRICE_DATA_OFFSET is the space in front of trice data for in-buffer COBS encoding. It must be be a multiple of uint32_t.
+#define TRICE_DATA_OFFSET 16 // usually 8 is enough: 4 for COBS_DESCRIPTOR and additional bytes for COBS encoding, but the buffer can get big.
+
+#ifdef TRICE_STACK_BUFFER_MAX_SIZE
+#define TRICE_SINGLE_MAX_SIZE (TRICE_STACK_BUFFER_MAX_SIZE - TRICE_DATA_OFFSET)
+#endif
+
 #ifndef TRICE_SINGLE_MAX_SIZE
 #define TRICE_SINGLE_MAX_SIZE 1008 //!< TRICE_SINGLE_MAX_SIZE ist the head size plus string length size plus max dynamic string size. Must be a multiple of 4. 1008 is the max allowed value.
 #endif
@@ -65,12 +72,6 @@ static inline int TriceOutDepth( void ){ return 0; }
 //! TRICE_TRANSFER_INTERVAL_MS is the milliseconds interval for TRICE buffer read out.
 //! This time should be shorter than visible delays. The TRICE_HALF_BUFFER_SIZE must be able to hold all trice messages possibly occouring in this time.
 #define TRICE_TRANSFER_INTERVAL_MS 100
-#endif
-
-#if TRICE_SINGLE_MAX_SIZE < 256
-#define TRICE_DATA_OFFSET 8 //! TRICE_DATA_OFFSET is the space in front of trice data for in-buffer COBS encoding. It must be be a multiple of uint32_t.
-#else
-#define TRICE_DATA_OFFSET 12 //! TRICE_DATA_OFFSET is the space in front of trice data for in-buffer COBS encoding. It must be a multiple of uint32_t.
 #endif
 
 #if TRICE_CYCLE_COUNTER == 1
@@ -192,7 +193,7 @@ void TriceInitXteaTable(void);
 //! cLen-3 cLen-2 cLen-1 cLen
 #define TRICE_S( id, pFmt, dynString) do { \
     uint32_t len = strlen( dynString ); \
-    uint32_t limit = TRICE_SINGLE_MAX_SIZE-TRICE_DATA_OFFSET-TRICE_TIMESTAMP_SIZE-8; /* 8 = head size plus len size */ \
+    uint32_t limit = TRICE_SINGLE_MAX_SIZE-TRICE_TIMESTAMP_SIZE-8; /* 8 = head + len size */ \
     if( len > limit ){ \
         TRICE32( Id( 54343), "wrn:Dynamic string truncated from %u to %u\n", len, limit ); \
         len = limit; \
