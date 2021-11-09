@@ -175,15 +175,25 @@ void TriceInitXteaTable(void);
 #define TRICE64_COUNT(_1,_2,_3,_4,_5,_6,_7,_8,_9,_10,_11,_12, NAME,...) NAME
 #define TRICE64(id,frmt, ...) TRICE64_COUNT(__VA_ARGS__,TRICE64_12,TRICE64_11,TRICE64_10,TRICE64_9,TRICE64_8,TRICE64_7,TRICE64_6,TRICE64_5,TRICE64_4,TRICE64_3,TRICE64_2,TRICE64_1)(id,frmt, __VA_ARGS__)
 
-#define TRICE_COUNT(_1,_2,_3,_4,_5,_6,_7,_8,_9,_10,_11,_12, NAME,...) NAME
-#define TRICE(id,frmt, ...) TRICE_COUNT(__VA_ARGS__,TRICE_12,TRICE_11,TRICE_10,TRICE_9,TRICE_8,TRICE_7,TRICE_6,TRICE_5,TRICE_4,TRICE_3,TRICE_2,TRICE_1)(id,frmt, __VA_ARGS__)
+// See for more explanation https://renenyffenegger.ch/notes/development/languages/C-C-plus-plus/preprocessor/macros/__VA_ARGS__/count-arguments
 
+//! NTH_ARGUMENT just evaluates to the 14th argument. It is extendable.
+#define NTH_ARGUMENT(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, ...) a14 
 
-//  // https://codecraft.co/2014/11/25/variadic-macros-tricks/
-//  #define CAT(a,b, NAME,...) NAME
-//  #define TRICEX(id,frmt, ...) CAT(__VA_ARGS__,TRICE_1,TRICE0)(id,frmt, ##__VA_ARGS__)
+//! COUNT_ARGUMENTS builds upon NTH_ARGUMENT. The more arguments that are passed to COUNT_ARGUMENTS, 
+//! the more the »counting arguments« (12, 11, 10, 9, 8, 7…) are pushed to the right. 
+//! Thus the macro evaluates to the number of arguments that are passed to the macro.
+//! The expression `## __VA_ARGS__` ist not supported by older compilers. You can remove the `##` and use TRICE0 instead of TRICE for a no parameter value TRICE in that case.
+#define COUNT_ARGUMENTS(...) NTH_ARGUMENT(dummy, ## __VA_ARGS__, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0)
 
+//! CONCAT concatenates the 2 arguments a and b (helper macro).
+#define CONCAT(a, b) a ## b 
 
+//! CONCAT2 concatenates the 2 arguments a and b (helper macro).
+#define CONCAT2(a, b) CONCAT(a, b)
+
+//! TRICE_VARIABLE_ARGUMENTS concatenates DEBUG_ with the result of COUNT_ARGUMENTS to produce something like DEBUG_2 which takes a printf-format and two arguments.
+#define TRICE(id, fmt, ...) CONCAT2(TRICE_, COUNT_ARGUMENTS(__VA_ARGS__))(id, fmt, ##__VA_ARGS__)
 
 //
 ///////////////////////////////////////////////////////////////////////////////

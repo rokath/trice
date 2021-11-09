@@ -142,7 +142,8 @@ void TriceCheckSet(int index) {
             TRICE16( Id( 50159), "rd:TRICE16 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 );      
             TRICE16( Id( 39046), "rd:TRICE16 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 );  
         break;
-        case 5:            
+        case 5:
+            TRICE(Id( 45734), "--------------------------------------------------\n");            
             TRICE( Id( 55538), "rd:TRICE32 %d\n", 1 );
             TRICE( Id( 32781), "rd:TRICE32 %d, %d\n", 1, 2 );
             TRICE( Id( 63220), "rd:TRICE32 %d, %d, %d\n", 1, 2, 3 );
