@@ -69,7 +69,7 @@ The **TRICE** technique changed heavily between release 0.33.0 and 0.34.0. The `
 - In your source.c: `#include "trice.h"`
 - In a function: `TRICE0( "Hi!\n" );`
 - In project root:
-  - Create emty file: `touch til.json`.
+  - Create empty file: `touch til.json`.
   - Run `trice u` should:
     - patch source.c to `TRICE0( Id(12345), "Hi!\n" );`
     - extend `til.json`
