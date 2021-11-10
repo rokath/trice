@@ -31,7 +31,7 @@ static uint32_t* triceBufferSwap( void ){
 }
 
 //! triceDepth returns the total trice byte count ready for transfer.
-//! The trice data start at tp + TRICE_DATA_OFFSET.
+//! The trice data start at tb + TRICE_DATA_OFFSET.
 //! The returned depth is without the TRICE_DATA_OFFSET offset.
 static size_t triceDepth( uint32_t* tb ){
     size_t depth = (triceBufferWriteLimit - tb)<<2;
