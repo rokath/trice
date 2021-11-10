@@ -178,8 +178,8 @@ static const uint32_t delta = 0x9E3779B9;
 //! precomputed values for faster execution
 static uint32_t table[64];
 
-//! Precalculate the table
-//! It is possible to put this table completely into FLASH by precomputing it during compile time
+//! TriceInitXteaTable precalculates the table.
+//! It is possible to put this table completely into FLASH by precomputing it during compile time.
 void TriceInitXteaTable( void ){
     uint32_t sum = 0;
     // Two rounds of XTEA applied per loop
@@ -192,7 +192,8 @@ void TriceInitXteaTable( void ){
     }
 }
 
-//!code taken and adapted from xtea\block.go
+// encipher converts 64 bits.
+//! Code taken and adapted from xtea\block.go
 //!\param v 64 bits of data in v[0] and v[1] are encoded in place
 static void encipher( uint32_t v[2] ) {
     uint32_t v0 = v[0], v1 = v[1];
@@ -206,7 +207,8 @@ static void encipher( uint32_t v[2] ) {
 }
 
 #ifdef TRICE_DECRYPT
-//!code taken and adapted from xtea\block.go
+//! decipher reverses encipher action.
+//! Code taken and adapted from xtea\block.go
 //!\param v 64 bits of data in v[0] and v[1] are decoded in place
 static void decipher( uint32_t v[2] ) {
     uint32_t v0 = v[0], v1 = v[1];
@@ -220,16 +222,16 @@ static void decipher( uint32_t v[2] ) {
 }
 
 
-//! re-convert from xtea cipher
+//! TriceDecrypt re-converts from xtea cipher.
 //! \param p pointer to 8 byte buffer
 void TriceDecrypt( uint32_t* p, unsigned count ){
     for( int i = 0; i < count; i +=2 ){
-        decipher( &p[i]); // byte triceSwap is done inside trice tool
+        decipher( &p[i]); // byte swapping is done inside trice tool according to endianness.
     }
 }
 #endif // #ifdef TRICE_DECRYPT
 
-//! convert to xtea cipher
+//! TriceEncrypt converts to xtea cipher.
 //! \param p pointer to 8 byte buffer
 void TriceEncrypt( uint32_t* p, unsigned count ){
     for( int i = 0; i < count; i +=2 ){
