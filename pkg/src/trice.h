@@ -54,7 +54,11 @@ static inline int TriceOutDepth( void ){ return 0; }
 #endif
 
 //! TRICE_DATA_OFFSET is the space in front of trice data for in-buffer COBS encoding. It must be be a multiple of uint32_t.
+#if defined(TRICE_HALF_BUFFER_SIZE)
+#define TRICE_DATA_OFFSET ((9+(TRICE_HALF_BUFFER_SIZE/256))&~3) // 9: COBS_DESCRIPTOR size plus start byte plus up to 4 0-delimiters
+#else
 #define TRICE_DATA_OFFSET 16 // usually 8 is enough: 4 for COBS_DESCRIPTOR and additional bytes for COBS encoding, but the buffer can get big.
+#endif
 
 #ifdef TRICE_STACK_BUFFER_MAX_SIZE
 #define TRICE_SINGLE_MAX_SIZE (TRICE_STACK_BUFFER_MAX_SIZE - TRICE_DATA_OFFSET)
@@ -181,7 +185,7 @@ void TriceInitXteaTable(void);
 #define NTH_ARGUMENT(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, ...) a14 
 
 //! COUNT_ARGUMENTS builds upon NTH_ARGUMENT. The more arguments that are passed to COUNT_ARGUMENTS, 
-//! the more the »counting arguments« (12, 11, 10, 9, 8, 7…) are pushed to the right. 
+//! the more the Â»counting argumentsÂ« (12, 11, 10, 9, 8, 7â€¦) are pushed to the right. 
 //! Thus the macro evaluates to the number of arguments that are passed to the macro.
 //! The expression `## __VA_ARGS__` ist not supported by older compilers. You can remove the `##` and use TRICE0 instead of TRICE for a no parameter value TRICE in that case.
 #define COUNT_ARGUMENTS(...) NTH_ARGUMENT(dummy, ## __VA_ARGS__, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0)
