@@ -53,8 +53,9 @@ void TriceTransfer( void ){
 #endif // #ifdef TRICE_HALF_BUFFER_SIZE
 
 //! TriceOut converts trice data and transmits them to the output.
-//! \param tb ist start of uint32_t* trice buffer. TRICE_DATA_OFFSET>>2 at start for in buffer COBS encoding. 
-//! TRICE_COBS_PACKAGE_MODE afterwards and then the trice data
+//! \param tb is start of uint32_t* trice buffer. The space TRICE_DATA_OFFSET>>2
+//! at the tb start is for in-buffer COBS encoding and the
+//! TRICE_COBS_PACKAGE_MODE in front of the trice data.
 //! \param tLen is length of trice data. tlen is always a multiple of 4 and counts after TRICE_COBS_PACKAGE_MODE.
 void TriceOut( uint32_t* tb, size_t tLen ){
     size_t eLen, cLen;
