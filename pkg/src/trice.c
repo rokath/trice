@@ -76,7 +76,7 @@ void TriceOut( uint32_t* tb, size_t tLen ){
     TriceDepthMax = tLen < TriceDepthMax ? TriceDepthMax : tLen;
 }
 
-#if defined( TRICE_UART ) && !defined( TRICE_HALF_BUFFER_SIZE )// direct out to UART
+#if defined( TRICE_UART ) && !defined( TRICE_HALF_BUFFER_SIZE ) // direct out to UART
 //! triceBlockingPutChar returns after c was successfully written.
 static void triceBlockingPutChar( uint8_t c ){
     while( !triceTxDataRegisterEmpty() );
@@ -113,7 +113,7 @@ uint8_t TriceNextUint8( void ){
     return triceOutBuffer[triceOutIndex++];
 }
 
-//! triceServeTransmit as triceServeU8FifoTransmit must be called cyclically to proceed ongoing write out.
+//! triceServeTransmit must be called cyclically to proceed ongoing write out.
 //! A good place is UART ISR.
 void triceServeTransmit(void) {
     triceTransmitData8(TriceNextUint8());
@@ -122,7 +122,7 @@ void triceServeTransmit(void) {
     }
 }
 
-// triceTriggerTransmit as triceTriggerU8FifoTransmit must be called cyclically to initialize write out.
+// triceTriggerTransmit must be called cyclically to initialize write out.
 void triceTriggerTransmit(void){
     if( TriceOutDepth() && triceTxDataRegisterEmpty() ){
         triceEnableTxEmptyInterrupt(); // next bytes
