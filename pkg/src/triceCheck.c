@@ -143,21 +143,19 @@ void TriceCheckSet(int index) {
             TRICE16( Id( 39046), "rd:TRICE16 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 );  
         break;
         case 5:
-            /*
-            TRICE( Id( 55685),  "rd:TRICE --------------------------------------------------\n");            
-            TRICE( Id( 52271), "rd:TRICE %d\n", 1 );
-            TRICE( Id( 53477), "rd:TRICE %d, %d\n", 1, 2 );
-            TRICE( Id( 55976), "rd:TRICE %d, %d, %d\n", 1, 2, 3 );
-            TRICE( Id( 61980), "rd:TRICE %d, %d, %d, %d\n", 1, 2, 3, 4 );
-            TRICE( Id( 43372), "rd:TRICE %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5 );
-            TRICE( Id( 60630), "rd:TRICE %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6 );
-            TRICE( Id( 59053), "rd:TRICE %d, %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6, 7);
-            TRICE( Id( 58823), "rd:TRICE %d, %d, %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6, 7, 8 );      
-            TRICE( Id( 55543), "rd:TRICE %d, %d, %d, %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6, 7, 8, 9 );      
-            TRICE( Id( 61144), "rd:TRICE %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10);      
-            TRICE( Id( 63651), "rd:TRICE %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 );      
-            TRICE( Id( 53033), "rd:TRICE %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 );
-        */
+            TRICE( Id( 33680), "rd:TRICE --------------------------------------------------\n");            
+            TRICE( Id( 61886), "rd:TRICE %d\n", 1 );
+            TRICE( Id( 37931), "rd:TRICE %d, %d\n", 1, 2 );
+            TRICE( Id( 36583), "rd:TRICE %d, %d, %d\n", 1, 2, 3 );
+            TRICE( Id( 52400), "rd:TRICE %d, %d, %d, %d\n", 1, 2, 3, 4 );
+            TRICE( Id( 61348), "rd:TRICE %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5 );
+            TRICE( Id( 44290), "rd:TRICE %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6 );
+            TRICE( Id( 35857), "rd:TRICE %d, %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6, 7);
+            TRICE( Id( 35028), "rd:TRICE %d, %d, %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6, 7, 8 );      
+            TRICE( Id( 37374), "rd:TRICE %d, %d, %d, %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6, 7, 8, 9 );      
+            TRICE( Id( 65335), "rd:TRICE %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10);      
+            TRICE( Id( 43075), "rd:TRICE %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 );      
+            TRICE( Id( 35190), "rd:TRICE %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 );
         break;
         case 6:                    
             TRICE64( Id( 63433), "rd:TRICE64 %d\n", 1 );

@@ -23,7 +23,7 @@ const (
 	patSourceFile = "(\\.c|\\.h|\\.cc|\\.cpp|\\.hpp)$"
 
 	// patTrice matches any TRICE name variant https://regex101.com/r/IkIhV3/1, The (?i) says case insensitive
-	patTypNameTRICE = `(?i)(\b((TRICE((_S|0)|((8|16|32|64)*(_[1-9]*)*))))\b)`
+	patTypNameTRICE = `(?i)(\b((TRICE((_S|0)|((8|16|32|64)*(_[0-9]*)*))))\b)`
 	//               `     (\b((TRICE(_S|0|(8|16|32|64)*)))(_[1-9]*)*|\b)\s*\(\s*\bID\b\s*\(\s*.*[0-9]\s*\)\s*,\s*".*"\s*.*\)\s*;` // https://regex101.com/r/pPRsjf/1
 
 	// patFmtString is a regex matching the first format string inside trice

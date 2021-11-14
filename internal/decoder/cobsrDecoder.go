@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"strings"
 	"sync"
 
 	"github.com/dim13/cobs"
@@ -246,8 +247,18 @@ func (p *COBS) sprintTrice(b []byte) (n int) {
 		cobsFunctionPtrList[0].paramSpace = (p.sLen + 7) & ^3 // +4 for 4 bytes sLen, +3^3 is alignment to 4
 	}
 
-	x := formatSpecifierCount(p.trice.Strg)
-	triceType := fmt.Sprintf(p.trice.Type+"_%d", x) // append count
+	var triceType string
+
+	if strings.HasPrefix(p.trice.Type, "TRICE_") {
+		triceType = "TRICE32_" + p.trice.Type[6:]
+		//x := formatSpecifierCount(p.trice.Strg)
+		//triceType = fmt.Sprintf("TRICE32_"+"_%d", x) // append count
+	}
+
+	if p.trice.Type == "TRICE" {
+		triceType = "TRICE0"
+	}
+
 	for _, s := range cobsFunctionPtrList {
 		if s.triceType == p.trice.Type || s.triceType == triceType {
 			if s.paramSpace == p.paramSpace {
@@ -283,6 +294,7 @@ type triceTypeFn struct {
 // cobsFunctionPtrList is a function pointer list.
 var cobsFunctionPtrList = [...]triceTypeFn{
 	{"TRICE_S", (*COBS).triceS, -1, 0, 0}, // do not remove from first position, see cobsFunctionPtrList[0].paramSpace = ...
+	{"TRICE32_0", (*COBS).trice0, 0, 0, 0},
 	{"TRICE0", (*COBS).trice0, 0, 0, 0},
 	{"TRICE8_1", (*COBS).unSignedOrSignedOut, 4, 8, 1},
 	{"TRICE8_2", (*COBS).unSignedOrSignedOut, 4, 8, 2},

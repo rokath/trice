@@ -139,22 +139,6 @@ func _TestInsertSharedIDs1WithExtendN(t *testing.T) {
 		{`... Trice64 ( "hi %03u", 5); ...`, `... Trice64_1 ( id(10003), "hi %03u", 5); ...`, true, true},
 		{`... TRICE64 ( "hi %03u", 5); ...`, `... TRICE64_1 ( Id( 40003), "hi %03u", 5); ...`, true, true},
 		{`... trice64 ( "hi %03u", 5); ...`, `... trice64_1 ( Id( 40003), "hi %03u", 5); ...`, true, false},
-
-		{`...  Trice8i( "hi %03u", 5); ...`, `...  Trice8_1i( id(10004), "hi %03u", 5); ...`, true, true},
-		{`...  TRICE8i( "hi %03u", 5); ...`, `...  TRICE8_1i( Id( 40004), "hi %03u", 5); ...`, true, true},
-		{`...  trice8i( "hi %03u", 5); ...`, `...  trice8_1i( Id( 40004), "hi %03u", 5); ...`, true, false},
-
-		{`... Trice16i( "hi %03u", 5); ...`, `... Trice16_1i( id(10005), "hi %03u", 5); ...`, true, true},
-		{`... TRICE16i( "hi %03u", 5); ...`, `... TRICE16_1i( Id( 40005), "hi %03u", 5); ...`, true, true},
-		{`... trice16i( "hi %03u", 5); ...`, `... trice16_1i( Id( 40005), "hi %03u", 5); ...`, true, false},
-
-		{`... Trice32i( "hi %03u", 5); ...`, `... Trice32_1i( id(10006), "hi %03u", 5); ...`, true, true},
-		{`... TRICE32i( "hi %03u", 5); ...`, `... TRICE32_1i( Id( 40006), "hi %03u", 5); ...`, true, true},
-		{`... trice32i( "hi %03u", 5); ...`, `... trice32_1i( Id( 40006), "hi %03u", 5); ...`, true, false},
-
-		{`... Trice64i( "hi %03u", 5); ...`, `... Trice64_1i( id(10007), "hi %03u", 5); ...`, true, true},
-		{`... TRICE64i( "hi %03u", 5); ...`, `... TRICE64_1i( Id( 40007), "hi %03u", 5); ...`, true, true},
-		{`... trice64i( "hi %03u", 5); ...`, `... trice64_1i( Id( 40007), "hi %03u", 5); ...`, true, false},
 	}
 	eList := `map[10000:{Trice8_1 hi %03u} 10001:{Trice16_1 hi %03u} 10002:{Trice32_1 hi %03u} 10003:{Trice64_1 hi %03u} 10004:{Trice8_1i hi %03u} 10005:{Trice16_1i hi %03u} 10006:{Trice32_1i hi %03u} 10007:{Trice64_1i hi %03u} 40000:{trice8_1 hi %03u} 40001:{trice16_1 hi %03u} 40002:{trice32_1 hi %03u} 40003:{trice64_1 hi %03u} 40004:{trice8_1i hi %03u} 40005:{trice16_1i hi %03u} 40006:{trice32_1i hi %03u} 40007:{trice64_1i hi %03u}]
 `
@@ -188,32 +172,26 @@ func _TestInsertSharedIDs2NoExtendN(t *testing.T) {
 		{`... Trice64 ( "hi %03u, %5x", 5, 7); ...`, `... Trice64 ( id(10003), "hi %03u, %5x", 5, 7); ...`, true, true}, // does not exist but allowed to match
 		{`... TRICE64 ( "hi %03u, %5x", 5, 7); ...`, `... TRICE64 ( Id( 40003), "hi %03u, %5x", 5, 7); ...`, true, true},
 		{`... trice64 ( "hi %03u, %5x", 5, 7); ...`, `... trice64 ( Id( 40003), "hi %03u, %5x", 5, 7); ...`, true, false},
-
-		{`...  Trice8i( "hi %03u, %5x", 5, 7); ...`, `...  Trice8i( id(10004), "hi %03u, %5x", 5, 7); ...`, true, true},
-		{`...  TRICE8i( "hi %03u, %5x", 5, 7); ...`, `...  TRICE8i( Id( 40004), "hi %03u, %5x", 5, 7); ...`, true, true},
-		{`...  trice8i( "hi %03u, %5x", 5, 7); ...`, `...  trice8i( Id( 40004), "hi %03u, %5x", 5, 7); ...`, true, false},
-
-		{`... Trice16i( "hi %03u, %5x", 5, 7); ...`, `... Trice16i( id(10005), "hi %03u, %5x", 5, 7); ...`, true, true},
-		{`... TRICE16i( "hi %03u, %5x", 5, 7); ...`, `... TRICE16i( Id( 40005), "hi %03u, %5x", 5, 7); ...`, true, true},
-		{`... trice16i( "hi %03u, %5x", 5, 7); ...`, `... trice16i( Id( 40005), "hi %03u, %5x", 5, 7); ...`, true, false},
-
-		{`... Trice32i( "hi %03u, %5x", 5, 7); ...`, `... Trice32i( id(10006), "hi %03u, %5x", 5, 7); ...`, true, true}, // does not exist but allowed to match
-		{`... TRICE32i( "hi %03u, %5x", 5, 7); ...`, `... TRICE32i( Id( 40006), "hi %03u, %5x", 5, 7); ...`, true, true},
-		{`... trice32i( "hi %03u, %5x", 5, 7); ...`, `... trice32i( Id( 40006), "hi %03u, %5x", 5, 7); ...`, true, false},
-
-		{`... Trice64i( "hi %03u, %5x", 5, 7); ...`, `... Trice64i( id(10007), "hi %03u, %5x", 5, 7); ...`, true, true}, // does not exist but allowed to match
-		{`... TRICE64i( "hi %03u, %5x", 5, 7); ...`, `... TRICE64i( Id( 40007), "hi %03u, %5x", 5, 7); ...`, true, true},
-		{`... trice64i( "hi %03u, %5x", 5, 7); ...`, `... trice64i( Id( 40007), "hi %03u, %5x", 5, 7); ...`, true, false},
-
-		{`... trice64_2i( "hi %03u, %5x", 5, 7); ...`, `... trice64_2i( Id( 40008), "hi %03u, %5x", 5, 7); ...`, true, true},
 	}
 	eList := `map[10000:{Trice8_2 hi %03u, %5x} 10001:{Trice16_2 hi %03u, %5x} 10002:{Trice32_2 hi %03u, %5x} 10003:{Trice64_2 hi %03u, %5x} 10004:{Trice8_2i hi %03u, %5x} 10005:{Trice16_2i hi %03u, %5x} 10006:{Trice32_2i hi %03u, %5x} 10007:{Trice64_2i hi %03u, %5x} 40000:{trice8_2 hi %03u, %5x} 40001:{trice16_2 hi %03u, %5x} 40002:{trice32_2 hi %03u, %5x} 40003:{trice64_2 hi %03u, %5x} 40004:{trice8_2i hi %03u, %5x} 40005:{trice16_2i hi %03u, %5x} 40006:{trice32_2i hi %03u, %5x} 40007:{trice64_2i hi %03u, %5x} 40008:{trice64_2i hi %03u, %5x}]
 `
 	checkList(t, true, 10000, 20000, 40000, 50000, tt, eList, false)
 }
 
+func _TestTrice(t *testing.T) { // wip
+	tt := testTable{
+		{
+			`TRICE( "Go is fun");`,
+			`TRICE(id(20000), "Go is fun");`, true, true},
+	}
+	eList := `map[20000:{TRICE Trallala}]
+`
+	checkList(t, true, 10000, 20000, 10, 99, tt, eList, true)
+	checkList(t, true, 10000, 20000, 10, 99, tt, eList, false)
+}
+
 // Because of the parallel test execution the global variables must be equal for all tests
-func _TestInsertSharedIDs0WithParamCount(t *testing.T) {
+func TestInsertSharedIDs0WithParamCount(t *testing.T) {
 	SearchMethod = "downward"
 
 	tt := testTable{
@@ -244,11 +222,8 @@ func _TestInsertSharedIDs0WithParamCount(t *testing.T) {
 		{
 			`Trice16_1( Id(0), "hi %d", 5); // first id`,
 			`Trice16_1( id(19997), "hi %d", 5); // first id`, true, true},
-		{
-			`Trice16_1i( Id(0), "hi %d", 5); // first id`,
-			`Trice16_1i( id(19996), "hi %d", 5); // first id`, true, true},
 	}
-	eList := `map[98:{TRICE8_1 Hi %d} 99:{trice8_1 hi %d} 19996:{Trice16_1i hi %d} 19997:{Trice16_1 hi %d} 19998:{Trice8_2 hi %d %u} 19999:{Trice8_1 hi %d} 20000:{Trice0 Trallala}]
+	eList := `map[98:{TRICE8_1 Hi %d} 99:{trice8_1 hi %d} 19997:{Trice16_1 hi %d} 19998:{Trice8_2 hi %d %u} 19999:{Trice8_1 hi %d} 20000:{Trice0 Trallala}]
 `
 	checkList(t, true, 10000, 20000, 10, 99, tt, eList, true)
 	checkList(t, true, 10000, 20000, 10, 99, tt, eList, false)

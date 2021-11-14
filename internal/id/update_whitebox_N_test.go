@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// A wrong parameter count should not be corrected! THe compiler will complain and a decision should be made.
+// A wrong parameter count should not be corrected! The compiler will complain and a decision should be made.
 func TestDoNotCorrectWrongParamCountSingle(t *testing.T) {
 	tt := []struct{ text, exp string }{
 		{
