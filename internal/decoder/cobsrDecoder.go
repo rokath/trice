@@ -100,7 +100,10 @@ func (p *COBS) nextCOBSpackage() {
 	p.b = p.b[:n]             // decoded trice COBS packages have a multiple of 4 len
 	if n&3 != 0 {
 		dump(p.b)
-		log.Fatal("ERROR:Decoded trice COBS package has not expected  multiple of 4 len.", n, "=len") // exit
+		fmt.Println("ERROR:Decoded trice COBS package has not expected  multiple of 4 len. The len is", n) // exit
+		n = 0
+		p.b = p.b[:0]
+		return
 	}
 
 	if DebugOut { // Debug output
@@ -225,7 +228,13 @@ func (p *COBS) Read(b []byte) (n int, err error) {
 	}
 	p.b = p.b[headSize:]      // drop used head info
 	n += p.sprintTrice(b[n:]) // use param info
-	p.b = p.b[p.paramSpace:]  // drop param info
+	if len(p.b) < p.paramSpace {
+		n += copy(b[n:], fmt.Sprintln("ERROR:ignoring data garbage"))
+		n += copy(b[n:], fmt.Sprintln(hints))
+		p.b = p.b[:0]
+	} else {
+		p.b = p.b[p.paramSpace:] // drop param info
+	}
 	return
 }
 
@@ -258,7 +267,7 @@ func (p *COBS) sprintTrice(b []byte) (n int) {
 	}
 	n += copy(b[n:], fmt.Sprintln("err:Unknown trice.Type:", p.trice.Type, "and", triceType, "not matching - ignoring trice data", p.b[:p.paramSpace]))
 	n += copy(b[n:], fmt.Sprintln(hints))
-	p.b = p.b[p.paramSpace:]
+	//p.b = p.b[:0] // drop all
 	return
 }
 

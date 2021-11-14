@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"os"
 	"strings"
 	"sync"
 	"testing"
@@ -27,7 +28,7 @@ func init() {
 func _TestTranslate(t *testing.T) {
 	glob.Lock()
 	defer glob.Unlock()
-	sw := emitter.New()
+	sw := emitter.New(os.Stdout)
 	lu := make(id.TriceIDLookUp) // empty
 	assert.Nil(t, lu.FromJSON([]byte(til)))
 	m := new(sync.RWMutex) // m is a pointer to a read write mutex for lu
@@ -40,7 +41,7 @@ func _TestTranslate(t *testing.T) {
 	}()
 	rc, err := receiver.NewReadCloser(receiver.Port, "2, 124, 227, 255, 0, 0, 4, 0")
 	assert.Nil(t, err)
-	err = Translate(sw, lu, m, rc)
+	err = Translate(os.Stdout, sw, lu, m, rc)
 	assert.Equal(t, io.EOF, err)
 }
 

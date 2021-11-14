@@ -2,8 +2,8 @@
 //
 // Usage:
 // cage.Name = cage.DefaultLogfileName
-// cage.Enable()
-// defer cage.Disable()
+// cage.Enable(w)
+// defer cage.Disable(w)
 // do stuff...
 package cage
 
@@ -40,14 +40,14 @@ var (
 
 // Enable starts take notes mode, means parallel writing into a file.
 // Name has to be assigned to a value other than "off" or "none" for taking effect.
-func Enable() {
-	pContainer = Start(Name)
+func Enable(w io.Writer) {
+	pContainer = Start(w, Name)
 }
 
 // Disable ends take notes mode, means parallel writing into a file.
 // It takes no effect when pContainer is nil, what is the case when Enable was started with "off" or "none" as 'Name'.
-func Disable() {
-	Stop(pContainer)
+func Disable(w io.Writer) {
+	Stop(w, pContainer)
 }
 
 // Container keeps re-direction informantion for restoring
@@ -56,6 +56,7 @@ type Container struct {
 	oldLog     io.Writer
 	origStdout *os.File
 	origStderr *os.File
+	//origOut    io.Writer
 
 	// new
 	writerStdout *os.File
@@ -66,12 +67,12 @@ type Container struct {
 }
 
 // Start does append all output parallel into a logfile with name fn
-func Start(fn string) *Container {
+func Start(w io.Writer, fn string) *Container {
 
 	// start logging only if fn not "none" or "off"
 	if "none" == fn || "off" == fn {
 		if Verbose {
-			fmt.Println("No logfile writing...")
+			fmt.Fprintln(w, "No logfile writing...")
 		}
 		return nil
 	}
@@ -85,7 +86,7 @@ func Start(fn string) *Container {
 	lfH, err := os.OpenFile(fn, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	msg.FatalOnErr(err)
 	if Verbose {
-		log.Printf("Writing to logfile %s...\n", fn)
+		fmt.Fprintf(w, "Writing to logfile %s...\n", fn)
 	}
 
 	// open pipes
@@ -101,6 +102,8 @@ func Start(fn string) *Container {
 		origStdout: os.Stdout,
 		origStderr: os.Stderr,
 
+		//origOut: w,
+
 		writerStdout: wStdout,
 		writerStderr: wStderr,
 
@@ -110,8 +113,8 @@ func Start(fn string) *Container {
 
 	// re-direct
 	log.SetOutput(io.MultiWriter(c.oldLog, c.lfHandle)) // writing to log will go also to logfile now
-	os.Stdout = c.writerStdout                          // all to os.Stdout goees now to c.writerStdout and comee out of rStdout now
-	os.Stderr = c.writerStderr                          // all to os.Stderr goees now to c.writerStderr and comes out of rStderr now
+	os.Stdout = c.writerStdout                          // all to os.Stdout goes now to c.writerStdout and comes out of rStdout now
+	os.Stderr = c.writerStderr                          // all to os.Stderr goes now to c.writerStderr and comes out of rStderr now
 
 	// create duplication
 	teeOut := io.MultiWriter(c.origStdout, c.lfHandle)
@@ -142,12 +145,12 @@ func Start(fn string) *Container {
 }
 
 // Stop does return to normal state.
-func Stop(c *Container) {
+func Stop(w io.Writer, c *Container) {
 
 	// only if loggig was enabled
 	if nil == c {
 		if Verbose {
-			fmt.Println("No logfile writing...done")
+			fmt.Fprintln(w, "No logfile writing...done")
 		}
 		return
 	}

@@ -26,7 +26,7 @@ import (
 
 // Handler is called in main, evaluates args and calls the appropriate functions.
 // It returns for program exit.
-func Handler(args []string) error {
+func Handler(w io.Writer, args []string) error {
 
 	id.FnJSON = id.ConditionalFilePath(id.FnJSON)
 
@@ -54,56 +54,56 @@ func Handler(args []string) error {
 		return fmt.Errorf("unknown sub-command '%s'. try: 'trice help|h'", subCmd)
 	case "h", "help":
 		msg.OnErr(fsScHelp.Parse(subArgs))
-		distributeArgs()
-		return scHelp()
+		distributeArgs(w)
+		return scHelp(w)
 	case "s", "scan":
 		msg.OnErr(fsScScan.Parse(subArgs))
-		distributeArgs()
+		distributeArgs(w)
 		_, err := com.GetSerialPorts()
 		return err
 	case "ver", "version":
 		msg.OnErr(fsScVersion.Parse(subArgs))
-		distributeArgs()
-		return scVersion()
+		distributeArgs(w)
+		return scVersion(w)
 	case "renew":
 		msg.OnErr(fsScRenew.Parse(subArgs))
-		distributeArgs()
-		return id.SubCmdReNewList()
+		distributeArgs(w)
+		return id.SubCmdReNewList(w)
 	case "r", "refresh":
 		msg.OnErr(fsScRefresh.Parse(subArgs))
-		distributeArgs()
-		return id.SubCmdRefreshList()
+		distributeArgs(w)
+		return id.SubCmdRefreshList(w)
 	case "u", "update":
 		msg.OnErr(fsScUpdate.Parse(subArgs))
-		distributeArgs()
-		return id.SubCmdUpdate()
+		distributeArgs(w)
+		return id.SubCmdUpdate(w)
 	case "zeroSourceTreeIds":
 		msg.OnErr(fsScZero.Parse(subArgs))
-		distributeArgs()
-		return id.ScZero(*pSrcZ, fsScZero)
+		distributeArgs(w)
+		return id.ScZero(w, *pSrcZ, fsScZero)
 	case "sd", "shutdown":
 		msg.OnErr(fsScSdSv.Parse(subArgs))
-		distributeArgs()
-		return emitter.ScShutdownRemoteDisplayServer(0) // 0|1: 0=no 1=with shutdown timestamp in display server
+		distributeArgs(w)
+		return emitter.ScShutdownRemoteDisplayServer(w, 0) // 0|1: 0=no 1=with shutdown timestamp in display server
 	case "ds", "displayServer":
 		msg.OnErr(fsScSv.Parse(subArgs))
-		distributeArgs()
-		return emitter.ScDisplayServer() // endless loop
+		distributeArgs(w)
+		return emitter.ScDisplayServer(w) // endless loop
 	case "l", "log":
 		msg.OnErr(fsScLog.Parse(subArgs))
-		distributeArgs()
-		logLoop() // endless loop
+		distributeArgs(w)
+		logLoop(w) // endless loop
 		return nil
 	}
 }
 
 type selector struct {
 	flag bool
-	info func() error
+	info func(io.Writer) error
 }
 
 // logLoop prepares writing and lut and provides a retry mechanism for unplugged UART.
-func logLoop() {
+func logLoop(w io.Writer) {
 	msg.FatalOnErr(cipher.SetUp()) // does nothing when -password is ""
 	if decoder.TestTableMode {
 		// set switches if they not set already
@@ -121,10 +121,15 @@ func logLoop() {
 			emitter.ColorPalette = "off"
 		}
 	}
-	c := cage.Start(cage.Name)
-	defer cage.Stop(c)
-	lu := id.NewLut(id.FnJSON) // lut is a map, that means a pointer
-	m := new(sync.RWMutex)     // m is a pointer to a read write mutex for lu
+	c := cage.Start(w, cage.Name)
+	defer cage.Stop(w, c)
+	var lu id.TriceIDLookUp
+	if id.FnJSON == "emptyFile" { // reserved name for tests only
+		lu = make(id.TriceIDLookUp)
+	} else {
+		lu = id.NewLut(id.FnJSON) // lut is a map, that means a pointer
+	}
+	m := new(sync.RWMutex) // m is a pointer to a read write mutex for lu
 	m.Lock()
 	lu.AddFmtCount()
 	m.Unlock()
@@ -132,20 +137,20 @@ func logLoop() {
 	// This way trice needs NOT to be restarted during development process.
 	go lu.FileWatcher(m)
 
-	sw := emitter.New()
+	sw := emitter.New(w)
 	var interrupted bool
 	var counter int
 
 	for {
 		rc, e := receiver.NewReadCloser(receiver.Port, receiver.PortArguments)
 		if nil != e {
-			fmt.Println(e)
+			fmt.Fprint(w, e)
 			if !interrupted {
-				cage.Stop(c)
+				//cage.Stop(c)
 				return // hopeless
 			}
 			time.Sleep(1000 * time.Millisecond) // retry interval
-			fmt.Printf("\rsig:(re-)setup input port...%d", counter)
+			fmt.Fprintf(w, "\rsig:(re-)setup input port...%d", counter)
 			counter++
 			continue
 		}
@@ -154,7 +159,7 @@ func logLoop() {
 		if receiver.ShowInputBytes {
 			rc = receiver.NewBytesViewer(rc)
 		}
-		e = decoder.Translate(sw, lu, m, rc)
+		e = decoder.Translate(w, sw, lu, m, rc)
 		if io.EOF == e {
 			return // end of predefined buffer
 		}
@@ -162,23 +167,23 @@ func logLoop() {
 }
 
 // scVersion is sub-command 'version'. It prints version information.
-func scVersion() error {
-	cage.Enable()
-	defer cage.Disable()
+func scVersion(w io.Writer) error {
+	cage.Enable(w)
+	defer cage.Disable(w)
 	if verbose {
-		fmt.Println("https://github.com/rokath/trice")
+		fmt.Fprintln(w, "https://github.com/rokath/trice")
 	}
 	if Version != "" {
-		fmt.Printf("version=%v, commit=%v, built at %v\n", Version, Commit, Date)
+		fmt.Fprintf(w, "version=%v, commit=%v, built at %v\n", Version, Commit, Date)
 	} else {
-		fmt.Printf("version=devel, built %s\n", Date)
+		fmt.Fprintf(w, "version=devel, built %s\n", Date)
 	}
 	return nil
 }
 
 // distributeArgs is distributing values used in several packages.
 // It must not be called before the appropriate arg parsing.
-func distributeArgs() {
+func distributeArgs(w io.Writer) {
 	replaceDefaultArgs()
 	com.Verbose = verbose
 	id.Verbose = verbose
@@ -187,7 +192,7 @@ func distributeArgs() {
 	decoder.Verbose = verbose
 	emitter.Verbose = verbose
 	emitter.TestTableMode = decoder.TestTableMode
-	evaluateColorPalette()
+	evaluateColorPalette(w)
 }
 
 // replaceDefaultArgs assigns port specific default strings.
@@ -207,12 +212,12 @@ func replaceDefaultArgs() {
 }
 
 // evaluateColorPalette
-func evaluateColorPalette() {
+func evaluateColorPalette(w io.Writer) {
 	switch emitter.ColorPalette {
 	case "off", "none", "default", "color":
 		return
 	default:
-		fmt.Println("Ignoring unknown -color", emitter.ColorPalette, "using default.")
+		fmt.Fprintln(w, "Ignoring unknown -color", emitter.ColorPalette, "using default.")
 		emitter.ColorPalette = "default"
 	}
 }

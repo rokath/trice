@@ -4,92 +4,114 @@
 package args
 
 import (
-	"fmt"
-	"log"
+	"io/ioutil"
+	"os"
 	"testing"
 
+	"github.com/rokath/trice/internal/id"
 	"github.com/rokath/trice/pkg/msg"
 	"github.com/rokath/trice/pkg/tst"
-	"github.com/stretchr/testify/assert"
+	"github.com/tj/assert"
 )
 
-func TestVersion(t *testing.T) {
+func TestMain(m *testing.M) {
+	id.FnJSON = getTemporaryFileName("til-*.JSON")
+	code := m.Run()
+	os.Remove(id.FnJSON) // // os.Exit() does not respect defer statements
+	os.Exit(code)
+}
+
+func getTemporaryFileName(pattern string) string {
+	tempFileHandle, e := ioutil.TempFile(os.TempDir(), pattern) // opens for read and write
+	msg.OnErr(e)
+	tempFileName := tempFileHandle.Name()
+	msg.OnErr(tempFileHandle.Close())
+	return tempFileName
+}
+
+func TestHelp(t *testing.T) {
+	args := []string{"trice", "help"}
+	expect := `syntax: 'trice sub-command' [params]
+      example 'trice h -help': Print help for help.
+      `
+	execHelper(t, args, expect)
+}
+
+func TestXyz(t *testing.T) {
+	args := []string{"trice", "xyz"}
+	expect := `unknown sub-command 'xyz'. try: 'trice help|h'`
+	execHelper(t, args, expect)
+}
+
+func TestNoArgs(t *testing.T) {
+	args := []string{"trice"}
+	expect := `no args, try: 'trice help'`
+	execHelper(t, args, expect)
+}
+
+func TestUpdate(t *testing.T) {
+	args := []string{"trice", "update", "-idList", "emptyFile"}
+	expect := ``
+	execHelper(t, args, expect)
+}
+
+func TestUpdateV(t *testing.T) {
+	args := []string{"trice", "update", "-idList", "emptyFile", "-verbose"}
+	expect := `0 ID's in List emptyFile listModified= false
+	`
+	execHelper(t, args, expect)
+}
+
+func TestComX(t *testing.T) {
+	args := []string{"trice", "log", "-p", "COMX", "-idList", "emptyFile"}
+	expect := `can not open COMX`
+	execHelper(t, args, expect)
+}
+
+func _TestVersion(t *testing.T) {
 	verbose = false
 	v := []string{"", ""}
 	testVersion(t, v)
-	m.Lock()
+	//m.Lock()
 	verbose = true
 	v[0] = "No logfile writing...\nhttps://github.com/rokath/trice\n"
 	v[1] = "No logfile writing...done\n"
 	testVersion(t, v)
 	verbose = false
-	m.Unlock()
+	//m.Unlock()
 }
 
 func TestScan(t *testing.T) {
 	fn := func() {
-		err := Handler([]string{"trice", "scan"})
-		if nil != err {
-			fmt.Print(err)
-		}
+		err := Handler(os.Stdout, []string{"trice", "scan"})
+		assert.Nil(t, err)
 	}
 	fn()
 	act := tst.CaptureStdOut(fn)
-	fmt.Print(act)
 	s := "Found port:"
 	assert.Equal(t, s, act[:len(s)])
 }
 
-func TestHelpScan(t *testing.T) {
+func testVersion(t *testing.T, v []string) {
+	fi, err := os.Stat(os.Args[0])
+	assert.Nil(t, err)
+	buildTime := fi.ModTime().String()
+	exp := v[0] + "version=devel, built " + buildTime + "\n" + v[1]
+
 	fn := func() {
-		err := Handler([]string{"trice", "help", "-s"})
-		if nil != err {
-			fmt.Print(err)
-		}
+		msg.OnErr(Handler(os.Stdout, []string{"trice", "ver"}))
 	}
-	h.Lock()
-	m.Lock()
 	act := tst.CaptureStdOut(fn)
-	allHelp = false
-	m.Unlock()
-	h.Unlock()
-	fmt.Print(act)
-	exp := `syntax: 'trice sub-command' [params]
-      sub-command 's|scan': Shows available serial ports)
-      example: 'trice s': Show COM ports.          
-      `
-	tst.EqualLines(t, exp, act)
+	assert.Equal(t, exp, act)
+
+	fn = func() {
+		msg.OnErr(Handler(os.Stdout, []string{"trice", "version"}))
+	}
+	act = tst.CaptureStdOut(fn)
+	assert.Equal(t, exp, act)
 }
 
-func TestHelpZeroSourceTreeIds(t *testing.T) {
-	fn := func() {
-		err := Handler([]string{"trice", "help", "-z"})
-		if nil != err {
-			fmt.Print(err)
-		}
-	}
-	h.Lock()
-	m.Lock()
-	act := tst.CaptureStdOut(fn)
-	allHelp = false
-	m.Unlock()
-	h.Unlock()
-	fmt.Print(act)
-	exp := `syntax: 'trice sub-command' [params]
-      sub-command 'zeroSourceTreeIds': Set all Id(n) inside source tree dir to Id(0).
-              Avoid using this sub-command normally. The switch "-src" is mandatory and no multi-flag here.
-              This sub-command is mainly for testing. For several source directories you need several runs.
-        -dry-run
-              No changes applied but output shows what would happen.
-              "trice zeroSourceTreeIds -dry-run" will change nothing but show changes it would perform without the "-dry-run" switch.
-              This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true.
-        -src string
-              Zero all Id(n) inside source tree dir, required.
-      example: 'trice zeroSourceTreeIds -src ../A': Sets all TRICE IDs to 0 in ../A. Use with care!          
-      `
-	tst.EqualLines(t, exp, act)
-}
-
+/*
 func _TestShutdown(t *testing.T) { // crashes
 
 	//defer func() {
@@ -99,14 +121,11 @@ func _TestShutdown(t *testing.T) { // crashes
 	fn := func() {
 		o := msg.OsExitDisallow()
 		err := Handler([]string{"trice", "sd"})
-		if nil != err {
-			fmt.Print(err)
-		}
+		assert.Nil(t,err)
 		msg.OsExitAllow(o)
 	}
 	act := tst.CaptureStdOut(fn)
-	fmt.Print(act)
 	s := "Found port:"
 	assert.Equal(t, s, act[:len(s)])
-
 }
+*/

@@ -29,6 +29,23 @@ See https://github.com/rokath/trice/blob/master/pkg/src/triceCheck.c for example
 )
 
 func init() {
+	FlagsInit()
+}
+
+func FlagsInit() {
+	helpInit()
+	logInit()
+	refreshInit()
+	renewInit()
+	updateInit()
+	zeroInit()
+	versionInit()
+	dsInit()
+	scanInit()
+	sdInit()
+}
+
+func helpInit() {
 	fsScHelp = flag.NewFlagSet("help", flag.ContinueOnError) // sub-command
 	fsScHelp.BoolVar(&allHelp, "all", false, "Show all help.")
 	fsScHelp.BoolVar(&displayServerHelp, "displayserver", false, "Show ds|displayserver specific help.")
@@ -54,7 +71,7 @@ func init() {
 	flagVerbosity(fsScHelp)
 }
 
-func init() {
+func logInit() {
 	fsScLog = flag.NewFlagSet("log", flag.ExitOnError) // sub-command
 	fsScLog.StringVar(&decoder.Encoding, "encoding", "COBS", `The trice transmit data format type, options: '(CHAR|COBS|DUMP|ESC|FLEX)'. Target device encoding must match. 
 		  CHAR prints the received bytes as characters.
@@ -137,17 +154,17 @@ Example: "-pick err:wrn -pick default" results in suppressing all messages despi
 
 }
 
-func init() {
+func refreshInit() {
 	fsScRefresh = flag.NewFlagSet("refresh", flag.ExitOnError) // sub-command
 	flagsRefreshAndUpdate(fsScRefresh)
 }
 
-func init() {
+func renewInit() {
 	fsScRenew = flag.NewFlagSet("renew", flag.ExitOnError) // sub-command
 	flagsRefreshAndUpdate(fsScRenew)
 }
 
-func init() {
+func updateInit() {
 	fsScUpdate = flag.NewFlagSet("update", flag.ExitOnError) // sub-command
 	flagsRefreshAndUpdate(fsScUpdate)
 	fsScUpdate.Var(&id.Min, "IDMin", "Lower end of ID range for normal trices.")          // to do: this is no multi-flag.
@@ -161,30 +178,30 @@ true: TriceFmt's without TriceID get equal TriceID if an equal TriceFmt exists a
 false: TriceFmt's without TriceID get a different TriceID if an equal TriceFmt exists already.`)
 }
 
-func init() {
+func zeroInit() {
 	fsScZero = flag.NewFlagSet("zeroSourceTreeIds", flag.ContinueOnError)
 	pSrcZ = fsScZero.String("src", "", "Zero all Id(n) inside source tree dir, required.") // flag
 	flagDryRun(fsScZero)
 }
 
-func init() {
+func versionInit() {
 	fsScVersion = flag.NewFlagSet("version", flag.ContinueOnError) // sub-command
 	flagLogfile(fsScVersion)
 	flagVerbosity(fsScVersion)
 }
 
-func init() {
+func dsInit() {
 	fsScSv = flag.NewFlagSet("displayServer", flag.ExitOnError)            // sub-command
 	fsScSv.StringVar(&emitter.ColorPalette, "color", "default", colorInfo) // flag
 	flagLogfile(fsScSv)
 	flagIPAddress(fsScSv)
 }
 
-func init() {
+func scanInit() {
 	fsScScan = flag.NewFlagSet("scan", flag.ContinueOnError) // sub-command
 }
 
-func init() {
+func sdInit() {
 	fsScSdSv = flag.NewFlagSet("shutdownServer", flag.ExitOnError) // sub-command
 	flagIPAddress(fsScSdSv)
 }

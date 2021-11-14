@@ -5,6 +5,7 @@
 package emitter
 
 import (
+	"bytes"
 	"testing"
 
 	"github.com/rokath/trice/internal/receiver"
@@ -34,14 +35,18 @@ func TestSetPrefixNone(t *testing.T) {
 }
 
 func TestNew(t *testing.T) {
-	_ = New()
+	var out bytes.Buffer
+	_ = New(&out)
+	act := out.String()
+	assert.Equal(t, "", act)
 }
 
 func TestNewLineWriter(t *testing.T) {
 	o := msg.OsExitDisallow()
 	defer msg.OsExitAllow(o)
 	DisplayRemote = true
-	_ = newLineWriter()
+	var out bytes.Buffer
+	_ = newLineWriter(&out)
 }
 
 //  func TestNewLineWriter2(t *testing.T) {
@@ -55,14 +60,14 @@ func TestNewLineWriter(t *testing.T) {
 //  func TestNewRemoteDisplay(t *testing.T) {
 //  	o := msg.OsExitDisallow()
 //  	defer msg.OsExitAllow(o)
-//  	_ = NewRemoteDisplay(os.Args)
+//  	_ = NewRemoteDisplay(os.Stdout,os.Args)
 //  }
 
 /*
 func ExampleNewRemoteDisplay() {
 	o := msg.OsExitDisallow()
 	defer msg.OsExitAllow(o)
-	_ = NewRemoteDisplay("", "-lg off", "localhost", "11111")
+	_ = NewRemoteDisplay(os.Stdout, "", "-lg off", "localhost", "11111")
 	// Output:
 	// Error in [remoteDisplay.go %!s(int=110) github.com/rokath/trice/internal/emitter.(*RemoteDisplay).Connect dial tcp [::1]:11111: connectex: No connection could be made because the target machine actively refused it.]:%!d(MISSING): func '%!s(MISSING)' -> %!v(MISSING)
 }

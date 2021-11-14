@@ -26,7 +26,7 @@ func _TestRemoteDisplay(t *testing.T) {
 	_ = os.Remove(afn)
 	ipp := randomDynIPPort()
 	name := baseName()
-	p := NewRemoteDisplay(name, "-logfile "+afn, "localhost", ipp)
+	p := NewRemoteDisplay(os.Stdout,name, "-logfile "+afn, "localhost", ipp)
 	l1 := []string{"This is ", "the 1st ", "line"}
 	l2 := []string{"This is ", "the 2nd ", "line"}
 	p.writeLine(l1)

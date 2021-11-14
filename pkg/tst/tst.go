@@ -34,19 +34,12 @@ func TempFileName(pattern string) (s string) {
 
 // CaptureStdOut captures stdout and returns it as string.
 func CaptureStdOut(f func()) string {
-
-	// keep backup of the real stdout
-	old := os.Stdout
+	old := os.Stdout // keep backup of the real stdout
 
 	// re-direct stdout
 	r, w, err := os.Pipe()
 	msg.FatalOnErr(err)
-
 	os.Stdout = w
-	defer func() {
-		// restoring the real stdout
-		os.Stdout = old
-	}()
 
 	// copy the output in a separate goroutine so printing can't block indefinitely
 	outC := make(chan string)
@@ -57,35 +50,47 @@ func CaptureStdOut(f func()) string {
 		outC <- buf.String()
 	}()
 
-	// run the function
-	f()
+	f() // run the function
 
 	// back to normal state
 	msg.FatalOnErr(w.Close())
+	os.Stdout = old
 
 	// read output
 	return <-outC
+}
+
+func standardizeSpaces(s string) string {
+	return strings.Join(strings.Fields(s), " ")
 }
 
 // EqualLines compares exp and act line by line ignoring lineendings and leading/trailing spaces.
 func EqualLines(tb testing.TB, exp, act string) {
 
 	// remove windows line endings
-	exp0 := strings.ReplaceAll(exp, "\r", "")
-	act0 := strings.ReplaceAll(act, "\r", "")
-	exp1 := strings.ReplaceAll(exp0, "\t", "")
-	act1 := strings.ReplaceAll(act0, "\t", "")
-	exp2 := strings.ReplaceAll(exp1, " ", "")
-	act2 := strings.ReplaceAll(act1, " ", "")
+	//exp0 := strings.ReplaceAll(exp, "\r", "")
+	//act0 := strings.ReplaceAll(act, "\r", "")
+	//exp1 := strings.ReplaceAll(exp0, "\t", " ")
+	//act1 := strings.ReplaceAll(act0, "\t", " ")
+	//exp2 := strings.ReplaceAll(exp1, "  ", " ")
+	//act2 := strings.ReplaceAll(act1, "  ", " ")
 
-	expS := strings.Split(exp2, "\n")
-	actS := strings.Split(act2, "\n")
+	expS := strings.Split(exp, "\n")
+	actS := strings.Split(act, "\n")
 
-	fmt.Println(len(expS), len(actS))
+	//fmt.Println("lines:", len(expS), len(actS))
 	//assert.True(tb, len(expS) == len(actS))
 
-	for i := range expS {
-		if expS[i] != actS[i] {
+	if len(expS) != len(actS) {
+		tb.Fail()
+		return
+	}
+	for i := range actS {
+		e := standardizeSpaces(expS[i])
+		a := standardizeSpaces(actS[i])
+		if e != a {
+			fmt.Println(i, "expLine:"+e)
+			fmt.Println(i, "actLine:"+a)
 			fmt.Println(i, "expLine:"+expS[i])
 			fmt.Println(i, "actLine:"+actS[i])
 			tb.Fail()

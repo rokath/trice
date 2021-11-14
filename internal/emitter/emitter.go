@@ -6,6 +6,7 @@ package emitter
 
 import (
 	"fmt"
+	"io"
 	"os"
 	"strings"
 
@@ -113,7 +114,7 @@ type LineWriter interface {
 //  }
 
 // newLineWriter provides a LineWriter which can be a remote Display or the local console.
-func newLineWriter() (lwD LineWriter) {
+func newLineWriter(w io.Writer) (lwD LineWriter) {
 	if true == DisplayRemote {
 		var p *RemoteDisplay
 		//  var args []string
@@ -123,7 +124,7 @@ func newLineWriter() (lwD LineWriter) {
 		//  } else {
 		//  	args = os.Args
 		//  }
-		p = NewRemoteDisplay(os.Args)
+		p = NewRemoteDisplay(w, os.Args)
 		msg.FatalOnErr(p.Err)
 		lwD = p
 		// keybcmd.ReadInput()
@@ -134,17 +135,17 @@ func newLineWriter() (lwD LineWriter) {
 }
 
 // New creates the emitter instance and returns a string writer to be used for emitting.
-func New() *TriceLineComposer {
+func New(w io.Writer) *TriceLineComposer {
 	if !DisplayRemote {
-		cage.Enable()
-		defer cage.Disable()
+		cage.Enable(os.Stdout)
+		defer cage.Disable(os.Stdout)
 	}
 	if !TestTableMode { // do not change Prefix in TestTableMode
 		SetPrefix()
 	}
 	// lineComposer implements the io.StringWriter interface and uses the line writer provided.
 	// The line composer scans the trice strings and composes lines out of them according to its properties.
-	return newLineComposer(newLineWriter())
+	return newLineComposer(newLineWriter(w))
 }
 
 // SetPrefix changes "source:" to e.g., "JLINK:".

@@ -5,6 +5,7 @@ package emitter
 
 import (
 	"fmt"
+	"io"
 	"log"
 	"net/rpc"
 	"os"
@@ -25,7 +26,7 @@ type RemoteDisplay struct {
 	PtrRPC *rpc.Client // PtrRPC is a pointer for remote calls valid after a successful rpc.Dial()
 }
 
-// NewRemoteDisplay creates a connection to a remote Display and implements the Linewriter inteface.
+// NewRemoteDisplay creates a connection to a remote Display and implements the Linewriter interface.
 // It accepts 0 to 4 string arguments. More arguments are ignored.
 // For not given parameters default values are taken. The parameters are in the following order.
 // args[0] (exe), is a programm started to create a remote server instance if not already running.
@@ -35,7 +36,7 @@ type RemoteDisplay struct {
 // This value is used only if the remote server gets started.
 // args[2] (ipa) is the IP address to be used to connect to the remote display.
 // args[3] (ipp) is the IP port to be used to connect to the remote display.
-func NewRemoteDisplay(args []string) *RemoteDisplay {
+func NewRemoteDisplay(w io.Writer, args []string) *RemoteDisplay {
 	p := &RemoteDisplay{
 		Err:    nil,
 		Cmd:    args[0],
@@ -47,7 +48,7 @@ func NewRemoteDisplay(args []string) *RemoteDisplay {
 	//  if Autostart {
 	//  	p.startServer()
 	//  }
-	p.Connect()
+	p.Connect(w)
 	return p
 }
 
@@ -80,22 +81,22 @@ func (p *RemoteDisplay) writeLine(line []string) {
 // Connect is called by the client and tries to dial.
 // On success PtrRpc is valid afterwards and the output is re-directed.
 // Otherwise an error code is stored inside remotDisplay.
-func (p *RemoteDisplay) Connect() {
+func (p *RemoteDisplay) Connect(w io.Writer) {
 	addr := p.IPAddr + ":" + p.IPPort
 	if nil != p.PtrRPC {
 		if Verbose {
-			fmt.Println("already connected", p.PtrRPC)
+			fmt.Fprintln(w, "already connected", p.PtrRPC)
 		}
 		return
 	}
 	if Verbose {
-		fmt.Println("dialing " + addr + " ...")
+		fmt.Fprintln(w, "dialing "+addr+" ...")
 	}
 	p.PtrRPC, p.Err = rpc.Dial("tcp", addr)
 	msg.FatalOnErr(p.Err)
 	//p.ErrorFatal()
 	if Verbose {
-		fmt.Println("...remoteDisplay @ " + addr + " connected.")
+		fmt.Fprintln(w, "...remoteDisplay @ "+addr+" connected.")
 	}
 }
 
@@ -106,11 +107,11 @@ func (p *RemoteDisplay) Connect() {
 // For not given parameters default values are taken. The parameters are in the following order.
 // args[0] (ipa) is the IP address to be used to connect to the remote display.
 // args[1] (ipp) is the IP port to be used to connect to the remote display.
-func ScShutdownRemoteDisplayServer(timeStamp int64, args ...string) error {
-	args = append(args, "", "")    // make sure to have at least 2 elements in args.
-	p := NewRemoteDisplay(os.Args) //"", "", args[0], args[1])
+func ScShutdownRemoteDisplayServer(w io.Writer, timeStamp int64, args ...string) error {
+	args = append(args, "", "")       // make sure to have at least 2 elements in args.
+	p := NewRemoteDisplay(w, os.Args) //"", "", args[0], args[1])
 	if nil == p.PtrRPC {
-		p.Connect()
+		p.Connect(w)
 	}
 	p.stopServer(timeStamp)
 	return p.Err

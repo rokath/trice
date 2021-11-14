@@ -7,6 +7,7 @@ package emitter
 
 import (
 	"fmt"
+	"io"
 	"log"
 	"net"
 	"net/rpc"
@@ -95,12 +96,12 @@ var (
 
 // ScDisplayServer is the endless function called when trice tool acts as remote display.
 // All in Server struct registered RPC functions are reachable, when displayServer runs.
-func ScDisplayServer() error {
-	cage.Enable()
-	defer cage.Disable()
+func ScDisplayServer(w io.Writer) error {
+	cage.Enable(w)
+	defer cage.Disable(w)
 
 	a := fmt.Sprintf("%s:%s", IPAddr, IPPort)
-	fmt.Println("displayServer @", a)
+	fmt.Fprintln(w, "displayServer @", a)
 	srv := new(Server)
 	srv.Display = *NewColorDisplay(ColorPalette)
 	msg.OnErr(rpc.Register(srv))

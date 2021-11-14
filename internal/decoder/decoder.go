@@ -189,7 +189,7 @@ func (p *decoderData) setInput(r io.Reader) {
 }
 
 // handleSIGTERM is called on CTRL-C shutdown.
-func handleSIGTERM(rc io.ReadCloser) {
+func handleSIGTERM(w io.Writer, rc io.ReadCloser) {
 	// prepare CTRL-C shutdown reaction
 	sigs := make(chan os.Signal, 1)
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
@@ -198,7 +198,7 @@ func handleSIGTERM(rc io.ReadCloser) {
 		select {
 		case sig := <-sigs: // wait for a signal
 			if Verbose {
-				fmt.Println("####################################", sig, "####################################")
+				fmt.Fprintln(w, "####################################", sig, "####################################")
 			}
 			emitter.PrintColorChannelEvents()
 			msg.FatalOnErr(rc.Close())
@@ -213,7 +213,7 @@ func handleSIGTERM(rc io.ReadCloser) {
 // Bytes are read with rc. Then according decoder.Encoding they are translated into strings.
 // Each read returns the amount of bytes for one trice. rc is called on every
 // Translate returns true on io.EOF or false on hard read error or sigterm.
-func Translate(sw *emitter.TriceLineComposer, lut id.TriceIDLookUp, m *sync.RWMutex, rc io.ReadCloser) error {
+func Translate(w io.Writer, sw *emitter.TriceLineComposer, lut id.TriceIDLookUp, m *sync.RWMutex, rc io.ReadCloser) error {
 	var dec Decoder //io.Reader
 	if Verbose {
 		fmt.Println("Encoding is", Encoding)
@@ -242,7 +242,7 @@ func Translate(sw *emitter.TriceLineComposer, lut id.TriceIDLookUp, m *sync.RWMu
 	default:
 		log.Fatalf(fmt.Sprintln("unknown encoding ", Encoding))
 	}
-	go handleSIGTERM(rc)
+	go handleSIGTERM(w, rc)
 	return decodeAndComposeLoop(sw, dec)
 }
 

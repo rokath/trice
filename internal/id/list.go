@@ -10,6 +10,7 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"io"
 	"os"
 	"reflect"
 
@@ -17,7 +18,7 @@ import (
 )
 
 // ScZero does replace all ID's in source tree with 0
-func ScZero(SrcZ string, cmd *flag.FlagSet) error {
+func ScZero(w io.Writer, SrcZ string, cmd *flag.FlagSet) error {
 	if SrcZ == "" {
 		cmd.PrintDefaults()
 		return errors.New("no source tree root specified")
@@ -32,7 +33,7 @@ func ScZero(SrcZ string, cmd *flag.FlagSet) error {
 // If the same id is found with different tf only one is added. The others are reported as warning.
 // If any TRICE* is found without Id(n) or with Id(0) it is ignored.
 // SubCmdUpdate needs to know which IDs are used in the source tree to reliable add new IDs.
-func SubCmdReNewList() (err error) {
+func SubCmdReNewList(w io.Writer) (err error) {
 	lu := make(TriceIDLookUp)
 	// Do not perform lu.AddFmtCount() here.
 	return updateList(lu)
@@ -44,7 +45,7 @@ func SubCmdReNewList() (err error) {
 // If the same id is found with different tf only one is added. The others are reported as warning.
 // If any TRICE* is found without Id(n) or with Id(0) it is ignored.
 // SubCmdUpdate needs to know which IDs are used in the source tree to reliable add new IDs.
-func SubCmdRefreshList() (err error) {
+func SubCmdRefreshList(w io.Writer) (err error) {
 	lu := NewLut(FnJSON)
 	// Do not perform lu.AddFmtCount() here.
 	return updateList(lu)
@@ -81,14 +82,14 @@ func updateList(lu TriceIDLookUp) error {
 }
 
 // SubCmdUpdate is sub-command update
-func SubCmdUpdate() error {
+func SubCmdUpdate(w io.Writer) error {
 	lu := NewLut(FnJSON)
 	tflu := lu.reverse()
 	var listModified bool
 	o := len(lu)
 	walkSrcs(IDsUpdate, lu, tflu, &listModified)
 	if Verbose {
-		fmt.Println(len(lu), "ID's in List", FnJSON, "listModified=", listModified)
+		fmt.Fprintln(w, len(lu), "ID's in List", FnJSON, "listModified=", listModified)
 	}
 
 	if (len(lu) != o || listModified) && !DryRun {

@@ -3,28 +3,11 @@
 
 package args
 
-import (
-	"fmt"
-	"testing"
-
-	"github.com/rokath/trice/pkg/tst"
-)
+import "testing"
 
 func TestHelpAll(t *testing.T) {
-	fn := func() {
-		err := Handler([]string{"trice", "help", "-all"})
-		if nil != err {
-			fmt.Print(err)
-		}
-	}
-	h.Lock()
-	m.Lock()
-	act := tst.CaptureStdOut(fn)
-	allHelp = false
-	m.Unlock()
-	h.Unlock()
-	fmt.Print(act)
-	exp := `syntax: 'trice sub-command' [params]
+	input := []string{"trice", "help", "-all"}
+	expected := `syntax: 'trice sub-command' [params]
       sub-command 'ds|displayServer': Starts a display server.
               Use in a separate console. On Windows use wt (https://github.com/microsoft/terminal) or a linux shell like git-bash to avoid ANSI color issues.
               Running "trice ds" inside a console opens a display server to be used for displaying the TRICE logs remotely.
@@ -402,5 +385,5 @@ func TestHelpAll(t *testing.T) {
               Zero all Id(n) inside source tree dir, required.
       example: 'trice zeroSourceTreeIds -src ../A': Sets all TRICE IDs to 0 in ../A. Use with care!
       `
-	tst.EqualLines(t, exp, act)
+	execHelper(t, input, expected)
 }

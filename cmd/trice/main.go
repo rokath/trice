@@ -5,6 +5,7 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"math/rand"
 	"os"
 	"time"
@@ -25,11 +26,11 @@ var (
 
 // main is the entry point.
 func main() {
-	doit()
+	doit(os.Stdout)
 }
 
 // doit is the action.
-func doit() {
+func doit(w io.Writer) {
 
 	// inject values
 	args.Version = version
@@ -37,8 +38,8 @@ func doit() {
 	args.Date = date
 
 	rand.Seed(time.Now().UnixNano())
-	err := args.Handler(os.Args)
+	err := args.Handler(w, os.Args)
 	if nil != err {
-		fmt.Println(error.Error(err))
+		fmt.Fprintln(w, error.Error(err))
 	}
 }

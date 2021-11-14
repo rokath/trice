@@ -98,7 +98,7 @@ int main(void)
     #ifdef TRICE_UART
     LL_USART_EnableIT_RXNE(TRICE_UART); // enable UART2 interrupt
     #endif
-//    TRICE_HEADLINE;
+    TRICE_HEADLINE;
   /* USER CODE END 2 */
 
   /* Infinite loop */

@@ -51,7 +51,7 @@ func TestDummy(t *testing.T) {
 //  // NOT RELIABLE
 //  func TestShutdownServerWhenRunning(t *testing.T) {
 //  	ipp := randomDynIPPort()
-//  	p := emitter.NewRemoteDisplay(baseName(), "", "localhost", ipp)
+//  	p := emitter.NewRemoteDisplay(os.Stdout,baseName(), "", "localhost", ipp)
 //  	capt := stimulate("sd\r\n", p.IPAddr, p.IPPort)
 //  	// must remove some chars from the beginning, because xxxxx changes all the time
 //  	discardLength := len("-> read tcp 127.0.0.1:xxxxx->")

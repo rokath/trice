@@ -167,7 +167,7 @@ func (p *bytesViewer) Close() error { return nil }
 //  			rc = newBytesViewer(rc)
 //  		}
 //
-//  		f := decoder.Translate(sw, list, rc)
+//  		f := decoder.Translate(os.Stdout,sw, list, rc)
 //  		if false == f {
 //  			return
 //  		}
