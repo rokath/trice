@@ -47,6 +47,16 @@ It is also easy to receive the COBS packges, exchange the IDs with the format st
 
 - [github.io/trice/](https://rokath.github.io/trice/)
 
+## ATTENTION 4
+
+- In release v0.41.0 now the `TRICE` macro works additionally. To use it, simply use it like `printf`:
+  - No need for parameter count and bit width.
+    - The internal used parameter bit width is 32 bit.
+    - 0 to 12 parameters possible (extendable).
+  - No strings supported ("%s"). Use `TRICE_S` than.
+  - Many usage options inside `pkg/src/triceCheck.c` visible.
+- Needs better tests and updated documentation.
+
 ## ATTENTION 3
 
 In release v0.39.0 now encryption works again. To implement it well and open for future, the additional COBS package descriptor is now 4 bytes long. That means the trice tool version 0.39.0 does not work with older target code. Please update your target code or stay with an older release.
