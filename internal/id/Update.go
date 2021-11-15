@@ -370,6 +370,7 @@ func refreshIDs(text string, lu TriceIDLookUp, tflu TriceFmtLookUp) {
 // *pListModified in result is true if any file was changed.
 // tflu holds the tf in upper case.
 // lu holds the tf in source code case. If in source code upper and lower case occur, than only one can be in lu.
+// sharedIDs, if true, reuses IDs for identical format strings.
 func updateIDsUniqOrShared(sharedIDs bool, smin, smax, min, max TriceID, text string, lu TriceIDLookUp, tflu TriceFmtLookUp, pListModified *bool) (string, bool) {
 	var fileModified bool
 	subs := text[:] // create a copy of text and assign it to subs
@@ -409,6 +410,12 @@ func updateIDsUniqOrShared(sharedIDs bool, smin, smax, min, max TriceID, text st
 			invalID := nbID
 			invalTRICE := nbTRICE
 			// It is possible tf is already in tflu (and lu) here, so check it.
+			// if( strings.HasPrefix( tfS.Type, "TRICE_" ){
+			// manipulate ... wip
+			// }
+			// id, ok = tflu[tfS]
+			// if !ok { tfS.Type
+
 			if id, ok = tflu[tfS]; sharedIDs && ok { // yes, we can use it in shared IDs mode
 				msg.FatalInfoOnTrue(0 == id, "no id 0 allowed in map")
 			} else { // no, we need a new one

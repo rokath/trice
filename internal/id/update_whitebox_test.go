@@ -5,6 +5,7 @@ package id
 import (
 	"fmt"
 	"os"
+	"reflect"
 	"testing"
 
 	"github.com/tj/assert"
@@ -322,6 +323,12 @@ type testTable []struct {
 	listMod bool   // expected list modification flag
 }
 
+// checkList is a helper function for update tests.
+//
+// sharedIDs, if true, reuses IDs for identical format strings.
+// mins, maxs is the ID pool for short trices (macros "Tr") - unused
+// min, max is the ID pool for finding new IDs
+// ...
 func checkList(t *testing.T, sharedIDs bool, mins, maxs, min, max TriceID, tt testTable, eList string, extend bool) {
 	lu := make(TriceIDLookUp)
 	tflu := lu.reverse()
@@ -337,4 +344,100 @@ func checkList(t *testing.T, sharedIDs bool, mins, maxs, min, max TriceID, tt te
 	lu.AddFmtCount()
 	aListN := fmt.Sprintln(lu)
 	assert.Equal(t, eList, aListN)
+}
+
+// checkList2 is a helper function for update tests.
+//
+// sharedIDs, if true, reuses IDs for identical format strings.
+// min, max is the ID pool for finding new IDs
+// ...
+func checkList2(t *testing.T, sharedIDs bool, min, max TriceID, tt testTable, extendMacroName bool, inJSON, expJSON string) {
+	lu := make(TriceIDLookUp)
+	err := lu.FromJSON([]byte(inJSON))
+	assert.Nil(t, err)
+	tflu := lu.reverse()
+	Verbose = true
+	for _, x := range tt {
+		act0, _ := updateParamCountAndID0(x.text, extendMacroName)
+		listModified := false
+		act, fileModified := updateIDsUniqOrShared(sharedIDs, 0, 0, min, max, act0, lu, tflu, &listModified)
+		assert.Equal(t, x.fileMod, fileModified)
+		assert.Equal(t, x.listMod, listModified)
+		assert.Equal(t, x.exp, act)
+	}
+	lu.AddFmtCount()
+	aListN := fmt.Sprintln(lu)
+	assert.Equal(t, expJSON, aListN)
+}
+
+// Because of the parallel test execution the global variables must be equal for all tests
+func TestInsertSharedIDs0ZeroParam1(t *testing.T) {
+	SearchMethod = "downward"
+	tt := testTable{
+		{`... TRICE0( "hi"); ...`, `... TRICE0( Id(    99), "hi"); ...`, true, true},
+		{`... TRICE0( "hi"); ...`, `... TRICE0( Id(    98), "hi"); ...`, true, true},
+	}
+	eList := `map[98:{TRICE0 hi} 99:{TRICE0 hi}]
+`
+	checkList2(t, false, 10, 99, tt, true, "", eList)
+}
+
+// Because of the parallel test execution the global variables must be equal for all tests
+func TestInsertSharedIDs0ZeroParam2(t *testing.T) {
+	SearchMethod = "downward"
+	tt := testTable{
+		{`... TRICE( "hi"); ...`, `... TRICE( Id(    99), "hi"); ...`, true, true},
+		{`... TRICE( "hi"); ...`, `... TRICE( Id(    98), "hi"); ...`, true, true},
+	}
+	eList := `map[98:{TRICE hi} 99:{TRICE hi}]
+`
+	checkList2(t, false, 10, 99, tt, true, "", eList)
+}
+
+// Because of the parallel test execution the global variables must be equal for all tests
+func TestInsertSharedIDs0ZeroParam3(t *testing.T) {
+	SearchMethod = "downward"
+	tt := testTable{
+		{`... TRICE( "hi %d", 7); ...`, `... TRICE( Id(    99), "hi %d", 7); ...`, true, true},
+		{`... TRICE( "hi %u %b", 6, 6); ...`, `... TRICE( Id(    98), "hi %u %b", 6, 6); ...`, true, true},
+	}
+	eList := `map[98:{TRICE_2 hi %u %b} 99:{TRICE_1 hi %d}]
+`
+	checkList2(t, false, 10, 99, tt, true, "", eList)
+}
+
+// Because of the parallel test execution the global variables must be equal for all tests
+func _TestInsertSharedIDs0ZeroParam4(t *testing.T) {
+	SearchMethod = "downward"
+	tt := testTable{
+		{`... TRICE( "hi %d", 7); ...`, `... TRICE( Id(    99), "hi %d", 7); ...`, true, true},
+		{`... TRICE( "hi %u %b", 6, 6); ...`, `... TRICE( Id(    98), "hi %u %b", 6, 6); ...`, true, true},
+	}
+	il := make(TriceIDLookUp)
+	il[99] = TriceFmt{Type: "TRICE_1", Strg: "hi %d"}
+	il[98] = TriceFmt{Type: "TRICE_2", Strg: "hi %u %b"}
+
+	checkList3(t, true, 10, 99, tt, true, il, il)
+}
+
+// checkList3 is a helper function for update tests.
+//
+// sharedIDs, if true, reuses IDs for identical format strings.
+// min, max is the ID pool for finding new IDs
+// ...
+func checkList3(t *testing.T, sharedIDs bool, min, max TriceID, tt testTable, extendMacroName bool, inMap, expMap TriceIDLookUp) {
+	lu := inMap
+	tflu := lu.reverse()
+	Verbose = true
+	for _, x := range tt {
+		act0, _ := updateParamCountAndID0(x.text, extendMacroName)
+		listModified := false
+		act, fileModified := updateIDsUniqOrShared(sharedIDs, 0, 0, min, max, act0, lu, tflu, &listModified)
+		assert.Equal(t, x.fileMod, fileModified)
+		assert.Equal(t, x.listMod, listModified)
+		assert.Equal(t, x.exp, act)
+	}
+	lu.AddFmtCount()
+	eq := reflect.DeepEqual(lu, expMap)
+	assert.True(t, eq)
 }
