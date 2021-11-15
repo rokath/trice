@@ -47,11 +47,32 @@ It is also easy to receive the COBS packges, exchange the IDs with the format st
 
 - [github.io/trice/](https://rokath.github.io/trice/)
 
+## Quick start guide
+
+- Copy 3 files to your embedded project:
+  - `./pkg/src/trice.h`
+  - `./pkg/src/trice.c`
+  - `./test/.../triceConfig.h`
+- In your source.c: `#include "trice.h"`
+- In a function: `TRICE( "Coming soon: %d!\n", 2022 );`
+- In project root:
+  - Create empty file: `touch til.json`.
+  - Run `trice u` should:
+    - patch source.c to `TRICE( Id(12345), "Coming soon: %d!\n", 2022 );`
+    - extend `til.json`
+- Modify `triceConfig.h` acording your needs.
+  - With `#define TRICE_MODE 0` (direct mode) just provide a **putchar()** function.
+  - Recommended is an indirect mode which allows to use `TRICE` macros also inside interrupts.
+- Compile & load your app.
+- In project root: `trice l -p COM1` should show `Coming soon: 2022!` after app start.
+- Look in `./pkg/src/triceCheck.c` for examples.
+
+
 ## ATTENTION 4
 
 - In release v0.41.0 now the `TRICE` macro works additionally. To use it, simply use it like `printf`:
   - No need for parameter count and bit width.
-    - The internal used parameter bit width is 32 bit.
+    - The internal used parameter bit width is 32 bit, but you can use also `TRICE8`, `TRICE16`, `TRICE32`, `TRICE64`, 
     - 0 to 12 parameters possible (extendable).
   - No strings supported ("%s"). Use `TRICE_S` than.
   - Many usage options inside `pkg/src/triceCheck.c` visible.
@@ -69,24 +90,6 @@ In release v0.38.0 now target timestamps possible. To implement it well and open
 ## ATTENTION
 
 The **TRICE** technique changed heavily between release 0.33.0 and 0.34.0. The `flex` and `esc` encodings are replaced by a [COBS](https://en.wikipedia.org/wiki/Consistent_Overhead_Byte_Stuffing) encoding which will be the default now. The stuff works already well but is not in its final state and is not documented vet. It lacks also automated tests. The internal speed goes to its limit (~6 clocks per trice on M0+ possible) by using a double buffer instead of a fifo. Also porting is easier now. The documentation is outdated but gets updated soon. But first the tests. If you have a project with `flex` or `esc` encoding, please update the target code or stay with version 0.33.0.
-
-## Quick start guide
-
-- Copy 3 files to your embedded project:
-  - `./pkg/src/trice.h`
-  - `./pkg/src/trice.c`
-  - `./test/.../triceConfig.h`
-- In your source.c: `#include "trice.h"`
-- In a function: `TRICE0( "Hi!\n" );`
-- In project root:
-  - Create empty file: `touch til.json`.
-  - Run `trice u` should:
-    - patch source.c to `TRICE0( Id(12345), "Hi!\n" );`
-    - extend `til.json`
-- Modify `triceConfig.h` acording your needs.
-  - With `#define TRICE_MODE 0` just provide a **putchar()** function.
-- Compile & load your app.
-- In project root: `trice l -p COM1` should show `Hi!` after app start.
 
 ## About
 
