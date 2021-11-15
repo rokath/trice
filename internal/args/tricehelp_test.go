@@ -123,7 +123,7 @@ func TestHelpUpdate(t *testing.T) {
         -s value
               Short for src.
         -sharedIDs
-              New ID policy:
+              ID policy:
               true: TriceFmt's without TriceID get equal TriceID if an equal TriceFmt exists already.
               false: TriceFmt's without TriceID get a different TriceID if an equal TriceFmt exists already.
         -src value
