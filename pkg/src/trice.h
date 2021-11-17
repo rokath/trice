@@ -60,7 +60,7 @@ static inline int TriceOutDepth( void ){ return 0; }
 #define TRICE_DATA_OFFSET 16 // usually 8 is enough: 4 for COBS_DESCRIPTOR and additional bytes for COBS encoding, but the buffer can get big.
 #endif
 
-#ifdef TRICE_STACK_BUFFER_MAX_SIZE
+#if defined(TRICE_STACK_BUFFER_MAX_SIZE) && !defined(TRICE_SINGLE_MAX_SIZE)
 #define TRICE_SINGLE_MAX_SIZE (TRICE_STACK_BUFFER_MAX_SIZE - TRICE_DATA_OFFSET)
 #endif
 
@@ -69,6 +69,14 @@ static inline int TriceOutDepth( void ){ return 0; }
 #endif
 
 #if TRICE_SINGLE_MAX_SIZE > 1008
+#error
+#endif
+
+#if defined(TRICE_STACK_BUFFER_MAX_SIZE) && defined(TRICE_SINGLE_MAX_SIZE) && TRICE_SINGLE_MAX_SIZE + TRICE_DATA_OFFSET > TRICE_STACK_BUFFER_MAX_SIZE
+#error
+#endif
+
+#if defined(TRICE_HALF_BUFFER_SIZE) && TRICE_HALF_BUFFER_SIZE < TRICE_SINGLE_MAX_SIZE + TRICE_DATA_OFFSET
 #error
 #endif
 
