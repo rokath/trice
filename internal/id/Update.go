@@ -22,8 +22,8 @@ const (
 	// patSourceFile is a regex pattern matching any source file for patching
 	patSourceFile = "(\\.c|\\.h|\\.cc|\\.cpp|\\.hpp)$"
 
-	// patTrice matches any TRICE name variant https://regex101.com/r/IkIhV3/1, The (?i) says case insensitive
-	patTypNameTRICE = `(?i)(\b((TRICE((_S|0)|((8|16|32|64)*(_[0-9]*)*))))\b)`
+	// patTrice matches any TRICE name variant https://regex101.com/r/IkIhV3/1, The (?i) says case insensitive. (?U)=un-greedy -> only first match.
+	patTypNameTRICE = `(?iU)(\b((TRICE((_S|0)|((8|16|32|64)*(_[0-9]*)*))))\b)`
 	//               `     (\b((TRICE(_S|0|(8|16|32|64)*)))(_[1-9]*)*|\b)\s*\(\s*\bID\b\s*\(\s*.*[0-9]\s*\)\s*,\s*".*"\s*.*\)\s*;` // https://regex101.com/r/pPRsjf/1
 
 	// patFmtString is a regex matching the first format string inside trice
@@ -42,9 +42,9 @@ const (
 	patNextFormatSpecifier = `(?:^|[^%])(%[0-9\.#]*(b|c|d|u|x|X|o|f))`
 
 	// patTriceNoLen finds next `TRICEn` without length specifier: https://regex101.com/r/vSvOEc/1
-	patTriceNoLen = `(?i)(\bTRICE(8|16|32|64)\b)`
+	patTriceNoLen = `(?i)(\bTRICE(|8|16|32|64)\b)`
 
-	patID = `\s*\b(I|i)d\b\s*`
+	patID = `\s*\bId\b\s*` // `\s*\b(I|i)d\b\s*`
 
 	// patNbID is a regex pattern matching any (first in string) "Id(n)" and usable in matches of matchNbTRICE
 	patNbID = `\b` + patID + `\(\s*[0-9]*\s*\)`
@@ -279,13 +279,14 @@ func triceIDParse(t string) (nbID string, id TriceID, ok bool) {
 		ok = true
 		return
 	}
-	_, err = fmt.Sscanf(nbID, "id(%d", &n) // closing bracket in format string omitted intensionally
-	if nil == err {
-		id = TriceID(n)
-		ok = true
-		return
-	}
-	msg.Info(fmt.Sprintln("no 'Id(n' or 'id(n' found inside " + nbID))
+	//_, err = fmt.Sscanf(nbID, "id(%d", &n) // closing bracket in format string omitted intensionally
+	//if nil == err {
+	//	id = TriceID(n)
+	//	ok = true
+	//	return
+	//}
+	//msg.Info(fmt.Sprintln("no 'Id(n' or 'id(n' found inside " + nbID))
+	msg.Info(fmt.Sprintln("no 'Id(n' found inside " + nbID))
 	return
 }
 
@@ -324,7 +325,8 @@ func triceParse(t string) (nbID string, id TriceID, tf TriceFmt, ok bool) {
 func refreshIDs(text string, lu TriceIDLookUp, tflu TriceFmtLookUp) {
 	subs := text[:] // create a copy of text and assign it to subs
 	for {
-		loc := matchNbTRICE.FindStringIndex(subs) // find the next TRICE location in file
+		loc := matchNbTRICE.FindStringSubmatchIndex(subs)
+		//loc := matchNbTRICE.FindStringIndex(subs) // find the next TRICE location in file
 		if nil == loc {
 			return // done
 		}
@@ -389,18 +391,18 @@ func updateIDsUniqOrShared(sharedIDs bool, smin, smax, min, max TriceID, text st
 			continue
 		}
 		tfS := tf
-		st := isShortTrice(tf)
-		if !st && sharedIDs {
-			tfS.Type = strings.ToUpper(tfS.Type) // Lower case and upper case Type are not distinguished for normal trices in shared IDs mode.
-		}
+		//st := isShortTrice(tf)
+		//if !st && sharedIDs {
+		tfS.Type = strings.ToUpper(tfS.Type) // Lower case and upper case Type are not distinguished for normal trices in shared IDs mode.
+		//}
 		// In lu id could point to a different tf. So we need to check that and invalidate id in that case.
 		// - That typically happens after tf was changed in source but the id not.
 		// - Also the source file with id:tf could be added from a different project and refresh could not add it to lu because id is used differently.
-		if 0 != id {
+		if id != 0 {
 			if tfL, ok := lu[id]; ok { // found
-				if !st && sharedIDs {
-					tfL.Type = strings.ToUpper(tfL.Type) // Lower case and upper case Type are not distinguished for normal trices in shared IDs mode.
-				}
+				//if !st && sharedIDs {
+				tfL.Type = strings.ToUpper(tfL.Type) // Lower case and upper case Type are not distinguished for normal trices in shared IDs mode.
+				//}
 				if !reflect.DeepEqual(tfS, tfL) {
 					id = -id // mark as invalid
 				}
@@ -417,22 +419,23 @@ func updateIDsUniqOrShared(sharedIDs bool, smin, smax, min, max TriceID, text st
 			// if !ok { tfS.Type
 
 			if id, ok = tflu[tfS]; sharedIDs && ok { // yes, we can use it in shared IDs mode
-				msg.FatalInfoOnTrue(0 == id, "no id 0 allowed in map")
+				msg.FatalInfoOnTrue(id == 0, "no id 0 allowed in map")
 			} else { // no, we need a new one
-				if st {
-					id = lu.newID(smin, smax) // a prerequisite is a in a previous step refreshed lu
-				} else {
-					id = lu.newID(min, max) // a prerequisite is a in a previous step refreshed lu
-				}
+				//if st {
+				//	id = lu.newID(smin, smax) // a prerequisite is a in a previous step refreshed lu
+				//} else {
+				id = lu.newID(min, max) // a prerequisite is a in a previous step refreshed lu
+				//}
 				*pListModified = true
 			}
 			// patch the id into text
-			var nID string
-			if st {
-				nID = fmt.Sprintf("id(%5d)", id)
-			} else {
-				nID = fmt.Sprintf("Id(%6d)", id)
-			}
+			//  var nID string
+			//  if st {
+			//  	nID = fmt.Sprintf("id(%5d)", id)
+			//  } else {
+			//  	nID = fmt.Sprintf("Id(%6d)", id)
+			//  }
+			nID := fmt.Sprintf("Id(%6d)", id)
 			if Verbose {
 				if nID != invalID {
 					fmt.Print(invalID, " -> ")
