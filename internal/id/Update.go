@@ -392,10 +392,10 @@ func updateIDsUniqOrShared(sharedIDs bool, smin, smax, min, max TriceID, text st
 		if !found {
 			continue
 		}
-		tfS := tf
+		//tfS := tf
 		//st := isShortTrice(tf)
 		//if !st && sharedIDs {
-		tfS.Type = strings.ToUpper(tfS.Type) // Lower case and upper case Type are not distinguished for normal trices in shared IDs mode.
+		tf.Type = strings.ToUpper(tf.Type) // Lower case and upper case Type are not distinguished for normal trices in shared IDs mode.
 		//}
 		// In lu id could point to a different tf. So we need to check that and invalidate id in that case.
 		// - That typically happens after tf was changed in source but the id not.
@@ -405,7 +405,7 @@ func updateIDsUniqOrShared(sharedIDs bool, smin, smax, min, max TriceID, text st
 				//if !st && sharedIDs {
 				tfL.Type = strings.ToUpper(tfL.Type) // Lower case and upper case Type are not distinguished for normal trices in shared IDs mode.
 				//}
-				if !reflect.DeepEqual(tfS, tfL) {
+				if !reflect.DeepEqual(tf, tfL) {
 					id = -id // mark as invalid
 				}
 			}
@@ -415,7 +415,7 @@ func updateIDsUniqOrShared(sharedIDs bool, smin, smax, min, max TriceID, text st
 			invalID := nbID
 			invalTRICE := nbTRICE
 
-			if id, ok = tflu[tfS]; sharedIDs && ok { // yes, we can use it in shared IDs mode
+			if id, found = tflu[tf]; sharedIDs && found { // yes, we can use it in shared IDs mode
 				msg.FatalInfoOnTrue(id == 0, "no id 0 allowed in map")
 			} else { // no, we need a new one
 				//if st {

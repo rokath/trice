@@ -4,32 +4,11 @@ package id
 
 import (
 	"fmt"
-	"os"
 	"reflect"
 	"testing"
 
 	"github.com/tj/assert"
 )
-
-func TestMain(m *testing.M) {
-	ExtendMacrosWithParamCount = true
-	i := m.Run()
-	if i != 0 {
-		os.Exit(i)
-	}
-	// THe 2nd call is possible, but some tests are failing - needs investigation!
-	//
-	// ExtendMacrosWithParamCount = false
-	// os.Exit(m.Run())
-}
-
-type idCheck struct {
-	nbTRICE string
-	nbID    string
-	id      TriceID
-	ok      bool
-	tf      TriceFmt
-}
 
 // Only the first occurrence of a double used ID gets in the list.
 // Only the list generation out of sources ist tested here.
@@ -108,22 +87,6 @@ func TestRefreshIDListSingle2(t *testing.T) {
 	check(t, text, expJSON)
 }
 
-func checkTil(t *testing.T, text string, exp TriceIDLookUp) {
-	lu := make(TriceIDLookUp)
-	tflu := lu.reverse()
-	refreshIDs(text, lu, tflu)
-	assert.True(t, reflect.DeepEqual(lu, exp))
-}
-
-func check(t *testing.T, text, expJSON string) {
-	lu := make(TriceIDLookUp)
-	tflu := lu.reverse()
-	refreshIDs(text, lu, tflu)
-	b, err := lu.toJSON()
-	assert.Equal(t, nil, err)
-	assert.Equal(t, expJSON, string(b))
-}
-
 func TestInsertSharedIDsInvalid0(t *testing.T) {
 	SearchMethod = "downward"
 	listModified := false
@@ -140,19 +103,6 @@ func TestInsertSharedIDsInvalid0(t *testing.T) {
 `
 	checkList(t, SharedIDs, 10000, 20000, 40000, 50000, tt, eList, true)
 	checkList(t, SharedIDs, 10000, 20000, 40000, 50000, tt, eList, false)
-}
-
-var tryOkSet = []idCheck{
-	//	{`Trice0i(id(   59), "tt" )`, "id(   59)", 59, true, TriceFmt{"Trice0i", "tt"}},
-	{`Trice0(Id(   59), "tt" )`, "Id(   59)", 59, true, TriceFmt{"Trice0", "tt"}}, // should be false
-	//{`Trice0(id(   59), "tt" )`, "id(   59)", 59, true, TriceFmt{"Trice0", "tt"}},
-	{`TRICE0(Id(   59), "tt" )`, "Id(   59)", 59, true, TriceFmt{"TRICE0", "tt"}},
-	//	{`TRICE0(id(   59), "tt" )`, "id(   59)", 59, true, TriceFmt{"TRICE0", "tt"}}, // should be false
-	{`TRICE0(Id(59   ), "tt" )`, "Id(59   )", 59, true, TriceFmt{"TRICE0", "tt"}},
-	{`TRICE0(Id(59), "tt" )`, "Id(59)", 59, true, TriceFmt{"TRICE0", "tt"}},
-	{`TRICE0(Id( 59 ), "tt" )`, "Id( 59 )", 59, true, TriceFmt{"TRICE0", "tt"}},
-	{`trice0(Id(59), "tt" )`, "Id(59)", 59, true, TriceFmt{"trice0", "tt"}},
-	{`trice64_2(Id(59), "%d,%x", -3, -4 )`, "Id(59)", 59, true, TriceFmt{"trice64_2", "%d,%x"}},
 }
 
 func TestTriceIDParseOK(t *testing.T) {
@@ -175,6 +125,19 @@ func TestTriceFmtParse(t *testing.T) {
 	}
 }
 
+func TestTriceParseOK(t *testing.T) {
+	set := tryOkSet
+	for i := range set {
+		nbID, id, tf, ok := triceParse(set[i].nbTRICE)
+		assert.True(t, ok == set[i].ok)
+		if ok {
+			checkID(t, set, i, id)
+			checkNbID(t, set, i, nbID)
+			assert.True(t, tf == tryOkSet[i].tf, fmt.Sprint(tf, tryOkSet[i].tf))
+		}
+	}
+}
+
 func TestTriceIDParseNotOK(t *testing.T) {
 	var tryNotOkSetID = []idCheck{
 		{`TRICE0(Id(0x5), "tt" )`, "Id(0x5)", 5, false, TriceFmt{"TRICE0", "tt"}},
@@ -189,68 +152,6 @@ func TestTriceIDParseNotOK(t *testing.T) {
 			checkNbID(t, set, i, nbID)
 		}
 	}
-}
-
-func checkID(t *testing.T, set []idCheck, i int, id TriceID) {
-	assert.True(t, id == set[i].id, fmt.Sprint(i, id))
-}
-
-func checkNbID(t *testing.T, set []idCheck, i int, nbID string) {
-	assert.True(t, nbID == set[i].nbID, fmt.Sprint(i, nbID))
-}
-
-type testTable []struct {
-	text    string // file content as input
-	exp     string // file content as expected output
-	fileMod bool   // expected file modification flag
-	listMod bool   // expected list modification flag
-}
-
-// checkList is a helper function for update tests.
-//
-// sharedIDs, if true, reuses IDs for identical format strings.
-// mins, maxs is the ID pool for short trices (macros "Tr") - unused
-// min, max is the ID pool for finding new IDs
-// ...
-func checkList(t *testing.T, sharedIDs bool, mins, maxs, min, max TriceID, tt testTable, eList string, extend bool) {
-	lu := make(TriceIDLookUp)
-	tflu := lu.reverse()
-	Verbose = true
-	for _, x := range tt {
-		act0, _ := updateParamCountAndID0(x.text, extend)
-		listModified := false
-		act, fileModified := updateIDsUniqOrShared(sharedIDs, mins, maxs, min, max, act0, lu, tflu, &listModified)
-		assert.Equal(t, x.fileMod, fileModified)
-		assert.Equal(t, x.listMod, listModified)
-		assert.Equal(t, x.exp, act)
-	}
-	lu.AddFmtCount()
-	aListN := fmt.Sprintln(lu)
-	assert.Equal(t, eList, aListN)
-}
-
-// checkList2 is a helper function for update tests.
-//
-// sharedIDs, if true, reuses IDs for identical format strings.
-// min, max is the ID pool for finding new IDs
-// ...
-func checkList2(t *testing.T, sharedIDs bool, min, max TriceID, tt testTable, extendMacroName bool, inJSON, expJSON string) {
-	lu := make(TriceIDLookUp)
-	err := lu.FromJSON([]byte(inJSON))
-	assert.Nil(t, err)
-	tflu := lu.reverse()
-	Verbose = true
-	for _, x := range tt {
-		act0, _ := updateParamCountAndID0(x.text, extendMacroName)
-		listModified := false
-		act, fileModified := updateIDsUniqOrShared(sharedIDs, 0, 0, min, max, act0, lu, tflu, &listModified)
-		assert.Equal(t, x.fileMod, fileModified)
-		assert.Equal(t, x.listMod, listModified)
-		assert.Equal(t, x.exp, act)
-	}
-	lu.AddFmtCount()
-	aListN := fmt.Sprintln(lu)
-	assert.Equal(t, expJSON, aListN)
 }
 
 // Because of the parallel test execution the global variables must be equal for all tests
@@ -332,12 +233,6 @@ func TestInsertSharedIDs0ZeroParam332(t *testing.T) {
 	checkList2(t, sharedIDs, 10, 99, tt, extendMacroName, "", eList)
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Diese Vierergruppe muss gehen.
-//  - til soll immer mit text passen.
-//  - Bei _n Erweiterung -> andere ID (ggf. til-Erweiterung)
-//  - Bei _n Entfernung -> andere ID (ggf. til-Erweiterung)
-
 // Because of the parallel test execution the global variables must be equal for all tests
 func TestInsertSharedIDs0ZeroParam4noExtend(t *testing.T) {
 	SearchMethod = "downward"
@@ -404,51 +299,6 @@ func TestInsertSharedIDs0ZeroParam16extend(t *testing.T) {
 	sharedIDs := true
 	extendMacroName := true
 	checkList3(t, sharedIDs, 10, 99, tt, extendMacroName, il, il)
-}
-
-//
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-// checkList3 is a helper function for update tests.
-//
-// sharedIDs, if true, reuses IDs for identical format strings.
-// min, max is the ID pool for finding new IDs
-// ...
-func checkList3(t *testing.T, sharedIDs bool, min, max TriceID, tt testTable, extendMacroName bool, inMap, expMap TriceIDLookUp) {
-	lu := inMap
-	tflu := lu.reverse()
-	Verbose = true
-	for _, x := range tt {
-		act0, _ := updateParamCountAndID0(x.text, extendMacroName)
-		listModified := false
-		act, fileModified := updateIDsUniqOrShared(sharedIDs, 0, 0, min, max, act0, lu, tflu, &listModified)
-		assert.Equal(t, x.fileMod, fileModified)
-		assert.Equal(t, x.listMod, listModified)
-		assert.Equal(t, x.exp, act)
-	}
-	lu.AddFmtCount()
-	eq := reflect.DeepEqual(lu, expMap)
-	assert.True(t, eq)
-}
-
-// checkList4 is a helper function for update tests.
-//
-// sharedIDs, if true, reuses IDs for identical format strings.
-// min, max is the ID pool for finding new IDs
-// ...
-func checkList4(t *testing.T, sharedIDs bool, min, max TriceID, tt testTable, extendMacroName bool, inMap TriceIDLookUp) TriceIDLookUp {
-	lu := inMap
-	tflu := lu.reverse()
-	Verbose = true
-	for _, x := range tt {
-		act0, _ := updateParamCountAndID0(x.text, extendMacroName)
-		listModified := false
-		_, fileModified := updateIDsUniqOrShared(sharedIDs, 0, 0, min, max, act0, lu, tflu, &listModified)
-		assert.Equal(t, x.fileMod, fileModified)
-		assert.Equal(t, x.listMod, listModified)
-	}
-	lu.AddFmtCount()
-	return lu
 }
 
 // Because of the parallel test execution the global variables must be equal for all tests
@@ -569,66 +419,81 @@ func TestInsertSharedIDs2NoExtendN(t *testing.T) {
 	checkList3(t, sharedIDs, 10000, 10099, tt, extendMacroName, im, em)
 }
 
-func _TestTrice(t *testing.T) { // wip
+func TestTrice0(t *testing.T) { // wip
+	SearchMethod = "upward"
+	extendMacroName := false
+	sharedIDs := true
 	tt := testTable{
-		{
-			`TRICE( "Go is fun");`,
-			`TRICE(id(20000), "Go is fun");`, true, true},
+		{`TRICE( "Go is fun");`, `TRICE( Id(10000), "Go is fun");`, true, true},
+		{`TRICE( "Go is fun");`, `TRICE( Id(10000), "Go is fun");`, true, false},
 	}
-	eList := `map[20000:{TRICE Trallala}]
-`
-	checkList(t, true, 10000, 20000, 10, 99, tt, eList, true)
-	checkList(t, true, 10000, 20000, 10, 99, tt, eList, false)
+	im := make(TriceIDLookUp)
+	em := make(TriceIDLookUp)
+	em[10000] = TriceFmt{Type: "TRICE", Strg: "Go is fun"}
+	checkList3(t, sharedIDs, 10000, 10099, tt, extendMacroName, im, em)
 }
 
-func _TestTriceParseOK(t *testing.T) {
-	set := tryOkSet
-	for i := range set {
-		nbID, id, tf, ok := triceParse(set[i].nbTRICE)
-		assert.True(t, ok == set[i].ok)
-		if ok {
-			checkID(t, set, i, id)
-			checkNbID(t, set, i, nbID)
-			assert.True(t, tf == tryOkSet[i].tf, fmt.Sprint(tf, tryOkSet[i].tf))
-		}
+func TestTrice1(t *testing.T) { // wip
+	SearchMethod = "upward"
+	extendMacroName := false
+	sharedIDs := false
+	tt := testTable{
+		{`TRICE( "Go is fun");`, `TRICE( Id(10000), "Go is fun");`, true, true},
+		{`TRICE( "Go is fun");`, `TRICE( Id(10001), "Go is fun");`, true, true},
 	}
+	im := make(TriceIDLookUp)
+	em := make(TriceIDLookUp)
+	em[10000] = TriceFmt{Type: "TRICE", Strg: "Go is fun"}
+	em[10001] = TriceFmt{Type: "TRICE", Strg: "Go is fun"}
+	om := checkList4(t, sharedIDs, 10000, 10099, tt, extendMacroName, im)
+	assert.True(t, reflect.DeepEqual(om, em))
 }
 
 // Because of the parallel test execution the global variables must be equal for all tests
-func _TestInsertSharedIDs0WithParamCount(t *testing.T) {
-	SearchMethod = "downward"
-
+func TestInsertSharedIDs0WithParamCount(t *testing.T) {
+	SearchMethod = "upward"
+	sharedIDs := false
+	extendMacroName := false
 	tt := testTable{
 		{
-			`Trice0(Id(0), "Trallala");`,
-			`Trice0(Id(20000), "Trallala");`, true, true},
-		//		{
-		//			`trice8_1( Id(0), "hi %d", 5); // first id`,
-		//			`trice8_1( Id(    99), "hi %d", 5); // first id`, true, true},
-		//		{
-		//			`trice8_1( Id(0), "Hi %d", 5); // different format string needs a new id`,
-		//			`trice8_1( Id(    98), "Hi %d", 5); // different format string needs a new id`, true, true},
-		//		{
-		//			`TRICE8_1( Id(       0   ), "Hi %d", 5); // different type case gets same id`,
-		//			`TRICE8_1( Id(    98), "Hi %d", 5); // different type case gets same id`, true, false},
-		//		{
-		//			`TRICE8_1( Id(0), "hi %d", 5); // same format string gets same id`,
-		//			`TRICE8_1( Id(    99), "hi %d", 5); // same format string gets same id`, true, false},
-		//		{
-		//			`trice8_1(  Id( 0       ),  "hi %d", 5); // same format string gets same id`,
-		//			`trice8_1(  Id(    99),  "hi %d", 5); // same format string gets same id`, true, false},
-		//		{
-		//			`Trice8_1( Id(0), "hi %d", 5); // first id`,
-		//			`Trice8_1( id(19999), "hi %d", 5); // first id`, true, true},
-		//		{
-		//			`Trice8_2( Id(0), "hi %d %u", 5, 7); // first id`,
-		//			`Trice8_2( Id(19998), "hi %d %u", 5, 7); // first id`, true, true},
-		//		{
-		//			`Trice16_1( Id(0), "hi %d", 5); // first id`,
-		//			`Trice16_1( id(19997), "hi %d", 5); // first id`, true, true},
+			`TRICE(Id(0), "Go is fun");`,
+			`TRICE(Id(10000), "Go is fun");`, true, true},
+		{
+			`trice8_1( Id(0), "hi %d", 5); // first id`,
+			`trice8_1( Id(10001), "hi %d", 5); // first id`, true, true},
+		{
+			`trice8_1( Id(0), "hi %d", 5); // different format string needs a new id`,
+			`trice8_1( Id(10002), "hi %d", 5); // different format string needs a new id`, true, true},
+		{
+			`TRICE8_1( Id(       0   ), "hi %d", 5); // different type case gets same id`,
+			`TRICE8_1( Id(10003), "hi %d", 5); // different type case gets same id`, true, true},
+		{
+			`TRICE8_1( Id(0), "hi %d", 5); // same format string gets same id`,
+			`TRICE8_1( Id(10004), "hi %d", 5); // same format string gets same id`, true, true},
+		{
+			`trice8_1(  Id( 0       ),  "hi %d", 5); // same format string gets same id`,
+			`trice8_1(  Id(10005),  "hi %d", 5); // same format string gets same id`, true, true},
+		{
+			`Trice8_1( Id(0), "hi %d", 5); // first id`,
+			`Trice8_1( Id(10006), "hi %d", 5); // first id`, true, true},
+		{
+			`Trice8_2( Id(0), "hi %d %u", 5, 7); // first id`,
+			`Trice8_2( Id(10007), "hi %d %u", 5, 7); // first id`, true, true},
+		{
+			`Trice16_1( Id(0), "hi %d", 5); // first id`,
+			`Trice16_1( Id(10008), "hi %d", 5); // first id`, true, true},
 	}
-	eList := `map[98:{TRICE8_1 Hi %d} 99:{trice8_1 hi %d} 19997:{Trice16_1 hi %d} 19998:{Trice8_2 hi %d %u} 19999:{Trice8_1 hi %d} 20000:{Trice0 Trallala}]
-`
-	//	checkList(t, true, 10000, 20000, 10, 99, tt, eList, true)
-	checkList(t, true, 10000, 20000, 10, 99, tt, eList, false)
+
+	im := make(TriceIDLookUp)
+	em := make(TriceIDLookUp)
+	em[10000] = TriceFmt{Type: "TRICE", Strg: "Go is fun"}
+	em[10001] = TriceFmt{Type: "TRICE8_1", Strg: "hi %d"}
+	em[10002] = TriceFmt{Type: "TRICE8_1", Strg: "hi %d"}
+	em[10003] = TriceFmt{Type: "TRICE8_1", Strg: "hi %d"}
+	em[10004] = TriceFmt{Type: "TRICE8_1", Strg: "hi %d"}
+	em[10005] = TriceFmt{Type: "TRICE8_1", Strg: "hi %d"}
+	em[10006] = TriceFmt{Type: "TRICE8_1", Strg: "hi %d"}
+	em[10007] = TriceFmt{Type: "TRICE8_2", Strg: "hi %d %u"}
+	em[10008] = TriceFmt{Type: "TRICE16_1", Strg: "hi %d"}
+	checkList3(t, sharedIDs, 10000, 10099, tt, extendMacroName, im, em)
 }
