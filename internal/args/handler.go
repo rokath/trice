@@ -59,7 +59,7 @@ func Handler(w io.Writer, args []string) error {
 	case "s", "scan":
 		msg.OnErr(fsScScan.Parse(subArgs))
 		distributeArgs(w)
-		_, err := com.GetSerialPorts()
+		_, err := com.GetSerialPorts(w)
 		return err
 	case "ver", "version":
 		msg.OnErr(fsScVersion.Parse(subArgs))
@@ -135,14 +135,14 @@ func logLoop(w io.Writer) {
 	m.Unlock()
 	// Just in case the id list file FnJSON gets updated, the file watcher updates lut.
 	// This way trice needs NOT to be restarted during development process.
-	go lu.FileWatcher(m)
+	go lu.FileWatcher(w, m)
 
 	sw := emitter.New(w)
 	var interrupted bool
 	var counter int
 
 	for {
-		rc, e := receiver.NewReadCloser(receiver.Port, receiver.PortArguments)
+		rc, e := receiver.NewReadCloser(w, receiver.Port, receiver.PortArguments)
 		if nil != e {
 			fmt.Fprint(w, e)
 			if !interrupted {

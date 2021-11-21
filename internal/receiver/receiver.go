@@ -80,7 +80,7 @@ func scanBytes(s string) (buf []byte) {
 // When port is "BUFFER", args is expected to be a byte sequence in the same format as for example coming from one of the other ports.
 // When port is "JLINK" args contains JLinkRTTLogger.exe specific parameters described inside UM08001_JLink.pdf.
 // When port is "STLINK" args has the same format as for "JLINK"
-func NewReadCloser(port, args string) (r io.ReadCloser, err error) {
+func NewReadCloser(w io.Writer, port, args string) (r io.ReadCloser, err error) {
 	switch port {
 	case "JLINK", "STLINK", "J-LINK", "ST-LINK":
 		l := link.NewDevice(port, args)
@@ -94,9 +94,9 @@ func NewReadCloser(port, args string) (r io.ReadCloser, err error) {
 	default: // assuming serial port
 		var c com.COMport   // interface type
 		if "TARM" == args { // for comparing dynamic behaviour
-			c = com.NewCOMPortTarm(port)
+			c = com.NewCOMPortTarm(w, port)
 		} else {
-			c = com.NewCOMPortGoBugSt(port)
+			c = com.NewCOMPortGoBugSt(w, port)
 		}
 		if !c.Open() {
 			err = fmt.Errorf("can not open %s", port)

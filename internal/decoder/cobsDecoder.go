@@ -28,9 +28,10 @@ type COBS struct {
 //
 // l is the trice id list in slice of struct format.
 // in is the usable reader for the input bytes.
-func NewCOBSRDecoder(lut id.TriceIDLookUp, m *sync.RWMutex, in io.Reader, endian bool) Decoder {
+func NewCOBSRDecoder(w io.Writer, lut id.TriceIDLookUp, m *sync.RWMutex, in io.Reader, endian bool) Decoder {
 	p := &COBS{}
 	p.cycle = 0xc0 // start value
+	p.w = w
 	p.in = in
 	p.iBuf = make([]byte, 0, defaultSize)
 	p.b = make([]byte, 0, defaultSize)
@@ -56,11 +57,11 @@ func decodeCOBS(wr, rd []byte) int {
 }
 
 // dump prints the byte slice as hex in one line
-func dump(b []byte) {
+func dump(w io.Writer, b []byte) {
 	for _, x := range b {
-		fmt.Printf("%02x ", x)
+		fmt.Fprintf(w, "%02x ", x)
 	}
-	fmt.Println("")
+	fmt.Fprintln(w, "")
 }
 
 // nextCOBSpackage reads with an inner reader a COBS encoded byte stream.
@@ -91,8 +92,8 @@ func (p *COBS) nextCOBSpackage() {
 	}
 	// here a complete COBS package exists
 	if DebugOut { // Debug output
-		fmt.Print("COBS: ")
-		dump(p.iBuf[:index+1])
+		fmt.Fprint(p.w, "COBS: ")
+		dump(p.w, p.iBuf[:index+1])
 	}
 
 	p.b = make([]byte, defaultSize)
@@ -100,23 +101,23 @@ func (p *COBS) nextCOBSpackage() {
 	p.iBuf = p.iBuf[index+1:] // step forward (next package data in p.iBuf now, if any)
 	p.b = p.b[:n]             // decoded trice COBS packages have a multiple of 4 len
 	if n&3 != 0 {
-		dump(p.b)
-		fmt.Println("ERROR:Decoded trice COBS package has not expected  multiple of 4 len. The len is", n) // exit
+		dump(p.w, p.b)
+		fmt.Fprintln(p.w, "ERROR:Decoded trice COBS package has not expected  multiple of 4 len. The len is", n) // exit
 		n = 0
 		p.b = p.b[:0]
 		return
 	}
 
 	if DebugOut { // Debug output
-		fmt.Print("-> PKG:  ")
-		dump(p.b)
+		fmt.Fprint(p.w, "-> PKG:  ")
+		dump(p.w, p.b)
 	}
 
 	if cipher.Password != "" { // encrypted
 		cipher.Decrypt(p.b, p.b)
 		if DebugOut { // Debug output
-			fmt.Print("-> DEC:  ")
-			dump(p.b)
+			fmt.Fprint(p.w, "-> DEC:  ")
+			dump(p.w, p.b)
 		}
 	}
 
@@ -204,8 +205,7 @@ func (p *COBS) Read(b []byte) (n int, err error) {
 	triceID := id.TriceID(uint16(head >> 16))
 	LastTriceID = triceID // used for showID
 	if len(p.b) < p.triceSize {
-		fmt.Println("ERROR:package len", len(p.b), "is <", p.triceSize, " - ignoring package", p.b)
-		n += copy(b[n:], fmt.Sprintln("ERROR:package len", len(p.b), "is too short - ignoring package", p.b))
+		n += copy(b[n:], fmt.Sprintln("ERROR:package len", len(p.b), "is <", p.triceSize, " - ignoring package", p.b))
 		n += copy(b[n:], fmt.Sprintln(hints))
 		if p.triceSize > len(p.b) {
 			log.Fatal("Data garbage, aborting.")
@@ -215,7 +215,7 @@ func (p *COBS) Read(b []byte) (n int, err error) {
 	}
 	if DebugOut {
 		fmt.Print("TRICE -> ")
-		dump(p.b[:p.triceSize])
+		dump(p.w, p.b[:p.triceSize])
 	}
 	var ok bool
 	p.lutMutex.RLock()

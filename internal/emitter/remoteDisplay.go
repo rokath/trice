@@ -18,7 +18,8 @@ import (
 
 // RemoteDisplay is transferring to a remote display object.
 type RemoteDisplay struct {
-	Err    error
+	w      io.Writer   // os.Stdout
+	Err    error       // stored error
 	Cmd    string      // remote server executable
 	Params string      // remote server additional parameters (despite "ds -ipa a.b.c.d -ipp nnnn")
 	IPAddr string      // IP addr
@@ -45,10 +46,10 @@ func NewRemoteDisplay(w io.Writer, args []string) *RemoteDisplay {
 		IPPort: IPPort,
 		PtrRPC: nil,
 	}
+	p.w = w
 	//  if Autostart {
 	//  	p.startServer()
-	//  }
-	p.Connect(w)
+	p.Connect()
 	return p
 }
 
@@ -81,22 +82,22 @@ func (p *RemoteDisplay) writeLine(line []string) {
 // Connect is called by the client and tries to dial.
 // On success PtrRpc is valid afterwards and the output is re-directed.
 // Otherwise an error code is stored inside remotDisplay.
-func (p *RemoteDisplay) Connect(w io.Writer) {
+func (p *RemoteDisplay) Connect() {
 	addr := p.IPAddr + ":" + p.IPPort
 	if nil != p.PtrRPC {
 		if Verbose {
-			fmt.Fprintln(w, "already connected", p.PtrRPC)
+			fmt.Fprintln(p.w, "already connected", p.PtrRPC)
 		}
 		return
 	}
 	if Verbose {
-		fmt.Fprintln(w, "dialing "+addr+" ...")
+		fmt.Fprintln(p.w, "dialing "+addr+" ...")
 	}
 	p.PtrRPC, p.Err = rpc.Dial("tcp", addr)
 	msg.FatalOnErr(p.Err)
 	//p.ErrorFatal()
 	if Verbose {
-		fmt.Fprintln(w, "...remoteDisplay @ "+addr+" connected.")
+		fmt.Fprintln(p.w, "...remoteDisplay @ "+addr+" connected.")
 	}
 }
 
@@ -111,7 +112,7 @@ func ScShutdownRemoteDisplayServer(w io.Writer, timeStamp int64, args ...string)
 	args = append(args, "", "")       // make sure to have at least 2 elements in args.
 	p := NewRemoteDisplay(w, os.Args) //"", "", args[0], args[1])
 	if nil == p.PtrRPC {
-		p.Connect(w)
+		p.Connect()
 	}
 	p.stopServer(timeStamp)
 	return p.Err
@@ -121,7 +122,7 @@ func ScShutdownRemoteDisplayServer(w io.Writer, timeStamp int64, args ...string)
 // `ts` is used as flag. If 1 shutdown message is with timestamp (default usage), if 0 shutdown message is without timestamp (for testing).
 func (p *RemoteDisplay) stopServer(ts int64) {
 	if Verbose {
-		fmt.Println("sending Server.Shutdown...")
+		fmt.Fprintln(p.w, "sending Server.Shutdown...")
 	}
 	p.Err = p.PtrRPC.Call("Server.Shutdown", []int64{ts}, nil) // if 1st param nil -> gob: cannot encode nil value
 	msg.FatalOnErr(p.Err)
