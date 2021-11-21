@@ -66,6 +66,7 @@ var (
 	matchIDInsideTrice         = regexp.MustCompile(patIDInsideTrice)
 	matchAnyTriceStart         = regexp.MustCompile(patAnyTriceStart)
 	ExtendMacrosWithParamCount bool
+	DefaultTriceBitWidth       = "32" // to do: create compiler switch for other options "8", "16", "32", "64"
 )
 
 // updateParamCountAndID0 stays in text as long as trice statements are found.
@@ -265,9 +266,9 @@ func visitUpdate(lu TriceIDLookUp, tflu TriceFmtLookUp, pListModified *bool) fil
 	}
 }
 
-// triceIDParse returns an extracted id and true if t starts with s.th. like 'TRICE*( Id(n)...'
+// triceIDParse returns an extracted id and found as true if t starts with s.th. like 'TRICE*( Id(n)...'
 // nbID is the extracted string part containing 'Id(n)'.
-func triceIDParse(t string) (nbID string, id TriceID, ok bool) {
+func triceIDParse(t string) (nbID string, id TriceID, found bool) {
 	nbID = matchNbID.FindString(t)
 	if "" == nbID {
 		msg.InfoOnTrue(Verbose, fmt.Sprintln("No 'Id(n)' or 'id(n)' found inside "+t))
@@ -277,7 +278,7 @@ func triceIDParse(t string) (nbID string, id TriceID, ok bool) {
 	_, err := fmt.Sscanf(nbID, "Id(%d", &n) // closing bracket in format string omitted intensionally
 	if nil == err {                         // because spaces after id otherwise are not tolerated
 		id = TriceID(n)
-		ok = true
+		found = true
 		return
 	}
 	//_, err = fmt.Sscanf(nbID, "id(%d", &n) // closing bracket in format string omitted intensionally
@@ -291,8 +292,8 @@ func triceIDParse(t string) (nbID string, id TriceID, ok bool) {
 	return
 }
 
-// triceFmtParse returns an extracted tf and true if t is s.th. like 'TRICE*( Id(n), "..." );'
-func triceFmtParse(t string) (tf TriceFmt, ok bool) {
+// triceFmtParse returns an extracted tf and found as true if t is s.th. like 'TRICE*( Id(n), "..." );'
+func triceFmtParse(t string) (tf TriceFmt, found bool) {
 	tf.Type = matchTypNameTRICE.FindString(t)
 	if "" == tf.Type {
 		msg.Info(fmt.Sprintln("no 'TRICE*' found inside " + t))
@@ -304,7 +305,7 @@ func triceFmtParse(t string) (tf TriceFmt, ok bool) {
 		return
 	}
 	tf.Strg = match[0][1]
-	ok = true
+	found = true
 	return
 }
 
@@ -312,13 +313,13 @@ func triceFmtParse(t string) (tf TriceFmt, ok bool) {
 // Returned nbID is the extracted string part containing 'Id(n)'.
 // Returned id is the scanned n inside Id(n), only and only if n is a single decimal number.
 // Returned tf is the recognized trice.
-// Only on success ok is true.
-func triceParse(t string) (nbID string, id TriceID, tf TriceFmt, ok bool) {
-	nbID, id, ok = triceIDParse(t)
-	if !ok {
+// Only on success found is true.
+func triceParse(t string) (nbID string, id TriceID, tf TriceFmt, found bool) {
+	nbID, id, found = triceIDParse(t)
+	if !found {
 		return
 	}
-	tf, ok = triceFmtParse(t)
+	tf, found = triceFmtParse(t)
 	return
 }
 
@@ -336,8 +337,8 @@ func refreshIDs(text string, lu TriceIDLookUp, tflu TriceFmtLookUp) {
 		subs = subs[loc[1]:] // A possible Id(0) replacement makes subs not shorter, so next search can start at loc[1].
 		// A case like 'TRICE*( Id(                             0                              ), "");' is not expected.
 
-		_, id, tf, ok := triceParse(nbTRICE)
-		if !ok {
+		_, id, tf, found := triceParse(nbTRICE)
+		if !found {
 			continue
 		}
 		tfS := tf
@@ -387,8 +388,8 @@ func updateIDsUniqOrShared(sharedIDs bool, smin, smax, min, max TriceID, text st
 		subs = subs[loc[1]:] // A possible Id(0) replacement makes subs not shorter, so next search can start at loc[1].
 		// A case like 'TRICE*( Id(                             0                              ), "");' is not expected.
 
-		nbID, id, tf, ok := triceParse(nbTRICE)
-		if !ok {
+		nbID, id, tf, found := triceParse(nbTRICE)
+		if !found {
 			continue
 		}
 		tfS := tf
@@ -410,14 +411,9 @@ func updateIDsUniqOrShared(sharedIDs bool, smin, smax, min, max TriceID, text st
 			}
 		}
 		if id <= 0 { // marked as invalid: id is 0 or inside lu used differently
+
 			invalID := nbID
 			invalTRICE := nbTRICE
-			// It is possible tf is already in tflu (and lu) here, so check it.
-			// if( strings.HasPrefix( tfS.Type, "TRICE_" ){
-			// manipulate ... wip
-			// }
-			// id, ok = tflu[tfS]
-			// if !ok { tfS.Type
 
 			if id, ok = tflu[tfS]; sharedIDs && ok { // yes, we can use it in shared IDs mode
 				msg.FatalInfoOnTrue(id == 0, "no id 0 allowed in map")
@@ -449,7 +445,7 @@ func updateIDsUniqOrShared(sharedIDs bool, smin, smax, min, max TriceID, text st
 		}
 		// update map: That is needed after an invalid trice or if id:tf is valid but not inside lu & tflu yet, for example after manual code changes or forgotten refresh before update.
 		lu[id] = tf
-		tflu[tfS] = id // no distinction for lower and upper case Type
+		tflu[tf] = id // no distinction for lower and upper case Type
 	}
 }
 
