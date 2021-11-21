@@ -5,6 +5,7 @@ package emitter
 
 import (
 	"fmt"
+	"io"
 	"log"
 	"path/filepath"
 	"runtime"
@@ -14,16 +15,18 @@ import (
 // LocalDisplay is an object used for displaying.
 // LocalDisplay implements the Linewriter interface.
 type LocalDisplay struct {
+	w   io.Writer
 	Err error
 }
 
 // NewLocalDisplay creates a LocalDisplay. It provides a Linewriter.
 // It uses internally
-func NewLocalDisplay() *LocalDisplay {
+func NewLocalDisplay(w io.Writer) *LocalDisplay {
 
 	// display lwD implements the Linewriter interface needed by lineTransformer.
 	// It interprets the lines written to it according to its properties.
 	lwD := &LocalDisplay{}
+	lwD.w = w
 	return lwD
 }
 
@@ -40,7 +43,7 @@ func (p *LocalDisplay) ErrorFatal() {
 func (p *LocalDisplay) writeLine(line []string) {
 	p.ErrorFatal()
 	s := strings.Join(line, "")
-	_, p.Err = fmt.Println(s)
+	_, p.Err = fmt.Fprintln(p.w, s)
 }
 
 // ColorDisplay is an object used for displaying.
@@ -53,11 +56,11 @@ type ColorDisplay struct {
 
 // NewColorDisplay creates a ColorDisplay. It provides a Linewriter.
 // It uses internally a local display combined with a line transformer.
-func NewColorDisplay(colorPalette string) *ColorDisplay {
+func NewColorDisplay(w io.Writer, colorPalette string) *ColorDisplay {
 
 	// display lD implements the Linewriter interface needed by lineTransformer.
 	// It interprets the lines written to it according to its properties.
-	lD := NewLocalDisplay()
+	lD := NewLocalDisplay(w)
 	// lwT uses the Linewriter lD internally.
 	// It provides a Linewriter.
 	lwT := NewLineTransformerANSI(lD, colorPalette)

@@ -69,7 +69,7 @@ func checkList(t *testing.T, sharedIDs bool, min, max TriceID, searchMethod stri
 	tflu := lu.reverse()
 	Verbose = true
 	for _, x := range tt {
-		act0, _ := updateParamCountAndID0(x.text, extend)
+		act0, _ := updateParamCountAndID0(os.Stdout, x.text, extend)
 		listModified := false
 		act, fileModified := updateIDsUniqOrShared(sharedIDs, min, max, searchMethod, act0, lu, tflu, &listModified)
 		assert.Equal(t, x.fileMod, fileModified)
@@ -93,7 +93,7 @@ func checkList2(t *testing.T, sharedIDs bool, min, max TriceID, searchMethod str
 	tflu := lu.reverse()
 	Verbose = true
 	for _, x := range tt {
-		act0, _ := updateParamCountAndID0(x.text, extendMacroName)
+		act0, _ := updateParamCountAndID0(os.Stdout, x.text, extendMacroName)
 		listModified := false
 		act, fileModified := updateIDsUniqOrShared(sharedIDs, min, max, searchMethod, act0, lu, tflu, &listModified)
 		assert.Equal(t, x.fileMod, fileModified)
@@ -131,7 +131,7 @@ func checkList3(t *testing.T, sharedIDs bool, min, max TriceID, searchMethod str
 	tflu := lu.reverse()
 	Verbose = true
 	for _, x := range tt {
-		act0, _ := updateParamCountAndID0(x.text, extendMacroName)
+		act0, _ := updateParamCountAndID0(os.Stdout, x.text, extendMacroName)
 		listModified := false
 		act, fileModified := updateIDsUniqOrShared(sharedIDs, min, max, searchMethod, act0, lu, tflu, &listModified)
 		assert.Equal(t, x.fileMod, fileModified)
@@ -153,7 +153,7 @@ func checkList4(t *testing.T, sharedIDs bool, min, max TriceID, searchMethod str
 	tflu := lu.reverse()
 	Verbose = true
 	for _, x := range tt {
-		act0, _ := updateParamCountAndID0(x.text, extendMacroName)
+		act0, _ := updateParamCountAndID0(os.Stdout, x.text, extendMacroName)
 		listModified := false
 		_, fileModified := updateIDsUniqOrShared(sharedIDs, min, max, searchMethod, act0, lu, tflu, &listModified)
 		assert.Equal(t, x.fileMod, fileModified)

@@ -7,6 +7,7 @@ package id
 
 import (
 	"fmt"
+	"io"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -78,7 +79,7 @@ var (
 // Short trices like Trice0 or Trice16_1i need to have an id(0) instead of Id(0) but that gets corrected
 // automatically when the id n is inserted.
 // text is the full filecontents, which could be modified, therefore it is also returned with a modified flag
-func updateParamCountAndID0(text string, extendMacroName bool) (string, bool) {
+func updateParamCountAndID0(w io.Writer, text string, extendMacroName bool) (string, bool) {
 	var modified bool
 	subs := text[:] // create a copy of text and assign it to subs
 	for {
@@ -103,9 +104,9 @@ func updateParamCountAndID0(text string, extendMacroName bool) (string, bool) {
 				triceC = triceC[:locNoLen[0]] + triceNameWithLen + triceC[locNoLen[1]:] // insert _n
 				modified = true
 				if Verbose {
-					fmt.Print(triceNameNoLen)
-					fmt.Print(" -> ")
-					fmt.Println(triceNameWithLen)
+					fmt.Fprint(w, triceNameNoLen)
+					fmt.Fprint(w, " -> ")
+					fmt.Fprintln(w, triceNameWithLen)
 				}
 			}
 		}
@@ -118,9 +119,9 @@ func updateParamCountAndID0(text string, extendMacroName bool) (string, bool) {
 			triceC = strings.Replace(triceC, triceO, triceU, 1) // insert Id(0) into trice copy
 			modified = true
 			if Verbose {
-				fmt.Print(triceO)
-				fmt.Print(" -> ")
-				fmt.Println(triceU)
+				fmt.Fprint(w, triceO)
+				fmt.Fprint(w, " -> ")
+				fmt.Fprintln(w, triceU)
 			}
 		}
 		if modified {
@@ -163,12 +164,12 @@ func isSourceFile(fi os.FileInfo) bool {
 	return matchSourceFile.MatchString(fi.Name())
 }
 
-func refreshList(root string, lu TriceIDLookUp, tflu TriceFmtLookUp) {
+func refreshList(w io.Writer, root string, lu TriceIDLookUp, tflu TriceFmtLookUp) {
 	if Verbose {
-		fmt.Println("dir=", root)
-		fmt.Println("List=", FnJSON)
+		fmt.Fprintln(w, "dir=", root)
+		fmt.Fprintln(w, "List=", FnJSON)
 	}
-	msg.FatalInfoOnErr(filepath.Walk(root, visitRefresh(lu, tflu)), "failed to walk tree")
+	msg.FatalInfoOnErr(filepath.Walk(root, visitRefresh(w, lu, tflu)), "failed to walk tree")
 }
 
 // Additional actions needed: (Option -dry-run lets do a check in advance.)
@@ -189,20 +190,20 @@ func refreshList(root string, lu TriceIDLookUp, tflu TriceFmtLookUp) {
 // - replace.Type( Id(0), ...) with.Type( Id(n), ...)
 // - find duplicate.Type( Id(n), ...) and replace one of them if trices are not identical
 // - extend file fnIDList
-func IDsUpdate(root string, lu TriceIDLookUp, tflu TriceFmtLookUp, pListModified *bool) {
-	if Verbose {
-		fmt.Println("dir=", root)
-		fmt.Println("List=", FnJSON)
+func IDsUpdate(w io.Writer, root string, lu TriceIDLookUp, tflu TriceFmtLookUp, pListModified *bool) {
+	if Verbose && FnJSON != "emptyFile" {
+		fmt.Fprintln(w, "dir=", root)
+		fmt.Fprintln(w, "List=", FnJSON)
 	}
-	msg.FatalInfoOnErr(filepath.Walk(root, visitUpdate(lu, tflu, pListModified)), "failed to walk tree")
+	msg.FatalInfoOnErr(filepath.Walk(root, visitUpdate(w, lu, tflu, pListModified)), "failed to walk tree")
 }
 
-func readFile(path string, fi os.FileInfo, err error) (string, error) {
+func readFile(w io.Writer, path string, fi os.FileInfo, err error) (string, error) {
 	if err != nil || fi.IsDir() || !isSourceFile(fi) {
 		return "", err // forward any error and do nothing
 	}
 	if Verbose {
-		fmt.Println(path)
+		fmt.Fprintln(w, path)
 	}
 	read, err := ioutil.ReadFile(path)
 	if nil != err {
@@ -212,9 +213,9 @@ func readFile(path string, fi os.FileInfo, err error) (string, error) {
 	return text, nil
 }
 
-func visitRefresh(lu TriceIDLookUp, tflu TriceFmtLookUp) filepath.WalkFunc {
+func visitRefresh(w io.Writer, lu TriceIDLookUp, tflu TriceFmtLookUp) filepath.WalkFunc {
 	return func(path string, fi os.FileInfo, err error) error {
-		text, err := readFile(path, fi, err)
+		text, err := readFile(w, path, fi, err)
 		if nil != err {
 			return err
 		}
@@ -223,7 +224,7 @@ func visitRefresh(lu TriceIDLookUp, tflu TriceFmtLookUp) filepath.WalkFunc {
 	}
 }
 
-func visitUpdate(lu TriceIDLookUp, tflu TriceFmtLookUp, pListModified *bool) filepath.WalkFunc {
+func visitUpdate(w io.Writer, lu TriceIDLookUp, tflu TriceFmtLookUp, pListModified *bool) filepath.WalkFunc {
 	// WalkFunc is the type of the function called for each file or directory
 	// visited by Walk. The path argument contains the argument to Walk as a
 	// prefix; that is, if Walk is called with "dir", which is a directory
@@ -240,13 +241,13 @@ func visitUpdate(lu TriceIDLookUp, tflu TriceFmtLookUp, pListModified *bool) fil
 	// when invoked on a non-directory file, Walk skips the remaining files in the
 	// containing directory.
 	return func(path string, fi os.FileInfo, err error) error {
-		text, err := readFile(path, fi, err)
+		text, err := readFile(w, path, fi, err)
 		if nil != err {
 			return err
 		}
 		refreshIDs(text, lu, tflu) // update IDs: Id(0) -> Id(M)
 
-		textN, fileModified0 := updateParamCountAndID0(text, ExtendMacrosWithParamCount)                                 // update parameter count: TRICE* to TRICE*_n and insert missing Id(0)
+		textN, fileModified0 := updateParamCountAndID0(w, text, ExtendMacrosWithParamCount)                              // update parameter count: TRICE* to TRICE*_n and insert missing Id(0)
 		textU, fileModified1 := updateIDsUniqOrShared(SharedIDs, Min, Max, SearchMethod, textN, lu, tflu, pListModified) // update IDs: Id(0) -> Id(M)
 
 		// write out

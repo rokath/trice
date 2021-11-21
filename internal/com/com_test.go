@@ -6,6 +6,7 @@
 package com_test
 
 import (
+	"os"
 	"testing"
 
 	"github.com/rokath/trice/internal/com"
@@ -23,12 +24,12 @@ import (
 //	PS C:\repos\trice> trice s
 //	Found port:  COM4
 func Test1(t *testing.T) {
-	ss, err := com.GetSerialPorts()
+	ss, err := com.GetSerialPorts(os.Stdout)
 	assert.Nil(t, err)
 
 	for i := range ss {
 		port := ss[i]
-		p := com.NewCOMPortGoBugSt(port)
+		p := com.NewCOMPortGoBugSt(os.Stdout, port)
 		if p.Open() {
 			assert.Nil(t, p.Close())
 		}

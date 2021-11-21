@@ -9,6 +9,7 @@ package id
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"math/rand"
 	"os"
@@ -18,14 +19,14 @@ import (
 )
 
 // NewLut returns a look-up map generated from JSON map file named fn.
-func NewLut(fn string) TriceIDLookUp {
+func NewLut(w io.Writer, fn string) TriceIDLookUp {
 	lu := make(TriceIDLookUp)
 	if fn == "emptyFile" { // reserved name for tests only
 		return lu
 	}
 	msg.FatalOnErr(lu.fromFile(fn))
 	if true == Verbose {
-		fmt.Println("Read ID List file", fn, "with", len(lu), "items.")
+		fmt.Fprintln(w, "Read ID List file", fn, "with", len(lu), "items.")
 	}
 	return lu
 }
