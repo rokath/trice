@@ -113,9 +113,9 @@ func TestInsertParamCountAndIDThreeParamN(t *testing.T) {
 		{`...  Trice32 ( "hi %03u %03d %16b", 5, 7, 9 ); ...`, `...  Trice32_3 ( Id(0), "hi %03u %03d %16b", 5, 7, 9 ); ...`},
 		{`...  TRICE32 ( "hi %03u %03d %16b", 5, 7, 9 ); ...`, `...  TRICE32_3 ( Id(0), "hi %03u %03d %16b", 5, 7, 9 ); ...`},
 		{`...  trice32 ( "hi %03u %03d %16b", 5, 7, 9 ); ...`, `...  trice32_3 ( Id(0), "hi %03u %03d %16b", 5, 7, 9 ); ...`},
-		{`...  Trice64 ( "hi %03u %03d %16b", 5, 7, 9 ); ...`, `...  Trice64_3 ( Id(0), "hi %03u %03d %16b", 5, 7, 9 ); ...`}, // does not exist but allowed to match
-		{`...  TRICE64 ( "hi %03u %03d %16b", 5, 7, 9 ); ...`, `...  TRICE64_3 ( Id(0), "hi %03u %03d %16b", 5, 7, 9 ); ...`}, // does not exist but allowed to match
-		{`...  trice64 ( "hi %03u %03d %16b", 5, 7, 9 ); ...`, `...  trice64_3 ( Id(0), "hi %03u %03d %16b", 5, 7, 9 ); ...`}, // does not exist but allowed to match
+		{`...  Trice64 ( "hi %03u %03d %16b", 5, 7, 9 ); ...`, `...  Trice64_3 ( Id(0), "hi %03u %03d %16b", 5, 7, 9 ); ...`},
+		{`...  TRICE64 ( "hi %03u %03d %16b", 5, 7, 9 ); ...`, `...  TRICE64_3 ( Id(0), "hi %03u %03d %16b", 5, 7, 9 ); ...`},
+		{`...  trice64 ( "hi %03u %03d %16b", 5, 7, 9 ); ...`, `...  trice64_3 ( Id(0), "hi %03u %03d %16b", 5, 7, 9 ); ...`},
 	}
 	checkTestTable(t, tt, true)
 }
@@ -131,9 +131,9 @@ func TestInsertParamCountAndIDThreeParam(t *testing.T) {
 		{`...  Trice32 ( "hi %03u %03d %16b", 5, 7, 9 ); ...`, `...  Trice32 ( Id(0), "hi %03u %03d %16b", 5, 7, 9 ); ...`},
 		{`...  TRICE32 ( "hi %03u %03d %16b", 5, 7, 9 ); ...`, `...  TRICE32 ( Id(0), "hi %03u %03d %16b", 5, 7, 9 ); ...`},
 		{`...  trice32 ( "hi %03u %03d %16b", 5, 7, 9 ); ...`, `...  trice32 ( Id(0), "hi %03u %03d %16b", 5, 7, 9 ); ...`},
-		{`...  Trice64 ( "hi %03u %03d %16b", 5, 7, 9 ); ...`, `...  Trice64 ( Id(0), "hi %03u %03d %16b", 5, 7, 9 ); ...`}, // does not exist but allowed to match
-		{`...  TRICE64 ( "hi %03u %03d %16b", 5, 7, 9 ); ...`, `...  TRICE64 ( Id(0), "hi %03u %03d %16b", 5, 7, 9 ); ...`}, // does not exist but allowed to match
-		{`...  trice64 ( "hi %03u %03d %16b", 5, 7, 9 ); ...`, `...  trice64 ( Id(0), "hi %03u %03d %16b", 5, 7, 9 ); ...`}, // does not exist but allowed to match
+		{`...  Trice64 ( "hi %03u %03d %16b", 5, 7, 9 ); ...`, `...  Trice64 ( Id(0), "hi %03u %03d %16b", 5, 7, 9 ); ...`},
+		{`...  TRICE64 ( "hi %03u %03d %16b", 5, 7, 9 ); ...`, `...  TRICE64 ( Id(0), "hi %03u %03d %16b", 5, 7, 9 ); ...`},
+		{`...  trice64 ( "hi %03u %03d %16b", 5, 7, 9 ); ...`, `...  trice64 ( Id(0), "hi %03u %03d %16b", 5, 7, 9 ); ...`},
 	}
 	checkTestTable(t, tt, false)
 }
@@ -149,9 +149,9 @@ func TestInsertParamCountAndIDFourParamN(t *testing.T) {
 		{`...  Trice32 ( "hi %03u %03d %16b 0x%08x", 5, 7, 9, 3 ); ...`, `...  Trice32_4 ( Id(0), "hi %03u %03d %16b 0x%08x", 5, 7, 9, 3 ); ...`},
 		{`...  TRICE32 ( "hi %03u %03d %16b 0x%08x", 5, 7, 9, 3 ); ...`, `...  TRICE32_4 ( Id(0), "hi %03u %03d %16b 0x%08x", 5, 7, 9, 3 ); ...`},
 		{`...  trice32 ( "hi %03u %03d %16b 0x%08x", 5, 7, 9, 3 ); ...`, `...  trice32_4 ( Id(0), "hi %03u %03d %16b 0x%08x", 5, 7, 9, 3 ); ...`},
-		{`...  Trice64 ( "hi %03u %03d %16b 0x%08x", 5, 7, 9, 3 ); ...`, `...  Trice64_4 ( Id(0), "hi %03u %03d %16b 0x%08x", 5, 7, 9, 3 ); ...`}, // does not exist but allowed to match
-		{`...  TRICE64 ( "hi %03u %03d %16b 0x%08x", 5, 7, 9, 3 ); ...`, `...  TRICE64_4 ( Id(0), "hi %03u %03d %16b 0x%08x", 5, 7, 9, 3 ); ...`}, // does not exist but allowed to match
-		{`...  trice64 ( "hi %03u %03d %16b 0x%08x", 5, 7, 9, 3 ); ...`, `...  trice64_4 ( Id(0), "hi %03u %03d %16b 0x%08x", 5, 7, 9, 3 ); ...`}, // does not exist but allowed to match
+		{`...  Trice64 ( "hi %03u %03d %16b 0x%08x", 5, 7, 9, 3 ); ...`, `...  Trice64_4 ( Id(0), "hi %03u %03d %16b 0x%08x", 5, 7, 9, 3 ); ...`},
+		{`...  TRICE64 ( "hi %03u %03d %16b 0x%08x", 5, 7, 9, 3 ); ...`, `...  TRICE64_4 ( Id(0), "hi %03u %03d %16b 0x%08x", 5, 7, 9, 3 ); ...`},
+		{`...  trice64 ( "hi %03u %03d %16b 0x%08x", 5, 7, 9, 3 ); ...`, `...  trice64_4 ( Id(0), "hi %03u %03d %16b 0x%08x", 5, 7, 9, 3 ); ...`},
 	}
 	checkTestTable(t, tt, true)
 }
@@ -167,9 +167,9 @@ func TestInsertParamCountAndIDFourParam(t *testing.T) {
 		{`...  Trice32 ( "hi %03u %03d %16b 0x%08x", 5, 7, 9, 3 ); ...`, `...  Trice32 ( Id(0), "hi %03u %03d %16b 0x%08x", 5, 7, 9, 3 ); ...`},
 		{`...  TRICE32 ( "hi %03u %03d %16b 0x%08x", 5, 7, 9, 3 ); ...`, `...  TRICE32 ( Id(0), "hi %03u %03d %16b 0x%08x", 5, 7, 9, 3 ); ...`},
 		{`...  trice32 ( "hi %03u %03d %16b 0x%08x", 5, 7, 9, 3 ); ...`, `...  trice32 ( Id(0), "hi %03u %03d %16b 0x%08x", 5, 7, 9, 3 ); ...`},
-		{`...  Trice64 ( "hi %03u %03d %16b 0x%08x", 5, 7, 9, 3 ); ...`, `...  Trice64 ( Id(0), "hi %03u %03d %16b 0x%08x", 5, 7, 9, 3 ); ...`}, // does not exist but allowed to match
-		{`...  TRICE64 ( "hi %03u %03d %16b 0x%08x", 5, 7, 9, 3 ); ...`, `...  TRICE64 ( Id(0), "hi %03u %03d %16b 0x%08x", 5, 7, 9, 3 ); ...`}, // does not exist but allowed to match
-		{`...  trice64 ( "hi %03u %03d %16b 0x%08x", 5, 7, 9, 3 ); ...`, `...  trice64 ( Id(0), "hi %03u %03d %16b 0x%08x", 5, 7, 9, 3 ); ...`}, // does not exist but allowed to match
+		{`...  Trice64 ( "hi %03u %03d %16b 0x%08x", 5, 7, 9, 3 ); ...`, `...  Trice64 ( Id(0), "hi %03u %03d %16b 0x%08x", 5, 7, 9, 3 ); ...`},
+		{`...  TRICE64 ( "hi %03u %03d %16b 0x%08x", 5, 7, 9, 3 ); ...`, `...  TRICE64 ( Id(0), "hi %03u %03d %16b 0x%08x", 5, 7, 9, 3 ); ...`},
+		{`...  trice64 ( "hi %03u %03d %16b 0x%08x", 5, 7, 9, 3 ); ...`, `...  trice64 ( Id(0), "hi %03u %03d %16b 0x%08x", 5, 7, 9, 3 ); ...`},
 	}
 	checkTestTable(t, tt, false)
 }
@@ -179,15 +179,15 @@ func TestInsertParamCountAndIDFiveParamN(t *testing.T) {
 		{`...   Trice8 ( "hi %03u %03d %16b 0x%08x %X", 5, 7, 9, 3, 2 ); ...`, `...   Trice8_5 ( Id(0), "hi %03u %03d %16b 0x%08x %X", 5, 7, 9, 3, 2 ); ...`},
 		{`...   TRICE8 ( "hi %03u %03d %16b 0x%08x %X", 5, 7, 9, 3, 2 ); ...`, `...   TRICE8_5 ( Id(0), "hi %03u %03d %16b 0x%08x %X", 5, 7, 9, 3, 2 ); ...`},
 		{`...   trice8 ( "hi %03u %03d %16b 0x%08x %X", 5, 7, 9, 3, 2 ); ...`, `...   trice8_5 ( Id(0), "hi %03u %03d %16b 0x%08x %X", 5, 7, 9, 3, 2 ); ...`},
-		{`...  Trice16 ( "hi %03u %03d %16b 0x%08x %X", 5, 7, 9, 3, 2 ); ...`, `...  Trice16_5 ( Id(0), "hi %03u %03d %16b 0x%08x %X", 5, 7, 9, 3, 2 ); ...`}, // does not exist but allowed to match
-		{`...  TRICE16 ( "hi %03u %03d %16b 0x%08x %X", 5, 7, 9, 3, 2 ); ...`, `...  TRICE16_5 ( Id(0), "hi %03u %03d %16b 0x%08x %X", 5, 7, 9, 3, 2 ); ...`}, // does not exist but allowed to match
-		{`...  trice16 ( "hi %03u %03d %16b 0x%08x %X", 5, 7, 9, 3, 2 ); ...`, `...  trice16_5 ( Id(0), "hi %03u %03d %16b 0x%08x %X", 5, 7, 9, 3, 2 ); ...`}, // does not exist but allowed to match
-		{`...  Trice32 ( "hi %03u %03d %16b 0x%08x %X", 5, 7, 9, 3, 2 ); ...`, `...  Trice32_5 ( Id(0), "hi %03u %03d %16b 0x%08x %X", 5, 7, 9, 3, 2 ); ...`}, // does not exist but allowed to match
-		{`...  TRICE32 ( "hi %03u %03d %16b 0x%08x %X", 5, 7, 9, 3, 2 ); ...`, `...  TRICE32_5 ( Id(0), "hi %03u %03d %16b 0x%08x %X", 5, 7, 9, 3, 2 ); ...`}, // does not exist but allowed to match
-		{`...  trice32 ( "hi %03u %03d %16b 0x%08x %X", 5, 7, 9, 3, 2 ); ...`, `...  trice32_5 ( Id(0), "hi %03u %03d %16b 0x%08x %X", 5, 7, 9, 3, 2 ); ...`}, // does not exist but allowed to match
-		{`...  Trice64 ( "hi %03u %03d %16b 0x%08x %X", 5, 7, 9, 3, 2 ); ...`, `...  Trice64_5 ( Id(0), "hi %03u %03d %16b 0x%08x %X", 5, 7, 9, 3, 2 ); ...`}, // does not exist but allowed to match
-		{`...  TRICE64 ( "hi %03u %03d %16b 0x%08x %X", 5, 7, 9, 3, 2 ); ...`, `...  TRICE64_5 ( Id(0), "hi %03u %03d %16b 0x%08x %X", 5, 7, 9, 3, 2 ); ...`}, // does not exist but allowed to match
-		{`...  trice64 ( "hi %03u %03d %16b 0x%08x %X", 5, 7, 9, 3, 2 ); ...`, `...  trice64_5 ( Id(0), "hi %03u %03d %16b 0x%08x %X", 5, 7, 9, 3, 2 ); ...`}, // does not exist but allowed to match
+		{`...  Trice16 ( "hi %03u %03d %16b 0x%08x %X", 5, 7, 9, 3, 2 ); ...`, `...  Trice16_5 ( Id(0), "hi %03u %03d %16b 0x%08x %X", 5, 7, 9, 3, 2 ); ...`},
+		{`...  TRICE16 ( "hi %03u %03d %16b 0x%08x %X", 5, 7, 9, 3, 2 ); ...`, `...  TRICE16_5 ( Id(0), "hi %03u %03d %16b 0x%08x %X", 5, 7, 9, 3, 2 ); ...`},
+		{`...  trice16 ( "hi %03u %03d %16b 0x%08x %X", 5, 7, 9, 3, 2 ); ...`, `...  trice16_5 ( Id(0), "hi %03u %03d %16b 0x%08x %X", 5, 7, 9, 3, 2 ); ...`},
+		{`...  Trice32 ( "hi %03u %03d %16b 0x%08x %X", 5, 7, 9, 3, 2 ); ...`, `...  Trice32_5 ( Id(0), "hi %03u %03d %16b 0x%08x %X", 5, 7, 9, 3, 2 ); ...`},
+		{`...  TRICE32 ( "hi %03u %03d %16b 0x%08x %X", 5, 7, 9, 3, 2 ); ...`, `...  TRICE32_5 ( Id(0), "hi %03u %03d %16b 0x%08x %X", 5, 7, 9, 3, 2 ); ...`},
+		{`...  trice32 ( "hi %03u %03d %16b 0x%08x %X", 5, 7, 9, 3, 2 ); ...`, `...  trice32_5 ( Id(0), "hi %03u %03d %16b 0x%08x %X", 5, 7, 9, 3, 2 ); ...`},
+		{`...  Trice64 ( "hi %03u %03d %16b 0x%08x %X", 5, 7, 9, 3, 2 ); ...`, `...  Trice64_5 ( Id(0), "hi %03u %03d %16b 0x%08x %X", 5, 7, 9, 3, 2 ); ...`},
+		{`...  TRICE64 ( "hi %03u %03d %16b 0x%08x %X", 5, 7, 9, 3, 2 ); ...`, `...  TRICE64_5 ( Id(0), "hi %03u %03d %16b 0x%08x %X", 5, 7, 9, 3, 2 ); ...`},
+		{`...  trice64 ( "hi %03u %03d %16b 0x%08x %X", 5, 7, 9, 3, 2 ); ...`, `...  trice64_5 ( Id(0), "hi %03u %03d %16b 0x%08x %X", 5, 7, 9, 3, 2 ); ...`},
 	}
 	checkTestTable(t, tt, true)
 }
@@ -197,15 +197,15 @@ func TestInsertParamCountAndIDFiveParam(t *testing.T) {
 		{`...   Trice8 ( "hi %03u %03d %16b 0x%08x %X", 5, 7, 9, 3, 2 ); ...`, `...   Trice8 ( Id(0), "hi %03u %03d %16b 0x%08x %X", 5, 7, 9, 3, 2 ); ...`},
 		{`...   TRICE8 ( "hi %03u %03d %16b 0x%08x %X", 5, 7, 9, 3, 2 ); ...`, `...   TRICE8 ( Id(0), "hi %03u %03d %16b 0x%08x %X", 5, 7, 9, 3, 2 ); ...`},
 		{`...   trice8 ( "hi %03u %03d %16b 0x%08x %X", 5, 7, 9, 3, 2 ); ...`, `...   trice8 ( Id(0), "hi %03u %03d %16b 0x%08x %X", 5, 7, 9, 3, 2 ); ...`},
-		{`...  Trice16 ( "hi %03u %03d %16b 0x%08x %X", 5, 7, 9, 3, 2 ); ...`, `...  Trice16 ( Id(0), "hi %03u %03d %16b 0x%08x %X", 5, 7, 9, 3, 2 ); ...`}, // does not exist but allowed to match
-		{`...  TRICE16 ( "hi %03u %03d %16b 0x%08x %X", 5, 7, 9, 3, 2 ); ...`, `...  TRICE16 ( Id(0), "hi %03u %03d %16b 0x%08x %X", 5, 7, 9, 3, 2 ); ...`}, // does not exist but allowed to match
-		{`...  trice16 ( "hi %03u %03d %16b 0x%08x %X", 5, 7, 9, 3, 2 ); ...`, `...  trice16 ( Id(0), "hi %03u %03d %16b 0x%08x %X", 5, 7, 9, 3, 2 ); ...`}, // does not exist but allowed to match
-		{`...  Trice32 ( "hi %03u %03d %16b 0x%08x %X", 5, 7, 9, 3, 2 ); ...`, `...  Trice32 ( Id(0), "hi %03u %03d %16b 0x%08x %X", 5, 7, 9, 3, 2 ); ...`}, // does not exist but allowed to match
-		{`...  TRICE32 ( "hi %03u %03d %16b 0x%08x %X", 5, 7, 9, 3, 2 ); ...`, `...  TRICE32 ( Id(0), "hi %03u %03d %16b 0x%08x %X", 5, 7, 9, 3, 2 ); ...`}, // does not exist but allowed to match
-		{`...  trice32 ( "hi %03u %03d %16b 0x%08x %X", 5, 7, 9, 3, 2 ); ...`, `...  trice32 ( Id(0), "hi %03u %03d %16b 0x%08x %X", 5, 7, 9, 3, 2 ); ...`}, // does not exist but allowed to match
-		{`...  Trice64 ( "hi %03u %03d %16b 0x%08x %X", 5, 7, 9, 3, 2 ); ...`, `...  Trice64 ( Id(0), "hi %03u %03d %16b 0x%08x %X", 5, 7, 9, 3, 2 ); ...`}, // does not exist but allowed to match
-		{`...  TRICE64 ( "hi %03u %03d %16b 0x%08x %X", 5, 7, 9, 3, 2 ); ...`, `...  TRICE64 ( Id(0), "hi %03u %03d %16b 0x%08x %X", 5, 7, 9, 3, 2 ); ...`}, // does not exist but allowed to match
-		{`...  trice64 ( "hi %03u %03d %16b 0x%08x %X", 5, 7, 9, 3, 2 ); ...`, `...  trice64 ( Id(0), "hi %03u %03d %16b 0x%08x %X", 5, 7, 9, 3, 2 ); ...`}, // does not exist but allowed to match
+		{`...  Trice16 ( "hi %03u %03d %16b 0x%08x %X", 5, 7, 9, 3, 2 ); ...`, `...  Trice16 ( Id(0), "hi %03u %03d %16b 0x%08x %X", 5, 7, 9, 3, 2 ); ...`},
+		{`...  TRICE16 ( "hi %03u %03d %16b 0x%08x %X", 5, 7, 9, 3, 2 ); ...`, `...  TRICE16 ( Id(0), "hi %03u %03d %16b 0x%08x %X", 5, 7, 9, 3, 2 ); ...`},
+		{`...  trice16 ( "hi %03u %03d %16b 0x%08x %X", 5, 7, 9, 3, 2 ); ...`, `...  trice16 ( Id(0), "hi %03u %03d %16b 0x%08x %X", 5, 7, 9, 3, 2 ); ...`},
+		{`...  Trice32 ( "hi %03u %03d %16b 0x%08x %X", 5, 7, 9, 3, 2 ); ...`, `...  Trice32 ( Id(0), "hi %03u %03d %16b 0x%08x %X", 5, 7, 9, 3, 2 ); ...`},
+		{`...  TRICE32 ( "hi %03u %03d %16b 0x%08x %X", 5, 7, 9, 3, 2 ); ...`, `...  TRICE32 ( Id(0), "hi %03u %03d %16b 0x%08x %X", 5, 7, 9, 3, 2 ); ...`},
+		{`...  trice32 ( "hi %03u %03d %16b 0x%08x %X", 5, 7, 9, 3, 2 ); ...`, `...  trice32 ( Id(0), "hi %03u %03d %16b 0x%08x %X", 5, 7, 9, 3, 2 ); ...`},
+		{`...  Trice64 ( "hi %03u %03d %16b 0x%08x %X", 5, 7, 9, 3, 2 ); ...`, `...  Trice64 ( Id(0), "hi %03u %03d %16b 0x%08x %X", 5, 7, 9, 3, 2 ); ...`},
+		{`...  TRICE64 ( "hi %03u %03d %16b 0x%08x %X", 5, 7, 9, 3, 2 ); ...`, `...  TRICE64 ( Id(0), "hi %03u %03d %16b 0x%08x %X", 5, 7, 9, 3, 2 ); ...`},
+		{`...  trice64 ( "hi %03u %03d %16b 0x%08x %X", 5, 7, 9, 3, 2 ); ...`, `...  trice64 ( Id(0), "hi %03u %03d %16b 0x%08x %X", 5, 7, 9, 3, 2 ); ...`},
 	}
 	checkTestTable(t, tt, false)
 }
@@ -215,15 +215,15 @@ func TestInsertParamCountAndIDSixParamN(t *testing.T) {
 		{`...   Trice8 ( "hi %03u %03d %16b 0x%08x %X %17d", 5, 7, 9, 3, 2, 4 ); ...`, `...   Trice8_6 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d", 5, 7, 9, 3, 2, 4 ); ...`},
 		{`...   TRICE8 ( "hi %03u %03d %16b 0x%08x %X %17d", 5, 7, 9, 3, 2, 4 ); ...`, `...   TRICE8_6 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d", 5, 7, 9, 3, 2, 4 ); ...`},
 		{`...   trice8 ( "hi %03u %03d %16b 0x%08x %X %17d", 5, 7, 9, 3, 2, 4 ); ...`, `...   trice8_6 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d", 5, 7, 9, 3, 2, 4 ); ...`},
-		{`...  Trice16 ( "hi %03u %03d %16b 0x%08x %X %17d", 5, 7, 9, 3, 2, 4 ); ...`, `...  Trice16_6 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d", 5, 7, 9, 3, 2, 4 ); ...`}, // does not exist but allowed to match
-		{`...  TRICE16 ( "hi %03u %03d %16b 0x%08x %X %17d", 5, 7, 9, 3, 2, 4 ); ...`, `...  TRICE16_6 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d", 5, 7, 9, 3, 2, 4 ); ...`}, // does not exist but allowed to match
-		{`...  trice16 ( "hi %03u %03d %16b 0x%08x %X %17d", 5, 7, 9, 3, 2, 4 ); ...`, `...  trice16_6 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d", 5, 7, 9, 3, 2, 4 ); ...`}, // does not exist but allowed to match
-		{`...  Trice32 ( "hi %03u %03d %16b 0x%08x %X %17d", 5, 7, 9, 3, 2, 4 ); ...`, `...  Trice32_6 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d", 5, 7, 9, 3, 2, 4 ); ...`}, // does not exist but allowed to match
-		{`...  TRICE32 ( "hi %03u %03d %16b 0x%08x %X %17d", 5, 7, 9, 3, 2, 4 ); ...`, `...  TRICE32_6 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d", 5, 7, 9, 3, 2, 4 ); ...`}, // does not exist but allowed to match
-		{`...  trice32 ( "hi %03u %03d %16b 0x%08x %X %17d", 5, 7, 9, 3, 2, 4 ); ...`, `...  trice32_6 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d", 5, 7, 9, 3, 2, 4 ); ...`}, // does not exist but allowed to match
-		{`...  Trice64 ( "hi %03u %03d %16b 0x%08x %X %17d", 5, 7, 9, 3, 2, 4 ); ...`, `...  Trice64_6 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d", 5, 7, 9, 3, 2, 4 ); ...`}, // does not exist but allowed to match
-		{`...  TRICE64 ( "hi %03u %03d %16b 0x%08x %X %17d", 5, 7, 9, 3, 2, 4 ); ...`, `...  TRICE64_6 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d", 5, 7, 9, 3, 2, 4 ); ...`}, // does not exist but allowed to match
-		{`...  trice64 ( "hi %03u %03d %16b 0x%08x %X %17d", 5, 7, 9, 3, 2, 4 ); ...`, `...  trice64_6 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d", 5, 7, 9, 3, 2, 4 ); ...`}, // does not exist but allowed to match
+		{`...  Trice16 ( "hi %03u %03d %16b 0x%08x %X %17d", 5, 7, 9, 3, 2, 4 ); ...`, `...  Trice16_6 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d", 5, 7, 9, 3, 2, 4 ); ...`},
+		{`...  TRICE16 ( "hi %03u %03d %16b 0x%08x %X %17d", 5, 7, 9, 3, 2, 4 ); ...`, `...  TRICE16_6 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d", 5, 7, 9, 3, 2, 4 ); ...`},
+		{`...  trice16 ( "hi %03u %03d %16b 0x%08x %X %17d", 5, 7, 9, 3, 2, 4 ); ...`, `...  trice16_6 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d", 5, 7, 9, 3, 2, 4 ); ...`},
+		{`...  Trice32 ( "hi %03u %03d %16b 0x%08x %X %17d", 5, 7, 9, 3, 2, 4 ); ...`, `...  Trice32_6 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d", 5, 7, 9, 3, 2, 4 ); ...`},
+		{`...  TRICE32 ( "hi %03u %03d %16b 0x%08x %X %17d", 5, 7, 9, 3, 2, 4 ); ...`, `...  TRICE32_6 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d", 5, 7, 9, 3, 2, 4 ); ...`},
+		{`...  trice32 ( "hi %03u %03d %16b 0x%08x %X %17d", 5, 7, 9, 3, 2, 4 ); ...`, `...  trice32_6 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d", 5, 7, 9, 3, 2, 4 ); ...`},
+		{`...  Trice64 ( "hi %03u %03d %16b 0x%08x %X %17d", 5, 7, 9, 3, 2, 4 ); ...`, `...  Trice64_6 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d", 5, 7, 9, 3, 2, 4 ); ...`},
+		{`...  TRICE64 ( "hi %03u %03d %16b 0x%08x %X %17d", 5, 7, 9, 3, 2, 4 ); ...`, `...  TRICE64_6 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d", 5, 7, 9, 3, 2, 4 ); ...`},
+		{`...  trice64 ( "hi %03u %03d %16b 0x%08x %X %17d", 5, 7, 9, 3, 2, 4 ); ...`, `...  trice64_6 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d", 5, 7, 9, 3, 2, 4 ); ...`},
 	}
 	checkTestTable(t, tt, true)
 }
@@ -233,15 +233,15 @@ func TestInsertParamCountAndIDSixParam(t *testing.T) {
 		{`...   Trice8 ( "hi %03u %03d %16b 0x%08x %X %17d", 5, 7, 9, 3, 2, 4 ); ...`, `...   Trice8 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d", 5, 7, 9, 3, 2, 4 ); ...`},
 		{`...   TRICE8 ( "hi %03u %03d %16b 0x%08x %X %17d", 5, 7, 9, 3, 2, 4 ); ...`, `...   TRICE8 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d", 5, 7, 9, 3, 2, 4 ); ...`},
 		{`...   trice8 ( "hi %03u %03d %16b 0x%08x %X %17d", 5, 7, 9, 3, 2, 4 ); ...`, `...   trice8 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d", 5, 7, 9, 3, 2, 4 ); ...`},
-		{`...  Trice16 ( "hi %03u %03d %16b 0x%08x %X %17d", 5, 7, 9, 3, 2, 4 ); ...`, `...  Trice16 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d", 5, 7, 9, 3, 2, 4 ); ...`}, // does not exist but allowed to match
-		{`...  TRICE16 ( "hi %03u %03d %16b 0x%08x %X %17d", 5, 7, 9, 3, 2, 4 ); ...`, `...  TRICE16 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d", 5, 7, 9, 3, 2, 4 ); ...`}, // does not exist but allowed to match
-		{`...  trice16 ( "hi %03u %03d %16b 0x%08x %X %17d", 5, 7, 9, 3, 2, 4 ); ...`, `...  trice16 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d", 5, 7, 9, 3, 2, 4 ); ...`}, // does not exist but allowed to match
-		{`...  Trice32 ( "hi %03u %03d %16b 0x%08x %X %17d", 5, 7, 9, 3, 2, 4 ); ...`, `...  Trice32 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d", 5, 7, 9, 3, 2, 4 ); ...`}, // does not exist but allowed to match
-		{`...  TRICE32 ( "hi %03u %03d %16b 0x%08x %X %17d", 5, 7, 9, 3, 2, 4 ); ...`, `...  TRICE32 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d", 5, 7, 9, 3, 2, 4 ); ...`}, // does not exist but allowed to match
-		{`...  trice32 ( "hi %03u %03d %16b 0x%08x %X %17d", 5, 7, 9, 3, 2, 4 ); ...`, `...  trice32 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d", 5, 7, 9, 3, 2, 4 ); ...`}, // does not exist but allowed to match
-		{`...  Trice64 ( "hi %03u %03d %16b 0x%08x %X %17d", 5, 7, 9, 3, 2, 4 ); ...`, `...  Trice64 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d", 5, 7, 9, 3, 2, 4 ); ...`}, // does not exist but allowed to match
-		{`...  TRICE64 ( "hi %03u %03d %16b 0x%08x %X %17d", 5, 7, 9, 3, 2, 4 ); ...`, `...  TRICE64 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d", 5, 7, 9, 3, 2, 4 ); ...`}, // does not exist but allowed to match
-		{`...  trice64 ( "hi %03u %03d %16b 0x%08x %X %17d", 5, 7, 9, 3, 2, 4 ); ...`, `...  trice64 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d", 5, 7, 9, 3, 2, 4 ); ...`}, // does not exist but allowed to match
+		{`...  Trice16 ( "hi %03u %03d %16b 0x%08x %X %17d", 5, 7, 9, 3, 2, 4 ); ...`, `...  Trice16 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d", 5, 7, 9, 3, 2, 4 ); ...`},
+		{`...  TRICE16 ( "hi %03u %03d %16b 0x%08x %X %17d", 5, 7, 9, 3, 2, 4 ); ...`, `...  TRICE16 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d", 5, 7, 9, 3, 2, 4 ); ...`},
+		{`...  trice16 ( "hi %03u %03d %16b 0x%08x %X %17d", 5, 7, 9, 3, 2, 4 ); ...`, `...  trice16 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d", 5, 7, 9, 3, 2, 4 ); ...`},
+		{`...  Trice32 ( "hi %03u %03d %16b 0x%08x %X %17d", 5, 7, 9, 3, 2, 4 ); ...`, `...  Trice32 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d", 5, 7, 9, 3, 2, 4 ); ...`},
+		{`...  TRICE32 ( "hi %03u %03d %16b 0x%08x %X %17d", 5, 7, 9, 3, 2, 4 ); ...`, `...  TRICE32 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d", 5, 7, 9, 3, 2, 4 ); ...`},
+		{`...  trice32 ( "hi %03u %03d %16b 0x%08x %X %17d", 5, 7, 9, 3, 2, 4 ); ...`, `...  trice32 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d", 5, 7, 9, 3, 2, 4 ); ...`},
+		{`...  Trice64 ( "hi %03u %03d %16b 0x%08x %X %17d", 5, 7, 9, 3, 2, 4 ); ...`, `...  Trice64 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d", 5, 7, 9, 3, 2, 4 ); ...`},
+		{`...  TRICE64 ( "hi %03u %03d %16b 0x%08x %X %17d", 5, 7, 9, 3, 2, 4 ); ...`, `...  TRICE64 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d", 5, 7, 9, 3, 2, 4 ); ...`},
+		{`...  trice64 ( "hi %03u %03d %16b 0x%08x %X %17d", 5, 7, 9, 3, 2, 4 ); ...`, `...  trice64 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d", 5, 7, 9, 3, 2, 4 ); ...`},
 	}
 	checkTestTable(t, tt, false)
 }
@@ -251,15 +251,15 @@ func TestInsertParamCountAndIDSevenParamN(t *testing.T) {
 		{`...   Trice8 ( "hi %03u %03d %16b 0x%08x %X %17d %99u", 5, 7, 9, 3, 2, 4, 6 ); ...`, `...   Trice8_7 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d %99u", 5, 7, 9, 3, 2, 4, 6 ); ...`},
 		{`...   TRICE8 ( "hi %03u %03d %16b 0x%08x %X %17d %99u", 5, 7, 9, 3, 2, 4, 6 ); ...`, `...   TRICE8_7 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d %99u", 5, 7, 9, 3, 2, 4, 6 ); ...`},
 		{`...   trice8 ( "hi %03u %03d %16b 0x%08x %X %17d %99u", 5, 7, 9, 3, 2, 4, 6 ); ...`, `...   trice8_7 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d %99u", 5, 7, 9, 3, 2, 4, 6 ); ...`},
-		{`...  Trice16 ( "hi %03u %03d %16b 0x%08x %X %17d %99u", 5, 7, 9, 3, 2, 4, 6 ); ...`, `...  Trice16_7 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d %99u", 5, 7, 9, 3, 2, 4, 6 ); ...`}, // does not exist but allowed to match
-		{`...  TRICE16 ( "hi %03u %03d %16b 0x%08x %X %17d %99u", 5, 7, 9, 3, 2, 4, 6 ); ...`, `...  TRICE16_7 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d %99u", 5, 7, 9, 3, 2, 4, 6 ); ...`}, // does not exist but allowed to match
-		{`...  trice16 ( "hi %03u %03d %16b 0x%08x %X %17d %99u", 5, 7, 9, 3, 2, 4, 6 ); ...`, `...  trice16_7 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d %99u", 5, 7, 9, 3, 2, 4, 6 ); ...`}, // does not exist but allowed to match
-		{`...  Trice32 ( "hi %03u %03d %16b 0x%08x %X %17d %99u", 5, 7, 9, 3, 2, 4, 6 ); ...`, `...  Trice32_7 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d %99u", 5, 7, 9, 3, 2, 4, 6 ); ...`}, // does not exist but allowed to match
-		{`...  TRICE32 ( "hi %03u %03d %16b 0x%08x %X %17d %99u", 5, 7, 9, 3, 2, 4, 6 ); ...`, `...  TRICE32_7 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d %99u", 5, 7, 9, 3, 2, 4, 6 ); ...`}, // does not exist but allowed to match
-		{`...  trice32 ( "hi %03u %03d %16b 0x%08x %X %17d %99u", 5, 7, 9, 3, 2, 4, 6 ); ...`, `...  trice32_7 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d %99u", 5, 7, 9, 3, 2, 4, 6 ); ...`}, // does not exist but allowed to match
-		{`...  Trice64 ( "hi %03u %03d %16b 0x%08x %X %17d %99u", 5, 7, 9, 3, 2, 4, 6 ); ...`, `...  Trice64_7 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d %99u", 5, 7, 9, 3, 2, 4, 6 ); ...`}, // does not exist but allowed to match
-		{`...  TRICE64 ( "hi %03u %03d %16b 0x%08x %X %17d %99u", 5, 7, 9, 3, 2, 4, 6 ); ...`, `...  TRICE64_7 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d %99u", 5, 7, 9, 3, 2, 4, 6 ); ...`}, // does not exist but allowed to match
-		{`...  trice64 ( "hi %03u %03d %16b 0x%08x %X %17d %99u", 5, 7, 9, 3, 2, 4, 6 ); ...`, `...  trice64_7 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d %99u", 5, 7, 9, 3, 2, 4, 6 ); ...`}, // does not exist but allowed to match
+		{`...  Trice16 ( "hi %03u %03d %16b 0x%08x %X %17d %99u", 5, 7, 9, 3, 2, 4, 6 ); ...`, `...  Trice16_7 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d %99u", 5, 7, 9, 3, 2, 4, 6 ); ...`},
+		{`...  TRICE16 ( "hi %03u %03d %16b 0x%08x %X %17d %99u", 5, 7, 9, 3, 2, 4, 6 ); ...`, `...  TRICE16_7 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d %99u", 5, 7, 9, 3, 2, 4, 6 ); ...`},
+		{`...  trice16 ( "hi %03u %03d %16b 0x%08x %X %17d %99u", 5, 7, 9, 3, 2, 4, 6 ); ...`, `...  trice16_7 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d %99u", 5, 7, 9, 3, 2, 4, 6 ); ...`},
+		{`...  Trice32 ( "hi %03u %03d %16b 0x%08x %X %17d %99u", 5, 7, 9, 3, 2, 4, 6 ); ...`, `...  Trice32_7 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d %99u", 5, 7, 9, 3, 2, 4, 6 ); ...`},
+		{`...  TRICE32 ( "hi %03u %03d %16b 0x%08x %X %17d %99u", 5, 7, 9, 3, 2, 4, 6 ); ...`, `...  TRICE32_7 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d %99u", 5, 7, 9, 3, 2, 4, 6 ); ...`},
+		{`...  trice32 ( "hi %03u %03d %16b 0x%08x %X %17d %99u", 5, 7, 9, 3, 2, 4, 6 ); ...`, `...  trice32_7 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d %99u", 5, 7, 9, 3, 2, 4, 6 ); ...`},
+		{`...  Trice64 ( "hi %03u %03d %16b 0x%08x %X %17d %99u", 5, 7, 9, 3, 2, 4, 6 ); ...`, `...  Trice64_7 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d %99u", 5, 7, 9, 3, 2, 4, 6 ); ...`},
+		{`...  TRICE64 ( "hi %03u %03d %16b 0x%08x %X %17d %99u", 5, 7, 9, 3, 2, 4, 6 ); ...`, `...  TRICE64_7 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d %99u", 5, 7, 9, 3, 2, 4, 6 ); ...`},
+		{`...  trice64 ( "hi %03u %03d %16b 0x%08x %X %17d %99u", 5, 7, 9, 3, 2, 4, 6 ); ...`, `...  trice64_7 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d %99u", 5, 7, 9, 3, 2, 4, 6 ); ...`},
 	}
 	checkTestTable(t, tt, true)
 }
@@ -269,15 +269,15 @@ func TestInsertParamCountAndIDSevenParam(t *testing.T) {
 		{`...   Trice8 ( "hi %03u %03d %16b 0x%08x %X %17d %99u", 5, 7, 9, 3, 2, 4, 6 ); ...`, `...   Trice8 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d %99u", 5, 7, 9, 3, 2, 4, 6 ); ...`},
 		{`...   TRICE8 ( "hi %03u %03d %16b 0x%08x %X %17d %99u", 5, 7, 9, 3, 2, 4, 6 ); ...`, `...   TRICE8 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d %99u", 5, 7, 9, 3, 2, 4, 6 ); ...`},
 		{`...   trice8 ( "hi %03u %03d %16b 0x%08x %X %17d %99u", 5, 7, 9, 3, 2, 4, 6 ); ...`, `...   trice8 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d %99u", 5, 7, 9, 3, 2, 4, 6 ); ...`},
-		{`...  Trice16 ( "hi %03u %03d %16b 0x%08x %X %17d %99u", 5, 7, 9, 3, 2, 4, 6 ); ...`, `...  Trice16 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d %99u", 5, 7, 9, 3, 2, 4, 6 ); ...`}, // does not exist but allowed to match
-		{`...  TRICE16 ( "hi %03u %03d %16b 0x%08x %X %17d %99u", 5, 7, 9, 3, 2, 4, 6 ); ...`, `...  TRICE16 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d %99u", 5, 7, 9, 3, 2, 4, 6 ); ...`}, // does not exist but allowed to match
-		{`...  trice16 ( "hi %03u %03d %16b 0x%08x %X %17d %99u", 5, 7, 9, 3, 2, 4, 6 ); ...`, `...  trice16 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d %99u", 5, 7, 9, 3, 2, 4, 6 ); ...`}, // does not exist but allowed to match
-		{`...  Trice32 ( "hi %03u %03d %16b 0x%08x %X %17d %99u", 5, 7, 9, 3, 2, 4, 6 ); ...`, `...  Trice32 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d %99u", 5, 7, 9, 3, 2, 4, 6 ); ...`}, // does not exist but allowed to match
-		{`...  TRICE32 ( "hi %03u %03d %16b 0x%08x %X %17d %99u", 5, 7, 9, 3, 2, 4, 6 ); ...`, `...  TRICE32 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d %99u", 5, 7, 9, 3, 2, 4, 6 ); ...`}, // does not exist but allowed to match
-		{`...  trice32 ( "hi %03u %03d %16b 0x%08x %X %17d %99u", 5, 7, 9, 3, 2, 4, 6 ); ...`, `...  trice32 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d %99u", 5, 7, 9, 3, 2, 4, 6 ); ...`}, // does not exist but allowed to match
-		{`...  Trice64 ( "hi %03u %03d %16b 0x%08x %X %17d %99u", 5, 7, 9, 3, 2, 4, 6 ); ...`, `...  Trice64 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d %99u", 5, 7, 9, 3, 2, 4, 6 ); ...`}, // does not exist but allowed to match
-		{`...  TRICE64 ( "hi %03u %03d %16b 0x%08x %X %17d %99u", 5, 7, 9, 3, 2, 4, 6 ); ...`, `...  TRICE64 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d %99u", 5, 7, 9, 3, 2, 4, 6 ); ...`}, // does not exist but allowed to match
-		{`...  trice64 ( "hi %03u %03d %16b 0x%08x %X %17d %99u", 5, 7, 9, 3, 2, 4, 6 ); ...`, `...  trice64 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d %99u", 5, 7, 9, 3, 2, 4, 6 ); ...`}, // does not exist but allowed to match
+		{`...  Trice16 ( "hi %03u %03d %16b 0x%08x %X %17d %99u", 5, 7, 9, 3, 2, 4, 6 ); ...`, `...  Trice16 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d %99u", 5, 7, 9, 3, 2, 4, 6 ); ...`},
+		{`...  TRICE16 ( "hi %03u %03d %16b 0x%08x %X %17d %99u", 5, 7, 9, 3, 2, 4, 6 ); ...`, `...  TRICE16 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d %99u", 5, 7, 9, 3, 2, 4, 6 ); ...`},
+		{`...  trice16 ( "hi %03u %03d %16b 0x%08x %X %17d %99u", 5, 7, 9, 3, 2, 4, 6 ); ...`, `...  trice16 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d %99u", 5, 7, 9, 3, 2, 4, 6 ); ...`},
+		{`...  Trice32 ( "hi %03u %03d %16b 0x%08x %X %17d %99u", 5, 7, 9, 3, 2, 4, 6 ); ...`, `...  Trice32 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d %99u", 5, 7, 9, 3, 2, 4, 6 ); ...`},
+		{`...  TRICE32 ( "hi %03u %03d %16b 0x%08x %X %17d %99u", 5, 7, 9, 3, 2, 4, 6 ); ...`, `...  TRICE32 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d %99u", 5, 7, 9, 3, 2, 4, 6 ); ...`},
+		{`...  trice32 ( "hi %03u %03d %16b 0x%08x %X %17d %99u", 5, 7, 9, 3, 2, 4, 6 ); ...`, `...  trice32 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d %99u", 5, 7, 9, 3, 2, 4, 6 ); ...`},
+		{`...  Trice64 ( "hi %03u %03d %16b 0x%08x %X %17d %99u", 5, 7, 9, 3, 2, 4, 6 ); ...`, `...  Trice64 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d %99u", 5, 7, 9, 3, 2, 4, 6 ); ...`},
+		{`...  TRICE64 ( "hi %03u %03d %16b 0x%08x %X %17d %99u", 5, 7, 9, 3, 2, 4, 6 ); ...`, `...  TRICE64 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d %99u", 5, 7, 9, 3, 2, 4, 6 ); ...`},
+		{`...  trice64 ( "hi %03u %03d %16b 0x%08x %X %17d %99u", 5, 7, 9, 3, 2, 4, 6 ); ...`, `...  trice64 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d %99u", 5, 7, 9, 3, 2, 4, 6 ); ...`},
 	}
 	checkTestTable(t, tt, false)
 }
@@ -287,15 +287,18 @@ func TestInsertParamCountAndIDEightParamN(t *testing.T) {
 		{`...   Trice8 ( "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`, `...   Trice8_8 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`},
 		{`...   TRICE8 ( "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`, `...   TRICE8_8 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`},
 		{`...   trice8 ( "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`, `...   trice8_8 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`},
-		{`...  Trice16 ( "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`, `...  Trice16_8 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`}, // does not exist but allowed to match
-		{`...  TRICE16 ( "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`, `...  TRICE16_8 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`}, // does not exist but allowed to match
-		{`...  trice16 ( "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`, `...  trice16_8 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`}, // does not exist but allowed to match
-		{`...  Trice32 ( "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`, `...  Trice32_8 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`}, // does not exist but allowed to match
-		{`...  TRICE32 ( "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`, `...  TRICE32_8 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`}, // does not exist but allowed to match
-		{`...  trice32 ( "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`, `...  trice32_8 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`}, // does not exist but allowed to match
-		{`...  Trice64 ( "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`, `...  Trice64_8 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`}, // does not exist but allowed to match
-		{`...  TRICE64 ( "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`, `...  TRICE64_8 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`}, // does not exist but allowed to match
-		{`...  trice64 ( "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`, `...  trice64_8 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`}, // does not exist but allowed to match
+		{`...  Trice16 ( "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`, `...  Trice16_8 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`},
+		{`...  TRICE16 ( "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`, `...  TRICE16_8 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`},
+		{`...  trice16 ( "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`, `...  trice16_8 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`},
+		{`...  Trice32 ( "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`, `...  Trice32_8 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`},
+		{`...  TRICE32 ( "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`, `...  TRICE32_8 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`},
+		{`...  trice32 ( "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`, `...  trice32_8 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`},
+		{`...  Trice64 ( "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`, `...  Trice64_8 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`},
+		{`...  TRICE64 ( "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`, `...  TRICE64_8 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`},
+		{`...  trice64 ( "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`, `...  trice64_8 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`},
+		//  {`...  Trice   ( "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`, `...  Trice_8   ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`},
+		//  {`...  TRICE   ( "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`, `...  TRICE_8   ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`},
+		//  {`...  trice   ( "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`, `...  trice_8   ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`},
 	}
 	checkTestTable(t, tt, true)
 }
@@ -305,15 +308,18 @@ func TestInsertParamCountAndIDEightParam(t *testing.T) {
 		{`...   Trice8 ( "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`, `...   Trice8 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`},
 		{`...   TRICE8 ( "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`, `...   TRICE8 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`},
 		{`...   trice8 ( "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`, `...   trice8 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`},
-		{`...  Trice16 ( "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`, `...  Trice16 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`}, // does not exist but allowed to match
-		{`...  TRICE16 ( "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`, `...  TRICE16 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`}, // does not exist but allowed to match
-		{`...  trice16 ( "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`, `...  trice16 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`}, // does not exist but allowed to match
-		{`...  Trice32 ( "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`, `...  Trice32 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`}, // does not exist but allowed to match
-		{`...  TRICE32 ( "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`, `...  TRICE32 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`}, // does not exist but allowed to match
-		{`...  trice32 ( "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`, `...  trice32 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`}, // does not exist but allowed to match
-		{`...  Trice64 ( "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`, `...  Trice64 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`}, // does not exist but allowed to match
-		{`...  TRICE64 ( "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`, `...  TRICE64 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`}, // does not exist but allowed to match
-		{`...  trice64 ( "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`, `...  trice64 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`}, // does not exist but allowed to match
+		{`...  Trice16 ( "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`, `...  Trice16 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`},
+		{`...  TRICE16 ( "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`, `...  TRICE16 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`},
+		{`...  trice16 ( "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`, `...  trice16 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`},
+		{`...  Trice32 ( "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`, `...  Trice32 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`},
+		{`...  TRICE32 ( "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`, `...  TRICE32 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`},
+		{`...  trice32 ( "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`, `...  trice32 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`},
+		{`...  Trice64 ( "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`, `...  Trice64 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`},
+		{`...  TRICE64 ( "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`, `...  TRICE64 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`},
+		{`...  trice64 ( "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`, `...  trice64 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`},
+		{`...  Trice   ( "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`, `...  Trice   ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`},
+		{`...  TRICE   ( "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`, `...  TRICE   ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`},
+		{`...  trice   ( "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`, `...  trice   ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`},
 	}
 	checkTestTable(t, tt, false)
 }

@@ -328,14 +328,10 @@ func TestHelpAll(t *testing.T) {
               The "update" sub-command has no mandatory switches. Omitted optional switches are used with their default parameters.
         -IDMax value
               Upper end of ID range for normal trices. (default 65535)
-        -IDMaxShort value
-              Upper end of ID range for short trices. (default 32767)
         -IDMethod string
               Search method for new ID's in range- Options are 'upward', 'downward' & 'random'. (default "random")
         -IDMin value
               Lower end of ID range for normal trices. (default 32768)
-        -IDMinShort value
-              Lower end of ID range for short trices. (default 1)
         -addParamCount
               Extend TRICE macro names with the parameter count _n to enable compile time checks.
         -dry-run
@@ -355,7 +351,7 @@ func TestHelpAll(t *testing.T) {
         -s value
               Short for src.
         -sharedIDs
-              New ID policy:
+              ID policy:
               true: TriceFmt's without TriceID get equal TriceID if an equal TriceFmt exists already.
               false: TriceFmt's without TriceID get a different TriceID if an equal TriceFmt exists already.
         -src value

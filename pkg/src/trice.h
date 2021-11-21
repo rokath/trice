@@ -244,7 +244,7 @@ void TriceInitXteaTable(void);
 #ifdef TRICE_OFF // do not generate trice code for files defining TRICE_OFF before including "trice.h"
 #undef  TRICE_ENTER
 #define TRICE_ENTER
-#undef  PUT
+#undef  TRICE_PUT
 #define TRICE_PUT(n)
 #undef  TRICE_PUT_TIMESTAMP
 #define TRICE_PUT_TIMESTAMP

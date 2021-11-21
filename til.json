@@ -247,6 +247,10 @@
 		"Type": "TRICE8",
 		"Strg": "rd:TRICE8 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
 	},
+	"39702": {
+		"Type": "TRICE0",
+		"Strg": "--------------------------------------------------\\n"
+	},
 	"39816": {
 		"Type": "TRICE16_1",
 		"Strg": "DIA:diagnostics message, SysTick is %6u\\n"
@@ -298,6 +302,10 @@
 	"41052": {
 		"Type": "TRICE32",
 		"Strg": "att: Trice 2x half buffer size:%4u "
+	},
+	"41176": {
+		"Type": "TRICE64",
+		"Strg": "%d%d"
 	},
 	"41601": {
 		"Type": "TRICE32_1",
@@ -375,6 +383,10 @@
 		"Type": "TRICE8_4",
 		"Strg": "tst:TRICE8_4  %%03x -\u003e  %03x  %03x  %03x  %03x\\n"
 	},
+	"43477": {
+		"Type": "TRICE0",
+		"Strg": "--------------------------------------------------\\n"
+	},
 	"43507": {
 		"Type": "TRICE32_1",
 		"Strg": "ATT:trice16_1 attention message, SysTick is %6d\\n"
@@ -431,12 +443,16 @@
 		"Type": "TRICE16_1",
 		"Strg": "tst:TRICE16_1 0x%04x\\n"
 	},
+	"45664": {
+		"Type": "TRICE0",
+		"Strg": "--------------------------------------------------\\n"
+	},
 	"45725": {
 		"Type": "TRICE16_2",
 		"Strg": "tst:TRICE16_2 %d %d\\n"
 	},
 	"45734": {
-		"Type": "TRICE0",
+		"Type": "TRICE",
 		"Strg": "--------------------------------------------------\\n"
 	},
 	"45804": {
@@ -939,6 +955,10 @@
 		"Type": "TRICE64_1",
 		"Strg": "tst:TRICE64_1 %x\\n"
 	},
+	"59621": {
+		"Type": "TRICE",
+		"Strg": "nu"
+	},
 	"59637": {
 		"Type": "TRICE8_5",
 		"Strg": "tst:TRICE8_5 %d %d %d %d %d\\n"
@@ -962,6 +982,10 @@
 	"59840": {
 		"Type": "TRICE8",
 		"Strg": "rd:TRICE8 %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"60123": {
+		"Type": "TRICE",
+		"Strg": "na"
 	},
 	"60252": {
 		"Type": "TRICE64_1",

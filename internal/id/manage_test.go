@@ -12,6 +12,7 @@ import (
 	"github.com/tj/assert"
 )
 
+// sampleLut0 is a test helper function, which returns a lookup map.
 func sampleLut0() (lu TriceIDLookUp) {
 	lu = make(TriceIDLookUp)
 	lu[11] = TriceFmt{Type: "t11", Strg: "s11"}
@@ -19,8 +20,6 @@ func sampleLut0() (lu TriceIDLookUp) {
 	lu[12] = TriceFmt{Type: "t12", Strg: "s12a"}
 	return
 }
-
-//const reverseSampleLut0 = "map[{t11 s11}:11 {t12 s12a}:12]"
 
 const sampleLutJSON0 = `{
 	"11": {
@@ -33,20 +32,7 @@ const sampleLutJSON0 = `{
 	}
 }`
 
-const sampleLutJSON1 = `{
-	"33": {
-		"Type": "t33",
-		"Strg": "s33"
-	},
-	"12": {
-		"Type": "t12",
-		"Strg": "s12"
-	}
-}`
-
 const sampleLutMap0 = "map[11:{t11 s11} 12:{t12 s12a}]"
-
-//const sampleLutMap1 = "map[12:{t12 s12} 33:{t33 s33}]"
 
 // TestLutToJSONFilledByteSlice checks normal initial case.
 func TestLutToJSON(t *testing.T) {
@@ -74,6 +60,16 @@ func TestJSONToLutMapUpdate(t *testing.T) {
 	exp := "map[11:{t11 s11} 12:{t12 s12} 33:{t33 s33}]"
 	lut := make(TriceIDLookUp)
 	assert.Nil(t, lut.FromJSON(b))
+	const sampleLutJSON1 = `{
+	"33": {
+		"Type": "t33",
+		"Strg": "s33"
+	},
+	"12": {
+		"Type": "t12",
+		"Strg": "s12"
+	}
+}`
 	b1 := []byte(sampleLutJSON1)
 	err := lut.FromJSON(b1)
 	assert.Nil(t, err)

@@ -4,7 +4,6 @@
 package id
 
 import (
-	"fmt"
 	"path/filepath"
 	"testing"
 
@@ -13,19 +12,21 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+// TestArrayFlag checks if method (*ArrayFlag).Set works as expected.
 func TestArrayFlag(t *testing.T) {
 	p := &Srcs
 	assert.Equal(t, "", p.String())
 
 	msg.OnErr(p.Set("ab"))
 	msg.OnErr(p.Set("xyz"))
-	fmt.Println(Srcs)
+	//fmt.Println(Srcs)
 	var af ArrayFlag
 	af = []string{"ab", "xyz"}
 	assert.Equal(t, af, Srcs)
 	assert.Equal(t, af.String(), Srcs.String())
 }
 
+// TestConditionalFilePath checks if ConditionalFilePath works as expected.
 func TestConditionalFilePath(t *testing.T) {
 	s := ConditionalFilePath("off")
 	assert.Equal(t, "off", s)
