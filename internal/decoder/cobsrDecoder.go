@@ -73,7 +73,7 @@ func dump(b []byte) {
 // these are kept internally and concatenated with the following bytes in a next Read.
 func (p *COBS) nextCOBSpackage() {
 	// Here p.iBuf contains no or available bytes, what can be several trice messages.
-	// So first try to process p.iBuf
+	// So first try to process p.iBuf.
 	index := bytes.IndexByte(p.iBuf, 0) // find terminating 0
 	if index == -1 {                    // p.iBuf has no complete COBS data, so try to read more input
 		bb := make([]byte, 1024)           // intermediate buffer

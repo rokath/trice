@@ -146,12 +146,14 @@ func FormatSpecifierCount(s string) (count int) {
 	return
 }
 
-// addFormatSpecifierCount extends s or si with _n or _ni and returns it as sl
+// addFormatSpecifierCount extends s with _n and returns it as sl
 func addFormatSpecifierCount(s string, n int) (sl string) {
 	if 0 < n && n < 99 { // patch
 		sl = fmt.Sprintf(s+"_%d", n) // TRICE*_n
 	} else {
-		fmt.Println("Parse error: ", n, " % format specifier found inside ", s)
+		if n != 0 {
+			fmt.Println("Parse error: ", n, " % format specifier found inside ", s)
+		}
 		sl = s
 	}
 	return
