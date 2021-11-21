@@ -88,7 +88,6 @@ func TestRefreshIDListSingle2(t *testing.T) {
 }
 
 func TestInsertSharedIDsInvalid0(t *testing.T) {
-	SearchMethod = "downward"
 	listModified := false
 	fileModified := false
 	tt := testTable{
@@ -101,8 +100,8 @@ func TestInsertSharedIDsInvalid0(t *testing.T) {
 	}
 	eList := `map[]
 `
-	checkList(t, SharedIDs, 10000, 20000, 40000, 50000, tt, eList, true)
-	checkList(t, SharedIDs, 10000, 20000, 40000, 50000, tt, eList, false)
+	checkList(t, SharedIDs, 10000, 20000, "downward", tt, eList, true)
+	checkList(t, SharedIDs, 10000, 20000, "downward", tt, eList, false)
 }
 
 func TestTriceIDParseOK(t *testing.T) {
@@ -154,9 +153,7 @@ func TestTriceIDParseNotOK(t *testing.T) {
 	}
 }
 
-// Because of the parallel test execution the global variables must be equal for all tests
 func TestInsertSharedIDs0ZeroParam1(t *testing.T) {
-	SearchMethod = "downward"
 	listModified := true
 	fileModified := true
 	tt := testTable{
@@ -166,12 +163,10 @@ func TestInsertSharedIDs0ZeroParam1(t *testing.T) {
 	eList := `map[98:{TRICE0 hi} 99:{TRICE0 hi}]
 `
 	sharedIDs := false
-	checkList2(t, sharedIDs, 10, 99, tt, true, "", eList)
+	checkList2(t, sharedIDs, 10, 99, "downward", tt, true, "", eList)
 }
 
-// Because of the parallel test execution the global variables must be equal for all tests
 func TestInsertSharedIDs0ZeroParam2(t *testing.T) {
-	SearchMethod = "downward"
 	listModified := true
 	fileModified := true
 	tt := testTable{
@@ -182,12 +177,10 @@ func TestInsertSharedIDs0ZeroParam2(t *testing.T) {
 `
 	sharedIDs := false
 	extendMacroName := true
-	checkList2(t, sharedIDs, 10, 99, tt, extendMacroName, "", eList)
+	checkList2(t, sharedIDs, 10, 99, "downward", tt, extendMacroName, "", eList)
 }
 
-// Because of the parallel test execution the global variables must be equal for all tests
 func TestInsertSharedIDs0ZeroParam3(t *testing.T) {
-	SearchMethod = "downward"
 	listModified := true
 	fileModified := true
 	tt := testTable{
@@ -198,12 +191,10 @@ func TestInsertSharedIDs0ZeroParam3(t *testing.T) {
 `
 	sharedIDs := false
 	extendMacroName := false
-	checkList2(t, sharedIDs, 10, 99, tt, extendMacroName, "", eList)
+	checkList2(t, sharedIDs, 10, 99, "downward", tt, extendMacroName, "", eList)
 }
 
-// Because of the parallel test execution the global variables must be equal for all tests
 func TestInsertSharedIDs0ZeroParam3032(t *testing.T) {
-	SearchMethod = "downward"
 	listModified := true
 	fileModified := true
 	tt := testTable{
@@ -214,12 +205,11 @@ func TestInsertSharedIDs0ZeroParam3032(t *testing.T) {
 `
 	sharedIDs := false
 	extendMacroName := false
-	checkList2(t, sharedIDs, 10, 99, tt, extendMacroName, "", eList)
+	checkList2(t, sharedIDs, 10, 99, "downward", tt, extendMacroName, "", eList)
 }
 
-// Because of the parallel test execution the global variables must be equal for all tests
 func TestInsertSharedIDs0ZeroParam332(t *testing.T) {
-	SearchMethod = "downward"
+
 	listModified := true
 	fileModified := true
 	tt := testTable{
@@ -230,12 +220,10 @@ func TestInsertSharedIDs0ZeroParam332(t *testing.T) {
 `
 	sharedIDs := false
 	extendMacroName := true
-	checkList2(t, sharedIDs, 10, 99, tt, extendMacroName, "", eList)
+	checkList2(t, sharedIDs, 10, 99, "downward", tt, extendMacroName, "", eList)
 }
 
-// Because of the parallel test execution the global variables must be equal for all tests
 func TestInsertSharedIDs0ZeroParam4noExtend(t *testing.T) {
-	SearchMethod = "downward"
 	listModified := false
 	fileModified := true
 	tt := testTable{
@@ -247,12 +235,10 @@ func TestInsertSharedIDs0ZeroParam4noExtend(t *testing.T) {
 	il[98] = TriceFmt{Type: "TRICE", Strg: "hi %u %b"}
 	sharedIDs := true
 	extendMacroName := false
-	checkList3(t, sharedIDs, 10, 99, tt, extendMacroName, il, il)
+	checkList3(t, sharedIDs, 10, 99, "downward", tt, extendMacroName, il, il)
 }
 
-// Because of the parallel test execution the global variables must be equal for all tests
 func TestInsertSharedIDs0ZeroParam4extend(t *testing.T) {
-	SearchMethod = "downward"
 	listModified := false
 	fileModified := true
 	tt := testTable{
@@ -264,12 +250,10 @@ func TestInsertSharedIDs0ZeroParam4extend(t *testing.T) {
 	il[98] = TriceFmt{Type: "TRICE_2", Strg: "hi %u %b"}
 	sharedIDs := true
 	extendMacroName := true
-	checkList3(t, sharedIDs, 10, 99, tt, extendMacroName, il, il)
+	checkList3(t, sharedIDs, 10, 99, "downward", tt, extendMacroName, il, il)
 }
 
-// Because of the parallel test execution the global variables must be equal for all tests
 func TestInsertSharedIDs0ZeroParam16noExtend(t *testing.T) {
-	SearchMethod = "downward"
 	listModified := false
 	fileModified := true
 	tt := testTable{
@@ -281,12 +265,10 @@ func TestInsertSharedIDs0ZeroParam16noExtend(t *testing.T) {
 	il[98] = TriceFmt{Type: "TRICE16", Strg: "hi %u %b"}
 	sharedIDs := true
 	extendMacroName := false
-	checkList3(t, sharedIDs, 10, 99, tt, extendMacroName, il, il)
+	checkList3(t, sharedIDs, 10, 99, "downward", tt, extendMacroName, il, il)
 }
 
-// Because of the parallel test execution the global variables must be equal for all tests
 func TestInsertSharedIDs0ZeroParam16extend(t *testing.T) {
-	SearchMethod = "downward"
 	fileModified := true
 	listModified := false
 	tt := testTable{
@@ -298,12 +280,10 @@ func TestInsertSharedIDs0ZeroParam16extend(t *testing.T) {
 	il[98] = TriceFmt{Type: "TRICE16_2", Strg: "hi %u %b"}
 	sharedIDs := true
 	extendMacroName := true
-	checkList3(t, sharedIDs, 10, 99, tt, extendMacroName, il, il)
+	checkList3(t, sharedIDs, 10, 99, "downward", tt, extendMacroName, il, il)
 }
 
-// Because of the parallel test execution the global variables must be equal for all tests
 func TestInsertSharedIDs0ZeroParam(t *testing.T) {
-	SearchMethod = "downward"
 	fileModified := true
 	listModified := false
 	sharedIDs := true
@@ -322,7 +302,7 @@ func TestInsertSharedIDs0ZeroParam(t *testing.T) {
 		{`... Trice0 ( "hi"); ...`, `... Trice0 ( Id(   99), "hi"); ...`, fileModified, listModified},
 		{`... Trice0( "hi"); ...`, `... Trice0( Id(   99), "hi"); ...`, fileModified, listModified},
 	}
-	om := checkList4(t, sharedIDs, 10, 99, tt, extendMacroName, im)
+	om := checkList4(t, sharedIDs, 10, 99, "downward", tt, extendMacroName, im)
 	eq := reflect.DeepEqual(om, im)
 	if eq {
 		return
@@ -337,13 +317,11 @@ func TestInsertSharedIDs0ZeroParam(t *testing.T) {
 		{`... Trice0 ( "hi"); ...`, `... Trice0 ( Id(   98), "hi"); ...`, fileModified, listModified},
 		{`... Trice0( "hi"); ...`, `... Trice0( Id(   98), "hi"); ...`, fileModified, listModified},
 	}
-	om = checkList4(t, sharedIDs, 10, 99, tt, extendMacroName, im)
+	om = checkList4(t, sharedIDs, 10, 99, "downward", tt, extendMacroName, im)
 	assert.True(t, reflect.DeepEqual(om, im))
 }
 
-// Because of the parallel test execution the global variables must be equal for all tests
 func TestInsertSharedIDs1WithExtendN(t *testing.T) {
-	SearchMethod = "upward"
 	tt := testTable{
 		{`...  Trice8 ( "hi %03u", 5); ...`, `...  Trice8_1 ( Id(10000), "hi %03u", 5); ...`, true, false},
 		{`...  TRICE8 ( "hi %03u", 5); ...`, `...  TRICE8_1 ( Id(10000), "hi %03u", 5); ...`, true, false},
@@ -369,14 +347,12 @@ func TestInsertSharedIDs1WithExtendN(t *testing.T) {
 	em := im
 	sharedIDs := true
 	extendMacroName := true
-	checkList3(t, sharedIDs, 10, 99, tt, extendMacroName, im, em)
+	checkList3(t, sharedIDs, 10, 99, "upward", tt, extendMacroName, im, em)
 }
 
-// Because of the parallel test execution the global variables must be equal for all tests.
-// The trice map does distinguish between TRICE8 and TRICE8_2 for example, so even "sameID" is selected,
+// The trice map distinguishes between TRICE8 and TRICE8_2 for example, so even "sameID" is selected,
 // there are 2 different IDs used when the format string is identical.
 func TestInsertSharedIDs2NoExtendN(t *testing.T) {
-	SearchMethod = "upward"
 	sharedIDs := true
 	extendMacroName := false
 	tt := []struct {
@@ -416,11 +392,10 @@ func TestInsertSharedIDs2NoExtendN(t *testing.T) {
 	im[10004] = TriceFmt{Type: "TRICE", Strg: "hi %03u, %5x"}
 	im[10005] = TriceFmt{Type: "TRICE8_2", Strg: "hi %03u, %5x"}
 	em := im
-	checkList3(t, sharedIDs, 10000, 10099, tt, extendMacroName, im, em)
+	checkList3(t, sharedIDs, 10000, 10099, "upward", tt, extendMacroName, im, em)
 }
 
 func TestTrice0(t *testing.T) { // wip
-	SearchMethod = "upward"
 	extendMacroName := false
 	sharedIDs := true
 	tt := testTable{
@@ -430,11 +405,10 @@ func TestTrice0(t *testing.T) { // wip
 	im := make(TriceIDLookUp)
 	em := make(TriceIDLookUp)
 	em[10000] = TriceFmt{Type: "TRICE", Strg: "Go is fun"}
-	checkList3(t, sharedIDs, 10000, 10099, tt, extendMacroName, im, em)
+	checkList3(t, sharedIDs, 10000, 10099, "upward", tt, extendMacroName, im, em)
 }
 
 func TestTrice1(t *testing.T) { // wip
-	SearchMethod = "upward"
 	extendMacroName := false
 	sharedIDs := false
 	tt := testTable{
@@ -445,13 +419,11 @@ func TestTrice1(t *testing.T) { // wip
 	em := make(TriceIDLookUp)
 	em[10000] = TriceFmt{Type: "TRICE", Strg: "Go is fun"}
 	em[10001] = TriceFmt{Type: "TRICE", Strg: "Go is fun"}
-	om := checkList4(t, sharedIDs, 10000, 10099, tt, extendMacroName, im)
+	om := checkList4(t, sharedIDs, 10000, 10099, "upward", tt, extendMacroName, im)
 	assert.True(t, reflect.DeepEqual(om, em))
 }
 
-// Because of the parallel test execution the global variables must be equal for all tests
 func TestInsertSharedIDs0WithParamCount(t *testing.T) {
-	SearchMethod = "upward"
 	sharedIDs := false
 	extendMacroName := false
 	tt := testTable{
@@ -495,5 +467,5 @@ func TestInsertSharedIDs0WithParamCount(t *testing.T) {
 	em[10006] = TriceFmt{Type: "TRICE8_1", Strg: "hi %d"}
 	em[10007] = TriceFmt{Type: "TRICE8_2", Strg: "hi %d %u"}
 	em[10008] = TriceFmt{Type: "TRICE16_1", Strg: "hi %d"}
-	checkList3(t, sharedIDs, 10000, 10099, tt, extendMacroName, im, em)
+	checkList3(t, sharedIDs, 10000, 10099, "upward", tt, extendMacroName, im, em)
 }

@@ -473,14 +473,10 @@ sub-command 'u|update': For updating ID list and source files.
         The "update" sub-command has no mandatory switches. Omitted optional switches are used with their default parameters.
   -IDMax value
         Upper end of ID range for normal trices. (default 65535)
-  -IDMaxShort value
-        Upper end of ID range for short trices. (default 32767)
   -IDMethod string
         Search method for new ID's in range- Options are 'upward', 'downward' & 'random'. (default "random")
   -IDMin value
         Lower end of ID range for normal trices. (default 32768)
-  -IDMinShort value
-        Lower end of ID range for short trices. (default 1)
   -dry-run
         No changes applied but output shows what would happen.
         "trice update -dry-run" will change nothing but show changes it would perform without the "-dry-run" switch.

@@ -167,10 +167,8 @@ func renewInit() {
 func updateInit() {
 	fsScUpdate = flag.NewFlagSet("update", flag.ExitOnError) // sub-command
 	flagsRefreshAndUpdate(fsScUpdate)
-	fsScUpdate.Var(&id.Min, "IDMin", "Lower end of ID range for normal trices.")          // to do: this is no multi-flag.
-	fsScUpdate.Var(&id.Max, "IDMax", "Upper end of ID range for normal trices.")          // to do: this is no multi-flag.
-	fsScUpdate.Var(&id.MinShort, "IDMinShort", "Lower end of ID range for short trices.") // to do: this is no multi-flag.
-	fsScUpdate.Var(&id.MaxShort, "IDMaxShort", "Upper end of ID range for short trices.") // to do: this is no multi-flag.
+	fsScUpdate.Var(&id.Min, "IDMin", "Lower end of ID range for normal trices.") // to do: this is no multi-flag.
+	fsScUpdate.Var(&id.Max, "IDMax", "Upper end of ID range for normal trices.") // to do: this is no multi-flag.
 	fsScUpdate.StringVar(&id.SearchMethod, "IDMethod", "random", "Search method for new ID's in range- Options are 'upward', 'downward' & 'random'.")
 	fsScUpdate.BoolVar(&id.ExtendMacrosWithParamCount, "addParamCount", false, "Extend TRICE macro names with the parameter count _n to enable compile time checks.")
 	fsScUpdate.BoolVar(&id.SharedIDs, "sharedIDs", false, `ID policy:

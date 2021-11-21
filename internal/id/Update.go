@@ -149,11 +149,7 @@ func FormatSpecifierCount(s string) (count int) {
 // addFormatSpecifierCount extends s or si with _n or _ni and returns it as sl
 func addFormatSpecifierCount(s string, n int) (sl string) {
 	if 0 < n && n < 99 { // patch
-		if 'i' == s[len(s)-1] { // last letter is 'i'
-			sl = fmt.Sprintf(s[:len(s)-1]+"_%di", n) // TRICE*_ni
-		} else {
-			sl = fmt.Sprintf(s+"_%d", n) // TRICE*_n
-		}
+		sl = fmt.Sprintf(s+"_%d", n) // TRICE*_n
 	} else {
 		fmt.Println("Parse error: ", n, " % format specifier found inside ", s)
 		sl = s
@@ -248,8 +244,8 @@ func visitUpdate(lu TriceIDLookUp, tflu TriceFmtLookUp, pListModified *bool) fil
 		}
 		refreshIDs(text, lu, tflu) // update IDs: Id(0) -> Id(M)
 
-		textN, fileModified0 := updateParamCountAndID0(text, ExtendMacrosWithParamCount)                                       // update parameter count: TRICE* to TRICE*_n and insert missing Id(0)
-		textU, fileModified1 := updateIDsUniqOrShared(SharedIDs, MinShort, MaxShort, Min, Max, textN, lu, tflu, pListModified) // update IDs: Id(0) -> Id(M)
+		textN, fileModified0 := updateParamCountAndID0(text, ExtendMacrosWithParamCount)                                 // update parameter count: TRICE* to TRICE*_n and insert missing Id(0)
+		textU, fileModified1 := updateIDsUniqOrShared(SharedIDs, Min, Max, SearchMethod, textN, lu, tflu, pListModified) // update IDs: Id(0) -> Id(M)
 
 		// write out
 		fileModified := fileModified0 || fileModified1
@@ -281,13 +277,6 @@ func triceIDParse(t string) (nbID string, id TriceID, found bool) {
 		found = true
 		return
 	}
-	//_, err = fmt.Sscanf(nbID, "id(%d", &n) // closing bracket in format string omitted intensionally
-	//if nil == err {
-	//	id = TriceID(n)
-	//	ok = true
-	//	return
-	//}
-	//msg.Info(fmt.Sprintln("no 'Id(n' or 'id(n' found inside " + nbID))
 	msg.Info(fmt.Sprintln("no 'Id(n' found inside " + nbID))
 	return
 }
@@ -327,8 +316,7 @@ func triceParse(t string) (nbID string, id TriceID, tf TriceFmt, found bool) {
 func refreshIDs(text string, lu TriceIDLookUp, tflu TriceFmtLookUp) {
 	subs := text[:] // create a copy of text and assign it to subs
 	for {
-		loc := matchNbTRICE.FindStringSubmatchIndex(subs)
-		//loc := matchNbTRICE.FindStringIndex(subs) // find the next TRICE location in file
+		loc := matchNbTRICE.FindStringSubmatchIndex(subs) // find the next TRICE location in file
 		if nil == loc {
 			return // done
 		}
@@ -375,7 +363,7 @@ func refreshIDs(text string, lu TriceIDLookUp, tflu TriceFmtLookUp) {
 // tflu holds the tf in upper case.
 // lu holds the tf in source code case. If in source code upper and lower case occur, than only one can be in lu.
 // sharedIDs, if true, reuses IDs for identical format strings.
-func updateIDsUniqOrShared(sharedIDs bool, smin, smax, min, max TriceID, text string, lu TriceIDLookUp, tflu TriceFmtLookUp, pListModified *bool) (string, bool) {
+func updateIDsUniqOrShared(sharedIDs bool, min, max TriceID, searchMethod string, text string, lu TriceIDLookUp, tflu TriceFmtLookUp, pListModified *bool) (string, bool) {
 	var fileModified bool
 	subs := text[:] // create a copy of text and assign it to subs
 	for {
@@ -392,19 +380,14 @@ func updateIDsUniqOrShared(sharedIDs bool, smin, smax, min, max TriceID, text st
 		if !found {
 			continue
 		}
-		//tfS := tf
-		//st := isShortTrice(tf)
-		//if !st && sharedIDs {
 		tf.Type = strings.ToUpper(tf.Type) // Lower case and upper case Type are not distinguished for normal trices in shared IDs mode.
-		//}
+
 		// In lu id could point to a different tf. So we need to check that and invalidate id in that case.
 		// - That typically happens after tf was changed in source but the id not.
 		// - Also the source file with id:tf could be added from a different project and refresh could not add it to lu because id is used differently.
 		if id != 0 {
 			if tfL, ok := lu[id]; ok { // found
-				//if !st && sharedIDs {
 				tfL.Type = strings.ToUpper(tfL.Type) // Lower case and upper case Type are not distinguished for normal trices in shared IDs mode.
-				//}
 				if !reflect.DeepEqual(tf, tfL) {
 					id = -id // mark as invalid
 				}
@@ -418,20 +401,10 @@ func updateIDsUniqOrShared(sharedIDs bool, smin, smax, min, max TriceID, text st
 			if id, found = tflu[tf]; sharedIDs && found { // yes, we can use it in shared IDs mode
 				msg.FatalInfoOnTrue(id == 0, "no id 0 allowed in map")
 			} else { // no, we need a new one
-				//if st {
-				//	id = lu.newID(smin, smax) // a prerequisite is a in a previous step refreshed lu
-				//} else {
-				id = lu.newID(min, max) // a prerequisite is a in a previous step refreshed lu
-				//}
+				id = lu.newID(min, max, searchMethod) // a prerequisite is a in a previous step refreshed lu
 				*pListModified = true
 			}
 			// patch the id into text
-			//  var nID string
-			//  if st {
-			//  	nID = fmt.Sprintf("id(%5d)", id)
-			//  } else {
-			//  	nID = fmt.Sprintf("Id(%6d)", id)
-			//  }
 			nID := fmt.Sprintf("Id(%5d)", id)
 			if Verbose {
 				if nID != invalID {

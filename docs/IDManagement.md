@@ -8,7 +8,7 @@ Normally, when using `flex[L]`encoding, no need to read this.
 - During `trice update` so far unknown IDs are added to the ID list (case new sources added).
 - If an ID was deleted inside the source tree (or file removal) the appropriate ID's stays inside the ID list.
 - If the same ID appears again the appropriate ID is aktive again.
-- If duplicate ID's with different format strings found inside the source tree (case several developers) one ID is replaced by a new ID. The probability for such case is low, because of the random ID generation. Also it is possible to split the ID space between several developers using `-IDMin` and `-IDMax` or `-IDMinShort` and `-IDMaxShort` .
+- If duplicate ID's with different format strings found inside the source tree (case several developers) one ID is replaced by a new ID. The probability for such case is low, because of the random ID generation. Also it is possible to split the ID space between several developers using `-IDMin` and `-IDMax`.
 - If the format string was modified, the ID stays in the list and a new ID for the changed format string is generated.
 - Keeping obsolete IDs makes it more comfortable during development to deal with different firmware variants at the same time.
 - This way you can simply copy a TRICE* statement and modify it without dealing with the ID. The trice tool will do for you.

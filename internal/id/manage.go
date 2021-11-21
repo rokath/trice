@@ -30,14 +30,14 @@ func NewLut(fn string) TriceIDLookUp {
 	return lu
 }
 
-// newID() gets a random ID not used so far.
+// newID() gets a new ID not used so far.
 // The delivered id is usable as key for lu, but not added. So calling fn twice without adding to lu could give the same value back.
 // It is important that lu was refreshed before with all sources to avoid finding as a new ID an ID which is already used in the source tree.
-func (lu TriceIDLookUp) newID(min, max TriceID) TriceID {
+func (lu TriceIDLookUp) newID(min, max TriceID, searchMethod string) TriceID {
 	if Verbose {
-		fmt.Println("IDMin=", min, "IDMax=", max, "IDMethod=", SearchMethod)
+		fmt.Println("IDMin=", min, "IDMax=", max, "IDMethod=", searchMethod)
 	}
-	switch SearchMethod {
+	switch searchMethod {
 	case "random":
 		return lu.newRandomID(min, max)
 	case "upward":
@@ -45,7 +45,7 @@ func (lu TriceIDLookUp) newID(min, max TriceID) TriceID {
 	case "downward":
 		return lu.newDownwardID(min, max)
 	}
-	msg.Info(fmt.Sprint("ERROR:", SearchMethod, "is unknown ID search method."))
+	msg.Info(fmt.Sprint("ERROR:", searchMethod, "is unknown ID search method."))
 	return 0
 }
 

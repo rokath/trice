@@ -21,12 +21,6 @@ var (
 	// FnJSON is the filename for the JSON formatted ID list.
 	FnJSON string
 
-	// MinShort is the smallest allowed ID for short trices.
-	MinShort = TriceID(1)
-
-	// MaxShort is the biggest allowed ID for short trices.
-	MaxShort = TriceID(32767)
-
 	// Min is the smallest allowed ID for normal trices.
 	Min = TriceID(32768)
 
