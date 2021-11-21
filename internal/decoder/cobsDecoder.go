@@ -214,7 +214,7 @@ func (p *COBS) Read(b []byte) (n int, err error) {
 		return
 	}
 	if DebugOut {
-		fmt.Fprint(p.w, "TRICE -> ")
+		fmt.Print("TRICE -> ")
 		dump(p.w, p.b[:p.triceSize])
 	}
 	var ok bool
@@ -349,7 +349,7 @@ var cobsFunctionPtrList = [...]triceTypeFn{
 // triceS converts dynamic strings.
 func (p *COBS) triceS(b []byte, _ int, _ int) int {
 	if DebugOut {
-		fmt.Fprintln(p.w, p.b)
+		fmt.Println(p.b)
 	}
 	s := p.b[4 : 4+p.sLen]
 	return copy(b, fmt.Sprintf(p.trice.Strg, string(s)))
