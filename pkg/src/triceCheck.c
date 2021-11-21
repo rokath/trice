@@ -11,6 +11,7 @@ void shortTriceCheckSet(int index) {
     char* s;
     switch (index) {
         case 0: // sign 
+            TRICE( Id( 60123), "na" );TRICE( Id( 59621),"nu");TRICE64( Id( 41176),"%d%d", 2, -2 );
             TRICE32_1( Id( 49915), "rd:TRICE32_1 line %u (%%u -1)\n", -1 ); 
             TRICE32_1( Id( 39033), "rd:TRICE32_1 line %b (%%b -1)\n", -1 ); 
             TRICE32_1( Id( 41601), "rd:TRICE32_1 line %o (%%o -1)\n", -1 ); 

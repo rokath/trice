@@ -299,6 +299,10 @@
 		"Type": "TRICE32",
 		"Strg": "att: Trice 2x half buffer size:%4u "
 	},
+	"41176": {
+		"Type": "TRICE64",
+		"Strg": "%d%d"
+	},
 	"41601": {
 		"Type": "TRICE32_1",
 		"Strg": "rd:TRICE32_1 line %o (%%o -1)\\n"
@@ -939,6 +943,10 @@
 		"Type": "TRICE64_1",
 		"Strg": "tst:TRICE64_1 %x\\n"
 	},
+	"59621": {
+		"Type": "TRICE",
+		"Strg": "nu"
+	},
 	"59637": {
 		"Type": "TRICE8_5",
 		"Strg": "tst:TRICE8_5 %d %d %d %d %d\\n"
@@ -962,6 +970,10 @@
 	"59840": {
 		"Type": "TRICE8",
 		"Strg": "rd:TRICE8 %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"60123": {
+		"Type": "TRICE",
+		"Strg": "na"
 	},
 	"60252": {
 		"Type": "TRICE64_1",

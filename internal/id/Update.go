@@ -30,6 +30,7 @@ const (
 	patFmtString = `"(.*)"`
 
 	// patNbTRICE is a regex pattern matching any "TRICE*(Id(n), "", ... )". - see https://regex101.com/r/mllhNQ/1
+	// https://regex101.com/r/4hz1r8/1
 	patNbTRICE = patTypNameTRICE + `\s*\(` + patID + `\(\s*.*[0-9]\s*\)\s*,\s*` + patFmtString + `\s*.*\)`
 
 	// https://regex101.com/r/hWMjhU/3 - match any kind of trice with or without len or ID
@@ -435,7 +436,7 @@ func updateIDsUniqOrShared(sharedIDs bool, smin, smax, min, max TriceID, text st
 			//  } else {
 			//  	nID = fmt.Sprintf("Id(%6d)", id)
 			//  }
-			nID := fmt.Sprintf("Id(%6d)", id)
+			nID := fmt.Sprintf("Id(%5d)", id)
 			if Verbose {
 				if nID != invalID {
 					fmt.Print(invalID, " -> ")

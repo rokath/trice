@@ -1,6 +1,6 @@
-Software_Transmit_UART.cyprj.ms
 codegentemp/**
 CortexM0p/**
 Generated_Source/**
-*.log
 Export/**
+*.log
+Software_Transmit_UART.cyprj.ms
