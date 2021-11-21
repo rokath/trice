@@ -19,7 +19,6 @@ func TestArrayFlag(t *testing.T) {
 
 	msg.OnErr(p.Set("ab"))
 	msg.OnErr(p.Set("xyz"))
-	//fmt.Println(Srcs)
 	var af ArrayFlag
 	af = []string{"ab", "xyz"}
 	assert.Equal(t, af, Srcs)

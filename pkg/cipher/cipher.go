@@ -9,6 +9,7 @@ package cipher
 import (
 	"crypto/sha1"
 	"fmt"
+	"io"
 
 	"github.com/rokath/trice/pkg/msg"
 	"golang.org/x/crypto/xtea"
@@ -32,9 +33,9 @@ var (
 )
 
 // SetUp uses the Password to create a cipher. If Password is "" encryption/decryption is disabled.
-func SetUp() error {
+func SetUp(w io.Writer) error {
 	var err error
-	ci, enabled, err = createCipher()
+	ci, enabled, err = createCipher(w)
 	msg.FatalOnErr(err)
 
 	bsize := ci.BlockSize()
@@ -44,7 +45,7 @@ func SetUp() error {
 }
 
 // createCipher prepares decryption, with password "none" the encryption flag is set false, otherwise true
-func createCipher() (*xtea.Cipher, bool, error) {
+func createCipher(w io.Writer) (*xtea.Cipher, bool, error) {
 	switch Password {
 	case "0000000000000000":
 		Key = []byte{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0} // used for checking only
@@ -65,7 +66,7 @@ func createCipher() (*xtea.Cipher, bool, error) {
 	if "" != Password {
 		e = true
 		if ShowKey {
-			fmt.Printf("% 20x is XTEA encryption key\n", Key)
+			fmt.Fprintf(w, "% 20x is XTEA encryption key\n", Key)
 		}
 	}
 	return c, e, nil

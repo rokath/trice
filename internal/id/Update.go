@@ -94,7 +94,7 @@ func updateParamCountAndID0(w io.Writer, text string, extendMacroName bool) (str
 			if nil != locNoLen {                               // need to add len to trice name
 				n := FormatSpecifierCount(triceC)
 				triceNameNoLen := triceC[locNoLen[0]:locNoLen[1]]
-				triceNameWithLen := addFormatSpecifierCount(triceNameNoLen, n)
+				triceNameWithLen := addFormatSpecifierCount(w, triceNameNoLen, n)
 				// In this example `Trice8_1( id(  800), "rd:Trice8 line %d, %d\n", __LINE__, 2 );` triceNameNoLen is "Trice8",
 				// that is the Trice8 after "rd:" and triceNameWithLen is Trice8_1.
 				// The following line would replace the first `Trice8` which is part of `Trice8_1` with `Trice8_1` resulting in
@@ -148,12 +148,12 @@ func FormatSpecifierCount(s string) (count int) {
 }
 
 // addFormatSpecifierCount extends s with _n and returns it as sl
-func addFormatSpecifierCount(s string, n int) (sl string) {
+func addFormatSpecifierCount(w io.Writer, s string, n int) (sl string) {
 	if 0 < n && n < 99 { // patch
 		sl = fmt.Sprintf(s+"_%d", n) // TRICE*_n
 	} else {
 		if n != 0 {
-			fmt.Println("Parse error: ", n, " % format specifier found inside ", s)
+			fmt.Fprintln(w, "Parse error: ", n, " % format specifier found inside ", s)
 		}
 		sl = s
 	}
@@ -219,7 +219,7 @@ func visitRefresh(w io.Writer, lu TriceIDLookUp, tflu TriceFmtLookUp) filepath.W
 		if nil != err {
 			return err
 		}
-		refreshIDs(text, lu, tflu) // update IDs: Id(0) -> Id(M)
+		refreshIDs(w, text, lu, tflu) // update IDs: Id(0) -> Id(M)
 		return nil
 	}
 }
@@ -245,16 +245,16 @@ func visitUpdate(w io.Writer, lu TriceIDLookUp, tflu TriceFmtLookUp, pListModifi
 		if nil != err {
 			return err
 		}
-		refreshIDs(text, lu, tflu) // update IDs: Id(0) -> Id(M)
+		refreshIDs(w, text, lu, tflu) // update IDs: Id(0) -> Id(M)
 
-		textN, fileModified0 := updateParamCountAndID0(w, text, ExtendMacrosWithParamCount)                              // update parameter count: TRICE* to TRICE*_n and insert missing Id(0)
-		textU, fileModified1 := updateIDsUniqOrShared(SharedIDs, Min, Max, SearchMethod, textN, lu, tflu, pListModified) // update IDs: Id(0) -> Id(M)
+		textN, fileModified0 := updateParamCountAndID0(w, text, ExtendMacrosWithParamCount)                                 // update parameter count: TRICE* to TRICE*_n and insert missing Id(0)
+		textU, fileModified1 := updateIDsUniqOrShared(w, SharedIDs, Min, Max, SearchMethod, textN, lu, tflu, pListModified) // update IDs: Id(0) -> Id(M)
 
 		// write out
 		fileModified := fileModified0 || fileModified1
 		if fileModified && !DryRun {
 			if Verbose {
-				fmt.Println("Changed: ", path)
+				fmt.Fprintln(w, "Changed: ", path)
 			}
 			err = ioutil.WriteFile(path, []byte(textU), fi.Mode())
 			if nil != err {
@@ -316,7 +316,7 @@ func triceParse(t string) (nbID string, id TriceID, tf TriceFmt, found bool) {
 }
 
 // refreshIDs parses text for valid trices tf and adds them to lu & tflu.
-func refreshIDs(text string, lu TriceIDLookUp, tflu TriceFmtLookUp) {
+func refreshIDs(w io.Writer, text string, lu TriceIDLookUp, tflu TriceFmtLookUp) {
 	subs := text[:] // create a copy of text and assign it to subs
 	for {
 		loc := matchNbTRICE.FindStringSubmatchIndex(subs) // find the next TRICE location in file
@@ -343,7 +343,7 @@ func refreshIDs(text string, lu TriceIDLookUp, tflu TriceFmtLookUp) {
 			if tfL, ok := lu[id]; ok { // found
 				tfL.Type = strings.ToUpper(tfL.Type)
 				if !reflect.DeepEqual(tfS, tfL) { // Lower case and upper case Type are not distinguished.
-					fmt.Println("Id", id, "already used differently, ignoring it.")
+					fmt.Fprintln(w, "Id", id, "already used differently, ignoring it.")
 					id = -id // mark as invalid
 				}
 			}
@@ -366,7 +366,7 @@ func refreshIDs(text string, lu TriceIDLookUp, tflu TriceFmtLookUp) {
 // tflu holds the tf in upper case.
 // lu holds the tf in source code case. If in source code upper and lower case occur, than only one can be in lu.
 // sharedIDs, if true, reuses IDs for identical format strings.
-func updateIDsUniqOrShared(sharedIDs bool, min, max TriceID, searchMethod string, text string, lu TriceIDLookUp, tflu TriceFmtLookUp, pListModified *bool) (string, bool) {
+func updateIDsUniqOrShared(w io.Writer, sharedIDs bool, min, max TriceID, searchMethod string, text string, lu TriceIDLookUp, tflu TriceFmtLookUp, pListModified *bool) (string, bool) {
 	var fileModified bool
 	subs := text[:] // create a copy of text and assign it to subs
 	for {
@@ -404,16 +404,16 @@ func updateIDsUniqOrShared(sharedIDs bool, min, max TriceID, searchMethod string
 			if id, found = tflu[tf]; sharedIDs && found { // yes, we can use it in shared IDs mode
 				msg.FatalInfoOnTrue(id == 0, "no id 0 allowed in map")
 			} else { // no, we need a new one
-				id = lu.newID(min, max, searchMethod) // a prerequisite is a in a previous step refreshed lu
+				id = lu.newID(w, min, max, searchMethod) // a prerequisite is a in a previous step refreshed lu
 				*pListModified = true
 			}
 			// patch the id into text
 			nID := fmt.Sprintf("Id(%5d)", id)
 			if Verbose {
 				if nID != invalID {
-					fmt.Print(invalID, " -> ")
+					fmt.Fprint(w, invalID, " -> ")
 				}
-				fmt.Println(nID)
+				fmt.Fprintln(w, nID)
 			}
 			nbTRICE := strings.Replace(nbTRICE, invalID, nID, 1)
 			text = strings.Replace(text, invalTRICE, nbTRICE, 1)
@@ -433,14 +433,14 @@ func isShortTrice(tf TriceFmt) bool {
 }
 
 // ZeroSourceTreeIds is overwriting with 0 all id's from source code tree srcRoot. It does not touch idlist.
-func ZeroSourceTreeIds(srcRoot string, run bool) {
-	err := filepath.Walk(srcRoot, visitZeroSourceTreeIds(run))
+func ZeroSourceTreeIds(w io.Writer, srcRoot string, run bool) {
+	err := filepath.Walk(srcRoot, visitZeroSourceTreeIds(w, run))
 	if err != nil {
 		panic(err)
 	}
 }
 
-func visitZeroSourceTreeIds(run bool) filepath.WalkFunc {
+func visitZeroSourceTreeIds(w io.Writer, run bool) filepath.WalkFunc {
 	// WalkFunc is the type of the function called for each file or directory
 	// visited by Walk. The path argument contains the argument to Walk as a
 	// prefix; that is, if Walk is called with "dir", which is a directory
@@ -461,7 +461,7 @@ func visitZeroSourceTreeIds(run bool) filepath.WalkFunc {
 			return err // forward any error and do nothing
 		}
 		if Verbose {
-			fmt.Println(path)
+			fmt.Fprintln(w, path)
 		}
 		read, err := ioutil.ReadFile(path)
 		if err != nil {
@@ -474,7 +474,7 @@ func visitZeroSourceTreeIds(run bool) filepath.WalkFunc {
 
 		for {
 			var found bool
-			found, modified, subs, s = zeroNextID(modified, subs, s)
+			found, modified, subs, s = zeroNextID(w, modified, subs, s)
 			if false == found {
 				break
 			}
@@ -491,7 +491,7 @@ func visitZeroSourceTreeIds(run bool) filepath.WalkFunc {
 // - modified gets true
 // - subs gets shorter
 // - s is updated
-func zeroNextID(modified bool, subs, s string) (bool, bool, string, string) {
+func zeroNextID(w io.Writer, modified bool, subs, s string) (bool, bool, string, string) {
 	loc := matchNbTRICE.FindStringIndex(subs)
 	if nil == loc {
 		return false, modified, subs, s
@@ -504,7 +504,7 @@ func zeroNextID(modified bool, subs, s string) (bool, bool, string, string) {
 	}
 
 	zeroID := "Id(0)"
-	fmt.Println(nbID, " -> ", zeroID)
+	fmt.Fprintln(w, nbID, " -> ", zeroID)
 
 	zeroTRICE := strings.Replace(nbTRICE, nbID, zeroID, 1)
 	s = strings.Replace(s, nbTRICE, zeroTRICE, 1)

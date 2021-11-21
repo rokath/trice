@@ -6,6 +6,7 @@ package id
 
 import (
 	"math/rand"
+	"os"
 	"testing"
 
 	"github.com/tj/assert"
@@ -14,17 +15,17 @@ import (
 func TestNewID(t *testing.T) {
 	rand.Seed(0)
 	lut := make(TriceIDLookUp)
-	id := lut.newID(32768, 65535, "random")
+	id := lut.newID(os.Stdout, 32768, 65535, "random")
 	assert.True(t, 45050 == id)
-	id = lut.newID(1, 65535, "downward")
+	id = lut.newID(os.Stdout, 1, 65535, "downward")
 	assert.True(t, 65535 == id)
-	id = lut.newID(32768, 65535, "upward")
+	id = lut.newID(os.Stdout, 32768, 65535, "upward")
 	assert.True(t, 32768 == id)
-	id = lut.newID(32768, 65535, "upward")
+	id = lut.newID(os.Stdout, 32768, 65535, "upward")
 	assert.True(t, 32768 == id)
 	var i TriceFmt
 	lut[id] = i
-	id = lut.newID(32768, 65535, "upward")
+	id = lut.newID(os.Stdout, 32768, 65535, "upward")
 	assert.True(t, 32769 == id)
 }
 
@@ -69,10 +70,10 @@ func TestNewRandomID(t *testing.T) {
 	min := TriceID(50)
 	max := TriceID(100)
 	lut := make(TriceIDLookUp, 4)
-	id := lut.newRandomID(min, max)
+	id := lut.newRandomID(os.Stdout, min, max)
 	assert.True(t, 56 == id)
-	id = lut.newRandomID(min, max)
+	id = lut.newRandomID(os.Stdout, min, max)
 	assert.True(t, 92 == id)
-	id = lut.newRandomID(92, 92)
+	id = lut.newRandomID(os.Stdout, 92, 92)
 	assert.True(t, 92 == id)
 }

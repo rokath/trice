@@ -9,6 +9,7 @@ package link
 
 import (
 	"fmt"
+	"io"
 	"io/ioutil"
 	"log"
 	"os"
@@ -26,10 +27,11 @@ var (
 
 // Device is the RTT logger reader interface.
 type Device struct {
-	Exec      string   // linkBinary is the RTT logger executable .
-	Lib       string   // linkDynLib is the RTT used dynamic library name.
-	args      []string //  contains the command line parameters for JLinkRTTLogger
-	arguments string   // needed only for error message
+	w         io.Writer // os.Stdout
+	Exec      string    // linkBinary is the RTT logger executable .
+	Lib       string    // linkDynLib is the RTT used dynamic library name.
+	args      []string  //  contains the command line parameters for JLinkRTTLogger
+	arguments string    // needed only for error message
 
 	cmd               *exec.Cmd // link command handle
 	tempLogFileName   string
@@ -40,8 +42,9 @@ type Device struct {
 
 // NewDevice creates an instance of RTT ReadCloser of type Port.
 // The Args string is used as parameter string. See SEGGER UM08001_JLink.pdf for details.
-func NewDevice(port, arguments string) *Device {
+func NewDevice(w io.Writer, port, arguments string) *Device {
 	p := &Device{} // create link instance
+	p.w = w
 	switch port {
 	case "JLINK", "J-LINK":
 		p.Exec = "JLinkRTTLogger"
@@ -51,8 +54,8 @@ func NewDevice(port, arguments string) *Device {
 		p.Lib = "libusb-1.0"
 	}
 	if Verbose {
-		fmt.Println("port:", port, "arguments:", arguments)
-		fmt.Println("LINK executable", p.Exec, "and dynamic lib", p.Lib, "expected to be in path for usage.")
+		fmt.Fprintln(w, "port:", port, "arguments:", arguments)
+		fmt.Fprintln(w, "LINK executable", p.Exec, "and dynamic lib", p.Lib, "expected to be in path for usage.")
 	}
 	// get a temporary file name
 	var e error
@@ -68,7 +71,6 @@ func NewDevice(port, arguments string) *Device {
 		p.args[i] = strings.ReplaceAll(p.args[i], "_0x", " 0x")
 	}
 	p.args = append(p.args, p.tempLogFileName) // to do: check if slice could be passed directly.
-
 	return p
 }
 
@@ -88,7 +90,7 @@ func (p *Device) Read(b []byte) (int, error) {
 // Close is part of the exported interface io.ReadCloser. It ends the connection.
 func (p *Device) Close() error {
 	if Verbose {
-		fmt.Println("Closing link device.")
+		fmt.Fprintln(p.w, "Closing link device.")
 	}
 	// CTRL-C sends SIGTERM also to the started command. It closes the temporary file and terminates itself.
 	// Todo: If trice is terminated not with CTRL-C kill automatically.
@@ -102,9 +104,9 @@ func (p *Device) Close() error {
 // The temporary logfile is opened for reading.
 func (p *Device) Open() error {
 	if Verbose {
-		fmt.Println("Start a process:", p.Exec, "with needed lib", p.Lib, "and args:")
+		fmt.Fprintln(p.w, "Start a process:", p.Exec, "with needed lib", p.Lib, "and args:")
 		for i, a := range p.args {
-			fmt.Println(i, a)
+			fmt.Fprintln(p.w, i, a)
 		}
 	}
 	p.cmd = exec.Command(p.Exec, p.args...)
@@ -121,40 +123,38 @@ func (p *Device) Open() error {
 
 	// p.watchLogfile() // todo: make it working well
 	if Verbose {
-		fmt.Println("trice is watching and reading from", p.tempLogFileName)
+		fmt.Fprintln(p.w, "trice is watching and reading from", p.tempLogFileName)
 	}
 	return nil
 }
 
-/*
 // watchLogfile creates a new file watcher.
-func (p *Device) watchLogfile() {
-	var watcher *fsnotify.Watcher
-	watcher, p.Err = fsnotify.NewWatcher()
-	defer func() { msg.OnErr(watcher.Close()) }()
-
-	go func() {
-		for {
-			var ok bool
-			var event fsnotify.Event
-			p.ErrorFatal()
-			select {
-			case event, ok = <-watcher.Events: // watch for events
-				if !ok {
-					continue // return
-				}
-				fmt.Printf("EVENT! %#v\n", event)
-				if event.Op&fsnotify.Write == fsnotify.Write {
-					log.Println("modified file:", event.Name)
-				}
-			case p.Err, ok = <-watcher.Errors: // watch for errors
-				if !ok {
-					continue // return
-				}
-			}
-		}
-	}()
-	// out of the box fsnotify can watch a single file, or a single directory
-	p.Err = watcher.Add(p.tempLogFileName)
-}
-*/
+//  func (p *Device) watchLogfile() {
+//  	var watcher *fsnotify.Watcher
+//  	watcher, p.Err = fsnotify.NewWatcher()
+//  	defer func() { msg.OnErr(watcher.Close()) }()
+//
+//  	go func() {
+//  		for {
+//  			var ok bool
+//  			var event fsnotify.Event
+//  			p.ErrorFatal()
+//  			select {
+//  			case event, ok = <-watcher.Events: // watch for events
+//  				if !ok {
+//  					continue // return
+//  				}
+//  				fmt.Printf("EVENT! %#v\n", event)
+//  				if event.Op&fsnotify.Write == fsnotify.Write {
+//  					log.Println("modified file:", event.Name)
+//  				}
+//  			case p.Err, ok = <-watcher.Errors: // watch for errors
+//  				if !ok {
+//  					continue // return
+//  				}
+//  			}
+//  		}
+//  	}()
+//  	// out of the box fsnotify can watch a single file, or a single directory
+//  	p.Err = watcher.Add(p.tempLogFileName)
+//  }

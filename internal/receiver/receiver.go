@@ -83,7 +83,7 @@ func scanBytes(s string) (buf []byte) {
 func NewReadCloser(w io.Writer, port, args string) (r io.ReadCloser, err error) {
 	switch port {
 	case "JLINK", "STLINK", "J-LINK", "ST-LINK":
-		l := link.NewDevice(port, args)
+		l := link.NewDevice(w, port, args)
 		if nil != l.Open() {
 			err = fmt.Errorf("can not open link device %s with args %s", port, args)
 		}
@@ -111,28 +111,30 @@ func NewReadCloser(w io.Writer, port, args string) (r io.ReadCloser, err error) 
 // dynamic debug                                                                                 //
 //                                                                                               //
 type bytesViewer struct {
+	w io.Writer
 	r io.ReadCloser
 }
 
 // NewBytesViewer returns a ReadCloser `in` which is internally using reader `from`.
 // Calling the `in` Read method leads to internally calling the `from` Read method
 // but lets to do some additional action like logging
-func NewBytesViewer(from io.ReadCloser) (in io.ReadCloser) {
-	return &bytesViewer{from}
+func NewBytesViewer(w io.Writer, from io.ReadCloser) (in io.ReadCloser) {
+	p := &bytesViewer{w, from}
+	return p
 }
 
 func (p *bytesViewer) Read(buf []byte) (count int, err error) {
 	count, err = p.r.Read(buf)
 	if 0 < count || (nil != err && io.EOF != err) {
-		fmt.Print("Input(")
+		fmt.Fprint(p.w, "Input(")
 		for i, x := range buf[:count] {
 			if i < count-1 {
-				fmt.Printf("%02x ", x)
+				fmt.Fprintf(p.w, "%02x ", x)
 			} else {
-				fmt.Printf("%02x", x)
+				fmt.Fprintf(p.w, "%02x", x)
 			}
 		}
-		fmt.Println(")")
+		fmt.Fprintln(p.w, ")")
 	}
 	return
 }

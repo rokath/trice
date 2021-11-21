@@ -30,7 +30,7 @@ func doTableTest(t *testing.T, f newDecoder, endianness bool, teTa testTable) {
 	lu := make(id.TriceIDLookUp)
 	luM := new(sync.RWMutex)
 	assert.Nil(t, lu.FromJSON([]byte(til)))
-	lu.AddFmtCount()
+	lu.AddFmtCount(w)
 	buf := make([]byte, defaultSize)
 	dec := f(lu, luM, nil, endianness) // p is a new decoder instance
 	for _, x := range teTa {

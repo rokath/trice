@@ -23,7 +23,7 @@ func ScZero(w io.Writer, SrcZ string, cmd *flag.FlagSet) error {
 		cmd.PrintDefaults()
 		return errors.New("no source tree root specified")
 	}
-	ZeroSourceTreeIds(SrcZ, !DryRun)
+	ZeroSourceTreeIds(w, SrcZ, !DryRun)
 	return nil
 }
 
@@ -35,7 +35,6 @@ func ScZero(w io.Writer, SrcZ string, cmd *flag.FlagSet) error {
 // SubCmdUpdate needs to know which IDs are used in the source tree to reliable add new IDs.
 func SubCmdReNewList(w io.Writer) (err error) {
 	lu := make(TriceIDLookUp)
-	// Do not perform lu.AddFmtCount() here.
 	return updateList(w, lu)
 }
 
@@ -47,7 +46,6 @@ func SubCmdReNewList(w io.Writer) (err error) {
 // SubCmdUpdate needs to know which IDs are used in the source tree to reliable add new IDs.
 func SubCmdRefreshList(w io.Writer) (err error) {
 	lu := NewLut(w, FnJSON)
-	// Do not perform lu.AddFmtCount() here.
 	return updateList(w, lu)
 }
 

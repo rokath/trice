@@ -5,6 +5,7 @@
 package cipher_test
 
 import (
+	"os"
 	"testing"
 
 	"github.com/rokath/trice/pkg/cipher"
@@ -33,7 +34,7 @@ func Test12345678(t *testing.T) {
 func check12345678(t *testing.T, password string, exp []byte) {
 	cipher.Password = password
 	cipher.ShowKey = true
-	assert.Nil(t, cipher.SetUp())
+	assert.Nil(t, cipher.SetUp(os.Stdout))
 	b := []byte{1, 2, 3, 4, 5, 6, 7, 8}
 	c := cipher.Encrypt8(b)
 	assert.Equal(t, exp, c)

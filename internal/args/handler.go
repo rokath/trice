@@ -104,7 +104,7 @@ type selector struct {
 
 // logLoop prepares writing and lut and provides a retry mechanism for unplugged UART.
 func logLoop(w io.Writer) {
-	msg.FatalOnErr(cipher.SetUp()) // does nothing when -password is ""
+	msg.FatalOnErr(cipher.SetUp(w)) // does nothing when -password is ""
 	if decoder.TestTableMode {
 		// set switches if they not set already
 		// trice l -ts off -prefix " }, ``" -suffix "\n``}," -color off
@@ -131,7 +131,7 @@ func logLoop(w io.Writer) {
 	}
 	m := new(sync.RWMutex) // m is a pointer to a read write mutex for lu
 	m.Lock()
-	lu.AddFmtCount()
+	lu.AddFmtCount(w)
 	m.Unlock()
 	// Just in case the id list file FnJSON gets updated, the file watcher updates lut.
 	// This way trice needs NOT to be restarted during development process.
@@ -157,7 +157,7 @@ func logLoop(w io.Writer) {
 		defer func() { msg.OnErr(rc.Close()) }()
 		interrupted = true
 		if receiver.ShowInputBytes {
-			rc = receiver.NewBytesViewer(rc)
+			rc = receiver.NewBytesViewer(w, rc)
 		}
 		e = decoder.Translate(w, sw, lu, m, rc)
 		if io.EOF == e {
