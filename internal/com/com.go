@@ -31,6 +31,7 @@ type COMport interface {
 
 // PortGoBugSt is a serial device trice receiver
 type PortGoBugSt struct {
+	verbose      bool
 	port         string
 	serialHandle serialgobugst.Port
 	serialMode   serialgobugst.Mode
@@ -38,7 +39,7 @@ type PortGoBugSt struct {
 }
 
 // NewCOMPortGoBugSt creates an instance of a serial device type trice receiver
-func NewCOMPortGoBugSt(w io.Writer, comPortName string) *PortGoBugSt {
+func NewCOMPortGoBugSt(w io.Writer, verbose bool, comPortName string) *PortGoBugSt {
 	r := &PortGoBugSt{
 		port: comPortName,
 		serialMode: serialgobugst.Mode{
@@ -49,7 +50,8 @@ func NewCOMPortGoBugSt(w io.Writer, comPortName string) *PortGoBugSt {
 		},
 	}
 	r.w = w
-	if Verbose {
+	r.verbose = verbose
+	if verbose {
 		fmt.Fprintln(w, "NewCOMPortGoBugSt:", r)
 	}
 	return r
@@ -65,7 +67,7 @@ func (p *PortGoBugSt) Read(buf []byte) (int, error) {
 
 // Close releases port.
 func (p *PortGoBugSt) Close() error {
-	if Verbose {
+	if p.verbose {
 		fmt.Fprintln(p.w, "Closing GoBugSt COM port")
 	}
 	return p.serialHandle.Close()
@@ -78,7 +80,7 @@ func (p *PortGoBugSt) Open() bool {
 	var err error
 	p.serialHandle, err = serialgobugst.Open(p.port, &p.serialMode)
 	if err != nil {
-		if Verbose {
+		if p.verbose {
 			fmt.Fprintln(p.w, err, "try 'trice s' to check for serial ports")
 		}
 		return false
@@ -106,20 +108,22 @@ func GetSerialPorts(w io.Writer) ([]string, error) {
 
 // PortTarm is a serial device trice receiver.
 type PortTarm struct {
-	config serialtarm.Config
-	stream *serialtarm.Port
-	w      io.Writer
+	config  serialtarm.Config
+	stream  *serialtarm.Port
+	w       io.Writer
+	verbose bool
 }
 
 // NewCOMPortTarm creates an instance of a serial device type trice receiver.
-func NewCOMPortTarm(w io.Writer, comPortName string) *PortTarm {
+func NewCOMPortTarm(w io.Writer, verbose bool, comPortName string) *PortTarm {
 	var p = new(PortTarm)
 	p.w = w
+	p.verbose = verbose
 	p.config.Name = comPortName
 	p.config.Baud = Baud
 	p.config.ReadTimeout = 100 * time.Millisecond
 	p.config.Size = 8
-	if Verbose {
+	if p.verbose {
 		fmt.Fprintln(w, "NewCOMPortTarm:", p.config)
 	}
 	return p
@@ -130,7 +134,7 @@ func (p *PortTarm) Open() bool {
 	var err error
 	p.stream, err = serialtarm.OpenPort(&p.config)
 	if err != nil {
-		if Verbose {
+		if p.verbose {
 			fmt.Fprintln(p.w, p.config.Name, "not found")
 			fmt.Fprintln(p.w, "try 'trice scan'")
 		}
@@ -141,7 +145,7 @@ func (p *PortTarm) Open() bool {
 
 // Close returns an error in case of failure.
 func (p *PortTarm) Close() error {
-	if Verbose {
+	if p.verbose {
 		fmt.Fprintln(p.w, "Closing Tarm COM port")
 	}
 	return p.stream.Close()

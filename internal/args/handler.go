@@ -142,7 +142,7 @@ func logLoop(w io.Writer) {
 	var counter int
 
 	for {
-		rc, e := receiver.NewReadCloser(w, receiver.Port, receiver.PortArguments)
+		rc, e := receiver.NewReadCloser(w, verbose, receiver.Port, receiver.PortArguments)
 		if nil != e {
 			fmt.Fprint(w, e)
 			if !interrupted {

@@ -13,7 +13,8 @@ import (
 )
 
 func Test1(t *testing.T) {
-	rc, err := receiver.NewReadCloser(os.Stdout, "BUFFER", "7")
+	verbose := false
+	rc, err := receiver.NewReadCloser(os.Stdout, verbose, "BUFFER", "7")
 	assert.Nil(t, err)
 	b := make([]byte, 100)
 	n, err := rc.Read(b)
