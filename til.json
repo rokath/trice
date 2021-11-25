@@ -79,6 +79,10 @@
 		"Type": "TRICE8_1",
 		"Strg": "rd:TRICE8_1 line %o (%%o -1)\\n"
 	},
+	"34833": {
+		"Type": "TRICE",
+		"Strg": "na\" );TRICE( Id( 59621),\"nu\");TRICE64( Id( 41176),\"%d%d"
+	},
 	"35028": {
 		"Type": "TRICE",
 		"Strg": "rd:TRICE %d, %d, %d, %d, %d, %d, %d, %d\\n"
