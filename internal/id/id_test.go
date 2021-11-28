@@ -15,17 +15,18 @@ import (
 func TestNewID(t *testing.T) {
 	rand.Seed(0)
 	lut := make(TriceIDLookUp)
-	id := lut.newID(32768, 65535, "random")
+	w := os.Stdout
+	id := lut.newID(w, 32768, 65535, "random")
 	assert.True(t, id == 45050)
-	id = lut.newID(1, 65535, "downward")
+	id = lut.newID(w, 1, 65535, "downward")
 	assert.True(t, id == 65535)
-	id = lut.newID(32768, 65535, "upward")
+	id = lut.newID(w, 32768, 65535, "upward")
 	assert.True(t, id == 32768)
-	id = lut.newID(32768, 65535, "upward")
+	id = lut.newID(w, 32768, 65535, "upward")
 	assert.True(t, id == 32768)
 	var i TriceFmt
 	lut[id] = i
-	id = lut.newID(32768, 65535, "upward")
+	id = lut.newID(w, 32768, 65535, "upward")
 	assert.True(t, id == 32769)
 }
 
@@ -70,10 +71,11 @@ func TestNewRandomID(t *testing.T) {
 	min := TriceID(50)
 	max := TriceID(100)
 	lut := make(TriceIDLookUp, 4)
-	id := lut.newRandomID(min, max)
+	w := os.Stdout
+	id := lut.newRandomID(w, min, max)
 	assert.True(t, id == 56)
-	id = lut.newRandomID(min, max)
+	id = lut.newRandomID(w, min, max)
 	assert.True(t, id == 92)
-	id = lut.newRandomID(92, 92)
+	id = lut.newRandomID(w, 92, 92)
 	assert.True(t, id == 92)
 }

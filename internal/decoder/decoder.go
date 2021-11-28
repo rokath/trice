@@ -99,7 +99,7 @@ var (
 )
 
 // newDecoder abstracts the function type for a new decoder.
-type newDecoder func(lut id.TriceIDLookUp, m *sync.RWMutex, in io.Reader, endian bool) Decoder
+type newDecoder func(out io.Writer, lut id.TriceIDLookUp, m *sync.RWMutex, in io.Reader, endian bool) Decoder
 
 // Decoder is providing a byte reader returning decoded trice's.
 // setInput allows switching the input stream to a different source.
@@ -110,19 +110,19 @@ type Decoder interface {
 
 // decoderData is the common data struct for all decoders.
 type decoderData struct {
-	w                 io.Writer        // io.Stdout or the like
-	in                io.Reader        // in is the inner reader, which is used to get raw bytes
-	iBuf              []byte           // iBuf holds unprocessed (raw) bytes for interpretation.
-	b                 []byte           // read buffer holds a single decoded COBS package, which can contain several trices.
-	endian            bool             // endian is LittleEndian or BigEndian
-	triceSize         int              // trice head and payload size as number of bytes
-	paramSpace        int              // trice payload size after head
-	sLen              int              // string length for TRICE_S
-	lut               id.TriceIDLookUp // id look-up map for translation
-	lutMutex          *sync.RWMutex    // to avoid concurrent map read and map write during map refresh triggered by filewatcher
-	trice             id.TriceFmt      // id.TriceFmt // received trice
-	lastInnerRead     time.Time
-	innerReadInterval time.Duration
+	w          io.Writer        // io.Stdout or the like
+	in         io.Reader        // in is the inner reader, which is used to get raw bytes
+	iBuf       []byte           // iBuf holds unprocessed (raw) bytes for interpretation.
+	b          []byte           // read buffer holds a single decoded COBS package, which can contain several trices.
+	endian     bool             // endian is true for LittleEndian and false for BigEndian
+	triceSize  int              // trice head and payload size as number of bytes
+	paramSpace int              // trice payload size after head
+	sLen       int              // string length for TRICE_S
+	lut        id.TriceIDLookUp // id look-up map for translation
+	lutMutex   *sync.RWMutex    // to avoid concurrent map read and map write during map refresh triggered by filewatcher
+	trice      id.TriceFmt      // id.TriceFmt // received trice
+	//lastInnerRead     time.Time
+	//innerReadInterval time.Duration
 }
 
 // setInput allows switching the input stream to a different source.
@@ -173,7 +173,7 @@ func Translate(w io.Writer, sw *emitter.TriceLineComposer, lut id.TriceIDLookUp,
 	}
 	switch strings.ToUpper(Encoding) {
 	case "COBS":
-		dec = NewCOBSRDecoder(w, lut, m, rc, endian)
+		dec = NewCOBSDecoder(w, lut, m, rc, endian)
 	case "CHAR":
 		dec = NewCHARDecoder(w, lut, m, rc, endian)
 	case "DUMP":
@@ -190,8 +190,8 @@ func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec Decode
 	b := make([]byte, defaultSize) // intermediate trice string buffer
 	for {
 		n, err := dec.Read(b) // Code to measure
-		if io.EOF == err && n == 0 {
-			if receiver.Port == "BUFFER" { // do not wait for a predefined buffer
+		if (err == io.EOF || err == nil) && n == 0 {
+			if receiver.Port == "BUFFER" || receiver.Port == "DUMP" { // do not wait for a predefined buffer
 				return err
 			}
 			if Verbose {
@@ -235,7 +235,7 @@ func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec Decode
 
 // readU16 returns the 2 b bytes as uint16 according the specified endianness
 func (p *decoderData) readU16(b []byte) uint16 {
-	if p.endian == LittleEndian {
+	if p.endian {
 		return binary.LittleEndian.Uint16(b)
 	}
 	return binary.BigEndian.Uint16(b)
@@ -243,7 +243,7 @@ func (p *decoderData) readU16(b []byte) uint16 {
 
 // readU32 returns the 4 b bytes as uint32 according the specified endianness
 func (p *decoderData) readU32(b []byte) uint32 {
-	if p.endian == LittleEndian {
+	if p.endian {
 		return binary.LittleEndian.Uint32(b)
 	}
 	return binary.BigEndian.Uint32(b)
@@ -251,7 +251,7 @@ func (p *decoderData) readU32(b []byte) uint32 {
 
 // readU64 returns the 8 b bytes as uint64 according the specified endianness
 func (p *decoderData) readU64(b []byte) uint64 {
-	if p.endian == LittleEndian {
+	if p.endian {
 		return binary.LittleEndian.Uint64(b)
 	}
 	return binary.BigEndian.Uint64(b)

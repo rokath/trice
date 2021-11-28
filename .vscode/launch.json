@@ -203,6 +203,23 @@
             ]
         },
         {
+            "name": "l -p COM6 -testTable",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}/cmd/trice",
+            "env": {},
+            "args": ["log",
+                    "-til",
+                    "${workspaceFolder}/til.json",
+                     "-p",
+                     "COM6",
+                     "-ttsf",
+                     "",
+                     "-testTable"
+            ]
+        },        
+        {
             "name": "update",
             "type": "go",
             "request": "launch",
