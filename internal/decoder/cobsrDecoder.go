@@ -48,7 +48,7 @@ func decodeCOBS(wr, rd []byte) int {
 	if len(wr) < len(rd) {
 		log.Fatalf("ERROR: len(wr) = %d < len(rd) = %d\n", len(wr), len(rd))
 	}
-	d := cobs.Decode(rd) // to do: avoid allocation
+	d := cobs.Decode(rd) // todo: avoid allocation
 	if d == nil {
 		return 0
 	}
@@ -179,7 +179,7 @@ func (p *COBS) Read(b []byte) (n int, err error) {
 		initialCycle = false
 	}
 	if cycle == 0xc0 && p.cycle != 0xc0 && initialCycle == false { // with cycle counter and seems to be a target reset
-		//n += copy(b[n:], fmt.Sprintln("info:   Target Reset?   ")) // to do: This line is ok with cycle counter but not without cycle counter
+		//n += copy(b[n:], fmt.Sprintln("info:   Target Reset?   ")) // todo: This line is ok with cycle counter but not without cycle counter
 		p.cycle = cycle + 1 // adjust cycle
 	}
 	if cycle == 0xc0 && p.cycle == 0xc0 && initialCycle == true { // with or without cycle counter and seems to be a target reset

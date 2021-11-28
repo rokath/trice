@@ -66,7 +66,11 @@ var (
 	matchIDInsideTrice         = regexp.MustCompile(patIDInsideTrice)
 	matchAnyTriceStart         = regexp.MustCompile(patAnyTriceStart)
 	ExtendMacrosWithParamCount bool
-	DefaultTriceBitWidth       = "32" // to do: create compiler switch for other options "8", "16", "32", "64"
+
+	// DefaultTriceBitWidth tells the bit width of TRICE macros having no bit width in their names, like TRICE32 or TRICE8.
+	//
+	// One target can use only one bith width for bare TRICE macros and the setting inside the target code must match DefaultTriceBitWidth.
+	DefaultTriceBitWidth = "32" // todo: create compiler switch for other options "8", "16", "32", "64"
 )
 
 // updateParamCountAndID0 stays in text as long as trice statements are found.
@@ -133,10 +137,10 @@ func updateParamCountAndID0(text string, extendMacroName bool) (string, bool) {
 // FormatSpecifierCount parses s for format specifier and returns the found count.
 func FormatSpecifierCount(s string) (count int) {
 	xs := "any"
-	for "" != xs {
+	for xs != "" {
 		lo := matchNextFormatSpecifier.FindStringIndex(s)
 		xs = matchNextFormatSpecifier.FindString(s)
-		if "" != xs { // found
+		if xs != "" { // found
 			count++
 			s = s[lo[1]:]
 		} else {
@@ -268,7 +272,7 @@ func visitUpdate(lu TriceIDLookUp, tflu TriceFmtLookUp, pListModified *bool) fil
 // nbID is the extracted string part containing 'Id(n)'.
 func triceIDParse(t string) (nbID string, id TriceID, found bool) {
 	nbID = matchNbID.FindString(t)
-	if "" == nbID {
+	if nbID == "" {
 		msg.InfoOnTrue(Verbose, fmt.Sprintln("No 'Id(n)' or 'id(n)' found inside "+t))
 		return
 	}
@@ -286,7 +290,7 @@ func triceIDParse(t string) (nbID string, id TriceID, found bool) {
 // triceFmtParse returns an extracted tf and found as true if t is s.th. like 'TRICE*( Id(n), "..." );'
 func triceFmtParse(t string) (tf TriceFmt, found bool) {
 	tf.Type = matchTypNameTRICE.FindString(t)
-	if "" == tf.Type {
+	if tf.Type == "" {
 		msg.Info(fmt.Sprintln("no 'TRICE*' found inside " + t))
 		return
 	}
@@ -338,7 +342,7 @@ func refreshIDs(text string, lu TriceIDLookUp, tflu TriceFmtLookUp) {
 		// - That typically happens after tf was changed in source but the id not.
 		// - Also the source file with id:tf could be added from a different project and refresh could not add it to lu because id is used differently.
 		// Without this check double used IDs are silently loose one of their usages, what is ok, but this way we get a warning.
-		if 0 != id {
+		if id != 0 {
 			if tfL, ok := lu[id]; ok { // found
 				tfL.Type = strings.ToUpper(tfL.Type)
 				if !reflect.DeepEqual(tfS, tfL) { // Lower case and upper case Type are not distinguished.
@@ -424,13 +428,6 @@ func updateIDsUniqOrShared(sharedIDs bool, min, max TriceID, searchMethod string
 	}
 }
 
-func isShortTrice(tf TriceFmt) bool {
-	if 'T' == tf.Type[0] && 'r' == tf.Type[1] {
-		return true
-	}
-	return false
-}
-
 // ZeroSourceTreeIds is overwriting with 0 all id's from source code tree srcRoot. It does not touch idlist.
 func ZeroSourceTreeIds(srcRoot string, run bool) {
 	err := filepath.Walk(srcRoot, visitZeroSourceTreeIds(run))
@@ -474,12 +471,12 @@ func visitZeroSourceTreeIds(run bool) filepath.WalkFunc {
 		for {
 			var found bool
 			found, modified, subs, s = zeroNextID(modified, subs, s)
-			if false == found {
+			if !found {
 				break
 			}
 		}
 
-		if modified && true == run {
+		if modified && run {
 			err = ioutil.WriteFile(path, []byte(s), 0)
 		}
 		return err
@@ -497,7 +494,7 @@ func zeroNextID(modified bool, subs, s string) (bool, bool, string, string) {
 	}
 	nbTRICE := subs[loc[0]:loc[1]]
 	nbID := matchNbID.FindString(nbTRICE)
-	if "" == nbID {
+	if nbID == "" {
 		msg.Info(fmt.Sprintln("No 'Id(n)' found inside " + nbTRICE))
 		return false, modified, subs, s
 	}

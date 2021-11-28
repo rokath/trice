@@ -68,6 +68,6 @@ type TriceIDLookUp map[TriceID]TriceFmt
 // It is derived from IDLookUp reversing it and can be used during SharedUpdate of src tree.
 // Example: A:1, !C:5, C:7 (C.7 will overwrite C:5)
 // If in source code equal TriceFmt's have different IDs they are not touched.
-// If an additional equal TriceFmt occures without ID it gets one of the already for this format string used IDs.
-// This is the default. For forcing different IDs on equal Fmt's a SolitaryUpdate function is needed. (to do)
+// If an additional equal TriceFmt occures without ID it gets one of the already for this format string used IDs
+// (-sharedIDs=true) or a new one (-sharedIDs=false)(default).
 type TriceFmtLookUp map[TriceFmt]TriceID

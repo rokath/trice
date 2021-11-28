@@ -68,7 +68,6 @@ func updateList(lu TriceIDLookUp) error {
 
 	// listModified does not help here, because it indicates that some sources are updated and therefore the list needs an update too.
 	// But here we are only scanning the source tree, so if there would be some changes they are not relevant because sources are not changed here.
-	// And if all
 	eq := reflect.DeepEqual(lu0, lu)
 
 	if Verbose {
@@ -78,7 +77,7 @@ func updateList(lu TriceIDLookUp) error {
 		msg.FatalOnErr(lu.toFile(FnJSON))
 	}
 
-	return nil // SubCmdUpdate() // to do
+	return nil // SubCmdUpdate() // todo?
 }
 
 // SubCmdUpdate is sub-command update
@@ -99,7 +98,7 @@ func SubCmdUpdate(w io.Writer) error {
 }
 
 func walkSrcs(f func(root string, lu TriceIDLookUp, tflu TriceFmtLookUp, pListModified *bool), lu TriceIDLookUp, tflu TriceFmtLookUp, pListModified *bool) {
-	if 0 == len(Srcs) {
+	if len(Srcs) == 0 {
 		Srcs = append(Srcs, "./") // default value
 	}
 	for i := range Srcs {

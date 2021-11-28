@@ -1,4 +1,4 @@
-# `trice` config file *trice.conf.json* (to do)
+# `trice` config file *trice.conf.json* (todo)
 
 ## Reading stuff
 
