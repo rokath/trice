@@ -34,10 +34,12 @@ package receiver
 
 import (
 	"bytes"
+	"encoding/hex"
 	"fmt"
 	"io"
 	"io/ioutil"
 	"strings"
+	"unicode"
 
 	"github.com/rokath/trice/internal/com"
 	"github.com/rokath/trice/internal/link"
@@ -55,7 +57,37 @@ var (
 	PortArguments string
 )
 
-// scanBytes assumes in s whitespace separated decimal numbers between 0 and 255 and returns them in buf
+// spaceStringsBuilder returns str without whitespaces.
+//
+// Code cpoied from https://stackoverflow.com/questions/32081808/strip-all-whitespace-from-a-string
+func spaceStringsBuilder(str string) string {
+	var b strings.Builder
+	b.Grow(len(str))
+	for _, ch := range str {
+		if !unicode.IsSpace(ch) {
+			b.WriteRune(ch)
+		}
+	}
+	return b.String()
+}
+
+// removeWhitespaces returns s without whitespaces.
+func removeWhitespaces(s string) string {
+	return spaceStringsBuilder(s)
+}
+
+// scanHexDump expects in s 2-bytes hexadecimal characters groups, optionally whitespace or comma separated like "09 a1 fe", and returns them as buf.
+//
+// s is expected to be a space separated hex print like "09 a1 fe"
+func scanHexDump(s string) (buf []byte, e error) {
+	s = strings.ReplaceAll(s, ",", " ")
+	s = removeWhitespaces(s)
+	return hex.DecodeString(s)
+}
+
+// scanBytes assumes in s whitespace separated decimal numbers between 0 and 255 and returns them in buf.
+//
+// TODO: improve code.
 func scanBytes(s string) (buf []byte) {
 	s = strings.ReplaceAll(s, ",", " ")
 	s = strings.ReplaceAll(s, "\t", " ")
@@ -77,7 +109,8 @@ func scanBytes(s string) (buf []byte) {
 // NewReadCloser returns a ReadCloser for the specified port and its args.
 // err is nil on successful open.
 // When port is "COMn" args can be used to be "TARM" to use a different driver for dynamic testing.
-// When port is "BUFFER", args is expected to be a byte sequence in the same format as for example coming from one of the other ports.
+// When port is "DUMP", args is expected to be a space or comma separated hex print like "09 a1 fe"
+// When port is "BUFFER", args is expected to be a decimal byte sequence in the same format as for example coming from one of the other ports.
 // When port is "JLINK" args contains JLinkRTTLogger.exe specific parameters described inside UM08001_JLink.pdf.
 // When port is "STLINK" args has the same format as for "JLINK"
 func NewReadCloser(w io.Writer, verbose bool, port, args string) (r io.ReadCloser, err error) {
@@ -88,9 +121,16 @@ func NewReadCloser(w io.Writer, verbose bool, port, args string) (r io.ReadClose
 			err = fmt.Errorf("can not open link device %s with args %s", port, args)
 		}
 		r = l
+		return
+	case "DUMP":
+		var buf []byte
+		buf, err = scanHexDump(args)
+		r = ioutil.NopCloser(bytes.NewBuffer(buf))
+		return
 	case "BUFFER":
 		buf := scanBytes(args)
 		r = ioutil.NopCloser(bytes.NewBuffer(buf))
+		return
 	default: // assuming serial port
 		var c com.COMport   // interface type
 		if "TARM" == args { // for comparing dynamic behaviour
@@ -104,7 +144,6 @@ func NewReadCloser(w io.Writer, verbose bool, port, args string) (r io.ReadClose
 		r = c
 		return
 	}
-	return
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
