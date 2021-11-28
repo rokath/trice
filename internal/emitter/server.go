@@ -20,10 +20,10 @@ import (
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // This code was derived from the information in:
 // https://stackoverflow.com/questions/37122401/execute-another-go-program-from-within-a-golang-program/37123869#37123869
-// "4 - another way is using "net/rpc", this is best way for calling another function from another program."
+// "4 - another way is using "net/rpc", this is the best way for calling another function from another program."
 //
 
-// Server is the RPC struct for registered server dunctions
+// Server is the RPC struct for registered server functions
 type Server struct {
 	Display ColorDisplay // todo: LineWriter?
 }
@@ -52,7 +52,7 @@ func (p *Server) LogSetFlags(f []int64, r *int64) error {
 	return nil
 }
 
-// Shutdown is called remotely to shutdown display server
+// Shutdown is called remotely to shut down display server
 func (p *Server) Shutdown(ts []int64, _ *int64) error {
 	timeStamp := ts[0]
 	p.Display.writeLine([]string{""})
@@ -75,7 +75,7 @@ var (
 	// exit is usually false, when true the display server exits
 	exit = false
 
-	// conn is used only inside ScDisplayServer bute here for Shutdown() trials
+	// conn is used only inside ScDisplayServer but here for Shutdown() trials
 	conn net.Conn
 
 	// listener is needed for shutdown

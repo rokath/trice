@@ -20,15 +20,17 @@ import (
 // COBS is the Decoding instance for COBS encoded trices.
 type COBS struct {
 	decoderData
-	cycle              uint8
-	COBSModeDescriptor uint32
+	cycle              uint8  // cycle date: c0...bf
+	COBSModeDescriptor uint32 // 0: no target timestamps, 1: target timestamps exist
+	pFmt               string // modified trice format string: %u -> %d
+	u                  []bool // modified format string positions:  %u -> %d
 }
 
-// NewCOBSRDecoder provides an EscDecoder instance.
+// NewCOBSDecoder provides an EscDecoder instance.
 //
 // l is the trice id list in slice of struct format.
 // in is the usable reader for the input bytes.
-func NewCOBSRDecoder(w io.Writer, lut id.TriceIDLookUp, m *sync.RWMutex, in io.Reader, endian bool) Decoder {
+func NewCOBSDecoder(w io.Writer, lut id.TriceIDLookUp, m *sync.RWMutex, in io.Reader, endian bool) Decoder {
 	p := &COBS{}
 	p.cycle = 0xc0 // start value
 	p.w = w
@@ -89,6 +91,9 @@ func (p *COBS) nextCOBSpackage() {
 			// In case of file input (J-LINK usage) a plug off is not detectable here.
 			return // no terminating 0, nothing to do
 		}
+	}
+	if TestTableMode {
+		p.printTestTableLine(index + 1)
 	}
 	// here a complete COBS package exists
 	if DebugOut { // Debug output
@@ -174,21 +179,21 @@ func (p *COBS) Read(b []byte) (n int, err error) {
 
 	// cycle counter automatic & check
 	cycle := uint8(head)
-	if cycle == 0xc0 && p.cycle != 0xc0 && initialCycle == true { // with cycle counter and seems to be a target reset
+	if cycle == 0xc0 && p.cycle != 0xc0 && initialCycle { // with cycle counter and seems to be a target reset
 		n += copy(b[n:], fmt.Sprintln("warning:   Target Reset?   "))
 		p.cycle = cycle + 1 // adjust cycle
 		initialCycle = false
 	}
-	if cycle == 0xc0 && p.cycle != 0xc0 && initialCycle == false { // with cycle counter and seems to be a target reset
+	if cycle == 0xc0 && p.cycle != 0xc0 && !initialCycle { // with cycle counter and seems to be a target reset
 		//n += copy(b[n:], fmt.Sprintln("info:   Target Reset?   ")) // todo: This line is ok with cycle counter but not without cycle counter
 		p.cycle = cycle + 1 // adjust cycle
 	}
-	if cycle == 0xc0 && p.cycle == 0xc0 && initialCycle == true { // with or without cycle counter and seems to be a target reset
+	if cycle == 0xc0 && p.cycle == 0xc0 && initialCycle { // with or without cycle counter and seems to be a target reset
 		//n += copy(b[n:], fmt.Sprintln("warning:   Restart?   "))
 		p.cycle = cycle + 1 // adjust cycle
 		initialCycle = false
 	}
-	if cycle == 0xc0 && p.cycle == 0xc0 && initialCycle == false { // with or without cycle counter and seems to be a normal case
+	if cycle == 0xc0 && p.cycle == 0xc0 && !initialCycle { // with or without cycle counter and seems to be a normal case
 		p.cycle = cycle + 1 // adjust cycle
 	}
 	if cycle != 0xc0 { // with cycle counter and s.th. lost
@@ -239,6 +244,12 @@ func (p *COBS) Read(b []byte) (n int, err error) {
 	return
 }
 
+// formatSpecifierCount returns amount of found format specifiers in s
+func formatSpecifierCount(s string) int {
+	_, u := uReplaceN(s)
+	return len(u)
+}
+
 // sprintTrice writes a trice string or appropriate message into b and returns that len.
 func (p *COBS) sprintTrice(b []byte) (n int) {
 
@@ -247,16 +258,20 @@ func (p *COBS) sprintTrice(b []byte) (n int) {
 		cobsFunctionPtrList[0].paramSpace = (p.sLen + 7) & ^3 // +4 for 4 bytes sLen, +3^3 is alignment to 4
 	}
 
+	p.pFmt, p.u = uReplaceN(p.trice.Strg)
+
 	var triceType string
 
 	if strings.HasPrefix(p.trice.Type, "TRICE_") {
-		triceType = "TRICE32_" + p.trice.Type[6:]
-		//x := formatSpecifierCount(p.trice.Strg)
-		//triceType = fmt.Sprintf("TRICE32_"+"_%d", x) // append count
+		triceType = "TRICE" + id.DefaultTriceBitWidth + "_" + p.trice.Type[6:]
 	}
 
 	if p.trice.Type == "TRICE" {
 		triceType = "TRICE0"
+	}
+
+	if p.trice.Type == "TRICE8" || p.trice.Type == "TRICE16" || p.trice.Type == "TRICE32" || p.trice.Type == "TRICE64" {
+		p.trice.Type = fmt.Sprintf(p.trice.Type+"_%d", len(p.u)) // append count
 	}
 
 	for _, s := range cobsFunctionPtrList {
@@ -360,22 +375,21 @@ func (p *COBS) trice0(b []byte, _ int, _ int) int {
 	return copy(b, fmt.Sprintf(p.trice.Strg))
 }
 
-// formatSpecifierCount returns amount of found format specifiers in s
-func formatSpecifierCount(s string) int {
-	_, u := uReplaceN(s)
-	return len(u)
-}
+//  // formatSpecifierCount returns amount of found format specifiers in s
+//  func formatSpecifierCount(s string) int {
+//  	_, u := uReplaceN(s)
+//  	return len(u)
+//  }
 
 // unSignedOrSignedOut prints p.b according to the format string.
 func (p *COBS) unSignedOrSignedOut(b []byte, bitwidth, count int) int {
-	pFmt, u := uReplaceN(p.trice.Strg)
-	if len(u) != count {
+	if len(p.u) != count {
 		return copy(b, fmt.Sprintln("ERROR: Invalid format specifier count inside", p.trice.Type, p.trice.Strg))
 	}
 	v := make([]interface{}, 1000) // theoretical 1000 bytes could arrive
 	switch bitwidth {
 	case 8:
-		for i, f := range u {
+		for i, f := range p.u {
 			if f {
 				v[i] = uint8(p.b[i])
 			} else {
@@ -383,7 +397,7 @@ func (p *COBS) unSignedOrSignedOut(b []byte, bitwidth, count int) int {
 			}
 		}
 	case 16:
-		for i, f := range u {
+		for i, f := range p.u {
 			n := p.readU16(p.b[2*i:])
 			if f {
 				v[i] = n
@@ -392,7 +406,7 @@ func (p *COBS) unSignedOrSignedOut(b []byte, bitwidth, count int) int {
 			}
 		}
 	case 32:
-		for i, f := range u {
+		for i, f := range p.u {
 			n := p.readU32(p.b[4*i:])
 			if f {
 				v[i] = n
@@ -401,7 +415,7 @@ func (p *COBS) unSignedOrSignedOut(b []byte, bitwidth, count int) int {
 			}
 		}
 	case 64:
-		for i, f := range u {
+		for i, f := range p.u {
 			n := p.readU64(p.b[8*i:])
 			if f {
 				v[i] = n
@@ -410,5 +424,19 @@ func (p *COBS) unSignedOrSignedOut(b []byte, bitwidth, count int) int {
 			}
 		}
 	}
-	return copy(b, fmt.Sprintf(pFmt, v[:len(u)]...))
+	return copy(b, fmt.Sprintf(p.pFmt, v[:len(p.u)]...))
+}
+
+var testTableVirgin = true
+
+// printTestTableLine is used to generate testdata
+func (p *COBS) printTestTableLine(n int) {
+	if emitter.NextLine || testTableVirgin {
+		emitter.NextLine = false
+		testTableVirgin = false
+		fmt.Printf("{ []byte{ ")
+	}
+	for _, b := range p.iBuf[0:n] { // just to see trice bytes per trice
+		fmt.Printf("%3d,", b)
+	}
 }

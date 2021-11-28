@@ -115,8 +115,8 @@ type LineWriter interface {
 
 // newLineWriter provides a LineWriter which can be a remote Display or the local console.
 func newLineWriter(w io.Writer) (lwD LineWriter) {
-	if true == DisplayRemote {
-		var p *RemoteDisplay
+	if DisplayRemote {
+		//var p *RemoteDisplay
 		//  var args []string
 		//  if true == Autostart {
 		//  	args = []string{"alacritty", "-e"}
@@ -124,7 +124,7 @@ func newLineWriter(w io.Writer) (lwD LineWriter) {
 		//  } else {
 		//  	args = os.Args
 		//  }
-		p = NewRemoteDisplay(w, os.Args)
+		p := NewRemoteDisplay(w, os.Args)
 		msg.FatalOnErr(p.Err)
 		lwD = p
 		// keybcmd.ReadInput()
