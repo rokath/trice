@@ -234,5 +234,3 @@ func _Example_doit_f() {
 	// ... TRICE0( Id(0), "tata");...
 	// Id(100)  ->  Id(0)
 }
-
-// todo: improve parser: Tab am Anfang, Semikolon am Ende, id vs Id, mehrere in einer Zeile testen, alle Varianten in Liste

@@ -623,6 +623,10 @@
 		"Type": "TRICE32_4",
 		"Strg": "tst:TRICE32_4 %u %u %u %u\\n"
 	},
+	"50491": {
+		"Type": "TRICE",
+		"Strg": "na"
+	},
 	"50551": {
 		"Type": "TRICE8_4",
 		"Strg": "tst:TRICE8_4 %02x %02x %02x %02x\\n"
