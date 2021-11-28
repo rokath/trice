@@ -7,6 +7,7 @@ package emitter
 
 import (
 	"fmt"
+	"io"
 	"strings"
 	"unicode"
 
@@ -110,14 +111,14 @@ func ColorChannelEvents(ch string) int {
 }
 
 // PrintColorChannelEvents shows the amount of occurred channel events.
-func PrintColorChannelEvents() {
+func PrintColorChannelEvents(w io.Writer) {
 	for _, s := range ColorChannels {
 		if s.events != 0 {
-			fmt.Printf("%6d times: ", s.events)
+			fmt.Fprintf(w, "%6d times: ", s.events)
 			for _, c := range s.channel {
-				fmt.Print(c, " ")
+				fmt.Fprint(w, c, " ")
 			}
-			fmt.Println("")
+			fmt.Fprintln(w, "")
 		}
 	}
 }

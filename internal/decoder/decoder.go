@@ -110,6 +110,7 @@ type Decoder interface {
 
 // decoderData is the common data struct for all decoders.
 type decoderData struct {
+	w                 io.Writer        // io.Stdout or the like
 	in                io.Reader        // in is the inner reader, which is used to get raw bytes
 	iBuf              []byte           // iBuf holds unprocessed (raw) bytes for interpretation.
 	b                 []byte           // read buffer holds a single decoded COBS package, which can contain several trices.
@@ -122,63 +123,6 @@ type decoderData struct {
 	trice             id.TriceFmt      // id.TriceFmt // received trice
 	lastInnerRead     time.Time
 	innerReadInterval time.Duration
-}
-
-// DUMP is the Decoding instance for DUMP encoded trices.
-type DUMP struct {
-	decoderData
-	dumpCnt int
-}
-
-// NewDUMPDecoder provides a hex dump option for incoming bytes.
-func NewDUMPDecoder(lut id.TriceIDLookUp, m *sync.RWMutex, in io.Reader, endian bool) Decoder {
-	p := &DUMP{}
-	p.in = in
-	p.iBuf = make([]byte, 0, defaultSize)
-	p.lut = lut
-	p.lutMutex = m
-	p.endian = endian
-	return p
-}
-
-func (p *DUMP) Read(b []byte) (n int, err error) {
-	bb := make([]byte, 1024)
-	m, err := p.in.Read(bb)
-	for _, x := range bb[:m] {
-		//n += copy(b, fmt.Sprintf("%02x ", uint8(x))) // somehow buggy
-		fmt.Printf("%02X ", uint8(x)) // workaround
-		p.dumpCnt++
-		if p.dumpCnt == DumpLineByteCount {
-			//n += copy(b, fmt.Sprintln("")) // somehow buggy
-			fmt.Println("") // workaround
-			p.dumpCnt = 0
-		}
-	}
-	//fmt.Printf("m=%d, n=%d\n\n", m, n) // for debug
-	return n, err
-}
-
-// CHAR is the Decoding instance for DUMP encoded trices.
-type CHAR struct {
-	decoderData
-}
-
-// NewCHARDecoder provides a character terminal output option for the trice tool.
-func NewCHARDecoder(lut id.TriceIDLookUp, m *sync.RWMutex, in io.Reader, endian bool) Decoder {
-	p := &CHAR{}
-	p.in = in
-	p.iBuf = make([]byte, 0, defaultSize)
-	p.lut = lut
-	p.lutMutex = m
-	p.endian = endian
-	return p
-}
-
-func (p *CHAR) Read(b []byte) (n int, err error) {
-	bb := make([]byte, 256)
-	m, err := p.in.Read(bb)
-	fmt.Print(string(bb[:m]))
-	return n, err
 }
 
 // setInput allows switching the input stream to a different source.
@@ -200,7 +144,7 @@ func handleSIGTERM(w io.Writer, rc io.ReadCloser) {
 			if Verbose {
 				fmt.Fprintln(w, "####################################", sig, "####################################")
 			}
-			emitter.PrintColorChannelEvents()
+			emitter.PrintColorChannelEvents(w)
 			msg.FatalOnErr(rc.Close())
 			os.Exit(0) // end
 		case <-ticker.C:
@@ -216,7 +160,7 @@ func handleSIGTERM(w io.Writer, rc io.ReadCloser) {
 func Translate(w io.Writer, sw *emitter.TriceLineComposer, lut id.TriceIDLookUp, m *sync.RWMutex, rc io.ReadCloser) error {
 	var dec Decoder //io.Reader
 	if Verbose {
-		fmt.Println("Encoding is", Encoding)
+		fmt.Fprintln(w, "Encoding is", Encoding)
 	}
 	var endian bool
 	switch TargetEndianess {
@@ -229,25 +173,20 @@ func Translate(w io.Writer, sw *emitter.TriceLineComposer, lut id.TriceIDLookUp,
 	}
 	switch strings.ToUpper(Encoding) {
 	case "COBS":
-		dec = NewCOBSRDecoder(lut, m, rc, endian)
-	//case "COBS/R", "COBSR":
+		dec = NewCOBSRDecoder(w, lut, m, rc, endian)
 	case "CHAR":
-		dec = NewCHARDecoder(lut, m, rc, endian)
+		dec = NewCHARDecoder(w, lut, m, rc, endian)
 	case "DUMP":
-		dec = NewDUMPDecoder(lut, m, rc, endian)
-	//  case "ESC":
-	//  	dec = NewEscDecoder(lut, m, rc, endian)
-	//  case "FLEX":
-	//  	dec = NewFlexDecoder(lut, m, rc, endian)
+		dec = NewDUMPDecoder(w, lut, m, rc, endian)
 	default:
 		log.Fatalf(fmt.Sprintln("unknown encoding ", Encoding))
 	}
 	go handleSIGTERM(w, rc)
-	return decodeAndComposeLoop(sw, dec)
+	return decodeAndComposeLoop(w, sw, dec)
 }
 
 // decodeAndComposeLoop does not return.
-func decodeAndComposeLoop(sw *emitter.TriceLineComposer, dec Decoder) error {
+func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec Decoder) error {
 	b := make([]byte, defaultSize) // intermediate trice string buffer
 	for {
 		n, err := dec.Read(b) // Code to measure
@@ -256,7 +195,7 @@ func decodeAndComposeLoop(sw *emitter.TriceLineComposer, dec Decoder) error {
 				return err
 			}
 			if Verbose {
-				fmt.Println(err, "-> WAITING...")
+				fmt.Fprintln(w, err, "-> WAITING...")
 			}
 			continue // read again
 		}
@@ -288,7 +227,7 @@ func decodeAndComposeLoop(sw *emitter.TriceLineComposer, dec Decoder) error {
 		m, err := sw.Write(b[:n])
 		duration := time.Since(start).Milliseconds()
 		if duration > 100 {
-			fmt.Println("TriceLineComposer.Write duration =", duration, "ms.")
+			fmt.Fprintln(w, "TriceLineComposer.Write duration =", duration, "ms.")
 		}
 		msg.InfoOnErr(err, fmt.Sprintln("sw.Write wrote", m, "bytes"))
 	}

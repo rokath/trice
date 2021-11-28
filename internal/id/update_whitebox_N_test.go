@@ -3,6 +3,7 @@
 package id
 
 import (
+	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -476,7 +477,7 @@ func TestVariadicInsertId0(t *testing.T) {
 
 func checkTestTable(t *testing.T, tt []struct{ text, exp string }, extend bool) {
 	for _, x := range tt {
-		act, _ := updateParamCountAndID0(x.text, extend)
+		act, _ := updateParamCountAndID0(os.Stdout, x.text, extend)
 		assert.Equal(t, x.exp, act)
 	}
 }
