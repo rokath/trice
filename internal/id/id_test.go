@@ -6,6 +6,7 @@ package id
 
 import (
 	"math/rand"
+	"os"
 	"testing"
 
 	"github.com/tj/assert"

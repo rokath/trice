@@ -67,18 +67,6 @@ func (p *Server) Shutdown(ts []int64, _ *int64) error {
 	defer func() {
 		msg.OnErr(listener.Close())
 		exit = true // do not set true before closing listener, otherwise panic!
-		//  // no need for this code
-		//  if nil != conn {
-		//  	fmt.Println("Calling net.Conn conn.Close()...")
-		//  	err = conn.Close()
-		//  	if nil != err {
-		//  		fmt.Println(err)
-		//  	} else {
-		//  		fmt.Println("Calling conn.Close()...done")
-		//  	}
-		//  } else {
-		//  	fmt.Println("'conn' is nil, cannot call conn.Close()")
-		//  }
 	}()
 	return nil
 }
@@ -103,22 +91,20 @@ func ScDisplayServer(w io.Writer) error {
 	a := fmt.Sprintf("%s:%s", IPAddr, IPPort)
 	fmt.Fprintln(w, "displayServer @", a)
 	srv := new(Server)
-	srv.Display = *NewColorDisplay(ColorPalette)
+	srv.Display = *NewColorDisplay(w, ColorPalette)
 	msg.OnErr(rpc.Register(srv))
 	var err error
 	listener, err = net.Listen("tcp", a)
 	if nil != err {
-		fmt.Println(err)
+		fmt.Fprintln(w, err)
 		return err
 	}
 	for {
 		conn, err = listener.Accept()
 		if nil != err {
 			if true == exit {
-				//fmt.Println("exit...done")
 				return err
 			}
-			//fmt.Println(err)
 			continue
 		}
 		go rpc.ServeConn(conn)

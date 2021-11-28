@@ -9,6 +9,7 @@ package id
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"math/rand"
 	"os"
@@ -18,14 +19,14 @@ import (
 )
 
 // NewLut returns a look-up map generated from JSON map file named fn.
-func NewLut(fn string) TriceIDLookUp {
+func NewLut(w io.Writer, fn string) TriceIDLookUp {
 	lu := make(TriceIDLookUp)
 	if fn == "emptyFile" { // reserved name for tests only
 		return lu
 	}
 	msg.FatalOnErr(lu.fromFile(fn))
+		fmt.Fprintln(w, "Read ID List file", fn, "with", len(lu), "items.")
 	if Verbose {
-		fmt.Println("Read ID List file", fn, "with", len(lu), "items.")
 	}
 	return lu
 }
@@ -33,13 +34,13 @@ func NewLut(fn string) TriceIDLookUp {
 // newID() gets a new ID not used so far.
 // The delivered id is usable as key for lu, but not added. So calling fn twice without adding to lu could give the same value back.
 // It is important that lu was refreshed before with all sources to avoid finding as a new ID an ID which is already used in the source tree.
-func (lu TriceIDLookUp) newID(min, max TriceID, searchMethod string) TriceID {
+func (lu TriceIDLookUp) newID(w io.Writer, min, max TriceID, searchMethod string) TriceID {
 	if Verbose {
-		fmt.Println("IDMin=", min, "IDMax=", max, "IDMethod=", searchMethod)
+		fmt.Fprintln(w, "IDMin=", min, "IDMax=", max, "IDMethod=", searchMethod)
 	}
 	switch searchMethod {
 	case "random":
-		return lu.newRandomID(min, max)
+		return lu.newRandomID(w, min, max)
 	case "upward":
 		return lu.newUpwardID(min, max)
 	case "downward":
@@ -51,7 +52,7 @@ func (lu TriceIDLookUp) newID(min, max TriceID, searchMethod string) TriceID {
 
 // newRandomID provides a random free ID inside interval [min,max].
 // The delivered id is usable as key for lu, but not added. So calling fn twice without adding to lu could give the same value back.
-func (lu TriceIDLookUp) newRandomID(min, max TriceID) (id TriceID) {
+func (lu TriceIDLookUp) newRandomID(w io.Writer, min, max TriceID) (id TriceID) {
 	interval := int(max - min + 1)
 	freeIDs := interval - len(lu)
 	msg.FatalInfoOnFalse(freeIDs > 0, "no new ID possible, "+fmt.Sprint(min, max, len(lu)))
@@ -65,7 +66,7 @@ func (lu TriceIDLookUp) newRandomID(min, max TriceID) (id TriceID) {
 	nextTry:
 		for k := range lu {
 			if id == k { // id used
-				fmt.Println("ID", id, "used, next try...")
+				fmt.Fprintln(w, "ID", id, "used, next try...")
 				id = min + TriceID(rand.Intn(interval))
 				goto nextTry
 			}
@@ -137,13 +138,13 @@ func (lu TriceIDLookUp) fromFile(fn string) error {
 // example change:
 // `map[10000:{Trice8_2 hi %03u, %5x} 10001:{TRICE16 hi %03u, %5x}]
 // `map[10000:{Trice8_2 hi %03u, %5x} 10001:{TRICE16_2 hi %03u, %5x}]
-func (lu TriceIDLookUp) AddFmtCount() {
+func (lu TriceIDLookUp) AddFmtCount(w io.Writer) {
 	for i, x := range lu {
 		if strings.ContainsAny(x.Type, "0_") {
 			continue
 		}
 		n := FormatSpecifierCount(x.Strg)
-		x.Type = addFormatSpecifierCount(x.Type, n)
+		x.Type = addFormatSpecifierCount(w, x.Type, n)
 		lu[i] = x
 	}
 }
