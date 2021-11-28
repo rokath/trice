@@ -5,6 +5,7 @@ package receiver_test
 
 import (
 	"io"
+	"os"
 	"testing"
 
 	"github.com/rokath/trice/internal/receiver"
@@ -12,7 +13,8 @@ import (
 )
 
 func Test1(t *testing.T) {
-	rc, err := receiver.NewReadCloser("BUFFER", "7")
+	verbose := false
+	rc, err := receiver.NewReadCloser(os.Stdout, verbose, "BUFFER", "7")
 	assert.Nil(t, err)
 	b := make([]byte, 100)
 	n, err := rc.Read(b)

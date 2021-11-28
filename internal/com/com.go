@@ -7,6 +7,7 @@ package com
 
 import (
 	"fmt"
+	"io"
 	"time"
 
 	serialtarm "github.com/tarm/serial"
@@ -30,13 +31,15 @@ type COMport interface {
 
 // PortGoBugSt is a serial device trice receiver
 type PortGoBugSt struct {
+	verbose      bool
 	port         string
 	serialHandle serialgobugst.Port
 	serialMode   serialgobugst.Mode
+	w            io.Writer
 }
 
 // NewCOMPortGoBugSt creates an instance of a serial device type trice receiver
-func NewCOMPortGoBugSt(comPortName string) *PortGoBugSt {
+func NewCOMPortGoBugSt(w io.Writer, verbose bool, comPortName string) *PortGoBugSt {
 	r := &PortGoBugSt{
 		port: comPortName,
 		serialMode: serialgobugst.Mode{
@@ -46,8 +49,10 @@ func NewCOMPortGoBugSt(comPortName string) *PortGoBugSt {
 			StopBits: serialgobugst.OneStopBit,
 		},
 	}
-	if Verbose {
-		fmt.Println("NewCOMPortGoBugSt:", r)
+	r.w = w
+	r.verbose = verbose
+	if verbose {
+		fmt.Fprintln(w, "NewCOMPortGoBugSt:", r)
 	}
 	return r
 }
@@ -62,8 +67,8 @@ func (p *PortGoBugSt) Read(buf []byte) (int, error) {
 
 // Close releases port.
 func (p *PortGoBugSt) Close() error {
-	if Verbose {
-		fmt.Println("Closing GoBugSt COM port")
+	if p.verbose {
+		fmt.Fprintln(p.w, "Closing GoBugSt COM port")
 	}
 	return p.serialHandle.Close()
 }
@@ -75,8 +80,8 @@ func (p *PortGoBugSt) Open() bool {
 	var err error
 	p.serialHandle, err = serialgobugst.Open(p.port, &p.serialMode)
 	if err != nil {
-		if Verbose {
-			fmt.Println(err, "try 'trice s' to check for serial ports")
+		if p.verbose {
+			fmt.Fprintln(p.w, err, "try 'trice s' to check for serial ports")
 		}
 		return false
 	}
@@ -84,38 +89,42 @@ func (p *PortGoBugSt) Open() bool {
 }
 
 // GetSerialPorts scans for serial ports.
-func GetSerialPorts() ([]string, error) {
+func GetSerialPorts(w io.Writer) ([]string, error) {
 	ports, err := serialgobugst.GetPortsList()
 
 	if err != nil {
-		fmt.Println(err)
+		fmt.Fprintln(w, err)
 		return ports, err
 	}
 	if len(ports) == 0 {
-		fmt.Println("No serial ports found!")
+		fmt.Fprintln(w, "No serial ports found!")
 		return ports, err
 	}
 	for _, port := range ports {
-		fmt.Println("Found port: ", port)
+		fmt.Fprintln(w, "Found port: ", port)
 	}
 	return ports, err
 }
 
 // PortTarm is a serial device trice receiver.
 type PortTarm struct {
-	config serialtarm.Config
-	stream *serialtarm.Port
+	config  serialtarm.Config
+	stream  *serialtarm.Port
+	w       io.Writer
+	verbose bool
 }
 
 // NewCOMPortTarm creates an instance of a serial device type trice receiver.
-func NewCOMPortTarm(comPortName string) *PortTarm {
+func NewCOMPortTarm(w io.Writer, verbose bool, comPortName string) *PortTarm {
 	var p = new(PortTarm)
+	p.w = w
+	p.verbose = verbose
 	p.config.Name = comPortName
 	p.config.Baud = Baud
 	p.config.ReadTimeout = 100 * time.Millisecond
 	p.config.Size = 8
-	if Verbose {
-		fmt.Println("NewCOMPortTarm:", p.config)
+	if p.verbose {
+		fmt.Fprintln(w, "NewCOMPortTarm:", p.config)
 	}
 	return p
 }
@@ -125,9 +134,9 @@ func (p *PortTarm) Open() bool {
 	var err error
 	p.stream, err = serialtarm.OpenPort(&p.config)
 	if err != nil {
-		if Verbose {
-			fmt.Println(p.config.Name, "not found")
-			fmt.Println("try 'trice scan'")
+		if p.verbose {
+			fmt.Fprintln(p.w, p.config.Name, "not found")
+			fmt.Fprintln(p.w, "try 'trice scan'")
 		}
 		return false
 	}
@@ -136,8 +145,8 @@ func (p *PortTarm) Open() bool {
 
 // Close returns an error in case of failure.
 func (p *PortTarm) Close() error {
-	if Verbose {
-		fmt.Println("Closing Tarm COM port")
+	if p.verbose {
+		fmt.Fprintln(p.w, "Closing Tarm COM port")
 	}
 	return p.stream.Close()
 }

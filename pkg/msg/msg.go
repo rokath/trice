@@ -39,17 +39,6 @@ func FatalOnErr(err error) {
 	logMessage(pc, fn, line, ok, err)
 }
 
-//  // PanicInfoOnErr ends in panic if err not nil.
-//  func PanicInfoOnErr(err error, info string) {
-//  	if nil == err {
-//  		return
-//  	}
-//  	log.Println(info)
-//  	panic(err)
-//  }
-
-// InfoOnErr
-
 // InfoOnErr prints info and a common error message with location info when err is not nil.
 func InfoOnErr(err error, info string) {
 	if nil == err {

@@ -23,7 +23,7 @@ func ScZero(w io.Writer, SrcZ string, cmd *flag.FlagSet) error {
 		cmd.PrintDefaults()
 		return errors.New("no source tree root specified")
 	}
-	ZeroSourceTreeIds(SrcZ, !DryRun)
+	ZeroSourceTreeIds(w, SrcZ, !DryRun)
 	return nil
 }
 
@@ -35,8 +35,7 @@ func ScZero(w io.Writer, SrcZ string, cmd *flag.FlagSet) error {
 // SubCmdUpdate needs to know which IDs are used in the source tree to reliable add new IDs.
 func SubCmdReNewList(w io.Writer) (err error) {
 	lu := make(TriceIDLookUp)
-	// Do not perform lu.AddFmtCount() here.
-	return updateList(lu)
+	return updateList(w, lu)
 }
 
 // SubCmdRefreshList refreshes the trice id list parsing the source tree without changing any source file.
@@ -46,16 +45,15 @@ func SubCmdReNewList(w io.Writer) (err error) {
 // If any TRICE* is found without Id(n) or with Id(0) it is ignored.
 // SubCmdUpdate needs to know which IDs are used in the source tree to reliable add new IDs.
 func SubCmdRefreshList(w io.Writer) (err error) {
-	lu := NewLut(FnJSON)
-	// Do not perform lu.AddFmtCount() here.
-	return updateList(lu)
+	lu := NewLut(w, FnJSON)
+	return updateList(w, lu)
 }
 
-func refreshListAdapter(root string, lu TriceIDLookUp, tflu TriceFmtLookUp, _ *bool) {
-	refreshList(root, lu, tflu)
+func refreshListAdapter(w io.Writer, root string, lu TriceIDLookUp, tflu TriceFmtLookUp, _ *bool) {
+	refreshList(w, root, lu, tflu)
 }
 
-func updateList(lu TriceIDLookUp) error {
+func updateList(w io.Writer, lu TriceIDLookUp) error {
 	tflu := lu.reverse()
 
 	// keep a copy
@@ -64,14 +62,14 @@ func updateList(lu TriceIDLookUp) error {
 		lu0[k] = v
 	}
 	var listModified bool
-	walkSrcs(refreshListAdapter, lu, tflu, &listModified)
+	walkSrcs(w, refreshListAdapter, lu, tflu, &listModified)
 
 	// listModified does not help here, because it indicates that some sources are updated and therefore the list needs an update too.
 	// But here we are only scanning the source tree, so if there would be some changes they are not relevant because sources are not changed here.
 	eq := reflect.DeepEqual(lu0, lu)
 
 	if Verbose {
-		fmt.Println(len(lu0), " -> ", len(lu), "ID's in List", FnJSON)
+		fmt.Fprintln(w, len(lu0), " -> ", len(lu), "ID's in List", FnJSON)
 	}
 	if !eq && !DryRun {
 		msg.FatalOnErr(lu.toFile(FnJSON))
@@ -82,11 +80,11 @@ func updateList(lu TriceIDLookUp) error {
 
 // SubCmdUpdate is sub-command update
 func SubCmdUpdate(w io.Writer) error {
-	lu := NewLut(FnJSON)
+	lu := NewLut(w, FnJSON)
 	tflu := lu.reverse()
 	var listModified bool
 	o := len(lu)
-	walkSrcs(IDsUpdate, lu, tflu, &listModified)
+	walkSrcs(w, IDsUpdate, lu, tflu, &listModified)
 	if Verbose {
 		fmt.Fprintln(w, len(lu), "ID's in List", FnJSON, "listModified=", listModified)
 	}
@@ -97,7 +95,7 @@ func SubCmdUpdate(w io.Writer) error {
 	return nil
 }
 
-func walkSrcs(f func(root string, lu TriceIDLookUp, tflu TriceFmtLookUp, pListModified *bool), lu TriceIDLookUp, tflu TriceFmtLookUp, pListModified *bool) {
+func walkSrcs(w io.Writer, f func(w io.Writer, root string, lu TriceIDLookUp, tflu TriceFmtLookUp, pListModified *bool), lu TriceIDLookUp, tflu TriceFmtLookUp, pListModified *bool) {
 	if len(Srcs) == 0 {
 		Srcs = append(Srcs, "./") // default value
 	}
@@ -105,11 +103,11 @@ func walkSrcs(f func(root string, lu TriceIDLookUp, tflu TriceFmtLookUp, pListMo
 		s := Srcs[i]
 		srcU := ConditionalFilePath(s)
 		if _, err := os.Stat(srcU); err == nil { // path exists
-			f(srcU, lu, tflu, pListModified)
+			f(w, srcU, lu, tflu, pListModified)
 		} else if os.IsNotExist(err) { // path does *not* exist
-			fmt.Println(s, " -> ", srcU, "does not exist!")
+			fmt.Fprintln(w, s, " -> ", srcU, "does not exist!")
 		} else {
-			fmt.Println(s, "Schrodinger: file may or may not exist. See err for details.")
+			fmt.Fprintln(w, s, "Schrodinger: file may or may not exist. See err for details.")
 			// Therefore, do *NOT* use !os.IsNotExist(err) to test for file existence
 			// https://stackoverflow.com/questions/12518876/how-to-check-if-a-file-exists-in-go
 		}

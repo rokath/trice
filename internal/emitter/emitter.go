@@ -129,7 +129,7 @@ func newLineWriter(w io.Writer) (lwD LineWriter) {
 		lwD = p
 		// keybcmd.ReadInput()
 	} else {
-		lwD = NewColorDisplay(ColorPalette)
+		lwD = NewColorDisplay(w, ColorPalette)
 	}
 	return
 }
