@@ -48,10 +48,10 @@ func doTableTest(t *testing.T, f newDecoder, endianness bool, teTa testTable) {
 			if "" != ShowID && lineStart {
 				act += fmt.Sprintf(ShowID, LastTriceID)
 			}
-			a := fmt.Sprint(string(buf[:n]))
-			if emitter.SyncPacketPattern != a { // to do: Handle ShowID in that case.
-				act += a // ignore sync packets
-			}
+			// a := fmt.Sprint(string(buf[:n]))
+			// if emitter.SyncPacketPattern != a { // todo: Handle ShowID in that case.
+			// 	act += a // ignore sync packets
+			// }
 			lineStart = false
 		}
 		act = strings.TrimSuffix(act, "\\n")

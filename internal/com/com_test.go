@@ -12,11 +12,12 @@ import (
 	"github.com/tj/assert"
 )
 
-// To do: handle special cases:
+// todo: handle special cases: (may be with a kind of COM-port simulator)
 //
-//	PS C:\repos\trice> trice s
+//	trice s
 //	Could not enumerate serial ports
-//	PS C:\repos\trice> trice s
+//
+//	trice s
 //	No serial ports found!
 //
 // A normal case:

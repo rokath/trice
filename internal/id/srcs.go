@@ -31,7 +31,7 @@ func (i *ArrayFlag) Set(value string) error {
 
 // ConditionalFilePath returns absolute file path if fn is not "off" or "none".
 func ConditionalFilePath(fn string) string {
-	if "none" == fn || "off" == fn {
+	if fn == "none" || fn == "off" {
 		return fn
 	}
 	s, err := filepath.Abs(fn)
