@@ -356,7 +356,7 @@ func TestHelpRefresh(t *testing.T) {
               This command should be run on adding souce files to the project before the first time "trice update" is called.
               If the new source files contain TRICE macros with IDs these are added to til.json if not already used.
               Already used IDs are reported, so you have the chance to remnove them from til.son and then do "trice u" again.
-              This way you can make sure to get the new sources unchanged in your list. (to do: -force switch)
+              This way you can make sure to get the new sources unchanged in your list.
               Already used IDs are replaced by new IDs during the next "trice update", so the old IDs in the list will survive.
               If you do not refresh the list after adding source files and perform an "trice update" new generated IDs could be equal to
               IDs used in the added sources with the result that IDs in the added sources could get changed what you may not want.

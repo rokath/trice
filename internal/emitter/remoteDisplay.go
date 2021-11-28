@@ -70,7 +70,7 @@ func (p *RemoteDisplay) writeLine(line []string) {
 //  // startServer starts a display server with the filename exe (if not already running).
 //  func (p *RemoteDisplay) startServer() {
 //  	var cmd *exec.Cmd
-//  	s := strings.Fields("ds -ipa " + p.IPAddr + " -ipp " + p.IPPort + " " + p.Params) // to do: write test for this
+//  	s := strings.Fields("ds -ipa " + p.IPAddr + " -ipp " + p.IPPort + " " + p.Params) // todo: write test for this
 //  	cmd = exec.Command(p.Cmd, s...)                                                   // ... expands slice into individual string arguments
 //  	go func() {
 //  		msg.FatalOnErr(cmd.Run())

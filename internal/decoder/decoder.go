@@ -264,7 +264,7 @@ func decodeAndComposeLoop(sw *emitter.TriceLineComposer, dec Decoder) error {
 		// If several, they end with a newline, despite the last one which optionally ends with a newline.
 
 		// Filtering is done here to suppress the id display as well for the filtered items.
-		n = emitter.BanOrPickFilter(b[:n]) // to do: b can contain several trices - handle that!
+		n = emitter.BanOrPickFilter(b[:n]) // todo: b can contain several trices - handle that!
 
 		start := time.Now()
 

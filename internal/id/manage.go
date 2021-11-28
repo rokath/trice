@@ -24,7 +24,7 @@ func NewLut(fn string) TriceIDLookUp {
 		return lu
 	}
 	msg.FatalOnErr(lu.fromFile(fn))
-	if true == Verbose {
+	if Verbose {
 		fmt.Println("Read ID List file", fn, "with", len(lu), "items.")
 	}
 	return lu
@@ -58,7 +58,7 @@ func (lu TriceIDLookUp) newRandomID(min, max TriceID) (id TriceID) {
 	wrnLimit := interval >> 2 // 25%
 	msg.InfoOnTrue(freeIDs < wrnLimit, "WARNING: Less than 25% IDs free!")
 	id = min + TriceID(rand.Intn(interval))
-	if 0 == len(lu) {
+	if len(lu) == 0 {
 		return
 	}
 	for {
@@ -81,7 +81,7 @@ func (lu TriceIDLookUp) newUpwardID(min, max TriceID) (id TriceID) {
 	freeIDs := interval - len(lu)
 	msg.FatalInfoOnFalse(freeIDs > 0, "no new ID possible: "+fmt.Sprint("min=", min, ", max=", max, ", used=", len(lu)))
 	id = min
-	if 0 == len(lu) {
+	if len(lu) == 0 {
 		return
 	}
 	for {
@@ -103,7 +103,7 @@ func (lu TriceIDLookUp) newDownwardID(min, max TriceID) (id TriceID) {
 	freeIDs := interval - len(lu)
 	msg.FatalInfoOnFalse(freeIDs > 0, "no new ID possible: "+fmt.Sprint("min=", min, ", max=", max, ", used=", len(lu)))
 	id = max
-	if 0 == len(lu) {
+	if len(lu) == 0 {
 		return
 	}
 	for {
