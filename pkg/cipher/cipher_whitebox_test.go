@@ -5,6 +5,7 @@
 package cipher
 
 import (
+	"os"
 	"testing"
 
 	"github.com/tj/assert"
@@ -40,7 +41,7 @@ func TestMySecret6(t *testing.T) {
 }
 
 func checkBig(t *testing.T) {
-	assert.Nil(t, SetUp())
+	assert.Nil(t, SetUp(os.Stdout))
 	src := []byte{0, 1, 2, 3, 4, 5, 6, 7}
 	enc := Encrypt8(src)
 	dst := Decrypt8(enc)
@@ -48,7 +49,7 @@ func checkBig(t *testing.T) {
 }
 
 func checkMix(t *testing.T) {
-	assert.Nil(t, SetUp())
+	assert.Nil(t, SetUp(os.Stdout))
 	src := []byte{0, 1, 2, 3, 4, 5, 6, 7}
 	enc := Encrypt8(src)
 	dst := make([]byte, 8)
@@ -57,7 +58,7 @@ func checkMix(t *testing.T) {
 }
 
 func checkSmall(t *testing.T) {
-	assert.Nil(t, SetUp())
+	assert.Nil(t, SetUp(os.Stdout))
 	src := []byte{0, 1, 2, 3, 4, 5, 6, 7}
 	enc := make([]byte, 8)
 	encrypt8(enc, src)

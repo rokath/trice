@@ -59,7 +59,7 @@ func Handler(w io.Writer, args []string) error {
 	case "s", "scan":
 		msg.OnErr(fsScScan.Parse(subArgs))
 		distributeArgs(w)
-		_, err := com.GetSerialPorts()
+		_, err := com.GetSerialPorts(w)
 		return err
 	case "ver", "version":
 		msg.OnErr(fsScVersion.Parse(subArgs))
@@ -104,7 +104,7 @@ type selector struct {
 
 // logLoop prepares writing and lut and provides a retry mechanism for unplugged UART.
 func logLoop(w io.Writer) {
-	msg.FatalOnErr(cipher.SetUp()) // does nothing when -password is ""
+	msg.FatalOnErr(cipher.SetUp(w)) // does nothing when -password is ""
 	if decoder.TestTableMode {
 		// set switches if they not set already
 		// trice l -ts off -prefix " }, ``" -suffix "\n``}," -color off
@@ -127,22 +127,22 @@ func logLoop(w io.Writer) {
 	if id.FnJSON == "emptyFile" { // reserved name for tests only
 		lu = make(id.TriceIDLookUp)
 	} else {
-		lu = id.NewLut(id.FnJSON) // lut is a map, that means a pointer
+		lu = id.NewLut(w, id.FnJSON) // lut is a map, that means a pointer
 	}
 	m := new(sync.RWMutex) // m is a pointer to a read write mutex for lu
 	m.Lock()
-	lu.AddFmtCount()
+	lu.AddFmtCount(w)
 	m.Unlock()
 	// Just in case the id list file FnJSON gets updated, the file watcher updates lut.
 	// This way trice needs NOT to be restarted during development process.
-	go lu.FileWatcher(m)
+	go lu.FileWatcher(w, m)
 
 	sw := emitter.New(w)
 	var interrupted bool
 	var counter int
 
 	for {
-		rc, e := receiver.NewReadCloser(receiver.Port, receiver.PortArguments)
+		rc, e := receiver.NewReadCloser(w, verbose, receiver.Port, receiver.PortArguments)
 		if nil != e {
 			fmt.Fprint(w, e)
 			if !interrupted {
@@ -157,7 +157,7 @@ func logLoop(w io.Writer) {
 		defer func() { msg.OnErr(rc.Close()) }()
 		interrupted = true
 		if receiver.ShowInputBytes {
-			rc = receiver.NewBytesViewer(rc)
+			rc = receiver.NewBytesViewer(w, rc)
 		}
 		e = decoder.Translate(w, sw, lu, m, rc)
 		if io.EOF == e {

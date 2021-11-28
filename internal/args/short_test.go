@@ -68,7 +68,7 @@ func TestComX(t *testing.T) {
 	execHelper(t, args, expect)
 }
 
-func _TestVersion(t *testing.T) {
+func TestVersion(t *testing.T) {
 	verbose = false
 	v := []string{"", ""}
 	testVersion(t, v)

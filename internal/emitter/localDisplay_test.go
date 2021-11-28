@@ -4,8 +4,10 @@
 // whitebox test for package emitter.
 package emitter
 
+import "os"
+
 func ExampleNewLocalDisplay() {
-	p := NewLocalDisplay()
+	p := NewLocalDisplay(os.Stdout)
 	l1 := []string{"This is ", "the 1st ", "line"}
 	l2 := []string{"This is ", "the 2nd ", "line"}
 	p.writeLine(l1)
@@ -16,7 +18,7 @@ func ExampleNewLocalDisplay() {
 }
 
 func ExampleNewColorDisplay() {
-	p := NewColorDisplay("none")
+	p := NewColorDisplay(os.Stdout, "none")
 	l1 := []string{"msg:This is ", "the 1st ", "line"}
 	l2 := []string{"MSG:This is ", "the 2nd ", "line"}
 	p.writeLine(l1)
