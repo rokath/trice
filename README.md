@@ -1,7 +1,6 @@
 # ![TriceGirlS.png](./docs/README.media/TriceGirl-167x222.png) **Trice** <- **TR**~~ace~~ **I**~~ds~~ **C** **E**~~mbedded~~  
 
-Trice consists of 2 parts: Tiny & super fast embedded device real-time trace **C** code (`TRICE` macros) and PC tool `trice` for managing and visualization. The aim is to replace `printf` in a conveinient and much faster way. The PC **trice** tool itself is written in [Go](https://golang.org/) and therefore usable on all platforms Go supports. 
-It is also easy to receive the COBS packges, exchange the IDs with the format string and to print out in your own environment if you want.
+Trice consists of 2 parts: tiny & super fast embedded device real-time trace **C** code (`TRICE` macros) and PC tool **trice** for managing and visualization. The aim is to replace `printf` in a conveinient and much faster way to be usable also inside interrupts and to reduce FLASH memory size. The PC **trice** tool itself is written in [Go](https://golang.org/) and therefore usable on all platforms Go supports. You can also use your own environment to receive the trice packges, exchange the carried IDs with the format string and print out.
 
 ## Info shields
 
