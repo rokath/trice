@@ -207,7 +207,7 @@ func TestHelpAll(t *testing.T) {
               If you need target timestamps you need to get the time inside the target and send it as TRICE* parameter.
                (default "LOCmicro")
         -ttsf string
-              Target timestamp format string at start of each line, if target timestamps existent (configured). Use "" to suppress existing target timestamps. If several trices form a log line only the timestamp of first trice ist displayed. (default "tim:%9d")
+              Target timestamp format string at start of each line, if target timestamps existent (configured). Use "" to suppress existing target timestamps. If several trices form a log line only the timestamp of first trice ist displayed. (default "time:%9d ")
         -u    Short for '-unsigned'. (default true)
         -unsigned
               Hex, Octal and Bin values are printed as unsigned values. (default true)

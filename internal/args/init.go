@@ -98,7 +98,7 @@ When set to "off" no PC timestamps displayed.
 If you need target timestamps you need to get the time inside the target and send it as TRICE* parameter.
 `) // flag
 	fsScLog.StringVar(&decoder.ShowID, "showID", "", `Format string for displaying first trice ID at start of each line. Example: "debug:%7d ". Default is "". If several trices form a log line only the first trice ID ist displayed.`)
-	fsScLog.StringVar(&decoder.ShowTargetTimestamp, "ttsf", "tim:%9d", `Target timestamp format string at start of each line, if target timestamps existent (configured). Use "" to suppress existing target timestamps. If several trices form a log line only the timestamp of first trice ist displayed.`)
+	fsScLog.StringVar(&decoder.ShowTargetTimestamp, "ttsf", "time:%9d ", `Target timestamp format string at start of each line, if target timestamps existent (configured). Use "" to suppress existing target timestamps. If several trices form a log line only the timestamp of first trice ist displayed.`)
 	fsScLog.BoolVar(&decoder.DebugOut, "debug", false, "Show additional debug information")
 	fsScLog.StringVar(&decoder.TargetEndianess, "targetEndianess", "littleEndian", `Target endianness trice data stream. Option: "bigEndian".`)
 	fsScLog.StringVar(&emitter.ColorPalette, "color", "default", colorInfo)                                                                                                                                        // flag

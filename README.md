@@ -1,6 +1,6 @@
 # ![TriceGirlS.png](./docs/README.media/TriceGirl-167x222.png) **Trice** <- **TR**~~ace~~ **I**~~ds~~ **C** **E**~~mbedded~~  
 
-Trice consists of 2 parts: tiny & super fast embedded device real-time trace **C** code (`TRICE` macros) and PC tool **trice** for managing and visualization. The aim is to replace `printf` in a conveinient and much faster way to be usable also inside interrupts and to reduce FLASH memory size. The PC **trice** tool itself is written in [Go](https://golang.org/) and therefore usable on all platforms Go supports. You can also use your own environment to receive the trice packges, exchange the carried IDs with the format string and print out.
+- [github.io/trice/](https://rokath.github.io/trice/)
 
 ## Info shields
 
@@ -18,6 +18,21 @@ Trice consists of 2 parts: tiny & super fast embedded device real-time trace **C
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 [![test](https://github.com/shogo82148/actions-goveralls/workflows/test/badge.svg?branch=main)](https://coveralls.io/github/rokath/trice)
 [![Coverage Status](https://coveralls.io/repos/github/rokath/trice/badge.svg?branch=master)](https://coveralls.io/github/rokath/trice?branch=master)
+
+## About
+
+- Trice consists of 2 parts:
+  1. **C** code `TRICE` macros generating tiny & super fast embedded device real-time trace/log code
+  2. PC tool **trice** for managing and visualization.
+- The aim is to **replace `printf`** for getting:
+  - SPEED, to be usable also inside interrupts
+  - SPACE, to reduce FLASH memory size
+  - COLOR, to improve visibility
+  - ON-OFF on file level
+- Main idea: Logging strings **not** into an embedded device to display them later on a PC but keep **usage comfortable and simple**.
+- The PC **trice** tool itself is written in [Go](https://golang.org/) and therefore usable on all platforms Go supports. You can also use your own environment to receive the trice packges, exchange the carried IDs with the format string and print out.
+
+<!---
 
 ## Search counters
 
@@ -44,7 +59,19 @@ Trice consists of 2 parts: tiny & super fast embedded device real-time trace **C
 ![GitHub search hit counter](https://img.shields.io/github/search/rokath/trice/serial)
 ![GitHub search hit counter](https://img.shields.io/github/search/rokath/trice/C)
 
-- [github.io/trice/](https://rokath.github.io/trice/)
+-->
+
+## Possible Use Cases
+
+- Using *trice* not only for **dynamic debugging** but also as **logging** technique is possible and gives the advantage to have very short messages (no strings) for transmission, but keep in mind that the file [til.json](./til.json) is the key to read all output if your devices in the field for 10 or more years.
+  - Optionally add [til.json](./til.json) as a (compressed) resource to your target image. One possibility is using [SRecord](http://srecord.sourceforge.net/download.html).
+- You can see TRICE also as a kind of **data compression** what could be interesting for IoT things, especially NB-IoT, where you have very low data rates.
+- Storing trices in FLASH memory for later log analysis saves memory because a typical `TRICE` occupies only about 8 bytes independently of the format string length.
+- Also it is possible to **encrypt** the trice transfer packets to get a reasonable protection for many cases.
+  - This way you can deliver firmware images with encrypted *trice* output only readable with the appropriate key and [til.json](./til.json).
+  - XTEA is implemented as one option.
+- You can even translate the [til.json](./til.json) file in **different languages**, so changing a language is just changing the [til.json](./til.json) file without touching the target binary.
+- With *trice* it is easy to do **timing analysis**.
 
 ## Quick start guide
 
@@ -65,6 +92,117 @@ Trice consists of 2 parts: tiny & super fast embedded device real-time trace **C
 - Compile & load your app.
 - In project root: `trice l -p COM1` should show `Coming soon: 2022!` after app start.
 - Look in `./pkg/src/triceCheck.c` for examples.
+
+## Achieved Results
+
+### Speed results
+
+ A `TRICE` macro execution can be as cheap like 3 Assembler instructions or 6 processor clocks:
+
+- Disassembly: ![./docs/README.media/MEASURE_executionCode.PNG](./docs/README.media/MEASURE_executionCode.PNG)
+- Duration - The blue SYSTICK clock counts backwards 6 clocks for each `TRICE` macro (on an ARM M0+), what is less than 100 ns @64 Mhz MCU clock: ![./docs/README.media/MEASURE_executionClocks.PNG](./docs/README.media/MEASURE_executionClocks.PNG)
+
+### Space results
+
+- CubeMX generated project without `Trice`: `Program Size: Code=2208 RO-data=236 RW-data=4 ZI-data=1636`  
+- Same with default `Trice` instrumentation: `Program Size: Code=2828 RO-data=236 RW-data=44 ZI-data=1836`
+- Needed FLASH memory: 620 Bytes
+- Needed RAM memory: 40 Bytes plus 200 Bytes for the 2 times 100 Bytes double buffer
+- With increased/decreased buffers also more/less RAM is needed.
+- With each additional `TRICE` macro a few additional FLASH bytes are needed.
+- No `printf` library code is used anymore.
+- No format strings get into the target code anymore.
+- In general `Trice` instrumentation reduces the needed memory compared to a `printf` implementation.
+
+### Color results
+
+- Simply add a channel name as color descriptor in front of each `TRICE` message:
+- To get this:
+
+![./docs/README.media/COLOR_output.PNG](./docs/README.media/COLOR_output.PNG)
+  
+- Write that:
+
+```C
+    TRICE( "e:A ");
+    TRICE( "w:B ");
+    TRICE( "a:c ");
+    TRICE( "wr:d ");
+    TRICE( "rd:e\n ");
+    TRICE( "diag:f ");
+    TRICE( "d:G ");
+    TRICE( "t:H ");
+    TRICE( "time:i ");
+    TRICE( "message:J ");
+    TRICE( "dbg:k\n ");
+    TRICE( "1 ");
+    TRICE( "2 ");
+    TRICE( "3 ");
+    TRICE( "4 ");
+    TRICE( "e:7 ");
+    TRICE( "m:12 ");
+    TRICE( "m:123\n ");
+```
+
+- `trice u` (as automated prebuild step) changes the code to:
+
+```C
+    TRICE( Id( 42984), "e:A ");
+    TRICE( Id( 65475), "w:B ");
+    TRICE( Id( 60278), "a:c ");
+    TRICE( Id( 39056), "wr:d ");
+    TRICE( Id( 57073), "rd:e\n ");
+    TRICE( Id( 35315), "diag:f ");
+    TRICE( Id( 53769), "d:G ");
+    TRICE( Id( 38573), "t:H ");
+    TRICE( Id( 37916), "time:i ");
+    TRICE( Id( 52118), "message:J ");
+    TRICE( Id( 49746), "dbg:k\n ");
+    TRICE( Id( 40004), "1 ");
+    TRICE( Id( 61543), "2 ");
+    TRICE( Id( 51583), "3 ");
+    TRICE( Id( 35885), "4 ");
+    TRICE( Id( 40078), "e:7 ");
+    TRICE( Id( 44255), "m:12 ");
+    TRICE( Id( 51771), "m:123\n ");
+```
+
+- Or more useful "log in (a) trice" ([S>G](https://www.screentogif.com/)) ![ ](./docs/README.media/life0.gif)
+
+### On-Off results
+
+- To use `TRICE` macros inside a source file add `#include "trice.h".
+- If your code works well after checking, you can add `#define TRICE_OFF` just before the `#include "trice.h"` line and no *trice* code is generated for that file so no need to delete or comment out `TRICE` macros.
+- No runtime On-Off switch is implemented for  several reasons:
+  - Would need a control channel to the target.
+  - Would add (little) performance overhead.
+  - Would change target timing (testing).
+  - User can add its own switches anywhere.
+  - The really fast `TRICE` macro execution does not disturb the target code execution.
+  - The trice output is encryptable, if needed.
+  - The PC **trice** tool offers command line switches to `-pick` or `-ban` several *trice* channels for display.
+
+## Data Transfer
+
+- Inplemented:
+  - [UART](https://en.wikipedia.org/wiki/Universal_asynchronous_receiver-transmitter) or virtual UART over USB
+  - [RTT over J-Link](https://www.segger.com/products/debug-probes/j-link/technology/about-real-time-transfer/)
+  - RTT over ST-Link
+- A small separate micro controller is always usable as bridge to UART or USB for other Interfaces like:
+  [I²C](https://en.wikipedia.org/wiki/I%C2%B2C), 
+  [SPI](https://en.wikipedia.org/wiki/Serial_Peripheral_Interface), 
+  [GPIO](https://circuitcellar.com/cc-blog/a-trace-tool-for-embedded-systems/), 
+  [CAN](https://en.wikipedia.org/wiki/CAN_bus), 
+  [LIN](https://en.wikipedia.org/wiki/Local_Interconnect_Network), ...
+
+<!---
+
+
+## `TRICE` macros for C & C++ code
+
+- Real fast: **12 CPU clocks per (short) trice possible!!!**
+  - With a 48MHz clock this is 250ns. Light travels about 80 meters in that time.
+- TRICE in your code **reduces the needed FLASH memory** because the instrumentation code is very small (can be less 200 bytes FLASH and about 100 bytes RAM) and no printf library code nor log strings are inside the embedded device anymore.
 
 
 ## ATTENTION 4
@@ -90,40 +228,7 @@ In release v0.38.0 now target timestamps possible. To implement it well and open
 
 The **TRICE** technique changed heavily between release 0.33.0 and 0.34.0. The `flex` and `esc` encodings are replaced by a [COBS](https://en.wikipedia.org/wiki/Consistent_Overhead_Byte_Stuffing) encoding which will be the default now. The stuff works already well but is not in its final state and is not documented vet. It lacks also automated tests. The internal speed goes to its limit (~6 clocks per trice on M0+ possible) by using a double buffer instead of a fifo. Also porting is easier now. The documentation is outdated but gets updated soon. But first the tests. If you have a project with `flex` or `esc` encoding, please update the target code or stay with version 0.33.0.
 
-## About
-
-- Printf-like trace macros `TRICE` and PC `trice` tool (written in [Go](https://en.wikipedia.org/wiki/Go_(programming_language))) for automatic ID managing & logging.
-- Communication without string transfer, just with IDs. Prerequisite: byte transmission to PC, low bandwidth is ok:
-  - method does not matter: USB via virtual COM using FTDI and [UART](https://en.wikipedia.org/wiki/Universal_asynchronous_receiver-transmitter) 
-or [RTT](https://www.segger.com/products/debug-probes/j-link/technology/about-real-time-transfer/).
-  - A small separate micro controller is usable as bridge to UART or USB for other Interfaces like:
-  [I²C](https://en.wikipedia.org/wiki/I%C2%B2C), 
-  [SPI](https://en.wikipedia.org/wiki/Serial_Peripheral_Interface), 
-  [GPIO](https://circuitcellar.com/cc-blog/a-trace-tool-for-embedded-systems/), 
-  [CAN](https://en.wikipedia.org/wiki/CAN_bus), 
-  [LIN](https://en.wikipedia.org/wiki/Local_Interconnect_Network), ...
-- "log in (a) trice" ([S>G](https://www.screentogif.com/)) ![ ](./docs/README.media/life0.gif)
-- Main idea: Logging strings **not** into an embedded device to display them later on a PC but keep **usage comfortable and simple**.
-
-## `TRICE` macros for C & C++ code
-
-- Real fast: **12 CPU clocks per (short) trice possible!!!**
-  - With a 48MHz clock this is 250ns. Light travels about 80 meters in that time.
-- TRICE in your code **reduces the needed FLASH memory** because the instrumentation code is very small (can be less 200 bytes FLASH and about 100 bytes RAM) and no printf library code nor log strings are inside the embedded device anymore.
-
-## Possible Use Cases
-
-- Using trice not only for **dynamic debugging** but also as **logging** technique
-    is possible and gives the advantage to have very short messages (no strings) for transmission,
-    but keep in mind that the file [til.json](https://github.com/rokath/trice/blob/master/til.json) is the key to read all output if your devices in the field for 10 or more years.
-  - Optionally add til.json as a (compressed) resource.
-- You can see TRICE also as a kind of **data compression** what could be interesting for IoT things, especially NB-IoT, where you have very low data rates.
-- Storing trices in FLASH for later log analysis saves memory because a typical `TRICE` occupies only 4 or 8 bytes.
-- Also it is possible to **encrypt** the trice transfer packets to get a reasonable protection for many cases.
-  - This way you can deliver firmware images with encrypted TRICE output only readable with the appropriate key and til.json.
-  - XTEA is implemented as one option.
-- You can even translate the til.json in **different languages**, so changing a language is just changing the til.json file.
-- Using trice with an **RTOS** gives the option for detailed **task timing analysis**. Because of the very short execution time of a trice you could add to the scheduler:
+ Because of the very short execution time of a trice you could add to the scheduler:
 
 ```c
     Trice16i( "tim:@tick %5u ", clock );
@@ -160,6 +265,9 @@ First are the PC reception timestamps and after the port info are the used trice
   - Simply add `trice32( "time:@%9u:", SYSTICKVAL32 );` everywhere you need exact time.
   - Or use `trice32( "time:@%9u:My values are %d, %d, %d\n", SYSTICKVAL32, my0, my1, my2 );`
 --->
+
+
+# Following is obsolete and will be updated soon (in December 2021)
 
 ## How it approximately works
 
