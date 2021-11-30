@@ -120,6 +120,7 @@ func logLoop(w io.Writer) {
 		if emitter.ColorPalette == "default" {
 			emitter.ColorPalette = "off"
 		}
+		decoder.ShowTargetTimestamp = "" // todo: justify this line
 	}
 	c := cage.Start(w, cage.Name)
 	defer cage.Stop(w, c)
