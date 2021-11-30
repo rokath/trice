@@ -68,7 +68,7 @@
 - You can see TRICE also as a kind of **data compression** what could be interesting for [IoT](https://en.wikipedia.org/wiki/Internet_of_things) things, especially [NB-IoT](https://en.wikipedia.org/wiki/Narrowband_IoT), where you have very low data rates.
 - Storing *trice* messages in [FLASH memory](https://en.wikipedia.org/wiki/Flash_memory) for later log analysis saves memory because a typical `TRICE` occupies only about 8 bytes independently of the format string length.
 - Also it is possible to **encrypt** the trice transfer packets to get a reasonable protection for many cases.
-  - This way you can deliver firmware images with encrypted *trice* output only readable with the appropriate key and [til.json](./til.json).
+  - This way you can deliver firmware images with encrypted *trice* output, only readable with the appropriate key and [til.json](./til.json).
   - XTEA is implemented as one option.
 - You can even translate the [til.json](./til.json) file in **different languages**, so changing a language is just changing the [til.json](./til.json) file without touching the target binary.
 - With *trice* it is easy to do **timing analysis**. Host and target timestamps are supported. 
