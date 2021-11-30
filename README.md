@@ -71,7 +71,7 @@
   - This way you can deliver firmware images with encrypted *trice* output only readable with the appropriate key and [til.json](./til.json).
   - XTEA is implemented as one option.
 - You can even translate the [til.json](./til.json) file in **different languages**, so changing a language is just changing the [til.json](./til.json) file without touching the target binary.
-- With *trice* it is easy to do **timing analysis**. Host and arget timestamps are supported. 
+- With *trice* it is easy to do **timing analysis**. Host and target timestamps are supported. 
 
 ## Quick start guide
 
