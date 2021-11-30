@@ -65,8 +65,8 @@
 
 - Using *trice* not only for **dynamic debugging** but also as **logging** technique is possible and gives the advantage to have very short messages (no strings) for transmission, but keep in mind that the file [til.json](./til.json) is the key to read all output if your devices in the field for 10 or more years.
   - Optionally add [til.json](./til.json) as a (compressed) resource to your target image. One possibility is using [SRecord](http://srecord.sourceforge.net/download.html).
-- You can see TRICE also as a kind of **data compression** what could be interesting for IoT things, especially NB-IoT, where you have very low data rates.
-- Storing trices in FLASH memory for later log analysis saves memory because a typical `TRICE` occupies only about 8 bytes independently of the format string length.
+- You can see TRICE also as a kind of **data compression** what could be interesting for [IoT](https://en.wikipedia.org/wiki/Internet_of_things) things, especially [NB-IoT](https://en.wikipedia.org/wiki/Narrowband_IoT), where you have very low data rates.
+- Storing *trice* messages in [FLASH memory](https://en.wikipedia.org/wiki/Flash_memory) for later log analysis saves memory because a typical `TRICE` occupies only about 8 bytes independently of the format string length.
 - Also it is possible to **encrypt** the trice transfer packets to get a reasonable protection for many cases.
   - This way you can deliver firmware images with encrypted *trice* output only readable with the appropriate key and [til.json](./til.json).
   - XTEA is implemented as one option.
@@ -75,6 +75,7 @@
 
 ## Quick start guide
 
+- Place the **trice** binary somewhere in your [PATH](https://en.wikipedia.org/wiki/PATH_(variable)).
 - Copy 3 files to your embedded project:
   - `./pkg/src/trice.h`
   - `./pkg/src/trice.c`
@@ -89,15 +90,15 @@
 - Modify `triceConfig.h` acording your needs.
   - With `#define TRICE_MODE 0` (direct mode) just provide a **putchar()** function.
   - Recommended is an indirect mode which allows to use `TRICE` macros also inside interrupts.
-- Compile & load your app.
-- In project root: `trice l -p COM1` should show `Coming soon: 2022!` after app start.
+- Compile, load and start your app.
+- In project root: A command like `trice l -p COM3 -baud 57600` should show `Coming soon: 2022!` after app start.
 - Look in `./pkg/src/triceCheck.c` for examples.
 
 ## Achieved Results
 
 ### Speed results
 
- A `TRICE` macro execution can be as cheap like 3 Assembler instructions or 6 processor clocks:
+ A `TRICE` macro execution can be as cheap like 3-4 Assembler instructions or 6-8 processor clocks:
 
 - Disassembly: ![./docs/README.media/MEASURE_executionCode.PNG](./docs/README.media/MEASURE_executionCode.PNG)
 - Duration - The blue SYSTICK clock counts backwards 6 clocks for each `TRICE` macro (on an ARM M0+), what is less than 100 ns @64 Mhz MCU clock: ![./docs/README.media/MEASURE_executionClocks.PNG](./docs/README.media/MEASURE_executionClocks.PNG)
@@ -106,10 +107,10 @@
 
 - CubeMX generated project without `Trice`: `Program Size: Code=2208 RO-data=236 RW-data=4 ZI-data=1636`  
 - Same with default `Trice` instrumentation: `Program Size: Code=2828 RO-data=236 RW-data=44 ZI-data=1836`
-- Needed FLASH memory: 620 Bytes
-- Needed RAM memory: 40 Bytes plus 200 Bytes for the 2 times 100 Bytes double buffer
-- With increased/decreased buffers also more/less RAM is needed.
-- With each additional `TRICE` macro a few additional FLASH bytes are needed.
+- Needed [FLASH memory](https://en.wikipedia.org/wiki/Flash_memory): 620 Bytes
+- Needed [RAM](https://en.wikipedia.org/wiki/Random-access_memory): 40 Bytes plus 200 Bytes for the 2 times 100 Bytes double buffer
+- With increased/decreased buffers also more/less [RAM](https://en.wikipedia.org/wiki/Random-access_memory) is needed.
+- With each additional `TRICE` macro a few additional [FLASH memory](https://en.wikipedia.org/wiki/Flash_memory) bytes are needed.
 - No `printf` library code is used anymore.
 - No format strings get into the target code anymore.
 - In general `Trice` instrumentation **reduces** the needed memory compared to a `printf` implementation.
@@ -186,13 +187,37 @@
 - Inplemented:
   - [UART](https://en.wikipedia.org/wiki/Universal_asynchronous_receiver-transmitter) or virtual UART over USB
   - [RTT over J-Link](https://www.segger.com/products/debug-probes/j-link/technology/about-real-time-transfer/)
-  - RTT over ST-Link
-- A small separate micro controller is always usable as bridge to interfaces like:
-  [I²C](https://en.wikipedia.org/wiki/I%C2%B2C), 
-  [SPI](https://en.wikipedia.org/wiki/Serial_Peripheral_Interface), 
-  [GPIO](https://circuitcellar.com/cc-blog/a-trace-tool-for-embedded-systems/), 
-  [CAN](https://en.wikipedia.org/wiki/CAN_bus), 
-  [LIN](https://en.wikipedia.org/wiki/Local_Interconnect_Network), ...
+  - [RTT over ST-Link](./third_party/goST/ReadMe.md)
+- A small separate micro controller is always usable as bridge to interfaces like: [GPIO](https://circuitcellar.com/cc-blog/a-trace-tool-for-embedded-systems/), [I²C](https://en.wikipedia.org/wiki/I%C2%B2C), [SPI](https://en.wikipedia.org/wiki/Serial_Peripheral_Interface), [CAN](https://en.wikipedia.org/wiki/CAN_bus), [LIN](https://en.wikipedia.org/wiki/Local_Interconnect_Network), ...
+
+## How it approximately works
+
+For example change the source code line
+
+```c
+printf( "MSG: %d Kelvin\n", k );
+```
+
+into
+
+```c
+TRICE( "MSG: %d Kelvin\n", k );
+```
+
+`trice update` (run it automatically in the tool chain) changes it to  
+
+```c
+TRICE( Id(12345), "MSG: %d Kelvin\n", k );
+```
+
+and adds the *ID 12345* together with *"MSG: %d Kelvin\n"* into a **t**rice **I**D **l**ist, a [JSON](https://www.json.org/json-en.html) reference file named [til.json](https://github.com/rokath/trice/blob/master/til.json).
+
+- The *12345* is a randomly or policy generated ID not used so far.
+
+- During compilation the `TRICE` macro is translated to only a *12345* reference and the variable *k*. The format string never sees the target.
+
+# Following is obsolete and will be updated soon (in December 2021)
+
 
 <!---
 
@@ -265,41 +290,6 @@ First are the PC reception timestamps and after the port info are the used trice
   - Or use `trice32( "time:@%9u:My values are %d, %d, %d\n", SYSTICKVAL32, my0, my1, my2 );`
 --->
 
-
-# Following is obsolete and will be updated soon (in December 2021)
-
-## How it approximately works
-
-For example change the source code line
-
-```c
-printf( "MSG: %d Kelvin\n", k );
-```
-
-into
-
-```c
-Trice16( "MSG: %d Kelvin\n", k );
-```
-
-`trice update` (run it automatically in the tool chain) changes it to  
-
-```c
-Trice16( Id(12345), "MSG: %d Kelvin\n", k );
-```
-
-or (if `-addParamCount` is used)
-
-```c
-Trice16_1( Id(12345), "MSG: %d Kelvin\n", k );
-```
-
-and adds the *ID 12345* together with *"MSG: %d Kelvin\n"* into a **t**rice **I**D **l**ist, a JSON reference file named [til.json](https://github.com/rokath/trice/blob/master/til.json).
-
-- The *12345* is a randomly or policy generated ID not used so far.
-- With the `16` in Trice**16** you adjust the parameter size to 16 bit what allows more runtime efficient code compared to `32` or `64`.
-- The optional appended **_1** sets the expected parameter count to 1, allowing a compile time parameter count check.
-- During compilation the `Trice16[_1]` macro is translated to only a *12345* reference and the variable *k*. The format string never sees the target.
 
 This is a slightly simplified [view](https://github.com/jgraph/drawio):
 

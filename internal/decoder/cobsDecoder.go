@@ -212,10 +212,7 @@ func (p *COBS) Read(b []byte) (n int, err error) {
 	if len(p.b) < p.triceSize {
 		n += copy(b[n:], fmt.Sprintln("ERROR:package len", len(p.b), "is <", p.triceSize, " - ignoring package", p.b))
 		n += copy(b[n:], fmt.Sprintln(hints))
-		if p.triceSize > len(p.b) {
-			log.Fatal("Data garbage, aborting.")
-		}
-		p.b = p.b[p.triceSize:]
+		p.b = p.b[len(p.b):]
 		return
 	}
 	if DebugOut {
