@@ -124,47 +124,47 @@
 - Write that:
 
 ```C
-    TRICE( "e:A ");
-    TRICE( "w:B ");
-    TRICE( "a:c ");
-    TRICE( "wr:d ");
-    TRICE( "rd:e\n ");
-    TRICE( "diag:f ");
-    TRICE( "d:G ");
-    TRICE( "t:H ");
-    TRICE( "time:i ");
-    TRICE( "message:J ");
-    TRICE( "dbg:k\n ");
-    TRICE( "1 ");
-    TRICE( "2 ");
-    TRICE( "3 ");
-    TRICE( "4 ");
-    TRICE( "e:7 ");
-    TRICE( "m:12 ");
-    TRICE( "m:123\n ");
+    TRICE( "e:A" );
+    TRICE( "w:B" );
+    TRICE( "a:c" );
+    TRICE( "wr:d" );
+    TRICE( "rd:e\n" );
+    TRICE( "diag:f" );
+    TRICE( "d:G" );
+    TRICE( "t:H" );
+    TRICE( "time:i" );
+    TRICE( "message:J" );
+    TRICE( "dbg:k\n" );
+    TRICE( "1" );
+    TRICE( "2" );
+    TRICE( "3" );
+    TRICE( "4" );
+    TRICE( "e:7" );
+    TRICE( "m:12" );
+    TRICE( "m:123\n" );
 ```
 
 - `trice u` (as automated prebuild step) changes the code to:
 
 ```C
-    TRICE( Id( 42984), "e:A ");
-    TRICE( Id( 65475), "w:B ");
-    TRICE( Id( 60278), "a:c ");
-    TRICE( Id( 39056), "wr:d ");
-    TRICE( Id( 57073), "rd:e\n ");
-    TRICE( Id( 35315), "diag:f ");
-    TRICE( Id( 53769), "d:G ");
-    TRICE( Id( 38573), "t:H ");
-    TRICE( Id( 37916), "time:i ");
-    TRICE( Id( 52118), "message:J ");
-    TRICE( Id( 49746), "dbg:k\n ");
-    TRICE( Id( 40004), "1 ");
-    TRICE( Id( 61543), "2 ");
-    TRICE( Id( 51583), "3 ");
-    TRICE( Id( 35885), "4 ");
-    TRICE( Id( 40078), "e:7 ");
-    TRICE( Id( 44255), "m:12 ");
-    TRICE( Id( 51771), "m:123\n ");
+    TRICE( Id(42984), "e:A" );
+    TRICE( Id(65475), "w:B" );
+    TRICE( Id(60278), "a:c" );
+    TRICE( Id(39056), "wr:d" );
+    TRICE( Id(57073), "rd:e\n" );
+    TRICE( Id(35315), "diag:f" );
+    TRICE( Id(53769), "d:G" );
+    TRICE( Id(38573), "t:H" );
+    TRICE( Id(37916), "time:i" );
+    TRICE( Id(52118), "message:J" );
+    TRICE( Id(49746), "dbg:k\n" );
+    TRICE( Id(40004), "1" );
+    TRICE( Id(61543), "2" );
+    TRICE( Id(51583), "3" );
+    TRICE( Id(35885), "4" );
+    TRICE( Id(40078), "e:7" );
+    TRICE( Id(44255), "m:12" );
+    TRICE( Id(51771), "m:123\n" );
 ```
 
 - Or more useful: "log in (a) trice" ([S>G](https://www.screentogif.com/)) ![ ](./docs/README.media/life0.gif)
