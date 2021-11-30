@@ -71,7 +71,7 @@
   - This way you can deliver firmware images with encrypted *trice* output only readable with the appropriate key and [til.json](./til.json).
   - XTEA is implemented as one option.
 - You can even translate the [til.json](./til.json) file in **different languages**, so changing a language is just changing the [til.json](./til.json) file without touching the target binary.
-- With *trice* it is easy to do **timing analysis**.
+- With *trice* it is easy to do **timing analysis**. Host and arget timestamps are supported. 
 
 ## Quick start guide
 
@@ -112,11 +112,11 @@
 - With each additional `TRICE` macro a few additional FLASH bytes are needed.
 - No `printf` library code is used anymore.
 - No format strings get into the target code anymore.
-- In general `Trice` instrumentation reduces the needed memory compared to a `printf` implementation.
+- In general `Trice` instrumentation **reduces** the needed memory compared to a `printf` implementation.
 
 ### Color results
 
-- Simply add a channel name as color descriptor in front of each `TRICE` message:
+- Simply add a channel name as color descriptor in front of each `TRICE` message.
 - To get this:
 
 ![./docs/README.media/COLOR_output.PNG](./docs/README.media/COLOR_output.PNG)
@@ -167,20 +167,19 @@
     TRICE( Id( 51771), "m:123\n ");
 ```
 
-- Or more useful "log in (a) trice" ([S>G](https://www.screentogif.com/)) ![ ](./docs/README.media/life0.gif)
+- Or more useful: "log in (a) trice" ([S>G](https://www.screentogif.com/)) ![ ](./docs/README.media/life0.gif)
 
 ### On-Off results
 
-- To use `TRICE` macros inside a source file add `#include "trice.h".
-- If your code works well after checking, you can add `#define TRICE_OFF` just before the `#include "trice.h"` line and no *trice* code is generated for that file so no need to delete or comment out `TRICE` macros.
+- If your code works well after checking, you can add `#define TRICE_OFF` just before the `#include "trice.h"` line and no *trice* code is generated anymore for that file, so no need to delete or comment out `TRICE` macros.
 - No runtime On-Off switch is implemented for  several reasons:
   - Would need a control channel to the target.
-  - Would add (little) performance overhead.
-  - Would change target timing (testing).
+  - Would add little performance and code overhead.
+  - Would sligtly change target timing (testing).
   - User can add its own switches anywhere.
   - The really fast `TRICE` macro execution does not disturb the target code execution.
   - The trice output is encryptable, if needed.
-  - The PC **trice** tool offers command line switches to `-pick` or `-ban` several *trice* channels for display.
+  - The PC **trice** tool offers command line switches to `-pick` or `-ban` several *trice* channels for the runtime display.
 
 ## Data Transfer
 
@@ -188,7 +187,7 @@
   - [UART](https://en.wikipedia.org/wiki/Universal_asynchronous_receiver-transmitter) or virtual UART over USB
   - [RTT over J-Link](https://www.segger.com/products/debug-probes/j-link/technology/about-real-time-transfer/)
   - RTT over ST-Link
-- A small separate micro controller is always usable as bridge to UART or USB for other Interfaces like:
+- A small separate micro controller is always usable as bridge to interfaces like:
   [I²C](https://en.wikipedia.org/wiki/I%C2%B2C), 
   [SPI](https://en.wikipedia.org/wiki/Serial_Peripheral_Interface), 
   [GPIO](https://circuitcellar.com/cc-blog/a-trace-tool-for-embedded-systems/), 
