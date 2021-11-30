@@ -21,15 +21,15 @@
 
 ## About
 
+- The aim is to **replace `printf`** for getting:
+  - **SPEED**, to be usable also inside interrupts
+  - **SPACE**, to reduce FLASH memory size
+  - **COLOR**, to improve visibility
+  - **ON-OFF** on file level and during runtime
+- Main idea: Logging strings **not** into an embedded device to display them later on a PC but keep **usage comfortable and simple**.
 - Trice consists of 2 parts:
   1. **C** code `TRICE` macros generating tiny & super fast embedded device real-time trace/log code
   2. PC tool **trice** for managing and visualization.
-- The aim is to **replace `printf`** for getting:
-  - SPEED, to be usable also inside interrupts
-  - SPACE, to reduce FLASH memory size
-  - COLOR, to improve visibility
-  - ON-OFF on file level
-- Main idea: Logging strings **not** into an embedded device to display them later on a PC but keep **usage comfortable and simple**.
 - The PC **trice** tool itself is written in [Go](https://golang.org/) and therefore usable on all platforms Go supports. You can also use your own environment to receive the trice packges, exchange the carried IDs with the format string and print out.
 
 <!---
