@@ -130,15 +130,15 @@ This is a slightly simplified [view](https://github.com/jgraph/drawio):
   2. Combine: the 16-bit ID, the data 32-bit values count as 8-bit value and an 8-bit cycle counter.
   3. The 32 bit temperature value. The total data payload per trice can be 1008 bytes (252 32-bit units).
 - The only 3 values writing inside a typical TRICE macro allows its **usage inside time critical code like scheduler or interrupt**.
-- If target timestamps disabled and nor data values carried, a TRICE macro writes just one 32-bit value to the *trice* buffer.
+- If target timestamps disabled and no data values carried, a TRICE macro writes just one 32-bit value to the *trice* buffer.
 - In **direct mode** the trice buffer is on the stack and the TRICE macro execution includes the (fast) COBS converting and the data transfer. This more straightforward architecture (not shown here) forbids usage inside time critical code but can be interesting for many cases.
 - In **indirect mode** for output a background service is needed. About every 100ms (configurable):
   - The trice buffer is swapped.
-  - A 32-bit COBS mode value is prefixed:
+  - A 32-bit COBSMode value is prefixed:
     - COBSMode 0: *trice* messages are without embedded device timestamps.
     - COBSMode 1: *trice* messages are prefixed with 32-bit embedded device timestamps.
     - COBSMode 2-0xFFFFFFFF: user mode values. The **trice** tool ignores such COBS package. This way any user protocols transferable over the same line.
-  - Optionally TMode and the trice buffer can get encrypted at his stage (not shown here).
+  - Optionally COBSMode and the trice buffer can get encrypted at his stage (not shown here).
   - COBS encoding takes part. This is de-facto a memcopy with 0 replacements.
   - The out buffer is filled and the UART interrupt is triggered to start the transmission.
 - During runtime the PC trice tool receives the complete triceBuffer (all what happened in the last 100ms) as a COBS package from the UART port.
@@ -235,7 +235,7 @@ This is a slightly simplified [view](https://github.com/jgraph/drawio):
   - Would add little performance and code overhead.
   - Would sligtly change target timing (testing).
   - User can add its own switches anywhere.
-  - The really fast `TRICE` macro execution does not disturb the target code execution.
+  - The short `TRICE` macro code negligible.
   - The trice output is encryptable, if needed.
   - The PC **trice** tool offers command line switches to `-pick` or `-ban` several *trice* channels for the runtime display.
 
