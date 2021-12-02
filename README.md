@@ -20,47 +20,19 @@
 [![Coverage Status](https://coveralls.io/repos/github/rokath/trice/badge.svg?branch=master)](https://coveralls.io/github/rokath/trice?branch=master)
 
 "log in (a) trice" ([S>G](https://www.screentogif.com/)) ![ ](./docs/README.media/life0.gif)
+
 ## About
 
-- The aim is to **replace `printf`** for getting:
-  - **SPEED**, to be usable also inside interrupts
-  - **SPACE**, to reduce FLASH memory size
-  - **COLOR**, to improve visibility
-  - **ON-OFF** on file level and during runtime
+- The aim is to **replace `printf`**  in any microcontroller code for getting:
+  - **[SPEED](./docs/Speed.md)**, to be usable also inside interrupts
+  - **[SPACE](./docs/Space.md)**, to reduce FLASH memory size
+  - **[COLOR](./docs/Color.md)**, to improve visibility
+  - Compile time and/or runtime **[ON-OFF](./docs/Color.md)**.
 - Main idea: Logging strings **not** into an embedded device to display them later on a PC but keep **usage comfortable and simple**.
 - Trice consists of 2 parts:
   1. **C** code `TRICE` macros generating tiny & super fast embedded device real-time trace/log code
   2. PC tool **trice** for managing and visualization.
 - The PC **trice** tool itself is written in [Go](https://golang.org/) and therefore usable on all platforms Go supports. You can also use your own environment to receive the trice packges, exchange the carried IDs with the format string and print out.
-
-<!---
-
-## Search counters
-
-![GitHub search hit counter](https://img.shields.io/github/search/rokath/trice/trace)
-![GitHub search hit counter](https://img.shields.io/github/search/rokath/trice/instrumentation)
-![GitHub search hit counter](https://img.shields.io/github/search/rokath/trice/embedded)
-![GitHub search hit counter](https://img.shields.io/github/search/rokath/trice/logging)
-![GitHub search hit counter](https://img.shields.io/github/search/rokath/trice/real-time)
-![GitHub search hit counter](https://img.shields.io/github/search/rokath/trice/debugging)
-![GitHub search hit counter](https://img.shields.io/github/search/rokath/trice/monitoring)
-![GitHub search hit counter](https://img.shields.io/github/search/rokath/trice/terminal)
-![GitHub search hit counter](https://img.shields.io/github/search/rokath/trice/cli)
-![GitHub search hit counter](https://img.shields.io/github/search/rokath/trice/diagnostics)
-![GitHub search hit counter](https://img.shields.io/github/search/rokath/trice/tool)
-![GitHub search hit counter](https://img.shields.io/github/search/rokath/trice/data-recording)
-![GitHub search hit counter](https://img.shields.io/github/search/rokath/trice/rtos)
-![GitHub search hit counter](https://img.shields.io/github/search/rokath/trice/multi-language-support)
-![GitHub search hit counter](https://img.shields.io/github/search/rokath/trice/compression)
-![GitHub search hit counter](https://img.shields.io/github/search/rokath/trice/timing-analysis)
-![GitHub search hit counter](https://img.shields.io/github/search/rokath/trice/time-measurement)
-![GitHub search hit counter](https://img.shields.io/github/search/rokath/trice/golang)
-![GitHub search hit counter](https://img.shields.io/github/search/rokath/trice/printf)
-![GitHub search hit counter](https://img.shields.io/github/search/rokath/trice/encryption)
-![GitHub search hit counter](https://img.shields.io/github/search/rokath/trice/serial)
-![GitHub search hit counter](https://img.shields.io/github/search/rokath/trice/C)
-
--->
 
 ## Possible Use Cases
 
@@ -68,32 +40,11 @@
   - Optionally add [til.json](./til.json) as a (compressed) resource to your target image. One possibility is using [SRecord](http://srecord.sourceforge.net/download.html).
 - You can see TRICE also as a kind of **data compression** what could be interesting for [IoT](https://en.wikipedia.org/wiki/Internet_of_things) things, especially [NB-IoT](https://en.wikipedia.org/wiki/Narrowband_IoT), where you have very low data rates.
 - Storing *trice* messages in [FLASH memory](https://en.wikipedia.org/wiki/Flash_memory) for later log analysis saves memory because a typical `TRICE` occupies only about 8 bytes independently of the format string length.
-- Also it is possible to **encrypt** the trice transfer packets to get a reasonable protection for many cases.
+- Also it is possible to **encrypt** the *trice* transfer packets to get a reasonable protection for many cases.
   - This way you can deliver firmware images with encrypted *trice* output, only readable with the appropriate key and [til.json](./til.json).
   - XTEA is implemented as one option.
 - You can even translate the [til.json](./til.json) file in **different languages**, so changing a language is just changing the [til.json](./til.json) file without touching the target binary.
 - With *trice* it is easy to do **timing analysis**. Host and target timestamps are supported. 
-
-## Quick start guide
-
-- Place the **trice** binary somewhere in your [PATH](https://en.wikipedia.org/wiki/PATH_(variable)).
-- Copy 3 files to your embedded project:
-  - `./pkg/src/trice.h`
-  - `./pkg/src/trice.c`
-  - `./test/.../triceConfig.h`
-- In your source.c: `#include "trice.h"`
-- In a function: `TRICE( "Coming soon: %d!\n", 2022 );`
-- In project root:
-  - Create empty file: `touch til.json`.
-  - Run `trice u` should:
-    - patch source.c to `TRICE( Id(12345), "Coming soon: %d!\n", 2022 );`
-    - extend `til.json`
-- Modify `triceConfig.h` acording your needs.
-  - With `#define TRICE_MODE 0` (direct mode) just provide a **putchar()** function.
-  - Recommended is an indirect mode which allows to use `TRICE` macros also inside interrupts.
-- Compile, load and start your app.
-- In project root: A command like `trice l -p COM3 -baud 57600` should show `Coming soon: 2022!` after app start.
-- Look in `./pkg/src/triceCheck.c` for examples.
 
 ## How it approximately works (UART example)
 
@@ -131,19 +82,16 @@ This is a slightly simplified [view](https://github.com/jgraph/drawio):
   3. The 32 bit temperature value. The total data payload per trice can be 1008 bytes (252 32-bit units).
 - The only 3 values writing inside a typical TRICE macro allows its **usage inside time critical code like scheduler or interrupt**.
 - If target timestamps disabled and no data values carried, a TRICE macro writes just one 32-bit value to the *trice* buffer.
-- In **direct mode** the trice buffer is on the stack and the TRICE macro execution includes the (fast) COBS converting and the data transfer. This more straightforward architecture (not shown here) forbids usage inside time critical code but can be interesting for many cases.
+- In **direct mode** the trice buffer is on the stack and the TRICE macro execution includes the [COBS](./docs/COBSREncoding.md) encoding and the data transfer. This more straightforward architecture (not shown here) forbids usage inside time critical code but can be interesting for many cases.
 - In **indirect mode** for output a background service is needed. About every 100ms (configurable):
   - The trice buffer is swapped.
-  - A 32-bit COBSMode value is prefixed:
-    - COBSMode 0: *trice* messages are without embedded device timestamps.
-    - COBSMode 1: *trice* messages are prefixed with 32-bit embedded device timestamps.
-    - COBSMode 2-0xFFFFFFFF: user mode values. The **trice** tool ignores such COBS package. This way any user protocols transferable over the same line.
-  - Optionally COBSMode and the trice buffer can get encrypted at his stage (not shown here).
+  - A 32-bit buffer mode value is prefixed:
+  - Optionally buffer mode and the trice buffer can get encrypted at his stage (not shown here).
   - COBS encoding takes part. This is de-facto a memcopy with 0 replacements.
   - The out buffer is filled and the UART interrupt is triggered to start the transmission.
 - During runtime the PC trice tool receives the complete triceBuffer (all what happened in the last 100ms) as a COBS package from the UART port.
-  - After COBS decoding an optional decryption takes part (**trice** tool command line switch)
-  - The very first 32-bit value is the COBSMode, expected to be 0 or 1. Otherwise the **trice** tool will ignore the COBS package.
+  - After COBS decoding, an optional decryption takes part (**trice** tool command line switch)
+  - The very first 32-bit value is the buffer mode, expected to be 0 or 1. Otherwise the **trice** tool will ignore the package.
 - The `0x30 0x39` is the ID 12345 and a map lookup delivers the format string *"msg: %d Kelvin\n"* and also the format information *"TRICE"*, which is needed for the parameter bit width information (usually 32 bit).
 - Now the trice tool can:
   - Write host timestamp
@@ -151,93 +99,6 @@ This is a slightly simplified [view](https://github.com/jgraph/drawio):
   - Write target timestamp
   - Set msg color
   - Execute `printf("%d Kelvin\n", 0x0000000e);`
-
-
-## Achieved Results
-
-### Speed results
-
- A `TRICE` macro execution can be as cheap like 3-4 Assembler instructions or 6-8 processor clocks:
-
-- Disassembly: ![./docs/README.media/MEASURE_executionCode.PNG](./docs/README.media/MEASURE_executionCode.PNG)
-- Duration - The blue SYSTICK clock counts backwards 6 clocks for each `TRICE` macro (on an ARM M0+), what is less than 100 ns @64 Mhz MCU clock: ![./docs/README.media/MEASURE_executionClocks.PNG](./docs/README.media/MEASURE_executionClocks.PNG)
-
-### Space results
-
-- CubeMX generated project without `Trice`: `Program Size: Code=2208 RO-data=236 RW-data=4 ZI-data=1636`  
-- Same with default `Trice` instrumentation: `Program Size: Code=2828 RO-data=236 RW-data=44 ZI-data=1836`
-- Needed [FLASH memory](https://en.wikipedia.org/wiki/Flash_memory): 620 Bytes
-- Needed [RAM](https://en.wikipedia.org/wiki/Random-access_memory): 40 Bytes plus 200 Bytes for the 2 times 100 Bytes double buffer
-- With increased/decreased buffers also more/less [RAM](https://en.wikipedia.org/wiki/Random-access_memory) is needed.
-- With each additional `TRICE` macro a few additional [FLASH memory](https://en.wikipedia.org/wiki/Flash_memory) bytes are needed.
-- No `printf` library code is used anymore.
-- No format strings get into the target code anymore.
-- In general `Trice` instrumentation **reduces** the needed memory compared to a `printf` implementation.
-
-### Color results
-
-- Simply add a channel name as color descriptor in front of each `TRICE` message.
-- To get this:
-
-![./docs/README.media/COLOR_output.PNG](./docs/README.media/COLOR_output.PNG)
-  
-- Write that:
-
-```C
-    TRICE( "e:A" );
-    TRICE( "w:B" );
-    TRICE( "a:c" );
-    TRICE( "wr:d" );
-    TRICE( "rd:e\n" );
-    TRICE( "diag:f" );
-    TRICE( "d:G" );
-    TRICE( "t:H" );
-    TRICE( "time:i" );
-    TRICE( "message:J" );
-    TRICE( "dbg:k\n" );
-    TRICE( "1" );
-    TRICE( "2" );
-    TRICE( "3" );
-    TRICE( "4" );
-    TRICE( "e:7" );
-    TRICE( "m:12" );
-    TRICE( "m:123\n" );
-```
-
-- `trice u` (as automated prebuild step) changes the code to:
-
-```C
-    TRICE( Id(42984), "e:A" );
-    TRICE( Id(65475), "w:B" );
-    TRICE( Id(60278), "a:c" );
-    TRICE( Id(39056), "wr:d" );
-    TRICE( Id(57073), "rd:e\n" );
-    TRICE( Id(35315), "diag:f" );
-    TRICE( Id(53769), "d:G" );
-    TRICE( Id(38573), "t:H" );
-    TRICE( Id(37916), "time:i" );
-    TRICE( Id(52118), "message:J" );
-    TRICE( Id(49746), "dbg:k\n" );
-    TRICE( Id(40004), "1" );
-    TRICE( Id(61543), "2" );
-    TRICE( Id(51583), "3" );
-    TRICE( Id(35885), "4" );
-    TRICE( Id(40078), "e:7" );
-    TRICE( Id(44255), "m:12" );
-    TRICE( Id(51771), "m:123\n" );
-```
-
-### On-Off results
-
-- If your code works well after checking, you can add `#define TRICE_OFF` just before the `#include "trice.h"` line and no *trice* code is generated anymore for that file, so no need to delete or comment out `TRICE` macros.
-- No runtime On-Off switch is implemented for  several reasons:
-  - Would need a control channel to the target.
-  - Would add little performance and code overhead.
-  - Would sligtly change target timing (testing).
-  - User can add its own switches anywhere.
-  - The short `TRICE` macro code negligible.
-  - The trice output is encryptable, if needed.
-  - The PC **trice** tool offers command line switches to `-pick` or `-ban` several *trice* channels for the runtime display.
 
 ## Data Transfer
 
@@ -255,16 +116,46 @@ Yes, you can simply start `trice ds` inside a console, option: [third_party/alac
 
 - Of course `git`, **but** it is not forbidden to compile til.json as a resource into the embedded device and get it later back if you have enough flash memory.
 
-## How to start
+## Quick start guide
 
-- Get [trice](https://github.com/rokath/trice) or download latest release assets for your system: Source code and compressed binaries.
-- A port to Darwin should be easy possible.  
+- Download latest release assets for your system: Source code and compressed binaries.
+- Place the **trice** binary somewhere in your [PATH](https://en.wikipedia.org/wiki/PATH_(variable)).
+- Copy 3 files to your embedded project:
+  - `./pkg/src/trice.h`
+  - `./pkg/src/trice.c`
+  - `./test/.../triceConfig.h`
+- In your source.c: `#include "trice.h"`
+- In a function: `TRICE( "Coming soon: %d!\n", 2022 );`
+- In project root:
+  - Create empty file: `touch til.json`.
+  - Run `trice u` should:
+    - patch source.c to `TRICE( Id(12345), "Coming soon: %d!\n", 2022 );`
+    - extend `til.json`
+- Modify `triceConfig.h` acording your needs.
+  - With `#define TRICE_MODE 0` (direct mode) just provide a **putchar()** function.
+  - Recommended is an indirect mode which allows to use `TRICE` macros also inside interrupts.
+- Compile, load and start your app.
+- In project root command like `trice l -p COM3 -baud 57600` should show `Coming soon: 2022!` after app start.
+- Look in `./pkg/src/triceCheck.c` for examples.
+- The used serial Go driver package is Linux & Windows tested.
 
-### Either use pre-compiled `trice` binary
+### Quick target setup
 
-- Place the extracted `trice` binary somewhere in your $PATH.
+- It is sufficient for most cases just to use the `TRICE` macro with max 0 to 12 parameters as a replacement for `printf` and to use the default settings.
+- Compare the **not** instrumented test project [./test/MDK-ARM_STM32F030R8_generated]([./test/MDK-ARM_STM32F030R8_generated) with the instrumented test project [./test/MDK-ARM_STM32F030R8]([./test/MDK-ARM_STM32F030R8) to see what to to.
+  - Recommendation: FLEX encoding
+- **Or** follow these steps for instrumentation information even your target processor is not an ARM (any bit width will do):
+  - Install the free [STCubeMX](https://www.st.com/en/development-tools/stm32cubemx.html).
+  - Choose from [test examples](https://github.com/rokath/trice/tree/master/test) the for you best fitting project `MyExample`.
+  - Open the `MyExample.ioc` file with [STCubeMX](https://www.waveshare.com/wiki/STM32CubeMX_Tutorial_Series:_Overview) and generate without changing any setting.
+  - Make an empty directory `MyProject` inside the `test` folder and copy the `MyExample.ioc` there and rename it to `MyProject.ioc`.
+  - Open `MyProject.ioc` with [STCubeMX](https://www.waveshare.com/wiki/STM32CubeMX_Tutorial_Series:_Overview), change in projects settings `MyExample` to `MyProject` and generate.
+  - Now compare the directories `MyExample` and `MyProject` to see the trice instrumentation as differences.
+- For compiler adaption see [triceConfigCompiler.h](./pkg/src/intern/triceConfigCompiler.h).
+- For hardware adaption see [triceUART_LL_STM32](./pkg/src/intern/triceUART_LL_STM32.h)
 
-### Or build `trice` from Go sources
+
+### How to build `trice` from Go sources
 
 - Install [Go](https://golang.org/).
 - On Windows you need to install [TDM-GCC](https://jmeubank.github.io/tdm-gcc/download/) - recommendation: Minimal online installer.
@@ -288,12 +179,38 @@ Afterwards you should find an executable `trice` inside $GOPATH/bin/
 trice help
 ```
 
+## Documentation is partially obsolete and will be updated soon (in December 2021)
 
-# Following is obsolete and will be updated soon (in December 2021)
+No need to read all this stuff - is is just for help and reference.
 
+- [fix color issues under windows](./docs/Common.md#color-issues-under-windows)
+- [Command Line Examples](./docs/CommandLineExamples.md)
+- [Common.md](./docs/Common.md)
+- [TriceEncodings.md](./docs/TriceEncodings.md)
+- [ID management](./docs/IDManagement.md)
+- [OneWireOption](./docs/OneWireOption.md)
+- [SeggerRTT](./docs/SeggerRTT.md)
 
-<!---
+## Support?
 
+- Yes please: May be
+  - a port to other hardware
+  - some correction
+  - have a cool idea
+  - or simply like to :star: it. ☺
+- Cloning the repo:
+
+```b
+git clone https://github.com/rokath/trice.git
+```
+
+- Edit, test, commit, push & pull request
+
+## Similar projects
+
+Maybe you find this project interesting too: [baical.net](http://baical.net/index.html)
+
+<!--- B A C K U P
 
 ## `TRICE` macros for C & C++ code
 
@@ -400,47 +317,30 @@ Switching trices on and off inside the target increases the overhead and demands
 If needed, always an `if` is usable.
 
 The trice tool can also perform further tasks like JSON encoding with additional log information and transferring this information to some webserver in the future.
+
+## Search counters
+
+![GitHub search hit counter](https://img.shields.io/github/search/rokath/trice/trace)
+![GitHub search hit counter](https://img.shields.io/github/search/rokath/trice/instrumentation)
+![GitHub search hit counter](https://img.shields.io/github/search/rokath/trice/embedded)
+![GitHub search hit counter](https://img.shields.io/github/search/rokath/trice/logging)
+![GitHub search hit counter](https://img.shields.io/github/search/rokath/trice/real-time)
+![GitHub search hit counter](https://img.shields.io/github/search/rokath/trice/debugging)
+![GitHub search hit counter](https://img.shields.io/github/search/rokath/trice/monitoring)
+![GitHub search hit counter](https://img.shields.io/github/search/rokath/trice/terminal)
+![GitHub search hit counter](https://img.shields.io/github/search/rokath/trice/cli)
+![GitHub search hit counter](https://img.shields.io/github/search/rokath/trice/diagnostics)
+![GitHub search hit counter](https://img.shields.io/github/search/rokath/trice/tool)
+![GitHub search hit counter](https://img.shields.io/github/search/rokath/trice/data-recording)
+![GitHub search hit counter](https://img.shields.io/github/search/rokath/trice/rtos)
+![GitHub search hit counter](https://img.shields.io/github/search/rokath/trice/multi-language-support)
+![GitHub search hit counter](https://img.shields.io/github/search/rokath/trice/compression)
+![GitHub search hit counter](https://img.shields.io/github/search/rokath/trice/timing-analysis)
+![GitHub search hit counter](https://img.shields.io/github/search/rokath/trice/time-measurement)
+![GitHub search hit counter](https://img.shields.io/github/search/rokath/trice/golang)
+![GitHub search hit counter](https://img.shields.io/github/search/rokath/trice/printf)
+![GitHub search hit counter](https://img.shields.io/github/search/rokath/trice/encryption)
+![GitHub search hit counter](https://img.shields.io/github/search/rokath/trice/serial)
+![GitHub search hit counter](https://img.shields.io/github/search/rokath/trice/C)
+
 -->
-
-
-
-### Quick target setup
-
-- It is sufficient for most cases just to use the `trice32` macro with max 4 parameters as a replacement for `printf` and to use the default settings.
-- Compare the **not** instrumented test project [MDK-ARM_LL_generatedDemo_STM32F030R8-NUCLEO-64](https://github.com/rokath/trice/tree/master/test/MDK-ARM_LL_generatedDemo_STM32F030R8-NUCLEO-64) with one of the instrumented test projects in [test](https://github.com/rokath/trice/tree/master/test/) to see what to to.
-  - Recommendation: FLEX encoding
-- **Or** follow these steps for instrumentation information even your target processor is not an ARM (any bit width will do):
-  - Install the free [STCubeMX](https://www.st.com/en/development-tools/stm32cubemx.html).
-  - Choose from [test examples](https://github.com/rokath/trice/tree/master/test) the for you best fitting project `MyExample`.
-  - Open the `MyExample.ioc` file with [STCubeMX](https://www.waveshare.com/wiki/STM32CubeMX_Tutorial_Series:_Overview) and generate without changing any setting.
-  - Make an empty directory `MyProject` inside the `test` folder and copy the `MyExample.ioc` there and rename it to `MyProject.ioc`.
-  - Open `MyProject.ioc` with [STCubeMX](https://www.waveshare.com/wiki/STM32CubeMX_Tutorial_Series:_Overview), change in projects settings `MyExample` to `MyProject` and generate.
-  - Now compare the directories `MyExample` and `MyProject` to see the trice instrumentation as differences.
-- For compiler adaption see [triceConfigCompiler.h](./pkg/src/intern/triceConfigCompiler.h).
-- For hardware adaption see [triceUART_LL_STM32](./pkg/src/intern/triceUART_LL_STM32.h)
-
-## Documentation
-
-No need to read all this stuff - is is just for help and reference.
-
-- [fix color issues under windows](./docs/Common.md#color-issues-under-windows)
-- [Command Line Examples](./docs/CommandLineExamples.md)
-- [Common.md](./docs/Common.md)
-- [TriceEncodings.md](./docs/TriceEncodings.md)
-- [ID management](./docs/IDManagement.md)
-- [OneWireOption](./docs/OneWireOption.md)
-- [SeggerRTT](./docs/SeggerRTT.md)
-
-## Support?
-
-Yes please: May be you create a graphical display server, have a cool idea, a port to other hardware, some correction or simply like to :star: it. ☺
-
-## Cloning the repo
-
-```b
-git clone https://github.com/rokath/trice.git
-```
-
-## Similar projects
-
-Maybe you find this project interesting too: [baical.net](http://baical.net/index.html)

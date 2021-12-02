@@ -1,4 +1,68 @@
-# COBS/R encoding design draft
+# *trice*  encoding
+
+## [COBS](https://en.wikipedia.org/wiki/Consistent_Overhead_Byte_Stuffing) encoding for re-sync after data disruption
+
+- After data transmission disruption a reliable re-sync should be possible.
+- The [COBS](https://en.wikipedia.org/wiki/Consistent_Overhead_Byte_Stuffing) techique gives this possibility in an easy way: simply wait for the next packet delimiter byte (`0` is used).
+- Therefore all *trice* transfers are COBS encoded.
+
+## 32-bit transfer chunks
+
+- A *trice* data stream comes always in a multiple-of-4 length for effective transfer.
+  - Therefore after [COBS](https://en.wikipedia.org/wiki/Consistent_Overhead_Byte_Stuffing) encoding the packages are delimited by 1 to 4 zeroes.
+  - After the first zero delimiter, 0 to 3 padding zeroes are ignored as len-0 packages.
+
+### Example: zero-delimited 7-bytes COBS package
+
+|cobs|cobs|cobs|cobs|cobs|cobs|cobs|delimiter|
+| -  | -  | -  | -  | -  | -  | -  | -       |
+| x  | x  | x  | x  | x  | x  | x  | 0       |
+| 0  | 1  | 2  | 3  | 4  | 5  | 6  | 7       |
+
+### Example: zero-delimited 8-bytes COBS package:
+
+|cobs|cobs|cobs|cobs|cobs|cobs|cobs|cobs|delimiter|padding|padding|padding|
+| -  | -  | -  | -  | -  | -  | -  | -  | -       | -     | -     | -     |
+| x  | x  | x  | x  | x  | x  | x  | x  | 0       | 0     | 0     | 0     |
+| 0  | 1  | 2  | 3  | 4  | 5  | 6  | 7  | 8       | 9     | 10    | 11    |
+
+## Package mode prefix
+
+- *Trice* messages are always multiple-of-4-bytes messages.
+- A *trice* buffer can contain several *trice* messages.
+  - Each single *trice* carries its own length information.
+- Just before buffer encoding takes part, a 32-bit transfer buffer mode value is prefixed:
+  - buffer mode 0: *trice* messages are without embedded device timestamps.
+  - buffer mode 1: *trice* messages are prefixed with 32-bit embedded device timestamps.
+  - buffer mode 2-0xFFFFFFFF: user mode values. The **trice** tool ignores such package. This way any user protocols transferable over the same line.
+
+### Example: 12 byte trice message buffer prefixed with mode 0 (no time stamps):
+
+- The 12 *trice* bytes could be 1, 2 or 3 *trice* messages consisting of 3, 2 or 1 32-Bit values.
+
+|mode|mode|mode|mode|data|data|data|data|data|data|data|data|data|data|data|data|
+| -  | -  | -  | -  | -  | -  | -  | -  | -  | -  | -  | -  | -  | -  | -  | -  |
+| 0  | 0  | 0  | 0  | x  | x  | x  | x  | x  | x  | x  | x  | x  | x  | x  | x  |
+| 0  | 1  | 2  | 3  | 4  | 5  | 6  | 7  | 8  | 9  | 10 | 11 | 12 | 13 | 14 | 15 |
+
+### Example: 16 byte trice message buffer prefixed with mode 1 (time stamps)
+
+- The 16 *trice* bytes could be 1 or 2 *trice* messages consisting of 3 or 1 32-bit values, each prefixed by a target timestamp.
+
+|mode|mode|mode|mode|data|data|data|data|data|data|data|data|data|data|data|data|data|data|data|data|
+| -  | -  | -  | -  | -  | -  | -  | -  | -  | -  | -  | -  | -  | -  | -  | -  | -  | -  | -  | -  |
+| 1  | 0  | 0  | 0  | t  | t  | t  | t  | x  | x  | x  | x  |t\|x|t\|x|t\|x|t\|x| x  | x  | x  | x  |
+| 0  | 1  | 2  | 3  | 4  | 5  | 6  | 7  | 8  | 9  | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 |
+
+### Example: 12-bytes user packet - will be ignored by the **trice** tool:
+
+|mode|mode|mode|mode|data|data|data|data|data|data|data|data|data|data|data|data|
+| -  | -  | -  | -  | -  | -  | -  | -  | -  | -  | -  | -  | -  | -  | -  | -  |
+| 5  | 0  | 0  | 0  | x  | x  | x  | x  | x  | x  | x  | x  | x  | x  | x  | x  |
+| 0  | 1  | 2  | 3  | 4  | 5  | 6  | 7  | 8  | 9  | 10 | 11 | 12 | 13 | 14 | 15 |
+
+
+<!--
 
 ## Table of Contents
 
@@ -245,3 +309,4 @@ One byte packages are fast COBS/R codable by simply incrementing the 2 values `0
 
 ## Fast TRICE data storing
 
+-->
