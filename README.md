@@ -85,11 +85,12 @@ This is a slightly simplified [view](https://github.com/jgraph/drawio):
   - If target timestamps disabled and no data values carried, a TRICE macro writes just one 32-bit value to the *trice* buffer.
 - In **direct mode** the trice buffer is on the stack and the TRICE macro execution includes the [COBS](./docs/COBSREncoding.md) encoding and the data transfer. This more straightforward architecture (not shown here) forbids usage inside time critical code but can be interesting for many cases.
 - In **indirect mode** for output a background service is needed. About every 100ms (configurable):
-  - The trice buffer is swapped.
+  - The *trice* double buffer is swapped.
   - A 32-bit buffer mode value is prefixed:
   - Optionally buffer mode and the trice buffer can get encrypted at his stage (not shown here).
-  - COBS encoding takes part. This is de-facto a memcopy with 0 replacements.
+  - The COBS encoding takes part.
   - The out buffer is filled and the UART interrupt is triggered to start the transmission.
+    - Out buffer and half *trice* buffer share the same memory.
 - During runtime the PC trice tool receives the complete triceBuffer (all what happened in the last 100ms) as a COBS package from the UART port.
   - After COBS decoding, an optional decryption takes part (**trice** tool command line switch)
   - The very first 32-bit value is the buffer mode, expected to be 0 or 1. Otherwise the **trice** tool will ignore the package.
