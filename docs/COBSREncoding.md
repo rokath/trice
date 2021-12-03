@@ -1,4 +1,4 @@
-# *trice*  encoding
+# *Trice*  encoding
 
 ## [COBS](https://en.wikipedia.org/wiki/Consistent_Overhead_Byte_Stuffing) encoding for re-sync after data disruption
 
