@@ -2,8 +2,8 @@
 
 ## [COBS](https://en.wikipedia.org/wiki/Consistent_Overhead_Byte_Stuffing) encoding for re-sync after data disruption
 
-- After data transmission disruption a reliable re-sync should be possible.
-- The [COBS](https://en.wikipedia.org/wiki/Consistent_Overhead_Byte_Stuffing) techique gives this possibility in an easy way: simply wait for the next packet delimiter byte (`0` is used).
+- After a data transmission disruption, reliable re-sync should be possible.
+- The [COBS](https://en.wikipedia.org/wiki/Consistent_Overhead_Byte_Stuffing) techique gives this possibility in an easy way: simply wait for the next packet delimiter byte (usually `0`).
 - Therefore all *trice* transfers are COBS encoded.
 
 ## 32-bit transfer chunks
@@ -31,7 +31,7 @@
 - *Trice* messages are always multiple-of-4-bytes messages.
 - A *trice* buffer can contain several *trice* messages.
   - Each single *trice* carries its own length information.
-- Just before buffer encoding takes part, a 32-bit transfer buffer mode value is prefixed:
+- Just before buffer encoding takes part, a 32-bit buffer mode value is prefixed:
   - buffer mode 0: *trice* messages are without embedded device timestamps.
   - buffer mode 1: *trice* messages are prefixed with 32-bit embedded device timestamps.
   - buffer mode 2-0xFFFFFFFF: user mode values. The **trice** tool ignores such package. This way any user protocols transferable over the same line.
