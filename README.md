@@ -39,7 +39,7 @@
 
 - Using *trice* not only for **dynamic debugging** but also as **logging** technique is possible and gives the advantage to have very short messages (no strings) for transmission, but keep in mind that the file [til.json](./til.json) is the key to read all output if your devices in the field for 10 or more years.
   - Optionally add [til.json](./til.json) as a (compressed) resource to your target image. One possibility is using [SRecord](http://srecord.sourceforge.net/download.html).
-- You can see TRICE also as a kind of **data compression** what could be interesting for [IoT](https://en.wikipedia.org/wiki/Internet_of_things) things, especially [NB-IoT](https://en.wikipedia.org/wiki/Narrowband_IoT), where you have very low data rates.
+- You can see *trice* also as a kind of **data compression** what could be interesting for [IoT](https://en.wikipedia.org/wiki/Internet_of_things) things, especially [NB-IoT](https://en.wikipedia.org/wiki/Narrowband_IoT), where you have very low data rates.
 - Storing *trice* messages in [FLASH memory](https://en.wikipedia.org/wiki/Flash_memory) for later log analysis saves memory because a typical `TRICE` occupies only about 8 bytes independently of the format string length.
 - Also it is possible to **encrypt** the *trice* transfer packets to get a reasonable protection for many cases.
   - This way you can deliver firmware images with encrypted *trice* output, only readable with the appropriate key and [til.json](./til.json).
@@ -83,7 +83,7 @@ This is a slightly simplified [view](https://github.com/jgraph/drawio):
   3. The 32 bit value. The total data payload per trice can be 1008 bytes (252 32-bit units).
 - The few values writing inside a typical TRICE macro allows its **usage inside time critical code like scheduler or interrupt**.
   - If target timestamps disabled and no data values carried, a TRICE macro writes just one 32-bit value to the *trice* buffer.
-- In **direct mode** the trice buffer is on the stack and the TRICE macro execution includes the [COBS](./docs/COBSREncoding.md) encoding and the data transfer. This more straightforward architecture (not shown here) forbids usage inside time critical code but can be interesting for many cases.
+- In **direct mode** the *trice* buffer is on the stack and the TRICE macro execution includes the [COBS](./docs/COBSREncoding.md) encoding and the data transfer. This more straightforward architecture (not shown here) forbids usage inside time critical code but can be interesting for many cases.
 - In **indirect mode** for output a background service is needed. About every 100ms (configurable):
   - The *trice* double buffer is swapped.
   - A 32-bit buffer mode value is prefixed:
@@ -91,7 +91,7 @@ This is a slightly simplified [view](https://github.com/jgraph/drawio):
   - The COBS encoding takes part.
   - The out buffer is filled and the UART interrupt is triggered to start the transmission.
     - Out buffer and half *trice* buffer share the same memory.
-- During runtime the PC trice tool receives the complete triceBuffer (all what happened in the last 100ms) as a COBS package from the UART port.
+- During runtime the PC trice tool receives the triceBuffer (all what happened in the last 100ms) as a COBS package from the UART port.
   - After COBS decoding, an optional decryption takes part (**trice** tool command line switch)
   - The very first 32-bit value is the buffer mode, expected to be 0 or 1. Otherwise the **trice** tool will ignore the package.
 - The `0x30 0x39` is the ID 12345 and a map lookup delivers the format string *"msg: %d Kelvin\n"* and also the format information *"TRICE"*, which is needed for the parameter bit width information (usually 32 bit).
