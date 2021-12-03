@@ -31,8 +31,9 @@
 - Main idea: Logging strings **not** into an embedded device to display them later on a PC but keep **usage comfortable and simple**.
 - Trice consists of 2 parts:
   1. **C** code `TRICE` macros generating tiny & super fast embedded device real-time trace/log code
-  2. PC tool **trice** for managing and visualization.
-- The PC **trice** tool itself is written in [Go](https://golang.org/) and therefore usable on all platforms Go supports. You can also use your own environment to receive the trice packges, exchange the carried IDs with the format string and print out.
+  2. Tool **trice** for managing and visualization.
+    - Written in [Go](https://golang.org/) and therefore usable on all platforms Go supports.
+    - You can also use your own environment to receive the trice packges, exchange the carried IDs with the format string and print out.
 
 ## Possible Use Cases
 
@@ -76,12 +77,12 @@ This is a slightly simplified [view](https://github.com/jgraph/drawio):
 
 ![trice](./docs/README.media/triceCOBSBlockDiagram.svg)
 
-- When the program flow passes the line `TRICE( Id(12345), "msg: %d Kelvin\n", k );` three 32-bit values transferred into the trice buffer:
-  1. Embedded device timestamp: You can enable or disable it and decide about the time base.
+- When the program flow passes the line `TRICE( Id(12345), "msg: %d Kelvin\n", k );` two or three 32-bit values transferred into the trice buffer:
+  1. Optional embedded device timestamp: You can decide about the time base.
   2. Combine: the 16-bit ID, the data 32-bit values count as 8-bit value and an 8-bit cycle counter.
-  3. The 32 bit temperature value. The total data payload per trice can be 1008 bytes (252 32-bit units).
-- The only 3 values writing inside a typical TRICE macro allows its **usage inside time critical code like scheduler or interrupt**.
-- If target timestamps disabled and no data values carried, a TRICE macro writes just one 32-bit value to the *trice* buffer.
+  3. The 32 bit value. The total data payload per trice can be 1008 bytes (252 32-bit units).
+- The few values writing inside a typical TRICE macro allows its **usage inside time critical code like scheduler or interrupt**.
+  - If target timestamps disabled and no data values carried, a TRICE macro writes just one 32-bit value to the *trice* buffer.
 - In **direct mode** the trice buffer is on the stack and the TRICE macro execution includes the [COBS](./docs/COBSREncoding.md) encoding and the data transfer. This more straightforward architecture (not shown here) forbids usage inside time critical code but can be interesting for many cases.
 - In **indirect mode** for output a background service is needed. About every 100ms (configurable):
   - The trice buffer is swapped.
