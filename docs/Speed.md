@@ -1,4 +1,4 @@
-# Achieved *trice* Speed
+# *Trice* Speed
 
  A `TRICE` macro execution can be as cheap like **3-4 Assembler instructions or 6-8 processor clocks**:
 
