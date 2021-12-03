@@ -9,4 +9,4 @@
   - User can add its own switches anywhere.
   - The short `TRICE` macro code is negligible.
   - The trice output is encryptable, if needed.
-  - The PC **trice** tool offers command line switches to `-pick` or `-ban` several *trice* channels and will be extended with display switches.
+  - The PC **trice** tool offers command line switches to `-pick` or `-ban` for *trice* channels and will be extended with display switches.
