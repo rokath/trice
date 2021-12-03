@@ -27,7 +27,7 @@
   - **[SPEED](./docs/Speed.md)**, to be usable also inside interrupts
   - **[SPACE](./docs/Space.md)**, to reduce FLASH memory size
   - **[COLOR](./docs/Color.md)**, to improve visibility
-  - Compile time and/or runtime **[ON-OFF](./docs/Color.md)**.
+  - Compile time and/or runtime **[ON-OFF](./docs/OnOff.md)**.
 - Main idea: Logging strings **not** into an embedded device to display them later on a PC but keep **usage comfortable and simple**.
 - Trice consists of 2 parts:
   1. **C** code `TRICE` macros generating tiny & super fast embedded device real-time trace/log code
