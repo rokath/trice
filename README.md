@@ -24,7 +24,7 @@
   - **[COLOR](./docs/Color.md)**, to improve visibility
   - Compile time and/or runtime **[ON-OFF](./docs/OnOff.md)**.
 - Main idea: Logging strings **not** into an embedded device to display them later on a PC but keep [usage comfortable and simple](./docs/EasyUsage.md).
-- *trice* consists of 2 parts:
+- *Trice* consists of 2 parts:
   1. **C** code `TRICE` macros generating tiny & super fast embedded device real-time trace/log code
   2. Tool **trice** for managing and visualization.
       - Written in [Go](https://golang.org/) and therefore usable on all platforms Go supports.
@@ -103,7 +103,7 @@ No need to read all this stuff - is is just for help and reference.
 - Yes please: May be
   - a port to other hardware
   - some correction
-  - have a cool idea
+  - a cool idea
   - or simply like to :star: it. ☺
 - Cloning the repo:
 
