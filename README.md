@@ -1,8 +1,6 @@
 # ![TriceGirlS.png](./docs/README.media/TriceGirl-167x222.png) **Trice** <- **TR**~~ace~~ **I**~~ds~~ **C** **E**~~mbedded~~  
 
-- [github.io/trice/](https://rokath.github.io/trice/)
-
-## Info shields
+[github.io/trice/](https://rokath.github.io/trice/)
 
 ![GitHub Workflow Status](https://img.shields.io/github/workflow/status/rokath/trice/goreleaser)
 ![GitHub issues](https://img.shields.io/github/issues/rokath/trice)
@@ -11,9 +9,6 @@
 ![GitHub watchers](https://img.shields.io/github/watchers/rokath/trice?label=watch)
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/rokath/trice)
 ![GitHub commits since latest release](https://img.shields.io/github/commits-since/rokath/trice/latest)
-
-## Link shields
-
 [![Go Report Card](https://goreportcard.com/badge/github.com/rokath/trice)](https://goreportcard.com/report/github.com/rokath/trice)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 [![test](https://github.com/shogo82148/actions-goveralls/workflows/test/badge.svg?branch=main)](https://coveralls.io/github/rokath/trice)
