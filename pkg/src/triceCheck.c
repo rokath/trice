@@ -7,75 +7,22 @@
 //#define TRICE_OFF // enable this line to disable trice code generation in this file object
 #include "trice.h"
 
-void shortTriceCheckSet(int index) {
-    char* s;
-    switch (index) {
-        case 0: // sign 
-            TRICE( Id(50491), "na" ); TRICE( Id( 59621),"nu"); TRICE64( Id( 41176),"%d%d", 2, -2 );
-            TRICE32_1( Id( 49915), "rd:TRICE32_1 line %u (%%u -1)\n", -1 ); 
-            TRICE32_1( Id( 39033), "rd:TRICE32_1 line %b (%%b -1)\n", -1 ); 
-            TRICE32_1( Id( 41601), "rd:TRICE32_1 line %o (%%o -1)\n", -1 ); 
-            TRICE32_1( Id( 48655), "rd:TRICE32_1 line %x (%%x -1)\n", -1 ); 
-            TRICE32_1( Id( 34659), "rd:TRICE32_1 line %d (%%d -1)\n", -1 ); 
-        break;
-        case 1:
-            TRICE32_1( Id( 61654), "ATT:trice16_1 attention message, SysTick is %6d\n", SYSTICKVAL);
-            TRICE32_1( Id( 63097), "ATT:trice16_1 attention message, SysTick is %6d\n", SYSTICKVAL);
-            TRICE32_1( Id( 59357), "ATT:trice16_1 attention message, SysTick is %6d\n", SYSTICKVAL);
-            TRICE32_1( Id( 55647), "ATT:trice16_1 attention message, SysTick is %6d\n", SYSTICKVAL);
-            TRICE32_1( Id( 43058), "ATT:trice16_1 attention message, SysTick is %6d\n", SYSTICKVAL);
-            TRICE32_1( Id( 40194), "ATT:trice16_1 attention message, SysTick is %6d\n", SYSTICKVAL);
-            TRICE32_1( Id( 50626), "ATT:trice16_1 attention message, SysTick is %6d\n", SYSTICKVAL);
-            TRICE32_1( Id( 43507), "ATT:trice16_1 attention message, SysTick is %6d\n", SYSTICKVAL);
-        break;
-        case 2: // sign      
-            TRICE16( Id( 50005), "rd:TRICE16 %d, %d, %d, %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6, 7, 8, 9 );      
-            TRICE16( Id( 54783), "rd:TRICE16 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10);      
-            TRICE16( Id( 50159), "rd:TRICE16 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 );      
-            TRICE16( Id( 39046), "rd:TRICE16 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 );      
-        break;
-        case 3: // sign 
-            TRICE32_2( Id( 49557),  "rd:TRICE32_2 %d, %d\n", 1, 2 );
-            TRICE32_3( Id( 64262),  "rd:TRICE32_3 %d, %d, %d\n", 1, 2, 3 );
-            TRICE32_4( Id( 34114),  "rd:TRICE32_4 %d, %d, %d, %d\n", 1, 2, 3, 4 );
-        break;
-        case 4: // sign 
-            TRICE(Id( 45734), "--------------------------------------------------\n");
-            TRICE(Id( 45734), "--------------------------------------------------\n");
-            TRICE(Id( 45734), "--------------------------------------------------\n");
-            TRICE0(Id( 39702), "--------------------------------------------------\n");
-            TRICE0(Id( 43477), "--------------------------------------------------\n");
-        break;
-        case 5: // sign 
-            TRICE0(Id( 42984), "e:A");
-            TRICE0(Id( 65475), "w:B");
-            TRICE0(Id( 60278), "a:c");
-            TRICE0(Id( 39056), "wr:d");
-            TRICE0(Id( 57073), "rd:e\n");
-            TRICE0(Id( 35315), "diag:f");
-        break;
-        case 6: // sign 
-            TRICE8_8( Id( 48310), "dbg:%d %d %d %d %d %d %d %d\n", 8, 8, 8, 8, 8, 8, 8, 8 );
-            s = "AAAAAAAAAAAA";
-            TRICE32( Id( 47643), "dbg:len=%u:", strlen(s) );
-            TRICE_S( Id( 43140), "sig:%s\n", s ); 
-        break;
-        case 7: // sign 
-        break;
-    }
-}
 //! TriceCheckSet writes out all types of trices with fixed values for testing
 //! \details One trice has one subtrace, if param size max 2 bytes. 
 //! Traces with more bytes as parameter consist of several subtraces.
 void TriceCheckSet(int index) {
     char* s;
+		float x = 6.123456789;
+		double y = 7.987654321;
     switch (index) {
-        case 0: // sign                                                                     
-            TRICE8_1( Id( 61213), "rd:TRICE8_1 line %u (%%u -1)\n", -1 );   
-            TRICE8_1( Id( 56571), "rd:TRICE8_1 line %b (%%b -1)\n", -1 );   
-            TRICE8_1( Id( 34827), "rd:TRICE8_1 line %o (%%o -1)\n", -1 );   
-            TRICE8_1( Id( 63602), "rd:TRICE8_1 line %x (%%x -1)\n", -1 );   
-            TRICE8_1( Id( 63474), "rd:TRICE8_1 line %d (%%d -1)\n", -1 );   
+        case 0: // sign & format specifier                                                                   
+            TRICE( Id(48024), "rd:TRICE line %u (%%u)\n", -1 ); 
+            TRICE( Id(58374), "rd:TRICE line %b (%%b)\n", -2 ); 
+            TRICE( Id(45055), "rd:TRICE line %o (%%o)\n", -3 ); 
+            TRICE( Id(37423), "rd:TRICE line %x (%%x)\n", -4 ); 
+            TRICE( Id(53816), "rd:TRICE line %d (%%d)\n", -5 ); 
+            TRICE( Id(35788), "rd:TRICE line %f (%%f)\n", x ); 
+            TRICE( Id(36949), "rd:TRICE line %g (%%g)\n", y ); 
                                                                             
             TRICE16_1( Id( 35169), "rd:TRICE16_1 line %u (%%u -1)\n", -1 ); 
             TRICE16_1( Id( 35133), "rd:TRICE16_1 line %b (%%b -1)\n", -1 ); 
@@ -84,17 +31,21 @@ void TriceCheckSet(int index) {
             TRICE16_1( Id( 37985), "rd:TRICE16_1 line %d (%%d -1)\n", -1 ); 
         break;
         case 1:                    
-            TRICE32_1( Id( 49915), "rd:TRICE32_1 line %u (%%u -1)\n", -1 ); 
-            TRICE32_1( Id( 39033), "rd:TRICE32_1 line %b (%%b -1)\n", -1 ); 
-            TRICE32_1( Id( 41601), "rd:TRICE32_1 line %o (%%o -1)\n", -1 ); 
-            TRICE32_1( Id( 48655), "rd:TRICE32_1 line %x (%%x -1)\n", -1 ); 
-            TRICE32_1( Id( 34659), "rd:TRICE32_1 line %d (%%d -1)\n", -1 ); 
+            TRICE32_1( Id(62543), "rd:TRICE32_1 line %u (%%u)\n", -1 ); 
+            TRICE32_1( Id(45989), "rd:TRICE32_1 line %b (%%b)\n", -1 ); 
+            TRICE32_1( Id(36491), "rd:TRICE32_1 line %o (%%o)\n", -1 ); 
+            TRICE32_1( Id(35192), "rd:TRICE32_1 line %x (%%x)\n", -1 ); 
+            TRICE32_1( Id(58755), "rd:TRICE32_1 line %d (%%d)\n", -1 ); 
+            TRICE32_1( Id(34058), "rd:TRICE32_1 line %f (%%f)\n", x ); 
+            TRICE32_1( Id(62453), "rd:TRICE32_1 line %g (%%g)\n", y ); 
                                                                             
-            TRICE64_1( Id( 48666), "rd:TRICE64_1 line %u (%%u -1)\n", -1 ); 
-            TRICE64_1( Id( 60252), "rd:TRICE64_1 line %b (%%b -1)\n", -1 ); 
-            TRICE64_1( Id( 44548), "rd:TRICE64_1 line %o (%%o -1)\n", -1 ); 
-            TRICE64_1( Id( 49762), "rd:TRICE64_1 line %x (%%x -1)\n", -1 ); 
-            TRICE64_1( Id( 49042), "rd:TRICE64_1 line %d (%%d -1)\n", -1 ); 
+            TRICE64_1( Id(50978), "rd:TRICE64_1 line %u (%%u)\n", -1 ); 
+            TRICE64_1( Id(35922), "rd:TRICE64_1 line %b (%%b)\n", -1 ); 
+            TRICE64_1( Id(36296), "rd:TRICE64_1 line %o (%%o)\n", -1 ); 
+            TRICE64_1( Id(42819), "rd:TRICE64_1 line %x (%%x)\n", -1 ); 
+            TRICE64_1( Id(52591), "rd:TRICE64_1 line %d (%%d)\n", -1 ); 
+            TRICE64_1( Id(54432), "rd:TRICE64_1 line %f (%%f)\n", x ); 
+            TRICE64_1( Id(53702), "rd:TRICE64_1 line %g (%%g)\n", y ); 
         break;
         case 2:
             TRICE32_1( Id( 61654), "ATT:trice16_1 attention message, SysTick is %6d\n", SYSTICKVAL);
@@ -301,7 +252,7 @@ void TriceCheckSet(int index) {
             TRICE64_1(Id( 59670), "tst:TRICE64_1 %d\n", -111); // 2
             TRICE64_2(Id( 46159), "tst:TRICE64_2 %d %d\n", -111, -222); // 4
         break;
-        case 16:            
+        case 16: // colored single letters and several TRICE macros in one line        
             TRICE0(Id( 42984), "e:A");
             TRICE0(Id( 65475), "w:B");
             TRICE0(Id( 60278), "a:c");
@@ -320,6 +271,10 @@ void TriceCheckSet(int index) {
             TRICE0(Id( 40078), "e:7");
             TRICE0(Id( 44255), "m:12");
             TRICE0(Id( 51771), "m:123\n");
+            TRICE(Id(63288), "e:A"); TRICE(Id(53934), "w:B"); TRICE(Id(44438), "a:c");
+            TRICE(Id(39663), "wr:d"); TRICE(Id(42027), "rd:e\n"); TRICE(Id(54760), "diag:f");
+				    TRICE(   Id(57680), "%d%d", 2, -2 ); TRICE8(   Id(33878), "%d%d", 2, -2 ); TRICE16(   Id(56897), "%d%d", 2, -2 ); TRICE32(   Id(42128), "%d%d", 2, -2 ); TRICE64(   Id( 41176), "%d%d", 2, -2 );
+				    TRICE_2( Id(40709), "%d%d", 2, -2 ); TRICE8_2( Id(40940), "%d%d", 2, -2 ); TRICE16_2( Id(42184), "%d%d", 2, -2 ); TRICE32_2( Id(56879), "%d%d", 2, -2 ); TRICE64_2( Id(61735), "%d%d", 2, -2 );
         break;
         case 17:            
             TRICE8_1(Id( 54804), "tst:TRICE8_1 %d\n", 1);
