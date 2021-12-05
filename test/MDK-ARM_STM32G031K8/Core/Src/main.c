@@ -22,7 +22,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "trice.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -43,7 +43,7 @@
 UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN PV */
-
+int milliSecond = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -82,23 +82,51 @@ int main(void)
   SystemClock_Config();
 
   /* USER CODE BEGIN SysInit */
-
+    SysTick->CTRL |= SysTick_CTRL_TICKINT_Msk; // enable SysTick interrupt
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
-
+  #ifdef TRICE_ENCRYPT
+    TriceInitXteaTable();
+  #endif
+    #ifdef TRICE_UART
+    LL_USART_EnableIT_RXNE(TRICE_UART); // enable UART2 interrupt
+    #endif
+    TRICE_HEADLINE;
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  while (1)
-  {
+  while (1){
+      // serve every few ms
+#ifdef TRICE_HALF_BUFFER_SIZE
+      static int lastMs = 0;
+      if( milliSecond >= lastMs + TRICE_TRANSFER_INTERVAL_MS ){
+          lastMs = milliSecond;
+          TriceTransfer();
+      }
+#endif
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+  {
+    static int lastTricesTime = 0;
+    // send some trices every few ms
+        if( milliSecond >= lastTricesTime + 200 ){
+            static int index = 0;
+            int select = index % 25;
+            TRICE16( Id( 48324),"MSG: START select = %d, TriceDepthMax =%4u\n", select, TriceDepthMax );
+            if( select != 5 ){
+                TriceCheckSet(select);
+            }
+            TRICE16( Id( 53709),"MSG: STOP  select = %d, TriceDepthMax =%4u\n", select, TriceDepthMax );
+            index++;
+            lastTricesTime = milliSecond;
+        }
+    }
   }
   /* USER CODE END 3 */
 }
