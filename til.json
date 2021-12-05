@@ -87,6 +87,10 @@
 		"Type": "TRICE8_4",
 		"Strg": "tst:TRICE8_4 %d %d %d %d\\n"
 	},
+	"34713": {
+		"Type": "TRICE",
+		"Strg": "ATT:TRICE attention message, SysTick is %6d\\n"
+	},
 	"34721": {
 		"Type": "TRICE32",
 		"Strg": "msg: message = %08x %08x %08x %08x %08x %08x\\n"
@@ -199,9 +203,17 @@
 		"Type": "TRICE0",
 		"Strg": "--------------------------------------------------\\n"
 	},
+	"36779": {
+		"Type": "TRICE",
+		"Strg": "ATT:TRICE attention message, SysTick is %6d\\n"
+	},
 	"36949": {
 		"Type": "TRICE",
 		"Strg": "rd:TRICE line %g (%%g)\\n"
+	},
+	"37046": {
+		"Type": "TRICE",
+		"Strg": "tim:TRICE START time message\\n"
 	},
 	"37130": {
 		"Type": "TRICE32",
@@ -291,6 +303,10 @@
 		"Type": "TRICE0",
 		"Strg": "wr:d"
 	},
+	"39169": {
+		"Type": "TRICE",
+		"Strg": "ATT:TRICE attention message, SysTick is %6d\\n"
+	},
 	"39532": {
 		"Type": "TRICE64_2",
 		"Strg": "tst:TRICE64_2 %u %u\\n"
@@ -347,6 +363,10 @@
 		"Type": "TRICE8",
 		"Strg": "rd:TRICE8 %d, %d\\n"
 	},
+	"40233": {
+		"Type": "TRICE",
+		"Strg": "rd:TRICE32_1 line %d\\n"
+	},
 	"40569": {
 		"Type": "TRICE8",
 		"Strg": "rd:TRICE8 %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
@@ -370,6 +390,10 @@
 	"40940": {
 		"Type": "TRICE8_2",
 		"Strg": "%d%d"
+	},
+	"40965": {
+		"Type": "TRICE",
+		"Strg": "rd:TRICE32_1 line %d\\n"
 	},
 	"41052": {
 		"Type": "TRICE32",
@@ -467,6 +491,10 @@
 		"Type": "TRICE64",
 		"Strg": "rd:TRICE line %g (%%g -1.0)\\n"
 	},
+	"43266": {
+		"Type": "TRICE",
+		"Strg": "tim:TRICE STOP time message\\n"
+	},
 	"43327": {
 		"Type": "TRICE64_11",
 		"Strg": "rd:TRICE64_11 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
@@ -486,6 +514,10 @@
 	"43535": {
 		"Type": "TRICE16",
 		"Strg": "rd:TRICE16 %d, %d, %d, %d, %d, %d\\n"
+	},
+	"43780": {
+		"Type": "TRICE",
+		"Strg": "tim:TRICE attention message, SysTick is %6d\\n"
 	},
 	"43896": {
 		"Type": "TRICE",
@@ -606,6 +638,10 @@
 	"47183": {
 		"Type": "TRICE32_2",
 		"Strg": "tst:TRICE32_2 %d %d\\n"
+	},
+	"47265": {
+		"Type": "TRICE",
+		"Strg": "tim:TRICE attention message, SysTick is %6d\\n"
 	},
 	"47415": {
 		"Type": "TRICE8_4",
@@ -767,6 +803,10 @@
 		"Type": "TRICE8_4",
 		"Strg": "tst:TRICE8_4   %%4o -\u003e %4o %4o %4o %4o\\n"
 	},
+	"51019": {
+		"Type": "TRICE",
+		"Strg": "ATT:TRICE attention message, SysTick is %6d\\n"
+	},
 	"51133": {
 		"Type": "TRICE64_1",
 		"Strg": "rd:TRICE64_1 %d\\n"
@@ -906,6 +946,14 @@
 	"53889": {
 		"Type": "TRICE32_1",
 		"Strg": "time:TRICE32_1   message, SysTick is %6u\\n"
+	},
+	"53914": {
+		"Type": "TRICE",
+		"Strg": "ATT:TRICE attention message, SysTick is %6d\\n"
+	},
+	"53919": {
+		"Type": "TRICE",
+		"Strg": "ATT:TRICE attention message, SysTick is %6d\\n"
 	},
 	"53934": {
 		"Type": "TRICE",
@@ -1059,6 +1107,10 @@
 		"Type": "TRICE0",
 		"Strg": "rd:e\\n"
 	},
+	"57298": {
+		"Type": "TRICE",
+		"Strg": "tim:TRICE STOP time message\\n"
+	},
 	"57357": {
 		"Type": "TRICE",
 		"Strg": "rd:TRICE line %u (%%u -1)\\n"
@@ -1074,6 +1126,10 @@
 	"57449": {
 		"Type": "TRICE0",
 		"Strg": "s:                                          \\n"
+	},
+	"57582": {
+		"Type": "TRICE",
+		"Strg": "ATT:TRICE attention message, SysTick is %6d\\n"
 	},
 	"57611": {
 		"Type": "TRICE32",
@@ -1098,6 +1154,10 @@
 	"58425": {
 		"Type": "TRICE64",
 		"Strg": "rd:TRICE64 %d, %d, %d, %d, %d, %d\\n"
+	},
+	"58441": {
+		"Type": "TRICE",
+		"Strg": "tim:TRICE START time message\\n"
 	},
 	"58747": {
 		"Type": "TRICE32_4",
@@ -1170,6 +1230,10 @@
 	"59795": {
 		"Type": "TRICE32_2",
 		"Strg": "tst:TRICE32_2 %x %x\\n"
+	},
+	"59836": {
+		"Type": "TRICE",
+		"Strg": "tim:TRICE --------------------------------------------------\\n"
 	},
 	"59840": {
 		"Type": "TRICE8",
@@ -1398,6 +1462,10 @@
 	"64958": {
 		"Type": "TRICE8_6",
 		"Strg": "tst:TRICE8_6 %u %u %u %u %u %u\\n"
+	},
+	"65259": {
+		"Type": "TRICE",
+		"Strg": "ATT:TRICE attention message, SysTick is %6d\\n"
 	},
 	"65307": {
 		"Type": "TRICE64",

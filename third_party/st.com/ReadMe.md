@@ -2,9 +2,10 @@
 
 Check for newer versions at [st.com](https://www.st.com).
 
-## en.stsw-link009.zip
+## en.stsw-link009_v2.0.2.zip
 
 - USB driver for Windows
+- Check for latest version
 
 ## en.stsw-link007_V2-37-26.zip
 

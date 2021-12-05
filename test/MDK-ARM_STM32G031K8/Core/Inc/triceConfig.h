@@ -15,13 +15,13 @@ extern "C" {
 // Select trice mode and general settings.
 //
 
-  #define TRICE_MODE 0 //! TRICE_MODE is a predefined trice transfer method.
+  #define TRICE_MODE 201 //! TRICE_MODE is a predefined trice transfer method.
 
 //#define TRICE_RTT_CHANNEL 0 //!< Uncomment and set channel number for SeggerRTT usage.
 #define TRICE_UART USART2   //!< Uncomment and set UART for serial output.
 
 extern int milliSecond;
-#define TRICE_TIMESTAMP_VALUE milliSecond //!< Uncomment if you do not need target timestamps. Instead of SYSTICKVAL, you can use any other up to 32-bit value.
+#define TRICE_TIMESTAMP_VALUE SYSTICKVAL //!< Uncomment if you do not need target timestamps. Instead of SYSTICKVAL or milliSecond, you can use any other up to 32-bit value.
 
 // Enabling next 2 lines results in XTEA TriceEncryption  with the key.
 //#define TRICE_ENCRYPT XTEA_KEY( ea, bb, ec, 6f, 31, 80, 4e, b9, 68, e2, fa, ea, ae, f1, 50, 54 ); //!< -password MySecret
