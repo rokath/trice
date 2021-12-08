@@ -32,7 +32,7 @@ The *trice* technique tries to fill this gap trying to be minimal invasive and a
 
 ## Simplicity is Complicated ...
 
-... we learned from [Rob Pike](https://www.youtube.com/watch?v=rFejpH_tAHM), one of the **Go** inventors and indeed [Go](https://en.wikipedia.org/wiki/Go_(programming_language)) is easy to learn but a very powerful language. The **trice** tool was started in C++ but focusing on content was difficult because of all the C++ nuts and bolts to deal with. After restarting the project in **Go** the implementation started to get amusing.
+... we learned from [Rob Pike](https://www.youtube.com/watch?v=rFejpH_tAHM), one of the **Go** inventors and indeed [Go](https://en.wikipedia.org/wiki/Go_(programming_language)) is easy to learn but a very powerful language. The **trice** tool was started in C++ but focusing on content was difficult because of all the C++ nuts and bolts to deal with. After restarting the project in **Go** the implementation got amusing.
 
 The same perception exists when using *trice* in an embedded project instead of some other technique. One can simply write `TRICE( "Hello %d, hello, ..., hello %d again!", 88, -88 );` or whatever everywhere without thinking about execution time and FLASH memory size.
 
