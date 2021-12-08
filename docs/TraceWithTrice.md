@@ -2,7 +2,7 @@
 
 ## Description
 
-`TRICE()` is a comfortable macro, generating tiny C-code for getting PC `printf()` comfort at "speed-of-light" for any micro-controller. It is supported by a **Go** written powerful **trice** PC tool running on many platforms and comes with sample implementations. Features:
+`TRICE()` is a comfortable macro, generating tiny C-code for getting PC `printf()` comfort at "speed-of-light" for any micro-controller. It is supported by a **Go** written powerful PC tool **trice** running on many platforms and comes with sample implementations. Features:
 - super fast: a `TRICE()` macro is executable in less than 10 clocks
 - target and host timestamps
 - runtime filterable colored channels
@@ -24,7 +24,7 @@ If you develop software for an embedded system, you always need some kind of sys
 
 The first choice is to use logging then, usually done with `printf` like functions. Getting quick a result after having a `putchar()` implemented, it turns out to be an expensive way in terms of processor clocks and needed FLASH memory, when you regard the library code and all the strings needing FLASH memory space. For small micro-controllers that´s it.
 
-Bigger micro-controllers are coming with embedded trace hardware. To use it, an expensive tool is needed. Very useful for analyzing complex multi-tasking systems but for field related issues they at least unhandy.
+Bigger micro-controllers are coming with embedded trace hardware. To use it, an expensive tool is needed. Useful for analyzing complex multi-tasking systems but for field related issues they at least unhandy.
 
 Unhappy with this situation the developer starts thinking of using a spare DAC (digital-analog.converter), using GPIO`s with a logic-analyzer or oscilloscope (both expensive too but usually available) or starts emitting some proprietary LED blinking codes or byte sequences, only understandable for him and only in this year.
 
