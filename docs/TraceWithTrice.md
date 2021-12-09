@@ -1,23 +1,55 @@
 ![./README.media/TriceGirlS.png](./README.media/TriceGirlS.png)
 
-# Trace with `TRICE()` and get `printf()` comfort inside interrupts and everywhere
+# Trace with `TRICE` and get `printf` comfort inside interrupts and everywhere
 
-## Description
+<!-- vscode-markdown-toc -->
+* 1. [Description](#Description)
+* 2. [Abstract](#Abstract)
+* 3. [Simplicity is Complicated ...](#SimplicityisComplicated...)
+* 4. [How it works - the main idea](#Howitworks-themainidea)
+* 5. [*Trice* features](#Tricefeatures)
+	* 5.1. [Simplicity](#Simplicity)
+	* 5.2. [`triceConfig.h` file](#triceConfig.hfile)
+	* 5.3. [Execution speed](#Executionspeed)
+	* 5.4. [Embedded device timestamps](#Embeddeddevicetimestamps)
+	* 5.5. [PC timestamps](#PCtimestamps)
+	* 5.6. [Runtime filterable colored channels](#Runtimefilterablecoloredchannels)
+	* 5.7. [Encryption option](#Encryptionoption)
+	* 5.8. [Compile time enable/disable `TRICE` on file level](#CompiletimeenabledisableTRICEonfilelevel)
+	* 5.9. [Integrate several target devices in one log file](#Integrateseveraltargetdevicesinonelogfile)
+	* 5.10. [Any byte capable 1-wire connection usable](#Anybytecapable1-wireconnectionusable)
+	* 5.11. [Compared to `printf` usage, less needed FLASH memory](#ComparedtoprintfusagelessneededFLASHmemory)
+	* 5.12. [ID Management](#IDManagement)
+	* 5.13. [Runtime generated strings transfer](#Runtimegeneratedstringstransfer)
+	* 5.14. [Extended format specifier possibilities](#Extendedformatspecifierpossibilities)
+	* 5.15. [COBS encoding and user protocols](#COBSencodinganduserprotocols)
+	* 5.16. [Target configuration and options](#Targetconfigurationandoptions)
+* 6. [Future](#Future)
+* 7. [Conclusion](#Conclusion)
+* 8. [References and further reading](#Referencesandfurtherreading)
 
-`TRICE()` is a comfortable macro, generating tiny C-code for getting PC `printf()` comfort at "speed-of-light" for any micro-controller. It is supported by an in [Go](https://go.dev/) written powerful PC tool **trice** running on many platforms and comes with sample implementations. Features:
-- super fast: a `TRICE()` macro is executable in less than 10 clocks
+<!-- vscode-markdown-toc-config
+	numbering=true
+	autoSave=true
+	/vscode-markdown-toc-config -->
+<!-- /vscode-markdown-toc -->
+
+##  1. <a name='Description'></a>Description
+
+`TRICE` is a comfortable macro, generating tiny C-code for getting PC `printf` comfort at "speed-of-light" for any micro-controller. It is supported by an in [Go](https://go.dev/) written powerful PC tool **trice** running on many platforms and comes with sample implementations. Features:
+- super fast: a `TRICE` macro is executable in less than 10 clocks
 - target and host timestamps
 - runtime filterable colored channels
 - encryption option
-- enable/disable `TRICE()` on file level 
+- enable/disable `TRICE` on file level 
 - integrate several target devices in one log file
 - transmit over TCP/IP to a remote server 
 - any byte capable connection usable
-- compared to `printf()` usage, less needed FLASH memory
+- compared to `printf` usage, less needed FLASH memory
 
 ![./README.media/life0.gif](./README.media/life0.gif)
 
-## Abstract
+##  2. <a name='Abstract'></a>Abstract
 
 If you develop software for an embedded system, you need some kind of system feedback. Debuggers are awesome tools, but when it comes to analyze dynamic behavior in the field, they are not usable.
 
@@ -31,7 +63,7 @@ The *trice* technique tries to fill this gap trying to be minimal invasive and a
 
 ![./README.media/COLOR_output.PNG](./README.media/COLOR_output.PNG)
 
-## Simplicity is Complicated ...
+##  3. <a name='SimplicityisComplicated...'></a>Simplicity is Complicated ...
 
 ... we learned from [Rob Pike](https://www.youtube.com/watch?v=rFejpH_tAHM), one of the **Go** inventors and indeed [Go](https://en.wikipedia.org/wiki/Go_(programming_language)) is easy to learn but a very powerful language. The **trice** tool was started in C++ but focusing on content was difficult because of all the C++ nuts and bolts to deal with. After restarting the project in **Go**, the implementation got amusing.
 
@@ -39,28 +71,123 @@ The same perception exists when using *trice* in an embedded project instead of 
 
 This may sound like a miracle, but it is not. *Trice* is the result of a long-year dissatisfaction and several attempts to find a loophole to make embedded programming more fun and this way more effective.
 
-## How it works - the main idea
+##  4. <a name='Howitworks-themainidea'></a>How it works - the main idea
 
-- Executing a `printf()` like function means:
+- Executing a `printf` like function means:
   - Copy format string from FLASH memory into RAM.
   - Parse the format string for format specifiers.
   - Convert parameters according the format specifiers into character sequences.
     - This includes several divisions - costly function calls.
   - Concatenate the parts to an output string and deliver it to the output, what often means copying again.
-  - Never ever call a `printf()` like function in time critical code, like an interrupt.
+  - Never ever call a `printf` like function in time critical code, like an interrupt.
 - *Trice*, instead just copies an ID together with the parameters to the output and is done.
 - This is goes in about 10 processor clocks. When running on a 64 MHz clock light can travel about 30 meters in that time.
-- To achieve that, an automatic pre-compile step is needed, executing a `trice update` command.
-  - The trice tool parses the the source code tree for macros like `TRICE( "Hello World" );` and patches them to `TRICE( Id(nnnnn), "Hello World" );`, where `nnnnn` is a 16-bit identifier associated to the format string `"Hello World"`.
-  - During compilation the `TRICE()` macro is translated just to the `nnnnn` ID and the optional parameter values. The format string is ignored by the compiler.
+- To achieve that, a pre-compile step is needed, executing a `trice update` command.
+  - The trice tool parses the the source tree for macros like `TRICE( "Hello World" );` and patches them to `TRICE( Id(nnnnn), "Hello World" );`, where `nnnnn` is a 16-bit identifier associated to the format string `"Hello World"`.
+  - During compilation the `TRICE` macro is translated just to the `nnnnn` ID and the optional parameter values. The format string is ignored by the compiler.
   - At runtime just the ID with its parameter values is delivered to the PC. There the **trice** tool receives it, gets the right format string from the reference list and performs the printing task: ![./README.media/triceCOBSBlockDiagram.svg](./README.media/triceCOBSBlockDiagram.svg)
-- The **trice** tries to help as much as possible, to let the developer focus on its programming task. For example, the once generated ID is not changed anymore without need. If for example the format string gets changed into `"Hello World!"` a new ID is generated automatically and the reference list gets extended.
+- The **trice** tool tries to help as much as possible, to let the developer focus on its programming task. For example, the once generated ID is not changed anymore without need. If for example the format string gets changed into `"Hello World!"`, a new ID is generated automatically and the reference list gets extended.
 
-## *Trice* features
+##  5. <a name='Tricefeatures'></a>*Trice* features
+
+###  5.1. <a name='Simplicity'></a>Simplicity
+
+- *Trice* is just one `TRICE` source code macro replacing `printf` function calls nearly 1:1 and the **trice** tool usable with only 2 command line switches:
+  - `trice update` for updating the source tree and the ID reference list
+  - `trice log -port COMx -baud y`
+- The **trice** tools comes with many command line switches for tailoring various needs, but usually these are not needed.
+
+###  5.2. <a name='triceConfig.hfile'></a>`triceConfig.h` file
+
+- Choose the *trice* mode here:
+  - direct mode: direct output inside `TRICE` macro at the cost of the time it takes
+  - indirect mode: delayed output outside `TRICE` macro at the cost of RAM needed
+- Decide about target timestamps and the time base
+- Enable a *trice* cycle counter or not
+- Allow `TRICE` usage inside interrupts 
+
+###  5.3. <a name='Executionspeed'></a>Execution speed 
+
+- During `TRICE` macro runtime 32-bit pushing into a double buffer half occurs:
+  - a target timestamp, if enabled
+  - a mandatory 2-byte ID value with 1-byte data size and optionally 1-byte cycle counter
+  - parameter values, if existing
+- That is all, what happens effectively.
+- Additionally disable interrupts and restore interrupt state and cycle counter increment can consume a few processor clocks.
+
+###  5.4. <a name='Embeddeddevicetimestamps'></a>Embedded device timestamps
+
+- If enabled, any 32-bit target value can be used as target timestamp, so it if fully in the hand of the developer if the system clock, a 10µs or a second counter is used.
+- For minimal overhead embedded, device timestamps could be switched off and if a time is needed it could be passed as parameter as well.
+- Delivered target timestamps are displayed by the **trice** tool automatically but suppressible by command line switch.
+- If several `TRICE` macros form a single line, the **trice** tool only displays the target timestamp of the first `TRICE` macro.
+
+###  5.5. <a name='PCtimestamps'></a>PC timestamps
+
+- Embedded devices often lack a real-time clock and some scenarios can last for weeks.
+- Therefore the **trice** tool precedes each *trice* line with a PC timestamp, if not disabled. This is the *trice* reception time on the PC, what can be some milliseconds later than the *trice* event.
+- With a normal setting the *trice* double buffer switches every 100ms. This is no visible display delay.
+
+###  5.6. <a name='Runtimefilterablecoloredchannels'></a>Runtime filterable colored channels
+
+- Each *trice* format string can optionally start with a `pattern:` like in `TRICE( "msg:Hi!\n" );`.
+- The **trice** tool, if knowing `msg:` as pattern, prepends the appropriate color code. It removes the sequence `pattern:`, if it is completely lower case.
+- The user can define any pattern with any color code to create colored output with the **trice** tool.
+- There is no channel enable switch inside the target code. It would need a back channel and add overhead. 
+- The **trice** tool offers 2 command line switches for pick or ban any channels.  
+
+###  5.7. <a name='Encryptionoption'></a>Encryption option
+
+- *Trice* output can be encrypted, allowing to deliver devices with access to diagnostics only with a password.
+
+###  5.8. <a name='CompiletimeenabledisableTRICEonfilelevel'></a>Compile time enable/disable `TRICE` on file level 
+
+- After debugging code in a file, there is no need to remove or comment out `TRICE` macros.
+- `#define TRICE_OFF` just before `#include "trice.h"` and all `TRICE` macros in this file are ignored completely by the compiler.
+
+###  5.9. <a name='Integrateseveraltargetdevicesinonelogfile'></a>Integrate several target devices in one log file
+
+- Several **trice** tool instances can run parallel on one or several PCs.
+- Each **trice** tool instance receives *trices* from an embedded device.
+- Instead of displaying the log lines, the **trice** tools can transmit them over TCP/IP to a **trice** tool acting as display server.
+- The display server can fold these log lines in one output and also write parallel into a log file.
+
+###  5.10. <a name='Anybytecapable1-wireconnectionusable'></a>Any byte capable 1-wire connection usable
+
+- The usual trice output device is an UART but also SEGGER-RTT is supported over J-Link or ST-Link devices.
+- It is easy to use a micro controller as *trice* bridge to a serial port from any port.
+
+###  5.11. <a name='ComparedtoprintfusagelessneededFLASHmemory'></a>Compared to `printf` usage, less needed FLASH memory
+
+- Using *trice* frees FLASH memory from standard library `printf` code and also from all format strings.
+- Of course the `TRICE` code need also FLASH memory but only a few bytes per macro. 
+
+###  5.12. <a name='IDManagement'></a>ID Management
+
+###  5.13. <a name='Runtimegeneratedstringstransfer'></a>Runtime generated strings transfer
+
+###  5.14. <a name='Extendedformatspecifierpossibilities'></a>Extended format specifier possibilities
+
+###  5.15. <a name='COBSencodinganduserprotocols'></a>COBS encoding and user protocols
+
+###  5.16. <a name='Targetconfigurationandoptions'></a>Target configuration and options
+
+##  6. <a name='Future'></a>Future
+
+- The *trice* technique is new and still under development.
+- Plans exist: 
+  - Additional tests and bug fixing
+  - A PC **Trice** tool configuration file
+  - Interfacing [Grafana](https://grafana.com/) or similar tools
+  - Any further ideas?
 
 
 
-## References and further reading
+##  7. <a name='Conclusion'></a>Conclusion
+
+- Getting started with *trice* will take a few hours, but probably pay off during the further development.
+
+##  8. <a name='Referencesandfurtherreading'></a>References and further reading
 
 - [*Go* home](https://go.dev/)
 - [Rob Pike: "Simplicity is Complicated"]((https://www.youtube.com/watch?v=rFejpH_tAHM))
