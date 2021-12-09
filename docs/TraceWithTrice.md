@@ -2,7 +2,7 @@
 
 ## Description
 
-`TRICE()` is a comfortable macro, generating tiny C-code for getting PC `printf()` comfort at "speed-of-light" for any micro-controller. It is supported by a **Go** written powerful PC tool **trice** running on many platforms and comes with sample implementations. Features:
+`TRICE()` is a comfortable macro, generating tiny C-code for getting PC `printf()` comfort at "speed-of-light" for any micro-controller. It is supported by an in [Go](https://go.dev/) written powerful PC tool **trice** running on many platforms and comes with sample implementations. Features:
 - super fast: a `TRICE()` macro is executable in less than 10 clocks
 - target and host timestamps
 - runtime filterable colored channels
@@ -20,13 +20,13 @@
 
 ## Abstract
 
-If you develop software for an embedded system, you always need some kind of system feedback, like an LED on/off. Debuggers are awesome tools, but when it comes to analyze dynamic behavior in the field, they are not usable.
+If you develop software for an embedded system, you need some kind of system feedback. Debuggers are awesome tools, but when it comes to analyze dynamic behavior in the field, they are not usable.
 
-The first choice is to use logging then, usually done with `printf` like functions. Getting quick a result after having a `putchar()` implemented, it turns out to be an expensive way in terms of processor clocks and needed FLASH memory, when you regard the library code and all the strings needing FLASH memory space. For small micro-controllers that´s it.
+Logging then, usually done with `printf` like functions, gets quick a result after having a `putchar()` implemented. This turns out to be an expensive way in terms of processor clocks and needed FLASH memory, when you regard the library code and all the strings needing FLASH memory space. For small micro-controllers that´s it.
 
-Bigger micro-controllers are coming with embedded trace hardware. To use it, an expensive tool is needed. Useful for analyzing complex multi-tasking systems but for field related issues they at least unhandy.
+Bigger micro-controllers are coming with embedded trace hardware. To use it, an expensive tool is needed. Useful for analyzing complex multi-tasking systems, but for in-field related issues at least unhandy.
 
-Unhappy with this situation the developer starts thinking of using a spare DAC (digital-analog.converter), using GPIO`s with a logic-analyzer or oscilloscope (both expensive too but usually available) or starts emitting some proprietary LED blinking codes or byte sequences, only understandable for him and only in this year.
+Unhappy with this situation, the developer starts thinking of using digital pins or a spare analog output with an oscilloscope or starts emitting some proprietary LED blinking codes or byte sequences, difficult to interpret.
 
 The *trice* technique tries to fill this gap trying to be minimal invasive and as comfortable as possible.
 
