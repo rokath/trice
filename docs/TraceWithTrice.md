@@ -24,7 +24,7 @@
 	* 5.14. [ID Management](#IDManagement)
 	* 5.15. [Runtime generated strings transfer](#Runtimegeneratedstringstransfer)
 	* 5.16. [Extended format specifier possibilities](#Extendedformatspecifierpossibilities)
-	* 5.17. [[COBS](https://en.wikipedia.org/wiki/Consistent_Overhead_Byte_Stuffing) encoding and user protocols](#COBShttps:en.wikipedia.orgwikiConsistent_Overhead_Byte_Stuffingencodinganduserprotocols)
+	* 5.17. [COBS encoding and user protocols](#COBSencodinganduserprotocols)
 * 6. [Future](#Future)
 * 7. [Conclusion](#Conclusion)
 * 8. [References and further reading](#Referencesandfurtherreading)
@@ -204,10 +204,10 @@ This may sound like a miracle, but it is not. *Trice* is the result of a long-ye
 
 - Because the format string is interpreted by the **trice** tool written in [Go](https://en.wikipedia.org/wiki/Go_(programming_language)), its capabilities partial usable. For example `%b` allows output of bit patterns.
 
-###  5.17. <a name='COBShttps:en.wikipedia.orgwikiConsistent_Overhead_Byte_Stuffingencodinganduserprotocols'></a>[COBS](https://en.wikipedia.org/wiki/Consistent_Overhead_Byte_Stuffing) encoding and user protocols
+###  5.17. <a name='COBSencodinganduserprotocols'></a>COBS encoding and user protocols
 
 - One issue on data transfer is always how to re-sync after a data disruption. 
-- The **C**onsistent **O**verhead **B**yte **S**tuffing technique is a very powerful and simple way for re-syncing.
+- The [**C**onsistent **O**verhead **B**yte **S**tuffing](https://en.wikipedia.org/wiki/Consistent_Overhead_Byte_Stuffing) technique is a very powerful and simple way for re-syncing.
 - Just in case, wait for the next package delimiter.
 - Several *trice* message can occur within one single **COBS** package.
 - Each **COBS** package starts with a 32-bit descriptor:
