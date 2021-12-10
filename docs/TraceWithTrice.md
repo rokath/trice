@@ -239,4 +239,4 @@ This may sound like a miracle, but it is not. *Trice* is the result of a long-ye
 - [*Go* home](https://go.dev/)
 - [Rob Pike: "Simplicity is Complicated"](https://www.youtube.com/watch?v=rFejpH_tAHM)
 - [*Trice* on Github](https://github.com/rokath/trice)
-- [*Trice* example projects](https://github.com/rokath/trice/test)
+- [*Trice* example projects](https://github.com/rokath/trice/tree/master/test)
