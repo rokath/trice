@@ -90,6 +90,11 @@ This may sound like a miracle, but it is not. *Trice* is the result of a long-ye
 
 ##  5. <a name='Tricefeatures'></a>*Trice* features
 
+### Open source
+
+- Target code and PC tool are open source.
+- The MIT license gives full usage freedom.
+
 ###  5.1. <a name='Simplicity'></a>Simplicity
 
 - Add `trice.c` to the embedded project and `#include "trice.h"` to your source files.
