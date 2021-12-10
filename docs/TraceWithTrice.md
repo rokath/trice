@@ -36,7 +36,10 @@
 
 ##  1. <a name='Description'></a>Description
 
-`TRICE` is a comfortable macro, generating tiny C-code for getting PC `printf` comfort at "speed-of-light" for any micro-controller. It is supported by an in [Go](https://go.dev/) written powerful PC tool **trice** running on many platforms and comes with sample implementations. Features:
+`TRICE` is a C-macro, generating tiny code for getting `printf` comfort at "speed-of-light" for any micro-controller. It is supported by an in [Go](https://go.dev/) written powerful PC tool **trice** running on many platforms and comes with sample implementations. 
+
+<!--
+Features:
 - super fast: a `TRICE` macro is executable in less than 10 clocks
 - target and host timestamps
 - runtime filterable colored channels
@@ -46,6 +49,7 @@
 - transmit over TCP/IP to a remote server 
 - any byte capable connection usable
 - compared to `printf` usage, less needed FLASH memory
+-->
 
 ![./README.media/life0.gif](./README.media/life0.gif)
 
@@ -55,13 +59,11 @@ If you develop software for an embedded system, you need some kind of system fee
 
 Logging then, usually done with `printf` like functions, gets quick a result after having a `putchar()` implemented. This turns out to be an expensive way in terms of processor clocks and needed FLASH memory, when you regard the library code and all the strings needing FLASH memory space. For small micro-controllers that´s it.
 
-Bigger micro-controllers are coming with embedded trace hardware. To use it, an expensive tool is needed. Useful for analyzing complex multi-tasking systems, but for in-field related issues at least unhandy.
+Bigger micro-controllers are coming with embedded trace hardware. To use it, an expensive tool is needed. Useful for analyzing complex systems, but for in-field related issues at least unhandy.
 
 Unhappy with this situation, the developer starts thinking of using digital pins or a spare analog output with an oscilloscope or starts emitting some proprietary LED blinking codes or byte sequences, difficult to interpret.
 
 The *trice* technique tries to fill this gap trying to be minimal invasive and as comfortable as possible. It is the result of a long-year dissatisfaction and several attempts to find a loophole to make embedded programming more fun and this way more effective.
-
-![./README.media/COLOR_output.PNG](./README.media/COLOR_output.PNG)
 
 ##  3. <a name='Howitworks-themainidea'></a>How it works - the main idea
 
@@ -156,6 +158,8 @@ The *trice* technique tries to fill this gap trying to be minimal invasive and a
 - There is no channel enable switch inside the target code. It would need a back channel and add overhead. 
 - The **trice** tool offers the 2 command line switches `-pick` and `-ban` to control channel visualization during runtime.  
 
+![./README.media/COLOR_output.PNG](./README.media/COLOR_output.PNG)
+
 ###  4.9. <a name='CompiletimeenabledisableTRICEonfilelevel'></a>Compile time enable/disable `TRICE` on file level 
 
 - After debugging code in a file, there is no need to remove or comment out `TRICE` macros.
@@ -200,7 +204,7 @@ The *trice* technique tries to fill this gap trying to be minimal invasive and a
 
 - The `%s` format specifier is not supported by the `TRICE` macro.
 - Strings, known at compile time should be a part of a format string.
-- Strings created at runtime, need a special `TRICE_S` macro, which accepts exactly one type `%s` format specifier. The are allowed to a size of 1000 bytes each.
+- Strings created at runtime, need a special `TRICE_S` macro, which accepts exactly one type `%s` format specifier. They are allowed to a size of 1000 bytes each.
 
 ###  4.16. <a name='Extendedformatspecifierpossibilities'></a>Extended format specifier possibilities
 
