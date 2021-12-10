@@ -63,15 +63,6 @@ The *trice* technique tries to fill this gap trying to be minimal invasive and a
 
 ![./README.media/COLOR_output.PNG](./README.media/COLOR_output.PNG)
 
-<!--
-  3. <a name='SimplicityisComplicated...'></a>Simplicity is Complicated ...
-
-... we learned from [Rob Pike](https://www.youtube.com/watch?v=rFejpH_tAHM), one of the **Go** inventors and indeed [Go](https://en.wikipedia.org/wiki/Go_(programming_language)) is easy to learn but a very powerful language. The **trice** tool was started in C++ but focusing on content was difficult because of all the C++ nuts and bolts to deal with. After restarting the project in **Go**, the implementation got amusing.
-
-The same perception exists when using *trice* in an embedded project instead of some other technique. One can simply write `TRICE( "Hello %d, hello, ..., hello %d again!", 88, -88 );` or whatever everywhere without thinking about execution time and FLASH memory size.
-
-This may sound like a miracle, but it is not. 
--->
 ##  3. <a name='Howitworks-themainidea'></a>How it works - the main idea
 
 - Executing a `printf` like function means:
@@ -147,8 +138,8 @@ This may sound like a miracle, but it is not.
 
 ###  4.6. <a name='Embeddeddevicetimestamps'></a>Embedded device timestamps
 
-- If enabled, any 32-bit target value can be used as target timestamp, so it if fully in the hand of the developer if the system clock, a 10µs or a second counter is used.
-- Delivered target timestamps are displayed by the **trice** tool automatically but suppressible by command line switch.
+- If enabled, any 32-bit target value can be used as target timestamp, so it is in the hand of the developer if the system clock, a 10µs or a millisecond second counter is used.
+- Delivered target timestamps are displayed by the **trice** tool automatically, changeable or suppressible by command line switch.
 - If several `TRICE` macros form a single line, the **trice** tool only displays the target timestamp of the first `TRICE` macro.
 
 ###  4.7. <a name='PCtimestamps'></a>PC timestamps
@@ -177,9 +168,10 @@ This may sound like a miracle, but it is not.
 ###  4.11. <a name='Integrateseveraltargetdevicesinonelogfile'></a>Integrate several target devices in one log file
 
 - Several **trice** tool instances can run parallel on one or several PCs.
-- Each **trice** tool instance receives *trices* from an embedded device.
+- Each **trice** tool instance receives *trices* from one embedded device.
 - Instead of displaying the log lines, the **trice** tools can transmit them over TCP/IP to a **trice** tool acting as display server.
 - The display server can fold these log lines in one output.
+- For each embedded device a separate *trice* line prefix and suffix is definable.
 
 ###  4.12. <a name='Anybytecapable1-wireconnectionusable'></a>Any byte capable 1-wire connection usable
 
@@ -189,7 +181,7 @@ This may sound like a miracle, but it is not.
 ###  4.13. <a name='LessFLASHmemoryneededcomparedtoprintfusage'></a>Less FLASH memory needed compared to `printf` usage
 
 - Using *trice* frees FLASH memory from standard library `printf` code and also from all format strings.
-- Of course the `TRICE` code need also FLASH memory but only a fair amount and few bytes per macro. 
+- Of course the `TRICE` code needs also FLASH memory but only a fair amount and few bytes per macro. 
 
 ###  4.14. <a name='IDManagement'></a>ID Management
 
@@ -197,21 +189,22 @@ This may sound like a miracle, but it is not.
 - Per default new IDs determined randomly to keep the chance low, that several developers grab the same ID.
 - It is possible to divide the ID space - each developer gets its region.
 - New IDs can be also incremental or decremental instead of random.
-- `TRICE` macros commented out, are visible for the `trice update` command.
+- `TRICE` macros commented out, are visible for the `trice update` command and therefore regarded.
+- IDs get changed automatically to solve conflicts only.
 - To make sure, a single ID will not be changed, change it to a hexadecimal syntax.
 - The ID reference list keeps all obsolete IDs with their format strings allowing compatibility to former firmware versions.
-- One can delete ID reference list. It will be reconstructed automatically from the source tree with the next `trice update` command, but history is lost then.
+- One can delete the ID reference list. It will be reconstructed automatically from the source tree with the next `trice update` command, but history is lost then.
 - Optionally add the (compressed) ID reference list as resource into the target FLASH memory to be sure not to loose it in the next 20 years.  
 
 ###  4.15. <a name='Runtimegeneratedstringstransfer'></a>Runtime generated strings transfer
 
 - The `%s` format specifier is not supported by the `TRICE` macro.
-- Strings, known at compile time should be a part of the format string.
-- Strings created at runtime need a special `TRICE_S` macro, which accepts exactly one type `%s` format specifier. The are allowed to a size of 1000 bytes each.
+- Strings, known at compile time should be a part of a format string.
+- Strings created at runtime, need a special `TRICE_S` macro, which accepts exactly one type `%s` format specifier. The are allowed to a size of 1000 bytes each.
 
 ###  4.16. <a name='Extendedformatspecifierpossibilities'></a>Extended format specifier possibilities
 
-- Because the format string is interpreted by the **trice** tool written in [Go](https://en.wikipedia.org/wiki/Go_(programming_language)), its capabilities partial usable. For example `%b` allows output of bit patterns.
+- Because the format string is interpreted by the **trice** tool written in [Go](https://en.wikipedia.org/wiki/Go_(programming_language)), the **Go** capabilities partial usable. For example `%b` allows output of bit patterns.
 
 ###  4.17. <a name='COBSencodinganduserprotocols'></a>COBS encoding and user protocols
 
@@ -234,9 +227,9 @@ This may sound like a miracle, but it is not.
 - The *trice* technique is new and still under development.
 - Plans exist: 
   - Additional tests and bug fixing
-  - A PC **Trice** tool configuration file
+  - A **trice** PC tool configuration file
   - Interfacing [Grafana](https://grafana.com/) or similar tools
-  - A target code option using a FIFO instead of double buffering. This will slow down the *trices* a bit but needs less RAM.
+  - A target code option using a FIFO instead of double buffering. This will slow down the *trices* a bit, but needs less RAM.
   - A target code option calling a trice function behind the `Trice` macro. This will safe FLASH memory in large projects but slows down the *trices* a bit.
 
 ##  6. <a name='Conclusion'></a>Conclusion
@@ -245,6 +238,6 @@ This may sound like a miracle, but it is not.
 
 ##  7. <a name='Referencesandfurtherreading'></a>References and further reading
 
-- [*Go* home](https://go.dev/)
 - [*Trice* on Github](https://github.com/rokath/trice)
 - [*Trice* example projects](https://github.com/rokath/trice/tree/master/test)
+- [*Go* home](https://go.dev/)
