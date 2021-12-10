@@ -81,7 +81,7 @@ This may sound like a miracle, but it is not. *Trice* is the result of a long-ye
   - Concatenate the parts to an output string and deliver it to the output, what often means copying again.
   - Never ever call a `printf` like function in time critical code, like an interrupt.
 - *Trice*, instead just copies an ID together with the parameters to the output and is done.
-- This is goes in about 10 processor clocks. When running on a 64 MHz clock light can travel about 30 meters in that time.
+- This is goes in about 10 processor clocks. When running on a 64 MHz clock, light can travel about 30 meters in that time.
 - To achieve that, a pre-compile step is needed, executing a `trice update` command.
   - The trice tool parses the the source tree for macros like `TRICE( "Hello World" );` and patches them to `TRICE( Id(nnnnn), "Hello World" );`, where `nnnnn` is a 16-bit identifier associated to the format string `"Hello World"`.
   - During compilation the `TRICE` macro is translated just to the `nnnnn` ID and the optional parameter values. The format string is ignored by the compiler.
@@ -92,7 +92,8 @@ This may sound like a miracle, but it is not. *Trice* is the result of a long-ye
 
 ###  5.1. <a name='Simplicity'></a>Simplicity
 
-- *Trice* is just one `TRICE` source code macro replacing `printf` function calls nearly 1:1 and the **trice** tool usable with only 2 command line switches:
+- Add `trice.c` to the embedded project and `#include "trice.h"` to your source files.
+- *Trice* is just one `TRICE` source code macro replacing `printf` function calls nearly 1:1 and the **trice** tool is usable with only 2 command line switches:
   - `trice update` for updating the source tree and the ID reference list
   - `trice log -port COMx -baud y`
 - The **trice** tools comes with many command line switches for tailoring various needs, but usually these are not needed.
