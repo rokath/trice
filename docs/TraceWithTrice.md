@@ -93,10 +93,10 @@ This may sound like a miracle, but it is not. *Trice* is the result of a long-ye
 ###  5.1. <a name='Simplicity'></a>Simplicity
 
 - Add `trice.c` to the embedded project and `#include "trice.h"` to your source files.
-- *Trice* is just one `TRICE` source code macro replacing `printf` function calls nearly 1:1 and the **trice** tool is usable with only 2 command line switches:
+- Just one `TRICE` source code macro replaces `printf` function calls nearly 1:1 and the **trice** tool is usable with only 2 command line switches:
   - `trice update` for updating the source tree and the ID reference list
   - `trice log -port COMx -baud y`
-- The **trice** tools comes with many command line switches for tailoring various needs, but usually these are not needed.
+- The **trice** tool comes with many command line switches for tailoring various needs, but usually these are not needed.
 
 ###  5.2. <a name='triceConfig.hfile'></a>`triceConfig.h` file
 
