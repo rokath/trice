@@ -41,7 +41,7 @@ const (
 	patAnyTriceStart = patTypNameTRICE + `\s*\(`
 
 	// patNextFormatSpecifier is a regex to find next format specifier in a string (exclude %%*)
-	patNextFormatSpecifier = `(?:^|[^%])(%[0-9\.#]*(b|c|d|u|x|X|o|f))`
+	patNextFormatSpecifier = `(?:^|[^%])(%[0-9\.#]*(b|c|d|u|x|X|o|f|g))`
 
 	// patTriceNoLen finds next `TRICEn` without length specifier: https://regex101.com/r/vSvOEc/1
 	patTriceNoLen = `(?i)(\bTRICE(|8|16|32|64)\b)`
@@ -472,7 +472,7 @@ func visitZeroSourceTreeIds(w io.Writer, run bool) filepath.WalkFunc {
 		for {
 			var found bool
 			if !found {
-			found, modified, subs, s = zeroNextID(w, modified, subs, s)
+				found, modified, subs, s = zeroNextID(w, modified, subs, s)
 				break
 			}
 		}

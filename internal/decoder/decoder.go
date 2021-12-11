@@ -48,6 +48,10 @@ const (
 	// It does also match %%x positions! so an additional check must follow.
 	patNextFormatXSpecifier = `(?:%[0-9]*(l|o|O|x|X|b))`
 
+	// patNextFormatFSpecifier is a regex to find next format f specifier in a string
+	// It does also match %%f positions! so an additional check must follow.
+	patNextFormatFSpecifier = `(?:%[0-9]*f)`
+
 	// headSize is 4; each trice message starts with a head of 4 bytes.
 	headSize = 4
 
@@ -81,6 +85,7 @@ var (
 	matchNextFormatSpecifier  = regexp.MustCompile(patNextFormatSpecifier)
 	matchNextFormatUSpecifier = regexp.MustCompile(patNextFormatUSpecifier)
 	matchNextFormatXSpecifier = regexp.MustCompile(patNextFormatXSpecifier)
+	matchNextFormatFSpecifier = regexp.MustCompile(patNextFormatFSpecifier)
 
 	// DebugOut enables debug information.
 	DebugOut = false
@@ -274,6 +279,7 @@ func uReplaceN(i string) (o string, u []bool) {
 		fm := s[loc[0]:loc[1]]
 		locU := matchNextFormatUSpecifier.FindStringIndex(fm)
 		locX := matchNextFormatXSpecifier.FindStringIndex(fm)
+		locF := matchNextFormatFSpecifier.FindStringIndex(fm)
 		if nil != locU { // a %nu found
 			o = o[:offset-1] + "d" + o[offset:] // replace %nu -> %nd
 			u = append(u, true)
