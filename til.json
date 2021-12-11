@@ -1067,6 +1067,10 @@
 		"Type": "TRICE8_1",
 		"Strg": "rd:TRICE8_1 line %b (%%b -1)\\n"
 	},
+	"56664": {
+		"Type": "TRICE",
+		"Strg": "MSG: START select = %d, TriceDepthMax =%4u\\n"
+	},
 	"56680": {
 		"Type": "TRICE64",
 		"Strg": "rd:TRICE line %f (%%f -1.0)\\n"
@@ -1074,6 +1078,10 @@
 	"56700": {
 		"Type": "TRICE8_5",
 		"Strg": "tst:TRICE8_5 %u %u %u %u %u\\n"
+	},
+	"56713": {
+		"Type": "TRICE",
+		"Strg": "MSG: STOP  select = %d, TriceDepthMax =%4u\\n"
 	},
 	"56739": {
 		"Type": "TRICE64",
