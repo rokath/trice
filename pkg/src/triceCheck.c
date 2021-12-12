@@ -12,8 +12,8 @@
 //! Traces with more bytes as parameter consist of several subtraces.
 void TriceCheckSet(int index) {
     char* s;
-		float x = 6.123456789;
-		double y = 7.987654321;
+		float  x = 1089.6082763671875; // 0x44883377
+		double y = 518.0547492508867; // 0x4080307020601050
     switch (index) {
         case 0: // sign & format specifier                                                                   
             TRICE( Id(48024), "rd:TRICE line %u (%%u)\n", -1 ); 
@@ -21,9 +21,10 @@ void TriceCheckSet(int index) {
             TRICE( Id(45055), "rd:TRICE line %o (%%o)\n", -3 ); 
             TRICE( Id(37423), "rd:TRICE line %x (%%x)\n", -4 ); 
             TRICE( Id(53816), "rd:TRICE line %d (%%d)\n", -5 ); 
-            TRICE( Id(35788), "rd:TRICE line %f (%%f)\n", x ); 
-            TRICE( Id(36949), "rd:TRICE line %g (%%g)\n", y ); 
-                                                                            
+            TRICE( Id(36949), "rd:TRICE line %g (%%g)\n", x ); 
+            TRICE( Id(39742), "rd:TRICE_1 float %f (%%f)\n", aFloat(x) ); 
+            TRICE32_1( Id(49806), "rd:TRICE32_1 float %f (%%f), aFloat(x)\n", aFloat(x) ); 
+            TRICE64_1( Id(32851), "rd:TRICE64_1 float %f (%%f), aDouble(y)\n", aDouble(y) ); 
             TRICE16_1( Id( 35169), "rd:TRICE16_1 line %u (%%u -1)\n", -1 ); 
             TRICE16_1( Id( 35133), "rd:TRICE16_1 line %b (%%b -1)\n", -1 ); 
             TRICE16_1( Id( 51463), "rd:TRICE16_1 line %o (%%o -1)\n", -1 ); 
@@ -36,16 +37,11 @@ void TriceCheckSet(int index) {
             TRICE32_1( Id(36491), "rd:TRICE32_1 line %o (%%o)\n", -1 ); 
             TRICE32_1( Id(35192), "rd:TRICE32_1 line %x (%%x)\n", -1 ); 
             TRICE32_1( Id(58755), "rd:TRICE32_1 line %d (%%d)\n", -1 ); 
-            TRICE32_1( Id(34058), "rd:TRICE32_1 line %f (%%f)\n", x ); 
-            TRICE32_1( Id(62453), "rd:TRICE32_1 line %g (%%g)\n", y ); 
-                                                                            
             TRICE64_1( Id(50978), "rd:TRICE64_1 line %u (%%u)\n", -1 ); 
             TRICE64_1( Id(35922), "rd:TRICE64_1 line %b (%%b)\n", -1 ); 
             TRICE64_1( Id(36296), "rd:TRICE64_1 line %o (%%o)\n", -1 ); 
             TRICE64_1( Id(42819), "rd:TRICE64_1 line %x (%%x)\n", -1 ); 
             TRICE64_1( Id(52591), "rd:TRICE64_1 line %d (%%d)\n", -1 ); 
-            TRICE64_1( Id(54432), "rd:TRICE64_1 line %f (%%f)\n", x ); 
-            TRICE64_1( Id(53702), "rd:TRICE64_1 line %g (%%g)\n", y ); 
         break;
         case 2:
             TRICE( Id(65259), "ATT:TRICE attention message, SysTick is %6d\n", SYSTICKVAL);
@@ -57,28 +53,26 @@ void TriceCheckSet(int index) {
             TRICE( Id(58441), "tim:TRICE START time message\n");
             TRICE( Id(57298), "tim:TRICE STOP time message\n");
             TRICE( Id(58441), "tim:TRICE START time message\n");
-				    TRICE64( Id( 52183), "rd:TRICE64 %d, %d\n", 1, 2 );
+            TRICE64( Id( 52183), "rd:TRICE64 %d, %d\n", 1, 2 );
             TRICE( Id(57298), "tim:TRICE STOP time message\n");
-						TRICE( Id(59836), "tim:TRICE --------------------------------------------------\n"); 
-						TRICE( Id(59836), "tim:TRICE --------------------------------------------------\n"); 
-						TRICE( Id(59836), "tim:TRICE --------------------------------------------------\n"); 
-						TRICE( Id(59836), "tim:TRICE --------------------------------------------------\n"); 
-						TRICE( Id(59836), "tim:TRICE --------------------------------------------------\n"); 
-						TRICE( Id(59836), "tim:TRICE --------------------------------------------------\n"); 
-				    TRICE64( Id( 52183), "rd:TRICE64 %d, %d\n", 1, 2 );
-						TRICE( Id(59836), "tim:TRICE --------------------------------------------------\n"); 
-						TRICE( Id(59836), "tim:TRICE --------------------------------------------------\n"); 
-						TRICE( Id(59836), "tim:TRICE --------------------------------------------------\n"); 
-						TRICE( Id(59836), "tim:TRICE --------------------------------------------------\n"); 
-						TRICE( Id(59836), "tim:TRICE --------------------------------------------------\n"); 
-						TRICE( Id(59836), "tim:TRICE --------------------------------------------------\n"); 
-						TRICE( Id(59836), "tim:TRICE --------------------------------------------------\n"); 
-				    TRICE64( Id( 52183), "rd:TRICE64 %d, %d\n", 1, 2 );
-						TRICE( Id(59836), "tim:TRICE --------------------------------------------------\n"); 
-						TRICE( Id(59836), "tim:TRICE --------------------------------------------------\n"); 
-						TRICE( Id(59836), "tim:TRICE --------------------------------------------------\n"); 
-				
-
+            TRICE( Id(59836), "tim:TRICE --------------------------------------------------\n"); 
+            TRICE( Id(59836), "tim:TRICE --------------------------------------------------\n"); 
+            TRICE( Id(59836), "tim:TRICE --------------------------------------------------\n"); 
+            TRICE( Id(59836), "tim:TRICE --------------------------------------------------\n"); 
+            TRICE( Id(59836), "tim:TRICE --------------------------------------------------\n"); 
+            TRICE( Id(59836), "tim:TRICE --------------------------------------------------\n"); 
+            TRICE64( Id( 52183), "rd:TRICE64 %d, %d\n", 1, 2 );
+            TRICE( Id(59836), "tim:TRICE --------------------------------------------------\n"); 
+            TRICE( Id(59836), "tim:TRICE --------------------------------------------------\n"); 
+            TRICE( Id(59836), "tim:TRICE --------------------------------------------------\n"); 
+            TRICE( Id(59836), "tim:TRICE --------------------------------------------------\n"); 
+            TRICE( Id(59836), "tim:TRICE --------------------------------------------------\n"); 
+            TRICE( Id(59836), "tim:TRICE --------------------------------------------------\n"); 
+            TRICE( Id(59836), "tim:TRICE --------------------------------------------------\n"); 
+            TRICE64( Id( 52183), "rd:TRICE64 %d, %d\n", 1, 2 );
+            TRICE( Id(59836), "tim:TRICE --------------------------------------------------\n"); 
+            TRICE( Id(59836), "tim:TRICE --------------------------------------------------\n"); 
+            TRICE( Id(59836), "tim:TRICE --------------------------------------------------\n"); 
             TRICE( Id(40965),  "rd:TRICE32_1 line %d\n", __LINE__ );
             TRICE64_1( Id( 51133),  "rd:TRICE64_1 %d\n", __LINE__ );
             TRICE32_2( Id( 55925),  "rd:TRICE32_2 line %d,%d\n", __LINE__, 2 );

@@ -264,30 +264,52 @@ func (p *decoderData) readU64(b []byte) uint64 {
 
 // uReplaceN checks all format specifier in i and replaces %nu with %nd and returns that result as o.
 //
-// If a replacement took place on position k u[k] is true. Afterwards len(u) is amount of found format specifiers.
-// Additionall, if UnsignedHex is true, for FormatX specifiers u[k] is also true.
-func uReplaceN(i string) (o string, u []bool) {
+// If a replacement took place on position k u[k] is 1. Afterwards len(u) is amount of found format specifiers.
+// Additionall, if UnsignedHex is true, for FormatX specifiers u[k] is also 1.
+// If a float format specifier was found at position k, u[k] is 2,
+// %f
+// %lf
+// %e
+// %E
+// %2.6f
+// %.6f
+// %09.6f
+// %6s always prints 6 characters, at least (more if the string is longer).
+// %+.6f
+// http://www.cplusplus.com/reference/cstdio/printf/
+// https://www.codingunit.com/printf-format-specifiers-format-conversions-and-formatted-output
+func uReplaceN(i string) (o string, u []int) {
 	o = i
 	s := i
 	var offset int
 	for {
+		s = i[offset:] // remove processed part
 		loc := matchNextFormatSpecifier.FindStringIndex(s)
 		if nil == loc { // no (more) fm found
 			return
 		}
 		offset += loc[1] // track position
 		fm := s[loc[0]:loc[1]]
-		locU := matchNextFormatUSpecifier.FindStringIndex(fm)
-		locX := matchNextFormatXSpecifier.FindStringIndex(fm)
 		locF := matchNextFormatFSpecifier.FindStringIndex(fm)
+		if nil != locF { // a %nf found
+			u = append(u, 2) // float value
+			continue
+		}
+		locU := matchNextFormatUSpecifier.FindStringIndex(fm)
 		if nil != locU { // a %nu found
 			o = o[:offset-1] + "d" + o[offset:] // replace %nu -> %nd
-			u = append(u, true)
-		} else if nil != locX && Unsigned { // a %nx, %nX or, %no, %nO or %nb found
-			u = append(u, true) // no negative values
-		} else { // keep sign
-			u = append(u, false)
+			u = append(u, 1)
+			continue
 		}
-		s = i[offset:] // remove processed part
+		locX := matchNextFormatXSpecifier.FindStringIndex(fm)
+		if nil != locX { // a %nx, %nX or, %no, %nO or %nb found
+			if Unsigned {
+				u = append(u, 1) // no negative values
+			} else {
+				u = append(u, 0) // also negative values
+			}
+			continue
+		}
+		u = append(u, 0) // keep sign in all other cases
 	}
 }

@@ -210,6 +210,24 @@ void TriceInitXteaTable(void);
 //
 ///////////////////////////////////////////////////////////////////////////////
 
+static inline uint32_t aFloat( float x ){
+    union {
+        float f;
+        uint32_t u;
+    } t;
+    t.f = x;
+    return t.u;
+}
+
+static inline uint64_t aDouble( double x ){
+    union {
+        double d;
+        uint64_t u;
+    } t;
+    t.d = x;
+    return t.u;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // TRICE macros
 //

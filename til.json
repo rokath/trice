@@ -1,4 +1,8 @@
 {
+	"32851": {
+		"Type": "TRICE64_1",
+		"Strg": "rd:TRICE64_1 float %f (%%f), aDouble(y)\\n"
+	},
 	"32919": {
 		"Type": "TRICE64_7",
 		"Strg": "rd:TRICE64_7 %d, %d, %d, %d, %d, %d, %d\\n"
@@ -6,6 +10,10 @@
 	"33102": {
 		"Type": "TRICE64",
 		"Strg": "rd:TRICE64 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"33381": {
+		"Type": "TRICE64",
+		"Strg": "rd:TRICE64 float %f (%%f)\\n"
 	},
 	"33408": {
 		"Type": "TRICE32_1",
@@ -239,6 +247,10 @@
 		"Type": "TRICE8_7",
 		"Strg": "tst:TRICE8_7 %u %u %u %u %u %u %u\\n"
 	},
+	"37864": {
+		"Type": "TRICE32_1",
+		"Strg": "rd:TRICE32_1 float %f (%%f), x\\n"
+	},
 	"37866": {
 		"Type": "TRICE8_6",
 		"Strg": "tst:TRICE8_6 %d %d %d %d %d %d\\n"
@@ -250,6 +262,14 @@
 	"37931": {
 		"Type": "TRICE",
 		"Strg": "rd:TRICE %d, %d\\n"
+	},
+	"37970": {
+		"Type": "TRICE32",
+		"Strg": "rd:TRICE line %f (%%f)\\n"
+	},
+	"37975": {
+		"Type": "TRICE32_1",
+		"Strg": "rd:TRICE32_1 float %f (%%f)\\n"
 	},
 	"37985": {
 		"Type": "TRICE16_1",
@@ -291,6 +311,10 @@
 		"Type": "TRICE32_6",
 		"Strg": "rd:TRICE32_6 %d, %d, %d, %d, %d, %d\\n"
 	},
+	"38775": {
+		"Type": "TRICE64_1",
+		"Strg": "rd:TRICE64_1 float %016x (%%x), Float64(y)\\n"
+	},
 	"39033": {
 		"Type": "TRICE32_1",
 		"Strg": "rd:TRICE32_1 line %b (%%b -1)\\n"
@@ -326,6 +350,14 @@
 	"39702": {
 		"Type": "TRICE0",
 		"Strg": "--------------------------------------------------\\n"
+	},
+	"39742": {
+		"Type": "TRICE",
+		"Strg": "rd:TRICE_1 float %f (%%f)\\n"
+	},
+	"39768": {
+		"Type": "TRICE32_1",
+		"Strg": "rd:TRICE32_1 float %08x (%%x), x\\n"
 	},
 	"39816": {
 		"Type": "TRICE16_1",
@@ -503,6 +535,10 @@
 		"Type": "TRICE8_4",
 		"Strg": "tst:TRICE8_4  %%03x -\u003e  %03x  %03x  %03x  %03x\\n"
 	},
+	"43449": {
+		"Type": "TRICE64_1",
+		"Strg": "rd:TRICE64_1 float %08x (%%x)\\n"
+	},
 	"43477": {
 		"Type": "TRICE0",
 		"Strg": "--------------------------------------------------\\n"
@@ -518,6 +554,10 @@
 	"43780": {
 		"Type": "TRICE",
 		"Strg": "tim:TRICE attention message, SysTick is %6d\\n"
+	},
+	"43895": {
+		"Type": "TRICE_1",
+		"Strg": "rd:TRICE_1 float %f (%%f)\\n"
 	},
 	"43896": {
 		"Type": "TRICE",
@@ -562,6 +602,10 @@
 	"45261": {
 		"Type": "TRICE8_7",
 		"Strg": "tst:TRICE8_7 %d %d %d %d %d %d %d\\n"
+	},
+	"45367": {
+		"Type": "TRICE64_1",
+		"Strg": "rd:TRICE64_1 float %016x (%%x), y\\n"
 	},
 	"45449": {
 		"Type": "TRICE16_1",
@@ -695,6 +739,10 @@
 		"Type": "TRICE16",
 		"Strg": "rd:TRICE16 %d, %d\\n"
 	},
+	"48991": {
+		"Type": "TRICE32",
+		"Strg": "rd:TRICE32 float %f (%%f)\\n"
+	},
 	"49010": {
 		"Type": "TRICE8_2",
 		"Strg": "tst:TRICE8_2 %u %u\\n"
@@ -723,9 +771,17 @@
 		"Type": "TRICE32_2",
 		"Strg": "rd:TRICE32_2 %d, %d\\n"
 	},
+	"49574": {
+		"Type": "TRICE16_1",
+		"Strg": "rd:TRICE16_1 float %f (%%f)\\n"
+	},
 	"49602": {
 		"Type": "TRICE64_1",
 		"Strg": "tst:TRICE64_1 %u\\n"
+	},
+	"49614": {
+		"Type": "TRICE16",
+		"Strg": "rd:TRICE16 float %f (%%f)\\n"
 	},
 	"49746": {
 		"Type": "TRICE0",
@@ -734,6 +790,10 @@
 	"49762": {
 		"Type": "TRICE64_1",
 		"Strg": "rd:TRICE64_1 line %x (%%x -1)\\n"
+	},
+	"49806": {
+		"Type": "TRICE32_1",
+		"Strg": "rd:TRICE32_1 float %f (%%f), aFloat(x)\\n"
 	},
 	"49865": {
 		"Type": "TRICE16_12",
@@ -782,6 +842,10 @@
 	"50626": {
 		"Type": "TRICE32_1",
 		"Strg": "ATT:trice16_1 attention message, SysTick is %6d\\n"
+	},
+	"50710": {
+		"Type": "TRICE",
+		"Strg": "rd:TRICE float %f (%%f)\\n"
 	},
 	"50852": {
 		"Type": "TRICE16_9",
@@ -1011,6 +1075,10 @@
 		"Type": "TRICE16_4",
 		"Strg": "tst:TRICE16_4 %d %d %d %d\\n"
 	},
+	"55396": {
+		"Type": "TRICE32_1",
+		"Strg": "rd:TRICE32_1 float %08x (%%x), Float32( x )\\n"
+	},
 	"55482": {
 		"Type": "TRICE16_7",
 		"Strg": "rd:TRICE16_7 %d, %d, %d, %d, %d, %d, %d\\n"
@@ -1038,6 +1106,10 @@
 	"55647": {
 		"Type": "TRICE32_1",
 		"Strg": "ATT:trice16_1 attention message, SysTick is %6d\\n"
+	},
+	"55725": {
+		"Type": "TRICE32_1",
+		"Strg": "rd:TRICE32_1 float %08x (%%x)\\n"
 	},
 	"55922": {
 		"Type": "TRICE16_1",
@@ -1114,6 +1186,10 @@
 	"57073": {
 		"Type": "TRICE0",
 		"Strg": "rd:e\\n"
+	},
+	"57182": {
+		"Type": "TRICE64",
+		"Strg": "rd:TRICE line %f (%%f)\\n"
 	},
 	"57298": {
 		"Type": "TRICE",
@@ -1279,6 +1355,10 @@
 		"Type": "TRICE32_9",
 		"Strg": "rd:TRICE32_9 %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
 	},
+	"60812": {
+		"Type": "TRICE64_1",
+		"Strg": "rd:TRICE32_1 float %f (%%f)\\n"
+	},
 	"60853": {
 		"Type": "TRICE16_1",
 		"Strg": "TIM:timing      message, SysTick is %6u\\n"
@@ -1298,6 +1378,10 @@
 	"61035": {
 		"Type": "TRICE16",
 		"Strg": "rd:TRICE16 %d\\n"
+	},
+	"61077": {
+		"Type": "TRICE64_1",
+		"Strg": "rd:TRICE64_1 float %f (%%f)\\n"
 	},
 	"61213": {
 		"Type": "TRICE8_1",
@@ -1334,6 +1418,10 @@
 	"61886": {
 		"Type": "TRICE",
 		"Strg": "rd:TRICE %d\\n"
+	},
+	"62161": {
+		"Type": "TRICE32_1",
+		"Strg": "rd:TRICE32_1 float %f (%%f), Float32( x )\\n"
 	},
 	"62271": {
 		"Type": "TRICE",
@@ -1431,6 +1519,10 @@
 		"Type": "TRICE16_3",
 		"Strg": "tst:TRICE16_3 %d %d %d\\n"
 	},
+	"63930": {
+		"Type": "TRICE16",
+		"Strg": "rd:TRICE line %f (%%f)\\n"
+	},
 	"64087": {
 		"Type": "TRICE8_4",
 		"Strg": "tst:TRICE8_4 %u %u %u %u\\n"
@@ -1450,6 +1542,10 @@
 	"64454": {
 		"Type": "TRICE16_3",
 		"Strg": "rd:TRICE16_3 %d, %d, %d\\n"
+	},
+	"64470": {
+		"Type": "TRICE64_1",
+		"Strg": "rd:TRICE64_1 float %f (%%f), y\\n"
 	},
 	"64554": {
 		"Type": "TRICE16_2",

@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"math"
 	"strings"
 	"sync"
 
@@ -23,7 +24,7 @@ type COBS struct {
 	cycle              uint8  // cycle date: c0...bf
 	COBSModeDescriptor uint32 // 0: no target timestamps, 1: target timestamps exist
 	pFmt               string // modified trice format string: %u -> %d
-	u                  []bool // modified format string positions:  %u -> %d
+	u                  []int  // 1: modified format string positions:  %u -> %d, 2: float (%f)
 }
 
 // NewCOBSDecoder provides an EscDecoder instance.
@@ -241,11 +242,11 @@ func (p *COBS) Read(b []byte) (n int, err error) {
 	return
 }
 
-// formatSpecifierCount returns amount of found format specifiers in s
-func formatSpecifierCount(s string) int {
-	_, u := uReplaceN(s)
-	return len(u)
-}
+//  // formatSpecifierCount returns amount of found format specifiers in s
+//  func formatSpecifierCount(s string) int {
+//  	_, u := uReplaceN(s)
+//  	return len(u)
+//  }
 
 // sprintTrice writes a trice string or appropriate message into b and returns that len.
 func (p *COBS) sprintTrice(b []byte) (n int) {
@@ -383,41 +384,69 @@ func (p *COBS) unSignedOrSignedOut(b []byte, bitwidth, count int) int {
 	if len(p.u) != count {
 		return copy(b, fmt.Sprintln("ERROR: Invalid format specifier count inside", p.trice.Type, p.trice.Strg))
 	}
-	v := make([]interface{}, 1000) // theoretical 1000 bytes could arrive
+	v := make([]interface{}, 1024) // theoretical 1000 bytes could arrive
 	switch bitwidth {
 	case 8:
 		for i, f := range p.u {
-			if f {
+			switch f {
+			case 0:
 				v[i] = uint8(p.b[i])
-			} else {
+			case 1:
 				v[i] = int8(p.b[i])
+			default:
+				return copy(b, fmt.Sprintln("ERROR: Invalid format specifier (float?) inside", p.trice.Type, p.trice.Strg))
 			}
 		}
 	case 16:
 		for i, f := range p.u {
 			n := p.readU16(p.b[2*i:])
-			if f {
+			switch f {
+			case 0:
 				v[i] = n
-			} else {
+			case 1:
 				v[i] = int16(n)
+			//case 2:
+			//	v[i] = bfloat16(n)
+			default:
+				return copy(b, fmt.Sprintln("ERROR: Invalid format specifier (float?) inside", p.trice.Type, p.trice.Strg))
 			}
 		}
 	case 32:
 		for i, f := range p.u {
 			n := p.readU32(p.b[4*i:])
-			if f {
+			switch f {
+			case 0:
 				v[i] = n
-			} else {
+			case 1:
 				v[i] = int32(n)
+			case 2:
+				//fmt.Println("float as uint32_t =", n, "as bytes =", p.b[4*i:4*i+4])
+				//dump(os.Stdout, p.b[4*i:4*i+4])
+				//fmt.Printf("%08x, %f, %g, %e\n", n, float32(n), float32(n), float32(n))
+				//fmt.Printf("%08x, %f, %g, %e\n", n, float64(n), float64(n), float64(n))
+				//v[i] = float32(n)
+				v[i] = math.Float32frombits(n)
+			default:
+				return copy(b, fmt.Sprintln("ERROR: Invalid format specifier inside", p.trice.Type, p.trice.Strg))
 			}
 		}
 	case 64:
 		for i, f := range p.u {
 			n := p.readU64(p.b[8*i:])
-			if f {
+			switch f {
+			case 0:
 				v[i] = n
-			} else {
+			case 1:
 				v[i] = int64(n)
+			case 2:
+				//fmt.Println("float as uint64_t =", n, "as bytes =", p.b[8*i:8*i+8])
+				//dump(os.Stdout, p.b[8*i:8*i+8])
+				//fmt.Printf("%016x, %f, %g, %e\n", n, float32(n), float32(n), float32(n))
+				//fmt.Printf("%016x, %f, %g, %e\n", n, float64(n), float64(n), float64(n))
+				//v[i] = float64(n)
+				v[i] = math.Float64frombits(n)
+			default:
+				return copy(b, fmt.Sprintln("ERROR: Invalid format specifier inside", p.trice.Type, p.trice.Strg))
 			}
 		}
 	}
