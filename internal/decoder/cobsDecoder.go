@@ -242,12 +242,6 @@ func (p *COBS) Read(b []byte) (n int, err error) {
 	return
 }
 
-//  // formatSpecifierCount returns amount of found format specifiers in s
-//  func formatSpecifierCount(s string) int {
-//  	_, u := uReplaceN(s)
-//  	return len(u)
-//  }
-
 // sprintTrice writes a trice string or appropriate message into b and returns that len.
 func (p *COBS) sprintTrice(b []byte) (n int) {
 
@@ -291,7 +285,6 @@ func (p *COBS) sprintTrice(b []byte) (n int) {
 	}
 	n += copy(b[n:], fmt.Sprintln("err:Unknown trice.Type:", p.trice.Type, "and", triceType, "not matching - ignoring trice data", p.b[:p.paramSpace]))
 	n += copy(b[n:], fmt.Sprintln(hints))
-	//p.b = p.b[:0] // drop all
 	return
 }
 
@@ -373,12 +366,6 @@ func (p *COBS) trice0(b []byte, _ int, _ int) int {
 	return copy(b, fmt.Sprintf(p.trice.Strg))
 }
 
-//  // formatSpecifierCount returns amount of found format specifiers in s
-//  func formatSpecifierCount(s string) int {
-//  	_, u := uReplaceN(s)
-//  	return len(u)
-//  }
-
 // unSignedOrSignedOut prints p.b according to the format string.
 func (p *COBS) unSignedOrSignedOut(b []byte, bitwidth, count int) int {
 	if len(p.u) != count {
@@ -405,8 +392,6 @@ func (p *COBS) unSignedOrSignedOut(b []byte, bitwidth, count int) int {
 				v[i] = n
 			case 1:
 				v[i] = int16(n)
-			//case 2:
-			//	v[i] = bfloat16(n)
 			default:
 				return copy(b, fmt.Sprintln("ERROR: Invalid format specifier (float?) inside", p.trice.Type, p.trice.Strg))
 			}
@@ -420,11 +405,6 @@ func (p *COBS) unSignedOrSignedOut(b []byte, bitwidth, count int) int {
 			case 1:
 				v[i] = int32(n)
 			case 2:
-				//fmt.Println("float as uint32_t =", n, "as bytes =", p.b[4*i:4*i+4])
-				//dump(os.Stdout, p.b[4*i:4*i+4])
-				//fmt.Printf("%08x, %f, %g, %e\n", n, float32(n), float32(n), float32(n))
-				//fmt.Printf("%08x, %f, %g, %e\n", n, float64(n), float64(n), float64(n))
-				//v[i] = float32(n)
 				v[i] = math.Float32frombits(n)
 			default:
 				return copy(b, fmt.Sprintln("ERROR: Invalid format specifier inside", p.trice.Type, p.trice.Strg))
@@ -439,11 +419,6 @@ func (p *COBS) unSignedOrSignedOut(b []byte, bitwidth, count int) int {
 			case 1:
 				v[i] = int64(n)
 			case 2:
-				//fmt.Println("float as uint64_t =", n, "as bytes =", p.b[8*i:8*i+8])
-				//dump(os.Stdout, p.b[8*i:8*i+8])
-				//fmt.Printf("%016x, %f, %g, %e\n", n, float32(n), float32(n), float32(n))
-				//fmt.Printf("%016x, %f, %g, %e\n", n, float64(n), float64(n), float64(n))
-				//v[i] = float64(n)
 				v[i] = math.Float64frombits(n)
 			default:
 				return copy(b, fmt.Sprintln("ERROR: Invalid format specifier inside", p.trice.Type, p.trice.Strg))

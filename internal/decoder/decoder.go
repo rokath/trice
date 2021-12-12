@@ -35,22 +35,26 @@ const (
 
 	// patNextFormatSpecifier is a regex to find next format specifier in a string (exclude %%*) and ignoring %s
 	//
+	// https://regex101.com/r/BjiD5M/1
 	// Language C plus from language Go: %b, %F, %q
 	// Partial implemented: %hi, %hu, %ld, %li, %lf, %Lf, %Lu, %lli, %lld
 	// Not implemented: %s
-	patNextFormatSpecifier = `(?:^|[^%])(%[0-9]*(-|c|d|e|E|f|F|g|G|h|i|l|L|o|O|p|q|u|x|X|n|b))`
+	//patNextFormatSpecifier = `(?:^|[^%])(%[0-9]*(-|c|d|e|E|f|F|g|G|h|i|l|L|o|O|p|q|u|x|X|n|b))`
+	patNextFormatSpecifier = `%([+\-#'0-9.])*(c|d|e|E|f|F|g|G|h|i|l|L|o|O|p|q|u|x|X|n|b)` // assumes no `%%` inside string!
 
 	// patNextFormatUSpecifier is a regex to find next format u specifier in a string
 	// It does also match %%u positions! so an additional check must follow.
-	patNextFormatUSpecifier = `(?:%[0-9]*u)`
+	//patNextFormatUSpecifier = `(?:%[0-9]*u)`
+	patNextFormatUSpecifier = `%[0-9]*u` // assumes no `%%` inside string!
 
 	// patNextFormatXSpecifier is a regex to find next format x specifier in a string
 	// It does also match %%x positions! so an additional check must follow.
-	patNextFormatXSpecifier = `(?:%[0-9]*(l|o|O|x|X|b))`
+	// patNextFormatXSpecifier = `(?:%[0-9]*(l|o|O|x|X|b))`
+	patNextFormatXSpecifier = `%[0-9]*(l|o|O|x|X|b)` // assumes no `%%` inside string!
 
 	// patNextFormatFSpecifier is a regex to find next format f specifier in a string
 	// It does also match %%f positions! so an additional check must follow.
-	patNextFormatFSpecifier = `(?:%[0-9]*f)`
+	patNextFormatFSpecifier = `%[(+-0-9.#]*(e|E|f|F|g|G)` // assumes no `%%` inside string!
 
 	// headSize is 4; each trice message starts with a head of 4 bytes.
 	headSize = 4
@@ -280,10 +284,10 @@ func (p *decoderData) readU64(b []byte) uint64 {
 // https://www.codingunit.com/printf-format-specifiers-format-conversions-and-formatted-output
 func uReplaceN(i string) (o string, u []int) {
 	o = i
-	s := i
+	i = strings.ReplaceAll(i, "%%", "__") // this makes regex easier and faster
 	var offset int
 	for {
-		s = i[offset:] // remove processed part
+		s := i[offset:] // remove processed part
 		loc := matchNextFormatSpecifier.FindStringIndex(s)
 		if nil == loc { // no (more) fm found
 			return
