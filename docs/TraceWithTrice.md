@@ -75,7 +75,7 @@ The *trice* technique tries to fill this gap trying to be minimal invasive and a
     - This includes several divisions - costly function calls.
   - Concatenate the parts to an output string and deliver it to the output, what often means copying again.
   - Never ever call a `printf` like function in time critical code, like an interrupt.
-- *Trice*, instead just copies an ID together with the parameters to the output and is done.
+- *Trice*, instead, just copies an ID together with the parameters to the output and is done.
 - This is goes in about 10 processor clocks. When running on a 64 MHz clock, light can travel about 30 meters in that time.
 - To achieve that, a pre-compile step is needed, executing a `trice update` command.
   - The trice tool parses the the source tree for macros like `TRICE( "Hello World" );` and patches them to `TRICE( Id(nnnnn), "Hello World" );`, where `nnnnn` is a 16-bit identifier associated to the format string `"Hello World"`.
