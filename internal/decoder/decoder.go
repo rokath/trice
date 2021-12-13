@@ -269,17 +269,8 @@ func (p *decoderData) readU64(b []byte) uint64 {
 // uReplaceN checks all format specifier in i and replaces %nu with %nd and returns that result as o.
 //
 // If a replacement took place on position k u[k] is 1. Afterwards len(u) is amount of found format specifiers.
-// Additionall, if UnsignedHex is true, for FormatX specifiers u[k] is also 1.
+// Additional, if UnsignedHex is true, for FormatX specifiers u[k] is also 1.
 // If a float format specifier was found at position k, u[k] is 2,
-// %f
-// %lf
-// %e
-// %E
-// %2.6f
-// %.6f
-// %09.6f
-// %6s always prints 6 characters, at least (more if the string is longer).
-// %+.6f
 // http://www.cplusplus.com/reference/cstdio/printf/
 // https://www.codingunit.com/printf-format-specifiers-format-conversions-and-formatted-output
 func uReplaceN(i string) (o string, u []int) {

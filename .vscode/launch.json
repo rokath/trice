@@ -220,6 +220,20 @@
             ]
         },        
         {
+            "name": "l -p COM11",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}/cmd/trice",
+            "env": {},
+            "args": ["log",
+                    "-til",
+                    "${workspaceFolder}/til.json",
+                     "-p",
+                     "COM11"
+            ]
+        },        
+        {
             "name": "update",
             "type": "go",
             "request": "launch",

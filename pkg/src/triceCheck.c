@@ -18,6 +18,7 @@ void TriceCheckSet(int index) {
         case 0: // sign & format specifier                                                                   
             TRICE32_1( Id(36805), "rd:TRICE32_1 float %e (%%e)\n", aFloat(x) ); 
             TRICE32_1( Id(56606), "rd:TRICE32_1 float %f (%%f)\n", aFloat(x) ); 
+          //TRICE32_1( Id(36450), "rd:TRICE32_1 float %9.2f (%%9.2f)\n", aFloat(x) ); // TODO
             TRICE32_1( Id(32885), "rd:TRICE32_1 float %g (%%g)\n", aFloat(x) ); 
             TRICE32_1( Id(60583), "rd:TRICE32_1 float %E (%%E)\n", aFloat(x) ); 
             TRICE32_1( Id(53319), "rd:TRICE32_1 float %F (%%F)\n", aFloat(x) ); 
@@ -30,14 +31,14 @@ void TriceCheckSet(int index) {
             TRICE32( Id(34873), "rd:TRICE32 float %F (%%F)\n", aFloat(x) ); 
             TRICE32( Id(47575), "rd:TRICE32 float %G (%%G)\n", aFloat(x) ); 
 
-          //TRICE( Id(55265), "rd:TRICE float %e (%%e)\n", aFloat(x) ); // TODO
-            TRICE( Id(60347), "rd:TRICE float %f (%%f)\n", aFloat(x) ); 
-            TRICE( Id(52958), "rd:TRICE float %g (%%g)\n", aFloat(x) ); 
-          //TRICE( Id(37737), "rd:TRICE float %E (%%E)\n", aFloat(x) ); // TODO
-          //TRICE( Id(64326), "rd:TRICE float %F (%%F)\n", aFloat(x) ); // TODO
-          //TRICE( Id(61656), "rd:TRICE float %G (%%G)\n", aFloat(x) ); // TODO
+            TRICE( Id(55265), "rd:TRICE float %e (%%e)\n", aFloat(x) );
+            TRICE( Id(60347), "rd:TRICE float %f (%%f)\n", aFloat(x) );
+            TRICE( Id(52958), "rd:TRICE float %g (%%g)\n", aFloat(x) );
+            TRICE( Id(37737), "rd:TRICE float %E (%%E)\n", aFloat(x) );
+            TRICE( Id(64326), "rd:TRICE float %F (%%F)\n", aFloat(x) );
+            TRICE( Id(61656), "rd:TRICE float %G (%%G)\n", aFloat(x) );
 
-    				TRICE64( Id(35870), "rd:TRICE64 float %e (%%e), aDouble(y)\n", aDouble(y) ); 
+    		TRICE64( Id(35870), "rd:TRICE64 float %e (%%e), aDouble(y)\n", aDouble(y) ); 
             TRICE64( Id(35414), "rd:TRICE64 float %f (%%f), aDouble(y)\n", aDouble(y) ); 
             TRICE64( Id(45823), "rd:TRICE64 float %g (%%g), aDouble(y)\n", aDouble(y) ); 
             TRICE64( Id(56233), "rd:TRICE64 float %E (%%E), aDouble(y)\n", aDouble(y) ); 

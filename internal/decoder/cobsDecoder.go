@@ -252,31 +252,31 @@ func (p *COBS) sprintTrice(b []byte) (n int) {
 
 	p.pFmt, p.u = uReplaceN(p.trice.Strg)
 
-	var triceType string
-
-	if strings.HasPrefix(p.trice.Type, "TRICE_") {
+	var triceType string                           // need to reconstruct full TRICE info, if not exist in type string
+	if strings.HasPrefix(p.trice.Type, "TRICE_") { // when no bitwidth, insert it
 		triceType = "TRICE" + id.DefaultTriceBitWidth + "_" + p.trice.Type[6:]
 	}
-
-	if p.trice.Type == "TRICE" {
+	if p.trice.Type == "TRICE" { // when nothing
+		triceType = fmt.Sprintf("TRICE"+id.DefaultTriceBitWidth+"_%d", len(p.u)) // append bitwidth and count
+	}
+	if p.trice.Type == "TRICE" && len(p.u) == 0 { // special case, overwrite
 		triceType = "TRICE0"
 	}
-
-	if p.trice.Type == "TRICE8" || p.trice.Type == "TRICE16" || p.trice.Type == "TRICE32" || p.trice.Type == "TRICE64" {
-		p.trice.Type = fmt.Sprintf(p.trice.Type+"_%d", len(p.u)) // append count
+	if p.trice.Type == "TRICE8" || p.trice.Type == "TRICE16" || p.trice.Type == "TRICE32" || p.trice.Type == "TRICE64" { // when no count
+		triceType = fmt.Sprintf(p.trice.Type+"_%d", len(p.u)) // append count
 	}
 
-	for _, s := range cobsFunctionPtrList {
-		if s.triceType == p.trice.Type || s.triceType == triceType {
-			if s.paramSpace == p.paramSpace {
+	for _, s := range cobsFunctionPtrList { // walk thru the list and try to find a match for execution
+		if s.triceType == p.trice.Type || s.triceType == triceType { // match list entry "TRICE..."
+			if s.paramSpace == p.paramSpace { // size ok
 				if len(p.b) < p.paramSpace {
 					n += copy(b[n:], fmt.Sprintln("err:len(p.b) =", len(p.b), "< p.paramSpace = ", p.paramSpace, "- ignoring package", p.b[:len(p.b)]))
 					n += copy(b[n:], fmt.Sprintln(hints))
 					return
 				}
-				n += s.triceFn(p, b, s.bitWidth, s.paramCount) // n += s.triceFn(p, b, cobsFunctionPtrList[i].bitWidth, cobsFunctionPtrList[i].paramCount)
+				n += s.triceFn(p, b, s.bitWidth, s.paramCount) // match found, call handler
 				return
-			} else {
+			} else { // size error
 				n += copy(b[n:], fmt.Sprintln("err:trice.Type", p.trice.Type, ": s.paramSpace", s.paramSpace, "!= p.paramSpace", p.paramSpace, "- ignoring data", p.b[:p.paramSpace]))
 				n += copy(b[n:], fmt.Sprintln(hints))
 				return
@@ -371,7 +371,7 @@ func (p *COBS) unSignedOrSignedOut(b []byte, bitwidth, count int) int {
 	if len(p.u) != count {
 		return copy(b, fmt.Sprintln("ERROR: Invalid format specifier count inside", p.trice.Type, p.trice.Strg))
 	}
-	v := make([]interface{}, 1024) // theoretical 1000 bytes could arrive
+	v := make([]interface{}, 1024) // theoretical 1008 bytes could arrive
 	switch bitwidth {
 	case 8:
 		for i, f := range p.u {

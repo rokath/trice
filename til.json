@@ -207,6 +207,10 @@
 		"Type": "TRICE64",
 		"Strg": "rd:TRICE64 %d, %d, %d, %d, %d\\n"
 	},
+	"36450": {
+		"Type": "TRICE32_1",
+		"Strg": "rd:TRICE32_1 float %9.2f (%%9.2f)\\n"
+	},
 	"36476": {
 		"Type": "TRICE32_1",
 		"Strg": "rd:TRICE32_1 %d\\n"
