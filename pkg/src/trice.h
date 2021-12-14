@@ -210,6 +210,7 @@ void TriceInitXteaTable(void);
 //
 ///////////////////////////////////////////////////////////////////////////////
 
+// aFloat returns passed float value x as bit pattern in a uint32_t type.
 static inline uint32_t aFloat( float x ){
     union {
         float f;
@@ -219,6 +220,7 @@ static inline uint32_t aFloat( float x ){
     return t.u;
 }
 
+// aDouble returns passed double value x as bit pattern in a uint64_t type.
 static inline uint64_t aDouble( double x ){
     union {
         double d;
