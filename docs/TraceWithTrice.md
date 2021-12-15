@@ -78,7 +78,7 @@ The *trice* technique tries to fill this gap, trying to be minimal invasive and 
     * This includes several divisions - costly function calls.
   * Concatenate the parts to an output string and deliver it to the output, what often means copying again.
   * Never ever call a `printf` like function in time critical code, like an interrupt.
-* *Trice*, instead, just copies an ID together with the values to the output and is done.
+* *Trice*, instead, just copies an ID together with the values to a buffer, transmitting it slightly delayed, or direct to the output and is done.
 * This can happen in about 10 processor clocks. When running on a 64 MHz clock, light can travel about 30 meters in that time.
 * To achieve that, a pre-compile step is needed, executing a `trice update` command.
   * The trice tool parses the the source tree for macros like `TRICE( "Hello World" );` and patches them to `TRICE( Id(nnnnn), "Hello World" );`, where `nnnnn` is a 16-bit identifier associated to the format string `"Hello World"`.
@@ -260,6 +260,7 @@ To get rid of the `printf` like functions disadvantages, a small toll needs to b
 * The *trice* technique is new and still under development.
 * Plans exist: 
   * Additional tests and bug fixing
+  * Line number and source file support
   * A **trice** PC tool configuration file
   * Interfacing [Grafana](https://grafana.com/) or similar tools
   * A target code option using a FIFO instead of double buffering. This will slow down the *trices* a bit, but needs less RAM.
