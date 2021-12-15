@@ -251,7 +251,8 @@ To get rid of the `printf` like functions disadvantages, a small toll needs to b
 |----------------|-----------------------------------------------------|
 | 0x00000000     | Several *trice* messages without target timestamp   |
 | 0x00000001     | Several *trice* messages with target timestamp      |
-| 2...0xffffffff | User protocol data, the **trice** tool ignores them |
+| 2...15         | Reserved
+| 16...0xffffffff| User protocol data, the **trice** tool ignores them |
 
 * This allows intermixing of several data streams with *trice* data.
 
