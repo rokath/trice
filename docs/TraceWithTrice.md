@@ -167,6 +167,7 @@ To get rid of the `printf` like functions disadvantages, a small toll needs to b
 
 ###  4.4. <a name='Simplicity'></a>Simplicity
 
+* No compiler dependency
 * Code instrumentation:
   * Add `trice.c` to the embedded project and `#include "trice.h"` to your source files.
   * Write for example `TRICE( "%d mV\n, voltage );` in a function.
