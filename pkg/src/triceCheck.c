@@ -5,7 +5,8 @@
 *******************************************************************************/
 
 //#define TRICE_OFF // enable this line to disable trice code generation in this file object
-#include "trice.h"
+#include "trice.h" 
+#define TRICE_FILE Id(000) //__FILE__
 
 //! TriceCheckSet writes out all types of trices with fixed values for testing
 //! \details One trice has one subtrace, if param size max 2 bytes. 

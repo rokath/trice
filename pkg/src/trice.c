@@ -240,4 +240,3 @@ void TriceEncrypt( uint32_t* p, unsigned count ){
 }
 
 #endif // #ifdef TRICE_ENCRYPT
-

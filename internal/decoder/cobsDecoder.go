@@ -135,12 +135,29 @@ func (p *COBS) nextCOBSpackage() {
 	return
 }
 
-func (p *COBS) handleCOBSModeDescriptor() {
-	if p.COBSModeDescriptor == 1 {
+func (p *COBS) handleCOBSModeDescriptor() error {
+	switch p.COBSModeDescriptor {
+	case 0: // nothing to do
+		return nil
+	case 1:
 		targetTimestamp = p.readU32(p.b)
 		targetTimestampExists = true
 		p.b = p.b[4:] // drop target timestamp
+		return nil
+	case 2:
+		targetLocation = p.readU32(p.b)
+		targetLocationExists = true
+		p.b = p.b[4:] // drop target location
+		return nil
+	case 3:
+		targetLocation = p.readU32(p.b)
+		targetTimestamp = p.readU32(p.b[4:])
+		targetTimestampExists = true
+		targetLocationExists = true
+		p.b = p.b[8:] // drop target location & timestamp
+		return nil
 	}
+	return fmt.Errorf("Info:Unknown COBS packet with descriptor 0x%08x and len %d", p.COBSModeDescriptor, len(p.b))
 }
 
 // Read is the provided read method for COBS decoding and provides next string as byte slice.
@@ -162,6 +179,9 @@ func (p *COBS) Read(b []byte) (n int, err error) {
 	if targetTimestampExists {
 		minPkgSize += 4
 	}
+	if targetLocationExists {
+		minPkgSize += 4
+	}
 	if len(p.b) < minPkgSize { // last decoded COBS package exhausted
 		p.nextCOBSpackage()
 	}
@@ -175,7 +195,11 @@ func (p *COBS) Read(b []byte) (n int, err error) {
 		n += copy(b[n:], fmt.Sprintln(hints))
 		return
 	}
-	p.handleCOBSModeDescriptor()
+	err = p.handleCOBSModeDescriptor()
+	if err != nil {
+		n += copy(b[n:], fmt.Sprintln(err))
+		return // ignore package
+	}
 	head := p.readU32(p.b)
 
 	// cycle counter automatic & check

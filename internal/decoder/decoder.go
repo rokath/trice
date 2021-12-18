@@ -70,6 +70,9 @@ var (
 	// ShowID is used as format string for displaying the first trice ID at the start of each line if not "".
 	ShowID string
 
+	//// ShowLoc is used as format string for displaying the first trice ID at the start of each line if not "".
+	//ShowLoc string
+
 	// LastTriceID is last decoded ID. It is used for switch -showID.
 	LastTriceID id.TriceID
 
@@ -101,10 +104,13 @@ var (
 	initialCycle = true
 
 	targetTimestamp uint32
+	targetLocation  uint32
 
 	ShowTargetTimestamp string
+	ShowTargetLocation  string
 
 	targetTimestampExists bool
+	targetLocationExists  bool
 )
 
 // newDecoder abstracts the function type for a new decoder.
@@ -216,6 +222,15 @@ func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec Decode
 
 		start := time.Now()
 
+		//  var tLoc bool
+		//  if targetLocationExists && 0 < n && ShowTargetLocation != "" && len(sw.Line) == 0 {
+		//  	s := fmt.Sprintf(ShowTargetLocation, targetLocation)
+		//  	_, err := sw.Write([]byte(s))
+		//  	msg.OnErr(err)
+		//  	if ShowLoc != "" {
+		//  		tLoc = true
+		//  	}
+		//  }
 		var tts bool
 		if targetTimestampExists && 0 < n && ShowTargetTimestamp != "" && len(sw.Line) == 0 {
 			s := fmt.Sprintf(ShowTargetTimestamp, targetTimestamp)

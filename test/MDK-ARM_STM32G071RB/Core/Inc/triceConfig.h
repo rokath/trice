@@ -21,7 +21,10 @@ extern "C" {
 #define TRICE_UART USART2   //!< Uncomment and set UART for serial output.
 
 extern int milliSecond;
-#define TRICE_TIMESTAMP_VALUE milliSecond //!< Uncomment if you do not need target timestamps. Instead of SYSTICKVAL, you can use any other up to 32-bit value.
+#define TRICE_TIMESTAMP milliSecond //!< Uncomment if you do not need target timestamps. Instead of SYSTICKVAL, you can use any other up to 32-bit value.
+//#define TRICE_LOCATION (TRICE_FILE| __LINE__)
+
+
 
 // Enabling next 2 lines results in XTEA TriceEncryption  with the key.
 //#define TRICE_ENCRYPT XTEA_KEY( ea, bb, ec, 6f, 31, 80, 4e, b9, 68, e2, fa, ea, ae, f1, 50, 54 ); //!< -password MySecret
