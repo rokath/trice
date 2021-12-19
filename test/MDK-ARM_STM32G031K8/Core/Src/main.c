@@ -99,6 +99,7 @@ int main(void)
     LL_USART_EnableIT_RXNE(TRICE_UART); // enable UART2 interrupt
     #endif
     TRICE_HEADLINE;
+		TRICE32( Id( 57468), "rd:TRICE32 float %12.6f (%%12.6f)\n", aFloat(123456.123456) ); 
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -120,7 +121,7 @@ int main(void)
     // send some trices every few ms
         if( milliSecond >= lastTricesTime + 200 ){
             static int index = 0;
-            int select = index % 25;
+            int select = 30 + index % 5;
             TRICE16( Id( 48324),"MSG: START select = %d, TriceDepthMax =%4u\n", select, TriceDepthMax );
             if( select != 5 ){
                 TriceCheckSet(select);

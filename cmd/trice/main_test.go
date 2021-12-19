@@ -142,46 +142,46 @@ func _TestDoit_dssd_b(t *testing.T) {
 	assert.Equal(t, "read tcp 127.0.0.1:xxxxx->127.0.0.1:61499: wsarecv: An existing connection was forcibly closed by the remote host.", actM)
 }
 
-// createTIL returns a name of a temporary file containing a valid trice id JSON map
-func createTIL() (fn string) {
-	// til is the trace id list content for tests
-	til := `{
-		"1047663": {
-			"Type": "TRICE16_2",
-			"Strg": "MSG: triceFifoMaxDepth = %d, select = %d\\n"
-		}
-	}
-	`
-	fn = getTemporaryFileName("til*.JSON") // temporary til
-	b := []byte(til)
-	msg.FatalOnErr(os.WriteFile(fn, b, 0644))
-	return
-}
+//  // createTIL returns a name of a temporary file containing a valid trice id JSON map
+//  func _createTIL() (fn string) {
+//  	// til is the trace id list content for tests
+//  	til := `{
+//  		"1047663": {
+//  			"Type": "TRICE16_2",
+//  			"Strg": "MSG: triceFifoMaxDepth = %d, select = %d\\n"
+//  		}
+//  	}
+//  	`
+//  	fn = getTemporaryFileName("til*.JSON") // temporary til
+//  	b := []byte(til)
+//  	msg.FatalOnErr(os.WriteFile(fn, b, 0644))
+//  	return
+//  }
 
-func createCFile(dn string) (fn string) {
-	text := `
-	... TRICE0( Id(100), "tata");...
-`
-	fn = dn + "/file1.c"
-	b := []byte(text)
-	msg.FatalOnErr(os.WriteFile(fn, b, 0644))
-	return
-}
+//  func _createCFile(dn string) (fn string) {
+//  	text := `
+//  	... TRICE0( Id(100), "tata");...
+//  `
+//  	fn = dn + "/file1.c"
+//  	b := []byte(text)
+//  	msg.FatalOnErr(os.WriteFile(fn, b, 0644))
+//  	return
+//  }
 
 var osArgsBUFFER []string
 
-func TestMain(t *testing.M) {
-	// do stuff before tests
-	fnTIL := createTIL()
-	osArgsBUFFER = []string{"trice", "log", "-p", "BUFFER", "-args", "2, 124, 227, 255, 0, 0, 4, 0", "-ts", "off", "-color", "off", "-idlist", fnTIL}
-
-	exitVal := t.Run() // tests
-
-	// do stuff after tests
-	msg.FatalOnErr(os.Remove(fnTIL))
-
-	os.Exit(exitVal) // done
-}
+//  func TestMain(t *testing.M) {
+//  	// do stuff before tests
+//  	fnTIL := createTIL()
+//  	osArgsBUFFER = []string{"trice", "log", "-p", "BUFFER", "-args", "2, 124, 227, 255, 0, 0, 4, 0", "-ts", "off", "-color", "off", "-idlist", fnTIL}
+//  
+//  	exitVal := t.Run() // tests
+//  
+//  	// do stuff after tests
+//  	msg.FatalOnErr(os.Remove(fnTIL))
+//  
+//  	os.Exit(exitVal) // done
+//  }
 
 func _Example_doit_c() {
 	m.Lock()

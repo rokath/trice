@@ -3,10 +3,24 @@
 \details The trices are dumped as 32bit values into a 32 bit wide fifo.
 \author thomas.hoehenleitner [at] seerose.net
 *******************************************************************************/
-
-//#define TRICE_OFF // enable this line to disable trice code generation in this file object
+#include <float.h>
+//#define TRICE_OFF // enablae this line to disable trice code generation in this file object
 #include "trice.h" 
 #define TRICE_FILE Id(000) //__FILE__
+
+int32_t FloatToInt32( float f ){
+	  if( f >= 0 ){
+			  return (int32_t)f;
+		}
+		return -(int32_t)-f;
+}
+
+int64_t DoubleToInt64( double f ){
+	  if( f >= 0 ){
+			  return (int64_t)f;
+		}
+		return -(int64_t)-f;
+}
 
 //! TriceCheckSet writes out all types of trices with fixed values for testing
 //! \details One trice has one subtrace, if param size max 2 bytes. 
@@ -16,10 +30,10 @@ void TriceCheckSet(int index) {
 		float  x = 1089.6082763671875; // 0x44883377
 		double y = 518.0547492508867; // 0x4080307020601050
     switch (index) {
-        case 0: // sign & format specifier                                                                   
+        case 30:
+					  TRICE( Id(40634), "att:positive float & double in variants\n");
             TRICE32_1( Id(36805), "rd:TRICE32_1 float %e (%%e)\n", aFloat(x) ); 
             TRICE32_1( Id(56606), "rd:TRICE32_1 float %f (%%f)\n", aFloat(x) ); 
-          //TRICE32_1( Id(36450), "rd:TRICE32_1 float %9.2f (%%9.2f)\n", aFloat(x) ); // TODO
             TRICE32_1( Id(32885), "rd:TRICE32_1 float %g (%%g)\n", aFloat(x) ); 
             TRICE32_1( Id(60583), "rd:TRICE32_1 float %E (%%E)\n", aFloat(x) ); 
             TRICE32_1( Id(53319), "rd:TRICE32_1 float %F (%%F)\n", aFloat(x) ); 
@@ -39,14 +53,68 @@ void TriceCheckSet(int index) {
             TRICE( Id(64326), "rd:TRICE float %F (%%F)\n", aFloat(x) );
             TRICE( Id(61656), "rd:TRICE float %G (%%G)\n", aFloat(x) );
 
-    		TRICE64( Id(35870), "rd:TRICE64 float %e (%%e), aDouble(y)\n", aDouble(y) ); 
-            TRICE64( Id(35414), "rd:TRICE64 float %f (%%f), aDouble(y)\n", aDouble(y) ); 
-            TRICE64( Id(45823), "rd:TRICE64 float %g (%%g), aDouble(y)\n", aDouble(y) ); 
-            TRICE64( Id(56233), "rd:TRICE64 float %E (%%E), aDouble(y)\n", aDouble(y) ); 
-            TRICE64( Id(40577), "rd:TRICE64 float %F (%%F), aDouble(y)\n", aDouble(y) ); 
-            TRICE64( Id(41771), "rd:TRICE64 float %G (%%G), aDouble(y)\n", aDouble(y) ); 
+    		    TRICE64( Id( 61570), "rd:TRICE64 double %e (%%e), aDouble(y)\n", aDouble(y) ); 
+            TRICE64( Id( 48898), "rd:TRICE64 double %f (%%f), aDouble(y)\n", aDouble(y) ); 
+            TRICE64( Id( 45981), "rd:TRICE64 double %g (%%g), aDouble(y)\n", aDouble(y) ); 
+            TRICE64( Id( 48603), "rd:TRICE64 double %E (%%E), aDouble(y)\n", aDouble(y) ); 
+            TRICE64( Id( 58939), "rd:TRICE64 double %F (%%F), aDouble(y)\n", aDouble(y) ); 
+            TRICE64( Id( 63708), "rd:TRICE64 double %G (%%G), aDouble(y)\n", aDouble(y) );
+						
+    		    TRICE64_1( Id( 46163), "rd:TRICE64_1 double %e (%%e), aDouble(y)\n", aDouble(y) ); 
+            TRICE64_1( Id( 60501), "rd:TRICE64_1 double %f (%%f), aDouble(y)\n", aDouble(y) ); 
+            TRICE64_1( Id( 60361), "rd:TRICE64_1 double %g (%%g), aDouble(y)\n", aDouble(y) ); 
+            TRICE64_1( Id( 50015), "rd:TRICE64_1 double %E (%%E), aDouble(y)\n", aDouble(y) ); 
+            TRICE64_1( Id( 56849), "rd:TRICE64_1 double %F (%%F), aDouble(y)\n", aDouble(y) ); 
+            TRICE64_1( Id( 62936), "rd:TRICE64_1 double %G (%%G), aDouble(y)\n", aDouble(y) ); 
         break;
+        case 31:                                                         				
+            TRICE( Id(45826), "att:negative float & double\n" );
+				    TRICE( Id(55265), "rd:TRICE float %e (%%e)\n", aFloat(-x) );
+            TRICE( Id(60347), "rd:TRICE float %f (%%f)\n", aFloat(-x) );
+            TRICE( Id(52958), "rd:TRICE float %g (%%g)\n", aFloat(-x) );
+            TRICE( Id(37737), "rd:TRICE float %E (%%E)\n", aFloat(-x) );
+            TRICE( Id(64326), "rd:TRICE float %F (%%F)\n", aFloat(-x) );
+            TRICE( Id(61656), "rd:TRICE float %G (%%G)\n", aFloat(-x) );
+				
+    		    TRICE64( Id( 56469), "rd:TRICE64 double %e (%%e), aDouble(y)\n", aDouble(-y) ); 
+            TRICE64( Id( 64681), "rd:TRICE64 double %f (%%f), aDouble(y)\n", aDouble(-y) ); 
+            TRICE64( Id( 46262), "rd:TRICE64 double %g (%%g), aDouble(y)\n", aDouble(-y) ); 
+            TRICE64( Id( 62561), "rd:TRICE64 double %E (%%E), aDouble(y)\n", aDouble(-y) ); 
+            TRICE64( Id( 56422), "rd:TRICE64 double %F (%%F), aDouble(y)\n", aDouble(-y) ); 
+            TRICE64( Id( 59170), "rd:TRICE64 double %G (%%G), aDouble(y)\n", aDouble(-y) ); 
+        break;
+        case 32:                                                         
+            TRICE( Id(49994), "att:formatted float & double\n" );
+    				TRICE32( Id( 41779), "rd:TRICE32 float %12.6e (%%12.6e)\n", aFloat(x) ); 
+            TRICE32( Id( 57468), "rd:TRICE32 float %12.6f (%%12.6f)\n", aFloat(x) ); 
+            TRICE32( Id( 45198), "rd:TRICE32 float %12.6g (%%12.6g)\n", aFloat(x) ); 
+            TRICE32( Id( 51059), "rd:TRICE32 float %12.6E (%%12.6E)\n", aFloat(x) ); 
+            TRICE32( Id( 48951), "rd:TRICE32 float %12.6F (%%12.6F)\n", aFloat(x) ); 
+            TRICE32( Id( 44698), "rd:TRICE32 float %12.6G (%%12.6G)\n", aFloat(x) );
+				
+    		    TRICE64( Id( 49771), "rd:TRICE64 double %12.6e (%%12.6e), aDouble(y)\n", aDouble(y) ); 
+            TRICE64( Id( 49955), "rd:TRICE64 double %12.6f (%%12.6f), aDouble(y)\n", aDouble(y) ); 
+            TRICE64( Id( 52071), "rd:TRICE64 double %12.6g (%%12.6g), aDouble(y)\n", aDouble(y) ); 
+            TRICE64( Id( 64451), "rd:TRICE64 double %12.6E (%%12.6E), aDouble(y)\n", aDouble(y) ); 
+            TRICE64( Id( 63365), "rd:TRICE64 double %12.6F (%%12.6F), aDouble(y)\n", aDouble(y) ); 
+            TRICE64( Id( 56912), "rd:TRICE64 double %12.6G (%%12.6G), aDouble(y)\n", aDouble(y) ); 
+        break;
+        case 33:                                                         
+            TRICE( Id(51863), "att:mixed int & float & double & bits\n" );
+            TRICE32( Id(51737), "rd:TRICE32 int %d, float %f (%%f), %08x, %032b\n", FloatToInt32(x), aFloat(x), aFloat(x), aFloat(x) ); 
+            TRICE32( Id(51737), "rd:TRICE32 int %d, float %f (%%f), %08x, %032b\n",    (int32_t)(x), aFloat(x), aFloat(x), aFloat(x) ); 
+            TRICE32( Id(51737), "rd:TRICE32 int %d, float %f (%%f), %08x, %032b\n",              x,  aFloat(x), aFloat(x), aFloat(x) ); 
+            TRICE32( Id(51737), "rd:TRICE32 int %d, float %f (%%f), %08x, %032b\n", FloatToInt32(-x), aFloat(-x), aFloat(-x), aFloat(-x) ); 
+            TRICE32( Id(51737), "rd:TRICE32 int %d, float %f (%%f), %08x, %032b\n",    (int32_t)(-x), aFloat(-x), aFloat(-x), aFloat(-x) ); 
+            TRICE32( Id(51737), "rd:TRICE32 int %d, float %f (%%f), %08x, %032b\n",              -x,  aFloat(-x), aFloat(-x), aFloat(-x) ); 
+            TRICE64( Id(61610), "rd:TRICE64 int %d, double %f (%%f), %016x, %064b\n", DoubleToInt64(y), aDouble(y), aDouble(y), aDouble(y) ); 
+            TRICE64( Id(61610), "rd:TRICE64 int %d, double %f (%%f), %016x, %064b\n",     (int64_t)(y), aDouble(y), aDouble(y), aDouble(y) ); 
+            TRICE64( Id(61610), "rd:TRICE64 int %d, double %f (%%f), %016x, %064b\n",               y,  aDouble(y), aDouble(y), aDouble(y) ); 
+            TRICE64( Id(40084), "rd:TRICE64 int %d, double %f (%%f), %016x, %064b\n", DoubleToInt64(-y), aDouble(-y), aDouble(-y), aDouble(-y) ); 
+            TRICE64( Id(40084), "rd:TRICE64 int %d, double %f (%%f), %016x, %064b\n",     (int64_t)(-y), aDouble(-y), aDouble(-y), aDouble(-y) ); 
+            TRICE64( Id(40084), "rd:TRICE64 int %d, double %f (%%f), %016x, %064b\n",               -y,  aDouble(-y), aDouble(-y), aDouble(-y) ); 
         case 1:                    
+            TRICE( Id(50845), "att:\n" );
             TRICE16_1( Id( 35169), "rd:TRICE16_1 line %u (%%u -1)\n", -1 ); 
             TRICE16_1( Id( 35133), "rd:TRICE16_1 line %b (%%b -1)\n", -1 ); 
             TRICE16_1( Id( 51463), "rd:TRICE16_1 line %o (%%o -1)\n", -1 ); 
@@ -69,6 +137,7 @@ void TriceCheckSet(int index) {
             TRICE64_1( Id(52591), "rd:TRICE64_1 line %d (%%d)\n", -1 ); 
         break;
         case 2:
+            TRICE( Id(44084), "msg:\n" );
             TRICE( Id(65259), "ATT:TRICE attention message, SysTick is %6d\n", SYSTICKVAL);
             TRICE( Id(34713), "ATT:TRICE attention message, SysTick is %6d\n", SYSTICKVAL);
             TRICE( Id(53919), "ATT:TRICE attention message, SysTick is %6d\n", SYSTICKVAL);
@@ -315,8 +384,8 @@ void TriceCheckSet(int index) {
             TRICE0(Id( 51771), "m:123\n");
             TRICE(Id(63288), "e:A"); TRICE(Id(53934), "w:B"); TRICE(Id(44438), "a:c");
             TRICE(Id(39663), "wr:d"); TRICE(Id(42027), "rd:e\n"); TRICE(Id(54760), "diag:f");
-				    TRICE(   Id(57680), "%d%d", 2, -2 ); TRICE8(   Id(33878), "%d%d", 2, -2 ); TRICE16(   Id(56897), "%d%d", 2, -2 ); TRICE32(   Id(42128), "%d%d", 2, -2 ); TRICE64(   Id( 41176), "%d%d", 2, -2 );
-				    TRICE_2( Id(40709), "%d%d", 2, -2 ); TRICE8_2( Id(40940), "%d%d", 2, -2 ); TRICE16_2( Id(42184), "%d%d", 2, -2 ); TRICE32_2( Id(56879), "%d%d", 2, -2 ); TRICE64_2( Id(61735), "%d%d", 2, -2 );
+				    TRICE(   Id(57680), "%d%d", 2, -2 ); TRICE8(   Id(41705), "%d%d", 2, -2 ); TRICE16(   Id(56897), "%d%d", 2, -2 ); TRICE32(   Id(42128), "%d%d", 2, -2 ); TRICE64(   Id( 41176), "%d%d", 2, -2 );
+				    TRICE_2( Id(40709), "%d%d", 2, -2 ); TRICE8_2( Id(48632), "%d%d", 2, -2 ); TRICE16_2( Id(42184), "%d%d", 2, -2 ); TRICE32_2( Id(56879), "%d%d", 2, -2 ); TRICE64_2( Id(61735), "%d%d", 2, -2 );
         break;
         case 17:            
             TRICE8_1(Id( 54804), "tst:TRICE8_1 %d\n", 1);

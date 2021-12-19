@@ -165,7 +165,7 @@ To get rid of the `printf` like functions disadvantages, a small toll needs to b
 
 * Because the format string is interpreted by the **trice** tool written in [Go](https://en.wikipedia.org/wiki/Go_(programming_language)), the **Go** capabilities partial usable. For example `%b` allows output of bit patterns.
 
-###  4.4. <a name='Simplicity'></a>Simplicity
+###  4.4. <a name='Simplicity'></a>Simplicity and Convinience
 
 * No compiler dependency, any not too old C-compiler should be usable.
 * No hardware dependency, 8-bit to 64-bit & endianness is supported.

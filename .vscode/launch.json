@@ -220,7 +220,7 @@
             ]
         },        
         {
-            "name": "l -p COM11",
+            "name": "l -p COM5",
             "type": "go",
             "request": "launch",
             "mode": "auto",
@@ -230,7 +230,7 @@
                     "-til",
                     "${workspaceFolder}/til.json",
                      "-p",
-                     "COM11"
+                     "COM5"
             ]
         },        
         {
