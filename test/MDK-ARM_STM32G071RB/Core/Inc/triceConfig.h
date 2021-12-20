@@ -21,8 +21,8 @@ extern "C" {
 #define TRICE_UART USART2   //!< Uncomment and set UART for serial output.
 
 extern int milliSecond;
-#define TRICE_TIMESTAMP milliSecond //!< Uncomment if you do not need target timestamps. Instead of SYSTICKVAL, you can use any other up to 32-bit value.
-//#define TRICE_LOCATION (TRICE_FILE| __LINE__)
+#define TRICE_LOCATION (TRICE_FILE| __LINE__) //!< TRICE_FILE occcupied the upper 16 bit.
+#define TRICE_TIMESTAMP milliSecond //!< Uncomment if you do not need target timestamps. Instead of SYSTICKVAL, you can use any other up to 32-bit value, like milliSecond.
 
 
 

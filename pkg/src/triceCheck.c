@@ -6,7 +6,7 @@
 #include <float.h>
 //#define TRICE_OFF // enablae this line to disable trice code generation in this file object
 #include "trice.h" 
-#define TRICE_FILE Id(000) //__FILE__
+#define TRICE_FILE Id(1) //__FILE__
 
 int32_t FloatToInt32( float f ){
 	  if( f >= 0 ){
@@ -93,12 +93,12 @@ void TriceCheckSet(int index) {
             TRICE32_1( Id(56606), "rd:TRICE32_1 float %f (%%f)\n", aFloat(x) ); 
             TRICE32_1( Id(57028), "rd:TRICE32_1 float %9f (%%9f)\n", aFloat(x) ); 
             TRICE32_1( Id(61734), "rd:TRICE32_1 float %.9f (%%.9f)\n", aFloat(x) ); 
-            TRICE32_1( Id(44735), "rd:TRICE32_1 float %4.f (%%9.f)\n", aFloat(x) ); 
+            TRICE32_1( Id(44925), "rd:TRICE32_1 float %9.f (%%9.f)\n", aFloat(x) ); 
             TRICE32_1( Id(51264), "rd:TRICE32_1 float %9.6f (%%9.3f)\n", aFloat(x) ); 
             TRICE32_1( Id(56606), "rd:TRICE32_1 float %f (%%f)\n", aFloat(-x) ); 
             TRICE32_1( Id(57028), "rd:TRICE32_1 float %9f (%%9f)\n", aFloat(-x) ); 
             TRICE32_1( Id(61734), "rd:TRICE32_1 float %.9f (%%.9f)\n", aFloat(-x) ); 
-            TRICE32_1( Id(44735), "rd:TRICE32_1 float %4.f (%%9.f)\n", aFloat(-x) ); 
+            TRICE32_1( Id(35224), "rd:TRICE32_1 float %9.f (%%9.f)\n", aFloat(-x) ); 
             TRICE32_1( Id(51264), "rd:TRICE32_1 float %9.6f (%%9.3f)\n", aFloat(-x) ); 
             TRICE32_1( Id(55440), "rd:TRICE32_1 float %+f (%%f)\n", aFloat(x) ); 
             TRICE32_1( Id(54089), "rd:TRICE32_1 float %+9f (%%9f)\n", aFloat(x) ); 
@@ -454,7 +454,7 @@ void TriceCheckSet(int index) {
             TRICE64_1(Id( 59670), "tst:TRICE64_1 %d\n", -111); // 2
             TRICE64_2(Id( 46159), "tst:TRICE64_2 %d %d\n", -111, -222); // 4
         break;
-        case 16: // colored single letters and several TRICE macros in one line        
+        case 28: // colored single letters and several TRICE macros in one line        
             TRICE0(Id( 42984), "e:A");
             TRICE0(Id( 65475), "w:B");
             TRICE0(Id( 60278), "a:c");
@@ -474,9 +474,9 @@ void TriceCheckSet(int index) {
             TRICE0(Id( 44255), "m:12");
             TRICE0(Id( 51771), "m:123\n");
             TRICE(Id(63288), "e:A"); TRICE(Id(53934), "w:B"); TRICE(Id(44438), "a:c");
-            TRICE(Id(39663), "wr:d"); TRICE(Id(42027), "rd:e\n"); TRICE(Id(54760), "diag:f");
-				    TRICE(   Id(57680), "%d%d", 2, -2 ); TRICE8(   Id(41705), "%d%d", 2, -2 ); TRICE16(   Id(56897), "%d%d", 2, -2 ); TRICE32(   Id(42128), "%d%d", 2, -2 ); TRICE64(   Id( 41176), "%d%d", 2, -2 );
-				    TRICE_2( Id(40709), "%d%d", 2, -2 ); TRICE8_2( Id(48632), "%d%d", 2, -2 ); TRICE16_2( Id(42184), "%d%d", 2, -2 ); TRICE32_2( Id(56879), "%d%d", 2, -2 ); TRICE64_2( Id(61735), "%d%d", 2, -2 );
+            TRICE(Id(39663), "wr:d"); TRICE(Id(42027), "rd:e\n"); //TRICE(Id(54760), "diag:f");
+				    //TRICE(   Id(57680), "%d%d", 2, -2 ); TRICE8(   Id(41705), "%d%d", 2, -2 ); TRICE16(   Id(56897), "%d%d", 2, -2 ); TRICE32(   Id(42128), "%d%d", 2, -2 ); TRICE64(   Id( 41176), "%d%d", 2, -2 );
+				    //TRICE_2( Id(40709), "%d%d", 2, -2 ); TRICE8_2( Id(48632), "%d%d", 2, -2 ); TRICE16_2( Id(42184), "%d%d", 2, -2 ); TRICE32_2( Id(56879), "%d%d", 2, -2 ); TRICE64_2( Id(61735), "%d%d", 2, -2 );
         break;
         case 17:            
             TRICE8_1(Id( 54804), "tst:TRICE8_1 %d\n", 1);

@@ -139,14 +139,18 @@ func (p *COBS) nextCOBSpackage() {
 func (p *COBS) handleCOBSModeDescriptor() error {
 	switch p.COBSModeDescriptor {
 	case 0: // nothing to do
+		targetTimestampExists = false
+		targetLocationExists = false
 		return nil
 	case 1:
 		targetTimestamp = p.readU32(p.b)
 		targetTimestampExists = true
+		targetLocationExists = false
 		p.b = p.b[4:] // drop target timestamp
 		return nil
 	case 2:
 		targetLocation = p.readU32(p.b)
+		targetTimestampExists = false
 		targetLocationExists = true
 		p.b = p.b[4:] // drop target location
 		return nil

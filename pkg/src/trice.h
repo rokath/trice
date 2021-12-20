@@ -57,7 +57,7 @@ static inline int TriceOutDepth( void ){ return 0; }
 #endif
 #if  defined(TRICE_LOCATION) &&  defined(TRICE_TIMESTAMP)
 #define TRICE_COBS_PACKAGE_MODE 3
-#define TRICE_PUT_PREFIX TRICE_PUT(TRICE_TIMESTAMP); TRICE_PUT(TRICE_LOCATION); 
+#define TRICE_PUT_PREFIX TRICE_PUT(TRICE_LOCATION); TRICE_PUT(TRICE_TIMESTAMP); 
 #define TRICE_PREFIX_SIZE 8
 #endif
 

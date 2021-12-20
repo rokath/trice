@@ -104,23 +104,15 @@ var (
 	matchNextFormatBoolSpecifier    = regexp.MustCompile(patNextFormatBoolSpecifier)
 	matchNextFormatPointerSpecifier = regexp.MustCompile(patNextFormatPointerSpecifier)
 
-	// DebugOut enables debug information.
-	DebugOut = false
-
-	// DumpLineByteCount is the bytes per line for the DUMP decoder.
-	DumpLineByteCount int
-
-	// initialCycle is a helper for the cycle counter automatic.
-	initialCycle = true
-
-	targetTimestamp uint32
-	//targetLocation  uint32
-
-	ShowTargetTimestamp string
-	ShowTargetLocation  string
-
-	targetTimestampExists bool
-	targetLocationExists  bool
+	DebugOut              = false // DebugOut enables debug information.
+	DumpLineByteCount     int     // DumpLineByteCount is the bytes per line for the DUMP decoder.
+	initialCycle          = true  // initialCycle is a helper for the cycle counter automatic.
+	targetTimestamp       uint32  // targetTimestamp contains target specific timestamp value.
+	targetLocation        uint32  // targetLocation contains 16 bit file id in high and 16 bit line number in low part.
+	ShowTargetTimestamp   string  // ShowTargetTimestamp is the format string for target timestamps.
+	ShowTargetLocation    string  // ShowTargetLocation is the format string for target location: line numer and file name.
+	targetTimestampExists bool    // targetTimestampExists is set in dependence of p.COBSModeDescriptor.
+	targetLocationExists  bool    // targetLocationExists is set in dependence of p.COBSModeDescriptor.
 )
 
 // newDecoder abstracts the function type for a new decoder.
@@ -214,7 +206,7 @@ func Translate(w io.Writer, sw *emitter.TriceLineComposer, lut id.TriceIDLookUp,
 func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec Decoder) error {
 	b := make([]byte, defaultSize) // intermediate trice string buffer
 	for {
-		n, err := dec.Read(b) // Code to measure
+		n, err := dec.Read(b) // Code to measure, dec.Read can return n=0 in some cases and then wait.
 		if (err == io.EOF || err == nil) && n == 0 {
 			if receiver.Port == "BUFFER" || receiver.Port == "DUMP" { // do not wait for a predefined buffer
 				return err
@@ -225,45 +217,54 @@ func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec Decode
 			continue // read again
 		}
 		// b contains here no or several complete trice strings.
-		// If several, they end with a newline, despite the last one which optionally ends with a newline.
-
-		// Filtering is done here to suppress the id display as well for the filtered items.
-		n = emitter.BanOrPickFilter(b[:n]) // todo: b can contain several trices - handle that!
-
+		// If several, they end with a newline each, despite the last one which optionally ends with a newline.
 		start := time.Now()
 
-		//  var tLoc bool
-		//  if targetLocationExists && 0 < n && ShowTargetLocation != "" && len(sw.Line) == 0 {
-		//  	s := fmt.Sprintf(ShowTargetLocation, targetLocation)
-		//  	_, err := sw.Write([]byte(s))
-		//  	msg.OnErr(err)
-		//  	if ShowLoc != "" {
-		//  		tLoc = true
-		//  	}
-		//  }
-		var tts bool
-		if targetTimestampExists && 0 < n && ShowTargetTimestamp != "" && len(sw.Line) == 0 {
-			s := fmt.Sprintf(ShowTargetTimestamp, targetTimestamp)
-			_, err := sw.Write([]byte(s))
-			msg.OnErr(err)
-			if ShowID != "" {
-				tts = true
+		// Filtering is done here to suppress the loc, timestamp and id display as well for the filtered items.
+		n = emitter.BanOrPickFilter(b[:n]) // todo: b can contain several trices - handle that!
+
+		if n > 0 { // s.th. to write out
+			var logLineStart bool // logLineStart is a helper flag for log line start detection
+			if len(sw.Line) == 0 {
+				logLineStart = true
 			}
+
+			// If target location & enabled and line start, write target location.
+			if logLineStart && targetLocationExists && ShowTargetLocation != "" {
+				targetFileID := targetLocation >> 16
+				var targetFile string
+				if targetFileID == 0 {
+					targetFile = "main.c" // todo
+				} else {
+					targetFile = "triceCheck.c"
+				}
+				s := fmt.Sprintf(ShowTargetLocation, targetFile, 0xffff&targetLocation)
+				_, err := sw.Write([]byte(s))
+				msg.OnErr(err)
+			}
+
+			// If target timestamp & enabled and line start, write target timestamp.
+			if logLineStart && targetTimestampExists && ShowTargetTimestamp != "" {
+				s := fmt.Sprintf(ShowTargetTimestamp, targetTimestamp)
+				_, err := sw.Write([]byte(s))
+				msg.OnErr(err)
+			}
+
+			// write ID only if enabled and line start.
+			if logLineStart && ShowID != "" {
+				s := fmt.Sprintf(ShowID, LastTriceID)
+				_, err := sw.Write([]byte(s))
+				msg.OnErr(err)
+			}
+			_, err := sw.Write(b[:n])
+			msg.OnErr(err)
 		}
 
-		if tts || (0 < n && ShowID != "" && len(sw.Line) == 0) {
-			// dec.Read can return n=0 in some cases and then wait.
-			s := fmt.Sprintf(ShowID, LastTriceID)
-			_, err := sw.Write([]byte(s))
-			msg.OnErr(err)
-			tts = false
-		}
-		m, err := sw.Write(b[:n])
 		duration := time.Since(start).Milliseconds()
 		if duration > 100 {
 			fmt.Fprintln(w, "TriceLineComposer.Write duration =", duration, "ms.")
 		}
-		msg.InfoOnErr(err, fmt.Sprintln("sw.Write wrote", m, "bytes"))
+		//msg.InfoOnErr(err, fmt.Sprintln("sw.Write wrote", m, "bytes"))
 	}
 }
 
