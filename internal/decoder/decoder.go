@@ -40,21 +40,29 @@ const (
 	// Partial implemented: %hi, %hu, %ld, %li, %lf, %Lf, %Lu, %lli, %lld
 	// Not implemented: %s
 	//patNextFormatSpecifier = `(?:^|[^%])(%[0-9]*(-|c|d|e|E|f|F|g|G|h|i|l|L|o|O|p|q|u|x|X|n|b))`
-	patNextFormatSpecifier = `%([+\-#'0-9.])*(c|d|e|E|f|F|g|G|h|i|l|L|o|O|p|q|u|x|X|n|b)` // assumes no `%%` inside string!
+	patNextFormatSpecifier = `%([+\-#'0-9\.0-9])*(c|d|e|E|f|F|g|G|h|i|l|L|o|O|p|q|u|x|X|n|b|t)` // assumes no `%%` inside string!
 
 	// patNextFormatUSpecifier is a regex to find next format u specifier in a string
-	// It does also match %%u positions! so an additional check must follow.
+	// It does also match %%u positions!
 	//patNextFormatUSpecifier = `(?:%[0-9]*u)`
 	patNextFormatUSpecifier = `%[0-9]*u` // assumes no `%%` inside string!
 
 	// patNextFormatXSpecifier is a regex to find next format x specifier in a string
-	// It does also match %%x positions! so an additional check must follow.
+	// It does also match %%x positions!
 	// patNextFormatXSpecifier = `(?:%[0-9]*(l|o|O|x|X|b))`
-	patNextFormatXSpecifier = `%[0-9]*(l|o|O|x|X|b)` // assumes no `%%` inside string!
+	patNextFormatXSpecifier = `%[0-9]*(l|o|O|x|X|b|p|t)` // assumes no `%%` inside string!
 
 	// patNextFormatFSpecifier is a regex to find next format f specifier in a string
-	// It does also match %%f positions! so an additional check must follow.
-	patNextFormatFSpecifier = `%[(+-0-9.#]*(e|E|f|F|g|G)` // assumes no `%%` inside string!
+	// It does also match %%f positions!
+	patNextFormatFSpecifier = `%[(+\-0-9\.0-9#]*(e|E|f|F|g|G)` // assumes no `%%` inside string!
+
+	// patNextFormatBoolSpecifier is a regex to find next format f specifier in a string
+	// It does also match %%t positions!
+	patNextFormatBoolSpecifier = `%t` // assumes no `%%` inside string!
+
+	// patNextFormatPointerSpecifier is a regex to find next format f specifier in a string
+	// It does also match %%t positions!
+	patNextFormatPointerSpecifier = `%p` // assumes no `%%` inside string!
 
 	// headSize is 4; each trice message starts with a head of 4 bytes.
 	headSize = 4
@@ -89,10 +97,12 @@ var (
 	// Unsigned if true, forces hex and in values printed as unsigned values.
 	Unsigned bool
 
-	matchNextFormatSpecifier  = regexp.MustCompile(patNextFormatSpecifier)
-	matchNextFormatUSpecifier = regexp.MustCompile(patNextFormatUSpecifier)
-	matchNextFormatXSpecifier = regexp.MustCompile(patNextFormatXSpecifier)
-	matchNextFormatFSpecifier = regexp.MustCompile(patNextFormatFSpecifier)
+	matchNextFormatSpecifier        = regexp.MustCompile(patNextFormatSpecifier)
+	matchNextFormatUSpecifier       = regexp.MustCompile(patNextFormatUSpecifier)
+	matchNextFormatXSpecifier       = regexp.MustCompile(patNextFormatXSpecifier)
+	matchNextFormatFSpecifier       = regexp.MustCompile(patNextFormatFSpecifier)
+	matchNextFormatBoolSpecifier    = regexp.MustCompile(patNextFormatBoolSpecifier)
+	matchNextFormatPointerSpecifier = regexp.MustCompile(patNextFormatPointerSpecifier)
 
 	// DebugOut enables debug information.
 	DebugOut = false
@@ -104,7 +114,7 @@ var (
 	initialCycle = true
 
 	targetTimestamp uint32
-	targetLocation  uint32
+	//targetLocation  uint32
 
 	ShowTargetTimestamp string
 	ShowTargetLocation  string
@@ -300,6 +310,16 @@ func uReplaceN(i string) (o string, u []int) {
 		}
 		offset += loc[1] // track position
 		fm := s[loc[0]:loc[1]]
+		locPointer := matchNextFormatPointerSpecifier.FindStringIndex(fm)
+		if nil != locPointer { // a %p found
+			u = append(u, 4) // pointer value
+			continue
+		}
+		locBool := matchNextFormatBoolSpecifier.FindStringIndex(fm)
+		if nil != locBool { // a %t found
+			u = append(u, 3) // bool value
+			continue
+		}
 		locF := matchNextFormatFSpecifier.FindStringIndex(fm)
 		if nil != locF { // a %nf found
 			u = append(u, 2) // float value

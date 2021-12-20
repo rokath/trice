@@ -11,6 +11,7 @@ import (
 	"math"
 	"strings"
 	"sync"
+	"unsafe"
 
 	"github.com/dim13/cobs"
 	"github.com/rokath/trice/internal/emitter"
@@ -404,6 +405,10 @@ func (p *COBS) unSignedOrSignedOut(b []byte, bitwidth, count int) int {
 				v[i] = uint8(p.b[i])
 			case 1:
 				v[i] = int8(p.b[i])
+			case 3:
+				v[i] = p.b[i] != 0
+			case 4:
+				v[i] = unsafe.Pointer(uintptr(p.b[i]))
 			default:
 				return copy(b, fmt.Sprintln("ERROR: Invalid format specifier (float?) inside", p.trice.Type, p.trice.Strg))
 			}
@@ -416,6 +421,10 @@ func (p *COBS) unSignedOrSignedOut(b []byte, bitwidth, count int) int {
 				v[i] = n
 			case 1:
 				v[i] = int16(n)
+			case 3:
+				v[i] = n != 0
+			case 4:
+				v[i] = unsafe.Pointer(uintptr(n))
 			default:
 				return copy(b, fmt.Sprintln("ERROR: Invalid format specifier (float?) inside", p.trice.Type, p.trice.Strg))
 			}
@@ -430,6 +439,10 @@ func (p *COBS) unSignedOrSignedOut(b []byte, bitwidth, count int) int {
 				v[i] = int32(n)
 			case 2:
 				v[i] = math.Float32frombits(n)
+			case 3:
+				v[i] = n != 0
+			case 4:
+				v[i] = unsafe.Pointer(uintptr(n))
 			default:
 				return copy(b, fmt.Sprintln("ERROR: Invalid format specifier inside", p.trice.Type, p.trice.Strg))
 			}
@@ -444,6 +457,10 @@ func (p *COBS) unSignedOrSignedOut(b []byte, bitwidth, count int) int {
 				v[i] = int64(n)
 			case 2:
 				v[i] = math.Float64frombits(n)
+			case 3:
+				v[i] = n != 0
+			case 4:
+				v[i] = unsafe.Pointer(uintptr(n))
 			default:
 				return copy(b, fmt.Sprintln("ERROR: Invalid format specifier inside", p.trice.Type, p.trice.Strg))
 			}

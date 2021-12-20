@@ -30,8 +30,99 @@ void TriceCheckSet(int index) {
 		float  x = 1089.6082763671875; // 0x44883377
 		double y = 518.0547492508867; // 0x4080307020601050
     switch (index) {
+				case 25:{ // https://yourbasic.org/golang/fmt-printf-reference-cheat-sheet/
+						int i = 15;
+						TRICE( Id(61126), "sig:Integer (indent, base, sign)\n" );
+						TRICE( Id(42661), "rd: 15 	%d 	Base 10\n", i );
+						TRICE( Id(62209), "rd: +15 	%+d 	Always show sign\n", i );
+						TRICE( Id(37289), "rd:   15 	%4d 	Pad with spaces (width 4, right justified)\n", i );
+						TRICE( Id(46405), "rd: 15   	%-4d 	Pad with spaces (width 4, left justified)\n", i );
+						TRICE( Id(57753), "rd: 0015 	%04d 	Pad with zeroes (width 4)\n", i );
+						TRICE( Id(36970), "rd: 1111 	%b 	Base 2\n", i );
+						TRICE( Id(35229), "rd: 17 	%o 	Base 8\n", i );
+						TRICE( Id(44824), "rd: f 	%x 	Base 16, lowercase\n", i );
+						TRICE( Id(47950), "rd: F 	%X 	Base 16, uppercase\n", i );
+						TRICE( Id(38989), "rd: 0xf 	%#x 	Base 16, with leading 0x\n", i );					
+				}
+				break;
+				case 26: {
+						char a = 'A';
+						TRICE( Id(62284), "sig:Character (quoted, Unicode)\n" );
+						TRICE( Id(65019), "rd: A 	%c 	Character\n", a );
+						TRICE( Id(37273), "rd: 'A' 	%q 	Quoted character\n", a );
+					//TRICE( Id(53839), "rd: U+0041 	%U 	Unicode\n", a ); // todo
+					//TRICE( Id(33809), "rd: U+0041 'A' 	%#U 	Unicode with character\n", a ); // todo
+						TRICE( Id(56603), "sig:Boolean (true/false)\n" );
+						TRICE( Id(33621), "rd:Use %%t to format a boolean as true (%t) or false (%t).\n", 1, 0 );
+						TRICE( Id(42327), "sig:Pointer (hex)\n" );
+						TRICE8( Id(60388), "rd:Use %%p to format a pointer in base 16 notation with leading 0x. (%p)\n", 0x84 );
+						TRICE16( Id(34786), "rd:Use %%p to format a pointer in base 16 notation with leading 0x. (%p)\n", 0x1234 );
+						TRICE32( Id(52807), "rd:Use %%p to format a pointer in base 16 notation with leading 0x. (%p)\n", 0xaabbccdd );
+						TRICE64( Id(65477), "rd:Use %%p to format a pointer in base 16 notation with leading 0x. (%p)\n", 0x1122334455667788 );
+						TRICE( Id(34647), "rd:Use %%p to format a pointer in base 16 notation with leading 0x. (%p)\n", 0xaabbccdd);
+				}
+				break;
+				case 27: {
+						float f = 123.456;
+						TRICE( Id(39810), "sig:Float (indent, precision, scientific notation)\n" );
+						TRICE( Id(33264), "rd: 1.234560e+02		%e 	%%e Scientific notation\n", aFloat(f) );
+						TRICE( Id(53763), "rd: 123.456000		%f 	%%f Decimal point, no exponent\n", aFloat(f) );
+						TRICE( Id(41255), "rd: 123.46	 		%.2f		%%.2f Default width, precision 2\n", aFloat(f) );
+						TRICE( Id(57868), "rd: ␣␣123.46		%8.2f	%%8.2f Width 8, precision 2\n", aFloat(f) );
+						TRICE( Id(33347), "rd: 123.456		%g		%%g Exponent as needed, necessary digits only\n", aFloat(f) );					
+				}{
+						double d = 123.456;
+						TRICE( Id(55556), "sig:Double (indent, precision, scientific notation)\n" );
+						TRICE64( Id(38168), "rd: 1.234560e+02		%e 	%%e Scientific notation\n", aDouble(d) );
+						TRICE64( Id(49909), "rd: 123.456000		%f 	%%f Decimal point, no exponent\n", aDouble(d) );
+						TRICE64( Id(55026), "rd: 123.46			%.2f    	%%.2f Default width, precision 2\n", aDouble(d) );
+						TRICE64( Id(51914), "rd: ␣␣123.46		%8.2f 	%%8.2f Width 8, precision 2\n", aDouble(d) );
+						TRICE64( Id(46200), "rd: 123.456		%g		%%g Exponent as needed, necessary digits only\n", aDouble(d) );					
+				}{
+						char* s = "café";
+						TRICE( Id(61291), "sig:String or byte slice (quote, indent, hex)\n" );
+						TRICE_S( Id(35811), "rd: café 			%s		Plain string\n", s );
+						TRICE_S( Id(49621), "rd: ␣␣café 		%6s 		Width 6, right justify\n", s );
+						TRICE_S( Id(34432), "rd: café␣␣ 		%-6s 		Width 6, left justify\n", s );
+						TRICE_S( Id(37252), "rd: \"café\" 		%q	 	Quoted string\n", s );
+						TRICE_S( Id(42861), "rd: 636166c3a9 		%x	Hex dump of byte values\n", s );
+						TRICE_S( Id(54266), "rd: 63 61 66 c3 a9 	% x	Hex dump with spaces\n", s );				
+				}
+				break;
+        case 29:
+            TRICE32_1( Id(56606), "rd:TRICE32_1 float %f (%%f)\n", aFloat(x) ); 
+            TRICE32_1( Id(57028), "rd:TRICE32_1 float %9f (%%9f)\n", aFloat(x) ); 
+            TRICE32_1( Id(61734), "rd:TRICE32_1 float %.9f (%%.9f)\n", aFloat(x) ); 
+            TRICE32_1( Id(44735), "rd:TRICE32_1 float %4.f (%%9.f)\n", aFloat(x) ); 
+            TRICE32_1( Id(51264), "rd:TRICE32_1 float %9.6f (%%9.3f)\n", aFloat(x) ); 
+            TRICE32_1( Id(56606), "rd:TRICE32_1 float %f (%%f)\n", aFloat(-x) ); 
+            TRICE32_1( Id(57028), "rd:TRICE32_1 float %9f (%%9f)\n", aFloat(-x) ); 
+            TRICE32_1( Id(61734), "rd:TRICE32_1 float %.9f (%%.9f)\n", aFloat(-x) ); 
+            TRICE32_1( Id(44735), "rd:TRICE32_1 float %4.f (%%9.f)\n", aFloat(-x) ); 
+            TRICE32_1( Id(51264), "rd:TRICE32_1 float %9.6f (%%9.3f)\n", aFloat(-x) ); 
+            TRICE32_1( Id(55440), "rd:TRICE32_1 float %+f (%%f)\n", aFloat(x) ); 
+            TRICE32_1( Id(54089), "rd:TRICE32_1 float %+9f (%%9f)\n", aFloat(x) ); 
+            TRICE32_1( Id(44134), "rd:TRICE32_1 float %+.9f (%%.9f)\n", aFloat(x) ); 
+            TRICE32_1( Id(56136), "rd:TRICE32_1 float %+9.f (%%9.f)\n", aFloat(x) ); 
+            TRICE32_1( Id(36907), "rd:TRICE32_1 float %+9.6f (%%9.3f)\n", aFloat(x) ); 
+            TRICE32_1( Id(55440), "rd:TRICE32_1 float %+f (%%f)\n", aFloat(-x) ); 
+            TRICE32_1( Id(54089), "rd:TRICE32_1 float %+9f (%%9f)\n", aFloat(-x) ); 
+            TRICE32_1( Id(44134), "rd:TRICE32_1 float %+.9f (%%.9f)\n", aFloat(-x) ); 
+            TRICE32_1( Id(56136), "rd:TRICE32_1 float %+9.f (%%9.f)\n", aFloat(-x) ); 
+            TRICE32_1( Id(36907), "rd:TRICE32_1 float %+9.6f (%%9.3f)\n", aFloat(-x) ); 
+            TRICE32_1( Id(49405), "rd:TRICE32_1 float %-f (%%f)\n", aFloat(x) ); 
+            TRICE32_1( Id(38959), "rd:TRICE32_1 float %-9f (%%9f)\n", aFloat(x) ); 
+            TRICE32_1( Id(37554), "rd:TRICE32_1 float %-.9f (%%.9f)\n", aFloat(x) ); 
+            TRICE32_1( Id(43752), "rd:TRICE32_1 float %-9.f (%%9.f)\n", aFloat(x) ); 
+            TRICE32_1( Id(41134), "rd:TRICE32_1 float %-9.6f (%%9.3f)\n", aFloat(x) ); 
+            TRICE32_1( Id(49405), "rd:TRICE32_1 float %-f (%%f)\n", aFloat(-x) ); 
+            TRICE32_1( Id(38959), "rd:TRICE32_1 float %-9f (%%9f)\n", aFloat(-x) ); 
+            TRICE32_1( Id(37554), "rd:TRICE32_1 float %-.9f (%%.9f)\n", aFloat(-x) ); 
+            TRICE32_1( Id(43752), "rd:TRICE32_1 float %-9.f (%%9.f)\n", aFloat(-x) ); 
+            TRICE32_1( Id(41134), "rd:TRICE32_1 float %-9.6f (%%9.3f)\n", aFloat(-x) ); 
+				break;
         case 30:
-					  TRICE( Id(40634), "att:positive float & double in variants\n");
+			TRICE( Id(40634), "att:positive float & double in variants\n");
             TRICE32_1( Id(36805), "rd:TRICE32_1 float %e (%%e)\n", aFloat(x) ); 
             TRICE32_1( Id(56606), "rd:TRICE32_1 float %f (%%f)\n", aFloat(x) ); 
             TRICE32_1( Id(32885), "rd:TRICE32_1 float %g (%%g)\n", aFloat(x) ); 
