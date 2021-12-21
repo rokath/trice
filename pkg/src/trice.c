@@ -10,7 +10,7 @@ uint8_t  TriceCycle = 0xc0; //!< TriceCycle is increased and transmitted with ea
 #endif
 
 #ifdef TRICE_HALF_BUFFER_SIZE
-static uint32_t triceBuffer[2][TRICE_HALF_BUFFER_SIZE>>2] = {0}; //!< triceBuffer is double buffer for better write speed.
+static uint32_t triceBuffer[2][TRICE_HALF_BUFFER_SIZE>>2] = {0}; //!< triceBuffer is a double buffer for better write speed.
 static int triceSwap = 0; //!< triceSwap is the index of the active write buffer. !triceSwap is the active read buffer index.
 uint32_t* TriceBufferWritePosition = &triceBuffer[0][TRICE_DATA_OFFSET>>2]; //!< TriceBufferWritePosition is the active write position.
 static uint32_t* triceBufferWriteLimit = &triceBuffer[1][TRICE_DATA_OFFSET>>2]; //!< triceBufferWriteLimit is the triceBuffer written limit. 
@@ -24,7 +24,7 @@ static int triceNonBlockingWrite( void const * buf, int nByte );
 static uint32_t* triceBufferSwap( void ){
     TRICE_ENTER_CRITICAL_SECTION
     triceBufferWriteLimit = TriceBufferWritePosition; // keep end position
-    triceSwap = !triceSwap;
+    triceSwap = !triceSwap; // exchange the 2 buffers
     TriceBufferWritePosition = &triceBuffer[triceSwap][TRICE_DATA_OFFSET>>2]; // set write position for next TRICE
     TRICE_LEAVE_CRITICAL_SECTION
     return &triceBuffer[!triceSwap][0];
@@ -34,14 +34,14 @@ static uint32_t* triceBufferSwap( void ){
 //! The trice data start at tb + TRICE_DATA_OFFSET.
 //! The returned depth is without the TRICE_DATA_OFFSET offset.
 static size_t triceDepth( uint32_t* tb ){
-    size_t depth = (triceBufferWriteLimit - tb)<<2;
+    size_t depth = (triceBufferWriteLimit - tb)<<2; // 32-bit write width
     return depth - TRICE_DATA_OFFSET;
 }
 
 //! TriceTransfer, if possible, swaps the double buffer and initiates a write.
 //! It is the resposibility of the app to call this function once every 10-100 milliseconds.
 void TriceTransfer( void ){
-    if( 0 == TriceOutDepth() ){ // transmission done
+    if( 0 == TriceOutDepth() ){ // transmission done, so a swap is possible
         uint32_t* tb = triceBufferSwap(); 
         size_t tLen = triceDepth(tb); // tlen is always a multiple of 4
         if( tLen ){
@@ -68,12 +68,12 @@ void TriceOut( uint32_t* tb, size_t tLen ){
     TriceEncrypt( da, eLen>>2 );
     #endif
     cLen = TriceCOBSEncode(co, (uint8_t*)da, eLen);
-    do{                 // add 1 to 4 zeroes as COBS package delimiter
-        co[cLen++] = 0; // one is ok, but padding to an uit32_t border could make TRICE_WRITE faster
-    }while( cLen & 3 );
+    do{                 // Add 1 to 4 zeroes as COBS package delimiter.
+        co[cLen++] = 0; // One is ok, but padding to an uint32_t border could make TRICE_WRITE faster.
+    }while( cLen & 3 ); // Additional empty packages are ignored on th receiver side.
     TRICE_WRITE( co, cLen );
-    tLen += TRICE_DATA_OFFSET; // diagnostics
-    TriceDepthMax = tLen < TriceDepthMax ? TriceDepthMax : tLen;
+    tLen += TRICE_DATA_OFFSET; 
+    TriceDepthMax = tLen < TriceDepthMax ? TriceDepthMax : tLen; // diagnostics
 }
 
 #if defined( TRICE_UART ) && !defined( TRICE_HALF_BUFFER_SIZE ) // direct out to UART

@@ -7,7 +7,9 @@ package msg
 import (
 	"errors"
 	"fmt"
+	"io"
 	"log"
+	"os"
 	"path/filepath"
 	"runtime"
 	"sync"
@@ -20,6 +22,15 @@ func Info(info string) {
 }
 
 // OnErr
+
+// OnErr prints info and a common error message with location info when err is not nil.
+func OnErrF(w io.Writer, err error) {
+	if nil == err {
+		return
+	}
+	pc, fn, line, ok := runtime.Caller(1)
+	fmtFMessage(w, pc, fn, line, ok, err)
+}
 
 // OnErr prints info and a common error message with location info when err is not nil.
 func OnErr(err error) {
@@ -148,14 +159,18 @@ var (
 	logFatalf = log.Fatalf // https://stackoverflow.com/questions/30688554/how-to-test-go-function-containing-log-fatal/45380105
 )
 
-func fmtMessage(pc uintptr, fn string, line int, ok bool, err error) {
+func fmtFMessage(w io.Writer, pc uintptr, fn string, line int, ok bool, err error) {
 	funcName := runtime.FuncForPC(pc).Name()
 	fileName := filepath.Base(fn)
 	if ok {
-		fmt.Printf(formatString, fileName, line, funcName, err)
+		fmt.Fprintf(w, formatString+"\n", fileName, line, funcName, err)
 	} else {
-		fmt.Print(seriousError)
+		fmt.Fprintln(w, seriousError)
 	}
+}
+
+func fmtMessage(pc uintptr, fn string, line int, ok bool, err error) {
+	fmtFMessage(os.Stdout, pc, fn, line, ok, err)
 }
 
 func logMessage(pc uintptr, fn string, line int, ok bool, err error) {

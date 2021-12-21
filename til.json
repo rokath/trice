@@ -3,6 +3,10 @@
 		"Type": "TRICE",
 		"Strg": "rd: 123.46 \t%.2f \tDefault width, precision 2\\n"
 	},
+	"7777": {
+		"Type": "TRICE_FILE",
+		"Strg": "main.c"
+	},
 	"32851": {
 		"Type": "TRICE64_1",
 		"Strg": "rd:TRICE64_1 float %f (%%f), aDouble(y)\\n"
@@ -467,6 +471,10 @@
 		"Type": "TRICE",
 		"Strg": "rd:TRICE %d, %d\\n"
 	},
+	"37952": {
+		"Type": "TRICE16",
+		"Strg": "d:Sending uint16 counter as two byte hex: %x\\n"
+	},
 	"37970": {
 		"Type": "TRICE32",
 		"Strg": "rd:TRICE line %f (%%f)\\n"
@@ -887,6 +895,10 @@
 		"Type": "TRICE32_1",
 		"Strg": "rd:TRICE32_1 float +%9.6f (%%9.3f)\\n"
 	},
+	"43676": {
+		"Type": "TRICE_S",
+		"Strg": "msg:Sending array: %s\\n"
+	},
 	"43752": {
 		"Type": "TRICE32_1",
 		"Strg": "rd:TRICE32_1 float %-9.f (%%9.f)\\n"
@@ -1199,6 +1211,10 @@
 		"Type": "TRICE0",
 		"Strg": "sig:This ASSERT error is just a demo and no real error:\\n"
 	},
+	"48455": {
+		"Type": "TRICE8",
+		"Strg": "wrn:Sending 254 as single byte hex: %02x\\n"
+	},
 	"48544": {
 		"Type": "TRICE32_1",
 		"Strg": "rd:TRICE32_1 float -%9.f (%%9.f)\\n"
@@ -1350,6 +1366,10 @@
 	"49955": {
 		"Type": "TRICE64",
 		"Strg": "rd:TRICE64 double %12.6f (%%12.6f), aDouble(y)\\n"
+	},
+	"49959": {
+		"Type": "TRICE0",
+		"Strg": "\\natt:Software Transmit UART Component demo\\n"
 	},
 	"49994": {
 		"Type": "TRICE",
@@ -2538,6 +2558,10 @@
 	"63288": {
 		"Type": "TRICE",
 		"Strg": "e:A"
+	},
+	"63294": {
+		"Type": "TRICE32",
+		"Strg": "tim:SysTick=%d\\n"
 	},
 	"63358": {
 		"Type": "TRICE16_2",

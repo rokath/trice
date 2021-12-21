@@ -23,6 +23,9 @@ const (
 	// patSourceFile is a regex pattern matching any source file for patching
 	patSourceFile = "(\\.c|\\.h|\\.cc|\\.cpp|\\.hpp)$"
 
+	// patSourceFile is a regex pattern matching any source file for patching
+	patCFile = "(\\.c|\\.cc|\\.cpp)$"
+
 	// patTrice matches any TRICE name variant https://regex101.com/r/IkIhV3/1, The (?i) says case insensitive. (?U)=un-greedy -> only first match.
 	patTypNameTRICE = `(?iU)(\b((TRICE((_S|0)|((8|16|32|64)*(_[0-9]*)*))))\b)`
 	//               `     (\b((TRICE(_S|0|(8|16|32|64)*)))(_[1-9]*)*|\b)\s*\(\s*\bID\b\s*\(\s*.*[0-9]\s*\)\s*,\s*".*"\s*.*\)\s*;` // https://regex101.com/r/pPRsjf/1
@@ -48,11 +51,16 @@ const (
 
 	patID = `\s*\bId\b\s*` // `\s*\b(I|i)d\b\s*`
 
+	patNumber = `\d+`
+
 	// patNbID is a regex pattern matching any (first in string) "Id(n)" and usable in matches of matchNbTRICE
 	patNbID = `\b` + patID + `\(\s*[0-9]*\s*\)`
 
 	// patIdInsideTrice finds if an `( Id(n) ,"` sequence exists inside trice
 	patIDInsideTrice = `(?U)\(` + patID + `\((\s*\d+)\s*\)\s*,\s*"`
+
+	// patTriceFileId finds first occorence, see https://regex101.com/r/hWMjhU/4
+	patTriceFileId = `#define\s*TRICE_FILE\s*Id\([0-9]*\)`
 )
 
 var (
@@ -66,6 +74,8 @@ var (
 	matchTriceNoLen            = regexp.MustCompile(patTriceNoLen)
 	matchIDInsideTrice         = regexp.MustCompile(patIDInsideTrice)
 	matchAnyTriceStart         = regexp.MustCompile(patAnyTriceStart)
+	matchTriceFileId           = regexp.MustCompile(patTriceFileId)
+	matchNumber                = regexp.MustCompile(patNumber)
 	ExtendMacrosWithParamCount bool
 
 	// DefaultTriceBitWidth tells the bit width of TRICE macros having no bit width in their names, like TRICE32 or TRICE8.
@@ -228,6 +238,81 @@ func visitRefresh(w io.Writer, lu TriceIDLookUp, tflu TriceFmtLookUp) filepath.W
 	}
 }
 
+func isCFile(path string) bool {
+	s := strings.ToLower(path)
+	if strings.HasSuffix(s, patCFile) {
+		fmt.Println(patCFile, "works")
+		return true
+	}
+	if strings.HasSuffix(s, ".c") {
+		return true
+	}
+	if strings.HasSuffix(s, ".cpp") {
+		return true
+	}
+	if strings.HasSuffix(s, ".cxx") {
+		return true
+	}
+	return false
+}
+
+// modifyTriceFileIdLine inserts a new TRICE_FILE pattern id in the line.
+//
+// The id is 0 or already used in a different way
+func modifyTriceFileIdLine(w io.Writer, lu TriceIDLookUp, tflu TriceFmtLookUp, inText, fileName string) (outText string) {
+	t := TriceFmt{"TRICE_FILE", fileName}
+	if SharedIDs {
+		if fid, ok := tflu[t]; ok {
+			fmt.Fprintf(w, "Trice fileName %s inside map known with fid %d.\n", fileName, fid)
+		}
+		// todo: insert fid in file
+	}
+	// todo: get new id
+	// todo: insert fid in file
+	// todo: tflu[t] = TriceID(n)
+	outText = inText
+	return
+}
+
+// insertTriceFileIdLine inserts a TRICE_FILE pattern line immediately after a '#include "trice.h"' line
+//
+// If no '#include "trice.h"' is found, the file is not touched.
+func insertTriceFileIdLine(w io.Writer, lu TriceIDLookUp, tflu TriceFmtLookUp, inText, fileName string) (outText string) {
+	outText = inText // todo
+	return
+}
+
+func updateTriceFileId(w io.Writer, lu TriceIDLookUp, tflu TriceFmtLookUp, inText, fileName string) (outText string) {
+	// check if file contains a TRICE_FILE pattern
+	locFID := matchTriceFileId.FindStringIndex(inText)
+	if locFID == nil {
+		//fmt.Fprintln(w, "In", fileName, "no TRICE_FILE pattern found.")
+		outText = insertTriceFileIdLine(w, lu, tflu, inText, fileName)
+		return
+	}
+
+	// get the file id value
+	sFID := inText[locFID[0]:locFID[1]]
+	locID := matchNumber.FindStringIndex(sFID)
+	sID := sFID[locID[0]:locID[1]] // This is just the file id as number string
+	var n int
+	_, err := fmt.Sscanf(sID, "%d", &n) // closing bracket in format string omitted intensionally
+	msg.OnErrF(w, err)                  // because spaces after id otherwise are not tolerated
+	//fmt.Fprintf(w, "Trice file id '%d' found inside %s in '%s'\n", n, fileName, sID)
+
+	// check the file id value
+	if n != 0 {
+		if t, ok := lu[TriceID(n)]; ok { // n found
+			if t.Type == "TRICE_FILE" && t.Strg == fileName { // in sync
+				outText = inText // nothing to do
+				return
+			}
+		}
+	}
+	outText = modifyTriceFileIdLine(w, lu, tflu, inText, fileName)
+	return
+}
+
 func visitUpdate(w io.Writer, lu TriceIDLookUp, tflu TriceFmtLookUp, pListModified *bool) filepath.WalkFunc {
 	// WalkFunc is the type of the function called for each file or directory
 	// visited by Walk. The path argument contains the argument to Walk as a
@@ -248,6 +333,10 @@ func visitUpdate(w io.Writer, lu TriceIDLookUp, tflu TriceFmtLookUp, pListModifi
 		text, err := readFile(w, path, fi, err)
 		if nil != err {
 			return err
+		}
+		fileName := filepath.Base(path)
+		if isCFile(fileName) {
+			text = updateTriceFileId(w, lu, tflu, text, fileName)
 		}
 		refreshIDs(w, text, lu, tflu) // update IDs: Id(0) -> Id(M)
 
