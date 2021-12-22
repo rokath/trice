@@ -34,7 +34,6 @@ builds:
     goos:
       - windows
       - linux
-      - darwin
       # - darwin github.com/tarm/serial does not support macOS
 
     # GOARCH to build for.
@@ -43,8 +42,6 @@ builds:
     goarch:
       - 386
       - amd64
-      - arm
-      - arm64
       #- arm build error on server
       #- arm64 build error on server
 
