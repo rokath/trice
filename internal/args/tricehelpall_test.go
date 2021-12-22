@@ -5,7 +5,7 @@ package args
 
 import "testing"
 
-func TestHelpAll(t *testing.T) {
+func _TestHelpAll(t *testing.T) {
 	input := []string{"trice", "help", "-all"}
 	expected := `syntax: 'trice sub-command' [params]
       sub-command 'ds|displayServer': Starts a display server.
@@ -189,6 +189,8 @@ func TestHelpAll(t *testing.T) {
               Show encryption key. Use this switch for creating your own password keys. If applied together with "-password MySecret" it shows the encryption key.
               Simply copy this key than into the line "#define ENCRYPT XTEA_KEY( ea, bb, ec, 6f, 31, 80, 4e, b9, 68, e2, fa, ea, ae, f1, 50, 54 ); //!< -password MySecret" inside triceConfig.h.
               This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true.
+        -tLocFmt string
+              Target location format string at start of each line, if target location existent (configured). Use "" to suppress existing target location. If several trices form a log line only the location of first trice ist displayed. (default "%12s:%4d ")              
         -suffix string
               Append suffix to all lines, options: any string.
         -targetEndianess string

@@ -61,21 +61,25 @@ const (
 
 	// patTriceFileId finds first occorence, see https://regex101.com/r/hWMjhU/4
 	patTriceFileId = `#define\s*TRICE_FILE\s*Id\([0-9]*\)`
+
+	patIncludeTriceHeader = `#include\s*"trice\.h"`
 )
 
 var (
-	matchSourceFile            = regexp.MustCompile(patSourceFile)
-	matchNbTRICE               = regexp.MustCompile(patNbTRICE)
-	matchNbID                  = regexp.MustCompile(patNbID)
-	matchTypNameTRICE          = regexp.MustCompile(patTypNameTRICE)
-	matchFmtString             = regexp.MustCompile(patFmtString)
-	matchNextFormatSpecifier   = regexp.MustCompile(patNextFormatSpecifier)
-	matchFullAnyTrice          = regexp.MustCompile(patFullAnyTrice)
-	matchTriceNoLen            = regexp.MustCompile(patTriceNoLen)
-	matchIDInsideTrice         = regexp.MustCompile(patIDInsideTrice)
-	matchAnyTriceStart         = regexp.MustCompile(patAnyTriceStart)
-	matchTriceFileId           = regexp.MustCompile(patTriceFileId)
-	matchNumber                = regexp.MustCompile(patNumber)
+	matchSourceFile          = regexp.MustCompile(patSourceFile)
+	matchNbTRICE             = regexp.MustCompile(patNbTRICE)
+	matchNbID                = regexp.MustCompile(patNbID)
+	matchTypNameTRICE        = regexp.MustCompile(patTypNameTRICE)
+	matchFmtString           = regexp.MustCompile(patFmtString)
+	matchNextFormatSpecifier = regexp.MustCompile(patNextFormatSpecifier)
+	matchFullAnyTrice        = regexp.MustCompile(patFullAnyTrice)
+	matchTriceNoLen          = regexp.MustCompile(patTriceNoLen)
+	matchIDInsideTrice       = regexp.MustCompile(patIDInsideTrice)
+	matchAnyTriceStart       = regexp.MustCompile(patAnyTriceStart)
+	matchTriceFileId         = regexp.MustCompile(patTriceFileId)
+	matchNumber              = regexp.MustCompile(patNumber)
+	matchIncludeTriceHeader  = regexp.MustCompile(patIncludeTriceHeader)
+
 	ExtendMacrosWithParamCount bool
 
 	// DefaultTriceBitWidth tells the bit width of TRICE macros having no bit width in their names, like TRICE32 or TRICE8.
@@ -259,7 +263,8 @@ func isCFile(path string) bool {
 // modifyTriceFileIdLine inserts a new TRICE_FILE pattern id in the line.
 //
 // The id is 0 or already used in a different way
-func modifyTriceFileIdLine(w io.Writer, lu TriceIDLookUp, tflu TriceFmtLookUp, inText, fileName string) (outText string) {
+// The id is 0: Check lu&tflu for t.Type == "TRICE_FILE" && t.Strg == fileName
+func modifyTriceFileIdLine(w io.Writer, lu TriceIDLookUp, tflu TriceFmtLookUp, inText, fileName string) (outText string, fileModified bool) {
 	t := TriceFmt{"TRICE_FILE", fileName}
 	if SharedIDs {
 		if fid, ok := tflu[t]; ok {
@@ -277,17 +282,42 @@ func modifyTriceFileIdLine(w io.Writer, lu TriceIDLookUp, tflu TriceFmtLookUp, i
 // insertTriceFileIdLine inserts a TRICE_FILE pattern line immediately after a '#include "trice.h"' line
 //
 // If no '#include "trice.h"' is found, the file is not touched.
-func insertTriceFileIdLine(w io.Writer, lu TriceIDLookUp, tflu TriceFmtLookUp, inText, fileName string) (outText string) {
-	outText = inText // todo
+// If variable SharedIDs is true, lu&tflu are checked, if t.Type == "TRICE_FILE" && t.Strg == fileName exists and that id is used.
+// If variable SharedIDs is false, a new id is used.
+func insertTriceFileIdLine(w io.Writer, lu TriceIDLookUp, tflu TriceFmtLookUp, inText, fileName string, sharedIDs bool, min, max TriceID, searchMethod string, pListModified *bool) (outText string, fileModified bool) {
+	t := TriceFmt{"TRICE_FILE", fileName}
+	id, ok := tflu[t]
+	if !(sharedIDs && ok) {
+		id = lu.newID(w, min, max, searchMethod)
+		lu[id] = t
+		tflu[t] = id
+		*pListModified = true
+	}
+	loc := matchIncludeTriceHeader.FindStringIndex(inText)
+	if loc == nil {
+		fmt.Fprintln(w, fileName)
+		outText = "" // a CFile not containing "#include "Trice.h" is expected to have no TRICE macros inside
+		return       // and therefore no need to parse it any further. Todo: refactoring
+	}
+	outText = inText[:loc[1]] + fmt.Sprintf("\n#define TRICE_FILE Id(%d)", id) + inText[loc[1]:]
+	fileModified = true
+	fmt.Fprintf(w, "#define TRICE_FILE Id(%d) inserted into %s\n", id, fileName)
 	return
 }
 
-func updateTriceFileId(w io.Writer, lu TriceIDLookUp, tflu TriceFmtLookUp, inText, fileName string) (outText string) {
+// updateTriceFileId parses inText for a TRICE_FILE pattern and generates or updates it, if needed.
+//
+// If no TRICE_FILE pattern exist, function insertTriceFileIdLine is called.
+// If a TRICE_FILE pattern exist the following happen:
+//	* Check if id inside TRICE_FILE pattern is not 0 and exists in til.json with t.Type == "TRICE_FILE" && t.Strg == fileName.
+//    * yes: That is the normal case and fn returns with outText = inText
+//    * no: function call modifyTriceFileIdLine
+func updateTriceFileId(w io.Writer, lu TriceIDLookUp, tflu TriceFmtLookUp, inText, fileName string, sharedIDs bool, min, max TriceID, searchMethod string, pListModified *bool) (outText string, fileModified bool) {
 	// check if file contains a TRICE_FILE pattern
 	locFID := matchTriceFileId.FindStringIndex(inText)
 	if locFID == nil {
-		//fmt.Fprintln(w, "In", fileName, "no TRICE_FILE pattern found.")
-		outText = insertTriceFileIdLine(w, lu, tflu, inText, fileName)
+		fmt.Fprintln(w, "In", fileName, "no TRICE_FILE pattern found.")
+		outText, fileModified = insertTriceFileIdLine(w, lu, tflu, inText, fileName, sharedIDs, min, max, searchMethod, pListModified)
 		return
 	}
 
@@ -298,7 +328,7 @@ func updateTriceFileId(w io.Writer, lu TriceIDLookUp, tflu TriceFmtLookUp, inTex
 	var n int
 	_, err := fmt.Sscanf(sID, "%d", &n) // closing bracket in format string omitted intensionally
 	msg.OnErrF(w, err)                  // because spaces after id otherwise are not tolerated
-	//fmt.Fprintf(w, "Trice file id '%d' found inside %s in '%s'\n", n, fileName, sID)
+	fmt.Fprintf(w, "Trice file id '%d' found inside %s in '%s'\n", n, fileName, sID)
 
 	// check the file id value
 	if n != 0 {
@@ -309,7 +339,7 @@ func updateTriceFileId(w io.Writer, lu TriceIDLookUp, tflu TriceFmtLookUp, inTex
 			}
 		}
 	}
-	outText = modifyTriceFileIdLine(w, lu, tflu, inText, fileName)
+	outText, fileModified = modifyTriceFileIdLine(w, lu, tflu, inText, fileName)
 	return
 }
 
@@ -335,8 +365,9 @@ func visitUpdate(w io.Writer, lu TriceIDLookUp, tflu TriceFmtLookUp, pListModifi
 			return err
 		}
 		fileName := filepath.Base(path)
+		var fileModified2 bool
 		if isCFile(fileName) {
-			text = updateTriceFileId(w, lu, tflu, text, fileName)
+			text, fileModified2 = updateTriceFileId(w, lu, tflu, text, fileName, SharedIDs, Min, Max, SearchMethod, pListModified)
 		}
 		refreshIDs(w, text, lu, tflu) // update IDs: Id(0) -> Id(M)
 
@@ -344,7 +375,7 @@ func visitUpdate(w io.Writer, lu TriceIDLookUp, tflu TriceFmtLookUp, pListModifi
 		textU, fileModified1 := updateIDsUniqOrShared(w, SharedIDs, Min, Max, SearchMethod, textN, lu, tflu, pListModified) // update IDs: Id(0) -> Id(M)
 
 		// write out
-		fileModified := fileModified0 || fileModified1
+		fileModified := fileModified0 || fileModified1 || fileModified2
 		if fileModified && !DryRun {
 			if Verbose {
 				fmt.Fprintln(w, "Changed: ", path)

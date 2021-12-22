@@ -2,6 +2,7 @@
 \author Thomas.Hoehenleitner [at] seerose.net
 *******************************************************************************/
 #include "trice.h"
+#define TRICE_FILE Id(56030)
 
 unsigned TriceDepthMax = 0; //!< TriceDepthMax is a diagnostics value usable to optimize buffer size.
 

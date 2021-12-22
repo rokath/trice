@@ -199,11 +199,11 @@ func Translate(w io.Writer, sw *emitter.TriceLineComposer, lut id.TriceIDLookUp,
 		log.Fatalf(fmt.Sprintln("unknown encoding ", Encoding))
 	}
 	go handleSIGTERM(w, rc)
-	return decodeAndComposeLoop(w, sw, dec)
+	return decodeAndComposeLoop(w, sw, dec, lut)
 }
 
 // decodeAndComposeLoop does not return.
-func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec Decoder) error {
+func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec Decoder, lut id.TriceIDLookUp) error {
 	b := make([]byte, defaultSize) // intermediate trice string buffer
 	for {
 		n, err := dec.Read(b) // Code to measure, dec.Read can return n=0 in some cases and then wait.
@@ -231,13 +231,9 @@ func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec Decode
 
 			// If target location & enabled and line start, write target location.
 			if logLineStart && targetLocationExists && ShowTargetLocation != "" {
-				targetFileID := targetLocation >> 16
-				var targetFile string
-				if targetFileID == 0 {
-					targetFile = "main.c" // todo
-				} else {
-					targetFile = "triceCheck.c"
-				}
+				targetFileID := id.TriceID(targetLocation >> 16)
+				t := lut[targetFileID]
+				targetFile := t.Strg
 				s := fmt.Sprintf(ShowTargetLocation, targetFile, 0xffff&targetLocation)
 				_, err := sw.Write([]byte(s))
 				msg.OnErr(err)
