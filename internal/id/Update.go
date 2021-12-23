@@ -44,7 +44,7 @@ const (
 	patAnyTriceStart = patTypNameTRICE + `\s*\(`
 
 	// patNextFormatSpecifier is a regex to find next format specifier in a string (exclude %%*)
-	patNextFormatSpecifier = `(?:^|[^%])(%[0-9\.#]*(b|c|d|u|x|X|o|f|g))`
+	patNextFormatSpecifier = `(?:^|[^%])(%[0-9\.#]*(b|c|d|e|f|g|E|F|G|h|i|l|L|n|o|O|p|q|t|u|x|X))`
 
 	// patTriceNoLen finds next `TRICEn` without length specifier: https://regex101.com/r/vSvOEc/1
 	patTriceNoLen = `(?i)(\bTRICE(|8|16|32|64)\b)`
