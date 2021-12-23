@@ -1627,6 +1627,10 @@
 		"Type": "TRICE8",
 		"Strg": "rd:TRICE8 line %d (%%d ,-1)\\n"
 	},
+	"44670": {
+		"Type": "TRICE_FILE",
+		"Strg": "system_stm32g0xx.c"
+	},
 	"44698": {
 		"Type": "TRICE32",
 		"Strg": "rd:TRICE32 float %12.6G (%%12.6G)\\n"
@@ -3618,6 +3622,10 @@
 	"58755": {
 		"Type": "TRICE32_1",
 		"Strg": "rd:TRICE32_1 line %d (%%d)\\n"
+	},
+	"58761": {
+		"Type": "TRICE_FILE",
+		"Strg": "system_stm32g0xx.c"
 	},
 	"58776": {
 		"Type": "TRICE16_3",
