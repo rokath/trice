@@ -108,6 +108,8 @@ Learning that *Trice*  is also a [baby girl name](https://www.babynamespedia.com
 ![./README.media/TriceGirlS.png](./README.media/TriceGirlS.png)
 
 ##  5. <a name='Tricefeatures'></a>*Trice* features
+ 
+Even with the many options *Trice* is extrem lightwight, fast, flexible and easy to use.
 
 * The various [ID management features](./IDManagement.md) allow the organization even also of bigger projects.
 * Additional [format specifier support](./FormatSpecifier.md) gives options like binary or boolean output.
