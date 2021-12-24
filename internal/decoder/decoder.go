@@ -48,6 +48,10 @@ const (
 	//patNextFormatUSpecifier = `(?:%[0-9]*u)`
 	patNextFormatUSpecifier = `%[0-9]*u` // assumes no `%%` inside string!
 
+	// patNextFormatISpecifier is a regex to find next format i specifier in a string
+	// It does also match %%i positions!
+	patNextFormatISpecifier = `%[0-9]*i` // assumes no `%%` inside string!
+
 	// patNextFormatXSpecifier is a regex to find next format x specifier in a string
 	// It does also match %%x positions!
 	// patNextFormatXSpecifier = `(?:%[0-9]*(l|o|O|x|X|b))`
@@ -100,6 +104,7 @@ var (
 
 	matchNextFormatSpecifier        = regexp.MustCompile(patNextFormatSpecifier)
 	matchNextFormatUSpecifier       = regexp.MustCompile(patNextFormatUSpecifier)
+	matchNextFormatISpecifier       = regexp.MustCompile(patNextFormatISpecifier)
 	matchNextFormatXSpecifier       = regexp.MustCompile(patNextFormatXSpecifier)
 	matchNextFormatFSpecifier       = regexp.MustCompile(patNextFormatFSpecifier)
 	matchNextFormatBoolSpecifier    = regexp.MustCompile(patNextFormatBoolSpecifier)
@@ -327,6 +332,12 @@ func uReplaceN(i string) (o string, u []int) {
 		if nil != locU { // a %nu found
 			o = o[:offset-1] + "d" + o[offset:] // replace %nu -> %nd
 			u = append(u, 0)                    // no negative values
+			continue
+		}
+		locI := matchNextFormatISpecifier.FindStringIndex(fm)
+		if nil != locI { // a %ni found
+			o = o[:offset-1] + "d" + o[offset:] // replace %ni -> %nd
+			u = append(u, 1)                    // also negative values
 			continue
 		}
 		locX := matchNextFormatXSpecifier.FindStringIndex(fm)

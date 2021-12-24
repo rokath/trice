@@ -1,4 +1,36 @@
-# TRICE ID management
+# TRICE ID management 
+
+(This document is correct but needs restructuring)
+
+## *Trice* Identifiers
+
+A *Trice* **Id** is needed as shown in the table:
+
+| Write              | After `trice update`          | Remark                                               |
+|--------------------|-------------------------------|------------------------------------------------------|
+| `TRICE( "Hi!\n");` | `TRICE( Id(12345), "Hi!\n"),` | Run `trice update` automatically in a prebuilt step. |
+
+* No need to write it, but a prebuilt step `trice update` is needed to generate it.
+* The **Id** `123435` is a number specific to `"Hi!\n"`.
+  * It is a so far unused number, according to rules you can control.
+* If you write `TRICE( "Hi!\n");` again on a 2nd location, it gets the same or a different **Id** - as you decide. 
+  * Default is *different*.
+  * Use  `trice update -sharedIDs` to force te same ID for identical format strings.
+* Per default new IDs determined randomly to keep the chance low, that several developers grab the same ID.
+* It is possible to divide the ID space - each developer can gets it region.
+  * `trice update -IDMin 1000 -IDMax 2000` will choose new IDs only between 1000 and 2000.
+* In a future **trice** tool it is possible to give each *trice* channel (see below) an **Id** range making it possible to implement *trice* channel specific runtime on/off.
+* New IDs can be also incremental or decremental instead of random.
+  * `trice update -IDMin 1000 -IDMethod upward` will choose the smallest free ID >= 1000.
+* `TRICE` macros commented out, are visible for the `trice update` command and therefore regarded.
+  * `// TRICE( Id(12345), "Hi!\n" );` is still regarded by the `trice u`.
+* IDs get changed automatically to solve conflicts only.
+* To make sure, a single ID will not be changed, change it to a hexadecimal syntax.
+* The ID reference list keeps all obsolete IDs with their format strings allowing compatibility to former firmware versions.
+* One can delete the ID reference list. It will be reconstructed automatically from the source tree with the next `trice update` command, but history is lost then.
+* Optionally add the (compressed) ID reference list as resource into the target FLASH memory to be sure not to loose it in the next 20 years. 
+* `trice h -u` shows relevant ID management options.
+* It is also possible to set all IDs in a source tree to **0** - see the full help for details and further options: `trice help -all`.
 
 ## ID management internals & hints
 

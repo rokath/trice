@@ -89,6 +89,7 @@ Encryption is recommended if you deliver firmware to customers and want protect 
 Simply copy this key than into the line "#define ENCRYPT XTEA_KEY( ea, bb, ec, 6f, 31, 80, 4e, b9, 68, e2, fa, ea, ae, f1, 50, 54 ); //!< -password MySecret" inside triceConfig.h.
 `+boolInfo)
 
+	fsScLog.StringVar(&id.DefaultTriceBitWidth, "defaultTRICEBitwidth", "32", `The expected value bit width for TRICE macros. Must be in sync with setting inside triceConfig.h`)
 	fsScLog.StringVar(&emitter.TimestampFormat, "ts", "LOCmicro",
 		`PC timestamp for logs and logfile name, options: 'off|none|UTCmicro|zero'
 This timestamp switch generates the timestamps on the PC only (reception time), what is good enough for many cases. 
