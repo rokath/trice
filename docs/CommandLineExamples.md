@@ -41,7 +41,7 @@ trice l -s COM3 -baud=9600
 trice ds
 ```
 
-- Log bare trice messages on SEGGER J-Link RTT channel 2 and display on display server
+- Log trice messages on SEGGER J-Link RTT channel 2 and display on display server
 
 ```b
 trice l -ds -JLRTT -p="-Device STM32F030R8 -if SWD -RTTChannel 2"
@@ -50,5 +50,5 @@ trice l -ds -JLRTT -p="-Device STM32F030R8 -if SWD -RTTChannel 2"
 - Shutdown remote display server on IP 192.168.1.23 port 45678
 
 ```b
-trice -sd -r 192.168.1.23:45678
+trice sd -r 192.168.1.23:45678
 ```
