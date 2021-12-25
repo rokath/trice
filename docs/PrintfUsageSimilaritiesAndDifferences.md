@@ -47,7 +47,7 @@ These types are mixable with integer types but need to be covered by converter f
 
 * The `%s` format specifier is not directly supported by the `TRICE` macro.
 * Strings, known at compile time should be a part of a format string to reduce runtime overhead.
-* Strings created at runtime, need a special `TRICE_S` macro, which accepts exactly one type `%s` format specifier. The generated strings are allowed to a size of 1000 bytes each, if the configured *Trice* buffer size matches.
+* Strings created at runtime, need a special `TRICE_S` macro, which accepts exactly one type `%s` format specifier. Generated strings are allowed to a size of 1000 bytes each, if the configured *Trice* buffer size matches.
   * Example:
 
   ```c
