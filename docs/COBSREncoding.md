@@ -4,11 +4,12 @@
 
 - After a data transmission disruption, reliable re-sync should be possible.
 - The [COBS](https://en.wikipedia.org/wiki/Consistent_Overhead_Byte_Stuffing) techique gives this possibility in an easy way: simply wait for the next packet delimiter byte (usually `0`).
-- Therefore all *trice* transfers are COBS encoded.
+- Therefore all *Trice* transfers are COBS encoded.
 
 ## 32-bit transfer chunks
 
-- A *trice* data stream comes always in a multiple-of-4 length for effective transfer.
+- A *Trice* data stream comes always in a multiple-of-4 length for effective transfer.
+  - After COBS encoding the length is the same or 1.04 times longer.
   - Therefore after [COBS](https://en.wikipedia.org/wiki/Consistent_Overhead_Byte_Stuffing) encoding the packages are delimited by 1 to 4 zeroes.
   - After the first zero delimiter, 0 to 3 padding zeroes are ignored as len-0 packages.
 
@@ -29,12 +30,15 @@
 ## Package mode prefix
 
 - *Trice* messages are always multiple-of-4-bytes messages.
-- A *trice* buffer can contain several *trice* messages.
+- A *Trice* buffer can contain several *trice* messages.
   - Each single *trice* carries its own length information.
 - Just before buffer encoding takes part, a 32-bit buffer mode value is prefixed:
-  - buffer mode 0: *trice* messages are without embedded device timestamps.
-  - buffer mode 1: *trice* messages are prefixed with 32-bit embedded device timestamps.
-  - buffer mode 2-0xFFFFFFFF: user mode values. The **trice** tool ignores such package. This way any user protocols transferable over the same line.
+  - buffer mode 0: *Trice* messages are without embedded device timestamps.
+  - buffer mode 1: *Trice* messages are prefixed with 32-bit embedded device timestamps.
+  - buffer mode 2: *Trice* messages are prefixed with 32-bit embedded device source location information.
+  - buffer mode 3: *Trice* messages are prefixed with 64-bit embedded device source location information and timestamp. 
+  - buffer mode 4-15: Reserved. The **trice** tool ignores such package.
+  - buffer mode 16-0xFFFFFFFF: user mode values. The **trice** tool ignores such package. This way any user protocols transferable over the same line.
 
 ### Example: 12 byte trice message buffer prefixed with mode 0 (no time stamps):
 
