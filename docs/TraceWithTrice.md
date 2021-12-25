@@ -40,11 +40,11 @@
 
 ##  1. <a name='Description'></a>Description
 
-*Trice* is a software tracer-logger and consists of two parts:
+*Trice* is a unusual software tracer-logger and consists of two usage parts:
 
-* [x] **C** language macro `TRICE`, generating tiny code for getting real-time `printf` comfort at "speed-of-light" for any micro-controller.
-  * [x] Example: `TRICE( Id(12345), "msg:%u words and %d numbers prining π as float %f\n", 7, 3, aFloat(3.14159) );`
-* [x] Supporting PC tool **trice**, executable on all [Go](https://golang.org) platforms:
+- [x] **C** language macro `TRICE`, generating tiny code for getting real-time `printf` comfort at "speed-of-light" for any micro-controller.
+  * [x] Example: `TRICE( Id(12345), "msg:%u words and %d numbers printing π as float %f\n", 7, 3, aFloat(3.14159) );`
+- [x] PC tool **trice**, executable on all [Go](https://golang.org) platforms:
   * [ ] Android
   * [x] Linux
   * [ ] MacOS
@@ -58,64 +58,87 @@
 
 If you develop software for an embedded system, you need some kind of system feedback. Debuggers are awesome tools, but when it comes to analyze dynamic behavior in the field, they are not usable.
 
-Logging then, usually done with `printf` like functions, gets quick a result after having a `putchar()` implemented. This turns out to be an expensive way in terms of processor clocks and needed FLASH memory, when you regard the library code and all the strings needing FLASH memory space. For small micro-controllers that´s it.
+Logging then, usually done with printf-like functions, gets quick a result after having i.e. `putchar()` implemented. This turns out to be an expensive way in terms of processor clocks and needed FLASH memory, when you regard the library code and all the strings needing FLASH memory space. For small micro-controllers that´s it.
 
 Bigger micro-controllers are coming with embedded trace hardware. To use it, an expensive tool is needed. Useful for analyzing complex systems, but for in-field related issues at least unhandy.
 
 <!-- Unhappy with this situation, the developer starts thinking of using digital pins or starts emitting some proprietary LED blinking codes or byte sequences, difficult to interpret. -->
 
-The *trice* technique tries to fill this gap, trying to be minimal invasive for the target and as comfortable as possible. It is the result of a long-year dissatisfaction and several attempts to find a loophole to make embedded programming more fun and this way more effective.
+The *Trice* technique tries to fill this gap, trying to be minimal invasive for the target and as comfortable as possible. It is the result of a long-year dissatisfaction and several attempts to find a loophole to make embedded programming more fun and this way more effective.
 
 ##  3. <a name='Howitworks-themainidea'></a>How it works - the main idea
 
-* Executing a `printf` like function means:
+* Executing a printf-like function means at runtime:
   * Copy format string from FLASH memory into RAM.
   * Parse the format string for format specifiers.
-  * Parse variadic parameter list.
-  * Convert parameters according the format specifiers into character sequences.
+  * Parse the variadic parameter list.
+  * Convert each parameter according to its format specifier into character sequences.
     * This includes several divisions - costly function calls.
   * Concatenate the parts to an output string and deliver it to the output, what often means copying again.
-  * Never ever call a `printf` like function in time critical code, like an interrupt.
-* `TRICE`, instead, just copies an ID together with the values to a buffer and is done. (A direct to the output option exists.)
-* This can happen in 6-8 processor clocks. When running on a 64 MHz clock, light can travel about 30 meters in that time.
-* To achieve that, a pre-compile step is needed, executing a `trice update` command.
-  * The trice tool parses the the source tree for macros like `TRICE( "Hello World" );` and patches them to `TRICE( Id(nnnnn), "Hello World" );`, where `nnnnn` is a 16-bit identifier associated to the format string `"Hello World"`.
-  * During compilation the `TRICE` macro is translated just to the `nnnnn` ID and the optional parameter values. The format string is ignored by the compiler.
-  * At runtime just the ID with its values is delivered to the PC. There the **trice** tool receives it, gets the right format string from the reference list and performs the printing task:
+  * Never ever call a printf-like function in time critical code, like an interrupt - it would crash your target in most cases.
+* The `TRICE` macro, instead, just copies an ID together with the values to a buffer and is done. (A direct-to-the-output option exists.)
+  * This can happen in 6-8 processor clocks, but usually a bit overhead is included. When running on a 64 MHz clock, light can travel about 30 meters in that time.
+* To achieve that, a pre-compile step is needed, executing a `trice update` command on the PC.
+  * The **trice** tool parses the the source tree for macros like `TRICE( "Hello World" );` and patches them to `TRICE( Id(nnnnn), "Hello World" );`, where `nnnnn` is a 16-bit identifier associated to the format string `"Hello World"` inside the source file and is copied also into an [**T**rice **I**D **L**ist](../til.json). 
+  * During compilation than, the `TRICE` macro is translated just to the `nnnnn` ID and the optional parameter values. The format string is ignored by the compiler.
+  * At runtime only the ID with its values is copied in a transmit buffer. Then the **trice** tool receives it, gets the right format string from the reference list and performs the printing task:
 
 ---
   ![./README.media/triceCOBSBlockDiagram.svg](./README.media/triceCOBSBlockDiagram.svg)
 
 * The **trice** tool tries to help as much as possible, to let the developer focus on its programming task. The once generated ID is not changed anymore without need. If for example the format string gets changed into `"Hello World!"`, a new ID is generated automatically and the reference list gets extended.
-* Obsolete IDs are kept inside the reference list for compatibility with older firmware versions.
-* It could be possible, when merging code, an **Id** is used twice for different format strings. In that case, the **Id** inside the reference list wins and the additional source gets patched with a new **Id**.
+* Obsolete IDs are kept inside the [**T**rice **I**D **L**ist](../til.json) for compatibility with older firmware versions.
+* It could be possible, when merging code, an **ID** is used twice for different format strings. In that case, the **ID** inside the reference list wins and the additional source gets patched with a new **Id**. This possibly unwanted patching is avoidable with proper [ID management](./IDManagement.md).
 * The reference list should be kept under source code control.
 
 ##  4. <a name='AbriefhistoryofTrice'></a>A brief history of *Trice*
 
-Developing firmware means to deal also with interrupts and often with timing. How do you check, if an interrupt occurred? Ok, increment a counter and display it in a background loop with some   `printf`. What about time measurement? Set a digital output to 1 and 0 and connect a measurement device. Once, developing software for a real-time image processing device, I had no clue where in detail the processing time exploded when the image quality got bad. A spare analog output with an oscilloscope synced with the video interrupt gave me the needed information after I set the analog output on several points in my algorithm. But, hey guys, I want to deal with my programming tasks and do not like all this hassle connecting wires and steer into instruments.
+Developing firmware means to deal also with interrupts and often with timing. How do you check, if an interrupt occurred? Ok, increment a counter and display it in a background loop with some   `printf`. What about time measurement? Set a digital output to 1 and 0 and connect a measurement device. Once, developing software for a real-time image processing device, I had no clue where in detail the processing time exploded when the image quality got bad. A spare analog output with an oscilloscope synced with the video interrupt gave me the needed information, after I set the analog output on several points in my algorithm. But, hey guys, I want to deal with my programming tasks and do not like all this hassle connecting wires and steer into instruments.
 
 A `printf` is so cool on a PC, developing software there. But an embedded device often cannot use it for performance reasons. My very first attempt was writing the format string `.const` offset together with its values in a FIFO during a log statement and to do the `printf` it in the background. But that is compiler specific. Ok the full string address is better but needs more buffer space. [Zephyr](https://docs.zephyrproject.org/latest/reference/logging/index.html) for example does something like that calling it "deferred logging".
 
-Than, one day I had the idea to compute format string checksums in a pre-compile step and to use them as ID in a list together with the format strings. That was a step forward but I had to write a supporting PC program. I did that in C++ in the assumption to get it better done that way. Finally it worked quite well but I hated my PC code, as I hate C++ now. And no good solution: Complicated to use! Also, what is, if 2 different format strings accidentally generate to the same short checksum? OK, I found a way, but nothing to be proud off. Also special IDs for message filtering are not possible.
+Than, one day I had the idea to compute short checksums for the format strings in a pre-compile step and to use them as ID in a list together with the format strings. That was a step forward but needed to write a supporting PC program. I did that in C++ in the assumption to get it better done that way. Finally it worked but I hated my PC code, as I dislike C++ now because of all its nuts and bolts to handle, like missing DLLs on the next PC. The usability was also unhandy and therefore error prone and the need became clear for a full automatized solution. Also, what is, if 2 different format strings accidentally generate to the same short checksum? OK, I found a way around, but an ID based message filtering will never possible be that way.
 
-The need became clear for ID management options. And there was [Go](https://golang.org) now, a fast language like **C**, portable, promising high programming efficiency and execution speed. I was keen to try it out on a real PC project. *Trice* grew, and as it got usable I decided to make it Open Source to say "Thank You" to the community this way.
+The need became clear for ID management options. And there was [Go](https://golang.org) now, an as-fast-as **C** language, easy to learn, promising high programming efficiency and portability. I was keen to try it out on a real PC project. *Trice* grew, and as it got usable I decided to make it Open Source to say "Thank You" to the community this way.
 
-Thinking of other people using *Trice* and some external ideas brought me to add features while keeping the target code as light as possible.
+Thinking of other people using *Trice* and some external ideas brought me to add features like target timestamps and source code location while keeping the target code as light as possible.
 
-Learning that *Trice*  is also a [baby girl name](https://www.babynamespedia.com/meaning/Trice), my daughter designed the little girl with the pen symbolizing the `TRICE` macro for recording and the eyeglasses standing for the PC tool **trice**.
+Learning that *Trice*  is also a [baby girl name](https://www.babynamespedia.com/meaning/Trice), my daughter designed the little girl with the pen symbolizing the `TRICE` macro for recording and the eyeglasses standing for the PC tool **trice** visualizing the logs.
 
 ![./README.media/TriceGirlS.png](./README.media/TriceGirlS.png)
 
 ##  5. <a name='Tricefeatures'></a>*Trice* features
- 
+
 <!-- Even with the many options *Trice* is extrem lightwight, fast, flexible and easy to use.-->
 
+
+### Open source
+
+Target code and PC tool are open source. The MIT license gives full usage freedom. Users are invited to support the further *Trice* tool development.
+
+### Portability
+
+The **trice** tool is written in the open source language [*Go*](https://go.dev/) and is therefore usable on many platforms. That means the code compilation and ID handling side. Any user program able to read a [JSON](https://en.wikipedia.org/wiki/JSON) file can receive the documented *Trice* message format, look-up the ID and perform a printf-like action to translate into log strings. The PC **trice** tool with its `log` switch is a working example.
+
+Allowing parallel user protocols is a result using [COBS](https://en.wikipedia.org/wiki/Consistent_Overhead_Byte_Stuffing) packages starting with a [package descriptor](./COBSREncoding.md#package-mode-prefix).
+
+### Scalability
+
 * The various [ID management features](./IDManagement.md) allow the organization even also of bigger projects.
+* More than 65000 possible different IDs should match also large projects.
+* Just in case: 16-bit for the ID is a changeable value.
+
+### Robustness
+
+On important point in the design was the question how to re-sync after some *Trice* data stream interruption, because that happens often during firmware development. The now obsolete escape sequence and flexible data formats with more ID bits where working reliable but with [COBS](https://en.wikipedia.org/wiki/Consistent_Overhead_Byte_Stuffing) things got satisfying.
+
+Also exists an option for a *Trice* cycle counter, which gives a high chance to detect lost *Trice* messages.
+
+### 
 * Additional [format specifier support](./FormatSpecifier.md) gives options like binary or boolean output.
 * The encryption opportunity makes it possible to test thoroughly a binary with log output and releasing it without the need to change any bit but to make the log output unreadable for a not authorized person.
-* Easy re-syncing: On important point in the design was the question how to re-sync after some *trice* data stream interruption, because that happens often during firmware development. An escape sequence format and a flexible data format with more ID bits where working reliable but with [COBS](https://en.wikipedia.org/wiki/Consistent_Overhead_Byte_Stuffing) things got satisfying.
-* Allowing parallel user protocols as well is a result using COBS packages starting with a package descriptor.
+
+* 
 * Modularity: There was a learning **not** to reduce the transmit byte count to an absolute minimum, but to focus more on `TRICE` macro speed. Still it is possible to implement a minimal space encoding, if required, and control that with switches.
 * Easy-to-use: Making it facile for a user to use *Trice* was the driving point just to have a `trice.c`, `trice.h` and a project specific simple to use `triceConfig.h` file on one side and to get away just with one macro `TRICE` for most situations.
 * Transmitting runtime generated strings could be a need, so a `TRICE_S` macro exists supporting the `%s` format specifier for strings up to 1000 bytes long.
@@ -160,12 +183,6 @@ Features:
 ![./README.media/MEASURE_executionCode.PNG](./README.media/MEASURE_executionCode.PNG)
 
 * Additionally disable interrupts and restore interrupt state and cycle counter increment can consume a few processor clocks.
-
-###  5.3. <a name='Opensource'></a>Open source
-
-* Target code and PC tool are open source.
-* The MIT license gives full usage freedom.
-* Any program can decode the *trice* messages. The **trice** tool with its `log` switch is a working example written in the open source language [*Go*](https://go.dev/).
 
 ###  5.4. <a name='Similarityanddifferencestoprintfusage'></a>Similarity and differences to `printf` usage
 
