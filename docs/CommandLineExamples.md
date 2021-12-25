@@ -11,7 +11,7 @@
 - `trice ver` prints version information.
 - `trice u` in the root of your project parses all source files for **TRICE** statements, adds automatically ID´s if needed and updates a file named **til.json** containing all ID´s with their format string information. To start simply generate an empty file named **til.json** in your project root. You can add `trice u` to your build process and need no further manual execution.
 - `trice s` shows you all found serial ports for your convenience.
-- `trice l -p COM18 -u` listens and displays trice logs on serial port COM18 at default baud rate 115200. It uses the **til.json** file. `-u` interprets hexadecimal (%x) and binary (%b) values as unsigned numbers. 
+- `trice l -p COM18` listens and displays trice logs on serial port COM18 at default baud rate 115200. It uses the **til.json** file. 
 - `trice ds` starts a display server listening on default ip address *127.0.0.1:61487* or any specified value, so also on a remote device, lets say with ip address 192.168.1.200.
 - `trice l -p COM18 -ds` sends the log strings to a display server with default ip address *127.0.0.1:61487* or any specified value, if for example `-ipa 192.168.1.200` the trice logs go to the remote device. You can start several trice log instances, all transmitting to the same display server.
 
