@@ -32,7 +32,7 @@ trice log -i ./myProject/til.json -p=COM3
 - Log trice messages on COM3 8N1 9600 baud and use default til.json
 
 ```bash
-trice l -s COM3 -baud=9600 -format esc
+trice l -s COM3 -baud=9600
 ```
 
 - Start displayserver on ip 127.0.0.1 (localhost) and port 61497
