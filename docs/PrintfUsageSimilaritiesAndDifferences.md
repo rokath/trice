@@ -40,7 +40,7 @@ These types are mixable with integer types but need to be covered by converter f
 
   ```c
    double y = 7.2;
-   TRICE32( "float %f and double %f", aFloat(x), aDouble(y));
+   TRICE64( "float %f and double %f", aFloat(x), aDouble(y));
   ```
 
 ## Runtime generated strings transfer
