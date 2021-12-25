@@ -28,7 +28,7 @@
 These types are mixable with integer types but need to be covered by converter function.
 
 * *float* types use the `aFloat()` function and need a minimal value bit width of 32, to secure correct data transfer.
-  * Exampe:
+  * Example:
   
   ```c
    float x = 7.2;
@@ -36,7 +36,7 @@ These types are mixable with integer types but need to be covered by converter f
   ```
 
 * *double* types use the `aDouble()` function and need need a value bit width of 64, to secure correct data transfer.
-  * Exampe:
+  * Example:
 
   ```c
    double y = 7.2;
