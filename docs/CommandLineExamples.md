@@ -29,7 +29,7 @@ trice u -i ../../../til.json -src ../src -src ../lib/src -src ./
 trice log -i ./myProject/til.json -p=COM3
 ```
 
-- Log wrap trice messages on COM3 8N1 9600 baud ans use default til.json
+- Log trice messages on COM3 8N1 9600 baud and use default til.json
 
 ```bash
 trice l -s COM3 -baud=9600 -format esc
