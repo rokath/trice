@@ -23,7 +23,7 @@
 trice u -i ../../../til.json -src ../src -src ../lib/src -src ./
 ```
 
-- Log flexL trice messages on COM3 8N1 115200 baud
+- Log trice messages on COM3 8N1 115200 baud
 
 ```bash
 trice log -i ./myProject/til.json -p=COM3
