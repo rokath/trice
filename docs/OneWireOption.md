@@ -1,5 +1,5 @@
 
-# How to use trice without UART
+# How to use *Trice* without UART
 
 Because the trice tool needs only to receive, a single UART-TX pin will do. But it is also possible to use a GPIO-Pin for trice messages transfer without occupying a UART ressource.
 

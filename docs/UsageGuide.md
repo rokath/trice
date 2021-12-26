@@ -60,3 +60,16 @@ go install ./...
 ```
 
 Afterwards you should find an executable `trice` inside $GOPATH/bin/
+
+
+## Target configuration and options
+
+* Each project gets its own `triceConfig.h` file.
+* Choose the *trice* mode here:
+  * Direct mode: Straight output inside `TRICE` macro at the cost of the time it takes.
+  * Indirect mode: Background output outside `TRICE` macro at the cost of RAM buffer needed.
+* Set Options:
+  * Target timestamps and their time base
+  * Cycle counter
+  * Allow `TRICE` usage inside interrupts
+  * Buffer size
