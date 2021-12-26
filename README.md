@@ -115,7 +115,8 @@ git clone https://github.com/rokath/trice.git
 
 ## Similar projects
 
-Maybe you find this project interesting too: [baical.net](http://baical.net/index.html)
+- [NanoLog](https://github.com/PlatformLab/NanoLog)
+- [baical.net](http://baical.net/index.html)
 
 <!--- B A C K U P
 

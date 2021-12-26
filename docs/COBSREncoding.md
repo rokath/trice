@@ -1,23 +1,26 @@
 # *Trice*  encoding
 
 ## COBS encoding and user protocols
-
-* One issue on data transfer is always how to re-sync after a data disruption. 
+ 
 * The [**C**onsistent **O**verhead **B**yte **S**tuffing](https://en.wikipedia.org/wiki/Consistent_Overhead_Byte_Stuffing) technique is a very powerful and simple way for re-syncing.
 * Just in case, wait for the next package delimiter.
-* Several *trice* message can occur within one single **COBS** package.
+* Several *Trice* message can occur within one single **COBS** package.
 * Each **COBS** package starts with a 32-bit descriptor:
 
-| Descriptor     | Meaning                                             |
-|----------------|-----------------------------------------------------|
-| 0x00000000     | Several *Trice* messages without target timestamp   |
-| 0x00000001     | Several *Trice* messages with target timestamp      |
-| 0x00000002     | Several *Trice* messages with target location       |
-| 0x00000001     | Several *Trice* messages with target timestamp and location     |
-| 4...15         | Reserved
-| 16...0xffffffff| User protocol data, the **trice** tool ignores them |
+| Descriptor     | Meaning                                                            |
+|----------------|-----------------------------------------------------               |
+| 0x00000000     | Several *Trice* messages without prefix                            |
+| 0x00000001     | Several *Trice* messages with 32-bit target timestamp              |
+| 0x00000002     | Several *Trice* messages with 32-bit target location               |
+| 0x00000003     | Several *Trice* messages with 64-bit target timestamp and location |
+| 4...15         | Reserved                                                           |
+| 16...0xffffffff| User protocol data, the **trice** tool ignores them                |
 
-* This allows intermixing of several data streams with *trice* data.
+* This allows intermixing of several data streams with *Trice* data.
+* After the 4 COBS package descriptor bytes start several full *Trice* messages.
+* In dependence of the COBS package descriptor each *Trice* message is prefixed with 0, 32 or 64 bit additional information: target code location and target timestamp.
+* The detailed *Trice* encoding is derivable from [trice.h]("../pkg/src/trice.h) and not repeated here to avoid unnecessary errors.
+
 
 ## [COBS](https://en.wikipedia.org/wiki/Consistent_Overhead_Byte_Stuffing) encoding for re-sync after data disruption
 

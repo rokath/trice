@@ -6,7 +6,7 @@
 - Needed [FLASH memory](https://en.wikipedia.org/wiki/Flash_memory): 620 Bytes
 - Needed [RAM](https://en.wikipedia.org/wiki/Random-access_memory): 40 Bytes plus 200 Bytes for the 2 times 100 Bytes double buffer
 - With increased/decreased buffers also more/less [RAM](https://en.wikipedia.org/wiki/Random-access_memory) is needed.
-- With each additional `TRICE` macro a few additional [FLASH memory](https://en.wikipedia.org/wiki/Flash_memory) bytes, like 4 assembler instructions, are needed.
-- No `printf` library code is used anymore.
+- With each additional `TRICE` macro a few additional [FLASH memory](https://en.wikipedia.org/wiki/Flash_memory) bytes, like 10 assembler instructions, are needed.
+- No printf-like library code is used anymore.
 - No format strings get into the target code anymore.
-- In general `Trice` instrumentation **reduces** the needed memory compared to a `printf` implementation.
+- In general *Trice* instrumentation **reduces** the needed memory compared to a printf-like implementation.

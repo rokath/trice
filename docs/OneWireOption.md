@@ -1,16 +1,16 @@
 
 # How to use *Trice* without UART
 
-Because the trice tool needs only to receive, a single UART-TX pin will do. But it is also possible to use a GPIO-Pin for trice messages transfer without occupying a UART ressource.
+Because the **trice** tool needs only to receive, a single target UART-TX pin will do. But it is also possible to use a GPIO-Pin for *Trice* messages without occupying a UART resource.
 
-- This slow path is usable because trice needs only few bytes for transmission.
-- You can transmit each basic trice (4 or 8 bytes) as bare messages over one pin:
+- This slow path is usable because a *Trice* needs only few bytes for transmission.
+- You can transmit each basic trice (4 or 8 bytes) as bare message over one pin:
 
   ![manchester1.PNG](./README.media/manchester1.PNG)
   ![manchester2.PNG](./README.media/manchester2.PNG)
 
 - The 2 images are taken from [https://circuitcellar.com/cc-blog/a-trace-tool-for-embedded-systems/](https://circuitcellar.com/cc-blog/a-trace-tool-for-embedded-systems/). See there for more information.
-- As trace dongle you can use any spare microcontroller board with an UART together with an FTDI USB converter.
+- As *Trice* dongle you can use any spare MCU board with an UART together with an FTDI USB converter.
   - This allowes also any other data path - method does'nt matter:\
   [UART](https://en.wikipedia.org/wiki/Universal_asynchronous_receiver-transmitter),\
   [I²C](https://en.wikipedia.org/wiki/I%C2%B2C),\

@@ -3,7 +3,7 @@
 - The `TRICE` macros are used in **C** code.
 - The format strings are interpreted by the **trice** tool, which is written in **Go**.
 - The **C** and **Go** format specifier are not equal but similar.
-- Therefore a **T**rice adaption is needed.
+- Therefore a **T**rice adaption is internally performed.
 
 ## Overview Table
 
@@ -41,7 +41,7 @@
 |a double %% prints a single %                                   | % | % | % | Supported.                                                                  |
 | nothing printed                                                | n | - | - | Not supported.                                                              |
 
-- [x] Long story short: Use the -unsigned=false switch when you like to see hex numbers and the like as signed values.
+- [x] Long story short: Use the `-unsigned=false` switch when you like to see hex numbers and the like as signed values.
 - [x] Look in [triceCheck.c](../pkg/src/triceCheck.c) for examples.
 
 ## Format tags prototype %[flags][width][.precision][length]specifier examples

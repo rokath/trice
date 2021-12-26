@@ -296,7 +296,6 @@ static inline uint64_t aDouble( double x ){
     TRICE_PUT( id | 0x0000 | TRICE_CYCLE ); \
     TRICE_LEAVE
 
-
 #define TRICE_BYTE0(v)((uint8_t)(v))
 #define TRICE_BYTE1(v)(0x0000FF00 &  ((uint32_t)(v)<< 8))
 #define TRICE_BYTE2(v)(0x00FF0000 &  ((uint32_t)(v)<<16))
@@ -326,7 +325,7 @@ static inline uint64_t aDouble( double x ){
 #define TRICE8_3( id, pFmt, v0, v1, v2 ) \
     TRICE_INTO \
     TRICE_PUT( id | 0x0100 | TRICE_CYCLE ); \
-		TRICE_PUT(                  TRICE_BYTE2(v2) |TRICE_BYTE1(v1) |TRICE_BYTE0(v0)); \
+    TRICE_PUT(                  TRICE_BYTE2(v2) |TRICE_BYTE1(v1) |TRICE_BYTE0(v0)); \
     TRICE_LEAVE
 
 //! TRICE8_4 writes trice data as fast as possible in a buffer.
