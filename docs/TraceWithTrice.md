@@ -86,25 +86,18 @@ Learning that *Trice*  is also a [baby girl name](https://www.babynamespedia.com
 
 ##  4. <a name='Howitworks-themainidea'></a>How it works - the main idea
 
-* Executing a printf-like function means at runtime:
-  * Copy format string from FLASH memory into RAM.
-  * Parse the format string for format specifiers.
-  * Parse the variadic parameter list.
-  * Convert each parameter according to its format specifier into character sequences.
-    * This includes several divisions - costly function calls.
-  * Concatenate the parts to a new string and deliver it to the output, what often means copying again.
-  * Never ever call a printf-like function in time critical code, like an interrupt - it would crash your target in most cases.
-* The `TRICE` macro, instead, just copies an ID together with the optional values to a buffer and is done. (A direct-to-the-output option exists.)
-  * This can happen in [6-8](./Speed.md) processor clocks. When running on a 64 MHz clock, light can travel about 30 meters in that time.
-* To achieve that, a pre-compile step is needed, executing a `trice update` command on the PC.
-  * The **trice** tool parses the the source tree for macros like `TRICE( "Hello World" );` and patches them to `TRICE( Id(nnnnn), "Hello World" );`, where `nnnnn` is a 16-bit identifier associated to the format string `"Hello World"` inside the source file and is copied also into a [**T**rice **I**D **L**ist](../til.json). 
-  * During compilation than, the `TRICE` macro is translated to the `nnnnn` ID only and the optional parameter values. The format string is ignored by the compiler.
-  * At runtime the extern **trice** tool receives the *Trice* message, gets the right format string from the reference list and performs the printing task.
+*Trice* performs **no** [costly](./printf.md) printf-like functions on the target at all. The `TRICE` macro, instead, just copies an ID together with the optional values to a buffer and is done. In the minimum case this can happen in [6-8](./Speed.md) processor clocks even with target timestamps included. When running on a 64 MHz clock, **light can travel about 30 meters in that time**.
+
+To achieve that, an automatable pre-compile step is needed, executing a `trice update` command on the PC. The **trice** tool parses then the source tree for macros like `TRICE( "msg: %d Kelvin\n", k );` and patches them to `TRICE( Id(12345), "msg: %d Kelvin\n", k );`, where `12345` is a generated 16-bit identifier copied into a [**T**rice **I**D **L**ist](../til.json). During compilation than, the `TRICE` macro is translated to the `12345` ID only, and the optional parameter values. The format string is ignored by the compiler.
+
+The target code is project specific [triceConfig.h](../test/MDK-ARM_STM32G071RB/Core/Inc/triceConfig.h) configurable.  In **immediate mode** the *Trice* buffer is on the stack and the TRICE macro execution includes the [COBS](./docs/COBSREncoding.md) encoding and the data transfer. This more straightforward but slower architecture can be interesting for many cases. In **deferred mode** a background service swaps the *Trice* double buffer periodically, the quick COBS encoding takes part and with the filled out buffer the transmission start is triggered. Out buffer and half *Trice* buffer share the same memory for efficiency.
+
+During runtime the PC **trice** tool receives all what happened in the last ~100ms as a COBS package from the UART port. The `0x30 0x39` is the ID 12345 and a map lookup delivers the format string *"msg: %d Kelvin\n"* and also the bit width information. Now the **trice** tool can write target timestamp, set msg color and execute `printf("%d Kelvin\n", 0x0000000e);`
 
 ---
   ![./README.media/triceCOBSBlockDiagram.svg](./README.media/triceCOBSBlockDiagram.svg)
 
-* The **trice** tool tries to help as much as possible, to let the developer focus on its programming task. The once generated ID is not changed anymore without need. If for example the format string gets changed into `"Hello World!"`, a new ID is generated automatically and the reference list gets extended.
+* The **trice** tool tries to help as much as possible, to let the developer focus on its programming task. The once generated ID is not changed anymore without need. If for example the format string gets changed into `"msg: %d Kelvin!\n"`, a new ID is generated automatically and the reference list gets extended.
 * Obsolete IDs are kept inside the [**T**rice **I**D **L**ist](../til.json) for compatibility with older firmware versions.
 * It could be possible, when merging code, an **ID** is used twice for different format strings. In that case, the **ID** inside the reference list wins and the additional source gets patched with a new **ID**. This maybe unwanted patching is avoidable with proper [ID management](./IDManagement.md).
 * The reference list should be kept under source code control.

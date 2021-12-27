@@ -30,6 +30,7 @@
       - Written in [Go](https://golang.org/) and therefore usable on all platforms Go supports.
       - You can also use your own environment to receive the *trice* packges, exchange the carried IDs with the format string and print out.
 - [Usage guide](./docs/UsageGuide.md)
+
 ## Possible Use Cases
 
 - Using *trice* not only for **dynamic debugging** but also as **logging** technique is possible and gives the advantage to have very short messages (no strings) for transmission, but keep in mind that the file [til.json](./til.json) is the key to read all output if your devices in the field for 10 or more years.
@@ -40,38 +41,13 @@
   - This way you can deliver firmware images with encrypted *trice* output, only readable with the appropriate key and [til.json](./til.json).
   - XTEA is implemented as one option.
 - You can even translate the [til.json](./til.json) file in **different languages**, so changing a language is just changing the [til.json](./til.json) file without touching the target binary.
-- With *trice* it is easy to do **timing analysis**. Host and target timestamps are supported. 
+- With *trice* it is easy to do **timing analysis** on distributed embedded systems. Host and target timestamps are supported.
 
 ## How it approximately works (UART example)
 
-This is a slightly simplified [view](https://github.com/jgraph/drawio):
+This a slightly simplified [view](https://github.com/jgraph/drawio) is explained [here](./docs/TraceWithTrice.md#Howitworks-themainidea)
 
 ![trice](./docs/README.media/triceCOBSBlockDiagram.svg)
-
-- When the program flow passes the line `TRICE( Id(12345), "msg: %d Kelvin\n", k );` two or three 32-bit values transferred into the *trice* buffer:
-  1. Optional embedded device timestamp: You can decide about the time base.
-  2. Combined: the 16-bit ID, the 32-bit values count as 8-bit value and an 8-bit cycle counter.
-  3. The 32 bit value. The total data payload per *trice* can be 1008 bytes (252 32-bit units).
-- The few values, written inside a typical TRICE macro, allow its **usage inside time critical code like scheduler or interrupt**.
-  - If target timestamps disabled and no data values carried, a TRICE macro writes just one 32-bit value to the *trice* buffer.
-- In **direct mode** the *trice* buffer is on the stack and the TRICE macro execution includes the [COBS](./docs/COBSREncoding.md) encoding and the data transfer. This more straightforward architecture (not shown here) forbids usage inside time critical code but can be interesting for many cases.
-- In **indirect mode** for output a background service is needed. About every 100ms (configurable):
-  - The *trice* double buffer is swapped.
-  - A 32-bit buffer mode value is prefixed:
-  - Optionally buffer mode and the *trice* buffer can get encrypted at his stage (not shown here).
-  - The COBS encoding takes part.
-  - The out buffer is filled and the UART interrupt is triggered to start the transmission.
-    - Out buffer and half *trice* buffer share the same memory.
-- During runtime the PC *trice* tool receives the triceBuffer (all what happened in the last 100ms) as a COBS package from the UART port.
-  - After COBS decoding, an optional decryption takes part (**trice** tool command line switch)
-  - The very first 32-bit value is the buffer mode, expected to be 0 or 1. Otherwise the **trice** tool will ignore the package.
-- The `0x30 0x39` is the ID 12345 and a map lookup delivers the format string *"msg: %d Kelvin\n"* and also the format information *"TRICE"*, which is needed for the parameter bit width information (usually 32 bit).
-- Now the **trice** tool can:
-  - Write host timestamp
-  - Write prefix
-  - Write target timestamp
-  - Set msg color
-  - Execute `printf("%d Kelvin\n", 0x0000000e);`
 
 ## Data Transfer
 
@@ -85,33 +61,19 @@ This is a slightly simplified [view](https://github.com/jgraph/drawio):
 
 Yes, you can simply start `trice ds` inside a console, option: [third_party/alacritty](./third_party/alacritty), locally or on a remote PC and connect with several **trice** tool instances like with `trice log -p COM15 -ds` for example.
 
+## Documentation
 
-## Documentation is partially obsolete and will be updated soon (in December 2021)
-
-No need to read all this stuff - is is just for help and reference.
-
-- [fix color issues under windows](./docs/Common.md#color-issues-under-windows)
-- [Command Line Examples](./docs/CommandLineExamples.md)
-- [Common.md](./docs/Common.md)
-- [TriceEncodings.md](./docs/TriceEncodings.md)
-- [ID management](./docs/IDManagement.md)
-- [OneWireOption](./docs/OneWireOption.md)
-- [SeggerRTT](./docs/SeggerRTT.md)
+Look in [TraceWithTrice.md](./docs/TraceWithTrice.md]) and check the [docs](./docs) folder. No need to read all this stuff - is is just for help and reference.
 
 ## Support?
 
-- Yes please: May be
-  - a port to other hardware
-  - some correction
-  - a cool idea
-  - or simply like to :star: it. ☺
-- Cloning the repo:
+Yes please - or simply :star: it. ☺
+
+Cloning the repo:
 
 ```b
 git clone https://github.com/rokath/trice.git
 ```
-
-- Edit, test, commit, push & pull request
 
 ## Similar projects
 
