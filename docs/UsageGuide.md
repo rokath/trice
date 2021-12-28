@@ -16,8 +16,8 @@
     - patch source.c to `TRICE( Id(12345), "Coming soon: %d!\n", 2022 );`
     - extend `til.json`
 - Modify `triceConfig.h` acording your needs.
-  - With `#define TRICE_MODE 0` (direct mode) just provide a **putchar()** function.
-  - Recommended is an indirect mode which allows to use `TRICE` macros also inside interrupts.
+  - With `#define TRICE_MODE 0` (immediate mode) just provide a **putchar()** function.
+  - Recommended is an deferred mode which allows to use `TRICE` macros also inside interrupts.
     - Compare 
       - the **not** instrumented test project [./test/MDK-ARM_STM32F030R8_generated]([./test/MDK-ARM_STM32F030R8_generated) 
       - with the instrumented test project [./test/MDK-ARM_STM32F030R8]([./test/MDK-ARM_STM32F030R8) to see an implementation.
