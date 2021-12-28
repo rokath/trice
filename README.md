@@ -45,7 +45,7 @@
 
 ## How it approximately works (UART example)
 
-This a slightly simplified [view](https://github.com/jgraph/drawio) is explained [here](./docs/TraceWithTrice.md#Howitworks-themainidea)
+This slightly simplified [view](https://github.com/jgraph/drawio) is explained [here](./docs/TraceWithTrice.md#Howitworks-themainidea)
 
 ![trice](./docs/README.media/triceCOBSBlockDiagram.svg)
 
@@ -63,7 +63,7 @@ Yes, you can simply start `trice ds` inside a console, option: [third_party/alac
 
 ## Documentation
 
-Look in [TraceWithTrice.md](./docs/TraceWithTrice.md]) and check the [docs](./docs) folder. No need to read all this stuff - is is just for help and reference.
+Look in [TraceWithTrice.md](./docs/TraceWithTrice.md) and check the [docs](./docs) folder. No need to read all this stuff - is is just for help and reference.
 
 ## Support?
 
