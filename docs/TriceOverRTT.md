@@ -52,7 +52,7 @@ Following steps describe the needed action for a ST Microelectronics evaluation 
 - Get & install [STM32 ST-LINK utility](https://www.st.com/en/development-tools/stsw-link004.html)
 - Run from default install location `"C:\Program Files (x86)\STMicroelectronics\STM32 ST-LINKUtility\ST-LINK Utility\ST-LinkUpgrade.exe"`)
 - Enable checkbox `Change Type` and select radio button `STM32 Debug+Mass storage + VCP`. *The `STM32Debug+ VCP` won´t be detected by Segger reflash utility.*
-  ![ST-LINK-Upgrade.PNG](./README.media/ST-LINK-Upgrade.PNG)
+  ![ST-LINK-Upgrade.PNG](./ref/ST-LINK-Upgrade.PNG)
 
 #### Second step
 
@@ -122,14 +122,14 @@ Following steps describe the needed action for a ST Microelectronics evaluation 
 
 ## Segger RTT
 
-- The main advantage here is, that no `triceServe()` nor any interrupt is needed in the background, because this job is automatically done by SeggerRTT. This way one can debug code as comfortable as with `printf()` but with all the TRICE advantages. Have a look here: ![SeggerRTTD.gif](./README.media/JLINK-DebugSession.gif)
+- The main advantage here is, that no `triceServe()` nor any interrupt is needed in the background, because this job is automatically done by SeggerRTT. This way one can debug code as comfortable as with `printf()` but with all the TRICE advantages. Have a look here: ![SeggerRTTD.gif](./ref/JLINK-DebugSession.gif)
 
 ## Segger RTT unbuffered (PC side receiver -device=JLINK)
 
 - Avoid trice buffering inside target and write with TRICE macro directly into the RTT buffer
 - Write the bytes per trace directly (little time & some space overhead on target, but no changes on host side) - this is implemented as test example.
   
-  ![triceBlockDiagramWithSeggerRTT.svg](./README.media/triceBlockDiagramWithSeggerRTTD.svg)
+  ![triceBlockDiagramWithSeggerRTT.svg](./ref/triceBlockDiagramWithSeggerRTTD.svg)
 
 ## Segger J-Link SDK (~800 EUR) Option
 

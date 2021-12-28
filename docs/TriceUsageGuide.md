@@ -1,3 +1,128 @@
+<!-- vscode-markdown-toc -->
+* 1. [Embedded system code setup](#Embeddedsystemcodesetup)
+* 2. [Option: build `trice` tool from Go sources](#Option:buildtricetoolfromGosources)
+* 3. [Target configuration and options](#Targetconfigurationandoptions)
+* 4. [trice instructions: `TRICE`, `Trice` or `trice` with or without ending letter 'i'?](#triceinstructions:TRICETriceortricewithorwithoutendingletteri)
+* 5. [`trice` tool](#tricetool)
+* 6. [Setup](#Setup)
+	* 6.1. [Project structure](#Projectstructure)
+	* 6.2. [Check the `trice` binary](#Checkthetricebinary)
+	* 6.3. [Instrument a target source code project (How to use trice in your project)](#InstrumentatargetsourcecodeprojectHowtousetriceinyourproject)
+* 7. [Memory needs (ARM example project)](#MemoryneedsARMexampleproject)
+* 8. [Encryption](#Encryption)
+* 9. [Options for `trice` tool](#Optionsfortricetool)
+	* 9.1. [Sub-command `check`](#Sub-commandcheck)
+		* 9.1.1. [`check` switch '-dataset'](#checkswitch-dataset)
+* 10. [Additional hints](#Additionalhints)
+	* 10.1. [Logfile viewing](#Logfileviewing)
+	* 10.2. [Color issues under Windows](#ColorissuesunderWindows)
+
+<!-- vscode-markdown-toc-config
+	numbering=true
+	autoSave=true
+	/vscode-markdown-toc-config -->
+<!-- /vscode-markdown-toc -->
+# Quick start guide
+
+- Download latest release assets for your system: Source code and compressed binaries.
+- Place the **trice** binary somewhere in your [PATH](https://en.wikipedia.org/wiki/PATH_(variable)).
+- In a console type `trice help` 
+- Copy 3 files to your embedded project:
+  - `./pkg/src/trice.h`
+  - `./pkg/src/trice.c`
+  - `./test/.../triceConfig.h`
+- In your source.c: `#include "trice.h"`
+- In a function: `TRICE( "Coming soon: %d!\n", 2022 );`
+- In project root:
+  - Create empty file: `touch til.json`.
+  - Run `trice u` should:
+    - patch source.c to `TRICE( Id(12345), "Coming soon: %d!\n", 2022 );`
+    - extend `til.json`
+- Modify `triceConfig.h` acording your needs.
+  - With `#define TRICE_MODE 0` (immediate mode) just provide a **putchar()** function.
+  - Recommended is an deferred mode which allows to use `TRICE` macros also inside interrupts.
+    - Compare 
+      - the **not** instrumented test project [./test/MDK-ARM_STM32F030R8_generated]([./test/MDK-ARM_STM32F030R8_generated) 
+      - with the instrumented test project [./test/MDK-ARM_STM32F030R8]([./test/MDK-ARM_STM32F030R8) to see an implementation.
+- Compile, load and start your app.
+- In project root command like `trice l -p COM3 -baud 57600` should show `Coming soon: 2022!` after app start.
+- Look in `./pkg/src/triceCheck.c` for examples.
+- The used serial Go driver package is Linux & Windows tested.
+
+<!--
+
+##  1. <a name='Embeddedsystemcodesetup'></a>Embedded system code setup
+
+- It is sufficient for most cases just to use the `TRICE` macro with max 0 to 12 parameters as a replacement for `printf` and to use the default settings.
+- **Or** follow these steps for instrumentation information even your target processor is not an ARM (any bit width will do):
+  - Install the free [STCubeMX](https://www.st.com/en/development-tools/stm32cubemx.html).
+  - Choose from [test examples](https://github.com/rokath/trice/tree/master/test) the for you best fitting project `MyExample`.
+  - Open the `MyExample.ioc` file with [STCubeMX](https://www.waveshare.com/wiki/STM32CubeMX_Tutorial_Series:_Overview) and generate without changing any setting.
+  - Make an empty directory `MyProject` inside the `test` folder and copy the `MyExample.ioc` there and rename it to `MyProject.ioc`.
+  - Open `MyProject.ioc` with [STCubeMX](https://www.waveshare.com/wiki/STM32CubeMX_Tutorial_Series:_Overview), change in projects settings `MyExample` to `MyProject` and generate.
+  - Now compare the directories `MyExample` and `MyProject` to see the *trice* instrumentation as differences.
+- For compiler adaption see [triceConfigCompiler.h](./pkg/src/intern/triceConfigCompiler.h).
+- For hardware adaption see [triceUART_LL_STM32](./pkg/src/intern/triceUART_LL_STM32.h)
+
+-->
+
+##  2. <a name='Option:buildtricetoolfromGosources'></a>Option: build `trice` tool from Go sources
+
+- Install [Go](https://golang.org/).
+- On Windows you need to install [TDM-GCC](https://jmeubank.github.io/tdm-gcc/download/) - recommendation: Minimal online installer.
+  - GCC is only needed for [./pkg/src/src.go](https://github.com/rokath/trice/blob/master/pkg/src/src.go), what gives the option to test the C-code on the host.
+  - Make sure TDM-GCC is found first in the path.
+  - Other gcc variants could work also but not tested.
+- Open a console inside the `trice` directory.
+- Check and install:
+
+```b
+go vet ./...
+go test ./...
+go install ./...
+```
+
+Afterwards you should find an executable `trice` inside $GOPATH/bin/
+
+
+##  3. <a name='Targetconfigurationandoptions'></a>Target configuration and options
+
+* Each project gets its own `triceConfig.h` file.
+* Choose the *trice* mode here:
+  * Direct mode: Straight output inside `TRICE` macro at the cost of the time it takes.
+  * Indirect mode: Background output outside `TRICE` macro at the cost of RAM buffer needed.
+* Set Options:
+  * Target timestamps and their time base
+  * Cycle counter
+  * Allow `TRICE` usage inside interrupts
+  * Buffer size
+
+
+# Handling
+
+- For example change the legacy source code line
+
+```c
+printf( "msg: %d Kelvin\n", k );
+```
+
+- into
+
+```c
+TRICE( "msg: %d Kelvin\n", k );
+```
+
+- `trice update` (run it automatically in the tool chain) changes it to  
+
+```c
+TRICE( Id(12345), "msg: %d Kelvin\n", k );
+```
+
+- and adds the *ID 12345* together with *"msg: %d Kelvin\n"* into a **t**rice **I**D **l**ist, a [JSON](https://www.json.org/json-en.html) reference file named [til.json](../til.json).
+- The *12345* is a random or policy generated ID not used so far.
+- During compilation the `TRICE` macro is translated to only a *12345* reference and the variable *k*. The format string never sees the target.
+- Than, running the embedded device let the **trice** tool receive with `trice log -p COM1` instead of a ordinary terminal program.
+
 # Common information
 
 A trice instruction is avoiding all the internal overhead (space and time) of a `printf()` statement but is easy to use. For example instead of writing
@@ -38,7 +163,7 @@ At 48 MHz the in time needed light travels less than 100 meters. Slightly delaye
 Please understand, that when debugging code containing TRICE\* statements, during a TRICE\* step-over only  one ore more 32 bit values go into the internal fifo buffer and no serial output
 is visible because of the stopped target. But the SEGGER debug probe reads out the RTT memory and this way also during debug stepping real-time trice output is visible. That is (right now) not true for the STLINK interface because there is only one USB endpoint.
 
-## trice instructions: `TRICE`, `Trice` or `trice` with or without ending letter 'i'?
+##  4. <a name='triceinstructions:TRICETriceortricewithorwithoutendingletteri'></a>trice instructions: `TRICE`, `Trice` or `trice` with or without ending letter 'i'?
 
 There are several types of trice statements. All trice statements can have an additional letter 'i'. This means **i**nside critical section. \
 You can use these when it is sure not to get interrupted by other trices. If for example an interrupt contains a trice statement this can be \
@@ -48,9 +173,9 @@ If you are not sure it is always safe to use normal trices (without ending 'i').
 - Mixed case `Trice0`, `Trice8_1`, `Trice16_1` and `Trice8_2` are so called short trice macros.\
 They use internal a smaller encoding and have only a 15-bit ID size, means ID's 1-32767 are usable.\
 These are the fastest trices and with them the speed limit is reached.\
-![x](README.media/Trice16_1-Code.PNG)\
-![x](README.media/Trice16_1i-Code.PNG)\
-![x](README.media/Trice16_1i.PNG)\
+![x](./ref/Trice16_1-Code.PNG)\
+![x](./ref/Trice16_1i-Code.PNG)\
+![x](./ref/Trice16_1i.PNG)\
 The number in the blue lines is the current processor tick. For `Trice16_1i` the difference between neighbors is about 13 clocks. \
 Short trices need 'id(0)' instead 'Id(0)' as important difference to normal trices. The `trice` tool will handle that for you.
 - Upper case `TRICE0`, `TRICE8_1`, ... `TRICE8_8`, `TRICE16_1`, ... `TRICE16_4`, `TRICE32_1`, ... `TRICE32_4`, `TRICE64_1`, `TRICE64_2` are normal trice macros. \
@@ -59,7 +184,7 @@ They insert code directly (no function call) for better performance but the draw
 The function call overhead is reasonable and the advantage is significant less code amount when many trices are used.
 - For most flexibility the code for each trice function can be enabled or not inside the triceConfig.h.
 
-## `trice` tool
+##  5. <a name='tricetool'></a>`trice` tool
 
 Executing `trice update` at the root of your project source updates in case of changes the trice statements inside the source code and the ID list. The `-src` switch can be used multiple times to keep the amount of parsed data small for better speed.
 
@@ -67,16 +192,16 @@ With `trice log -port COM12 -baud 115200` you can visualize the trices on the PC
 
 The following capture output comes from an example project inside`../test`
 
-![life.gif](./README.media/life.gif)
+![life.gif](./ref/life.gif)
 
 See [triceCheck.c](https://github.com/rokath/trice/blob/master/pkg/src/triceCheck.c) for reference.
 The trices can come mixed from inside interrupts (light blue `ISR:...`) or from normal code. For usage with a RTOS trices are protected against breaks (CRITICAL_SECTION). Regard the differences in the read SysTick values inside the GIF above These differences are the MCU clocks needed for one trice (~0,25µs@48MHz).
 
 Use the `-color off` switch for piping output in a file.
 
-## Setup
+##  6. <a name='Setup'></a>Setup
 
-### Project structure
+###  6.1. <a name='Projectstructure'></a>Project structure
 
    name        | info                                                    |
 ---------------|---------------------------------------------------------|
@@ -89,13 +214,13 @@ test/          | example target projects                                 |
 third_party/   | external components                                     |
 
 <!---
-### Check the `trice` binary
+###  6.2. <a name='Checkthetricebinary'></a>Check the `trice` binary
 - Copy command trice into a path directory.
 - Run inside a shell `trice check -list path/to/trice/examples/triceDemoF030R8/MDK-ARM/`[til.json](../examples/triceDemoF030R8/MDK-ARM/til.json). You should see output like this:
-![](./README.media/Check.PNG)
+![](./ref/Check.PNG)
 --->
 
-### Instrument a target source code project (How to use trice in your project)
+###  6.3. <a name='InstrumentatargetsourcecodeprojectHowtousetriceinyourproject'></a>Instrument a target source code project (How to use trice in your project)
 
 Look at one of the appropriate test projects as example. In general:
 
@@ -157,7 +282,7 @@ Quick workaround:
 - It could be helpful to add `trice u ...` as prebuild step into your toolchain for each file or for the project as a whole.
   This way you cannot forget the update step, it performs automatically.
 
-## Memory needs (ARM example project)
+##  7. <a name='MemoryneedsARMexampleproject'></a>Memory needs (ARM example project)
 
 Program Size (STM32-F030R8 demo project)     |trice instrumentation|buffer size|compiler optimize for time| comment
 ---------------------------------------------|------------------------|-----------|-------------------------|-----------------------------
@@ -170,14 +295,14 @@ Code=3808 RO-data=240 RW-data=36 ZI-data=1540|    TriceCheckSet()     |      512
 - The about 50 trices in TriceCheckSet() allocate roughly 2100 (fast mode) or 1500 (small mode) bytes.
 - trices are removable without code changes by defining `TRICE_OFF` on file or project level.
 
-## Encryption
+##  8. <a name='Encryption'></a>Encryption
 
 - You can deliver your device with encrypted trices. This way nobody is able to read the trices despite the service guy.
 - Implemented is XTEA but this is easy exchangeable.
 - The 8 byte blocks can get encrypted by enabling `#define ENCRYPT...` inside *triceConfig.h*. You need to add `-key test` as **log** switch and you're done.
 - Any password is usable instead of `test`. Simply add once the `-show` switch and copy the displayed passphrase into the *config.h* file.
 
-## Options for `trice` tool
+##  9. <a name='Optionsfortricetool'></a>Options for `trice` tool
 
 The trice tool is very easy to use even it has a plenty of options. Most of them normally not needed.
 The trice tool can be started in several modes (sub-commands), each with several mandatory or optional switches. Switches can have parameters or not.
@@ -520,24 +645,24 @@ example: 'trice zeroSourceTreeIds -src ../A': Sets all TRICE IDs to 0 in ../A. U
 ```
 
 <!---
-### Sub-command `check`
+###  9.1. <a name='Sub-commandcheck'></a>Sub-command `check`
 - `trice check` will check the JSON list and emit all TRICE statements inside the list once with a dataset.
 
-#### `check` switch '-dataset'
+####  9.1.1. <a name='checkswitch-dataset'></a>`check` switch '-dataset'
 - This is a `string` switch. It has one parameter. Its default value is `position`. That means each parameter has a different value. This is useful for testing.
 - The `negative` value is uses a dataset with negative values for testing.
 --->
 
-## Additional hints
+##  10. <a name='Additionalhints'></a>Additional hints
 
-### Logfile viewing
+###  10.1. <a name='Logfileviewing'></a>Logfile viewing
 
 `trice` generated logfiles with sub-command switch `-color off` are normal ASCII files. If they are with color codes, these are ANSI escape sequences.
 
 - One easy view option is `less -R trice.log`. The Linux command `less` is also available inside the VScode terminal.
 - Under Windows one could also download and use [ansifilter](https://sourceforge.net/projects/ansifilter/) for logfile viewing. A monospaced font is recommended.
 
-### Color issues under Windows
+###  10.2. <a name='ColorissuesunderWindows'></a>Color issues under Windows
 
 **Currently CMD console colors are not enabled by default in Win10**, so if you see no color but escape sequences on your powershell or cmd window, please refer to
 [Windows console with ANSI colors handling](https://superuser.com/questions/413073/windows-console-with-ansi-colors-handling/1050078#1050078)\

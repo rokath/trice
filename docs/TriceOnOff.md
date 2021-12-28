@@ -1,5 +1,4 @@
- 
-# On-Off
+# *Trice* On-Off
 
 - If your code works well after checking, you can add `#define TRICE_OFF` just before the `#include "trice.h"` line and no *trice* code is generated anymore for that file, so no need to delete or comment out `TRICE` macros.
 - No runtime On-Off switch is implemented for  several reasons:

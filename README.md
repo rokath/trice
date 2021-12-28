@@ -1,4 +1,4 @@
-# ![TriceGirlS.png](./docs/README.media/TriceGirl-167x222.png) **Trice** <- **TR**~~ace~~ **I**~~ds~~ **C** **E**~~mbedded~~  
+# ![TriceGirlS.png](./docs/ref/TriceGirl-167x222.png) **Trice** <- **TR**~~ace~~ **I**~~ds~~ **C** **E**~~mbedded~~  
 
 [github.io/trice/](https://rokath.github.io/trice/)
 
@@ -14,22 +14,21 @@
 [![test](https://github.com/shogo82148/actions-goveralls/workflows/test/badge.svg?branch=main)](https://coveralls.io/github/rokath/trice)
 [![Coverage Status](https://coveralls.io/repos/github/rokath/trice/badge.svg?branch=master)](https://coveralls.io/github/rokath/trice?branch=master)
 
-"log in (a) trice" ([S>G](https://www.screentogif.com/)) ![ ](./docs/README.media/life0.gif)
+"log in (a) trice" ([S>G](https://www.screentogif.com/)) ![ ](./docs/ref/life0.gif)
 
 ## About
 
-- The aim is to **replace `printf`**  in any microcontroller code for getting:
-  - **[SPEED](./docs/Speed.md)**, to be usable also inside interrupts
-  - **[SPACE](./docs/Space.md)**, to reduce FLASH memory size
-  - **[COLOR](./docs/Color.md)**, to improve visibility
-  - Compile time and/or runtime **[ON-OFF](./docs/OnOff.md)**.
-- Main idea: Logging strings **not** into an embedded device to display them later on a PC but keep [usage comfortable and simple](./docs/EasyUsage.md).
+- Replace `printf` or `log` in **C**-code code for getting:
+  - **[SPEED](./docs/TriceSpeed.md)**, to be usable also inside interrupts,
+  - **[SPACE](./docs/TriceSpace.md)**, to reduce needed FLASH memory size,
+  - and various **[FEATURES](./docs/TraceWithTrice.md#Tricefeatures)** delighting the developers heart.
+- <u>Main idea:</u> Logging strings **not** into an embedded device to display them later on a PC but keep [usage comfortable and simple](./docs/TriceUsageGuide.md).
 - *Trice* consists of 2 parts:
   1. **C** code `TRICE` macros generating tiny & super fast embedded device real-time trace/log code
   2. Tool **trice** for managing and visualization.
       - Written in [Go](https://golang.org/) and therefore usable on all platforms Go supports.
       - You can also use your own environment to receive the *trice* packges, exchange the carried IDs with the format string and print out.
-- [Usage guide](./docs/UsageGuide.md)
+- [Trice Usage guide](./docs/TriceUsageGuide.md)
 
 ## Possible Use Cases
 
@@ -47,7 +46,7 @@
 
 This slightly simplified [view](https://github.com/jgraph/drawio) is explained [here](./docs/TraceWithTrice.md#Howitworks-themainidea)
 
-![trice](./docs/README.media/triceCOBSBlockDiagram.svg)
+![trice](./docs/ref/triceCOBSBlockDiagram.svg)
 
 ## Data Transfer
 
@@ -121,11 +120,11 @@ The **TRICE** technique changed heavily between release 0.33.0 and 0.34.0. The `
 
  The execution of this code block produces totally 8 log bytes to visualize the output on PC, what looks similar to this for 3 task switches:
 
-![alt](./docs/README.media/taskSwitchTimesExample.PNG)
+![alt](./docs/ref/taskSwitchTimesExample.PNG)
 
 First are the PC reception timestamps and after the port info are the used *trice* ids just for easy location inside the source code. See the diferences between the (blue) ticks in this 3 lines. These are 28 or 36 processor clocks only. The code producing this is:
 
-![alt](./docs/README.media/taskSwitchTimesExampleCode.PNG)
+![alt](./docs/ref/taskSwitchTimesExampleCode.PNG)
 
   The same is possible for **interrupt timing analysis**.
 
@@ -151,10 +150,10 @@ First are the PC reception timestamps and after the port info are the used *tric
 
 This is a slightly simplified [view](https://github.com/jgraph/drawio):
 
-![trice](./docs/README.media/trice4BlockDiagram.svg)
+![trice](./docs/ref/trice4BlockDiagram.svg)
 
 - When the program flow passes the line `Trice16( Id(12345), "MSG: %d Kelvin\n", k );` the ID *12345* and the 16 bit temperature value are transferred as one combined 32 bit value into the triceFifo, what goes really fast. Different encodings are possible. The program flow is nearly undisturbed, so **TRICE macros are usable also inside interrupts or in the scheduler**.
-- For visualization a background service is needed. In the simplest case it is just an UART triggered interrupt for triceFIFO reading. Or you can use [RTT](./docs/SeggerRTT.md).
+- For visualization a background service is needed. In the simplest case it is just an UART triggered interrupt for triceFIFO reading. Or you can use [RTT](./docs/TriceOverRTT.md).
 - So the whole target instrumentation are the *trice* macros, the *trice* fifo and the UART  ISR.
 - During runtime the PC **trice** tool receives the *trice* as a 4 byte package `0x30 0x39 0x00 0x0e` from the UART port.
 - The `0x30 0x39` is the ID 12345 and a map lookup delivers the format string *"MSG: %d Kelvin\n"* and also the format information *"TRICE16_1"*. Now the **trice** tool is able to execute `printf("MSG: %d Kelvin\n", 0x000e);` and the full log information is displayed in the MSG color.

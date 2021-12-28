@@ -1,6 +1,6 @@
 # Trace with `TRICE` and get `printf` comfort inside interrupts and everywhere
 
-![./README.media/TriceCheckOutput.gif](./README.media/TriceCheckOutput.gif)
+![./ref/TriceCheckOutput.gif](./ref/TriceCheckOutput.gif)
 
 <!-- vscode-markdown-toc -->
 * 1. [Description](#Description)
@@ -36,8 +36,8 @@
 
 *Trice* is a unusual software tracer-logger and consists of these parts to use:
 
-- [x] [trice.c](../pkg/src/trice.c) containing the [less that 1KB](./Space.md) runtime code using [triceConfig.h](../test/MDK-ARM_STM32G071RB/Core/Inc/triceConfig.h) as setup.
-- [x] [trice.h](../pkg/src/trice.h) containing a **C** language macro `TRICE`, generating [tiny code](./Speed.md) for getting real-time `printf` comfort at "speed-of-light" for any micro-controller.
+- [x] [trice.c](../pkg/src/trice.c) containing the [less that 1KB](./TriceSpace.md) runtime code using [triceConfig.h](../test/MDK-ARM_STM32G071RB/Core/Inc/triceConfig.h) as setup.
+- [x] [trice.h](../pkg/src/trice.h) containing a **C** language macro `TRICE`, generating [tiny code](./TriceSpeed.md) for getting real-time `printf` comfort at "speed-of-light" for any micro-controller.
   * [x] Example: `float x = 3.14159265/4; TRICE( Id(12345), "info:π/4 is %f with the bit pattern %032b\n", aFloat(x), aFloat(x) );`
 - [x] PC tool **trice**, executable on all [Go](https://golang.org) platforms:
   * [ ] Android
@@ -47,7 +47,7 @@
   * [ ] Interface options for log collectors are possible.
 
 
-![./README.media/life0.gif](./README.media/life0.gif)
+![./ref/life0.gif](./ref/life0.gif)
 
 ##  2. <a name='Abstract'></a>Abstract
 
@@ -83,22 +83,22 @@ Thinking of other people using *Trice* and some external ideas brought me to add
 
 Learning that *Trice*  is also a [baby girl name](https://www.babynamespedia.com/meaning/Trice), my daughter Ida designed the little girl with the pen symbolizing the `TRICE` macro for recording and the eyeglasses standing for the PC tool **trice** visualizing the logs.
 
-![./README.media/TriceGirlS.png](./README.media/TriceGirlS.png)
+![./ref/TriceGirlS.png](./ref/TriceGirlS.png)
 
 ##  4. <a name='Howitworks-themainidea'></a>How it works - the main idea
 
-*Trice* performs **no** [costly](./printf.md) printf-like functions on the target at all. The `TRICE` macro, instead, just copies an ID together with the optional values to a buffer and is done. In the minimum case this can happen in [6-8](./Speed.md) processor clocks even with target timestamps included. When running on a 64 MHz clock, **light can travel about 30 meters in that time**.
+*Trice* performs **no** [costly](./TriceVsPrintfSimilaritiesAndDifferences.md#printf-like-functions) printf-like functions on the target at all. The `TRICE` macro, instead, just copies an ID together with the optional values to a buffer and is done. In the minimum case this can happen in [6-8](./TriceSpeed.md) processor clocks even with target timestamps included. When running on a 64 MHz clock, **light can travel about 30 meters in that time**.
 
 To achieve that, an automatable pre-compile step is needed, executing a `trice update` command on the PC. The **trice** tool parses then the source tree for macros like `TRICE( "msg: %d Kelvin\n", k );` and patches them to `TRICE( Id(12345), "msg: %d Kelvin\n", k );`, where `12345` is a generated 16-bit identifier copied into a [**T**rice **I**D **L**ist](../til.json). During compilation than, the `TRICE` macro is translated to the `12345` ID only, and the optional parameter values. The format string is ignored by the compiler.
 
-The target code is [project specific](../test/MDK-ARM_STM32G071RB/Core/Inc/triceConfig.h) configurable.  In **immediate mode** the the stack is used as *Trice* buffer and the TRICE macro execution includes the quick [COBS](./docs/COBSREncoding.md) encoding and the data transfer. This more straightforward and slower architecture can be interesting for many cases because it is anyway much faster than printf-like functions calls. In **deferred mode** a service swaps the *Trice* double buffer periodically, the COBS encoding takes part and with the filled buffer the background transfer is triggered. Out buffer and half *Trice* buffer share the same memory for efficiency.
+The target code is [project specific](../test/MDK-ARM_STM32G071RB/Core/Inc/triceConfig.h) configurable.  In **immediate mode** the the stack is used as *Trice* buffer and the TRICE macro execution includes the quick [COBS](https://en.wikipedia.org/wiki/Consistent_Overhead_Byte_Stuffing) encoding and the data transfer. This more straightforward and slower architecture can be interesting for many cases because it is anyway much faster than printf-like functions calls. In **deferred mode** a service swaps the *Trice* double buffer periodically, the COBS encoding takes part and with the filled buffer the background transfer is triggered. Out buffer and half *Trice* buffer share the same memory for efficiency.
 
 During runtime the PC **trice** tool receives all what happened in the last ~100ms as a COBS package from the UART port. The `0x30 0x39` is the ID 12345 and a map lookup delivers the format string *"msg: %d Kelvin\n"* and also the bit width information. Now the **trice** tool can write target timestamp, set msg color and execute `printf("%d Kelvin\n", 0x0000000e);`
 
 ---
-  ![./README.media/triceCOBSBlockDiagram.svg](./README.media/triceCOBSBlockDiagram.svg)
+  ![./ref/triceCOBSBlockDiagram.svg](./ref/triceCOBSBlockDiagram.svg)
 
-The **trice** tool is a background helper giving the developer focus on its programming task. The once generated ID is not changed anymore without need. If for example the format string gets changed into `"msg: %d Kelvin!\n"`, a new ID is inserted automatically and the reference list gets extended. Obsolete IDs are kept inside the [**T**rice **I**D **L**ist](../til.json) for compatibility with older firmware versions. It could be possible, when merging code, an **ID** is used twice for different format strings. In that case, the **ID** inside the reference list wins and the additional source gets patched with a new **ID**. This maybe unwanted patching is avoidable with proper [ID management](./IDManagement.md). The reference list should be kept under source code control.
+The **trice** tool is a background helper giving the developer focus on its programming task. The once generated ID is not changed anymore without need. If for example the format string gets changed into `"msg: %d Kelvin!\n"`, a new ID is inserted automatically and the reference list gets extended. Obsolete IDs are kept inside the [**T**rice **I**D **L**ist](../til.json) for compatibility with older firmware versions. It could be possible, when merging code, an **ID** is used twice for different format strings. In that case, the **ID** inside the reference list wins and the additional source gets patched with a new **ID**. This maybe unwanted patching is avoidable with proper [ID management](./TriceIDManagement.md). The reference list should be kept under source code control.
 
 ##  5. <a name='Tricefeatures'></a>*Trice* features
 
@@ -108,17 +108,17 @@ Target code and PC tool are open source. The MIT license gives full usage freedo
 
 ###  5.2. <a name='Easy-to-use'></a>Easy-to-use
 
-Making it [facile](./UsageGuide.md) for a user to use *Trice* was the driving point just to have one **trice** tool and an additional source file with a project specific simple to use `triceConfig.h` and to get away with the one macro `TRICE` for most situations. *Trice* understands itself as a silent helper in the background to give the developer more focus on its real task. If, for example, `trice log ...` is running and you re-flash the target, there is no need to restart the **trice** tool. When [til.json](../til.json) was updated in an pre-build step, the **trice** tool automatically reloads the new data.
+Making it [facile](./Trice UsageGuide.md) for a user to use *Trice* was the driving point just to have one **trice** tool and an additional source file with a project specific simple to use `triceConfig.h` and to get away with the one macro `TRICE` for most situations. *Trice* understands itself as a silent helper in the background to give the developer more focus on its real task. If, for example, `trice log ...` is running and you re-flash the target, there is no need to restart the **trice** tool. When [til.json](../til.json) was updated in an pre-build step, the **trice** tool automatically reloads the new data.
 
 The **trice** tool comes with many command line switches (`trice help -all`) for tailoring various needs, but mostly these are not needed. Usually only type `trice l -p COMn` for logging with a 115200 bit/s baud rate.
 
 ###  5.3. <a name='Smallsize-usingTriceufreesuFLASHmemory'></a>Small size - using *Trice* <u>frees</u> FLASH memory
 
-Compared to a printf-library code which occupies [1](https://github.com/mludvig/mini-printf) to over [20](https://github.com/mpaland/printf#a-printf--sprintf-implementation-for-embedded-systems) KB FLASH memory, the *Trice* code is really [small](./Space.md) - less 1 KB will do already but provide full support.
+Compared to a printf-library code which occupies [1](https://github.com/mludvig/mini-printf) to over [20](https://github.com/mpaland/printf#a-printf--sprintf-implementation-for-embedded-systems) KB FLASH memory, the *Trice* code is really [small](./TriceSpace.md) - less 1 KB will do already but provide full support.
 
 ###  5.4. <a name='Executionspeed'></a>Execution speed
 
-Can it get faster that [that](./Speed.md)? Only 3 runtime Assembler instructions per *Trice* needed in the minimum case! Additionally target timestamp and location, disable interrupts and restore interrupt state and cycle counter increment can consume a few more processor clocks, if enabled, but a *Trice* is still incomparable fast.
+Can it get faster that [that](./TriceSpeed.md)? Only 3 runtime Assembler instructions per *Trice* needed in the minimum case! Additionally target timestamp and location, disable interrupts and restore interrupt state and cycle counter increment can consume a few more processor clocks, if enabled, but a *Trice* is still incomparable fast.
 
 ###  5.5. <a name='Robustness'></a>Robustness
 
@@ -126,17 +126,17 @@ When a *Trice* data stream is interrupted, the [COBS](https://en.wikipedia.org/w
 
 ###  5.6. <a name='Morecomfortthanprintf-likefunctionsbutsmalldifferences'></a>More comfort than printf-like functions but small differences
 
-*Trice* is usable also inside interrupts and additional [format specifier support](./FormatSpecifier.md) gives options like binary or bool output. Transmitting runtime generated strings could be a need, so a `TRICE_S` macro exists supporting the `%s` format specifier for strings up to 1000 bytes long. It is possible to log float/double numbers using `%f` and the like, but the numbers need to be covered with the function `aFloat(x)` or `aDouble(y)`.
+*Trice* is usable also inside interrupts and additional [format specifier support](./TriceVsPrintfSimilaritiesAndDifferences.md#Extended-format-specifier-possibilities) gives options like binary or bool output. Transmitting runtime generated strings could be a need, so a `TRICE_S` macro exists supporting the `%s` format specifier for strings up to 1000 bytes long. It is possible to log float/double numbers using `%f` and the like, but the numbers need to be covered with the function `aFloat(x)` or `aDouble(y)`.
 
 ###  5.7. <a name='Labeledchannelscolorandloglevels'></a>Labeled channels, color and log levels
 
-You can label each *Trice* with a channel specifier to [colorize](./Color.md) the output. This is free of any runtime costs because the channel specifiers are part of the log format strings, which never get to the target.
+You can label each *Trice* with a channel specifier to [colorize](./TriceColor.md) the output. This is free of any runtime costs because the channel specifiers are part of the log format strings, which never get to the target.
 
 Many logger use so called log levels and offer a log level setting like "log all above **INFO**" for example. The *Trice* channels can cover that but they can do even better: First you can [define](../internal/emitter/lineTransformerANSI.go) any "log levels" you need and use them as *Trice* channels. Further you can assign each of these "log levels" an ID range and than use a level mechanism on the target side to decide which IDs are transmitted. I see no need to implement that right now, because the runtime and bandwidth costs are so small for each *Trice* and the **trice** tool is much better in selecting what to display (`-pick` and `-ban` switches) and no back channel is needed. BTW: Full lowercase channel strings the **trice** tool will strip from the format string after setting the appropriate color.
 
 ###  5.8. <a name='CompiletimeenabledisableTRICEmacrosonfilelevel'></a>Compile time enable/disable `TRICE` macros on file level 
 
-After debugging code in a file, there is no need to remove or comment out `TRICE` macros. Write a `#define TRICE_OFF` just before the `#include "trice.h"` line and all `TRICE` macros in this file are ignored completely by the compiler, but not by the **trice** tool. In case of re-constructing the [**T**rice **ID** **L**ist](../til.json) these no code generating macros are regarded.
+After debugging code in a file, there is [no need to remove or comment out `TRICE` macros](./TriceOnOff.md). Write a `#define TRICE_OFF` just before the `#include "trice.h"` line and all `TRICE` macros in this file are ignored completely by the compiler, but not by the **trice** tool. In case of re-constructing the [**T**rice **ID** **L**ist](../til.json) these no code generating macros are regarded.
 
 ###  5.9. <a name='Targetandhosttimestamps'></a>Target and host timestamps 
 
@@ -152,15 +152,15 @@ Because software is a matter of change it could happen you get obsolete informat
 
 ###  5.11. <a name='Severaltargetdevicesinonelogoutput'></a> Several target devices in one log output
 
-Several **trice** tool instances can run parallel on one or different PCs. Each **trice** tool instance receives *Trices* from one embedded device. Instead of displaying the log lines, the **trice** tool instances can transmit them over TCP/IP (`trice l -p COMx -ds`) to a **trice** tool instance acting as display server (`trice ds`). The display server can fold these log lines in one output. For each embedded device a separate *Trice* line prefix and suffix is definable. This allows comparable time measurements in distributed systems. BTW: The *Trice* message integration could be done also directly with the [COBS](./COBSREncoding.md) messages. 
+Several **trice** tool instances can run parallel on one or different PCs. Each **trice** tool instance receives *Trices* from one embedded device. Instead of displaying the log lines, the **trice** tool instances can transmit them over TCP/IP (`trice l -p COMx -ds`) to a **trice** tool instance acting as display server (`trice ds`). The display server can fold these log lines in one output. For each embedded device a separate *Trice* line prefix and suffix is definable. This allows comparable time measurements in distributed systems. BTW: The *Trice* message integration could be done also directly with the COBS packages.
 
 ###  5.12. <a name='Anybytecapable1-wireconnectionusable'></a>Any byte capable 1-wire connection usable
 
-The usual *Trice* output device is an [UART](./https://en.wikipedia.org/wiki/Universal_asynchronous_receiver-transmitter) but also [SEGGER-RTT](./SeggerRTT.md) is supported over J-Link or ST-Link devices. Many micro controller boards can act as *Trice* bridge to a serial port from any port ([example](./OneWireOption.md)).
+The usual *Trice* output device is an [UART](./https://en.wikipedia.org/wiki/Universal_asynchronous_receiver-transmitter) but also [SEGGER-RTT](./TriceOverRTT.md) is supported over J-Link or ST-Link devices. Many micro controller boards can act as *Trice* bridge to a serial port from any port ([example](./TriceOverOneWire.md)).
 
 ###  5.13. <a name='Scalability'></a>Scalability
 
-The various [ID management features](./IDManagement.md) allow the organization also of bigger software systems. More than 65000 possible different IDs should match also large projects. Just in case: 16-bit for the ID is a not to hard changeable value.
+The various [*Trice* ID management features](./TriceIDManagement.md) allow the organization also of bigger software systems. More than 65000 possible different IDs should match also large projects. Just in case: 16-bit for the ID is a not to hard changeable value.
 
 ###  5.14. <a name='PortabilityandModularity'></a>Portability and Modularity
 
@@ -168,13 +168,15 @@ The **trice** tool is written in the open source language [*Go*](https://go.dev/
 
 All C-compilers should be usable to compile the target *Trice* code and there is no hardware dependency despite the byte transmission. MCUs with 8-bit to 64-bit, little or big endian are supported.
 
-Any user program able to read a [JSON](../til.json) file, can receive the [documented](./COBSREncoding.md) *Trice* message format, look-up the ID and perform a printf-like action to translate into log strings. The **trice** tool with its `log` switch is a working example.
+Any user program able to read a [JSON](../til.json) file, can receive the [documented](./TriceMessagesEncoding.md) *Trice* message format, look-up the ID and perform a printf-like action to translate into log strings. The **trice** tool with its `log` switch is a working example.
 
-Using [COBS](https://en.wikipedia.org/wiki/Consistent_Overhead_Byte_Stuffing) packages starting with a [package descriptor](./COBSREncoding.md#package-mode-prefix) allows alongside user protocols. The other way around is also implementable: In a user protocol embedded `Trice` messages.
+Using [COBS](https://en.wikipedia.org/wiki/Consistent_Overhead_Byte_Stuffing) packages starting with a [package descriptor](./TriceMessagesEncoding.md#package-mode-prefix) allows alongside user protocols. The other way around is also implementable: In a user protocol embedded `Trice` messages.
 
 The **trice** tool is expandable with several decoders. So it is possible to implement a minimal *Trice* encoding, if bandwidth matters heavily and control that with switches.
 
 When less RAM usage is more important the target double buffer is replaceable with a FIFO. So the user will be able to decide at compile time about that. Right now already a immediate mode is selectable inside [triceConfig.h](../test/MDK-ARM_STM32G071RB/Core/Inc/triceConfig.h) avoiding any buffer by paying a time toll.
+
+The **trice** tool supports [many command line switches](./TriceCommandLineExamples.md).
 
 ###  5.15. <a name='OptionalTricemessagesencryption'></a>Optional *Trice* messages encryption
 
@@ -182,9 +184,18 @@ The encryption opportunity makes it possible to test thoroughly a binary with lo
 
 ##  6. <a name='Bottomline'></a> Bottom line
 
-The *Trice* technique is new and still under development. Additional tests and bug fixing is necessary. A **trice** tool configuration file and interfacing [Grafana](https://grafana.com/) or similar tools would be possible extensions. Getting started with *Trice* will take a few hours, but probably pay off during the further development.
+The *Trice* technique is new and still under development. Additional tests and bug fixing is necessary. A **trice** tool [configuration file](./TriceConfiguration.md#host-configuration-file) and interfacing [Grafana](https://grafana.com/) or similar tools would be possible extensions. Getting started with *Trice* will take a few hours, but probably pay off during the further development.
 
-##  7. <a name='Referencesandfurtherreading'></a>References and further reading
+##  7. <a name='Referencesandfurtherreading'></a>A few maybe interesting links
 
+* [https://mcuoneclipse.com/2016/10/17/tutorial-using-single-wire-output-swo-with-arm-cortex-m-and-eclipse/](https://mcuoneclipse.com/2016/10/17/tutorial-using-single-wire-output-swo-with-arm-cortex-m-and-eclipse/)
+* [https://mcuoneclipse.com/2016/11/05/tutorial-getting-etm-instruction-trace-with-nxp-kinetis-arm-cortex-m4f/](https://mcuoneclipse.com/2016/11/05/tutorial-getting-etm-instruction-trace-with-nxp-kinetis-arm-cortex-m4f/)
+* [https://interrupt.memfault.com/blog/a-deep-dive-into-arm-cortex-m-debug-interfaces](https://interrupt.memfault.com/blog/a-deep-dive-into-arm-cortex-m-debug-interfaces)
+* [https://interrupt.memfault.com/blog/instruction-tracing-mtb-m33](https://interrupt.memfault.com/blog/instruction-tracing-mtb-m33)
+* [python script is used to parse ITM trace packets from the SWO pin on the STM32 using OpenOCD](https://github.com/robertlong13/SWO-Parser)
+* [NanoLog - extremely performant nanosecond scale logging system](https://github.com/PlatformLab/NanoLog)
+* [baical - high-performance tools set for sending and receiving traces](http://baical.net/index.html)
+* [MCUXpresso IDE Instruction Trace](https://www.nxp.com/docs/en/quick-reference-guide/MCUXpresso_IDE_Instruction_Trace.pdf)
+* [Arm CoreSight technology which introduces powerful new debug and trace capabilities](https://www2.keil.com/coresight)
 * [*Trice* on Github with examples](https://github.com/rokath/trice)
 * [*Go* home](https://go.dev/)
