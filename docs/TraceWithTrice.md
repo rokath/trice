@@ -34,10 +34,11 @@
 
 ##  1. <a name='Description'></a>Description
 
-*Trice* is a unusual software tracer-logger and consists of two parts to use:
+*Trice* is a unusual software tracer-logger and consists of these parts to use:
 
-- [x] **C** language macro `TRICE`, generating tiny code for getting real-time `printf` comfort at "speed-of-light" for any micro-controller.
-  * [x] Example: `TRICE( Id(12345), "msg:%u words and %d numbers printing π as float %f\n", 7, 3, aFloat(3.14159) );`
+- [x] [trice.c](../pkg/src/trice.c) containing the [less that 1KB](./Space.md) runtime code using [triceConfig.h](../test/MDK-ARM_STM32G071RB/Core/Inc/triceConfig.h) as setup.
+- [x] [trice.h](../pkg/src/trice.h) containing a **C** language macro `TRICE`, generating [tiny code](./Speed.md) for getting real-time `printf` comfort at "speed-of-light" for any micro-controller.
+  * [x] Example: `float x = 3.14159265/4; TRICE( Id(12345), "info:π/4 is %f with the bit pattern %032b\n", aFloat(x), aFloat(x) );`
 - [x] PC tool **trice**, executable on all [Go](https://golang.org) platforms:
   * [ ] Android
   * [x] Linux
@@ -58,7 +59,7 @@ Bigger micro-controllers are coming with embedded trace hardware. To use it, an 
 
 <!-- Unhappy with this situation, the developer starts thinking of using digital pins or starts emitting some proprietary LED blinking codes or byte sequences, difficult to interpret. -->
 
-The *Trice* technique tries to fill this gap, trying to be minimal invasive for the target and as comfortable as possible. It is the result of a long-year dissatisfaction and several attempts to find a loophole to make embedded programming more fun and this way more effective.
+The *Trice* technique tries to fill this gap, being be minimal invasive for the target and as comfortable as possible. It is the result of a long-year dissatisfaction and several attempts to find a loophole to make embedded programming more fun and this way more effective.
 
 ##  3. <a name='AbriefhistoryofTrice'></a>A brief history of *Trice*
 
@@ -68,17 +69,17 @@ A `printf` is so cool on a PC, developing software there. But an embedded device
 
 Than, one day I had the idea to compute short checksums for the format strings in a pre-compile step and to use them as ID in a list together with the format strings. That was a step forward but needed to write a supporting PC program. I did that in C++ in the assumption to get it better done that way. Finally it worked but I hated my PC code, as I dislike C++ now because of all its nuts and bolts to handle, accompanied by missing libraries on the next PC. The tool usability was also unhandy and therefore error prone and the need became clear for a full automatized solution. Also, what is, if 2 different format strings accidentally generate the same short checksum? There was a way around, but an ID based message filtering will never be possible that way.
 
-The need became clear for controllable IDs and management options. And there was [Go](https://golang.org) now, an as-fast-as-**C** language, easy to learn, promising high programming efficiency and portability. It would be interesting to try it out on a real PC project. 
+The need became clear for controllable IDs and management options. And there was [Go](https://golang.org) now, an as-fast-as-**C** language, easy to learn, promising high programming efficiency and portability. It would be interesting to try it out on a real PC project.
 
-Trying to add channels in form of partial *TRICE* macro names was blowing up the header code amount and was a too rigid design. Which are the right channels? One lucky day I came to the conclusion to handle channels just as format string parts like `"debug:Here we are!\n"` getting rid of them in the target code and giving the user [full freedom](../internal/emitter/lineTransformerANSI.go) to invent any channels.
+Trying to add channels in form of partial *TRICE* macro names was blowing up the header code amount and was a too rigid design. Which are the right channels? One lucky day I came to the conclusion to handle channels just as format string parts like `"debug:Here we are!\n"` and getting rid of them in the target code this way also giving the user [full freedom](../internal/emitter/lineTransformerANSI.go) to invent any channels.
 
-On point in the design was the question how to re-sync after data stream interruption, because that happens often during firmware development. A tryout proprietary escape sequence format and an alternative flexible data format with more ID bits where working reliable but with [COBS](https://en.wikipedia.org/wiki/Consistent_Overhead_Byte_Stuffing) things got satisfying.
+Aon other point in the design was the question how to re-sync after data stream interruption, because that happens often during firmware development. A tryout proprietary escape sequence format and an alternative flexible data format with more ID bits where working reliable but with [COBS](https://en.wikipedia.org/wiki/Consistent_Overhead_Byte_Stuffing) things got satisfying. A side result of that trials is the **trice** tool option to use different decoders if needed.
 
-There was a learning **not** to reduce the transmit byte count to an absolute minimum, but to focus more on `TRICE` macro speed. That led to a double buffer on the target side discarding the previous FIFO solution.
+There was a learning **not** to reduce the transmit byte count to an absolute minimum, but to focus more on `TRICE` macro speed and universality. That led to a double buffer on the target side discarding the previous FIFO solution and the package descriptor allowing alongside user protocols.
 
 *Trice* grew, and as it got usable I decided to make it Open Source to say "Thank You" to the community this way.
 
-Thinking of other people using *Trice* and some external ideas brought me to add features like target timestamps and source code location while keeping the target code as light as possible.
+Thinking of other people using *Trice* and some external ideas brought me to add features like float and double number support, target timestamps and source code location while keeping the target code as light as possible.
 
 Learning that *Trice*  is also a [baby girl name](https://www.babynamespedia.com/meaning/Trice), my daughter Ida designed the little girl with the pen symbolizing the `TRICE` macro for recording and the eyeglasses standing for the PC tool **trice** visualizing the logs.
 
@@ -90,17 +91,14 @@ Learning that *Trice*  is also a [baby girl name](https://www.babynamespedia.com
 
 To achieve that, an automatable pre-compile step is needed, executing a `trice update` command on the PC. The **trice** tool parses then the source tree for macros like `TRICE( "msg: %d Kelvin\n", k );` and patches them to `TRICE( Id(12345), "msg: %d Kelvin\n", k );`, where `12345` is a generated 16-bit identifier copied into a [**T**rice **I**D **L**ist](../til.json). During compilation than, the `TRICE` macro is translated to the `12345` ID only, and the optional parameter values. The format string is ignored by the compiler.
 
-The target code is project specific [triceConfig.h](../test/MDK-ARM_STM32G071RB/Core/Inc/triceConfig.h) configurable.  In **immediate mode** the *Trice* buffer is on the stack and the TRICE macro execution includes the [COBS](./docs/COBSREncoding.md) encoding and the data transfer. This more straightforward but slower architecture can be interesting for many cases. In **deferred mode** a background service swaps the *Trice* double buffer periodically, the quick COBS encoding takes part and with the filled out buffer the transmission start is triggered. Out buffer and half *Trice* buffer share the same memory for efficiency.
+The target code is [project specific](../test/MDK-ARM_STM32G071RB/Core/Inc/triceConfig.h) configurable.  In **immediate mode** the the stack is used as *Trice* buffer and the TRICE macro execution includes the quick [COBS](./docs/COBSREncoding.md) encoding and the data transfer. This more straightforward and slower architecture can be interesting for many cases because it is anyway much faster than printf-like functions calls. In **deferred mode** a service swaps the *Trice* double buffer periodically, the COBS encoding takes part and with the filled buffer the background transfer is triggered. Out buffer and half *Trice* buffer share the same memory for efficiency.
 
 During runtime the PC **trice** tool receives all what happened in the last ~100ms as a COBS package from the UART port. The `0x30 0x39` is the ID 12345 and a map lookup delivers the format string *"msg: %d Kelvin\n"* and also the bit width information. Now the **trice** tool can write target timestamp, set msg color and execute `printf("%d Kelvin\n", 0x0000000e);`
 
 ---
   ![./README.media/triceCOBSBlockDiagram.svg](./README.media/triceCOBSBlockDiagram.svg)
 
-* The **trice** tool tries to help as much as possible, to let the developer focus on its programming task. The once generated ID is not changed anymore without need. If for example the format string gets changed into `"msg: %d Kelvin!\n"`, a new ID is generated automatically and the reference list gets extended.
-* Obsolete IDs are kept inside the [**T**rice **I**D **L**ist](../til.json) for compatibility with older firmware versions.
-* It could be possible, when merging code, an **ID** is used twice for different format strings. In that case, the **ID** inside the reference list wins and the additional source gets patched with a new **ID**. This maybe unwanted patching is avoidable with proper [ID management](./IDManagement.md).
-* The reference list should be kept under source code control.
+The **trice** tool is a background helper giving the developer focus on its programming task. The once generated ID is not changed anymore without need. If for example the format string gets changed into `"msg: %d Kelvin!\n"`, a new ID is inserted automatically and the reference list gets extended. Obsolete IDs are kept inside the [**T**rice **I**D **L**ist](../til.json) for compatibility with older firmware versions. It could be possible, when merging code, an **ID** is used twice for different format strings. In that case, the **ID** inside the reference list wins and the additional source gets patched with a new **ID**. This maybe unwanted patching is avoidable with proper [ID management](./IDManagement.md). The reference list should be kept under source code control.
 
 ##  5. <a name='Tricefeatures'></a>*Trice* features
 
@@ -176,7 +174,7 @@ Using [COBS](https://en.wikipedia.org/wiki/Consistent_Overhead_Byte_Stuffing) pa
 
 The **trice** tool is expandable with several decoders. So it is possible to implement a minimal *Trice* encoding, if bandwidth matters heavily and control that with switches.
 
-When less RAM usage is more important the target double buffer is replaceable with a FIFO. So the user will be able to decide at compile time about that. Right now already a direct mode is selectable inside [triceConfig.h](../test/MDK-ARM_STM32G071RB/Core/Inc/triceConfig.h) avoiding any buffer by paying a time toll.
+When less RAM usage is more important the target double buffer is replaceable with a FIFO. So the user will be able to decide at compile time about that. Right now already a immediate mode is selectable inside [triceConfig.h](../test/MDK-ARM_STM32G071RB/Core/Inc/triceConfig.h) avoiding any buffer by paying a time toll.
 
 ###  5.15. <a name='OptionalTricemessagesencryption'></a>Optional *Trice* messages encryption
 
