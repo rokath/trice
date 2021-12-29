@@ -142,7 +142,7 @@ After debugging code in a file, there is [no need to remove or comment out `TRIC
 
 Enable target timestamps with a variable you want inside [triceConfig.h](../test/MDK-ARM_STM32G071RB/Core/Inc/triceConfig.h). This adds a 32-bit value to each *Trice* sequence, which carries than the system clock, a millisecond second or an other event counter. The **trice** tool will automatically recognize and display them in a default mode you can control. If several `TRICE` macros form a single line, the **trice** tool only displays the target timestamp of the first `TRICE` macro.
 
-Embedded devices often lack a real-time clock and some scenarios can last for weeks. Therefore the **trice** tool precedes each *Trice* line with a PC timestamp, if not disabled. This is the *Trice* reception time on the PC, what can be some milliseconds later than the target *Trice* event. With the default setting the *Trice* double buffer switches every 100ms. This is no visible display delay.
+Embedded devices often lack a real-time clock and some scenarios can last for weeks. Therefore the **trice** tool precedes each *Trice* line with a PC timestamp, if not disabled. This is the *Trice* reception time on the PC, what can be some milliseconds later than the target *Trice* event.
 
 ###  5.10. <a name='Targetsourcecodelocation'></a>Target source code location 
 
