@@ -1,4 +1,4 @@
-# Trace with `TRICE` and get `printf` comfort inside interrupts and everywhere
+# Trace & Log with `TRICE` and get `printf` comfort inside interrupts and everywhere
 
 ![./ref/TriceCheckOutput.gif](./ref/TriceCheckOutput.gif)
 
