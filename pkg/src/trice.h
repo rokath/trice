@@ -1,5 +1,5 @@
 /*! \file trice.h
-\author thomas.toehenleitner [at] seerose.net
+\author thomas.hoehenleitner [at] seerose.net
 *******************************************************************************/
 
 #ifndef TRICE_H_

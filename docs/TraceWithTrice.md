@@ -57,7 +57,7 @@ Logging then, usually done with printf-like functions, gets quick a result after
 
 Bigger micro-controllers are coming with embedded trace hardware. To use it, an expensive tool is needed. Useful for analyzing complex systems, but for in-field related issues at least unhandy.
 
-<!-- Unhappy with this situation, the developer starts thinking of using digital pins or starts emitting some proprietary LED blinking codes or byte sequences, difficult to interpret. -->
+Unhappy with this situation, the developer starts thinking of using digital pins or starts emitting some proprietary LED blinking codes or byte sequences, difficult to interpret.
 
 The *Trice* technique tries to fill this gap, being be minimal invasive for the target and as comfortable as possible. It is the result of a long-year dissatisfaction and several attempts to find a loophole to make embedded programming more fun and this way more effective.
 
@@ -73,7 +73,7 @@ The need became clear for controllable IDs and management options. And there was
 
 Trying to add channels in form of partial *TRICE* macro names was blowing up the header code amount and was a too rigid design. Which are the right channels? One lucky day I came to the conclusion to handle channels just as format string parts like `"debug:Here we are!\n"` and getting rid of them in the target code this way also giving the user [full freedom](../internal/emitter/lineTransformerANSI.go) to invent any channels.
 
-An other point in the design was the question how to re-sync after data stream interruption, because that happens often during firmware development. A tryout proprietary escape sequence format and an alternative flexible data format with more ID bits where working reliable but with [COBS](https://en.wikipedia.org/wiki/Consistent_Overhead_Byte_Stuffing) things got satisfying. A side result of that trials is the **trice** tool option to use different decoders if needed.
+An other point in the design was the question how to re-sync after data stream interruption, because that happens often during firmware development. [Several encodings](././TriceObsoleteEncodings.md) where tried out, a proprietary escape sequence format and an alternative flexible data format with more ID bits where working reliable but with [COBS](https://en.wikipedia.org/wiki/Consistent_Overhead_Byte_Stuffing) things got satisfying. A side result of that trials is the **trice** tool option to add different decoders if needed.
 
 There was a learning **not** to reduce the transmit byte count to an absolute minimum, but to focus more on `TRICE` macro speed and universality. That led to a double buffer on the target side discarding the previous FIFO solution and the package descriptor allowing alongside user protocols.
 
@@ -136,7 +136,7 @@ Many logger use so called log levels and offer a log level setting like "log all
 
 ###  5.8. <a name='CompiletimeenabledisableTRICEmacrosonfilelevel'></a>Compile time enable/disable `TRICE` macros on file level 
 
-After debugging code in a file, there is [no need to remove or comment out `TRICE` macros](./TriceOnOff.md). Write a `#define TRICE_OFF` just before the `#include "trice.h"` line and all `TRICE` macros in this file are ignored completely by the compiler, but not by the **trice** tool. In case of re-constructing the [**T**rice **ID** **L**ist](../til.json) these no code generating macros are regarded.
+After debugging code in a file, there is [no need to remove or comment out `TRICE` macros](./TriceConfiguration.md#target-side-trice-on-off). Write a `#define TRICE_OFF` just before the `#include "trice.h"` line and all `TRICE` macros in this file are ignored completely by the compiler, but not by the **trice** tool. In case of re-constructing the [**T**rice **ID** **L**ist](../til.json) these no code generating macros are regarded.
 
 ###  5.9. <a name='Targetandhosttimestamps'></a>Target and host timestamps 
 

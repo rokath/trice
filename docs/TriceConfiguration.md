@@ -1,6 +1,8 @@
 <!-- vscode-markdown-toc -->
 * 1. [Target](#Target)
+	* 1.1. [Target side *Trice* On-Off](#TargetsideTriceOn-Off)
 * 2. [Host](#Host)
+	* 2.1. [Host side *Trice* On-Off](#HostsideTriceOn-Off)
 * 3. [Host Configuration file](#HostConfigurationfile)
 	* 3.1. [Config file options (not implemented yet)](#Configfileoptionsnotimplementedyet)
 	* 3.2. [`trice [...]`](#trice...)
@@ -21,9 +23,27 @@
 
 All project specific settings are done inside [triceConfig.h](https://github.com/rokath/trice/tree/master/pkg/src/intern/triceConfig.h) which one should copy into the project folder. The [trice.h](../pkg/src/trice.h) and [trice.c](../pkg/src/trice.c) are not the right place for project specific configuration because they are mend to be used unchanged in several projects.
 
+###  1.1. <a name='TargetsideTriceOn-Off'></a>Target side *Trice* On-Off
+
+- If your code works well after checking, you can add `#define TRICE_OFF` just before the `#include "trice.h"` line and no *trice* code is generated anymore for that file, so no need to delete or comment out `TRICE` macros.
+- No runtime On-Off switch is implemented for  several reasons:
+  - Would need a control channel to the target.
+  - Would add little performance and code overhead.
+  - Would sligtly change target timing (testing).
+  - User can add its own switches anywhere.
+  - The short `TRICE` macro code is negligible.
+  - The trice output is encryptable, if needed.
+- If at target side runtime On-Off is really needed, the **trice** tool is extendable to use ID ranges for each channel. On the target side then, in dependence of the ID is a decision possible to generate a *Trice* message at all or not. Or, if a generated *Trice* message is transmitted or not.
+- Because of the low *Trice* bandwidth needs and to keep the target code as clear as possible the runtime On-Off decision should be done by the **trice** tool.
+
 ##  2. <a name='Host'></a>Host
 
 The **trice** tool supports many [command line switches](./TriceCommandLineExamples.md) which are usable also inside of batch scripts.
+
+###  2.1. <a name='HostsideTriceOn-Off'></a>Host side *Trice* On-Off
+
+- The PC **trice** tool offers command line switches to `-pick` or `-ban` for *trice* channels and will be extended with display switches.
+- A **trice** tool logLevel switch is possible too (Issue [#236](https://github.com/rokath/trice/issues/236)).
 
 ##  3. <a name='HostConfigurationfile'></a>Host Configuration file
 

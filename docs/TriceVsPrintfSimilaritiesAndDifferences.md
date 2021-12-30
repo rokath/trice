@@ -1,20 +1,25 @@
+# *Trice* Similarities and differences to `printf` usage
+
+##  1. <a name='TableofContents'></a>Table of Contents
+
 <!-- vscode-markdown-toc -->
-* 1. [Printf-like functions](#Printf-likefunctions)
-* 2. [*Trice* values bit width](#Tricevaluesbitwidth)
-* 3. [Many value parameters](#Manyvalueparameters)
-* 4. [`float` and `double` values](#floatanddoublevalues)
-* 5. [Runtime generated strings transfer](#Runtimegeneratedstringstransfer)
-* 6. [Extended format specifier possibilities](#Extendedformatspecifierpossibilities)
-* 7. [Overview Table](#OverviewTable)
-* 8. [Format tags prototype %[flags][width][.precision][length]specifier examples](#Formattagsprototypeflagswidth.precisionlengthspecifierexamples)
+* 1. [Table of Contents](#TableofContents)
+* 2. [Printf-like functions](#Printf-likefunctions)
+* 3. [*Trice* values bit width](#Tricevaluesbitwidth)
+* 4. [Many value parameters](#Manyvalueparameters)
+* 5. [`float` and `double` values](#floatanddoublevalues)
+* 6. [Runtime generated strings transfer](#Runtimegeneratedstringstransfer)
+* 7. [Extended format specifier possibilities](#Extendedformatspecifierpossibilities)
+* 8. [Overview Table](#OverviewTable)
+* 9. [Format tags prototype %[flags][width][.precision][length]specifier examples](#Formattagsprototypeflagswidth.precisionlengthspecifierexamples)
 
 <!-- vscode-markdown-toc-config
 	numbering=true
 	autoSave=true
 	/vscode-markdown-toc-config -->
-<!-- /vscode-markdown-toc --># *Trice* Similarities and differences to `printf` usage
+<!-- /vscode-markdown-toc -->
 
-##  1. <a name='Printf-likefunctions'></a>Printf-like functions
+##  2. <a name='Printf-likefunctions'></a>Printf-like functions
 
  ...have a lot of things to do: Copy format string from FLASH memory into a RAM buffer and parse it for format specifiers. Also parse the variadic parameter list and convert each parameter according to its format specifier into a character sequences, what includes several divisions - costly function calls. Concatenate the parts to a new string and deliver it to the output, what often means copying again. A full featured printf library consumes plenty space and time and many open source projects try to make it better in this or that way. Never ever call a printf-like function in time critical code, like an interrupt - it would crash your target in most cases.
 
@@ -22,7 +27,7 @@
 
 * Each *Trice* caries an [ID](./TriceIDManagement.md) as runtime replacement for the format string.
 
-##  2. <a name='Tricevaluesbitwidth'></a>*Trice* values bit width
+##  3. <a name='Tricevaluesbitwidth'></a>*Trice* values bit width
 
 * No need to explicit express the value bit width.
 * The default parameter width for the `TRICE` macro is 32 bit. It is changeable and recommended for 16-bit MCUs.
@@ -31,7 +36,7 @@
   * This leads for the smaller bit-widths to a data packing and less needed space and bandwidth.
 * The fastest `TRICE` macro execution is, when MCU bit width matches the `TRICE`macro bit width.
 
-##  3. <a name='Manyvalueparameters'></a>Many value parameters
+##  4. <a name='Manyvalueparameters'></a>Many value parameters
 
 * No need to explicit express the values count.
 * Up to 12 values are supported directly. Example:
@@ -41,7 +46,7 @@
   * It can be done automatically using `trice u -addParamCount`.
 * There is no variadic values scanning during runtime. The C preprocessor does the work.
 
-##  4. <a name='floatanddoublevalues'></a>`float` and `double` values
+##  5. <a name='floatanddoublevalues'></a>`float` and `double` values
 
 These types are mixable with integer types but need to be covered by converter function.
 
@@ -61,7 +66,7 @@ These types are mixable with integer types but need to be covered by converter f
    TRICE64( "float %f and double %f", aFloat(x), aDouble(y));
   ```
 
-##  5. <a name='Runtimegeneratedstringstransfer'></a>Runtime generated strings transfer
+##  6. <a name='Runtimegeneratedstringstransfer'></a>Runtime generated strings transfer
 
 * The `%s` format specifier is not directly supported by the `TRICE` macro.
 * Strings, known at compile time should be a part of a format string to reduce runtime overhead.
@@ -73,7 +78,7 @@ These types are mixable with integer types but need to be covered by converter f
    TRICE_S( "A runtime string %20s\n", s;
   ```
 
-##  6. <a name='Extendedformatspecifierpossibilities'></a>Extended format specifier possibilities
+##  7. <a name='Extendedformatspecifierpossibilities'></a>Extended format specifier possibilities
 
 * Because the format string is interpreted by the **trice** tool written in [Go](https://en.wikipedia.org/wiki/Go_(programming_language)), the **Go** capabilities partial usable.
 
@@ -84,7 +89,7 @@ These types are mixable with integer types but need to be covered by converter f
 - The **C** and **Go** format specifier are not equal but similar.
 - Therefore a **T**rice adaption is internally performed.
 
-##  7. <a name='OverviewTable'></a>Overview Table
+##  8. <a name='OverviewTable'></a>Overview Table
 
 |Format Specifier Type                                           | C | Go| T | remark                                                                      |
 |-                                                               | - | - | - | -                                                                           |
@@ -125,7 +130,7 @@ These types are mixable with integer types but need to be covered by converter f
 
 ![./ref/TriceCheckOutput.gif](./ref/TriceCheckOutput.gif)
 
-##  8. <a name='Formattagsprototypeflagswidth.precisionlengthspecifierexamples'></a>Format tags prototype %[flags][width][.precision][length]specifier examples
+##  9. <a name='Formattagsprototypeflagswidth.precisionlengthspecifierexamples'></a>Format tags prototype %[flags][width][.precision][length]specifier examples
 
 - `%-d`
 - `%064b`

@@ -1,4 +1,29 @@
-# Segger Real Time Transfer (RTT)
+
+# *Trice* over RTT
+##  1. <a name='TableofContence'></a>Table of Contence
+
+<!-- vscode-markdown-toc -->
+* 1. [Table of Contence](#TableofContence)
+* 2. [Segger Real Time Transfer (RTT)](#SeggerRealTimeTransferRTT)
+* 3. [J-Link option](#J-Linkoption)
+	* 3.1. [Convert a STM NUCLEO or DISCOVERY onboard ST-Link (valid for ST-Link v2 & v2.1, not for v3)](#ConvertaSTMNUCLEOorDISCOVERYonboardST-LinkvalidforST-Linkv2v2.1notforv3)
+		* 3.1.1. [First step (to do if some issues occur - otherwise you can skip it)](#Firststeptodoifsomeissuesoccur-otherwiseyoucanskipit)
+		* 3.1.2. [Second step](#Secondstep)
+	* 3.2. [Some SEGGER tools in short](#SomeSEGGERtoolsinshort)
+* 4. [Software Setup example (JLinkRTTViewer.exe is depreciated, use JLink.exe instead!)](#SoftwareSetupexampleJLinkRTTViewer.exeisdepreciateduseJLink.exeinstead)
+* 5. [Segger RTT](#SeggerRTT)
+* 6. [Segger RTT unbuffered (PC side receiver -device=JLINK)](#SeggerRTTunbufferedPCsidereceiver-deviceJLINK)
+* 7. [Segger J-Link SDK (~800 EUR) Option](#SeggerJ-LinkSDK800EUROption)
+* 8. [Additional Notes (leftovers)](#AdditionalNotesleftovers)
+* 9. [Further development](#Furtherdevelopment)
+
+<!-- vscode-markdown-toc-config
+	numbering=true
+	autoSave=true
+	/vscode-markdown-toc-config -->
+<!-- /vscode-markdown-toc -->
+
+##  2. <a name='SeggerRealTimeTransferRTT'></a>Segger Real Time Transfer (RTT)
 
 - Prerequisite is a processor with memory background access support like ARM Cortex-M cores.
 - If you can use a Segger JLINK or an STM STLINK debug probe (ST Microelectronics eval boards have it) this is an easy and fast way to use trice without any UART or other port.
@@ -39,27 +64,27 @@
  ```
 
 
-## J-Link option
+##  3. <a name='J-Linkoption'></a>J-Link option
 
 - Prerequisite is a SEGGER J-Link debug probe or a development board with an on-board J-Link option.
 
-### Convert a STM NUCLEO or DISCOVERY onboard ST-Link (valid for ST-Link v2 & v2.1, not for v3)
+###  3.1. <a name='ConvertaSTMNUCLEOorDISCOVERYonboardST-LinkvalidforST-Linkv2v2.1notforv3'></a>Convert a STM NUCLEO or DISCOVERY onboard ST-Link (valid for ST-Link v2 & v2.1, not for v3)
 
 Following steps describe the needed action for a ST Microelectronics evaluation board and windows - adapt them to your environment.
 
-#### First step (to do if some issues occur - otherwise you can skip it)
+####  3.1.1. <a name='Firststeptodoifsomeissuesoccur-otherwiseyoucanskipit'></a>First step (to do if some issues occur - otherwise you can skip it)
 
 - Get & install [STM32 ST-LINK utility](https://www.st.com/en/development-tools/stsw-link004.html)
 - Run from default install location `"C:\Program Files (x86)\STMicroelectronics\STM32 ST-LINKUtility\ST-LINK Utility\ST-LinkUpgrade.exe"`)
 - Enable checkbox `Change Type` and select radio button `STM32 Debug+Mass storage + VCP`. *The `STM32Debug+ VCP` won´t be detected by Segger reflash utility.*
   ![ST-LINK-Upgrade.PNG](./ref/ST-LINK-Upgrade.PNG)
 
-#### Second step
+####  3.1.2. <a name='Secondstep'></a>Second step
 
 - Check [Converting ST-LINK On-Board Into a J-Link](https://www.segger.com/products/debug-probes/j-link/models/other-j-links/st-link-on-board/)
 - Use `STLinkReflash.exe` to convert NUCLEO from ST-Link on-board to J-Link on-board. *`STM32 Debug+ VCP` won´t be detected by Segger reflash utility.*
 
-### Some SEGGER tools in short
+###  3.2. <a name='SomeSEGGERtoolsinshort'></a>Some SEGGER tools in short
 
 - `JLink.exe` is the SEGGER J-Link commander. It starts the **J-Link driver/server** and the `trice` tool can connect to it:
   - Example:
@@ -104,7 +129,7 @@ Following steps describe the needed action for a ST Microelectronics evaluation 
   - **MINUS:**
     - Unfortunately it cannot run separately parallel to stimulate the target with any proprietary protocol.
 
-## Software Setup example (JLinkRTTViewer.exe is depreciated, use JLink.exe instead!)
+##  4. <a name='SoftwareSetupexampleJLinkRTTViewer.exeisdepreciateduseJLink.exeinstead'></a>Software Setup example (JLinkRTTViewer.exe is depreciated, use JLink.exe instead!)
 
 - Build and flash `../test/MDK-ARM_LL_UART_RTT0_PACK_STM32F030R8-NUCLEO-64`
   - Download [J-Link Software and Documentation Pack](https://www.segger.com/downloads/jlink/#J-LinkSoftwareAndDocumentationPack) and install.
@@ -120,18 +145,18 @@ Following steps describe the needed action for a ST Microelectronics evaluation 
 
 -->
 
-## Segger RTT
+##  5. <a name='SeggerRTT'></a>Segger RTT
 
 - The main advantage here is, that no `triceServe()` nor any interrupt is needed in the background, because this job is automatically done by SeggerRTT. This way one can debug code as comfortable as with `printf()` but with all the TRICE advantages. Have a look here: ![SeggerRTTD.gif](./ref/JLINK-DebugSession.gif)
 
-## Segger RTT unbuffered (PC side receiver -device=JLINK)
+##  6. <a name='SeggerRTTunbufferedPCsidereceiver-deviceJLINK'></a>Segger RTT unbuffered (PC side receiver -device=JLINK)
 
 - Avoid trice buffering inside target and write with TRICE macro directly into the RTT buffer
 - Write the bytes per trace directly (little time & some space overhead on target, but no changes on host side) - this is implemented as test example.
   
   ![triceBlockDiagramWithSeggerRTT.svg](./ref/triceBlockDiagramWithSeggerRTTD.svg)
 
-## Segger J-Link SDK (~800 EUR) Option
+##  7. <a name='SeggerJ-LinkSDK800EUROption'></a>Segger J-Link SDK (~800 EUR) Option
 
 - Segger offers a SeggerRTT SDK which allows to use more than just channel 0 and you can develop your own tooling with it.
 - The `trice -port JLINK` is ok for usage **as is** right now. However if you wish more comfort check here:
@@ -139,7 +164,7 @@ Following steps describe the needed action for a ST Microelectronics evaluation 
   - "Developer pack used to write your own program for the J-Link. Please be sure you agree to the terms of the associated license found on the Licensing Information tab before purchasing this SDK. You will benefit from six months of free email support from the time that this product is ordered."
   - [https://www.segger.com/products/debug-probes/j-link/technology/j-link-sdk/](https://www.segger.com/products/debug-probes/j-link/technology/j-link-sdk/)
 
-## Additional Notes (leftovers)
+##  8. <a name='AdditionalNotesleftovers'></a>Additional Notes (leftovers)
 
 - `Downloading RTT target package` from [https://www.segger.com/products/debug-probes/j-link/technology/about-real-time-transfer/](https://www.segger.com/products/debug-probes/j-link/technology/about-real-time-transfer/).
 - Read the manual `"C:\Program Files (x86)\SEGGER\JLink\Doc\Manuals\UM08001_JLink.pdf"`.
@@ -153,7 +178,7 @@ Following steps describe the needed action for a ST Microelectronics evaluation 
 - What also works: `"C:\Program Files (x86)\SEGGER\JLink\JLink.exe"` followed by a terminal program like TeraTerm connected to `localhost:19021`.
 - [https://github.com/stalehd/jlinklogviewer](https://github.com/stalehd/jlinklogviewer) is integrated into the trice tool (`-port JLINK` option)
 
-## Further development
+##  9. <a name='Furtherdevelopment'></a>Further development
 
 - The GoST project offers a way around JLINK. Used -port STLINK instead.
 - Maybe `libusb` together with `libjaylink` offer some options too.
