@@ -27,7 +27,7 @@
   1. **C** code `TRICE` macros generating tiny & super fast embedded device real-time trace/log code
   2. Tool **trice** for managing and visualization.
       - Written in [Go](https://golang.org/) and therefore usable on all platforms Go supports.
-      - You can also use your own environment to receive the *trice* packges, exchange the carried IDs with the format string and print out.
+      - You can also use your own environment to receive the *Trice* packges, exchange the carried IDs with the format string and print out.
 - [Trice Usage guide](./docs/TriceUsageGuide.md)
 
 ## Possible Use Cases
