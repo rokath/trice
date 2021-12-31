@@ -34,7 +34,6 @@ builds:
     goos:
       - windows
       - linux
-      - darwin
       # - darwin github.com/tarm/serial does not support macOS
 
     # GOARCH to build for.
