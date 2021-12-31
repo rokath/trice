@@ -815,6 +815,10 @@
 		"Type": "TRICE_FILE",
 		"Strg": "stm32g0xx_ll_utils.c"
 	},
+	"38320": {
+		"Type": "TRICE_FILE",
+		"Strg": "system_stm32f0xx.c"
+	},
 	"38326": {
 		"Type": "TRICE32_1",
 		"Strg": "time:TRICE32_1   message, SysTick is %6u\\n"
@@ -1802,6 +1806,10 @@
 	"46019": {
 		"Type": "TRICE",
 		"Strg": "rd: 15 \t%d \tBase 10\\n"
+	},
+	"46100": {
+		"Type": "TRICE_FILE",
+		"Strg": "main.c"
 	},
 	"46143": {
 		"Type": "TRICE_1",
@@ -4414,6 +4422,10 @@
 	"63897": {
 		"Type": "TRICE16_3",
 		"Strg": "tst:TRICE16_3 %d %d %d\\n"
+	},
+	"63911": {
+		"Type": "TRICE_FILE",
+		"Strg": "stm32f0xx_it.c"
 	},
 	"63930": {
 		"Type": "TRICE16",

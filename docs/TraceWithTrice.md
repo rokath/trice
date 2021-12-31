@@ -24,7 +24,7 @@
 	* 5.14. [Portability and Modularity](#PortabilityandModularity)
 	* 5.15. [Optional *Trice* messages encryption](#OptionalTricemessagesencryption)
 * 6. [ Bottom line](#Bottomline)
-* 7. [References and further reading](#Referencesandfurtherreading)
+* 7. [A few maybe interesting links](#Afewmaybeinterestinglinks)
 
 <!-- vscode-markdown-toc-config
 	numbering=true
@@ -130,9 +130,11 @@ When a *Trice* data stream is interrupted, the [COBS](https://en.wikipedia.org/w
 
 ###  5.7. <a name='Labeledchannelscolorandloglevels'></a>Labeled channels, color and log levels
 
-You can label each *Trice* with a channel specifier to [colorize](./TriceColor.md) the output. This is free of any runtime costs because the channel specifiers are part of the log format strings, which never get to the target.
+You can label each *Trice* with a channel specifier to [colorize](./TriceColor.md) the output. This is free of any runtime costs because the channel strings part of the log format strings, which are not compiled into the target. The **trice** tool will strip full lowercase channel descriptors from the format string after setting the appropriate color.
 
-Many logger use so called log levels and offer a log level setting like "log all above **INFO**" for example. The *Trice* channels can cover that but they can do even better: First you can [define](../internal/emitter/lineTransformerANSI.go) any "log levels" you need and use them as *Trice* channels. Further you can assign each of these "log levels" an ID range and than use a level mechanism on the target side to decide which IDs are transmitted. I see no need to implement that right now, because the runtime and bandwidth costs are so small for each *Trice* and the **trice** tool is much better in selecting what to display (`-pick` and `-ban` switches) and no back channel is needed. Also a **trice** tool log level switch can use the channel position inside ColorChannels if someone needs that. BTW: The **trice** tool will strip full lowercase channel strings from the format string after setting the appropriate color.
+Loggers use log levels and offer a setting like "log all above **INFO**" for example. The *Trice* channels can cover that but can do better: Inside [emitter.ColorChannels](../internal/emitter/lineTransformerANSI.go) all common log levels defined as *Trice* channels alongside with user channels. The user can adjust this. The **trice** tool has the `-pick` and `-ban` switches to control the display in detail. Also a `-logLevel` switch is usable to determine a display threshold as channel position inside ColorChannels.
+
+If a target side log level control is needed, a **trice** tool extension could each of these log level channels assign an ID range and a target side log threshold can control which IDs are transmitted. No need to implement that right now, because the runtime and bandwidth costs are so small for each *Trice* and a back control path is needed which is better designed by the user. Also the [IDManagement](./TriceIDManagement.md) would get more complex.
 
 ###  5.8. <a name='CompiletimeenabledisableTRICEmacrosonfilelevel'></a>Compile time enable/disable `TRICE` macros on file level 
 
@@ -186,7 +188,7 @@ The encryption opportunity makes it possible to test thoroughly a binary with lo
 
 The *Trice* technique is new and still under development. Additional tests and bug fixing is necessary. A **trice** tool [configuration file](./TriceConfiguration.md#host-configuration-file) and interfacing [Grafana](https://grafana.com/) or similar tools would be possible extensions. Getting started with *Trice* will take a few hours, but probably pay off during the further development.
 
-##  7. <a name='Referencesandfurtherreading'></a>A few maybe interesting links
+##  7. <a name='Afewmaybeinterestinglinks'></a>A few maybe interesting links
 
 * [https://mcuoneclipse.com/2016/10/17/tutorial-using-single-wire-output-swo-with-arm-cortex-m-and-eclipse/](https://mcuoneclipse.com/2016/10/17/tutorial-using-single-wire-output-swo-with-arm-cortex-m-and-eclipse/)
 * [https://mcuoneclipse.com/2016/11/05/tutorial-getting-etm-instruction-trace-with-nxp-kinetis-arm-cortex-m4f/](https://mcuoneclipse.com/2016/11/05/tutorial-getting-etm-instruction-trace-with-nxp-kinetis-arm-cortex-m4f/)

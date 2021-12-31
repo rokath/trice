@@ -21,7 +21,7 @@
 <!-- /vscode-markdown-toc -->
 
 ##  2. <a name='COBSencodinganduserprotocols'></a>COBS encoding and user protocols
- 
+
 * The [**C**onsistent **O**verhead **B**yte **S**tuffing](https://en.wikipedia.org/wiki/Consistent_Overhead_Byte_Stuffing) technique is a very powerful and simple way for re-syncing.
 * Just in case, wait for the next package delimiter.
 * Several *Trice* message can occur within one single **COBS** package.
@@ -41,19 +41,18 @@
 * In dependence of the COBS package descriptor each *Trice* message is prefixed with 0, 32 or 64 bit additional information: target code location and target timestamp.
 * The detailed *Trice* encoding is derivable from [trice.h]("../pkg/src/trice.h) and not repeated here to avoid unnecessary errors.
 
-
 ##  3. <a name='COBShttps:en.wikipedia.orgwikiConsistent_Overhead_Byte_Stuffingencodingforre-syncafterdatadisruption'></a>[COBS](https://en.wikipedia.org/wiki/Consistent_Overhead_Byte_Stuffing) encoding for re-sync after data disruption
 
-- After a data transmission disruption, reliable re-sync should be possible.
-- The [COBS](https://en.wikipedia.org/wiki/Consistent_Overhead_Byte_Stuffing) techique gives this possibility in an easy way: simply wait for the next packet delimiter byte (usually `0`).
-- Therefore all *Trice* transfers are COBS encoded.
+* After a data transmission disruption, reliable re-sync should be possible.
+* The [COBS](https://en.wikipedia.org/wiki/Consistent_Overhead_Byte_Stuffing) techique gives this possibility in an easy way: simply wait for the next packet delimiter byte (usually `0`).
+* Therefore all *Trice* transfers are COBS encoded.
 
 ##  4. <a name='bittransferchunks'></a>32-bit transfer chunks
 
-- A *Trice* data stream comes always in a multiple-of-4 length for effective transfer.
-  - After COBS encoding the length is the same or 1.04 times longer.
-  - Therefore after [COBS](https://en.wikipedia.org/wiki/Consistent_Overhead_Byte_Stuffing) encoding the packages are delimited by 1 to 4 zeroes.
-  - After the first zero delimiter, 0 to 3 padding zeroes are ignored as len-0 packages.
+* A *Trice* data stream comes always in a multiple-of-4 length for effective transfer.
+  * After COBS encoding the length is the same or 1.04 times longer.
+  * Therefore after [COBS](https://en.wikipedia.org/wiki/Consistent_Overhead_Byte_Stuffing) encoding the packages are delimited by 1 to 4 zeroes.
+  * After the first zero delimiter, 0 to 3 padding zeroes are ignored as len-0 packages.
 
 ###  4.1. <a name='Example:zero-delimited7-bytesCOBSpackage'></a>Example: zero-delimited 7-bytes COBS package
 
@@ -71,20 +70,20 @@
 
 ##  5. <a name='Packagemodeprefix'></a>Package mode prefix
 
-- *Trice* messages are always multiple-of-4-bytes messages.
-- A *Trice* buffer can contain several *trice* messages.
-  - Each single *trice* carries its own length information.
-- Just before buffer encoding takes part, a 32-bit buffer mode value is prefixed:
-  - buffer mode 0: *Trice* messages are without embedded device timestamps.
-  - buffer mode 1: *Trice* messages are prefixed with 32-bit embedded device timestamps.
-  - buffer mode 2: *Trice* messages are prefixed with 32-bit embedded device source location information.
-  - buffer mode 3: *Trice* messages are prefixed with 64-bit embedded device source location information and timestamp. 
-  - buffer mode 4-15: Reserved. The **trice** tool ignores such package.
-  - buffer mode 16-0xFFFFFFFF: user mode values. The **trice** tool ignores such package. This way any user protocols transferable over the same line.
+* *Trice* messages are always multiple-of-4-bytes messages.
+* A *Trice* buffer can contain several *trice* messages.
+  * Each single *trice* carries its own length information.
+* Just before buffer encoding takes part, a 32-bit buffer mode value is prefixed:
+  * buffer mode 0: *Trice* messages are without embedded device timestamps.
+  * buffer mode 1: *Trice* messages are prefixed with 32-bit embedded device timestamps.
+  * buffer mode 2: *Trice* messages are prefixed with 32-bit embedded device source location information.
+  * buffer mode 3: *Trice* messages are prefixed with 64-bit embedded device source location information and timestamp. 
+  * buffer mode 4-15: Reserved. The **trice** tool ignores such package.
+  * buffer mode 16-0xFFFFFFFF: user mode values. The **trice** tool ignores such package. This way any user protocols transferable over the same line.
 
 ###  5.1. <a name='Example:12bytetricemessagebufferprefixedwithmode0notimestamps:'></a>Example: 12 byte trice message buffer prefixed with mode 0 (no time stamps):
 
-- The 12 *trice* bytes could be 1, 2 or 3 *trice* messages consisting of 3, 2 or 1 32-Bit values.
+* The 12 *trice* bytes could be 1, 2 or 3 *trice* messages consisting of 3, 2 or 1 32-Bit values.
 
 |mode|mode|mode|mode|data|data|data|data|data|data|data|data|data|data|data|data|
 | -  | -  | -  | -  | -  | -  | -  | -  | -  | -  | -  | -  | -  | -  | -  | -  |
@@ -93,7 +92,7 @@
 
 ###  5.2. <a name='Example:16bytetricemessagebufferprefixedwithmode1timestamps'></a>Example: 16 byte trice message buffer prefixed with mode 1 (time stamps)
 
-- The 16 *trice* bytes could be 1 or 2 *trice* messages consisting of 3 or 1 32-bit values, each prefixed by a target timestamp.
+* The 16 *trice* bytes could be 1 or 2 *trice* messages consisting of 3 or 1 32-bit values, each prefixed by a target timestamp.
 
 |mode|mode|mode|mode|data|data|data|data|data|data|data|data|data|data|data|data|data|data|data|data|
 | -  | -  | -  | -  | -  | -  | -  | -  | -  | -  | -  | -  | -  | -  | -  | -  | -  | -  | -  | -  |

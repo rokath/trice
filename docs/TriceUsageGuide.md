@@ -15,10 +15,14 @@
 	* 7.3. [Instrument a target source code project (How to use trice in your project)](#InstrumentatargetsourcecodeprojectHowtousetriceinyourproject)
 * 8. [Encryption](#Encryption)
 * 9. [Options for `trice` tool](#Optionsfortricetool)
-	* 9.1. [Sub-command `check`](#Sub-commandcheck)
-		* 9.1.1. [`check` switch '-dataset'](#checkswitch-dataset)
-* 10. [Additional hints](#Additionalhints)
-	* 10.1. [Logfile viewing](#Logfileviewing)
+* 10. [*Trice* command line examples](#Tricecommandlineexamples)
+	* 10.1. [Cheat sheet](#Cheatsheet)
+	* 10.2. [Further examples](#Furtherexamples)
+		* 10.2.1. [Automated pre-build update command](#Automatedpre-buildupdatecommand)
+* 11. [Additional hints](#Additionalhints)
+	* 11.1. [Logfile viewing](#Logfileviewing)
+* 12. [Sub-command `check` (Not implemented!)](#Sub-commandcheckNotimplemented)
+	* 12.1. [`check` switch '-dataset'](#checkswitch-dataset)
 
 <!-- vscode-markdown-toc-config
 	numbering=true
@@ -151,7 +155,7 @@ At 64 MHz in the time needed light travels about 30 meters. Slightly delayed in 
 
 Please understand, that when debugging code containing `TRICE`macros, during a `TRICE` step-over only one ore more 32 bit values go into the internal buffer and no serial output immediately is visible because of the stopped target. But the SEGGER debug probe reads out the RTT memory and this way also during debug stepping real-time trice output is visible. That is (right now) not true for the ST-Link interface because there is only one USB endpoint.
 
-<!---
+<!--
 
 trice instructions: `TRICE`, `Trice` or `trice` with or without ending letter 'i'?
 
@@ -175,6 +179,7 @@ The function call overhead is reasonable and the advantage is significant less c
 * For most flexibility the code for each trice function can be enabled or not inside the triceConfig.h.
 
 -->
+
 ##  6. <a name='tricetool'></a>`trice` tool
 
 Executing `trice update` at the root of your project source updates in case of changes, the trice statements inside the source code and the ID list. The `-src` switch can be used multiple times to keep the amount of parsed data small for better speed.
@@ -216,9 +221,7 @@ third_party/   | external components                                     |
 Look at one of the appropriate test projects as example. In general:
 
 * Copy [triceConfig.h](https://github.com/rokath/trice/tree/master/pkg/src/intern/triceConfig.h) and adapt to your needs.
-
 * Make sure the [trice.h](https://github.com/rokath/trice/blob/master/pkg/src/trice.h) header file is found by your compiler.
-    
 * Include [trice.c](https://github.com/rokath/trice/blob/master/pkg/src/trice.c)
 
 Next steps:
@@ -228,17 +231,14 @@ Next steps:
   * It should have changed into `TRICE0( Id(12345), "msg:Hello world!\n" );` as example. (The `12345` stays here for a 20-bit non-zero random number).
   * A file [til.json](https://github.com/rokath/trice/blob/master/til.json)  (**t**race **i**d **l**ist) should have been generated.
 * Set up timer and UART interrupt and main loop in the right way. Analyze the test example projects for advice.
-
-<!---    - Running `trice check` should show your message, indicating everything is fine so far.--->
-
 * For help have a look at the differences between these 2 projects:
   * `../test/MDK-ARM_LL_generatedDemo_STM32F030R8-NUCLEO-64` * It is just the STM32 CubeMX generated code.
-  - `../test/MDK-ARM_LL_UART_RTT0_FLEX_STM32F030R8-NUCLEO-64` * It is a copy of the above enhanced with trice check code.
+  * `../test/MDK-ARM_LL_UART_RTT0_FLEX_STM32F030R8-NUCLEO-64` * It is a copy of the above enhanced with trice check code.
 
 * Add your compiler definitions to `trice/pkg/src/intern/triceConfigCompiler.h`
 * Make a copy of `trice/pkg/src/intern/triceUART_LL_STM32.h`, rename the copy appropriate an fill these 4 functions with the hardware specific code:
 
-```b
+```C
 TRICE_INLINE uint32_t triceTxDataRegisterEmpty(void){
 }
 
@@ -254,7 +254,7 @@ TRICE_INLINE void triceDisableTxEmptyInterrupt(void) {
 
 Quick workaround:
 
-```b
+```C
 * Leave these definitions empty: 
   * triceTxDataRegisterEmpty()
   * triceEableTxEmptyInterrupt()
@@ -293,7 +293,7 @@ Which sub-command switches are usable for each sub-command is shown with `trice 
 
 Output of `trice h -all`: (Actual version could slightly differ)
 
-```b
+```bash
 $ trice h -all
 syntax: 'trice sub-command' [params]
 sub-command 'ds|displayServer': Starts a display server.
@@ -677,22 +677,86 @@ example: 'trice zeroSourceTreeIds -src ../A': Sets all TRICE IDs to 0 in ../A. U
 
 ```
 
-<!---
-###  9.1. <a name='Sub-commandcheck'></a>Sub-command `check`
-- `trice check` will check the JSON list and emit all TRICE statements inside the list once with a dataset.
+##  10. <a name='Tricecommandlineexamples'></a>*Trice* command line examples
 
-####  9.1.1. <a name='checkswitch-dataset'></a>`check` switch '-dataset'
-- This is a `string` switch. It has one parameter. Its default value is `position`. That means each parameter has a different value. This is useful for testing.
-- The `negative` value is uses a dataset with negative values for testing.
---->
+* The **trice** tool has many command line options, but is easy to use with default values.
+* No config file implemented yet. But the command history is usable for example inside the bash, simply enter CTRL-R and start typing `trice...` and you can select from the history.
+* All commands are tested.
 
-##  10. <a name='Additionalhints'></a>Additional hints
+###  10.1. <a name='Cheatsheet'></a>Cheat sheet
 
-###  10.1. <a name='Logfileviewing'></a>Logfile viewing
+* `trice h -all` shows all options of the current version.
+* `trice ver` prints version information.
+* `trice u` in the root of your project parses all source files for `TRICE` macros, adds automatically ID´s if needed and updates a file named **til.json** containing all ID´s with their format string information. To start simply generate an empty file named **til.json** in your project root. You can add `trice u` to your build process and need no further manual execution.
+* `trice s` shows you all found serial ports for your convenience.
+* `trice l -p COM18` listens and displays trice logs on serial port COM18 at default baud rate 115200. It uses the **til.json** file.
+  * Use the additional log witch `-showInputBytes` to check if any bytes are received from the **trice** tool.
+  * With `-debug` you can see the COBS and decoded and single *Trice* packages.
+* `trice ds` starts a display server listening on default ip address *127.0.0.1:61487* or any specified value, so also on a remote device, lets say with ip address 192.168.1.200.
+* `trice l -p COM18 -ds` sends the log strings to a display server with default ip address *127.0.0.1:61487* or any specified value, if for example `-ipa 192.168.1.200` the trice logs go to the remote device. You can start several trice log instances, all transmitting to the same display server.
+
+###  10.2. <a name='Furtherexamples'></a>Further examples
+
+####  10.2.1. <a name='Automatedpre-buildupdatecommand'></a>Automated pre-build update command
+
+* Scan directories `../src`, `../lib/src` and `./` to update the IDs there and extend list file `../../../til.json`
+
+```bash
+trice u -v -i ../../../til.json -src ../src -src ../lib/src -src ./
+```
+
+This is a typical line you can add to your project as an automatic pre-compile step.
+
+* Log trice messages on COM3 8N1 115200 baud
+
+```bash
+trice log -i ./myProject/til.json -p=COM3
+```
+
+* Log trice messages on COM3 8N1 9600 baud and use default til.json
+
+```bash
+trice l -s COM3 -baud=9600
+```
+
+* Start displayserver on ip 127.0.0.1 (localhost) and port 61497
+
+```bash
+trice ds
+```
+
+* Log trice messages on SEGGER J-Link RTT channel 2 and display on display server
+
+```bash
+trice l -ds -JLRTT -p="-Device STM32F030R8 -if SWD -RTTChannel 2"
+```
+
+The `-p` switch contains the needed Segger `JLinkRTTLogger.exe` command line switches as string.
+
+* Shutdown remote display server on IP 192.168.1.23 port 45678
+
+```bash
+trice sd -r 192.168.1.23:45678
+```
+
+##  11. <a name='Additionalhints'></a>Additional hints
+
+###  11.1. <a name='Logfileviewing'></a>Logfile viewing
 
 `trice` generated logfiles with sub-command switch `-color off` are normal ASCII files. If they are with color codes, these are ANSI escape sequences.
 
-- One easy view option is `less -R trice.log`. The Linux command `less` is also available inside the VScode terminal.
-- Under Windows one could also download and use [ansifilter](https://sourceforge.net/projects/ansifilter/) for logfile viewing. A monospaced font is recommended.
+* One easy view option is `less -R trice.log`. The Linux command `less` is also available inside the VScode terminal.
+* Under Windows one could also download and use [ansifilter](https://sourceforge.net/projects/ansifilter/) for logfile viewing. A monospaced font is recommended.
 
 [Color issues under Windows](./TriceColor.md#color-issues-under-windows)
+
+---
+##  12. <a name='Sub-commandcheckNotimplemented'></a>Sub-command `check` (Not implemented!)
+
+* `trice check` will check the JSON list and emit all TRICE statements inside the list once with a dataset.
+
+###  12.1. <a name='checkswitch-dataset'></a>`check` switch '-dataset'
+
+* This is a `string` switch. It has one parameter. Its default value is `position`. That means each parameter has a different value. This is useful for testing.
+* The `negative` value is uses a dataset with negative values for testing.
+* Running `trice check` should show your message, indicating everything is fine so far.

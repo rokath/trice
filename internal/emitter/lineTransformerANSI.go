@@ -31,29 +31,37 @@ func NewLineTransformerANSI(lw LineWriter, colorPalette string) *LineTransformer
 }
 
 var (
+	// LogLevel is usable to suppress less important logs.
+	LogLevel = "all"
+
+	// log level colors
+	colorizeFATAL     = ansi.ColorFunc("121+i")
+	colorizeCRITICAL  = ansi.ColorFunc("121+i")
+	colorizeEMERGENCY = ansi.ColorFunc("121+i")
 	colorizeERROR     = ansi.ColorFunc("11:red")
 	colorizeWARNING   = ansi.ColorFunc("11+i:red")
+	colorizeATTENTION = ansi.ColorFunc("11:green")
+	colorizeINFO      = ansi.ColorFunc("121+i")
+	colorizeDEBUG     = ansi.ColorFunc("130+i")
+	colorizeTRACE     = ansi.ColorFunc("121+i")
+
+	// user mode colors
+	colorizeTIME      = ansi.ColorFunc("108:blue")
 	colorizeMESSAGE   = ansi.ColorFunc("green+h:black")
 	colorizeREAD      = ansi.ColorFunc("101:black")
 	colorizeWRITE     = ansi.ColorFunc("101+i:black")
-	colorizeTIME      = ansi.ColorFunc("108:blue")
-	colorizeATTENTION = ansi.ColorFunc("11:green")
-	colorizeDEBUG     = ansi.ColorFunc("130+i")
 	colorizeDIAG      = ansi.ColorFunc("161+B")
 	colorizeINTERRUPT = ansi.ColorFunc("13+i")
 	colorizeSIGNAL    = ansi.ColorFunc("118+i")
 	colorizeTEST      = ansi.ColorFunc("yellow+h:black")
-	colorizeINFO      = ansi.ColorFunc("121+i")
-	colorizeDEFAULT   = ansi.ColorFunc("121+i")
-	colorizeNOTICE    = ansi.ColorFunc("121+i")
-	colorizeCRITICAL  = ansi.ColorFunc("121+i")
-	colorizeALERT     = ansi.ColorFunc("121+i")
-	colorizeEMERGENCY = ansi.ColorFunc("121+i")
-	colorizeFATAL     = ansi.ColorFunc("121+i")
-	colorizeTRACE     = ansi.ColorFunc("121+i")
-	colorizeASSERT    = ansi.ColorFunc("121+i")
-	colorizeVERBOSE   = ansi.ColorFunc("121+i")
-	colorizeCYCLE     = ansi.ColorFunc("11:red")
+
+	//  colorizeDEFAULT   = ansi.ColorFunc("121+i")
+	//  colorizeNOTICE    = ansi.ColorFunc("121+i")
+	//  colorizeALERT     = ansi.ColorFunc("121+i")
+	//  colorizeASSERT    = ansi.ColorFunc("121+i")
+	//  colorizeALARM     = ansi.ColorFunc("121+i")
+	//  colorizeCYCLE     = ansi.ColorFunc("11:red")
+	//  colorizeVERBOSE   = ansi.ColorFunc("121+i")
 )
 
 func isLower(s string) bool {
@@ -72,29 +80,34 @@ type ColorChannel struct {
 }
 
 var ColorChannels = []ColorChannel{
+	// log level
+	{0, []string{"Fatal", "fatal", "FATAL"}, colorizeFATAL},
+	{0, []string{"Critical", "critical", "CRITICAL", "crit", "Crit", "CRIT"}, colorizeCRITICAL},
+	{0, []string{"Emergency", "emergency", "EMERGENCY"}, colorizeEMERGENCY},
 	{0, []string{"Error", "e", "err", "error", "E", "ERR", "ERROR"}, colorizeERROR},
+	{0, []string{"Warning", "w", "wrn", "warning", "W", "WRN", "WARNING", "Warn", "warn", "WARN"}, colorizeWARNING},
+	{0, []string{"att", "attention", "Attention", "ATT", "ATTENTION"}, colorizeATTENTION},
+	{0, []string{"Info", "i", "inf", "info", "informal", "I", "INF", "INFO", "INFORMAL"}, colorizeINFO},
+	{0, []string{"Debug", "d", "db", "dbg", "debug", "D", "DB", "DBG", "DEBUG"}, colorizeDEBUG},
+	{0, []string{"Trace", "trace", "TRACE"}, colorizeTRACE},
+
+	// user modes
+	{0, []string{"Timestamp", "tim", "time", "TIM", "TIME", "TIMESTAMP", "timestamp"}, colorizeTIME},
 	{0, []string{"m", "msg", "message", "M", "MSG", "MESSAGE"}, colorizeMESSAGE},
 	{0, []string{"rd", "rd_", "RD", "RD_"}, colorizeREAD},
 	{0, []string{"wr", "wr_", "WR", "WR_"}, colorizeWRITE},
-	{0, []string{"Timestamp", "tim", "time", "TIM", "TIME", "TIMESTAMP", "timestamp"}, colorizeTIME},
-	{0, []string{"att", "attention", "ATT", "ATTENTION"}, colorizeATTENTION},
-	{0, []string{"dia", "diag", "DIA", "DIAG"}, colorizeDIAG},
-	{0, []string{"int", "isr", "ISR", "INT", "interrupt", "INTERRUPT"}, colorizeINTERRUPT},
+	{0, []string{"dia", "diag", "Diag", "DIA", "DIAG"}, colorizeDIAG},
+	{0, []string{"int", "isr", "ISR", "INT", "interrupt", "Interrupt", "INTERRUPT"}, colorizeINTERRUPT},
 	{0, []string{"s", "sig", "signal", "S", "SIG", "SIGNAL"}, colorizeSIGNAL},
 	{0, []string{"t", "tst", "test", "T", "TST", "TEST"}, colorizeTEST},
-	{0, []string{"Default", "DEFAULT", "default"}, colorizeDEFAULT},
-	{0, []string{"Debug", "d", "db", "dbg", "debug", "D", "DB", "DBG", "DEBUG"}, colorizeDEBUG},
-	{0, []string{"Info", "i", "inf", "info", "informal", "I", "INF", "INFO", "INFORMAL"}, colorizeINFO},
-	{0, []string{"Notice", "NOTICE", "notice", "Note", "note", "NOTE"}, colorizeNOTICE},
-	{0, []string{"Warning", "w", "wrn", "warning", "W", "WRN", "WARNING", "Warn", "warn", "WARN"}, colorizeWARNING},
-	{0, []string{"Critical", "critical", "CRITICAL", "crit", "Crit", "CRIT"}, colorizeCRITICAL},
-	{0, []string{"Alert", "alert", "ALERT"}, colorizeALERT},
-	{0, []string{"Emergency", "emergency", "EMERGENCY"}, colorizeEMERGENCY},
-	{0, []string{"Fatal", "fatal", "FATAL"}, colorizeFATAL},
-	{0, []string{"Trace", "trace", "TRACE"}, colorizeTRACE},
-	{0, []string{"Assert", "assert", "ASSERT"}, colorizeASSERT},
-	{0, []string{"Verbose", "verbose", "VERBOSE"}, colorizeVERBOSE},
-	{0, []string{"cycle", "CYCLE"}, colorizeCYCLE},
+
+	//  {0, []string{"Default", "DEFAULT", "default"}, colorizeDEFAULT},
+	//  {0, []string{"Notice", "NOTICE", "notice", "Note", "note", "NOTE"}, colorizeNOTICE},
+	//  {0, []string{"Alert", "alert", "ALERT"}, colorizeALERT},
+	//  {0, []string{"Assert", "assert", "ASSERT"}, colorizeASSERT},
+	//  {0, []string{"Alarm", "alarm", "ALARM"}, colorizeALARM},
+	//  {0, []string{"cycle", "CYCLE"}, colorizeCYCLE},
+	//  {0, []string{"Verbose", "verbose", "VERBOSE"}, colorizeVERBOSE},
 }
 
 // ColorChannelEvents returns count of occurred channel events.
@@ -147,19 +160,37 @@ func isChannel(ch string) bool {
 // If p.colorPalette is "none" remove only lower case channel info "col:"
 // If "COL:" is begin of string add ANSI color code according to COL:
 // If "col:" is begin of string replace "col:" with ANSI color code according to col:
+// Additionally, if global variable LogLevel is not the default "all", but found inside
+// ColorChannels, logs with higher index positions are suppressed.
+// As special case LogLevel == "off" does not output anything.
 func (p *LineTransformerANSI) colorize(s string) (r string) {
+	if LogLevel == "off" {
+		return // do not log at all
+	}
+	var logLev int       // numeric log level
+	var logThreshold int // numeric log thereshold
 	r = s
 	sc := strings.SplitN(s, ":", 2)
-	if len(sc) < 2 { // no color separator
-		return // do nothing
+	if len(sc) < 2 { // no color separator (no log level)
+		return // do nothing, return unchanged string
 	}
 	for i, cc := range ColorChannels {
 		for _, c := range cc.channel {
 			if c == sc[0] {
 				ColorChannels[i].events++ // count event
+				logLev = i
+			}
+			if c == LogLevel {
+				logThreshold = i
 			}
 		}
 	}
+
+	if LogLevel != "all" && logLev > logThreshold {
+		r = "" // suppress unwanted logs
+		return
+	}
+
 	if p.colorPalette == "off" {
 		return // do nothing (despite event counting)
 	}

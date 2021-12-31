@@ -15,16 +15,14 @@
 
 ##  2. <a name='Howtoget'></a>How to get
 
-- Add a channel name as color descriptor in front of each `TRICE` format string like `"wrn:Peng!"`.
-- In file [../internal/emitter/lineTransformerANSI.go](../internal/emitter/lineTransformerANSI.go) the colors are changeable and additinal color channels defineable.
-- It is possible to concatenete single colorized letters to get output like this:
+* Add a channel name as color descriptor in front of each `TRICE` format string like `"wrn:Peng!"`.
+* In file [../internal/emitter/lineTransformerANSI.go](../internal/emitter/lineTransformerANSI.go) the colors are changeable and additional color channels definable.
+* It is possible to concatenate single colorized letters to get output like this:
 
 ![./ref/COLOR_output.PNG](./ref/COLOR_output.PNG)
 
-- [../pkg/src/triceCheck.c](../pkg/src/triceCheck.c) contains the code for this example.
-- See also [color issues under Windows](./Common.md#color-issues-under-windows)
-
-* Each *trice* format string can optionally start with a `pattern:` like in `TRICE( "msg:Hi!\n" );`.
+* [../pkg/src/triceCheck.c](../pkg/src/triceCheck.c) contains the code for this example.
+* Each *Trice* format string can optionally start with a `pattern:` like in `TRICE( "msg:Hi!\n" );`.
 * The **trice** tool, if knowing `msg:` as pattern, prepends the appropriate color code. It removes the sequence `pattern:`, if it is completely lower case.
 * The user can define any pattern with any color code to create colored output with the **trice** tool.
 * There is no channel enable switch inside the target code. It would need a back channel and add overhead.
@@ -33,8 +31,4 @@
 
 ##  3. <a name='ColorissuesunderWindows'></a>Color issues under Windows
 
-**Currently CMD console colors are not enabled by default in Win10**, so if you see no color but escape sequences on your powershell or cmd window, please refer to
-[Windows console with ANSI colors handling](https://superuser.com/questions/413073/windows-console-with-ansi-colors-handling/1050078#1050078)\
-or simply use a Linux like terminal under windows, like git-bash.\
-One option is also to install Microsoft *Windows Terminal (Preview)* from inside the Microsoft store\
-and to start trice inside there. Unfortunately this can not be done automatically right now because of missing commandline switches.
+**Currently console colors are not enabled by default in Win10**, so if you see no color but escape sequences on your powershell or cmd window, please refer to [Windows console with ANSI colors handling](https://superuser.com/questions/413073/windows-console-with-ansi-colors-handling/1050078#1050078) or simply use a Linux like terminal under windows, like git-bash. One option is also to install Microsoft *Windows Terminal (Preview)* from inside the Microsoft store and to start thr **trice** tool inside there. Unfortunately this can not be done automatically right now because of missing command line switches. Check [Alacritty](../third_party/alacritty/ReadMe.md) as an alternative.
