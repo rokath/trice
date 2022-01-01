@@ -59,7 +59,7 @@ Bigger micro-controllers are coming with embedded trace hardware. To use it, an 
 
 Unhappy with this situation, the developer starts thinking of using digital pins or starts emitting some proprietary LED blinking codes or byte sequences, difficult to interpret.
 
-The *Trice* technique tries to fill this gap, being be minimal invasive for the target and as comfortable as possible. It is the result of a long-year dissatisfaction and several attempts to find a loophole to make embedded programming more fun and this way more effective.
+The *Trice* technique tries to fill this gap, being minimal invasive for the target and as comfortable as possible. It is the result of a long-year dissatisfaction and several attempts to find a loophole to make embedded programming more fun and this way more effective.
 
 ##  3. <a name='AbriefhistoryofTrice'></a>A brief history of *Trice*
 
