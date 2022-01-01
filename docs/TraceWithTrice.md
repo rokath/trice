@@ -38,7 +38,7 @@
 
 - [x] [trice.c](../pkg/src/trice.c) containing the [less that 1KB](./TriceSpace.md) runtime code using [triceConfig.h](../test/MDK-ARM_STM32G071RB/Core/Inc/triceConfig.h) as setup.
 - [x] [trice.h](../pkg/src/trice.h) containing a **C** language macro `TRICE`, generating [tiny code](./TriceSpeed.md) for getting real-time `printf` comfort at "speed-of-light" for any micro-controller.
-  * [x] Example: `float x = 3.14159265/4; TRICE( Id(12345), "info:π/4 is %f with the bit pattern %032b\n", aFloat(x), aFloat(x) );`
+  * [x] Example: `float x = 3.14159265/4; TRICE( Id(12345), "info:π/4 is %f with the bit pattern %032b\n", aFloat(x), x );`
 - [x] PC tool **trice**, executable on all [Go](https://golang.org) platforms:
   * [ ] Android
   * [x] Linux
