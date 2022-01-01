@@ -75,13 +75,11 @@ Trying to add channels in form of partial *TRICE* macro names was blowing up the
 
 An other point in the design was the question how to re-sync after data stream interruption, because that happens often during firmware development. [Several encodings](././TriceObsoleteEncodings.md) where tried out, a proprietary escape sequence format and an alternative flexible data format with more ID bits where working reliable but with [COBS](https://en.wikipedia.org/wiki/Consistent_Overhead_Byte_Stuffing) things got satisfying. A side result of that trials is the **trice** tool option to add different decoders if needed.
 
-There was a learning **not** to reduce the transmit byte count to an absolute minimum, but to focus more on `TRICE` macro speed and universality. That led to a double buffer on the target side discarding the previous FIFO solution. The [COBS package descriptor](./TriceMessagesEncoding.md#2-cobs-encoding-and-user-protocols) allowing alongside user protocols is result of the optional target timestamps and location info some users asked for.
+There was a learning **not** to reduce the transmit byte count to an absolute minimum, but to focus more on `TRICE` macro speed and universality. That led to a double buffer on the target side discarding the previous FIFO solution. The [COBS package descriptor](./TriceMessagesEncoding.md#2-cobs-encoding-and-user-protocols) allowing alongside user protocols is result of the optional target timestamps and location info some users asked for, keeping the target code as light as possible. Float and double number support was implementable for free because this work is done mainly on the host side.
 
 *Trice* grew, and as it got usable I decided to make it Open Source to say "Thank You" to the community this way.
 
-Thinking of other people using *Trice* and some external ideas brought me to add features like float and double number support, target timestamps and source code location while keeping the target code as light as possible.
-
-Learning that *Trice*  is also a [baby girl name](https://www.babynamespedia.com/meaning/Trice), my daughter Ida designed the little girl with the pen symbolizing the `TRICE` macro for recording and the eyeglasses standing for the PC tool **trice** visualizing the logs.
+Learning that *Trice*  is also a [baby girl name](https://www.babynamespedia.com/meaning/Trice), our daughter Ida designed the little girl with the pen symbolizing the `TRICE` macro for recording and the eyeglasses standing for the PC tool **trice** visualizing the logs.
 
 ![./ref/TriceGirlS.png](./ref/TriceGirlS.png)
 
