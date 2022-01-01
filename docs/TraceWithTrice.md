@@ -188,6 +188,7 @@ The *Trice* technique is new and still under development. Additional tests and b
 
 ##  7. <a name='Afewmaybeinterestinglinks'></a>A few maybe interesting links
 
+* [printf/log Debugging](https://emp.jamesmunns.com/debug/logging.html)
 * [https://mcuoneclipse.com/2016/10/17/tutorial-using-single-wire-output-swo-with-arm-cortex-m-and-eclipse/](https://mcuoneclipse.com/2016/10/17/tutorial-using-single-wire-output-swo-with-arm-cortex-m-and-eclipse/)
 * [https://mcuoneclipse.com/2016/11/05/tutorial-getting-etm-instruction-trace-with-nxp-kinetis-arm-cortex-m4f/](https://mcuoneclipse.com/2016/11/05/tutorial-getting-etm-instruction-trace-with-nxp-kinetis-arm-cortex-m4f/)
 * [https://interrupt.memfault.com/blog/a-deep-dive-into-arm-cortex-m-debug-interfaces](https://interrupt.memfault.com/blog/a-deep-dive-into-arm-cortex-m-debug-interfaces)
