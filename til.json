@@ -63,6 +63,10 @@
 		"Type": "TRICE64",
 		"Strg": "rd:TRICE64 float %f (%%f)\\n"
 	},
+	"33395": {
+		"Type": "TRICE",
+		"Strg": "time: %d µs - ReadUs() lasts %d ticks\\n"
+	},
 	"33408": {
 		"Type": "TRICE32_1",
 		"Strg": "rd:TRICE32_1 line %g (%%g -1.0)\\n"
@@ -1038,6 +1042,10 @@
 	"40122": {
 		"Type": "TRICE8_3",
 		"Strg": "tst:TRICE8_3 %02x %02x %02x\\n"
+	},
+	"40126": {
+		"Type": "TRICE16",
+		"Strg": "MSG: ✅ STOP  select = %d, TriceDepthMax =%4u\\n"
 	},
 	"40166": {
 		"Type": "TRICE16",
@@ -2399,6 +2407,10 @@
 		"Type": "TRICE16",
 		"Strg": "tst:TRICE16 %d %d %d %d %d %d %d %d %d %d\\n"
 	},
+	"50543": {
+		"Type": "TRICE16",
+		"Strg": "MSG: 💚 START select = %d, TriceDepthMax =%4u\\n"
+	},
 	"50551": {
 		"Type": "TRICE8_4",
 		"Strg": "tst:TRICE8_4 %02x %02x %02x %02x\\n"
@@ -2582,6 +2594,10 @@
 	"51914": {
 		"Type": "TRICE64",
 		"Strg": "rd: ␣␣123.46\t\t%8.2f \t%%8.2f Width 8, precision 2\\n"
+	},
+	"51925": {
+		"Type": "TRICE",
+		"Strg": "CRITICAL: st %d \u003c st_1 %d: delta = %d\\n"
 	},
 	"51946": {
 		"Type": "TRICE32_1",
@@ -3070,6 +3086,10 @@
 	"55041": {
 		"Type": "TRICE",
 		"Strg": "rd:TRICE %d, %d, %d, %d, %d\\n"
+	},
+	"55098": {
+		"Type": "TRICE",
+		"Strg": "time: %d µs - ReadUs() lasts %d ticks\\n"
 	},
 	"55123": {
 		"Type": "TRICE_FILE",

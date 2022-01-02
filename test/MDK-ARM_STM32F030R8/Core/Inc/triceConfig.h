@@ -21,7 +21,11 @@ extern "C" {
 #define TRICE_UART USART2   //!< Uncomment and set UART for serial output.
 
 extern int milliSecond;
-#define TRICE_TIMESTAMP_VALUE milliSecond //!< Uncomment if you do not need target timestamps. Instead of SYSTICKVAL, you can use any other up to 32-bit value.
+uint32_t ReadUs( void );
+#define TRICE_LOCATION (TRICE_FILE| __LINE__) //!< Uncomment if you do not need target location. TRICE_FILE occcupies the upper 16 bit.
+#define TRICE_TIMESTAMP ReadUs()     //!< Uncomment if you do not need target timestamps. Instead of SYSTICKVAL, you can use any other up to 32-bit value, like milliSecond.
+
+
 
 // Enabling next 2 lines results in XTEA TriceEncryption  with the key.
 //#define TRICE_ENCRYPT XTEA_KEY( ea, bb, ec, 6f, 31, 80, 4e, b9, 68, e2, fa, ea, ae, f1, 50, 54 ); //!< -password MySecret
@@ -204,9 +208,6 @@ TRICE_INLINE void triceDisableTxEmptyInterrupt(void) {
 #define TRICE_10 TRICE32_10 //!< Default parameter bit width for 10 parameter count TRICE is 32, change for a different value.
 #define TRICE_11 TRICE32_11 //!< Default parameter bit width for 11 parameter count TRICE is 32, change for a different value.
 #define TRICE_12 TRICE32_12 //!< Default parameter bit width for 12 parameter count TRICE is 32, change for a different value.
-
-
-
 
 #ifdef __cplusplus
 }

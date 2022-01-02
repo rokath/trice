@@ -57,6 +57,35 @@ static void MX_USART2_UART_Init(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
+//! ReadUs reads the 1us tick in the asumption of an 48MHz systick clock using the milliSecond variable and current systick value.
+//! ATTENTION: This is a quick and dirty implementation working well only if this function is called in intervals smaller than 1 ms.
+//! :-( Because the STM32F030 has no 32-bit sysclock counter we need to compute this value or concatenate two 16-bit timers. )
+//! I see no way to find out if the systick ISR was already active shortly after a systick counter wrap,
+//! despite calling this function in intervals smaller than 1 ms if not using hardware timers.
+//! \retval us count since last reset
+uint32_t ReadUs( void ){
+		static uint32_t us_1 = 0;
+	  uint32_t us = 1000 * milliSecond;
+		us += ((SysTick->LOAD - SysTick->VAL) * 87381) >> 22; // Divide 48MHz clock by 48,000183106167244595507032421236 to get us part.
+	  if( us < us_1){ // Possible very close to systick ISR, when milliSecond was not incremented yet, but the systic wrapped already.
+		    us += 1000; // Time cannot go backwards, so correct the 1ms error in the assumption last call is not longer than 1ms back.
+		}
+		us_1 = us;
+		return us;
+}
+
+//! serveUs should be called in intervals secure smaller than 1ms.
+//! It also checks ReadUs().
+static void serveUs( void ){
+		static uint32_t st_1 = 0;
+	  uint32_t st = ReadUs();
+		if( st < st_1 ){
+			  TRICE( Id(51925), "CRITICAL: st %d < st_1 %d: delta = %d\n", st, st_1, st_1 - st ); 
+		}
+		st_1 = st;
+}
+
+
 /* USER CODE END 0 */
 
 /**
@@ -104,32 +133,39 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  while (1){
-      // serve every few ms
-#ifdef TRICE_HALF_BUFFER_SIZE
-      static int lastMs = 0;
-      if( milliSecond >= lastMs + TRICE_TRANSFER_INTERVAL_MS ){
-          lastMs = milliSecond;
-          TriceTransfer();
-      }
-#endif
+    while (1){
+				// serve every few ms
+				#ifdef TRICE_HALF_BUFFER_SIZE
+				static int lastMs = 0;
+				if( milliSecond >= lastMs + TRICE_TRANSFER_INTERVAL_MS ){
+						lastMs = milliSecond;
+						TriceTransfer();
+				}
+				#endif
+				serveUs();
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-  {
-    static int lastTricesTime = 0;
-    // send some trices every few ms
-        if( milliSecond >= lastTricesTime + 200 ){
-            static int index = 0;
-            int select = index % 25;
-            TRICE16( Id( 48324),"MSG: START select = %d, TriceDepthMax =%4u\n", select, TriceDepthMax );
-            TriceCheckSet(select);
-            TRICE16( Id( 53709),"MSG: STOP  select = %d, TriceDepthMax =%4u\n", select, TriceDepthMax );
-            index++;
-            lastTricesTime = milliSecond;
-        }
+        {
+						static int lastTricesTime = 0;
+						// send some trices every few ms
+						if( milliSecond >= lastTricesTime + 200 ){
+								static int index = 0;
+								int select = index % 25;
+								TRICE16( Id(50543),"MSG: 💚 START select = %d, TriceDepthMax =%4u\n", select, TriceDepthMax );
+								TriceCheckSet(select);
+								TRICE16( Id(40126),"MSG: ✅ STOP  select = %d, TriceDepthMax =%4u\n", select, TriceDepthMax );
+								index++;
+								lastTricesTime = milliSecond;
+								{
+										volatile uint32_t st0 = SysTick->VAL;
+										volatile uint32_t us = ReadUs();
+										volatile uint32_t st1 = SysTick->VAL;
+										TRICE( Id(33395), "time: %d µs - ReadUs() lasts %d ticks\n", us, st0 - st1);
+								}
+						}	
+        }  
     }
-  }
   /* USER CODE END 3 */
 }
 

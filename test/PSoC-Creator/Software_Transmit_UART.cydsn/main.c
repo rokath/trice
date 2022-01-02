@@ -46,6 +46,7 @@
 
 #include <project.h>
 #include "trice.h"
+#define TRICE_FILE Id(33564)
 
 #define DATAARR_LEN         (13u)
 

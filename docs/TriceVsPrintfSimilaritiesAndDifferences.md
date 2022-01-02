@@ -12,8 +12,10 @@
 * 7. [Runtime generated strings transfer](#Runtimegeneratedstringstransfer)
 * 8. [Extended format specifier possibilities](#Extendedformatspecifierpossibilities)
 * 9. [*Trice* format specifier](#Triceformatspecifier)
-* 10. [Overview Table](#OverviewTable)
-* 11. [Format tags prototype %[flags][width][.precision][length]specifier examples](#Formattagsprototypeflagswidth.precisionlengthspecifierexamples)
+* 10. [UTF-8 Support](#UTF-8Support)
+* 11. [Switch the language without changing a bit inside the target code](#Switchthelanguagewithoutchangingabitinsidethetargetcode)
+* 12. [Overview Table](#OverviewTable)
+* 13. [Format tags prototype %[flags][width][.precision][length]specifier examples](#Formattagsprototypeflagswidth.precisionlengthspecifierexamples)
 
 <!-- vscode-markdown-toc-config
 	numbering=true
@@ -93,7 +95,18 @@ These types are mixable with integer types but need to be covered by converter f
 * The **C** and **Go** format specifier are not equal but similar.
 * Therefore a **T**rice adaption is internally performed.
 
-##  10. <a name='OverviewTable'></a>Overview Table
+##  10. <a name='UTF-8Support'></a>UTF-8 Support
+
+This is gratis, if you edit your source files containing the format strings in UTF-8:
+
+![./ref/UTF-8Example.PNG](./ref/UTF-8Example.PNG)
+
+The target does not even "know" about that, because it gets only the *Trice* IDs.
+
+##  11. <a name='Switchthelanguagewithoutchangingabitinsidethetargetcode'></a>Switch the language without changing a bit inside the target code
+
+Once the [til.json](../til.json) list is done the user can translate it in any language and exchanging the list switches to an other language.
+##  12. <a name='OverviewTable'></a>Overview Table
 
 |Format Specifier Type                                           | C | Go| T | remark                                                                      |
 |-                                                               | - | - | - | -                                                                           |
@@ -134,7 +147,7 @@ These types are mixable with integer types but need to be covered by converter f
 
 ![./ref/TriceCheckOutput.gif](./ref/TriceCheckOutput.gif)
 
-##  11. <a name='Formattagsprototypeflagswidth.precisionlengthspecifierexamples'></a>Format tags prototype %[flags][width][.precision][length]specifier examples
+##  13. <a name='Formattagsprototypeflagswidth.precisionlengthspecifierexamples'></a>Format tags prototype %[flags][width][.precision][length]specifier examples
 
 * `%-d`
 * `%064b`

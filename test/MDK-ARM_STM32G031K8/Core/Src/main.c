@@ -23,6 +23,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "trice.h"
+#define TRICE_FILE Id(50869)
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -55,6 +56,35 @@ static void MX_USART2_UART_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+
+
+//! ReadUs reads the 1us tick in the asumption of an 64MHz systick clock using the milliSecond variable and current systick value.
+//! ATTENTION: This is a quick and dirty implementation working well only if this function is called in intervals smaller than 1 ms.
+//! :-( Because the STM32F030 has no 32-bit sysclock counter we need to compute this value or concatenate two 16-bit timers. )
+//! I see no way to find out if the systick ISR was already active shortly after a systick counter wrap,
+//! despite calling this function in intervals smaller than 1 ms if not using hardware timers.
+//! \retval us count since last reset
+uint32_t ReadUs( void ){
+		static uint32_t us_1 = 0;
+	  uint32_t us = 1000 * milliSecond;
+		us += (SysTick->LOAD - SysTick->VAL) >> 6; // Divide 64MHz clock by 64 to get us part.
+	  if( us < us_1){ // Possible very close to systick ISR, when milliSecond was not incremented yet, but the systic wrapped already.
+		    us += 1000; // Time cannot go backwards, so correct the 1ms error in the assumption last call is not longer than 1ms back.
+		}
+		us_1 = us;
+		return us;
+}
+
+//! serveUs should be called in intervals secure smaller than 1ms.
+//! It also checks ReadUs().
+static void serveUs( void ){
+		static uint32_t st_1 = 0;
+	  uint32_t st = ReadUs();
+		if( st < st_1 ){
+			  TRICE( Id(51925), "CRITICAL: st %d < st_1 %d: delta = %d\n", st, st_1, st_1 - st ); 
+		}
+		st_1 = st;
+}
 
 /* USER CODE END 0 */
 
@@ -99,39 +129,43 @@ int main(void)
     LL_USART_EnableIT_RXNE(TRICE_UART); // enable UART2 interrupt
     #endif
     TRICE_HEADLINE;
-		TRICE32( Id( 57468), "rd:TRICE32 float %12.6f (%%12.6f)\n", aFloat(123456.123456) ); 
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  while (1){
-      // serve every few ms
-#ifdef TRICE_HALF_BUFFER_SIZE
-      static int lastMs = 0;
-      if( milliSecond >= lastMs + TRICE_TRANSFER_INTERVAL_MS ){
-          lastMs = milliSecond;
-          TriceTransfer();
-      }
-#endif
+    while (1){
+				// serve every few ms
+				#ifdef TRICE_HALF_BUFFER_SIZE
+				static int lastMs = 0;
+				if( milliSecond >= lastMs + TRICE_TRANSFER_INTERVAL_MS ){
+						lastMs = milliSecond;
+						TriceTransfer();
+				}
+				#endif
+				serveUs();
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-  {
-    static int lastTricesTime = 0;
-    // send some trices every few ms
-        if( milliSecond >= lastTricesTime + 200 ){
-            static int index = 0;
-            int select = 30 + index % 5;
-            TRICE16( Id( 48324),"MSG: START select = %d, TriceDepthMax =%4u\n", select, TriceDepthMax );
-            if( select != 5 ){
-                TriceCheckSet(select);
-            }
-            TRICE16( Id( 53709),"MSG: STOP  select = %d, TriceDepthMax =%4u\n", select, TriceDepthMax );
-            index++;
-            lastTricesTime = milliSecond;
-        }
+        {
+						static int lastTricesTime = 0;
+						// send some trices every few ms
+						if( milliSecond >= lastTricesTime + 200 ){
+								static int index = 0;
+								int select = index % 25;
+								TRICE16( Id(50543),"MSG: 💚 START select = %d, TriceDepthMax =%4u\n", select, TriceDepthMax );
+								TriceCheckSet(select);
+								TRICE16( Id(40126),"MSG: ✅ STOP  select = %d, TriceDepthMax =%4u\n", select, TriceDepthMax );
+								index++;
+								lastTricesTime = milliSecond;
+								{
+										volatile uint32_t st0 = SysTick->VAL;
+										volatile uint32_t us = ReadUs();
+										volatile uint32_t st1 = SysTick->VAL;
+										TRICE( Id(33395), "time: %d µs - ReadUs() lasts %d ticks\n", us, st0 - st1);
+								}
+						}	
+        }  
     }
-  }
   /* USER CODE END 3 */
 }
 
@@ -141,28 +175,41 @@ int main(void)
   */
 void SystemClock_Config(void)
 {
+  LL_FLASH_SetLatency(LL_FLASH_LATENCY_2);
+  while(LL_FLASH_GetLatency() != LL_FLASH_LATENCY_2)
+  {
+  }
+
   /* HSI configuration and activation */
   LL_RCC_HSI_Enable();
   while(LL_RCC_HSI_IsReady() != 1)
   {
   }
 
+  /* Main PLL configuration and activation */
+  LL_RCC_PLL_ConfigDomain_SYS(LL_RCC_PLLSOURCE_HSI, LL_RCC_PLLM_DIV_1, 8, LL_RCC_PLLR_DIV_2);
+  LL_RCC_PLL_Enable();
+  LL_RCC_PLL_EnableDomain_SYS();
+  while(LL_RCC_PLL_IsReady() != 1)
+  {
+  }
+
   /* Set AHB prescaler*/
   LL_RCC_SetAHBPrescaler(LL_RCC_SYSCLK_DIV_1);
 
-  /* Sysclk activation on the HSI */
-  LL_RCC_SetSysClkSource(LL_RCC_SYS_CLKSOURCE_HSI);
-  while(LL_RCC_GetSysClkSource() != LL_RCC_SYS_CLKSOURCE_STATUS_HSI)
+  /* Sysclk activation on the main PLL */
+  LL_RCC_SetSysClkSource(LL_RCC_SYS_CLKSOURCE_PLL);
+  while(LL_RCC_GetSysClkSource() != LL_RCC_SYS_CLKSOURCE_STATUS_PLL)
   {
   }
 
   /* Set APB1 prescaler*/
   LL_RCC_SetAPB1Prescaler(LL_RCC_APB1_DIV_1);
 
-  LL_Init1msTick(16000000);
+  LL_Init1msTick(64000000);
 
   /* Update CMSIS variable (which can be updated also through SystemCoreClockUpdate function) */
-  LL_SetSystemCoreClock(16000000);
+  LL_SetSystemCoreClock(64000000);
 }
 
 /**

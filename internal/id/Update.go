@@ -285,6 +285,14 @@ func modifyTriceFileIdLine(w io.Writer, lu TriceIDLookUp, tflu TriceFmtLookUp, i
 // If variable SharedIDs is true, lu&tflu are checked, if t.Type == "TRICE_FILE" && t.Strg == fileName exists and that id is used.
 // If variable SharedIDs is false, a new id is used.
 func insertTriceFileIdLine(w io.Writer, lu TriceIDLookUp, tflu TriceFmtLookUp, inText, fileName string, sharedIDs bool, min, max TriceID, searchMethod string, pListModified *bool) (outText string, fileModified bool) {
+	loc := matchIncludeTriceHeader.FindStringIndex(inText)
+	if loc == nil {
+		if Verbose {
+			fmt.Fprintln(w, fileName)
+		}
+		outText = "" // a CFile not containing "#include "Trice.h" is expected to have no TRICE macros inside
+		return       // and therefore no need to parse it any further. Todo: refactoring
+	}
 	t := TriceFmt{"TRICE_FILE", fileName}
 	id, ok := tflu[t]
 	if !(sharedIDs && ok) {
@@ -292,12 +300,6 @@ func insertTriceFileIdLine(w io.Writer, lu TriceIDLookUp, tflu TriceFmtLookUp, i
 		lu[id] = t
 		tflu[t] = id
 		*pListModified = true
-	}
-	loc := matchIncludeTriceHeader.FindStringIndex(inText)
-	if loc == nil {
-		fmt.Fprintln(w, fileName)
-		outText = "" // a CFile not containing "#include "Trice.h" is expected to have no TRICE macros inside
-		return       // and therefore no need to parse it any further. Todo: refactoring
 	}
 	outText = inText[:loc[1]] + fmt.Sprintf("\n#define TRICE_FILE Id(%d)", id) + inText[loc[1]:]
 	fileModified = true
@@ -316,7 +318,9 @@ func updateTriceFileId(w io.Writer, lu TriceIDLookUp, tflu TriceFmtLookUp, inTex
 	// check if file contains a TRICE_FILE pattern
 	locFID := matchTriceFileId.FindStringIndex(inText)
 	if locFID == nil {
-		fmt.Fprintln(w, "In", fileName, "no TRICE_FILE pattern found.")
+		if Verbose {
+			fmt.Fprintln(w, "In", fileName, "no TRICE_FILE pattern found.")
+		}
 		outText, fileModified = insertTriceFileIdLine(w, lu, tflu, inText, fileName, sharedIDs, min, max, searchMethod, pListModified)
 		return
 	}
@@ -328,8 +332,9 @@ func updateTriceFileId(w io.Writer, lu TriceIDLookUp, tflu TriceFmtLookUp, inTex
 	var n int
 	_, err := fmt.Sscanf(sID, "%d", &n) // closing bracket in format string omitted intensionally
 	msg.OnErrF(w, err)                  // because spaces after id otherwise are not tolerated
-	fmt.Fprintf(w, "Trice file id '%d' found inside %s in '%s'\n", n, fileName, sID)
-
+	if Verbose {
+		fmt.Fprintf(w, "Trice file id '%d' found inside %s in '%s'\n", n, fileName, sID)
+	}
 	// check the file id value
 	if n != 0 {
 		if t, ok := lu[TriceID(n)]; ok { // n found
