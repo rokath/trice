@@ -38,7 +38,7 @@
 
 - [x] [trice.c](../pkg/src/trice.c) containing the [less that 1KB](./TriceSpace.md) runtime code using [triceConfig.h](../test/MDK-ARM_STM32G071RB/Core/Inc/triceConfig.h) as setup.
 - [x] [trice.h](../pkg/src/trice.h) containing a **C** language macro `TRICE`, generating [tiny code](./TriceSpeed.md) for getting real-time `printf` comfort at "speed-of-light" for any micro-controller.
-  * [x] Example: `float x = 3.14159265/4; TRICE( Id(12345), "info:π/4 is %f with the bit pattern %032b\n", aFloat(x), aFloat(x) );`
+  * [x] Example: `float x = 3.14159265/4; TRICE( Id(12345), "info:π/4 is %f with the bit pattern %032b\n", aFloat(x), x );`
 - [x] PC tool **trice**, executable on all [Go](https://golang.org) platforms:
   * [ ] Android
   * [x] Linux
@@ -59,11 +59,11 @@ Bigger micro-controllers are coming with embedded trace hardware. To use it, an 
 
 Unhappy with this situation, the developer starts thinking of using digital pins or starts emitting some proprietary LED blinking codes or byte sequences, difficult to interpret.
 
-The *Trice* technique tries to fill this gap, being be minimal invasive for the target and as comfortable as possible. It is the result of a long-year dissatisfaction and several attempts to find a loophole to make embedded programming more fun and this way more effective.
+The *Trice* technique tries to fill this gap, being minimal invasive for the target and as comfortable as possible. It is the result of a long-year dissatisfaction and several attempts to find a loophole to make embedded programming more fun and this way more effective.
 
 ##  3. <a name='AbriefhistoryofTrice'></a>A brief history of *Trice*
 
-Developing firmware means to deal also with interrupts and often with timing. How do you check, if an interrupt occurred? Ok, increment a counter and display it in a background loop with some printf-like function. What about time measurement? Set a digital output to 1 and 0 and connect a measurement device. Once, developing software for a real-time image processing device, I had no clue where in detail the processing time exploded when the image quality got bad. A spare analog output with an oscilloscope synced with the video interrupt gave me the needed information, after I set the analog output on several points in my algorithm. But, hey guys, I want to deal with my programming tasks and do not like all this hassle connecting wires and steer into instruments.
+Developing firmware means to deal also with interrupts and often with timing. How do you check, if an interrupt occurred? Ok, increment a counter and display it in a background loop with some printf-like function. What about time measurement? Set a digital output to 1 and 0 and connect a measurement device. Once, developing software for a real-time image processing device, I had no clue where in detail the processing time exploded when the image quality got bad. A spare analog output with a video interrupt synced oscilloscope gave me the needed information, after I changed the analog output on several points in my algorithm. But, hey guys, I want to deal with my programming tasks and do not like all this hassle connecting wires and steer into instruments.
 
 A `printf` is so cool on a PC, developing software there. But an embedded device often cannot use it for performance reasons. My very first attempt was writing the format string `.const` offset together with its values in a FIFO during a log statement and to do the `printf` it in the background. But that is compiler specific. Ok the full string address is better but needs more buffer space. [Zephyr](https://docs.zephyrproject.org/latest/reference/logging/index.html) for example does something like that calling it "deferred logging".
 
@@ -75,13 +75,11 @@ Trying to add channels in form of partial *TRICE* macro names was blowing up the
 
 An other point in the design was the question how to re-sync after data stream interruption, because that happens often during firmware development. [Several encodings](././TriceObsoleteEncodings.md) where tried out, a proprietary escape sequence format and an alternative flexible data format with more ID bits where working reliable but with [COBS](https://en.wikipedia.org/wiki/Consistent_Overhead_Byte_Stuffing) things got satisfying. A side result of that trials is the **trice** tool option to add different decoders if needed.
 
-There was a learning **not** to reduce the transmit byte count to an absolute minimum, but to focus more on `TRICE` macro speed and universality. That led to a double buffer on the target side discarding the previous FIFO solution and the package descriptor allowing alongside user protocols.
+There was a learning **not** to reduce the transmit byte count to an absolute minimum, but to focus more on `TRICE` macro speed and universality. That led to a double buffer on the target side discarding the previous FIFO solution. The [COBS package descriptor](./TriceMessagesEncoding.md#2-cobs-encoding-and-user-protocols) allowing alongside user protocols is result of the optional target timestamps and location info some users asked for, keeping the target code as light as possible. Float and double number support was implementable for free because this work is done mainly on the host side.
 
 *Trice* grew, and as it got usable I decided to make it Open Source to say "Thank You" to the community this way.
 
-Thinking of other people using *Trice* and some external ideas brought me to add features like float and double number support, target timestamps and source code location while keeping the target code as light as possible.
-
-Learning that *Trice*  is also a [baby girl name](https://www.babynamespedia.com/meaning/Trice), my daughter Ida designed the little girl with the pen symbolizing the `TRICE` macro for recording and the eyeglasses standing for the PC tool **trice** visualizing the logs.
+Learning that *Trice*  is also a [baby girl name](https://www.babynamespedia.com/meaning/Trice), our daughter Ida designed the little girl with the pen symbolizing the `TRICE` macro for recording and the eyeglasses standing for the PC tool **trice** visualizing the logs.
 
 ![./ref/TriceGirlS.png](./ref/TriceGirlS.png)
 
@@ -108,7 +106,7 @@ Target code and PC tool are open source. The MIT license gives full usage freedo
 
 ###  5.2. <a name='Easy-to-use'></a>Easy-to-use
 
-Making it [facile](./TriceUsageGuide.md) for a user to use *Trice* was the driving point just to have one **trice** tool and an additional source file with a project specific simple to use `triceConfig.h` and to get away with the one macro `TRICE` for most situations. *Trice* understands itself as a silent helper in the background to give the developer more focus on its real task. If, for example, `trice log` is running and you re-flash the target, there is no need to restart the **trice** tool. When [til.json](../til.json) was updated in an pre-build step, the **trice** tool automatically reloads the new data.
+Making it [facile](./TriceUsageGuide.md) for a user to use *Trice* was the driving point just to have one **trice** tool and an additional source file with a project specific simple to use `triceConfig.h` and to get away with the one macro `TRICE` for most situations. *Trice* understands itself as a silent helper in the background to give the developer more focus on its real task. If, for example, `trice log` is running and you re-flash the target, there is no need to restart the **trice** tool. When [til.json](../til.json) was updated in an pre-build step, the **trice** tool automatically reloads the new data during logging.
 
 The **trice** tool comes with many command line switches (`trice help -all`) for tailoring various needs, but mostly these are not needed. Usually only type `trice l -p COMn` for logging with a 115200 bit/s baud rate.
 
@@ -190,6 +188,7 @@ The *Trice* technique is new and still under development. Additional tests and b
 
 ##  7. <a name='Afewmaybeinterestinglinks'></a>A few maybe interesting links
 
+* [printf/log Debugging](https://emp.jamesmunns.com/debug/logging.html)
 * [https://mcuoneclipse.com/2016/10/17/tutorial-using-single-wire-output-swo-with-arm-cortex-m-and-eclipse/](https://mcuoneclipse.com/2016/10/17/tutorial-using-single-wire-output-swo-with-arm-cortex-m-and-eclipse/)
 * [https://mcuoneclipse.com/2016/11/05/tutorial-getting-etm-instruction-trace-with-nxp-kinetis-arm-cortex-m4f/](https://mcuoneclipse.com/2016/11/05/tutorial-getting-etm-instruction-trace-with-nxp-kinetis-arm-cortex-m4f/)
 * [https://interrupt.memfault.com/blog/a-deep-dive-into-arm-cortex-m-debug-interfaces](https://interrupt.memfault.com/blog/a-deep-dive-into-arm-cortex-m-debug-interfaces)
