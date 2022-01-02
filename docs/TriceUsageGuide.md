@@ -70,8 +70,8 @@ Afterwards you should find an executable `trice` inside $GOPATH/bin/ and you can
 
 * Each project gets its own `triceConfig.h` file.
 * Modify `triceConfig.h` acording your needs. Choose the *trice* mode here:
-  * Direct mode: Straight output inside `TRICE` macro at the cost of the time it takes.
-  * Indirect mode: Background output outside `TRICE` macro at the cost of RAM buffer needed.
+  * Immediate mode: Straight output inside `TRICE` macro at the cost of the time it takes.
+  * Deferred mode: Outside `TRICE` macro background output some milliseconds later at the cost of RAM buffer needed.
   * With `#define TRICE_MODE 0` (immediate mode) just provide a **putchar()** function.
   * Recommended is a deferred mode which allows to use `TRICE` macros also inside interrupts.
     * Compare the **not** instrumented test project [./test/MDK-ARM_STM32F030R8_generated]([./test/MDK-ARM_STM32F030R8_generated) with the instrumented test project [./test/MDK-ARM_STM32F030R8]([./test/MDK-ARM_STM32F030R8) to see an implementation example.
