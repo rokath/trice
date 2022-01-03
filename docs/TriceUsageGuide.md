@@ -40,11 +40,11 @@
   * `./pkg/src/trice.c`
   * `./test/.../triceConfig.h`
 * In your source.c files add line `#include "trice.h"`
-* In a function write: `TRICE( "Coming soon: %d!\n", 2022 );`
+* In a function write: `TRICE( "Year of writing this: %d\n", 2021 );`
 * In project root:
   * Create empty file: `touch til.json`.
   * Run `trice u` should:
-    * patch source.c to `TRICE( Id(12345), "Coming soon: %d!\n", 2022 );`
+    * patch source.c to `TRICE( Id(12345), "Year of writing this: %d\n", 2021 );`
     * extend `til.json`
     * It will also add a line `#define TRICE_FILE Id(54321)` after the `#include "trice.h"` line in your source.c files.
 
