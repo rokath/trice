@@ -44,7 +44,7 @@
 
 ## How it approximately works (UART example)
 
-This slightly simplified [view](https://github.com/jgraph/drawio) is explained [here](./docs/TraceWithTrice.md#Howitworks-themainidea)
+This slightly simplified [view](https://github.com/jgraph/drawio) is explained [here](./docs/TraceWithTrice.md#4-how-it-works---the-main-idea)
 
 ![trice](./docs/ref/triceCOBSBlockDiagram.svg)
 
