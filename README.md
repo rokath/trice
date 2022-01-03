@@ -22,13 +22,13 @@
   - **[SPEED](./docs/TriceSpeed.md)**, to be usable also inside interrupts,
   - **[SPACE](./docs/TriceSpace.md)**, to reduce needed FLASH memory size,
   - and various **[FEATURES](./docs/TraceWithTrice.md#Tricefeatures)** delighting the developers heart.
-- <u>Main idea:</u> Logging strings **not** into an embedded device to display them later on a PC but keep [usage comfortable and simple](./docs/TriceUsageGuide.md).
+- <u>Main idea:</u> Logging strings **not** into an embedded device to display them later on a PC but keep [usage comfortable and simple](./docs/TriceUsageGuide.md#2-get-started).
 - *Trice* consists of 2 parts:
   1. **C** code `TRICE` macros generating tiny & super fast embedded device real-time trace/log code
   2. Tool **trice** for managing and visualization.
       - Written in [Go](https://golang.org/) and therefore usable on all platforms Go supports.
       - You can also use your own environment to receive the *Trice* packges, exchange the carried IDs with the format string and print out.
-- [Trice Usage guide](./docs/TriceUsageGuide.md#2-get-started)
+- [Trice Usage guide](./docs/TriceUsageGuide.md)
 
 ## Possible Use Cases
 
