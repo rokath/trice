@@ -5,7 +5,7 @@
 <!-- vscode-markdown-toc -->
 * 1. [Table of Contents](#TableofContents)
 * 2. [Get started](#Getstarted)
-* 3. [Option: build `trice` tool from Go sources](#Option:buildtricetoolfromGosources)
+* 3. [Option: build `trice` tool from Go sources](#Option-buildtricetoolfromGosources)
 * 4. [Embedded system code setup](#Embeddedsystemcodesetup)
 * 5. [Adapt your legacy source code](#Adaptyourlegacysourcecode)
 * 6. [`trice` tool](#tricetool)
