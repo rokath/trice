@@ -106,7 +106,7 @@ This you could do automatically using a word processor. Care must be taken in th
 * More than 12 printf parameters: use several printf-calls
 * float numbers: surround each with `aFloat()`
 * double numbers: surround each with `aDouble` and use the `TRICE64` macro
-* runtime generated strings: Each needs its own `TRICE_S` macro  
+* runtime generated strings: Each needs its own `TRICE_S` macro: `TRICE_S( Id(11223), "Entered name is %20s\n", "Paul" );`
 
 A `trice update` (run it later automatically in the tool chain) inserts the *Trice* IDs  
 
