@@ -5,7 +5,7 @@
 <!-- vscode-markdown-toc -->
 * 1. [Table of Contents](#TableofContents)
 * 2. [Get started](#Getstarted)
-* 3. [Option: build `trice` tool from Go sources](#Option-buildtricetoolfromGosources)
+* 3. [Build `trice` tool from Go sources option](#BuildtricetoolfromGosourcesOption)
 * 4. [Embedded system code setup](#Embeddedsystemcodesetup)
 * 5. [Adapt your legacy source code](#Adaptyourlegacysourcecode)
 * 6. [`trice` tool](#tricetool)
@@ -48,7 +48,7 @@
     * extend `til.json`
     * It will also add a line `#define TRICE_FILE Id(54321)` after the `#include "trice.h"` line in your source.c files.
 
-##  3. <a name='Option:buildtricetoolfromGosources'></a>Option: build `trice` tool from Go sources
+##  3. <a name='BuildtricetoolfromGosourcesOption'></a>Build `trice` tool from Go sources option
 
 * Install [Go](https://golang.org/).
 * On Windows you need to install [TDM-GCC](https://jmeubank.github.io/tdm-gcc/download/) * recommendation: Minimal online installer.
