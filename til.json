@@ -243,6 +243,10 @@
 		"Type": "TRICE8_1",
 		"Strg": "tst:TRICE8_1 0x%02x\\n"
 	},
+	"34492": {
+		"Type": "TRICE",
+		"Strg": "x = %g = %d.%03d, %d.%03d\\n"
+	},
 	"34551": {
 		"Type": "TRICE8",
 		"Strg": "rd:TRICE8 line %O (%%O ,-1)\\n"
@@ -266,6 +270,10 @@
 	"34659": {
 		"Type": "TRICE32_1",
 		"Strg": "rd:TRICE32_1 line %d (%%d -1)\\n"
+	},
+	"34664": {
+		"Type": "TRICE",
+		"Strg": "x = %g = %d.%03d\\n"
 	},
 	"34672": {
 		"Type": "TRICE8",
@@ -607,6 +615,10 @@
 		"Type": "TRICE64",
 		"Strg": "tst:TRICE64 %d\\n"
 	},
+	"36904": {
+		"Type": "TRICE",
+		"Strg": "x = %f = %d.%03d\\n"
+	},
 	"36907": {
 		"Type": "TRICE32_1",
 		"Strg": "rd:TRICE32_1 float %+9.6f (%%9.3f)\\n"
@@ -830,6 +842,10 @@
 	"38357": {
 		"Type": "TRICE_FILE",
 		"Strg": "stm32g0xx_ll_usart.c"
+	},
+	"38382": {
+		"Type": "TRICE",
+		"Strg": "msg:x = %g = %d.%03d, %d.%03d\\n"
 	},
 	"38389": {
 		"Type": "TRICE",
@@ -1458,6 +1474,10 @@
 	"43507": {
 		"Type": "TRICE32_1",
 		"Strg": "ATT:trice16_1 attention message, SysTick is %6d\\n"
+	},
+	"43513": {
+		"Type": "TRICE",
+		"Strg": "x = %g = %d.%03d, %f, %d \\n"
 	},
 	"43535": {
 		"Type": "TRICE16",
@@ -3115,6 +3135,10 @@
 		"Type": "TRICE",
 		"Strg": "rd:TRICE float %e (%%e)\\n"
 	},
+	"55278": {
+		"Type": "TRICE",
+		"Strg": "x = %g = %d.%03d, %d.%03d\\n"
+	},
 	"55295": {
 		"Type": "TRICE32_1",
 		"Strg": "rd:TRICE32_1 float %9.f (%%9.f)\\n"
@@ -4098,6 +4122,10 @@
 	"61570": {
 		"Type": "TRICE64",
 		"Strg": "rd:TRICE64 double %e (%%e), aDouble(y)\\n"
+	},
+	"61587": {
+		"Type": "TRICE",
+		"Strg": "x = %g = %d.%03d, %f, %f, %d \\n"
 	},
 	"61610": {
 		"Type": "TRICE64",

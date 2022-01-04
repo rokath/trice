@@ -133,6 +133,14 @@ int main(void)
     LL_USART_EnableIT_RXNE(TRICE_UART); // enable UART2 interrupt
     #endif
     TRICE_HEADLINE;
+		{
+			float a = 5.934;
+			float b = a + ((a > 0) ? 0.0005f : -0.0005f);
+			int c = b;
+			int d = (int)(b * 1000) % 1000;
+			int e = 1000 * (float)(a - c); 
+			TRICE( Id(38382), "msg:x = %g = %d.%03d, %d.%03d\n", aFloat(a), c, d, c, e );
+		}
   /* USER CODE END 2 */
 
   /* Infinite loop */
