@@ -142,6 +142,11 @@ If a target side log level control is needed, a **trice** tool extension could e
 
 After debugging code in a file, there is [no need to remove or comment out `TRICE` macros](./TriceConfiguration.md#target-side-trice-on-off). Write a `#define TRICE_OFF` just before the `#include "trice.h"` line and all `TRICE` macros in this file are ignored completely by the compiler, but not by the **trice** tool. In case of re-constructing the [**T**rice **ID** **L**ist](../til.json) these no code generating macros are regarded.
 
+```C
+//#define TRICE_OFF // enable this line to disable trice code generation in this file object
+#include "trice.h"
+```
+
 ###  5.9. <a name='Targetandhosttimestamps'></a>Target and host timestamps 
 
 Enable target timestamps with a variable you want inside [triceConfig.h](../test/MDK-ARM_STM32G071RB/Core/Inc/triceConfig.h). This adds a 32-bit value to each *Trice* sequence, which carries than the system clock, a millisecond second or an other event counter. The **trice** tool will automatically recognize and display them in a default mode you can control. If several `TRICE` macros form a single line, the **trice** tool only displays the target timestamp of the first `TRICE` macro.
@@ -151,6 +156,11 @@ Embedded devices often lack a real-time clock and some scenarios can last for we
 ###  5.10. <a name='Targetsourcecodelocation'></a>Target source code location 
 
 Some developers like to see the `filename.c` and `line` in front of each log line for quick source location. Enable that inside [triceConfig.h](../test/MDK-ARM_STM32G071RB/Core/Inc/triceConfig.h). This adds a 32-bit value to the *Trice* sequence containing a 16-bit file ID and a 16-bit line number. The file ID is generated automatically by inserting `#define TRICE_FILE Id(nnnnn)` in each source.c file containing a `#include "trice.h"` line. 
+
+```C
+#include "trice.h"
+#define TRICE_FILE Id(52023)
+```
 
 Because software is a matter of change it could happen you get obsolete information this way. Therefore the **trice** tool log option `-showID` exists to display the *Trice* ID in front of each log line what gives a more reliable way for event localization in some cases. Also you can get it for free, because no target code is needed for that. 
 
