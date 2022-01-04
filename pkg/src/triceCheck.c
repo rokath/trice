@@ -1,10 +1,9 @@
 /*! \file triceCheck.c
 \brief trices for tool evaluation
-\details The trices are dumped as 32bit values into a 32 bit wide fifo.
 \author thomas.hoehenleitner [at] seerose.net
 *******************************************************************************/
 #include <float.h>
-//#define TRICE_OFF // enablae this line to disable trice code generation in this file object
+//#define TRICE_OFF // enable this line to disable trice code generation in this file object
 #include "trice.h"
 #define TRICE_FILE Id(52023) 
 
