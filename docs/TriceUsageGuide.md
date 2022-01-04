@@ -5,7 +5,7 @@
 <!-- vscode-markdown-toc -->
 * 1. [Table of Contents](#TableofContents)
 * 2. [Get started](#Getstarted)
-* 3. [Option: build `trice` tool from Go sources](#Option:buildtricetoolfromGosources)
+* 3. [Build `trice` tool from Go sources option](#BuildtricetoolfromGosourcesOption)
 * 4. [Embedded system code setup](#Embeddedsystemcodesetup)
 * 5. [Adapt your legacy source code](#Adaptyourlegacysourcecode)
 * 6. [`trice` tool](#tricetool)
@@ -40,15 +40,15 @@
   * `./pkg/src/trice.c`
   * `./test/.../triceConfig.h`
 * In your source.c files add line `#include "trice.h"`
-* In a function write: `TRICE( "Coming soon: %d!\n", 2022 );`
+* In a function write: `TRICE( "Year of writing this: %d\n", 2021 );`
 * In project root:
   * Create empty file: `touch til.json`.
   * Run `trice u` should:
-    * patch source.c to `TRICE( Id(12345), "Coming soon: %d!\n", 2022 );`
+    * patch source.c to `TRICE( Id(12345), "Year of writing this: %d\n", 2021 );`
     * extend `til.json`
     * It will also add a line `#define TRICE_FILE Id(54321)` after the `#include "trice.h"` line in your source.c files.
 
-##  3. <a name='Option:buildtricetoolfromGosources'></a>Option: build `trice` tool from Go sources
+##  3. <a name='BuildtricetoolfromGosourcesOption'></a>Build `trice` tool from Go sources option
 
 * Install [Go](https://golang.org/).
 * On Windows you need to install [TDM-GCC](https://jmeubank.github.io/tdm-gcc/download/) * recommendation: Minimal online installer.
@@ -106,7 +106,7 @@ This you could do automatically using a word processor. Care must be taken in th
 * More than 12 printf parameters: use several printf-calls
 * float numbers: surround each with `aFloat()`
 * double numbers: surround each with `aDouble` and use the `TRICE64` macro
-* runtime generated strings: Each needs its own `TRICE_S` macro  
+* runtime generated strings: Each needs its own `TRICE_S` macro: `TRICE_S( Id(11223), "Entered name is %20s\n", "Paul" );`
 
 A `trice update` (run it later automatically in the tool chain) inserts the *Trice* IDs  
 

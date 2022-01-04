@@ -106,7 +106,7 @@ Target code and PC tool are open source. The MIT license gives full usage freedo
 
 ###  5.2. <a name='Easy-to-use'></a>Easy-to-use
 
-Making it [facile](./TriceUsageGuide.md) for a user to use *Trice* was the driving point just to have one **trice** tool and an additional source file with a project specific simple to use `triceConfig.h` and to get away with the one macro `TRICE` for most situations. *Trice* understands itself as a silent helper in the background to give the developer more focus on its real task. If, for example, `trice log` is running and you re-flash the target, there is no need to restart the **trice** tool. When [til.json](../til.json) was updated in an pre-build step, the **trice** tool automatically reloads the new data during logging.
+Making it [facile](./TriceUsageGuide.md) for a user to use *Trice* was the driving point just to have one **trice** tool and an additional source file with a project specific simple to use `triceConfig.h` and to get away with the one macro `TRICE` for most situations. *Trice* understands itself as a silent helper in the background to give the developer more focus on its real task. If, for example, `trice log` is running and you re-flash the target, there is ***no need to restart*** the **trice** tool. When [til.json](../til.json) was updated in an pre-build step, the **trice** tool automatically reloads the new data during logging.
 
 The **trice** tool comes with many command line switches (`trice help -all`) for tailoring various needs, but mostly these are not needed. Usually only type `trice l -p COMn` for logging with a 115200 bit/s baud rate.
 
@@ -124,19 +124,28 @@ When a *Trice* data stream is interrupted, the [COBS](https://en.wikipedia.org/w
 
 ###  5.6. <a name='Morecomfortthanprintf-likefunctionsbutsmalldifferences'></a>More comfort than printf-like functions but small differences
 
-*Trice* is usable also inside interrupts and additional [format specifier support](./TriceVsPrintfSimilaritiesAndDifferences.md#Extended-format-specifier-possibilities) gives options like binary or bool output. Transmitting runtime generated strings could be a need, so a `TRICE_S` macro exists supporting the `%s` format specifier for strings up to 1000 bytes long. It is possible to log float/double numbers using `%f` and the like, but the numbers need to be covered with the function `aFloat(x)` or `aDouble(y)`.
+*Trice* is usable also inside interrupts and additional [format specifier support](./TriceVsPrintfSimilaritiesAndDifferences.md#Extended-format-specifier-possibilities) gives options like binary or bool output. Transmitting runtime generated strings could be a need, so a `TRICE_S` macro exists supporting the `%s` format specifier for strings up to 1000 bytes long. It is possible to log float/double numbers using `%f` and the like, but the numbers need to be covered with the function `aFloat(x)` or `aDouble(y)`. Also UTF-8 encoded strings implicit supported, if you use UTF-8 for the source code.
+
+![./ref/UTF-8Example.PNG](./ref/UTF-8Example.PNG)
 
 ###  5.7. <a name='Labeledchannelscolorandloglevels'></a>Labeled channels, color and log levels
 
-You can label each *Trice* with a channel specifier to [colorize](./TriceColor.md) the output. This is free of any runtime costs because the channel strings part of the log format strings, which are not compiled into the target. The **trice** tool will strip full lowercase channel descriptors from the format string after setting the appropriate color.
+You can label each *Trice* with a channel specifier to [colorize](./TriceColor.md) the output. This is free of any runtime costs because the channel strings part of the log format strings, which are not compiled into the target. The **trice** tool will strip full lowercase channel descriptors from the format string after setting the appropriate color, making it possible to give each letter its color.
 
 Loggers use log levels and offer a setting like "log all above **INFO**" for example. The *Trice* channels can cover that but can do better: Inside [emitter.ColorChannels](../internal/emitter/lineTransformerANSI.go) all common log levels defined as *Trice* channels alongside with user channels. The user can adjust this. The **trice** tool has the `-pick` and `-ban` switches to control the display in detail. Also a `-logLevel` switch is usable to determine a display threshold as channel position inside ColorChannels.
 
 If a target side log level control is needed, a **trice** tool extension could each of these log level channels assign an ID range and a target side log threshold can control which IDs are transmitted. No need to implement that right now, because the runtime and bandwidth costs are so small for each *Trice* and a back control path is needed which is better designed by the user. Also the [IDManagement](./TriceIDManagement.md) would get more complex.
 
+![./ref/COLOR_output.PNG](./ref/COLOR_output.PNG)
+
 ###  5.8. <a name='CompiletimeenabledisableTRICEmacrosonfilelevel'></a>Compile time enable/disable `TRICE` macros on file level 
 
 After debugging code in a file, there is [no need to remove or comment out `TRICE` macros](./TriceConfiguration.md#target-side-trice-on-off). Write a `#define TRICE_OFF` just before the `#include "trice.h"` line and all `TRICE` macros in this file are ignored completely by the compiler, but not by the **trice** tool. In case of re-constructing the [**T**rice **ID** **L**ist](../til.json) these no code generating macros are regarded.
+
+```C
+//#define TRICE_OFF // enable this line to disable trice code generation in this file object
+#include "trice.h"
+```
 
 ###  5.9. <a name='Targetandhosttimestamps'></a>Target and host timestamps 
 
@@ -147,6 +156,11 @@ Embedded devices often lack a real-time clock and some scenarios can last for we
 ###  5.10. <a name='Targetsourcecodelocation'></a>Target source code location 
 
 Some developers like to see the `filename.c` and `line` in front of each log line for quick source location. Enable that inside [triceConfig.h](../test/MDK-ARM_STM32G071RB/Core/Inc/triceConfig.h). This adds a 32-bit value to the *Trice* sequence containing a 16-bit file ID and a 16-bit line number. The file ID is generated automatically by inserting `#define TRICE_FILE Id(nnnnn)` in each source.c file containing a `#include "trice.h"` line. 
+
+```C
+#include "trice.h"
+#define TRICE_FILE Id(52023)
+```
 
 Because software is a matter of change it could happen you get obsolete information this way. Therefore the **trice** tool log option `-showID` exists to display the *Trice* ID in front of each log line what gives a more reliable way for event localization in some cases. Also you can get it for free, because no target code is needed for that. 
 
@@ -188,15 +202,18 @@ The *Trice* technique is new and still under development. Additional tests and b
 
 ##  7. <a name='Afewmaybeinterestinglinks'></a>A few maybe interesting links
 
-* [printf/log Debugging](https://emp.jamesmunns.com/debug/logging.html)
+<!--
 * [https://mcuoneclipse.com/2016/10/17/tutorial-using-single-wire-output-swo-with-arm-cortex-m-and-eclipse/](https://mcuoneclipse.com/2016/10/17/tutorial-using-single-wire-output-swo-with-arm-cortex-m-and-eclipse/)
 * [https://mcuoneclipse.com/2016/11/05/tutorial-getting-etm-instruction-trace-with-nxp-kinetis-arm-cortex-m4f/](https://mcuoneclipse.com/2016/11/05/tutorial-getting-etm-instruction-trace-with-nxp-kinetis-arm-cortex-m4f/)
 * [https://interrupt.memfault.com/blog/a-deep-dive-into-arm-cortex-m-debug-interfaces](https://interrupt.memfault.com/blog/a-deep-dive-into-arm-cortex-m-debug-interfaces)
 * [https://interrupt.memfault.com/blog/instruction-tracing-mtb-m33](https://interrupt.memfault.com/blog/instruction-tracing-mtb-m33)
 * [python script is used to parse ITM trace packets from the SWO pin on the STM32 using OpenOCD](https://github.com/robertlong13/SWO-Parser)
-* [NanoLog - extremely performant nanosecond scale logging system](https://github.com/PlatformLab/NanoLog)
-* [baical - high-performance tools set for sending and receiving traces](http://baical.net/index.html)
 * [MCUXpresso IDE Instruction Trace](https://www.nxp.com/docs/en/quick-reference-guide/MCUXpresso_IDE_Instruction_Trace.pdf)
 * [Arm CoreSight technology which introduces powerful new debug and trace capabilities](https://www2.keil.com/coresight)
+-->
+
+* [printf/log Debugging](https://emp.jamesmunns.com/debug/logging.html)
+* [NanoLog - extremely performant nanosecond scale logging system](https://github.com/PlatformLab/NanoLog)
+* [baical - high-performance tools set for sending and receiving traces](http://baical.net/index.html)
 * [*Trice* on Github with examples](https://github.com/rokath/trice)
 * [*Go* home](https://go.dev/)

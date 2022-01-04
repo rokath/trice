@@ -22,7 +22,7 @@
   - **[SPEED](./docs/TriceSpeed.md)**, to be usable also inside interrupts,
   - **[SPACE](./docs/TriceSpace.md)**, to reduce needed FLASH memory size,
   - and various **[FEATURES](./docs/TraceWithTrice.md#Tricefeatures)** delighting the developers heart.
-- <u>Main idea:</u> Logging strings **not** into an embedded device to display them later on a PC but keep [usage comfortable and simple](./docs/TriceUsageGuide.md).
+- <u>Main idea:</u> Logging strings **not** into an embedded device to display them later on a PC but keep [usage comfortable and simple](./docs/TriceUsageGuide.md#2-get-started).
 - *Trice* consists of 2 parts:
   1. **C** code `TRICE` macros generating tiny & super fast embedded device real-time trace/log code
   2. Tool **trice** for managing and visualization.
@@ -44,7 +44,7 @@
 
 ## How it approximately works (UART example)
 
-This slightly simplified [view](https://github.com/jgraph/drawio) is explained [here](./docs/TraceWithTrice.md#Howitworks-themainidea)
+This slightly simplified [view](https://github.com/jgraph/drawio) is explained [here](./docs/TraceWithTrice.md#4-how-it-works---the-main-idea)
 
 ![trice](./docs/ref/triceCOBSBlockDiagram.svg)
 
@@ -52,7 +52,7 @@ This slightly simplified [view](https://github.com/jgraph/drawio) is explained [
 
 - Inplemented:
   - [UART](https://en.wikipedia.org/wiki/Universal_asynchronous_receiver-transmitter) conectable to virtual UART over USB
-  - [RTT over J-Link](https://www.segger.com/products/debug-probes/j-link/technology/about-real-time-transfer/) and [RTT over ST-Link](./third_party/goST/ReadMe.md)
+  - [RTT](https://www.segger.com/products/debug-probes/j-link/technology/about-real-time-transfer/) over [J-Link](./third_party/segger.com/ReadMe.md) and [RTT over ST-Link](./third_party/goST/ReadMe.md)
 - A small separate micro controller is always usable as bridge to interfaces like: [GPIO](https://circuitcellar.com/cc-blog/a-trace-tool-for-embedded-systems/), [I²C](https://en.wikipedia.org/wiki/I%C2%B2C), [SPI](https://en.wikipedia.org/wiki/Serial_Peripheral_Interface), [CAN](https://en.wikipedia.org/wiki/CAN_bus), [LIN](https://en.wikipedia.org/wiki/Local_Interconnect_Network), ...
 
 ## Display server option
