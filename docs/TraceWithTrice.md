@@ -190,7 +190,7 @@ The **trice** tool is expandable with several decoders. So it is possible to imp
 
 When less RAM usage is more important the target double buffer is replaceable with a FIFO. So the user will be able to decide at compile time about that. Right now already a immediate mode is selectable inside [triceConfig.h](../test/MDK-ARM_STM32G071RB/Core/Inc/triceConfig.h) avoiding any buffer by paying a time toll.
 
-The **trice** tool supports [many command line switches](./https://github.com/rokath/trice/blob/master/docs/TriceUsageGuide.md#9-options-for-trice-tool).
+The **trice** tool supports [many command line switches](./TriceUsageGuide.md#9-options-for-trice-tool).
 
 ###  5.15. <a name='OptionalTricemessagesencryption'></a>Optional *Trice* messages encryption
 
