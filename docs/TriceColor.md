@@ -22,7 +22,7 @@
 * The **trice** tool, if knowing `wrn:` as pattern, prepends the appropriate color code. It removes the sequence `wrn:`, if it is known and completely lower case.
 * The user can define any pattern with any color code to create colored output with the **trice** tool.
 * There is no channel enable switch inside the target code. It would need a back channel and add overhead.
-  * A future extension could make that an option using channel specific ID range assignment.
+  * A future extension could make that an option using channel specific ID range assignment. See also [here](./TriceConfiguration.md)
 * The **trice** tool offers the 2 command line switches `-pick` and `-ban` to control channel visualization during runtime.  
 
 ##  2. <a name='ColorissuesunderWindows'></a>Color issues under Windows
