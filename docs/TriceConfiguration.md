@@ -24,9 +24,9 @@
 	/vscode-markdown-toc-config -->
 <!-- /vscode-markdown-toc -->
 
-##  2. <a name='Target'></a>Target
+##  2. <a name='Target'></a>Target Configuration 
 
-All project specific settings are done inside [triceConfig.h](https://github.com/rokath/trice/tree/master/pkg/src/intern/triceConfig.h) which one should copy into the project folder. The [trice.h](../pkg/src/trice.h) and [trice.c](../pkg/src/trice.c) are not the right place for project specific configuration because they are mend to be used unchanged in several projects.
+All project specific settings are done inside [triceConfig.h](https://github.com/rokath/trice/tree/master/pkg/src/intern/triceConfig.h) which one should copy into the project folder. The [trice.h](../pkg/src/trice.h) and [trice.c](../pkg/src/trice.c) are mend to be used unchanged in several projects.
 
 ###  2.1. <a name='TargetsideTriceOn-Off'></a>Target side *Trice* On-Off
 
