@@ -16,7 +16,7 @@ extern "C" {
 ///////////////////////////////////////////////////////////////////////////////
 // Declarations and Defaults
 
-extern unsigned TriceDepthMax;
+size_t TriceDepthMax( void );
 extern uint32_t* TriceBufferWritePosition;
 unsigned TriceCOBSEncode( uint8_t* restrict output, const uint8_t * restrict input, unsigned length);
 void TriceOut( uint32_t* tb, size_t tLen );

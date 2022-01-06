@@ -4,7 +4,7 @@
 #include "trice.h"
 #define TRICE_FILE Id(56030)
 
-unsigned TriceDepthMax = 0; //!< TriceDepthMax is a diagnostics value usable to optimize buffer size.
+static unsigned triceDepthMax = 0; //!< triceDepthMax is a diagnostics value usable to optimize buffer size.
 
 #if TRICE_CYCLE_COUNTER == 1
 uint8_t  TriceCycle = 0xc0; //!< TriceCycle is increased and transmitted with each trice message, if enabled.
@@ -13,7 +13,7 @@ uint8_t  TriceCycle = 0xc0; //!< TriceCycle is increased and transmitted with ea
 #ifdef TRICE_HALF_BUFFER_SIZE
 static uint32_t triceBuffer[2][TRICE_HALF_BUFFER_SIZE>>2] = {0}; //!< triceBuffer is a double buffer for better write speed.
 static int triceSwap = 0; //!< triceSwap is the index of the active write buffer. !triceSwap is the active read buffer index.
-uint32_t* TriceBufferWritePosition = &triceBuffer[0][TRICE_DATA_OFFSET>>2]; //!< TriceBufferWritePosition is the active write position.
+    uint32_t* TriceBufferWritePosition = &triceBuffer[0][TRICE_DATA_OFFSET>>2]; //!< TriceBufferWritePosition is the active write position.
 static uint32_t* triceBufferWriteLimit = &triceBuffer[1][TRICE_DATA_OFFSET>>2]; //!< triceBufferWriteLimit is the triceBuffer written limit. 
 
 #if defined( TRICE_UART ) && defined( TRICE_HALF_BUFFER_SIZE ) // buffered out to UART
@@ -37,6 +37,12 @@ static uint32_t* triceBufferSwap( void ){
 static size_t triceDepth( uint32_t* tb ){
     size_t depth = (triceBufferWriteLimit - tb)<<2; // 32-bit write width
     return depth - TRICE_DATA_OFFSET;
+}
+
+//! TriceDepthMax returns the max trice buffer depth until now.
+size_t TriceDepthMax( void ){
+    size_t currentDepth = 4*(TriceBufferWritePosition - &triceBuffer[triceSwap][0]); 
+    return currentDepth > triceDepthMax ? currentDepth : triceDepthMax;
 }
 
 //! TriceTransfer, if possible, swaps the double buffer and initiates a write.
@@ -74,7 +80,7 @@ void TriceOut( uint32_t* tb, size_t tLen ){
     }while( cLen & 3 ); // Additional empty packages are ignored on th receiver side.
     TRICE_WRITE( co, cLen );
     tLen += TRICE_DATA_OFFSET; 
-    TriceDepthMax = tLen < TriceDepthMax ? TriceDepthMax : tLen; // diagnostics
+    triceDepthMax = tLen < triceDepthMax ? triceDepthMax : tLen; // diagnostics
 }
 
 #if defined( TRICE_UART ) && !defined( TRICE_HALF_BUFFER_SIZE ) // direct out to UART

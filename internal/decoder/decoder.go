@@ -73,7 +73,7 @@ const (
 	headSize = 4
 
 	// hints is the help information in case of errors.
-	hints = "att:Hints:Baudrate? Overflow? Encoding? Interrupt? til.json? Password?"
+	hints = "att:Hints:Baudrate? Overflow? Encoding? Interrupt? til.json? Password? Parameter count?"
 )
 
 var (
