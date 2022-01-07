@@ -38,8 +38,8 @@ All project specific settings are done inside [triceConfig.h](https://github.com
   * User can add its own switches anywhere.
   * The short `TRICE` macro code is negligible.
   * The trice output is encryptable, if needed.
-* If at target side runtime On-Off is really needed, the **trice** tool is extendable to use ID ranges for each channel. On the target side then, in dependence of the ID is a decision possible to generate a *Trice* message at all or not. Or, if a generated *Trice* message is transmitted or not.
 * Because of the low *Trice* bandwidth needs and to keep the target code as clear as possible the runtime On-Off decision should be done by the **trice** tool.
+* See also issue [#243](https://github.com/rokath/trice/issues/243).
 
 ##  3. <a name='Host'></a>Host
 
