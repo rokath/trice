@@ -50,6 +50,11 @@ The **trice** tool supports many [command line switches](./TriceUsageGuide.md#9-
 * The PC **trice** tool offers command line switches to `-pick` or `-ban` for *trice* channels and will be extended with display switches.
 * A **trice** tool logLevel switch is possible too (Issue [#236](https://github.com/rokath/trice/issues/236)).
 
+## Using a different encoding
+
+It is possible to exchange the code behind the `TRICE` macros with a different encoding and to add an appropriate decoder to the **trice** tool.
+The ID assignment is adjustable with `-IDMin` and `-IDMax`.
+
 ##  4. <a name='HostConfigurationfileNotimplemented'></a>Host Configuration file (Not implemented!)
  ---
 
