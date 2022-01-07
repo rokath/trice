@@ -43,7 +43,7 @@ All project specific settings are done inside [triceConfig.h](https://github.com
 
 ##  3. <a name='Host'></a>Host
 
-The **trice** tool supports many [command line switches](./TriceCommandLineExamples.md) which are usable also inside of batch scripts.
+The **trice** tool supports many [command line switches](./TriceUsageGuide.md#9-options-for-trice-tool) which are usable also inside of batch scripts.
 
 ###  3.1. <a name='HostsideTriceOn-Off'></a>Host side *Trice* On-Off
 
