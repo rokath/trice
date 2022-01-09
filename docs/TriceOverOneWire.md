@@ -1,6 +1,8 @@
 
 # How to use *Trice* without UART
 
+> _(Read only you are interested in)_
+
 Because the **trice** tool needs only to receive, a single target UART-TX pin will do. But it is also possible to use a GPIO-Pin for *Trice* messages without occupying a UART resource.
 
 - This slow path is usable because a *Trice* needs only few bytes for transmission.

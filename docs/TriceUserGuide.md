@@ -20,13 +20,11 @@
 		* 9.2.1. [Automated pre-build update command](#Automatedpre-buildupdatecommand)
 * 10. [Additional hints](#Additionalhints)
 	* 10.1. [Logfile viewing](#Logfileviewing)
-* 11. [Sub-command `check` (Not implemented!)](#Sub-commandcheckNotimplemented)
-	* 11.1. [`check` switch '-dataset'](#checkswitch-dataset)
-* 12. [Target Configuration](#TargetConfiguration)
-	* 12.1. [Target side *Trice* On-Off](#TargetsideTriceOn-Off)
-* 13. [Host](#Host)
-	* 13.1. [Host side *Trice* On-Off](#HostsideTriceOn-Off)
-* 14. [Using a different encoding](#Usingadifferentencoding)
+* 11. [Target side *Trice* On-Off](#TargetsideTriceOn-Off)
+* 12. [Host side *Trice* On-Off](#HostsideTriceOn-Off)
+* 13. [Using a different encoding](#Usingadifferentencoding)
+* 14. [Sub-command `check` (Not implemented!)](#Sub-commandcheckNotimplemented)
+	* 14.1. [`check` switch '-dataset' (Not implemented!)](#checkswitch-datasetNotimplemented)
 
 <!-- vscode-markdown-toc-config
 	numbering=true
@@ -684,8 +682,7 @@ example: 'trice zeroSourceTreeIds -src ../A': Sets all TRICE IDs to 0 in ../A. U
 ##  9. <a name='Tricecommandlineexamples'></a>*Trice* command line examples
 
 * The **trice** tool has many command line options, but is easy to use with default values.
-* No config file implemented yet. But the command history is usable for example inside the bash, simply enter CTRL-R and start typing `trice...` and you can select from the history.
-* All commands are tested.
+* No [config file](./TriceConfigFile.md) implemented yet. But the command history is usable for example inside the bash, simply enter CTRL-R and start typing `trice...` and you can select from the history.
 
 ###  9.1. <a name='Cheatsheet'></a>Cheat sheet
 
@@ -749,27 +746,12 @@ trice sd -r 192.168.1.23:45678
 
 `trice` generated logfiles with sub-command switch `-color off` are normal ASCII files. If they are with color codes, these are ANSI escape sequences.
 
-* One easy view option is `less -R trice.log`. The Linux command `less` is also available inside the VScode terminal.
+* One easy view option is `less -R trice.log`. The Linux command `less` is also available inside the windows git bash.
 * Under Windows one could also download and use [ansifilter](https://sourceforge.net/projects/ansifilter/) for logfile viewing. A monospaced font is recommended.
 
 [Color issues under Windows](./TriceColor.md#color-issues-under-windows)
 
----
-##  11. <a name='Sub-commandcheckNotimplemented'></a>Sub-command `check` (Not implemented!)
-
-* `trice check` will check the JSON list and emit all TRICE statements inside the list once with a dataset.
-
-###  11.1. <a name='checkswitch-dataset'></a>`check` switch '-dataset'
-
-* This is a `string` switch. It has one parameter. Its default value is `position`. That means each parameter has a different value. This is useful for testing.
-* The `negative` value is uses a dataset with negative values for testing.
-* Running `trice check` should show your message, indicating everything is fine so far.
-
-##  12. <a name='TargetConfiguration'></a>Target Configuration 
-
-All project specific settings are done inside [triceConfig.h](https://github.com/rokath/trice/tree/master/pkg/src/intern/triceConfig.h) which one should copy into the project folder. The [trice.h](../pkg/src/trice.h) and [trice.c](../pkg/src/trice.c) are mend to be used unchanged in several projects.
-
-###  12.1. <a name='TargetsideTriceOn-Off'></a>Target side *Trice* On-Off
+##  11. <a name='TargetsideTriceOn-Off'></a>Target side *Trice* On-Off
 
 * If your code works well after checking, you can add `#define TRICE_OFF` just before the `#include "trice.h"` line and no *trice* code is generated anymore for that file, so no need to delete or comment out `TRICE` macros.
 * No runtime On-Off switch is implemented for  several reasons:
@@ -782,16 +764,22 @@ All project specific settings are done inside [triceConfig.h](https://github.com
 * Because of the low *Trice* bandwidth needs and to keep the target code as clear as possible the runtime On-Off decision should be done by the **trice** tool.
 * See also issue [#243](https://github.com/rokath/trice/issues/243).
 
-##  13. <a name='Host'></a>Host
-
-The **trice** tool supports many [command line switches](./TriceUserGuide.md#9-options-for-trice-tool) which are usable also inside of batch scripts.
-
-###  13.1. <a name='HostsideTriceOn-Off'></a>Host side *Trice* On-Off
+##  12. <a name='HostsideTriceOn-Off'></a>Host side *Trice* On-Off
 
 * The PC **trice** tool offers command line switches to `-pick` or `-ban` for *trice* channels and will be extended with display switches.
-* A **trice** tool logLevel switch is possible too (Issue [#236](https://github.com/rokath/trice/issues/236)).
+* A **trice** tool logLevel switch is usable too (Issue [#236](https://github.com/rokath/trice/issues/236)).
 
-##  14. <a name='Usingadifferentencoding'></a>Using a different encoding
+##  13. <a name='Usingadifferentencoding'></a>Using a different encoding
 
 It is possible to exchange the code behind the `TRICE` macros with a different encoding and to add an appropriate decoder to the **trice** tool.
 The ID assignment is adjustable with `-IDMin` and `-IDMax`.
+
+##  14. <a name='Sub-commandcheckNotimplemented'></a>Sub-command `check` (Not implemented!)
+
+* `trice check` will check the JSON list and emit all TRICE statements inside the list once with a dataset.
+
+###  14.1. <a name='checkswitch-datasetNotimplemented'></a>`check` switch '-dataset' (Not implemented!)
+
+* This is a `string` switch. It has one parameter. Its default value is `position`. That means each parameter has a different value. This is useful for testing.
+* The `negative` value is uses a dataset with negative values for testing.
+* Running `trice check` should show your message, indicating everything is fine so far.

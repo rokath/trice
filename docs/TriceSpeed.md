@@ -1,5 +1,7 @@
 # *Trice* Speed
 
+> _(Read only you are interested in)_
+
  A `TRICE` macro execution can be as cheap like **3-4 Assembler instructions or 6-8 processor clocks**:
 
 * Disassembly: ![./ref/MEASURE_executionCode.PNG](./ref/MEASURE_executionCode.PNG)

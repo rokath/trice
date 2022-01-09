@@ -1,5 +1,6 @@
 # Obsolete *Trice* encodings
 
+> _(Read only you are interested in)_
 > This file exists only as reference for some thoughts for just in case an additional *Trice* encoding is considered. > > The **esc** and **flex** encoding worked well but the code is removed now in favor of the COBS encoding. Check out release [v0.32.0](https://github.com/rokath/trice/releases/tag/v0.32.0) or earlier for working code.
 
 ##  1. <a name='Tableofcontent'></a>Table of content

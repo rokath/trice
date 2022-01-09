@@ -1,6 +1,6 @@
 # TRICE ID management hints
 
-> _(Read not - or you are interested in)_
+> _(Read only you are interested in)_
 
 <!-- vscode-markdown-toc -->
 * 1. [Build process](#Buildprocess)

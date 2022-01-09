@@ -1,6 +1,6 @@
 # *Trice* Similarities and differences to `printf` usage
 
-> (Read only you are interested in)
+> _(Read only you are interested in)_
 
 <!-- vscode-markdown-toc -->
 * 1. [Printf-like functions](#Printf-likefunctions)

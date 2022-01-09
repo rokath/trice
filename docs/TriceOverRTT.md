@@ -1,6 +1,9 @@
 # *Trice* over RTT
 
+> _(Read only you are interested in)_
+>
 > Allows *Trice* over the debug probe without using a pin or UART.
+
 
 <!-- vscode-markdown-toc -->
 * 1. [Segger Real Time Transfer (RTT)](#SeggerRealTimeTransferRTT)

@@ -1,5 +1,7 @@
 # *Trice* memory needs
 
+> _(Read only you are interested in)_
+
 <!-- vscode-markdown-toc -->
 * 1. [*Trice* Space example](#TriceSpaceexample)
 * 2. [Memory needs (ARM example project)](#MemoryneedsARMexampleproject)
