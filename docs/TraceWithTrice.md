@@ -106,7 +106,7 @@ Target code and PC tool are open source. The MIT license gives full usage freedo
 
 ###  5.2. <a name='Easy-to-use'></a>Easy-to-use
 
-Making it [facile](./TriceUsageGuide.md) for a user to use *Trice* was the driving point just to have one **trice** tool and an additional source file with a project specific simple to use `triceConfig.h` and to get away with the one macro `TRICE` for most situations. *Trice* understands itself as a silent helper in the background to give the developer more focus on its real task. If, for example, `trice log` is running and you re-flash the target, there is ***no need to restart*** the **trice** tool. When [til.json](../til.json) was updated in an pre-build step, the **trice** tool automatically reloads the new data during logging.
+Making it [facile](./TriceUserGuide.md) for a user to use *Trice* was the driving point just to have one **trice** tool and an additional source file with a project specific simple to use `triceConfig.h` and to get away with the one macro `TRICE` for most situations. *Trice* understands itself as a silent helper in the background to give the developer more focus on its real task. If, for example, `trice log` is running and you re-flash the target, there is ***no need to restart*** the **trice** tool. When [til.json](../til.json) was updated in an pre-build step, the **trice** tool automatically reloads the new data during logging.
 
 The **trice** tool comes with many command line switches (`trice help -all`) for tailoring various needs, but mostly these are not needed. Usually only type `trice l -p COMn` for logging with a 115200 bit/s baud rate.
 
@@ -190,7 +190,7 @@ The **trice** tool is expandable with several decoders. So it is possible to imp
 
 When less RAM usage is more important the target double buffer is replaceable with a FIFO. So the user will be able to decide at compile time about that. Right now already a immediate mode is selectable inside [triceConfig.h](../test/MDK-ARM_STM32G071RB/Core/Inc/triceConfig.h) avoiding any buffer by paying a time toll.
 
-The **trice** tool supports [many command line switches](./TriceUsageGuide.md#9-options-for-trice-tool).
+The **trice** tool supports [many command line switches](./TriceUserGuide.md#9-options-for-trice-tool).
 
 ###  5.15. <a name='OptionalTricemessagesencryption'></a>Optional *Trice* messages encryption
 

@@ -1,5 +1,6 @@
-# *Trice* and Color
+# *Trice* Channels and Color
 
+> *Trice* is usable without channels and color similar to printf also.
 <!-- vscode-markdown-toc -->
 * 1. [How to get](#Howtoget)
 * 2. [Color issues under Windows](#ColorissuesunderWindows)

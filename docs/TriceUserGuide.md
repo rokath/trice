@@ -1,28 +1,32 @@
 # *Trice* user guide
 
-##  1. <a name='TableofContents'></a>Table of Contents
+> _(Read this)_
 
 <!-- vscode-markdown-toc -->
-* 1. [Table of Contents](#TableofContents)
-* 2. [Get started](#Getstarted)
-* 3. [Build `trice` tool from Go sources option](#BuildtricetoolfromGosourcesOption)
-* 4. [Embedded system code setup](#Embeddedsystemcodesetup)
-* 5. [Adapt your legacy source code](#Adaptyourlegacysourcecode)
-* 6. [`trice` tool](#tricetool)
-* 7. [Setup](#Setup)
-	* 7.1. [Project structure](#Projectstructure)
-	* 7.2. [Check the `trice` binary](#Checkthetricebinary)
-	* 7.3. [Instrument a target source code project (How to use trice in your project)](#InstrumentatargetsourcecodeprojectHowtousetriceinyourproject)
-* 8. [Encryption](#Encryption)
-* 9. [Options for `trice` tool](#Optionsfortricetool)
-* 10. [*Trice* command line examples](#Tricecommandlineexamples)
-	* 10.1. [Cheat sheet](#Cheatsheet)
-	* 10.2. [Further examples](#Furtherexamples)
-		* 10.2.1. [Automated pre-build update command](#Automatedpre-buildupdatecommand)
-* 11. [Additional hints](#Additionalhints)
-	* 11.1. [Logfile viewing](#Logfileviewing)
-* 12. [Sub-command `check` (Not implemented!)](#Sub-commandcheckNotimplemented)
-	* 12.1. [`check` switch '-dataset'](#checkswitch-dataset)
+* 1. [Get started](#Getstarted)
+* 2. [Build `trice` tool from Go sources option](#BuildtricetoolfromGosourcesoption)
+* 3. [Embedded system code setup](#Embeddedsystemcodesetup)
+* 4. [Adapt your legacy source code](#Adaptyourlegacysourcecode)
+* 5. [`trice` tool](#tricetool)
+* 6. [Setup](#Setup)
+	* 6.1. [Project structure](#Projectstructure)
+	* 6.2. [Check the `trice` binary](#Checkthetricebinary)
+	* 6.3. [Instrument a target source code project (How to use trice in your project)](#InstrumentatargetsourcecodeprojectHowtousetriceinyourproject)
+* 7. [Encryption](#Encryption)
+* 8. [Options for `trice` tool](#Optionsfortricetool)
+* 9. [*Trice* command line examples](#Tricecommandlineexamples)
+	* 9.1. [Cheat sheet](#Cheatsheet)
+	* 9.2. [Further examples](#Furtherexamples)
+		* 9.2.1. [Automated pre-build update command](#Automatedpre-buildupdatecommand)
+* 10. [Additional hints](#Additionalhints)
+	* 10.1. [Logfile viewing](#Logfileviewing)
+* 11. [Sub-command `check` (Not implemented!)](#Sub-commandcheckNotimplemented)
+	* 11.1. [`check` switch '-dataset'](#checkswitch-dataset)
+* 12. [Target Configuration](#TargetConfiguration)
+	* 12.1. [Target side *Trice* On-Off](#TargetsideTriceOn-Off)
+* 13. [Host](#Host)
+	* 13.1. [Host side *Trice* On-Off](#HostsideTriceOn-Off)
+* 14. [Using a different encoding](#Usingadifferentencoding)
 
 <!-- vscode-markdown-toc-config
 	numbering=true
@@ -30,7 +34,7 @@
 	/vscode-markdown-toc-config -->
 <!-- /vscode-markdown-toc -->
 
-##  2. <a name='Getstarted'></a>Get started
+##  1. <a name='Getstarted'></a>Get started
 
 * Download latest release assets for your system: Source code and compressed binaries.
 * Place the **trice** binary somewhere in your [PATH](https://en.wikipedia.org/wiki/PATH_(variable)).
@@ -48,7 +52,7 @@
     * extend `til.json`
     * It will also add a line `#define TRICE_FILE Id(54321)` after the `#include "trice.h"` line in your source.c files.
 
-##  3. <a name='BuildtricetoolfromGosourcesOption'></a>Build `trice` tool from Go sources option
+##  2. <a name='BuildtricetoolfromGosourcesoption'></a>Build `trice` tool from Go sources option
 
 * Install [Go](https://golang.org/).
 * On Windows you need to install [TDM-GCC](https://jmeubank.github.io/tdm-gcc/download/) * recommendation: Minimal online installer.
@@ -66,7 +70,7 @@ go install ./...
 
 Afterwards you should find an executable `trice` inside $GOPATH/bin/ and you can modify its source code.
 
-##  4. <a name='Embeddedsystemcodesetup'></a>Embedded system code setup
+##  3. <a name='Embeddedsystemcodesetup'></a>Embedded system code setup
 
 * Each project gets its own `triceConfig.h` file.
 * Modify `triceConfig.h` acording your needs. Choose the *trice* mode here:
@@ -87,7 +91,7 @@ Afterwards you should find an executable `trice` inside $GOPATH/bin/ and you can
 * The used serial Go driver package is Linux & Windows tested but should work on MacOS soon too.
 * It is sufficient for most cases just to use the `TRICE` macro with max 0 to 12 parameters as a replacement for `printf` and to use the default settings.
 
-##  5. <a name='Adaptyourlegacysourcecode'></a>Adapt your legacy source code
+##  4. <a name='Adaptyourlegacysourcecode'></a>Adapt your legacy source code
 
 For example change the legacy source code line
 
@@ -180,7 +184,7 @@ The function call overhead is reasonable and the advantage is significant less c
 
 -->
 
-##  6. <a name='tricetool'></a>`trice` tool
+##  5. <a name='tricetool'></a>`trice` tool
 
 Executing `trice update` at the root of your project source updates in case of changes, the trice statements inside the source code and the ID list. The `-src` switch can be used multiple times to keep the amount of parsed data small for better speed.
 
@@ -195,9 +199,9 @@ The trices can come mixed from inside interrupts (light blue `ISR:...`) or from 
 
 Use the `-color off` switch for piping output in a file.
 
-##  7. <a name='Setup'></a>Setup
+##  6. <a name='Setup'></a>Setup
 
-###  7.1. <a name='Projectstructure'></a>Project structure
+###  6.1. <a name='Projectstructure'></a>Project structure
 
    name        | info                                                    |
 ---------------|---------------------------------------------------------|
@@ -210,13 +214,13 @@ test/          | example target projects                                 |
 third_party/   | external components                                     |
 
 <!---
-###  7.2. <a name='Checkthetricebinary'></a>Check the `trice` binary
+###  6.2. <a name='Checkthetricebinary'></a>Check the `trice` binary
 * Copy command trice into a path directory.
 * Run inside a shell `trice check -list path/to/trice/examples/triceDemoF030R8/MDK-ARM/`[til.json](../examples/triceDemoF030R8/MDK-ARM/til.json). You should see output like this:
 ![](./ref/Check.PNG)
 --->
 
-###  7.3. <a name='InstrumentatargetsourcecodeprojectHowtousetriceinyourproject'></a>Instrument a target source code project (How to use trice in your project)
+###  6.3. <a name='InstrumentatargetsourcecodeprojectHowtousetriceinyourproject'></a>Instrument a target source code project (How to use trice in your project)
 
 Look at one of the appropriate test projects as example. In general:
 
@@ -273,14 +277,14 @@ Quick workaround:
 * It could be helpful to add `trice u ...` as prebuild step into your toolchain for each file or for the project as a whole.
   This way you cannot forget the update step, it performs automatically.
 
-##  8. <a name='Encryption'></a>Encryption
+##  7. <a name='Encryption'></a>Encryption
 
 * You can deliver your device with encrypted trices. This way only the service is able to read the *Trices*.
 * Implemented is XTEA but this is easy exchangeable.
 * The 8 byte blocks can get encrypted by enabling `#define ENCRYPT...` inside *triceConfig.h*. You need to add `-key test` as **log** switch and you're done.
 * Any password is usable instead of `test`. Simply add once the `-show` switch and copy the displayed passphrase into the *config.h* file.
 
-##  9. <a name='Optionsfortricetool'></a>Options for `trice` tool
+##  8. <a name='Optionsfortricetool'></a>Options for `trice` tool
 
 The trice tool is very easy to use even it has a plenty of options. Most of them normally not needed.
 The trice tool can be started in several modes (sub-commands), each with several mandatory or optional switches. Switches can have parameters or not.
@@ -677,13 +681,13 @@ example: 'trice zeroSourceTreeIds -src ../A': Sets all TRICE IDs to 0 in ../A. U
 
 ```
 
-##  10. <a name='Tricecommandlineexamples'></a>*Trice* command line examples
+##  9. <a name='Tricecommandlineexamples'></a>*Trice* command line examples
 
 * The **trice** tool has many command line options, but is easy to use with default values.
 * No config file implemented yet. But the command history is usable for example inside the bash, simply enter CTRL-R and start typing `trice...` and you can select from the history.
 * All commands are tested.
 
-###  10.1. <a name='Cheatsheet'></a>Cheat sheet
+###  9.1. <a name='Cheatsheet'></a>Cheat sheet
 
 * `trice h -all` shows all options of the current version.
 * `trice ver` prints version information.
@@ -695,9 +699,9 @@ example: 'trice zeroSourceTreeIds -src ../A': Sets all TRICE IDs to 0 in ../A. U
 * `trice ds` starts a display server listening on default ip address *127.0.0.1:61487* or any specified value, so also on a remote device, lets say with ip address 192.168.1.200.
 * `trice l -p COM18 -ds` sends the log strings to a display server with default ip address *127.0.0.1:61487* or any specified value, if for example `-ipa 192.168.1.200` the trice logs go to the remote device. You can start several trice log instances, all transmitting to the same display server.
 
-###  10.2. <a name='Furtherexamples'></a>Further examples
+###  9.2. <a name='Furtherexamples'></a>Further examples
 
-####  10.2.1. <a name='Automatedpre-buildupdatecommand'></a>Automated pre-build update command
+####  9.2.1. <a name='Automatedpre-buildupdatecommand'></a>Automated pre-build update command
 
 * Scan directories `../src`, `../lib/src` and `./` to update the IDs there and extend list file `../../../til.json`
 
@@ -739,9 +743,9 @@ The `-p` switch contains the needed Segger `JLinkRTTLogger.exe` command line swi
 trice sd -r 192.168.1.23:45678
 ```
 
-##  11. <a name='Additionalhints'></a>Additional hints
+##  10. <a name='Additionalhints'></a>Additional hints
 
-###  11.1. <a name='Logfileviewing'></a>Logfile viewing
+###  10.1. <a name='Logfileviewing'></a>Logfile viewing
 
 `trice` generated logfiles with sub-command switch `-color off` are normal ASCII files. If they are with color codes, these are ANSI escape sequences.
 
@@ -751,12 +755,43 @@ trice sd -r 192.168.1.23:45678
 [Color issues under Windows](./TriceColor.md#color-issues-under-windows)
 
 ---
-##  12. <a name='Sub-commandcheckNotimplemented'></a>Sub-command `check` (Not implemented!)
+##  11. <a name='Sub-commandcheckNotimplemented'></a>Sub-command `check` (Not implemented!)
 
 * `trice check` will check the JSON list and emit all TRICE statements inside the list once with a dataset.
 
-###  12.1. <a name='checkswitch-dataset'></a>`check` switch '-dataset'
+###  11.1. <a name='checkswitch-dataset'></a>`check` switch '-dataset'
 
 * This is a `string` switch. It has one parameter. Its default value is `position`. That means each parameter has a different value. This is useful for testing.
 * The `negative` value is uses a dataset with negative values for testing.
 * Running `trice check` should show your message, indicating everything is fine so far.
+
+##  12. <a name='TargetConfiguration'></a>Target Configuration 
+
+All project specific settings are done inside [triceConfig.h](https://github.com/rokath/trice/tree/master/pkg/src/intern/triceConfig.h) which one should copy into the project folder. The [trice.h](../pkg/src/trice.h) and [trice.c](../pkg/src/trice.c) are mend to be used unchanged in several projects.
+
+###  12.1. <a name='TargetsideTriceOn-Off'></a>Target side *Trice* On-Off
+
+* If your code works well after checking, you can add `#define TRICE_OFF` just before the `#include "trice.h"` line and no *trice* code is generated anymore for that file, so no need to delete or comment out `TRICE` macros.
+* No runtime On-Off switch is implemented for  several reasons:
+  * Would need a control channel to the target.
+  * Would add little performance and code overhead.
+  * Would sligtly change target timing (testing).
+  * User can add its own switches anywhere.
+  * The short `TRICE` macro code is negligible.
+  * The trice output is encryptable, if needed.
+* Because of the low *Trice* bandwidth needs and to keep the target code as clear as possible the runtime On-Off decision should be done by the **trice** tool.
+* See also issue [#243](https://github.com/rokath/trice/issues/243).
+
+##  13. <a name='Host'></a>Host
+
+The **trice** tool supports many [command line switches](./TriceUserGuide.md#9-options-for-trice-tool) which are usable also inside of batch scripts.
+
+###  13.1. <a name='HostsideTriceOn-Off'></a>Host side *Trice* On-Off
+
+* The PC **trice** tool offers command line switches to `-pick` or `-ban` for *trice* channels and will be extended with display switches.
+* A **trice** tool logLevel switch is possible too (Issue [#236](https://github.com/rokath/trice/issues/236)).
+
+##  14. <a name='Usingadifferentencoding'></a>Using a different encoding
+
+It is possible to exchange the code behind the `TRICE` macros with a different encoding and to add an appropriate decoder to the **trice** tool.
+The ID assignment is adjustable with `-IDMin` and `-IDMax`.

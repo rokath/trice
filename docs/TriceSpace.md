@@ -1,18 +1,15 @@
 # *Trice* memory needs
 
-##  1. <a name='TableofContents'></a>Table of Contents
-
 <!-- vscode-markdown-toc -->
-* 1. [Table of Contents](#TableofContents)
-* 2. [*Trice* Space example](#TriceSpaceexample)
-* 3. [Memory needs (ARM example project)](#MemoryneedsARMexampleproject)
+* 1. [*Trice* Space example](#TriceSpaceexample)
+* 2. [Memory needs (ARM example project)](#MemoryneedsARMexampleproject)
 
 <!-- vscode-markdown-toc-config
 	numbering=true
 	autoSave=true
 	/vscode-markdown-toc-config -->
 <!-- /vscode-markdown-toc -->
-##  2. <a name='TriceSpaceexample'></a>*Trice* Space example
+##  1. <a name='TriceSpaceexample'></a>*Trice* Space example
 
 - STM32CubeMX generated empty default project: `Program Size: Code=2208 RO-data=236 RW-data=4 ZI-data=1636`  
 - Same project with default `Trice` instrumentation: `Program Size: Code=2828 RO-data=236 RW-data=44 ZI-data=1836`
@@ -24,7 +21,9 @@
 - No format strings get into the target code anymore.
 - In general *Trice* instrumentation **reduces** the needed memory compared to a printf-like implementation.
 
-##  3. <a name='MemoryneedsARMexampleproject'></a>Memory needs (ARM example project)
+##  2. <a name='MemoryneedsARMexampleproject'></a>Memory needs (Legacy ARM example project)
+
+The following numbers are measured with a legacy encoding, showing that the instrumentation code can be even smaller.
 
 Program Size (STM32-F030R8 demo project)     |trice instrumentation|buffer size|compiler optimize for time| comment
 ---------------------------------------------|------------------------|-----------|-------------------------|-----------------------------
