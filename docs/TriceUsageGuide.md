@@ -515,9 +515,9 @@ example: 'trice l': Display flexL data format trice log messages from default so
 example: 'trice l -port ST-LINK -v -s': Shows verbose version information and also the received raw bytes.
 sub-command 'r|refresh': For updating ID list from source files but does not change the source files.
         "trice refresh" will parse source tree(s) for TRICE macros, and refresh/generate the JSON list.
-        This command should be run on adding souce files to the project before the first time "trice update" is called.
+        This command should be run on adding source files to the project before the first time "trice update" is called.
         If the new source files contain TRICE macros with IDs these are added to til.json if not already used.
-        Already used IDs are reported, so you have the chance to remnove them from til.son and then do "trice u" again.
+        Already used IDs are reported, so you have the chance to remove them from til.son and then do "trice u" again.
         This way you can make sure to get the new sources unchanged in your list.
         Already used IDs are replaced by new IDs during the next "trice update", so the old IDs in the list will survive.
         If you do not refresh the list after adding source files and perform an "trice update" new generated IDs could be equal to
