@@ -62,6 +62,7 @@ Start `trice ds` inside a console, option: [third_party/alacritty](./third_party
 ## Documentation
 
 - [https://interrupt.memfault.com/blog/trice](https://interrupt.memfault.com/blog/trice)
+- [Trice User Guide](./docs/TriceUserGuide.md)
 - Check the [docs](./docs) folder. No need to read all this stuff - is is just for help and reference.
 
 ## Support?
