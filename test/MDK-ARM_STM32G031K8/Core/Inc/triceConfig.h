@@ -49,24 +49,32 @@ uint32_t ReadUs( void );
 //! ST-LINK Command line similar to: `trice log -p ST-LINK -args="-Device STM32G071RB -if SWD -Speed 4000 -RTTChannel 0 -RTTSearchRanges 0x20000000_0x1000"`
 #if TRICE_MODE == 0 // must not use TRICE_ENCRYPT!
 #define TRICE_STACK_BUFFER_MAX_SIZE 128 //!< This  minus TRICE_DATA_OFFSET the max allowed single trice size. Usually ~40 is enough.
+#ifndef TRICE_ENTER
 #define TRICE_ENTER { /*! Start of TRICE macro */ \
     uint32_t co[TRICE_STACK_BUFFER_MAX_SIZE>>2]; /* Check TriceDepthMax at runtime. */ \
     uint32_t* TriceBufferWritePosition = co + (TRICE_DATA_OFFSET>>2);
+#endif
+#ifndef TRICE_LEAVE
 #define TRICE_LEAVE { /*! End of TRICE macro */ \
     unsigned tLen = ((TriceBufferWritePosition - co)<<2) - TRICE_DATA_OFFSET; \
     TriceOut( co, tLen ); } }
 #endif
+#endif // #if TRICE_MODE == 0
 
     
 //! Double Buffering output to RTT or UART with cycle counter. Trices inside interrupts allowed. Fast TRICE macro execution. 
 //! UART Command line similar to: `trice log -p COM1 -baud 115200`
 //! RTT Command line similar to: `trice l -args="-Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0 -RTTSearchRanges 0x20000000_0x1000"`
 #if TRICE_MODE == 200
+#ifndef TRICE_ENTER
 #define TRICE_ENTER TRICE_ENTER_CRITICAL_SECTION //! TRICE_ENTER is the start of TRICE macro. The TRICE macros are a bit slower. Inside interrupts TRICE macros allowed.
+#endif
+#ifndef TRICE_LEAVE
 #define TRICE_LEAVE TRICE_LEAVE_CRITICAL_SECTION //! TRICE_LEAVE is the end of TRICE macro.
+#endif
 #define TRICE_HALF_BUFFER_SIZE 2000 //!< This is the size of each of both buffers. Must be able to hold the max TRICE burst count within TRICE_TRANSFER_INTERVAL_MS or even more, if the write out speed is small. Must not exceed SEGGER BUFFER_SIZE_UP
 #define TRICE_SINGLE_MAX_SIZE 800 //!< must not exeed TRICE_HALF_BUFFER_SIZE!
-#endif
+#endif // #if TRICE_MODE == 200
 
 
 //! Double Buffering output to UART without cycle counter. No trices inside interrupts allowed. Fastest TRICE macro execution. 
@@ -77,7 +85,7 @@ uint32_t ReadUs( void );
 #define TRICE_LEAVE //! TRICE_LEAVE is the end of TRICE macro.
 #define TRICE_HALF_BUFFER_SIZE 2000 //!< This is the size of each of both buffers. Must be able to hold the max TRICE burst count within TRICE_TRANSFER_INTERVAL_MS or even more, if the write out speed is small. Must not exceed SEGGER BUFFER_SIZE_UP
 #define TRICE_SINGLE_MAX_SIZE 800 //!< must not exeed TRICE_HALF_BUFFER_SIZE!
-#endif
+#endif // #if TRICE_MODE == 201
 
 //
 ///////////////////////////////////////////////////////////////////////////////

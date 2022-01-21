@@ -5,6 +5,15 @@
 #ifndef TRICE_H_
 #define TRICE_H_
 
+#ifdef TRICE_OFF // do not generate trice code for files defining TRICE_OFF before including "trice.h"
+#define TRICE_CYCLE_COUNTER 0 // why needed here?
+#define TRICE_INTO
+#define TRICE_PUT(n) do{ ((void)(n)); }while(0)
+#define PUT_BUFFER(b,l) do{ ((void)(b)); ((void)(l)); }while(0)
+#define TRICE_LEAVE
+#define TRICE_S( id, p, s )  do{ ((void)(id)); ((void)(p)); ((void)(s)); }while(0)
+#endif
+
 #include "triceConfig.h"
 #include <stdint.h>
 #include <string.h>
@@ -108,7 +117,9 @@ extern uint8_t TriceCycle;
 //
 ///////////////////////////////////////////////////////////////////////////////
 
+#ifndef TRICE_PUT
 #define TRICE_PUT(x) do{ *TriceBufferWritePosition++ = x; }while(0) //! PUT copies a 32 bit x into the TRICE buffer.
+#endif
 
 #ifdef TRICE_BIG_ENDIANNESS
 #define TRICE_PUT64(x) TRICE_PUT( (uint32_t)((uint64_t)(x)>>32) ); TRICE_PUT( (uint32_t)(x) ); 
@@ -116,7 +127,9 @@ extern uint8_t TriceCycle;
 #define TRICE_PUT64(x) TRICE_PUT( (uint32_t)(x) ); TRICE_PUT( (uint32_t)((uint64_t)(x)>>32) );
 #endif
 
+#ifndef TRICE_PUTBUFFER
 #define TRICE_PUTBUFFER( buf, len ) do{ memcpy( TriceBufferWritePosition, buf, len ); TriceBufferWritePosition += (len+3)>>2; }while(0) //! TRICE_PUTBUFFER copies a buffer into the TRICE buffer.
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 // trice time measurement (STM32 only?)
@@ -267,8 +280,11 @@ static inline uint64_t aDouble( double x ){
 // TRICE macros
 //
 
-#define TRICE_INTO TRICE_ENTER TRICE_PUT_PREFIX; 
+#ifndef TRICE_INTO
+#define TRICE_INTO TRICE_ENTER TRICE_PUT_PREFIX;
+#endif
 
+#ifndef TRICE_S
 //! TRICE_S writes id and dynString.
 //! \param id trice identifier
 //! \param pFmt formatstring for trice (ignored here but used by the trice tool)
@@ -286,7 +302,7 @@ static inline uint64_t aDouble( double x ){
         TRICE32( Id( 54343), "wrn:Dynamic string truncated from %u to %u\n", len, limit ); \
         len = limit; \
     } \
-    TRICE_INTO; \
+    TRICE_INTO \
     TRICE_PUT( id | (0xff00 & ((len+7)<<6)) | TRICE_CYCLE ); /* +3 for padding, +4 for the buf size value transmitted in the payload to get the last 2 bits. */ \
     TRICE_PUT( len ); /* len as byte does not contain the exact buf len anymore, so transmit it to the host */ \
     /* len is needed for non string buffers because the last 2 bits not stored in head. */ \
@@ -294,19 +310,7 @@ static inline uint64_t aDouble( double x ){
     TRICE_PUTBUFFER( dynString, len ); \
     TRICE_LEAVE \
 } while(0)
-
-#ifdef TRICE_OFF // do not generate trice code for files defining TRICE_OFF before including "trice.h"
-#undef  TRICE_INTO
-#define TRICE_INTO
-#undef  TRICE_PUT
-#define TRICE_PUT(n) do{ ((void)(n)); }while(0)
-#undef  PUT_BUFFER
-#define PUT_BUFFER(b,l) do{ ((void)(b)); ((void)(l)); }while(0)
-#undef  TRICE_LEAVE
-#define TRICE_LEAVE
-#undef  TRICE_S
-#define TRICE_S( id, p, s )  do{ ((void)(id)); ((void)(p)); ((void)(s)); }while(0)
-#endif // #ifdef TRICE_OFF
+#endif // #ifndef TRICE_S
 
 #define Id(n) ((uint32_t)n<<16) //!< Id() is a 16 bit id 0-65535 as upper 2 bytes in head
 
