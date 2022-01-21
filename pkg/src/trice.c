@@ -39,12 +39,6 @@ static size_t triceDepth( uint32_t* tb ){
     return depth - TRICE_DATA_OFFSET;
 }
 
-//! TriceDepthMax returns the max trice buffer depth until now.
-size_t TriceDepthMax( void ){
-    size_t currentDepth = 4*(TriceBufferWritePosition - &triceBuffer[triceSwap][0]); 
-    return currentDepth > triceDepthMax ? currentDepth : triceDepthMax;
-}
-
 //! TriceTransfer, if possible, swaps the double buffer and initiates a write.
 //! It is the resposibility of the app to call this function once every 10-100 milliseconds.
 void TriceTransfer( void ){
@@ -57,7 +51,19 @@ void TriceTransfer( void ){
     } // else: transmission not done yet
 }
 
-#endif // #ifdef TRICE_HALF_BUFFER_SIZE
+//! TriceDepthMax returns the max trice buffer depth until now.
+size_t TriceDepthMax( void ){
+    size_t currentDepth = 4*(TriceBufferWritePosition - &triceBuffer[triceSwap][0]); 
+    return currentDepth > triceDepthMax ? currentDepth : triceDepthMax;
+}
+#else // #ifdef TRICE_HALF_BUFFER_SIZE
+
+//! TriceDepthMax returns the max trice buffer depth until now.
+size_t TriceDepthMax( void ){
+    return triceDepthMax;
+}
+
+#endif // #else #ifdef TRICE_HALF_BUFFER_SIZE
 
 //! TriceOut converts trice data and transmits them to the output.
 //! \param tb is start of uint32_t* trice buffer. The space TRICE_DATA_OFFSET>>2
