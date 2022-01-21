@@ -88,7 +88,7 @@ var ColorChannels = []ColorChannel{
 	{0, []string{"Warning", "w", "wrn", "warning", "W", "WRN", "WARNING", "Warn", "warn", "WARN"}, colorizeWARNING},
 	{0, []string{"att", "attention", "Attention", "ATT", "ATTENTION"}, colorizeATTENTION},
 	{0, []string{"Info", "i", "inf", "info", "informal", "I", "INF", "INFO", "INFORMAL"}, colorizeINFO},
-	{0, []string{"Debug", "d", "db", "dbg", "debug", "D", "DB", "DBG", "DEBUG"}, colorizeDEBUG},
+	{0, []string{"Debug", "d", "db", "dbg", "deb", "debug", "D", "DB", "DBG", "DEBUG"}, colorizeDEBUG},
 	{0, []string{"Trace", "trace", "TRACE"}, colorizeTRACE},
 
 	// user modes
