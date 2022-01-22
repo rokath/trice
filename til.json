@@ -3631,6 +3631,10 @@
 		"Type": "TRICE32",
 		"Strg": "rd:TRICE32 %d, %d, %d, %d, %d, %d\\n"
 	},
+	"57982": {
+		"Type": "TRICE64",
+		"Strg": "err: st64=%u \u003c st64_1=%u || st32=%u \u003c st32_1=%u\\n"
+	},
 	"57985": {
 		"Type": "TRICE_S",
 		"Strg": "rd: ??caf� \t%6s \tWidth 6, right justify\\n"

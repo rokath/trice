@@ -43,7 +43,7 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-int milliSecond = 0;
+uint32_t milliSecond = 0;
 uint64_t microSecond = 0;
 /* USER CODE END PV */
 
@@ -68,7 +68,7 @@ static void MX_USART2_UART_Init(void);
 //! \retval us count since last reset
 uint64_t ReadUs64( void ){
     static uint64_t us_1 = 0; // result of last call 
-    uint64_t us = microSecond + ((SysTick->LOAD - SysTick->VAL) * 87381) >> 22; // Divide 48MHz clock by 48,0001831 to get us part.
+    uint64_t us = microSecond + (((SysTick->LOAD - SysTick->VAL) * 87381) >> 22); // Divide 48MHz clock by 48,0001831 to get us part.
     if( us < us_1){ // Possible very close to systick ISR, when milliSecond was not incremented yet, but the systic wrapped already.
         us += 1000; // Time cannot go backwards, so correct the 1ms error in the assumption last call is not longer than 1ms back.
     }
@@ -85,7 +85,7 @@ uint64_t ReadUs64( void ){
 //! \retval us count since last reset modulo 2^32
 uint32_t ReadUs32( void ){
     static uint32_t us_1 = 0; // result of last call
-    uint32_t us = ((uint32_t)microSecond) + ((SysTick->LOAD - SysTick->VAL) * 87381) >> 22; // Divide clock by 48,0001831 to get us.
+    uint32_t us = ((uint32_t)microSecond) + (((SysTick->LOAD - SysTick->VAL) * 87381) >> 22); // Divide clock by 48,0001831 to get us.
     if( us < us_1){ // Possible very close to systick ISR, when milliSecond was not incremented yet, but the systic wrapped already.
         us += 1000; // Time cannot go backwards, so correct the 1ms error in the assumption last call is not longer than 1ms back.
     }
@@ -99,7 +99,10 @@ static void serveUs( void ){
     static uint32_t st32_1 = 0;
     uint64_t st64 = ReadUs64();
     uint32_t st32 = ReadUs32();
-    if( st64 < st64_1 || st32 < st32_1 ){
+    //static int virgin = 10;
+    if( /*virgin &&*/ (st64 < st64_1 || st32 < st32_1) ){
+        //TRICE64( Id(57982), "err: st64=%u < st64_1=%u || st32=%u < st32_1=%u\n", st64, st64_1, st32, st32_1 );
+        //virgin--;
         while(1); // stop, timing error
     }
     st64_1 = st64;
@@ -193,7 +196,7 @@ int main(void)
             }
         }
         serveUs();
-         __WFI(); // wait for interrupt (sleep)
+        __WFI(); // wait for interrupt (sleep)
         serveUs();
     }
   /* USER CODE END 3 */
