@@ -67,7 +67,7 @@ static void MX_USART2_UART_Init(void);
 //! intervals up to 584542 years, but the "OS" needs to call ReadUs64 internally regularely in <1ms intervals.
 //! \retval us count since last reset
 uint64_t ReadUs64( void ){
-    static uint64_t us_1 = 0; // result of last call
+    static uint64_t us_1 = 0; // result of last call 
     uint64_t us = microSecond + ((SysTick->LOAD - SysTick->VAL) >> 6); // Divide 64MHz clock by 64 to get us part.
     if( us < us_1){ // Possible very close to systick ISR, when milliSecond was not incremented yet, but the systic wrapped already.
         us += 1000; // Time cannot go backwards, so correct the 1ms error in the assumption last call is not longer than 1ms back.

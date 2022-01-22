@@ -20,10 +20,9 @@ extern "C" {
 //#define TRICE_RTT_CHANNEL 0 //!< Uncomment and set channel number for SeggerRTT usage.
 #define TRICE_UART USART2   //!< Uncomment and set UART for serial output.
 
-extern int milliSecond;
-uint32_t ReadUs( void );
+uint32_t ReadUs32( void );
 #define TRICE_LOCATION (TRICE_FILE| __LINE__) //!< Uncomment if you do not need target location. TRICE_FILE occcupies the upper 16 bit.
-#define TRICE_TIMESTAMP ReadUs()     //!< Uncomment if you do not need target timestamps. Instead of SYSTICKVAL, you can use any other up to 32-bit value, like milliSecond.
+#define TRICE_TIMESTAMP ReadUs32()            //!< Uncomment if you do not need target timestamps. Instead of SYSTICKVAL, you can use any other up to 32-bit value, like milliSecond.
 
 
 
