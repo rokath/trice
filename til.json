@@ -699,6 +699,10 @@
 		"Type": "TRICE32_1",
 		"Strg": "rd:TRICE32_1 float %-.9f (%%.9f)\\n"
 	},
+	"37555": {
+		"Type": "TRICE64",
+		"Strg": "CRITICAL: st %d \u003c st_1 %d: delta = %d\\n"
+	},
 	"37628": {
 		"Type": "TRICE_FILE",
 		"Strg": "stm32g0xx_ll_gpio.c"
@@ -1963,6 +1967,10 @@
 		"Type": "TRICE32_2",
 		"Strg": "tst:TRICE32_2 %d %d\\n"
 	},
+	"47239": {
+		"Type": "TRICE",
+		"Strg": "time: %d µs - ReadUs32() lasts %d ticks\\n"
+	},
 	"47265": {
 		"Type": "TRICE",
 		"Strg": "tim:TRICE attention message, SysTick is %6d\\n"
@@ -2027,9 +2035,17 @@
 		"Type": "TRICE32_1",
 		"Strg": "rd:TRICE32_1 line %X (%%X)\\n"
 	},
+	"47979": {
+		"Type": "TRICE",
+		"Strg": "time: %d µs - ReadUs32() lasts %d ticks\\n"
+	},
 	"48003": {
 		"Type": "TRICE8",
 		"Strg": "tst:TRICE8   %%4o -\u003e %4o %4o %4o %4o\\n"
+	},
+	"48011": {
+		"Type": "TRICE",
+		"Strg": "time: %d µs - ReadUs32() lasts %d ticks\\n"
 	},
 	"48023": {
 		"Type": "TRICE_FILE",
@@ -2074,6 +2090,10 @@
 	"48242": {
 		"Type": "TRICE",
 		"Strg": "rd:TRICE float %-9f (%%9f)\\n"
+	},
+	"48246": {
+		"Type": "TRICE64",
+		"Strg": "CRITICAL: st %d \u003c st_1 %d: delta = %d\\n"
 	},
 	"48273": {
 		"Type": "TRICE64",
@@ -2215,6 +2235,10 @@
 		"Type": "TRICE8_3",
 		"Strg": "tst:TRICE8_3 %d %d %d\\n"
 	},
+	"49148": {
+		"Type": "TRICE64",
+		"Strg": "CRITICAL: st %d \u003c st_1 %d: delta = %d\\n"
+	},
 	"49170": {
 		"Type": "TRICE8_8",
 		"Strg": "rd:TRICE8_8 %d, %d, %d, %d, %d, %d, %d, %d\\n"
@@ -2270,6 +2294,10 @@
 	"49511": {
 		"Type": "TRICE64",
 		"Strg": "tst:TRICE64 %t %b %x %X %d %u %o %O %p %e %f %g\\n"
+	},
+	"49527": {
+		"Type": "TRICE",
+		"Strg": "time: %d µs - ReadUs32() lasts %d ticks\\n"
 	},
 	"49557": {
 		"Type": "TRICE32_2",
@@ -2527,6 +2555,10 @@
 		"Type": "TRICE32_1",
 		"Strg": "rd:TRICE32_1 float %9.6f (%%9.3f)\\n"
 	},
+	"51323": {
+		"Type": "TRICE",
+		"Strg": "time: %d µs - ReadUs32() lasts %d ticks\\n"
+	},
 	"51343": {
 		"Type": "TRICE16_1",
 		"Strg": "MSG:normal      message, SysTick is %6u\\n"
@@ -2719,6 +2751,10 @@
 		"Type": "TRICE8_1",
 		"Strg": "tst:TRICE8_1 %02x\\n"
 	},
+	"52583": {
+		"Type": "TRICE64",
+		"Strg": "CRITICAL: st %d \u003c st_1 %d: delta = %d\\n"
+	},
 	"52591": {
 		"Type": "TRICE64_1",
 		"Strg": "rd:TRICE64_1 line %d (%%d)\\n"
@@ -2734,6 +2770,10 @@
 	"52619": {
 		"Type": "TRICE32",
 		"Strg": "tst:TRICE32 %d %d %d %d %d %d %d %d %d\\n"
+	},
+	"52621": {
+		"Type": "TRICE64",
+		"Strg": "CRITICAL: st %d \u003c st_1 %d: delta = %d\\n"
 	},
 	"52625": {
 		"Type": "TRICE64",
@@ -3686,6 +3726,10 @@
 	"58781": {
 		"Type": "TRICE32_1",
 		"Strg": "tst:TRICE32_1 %08x\\n"
+	},
+	"58786": {
+		"Type": "TRICE",
+		"Strg": "time: %d µs - ReadUs32() lasts %d ticks\\n"
 	},
 	"58794": {
 		"Type": "TRICE64",
