@@ -730,8 +730,11 @@ example: 'trice zeroSourceTreeIds -src ../A': Sets all TRICE IDs to 0 in ../A. U
 * `trice l -p COM18` listens and displays trice logs on serial port COM18 at default baud rate 115200. It uses the **til.json** file.
   * Use the additional log witch `-showInputBytes` to check if any bytes are received from the **trice** tool.
   * With `-debug` you can see the COBS and decoded and single *Trice* packages.
+
+<!--
 * `trice ds` starts a display server listening on default ip address *127.0.0.1:61487* or any specified value, so also on a remote device, lets say with ip address 192.168.1.200.
 * `trice l -p COM18 -ds` sends the log strings to a display server with default ip address *127.0.0.1:61487* or any specified value, if for example `-ipa 192.168.1.200` the trice logs go to the remote device. You can start several trice log instances, all transmitting to the same display server.
+-->
 
 ###  9.2. <a name='Furtherexamples'></a>Further examples
 
