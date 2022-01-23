@@ -1,9 +1,13 @@
 # *Trice* Configuration file
 
 > (Not implemented! - just ideas)
+> 
 > (Not implemented! - just ideas)
+> 
 > (Not implemented! - just ideas)
+> 
 > (Not implemented! - just ideas)
+> 
 > (Not implemented! - just ideas)
 
 <!-- vscode-markdown-toc -->
