@@ -36,7 +36,7 @@
 
 * No need to explicit express the value bit width.
 * The default parameter width for the `TRICE` macro is 32 bit. It is adaptable for 8- or 16-bit MCUs:
-  * Adapt settings inside `triceConfig.h`.
+  * Adapt settings inside `triceConfig.h`: ![./ref/DefaultBitWidth.PNG](./ref/DefaultBitWidth.PNG)
   * Use `-defaultTRICEBitwidth` switch during logging.
 * The macros `TRICE8`, `TRICE16`, `TRICE32`, `TRICE64` are usable too, to define the bit width explicit.
   * This leads for the smaller bit widths to a data packing and less needed space and bandwidth.

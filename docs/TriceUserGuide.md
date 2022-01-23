@@ -3,28 +3,28 @@
 > _(Read this)_
 
 <!-- vscode-markdown-toc -->
-* 1. [Get started](#Getstarted)
-* 2. [Build `trice` tool from Go sources option](#BuildtricetoolfromGosourcesoption)
-* 3. [Embedded system code setup](#Embeddedsystemcodesetup)
-* 4. [Adapt your legacy source code](#Adaptyourlegacysourcecode)
-* 5. [`trice` tool](#tricetool)
-* 6. [Setup](#Setup)
-	* 6.1. [Project structure](#Projectstructure)
-	* 6.2. [Check the `trice` binary](#Checkthetricebinary)
-	* 6.3. [Instrument a target source code project (How to use trice in your project)](#InstrumentatargetsourcecodeprojectHowtousetriceinyourproject)
+* 1. [Project structure](#Projectstructure)
+* 2. [Get started](#Getstarted)
+	* 2.1. [Get it](#Getit)
+	* 2.2. [Install It](#InstallIt)
+	* 2.3. [Use It](#UseIt)
+* 3. [Build `trice` tool from Go sources (you can skip that)](#BuildtricetoolfromGosourcesyoucanskipthat)
+* 4. [Embedded system code setup](#Embeddedsystemcodesetup)
+* 5. [Adapt your legacy source code](#Adaptyourlegacysourcecode)
+* 6. [`trice` tool in logging action](#tricetoolinloggingaction)
 * 7. [Encryption](#Encryption)
-* 8. [Options for `trice` tool](#Optionsfortricetool)
+* 8. [CLI Options for `trice` tool](#CLIOptionsfortricetool)
 * 9. [*Trice* command line examples](#Tricecommandlineexamples)
 	* 9.1. [Cheat sheet](#Cheatsheet)
 	* 9.2. [Further examples](#Furtherexamples)
-		* 9.2.1. [Automated pre-build update command](#Automatedpre-buildupdatecommand)
+		* 9.2.1. [Automated pre-build update command example](#Automatedpre-buildupdatecommandexample)
+		* 9.2.2. [Some Log examples](#SomeLogexamples)
+		* 9.2.3. [Logging over a display server](#Loggingoveradisplayserver)
 * 10. [Additional hints](#Additionalhints)
 	* 10.1. [Logfile viewing](#Logfileviewing)
 * 11. [Target side *Trice* On-Off](#TargetsideTriceOn-Off)
 * 12. [Host side *Trice* On-Off](#HostsideTriceOn-Off)
 * 13. [Using a different encoding](#Usingadifferentencoding)
-* 14. [Sub-command `check` (Not implemented!)](#Sub-commandcheckNotimplemented)
-	* 14.1. [`check` switch '-dataset' (Not implemented!)](#checkswitch-datasetNotimplemented)
 
 <!-- vscode-markdown-toc-config
 	numbering=true
@@ -32,13 +32,38 @@
 	/vscode-markdown-toc-config -->
 <!-- /vscode-markdown-toc -->
 
-##  1. <a name='Getstarted'></a>Get started
+##  1. <a name='Projectstructure'></a>Project structure
 
-* Download latest release assets for your system: Source code and compressed binaries.
+   name        | info                                                    |
+---------------|---------------------------------------------------------|
+cmd/trice      | `trice` tool command Go sources                         |
+cmd/cui        | (do not use) command user interface tryout code         |
+docs/          | documentation                                           |
+internal/      | `trice` tool internal Go packages                       |
+pkg/           | `trice` tool common Go packages                         |
+pkg/src/       | C sources for trice instrumentation                     |
+test/          | example target projects                                 |
+third_party/   | external components                                     |
+
+##  2. <a name='Getstarted'></a>Get started
+
+###  2.1. <a name='Getit'></a>Get it
+
+* OR Download latest release assets for your system: Source code and compressed binaries.
+* OR Clone the repo: `git clone https://github.com/rokath/trice.git`
+  * Later inside folder `trice`: `git pull` to get the latest changes.
+* OR use the ![./ref/Fork.PNG](./ref/Fork.PNG) button
+
+###  2.2. <a name='InstallIt'></a>Install It
+
 * Place the **trice** binary somewhere in your [PATH](https://en.wikipedia.org/wiki/PATH_(variable)).
+
+###  2.3. <a name='UseIt'></a>Use It
+
 * In a console type `trice help -all`. You should see the complete **trice** tool [CLI](https://en.wikipedia.org/wiki/Command-line_interface) documentation.
   * Don´t worry, most of it you will never need.
   * There are only 2 important commands: `trice u[pdate]` and `trice l[og]`.
+    * `trice h -u[pdate]` and `trice h l[og]` show partial help.
 * Copy 3 files to your embedded project:
   * `./pkg/src/trice.h`
   * `./pkg/src/trice.c`
@@ -47,16 +72,20 @@
 * In a function write: `TRICE( "1/11 = %g\n", aFloat( 1.0/11 ) );`
 * In project root:
   * Create empty file: `touch til.json`.
-  * Run `trice u` should do automatically (The numbers are just examples.):
-    * Patch source.c to `TRICE( Id(60363), "1/11 = %g\n", aFloat( 1.0/11 ) );`
-    * Extend `til.json`
-    * Add a line `#define TRICE_FILE Id(54321)` after the `#include "trice.h"` line in your source.c files.
+  * Run `trice u` should perform automatically these things (The numbers are just examples.):
+>>>    * Patch source.c to `TRICE( Id(60363), "1/11 = %g\n", aFloat( 1.0/11 ) );`
+>>>      * C & H files containing TRICE macros are only modified if needed (missing or obsolete Id(n))
+>>>    * Extend `til.json`
+>>>      * If no `til.json` is found nothing happens. At least an empty file is needed (Safety feature).
+>>>    * Add a line `#define TRICE_FILE Id(54321)` after the `#include "trice.h"` line in your source.c files.
+>>>      * Hint: Only source.c files with a `#include "trice.h"` line get patched.
 * When the program runs later it should output something similar to![./ref/1div11.PNG](./ref/1div11.PNG)
 
-##  2. <a name='BuildtricetoolfromGosourcesoption'></a>Build `trice` tool from Go sources (you can skip that)
+##  3. <a name='BuildtricetoolfromGosourcesyoucanskipthat'></a>Build `trice` tool from Go sources (you can skip that)
 
 * Install [Go](https://golang.org/).
-* On Windows you need to install [TDM-GCC](https://jmeubank.github.io/tdm-gcc/download/) * recommendation: Minimal online installer.
+* On Windows you need to install [TDM-GCC](https://jmeubank.github.io/tdm-gcc/download/) 
+  * Recommendation: Minimal online installer.
   * GCC is only needed for [./pkg/src/src.go](https://github.com/rokath/trice/blob/master/pkg/src/src.go), what gives the option to test the C-code on the host.
   * Make sure TDM-GCC is found first in the path.
   * Other gcc variants could work also but not tested.
@@ -71,33 +100,45 @@ go install ./...
 
 Afterwards you should find an executable `trice` inside $GOPATH/bin/ and you can modify its source code.
 
-##  3. <a name='Embeddedsystemcodesetup'></a>Embedded system code setup
+* The used serial Go driver package is Linux & Windows tested but should work on MacOS soon too.
+* For historical reasons there are 2 serial drivers inside the **trice** tool. This will be changed.
+
+##  4. <a name='Embeddedsystemcodesetup'></a>Embedded system code setup
 
 * Each project gets its own [triceConfig.h](../test/MDK-ARM_STM32F030R8/Core/Inc/triceConfig.h) file.
 * Modify [triceConfig.h](../test/MDK-ARM_STM32F030R8/Core/Inc/triceConfig.h) according your needs. Choose the *Trice* mode here:
   * Immediate mode: Straight output inside `TRICE` macro at the cost of the time it takes.
     * With `#define TRICE_MODE 0` (immediate mode) just provide a **putchar()** function.
-  * Deferred mode: Outside `TRICE` macro, a background output some milliseconds later at the cost of RAM buffer needed.
+  * Deferred mode: Outside `TRICE` macro, a background output some milliseconds later is needed at the cost of RAM buffer.
     * Compare the **not** instrumented test project [./test/MDK-ARM_STM32F030R8_generated]([./test/MDK-ARM_STM32F030R8_generated) with the instrumented test project [./test/MDK-ARM_STM32F030R8]([./test/MDK-ARM_STM32F030R8) to see an implementation example.
 * Recommended is a deferred mode which allows to use `TRICE` macros also inside interrupts.
-* In some cases, when logging a huge amount of data without timing constraints the immediate mode is a better choice.
-* If speed and log volume is needed care must be taken to avoid *Trice* buffer overflow for example by time triggered *Trices*.
-* Set Options:
+  * In some cases, when logging a huge amount of data without timing constraints the immediate mode is a better choice.
+* If speed **and** log volume is needed, care must be taken to avoid *Trice* buffer overflow for example by time triggering.
+* Set options inside [triceConfig.h](../test/MDK-ARM_STM32F030R8/Core/Inc/triceConfig.h):
   * Target timestamps and their time base
-  * Cycle counter
-  * Allow `TRICE` usage inside interrupts
-  * Buffer size
+  * A cycle counter is per default active.
+    * `#define TRICE_CYCLE_COUNTER 0` to deactivate it for a bit more speed (and less code).
+  * Allow `TRICE` usage inside interrupts for a bit less speed (and more code):
+    * `#define TRICE_ENTER TRICE_ENTER_CRITICAL_SECTION`
+    * `#define TRICE_LEAVE TRICE_LEAVE_CRITICAL_SECTION`
+  * Buffer size (use function `TriceDepthMax()` to check the used buffer depth):
+    * Immediate mode: `#define TRICE_STACK_BUFFER_MAX_SIZE 128` - space for one *Trice*
+    * Deferred mode: `#define TRICE_HALF_BUFFER_SIZE 1000`- space for *Trices* within ~100ms
   * *Trice* output over UART 
-    * `#define TRICE_UART USART2`:  In project root a command like `trice l -p COM14` is needed. should show something similar to![./ref/1div11.PNG](./ref/1div11.PNG) after app start.
-  * *Trice* output over RTT: Please refer to the RTT document
+    * `#define TRICE_UART USART2`:  In project root a command like `trice l -p COM14` is needed. It should show something similar to![./ref/1div11.PNG](./ref/1div11.PNG) after app start.
+  * *Trice* output over RTT: Please refer to the [./TriceOverRTT.md](./TriceOverRTT.md) document.
+  * Further *Trice* output options: Please refer to the [./TriceOverOneWire.md](./TriceOverOneWire.md) document.
 * All compiler and hardware specific adaption should be possible inside `triceConfig.h`
 * Compile, load and start your app.
-* Look in `./pkg/src/triceCheck.c` for usage examples.
-* The used serial Go driver package is Linux & Windows tested but should work on MacOS soon too.
-* It is sufficient for most cases just to use the `TRICE` macro with max 0 to 12 parameters as a replacement for `printf` and to use the default settings.
-* For more compact transfer consider `TRICE8` & `TRICE16` macros or if `double` is needed use `TRICE64`.
+* Look in [triceCheck.c](../pkg/src/triceCheck.c) for usage examples.
+  * It contains many `TRICE` macros in many variants.
+* Because of performance reasons there is no function call inside `TRICE`. Too much `TRICE` macros could take too much FLASH space. But you can deactivate the code generation for all`TRICE` macros on file granularity. (see [Target side Trice On-Off] below)
 
-##  4. <a name='Adaptyourlegacysourcecode'></a>Adapt your legacy source code
+* It is sufficient for most cases just to use the `TRICE` macro with max 0 to 12 parameters as a replacement for `printf` and to use the default settings.
+  * For more compact transfer consider `TRICE8` & `TRICE16` macros or if `double` is needed use `TRICE64`.
+  * Further reading: [TriceVsPrintfSimilaritiesAndDifferences.md](TriceVsPrintfSimilaritiesAndDifferences.md).
+
+##  5. <a name='Adaptyourlegacysourcecode'></a>Adapt your legacy source code
 
 For example change the legacy source code line
 
@@ -118,17 +159,21 @@ This you could do automatically using a word processor. Care must be taken in th
 * double numbers: surround each with `aDouble` and use the `TRICE64` macro
 * runtime generated strings: Each needs its own `TRICE_S` macro: `TRICE_S( Id(11223), "Entered name is %20s\n", "Paul" );`
 
-A `trice update` (run it later automatically in the tool chain) inserts the *Trice* IDs  
+A `trice update` (run it later in the tool chain to keep everything automatically up-to-date) inserts the *Trice* IDs:
 
 ```c
 TRICE( Id(12345), "%d Kelvin\n", k );
 ```
 
+<!--
 and adds for example the *ID 12345* together with *"%d Kelvin\n"* into a **t**rice **I**D **l**ist, a [JSON](https://www.json.org/json-en.html) reference file named [til.json](../til.json). The *12345* is a random or policy generated ID not used so far. During compilation the `TRICE` macro is translated to only a *12345* reference and the variable *k*. The format string never sees the target.
+-->
 
-When you compare the needed FLASH size before and after you probably will see more free space afterwards, because the *Trice* code is less than 1 KB, no format strings anymore inside the target and you do not need a printf library anymore.
+When you compare the needed FLASH size before and after you probably will see more free space afterwards, because the *Trice* code is less than 1 KB, no format strings anymore inside the target and you do not need a printf library anymore. Be aware that `TRICE` is a macro adding each time it is used some code.
 
-A trice instruction is avoiding all the internal overhead (space and time) of a `printf()` statement but is easy to use. For example instead of writing
+<!--
+
+A `TRICE` macro is avoiding all the `printf()` internal overhead (space and time) but is nearly as easy to use. For example instead of writing
 
 ```c
 printf("time is %d:%d:%d\n", hour, min, sec);
@@ -140,7 +185,9 @@ you can write
 TRICE8("time is %d:%d:%d\n", hour, min, sec);
 ```
 
-into a source file of your project. The `8` stands here for 8 bit values (`0`, `16`, `32` and `64` also possible). Only values of the same size are allowed in one TRICE* statement, but you can use `TRICE` consequently to match most cases for the prize of little overhead.
+into a source file of your project. The `8` stands here for 8 bit values (`16`, `32` and `64` also possible). Values of mixed size are allowed in one `TRICE` macro, so you can use `TRICE` consequently to match most cases for the prize of little data overhead.
+
+Side note: If you look in detail at the *Trice* code you will see that a `TRICE8( "%d", 1 )` takes the same amount of transfer data as `TRICE( "%d", 1 )` and is even a bit slower because of the internal masking. But using `TRICE8( "%d%d%d%d%d%d%d%d%d%d%d%d", 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ;` instead of `TRICE( "%d%d%d%d%d%d%d%d%d%d%d%d", 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ;` will reduce the transfer bytes by 24 bytes.
 
 When performing `trice update` the source (tree) is parsed and in result this line changes to
 
@@ -152,20 +199,15 @@ or
 TRICE8_3( Id(12345), "time is %d:%d:%d\n", hour, min, sec);
 ```
 
-as you like where `12345` is an as ID generated 16-bit random (upward|downward also possible) number not used so far. 
-The TRICE8`_3` means 3 parameters in this example and allows efficient code and a compile time check. Variadic macros are usable.
-Per default the macro name `TRICE8` is not changed for a slightly more readable code. If you wish a compile time parameter count check use `-addParamCount` to the update command line to convert a `TRICE8` into a `TRICE8_3` in the above example. Legacy code with valid IDs is not modified (You can use sub-command `zeroSourceTreeIds` to go around that.)
+as you like where `12345` is an as ID generated 16-bit random (upward|downward also possible) number not used so far. The TRICE8`_3` means 3 parameters in this example and allows efficient code and a compile time check. Per default the macro name `TRICE8` is not changed for a slightly more readable code. If you wish a compile time parameter count check use `-addParamCount` to the update command line, to convert a `TRICE8` into a `TRICE8_3` in the above example. Legacy code with valid IDs is not modified (You can use sub-command `zeroSourceTreeIds` to go around that.)
 
-*The total amount of data is currently limited to 12 parameters but this is easy to extend if needed.*
+The total amount of data is currently limited to 12 parameters but this is easy to extend if needed.
 
-When the embedded project is compiled, only the ID goes to the binary but not the format string, what results in a smaller memory footprint.
+When the embedded project is compiled, only the ID goes to the binary but not the format string, what results in a smaller memory footprint usually compared to a printf-like function call, because of the stored string.
 
-On execution the ID is pushed into a buffer together with the optional trice parameters and that is the real fast and important part which could be finished within 6-6 processor clocks ([measured](./TriceSpeed.md) on a ARM M0+).
-At 64 MHz in the time needed light travels about 30 meters. Slightly delayed in the background the *Trice* goes to the communication port, what is also fast compared to all the actions behind a `printf()` statement.
+On execution the ID is pushed into a buffer together with the optional *Trice* parameters and that is the real fast and important part which could be finished within 6-8 processor clocks ([measured](./TriceSpeed.md) on a ARM M0+). At 64 MHz in the time needed light travels about 30 meters. Slightly delayed in the background the *Trice* goes to the communication port, what is also fast compared to all the actions behind a `printf()` statement.
 
 Please understand, that when debugging code containing `TRICE`macros, during a `TRICE` step-over only one ore more 32 bit values go into the internal buffer and no serial output immediately is visible because of the stopped target. But the SEGGER debug probe reads out the RTT memory and this way also during debug stepping real-time trice output is visible. That is (right now) not true for the ST-Link interface because there is only one USB endpoint.
-
-<!--
 
 trice instructions: `TRICE`, `Trice` or `trice` with or without ending letter 'i'?
 
@@ -190,43 +232,27 @@ The function call overhead is reasonable and the advantage is significant less c
 
 -->
 
-##  5. <a name='tricetool'></a>`trice` tool
+##  6. <a name='tricetoolinloggingaction'></a>`trice` tool in logging action
 
-Executing `trice update` at the root of your project source updates in case of changes, the trice statements inside the source code and the ID list. The `-src` switch can be used multiple times to keep the amount of parsed data small for better speed.
+Executing `trice update` at the root of your project source updates in case of changes, the *Trice* statements inside the source code and the ID list. The `-src` switch can be used multiple times to keep the amount of parsed data small for better speed.
 
-With `trice log -port COM12 -baud 115200` you can visualize the trices on the PC, if for example `COM12` is receiving the data from the embedded device.
+With `trice log -port COM12 -baud 921600` you can visualize the trices on the PC, if for example `COM12` is receiving the data from the embedded device at this baudrate.
 
 The following capture output comes from an example project inside`../test`
 
 ![life.gif](./ref/life.gif)
 
-See [triceCheck.c](https://github.com/rokath/trice/blob/master/pkg/src/triceCheck.c) for reference.
-The trices can come mixed from inside interrupts (light blue `ISR:...`) or from normal code. For usage with a RTOS trices are protected against breaks (`TRICE_ENTER_CRITICAL_SECTION`, `TRICE_LEAVE_CRITICAL_SECTION`). Regard the differences in the read SysTick values inside the GIF above These differences are the MCU clocks needed for one trice (~0,25µs@48MHz).
+See [triceCheck.c](../pkg/src/triceCheck.c) for reference. The *Trices* can come mixed from inside interrupts (light blue `ISR:...`) or from normal code. For usage with a RTOS *Trices* are protected against breaks (`TRICE_ENTER_CRITICAL_SECTION`, `TRICE_LEAVE_CRITICAL_SECTION`). Regard the differences in the read SysTick values inside the GIF above These differences are the MCU clocks needed for one trice (~0,25µs@48MHz).
 
 Use the `-color off` switch for piping output in a file.
 
-##  6. <a name='Setup'></a>Setup
-
-###  6.1. <a name='Projectstructure'></a>Project structure
-
-   name        | info                                                    |
----------------|---------------------------------------------------------|
-cmd/trice      | `trice` tool command Go sources                         |
-docs/          | documentation                                           |
-internal/      | `trice` tool internal Go packages                       |
-pkg/           | `trice` tool common Go packages                         |
-pkg/src/       | C sources for trice instrumentation                     |
-test/          | example target projects                                 |
-third_party/   | external components                                     |
-
 <!---
-###  6.2. <a name='Checkthetricebinary'></a>Check the `trice` binary
+//###  6.2. <a name='Checkthetricebinary'></a>Check the `trice` binary
 * Copy command trice into a path directory.
 * Run inside a shell `trice check -list path/to/trice/examples/triceDemoF030R8/MDK-ARM/`[til.json](../examples/triceDemoF030R8/MDK-ARM/til.json). You should see output like this:
 ![](./ref/Check.PNG)
---->
 
-###  6.3. <a name='InstrumentatargetsourcecodeprojectHowtousetriceinyourproject'></a>Instrument a target source code project (How to use trice in your project)
+//###  6.2. <a name='InstrumentatargetsourcecodeprojectHowtousetriceinyourproject'></a>Instrument a target source code project (How to use trice in your project)
 
 Look at one of the appropriate test projects as example. In general:
 
@@ -282,6 +308,7 @@ Quick workaround:
 * `printf(...)` statements containing string format specifier are quickly portable by using `TRICE_P(...)` but without the trice space and speed advantage. The TRICE_P() is intended only for the few dynamic strings in a ported  project.  Enable `TRICE_PRINTF_ADAPTER` increases the needed code size by a few KB.
 * It could be helpful to add `trice u ...` as prebuild step into your toolchain for each file or for the project as a whole.
   This way you cannot forget the update step, it performs automatically.
+-->
 
 ##  7. <a name='Encryption'></a>Encryption
 
@@ -290,7 +317,7 @@ Quick workaround:
 * The 8 byte blocks can get encrypted by enabling `#define ENCRYPT...` inside *triceConfig.h*. You need to add `-key test` as **log** switch and you're done.
 * Any password is usable instead of `test`. Simply add once the `-show` switch and copy the displayed passphrase into the *config.h* file.
 
-##  8. <a name='Optionsfortricetool'></a>Options for `trice` tool
+##  8. <a name='CLIOptionsfortricetool'></a>CLI Options for `trice` tool
 
 The trice tool is very easy to use even it has a plenty of options. Most of them normally not needed.
 The trice tool can be started in several modes (sub-commands), each with several mandatory or optional switches. Switches can have parameters or not.
@@ -706,7 +733,7 @@ example: 'trice zeroSourceTreeIds -src ../A': Sets all TRICE IDs to 0 in ../A. U
 
 ###  9.2. <a name='Furtherexamples'></a>Further examples
 
-####  9.2.1. <a name='Automatedpre-buildupdatecommand'></a>Automated pre-build update command
+####  9.2.1. <a name='Automatedpre-buildupdatecommandexample'></a>Automated pre-build update command example
 
 * Scan directories `../src`, `../lib/src` and `./` to update the IDs there and extend list file `../../../til.json`
 
@@ -715,6 +742,8 @@ trice u -v -i ../../../til.json -src ../src -src ../lib/src -src ./
 ```
 
 This is a typical line you can add to your project as an automatic pre-compile step.
+
+####  9.2.2. <a name='SomeLogexamples'></a>Some Log examples
 
 * Log trice messages on COM3 8N1 115200 baud
 
@@ -728,6 +757,8 @@ trice log -i ./myProject/til.json -p=COM3
 trice l -s COM3 -baud=9600
 ```
 
+####  9.2.3. <a name='Loggingoveradisplayserver'></a>Logging over a display server
+
 * Start displayserver on ip 127.0.0.1 (localhost) and port 61497
 
 ```bash
@@ -737,10 +768,8 @@ trice ds
 * Log trice messages on SEGGER J-Link RTT channel 2 and display on display server
 
 ```bash
-trice l -ds -JLRTT -p="-Device STM32F030R8 -if SWD -RTTChannel 2"
+trice l -ds -p COM3
 ```
-
-The `-p` switch contains the needed Segger `JLinkRTTLogger.exe` command line switches as string.
 
 * Shutdown remote display server on IP 192.168.1.23 port 45678
 
@@ -752,16 +781,15 @@ trice sd -r 192.168.1.23:45678
 
 ###  10.1. <a name='Logfileviewing'></a>Logfile viewing
 
-`trice` generated logfiles with sub-command switch `-color off` are normal ASCII files. If they are with color codes, these are ANSI escape sequences.
+Logfiles, **trice** tool generated with sub-command switch `-color off`, are normal ASCII files. If they are with color codes, these are ANSI escape sequences.
 
 * One easy view option is `less -R trice.log`. The Linux command `less` is also available inside the windows git bash.
 * Under Windows one could also download and use [ansifilter](https://sourceforge.net/projects/ansifilter/) for logfile viewing. A monospaced font is recommended.
-
-[Color issues under Windows](./TriceColor.md#color-issues-under-windows)
+* See also [Color issues under Windows](./TriceColor.md#color-issues-under-windows)
 
 ##  11. <a name='TargetsideTriceOn-Off'></a>Target side *Trice* On-Off
 
-* If your code works well after checking, you can add `#define TRICE_OFF` just before the `#include "trice.h"` line and no *trice* code is generated anymore for that file, so no need to delete or comment out `TRICE` macros.
+* If your code works well after checking, you can add `#define TRICE_OFF` just before the `#include "trice.h"` line and no *trice* code is generated anymore for that file, so no need to delete or comment out `TRICE` macros: : ![./ref/TRICE_OFF.PNG](./ref/TRICE_OFF.PNG)
 * No runtime On-Off switch is implemented for  several reasons:
   * Would need a control channel to the target.
   * Would add little performance and code overhead.
@@ -782,12 +810,14 @@ trice sd -r 192.168.1.23:45678
 It is possible to exchange the code behind the `TRICE` macros with a different encoding and to add an appropriate decoder to the **trice** tool.
 The ID assignment is adjustable with `-IDMin` and `-IDMax`.
 
-##  14. <a name='Sub-commandcheckNotimplemented'></a>Sub-command `check` (Not implemented!)
+<!--
+//##  14. <a name='Sub-commandcheckNotimplemented'></a>Sub-command `check` (Not implemented!)
 
 * `trice check` will check the JSON list and emit all TRICE statements inside the list once with a dataset.
 
-###  14.1. <a name='checkswitch-datasetNotimplemented'></a>`check` switch '-dataset' (Not implemented!)
+//###  14.1. <a name='checkswitch-datasetNotimplemented'></a>`check` switch '-dataset' (Not implemented!)
 
 * This is a `string` switch. It has one parameter. Its default value is `position`. That means each parameter has a different value. This is useful for testing.
 * The `negative` value is uses a dataset with negative values for testing.
 * Running `trice check` should show your message, indicating everything is fine so far.
+-->
