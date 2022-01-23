@@ -234,7 +234,9 @@ The function call overhead is reasonable and the advantage is significant less c
 
 ##  6. <a name='tricetoolinloggingaction'></a>`trice` tool in logging action
 
+<!--
 Executing `trice update` at the root of your project source updates in case of changes, the *Trice* statements inside the source code and the ID list. The `-src` switch can be used multiple times to keep the amount of parsed data small for better speed.
+-->
 
 With `trice log -port COM12 -baud 921600` you can visualize the trices on the PC, if for example `COM12` is receiving the data from the embedded device at this baudrate.
 
