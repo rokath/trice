@@ -3,7 +3,8 @@
 > _(Read only you are interested in)_
 >
 > Allows *Trice* over the debug probe without using a pin or UART.
-
+>
+> **This document needs a rework, currently it is a mess, sorry!**
 
 <!-- vscode-markdown-toc -->
 * 1. [Segger Real Time Transfer (RTT)](#SeggerRealTimeTransferRTT)
@@ -25,7 +26,7 @@
 	/vscode-markdown-toc-config -->
 <!-- /vscode-markdown-toc -->
 
-##  1. <a name='SeggerRealTimeTransferRTT'></a>Segger Real Time Transfer (RTT)
+##  1. <a name='SeggerRealTimeTransferRTT'></a>Segger Real Time Transfer (RTT) 
 
 * Prerequisite is a processor with memory background access support like ARM Cortex-M cores.
 * If you can use a Segger J-Link or an STM ST-Link debug probe (ST Microelectronics eval boards have it) this is an easy and fast way to use trice without any UART or other port.
@@ -40,13 +41,10 @@
     * Use some other Debug-Probe with target memory access (support welcome)
   * RTT channel selection (on target and on host)
     * RECOMMENDED:
-      * `trice l -p JLINK` or shorter `trice l` for STM32F030R8 (default port is JLINK) starts in background a `JLinkRTTLogger.exe` which \
-      connects to J-Link and writes to a logfile which in turn is read by the trice tool. On exit the `JLinkRTTLogger.exe` is killed automatically.\
-      It expects a target sending messages over RTT channel 0 (other channels supported too).\
-      It is possible to start several instances on different channels as well as on different targets.
-      * `trice l -p STLINK` starts in background a `trice/third_party/goST/stRttLogger.exe` which connects to J-Link and\
-      writes to a logfile which in turn is read by the trice tool. On exit the `stRttLogger.exe` is killed automatically.\
-      It expects a target sending messages over RTT channel 0 (other channels supported too).\
+      * `trice l -p JLINK` or shorter `trice l` for STM32F030R8 (default port is JLINK) starts in background a `JLinkRTTLogger.exe` which connects to J-Link and writes to a logfile which in turn is read by the trice tool. On exit the `JLinkRTTLogger.exe` is killed automatically.
+      It expects a target sending messages over RTT channel 0 (other channels supported too but may not work).
+      It should be possible to start several instances on different channels as well as on different targets.
+      * `trice l -p STLINK` starts in background a `trice/third_party/goST/stRttLogger.exe` which connects to ST-Link and writes to a logfile which in turn is read by the trice tool. On exit the `stRttLogger.exe` is killed automatically. It expects a target sending messages over RTT channel 0 (other channels supported too but may not work).\
       It is possible to start several instances on different channels as well as on different targets.
       * If you have the choice, prefer J-Link. It allows parallel debugging and trice output.
       * The full -args string is normally required and depends on the used device. Example: `trice l -args="-Device STM32F070RB -if SWD -Speed 4000 -RTTChannel 0 -RTTSearchRanges 0x20000000_0x1000"`. Enter `trice h -log` and read info for `-args` switch:
@@ -133,7 +131,7 @@ Following steps describe the needed action for a ST Microelectronics evaluation 
 
 ##  3. <a name='SoftwareSetupexampleJLinkRTTViewer.exeisdepreciateduseJLink.exeinstead'></a>Software Setup example (JLinkRTTViewer.exe is depreciated, use JLink.exe instead!)
 
-* Build and flash `../test/MDK-ARM_LL_UART_RTT0_PACK_STM32F030R8-NUCLEO-64`
+* Build and flash `../test/MDK-ARM_STM32F030R8`
   * Download [J-Link Software and Documentation Pack](https://www.segger.com/downloads/jlink/#J-LinkSoftwareAndDocumentationPack) and install.
   * Run `trice log -port JLINK` or in short `trice l`.
   * Now the trice output is visible.
@@ -217,7 +215,7 @@ libusb-1.0.23\examples\bin64> .\listdevs.exe
 
 ### RTT with original on-board ST-LINK firmware
 
-* `#define TRICE_RTT_CHANNEL 0`: Other channel numbers seam not to work for some reason.
+* `#define TRICE_RTT_CHANNEL 0`:
 * If you use a NUCLEO-F030R8 with the original ST-Link on board after firmware download enter: `trice l -p ST-LINK -args "-Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0 -RTTSearchRanges 0x20000000_0x2000"`. After pressing the reset button output becomes visible: ![./ref/STRTT.PNG](./ref/STRTT.PNG)
 * It works with both ST-Link variants (with or without mass storage device.)
 
@@ -228,3 +226,18 @@ libusb-1.0.23\examples\bin64> .\listdevs.exe
 ### RTT with J-LINK firmware on-board
 
 ![./ref/J-LinkRTT.PNG](./ref/J-LinkRTT.PNG)
+
+- Observations:
+  - When pressing the black reset button, you need to restart the **trice** tool.
+  - When restarting the trice tool, a target reset occurs.
+  - Other channel numbers than `0` seam not to work for some reason.
+
+## Possible issues
+
+* These boards seem not to work reliable with RTT over J-Link on-board firmware.
+  * NUCLEO-G071RB
+  * NUCLEO_G031K8
+* These boards seem not to work reliable with RTT over ST-Link on-board firmware.
+  * NUCLEO-G071RB
+  * NUCLEO_G031K8
+* After flashing back the ST-LINK OB firmware with the SEGGER tool, it is recommended to use the ST tool to update the ST-LINK OB firmware. Otherwise issues could occur.
