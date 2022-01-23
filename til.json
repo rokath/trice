@@ -523,6 +523,10 @@
 		"Type": "TRICE16",
 		"Strg": "rd:TRICE16 %d, %d, %d, %d, %d\\n"
 	},
+	"36291": {
+		"Type": "TRICE8",
+		"Strg": "s:     NUCLEO-G071RB     TRICE_MODE %3u     \\n"
+	},
 	"36296": {
 		"Type": "TRICE64_1",
 		"Strg": "rd:TRICE64_1 line %o (%%o)\\n"
