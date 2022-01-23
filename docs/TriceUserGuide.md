@@ -36,21 +36,24 @@
 
 * Download latest release assets for your system: Source code and compressed binaries.
 * Place the **trice** binary somewhere in your [PATH](https://en.wikipedia.org/wiki/PATH_(variable)).
-* In a console type `trice help` 
+* In a console type `trice help -all`. You should see the complete **trice** tool [CLI](https://en.wikipedia.org/wiki/Command-line_interface) documentation.
+  * Don´t worry, most of it you will never need.
+  * There are only 2 important commands: `trice u[pdate]` and `trice l[og]`.
 * Copy 3 files to your embedded project:
   * `./pkg/src/trice.h`
   * `./pkg/src/trice.c`
   * `./test/.../triceConfig.h`
 * In your source.c files add line `#include "trice.h"`
-* In a function write: `TRICE( "Year of writing this: %d\n", 2021 );`
+* In a function write: `TRICE( "1/11 = %g\n", aFloat( 1.0/11 ) );`
 * In project root:
   * Create empty file: `touch til.json`.
-  * Run `trice u` should:
-    * patch source.c to `TRICE( Id(12345), "Year of writing this: %d\n", 2021 );`
-    * extend `til.json`
-    * It will also add a line `#define TRICE_FILE Id(54321)` after the `#include "trice.h"` line in your source.c files.
+  * Run `trice u` should do automatically (The numbers are just examples.):
+    * Patch source.c to `TRICE( Id(60363), "1/11 = %g\n", aFloat( 1.0/11 ) );`
+    * Extend `til.json`
+    * Add a line `#define TRICE_FILE Id(54321)` after the `#include "trice.h"` line in your source.c files.
+* When the program runs later it should output something similar to![./ref/1div11.PNG](./ref/1div11.PNG)
 
-##  2. <a name='BuildtricetoolfromGosourcesoption'></a>Build `trice` tool from Go sources option
+##  2. <a name='BuildtricetoolfromGosourcesoption'></a>Build `trice` tool from Go sources (you can skip that)
 
 * Install [Go](https://golang.org/).
 * On Windows you need to install [TDM-GCC](https://jmeubank.github.io/tdm-gcc/download/) * recommendation: Minimal online installer.
@@ -70,24 +73,29 @@ Afterwards you should find an executable `trice` inside $GOPATH/bin/ and you can
 
 ##  3. <a name='Embeddedsystemcodesetup'></a>Embedded system code setup
 
-* Each project gets its own `triceConfig.h` file.
-* Modify `triceConfig.h` acording your needs. Choose the *trice* mode here:
+* Each project gets its own [triceConfig.h](../test/MDK-ARM_STM32F030R8/Core/Inc/triceConfig.h) file.
+* Modify [triceConfig.h](../test/MDK-ARM_STM32F030R8/Core/Inc/triceConfig.h) according your needs. Choose the *Trice* mode here:
   * Immediate mode: Straight output inside `TRICE` macro at the cost of the time it takes.
-  * Deferred mode: Outside `TRICE` macro background output some milliseconds later at the cost of RAM buffer needed.
-  * With `#define TRICE_MODE 0` (immediate mode) just provide a **putchar()** function.
-  * Recommended is a deferred mode which allows to use `TRICE` macros also inside interrupts.
+    * With `#define TRICE_MODE 0` (immediate mode) just provide a **putchar()** function.
+  * Deferred mode: Outside `TRICE` macro, a background output some milliseconds later at the cost of RAM buffer needed.
     * Compare the **not** instrumented test project [./test/MDK-ARM_STM32F030R8_generated]([./test/MDK-ARM_STM32F030R8_generated) with the instrumented test project [./test/MDK-ARM_STM32F030R8]([./test/MDK-ARM_STM32F030R8) to see an implementation example.
+* Recommended is a deferred mode which allows to use `TRICE` macros also inside interrupts.
+* In some cases, when logging a huge amount of data without timing constraints the immediate mode is a better choice.
+* If speed and log volume is needed care must be taken to avoid *Trice* buffer overflow for example by time triggered *Trices*.
 * Set Options:
   * Target timestamps and their time base
   * Cycle counter
   * Allow `TRICE` usage inside interrupts
   * Buffer size
+  * *Trice* output over UART 
+    * `#define TRICE_UART USART2`:  In project root a command like `trice l -p COM14` is needed. should show something similar to![./ref/1div11.PNG](./ref/1div11.PNG) after app start.
+  * *Trice* output over RTT: Please refer to the RTT document
 * All compiler and hardware specific adaption should be possible inside `triceConfig.h`
 * Compile, load and start your app.
-* In project root a command like `trice l -p COM1 -baud 57600` should show `Coming soon: 2022!` after app start.
-* Look in `./pkg/src/triceCheck.c` for examples.
+* Look in `./pkg/src/triceCheck.c` for usage examples.
 * The used serial Go driver package is Linux & Windows tested but should work on MacOS soon too.
 * It is sufficient for most cases just to use the `TRICE` macro with max 0 to 12 parameters as a replacement for `printf` and to use the default settings.
+* For more compact transfer consider `TRICE8` & `TRICE16` macros or if `double` is needed use `TRICE64`.
 
 ##  4. <a name='Adaptyourlegacysourcecode'></a>Adapt your legacy source code
 

@@ -212,3 +212,19 @@ libusb-1.0.23\examples\bin64> .\listdevs.exe
 
 * In this case `1366:0105 (bus 2, device 10) path: 5` is missing, so `vid=1366`, `did=0105` as example
 * On Windows install WSL2. The real Linux kernel is needed for full USB access.
+
+## NUCLEO-F030R8 example
+
+### RTT with original on-board ST-LINK firmware
+
+* `#define TRICE_RTT_CHANNEL 0`: Other channel numbers seam not to work for some reason.
+* If you use a NUCLEO-F030R8 with the original ST-Link on board after firmware download enter: `trice l -p ST-LINK -args "-Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0 -RTTSearchRanges 0x20000000_0x2000"`. After pressing the reset button output becomes visible: ![./ref/STRTT.PNG](./ref/STRTT.PNG)
+* It works with both ST-Link variants (with or without mass storage device.)
+
+### Change to J-LINK onboard firmware
+
+ ![./ref/STLinkReflash.PNG](./ref/STLinkReflash.PNG)
+
+### RTT with J-LINK firmware on-board
+
+![./ref/J-LinkRTT.PNG](./ref/J-LinkRTT.PNG)
