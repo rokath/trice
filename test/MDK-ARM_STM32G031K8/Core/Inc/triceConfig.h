@@ -15,16 +15,14 @@ extern "C" {
 // Select trice mode and general settings.
 //
 
-  #define TRICE_MODE 200 //! TRICE_MODE is a predefined trice transfer method.
+#define TRICE_MODE 200 //! TRICE_MODE is a predefined trice transfer method.
 
-#define TRICE_RTT_CHANNEL 0 //!< Uncomment and set channel number for SeggerRTT usage.
-//#define TRICE_UART USART2   //!< Uncomment and set UART for serial output.
+//#define TRICE_RTT_CHANNEL 0 //!< Uncomment and set channel number for SeggerRTT usage.
+#define TRICE_UART USART2   //!< Uncomment and set UART for serial output.
 
 uint32_t ReadUs32( void );
 #define TRICE_LOCATION (TRICE_FILE| __LINE__) //!< Uncomment if you do not need target location. TRICE_FILE occcupies the upper 16 bit.
 #define TRICE_TIMESTAMP ReadUs32()            //!< Uncomment if you do not need target timestamps. Instead of SYSTICKVAL, you can use any other up to 32-bit value, like milliSecond.
-
-
 
 // Enabling next 2 lines results in XTEA TriceEncryption  with the key.
 //#define TRICE_ENCRYPT XTEA_KEY( ea, bb, ec, 6f, 31, 80, 4e, b9, 68, e2, fa, ea, ae, f1, 50, 54 ); //!< -password MySecret
@@ -88,6 +86,10 @@ uint32_t ReadUs32( void );
 //
 ///////////////////////////////////////////////////////////////////////////////
 
+///////////////////////////////////////////////////////////////////////////////
+// Headline info
+//
+
 #ifdef TRICE_HALF_BUFFER_SIZE
 #define TRICE_BUFFER_INFO do{ TRICE32( Id( 41052), "att: Trice 2x half buffer size:%4u ", TRICE_HALF_BUFFER_SIZE ); } while(0)
 #else
@@ -104,13 +106,13 @@ uint32_t ReadUs32( void );
     TRICE0( Id(46427), "s:     \n" ); \
     TRICE0( Id(56816), "s:                                          \n");
 
-
 //
 ///////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////////
 // Compiler Adaption
 //
+
 #if defined( __GNUC__ ) /* gnu compiler ###################################### */ \
  || defined(__IAR_SYSTEMS_ICC__) /* IAR compiler ############################# */ \
  || defined(__TASKING__) /* TASKING compiler (same bugs as GNU!)############## */
@@ -158,6 +160,19 @@ uint32_t ReadUs32( void );
 #else // ######################################################################
 #error unknown compliler
 #endif // compiler adaptions ##################################################
+
+//
+///////////////////////////////////////////////////////////////////////////////
+
+///////////////////////////////////////////////////////////////////////////////
+// Optical feedback: Adapt to your device.
+//
+
+#include "main.h" // LED_GREEN_GPIO_Port, LED_GREEN_Pin
+static inline void ToggleOpticalFeedbackLED( void ){
+    LL_GPIO_TogglePin(LD3_GPIO_Port, LD3_Pin);
+}
+
 //
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -181,6 +196,7 @@ TRICE_INLINE uint32_t triceTxDataRegisterEmpty(void) {
 //! User must provide this function.
 TRICE_INLINE void triceTransmitData8(uint8_t v) {
     LL_USART_TransmitData8(TRICE_UART, v);
+    ToggleOpticalFeedbackLED();
 }
 
 //! Allow interrupt for empty trice data transmit register.
@@ -200,7 +216,27 @@ TRICE_INLINE void triceDisableTxEmptyInterrupt(void) {
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#define TRICE_0  TRICE0  //!< Only the format string without parameter values.
+
+///////////////////////////////////////////////////////////////////////////////
+// RTT interface: Adapt to your device.
+//
+
+#ifdef TRICE_RTT_CHANNEL
+#include "SEGGER_RTT.h"
+
+#define TRICE_WRITE( buf, len ) do{ \
+    SEGGER_RTT_Write(TRICE_RTT_CHANNEL, buf, len ); \
+    ToggleOpticalFeedbackLED(); \
+}while(0)
+#endif // #ifdef TRICE_RTT_CHANNEL
+
+//
+///////////////////////////////////////////////////////////////////////////////
+
+
+///////////////////////////////////////////////////////////////////////////////
+// Default TRICE macro bitwidth: 32 (optionally adapt to MCU bit width)
+//
 
 #define TRICE_1  TRICE32_1  //!< Default parameter bit width for 1  parameter count TRICE is 32, change for a different value.
 #define TRICE_2  TRICE32_2  //!< Default parameter bit width for 2  parameter count TRICE is 32, change for a different value.
@@ -214,6 +250,9 @@ TRICE_INLINE void triceDisableTxEmptyInterrupt(void) {
 #define TRICE_10 TRICE32_10 //!< Default parameter bit width for 10 parameter count TRICE is 32, change for a different value.
 #define TRICE_11 TRICE32_11 //!< Default parameter bit width for 11 parameter count TRICE is 32, change for a different value.
 #define TRICE_12 TRICE32_12 //!< Default parameter bit width for 12 parameter count TRICE is 32, change for a different value.
+
+//
+///////////////////////////////////////////////////////////////////////////////
 
 #ifdef __cplusplus
 }

@@ -37,14 +37,12 @@ void TriceCheckSet( int index ); //!< tests
 #endif
 
 #ifdef TRICE_RTT_CHANNEL
-#include "SEGGER_RTT.h"
 #if defined(TRICE_HALF_BUFFER_SIZE) && TRICE_HALF_BUFFER_SIZE > BUFFER_SIZE_UP
 #error
 #endif
 #if defined(TRICE_STACK_BUFFER_SIZE) && TRICE_STACK_BUFFER_SIZE > BUFFER_SIZE_UP
 #error
 #endif
-#define TRICE_WRITE( buf, len ) do{ SEGGER_RTT_Write(TRICE_RTT_CHANNEL, buf, len ); }while(0)
 static inline int TriceOutDepth( void ){ return 0; }
 #endif // #ifdef TRICE_RTT_CHANNEL
 
@@ -279,6 +277,8 @@ static inline uint64_t aDouble( double x ){
 ///////////////////////////////////////////////////////////////////////////////
 // TRICE macros
 //
+
+#define TRICE_0  TRICE0  //!< Only the format string without parameter values.
 
 #ifndef TRICE_INTO
 #define TRICE_INTO TRICE_ENTER TRICE_PUT_PREFIX;
