@@ -61,7 +61,7 @@ static void MX_USART2_UART_Init(void);
 
 //! ReadUs64 reads the 1us tick in the assumption of an 64MHz systick clock using the microSecond variable and current systick value.
 //! ATTENTION: This is a quick and dirty implementation working well only if this function is called in intervals smaller than 1 ms.
-//! :-( Because the STM32F030 has no 32-bit sysclock counter we need to compute this value or concatenate two 16-bit timers. )
+//! :-( Because the STM32G071 has no 32-bit sysclock counter we need to compute this value or concatenate two 16-bit timers. )
 //! I see no way to find out if the systick ISR was already active shortly after a systick counter wrap, despite calling this
 //! function in intervals smaller than 1 ms if not using hardware timers. To make it clear: You can use ReadUs64 to measure long
 //! intervals up to 584542 years, but the "OS" needs to call ReadUs64 internally regularely in <1ms intervals.
@@ -78,7 +78,7 @@ uint64_t ReadUs64( void ){
 
 //! ReadUs32 reads the 1us tick in the assumption of an 64MHz systick clock using the microSecond variable and current systick value.
 //! ATTENTION: This is a quick and dirty implementation working well only if this function is called in intervals smaller than 1 ms.
-//! :-( Because the STM32F030 has no 32-bit sysclock counter we need to compute this value or concatenate two 16-bit timers. )
+//! :-( Because the STM32G071 has no 32-bit sysclock counter we need to compute this value or concatenate two 16-bit timers. )
 //! I see no way to find out if the systick ISR was already active shortly after a systick counter wrap, despite calling this
 //! function in intervals smaller than 1 ms if not using hardware timers. To make it clear: You can use ReadUs32 to measure long
 //! intervals up to over 1 hour (4294 seconds), but the "OS" needs to call ReadUs32  internally regularely in <1ms intervals.
