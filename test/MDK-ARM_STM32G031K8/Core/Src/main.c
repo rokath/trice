@@ -59,7 +59,7 @@ static void MX_USART2_UART_Init(void);
 /* USER CODE BEGIN 0 */
 
 
-//! ReadUs64 reads the 1us tick in the assumption of an 16MHz systick clock using the microSecond variable and current systick value.
+//! ReadUs64 reads the 1us tick in the assumption of an 64MHz systick clock using the microSecond variable and current systick value.
 //! ATTENTION: This is a quick and dirty implementation working well only if this function is called in intervals smaller than 1 ms.
 //! :-( Because the STM32G031 has no 32-bit sysclock counter we need to compute this value or concatenate two 16-bit timers. )
 //! I see no way to find out if the systick ISR was already active shortly after a systick counter wrap, despite calling this
@@ -68,7 +68,7 @@ static void MX_USART2_UART_Init(void);
 //! \retval us count since last reset
 uint64_t ReadUs64( void ){
     static uint64_t us_1 = 0; // result of last call
-    uint64_t us = microSecond + ((SysTick->LOAD - SysTick->VAL) >> 4); // Divide 16MHz clock by 16 to get us part.
+    uint64_t us = microSecond + ((SysTick->LOAD - SysTick->VAL) >> 6); // Divide 64MHz clock by 64 to get us part.
     if( us < us_1){ // Possible very close to systick ISR, when milliSecond was not incremented yet, but the systic wrapped already.
         us += 1000; // Time cannot go backwards, so correct the 1ms error in the assumption last call is not longer than 1ms back.
     }
@@ -76,7 +76,7 @@ uint64_t ReadUs64( void ){
     return us;
 }
 
-//! ReadUs32 reads the 1us tick in the assumption of an 16MHz systick clock using the microSecond variable and current systick value.
+//! ReadUs32 reads the 1us tick in the assumption of an 64MHz systick clock using the microSecond variable and current systick value.
 //! ATTENTION: This is a quick and dirty implementation working well only if this function is called in intervals smaller than 1 ms.
 //! :-( Because the STM32G031 has no 32-bit sysclock counter we need to compute this value or concatenate two 16-bit timers. )
 //! I see no way to find out if the systick ISR was already active shortly after a systick counter wrap, despite calling this
@@ -85,7 +85,7 @@ uint64_t ReadUs64( void ){
 //! \retval us count since last reset modulo 2^32
 uint32_t ReadUs32( void ){
     static uint32_t us_1 = 0; // result of last call
-    uint32_t us = ((uint32_t)microSecond) + ((SysTick->LOAD - SysTick->VAL) >> 4); // Divide 16MHz clock by 16 to get us part.
+    uint32_t us = ((uint32_t)microSecond) + ((SysTick->LOAD - SysTick->VAL) >> 6); // Divide 64MHz clock by 64 to get us part.
     if( us < us_1){ // Possible very close to systick ISR, when milliSecond was not incremented yet, but the systic wrapped already.
         us += 1000; // Time cannot go backwards, so correct the 1ms error in the assumption last call is not longer than 1ms back.
     }
@@ -195,7 +195,7 @@ int main(void)
             }
         }
         serveUs();
-         __WFI(); // wait for interrupt (sleep)
+        __WFI(); // wait for interrupt (sleep)
         serveUs();
     }
   /* USER CODE END 3 */
@@ -207,28 +207,41 @@ int main(void)
   */
 void SystemClock_Config(void)
 {
+  LL_FLASH_SetLatency(LL_FLASH_LATENCY_2);
+  while(LL_FLASH_GetLatency() != LL_FLASH_LATENCY_2)
+  {
+  }
+
   /* HSI configuration and activation */
   LL_RCC_HSI_Enable();
   while(LL_RCC_HSI_IsReady() != 1)
   {
   }
 
+  /* Main PLL configuration and activation */
+  LL_RCC_PLL_ConfigDomain_SYS(LL_RCC_PLLSOURCE_HSI, LL_RCC_PLLM_DIV_1, 8, LL_RCC_PLLR_DIV_2);
+  LL_RCC_PLL_Enable();
+  LL_RCC_PLL_EnableDomain_SYS();
+  while(LL_RCC_PLL_IsReady() != 1)
+  {
+  }
+
   /* Set AHB prescaler*/
   LL_RCC_SetAHBPrescaler(LL_RCC_SYSCLK_DIV_1);
 
-  /* Sysclk activation on the HSI */
-  LL_RCC_SetSysClkSource(LL_RCC_SYS_CLKSOURCE_HSI);
-  while(LL_RCC_GetSysClkSource() != LL_RCC_SYS_CLKSOURCE_STATUS_HSI)
+  /* Sysclk activation on the main PLL */
+  LL_RCC_SetSysClkSource(LL_RCC_SYS_CLKSOURCE_PLL);
+  while(LL_RCC_GetSysClkSource() != LL_RCC_SYS_CLKSOURCE_STATUS_PLL)
   {
   }
 
   /* Set APB1 prescaler*/
   LL_RCC_SetAPB1Prescaler(LL_RCC_APB1_DIV_1);
 
-  LL_Init1msTick(16000000);
+  LL_Init1msTick(64000000);
 
   /* Update CMSIS variable (which can be updated also through SystemCoreClockUpdate function) */
-  LL_SetSystemCoreClock(16000000);
+  LL_SetSystemCoreClock(64000000);
 }
 
 /**
