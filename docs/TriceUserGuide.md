@@ -15,11 +15,12 @@
 * 7. [Encryption](#Encryption)
 * 8. [CLI Options for `trice` tool](#CLIOptionsfortricetool)
 * 9. [*Trice* command line examples](#Tricecommandlineexamples)
-	* 9.1. [Cheat sheet](#Cheatsheet)
+	* 9.1. [Common information](#Commoninformation)
 	* 9.2. [Further examples](#Furtherexamples)
 		* 9.2.1. [Automated pre-build update command example](#Automatedpre-buildupdatecommandexample)
 		* 9.2.2. [Some Log examples](#SomeLogexamples)
 		* 9.2.3. [Logging over a display server](#Loggingoveradisplayserver)
+		* 9.2.4. [Set all IDs in a directory tree to 0](#SetallIDsinadirectorytreeto0)
 * 10. [Additional hints](#Additionalhints)
 	* 10.1. [Logfile viewing](#Logfileviewing)
 * 11. [Target side *Trice* On-Off](#TargetsideTriceOn-Off)
@@ -316,8 +317,9 @@ Quick workaround:
 
 * You can deliver your device with encrypted trices. This way only the service is able to read the *Trices*.
 * Implemented is XTEA but this is easy exchangeable.
-* The 8 byte blocks can get encrypted by enabling `#define ENCRYPT...` inside *triceConfig.h*. You need to add `-key test` as **log** switch and you're done.
+* The to 8 byte padded blocks can get encrypted by enabling `#define ENCRYPT...` inside *triceConfig.h*. You need to add `-key test` as **log** switch and you're done.
 * Any password is usable instead of `test`. Simply add once the `-show` switch and copy the displayed passphrase into the *config.h* file.
+* The encryption takes part **before** the [COBS](https://en.wikipedia.org/wiki/Consistent_Overhead_Byte_Stuffing) encoding.
 
 ##  8. <a name='CLIOptionsfortricetool'></a>CLI Options for `trice` tool
 
@@ -721,17 +723,18 @@ example: 'trice zeroSourceTreeIds -src ../A': Sets all TRICE IDs to 0 in ../A. U
 * The **trice** tool has many command line options, but is easy to use with default values.
 * No [config file](./TriceConfigFile.md) implemented yet. But the command history is usable for example inside the bash, simply enter CTRL-R and start typing `trice...` and you can select from the history.
 
-###  9.1. <a name='Cheatsheet'></a>Cheat sheet
+###  9.1. <a name='Commoninformation'></a>Common information
 
 * `trice h -all` shows all options of the current version.
 * `trice ver` prints version information.
-* `trice u` in the root of your project parses all source files for `TRICE` macros, adds automatically ID´s if needed and updates a file named **til.json** containing all ID´s with their format string information. To start simply generate an empty file named **til.json** in your project root. You can add `trice u` to your build process and need no further manual execution.
 * `trice s` shows you all found serial ports for your convenience.
-* `trice l -p COM18` listens and displays trice logs on serial port COM18 at default baud rate 115200. It uses the **til.json** file.
-  * Use the additional log witch `-showInputBytes` to check if any bytes are received from the **trice** tool.
-  * With `-debug` you can see the COBS and decoded and single *Trice* packages.
+* `trice l -p COM17` could fail if s.th. is wrong. Additional switches are for help tracking the issue:
+  * Use log witch `-s[howInputBytes]` to check if any bytes are received at all. ![./ref/ShowInputBytesExample.PNG](./ref/ShowInputBytesExample.PNG)
+  * With `-debug` you can see the COBS and decoded and single *Trice* packages. ![./ref/DebugSwitchExample.PNG](./ref/DebugSwitchExample.PNG)
 
 <!--
+* `trice u` in the root of your project parses all source files for `TRICE` macros, adds automatically ID´s if needed and updates a file named **til.json** containing all ID´s with their format string information. To start simply generate an empty file named **til.json** in your project root. You can add `trice u` to your build process and need no further manual execution.
+
 * `trice ds` starts a display server listening on default ip address *127.0.0.1:61487* or any specified value, so also on a remote device, lets say with ip address 192.168.1.200.
 * `trice l -p COM18 -ds` sends the log strings to a display server with default ip address *127.0.0.1:61487* or any specified value, if for example `-ipa 192.168.1.200` the trice logs go to the remote device. You can start several trice log instances, all transmitting to the same display server.
 -->
@@ -781,6 +784,17 @@ trice l -ds -p COM3
 ```bash
 trice sd -r 192.168.1.23:45678
 ```
+
+####  9.2.4. <a name='SetallIDsinadirectorytreeto0'></a>Set all IDs in a directory tree to 0
+
+```bash
+trice zeroSourceTreeIds -src ./ 
+```
+
+![./ref/ZeroIDsExample.PNG](./ref/ZeroIDsExample.PNG)
+
+* Normally nobody uses that. But if you intend to integrate some existing sources into a project using ID management options, this could be a need.
+* Calling `trice u` afterwards will assign new IDs, but calling `trice u -shared IDs` will assign the same IDs again.
 
 ##  10. <a name='Additionalhints'></a>Additional hints
 
