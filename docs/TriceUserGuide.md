@@ -132,7 +132,7 @@ Afterwards you should find an executable `trice` inside $GOPATH/bin/ and you can
 * Compile, load and start your app.
 * Look in [triceCheck.c](../pkg/src/triceCheck.c) for usage examples.
   * It contains many `TRICE` macros in many variants.
-* Because of performance reasons there is no function call inside `TRICE`. Too much `TRICE` macros could take too much FLASH space. But you can deactivate the code generation for all`TRICE` macros on file granularity. (see [Target side Trice On-Off] below)
+* Because of performance reasons there is no function call inside `TRICE`. Too much `TRICE` macros could take too much FLASH space. But you can deactivate the code generation for all`TRICE` macros on file granularity. See [Target side *Trice* On-Off](#TargetsideTriceOn-Off) below.
 
 * It is sufficient for most cases just to use the `TRICE` macro with max 0 to 12 parameters as a replacement for `printf` and to use the default settings.
   * For more compact transfer consider `TRICE8` & `TRICE16` macros or if `double` is needed use `TRICE64`.
