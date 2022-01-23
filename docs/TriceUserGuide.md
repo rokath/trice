@@ -773,7 +773,7 @@ trice l -s COM3 -baud=9600
 trice ds
 ```
 
-* Log trice messages on SEGGER J-Link RTT channel 2 and display on display server
+* Log trice messages on COM3 and display on display server
 
 ```bash
 trice l -ds -p COM3
