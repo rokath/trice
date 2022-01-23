@@ -403,6 +403,10 @@
 		"Type": "TRICE64_3",
 		"Strg": "rd:TRICE64_3 %d, %d, %d\\n"
 	},
+	"35376": {
+		"Type": "TRICE8",
+		"Strg": "s:     NUCLEO-G031K8     TRICE_MODE %3u     \\n"
+	},
 	"35414": {
 		"Type": "TRICE64",
 		"Strg": "rd:TRICE64 float %f (%%f), aDouble(y)\\n"
@@ -2963,6 +2967,10 @@
 		"Type": "TRICE",
 		"Strg": "rd: U+0041 \t%U \tUnicode\\n"
 	},
+	"53868": {
+		"Type": "TRICE",
+		"Strg": "msg:1/11 = %g\\n"
+	},
 	"53872": {
 		"Type": "TRICE16_11",
 		"Strg": "tst:TRICE16_11 %d %d %d %d %d %d %d %d %d %d %d\\n"
@@ -3326,6 +3334,10 @@
 	"56084": {
 		"Type": "TRICE64",
 		"Strg": "rd: 123.456\t\t%g \t%%g Exponent as needed, necessary digits only\\n"
+	},
+	"56111": {
+		"Type": "TRICE8",
+		"Strg": "s:     NUCLEO-F030R8     TRICE_MODE %3u     \\n"
 	},
 	"56112": {
 		"Type": "TRICE32",
@@ -3978,6 +3990,10 @@
 	"60361": {
 		"Type": "TRICE64_1",
 		"Strg": "rd:TRICE64_1 double %g (%%g), aDouble(y)\\n"
+	},
+	"60363": {
+		"Type": "TRICE",
+		"Strg": "1/11 = %g\\n"
 	},
 	"60387": {
 		"Type": "TRICE",

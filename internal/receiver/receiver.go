@@ -131,9 +131,12 @@ func NewReadCloser(w io.Writer, verbose bool, port, args string) (r io.ReadClose
 		buf := scanBytes(args)
 		r = ioutil.NopCloser(bytes.NewBuffer(buf))
 		return
-	default: // assuming serial port
+	default:
+		if verbose {
+			fmt.Println("Assuming", port, "is serial port.")
+		}
 		var c com.COMport   // interface type
-		if "TARM" == args { // for comparing dynamic behaviour
+		if args == "TARM" { // for comparing dynamic behavior
 			c = com.NewCOMPortTarm(w, verbose, port)
 		} else {
 			c = com.NewCOMPortGoBugSt(w, verbose, port)

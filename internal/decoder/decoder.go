@@ -217,9 +217,9 @@ func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec Decode
 			if receiver.Port == "BUFFER" || receiver.Port == "DUMP" { // do not wait for a predefined buffer
 				return err
 			}
-			if Verbose {
-				fmt.Fprintln(w, err, "-> WAITING...")
-			}
+			//  if Verbose {
+			//  	fmt.Fprintln(w, err, "-> WAITING...")
+			//  }
 			continue // read again
 		}
 		// b contains here no or several complete trice strings.

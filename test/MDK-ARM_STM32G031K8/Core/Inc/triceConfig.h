@@ -17,8 +17,8 @@ extern "C" {
 
   #define TRICE_MODE 200 //! TRICE_MODE is a predefined trice transfer method.
 
-//#define TRICE_RTT_CHANNEL 0 //!< Uncomment and set channel number for SeggerRTT usage.
-#define TRICE_UART USART2   //!< Uncomment and set UART for serial output.
+#define TRICE_RTT_CHANNEL 0 //!< Uncomment and set channel number for SeggerRTT usage.
+//#define TRICE_UART USART2   //!< Uncomment and set UART for serial output.
 
 uint32_t ReadUs32( void );
 #define TRICE_LOCATION (TRICE_FILE| __LINE__) //!< Uncomment if you do not need target location. TRICE_FILE occcupies the upper 16 bit.
@@ -60,7 +60,6 @@ uint32_t ReadUs32( void );
 #endif
 #endif // #if TRICE_MODE == 0
 
-    
 //! Double Buffering output to RTT or UART with cycle counter. Trices inside interrupts allowed. Fast TRICE macro execution. 
 //! UART Command line similar to: `trice log -p COM1 -baud 115200`
 //! RTT Command line similar to: `trice l -args="-Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0 -RTTSearchRanges 0x20000000_0x1000"`
@@ -71,8 +70,8 @@ uint32_t ReadUs32( void );
 #ifndef TRICE_LEAVE
 #define TRICE_LEAVE TRICE_LEAVE_CRITICAL_SECTION //! TRICE_LEAVE is the end of TRICE macro.
 #endif
-#define TRICE_HALF_BUFFER_SIZE 2000 //!< This is the size of each of both buffers. Must be able to hold the max TRICE burst count within TRICE_TRANSFER_INTERVAL_MS or even more, if the write out speed is small. Must not exceed SEGGER BUFFER_SIZE_UP
-#define TRICE_SINGLE_MAX_SIZE 800 //!< must not exeed TRICE_HALF_BUFFER_SIZE!
+#define TRICE_HALF_BUFFER_SIZE 1000 //!< This is the size of each of both buffers. Must be able to hold the max TRICE burst count within TRICE_TRANSFER_INTERVAL_MS or even more, if the write out speed is small. Must not exceed SEGGER BUFFER_SIZE_UP
+#define TRICE_SINGLE_MAX_SIZE 100 //!< must not exeed TRICE_HALF_BUFFER_SIZE!
 #endif // #if TRICE_MODE == 200
 
 
@@ -97,13 +96,13 @@ uint32_t ReadUs32( void );
 
 //! This is usable as the very first trice sequence after restart. Adapt and use it or ignore it.
 #define TRICE_HEADLINE \
-    TRICE0( Id( 57449), "s:                                          \n" ); \
-    TRICE8( Id( 38478), "s:  TRICE_MODE %3u                          \n", TRICE_MODE ); \
-    TRICE0( Id( 34640), "s:                                          \n" ); \
-    TRICE0( Id( 52064), "s:     " ); \
+    TRICE0( Id(57449), "s:                                          \n" ); \
+    TRICE8( Id(35376), "s:     NUCLEO-G031K8     TRICE_MODE %3u     \n", TRICE_MODE ); \
+    TRICE0( Id(34640), "s:                                          \n" ); \
+    TRICE0( Id(52064), "s:     " ); \
     TRICE_BUFFER_INFO; \
-    TRICE0( Id( 46427), "s:     \n" ); \
-    TRICE0( Id( 56816), "s:                                          \n");
+    TRICE0( Id(46427), "s:     \n" ); \
+    TRICE0( Id(56816), "s:                                          \n");
 
 
 //

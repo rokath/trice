@@ -49,9 +49,11 @@ func NewDevice(w io.Writer, port, arguments string) *Device {
 	case "JLINK", "J-LINK":
 		p.Exec = "JLinkRTTLogger"
 		p.Lib = "JLinkARM"
-	case "STLINK, ST-LINK":
+	case "STLINK", "ST-LINK":
 		p.Exec = "stRttLogger"
 		p.Lib = "libusb-1.0"
+	default:
+		log.Panic("Unknown port:", port)
 	}
 	if Verbose {
 		fmt.Fprintln(w, "port:", port, "arguments:", arguments)
@@ -79,7 +81,7 @@ func (p *Device) ErrorFatal() {
 	if nil == p.Err {
 		return
 	}
-	log.Panic("linkCmd =", p.Exec, "linkLib =", p.Exec, " <--- PATH ok?")
+	log.Panic(p.Err, ": linkCmd =", p.Exec, "linkLib =", p.Lib, " <--- PATH ok? error:")
 }
 
 // Read() is part of the exported interface io.ReadCloser. It reads a slice of bytes.

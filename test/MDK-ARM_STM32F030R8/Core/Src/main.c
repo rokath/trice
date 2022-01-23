@@ -59,7 +59,7 @@ static void MX_USART2_UART_Init(void);
 /* USER CODE BEGIN 0 */
 
 
-//! ReadUs64 reads the 1us tick in the asumption of an 64MHz systick clock using the microSecond variable and current systick value.
+//! ReadUs64 reads the 1us tick in the assumption of an 48MHz systick clock using the microSecond variable and current systick value.
 //! ATTENTION: This is a quick and dirty implementation working well only if this function is called in intervals smaller than 1 ms.
 //! :-( Because the STM32F030 has no 32-bit sysclock counter we need to compute this value or concatenate two 16-bit timers. )
 //! I see no way to find out if the systick ISR was already active shortly after a systick counter wrap, despite calling this
@@ -76,11 +76,11 @@ uint64_t ReadUs64( void ){
     return us;
 }
 
-//! ReadUs32 reads the 1us tick in the asumption of an 64MHz systick clock using the microSecond variable and current systick value.
+//! ReadUs32 reads the 1us tick in the assumption of an 48MHz systick clock using the microSecond variable and current systick value.
 //! ATTENTION: This is a quick and dirty implementation working well only if this function is called in intervals smaller than 1 ms.
 //! :-( Because the STM32F030 has no 32-bit sysclock counter we need to compute this value or concatenate two 16-bit timers. )
 //! I see no way to find out if the systick ISR was already active shortly after a systick counter wrap, despite calling this
-//! function in intervals smaller than 1 ms if not using hardware timers. To make it clear: You can use ReadUs to measure long
+//! function in intervals smaller than 1 ms if not using hardware timers. To make it clear: You can use ReadUs32 to measure long
 //! intervals up to over 1 hour (4294 seconds), but the "OS" needs to call ReadUs32  internally regularely in <1ms intervals.
 //! \retval us count since last reset modulo 2^32
 uint32_t ReadUs32( void ){
@@ -99,10 +99,7 @@ static void serveUs( void ){
     static uint32_t st32_1 = 0;
     uint64_t st64 = ReadUs64();
     uint32_t st32 = ReadUs32();
-    //static int virgin = 10;
-    if( /*virgin &&*/ (st64 < st64_1 || st32 < st32_1) ){
-        //TRICE64( Id(57982), "err: st64=%u < st64_1=%u || st32=%u < st32_1=%u\n", st64, st64_1, st32, st32_1 );
-        //virgin--;
+    if( st64 < st64_1 || st32 < st32_1 ){
         while(1); // stop, timing error
     }
     st64_1 = st64;
@@ -159,6 +156,7 @@ int main(void)
         int d = (int)(b * 1000) % 1000;
         int e = 1000 * (float)(a - c); 
         TRICE( Id(38382), "msg:x = %g = %d.%03d, %d.%03d\n", aFloat(a), c, d, c, e );
+        TRICE( Id(60363), "1/11 = %g\n", aFloat( 1.0/11 ) );
     }
   /* USER CODE END 2 */
 
@@ -179,13 +177,14 @@ int main(void)
         {
             static int lastTricesTime = 0;
             // send some trices every few ms
-            if( milliSecond >= lastTricesTime + 500 ){
+            if( milliSecond >= lastTricesTime + 1000 ){
                 static int index = 0;
-                int select = index % 25;
-                TRICE16( Id(50543),"MSG: 💚 START select = %d, TriceDepthMax =%4u\n", select, TriceDepthMax );
+                int select = index;
+                TRICE16( Id(50543),"MSG: 💚 START select = %d, TriceDepthMax =%4u\n", select, TriceDepthMax() );
                 TriceCheckSet(select);
-                TRICE16( Id(40126),"MSG: ✅ STOP  select = %d, TriceDepthMax =%4u\n", select, TriceDepthMax );
-                index++;
+                TRICE16( Id(40126),"MSG: ✅ STOP  select = %d, TriceDepthMax =%4u\n", select, TriceDepthMax() );
+                index += 10;
+                index = index > 1000 ? 0 : index;
                 lastTricesTime = milliSecond;
                 {
                     volatile uint32_t st0 = SysTick->VAL;

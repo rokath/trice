@@ -145,7 +145,7 @@ func logLoop(w io.Writer) {
 	for {
 		rc, e := receiver.NewReadCloser(w, verbose, receiver.Port, receiver.PortArguments)
 		if nil != e {
-			fmt.Fprint(w, e)
+			fmt.Fprintln(w, e)
 			if !interrupted {
 				//cage.Stop(c)
 				return // hopeless
