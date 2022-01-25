@@ -77,9 +77,10 @@ git clone https://github.com/rokath/trice.git
 
 ## Similar projects
 
-- [NanoLog](https://github.com/PlatformLab/NanoLog) (Linux C++)
 - [baical.net](http://baical.net/up7.html) (C)
 - [defmt](https://github.com/knurling-rs/defmt) (Rust)
+- [NanoLog](https://github.com/PlatformLab/NanoLog) (Linux C++)
+- [qpspy](https://www.state-machine.com/qtools/qpspy.html) (C/C++)
 
 <!--- B A C K U P
 
