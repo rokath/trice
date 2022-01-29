@@ -1,3 +1,6 @@
+> This is the draft of
+> [https://interrupt.memfault.com/blog/trice](https://interrupt.memfault.com/blog/trice)
+
 # Trace & Log with `TRICE` and get `printf` comfort inside interrupts and everywhere
 
 ![./ref/TriceCheckOutput.gif](./ref/TriceCheckOutput.gif)
