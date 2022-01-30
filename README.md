@@ -19,7 +19,7 @@
 ## About
 
 - Replace `printf` or `log` in **C**-code code for getting:
-  - **[SPEED](./docs/TriceSpeed.md)**, to be usable also inside interrupts,
+  - **[SPEED](./docs/TriceSpeed.md)**, to be usable also **inside interrupts**,
   - **[SPACE](./docs/TriceSpace.md)**, to reduce needed FLASH memory size,
   - and various **[FEATURES](./docs/TraceWithTrice.md#Tricefeatures)** delighting the developers heart.
 - <u>Main idea:</u> Logging strings **not** into an embedded device to display them later on a PC but keep [usage comfortable and simple](./docs/TriceUserGuide.md#2-get-started).
