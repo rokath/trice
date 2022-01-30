@@ -793,7 +793,7 @@ trice zeroSourceTreeIds -src ./
 
 ![./ref/ZeroIDsExample.PNG](./ref/ZeroIDsExample.PNG)
 
-* Normally nobody uses that. But if you intend to integrate some existing sources into a project using ID management options, this could be a need.
+* Normally nobody uses that. But if you intend to integrate some existing sources into a project using [ID management](./TriceIDManagement.md) options, this could be a need.
 * Calling `trice u` afterwards will assign new IDs, but calling `trice u -shared IDs` will assign the same IDs again.
 
 ##  10. <a name='Additionalhints'></a>Additional hints
