@@ -64,7 +64,7 @@ third_party/   | external components                                     |
 * In a console type `trice help -all`. You should see the complete **trice** tool [CLI](https://en.wikipedia.org/wiki/Command-line_interface) documentation.
   * Don´t worry, most of it you will never need.
   * There are only 2 important commands: `trice u[pdate]` and `trice l[og]`.
-    * `trice h -u[pdate]` and `trice h l[og]` show partial help.
+    * `trice h -u[pdate]` and `trice h -l[og]` show partial help.
 * Copy 3 files to your embedded project:
   * `./pkg/src/trice.h`
   * `./pkg/src/trice.c`
