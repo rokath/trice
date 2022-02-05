@@ -26,6 +26,7 @@ int64_t DoubleToInt64( double f ){
 //! Traces with more bytes as parameter consist of several subtraces.
 void TriceCheckSet(int index) {
     char* s;
+    uint32_t len;
     float  x = 1089.6082763671875;// 0x44883377
     double y = 518.0547492508867;// 0x4080307020601050
     switch (index) {
@@ -60,6 +61,25 @@ void TriceCheckSet(int index) {
             TRICE( Id(53816), "rd:TRICE line %d (%%d)\n", -5 );
         break;
         case 40:
+            s = "AAAAAAAAAAAA";
+            len = strlen(s);
+            TRICE32( Id( 47643), "dbg:len=%u:", len );
+            TRICE_S( Id(50492), "sig:TRICE_S=%s\n", s );
+            TRICE32( Id( 47643), "dbg:len=%u:", len );
+            TRICE_S( Id(50492), "sig:TRICE_S=%s\n", s );
+            TRICE32( Id( 47643), "dbg:len=%u:", len );
+            TRICE_S( Id(50492), "sig:TRICE_S=%s\n", s );
+        
+            TRICE32( Id( 47643), "dbg:len=%u:", len);
+            TRICE_N( Id(46086), "sig:TRICE_N=%s\n", s, len );
+            TRICE32( Id( 47643), "dbg:len=%u:", len);
+            TRICE_N( Id(37402), "sig:TRICE_N=%s\n", s, len );
+            TRICE32( Id( 47643), "dbg:len=%u:", len);
+            TRICE_N( Id(35568), "sig:TRICE_N=%s\n", s, len );
+        
+          //TRICE_S( Id(59596), "sig:TRICE_S=%s\n", "Hello String" );     // todo: not allowed for some reason
+          //TRICE_N( Id(44277), "sig:TRICE_N=%s\n", "Hello Buffer", 13 ); //       not allowed for some reason
+
             TRICE( Id(33703), "rd:TRICE line %E (%%E)\n", aFloat(-555555555.5555555555) );
             TRICE( Id(55209), "rd:TRICE line %F (%%F)\n", aFloat(-555555555.5555555555) );
             TRICE( Id(59991), "rd:TRICE line %G (%%G)\n", aFloat(-555555555.5555555555) );

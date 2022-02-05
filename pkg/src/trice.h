@@ -12,6 +12,7 @@
 #define PUT_BUFFER(b,l) do{ ((void)(b)); ((void)(l)); }while(0)
 #define TRICE_LEAVE
 #define TRICE_S( id, p, s )  do{ ((void)(id)); ((void)(p)); ((void)(s)); }while(0)
+#define TRICE_N( id, p, s, n )  do{ ((void)(id)); ((void)(p)); ((void)(s)); ((void)(n)); }while(0)
 #endif
 
 #include "triceConfig.h"
@@ -37,12 +38,14 @@ void TriceCheckSet( int index ); //!< tests
 #endif
 
 #ifdef TRICE_RTT_CHANNEL
+#include "SEGGER_RTT.h"
 #if defined(TRICE_HALF_BUFFER_SIZE) && TRICE_HALF_BUFFER_SIZE > BUFFER_SIZE_UP
 #error
 #endif
 #if defined(TRICE_STACK_BUFFER_SIZE) && TRICE_STACK_BUFFER_SIZE > BUFFER_SIZE_UP
 #error
 #endif
+//#define TRICE_WRITE( buf, len ) do{ SEGGER_RTT_Write(TRICE_RTT_CHANNEL, buf, len ); }while(0)
 static inline int TriceOutDepth( void ){ return 0; }
 #endif // #ifdef TRICE_RTT_CHANNEL
 
@@ -284,31 +287,46 @@ static inline uint64_t aDouble( double x ){
 #define TRICE_INTO TRICE_ENTER TRICE_PUT_PREFIX;
 #endif
 
+#ifndef TRICE_N
+//! TRICE_N writes id and buffer of size len.
+//! \param id trice identifier
+//! \param pFmt formatstring for trice (ignored here but used by the trice tool), could contain any add on information. The trice tool "sees" the "TRICE_N" and can handle that.
+//! \param dynString 0-terminated runtime generated string
+//! After the 4 byte trice message header are following 4 bytes coding n (only 2 used) and the buffer
+//! transfer format: 
+//! idH    idL    len    cycle <- trice header
+//! n0     n1     n2     n3    <- payload count without paddings bytes (transmittable len)
+//! c0     c1     c2     c3    <- buffer
+//! ...                        <- buffer
+//! cLen-3 cLen-2 cLen-1 cLen  <- buffer ending with maybe 1-3 undetermined padding bytes
+//
+// todo: for some reason this macro is not working well wit name len instead of len_, probably when injected len as value.
+//
+#define TRICE_N( id, pFmt, buf, n) do { \
+    uint32_t limit = TRICE_SINGLE_MAX_SIZE-TRICE_PREFIX_SIZE-8; /* 8 = head + len size */ \
+    uint32_t len_ = n; /* n could be a constant */ \
+    if( len_ > limit ){ \
+        TRICE32( Id(61732), "wrn:Transmit buffer truncated from %u to %u\n", len_, limit ); \
+        len_ = limit; \
+    } \
+    TRICE_INTO \
+    TRICE_PUT( id | (0xff00 & ((len_+7)<<6)) | TRICE_CYCLE ); /* +3 for padding, +4 for the buf size value transmitted in the payload to get the last 2 bits. */ \
+    TRICE_PUT( len_ ); /* len as byte does not contain the exact buf len anymore, so transmit it to the host */ \
+    /* len is needed for non string buffers because the last 2 bits not stored in head. */ \
+    /* All trices know the data length but not TRICE8P. len byte values 0xFC, xFD, xFE, xFF are reserved for future extensions. */ \
+    TRICE_PUTBUFFER( buf, len_ ); \
+    TRICE_LEAVE \
+} while(0)
+#endif // #ifndef TRICE_N
+
 #ifndef TRICE_S
 //! TRICE_S writes id and dynString.
 //! \param id trice identifier
 //! \param pFmt formatstring for trice (ignored here but used by the trice tool)
 //! \param dynString 0-terminated runtime generated string
-//! After the 4 byte trice message header are following 2^n bytes 
-//! string transfer format: 
-//! idH    idL    len    cycle
-//! c0     c1     c2     c3
-//! ...
-//! cLen-3 cLen-2 cLen-1 cLen
 #define TRICE_S( id, pFmt, dynString) do { \
-    uint32_t len = strlen( dynString ); \
-    uint32_t limit = TRICE_SINGLE_MAX_SIZE-TRICE_PREFIX_SIZE-8; /* 8 = head + len size */ \
-    if( len > limit ){ \
-        TRICE32( Id( 54343), "wrn:Dynamic string truncated from %u to %u\n", len, limit ); \
-        len = limit; \
-    } \
-    TRICE_INTO \
-    TRICE_PUT( id | (0xff00 & ((len+7)<<6)) | TRICE_CYCLE ); /* +3 for padding, +4 for the buf size value transmitted in the payload to get the last 2 bits. */ \
-    TRICE_PUT( len ); /* len as byte does not contain the exact buf len anymore, so transmit it to the host */ \
-    /* len is needed for non string buffers because the last 2 bits not stored in head. */ \
-    /* All trices know the data length but not TRICE8P. len byte values 0xFC, xFD, xFE, xFF are reserved for future extensions. */ \
-    TRICE_PUTBUFFER( dynString, len ); \
-    TRICE_LEAVE \
+    uint32_t ssiz = strlen( dynString ); \
+    TRICE_N( id, pFmt, dynString, ssiz ); \
 } while(0)
 #endif // #ifndef TRICE_S
 

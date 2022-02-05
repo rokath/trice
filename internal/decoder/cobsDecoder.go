@@ -319,6 +319,10 @@ func (p *COBS) sprintTrice(b []byte) (n int) {
 		p.sLen = int(p.readU32(p.b))
 		cobsFunctionPtrList[0].paramSpace = (p.sLen + 7) & ^3 // +4 for 4 bytes sLen, +3^3 is alignment to 4
 	}
+	if p.trice.Type == "TRICE_N" { // patch table paramSpace in that case
+		p.sLen = int(p.readU32(p.b))
+		cobsFunctionPtrList[1].paramSpace = (p.sLen + 7) & ^3 // +4 for 4 bytes sLen, +3^3 is alignment to 4
+	}
 
 	p.pFmt, p.u = uReplaceN(p.trice.Strg)
 
@@ -370,6 +374,7 @@ type triceTypeFn struct {
 // cobsFunctionPtrList is a function pointer list.
 var cobsFunctionPtrList = [...]triceTypeFn{
 	{"TRICE_S", (*COBS).triceS, -1, 0, 0}, // do not remove from first position, see cobsFunctionPtrList[0].paramSpace = ...
+	{"TRICE_N", (*COBS).triceN, -1, 0, 0}, // do not remove from 2nd position, see cobsFunctionPtrList[1].paramSpace = ...
 	{"TRICE32_0", (*COBS).trice0, 0, 0, 0},
 	{"TRICE0", (*COBS).trice0, 0, 0, 0},
 	{"TRICE8_1", (*COBS).unSignedOrSignedOut, 4, 8, 1},
@@ -428,6 +433,16 @@ func (p *COBS) triceS(b []byte, _ int, _ int) int {
 		fmt.Fprintln(p.w, p.b)
 	}
 	s := p.b[4 : 4+p.sLen]
+	return copy(b, fmt.Sprintf(p.trice.Strg, string(s)))
+}
+
+// triceN converts dynamic strings.
+func (p *COBS) triceN(b []byte, _ int, _ int) int {
+	if DebugOut {
+		fmt.Fprintln(p.w, p.b)
+	}
+	s := p.b[4 : 4+p.sLen]
+	// todo: evaluate p.trice.Strg, use p.sLen and do whatever should be done
 	return copy(b, fmt.Sprintf(p.trice.Strg, string(s)))
 }
 
