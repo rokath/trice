@@ -31,6 +31,10 @@
 		"Type": "TRICE_FILE",
 		"Strg": "stm32g0xx_ll_utils.c"
 	},
+	"33087": {
+		"Type": "TRICE_S",
+		"Strg": "sig:TRICE_S=%s\\n"
+	},
 	"33102": {
 		"Type": "TRICE64",
 		"Strg": "rd:TRICE64 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
@@ -423,6 +427,10 @@
 		"Type": "TRICE16_3",
 		"Strg": "tst:TRICE16_3 %u %u %u\\n"
 	},
+	"35568": {
+		"Type": "TRICE_N",
+		"Strg": "sig:TRICE_N=%s\\n"
+	},
 	"35588": {
 		"Type": "TRICE",
 		"Strg": "rd: 1.234560e+02 \t%e \tScientific notation\\n"
@@ -571,6 +579,10 @@
 		"Type": "TRICE",
 		"Strg": "rd:TRICE float %+9f (%%9f)\\n"
 	},
+	"36494": {
+		"Type": "TRICE_N",
+		"Strg": "sig:%s\\n"
+	},
 	"36514": {
 		"Type": "TRICE8",
 		"Strg": "rd:TRICE8 line %u (%%u ,-1)\\n"
@@ -582,6 +594,10 @@
 	"36588": {
 		"Type": "TRICE8_10",
 		"Strg": "tst:TRICE8_10 %d %d %d %d %d %d %d %d %d %d\\n"
+	},
+	"36594": {
+		"Type": "TRICE_S",
+		"Strg": "sig:TRICE_S=%s\\n"
 	},
 	"36621": {
 		"Type": "TRICE0",
@@ -610,6 +626,10 @@
 	"36805": {
 		"Type": "TRICE32_1",
 		"Strg": "rd:TRICE32_1 float %e (%%e)\\n"
+	},
+	"36831": {
+		"Type": "TRICE_N",
+		"Strg": "sig:%s\\n\", \"Hello Buffer\\n"
 	},
 	"36843": {
 		"Type": "TRICE",
@@ -690,6 +710,10 @@
 	"37374": {
 		"Type": "TRICE",
 		"Strg": "rd:TRICE %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"37402": {
+		"Type": "TRICE_N",
+		"Strg": "sig:TRICE_N=%s\\n"
 	},
 	"37423": {
 		"Type": "TRICE",
@@ -1307,6 +1331,10 @@
 		"Type": "TRICE32_1",
 		"Strg": "rd:TRICE32_1 float -%.9f (%%.9f)\\n"
 	},
+	"42283": {
+		"Type": "TRICE_S",
+		"Strg": "sig:%s\\n\", \"AAAAAAAAAAAA"
+	},
 	"42294": {
 		"Type": "TRICE32_1",
 		"Strg": "rd:TRICE32_1 line %O (%%O)\\n"
@@ -1611,6 +1639,10 @@
 		"Type": "TRICE0",
 		"Strg": "m:12"
 	},
+	"44277": {
+		"Type": "TRICE_N",
+		"Strg": "sig:TRICE_N=%s\\n\", \"Hello Buffer"
+	},
 	"44285": {
 		"Type": "TRICE",
 		"Strg": "rd: U+0041 'A' \t%#U \tUnicode with character\\n"
@@ -1846,6 +1878,10 @@
 	"46019": {
 		"Type": "TRICE",
 		"Strg": "rd: 15 \t%d \tBase 10\\n"
+	},
+	"46086": {
+		"Type": "TRICE_N",
+		"Strg": "sig:TRICE_N=%s\\n"
 	},
 	"46100": {
 		"Type": "TRICE_FILE",
@@ -2459,6 +2495,10 @@
 		"Type": "TRICE",
 		"Strg": "na"
 	},
+	"50492": {
+		"Type": "TRICE_S",
+		"Strg": "sig:TRICE_S=%s\\n"
+	},
 	"50533": {
 		"Type": "TRICE16",
 		"Strg": "tst:TRICE16 %d %d %d %d %d %d %d %d %d %d\\n"
@@ -2647,6 +2687,10 @@
 		"Type": "TRICE",
 		"Strg": "att:mixed int \u0026 float \u0026 double \u0026 bits\\n"
 	},
+	"51883": {
+		"Type": "TRICE_N",
+		"Strg": "sig:TRICE_N=%s\\n"
+	},
 	"51895": {
 		"Type": "TRICE16_4",
 		"Strg": "tst:TRICE16_4 %u %u %u %u\\n"
@@ -2799,6 +2843,10 @@
 		"Type": "TRICE64_12",
 		"Strg": "tst:TRICE64_12 %t %b %x %X %d %u %o %O %p %e %f %g\\n"
 	},
+	"52792": {
+		"Type": "TRICE_S",
+		"Strg": "sig:-\u003e%s\\n\", \"Hello String"
+	},
 	"52805": {
 		"Type": "TRICE64",
 		"Strg": "rd: 123.456\t\t%g \t \t%%g Exponent as needed, necessary digits only\\n"
@@ -2871,6 +2919,10 @@
 		"Type": "TRICE16",
 		"Strg": "tst:TRICE16 %d %d %d\\n"
 	},
+	"53289": {
+		"Type": "TRICE_N",
+		"Strg": "sig:TRICE_N=%s\\n\", \"AAAAAAAAAAAA"
+	},
 	"53312": {
 		"Type": "TRICE8_5",
 		"Strg": "tst:TRICE8_5  %d %d %d %d %d\\n"
@@ -2926,6 +2978,10 @@
 	"53674": {
 		"Type": "TRICE32_1",
 		"Strg": "rd:TRICE32_1 float +%9f (%%9f)\\n"
+	},
+	"53699": {
+		"Type": "TRICE_S",
+		"Strg": "sig:TRICE_S=%s\\n"
 	},
 	"53702": {
 		"Type": "TRICE64_1",
@@ -3467,6 +3523,10 @@
 		"Type": "TRICE64_1",
 		"Strg": "rd:TRICE64_1 double %F (%%F), aDouble(y)\\n"
 	},
+	"56865": {
+		"Type": "TRICE_N",
+		"Strg": "sig:-\u003e%s\\n\", \"Hello Buffer"
+	},
 	"56876": {
 		"Type": "TRICE8",
 		"Strg": "tst:TRICE8   %%4x -\u003e %4x %4x %4x %4x\\n"
@@ -3606,6 +3666,10 @@
 	"57644": {
 		"Type": "TRICE64",
 		"Strg": "rd: 123.46\t\t\t\t%.2f   %%.2f Default width, precision 2\\n"
+	},
+	"57668": {
+		"Type": "TRICE_S",
+		"Strg": "sig:%s\\n\", \"Hello String\\n"
 	},
 	"57680": {
 		"Type": "TRICE",
@@ -3862,6 +3926,10 @@
 	"59580": {
 		"Type": "TRICE32_1",
 		"Strg": "rd:TRICE32_1 float -%f (%%f)\\n"
+	},
+	"59596": {
+		"Type": "TRICE_S",
+		"Strg": "sig:TRICE_S=%s\\n\", \"Hello String"
 	},
 	"59621": {
 		"Type": "TRICE",
@@ -4218,6 +4286,10 @@
 	"61727": {
 		"Type": "TRICE_FILE",
 		"Strg": "stm32g0xx_ll_dma.c"
+	},
+	"61732": {
+		"Type": "TRICE32",
+		"Strg": "wrn:Transmit buffer truncated from %u to %u\\n"
 	},
 	"61734": {
 		"Type": "TRICE32_1",
