@@ -80,6 +80,7 @@ git clone https://github.com/rokath/trice.git
 - [baical.net](http://baical.net/up7.html) (C)
 - [defmt](https://github.com/knurling-rs/defmt) (Rust)
 - [NanoLog](https://github.com/PlatformLab/NanoLog) (Linux C++)
+- [https://www.codeinsideout.com/blog/stm32/j-link-sysview/](https://www.codeinsideout.com/blog/stm32/j-link-sysview/) (SEGGER J-Link System View - A tool to record and visualize system activities: )
 - [qpspy](https://www.state-machine.com/qtools/qpspy.html) (C/C++)
 
 <!--- B A C K U P

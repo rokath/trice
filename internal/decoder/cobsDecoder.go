@@ -28,7 +28,7 @@ type COBS struct {
 	u                  []int  // 1: modified format string positions:  %u -> %d, 2: float (%f)
 }
 
-// NewCOBSDecoder provides an EscDecoder instance.
+// NewCOBSDecoder provides an COBS decoder instance.
 //
 // l is the trice id list in slice of struct format.
 // in is the usable reader for the input bytes.
@@ -45,6 +45,8 @@ func NewCOBSDecoder(w io.Writer, lut id.TriceIDLookUp, m *sync.RWMutex, in io.Re
 	return p
 }
 
+//var cobsVariantDecode = cobs.Decode
+
 // decodeCOBS expects in slice rd a byte sequence ending with a 0, writes the COBS decoded data to wr and returns len(wr).
 //
 // If rd contains more bytes after the first 0 byte, these are ignored.
@@ -59,6 +61,45 @@ func decodeCOBS(wr, rd []byte) int {
 	}
 	return copy(wr, d)
 }
+
+//  // cobsDecode decodes a null-terminated frame to a slice of bytes (copied from "github.com/dim13/cobs").
+//  func cobsDecode(p []byte) []byte {
+//  	if len(p) == 0 {
+//  		return nil
+//  	}
+//  	buf := new(bytes.Buffer)
+//  	for n := p[0]; n > 0; n = p[0] {
+//  		if int(n) >= len(p) {
+//  			return nil
+//  		}
+//  		buf.Write(p[1:n])
+//  		p = p[n:]
+//  		if n < 0xff && p[0] > 0 {
+//  			buf.WriteByte(0)
+//  		}
+//  	}
+//  	return buf.Bytes()
+//  }
+
+//  // cobsFFDecode decodes a 0xFF-terminated frame to a slice of bytes (copied from "github.com/dim13/cobs")
+//  // todo: change code
+//  func cobsFFDecode(p []byte) []byte {
+//  	if len(p) == 0 {
+//  		return nil
+//  	}
+//  	buf := new(bytes.Buffer)
+//  	for n := p[0]; n > 0; n = p[0] {
+//  		if int(n) >= len(p) {
+//  			return nil
+//  		}
+//  		buf.Write(p[1:n])
+//  		p = p[n:]
+//  		if n < 0xff && p[0] > 0 {
+//  			buf.WriteByte(0)
+//  		}
+//  	}
+//  	return buf.Bytes()
+//  }
 
 // dump prints the byte slice as hex in one line
 func dump(w io.Writer, b []byte) {

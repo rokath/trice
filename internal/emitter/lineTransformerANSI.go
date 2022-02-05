@@ -48,8 +48,8 @@ var (
 	// user mode colors
 	colorizeTIME      = ansi.ColorFunc("108:blue")
 	colorizeMESSAGE   = ansi.ColorFunc("green+h:black")
-	colorizeREAD      = ansi.ColorFunc("101:black")
-	colorizeWRITE     = ansi.ColorFunc("101+i:black")
+	colorizeREAD      = ansi.ColorFunc("off") //  ansi.ColorFunc("101:black")
+	colorizeWRITE     = ansi.ColorFunc("off") //  ansi.ColorFunc("101+i:black")
 	colorizeDIAG      = ansi.ColorFunc("161+B")
 	colorizeINTERRUPT = ansi.ColorFunc("13+i")
 	colorizeSIGNAL    = ansi.ColorFunc("118+i")
