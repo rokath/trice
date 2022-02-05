@@ -109,11 +109,16 @@ Afterwards you should find an executable `trice` inside $GOPATH/bin/ and you can
 * Each project gets its own [triceConfig.h](../test/MDK-ARM_STM32F030R8/Core/Inc/triceConfig.h) file.
 * Modify [triceConfig.h](../test/MDK-ARM_STM32F030R8/Core/Inc/triceConfig.h) according your needs. Choose the *Trice* mode here:
   * Immediate mode: Straight output inside `TRICE` macro at the cost of the time it takes.
-    * With `#define TRICE_MODE 0` (immediate mode) just provide a **putchar()** function.
-  * Deferred mode: Outside `TRICE` macro, a background output some milliseconds later is needed at the cost of RAM buffer.
+    * With `#define TRICE_MODE 0` (immediate mode) just provide a **putchar()** function but no inside interrupts *Trices*!
+    * Or use [SEGGER_RTT](./TriceOverRTT.md) allowing *Trices* also inside interrupts. An other big plus during new hardware setup is, no need to connect an additional wire. All information goes thru the debug probe. Internally only a `memcpy` transfers maybe 16 bytes to the SEGGER_RTT buffer and *Trice* does even not need a own buffer and no background task.
+  * Deferred mode: Output outside `TRICE` macro, a background output some milliseconds later is needed at the cost of RAM buffer.
     * Compare the **not** instrumented test project [./test/MDK-ARM_STM32F030R8_generated]([./test/MDK-ARM_STM32F030R8_generated) with the instrumented test project [./test/MDK-ARM_STM32F030R8]([./test/MDK-ARM_STM32F030R8) to see an implementation example.
-* Recommended is a deferred mode which allows to use `TRICE` macros also inside interrupts.
-  * In some cases, when logging a huge amount of data without timing constraints the immediate mode is a better choice.
+* Recommendation:
+  * [SEGGER_RTT](./TriceOverRTT.md) transfer: Immediate *Trice* mode.
+  * None-[SEGGER_RTT](./TriceOverRTT.md) transfer (mostly UART):
+    * *Trice* Kick-off: Immediate *Trice* mode, but **no** `TRICE` macros inside interrupts.
+    * *Trice* usage:  Deferred mode which **allows to use** `TRICE` macros also inside interrupts.
+    * In some cases, when logging a huge amount of data without timing constraints the immediate mode is a better choice.
 * If speed **and** log volume is needed, care must be taken to avoid *Trice* buffer overflow for example by time triggering.
 * Set options inside [triceConfig.h](../test/MDK-ARM_STM32F030R8/Core/Inc/triceConfig.h):
   * Target timestamps and their time base
