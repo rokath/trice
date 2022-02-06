@@ -22,7 +22,8 @@
 		* 9.2.3. [Logging over a display server](#Loggingoveradisplayserver)
 		* 9.2.4. [Set all IDs in a directory tree to 0](#SetallIDsinadirectorytreeto0)
 * 10. [Additional hints](#Additionalhints)
-	* 10.1. [Logfile viewing](#Logfileviewing)
+	* 10.1. [Limitation TRICE in TRICE not possible!](#LimitationTRICEinTRICEnotpossible)
+	* 10.2. [Logfile viewing](#Logfileviewing)
 * 11. [Target side *Trice* On-Off](#TargetsideTriceOn-Off)
 * 12. [Host side *Trice* On-Off](#HostsideTriceOn-Off)
 * 13. [Using a different encoding](#Usingadifferentencoding)
@@ -803,7 +804,38 @@ trice zeroSourceTreeIds -src ./
 
 ##  10. <a name='Additionalhints'></a>Additional hints
 
-###  10.1. <a name='Logfileviewing'></a>Logfile viewing
+###  10.1. <a name='LimitationTRICEinTRICEnotpossible'></a>Limitation TRICE in TRICE not possible!
+
+- No-Good Example:
+```C
+int f0( void ){ TRICE( "msg:f0\n"); return 0; }
+void f1( void ){ TRICE( "No; %d", f0() ); }
+```
+- This will compile normally but corrupt TRICE output.
+
+The reason is: When f1() gets active, the "No" *Trice* header is created, than the f0() *Trice* is executed and afterwards the "No" *Trice* tail is written. This works well during compile time but causes a mismatch during runtime.
+
+- Good Workaround:
+```C
+int f0( void ){ TRICE( "msg:f0\n"); return 0; }
+void f1( void ){ int x = f0(); TRICE( "Yes: %d", x ); }
+```
+
+### Dynamic strings/buffers only as variable inside `TRICE` macros
+
+- No-Good Example:
+```C
+void f0( void ){ TRICE_S( "msg:%s\n", "Hello" ); }
+```
+
+- Good Workaround:
+```C
+void f0( void ){ char* s = "Hello"; TRICE_S( "msg:%s\n", s ); }
+```
+
+The reason lays in the way the *Trices* are processed.
+
+###  10.2. <a name='Logfileviewing'></a>Logfile viewing
 
 Logfiles, **trice** tool generated with sub-command switch `-color off`, are normal ASCII files. If they are with color codes, these are ANSI escape sequences.
 
