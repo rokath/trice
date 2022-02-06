@@ -140,11 +140,13 @@ func NewTCP4Connection(w io.Writer, endpoint string) *tcp4 {
 	//var err error
 	addr, err := net.ResolveTCPAddr("tcp4", endpoint)
 	if err != nil {
-		log.Fatalf("%w, endpoint %s", endpoint)
+		_ = fmt.Errorf("%w, endpoint %s", err, endpoint)
+		log.Fatal("fatal")
 	}
 	r.conn, err = net.DialTCP("tcp4", nil, addr)
 	if err != nil {
-		log.Fatalf("%w, %v, endpoint %s", addr, endpoint)
+		_ = fmt.Errorf("%w, %v, endpoint %s", err, addr, endpoint)
+		log.Fatal("fatal")
 	}
 	return r
 }
@@ -172,7 +174,8 @@ func NewFileReader(w io.Writer, fn string) *file {
 	r := &file{}
 	fh, err := os.Open(fn)
 	if err != nil {
-		log.Fatalf("%w, file %s", fn)
+		_ = fmt.Errorf("%w, file %s", err, fn)
+		log.Fatal("fatal")
 	}
 	r.fn = fn
 	r.fh = fh
