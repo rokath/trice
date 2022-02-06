@@ -38,6 +38,9 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"log"
+	"net"
+	"os"
 	"strings"
 	"unicode"
 
@@ -55,6 +58,27 @@ var (
 
 	// PortArguments are the trice receiver device specific arguments.
 	PortArguments string
+
+	// DefaultLinkArgs replaces "default" args value for ST-LINK and J-LINK port.
+	DefaultLinkArgs = "-Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0 -RTTSearchRanges 0x20000000_0x1000"
+
+	// DefaultCOMArgs replaces "default" args value for serial port.
+	DefaultCOMArgs = ""
+
+	// DefaultTCP4Args replaces "default" args value for TCP4 port.
+	DefaultTCP4Args = "localhost:17001" // OpenOCD starts a server on localhost:17001 where it dumps all RTT messages.
+
+	// DefaultFileArgs replaces "default" args value for FILE port.
+	DefaultFileArgs = "trices.raw"
+
+	// DefaultBUFFERArgs replaces "default" args value for BUFFER port.
+	DefaultBUFFERArgs = "0 0 0 0"
+
+	// DefaultDumpArgs replaces "default" args value for BUFFER port.
+	DefaultDumpArgs = ""
+
+	// Verbose gives mor information on output if set. The value is injected from main packages.
+	Verbose bool
 )
 
 // spaceStringsBuilder returns str without whitespaces.
@@ -106,6 +130,68 @@ func scanBytes(s string) (buf []byte) {
 	return
 }
 
+type tcp4 struct {
+	w    io.Writer // os.Stdout
+	conn *net.TCPConn
+}
+
+func NewTCP4Connection(w io.Writer, endpoint string) *tcp4 {
+	r := &tcp4{}
+	//var err error
+	addr, err := net.ResolveTCPAddr("tcp4", endpoint)
+	if err != nil {
+		log.Fatalf("%w, endpoint %s", endpoint)
+	}
+	r.conn, err = net.DialTCP("tcp4", nil, addr)
+	if err != nil {
+		log.Fatalf("%w, %v, endpoint %s", addr, endpoint)
+	}
+	return r
+}
+
+// Read is part of the exported interface io.ReadCloser. It reads a slice of bytes.
+func (p *tcp4) Read(b []byte) (int, error) {
+	return p.conn.Read(b)
+}
+
+// Close is part of the exported interface io.ReadCloser. It ends the connection.
+func (p *tcp4) Close() error {
+	if Verbose {
+		fmt.Fprintln(p.w, "Closing tcp4 device.")
+	}
+	return p.conn.Close()
+}
+
+type file struct {
+	w  io.Writer // os.Stdout
+	fn string
+	fh *os.File
+}
+
+func NewFileReader(w io.Writer, fn string) *file {
+	r := &file{}
+	fh, err := os.Open(fn)
+	if err != nil {
+		log.Fatalf("%w, file %s", fn)
+	}
+	r.fn = fn
+	r.fh = fh
+	return r
+}
+
+// Read is part of the exported interface io.ReadCloser. It reads a slice of bytes.
+func (p *file) Read(b []byte) (int, error) {
+	return p.fh.Read(b)
+}
+
+// Close is part of the exported interface io.ReadCloser. It ends the connection.
+func (p *file) Close() error {
+	if Verbose {
+		fmt.Fprintln(p.w, "Closing file", p.fn)
+	}
+	return p.fh.Close()
+}
+
 // NewReadCloser returns a ReadCloser for the specified port and its args.
 // err is nil on successful open.
 // When port is "COMn" args can be used to be "TARM" to use a different driver for dynamic testing.
@@ -116,22 +202,42 @@ func scanBytes(s string) (buf []byte) {
 func NewReadCloser(w io.Writer, verbose bool, port, args string) (r io.ReadCloser, err error) {
 	switch port {
 	case "JLINK", "STLINK", "J-LINK", "ST-LINK":
+		if PortArguments == "" { // nothing assigned in args
+			PortArguments = DefaultLinkArgs
+		}
 		l := link.NewDevice(w, port, args)
 		if nil != l.Open() {
 			err = fmt.Errorf("can not open link device %s with args %s", port, args)
 		}
 		r = l
-		return
+	case "TCP4", "tcp4":
+		if PortArguments == "" { // nothing assigned in args
+			PortArguments = DefaultTCP4Args
+		}
+		l := NewTCP4Connection(w, args)
+		r = l
+	case "FILE", "file":
+		if PortArguments == "" { // nothing assigned in args
+			PortArguments = DefaultFileArgs
+		}
+		r = NewFileReader(w, args)
 	case "DUMP":
+		if PortArguments == "" { // nothing assigned in args
+			PortArguments = DefaultDumpArgs
+		}
 		var buf []byte
 		buf, err = scanHexDump(args)
 		r = ioutil.NopCloser(bytes.NewBuffer(buf))
-		return
 	case "BUFFER":
+		if PortArguments == "" { // nothing assigned in args
+			PortArguments = DefaultBUFFERArgs
+		}
 		buf := scanBytes(args)
 		r = ioutil.NopCloser(bytes.NewBuffer(buf))
-		return
 	default:
+		if PortArguments == "" { // nothing assigned in args
+			PortArguments = DefaultCOMArgs
+		}
 		if verbose {
 			fmt.Println("Assuming", port, "is serial port.")
 		}
@@ -145,8 +251,8 @@ func NewReadCloser(w io.Writer, verbose bool, port, args string) (r io.ReadClose
 			err = fmt.Errorf("can not open %s", port)
 		}
 		r = c
-		return
 	}
+	return
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
