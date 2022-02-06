@@ -77,8 +77,6 @@ func logInit() {
 		  CHAR prints the received bytes as characters.
 		  COBS expects 0 delimited byte sequences.
 		  DUMP prints the received bytes as hex code (see switch -dc too).
-		  ESC is a legacy format and will be removed in the future.
-		  FLEX is a legacy format and will be removed in the future.
 `) // flag
 	fsScLog.StringVar(&decoder.Encoding, "e", "COBS", "Short for -encoding.") // short flag
 	fsScLog.IntVar(&decoder.DumpLineByteCount, "dc", 32, `Dumped bytes per line when "-encoding DUMP"`)
@@ -108,7 +106,7 @@ If you need target timestamps you need to get the time inside the target and sen
 	fsScLog.StringVar(&emitter.Prefix, "prefix", DefaultPrefix, "Line prefix, options: any string or 'off|none' or 'source:' followed by 0-12 spaces, 'source:' will be replaced by source value e.g., 'COM17:'.") // flag
 	fsScLog.StringVar(&emitter.Suffix, "suffix", "", "Append suffix to all lines, options: any string.")                                                                                                           // flag
 
-	info := `receiver device: 'ST-LINK'|'J-LINK'|'TCP4'|serial name. 
+	info := `receiver device: 'BUFFER|DUMP|FILE|JLINK|STLINK|TCP4|serial name. 
 The serial name is like 'COM12' for Windows or a Linux name like '/dev/tty/usb12'. 
 Using a virtual serial COM port on the PC over a FTDI USB adapter is a most likely variant.
 `
@@ -123,11 +121,13 @@ It is the only setup parameter. The other values default to 8N1 (8 data bits, no
 	For args options see JLinkRTTLogger in SEGGER UM08001_JLink.pdf.`
 
 	argsInfo := fmt.Sprint(`Use to pass port specific parameters. The "default" value depends on the used port:
+port "BUFFER": default="`, receiver.DefaultBUFFERArgs, `", Option for args is any comma separated byte sequence.
+port "DUMP": default="`, receiver.DefaultDumpArgs, `", Option for args is any space separated byte sequence.
 port "COMn": default="`, receiver.DefaultCOMArgs, `", use "TARM" for a different driver. (For baud rate settings see -baud.)
+port "FILE": default="`, receiver.DefaultFileArgs, `", Option for args is any file name.
 port "J-LINK": default="`, receiver.DefaultLinkArgs, `", `, linkArgsInfo, `
 port "ST-LINK": default="`, receiver.DefaultLinkArgs, `", `, linkArgsInfo, `
 port "TCP4": default="`, receiver.DefaultTCP4Args, `", use any IP:port endpoint like "127.0.0.1:19021"
-port "BUFFER": default="`, receiver.DefaultBUFFERArgs, `", Option for args is any byte sequence.
 `)
 
 	fsScLog.StringVar(&receiver.PortArguments, "args", "default", argsInfo)
