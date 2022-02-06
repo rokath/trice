@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"strings"
 	"sync"
 	"time"
 
@@ -185,31 +184,15 @@ func scVersion(w io.Writer) error {
 // distributeArgs is distributing values used in several packages.
 // It must not be called before the appropriate arg parsing.
 func distributeArgs(w io.Writer) {
-	replaceDefaultArgs()
 	com.Verbose = verbose
 	id.Verbose = verbose
 	link.Verbose = verbose
 	cage.Verbose = verbose
 	decoder.Verbose = verbose
 	emitter.Verbose = verbose
+	receiver.Verbose = verbose
 	emitter.TestTableMode = decoder.TestTableMode
 	evaluateColorPalette(w)
-}
-
-// replaceDefaultArgs assigns port specific default strings.
-func replaceDefaultArgs() {
-	if receiver.PortArguments == "" { // nothing assigned in args
-		if strings.HasPrefix(receiver.Port, "COM") {
-			receiver.PortArguments = defaultCOMArgs
-		} else {
-			switch receiver.Port {
-			case "JLINK", "STLINK", "J-LINK", "ST-LINK":
-				receiver.PortArguments = defaultLinkArgs
-			case "BUFFER":
-				receiver.PortArguments = defaultBUFFERArgs
-			}
-		}
-	}
 }
 
 // evaluateColorPalette
