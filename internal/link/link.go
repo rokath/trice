@@ -84,7 +84,7 @@ func (p *Device) ErrorFatal() {
 	log.Panic(p.Err, ": linkCmd =", p.Exec, "linkLib =", p.Lib, " <--- PATH ok? error:")
 }
 
-// Read() is part of the exported interface io.ReadCloser. It reads a slice of bytes.
+// Read is part of the exported interface io.ReadCloser. It reads a slice of bytes.
 func (p *Device) Read(b []byte) (int, error) {
 	return p.tempLogFileHandle.Read(b)
 }
