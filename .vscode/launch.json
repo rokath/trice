@@ -52,7 +52,7 @@
             ]
         },              
         {
-            "name": "-p STLINK",
+            "name": "-p TCP4",
             "type": "go",
             "request": "launch",
             "mode": "auto",
@@ -60,12 +60,10 @@
             "env": {},
             "args": ["log",
                      "-port",
-                     "STLINK",
+                     "TCP4",
                      "-args",
-                     "\"-Device STM32F030R8 -if SWD -speed 4000 -RTTChannel 0 -RTTSearchRanges 0x20000000_0x1000\"",
+                     "localhost:19021",
                      "-verbose",
-                     "-encoding",
-                     "packl",
                      "-idlist",
                      "${workspaceFolder}/til.json"
             ]

@@ -203,7 +203,9 @@ func (p *COBS) handleCOBSModeDescriptor() error {
 		p.b = p.b[8:] // drop target location & timestamp
 		return nil
 	}
-	return fmt.Errorf("Info:Unknown COBS packet with descriptor 0x%08x and len %d", p.COBSModeDescriptor, len(p.b))
+	err := fmt.Errorf("Info:Unknown COBS packet with descriptor 0x%08x and len %d \n(((as ASCII:\"%s\")))", p.COBSModeDescriptor, len(p.b), string(p.b))
+	p.b = p.b[:0] // clear buffer
+	return err
 }
 
 // Read is the provided read method for COBS decoding and provides next string as byte slice.
