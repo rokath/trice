@@ -151,12 +151,13 @@
   * Works reliable.
   * No file interface needed.
   * *Trice* can connect over TCP localhost:19021 and display logs over RTT channel 0.
-  * The open `jlink` CLI can be handy to control the target.
+  * The open `jlink` CLI can be handy to control the target: `[r]eset, [g]o. [h]alt`
+  * No need to restart the **trice** tool after changed firmware download.
 * **MINUS:**
   * Uses RTT up-channel 0 and therefore RTT up-channel 0 is not usable differently.
   * No down-channel usable.
   * Needs a separate manual start of the `jlink` binary with CLI parameters.
-    * I would not recommend to automate that too.
+    * I would not recommend to automate that too, because this step is needed only once after PC power on.
 
 ####  3.2.2. <a name='JLinkRTTLogger.exe'></a>JLinkRTTLogger.exe
 
@@ -167,8 +168,9 @@
   * Create file with raw log data: `JLinkRTTLogger.exe -Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0 triceRaw.log`
     * It is possible to evaluate this file offline: `trice l -p FILE -args triceRaw.log`
     * ![./ref/TriceFILE.PNG](./ref/TriceFILE.PNG)
+  * No need to restart the **trice** tool after changed firmware download.
 * **MINUS:**
-  * Logs in a file, so thr **trice** tool needs to read from that file
+  * Logs in a file, so the **trice** tool needs to read from that file.
 * The **trice** tool can watch the output file and display the *Trices*: `trice log -port JLINK -args "-Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0"
 ![./ref/JlinkLoggerTrice.PNG](./ref/JlinkLoggerTrice.PNG)
 
