@@ -16,10 +16,10 @@ var (
 	// Commit is the program checksum and injected from main package.
 	Commit string
 
-	// Date is the compile time and injected from main package.
+	// Date is the compilation time and injected from main package.
 	Date string
 
-	// verbose gives mor information on output if set. This variable is copied into the appropriate packages.
+	// verbose gives more information on output if set. This variable is copied into the appropriate packages.
 	verbose bool
 
 	// fsScRefresh is flag set for sub command 'refresh' for updating ID list without touching the sources.
@@ -40,7 +40,7 @@ var (
 	// fsScSv is flag set for sub command 'displayServer'.
 	fsScSv *flag.FlagSet
 
-	// fsScVerseion is flag set for sub command 'version'.
+	// fsScVersion is flag set for sub command 'version'.
 	fsScVersion *flag.FlagSet
 
 	// fsScScan is flag set for sub command 'scan'.

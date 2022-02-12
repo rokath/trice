@@ -25,7 +25,7 @@ import (
 // https://medium.com/@hau12a1/golang-capturing-log-println-and-fmt-println-output-770209c791b4
 
 var (
-	// Verbose gives mor information on output if set. The value is injected from main packages.
+	// Verbose gives more information on output if set. The value is injected from main packages.
 	Verbose bool
 
 	// DefaultLogfileName is the pattern for default logfile name. The timestamp is replaced with the actual time.
@@ -50,7 +50,7 @@ func Disable(w io.Writer) {
 	Stop(w, pContainer)
 }
 
-// Container keeps re-direction informantion for restoring
+// Container keeps re-direction information for restoring
 type Container struct {
 	// old
 	oldLog     io.Writer
@@ -81,8 +81,8 @@ func Start(w io.Writer, fn string) *Container {
 	}
 	// open logfile
 	if DefaultLogfileName == fn {
-		fn = time.Now().Format(fn) // replace timestamp in default logfilename
-	} // otherwise use cli defined logfilename
+		fn = time.Now().Format(fn) // Replace timestamp in default log filename.
+	} // Otherwise, use cli defined log filename.
 	lfH, err := os.OpenFile(fn, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	msg.FatalOnErr(err)
 	if Verbose {
@@ -147,7 +147,7 @@ func Start(w io.Writer, fn string) *Container {
 // Stop does return to normal state.
 func Stop(w io.Writer, c *Container) {
 
-	// only if loggig was enabled
+	// only if logging was enabled
 	if nil == c {
 		if Verbose {
 			fmt.Fprintln(w, "No logfile writing...done")

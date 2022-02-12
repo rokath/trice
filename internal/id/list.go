@@ -31,8 +31,8 @@ func ScZero(w io.Writer, SrcZ string, cmd *flag.FlagSet) error {
 // It creates a new FnJSON and tries to add id:tf pairs from the source tree.
 // If equal tf are found with different ids they are all added.
 // If the same id is found with different tf only one is added. The others are reported as warning.
-// If any TRICE* is found without Id(n) or with Id(0) it is ignored.
-// SubCmdUpdate needs to know which IDs are used in the source tree to reliable add new IDs.
+// If any TRICE* is found without Id(n) or with Id(0), it is ignored.
+// SubCmdUpdate needs to know which IDs are used in the source tree, to reliably add new IDs.
 func SubCmdReNewList(w io.Writer) (err error) {
 	lu := make(TriceIDLookUp)
 	return updateList(w, lu)
@@ -42,8 +42,8 @@ func SubCmdReNewList(w io.Writer) (err error) {
 // It only reads FnJSON and tries to add id:tf pairs from the source tree.
 // If equal tf are found with different ids they are all added.
 // If the same id is found with different tf only one is added. The others are reported as warning.
-// If any TRICE* is found without Id(n) or with Id(0) it is ignored.
-// SubCmdUpdate needs to know which IDs are used in the source tree to reliable add new IDs.
+// If any TRICE* is found without Id(n) or with Id(0), it is ignored.
+// SubCmdUpdate needs to know which IDs are used in the source tree, to reliably add new IDs.
 func SubCmdRefreshList(w io.Writer) (err error) {
 	lu := NewLut(w, FnJSON)
 	return updateList(w, lu)

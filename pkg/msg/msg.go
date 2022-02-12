@@ -21,9 +21,7 @@ func Info(info string) {
 	fmtMessage(pc, fn, line, ok, errors.New(info))
 }
 
-// OnErr
-
-// OnErr prints info and a common error message with location info when err is not nil.
+// OnErrF prints info and a common error message with location info when err is not nil.
 func OnErrF(w io.Writer, err error) {
 	if nil == err {
 		return
@@ -193,7 +191,7 @@ func init() {
 	m = new(sync.RWMutex)
 }
 
-// OsExitOff replace the original fatal function
+// OsExitDisallow replace the original fatal function
 func OsExitDisallow() (o origLogFatalf) {
 	m.Lock()
 	o = logFatalf
@@ -208,7 +206,7 @@ func OsExitDisallow() (o origLogFatalf) {
 	return
 }
 
-// OsExitOn place the original fatal function back
+// OsExitAllow place the original fatal function back
 func OsExitAllow(o origLogFatalf) {
 	logFatalf = o
 	m.Unlock()

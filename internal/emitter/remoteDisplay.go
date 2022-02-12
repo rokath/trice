@@ -81,7 +81,7 @@ func (p *RemoteDisplay) writeLine(line []string) {
 
 // Connect is called by the client and tries to dial.
 // On success PtrRpc is valid afterwards and the output is re-directed.
-// Otherwise an error code is stored inside remotDisplay.
+// Otherwise, an error code is stored inside remoteDisplay.
 func (p *RemoteDisplay) Connect() {
 	addr := p.IPAddr + ":" + p.IPPort
 	if nil != p.PtrRPC {

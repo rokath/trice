@@ -18,7 +18,7 @@ func TestDummy(t *testing.T) {
 }
 
 /*
-// to do: avoid direct call of trice - it fails on github
+// to do: avoid direct call of trice - it fails on GitHub
 func _TestRemoteDisplay(t *testing.T) {
 	// prepare
 	afn := "testdata/actRemote.log"

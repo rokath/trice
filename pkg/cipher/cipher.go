@@ -17,15 +17,15 @@ import (
 
 // local config values
 var (
-	// Password is the key one needs to derypt trice logs if enncrypted
+	// Password is the key one needs to decrypt trice logs if encrypted
 	Password string
 
-	// ShowKey, if set, allows to see the encryption passphrase
+	// ShowKey if set, allows to see the encryption passphrase
 	ShowKey bool
 
 	Key []byte
 
-	// cipher is a pointer to the cryptpo struct filled during initialization
+	// cipher is a pointer to the crypto struct filled during initialization
 	ci *xtea.Cipher
 
 	// enabled set to true if a -password other than "" was given
@@ -81,8 +81,8 @@ func swap8Bytes(src []byte) []byte {
 
 // Encrypt8 translates a byte slice in a protected slice of length 8.
 //
-// Shorter slices are extented with 0x16 until length 8.
-// Langer slices are truncated to length 8.
+// Shorter slices are extended with 0x16 until length 8.
+// Longer slices are truncated to length 8.
 func Encrypt8(b []byte) (e []byte) {
 	msg.InfoOnFalse(8 == len(b), "Buffer len is not 8.")
 	if enabled {
@@ -96,10 +96,10 @@ func Encrypt8(b []byte) (e []byte) {
 	return
 }
 
-// Decrypt8 translates an Encrypt protected byte slice back in a slice of length 8.
+// Decrypt8 translates an encryption protected byte slice back in a slice of length 8.
 //
-// Shorter slices are extented with 0 until length 8.
-// Langer slices are truncated to length 8.
+// Shorter slices are extended with 0 until length 8.
+// Longer slices are truncated to length 8.
 func Decrypt8(b []byte) (d []byte) {
 	msg.InfoOnFalse(8 == len(b), "Buffer len is not 8.")
 	if enabled {
@@ -113,10 +113,10 @@ func Decrypt8(b []byte) (d []byte) {
 	return
 }
 
-// decrypt8 translates src, an encrypt protected byte slice, back in dst, a byte slice of length 8.
+// decrypt8 translates src, an encryption protected byte slice, back in dst, a byte slice of length 8.
 //
-// Shorter slices are extented with 0 until length 8.
-// Langer slices are truncated to length 8.
+// Shorter slices are extended with 0 until length 8.
+// Longer slices are truncated to length 8.
 func decrypt8(dst, src []byte) {
 	swap := src
 	if enabled {
@@ -127,10 +127,10 @@ func decrypt8(dst, src []byte) {
 	_ = copy(dst, swap)
 }
 
-// encrypt8 translates byte slice src, in an encrypt protected byte slice dst.
+// encrypt8 translates byte slice src, in an encryption protected byte slice dst.
 //
-// Shorter slices are extented with 0 until length 8.
-// Langer slices are truncated to length 8.
+// Shorter slices are extended with 0 until length 8.
+// Longer slices are truncated to length 8.
 func encrypt8(dst, src []byte) {
 	swap := src
 	if enabled {

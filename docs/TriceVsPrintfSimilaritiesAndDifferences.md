@@ -25,7 +25,7 @@
 
 ##  1. <a name='Printf-likefunctions'></a>Printf-like functions
 
- ...have a lot of things to do: Copy format string from FLASH memory into a RAM buffer and parse it for format specifiers. Also parse the variadic parameter list and convert each parameter according to its format specifier into a character sequences, what includes several divisions - costly function calls. Concatenate the parts to a new string and deliver it to the output, what often means copying again. A full featured printf library consumes plenty space and time and many open source projects try to make it better in this or that way. Never ever call a printf-like function in time critical code, like an interrupt - it would crash your target in most cases.
+ ...have a lot of things to do: Copy format string from FLASH memory into a RAM buffer and parse it for format specifiers. Also parse the variadic parameter list and convert each parameter according to its format specifier into a character sequences, what includes several divisions - costly function calls. Concatenate the parts to a new string and deliver it to the output, what often means copying again. A full-featured printf library consumes plenty space and time and many open source projects try to make it better in this or that way. Never ever call a printf-like function in time critical code, like an interrupt - it would crash your target in most cases.
 
 ##  2. <a name='TriceIDs'></a>*Trice* IDs
 
@@ -65,7 +65,7 @@ These types are mixable with integer types but need to be covered by converter f
    TRICE32( "%f", aFloat(x));
   ```
 
-* *double* types use the `aDouble()` function and need need a value bit width of 64, to secure correct data transfer.
+* *double* types use the `aDouble()` function and need a value bit width of 64, to secure correct data transfer.
   * Example:
 
   ```c
@@ -127,7 +127,7 @@ static inline uint64_t aDouble( double x ){
 * The `TRICE` macros are used in **C** code.
 * The format strings are interpreted by the **trice** tool, which is written in **Go**.
 * The **C** and **Go** format specifier are not equal but similar.
-* Therefore a **T**rice adaption is internally performed.
+* Therefore, a **T**rice adaption is internally performed.
 
 ###  8.2. <a name='OverviewTable'></a>Overview Table
 
@@ -180,7 +180,7 @@ The target does not even "know" about that, because it gets only the *Trice* IDs
 
 ##  10. <a name='Switchthelanguagewithoutchangingabitinsidethetargetcode'></a>Switch the language without changing a bit inside the target code
 
-Once the [til.json](../til.json) list is done the user can translate it in any language and exchanging the list switches to an other language.
+Once the [til.json](../til.json) list is done the user can translate it in any language and exchanging the list switches to another language.
 
 ##  11. <a name='Formattagsprototypeflagswidth.precisionlengthspecifierexamples'></a>Format tags prototype `%[flags][width][.precision][length]` specifier examples
 

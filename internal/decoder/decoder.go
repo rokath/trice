@@ -30,7 +30,7 @@ const (
 	// LittleEndian is true for little endian trice data.
 	LittleEndian = true
 
-	// flag value for TargetEndianess
+	// BigEndian is the flag value for target endianness.
 	BigEndian = false
 
 	// patNextFormatSpecifier is a regex to find next format specifier in a string (exclude %%*) and ignoring %s
@@ -77,7 +77,7 @@ const (
 )
 
 var (
-	// Verbose gives mor information on output if set. The value is injected from main packages.
+	// Verbose gives more information on output if set. The value is injected from main packages.
 	Verbose bool
 
 	// ShowID is used as format string for displaying the first trice ID at the start of each line if not "".
@@ -92,7 +92,7 @@ var (
 	// Encoding describes the way the byte stream is coded.
 	Encoding string
 
-	// TargetEndianess, if bigEndian assumes a big endian encoded trice stream from the target.
+	// TargetEndianness if bigEndian assumes a big endian encoded trice stream from the target.
 	// To keep target load small, the encoded trice stream from the target matches the target endianess, what us usually littleEndian.
 	TargetEndianess string
 
@@ -226,7 +226,7 @@ func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec Decode
 			//  }
 			continue // read again
 		}
-		// b contains here no or several complete trice strings.
+		// b contains here none or several complete trice strings.
 		// If several, they end with a newline each, despite the last one which optionally ends with a newline.
 		start := time.Now()
 

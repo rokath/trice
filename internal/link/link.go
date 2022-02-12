@@ -21,7 +21,7 @@ import (
 )
 
 var (
-	// Verbose gives mor information on output if set. The value is injected from main packages.
+	// Verbose gives more information on output if set. The value is injected from main packages.
 	Verbose bool
 )
 

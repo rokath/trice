@@ -10,7 +10,7 @@
 - Select right hardware according `C:\repos\trice\test\PSoC_Creator_4.2_Workspace\CE195379_Software_Transmit_UART_PSoC3_4_5LP.pdf`
   - Project -> Context Menu -> Device Selector...
   - Select `CY8C4147AZI-S475`
-    - Use device properties for filtering: CortexM0p CPU, 128KB Flash, 16KB RAM, 48 MHz, CapsSense=Y, LCD=N, ... to find the right device easier.
+    - Use device properties for filtering: CortexM0p CPU, 128 KB Flash, 16 KB RAM, 48 MHz, CapsSense=Y, LCD=N, ... to find the right device easier.
 - compile, load & run
 - Open git bash & enter `trice s` with and without plugged evaluation board to detect the right COM port
 - Enter `trice l -p COM7 -baud 57600 -e CHAR` and the output should be similar to:

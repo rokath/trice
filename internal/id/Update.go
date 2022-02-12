@@ -26,7 +26,7 @@ const (
 	// patSourceFile is a regex pattern matching any source file for patching
 	patCFile = "(\\.c|\\.cc|\\.cpp)$"
 
-	// patTrice matches any TRICE name variant https://regex101.com/r/IkIhV3/1, The (?i) says case insensitive. (?U)=un-greedy -> only first match.
+	// patTrice matches any TRICE name variant https://regex101.com/r/IkIhV3/1, The (?i) says case-insensitive. (?U)=un-greedy -> only first match.
 	patTypNameTRICE = `(?iU)(\b((TRICE((_(S|N)|0)|((8|16|32|64)*(_[0-9]*)*))))\b)`
 	//               `     (\b((TRICE(_S|0|(8|16|32|64)*)))(_[1-9]*)*|\b)\s*\(\s*\bID\b\s*\(\s*.*[0-9]\s*\)\s*,\s*".*"\s*.*\)\s*;` // https://regex101.com/r/pPRsjf/1
 
@@ -59,7 +59,7 @@ const (
 	// patIdInsideTrice finds if an `( Id(n) ,"` sequence exists inside trice
 	patIDInsideTrice = `(?U)\(` + patID + `\((\s*\d+)\s*\)\s*,\s*"`
 
-	// patTriceFileId finds first occorence, see https://regex101.com/r/hWMjhU/4
+	// patTriceFileId finds first occurrence, see https://regex101.com/r/hWMjhU/4
 	patTriceFileId = `#define\s*TRICE_FILE\s*Id\([0-9]*\)`
 
 	patIncludeTriceHeader = `#include\s*"trice\.h"`
@@ -89,14 +89,14 @@ var (
 )
 
 // updateParamCountAndID0 stays in text as long as trice statements are found.
-// If a TRICE* is found, it is getting an Id(0) inserted and it is also extended by _n
-// according to the format specifier count inside the formatstring. Both only if not already existent.
-// A not with the format specifier count matching _n is intentionally not corrected.
+// If a TRICE* is found, it is getting an Id(0) inserted, and it is also extended by _n.
+// according to the format specifier count inside the format-string. Both only if not already existent.
+// A none with the format specifier count matching _n is intentionally not corrected.
 // About a not matching parameter count the C compiler will complain later.
 // trice statements ending with letter 'i' keep the 'i' at the end.
-// Short trices like Trice0 or Trice16_1i need to have an id(0) instead of Id(0) but that gets corrected
+// Short *Trices* like Trice0 or Trice16_1i need to have an id(0) instead of Id(0) but that gets corrected
 // automatically when the id n is inserted.
-// text is the full filecontents, which could be modified, therefore it is also returned with a modified flag
+// text is the full file contents, which could be modified, therefore it is also returned with a modified flag
 func updateParamCountAndID0(w io.Writer, text string, extendMacroName bool) (string, bool) {
 	var modified bool
 	subs := text[:] // create a copy of text and assign it to subs
@@ -204,9 +204,9 @@ func refreshList(w io.Writer, root string, lu TriceIDLookUp, tflu TriceFmtLookUp
 // NOT NEEDED:   - If several source trees use same til.json, the `removed` timestamp is without sense.
 // NOT NEEDED:   - If a `removed` timestamp is set, but the ID is in the source tree the `removed` timestamp is set to 0.
 
-// Update is parsing source tree root which is part of Srcs and performing these actions:
+// IDsUpdate is parsing source tree root which is part of Srcs and performing these actions:
 // - replace.Type( Id(0), ...) with.Type( Id(n), ...)
-// - find duplicate.Type( Id(n), ...) and replace one of them if trices are not identical
+// - find duplicate.Type( Id(n), ...) and replace one of them if *Trices* are not identical
 // - extend file fnIDList
 func IDsUpdate(w io.Writer, root string, lu TriceIDLookUp, tflu TriceFmtLookUp, pListModified *bool) {
 	if Verbose && FnJSON != "emptyFile" {
@@ -403,7 +403,7 @@ func triceIDParse(t string) (nbID string, id TriceID, found bool) {
 		return
 	}
 	var n int
-	_, err := fmt.Sscanf(nbID, "Id(%d", &n) // closing bracket in format string omitted intensionally
+	_, err := fmt.Sscanf(nbID, "Id(%d", &n) // closing bracket in format string omitted intentionally
 	if nil == err {                         // because spaces after id otherwise are not tolerated
 		id = TriceID(n)
 		found = true
@@ -413,7 +413,7 @@ func triceIDParse(t string) (nbID string, id TriceID, found bool) {
 	return
 }
 
-// triceFmtParse returns an extracted tf and found as true if t is s.th. like 'TRICE*( Id(n), "..." );'
+// triceFmtParse returns an extracted tf and found as true if t is s.th. like 'TRICE*( Id(n), "..." );'.
 func triceFmtParse(t string) (tf TriceFmt, found bool) {
 	tf.Type = matchTypNameTRICE.FindString(t)
 	if tf.Type == "" {
@@ -484,11 +484,11 @@ func refreshIDs(w io.Writer, text string, lu TriceIDLookUp, tflu TriceFmtLookUp)
 	}
 }
 
-// updateIDsUniqOrShared parses text for new or invalid trices 'tf' and gives them the legacy id if 'tf' is already in lu & tflu.
+// updateIDsUniqOrShared parses text for new or invalid *Trices* 'tf' and gives them the legacy id if 'tf' is already in lu & tflu.
 // An invalid trice is a trice without Id(n) or with Id(0) or which changed somehow. Exampes: 'TRICE0( Id(12) ,"foo");' was changed to 'TRICE0( Id(12) ,"bar");'
 // If 'TRICE0( Id(99) ,"bar");' is in lu & tflu the invalid trice changes to 'TRICE0( Id(99) ,"bar");'. Otherwise instead of 99 a so far unused id is taken.
-// Or: 'TRICE0( Id(12) ,"foo");' was changed to 'TRICE0( Id(13) ,"foo");'. Than lu & tflu are extended accordingly, or, if 13 is already used, it is replaced with a new id.
-// Otherwise a new id is generated, text patched and lu & tflu are extended.
+// Or: 'TRICE0( Id(12) ,"foo");' was changed to 'TRICE0( Id(13) ,"foo");'. Then lu & tflu are extended accordingly, or, if 13 is already used, it is replaced with a new id.
+// Otherwise, a new id is generated, text patched and lu & tflu are extended.
 // To work correctly, lu & tflu need to be in a refreshed state, means have all id:tf pairs from Srcs tree already inside.
 // text is returned afterwards and true if text was changed and *pListModified set true if s.th. was changed.
 // *pListModified in result is true if any file was changed.
@@ -533,7 +533,7 @@ func updateIDsUniqOrShared(w io.Writer, sharedIDs bool, min, max TriceID, search
 			if id, found = tflu[tf]; sharedIDs && found { // yes, we can use it in shared IDs mode
 				msg.FatalInfoOnTrue(id == 0, "no id 0 allowed in map")
 			} else { // no, we need a new one
-				id = lu.newID(w, min, max, searchMethod) // a prerequisite is a in a previous step refreshed lu
+				id = lu.newID(w, min, max, searchMethod) // a prerequisite is an in a previous step refreshed lu
 				*pListModified = true
 			}
 			// patch the id into text

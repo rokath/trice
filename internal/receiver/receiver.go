@@ -19,7 +19,7 @@
 // - device is a composed type from triceReceiver (common functionality) and deviceReceiver (device specific functionality)
 // - The newDevice(...) function creates the device specific instance and links to it the triceReceiver instance created by
 // device.triceReceiver = newTriceReceiver(device). The device parameter for newTriceReceiver() is the linked device interface
-// into the triceReceiver instance so that the this way composed device instance can use the common triceReceiver parts as well.
+// into the triceReceiver instance so that the in this way composed device instance can use the common triceReceiver parts as well.
 // - receiving()
 //  - scans the incoming data stream for valid headers,
 //  - and puts these into the triceChannel, when trice headers
@@ -77,7 +77,7 @@ var (
 	// DefaultDumpArgs replaces "default" args value for BUFFER port.
 	DefaultDumpArgs = ""
 
-	// Verbose gives mor information on output if set. The value is injected from main packages.
+	// Verbose gives more information on output if set. The value is injected from main packages.
 	Verbose bool
 )
 

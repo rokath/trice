@@ -1,6 +1,6 @@
 # Trice demo & test project info
 
-Many demo projects are ARMKeil IDE STM32 here but the TRICE tool is easy adaptable to 8 - 64 bit architectures.
+Many demo projects are ARMKeil IDE STM32 here but the TRICE tool is easy adaptable to 8 - 64-bit architectures.
 
 ## Backup folder
 
@@ -19,10 +19,10 @@ Many demo projects are ARMKeil IDE STM32 here but the TRICE tool is easy adaptab
 
 - The example projects support both, RTT and UART just for demonstration.
 - RTT = Real Time Transfer is a technique developed by SEGGER for background memory access during processor runtime. This is possible for ARM cores over the JTAG or SWD interface if a debug probe is connected.
-- Some of the STM developmemt boards contain a debug probe you can use for the board itself or for an othe board.
-- These are so called on-board STLINK debug probes. To use RTT use the `-p STLINK` switch.
+- Some STM development boards contain a debug probe you can use for the board itself or for an othe board.
+- These are so called on-board ST-LINK debug probes. To use RTT use the `-p STLINK` switch.
   - `stRttLogger.exe` and `libusb-1.0.dll` must be in the PATH.
-- You can also reflash the on-board debug probe with JLINK firmware. To use RTT use the `-p JLINK` switch.
+- You can also flash the on-board debug probe with J-LINK firmware. To use RTT use the `-p JLINK` switch.
   - `JLinkRTTLogger.exe` and `JLinkARM.dll` must be in the PATH.
 
 ## UART
@@ -31,12 +31,12 @@ Many demo projects are ARMKeil IDE STM32 here but the TRICE tool is easy adaptab
 
 ## MDK-ARM projects
 
-The projects are generated with necessary library files *as reference* to keep them smaller. Therefore the direct compilation will fail probably. Projects should compile if you follow these steps:
+The projects are generated with necessary library files *as reference* to keep them smaller. Therefore, the direct compilation will fail, probably. Projects should compile if you follow these steps:
 
 - Install latest ARMKeil IDE.
   - STM32 M0 cores with up to 32 KB FLASH memory are usable directly.
   - You can get a free ST Microelectronics license with a 256 KB FLASH limitation.
-- Install latest STM32CubeMX with latest target firmware library.
+- Install latest STM32CubeMX with the latest target firmware library.
   - It is free of charge.
 - Open the project ioc file with STM32CubeMX and re-generate.
 - Open the project with ARMKeil IDE and build.

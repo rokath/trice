@@ -155,11 +155,11 @@ func isChannel(ch string) bool {
 	return cv != nil
 }
 
-// colorize prefixes s with an ansi color code according to this conditions:
+// colorize prefixes s with an ansi color code according to these conditions:
 // If p.colorPalette is "off", do nothing.
 // If p.colorPalette is "none" remove only lower case channel info "col:"
-// If "COL:" is begin of string add ANSI color code according to COL:
-// If "col:" is begin of string replace "col:" with ANSI color code according to col:
+// If "COL:" is start of string add ANSI color code according to COL:
+// If "col:" is start of string replace "col:" with ANSI color code according to col:
 // Additionally, if global variable LogLevel is not the default "all", but found inside
 // ColorChannels, logs with higher index positions are suppressed.
 // As special case LogLevel == "off" does not output anything.
@@ -168,7 +168,7 @@ func (p *LineTransformerANSI) colorize(s string) (r string) {
 		return // do not log at all
 	}
 	var logLev int       // numeric log level
-	var logThreshold int // numeric log thereshold
+	var logThreshold int // numeric log threshold
 	r = s
 	sc := strings.SplitN(s, ":", 2)
 	if len(sc) < 2 { // no color separator (no log level)
@@ -212,7 +212,7 @@ func (p *LineTransformerANSI) colorize(s string) (r string) {
 
 // writeLine consumes a full line, translates it and writes it to the internal Linewriter.
 // It adds ANSI color Codes and replaces col: channel information.
-// It treats each sub string separately and and a color reset code at the end.
+// It treats each sub string separately and a color reset code at the end.
 func (p *LineTransformerANSI) writeLine(line []string) {
 	var colored bool
 	l := make([]string, 0, 10)

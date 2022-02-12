@@ -22,7 +22,7 @@ import (
 
 // TempFileName returns a temporary file name based on pattern.
 // The file is created and deleted and only the name is delivered.
-// The pattern should contain at least an asterics. Example: myFile-*.bin"
+// The pattern should contain at least an asterisks. Example: "myFile-*.bin"
 func TempFileName(pattern string) (s string) {
 	tempFileHandle, e := ioutil.TempFile(os.TempDir(), pattern) // opens for read and write
 	msg.OnErr(e)

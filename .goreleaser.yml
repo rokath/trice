@@ -4,7 +4,7 @@ before:
   hooks:
     # you may remove this if you don't use vgo
     - go mod tidy
-    # you may remove this if you don't need go generate
+    # you may remove this if you don't need to generate
     - go generate ./...
 
 
@@ -79,7 +79,7 @@ archives:
       amd64: x86_64
 
     # Set to true, if you want all files in the archive to be in a single directory.
-    # If set to true and you extract the archive 'goreleaser_Linux_arm64.tar.gz',
+    # If set to true, and you extract the archive 'goreleaser_Linux_arm64.tar.gz',
     # you get a folder 'goreleaser_Linux_arm64'.
     # If set to false, all files are extracted separately.
     # You can also set it to a custom folder name (templating is supported).

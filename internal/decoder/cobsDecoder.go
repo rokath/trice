@@ -118,7 +118,7 @@ func dump(w io.Writer, b []byte) {
 // and returns it in b and its len in n. If more data arrived after the first terminating 0,
 // these are kept internally and concatenated with the following bytes in a next Read.
 func (p *COBS) nextCOBSpackage() {
-	// Here p.iBuf contains no or available bytes, what can be several trice messages.
+	// Here p.iBuf contains none or available bytes, what can be several trice messages.
 	// So first try to process p.iBuf.
 	index := bytes.IndexByte(p.iBuf, 0) // find terminating 0
 	if index == -1 {                    // p.iBuf has no complete COBS data, so try to read more input
@@ -216,8 +216,8 @@ func (p *COBS) handleCOBSModeDescriptor() error {
 // Read returns usually one complete trice string or nothing but can return concatenated
 // trice strings, each ending with a newline despite the last one, when messages added.
 // Read does not process all internally read complete trice packages to be able later to
-// separate trices within one line to keep them separated for color processing.
-// Therefore Read needs to be called cyclically even after returning io.EOF to process internal data.
+// separate Trices within one line to keep them separated for color processing.
+// Therefore, Read needs to be called cyclically even after returning io.EOF to process internal data.
 // When Read returns n=0, all processable complete trice packages are done,
 // but the start of a following trice package can be already inside the internal buffer.
 // In case of a not matching cycle, a warning message in trice format is prefixed.
@@ -342,7 +342,7 @@ func (p *COBS) sprintTrice(b []byte) (n int) {
 		triceType = fmt.Sprintf(p.trice.Type+"_%d", len(p.u)) // append count
 	}
 
-	for _, s := range cobsFunctionPtrList { // walk thru the list and try to find a match for execution
+	for _, s := range cobsFunctionPtrList { // walk through the list and try to find a match for execution
 		if s.triceType == p.trice.Type || s.triceType == triceType { // match list entry "TRICE..."
 			if s.paramSpace == p.paramSpace { // size ok
 				if len(p.b) < p.paramSpace {
@@ -366,7 +366,7 @@ func (p *COBS) sprintTrice(b []byte) (n int) {
 
 // triceTypeFn is the type for cobsFunctionPtrList elements.
 type triceTypeFn struct {
-	triceType  string                                           // triceType describes if parameters, the parameter bit width or it the parameter is a string
+	triceType  string                                           // triceType describes if parameters, the parameter bit width or if the parameter is a string.
 	triceFn    func(p *COBS, b []byte, bitwidth, count int) int // triceFn performs the conversion to the output string.
 	paramSpace int                                              // paramSpace is the count of bytes allocated for the parameters.
 	bitWidth   int                                              // bitWidth is the individual parameter width.

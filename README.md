@@ -18,16 +18,16 @@
 
 ## About
 
-- Replace `printf` or `log` in **C**-code code for getting:
+- Replace `printf` or `log` in **C**-code for getting:
   - **[SPEED](./docs/TriceSpeed.md)**, to be usable also **inside interrupts**,
   - **[SPACE](./docs/TriceSpace.md)**, to reduce needed FLASH memory size,
   - and various **[FEATURES](./docs/TraceWithTrice.md#Tricefeatures)** delighting the developers heart.
 - <u>Main idea:</u> Logging strings **not** into an embedded device to display them later on a PC but keep [usage comfortable and simple](./docs/TriceUserGuide.md#2-get-started).
 - *Trice* consists of 2 parts:
-  1. **C** code `TRICE` macros generating tiny & super fast embedded device real-time trace/log code
+  1. **C** code `TRICE` macros generating tiny & super-fast embedded device real-time trace/log code
   2. Tool **trice** for managing and visualization.
       - Written in [Go](https://golang.org/) and therefore usable on all platforms Go supports.
-      - You can also use your own environment to receive the *Trice* packges, exchange the carried IDs with the format string and print out.
+      - You can also use your own environment to receive the *Trice* packages, exchange the carried IDs with the format string and print out.
 - [Trice Usage guide](./docs/TriceUserGuide.md)
 
 ## Possible Use Cases
@@ -36,7 +36,7 @@
   - Optionally add [til.json](./til.json) as a (compressed) resource to your target image. One possibility is using [SRecord](http://srecord.sourceforge.net/download.html). Or simply provide a download link.
 - You can see *Trice* also as a kind of **data compression** what could be interesting for [IoT](https://en.wikipedia.org/wiki/Internet_of_things) things, especially [NB-IoT](https://en.wikipedia.org/wiki/Narrowband_IoT), where you have very low data rates.
 - Storing *Trice* messages in [FLASH memory](https://en.wikipedia.org/wiki/Flash_memory) for later log analysis saves memory because a typical `TRICE` occupies only about 8 bytes independently of the format string length.
-- Also it is possible to **encrypt** the *Trice* transfer packets to get a reasonable protection for many cases.
+- Also, it is possible to **encrypt** the *Trice* transfer packets to get a reasonable protection for many cases.
   - This way you can deliver firmware images with encrypted *Trice* output, only readable with the appropriate key and [til.json](./til.json).
   - XTEA is implemented as one option.
 - You can even translate the [til.json](./til.json) file in **different languages**, so changing a language is just changing the [til.json](./til.json) file without touching the target binary.
@@ -53,7 +53,7 @@ This slightly simplified [view](https://github.com/jgraph/drawio) is explained [
 - Inplemented:
   - [UART](https://en.wikipedia.org/wiki/Universal_asynchronous_receiver-transmitter) conectable to virtual UART over USB
   - [RTT](https://www.segger.com/products/debug-probes/j-link/technology/about-real-time-transfer/) over [J-Link](./third_party/segger.com/ReadMe.md) and [RTT over ST-Link](./third_party/goST/ReadMe.md)
-- A small separate micro controller is always usable as bridge to interfaces like: [GPIO](https://circuitcellar.com/cc-blog/a-trace-tool-for-embedded-systems/), [I²C](https://en.wikipedia.org/wiki/I%C2%B2C), [SPI](https://en.wikipedia.org/wiki/Serial_Peripheral_Interface), [CAN](https://en.wikipedia.org/wiki/CAN_bus), [LIN](https://en.wikipedia.org/wiki/Local_Interconnect_Network), ...
+- A small separate micro-controller is always usable as interfaces bridge to [GPIO](https://circuitcellar.com/cc-blog/a-trace-tool-for-embedded-systems/), [I²C](https://en.wikipedia.org/wiki/I%C2%B2C), [SPI](https://en.wikipedia.org/wiki/Serial_Peripheral_Interface), [CAN](https://en.wikipedia.org/wiki/CAN_bus), [LIN](https://en.wikipedia.org/wiki/Local_Interconnect_Network), ...
 
 ## Display server option
 

@@ -25,7 +25,7 @@ func NewLut(w io.Writer, fn string) TriceIDLookUp {
 		return lu
 	}
 	msg.FatalOnErr(lu.fromFile(fn))
-		fmt.Fprintln(w, "Read ID List file", fn, "with", len(lu), "items.")
+	fmt.Fprintln(w, "Read ID List file", fn, "with", len(lu), "items.")
 	if Verbose {
 	}
 	return lu
@@ -149,7 +149,7 @@ func (lu TriceIDLookUp) AddFmtCount(w io.Writer) {
 	}
 }
 
-// toJSON converts lut into JSON byte slice in human readable form.
+// toJSON converts lut into JSON byte slice in human-readable form.
 func (lu TriceIDLookUp) toJSON() ([]byte, error) {
 	return json.MarshalIndent(lu, "", "\t")
 }

@@ -31,7 +31,8 @@ func TestSerial(t *testing.T) {
 	}
 	//assert.Nil(t, err)
 
-	verbose := false
+	var verbose bool
+
 	pS := com.NewCOMPortGoBugSt(os.Stdout, verbose, "noCOM")
 	assert.False(t, pS.Open())
 

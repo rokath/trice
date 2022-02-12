@@ -1,6 +1,6 @@
 
 
-// github.com/onsi/ginko behaivioral tests
+// github.com/onsi/ginko behavioral tests
 // goconvey.co view test results in browser based display
 // code.google.com/p/gomock
 // go test -coverprofile cover.out

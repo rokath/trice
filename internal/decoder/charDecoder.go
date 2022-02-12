@@ -12,7 +12,7 @@ import (
 	"github.com/rokath/trice/internal/id"
 )
 
-// CHAR is the Decoding instance for DUMP encoded trices.
+// CHAR is the Decoding instance for DUMP encoded *Trices*.
 type CHAR struct {
 	decoderData
 }

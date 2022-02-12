@@ -68,7 +68,7 @@ func TestTriceVersion(t *testing.T) {
 }
 
 //for some reason this test disturbs in parallel execution
-func _TestDoit_dssd(t *testing.T) {
+func _TestDoitDssd(t *testing.T) {
 	o := msg.OsExitDisallow()
 	defer msg.OsExitAllow(o)
 	log.SetFlags(0)
@@ -99,7 +99,7 @@ func stdoutDoit() {
 	doit(os.Stdout)
 }
 
-func _TestDoit_dssd_a(t *testing.T) {
+func _TestDoitDssd_a(t *testing.T) {
 	o := msg.OsExitDisallow()
 	defer msg.OsExitAllow(o)
 	m.Lock()
@@ -125,7 +125,7 @@ func _TestDoit_dssd_a(t *testing.T) {
 	assert.Equal(t, "\n\ndbg:displayServerxxxxxdown\n\n\naccept tcp 127.0.0.1:61498: use of closed network connection", actM)
 }
 
-func _TestDoit_dssd_b(t *testing.T) {
+func _TestDoitDssd_b(t *testing.T) {
 	o := msg.OsExitDisallow()
 	defer msg.OsExitAllow(o)
 	m.Lock()
@@ -174,16 +174,16 @@ var osArgsBUFFER []string
 //  	// do stuff before tests
 //  	fnTIL := createTIL()
 //  	osArgsBUFFER = []string{"trice", "log", "-p", "BUFFER", "-args", "2, 124, 227, 255, 0, 0, 4, 0", "-ts", "off", "-color", "off", "-idlist", fnTIL}
-//  
+//
 //  	exitVal := t.Run() // tests
-//  
+//
 //  	// do stuff after tests
 //  	msg.FatalOnErr(os.Remove(fnTIL))
-//  
+//
 //  	os.Exit(exitVal) // done
 //  }
 
-func _Example_doit_c() {
+func _ExampleDoit_c() {
 	m.Lock()
 
 	os.Args = osArgsBUFFER
@@ -194,7 +194,7 @@ func _Example_doit_c() {
 	// BUFFER: MSG: triceFifoMaxDepth = 4, select = 0
 }
 
-func _Example_doit_d() {
+func _ExampleDoit_d() {
 	m.Lock()
 	os.Args = append(osArgsBUFFER, "-testTable", "-prefix", " }, `")
 	//act := tst.CaptureStdOut(stdoutDoit)
@@ -221,14 +221,14 @@ func example(args []string) {
 	m.Unlock()
 }
 
-func _Example_doit_e() {
+func _ExampleDoit_e() {
 	example([]string{"trice", "zeroSourceTreeIds", "-dry-run"})
 	// Output:
 	// ... TRICE0( Id(100), "tata");...
 	// Id(100)  ->  Id(0)
 }
 
-func _Example_doit_f() {
+func _ExampleDoit_f() {
 	example([]string{"trice", "zeroSourceTreeIds"})
 	// Output:
 	// ... TRICE0( Id(0), "tata");...

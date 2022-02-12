@@ -16,7 +16,7 @@ import (
 )
 
 var (
-	// Verbose gives mor information on output if set. The value is injected from main packages.
+	// Verbose gives more information on output if set. The value is injected from main packages.
 	Verbose bool
 
 	// TimestampFormat is used tor line timestamps.
@@ -193,6 +193,6 @@ func banOrPickFilter(ban, pick ChannelArrayFlag, b []byte) int {
 				return len(b) // filter match
 			}
 		}
-		return 0 // no filter match	}
+		return 0 // no filter match
 	}
 }

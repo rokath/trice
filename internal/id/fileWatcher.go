@@ -13,7 +13,7 @@ import (
 	"github.com/rokath/trice/pkg/msg"
 )
 
-// FileWatcher checks id List file for changes
+// FileWatcher checks the id list file for changes.
 // taken from https://medium.com/@skdomino/watch-this-file-watching-in-go-5b5a247cf71f
 func (lu TriceIDLookUp) FileWatcher(w io.Writer, m *sync.RWMutex) {
 

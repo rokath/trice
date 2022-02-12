@@ -113,7 +113,7 @@ func TestCOBS(t *testing.T) {
 //  	assert.Nil(t, lu.FromJSON([]byte(idl)))
 //  	m := new(sync.RWMutex) // m is a pointer to a read write mutex for lu
 //  	Encoding = "COBS"
-//  	TargetEndianess = "littleEndian"
+//  	TargetEndianness = "littleEndian"
 //  	receiver.Port = "DUMP"
 //  	ShowID = "%d"
 //  	defer func() {
