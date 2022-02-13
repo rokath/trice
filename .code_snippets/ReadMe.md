@@ -1,3 +1,3 @@
-# Some heper code for copying where to use
+# Some helper code for copying where to use
 
 BackUp/ = legacy stuff

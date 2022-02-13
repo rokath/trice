@@ -19,7 +19,7 @@ var (
 	Baud int
 
 	// Verbose shows additional information if set true.
-	Verbose bool
+	// Verbose bool
 )
 
 // COMport is the comport interface type to use different COMports.

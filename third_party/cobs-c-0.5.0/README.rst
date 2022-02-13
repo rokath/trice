@@ -35,7 +35,7 @@ n/254 (rounded down) additional bytes to the encoded packet size.
 
 For example, compare to the PPP protocol, which uses 0x7E bytes to delimit
 PPP packets. The PPP protocol uses an "escape" style of byte stuffing,
-replacing all occurences of 0x7E bytes in the packet with 0x7D 0x5E. But that
+replacing all occurrences of 0x7E bytes in the packet with 0x7D 0x5E. But that
 byte-stuffing method can potentially double the size of the packet in the
 worst case. COBS uses a different method for byte-stuffing, which has a much
 more reasonable worst-case overhead.

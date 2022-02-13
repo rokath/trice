@@ -1,4 +1,4 @@
-# STMicroelectronics downloades software
+# STMicroelectronics download software
 
 Check for newer versions at [st.com](https://www.st.com).
 

@@ -34,37 +34,37 @@ func TestRefreshIDListSingle0(t *testing.T) {
 
 func TestRefreshIDListSingle1WithNewline(t *testing.T) {
 	var text string
-	fmt := `hi %2d, %13u, %64b\n`
-	text += `...   TRICE( Id(1234), "` + fmt + `",1,2,3 ); ...
+	fm := `hi %2d, %13u, %64b\n`
+	text += `...   TRICE( Id(1234), "` + fm + `",1,2,3 ); ...
 	`
-	text += `...   TRICE16_3( Id(12345), "` + fmt + `",1,2,3 ); ...
+	text += `...   TRICE16_3( Id(12345), "` + fm + `",1,2,3 ); ...
 	`
-	text += `...   TRICE16_3( Id(  123), "` + fmt + `",1,2,3 ); ...
+	text += `...   TRICE16_3( Id(  123), "` + fm + `",1,2,3 ); ...
 	`
-	text += `...   Trice16_1( Id(   13), "` + fmt + `", 3 );               ...
+	text += `...   Trice16_1( Id(   13), "` + fm + `", 3 );               ...
 	`
 
 	el := make(TriceIDLookUp)
-	el[12345] = TriceFmt{Type: "TRICE16_3", Strg: fmt}
-	el[1234] = TriceFmt{Type: "TRICE", Strg: fmt}
-	el[123] = TriceFmt{Type: "TRICE16_3", Strg: fmt}
-	el[13] = TriceFmt{Type: "Trice16_1", Strg: fmt}
+	el[12345] = TriceFmt{Type: "TRICE16_3", Strg: fm}
+	el[1234] = TriceFmt{Type: "TRICE", Strg: fm}
+	el[123] = TriceFmt{Type: "TRICE16_3", Strg: fm}
+	el[13] = TriceFmt{Type: "Trice16_1", Strg: fm}
 	checkTil(t, text, el)
 }
 
 func TestRefreshIDListSingle1WithoutNewline(t *testing.T) {
 	var text string
-	fmt := `hi %2d, %13u, %64b\n`
-	text += `...   TRICE( Id(1234), "` + fmt + `",1,2,3 ); ...`
-	text += `...   TRICE16_3( Id(12345), "` + fmt + `",1,2,3 ); ...`
-	text += `...   TRICE16_3( Id(  123), "` + fmt + `",1,2,3 ); ...`
-	text += `...   Trice16_1( Id(   13), "` + fmt + `", 3 );               ...`
+	fm := `hi %2d, %13u, %64b\n`
+	text += `...   TRICE( Id(1234), "` + fm + `",1,2,3 ); ...`
+	text += `...   TRICE16_3( Id(12345), "` + fm + `",1,2,3 ); ...`
+	text += `...   TRICE16_3( Id(  123), "` + fm + `",1,2,3 ); ...`
+	text += `...   Trice16_1( Id(   13), "` + fm + `", 3 );               ...`
 
 	el := make(TriceIDLookUp)
-	el[12345] = TriceFmt{Type: "TRICE16_3", Strg: fmt}
-	el[1234] = TriceFmt{Type: "TRICE", Strg: fmt}
-	el[123] = TriceFmt{Type: "TRICE16_3", Strg: fmt}
-	el[13] = TriceFmt{Type: "Trice16_1", Strg: fmt}
+	el[12345] = TriceFmt{Type: "TRICE16_3", Strg: fm}
+	el[1234] = TriceFmt{Type: "TRICE", Strg: fm}
+	el[123] = TriceFmt{Type: "TRICE16_3", Strg: fm}
+	el[13] = TriceFmt{Type: "Trice16_1", Strg: fm}
 	checkTil(t, text, el)
 }
 

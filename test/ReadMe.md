@@ -12,14 +12,14 @@ Many demo projects are ARMKeil IDE STM32 here but the TRICE tool is easy adaptab
 
 - Open an escape sequence capable terminal in trice root `C:\repos\trice\`opr where you put it.
   - Any directory will do as well but the `til.json` file needs to be found.
-  - git-bash will do or also windows-terminal from Mirosoft store.
+  - git-bash will do or also windows-terminal from Microsoft store.
     - Under Windows the DOS or powershell could have display issues with the escaped ASCII codes. Search the internet for answers.
 
 ## RTT info
 
 - The example projects support both, RTT and UART just for demonstration.
 - RTT = Real Time Transfer is a technique developed by SEGGER for background memory access during processor runtime. This is possible for ARM cores over the JTAG or SWD interface if a debug probe is connected.
-- Some STM development boards contain a debug probe you can use for the board itself or for an othe board.
+- Some STM development boards contain a debug probe you can use for the board itself or for another board.
 - These are so called on-board ST-LINK debug probes. To use RTT use the `-p STLINK` switch.
   - `stRttLogger.exe` and `libusb-1.0.dll` must be in the PATH.
 - You can also flash the on-board debug probe with J-LINK firmware. To use RTT use the `-p JLINK` switch.

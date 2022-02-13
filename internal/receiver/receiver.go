@@ -135,7 +135,7 @@ type tcp4 struct {
 	conn *net.TCPConn
 }
 
-func NewTCP4Connection(w io.Writer, endpoint string) *tcp4 {
+func NewTCP4Connection(_ io.Writer, endpoint string) *tcp4 {
 	r := &tcp4{}
 	//var err error
 	addr, err := net.ResolveTCPAddr("tcp4", endpoint)
@@ -168,7 +168,7 @@ type file struct {
 	fh *os.File
 }
 
-func NewFileReader(w io.Writer, fn string) *file {
+func NewFileReader(_ io.Writer, fn string) *file {
 	r := &file{}
 	fh, err := os.Open(fn)
 	if err != nil {

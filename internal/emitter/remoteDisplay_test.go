@@ -5,13 +5,7 @@
 package emitter
 
 import (
-	"fmt"
-	"io/ioutil"
-	"math/rand"
-	"runtime"
-	"strings"
 	"testing"
-	"time"
 )
 
 func TestDummy(t *testing.T) {
@@ -42,7 +36,6 @@ func _TestRemoteDisplay(t *testing.T) {
 	assert.Equal(t, expLines[1:], actLines[1:])
 	_ = os.Remove(afn)
 }
-*/
 
 func randomDynIPPort() (s string) {
 	rand.Seed(time.Now().UTC().UnixNano())
@@ -61,3 +54,4 @@ func readLines(filename string) (lines []string, err error) {
 	lines = strings.Split(stringContent, "\n")
 	return
 }
+*/

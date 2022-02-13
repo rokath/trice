@@ -101,7 +101,7 @@ If you need target timestamps you need to get the time inside the target and sen
 	fsScLog.StringVar(&decoder.ShowTargetLocation, "tLocFmt", "%16s:%4d ", `Target location format string at start of each line, if target location existent (configured). Use "" to suppress existing target location. If several trices form a log line only the location of first trice ist displayed.`)
 	fsScLog.StringVar(&decoder.ShowTargetTimestamp, "ttsf", "time:%9d ", `Target timestamp format string at start of each line, if target timestamps existent (configured). Use "" to suppress existing target timestamps. If several trices form a log line only the timestamp of first trice ist displayed.`)
 	fsScLog.BoolVar(&decoder.DebugOut, "debug", false, "Show additional debug information")
-	fsScLog.StringVar(&decoder.TargetEndianess, "targetEndianess", "littleEndian", `Target endianness trice data stream. Option: "bigEndian".`)
+	fsScLog.StringVar(&decoder.TargetEndianness, "targetEndianess", "littleEndian", `Target endianness trice data stream. Option: "bigEndian".`)
 	fsScLog.StringVar(&emitter.ColorPalette, "color", "default", colorInfo)                                                                                                                                        // flag
 	fsScLog.StringVar(&emitter.Prefix, "prefix", DefaultPrefix, "Line prefix, options: any string or 'off|none' or 'source:' followed by 0-12 spaces, 'source:' will be replaced by source value e.g., 'COM17:'.") // flag
 	fsScLog.StringVar(&emitter.Suffix, "suffix", "", "Append suffix to all lines, options: any string.")                                                                                                           // flag

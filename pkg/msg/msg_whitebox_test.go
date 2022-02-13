@@ -14,7 +14,7 @@ func TestFatalInfoOnFalse(t *testing.T) {
 	// After this test, replace the original fatal function
 	defer func() { logFatalf = origLogFatalf }()
 
-	e := []string{}
+	var e []string
 	logFatalf = func(format string, args ...interface{}) {
 		if len(args) > 0 {
 			e = append(e, fmt.Sprintf(format, args))

@@ -464,7 +464,7 @@ func (p *COBS) unSignedOrSignedOut(b []byte, bitwidth, count int) int {
 		for i, f := range p.u {
 			switch f {
 			case 0:
-				v[i] = uint8(p.b[i])
+				v[i] = p.b[i]
 			case 1:
 				v[i] = int8(p.b[i])
 			case 3:

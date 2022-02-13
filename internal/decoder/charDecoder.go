@@ -29,9 +29,15 @@ func NewCHARDecoder(w io.Writer, lut id.TriceIDLookUp, m *sync.RWMutex, in io.Re
 	return p
 }
 
+//  func (p *CHAR) Read(b []byte) (n int, err error) {
+//  	bb := make([]byte, 256)
+//  	m, err := p.in.Read(bb)
+//  	fmt.Fprint(p.w, string(bb[:m]))
+//  	return n, err
+//  }
+
 func (p *CHAR) Read(b []byte) (n int, err error) {
-	bb := make([]byte, 256)
-	m, err := p.in.Read(bb)
-	fmt.Fprint(p.w, string(bb[:m]))
+	m, err := p.in.Read(b)
+	fmt.Fprint(p.w, string(b[:m]))
 	return n, err
 }

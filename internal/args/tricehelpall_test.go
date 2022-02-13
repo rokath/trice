@@ -3,8 +3,7 @@
 
 package args
 
-import "testing"
-
+/*
 func _TestHelpAll(t *testing.T) {
 	input := []string{"trice", "help", "-all"}
 	expected := `syntax: 'trice sub-command' [params]
@@ -385,3 +384,4 @@ func _TestHelpAll(t *testing.T) {
       `
 	execHelper(t, input, expected)
 }
+*/

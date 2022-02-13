@@ -183,7 +183,7 @@ func logMessage(pc uintptr, fn string, line int, ok bool, err error) {
 
 // -----------------------------------------------
 
-type origLogFatalf func(format string, v ...interface{})
+type OrigLogFatalf func(format string, v ...interface{})
 
 var m *sync.RWMutex
 
@@ -192,7 +192,7 @@ func init() {
 }
 
 // OsExitDisallow replace the original fatal function
-func OsExitDisallow() (o origLogFatalf) {
+func OsExitDisallow() (o OrigLogFatalf) {
 	m.Lock()
 	o = logFatalf
 
@@ -207,7 +207,7 @@ func OsExitDisallow() (o origLogFatalf) {
 }
 
 // OsExitAllow place the original fatal function back
-func OsExitAllow(o origLogFatalf) {
+func OsExitAllow(o OrigLogFatalf) {
 	logFatalf = o
 	m.Unlock()
 }

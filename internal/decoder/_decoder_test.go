@@ -3021,7 +3021,7 @@ func _TestTranslate(t *testing.T) {
 	assert.Nil(t, lu.FromJSON([]byte(til)))
 	m := new(sync.RWMutex) // m is a pointer to a read write mutex for lu
 	Encoding = "FLEX"
-	TargetEndianess = "littleEndian"
+	TargetEndianness = "littleEndian"
 	receiver.Port = "BUFFER"
 	ShowID = "%d"
 	defer func() {

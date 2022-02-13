@@ -24,7 +24,7 @@ func setCurrentViewOnTop(g *gocui.Gui, name string) (*gocui.View, error) {
 	return g.SetViewOnTop(name)
 }
 
-func nextView(g *gocui.Gui, v *gocui.View) error {
+func nextView(g *gocui.Gui, _ *gocui.View) error {
 	nextIndex := (active + 1) % len(viewArr)
 	name := viewArr[nextIndex]
 
@@ -108,7 +108,7 @@ func layout(g *gocui.Gui) error {
 	return nil
 }
 
-func quit(g *gocui.Gui, v *gocui.View) error {
+func quit(_ *gocui.Gui, _ *gocui.View) error {
 	return gocui.ErrQuit
 }
 

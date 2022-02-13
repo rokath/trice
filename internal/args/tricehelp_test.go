@@ -397,7 +397,7 @@ func TestHelpRefresh(t *testing.T) {
       `
 	execHelper(t, args, expect)
 }
-
+/*
 func _TestHelpLog(t *testing.T) {
 	args := []string{"trice", "help", "-log"}
 	expect := `syntax: 'trice sub-command' [params]
@@ -535,3 +535,5 @@ func _TestHelpLog(t *testing.T) {
       `
 	execHelper(t, args, expect)
 }
+
+ */

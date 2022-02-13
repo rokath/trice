@@ -94,7 +94,7 @@ var (
 
 	// TargetEndianness if bigEndian assumes a big endian encoded trice stream from the target.
 	// To keep target load small, the encoded trice stream from the target matches the target endianess, what us usually littleEndian.
-	TargetEndianess string
+	TargetEndianness string
 
 	// TestTableMode is a special option for easy decoder test table generation.
 	TestTableMode bool
@@ -186,13 +186,13 @@ func Translate(w io.Writer, sw *emitter.TriceLineComposer, lut id.TriceIDLookUp,
 		fmt.Fprintln(w, "Encoding is", Encoding)
 	}
 	var endian bool
-	switch TargetEndianess {
+	switch TargetEndianness {
 	case "littleEndian":
 		endian = LittleEndian
 	case "bigEndian":
 		endian = BigEndian
 	default:
-		log.Fatalf(fmt.Sprintln("unknown endianness ", TargetEndianess, "-accepting litteEndian or bigEndian."))
+		log.Fatalf(fmt.Sprintln("unknown endianness ", TargetEndianness, "-accepting litteEndian or bigEndian."))
 	}
 	switch strings.ToUpper(Encoding) {
 	case "COBS":

@@ -264,7 +264,7 @@ func isCFile(path string) bool {
 //
 // The id is 0 or already used in a different way
 // The id is 0: Check lu&tflu for t.Type == "TRICE_FILE" && t.Strg == fileName
-func modifyTriceFileIdLine(w io.Writer, lu TriceIDLookUp, tflu TriceFmtLookUp, inText, fileName string) (outText string, fileModified bool) {
+func modifyTriceFileIdLine(w io.Writer, _ TriceIDLookUp, tflu TriceFmtLookUp, inText, fileName string) (outText string, fileModified bool) {
 	t := TriceFmt{"TRICE_FILE", fileName}
 	if SharedIDs {
 		if fid, ok := tflu[t]; ok {

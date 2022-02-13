@@ -184,7 +184,7 @@ func scVersion(w io.Writer) error {
 // distributeArgs is distributing values used in several packages.
 // It must not be called before the appropriate arg parsing.
 func distributeArgs(w io.Writer) {
-	com.Verbose = verbose
+	//com.Verbose = verbose
 	id.Verbose = verbose
 	link.Verbose = verbose
 	cage.Verbose = verbose

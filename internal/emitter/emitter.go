@@ -168,7 +168,7 @@ func BanOrPickFilter(b []byte) (n int) {
 }
 
 func banOrPickFilter(ban, pick ChannelArrayFlag, b []byte) int {
-	if nil == Ban && nil == Pick {
+	if ban == nil && pick == nil {
 		return len(b) // nothing to filter
 	}
 	msg.FatalInfoOnTrue(nil != Ban && nil != Pick, "switches -ban and -pick cannot be used together")

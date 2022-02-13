@@ -51,7 +51,7 @@ This slightly simplified [view](https://github.com/jgraph/drawio) is explained [
 ## Data Transfer
 
 - Inplemented:
-  - [UART](https://en.wikipedia.org/wiki/Universal_asynchronous_receiver-transmitter) conectable to virtual UART over USB
+  - [UART](https://en.wikipedia.org/wiki/Universal_asynchronous_receiver-transmitter) connectable to virtual UART over USB
   - [RTT](https://www.segger.com/products/debug-probes/j-link/technology/about-real-time-transfer/) over [J-Link](./third_party/segger.com/ReadMe.md) and [RTT over ST-Link](./third_party/goST/ReadMe.md)
 - A small separate micro-controller is always usable as interfaces bridge to [GPIO](https://circuitcellar.com/cc-blog/a-trace-tool-for-embedded-systems/), [I²C](https://en.wikipedia.org/wiki/I%C2%B2C), [SPI](https://en.wikipedia.org/wiki/Serial_Peripheral_Interface), [CAN](https://en.wikipedia.org/wiki/CAN_bus), [LIN](https://en.wikipedia.org/wiki/Local_Interconnect_Network), ...
 
@@ -132,7 +132,7 @@ First are the PC reception timestamps and after the port info are the used *tric
 
   The same is possible for **interrupt timing analysis**.
 
-- Mixed case *trice* macros are [short](./docs/TriceEncodings.md#flex-short-sub-encoding) trices and the letter i at the end says **i**nside critical section. (FLEX encoding)
+- Mixed case TRICE macros are [short](./docs/TriceEncodings.md#flex-short-sub-encoding) *Trices* and the letter i at the end says **i**nside critical section. (FLEX encoding)
 - `Trice16( "tim: myFunc %d\n", sysTick );` before and after a function call lets you easy measure the function execution time.
 - As graphical visualization you could use a tool similar to [https://github.com/sqshq/sampler](https://github.com/sqshq/sampler).
 
