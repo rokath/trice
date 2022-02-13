@@ -36,16 +36,16 @@
 
 ##  1. <a name='Projectstructure'></a>Project structure
 
-   name        | info                                                    |
----------------|---------------------------------------------------------|
-cmd/trice      | `trice` tool command Go sources                         |
-cmd/cui        | (do not use) command user interface tryout code         |
-docs/          | documentation                                           |
-internal/      | `trice` tool internal Go packages                       |
-pkg/           | `trice` tool common Go packages                         |
-pkg/src/       | C sources for trice instrumentation                     |
-test/          | example target projects                                 |
-third_party/   | external components                                     |
+| name         | info                                            |
+|--------------|-------------------------------------------------|
+| cmd/trice    | `trice` tool command Go sources                 |
+| cmd/cui      | (do not use) command user interface tryout code |
+| docs/        | documentation                                   |
+| internal/    | `trice` tool internal Go packages               |
+| pkg/         | `trice` tool common Go packages                 |
+| pkg/src/     | C sources for trice instrumentation             |
+| test/        | example target projects                         |
+| third_party/ | external components                             |
 
 ##  2. <a name='Getstarted'></a>Get started
 

@@ -58,7 +58,7 @@ func doCOBSTableTest(t *testing.T, out io.Writer, f newDecoder, endianness bool,
 				break
 			}
 			if ShowID != "" && lineStart {
-				act += fmt.Sprintf(ShowID, LastTriceID)
+				act += fmt.Sprintf(ShowID, lastTriceID)
 			}
 			act += fmt.Sprint(string(buf[:n]))
 			lineStart = false
@@ -75,7 +75,7 @@ func TestCOBS(t *testing.T) {
 		{[]byte{2, 1, 1, 1, 3, 209, 7, 1, 5, 193, 1, 205, 209, 1, 2, 28, 1, 0}, `MSG: STOP  select = 0, TriceDepthMax =  28`},
 	}
 	var out bytes.Buffer
-	doCOBSTableTest(t, &out, NewCOBSDecoder, LittleEndian, tt)
+	doCOBSTableTest(t, &out, newCOBSDecoder, littleEndian, tt)
 	assert.Equal(t, "", out.String())
 }
 
@@ -114,7 +114,7 @@ func TestCOBS(t *testing.T) {
 //  	m := new(sync.RWMutex) // m is a pointer to a read write mutex for lu
 //  	Encoding = "COBS"
 //  	TargetEndianness = "littleEndian"
-//  	receiver.Port = "DUMP"
+//  	receiver.Port = "dumpDec"
 //  	ShowID = "%d"
 //  	defer func() {
 //  		ShowID = "" // reset to default

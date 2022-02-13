@@ -17,8 +17,8 @@ import (
 func TestMain(m *testing.M) {
 	id.FnJSON = getTemporaryFileName("til-*.JSON")
 	code := m.Run()
-	os.Remove(id.FnJSON) // // os.Exit() does not respect defer statements
-	os.Exit(code)
+	msg.OnErr(os.Remove(id.FnJSON))
+	os.Exit(code) // os.Exit() does not respect defer statements
 }
 
 func getTemporaryFileName(pattern string) string {

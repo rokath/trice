@@ -1,7 +1,7 @@
 // Copyright 2020 Thomas.Hoehenleitner [at] seerose.net
 // Use of this source code is governed by a license that can be found in the LICENSE file.
 
-// whitebox test for package emitter.
+// white-box test for package emitter.
 package emitter
 
 import (

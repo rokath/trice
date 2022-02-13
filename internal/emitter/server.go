@@ -23,37 +23,37 @@ import (
 // "4 - another way is using "net/rpc", this is the best way for calling another function from another program."
 //
 
-// Server is the RPC struct for registered server functions
-type Server struct {
-	Display ColorDisplay // todo: LineWriter?
+// server is the RPC struct for registered server functions
+type server struct {
+	Display colorDisplay // todo: lineWriter?
 }
 
-// WriteLine is the exported server method for string display, if trice tool acts as display server.
+// writeLine is the exported server method for string display, if trice tool acts as display server.
 // By declaring it as a Server struct method it is registered as RPC destination.
-func (p *Server) WriteLine(line []string, reply *int64) error {
+func (p *server) writeLine(line []string, reply *int64) error {
 	*reply = int64(len(line))
 	p.Display.writeLine(line)
 	return nil // todo: ? p.Display.lw.Err
 }
 
-// ColorPalette is the exported server function for color palette, if trice tool acts as display server.
+// colorPalette is the exported server function for color palette, if trice tool acts as display server.
 // By declaring it as a Server struct method it is registered as RPC destination.
-func (p *Server) ColorPalette(s []string, reply *int64) error {
+func (p *server) colorPalette(s []string, reply *int64) error {
 	ColorPalette = s[0]
 	*reply = 0
 	return nil
 }
 
-// LogSetFlags is called remotely to ...
-func (p *Server) LogSetFlags(f []int64, r *int64) error {
+// logSetFlags is called remotely to ...
+func (p *server) logSetFlags(f []int64, r *int64) error {
 	flags := int(f[0])
 	log.SetFlags(flags)
 	*r = f[0]
 	return nil
 }
 
-// Shutdown is called remotely to shut down display server
-func (p *Server) Shutdown(ts []int64, _ *int64) error {
+// shutdown is called remotely to shut down display server
+func (p *server) shutdown(ts []int64, _ *int64) error {
 	timeStamp := ts[0]
 	p.Display.writeLine([]string{""})
 	p.Display.writeLine([]string{""})
@@ -90,8 +90,8 @@ func ScDisplayServer(w io.Writer) error {
 
 	a := fmt.Sprintf("%s:%s", IPAddr, IPPort)
 	fmt.Fprintln(w, "displayServer @", a)
-	srv := new(Server)
-	srv.Display = *NewColorDisplay(w, ColorPalette)
+	srv := new(server)
+	srv.Display = *newColorDisplay(w, ColorPalette)
 	msg.OnErr(rpc.Register(srv))
 	var err error
 	listener, err = net.Listen("tcp", a)

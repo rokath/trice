@@ -16,21 +16,21 @@ import (
 func TestSetPrefixCOMn(t *testing.T) {
 	Prefix = "source:"
 	receiver.Port = "COM3"
-	SetPrefix()
+	setPrefix()
 	assert.Equal(t, "COM3:", Prefix)
 }
 
 func TestSetPrefix2(t *testing.T) {
 	Prefix = "MySpecialDevice:"
 	receiver.Port = "COM3"
-	SetPrefix()
+	setPrefix()
 	assert.Equal(t, "MySpecialDevice:", Prefix)
 }
 
 func TestSetPrefixNone(t *testing.T) {
 	Prefix = "none"
 	receiver.Port = "COM3"
-	SetPrefix()
+	setPrefix()
 	assert.Equal(t, "", Prefix)
 }
 

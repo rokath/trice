@@ -3,7 +3,7 @@
 
 // Package link reads from SeggerRTT with the SEGGER app JLinkRTTLogger or with the open source app stRttLogger.exe.
 //
-// It provides a ReadCloser interface and makes no assumptiona about the delivered data.
+// It provides a ReadCloser interface and makes no assumptions about the delivered data.
 // It is also agnostic concerning the RTT channel and other setup parameters.
 package link
 
@@ -76,8 +76,8 @@ func NewDevice(w io.Writer, port, arguments string) *Device {
 	return p
 }
 
-// ErrorFatal ends in osExit(1) if p.Err not nil.
-func (p *Device) ErrorFatal() {
+// errorFatal ends in osExit(1) if p.Err not nil.
+func (p *Device) errorFatal() {
 	if nil == p.Err {
 		return
 	}
@@ -118,10 +118,10 @@ func (p *Device) Open() error {
 		p.cmd.Stderr = os.Stderr
 	}
 	p.Err = p.cmd.Start()
-	p.ErrorFatal()
+	p.errorFatal()
 
 	p.tempLogFileHandle, p.Err = os.Open(p.tempLogFileName) // Open() opens a file with read only flag.
-	p.ErrorFatal()
+	p.errorFatal()
 
 	// p.watchLogfile() // todo: make it working well
 	if Verbose {

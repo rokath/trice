@@ -27,11 +27,11 @@ const (
 	// defaultSize is the beginning receive and sync buffer size.
 	defaultSize = 4096
 
-	// LittleEndian is true for little endian trice data.
-	LittleEndian = true
+	// littleEndian is true for little endian trice data.
+	littleEndian = true
 
-	// BigEndian is the flag value for target endianness.
-	BigEndian = false
+	// bigEndian is the flag value for target endianness.
+	bigEndian = false
 
 	// patNextFormatSpecifier is a regex to find next format specifier in a string (exclude %%*) and ignoring %s
 	//
@@ -86,8 +86,8 @@ var (
 	//// ShowLoc is used as format string for displaying the first trice ID at the start of each line if not "".
 	//ShowLoc string
 
-	// LastTriceID is last decoded ID. It is used for switch -showID.
-	LastTriceID id.TriceID
+	// lastTriceID is last decoded ID. It is used for switch -showID.
+	lastTriceID id.TriceID
 
 	// Encoding describes the way the byte stream is coded.
 	Encoding string
@@ -111,7 +111,7 @@ var (
 	matchNextFormatPointerSpecifier = regexp.MustCompile(patNextFormatPointerSpecifier)
 
 	DebugOut              = false // DebugOut enables debug information.
-	DumpLineByteCount     int     // DumpLineByteCount is the bytes per line for the DUMP decoder.
+	DumpLineByteCount     int     // DumpLineByteCount is the bytes per line for the dumpDec decoder.
 	initialCycle          = true  // initialCycle is a helper for the cycle counter automatic.
 	targetTimestamp       uint32  // targetTimestamp contains target specific timestamp value.
 	targetLocation        uint32  // targetLocation contains 16 bit file id in high and 16 bit line number in low part.
@@ -188,23 +188,23 @@ func Translate(w io.Writer, sw *emitter.TriceLineComposer, lut id.TriceIDLookUp,
 	var endian bool
 	switch TargetEndianness {
 	case "littleEndian":
-		endian = LittleEndian
+		endian = littleEndian
 	case "bigEndian":
-		endian = BigEndian
+		endian = bigEndian
 	default:
 		log.Fatalf(fmt.Sprintln("unknown endianness ", TargetEndianness, "-accepting litteEndian or bigEndian."))
 	}
 	switch strings.ToUpper(Encoding) {
 	case "COBS":
-		dec = NewCOBSDecoder(w, lut, m, rc, endian)
+		dec = newCOBSDecoder(w, lut, m, rc, endian)
 		//cobsVariantDecode = cobs.Decode
 	//  case "COBSFF":
-	//  	dec = NewCOBSDecoder(w, lut, m, rc, endian)
+	//  	dec = newCOBSDecoder(w, lut, m, rc, endian)
 	//  	cobsVariantDecode = cobsFFDecode
 	case "CHAR":
-		dec = NewCHARDecoder(w, lut, m, rc, endian)
-	case "DUMP":
-		dec = NewDUMPDecoder(w, lut, m, rc, endian)
+		dec = newCHARDecoder(w, lut, m, rc, endian)
+	case "dumpDec":
+		dec = newDUMPDecoder(w, lut, m, rc, endian)
 	default:
 		log.Fatalf(fmt.Sprintln("unknown encoding ", Encoding))
 	}
@@ -218,7 +218,7 @@ func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec Decode
 	for {
 		n, err := dec.Read(b) // Code to measure, dec.Read can return n=0 in some cases and then wait.
 		if (err == io.EOF || err == nil) && n == 0 {
-			if receiver.Port == "BUFFER" || receiver.Port == "DUMP" { // do not wait for a predefined buffer
+			if receiver.Port == "BUFFER" || receiver.Port == "dumpDec" { // do not wait for a predefined buffer
 				return err
 			}
 			//  if Verbose {
@@ -258,7 +258,7 @@ func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec Decode
 
 			// write ID only if enabled and line start.
 			if logLineStart && ShowID != "" {
-				s := fmt.Sprintf(ShowID, LastTriceID)
+				s := fmt.Sprintf(ShowID, lastTriceID)
 				_, err := sw.Write([]byte(s))
 				msg.OnErr(err)
 			}

@@ -12,14 +12,14 @@ import (
 	"github.com/rokath/trice/internal/id"
 )
 
-// CHAR is the Decoding instance for DUMP encoded *Trices*.
-type CHAR struct {
+// char is the Decoding instance for dumpDec encoded *Trices*.
+type char struct {
 	decoderData
 }
 
-// NewCHARDecoder provides a character terminal output option for the trice tool.
-func NewCHARDecoder(w io.Writer, lut id.TriceIDLookUp, m *sync.RWMutex, in io.Reader, endian bool) Decoder {
-	p := &CHAR{}
+// newCHARDecoder provides a character terminal output option for the trice tool.
+func newCHARDecoder(w io.Writer, lut id.TriceIDLookUp, m *sync.RWMutex, in io.Reader, endian bool) Decoder {
+	p := &char{}
 	p.w = w
 	p.in = in
 	p.iBuf = make([]byte, 0, defaultSize)
@@ -29,14 +29,14 @@ func NewCHARDecoder(w io.Writer, lut id.TriceIDLookUp, m *sync.RWMutex, in io.Re
 	return p
 }
 
-//  func (p *CHAR) Read(b []byte) (n int, err error) {
+//  func (p *char) Read(b []byte) (n int, err error) {
 //  	bb := make([]byte, 256)
 //  	m, err := p.in.Read(bb)
 //  	fmt.Fprint(p.w, string(bb[:m]))
 //  	return n, err
 //  }
 
-func (p *CHAR) Read(b []byte) (n int, err error) {
+func (p *char) Read(b []byte) (n int, err error) {
 	m, err := p.in.Read(b)
 	fmt.Fprint(p.w, string(b[:m]))
 	return n, err

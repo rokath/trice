@@ -1,17 +1,21 @@
 # Changelog
-date      | version | comment
-----------|--------:|----------------
-2020-02-11|  0.1    | initial version
-2020-02-14|  0.2    | SHORT_MEMORY switch added
-2020-02-18|  0.3    | C macros renamed into TRICE
-2020-02-20|  0.4    | trice printf() adapter added
-2020-02-22|  0.5    | support for auto param count
-2020-03-01|  0.6    | encryption support, TRICE64_2 added
-2020-03-12|  0.7    | `trice u -src dir1 -src file -src dir2` any now possible, -ts added, effective runtime strings
-2020-03-29|  0.8    | auto-logfile, remoteDisplay added, check issues!
-2020-04-07|  0.8.2  | display server supports many receiver-clients, no line mixes, code partially restructured, line prefix
-2020-04-22|  0.9    | fileWatcher added (no need to re-load til.json anymore), now `trice s` possible for COMport scan, NUCLEO-F070 demo project added, now with ANSI color (faster), default log filename with timestamp, remote displayServer shutdown possible
-2020-05-12|  0.9.1  | `SeggerRTT` & `SeggerRTTD` added, docs extended, more test examples, TRICE16_1 critical section bugfix
-2020-06-29|  0.9.2  | CLI slightly changed (no more 'r'), doc extended, added: Tests, Examples, JLINK, RND, SIM, FILE, TRICE_SYNC, TRICE_VARIANT, TRICE_ASSERT, now no semi-colon after TRICE* is tolerated (macros), several TRICE* in one code line are now ok
+
+| date        | version | comment                                                                                                                                                                                                                                     |
+|-------------|--------:|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 2020-02-11  |     0.1 | initial version                                                                                                                                                                                                                             |
+| 2020-02-14  |     0.2 | SHORT_MEMORY switch added                                                                                                                                                                                                                   |
+| 2020-02-18  |     0.3 | C macros renamed into TRICE                                                                                                                                                                                                                 |
+| 2020-02-20  |     0.4 | trice printf() adapter added                                                                                                                                                                                                                |
+| 2020-02-22  |     0.5 | support for auto param count                                                                                                                                                                                                                |
+| 2020-03-01  |     0.6 | encryption support, TRICE64_2 added                                                                                                                                                                                                         |
+| 2020-03-12  |     0.7 | `trice u -src dir1 -src file -src dir2` any now possible, -ts added, effective runtime strings                                                                                                                                              |
+| 2020-03-29  |     0.8 | auto-logfile, remoteDisplay added, check issues!                                                                                                                                                                                            |
+| 2020-04-07  |   0.8.2 | display server supports many receiver-clients, no line mixes, code partially restructured, line prefix                                                                                                                                      |
+| 2020-04-22  |     0.9 | fileWatcher added (no need to re-load til.json anymore), now `trice s` possible for COMport scan, NUCLEO-F070 demo project added, now with ANSI color (faster), default log filename with timestamp, remote displayServer shutdown possible |
+| 2020-05-12  |   0.9.1 | `SeggerRTT` & `SeggerRTTD` added, docs extended, more test examples, TRICE16_1 critical section bugfix                                                                                                                                      |
+| 2020-06-29  |   0.9.2 | CLI slightly changed (no more 'r'), doc extended, added: Tests, Examples, JLINK, RND, SIM, FILE, TRICE_SYNC, TRICE_VARIANT, TRICE_ASSERT, now no semi-colon after TRICE* is tolerated (macros), several TRICE* in one code line are now ok  |
+| ...         |         |                                                                                                                                                                                                                                             |
+| 2022-FEB-11 |  0.48.0 | FILE & TCP4 input ports added                                                                                                                                                                                                               |
+
 
 

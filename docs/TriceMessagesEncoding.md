@@ -26,14 +26,14 @@
 * Several *Trice* message can occur within one single **COBS** package.
 * Each **COBS** package starts with a 32-bit descriptor:
 
-| Descriptor                  | Meaning                                                            |
-|----------------             |-----------------------------------------------------               |
-| `0x00000000`                | *Trice* message(s) without prefix                                  |
-| `0x00000001`                | *Trice* message(s) with 32-bit target timestamp                    |
-| `0x00000002`                | *Trice* message(s) with 32-bit target location                     |
-| `0x00000003`                | *Trice* message(s) with 64-bit target timestamp and location       |
-| `0x00000004`...`0x000000FF` | Reserved  for *Trice* encodings                                    |
-| `0x00000100`...`0xFFFFFFFF` | User protocol data, the **trice** tool ignores them                |
+| Descriptor                  | Meaning                                                      |
+|-----------------------------|--------------------------------------------------------------|
+| `0x00000000`                | *Trice* message(s) without prefix                            |
+| `0x00000001`                | *Trice* message(s) with 32-bit target timestamp              |
+| `0x00000002`                | *Trice* message(s) with 32-bit target location               |
+| `0x00000003`                | *Trice* message(s) with 64-bit target timestamp and location |
+| `0x00000004`...`0x000000FF` | Reserved  for *Trice* encodings                              |
+| `0x00000100`...`0xFFFFFFFF` | User protocol data, the **trice** tool ignores them          |
 
 * This allows intermixing of several data streams with *Trice* data.
 * After the 4 COBS package descriptor bytes start several full *Trice* messages.

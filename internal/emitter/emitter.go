@@ -58,16 +58,16 @@ var (
 	NextLine bool
 
 	// Ban is a string slice containing all channel descriptors to suppress
-	Ban ChannelArrayFlag
+	Ban channelArrayFlag
 
 	// Pick is a string slice containing all channel descriptors only to display
-	Pick ChannelArrayFlag
+	Pick channelArrayFlag
 )
 
-type ChannelArrayFlag []string
+type channelArrayFlag []string
 
 // String method is the needed for interface satisfaction.
-func (i *ChannelArrayFlag) String() string {
+func (i *channelArrayFlag) String() string {
 	return fmt.Sprintf("%v", *i)
 }
 
@@ -82,7 +82,7 @@ func appendIfMissing(slice []string, i string) []string {
 }
 
 // Set is a needed method for multi flags.
-func (i *ChannelArrayFlag) Set(value string) error {
+func (i *channelArrayFlag) Set(value string) error {
 	ss := strings.Split(value, ":")
 	for _, s := range ss {
 		cv := channelVariants(s)
@@ -93,10 +93,10 @@ func (i *ChannelArrayFlag) Set(value string) error {
 	return nil
 }
 
-// LineWriter is the common interface for output devices.
+// lineWriter is the common interface for output devices.
 // The string slice `line` contains all string parts of one line including prefix and suffix.
 // The last string part is without newline char and must be handled by the output device.
-type LineWriter interface {
+type lineWriter interface {
 	writeLine([]string)
 }
 
@@ -113,8 +113,8 @@ type LineWriter interface {
 //  	return b0
 //  }
 
-// newLineWriter provides a LineWriter which can be a remote Display or the local console.
-func newLineWriter(w io.Writer) (lwD LineWriter) {
+// newLineWriter provides a lineWriter which can be a remote Display or the local console.
+func newLineWriter(w io.Writer) (lwD lineWriter) {
 	if DisplayRemote {
 		//var p *RemoteDisplay
 		//  var args []string
@@ -124,12 +124,12 @@ func newLineWriter(w io.Writer) (lwD LineWriter) {
 		//  } else {
 		//  	args = os.Args
 		//  }
-		p := NewRemoteDisplay(w, os.Args)
+		p := newRemoteDisplay(w, os.Args)
 		msg.FatalOnErr(p.Err)
 		lwD = p
 		// keybcmd.ReadInput()
 	} else {
-		lwD = NewColorDisplay(w, ColorPalette)
+		lwD = newColorDisplay(w, ColorPalette)
 	}
 	return
 }
@@ -141,15 +141,15 @@ func New(w io.Writer) *TriceLineComposer {
 		defer cage.Disable(os.Stdout)
 	}
 	if !TestTableMode { // do not change Prefix in TestTableMode
-		SetPrefix()
+		setPrefix()
 	}
 	// lineComposer implements the io.StringWriter interface and uses the line writer provided.
 	// The line composer scans the trice strings and composes lines out of them according to its properties.
 	return newLineComposer(newLineWriter(w))
 }
 
-// SetPrefix changes "source:" to e.g., "JLINK:".
-func SetPrefix() {
+// setPrefix changes "source:" to e.g., "JLINK:".
+func setPrefix() {
 	defaultPrefix := "source:"
 	if strings.HasPrefix(Prefix, defaultPrefix) {
 		Prefix = receiver.Port + ":" + Prefix[len(defaultPrefix):]
@@ -167,7 +167,7 @@ func BanOrPickFilter(b []byte) (n int) {
 	return banOrPickFilter(Ban, Pick, b)
 }
 
-func banOrPickFilter(ban, pick ChannelArrayFlag, b []byte) int {
+func banOrPickFilter(ban, pick channelArrayFlag, b []byte) int {
 	if ban == nil && pick == nil {
 		return len(b) // nothing to filter
 	}

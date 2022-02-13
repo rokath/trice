@@ -1,7 +1,7 @@
 // Copyright 2020 Thomas.Hoehenleitner [at] seerose.net
 // Use of this source code is governed by a license that can be found in the LICENSE file.
 
-// whitebox test for package emitter.
+// white-box test for package emitter.
 package emitter
 
 import (
@@ -13,7 +13,7 @@ import (
 
 func Test1colorize(t *testing.T) {
 	lw := newCheckDisplay()
-	p := NewLineTransformerANSI(lw, "none")
+	p := newLineTransformerANSI(lw, "none")
 	s := "abc:de"
 	c := p.colorize(s)
 	if c != s {
@@ -23,7 +23,7 @@ func Test1colorize(t *testing.T) {
 
 func Test2colorize(t *testing.T) {
 	lw := newCheckDisplay()
-	p := NewLineTransformerANSI(lw, "none")
+	p := newLineTransformerANSI(lw, "none")
 	s := "msg:de"
 	c := p.colorize(s)
 	assert.Equal(t, "de", c)
@@ -31,14 +31,14 @@ func Test2colorize(t *testing.T) {
 
 func Test3colorize(t *testing.T) {
 	lw := newCheckDisplay()
-	p := NewLineTransformerANSI(lw, "off")
+	p := newLineTransformerANSI(lw, "off")
 	s := "msg:de"
 	assert.Equal(t, s, p.colorize(s))
 }
 
 func Test4colorize(t *testing.T) {
 	lw := newCheckDisplay()
-	p := NewLineTransformerANSI(lw, "default")
+	p := newLineTransformerANSI(lw, "default")
 	s := "msg:de"
 	c := p.colorize(s)
 	act := []byte(c)
@@ -48,7 +48,7 @@ func Test4colorize(t *testing.T) {
 
 func Test5colorize(t *testing.T) {
 	lw := newCheckDisplay()
-	p := NewLineTransformerANSI(lw, "default")
+	p := newLineTransformerANSI(lw, "default")
 	s := "MESSAGE:de"
 	c := p.colorize(s)
 	b := []byte{27, 91, 57, 50, 59, 52, 48, 109, 77, 69, 83, 83, 65, 71, 69, 58, 100, 101, 27, 91, 48, 109}
@@ -57,8 +57,8 @@ func Test5colorize(t *testing.T) {
 
 func Test1writeLine(t *testing.T) {
 	lw := newCheckDisplay()
-	p := NewLineTransformerANSI(lw, "none")
-	q := NewLineTransformerANSI(lw, "off")
+	p := newLineTransformerANSI(lw, "none")
+	q := newLineTransformerANSI(lw, "off")
 	l := []string{"M:msg", "I:Info", "wrn:End"}
 	p.writeLine(l)
 	q.writeLine(l)

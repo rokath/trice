@@ -1,7 +1,7 @@
 // Copyright 2020 Thomas.Hoehenleitner [at] seerose.net
 // Use of this source code is governed by a license that can be found in the LICENSE file.
 
-// Package args implemets the commandline interface and calls the appropriate commands.
+// Package args implements the commandline interface and calls the appropriate commands.
 package args
 
 import (
@@ -12,7 +12,7 @@ import (
 	"github.com/rokath/trice/pkg/msg"
 )
 
-// scHelp is sub-command help. It prits usage to stdout.
+// scHelp is sub-command help. It prints usage to stdout.
 func scHelp(w io.Writer) error {
 	if verbose {
 		fmt.Fprintf(w, "\n*** https://github.com/rokath/trice ***\n\n")

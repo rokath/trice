@@ -23,7 +23,7 @@ var (
 	// ShowKey if set, allows to see the encryption passphrase
 	ShowKey bool
 
-	Key []byte
+	key []byte
 
 	// cipher is a pointer to the crypto struct filled during initialization
 	ci *xtea.Cipher
@@ -48,25 +48,25 @@ func SetUp(w io.Writer) error {
 func createCipher(w io.Writer) (*xtea.Cipher, bool, error) {
 	switch Password {
 	case "0000000000000000":
-		Key = []byte{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0} // used for checking only
+		key = []byte{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0} // used for checking only
 	case "1000000000000000":
-		Key = []byte{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0} // used for checking only
+		key = []byte{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0} // used for checking only
 	case "0001000000000000":
-		Key = []byte{0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0} // used for checking only
+		key = []byte{0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0} // used for checking only
 	default:
 		h := sha1.New() // https://gobyexample.com/sha1-hashes
 		h.Write([]byte(Password))
-		Key = h.Sum(nil)
-		Key = Key[:16] // only first 16 bytes needed as key
+		key = h.Sum(nil)
+		key = key[:16] // only first 16 bytes needed as key
 	}
-	c, err := xtea.NewCipher(Key)
+	c, err := xtea.NewCipher(key)
 	msg.FatalOnErr(err)
 
 	var e bool
 	if "" != Password {
 		e = true
 		if ShowKey {
-			fmt.Fprintf(w, "% 20x is XTEA encryption key\n", Key)
+			fmt.Fprintf(w, "% 20x is XTEA encryption key\n", key)
 		}
 	}
 	return c, e, nil

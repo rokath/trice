@@ -12,15 +12,15 @@ import (
 	"github.com/rokath/trice/internal/id"
 )
 
-// DUMP is the Decoding instance for DUMP encoded trices.
-type DUMP struct {
+// dumpDec is the Decoding instance for dumpDec encoded trices.
+type dumpDec struct {
 	decoderData
 	dumpCnt int
 }
 
-// NewDUMPDecoder provides a hex dump option for incoming bytes.
-func NewDUMPDecoder(w io.Writer, lut id.TriceIDLookUp, m *sync.RWMutex, in io.Reader, endian bool) Decoder {
-	p := &DUMP{}
+// newDUMPDecoder provides a hex dump option for incoming bytes.
+func newDUMPDecoder(w io.Writer, lut id.TriceIDLookUp, m *sync.RWMutex, in io.Reader, endian bool) Decoder {
+	p := &dumpDec{}
 	p.w = w
 	p.in = in
 	p.iBuf = make([]byte, 0, defaultSize)
@@ -30,7 +30,7 @@ func NewDUMPDecoder(w io.Writer, lut id.TriceIDLookUp, m *sync.RWMutex, in io.Re
 	return p
 }
 
-//  func (p *DUMP) Read(b []byte) (n int, err error) {
+//  func (p *dumpDec) Read(b []byte) (n int, err error) {
 //  	bb := make([]byte, 1024)
 //  	m, err := p.in.Read(bb)
 //  	for _, x := range bb[:m] {
@@ -44,8 +44,7 @@ func NewDUMPDecoder(w io.Writer, lut id.TriceIDLookUp, m *sync.RWMutex, in io.Re
 //  	return n, err
 //  }
 
-
-func (p *DUMP) Read(b []byte) (n int, err error) {
+func (p *dumpDec) Read(b []byte) (n int, err error) {
 	//bb := make([]byte, 1024)
 	m, err := p.in.Read(b)
 	for _, x := range b[:m] {
@@ -58,4 +57,3 @@ func (p *DUMP) Read(b []byte) (n int, err error) {
 	}
 	return n, err
 }
-

@@ -143,7 +143,7 @@ func (lu TriceIDLookUp) AddFmtCount(w io.Writer) {
 		if strings.ContainsAny(x.Type, "0_") {
 			continue
 		}
-		n := FormatSpecifierCount(x.Strg)
+		n := formatSpecifierCount(x.Strg)
 		x.Type = addFormatSpecifierCount(w, x.Type, n)
 		lu[i] = x
 	}
@@ -170,8 +170,8 @@ func (lu TriceIDLookUp) toFile(fn string) (err error) {
 }
 
 // reverse returns a reversed map. If different triceID's assigned to several equal TriceFmt only one of the TriceID gets it into tflu.
-func (lu TriceIDLookUp) reverse() (tflu TriceFmtLookUp) {
-	tflu = make(TriceFmtLookUp)
+func (lu TriceIDLookUp) reverse() (tflu triceFmtLookUp) {
+	tflu = make(triceFmtLookUp)
 	for id, tF := range lu {
 		tF.Type = strings.ToUpper(tF.Type) // no distinction for lower and upper case Type
 		tflu[tF] = id

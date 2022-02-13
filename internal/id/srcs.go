@@ -10,21 +10,21 @@ import (
 	"github.com/rokath/trice/pkg/msg"
 )
 
-// ArrayFlag is a slice type for multi flag
-type ArrayFlag []string
+// arrayFlag is a slice type for multi flag
+type arrayFlag []string
 
 var (
 	// Srcs gets multiple files or directories.
-	Srcs ArrayFlag
+	Srcs arrayFlag
 )
 
 // String method is the needed for interface satisfaction.
-func (i *ArrayFlag) String() string {
+func (i *arrayFlag) String() string {
 	return ""
 }
 
 // Set is a needed method for multi flags.
-func (i *ArrayFlag) Set(value string) error {
+func (i *arrayFlag) Set(value string) error {
 	*i = append(*i, value)
 	return nil
 }

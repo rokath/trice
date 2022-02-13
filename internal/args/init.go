@@ -16,7 +16,7 @@ import (
 	"github.com/rokath/trice/pkg/cipher"
 )
 
-const DefaultPrefix = "source: "
+const defaultPrefix = "source: "
 
 var (
 	colorInfo = `The format strings can start with a lower or upper case channel information.
@@ -73,13 +73,13 @@ func helpInit() {
 
 func logInit() {
 	fsScLog = flag.NewFlagSet("log", flag.ExitOnError) // sub-command
-	fsScLog.StringVar(&decoder.Encoding, "encoding", "COBS", `The trice transmit data format type, options: '(CHAR|COBS|DUMP|ESC|FLEX)'. Target device encoding must match. 
+	fsScLog.StringVar(&decoder.Encoding, "encoding", "COBS", `The trice transmit data format type, options: '(CHAR|COBS|dumpDec|ESC|FLEX)'. Target device encoding must match. 
 		  CHAR prints the received bytes as characters.
 		  COBS expects 0 delimited byte sequences.
-		  DUMP prints the received bytes as hex code (see switch -dc too).
+		  dumpDec prints the received bytes as hex code (see switch -dc too).
 `) // flag
 	fsScLog.StringVar(&decoder.Encoding, "e", "COBS", "Short for -encoding.") // short flag
-	fsScLog.IntVar(&decoder.DumpLineByteCount, "dc", 32, `Dumped bytes per line when "-encoding DUMP"`)
+	fsScLog.IntVar(&decoder.DumpLineByteCount, "dc", 32, `Dumped bytes per line when "-encoding dumpDec"`)
 	fsScLog.StringVar(&cipher.Password, "password", "", `The decrypt passphrase. If you change this value you need to compile the target with the appropriate key (see -showKeys).
 Encryption is recommended if you deliver firmware to customers and want protect the trice log output. This does work right now only with flex and flexL format.`) // flag
 	fsScLog.StringVar(&cipher.Password, "pw", "", "Short for -password.") // short flag
@@ -103,10 +103,10 @@ If you need target timestamps you need to get the time inside the target and sen
 	fsScLog.BoolVar(&decoder.DebugOut, "debug", false, "Show additional debug information")
 	fsScLog.StringVar(&decoder.TargetEndianness, "targetEndianess", "littleEndian", `Target endianness trice data stream. Option: "bigEndian".`)
 	fsScLog.StringVar(&emitter.ColorPalette, "color", "default", colorInfo)                                                                                                                                        // flag
-	fsScLog.StringVar(&emitter.Prefix, "prefix", DefaultPrefix, "Line prefix, options: any string or 'off|none' or 'source:' followed by 0-12 spaces, 'source:' will be replaced by source value e.g., 'COM17:'.") // flag
+	fsScLog.StringVar(&emitter.Prefix, "prefix", defaultPrefix, "Line prefix, options: any string or 'off|none' or 'source:' followed by 0-12 spaces, 'source:' will be replaced by source value e.g., 'COM17:'.") // flag
 	fsScLog.StringVar(&emitter.Suffix, "suffix", "", "Append suffix to all lines, options: any string.")                                                                                                           // flag
 
-	info := `receiver device: 'BUFFER|DUMP|FILE|JLINK|STLINK|TCP4|serial name. 
+	info := `receiver device: 'BUFFER|dumpDec|FILE|JLINK|STLINK|TCP4|serial name. 
 The serial name is like 'COM12' for Windows or a Linux name like '/dev/tty/usb12'. 
 Using a virtual serial COM port on the PC over a FTDI USB adapter is a most likely variant.
 `
@@ -122,7 +122,7 @@ It is the only setup parameter. The other values default to 8N1 (8 data bits, no
 
 	argsInfo := fmt.Sprint(`Use to pass port specific parameters. The "default" value depends on the used port:
 port "BUFFER": default="`, receiver.DefaultBUFFERArgs, `", Option for args is any comma separated byte sequence.
-port "DUMP": default="`, receiver.DefaultDumpArgs, `", Option for args is any space separated byte sequence.
+port "dumpDec": default="`, receiver.DefaultDumpArgs, `", Option for args is any space separated byte sequence.
 port "COMn": default="`, receiver.DefaultCOMArgs, `", use "TARM" for a different driver. (For baud rate settings see -baud.)
 port "FILE": default="`, receiver.DefaultFileArgs, `", Option for args is any file name.
 port "J-LINK": default="`, receiver.DefaultLinkArgs, `", `, linkArgsInfo, `

@@ -23,7 +23,7 @@ func ScZero(w io.Writer, SrcZ string, cmd *flag.FlagSet) error {
 		cmd.PrintDefaults()
 		return errors.New("no source tree root specified")
 	}
-	ZeroSourceTreeIds(w, SrcZ, !DryRun)
+	zeroSourceTreeIds(w, SrcZ, !DryRun)
 	return nil
 }
 
@@ -49,7 +49,7 @@ func SubCmdRefreshList(w io.Writer) (err error) {
 	return updateList(w, lu)
 }
 
-func refreshListAdapter(w io.Writer, root string, lu TriceIDLookUp, tflu TriceFmtLookUp, _ *bool) {
+func refreshListAdapter(w io.Writer, root string, lu TriceIDLookUp, tflu triceFmtLookUp, _ *bool) {
 	refreshList(w, root, lu, tflu)
 }
 
@@ -84,7 +84,7 @@ func SubCmdUpdate(w io.Writer) error {
 	tflu := lu.reverse()
 	var listModified bool
 	o := len(lu)
-	walkSrcs(w, IDsUpdate, lu, tflu, &listModified)
+	walkSrcs(w, idsUpdate, lu, tflu, &listModified)
 	if Verbose {
 		fmt.Fprintln(w, len(lu), "ID's in List", FnJSON, "listModified=", listModified)
 	}
@@ -95,7 +95,7 @@ func SubCmdUpdate(w io.Writer) error {
 	return nil
 }
 
-func walkSrcs(w io.Writer, f func(w io.Writer, root string, lu TriceIDLookUp, tflu TriceFmtLookUp, pListModified *bool), lu TriceIDLookUp, tflu TriceFmtLookUp, pListModified *bool) {
+func walkSrcs(w io.Writer, f func(w io.Writer, root string, lu TriceIDLookUp, tflu triceFmtLookUp, pListModified *bool), lu TriceIDLookUp, tflu triceFmtLookUp, pListModified *bool) {
 	if len(Srcs) == 0 {
 		Srcs = append(Srcs, "./") // default value
 	}

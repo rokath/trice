@@ -490,9 +490,9 @@ The `esc` encoding uses an escape character for syncing after some data loss. It
 
 An `esc` trice transfer packet consists of an 4-byte header followed by an optional payload.
 
-|     Start Byte     |    Second Byte    |  Third Byte  | Fourth Byte
-|--------------------|-------------------|--------------|--------------
-|  Escape char `EC`  | Length Code `LC`  | triceID `IH` | triceID `IL`
+|    Start Byte    | Second Byte      | Third Byte   | Fourth Byte  |
+|:----------------:|------------------|--------------|--------------|
+| Escape char `EC` | Length Code `LC` | triceID `IH` | triceID `IL` |
 
 ###  7.1. <a name='StartbyteEC'></a>Start byte `EC`
 

@@ -64,7 +64,7 @@ func standardizeSpaces(s string) string {
 	return strings.Join(strings.Fields(s), " ")
 }
 
-// EqualLines compares exp and act line by line ignoring lineendings and leading/trailing spaces.
+// EqualLines compares exp and act line by line ignoring line endings and leading/trailing spaces.
 func EqualLines(tb testing.TB, exp, act string) {
 
 	// remove windows line endings
@@ -117,7 +117,7 @@ func EqualTextFiles(t *testing.T, fn0, fn1 string) {
 	EqualLines(t, s0, s1)
 }
 
-// AssertEqualFiles fails test if contence is NOT equal
+// AssertEqualFiles fails test if content is NOT equal
 func AssertEqualFiles(t *testing.T, fn0, fn1 string) {
 	cmp := equalfile.New(nil, equalfile.Options{}) // compare using single mode
 	ok, err := cmp.CompareFile(fn0, fn1)

@@ -12,14 +12,14 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// TestArrayFlag checks if method (*ArrayFlag).Set works as expected.
+// TestArrayFlag checks if method (*arrayFlag).Set works as expected.
 func TestArrayFlag(t *testing.T) {
 	p := &Srcs
 	assert.Equal(t, "", p.String())
 
 	msg.OnErr(p.Set("ab"))
 	msg.OnErr(p.Set("xyz"))
-	af := ArrayFlag([]string{"ab", "xyz"})
+	af := arrayFlag([]string{"ab", "xyz"})
 	assert.Equal(t, af, Srcs)
 	assert.Equal(t, af.String(), Srcs.String())
 }

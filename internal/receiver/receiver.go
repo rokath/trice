@@ -83,7 +83,7 @@ var (
 
 // spaceStringsBuilder returns str without whitespaces.
 //
-// Code cpoied from https://stackoverflow.com/questions/32081808/strip-all-whitespace-from-a-string
+// Code copied from https://stackoverflow.com/questions/32081808/strip-all-whitespace-from-a-string
 func spaceStringsBuilder(str string) string {
 	var b strings.Builder
 	b.Grow(len(str))
@@ -130,12 +130,14 @@ func scanBytes(s string) (buf []byte) {
 	return
 }
 
+// tcp4 holds an open tcp4 connection.
 type tcp4 struct {
 	w    io.Writer // os.Stdout
 	conn *net.TCPConn
 }
 
-func NewTCP4Connection(_ io.Writer, endpoint string) *tcp4 {
+// newTCP4Connection returns a readCloser capable tcp4 instance.
+func newTCP4Connection(_ io.Writer, endpoint string) *tcp4 {
 	r := &tcp4{}
 	//var err error
 	addr, err := net.ResolveTCPAddr("tcp4", endpoint)
@@ -162,13 +164,15 @@ func (p *tcp4) Close() error {
 	return p.conn.Close()
 }
 
+// file holds an opened file handle.
 type file struct {
 	w  io.Writer // os.Stdout
 	fn string
 	fh *os.File
 }
 
-func NewFileReader(_ io.Writer, fn string) *file {
+// newFileReader returns a readCloser capable file instance.
+func newFileReader(_ io.Writer, fn string) *file {
 	r := &file{}
 	fh, err := os.Open(fn)
 	if err != nil {
@@ -214,13 +218,13 @@ func NewReadCloser(w io.Writer, verbose bool, port, args string) (r io.ReadClose
 		if PortArguments == "" { // nothing assigned in args
 			PortArguments = DefaultTCP4Args
 		}
-		l := NewTCP4Connection(w, args)
+		l := newTCP4Connection(w, args)
 		r = l
 	case "FILE", "file":
 		if PortArguments == "" { // nothing assigned in args
 			PortArguments = DefaultFileArgs
 		}
-		r = NewFileReader(w, args)
+		r = newFileReader(w, args)
 	case "DUMP":
 		if PortArguments == "" { // nothing assigned in args
 			PortArguments = DefaultDumpArgs

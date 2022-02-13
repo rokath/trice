@@ -12,26 +12,26 @@ import (
 	"strings"
 )
 
-// LocalDisplay is an object used for displaying.
-// LocalDisplay implements the Linewriter interface.
-type LocalDisplay struct {
+// localDisplay is an object used for displaying.
+// localDisplay implements the Linewriter interface.
+type localDisplay struct {
 	w   io.Writer
 	Err error
 }
 
-// NewLocalDisplay creates a LocalDisplay. It provides a Linewriter.
+// newLocalDisplay creates a LocalDisplay. It provides a Linewriter.
 // It uses internally
-func NewLocalDisplay(w io.Writer) *LocalDisplay {
+func newLocalDisplay(w io.Writer) *localDisplay {
 
 	// display lwD implements the Linewriter interface needed by lineTransformer.
 	// It interprets the lines written to it according to its properties.
-	lwD := &LocalDisplay{}
+	lwD := &localDisplay{}
 	lwD.w = w
 	return lwD
 }
 
-// ErrorFatal ends in osExit(1) if err not nil.
-func (p *LocalDisplay) ErrorFatal() {
+// errorFatal ends in osExit(1) if err not nil.
+func (p *localDisplay) errorFatal() {
 	if nil == p.Err {
 		return
 	}
@@ -40,37 +40,37 @@ func (p *LocalDisplay) ErrorFatal() {
 }
 
 // writeLine is the implemented Linewriter interface for localDisplay.
-func (p *LocalDisplay) writeLine(line []string) {
-	p.ErrorFatal()
+func (p *localDisplay) writeLine(line []string) {
+	p.errorFatal()
 	s := strings.Join(line, "")
 	_, p.Err = fmt.Fprintln(p.w, s)
 }
 
-// ColorDisplay is an object used for displaying.
+// colorDisplay is an object used for displaying.
 // It implements the Linewriter interface.
 // It embeds a local display and a line transformer
-type ColorDisplay struct {
-	display *LocalDisplay
-	lw      LineWriter
+type colorDisplay struct {
+	display *localDisplay
+	lw      lineWriter
 }
 
-// NewColorDisplay creates a ColorDisplay. It provides a Linewriter.
+// newColorDisplay creates a ColorDisplay. It provides a Linewriter.
 // It uses internally a local display combined with a line transformer.
-func NewColorDisplay(w io.Writer, colorPalette string) *ColorDisplay {
+func newColorDisplay(w io.Writer, colorPalette string) *colorDisplay {
 
 	// display lD implements the Linewriter interface needed by lineTransformer.
 	// It interprets the lines written to it according to its properties.
-	lD := NewLocalDisplay(w)
+	lD := newLocalDisplay(w)
 	// lwT uses the Linewriter lD internally.
 	// It provides a Linewriter.
-	lwT := NewLineTransformerANSI(lD, colorPalette)
+	lwT := newLineTransformerANSI(lD, colorPalette)
 
-	cD := &ColorDisplay{lD, lwT}
+	cD := &colorDisplay{lD, lwT}
 	return cD
 }
 
 // writeLine is the implemented Linewriter interface for localDisplay.
-func (p *ColorDisplay) writeLine(line []string) {
+func (p *colorDisplay) writeLine(line []string) {
 
 	// calling p.lw writeLine method activates here: func (p *lineTransformerANSI) writeLine(line []string)
 	p.lw.writeLine(line)

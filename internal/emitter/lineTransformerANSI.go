@@ -3,7 +3,7 @@
 
 package emitter
 
-// TODO: Now the color is resettet after each string. This is needed only after the last string in a line.
+// TODO: Now the color is reset after each string. This is needed only after the last string in a line.
 
 import (
 	"fmt"
@@ -14,19 +14,19 @@ import (
 	"github.com/mgutz/ansi"
 )
 
-// LineTransformerANSI imnplements a Linewriter interface.
+// lineTransformerANSI implements a Linewriter interface.
 // It uses an internal Linewriter lw to write to.
 // It converts the channel information to color data using colorPalette.
 // In case of a remote display the lineTranslator should be used there.
-type LineTransformerANSI struct {
-	lw           LineWriter
+type lineTransformerANSI struct {
+	lw           lineWriter
 	colorPalette string
 }
 
-// NewLineTransformerANSI translates lines to ANSI colors according to colorPalette.
+// newLineTransformerANSI translates lines to ANSI colors according to colorPalette.
 // It provides a Linewriter interface and uses internally a Linewriter.
-func NewLineTransformerANSI(lw LineWriter, colorPalette string) *LineTransformerANSI {
-	p := &LineTransformerANSI{lw, colorPalette}
+func newLineTransformerANSI(lw lineWriter, colorPalette string) *lineTransformerANSI {
+	p := &lineTransformerANSI{lw, colorPalette}
 	return p
 }
 
@@ -73,13 +73,13 @@ func isLower(s string) bool {
 	return true
 }
 
-type ColorChannel struct {
+type colorChannel struct {
 	events   int
 	channel  []string
 	colorize func(string) string
 }
 
-var ColorChannels = []ColorChannel{
+var colorChannels = []colorChannel{
 	// log level
 	{0, []string{"Fatal", "fatal", "FATAL"}, colorizeFATAL},
 	{0, []string{"Critical", "critical", "CRITICAL", "crit", "Crit", "CRIT"}, colorizeCRITICAL},
@@ -113,7 +113,7 @@ var ColorChannels = []ColorChannel{
 // ColorChannelEvents returns count of occurred channel events.
 // If ch is unknown, the returned value is -1.
 func ColorChannelEvents(ch string) int {
-	for _, s := range ColorChannels {
+	for _, s := range colorChannels {
 		for _, c := range s.channel {
 			if c == ch {
 				return s.events
@@ -125,7 +125,7 @@ func ColorChannelEvents(ch string) int {
 
 // PrintColorChannelEvents shows the amount of occurred channel events.
 func PrintColorChannelEvents(w io.Writer) {
-	for _, s := range ColorChannels {
+	for _, s := range colorChannels {
 		if s.events != 0 {
 			fmt.Fprintf(w, "%6d times: ", s.events)
 			for _, c := range s.channel {
@@ -139,7 +139,7 @@ func PrintColorChannelEvents(w io.Writer) {
 // channelVariants returns all variants of ch as string slice.
 // If ch is not inside ansiSel nil is returned.
 func channelVariants(ch string) []string {
-	for _, s := range ColorChannels {
+	for _, s := range colorChannels {
 		for _, c := range s.channel {
 			if c == ch {
 				return s.channel
@@ -163,7 +163,7 @@ func isChannel(ch string) bool {
 // Additionally, if global variable LogLevel is not the default "all", but found inside
 // ColorChannels, logs with higher index positions are suppressed.
 // As special case LogLevel == "off" does not output anything.
-func (p *LineTransformerANSI) colorize(s string) (r string) {
+func (p *lineTransformerANSI) colorize(s string) (r string) {
 	if LogLevel == "off" {
 		return // do not log at all
 	}
@@ -174,10 +174,10 @@ func (p *LineTransformerANSI) colorize(s string) (r string) {
 	if len(sc) < 2 { // no color separator (no log level)
 		return // do nothing, return unchanged string
 	}
-	for i, cc := range ColorChannels {
+	for i, cc := range colorChannels {
 		for _, c := range cc.channel {
 			if c == sc[0] {
-				ColorChannels[i].events++ // count event
+				colorChannels[i].events++ // count event
 				logLev = i
 			}
 			if c == LogLevel {
@@ -200,7 +200,7 @@ func (p *LineTransformerANSI) colorize(s string) (r string) {
 	if p.colorPalette == "none" {
 		return
 	}
-	for _, cs := range ColorChannels {
+	for _, cs := range colorChannels {
 		for _, c := range cs.channel {
 			if c == sc[0] {
 				return cs.colorize(r)
@@ -213,7 +213,7 @@ func (p *LineTransformerANSI) colorize(s string) (r string) {
 // writeLine consumes a full line, translates it and writes it to the internal Linewriter.
 // It adds ANSI color Codes and replaces col: channel information.
 // It treats each sub string separately and a color reset code at the end.
-func (p *LineTransformerANSI) writeLine(line []string) {
+func (p *lineTransformerANSI) writeLine(line []string) {
 	var colored bool
 	l := make([]string, 0, 10)
 	for _, s := range line {

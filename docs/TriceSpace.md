@@ -27,12 +27,12 @@
 
 The following numbers are measured with a legacy encoding, showing that the instrumentation code can be even smaller.
 
-Program Size (STM32-F030R8 demo project)     |trice instrumentation|buffer size|compiler optimize for time| comment
----------------------------------------------|------------------------|-----------|-------------------------|-----------------------------
-Code=1592 RO-data=236 RW-data= 4 ZI-data=1028|        none            |        0  |         off             | CubeMX generated, no trice
-Code=1712 RO-data=240 RW-data=24 ZI-data=1088|        core            |       64  |         off             | core added without trices
-Code=3208 RO-data=240 RW-data=36 ZI-data=1540|    TriceCheckSet()     |      512  |         off             | TRICE_SHORT_MEMORY is 1 (small)
-Code=3808 RO-data=240 RW-data=36 ZI-data=1540|    TriceCheckSet()     |      512  |         on              | TRICE_SHORT_MEMORY is 0 (fast)
+| Program Size (STM32-F030R8 demo project)      | trice instrumentation | buffer size | compiler optimize for time | comment                         |
+|-----------------------------------------------|-----------------------|-------------|----------------------------|---------------------------------|
+| Code=1592 RO-data=236 RW-data= 4 ZI-data=1028 | none                  | 0           | off                        | CubeMX generated, no trice      |
+| Code=1712 RO-data=240 RW-data=24 ZI-data=1088 | core                  | 64          | off                        | core added without trices       |
+| Code=3208 RO-data=240 RW-data=36 ZI-data=1540 | TriceCheckSet()       | 512         | off                        | TRICE_SHORT_MEMORY is 1 (small) |
+| Code=3808 RO-data=240 RW-data=36 ZI-data=1540 | TriceCheckSet()       | 512         | on                         | TRICE_SHORT_MEMORY is 0 (fast)  |
 
 * The core instrumentation needs less 150 bytes FLASH and about 100 bytes RAM when buffer size is 64 bytes.
 * The about 50 trices in TriceCheckSet() allocate roughly 2100 (fast mode) or 1500 (small mode) bytes.

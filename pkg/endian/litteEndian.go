@@ -4,7 +4,7 @@
 //go:build amd64 || 386 || arm || arm64 || ppc64le || mips64le || mipsle || wasm
 // +build amd64 386 arm arm64 ppc64le mips64le mipsle wasm
 
-// Package endian provides an architecture agnostic value describing the native endianess on the local machine.
+// Package endian provides an architecture agnostic value describing the native endianness on the local machine.
 // See '$GOARCH' in https://golang.org/doc/install/source#environment
 package endian
 

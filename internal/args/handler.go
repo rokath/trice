@@ -31,7 +31,7 @@ func Handler(w io.Writer, args []string) error {
 
 	if Date == "" { // goreleaser will set Date, otherwise use file info.
 		fi, err := os.Stat(os.Args[0])
-		if nil == err { // On running main tests fileinfo is invalid, so do not use in that case.
+		if nil == err { // On running main tests file-info is invalid, so do not use in that case.
 			Date = fi.ModTime().String()
 		}
 	}
@@ -110,7 +110,7 @@ func logLoop(w io.Writer) {
 		if emitter.TimestampFormat == "LOCmicro" {
 			emitter.TimestampFormat = "off"
 		}
-		if DefaultPrefix == emitter.Prefix {
+		if defaultPrefix == emitter.Prefix {
 			emitter.Prefix = " }, `"
 		}
 		if emitter.Suffix == "" {

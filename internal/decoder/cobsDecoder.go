@@ -19,8 +19,8 @@ import (
 	"github.com/rokath/trice/pkg/cipher"
 )
 
-// COBS is the Decoding instance for COBS encoded trices.
-type COBS struct {
+// cobsDec is the Decoding instance for cobsDec encoded trices.
+type cobsDec struct {
 	decoderData
 	cycle              uint8  // cycle date: c0...bf
 	COBSModeDescriptor uint32 // 0: no target timestamps, 1: target timestamps exist
@@ -28,12 +28,12 @@ type COBS struct {
 	u                  []int  // 1: modified format string positions:  %u -> %d, 2: float (%f)
 }
 
-// NewCOBSDecoder provides an COBS decoder instance.
+// newCOBSDecoder provides an COBS decoder instance.
 //
 // l is the trice id list in slice of struct format.
 // in is the usable reader for the input bytes.
-func NewCOBSDecoder(w io.Writer, lut id.TriceIDLookUp, m *sync.RWMutex, in io.Reader, endian bool) Decoder {
-	p := &COBS{}
+func newCOBSDecoder(w io.Writer, lut id.TriceIDLookUp, m *sync.RWMutex, in io.Reader, endian bool) Decoder {
+	p := &cobsDec{}
 	p.cycle = 0xc0 // start value
 	p.w = w
 	p.in = in
@@ -117,7 +117,7 @@ func dump(w io.Writer, b []byte) {
 // When a terminating 0 is found in the incoming bytes ReadFromCOBS decodes the COBS package
 // and returns it in b and its len in n. If more data arrived after the first terminating 0,
 // these are kept internally and concatenated with the following bytes in a next Read.
-func (p *COBS) nextCOBSpackage() {
+func (p *cobsDec) nextCOBSpackage() {
 	// Here p.iBuf contains none or available bytes, what can be several trice messages.
 	// So first try to process p.iBuf.
 	index := bytes.IndexByte(p.iBuf, 0) // find terminating 0
@@ -177,7 +177,7 @@ func (p *COBS) nextCOBSpackage() {
 	return
 }
 
-func (p *COBS) handleCOBSModeDescriptor() error {
+func (p *cobsDec) handleCOBSModeDescriptor() error {
 	switch p.COBSModeDescriptor {
 	case 0: // nothing to do
 		targetTimestampExists = false
@@ -222,7 +222,7 @@ func (p *COBS) handleCOBSModeDescriptor() error {
 // but the start of a following trice package can be already inside the internal buffer.
 // In case of a not matching cycle, a warning message in trice format is prefixed.
 // In case of invalid package data, error messages in trice format are returned and the package is dropped.
-func (p *COBS) Read(b []byte) (n int, err error) {
+func (p *cobsDec) Read(b []byte) (n int, err error) {
 	minPkgSize := headSize
 	if targetTimestampExists {
 		minPkgSize += 4
@@ -281,7 +281,7 @@ func (p *COBS) Read(b []byte) (n int, err error) {
 	p.paramSpace = int((0x0000FF00 & head) >> 6)
 	p.triceSize = headSize + p.paramSpace
 	triceID := id.TriceID(uint16(head >> 16))
-	LastTriceID = triceID // used for showID
+	lastTriceID = triceID // used for showID
 	if len(p.b) < p.triceSize {
 		n += copy(b[n:], fmt.Sprintln("ERROR:package len", len(p.b), "is <", p.triceSize, " - ignoring package", p.b))
 		n += copy(b[n:], fmt.Sprintln(hints))
@@ -315,7 +315,7 @@ func (p *COBS) Read(b []byte) (n int, err error) {
 }
 
 // sprintTrice writes a trice string or appropriate message into b and returns that len.
-func (p *COBS) sprintTrice(b []byte) (n int) {
+func (p *cobsDec) sprintTrice(b []byte) (n int) {
 
 	if p.trice.Type == "TRICE_S" { // patch table paramSpace in that case
 		p.sLen = int(p.readU32(p.b))
@@ -366,71 +366,71 @@ func (p *COBS) sprintTrice(b []byte) (n int) {
 
 // triceTypeFn is the type for cobsFunctionPtrList elements.
 type triceTypeFn struct {
-	triceType  string                                           // triceType describes if parameters, the parameter bit width or if the parameter is a string.
-	triceFn    func(p *COBS, b []byte, bitwidth, count int) int // triceFn performs the conversion to the output string.
-	paramSpace int                                              // paramSpace is the count of bytes allocated for the parameters.
-	bitWidth   int                                              // bitWidth is the individual parameter width.
-	paramCount int                                              // paramCount is the amount pf parameters for the format string, which must match the count of format specifiers.
+	triceType  string                                              // triceType describes if parameters, the parameter bit width or if the parameter is a string.
+	triceFn    func(p *cobsDec, b []byte, bitwidth, count int) int // triceFn performs the conversion to the output string.
+	paramSpace int                                                 // paramSpace is the count of bytes allocated for the parameters.
+	bitWidth   int                                                 // bitWidth is the individual parameter width.
+	paramCount int                                                 // paramCount is the amount pf parameters for the format string, which must match the count of format specifiers.
 }
 
 // cobsFunctionPtrList is a function pointer list.
 var cobsFunctionPtrList = [...]triceTypeFn{
-	{"TRICE_S", (*COBS).triceS, -1, 0, 0}, // do not remove from first position, see cobsFunctionPtrList[0].paramSpace = ...
-	{"TRICE_N", (*COBS).triceN, -1, 0, 0}, // do not remove from 2nd position, see cobsFunctionPtrList[1].paramSpace = ...
-	{"TRICE32_0", (*COBS).trice0, 0, 0, 0},
-	{"TRICE0", (*COBS).trice0, 0, 0, 0},
-	{"TRICE8_1", (*COBS).unSignedOrSignedOut, 4, 8, 1},
-	{"TRICE8_2", (*COBS).unSignedOrSignedOut, 4, 8, 2},
-	{"TRICE8_3", (*COBS).unSignedOrSignedOut, 4, 8, 3},
-	{"TRICE8_4", (*COBS).unSignedOrSignedOut, 4, 8, 4},
-	{"TRICE8_5", (*COBS).unSignedOrSignedOut, 8, 8, 5},
-	{"TRICE8_6", (*COBS).unSignedOrSignedOut, 8, 8, 6},
-	{"TRICE8_7", (*COBS).unSignedOrSignedOut, 8, 8, 7},
-	{"TRICE8_8", (*COBS).unSignedOrSignedOut, 8, 8, 8},
-	{"TRICE8_9", (*COBS).unSignedOrSignedOut, 12, 8, 9},
-	{"TRICE8_10", (*COBS).unSignedOrSignedOut, 12, 8, 10},
-	{"TRICE8_11", (*COBS).unSignedOrSignedOut, 12, 8, 11},
-	{"TRICE8_12", (*COBS).unSignedOrSignedOut, 12, 8, 12},
-	{"TRICE16_1", (*COBS).unSignedOrSignedOut, 4, 16, 1},
-	{"TRICE16_2", (*COBS).unSignedOrSignedOut, 4, 16, 2},
-	{"TRICE16_3", (*COBS).unSignedOrSignedOut, 8, 16, 3},
-	{"TRICE16_4", (*COBS).unSignedOrSignedOut, 8, 16, 4},
-	{"TRICE16_5", (*COBS).unSignedOrSignedOut, 12, 16, 5},
-	{"TRICE16_6", (*COBS).unSignedOrSignedOut, 12, 16, 6},
-	{"TRICE16_7", (*COBS).unSignedOrSignedOut, 16, 16, 7},
-	{"TRICE16_8", (*COBS).unSignedOrSignedOut, 16, 16, 8},
-	{"TRICE16_9", (*COBS).unSignedOrSignedOut, 20, 16, 9},
-	{"TRICE16_10", (*COBS).unSignedOrSignedOut, 20, 16, 10},
-	{"TRICE16_11", (*COBS).unSignedOrSignedOut, 24, 16, 11},
-	{"TRICE16_12", (*COBS).unSignedOrSignedOut, 24, 16, 12},
-	{"TRICE32_1", (*COBS).unSignedOrSignedOut, 4, 32, 1},
-	{"TRICE32_2", (*COBS).unSignedOrSignedOut, 8, 32, 2},
-	{"TRICE32_3", (*COBS).unSignedOrSignedOut, 12, 32, 3},
-	{"TRICE32_4", (*COBS).unSignedOrSignedOut, 16, 32, 4},
-	{"TRICE32_5", (*COBS).unSignedOrSignedOut, 20, 32, 5},
-	{"TRICE32_6", (*COBS).unSignedOrSignedOut, 24, 32, 6},
-	{"TRICE32_7", (*COBS).unSignedOrSignedOut, 28, 32, 7},
-	{"TRICE32_8", (*COBS).unSignedOrSignedOut, 32, 32, 8},
-	{"TRICE32_9", (*COBS).unSignedOrSignedOut, 36, 32, 9},
-	{"TRICE32_10", (*COBS).unSignedOrSignedOut, 40, 32, 10},
-	{"TRICE32_11", (*COBS).unSignedOrSignedOut, 44, 32, 11},
-	{"TRICE32_12", (*COBS).unSignedOrSignedOut, 48, 32, 12},
-	{"TRICE64_1", (*COBS).unSignedOrSignedOut, 8, 64, 1},
-	{"TRICE64_2", (*COBS).unSignedOrSignedOut, 16, 64, 2},
-	{"TRICE64_3", (*COBS).unSignedOrSignedOut, 24, 64, 3},
-	{"TRICE64_4", (*COBS).unSignedOrSignedOut, 32, 64, 4},
-	{"TRICE64_5", (*COBS).unSignedOrSignedOut, 40, 64, 5},
-	{"TRICE64_6", (*COBS).unSignedOrSignedOut, 48, 64, 6},
-	{"TRICE64_7", (*COBS).unSignedOrSignedOut, 56, 64, 7},
-	{"TRICE64_8", (*COBS).unSignedOrSignedOut, 64, 64, 8},
-	{"TRICE64_9", (*COBS).unSignedOrSignedOut, 72, 64, 9},
-	{"TRICE64_10", (*COBS).unSignedOrSignedOut, 80, 64, 10},
-	{"TRICE64_11", (*COBS).unSignedOrSignedOut, 88, 64, 11},
-	{"TRICE64_12", (*COBS).unSignedOrSignedOut, 96, 64, 12},
+	{"TRICE_S", (*cobsDec).triceS, -1, 0, 0}, // do not remove from first position, see cobsFunctionPtrList[0].paramSpace = ...
+	{"TRICE_N", (*cobsDec).triceN, -1, 0, 0}, // do not remove from 2nd position, see cobsFunctionPtrList[1].paramSpace = ...
+	{"TRICE32_0", (*cobsDec).trice0, 0, 0, 0},
+	{"TRICE0", (*cobsDec).trice0, 0, 0, 0},
+	{"TRICE8_1", (*cobsDec).unSignedOrSignedOut, 4, 8, 1},
+	{"TRICE8_2", (*cobsDec).unSignedOrSignedOut, 4, 8, 2},
+	{"TRICE8_3", (*cobsDec).unSignedOrSignedOut, 4, 8, 3},
+	{"TRICE8_4", (*cobsDec).unSignedOrSignedOut, 4, 8, 4},
+	{"TRICE8_5", (*cobsDec).unSignedOrSignedOut, 8, 8, 5},
+	{"TRICE8_6", (*cobsDec).unSignedOrSignedOut, 8, 8, 6},
+	{"TRICE8_7", (*cobsDec).unSignedOrSignedOut, 8, 8, 7},
+	{"TRICE8_8", (*cobsDec).unSignedOrSignedOut, 8, 8, 8},
+	{"TRICE8_9", (*cobsDec).unSignedOrSignedOut, 12, 8, 9},
+	{"TRICE8_10", (*cobsDec).unSignedOrSignedOut, 12, 8, 10},
+	{"TRICE8_11", (*cobsDec).unSignedOrSignedOut, 12, 8, 11},
+	{"TRICE8_12", (*cobsDec).unSignedOrSignedOut, 12, 8, 12},
+	{"TRICE16_1", (*cobsDec).unSignedOrSignedOut, 4, 16, 1},
+	{"TRICE16_2", (*cobsDec).unSignedOrSignedOut, 4, 16, 2},
+	{"TRICE16_3", (*cobsDec).unSignedOrSignedOut, 8, 16, 3},
+	{"TRICE16_4", (*cobsDec).unSignedOrSignedOut, 8, 16, 4},
+	{"TRICE16_5", (*cobsDec).unSignedOrSignedOut, 12, 16, 5},
+	{"TRICE16_6", (*cobsDec).unSignedOrSignedOut, 12, 16, 6},
+	{"TRICE16_7", (*cobsDec).unSignedOrSignedOut, 16, 16, 7},
+	{"TRICE16_8", (*cobsDec).unSignedOrSignedOut, 16, 16, 8},
+	{"TRICE16_9", (*cobsDec).unSignedOrSignedOut, 20, 16, 9},
+	{"TRICE16_10", (*cobsDec).unSignedOrSignedOut, 20, 16, 10},
+	{"TRICE16_11", (*cobsDec).unSignedOrSignedOut, 24, 16, 11},
+	{"TRICE16_12", (*cobsDec).unSignedOrSignedOut, 24, 16, 12},
+	{"TRICE32_1", (*cobsDec).unSignedOrSignedOut, 4, 32, 1},
+	{"TRICE32_2", (*cobsDec).unSignedOrSignedOut, 8, 32, 2},
+	{"TRICE32_3", (*cobsDec).unSignedOrSignedOut, 12, 32, 3},
+	{"TRICE32_4", (*cobsDec).unSignedOrSignedOut, 16, 32, 4},
+	{"TRICE32_5", (*cobsDec).unSignedOrSignedOut, 20, 32, 5},
+	{"TRICE32_6", (*cobsDec).unSignedOrSignedOut, 24, 32, 6},
+	{"TRICE32_7", (*cobsDec).unSignedOrSignedOut, 28, 32, 7},
+	{"TRICE32_8", (*cobsDec).unSignedOrSignedOut, 32, 32, 8},
+	{"TRICE32_9", (*cobsDec).unSignedOrSignedOut, 36, 32, 9},
+	{"TRICE32_10", (*cobsDec).unSignedOrSignedOut, 40, 32, 10},
+	{"TRICE32_11", (*cobsDec).unSignedOrSignedOut, 44, 32, 11},
+	{"TRICE32_12", (*cobsDec).unSignedOrSignedOut, 48, 32, 12},
+	{"TRICE64_1", (*cobsDec).unSignedOrSignedOut, 8, 64, 1},
+	{"TRICE64_2", (*cobsDec).unSignedOrSignedOut, 16, 64, 2},
+	{"TRICE64_3", (*cobsDec).unSignedOrSignedOut, 24, 64, 3},
+	{"TRICE64_4", (*cobsDec).unSignedOrSignedOut, 32, 64, 4},
+	{"TRICE64_5", (*cobsDec).unSignedOrSignedOut, 40, 64, 5},
+	{"TRICE64_6", (*cobsDec).unSignedOrSignedOut, 48, 64, 6},
+	{"TRICE64_7", (*cobsDec).unSignedOrSignedOut, 56, 64, 7},
+	{"TRICE64_8", (*cobsDec).unSignedOrSignedOut, 64, 64, 8},
+	{"TRICE64_9", (*cobsDec).unSignedOrSignedOut, 72, 64, 9},
+	{"TRICE64_10", (*cobsDec).unSignedOrSignedOut, 80, 64, 10},
+	{"TRICE64_11", (*cobsDec).unSignedOrSignedOut, 88, 64, 11},
+	{"TRICE64_12", (*cobsDec).unSignedOrSignedOut, 96, 64, 12},
 }
 
 // triceS converts dynamic strings.
-func (p *COBS) triceS(b []byte, _ int, _ int) int {
+func (p *cobsDec) triceS(b []byte, _ int, _ int) int {
 	if DebugOut {
 		fmt.Fprintln(p.w, p.b)
 	}
@@ -439,7 +439,7 @@ func (p *COBS) triceS(b []byte, _ int, _ int) int {
 }
 
 // triceN converts dynamic strings.
-func (p *COBS) triceN(b []byte, _ int, _ int) int {
+func (p *cobsDec) triceN(b []byte, _ int, _ int) int {
 	if DebugOut {
 		fmt.Fprintln(p.w, p.b)
 	}
@@ -449,12 +449,12 @@ func (p *COBS) triceN(b []byte, _ int, _ int) int {
 }
 
 // trice0 prints the trice format string.
-func (p *COBS) trice0(b []byte, _ int, _ int) int {
+func (p *cobsDec) trice0(b []byte, _ int, _ int) int {
 	return copy(b, fmt.Sprintf(p.trice.Strg))
 }
 
 // unSignedOrSignedOut prints p.b according to the format string.
-func (p *COBS) unSignedOrSignedOut(b []byte, bitwidth, count int) int {
+func (p *cobsDec) unSignedOrSignedOut(b []byte, bitwidth, count int) int {
 	if len(p.u) != count {
 		return copy(b, fmt.Sprintln("ERROR: Invalid format specifier count inside", p.trice.Type, p.trice.Strg))
 	}
@@ -534,7 +534,7 @@ func (p *COBS) unSignedOrSignedOut(b []byte, bitwidth, count int) int {
 var testTableVirgin = true
 
 // printTestTableLine is used to generate testdata
-func (p *COBS) printTestTableLine(n int) {
+func (p *cobsDec) printTestTableLine(n int) {
 	if emitter.NextLine || testTableVirgin {
 		emitter.NextLine = false
 		testTableVirgin = false
