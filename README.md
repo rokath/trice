@@ -82,7 +82,7 @@ git clone https://github.com/rokath/trice.git
 - [NanoLog](https://github.com/PlatformLab/NanoLog) (Linux C++)
 - [https://www.codeinsideout.com/blog/stm32/j-link-sysview/](https://www.codeinsideout.com/blog/stm32/j-link-sysview/) (SEGGER J-Link System View - A tool to record and visualize system activities: )
 - [qpspy](https://www.state-machine.com/qtools/qpspy.html) (C/C++)
-- [x](https://youtu.be/FyJI4Z6jD4w)
+- [Minimal Structured Logging for Autonomous Vehikles](https://youtu.be/FyJI4Z6jD4w)
 
 <!--- B A C K U P
 
