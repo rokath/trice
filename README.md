@@ -83,6 +83,7 @@ git clone https://github.com/rokath/trice.git
 - [https://www.codeinsideout.com/blog/stm32/j-link-sysview/](https://www.codeinsideout.com/blog/stm32/j-link-sysview/) (SEGGER J-Link System View - A tool to record and visualize system activities: )
 - [qpspy](https://www.state-machine.com/qtools/qpspy.html) (C/C++)
 - [Minimal Structured Logging for Autonomous Vehikles](https://youtu.be/FyJI4Z6jD4w)
+- [Debugging with Dynamic Printf Breakpoints](https://mcuoneclipse.com/2022/02/09/debugging-with-dynamic-printf-breakpoints/)
 
 <!--- B A C K U P
 
