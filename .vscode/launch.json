@@ -67,6 +67,24 @@
                      "-idlist",
                      "${workspaceFolder}/til.json"
             ]
+        },        {
+            "name": "-p FILE DUMP",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}/cmd/trice",
+            "env": {},
+            "args": ["log",
+                    "-v",
+                    "-port",
+                    "FILE",
+                     "-args",
+                     "${workspaceFolder}/x.txt",
+                     "-e",
+                     "DUMP",
+                     "-idlist",
+                     "${workspaceFolder}/til.json"
+            ]
         },
         {
             "name": "-s wrapTriceMsgs.bin",

@@ -173,8 +173,6 @@ func (p *cobsDec) nextCOBSpackage() {
 		p.COBSModeDescriptor = p.readU32(p.b)
 		p.b = p.b[4:] // drop COBS package descriptor
 	}
-
-	return
 }
 
 func (p *cobsDec) handleCOBSModeDescriptor() error {

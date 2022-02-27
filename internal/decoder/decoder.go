@@ -19,7 +19,6 @@ import (
 
 	"github.com/rokath/trice/internal/emitter"
 	"github.com/rokath/trice/internal/id"
-	"github.com/rokath/trice/internal/receiver"
 	"github.com/rokath/trice/pkg/msg"
 )
 
@@ -203,7 +202,7 @@ func Translate(w io.Writer, sw *emitter.TriceLineComposer, lut id.TriceIDLookUp,
 	//  	cobsVariantDecode = cobsFFDecode
 	case "CHAR":
 		dec = newCHARDecoder(w, lut, m, rc, endian)
-	case "dumpDec":
+	case "DUMP":
 		dec = newDUMPDecoder(w, lut, m, rc, endian)
 	default:
 		log.Fatalf(fmt.Sprintln("unknown encoding ", Encoding))
@@ -217,15 +216,24 @@ func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec Decode
 	b := make([]byte, defaultSize) // intermediate trice string buffer
 	for {
 		n, err := dec.Read(b) // Code to measure, dec.Read can return n=0 in some cases and then wait.
-		if (err == io.EOF || err == nil) && n == 0 {
-			if receiver.Port == "BUFFER" || receiver.Port == "dumpDec" { // do not wait for a predefined buffer
-				return err
+		if err != io.EOF && err != nil {
+			log.Fatal(err)
+		}
+
+		if n == 0 {
+			//if receiver.Port == "BUFFER" || receiver.Port == "dumpDec" { // do not wait for a predefined buffer
+			//  b = append(b, []byte(`\n`)...)
+			//  _, err := sw.Write(b[:n])
+			//  msg.OnErr(err)
+			//return err
+			//}
+			if Verbose {
+				fmt.Fprintln(w, err, "-> WAITING...")
 			}
-			//  if Verbose {
-			//  	fmt.Fprintln(w, err, "-> WAITING...")
-			//  }
+			time.Sleep(100 * time.Millisecond)
 			continue // read again
 		}
+
 		// b contains here none or several complete trice strings.
 		// If several, they end with a newline each, despite the last one which optionally ends with a newline.
 		start := time.Now()

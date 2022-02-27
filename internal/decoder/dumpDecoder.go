@@ -30,30 +30,19 @@ func newDUMPDecoder(w io.Writer, lut id.TriceIDLookUp, m *sync.RWMutex, in io.Re
 	return p
 }
 
-//  func (p *dumpDec) Read(b []byte) (n int, err error) {
-//  	bb := make([]byte, 1024)
-//  	m, err := p.in.Read(bb)
-//  	for _, x := range bb[:m] {
-//  		fmt.Fprintf(p.w, "%02X ", x) // workaround
-//  		p.dumpCnt++
-//  		if p.dumpCnt == DumpLineByteCount {
-//  			fmt.Fprintln(p.w, "") // workaround
-//  			p.dumpCnt = 0
-//  		}
-//  	}
-//  	return n, err
-//  }
-
 func (p *dumpDec) Read(b []byte) (n int, err error) {
-	//bb := make([]byte, 1024)
-	m, err := p.in.Read(b)
-	for _, x := range b[:m] {
-		fmt.Fprintf(p.w, "%02X ", x) // workaround
+	//bb := make([]byte, defaultSize>>2) // /4 to avoid overflow, b has defaultSize
+	l := 3 * (len(b) >> 2) // 3rd quarter
+	q := b[l:]             // used as scratch pad
+	m, err := p.in.Read(q)
+	for _, x := range q[:m] {
+		s := fmt.Sprintf("%02x ", x)
+		n += copy(b[n:], []byte(s))
 		p.dumpCnt++
 		if p.dumpCnt == DumpLineByteCount {
-			fmt.Fprintln(p.w, "") // workaround
+			n += copy(b[n:], []byte(`\n`))
 			p.dumpCnt = 0
 		}
 	}
-	return n, err
+	return
 }
