@@ -19,6 +19,7 @@ import (
 
 	"github.com/rokath/trice/internal/emitter"
 	"github.com/rokath/trice/internal/id"
+	"github.com/rokath/trice/internal/receiver"
 	"github.com/rokath/trice/pkg/msg"
 )
 
@@ -216,21 +217,23 @@ func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec Decode
 	b := make([]byte, defaultSize) // intermediate trice string buffer
 	for {
 		n, err := dec.Read(b) // Code to measure, dec.Read can return n=0 in some cases and then wait.
+
 		if err != io.EOF && err != nil {
 			log.Fatal(err)
 		}
 
 		if n == 0 {
-			//if receiver.Port == "BUFFER" || receiver.Port == "dumpDec" { // do not wait for a predefined buffer
-			//  b = append(b, []byte(`\n`)...)
-			//  _, err := sw.Write(b[:n])
-			//  msg.OnErr(err)
-			//return err
-			//}
+			if receiver.Port == "FILEBUFFER" && err == io.EOF { // do not wait if a predefined buffer
+				_, err := sw.Write([]byte(`\n`)) // add newline as line end to display any started line
+				msg.OnErr(err)
+				return io.EOF
+			}
 			if Verbose {
 				fmt.Fprintln(w, err, "-> WAITING...")
 			}
-			time.Sleep(100 * time.Millisecond)
+			if receiver.Port == "FILE" {
+				time.Sleep(100 * time.Millisecond)
+			}
 			continue // read again
 		}
 

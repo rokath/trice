@@ -15,7 +15,7 @@ import (
 // dumpDec is the Decoding instance for dumpDec encoded trices.
 type dumpDec struct {
 	decoderData
-	dumpCnt int
+	dumpCnt int // dumped bytes per line
 }
 
 // newDUMPDecoder provides a hex dump option for incoming bytes.
@@ -27,11 +27,11 @@ func newDUMPDecoder(w io.Writer, lut id.TriceIDLookUp, m *sync.RWMutex, in io.Re
 	p.lut = lut
 	p.lutMutex = m
 	p.endian = endian
+	p.dumpCnt = 0 // needs =0 initialization for test table tests
 	return p
 }
 
 func (p *dumpDec) Read(b []byte) (n int, err error) {
-	//bb := make([]byte, defaultSize>>2) // /4 to avoid overflow, b has defaultSize
 	l := 3 * (len(b) >> 2) // 3rd quarter
 	q := b[l:]             // used as scratch pad
 	m, err := p.in.Read(q)
