@@ -104,3 +104,15 @@
 | -  | -  | -  | -  | -  | -  | -  | -  | -  | -  | -  | -  | -  | -  | -  | -  |
 | 0  | 1  | 0  | 0  | x  | x  | x  | x  | x  | x  | x  | x  | x  | x  | x  | x  |
 | 0  | 1  | 2  | 3  | 4  | 5  | 6  | 7  | 8  | 9  | 10 | 11 | 12 | 13 | 14 | 15 |
+
+## Small Size Logs (ideas)
+
+* 0000iiii tttttttt dddddddd ddddfddd
+* 0001iiii tttttttt ttttdddd dddddddd
+* 0010iiii tttttttt ttttttdd dddddddd
+* 0011iiii tttttttt tttttttt dddddddd
+* 0100iiii iiiiiiii dddddddd dddddddd
+* 0101iiii cccccccc dddddddd dddddddd tttttttt tttttttt tttttttt tttttttt
+* 0110
+* 0111
+* 1iiiiiii iiiiiiii nnnnnnnn cccccccc
