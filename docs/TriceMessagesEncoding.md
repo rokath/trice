@@ -107,12 +107,12 @@
 
 ## Small Size Logs (ideas)
 
-* 0000iiii tttttttt dddddddd ddddfddd
-* 0001iiii tttttttt ttttdddd dddddddd
-* 0010iiii tttttttt ttttttdd dddddddd
-* 0011iiii tttttttt tttttttt dddddddd
-* 0100iiii iiiiiiii dddddddd dddddddd
-* 0101iiii cccccccc dddddddd dddddddd tttttttt tttttttt tttttttt tttttttt
-* 0110
-* 0111
-* 1iiiiiii iiiiiiii nnnnnnnn cccccccc
+* `0000iiii dddddddd dddddddd`
+* `0001iiii dddddddd dddddddd tttttttt`
+* `0010iiii dddddddd dddddddd tttttttt tttttttt`
+* `0011iiii dddddddd dddddddd T T T T`
+* `0100iiii iiiiiiii D D`
+* `0101iiii iiiiiiii D D T`
+* `0110iiii iiiiiiii D D T T`
+* `0111iiii iiiiiiii D D T T T T`
+* `1iiiiiii iiiiiiii N C T T T T ...`
