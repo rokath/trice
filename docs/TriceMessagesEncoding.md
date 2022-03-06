@@ -106,13 +106,14 @@
 | 0  | 1  | 2  | 3  | 4  | 5  | 6  | 7  | 8  | 9  | 10 | 11 | 12 | 13 | 14 | 15 |
 
 ## Small Size Logs (ideas)
-
+<!--
 * `0000iiii D D`
 * `0001iiii D D T`
 * `0010iiii C T T  D D D D`
 * `0011iiii C D D  T T T T`
 * `0100iiii I D D`
 * `0101iiii I D D  T`
-* `0110iiii I D D  T T`
-* `0111iiii I D D  T T T T`
-* `1iiiiiii I N C  T T T T ...`
+-->
+* `0000iiii tttttttt ttttdddd dddddddd` 4 bit ID, 12 bit timestamp & 12 bit data TRICE12
+* `0100iiii I T T  D D D D` 12 bit ID, 16 bit timestamp & 32 bit data: TRICE84, TRICE162, TRICE816, TRICE168, TRICE321
+* `1iiiiiii I N C  T T T T ...` Legacy COBS with timestamp inside
