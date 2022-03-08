@@ -118,7 +118,7 @@
 * `0000iiii I T T`          12 bit ID, 16 bit timestamp,     no data: TRICE0
 * `0001iiii I T T  D D`     12 bit ID, 16 bit timestamp, 16 bit data: TRICE82, TRICE161
 * `0010iiii I T T  D D D D` 12 bit ID, 16 bit timestamp, 32 bit data: TRICE84, TRICE162, TRICE816, TRICE168, TRICE321
-* `0011....` sub-option -x 
+* `0011....` sub-option -x n
   * `0011iidd dddddddd` 2 bit ID & 10 bit data
   * `0011dddd dddddddd` no ID, 12 bit data TRICEX
   * `0011iiii tttttttt ttttdddd dddddddd` 4 bit ID, 12 bit timestamp, 12 bit data: TRICEX
