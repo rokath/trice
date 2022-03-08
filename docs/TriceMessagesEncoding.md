@@ -122,5 +122,5 @@
 * `0001iiii I T T  D D`     12 bit ID, 16 bit timestamp, 16 bit data: TRICE82, TRICE161
 * `0010iiii I T T  D D D D` 12 bit ID, 16 bit timestamp, 32 bit data: TRICE84, TRICE162, TRICE816, TRICE168, TRICE321
 * `0011....` reserved
-* `01......` reserved
-* `1iiiiiii I N C  T T T T ...` Legacy COBS with timestamp inside
+* `01iiiiii I N C  T T T T ...` 14 bit ID, Legacy COBS with timestamp inside
+* `1.......` reserved
