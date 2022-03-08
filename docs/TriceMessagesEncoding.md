@@ -124,3 +124,12 @@
 * `0011....` reserved
 * `01iiiiii I N C  T T T T ...` 14 bit ID, Legacy COBS with timestamp inside
 * `1.......` reserved
+
+|bytes|code bits|ID bits|timestamp bits|data bits|macros|
+| -   | -       | -     | -            | -       | -    |
+| 4   | 0000    | 12    | 16           | 0       | TRICE0 |
+| 6   | 0001    | 12    | 16           | 16      | TRICE82, TRICE161 |
+| 8   | 0010    | 12    | 16           | 32      | TRICE84, TRICE162, TRICE816, TRICE168, TRICE321 |
+|     | 0011    |       |              |         | reserved |
+| n   | 01      | 14    | 32           | m       | TRICE |
+| n   | 1       |       |              |         | |
