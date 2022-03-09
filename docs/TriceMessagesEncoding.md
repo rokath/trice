@@ -107,25 +107,28 @@
 
 ## Small Size Logs (ideas)
 <!--
-* `0000iiii D D`
-* `0001iiii D D T`
-* `0010iiii C T T  D D D D`
-* `0011iiii C D D  T T T T`
-* `0100iiii I D D`
-* `0101iiii I D D  T`
-
 -->
-* `0000iiii I T T`          12 bit ID, 16 bit timestamp,     no data: TRICE0
+* `1.......` reserved
+* `01iiiiii I N C  T T T T ...` 14 bit ID, Legacy COBS with timestamp inside
 * `0001iiii I T T  D D`     12 bit ID, 16 bit timestamp, 16 bit data: TRICE82, TRICE161
 * `0010iiii I T T  D D D D` 12 bit ID, 16 bit timestamp, 32 bit data: TRICE84, TRICE162, TRICE816, TRICE168, TRICE321
-* `0011....` sub-option -x n TRICEX
+
+* `0000....`sub-option -x n TRICEX
+  * `0000iiii I T T`          12 bit ID, 16 bit timestamp,     no data: TRICE0
+  * `0000iiii D D`
+  * `0001iiii D D T`
+  * `0010iiii C T T  D D D D`
+  * `0011iiii C D D  T T T T`
+  * `0100iiii I D D`
+  * `0101iiii I D D  T`
+
+* `0011....` sub-option -y n TRICEY
   * `0011iidd dddddddd` 2 bit ID & 10 bit data
   * `0011dddd dddddddd` no ID, 12 bit data
   * `0011iiii tttttttt ttttdddd dddddddd` 4 bit ID, 12 bit timestamp, 12 bit data
   * `0011iiii I` 12 bit ID, no data
   * ...
-* `01iiiiii I N C  T T T T ...` 14 bit ID, Legacy COBS with timestamp inside
-* `1.......` reserved
+
 
 |bytes|code bits|ID bits|timestamp bits|data bits|macros|
 | -   | -       | -     | -            | -       | -    |
