@@ -108,28 +108,34 @@
 ## Small Size Logs (ideas)
 <!--
 -->
-* `1.......` reserved
-* `01iiiiii I N C  T T T T ...` 14 bit ID, Legacy COBS with timestamp inside
-* `0001iiii I T T  D D`     12 bit ID, 16 bit timestamp, 16 bit data: TRICE82, TRICE161
-* `0010iiii I T T  D D D D` 12 bit ID, 16 bit timestamp, 32 bit data: TRICE84, TRICE162, TRICE816, TRICE168, TRICE321
+* `01iiiiii I N C  ...` 14 bit ID, Legacy COBS no timestamp inside: TRICE
+* `0001iiii I D D`      12 bit ID, no timestamp, 16 bit data: TRICE82, TRICE161
+* `0010iiii I D D D D`  12 bit ID, no timestamp, 32 bit data: TRICE84, TRICE162, TRICE816, TRICE168, TRICE321
 
-* `0000....`sub-option -x n TRICEX
-  * `0000iiii I T T`          12 bit ID, 16 bit timestamp,     no data: TRICE0
-  * `0000iiii D D`
-  * `0001iiii D D T`
-  * `0010iiii C T T  D D D D`
-  * `0011iiii C D D  T T T T`
-  * `0100iiii I D D`
-  * `0101iiii I D D  T`
+* `11iiiiii I N C  T T T T ...` 14 bit ID, Legacy COBS with timestamp inside: TTRICE
+* `1001iiii I T T  D D`     12 bit ID, 16 bit timestamp, 16 bit data: TTRICE82, TTRICE161
+* `1010iiii I T T  D D D D` 12 bit ID, 16 bit timestamp, 32 bit data: TTRICE84, TTRICE162, TTRICE816, TTRICE168, TTRICE321
 
-* `0011....` sub-option -y n TRICEY
-  * `0011iidd dddddddd` 2 bit ID & 10 bit data
-  * `0011dddd dddddddd` no ID, 12 bit data
-  * `0011iiii tttttttt ttttdddd dddddddd` 4 bit ID, 12 bit timestamp, 12 bit data
-  * `0011iiii I` 12 bit ID, no data
+* `0011....` sub-option -x n TRICEX
+* `1011....` sub-option -y n TRICEY
+* examples: s select x or y
+  * `s011iidd dddddddd` 2 bit ID & 10 bit data
+  * `s011dddd dddddddd` no ID, 12 bit data
+  * `s011dddd` no ID, 4 bit data
+  * `s011iiii I` 12 bit ID, no data
+  * `s011iiii D D` 4 bit ID, 16 bit data
+  * `s011iiii I D D` 12 bit ID, 16 bit data
+  * `s011iiii I T T` 12 bit ID, 16 bit timestamp, no data
+  * `s011iiii D D T`
+  * `s011iiii C T T  D D D D`
+  * `s011iiii C D D  T T T T`
+  * `s011iiii I D D  T`
+  * `s011iiii tttttttt ttttdddd dddddddd` 4 bit ID, 12 bit timestamp, 12 bit data
   * ...
+* `0000....` user data with defined length or length code
+* `1000....` reserved
 
-
+<!--
 |bytes|code bits|ID bits|timestamp bits|data bits|macros|
 | -   | -       | -     | -            | -       | -    |
 | 4   | 0000    | 12    | 16           | 0       | TRICE0 |
@@ -138,3 +144,4 @@
 |     | 0011    |       |              |         | reserved |
 | n   | 01      | 14    | 32           | m       | TRICE |
 | n   | 1       |       |              |         | |
+-->
