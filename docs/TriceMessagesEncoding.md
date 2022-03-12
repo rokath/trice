@@ -135,6 +135,30 @@
 * `0000....` user data with defined length or length code
 * `1000....` reserved
 
+## Reduced (ideas)
+
+* `11iiiiii I N C  T T T T ...` 14 bit ID, legacy format with timestamp inside: TRICE, ...
+* `01...` sub-options -ex0 n -ex1 n -ex2 n -ex3 n: TRICEX0, TRICEX1, TRICEX2, TRICEX3
+* Sub-option examples:
+  * `01nniiii I N C  ...` 12 bit ID, legacy format without timestamp
+  * `01nniiii I D D`      12 bit ID, no timestamp, 16 bit data: TRICE82, TRICE161
+  * `01nniiii I D D D D`  12 bit ID, no timestamp, 32 bit data: TRICE84, TRICE162, TRICE8216, TRICE1682, TRICE321
+  * `01nniiii I T T  D D`     12 bit ID, 16 bit timestamp, 16 bit data: TTRICE82, TTRICE161
+  * `01nniiii I T T  D D D D` 12 bit ID, 16 bit timestamp, 32 bit data: TTRICE84, TTRICE162, TTRICE8216, TTRICE1682, TTRICE321
+  * `01nniidd dddddddd` 2 bit ID & 10 bit data
+  * `01nndddd dddddddd` no ID, 12 bit data
+  * `01nndddd` no ID, 4 bit data
+  * `01nniiii I` 12 bit ID, no data
+  * `01nniiii D D` 4 bit ID, 16 bit data
+  * `01nniiii I D D` 12 bit ID, 16 bit data
+  * `01nniiii I T T` 12 bit ID, 16 bit timestamp, no data
+  * `01nniiii D D T`
+  * `01nniiii C T T  D D D D`
+  * `01nniiii C D D  T T T T`
+  * `01nniiii I D D  T`
+  * `01nniiii tttttttt ttttdddd dddddddd` 4 bit ID, 12 bit timestamp, 12 bit data
+* `10...` reserved
+* `00...` user data with defined length or length code
 <!--
 |bytes|code bits|ID bits|timestamp bits|data bits|macros|
 | -   | -       | -     | -            | -       | -    |
