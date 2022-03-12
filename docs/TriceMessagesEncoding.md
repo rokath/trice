@@ -138,7 +138,7 @@
 ## Reduced (ideas)
 
 * `10iiiiii I N C  T T T T ...` 14 bit ID, legacy format with timestamp inside: TRICE, ...
-* `11...` reserved (maybe 15 bit ID)
+* `11...` reserved (maybe legacy extension to 15 bit ID)
 * `01...` sub-options -ex0 n -ex1 n -ex2 n -ex3 n: TRICEX0, TRICEX1, TRICEX2, TRICEX3
 * Sub-option examples:
   * `01nniiii I N C  ...` 12 bit ID, legacy format without timestamp
@@ -158,7 +158,7 @@
   * `01nniiii C D D  T T T T`
   * `01nniiii I D D  T`
   * `01nniiii tttttttt ttttdddd dddddddd` 4 bit ID, 12 bit timestamp, 12 bit data
-* `00...` user data with defined length or length code
+* `00...` user data with defined length or length code or sub-option extension 
 <!--
 |bytes|code bits|ID bits|timestamp bits|data bits|macros|
 | -   | -       | -     | -            | -       | -    |
