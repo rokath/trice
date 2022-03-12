@@ -110,11 +110,11 @@
 -->
 * `01iiiiii I N C  ...` 14 bit ID, Legacy COBS no timestamp inside: TRICE
 * `0001iiii I D D`      12 bit ID, no timestamp, 16 bit data: TRICE82, TRICE161
-* `0010iiii I D D D D`  12 bit ID, no timestamp, 32 bit data: TRICE84, TRICE162, TRICE816, TRICE168, TRICE321
+* `0010iiii I D D D D`  12 bit ID, no timestamp, 32 bit data: TRICE84, TRICE162, TRICE8216, TRICE1682, TRICE321
 
 * `11iiiiii I N C  T T T T ...` 14 bit ID, Legacy COBS with timestamp inside: TTRICE
 * `1001iiii I T T  D D`     12 bit ID, 16 bit timestamp, 16 bit data: TTRICE82, TTRICE161
-* `1010iiii I T T  D D D D` 12 bit ID, 16 bit timestamp, 32 bit data: TTRICE84, TTRICE162, TTRICE816, TTRICE168, TTRICE321
+* `1010iiii I T T  D D D D` 12 bit ID, 16 bit timestamp, 32 bit data: TTRICE84, TTRICE162, TTRICE8216, TTRICE1682, TTRICE321
 
 * `0011....` sub-option -x n TRICEX
 * `1011....` sub-option -y n TRICEY
