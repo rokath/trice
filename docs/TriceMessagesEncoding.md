@@ -105,9 +105,9 @@
 | 0  | 1  | 0  | 0  | x  | x  | x  | x  | x  | x  | x  | x  | x  | x  | x  | x  |
 | 0  | 1  | 2  | 3  | 4  | 5  | 6  | 7  | 8  | 9  | 10 | 11 | 12 | 13 | 14 | 15 |
 
-## Small Size Logs (ideas)
-<!--
--->
+<!-- ## Small Size Logs (ideas)
+
+
 * `01iiiiii I N C  ...` 14 bit ID, Legacy COBS no timestamp inside: TRICE
 * `0001iiii I D D`      12 bit ID, no timestamp, 16 bit data: TRICE82, TRICE161
 * `0010iiii I D D D D`  12 bit ID, no timestamp, 32 bit data: TRICE84, TRICE162, TRICE8216, TRICE1682, TRICE321
@@ -134,38 +134,70 @@
   * ...
 * `0000....` user data with defined length or length code
 * `1000....` reserved
-
-## Reduced (ideas)
-
-* `10iiiiii I N C  T T T T ...` 14 bit ID, legacy format with timestamp inside: TRICE, ...
-* `11...` reserved (maybe legacy extension to 15 bit ID)
-* `01...` sub-options -ex0 n -ex1 n -ex2 n -ex3 n: TRICEX0, TRICEX1, TRICEX2, TRICEX3
-* Sub-option examples:
-  * `01nniiii I N C  ...` 12 bit ID, legacy format without timestamp
-  * `01nniiii I D D`      12 bit ID, no timestamp, 16 bit data: TRICE82, TRICE161
-  * `01nniiii I D D D D`  12 bit ID, no timestamp, 32 bit data: TRICE84, TRICE162, TRICE8216, TRICE1682, TRICE321
-  * `01nniiii I T T  D D`     12 bit ID, 16 bit timestamp, 16 bit data: TTRICE82, TTRICE161
-  * `01nniiii I T T  D D D D` 12 bit ID, 16 bit timestamp, 32 bit data: TTRICE84, TTRICE162, TTRICE8216, TTRICE1682, TTRICE321
-  * `01nniidd dddddddd` 2 bit ID & 10 bit data
-  * `01nndddd dddddddd` no ID, 12 bit data
-  * `01nndddd` no ID, 4 bit data
-  * `01nniiii I` 12 bit ID, no data
-  * `01nniiii D D` 4 bit ID, 16 bit data
-  * `01nniiii I D D` 12 bit ID, 16 bit data
-  * `01nniiii I T T` 12 bit ID, 16 bit timestamp, no data
-  * `01nniiii D D T`
-  * `01nniiii C T T  D D D D`
-  * `01nniiii C D D  T T T T`
-  * `01nniiii I D D  T`
-  * `01nniiii tttttttt ttttdddd dddddddd` 4 bit ID, 12 bit timestamp, 12 bit data
-* `00...` user data with defined length or length code or sub-option extension 
-<!--
-|bytes|code bits|ID bits|timestamp bits|data bits|macros|
-| -   | -       | -     | -            | -       | -    |
-| 4   | 0000    | 12    | 16           | 0       | TRICE0 |
-| 6   | 0001    | 12    | 16           | 16      | TRICE82, TRICE161 |
-| 8   | 0010    | 12    | 16           | 32      | TRICE84, TRICE162, TRICE816, TRICE168, TRICE321 |
-|     | 0011    |       |              |         | reserved |
-| n   | 01      | 14    | 32           | m       | TRICE |
-| n   | 1       |       |              |         | |
 -->
+## Ex(tendable) encoding (ideas)
+
+Framing is done by COBS encoding, maybe with zeroes reduction. Several *Trices* can be in one COBS package.
+
+### Main stream logs
+
+All main stream logs share the same 14 bit ID space allowing 1-16383 IDs.
+
+* `11iiiiii I N C  T T T T ...` 14 bit ID, legacy format with 32-bit timestamp: TRICE( ID(n), "...", ...), ...
+* `10iiiiii I N C  T T ...`     14 bit ID, legacy format with 16-bit timestamp: TRICE( Id(n), "...", ...), ...
+* `01iiiiii I N C  ...`         14 bit ID, legacy format without     timestamp: TRICE( id(n), "...", ...), ...
+* The update switch `-timeStamp 32` defaults new ID´s to `ID`.
+* The update switch `-timeStamp 16` defaults new ID´s to `Id`.
+* The update switch `-timeStamp 0`  defaults new ID´s to `id`.
+* The update switch `-timeStamp to32` converts all `id` and `Id` to `ID`.
+* The update switch `-timeStamp to16` converts all `id` and `ID` to `Id`.
+* The update switch `-timeStamp to0`  converts all `ID` and `Id` to `id`.
+* The log switch `-ttsf` is the same as `-ttsf32`.
+* There is a new log switch `ttsf16` for the 16 bit timestamps. 
+
+### Extended *Trices* as future option
+
+If for special cases, the main stream encoding is not sufficient, the user can add its own encoding.
+
+* `00...` sub-options `TRICEX0`, `TRICEX1`, `TRICEX2`, `TRICEX3`
+  * `-ex0 pos -ex1 pos -ex2 pos -ex3 pos`  Select position in extendable table for TRICEXn, 4 codings selectable in one shot.
+  * The table is creatable and extendable on demand.
+  * For each line an appropriate target and host code needs to be done.
+  * Then the target configuration must match the CLI switches.
+  
+    |Position | Encoding                         | Remarks                                        |
+    | -   | -                                     | -                                             |
+    | pos | `00nniiii I D D`                      | 12 bit ID, no timestamp, 1x 16 bit data       |
+    | pos | `00nniiii I D D`                      | 12 bit ID, no timestamp, 2x 8 bit data        |
+    | pos | `00nniiii I D D D D`                  | 12 bit ID, no timestamp, 2x 16 bit data       |
+    | pos | `00nniiii I T T  D D`                 | 12 bit ID, 16 bit timestamp,1x16 bit data     |
+    | pos | `00nniiii I T T  D D D D`             | 12 bit ID, 16 bit timestamp, 1x32 bit data    |
+    | pos | `00nniidd dddddddd`                   | 2 bit ID & 1x 10 bit data                     |
+    |   6 | `00nndddd dddddddd`                   | no ID, 12 bit data as a 5 and a 7 bit value   |
+    | pos | `00nndddd`                            | no ID, 4x 1 bit data                          |
+    | pos | `00nniiii I`                          | 12 bit ID, no data                            |
+    | pos | `00nniiii D D`                        | 4 bit ID, 1x 16 bit data                      |
+    | pos | `00nniiii I D D`                      | 12 bit ID, 2x 8 bit data                      |
+    | pos | `00nniiii I T T`                      | 12 bit ID, 16 bit timestamp, no data          |
+    | pos | `00nniiii D D T`                      | ...                                           |
+    |  13 | `00nniiii C T T  D D D D`             | 8 bit cyle counter, 16 bit timestamp, a float |
+    | pos | `00nniiii C D D  T T T T`             | ...                                           |
+    | pos | `00nniiii I D D  T`                   | ...                                           |
+    | pos | `00nniiii tttttttt ttttdddd dddddddd` | 4 bit ID, 12 bit timestamp, 12 bit data       |
+    | ... | `00nn...`                             | ...                                           |
+
+  * Examples:
+    * `-ex0 13` means TRICEX0 = `0000iiii C T T  D D D D`. Usage `TRICEX0( "result %f\n", aFloat(val));`
+    * `-ex2 6`  means TRICEX2 = `0010dddd dddddddd`. Usage TRICEX2( "point %x,%d\n", a, b)
+  * *Trice* extensions without cycle counter are counted as well.
+  * Each TRICEXn has its own ID space.
+
+### User data
+
+User data are possible as part of the *Trices* extensions: 
+
+* Without the `-ex0` switch, `0000...` packages are ignored as user data.
+* Without the `-ex1` switch, `0001...` packages are ignored as user data.
+* Without the `-ex2` switch, `0010...` packages are ignored as user data.
+* Without the `-ex3` switch, `0011...` packages are ignored as user data.
+* User data have a unknown length. Therefore they cannot share a COBS packet with *Trices*.
