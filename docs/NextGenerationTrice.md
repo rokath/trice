@@ -1,4 +1,4 @@
-# Next Generation *Trice* (Draft)
+# Next Version *Trice* (Draft)
 
 <!-- vscode-markdown-toc -->
 * 1. [Preface](#Preface)
