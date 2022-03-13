@@ -137,6 +137,20 @@
 -->
 ## Ex(tendable) encoding (ideas)
 
+### Symbols
+
+* `i` = ID bit
+* `I` = `iiiiiiii`
+* `n` = number bit
+* `s` = selector bit
+* `N` = `snnnnnnnn`
+* `c` = cycle counter bit
+* `C` = s==0 ? `cccccccc` : `nnnnnnnn`
+* `t` = timestamp bit
+* `T` = `tttttttt`
+* `d` = data bit
+* `D` = `dddddddd`
+
 Framing is done by COBS encoding, maybe with zeroes reduction. Several *Trices* can be in one COBS package.
 
 ### Main stream logs
@@ -160,8 +174,10 @@ All main stream logs share the same 14 bit ID space allowing 1-16383 IDs.
 * Optional data start after optional timestamp.
 * N is not u32 count, it is data byte count (without header, without timestamp).
 * N > 127 tells `N C` is replaced by `1nnnnnnn nnnnnnnn`, alllowing 32767 bytes.
-  * C is incremented with each *Trice* but sometimes not transmitted.
-* In double buffer each trice starts at a u32 boundary.
+  * C is incremented with each *Trice* but not transmitted when:
+    * N > 127
+    * extended *Trice* without C
+* Inside double buffer each trice starts at a u32 boundary.
 * The COBS encoding skips the wholes, making a compact buffer.
 
 ### Extended *Trices* as future option
