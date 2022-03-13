@@ -135,7 +135,7 @@
 * `0000....` user data with defined length or length code
 * `1000....` reserved
 -->
-## Ex(tendable) encoding (ideas)
+## EX (extendable) encoding (draft)
 
 ### Symbols
 
