@@ -211,8 +211,10 @@ If for special cases, the main stream encoding is not sufficient, the user can a
     | pos | `00nniiii tttttttt ttttdddd dddddddd` | 4 bit ID, 12 bit timestamp, 12 bit data       |
     | ... | `00nn...`                             | ...                                           |
   * Examples:
-    * `-ex0 13` means TRICEX0 = `0000iiii C T T  D D D D`. Usage: `TRICEX0( "result %f\n", aFloat(v));`
-    * `-ex2 6`  means TRICEX2 = `0010dddd dddddddd`. Usage: `TRICEX2( "point %x,%d\n", a, b);`
+    * `-ex0 13` means TRICEX0 = `0000iiii C T T  D D D D`.
+      * Usage: `TRICEX0( "result %f\n", aFloat(v));`
+    * `-ex2 6`  means TRICEX2 = `0010dddd dddddddd`.
+      * Usage: `TRICEX2( "point %x,%d\n", a, b);`
   * *Trice* extensions without cycle counter are counted as well.
   * Each TRICEXn has its own ID space.
 
