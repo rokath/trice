@@ -198,13 +198,13 @@ If for special cases, the main stream encoding is not sufficient, the user can a
   * *Trice* extensions without cycle counter are counted as well.
   * Each TRICEXn has its own ID space.
 
-### User data
+### Unknown user data
 
-User data are possible as part of the *Trices* extensions: 
+Unknown user data are possible as part of the *Trices* extensions: 
 
-* Without the `-ex0` switch, `0000...` packages are ignored as user data.
-* Without the `-ex1` switch, `0001...` packages are ignored as user data.
-* Without the `-ex2` switch, `0010...` packages are ignored as user data.
-* Without the `-ex3` switch, `0011...` packages are ignored as user data.
-* User data have a unknown length. Therefore they cannot share a COBS packet with *Trices*.
-* User data packets do not affect the cycle counter. The can have their own cycle counter.
+* Without the `-ex0` switch, `0000...` packages are ignored as unknown user data.
+* Without the `-ex1` switch, `0001...` packages are ignored as unknwno user data.
+* Without the `-ex2` switch, `0010...` packages are ignored as unknown user data.
+* Without the `-ex3` switch, `0011...` packages are ignored as unknown user data.
+* Unknown user data have a unknown length. Therefore they cannot share a COBS packet with *Trices*.
+* Unknown user data packets do not affect the cycle counter. The can have their own cycle counter.
