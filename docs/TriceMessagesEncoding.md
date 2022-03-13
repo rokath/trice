@@ -189,6 +189,7 @@ If for special cases, the main stream encoding is not sufficient, the user can a
   * The table is creatable and extendable on demand.
   * For each line an appropriate target and host code needs to be done.
   * Then the target configuration must match the CLI switches.
+  * Table example:
     |Position | Encoding                          | Remarks                                       |
     | -   | -                                     | -                                             |
     | pos | `00nniiii I D D`                      | 12 bit ID, no timestamp, 1x 16 bit data       |
