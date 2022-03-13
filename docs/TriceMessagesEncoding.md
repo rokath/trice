@@ -172,8 +172,7 @@ If for special cases, the main stream encoding is not sufficient, the user can a
   * The table is creatable and extendable on demand.
   * For each line an appropriate target and host code needs to be done.
   * Then the target configuration must match the CLI switches.
-  
-    |Position | Encoding                         | Remarks                                        |
+    |Position | Encoding                          | Remarks                                       |
     | -   | -                                     | -                                             |
     | pos | `00nniiii I D D`                      | 12 bit ID, no timestamp, 1x 16 bit data       |
     | pos | `00nniiii I D D`                      | 12 bit ID, no timestamp, 2x 8 bit data        |
@@ -193,7 +192,6 @@ If for special cases, the main stream encoding is not sufficient, the user can a
     | pos | `00nniiii I D D  T`                   | ...                                           |
     | pos | `00nniiii tttttttt ttttdddd dddddddd` | 4 bit ID, 12 bit timestamp, 12 bit data       |
     | ... | `00nn...`                             | ...                                           |
-
   * Examples:
     * `-ex0 13` means TRICEX0 = `0000iiii C T T  D D D D`. Usage `TRICEX0( "result %f\n", aFloat(val));`
     * `-ex2 6`  means TRICEX2 = `0010dddd dddddddd`. Usage TRICEX2( "point %x,%d\n", a, b)
