@@ -1,16 +1,18 @@
-# Next Version *Trice* (Draft)
+# Version 1.0 *Trice* (Draft)
 
 <!-- vscode-markdown-toc -->
 * 1. [Preface](#Preface)
 * 2. [Compatibility](#Compatibility)
-* 3. [*Trice* ID list `til.json`](#TriceIDlisttil.json)
-* 4. [*Trice* location information file `li.json`](#Tricelocationinformationfileli.json)
-* 5. [TREX (*Trice* extendable) encoding](#TREXTriceextendableencoding)
-	* 5.1. [Symbols](#Symbols)
-	* 5.2. [Main stream logs](#Mainstreamlogs)
-	* 5.3. [*Trice* format](#Triceformat)
-	* 5.4. [Extended *Trices* as future option](#ExtendedTricesasfutureoption)
-	* 5.5. [Unknown user data](#Unknownuserdata)
+* 3. [Framing](#Framing)
+* 4. [*Trice* ID list `til.json`](#TriceIDlisttil.json)
+* 5. [*Trice* location information file `li.json`](#Tricelocationinformationfileli.json)
+* 6. [TREX (*Trice* extendable) encoding](#TREXTriceextendableencoding)
+	* 6.1. [Symbols](#Symbols)
+	* 6.2. [Main stream logs](#Mainstreamlogs)
+		* 6.2.1. [*Trice* format](#Triceformat)
+		* 6.2.2. [COBS encoding](#COBSencoding)
+	* 6.3. [Extended *Trices* as future option](#ExtendedTricesasfutureoption)
+	* 6.4. [Unknown user data](#Unknownuserdata)
 
 <!-- vscode-markdown-toc-config
 	numbering=true
@@ -22,7 +24,7 @@
 
 The with name "COBS" branded [current (2022-03) *Trice* encoding](./TriceMessagesEncoding.md) is not optimal concerning the generated data amount:
 * See discussion [#253 Save trice COBS encoded data on target and view it later on PC](https://github.com/rokath/trice/discussions/253).
-* The location information is transmitted as 16 bit file ID plus 16 bit line number. It is possible to generate during `trice update` an additional file `li.json` containing the location information for each *Trice* ID avoiding the additional 4 bytes this way. But this could cause assignment issues, when the same *Trice* ID is used at different locations (see [https://github.com/rokath/trice/discussions/264](https://github.com/rokath/trice/discussions/264)). But it is possible to drop the option `trice u -sharedIDs`.
+* The location information is transmitted as 16 bit file ID plus 16 bit line number, what could be done better. It is possible to generate during `trice update` an additional file `li.json` containing the location information for each *Trice* ID avoiding the additional 4 bytes this way. But this could cause assignment issues, when the same *Trice* ID is used at different locations (see [https://github.com/rokath/trice/discussions/264](https://github.com/rokath/trice/discussions/264)). But it is possible to drop the option `trice u -sharedIDs`.
 * The 32-bit COBS package descriptor is overkill for allowing user data.
 * The additional padding bytes to achieve 32 bit sizes are not needed. The user could add them by himself if really needed.
 * The 4 timestamp bytes in front of each *Trice* demand the COBS package descriptor. The timestamp should go inside the *Trice* message and be optionally smaller.
@@ -30,21 +32,25 @@ The with name "COBS" branded [current (2022-03) *Trice* encoding](./TriceMessage
 ##  2. <a name='Compatibility'></a>Compatibility
 
 * The legacy "COBS" branded [current (2022-03) *Trice* encoding](.TriceMessageEncoding.md) will stay unchanged as an option for compatibility. But it will not be the default encoding anymore. To use newer **trice** tool versions with legacy projects the CLI switch `-encoding LegacyCOBS` needs to be used.
-* The option `-sharedIDs` will be no further available.
-* Legacy projects which used the option `-sharedIDs` will still work even with a `li.json` file. An several times used ID will get an assignment of one of the locations.
+* The option `-sharedIDs` will be further available but depreciated to avoid location assignment issues.
+* Legacy projects which used the option `-sharedIDs` will still work even with a `li.json` file. A several times used ID will get an assignment of one of the locations.
 * The issue [#242 Add target context option](https://github.com/rokath/trice/issues/242) could get the label "wontfix". When a task ID is needed, it could be also a data value in such cases.
 
-##  3. <a name='TriceIDlisttil.json'></a>*Trice* ID list `til.json`
+##  3. <a name='Framing'></a>Framing
+
+Framing is done by again with COBS encoding, maybe with zeroes reduction like [RZCOBS](https://github.com/Dirbaio/rzcobs/blob/main/src/lib.rs) or simply as "ZCOBS" to minimize data transmission. Also [RLECOBS](https://docs.rs/kolben/0.0.3/kolben/rlercobs/index.html) could be an option. Several *Trices* can be in one COBS package. User data are in separate COBS packages.
+
+##  4. <a name='TriceIDlisttil.json'></a>*Trice* ID list `til.json`
 
 This file integrates further all firmware variants and versions as the legacy **trice** tool does. For the optional *Trice* extensions implementation (see below) a `til.json` format extension is needed because several files are unhandy.
 
-##  4. <a name='Tricelocationinformationfileli.json'></a>*Trice* location information file `li.json`
+##  5. <a name='Tricelocationinformationfileli.json'></a>*Trice* location information file `li.json`
 
-The location information goes not into the `til.json` file. In the field the location information is normally useless and easy outdated. The software developer is the one, mostly interested in the location information. So if the `li.json` is generated, therefore available, the **trice** tool automatically displays file name and line number. When the firmware left the developer table, only the file `til.json` is of interest. The **trice** tool will silently not display location information, if the `li.json` file is not found. For in-field logging, the usage of option `-showID string` could be used. This allows later an easy location of the relevant source code. Also the planned `-binaryLogfile` option is possible. See [issue #267 Add `-binaryLogfile` option](https://github.com/rokath/trice/issues/267). It allows a replay of the logs and the developer can provide the right version of the `li.json` file.
+The location information goes not into the `til.json` file. In the field the location information is normally useless and easy outdated. The software developer is the one, mostly interested in the location information. So, if the `li.json` is generated and therefore available, the **trice** tool automatically displays file name and line number. When the firmware left the developer table, only the file `til.json` is of interest. The **trice** tool will silently not display location information, if the `li.json` file is not found. For in-field logging, the usage of option `-showID string` could be used. This allows later an easy location of the relevant source code. Also the planned `-binaryLogfile` option is possible. See [issue #267 Add `-binaryLogfile` option](https://github.com/rokath/trice/issues/267). It allows a replay of the logs and the developer can provide the right version of the `li.json` file.
 
-##  5. <a name='TREXTriceextendableencoding'></a>TREX (*Trice* extendable) encoding
+##  6. <a name='TREXTriceextendableencoding'></a>TREX (*Trice* extendable) encoding
 
-###  5.1. <a name='Symbols'></a>Symbols
+###  6.1. <a name='Symbols'></a>Symbols
 
 * `i` = ID bit
 * `I` = `iiiiiiii`
@@ -58,9 +64,7 @@ The location information goes not into the `til.json` file. In the field the loc
 * `d` = data bit
 * `D` = `dddddddd`
 
-Framing is done by COBS encoding, maybe with zeroes reduction. Several *Trices* can be in one COBS package.
-
-###  5.2. <a name='Mainstreamlogs'></a>Main stream logs
+###  6.2. <a name='Mainstreamlogs'></a>Main stream logs
 
 All main stream logs share the same 14 bit ID space allowing 1-16383 IDs.
 
@@ -76,18 +80,22 @@ All main stream logs share the same 14 bit ID space allowing 1-16383 IDs.
 * The log switch `-ttsf` is the same as `-ttsf32`.
 * There is a new log switch `ttsf16` for the 16 bit timestamps. 
 
-###  5.3. <a name='Triceformat'></a>*Trice* format
+####  6.2.1. <a name='Triceformat'></a>*Trice* format
 
-* Optional data start after optional timestamp.
-* N is not u32 count, it is data byte count (without header, without timestamp).
-* N > 127 tells `N C` is replaced by `1nnnnnnn nnnnnnnn`, alllowing 32767 bytes.
+* Optional data bytes start after optional timestamp.
+* N is not u32 count anymore, it is data byte count (without header, without timestamp).
+* N > 127 (s==1) tells `N C` is replaced by `1nnnnnnn nnnnnnnn`, allowing 32767 bytes.
   * C is incremented with each *Trice* but not transmitted when:
     * N > 127
     * extended *Trice* without C
-* Inside double buffer each trice starts at a u32 boundary.
-* The COBS encoding skips the wholes, making a compact buffer.
 
-###  5.4. <a name='ExtendedTricesasfutureoption'></a>Extended *Trices* as future option
+####  6.2.2. <a name='COBSencoding'></a>COBS encoding
+
+* Inside double buffer each trice starts at a u32 boundary.
+* There are 1-3 padding bytes possible after each *Trice*.
+* The COBS encoding skips the padding bytes using N, making a compact buffer then.
+
+###  6.3. <a name='ExtendedTricesasfutureoption'></a>Extended *Trices* as future option
 
 If for special cases, the main stream encoding is not sufficient, the user can add its own encoding.
 
@@ -125,7 +133,7 @@ If for special cases, the main stream encoding is not sufficient, the user can a
   * *Trice* extensions without cycle counter are counted as well.
   * Each TRICEXn has its own ID space.
 
-###  5.5. <a name='Unknownuserdata'></a>Unknown user data
+###  6.4. <a name='Unknownuserdata'></a>Unknown user data
 
 * Unknown user data are possible as part of the *Trice* extensions.
   * Without the `-ex0` switch, `0000...` packages are ignored as unknown user data.
