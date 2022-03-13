@@ -157,6 +157,7 @@ All main stream logs share the same 14 bit ID space allowing 1-16383 IDs.
 
 ### *Trice* format
 
+* Optional data start after optional timestamp.
 * N is not u32 count, it is data byte count (without header, without timestamp).
 * N > 127 tells `N C` is replaced by `1nnnnnnn nnnnnnnn`, alllowing 32767 bytes.
   * C is incremented with each *Trice* but sometimes not transmitted.
