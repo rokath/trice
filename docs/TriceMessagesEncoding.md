@@ -226,5 +226,5 @@ If for special cases, the main stream encoding is not sufficient, the user can a
   * Without the `-ex2` switch, `0010...` packages are ignored as unknown user data.
   * Without the `-ex3` switch, `0011...` packages are ignored as unknown user data.
 * So, if *Trice* extensions not used, all `00...` packages are ignored as unknown user data.
-* Unknown user data have a unknown length. Therefore they cannot share a COBS packet with *Trices*.
+* Unknown user data have an unknown length. Therefore they cannot share a COBS packet with *Trices*.
 * Unknown user data packets do not affect the cycle counter. The can have their own cycle counter.
