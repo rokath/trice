@@ -207,3 +207,4 @@ User data are possible as part of the *Trices* extensions:
 * Without the `-ex2` switch, `0010...` packages are ignored as user data.
 * Without the `-ex3` switch, `0011...` packages are ignored as user data.
 * User data have a unknown length. Therefore they cannot share a COBS packet with *Trices*.
+* User data packets do not affect the cycle counter. The can have their own cycle counter.
