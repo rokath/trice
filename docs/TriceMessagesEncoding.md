@@ -143,9 +143,9 @@ Framing is done by COBS encoding, maybe with zeroes reduction. Several *Trices* 
 
 All main stream logs share the same 14 bit ID space allowing 1-16383 IDs.
 
-* `11iiiiii I N C  T T T T ...` 14 bit ID, legacy format with 32-bit timestamp: TRICE( ID(n), "...", ...), ...
-* `10iiiiii I N C  T T ...`     14 bit ID, legacy format with 16-bit timestamp: TRICE( Id(n), "...", ...), ...
-* `01iiiiii I N C  ...`         14 bit ID, legacy format without     timestamp: TRICE( id(n), "...", ...), ...
+* `11iiiiii I N C  T T T T ...` 14 bit ID, modified format with 32-bit timestamp: TRICE( ID(n), "...", ...), ...
+* `10iiiiii I N C  T T ...`     14 bit ID, modified format with 16-bit timestamp: TRICE( Id(n), "...", ...), ...
+* `01iiiiii I N C  ...`         14 bit ID, modified format without     timestamp: TRICE( id(n), "...", ...), ...
 * The update switch `-timeStamp 32` defaults new ID´s to `ID`.
 * The update switch `-timeStamp 16` defaults new ID´s to `Id`.
 * The update switch `-timeStamp 0`  defaults new ID´s to `id`.
@@ -154,6 +154,13 @@ All main stream logs share the same 14 bit ID space allowing 1-16383 IDs.
 * The update switch `-timeStamp to0`  converts all `ID` and `Id` to `id`.
 * The log switch `-ttsf` is the same as `-ttsf32`.
 * There is a new log switch `ttsf16` for the 16 bit timestamps. 
+
+### Modified format
+
+* N is not u32 count, it is data byte count (without header, without timestamp).
+* N > 127 tells `N C` is replaced by `1nnnnnnn nnnnnnnn`, alllowing 32767 bytes.
+* In double buffer each trice starts at a u32 boundary.
+* The COBS encoding skips the wholes, making a compact buffer.
 
 ### Extended *Trices* as future option
 
