@@ -20,7 +20,7 @@
 
 ##  1. <a name='Preface'></a>Preface
 
-The with name "COBS" branded [current (2022-03) *Trice* encoding](.TriceMessageEncoding.md) is not optimal concerning the generated data amount:
+The with name "COBS" branded [current (2022-03) *Trice* encoding](./ TriceMessageEncoding.md) is not optimal concerning the generated data amount:
 * See discussion [#253 Save trice COBS encoded data on target and view it later on PC](https://github.com/rokath/trice/discussions/253).
 * The location information is transmitted as 16 bit file ID plus 16 bit line number. It is possible to generate during `trice update` an additional file `li.json` containing the location information for each *Trice* ID avoiding the additional 4 bytes this way. But this could cause assignment issues, when the same *Trice* ID is used at different locations (see [https://github.com/rokath/trice/discussions/264](https://github.com/rokath/trice/discussions/264)). But it is possible to drop the option `trice u -sharedIDs`.
 * The 32-bit COBS package descriptor is overkill for allowing user data.
