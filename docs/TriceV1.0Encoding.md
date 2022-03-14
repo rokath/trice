@@ -155,7 +155,7 @@ If for special cases, the main stream encoding is not sufficient, the user can a
 
 #### Legend
 
-* `o` = offset to next sigil byte
+* `o` = offset bit to next sigil byte
 * `n` = number bit
 * N sigil `00oooooo` 1-63
 * Z sigil `1nnnoooo` stays for 1-8 zeroes Z1-Z8
