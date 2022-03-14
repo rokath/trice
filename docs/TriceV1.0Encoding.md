@@ -93,7 +93,7 @@ All main stream logs share the same 14 bit ID space allowing 1-16383 IDs.
 
 * Inside double buffer each trice starts at a u32 boundary.
 * There are 1-3 padding bytes possible after each *Trice*.
-* The COBS encoding skips the padding bytes using N, making a compact buffer then.
+* The COBS encoding skips the padding bytes using N.
 
 ###  6.3. <a name='ExtendedTricesasfutureoption'></a>Extended *Trices* as future option
 
