@@ -38,7 +38,7 @@ The with name "COBS" branded [current (2022-03) *Trice* encoding](./TriceMessage
 
 ##  3. <a name='Framing'></a>Framing
 
-Framing is done by again with COBS encoding, maybe with zeroes reduction like [RZCOBS](https://github.com/Dirbaio/rzcobs/blob/main/src/lib.rs) or simply as "ZCOBS" to minimize data transmission. Also [RLECOBS](https://docs.rs/kolben/0.0.3/kolben/rlercobs/index.html) could be an option. Several *Trices* can be in one COBS package. User data are in separate COBS packages.
+Framing is done by again with COBS encoding, maybe with zeroes reduction like [RZCOBS](https://github.com/Dirbaio/rzcobs/blob/main/src/lib.rs) or simply as "ZCOBS" to minimize data transmission. Also [RLERCOBS](https://docs.rs/kolben/0.0.3/kolben/rlercobs/index.html) could be an option. Several *Trices* can be in one COBS package. User data are in separate COBS packages. See TCOBS proposal below.
 
 ##  4. <a name='TriceIDlisttil.json'></a>*Trice* ID list `til.json`
 
