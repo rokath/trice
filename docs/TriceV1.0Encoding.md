@@ -144,24 +144,30 @@ If for special cases, the main stream encoding is not sufficient, the user can a
 * Unknown user data have an unknown length. Therefore they cannot share a COBS packet with *Trices*.
 * Unknown user data packets do not affect the cycle counter. The can have their own cycle counter.
 
-### TCOBS For *Trice* messages optimized COBS 
+### TCOBS For *Trice* messages optimized COBS
+
+#### Conditions
 
 * Most *Trices* are 4 to 16 bytes short.
 * Some *Trices* are 20 to 40 bytes long.
 * Few *Trices* up to 1008 bytes long.
 * Zero is the most common byte
 
-* 1`o` = offset to next sigil byte
+#### Legend
+
+* `o` = offset to next sigil byte
 * `n` = number bit
+* N sigil `00oooooo` 1-63
+* Z sigil `1nnnoooo` stays for 1-8 zeroes Z1-Z8
+* R sigil `01nnoooo` stays for 2-5 repetitions
+* Z1 = Z with nnn = 000: `11000ooo`
+* Z8 = Z with nnn = 111: `11111ooo`
+* R2 = R with nn = 00: `0100oooo`
+* R5 = R with nn = 11: `0111oooo`
 
-N sigil `000ooooo` 1-32
-Z sigil `11nnnooo` stays for 1-8 zeroes Z1-Z8
-R sigil `10nnoooo` stays for 2-5 repetitions
+#### Examples
 
-
-* Z1 = Z with nn = 00
-
-* Zero bytes
+* Zero bytes:
   * 00 = Z1
   * 00 00 = Z2
   * 00 00 00 = Z3
@@ -170,23 +176,17 @@ R sigil `10nnoooo` stays for 2-5 repetitions
   * 00 00 00 00 00 00 = Z6
   * 00 00 00 00 00 00 00 = Z7
   * 00 00 00 00 00 00 00 00 = Z8
-
-* Each non zero byte can occur up to twice times.
-  * aa: 1 times aa
-  * aa aa: 2 times aa
-* Each non zero byte can occur 3-6 times
+  * 00 00 00 00 00 00 00 00 00 = Z8 Z1
+  * ...
+* non zero bytes:
+  * aa = aa
+  * aa aa = aa aa
   * aa aa aa = aa R2
   * aa aa aa aa = aa R3
   * aa aa aa aa aa = aa R4
   * aa aa aa aa aa aa = aa R5
-
-
-NZ sigil 01nnnnnn 1-63 Z, when 4R follows
-4R sigil 10nnnnnn 1-63 R
-
-R1 sigil 100nnnnn 
-R2 sigil 11
-
+  * aa aa aa aa aa aa aa = aa R5 aa
+  * ...
 
 <!--
 Module kolben::rlercobs
