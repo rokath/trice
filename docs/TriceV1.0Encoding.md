@@ -149,11 +149,37 @@ If for special cases, the main stream encoding is not sufficient, the user can a
 * Most *Trices* are 4 to 16 bytes short.
 * Some *Trices* are 20 to 40 bytes long.
 * Few *Trices* up to 1008 bytes long.
-* Zero is the most common byte.
+* Zero is the most common byte
 
-NP sigil 000ooooo 1-32
-4Z sigil 11nnoooo 1-4 Z, 1-16
-4R sigil 10nnoooo 1-4 R, 1-16
+* 1`o` = offset to next sigil byte
+* `n` = number bit
+
+N sigil `000ooooo` 1-32
+Z sigil `11nnnooo` stays for 1-8 zeroes Z1-Z8
+R sigil `10nnoooo` stays for 2-5 repetitions
+
+
+* Z1 = Z with nn = 00
+
+* Zero bytes
+  * 00 = Z1
+  * 00 00 = Z2
+  * 00 00 00 = Z3
+  * 00 00 00 00 = Z4
+  * 00 00 00 00 00 = Z5
+  * 00 00 00 00 00 00 = Z6
+  * 00 00 00 00 00 00 00 = Z7
+  * 00 00 00 00 00 00 00 00 = Z8
+
+* Each non zero byte can occur up to twice times.
+  * aa: 1 times aa
+  * aa aa: 2 times aa
+* Each non zero byte can occur 3-6 times
+  * aa aa aa = aa R2
+  * aa aa aa aa = aa R3
+  * aa aa aa aa aa = aa R4
+  * aa aa aa aa aa aa = aa R5
+
 
 NZ sigil 01nnnnnn 1-63 Z, when 4R follows
 4R sigil 10nnnnnn 1-63 R
