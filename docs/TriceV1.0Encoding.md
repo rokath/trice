@@ -146,7 +146,7 @@ If for special cases, the main stream encoding is not sufficient, the user can a
 
 ### TCOBS For *Trice* messages optimized COBS
 
-This is inspired by rlercobs.
+This is inspired by rlercobs with focus speed over compression.
 
 #### Conditions
 
