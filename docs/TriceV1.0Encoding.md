@@ -160,8 +160,8 @@ If for special cases, the main stream encoding is not sufficient, the user can a
 * N sigil `00oooooo` 1-63
 * Z sigil `1nnnoooo` stays for 1-8 zeroes Z1-Z8
 * R sigil `01nnoooo` stays for 2-5 repetitions
-* Z1 = Z with nnn = 000: `11000ooo`
-* Z8 = Z with nnn = 111: `11111ooo`
+* Z1 = Z with nnn = 000: `1000oooo`
+* Z8 = Z with nnn = 111: `1111oooo`
 * R2 = R with nn = 00: `0100oooo`
 * R5 = R with nn = 11: `0111oooo`
 
