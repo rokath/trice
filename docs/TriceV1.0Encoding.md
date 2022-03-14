@@ -144,6 +144,55 @@ If for special cases, the main stream encoding is not sufficient, the user can a
 * Unknown user data have an unknown length. Therefore they cannot share a COBS packet with *Trices*.
 * Unknown user data packets do not affect the cycle counter. The can have their own cycle counter.
 
+### TCOBS For *Trice* messages optimized COBS 
+
+* Most *Trices* are 4 to 16 bytes short.
+* Some *Trices* are 20 to 40 bytes long.
+* Few *Trices* up to 1008 bytes long.
+* Zero is the most common byte.
+
+NP sigil 000ooooo 1-32
+4Z sigil 11nnoooo 1-4 Z, 1-16
+4R sigil 10nnoooo 1-4 R, 1-16
+
+NZ sigil 01nnnnnn 1-63 Z, when 4R follows
+4R sigil 10nnnnnn 1-63 R
+
+R1 sigil 100nnnnn 
+R2 sigil 11
+
+
+<!--
+Module kolben::rlercobs
+[−][src]
+
+Run Length Encoded Reverse Cobs
+
+This works very similarly to rcobs, however the behavior of sigil bytes are slightly changed.
+Sigils
+
+There are now four different kind of sigil bytes, defined by their two msbits:
+
+    0b00 - NOP sigil.
+        This does not represent data in the stream, and only serves to keep the reverse chain linked
+        The remaining six bits encode the distance back to the previous sigil (1 <= n <= 63)
+    0b01 - Zero sigil.
+        This sigil represents a zero in the data stream, and has been replaced to preserve framing
+        The remaining six bits encode the distance back to the previous sigil (1 <= n <= 63)
+    0b10 - Exponential Repeat sigil.
+        This sigil is a directive to repeat the previous non-sigil character (or Zero sigil representing a data-zero) 2 ** n times, where 3 <= n <= 10.
+        If multiple repeats (exponential or linear) appear in a row, their repeating counts should be added together.
+        The remaining three bits encode the distance back to the previous sigil (1 <= n <= 7)
+    0b11 - Linear Repeat sigil.
+        This sigil is a directive to repeat the previous non-sigil character (or Zero sigil representing a data-zero) n times, where 1 <= n <= 7.
+        If multiple repeats (exponential or linear) appear in a row, their repeating counts should be added together.
+        The remaining three bits encode the distance back to the previous sigil (1 <= n <= 7)
+
+All sigil types encode the number of bytes back until the next sigil, and all messages must end with a sigil. This allows for decoding by walking the data stream backwards, which is done to preserve encoder simplicity.
+-->
+
+
+
 
 
 <!-- ## Small Size Logs (ideas)
