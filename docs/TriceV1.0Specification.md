@@ -172,21 +172,40 @@ This is inspired by [rlercobs](https://docs.rs/kolben/0.0.3/kolben/rlercobs/inde
 
 * `o` = offset bit to next sigil byte
 * `n` = number bit
-* NOP sigil byte **N**: `00oooooo` = N(1 ... 63), `00000000` is forbidden.
+* NOP sigil byte **N**: `00oooooo`, `00000000` is forbidden.
   * This does not represent data in the stream and only serves to keep the chain linked.
   * The remaining 6 bits encode the distance to the next sigil (1 <= n <= 63).
+  * N_1 = `000000001`
+  * ...
+  * N_63 = `00111111`
 * Zero sigil byte **Zn** = `1nnnoooo` = Z1-Z8 = Zn(1-16), 0000=16.
   * This sigil represents 1 to 8 zeroes in the data stream, and is a replacement to reduce data and keep the chain linked.
   * The remaining 4 bits encode the distance to the next sigil (1 <= n <= 16), 0000=16.
-  * Z1 = `1000oooo`, Z1(1-16)
+  * Z1 = `1000oooo`
+    * Z1_1 = `10000001`
+    * ...
+    * Z1_15 = `10001111`
+    * Z1_16 = `10000000`
   * ...
   * Z8 = `1111oooo`, Z8(1-16)
+    * Z8_1 = `11110001`
+    * ...
+    * Z8_15 = `11111111`
+    * Z8_16 = `11110000`
 * Repeat sigil byte **Rn**: `01nnoooo` stays for 2-5 repetitions
   * This sigil represents 2 to 5 repetitions of previous byte in the data stream, and is a replacement to reduce data and keep the chain linked.
   * The remaining 4 bits encode the distance to the next sigil (1 <= n <= 16), 0000=16
-  * R2 = `0100oooo`, R2(1-16)
+  * R2 = `0100oooo`
+    * R2_1 = `01000001`
+    * ...
+    * R2_15 = `01001111`
+    * R2_16 = `01000000`
   * ...
-  * R5 = `0111oooo`, R5(1-16)
+  * R5 = `0111oooo`
+    * R2_1 = `01110001`
+    * ...
+    * R2_15 = `01111111`
+    * R2_16 = `01110000`
 
 ####  6.6.3. <a name='Examples'></a>Examples
 
@@ -227,6 +246,7 @@ This is inspired by [rlercobs](https://docs.rs/kolben/0.0.3/kolben/rlercobs/inde
 | - | - | - |
 | 2022-MAR-15 | 0.0 | Initial Draft |
 | 2022-MAR-15 | 0.1 | Minor corrections |
+| 2022-MAR-15 | 0.2 | Sigil byte encoding clarified |
 
 - [*Trice*  Version 1.0 Specification (Draft)](#trice--version-10-specification-draft)
   - [1. <a name='Preface'></a>Preface](#1-preface)
