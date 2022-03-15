@@ -157,7 +157,8 @@ This is inspired by [rlercobs](https://docs.rs/kolben/0.0.3/kolben/rlercobs/inde
 
 * Encoding could be forward or reverse, what does not matter, because streaming data are not expected.
 * Chained sigil bytes are used - 3 different sigil bytes are defined.
-* Each package starts (forward) or ends (reverse) with a sigil byte as configured.
+* Each package starts with a sigil byte (forward encoding).
+* Discussion of forward versus backward COBS encoding: A reverse encoding would be easier for the target code if streaming data. *Trice* packages are no streaming data. In case of data disruption of reverse encoded data, the receiver can grab at the end of the disrupted COBS package a wrong byte as sigil byte and get lost. When the data are forward encoded the receiver could detect missing bytes at the end of the disrupted package. But anyway it can grab a data byte as sigil byte, when data appear again and the package start is missing. There is a high chance for detection of such case when the expected byte count does not match. The TCOBS decoder must be able such cases. An additional CRC, like a simple XOR byte could be added.
 
 ###  7.1. <a name='Assumptions'></a>Assumptions
 
@@ -244,6 +245,7 @@ This is inspired by [rlercobs](https://docs.rs/kolben/0.0.3/kolben/rlercobs/inde
 | 2022-MAR-15 | 0.0 | Initial Draft |
 | 2022-MAR-15 | 0.1 | Minor corrections |
 | 2022-MAR-15 | 0.2 | Sigil byte encoding clarified |
+| 2022-MAR-15 | 0.3 | Forward versus backward COBS encoding discussion |
 
 - [*Trice*  Version 1.0 Specification (Draft)](#trice--version-10-specification-draft)
   - [1. <a name='Preface'></a>Preface](#1-preface)
