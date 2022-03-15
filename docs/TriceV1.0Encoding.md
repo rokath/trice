@@ -144,7 +144,7 @@ If for special cases, the main stream encoding is not sufficient, the user can a
 * Unknown user data have an unknown length. Therefore they cannot share a COBS packet with *Trices*.
 * Unknown user data packets do not affect the cycle counter. The can have their own cycle counter.
 
-### TCOBS For *Trice* messages optimized COBS
+### TCOBS *Trice* messages optimized COBS
 
 This is inspired by rlercobs with focus speed over compression.
 
