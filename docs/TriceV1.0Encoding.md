@@ -151,8 +151,7 @@ This is inspired by rlercobs with focus speed over compression.
 #### Assumptions
 
 * Most *Trices* are up to 16 bytes short.
-* Some *Trices* are 20 to 40 bytes long.
-* Few *Trices* or user data are longer.
+* Some *Trices* or user data are longer.
 * Zero is the most common byte but other bytes could repeated too.
 
 #### Legend
