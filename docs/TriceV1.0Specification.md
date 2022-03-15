@@ -178,15 +178,15 @@ This is inspired by [rlercobs](https://docs.rs/kolben/0.0.3/kolben/rlercobs/inde
 * Zero sigil byte **Zn** = `1nnnoooo` = Z1-Z8 = Zn(1-16), 0000=16.
   * This sigil represents 1 to 8 zeroes in the data stream, and is a replacement to reduce data and keep the chain linked.
   * The remaining 4 bits encode the distance to the next sigil (1 <= n <= 16), 0000=16.
-  * Z1 = Zn with nnn = 000: `1000oooo`, Z1(1-16)
+  * Z1 = `1000oooo`, Z1(1-16)
   * ...
-  * Z8 = Zn with nnn = 111: `1111oooo`, Z8(1-16)
+  * Z8 = `1111oooo`, Z8(1-16)
 * Repeat sigil byte **Rn**: `01nnoooo` stays for 2-5 repetitions
   * This sigil represents 2 to 5 repetitions of previous byte in the data stream, and is a replacement to reduce data and keep the chain linked.
   * The remaining 4 bits encode the distance to the next sigil (1 <= n <= 16), 0000=16
-  * R2 = R with nn = 00: `0100oooo`, R2(1-16)
+  * R2 = `0100oooo`, R2(1-16)
   * ...
-  * R5 = R with nn = 11: `0111oooo`, R5(1-16)
+  * R5 = `0111oooo`, R5(1-16)
 
 ####  6.6.3. <a name='Examples'></a>Examples
 
