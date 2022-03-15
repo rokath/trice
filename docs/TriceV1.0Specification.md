@@ -225,7 +225,9 @@ This is inspired by [rlercobs](https://docs.rs/kolben/0.0.3/kolben/rlercobs/inde
 
 | Date | Version | Comment |
 | - | - | - |
-| 2022-MAR-15 | 0.1 | Initial Draft |
+| 2022-MAR-15 | 0.0 | Initial Draft |
+| 2022-MAR-15 | 0.1 | Minor corrections |
+
 - [*Trice*  Version 1.0 Specification (Draft)](#trice--version-10-specification-draft)
   - [1. <a name='Preface'></a>Preface](#1-preface)
   - [2. <a name='Compatibility'></a>Compatibility](#2-compatibility)
