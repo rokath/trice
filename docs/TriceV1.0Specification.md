@@ -178,7 +178,7 @@ This is inspired by [rlercobs](https://docs.rs/kolben/0.0.3/kolben/rlercobs/inde
   * N_1 = `000000001`
   * ...
   * N_63 = `00111111`
-* Zero sigil byte **Zn** = `1nnnoooo` = Z1-Z8 = Zn(1-16), 0000=16.
+* Zero sigil byte **Zn** = `1nnnoooo` = Z1-Z8
   * This sigil represents 1 to 8 zeroes in the data stream, and is a replacement to reduce data and keep the chain linked.
   * The remaining 4 bits encode the distance to the next sigil (1 <= n <= 16), 0000=16.
   * Z1 = `1000oooo`
@@ -187,12 +187,12 @@ This is inspired by [rlercobs](https://docs.rs/kolben/0.0.3/kolben/rlercobs/inde
     * Z1_15 = `10001111`
     * Z1_16 = `10000000`
   * ...
-  * Z8 = `1111oooo`, Z8(1-16)
+  * Z8 = `1111oooo`
     * Z8_1 = `11110001`
     * ...
     * Z8_15 = `11111111`
     * Z8_16 = `11110000`
-* Repeat sigil byte **Rn**: `01nnoooo` stays for 2-5 repetitions
+* Repeat sigil byte **Rn**: `01nnoooo` = R2-R5
   * This sigil represents 2 to 5 repetitions of previous byte in the data stream, and is a replacement to reduce data and keep the chain linked.
   * The remaining 4 bits encode the distance to the next sigil (1 <= n <= 16), 0000=16
   * R2 = `0100oooo`
