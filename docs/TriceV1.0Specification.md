@@ -1,4 +1,4 @@
-# Version 1.0 *Trice* (Draft)
+# *Trice*  Version 1.0 Specification (Draft)
 
 <!-- vscode-markdown-toc -->
 * 1. [Preface](#Preface)
@@ -13,6 +13,12 @@
 		* 6.2.2. [COBS encoding](#COBSencoding)
 	* 6.3. [Extended *Trices* as future option](#ExtendedTricesasfutureoption)
 	* 6.4. [Unknown user data](#Unknownuserdata)
+	* 6.5. [TCOBS *Trice* messages optimized COBS](#TCOBSTricemessagesoptimizedCOBS)
+	* 6.6. [Encoding](#Encoding)
+		* 6.6.1. [Assumptions](#Assumptions)
+		* 6.6.2. [Symbols](#Symbols-1)
+		* 6.6.3. [Examples](#Examples)
+* 7. [Changelog](#Changelog)
 
 <!-- vscode-markdown-toc-config
 	numbering=true
@@ -31,22 +37,24 @@ The with name "COBS" branded [current (2022-03) *Trice* encoding](./TriceMessage
 
 ##  2. <a name='Compatibility'></a>Compatibility
 
+* The *Trice* v0.48.0 user syntax will remain unchanged.
 * The legacy "COBS" branded [current (2022-03) *Trice* encoding](.TriceMessageEncoding.md) will stay unchanged as an option for compatibility. But it will not be the default encoding anymore. To use newer **trice** tool versions with legacy projects the CLI switch `-encoding LegacyCOBS` needs to be used.
 * The option `-sharedIDs` will be further available but depreciated to avoid location assignment issues.
 * Legacy projects which used the option `-sharedIDs` will still work even with a `li.json` file. A several times used ID will get an assignment of one of the locations.
 * The issue [#242 Add target context option](https://github.com/rokath/trice/issues/242) could get the label "wontfix". When a task ID is needed, it could be also a data value in such cases.
+* The same user source files usable with the legacy *Trice* COBS encoding and the proposed additional [TREX](#TREXTriceextendableencoding) encoding. The `#define TRICE_FILE Id(n)` is ignored when TREX is used.
 
 ##  3. <a name='Framing'></a>Framing
 
-Framing is done by again with COBS encoding, maybe with zeroes reduction like [RZCOBS](https://github.com/Dirbaio/rzcobs/blob/main/src/lib.rs) or simply as "ZCOBS" to minimize data transmission. Also [RLERCOBS](https://docs.rs/kolben/0.0.3/kolben/rlercobs/index.html) could be an option. Several *Trices* can be in one COBS package, but for robustness each *Trice* gets its own TCOBS package.. User data are in separate COBS packages. See TCOBS proposal below.
+Framing is will be done by with [TCOBS](#TCOBSTricemessagesoptimizedCOBS) for data reduction. For robustness each *Trice* gets its own TCOBS package. User data are in separate TCOBS packages. See TCOBS proposal below.
 
 ##  4. <a name='TriceIDlisttil.json'></a>*Trice* ID list `til.json`
 
-This file integrates further all firmware variants and versions as the legacy **trice** tool does. For the optional *Trice* extensions implementation (see below) a `til.json` format extension is needed because several files are unhandy.
+This file integrates all firmware variants and versions as the legacy **trice** tool does. For the implementation of the optional *Trice* extensions (see below), a `til.json` format extension is needed because several files are unhandy. Both `til.json` formats will be accepted in the future.
 
 ##  5. <a name='Tricelocationinformationfileli.json'></a>*Trice* location information file `li.json`
 
-The location information goes not into the `til.json` file. In the field the location information is normally useless and easy outdated. The software developer is the one, mostly interested in the location information. So, if the `li.json` is generated and therefore available, the **trice** tool automatically displays file name and line number. When the firmware left the developer table, only the file `til.json` is of interest. The **trice** tool will silently not display location information, if the `li.json` file is not found. For in-field logging, the usage of option `-showID string` could be used. This allows later an easy location of the relevant source code. Also the planned `-binaryLogfile` option is possible. See [issue #267 Add `-binaryLogfile` option](https://github.com/rokath/trice/issues/267). It allows a replay of the logs and the developer can provide the right version of the `li.json` file.
+With [TREX](#TREXTriceextendableencoding) encoding the location information needs no transmission anymore but goes not into the `til.json` file. In the field the location information is normally useless and easy outdated. The software developer is the one, mostly interested in the location information. So, if the `li.json` is generated and therefore available, the **trice** tool automatically displays file name and line number. When the firmware left the developer table, only the file `til.json` is of interest. The **trice** tool will silently not display location information, if the `li.json` file is not found. For in-field logging, the usage of option `-showID string` could be used. This allows later an easy location of the relevant source code. Also the planned `-binaryLogfile` option is possible. See [issue #267 Add `-binaryLogfile` option](https://github.com/rokath/trice/issues/267). It allows a replay of the logs and the developer can provide the right version of the `li.json` file.
 
 ##  6. <a name='TREXTriceextendableencoding'></a>TREX (*Trice* extendable) encoding
 
@@ -144,41 +152,43 @@ If for special cases, the main stream encoding is not sufficient, the user can a
 * Unknown user data have an unknown length. Therefore they cannot share a COBS packet with *Trices*.
 * Unknown user data packets do not affect the cycle counter. The can have their own cycle counter.
 
-### TCOBS *Trice* messages optimized COBS
+###  6.5. <a name='TCOBSTricemessagesoptimizedCOBS'></a>TCOBS *Trice* messages optimized COBS
 
-This is inspired by rlercobs with focus speed over compression.
+This is inspired by [rlercobs](https://docs.rs/kolben/0.0.3/kolben/rlercobs/index.html) with focus speed over compression.
 
-### Encoding
+###  6.6. <a name='Encoding'></a>Encoding
 
-* Encoding could be normal or reverse, what does not matter, because streaming data are not expected.
+* Encoding could be forward or reverse, what does not matter, because streaming data are not expected.
 * Chained sigil bytes are used.
-* Each package starts (ends) with a sigil byte.
+* Each package starts (forward) or ends (reverse) with a sigil byte.
 
-#### Assumptions
+####  6.6.1. <a name='Assumptions'></a>Assumptions
 
-* Most *Trices* are up to 16 bytes short.
+* Most *Trices* consist of 16 or less bytes.
 * Some *Trices* or user data are longer.
-* Zero is the most common byte but other bytes could be repeated too.
+* Zero is the most common byte (example:`00 00 00 05`) but other bytes could be repeated too.
 
-#### Legend
+####  6.6.2. <a name='Symbols-1'></a>Symbols
 
 * `o` = offset bit to next sigil byte
 * `n` = number bit
 * NOP sigil byte **N**: `00oooooo` = N(1 ... 63), `00000000` is forbidden.
-  * This does not represent data in the stream, and only serves to keep the chain linked.
+  * This does not represent data in the stream and only serves to keep the chain linked.
   * The remaining 6 bits encode the distance to the next sigil (1 <= n <= 63).
 * Zero sigil byte **Zn** = `1nnnoooo` = Z1-Z8 = Zn(1-16), 0000=16.
   * This sigil represents 1 to 8 zeroes in the data stream, and is a replacement to reduce data and keep the chain linked.
   * The remaining 4 bits encode the distance to the next sigil (1 <= n <= 16), 0000=16.
-  * Z1 = Zn with nnn = 000: `1000oooo`
-  * Z8 = Zn with nnn = 111: `1111oooo`
+  * Z1 = Zn with nnn = 000: `1000oooo`, Z1(1-16)
+  * ...
+  * Z8 = Zn with nnn = 111: `1111oooo`, Z8(1-16)
 * Repeat sigil byte **Rn**: `01nnoooo` stays for 2-5 repetitions
   * This sigil represents 2 to 5 repetitions of previous byte in the data stream, and is a replacement to reduce data and keep the chain linked.
   * The remaining 4 bits encode the distance to the next sigil (1 <= n <= 16), 0000=16
-  * R2 = R with nn = 00: `0100oooo`
-  * R5 = R with nn = 11: `0111oooo`
+  * R2 = R with nn = 00: `0100oooo`, R2(1-16)
+  * ...
+  * R5 = R with nn = 11: `0111oooo`, R5(1-16)
 
-#### Examples
+####  6.6.3. <a name='Examples'></a>Examples
 
 * Zero bytes:
   *  1 * 00 = Z1
@@ -211,6 +221,30 @@ This is inspired by rlercobs with focus speed over compression.
   * 12 * aa = aa R5 aa R5
   * ...
 
+##  7. <a name='Changelog'></a>Changelog
+
+| Date | Version | Comment |
+| - | - | - |
+| 2022-MAR-15 | 0.1 | Initial Draft |
+- [*Trice*  Version 1.0 Specification (Draft)](#trice--version-10-specification-draft)
+  - [1. <a name='Preface'></a>Preface](#1-preface)
+  - [2. <a name='Compatibility'></a>Compatibility](#2-compatibility)
+  - [3. <a name='Framing'></a>Framing](#3-framing)
+  - [4. <a name='TriceIDlisttil.json'></a>*Trice* ID list `til.json`](#4-trice-id-list-tiljson)
+  - [5. <a name='Tricelocationinformationfileli.json'></a>*Trice* location information file `li.json`](#5-trice-location-information-file-lijson)
+  - [6. <a name='TREXTriceextendableencoding'></a>TREX (*Trice* extendable) encoding](#6-trex-trice-extendable-encoding)
+    - [6.1. <a name='Symbols'></a>Symbols](#61-symbols)
+    - [6.2. <a name='Mainstreamlogs'></a>Main stream logs](#62-main-stream-logs)
+      - [6.2.1. <a name='Triceformat'></a>*Trice* format](#621-trice-format)
+      - [6.2.2. <a name='COBSencoding'></a>COBS encoding](#622-cobs-encoding)
+    - [6.3. <a name='ExtendedTricesasfutureoption'></a>Extended *Trices* as future option](#63-extended-trices-as-future-option)
+    - [6.4. <a name='Unknownuserdata'></a>Unknown user data](#64-unknown-user-data)
+    - [6.5. <a name='TCOBSTricemessagesoptimizedCOBS'></a>TCOBS *Trice* messages optimized COBS](#65-tcobs-trice-messages-optimized-cobs)
+    - [6.6. <a name='Encoding'></a>Encoding](#66-encoding)
+      - [6.6.1. <a name='Assumptions'></a>Assumptions](#661-assumptions)
+      - [6.6.2. <a name='Symbols-1'></a>Symbols](#662-symbols)
+      - [6.6.3. <a name='Examples'></a>Examples](#663-examples)
+  - [7. <a name='Changelog'></a>Changelog](#7-changelog)
 <!--
 Module kolben::rlercobs
 [−][src]
