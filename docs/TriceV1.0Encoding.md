@@ -148,6 +148,12 @@ If for special cases, the main stream encoding is not sufficient, the user can a
 
 This is inspired by rlercobs with focus speed over compression.
 
+### Encoding
+
+* Encoding could be normal or reverse, what does not matter, because streaming data are not expected.
+* Chained sigil bytes are used.
+* Each package starts (ends) with a sigil byte.
+
 #### Assumptions
 
 * Most *Trices* are up to 16 bytes short.
@@ -171,10 +177,6 @@ This is inspired by rlercobs with focus speed over compression.
   * The remaining 4 bits encode the distance to the next sigil (1 <= n <= 16), 0000=16
   * R2 = R with nn = 00: `0100oooo`
   * R5 = R with nn = 11: `0111oooo`
-
-### Encoding
-
-Encoding could be normal or reverse, what does not matter, because streaming data are not expected.
 
 #### Examples
 
