@@ -13,12 +13,11 @@
 		* 6.2.2. [COBS encoding](#COBSencoding)
 	* 6.3. [Extended *Trices* as future option](#ExtendedTricesasfutureoption)
 	* 6.4. [Unknown user data](#Unknownuserdata)
-	* 6.5. [TCOBS *Trice* messages optimized COBS](#TCOBSTricemessagesoptimizedCOBS)
-	* 6.6. [Encoding](#Encoding)
-		* 6.6.1. [Assumptions](#Assumptions)
-		* 6.6.2. [Symbols](#Symbols-1)
-		* 6.6.3. [Examples](#Examples)
-* 7. [Changelog](#Changelog)
+* 7. [TCOBS *Trice* messages optimized COBS](#TCOBSTricemessagesoptimizedCOBS)
+	* 7.1. [Assumptions](#Assumptions)
+	* 7.2. [Symbols](#Symbols-1)
+	* 7.3. [Examples](#Examples)
+* 8. [Changelog](#Changelog)
 
 <!-- vscode-markdown-toc-config
 	numbering=true
@@ -152,23 +151,21 @@ If for special cases, the main stream encoding is not sufficient, the user can a
 * Unknown user data have an unknown length. Therefore they cannot share a COBS packet with *Trices*.
 * Unknown user data packets do not affect the cycle counter. The can have their own cycle counter.
 
-###  6.5. <a name='TCOBSTricemessagesoptimizedCOBS'></a>TCOBS *Trice* messages optimized COBS
+##  7. <a name='TCOBSTricemessagesoptimizedCOBS'></a>TCOBS *Trice* messages optimized COBS
 
 This is inspired by [rlercobs](https://docs.rs/kolben/0.0.3/kolben/rlercobs/index.html) with focus speed over compression.
 
-###  6.6. <a name='Encoding'></a>Encoding
-
 * Encoding could be forward or reverse, what does not matter, because streaming data are not expected.
-* Chained sigil bytes are used - 3 different sigil bytes ade defined.
+* Chained sigil bytes are used - 3 different sigil bytes are defined.
 * Each package starts (forward) or ends (reverse) with a sigil byte as configured.
 
-####  6.6.1. <a name='Assumptions'></a>Assumptions
+###  7.1. <a name='Assumptions'></a>Assumptions
 
 * Most *Trices* consist of 16 or less bytes.
 * Some *Trices* or user data are longer.
 * Zero is the most common byte (example:`00 00 00 05`) but other bytes could be repeated too.
 
-####  6.6.2. <a name='Symbols-1'></a>Symbols
+###  7.2. <a name='Symbols-1'></a>Symbols
 
 * `o` = offset bit to next sigil byte
 * `n` = number bit
@@ -207,7 +204,7 @@ This is inspired by [rlercobs](https://docs.rs/kolben/0.0.3/kolben/rlercobs/inde
     * R2_15 = `01111111`
     * R2_16 = `01110000`
 
-####  6.6.3. <a name='Examples'></a>Examples
+###  7.3. <a name='Examples'></a>Examples
 
 * Zero bytes:
   *  1 * 00 = Z1
@@ -240,7 +237,7 @@ This is inspired by [rlercobs](https://docs.rs/kolben/0.0.3/kolben/rlercobs/inde
   * 12 * aa = aa R5 aa R5
   * ...
 
-##  7. <a name='Changelog'></a>Changelog
+##  8. <a name='Changelog'></a>Changelog
 
 | Date | Version | Comment |
 | - | - | - |
@@ -261,12 +258,11 @@ This is inspired by [rlercobs](https://docs.rs/kolben/0.0.3/kolben/rlercobs/inde
       - [6.2.2. <a name='COBSencoding'></a>COBS encoding](#622-cobs-encoding)
     - [6.3. <a name='ExtendedTricesasfutureoption'></a>Extended *Trices* as future option](#63-extended-trices-as-future-option)
     - [6.4. <a name='Unknownuserdata'></a>Unknown user data](#64-unknown-user-data)
-    - [6.5. <a name='TCOBSTricemessagesoptimizedCOBS'></a>TCOBS *Trice* messages optimized COBS](#65-tcobs-trice-messages-optimized-cobs)
-    - [6.6. <a name='Encoding'></a>Encoding](#66-encoding)
-      - [6.6.1. <a name='Assumptions'></a>Assumptions](#661-assumptions)
-      - [6.6.2. <a name='Symbols-1'></a>Symbols](#662-symbols)
-      - [6.6.3. <a name='Examples'></a>Examples](#663-examples)
-  - [7. <a name='Changelog'></a>Changelog](#7-changelog)
+  - [7. <a name='TCOBSTricemessagesoptimizedCOBS'></a>TCOBS *Trice* messages optimized COBS](#7-tcobs-trice-messages-optimized-cobs)
+    - [7.1. <a name='Assumptions'></a>Assumptions](#71-assumptions)
+    - [7.2. <a name='Symbols-1'></a>Symbols](#72-symbols)
+    - [7.3. <a name='Examples'></a>Examples](#73-examples)
+  - [8. <a name='Changelog'></a>Changelog](#8-changelog)
 <!--
 Module kolben::rlercobs
 [−][src]
