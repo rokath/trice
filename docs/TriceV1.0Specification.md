@@ -14,9 +14,11 @@
 	* 6.3. [Extended *Trices* as future option](#ExtendedTricesasfutureoption)
 	* 6.4. [Unknown user data](#Unknownuserdata)
 * 7. [TCOBS *Trice* messages optimized COBS](#TCOBSTricemessagesoptimizedCOBS)
-	* 7.1. [Assumptions](#Assumptions)
-	* 7.2. [Symbols](#Symbols-1)
-	* 7.3. [Examples](#Examples)
+	* 7.1. [Forward versus backward COBS encoding](#ForwardversusbackwardCOBSencoding)
+	* 7.2. [Data disruption detection](#Datadisruptiondetection)
+	* 7.3. [Assumptions](#Assumptions)
+	* 7.4. [Symbols](#Symbols-1)
+	* 7.5. [Examples](#Examples)
 * 8. [Changelog](#Changelog)
 
 <!-- vscode-markdown-toc-config
@@ -155,18 +157,29 @@ If for special cases, the main stream encoding is not sufficient, the user can a
 
 This is inspired by [rlercobs](https://docs.rs/kolben/0.0.3/kolben/rlercobs/index.html) with focus speed over compression.
 
-* Encoding could be forward or reverse, what does not matter, because streaming data are not expected.
-* Chained sigil bytes are used - 3 different sigil bytes are defined.
-* Each package starts with a sigil byte (forward encoding).
-* Discussion of forward versus backward COBS encoding: A reverse encoding would be easier for the target code if streaming data. *Trice* packages are no streaming data. In case of data disruption of reverse encoded data, the receiver can grab at the end of the disrupted COBS package a wrong byte as sigil byte and get lost. When the data are forward encoded the receiver could detect missing bytes at the end of the disrupted package. But anyway it can grab a data byte as sigil byte, when data appear again and the package start is missing. There is a high chance for detection of such case when the expected byte count does not match. The TCOBS decoder must be able such cases. An additional CRC, like a simple XOR byte could be added.
+###  7.1. <a name='ForwardversusbackwardCOBSencoding'></a>Forward versus backward COBS encoding
 
-###  7.1. <a name='Assumptions'></a>Assumptions
+* A reverse encoding would be easier for the target code if streaming data, but *Trice* packages are no streaming data.
+* In case of data disruption, the receiver will wait for the next 0-delimiter byte. As a result it will get a packet start and an end of a different package. For the decoder it makes no difference if the COBS packages start or end with a sigil byte. In any case it will run into issues in such case.
+  * An additional CRC, like a simple XOR byte could be added but would not really help.
+* An in-place forward encoding looks easier and is more straightforward because of the *Trice* count information N, the padding bytes and possibly queued *Trices*.
+* Therefore TCOBS uses forward encoding. Each package starts with a sigil byte.
+* Chained sigil bytes are used - 3 different sigil bytes are defined. (see below)
+
+###  7.2. <a name='Datadisruptiondetection'></a>Data disruption detection
+
+* The receiver calls continuously a `Read()` function.
+* The received buffer can contain 0-delimited COBS packages and the receiver assumes them all to be valid because there is no known significant time delay between package start and end.
+* If a package start was received and the next package end reception is more than ~100ms away, a data disruption is likely and the receiver should ignore these data.
+* Of course, when the receiver starts, the first buffer can contain broken COBS data, but we have to live with that on a PC.
+
+###  7.3. <a name='Assumptions'></a>Assumptions
 
 * Most *Trices* consist of 16 or less bytes.
 * Some *Trices* or user data are longer.
 * Zero is the most common byte (example:`00 00 00 05`) but other bytes could be repeated too.
 
-###  7.2. <a name='Symbols-1'></a>Symbols
+###  7.4. <a name='Symbols-1'></a>Symbols
 
 * `o` = offset bit to next sigil byte
 * `n` = number bit
@@ -205,7 +218,7 @@ This is inspired by [rlercobs](https://docs.rs/kolben/0.0.3/kolben/rlercobs/inde
     * R2_15 = `01111111`
     * R2_16 = `01110000`
 
-###  7.3. <a name='Examples'></a>Examples
+###  7.5. <a name='Examples'></a>Examples
 
 * Zero bytes:
   *  1 * 00 = Z1
@@ -243,9 +256,10 @@ This is inspired by [rlercobs](https://docs.rs/kolben/0.0.3/kolben/rlercobs/inde
 | Date | Version | Comment |
 | - | - | - |
 | 2022-MAR-15 | 0.0 | Initial Draft |
-| 2022-MAR-15 | 0.1 | Minor corrections |
-| 2022-MAR-15 | 0.2 | Sigil byte encoding clarified |
-| 2022-MAR-15 | 0.3 | Forward versus backward COBS encoding discussion |
+| 2022-MAR-15 | 0.1 | Minor corrections applied. |
+| 2022-MAR-15 | 0.2 | Sigil byte encoding clarified. |
+| 2022-MAR-15 | 0.3 | Forward versus backward COBS encoding discussion inserted. |
+| 2022-MAR-15 | 0.4 | Forward versus backward COBS encoding reworked. Disruption detection added. |
 
 - [*Trice*  Version 1.0 Specification (Draft)](#trice--version-10-specification-draft)
   - [1. <a name='Preface'></a>Preface](#1-preface)
@@ -261,9 +275,11 @@ This is inspired by [rlercobs](https://docs.rs/kolben/0.0.3/kolben/rlercobs/inde
     - [6.3. <a name='ExtendedTricesasfutureoption'></a>Extended *Trices* as future option](#63-extended-trices-as-future-option)
     - [6.4. <a name='Unknownuserdata'></a>Unknown user data](#64-unknown-user-data)
   - [7. <a name='TCOBSTricemessagesoptimizedCOBS'></a>TCOBS *Trice* messages optimized COBS](#7-tcobs-trice-messages-optimized-cobs)
-    - [7.1. <a name='Assumptions'></a>Assumptions](#71-assumptions)
-    - [7.2. <a name='Symbols-1'></a>Symbols](#72-symbols)
-    - [7.3. <a name='Examples'></a>Examples](#73-examples)
+    - [7.1. <a name='ForwardversusbackwardCOBSencoding'></a>Forward versus backward COBS encoding](#71-forward-versus-backward-cobs-encoding)
+    - [7.2. <a name='Datadisruptiondetection'></a>Data disruption detection](#72-data-disruption-detection)
+    - [7.3. <a name='Assumptions'></a>Assumptions](#73-assumptions)
+    - [7.4. <a name='Symbols-1'></a>Symbols](#74-symbols)
+    - [7.5. <a name='Examples'></a>Examples](#75-examples)
   - [8. <a name='Changelog'></a>Changelog](#8-changelog)
 <!--
 Module kolben::rlercobs
