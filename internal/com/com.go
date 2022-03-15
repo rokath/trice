@@ -8,6 +8,8 @@ package com
 import (
 	"fmt"
 	"io"
+	"log"
+	"strings"
 	"time"
 
 	serialtarm "github.com/tarm/serial"
@@ -17,6 +19,15 @@ import (
 var (
 	// Baud is the configured baudrate of the serial port. It is set as command line parameter.
 	Baud int
+
+	// Databits is the serial port bit count fpr one "byte".
+	Databits int
+
+	// Parity is the transmitted bit parity: even, odd, none
+	Parity string
+
+	// stopbits is the number of stop bits: "1", "1.5", "2"
+	Stopbits string
 
 	// Verbose shows additional information if set true.
 	// Verbose bool
@@ -48,6 +59,31 @@ func NewCOMPortGoBugSt(w io.Writer, verbose bool, comPortName string) *PortGoBug
 			Parity:   serialgobugst.NoParity,
 			StopBits: serialgobugst.OneStopBit,
 		},
+	}
+	if 5 <= Databits && Databits <= 9 {
+		r.serialMode.DataBits = Databits
+	} else {
+		log.Fatalf("Invalid databits value %d. Valid are 5-9\n", Databits)
+	}
+	switch strings.ToLower(Parity) {
+	case "o", "odd":
+		r.serialMode.Parity = serialgobugst.OddParity
+	case "e", "even":
+		r.serialMode.Parity = serialgobugst.EvenParity
+	case "n", "none":
+		r.serialMode.Parity = serialgobugst.NoParity
+	default:
+		log.Fatalf(" Unknown parity value \"%s\". Valid are \"odd\", \"even\". \"none\"\n", Parity)
+	}
+	switch strings.ToLower(Stopbits) {
+	case "1", "one":
+		r.serialMode.StopBits = serialgobugst.OneStopBit
+	case "1.5":
+		r.serialMode.StopBits = serialgobugst.OnePointFiveStopBits
+	case "2", "two":
+		r.serialMode.StopBits = serialgobugst.TwoStopBits
+	default:
+		log.Fatalf(" Unknown stop bits value \"%s\". Valid are \"1\", \"1.5\". \"2\"\n", Parity)
 	}
 	r.w = w
 	r.verbose = verbose
@@ -126,6 +162,33 @@ func NewCOMPortTarm(w io.Writer, verbose bool, comPortName string) *PortTarm {
 	if p.verbose {
 		fmt.Fprintln(w, "NewCOMPortTarm:", p.config)
 	}
+	if 5 <= Databits && Databits <= 9 {
+		p.config.Size = byte(Databits)
+	} else {
+		log.Fatalf("Invalid databits value %d. Valid are 5-9\n", Databits)
+	}
+
+	switch strings.ToLower(Parity) {
+	case "o", "odd":
+		p.config.Parity = serialtarm.ParityOdd
+	case "e", "even":
+		p.config.Parity = serialtarm.ParityEven
+	case "n", "none":
+		p.config.Parity = serialtarm.ParityNone
+	default:
+		log.Fatalf(" Unknown parity value \"%s\". Valid are \"odd\", \"even\". \"none\"\n", Parity)
+	}
+	switch strings.ToLower(Stopbits) {
+	case "1", "one":
+		p.config.StopBits = serialtarm.Stop1
+	case "1.5":
+		p.config.StopBits = serialtarm.Stop1Half
+	case "2", "two":
+		p.config.StopBits = serialtarm.Stop2
+	default:
+		log.Fatalf(" Unknown stop bits value \"%s\". Valid are \"1\", \"1.5\". \"2\"\n", Parity)
+	}
+
 	return p
 }
 

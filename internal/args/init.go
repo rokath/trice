@@ -115,7 +115,9 @@ Using a virtual serial COM port on the PC over a FTDI USB adapter is a most like
 	fsScLog.IntVar(&com.Baud, "baud", 115200, `Set the serial port baudrate.
 It is the only setup parameter. The other values default to 8N1 (8 data bits, no parity, one stopbit).
 `)
-
+	fsScLog.IntVar(&com.Databits, "databits", 8, `Set the serial port databits, options: 7, 9`)
+	fsScLog.StringVar(&com.Parity, "parity", "none", `Serial port bit parity value, options: odd, even`) // flag
+	fsScLog.StringVar(&com.Stopbits, "stopbits", "1", `Serial port stopbit, options: 1.5, 2`)            // flag
 	linkArgsInfo := `
 	The -RTTSearchRanges "..." need to be written without "" and with _ instead of space.
 	For args options see JLinkRTTLogger in SEGGER UM08001_JLink.pdf.`

@@ -114,6 +114,7 @@ func (p *Device) Open() error {
 	p.cmd = exec.Command(p.Exec, p.args...)
 
 	if Verbose {
+		fmt.Println(p.cmd)
 		p.cmd.Stdout = os.Stdout
 		p.cmd.Stderr = os.Stderr
 	}
