@@ -232,11 +232,11 @@ This is inspired by [rlercobs](https://docs.rs/kolben/0.0.3/kolben/rlercobs/inde
   * 23 * 00 = Z8 Z8 Z7
   * 24 * 00 = Z8 R2
   * ...
-  * 39 * 00 = Z8 R3 Z7
-  * 40 * 00 = Z8 R4
-  * 41 * 00 = Z8 R4 Z1
+  * 47 * 00 = Z8 R4 Z7
+  * 48 * 00 = Z8 R5
+  * 49 * 00 = Z8 R5 Z1 (begin again)
   * ...
-  * 49 * 00 = Z8 R4 Z8 Z1
+  * 57 * 00 = Z8 R5 Z8 Z1
   * ...
 
 * non zero bytes:
@@ -245,7 +245,7 @@ This is inspired by [rlercobs](https://docs.rs/kolben/0.0.3/kolben/rlercobs/inde
   *  3 * aa = aa R2
   * ...
   *  6 * aa = aa R5
-  *  7 * aa = aa R5 aa
+  *  7 * aa = aa R5 aa (begin again)
   *  8 * aa = aa R5 aa aa
   * ...
   * 12 * aa = aa R5 aa R5
@@ -260,7 +260,8 @@ This is inspired by [rlercobs](https://docs.rs/kolben/0.0.3/kolben/rlercobs/inde
 | 2022-MAR-15 | 0.2 | Sigil byte encoding clarified. |
 | 2022-MAR-15 | 0.3 | Forward versus backward COBS encoding discussion inserted. |
 | 2022-MAR-15 | 0.4 | Forward versus backward COBS encoding reworked. Disruption detection added. |
-
+| 2022-MAR-15 | 0.5 | Minor corrections |
+ 
 - [*Trice*  Version 1.0 Specification (Draft)](#trice--version-10-specification-draft)
   - [1. <a name='Preface'></a>Preface](#1-preface)
   - [2. <a name='Compatibility'></a>Compatibility](#2-compatibility)
