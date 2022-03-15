@@ -172,6 +172,10 @@ This is inspired by rlercobs with focus speed over compression.
   * R2 = R with nn = 00: `0100oooo`
   * R5 = R with nn = 11: `0111oooo`
 
+### Encoding
+
+Encoding could be normal or reverse, what does not matter, because streaming data are not expected.
+
 #### Examples
 
 * Zero bytes:
