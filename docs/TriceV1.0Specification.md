@@ -159,7 +159,7 @@ This is inspired by [rlercobs](https://docs.rs/kolben/0.0.3/kolben/rlercobs/inde
 ###  6.6. <a name='Encoding'></a>Encoding
 
 * Encoding could be forward or reverse, what does not matter, because streaming data are not expected.
-* Chained sigil bytes are used.
+* Chained sigil bytes are used - 3 different sigil bytes ade defined.
 * Each package starts (forward) or ends (reverse) with a sigil byte as configured.
 
 ####  6.6.1. <a name='Assumptions'></a>Assumptions
