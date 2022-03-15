@@ -175,25 +175,34 @@ This is inspired by rlercobs with focus speed over compression.
 #### Examples
 
 * Zero bytes:
-  * 00 = Z1
-  * 00 00 = Z2
-  * 00 00 00 = Z3
-  * 00 00 00 00 = Z4
-  * 00 00 00 00 00 = Z5
-  * 00 00 00 00 00 00 = Z6
-  * 00 00 00 00 00 00 00 = Z7
-  * 00 00 00 00 00 00 00 00 = Z8
-  * 00 00 00 00 00 00 00 00 00 = Z8 Z1
+  *  1 * 00 = Z1
   * ...
+  *  8 * 00 = Z8
+  *  9 * 00 = Z8 Z1
+  * ...
+  * 16 * 00 = Z8 Z8 
+  * 17 * 00 = Z8 Z8 Z1
+  * ...
+  * 23 * 00 = Z8 Z8 Z7
+  * 24 * 00 = Z8 R2
+  ...
+  * 39 * 00 = Z8 R3 Z7
+  * 40 * 00 = Z8 R4
+  * 41 * 00 = Z8 R4 Z1
+  ...
+  * 49 * 00 = Z8 R4 Z8 Z1
+  * ...
+
 * non zero bytes:
-  * aa = aa
-  * aa aa = aa aa
-  * aa aa aa = aa R2
-  * aa aa aa aa = aa R3
-  * aa aa aa aa aa = aa R4
-  * aa aa aa aa aa aa = aa R5
-  * aa aa aa aa aa aa aa = aa R5 aa
+  *  1 * aa = aa
+  *  2 * aa = aa aa
+  *  3 * aa = aa R2
   * ...
+  *  6 * aa = aa R5
+  *  7 * aa = aa R5 aa
+  *  8 * aa = aa R5 aa aa
+  * ...
+  * 12 * aa = aa R5 aa R5
 
 <!--
 Module kolben::rlercobs
