@@ -50,7 +50,7 @@ Framing is will be done by with [TCOBS](#TCOBSTricemessagesoptimizedCOBS) for da
 
 ##  4. <a name='TriceIDlisttil.json'></a>*Trice* ID list `til.json`
 
-This file integrates all firmware variants and versions as the legacy **trice** tool does. For the implementation of the optional *Trice* extensions (see below), a `til.json` format extension is needed because several files are unhandy. Both `til.json` formats will be accepted in the future.
+This file integrates all firmware variants and versions as v0.48.0 does. For the implementation of the optional *Trice* extensions (see below), a `til.json` format extension is needed because several files are unhandy. Both `til.json` formats will be accepted in the future.
 
 ##  5. <a name='Tricelocationinformationfileli.json'></a>*Trice* location information file `li.json`
 
