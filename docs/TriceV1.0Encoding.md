@@ -148,24 +148,30 @@ If for special cases, the main stream encoding is not sufficient, the user can a
 
 This is inspired by rlercobs with focus speed over compression.
 
-#### Conditions
+#### Assumptions
 
-* Most *Trices* are 4 to 16 bytes short.
+* Most *Trices* are up to 16 bytes short.
 * Some *Trices* are 20 to 40 bytes long.
-* Few *Trices* up to 1008 bytes long.
-* Zero is the most common byte
+* Few *Trices* or user data are longer.
+* Zero is the most common byte but other bytes could repeated too.
 
 #### Legend
 
 * `o` = offset bit to next sigil byte
 * `n` = number bit
-* N sigil `00oooooo` 1-63
-* Z sigil `1nnnoooo` stays for 1-8 zeroes Z1-Z8
-* R sigil `01nnoooo` stays for 2-5 repetitions
-* Z1 = Z with nnn = 000: `1000oooo`
-* Z8 = Z with nnn = 111: `1111oooo`
-* R2 = R with nn = 00: `0100oooo`
-* R5 = R with nn = 11: `0111oooo`
+* NOP sigil byte **N**: `00oooooo` = N(1 ... 63), `00000000` is forbidden.
+  * This does not represent data in the stream, and only serves to keep the chain linked.
+  * The remaining six bits encode the distance to the previous sigil (1 <= n <= 63).
+* Zero sigil byte **Zn** = `1nnnoooo` = Z1-Z8 = Zn(1-15), `1nnn0000` are reserved.
+  * This sigil represents 1 to 8 zeroes in the data stream, and has been replaced to reduce data and keep the chain linked.
+  * The remaining six bits encode the distance back to the previous sigil (1 <= n <= 63).
+  * Z1 = Zn with nnn = 000: `1000oooo`
+  * Z8 = Zn with nnn = 111: `1111oooo`
+* Repeat sigil byte **Rn**: `01nnoooo` stays for 2-5 repetitions
+  * This sigil represents 2 to 5 repetitions of previous byte in the data stream, and has been replaced to reduce data and keep the chain linked.
+  * The remaining six bits encode the distance back to the previous sigil (1 <= n <= 63)
+  * R2 = R with nn = 00: `0100oooo`
+  * R5 = R with nn = 11: `0111oooo`
 
 #### Examples
 
