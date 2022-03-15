@@ -160,7 +160,7 @@ This is inspired by rlercobs with focus speed over compression.
 * `n` = number bit
 * NOP sigil byte **N**: `00oooooo` = N(1 ... 63), `00000000` is forbidden.
   * This does not represent data in the stream, and only serves to keep the chain linked.
-  * The remaining six bits encode the distance to the previous sigil (1 <= n <= 63).
+  * The remaining six bits encode the distance to the next sigil (1 <= n <= 63).
 * Zero sigil byte **Zn** = `1nnnoooo` = Z1-Z8 = Zn(1-15), `1nnn0000` are reserved.
   * This sigil represents 1 to 8 zeroes in the data stream, and has been replaced to reduce data and keep the chain linked.
   * The remaining six bits encode the distance back to the previous sigil (1 <= n <= 63).
@@ -168,7 +168,7 @@ This is inspired by rlercobs with focus speed over compression.
   * Z8 = Zn with nnn = 111: `1111oooo`
 * Repeat sigil byte **Rn**: `01nnoooo` stays for 2-5 repetitions
   * This sigil represents 2 to 5 repetitions of previous byte in the data stream, and has been replaced to reduce data and keep the chain linked.
-  * The remaining six bits encode the distance back to the previous sigil (1 <= n <= 63)
+  * The remaining six bits encode the distance back to the next sigil (1 <= n <= 63)
   * R2 = R with nn = 00: `0100oooo`
   * R5 = R with nn = 11: `0111oooo`
 
