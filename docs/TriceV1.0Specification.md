@@ -37,7 +37,7 @@ The with name "COBS" branded [current (2022-03) *Trice* encoding](./TriceMessage
 
 ##  2. <a name='Compatibility'></a>Compatibility
 
-* The *Trice* v0.48.0 user syntax will remain unchanged.
+* The *Trice* v0.48.0 user syntax will remain mainly unchanged. The letter case of the ID codes the target timestamp size. (see below)
 * The legacy "COBS" branded [current (2022-03) *Trice* encoding](.TriceMessageEncoding.md) will stay unchanged as an option for compatibility. But it will not be the default encoding anymore. To use newer **trice** tool versions with legacy projects the CLI switch `-encoding LegacyCOBS` needs to be used.
 * The option `-sharedIDs` will be further available but depreciated to avoid location assignment issues.
 * Legacy projects which used the option `-sharedIDs` will still work even with a `li.json` file. A several times used ID will get an assignment of one of the locations.
