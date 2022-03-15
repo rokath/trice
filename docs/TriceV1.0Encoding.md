@@ -203,6 +203,7 @@ This is inspired by rlercobs with focus speed over compression.
   *  8 * aa = aa R5 aa aa
   * ...
   * 12 * aa = aa R5 aa R5
+  * ...
 
 <!--
 Module kolben::rlercobs
