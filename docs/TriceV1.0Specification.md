@@ -203,8 +203,9 @@ This is inspired by [rlercobs](https://docs.rs/kolben/0.0.3/kolben/rlercobs/inde
     * ...
     * Z8_15 = `11111111`
     * Z8_16 = `11110000`
-* Repeat sigil byte **Rn**: `01nnoooo` = R2-R5
+* Repeat sigil byte **Rn**: `01nnoooo` = R2,R3,R4,R5
   * This sigil represents 2 to 5 repetitions of previous byte in the data stream, and is a replacement to reduce data and keep the chain linked.
+    * Alternatively prime numbers allow better compression especially for longer sequences.
   * The remaining 4 bits encode the distance to the next sigil (1 <= n <= 16), 0000=16
   * R2 = `0100oooo`
     * R2_1 = `01000001`
@@ -213,10 +214,10 @@ This is inspired by [rlercobs](https://docs.rs/kolben/0.0.3/kolben/rlercobs/inde
     * R2_16 = `01000000`
   * ...
   * R5 = `0111oooo`
-    * R2_1 = `01110001`
+    * R5_1 = `01110001`
     * ...
-    * R2_15 = `01111111`
-    * R2_16 = `01110000`
+    * R5_15 = `01111111`
+    * R5_16 = `01110000`
 
 ###  7.5. <a name='Examples'></a>Examples
 
@@ -245,7 +246,7 @@ This is inspired by [rlercobs](https://docs.rs/kolben/0.0.3/kolben/rlercobs/inde
   *  3 * aa = aa R2
   * ...
   *  6 * aa = aa R5
-  *  7 * aa = aa R5 aa (begin again) = aa R2 R3
+  *  7 * aa = aa R5 aa = aa R2 R3
   *  8 * aa = aa R5 aa aa
   *  9 * aa = aa R2 R4
   * 10 * aa = aa R3 R3
@@ -260,6 +261,107 @@ This is inspired by [rlercobs](https://docs.rs/kolben/0.0.3/kolben/rlercobs/inde
   * 125 * aa = aa R5 R5 R4 + 24 * aa
   * 126 * aa = aa R5 R5 R5 
 
+<!-- ###  7.6. <a name='Approach2primenumbers'></a>Approach 2 (prime numbers)
+
+* `o` = offset bit to next sigil byte
+* `n` = number bit
+
+N: 00oooooo
+Z: 1nnnoooo
+R: 01nnoooo R2, R3, R5, R7
+
+* aa stays for non zero bytes. aa aa for two equal non zero bytes.
+* An aa following repeat sigil byte means additional 2, 3, 5, or 7 aa bytes.
+* Neighbor repeat sigil bytes are multiplied and added.
+* Neighbor sigil bytes join their offset bits for bigger possible distances.
+* Coding Table
+| count   | multiply          |
+| -       | -                 |
+|  1 * aa | aa                |
+|  2 * aa | aa aa             |
+|  3 * aa | aa F2             |
+|  4 * aa | aa F3             |
+|  5 * aa | aa F2 F2          |
+|  6 * aa | aa F5             |
+|  7 * aa | aa F2 F3          |
+|  8 * aa | aa F7             |
+|  9 * aa | aa F7 aa          |
+| 10 * aa | aa F3 F3          |
+| 11 * aa | aa F5 F2          |
+| 12 * aa | aa F5 F2 aa       |
+| 13 * aa | aa F3 F2 F2       |
+| 14 * aa | aa F7 aa F5       |
+| 15 * aa | aa F7 F2          |
+| 16 * aa | aa F5 F3          |
+| 17 * aa | aa F5 F3 aa       |
+| 18 * aa | aa F5 F3 aa aa    |
+| 19 * aa | aa F5 F3 aa F2    |
+| 20 * aa | aa F5 F3 aa F3    |
+| 21 * aa | aa F5 F2 F2       |
+| 22 * aa | aa F7 F3          |
+| 23 * aa | aa F7 F3 aa       |
+| 24 * aa | aa F7 F3 aa aa    |
+| 25 * aa | aa F7 F3 aa F2    |
+| 26 * aa | aa F5 F5          |
+| 27 * aa | aa F5 F5 aa       |
+| 28 * aa | aa F3 F3 F3       |
+| 29 * aa | aa F7 F2 F2       |
+| 30 * aa | aa F7 F2 F2 aa    |
+| 31 * aa | aa F5 F3 F2       |
+| 32 * aa | aa F5 F3 F2 aa    |
+| 33 * aa | aa F5 F3 F2 aa aa |
+| 34 * aa | aa F5 F3 F2 aa F2 |
+| 35 * aa | aa F5 F3 F2 aa F3 |
+| 36 * aa | aa F7 F5          |
+| 37 * aa | aa F7 F5 aa       |
+| ...     |                   |
+|244 * aa | aa F7 F7 F7       |
+| ...     |                   |
+
+<!--  It is better to use a multiply operations for bigger numbers. This needs a table for fast conversion.-->
+ <!-- add                  | -->
+ <!-- -                    | -->
+ <!-- aa                   | -->
+ <!-- aa aa                | -->
+ <!-- aa R2                | -->
+ <!-- aa R3                | -->
+ <!-- aa R3 R2             | -->
+ <!-- aa R5                | -->
+ <!-- aa R3 R3             | -->
+ <!-- aa R7                | -->
+ <!-- aa R7 aa             | -->
+ <!-- aa R7 R2             | -->
+ <!-- aa R5 R5             | -->
+ <!-- aa R5 R5 aa          | -->
+ <!-- aa R7 R5             | -->
+ <!-- aa R7 R5 aa          | -->
+ <!-- aa R7 R7             | -->
+ <!-- aa R7 R7 aa          | -->
+ <!-- aa R7 R7 R2          | -->
+ <!-- aa R7 R7 R3          | -->
+ <!-- aa R7 R7 R3 aa       | -->
+ <!-- aa R7 R7 R5          | -->
+ <!-- aa R7 R7 R5 aa       | -->
+ <!-- aa R7 R7 R7          | -->
+ <!-- aa R7 R7 R7 aa       | -->
+ <!-- aa R7 R7 R7 aa aa    | -->
+ <!-- aa R7 R7 R7 aa R2    | -->
+ <!-- aa R7 R7 R7 aa R3    | -->
+ <!-- aa R7 R7 R7 R5       | -->
+ <!-- aa R7 R7 R7 R5 aa    | -->
+ <!-- aa R7 R7 R7 R7       | -->
+ <!-- aa R7 R7 R7 R7 aa    | -->
+ <!-- aa R7 R7 R7 R7 aa aa | -->
+ <!-- aa R7 R7 R7 R7 aa R2 | -->
+ <!-- aa R7 R7 R7 R7 aa R3 | -->
+ <!-- aa R7 R7 R7 R7 aa R3 | -->
+ <!-- aa R7 R7 R7 R7 R5    | -->
+ <!-- aa R7 R7 R7 R7 R5    | -->
+ <!-- aa R7 R7 R7 R7 R5 aa | -->
+ <!--                      | -->
+ <!--                      | -->
+ <!--                      | -->
+
 ##  8. <a name='Changelog'></a>Changelog
 
 | Date | Version | Comment |
@@ -270,6 +372,7 @@ This is inspired by [rlercobs](https://docs.rs/kolben/0.0.3/kolben/rlercobs/inde
 | 2022-MAR-15 | 0.3 | Forward versus backward COBS encoding discussion inserted. |
 | 2022-MAR-15 | 0.4 | Forward versus backward COBS encoding reworked. Disruption detection added. |
 | 2022-MAR-15 | 0.5 | Minor corrections |
+| 2022-MAR-16 | 0.6 | TCOBS prime number comment added |
  
 - [*Trice*  Version 1.0 Specification (Draft)](#trice--version-10-specification-draft)
   - [1. <a name='Preface'></a>Preface](#1-preface)
