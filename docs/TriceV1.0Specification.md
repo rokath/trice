@@ -245,11 +245,20 @@ This is inspired by [rlercobs](https://docs.rs/kolben/0.0.3/kolben/rlercobs/inde
   *  3 * aa = aa R2
   * ...
   *  6 * aa = aa R5
-  *  7 * aa = aa R5 aa (begin again)
+  *  7 * aa = aa R5 aa (begin again) = aa R2 R3
   *  8 * aa = aa R5 aa aa
+  *  9 * aa = aa R2 R4
+  * 10 * aa = aa R3 R3
+  * 11 * aa = aa R5 R2
+  * 12 * aa = aa R5 R2 aa = aa R5 aa R5 
+  * 13 * aa = aa R4 R3
   * ...
-  * 12 * aa = aa R5 aa R5
+  * 26 * aa = aa R5 R5
+  * 27 * aa = aa R5 R5 aa 
+  * 28 * aa = aa R3 R3 R3
   * ...
+  * 125 * aa = aa R5 R5 R4 + 24 * aa
+  * 126 * aa = aa R5 R5 R5 
 
 ##  8. <a name='Changelog'></a>Changelog
 
