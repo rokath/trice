@@ -179,9 +179,8 @@ Sometimes several minimal encodings possible. The encoder has than the choice.
 | Date | Version | Comment |
 | - | - | - |
 | 2022-MAR-17 | 0.0.0 | Moved from Trice1.0Specification and reworked |
-
+| 2022-MAR-17 | 0.1.1 | Clarification |
 <!--
-| 2022-MAR-   | 0.1.0 | |
 | 2022-MAR-   | 0.2.0 | |
 | 2022-MAR-   | 0.3.0 | |
 | 2022-MAR-   | 0.4.0 | |
