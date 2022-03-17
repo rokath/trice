@@ -22,10 +22,9 @@
 
 ##  1. <a name='Preface'></a> Preface
 
-* [COBS](https://en.wikipedia.org/wiki/Consistent_Overhead_Byte_Stuffing) can increase data size by a factor of 1.004 (one additional byte per 254 bytes) and contains no means of compression.
-* TCOBS is a different kind of COBS encoding, inspired by [rlercobs](https://docs.rs/kolben/0.0.3/kolben/rlercobs/index.html) with focus on speed and future improvement.
-* TCOBS uses various chained sigil bytes to achieve a reasonable lossless compression.
-* In the worst case the encoded data get by factor 1.03 bigger (1 additional byte per 32 bytes) but usually the encoded data are smaller than the unencoded.
+* TCOBS is a different kind of [COBS](https://en.wikipedia.org/wiki/Consistent_Overhead_Byte_Stuffing) encoding, inspired by [rlercobs](https://docs.rs/kolben/0.0.3/kolben/rlercobs/index.html) with focus on speed and future improvement.
+* TCOBS uses various chained sigil bytes to achieve an additional lossless compression if possible.
+* Each encoded package starts (ends) with an additional sigil byte and in the worst case 1 additional byte per 32 bytes, but usually the encoded data are smaller than the unencoded because of the compression.
 * 0 is used as delimiter byte.
 
 ##  2. <a name='COBSDatadisruption'></a>COBS Data disruption
