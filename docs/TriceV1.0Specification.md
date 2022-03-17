@@ -225,6 +225,7 @@ This is inspired by [rlercobs](https://docs.rs/kolben/0.0.3/kolben/rlercobs/inde
   *  1 * 00 = Z1
   * ...
   *  8 * 00 = Z8
+* not needed, repetitions ok
   *  9 * 00 = Z8 Z1
   * ...
   * 16 * 00 = Z8 Z8 
@@ -244,8 +245,10 @@ This is inspired by [rlercobs](https://docs.rs/kolben/0.0.3/kolben/rlercobs/inde
   *  1 * aa = aa
   *  2 * aa = aa aa
   *  3 * aa = aa R2
-  * ...
+  *  4 * aa = aa R3 
+  *  5 * aa = aa R4
   *  6 * aa = aa R5
+* not needed, repetitions ok
   *  7 * aa = aa R5 aa = aa R2 R3
   *  8 * aa = aa R5 aa aa
   *  9 * aa = aa R2 R4
