@@ -225,6 +225,8 @@ This is inspired by [rlercobs](https://docs.rs/kolben/0.0.3/kolben/rlercobs/inde
   *  1 * 00 = Z1
   * ...
   *  8 * 00 = Z8
+  * more done with repeats
+<!--
 * Possible but not needed, repetitions ok to keep code simple:
   *  9 * 00 = Z8 Z1
   * ...
@@ -240,7 +242,7 @@ This is inspired by [rlercobs](https://docs.rs/kolben/0.0.3/kolben/rlercobs/inde
   * ...
   * 57 * 00 = Z8 R5 Z8 Z1
   * ...
-
+-->
 * Non zero bytes:
   *  1 * aa = aa
   *  2 * aa = aa aa
@@ -248,6 +250,9 @@ This is inspired by [rlercobs](https://docs.rs/kolben/0.0.3/kolben/rlercobs/inde
   *  4 * aa = aa R3 
   *  5 * aa = aa R4
   *  6 * aa = aa R5
+  * more done with repeats
+
+<!--
 * Possible but not needed, repetitions ok to keep code simple:
   *  7 * aa = aa R5 aa = aa R2 R3
   *  8 * aa = aa R5 aa aa
@@ -263,7 +268,7 @@ This is inspired by [rlercobs](https://docs.rs/kolben/0.0.3/kolben/rlercobs/inde
   * ...
   * 125 * aa = aa R5 R5 R4 + 24 * aa
   * 126 * aa = aa R5 R5 R5 
-
+-->
 <!-- ###  7.6. <a name='Approach2primenumbers'></a>Approach 2 (prime numbers)
 
 * `o` = offset bit to next sigil byte
@@ -375,7 +380,7 @@ R: 01nnoooo R2, R3, R5, R7
 | 2022-MAR-15 | 0.3 | Forward versus backward COBS encoding discussion inserted. |
 | 2022-MAR-15 | 0.4 | Forward versus backward COBS encoding reworked. Disruption detection added. |
 | 2022-MAR-15 | 0.5 | Minor corrections |
-| 2022-MAR-16 | 0.6 | TCOBS prime number comment added |
+| 2022-MAR-16 | 0.6 | TCOBS prime number comment added, Simplified |
  
 - [*Trice*  Version 1.0 Specification (Draft)](#trice--version-10-specification-draft)
   - [1. <a name='Preface'></a>Preface](#1-preface)
