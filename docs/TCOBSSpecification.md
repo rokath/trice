@@ -45,7 +45,7 @@
 * Most *Trices* consist of 16 or less bytes.
 * Some *Trices* or user data are longer.
 * Several zero in a row are a common pattern (example:`00 00 00 05`).
-* Several 0xFF in a row are a common pattern too (example `-1` as 32 bit value).
+* Several 0xFF in a row are a common pattern too (example -1 as 32 bit value).
 * Maybe some other bytes appear also in a row.
 * TCOBS should not know the inner data structure and therefore be usable also on any user data.
 
