@@ -181,6 +181,24 @@ This is inspired by [rlercobs](https://docs.rs/kolben/0.0.3/kolben/rlercobs/inde
 
 ###  7.4. <a name='Symbols-1'></a>Symbols
 
+<!-- #### Overview 
+
+* `o` = offset bit to next sigil byte
+* `n` = number bit
+* NOOP sigil byte **No**: `00oooooo`, `00000000` is forbidden.
+* Zero sigil byte **Zn**: `10nnoooo` = Z1-Z4
+* Full sigil byte **Fn**: `11nnoooo` = F2-F3
+
+* NOOP sigil byte **No**: `101ooooo`
+* Zero sigil byte **Z1**: `001ooooo`
+* Zero sigil byte **Z2**: `010ooooo`
+* Zero sigil byte **Z3**: `011ooooo`
+* Rept sigil byte **R3**: `000ooooo` 1-31
+* Full sigil byte **F2**: `110ooooo`
+* Full sigil byte **F3**: `111ooooo`
+* Full sigil byte **F4**: `100ooooo`
+-->
+
 * `o` = offset bit to next sigil byte
 * `n` = number bit
 * NOP sigil byte **N**: `00oooooo`, `00000000` is forbidden.
