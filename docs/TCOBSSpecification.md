@@ -77,7 +77,7 @@ This does not represent data in the stream and only serves to keep the chain lin
 ####  2.2.2. <a name='ZerosigilbyteZ1Z2Z3'></a>Zero sigil byte `Z1`, `Z2`, `Z3`
 
 * This sigil represents 1 to 3 zeroes in the data stream, and is a `00` to `00 00 00` replacement to reduce data and keep the chain linked.
-* The remaining 5 bits encode the distance to the next sigil (1 <= n <= 31), `00000`=16.
+* The remaining 5 bits encode the distance to the next sigil (1 <= n <= 31), `00000`=32.
 * Z1 = `001ooooo`
   * Z1_1 = `00100001`
   * ...
