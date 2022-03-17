@@ -54,7 +54,7 @@
 * `o` = offset bit to next sigil byte
 * `n` = number bit
 
-* `101ooooo` NOOP sigil byte **No**: `ooooo` = 1-31, `ooooo`:00000 = 32
+* `101ooooo` NOP  sigil byte **No**: `ooooo` = 1-31, `ooooo`:00000 = 32
 * `001ooooo` Zero sigil byte **Z1**: `ooooo` = 1-31, `ooooo`:00000 = 32
 * `010ooooo` Zero sigil byte **Z2**: `ooooo` = 1-31, `ooooo`:00000 = 32
 * `011ooooo` Zero sigil byte **Z3**: `ooooo` = 1-31, `ooooo`:00000 = 32
