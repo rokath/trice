@@ -240,6 +240,15 @@ func TCOBSDecode(p []byte) []byte {
 * Any next sigil byte  carries as offset the byte count to the sigil byte before,
 
 ```C
+#define N  0xA0 // 0x101ooooo
+#define Z1 0x20 // 0x001ooooo
+#define Z2 0x40 // 0x010ooooo
+#define Z3 0x60 // 0x011ooooo
+#define F2 0xC0 // 0x110ooooo
+#define F3 0xE0 // 0x111ooooo
+#define F4 0x80 // 0x100ooooo
+#define R2 0x20 // 0x001ooooo
+
 unsigned TCOBSEncode( uint8_t* restrict output, const uint8_t * restrict input, unsigned length){
     uint8_t p = output;
     int offset = 0; // sigil chain link
@@ -247,8 +256,8 @@ unsigned TCOBSEncode( uint8_t* restrict output, const uint8_t * restrict input, 
     int fullCount = 0; // counts 0xFF bytes
     int equalCount = 0; // counts equal bytes
     do{
-      if( length == 0 && zeroCount > 0 ){
-          *p++ = (zeroCount<<5)|offset;
+      if( length == 0 && zeroCount > 0 ){ // Z1=001ooooo, Z2=010ooooo, Z3=011ooooo
+          *p++ = (zeroCount<<5)|(0x1F & offset);
           return p - output;
       if( length == 0 && fullCount == 1 ){
           *p++ = 0xFF;        
@@ -256,10 +265,10 @@ unsigned TCOBSEncode( uint8_t* restrict output, const uint8_t * restrict input, 
           return p - output;
       }
       if( length == 0 && fullCount > 1 ){
-          *p++ = 0x80 | (fullCount<<5)|offset; // F2=110ooooo, F3=111ooooo, F3=100ooooo
+          *p++ = 0x80 | (fullCount<<5)|offset; // F2=110ooooo, F3=111ooooo, F4=100ooooo
           return p - output;
       }
-      if( length == 0 && equalCount ...
+      if( length == 0 && equalCount > 0 ){
       ...
         if input[0] != input[1]{ // Next byte is different
             if( input[0] == 0){ // single zero byte
