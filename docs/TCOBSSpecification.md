@@ -1,18 +1,21 @@
-# TCOBS - for *Trice* Messages optimized COBS Specification (Draft)
-
 <!-- vscode-markdown-toc -->
 * 1. [ Preface](#Preface)
-* 2. [COBS Data disruption](#COBSDatadisruption)
-	* 2.1. [Assumptions](#Assumptions)
-	* 2.2. [Symbols](#Symbols)
-		* 2.2.1. [NOP sigil byte `N`](#NOPsigilbyteN)
-		* 2.2.2. [Zero sigil byte `Z1`, `Z2`, `Z3`](#ZerosigilbyteZ1Z2Z3)
-		* 2.2.3. [Full sigil byte `F2`, `F3`, `F4`](#FullsigilbyteF2F3F4)
-		* 2.2.4. [Repeat sigil byte `R2`, `R3`, `R4`, `R5`](#RepeatsigilbyteR2R3R4R5)
-	* 2.3. [Fragment Examples, chaining not shown](#FragmentExampleschainingnotshown)
-		* 2.3.1. [Simple encoding algorithm possibilities](#Simpleencodingalgorithmpossibilities)
-		* 2.3.2. [Extended encoding algorithm possibilities](#Extendedencodingalgorithmpossibilities)
-* 3. [Changelog](#Changelog)
+* 2. [COBS Data Disruption](#COBSDataDisruption)
+* 3. [TCOBS Encoding Principle](#TCOBSEncodingPrinciple)
+	* 3.1. [Assumptions](#Assumptions)
+	* 3.2. [Symbols](#Symbols)
+		* 3.2.1. [NOP Sigil Byte `N`](#NOPSigilByteN)
+		* 3.2.2. [Zero Sigil Byte `Z1`, `Z2`, `Z3`](#ZeroSigilByteZ1Z2Z3)
+		* 3.2.3. [Full Sigil Byte `F2`, `F3`, `F4`](#FullSigilByteF2F3F4)
+		* 3.2.4. [Repeat Sigil Byte `R2`, `R3`, `R4`, `R5`](#RepeatSigilByteR2R3R4R5)
+	* 3.3. [Fragment Examples](#FragmentExamples)
+		* 3.3.1. [Simple Encoding Algorithm](#SimpleEncodingAlgorithm)
+		* 3.3.2. [Extended Encoding Algorithm (Possibilities)](#ExtendedEncodingAlgorithmPossibilities)
+* 4. [TCOBS Software Interface](#TCOBSSoftwareInterface)
+	* 4.1. [C Interface](#CInterface)
+	* 4.2. [Go interface](#Gointerface)
+* 5. [TCOBS Encoding Details](#TCOBSEncodingDetails)
+* 6. [Changelog](#Changelog)
 
 <!-- vscode-markdown-toc-config
 	numbering=true
@@ -27,7 +30,7 @@
 * Each encoded package starts (ends) with an additional sigil byte and has in the worst case 1 additional byte per 32 bytes, but usually the encoded data are smaller than the unencoded because of the compression.
 * 0 is used as delimiter byte.
 
-##  2. <a name='COBSDatadisruption'></a>COBS Data Disruption
+##  2. <a name='COBSDataDisruption'></a>COBS Data Disruption
   
 * In case of data disruption, the receiver will wait for the next 0-delimiter byte. As a result it will get a packet start and end of 2 different packages A and B.
 
@@ -40,9 +43,9 @@
   * To minimise data loss, each *Trice* should get COBS encoded separately.
 * Of course, when the receiver starts, the first buffer can contain broken COBS data, but we have to live with that on a PC. Anyway there is a reasonable likelihood that the COBS decoder will detect a data inconsistency.
 
-## TCOBS Encoding Principle
+##  3. <a name='TCOBSEncodingPrinciple'></a>TCOBS Encoding Principle
 
-###  2.1. <a name='Assumptions'></a>Assumptions
+###  3.1. <a name='Assumptions'></a>Assumptions
 
 * Most *Trices* consist of 16 or less bytes.
 * Some *Trices* or user data are longer.
@@ -51,7 +54,7 @@
 * Maybe some other bytes appear also in a row.
 * TCOBS should not know the inner data structure and therefore be usable also on any user data.
 
-###  2.2. <a name='Symbols'></a>Symbols
+###  3.2. <a name='Symbols'></a>Symbols
 
 * `o` = offset bit to next sigil byte
 * `n` = number bit
@@ -68,7 +71,7 @@
 * `00001ooo` Repeat sigil byte **R4**:  `ooo` = 1-7, `ooo`:000 = 8
 * `00000ooo` Repeat sigil byte **R5**:  `ooo` = 1-7, `ooo`:000 forbidden
 
-####  2.2.1. <a name='NOPsigilbyteN'></a>NOP Sigil Byte `N`
+####  3.2.1. <a name='NOPSigilByteN'></a>NOP Sigil Byte `N`
 
 This does not represent data in the stream and only serves to keep the chain linked. The remaining 5 bits encode the distance to the next sigil (1 <= n <=32).
 * N_1 = `101000001`
@@ -76,7 +79,7 @@ This does not represent data in the stream and only serves to keep the chain lin
 * N_31 = `10111111`
 * N_32 = `10100000`
 
-####  2.2.2. <a name='ZerosigilbyteZ1Z2Z3'></a>Zero Sigil Byte `Z1`, `Z2`, `Z3`
+####  3.2.2. <a name='ZeroSigilByteZ1Z2Z3'></a>Zero Sigil Byte `Z1`, `Z2`, `Z3`
 
 * This sigil represents 1 to 3 zeroes in the data stream, and is a `00` to `00 00 00` replacement to reduce data and keep the chain linked.
 * The remaining 5 bits encode the distance to the next sigil (1 <= n <= 31), `00000`=32.
@@ -92,7 +95,7 @@ This does not represent data in the stream and only serves to keep the chain lin
   * Z3_31 = `01111111`
   * Z3_32 = `01100000`
 
-####  2.2.3. <a name='FullsigilbyteF2F3F4'></a>Full Sigil Byte `F2`, `F3`, `F4`
+####  3.2.3. <a name='FullSigilByteF2F3F4'></a>Full Sigil Byte `F2`, `F3`, `F4`
 
 * This sigil represents 1 to 3 zeroes in the data stream, and is a `00` to `00 00 00` replacement to reduce data and keep the chain linked.
 * The remaining 5 bits encode the distance to the next sigil (1 <= n <= 31), `00000`=32.
@@ -108,7 +111,7 @@ This does not represent data in the stream and only serves to keep the chain lin
   * F4_31 = `10011111`
   * F4_32 = `10000000`
 
-####  2.2.4. <a name='RepeatsigilbyteR2R3R4R5'></a>Repeat Sigil Byte `R2`, `R3`, `R4`, `R5`
+####  3.2.4. <a name='RepeatSigilByteR2R3R4R5'></a>Repeat Sigil Byte `R2`, `R3`, `R4`, `R5`
 
 * This sigil represents 2 to 5 repetitions of previous byte in the data stream, and is a replacement to reduce data and keep the chain linked.
   * Alternatively replacing R4 with a R7 allow better compression especially for longer sequences.
@@ -125,14 +128,14 @@ This does not represent data in the stream and only serves to keep the chain lin
   * R5_7 = `00000111`
   * forbidden = `00000000`
 
-###  2.3. <a name='FragmentExampleschainingnotshown'></a>Fragment Examples
+###  3.3. <a name='FragmentExamples'></a>Fragment Examples
 
 Sometimes several minimal encodings possible. The encoder has than the choice.
 
 * `xx` represents any non-zero byte
 * `xx xx ...` represents any non-zero equal bytes
 
-####  2.3.1. <a name='Simpleencodingalgorithmpossibilities'></a>Simple Encoding Algorithm
+####  3.3.1. <a name='SimpleEncodingAlgorithm'></a>Simple Encoding Algorithm
 
 * [x] Easy to implement.
 * [x] Longer sequences are possible by repetition. 
@@ -166,7 +169,7 @@ Sometimes several minimal encodings possible. The encoder has than the choice.
 | `FF FF FF FF  FF FF FF FF` | `F4 F4`      | repetition  |
 | ...                        | ...          | repetition  |
 
-####  2.3.2. <a name='Extendedencodingalgorithmpossibilities'></a>Extended Encoding Algorithm (Possibilities)
+####  3.3.2. <a name='ExtendedEncodingAlgorithmPossibilities'></a>Extended Encoding Algorithm (Possibilities)
 
 * [ ] Just to show, what is further possible especially for user data.
 
@@ -181,38 +184,82 @@ Sometimes several minimal encodings possible. The encoder has than the choice.
 |  11 \* `FF`                | `F2 R5 FF`   | extension   |
 |  12 \* `FF`                | `F4 R3`      | extension   |
 
-## TCOBS Software Interface 
+##  4. <a name='TCOBSSoftwareInterface'></a>TCOBS Software Interface
 
-## TCOBS Encoding Details
+###  4.1. <a name='CInterface'></a>C Interface
 
-##  3. <a name='Changelog'></a>Changelog
+```C
+//! TCOBSEncode stuffs "length" bytes of data at the location pointed to by "input"
+//! and writes the output to the location pointed to by "output".
+//! A 0-delimiter is added as last byte. Returns the number of bytes written to "output". 
+//! Buffer overlapping is allowed, when input lays inside output with a sufficient offset.
+//! The offset should be > 1+(length>>5) because in the worst case for each 32 bytes an additional sigil byte is inserted.
+//! The provided output buffer size should be > length + > 1+(length>>5).
+//! Remove the "restrict" qualifiers if compiling with a pre-C99 C dialect.
+//! (copied and adapted from https://github.com/jacquesf/COBS-Consistent-Overhead-Byte-Stuffing/blob/master/cobs.c)
+unsigned TCOBSEncode( uint8_t* restrict output, const uint8_t * restrict input, unsigned length);
+```
+
+```C
+//! TCOBSDencode decodes 0-delimited data at the location pointed to by "input"
+//! and writes the output to the location pointed to by "output" with a maximum size of max.
+//! Returns the number of bytes written to "output". If the returned value is equal max, 
+//! this is an error "output buffer too small". If input points to a 0, the returned length is 0.
+//! Buffer overlapping is not allowed because the decoded data can get much longer.
+//! Remove the "restrict" qualifiers if compiling with a pre-C99 C dialect.
+//! (copied and adapted from https://github.com/jacquesf/COBS-Consistent-Overhead-Byte-Stuffing/blob/master/cobs.c)
+unsigned TCOBSDecode( uint8_t* restrict output, unsigned max, const uint8_t * restrict input );
+```
+
+###  4.2. <a name='Gointerface'></a>Go interface
+
+```Go
+// TCOBSEncode a slice of bytes to a null-terminated frame
+func TCOBSEncode(p []byte) []byte 
+```
+
+```Go
+// TCOBSDecode a null-terminated frame to a slice of bytes
+func TCOBSDecode(p []byte) []byte {
+```
+
+##  5. <a name='TCOBSEncodingDetails'></a>TCOBS Encoding Details
+
+* To do: Describe algorithm in detail with chaining.- [1. <a name='Preface'></a> Preface](#1--preface)
+
+##  6. <a name='Changelog'></a>Changelog
 
 | Date | Version | Comment |
 | - | - | - |
 | 2022-MAR-17 | 0.0.0 | Moved from Trice1.0Specification and reworked |
 | 2022-MAR-17 | 0.1.1 | Clarification |
 | 2022-MAR-18 | 0.2.0 | Correction & Simplifocation |
-<!--
+| 2022-MAR-18 | 0.3.0 | Software Interface added |
 
+<!--
 | 2022-MAR-   | 0.3.0 | |
 | 2022-MAR-   | 0.4.0 | |
 | 2022-MAR-   | 0.5.0 | |
 | 2022-MAR-   | 0.6.0 | |
 -->
 
-- [TCOBS - for *Trice* messages optimized COBS Specification (Draft)](#tcobs---for-trice-messages-optimized-cobs-specification-draft)
-  - [1. <a name='Preface'></a> Preface](#1--preface)
-  - [2. <a name='COBSDatadisruption'></a>COBS Data disruption](#2-cobs-data-disruption)
-    - [2.1. <a name='Assumptions'></a>Assumptions](#21-assumptions)
-    - [2.2. <a name='Symbols'></a>Symbols](#22-symbols)
-      - [2.2.1. <a name='NOPsigilbyteN'></a>NOP sigil byte `N`](#221-nop-sigil-byte-n)
-      - [2.2.2. <a name='ZerosigilbyteZ1Z2Z3'></a>Zero sigil byte `Z1`, `Z2`, `Z3`](#222-zero-sigil-byte-z1-z2-z3)
-      - [2.2.3. <a name='FullsigilbyteF2F3F4'></a>Full sigil byte `F2`, `F3`, `F4`](#223-full-sigil-byte-f2-f3-f4)
-      - [2.2.4. <a name='RepeatsigilbyteR2R3R4R5'></a>Repeat sigil byte `R2`, `R3`, `R4`, `R5`](#224-repeat-sigil-byte-r2-r3-r4-r5)
-    - [2.3. <a name='FragmentExampleschainingnotshown'></a>Fragment Examples, chaining not shown](#23-fragment-examples-chaining-not-shown)
-      - [2.3.1. <a name='Simpleencodingalgorithmpossibilities'></a>Simple encoding algorithm possibilities](#231-simple-encoding-algorithm-possibilities)
-      - [2.3.2. <a name='Extendedencodingalgorithmpossibilities'></a>Extended encoding algorithm possibilities](#232-extended-encoding-algorithm-possibilities)
-  - [3. <a name='Changelog'></a>Changelog](#3-changelog)
+- [1. <a name='Preface'></a> Preface](#1--preface)
+- [2. <a name='COBSDataDisruption'></a>COBS Data Disruption](#2-cobs-data-disruption)
+- [3. <a name='TCOBSEncodingPrinciple'></a>TCOBS Encoding Principle](#3-tcobs-encoding-principle)
+  - [3.1. <a name='Assumptions'></a>Assumptions](#31-assumptions)
+  - [3.2. <a name='Symbols'></a>Symbols](#32-symbols)
+    - [3.2.1. <a name='NOPSigilByteN'></a>NOP Sigil Byte `N`](#321-nop-sigil-byte-n)
+    - [3.2.2. <a name='ZeroSigilByteZ1Z2Z3'></a>Zero Sigil Byte `Z1`, `Z2`, `Z3`](#322-zero-sigil-byte-z1-z2-z3)
+    - [3.2.3. <a name='FullSigilByteF2F3F4'></a>Full Sigil Byte `F2`, `F3`, `F4`](#323-full-sigil-byte-f2-f3-f4)
+    - [3.2.4. <a name='RepeatSigilByteR2R3R4R5'></a>Repeat Sigil Byte `R2`, `R3`, `R4`, `R5`](#324-repeat-sigil-byte-r2-r3-r4-r5)
+  - [3.3. <a name='FragmentExamples'></a>Fragment Examples](#33-fragment-examples)
+    - [3.3.1. <a name='SimpleEncodingAlgorithm'></a>Simple Encoding Algorithm](#331-simple-encoding-algorithm)
+    - [3.3.2. <a name='ExtendedEncodingAlgorithmPossibilities'></a>Extended Encoding Algorithm (Possibilities)](#332-extended-encoding-algorithm-possibilities)
+- [4. <a name='TCOBSSoftwareInterface'></a>TCOBS Software Interface](#4-tcobs-software-interface)
+  - [4.1. <a name='CInterface'></a>C Interface](#41-c-interface)
+  - [4.2. <a name='Gointerface'></a>Go interface](#42-go-interface)
+- [5. <a name='TCOBSEncodingDetails'></a>TCOBS Encoding Details](#5-tcobs-encoding-details)
+- [6. <a name='Changelog'></a>Changelog](#6-changelog)
 
 <!--
 Module kolben::rlercobs
