@@ -1,4 +1,4 @@
-# TCOBS - for *Trice* messages optimized COBS Specification (Draft)
+# TCOBS - for *Trice* Messages optimized COBS Specification (Draft)
 
 <!-- vscode-markdown-toc -->
 * 1. [ Preface](#Preface)
@@ -27,7 +27,7 @@
 * Each encoded package starts (ends) with an additional sigil byte and has in the worst case 1 additional byte per 32 bytes, but usually the encoded data are smaller than the unencoded because of the compression.
 * 0 is used as delimiter byte.
 
-##  2. <a name='COBSDatadisruption'></a>COBS Data disruption
+##  2. <a name='COBSDatadisruption'></a>COBS Data Disruption
   
 * In case of data disruption, the receiver will wait for the next 0-delimiter byte. As a result it will get a packet start and end of 2 different packages A and B.
 
@@ -39,6 +39,8 @@
 * If a package start was received and the next package end reception is more than ~100ms away, a data disruption is likely and the receiver should ignore these data.
   * To minimise data loss, each *Trice* should get COBS encoded separately.
 * Of course, when the receiver starts, the first buffer can contain broken COBS data, but we have to live with that on a PC. Anyway there is a reasonable likelihood that the COBS decoder will detect a data inconsistency.
+
+## TCOBS Encoding Principle
 
 ###  2.1. <a name='Assumptions'></a>Assumptions
 
@@ -66,7 +68,7 @@
 * `00001ooo` Repeat sigil byte **R4**:  `ooo` = 1-7, `ooo`:000 = 8
 * `00000ooo` Repeat sigil byte **R5**:  `ooo` = 1-7, `ooo`:000 forbidden
 
-####  2.2.1. <a name='NOPsigilbyteN'></a>NOP sigil byte `N`
+####  2.2.1. <a name='NOPsigilbyteN'></a>NOP Sigil Byte `N`
 
 This does not represent data in the stream and only serves to keep the chain linked. The remaining 5 bits encode the distance to the next sigil (1 <= n <=32).
 * N_1 = `101000001`
@@ -74,7 +76,7 @@ This does not represent data in the stream and only serves to keep the chain lin
 * N_31 = `10111111`
 * N_32 = `10100000`
 
-####  2.2.2. <a name='ZerosigilbyteZ1Z2Z3'></a>Zero sigil byte `Z1`, `Z2`, `Z3`
+####  2.2.2. <a name='ZerosigilbyteZ1Z2Z3'></a>Zero Sigil Byte `Z1`, `Z2`, `Z3`
 
 * This sigil represents 1 to 3 zeroes in the data stream, and is a `00` to `00 00 00` replacement to reduce data and keep the chain linked.
 * The remaining 5 bits encode the distance to the next sigil (1 <= n <= 31), `00000`=32.
@@ -90,7 +92,7 @@ This does not represent data in the stream and only serves to keep the chain lin
   * Z3_31 = `01111111`
   * Z3_32 = `01100000`
 
-####  2.2.3. <a name='FullsigilbyteF2F3F4'></a>Full sigil byte `F2`, `F3`, `F4`
+####  2.2.3. <a name='FullsigilbyteF2F3F4'></a>Full Sigil Byte `F2`, `F3`, `F4`
 
 * This sigil represents 1 to 3 zeroes in the data stream, and is a `00` to `00 00 00` replacement to reduce data and keep the chain linked.
 * The remaining 5 bits encode the distance to the next sigil (1 <= n <= 31), `00000`=32.
@@ -106,7 +108,7 @@ This does not represent data in the stream and only serves to keep the chain lin
   * F4_31 = `10011111`
   * F4_32 = `10000000`
 
-####  2.2.4. <a name='RepeatsigilbyteR2R3R4R5'></a>Repeat sigil byte `R2`, `R3`, `R4`, `R5`
+####  2.2.4. <a name='RepeatsigilbyteR2R3R4R5'></a>Repeat Sigil Byte `R2`, `R3`, `R4`, `R5`
 
 * This sigil represents 2 to 5 repetitions of previous byte in the data stream, and is a replacement to reduce data and keep the chain linked.
   * Alternatively replacing R4 with a R7 allow better compression especially for longer sequences.
@@ -123,14 +125,14 @@ This does not represent data in the stream and only serves to keep the chain lin
   * R5_7 = `00000111`
   * forbidden = `00000000`
 
-###  2.3. <a name='FragmentExampleschainingnotshown'></a>Fragment Examples, chaining not shown
+###  2.3. <a name='FragmentExampleschainingnotshown'></a>Fragment Examples
 
 Sometimes several minimal encodings possible. The encoder has than the choice.
 
 * `xx` represents any non-zero byte
 * `xx xx ...` represents any non-zero equal bytes
 
-####  2.3.1. <a name='Simpleencodingalgorithmpossibilities'></a>Simple encoding algorithm possibilities
+####  2.3.1. <a name='Simpleencodingalgorithmpossibilities'></a>Simple Encoding Algorithm
 
 * [x] Easy to implement.
 * [x] Longer sequences are possible by repetition. 
@@ -164,7 +166,7 @@ Sometimes several minimal encodings possible. The encoder has than the choice.
 | `FF FF FF FF  FF FF FF FF` | `F4 F4`      | repetition  |
 | ...                        | ...          | repetition  |
 
-####  2.3.2. <a name='Extendedencodingalgorithmpossibilities'></a>Extended encoding algorithm possibilities
+####  2.3.2. <a name='Extendedencodingalgorithmpossibilities'></a>Extended Encoding Algorithm Possibilities
 
 * [ ] Just to show, what is further possible especially for user data.
 
@@ -178,6 +180,10 @@ Sometimes several minimal encodings possible. The encoder has than the choice.
 |  10 \* `FF`                | `F2 R5`      | extension   |
 |  11 \* `FF`                | `F2 R5 FF`   | extension   |
 |  12 \* `FF`                | `F4 R3`      | extension   |
+
+## TCOBS Software Interface 
+
+## TCOBS Encoding Details
 
 ##  3. <a name='Changelog'></a>Changelog
 
