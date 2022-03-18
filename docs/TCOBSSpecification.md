@@ -225,7 +225,7 @@ func TCOBSDecode(p []byte) []byte {
 
 ##  5. <a name='TCOBSEncodingDetails'></a>TCOBS Encoding Details
 
-* To do: Describe algorithm in detail with chaining.- [1. <a name='Preface'></a> Preface](#1--preface)
+* To do: Describe algorithm in detail with chaining.
 
 ##  6. <a name='Changelog'></a>Changelog
 
