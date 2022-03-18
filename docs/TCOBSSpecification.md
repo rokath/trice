@@ -225,6 +225,67 @@ func TCOBSDecode(p []byte) []byte {
 
 ##  5. <a name='TCOBSEncodingDetails'></a>TCOBS Encoding Details
 
+### Sigil Bytes Chaining
+
+* Reverse encoding
+
+#### First any Sigil Byte
+
+* The first sigil byte carries as offset the byte count before it.
+
+| Position | 0 | ... | 32 |
+| -        | - | -   | -  |
+| offset   | 0 | ... | 32 |
+
+* Any next sigil byte  carries as offset the byte count to the sigil byte before,
+
+```C
+unsigned TCOBSEncode( uint8_t* restrict output, const uint8_t * restrict input, unsigned length){
+    uint8_t p = output;
+    int offset = 0; // sigil chain link
+    int zeroCount = 0; // counts zero bytes
+    int fullCount = 0; // counts 0xFF bytes
+    int equalCount = 0; // counts equal bytes
+    do{
+      if( length == 0 && zeroCount > 0 ){
+          *p++ = (zeroCount<<5)|offset;
+          return p - output;
+      if( length == 0 && fullCount == 1 ){
+          *p++ = 0xFF;        
+          *p++ = N|++offset; // N=0x101ooooo
+          return p - output;
+      }
+      if( length == 0 && fullCount > 1 ){
+          *p++ = 0x80 | (fullCount<<5)|offset; // F2=110ooooo, F3=111ooooo, F3=100ooooo
+          return p - output;
+      }
+      if( length == 0 && equalCount ...
+      ...
+        if input[0] != input[1]{ // Next byte is different
+            if( input[0] == 0){ // single zero byte
+                *output = Z1 | offset;
+                input++;
+                offset = 0; 
+            }
+            *output++ = *input++; // single nom-zero byte
+            offset++;
+            if( offset == 32 ){ // insert chaining NOP sigil byte
+                *output++ = N;
+                offset = 0;
+            }
+            length--;
+            continue;
+        }
+
+...
+
+    if( input[0] == 0 && input[1] == 0 && input[2] == 0){
+      *output = 
+    }
+}
+
+```
+
 * To do: Describe algorithm in detail with chaining.
 
 ##  6. <a name='Changelog'></a>Changelog
@@ -235,6 +296,7 @@ func TCOBSDecode(p []byte) []byte {
 | 2022-MAR-17 | 0.1.1 | Clarification |
 | 2022-MAR-18 | 0.2.0 | Correction & Simplifocation |
 | 2022-MAR-18 | 0.3.0 | Software Interface added |
+| 2022-MAR-18 | 0.3.1 | wip TCOBS Encoding |
 
 <!--
 | 2022-MAR-   | 0.3.0 | |
@@ -259,6 +321,8 @@ func TCOBSDecode(p []byte) []byte {
   - [4.1. <a name='CInterface'></a>C Interface](#41-c-interface)
   - [4.2. <a name='Gointerface'></a>Go interface](#42-go-interface)
 - [5. <a name='TCOBSEncodingDetails'></a>TCOBS Encoding Details](#5-tcobs-encoding-details)
+  - [Sigil Bytes Chaining](#sigil-bytes-chaining)
+    - [First any Sigil Byte](#first-any-sigil-byte)
 - [6. <a name='Changelog'></a>Changelog](#6-changelog)
 
 <!--
