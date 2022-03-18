@@ -97,7 +97,7 @@ This does not represent data in the stream and only serves to keep the chain lin
 
 ####  3.2.3. <a name='FullSigilByteF2F3F4'></a>Full Sigil Byte `F2`, `F3`, `F4`
 
-* This sigil represents 1 to 3 0xFF in the data stream, and is a `FF FF` to `FF FF FF FF` replacement to reduce data and keep the chain linked.
+* This sigil represents 2 to 4 0xFF in the data stream, and is a `FF FF` to `FF FF FF FF` replacement to reduce data and keep the chain linked.
 * The remaining 5 bits encode the distance to the next sigil (1 <= n <= 31), `00000`=32.
 * F2 = `110ooooo`
   * F2_1 = `11000001`
