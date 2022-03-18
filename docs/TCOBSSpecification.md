@@ -166,7 +166,7 @@ Sometimes several minimal encodings possible. The encoder has than the choice.
 | `FF FF FF FF  FF FF FF FF` | `F4 F4`      | repetition  |
 | ...                        | ...          | repetition  |
 
-####  2.3.2. <a name='Extendedencodingalgorithmpossibilities'></a>Extended Encoding Algorithm Possibilities
+####  2.3.2. <a name='Extendedencodingalgorithmpossibilities'></a>Extended Encoding Algorithm (Possibilities)
 
 * [ ] Just to show, what is further possible especially for user data.
 
