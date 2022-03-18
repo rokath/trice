@@ -151,7 +151,8 @@ Sometimes several minimal encodings possible. The encoder has than the choice.
 | `xx xx xx xx`              | `xx R3`      |             |
 | `xx xx xx xx xx`           | `xx R4`      |             |
 | `xx xx xx xx xx xx`        | `xx R5`      |             |
-| `xx xx xx xx xx xx  xx`    | `xx`         | repetition  |
+| `xx xx xx xx xx xx  xx`    | `xx R5 xx`   | repetition  |
+| `xx xx xx xx xx xx  xx xx` | `xx R5 xx xx`| repetition  |
 | ...                        | ...          | repetition  |
 | `FF`                       | `FF`         |             |
 | `FF FF`                    | `F2`         |             |
@@ -169,9 +170,8 @@ Sometimes several minimal encodings possible. The encoder has than the choice.
 
 | unencoded data             | encoded data | comment     |
 | -                          | -            | -           |
-| `00 00 00 00 00 00 00 00`  | `Z2 R4`      |             |
-| `xx xx xx xx xx xx xx`     | `xx R5 xx`   | extension   |
-| `xx xx xx xx xx xx xx xx`  | `xx R5 xx xx`| extension   |
+| `00 00 00 00 00 00 00 00`  | `Z2 R4`      | extension   |
+| ...                        | ...          | extension   |
 | 9 \* `xx`                  | `xx R4 R2`   | extension   |
 | ...                        | ...          | extension   |
 |   9 \* `FF`                | `F3 R3`      | extension   |
