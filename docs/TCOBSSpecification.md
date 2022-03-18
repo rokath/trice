@@ -185,8 +185,9 @@ Sometimes several minimal encodings possible. The encoder has than the choice.
 | - | - | - |
 | 2022-MAR-17 | 0.0.0 | Moved from Trice1.0Specification and reworked |
 | 2022-MAR-17 | 0.1.1 | Clarification |
+| 2022-MAR-18 | 0.2.0 | Correction & Simplifocation |
 <!--
-| 2022-MAR-   | 0.2.0 | |
+
 | 2022-MAR-   | 0.3.0 | |
 | 2022-MAR-   | 0.4.0 | |
 | 2022-MAR-   | 0.5.0 | |
