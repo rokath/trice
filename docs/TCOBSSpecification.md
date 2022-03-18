@@ -140,24 +140,28 @@ Sometimes several minimal encodings possible. The encoder has than the choice.
 | `00`                       | `Z1`         |             |
 | `00 00`                    | `Z2`         |             |
 | `00 00 00`                 | `Z3`         |             |
-| `00 00 00 00`              | `Z3 Z1`      | repetition  |
-| `00 00 00 00 00`           | `Z3 Z2`      | repetition  |
-| `00 00 00 00 00 00`        | `Z3 Z3`      | repetition  |
-| `00 00 00 00 00 00 00`     | `Z3 Z3 Z1`   | repetition  |
+| `00 00 00  00`             | `Z3 Z1`      | repetition  |
+| `00 00 00  00 00`          | `Z3 Z2`      | repetition  |
+| `00 00 00  00 00 00`       | `Z3 Z3`      | repetition  |
+| `00 00 00  00 00 00  00`   | `Z3 Z3 Z1`   | repetition  |
+| ...                        | ...          | repetition  |
 | `xx`                       | `xx`         |             |
 | `xx xx`                    | `xx xx`      |             |
 | `xx xx xx`                 | `xx R2`      |             |
 | `xx xx xx xx`              | `xx R3`      |             |
 | `xx xx xx xx xx`           | `xx R4`      |             |
 | `xx xx xx xx xx xx`        | `xx R5`      |             |
+| `xx xx xx xx xx xx  xx`    | `xx`         | repetition  |
+| ...                        | ...          | repetition  |
 | `FF`                       | `FF`         |             |
 | `FF FF`                    | `F2`         |             |
 | `FF FF FF`                 | `F3`         |             |
 | `FF FF FF FF`              | `F4`         |             |
-| `FF FF FF FF FF`           | `F4 FF`      | repetition  |
-| `FF FF FF FF FF FF`        | `F4 F2`      | repetition  |
-| `FF FF FF FF FF FF FF`     | `F4 F3`      | repetition  |
-| `FF FF FF FF FF FF FF FF`  | `F4 F4`      | repetition  |
+| `FF FF FF FF  FF`          | `F4 FF`      | repetition  |
+| `FF FF FF FF  FF FF`       | `F4 F2`      | repetition  |
+| `FF FF FF FF  FF FF FF`    | `F4 F3`      | repetition  |
+| `FF FF FF FF  FF FF FF FF` | `F4 F4`      | repetition  |
+| ...                        | ...          | repetition  |
 
 ####  2.3.2. <a name='Extendedencodingalgorithmpossibilities'></a>Extended encoding algorithm possibilities
 
