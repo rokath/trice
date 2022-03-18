@@ -144,7 +144,7 @@ Sometimes several minimal encodings possible. The encoder has than the choice.
 | `00 00 00 00 00`           | `Z3 Z2`      | repetition  |
 | `00 00 00 00 00 00`        | `Z3 Z3`      | repetition  |
 | `00 00 00 00 00 00 00`     | `Z3 Z3 Z1`   | repetition  |
-| `xx` %                      | `xx`         |             |
+| `xx`                       | `xx`         |             |
 | `xx xx`                    | `xx xx`      |             |
 | `xx xx xx`                 | `xx R2`      |             |
 | `xx xx xx xx`              | `xx R3`      |             |
