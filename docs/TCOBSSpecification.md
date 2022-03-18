@@ -130,8 +130,6 @@ This does not represent data in the stream and only serves to keep the chain lin
 
 ###  3.3. <a name='FragmentExamples'></a>Fragment Examples
 
-Sometimes several minimal encodings possible. The encoder has than the choice.
-
 * `xx` represents any non-zero byte
 * `xx xx ...` represents any non-zero equal bytes
 
@@ -170,6 +168,8 @@ Sometimes several minimal encodings possible. The encoder has than the choice.
 | ...                        | ...          | repetition  |
 
 ####  3.3.2. <a name='ExtendedEncodingAlgorithmPossibilities'></a>Extended Encoding Algorithm (Possibilities)
+
+Sometimes several minimal encodings possible. The encoder has than the choice.
 
 * [ ] Just to show, what is further possible especially for user data.
 
