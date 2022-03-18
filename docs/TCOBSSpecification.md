@@ -144,8 +144,7 @@ Sometimes several minimal encodings possible. The encoder has than the choice.
 | `00 00 00 00 00`           | `Z3 Z2`      | repetition  |
 | `00 00 00 00 00 00`        | `Z3 Z3`      | repetition  |
 | `00 00 00 00 00 00 00`     | `Z3 Z3 Z1`   | repetition  |
-| `00 00 00 00 00 00 00 00`  | `Z2 R4`      |             |
-| `xx`                       | `xx`         |             |
+| `xx` %                      | `xx`         |             |
 | `xx xx`                    | `xx xx`      |             |
 | `xx xx xx`                 | `xx R2`      |             |
 | `xx xx xx xx`              | `xx R3`      |             |
@@ -166,6 +165,7 @@ Sometimes several minimal encodings possible. The encoder has than the choice.
 
 | unencoded data             | encoded data | comment     |
 | -                          | -            | -           |
+| `00 00 00 00 00 00 00 00`  | `Z2 R4`      |             |
 | `xx xx xx xx xx xx xx`     | `xx R5 xx`   | extension   |
 | `xx xx xx xx xx xx xx xx`  | `xx R5 xx xx`| extension   |
 | 9 \* `xx`                  | `xx R4 R2`   | extension   |
