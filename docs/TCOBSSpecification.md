@@ -255,21 +255,47 @@ unsigned TCOBSEncode( uint8_t* restrict output, const uint8_t * restrict input, 
     int zeroCount = 0; // counts zero bytes
     int fullCount = 0; // counts 0xFF bytes
     int equalCount = 0; // counts equal bytes
-    do{
-      if( length == 0 && zeroCount > 0 ){ // Z1=001ooooo, Z2=010ooooo, Z3=011ooooo
-          *p++ = (zeroCount<<5)|(0x1F & offset);
-          return p - output;
-      if( length == 0 && fullCount == 1 ){
-          *p++ = 0xFF;        
-          *p++ = N|++offset; // N=0x101ooooo
-          return p - output;
-      }
-      if( length == 0 && fullCount > 1 ){
-          *p++ = 0x80 | (fullCount<<5)|(0x1F & offset); // F2=110ooooo, F3=111ooooo, F4=100ooooo
-          return p - output;
-      }
-      if( length == 0 && equalCount > 0 ){
-      ...
+    for(;;){
+        if( length == 0 ){
+            if( zeroCount > 0 ){ // Z1=001ooooo, Z2=010ooooo, Z3=011ooooo
+                *p++ = (zeroCount<<5)|(0x1F & offset);
+                return p - output;
+            }
+            if( fullCount == 1 ){ // N=0x101ooooo
+                *p++ = 0xFF;        
+                *p++ = N|++offset; 
+                return p - output;
+            }
+            if( fullCount > 1 ){ // F2=110ooooo, F3=111ooooo, F4=100ooooo
+                *p++ = 0x80 | (fullCount<<5)|(0x1F & offset); 
+                return p - output;
+            }
+            if( equalCount > 0 ){
+                ...
+        }
+        if( length == 1 ){
+            uint8_t b = *input;
+            if( b == 0 ){
+                zeroCount++;
+                
+            if( zeroCount > 0 ){ // Z1=001ooooo, Z2=010ooooo, Z3=011ooooo
+
+                *p++ = (zeroCount<<5)|(0x1F & offset);
+                length--; continue;
+            }
+            if( fullCount == 1 ){ // N=0x101ooooo
+                *p++ = 0xFF;        
+                *p++ = N|++offset; 
+                return p - output;
+            }
+            if( fullCount > 1 ){ // F2=110ooooo, F3=111ooooo, F4=100ooooo
+                *p++ = 0x80 | (fullCount<<5)|(0x1F & offset); 
+                return p - output;
+            }
+            if( equalCount > 0 ){
+                ...
+
+            ...
         if input[0] != input[1]{ // Next byte is different
             if( input[0] == 0){ // single zero byte
                 *output = Z1 | offset;
