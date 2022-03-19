@@ -247,7 +247,10 @@ func TCOBSDecode(p []byte) []byte {
 #define F2 0xC0 // 0x110ooooo
 #define F3 0xE0 // 0x111ooooo
 #define F4 0x80 // 0x100ooooo
-#define R2 0x20 // 0x001ooooo
+#define R2 0x08 // 0x00001ooo
+#define R3 0x10 // 0x00010ooo
+#define R4 0x18 // 0x00011ooo
+#define R5 0x00 // 0x00000ooo
 
 unsigned TCOBSEncode( uint8_t* restrict output, const uint8_t * restrict input, unsigned length){
     uint8_t p = output;
@@ -274,25 +277,39 @@ unsigned TCOBSEncode( uint8_t* restrict output, const uint8_t * restrict input, 
                 ...
         }
         if( length == 1 ){
-            uint8_t b = *input;
+            uint8_t b = *input--;
             if( b == 0 ){
-                zeroCount++;
-                
-            if( zeroCount > 0 ){ // Z1=001ooooo, Z2=010ooooo, Z3=011ooooo
-
+                zeroCount++; // Z1=001ooooo, Z2=010ooooo, Z3=011ooooo
                 *p++ = (zeroCount<<5)|(0x1F & offset);
-                length--; continue;
+                return p - output;
             }
-            if( fullCount == 1 ){ // N=0x101ooooo
+            if( b == 0xFF ){
+                if( fullCount == 0 ){ // N=0x101ooooo
                 *p++ = 0xFF;        
                 *p++ = N|++offset; 
                 return p - output;
-            }
-            if( fullCount > 1 ){ // F2=110ooooo, F3=111ooooo, F4=100ooooo
+                }else{ // F2=110ooooo, F3=111ooooo, F4=100ooooo
+                fullCount += 2;
                 *p++ = 0x80 | (fullCount<<5)|(0x1F & offset); 
                 return p - output;
             }
-            if( equalCount > 0 ){
+            if( equalCount == 0 ){ 
+                *p++ = b;
+                *p++ = N|++offset; 
+                return p - output;
+             }else{
+                if( b != *p ){ 
+                    *p++ = R
+                    *p++ = b;
+                    *p++ = N|2;
+                    return p - output;
+                }else{
+                    equalCount++;
+                    *p++ = (equalCount << 5)|offset;
+                    return p - output;
+             }
+
+
                 ...
 
             ...
