@@ -265,7 +265,7 @@ unsigned TCOBSEncode( uint8_t* restrict output, const uint8_t * restrict input, 
           return p - output;
       }
       if( length == 0 && fullCount > 1 ){
-          *p++ = 0x80 | (fullCount<<5)|offset; // F2=110ooooo, F3=111ooooo, F4=100ooooo
+          *p++ = 0x80 | (fullCount<<5)|(0x1F & offset); // F2=110ooooo, F3=111ooooo, F4=100ooooo
           return p - output;
       }
       if( length == 0 && equalCount > 0 ){
