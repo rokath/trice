@@ -211,7 +211,7 @@ func TCOBSDecode(p []byte) []byte {
 
 * The encoding starts at first buffer address.
 * The encoded buffer ends with a sigil byte.
-* The decoding then, starts at the sigil byte which is the last address address of the encoded data.
+* The decoding then, starts at the sigil byte which is the last address of the encoded data.
 
 ####  5.1.1. <a name='FirstanySigilByte'></a>First any Sigil Byte
 
