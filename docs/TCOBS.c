@@ -57,7 +57,7 @@ unsigned TCOBSEncode( uint8_t* restrict output, const uint8_t* restrict input, u
                 *p++ = 0xFF;        
                 *p++ = N | ++offset; // N=0x101ooooo
                 return p - output;
-                }else{ // F2=110ooooo, F3=111ooooo, F4=100ooooo
+            }else{ // F2=110ooooo, F3=111ooooo, F4=100ooooo
                 fullCount += 2; // 2 or 3 or 4
                 *p++ = 0x80 | (fullCount<<5) | (0x1F & offset); 
                 return p - output;
@@ -66,7 +66,7 @@ unsigned TCOBSEncode( uint8_t* restrict output, const uint8_t* restrict input, u
                 *p++ = b; // results in xx yy zz or xx yy yy
                 *p++ = N | ++offset; // N=0x101ooooo
                 return p - output;
-             }else{ // at least previous 2 bytes equal
+            }else{ // at least previous 2 bytes equal
                 if( b != *p ){ // now a different byte: xx Rx yy, cases:
                     if( equalCount == 1 ){ // xx R1 yy
                         uint8_t xx = p[-1];
