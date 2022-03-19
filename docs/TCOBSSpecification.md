@@ -15,6 +15,9 @@
 	* 4.1. [C Interface](#CInterface)
 	* 4.2. [Go interface](#Gointerface)
 * 5. [TCOBS Encoding Details](#TCOBSEncodingDetails)
+	* 5.1. [Sigil Bytes Chaining](#SigilBytesChaining)
+		* 5.1.1. [First any Sigil Byte](#FirstanySigilByte)
+	* 5.2. [TCODE C-code](#TCODEC-code)
 * 6. [Changelog](#Changelog)
 
 <!-- vscode-markdown-toc-config
@@ -188,28 +191,7 @@ Sometimes several minimal encodings possible. The encoder has than the choice.
 
 ###  4.1. <a name='CInterface'></a>C Interface
 
-```C
-//! TCOBSEncode stuffs "length" bytes of data at the location pointed to by "input"
-//! and writes the output to the location pointed to by "output".
-//! A 0-delimiter is added as last byte. Returns the number of bytes written to "output". 
-//! Buffer overlapping is allowed, when input lays inside output with a sufficient offset.
-//! The offset should be > 1+(length>>5) because in the worst case for each 32 bytes an additional sigil byte is inserted.
-//! The provided output buffer size should be > length + > 1+(length>>5).
-//! Remove the "restrict" qualifiers if compiling with a pre-C99 C dialect.
-//! (copied and adapted from https://github.com/jacquesf/COBS-Consistent-Overhead-Byte-Stuffing/blob/master/cobs.c)
-unsigned TCOBSEncode( uint8_t* restrict output, const uint8_t * restrict input, unsigned length);
-```
-
-```C
-//! TCOBSDencode decodes 0-delimited data at the location pointed to by "input"
-//! and writes the output to the location pointed to by "output" with a maximum size of max.
-//! Returns the number of bytes written to "output". If the returned value is equal max, 
-//! this is an error "output buffer too small". If input points to a 0, the returned length is 0.
-//! Buffer overlapping is not allowed because the decoded data can get much longer.
-//! Remove the "restrict" qualifiers if compiling with a pre-C99 C dialect.
-//! (copied and adapted from https://github.com/jacquesf/COBS-Consistent-Overhead-Byte-Stuffing/blob/master/cobs.c)
-unsigned TCOBSDecode( uint8_t* restrict output, unsigned max, const uint8_t * restrict input );
-```
+[TCOBS.h](./TCOBS.h)
 
 ###  4.2. <a name='Gointerface'></a>Go interface
 
@@ -225,11 +207,11 @@ func TCOBSDecode(p []byte) []byte {
 
 ##  5. <a name='TCOBSEncodingDetails'></a>TCOBS Encoding Details
 
-### Sigil Bytes Chaining
+###  5.1. <a name='SigilBytesChaining'></a>Sigil Bytes Chaining
 
 * Reverse encoding
 
-#### First any Sigil Byte
+####  5.1.1. <a name='FirstanySigilByte'></a>First any Sigil Byte
 
 * The first sigil byte carries as offset the byte count before it.
 
@@ -239,106 +221,9 @@ func TCOBSDecode(p []byte) []byte {
 
 * Any next sigil byte  carries as offset the byte count to the sigil byte before,
 
-```C
-#define N  0xA0 // 0x101ooooo
-#define Z1 0x20 // 0x001ooooo
-#define Z2 0x40 // 0x010ooooo
-#define Z3 0x60 // 0x011ooooo
-#define F2 0xC0 // 0x110ooooo
-#define F3 0xE0 // 0x111ooooo
-#define F4 0x80 // 0x100ooooo
-#define R2 0x08 // 0x00001ooo
-#define R3 0x10 // 0x00010ooo
-#define R4 0x18 // 0x00011ooo
-#define R5 0x00 // 0x00000ooo
+###  5.2. <a name='TCODEC-code'></a>TCODE C-code
 
-unsigned TCOBSEncode( uint8_t* restrict output, const uint8_t * restrict input, unsigned length){
-    uint8_t p = output;
-    int offset = 0; // sigil chain link
-    int zeroCount = 0; // counts zero bytes
-    int fullCount = 0; // counts 0xFF bytes
-    int equalCount = 0; // counts equal bytes
-    for(;;){
-        if( length == 0 ){
-            if( zeroCount > 0 ){ // Z1=001ooooo, Z2=010ooooo, Z3=011ooooo
-                *p++ = (zeroCount<<5)|(0x1F & offset);
-                return p - output;
-            }
-            if( fullCount == 1 ){ // N=0x101ooooo
-                *p++ = 0xFF;        
-                *p++ = N|++offset; 
-                return p - output;
-            }
-            if( fullCount > 1 ){ // F2=110ooooo, F3=111ooooo, F4=100ooooo
-                *p++ = 0x80 | (fullCount<<5)|(0x1F & offset); 
-                return p - output;
-            }
-            if( equalCount > 0 ){
-                ...
-        }
-        if( length == 1 ){
-            uint8_t b = *input--;
-            if( b == 0 ){
-                zeroCount++; // Z1=001ooooo, Z2=010ooooo, Z3=011ooooo
-                *p++ = (zeroCount<<5)|(0x1F & offset);
-                return p - output;
-            }
-            if( b == 0xFF ){
-                if( fullCount == 0 ){ // N=0x101ooooo
-                *p++ = 0xFF;        
-                *p++ = N|++offset; 
-                return p - output;
-                }else{ // F2=110ooooo, F3=111ooooo, F4=100ooooo
-                fullCount += 2;
-                *p++ = 0x80 | (fullCount<<5)|(0x1F & offset); 
-                return p - output;
-            }
-            if( equalCount == 0 ){ 
-                *p++ = b;
-                *p++ = N|++offset; 
-                return p - output;
-             }else{
-                if( b != *p ){ 
-                    *p++ = R
-                    *p++ = b;
-                    *p++ = N|2;
-                    return p - output;
-                }else{
-                    equalCount++;
-                    *p++ = (equalCount << 5)|offset;
-                    return p - output;
-             }
-
-
-                ...
-
-            ...
-        if input[0] != input[1]{ // Next byte is different
-            if( input[0] == 0){ // single zero byte
-                *output = Z1 | offset;
-                input++;
-                offset = 0; 
-            }
-            *output++ = *input++; // single nom-zero byte
-            offset++;
-            if( offset == 32 ){ // insert chaining NOP sigil byte
-                *output++ = N;
-                offset = 0;
-            }
-            length--;
-            continue;
-        }
-
-...
-
-    if( input[0] == 0 && input[1] == 0 && input[2] == 0){
-      *output = 
-    }
-}
-
-```
-
-* To do: Describe algorithm in detail with chaining.
+[TCOBS.h](./TCOBS.h)
 
 ##  6. <a name='Changelog'></a>Changelog
 
@@ -349,6 +234,7 @@ unsigned TCOBSEncode( uint8_t* restrict output, const uint8_t * restrict input, 
 | 2022-MAR-18 | 0.2.0 | Correction & Simplifocation |
 | 2022-MAR-18 | 0.3.0 | Software Interface added |
 | 2022-MAR-18 | 0.3.1 | wip TCOBS Encoding |
+| 2022-MAR-19 | 0.4.0 | TCOBS Encoding as C-Code in separate file TCOBS.C |
 
 <!--
 | 2022-MAR-   | 0.3.0 | |
@@ -373,8 +259,9 @@ unsigned TCOBSEncode( uint8_t* restrict output, const uint8_t * restrict input, 
   - [4.1. <a name='CInterface'></a>C Interface](#41-c-interface)
   - [4.2. <a name='Gointerface'></a>Go interface](#42-go-interface)
 - [5. <a name='TCOBSEncodingDetails'></a>TCOBS Encoding Details](#5-tcobs-encoding-details)
-  - [Sigil Bytes Chaining](#sigil-bytes-chaining)
-    - [First any Sigil Byte](#first-any-sigil-byte)
+  - [5.1. <a name='SigilBytesChaining'></a>Sigil Bytes Chaining](#51-sigil-bytes-chaining)
+    - [5.1.1. <a name='FirstanySigilByte'></a>First any Sigil Byte](#511-first-any-sigil-byte)
+  - [5.2. <a name='TCODEC-code'></a>TCODE C-code](#52-tcode-c-code)
 - [6. <a name='Changelog'></a>Changelog](#6-changelog)
 
 <!--
