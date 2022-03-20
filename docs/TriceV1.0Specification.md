@@ -160,7 +160,7 @@ If for special cases, the main stream encoding is not sufficient, the user can a
 | 2022-MAR-15 |  0.5.0  | Minor corrections |
 | 2022-MAR-16 |  0.6.0  | TCOBS prime number comment added, simplified |
 | 2022-MAR-17 |  0.7.0  | TCOBS move into a separate [TCOBS Specification](./TCOBSSpecification.md), Framing more detailed. |
-| 2022-MAR-20 |  0.7.1. | Contributanble *Trice* extension remark added. |
+| 2022-MAR-20 |  0.7.1. | Contributable *Trice* extension remark added. |
 
 - [*Trice*  Version 1.0 Specification (Draft)](#trice--version-10-specification-draft)
   - [1. <a name='Preface'></a>Preface](#1-preface)
