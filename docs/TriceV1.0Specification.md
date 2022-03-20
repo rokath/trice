@@ -135,6 +135,7 @@ If for special cases, the main stream encoding is not sufficient, the user can a
       * Usage: `TRICEX2( "point %x,%d\n", a, b);`
   * *Trice* extensions without cycle counter are counted as well.
   * Each TRICEXn has its own ID space.
+* Several different *Trice* extensons are contributanble.
 
 ###  6.4. <a name='Unknownuserdata'></a>Unknown user data
 
@@ -146,6 +147,7 @@ If for special cases, the main stream encoding is not sufficient, the user can a
 * So, if *Trice* extensions not used, all `00...` packages are ignored as unknown user data.
 * Unknown user data have an unknown length. Therefore they cannot share a COBS packet with *Trices*.
 * Unknown user data packets do not affect the cycle counter. The can have their own cycle counter.
+
 ##  7. <a name='Changelog'></a>Changelog
 
 | Date        | Version | Comment |
