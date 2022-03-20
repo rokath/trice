@@ -4,10 +4,10 @@
 *******************************************************************************/
 
 #include <stdint.h>
-//#include "TCOBS.h"
+#include "TCOBS.h"
 
 #define ASSERT( condition )do{ if( !(condition) ){ for(;;){}}}while(0); //! ASSERT checks for a true condition, otherwise stop.
-#define BCOUNT ( limit - i ) //!< BCOUNT ist the remaining input byte count.
+//#define BCOUNT ( limit - i ) //!< BCOUNT ist the remaining input byte count.
 //#define OUTB( b ) do{ *o++ = b; offset++; if( offset == 31 ){ *o++ = N | 31; offset = 0; } } while( 0 ); //!< OUTB writes a non-sigil byte to output.
 
 #define N  0xA0 //!< sigil byte 0x101ooooo, offset 0-31
@@ -33,10 +33,10 @@ int TCOBSEncode( uint8_t* restrict output,  uint8_t const * restrict input, unsi
                        //                     1-7 for xx and R5
     uint8_t b_1 = 0; // previous byte
     uint8_t b = 0; // current byte
-    if( BCOUNT == 0 ){ // nothing to do
+    if( length == 0 ){ // nothing to do
         return 0;
     }
-    if( BCOUNT == 1 ){ // simple special case
+    if( length == 1 ){ // simple special case
         b = *i;
         if( b == 0 ){
             *o = Z1;
@@ -50,7 +50,7 @@ int TCOBSEncode( uint8_t* restrict output,  uint8_t const * restrict input, unsi
     for(;;){
         b_1 = b; // keep last byte for compare
         b = *i++; // get next byte
-        if( BCOUNT > 1 ){ // most likely
+        if( limit - i > 1 ){ // most likely
             if( b == 0 ){
                 zeroCount++; 
                 if( zeroCount < 3 ){
@@ -159,7 +159,7 @@ int TCOBSEncode( uint8_t* restrict output,  uint8_t const * restrict input, unsi
                     continue;
                 }
             }
-        }else{ // BCOUNT == 1, finish
+        }else{ // last byte, finish
             if( b == 0 ){
                 zeroCount++; // Z1=001ooooo, Z2=010ooooo, Z3=011ooooo
                 ASSERT( zeroCount <= 3 )
