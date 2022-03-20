@@ -22,10 +22,10 @@
 #define R4 0x18 //!< sigil byte 0x00011ooo, offset 0-7
 #define R5 0x00 //!< sigil byte 0x00000ooo, offset 0-6 stored as 1-7
 
-int TCOBSEncode( uint8_t* restrict output, const uint8_t* restrict input, unsigned length){
+int TCOBSEncode( uint8_t* restrict output,  uint8_t const * restrict input, unsigned length){
     uint8_t* o = output;
-    uint8_t* i = (uint8_t*)input;
-    uint8_t* limit = (uint8_t*)input + length;
+    uint8_t const * i = input;
+    uint8_t const * limit = input + length;
     int offset = 0; // sigil chain link
     int zeroCount = 0; // counts zero bytes 1-3 for Z1-Z3
     int fullCount = 0; // counts 0xFF bytes 1-4 for 0xFF and F2-F4
