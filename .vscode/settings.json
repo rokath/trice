@@ -7,5 +7,6 @@
         "COBSR",
         "NUCLEO",
         "Strg"
-    ]
+    ],
+    "C_Cpp.errorSquiggles": "Disabled"
 }

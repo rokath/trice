@@ -61,57 +61,52 @@
 
 * `o` = offset bit to next sigil byte
 
-* `101ooooo` NOP  sigil byte **No**: `ooooo` = 1-31, `ooooo`:00000 = 32
-* `001ooooo` Zero sigil byte **Z1**: `ooooo` = 1-31, `ooooo`:00000 = 32
-* `010ooooo` Zero sigil byte **Z2**: `ooooo` = 1-31, `ooooo`:00000 = 32
-* `011ooooo` Zero sigil byte **Z3**: `ooooo` = 1-31, `ooooo`:00000 = 32
-* `110ooooo` Full sigil byte **F2**: `ooooo` = 1-31, `ooooo`:00000 = 32
-* `111ooooo` Full sigil byte **F3**: `ooooo` = 1-31, `ooooo`:00000 = 32
-* `100ooooo` Full sigil byte **F4**: `ooooo` = 1-31, `ooooo`:00000 = 32
-* `00001ooo` REpeat sigil byte **R2**:  `ooo` = 1-7, `ooo`:000 = 8
-* `00010ooo` Repeat sigil byte **R3**:  `ooo` = 1-7, `ooo`:000 = 8
-* `00011ooo` Repeat sigil byte **R4**:  `ooo` = 1-7, `ooo`:000 = 8
-* `00000ooo` Repeat sigil byte **R5**:  `ooo` = 1-7, `ooo`:000 forbidden
+* `101ooooo` NOP  sigil byte **No**: `ooooo` = 0-31
+* `001ooooo` Zero sigil byte **Z1**: `ooooo` = 0-31
+* `010ooooo` Zero sigil byte **Z2**: `ooooo` = 0-31
+* `011ooooo` Zero sigil byte **Z3**: `ooooo` = 0-31
+* `110ooooo` Full sigil byte **F2**: `ooooo` = 0-31
+* `111ooooo` Full sigil byte **F3**: `ooooo` = 0-31
+* `100ooooo` Full sigil byte **F4**: `ooooo` = 0-31
+* `00001ooo` REpeat sigil byte **R2**:  `ooo` = 0-7
+* `00010ooo` Repeat sigil byte **R3**:  `ooo` = 0-7
+* `00011ooo` Repeat sigil byte **R4**:  `ooo` = 0-7
+* `00000ooo` Repeat sigil byte **R5**:  `ooo` = 0-6, as +1 value stored to avoid 00000ooo==00000000
 
 ####  3.2.1. <a name='NOPSigilByteN'></a>NOP Sigil Byte `N`
 
 This does not represent data in the stream and only serves to keep the chain linked. The remaining 5 bits encode the distance to the next sigil (1 <= n <=32).
-* N_1 = `101000001`
+* N_0 = `101000001`
 * ...
 * N_31 = `10111111`
-* N_32 = `10100000`
 
 ####  3.2.2. <a name='ZeroSigilByteZ1Z2Z3'></a>Zero Sigil Byte `Z1`, `Z2`, `Z3`
 
 * This sigil represents 1 to 3 zeroes in the data stream, and is a `00` to `00 00 00` replacement to reduce data and keep the chain linked.
 * The remaining 5 bits encode the distance to the next sigil (1 <= n <= 31), `00000`=32.
 * Z1 = `001ooooo`
-  * Z1_1 = `00100001`
+  * Z1_0 = `00100000`
   * ...
   * Z1_31 = `00111111`
-  * Z1_32 = `00100000`
 * ...
 * Z3 = `011ooooo`
-  * Z3_1 = `01100001`
+  * Z3_0 = `01100000`
   * ...
   * Z3_31 = `01111111`
-  * Z3_32 = `01100000`
 
 ####  3.2.3. <a name='FullSigilByteF2F3F4'></a>Full Sigil Byte `F2`, `F3`, `F4`
 
 * This sigil represents 2 to 4 0xFF in the data stream, and is a `FF FF` to `FF FF FF FF` replacement to reduce data and keep the chain linked.
 * The remaining 5 bits encode the distance to the next sigil (1 <= n <= 31), `00000`=32.
 * F2 = `110ooooo`
-  * F2_1 = `11000001`
+  * F2_0 = `11000000`
   * ...
   * F2_31 = `11011111`
-  * F2_32 = `11000000`
 * ...
 * F4 = `100ooooo`
-  * F4_1 = `10000001`
+  * F4_0 = `10000000`
   * ...
   * F4_31 = `10011111`
-  * F4_32 = `10000000`
 
 ####  3.2.4. <a name='RepeatSigilByteR2R3R4R5'></a>Repeat Sigil Byte `R2`, `R3`, `R4`, `R5`
 
@@ -119,16 +114,15 @@ This does not represent data in the stream and only serves to keep the chain lin
   * Alternatively replacing R4 with a R7 allow better compression especially for longer sequences.
 * The remaining 3 bits encode the distance to the next sigil (1 <= n <= 7), 000=8 but not for R5
 * R2 = `00010ooo`
-  * R2_1 = `00010001`
+  * R2_0 = `00010000`
   * ...
   * R2_7 = `00010111`
-  * R2_8 = `00010000`
 * ...
 * R5 = `00000ooo`
-  * R5_1 = `00000001`
+  * R5_0 = `00000001`
   * ...
-  * R5_7 = `00000111`
-  * forbidden = `00000000`
+  * R5_6 = `00000111`
+  * R5 carries the offset as +1 value to avoid the `00000000` case.
 
 ###  3.3. <a name='FragmentExamples'></a>Fragment Examples
 
@@ -242,6 +236,7 @@ func TCOBSDecode(p []byte) []byte {
 | 2022-MAR-18 | 0.3.1 | wip TCOBS Encoding |
 | 2022-MAR-19 | 0.4.0 | TCOBS Encoding as C-Code in separate file TCOBS.C |
 | 2022-MAR-20 | 0.4.1 | Sigil chaining better explained.|
+| 2022-MAR-20 | 0.4.2 | Sigil corrected. Now the offset is the byte count between two sigil bytes.|
 
 <!--
 | 2022-MAR-   | 0.3.0 | |
