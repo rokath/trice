@@ -7,7 +7,7 @@
 #include "TCOBS.h"
 
 #define ASSERT( condition )do{ if( !condition ){ for(;;){}}}while(0); //! Check for a true condition, otherwise stop.
-
+#define BCOUNT( limit - input )
 #define N  0xA0 //!< sigil byte 0x101ooooo
 #define Z1 0x20 //!< sigil byte 0x001ooooo
 #define Z2 0x40 //!< sigil byte 0x010ooooo
@@ -22,6 +22,7 @@
 
 unsigned TCOBSEncode( uint8_t* restrict output, const uint8_t* restrict input, unsigned length){
     uint8_t* p = output;
+    uint8_t* limit = input + length;
     int offset = 0; // sigil chain link
     int zeroCount = 0; // counts zero bytes 1-3 for Z1-Z3
     int fullCount = 0; // counts 0xFF bytes 1-4 for 0xFF and F2-F4
@@ -29,30 +30,28 @@ unsigned TCOBSEncode( uint8_t* restrict output, const uint8_t* restrict input, u
                        //                     1-7 for xx and R5
     uint8_t b_1; // previous byte
     uint8_t b; // current byte
-
+    if( length == 0 ){ // nothing to do
+        return 0;
+    }
     for(;;){
-        if( length == 0 ){ // nothing to do
-            return p - output;
-        }
-        //    if( zeroCount > 0 ){ // Z1=001ooooo, Z2=010ooooo, Z3=011ooooo
-        //        *p++ = (zeroCount<<5)|(0x1F & offset);
-        //        return p - output;
-        //    }
-        //    if( fullCount == 1 ){ // N=0x101ooooo
-        //        *p++ = 0xFF;        
-        //        *p++ = N|++offset; 
-        //        return p - output;
-        //    }
-        //    if( fullCount > 1 ){ // F2=110ooooo, F3=111ooooo, F4=100ooooo
-        //        *p++ = 0x80 | (fullCount<<5)|(0x1F & offset); 
-        //        return p - output;
-        //    }
-        //    if( equalCount > 0 ){
-        //        //...
-        //}
         b_1 = b; // keep last value byte
-        b = *input--; // get next byte
-        if( length == 1 ){
+        b = *input++; // get next byte
+        if( length > 1 ){ // most likely
+            if( b == 0 ){
+                zeroCount++; // Z1=001ooooo, Z2=010ooooo, Z3=011ooooo
+                if( zeroCount < 3 ){
+                    continue;
+                    ASSERT( offset <= 32 )
+                    *p++ = Z3 | offset;
+                    offset = 0;
+                    length--;
+                    continue;
+                }else{
+
+                }
+            }
+
+        }else{ // length == 1, finish
             if( b == 0 ){
                 zeroCount++; // Z1=001ooooo, Z2=010ooooo, Z3=011ooooo
                 ASSERT( zeroCount <= 3 )
@@ -101,54 +100,52 @@ unsigned TCOBSEncode( uint8_t* restrict output, const uint8_t* restrict input, u
                                     ASSERT( 1 <= offset && offset <= 8 )
                                     *p++ = 0x08 | offset; // R2 -> 00001ooo
                                     *p++ = b;
+                                    *p++ = N | 1;
                                     return p - output;
                                 case 3:
                                     ASSERT( 1 <= offset && offset <= 8 )
                                     *p++ = 0x10 | (7 & offset); // R3 -> 00010ooo
                                     *p++ = b;
+                                    *p++ = N | 1;
                                     return p - output;
                                 case 4:
                                     ASSERT( 1 <= offset && offset <= 8 )
                                     *p++ = 0x18 | offset; // R4 -> 00011ooo
                                     *p++ = b;
+                                    *p++ = N | 1;
                                     return p - output;
                                 case 5:
                                     ASSERT( 1 <= offset && offset <= 7 )
                                     *p++ = 0x00 | offset; // R5 -> 00000ooo
                                     *p++ = b;
-                                    *p++ = N | 2;
+                                    *p++ = N | 1;
                                     return p - output;
                             }
                         }
                     }else{ // b_1 == b ){ // now a repeated byte: xx, Rx xx
-
+                        reptCount++;
+                        ASSERT( 2 <= reptCount && reptCount <= 5 )
+                        switch( reptCount ){
+                            case 2:
+                                ASSERT( 1 <= offset && offset <= 8 )
+                                *p++ = 0x08 | offset; // R2 -> 00001ooo
+                                return p - output;
+                            case 3:
+                                ASSERT( 1 <= offset && offset <= 8 )
+                                *p++ = 0x10 | (7 & offset); // R3 -> 00010ooo
+                                return p - output;
+                            case 4:
+                                ASSERT( 1 <= offset && offset <= 8 )
+                                *p++ = 0x18 | offset; // R4 -> 00011ooo
+                                return p - output;
+                            case 5:
+                                ASSERT( 1 <= offset && offset <= 7 )
+                                *p++ = 0x00 | offset; // R5 -> 00000ooo
+                                return p - output;
+                        }                       
                     }
                 }
-
-
-                ...
-
-            ...
-        if input[0] != input[1]{ // Next byte is different
-            if( input[0] == 0){ // single zero byte
-                *output = Z1 | offset;
-                input++;
-                offset = 0; 
             }
-            *output++ = *input++; // single nom-zero byte
-            offset++;
-            if( offset == 32 ){ // insert chaining NOP sigil byte
-                *output++ = N;
-                offset = 0;
-            }
-            length--;
-            continue;
         }
-
-...
-
-    if( input[0] == 0 && input[1] == 0 && input[2] == 0){
-      *output = 
     }
 }
-
