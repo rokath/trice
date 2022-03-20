@@ -6,6 +6,7 @@
 #include <stdint.h>
 #include "TCOBS.h"
 
+#define ASSERT( condition )do{ if( !condition ){ for(;;){}}}while(0); //! Check for a true condition, otherwise stop.
 
 #define N  0xA0 //!< sigil byte 0x101ooooo
 #define Z1 0x20 //!< sigil byte 0x001ooooo
@@ -22,9 +23,13 @@
 unsigned TCOBSEncode( uint8_t* restrict output, const uint8_t* restrict input, unsigned length){
     uint8_t* p = output;
     int offset = 0; // sigil chain link
-    int zeroCount = 0; // counts zero bytes
-    int fullCount = 0; // counts 0xFF bytes
-    int equalCount = 0; // counts equal bytes
+    int zeroCount = 0; // counts zero bytes 1-3 for Z1-Z3
+    int fullCount = 0; // counts 0xFF bytes 1-4 for 0xFF and F2-F4
+    int reptCount = 0; // counts repeat bytes 1-8 for xx and R2-R4,
+                       //                     1-7 for xx and R5
+    uint8_t b_1; // previous byte
+    uint8_t b; // current byte
+
     for(;;){
         if( length == 0 ){ // nothing to do
             return p - output;
@@ -45,45 +50,80 @@ unsigned TCOBSEncode( uint8_t* restrict output, const uint8_t* restrict input, u
         //    if( equalCount > 0 ){
         //        //...
         //}
+        b_1 = b; // keep last value byte
+        b = *input--; // get next byte
         if( length == 1 ){
-            uint8_t b = *input--; // get next byte
             if( b == 0 ){
                 zeroCount++; // Z1=001ooooo, Z2=010ooooo, Z3=011ooooo
+                ASSERT( zeroCount <= 3 )
                 *p++ = (zeroCount<<5)|(0x1F & offset);
                 return p - output;
-            }
-            if( b == 0xFF ){
-                if( fullCount == 0 ){ // no previous 0xFF
-                *p++ = 0xFF;        
-                *p++ = N | ++offset; // N=0x101ooooo
-                return p - output;
-            }else{ // F2=110ooooo, F3=111ooooo, F4=100ooooo
-                fullCount += 2; // 2 or 3 or 4
-                *p++ = 0x80 | (fullCount<<5) | (0x1F & offset); 
-                return p - output;
-            }
-            if( equalCount == 0 ){ // previous 2 bytes not equal
-                *p++ = b; // results in xx yy zz or xx yy yy
-                *p++ = N | ++offset; // N=0x101ooooo
-                return p - output;
-            }else{ // at least previous 2 bytes equal
-                if( b != *p ){ // now a different byte: xx Rx yy, cases:
-                    if( equalCount == 1 ){ // xx R1 yy
-                        uint8_t xx = p[-1];
-                        *p++ = xx; // xx xx
-                        offset
-                        *p++ = b;  // xx xx yy
-                        offset += 2;
-                        *p++ = N | offset
+            }else if( b == 0xFF ){ // a FF and ...
+                if( fullCount == 0 ){ // ... no previous FF
+                    *p++ = 0xFF;
+                    offset++;
+                    ASSERT( offset <= 32 ) 
+                    *p++ = N | offset; // N=0x101ooooo
+                    return p - output;
+                }else{ // ... 1-3 previous 0xFF
+                    fullCount++; // 2 or 3 or 4
+                    ASSERT( fullCount <= 4 )
+                    ASSERT( offset <= 32 )
+                    *p++ = 0x80 | (fullCount<<5) | (0x1F & offset); // F2=110ooooo, F3=111ooooo, F4=100ooooo
+                    return p - output;
+                }
+            }else{ // b = 01...FE
+                if( reptCount == 0 ){
+                    *p++ = b; 
+                    offset++;
+                    ASSERT( offset <= 32 ) 
+                    *p++ = N | offset; // N=0x101ooooo
+                    return p - output;
+                }else{ // b_1 has a valid value (start length > 1)
+                    if( b_1 != b ){ // now a different byte: xx, Rx yy
+                        if( reptCount == 1 ){ // xx, R1 yy
+                            *p++ = b_1; // xx xx, yy
+                            offset++;
+                            if( offset == 32 ){
+                                *p++ = N; // N=0x101ooooo
+                                offset = 0;
+                            }
+                            *p++ = b;  // xx xx yy,
+                            offset++;
+                            ASSERT( offset <= 32 )
+                            *p++ = N | offset;
+                            return p - output;
+                        }else{ // xx, Rn yy
+                            reptCount++;
+                            ASSERT( 2 <= reptCount && reptCount <= 5 )
+                            switch( reptCount ){
+                                case 2:
+                                    ASSERT( 1 <= offset && offset <= 8 )
+                                    *p++ = 0x08 | offset; // R2 -> 00001ooo
+                                    *p++ = b;
+                                    return p - output;
+                                case 3:
+                                    ASSERT( 1 <= offset && offset <= 8 )
+                                    *p++ = 0x10 | (7 & offset); // R3 -> 00010ooo
+                                    *p++ = b;
+                                    return p - output;
+                                case 4:
+                                    ASSERT( 1 <= offset && offset <= 8 )
+                                    *p++ = 0x18 | offset; // R4 -> 00011ooo
+                                    *p++ = b;
+                                    return p - output;
+                                case 5:
+                                    ASSERT( 1 <= offset && offset <= 7 )
+                                    *p++ = 0x00 | offset; // R5 -> 00000ooo
+                                    *p++ = b;
+                                    *p++ = N | 2;
+                                    return p - output;
+                            }
+                        }
+                    }else{ // b_1 == b ){ // now a repeated byte: xx, Rx xx
 
-                    *p++ = b;
-                    *p++ = N|2;
-                    return p - output;
-                }else{
-                    equalCount++;
-                    *p++ = (equalCount << 5)|offset;
-                    return p - output;
-             }
+                    }
+                }
 
 
                 ...

@@ -68,7 +68,7 @@
 * `110ooooo` Full sigil byte **F2**: `ooooo` = 1-31, `ooooo`:00000 = 32
 * `111ooooo` Full sigil byte **F3**: `ooooo` = 1-31, `ooooo`:00000 = 32
 * `100ooooo` Full sigil byte **F4**: `ooooo` = 1-31, `ooooo`:00000 = 32
-* `00001ooo` Repeat sigil byte **R2**:  `ooo` = 1-7, `ooo`:000 = 8
+* `00001ooo` REpeat sigil byte **R2**:  `ooo` = 1-7, `ooo`:000 = 8
 * `00010ooo` Repeat sigil byte **R3**:  `ooo` = 1-7, `ooo`:000 = 8
 * `00011ooo` Repeat sigil byte **R4**:  `ooo` = 1-7, `ooo`:000 = 8
 * `00000ooo` Repeat sigil byte **R5**:  `ooo` = 1-7, `ooo`:000 forbidden
@@ -210,15 +210,20 @@ func TCOBSDecode(p []byte) []byte {
 
 * The encoding starts at first buffer address.
 * The encoded buffer ends with a sigil byte.
-* The decoding then, starts at the sigil byte which is the last address of the encoded data.
+* The decoding then, starts at the sigil byte which is the last of the encoded data.
 
 ####  5.1.1. <a name='FirstanySigilByte'></a>First any Sigil Byte
 
-* The first sigil byte carries as offset the byte count before it.
+* The first sigil byte (at the end) carries as offset the byte count between it to the next sigil byte (before it) or to the buffer start.
+* If 2 sigil bytes neighbors the offset is 0.
+* Encoded examples: (Sn =sigil byte with offset n, by = data byte)
 
-| Position | 0 | ... | 32 |
-| -        | - | -   | -  |
-| offset   | 0 | ... | 32 |
+  ```c
+  S0 // only one sigil byte like F4 (representing FF FF FF FF)
+  by S1 // one byte and a sigil byte like AA R5 representing AA AA AA AA AA AA
+  by by S2 S0 // like AA BB R2 Z2 representing AA BB BB BB 00 00
+  by by by by by S5 S0 S0 by by by S3 // and so on ...
+  ```
 
 * Any next sigil byte  carries as offset the byte count to the sigil byte before,
 
@@ -236,6 +241,7 @@ func TCOBSDecode(p []byte) []byte {
 | 2022-MAR-18 | 0.3.0 | Software Interface added |
 | 2022-MAR-18 | 0.3.1 | wip TCOBS Encoding |
 | 2022-MAR-19 | 0.4.0 | TCOBS Encoding as C-Code in separate file TCOBS.C |
+| 2022-MAR-20 | 0.4.1 | Sigil chaining better explained.|
 
 <!--
 | 2022-MAR-   | 0.3.0 | |
