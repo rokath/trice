@@ -60,7 +60,6 @@
 ###  3.2. <a name='Symbols'></a>Symbols
 
 * `o` = offset bit to next sigil byte
-* `n` = number bit
 
 * `101ooooo` NOP  sigil byte **No**: `ooooo` = 1-31, `ooooo`:00000 = 32
 * `001ooooo` Zero sigil byte **Z1**: `ooooo` = 1-31, `ooooo`:00000 = 32
@@ -69,9 +68,9 @@
 * `110ooooo` Full sigil byte **F2**: `ooooo` = 1-31, `ooooo`:00000 = 32
 * `111ooooo` Full sigil byte **F3**: `ooooo` = 1-31, `ooooo`:00000 = 32
 * `100ooooo` Full sigil byte **F4**: `ooooo` = 1-31, `ooooo`:00000 = 32
-* `00010ooo` Repeat sigil byte **R2**:  `ooo` = 1-7, `ooo`:000 = 8
-* `00011ooo` Repeat sigil byte **R3**:  `ooo` = 1-7, `ooo`:000 = 8
-* `00001ooo` Repeat sigil byte **R4**:  `ooo` = 1-7, `ooo`:000 = 8
+* `00001ooo` Repeat sigil byte **R2**:  `ooo` = 1-7, `ooo`:000 = 8
+* `00010ooo` Repeat sigil byte **R3**:  `ooo` = 1-7, `ooo`:000 = 8
+* `00011ooo` Repeat sigil byte **R4**:  `ooo` = 1-7, `ooo`:000 = 8
 * `00000ooo` Repeat sigil byte **R5**:  `ooo` = 1-7, `ooo`:000 forbidden
 
 ####  3.2.1. <a name='NOPSigilByteN'></a>NOP Sigil Byte `N`
