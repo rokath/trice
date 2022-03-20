@@ -8,7 +8,7 @@
 
 #define ASSERT( condition )do{ if( !(condition) ){ for(;;){}}}while(0); //! ASSERT checks for a true condition, otherwise stop.
 #define BCOUNT ( limit - i ) //!< BCOUNT ist the remaining input byte count.
-#define OUTB( b ) do{ *o++ = b; offset++; if( offset == 31 ){ *o++ = N | 31; offset = 0; }while( 0 ) //!< OUTB writes a 01-FE byte to output.
+#define OUTB( b ) do{ *o++ = b; offset++; if( offset == 31 ){ *o++ = N | 31; offset = 0; } } while( 0 ); //!< OUTB writes a non-sigil byte to output.
 
 #define N  0xA0 //!< sigil byte 0x101ooooo, offset 0-31
 #define Z1 0x20 //!< sigil byte 0x001ooooo, offset 0-31
@@ -24,8 +24,8 @@
 
 unsigned TCOBSEncode( uint8_t* restrict output, const uint8_t* restrict input, unsigned length){
     uint8_t* o = output;
-    uint8_t* i = input;
-    uint8_t* limit = input + length;
+    uint8_t* i = (uint8_t*)input;
+    uint8_t* limit = (uint8_t*)input + length;
     int offset = 0; // sigil chain link
     int zeroCount = 0; // counts zero bytes 1-3 for Z1-Z3
     int fullCount = 0; // counts 0xFF bytes 1-4 for 0xFF and F2-F4
@@ -35,6 +35,17 @@ unsigned TCOBSEncode( uint8_t* restrict output, const uint8_t* restrict input, u
     uint8_t b; // current byte
     if( BCOUNT == 0 ){ // nothing to do
         return 0;
+    }
+    if( BCOUNT == 1 ){ // simple special case
+        b = *i;
+        if( b == 0 ){
+            *o = Z1;
+            return 1;
+        }else{
+            *o++ = b;
+            *o = N | 1;
+            return 2;
+        }
     }
     for(;;){
         b_1 = b; // keep last byte for compare
@@ -66,9 +77,9 @@ unsigned TCOBSEncode( uint8_t* restrict output, const uint8_t* restrict input, u
                 if( zeroCount ){ // Z1=001ooooo, Z2=010ooooo, Z3=011ooooo
                     ASSERT( offset < 32 && fullCount == 0 && reptCount == 0 )
                     *o++ = (zeroCount << 5) | offset;
-                    offset = 0;
+                    offset = 1;
                     zeroCount = 0;
-                    OUTB( b )
+                    *o++ = b; 
                     continue;
                 } else if( fullCount == 1 ){ // a single FF
                     ASSERT( offset < 32 && zeroCount == 0 && reptCount == 0 )
@@ -79,9 +90,9 @@ unsigned TCOBSEncode( uint8_t* restrict output, const uint8_t* restrict input, u
                 }else if( 2 <= fullCount && fullCount <= 4 ){ // 2-4 FF
                     ASSERT( offset < 32 && zeroCount == 0 && reptCount == 0 )
                     *o++ = 0x80 | (fullCount << 5) | offset;
-                    offset = 0;
+                    offset = 1;
                     fullCount = 0;
-                    OUTB( b )
+                    *o++ = b;
                     continue;
                 }else if( b_1 != b ){
                     ASSERT( offset < 32 && zeroCount == 0 && fullCount == 0 )
@@ -100,8 +111,8 @@ unsigned TCOBSEncode( uint8_t* restrict output, const uint8_t* restrict input, u
                             offset = 0;
                         }
                         *o++ = R2 | offset; // R2=0x00001ooo
-                        offset = 0;
-                        OUTB( b )
+                        offset = 1;
+                        *o++ = b; 
                         continue; 
                     case 3: // 3 repetitions
                         ASSERT( offset < 32 )
@@ -110,8 +121,8 @@ unsigned TCOBSEncode( uint8_t* restrict output, const uint8_t* restrict input, u
                             offset = 0;
                         }
                         *o++ = R3 | offset; // R3=0x00010ooo
-                        offset = 0;
-                        OUTB( b )
+                        offset = 1;
+                        *o++ = b;
                         continue; 
                     case 4: // 4 repetitions
                         ASSERT( offset < 32 )
@@ -120,8 +131,8 @@ unsigned TCOBSEncode( uint8_t* restrict output, const uint8_t* restrict input, u
                             offset = 0;
                         }
                         *o++ = R4 | offset; // R4=0x00011ooo
-                        offset = 0;
-                        OUTB( b )
+                        offset = 1;
+                        *o++ = b;
                         continue; 
                     case 5: // 5 repetitions
                         ASSERT( offset < 32 )
@@ -130,29 +141,29 @@ unsigned TCOBSEncode( uint8_t* restrict output, const uint8_t* restrict input, u
                             offset = 0;
                         }
                         *o++ = R5 | (offset+1); // R5=0x00000ooo
-                        offset = 0;
-                        OUTB( b )
+                        offset = 1;
+                        *o++ = b;
                         continue; 
                     default:
-                        ASSERT( 0 )
-                    }else{ // b_1==b
-                        reptCount++;
-                        if( reptCount < 5 ){
-                            continue
-                        }
-                        ASSERT( offset < 7 )
-                        *o++ = R5 | (offset+1); // R5=0x00000ooo
-                        offset = 0;
-                        reptCount = 0
+                       ASSERT( 0 )
+                    }
+                }else{ // b_1 == b
+                    reptCount++;
+                    if( reptCount < 5 ){
                         continue;
                     }
+                    ASSERT( offset < 7 )
+                    *o++ = R5 | (offset+1); // R5=0x00000ooo
+                    offset = 0;
+                    reptCount = 0;
+                    continue;
                 }
             }
         }else{ // BCOUNT == 1, finish
             if( b == 0 ){
                 zeroCount++; // Z1=001ooooo, Z2=010ooooo, Z3=011ooooo
                 ASSERT( zeroCount <= 3 )
-                *o++ = (zeroCount<<5)|(0x1F & offset);
+                *o++ = (zeroCount<<5)| offset;
                 return o - output;
             }else if( b == 0xFF ){ // a FF and ...
                 if( fullCount == 0 ){ // ... no previous FF
@@ -175,69 +186,20 @@ unsigned TCOBSEncode( uint8_t* restrict output, const uint8_t* restrict input, u
                     ASSERT( offset < 32 ) 
                     *o++ = N | offset; // N=0x101ooooo
                     return o - output;
-                }else{ // b_1 has a valid value (start length > 1)
-                    if( b_1 != b ){ // now a different byte: xx, Rx yy
-                        if( reptCount == 1 ){ // xx, R1 yy
-                            *o++ = b_1; // xx xx, yy
-                            offset++;
-                            if( offset == 31 ){
-                                *o++ = N | 31; // N=0x101ooooo
-                                offset = 0;
-                            }
-                            *o++ = b;  // xx xx yy,
-                            offset++;
-                            ASSERT( offset < 32 )
-                            *o++ = N | offset;
-                            return o - output;
-                        }else{ // xx, Rn yy
-                            reptCount++;
-                            ASSERT( 2 <= reptCount && reptCount <= 5 )
-                            switch( reptCount ){
-                            case 2:
-                                ASSERT( offset < 32 )
-                                if( offset > 7 ){
-                                    *o++ = N | offset;
-                                    offset = 0;
-                                }
-                                *o++ = 0x08 | offset; // R2 -> 00001ooo
-                                *o++ = b;
-                                *o++ = N | 1;
-                                return o - output;
-                            case 3:
-                                ASSERT( offset < 32 )
-                                if( offset > 7 ){
-                                    *o++ = N | offset;
-                                    offset = 0;
-                                }
-                                *o++ = 0x10 | (7 & offset); // R3 -> 00010ooo
-                                *o++ = b;
-                                *o++ = N | 1;
-                                return o - output;
-                            case 4:
-                                ASSERT( offset < 32 )
-                                if( offset > 7 ){
-                                    *o++ = N | offset;
-                                    offset = 0;
-                                }
-                                *o++ = 0x18 | offset; // R4 -> 00011ooo
-                                *o++ = b;
-                                *o++ = N | 1;
-                                return o - output;
-                            case 5:
-                                ASSERT( offset < 32 )
-                                if( offset > 6 ){
-                                    *o++ = N | offset;
-                                    offset = 0;
-                                }
-                                *o++ = 0x00 | (offset+1); // R5 -> 00000ooo
-                                *o++ = b;
-                                *o++ = N | 1;
-                                return o - output;
-                            default:
-                                ASSERT() 0 )
-                            }
+                }else if( b_1 != b ){ // now a different byte: xx, Rx yy, b_1 has a valid value here
+                    if( reptCount == 1 ){ // xx, R1 yy
+                        *o++ = b_1; // xx xx, yy
+                        offset++;
+                        if( offset == 31 ){
+                            *o++ = N | 31; // N=0x101ooooo
+                            offset = 0;
                         }
-                    }else{ // b_1 == b ){ // now a repeated byte: xx, Rx xx
+                        *o++ = b;  // xx xx yy,
+                        offset++;
+                        ASSERT( offset < 32 )
+                        *o++ = N | offset;
+                        return o - output;
+                    }else{ // xx, Rn yy
                         reptCount++;
                         ASSERT( 2 <= reptCount && reptCount <= 5 )
                         switch( reptCount ){
@@ -248,6 +210,8 @@ unsigned TCOBSEncode( uint8_t* restrict output, const uint8_t* restrict input, u
                                 offset = 0;
                             }
                             *o++ = 0x08 | offset; // R2 -> 00001ooo
+                            *o++ = b;
+                            *o++ = N | 1;
                             return o - output;
                         case 3:
                             ASSERT( offset < 32 )
@@ -256,6 +220,8 @@ unsigned TCOBSEncode( uint8_t* restrict output, const uint8_t* restrict input, u
                                 offset = 0;
                             }
                             *o++ = 0x10 | (7 & offset); // R3 -> 00010ooo
+                            *o++ = b;
+                            *o++ = N | 1;
                             return o - output;
                         case 4:
                             ASSERT( offset < 32 )
@@ -264,6 +230,8 @@ unsigned TCOBSEncode( uint8_t* restrict output, const uint8_t* restrict input, u
                                 offset = 0;
                             }
                             *o++ = 0x18 | offset; // R4 -> 00011ooo
+                            *o++ = b;
+                            *o++ = N | 1;
                             return o - output;
                         case 5:
                             ASSERT( offset < 32 )
@@ -271,12 +239,53 @@ unsigned TCOBSEncode( uint8_t* restrict output, const uint8_t* restrict input, u
                                 *o++ = N | offset;
                                 offset = 0;
                             }
-                            *o++ = 0x00 | offset; // R5 -> 00000ooo
+                            *o++ = 0x00 | (offset+1); // R5 -> 00000ooo
+                            *o++ = b;
+                            *o++ = N | 1;
                             return o - output;
                         default:
                             ASSERT( 0 )
-                        }                       
+                        }
                     }
+                }else{ // b_1 == b ){ // now a repeated byte: xx, Rx xx
+                    reptCount++;
+                    ASSERT( 2 <= reptCount && reptCount <= 5 )
+                    switch( reptCount ){
+                    case 2:
+                        ASSERT( offset < 32 )
+                        if( offset > 7 ){
+                            *o++ = N | offset;
+                            offset = 0;
+                        }
+                        *o++ = 0x08 | offset; // R2 -> 00001ooo
+                        return o - output;
+                    case 3:
+                        ASSERT( offset < 32 )
+                        if( offset > 7 ){
+                            *o++ = N | offset;
+                            offset = 0;
+                        }
+                        *o++ = 0x10 | (7 & offset); // R3 -> 00010ooo
+                        return o - output;
+                    case 4:
+                        ASSERT( offset < 32 )
+                        if( offset > 7 ){
+                            *o++ = N | offset;
+                            offset = 0;
+                        }
+                        *o++ = 0x18 | offset; // R4 -> 00011ooo
+                        return o - output;
+                    case 5:
+                        ASSERT( offset < 32 )
+                        if( offset > 6 ){
+                            *o++ = N | offset;
+                            offset = 0;
+                        }
+                        *o++ = 0x00 | offset; // R5 -> 00000ooo
+                        return o - output;
+                    default:
+                        ASSERT( 0 )
+                    }                       
                 }
             }
         }
