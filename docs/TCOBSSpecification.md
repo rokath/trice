@@ -30,7 +30,7 @@
 
 * TCOBS is a different kind of [COBS](https://en.wikipedia.org/wiki/Consistent_Overhead_Byte_Stuffing) encoding, inspired by [rlercobs](https://docs.rs/kolben/0.0.3/kolben/rlercobs/index.html) with focus on speed and future improvement.
 * TCOBS uses various chained sigil bytes to achieve an additional lossless compression if possible.
-* Each encoded package starts (ends) with an additional sigil byte and has in the worst case 1 additional byte per 32 bytes, but usually the encoded data are smaller than the unencoded because of the compression.
+* Each encoded package ends with an additional sigil byte and has in the worst case 1 additional byte per 32 bytes, but usually the encoded data are smaller than the unencoded because of the compression.
 * 0 is used as delimiter byte.
 
 ##  2. <a name='COBSDataDisruption'></a>COBS Data Disruption
