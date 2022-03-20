@@ -4,11 +4,11 @@
 *******************************************************************************/
 
 #include <stdint.h>
-#include "TCOBS.h"
+//#include "TCOBS.h"
 
 #define ASSERT( condition )do{ if( !(condition) ){ for(;;){}}}while(0); //! ASSERT checks for a true condition, otherwise stop.
 #define BCOUNT ( limit - i ) //!< BCOUNT ist the remaining input byte count.
-#define OUTB( b ) do{ *o++ = b; offset++; if( offset == 31 ){ *o++ = N | 31; offset = 0; } } while( 0 ); //!< OUTB writes a non-sigil byte to output.
+//#define OUTB( b ) do{ *o++ = b; offset++; if( offset == 31 ){ *o++ = N | 31; offset = 0; } } while( 0 ); //!< OUTB writes a non-sigil byte to output.
 
 #define N  0xA0 //!< sigil byte 0x101ooooo, offset 0-31
 #define Z1 0x20 //!< sigil byte 0x001ooooo, offset 0-31
@@ -22,7 +22,7 @@
 #define R4 0x18 //!< sigil byte 0x00011ooo, offset 0-7
 #define R5 0x00 //!< sigil byte 0x00000ooo, offset 0-6 stored as 1-7
 
-unsigned TCOBSEncode( uint8_t* restrict output, const uint8_t* restrict input, unsigned length){
+int TCOBSEncode( uint8_t* restrict output, const uint8_t* restrict input, unsigned length){
     uint8_t* o = output;
     uint8_t* i = (uint8_t*)input;
     uint8_t* limit = (uint8_t*)input + length;
@@ -31,8 +31,8 @@ unsigned TCOBSEncode( uint8_t* restrict output, const uint8_t* restrict input, u
     int fullCount = 0; // counts 0xFF bytes 1-4 for 0xFF and F2-F4
     int reptCount = 0; // counts repeat bytes 1-8 for xx and R2-R4,
                        //                     1-7 for xx and R5
-    uint8_t b_1; // previous byte
-    uint8_t b; // current byte
+    uint8_t b_1 = 0; // previous byte
+    uint8_t b = 0; // current byte
     if( BCOUNT == 0 ){ // nothing to do
         return 0;
     }
@@ -83,9 +83,9 @@ unsigned TCOBSEncode( uint8_t* restrict output, const uint8_t* restrict input, u
                     continue;
                 } else if( fullCount == 1 ){ // a single FF
                     ASSERT( offset < 32 && zeroCount == 0 && reptCount == 0 )
-                    OUTB( 0xFF )
+                    *o++ = 0xFF; offset++; if( offset == 31 ){ *o++ = N | 31; offset = 0; } //OUTB( 0xFF )
                     fullCount = 0;
-                    OUTB( b )
+                    *o++ = b; offset++; if( offset == 31 ){ *o++ = N | 31; offset = 0; } // OUTB( b )
                     continue;
                 }else if( 2 <= fullCount && fullCount <= 4 ){ // 2-4 FF
                     ASSERT( offset < 32 && zeroCount == 0 && reptCount == 0 )
@@ -98,11 +98,11 @@ unsigned TCOBSEncode( uint8_t* restrict output, const uint8_t* restrict input, u
                     ASSERT( offset < 32 && zeroCount == 0 && fullCount == 0 )
                     switch( reptCount ){
                     case 0: // no repetition
-                        OUTB( b )
+                        *o++ = b; offset++; if( offset == 31 ){ *o++ = N | 31; offset = 0; } // OUTB( b )
                         continue;
                     case 1: // one repetition
-                        OUTB( b_1 )
-                        OUTB( b )
+                        *o++ = b_1; offset++; if( offset == 31 ){ *o++ = N | 31; offset = 0; } // OUTB( b_1 )
+                        *o++ = b; offset++; if( offset == 31 ){ *o++ = N | 31; offset = 0; } // OUTB( b )
                         continue;
                     case 2: // two repetitions
                         ASSERT( offset < 32 )

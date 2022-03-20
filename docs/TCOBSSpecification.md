@@ -195,7 +195,7 @@ func TCOBSEncode(p []byte) []byte
 
 ```Go
 // TCOBSDecode a null-terminated frame to a slice of bytes
-func TCOBSDecode(p []byte) []byte {
+func TCOBSDecode(p []byte) []byte 
 ```
 
 ##  5. <a name='TCOBSEncodingDetails'></a>TCOBS Encoding Details

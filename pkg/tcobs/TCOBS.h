@@ -13,7 +13,7 @@
 //! The provided output buffer size should be > length + > 1+(length>>5).
 //! Remove the "restrict" qualifiers if compiling with a pre-C99 C dialect.
 //! (copied and adapted from https://github.com/jacquesf/COBS-Consistent-Overhead-Byte-Stuffing/blob/master/cobs.c)
-unsigned TCOBSEncode( uint8_t* restrict output, const uint8_t * restrict input, unsigned length);
+int TCOBSEncode( uint8_t* restrict output, const uint8_t * restrict input, unsigned length);
 
 //! TCOBSDencode decodes 0-delimited data at the location pointed to by "input"
 //! and writes the output to the location pointed to by "output" with a maximum size of max.
@@ -22,7 +22,7 @@ unsigned TCOBSEncode( uint8_t* restrict output, const uint8_t * restrict input, 
 //! Buffer overlapping is not allowed because the decoded data can get much longer.
 //! Remove the "restrict" qualifiers if compiling with a pre-C99 C dialect.
 //! (copied and adapted from https://github.com/jacquesf/COBS-Consistent-Overhead-Byte-Stuffing/blob/master/cobs.c)
-unsigned TCOBSDecode( uint8_t* restrict output, unsigned max, const uint8_t * restrict input );
+int TCOBSDecode( uint8_t* restrict output, unsigned max, const uint8_t * restrict input );
 
 #ifdef __cplusplus
 }
