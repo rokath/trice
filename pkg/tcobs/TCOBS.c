@@ -9,6 +9,13 @@
 #define ASSERT( condition )do{ if( !(condition) ){ for(;;){}}}while(0); //! ASSERT checks for a true condition, otherwise stop.
 #define OUTB( b ) do{ *o++ = b; offset++; if( offset == 31 ){ *o++ = N | 31; offset = 0; } } while( 0 ); //!< OUTB writes a non-sigil byte to output.
 
+
+#define OUT_zeroSigil do{ ASSERT( b_1 == 0    ); ASSERT( fullCount|reptCount == 0 ); ASSERT( 0 < zeroCount && zeroCount < 4 );                                                    *o++ =        (zeroCount    << 5) | offset; offset = 0; zeroCount = 0; }while(0)
+#define OUT_fullSigil do{ ASSERT( b_1 == 0xFF ); ASSERT( zeroCount|reptCount == 0 ); ASSERT( 1 < fullCount && fullCount < 5 );                                                    *o++ = 0x80 | (fullCount    << 5) | offset; offset = 0; fullCount = 0; }while(0)
+#define OUT_reptSigil do{                        ASSERT( zeroCount|fullCount == 0 ); ASSERT( 1 < reptCount && reptCount < 5 ); if( offset > 7 ){ *o++ = N | offset; offset = 0; } *o++ =        (reptCount-1) << 3) | offset; offset = 0; reptCount = 0; }while(0)
+
+
+
 #define N  0xA0 //!< sigil byte 0x101ooooo, offset 0-31
 #define Z1 0x20 //!< sigil byte 0x001ooooo, offset 0-31
 #define Z2 0x40 //!< sigil byte 0x010ooooo, offset 0-31
@@ -73,7 +80,78 @@ int TCOBSEncode( uint8_t* restrict output,  uint8_t const * restrict input, unsi
         b_1 = b; // keep byte for compare
         b = *i++; // get next byte
         if( limit - i > 0 ){ // most likely
+            if( b_1|b == 0){ // both 0         
+                zeroCount++;
+                if( zeroCount == 3 ){ // 00 00 00 00
+                    OUT_zeroSigil Zählerei noch unklar
+                }
+                continue;
+            }
+            if( b_1 & b == 0xFF ){ // both FF    
+                fullCount++;
+                if( fullCount == 4 ){ // FF FF FF FF FF
+                    *o++ = 0xFF;
+                    offset++;
+                    OUT_fullSigil
+                }
+                continue;                
+            }
+            if( b_1 == b  ){ // both equal      
+                reptCount++;
+                if( reptCount == 4 ){
+                    *o++ = b_1;
+                    offset++:
+                    OUT_reptSigil
+                }
+                continue;                
+            }
+            // at this point b_1 != b
+
+            // handle counts
+            if( zeroCount )
+                OUT_zeroSigil
+                continue;
+            if( fullCount == 1 ){ // FF FF
+                ASSERT( zeroCount|reptCount == 0)
+                ASSERT( b_1 == 0xFF )
+                OUTB( 0xFF );
+                fullCount = 0;
+                continue;
+            }
+            if( fullCount )
+                OUT_fullSigil
+                continue;
+            if( reptCount == 1 ){
+                ASSERT( zeroCount|fullCount == 0)
+                OUTB( b_1 );
+                reptCount = 0;
+                continue;
+            }
+            if( reptCount )
+                ASSERT( zeroCount|fullCount == 0)
+                ASSERT( reptCount < 5 )
+                *o++ = (reptCount << 5) | offset;
+                offset = 0;
+                reptCount = 0;
+                continue;
+            // at this oint all counts 0
+
             if( b_1 == 0 ){
+                if( fullCount == 1 ){
+                    *o++ = 0xFF;
+                    fullCount = 0;
+                    offset++;
+                    if( offset == 31 ){
+                        *o++ = N | 31;
+                        offset = 0;
+                    }
+                }else if( fullCount > 1 )
+                    ASSERT( fullCount < 5 )
+                    *o++ = 0x80 | (fullCount<<5) | offset;
+                    offset = 0;
+                }else switch( repeatCount ){
+                    // ?
+                }
                 zeroCount++; 
                 if( zeroCount < 3 ){
                     continue;

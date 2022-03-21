@@ -109,7 +109,7 @@ This does not represent data in the stream and only serves to keep the chain lin
   * ...
   * F4_31 = `10011111`
 
-####  3.2.4. <a name='RepeatSigilByteR2R3R4R5'></a>Repeat Sigil Byte `R2`, `R3`, `R4`, `R5`
+####  3.2.4. <a name='RepeatSigilByteR2R3R4R5'></a>Repeat Sigil Byte `R2`, `R3`, `R4`
 
 * This sigil represents 2 to 5 repetitions of previous byte in the data stream, and is a replacement to reduce data and keep the chain linked.
   * Alternatively replacing R4 with a R7 allow better compression especially for longer sequences.
@@ -119,11 +119,10 @@ This does not represent data in the stream and only serves to keep the chain lin
   * ...
   * R2_7 = `00010111`
 * ...
-* R5 = `00000ooo`
-  * R5_0 = `00000001`
+* R4 = `00011ooo`
+  * R4_0 = `00011000`
   * ...
-  * R5_6 = `00000111`
-  * R5 carries the offset as +1 value to avoid the `00000000` case.
+  * R4_7 = `00011111`
 
 ###  3.3. <a name='FragmentExamples'></a>Fragment Examples
 
@@ -163,9 +162,9 @@ This does not represent data in the stream and only serves to keep the chain lin
 | `FF FF FF FF  FF FF FF FF` | `F4 F4`      | repetition  |
 | ...                        | ...          | repetition  |
 
-####  3.3.2. <a name='ExtendedEncodingAlgorithmPossibilities'></a>Extended Encoding Algorithm (Possibilities)
+Sometimes several encodings possible. The encoder has than the choice.
 
-Sometimes several minimal encodings possible. The encoder has than the choice.
+####  3.3.2. <a name='ExtendedEncodingAlgorithmPossibilities'></a>Extended Encoding Possibilities (not specified yet)
 
 * [ ] Just to show, what is further possible especially for user data.
 
@@ -180,6 +179,8 @@ Sometimes several minimal encodings possible. The encoder has than the choice.
 |   9 \* `FF`                | `F3 R3`      | extension   |
 |  16 \* `FF`                | `F4 R4`      | extension   |
 |  64 \* `FF`                | `F4 R4 R4`   | extension   |
+
+The reserved values `00000ooo` with `ooo` = 001...111 are usable too for the extended encoding.
 
 ##  4. <a name='TCOBSSoftwareInterface'></a>TCOBS Software Interface
 
@@ -215,7 +216,7 @@ func TCOBSDecode(p []byte) []byte
 
   ```c
   S0 // only one sigil byte like F4 (representing FF FF FF FF)
-  by S1 // one byte and a sigil byte like AA R5 representing AA AA AA AA AA AA
+  by S1 // one byte and a sigil byte like AA R4 representing AA AA AA AA AA
   by by S2 S0 // like AA BB R2 Z2 representing AA BB BB BB 00 00
   by by by by by by by by by S9 S0 S0 by by by S3 // and so on ...
   ```
@@ -255,10 +256,10 @@ func TCOBSDecode(p []byte) []byte
     - [3.2.1. <a name='NOPSigilByteN'></a>NOP Sigil Byte `N`](#321-nop-sigil-byte-n)
     - [3.2.2. <a name='ZeroSigilByteZ1Z2Z3'></a>Zero Sigil Byte `Z1`, `Z2`, `Z3`](#322-zero-sigil-byte-z1-z2-z3)
     - [3.2.3. <a name='FullSigilByteF2F3F4'></a>Full Sigil Byte `F2`, `F3`, `F4`](#323-full-sigil-byte-f2-f3-f4)
-    - [3.2.4. <a name='RepeatSigilByteR2R3R4R5'></a>Repeat Sigil Byte `R2`, `R3`, `R4`, `R5`](#324-repeat-sigil-byte-r2-r3-r4-r5)
+    - [3.2.4. <a name='RepeatSigilByteR2R3R4R5'></a>Repeat Sigil Byte `R2`, `R3`, `R4`](#324-repeat-sigil-byte-r2-r3-r4)
   - [3.3. <a name='FragmentExamples'></a>Fragment Examples](#33-fragment-examples)
     - [3.3.1. <a name='SimpleEncodingAlgorithm'></a>Simple Encoding Algorithm](#331-simple-encoding-algorithm)
-    - [3.3.2. <a name='ExtendedEncodingAlgorithmPossibilities'></a>Extended Encoding Algorithm (Possibilities)](#332-extended-encoding-algorithm-possibilities)
+    - [3.3.2. <a name='ExtendedEncodingAlgorithmPossibilities'></a>Extended Encoding Possibilities (not specified yet)](#332-extended-encoding-possibilities-not-specified-yet)
 - [4. <a name='TCOBSSoftwareInterface'></a>TCOBS Software Interface](#4-tcobs-software-interface)
   - [4.1. <a name='CInterface'></a>C Interface](#41-c-interface)
   - [4.2. <a name='Gointerface'></a>Go interface](#42-go-interface)
