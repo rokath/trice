@@ -189,11 +189,61 @@ int TCOBSEncode( uint8_t* restrict output,  uint8_t const * restrict input, unsi
                     continue;
                 }
             }
-        }else{ // last 2 bytes, finish
-            if( (b_1|b) == 0 ){ hier weiter
+        }else{ // last 2 bytes
+        // zeroCount > 0 means 0 occurred zeroCount times but not written yet
+        // fullCount > 0 means 0xFF occurred fullCount times but not written yet
+        // reptCount > 0 means b_1 occurred reptCount times but not written yet
+        ASSERT( (zeroCount>0) + (fullCount>0) + (reptCount>0) <= 1 )
+        ASSERT( zeroCount < 3 )
+        ASSERT( fullCount < 4 )
+        ASSERT( reptCount < 4 )
+            if( (b_1 == 0 ){
+                if( fullCount > 0 ){
+                    hier weiter
+                } 
                 zeroCount++; // Z1=001ooooo, Z2=010ooooo, Z3=011ooooo
-                ASSERT( zeroCount <= 3 )
-                *o++ = (zeroCount<<5)| offset;
+                if( zeroCount == 3 ){
+                    *o++ == Z3 | offset;
+                    offset = 0;
+                }
+                if( b == 0 ){
+                    zeroCount++;
+                    *o++ = (zeroCount<<5)| offset;
+                    return o - output;
+                }else{
+                    *o++ = b;
+                    offset++;
+                    *o++ = N | offset;
+                    return o - output;
+                }
+            }else if( b_1 == 0xFF ){
+                fullCount++;
+                if( fullCount == 4 ){
+                    *o++ = F4 | offset;
+                    offset = 0;
+                }
+                if
+            }
+            }else{ // b_1 != 0
+                *o++ = b_1;
+                offset++;
+                if( b == 0 ){
+                    zeroCount++;
+                    *o++ = (zeroCount<<5)| offset;
+                    return o - output;
+                }else{ // b != 0
+                    if( offset == 31 ){
+                        *o++ = N | offset;
+                        offset = 0;
+                    }
+                    *o++ = b;
+                    offset++;
+                    *o++ = N | offset;
+                    return o - output;
+                }
+            }
+                
+                
 
                 return o - output;
             }else if( b == 0xFF ){ // a FF and ...
