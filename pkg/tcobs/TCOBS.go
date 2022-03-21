@@ -11,9 +11,12 @@ import "unsafe"
 
 // TCOBSEncodeC encodes i into o and returns number of bytes in o.
 func TCOBSEncodeC(o, i []byte) (n int) {
+	if len(i) == 0 {
+		return
+	}
 	in := (*C.uint8_t)(unsafe.Pointer(&i[0]))
 	out := (*C.uint8_t)(unsafe.Pointer(&o[0]))
-	n = int(C.TCOBSEncode(out, in, len(i)))
+	n = int(C.TCOBSEncode(out, in, C.uint(len(i))))
 	return
 }
 

@@ -50,7 +50,7 @@ int TCOBSEncode( uint8_t* restrict output,  uint8_t const * restrict input, unsi
     for(;;){
         b_1 = b; // keep last byte for compare
         b = *i++; // get next byte
-        if( limit - i > 1 ){ // most likely
+        if( limit - i > 0 ){ // most likely
             if( b == 0 ){
                 zeroCount++; 
                 if( zeroCount < 3 ){
