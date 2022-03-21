@@ -68,10 +68,11 @@
 * `110ooooo` Full sigil byte **F2**: `ooooo` = 0-31
 * `111ooooo` Full sigil byte **F3**: `ooooo` = 0-31
 * `100ooooo` Full sigil byte **F4**: `ooooo` = 0-31
-* `00001ooo` REpeat sigil byte **R2**:  `ooo` = 0-7
+* `00001ooo` Repeat sigil byte **R2**:  `ooo` = 0-7
 * `00010ooo` Repeat sigil byte **R3**:  `ooo` = 0-7
 * `00011ooo` Repeat sigil byte **R4**:  `ooo` = 0-7
-* `00000ooo` Repeat sigil byte **R5**:  `ooo` = 0-6, as +1 value stored to avoid 00000ooo==00000000
+* `00000ooo` reserved bytes: `ooo` = 1-7
+* `00000000` forbidden byte  
 
 ####  3.2.1. <a name='NOPSigilByteN'></a>NOP Sigil Byte `N`
 
@@ -148,10 +149,9 @@ This does not represent data in the stream and only serves to keep the chain lin
 | `xx xx`                    | `xx xx`      |             |
 | `xx xx xx`                 | `xx R2`      |             |
 | `xx xx xx xx`              | `xx R3`      |             |
-| `xx xx xx xx xx`           | `xx R4`      |             |
-| `xx xx xx xx xx xx`        | `xx R5`      |             |
-| `xx xx xx xx xx xx  xx`    | `xx R5 xx`   | repetition  |
-| `xx xx xx xx xx xx  xx xx` | `xx R5 xx xx`| repetition  |
+| `xx xx xx xx xx`           | `xx R4`      |             | <!--| `xx xx xx xx xx xx`        | `xx R5`      |             |-->
+| `xx xx xx xx xx  xx`       | `xx R4 xx`   | repetition  |
+| `xx xx xx xx xx  xx xx`    | `xx R4 xx xx`| repetition  |
 | ...                        | ...          | repetition  |
 | `FF`                       | `FF`         |             |
 | `FF FF`                    | `F2`         |             |
@@ -172,13 +172,14 @@ Sometimes several minimal encodings possible. The encoder has than the choice.
 | unencoded data             | encoded data | comment     |
 | -                          | -            | -           |
 | `00 00 00 00 00 00 00 00`  | `Z2 R4`      | extension   |
+| 48 \* `00`                 | `Z3 R4 R4`   | extension   |
 | ...                        | ...          | extension   |
 | 9 \* `xx`                  | `xx R4 R2`   | extension   |
 | ...                        | ...          | extension   |
+|   8 \* `FF`                | `F2 R4`      | extension   |
 |   9 \* `FF`                | `F3 R3`      | extension   |
-|  10 \* `FF`                | `F2 R5`      | extension   |
-|  11 \* `FF`                | `F2 R5 FF`   | extension   |
-|  12 \* `FF`                | `F4 R3`      | extension   |
+|  16 \* `FF`                | `F4 R4`      | extension   |
+|  64 \* `FF`                | `F4 R4 R4`   | extension   |
 
 ##  4. <a name='TCOBSSoftwareInterface'></a>TCOBS Software Interface
 
@@ -216,7 +217,7 @@ func TCOBSDecode(p []byte) []byte
   S0 // only one sigil byte like F4 (representing FF FF FF FF)
   by S1 // one byte and a sigil byte like AA R5 representing AA AA AA AA AA AA
   by by S2 S0 // like AA BB R2 Z2 representing AA BB BB BB 00 00
-  by by by by by S5 S0 S0 by by by S3 // and so on ...
+  by by by by by by by by by S9 S0 S0 by by by S3 // and so on ...
   ```
 
 * Any next sigil byte  carries as offset the byte count to the sigil byte before,
@@ -237,6 +238,7 @@ func TCOBSDecode(p []byte) []byte
 | 2022-MAR-19 | 0.4.0 | TCOBS Encoding as C-Code in separate file TCOBS.C |
 | 2022-MAR-20 | 0.4.1 | Sigil chaining better explained.|
 | 2022-MAR-20 | 0.4.2 | Sigil corrected. Now the offset is the byte count between two sigil bytes.|
+| 2022-MAR-21 | 0.5.0 | R5 removed |
 
 <!--
 | 2022-MAR-   | 0.3.0 | |
