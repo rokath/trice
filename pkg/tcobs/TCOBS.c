@@ -6,15 +6,54 @@
 #include <stdint.h>
 #include "TCOBS.h"
 
-#define ASSERT( condition )do{ if( !(condition) ){ for(;;){}}}while(0); //! ASSERT checks for a true condition, otherwise stop.
-#define OUTB( b ) do{ *o++ = b; offset++; if( offset == 31 ){ *o++ = N | 31; offset = 0; } } while( 0 ); //!< OUTB writes a non-sigil byte to output.
+//! ASSERT checks for a true condition, otherwise stop.
+#define ASSERT( condition )do{ if( !(condition) ){ for(;;){}}}while(0);
 
+//! OUTB writes a non-sigil byte to output and increments offset. 
+//! If offset reaches 31 a NOP sigil byte is inserted and offset is then set to 0.
+#define OUTB( b ) do{ \
+    *o++ = b; offset++; \
+    if( offset == 31 ){ \
+        *o++ = N | 31; \
+        offset = 0; \
+    } \
+    } while( 0 ); 
 
-#define OUT_zeroSigil do{ ASSERT( b_1 == 0    ); ASSERT( fullCount|reptCount == 0 ); ASSERT(                  zeroCount < 4 );                                                    *o++ =        (zeroCount    << 5) | offset; offset = 0; zeroCount = 0; }while(0)
-#define OUT_fullSigil do{ ASSERT( b_1 == 0xFF ); ASSERT( zeroCount|reptCount == 0 ); ASSERT( 1 < fullCount && fullCount < 5 );                                                    *o++ = 0x80 | (fullCount    << 5) | offset; offset = 0; fullCount = 0; }while(0)
-#define OUT_reptSigil do{                        ASSERT( zeroCount|fullCount == 0 ); ASSERT( 1 < reptCount && reptCount < 5 ); if( offset > 7 ){ *o++ = N | offset; offset = 0; } *o++ =        (reptCount-1) << 3) | offset; offset = 0; reptCount = 0; }while(0)
+//! OUT_zeroSigil writes one of the sigil bytes Z1, Z3, Z3 
+//! according to zeroCount and sets zeroCount=0 and offset=0.
+#define OUT_zeroSigil do{ \
+    ASSERT( b_1 == 0  ); \
+    ASSERT( fullCount|reptCount == 0 ); \
+    ASSERT( zeroCount < 4 ); \
+    *o++ = (zeroCount << 5) | offset; \
+    offset = 0; \
+    zeroCount = 0; \
+    }while(0)
 
+//! OUT_fullSigil writes one of the sigil bytes F2, F3, F4 
+//! according to fullCount and sets fullCount=0 and offset=0.
+#define OUT_fullSigil do{ \
+    ASSERT( b_1 == 0xFF ); \
+    ASSERT( zeroCount|reptCount == 0 ); \
+    ASSERT( 2 <= fullCount && fullCount <= 4 ); \
+    *o++ = 0x80 | (fullCount << 5) | offset; \
+    offset = 0; \
+    fullCount = 0; \
+    }while(0)
 
+//! OUT_reptSigil writes one of the sigil bytes R2, R3, R4 
+//! according to reptCount and sets reptCount=0 and offset=0.
+#define OUT_reptSigil do{ \
+    ASSERT( zeroCount|fullCount == 0 ); \
+    ASSERT( 2 <= reptCount && reptCount <= 4 ); \
+    if( offset > 7 ){ \
+        *o++ = N | offset; \
+        offset = 0; \
+    } \
+    *o++ = (reptCount-1) << 3) | offset; \
+    offset = 0; \
+    reptCount = 0; \
+    }while(0)
 
 #define N  0xA0 //!< sigil byte 0x101ooooo, offset 0-31
 #define Z1 0x20 //!< sigil byte 0x001ooooo, offset 0-31
@@ -35,8 +74,7 @@ int TCOBSEncode( uint8_t* restrict output,  uint8_t const * restrict input, unsi
     int offset = 0; // sigil chain link
     int zeroCount = 0; // counts zero bytes 1-3 for Z1-Z3
     int fullCount = 0; // counts 0xFF bytes 1-4 for 0xFF and F2-F4
-    int reptCount = 0; // counts repeat bytes 1-8 for xx and R2-R4,
-                       //                     1-7 for xx and R5
+    int reptCount = 0; // counts repeat bytes 1-4 for xx and R2-R4,
     uint8_t b_1 = 0; // previous byte
     uint8_t b = 0; // current byte
 
@@ -55,7 +93,8 @@ int TCOBSEncode( uint8_t* restrict output,  uint8_t const * restrict input, unsi
         }
     }
 
-    // length >= 3
+    // length is >= 3
+
     b = *i++; // get first byte
     for(;;){
         b_1 = b; // keep byte for compare
@@ -86,7 +125,7 @@ int TCOBSEncode( uint8_t* restrict output,  uint8_t const * restrict input, unsi
                 continue;                
             }
 
-            // at this point b_1 != b
+            // at this point is b_1 != b
 
             // handle counts
             if( zeroCount ) // 00
@@ -103,7 +142,7 @@ int TCOBSEncode( uint8_t* restrict output,  uint8_t const * restrict input, unsi
                 OUT_reptSigil // xx Rn,
                 continue;
 
-            // at this point all counts 0, b_1 != b and b_1 == 00 || FF || xx, b == 00 || FF || yy
+            // at this point all counts are 0, b_1 != b and b_1 = xx, b == yy
 
             if( b_1 == 0 ){ // , 00 xx
                 OUT_zeroSigil // Z1, xx
