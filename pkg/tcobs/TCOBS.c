@@ -118,11 +118,11 @@ int TCOBSEncode( uint8_t* restrict output,  uint8_t const * restrict input, unsi
             }
             if( b_1 == b  ){ // both equal      
                 reptCount++;
-                if( reptCount == 5 ){ // , xx xx xx xx xx xx
+                if( reptCount == 4 ){ // , xx xx xx xx xx
                     *o++ = b_1;
-                    offset++; // xx, xx xx xx xx xx
+                    offset++; // xx, xx xx xx xx
                     OUT_reptSigil
-                } // xx R4, xx
+                } // xx R4,
                 continue;                
             }
 
