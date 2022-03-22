@@ -83,58 +83,45 @@ int TCOBSEncode( uint8_t* restrict output,  uint8_t const * restrict input, unsi
             if( b_1|b == 0){ // both 0         
                 zeroCount++;
                 if( zeroCount == 3 ){ // 00 00 00 00
-                    OUT_zeroSigil Zählerei noch unklar
-                }
+                    OUT_zeroSigil 
+                } // Z3, 00
                 continue;
             }
             if( b_1 & b == 0xFF ){ // both FF    
                 fullCount++;
                 if( fullCount == 4 ){ // FF FF FF FF FF
-                    *o++ = 0xFF;
-                    offset++;
                     OUT_fullSigil
-                }
+                } // F4, FF
                 continue;                
             }
             if( b_1 == b  ){ // both equal      
                 reptCount++;
-                if( reptCount == 4 ){
+                if( reptCount == 5 ){ // xx xx xx xx xx xx
                     *o++ = b_1;
                     offset++:
                     OUT_reptSigil
-                }
+                } // xx R4, xx
                 continue;                
             }
+
             // at this point b_1 != b
 
             // handle counts
-            if( zeroCount )
-                OUT_zeroSigil
+            if( zeroCount ) // 00
+                zeroCount++;
+                OUT_zeroSigil // Zn,
                 continue;
-            if( fullCount == 1 ){ // FF FF
-                ASSERT( zeroCount|reptCount == 0)
-                ASSERT( b_1 == 0xFF )
-                OUTB( 0xFF );
-                fullCount = 0;
+            if( fullCount ) // FF
+                fullCount++;
+                OUT_fullSigil // Fn,
                 continue;
-            }
-            if( fullCount )
-                OUT_fullSigil
+            if( reptCount ) // xx
+                *o++ = xx;
+                offset++;
+                OUT_reptSigil // xx Rn,
                 continue;
-            if( reptCount == 1 ){
-                ASSERT( zeroCount|fullCount == 0)
-                OUTB( b_1 );
-                reptCount = 0;
-                continue;
-            }
-            if( reptCount )
-                ASSERT( zeroCount|fullCount == 0)
-                ASSERT( reptCount < 5 )
-                *o++ = (reptCount << 5) | offset;
-                offset = 0;
-                reptCount = 0;
-                continue;
-            // at this oint all counts 0
+
+            // at this point all counts 0, b_1 != b and b_1 == 00 || FF || xx
 
             if( b_1 == 0 ){
                 if( fullCount == 1 ){
