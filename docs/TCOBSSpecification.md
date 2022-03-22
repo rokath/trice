@@ -165,8 +165,9 @@ This does not represent data in the stream and only serves to keep the chain lin
 | `FF FF FF FF  FF FF FF FF` | `F4 F4`      | repetition  |
 | ...                        | ...          | repetition  |
 
-* If several encodings possible, The encoder has than the choice.
-* NOP sigil bytes are logically ignored. They simply serve als link chain elements.
+* If several encodings possible, the encoder has than the choice.
+  * Example: `00 00 00 00` could be encoded `A0 20` (Z3 Z1) or `40 40` (Z2 Z2)
+* NOP sigil bytes are logically ignored. They simply serveals link chain elements.
 
 ####  3.3.2. <a name='ExtendedEncodingAlgorithmPossibilities'></a>Extended Encoding Possibilities (not specified yet)
 
