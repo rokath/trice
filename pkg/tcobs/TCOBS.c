@@ -12,7 +12,8 @@
 //! OUTB writes a non-sigil byte to output and increments offset. 
 //! If offset reaches 31 a NOP sigil byte is inserted and offset is then set to 0.
 #define OUTB( b ) do{ \
-    *o++ = b; offset++; \
+    *o++ = b; \
+    offset++; \
     if( offset == 31 ){ \
         *o++ = N | 31; \
         offset = 0; \
