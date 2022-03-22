@@ -44,6 +44,7 @@
 
 //! OUT_reptSigil writes one of the sigil bytes R2, R3, R4 
 //! according to reptCount and sets reptCount=0 and offset=0.
+//! If offset is bigger than 7 a NOP sigil byte is inserted.
 #define OUT_reptSigil do{ \
     ASSERT( (zeroCount|fullCount) == 0 ); \
     ASSERT( 2 <= reptCount && reptCount <= 4 ); \
@@ -66,7 +67,6 @@
 #define R2 0x08 //!< sigil byte 0x00001ooo, offset 0-7
 #define R3 0x10 //!< sigil byte 0x00010ooo, offset 0-7
 #define R4 0x18 //!< sigil byte 0x00011ooo, offset 0-7
-#define R5 0x00 //!< sigil byte 0x00000ooo, offset 0-6 stored as 1-7
 
 int TCOBSEncode( uint8_t* restrict output,  uint8_t const * restrict input, unsigned length){
     uint8_t* o = output;
