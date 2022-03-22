@@ -146,13 +146,16 @@ This does not represent data in the stream and only serves to keep the chain lin
 | ...                        | ...          | repetition  |
 | `xx`                       | `xx`         |             |
 | `xx xx`                    | `xx xx`      |             |
+| `xx xx`                    | `xx N31 xx`  | offset reached 31, so a NOP sigil byte is added |
 | `xx xx xx`                 | `xx R2`      |             |
 | `xx xx xx xx`              | `xx R3`      |             |
+| `xx xx xx xx`              | `xx Nn R3`   | n=8...31, offset exceeds 7, so a NOP sigil byte is inserted |
 | `xx xx xx xx xx`           | `xx R4`      |             | <!--| `xx xx xx xx xx xx`        | `xx R5`      |             |-->
 | `xx xx xx xx xx  xx`       | `xx R4 xx`   | repetition  |
 | `xx xx xx xx xx  xx xx`    | `xx R4 xx xx`| repetition  |
 | ...                        | ...          | repetition  |
 | `FF`                       | `FF`         |             |
+| `FF`                       | `FF N31`     | offset reached 31, so a NOP sigil byte is added |
 | `FF FF`                    | `F2`         |             |
 | `FF FF FF`                 | `F3`         |             |
 | `FF FF FF FF`              | `F4`         |             |
@@ -162,7 +165,8 @@ This does not represent data in the stream and only serves to keep the chain lin
 | `FF FF FF FF  FF FF FF FF` | `F4 F4`      | repetition  |
 | ...                        | ...          | repetition  |
 
-Sometimes several encodings possible. The encoder has than the choice.
+* If several encodings possible, The encoder has than the choice.
+* NOP sigil bytes are logically ignored. They simply serve als link chain elements.
 
 ####  3.3.2. <a name='ExtendedEncodingAlgorithmPossibilities'></a>Extended Encoding Possibilities (not specified yet)
 
@@ -240,6 +244,7 @@ func TCOBSDecode(p []byte) []byte
 | 2022-MAR-20 | 0.4.1 | Sigil chaining better explained.|
 | 2022-MAR-20 | 0.4.2 | Sigil corrected. Now the offset is the byte count between two sigil bytes.|
 | 2022-MAR-21 | 0.5.0 | R5 removed |
+| 2022-MAR-22 | 0.5.1 | Simple encoding example table extended. |
 
 <!--
 | 2022-MAR-   | 0.3.0 | |
