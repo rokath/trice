@@ -25,7 +25,7 @@
 #define OUT_zeroSigil do{ \
     ASSERT( b_1 == 0  ); \
     ASSERT( (fullCount|reptCount) == 0 ); \
-    ASSERT( zeroCount < 4 ); \
+    ASSERT( 1 <= zeroCount && zeroCount <= 3 ); \
     *o++ = (zeroCount << 5) | offset; \
     offset = 0; \
     zeroCount = 0; \
