@@ -46,36 +46,12 @@ int TCOBSEncode( uint8_t* restrict output,  uint8_t const * restrict input, unsi
         }
         if( length == 1 ){
             b = *i;
-            if( b == 0 ){
-                *o = Z1;
-                return 1;
-            }else{
-                *o++ = b;
-                *o = N | 1;
-                return 2;
-            }
+            goto lastByte;
         }
-        if( length == 2 ){ 
+        if( length == 2 ){
             b_1 = *i++;
             b = *i++;
-            if( (b_1 | b) == 0 ){
-                *o++ = Z2;
-                return 1;
-            } else if( b_1 == 0){
-                *o++ = Z1;
-                *o++ = b;
-                *o++ = N | 1;
-                return 3;
-            } else if( b == 0 ){
-                *o++ = b_1;
-                *o++ = Z1 | 1;
-                return 2;
-            } else {
-                *o++ = b_1;
-                *o++ = b;
-                *o++ = N | 2;
-                return 3;
-            }
+            goto lastTwoBytes;
         }
     }
 
@@ -142,264 +118,106 @@ int TCOBSEncode( uint8_t* restrict output,  uint8_t const * restrict input, unsi
             continue;
 
         }else{ // last 2 bytes
+            // Used  for examples: 
+            //     All left from comma is written to o
+            //     zn, fn, rn right from comma is count, if not shown, then 0
+            //     between comma and dot are b_1 and b
+            //     when bytes right from dot still inside loop 
+            //     AA is a byte !=0, xx and yy are any bytes
+            // example: ... , z0 00 00. AA xx
+            //      ->: ... , z1 00 AA. xx yy
+            //      ->: ... Z2, z0 AA xx. yy    == Z2 was written because of AA!=00
+            //      ->: ... Z2 AA, z0 xx yy.    <- here
+            // example: ... , z1 00 00. AA xx
+            //      ->: ... , z2 00 AA. xx yy
+            //      ->: ... Z3, z0 AA xx. yy    == Z3 was written because of AA!=00
+            //      ->: ... Z3 AA, z0 xx yy.    <- here
+            // example: ... , z0 00 00. 00 xx 
+            //      ->: ... , z1 00 00. xx
+            //      ->: ... , z2 00 xx.         == here
+            // example: ... , r2 AA 00. xx yy
+            //      ->: ... AA R2, z0 r0 00 xx. yy
+            //      ->: ... AA R2, z1 xx yy.
 
-        counts sind nicht ganz klar
-
-            if( b_1 | b == 0 ) { // Zn 00 00
-                switch( zeroCount ){
-                case 0: // , 00 00
+            if(  zeroCount | fullCount | reptCount) == 0){ // no counts at all
+lastTwoBytes:
+                if( b_1 == 0 && b == 0 ){
                     zeroCount = 2;
-                    OUT_zeroSigil // Z2,
+                    OUT_zeroSigil
                     return o - output;
-                case 1: // , Z1 00 00
-                    zeroCount = 3;
-                    OUT_zeroSigil // Z3, 
-                    return o - output;
-                case 2: // , Z1 00 00
-                    zeroCount = 3;
-                    OUT_zeroSigil // Z3, 00
-                    *o++ = Z1; // Z3 Z1,
-                    return o - output;
-                default:
-                    ASSERT(0)
-                    return 0;
                 }
-            }
-
-            if( b_1 == 0 ){ // , Zn 00 xx
-                switch( zeroCount ){
-                case 0: // , 00 xx
-                    zeroCount = 2;
-                    OUT_zeroSigil // Z2,
-                    return o - output;
-                case 1: // , Z1 00 00
-                    zeroCount = 3;
-                    OUT_zeroSigil // Z3, 
-                    return o - output;
-                case 2: // , Z1 00 00
-                    zeroCount = 3;
-                    OUT_zeroSigil // Z3, 00
-                    *o++ = Z1; // Z3 Z1,
-                    return o - output;
-                default:
-                    ASSERT(0)
-                    return 0;
+                if( b_1 == 0 ){ // b != 0
+                    zeroCount = 1;
+                    OUT_zeroSigil
+                    goto lastByte;
                 }
+                OUTB( b_1 )
+                goto lastByte
 
-            }
-
-
-            }
-            if( zeroCount && ((b_1|b)==0) ){ // , Zn 00 00
-                zeroCount++;
-                if( )
-
-
-
-            if( zeroCount ) // 00 b_1 b
-                zeroCount++;
-                OUT_zeroSigil // Zn,
-                continue;
-            if( fullCount ) // FF
-                fullCount++;
-                OUT_fullSigil // Fn,
-                continue;
-            if( reptCount ) // xx
-                *o++ = xx;
-                offset++;
-                OUT_reptSigil // xx Rn,
-                continue;
-
-
-
-
-
-
-
-
-
-
-
-
-
-        // zeroCount > 0 means 0 occurred zeroCount times but not written yet
-        // fullCount > 0 means 0xFF occurred fullCount times but not written yet
-        // reptCount > 0 means b_1 occurred reptCount times but not written yet
-        ASSERT( (zeroCount>0) + (fullCount>0) + (reptCount>0) <= 1 )
-        ASSERT( zeroCount < 3 )
-        ASSERT( fullCount < 4 )
-        ASSERT( reptCount < 4 )
-            if( (b_1 == 0 ){
-                if( fullCount > 0 ){
-                    hier weiter
-                } 
-                zeroCount++; // Z1=001ooooo, Z2=010ooooo, Z3=011ooooo
-                if( zeroCount == 3 ){
-                    *o++ == Z3 | offset;
-                    offset = 0;
-                }
+lastByte: // todo: different place
                 if( b == 0 ){
-                    zeroCount++;
-                    *o++ = (zeroCount<<5)| offset;
-                    return o - output;
+                    *o++ = Z1;
+                    return o - offset;
                 }else{
                     *o++ = b;
-                    offset++;
-                    *o++ = N | offset;
-                    return o - output;
+                    *o++ = N | 1;
+                    return o - offset;;
                 }
-            }else if( b_1 == 0xFF ){
-                fullCount++;
-                if( fullCount == 4 ){
-                    *o++ = F4 | offset;
-                    offset = 0;
-                }
-                if
-            }
-            }else{ // b_1 != 0
-                *o++ = b_1;
-                offset++;
-                if( b == 0 ){
-                    zeroCount++;
-                    *o++ = (zeroCount<<5)| offset;
-                    return o - output;
-                }else{ // b != 0
-                    if( offset == 31 ){
-                        *o++ = N | offset;
-                        offset = 0;
-                    }
-                    *o++ = b;
-                    offset++;
-                    *o++ = N | offset;
-                    return o - output;
-                }
-            }
-                
-                
 
-                return o - output;
-            }else if( b == 0xFF ){ // a FF and ...
-                if( fullCount == 0 ){ // ... no previous FF
-                    *o++ = 0xFF;
-                    offset++;
-                    ASSERT( offset < 32 ) 
-                    *o++ = N | offset; // N=0x101ooooo
-                    return o - output;
-                }else{ // ... 1-3 previous 0xFF
-                    fullCount++; // 2 or 3 or 4
-                    ASSERT( fullCount <= 4 )
-                    ASSERT( offset < 32 )
-                    *o++ = 0x80 | (fullCount<<5) | offset; // F2=110ooooo, F3=111ooooo, F4=100ooooo
+            }
+
+            // at this point exactly one count was incremented and is maybe related to b_1
+            if( zeroCount == 1 ) { 
+                if( b_1 != 0 && b != 0 ){
+                    OUT_zeroSigil
+                    goto lastTwoBytes;
+                }
+                if( b_1 == 0 && b == 0 ){
+                    zeroCount = 3;
+                    OUT_zeroSigil
                     return o - output;
                 }
-            }else{ // b = 01...FE
-                if( reptCount == 0 ){
-                    *o++ = b; 
-                    offset++;
-                    ASSERT( offset < 32 ) 
-                    *o++ = N | offset; // N=0x101ooooo
-                    return o - output;
-                }else if( b_1 != b ){ // now a different byte: xx, Rx yy, b_1 has a valid value here
-                    if( reptCount == 1 ){ // xx, R1 yy
-                        *o++ = b_1; // xx xx, yy
-                        offset++;
-                        if( offset == 31 ){
-                            *o++ = N | 31; // N=0x101ooooo
-                            offset = 0;
-                        }
-                        *o++ = b;  // xx xx yy,
-                        offset++;
-                        ASSERT( offset < 32 )
-                        *o++ = N | offset;
-                        return o - output;
-                    }else{ // xx, Rn yy
-                        reptCount++;
-                        ASSERT( 2 <= reptCount && reptCount <= 5 )
-                        switch( reptCount ){
-                        case 2:
-                            ASSERT( offset < 32 )
-                            if( offset > 7 ){
-                                *o++ = N | offset;
-                                offset = 0;
-                            }
-                            *o++ = 0x08 | offset; // R2 -> 00001ooo
-                            *o++ = b;
-                            *o++ = N | 1;
-                            return o - output;
-                        case 3:
-                            ASSERT( offset < 32 )
-                            if( offset > 7 ){
-                                *o++ = N | offset;
-                                offset = 0;
-                            }
-                            *o++ = 0x10 | (7 & offset); // R3 -> 00010ooo
-                            *o++ = b;
-                            *o++ = N | 1;
-                            return o - output;
-                        case 4:
-                            ASSERT( offset < 32 )
-                            if( offset > 7 ){
-                                *o++ = N | offset;
-                                offset = 0;
-                            }
-                            *o++ = 0x18 | offset; // R4 -> 00011ooo
-                            *o++ = b;
-                            *o++ = N | 1;
-                            return o - output;
-                        case 5:
-                            ASSERT( offset < 32 )
-                            if( offset > 6 ){
-                                *o++ = N | offset;
-                                offset = 0;
-                            }
-                            *o++ = 0x00 | (offset+1); // R5 -> 00000ooo
-                            *o++ = b;
-                            *o++ = N | 1;
-                            return o - output;
-                        default:
-                            ASSERT( 0 )
-                        }
-                    }
-                }else{ // b_1 == b ){ // now a repeated byte: xx, Rx xx
-                    reptCount++;
-                    ASSERT( 2 <= reptCount && reptCount <= 5 )
-                    switch( reptCount ){
-                    case 2:
-                        ASSERT( offset < 32 )
-                        if( offset > 7 ){
-                            *o++ = N | offset;
-                            offset = 0;
-                        }
-                        *o++ = 0x08 | offset; // R2 -> 00001ooo
-                        return o - output;
-                    case 3:
-                        ASSERT( offset < 32 )
-                        if( offset > 7 ){
-                            *o++ = N | offset;
-                            offset = 0;
-                        }
-                        *o++ = 0x10 | (7 & offset); // R3 -> 00010ooo
-                        return o - output;
-                    case 4:
-                        ASSERT( offset < 32 )
-                        if( offset > 7 ){
-                            *o++ = N | offset;
-                            offset = 0;
-                        }
-                        *o++ = 0x18 | offset; // R4 -> 00011ooo
-                        return o - output;
-                    case 5:
-                        ASSERT( offset < 32 )
-                        if( offset > 6 ){
-                            *o++ = N | offset;
-                            offset = 0;
-                        }
-                        *o++ = 0x00 | offset; // R5 -> 00000ooo
-                        return o - output;
-                    default:
-                        ASSERT( 0 )
-                    }                       
+                if( b_1 == 0 ){ // b !=0
+                    zeroCount = 2;
+                    OUT_zeroSigil
+                    goto lastByte;
                 }
+                OUTB( b_1 )
+                goto lastByte
+            }
+            if( zeroCount == 2 ) { 
+                if( b_1 != 0 && b != 0 ){
+                    OUT_zeroSigil
+                    goto lastTwoBytes;
+                }
+                if( b_1 == 0 && b == 0 ){
+                    OUT_zeroSigil // Z2
+                    OUT_zeroSigil // Z2
+                    return o - output;
+                }
+                if( b_1 == 0 ){ // b !=0
+                    zeroCount = 3;
+                    OUT_zeroSigil
+                    goto lastByte;
+                }
+                OUTB( b_1 )
+                goto lastByte
+            }
+            if( fullCount == 1 ) { 
+            }
+            if( fullCount == 2 ) { 
+            }
+            if( fullCount == 3 ) { 
+            }
+            if( fullCount == 4 ) { 
+            }
+            if( reptCount == 1 ) { 
+            }
+            if( reptCount == 2 ) { 
+            }
+            if( reptCount == 3 ) { 
+            }
+            if( reptCount == 4 ) { 
             }
         }
     }
