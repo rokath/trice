@@ -113,7 +113,7 @@ This does not represent data in the stream and only serves to keep the chain lin
 
 * This sigil represents 2 to 5 repetitions of previous byte in the data stream, and is a replacement to reduce data and keep the chain linked.
   * Alternatively replacing R4 with a R7 allow better compression especially for longer sequences.
-* The remaining 3 bits encode the distance to the next sigil (1 <= n <= 7), 000=8 but not for R5
+* The remaining 3 bits encode the distance to the next sigil (0 <= n <= 7).
 * R2 = `00010ooo`
   * R2_0 = `00010000`
   * ...
@@ -246,6 +246,7 @@ func TCOBSDecode(p []byte) []byte
 | 2022-MAR-20 | 0.4.2 | Sigil corrected. Now the offset is the byte count between two sigil bytes.|
 | 2022-MAR-21 | 0.5.0 | R5 removed |
 | 2022-MAR-22 | 0.5.1 | Simple encoding example table extended. |
+| 2022-MAR-23 | 0.5.2 | Sigil bytes offset correction. |
 
 <!--
 | 2022-MAR-   | 0.3.0 | |
