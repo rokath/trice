@@ -7,17 +7,17 @@
 		* 3.2.1. [NOP Sigil Byte `N`](#NOPSigilByteN)
 		* 3.2.2. [Zero Sigil Byte `Z1`, `Z2`, `Z3`](#ZeroSigilByteZ1Z2Z3)
 		* 3.2.3. [Full Sigil Byte `F2`, `F3`, `F4`](#FullSigilByteF2F3F4)
-		* 3.2.4. [Repeat Sigil Byte `R2`, `R3`, `R4`, `R5`](#RepeatSigilByteR2R3R4R5)
+		* 3.2.4. [Repeat Sigil Byte `R2`, `R3`, `R4`](#RepeatSigilByteR2R3R4)
 	* 3.3. [Fragment Examples](#FragmentExamples)
 		* 3.3.1. [Simple Encoding Algorithm](#SimpleEncodingAlgorithm)
-		* 3.3.2. [Extended Encoding Algorithm (Possibilities)](#ExtendedEncodingAlgorithmPossibilities)
+		* 3.3.2. [Extended Encoding Possibilities (not specified yet)](#ExtendedEncodingPossibilitiesnotspecifiedyet)
 * 4. [TCOBS Software Interface](#TCOBSSoftwareInterface)
 	* 4.1. [C Interface](#CInterface)
 	* 4.2. [Go interface](#Gointerface)
 * 5. [TCOBS Encoding Details](#TCOBSEncodingDetails)
 	* 5.1. [Sigil Bytes Chaining](#SigilBytesChaining)
 		* 5.1.1. [First any Sigil Byte](#FirstanySigilByte)
-	* 5.2. [TCODE C-code](#TCODEC-code)
+	* 5.2. [TCOBS encoder C code](#TCOBSencoderCcode)
 * 6. [Changelog](#Changelog)
 
 <!-- vscode-markdown-toc-config
@@ -109,7 +109,7 @@ This does not represent data in the stream and only serves to keep the chain lin
   * ...
   * F4_31 = `10011111`
 
-####  3.2.4. <a name='RepeatSigilByteR2R3R4R5'></a>Repeat Sigil Byte `R2`, `R3`, `R4`
+####  3.2.4. <a name='RepeatSigilByteR2R3R4'></a>Repeat Sigil Byte `R2`, `R3`, `R4`
 
 * This sigil represents 2 to 5 repetitions of previous byte in the data stream, and is a replacement to reduce data and keep the chain linked.
   * Alternatively replacing R4 with a R7 allow better compression especially for longer sequences.
@@ -169,7 +169,7 @@ This does not represent data in the stream and only serves to keep the chain lin
   * Example: `00 00 00 00` could be encoded `A0 20` (Z3 Z1) or `40 40` (Z2 Z2)
 * NOP sigil bytes are logically ignored. They simply serveals link chain elements.
 
-####  3.3.2. <a name='ExtendedEncodingAlgorithmPossibilities'></a>Extended Encoding Possibilities (not specified yet)
+####  3.3.2. <a name='ExtendedEncodingPossibilitiesnotspecifiedyet'></a>Extended Encoding Possibilities (not specified yet)
 
 * [ ] Just to show, what is further possible especially for user data.
 
@@ -191,7 +191,7 @@ The reserved values `00000ooo` with `ooo` = 001...111 are usable too for the ext
 
 ###  4.1. <a name='CInterface'></a>C Interface
 
-[TCOBS.h](./TCOBS.h)
+* [../pkg/tcobs/TCOBS.h](../pkg/tcobs/TCOBS.h)
 
 ###  4.2. <a name='Gointerface'></a>Go interface
 
@@ -228,9 +228,8 @@ func TCOBSDecode(p []byte) []byte
 
 * Any next sigil byte  carries as offset the byte count to the sigil byte before,
 
-###  5.2. <a name='TCODEC-code'></a>TCODE C-code
+###  5.2. <a name='TCOBSencoderCcode'></a>TCOBS encoder C code
 
-* [../pkg/tcobs/TCOBS.h](../pkg/tcobs/TCOBS.h)
 * [../pkg/tcobs/TCOBS.c](../pkg/tcobs/TCOBS.c)
 
 ##  6. <a name='Changelog'></a>Changelog
@@ -264,17 +263,17 @@ func TCOBSDecode(p []byte) []byte
     - [3.2.1. <a name='NOPSigilByteN'></a>NOP Sigil Byte `N`](#321-nop-sigil-byte-n)
     - [3.2.2. <a name='ZeroSigilByteZ1Z2Z3'></a>Zero Sigil Byte `Z1`, `Z2`, `Z3`](#322-zero-sigil-byte-z1-z2-z3)
     - [3.2.3. <a name='FullSigilByteF2F3F4'></a>Full Sigil Byte `F2`, `F3`, `F4`](#323-full-sigil-byte-f2-f3-f4)
-    - [3.2.4. <a name='RepeatSigilByteR2R3R4R5'></a>Repeat Sigil Byte `R2`, `R3`, `R4`](#324-repeat-sigil-byte-r2-r3-r4)
+    - [3.2.4. <a name='RepeatSigilByteR2R3R4'></a>Repeat Sigil Byte `R2`, `R3`, `R4`](#324-repeat-sigil-byte-r2-r3-r4)
   - [3.3. <a name='FragmentExamples'></a>Fragment Examples](#33-fragment-examples)
     - [3.3.1. <a name='SimpleEncodingAlgorithm'></a>Simple Encoding Algorithm](#331-simple-encoding-algorithm)
-    - [3.3.2. <a name='ExtendedEncodingAlgorithmPossibilities'></a>Extended Encoding Possibilities (not specified yet)](#332-extended-encoding-possibilities-not-specified-yet)
+    - [3.3.2. <a name='ExtendedEncodingPossibilitiesnotspecifiedyet'></a>Extended Encoding Possibilities (not specified yet)](#332-extended-encoding-possibilities-not-specified-yet)
 - [4. <a name='TCOBSSoftwareInterface'></a>TCOBS Software Interface](#4-tcobs-software-interface)
   - [4.1. <a name='CInterface'></a>C Interface](#41-c-interface)
   - [4.2. <a name='Gointerface'></a>Go interface](#42-go-interface)
 - [5. <a name='TCOBSEncodingDetails'></a>TCOBS Encoding Details](#5-tcobs-encoding-details)
   - [5.1. <a name='SigilBytesChaining'></a>Sigil Bytes Chaining](#51-sigil-bytes-chaining)
     - [5.1.1. <a name='FirstanySigilByte'></a>First any Sigil Byte](#511-first-any-sigil-byte)
-  - [5.2. <a name='TCODEC-code'></a>TCODE C-code](#52-tcode-c-code)
+  - [5.2. <a name='TCOBSencoderCcode'></a>TCOBS encoder C code](#52-tcobs-encoder-c-code)
 - [6. <a name='Changelog'></a>Changelog](#6-changelog)
 
 <!--
