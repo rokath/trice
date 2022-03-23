@@ -45,3 +45,5 @@ func TestTCOBSEncode(t *testing.T) {
 		assert.Equal(t, k.exp, enc)
 	}
 }
+
+// cgo: cannot parse $WORK\b080\_cgo_.o as ELF, Mach-O, PE or XCOFF
