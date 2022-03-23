@@ -212,7 +212,7 @@ lastByte:
                 }
             }
 
-            // at this point exactly one count was incremented and is maybe related to b_1
+            // at this point exactly one count was incremented
             
             if( zeroCount == 1 ) { 
                 if( b_1 != 0 && b != 0 ){
