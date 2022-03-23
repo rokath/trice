@@ -230,7 +230,7 @@ func TCOBSDecode(p []byte) []byte
 
 ###  5.2. <a name='TCODEC-code'></a>TCODE C-code
 
-[TCOBS.h](../pkg/tcobs/TCOBS.h)
+[../pkg/tcobs/TCOBS.h](../pkg/tcobs/TCOBS.h)
 
 ##  6. <a name='Changelog'></a>Changelog
 
