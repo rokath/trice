@@ -102,63 +102,63 @@ int TCOBSEncode( uint8_t* restrict output,  uint8_t const * restrict input, unsi
         b = *i++; // get next byte
 
         if( limit - i > 0 ){ // most likely case, loop continuation
-            if( (b_1 | b) == 0){ // both 0         
+            if( (b_1 | b) == 0){ // , zn 00 00. xx yy ...      
                 zeroCount++;
-                if( zeroCount == 3 ){ // , 00 00 00 00
+                if( zeroCount == 3 ){ // , z3 -- 00. xx yy ...
                     OUT_zeroSigil 
-                } // Z3, 00
-                continue;
+                } 
+                continue; // Z3, z0 -- 00. xx yy ...
             }
-            if( (b_1 & b) == 0xFF ){ // both FF    
+            if( (b_1 & b) == 0xFF ){ // , fn FF FF. xx yy ...
                 fullCount++;
-                if( fullCount == 4 ){ // , FF FF FF FF FF
+                if( fullCount == 4 ){ // , f4 -- FF. xx yy ...
                     OUT_fullSigil
-                } // F4, FF
-                continue;                
+                } 
+                continue; // F4, -- FF. xx yy ...            
             }
-            if( b_1 == b  ){ // both equal      
+            if( b_1 == b  ){ // , rn aa aa, xx yy ...    
                 reptCount++;
-                if( reptCount == 4 ){ // , xx xx xx xx xx
+                if( reptCount == 4 ){ // , r4 -- aa. xx yy ...
                     *o++ = b_1;
-                    offset++; // xx, xx xx xx xx
+                    offset++; // aa, r4 -- aa. xx yy ...
                     OUT_reptSigil
-                } // xx R4,
-                continue;                
+                } 
+                continue; // aa R4, -- aa. xx yy ...             
             }
 
             // at this point is b_1 != b
 
             // handle counts
-            if( zeroCount ) { // 00
+            if( zeroCount ) { // , z1|z2 00 aa. xx yy
                 zeroCount++;
-                OUT_zeroSigil // Zn,
-                continue;
+                OUT_zeroSigil
+                continue; // Z2|Z3, z0 -- aa. xx yy ...
             }
-            if( fullCount ) { // FF
-                fullCount++;
-                OUT_fullSigil // Fn,
-                continue;
+            if( fullCount ) { // , f1|f2|f3 FF aa. xx yy ...
+                fullCount++; // , f2|f3|f4 -- aa. xx yy ...
+                OUT_fullSigil 
+                continue; // Fn, f0 -- aa. xx yy ...
             }
-            if( reptCount ) { // xx
+            if( reptCount ) { // , r1|r2|r3 aa bb. xx yy ...
                 *o++ = b_1;
-                offset++;
-                OUT_reptSigil // xx Rn,
-                continue;
+                offset++;  // aa, r1|r2|r3 -- bb. xx yy ...
+                OUT_reptSigil 
+                continue;  // aa R1|R2|R3, r0 -- bb. xx yy ...
             }
 
             // at this point all counts are 0, b_1 != b and b_1 = xx, b == yy
 
-            if( b_1 == 0 ){ // , 00 xx
-                OUT_zeroSigil // Z1, xx
-                continue;
+            if( b_1 == 0 ){ // , 00 aa. xx yy ...
+                OUT_zeroSigil
+                continue;  // Z1, -- aa. xx yy ...
             }
-            if( b_1 == 0xFF ){ // , FF xx
-                OUTB( 0xFF ); // FF, xx
-                continue;
+            if( b_1 == 0xFF ){ // , FF aa. xx yy ...
+                OUTB( 0xFF );
+                continue; // FF, -- aa. xx yy ...
             }
-            // , b_1 = 01...FE 
-            OUTB( b_1 ) // b_1,
-            continue;
+            // , 01|...|FE aa. xx yy ... 
+            OUTB( b_1 ) 
+            continue; // 01|...|FE, -- aa. xx yy ...
 
         }else{ // last 2 bytes
             // Used  for examples: 
