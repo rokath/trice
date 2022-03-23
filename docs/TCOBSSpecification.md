@@ -230,7 +230,8 @@ func TCOBSDecode(p []byte) []byte
 
 ###  5.2. <a name='TCODEC-code'></a>TCODE C-code
 
-[../pkg/tcobs/TCOBS.h](../pkg/tcobs/TCOBS.h)
+* [../pkg/tcobs/TCOBS.h](../pkg/tcobs/TCOBS.h)
+* [../pkg/tcobs/TCOBS.c](../pkg/tcobs/TCOBS.c)
 
 ##  6. <a name='Changelog'></a>Changelog
 
@@ -246,7 +247,7 @@ func TCOBSDecode(p []byte) []byte
 | 2022-MAR-20 | 0.4.2 | Sigil corrected. Now the offset is the byte count between two sigil bytes.|
 | 2022-MAR-21 | 0.5.0 | R5 removed |
 | 2022-MAR-22 | 0.5.1 | Simple encoding example table extended. |
-| 2022-MAR-23 | 0.5.2 | Sigil bytes offset correction, [TCOBS.h](../pkg/tcobs/TCOBS.h) Link corrected. |
+| 2022-MAR-23 | 0.5.2 | Sigil bytes offset correction, [TCOBS.h](../pkg/tcobs/TCOBS.h) Link corrected. [TCOBS.c](../pkg/tcobs/TCOBS.c) Link added|
 
 <!--
 | 2022-MAR-   | 0.3.0 | |
