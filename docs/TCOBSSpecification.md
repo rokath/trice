@@ -76,7 +76,7 @@
 
 ####  3.2.1. <a name='NOPSigilByteN'></a>NOP Sigil Byte `N`
 
-This does not represent data in the stream and only serves to keep the chain linked. The remaining 5 bits encode the distance to the next sigil (1 <= n <=32).
+This does not represent data in the stream and only serves to keep the chain linked. The remaining 5 bits encode the distance to the next sigil (0 <= n <=31).
 * N_0 = `101000001`
 * ...
 * N_31 = `10111111`
@@ -84,7 +84,7 @@ This does not represent data in the stream and only serves to keep the chain lin
 ####  3.2.2. <a name='ZeroSigilByteZ1Z2Z3'></a>Zero Sigil Byte `Z1`, `Z2`, `Z3`
 
 * This sigil represents 1 to 3 zeroes in the data stream, and is a `00` to `00 00 00` replacement to reduce data and keep the chain linked.
-* The remaining 5 bits encode the distance to the next sigil (1 <= n <= 31), `00000`=32.
+* The remaining 5 bits encode the distance to the next sigil (0 <= n <= 31).
 * Z1 = `001ooooo`
   * Z1_0 = `00100000`
   * ...
@@ -98,7 +98,7 @@ This does not represent data in the stream and only serves to keep the chain lin
 ####  3.2.3. <a name='FullSigilByteF2F3F4'></a>Full Sigil Byte `F2`, `F3`, `F4`
 
 * This sigil represents 2 to 4 0xFF in the data stream, and is a `FF FF` to `FF FF FF FF` replacement to reduce data and keep the chain linked.
-* The remaining 5 bits encode the distance to the next sigil (1 <= n <= 31), `00000`=32.
+* The remaining 5 bits encode the distance to the next sigil (0 <= n <= 31).
 * F2 = `110ooooo`
   * F2_0 = `11000000`
   * ...
