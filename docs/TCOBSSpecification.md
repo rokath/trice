@@ -39,7 +39,7 @@
 * Generally it is better do this task in two separate steps: compression and COBS encoding. This is true if size and time do not really matter. 
 * The *Trice* messages are typically in the range of 16 bytes and only a run-length encoding (RLE) makes sense for real-time compression.
 * Separating RLE and COBS costs more time (2 processing loops) and does not allow to squeeze out the last byte.
-* With the TCOBS algorithm, in only one processing loop a slightly smaller transfer packet size is expected combined with more speed.
+* With the TCOBS algorithm, in only one processing loop a slightly smaller transfer packet size is expected, combined with more speed.
 * Use cases are immediate *Trice* mode and long time data recording in the field.
 * The user can choose the *Trice* encoding method during configuration.
 
