@@ -121,7 +121,7 @@ This does not represent data in the stream and only serves to keep the chain lin
 
 ####  3.2.4. <a name='RepeatSigilByteR2R3R4'></a>Repeat Sigil Byte `R2`, `R3`, `R4`
 
-* This sigil represents 2 to 5 repetitions of previous byte in the data stream, and is a replacement to reduce data and keep the chain linked.
+* This sigil represents 2 to 4 repetitions of previous byte in the data stream, and is a replacement to reduce data and keep the chain linked.
   * Alternatively replacing R4 with a R7 allow better compression especially for longer sequences.
 * The remaining 3 bits encode the distance to the next sigil (0 <= n <= 7).
 * R2 = `00010ooo`
