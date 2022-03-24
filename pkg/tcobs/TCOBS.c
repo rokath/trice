@@ -7,7 +7,7 @@
 #include "TCOBS.h"
 
 //! ASSERT checks for a true condition, otherwise stop.
-#define ASSERT( condition )do{ if( !(condition) ){ for(;;){}}}while(0);
+#define ASSERT( condition )do{ if( !(condition) ){ for(;;){} } }while(0);
 
 //! OUTB writes a non-sigil byte to output and increments offset. 
 //! If offset reaches 31 a NOP sigil byte is inserted and offset is then set to 0.
