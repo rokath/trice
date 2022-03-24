@@ -257,7 +257,7 @@ func TCOBSDecode(p []byte) []byte
 | 2022-MAR-22 | 0.5.1 | Simple encoding example table extended. |
 | 2022-MAR-23 | 0.5.2 | Sigil bytes offset correction, [TCOBS.h](../pkg/tcobs/TCOBS.h) Link corrected. [TCOBS.c](../pkg/tcobs/TCOBS.c) Link added|
 | 2022-MAR-24 | 0.6.0 | Comment added to preface after talk with Sergii |
-
+| 2022-MAR-24 | 0.6.1 | Smaller corrections |
 <!--
 | 2022-MAR-   | 0.6.0 | |
 -->
