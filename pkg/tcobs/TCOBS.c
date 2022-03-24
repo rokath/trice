@@ -80,16 +80,16 @@ int TCOBSEncode( uint8_t* restrict output,  uint8_t const * restrict input, unsi
     uint8_t b = 0; // current byte
 
     if( length < 3 ){ // special cases
-        if( length == 0 ){ 
+        if( length == 0 ){ // , -- --.
             return 0;
         }
-        if( length == 1 ){
-            b = *i;
+        if( length == 1 ){ // , . xx
+            b = *i; // , -- xx.
             goto lastByte;
         }
-        if( length == 2 ){
-            b_1 = *i++;
-            b = *i++;
+        if( length == 2 ){ // , -- --. xx yy
+            b_1 = *i++; // , xx --. yy
+            b = *i++; // , xx yy.
             goto lastTwoBytes;
         }
     }
