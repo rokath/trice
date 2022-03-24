@@ -92,7 +92,7 @@ int TCOBSEncode( uint8_t* restrict output,  uint8_t const * restrict input, unsi
     //     !FF is any byte but not 0xFF.
     //     Invalid b_1 and b are displayed as --.
 
-    if( length >= 2 { // , -- --. xx yy ... (length >= 2)
+    if( length >= 2 ){ // , -- --. xx yy ... (length >= 2)
         b = *i++; // , -- xx, yy ...
         for(;;){
             b_1 = b; // , xx --. yy ...
