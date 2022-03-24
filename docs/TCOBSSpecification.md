@@ -1,5 +1,6 @@
 <!-- vscode-markdown-toc -->
 * 1. [ Preface](#Preface)
+	* 1.1. [Comment](#Comment)
 * 2. [COBS Data Disruption](#COBSDataDisruption)
 * 3. [TCOBS Encoding Principle](#TCOBSEncodingPrinciple)
 	* 3.1. [Assumptions](#Assumptions)
@@ -33,6 +34,15 @@
 * Each encoded package ends with an additional sigil byte and has in the worst case 1 additional byte per 32 bytes, but usually the encoded data are smaller than the unencoded because of the compression.
 * 0 is used as delimiter byte.
 
+###  1.1. <a name='Comment'></a>Comment
+
+* Generally it is better do this task in two separate steps: compression and COBS encoding. This is true if size and time does not really matter. 
+* The *Trice* messages are typically in the range of 16 bytes and only a run-length encoding (RLE) makes sense for real-time compression.
+* Separating RLE and COBS costs more time (2 processing loops) and does not allow to squeeze out the last byte.
+* With the TCOBS algorithm in only one processing loop a slightly smaller transfer packet is expected combined with more speed.
+* Use cases are immediate *Trice* mode and long time data recording in the field.
+* The user can choose the *Trice* encoding method during configuration.
+
 ##  2. <a name='COBSDataDisruption'></a>COBS Data Disruption
   
 * In case of data disruption, the receiver will wait for the next 0-delimiter byte. As a result it will get a packet start and end of 2 different packages A and B.
@@ -55,7 +65,7 @@
 * Several zeros in a row are a common pattern (example:`00 00 00 05`).
 * Several 0xFF in a row are a common pattern too (example -1 as 32 bit value).
 * Maybe some other bytes appear also in a row.
-* TCOBS should not know the inner data structure and therefore be usable also on any user data.
+* TCOBS should not know the inner data structure and therefore be **usable also on any user data**.
 
 ###  3.2. <a name='Symbols'></a>Symbols
 
@@ -247,15 +257,14 @@ func TCOBSDecode(p []byte) []byte
 | 2022-MAR-21 | 0.5.0 | R5 removed |
 | 2022-MAR-22 | 0.5.1 | Simple encoding example table extended. |
 | 2022-MAR-23 | 0.5.2 | Sigil bytes offset correction, [TCOBS.h](../pkg/tcobs/TCOBS.h) Link corrected. [TCOBS.c](../pkg/tcobs/TCOBS.c) Link added|
+| 2022-MAR-24 | 0.6.0 | Comment added to preface after talk with Sergii |
 
 <!--
-| 2022-MAR-   | 0.3.0 | |
-| 2022-MAR-   | 0.4.0 | |
-| 2022-MAR-   | 0.5.0 | |
 | 2022-MAR-   | 0.6.0 | |
 -->
 
 - [1. <a name='Preface'></a> Preface](#1--preface)
+  - [1.1. <a name='Comment'></a>Comment](#11-comment)
 - [2. <a name='COBSDataDisruption'></a>COBS Data Disruption](#2-cobs-data-disruption)
 - [3. <a name='TCOBSEncodingPrinciple'></a>TCOBS Encoding Principle](#3-tcobs-encoding-principle)
   - [3.1. <a name='Assumptions'></a>Assumptions](#31-assumptions)
