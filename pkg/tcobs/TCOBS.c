@@ -98,13 +98,13 @@ int TCOBSEncode( uint8_t* restrict output,  uint8_t const * restrict input, unsi
 
     // comment syntax:
     //     Sigil bytes chaining is not shown explicitly.
-    //     All left from comma is already written to o.
-    //     n is 0...3|4 and m is n+1.
+    //     All left from comma is already written to o and if, only partially shown.
+    //     n is 0...3|4 and m is n+1, representing count number.
     //     zn, fn, rn right from comma is count in variables, if not shown, then 0.
     //     At any moment only one of the 3 counters can be different from 0.
-    //     Zn, Fn, Rn are (written) sigil bytes.
+    //     Zn, Fn, Rn, Nn are (written) sigil bytes.
     //     Between comma and dot are the 2 values b_1 and b.
-    //     When bytes right from dot (...) still inside loop. 
+    //     When bytes right from dot (...), still inside loop. 
     //     aa is a byte !=0, xx and yy are any bytes.
     //     !FF is any byte but not 0xFF.
     //     Processed b_1 and b are displayed as --.
