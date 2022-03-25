@@ -21,6 +21,45 @@ int64_t DoubleToInt64( double f ){
     return -(int64_t)-f;
 }
 
+#include "TCOBS.h"
+
+typedef struct{
+    int ilen;
+    uint8_t in[80];
+    int olen;
+    uint8_t out[80];
+} TCOBSTestDataSet;
+
+TCOBSTestDataSet TCOBSTestData[] = {
+    { 1, { 0 }, 1, { 0x20 } },
+    { 1, { 0xFF }, 2, { 0xFF, 0xA1 } },
+};
+
+#define TCOBS_TESTDATASET_COUNT (sizeof(TCOBSTestDataSet) / sizeof(TCOBSTestDataSet) )
+
+
+int equal( uint8_t* expBuf, int expLen, uint8_t* actBuf, int actLen ){
+    if( expLen != actLen){
+        return 0;
+    }
+    for( int i = 0; i < expLen; i++ ){
+        if( expBuf[i] != actBuf[i] ){
+            return 0;
+        }
+    }
+    return 1;
+}
+
+void TCOBSCheck( void ){
+    uint8_t result[80];
+    for( int i = 0; i < TCOBS_TESTDATASET_COUNT; i++ ){
+        int rlen = TCOBSEncode( result, TCOBSTestData[i].in, TCOBSTestData[i].ilen );
+        if( !equal( TCOBSTestData[i].out, TCOBSTestData[i].olen, result, rlen ) ){
+            TRICE( Id(35091), "ERROR: TCOBS!\n" );
+        }
+    }
+}
+
 //! TriceCheckSet writes out all types of trices with fixed values for testing
 //! \details One trice has one subtrace, if param size max 2 bytes. 
 //! Traces with more bytes as parameter consist of several subtraces.
@@ -30,6 +69,9 @@ void TriceCheckSet(int index) {
     float  x = 1089.6082763671875;// 0x44883377
     double y = 518.0547492508867;// 0x4080307020601050
     switch (index) {
+        case 0:
+            TCOBSCheck();
+        break;
         case 10:
             TRICE( Id(59034), "att:Various single arguments\n" );
             TRICE8( Id(64006), "rd:TRICE8 line %t (%%t ,0)\n", 0 );

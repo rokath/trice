@@ -351,6 +351,10 @@
 		"Type": "TRICE8_4",
 		"Strg": "tst:TRICE8_4  %d %d %d %d\\n"
 	},
+	"35091": {
+		"Type": "TRICE",
+		"Strg": "ERROR: TCOBS!\\n"
+	},
 	"35133": {
 		"Type": "TRICE16_1",
 		"Strg": "rd:TRICE16_1 line %b (%%b -1)\\n"
@@ -3171,6 +3175,10 @@
 		"Type": "TRICE",
 		"Strg": "rd:TRICE %d, %d, %d, %d, %d, %d, %d, %d\\n"
 	},
+	"54858": {
+		"Type": "TRICE8",
+		"Strg": "msg:TCOBS: %02x "
+	},
 	"54862": {
 		"Type": "TRICE16",
 		"Strg": "rd:TRICE16 %p, %p, %p, %p, %p, %p, %p\\n"
@@ -4311,6 +4319,10 @@
 		"Type": "TRICE_FILE",
 		"Strg": "stm32g0xx_ll_utils.c"
 	},
+	"61827": {
+		"Type": "TRICE",
+		"Strg": "msg:TCOBS: %02x "
+	},
 	"61886": {
 		"Type": "TRICE",
 		"Strg": "rd:TRICE %d\\n"
@@ -4486,6 +4498,10 @@
 	"63097": {
 		"Type": "TRICE32_1",
 		"Strg": "ATT:trice16_1 attention message, SysTick is %6d\\n"
+	},
+	"63136": {
+		"Type": "TRICE",
+		"Strg": "msg:TCOBS: %02x "
 	},
 	"63250": {
 		"Type": "TRICE_S",
