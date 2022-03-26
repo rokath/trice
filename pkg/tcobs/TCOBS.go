@@ -41,9 +41,9 @@ const (
 // sigilAndOffet
 func sigilAndOffet(by uint8) (sigil, offset int) {
 	b := int(by)
-	sigil = b >> 5
+	sigil = b & 0xE0
 	if sigil == 0 {
-		sigil = b >> 3
+		sigil = b & 0xF8
 		offset = 7 & b
 		return
 	}
