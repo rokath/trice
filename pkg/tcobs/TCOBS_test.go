@@ -7,8 +7,8 @@ import (
 )
 
 type testTable []struct {
-	raw []byte
-	exp []byte
+	dec []byte
+	enc []byte
 }
 
 var testData = testTable{
@@ -68,19 +68,38 @@ var testData = testTable{
 func TestTCOBSEncode(t *testing.T) {
 	for _, k := range testData {
 		enc := make([]byte, 100)
-		n := TCOBSEncodeC(enc, k.raw)
+		n := TCOBSEncodeC(enc, k.dec)
 		enc = enc[:n]
-		assert.Equal(t, k.exp, enc)
+		assert.Equal(t, k.enc, enc)
+	}
+}
+
+func TestTCOBSDecode(t *testing.T) {
+	b := make([]byte, 100)
+	for _, k := range testData {
+		n, e := TCOBSDecode(b, k.enc) // func TCOBSDecode(d, in []byte) (n int, e error) {
+		assert.True(t, e == nil)
+		assert.True(t, n <= len(b))
+		dec := b[len(b)-n:]
+		assert.Equal(t, k.dec, dec)
 	}
 }
 
 func TestTCOBSDecoder(t *testing.T) {
 	i := []byte{1, 2, 3, 0, 4, 5, 0, 6}
-	o := make([]byte, 10)
-	e := []byte{1, 2, 3}
-	no, ni, err := TCOBSDecoder(o, i) // o, i []byte) (no, ni int, e error) {
+	before, after, err := TCOBSDecoder(i)
 	assert.True(t, err == nil)
-	assert.True(t, no == 3)
-	assert.True(t, ni == 4)
-	assert.Equal(t, e, o[:3])
+	assert.Equal(t, i[:3], before)
+	assert.Equal(t, i[4:], after)
+
+	before, after, err = TCOBSDecoder(after)
+	assert.True(t, err == nil)
+	assert.Equal(t, i[4:6], before)
+	assert.Equal(t, i[7:], after)
+
+	before, after, err = TCOBSDecoder(after)
+	assert.True(t, err == nil)
+	var exp []uint8
+	assert.Equal(t, exp, before)
+	assert.Equal(t, i[7:], after)
 }
