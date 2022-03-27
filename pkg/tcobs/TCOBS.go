@@ -51,7 +51,7 @@ func sigilAndOffet(by uint8) (sigil, offset int) {
 	return
 }
 
-// TCOBSDecode decodes a TCOBS frame i (without 0-delimiter) to o and returns as n the valid data length in o.
+// TCOBSDecode decodes a TCOBS frame i (without 0-delimiter) to d and returns as n the valid data length in d.
 // In case of an error n is 0. n can be 0 without having an error.
 func TCOBSDecode(d, in []byte) (n int, e error) {
 	for {
