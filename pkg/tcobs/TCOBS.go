@@ -66,6 +66,7 @@ func TCOBSDecode(d, in []byte) (n int, e error) {
 		in = in[:len(in)-1] // remove sigil byte
 		switch sigil {
 		case N:
+copyBytes:
 			for i := 1; i < offset+1; i++ {
 				n++
 				d[len(d)-n] = in[len(in)-i]
@@ -84,7 +85,7 @@ func TCOBSDecode(d, in []byte) (n int, e error) {
 		case Z1:
 			n++
 			d[len(d)-n] = 0
-			continue
+			goto copyBytes
 
 		case F4:
 			n++
@@ -99,7 +100,7 @@ func TCOBSDecode(d, in []byte) (n int, e error) {
 			d[len(d)-n] = 0xFF
 			n++
 			d[len(d)-n] = 0xFF
-			continue
+			goto copyBytes
 
 		case R4:
 			n++
@@ -113,7 +114,7 @@ func TCOBSDecode(d, in []byte) (n int, e error) {
 			n++
 			d[len(d)-n] = in[len(in)-1]
 			in = in[:len(in)-1]
-			continue
+			goto copyBytes
 
 		case Reserved:
 			e = errors.New("reserved sigil not allowed")
