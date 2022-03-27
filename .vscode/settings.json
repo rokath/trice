@@ -6,7 +6,8 @@
     "cSpell.words": [
         "COBSR",
         "NUCLEO",
-        "Strg"
+        "Strg",
+        "tcobs"
     ],
     "C_Cpp.errorSquiggles": "Disabled"
 }
