@@ -97,7 +97,7 @@ static void triceBlockingPutChar( uint8_t c ){
 } 
 
 //! TriceBlockingWrite returns after buf was complketely written.
-void TriceBlockingWrite( uint8_t const * buf, int len ){
+void TriceBlockingWrite( uint8_t const * buf, unsigned len ){
     for( unsigned i = 0; i < len; i++ ){ 
         triceBlockingPutChar( buf[i] ); }
 }
