@@ -70,13 +70,11 @@ func TCOBSDecode(d, in []byte) (n int, e error) {
 		switch sigil {
 		case N:
 copyBytes:
-			for i := 1; i < offset+1; i++ {
-				n++
-				d[len(d)-n] = in[len(in)-i]
-			}
+		        to:= len(d)-n-offset-1
+                        from := len(in)-offset-1
+                        n += copy(d[to], in[from], offset)
 			in = in[:len(in)-offset]
 			continue
-
 		case Z3:
 			n++
 			d[len(d)-n] = 0
