@@ -54,12 +54,14 @@ func sigilAndOffet(by uint8) (sigil, offset int) {
 // TCOBSDecode decodes a TCOBS frame i (without 0-delimiter) to d and returns as n the valid data length in d.
 // ATTENTION: d is filled from the end! decoded:= d[len(d)-n:] is the final result.
 // In case of an error n is 0. n can be 0 without having an error.
+// Framing with 0-delimiter to be done before is assumed, so no 0-checks performed.
 func TCOBSDecode(d, in []byte) (n int, e error) {
 	for {
 		if len(in) == 0 {
 			return
 		}
-		sigil, offset := sigilAndOffet(in[len(in)-1])
+                next := in[len(in)-1]
+		sigil, offset := sigilAndOffet(next)
 		if offset+1 > len(in) {
 			e = errors.New("sigil chain mismatch")
 			return
