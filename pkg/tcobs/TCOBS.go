@@ -75,6 +75,7 @@ copyBytes:
                         n += copy(d[to], in[from], offset)
 			in = in[:len(in)-offset]
 			continue
+
 		case Z3:
 			n++
 			d[len(d)-n] = 0
@@ -114,7 +115,9 @@ copyBytes:
 			d[len(d)-n] = in[len(in)-1]
 			n++
 			d[len(d)-n] = in[len(in)-1]
-			in = in[:len(in)-1]
+		        n++
+			d[len(d)-n] = in[len(in)-1]	
+                        in = in[:len(in)-1]
 			goto copyBytes
 
 		case Reserved:
