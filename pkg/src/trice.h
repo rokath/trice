@@ -160,7 +160,7 @@ extern uint8_t TriceCycle;
 //
 
 #if defined( TRICE_UART ) && !defined( TRICE_HALF_BUFFER_SIZE ) // direct out to UART
-void TriceBlockingWrite( uint8_t const * buf, int len );
+void TriceBlockingWrite( uint8_t const * buf, unsigned len );
 #endif
 
 #if defined( TRICE_UART ) && defined( TRICE_HALF_BUFFER_SIZE ) // buffered out to UART
