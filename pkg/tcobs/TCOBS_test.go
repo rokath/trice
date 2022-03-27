@@ -108,16 +108,13 @@ func TestTCOBSDecoder(t *testing.T) {
 }
 
 func TestEncodeDecode(t *testing.T) {
-	max := 256
-	length := rand.Intn(max + 1)
+	max := 32768
+	length := rand.Intn(max)
 	datBuf := make([]byte, max)
 	encBuf := make([]byte, 2*max) // max 1 + (1+1/32)*len) ~= 1.04 * len
 	decBuf := make([]byte, 2*max) // max 1 + (1+1/32)*len) ~= 1.04 * len
 	for i := 0; i < length; i++ {
-		b := uint8(rand.Intn(9)) // 0...8
-		if b == 1 {
-			b = 0xFF // 0, FF, 2...8
-		}
+		b := uint8(rand.Intn(3)) - 1 // Oxff, 0, 1 2
 		datBuf[i] = b
 	}
 	dat := datBuf[:length]
@@ -125,6 +122,6 @@ func TestEncodeDecode(t *testing.T) {
 	enc := encBuf[:n]
 	n, e := TCOBSDecode(decBuf, enc)
 	assert.True(t, e == nil)
-	dec := decBuf[len(decBuf)-n : 0]
+	dec := decBuf[len(decBuf)-n:]
 	assert.Equal(t, dat, dec)
 }
