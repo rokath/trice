@@ -135,8 +135,8 @@ This does not represent data in the stream and only serves to keep the chain lin
 
 ###  3.3. <a name='FragmentExamples'></a>Fragment Examples
 
-* `xx` represents any non-zero byte
-* `xx xx ...` represents any non-zero equal bytes
+* `aa` represents any non-zero byte
+* `aa aa ...` represents any non-zero equal bytes
 
 ####  3.3.1. <a name='SimpleEncodingAlgorithm'></a>Simple Encoding Algorithm
 
