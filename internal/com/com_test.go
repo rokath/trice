@@ -30,7 +30,9 @@ func TestSerial(t *testing.T) {
 		return
 	}
 	//assert.Nil(t, err)
-
+	com.Databits = 8
+	com.Parity = "none"
+	com.Stopbits = "1"
 	var verbose bool
 
 	pS := com.NewCOMPortGoBugSt(os.Stdout, verbose, "noCOM")
