@@ -11,7 +11,7 @@
 		* 3.2.4. [Repeat Sigil Byte `R2`, `R3`, `R4`](#RepeatSigilByteR2R3R4)
 	* 3.3. [Fragment Examples](#FragmentExamples)
 		* 3.3.1. [Simple Encoding Algorithm](#SimpleEncodingAlgorithm)
-		* 3.3.2. [Extended Encoding Possibilities (not specified yet)](#ExtendedEncodingPossibilitiesnotspecifiedyet)
+		* 3.3.2. [Extended Encoding Possibilities (not specified yet, just ideas)](#ExtendedEncodingPossibilitiesnotspecifiedyetjustideas)
 * 4. [TCOBS Software Interface](#TCOBSSoftwareInterface)
 	* 4.1. [C Interface](#CInterface)
 	* 4.2. [Go interface](#Gointerface)
@@ -153,19 +153,16 @@ This does not represent data in the stream and only serves to keep the chain lin
 | `00 00 00  00 00 00`       | `Z3 Z3`      | repetition  |
 | `00 00 00  00 00 00  00`   | `Z3 Z3 Z1`   | repetition  |
 | ...                        | ...          | repetition  |
-| `xx`                       | `xx`         |             |
-| `xx xx`                    | `xx xx`      |             |
-| `xx xx`                    | `xx N31 xx`  | offset reached 31, so a NOP sigil byte is added |
-| `xx xx xx`                 | `xx R2`      |             |
-| `xx xx xx xx`              | `xx R3`      |             |
-| `xx xx xx xx`              | `xx Nn R3`   | n=8...31, offset exceeds 7, so a NOP sigil byte is inserted |
-| `xx xx xx xx xx`           | `xx R4`      |             | <!--| `xx xx xx xx xx xx`        | `xx R5`      |             |-->
-| `xx xx xx xx xx  xx`       | `xx R4 xx`   | repetition  |
-| `xx xx xx xx xx  xx xx`    | `xx R4 xx xx`| repetition  |
+| `aa`                       | `aa`         |             |
+| `aa aa`                    | `aa aa`      |             |
+| `aa aa`                    | `aa N31 aa`  | offset reached 31, so a NOP sigil byte is added |
+| `aa aa aa`                 | `aa R2`      |             |
+| `aa aa aa aa`              | `aa R3`      |             |
+| `aa aa aa aa`              | `aa Nn R3`   | n=8...31, offset exceeds 7, so a NOP sigil byte is inserted |
+| `aa aa aa aa aa`           | `aa R4`      |             |
+| `aa aa aa aa aa  aa`       | `aa R4 aa`   | repetition  |
+| `aa aa aa aa aa  aa aa`    | `aa R4 aa aa`| repetition  |
 | ...                        | ...          | repetition  |
-| 7 \* `aa`                  | `aa R4 R2`   | addition    |
-| 13 \* `aa`                 | `aa R4 R4 R4`| addition    |
-| ...                        | ...          | addition    |
 | `FF`                       | `FF`         |             |
 | `FF`                       | `FF N31`     | offset reached 31, so a NOP sigil byte is added |
 | `FF FF`                    | `F2`         |             |
@@ -181,44 +178,67 @@ This does not represent data in the stream and only serves to keep the chain lin
   * Example: `00 00 00 00` could be encoded `A0 20` (Z3 Z1) or `40 40` (Z2 Z2)
 * NOP sigil bytes are logically ignored. They simply serveals link chain elements.
 
-####  3.3.2. <a name='ExtendedEncodingPossibilitiesnotspecifiedyet'></a>Extended Encoding Possibilities (not specified yet)
+####  3.3.2. <a name='ExtendedEncodingPossibilitiesnotspecifiedyetjustideas'></a>Extended Encoding Possibilities (not specified yet, just ideas)
 
-* [ ] Just to show, what is further possible especially for user data.
+It is possible to improve compression slightly by the following means. This complicates mainly the encoder and makes no sense for *Trice* messages. But if user data with long equal byte rows are expected, it makes sense to implement it.
 
-##### Multiply sigil byte `M` as one of the reserved sigil bytes  (an idea only)
+| unencoded data             | encoded data | comment     |
+| -                          | -            | -           |
+| 7 \* `aa`                  | `aa R4 R2`   | addition    |
+| 13 \* `aa`                 | `aa R4 R4 R4`| addition    |
+| ...                        | ...          | addition    |
 
-* `00000111` Multiply sigil byte **M**: offset = 0
 
-* The `M` sigil byte is allowed only to appear between two sigil bytes of the same type, because it has only offset 0. Normally, if several sigil bytes of the same type appear their values are added. With the `M` sigil byte the two values are multiplied and then added to the rest. Examples:
+* [ ] The reserved values `00000ooo` with `ooo` = `001`...`111` are usable for the extended compressing.
+* [x] These sigil bytes have implicit the offset 0. They are only allowed as "right" neighbor of an other sigil byte.
+* [ ] R = Repetition sigils repeat the data bytes according to their count value, if no M sigil is right of them.
+* [ ] Several repetition sigils are added. Examles:
+  * [ ] `aa R4 R3` = (1 + 4 + 3) \* `aa` = 8 \* `aa`
+* [ ] M = Multiply sigils multiply their count with the count of the sigil left of them.
+* [ ] A multiplication between M sigils is possible unlimited times.
+* [ ] If left of a M sigil a R sigil occurs it is also multiplied, but the multiplication chain ends then.
+* [ ] Examples:
+  * [ ] `Z2 R3 R4 M8` = ( 2 + 3 + (4 \* 8)) \* `00` = 37 \* `00` 
+  * [ ] `aa R4 R2 M3 M3` = ( 1 + 4 + (2 \* 3 \*3 ) \* `aa` = 23 \* `aa`
+  * [ ] `F2 M3 R4 M3 M8 R5` = ( (2 \*3 ) + (4 \* 3 \* 8) + 5 ) ) \* `00` = 107 \* `00`
+* [x] The encoder has the choice how to encode. The decoder follows a clear algorithm. 
 
-| TCOBS encoded byte sequence | Decoded byte sequence      | Comment |
-| -                           | -                          | - |
-| `Z3 Z2`                     | `00 00 00 00 00`           | 3+2|
-| `Z3 M Z2`                   | `00 00 00 00 00 00`        | 3\*2|
-| `F1 F4 M F3`                | 13 \* `00`                 | 1 + 4\*3 |
-| `aa aa R2 M R3 M R3`        | 20 \* `aa`                 | 1 + 1 + 2\*3\*3 |
-| `Z2 M F4`                   | error                      | illegal |
+| Sigil|code |Use| Comment                    |
+| -    | -   | - | -                          |
+|      |`001`| 0 | reserved                   |
+|      |`010`| 0 | reserved                   |
+| RA   |`011`| 6 | 10 data byte repetitions   |
+| M3   |`100`| 3 | multiply left count with 3 |
+| M4   |`101`|10 | multiply left count with 4 |
+| M5   |`110`| 6 | multiply left count with 5 |
+| M8   |`111`|10 | multiply left count with 8 |
 
-* Usage of the repetition sigil byte
+These 5 sigils allow a minimum encoded byte count for equal bytes in a row of up over 20.
 
-| TCOBS encoded byte sequence | Decoded byte sequence      | comment     |
-| -                           | -                          | -           |
-| `Z2 R4`                     | `00 00 00 00 00 00 00 00`  | extension   |
-| `Z3 R4 R4`                  | 48 \* `00`                 | extension   |
-| ...                         | ...                        | extension   |
-| `xx R4 R2`                  | 9 \* `xx`                  | extension   |
-| ...                         | ...                        | extension   |
-| `F2 R4`                     |   8 \* `FF`                | extension   |
-| `F3 R3`                     |   9 \* `FF`                | extension   |
-| `F4 R4`                     |  16 \* `FF`                | extension   |
-| `F4 R4 R4`                  |  64 \* `FF`                | extension   |
 
-M5, M7, M11, M13, M17, M19, M23
-
-The reserved values `00000ooo` with `ooo` = 001...111 are usable too for the extended encoding.
-
-| 6 \* 00 | Z1 M5 |
-
+| Decoded    | TCOBS encoded  | Decoded    | TCOBS encoded   | Decoded    | TCOBS encoded  |
+|  -         | -              |  -         | -               |  -         | -              |
+|  1 \* `00` | `Z1`           |  1 \* `FF` | `FF`            |  1 \* `aa` | `aa`           |
+|  2 \* `00` | `Z2`           |  2 \* `FF` | `F2`            |  2 \* `aa` | `aa aa`        |
+|  3 \* `00` | `Z3`           |  3 \* `FF` | `F3`            |  3 \* `aa` | `aa R2`        |
+|  4 \* `00` | `Z3 Z1`        |  4 \* `FF` | `F4`            |  4 \* `aa` | `aa R3`        |
+|  5 \* `00` | `Z3 Z2`        |  5 \* `FF` | `F4 FF`         |  5 \* `aa` | `aa R4`        |
+|  6 \* `00` | `Z3 Z3`        |  6 \* `FF` | `F4 F2`         |  6 \* `aa` | `aa R3 R2`     |
+|  7 \* `00` | `Z3 R4`        |  7 \* `FF` | `F4 F4`         |  7 \* `aa` | `aa R4 R2`     |
+|  8 \* `00` | `Z2 M4`        |  8 \* `FF` | `F2 M4`         |  8 \* `aa` | `aa R4 R3`     |
+|  9 \* `00` | `Z3 M3`        |  9 \* `FF` | `F3 M3`         |  9 \* `aa` | `aa R2 M4`     |
+| 10 \* `00` | `Z2 M5`        | 10 \* `FF` | `F2 M5`         | 10 \* `aa` | `aa R3 M3`     |
+| 11 \* `00` | `Z1 RA`        | 11 \* `FF` | `F1 RA`         | 11 \* `aa` | `aa RA`        |
+| 12 \* `00` | `Z3 M4`        | 12 \* `FF` | `F3 M4`         | 12 \* `aa` | `aa RA aa`     |
+| 13 \* `00` | `Z3 RA`        | 13 \* `FF` | `F3 RA`         | 13 \* `aa` | `aa R3 M4`     |
+| 14 \* `00` | `Z2 M7`        | 14 \* `FF` | `F2 M7`         | 14 \* `aa` | `aa R3 RA`     |
+| 15 \* `00` | `Z3 M5`        | 15 \* `FF` | `F3 M5`         | 15 \* `aa` | `aa R2 M7`     |
+| 16 \* `00` | `Z2 M8`        | 16 \* `FF` | `F2 M8`         | 16 \* `aa` | `aa R3 M5`     |
+| 17 \* `00` | `Z2 M8 Z1`     | 17 \* `FF` | `F2 M8 FF`      | 17 \* `aa` | `aa R4 M4`     |
+| 18 \* `00` | `Z2 M8 R2`     | 18 \* `FF` | `F2 M8 R2`      | 18 \* `aa` | `aa R4 M4 aa`  |
+| 19 \* `00` | `Z2 M8 R3`     | 19 \* `FF` | `F2 M8 R3`      | 19 \* `aa` | `aa R4 M4 R2`  |
+| 20 \* `00` | `Z2 M8 R4`     | 20 \* `FF` | `F2 M8 R4`      | 20 \* `aa` | `aa R4 M4 R3`  |
+| 21 \* `00` | `Z4 M5 Z1`     | 21 \* `FF` | `F3 M5 FF`      | 21 \* `aa` | `aa R4 M5`     |
 
 ##  4. <a name='TCOBSSoftwareInterface'></a>TCOBS Software Interface
 
@@ -283,6 +303,7 @@ func TCOBSDecode(p []byte) []byte
 | 2022-MAR-24 | 0.6.0 | Comment added to preface after talk with Sergii |
 | 2022-MAR-24 | 0.6.1 | Smaller corrections |
 | 2022-MAR-28 | 0.7.0 | Multiply sigil byte idea added |
+| 2022-MAR-28 | 0.7.1 | Multiply sigil byte idea more specified |
 <!--
 | 2022-MAR-   | 0.6.0 | |
 -->
@@ -299,8 +320,7 @@ func TCOBSDecode(p []byte) []byte
     - [3.2.4. <a name='RepeatSigilByteR2R3R4'></a>Repeat Sigil Byte `R2`, `R3`, `R4`](#324-repeat-sigil-byte-r2-r3-r4)
   - [3.3. <a name='FragmentExamples'></a>Fragment Examples](#33-fragment-examples)
     - [3.3.1. <a name='SimpleEncodingAlgorithm'></a>Simple Encoding Algorithm](#331-simple-encoding-algorithm)
-    - [3.3.2. <a name='ExtendedEncodingPossibilitiesnotspecifiedyet'></a>Extended Encoding Possibilities (not specified yet)](#332-extended-encoding-possibilities-not-specified-yet)
-      - [Multiply sigil byte `M` as one of the reserved sigil bytes  (an idea only)](#multiply-sigil-byte-m-as-one-of-the-reserved-sigil-bytes--an-idea-only)
+    - [3.3.2. <a name='ExtendedEncodingPossibilitiesnotspecifiedyetjustideas'></a>Extended Encoding Possibilities (not specified yet, just ideas)](#332-extended-encoding-possibilities-not-specified-yet-just-ideas)
 - [4. <a name='TCOBSSoftwareInterface'></a>TCOBS Software Interface](#4-tcobs-software-interface)
   - [4.1. <a name='CInterface'></a>C Interface](#41-c-interface)
   - [4.2. <a name='Gointerface'></a>Go interface](#42-go-interface)
