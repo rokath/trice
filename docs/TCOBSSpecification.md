@@ -163,6 +163,9 @@ This does not represent data in the stream and only serves to keep the chain lin
 | `xx xx xx xx xx  xx`       | `xx R4 xx`   | repetition  |
 | `xx xx xx xx xx  xx xx`    | `xx R4 xx xx`| repetition  |
 | ...                        | ...          | repetition  |
+| 7 \* `aa`                  | `aa R4 R2`   | addition    |
+| 13 \* `aa`                 | `aa R4 R4 R4`| addition    |
+| ...                        | ...          | addition    |
 | `FF`                       | `FF`         |             |
 | `FF`                       | `FF N31`     | offset reached 31, so a NOP sigil byte is added |
 | `FF FF`                    | `F2`         |             |
@@ -210,7 +213,12 @@ This does not represent data in the stream and only serves to keep the chain lin
 | `F4 R4`                     |  16 \* `FF`                | extension   |
 | `F4 R4 R4`                  |  64 \* `FF`                | extension   |
 
+M5, M7, M11, M13, M17, M19, M23
+
 The reserved values `00000ooo` with `ooo` = 001...111 are usable too for the extended encoding.
+
+| 6 \* 00 | Z1 M5 |
+
 
 ##  4. <a name='TCOBSSoftwareInterface'></a>TCOBS Software Interface
 
