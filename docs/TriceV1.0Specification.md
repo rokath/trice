@@ -135,7 +135,7 @@ If for special cases, the main stream encoding is not sufficient, the user can a
       * Usage: `TRICEX2( "point %x,%d\n", a, b);`
   * *Trice* extensions without cycle counter are counted as well.
   * Each TRICEXn has its own ID space.
-* Several different *Trice* extensons are contributanble.
+* Several different *Trice* extensons are contributable.
 
 ###  6.4. <a name='Unknownuserdata'></a>Unknown user data
 
