@@ -176,7 +176,7 @@ This does not represent data in the stream and only serves to keep the chain lin
 
 * If several encodings possible, the encoder has than the choice.
   * Example: `00 00 00 00` could be encoded `A0 20` (Z3 Z1) or `40 40` (Z2 Z2)
-* NOP sigil bytes are logically ignored. They simply serveals link chain elements.
+* NOP sigil bytes are logically ignored. They simply serve as link chain elements.
 
 ####  3.3.2. <a name='ExtendedEncodingPossibilitiesnotspecifiedyetjustideas'></a>Extended Encoding Possibilities (not specified yet, just ideas)
 
@@ -192,16 +192,16 @@ It is possible to improve compression slightly by the following means. This comp
 * [ ] The reserved values `00000ooo` with `ooo` = `001`...`111` are usable for the extended compressing.
 * [x] These sigil bytes have implicit the offset 0. They are only allowed as "right" neighbor of an other sigil byte.
 * [ ] R = Repetition sigils repeat the data bytes according to their count value, if no M sigil is right of them.
-* [ ] Several repetition sigils are added. Examles:
+* [ ] Several repetition sigils are added. Examle:
   * [ ] `aa R4 R3` = (1 + 4 + 3) \* `aa` = 8 \* `aa`
 * [ ] M = Multiply sigils multiply their count with the count of the sigil left of them.
 * [ ] A multiplication between M sigils is possible unlimited times.
-* [ ] If left of a M sigil a R sigil occurs it is also multiplied, but the multiplication chain ends then.
+* [ ] If left of a M sigil a R, Z or F sigil occurs it is also multiplied, but the multiplication chain ends then.
 * [ ] Examples:
   * [ ] `Z2 R3 R4 M8` = ( 2 + 3 + (4 \* 8)) \* `00` = 37 \* `00` 
   * [ ] `aa R4 R2 M3 M3` = ( 1 + 4 + (2 \* 3 \*3 ) \* `aa` = 23 \* `aa`
   * [ ] `F2 M3 R4 M3 M8 R5` = ( (2 \*3 ) + (4 \* 3 \* 8) + 5 ) ) \* `00` = 107 \* `00`
-* [x] The encoder has the choice how to encode. The decoder follows a clear algorithm. 
+* [x] The encoder has the choice how to encode. The decoder follows an clear algorithm. 
 
 | Sigil|code |Use| Comment                    |
 | -    | -   | - | -                          |
