@@ -182,17 +182,33 @@ This does not represent data in the stream and only serves to keep the chain lin
 
 * [ ] Just to show, what is further possible especially for user data.
 
-| unencoded data             | encoded data | comment     |
-| -                          | -            | -           |
-| `00 00 00 00 00 00 00 00`  | `Z2 R4`      | extension   |
-| 48 \* `00`                 | `Z3 R4 R4`   | extension   |
-| ...                        | ...          | extension   |
-| 9 \* `xx`                  | `xx R4 R2`   | extension   |
-| ...                        | ...          | extension   |
-|   8 \* `FF`                | `F2 R4`      | extension   |
-|   9 \* `FF`                | `F3 R3`      | extension   |
-|  16 \* `FF`                | `F4 R4`      | extension   |
-|  64 \* `FF`                | `F4 R4 R4`   | extension   |
+##### Multiply sigil byte `M` as one of the reserved sigil bytes  (an idea only)
+
+* `00000111` Multiply sigil byte **M**: offset = 0
+
+* The `M` sigil byte is allowed only to appear between two sigil bytes of the same type, because it has only offset 0. Normally, if several sigil bytes of the same type appear their values are added. With the `M` sigil byte the two values are multiplied and then added to the rest. Examples:
+
+| TCOBS encoded byte sequence | Decoded byte sequence      | Comment |
+| -                           | -                          | - |
+| `Z3 Z2`                     | `00 00 00 00 00`           | 3+2|
+| `Z3 M Z2`                   | `00 00 00 00 00 00`        | 3\*2|
+| `F1 F4 M F3`                | 13 \* `00`                 | 1 + 4\*3 |
+| `aa aa R2 M R3 M R3`        | 20 \* `aa`                 | 1 + 1 + 2\*3\*3 |
+| `Z2 M F4`                   | error                      | illegal |
+
+* Usage of the repetition sigil byte
+
+| TCOBS encoded byte sequence | Decoded byte sequence      | comment     |
+| -                           | -                          | -           |
+| `Z2 R4`                     | `00 00 00 00 00 00 00 00`  | extension   |
+| `Z3 R4 R4`                  | 48 \* `00`                 | extension   |
+| ...                         | ...                        | extension   |
+| `xx R4 R2`                  | 9 \* `xx`                  | extension   |
+| ...                         | ...                        | extension   |
+| `F2 R4`                     |   8 \* `FF`                | extension   |
+| `F3 R3`                     |   9 \* `FF`                | extension   |
+| `F4 R4`                     |  16 \* `FF`                | extension   |
+| `F4 R4 R4`                  |  64 \* `FF`                | extension   |
 
 The reserved values `00000ooo` with `ooo` = 001...111 are usable too for the extended encoding.
 
@@ -258,6 +274,7 @@ func TCOBSDecode(p []byte) []byte
 | 2022-MAR-23 | 0.5.2 | Sigil bytes offset correction, [TCOBS.h](../pkg/tcobs/TCOBS.h) Link corrected. [TCOBS.c](../pkg/tcobs/TCOBS.c) Link added|
 | 2022-MAR-24 | 0.6.0 | Comment added to preface after talk with Sergii |
 | 2022-MAR-24 | 0.6.1 | Smaller corrections |
+| 2022-MAR-28 | 0.7.0 | Multiply sigil byte idea added |
 <!--
 | 2022-MAR-   | 0.6.0 | |
 -->
@@ -275,6 +292,7 @@ func TCOBSDecode(p []byte) []byte
   - [3.3. <a name='FragmentExamples'></a>Fragment Examples](#33-fragment-examples)
     - [3.3.1. <a name='SimpleEncodingAlgorithm'></a>Simple Encoding Algorithm](#331-simple-encoding-algorithm)
     - [3.3.2. <a name='ExtendedEncodingPossibilitiesnotspecifiedyet'></a>Extended Encoding Possibilities (not specified yet)](#332-extended-encoding-possibilities-not-specified-yet)
+      - [Multiply sigil byte `M` as one of the reserved sigil bytes  (an idea only)](#multiply-sigil-byte-m-as-one-of-the-reserved-sigil-bytes--an-idea-only)
 - [4. <a name='TCOBSSoftwareInterface'></a>TCOBS Software Interface](#4-tcobs-software-interface)
   - [4.1. <a name='CInterface'></a>C Interface](#41-c-interface)
   - [4.2. <a name='Gointerface'></a>Go interface](#42-go-interface)
