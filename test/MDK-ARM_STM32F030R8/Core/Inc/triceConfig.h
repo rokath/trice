@@ -58,7 +58,7 @@ uint32_t ReadUs32( void );
 #endif
 #endif // #if TRICE_MODE == 0
 
-//! Double Buffering output to RTT or UART with cycle counter. Trices inside interrupts allowed. Fast TRICE macro execution. 
+//! Double Buffering output to RTT or UART with cycle counter. Trices inside interrupts allowed. Fast TRICE macro execution.
 //! UART Command line similar to: `trice log -p COM1 -baud 115200`
 //! RTT Command line similar to: `trice l -args="-Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0 -RTTSearchRanges 0x20000000_0x1000"`
 #if TRICE_MODE == 200
@@ -73,7 +73,7 @@ uint32_t ReadUs32( void );
 #endif // #if TRICE_MODE == 200
 
 
-//! Double Buffering output to UART without cycle counter. No trices inside interrupts allowed. Fastest TRICE macro execution. 
+//! Double Buffering output to UART without cycle counter. No trices inside interrupts allowed. Fastest TRICE macro execution.
 //! Command line similar to: `trice log -p COM1 -baud 115200`
 #if TRICE_MODE == 201
 #define TRICE_CYCLE_COUNTER 0 //! Do not add cycle counter, The TRICE macros are a bit faster. Lost TRICEs are not detectable by the trice tool.
