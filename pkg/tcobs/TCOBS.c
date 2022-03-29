@@ -306,7 +306,7 @@ int TCOBSEncode( uint8_t* restrict output,  uint8_t const * restrict input, unsi
                     ASSERT( zeroCount == 0 )
                     ASSERT( fullCount == 0 )
                     ASSERT( b_1 != 0 )
-                    ASSERT( b_1 == 0xFF )
+                    ASSERT( b_1 != 0xFF )
                     if( b_1 == b ){ // , r1 aa aa.
                         OUTB( b_1 ) // aa, r1 -- aa.
                         if( offset > 7 ){ 
@@ -324,7 +324,7 @@ int TCOBSEncode( uint8_t* restrict output,  uint8_t const * restrict input, unsi
                     ASSERT( zeroCount == 0 )
                     ASSERT( fullCount == 0 )
                     ASSERT( b_1 != 0 )
-                    ASSERT( b_1 == 0xFF )
+                    ASSERT( b_1 != 0xFF )
                     if( b_1 == b ){ // , r2 aa aa.
                         OUTB( b_1 ) // aa, r2 -- aa.
                         if( offset > 7 ){ 
@@ -342,8 +342,13 @@ int TCOBSEncode( uint8_t* restrict output,  uint8_t const * restrict input, unsi
                     ASSERT( zeroCount == 0 )
                     ASSERT( fullCount == 0 )
                     ASSERT( b_1 != 0 )
-                    ASSERT( b_1 == 0xFF )
-                    OUTB( b_1 ) // aa, r3 -- yy.
+                    ASSERT( b_1 != 0xFF )
+                    OUTB( b_1 ) // aa, r3 -- yy. 
+                    if( b_1 == b ){ // , r3 aa aa.
+                        *o++ = R4 | offset; // aa R4, -- --.
+                        return o - output;                        
+                    }
+                    // aa, r3 -- yy.
                     OUT_reptSigil  // aa R3, -- xx.
                     goto lastByte;
                 }

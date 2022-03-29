@@ -127,7 +127,7 @@ func TCOBSDecode(d, in []byte) (n int, e error) {
 
 	copyBytes:
 		to := len(d) - n - offset - 1
-		from := len(in) - offset - 1
+		from := len(in) - offset // sigil byte is already removed
 		n += copy(d[to:], in[from:])
 		in = in[:len(in)-offset] // remove copied bytes
 		continue
