@@ -9,17 +9,14 @@
 		* 3.2.2. [Zero Sigil Byte `Z1`, `Z2`, `Z3`](#ZeroSigilByteZ1Z2Z3)
 		* 3.2.3. [Full Sigil Byte `F2`, `F3`, `F4`](#FullSigilByteF2F3F4)
 		* 3.2.4. [Repeat Sigil Byte `R2`, `R3`, `R4`](#RepeatSigilByteR2R3R4)
-	* 3.3. [Fragment Examples](#FragmentExamples)
+	* 3.3. [TCOBS Encoding](#TCOBSEncoding)
 		* 3.3.1. [Simple Encoding Algorithm](#SimpleEncodingAlgorithm)
-		* 3.3.2. [Extended Encoding Possibilities (not specified yet, just ideas)](#ExtendedEncodingPossibilitiesnotspecifiedyetjustideas)
+		* 3.3.2. [Sigil Bytes Chaining](#SigilBytesChaining)
+		* 3.3.3. [Extended Encoding Possibilities (proposal for future improvement)](#ExtendedEncodingPossibilitiesproposalforfutureimprovement)
 * 4. [TCOBS Software Interface](#TCOBSSoftwareInterface)
-	* 4.1. [C Interface](#CInterface)
-	* 4.2. [Go interface](#Gointerface)
-* 5. [TCOBS Encoding Details](#TCOBSEncodingDetails)
-	* 5.1. [Sigil Bytes Chaining](#SigilBytesChaining)
-		* 5.1.1. [First any Sigil Byte](#FirstanySigilByte)
-	* 5.2. [TCOBS encoder C code](#TCOBSencoderCcode)
-* 6. [Changelog](#Changelog)
+	* 4.1. [C Interface and Code](#CInterfaceandCode)
+	* 4.2. [Go interface and Code](#GointerfaceandCode)
+* 5. [Changelog](#Changelog)
 
 <!-- vscode-markdown-toc-config
 	numbering=true
@@ -133,18 +130,22 @@ This does not represent data in the stream and only serves to keep the chain lin
   * ...
   * R4_7 = `00011111`
 
-###  3.3. <a name='FragmentExamples'></a>Fragment Examples
+###  3.3. <a name='TCOBSEncoding'></a>TCOBS Encoding
 
-* `aa` represents any non-zero byte
-* `aa aa ...` represents any non-zero equal bytes
+The encoding can be done in a straight forward code on the senders side touching each byte only once.
 
 ####  3.3.1. <a name='SimpleEncodingAlgorithm'></a>Simple Encoding Algorithm
 
-* [x] Easy to implement.
-* [x] Longer sequences are possible by repetition. 
+* `aa` represents any non-zero and non-FF byte
+* `aa aa ...` represents any non-zero and non-FF **equal** bytes
 
-| unencoded data             | encoded data | comment     |
-| -                          | -            | -           |
+* [x] Easy to implement (fast).
+* [x] Longer sequences are possible by repetition.
+
+**EXAMPLES:**
+
+| Unencoded Data             | Encoded Data | Comment     |
+| :-                         | :-           | -           |
 | `00`                       | `Z1`         |             |
 | `00 00`                    | `Z2`         |             |
 | `00 00 00`                 | `Z3`         |             |
@@ -178,9 +179,27 @@ This does not represent data in the stream and only serves to keep the chain lin
   * Example: `00 00 00 00` could be encoded `A0 20` (Z3 Z1) or `40 40` (Z2 Z2)
 * NOP sigil bytes are logically ignored. They simply serve as link chain elements.
 
-####  3.3.2. <a name='ExtendedEncodingPossibilitiesnotspecifiedyetjustideas'></a>Extended Encoding Possibilities (not specified yet, just ideas)
+####  3.3.2. <a name='SigilBytesChaining'></a>Sigil Bytes Chaining
 
-It is possible to improve compression slightly by the following means. This complicates mainly the encoder and makes no sense for *Trice* messages. But if user data with long equal byte rows are expected, it makes sense to implement it.
+* The encoding starts at first buffer address.
+* The encoded buffer ends with a sigil byte.
+* The decoding then, starts at the sigil byte which is the last of the encoded data.
+* The first sigil byte (at the end) carries as offset the byte count between it to the next sigil byte (before it) or to the buffer start.
+* If 2 sigil bytes neighbors the offset is 0.
+* Encoded examples: (Sn =sigil byte with offset n, by = data byte)
+
+  ```c
+  S0 // only one sigil byte like F4 (representing FF FF FF FF)
+  by S1 // one byte and a sigil byte like AA R4 representing AA AA AA AA AA
+  by by S2 S0 // like AA BB R2 Z2 representing AA BB BB BB 00 00
+  by by by by by by by by by S9 S0 S0 by by by S3 // and so on ...
+  ```
+
+* Any next sigil byte carries as offset the byte count to the sigil byte before in buffer start direction.
+
+####  3.3.3. <a name='ExtendedEncodingPossibilitiesproposalforfutureimprovement'></a>Extended Encoding Possibilities (proposal for future improvement)
+
+It is possible to improve compression slightly by the following means. This complicates the encoder and makes no sense for *Trice* messages. But if user data with long equal byte rows are expected, it can make sense to implement it, when computing power matters and a standard zipping code is too slow.
 
 | unencoded data             | encoded data | comment     |
 | -                          | -            | -           |
@@ -188,8 +207,7 @@ It is possible to improve compression slightly by the following means. This comp
 | 13 \* `aa`                 | `aa R4 R4 R4`| addition    |
 | ...                        | ...          | addition    |
 
-
-* [ ] The reserved values `00000ooo` with `ooo` = `001`...`111` are usable for the extended compressing.
+* [ ] The reserved values `00000ooo` with `ooo` = `001`...`111` are usable for further extended compressing.
 * [x] These sigil bytes have implicit the offset 0. They are only allowed as "right" neighbor of an other sigil byte.
 * [ ] R = Repetition sigils repeat the data bytes according to their count value, if no M sigil is right of them.
 * [ ] Several repetition sigils are added. Examle:
@@ -203,18 +221,17 @@ It is possible to improve compression slightly by the following means. This comp
   * [ ] `F2 M3 R4 M3 M8 R5` = ( (2 \*3 ) + (4 \* 3 \* 8) + 5 ) ) \* `00` = 107 \* `00`
 * [x] The encoder has the choice how to encode. The decoder follows an clear algorithm. 
 
-| Sigil|code |Use| Comment                    |
-| -    | -   | - | -                          |
-|      |`001`| 0 | reserved                   |
-|      |`010`| 0 | reserved                   |
-| RA   |`011`| 6 | 10 data byte repetitions   |
-| M3   |`100`| 3 | multiply left count with 3 |
-| M4   |`101`|10 | multiply left count with 4 |
-| M5   |`110`| 6 | multiply left count with 5 |
-| M8   |`111`|10 | multiply left count with 8 |
+| Sigil|code |Use count until 21 repetitions| Comment                    |
+| -    | -   |  :-:                         | -                          |
+|      |`001`|  0                           | reserved                   |
+|      |`010`|  0                           | reserved                   |
+| RA   |`011`|  6                           | 10 data byte repetitions   |
+| M3   |`100`|  3                           | multiply left count with 3 |
+| M4   |`101`| 10                           | multiply left count with 4 |
+| M5   |`110`|  6                           | multiply left count with 5 |
+| M8   |`111`| 10                           | multiply left count with 8 |
 
 These 5 sigils allow a minimum encoded byte count for equal bytes in a row of up over 20.
-
 
 | Decoded    | TCOBS encoded  | Decoded    | TCOBS encoded   | Decoded    | TCOBS encoded  |
 |  -         | -              |  -         | -               |  -         | -              |
@@ -240,13 +257,16 @@ These 5 sigils allow a minimum encoded byte count for equal bytes in a row of up
 | 20 \* `00` | `Z2 M8 R4`     | 20 \* `FF` | `F2 M8 R4`      | 20 \* `aa` | `aa R4 M4 R3`  |
 | 21 \* `00` | `Z4 M5 Z1`     | 21 \* `FF` | `F3 M5 FF`      | 21 \* `aa` | `aa R4 M5`     |
 
+As said, these extended possibilities are currently **not implemented** and shown just for discussion. A decoder, able to interpret such extension, will decode simple encoding as well.
+
 ##  4. <a name='TCOBSSoftwareInterface'></a>TCOBS Software Interface
 
-###  4.1. <a name='CInterface'></a>C Interface
+###  4.1. <a name='CInterfaceandCode'></a>C Interface and Code
 
 * [../pkg/tcobs/TCOBS.h](../pkg/tcobs/TCOBS.h)
+* [../pkg/tcobs/TCOBS.c](../pkg/tcobs/TCOBS.c)
 
-###  4.2. <a name='Gointerface'></a>Go interface
+###  4.2. <a name='GointerfaceandCode'></a>Go interface and Code
 
 ```Go
 // TCOBSEncode a slice of bytes to a null-terminated frame
@@ -258,34 +278,8 @@ func TCOBSEncode(p []byte) []byte
 func TCOBSDecode(p []byte) []byte 
 ```
 
-##  5. <a name='TCOBSEncodingDetails'></a>TCOBS Encoding Details
-
-###  5.1. <a name='SigilBytesChaining'></a>Sigil Bytes Chaining
-
-* The encoding starts at first buffer address.
-* The encoded buffer ends with a sigil byte.
-* The decoding then, starts at the sigil byte which is the last of the encoded data.
-
-####  5.1.1. <a name='FirstanySigilByte'></a>First any Sigil Byte
-
-* The first sigil byte (at the end) carries as offset the byte count between it to the next sigil byte (before it) or to the buffer start.
-* If 2 sigil bytes neighbors the offset is 0.
-* Encoded examples: (Sn =sigil byte with offset n, by = data byte)
-
-  ```c
-  S0 // only one sigil byte like F4 (representing FF FF FF FF)
-  by S1 // one byte and a sigil byte like AA R4 representing AA AA AA AA AA
-  by by S2 S0 // like AA BB R2 Z2 representing AA BB BB BB 00 00
-  by by by by by by by by by S9 S0 S0 by by by S3 // and so on ...
-  ```
-
-* Any next sigil byte  carries as offset the byte count to the sigil byte before,
-
-###  5.2. <a name='TCOBSencoderCcode'></a>TCOBS encoder C code
-
-* [../pkg/tcobs/TCOBS.c](../pkg/tcobs/TCOBS.c)
-
-##  6. <a name='Changelog'></a>Changelog
+* [../pkg/tcobs/TCOBS.go](../pkg/tcobs/TCOBS.go)
+##  5. <a name='Changelog'></a>Changelog
 
 | Date | Version | Comment |
 | - | - | - |
@@ -304,6 +298,7 @@ func TCOBSDecode(p []byte) []byte
 | 2022-MAR-24 | 0.6.1 | Smaller corrections |
 | 2022-MAR-28 | 0.7.0 | Multiply sigil byte idea added |
 | 2022-MAR-28 | 0.7.1 | Multiply sigil byte idea more specified |
+| 2022-MAR-29 | 0.8.0 | Document slightly restructured, some comments added |
 <!--
 | 2022-MAR-   | 0.6.0 | |
 -->
@@ -318,17 +313,14 @@ func TCOBSDecode(p []byte) []byte
     - [3.2.2. <a name='ZeroSigilByteZ1Z2Z3'></a>Zero Sigil Byte `Z1`, `Z2`, `Z3`](#322-zero-sigil-byte-z1-z2-z3)
     - [3.2.3. <a name='FullSigilByteF2F3F4'></a>Full Sigil Byte `F2`, `F3`, `F4`](#323-full-sigil-byte-f2-f3-f4)
     - [3.2.4. <a name='RepeatSigilByteR2R3R4'></a>Repeat Sigil Byte `R2`, `R3`, `R4`](#324-repeat-sigil-byte-r2-r3-r4)
-  - [3.3. <a name='FragmentExamples'></a>Fragment Examples](#33-fragment-examples)
+  - [3.3. <a name='TCOBSEncoding'></a>TCOBS Encoding](#33-tcobs-encoding)
     - [3.3.1. <a name='SimpleEncodingAlgorithm'></a>Simple Encoding Algorithm](#331-simple-encoding-algorithm)
-    - [3.3.2. <a name='ExtendedEncodingPossibilitiesnotspecifiedyetjustideas'></a>Extended Encoding Possibilities (not specified yet, just ideas)](#332-extended-encoding-possibilities-not-specified-yet-just-ideas)
+    - [3.3.2. <a name='SigilBytesChaining'></a>Sigil Bytes Chaining](#332-sigil-bytes-chaining)
+    - [3.3.3. <a name='ExtendedEncodingPossibilitiesproposalforfutureimprovement'></a>Extended Encoding Possibilities (proposal for future improvement)](#333-extended-encoding-possibilities-proposal-for-future-improvement)
 - [4. <a name='TCOBSSoftwareInterface'></a>TCOBS Software Interface](#4-tcobs-software-interface)
-  - [4.1. <a name='CInterface'></a>C Interface](#41-c-interface)
-  - [4.2. <a name='Gointerface'></a>Go interface](#42-go-interface)
-- [5. <a name='TCOBSEncodingDetails'></a>TCOBS Encoding Details](#5-tcobs-encoding-details)
-  - [5.1. <a name='SigilBytesChaining'></a>Sigil Bytes Chaining](#51-sigil-bytes-chaining)
-    - [5.1.1. <a name='FirstanySigilByte'></a>First any Sigil Byte](#511-first-any-sigil-byte)
-  - [5.2. <a name='TCOBSencoderCcode'></a>TCOBS encoder C code](#52-tcobs-encoder-c-code)
-- [6. <a name='Changelog'></a>Changelog](#6-changelog)
+  - [4.1. <a name='CInterfaceandCode'></a>C Interface and Code](#41-c-interface-and-code)
+  - [4.2. <a name='GointerfaceandCode'></a>Go interface and Code](#42-go-interface-and-code)
+- [5. <a name='Changelog'></a>Changelog](#5-changelog)
 
 <!--
 Module kolben::rlercobs
