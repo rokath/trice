@@ -105,18 +105,20 @@ func TCOBSDecode(d, in []byte) (n int, e error) {
 		case R4:
 			n++
 			d[len(d)-n] = in[len(in)-1]
+			fallthrough
 		case R3:
 			n++
 			d[len(d)-n] = in[len(in)-1]
+			fallthrough
 		case R2:
 			n++
 			d[len(d)-n] = in[len(in)-1]
 			n++
 			d[len(d)-n] = in[len(in)-1]
 
-			n++
-			d[len(d)-n] = in[len(in)-1]
-			in = in[:len(in)-1] // remove repeated data byte
+			//n++
+			//d[len(d)-n] = in[len(in)-1]
+			//in = in[:len(in)-1] // remove repeated data byte
 			goto copyBytes
 
 		case Reserved:
@@ -126,7 +128,7 @@ func TCOBSDecode(d, in []byte) (n int, e error) {
 		}
 
 	copyBytes:
-		to := len(d) - n - offset - 1
+		to := len(d) - n - offset
 		from := len(in) - offset // sigil byte is already removed
 		n += copy(d[to:], in[from:])
 		in = in[:len(in)-offset] // remove copied bytes
@@ -148,6 +150,6 @@ func TCOBSDecoder(s []byte) (decoded, after []byte, e error) {
 	}
 	decoded = make([]byte, 2*len(tcobs))
 	n, e := TCOBSDecode(decoded, tcobs)
-	decoded = decoded[:n]
+	decoded = decoded[len(decoded)-n:]
 	return
 }

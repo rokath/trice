@@ -1,6 +1,7 @@
 package src
 
 import (
+	"fmt"
 	"math/rand"
 	"testing"
 
@@ -67,19 +68,27 @@ var testData = testTable{
 
 	{[]byte{0xAA}, []byte{0xAA, 0xA1}},
 	{[]byte{0xAA, 0xAA}, []byte{0xAA, 0xAA, 0xA2}},
-	{[]byte{0xAA, 0xAA, 0xAA}, []byte{0xAA, 0x11}},
-	{[]byte{0xAA, 0xAA, 0xAA, 0xAA, 0xAA}, []byte{0xAA, 0x19}},
+	{[]byte{0xAA, 0xAA, 0xAA}, []byte{0xAA, 0x09}},             // AA R2
+	{[]byte{0xAA, 0xAA, 0xAA, 0xAA}, []byte{0xAA, 0x11}},       // AA R3
+	{[]byte{0xAA, 0xAA, 0xAA, 0xAA, 0xAA}, []byte{0xAA, 0x19}}, // AA R4
 	{[]byte{0xAA, 0xAA, 0xAA, 0xAA, 0xAA, 0xAA}, []byte{0xAA, 0x19, 0xAA, 0xA1}},
 	{[]byte{0xAA, 0xAA, 0xAA, 0xAA, 0xAA, 0xAA, 0xAA}, []byte{0xAA, 0x19, 0xAA, 0xAA, 0xA2}},
 
 	{[]byte{0xAA, 0x00}, []byte{0xAA, 0x21}},
 	{[]byte{0xAA, 0xAA, 0x00}, []byte{0xAA, 0xAA, 0x22}},
+
+	{[]byte{0, 2, 2, 2, 0, 1, 0, 255, 255, 255, 1, 2, 1, 0, 255, 1, 2, 0, 0, 1, 2, 1, 255, 1, 2, 2, 2, 255, 1, 2, 0, 255, 2, 2, 0},
+		[]byte{0x20, 0x2, 0x9, 0x20, 0x1, 0x21, 0xe0, 0x1, 0x2, 0x1, 0x23, 0xff, 0x1, 0x2, 0x43, 0x1, 0x2, 0x1, 0xff, 0x1, 0x2, 0xe, 0xff, 0x1, 0x2, 0x23, 0xff, 0x2, 0x2, 0x23}},
+	{[]byte{0xFF, 0x02, 0x02, 0x00}, []byte{0xFF, 0x02, 0x02, 0x23}},
+	//{[]byte{0xFF, 0x02, 0x02, 0x00, 0xFF}, []byte{0xFF, 0x02, 0x02, 0x23, 0xFF, 0xA1}},
+	//{[]byte{0, 2, 2, 2, 0, 1, 0, 255, 255, 255, 1, 2, 1, 0, 255, 1, 2, 0, 0, 1, 2, 1, 255, 1, 2, 2, 2, 255, 1, 2, 0, 255, 2, 2, 0, 255},
+	//	[]byte{0x20, 0x2, 0x9, 0x20, 0x1, 0x21, 0xe0, 0x1, 0x2, 0x1, 0x23, 0xff, 0x1, 0x2, 0x43, 0x1, 0x2, 0x1, 0xff, 0x1, 0x2, 0xe, 0xff, 0x1, 0x2, 0x23, 0xff, 0x2, 0x2, 0x23, 0xFF, 0xA1}},
 }
 
 // TestTCOBSEncode checks if decoded testData lead to encoded testData.
 func TestTCOBSEncode(t *testing.T) {
 	for _, k := range testData {
-		enc := make([]byte, 100)
+		enc := make([]byte, 40000)
 		n := TCOBSEncodeC(enc, k.dec)
 		enc = enc[:n]
 		assert.Equal(t, k.enc, enc)
@@ -87,8 +96,8 @@ func TestTCOBSEncode(t *testing.T) {
 }
 
 // TestTCOBSDecode checks if encoded testData lead to unencoded testData.
-func _TestTCOBSDecode(t *testing.T) { // fails
-	b := make([]byte, 100)
+func TestTCOBSDecode(t *testing.T) { // fails
+	b := make([]byte, 40000)
 	for _, k := range testData {
 		n, e := TCOBSDecode(b, k.enc) // func TCOBSDecode(d, in []byte) (n int, e error) {
 		assert.True(t, e == nil)
@@ -98,16 +107,16 @@ func _TestTCOBSDecode(t *testing.T) { // fails
 	}
 }
 
-func _TestTCOBSDecoder(t *testing.T) {
-	i := []byte{1, 2, 0xA2, 0, 4, 0xA1, 0, 6}
+func TestTCOBSDecoder(t *testing.T) {
+	i := []byte{0xAA, 0xBB, 0xA2, 0, 4, 0xA1, 0, 6}
 	before, after, err := TCOBSDecoder(i) // panic
 	assert.True(t, err == nil)
-	assert.Equal(t, i[:3], before)
+	assert.Equal(t, i[:2], before)
 	assert.Equal(t, i[4:], after)
 
 	before, after, err = TCOBSDecoder(after)
 	assert.True(t, err == nil)
-	assert.Equal(t, i[4:6], before)
+	assert.Equal(t, i[4:5], before)
 	assert.Equal(t, i[7:], after)
 
 	before, after, err = TCOBSDecoder(after)
@@ -117,17 +126,18 @@ func _TestTCOBSDecoder(t *testing.T) {
 	assert.Equal(t, i[7:], after)
 }
 
-func _TestEncodeDecode(t *testing.T) { // fails
+func TestEncodeDecode(t *testing.T) { // fails
 	max := 32768
-	length := rand.Intn(max)
+	length := 36 // rand.Intn(max)
 	datBuf := make([]byte, max)
 	encBuf := make([]byte, 2*max) // max 1 + (1+1/32)*len) ~= 1.04 * len
 	decBuf := make([]byte, 2*max) // max 1 + (1+1/32)*len) ~= 1.04 * len
 	for i := 0; i < length; i++ {
-		b := uint8(rand.Intn(3)) - 1 // Oxff, 0, 1 2
+		b := uint8(rand.Intn(4)) - 1 // -1, 0, 1 2
 		datBuf[i] = b
 	}
 	dat := datBuf[:length]
+	fmt.Println(dat)
 	n := TCOBSEncodeC(encBuf, dat)
 	enc := encBuf[:n]
 	n, e := TCOBSDecode(decBuf, enc)

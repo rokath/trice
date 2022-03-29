@@ -4,7 +4,9 @@
         "triceconfig.h": "c"
     },
     "cSpell.words": [
+        "CFLAGS",
         "COBSR",
+        "flto",
         "NUCLEO",
         "Strg",
         "tcobs"

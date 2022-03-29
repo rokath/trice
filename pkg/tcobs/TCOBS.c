@@ -134,7 +134,7 @@ int TCOBSEncode( uint8_t* restrict output,  uint8_t const * restrict input, unsi
                         }
                         // , -- xx. yy ...
                     } 
-                    continue; // , fn -- xx. yy ...            
+                    continue; // , fn -- xx. yy ...
                 }
 
                 // , r0 aa aa. -> , r1 -- aa.
@@ -142,7 +142,7 @@ int TCOBSEncode( uint8_t* restrict output,  uint8_t const * restrict input, unsi
                 // , r0 aa aa. aa aa -> , r3 -- aa.
                 // , r0 aa aa. aa aa aa -> , r4 -- aa.
                 
-                if( b_1 == b  ){ // , rn aa aa. xx ...    
+                if( b_1 == b  ){ // , rn aa aa. xx ...
                     reptCount++; // , rm -- aa. xx ... 
                     if( reptCount == 4 ){ // , r4 -- aa. xx ...
                         OUTB( b ) // aa, r4 -- --. xx ...
@@ -153,7 +153,7 @@ int TCOBSEncode( uint8_t* restrict output,  uint8_t const * restrict input, unsi
                         }
                         // , -- xx. yy ...
                     } 
-                    continue; // , rn -- xx. yy ...             
+                    continue; // , rn -- xx. yy ...
                 }
 
                 // , zn|fn|rn xx yy. zz ... (at this point is b_1 != b)
@@ -313,11 +313,12 @@ int TCOBSEncode( uint8_t* restrict output,  uint8_t const * restrict input, unsi
                             *o++ = N | offset;
                             offset = 0;
                         }
-                        *o++ = R3 | offset;
+                        *o++ = R2 | offset; // aa R2, -- --.
                         return o - output;
                     }
                     OUTB( b_1 ) // aa, r1 -- yy.
                     OUTB( b_1 ) // aa aa, -- yy.
+                    reptCount = 0; // todo: not needed
                     goto lastByte;
                 }
                 if( reptCount == 2 ) { // , r2 aa yy.
@@ -331,7 +332,7 @@ int TCOBSEncode( uint8_t* restrict output,  uint8_t const * restrict input, unsi
                             *o++ = N | offset;
                             offset = 0;
                         }
-                        *o++ = R4 | offset; // aa R4, -- --.
+                        *o++ = R3 | offset; // aa R3, -- --.
                         return o - output;
                     }                    
                     OUTB( b_1 ) // aa, r2 -- yy.
@@ -368,7 +369,7 @@ lastByte: // , -- xx.
             *o++ = Z1 | offset; // Z1, -- --.
             return o - output;
         }else{ // , -- aa.
-            *o++ = b; // aa, -- --.
+            *o++ = b; // aa|ff, -- --.
             offset++;
             *o++ = N | offset; // aa Nn, -- --.
             return o - output;
