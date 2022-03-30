@@ -1,7 +1,7 @@
 // Package src is a helper for testing the target C-code.
 // Each C function gets a Go wrapper which ist tested in an appropriate test function.
 // For some reason inside the src_test.go an 'import "C"' is not possible.
-package src
+package tcobs
 
 // #include <stdint.h>
 // #include "TCOBS.h"
@@ -13,9 +13,11 @@ import (
 	"unsafe"
 )
 
-// TCOBSEncodeC encodes i into o and returns number of bytes in o.
+// Encode encodes i into o and returns number of bytes in o.
 // For details see TCOBSSpecification.md.
-func TCOBSEncodeC(o, i []byte) (n int) {
+// The Encode implementation is done in C because the aimed use case is an embedded device running C.
+// This function is mainly for testing.
+func Encode(o, i []byte) (n int) {
 	if len(i) == 0 {
 		return
 	}
@@ -53,12 +55,12 @@ func sigilAndOffset(by uint8) (sigil, offset int) {
 	return
 }
 
-// TCOBSDecode decodes a TCOBS frame in (without 0-delimiter) to d and returns as n the valid data length from the end in d.
+// Decode decodes a TCOBS frame in (without 0-delimiter) to d and returns as n the valid data length from the end in d.
 // ATTENTION: d is filled from the end! decoded:= d[len(d)-n:] is the final result.
 // In case of an error n is 0. n can be 0 without having an error.
 // Framing with 0-delimiter to be done before is assumed, so no 0-checks performed.
 // For details see TCOBSSpecification.md.
-func TCOBSDecode(d, in []byte) (n int, e error) {
+func Decode(d, in []byte) (n int, e error) {
 	for {
 		if len(in) == 0 {
 			return
@@ -136,20 +138,20 @@ func TCOBSDecode(d, in []byte) (n int, e error) {
 	}
 }
 
-// TCOBSDecoder expects in s a 0-delimited number of TCOBS packages. If a 0-delimiter is found inside s,
+// Decoder expects in s a 0-delimited number of TCOBS packages. If a 0-delimiter is found inside s,
 // it tries to decode all bytes until the 0-delimiter as TCOBS package and writes the result in decoded.
 // If s does not contain any 0-delimiter, decoded is nil, after is s and e is nil.
-// If a 0-delimiter was found, after contains all data after the found delimiter.
+// If a 0-delimiter was found, inside 'after' all data after the found delimiter.
 // If the TCOBS decoding of the data until the 0-delimiter failed, decoded has len 0, and e is not nil.
 // For details see TCOBSSpecification.md.
-func TCOBSDecoder(s []byte) (decoded, after []byte, e error) {
+func Decoder(s []byte) (decoded, after []byte, e error) {
 	tcobs, after, found := bytes.Cut(s, []byte{0})
 	if !found {
 		after = s
 		return
 	}
 	decoded = make([]byte, 2*len(tcobs))
-	n, e := TCOBSDecode(decoded, tcobs)
+	n, e := Decode(decoded, tcobs)
 	decoded = decoded[len(decoded)-n:]
 	return
 }
