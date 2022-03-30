@@ -68,17 +68,19 @@
 #define R3 0x10 //!< sigil byte 0x00010ooo, offset 0-7
 #define R4 0x18 //!< sigil byte 0x00011ooo, offset 0-7
 
-int TCOBSEncode( uint8_t* restrict output,  uint8_t const * restrict input, unsigned length){
+uint8_t offset = 0; // link to next sigil or buffer start looking backwards
+    
+unsigned TCOBSEncode( uint8_t* restrict output,  uint8_t const * restrict input, unsigned length){
     uint8_t* o = output; // write pointer
     uint8_t const * i = input; // read pointer
     uint8_t const * limit = input + length; // read limit
-    int offset = 0; // link to next sigil or buffer start looking backwards
-    int zeroCount = 0; // counts zero bytes 1-3 for Z1-Z3
-    int fullCount = 0; // counts 0xFF bytes 1-4 for FF and F2-F4
-    int reptCount = 0; // counts repeat bytes 1-4 for !00 and R2-R4,
+    
+    uint8_t zeroCount = 0; // counts zero bytes 1-3 for Z1-Z3
+    uint8_t fullCount = 0; // counts 0xFF bytes 1-4 for FF and F2-F4
+    uint8_t reptCount = 0; // counts repeat bytes 1-4 for !00 and R2-R4,
     uint8_t b_1 = 0; // previous byte
     uint8_t b = 0; // current byte
-
+    offset = 0;
     // comment syntax:
     //     Sigil bytes chaining is done with offset and not shown explicitly.
     //     All left from comma is already written to o and if, only partially shown.
@@ -180,7 +182,12 @@ int TCOBSEncode( uint8_t* restrict output,  uint8_t const * restrict input, unsi
                     ASSERT( b_1 != 0 )
                     ASSERT( b_1 != 0xFF )
                     ASSERT( b_1 != b )
-                    *o++ = b_1; // aa, r1|r2|r3 -- !aa. xx ...
+                    if( reptCount == 1 ){ // , r1 aa !aa. xx ...
+                        OUTB( b_1 ) // aa, r0 aa !aa. xx ...
+                        OUTB( b_1 ) // aa aa, -- !aa. xx ...
+                        continue;
+                    }
+                    *o++ = b_1; // aa, r2|r3 -- !aa. xx ...
                     offset++;
                     OUT_reptSigil // aa R1|R2|R3, -- !aa. xx ...
                     continue;
@@ -363,18 +370,20 @@ int TCOBSEncode( uint8_t* restrict output,  uint8_t const * restrict input, unsi
     }
     if( length == 1 ){ // , . xx
         b = *i; // , -- xx.
+        goto lastByte;
+    }
 
 lastByte: // , -- xx.
-        if( b == 0 ){ // , -- 00.
-            *o++ = Z1 | offset; // Z1, -- --.
-            return o - output;
-        }else{ // , -- aa.
-            *o++ = b; // aa|ff, -- --.
-            offset++;
-            *o++ = N | offset; // aa Nn, -- --.
-            return o - output;
-        }        
-    }
-    ASSERT( 0 ) 
+    if( b == 0 ){ // , -- 00.
+        *o++ = Z1 | offset; // Z1, -- --.
+        return o - output;
+    }else{ // , -- aa.
+        *o++ = b; // aa|ff, -- --.
+        offset++;
+        *o++ = N | offset; // aa Nn, -- --.
+        return o - output;
+    }        
+    
+    //ASSERT( 0 ) 
     return 0; // will not be reached 
 }
