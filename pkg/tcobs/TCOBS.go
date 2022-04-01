@@ -45,13 +45,13 @@ const (
 // For details see TCOBSSpecification.md.
 func sigilAndOffset(by uint8) (sigil, offset int) {
 	b := int(by)
-	sigil = b & 0xE0
+	sigil = b & 0xE0 // 0x11100000
 	if sigil == 0 {
-		sigil = b & 0xF8
-		offset = 7 & b
+		sigil = b & 0xF8 // 0x11111000
+		offset = 7 & b   // 0x00000111
 		return
 	}
-	offset = 0x1F & b
+	offset = 0x1F & b // 0x00011111
 	return
 }
 
@@ -106,21 +106,19 @@ func Decode(d, in []byte) (n int, e error) {
 
 		case R4:
 			n++
-			d[len(d)-n] = in[len(in)-1]
+			d[len(d)-n] = repeatByte(offset, in)
 			fallthrough
 		case R3:
 			n++
-			d[len(d)-n] = in[len(in)-1]
+			d[len(d)-n] = repeatByte(offset, in)
 			fallthrough
 		case R2:
+			r := repeatByte(offset, in)
 			n++
-			d[len(d)-n] = in[len(in)-1]
+			d[len(d)-n] = r
 			n++
-			d[len(d)-n] = in[len(in)-1]
+			d[len(d)-n] = r
 
-			//n++
-			//d[len(d)-n] = in[len(in)-1]
-			//in = in[:len(in)-1] // remove repeated data byte
 			goto copyBytes
 
 		case Reserved:
@@ -154,4 +152,13 @@ func Decoder(s []byte) (decoded, after []byte, e error) {
 	n, e := Decode(decoded, tcobs)
 	decoded = decoded[len(decoded)-n:]
 	return
+}
+
+// repeatByte returns the value to repeat
+func repeatByte(offset int, in []byte) byte {
+	if offset == 0 { // left byte of Ri is a sigil byte (probably N)
+		return in[len(in)-2] // a buffer cannot start with Ri
+	} else {
+		return in[len(in)-1]
+	}
 }

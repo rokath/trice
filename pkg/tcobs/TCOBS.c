@@ -11,8 +11,8 @@
 
 //! OUTB writes a non-sigil byte to output and increments offset. 
 //! If offset reaches 31, a NOP sigil byte is inserted and offset is then set to 0.
-#define OUTB( b ) do{ \
-    *o++ = b; \
+#define OUTB( by ) do{ \
+    *o++ = by; \
     offset++; \
     if( offset == 31 ){ \
         *o++ = N | 31; \
@@ -155,8 +155,8 @@ unsigned TCOBSEncode( uint8_t* restrict output,  uint8_t const * restrict input,
                         }
                         // , -- xx. yy ...
                     } 
-                    continue; // , rn -- xx. yy ...
-                }
+                    continue; // , r1|r2|r3 -- aa. yy ... 
+                }       // OR // , -- xx. yy ...
 
                 // , zn|fn|rn xx yy. zz ... (at this point is b_1 != b)
 
@@ -183,6 +183,7 @@ unsigned TCOBSEncode( uint8_t* restrict output,  uint8_t const * restrict input,
                     ASSERT( b_1 != 0xFF )
                     ASSERT( b_1 != b )
                     if( reptCount == 1 ){ // , r1 aa !aa. xx ...
+                        reptCount = 0; // clear
                         OUTB( b_1 ) // aa, r0 aa !aa. xx ...
                         OUTB( b_1 ) // aa aa, -- !aa. xx ...
                         continue;
@@ -262,6 +263,7 @@ unsigned TCOBSEncode( uint8_t* restrict output,  uint8_t const * restrict input,
                     ASSERT( fullCount == 0 )
                     ASSERT( reptCount == 0 )
                     ASSERT( b_1 == 0 )
+                    ASSERT( b != 0 )
                     zeroCount = 3; // , z3 -- aa.
                     OUT_zeroSigil // Z3, -- aa.
                     goto lastByte;
@@ -289,7 +291,7 @@ unsigned TCOBSEncode( uint8_t* restrict output,  uint8_t const * restrict input,
                         return o - output;
                     }
                     // , f2 FF !FF
-                    fullCount = 3; // , f3 -- !FF.
+                    fullCount++; // , f3 -- !FF.
                     OUT_fullSigil  // F3, -- !FF.
                     goto lastByte;
                 }
@@ -300,8 +302,8 @@ unsigned TCOBSEncode( uint8_t* restrict output,  uint8_t const * restrict input,
                     ASSERT( b_1 == 0xFF )
                     if( b == 0xFF ){ // , f3 FF FF.
                         OUT_fullSigil  // F3, FF FF.
-                        *o++ = F2 | offset; // F3, F2, -- --.
-                        return o - output;
+                        *o++ = F2 | offset; // F3 F2, -- --.
+                        return o - output; // option: F4 FF, -- --. is also right
                     }
                     // , f3 FF !FF.
                     fullCount = 4; // , f4 -- xx.
@@ -315,7 +317,7 @@ unsigned TCOBSEncode( uint8_t* restrict output,  uint8_t const * restrict input,
                     ASSERT( b_1 != 0 )
                     ASSERT( b_1 != 0xFF )
                     if( b_1 == b ){ // , r1 aa aa.
-                        OUTB( b_1 ) // aa, r1 -- aa.
+                       OUTB( b_1 ) // aa, r1 -- aa.
                         if( offset > 7 ){ 
                             *o++ = N | offset;
                             offset = 0;
@@ -323,9 +325,8 @@ unsigned TCOBSEncode( uint8_t* restrict output,  uint8_t const * restrict input,
                         *o++ = R2 | offset; // aa R2, -- --.
                         return o - output;
                     }
-                    OUTB( b_1 ) // aa, r1 -- yy.
+                    OUTB( b_1 ) // aa, r0 aa -- yy.
                     OUTB( b_1 ) // aa aa, -- yy.
-                    reptCount = 0; // todo: not needed
                     goto lastByte;
                 }
                 if( reptCount == 2 ) { // , r2 aa yy.
@@ -384,6 +385,6 @@ lastByte: // , -- xx.
         return o - output;
     }        
     
-    //ASSERT( 0 ) 
-    return 0; // will not be reached 
+    ASSERT( 0 ) 
+    //return 0; // will not be reached 
 }

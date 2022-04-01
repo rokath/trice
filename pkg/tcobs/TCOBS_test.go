@@ -83,12 +83,11 @@ var testData = testTable{
 	{[]byte{0, 2, 2, 2, 0, 1, 0, 255, 255, 255, 1, 2, 1, 0, 255, 1, 2, 0, 0, 1, 2, 1, 255, 1, 2, 2, 2, 255, 1, 2, 0, 255, 2, 2, 0},
 		[]byte{0x20, 0x2, 0x9, 0x20, 0x1, 0x21, 0xe0, 0x1, 0x2, 0x1, 0x23, 0xff, 0x1, 0x2, 0x43, 0x1, 0x2, 0x1, 0xff, 0x1, 0x2, 0xe, 0xff, 0x1, 0x2, 0x23, 0xff, 0x2, 0x2, 0x23}},
 
-	{[]byte{0xFF, 0x02, 0x02, 0x00}, []byte{0xFF, 0x02, 0x02, 0x23}}, // ok ok
-	//{[]byte{0xFF, 0x02, 0x02, 0x00, 0xFF}, []byte{0xFF, 0x02, 0x02, 0x23, 0xFF, 0xA1}}, // Decode ok Encode fails
+	{[]byte{0xFF, 0x02, 0x02, 0x00}, []byte{0xFF, 0x02, 0x02, 0x23}},
+	{[]byte{0xFF, 0x02, 0x02, 0x00, 0xFF}, []byte{0xFF, 0x02, 0x02, 0x23, 0xFF, 0xA1}},
 
-	// Decode ok Encode fails
-	//{[]byte{0, 2, 2, 2, 0, 1, 0, 255, 255, 255, 1, 2, 1, 0, 255, 1, 2, 0, 0, 1, 2, 1, 255, 1, 2, 2, 2, 255, 1, 2, 0, 255, 2, 2, 0, 255},
-	//	[]byte{0x20, 0x2, 0x9, 0x20, 0x1, 0x21, 0xe0, 0x1, 0x2, 0x1, 0x23, 0xff, 0x1, 0x2, 0x43, 0x1, 0x2, 0x1, 0xff, 0x1, 0x2, 0xe, 0xff, 0x1, 0x2, 0x23, 0xff, 0x2, 0x2, 0x23, 0xFF, 0xA1}},
+	{[]byte{0, 2, 2, 2, 0, 1, 0, 255, 255, 255, 1, 2, 1, 0, 255, 1, 2, 0, 0, 1, 2, 1, 255, 1, 2, 2, 2, 255, 1, 2, 0, 255, 2, 2, 0, 255},
+		[]byte{0x20, 0x2, 0x9, 0x20, 0x1, 0x21, 0xe0, 0x1, 0x2, 0x1, 0x23, 0xff, 0x1, 0x2, 0x43, 0x1, 0x2, 0x1, 0xff, 0x1, 0x2, 0xe, 0xff, 0x1, 0x2, 0x23, 0xff, 0x2, 0x2, 0x23, 0xFF, 0xA1}},
 }
 
 // TestTCOBSEncode checks if decoded testData lead to encoded testData.
@@ -133,22 +132,91 @@ func TestDecoder(t *testing.T) {
 	assert.Equal(t, i[7:], after)
 }
 
-func TestEncodeDecode(t *testing.T) { // fails
-	max := 32768
-	length := 35 // rand.Intn(max)
-	datBuf := make([]byte, max)
-	encBuf := make([]byte, 2*max) // max 1 + (1+1/32)*len) ~= 1.04 * len
-	decBuf := make([]byte, 2*max) // max 1 + (1+1/32)*len) ~= 1.04 * len
-	for i := 0; i < length; i++ {
-		b := uint8(rand.Intn(4)) - 1 // -1, 0, 1 2
-		datBuf[i] = b
+func PrintAsGoCode(x []byte) {
+	fmt.Print("[]byte{")
+	for _, b := range x {
+		fmt.Printf("0x%02x, ", b)
 	}
-	dat := datBuf[:length]
-	fmt.Println(dat)
-	n := tcobs.Encode(encBuf, dat)
-	enc := encBuf[:n]
-	n, e := tcobs.Decode(decBuf, enc)
-	assert.True(t, e == nil)
-	dec := decBuf[len(decBuf)-n:]
-	assert.Equal(t, dat, dec)
+	fmt.Println("}")
+}
+
+func TestEncodeDecode12(t *testing.T) { // fails
+	max := 32768
+	for i := 0; i < 100; i++ {
+		length := rand.Intn(max)
+		datBuf := make([]byte, max)
+		encBuf := make([]byte, 2*max) // max 1 + (1+1/32)*len) ~= 1.04 * len
+		decBuf := make([]byte, 2*max) // max 1 + (1+1/32)*len) ~= 1.04 * len
+		for i := 0; i < length; i++ {
+			b := uint8(rand.Intn(4)) - 1 // -1, 0, 1 2
+			datBuf[i] = b
+		}
+		dat := datBuf[:length]
+		fmt.Println()
+		n := tcobs.Encode(encBuf, dat)
+		enc := encBuf[:n]
+		n, e := tcobs.Decode(decBuf, enc)
+		assert.True(t, e == nil)
+		dec := decBuf[len(decBuf)-n:]
+
+		PrintAsGoCode(dat)
+		PrintAsGoCode(enc)
+		PrintAsGoCode(dec)
+
+		assert.Equal(t, dat, dec)
+	}
+}
+
+func TestEncodeDecode1(t *testing.T) { // fails
+	max := 32768
+	for i := 0; i < 100; i++ {
+		length := rand.Intn(max)
+		datBuf := make([]byte, max)
+		encBuf := make([]byte, 2*max) // max 1 + (1+1/32)*len) ~= 1.04 * len
+		decBuf := make([]byte, 2*max) // max 1 + (1+1/32)*len) ~= 1.04 * len
+		for i := 0; i < length; i++ {
+			b := uint8(rand.Intn(3)) - 1 // -1, 0, 1
+			datBuf[i] = b
+		}
+		dat := datBuf[:length]
+		fmt.Println()
+		n := tcobs.Encode(encBuf, dat)
+		enc := encBuf[:n]
+		n, e := tcobs.Decode(decBuf, enc)
+		assert.True(t, e == nil)
+		dec := decBuf[len(decBuf)-n:]
+
+		PrintAsGoCode(dat)
+		PrintAsGoCode(enc)
+		PrintAsGoCode(dec)
+
+		assert.Equal(t, dat, dec)
+	}
+}
+
+func TestEncodeDecode256(t *testing.T) { // fails
+	max := 32768
+	for i := 0; i < 100; i++ {
+		length := rand.Intn(max)
+		datBuf := make([]byte, max)
+		encBuf := make([]byte, 2*max) // max 1 + (1+1/32)*len) ~= 1.04 * len
+		decBuf := make([]byte, 2*max) // max 1 + (1+1/32)*len) ~= 1.04 * len
+		for i := 0; i < length; i++ {
+			b := uint8(rand.Intn(256)) // 0, ..., 0xFF
+			datBuf[i] = b
+		}
+		dat := datBuf[:length]
+		fmt.Println()
+		n := tcobs.Encode(encBuf, dat)
+		enc := encBuf[:n]
+		n, e := tcobs.Decode(decBuf, enc)
+		assert.True(t, e == nil)
+		dec := decBuf[len(decBuf)-n:]
+
+		PrintAsGoCode(dat)
+		PrintAsGoCode(enc)
+		PrintAsGoCode(dec)
+
+		assert.Equal(t, dat, dec)
+	}
 }
