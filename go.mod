@@ -9,11 +9,10 @@ require (
 	github.com/mattn/go-colorable v0.1.6 // indirect
 	github.com/mgutz/ansi v0.0.0-20170206155736-9520e82c474b
 	github.com/pkg/errors v0.9.1
-	github.com/stretchr/testify v1.6.1
+	github.com/stretchr/testify v1.7.0
 	github.com/tarm/serial v0.0.0-20180830185346-98f6abe2eb07
 	github.com/tj/assert v0.0.3
 	github.com/udhos/equalfile v0.3.0
-	go.bug.st/serial v1.0.0
+	go.bug.st/serial v1.3.5
 	golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9
-	golang.org/x/sys v0.0.0-20210119212857-b64e53b001e4 // indirect
 )
