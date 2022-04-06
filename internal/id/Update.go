@@ -62,7 +62,7 @@ const (
 	// patTriceFileId finds first occurrence, see https://regex101.com/r/hWMjhU/4
 	patTriceFileId = `#define\s*TRICE_FILE\s*Id\([0-9]*\)`
 
-	patIncludeTriceHeader = `#include\s*"trice\.h"`
+	patIncludeTriceHeader = `#include\s*["<]trice\.h[">]`
 )
 
 var (
