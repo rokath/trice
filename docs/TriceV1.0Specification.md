@@ -141,7 +141,7 @@ If for special cases, the main stream encoding is not sufficient, the user can a
 
 * Unknown user data are possible as part of the *Trice* extensions.
   * Without the `-ex0` switch, `0000...` packages are ignored as unknown user data.
-  * Without the `-ex1` switch, `0001...` packages are ignored as unknwno user data.
+  * Without the `-ex1` switch, `0001...` packages are ignored as unknown user data.
   * Without the `-ex2` switch, `0010...` packages are ignored as unknown user data.
   * Without the `-ex3` switch, `0011...` packages are ignored as unknown user data.
 * So, if *Trice* extensions not used, all `00...` packages are ignored as unknown user data.
