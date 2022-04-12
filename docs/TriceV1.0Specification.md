@@ -81,23 +81,25 @@ With [TREX](#TREXTriceextendableencoding) encoding the location information need
 * [x] For straight forward runtime code the identifiers `id`, `Id` and `ID` are sub macros:
   * [ ] **id(n)**
   ```c
-  #define id(n) do{ TRICE_ENTER
-                    TRICE_PUT16(0x4000 | n ); }while(0)
+  #define id(n) do{ TRICE_PUT16(0x4000 | n ); }while(0),
   ```
   * [ ] **Id(n)**
   ```c
-  #define id(n) do{ uint16_t ts = timestamp16;
-                    TRICE_ENTER
+  #define Id(n) do{ uint16_t ts = timestamp16;
                     TRICE_PUT16(0x8000 | n ); 
-                    TRICE_PUT16( ts ); }while(0)
+                    TRICE_PUT16( ts ); }while(0),
   ```
   * [ ] **ID(n)**
   ```c
-  #define id(n) do{ uint32_t ts = timestamp32;
-                    TRICE_ENTER
+  #define ID(n) do{ uint32_t ts = timestamp32;
                     TRICE_PUT16(0xC000 | n ); 
-                    TRICE_PUT32( ts ); }while(0)
+                    TRICE_PUT32( ts ); }while(0),
   ```
+* [ ] Usage:
+```c
+#define T8(id, pFmt, v0) TRICE_ENTER; id; TRICE_PUT16(v0); TRICE_LEAVE;
+```
+
 * [x] New *Trice* macros are writable without the ID, so when `trice u` is executed a CLI switch controls the ID type selection:
   * The update switch `-timeStamp 32` defaults new ID´s to `ID`.
   * The update switch `-timeStamp 16` defaults new ID´s to `Id`.
