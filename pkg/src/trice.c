@@ -253,3 +253,14 @@ void TriceEncrypt( uint32_t* p, unsigned count ){
 }
 
 #endif // #ifdef TRICE_ENCRYPT
+
+#ifdef TRICE_CGO_TEST
+
+int triceBufferDepth = 0;
+uint8_t* triceBuffer;
+
+uint32_t ReadUs32( void ){
+    return 0x11111111;
+}
+
+#endif // #ifdef TRICE_CGO_TEST
