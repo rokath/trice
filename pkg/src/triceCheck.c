@@ -21,12 +21,6 @@ int64_t DoubleToInt64( double f ){
     return -(int64_t)-f;
 }
 
-int TriceTestFunction0( uint8_t* buf ){
-    triceBuffer = buf;
-    TRICE32_1( Id(58755), "rd:TRICE32_1 line %d (%%d)\n", -1 );
-    return triceBufferDepth;
-}
-
 //! TriceCheckSet writes out all types of trices with fixed values for testing
 //! \details One trice has one subtrace, if param size max 2 bytes. 
 //! Traces with more bytes as parameter consist of several subtraces.

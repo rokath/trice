@@ -1,6 +1,7 @@
 /*! \file trice.c
 \author Thomas.Hoehenleitner [at] seerose.net
 *******************************************************************************/
+#include "trice_test.h"
 #include "trice.h"
 #define TRICE_FILE Id(56030)
 

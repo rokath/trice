@@ -3,7 +3,6 @@ package src
 import (
 	"fmt"
 	"io"
-	"os"
 	"testing"
 
 	"github.com/tj/assert"
@@ -29,14 +28,14 @@ func dump(w io.Writer, b []byte) {
 	fmt.Fprintln(w, "}")
 }
 
-func Test1(t *testing.T) {
-	exp := []byte{0x02, 0x03, 0x01, 0x01, 0x02, 0x1a, 0x0f, 0x37, 0xcb, 0x11, 0x11, 0x11, 0x11, 0xc0, 0x01, 0x83, 0xe5, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00}
+func TestN(t *testing.T) {
+	act := make([]byte, 1024)
+	setTriceBuffer(act)
 
-	act := make([]byte, 100)
-	len := TriceTestFunction0(act)
-	act = act[:len]
+	for _, x := range triceTests {
+		act = act[:x.tfn()]
+		//dump(os.Stdout, act)
+		assert.Equal(t, x.exp, act)
+	}
 
-	w := os.Stdout
-	dump(w, act)
-	assert.Equal(t, exp, act)
 }

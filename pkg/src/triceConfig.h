@@ -241,10 +241,7 @@ TRICE_INLINE void triceDisableTxEmptyInterrupt(void) {
 
 #ifdef TRICE_CGO_TEST
 
-int TriceTestFunction0( uint8_t* buf );
-
-extern int triceBufferDepth;
-extern uint8_t* triceBuffer;
+#define TRICE_CYCLE_COUNTER 0 //! Do not add cycle counter
 
 #define TRICE_WRITE( buf, len ) do{ \
     memcpy(triceBuffer, buf, len); \
