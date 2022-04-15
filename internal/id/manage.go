@@ -130,7 +130,8 @@ func (lu TriceIDLookUp) FromJSON(b []byte) (err error) {
 // fromFile reads file fn into lut. Existing keys are overwritten, lut is extended with new keys.
 func (lu TriceIDLookUp) fromFile(fn string) error {
 	b, err := ioutil.ReadFile(fn)
-	msg.FatalInfoOnErr(err, "May be need to create an empty file first? (Safety feature)")
+	s := fmt.Sprintf("fn=%s, maybe need to create an empty file first? (Safety feature)", fn)
+	msg.FatalInfoOnErr(err, s)
 	return lu.FromJSON(b)
 }
 
