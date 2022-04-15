@@ -21,6 +21,29 @@ extern "C" {
 //#define TRICE_UART USART2   //!< Uncomment and set UART for serial output.
 #define TRICE_CGO_TEST
 
+
+
+///////////////////////////////////////////////////////////////////////////////
+// CGO interface
+//
+
+#ifdef TRICE_CGO_TEST
+
+#define TRICE_CYCLE_COUNTER 0 //! Do not add cycle counter
+
+#define TRICE_WRITE( buf, len ) do{ \
+    memcpy(triceBuffer, buf, len); \
+    triceBufferDepth = len; \
+}while(0)
+
+#endif // #ifdef TRICE_CGO_TEST
+
+//
+///////////////////////////////////////////////////////////////////////////////
+
+
+
+
 uint32_t ReadUs32( void );
 #define TRICE_LOCATION (TRICE_FILE| __LINE__) //!< Uncomment if you do not need target location. TRICE_FILE occcupies the upper 16 bit.
 #define TRICE_TIMESTAMP ReadUs32()            //!< Uncomment if you do not need target timestamps. Instead of SYSTICKVAL, you can use any other up to 32-bit value, like milliSecond.
@@ -233,27 +256,6 @@ TRICE_INLINE void triceDisableTxEmptyInterrupt(void) {
 
 //
 ///////////////////////////////////////////////////////////////////////////////
-
-
-///////////////////////////////////////////////////////////////////////////////
-// CGO interface
-//
-
-#ifdef TRICE_CGO_TEST
-
-#define TRICE_CYCLE_COUNTER 0 //! Do not add cycle counter
-
-#define TRICE_WRITE( buf, len ) do{ \
-    memcpy(triceBuffer, buf, len); \
-    triceBufferDepth = len; \
-}while(0)
-
-#endif // #ifdef TRICE_CGO_TEST
-
-//
-///////////////////////////////////////////////////////////////////////////////
-
-
 
 ///////////////////////////////////////////////////////////////////////////////
 // Default TRICE macro bitwidth: 32 (optionally adapt to MCU bit width)
