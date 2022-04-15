@@ -6,12 +6,6 @@
 #include "trice_test.h"
 #define TRICE_FILE Id(52024) 
 
-int TriceTestFunction0( uint8_t* buf ){
-    triceBuffer = buf;
-    TRICE32_1( Id(58755), "rd:TRICE32_1 line %d (%%d)\n", -1 );
-    return triceBufferDepth;
-}
-
 void SetTriceBuffer( uint8_t* buf  ){
     triceBuffer = buf;
 }
