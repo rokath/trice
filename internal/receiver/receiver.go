@@ -220,7 +220,7 @@ func NewReadCloser(w io.Writer, verbose bool, port, args string) (r io.ReadClose
 		}
 		l := newTCP4Connection(w, args)
 		r = l
-	case "FILE", "file":
+	case "FILE", "file", "FILEBUFFER":
 		if PortArguments == "" { // nothing assigned in args
 			PortArguments = DefaultFileArgs
 		}

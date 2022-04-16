@@ -5,7 +5,6 @@
 package decoder
 
 import (
-	"fmt"
 	"io"
 	"sync"
 
@@ -29,15 +28,6 @@ func newCHARDecoder(w io.Writer, lut id.TriceIDLookUp, m *sync.RWMutex, in io.Re
 	return p
 }
 
-//  func (p *char) Read(b []byte) (n int, err error) {
-//  	bb := make([]byte, 256)
-//  	m, err := p.in.Read(bb)
-//  	fmt.Fprint(p.w, string(bb[:m]))
-//  	return n, err
-//  }
-
 func (p *char) Read(b []byte) (n int, err error) {
-	m, err := p.in.Read(b)
-	fmt.Fprint(p.w, string(b[:m]))
-	return n, err
+	return p.in.Read(b)
 }

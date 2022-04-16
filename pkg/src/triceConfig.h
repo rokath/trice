@@ -17,8 +17,32 @@ extern "C" {
 
 #define TRICE_MODE 0 //! TRICE_MODE is a predefined trice transfer method.
 
-#define TRICE_RTT_CHANNEL 0 //!< Uncomment and set channel number for SeggerRTT usage.
+//#define TRICE_RTT_CHANNEL 0 //!< Uncomment and set channel number for SeggerRTT usage.
 //#define TRICE_UART USART2   //!< Uncomment and set UART for serial output.
+#define TRICE_CGO_TEST
+
+
+
+///////////////////////////////////////////////////////////////////////////////
+// CGO interface
+//
+
+#ifdef TRICE_CGO_TEST
+
+#define TRICE_CYCLE_COUNTER 0 //! Do not add cycle counter
+
+#define TRICE_WRITE( buf, len ) do{ \
+    memcpy(triceBuffer, buf, len); \
+    triceBufferDepth = len; \
+}while(0)
+
+#endif // #ifdef TRICE_CGO_TEST
+
+//
+///////////////////////////////////////////////////////////////////////////////
+
+
+
 
 uint32_t ReadUs32( void );
 #define TRICE_LOCATION (TRICE_FILE| __LINE__) //!< Uncomment if you do not need target location. TRICE_FILE occcupies the upper 16 bit.
@@ -168,10 +192,10 @@ uint32_t ReadUs32( void );
 // Optical feedback: Adapt to your device.
 //
 
-#include "main.h" // LED_GREEN_GPIO_Port, LED_GREEN_Pin
-static inline void ToggleOpticalFeedbackLED( void ){
-    LL_GPIO_TogglePin(LED_GREEN_GPIO_Port, LED_GREEN_Pin);
-}
+//  #include "main.h" // LED_GREEN_GPIO_Port, LED_GREEN_Pin
+//  static inline void ToggleOpticalFeedbackLED( void ){
+//      LL_GPIO_TogglePin(LED_GREEN_GPIO_Port, LED_GREEN_Pin);
+//  }
 
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -232,7 +256,6 @@ TRICE_INLINE void triceDisableTxEmptyInterrupt(void) {
 
 //
 ///////////////////////////////////////////////////////////////////////////////
-
 
 ///////////////////////////////////////////////////////////////////////////////
 // Default TRICE macro bitwidth: 32 (optionally adapt to MCU bit width)

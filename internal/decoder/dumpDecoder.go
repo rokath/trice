@@ -15,7 +15,7 @@ import (
 // dumpDec is the Decoding instance for dumpDec encoded trices.
 type dumpDec struct {
 	decoderData
-	dumpCnt int
+	dumpCnt int // dumped bytes per line
 }
 
 // newDUMPDecoder provides a hex dump option for incoming bytes.
@@ -27,33 +27,22 @@ func newDUMPDecoder(w io.Writer, lut id.TriceIDLookUp, m *sync.RWMutex, in io.Re
 	p.lut = lut
 	p.lutMutex = m
 	p.endian = endian
+	p.dumpCnt = 0 // needs =0 initialization for test table tests
 	return p
 }
 
-//  func (p *dumpDec) Read(b []byte) (n int, err error) {
-//  	bb := make([]byte, 1024)
-//  	m, err := p.in.Read(bb)
-//  	for _, x := range bb[:m] {
-//  		fmt.Fprintf(p.w, "%02X ", x) // workaround
-//  		p.dumpCnt++
-//  		if p.dumpCnt == DumpLineByteCount {
-//  			fmt.Fprintln(p.w, "") // workaround
-//  			p.dumpCnt = 0
-//  		}
-//  	}
-//  	return n, err
-//  }
-
 func (p *dumpDec) Read(b []byte) (n int, err error) {
-	//bb := make([]byte, 1024)
-	m, err := p.in.Read(b)
-	for _, x := range b[:m] {
-		fmt.Fprintf(p.w, "%02X ", x) // workaround
+	l := 3 * (len(b) >> 2) // 3rd quarter
+	q := b[l:]             // used as scratch pad
+	m, err := p.in.Read(q)
+	for _, x := range q[:m] {
+		s := fmt.Sprintf("%02x ", x)
+		n += copy(b[n:], []byte(s))
 		p.dumpCnt++
 		if p.dumpCnt == DumpLineByteCount {
-			fmt.Fprintln(p.w, "") // workaround
+			n += copy(b[n:], []byte(`\n`))
 			p.dumpCnt = 0
 		}
 	}
-	return n, err
+	return
 }
