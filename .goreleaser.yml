@@ -55,7 +55,7 @@ builds:
     # Custom environment variables to be set during the builds.
     # Default is empty.
     env:
-      - CGO_ENABLED=1
+      - CGO_ENABLED=0
 
 archives:
   -
