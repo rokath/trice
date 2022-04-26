@@ -19,6 +19,21 @@
 	* 6.4. [Unknown user data](#Unknownuserdata)
 * 7. [Changelog](#Changelog)
 
+- [*Trice*  Version 1.0 Specification (Draft)](#trice--version-10-specification-draft)
+  - [1. <a name='Preface'></a>Preface](#1-preface)
+  - [2. <a name='Compatibility'></a>Compatibility](#2-compatibility)
+  - [3. <a name='Framing'></a>Framing](#3-framing)
+  - [4. <a name='TriceIDlisttil.json'></a>*Trice* ID list `til.json`](#4-trice-id-list-tiljson)
+  - [5. <a name='Tricelocationinformationfileli.json'></a>*Trice* location information file `li.json`](#5-trice-location-information-file-lijson)
+  - [6. <a name='TREXTriceextendableencoding'></a>TREX (*Trice* extendable) encoding](#6-trex-trice-extendable-encoding)
+    - [6.1. <a name='Symbols'></a>Symbols](#61-symbols)
+    - [6.2. <a name='Mainstreamlogs'></a>Main stream logs](#62-main-stream-logs)
+      - [6.2.1. <a name='Triceformat'></a>*Trice* format](#621-trice-format)
+      - [6.2.2. <a name='COBSencoding'></a>Framing (TCOBS or COBS encoding) and optional encryption](#622-framing-tcobs-or-cobs-encoding-and-optional-encryption)
+    - [6.3. <a name='ExtendedTricesasfutureoption'></a>Extended *Trices* as future option](#63-extended-trices-as-future-option)
+    - [6.4. <a name='Unknownuserdata'></a>Unknown user data](#64-unknown-user-data)
+  - [7. <a name='Changelog'></a>Changelog](#7-changelog)
+
 <!-- vscode-markdown-toc-config
 	numbering=true
 	autoSave=true
