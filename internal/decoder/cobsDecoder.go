@@ -13,10 +13,10 @@ import (
 	"sync"
 	"unsafe"
 
-	"github.com/dim13/cobs"
 	"github.com/rokath/trice/internal/emitter"
 	"github.com/rokath/trice/internal/id"
 	"github.com/rokath/trice/pkg/cipher"
+	"github.com/rokath/trice/pkg/cobs"
 )
 
 // cobsDec is the Decoding instance for cobsDec encoded trices.
@@ -28,7 +28,7 @@ type cobsDec struct {
 	u                  []int  // 1: modified format string positions:  %u -> %d, 2: float (%f)
 }
 
-// newCOBSDecoder provides an COBS decoder instance.
+// newCOBSDecoder provides a COBS decoder instance.
 //
 // l is the trice id list in slice of struct format.
 // in is the usable reader for the input bytes.
@@ -45,13 +45,24 @@ func newCOBSDecoder(w io.Writer, lut id.TriceIDLookUp, m *sync.RWMutex, in io.Re
 	return p
 }
 
-//var cobsVariantDecode = cobs.Decode
-
+/*
 // decodeCOBS expects in slice rd a byte sequence ending with a 0, writes the COBS decoded data to wr and returns len(wr).
 //
 // If rd contains more bytes after the first 0 byte, these are ignored.
 // Needs to be written in a better way.
 func decodeCOBS(wr, rd []byte) int {
+
+	// This is new
+	//
+	//  n, e := cobsDecode(wr, rd)
+	//  if e == nil {
+	//  	return n
+	//  }
+	//  fmt.Println(e)
+	//  return 0
+
+	// This is ok
+	//
 	if len(wr) < len(rd) {
 		log.Fatalf("ERROR: len(wr) = %d < len(rd) = %d\n", len(wr), len(rd))
 	}
@@ -62,6 +73,27 @@ func decodeCOBS(wr, rd []byte) int {
 	return copy(wr, d)
 }
 
+// cobsDecode a COBS frame to a slice of bytes.
+// decoded := dec[:n]
+//
+func cobsDecode(dec, cobs []byte) (n int, e error) {
+
+	for len(cobs) > 0 {
+		cnt := cobs[0]
+		if int(cnt) > len(cobs)-1 {
+			e = errors.New("inconsistent COBS packet")
+			return
+		}
+		n += copy(dec[n:], cobs[1:cnt]) // cobs cannot have length 1, only 0, 2, 3,...
+		cobs = cobs[cnt:]
+		if cnt < 0xff {
+			dec[n] = 0
+			n++
+		}
+	}
+	return
+}
+*/
 //  // cobsDecode decodes a null-terminated frame to a slice of bytes (copied from "github.com/dim13/cobs").
 //  func cobsDecode(p []byte) []byte {
 //  	if len(p) == 0 {
@@ -109,15 +141,15 @@ func dump(w io.Writer, b []byte) {
 	fmt.Fprintln(w, "")
 }
 
-// nextCOBSpackage reads with an inner reader a COBS encoded byte stream.
+// nextCOBSPackage reads with an inner reader a COBS encoded byte stream.
 //
-// When no terminating 0 is found in the incoming bytes nextCOBSpackage returns without action.
+// When no terminating 0 is found in the incoming bytes nextCOBSPackage returns without action.
 // That means the incoming data stream is exhausted and a next try should be started a bit later.
 // Some arrived bytes are kept internally and concatenated with the following bytes in a next Read.
 // When a terminating 0 is found in the incoming bytes ReadFromCOBS decodes the COBS package
 // and returns it in b and its len in n. If more data arrived after the first terminating 0,
 // these are kept internally and concatenated with the following bytes in a next Read.
-func (p *cobsDec) nextCOBSpackage() {
+func (p *cobsDec) nextCOBSPackage() {
 	// Here p.iBuf contains none or available bytes, what can be several trice messages.
 	// So first try to process p.iBuf.
 	index := bytes.IndexByte(p.iBuf, 0) // find terminating 0
@@ -145,7 +177,10 @@ func (p *cobsDec) nextCOBSpackage() {
 	}
 
 	p.b = make([]byte, defaultSize)
-	n := decodeCOBS(p.b, p.iBuf[:index+1])
+	n, e := cobs.Decode(p.b, p.iBuf[:index])
+	if e != nil {
+		fmt.Println("inconsistent COBS buffer:", p.iBuf[:index+1])
+	}
 	p.iBuf = p.iBuf[index+1:] // step forward (next package data in p.iBuf now, if any)
 	p.b = p.b[:n]             // decoded trice COBS packages have a multiple of 4 len
 	if n&3 != 0 {
@@ -173,8 +208,6 @@ func (p *cobsDec) nextCOBSpackage() {
 		p.COBSModeDescriptor = p.readU32(p.b)
 		p.b = p.b[4:] // drop COBS package descriptor
 	}
-
-	return
 }
 
 func (p *cobsDec) handleCOBSModeDescriptor() error {
@@ -231,7 +264,7 @@ func (p *cobsDec) Read(b []byte) (n int, err error) {
 		minPkgSize += 4
 	}
 	if len(p.b) < minPkgSize { // last decoded COBS package exhausted
-		p.nextCOBSpackage()
+		p.nextCOBSPackage()
 	}
 	if len(p.b) < minPkgSize { // not enough data for a next package
 		return

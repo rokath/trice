@@ -198,12 +198,14 @@ func Translate(w io.Writer, sw *emitter.TriceLineComposer, lut id.TriceIDLookUp,
 	case "COBS":
 		dec = newCOBSDecoder(w, lut, m, rc, endian)
 		//cobsVariantDecode = cobs.Decode
-	//  case "COBSFF":
-	//  	dec = newCOBSDecoder(w, lut, m, rc, endian)
-	//  	cobsVariantDecode = cobsFFDecode
+		//  case "COBSFF":
+		//  	dec = newCOBSDecoder(w, lut, m, rc, endian)
+		//  	cobsVariantDecode = cobsFFDecode
+	case "TREX":
+		dec = newTREXDecoder(w, lut, m, rc, endian)
 	case "CHAR":
 		dec = newCHARDecoder(w, lut, m, rc, endian)
-	case "dumpDec":
+	case "DUMP":
 		dec = newDUMPDecoder(w, lut, m, rc, endian)
 	default:
 		log.Fatalf(fmt.Sprintln("unknown encoding ", Encoding))
@@ -217,15 +219,26 @@ func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec Decode
 	b := make([]byte, defaultSize) // intermediate trice string buffer
 	for {
 		n, err := dec.Read(b) // Code to measure, dec.Read can return n=0 in some cases and then wait.
-		if (err == io.EOF || err == nil) && n == 0 {
-			if receiver.Port == "BUFFER" || receiver.Port == "dumpDec" { // do not wait for a predefined buffer
-				return err
+
+		if err != io.EOF && err != nil {
+			log.Fatal(err)
+		}
+
+		if n == 0 {
+			if receiver.Port == "FILEBUFFER" && err == io.EOF { // do not wait if a predefined buffer
+				_, err := sw.Write([]byte(`\n`)) // add newline as line end to display any started line
+				msg.OnErr(err)
+				return io.EOF
 			}
-			//  if Verbose {
-			//  	fmt.Fprintln(w, err, "-> WAITING...")
-			//  }
+			if Verbose {
+				fmt.Fprintln(w, err, "-> WAITING...")
+			}
+			if receiver.Port == "FILE" {
+				time.Sleep(100 * time.Millisecond)
+			}
 			continue // read again
 		}
+
 		// b contains here none or several complete trice strings.
 		// If several, they end with a newline each, despite the last one which optionally ends with a newline.
 		start := time.Now()

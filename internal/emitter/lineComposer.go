@@ -50,9 +50,6 @@ func (p *TriceLineComposer) timestamp() string {
 // Write treats received buffer as a string.
 func (p *TriceLineComposer) Write(b []byte) (n int, err error) {
 	s := string(b)
-	//  if SyncPacketPattern == s {
-	//  	s = "" // don't show
-	//  }
 	return p.WriteString(s)
 }
 

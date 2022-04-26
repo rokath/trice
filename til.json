@@ -939,6 +939,10 @@
 		"Type": "TRICE",
 		"Strg": "rd: 0xf \t%#x \tBase 16, with leading 0x\\n"
 	},
+	"38991": {
+		"Type": "TRICE",
+		"Strg": "dbg: Set %d\\n"
+	},
 	"39023": {
 		"Type": "TRICE32_1",
 		"Strg": "rd:TRICE32_1 float +%9f (%%9f)\\n"
@@ -1794,6 +1798,10 @@
 	"45283": {
 		"Type": "TRICE",
 		"Strg": "w:B"
+	},
+	"45332": {
+		"Type": "TRICE",
+		"Strg": "msg:exp=%02x act=%02x\\n"
 	},
 	"45367": {
 		"Type": "TRICE64_1",

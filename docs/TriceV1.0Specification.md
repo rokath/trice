@@ -1,4 +1,8 @@
-# *Trice*  Version 1.0 Specification (Draft)
+
+<!-- TABLE OF CONTENTS -->
+<details>
+  <summary>Table of Contents</summary>
+  <ol>
 
 <!-- vscode-markdown-toc -->
 * 1. [Preface](#Preface)
@@ -10,7 +14,7 @@
 	* 6.1. [Symbols](#Symbols)
 	* 6.2. [Main stream logs](#Mainstreamlogs)
 		* 6.2.1. [*Trice* format](#Triceformat)
-		* 6.2.2. [COBS encoding](#COBSencoding)
+		* 6.2.2. [Framing (TCOBS or COBS encoding) and optional encryption](#FramingTCOBSorCOBSencodingandoptionalencryption)
 	* 6.3. [Extended *Trices* as future option](#ExtendedTricesasfutureoption)
 	* 6.4. [Unknown user data](#Unknownuserdata)
 * 7. [Changelog](#Changelog)
@@ -20,6 +24,12 @@
 	autoSave=true
 	/vscode-markdown-toc-config -->
 <!-- /vscode-markdown-toc -->
+<div id="top"></div>
+
+  </ol>
+</details>
+
+# *Trice*  Version 1.0 Specification (Draft)
 
 ##  1. <a name='Preface'></a>Preface
 
@@ -56,47 +66,85 @@ With [TREX](#TREXTriceextendableencoding) encoding the location information need
 ###  6.1. <a name='Symbols'></a>Symbols
 
 * `i` = ID bit
-* `I` = `iiiiiiii`
+* `I` = `iiiiiiii` = ID byte
 * `n` = number bit
 * `s` = selector bit
-* `N` = `snnnnnnnn`
+* `N` = `snnnnnnnn` = number byte
 * `c` = cycle counter bit
-* `C` = s==0 ? `cccccccc` : `nnnnnnnn`
+* `C` = s==0 ? `cccccccc` : `nnnnnnnn` = cycle counter byte or number byte extension
 * `t` = timestamp bit
-* `T` = `tttttttt`
+* `T` = `tttttttt` = timestamp byte
 * `d` = data bit
-* `D` = `dddddddd`
+* `D` = `dddddddd` = data byte
+* `...` = 0 to 32767 data bytes
+* `"..."` = format string
 
 ###  6.2. <a name='Mainstreamlogs'></a>Main stream logs
 
-All main stream logs share the same 14 bit ID space allowing 1-16383 IDs.
+* [x] As a compromize between speed and space a 16-bit wide *Trice* storage access is implemented. This also fits good for 8, 16 and 32 bit MCUs.
+* [x] All main stream logs share the same 14 bit ID space allowing 1-16383 IDs in 3 variants parallel usable:
 
-* `11iiiiii I N C  T T T T ...` 14 bit ID, *Trice* format with 32-bit timestamp: `TRICE( ID(n), "...", ...), ...`
-* `10iiiiii I N C  T T ...`     14 bit ID, *Trice* format with 16-bit timestamp: `TRICE( Id(n), "...", ...), ...`
-* `01iiiiii I N C  ...`         14 bit ID, *Trice* format without     timestamp: `TRICE( id(n), "...", ...), ...`
-* The update switch `-timeStamp 32` defaults new ID´s to `ID`.
-* The update switch `-timeStamp 16` defaults new ID´s to `Id`.
-* The update switch `-timeStamp 0`  defaults new ID´s to `id`.
-* The update switch `-timeStamp to32` converts all `id` and `Id` to `ID`.
-* The update switch `-timeStamp to16` converts all `id` and `ID` to `Id`.
-* The update switch `-timeStamp to0`  converts all `ID` and `Id` to `id`.
-* The log switch `-ttsf` is the same as `-ttsf32`.
-* There is a new log switch `ttsf16` for the 16 bit timestamps. 
+| 16-bit groups            | *Trice* code                 | Comment                                         |
+| :-                       | -                            | -                                               |
+| `01iiiiiiI NC  ...`      | `TRICE( id(n), "...", ...);` | *Trice* format without     timestamp |
+| `10iiiiiiI TT NC ...`    | `TRICE( Id(n), "...", ...);` | *Trice* format with 16-bit timestamp |
+| `11iiiiiiI TT TT NC ...` | `TRICE( ID(n), "...", ...);` | *Trice* format with 32-bit timestamp |
+
+* Technically it is possible to have distinct ID spaces for each ID type but this would give no real advantage and complicate the handling only.
+* [x] For straight forward runtime code, the identifiers `id`, `Id` and `ID` are sub macros:
+  * [ ] **id(n)**
+  
+  ```c
+  #define id(n) do{ TRICE_PUT16(0x4000 | n ); }while(0),
+  ```
+
+  * [ ] **Id(n)**
+
+  ```c
+  #define Id(n) do{ uint16_t ts = timestamp16;
+                  TRICE_PUT16(0x8000 | n ); 
+                  TRICE_PUT16( ts ); }while(0),
+  ```
+
+  * [ ] **ID(n)**
+
+  ```c
+  #define ID(n) do{ uint32_t ts = timestamp32;
+                  TRICE_PUT16(0xC000 | n ); 
+                  TRICE_PUT32( ts ); }while(0),
+  ```
+
+* [ ] Usage:
+
+```c
+#define T8(id, pFmt, v0) TRICE_ENTER; id; TRICE_PUT16(v0); TRICE_LEAVE;
+```
+
+* [x] New *Trice* macros are writable without the ID, so when `trice u` is executed a CLI switch controls the ID type selection:
+  * The update switch `-timeStamp 32` defaults new ID´s to `ID`.
+  * The update switch `-timeStamp 16` defaults new ID´s to `Id`.
+  * The update switch `-timeStamp 0`  defaults new ID´s to `id`.
+  * The update switch `-timeStamp to32` converts all `id` and `Id` to `ID`.
+  * The update switch `-timeStamp to16` converts all `id` and `ID` to `Id`.
+  * The update switch `-timeStamp to0`  converts all `ID` and `Id` to `id`.
+* [x] `trice log`:
+  * The log switch `-ttsf` is the same as `-ttsf32`.
+  * There is a new log switch `ttsf16` for the 16 bit timestamps.
+  * The `trice` tool alignes *Trice` messages with different timestamp sizes.
 
 ####  6.2.1. <a name='Triceformat'></a>*Trice* format
 
-* Optional data bytes start after optional timestamp.
-* N is not u32 count anymore, it is data byte count (without header, without timestamp).
-* N > 127 (s==1) tells `N C` is replaced by `1nnnnnnn nnnnnnnn`, allowing 32767 bytes.
-  * C is incremented with each *Trice* but not transmitted when:
+* Parameter data bytes start after the optional timestamp.
+* N is the parameter data bytes count. Padding bytes are not counted.
+* Usually N is < 127 but for buffer or string transfer N can get up to 32767 (15 bits).
+* When N > 127 (s==1) `NC` is replaced by `1nnnnnnn nnnnnnnn`. C is incremented with each *Trice* but not transmitted when:
     * N > 127
     * extended *Trice* without C
 
-####  6.2.2. <a name='COBSencoding'></a>COBS encoding
+####  6.2.2. <a name='FramingTCOBSorCOBSencodingandoptionalencryption'></a>Framing (TCOBS or COBS encoding) and optional encryption
 
-* Inside double buffer each trice starts at a u32 boundary.
-* There are 1-3 padding bytes possible after each *Trice*.
-* The COBS encoding drops the padding bytes using N and encodes each *Trice* separately. This minizmizes data loss in case of disruptions for example caused by reset.
+* Inside double buffer each *Trice* starts at a u16 boundary.
+* The encoding drops the padding bytes using N and encodes each *Trice* separately. This minizmizes data loss in case of disruptions for example caused by reset. If size minimizing matters hard, several *Trices* are encodable as group also, but this leads to more data losses in case of disruptions.
 
 ###  6.3. <a name='ExtendedTricesasfutureoption'></a>Extended *Trices* as future option
 
@@ -141,7 +189,7 @@ If for special cases, the main stream encoding is not sufficient, the user can a
 
 * Unknown user data are possible as part of the *Trice* extensions.
   * Without the `-ex0` switch, `0000...` packages are ignored as unknown user data.
-  * Without the `-ex1` switch, `0001...` packages are ignored as unknwno user data.
+  * Without the `-ex1` switch, `0001...` packages are ignored as unknown user data.
   * Without the `-ex2` switch, `0010...` packages are ignored as unknown user data.
   * Without the `-ex3` switch, `0011...` packages are ignored as unknown user data.
 * So, if *Trice* extensions not used, all `00...` packages are ignored as unknown user data.
@@ -161,6 +209,7 @@ If for special cases, the main stream encoding is not sufficient, the user can a
 | 2022-MAR-16 |  0.6.0  | TCOBS prime number comment added, simplified |
 | 2022-MAR-17 |  0.7.0  | TCOBS move into a separate [TCOBS Specification](./TCOBSSpecification.md), Framing more detailed. |
 | 2022-MAR-20 |  0.7.1. | Contributable *Trice* extension remark added. |
+| 2022-APR-12 |  0.8.0. | TREX mainstream format changed to timestamps immediate after ID. |
 
 - [*Trice*  Version 1.0 Specification (Draft)](#trice--version-10-specification-draft)
   - [1. <a name='Preface'></a>Preface](#1-preface)
@@ -172,7 +221,7 @@ If for special cases, the main stream encoding is not sufficient, the user can a
     - [6.1. <a name='Symbols'></a>Symbols](#61-symbols)
     - [6.2. <a name='Mainstreamlogs'></a>Main stream logs](#62-main-stream-logs)
       - [6.2.1. <a name='Triceformat'></a>*Trice* format](#621-trice-format)
-      - [6.2.2. <a name='COBSencoding'></a>COBS encoding](#622-cobs-encoding)
+      - [6.2.2. <a name='FramingTCOBSorCOBSencodingandoptionalencryption'></a>Framing (TCOBS or COBS encoding) and optional encryption](#622-framing-tcobs-or-cobs-encoding-and-optional-encryption)
     - [6.3. <a name='ExtendedTricesasfutureoption'></a>Extended *Trices* as future option](#63-extended-trices-as-future-option)
     - [6.4. <a name='Unknownuserdata'></a>Unknown user data](#64-unknown-user-data)
   - [7. <a name='Changelog'></a>Changelog](#7-changelog)

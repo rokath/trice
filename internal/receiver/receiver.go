@@ -139,7 +139,6 @@ type tcp4 struct {
 // newTCP4Connection returns a readCloser capable tcp4 instance.
 func newTCP4Connection(_ io.Writer, endpoint string) *tcp4 {
 	r := &tcp4{}
-	//var err error
 	addr, err := net.ResolveTCPAddr("tcp4", endpoint)
 	if err != nil {
 		log.Fatal(endpoint, err)
@@ -204,7 +203,7 @@ func (p *file) Close() error {
 // When port is "JLINK" args contains JLinkRTTLogger.exe specific parameters described inside UM08001_JLink.pdf.
 // When port is "STLINK" args has the same format as for "JLINK"
 func NewReadCloser(w io.Writer, verbose bool, port, args string) (r io.ReadCloser, err error) {
-	switch port {
+	switch strings.ToUpper(port) {
 	case "JLINK", "STLINK", "J-LINK", "ST-LINK":
 		if PortArguments == "" { // nothing assigned in args
 			PortArguments = DefaultLinkArgs
@@ -214,13 +213,13 @@ func NewReadCloser(w io.Writer, verbose bool, port, args string) (r io.ReadClose
 			err = fmt.Errorf("can not open link device %s with args %s", port, args)
 		}
 		r = l
-	case "TCP4", "tcp4":
+	case "TCP4":
 		if PortArguments == "" { // nothing assigned in args
 			PortArguments = DefaultTCP4Args
 		}
 		l := newTCP4Connection(w, args)
 		r = l
-	case "FILE", "file":
+	case "FILE", "FILEBUFFER":
 		if PortArguments == "" { // nothing assigned in args
 			PortArguments = DefaultFileArgs
 		}

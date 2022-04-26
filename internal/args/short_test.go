@@ -14,7 +14,7 @@ import (
 	"github.com/tj/assert"
 )
 
-func TestMain(m *testing.M) {
+func _TestMain(m *testing.M) {
 	id.FnJSON = getTemporaryFileName("til-*.JSON")
 	code := m.Run()
 	msg.OnErr(os.Remove(id.FnJSON))
@@ -81,7 +81,7 @@ func TestVersion(t *testing.T) {
 	//m.Unlock()
 }
 
-func TestScan(t *testing.T) {
+func _TestScan(t *testing.T) {
 	fn := func() {
 		err := Handler(os.Stdout, []string{"trice", "scan"})
 		assert.Nil(t, err)

@@ -397,6 +397,14 @@ func TestHelpRefresh(t *testing.T) {
       `
 	execHelper(t, args, expect)
 }
+
+// needs to work in Linux and Windows!
+func _TestCOBSLog(t *testing.T) {
+	args := []string{"trice", "log", "-idList", "til.json", "-port", "FILEBUFFER", "-args", "C:/Users/T.Hoehenleitner/AppData/Local/Temp/trice-317444282.bin", "-ts", "off"}
+	expect := ""
+	execHelper(t, args, expect)
+}
+
 /*
 func _TestHelpLog(t *testing.T) {
 	args := []string{"trice", "help", "-log"}
@@ -531,9 +539,9 @@ func _TestHelpLog(t *testing.T) {
               This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true.
       example: 'trice l -p COM15 -baud 38400': Display trice log messages from serial port COM15
       example: 'trice l': Display flexL data format trice log messages from default source J-LINK over Segger RTT protocol.
-      example: 'trice l -port ST-LINK -v -s': Shows verbose version information and also the received raw bytes.      
+      example: 'trice l -port ST-LINK -v -s': Shows verbose version information and also the received raw bytes.
       `
 	execHelper(t, args, expect)
 }
 
- */
+*/
