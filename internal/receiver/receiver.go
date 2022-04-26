@@ -244,12 +244,12 @@ func NewReadCloser(w io.Writer, verbose bool, port, args string) (r io.ReadClose
 		if verbose {
 			fmt.Println("Assuming", port, "is serial port.")
 		}
-		var c com.COMport   // interface type
-		if args == "TARM" { // for comparing dynamic behavior
-			c = com.NewCOMPortTarm(w, verbose, port)
-		} else {
-			c = com.NewCOMPortGoBugSt(w, verbose, port)
-		}
+		var c com.COMport // interface type
+		//if args == "TARM" { // for comparing dynamic behavior
+		//	c = com.NewCOMPortTarm(w, verbose, port)
+		//} else {
+		c = com.NewCOMPortGoBugSt(w, verbose, port)
+		//}
 		if !c.Open() {
 			err = fmt.Errorf("can not open %s", port)
 		}
