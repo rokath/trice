@@ -16,6 +16,5 @@
 | 2020-06-29  |   0.9.2 | CLI slightly changed (no more 'r'), doc extended, added: Tests, Examples, JLINK, RND, SIM, FILE, TRICE_SYNC, TRICE_VARIANT, TRICE_ASSERT, now no semi-colon after TRICE* is tolerated (macros), several TRICE* in one code line are now ok  |
 | ...         |         |                                                                                                                                                                                                                                             |
 | 2022-FEB-11 |  0.48.0 | FILE & TCP4 input ports added                                                                                                                                                                                                               |
-
-
-
+| 2022-APR-27 |  0.49.1 | FILEBUFFER support added                                                                                                                                                                                                                    |
+| 2022-APR-27 |  0.49.1 | Darwin binaries added                                                                                                                                                                                                                       |
