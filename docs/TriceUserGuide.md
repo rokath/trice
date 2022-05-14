@@ -161,18 +161,23 @@ into
 TRICE( "%d Kelvin\n", k );
 ```
 
-This you could do automatically using a word processor. Care must be taken in the following cases:
-
-* More than 12 printf parameters: use several printf-calls
-* float numbers: surround each with `aFloat()`
-* double numbers: surround each with `aDouble` and use the `TRICE64` macro
-* runtime generated strings: Each needs its own `TRICE_S` macro: `TRICE_S( Id(11223), "Entered name is %20s\n", "Paul" );`
-
-A `trice update` (run it later in the tool chain to keep everything automatically up-to-date) inserts the *Trice* IDs:
+This you could do automatically using a word processor. A `trice update` (run it later in the tool chain to keep everything automatically up-to-date) inserts the *Trice* IDs:
 
 ```c
 TRICE( Id(12345), "%d Kelvin\n", k );
 ```
+
+Care must be taken in the following cases:
+
+* More than 12 printf parameters: use several printf-calls
+* float numbers: surround each with `aFloat()`
+* double numbers: surround each with `aDouble` and use the `TRICE64` macro
+* runtime generated strings: Each needs its own `TRICE_S` macro, example: 
+  * Legacy code: `printf( "Entered name is %20s %30s, favorite numbers %d, %f\n", "Paul", "Luap", 42, 3.14159 );`
+  * Trice code 1: `name = "Paul"; TRICE_S( "Entered name is %20s", name );`
+  * Trice code 2: `surname = "Luap";  TRICE_S( " %30s, ", surname );`
+  * Trice code 3: `TRICE( "favorite numbers %d, %f\n", "Paul", "Reichelt", 42, aFloat(3.14159) );`
+
 
 <!--
 and adds for example the *ID 12345* together with *"%d Kelvin\n"* into a **t**rice **I**D **l**ist, a [JSON](https://www.json.org/json-en.html) reference file named [til.json](../til.json). The *12345* is a random or policy generated ID not used so far. During compilation the `TRICE` macro is translated to only a *12345* reference and the variable *k*. The format string never sees the target.
@@ -430,7 +435,7 @@ example 'trice h -log': Print log help.
 sub-command 'l|log': For displaying trice logs coming from port. With "trice log" the trice tool display mode is activated.
   -args string
         Use to pass port specific parameters. The "default" value depends on the used port:
-        port "COMn": default="", use "TARM" for a different driver. (For baud rate settings see -baud.)
+        port "COMn": default="", Unused option for a different driver. (For baud rate settings see -baud.)
         port "J-LINK": default="-Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0 -RTTSearchRanges 0x20000000_0x1000",
                 The -RTTSearchRanges "..." need to be written without "" and with _ instead of space.
                 For args options see JLinkRTTLogger in SEGGER UM08001_JLink.pdf.
@@ -811,18 +816,21 @@ trice zeroSourceTreeIds -src ./
 * The implemented parser (currently) does not support `TRICE` macros over several source code lines. Each `TRICE` macro needs to be completely on one line.
 * It is possible to have several (complete) `TRICE` macros on one source code line.
 
-###  10.2. <a name='LimitationTRICEinTRICEnotpossible'></a>Limitation TRICE in TRICE not possible!
+###  10.2. <a name='LimitationTRICEinTRICEnotpossible'></a>Limitation TRICE in TRICE not possible
 
-- No-Good Example:
+* No-Good Example:
+* 
 ```C
 int f0( void ){ TRICE( "msg:f0\n"); return 0; }
 void f1( void ){ TRICE( "No; %d", f0() ); }
 ```
-- This will compile normally but corrupt TRICE output.
+
+* This will compile normally but corrupt TRICE output.
 
 The reason is: When f1() gets active, the "No" *Trice* header is created, than the f0() *Trice* is executed and afterwards the "No" *Trice* tail is written. This works well during compile time but causes a mismatch during runtime.
 
-- Good Workaround:
+* Good Workaround:
+
 ```C
 int f0( void ){ TRICE( "msg:f0\n"); return 0; }
 void f1( void ){ int x = f0(); TRICE( "Yes: %d", x ); }
@@ -830,17 +838,39 @@ void f1( void ){ int x = f0(); TRICE( "Yes: %d", x ); }
 
 ###  10.3. <a name='DynamicstringsbuffersonlyasvariableinsideTRICEmacros'></a>Dynamic strings/buffers only as variable inside `TRICE` macros
 
-- No-Good Example:
+* No-Good Example:
+
 ```C
-void f0( void ){ TRICE_S( "msg:%s\n", "Hello" ); }
+void f0( void ){ TRICE_S( "msg:%s\n", "Hello" ); } // will not work
 ```
 
-- Good Workaround:
+* Possible, but not recommended Workaround:
+
 ```C
-void f0( void ){ char* s = "Hello"; TRICE_S( "msg:%s\n", s ); }
+void f0( void ){ const char* s = "Hello"; TRICE_S( "msg:%s\n", s ); } // works, but ineffective
 ```
 
-The reason lays in the way the *Trices* are processed.
+The above code line causes the string "Hello" to be transferred bytewise. One can rewrite it to much more effective and smaller code:
+
+```C
+void f0( void ){ TRICE( "msg:Hello\n" ); }
+```
+
+By the way, string concatenation within TRICE macros is untested and expected not to work. The reason lays inside the way the update tool works (right now):
+
+```C
+void f0( void ){ TRICE( "msg:" ## "Hello\n" ); } // ERROR!
+```
+
+**Usage intension and recommendation:** (given by @escherstair)
+
+```C
+char dynamic_string[50];
+fillDynamicStringFromSomewhere(dynamic_string);   /* the content of dynamic_string is filled at run time */
+TRICE_S( "msg:This part of the string is known at compile time. This part is dynamic: %s\n", dynamic_string);
+```
+All the string literals (i.e. compile-time know strings) should be put inside the format string.
+Only the dynamic strings should be used as variables in TRICE_S macro.
 
 ###  10.4. <a name='Logfileviewing'></a>Logfile viewing
 

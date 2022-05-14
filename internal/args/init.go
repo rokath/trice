@@ -125,7 +125,7 @@ It is the only setup parameter. The other values default to 8N1 (8 data bits, no
 	argsInfo := fmt.Sprint(`Use to pass port specific parameters. The "default" value depends on the used port:
 port "BUFFER": default="`, receiver.DefaultBUFFERArgs, `", Option for args is any space separated decimal number byte sequence.
 port "DUMP": default="`, receiver.DefaultDumpArgs, `", Option for args is any space or comma separated byte sequence.
-port "COMn": default="`, receiver.DefaultCOMArgs, `", use "TARM" for a different driver. (For baud rate settings see -baud.)
+port "COMn": default="`, receiver.DefaultCOMArgs, `", Unused option for a different driver. (For baud rate settings see -baud.)
 port "FILE": default="`, receiver.DefaultFileArgs, `", Option for args is any file name. Trice retries on EOF.
 port "FILEBUFFER": default="`, receiver.DefaultFileArgs, `", Option for args is any file name. Trice stops on EOF.
 port "J-LINK": default="`, receiver.DefaultLinkArgs, `", `, linkArgsInfo, `
