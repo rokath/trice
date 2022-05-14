@@ -24,3 +24,16 @@ int TriceCode( int n ){
     }
     return 0;
 }
+
+
+//#ifdef TRICE_CGO_TEST
+
+
+int triceBufferDepth = 0;
+uint8_t* triceBuffer;
+
+uint32_t ReadUs32( void ){
+    return 0x11111111;
+}
+
+//#endif // #ifdef TRICE_CGO_TEST

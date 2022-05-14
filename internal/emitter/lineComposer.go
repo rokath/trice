@@ -70,19 +70,9 @@ func (p *TriceLineComposer) WriteString(s string) (n int, err error) {
 	// https://www.geeksforgeeks.org/rune-in-golang/
 	bs := "~bs___________________bs~" // escaped backslash
 	sa := strings.ReplaceAll(s, `\\`, bs)
-
 	sb := strings.ReplaceAll(sa, `\a`, "\u0007") // Alert or Bell
-	//s = strings.ReplaceAll(s, "\b", "\u0008") // backspace
 	sc := strings.ReplaceAll(sb, `\t`, "\u0009") // horizontal tab
-	//s = strings.ReplaceAll(s, "\n", "\u000A") // line feed or newline (next line)
-	//s = strings.ReplaceAll(s, "\v", "\u000b") // vertical tab
-	//s = strings.ReplaceAll(s, "\f", "\u000C") // form feed (next page)
-	//s = strings.ReplaceAll(s, "\r", "\u000D") // carriage return (start of line)
-	//s = strings.ReplaceAll(s, "\\", "\u005c") // backslash
-	//s = strings.ReplaceAll(s, "\'", "\u0027") // single quote
-	//s = strings.ReplaceAll(s, "\"", "\u0022") // double quote(legal only in string literals)
-	sd := strings.ReplaceAll(sc, bs, `\\`)
-
+	sd := strings.ReplaceAll(sc, bs, "\\")
 	s0 := strings.ReplaceAll(sd, "\\r\\n", "\n")
 	s1 := strings.ReplaceAll(s0, "\\n", "\n")
 	sn := strings.ReplaceAll(s1, "\r\n", "\n")

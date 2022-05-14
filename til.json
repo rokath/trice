@@ -3811,6 +3811,10 @@
 		"Type": "TRICE64",
 		"Strg": "rd:TRICE64 %d, %d, %d, %d, %d, %d\\n"
 	},
+	"58434": {
+		"Type": "TRICE",
+		"Strg": "dbg:\\\\aHi!\\n"
+	},
 	"58441": {
 		"Type": "TRICE",
 		"Strg": "tim:TRICE START time message\\n"

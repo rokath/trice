@@ -94,7 +94,7 @@ void TriceCheckSet(int index) {
             TRICE( Id(51899), "dbg:\aHi!\n" );
             TRICE( Id(38453), "dbg:\a\aHi!\n" );
             TRICE( Id(45474), "dbg:\a\a\aHi!\n" );
-            TRICE( Id(37913), "dbg:\\tHi!\n" );
+            TRICE( Id(58434), "dbg:\\aHi!\n" );
             //TCOBSCheck();
         break;
         case 10:

@@ -72,6 +72,8 @@
   * `./pkg/src/trice.h`
   * `./pkg/src/trice.c`
   * `./test/.../triceConfig.h`
+* Optionally add `./pkg/src/trice_check.c` to your project if you wish to perform the checks.
+* Do **not** copy `trice_test.c` and ignore `trice_test.go` and ignore `./pkg/src/inc/*`. This is code for **Go** tests.
 * In your source.c files add line `#include "trice.h"`
 * In a function write: `TRICE( "1/11 = %g\n", aFloat( 1.0/11 ) );`
 * In project root:
