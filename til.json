@@ -1,4 +1,8 @@
 {
+	"32829": {
+		"Type": "TRICE",
+		"Strg": "dbg:\\t\\t\\tHi!\\n"
+	},
 	"32840": {
 		"Type": "TRICE",
 		"Strg": "rd: 123.46 \t%.2f \tDefault width, precision 2\\n"
@@ -471,6 +475,10 @@
 		"Type": "TRICE",
 		"Strg": "rd:TRICE line %f (%%f)\\n"
 	},
+	"35804": {
+		"Type": "TRICE",
+		"Strg": "dbg:\tHi!\\n"
+	},
 	"35811": {
 		"Type": "TRICE_S",
 		"Strg": "rd: café \t\t\t%s\t\tPlain string\\n"
@@ -610,6 +618,10 @@
 	"36627": {
 		"Type": "TRICE_9",
 		"Strg": "rd:TRICE_9 %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"36649": {
+		"Type": "TRICE",
+		"Strg": "dbg:\\tHi!\\n"
 	},
 	"36707": {
 		"Type": "TRICE",
@@ -791,6 +803,10 @@
 		"Type": "TRICE_FILE",
 		"Strg": "stm32g0xx_ll_dma.c"
 	},
+	"37913": {
+		"Type": "TRICE",
+		"Strg": "dbg:\\\\tHi!\\n"
+	},
 	"37916": {
 		"Type": "TRICE0",
 		"Strg": "time:i"
@@ -890,6 +906,10 @@
 	"38389": {
 		"Type": "TRICE",
 		"Strg": "m:12"
+	},
+	"38453": {
+		"Type": "TRICE",
+		"Strg": "dbg:\\a\\aHi!\\n"
 	},
 	"38478": {
 		"Type": "TRICE8",
@@ -1338,6 +1358,10 @@
 	"42240": {
 		"Type": "TRICE32_1",
 		"Strg": "rd:TRICE32_1 float -%.9f (%%.9f)\\n"
+	},
+	"42282": {
+		"Type": "TRICE",
+		"Strg": "dbg:\\tHi!\\n"
 	},
 	"42283": {
 		"Type": "TRICE_S",
@@ -1823,6 +1847,10 @@
 		"Type": "TRICE8",
 		"Strg": "rd:TRICE8 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
 	},
+	"45474": {
+		"Type": "TRICE",
+		"Strg": "dbg:\\a\\a\\aHi!\\n"
+	},
 	"45499": {
 		"Type": "TRICE64_9",
 		"Strg": "rd:TRICE64_9 %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
@@ -1862,6 +1890,10 @@
 	"45804": {
 		"Type": "TRICE16_1",
 		"Strg": "tim: pre TriceDecryption SysTick=%d\\n"
+	},
+	"45805": {
+		"Type": "TRICE",
+		"Strg": "dbg:\\t\\tHi!\\n"
 	},
 	"45823": {
 		"Type": "TRICE64",
@@ -2707,6 +2739,10 @@
 		"Type": "TRICE16_4",
 		"Strg": "tst:TRICE16_4 %u %u %u %u\\n"
 	},
+	"51899": {
+		"Type": "TRICE",
+		"Strg": "dbg:\\aHi!\\n"
+	},
 	"51914": {
 		"Type": "TRICE64",
 		"Strg": "rd: ␣␣123.46\t\t%8.2f \t%%8.2f Width 8, precision 2\\n"
@@ -2722,6 +2758,10 @@
 	"51949": {
 		"Type": "TRICE",
 		"Strg": "sig:TRICE16 with 1 to 12 pointer\\n"
+	},
+	"51963": {
+		"Type": "TRICE",
+		"Strg": "dbg:Hi!\\n"
 	},
 	"51979": {
 		"Type": "TRICE32",

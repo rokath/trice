@@ -246,7 +246,7 @@
                     "-til",
                     "${workspaceFolder}/til.json",
                      "-p",
-                     "COM7"
+                     "COM6"
             ]
         },        
         {

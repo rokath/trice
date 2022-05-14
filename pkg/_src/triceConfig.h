@@ -18,8 +18,8 @@ extern "C" {
 #define TRICE_MODE 0 //! TRICE_MODE is a predefined trice transfer method.
 
 //#define TRICE_RTT_CHANNEL 0 //!< Uncomment and set channel number for SeggerRTT usage.
-//#define TRICE_UART USART2   //!< Uncomment and set UART for serial output.
-#define TRICE_CGO_TEST
+#define TRICE_UART USART2   //!< Uncomment and set UART for serial output.
+//#define TRICE_CGO_TEST
 
 
 
@@ -220,7 +220,7 @@ TRICE_INLINE uint32_t triceTxDataRegisterEmpty(void) {
 //! User must provide this function.
 TRICE_INLINE void triceTransmitData8(uint8_t v) {
     LL_USART_TransmitData8(TRICE_UART, v);
-    ToggleOpticalFeedbackLED();
+    // ToggleOpticalFeedbackLED();
 }
 
 //! Allow interrupt for empty trice data transmit register.
@@ -250,7 +250,7 @@ TRICE_INLINE void triceDisableTxEmptyInterrupt(void) {
 
 #define TRICE_WRITE( buf, len ) do{ \
     SEGGER_RTT_Write(TRICE_RTT_CHANNEL, buf, len ); \
-    ToggleOpticalFeedbackLED(); \
+    //ToggleOpticalFeedbackLED(); \
 }while(0)
 #endif // #ifdef TRICE_RTT_CHANNEL
 

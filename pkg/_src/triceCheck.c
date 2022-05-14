@@ -86,6 +86,15 @@ void TriceCheckSet(int index) {
     double y = 518.0547492508867;// 0x4080307020601050
     switch (index) {
         case 0:
+            TRICE( Id(51963), "dbg:Hi!\n" );
+            TRICE( Id(42282), "dbg:\tHi!\n" );
+            TRICE( Id(45805), "dbg:\t\tHi!\n" );
+            TRICE( Id(32829), "dbg:\t\t\tHi!\n" );
+            TRICE( Id(37913), "dbg:\\tHi!\n" );
+            TRICE( Id(51899), "dbg:\aHi!\n" );
+            TRICE( Id(38453), "dbg:\a\aHi!\n" );
+            TRICE( Id(45474), "dbg:\a\a\aHi!\n" );
+            TRICE( Id(37913), "dbg:\\tHi!\n" );
             //TCOBSCheck();
         break;
         case 10:
