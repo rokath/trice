@@ -221,7 +221,9 @@ void TriceInitXteaTable(void);
 //! COUNT_ARGUMENTS builds upon NTH_ARGUMENT. The more arguments that are passed to COUNT_ARGUMENTS, 
 //! the more the »counting arguments« (12, 11, 10, 9, 8, 7…) are pushed to the right. 
 //! Thus the macro evaluates to the number of arguments that are passed to the macro.
-//! The expression `## __VA_ARGS__` ist not supported by older compilers. You can remove the `##` and use TRICE0 instead of TRICE for a no parameter value TRICE in that case.
+//! If you set the C language to strict C (C90, C99, C11 or C17) the `##` operator doesn't remove the comma before it when `__VA_ARGS__` expands to nothing.
+//! In this case, the TRICE macro doesn't work with no parameters. You must explicitly use TRICE0 instead of TRICE for a no parameter value TRICE in this case.
+//! For more details see closed Issue #279. Special thanks @escherstair.
 #define COUNT_ARGUMENTS(...) NTH_ARGUMENT(dummy, ## __VA_ARGS__, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0)
 
 //! CONCAT concatenates the 2 arguments a and b (helper macro).
