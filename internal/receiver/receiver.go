@@ -79,6 +79,9 @@ var (
 
 	// Verbose gives more information on output if set. The value is injected from main packages.
 	Verbose bool
+
+	// BinaryFileName holds a filename to the trice messages are stored in binary form.
+	BinaryFileName string
 )
 
 // spaceStringsBuilder returns str without whitespaces.

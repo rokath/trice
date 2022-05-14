@@ -23,9 +23,10 @@
 		* 9.2.4. [Set all IDs in a directory tree to 0](#SetallIDsinadirectorytreeto0)
 * 10. [Additional hints](#Additionalhints)
 	* 10.1. [Limitation "trice u" requires TRICE macros on a single line](#LimitationtriceurequiresTRICEmacrosonasingleline)
-	* 10.2. [Limitation TRICE in TRICE not possible!](#LimitationTRICEinTRICEnotpossible)
+	* 10.2. [Limitation TRICE in TRICE not possible](#LimitationTRICEinTRICEnotpossible)
 	* 10.3. [Dynamic strings/buffers only as variable inside `TRICE` macros](#DynamicstringsbuffersonlyasvariableinsideTRICEmacros)
 	* 10.4. [Logfile viewing](#Logfileviewing)
+	* 10.5. [Executing `go test ./...`](#Executinggotest....)
 * 11. [Target side *Trice* On-Off](#TargetsideTriceOn-Off)
 * 12. [Host side *Trice* On-Off](#HostsideTriceOn-Off)
 * 13. [Using a different encoding](#Usingadifferentencoding)
@@ -881,6 +882,10 @@ Logfiles, **trice** tool generated with sub-command switch `-color off`, are nor
 * One easy view option is `less -R trice.log`. The Linux command `less` is also available inside the windows git bash.
 * Under Windows one could also download and use [ansifilter](https://sourceforge.net/projects/ansifilter/) for logfile viewing. A monospaced font is recommended.
 * See also [Color issues under Windows](./TriceColor.md#color-issues-under-windows)
+
+###  10.5. <a name='Executinggotest....'></a>Executing `go test ./...`
+
+The C-code is executed during some tests. Prerequisite is a installed GCC.
 
 ##  11. <a name='TargetsideTriceOn-Off'></a>Target side *Trice* On-Off
 
