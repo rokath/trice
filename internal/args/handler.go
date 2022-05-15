@@ -8,6 +8,8 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log"
+	"net"
 	"os"
 	"sync"
 	"time"
@@ -175,6 +177,37 @@ func scVersion(w io.Writer) error {
 	return nil
 }
 
+// evaluateColorPalette
+func evaluateColorPalette(w io.Writer) {
+	switch emitter.ColorPalette {
+	case "off", "none", "default", "color":
+		return
+	default:
+		fmt.Fprintln(w, "Ignoring unknown -color", emitter.ColorPalette, "using default.")
+		emitter.ColorPalette = "default"
+	}
+}
+
+var TriceOutWriter io.Writer
+
+// distributeArgs is distributing values used in several packages.
+// It must not be called before the appropriate arg parsing.
+func distributeArgs() io.Writer {
+
+	id.Verbose = verbose
+	link.Verbose = verbose
+	decoder.Verbose = verbose
+	emitter.Verbose = verbose
+	receiver.Verbose = verbose
+	emitter.TestTableMode = decoder.TestTableMode
+
+	TriceOutWriter = os.Stdout
+	w := triceOutput(LogfileName)
+	evaluateColorPalette(w)
+	return w
+}
+
+// triceOutput returns a io.Writer to log to. If fn is given the returned io.Writer write a copy into the given file.
 func triceOutput(fn string) io.Writer {
 	// start logging only if fn not "none" or "off"
 	if fn == "none" || fn == "off" {
@@ -200,34 +233,45 @@ func triceOutput(fn string) io.Writer {
 		fmt.Printf("Writing to logfile %s...\n", fn)
 	}
 
-	w := io.MultiWriter(os.Stdout, /*
-			os.Stderr,*/lfHandle)
+	w := io.MultiWriter(TriceOutWriter, lfHandle)
 	return w
 }
 
-// distributeArgs is distributing values used in several packages.
-// It must not be called before the appropriate arg parsing.
-func distributeArgs() io.Writer {
-
-	id.Verbose = verbose
-	link.Verbose = verbose
-	decoder.Verbose = verbose
-	emitter.Verbose = verbose
-	receiver.Verbose = verbose
-	emitter.TestTableMode = decoder.TestTableMode
-
-	w := triceOutput(LogfileName)
-	evaluateColorPalette(w)
-	return w
-}
-
-// evaluateColorPalette
-func evaluateColorPalette(w io.Writer) {
-	switch emitter.ColorPalette {
-	case "off", "none", "default", "color":
-		return
-	default:
-		fmt.Fprintln(w, "Ignoring unknown -color", emitter.ColorPalette, "using default.")
-		emitter.ColorPalette = "default"
+func CreateTCP4Server(addr string) {
+	// The net.Listen() function makes the program a TCP server. This functions returns a Listener variable, which is a generic network listener for stream-oriented protocols.
+	l, err := net.Listen("tcp", addr)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer l.Close()
+	for { // wait for a connection
+		// t is only after a successful call to Accept() that the TCP server can begin to interact with TCP clients.
+		conn, err := l.Accept()
+		if err != nil {
+			fmt.Println(err)
+			continue // try again
+		}
+		// a new connection exist, add it to the write list
+		TriceOutWriter = io.MultiWriter(TriceOutWriter, conn)
+		defer conn.Close()
 	}
 }
+
+/*
+// handleIncomingRequest is activated after an external connection
+func handleIncomingRequest(conn net.Conn) {
+	// store incoming data
+	buffer := make([]byte, 1024)
+	_, err := conn.Read(buffer)
+	if err != nil {
+		log.Fatal(err)
+	}
+	// respond
+	time := time.Now().Format("Monday, 02-Jan-06 15:04:05 MST")
+	conn.Write([]byte("Hi back!\n"))
+	conn.Write([]byte(time))
+
+	// close conn
+	conn.Close()
+}
+*/

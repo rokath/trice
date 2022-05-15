@@ -37,6 +37,8 @@ func doit(w io.Writer) {
 	args.Commit = commit
 	args.Date = date
 
+	go args.CreateTCP4Server("localhost:65000")
+
 	rand.Seed(time.Now().UnixNano())
 	err := args.Handler(os.Args)
 	if nil != err {
