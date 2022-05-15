@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/rokath/trice/pkg/cage"
 	"github.com/rokath/trice/pkg/msg"
 )
 
@@ -18,8 +17,6 @@ func scHelp(w io.Writer) error {
 		fmt.Fprintf(w, "\n*** https://github.com/rokath/trice ***\n\n")
 		fmt.Fprintf(w, "If a non-multi parameter is used more than one times the last value wins.\n")
 	}
-	cage.Enable(w)
-	defer cage.Disable(w)
 
 	fmt.Fprintln(w, "syntax: 'trice sub-command' [params]")
 	var ok bool

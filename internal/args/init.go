@@ -12,13 +12,18 @@ import (
 	"github.com/rokath/trice/internal/emitter"
 	"github.com/rokath/trice/internal/id"
 	"github.com/rokath/trice/internal/receiver"
-	"github.com/rokath/trice/pkg/cage"
 	"github.com/rokath/trice/pkg/cipher"
 )
 
-const defaultPrefix = "source: "
+const (
+	defaultPrefix = "source: "
+)
 
 var (
+
+	// LogfileName is the filename of the logfile. "off" inhibits logfile writing.
+	LogfileName = "off"
+
 	colorInfo = `The format strings can start with a lower or upper case channel information.
 See https://github.com/rokath/trice/blob/master/pkg/src/triceCheck.c for examples. Color options: 
 "off": Disable ANSI color. The lower case channel information is kept: "w:x"-> "w:x" 
@@ -231,16 +236,14 @@ Change the filename with "-binaryLogfile myName.bin" or switch logging off with 
 }
 
 func flagLogfile(p *flag.FlagSet) {
-	p.StringVar(&cage.Name, "logfile", "off", `Append all output to logfile. Options are: 'off|none|filename|auto':
+	p.StringVar(&LogfileName, "logfile", "off", `Append all output to logfile. Options are: 'off|none|filename|auto':
 "off": no logfile (same as "none")
 "none": no logfile (same as "off")
 "auto": Use as logfile name "2006-01-02_1504-05_trice.log" with actual time.
 "filename": Any other string than "auto", "none" or "off" is treated as a filename. If the file exists, logs are appended.
 All trice output of the appropriate subcommands is appended per default into the logfile trice additionally to the normal output.
 Change the filename with "-logfile myName.txt" or switch logging off with "-logfile none".
-`) // flag
-	//	p.StringVar(&cage.Name, "lg", "off", `Short for -logfile.
-	//`) // short flag
+`)
 }
 
 func flagSrcs(p *flag.FlagSet) {

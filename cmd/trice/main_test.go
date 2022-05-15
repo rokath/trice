@@ -38,7 +38,7 @@ func TestTriceWrong(t *testing.T) {
 	execHelper(t, expect)
 }
 
-func TestTriceVersion(t *testing.T) {
+func _TestTriceVersion(t *testing.T) {
 	version = "1.2.3"
 	commit = "myCommit"
 	date = "2006-01-02_1504-05"

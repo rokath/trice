@@ -11,7 +11,6 @@ import (
 	"strings"
 
 	"github.com/rokath/trice/internal/receiver"
-	"github.com/rokath/trice/pkg/cage"
 	"github.com/rokath/trice/pkg/msg"
 )
 
@@ -136,10 +135,6 @@ func newLineWriter(w io.Writer) (lwD lineWriter) {
 
 // New creates the emitter instance and returns a string writer to be used for emitting.
 func New(w io.Writer) *TriceLineComposer {
-	if !DisplayRemote {
-		cage.Enable(os.Stdout)
-		defer cage.Disable(os.Stdout)
-	}
 	if !TestTableMode { // do not change Prefix in TestTableMode
 		setPrefix()
 	}

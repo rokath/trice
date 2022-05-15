@@ -13,7 +13,6 @@ import (
 	"net/rpc"
 	"time"
 
-	"github.com/rokath/trice/pkg/cage"
 	"github.com/rokath/trice/pkg/msg"
 )
 
@@ -85,9 +84,6 @@ var (
 // ScDisplayServer is the endless function called when trice tool acts as remote display.
 // All in Server struct registered RPC functions are reachable, when displayServer runs.
 func ScDisplayServer(w io.Writer) error {
-	cage.Enable(w)
-	defer cage.Disable(w)
-
 	a := fmt.Sprintf("%s:%s", IPAddr, IPPort)
 	fmt.Fprintln(w, "displayServer @", a)
 	srv := new(server)

@@ -18,14 +18,13 @@ import (
 	"github.com/rokath/trice/internal/id"
 	"github.com/rokath/trice/internal/link"
 	"github.com/rokath/trice/internal/receiver"
-	"github.com/rokath/trice/pkg/cage"
 	"github.com/rokath/trice/pkg/cipher"
 	"github.com/rokath/trice/pkg/msg"
 )
 
 // Handler is called in main, evaluates args and calls the appropriate functions.
 // It returns for program exit.
-func Handler(w io.Writer, args []string) error {
+func Handler(args []string) error {
 
 	id.FnJSON = id.ConditionalFilePath(id.FnJSON)
 
@@ -35,7 +34,6 @@ func Handler(w io.Writer, args []string) error {
 			Date = fi.ModTime().String()
 		}
 	}
-	cage.DefaultLogfileName = "2006-01-02_1504-05_trice.log"
 
 	// Verify that a sub-command has been provided: os.Arg[0] is the main command (trice), os.Arg[1] will be the sub-command.
 	if len(args) < 2 {
@@ -53,44 +51,44 @@ func Handler(w io.Writer, args []string) error {
 		return fmt.Errorf("unknown sub-command '%s'. try: 'trice help|h'", subCmd)
 	case "h", "help":
 		msg.OnErr(fsScHelp.Parse(subArgs))
-		distributeArgs(w)
+		w := distributeArgs()
 		return scHelp(w)
 	case "s", "scan":
 		msg.OnErr(fsScScan.Parse(subArgs))
-		distributeArgs(w)
+		w := distributeArgs()
 		_, err := com.GetSerialPorts(w)
 		return err
 	case "ver", "version":
 		msg.OnErr(fsScVersion.Parse(subArgs))
-		distributeArgs(w)
+		w := distributeArgs()
 		return scVersion(w)
 	case "renew":
 		msg.OnErr(fsScRenew.Parse(subArgs))
-		distributeArgs(w)
+		w := distributeArgs()
 		return id.SubCmdReNewList(w)
 	case "r", "refresh":
 		msg.OnErr(fsScRefresh.Parse(subArgs))
-		distributeArgs(w)
+		w := distributeArgs()
 		return id.SubCmdRefreshList(w)
 	case "u", "update":
 		msg.OnErr(fsScUpdate.Parse(subArgs))
-		distributeArgs(w)
+		w := distributeArgs()
 		return id.SubCmdUpdate(w)
 	case "zeroSourceTreeIds":
 		msg.OnErr(fsScZero.Parse(subArgs))
-		distributeArgs(w)
+		w := distributeArgs()
 		return id.ScZero(w, *pSrcZ, fsScZero)
 	case "sd", "shutdown":
 		msg.OnErr(fsScSdSv.Parse(subArgs))
-		distributeArgs(w)
+		w := distributeArgs()
 		return emitter.ScShutdownRemoteDisplayServer(w, 0) // 0|1: 0=no 1=with shutdown timestamp in display server
 	case "ds", "displayServer":
 		msg.OnErr(fsScSv.Parse(subArgs))
-		distributeArgs(w)
+		w := distributeArgs()
 		return emitter.ScDisplayServer(w) // endless loop
 	case "l", "log":
 		msg.OnErr(fsScLog.Parse(subArgs))
-		distributeArgs(w)
+		w := distributeArgs()
 		logLoop(w) // endless loop
 		return nil
 	}
@@ -121,8 +119,7 @@ func logLoop(w io.Writer) {
 		}
 		decoder.ShowTargetTimestamp = "" // todo: justify this line
 	}
-	c := cage.Start(w, cage.Name)
-	defer cage.Stop(w, c)
+
 	var lu id.TriceIDLookUp
 	if id.FnJSON == "emptyFile" { // reserved name for tests only
 		lu = make(id.TriceIDLookUp)
@@ -146,7 +143,6 @@ func logLoop(w io.Writer) {
 		if e != nil {
 			fmt.Fprintln(w, e)
 			if !interrupted {
-				//cage.Stop(c)
 				return // hopeless
 			}
 			time.Sleep(1000 * time.Millisecond) // retry interval
@@ -168,8 +164,6 @@ func logLoop(w io.Writer) {
 
 // scVersion is sub-command 'version'. It prints version information.
 func scVersion(w io.Writer) error {
-	cage.Enable(w)
-	defer cage.Disable(w)
 	if verbose {
 		fmt.Fprintln(w, "https://github.com/rokath/trice")
 	}
@@ -181,18 +175,50 @@ func scVersion(w io.Writer) error {
 	return nil
 }
 
+func triceOutput(fn string) io.Writer {
+	// start logging only if fn not "none" or "off"
+	if fn == "none" || fn == "off" {
+		if verbose {
+			fmt.Println("No logfile writing...")
+		}
+		return os.Stdout
+	}
+
+	// defaultLogfileName is the pattern for default logfile name. The timestamp is replaced with the actual time.
+	defaultLogfileName := "2006-01-02_1504-05_trice.log"
+	if fn == "auto" {
+		fn = defaultLogfileName
+	}
+	// open logfile
+	if fn == defaultLogfileName {
+		fn = time.Now().Format(fn) // Replace timestamp in default log filename.
+	} // Otherwise, use cli defined log filename.
+
+	lfHandle, err := os.OpenFile(fn, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	msg.FatalOnErr(err)
+	if verbose {
+		fmt.Printf("Writing to logfile %s...\n", fn)
+	}
+
+	w := io.MultiWriter(os.Stdout, /*
+			os.Stderr,*/lfHandle)
+	return w
+}
+
 // distributeArgs is distributing values used in several packages.
 // It must not be called before the appropriate arg parsing.
-func distributeArgs(w io.Writer) {
-	//com.Verbose = verbose
+func distributeArgs() io.Writer {
+
 	id.Verbose = verbose
 	link.Verbose = verbose
-	cage.Verbose = verbose
 	decoder.Verbose = verbose
 	emitter.Verbose = verbose
 	receiver.Verbose = verbose
 	emitter.TestTableMode = decoder.TestTableMode
+
+	w := triceOutput(LogfileName)
 	evaluateColorPalette(w)
+	return w
 }
 
 // evaluateColorPalette
