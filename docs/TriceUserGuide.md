@@ -20,7 +20,9 @@
 		* 9.2.1. [Automated pre-build update command example](#Automatedpre-buildupdatecommandexample)
 		* 9.2.2. [Some Log examples](#SomeLogexamples)
 		* 9.2.3. [Logging over a display server](#Loggingoveradisplayserver)
-		* 9.2.4. [Set all IDs in a directory tree to 0](#SetallIDsinadirectorytreeto0)
+		* 9.2.4. [Logfile output](#Logfileoutput)
+		* 9.2.5. [TCP output](#TCPoutput)
+		* 9.2.6. [Set all IDs in a directory tree to 0](#SetallIDsinadirectorytreeto0)
 * 10. [Additional hints](#Additionalhints)
 	* 10.1. [Limitation "trice u" requires TRICE macros on a single line](#LimitationtriceurequiresTRICEmacrosonasingleline)
 	* 10.2. [Limitation TRICE in TRICE not possible](#LimitationTRICEinTRICEnotpossible)
@@ -801,7 +803,31 @@ trice l -ds -p COM3
 trice sd -r 192.168.1.23:45678
 ```
 
-####  9.2.4. <a name='SetallIDsinadirectorytreeto0'></a>Set all IDs in a directory tree to 0
+####  9.2.4. <a name='Logfileoutput'></a>Logfile output
+
+```bash
+trice -p COM3 -logfile auto
+```
+
+This creates a new logfile `2022-05-16_2216-40_trice.log` with the actual timestamp on each **trice** start.
+
+```bash
+trice -p COM3 -logfile trice.log
+```
+
+This creates a new logfile `trice.log` on first start and appends to it on each next **trice** start.
+
+####  9.2.5. <a name='TCPoutput'></a>TCP output
+
+```bash
+trice -p COM3 -tcp 127.0.0.1:23
+```
+
+This additionally sends **trice** output to a 3rd party TCP listener, for example like Putty:
+
+![./ref/PuttyConfig1.PNG](./ref/PuttyConfig1.PNG) ![./ref/PuttyConfig2.PNG](./ref/PuttyConfig2.PNG)
+![./ref/Putty.PNG](./ref/Putty.PNG)
+####  9.2.6. <a name='SetallIDsinadirectorytreeto0'></a>Set all IDs in a directory tree to 0
 
 ```bash
 trice zeroSourceTreeIds -src ./ 
