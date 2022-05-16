@@ -8,8 +8,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"log"
-	"net"
 	"os"
 	"sync"
 	"time"
@@ -188,7 +186,7 @@ func evaluateColorPalette(w io.Writer) {
 	}
 }
 
-var TriceOutWriter io.Writer
+//var TriceOutWriter io.Writer
 
 // distributeArgs is distributing values used in several packages.
 // It must not be called before the appropriate arg parsing.
@@ -201,20 +199,20 @@ func distributeArgs() io.Writer {
 	receiver.Verbose = verbose
 	emitter.TestTableMode = decoder.TestTableMode
 
-	TriceOutWriter = os.Stdout
-	w := triceOutput(LogfileName)
+	//TriceOutWriter = os.Stdout
+	w := triceOutput(os.Stdout, LogfileName)
 	evaluateColorPalette(w)
 	return w
 }
 
-// triceOutput returns a io.Writer to log to. If fn is given the returned io.Writer write a copy into the given file.
-func triceOutput(fn string) io.Writer {
+// triceOutput returns w as a a optional combined io.Writer. If fn is given the returned io.Writer write a copy into the given file.
+func triceOutput(w io.Writer, fn string) io.Writer {
 	// start logging only if fn not "none" or "off"
 	if fn == "none" || fn == "off" {
 		if verbose {
 			fmt.Println("No logfile writing...")
 		}
-		return os.Stdout
+		return w
 	}
 
 	// defaultLogfileName is the pattern for default logfile name. The timestamp is replaced with the actual time.
@@ -233,10 +231,10 @@ func triceOutput(fn string) io.Writer {
 		fmt.Printf("Writing to logfile %s...\n", fn)
 	}
 
-	w := io.MultiWriter(TriceOutWriter, lfHandle)
-	return w
+	return io.MultiWriter(w, lfHandle)
 }
 
+/*
 func CreateTCP4Server(addr string) {
 	// The net.Listen() function makes the program a TCP server. This functions returns a Listener variable, which is a generic network listener for stream-oriented protocols.
 	l, err := net.Listen("tcp", addr)
@@ -244,19 +242,21 @@ func CreateTCP4Server(addr string) {
 		log.Fatal(err)
 	}
 	defer l.Close()
-	for { // wait for a connection
-		// t is only after a successful call to Accept() that the TCP server can begin to interact with TCP clients.
-		conn, err := l.Accept()
-		if err != nil {
-			fmt.Println(err)
-			continue // try again
+	go func() {
+		for { // wait for a connection
+			// t is only after a successful call to Accept() that the TCP server can begin to interact with TCP clients.
+			conn, err := l.Accept()
+			if err != nil {
+				fmt.Println(err)
+				continue // try again
+			}
+			// a new connection exist, add it to the write list
+			TriceOutWriter = io.MultiWriter(TriceOutWriter, conn)
+			defer conn.Close()
 		}
-		// a new connection exist, add it to the write list
-		TriceOutWriter = io.MultiWriter(TriceOutWriter, conn)
-		defer conn.Close()
-	}
+	}()
 }
-
+*/
 /*
 // handleIncomingRequest is activated after an external connection
 func handleIncomingRequest(conn net.Conn) {

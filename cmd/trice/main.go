@@ -36,12 +36,42 @@ func doit(w io.Writer) {
 	args.Version = version
 	args.Commit = commit
 	args.Date = date
+	/*
+		const addr = "localhost:64000"
+		// The net.Listen() function makes the program a TCP server. This functions returns a Listener variable, which is a generic network listener for stream-oriented protocols.
+		fmt.Println("Listening on " + addr + "...")
+		listen, err := net.Listen("tcp", addr)
+		if err != nil {
+			log.Fatal(err)
+		}
+		//defer listen.Close()
+		go func() {
+			for { // wait for a connection
+				// t is only after a successful call to Accept() that the TCP server can begin to interact with TCP clients.
+				conn, err := listen.Accept()
+				fmt.Println("Accepting connection:", conn)
+				if err != nil {
+					fmt.Println(err)
+					continue // try again
+				}
+				fmt.Println("A new connection exist, add it to the write list.")
 
-	go args.CreateTCP4Server("localhost:65000")
-
+				// Make a buffer to hold incoming data.
+				buf := make([]byte, 1024)
+				reqLen, err := conn.Read(buf)
+				if err != nil {
+					fmt.Println("Error reading:", err.Error())
+				}
+				fmt.Println(string(buf[:reqLen]))
+				conn.Write([]byte("Trice connected...\n"))
+				//args.TriceOutWriter = conn //io.MultiWriter(args.TriceOutWriter, conn)
+				conn.Close()
+			}
+		}()
+	*/
 	rand.Seed(time.Now().UnixNano())
-	err := args.Handler(os.Args)
-	if nil != err {
-		fmt.Fprintln(w, error.Error(err))
+	e := args.Handler(os.Args)
+	if nil != e {
+		fmt.Fprintln(w, error.Error(e))
 	}
 }
