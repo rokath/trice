@@ -158,6 +158,9 @@ func logLoop(w io.Writer) {
 		if receiver.ShowInputBytes {
 			rc = receiver.NewBytesViewer(w, rc)
 		}
+		if receiver.BinaryLogfileName != "off" && receiver.BinaryLogfileName != "none" {
+			rc = receiver.NewBinaryLogger(w, rc)
+		}
 		e = decoder.Translate(w, sw, lu, m, rc)
 		if io.EOF == e {
 			return // end of predefined buffer

@@ -226,7 +226,7 @@ func flagsRefreshAndUpdate(p *flag.FlagSet) {
 }
 
 func flagBinaryLogfile(p *flag.FlagSet) {
-	p.StringVar(&receiver.BinaryFileName, "binaryLogfile", "off", `Append all output to logfile. Options are: 'off|none|filename|auto':
+	p.StringVar(&receiver.BinaryLogfileName, "binaryLogfile", "off", `Append all output to logfile. Options are: 'off|none|filename|auto':
 "off": no binary logfile (same as "none")
 "none": no binary logfile (same as "off")
 "auto": Use as binary logfile name "2006-01-02_1504-05_trice.bin" with actual time.

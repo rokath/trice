@@ -21,8 +21,9 @@
 		* 9.2.2. [Some Log examples](#SomeLogexamples)
 		* 9.2.3. [Logging over a display server](#Loggingoveradisplayserver)
 		* 9.2.4. [Logfile output](#Logfileoutput)
-		* 9.2.5. [TCP output](#TCPoutput)
-		* 9.2.6. [Set all IDs in a directory tree to 0](#SetallIDsinadirectorytreeto0)
+		* 9.2.5. [Binary Logfile](#BinaryLogfile)
+		* 9.2.6. [TCP output](#TCPoutput)
+		* 9.2.7. [Set all IDs in a directory tree to 0](#SetallIDsinadirectorytreeto0)
 * 10. [Additional hints](#Additionalhints)
 	* 10.1. [Limitation "trice u" requires TRICE macros on a single line](#LimitationtriceurequiresTRICEmacrosonasingleline)
 	* 10.2. [Limitation TRICE in TRICE not possible](#LimitationTRICEinTRICEnotpossible)
@@ -817,7 +818,26 @@ trice -p COM3 -logfile trice.log
 
 This creates a new logfile `trice.log` on first start and appends to it on each next **trice** start.
 
-####  9.2.5. <a name='TCPoutput'></a>TCP output
+Logfiles are text files one can see with 3rd party tools. Example: `cat trice.log`. They contain also the PC reception timestamps if where enabled.
+
+####  9.2.5. <a name='BinaryLogfile'></a>Binary Logfile
+
+```bash
+trice -p COM3 -binaryLogfile auto
+```
+
+This creates a new binary logfile `2022-05-16_2216-40_trice.bin` with the actual timestamp on each **trice** start.
+
+```bash
+trice -p COM3 -binaryLogfile trice.bin
+```
+
+This creates a new binary logfile `trice.bin` on first start and appends to it on each next **trice** start.
+
+Binary logfiles store the **trice** messages as they come out of the target in binary form. They are much smaller than normal logfiles, but the **trice** tool with the *til.sjon* is needed for displaying them and the PC timestamps are the displaying time: `trice -p FILEBUFFER -args trice.log`.
+
+Binary logfiles are handy in the field for long data recordings.
+####  9.2.6. <a name='TCPoutput'></a>TCP output
 
 ```bash
 trice -p COM3 -tcp 127.0.0.1:23
@@ -827,7 +847,7 @@ This additionally sends **trice** output to a 3rd party TCP listener, for exampl
 
 ![./ref/PuttyConfig1.PNG](./ref/PuttyConfig1.PNG) ![./ref/PuttyConfig2.PNG](./ref/PuttyConfig2.PNG)
 ![./ref/Putty.PNG](./ref/Putty.PNG)
-####  9.2.6. <a name='SetallIDsinadirectorytreeto0'></a>Set all IDs in a directory tree to 0
+####  9.2.7. <a name='SetallIDsinadirectorytreeto0'></a>Set all IDs in a directory tree to 0
 
 ```bash
 trice zeroSourceTreeIds -src ./ 
