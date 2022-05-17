@@ -218,6 +218,7 @@ func Translate(w io.Writer, sw *emitter.TriceLineComposer, lut id.TriceIDLookUp,
 func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec Decoder, lut id.TriceIDLookUp) error {
 	b := make([]byte, defaultSize) // intermediate trice string buffer
 	bufferReadStartTime := time.Now()
+	sleepCounter := 0
 	for {
 		n, err := dec.Read(b) // Code to measure, dec.Read can return n=0 in some cases and then wait.
 
@@ -236,9 +237,11 @@ func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec Decode
 			if Verbose {
 				fmt.Fprintln(w, err, "-> WAITING...")
 			}
-			//if receiver.Port == "FILE" {
-			time.Sleep(1 * time.Millisecond)
-			//}
+			sleepCounter++
+			if sleepCounter > 100 {
+				time.Sleep(10 * time.Millisecond)
+				sleepCounter = 0
+			}
 			continue // read again
 		}
 
