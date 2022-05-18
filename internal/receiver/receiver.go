@@ -42,6 +42,7 @@ import (
 	"net"
 	"os"
 	"strings"
+	"time"
 	"unicode"
 
 	"github.com/rokath/trice/internal/com"
@@ -80,8 +81,8 @@ var (
 	// Verbose gives more information on output if set. The value is injected from main packages.
 	Verbose bool
 
-	// BinaryFileName holds a filename to the trice messages are stored in binary form.
-	BinaryFileName string
+	// BinaryLogfileName holds a filename, the trice messages are stored to in binary form.
+	BinaryLogfileName string
 )
 
 // spaceStringsBuilder returns str without whitespaces.
@@ -262,6 +263,53 @@ func NewReadCloser(w io.Writer, verbose bool, port, args string) (r io.ReadClose
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+// log input                                                                                     //
+//                                                                                               //
+type binaryLogger struct {
+	w io.Writer
+	r io.ReadCloser
+}
+
+// NewBinaryLogger returns a ReadCloser `in` which is internally using reader `from`.
+// Calling the `in` Read method leads to internally calling the `from` Read method
+// but lets to do some additional logging
+func NewBinaryLogger(w io.Writer, from io.ReadCloser) (in io.ReadCloser) {
+	fn := BinaryLogfileName
+	if fn == "none" || fn == "off" || fn == "nul" || fn == "" {
+		return from
+	}
+	if fn == "auto" {
+		fn = time.Now().Format("2006-01-02_1504-05_trice.bin") // Replace timestamp in default log filename.
+	} // Otherwise, use cli defined log filename.
+
+	lfHandle, err := os.OpenFile(fn, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	msg.FatalOnErr(err)
+	if Verbose {
+		fmt.Fprintf(w, "Writing to trice input to binary logfile %s...\n", fn)
+	}
+
+	p := new(binaryLogger)
+	p.r = from
+	p.w = lfHandle
+	return p
+
+}
+
+func (p *binaryLogger) Read(buf []byte) (count int, err error) {
+	count, err = p.r.Read(buf)
+	if 0 < count || (err != nil && err != io.EOF) {
+		p.w.Write(buf[:count])
+	}
+	return
+}
+
+// Close is needed to satisfy the ReadCloser interface.
+func (p *binaryLogger) Close() error { return nil }
+
+//                                                                                               //
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 // dynamic debug                                                                                 //
 //                                                                                               //
 type bytesViewer struct {
@@ -279,7 +327,7 @@ func NewBytesViewer(w io.Writer, from io.ReadCloser) (in io.ReadCloser) {
 
 func (p *bytesViewer) Read(buf []byte) (count int, err error) {
 	count, err = p.r.Read(buf)
-	if 0 < count || (nil != err && io.EOF != err) {
+	if 0 < count || (err != nil && err != io.EOF) {
 		fmt.Fprint(p.w, "Input(")
 		for i, x := range buf[:count] {
 			if i < count-1 {
