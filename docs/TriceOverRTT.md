@@ -6,6 +6,11 @@
 >
 > **This document needs a rework, currently it is a mess, sorry!**
 
+<!-- TABLE OF CONTENTS -->
+<details>
+  <summary>Table of Contents</summary>
+  <ol>
+
 <!-- vscode-markdown-toc -->
 * 1. [Preface](#Preface)
 * 2. [For the impatient (2 possibilities)](#Fortheimpatient2possibilities)
@@ -38,12 +43,17 @@
 	/vscode-markdown-toc-config -->
 <!-- /vscode-markdown-toc -->
 
+  </ol>
+</details>
+
 ##  1. <a name='Preface'></a>Preface
 
 * This technique needs to be considered as experimental:
   * RTT works good with a SEGGER J-Link debug probe but needs some closed source software components.
   * Also ST-Link is usable, but maybe not parallel with debugging.
   * Most investigations where done with a [NUCLEO64-STM32F030R8 evaluation board](https://www.st.com/en/evaluation-tools/nucleo-f030r8.html) which contains an on-board debug probe reflashed with a SEGGER J-Link OB software (see below).
+
+<p align="right">(<a href="#top">back to top</a>)</p>
 
 ##  2. <a name='Fortheimpatient2possibilities'></a>For the impatient (2 possibilities)
 
@@ -62,6 +72,8 @@ The default SEGGER tools only suport RTT channel 0.
 * Start Git-Bash or s.th. similar: `trice l -p JLINK -args "-Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0`
   * Replace CLI details with your settings.
 * You may **not** need a **trice** tool restart after firmware reload.
+
+<p align="right">(<a href="#top">back to top</a>)</p>
 
 ##  3. <a name='SeggerRealTimeTransferRTT'></a>Segger Real Time Transfer (RTT) 
 
@@ -102,6 +114,7 @@ The default SEGGER tools only suport RTT channel 0.
          (default "default")
  ```
 
+<p align="right">(<a href="#top">back to top</a>)</p>
 
 ##  4. <a name='J-Linkoption'></a>J-Link option
 
@@ -215,6 +228,8 @@ The default SEGGER tools only suport RTT channel 0.
 
 -->
 
+<p align="right">(<a href="#top">back to top</a>)</p>
+
 ##  5. <a name='SeggerRTT'></a>Segger RTT
 
 * The main advantages are:
@@ -227,6 +242,8 @@ The default SEGGER tools only suport RTT channel 0.
   
   ![triceBlockDiagramWithSeggerRTT.svg](./ref/triceBlockDiagramWithSeggerRTTD.svg)
 
+<p align="right">(<a href="#top">back to top</a>)</p>
+
 ##  6. <a name='SeggerJ-LinkSDK800EUROption'></a>Segger J-Link SDK (~800 EUR) Option
 
 * Segger offers a SeggerRTT SDK which allows to use more than just channel 0 and you can develop your own tooling with it.
@@ -235,6 +252,7 @@ The default SEGGER tools only suport RTT channel 0.
   * "Developer pack used to write your own program for the J-Link. Please be sure you agree to the terms of the associated license found on the Licensing Information tab before purchasing this SDK. You will benefit from six months of free email support from the time that this product is ordered."
 * The main [Segger J-Link SDK](https://www.segger.com/products/debug-probes/j-link/technology/j-link-sdk/) disadvantage beside closed source and payment is: **One is not allowed to distribute binaries written with the SDK.** That makes it only interesting for company internal automatization.
 
+<p align="right">(<a href="#top">back to top</a>)</p>
 
 ##  7. <a name='AdditionalNotesleftovers'></a>Additional Notes (leftovers)
 
@@ -242,6 +260,8 @@ The default SEGGER tools only suport RTT channel 0.
 * Read the manual [UM08001_JLink.pdf](../third_party/segger.com/UM08001_JLink.pdf).
 * Extract `../third_party/segger.com/SEGGER_RTT_V760g.zip` to `../third_party/segger.com/SEGGER_RTT`. Check for an update @ SEGGER.
 * Add `SEGGER_RTTI.c` to target project
+
+<p align="right">(<a href="#top">back to top</a>)</p>
 
 ##  8. <a name='Furtherdevelopment'></a>Further development
 
@@ -278,6 +298,8 @@ libusb-1.0.23\examples\bin64> .\listdevs.exe
 * In this case `1366:0105 (bus 2, device 10) path: 5` is missing, so `vid=1366`, `did=0105` as example
 * On Windows install WSL2. The real Linux kernel is needed for full USB access.
 
+<p align="right">(<a href="#top">back to top</a>)</p>
+
 ##  9. <a name='NUCLEO-F030R8example'></a>NUCLEO-F030R8 example
 
 Info: [https://www.st.com/en/evaluation-tools/nucleo-f030r8.html](https://www.st.com/en/evaluation-tools/nucleo-f030r8.html)
@@ -301,6 +323,8 @@ Info: [https://www.st.com/en/evaluation-tools/nucleo-f030r8.html](https://www.st
   - When restarting the trice tool, a target reset occurs.
   - Other channel numbers than `0` seam not to work for some reason.
 
+<p align="right">(<a href="#top">back to top</a>)</p>
+
 ##  10. <a name='Possibleissues'></a>Possible issues
 
 * These boards seem not to work reliable with RTT over J-Link on-board firmware.
@@ -310,6 +334,8 @@ Info: [https://www.st.com/en/evaluation-tools/nucleo-f030r8.html](https://www.st
   * NUCLEO-G071RB
   * NUCLEO_G031K8
 * After flashing back the ST-LINK OB firmware with the SEGGER tool, it is recommended to use the ST tool to update the ST-LINK OB firmware. Otherwise issues could occur.
+
+<p align="right">(<a href="#top">back to top</a>)</p>
 
 ##  11. <a name='Links'></a>Links
 

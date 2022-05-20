@@ -5,6 +5,10 @@
 
 ![./ref/TriceCheckOutput.gif](./ref/TriceCheckOutput.gif)
 
+<details>
+  <summary>Table of Contents</summary>
+  <ol>
+
 <!-- vscode-markdown-toc -->
 * 1. [Description](#Description)
 * 2. [Abstract](#Abstract)
@@ -35,6 +39,10 @@
 	/vscode-markdown-toc-config -->
 <!-- /vscode-markdown-toc -->
 
+
+ </ol>
+</details>
+
 ##  1. <a name='Description'></a>Description
 
 *Trice* is an unusual software tracer-logger and consists of these parts to use:
@@ -52,6 +60,8 @@
 
 ![./ref/life0.gif](./ref/life0.gif)
 
+<p align="right">(<a href="#top">back to top</a>)</p>
+
 ##  2. <a name='Abstract'></a>Abstract
 
 If you develop software for an embedded system, you need some kind of system feedback. Debuggers are awesome tools, but when it comes to analyze dynamic behavior in the field, they are not usable.
@@ -63,6 +73,8 @@ Bigger micro-controllers are coming with embedded trace hardware. To use it, an 
 Unhappy with this situation, the developer starts thinking of using digital pins or starts emitting some proprietary LED blinking codes or byte sequences, difficult to interpret.
 
 The *Trice* technique tries to fill this gap, being minimal invasive for the target and as comfortable as possible. It is the result of a long-year dissatisfaction and several attempts to find a loophole to make embedded programming more fun and this way more effective.
+
+<p align="right">(<a href="#top">back to top</a>)</p>
 
 ##  3. <a name='AbriefhistoryofTrice'></a>A brief history of *Trice*
 
@@ -86,6 +98,8 @@ Learning that *Trice*  is also a [baby girl name](https://www.babynamespedia.com
 
 ![./ref/TriceGirlS.png](./ref/TriceGirlS.png)
 
+<p align="right">(<a href="#top">back to top</a>)</p>
+
 ##  4. <a name='Howitworks-themainidea'></a>How it works - the main idea
 
 *Trice* performs **no** [costly](./TriceVsPrintfSimilaritiesAndDifferences.md#printf-like-functions) printf-like functions on the target at all. The `TRICE` macro, instead, just copies an ID together with the optional values to a buffer and is done. In the minimum case this can happen in [6-8](./TriceSpeed.md) processor clocks even with target timestamps included. When running on a 64 MHz clock, **light can travel about 30 meters in that time**.
@@ -100,6 +114,8 @@ During runtime the PC **trice** tool receives all what happened in the last ~100
   ![./ref/triceCOBSBlockDiagram.svg](./ref/triceCOBSBlockDiagram.svg)
 
 The **trice** tool is a background helper giving the developer focus on its programming task. The once generated ID is not changed anymore without need. If for example the format string gets changed into `"msg: %d Kelvin!\n"`, a new ID is inserted automatically and the reference list gets extended. Obsolete IDs are kept inside the [**T**rice **I**D **L**ist](../til.json) for compatibility with older firmware versions. It could be possible, when merging code, an **ID** is used twice for different format strings. In that case, the **ID** inside the reference list wins and the additional source gets patched with a new **ID**. This maybe unwanted patching is avoidable with proper [ID management](./TriceIDManagement.md). The reference list should be kept under source code control.
+
+<p align="right">(<a href="#top">back to top</a>)</p>
 
 ##  5. <a name='Tricefeatures'></a>*Trice* features
 
@@ -199,9 +215,13 @@ The **trice** tool supports [many command line switches](./TriceUserGuide.md#9-o
 
 The encryption opportunity makes it possible to test thoroughly a binary with log output and releasing it without the need to change any bit but to make the log output unreadable for a not authorized person. Implemented is the lightweight [XTEA](https://de.wikipedia.org/wiki/Extended_Tiny_Encryption_Algorithm) as option, what will do for many cases. It should be no big deal to add a different algorithm.
 
+<p align="right">(<a href="#top">back to top</a>)</p>
+
 ##  6. <a name='Bottomline'></a> Bottom line
 
 The *Trice* technique is new and still under development. Additional tests and bug fixing is necessary. A **trice** tool [configuration file](./TriceConfiguration.md#host-configuration-file) and interfacing [Grafana](https://grafana.com/) or similar tools would be possible extensions. Getting started with *Trice* will take a few hours, but probably pay off during the further development.
+
+<p align="right">(<a href="#top">back to top</a>)</p>
 
 ##  7. <a name='Afewmaybeinterestinglinks'></a>A few maybe interesting links
 

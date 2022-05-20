@@ -1,6 +1,11 @@
 # *Trice* user guide
 
-> _(Read this)_
+> _(Read this)
+
+<!-- TABLE OF CONTENTS -->
+<details>
+  <summary>Table of Contents</summary>
+  <ol>
 
 <!-- vscode-markdown-toc -->
 * 1. [Project structure](#Projectstructure)
@@ -25,11 +30,17 @@
 		* 9.2.6. [TCP output](#TCPoutput)
 		* 9.2.7. [Set all IDs in a directory tree to 0](#SetallIDsinadirectorytreeto0)
 * 10. [Additional hints](#Additionalhints)
-	* 10.1. [Limitation "trice u" requires TRICE macros on a single line](#LimitationtriceurequiresTRICEmacrosonasingleline)
-	* 10.2. [Limitation TRICE in TRICE not possible](#LimitationTRICEinTRICEnotpossible)
-	* 10.3. [Dynamic strings/buffers only as variable inside `TRICE` macros](#DynamicstringsbuffersonlyasvariableinsideTRICEmacros)
-	* 10.4. [Logfile viewing](#Logfileviewing)
-	* 10.5. [Executing `go test ./...`](#Executinggotest....)
+	* 10.1. [Pre-built executables are available](#Pre-builtexecutablesareavailable)
+	* 10.2. [Configuration file `triceConfig.h`](#ConfigurationfiletriceConfig.h)
+	* 10.3. [Setting up the very first connection](#Settinguptheveryfirstconnection)
+	* 10.4. [Avoid buffer overruns](#Avoidbufferoverruns)
+	* 10.5. [Limitation "trice u" requires TRICE macros on a single line](#LimitationtriceurequiresTRICEmacrosonasingleline)
+	* 10.6. [Limitation TRICE in TRICE not possible](#LimitationTRICEinTRICEnotpossible)
+	* 10.7. [Dynamic strings/buffers only as variable inside `TRICE` macros](#DynamicstringsbuffersonlyasvariableinsideTRICEmacros)
+	* 10.8. [Logfile viewing](#Logfileviewing)
+	* 10.9. [Using the `trice` tool with 3rd party tools](#Usingthetricetoolwith3rdpartytools)
+	* 10.10. [Several targets at the same time](#Severaltargetsatthesametime)
+	* 10.11. [Executing `go test ./...`](#Executinggotest....)
 * 11. [Target side *Trice* On-Off](#TargetsideTriceOn-Off)
 * 12. [Host side *Trice* On-Off](#HostsideTriceOn-Off)
 * 13. [Using a different encoding](#Usingadifferentencoding)
@@ -38,7 +49,10 @@
 	numbering=true
 	autoSave=true
 	/vscode-markdown-toc-config -->
-<!-- /vscode-markdown-toc -->
+<!-- /vscode-markdown-toc --><div id="top"></div>
+
+  </ol>
+</details>
 
 ##  1. <a name='Projectstructure'></a>Project structure
 
@@ -52,6 +66,8 @@
 | pkg/src/     | C sources for trice instrumentation             |
 | test/        | example target projects                         |
 | third_party/ | external components                             |
+
+<p align="right">(<a href="#top">back to top</a>)</p>
 
 ##  2. <a name='Getstarted'></a>Get started
 
@@ -91,6 +107,8 @@
 >>>      * Hint: Only source.c files with a `#include "trice.h"` line get patched.
 * When the program runs later it should output something similar to![./ref/1div11.PNG](./ref/1div11.PNG)
 
+<p align="right">(<a href="#top">back to top</a>)</p>
+
 ##  3. <a name='BuildtricetoolfromGosourcesyoucanskipthat'></a>Build `trice` tool from Go sources (you can skip that)
 
 * Install [Go](https://golang.org/).
@@ -112,6 +130,8 @@ Afterwards you should find an executable `trice` inside $GOPATH/bin/ and you can
 
 * The used serial Go driver package is Linux & Windows tested but should work on MacOS soon too.
 * For historical reasons there are 2 serial drivers inside the **trice** tool. This will be changed.
+
+<p align="right">(<a href="#top">back to top</a>)</p>
 
 ##  4. <a name='Embeddedsystemcodesetup'></a>Embedded system code setup
 
@@ -152,6 +172,8 @@ Afterwards you should find an executable `trice` inside $GOPATH/bin/ and you can
 * It is sufficient for most cases just to use the `TRICE` macro with max 0 to 12 parameters as a replacement for `printf` and to use the default settings.
   * For more compact transfer consider `TRICE8` & `TRICE16` macros or if `double` is needed use `TRICE64`.
   * Further reading: [TriceVsPrintfSimilaritiesAndDifferences.md](TriceVsPrintfSimilaritiesAndDifferences.md).
+
+<p align="right">(<a href="#top">back to top</a>)</p>
 
 ##  5. <a name='Adaptyourlegacysourcecode'></a>Adapt your legacy source code
 
@@ -252,6 +274,8 @@ The function call overhead is reasonable and the advantage is significant less c
 
 -->
 
+<p align="right">(<a href="#top">back to top</a>)</p>
+
 ##  6. <a name='tricetoolinloggingaction'></a>`trice` tool in logging action
 
 <!--
@@ -332,6 +356,8 @@ Quick workaround:
   This way you cannot forget the update step, it performs automatically.
 -->
 
+<p align="right">(<a href="#top">back to top</a>)</p>
+
 ##  7. <a name='Encryption'></a>Encryption
 
 * You can deliver your device with encrypted trices. This way only the service is able to read the *Trices*.
@@ -339,6 +365,8 @@ Quick workaround:
 * The to 8 byte padded blocks can get encrypted by enabling `#define ENCRYPT...` inside *triceConfig.h*. You need to add `-key test` as **log** switch and you're done.
 * Any password is usable instead of `test`. Simply add once the `-show` switch and copy the displayed passphrase into the *config.h* file.
 * The encryption takes part **before** the [COBS](https://en.wikipedia.org/wiki/Consistent_Overhead_Byte_Stuffing) encoding.
+
+<p align="right">(<a href="#top">back to top</a>)</p>
 
 ##  8. <a name='CLIOptionsfortricetool'></a>CLI Options for `trice` tool
 
@@ -737,6 +765,8 @@ example: 'trice zeroSourceTreeIds -src ../A': Sets all TRICE IDs to 0 in ../A. U
 
 ```
 
+<p align="right">(<a href="#top">back to top</a>)</p>
+
 ##  9. <a name='Tricecommandlineexamples'></a>*Trice* command line examples
 
 * The **trice** tool has many command line options, but is easy to use with default values.
@@ -858,14 +888,40 @@ trice zeroSourceTreeIds -src ./
 * Normally nobody uses that. But if you intend to integrate some existing sources into a project using [ID management](./TriceIDManagement.md) options, this could be a need.
 * Calling `trice u` afterwards will assign new IDs, but calling `trice u -shared IDs` will assign the same IDs again.
 
+<p align="right">(<a href="#top">back to top</a>)</p>
+
 ##  10. <a name='Additionalhints'></a>Additional hints
 
-###  10.1. <a name='LimitationtriceurequiresTRICEmacrosonasingleline'></a>Limitation "trice u" requires TRICE macros on a single line
+###  10.1. <a name='Pre-builtexecutablesareavailable'></a>Pre-built executables are available
+
+See [https://github.com/rokath/trice/releases](https://github.com/rokath/trice/releases).
+###  10.2. <a name='ConfigurationfiletriceConfig.h'></a>Configuration file `triceConfig.h`
+
+* When setting up your first project you need a `triceConfig.h` file.
+* You should **not** use the `./pkg/src/inc/triceConfig.h` because it is customized for internal tests with CGO.
+* Please choose one of the `./test/.../triceConfig.h` files as starting point.
+* Comparing them and understandig the differences helps quick starting.
+
+###  10.3. <a name='Settinguptheveryfirstconnection'></a>Setting up the very first connection
+
+If you see nothing in the beginning, what is normally ;-), add the `-s` (`-showInputBytes`) switch to see if any data arrive. There is also a switch `-debug` showing you the received packages, if you are interested in.
+
+###  10.4. <a name='Avoidbufferoverruns'></a>Avoid buffer overruns
+
+It is your responsibility to produce less data than transmittable. If this is not guarantied a data loss is not avoidable or you have to slow down the program. The double buffer as fastest solution has no overflow check. My recommendation: Make the buffer big and emit the maxDepth cyclically, every 10 or 1000 seconds. Then you know the needed size. It is influenced by the max trice burst and the buffer switch interval.
+
+If the target application produces more *Trice* data than transmittable, a buffer overrun can let the target crash, because for performance reasons no overflow check is implemented in the double buffer. Also if such a check is added, the *Trice* code can only throw data away in such case.
+
+It is planned to make the code secure against buffer overruns in the future. But anyway data losses will occur when producing more data than transmittable.
+That is detectable with the cycle counter. The internal 8-bit cycle counter is usually enabled. If *Trice* data are lost, the receiver side will detect that because the cycle counter is not as expected. There is a chance of 1/256 that the detection does not work. You can check the detection by unplugging the trice UART cable for a time. Also resetting the target during transmission should display a cycle error.
+
+
+###  10.5. <a name='LimitationtriceurequiresTRICEmacrosonasingleline'></a>Limitation "trice u" requires TRICE macros on a single line
 
 * The implemented parser (currently) does not support `TRICE` macros over several source code lines. Each `TRICE` macro needs to be completely on one line.
 * It is possible to have several (complete) `TRICE` macros on one source code line.
 
-###  10.2. <a name='LimitationTRICEinTRICEnotpossible'></a>Limitation TRICE in TRICE not possible
+###  10.6. <a name='LimitationTRICEinTRICEnotpossible'></a>Limitation TRICE in TRICE not possible
 
 * No-Good Example:
 * 
@@ -885,7 +941,7 @@ int f0( void ){ TRICE( "msg:f0\n"); return 0; }
 void f1( void ){ int x = f0(); TRICE( "Yes: %d", x ); }
 ```
 
-###  10.3. <a name='DynamicstringsbuffersonlyasvariableinsideTRICEmacros'></a>Dynamic strings/buffers only as variable inside `TRICE` macros
+###  10.7. <a name='DynamicstringsbuffersonlyasvariableinsideTRICEmacros'></a>Dynamic strings/buffers only as variable inside `TRICE` macros
 
 * No-Good Example:
 
@@ -921,7 +977,7 @@ TRICE_S( "msg:This part of the string is known at compile time. This part is dyn
 All the string literals (i.e. compile-time know strings) should be put inside the format string.
 Only the dynamic strings should be used as variables in TRICE_S macro.
 
-###  10.4. <a name='Logfileviewing'></a>Logfile viewing
+###  10.8. <a name='Logfileviewing'></a>Logfile viewing
 
 Logfiles, **trice** tool generated with sub-command switch `-color off`, are normal ASCII files. If they are with color codes, these are ANSI escape sequences.
 
@@ -929,9 +985,19 @@ Logfiles, **trice** tool generated with sub-command switch `-color off`, are nor
 * Under Windows one could also download and use [ansifilter](https://sourceforge.net/projects/ansifilter/) for logfile viewing. A monospaced font is recommended.
 * See also [Color issues under Windows](./TriceColor.md#color-issues-under-windows)
 
-###  10.5. <a name='Executinggotest....'></a>Executing `go test ./...`
+###  10.9. <a name='Usingthetricetoolwith3rdpartytools'></a>Using the `trice` tool with 3rd party tools
+
+Parallel output as logfile, TCP or binary logfile is possible. See examples above.
+
+###  10.10. <a name='Severaltargetsatthesametime'></a>Several targets at the same time
+
+You can connect each target over its transmit channel with a own **trice** instance and let integrate all transmissions line by line in an additional **trice** instance acting as display server. See [https://github.com/rokath/trice#display-server-option](https://github.com/rokath/trice#display-server-option).
+
+###  10.11. <a name='Executinggotest....'></a>Executing `go test ./...`
 
 The C-code is executed during some tests. Prerequisite is a installed GCC.
+
+<p align="right">(<a href="#top">back to top</a>)</p>
 
 ##  11. <a name='TargetsideTriceOn-Off'></a>Target side *Trice* On-Off
 
@@ -946,10 +1012,14 @@ The C-code is executed during some tests. Prerequisite is a installed GCC.
 * Because of the low *Trice* bandwidth needs and to keep the target code as clear as possible the runtime On-Off decision should be done by the **trice** tool.
 * See also issue [#243](https://github.com/rokath/trice/issues/243).
 
+<p align="right">(<a href="#top">back to top</a>)</p>
+
 ##  12. <a name='HostsideTriceOn-Off'></a>Host side *Trice* On-Off
 
 * The PC **trice** tool offers command line switches to `-pick` or `-ban` for *trice* channels and will be extended with display switches.
 * A **trice** tool logLevel switch is usable too (Issue [#236](https://github.com/rokath/trice/issues/236)).
+
+<p align="right">(<a href="#top">back to top</a>)</p>
 
 ##  13. <a name='Usingadifferentencoding'></a>Using a different encoding
 
@@ -957,6 +1027,9 @@ It is possible to exchange the code behind the `TRICE` macros with a different e
 The ID assignment is adjustable with `-IDMin` and `-IDMax`.
 
 <!--
+
+<p align="right">(<a href="#top">back to top</a>)</p>
+
 //##  14. <a name='Sub-commandcheckNotimplemented'></a>Sub-command `check` (Not implemented!)
 
 * `trice check` will check the JSON list and emit all TRICE statements inside the list once with a dataset.
