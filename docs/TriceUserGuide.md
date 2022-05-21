@@ -128,8 +128,10 @@ go install ./...
 
 Afterwards you should find an executable `trice` inside $GOPATH/bin/ and you can modify its source code.
 
+<!--
 * The used serial Go driver package is Linux & Windows tested but should work on MacOS soon too.
 * For historical reasons there are 2 serial drivers inside the **trice** tool. This will be changed.
+-->
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -199,12 +201,12 @@ Care must be taken in the following cases:
 
 * More than 12 printf parameters: use several printf-calls
 * float numbers: surround each with `aFloat()`
-* double numbers: surround each with `aDouble` and use the `TRICE64` macro
+* double numbers: surround each with `aDouble()` and use the `TRICE64` macro
 * runtime generated strings: Each needs its own `TRICE_S` macro, example: 
   * Legacy code: `printf( "Entered name is %20s %30s, favorite numbers %d, %f\n", "Paul", "Luap", 42, 3.14159 );`
   * Trice code 1: `name = "Paul"; TRICE_S( "Entered name is %20s", name );`
   * Trice code 2: `surname = "Luap";  TRICE_S( " %30s, ", surname );`
-  * Trice code 3: `TRICE( "favorite numbers %d, %f\n", "Paul", "Reichelt", 42, aFloat(3.14159) );`
+  * Trice code 3: `TRICE( "favorite numbers %d, %f\n", 42, aFloat(3.14159) );`
 
 
 <!--
@@ -924,7 +926,7 @@ That is detectable with the cycle counter. The internal 8-bit cycle counter is u
 ###  10.6. <a name='LimitationTRICEinTRICEnotpossible'></a>Limitation TRICE in TRICE not possible
 
 * No-Good Example:
-* 
+
 ```C
 int f0( void ){ TRICE( "msg:f0\n"); return 0; }
 void f1( void ){ TRICE( "No; %d", f0() ); }
@@ -974,14 +976,14 @@ char dynamic_string[50];
 fillDynamicStringFromSomewhere(dynamic_string);   /* the content of dynamic_string is filled at run time */
 TRICE_S( "msg:This part of the string is known at compile time. This part is dynamic: %s\n", dynamic_string);
 ```
-All the string literals (i.e. compile-time know strings) should be put inside the format string.
+All the string literals (i.e. compile-time known strings) should be put inside the format string.
 Only the dynamic strings should be used as variables in TRICE_S macro.
 
 ###  10.8. <a name='Logfileviewing'></a>Logfile viewing
 
 Logfiles, **trice** tool generated with sub-command switch `-color off`, are normal ASCII files. If they are with color codes, these are ANSI escape sequences.
 
-* One easy view option is `less -R trice.log`. The Linux command `less` is also available inside the windows git bash.
+* Simply `cat trice.log`. One view option is also `less -R trice.log`. The Linux command `less` is also available inside the windows git bash.
 * Under Windows one could also download and use [ansifilter](https://sourceforge.net/projects/ansifilter/) for logfile viewing. A monospaced font is recommended.
 * See also [Color issues under Windows](./TriceColor.md#color-issues-under-windows)
 
@@ -993,7 +995,7 @@ Parallel output as logfile, TCP or binary logfile is possible. See examples abov
 
 You can connect each target over its transmit channel with a own **trice** instance and let integrate all transmissions line by line in an additional **trice** instance acting as display server. See [https://github.com/rokath/trice#display-server-option](https://github.com/rokath/trice#display-server-option).
 
-###  10.11. <a name='Executinggotest....'></a>Executing `go test ./...`
+###  10.11. <a name='Executinggotest....'></a>Executing `go test -race -count 100 ./...`
 
 The C-code is executed during some tests. Prerequisite is a installed GCC.
 
