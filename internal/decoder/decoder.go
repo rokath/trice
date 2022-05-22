@@ -19,6 +19,7 @@ import (
 
 	"github.com/rokath/trice/internal/emitter"
 	"github.com/rokath/trice/internal/id"
+	"github.com/rokath/trice/internal/keybcmd"
 	"github.com/rokath/trice/internal/receiver"
 	"github.com/rokath/trice/pkg/msg"
 )
@@ -210,7 +211,11 @@ func Translate(w io.Writer, sw *emitter.TriceLineComposer, lut id.TriceIDLookUp,
 	default:
 		log.Fatalf(fmt.Sprintln("unknown encoding ", Encoding))
 	}
-	go handleSIGTERM(w, rc)
+	if emitter.DisplayRemote {
+		keybcmd.ReadInput()
+	} else {
+		go handleSIGTERM(w, rc)
+	}
 	return decodeAndComposeLoop(w, sw, dec, lut)
 }
 
@@ -234,12 +239,12 @@ func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec Decode
 				msg.OnErr(err)
 				return io.EOF
 			}
-			if Verbose {
-				fmt.Fprintln(w, err, "-> WAITING...")
-			}
+			//  if Verbose {
+			//  	fmt.Fprintln(w, err, "-> WAITING...")
+			//  }
 			sleepCounter++
 			if sleepCounter > 100 {
-				time.Sleep(10 * time.Millisecond)
+				time.Sleep(100 * time.Millisecond)
 				sleepCounter = 0
 			}
 			continue // read again

@@ -4,47 +4,53 @@
 // Package keybcmd is responsible for interpreting user commandline and executing commands
 package keybcmd
 
-//  func loopAction(reader *bufio.Reader, ipa, ipp string) {
-//  	fmt.Print("-> ")
-//  	text, _ := reader.ReadString('\n')
-//  	// convert CRLF to LF
-//  	e := "\n"
-//  	if runtime.GOOS == "windows" {
-//  		e = "\r\n"
-//  	}
-//  	text = strings.Replace(text, e, "", -1) // Linux "\n" !
-//
-//  	switch text {
-//  	case "q", "quit":
-//  		os.Exit(0)
-//  	case "h", "help":
-//  		fmt.Println("h|help                   - this text")
-//  		fmt.Println("exitServer|serverExit    - kill server")
-//  		fmt.Println("q|quit                   - end program")
-//  	case "sd", "stopServer", "serverStop":
-//  		err := emitter.ScShutdownRemoteDisplayServer(1, ipa, ipp)
-//  		if nil != err {
-//  			fmt.Println(err)
-//  		}
-//  	default:
-//  		fmt.Printf("Unknown command '%s' - use 'help'\n", text)
-//  	}
-//  }
+import (
+	"bufio"
+	"fmt"
+	"os"
+	"strings"
 
-//  // ReadInput expects user input from terminal
-//  func ReadInput() { // https://tutorialedge.net/golang/reading-console-input-golang/
-//  	reader := bufio.NewReader(os.Stdin)
-//  	keyboardInput(reader)
-//  }
+	"github.com/rokath/trice/internal/emitter"
+)
 
-//  // keyboardInput expects input from reader
-//  func keyboardInput(reader *bufio.Reader) { // https://tutorialedge.net/golang/reading-console-input-golang/
-//  	fmt.Println("Simple Shell")
-//  	fmt.Println("------------")
-//
-//  	go func() {
-//  		for {
-//  			loopAction(reader, emitter.IPAddr, emitter.IPPort)
-//  		}
-//  	}() // https://stackoverflow.com/questions/16008604/why-add-after-closure-body-in-golang
-//  }
+func loopAction(reader *bufio.Reader, ipa, ipp string) {
+	fmt.Print("-> ")
+	text, _ := reader.ReadString('\n')
+	text = strings.Replace(text, "\r", "", -1) // Windows "\r\n" !
+	text = strings.Replace(text, "\n", "", -1) // Linux "\n" !
+
+	switch text {
+	case "q", "quit":
+		os.Exit(0)
+	case "sd", "shutdown":
+		err := emitter.ScShutdownRemoteDisplayServer(os.Stdout, 1, ipa, ipp)
+		if nil != err {
+			fmt.Println(err)
+		}
+	case "h", "help":
+		fmt.Println("h|help      - this text")
+		fmt.Println("sd|shutdown - kill trice display server (ends also this trice console)")
+		fmt.Println("q|quit      - end trice console (keeps the trice display server active)")
+		fmt.Println("Other commands are written to target.")
+	default:
+		fmt.Printf("Command '%s'\n", text)
+	}
+}
+
+// ReadInput expects user input from terminal
+func ReadInput() { // https://tutorialedge.net/golang/reading-console-input-golang/
+	reader := bufio.NewReader(os.Stdin)
+	keyboardInput(reader)
+}
+
+// keyboardInput expects input from reader
+func keyboardInput(reader *bufio.Reader) { // https://tutorialedge.net/golang/reading-console-input-golang/
+	fmt.Println("Simple Shell (try 'help'):")
+	fmt.Println("--------------------------")
+
+	go func() {
+		for {
+			loopAction(reader, emitter.IPAddr, emitter.IPPort)
+		}
+	}() // https://stackoverflow.com/questions/16008604/why-add-after-closure-body-in-golang
+}

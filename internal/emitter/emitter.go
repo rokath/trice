@@ -126,7 +126,6 @@ func newLineWriter(w io.Writer) (lwD LineWriter) {
 		p := newRemoteDisplay(w, os.Args)
 		msg.FatalOnErr(p.Err)
 		lwD = p
-		// keybcmd.ReadInput()
 	} else {
 		lwD = newColorDisplay(w, ColorPalette)
 	}
