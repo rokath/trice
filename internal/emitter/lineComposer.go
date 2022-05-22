@@ -13,7 +13,7 @@ const SyncPacketPattern = "inf:[TRICE_SYNC_PACKET 0x89abcdef]"
 
 // TriceLineComposer collects all partial strings forming one line.
 type TriceLineComposer struct {
-	lw              lineWriter // internal interface
+	lw              LineWriter // internal interface
 	timestampFormat string
 	prefix          string
 	suffix          string
@@ -24,7 +24,7 @@ type TriceLineComposer struct {
 // newLineComposer constructs log lines according to these rules:...
 // It provides an io.StringWriter interface which is used for the reception of (trice) strings.
 // It uses lw for writing the generated lines.
-func newLineComposer(lw lineWriter) *TriceLineComposer {
+func newLineComposer(lw LineWriter) *TriceLineComposer {
 	p := &TriceLineComposer{lw, TimestampFormat, Prefix, Suffix, make([]string, 0, 4096), nil} // not more than 4096 strings per line expected
 	return p
 }
@@ -121,7 +121,7 @@ func (p *TriceLineComposer) WriteString(s string) (n int, err error) {
 }
 
 func (p *TriceLineComposer) completeLine() {
-	p.lw.writeLine(p.Line)
+	p.lw.WriteLine(p.Line)
 	p.Line = p.Line[:0]
 	NextLine = true
 }

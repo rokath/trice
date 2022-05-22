@@ -65,9 +65,9 @@ func newCheckDisplay() *checkDisplay {
 	return p
 }
 
-// writeLine is the implemented Linewriter interface for checkDisplay.
+// WriteLine is the implemented Linewriter interface for checkDisplay.
 // It appends written lines to the internal data.
-func (p *checkDisplay) writeLine(line []string) {
+func (p *checkDisplay) WriteLine(line []string) {
 	s := strings.Join(line, "")
 	p.lines = append(p.lines, s)
 }

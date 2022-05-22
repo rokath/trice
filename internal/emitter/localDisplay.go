@@ -39,8 +39,8 @@ func (p *localDisplay) errorFatal() {
 	log.Fatal(p.Err, filepath.Base(file), line)
 }
 
-// writeLine is the implemented Linewriter interface for localDisplay.
-func (p *localDisplay) writeLine(line []string) {
+// WriteLine is the implemented Linewriter interface for localDisplay.
+func (p *localDisplay) WriteLine(line []string) {
 	p.errorFatal()
 	s := strings.Join(line, "")
 	_, p.Err = fmt.Fprintln(p.w, s)
@@ -51,7 +51,7 @@ func (p *localDisplay) writeLine(line []string) {
 // It embeds a local display and a line transformer
 type colorDisplay struct {
 	display *localDisplay
-	lw      lineWriter
+	lw      LineWriter
 }
 
 // newColorDisplay creates a ColorDisplay. It provides a Linewriter.
@@ -69,9 +69,9 @@ func newColorDisplay(w io.Writer, colorPalette string) *colorDisplay {
 	return cD
 }
 
-// writeLine is the implemented Linewriter interface for localDisplay.
-func (p *colorDisplay) writeLine(line []string) {
+// WriteLine is the implemented Linewriter interface for localDisplay.
+func (p *colorDisplay) WriteLine(line []string) {
 
-	// calling p.lw writeLine method activates here: func (p *lineTransformerANSI) writeLine(line []string)
-	p.lw.writeLine(line)
+	// calling p.lw WriteLine method activates here: func (p *lineTransformerANSI) WriteLine(line []string)
+	p.lw.WriteLine(line)
 }

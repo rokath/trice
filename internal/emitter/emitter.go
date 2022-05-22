@@ -92,11 +92,11 @@ func (i *channelArrayFlag) Set(value string) error {
 	return nil
 }
 
-// lineWriter is the common interface for output devices.
+// LineWriter is the common interface for output devices.
 // The string slice `line` contains all string parts of one line including prefix and suffix.
 // The last string part is without newline char and must be handled by the output device.
-type lineWriter interface {
-	writeLine([]string)
+type LineWriter interface {
+	WriteLine([]string)
 }
 
 //  // baseName returns basic filename of program without extension
@@ -113,7 +113,7 @@ type lineWriter interface {
 //  }
 
 // newLineWriter provides a lineWriter which can be a remote Display or the local console.
-func newLineWriter(w io.Writer) (lwD lineWriter) {
+func newLineWriter(w io.Writer) (lwD LineWriter) {
 	if DisplayRemote {
 		//var p *RemoteDisplay
 		//  var args []string

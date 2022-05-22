@@ -234,6 +234,7 @@ func flagBinaryLogfile(p *flag.FlagSet) {
 All trice output of the appropriate subcommands is appended per default into the logfile trice additionally to the normal output.
 Change the filename with "-binaryLogfile myName.bin" or switch logging off with "-binaryLogfile none".
 `)
+	p.StringVar(&receiver.BinaryLogfileName, "blf", "off", "Short for binaryLogfile")
 }
 
 func flagLogfile(p *flag.FlagSet) {
@@ -245,6 +246,7 @@ func flagLogfile(p *flag.FlagSet) {
 All trice output of the appropriate subcommands is appended per default into the logfile trice additionally to the normal output.
 Change the filename with "-logfile myName.txt" or switch logging off with "-logfile none".
 `)
+	p.StringVar(&LogfileName, "lf", "off", "Short for logfile")
 }
 
 func flagSrcs(p *flag.FlagSet) {

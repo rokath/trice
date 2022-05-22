@@ -23,8 +23,8 @@ func _TestRemoteDisplay(t *testing.T) {
 	p := NewRemoteDisplay(os.Stdout,name, "-logfile "+afn, "localhost", ipp)
 	l1 := []string{"This is ", "the 1st ", "line"}
 	l2 := []string{"This is ", "the 2nd ", "line"}
-	p.writeLine(l1)
-	p.writeLine(l2)
+	p.WriteLine(l1)
+	p.WriteLine(l2)
 	p.stopServer(0)
 	time.Sleep(100 * time.Millisecond)
 	expLines, expErr := readLines(efn)

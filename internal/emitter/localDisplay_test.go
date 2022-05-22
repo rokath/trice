@@ -10,8 +10,8 @@ func Example_newLocalDisplay() {
 	p := newLocalDisplay(os.Stdout)
 	l1 := []string{"This is ", "the 1st ", "line"}
 	l2 := []string{"This is ", "the 2nd ", "line"}
-	p.writeLine(l1)
-	p.writeLine(l2)
+	p.WriteLine(l1)
+	p.WriteLine(l2)
 	// Output:
 	// This is the 1st line
 	// This is the 2nd line
@@ -21,8 +21,8 @@ func Example_newColorDisplay() {
 	p := newColorDisplay(os.Stdout, "none")
 	l1 := []string{"msg:This is ", "the 1st ", "line"}
 	l2 := []string{"MSG:This is ", "the 2nd ", "line"}
-	p.writeLine(l1)
-	p.writeLine(l2)
+	p.WriteLine(l1)
+	p.WriteLine(l2)
 	// Output:
 	// This is the 1st line
 	// MSG:This is the 2nd line

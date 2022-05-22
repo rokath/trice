@@ -62,10 +62,10 @@ func (p *remoteDisplay) errorFatal() {
 	log.Fatal(p.Err, filepath.Base(file), line)
 }
 
-// writeLine is implementing the Linewriter interface for RemoteDisplay.
-func (p *remoteDisplay) writeLine(line []string) {
+// WriteLine is implementing the Linewriter interface for RemoteDisplay.
+func (p *remoteDisplay) WriteLine(line []string) {
 	p.errorFatal()
-	p.Err = p.PtrRPC.Call("Server.WriteLine", line, nil) // TODO: Change to "Server.WriteLine"
+	p.Err = p.PtrRPC.Call("DisplayServer.WriteLine", line, nil)
 }
 
 //  // startServer starts a display server with the filename exe (if not already running).
@@ -122,8 +122,8 @@ func ScShutdownRemoteDisplayServer(w io.Writer, timeStamp int64, args ...string)
 // `ts` is used as flag. If 1 shutdown message is with timestamp (default usage), if 0 shutdown message is without timestamp (for testing).
 func (p *remoteDisplay) stopServer(ts int64) {
 	if Verbose {
-		fmt.Fprintln(p.w, "sending Server.Shutdown...")
+		fmt.Fprintln(p.w, "sending DisplayServer.Shutdown...")
 	}
-	p.Err = p.PtrRPC.Call("Server.Shutdown", []int64{ts}, nil) // if 1st param nil -> gob: cannot encode nil value
+	p.Err = p.PtrRPC.Call("DisplayServer.Shutdown", []int64{ts}, nil) // if 1st param nil -> gob: cannot encode nil value
 	msg.FatalOnErr(p.Err)
 }

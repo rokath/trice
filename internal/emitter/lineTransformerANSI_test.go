@@ -55,13 +55,13 @@ func Test5colorize(t *testing.T) {
 	assert.Equal(t, b, []byte(c))
 }
 
-func Test1writeLine(t *testing.T) {
+func Test1WriteLine(t *testing.T) {
 	lw := newCheckDisplay()
 	p := newLineTransformerANSI(lw, "none")
 	q := newLineTransformerANSI(lw, "off")
 	l := []string{"M:msg", "I:Info", "wrn:End"}
-	p.writeLine(l)
-	q.writeLine(l)
+	p.WriteLine(l)
+	q.WriteLine(l)
 	ep := strings.Join([]string{"M:msg", "I:Info", "End"}, "")
 	eq := strings.Join([]string{"M:msg", "I:Info", "wrn:End"}, "")
 	assert.Equal(t, []string{ep, eq}, lw.lines)

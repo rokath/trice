@@ -26,15 +26,13 @@
             ]
         },
         {
-            "name": "Launch trice displayServer",
+            "name": "displayServer",
             "type": "go",
             "request": "launch",
             "mode": "auto",
             "program": "${workspaceFolder}/cmd/trice",
             "env": {},
-            "args": ["ds",
-                    "-lg",
-                    "${workspaceFolder}/pkg/disp/testdata/serverMutexTest.log"
+            "args": ["ds"
             ]
         },
         {

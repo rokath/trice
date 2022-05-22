@@ -19,13 +19,13 @@ import (
 // It converts the channel information to color data using colorPalette.
 // In case of a remote display the lineTranslator should be used there.
 type lineTransformerANSI struct {
-	lw           lineWriter
+	lw           LineWriter
 	colorPalette string
 }
 
 // newLineTransformerANSI translates lines to ANSI colors according to colorPalette.
 // It provides a Linewriter interface and uses internally a Linewriter.
-func newLineTransformerANSI(lw lineWriter, colorPalette string) *lineTransformerANSI {
+func newLineTransformerANSI(lw LineWriter, colorPalette string) *lineTransformerANSI {
 	p := &lineTransformerANSI{lw, colorPalette}
 	return p
 }
@@ -210,10 +210,10 @@ func (p *lineTransformerANSI) colorize(s string) (r string) {
 	return
 }
 
-// writeLine consumes a full line, translates it and writes it to the internal Linewriter.
+// WriteLine consumes a full line, translates it and writes it to the internal Linewriter.
 // It adds ANSI color Codes and replaces col: channel information.
 // It treats each sub string separately and a color reset code at the end.
-func (p *lineTransformerANSI) writeLine(line []string) {
+func (p *lineTransformerANSI) WriteLine(line []string) {
 	var colored bool
 	l := make([]string, 0, 10)
 	for _, s := range line {
@@ -226,5 +226,5 @@ func (p *lineTransformerANSI) writeLine(line []string) {
 	if (p.colorPalette == "default" || p.colorPalette == "color") && 1 < len(l) && colored {
 		l = append(l, ansi.Reset)
 	}
-	p.lw.writeLine(l)
+	p.lw.WriteLine(l)
 }

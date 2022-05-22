@@ -22,47 +22,47 @@ import (
 // "4 - another way is using "net/rpc", this is the best way for calling another function from another program."
 //
 
-// server is the RPC struct for registered server functions
-type server struct {
+// DisplayServer is the RPC struct for registered DisplayServer functions. Its methods must be exported.
+type DisplayServer struct { // must be exported for rpc.Register
 	Display colorDisplay // todo: lineWriter?
 }
 
-// writeLine is the exported server method for string display, if trice tool acts as display server.
+// WriteLine is the exported server method for string display, if trice tool acts as display server.
 // By declaring it as a Server struct method it is registered as RPC destination.
-func (p *server) writeLine(line []string, reply *int64) error {
+func (p *DisplayServer) WriteLine(line []string, reply *int64) error {
 	*reply = int64(len(line))
-	p.Display.writeLine(line)
+	p.Display.WriteLine(line)
 	return nil // todo: ? p.Display.lw.Err
 }
 
-// colorPalette is the exported server function for color palette, if trice tool acts as display server.
+// ColorPalette is the exported server function for color palette, if trice tool acts as display server.
 // By declaring it as a Server struct method it is registered as RPC destination.
-func (p *server) colorPalette(s []string, reply *int64) error {
+func (p *DisplayServer) ColorPalette(s []string, reply *int64) error {
 	ColorPalette = s[0]
 	*reply = 0
 	return nil
 }
 
-// logSetFlags is called remotely to ...
-func (p *server) logSetFlags(f []int64, r *int64) error {
+// LogSetFlags is called remotely to ...
+func (p *DisplayServer) LogSetFlags(f []int64, r *int64) error {
 	flags := int(f[0])
 	log.SetFlags(flags)
 	*r = f[0]
 	return nil
 }
 
-// shutdown is called remotely to shut down display server
-func (p *server) shutdown(ts []int64, _ *int64) error {
+// Shutdown is called remotely to shut down display server
+func (p *DisplayServer) Shutdown(ts []int64, _ *int64) error {
 	timeStamp := ts[0]
-	p.Display.writeLine([]string{""})
-	p.Display.writeLine([]string{""})
+	p.Display.WriteLine([]string{""})
+	p.Display.WriteLine([]string{""})
 	if 1 == timeStamp { // for normal usage
-		p.Display.writeLine([]string{"time:" + time.Now().String(), "dbg:displayServer shutdown"})
+		p.Display.WriteLine([]string{"time:" + time.Now().String(), "dbg:displayServer shutdown"})
 	} else { // for testing
-		p.Display.writeLine([]string{"dbg:displayServer shutdown"})
+		p.Display.WriteLine([]string{"dbg:displayServer shutdown"})
 	}
-	p.Display.writeLine([]string{""})
-	p.Display.writeLine([]string{""})
+	p.Display.WriteLine([]string{""})
+	p.Display.WriteLine([]string{""})
 	defer func() {
 		msg.OnErr(listener.Close())
 		exit = true // do not set true before closing listener, otherwise panic!
@@ -86,7 +86,7 @@ var (
 func ScDisplayServer(w io.Writer) error {
 	a := fmt.Sprintf("%s:%s", IPAddr, IPPort)
 	fmt.Fprintln(w, "displayServer @", a)
-	srv := new(server)
+	srv := new(DisplayServer)
 	srv.Display = *newColorDisplay(w, ColorPalette)
 	msg.OnErr(rpc.Register(srv))
 	var err error
