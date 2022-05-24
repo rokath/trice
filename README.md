@@ -84,7 +84,7 @@ git clone https://github.com/rokath/trice.git
 - [J-Link System View](https://www.codeinsideout.com/blog/stm32/j-link-sysview/) (SEGGER)
 - [Minimal Structured Logging for Autonomous Vehikles](https://youtu.be/FyJI4Z6jD4w) (C++, closed source talk)
 - [NanoLog](https://github.com/PlatformLab/NanoLog) (Linux C++)
-- [Percepio Tracealyzer]([https://percepio.com/tracealyzer/) (Visual Trace Diagnostics)
+- [Percepio Tracealyzer](https://percepio.com/tracealyzer/) (Visual Trace Diagnostics)
 - [qpspy](https://www.state-machine.com/qtools/qpspy.html) (C/C++)
 - [Serial-Studio](https://github.com/Serial-Studio/Serial-Studio) (Data visualisation)
 
