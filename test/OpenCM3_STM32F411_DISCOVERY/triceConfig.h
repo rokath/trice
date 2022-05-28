@@ -24,11 +24,11 @@ extern "C" {
 // For now, on LibOpenCM3, only MODE 0 works.
 #define TRICE_MODE 0 //! TRICE_MODE is a predefined trice transfer method.
 
-//#define TRICE_RTT_CHANNEL 0 //!< Uncomment and set channel number for SeggerRTT usage. Only channel 0 works right now for some reason.
-#define TRICE_UART USART2 //!< Uncomment and set UART for serial output.
+//#define TRICE_RTT_CHANNEL 0 //!< Enable and set channel number for SeggerRTT usage. Only channel 0 works right now for some reason.
+#define TRICE_UART USART2 //!< Enable and set UART for serial output.
 
-#define TRICE_LOCATION (TRICE_FILE| __LINE__) //!< Uncomment if you do not need target location. TRICE_FILE occcupies the upper 16 bit.
-#define TRICE_TIMESTAMP wallclock_ms()           //!< Comment out if you do not need target timestamps.
+#define TRICE_LOCATION (TRICE_FILE| __LINE__) //!< Enable if you need target location. TRICE_FILE occcupies the upper 16 bit.
+#define TRICE_TIMESTAMP wallclock_ms()           //!< Disable if you do not need target timestamps.
 
 // Enabling next 2 lines results in XTEA TriceEncryption  with the key.
 //#define TRICE_ENCRYPT XTEA_KEY( ea, bb, ec, 6f, 31, 80, 4e, b9, 68, e2, fa, ea, ae, f1, 50, 54 ); //!< -password MySecret

@@ -47,9 +47,9 @@ extern "C" {
 
 
 
-uint32_t ReadUs32( void );
+extern uint32_t ReadTime( void );
 #define TRICE_LOCATION (TRICE_FILE| __LINE__) //!< Uncomment if you do not need target location. TRICE_FILE occcupies the upper 16 bit.
-#define TRICE_TIMESTAMP ReadUs32()            //!< Uncomment if you do not need target timestamps. Instead of SYSTICKVAL, you can use any other up to 32-bit value, like milliSecond.
+#define TRICE_TIMESTAMP ReadTime()            //!< Enable if you need target timestamps. You must provide ReadTime() returning a 32-bit value of your choice, like microSecond.
 
 // Enabling next 2 lines results in XTEA TriceEncryption  with the key.
 //#define TRICE_ENCRYPT XTEA_KEY( ea, bb, ec, 6f, 31, 80, 4e, b9, 68, e2, fa, ea, ae, f1, 50, 54 ); //!< -password MySecret

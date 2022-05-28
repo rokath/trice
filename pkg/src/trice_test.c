@@ -32,7 +32,7 @@ int TriceCode( int n ){
 int triceBufferDepth = 0;
 uint8_t* triceBuffer;
 
-uint32_t ReadUs32( void ){
+uint32_t ReadTime( void ){
     return 0x11111111;
 }
 

@@ -93,6 +93,10 @@ uint32_t ReadUs32( void ){
     return us;
 }
 
+uint32_t ReadTime( void ){
+    return ReadUs32();
+}
+
 //! serveUs should be called in intervals secure smaller than 1ms.
 static void serveUs( void ){
     static uint64_t st64_1 = 0;
