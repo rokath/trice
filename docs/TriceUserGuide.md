@@ -969,7 +969,7 @@ By the way, string concatenation within TRICE macros is untested and expected no
 void f0( void ){ TRICE( "msg:" ## "Hello\n" ); } // ERROR!
 ```
 
-**Usage intension and recommendation:** (given by @escherstair)
+**Usage intention and recommendation:** (given by @escherstair)
 
 ```C
 char dynamic_string[50];
