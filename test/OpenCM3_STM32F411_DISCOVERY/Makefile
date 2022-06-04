@@ -1,7 +1,7 @@
 # Makefile for compiling the Trice demo on LibOpenCM3
 # for STM32F411-Nucleo boards
 CC=arm-none-eabi-gcc
-C_FLAGS=-Os -std=c99 -ggdb3
+C_FLAGS=-O0 -std=c99 -ggdb3
 C_FLAGS+=-mthumb -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16
 C_FLAGS+=-Wextra -Wshadow -Wimplicit-function-declaration -Wredundant-decls -Wmissing-prototypes -Wstrict-prototypes
 C_FLAGS+=-fno-common -ffunction-sections -fdata-sections  -MD -Wall -Wundef
@@ -12,8 +12,9 @@ C_FLAGS+=-I../../pkg/src/ -I.
 LDFLAGS=-L${OPENCM3_DIR}/lib -lopencm3_stm32f4 -lm -Wl,--start-group -lc -lgcc -lnosys -Wl,--end-group
 LDFLAGS+=-T nucleo-f411re.ld
 LDFLAGS+=--static -nostartfiles
+LDFLAGS+=-Wl,-Map=memorymap.txt
 
-all: demo.elf
+all: direct_mode.elf irq_mode.elf
 .PHONY: flash clean
 
 # Annotate Trice-enabled code.
@@ -31,11 +32,18 @@ all: demo.elf
 til.json:
 	touch til.json
 
-demo.elf: main.trice.c time.c ../../pkg/src/trice.c
-	${CC} ${C_FLAGS} $^ -o $@ ${LDFLAGS}
+direct_mode.elf: main.trice.c ../../pkg/src/trice.c
+	${CC} ${C_FLAGS} $^ -o $@ ${LDFLAGS} -DTRICE_MODE=0
 
-flash: demo.elf
-	openocd -f interface/stlink-v2.cfg -f target/stm32f4x.cfg -c "program demo.elf verify reset exit"
+flash_direct_mode: direct_mode.elf
+	openocd -f interface/stlink-v2.cfg -f target/stm32f4x.cfg -c "program direct_mode.elf verify reset exit"
+
+irq_mode.elf: main.trice.c ../../pkg/src/trice.c
+	${CC} ${C_FLAGS} $^ -o $@ ${LDFLAGS} -DTRICE_MODE=200
+
+flash_irq_mode: irq_mode.elf
+	openocd -f interface/stlink-v2.cfg -f target/stm32f4x.cfg -c "program irq_mode.elf verify reset exit"
+
 
 clean:
-	rm -f demo.elf til.json main.trice.c
+	rm -f *.elf til.json main.trice.c
