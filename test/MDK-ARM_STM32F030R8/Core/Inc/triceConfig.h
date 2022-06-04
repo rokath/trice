@@ -15,10 +15,10 @@ extern "C" {
 // Select trice mode and general settings.
 //
 
-#define TRICE_MODE 0 //! TRICE_MODE is a predefined trice transfer method.
+#define TRICE_MODE 200 //! TRICE_MODE is a predefined trice transfer method.
 
-#define TRICE_RTT_CHANNEL 0 //!< Enable and set channel number for SeggerRTT usage. Only channel 0 works right now for some reason.
-//#define TRICE_UART USART2 //!< Enable and set UART for serial output.
+//#define TRICE_RTT_CHANNEL 0 //!< Enable and set channel number for SeggerRTT usage. Only channel 0 works right now for some reason.
+#define TRICE_UART USART2 //!< Enable and set UART for serial output.
 
 extern uint32_t ReadTime( void );
 #define TRICE_LOCATION (TRICE_FILE| __LINE__) //!< Enable if you need target location. TRICE_FILE occcupies the upper 16 bit.

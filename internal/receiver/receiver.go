@@ -37,7 +37,6 @@ import (
 	"encoding/hex"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"net"
 	"os"
@@ -159,6 +158,10 @@ func (p *tcp4) Read(b []byte) (int, error) {
 	return p.conn.Read(b)
 }
 
+func (p *tcp4) Write(b []byte) (int, error) {
+	return p.conn.Write(b)
+}
+
 // Close is part of the exported interface io.ReadCloser. It ends the connection.
 func (p *tcp4) Close() error {
 	if Verbose {
@@ -191,6 +194,10 @@ func (p *file) Read(b []byte) (int, error) {
 	return p.fh.Read(b)
 }
 
+func (p *file) Write(b []byte) (int, error) {
+	return len(b), nil // discard, do not change files! p.fh.Write(b)
+}
+
 // Close is part of the exported interface io.ReadCloser. It ends the connection.
 func (p *file) Close() error {
 	if Verbose {
@@ -199,15 +206,16 @@ func (p *file) Close() error {
 	return p.fh.Close()
 }
 
-// NewReadCloser returns a ReadCloser for the specified port and its args.
+// NewReadWriteCloser returns a ReadCloser for the specified port and its args.
 // err is nil on successful open.
 // When port is "COMn" args can be used to be "TARM" to use a different driver for dynamic testing.
 // When port is "DUMP", args is expected to be a space or comma separated hex print like "09 a1 fe"
 // When port is "BUFFER", args is expected to be a decimal byte sequence in the same format as for example coming from one of the other ports.
 // When port is "JLINK" args contains JLinkRTTLogger.exe specific parameters described inside UM08001_JLink.pdf.
 // When port is "STLINK" args has the same format as for "JLINK"
-func NewReadCloser(w io.Writer, verbose bool, port, args string) (r io.ReadCloser, err error) {
+func NewReadWriteCloser(w io.Writer, verbose bool, port, args string) (r io.ReadWriteCloser, err error) {
 	switch strings.ToUpper(port) {
+
 	case "JLINK", "STLINK", "J-LINK", "ST-LINK":
 		if PortArguments == "" { // nothing assigned in args
 			PortArguments = DefaultLinkArgs
@@ -232,15 +240,21 @@ func NewReadCloser(w io.Writer, verbose bool, port, args string) (r io.ReadClose
 		if PortArguments == "" { // nothing assigned in args
 			PortArguments = DefaultDumpArgs
 		}
-		var buf []byte
-		buf, err = scanHexDump(args)
-		r = ioutil.NopCloser(bytes.NewBuffer(buf))
+		var rwc io.ReadWriteCloser
+		rwc = &buffer{} // Make the io.ReadWriteCloser actually do something.
+		buf, _ := scanHexDump(args)
+		rwc.Write(buf)
+		r = rwc
 	case "BUFFER":
 		if PortArguments == "" { // nothing assigned in args
 			PortArguments = DefaultBUFFERArgs
 		}
+		var rwc io.ReadWriteCloser
+		rwc = &buffer{} // Make the io.ReadWriteCloser actually do something.
 		buf := scanBytes(args)
-		r = ioutil.NopCloser(bytes.NewBuffer(buf))
+		rwc.Write(buf)
+		r = rwc
+		//r = ioutil.NopCloser(bytes.NewBuffer(buf))
 	default:
 		if PortArguments == "" { // nothing assigned in args
 			PortArguments = DefaultCOMArgs
@@ -260,6 +274,18 @@ func NewReadCloser(w io.Writer, verbose bool, port, args string) (r io.ReadClose
 		r = c
 	}
 	return
+}
+
+// buffer is just here to make bytes.Buffer an io.ReadWriteCloser.
+// Read about embedding to see how this works.
+type buffer struct {
+	bytes.Buffer
+}
+
+// Add a Close method to our buffer so that we satisfy io.ReadWriteCloser.
+func (b *buffer) Close() error {
+	b.Buffer.Reset()
+	return nil
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

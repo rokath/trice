@@ -181,7 +181,7 @@ func handleSIGTERM(w io.Writer, rc io.ReadCloser) {
 // Bytes are read with rc. Then according decoder.Encoding they are translated into strings.
 // Each read returns the amount of bytes for one trice. rc is called on every
 // Translate returns true on io.EOF or false on hard read error or sigterm.
-func Translate(w io.Writer, sw *emitter.TriceLineComposer, lut id.TriceIDLookUp, m *sync.RWMutex, rc io.ReadCloser) error {
+func Translate(w io.Writer, sw *emitter.TriceLineComposer, lut id.TriceIDLookUp, m *sync.RWMutex, rwc io.ReadWriteCloser) error {
 	var dec Decoder //io.Reader
 	if Verbose {
 		fmt.Fprintln(w, "Encoding is", Encoding)
@@ -197,24 +197,24 @@ func Translate(w io.Writer, sw *emitter.TriceLineComposer, lut id.TriceIDLookUp,
 	}
 	switch strings.ToUpper(Encoding) {
 	case "COBS":
-		dec = newCOBSDecoder(w, lut, m, rc, endian)
+		dec = newCOBSDecoder(w, lut, m, rwc, endian)
 		//cobsVariantDecode = cobs.Decode
 		//  case "COBSFF":
 		//  	dec = newCOBSDecoder(w, lut, m, rc, endian)
 		//  	cobsVariantDecode = cobsFFDecode
 	case "TREX":
-		dec = newTREXDecoder(w, lut, m, rc, endian)
+		dec = newTREXDecoder(w, lut, m, rwc, endian)
 	case "CHAR":
-		dec = newCHARDecoder(w, lut, m, rc, endian)
+		dec = newCHARDecoder(w, lut, m, rwc, endian)
 	case "DUMP":
-		dec = newDUMPDecoder(w, lut, m, rc, endian)
+		dec = newDUMPDecoder(w, lut, m, rwc, endian)
 	default:
 		log.Fatalf(fmt.Sprintln("unknown encoding ", Encoding))
 	}
 	if emitter.DisplayRemote {
-		keybcmd.ReadInput()
+		keybcmd.ReadInput(rwc)
 	} else {
-		go handleSIGTERM(w, rc)
+		go handleSIGTERM(w, rwc)
 	}
 	return decodeAndComposeLoop(w, sw, dec, lut)
 }

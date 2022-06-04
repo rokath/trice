@@ -89,6 +89,10 @@ func (p *Device) Read(b []byte) (int, error) {
 	return p.tempLogFileHandle.Read(b)
 }
 
+func (p *Device) Write(b []byte) (int, error) {
+	return p.tempLogFileHandle.Write(b)
+}
+
 // Close is part of the exported interface io.ReadCloser. It ends the connection.
 func (p *Device) Close() error {
 	if Verbose {

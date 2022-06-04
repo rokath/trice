@@ -15,7 +15,7 @@ import (
 
 func TestBUFFERReceiver(t *testing.T) {
 	var verbose bool
-	rc, err := NewReadCloser(os.Stdout, verbose, "BUFFER", "7 123 44")
+	rc, err := NewReadWriteCloser(os.Stdout, verbose, "BUFFER", "7 123 44")
 	assert.Nil(t, err)
 	b := make([]byte, 100)
 	n, err := rc.Read(b)
@@ -31,7 +31,7 @@ func TestBUFFERReceiver(t *testing.T) {
 
 func TestDUMPReceiver(t *testing.T) {
 	var verbose bool
-	rc, err := NewReadCloser(os.Stdout, verbose, "DUMP", "7B 1A ee,88, 5a")
+	rc, err := NewReadWriteCloser(os.Stdout, verbose, "DUMP", "7B 1A ee,88, 5a")
 	assert.Nil(t, err)
 	b := make([]byte, 100)
 	n, err := rc.Read(b)
@@ -56,7 +56,7 @@ func TestFILEReceiver(t *testing.T) {
 	assert.True(t, n == len(d))
 
 	var verbose bool
-	rc, err := NewReadCloser(os.Stdout, verbose, "FILE", fn)
+	rc, err := NewReadWriteCloser(os.Stdout, verbose, "FILE", fn)
 	assert.Nil(t, err)
 	b := make([]byte, 100)
 	n, err = rc.Read(b)
@@ -96,7 +96,7 @@ func _TestTCP4Receiver(t *testing.T) {
 	for addr == nil { // wait until server is up
 	}
 	s := fmt.Sprint(addr)
-	rc, err := NewReadCloser(os.Stdout, verbose, "TCP4", s)
+	rc, err := NewReadWriteCloser(os.Stdout, verbose, "TCP4", s)
 	assert.Nil(t, err)
 	b := make([]byte, 100)
 	n, err := rc.Read(b)

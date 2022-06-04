@@ -7,18 +7,18 @@ package keybcmd
 import (
 	"bufio"
 	"fmt"
+	"io"
 	"os"
 	"strings"
 
 	"github.com/rokath/trice/internal/emitter"
 )
 
-func loopAction(reader *bufio.Reader, ipa, ipp string) {
+func loopAction(reader *bufio.Reader, target io.Writer, ipa, ipp string) {
 	fmt.Print("-> ")
 	text, _ := reader.ReadString('\n')
 	text = strings.Replace(text, "\r", "", -1) // Windows "\r\n" !
 	text = strings.Replace(text, "\n", "", -1) // Linux "\n" !
-
 	switch text {
 	case "q", "quit":
 		os.Exit(0)
@@ -34,23 +34,25 @@ func loopAction(reader *bufio.Reader, ipa, ipp string) {
 		fmt.Println("Other commands are written to target.")
 	default:
 		fmt.Printf("Command '%s'\n", text)
+		b := append([]byte(text), 0)
+		target.Write(b)
 	}
 }
 
 // ReadInput expects user input from terminal
-func ReadInput() { // https://tutorialedge.net/golang/reading-console-input-golang/
+func ReadInput(target io.Writer) { // https://tutorialedge.net/golang/reading-console-input-golang/
 	reader := bufio.NewReader(os.Stdin)
-	keyboardInput(reader)
+	keyboardInput(reader, target)
 }
 
 // keyboardInput expects input from reader
-func keyboardInput(reader *bufio.Reader) { // https://tutorialedge.net/golang/reading-console-input-golang/
+func keyboardInput(reader *bufio.Reader, target io.Writer) { // https://tutorialedge.net/golang/reading-console-input-golang/
 	fmt.Println("Simple Shell (try 'help'):")
 	fmt.Println("--------------------------")
 
 	go func() {
 		for {
-			loopAction(reader, emitter.IPAddr, emitter.IPPort)
+			loopAction(reader, target, emitter.IPAddr, emitter.IPPort)
 		}
 	}() // https://stackoverflow.com/questions/16008604/why-add-after-closure-body-in-golang
 }

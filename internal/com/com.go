@@ -35,6 +35,7 @@ var (
 type COMport interface {
 	Open() bool
 	Read(buf []byte) (int, error)
+	Write(buf []byte) (int, error)
 	Close() error
 }
 
@@ -97,6 +98,10 @@ func NewCOMPortGoBugSt(w io.Writer, verbose bool, comPortName string) *PortGoBug
 // buffer. The function returns the number of bytes read.
 func (p *PortGoBugSt) Read(buf []byte) (int, error) {
 	return p.serialHandle.Read(buf)
+}
+
+func (p *PortGoBugSt) Write(buf []byte) (int, error) {
+	return p.serialHandle.Write(buf)
 }
 
 // Close releases port.

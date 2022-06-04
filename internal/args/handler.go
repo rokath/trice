@@ -142,7 +142,7 @@ func logLoop(w io.Writer) {
 	var counter int
 
 	for {
-		rc, e := receiver.NewReadCloser(w, verbose, receiver.Port, receiver.PortArguments)
+		rwc, e := receiver.NewReadWriteCloser(w, verbose, receiver.Port, receiver.PortArguments)
 		if e != nil {
 			fmt.Fprintln(w, e)
 			if !interrupted {
@@ -153,6 +153,8 @@ func logLoop(w io.Writer) {
 			counter++
 			continue
 		}
+		var rc io.ReadCloser
+		rc = rwc
 		defer func() { msg.OnErr(rc.Close()) }()
 		interrupted = true
 		if receiver.ShowInputBytes {
@@ -161,7 +163,7 @@ func logLoop(w io.Writer) {
 		if receiver.BinaryLogfileName != "off" && receiver.BinaryLogfileName != "none" {
 			rc = receiver.NewBinaryLogger(w, rc)
 		}
-		e = decoder.Translate(w, sw, lu, m, rc)
+		e = decoder.Translate(w, sw, lu, m, rwc)
 		if io.EOF == e {
 			return // end of predefined buffer
 		}
@@ -172,6 +174,7 @@ func logLoop(w io.Writer) {
 func scVersion(w io.Writer) error {
 	if verbose {
 		fmt.Fprintln(w, "https://github.com/rokath/trice")
+		emitter.ShowAllColors()
 	}
 	if Version != "" {
 		fmt.Fprintf(w, "version=%v, commit=%v, built at %v\n", Version, Commit, Date)
