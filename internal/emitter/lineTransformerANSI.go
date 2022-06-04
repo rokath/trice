@@ -23,6 +23,28 @@ type lineTransformerANSI struct {
 	colorPalette string
 }
 
+func ShowAllColors() {
+	var i int
+	fgStyles := []string{"", "+b", "+B", "+u", "+i", "+s", "+h"}
+	bgStyles := []string{"", "+h"}
+	colors := []string{"black", "red", "green", "yellow", "blue", "magenta", "cyan", "white", "default"}
+	for _, b := range colors {
+		for _, bgStyle := range bgStyles {
+			bg := b + bgStyle
+			for _, f := range colors {
+				for _, fgStyle := range fgStyles {
+					fg := f + fgStyle
+					colorCode := fmt.Sprintf("%s:%s", fg, bg)
+					colorize := ansi.ColorFunc(colorCode)
+					colorized := colorize(colorCode)
+					fmt.Printf("%4d:%24s:%s\n", i, colorCode, colorized)
+					i++
+				}
+			}
+		}
+	}
+}
+
 // newLineTransformerANSI translates lines to ANSI colors according to colorPalette.
 // It provides a Linewriter interface and uses internally a Linewriter.
 func newLineTransformerANSI(lw LineWriter, colorPalette string) *lineTransformerANSI {
@@ -35,33 +57,35 @@ var (
 	LogLevel = "all"
 
 	// log level colors
-	colorizeFATAL     = ansi.ColorFunc("121+i")
-	colorizeCRITICAL  = ansi.ColorFunc("121+i")
-	colorizeEMERGENCY = ansi.ColorFunc("121+i")
+	colorizeFATAL     = ansi.ColorFunc("magenta+b:red")
+	colorizeCRITICAL  = ansi.ColorFunc("red+i:default+h")
+	colorizeEMERGENCY = ansi.ColorFunc("red+i:blue")
 	colorizeERROR     = ansi.ColorFunc("11:red")
 	colorizeWARNING   = ansi.ColorFunc("11+i:red")
 	colorizeATTENTION = ansi.ColorFunc("11:green")
-	colorizeINFO      = ansi.ColorFunc("121+i")
+	colorizeINFO      = ansi.ColorFunc("cyan+b:default+h")
 	colorizeDEBUG     = ansi.ColorFunc("130+i")
-	colorizeTRACE     = ansi.ColorFunc("121+i")
+	colorizeTRACE     = ansi.ColorFunc("default+i:default+h")
 
 	// user mode colors
-	colorizeTIME      = ansi.ColorFunc("108:blue")
+	colorizeTIME      = ansi.ColorFunc("blue+i:blue+h")
 	colorizeMESSAGE   = ansi.ColorFunc("green+h:black")
-	colorizeREAD      = ansi.ColorFunc("101:black")
-	colorizeWRITE     = ansi.ColorFunc("101+i:black") // ansi.ColorFunc("off")
-	colorizeDIAG      = ansi.ColorFunc("161+B")
-	colorizeINTERRUPT = ansi.ColorFunc("13+i")
+	colorizeREAD      = ansi.ColorFunc("black+h:black")
+	colorizeWRITE     = ansi.ColorFunc("black:black+h")
+	colorizeRECEIVE   = ansi.ColorFunc("black+h:black")
+	colorizeTRANSMIT  = ansi.ColorFunc("black:black+h")
+	colorizeDIAG      = ansi.ColorFunc("yellow+i:default+h")
+	colorizeINTERRUPT = ansi.ColorFunc("magenta+i:default+h")
 	colorizeSIGNAL    = ansi.ColorFunc("118+i")
 	colorizeTEST      = ansi.ColorFunc("yellow+h:black")
 
-	//  colorizeDEFAULT   = ansi.ColorFunc("121+i")
-	//  colorizeNOTICE    = ansi.ColorFunc("121+i")
-	//  colorizeALERT     = ansi.ColorFunc("121+i")
-	//  colorizeASSERT    = ansi.ColorFunc("121+i")
-	//  colorizeALARM     = ansi.ColorFunc("121+i")
-	//  colorizeCYCLE     = ansi.ColorFunc("11:red")
-	//  colorizeVERBOSE   = ansi.ColorFunc("121+i")
+	colorizeDEFAULT = ansi.ColorFunc("off")
+	colorizeNOTICE  = ansi.ColorFunc("blue:white+h")
+	colorizeALERT   = ansi.ColorFunc("magenta:magenta+h")
+	colorizeASSERT  = ansi.ColorFunc("yellow+i:blue")
+	colorizeALARM   = ansi.ColorFunc("black+i:magenta")
+	colorizeCYCLE   = ansi.ColorFunc("blue+i:default+h")
+	colorizeVERBOSE = ansi.ColorFunc("blue:default")
 )
 
 func isLower(s string) bool {
@@ -94,20 +118,22 @@ var colorChannels = []colorChannel{
 	// user modes
 	{0, []string{"Timestamp", "tim", "time", "TIM", "TIME", "TIMESTAMP", "timestamp"}, colorizeTIME},
 	{0, []string{"m", "msg", "message", "M", "MSG", "MESSAGE"}, colorizeMESSAGE},
-	{0, []string{"rd", "rd_", "RD", "RD_"}, colorizeREAD},
-	{0, []string{"wr", "wr_", "WR", "WR_"}, colorizeWRITE},
+	{0, []string{"r", "rx", "rd", "read", "rd_", "RD", "RD_"}, colorizeREAD},
+	{0, []string{"w", "tx", "wr", "write", "wr_", "WR", "WR_"}, colorizeWRITE},
+	{0, []string{"receive", "rx", "RECEIVE", "Receive", "RX"}, colorizeRECEIVE},
+	{0, []string{"transmit", "tx", "TRANSMIT", "Transmit", "TX"}, colorizeTRANSMIT},
 	{0, []string{"dia", "diag", "Diag", "DIA", "DIAG"}, colorizeDIAG},
 	{0, []string{"int", "isr", "ISR", "INT", "interrupt", "Interrupt", "INTERRUPT"}, colorizeINTERRUPT},
 	{0, []string{"s", "sig", "signal", "S", "SIG", "SIGNAL"}, colorizeSIGNAL},
 	{0, []string{"t", "tst", "test", "T", "TST", "TEST"}, colorizeTEST},
 
-	//  {0, []string{"Default", "DEFAULT", "default"}, colorizeDEFAULT},
-	//  {0, []string{"Notice", "NOTICE", "notice", "Note", "note", "NOTE"}, colorizeNOTICE},
-	//  {0, []string{"Alert", "alert", "ALERT"}, colorizeALERT},
-	//  {0, []string{"Assert", "assert", "ASSERT"}, colorizeASSERT},
-	//  {0, []string{"Alarm", "alarm", "ALARM"}, colorizeALARM},
-	//  {0, []string{"cycle", "CYCLE"}, colorizeCYCLE},
-	//  {0, []string{"Verbose", "verbose", "VERBOSE"}, colorizeVERBOSE},
+	{0, []string{"Default", "DEFAULT", "default"}, colorizeDEFAULT},
+	{0, []string{"Notice", "NOTICE", "notice", "Note", "note", "NOTE"}, colorizeNOTICE},
+	{0, []string{"Alert", "alert", "ALERT"}, colorizeALERT},
+	{0, []string{"Assert", "assert", "ASSERT"}, colorizeASSERT},
+	{0, []string{"Alarm", "alarm", "ALARM"}, colorizeALARM},
+	{0, []string{"cycle", "CYCLE"}, colorizeCYCLE},
+	{0, []string{"Verbose", "verbose", "VERBOSE"}, colorizeVERBOSE},
 }
 
 // ColorChannelEvents returns count of occurred channel events.
