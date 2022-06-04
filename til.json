@@ -215,6 +215,10 @@
 		"Type": "TRICE32_4",
 		"Strg": "rd:TRICE32_4 %d, %d, %d, %d\\n"
 	},
+	"34164": {
+		"Type": "TRICE",
+		"Strg": "wrn:TRICE_UART Send Break Flag is set\\n"
+	},
 	"34168": {
 		"Type": "TRICE64",
 		"Strg": "tst:TRICE64 %d %d %d %d %d %d %d %d %d %d %d\\n"
@@ -310,6 +314,10 @@
 	"34721": {
 		"Type": "TRICE32",
 		"Strg": "msg: message = %08x %08x %08x %08x %08x %08x\\n"
+	},
+	"34758": {
+		"Type": "TRICE",
+		"Strg": "wrn:TRICE_UART CTS Flag is set\\n"
 	},
 	"34786": {
 		"Type": "TRICE16",
@@ -510,6 +518,10 @@
 	"35870": {
 		"Type": "TRICE64",
 		"Strg": "rd:TRICE64 float %e (%%e), aDouble(y)\\n"
+	},
+	"35877": {
+		"Type": "TRICE_S",
+		"Strg": "msg:Executing command %s ...\\n"
 	},
 	"35885": {
 		"Type": "TRICE0",
@@ -927,6 +939,10 @@
 		"Type": "TRICE8",
 		"Strg": "s:  TRICE_MODE %3u                          \\n"
 	},
+	"38506": {
+		"Type": "TRICE",
+		"Strg": "rd:TRICE_UART Receive Enable Acknowledge Flag is set\\n"
+	},
 	"38514": {
 		"Type": "TRICE8_3",
 		"Strg": "tst:TRICE8_3  %d %d %d\\n"
@@ -1175,6 +1191,10 @@
 		"Type": "TRICE",
 		"Strg": "wrn:USART2 Receive Wake Up from mute mode Flag is set\\n"
 	},
+	"40379": {
+		"Type": "TRICE0",
+		"Strg": "wr:TRICE_UART Transmission Complete Flag is set\\n"
+	},
 	"40469": {
 		"Type": "TRICE_FILE",
 		"Strg": "stm32g0xx_ll_exti.c"
@@ -1334,6 +1354,10 @@
 	"41980": {
 		"Type": "TRICE_FILE",
 		"Strg": "mainKopie.c"
+	},
+	"42004": {
+		"Type": "TRICE_S",
+		"Strg": "msg:Executing command %s ...\\n"
 	},
 	"42011": {
 		"Type": "TRICE32",
@@ -1711,6 +1735,10 @@
 		"Type": "TRICE",
 		"Strg": "rd:TRICE %d, %d, %d, %d, %d, %d\\n"
 	},
+	"44297": {
+		"Type": "TRICE",
+		"Strg": "inf:TRICE_UART Busy Flag is set\\n"
+	},
 	"44336": {
 		"Type": "TRICE16",
 		"Strg": "rd:TRICE16 %d, %d, %d, %d, %d, %d\\n"
@@ -1967,6 +1995,10 @@
 		"Type": "TRICE_FILE",
 		"Strg": "main.c"
 	},
+	"46135": {
+		"Type": "TRICE",
+		"Strg": "err:TRICE_UART Noise error detected Flag is set\\n"
+	},
 	"46143": {
 		"Type": "TRICE_1",
 		"Strg": "rd:TRICE_1 %d\\n"
@@ -2159,6 +2191,10 @@
 		"Type": "TRICE32_4",
 		"Strg": "tst:TRICE32_4 %%09x -\u003e      %09x      %09x       %09x     %09x\\n"
 	},
+	"47815": {
+		"Type": "TRICE",
+		"Strg": "msg:...done\\n"
+	},
 	"47864": {
 		"Type": "TRICE_S",
 		"Strg": "rd: caf� \t%s \tPlain string\\n"
@@ -2226,6 +2262,14 @@
 	"48189": {
 		"Type": "TRICE8",
 		"Strg": "tst:TRICE8 %d %d %d %d %d %d %d %d\\n"
+	},
+	"48217": {
+		"Type": "TRICE_S",
+		"Strg": "att:Executing command %s ...\\n"
+	},
+	"48238": {
+		"Type": "TRICE",
+		"Strg": "err:TRICE_UART OverRun Error Flag is set\\n"
 	},
 	"48242": {
 		"Type": "TRICE",
@@ -2310,6 +2354,10 @@
 	"48705": {
 		"Type": "TRICE0",
 		"Strg": "--------------------------------------------------\\n"
+	},
+	"48727": {
+		"Type": "TRICE",
+		"Strg": "wrn:TRICE_UART Receive Wake Up from mute mode Flag is set\\n"
 	},
 	"48741": {
 		"Type": "TRICE32_1",
@@ -2563,6 +2611,10 @@
 		"Type": "TRICE64_8",
 		"Strg": "rd:TRICE64_8 %d, %d, %d, %d, %d, %d, %d, %d\\n"
 	},
+	"50186": {
+		"Type": "TRICE",
+		"Strg": "wrn:TRICE_UART Auto-Baud Rate Flag is set\\n"
+	},
 	"50194": {
 		"Type": "TRICE64_5",
 		"Strg": "rd:TRICE64_5 %d, %d, %d, %d, %d\\n"
@@ -2810,6 +2862,10 @@
 	"51925": {
 		"Type": "TRICE",
 		"Strg": "CRITICAL: st %d \u003c st_1 %d: delta = %d\\n"
+	},
+	"51944": {
+		"Type": "TRICE",
+		"Strg": "wr:TRICE_UART Transmit Enable Acknowledge Flag is set\\n"
 	},
 	"51946": {
 		"Type": "TRICE32_1",
@@ -3147,6 +3203,14 @@
 		"Type": "TRICE16_11",
 		"Strg": "tst:TRICE16_11 %d %d %d %d %d %d %d %d %d %d %d\\n"
 	},
+	"53879": {
+		"Type": "TRICE",
+		"Strg": "msg:...done\\n"
+	},
+	"53883": {
+		"Type": "TRICE",
+		"Strg": "err:TRICE_UART Receiver Time Out Flag is set\\n"
+	},
 	"53889": {
 		"Type": "TRICE32_1",
 		"Strg": "time:TRICE32_1   message, SysTick is %6u\\n"
@@ -3298,6 +3362,10 @@
 	"54892": {
 		"Type": "TRICE",
 		"Strg": "rd:TRICE line %x (%%x -1)\\n"
+	},
+	"54979": {
+		"Type": "TRICE",
+		"Strg": "wrn:TRICE_UART CTS interrupt Flag is set\\n"
 	},
 	"54980": {
 		"Type": "TRICE64",
@@ -3482,6 +3550,10 @@
 	"55870": {
 		"Type": "TRICE64",
 		"Strg": "rd: 123.46\t\t\t%.2f   %%.2f Default width, precision 2\\n"
+	},
+	"55912": {
+		"Type": "TRICE",
+		"Strg": "err:TRICE_UART Framing Error Flag is set\\n"
 	},
 	"55922": {
 		"Type": "TRICE16_1",
@@ -3731,6 +3803,10 @@
 		"Type": "TRICE",
 		"Strg": "a:c"
 	},
+	"57380": {
+		"Type": "TRICE0",
+		"Strg": "err:TRICE_UART Auto-Baud Rate Error Flag is set\\n"
+	},
 	"57399": {
 		"Type": "TRICE_FILE",
 		"Strg": "stm32g0xx_ll_usart.c"
@@ -3914,6 +3990,10 @@
 	"58590": {
 		"Type": "TRICE_FILE",
 		"Strg": "stm32g0xx_ll_rcc.c"
+	},
+	"58642": {
+		"Type": "TRICE",
+		"Strg": "wrn:TRICE_UART IDLE line detected Flag is set\\n"
 	},
 	"58671": {
 		"Type": "TRICE_S",
@@ -4559,6 +4639,10 @@
 		"Type": "TRICE",
 		"Strg": "WRN:warning     message, SysTick is %6u\\n"
 	},
+	"62504": {
+		"Type": "TRICE",
+		"Strg": "wrn:TRICE_UART Character Match Flag is set\\n"
+	},
 	"62511": {
 		"Type": "TRICE16_5",
 		"Strg": "tst:TRICE16_5  %d %d %d %d %d\\n"
@@ -4799,6 +4883,10 @@
 		"Type": "TRICE32_2",
 		"Strg": "tst:TRICE32_2 %u %u\\n"
 	},
+	"64230": {
+		"Type": "TRICE",
+		"Strg": "att:...done\\n"
+	},
 	"64262": {
 		"Type": "TRICE32_3",
 		"Strg": "rd:TRICE32_3 %d, %d, %d\\n"
@@ -4918,6 +5006,10 @@
 	"65009": {
 		"Type": "TRICE64_1",
 		"Strg": "tst:TRICE64_1  %d\\n"
+	},
+	"65013": {
+		"Type": "TRICE",
+		"Strg": "err:TRICE_UART Parity Error Flag is set\\n"
 	},
 	"65019": {
 		"Type": "TRICE",
