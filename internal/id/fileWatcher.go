@@ -56,3 +56,44 @@ func (lu TriceIDLookUp) FileWatcher(w io.Writer, m *sync.RWMutex) {
 	}
 	<-done
 }
+
+// FileWatcher checks the id location information file for changes.
+// taken from https://medium.com/@skdomino/watch-this-file-watching-in-go-5b5a247cf71f
+func (li TriceIDLookUpLI) FileWatcher(w io.Writer) {
+
+	// creates a new file watcher
+	watcher, err := fsnotify.NewWatcher()
+	msg.FatalOnErr(err)
+	defer func() { msg.OnErr(watcher.Close()) }()
+
+	done := make(chan bool)
+	go func() {
+		var now, last time.Time
+		for {
+			select {
+			// watch for events
+			case event, ok := <-watcher.Events:
+				fmt.Fprintln(w, "EVENT:", event, ok, time.Now().UTC())
+
+				now = time.Now()
+				diff := now.Sub(last)
+				if diff > 5000*time.Millisecond {
+					fmt.Fprintln(w, "refreshing li list")
+					msg.FatalOnErr(li.fromFile(LIFnJSON))
+					last = time.Now()
+				}
+
+			// watch for errors
+			case err := <-watcher.Errors:
+				fmt.Fprintln(w, "ERROR1", err, time.Now().UTC())
+			}
+		}
+	}()
+
+	// out of the box fsnotify can watch a single file, or a single directory
+	msg.InfoOnErr(watcher.Add(LIFnJSON), "ERROR2")
+	if Verbose {
+		fmt.Fprintln(w, LIFnJSON, "watched now for changes")
+	}
+	<-done
+}

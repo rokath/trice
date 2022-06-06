@@ -31,6 +31,19 @@ func NewLut(w io.Writer, fn string) TriceIDLookUp {
 	return lu
 }
 
+// NewLutLI returns a look-up map generated from JSON map file named fn.
+func NewLutLI(w io.Writer, fn string) TriceIDLookUpLI {
+	li := make(TriceIDLookUpLI)
+	if fn == "emptyFile" { // reserved name for tests only
+		return li
+	}
+	msg.FatalOnErr(li.fromFile(fn))
+	fmt.Fprintln(w, "Read ID location information file", fn, "with", len(li), "items.")
+	if Verbose {
+	}
+	return li
+}
+
 // newID() gets a new ID not used so far.
 // The delivered id is usable as key for lu, but not added. So calling fn twice without adding to lu could give the same value back.
 // It is important that lu was refreshed before with all sources to avoid finding as a new ID an ID which is already used in the source tree.
@@ -127,12 +140,32 @@ func (lu TriceIDLookUp) FromJSON(b []byte) (err error) {
 	return
 }
 
+// FromJSON converts JSON byte slice to li.
+func (li TriceIDLookUpLI) FromJSON(b []byte) (err error) {
+	if 0 < len(b) {
+		err = json.Unmarshal(b, &li)
+	}
+	return
+}
+
 // fromFile reads file fn into lut. Existing keys are overwritten, lut is extended with new keys.
 func (lu TriceIDLookUp) fromFile(fn string) error {
 	b, err := ioutil.ReadFile(fn)
 	s := fmt.Sprintf("fn=%s, maybe need to create an empty file first? (Safety feature)", fn)
 	msg.FatalInfoOnErr(err, s)
 	return lu.FromJSON(b)
+}
+
+// fromFile reads file fn into lut.
+func (li TriceIDLookUpLI) fromFile(fn string) error {
+	b, err := ioutil.ReadFile(fn)
+	if err == nil { // file found
+		return li.FromJSON(b)
+	}
+	if Verbose {
+		fmt.Println("File ", fn, "not found, not showing location information")
+	}
+	return nil // silently ignore non existing file
 }
 
 // AddFmtCount adds inside lu to all trice type names without format specifier count the appropriate count.

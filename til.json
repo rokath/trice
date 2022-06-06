@@ -4859,6 +4859,10 @@
 		"Type": "TRICE_S",
 		"Strg": "rd: 63 61 66 c3 a9 % x \tHex dump with spaces\\n"
 	},
+	"62397": {
+		"Type": "TRICE",
+		"Strg": "Hello, TRICE, %d\\n"
+	},
 	"62414": {
 		"Type": "TRICE8",
 		"Strg": "rx:%02x=%c\\n"

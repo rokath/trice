@@ -137,6 +137,22 @@ func logLoop(w io.Writer) {
 	// This way trice needs NOT to be restarted during development process.
 	go lu.FileWatcher(w, m)
 
+	var li id.TriceIDLookUpLI
+
+	if id.LIFnJSON == "emptyFile" { // reserved name for tests only
+		li = make(id.TriceIDLookUpLI)
+	} else {
+		if _, err := os.Stat(id.LIFnJSON); errors.Is(err, os.ErrNotExist) {
+			// path/to/whatever does not exist
+		} else {
+			li = id.NewLutLI(w, id.LIFnJSON) // lut is a map, that means a pointer
+
+			// Just in case the id location information file LIFnJSON gets updated, the file watcher updates li.
+			// This way trice needs NOT to be restarted during development process.
+			go li.FileWatcher(w)
+		}
+	}
+
 	sw := emitter.New(w)
 	var interrupted bool
 	var counter int
@@ -163,7 +179,7 @@ func logLoop(w io.Writer) {
 		if receiver.BinaryLogfileName != "off" && receiver.BinaryLogfileName != "none" {
 			rc = receiver.NewBinaryLogger(w, rc)
 		}
-		e = decoder.Translate(w, sw, lu, m, rwc)
+		e = decoder.Translate(w, sw, lu, m, li, rwc)
 		if io.EOF == e {
 			return // end of predefined buffer
 		}

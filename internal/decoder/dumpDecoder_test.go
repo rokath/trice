@@ -15,7 +15,7 @@ import (
 func doDUMPtableTest(t *testing.T, out io.Writer, f newDecoder, endianness bool, teTa testTable) {
 	for _, x := range teTa {
 		buf := make([]byte, defaultSize)
-		dec := f(out, nil, nil, nil, endianness) // a new decoder instance
+		dec := f(out, nil, nil, nil, nil, endianness) // a new decoder instance
 		in := ioutil.NopCloser(bytes.NewBuffer(x.in))
 		dec.setInput(in)
 		var err error

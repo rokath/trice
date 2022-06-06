@@ -22,7 +22,7 @@ func doCHARableTest(t *testing.T, out io.Writer, f newDecoder, endianness bool, 
 	//assert.Nil(t, lu.FromJSON([]byte(idl)))
 	//lu.AddFmtCount(os.Stdout)
 	buf := make([]byte, defaultSize)
-	dec := f(out, nil, nil, nil, endianness) // a new decoder instance
+	dec := f(out, nil, nil, nil, nil, endianness) // a new decoder instance
 	for _, x := range teTa {
 		in := ioutil.NopCloser(bytes.NewBuffer(x.in))
 		dec.setInput(in)

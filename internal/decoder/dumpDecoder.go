@@ -19,7 +19,7 @@ type dumpDec struct {
 }
 
 // newDUMPDecoder provides a hex dump option for incoming bytes.
-func newDUMPDecoder(w io.Writer, lut id.TriceIDLookUp, m *sync.RWMutex, in io.Reader, endian bool) Decoder {
+func newDUMPDecoder(w io.Writer, lut id.TriceIDLookUp, m *sync.RWMutex, li id.TriceIDLookUpLI, in io.Reader, endian bool) Decoder {
 	p := &dumpDec{}
 	p.w = w
 	p.in = in
