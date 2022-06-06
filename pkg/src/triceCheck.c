@@ -85,7 +85,63 @@ void TriceCheckSet(int index) {
     float  x = 1089.6082763671875;// 0x44883377
     double y = 518.0547492508867;// 0x4080307020601050
     switch (index) {
-        case 0:
+        case 10:
+            TRICE( Id(38164), "FATAL:magenta+b:red\n" );
+            TRICE( Id(61645), "CRITICAL:red+i:default+h\n" );
+            TRICE( Id(36488), "EMERGENCY:red+i:blue\n" );
+            TRICE( Id(59308), "ERROR:11:red\n" );
+            TRICE( Id(53189), "WARNING:11+i:red\n" );
+            TRICE( Id(57472), "ATTENTION:11:green\n" );
+            TRICE( Id(59451), "INFO:cyan+b:default+h\n" );
+            TRICE( Id(48312), "DEBUG:130+i\n" );
+            TRICE( Id(58941), "TRACE:default+i:default+h\n" );
+            TRICE( Id(46468), "TIME:blue+i:blue+h\n" );
+            TRICE( Id(60081), "MESSAGE:green+h:black\n" );
+            TRICE( Id(46695), "READ:black+i:yellow+h\n" );
+            TRICE( Id(61756), "WRITE:black+u:yellow+h\n" );
+            TRICE( Id(49403), "RECEIVE:black+h:black\n" );
+            TRICE( Id(56309), "TRANSMIT:black:black+h\n" );
+            TRICE( Id(40181), "DIAG:yellow+i:default+h\n" );
+            TRICE( Id(39389), "INTERRUPT:magenta+i:default+h\n" );
+            TRICE( Id(40711), "SIGNAL:118+i\n" );
+            TRICE( Id(43892), "TEST:yellow+h:black\n" );
+            TRICE( Id(49029), "DEFAULT:off\n" );
+            TRICE( Id(41589), "NOTICE:blue:white+h\n" );
+            TRICE( Id(42586), "ALERT:magenta:magenta+h\n" );
+            TRICE( Id(34138), "ASSERT:yellow+i:blue\n" );
+            TRICE( Id(60122), "ALARM:red+i:white+h\n" );
+            TRICE( Id(48718), "CYCLE:blue+i:default+h\n" );
+            TRICE( Id(34727), "VERBOSE:blue:default\n" );
+        break;
+        case 20:
+            TRICE( Id(45421), "fatal:magenta+b:red\n" );
+            TRICE( Id(35629), "critical:red+i:default+h\n" );
+            TRICE( Id(60077), "emergency:red+i:blue\n" );
+            TRICE( Id(44448), "error:11:red\n" );
+            TRICE( Id(37002), "warning:11+i:red\n" );
+            TRICE( Id(57264), "attention:11:green\n" );
+            TRICE( Id(38759), "info:cyan+b:default+h\n" );
+            TRICE( Id(64303), "debug:130+i\n" );
+            TRICE( Id(52870), "trace:default+i:default+h\n" );
+            TRICE( Id(53708), "tme:blue+i:blue+h\n" );
+            TRICE( Id(63820), "message:green+h:black\n" );
+            TRICE( Id(35484), "read:black+i:yellow+h\n" );
+            TRICE( Id(63974), "write:black+u:yellow+h\n" );
+            TRICE( Id(44944), "receive:black+h:black\n" );
+            TRICE( Id(37558), "transmit:black:black+h\n" );
+            TRICE( Id(61631), "diag:yellow+i:default+h\n" );
+            TRICE( Id(63026), "interrupt:magenta+i:default+h\n" );
+            TRICE( Id(33452), "signal:118+i\n" );
+            TRICE( Id(55062), "test:yellow+h:black\n" );
+            TRICE( Id(36305), "default:off\n" );
+            TRICE( Id(45948), "notice:blue:white+h\n" );
+            TRICE( Id(48841), "allert:magenta:magenta+h\n" );
+            TRICE( Id(47587), "assert:yellow+i:blue\n" );
+            TRICE( Id(53743), "alarm:red+i:white+h\n" );
+            TRICE( Id(53865), "cycle:blue+i:default+h\n" );
+            TRICE( Id(47209), "verbose:blue:default\n" );
+        break;
+        case 30:
             TRICE( Id(51963), "dbg:Hi!\n" );
             TRICE( Id(42282), "dbg:\tHi!\n" );
             TRICE( Id(45805), "dbg:\t\tHi!\n" );
@@ -96,36 +152,6 @@ void TriceCheckSet(int index) {
             TRICE( Id(45474), "dbg:\a\a\aHi!\n" );
             TRICE( Id(58434), "dbg:\\aHi!\n" );
             //TCOBSCheck();
-        break;
-        case 10:
-            TRICE( Id(59034), "att:Various single arguments\n" );
-            TRICE8( Id(64006), "rd:TRICE8 line %t (%%t ,0)\n", 0 );
-            TRICE8( Id(45005), "rd:TRICE8 line %t (%%t ,2)\n", 2 );
-            TRICE8( Id(36514), "rd:TRICE8 line %u (%%u ,-1)\n", -1 );
-            TRICE8( Id(61927), "rd:TRICE8 line %b (%%b ,-1)\n", -1 );
-            TRICE8( Id(36474), "rd:TRICE8 line %o (%%o ,-1)\n", -1 );
-            TRICE8( Id(34551), "rd:TRICE8 line %O (%%O ,-1)\n", -1 );
-            TRICE8( Id(55192), "rd:TRICE8 line %X (%%X ,-1)\n", -1 );
-            TRICE8( Id(50701), "rd:TRICE8 line %x (%%x ,-1)\n", -1 );
-            TRICE8( Id(44661), "rd:TRICE8 line %d (%%d ,-1)\n", -1 );
-        break;
-        case 20:
-            TRICE16_1( Id(46787), "rd:TRICE16_1 line %t (%%t ,0)\n", 0 );
-            TRICE16_1( Id(56721), "rd:TRICE16_1 line %t (%%t ,2)\n", 2 );
-            TRICE16_1( Id( 35169), "rd:TRICE16_1 line %u (%%u -1)\n", -1 );
-            TRICE16_1( Id( 35133), "rd:TRICE16_1 line %b (%%b -1)\n", -1 );
-            TRICE16_1( Id( 51463), "rd:TRICE16_1 line %o (%%o -1)\n", -1 );
-            TRICE16_1( Id( 53632), "rd:TRICE16_1 line %x (%%x -1)\n", -1 );
-        break;
-        case 30:
-            TRICE16_1( Id( 37985), "rd:TRICE16_1 line %d (%%d -1)\n", -1 );
-            TRICE( Id(45626), "rd:TRICE line %t (%%t -1)\n", 0 );
-            TRICE( Id(65238), "rd:TRICE line %t (%%t -1)\n", 2 );
-            TRICE( Id(48024), "rd:TRICE line %u (%%u)\n", -1 );
-            TRICE( Id(58374), "rd:TRICE line %b (%%b)\n", -2 );
-            TRICE( Id(45055), "rd:TRICE line %o (%%o)\n", -3 );
-            TRICE( Id(37423), "rd:TRICE line %x (%%x)\n", -4 );
-            TRICE( Id(53816), "rd:TRICE line %d (%%d)\n", -5 );
         break;
         case 40:
             s = "AAAAAAAAAAAA";
@@ -972,7 +998,46 @@ EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
             TRICE64( Id(40084), "rd:TRICE64 int %d, double %f (%%f), %016x, %064b\n", DoubleToInt64(-y), aDouble(-y), aDouble(-y), aDouble(-y) );
             TRICE64( Id(40084), "rd:TRICE64 int %d, double %f (%%f), %016x, %064b\n",     (int64_t)(-y), aDouble(-y), aDouble(-y), aDouble(-y) );
             TRICE64( Id(40084), "rd:TRICE64 int %d, double %f (%%f), %016x, %064b\n",               -y,  aDouble(-y), aDouble(-y), aDouble(-y) );
-
+        break;
+        case 930:
+            TRICE( Id(59034), "att:Various single arguments\n" );
+            TRICE8( Id(64006), "rd:TRICE8 line %t (%%t ,0)\n", 0 );
+            TRICE8( Id(45005), "rd:TRICE8 line %t (%%t ,2)\n", 2 );
+            TRICE8( Id(36514), "rd:TRICE8 line %u (%%u ,-1)\n", -1 );
+            TRICE8( Id(61927), "rd:TRICE8 line %b (%%b ,-1)\n", -1 );
+            TRICE8( Id(36474), "rd:TRICE8 line %o (%%o ,-1)\n", -1 );
+            TRICE8( Id(34551), "rd:TRICE8 line %O (%%O ,-1)\n", -1 );
+            TRICE8( Id(55192), "rd:TRICE8 line %X (%%X ,-1)\n", -1 );
+            TRICE8( Id(50701), "rd:TRICE8 line %x (%%x ,-1)\n", -1 );
+            TRICE8( Id(44661), "rd:TRICE8 line %d (%%d ,-1)\n", -1 );
+        break;
+        case 940:
+            TRICE16_1( Id(46787), "rd:TRICE16_1 line %t (%%t ,0)\n", 0 );
+            TRICE16_1( Id(56721), "rd:TRICE16_1 line %t (%%t ,2)\n", 2 );
+            TRICE16_1( Id( 35169), "rd:TRICE16_1 line %u (%%u -1)\n", -1 );
+            TRICE16_1( Id( 35133), "rd:TRICE16_1 line %b (%%b -1)\n", -1 );
+            TRICE16_1( Id( 51463), "rd:TRICE16_1 line %o (%%o -1)\n", -1 );
+            TRICE16_1( Id( 53632), "rd:TRICE16_1 line %x (%%x -1)\n", -1 );
+        break;
+        case 950:
+            TRICE16_1( Id( 37985), "rd:TRICE16_1 line %d (%%d -1)\n", -1 );
+            TRICE( Id(45626), "rd:TRICE line %t (%%t -1)\n", 0 );
+            TRICE( Id(65238), "rd:TRICE line %t (%%t -1)\n", 2 );
+            TRICE( Id(48024), "rd:TRICE line %u (%%u)\n", -1 );
+            TRICE( Id(58374), "rd:TRICE line %b (%%b)\n", -2 );
+            TRICE( Id(45055), "rd:TRICE line %o (%%o)\n", -3 );
+            TRICE( Id(37423), "rd:TRICE line %x (%%x)\n", -4 );
+            TRICE( Id(53816), "rd:TRICE line %d (%%d)\n", -5 );
+        break;
+        case 960:
+        break;
+        case 970:
+        break;
+        case 980:
+        break;
+        case 990:
+        break;
+        case 1000:
 #ifdef TRICE_ENCRYPT
         TRICE0 (Id( 48705), "--------------------------------------------------\n" );
         {

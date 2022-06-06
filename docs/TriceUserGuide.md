@@ -29,6 +29,8 @@
 		* 9.2.5. [Binary Logfile](#BinaryLogfile)
 		* 9.2.6. [TCP output](#TCPoutput)
 		* 9.2.7. [Set all IDs in a directory tree to 0](#SetallIDsinadirectorytreeto0)
+		* 9.2.8. [Stimulate target with a user command over UART](#StimulatetargetwithausercommandoverUART)
+		* 9.2.9. [Explpore and modify channels and their colors](#Explporeandmodifychannelsandtheircolors)
 * 10. [Additional hints](#Additionalhints)
 	* 10.1. [Pre-built executables are available](#Pre-builtexecutablesareavailable)
 	* 10.2. [Configuration file `triceConfig.h`](#ConfigurationfiletriceConfig.h)
@@ -40,7 +42,7 @@
 	* 10.8. [Logfile viewing](#Logfileviewing)
 	* 10.9. [Using the `trice` tool with 3rd party tools](#Usingthetricetoolwith3rdpartytools)
 	* 10.10. [Several targets at the same time](#Severaltargetsatthesametime)
-	* 10.11. [Executing `go test ./...`](#Executinggotest....)
+	* 10.11. [Executing `go test -race -count 100 ./...`](#Executinggotest-race-count100....)
 * 11. [Target side *Trice* On-Off](#TargetsideTriceOn-Off)
 * 12. [Host side *Trice* On-Off](#HostsideTriceOn-Off)
 * 13. [Using a different encoding](#Usingadifferentencoding)
@@ -879,6 +881,7 @@ This additionally sends **trice** output to a 3rd party TCP listener, for exampl
 
 ![./ref/PuttyConfig1.PNG](./ref/PuttyConfig1.PNG) ![./ref/PuttyConfig2.PNG](./ref/PuttyConfig2.PNG)
 ![./ref/Putty.PNG](./ref/Putty.PNG)
+
 ####  9.2.7. <a name='SetallIDsinadirectorytreeto0'></a>Set all IDs in a directory tree to 0
 
 ```bash
@@ -890,6 +893,15 @@ trice zeroSourceTreeIds -src ./
 * Normally nobody uses that. But if you intend to integrate some existing sources into a project using [ID management](./TriceIDManagement.md) options, this could be a need.
 * Calling `trice u` afterwards will assign new IDs, but calling `trice u -shared IDs` will assign the same IDs again.
 
+####  9.2.8. <a name='StimulatetargetwithausercommandoverUART'></a>Stimulate target with a user command over UART
+
+Sometimes it is handy to stimulate the target during development. For that a 2nd screen is helpful what is possible using the display server option:
+
+![./ref/UARTCommandAnimation.gif](./ref/UARTCommandAnimation.gif)
+
+####  9.2.9. <a name='Explporeandmodifychannelsandtheircolors'></a>Explpore and modify channels and their colors
+
+See file [./TriceColor.md](./TriceColor.md)
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 ##  10. <a name='Additionalhints'></a>Additional hints
@@ -995,7 +1007,7 @@ Parallel output as logfile, TCP or binary logfile is possible. See examples abov
 
 You can connect each target over its transmit channel with a own **trice** instance and let integrate all transmissions line by line in an additional **trice** instance acting as display server. See [https://github.com/rokath/trice#display-server-option](https://github.com/rokath/trice#display-server-option).
 
-###  10.11. <a name='Executinggotest....'></a>Executing `go test -race -count 100 ./...`
+###  10.11. <a name='Executinggotest-race-count100....'></a>Executing `go test -race -count 100 ./...`
 
 The C-code is executed during some tests. Prerequisite is a installed GCC.
 

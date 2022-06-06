@@ -70,8 +70,8 @@ var (
 	// user mode colors
 	colorizeTIME      = ansi.ColorFunc("blue+i:blue+h")
 	colorizeMESSAGE   = ansi.ColorFunc("green+h:black")
-	colorizeREAD      = ansi.ColorFunc("black+h:black")
-	colorizeWRITE     = ansi.ColorFunc("black:black+h")
+	colorizeREAD      = ansi.ColorFunc("black+i:yellow+h")
+	colorizeWRITE     = ansi.ColorFunc("black+u:yellow+h")
 	colorizeRECEIVE   = ansi.ColorFunc("black+h:black")
 	colorizeTRANSMIT  = ansi.ColorFunc("black:black+h")
 	colorizeDIAG      = ansi.ColorFunc("yellow+i:default+h")
@@ -83,7 +83,7 @@ var (
 	colorizeNOTICE  = ansi.ColorFunc("blue:white+h")
 	colorizeALERT   = ansi.ColorFunc("magenta:magenta+h")
 	colorizeASSERT  = ansi.ColorFunc("yellow+i:blue")
-	colorizeALARM   = ansi.ColorFunc("black+i:magenta")
+	colorizeALARM   = ansi.ColorFunc("red+i:white+h")
 	colorizeCYCLE   = ansi.ColorFunc("blue+i:default+h")
 	colorizeVERBOSE = ansi.ColorFunc("blue:default")
 )
@@ -118,8 +118,8 @@ var colorChannels = []colorChannel{
 	// user modes
 	{0, []string{"Timestamp", "tim", "time", "TIM", "TIME", "TIMESTAMP", "timestamp"}, colorizeTIME},
 	{0, []string{"m", "msg", "message", "M", "MSG", "MESSAGE"}, colorizeMESSAGE},
-	{0, []string{"r", "rx", "rd", "read", "rd_", "RD", "RD_"}, colorizeREAD},
-	{0, []string{"w", "tx", "wr", "write", "wr_", "WR", "WR_"}, colorizeWRITE},
+	{0, []string{"r", "rx", "rd", "read", "rd_", "RD", "RD_", "READ"}, colorizeREAD},
+	{0, []string{"w", "tx", "wr", "write", "wr_", "WR", "WR_", "WRITE"}, colorizeWRITE},
 	{0, []string{"receive", "rx", "RECEIVE", "Receive", "RX"}, colorizeRECEIVE},
 	{0, []string{"transmit", "tx", "TRANSMIT", "Transmit", "TX"}, colorizeTRANSMIT},
 	{0, []string{"dia", "diag", "Diag", "DIA", "DIAG"}, colorizeDIAG},
