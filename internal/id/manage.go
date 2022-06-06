@@ -188,3 +188,25 @@ func (lu TriceIDLookUp) reverse() (tflu triceFmtLookUp) {
 //  	}
 //  	return
 //  }
+
+// toFile writes lut into file fn as indented JSON.
+func (lim TriceIDLookUpLI) toFile(fn string) (err error) {
+	f, err := os.Create(fn)
+	msg.FatalOnErr(err)
+	defer func() {
+		err = f.Close()
+		msg.FatalOnErr(err)
+	}()
+
+	b, err := lim.toJSON()
+	msg.FatalOnErr(err)
+
+	_, err = f.Write(b)
+	msg.FatalOnErr(err)
+	return
+}
+
+// toJSON converts lim into JSON byte slice in human-readable form.
+func (lim TriceIDLookUpLI) toJSON() ([]byte, error) {
+	return json.MarshalIndent(lim, "", "\t")
+}

@@ -160,6 +160,7 @@ Example: "trice l -port COM38 -ds -ipa 192.168.178.44" sends trice output to a p
 	flagBinaryLogfile(fsScLog)
 	flagVerbosity(fsScLog)
 	flagIDList(fsScLog)
+	flagLIList(fsScLog)
 	flagIPAddress(fsScLog)
 	fsScLog.Var(&emitter.Ban, "ban", `Channel(s) to ignore. This is a multi-flag switch. It can be used several times with a colon separated list of channel descriptors not to display.
 Example: "-ban dbg:wrn -ban diag" results in suppressing all as debug, diag and warning tagged messages. Not usable in conjunction with "-pick".`) // multi flag
@@ -223,6 +224,7 @@ func flagsRefreshAndUpdate(p *flag.FlagSet) {
 	flagSrcs(p)
 	flagVerbosity(p)
 	flagIDList(p)
+	flagLIList(p)
 }
 
 func flagBinaryLogfile(p *flag.FlagSet) {
@@ -281,6 +283,17 @@ The specified JSON file is needed to display the ID coded trices during runtime 
 	p.StringVar(&id.FnJSON, "idList", "til.json", `Alternate for '-idlist'.
 `) // flag
 	p.StringVar(&id.FnJSON, "i", "til.json", `Short for '-idlist'.
+`) // flag
+}
+
+func flagLIList(p *flag.FlagSet) {
+	p.StringVar(&id.LIFnJSON, "locationInformation", "li.json", `The trice location list file.
+The specified JSON file is needed to display the location information for each ID during runtime and needs no version control. 
+It is regenerated on each refresh, update or renew trice run. When trice log finds a location information file, it is used for 
+log output with location information. Otherwise no location information is displayed, what usually is wanted in the field.
+This way the newest til.json can be used also with legacy firmware, but the li.json must match the current firmware version.
+`) // flag
+	p.StringVar(&id.LIFnJSON, "li", "li.json", `Short for '-locationInformation'.
 `) // flag
 }
 

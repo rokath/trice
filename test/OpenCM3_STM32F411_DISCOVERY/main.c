@@ -9,6 +9,7 @@
 #include <libopencm3/stm32/rcc.h>
 
 #include "trice.h"
+#define TRICE_FILE Id(41732)
 
 #include "time.h"
 
@@ -53,7 +54,7 @@ int main(void)
 		// TODO: how to print a string only?
 		// This causes .trice.c compilation to fail
 		//TRICE( Hello, TRICE\n");
-		TRICE("Hello, TRICE, %d\n", 42);
+		TRICE( Id(62397),"Hello, TRICE, %d\n", 42);
 	}
 
 	return 0;

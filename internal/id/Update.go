@@ -182,12 +182,12 @@ func isSourceFile(fi os.FileInfo) bool {
 	return matchSourceFile.MatchString(fi.Name())
 }
 
-func refreshList(w io.Writer, root string, lu TriceIDLookUp, tflu triceFmtLookUp) {
+func refreshList(w io.Writer, root string, lu TriceIDLookUp, tflu triceFmtLookUp, lim TriceIDLookUpLI) {
 	if Verbose {
 		fmt.Fprintln(w, "dir=", root)
 		fmt.Fprintln(w, "List=", FnJSON)
 	}
-	msg.FatalInfoOnErr(filepath.Walk(root, visitRefresh(w, lu, tflu)), "failed to walk tree")
+	msg.FatalInfoOnErr(filepath.Walk(root, visitRefresh(w, lu, tflu, lim)), "failed to walk tree")
 }
 
 // Additional actions needed: (Option -dry-run lets do a check in advance.)
@@ -208,12 +208,12 @@ func refreshList(w io.Writer, root string, lu TriceIDLookUp, tflu triceFmtLookUp
 // - replace.Type( Id(0), ...) with.Type( Id(n), ...)
 // - find duplicate.Type( Id(n), ...) and replace one of them if *Trices* are not identical
 // - extend file fnIDList
-func idsUpdate(w io.Writer, root string, lu TriceIDLookUp, tflu triceFmtLookUp, pListModified *bool) {
+func idsUpdate(w io.Writer, root string, lu TriceIDLookUp, tflu triceFmtLookUp, pListModified *bool, lim TriceIDLookUpLI) {
 	if Verbose && FnJSON != "emptyFile" {
 		fmt.Fprintln(w, "dir=", root)
 		fmt.Fprintln(w, "List=", FnJSON)
 	}
-	msg.FatalInfoOnErr(filepath.Walk(root, visitUpdate(w, lu, tflu, pListModified)), "failed to walk tree")
+	msg.FatalInfoOnErr(filepath.Walk(root, visitUpdate(w, lu, tflu, pListModified, lim)), "failed to walk tree")
 }
 
 func readFile(w io.Writer, path string, fi os.FileInfo, err error) (string, error) {
@@ -231,13 +231,13 @@ func readFile(w io.Writer, path string, fi os.FileInfo, err error) (string, erro
 	return text, nil
 }
 
-func visitRefresh(w io.Writer, lu TriceIDLookUp, tflu triceFmtLookUp) filepath.WalkFunc {
+func visitRefresh(w io.Writer, lu TriceIDLookUp, tflu triceFmtLookUp, lim TriceIDLookUpLI) filepath.WalkFunc {
 	return func(path string, fi os.FileInfo, err error) error {
 		text, err := readFile(w, path, fi, err)
 		if nil != err {
 			return err
 		}
-		refreshIDs(w, text, lu, tflu) // update IDs: Id(0) -> Id(M)
+		refreshIDs(w, path, text, lu, tflu, lim) // update IDs: Id(0) -> Id(M)
 		return nil
 	}
 }
@@ -348,7 +348,7 @@ func updateTriceFileId(w io.Writer, lu TriceIDLookUp, tflu triceFmtLookUp, inTex
 	return
 }
 
-func visitUpdate(w io.Writer, lu TriceIDLookUp, tflu triceFmtLookUp, pListModified *bool) filepath.WalkFunc {
+func visitUpdate(w io.Writer, lu TriceIDLookUp, tflu triceFmtLookUp, pListModified *bool, lim TriceIDLookUpLI) filepath.WalkFunc {
 	// WalkFunc is the type of the function called for each file or directory
 	// visited by Walk. The path argument contains the argument to Walk as a
 	// prefix; that is, if Walk is called with "dir", which is a directory
@@ -374,7 +374,7 @@ func visitUpdate(w io.Writer, lu TriceIDLookUp, tflu triceFmtLookUp, pListModifi
 		if isCFile(fileName) {
 			text, fileModified2 = updateTriceFileId(w, lu, tflu, text, fileName, SharedIDs, Min, Max, SearchMethod, pListModified)
 		}
-		refreshIDs(w, text, lu, tflu) // update IDs: Id(0) -> Id(M)
+		refreshIDs(w, fileName, text, lu, tflu, lim) // update IDs: Id(0) -> Id(M)
 
 		textN, fileModified0 := updateParamCountAndID0(w, text, ExtendMacrosWithParamCount)                                 // update parameter count: TRICE* to TRICE*_n and insert missing Id(0)
 		textU, fileModified1 := updateIDsUniqOrShared(w, SharedIDs, Min, Max, SearchMethod, textN, lu, tflu, pListModified) // update IDs: Id(0) -> Id(M)
@@ -430,6 +430,10 @@ func triceFmtParse(t string) (tf TriceFmt, found bool) {
 	return
 }
 
+func lineCount(text string) {
+
+}
+
 // triceParse expects a string t containing a trice macro in the form `TRICE*(Id(n), "...", ...);`
 // Returned nbID is the extracted string part containing 'Id(n)'.
 // Returned id is the scanned n inside Id(n), only and only if n is a single decimal number.
@@ -445,13 +449,17 @@ func triceParse(t string) (nbID string, id TriceID, tf TriceFmt, found bool) {
 }
 
 // refreshIDs parses text for valid trices tf and adds them to lu & tflu.
-func refreshIDs(w io.Writer, text string, lu TriceIDLookUp, tflu triceFmtLookUp) {
+func refreshIDs(w io.Writer, fileName, text string, lu TriceIDLookUp, tflu triceFmtLookUp, lim TriceIDLookUpLI) {
 	subs := text[:] // create a copy of text and assign it to subs
+	line := 1       // source cole lines start with 1 for some reason
+	var li TriceLI
+	li.File = filepath.Base(fileName)
 	for {
 		loc := matchNbTRICE.FindStringSubmatchIndex(subs) // find the next TRICE location in file
 		if nil == loc {
 			return // done
 		}
+		line += strings.Count(subs[:loc[0]], "\n")
 		nbTRICE := subs[loc[0]:loc[1]] // full trice expression with Id(n)
 		// prepare subs for next loop
 		subs = subs[loc[1]:] // A possible Id(0) replacement makes subs not shorter, so next search can start at loc[1].
@@ -463,6 +471,9 @@ func refreshIDs(w io.Writer, text string, lu TriceIDLookUp, tflu triceFmtLookUp)
 		}
 		tfS := tf
 		tfS.Type = strings.ToUpper(tfS.Type) // Lower case and upper case Type are not distinguished.
+
+		li.Line = line
+		lim[id] = li
 
 		// In lu id could point to a different tf. So we need to check that and invalidate id in that case.
 		// - That typically happens after tf was changed in source but the id not.

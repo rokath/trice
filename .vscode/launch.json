@@ -268,12 +268,14 @@
             "env": {},
             "args": ["update",
                     "-v",
-                    "-src",
-                    "${workspaceFolder}/test/MDK-ARM_STM32G071RB",
                     "-IDMethod",
                     "random",
                     "-idlist",
-                    "${workspaceFolder}/til.json"
+                    "${workspaceFolder}/til.json",
+                    "-locationInformation",
+                    "${workspaceFolder}/li.json",
+                    "-src",
+                    "${workspaceFolder}/pkg/"
             ]
         }
     ]

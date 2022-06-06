@@ -155,7 +155,7 @@ func PrintColorChannelEvents(w io.Writer) {
 		if s.events != 0 {
 			fmt.Fprintf(w, "%6d times: ", s.events)
 			for _, c := range s.channel {
-				fmt.Fprint(w, c, " ")
+				fmt.Fprint(w, s.colorize(c), " ")
 			}
 			fmt.Fprintln(w, "")
 		}

@@ -108,14 +108,16 @@ func checkList2(t *testing.T, sharedIDs bool, min, max TriceID, searchMethod str
 func checkTil(t *testing.T, text string, exp TriceIDLookUp) {
 	lu := make(TriceIDLookUp)
 	tflu := lu.reverse()
-	refreshIDs(os.Stdout, text, lu, tflu)
+	lim := make(TriceIDLookUpLI)
+	refreshIDs(os.Stdout, "", text, lu, tflu, lim)
 	assert.True(t, reflect.DeepEqual(lu, exp))
 }
 
 func check(t *testing.T, text, expJSON string) {
 	lu := make(TriceIDLookUp)
 	tflu := lu.reverse()
-	refreshIDs(os.Stdout, text, lu, tflu)
+	lim := make(TriceIDLookUpLI)
+	refreshIDs(os.Stdout, "", text, lu, tflu, lim)
 	b, err := lu.toJSON()
 	assert.Equal(t, nil, err)
 	assert.Equal(t, expJSON, string(b))

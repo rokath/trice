@@ -21,6 +21,9 @@ var (
 	// FnJSON is the filename for the JSON formatted ID list.
 	FnJSON string
 
+	// LIFnJSON is the filename for the JSON formatted location information list.
+	LIFnJSON string
+
 	// Min is the smallest allowed ID for normal trices.
 	Min = TriceID(32768)
 
@@ -71,3 +74,11 @@ type TriceIDLookUp map[TriceID]TriceFmt
 // If an additional equal TriceFmt occurs without ID it gets one of the IDs already used for this format string.
 // (-sharedIDs=true) or a new one (-sharedIDs=false)(default).
 type triceFmtLookUp map[TriceFmt]TriceID
+
+// TriceLI is the trice location information assigned to a trice ID.
+type TriceLI struct {
+	File string `json:"file"` // source file name of trice id
+	Line int    `json:"Line"` // source file line of trice id
+}
+
+type TriceIDLookUpLI map[TriceID]TriceLI
