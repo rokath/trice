@@ -154,12 +154,39 @@ void SysTick_Handler(void)
 void USART2_IRQHandler(void)
 {
   /* USER CODE BEGIN USART2_IRQn 0 */
+#if defined( TRICE_UART )
+    if (LL_USART_IsActiveFlag_RXNE(TRICE_UART) ) { // Read Data Register Not Empty Flag 
+        static char rxBuf[TRICE_COMMAND_SIZE_MAX+1]; // with terminating 0
+        static int index = 0;
+        uint8_t v;
+        if( LL_USART_IsActiveFlag_ORE(USART2) ){
+            TRICE( Id(59297), "WARNING:USARTq OverRun Error Flag is set!\n" );
+        }
+        v = LL_USART_ReceiveData8(TRICE_UART); // implicit clears the flag
+        rxBuf[index] = v;
+        index += index < TRICE_COMMAND_SIZE_MAX ? 1 : 0; 
+        if( v == 0 ){ // command end
+            TRICE_S( Id(58565), "rx:received command:%s\n", rxBuf );
+            strcpy(triceCommand, rxBuf );
+            triceCommandFlag = 1;
+            index = 0;
+        }
+        return;
+    }
+#endif // #if defined( TRICE_UART )
+
+    // If both flags active and only one was served, the IRQHandler gets activated again.
+
+#if defined( TRICE_UART ) && defined( TRICE_HALF_BUFFER_SIZE ) // buffered out to UART
+    if( LL_USART_IsActiveFlag_TXE(TRICE_UART) ){ // Transmit Data Register Empty Flag
+        triceServeTransmit();
+        return;
+    }
+#endif
 
   /* USER CODE END USART2_IRQn 0 */
   /* USER CODE BEGIN USART2_IRQn 1 */
-#if defined( TRICE_UART ) && defined( TRICE_HALF_BUFFER_SIZE ) // buffered out to UART
-    triceServeTransmit();
-#endif
+
   /* USER CODE END USART2_IRQn 1 */
 }
 

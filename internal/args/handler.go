@@ -137,13 +137,13 @@ func logLoop(w io.Writer) {
 	// This way trice needs NOT to be restarted during development process.
 	go lu.FileWatcher(w, m)
 
-	var li id.TriceIDLookUpLI
+	var li id.TriceIDLookUpLI // nil
 
 	if id.LIFnJSON == "emptyFile" { // reserved name for tests only
-		li = make(id.TriceIDLookUpLI)
+		li = make(id.TriceIDLookUpLI) // li is not nil, but empty
 	} else {
 		if _, err := os.Stat(id.LIFnJSON); errors.Is(err, os.ErrNotExist) {
-			// path/to/whatever does not exist
+			// path/to/whatever does not exist: li is nil
 		} else {
 			li = id.NewLutLI(w, id.LIFnJSON) // lut is a map, that means a pointer
 

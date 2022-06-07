@@ -26,6 +26,12 @@ extern "C" {
 ///////////////////////////////////////////////////////////////////////////////
 // Declarations and Defaults
 
+#ifndef TRICE_COMMAND_SIZE_MAX
+#define TRICE_COMMAND_SIZE_MAX 4 //!< trice tool could transmit command strings to target
+#endif
+extern char triceCommand[TRICE_COMMAND_SIZE_MAX+1];
+extern int triceCommandFlag;
+
 size_t TriceDepthMax( void );
 extern uint32_t* TriceBufferWritePosition;
 unsigned TriceCOBSEncode( uint8_t* restrict output, const uint8_t * restrict input, unsigned length);

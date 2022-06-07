@@ -167,6 +167,13 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
     while (1){
+        if( triceCommandFlag ){
+            triceCommandFlag = 0;
+            TRICE_S( Id(48217), "att:Executing command %s ...\n", triceCommand );
+            // do
+            TRICE( Id(64230), "att:...done\n" );
+        }
+
         // serve every few ms
         #ifdef TRICE_HALF_BUFFER_SIZE
         static int lastMs = 0;
