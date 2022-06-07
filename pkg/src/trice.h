@@ -175,7 +175,7 @@ void triceServeTransmit(void);
 void triceTriggerTransmit(void);
 int TriceOutDepth( void );
 uint8_t TriceNextUint8( void );
-#endif // #if defined( TRICE_UART ) && TRICE_MODE != 0
+#endif #if defined( TRICE_UART ) && defined( TRICE_HALF_BUFFER_SIZE )
 
 //
 ///////////////////////////////////////////////////////////////////////////////
