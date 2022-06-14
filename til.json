@@ -27,6 +27,10 @@
 		"Type": "TRICE32_1",
 		"Strg": "rd:TRICE32_1 float -%.9f (%%.9f)\\n"
 	},
+	"33019": {
+		"Type": "TRICE",
+		"Strg": "Button press at, %d\\n"
+	},
 	"33033": {
 		"Type": "TRICE",
 		"Strg": "wrn:USART2 Send Break Flag is set\\n"
@@ -319,6 +323,10 @@
 		"Type": "TRICE8_4",
 		"Strg": "tst:TRICE8_4 %d %d %d %d\\n"
 	},
+	"34700": {
+		"Type": "TRICE0",
+		"Strg": "Hello, TRICE0()\\n"
+	},
 	"34713": {
 		"Type": "TRICE",
 		"Strg": "ATT:TRICE attention message, SysTick is %6d\\n"
@@ -558,6 +566,10 @@
 	"35885": {
 		"Type": "TRICE0",
 		"Strg": "4"
+	},
+	"35889": {
+		"Type": "TRICE8",
+		"Strg": "s:     CGO-TEST     TRICE_MODE %3u     \\n"
 	},
 	"35920": {
 		"Type": "TRICE",
@@ -1739,6 +1751,10 @@
 		"Type": "TRICE",
 		"Strg": "tim:TRICE attention message, SysTick is %6d\\n"
 	},
+	"43817": {
+		"Type": "TRICE",
+		"Strg": "Hello, TRICE\\n"
+	},
 	"43825": {
 		"Type": "TRICE64",
 		"Strg": "tst:TRICE64 %d %d %d %d %d %d %d %d\\n"
@@ -2643,6 +2659,10 @@
 		"Type": "TRICE32_2",
 		"Strg": "rd:TRICE32_2 %d, %d\\n"
 	},
+	"49561": {
+		"Type": "TRICE8",
+		"Strg": "s:     NUCLEO-F411RE     TRICE_MODE %3u     \\n"
+	},
 	"49574": {
 		"Type": "TRICE16_1",
 		"Strg": "rd:TRICE16_1 float %f (%%f)\\n"
@@ -2799,6 +2819,10 @@
 		"Type": "TRICE",
 		"Strg": "rd: 123.456000 \t%f \tDecimal point, no exponent\\n"
 	},
+	"50473": {
+		"Type": "TRICE0",
+		"Strg": "s:                                          \\n"
+	},
 	"50491": {
 		"Type": "TRICE",
 		"Strg": "na"
@@ -2934,6 +2958,10 @@
 	"51400": {
 		"Type": "TRICE64",
 		"Strg": "tst:TRICE64 %d %d %d %d %d %d %d\\n"
+	},
+	"51446": {
+		"Type": "TRICE_FILE",
+		"Strg": "main.c"
 	},
 	"51463": {
 		"Type": "TRICE16_1",
@@ -3398,6 +3426,10 @@
 	"53902": {
 		"Type": "TRICE32",
 		"Strg": "rd:TRICE32 int %d, float %f (%%f), %08x, %032b\\n"
+	},
+	"53903": {
+		"Type": "TRICE",
+		"Strg": "Hello, TRICE, %d\\n"
 	},
 	"53914": {
 		"Type": "TRICE",
@@ -4134,6 +4166,10 @@
 	"58039": {
 		"Type": "TRICE64",
 		"Strg": "rd: 123.456000 \t%f \t%%f Decimal point, no exponent\\n"
+	},
+	"58090": {
+		"Type": "TRICE0",
+		"Strg": "Hello, TRICE\\n"
 	},
 	"58332": {
 		"Type": "TRICE32",
