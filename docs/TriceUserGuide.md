@@ -43,6 +43,7 @@
 	* 10.9. [Using the `trice` tool with 3rd party tools](#Usingthetricetoolwith3rdpartytools)
 	* 10.10. [Several targets at the same time](#Severaltargetsatthesametime)
 	* 10.11. [Executing `go test -race -count 100 ./...`](#Executinggotest-race-count100....)
+	* 10.12. [Direct TRICE Out (TRICE_MODE 0) could cause stack overflow with -o0 optimization](#DirectTRICEOutTRICE_MODE0couldcausestackoverflowwith-o0optimization)
 * 11. [Target side *Trice* On-Off](#TargetsideTriceOn-Off)
 * 12. [Host side *Trice* On-Off](#HostsideTriceOn-Off)
 * 13. [Using a different encoding](#Usingadifferentencoding)
@@ -1010,6 +1011,10 @@ You can connect each target over its transmit channel with a own **trice** insta
 ###  10.11. <a name='Executinggotest-race-count100....'></a>Executing `go test -race -count 100 ./...`
 
 The C-code is executed during some tests. Prerequisite is a installed GCC.
+
+###  10.12. <a name='DirectTRICEOutTRICE_MODE0couldcausestackoverflowwith-o0optimization'></a>Direct TRICE Out (TRICE_MODE 0) could cause stack overflow with -o0 optimization
+
+As discussed in [issue #294](https://github.com/rokath/trice/issues/294) it can happen, that several TRICE macros within one function call increase the stack usage more than expected, when compiler optimization is totally switched off.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
