@@ -26,9 +26,10 @@ const (
 	// patSourceFile is a regex pattern matching any source file for patching
 	patCFile = "(\\.c|\\.cc|\\.cpp)$"
 
-	// patTrice matches any TRICE name variant https://regex101.com/r/IkIhV3/1, The (?i) says case-insensitive. (?U)=un-greedy -> only first match.
-	patTypNameTRICE = `(?iU)(\b((TRICE((_(S|N|B|F)|0)|((8|16|32|64)*(_[0-9]*)*))))\b)`
-	//               `     (\b((TRICE(_S|0|(8|16|32|64)*)))(_[1-9]*)*|\b)\s*\(\s*\bID\b\s*\(\s*.*[0-9]\s*\)\s*,\s*".*"\s*.*\)\s*;` // https://regex101.com/r/pPRsjf/1
+	// patTrice matches any TRICE name variant  The (?i) says case-insensitive. (?U)=un-greedy -> only first match.
+	patTypNameTRICE = `(?iU)(\b((TRICE((0|_0)|((8|16|32|64)*(_[0-9|S|N|B|F]*)*))))\b)` // https://regex101.com/r/vJn59K/1
+	//                `(?iU)(\b((TRICE((_(S|N|B|F)|0)|((8|16|32|64)*(_[0-9]*)*))))\b)` // https://regex101.com/r/IkIhV3/1
+	//                `     (\b((TRICE(_S|0|(8|16|32|64)*)))(_[1-9]*)*|\b)\s*\(\s*\bID\b\s*\(\s*.*[0-9]\s*\)\s*,\s*".*"\s*.*\)\s*;` // https://regex101.com/r/pPRsjf/1
 
 	// patFmtString is a regex matching the first format string inside trice
 	patFmtString = `"(.*)"`

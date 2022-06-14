@@ -80,13 +80,18 @@ void TCOBSCheck( void ){
 //! \details One trice has one subtrace, if param size max 2 bytes. 
 //! Traces with more bytes as parameter consist of several subtraces.
 void TriceCheckSet(int index) {
+    static int8_t   b8[12] = { 0, -1, -2, 0x33, 4, 5, 6, 7, 8, 9, 10, 11 };
+    static int16_t b16[12] = { 0, -1, -2, 0x3344, 4, 5, 6, 7, 8, 9, 10, 11 };
+    static int32_t b32[12] = { 0, -1, -2, 0x33445555, 4, 5, 6, 7, 8, 9, 10, 11 };
+    static int64_t b64[12] = { 0, -1, -2, 0x3344555566666666, 4, 5, 6, 7, 8, 9, 0x7766554433221100, 0xffeeddccbbaa9988 };
     char* s;
-    uint32_t len;
+    uint32_t len, count;
     float  x = 1089.6082763671875;// 0x44883377
     double y = 518.0547492508867;// 0x4080307020601050
     switch (index) {
         case 0:
             s = "abcde 12345";
+
             TRICE_S( Id(65209), "msg:With TRICE_S:%s\n", s );
             len = strlen(s);
             TRICE_N( Id(55770), "sig:With TRICE_N:%s\n", s, len );
@@ -95,6 +100,21 @@ void TriceCheckSet(int index) {
             TRICE( Id(40249), "\n" );
             TRICE_B( Id(58119), "%4d", s, len );
             TRICE( Id(65448), "\n" );
+
+            count = 12;
+            TRICE8_B( Id(49843), "  %02x", b8, count );
+            TRICE( Id(65448), "\n" );
+            TRICE16_B( Id(55444), "  %04x", b16, count );
+            TRICE( Id(65448), "\n" );
+            TRICE32_B( Id(64557), "  %08x", b32, count );
+            TRICE( Id(65448), "\n" );
+            TRICE64_B( Id(50564), "  %016x", b64, count );
+            TRICE( Id(65448), "\n" );    
+
+            TRICE8_F(  Id(51520), "info:FunctionNameW",  b8, count );
+            TRICE16_F( Id(57243), "sig:FunctionNameX", b16, count );
+            TRICE32_F( Id(34450), "diag:FunctionNameY", b32, count );
+            TRICE64_F( Id(37668), "notice:FunctionNameZ", b64, count );
         break;
         case 10:
             TRICE( Id(38164), "FATAL:magenta+b:red\n" );

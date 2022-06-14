@@ -69,7 +69,7 @@ extern uint32_t ReadTime( void );
 #define TRICE_LEAVE TRICE_LEAVE_CRITICAL_SECTION //! TRICE_LEAVE is the end of TRICE macro.
 #endif
 #define TRICE_HALF_BUFFER_SIZE 1000 //!< This is the size of each of both buffers. Must be able to hold the max TRICE burst count within TRICE_TRANSFER_INTERVAL_MS or even more, if the write out speed is small. Must not exceed SEGGER BUFFER_SIZE_UP
-#define TRICE_SINGLE_MAX_SIZE 100 //!< must not exeed TRICE_HALF_BUFFER_SIZE!
+#define TRICE_SINGLE_MAX_SIZE 800 //!< must not exeed TRICE_HALF_BUFFER_SIZE!
 #endif // #if TRICE_MODE == 200
 
 

@@ -5,6 +5,7 @@ package decoder
 
 import (
 	"bytes"
+	"encoding/binary"
 	"fmt"
 	"io"
 	"log"
@@ -373,6 +374,38 @@ func (p *cobsDec) sprintTrice(b []byte) (n int) {
 		p.sLen = int(p.readU32(p.b))
 		cobsFunctionPtrList[2].paramSpace = (p.sLen + 7) & ^3 // +4 for 4 bytes sLen, +3^3 is alignment to 4
 	}
+	if p.trice.Type == "TRICE8_B" { // patch table paramSpace in that case
+		p.sLen = int(p.readU32(p.b))
+		cobsFunctionPtrList[3].paramSpace = (p.sLen + 7) & ^3 // +4 for 4 bytes sLen, +3^3 is alignment to 4
+	}
+	if p.trice.Type == "TRICE16_B" { // patch table paramSpace in that case
+		p.sLen = int(p.readU32(p.b))
+		cobsFunctionPtrList[4].paramSpace = (p.sLen + 7) & ^3 // +4 for 4 bytes sLen, +3^3 is alignment to 4
+	}
+	if p.trice.Type == "TRICE32_B" { // patch table paramSpace in that case
+		p.sLen = int(p.readU32(p.b))
+		cobsFunctionPtrList[5].paramSpace = (p.sLen + 7) & ^3 // +4 for 4 bytes sLen, +3^3 is alignment to 4
+	}
+	if p.trice.Type == "TRICE64_B" { // patch table paramSpace in that case
+		p.sLen = int(p.readU32(p.b))
+		cobsFunctionPtrList[6].paramSpace = (p.sLen + 7) & ^3 // +4 for 4 bytes sLen, +3^3 is alignment to 4
+	}
+	if p.trice.Type == "TRICE8_F" { // patch table paramSpace in that case
+		p.sLen = int(p.readU32(p.b))
+		cobsFunctionPtrList[7].paramSpace = (p.sLen + 7) & ^3 // +4 for 4 bytes sLen, +3^3 is alignment to 4
+	}
+	if p.trice.Type == "TRICE16_F" { // patch table paramSpace in that case
+		p.sLen = int(p.readU32(p.b))
+		cobsFunctionPtrList[8].paramSpace = (p.sLen + 7) & ^3 // +4 for 4 bytes sLen, +3^3 is alignment to 4
+	}
+	if p.trice.Type == "TRICE32_F" { // patch table paramSpace in that case
+		p.sLen = int(p.readU32(p.b))
+		cobsFunctionPtrList[9].paramSpace = (p.sLen + 7) & ^3 // +4 for 4 bytes sLen, +3^3 is alignment to 4
+	}
+	if p.trice.Type == "TRICE64_F" { // patch table paramSpace in that case
+		p.sLen = int(p.readU32(p.b))
+		cobsFunctionPtrList[10].paramSpace = (p.sLen + 7) & ^3 // +4 for 4 bytes sLen, +3^3 is alignment to 4
+	}
 
 	p.pFmt, p.u = uReplaceN(p.trice.Strg)
 
@@ -423,9 +456,18 @@ type triceTypeFn struct {
 
 // cobsFunctionPtrList is a function pointer list.
 var cobsFunctionPtrList = [...]triceTypeFn{
-	{"TRICE_S", (*cobsDec).triceS, -1, 0, 0}, // do not remove from first position, see cobsFunctionPtrList[0].paramSpace = ...
-	{"TRICE_N", (*cobsDec).triceN, -1, 0, 0}, // do not remove from 2nd position, see cobsFunctionPtrList[1].paramSpace = ...
-	{"TRICE_B", (*cobsDec).triceB, -1, 0, 0}, // do not remove from 3rd position, see cobsFunctionPtrList[2].paramSpace = ...
+	{"TRICE_S", (*cobsDec).triceS, -1, 0, 0},     // do not remove from first position, see cobsFunctionPtrList[0].paramSpace = ...
+	{"TRICE_N", (*cobsDec).triceN, -1, 0, 0},     // do not remove from 2nd position, see cobsFunctionPtrList[1].paramSpace = ...
+	{"TRICE_B", (*cobsDec).trice8B, -1, 0, 0},    // do not remove from 3rd position, see cobsFunctionPtrList[2].paramSpace = ...
+	{"TRICE8_B", (*cobsDec).trice8B, -1, 0, 0},   // do not remove from 4th position, see cobsFunctionPtrList[3].paramSpace = ...
+	{"TRICE16_B", (*cobsDec).trice16B, -1, 0, 0}, // do not remove from 4th position, see cobsFunctionPtrList[4].paramSpace = ...
+	{"TRICE32_B", (*cobsDec).trice32B, -1, 0, 0}, // do not remove from 4th position, see cobsFunctionPtrList[5].paramSpace = ...
+	{"TRICE64_B", (*cobsDec).trice64B, -1, 0, 0}, // do not remove from 4th position, see cobsFunctionPtrList[6].paramSpace = ...
+	{"TRICE8_F", (*cobsDec).trice8F, -1, 0, 0},   // do not remove from 4th position, see cobsFunctionPtrList[7].paramSpace = ...
+	{"TRICE16_F", (*cobsDec).trice16F, -1, 0, 0}, // do not remove from 4th position, see cobsFunctionPtrList[8].paramSpace = ...
+	{"TRICE32_F", (*cobsDec).trice32F, -1, 0, 0}, // do not remove from 4th position, see cobsFunctionPtrList[9].paramSpace = ...
+	{"TRICE64_F", (*cobsDec).trice64F, -1, 0, 0}, // do not remove from 4th position, see cobsFunctionPtrList[10].paramSpace = ...
+
 	{"TRICE32_0", (*cobsDec).trice0, 0, 0, 0},
 	{"TRICE0", (*cobsDec).trice0, 0, 0, 0},
 	{"TRICE8_1", (*cobsDec).unSignedOrSignedOut, 4, 8, 1},
@@ -487,8 +529,8 @@ func (p *cobsDec) triceS(b []byte, _ int, _ int) int {
 	return copy(b, fmt.Sprintf(p.trice.Strg, string(s)))
 }
 
-// triceB converts dynamic strings.
-func (p *cobsDec) triceB(b []byte, _ int, _ int) (n int) {
+// triceB converts dynamic buffers.
+func (p *cobsDec) trice8B(b []byte, _ int, _ int) (n int) {
 	if DebugOut {
 		fmt.Fprintln(p.w, p.b)
 	}
@@ -496,6 +538,98 @@ func (p *cobsDec) triceB(b []byte, _ int, _ int) (n int) {
 	for i := 0; i < len(s); i++ {
 		n += copy(b[n:], fmt.Sprintf(p.trice.Strg, s[i]))
 	}
+	return
+}
+
+// trice16B converts dynamic buffers.
+func (p *cobsDec) trice16B(b []byte, _ int, _ int) (n int) {
+	if DebugOut {
+		fmt.Fprintln(p.w, p.b)
+	}
+	s := p.b[4 : 4+p.sLen]
+	for i := 0; i < len(s); i += 2 {
+		n += copy(b[n:], fmt.Sprintf(p.trice.Strg, binary.LittleEndian.Uint16(s[i:])))
+	}
+	return
+}
+
+// trice32B converts dynamic buffers.
+func (p *cobsDec) trice32B(b []byte, _ int, _ int) (n int) {
+	if DebugOut {
+		fmt.Fprintln(p.w, p.b)
+	}
+	s := p.b[4 : 4+p.sLen]
+	for i := 0; i < len(s); i += 4 {
+		n += copy(b[n:], fmt.Sprintf(p.trice.Strg, binary.LittleEndian.Uint32(s[i:])))
+	}
+	return
+}
+
+// trice64B converts dynamic buffers.
+func (p *cobsDec) trice64B(b []byte, _ int, _ int) (n int) {
+	if DebugOut {
+		fmt.Fprintln(p.w, p.b)
+	}
+	s := p.b[4 : 4+p.sLen]
+	for i := 0; i < len(s); i += 8 {
+		n += copy(b[n:], fmt.Sprintf(p.trice.Strg, binary.LittleEndian.Uint64(s[i:])))
+	}
+	return
+}
+
+// trice8F display function call with 8-bit parameters.
+func (p *cobsDec) trice8F(b []byte, _ int, _ int) (n int) {
+	if DebugOut {
+		fmt.Fprintln(p.w, p.b)
+	}
+	s := p.b[4 : 4+p.sLen]
+	n += copy(b[n:], fmt.Sprintf(p.trice.Strg))
+	for i := 0; i < len(s); i++ {
+		n += copy(b[n:], fmt.Sprintf("(%02x)", s[i]))
+	}
+	n += copy(b[n:], fmt.Sprintf("\n"))
+	return
+}
+
+// trice16F display function call with 16-bit parameters.
+func (p *cobsDec) trice16F(b []byte, _ int, _ int) (n int) {
+	if DebugOut {
+		fmt.Fprintln(p.w, p.b)
+	}
+	s := p.b[4 : 4+p.sLen]
+	n += copy(b[n:], fmt.Sprintf(p.trice.Strg))
+	for i := 0; i < len(s); i += 2 {
+		n += copy(b[n:], fmt.Sprintf("(%04x)", binary.LittleEndian.Uint16(s[i:])))
+	}
+	n += copy(b[n:], fmt.Sprintf("\n"))
+	return
+}
+
+// trice32F display function call with 32-bit parameters.
+func (p *cobsDec) trice32F(b []byte, _ int, _ int) (n int) {
+	if DebugOut {
+		fmt.Fprintln(p.w, p.b)
+	}
+	s := p.b[4 : 4+p.sLen]
+	n += copy(b[n:], fmt.Sprintf(p.trice.Strg))
+	for i := 0; i < len(s); i += 4 {
+		n += copy(b[n:], fmt.Sprintf("(%08x)", binary.LittleEndian.Uint32(s[i:])))
+	}
+	n += copy(b[n:], fmt.Sprintf("\n"))
+	return
+}
+
+// trice64F display function call with 64-bit parameters.
+func (p *cobsDec) trice64F(b []byte, _ int, _ int) (n int) {
+	if DebugOut {
+		fmt.Fprintln(p.w, p.b)
+	}
+	s := p.b[4 : 4+p.sLen]
+	n += copy(b[n:], fmt.Sprintf(p.trice.Strg))
+	for i := 0; i < len(s); i += 8 {
+		n += copy(b[n:], fmt.Sprintf("(%016x)", binary.LittleEndian.Uint64(s[i:])))
+	}
+	n += copy(b[n:], fmt.Sprintf("\n"))
 	return
 }
 

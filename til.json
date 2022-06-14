@@ -287,6 +287,10 @@
 		"Type": "TRICE8_5",
 		"Strg": "rd:TRICE8_5 %d, %d, %d, %d, %d\\n"
 	},
+	"34450": {
+		"Type": "TRICE32_F",
+		"Strg": "diag:FunctionNameY"
+	},
 	"34484": {
 		"Type": "TRICE8_1",
 		"Strg": "tst:TRICE8_1 0x%02x\\n"
@@ -779,6 +783,10 @@
 		"Type": "TRICE32",
 		"Strg": "att:Single Trice Stack buf size:%4u"
 	},
+	"37162": {
+		"Type": "TRICE64_F",
+		"Strg": "FunctionNameZ"
+	},
 	"37222": {
 		"Type": "TRICE",
 		"Strg": "time:TRICE32_1   message, SysTick is %6u\\n"
@@ -855,9 +863,17 @@
 		"Type": "TRICE_FILE",
 		"Strg": "stm32g0xx_ll_gpio.c"
 	},
+	"37643": {
+		"Type": "TRICE16_F",
+		"Strg": "FunctionNameX"
+	},
 	"37649": {
 		"Type": "TRICE32",
 		"Strg": "rd:TRICE32 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"37668": {
+		"Type": "TRICE64_F",
+		"Strg": "notice:FunctionNameZ"
 	},
 	"37674": {
 		"Type": "TRICE_FILE",
@@ -990,6 +1006,10 @@
 	"38263": {
 		"Type": "TRICE_FILE",
 		"Strg": "stm32g0xx_ll_utils.c"
+	},
+	"38287": {
+		"Type": "TRICE32_F",
+		"Strg": "FunctionNameY"
 	},
 	"38320": {
 		"Type": "TRICE_FILE",
@@ -2763,6 +2783,10 @@
 		"Type": "TRICE",
 		"Strg": "isr:TRICE isr message, SysTick is %6d\\n"
 	},
+	"49843": {
+		"Type": "TRICE8_B",
+		"Strg": "  %02x"
+	},
 	"49865": {
 		"Type": "TRICE16_12",
 		"Strg": "rd:TRICE16_12 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
@@ -2891,6 +2915,10 @@
 		"Type": "TRICE",
 		"Strg": "rd:TRICE float %-9.f (%%9.f)\\n"
 	},
+	"50564": {
+		"Type": "TRICE64_B",
+		"Strg": "  %016x"
+	},
 	"50626": {
 		"Type": "TRICE32_1",
 		"Strg": "ATT:trice16_1 attention message, SysTick is %6d\\n"
@@ -3014,6 +3042,10 @@
 	"51494": {
 		"Type": "TRICE_S",
 		"Strg": "rd: café \t%s \tPlain string\\n"
+	},
+	"51520": {
+		"Type": "TRICE8_F",
+		"Strg": "info:FunctionNameW"
 	},
 	"51548": {
 		"Type": "TRICE_FILE",
@@ -3527,6 +3559,10 @@
 		"Type": "TRICE32_1",
 		"Strg": "rd:TRICE32_1 float -%9f (%%9f)\\n"
 	},
+	"54263": {
+		"Type": "TRICE8_F",
+		"Strg": "FunctionNameW"
+	},
 	"54266": {
 		"Type": "TRICE_S",
 		"Strg": "rd: 63 61 66 c3 a9 \t% x\tHex dump with spaces\\n"
@@ -3730,6 +3766,10 @@
 	"55440": {
 		"Type": "TRICE32_1",
 		"Strg": "rd:TRICE32_1 float %+f (%%f)\\n"
+	},
+	"55444": {
+		"Type": "TRICE16_B",
+		"Strg": "  %04x"
 	},
 	"55452": {
 		"Type": "TRICE",
@@ -4062,6 +4102,10 @@
 	"57182": {
 		"Type": "TRICE64",
 		"Strg": "rd:TRICE line %f (%%f)\\n"
+	},
+	"57243": {
+		"Type": "TRICE16_F",
+		"Strg": "sig:FunctionNameX"
 	},
 	"57264": {
 		"Type": "TRICE",
@@ -5338,6 +5382,10 @@
 	"64554": {
 		"Type": "TRICE16_2",
 		"Strg": "tst:TRICE16_2 %u %u\\n"
+	},
+	"64557": {
+		"Type": "TRICE32_B",
+		"Strg": "  %08x"
 	},
 	"64581": {
 		"Type": "TRICE16_1",

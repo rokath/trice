@@ -11,12 +11,13 @@
 * 6. [Runtime Generated 0-terminated Strings Transfer with `TRICE_S`](#RuntimeGenerated0-terminatedStringsTransferwithTRICE_S)
 * 7. [Runtime Generated counted Strings Transfer with `TRICE_N`](#RuntimeGeneratedcountedStringsTransferwithTRICE_N)
 * 8. [Runtime Generated Buffer Transfer with `TRICE_B`](#RuntimeGeneratedBufferTransferwithTRICE_B)
-* 9. [Extended format specifier possibilities](#Extendedformatspecifierpossibilities)
-	* 9.1. [*Trice* format specifier](#Triceformatspecifier)
-	* 9.2. [Overview Table](#OverviewTable)
-* 10. [UTF-8 Support](#UTF-8Support)
-* 11. [Switch the language without changing a bit inside the target code](#Switchthelanguagewithoutchangingabitinsidethetargetcode)
-* 12. [Format tags prototype `%[flags][width][.precision][length]` specifier examples](#Formattagsprototypeflagswidth.precisionlengthspecifierexamples)
+* 9. [Remote function call syntax support with `TRICE_F`](#RemotefunctioncallsyntaxsupportwithTRICE_F)
+* 10. [Extended format specifier possibilities](#Extendedformatspecifierpossibilities)
+	* 10.1. [*Trice* format specifier](#Triceformatspecifier)
+	* 10.2. [Overview Table](#OverviewTable)
+* 11. [UTF-8 Support](#UTF-8Support)
+* 12. [Switch the language without changing a bit inside the target code](#Switchthelanguagewithoutchangingabitinsidethetargetcode)
+* 13. [Format tags prototype `%[flags][width][.precision][length]` specifier examples](#Formattagsprototypeflagswidth.precisionlengthspecifierexamples)
 
 <!-- vscode-markdown-toc-config
 	numbering=true
@@ -135,22 +136,36 @@ static inline uint64_t aDouble( double x ){
  This gives: ![./ref/TRICE_B.PNG](./ref/TRICE_B.PNG)
  Channel specifier within the `TRICE_B` format string are not supported.
 
-* Future extensions are possible:
-  * `TRICE_N( Id(0), "cmd:xyz", addr, 8 );` -> The **trice** tool executes a command xyz.
-  * `TRICE_N( Id(0), "dump:32", addr, 160 );` -> The **trice** tool dumps in 32 byte rows.
+ If the buffer is not 8 but 16, 32 or 32 bits wide, the macros `TRICE8_B`, `TRICE16_B`, `TRICE32_B` and  `TRICE64_B`, are usable in the same manner.
 
-##  9. <a name='Extendedformatspecifierpossibilities'></a>Extended format specifier possibilities
+##  9. <a name='RemotefunctioncallsyntaxsupportwithTRICE_F'></a>Remote function call syntax support with `TRICE_F`
+
+The `TRICE8_F`, `TRICE16_F`, `TRICE32_F`, `TRICE64_F`, macros expect a string without format specifiers which is usable later as a function call. Example:
+
+```code
+  TRICE8_F(  Id(51520), "info:FunctionNameW",  b8, count );
+  TRICE16_F( Id(57243), "sig:FunctionNameX", b16, count );
+  TRICE32_F( Id(34450), "diag:FunctionNameY", b32, count );
+  TRICE64_F( Id(37668), "notice:FunctionNameZ", b64, count );
+```
+
+(needs further clarification)
+
+* Future extensions are possible:
+  * `TRICE_D( Id(0), "dump:32", addr, 160 );` -> The **trice** tool dumps in 32 byte rows.
+
+##  10. <a name='Extendedformatspecifierpossibilities'></a>Extended format specifier possibilities
 
 * Because the format string is interpreted by the **trice** tool written in [Go](https://en.wikipedia.org/wiki/Go_(programming_language)), the **Go** capabilities partial usable.
 
-###  9.1. <a name='Triceformatspecifier'></a>*Trice* format specifier
+###  10.1. <a name='Triceformatspecifier'></a>*Trice* format specifier
 
 * The `TRICE` macros are used in **C** code.
 * The format strings are interpreted by the **trice** tool, which is written in **Go**.
 * The **C** and **Go** format specifier are not equal but similar.
 * Therefore, a **T**rice adaption is internally performed.
 
-###  9.2. <a name='OverviewTable'></a>Overview Table
+###  10.2. <a name='OverviewTable'></a>Overview Table
 
 |Format Specifier Type                                           | C | Go| T | remark                                                                      |
 |-                                                               | - | - | - | -                                                                           |
@@ -191,7 +206,7 @@ static inline uint64_t aDouble( double x ){
 
 ![./ref/TriceCheckOutput.gif](./ref/TriceCheckOutput.gif)
 
-##  10. <a name='UTF-8Support'></a>UTF-8 Support
+##  11. <a name='UTF-8Support'></a>UTF-8 Support
 
 This is gratis, if you edit your source files containing the format strings in UTF-8:
 
@@ -199,11 +214,11 @@ This is gratis, if you edit your source files containing the format strings in U
 
 The target does not even "know" about that, because it gets only the *Trice* IDs.
 
-##  11. <a name='Switchthelanguagewithoutchangingabitinsidethetargetcode'></a>Switch the language without changing a bit inside the target code
+##  12. <a name='Switchthelanguagewithoutchangingabitinsidethetargetcode'></a>Switch the language without changing a bit inside the target code
 
 Once the [til.json](../til.json) list is done the user can translate it in any language and exchanging the list switches to another language.
 
-##  12. <a name='Formattagsprototypeflagswidth.precisionlengthspecifierexamples'></a>Format tags prototype `%[flags][width][.precision][length]` specifier examples
+##  13. <a name='Formattagsprototypeflagswidth.precisionlengthspecifierexamples'></a>Format tags prototype `%[flags][width][.precision][length]` specifier examples
 
 * Because the interpretation is done inside the **trice** tool written in Go these all should work:
   * `%-d`
