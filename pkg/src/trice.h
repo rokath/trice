@@ -176,7 +176,8 @@ uint8_t TriceNextUint8( void );
 void triceServeTransmit(void);
 void triceTriggerTransmit(void);
 int TriceOutDepth( void );
-#endif // #if defined( TRICE_UART ) && TRICE_MODE != 0
+#endif
+
 
 //
 ///////////////////////////////////////////////////////////////////////////////

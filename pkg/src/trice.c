@@ -107,7 +107,7 @@ void TriceBlockingWrite( uint8_t const * buf, unsigned len ){
     for( unsigned i = 0; i < len; i++ ){ 
         triceBlockingPutChar( buf[i] ); }
 }
-#endif
+#endif // #if defined( TRICE_UART ) && !defined( TRICE_HALF_BUFFER_SIZE )
 
 #if defined( TRICE_UART ) && defined( TRICE_HALF_BUFFER_SIZE ) // buffered out to UART
 static uint8_t const * triceOutBuffer;
@@ -147,7 +147,7 @@ void triceTriggerTransmit(void){
         triceEnableTxEmptyInterrupt(); // next bytes
     }
 }
-#endif // #if defined( TRICE_UART ) && TRICE_MODE != 0
+#endif // #if defined( TRICE_UART ) && defined( TRICE_HALF_BUFFER_SIZE )
 
 //! TriceCOBSEncode stuffs "length" bytes of data at the location pointed to by "input"
 //! and writes the output to the location pointed to by "output".
