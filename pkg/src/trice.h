@@ -297,6 +297,20 @@ static inline uint64_t aDouble( double x ){
 #define TRICE_INTO TRICE_ENTER TRICE_PUT_PREFIX;
 #endif
 
+#ifndef TRICE_F
+// TRICE_F expects inside pFmt function name followed by an optional format specifier, which is used n times by using pFmt n times.
+#define TRICE_F( id, pFmt, buf, n) do { \
+    TRICE_N( id, pFmt, buf, n); \
+} while(0)
+#endif // #ifndef TRICE_B
+
+#ifndef TRICE_B
+// TRICE_B expects inside pFmt only one format specifier, which is used n times by using pFmt n times.
+#define TRICE_B( id, pFmt, buf, n) do { \
+    TRICE_N( id, pFmt, buf, n); \
+} while(0)
+#endif // #ifndef TRICE_B
+
 #ifndef TRICE_N
 //! TRICE_N writes id and buffer of size len.
 //! \param id trice identifier

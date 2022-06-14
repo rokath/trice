@@ -67,6 +67,10 @@
 		"Type": "TRICE",
 		"Strg": "rd: 1.234560e+02\t\t%e \t%%e Scientific notation\\n"
 	},
+	"33267": {
+		"Type": "TRICE_S",
+		"Strg": "sig:With TRICE_S:%s\\n"
+	},
 	"33334": {
 		"Type": "TRICE",
 		"Strg": "TIM:timing      message, SysTick is %6u\\n"
@@ -122,6 +126,10 @@
 	"33551": {
 		"Type": "TRICE16",
 		"Strg": "rd:TRICE16 %p, %p, %p, %p, %p\\n"
+	},
+	"33585": {
+		"Type": "TRICE32",
+		"Strg": "att:len=%u:With TRICE_B:\\n"
 	},
 	"33591": {
 		"Type": "TRICE32_1",
@@ -515,6 +523,10 @@
 		"Type": "TRICE_S",
 		"Strg": "rd: \\\"caf�\\\" \t%q \tQuoted string\\n"
 	},
+	"35726": {
+		"Type": "TRICE_B",
+		"Strg": " %02x"
+	},
 	"35756": {
 		"Type": "TRICE8",
 		"Strg": "tst:TRICE8   %%4u -\u003e %4u %4u %4u %4u\\n"
@@ -818,6 +830,10 @@
 	"37510": {
 		"Type": "TRICE64_2",
 		"Strg": "tst:TRICE64_2  %d %d\\n"
+	},
+	"37541": {
+		"Type": "TRICE_N",
+		"Strg": "sig:\\n%s\\n"
 	},
 	"37546": {
 		"Type": "TRICE_4",
@@ -1167,6 +1183,10 @@
 		"Type": "TRICE",
 		"Strg": "ALARM:black+i:magenta\\n"
 	},
+	"39795": {
+		"Type": "TRICE_B",
+		"Strg": " %02x "
+	},
 	"39805": {
 		"Type": "TRICE_FILE",
 		"Strg": "stm32g0xx_ll_gpio.c"
@@ -1214,6 +1234,10 @@
 	"40004": {
 		"Type": "TRICE0",
 		"Strg": "1"
+	},
+	"40024": {
+		"Type": "TRICE_B",
+		"Strg": "sig:%02x "
 	},
 	"40059": {
 		"Type": "TRICE32_1",
@@ -1266,6 +1290,10 @@
 	"40233": {
 		"Type": "TRICE",
 		"Strg": "rd:TRICE32_1 line %d\\n"
+	},
+	"40249": {
+		"Type": "TRICE",
+		"Strg": "\\n"
 	},
 	"40275": {
 		"Type": "TRICE",
@@ -1418,6 +1446,10 @@
 	"41643": {
 		"Type": "TRICE64",
 		"Strg": "rd:TRICE64 line %E (%%E)\\n"
+	},
+	"41667": {
+		"Type": "TRICE32",
+		"Strg": "dbg:len=%u:"
 	},
 	"41670": {
 		"Type": "TRICE",
@@ -1610,6 +1642,10 @@
 	"42984": {
 		"Type": "TRICE0",
 		"Strg": "e:A"
+	},
+	"43029": {
+		"Type": "TRICE_B",
+		"Strg": "  %02x"
 	},
 	"43058": {
 		"Type": "TRICE32_1",
@@ -1898,6 +1934,10 @@
 	"44576": {
 		"Type": "TRICE16",
 		"Strg": "rd:TRICE16 %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"44613": {
+		"Type": "TRICE_B",
+		"Strg": "msg:%02x "
 	},
 	"44661": {
 		"Type": "TRICE8",
@@ -2634,6 +2674,10 @@
 	"49405": {
 		"Type": "TRICE32_1",
 		"Strg": "rd:TRICE32_1 float %-f (%%f)\\n"
+	},
+	"49436": {
+		"Type": "TRICE",
+		"Strg": "\\n"
 	},
 	"49438": {
 		"Type": "TRICE16",
@@ -3523,6 +3567,10 @@
 		"Type": "TRICE_S",
 		"Strg": "rd: caf�?? \t%-6s \tWidth 6, left justify\\n"
 	},
+	"54515": {
+		"Type": "TRICE_N",
+		"Strg": "sig:%s\\n"
+	},
 	"54539": {
 		"Type": "TRICE_S",
 		"Strg": "rd: café \t%s \t \t \tPlain string\\n"
@@ -3618,6 +3666,10 @@
 	"55098": {
 		"Type": "TRICE",
 		"Strg": "time: %d µs - ReadUs() lasts %d ticks\\n"
+	},
+	"55115": {
+		"Type": "TRICE32",
+		"Strg": "dbg:len=%u:With TRICE_B:\\n"
 	},
 	"55123": {
 		"Type": "TRICE_FILE",
@@ -3715,6 +3767,10 @@
 		"Type": "TRICE",
 		"Strg": "sig:TRICE with 1 to 12 values\\n"
 	},
+	"55546": {
+		"Type": "TRICE_N",
+		"Strg": "sig:%s\\n"
+	},
 	"55550": {
 		"Type": "TRICE8_9",
 		"Strg": "rd:TRICE8_9 %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
@@ -3751,6 +3807,10 @@
 		"Type": "TRICE_FILE",
 		"Strg": "stm32g0xx_ll_gpio.c"
 	},
+	"55770": {
+		"Type": "TRICE_N",
+		"Strg": "sig:With TRICE_N:%s\\n"
+	},
 	"55780": {
 		"Type": "TRICE32_2",
 		"Strg": "tst:TRICE32_2  %d %d\\n"
@@ -3762,6 +3822,10 @@
 	"55819": {
 		"Type": "TRICE32_1",
 		"Strg": "rd:TRICE32_1 float -%.9f (%%.9f)\\n"
+	},
+	"55836": {
+		"Type": "TRICE",
+		"Strg": "\\n"
 	},
 	"55870": {
 		"Type": "TRICE64",
@@ -4171,6 +4235,10 @@
 		"Type": "TRICE0",
 		"Strg": "Hello, TRICE\\n"
 	},
+	"58119": {
+		"Type": "TRICE_B",
+		"Strg": "%4d"
+	},
 	"58332": {
 		"Type": "TRICE32",
 		"Strg": "tst:TRICE32 %d %d %d %d\\n"
@@ -4211,6 +4279,10 @@
 		"Type": "TRICE8",
 		"Strg": "tst:TRICE8  %%03x -\u003e %03x  %03x  %03x  %03x\\n"
 	},
+	"58562": {
+		"Type": "TRICE32",
+		"Strg": "dbg:len=%u:\\n"
+	},
 	"58565": {
 		"Type": "TRICE_S",
 		"Strg": "rx:received command:%s\\n"
@@ -4230,6 +4302,10 @@
 	"58590": {
 		"Type": "TRICE_FILE",
 		"Strg": "stm32g0xx_ll_rcc.c"
+	},
+	"58619": {
+		"Type": "TRICE_N",
+		"Strg": "sig:%s\\n"
 	},
 	"58642": {
 		"Type": "TRICE",
@@ -4330,6 +4406,10 @@
 	"59098": {
 		"Type": "TRICE64",
 		"Strg": "rd:TRICE64 %d, %d, %d, %d\\n"
+	},
+	"59113": {
+		"Type": "TRICE_B",
+		"Strg": "  %02x"
 	},
 	"59170": {
 		"Type": "TRICE64",
@@ -5059,6 +5139,10 @@
 		"Type": "TRICE64",
 		"Strg": "rd:TRICE64 %d\\n"
 	},
+	"63445": {
+		"Type": "TRICE",
+		"Strg": "\\n"
+	},
 	"63474": {
 		"Type": "TRICE8_1",
 		"Strg": "rd:TRICE8_1 line %d (%%d -1)\\n"
@@ -5259,6 +5343,10 @@
 		"Type": "TRICE16_1",
 		"Strg": "DBG:debug       message, SysTick is %6u\\n"
 	},
+	"64625": {
+		"Type": "TRICE_B",
+		"Strg": "%4d"
+	},
 	"64671": {
 		"Type": "TRICE",
 		"Strg": "rd:TRICE %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
@@ -5343,6 +5431,10 @@
 		"Type": "TRICE16_7",
 		"Strg": "tst:TRICE16_7  %d %d %d %d %d %d %d\\n"
 	},
+	"65209": {
+		"Type": "TRICE_S",
+		"Strg": "msg:With TRICE_S:%s\\n"
+	},
 	"65232": {
 		"Type": "TRICE16_4",
 		"Strg": "tst:TRICE16_4  %d %d %d %d\\n"
@@ -5382,6 +5474,10 @@
 	"65358": {
 		"Type": "TRICE32_1",
 		"Strg": "rd:TRICE32_1 float +%f (%%f)\\n"
+	},
+	"65448": {
+		"Type": "TRICE",
+		"Strg": "\\n"
 	},
 	"65475": {
 		"Type": "TRICE0",

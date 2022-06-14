@@ -8,14 +8,15 @@
 * 3. [*Trice* values bit width](#Tricevaluesbitwidth)
 * 4. [Many value parameters](#Manyvalueparameters)
 * 5. [`float` and `double` values](#floatanddoublevalues)
-* 6. [Runtime Generated Strings Transfer](#RuntimeGeneratedStringsTransfer)
-* 7. [Runtime Generated Buffer Transfer](#RuntimeGeneratedBufferTransfer)
-* 8. [Extended format specifier possibilities](#Extendedformatspecifierpossibilities)
-	* 8.1. [*Trice* format specifier](#Triceformatspecifier)
-	* 8.2. [Overview Table](#OverviewTable)
-* 9. [UTF-8 Support](#UTF-8Support)
-* 10. [Switch the language without changing a bit inside the target code](#Switchthelanguagewithoutchangingabitinsidethetargetcode)
-* 11. [Format tags prototype `%[flags][width][.precision][length]` specifier examples](#Formattagsprototypeflagswidth.precisionlengthspecifierexamples)
+* 6. [Runtime Generated 0-terminated Strings Transfer with `TRICE_S`](#RuntimeGenerated0-terminatedStringsTransferwithTRICE_S)
+* 7. [Runtime Generated counted Strings Transfer with `TRICE_N`](#RuntimeGeneratedcountedStringsTransferwithTRICE_N)
+* 8. [Runtime Generated Buffer Transfer with `TRICE_B`](#RuntimeGeneratedBufferTransferwithTRICE_B)
+* 9. [Extended format specifier possibilities](#Extendedformatspecifierpossibilities)
+	* 9.1. [*Trice* format specifier](#Triceformatspecifier)
+	* 9.2. [Overview Table](#OverviewTable)
+* 10. [UTF-8 Support](#UTF-8Support)
+* 11. [Switch the language without changing a bit inside the target code](#Switchthelanguagewithoutchangingabitinsidethetargetcode)
+* 12. [Format tags prototype `%[flags][width][.precision][length]` specifier examples](#Formattagsprototypeflagswidth.precisionlengthspecifierexamples)
 
 <!-- vscode-markdown-toc-config
 	numbering=true
@@ -98,7 +99,7 @@ static inline uint64_t aDouble( double x ){
 }
 ```
 
-##  6. <a name='RuntimeGeneratedStringsTransfer'></a>Runtime Generated Strings Transfer with `TRICE_S`
+##  6. <a name='RuntimeGenerated0-terminatedStringsTransferwithTRICE_S'></a>Runtime Generated 0-terminated Strings Transfer with `TRICE_S`
 
 * The `%s` format specifier is not directly supported by the `TRICE` macro.
 * Strings, known at compile time should be a part of a format string to reduce runtime overhead.
@@ -110,26 +111,46 @@ static inline uint64_t aDouble( double x ){
    TRICE_S( "A runtime string %20s\n", s;
   ```
 
-##  7. <a name='RuntimeGeneratedBufferTransfer'></a>Runtime Generated Buffer Transfer with `TRICE_N`
+##  7. <a name='RuntimeGeneratedcountedStringsTransferwithTRICE_N'></a>Runtime Generated counted Strings Transfer with `TRICE_N`
 
 * It is also possible to transfer a buffer with length n using the `TRICE_N` macro.
 * This becomes handy for example, when a possibly not 0-terminated string in FLASH memory needs transmission: `TRICE_N( Id(0), "msg: FLASH string is %s", addr, 16 );`
+
+##  8. <a name='RuntimeGeneratedBufferTransferwithTRICE_B'></a>Runtime Generated Buffer Transfer with `TRICE_B`
+
+* A buffer is transmittable with `TRICE_B` and specifying just one format specifier, which is then repeated. Example:
+
+```code
+  s = "abcde 12345";
+  TRICE_S( Id(65209), "msg:With TRICE_S:%s\n", s );
+  len = strlen(s);
+  TRICE_N( Id(55770), "sig:With TRICE_N:%s\n", s, len );
+  TRICE32( Id(33585), "att:len=%u:With TRICE_B:\n", len);
+  TRICE_B( Id(59113), "  %02x", s, len );
+  TRICE( Id(40249), "\n" );
+  TRICE_B( Id(58119), "%4d", s, len );
+  TRICE( Id(65448), "\n" );
+```
+
+ This gives: ![./ref/TRICE_B.PNG](./ref/TRICE_B.PNG)
+ Channel specifier within the `TRICE_B` format string are not supported.
+
 * Future extensions are possible:
   * `TRICE_N( Id(0), "cmd:xyz", addr, 8 );` -> The **trice** tool executes a command xyz.
   * `TRICE_N( Id(0), "dump:32", addr, 160 );` -> The **trice** tool dumps in 32 byte rows.
 
-##  8. <a name='Extendedformatspecifierpossibilities'></a>Extended format specifier possibilities
+##  9. <a name='Extendedformatspecifierpossibilities'></a>Extended format specifier possibilities
 
 * Because the format string is interpreted by the **trice** tool written in [Go](https://en.wikipedia.org/wiki/Go_(programming_language)), the **Go** capabilities partial usable.
 
-###  8.1. <a name='Triceformatspecifier'></a>*Trice* format specifier
+###  9.1. <a name='Triceformatspecifier'></a>*Trice* format specifier
 
 * The `TRICE` macros are used in **C** code.
 * The format strings are interpreted by the **trice** tool, which is written in **Go**.
 * The **C** and **Go** format specifier are not equal but similar.
 * Therefore, a **T**rice adaption is internally performed.
 
-###  8.2. <a name='OverviewTable'></a>Overview Table
+###  9.2. <a name='OverviewTable'></a>Overview Table
 
 |Format Specifier Type                                           | C | Go| T | remark                                                                      |
 |-                                                               | - | - | - | -                                                                           |
@@ -170,7 +191,7 @@ static inline uint64_t aDouble( double x ){
 
 ![./ref/TriceCheckOutput.gif](./ref/TriceCheckOutput.gif)
 
-##  9. <a name='UTF-8Support'></a>UTF-8 Support
+##  10. <a name='UTF-8Support'></a>UTF-8 Support
 
 This is gratis, if you edit your source files containing the format strings in UTF-8:
 
@@ -178,11 +199,11 @@ This is gratis, if you edit your source files containing the format strings in U
 
 The target does not even "know" about that, because it gets only the *Trice* IDs.
 
-##  10. <a name='Switchthelanguagewithoutchangingabitinsidethetargetcode'></a>Switch the language without changing a bit inside the target code
+##  11. <a name='Switchthelanguagewithoutchangingabitinsidethetargetcode'></a>Switch the language without changing a bit inside the target code
 
 Once the [til.json](../til.json) list is done the user can translate it in any language and exchanging the list switches to another language.
 
-##  11. <a name='Formattagsprototypeflagswidth.precisionlengthspecifierexamples'></a>Format tags prototype `%[flags][width][.precision][length]` specifier examples
+##  12. <a name='Formattagsprototypeflagswidth.precisionlengthspecifierexamples'></a>Format tags prototype `%[flags][width][.precision][length]` specifier examples
 
 * Because the interpretation is done inside the **trice** tool written in Go these all should work:
   * `%-d`

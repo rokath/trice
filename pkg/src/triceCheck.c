@@ -85,6 +85,17 @@ void TriceCheckSet(int index) {
     float  x = 1089.6082763671875;// 0x44883377
     double y = 518.0547492508867;// 0x4080307020601050
     switch (index) {
+        case 0:
+            s = "abcde 12345";
+            TRICE_S( Id(65209), "msg:With TRICE_S:%s\n", s );
+            len = strlen(s);
+            TRICE_N( Id(55770), "sig:With TRICE_N:%s\n", s, len );
+            TRICE32( Id(33585), "att:len=%u:With TRICE_B:\n", len);
+            TRICE_B( Id(59113), "  %02x", s, len );
+            TRICE( Id(40249), "\n" );
+            TRICE_B( Id(58119), "%4d", s, len );
+            TRICE( Id(65448), "\n" );
+        break;
         case 10:
             TRICE( Id(38164), "FATAL:magenta+b:red\n" );
             TRICE( Id(61645), "CRITICAL:red+i:default+h\n" );
@@ -170,8 +181,8 @@ void TriceCheckSet(int index) {
             TRICE32( Id( 47643), "dbg:len=%u:", len);
             TRICE_N( Id(35568), "sig:TRICE_N=%s\n", s, len );
         
-          //TRICE_S( Id(59596), "sig:TRICE_S=%s\n", "Hello String" );     // todo: not allowed for some reason
-          //TRICE_N( Id(44277), "sig:TRICE_N=%s\n", "Hello Buffer", 13 ); //       not allowed for some reason
+          //TRICE_S( Id(59596), "sig:TRICE_S=%s\n", "Hello String" );     // not allowed
+          //TRICE_N( Id(44277), "sig:TRICE_N=%s\n", "Hello Buffer", 13 ); // not allowed
 
             TRICE( Id(33703), "rd:TRICE line %E (%%E)\n", aFloat(-555555555.5555555555) );
             TRICE( Id(55209), "rd:TRICE line %F (%%F)\n", aFloat(-555555555.5555555555) );
