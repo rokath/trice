@@ -187,9 +187,7 @@ int main(void)
         {
             static int lastTricesTime = 0;
             // send some trices every few ms
-            if( milliSecond >= lastTricesTime + 10000 ){
-                extern uint32_t cc;
-                extern uint8_t v;
+            if( milliSecond >= lastTricesTime + 1000 ){
                 static int index = 0;
                 int select = index;
                 TRICE16( Id(50543),"MSG: 💚 START select = %d, TriceDepthMax =%4u\n", select, TriceDepthMax() );
