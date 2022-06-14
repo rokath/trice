@@ -33,7 +33,9 @@ extern char triceCommand[TRICE_COMMAND_SIZE_MAX+1];
 extern int triceCommandFlag;
 
 size_t TriceDepthMax( void );
+#ifdef TRICE_HALF_BUFFER_SIZE
 extern uint32_t* TriceBufferWritePosition;
+#endif
 unsigned TriceCOBSEncode( uint8_t* restrict output, const uint8_t * restrict input, unsigned length);
 void TriceOut( uint32_t* tb, size_t tLen );
 void TriceTransfer( void );
@@ -174,8 +176,8 @@ uint8_t TriceNextUint8( void );
 void triceServeTransmit(void);
 void triceTriggerTransmit(void);
 int TriceOutDepth( void );
-uint8_t TriceNextUint8( void );
-#endif #if defined( TRICE_UART ) && defined( TRICE_HALF_BUFFER_SIZE )
+#endif
+
 
 //
 ///////////////////////////////////////////////////////////////////////////////

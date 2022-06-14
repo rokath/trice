@@ -11,24 +11,23 @@ extern "C" {
 #endif
 
 #include <stdint.h>
+#include <libopencm3/cm3/cortex.h>
 #include <libopencm3/stm32/gpio.h>
 #include <libopencm3/stm32/usart.h>
 
 // Local (to this demo) time keeping functions
 #include "time.h"
 
-///////////////////////////////////////////////////////////////////////////////
-// Select trice mode and general settings.
-//
 
-// For now, on LibOpenCM3, only MODE 0 works.
-#define TRICE_MODE 0 //! TRICE_MODE is a predefined trice transfer method.
-
-//#define TRICE_RTT_CHANNEL 0 //!< Enable and set channel number for SeggerRTT usage. Only channel 0 works right now for some reason.
 #define TRICE_UART USART2 //!< Enable and set UART for serial output.
+// The alternative, TRICE_RTT_CHANNEL is not available with OpenCM3
+//#define TRICE_RTT_CHANNEL 0
+
 
 #define TRICE_LOCATION (TRICE_FILE| __LINE__) //!< Enable if you need target location. TRICE_FILE occcupies the upper 16 bit.
-#define TRICE_TIMESTAMP wallclock_ms()           //!< Disable if you do not need target timestamps.
+
+// Timestamping function to be provided by user. In this demo from time.h
+#define TRICE_TIMESTAMP wallclock_ms()
 
 // Enabling next 2 lines results in XTEA TriceEncryption  with the key.
 //#define TRICE_ENCRYPT XTEA_KEY( ea, bb, ec, 6f, 31, 80, 4e, b9, 68, e2, fa, ea, ae, f1, 50, 54 ); //!< -password MySecret
@@ -36,12 +35,16 @@ extern "C" {
 
 //#define TRICE_BIG_ENDIANNESS //!< TRICE_BIG_ENDIANNESS needs to be defined for TRICE64 macros on big endian devices. (Untested!)
 
+
 //
 ///////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////////
 // Predefined trice modes: Adapt or creeate your own trice mode.
 //
+#ifndef TRICE_MODE
+#error Define TRICE_MODE to 0, 200 or 201
+#endif
 
 //! Direct output to UART or RTT with cycle counter. Trices inside interrupts forbidden. Direct TRICE macro execution.
 //! This mode is mainly for a quick tryout start or if no timing constrains for the TRICE macros exist.
@@ -104,8 +107,8 @@ extern "C" {
 
 //! This is usable as the very first trice sequence after restart. Adapt and use it or ignore it.
 #define TRICE_HEADLINE \
-    TRICE0( Id(57449), "s:                                          \n" ); \
-    TRICE8( Id(56111), "s:     NUCLEO-F030R8     TRICE_MODE %3u     \n", TRICE_MODE ); \
+    TRICE0( Id(50473), "s:                                          \n" ); \
+    TRICE8( Id(49561), "s:     NUCLEO-F411RE     TRICE_MODE %3u     \n", TRICE_MODE ); \
     TRICE0( Id(34640), "s:                                          \n" ); \
     TRICE0( Id(52064), "s:     " ); \
     TRICE_BUFFER_INFO; \
@@ -121,8 +124,6 @@ extern "C" {
 //
 
 #if defined( __GNUC__ ) /* gnu compiler ###################################### */ \
- || defined(__IAR_SYSTEMS_ICC__) /* IAR compiler ############################# */ \
- || defined(__TASKING__) /* TASKING compiler (same bugs as GNU!)############## */
 
 #define TRICE_INLINE static inline //! used for trice code
 
@@ -130,41 +131,12 @@ extern "C" {
 #define ALIGN4_END __attribute__ ((aligned(4))) //!< align to 4 byte boundary post declaration
 
 //! TRICE_ENTER_CRITICAL_SECTION saves interrupt state and disables Interrupts.
-#define TRICE_ENTER_CRITICAL_SECTION { // to do
+#define TRICE_ENTER_CRITICAL_SECTION { uint32_t old_mask = cm_mask_interrupts(1); {
 
 //! TRICE_LEAVE_CRITICAL_SECTION restores interrupt state.
-#define TRICE_LEAVE_CRITICAL_SECTION } // to do
+#define TRICE_LEAVE_CRITICAL_SECTION } cm_mask_interrupts(old_mask); }
 
-#elif defined(__arm__) // ARMkeil IDE #########################################
-
-#include <cmsis_armcc.h>
-
-#define TRICE_INLINE static inline //! used for trice code
-
-#define ALIGN4 __align(4) //!< align to 4 byte boundary preamble
-#define ALIGN4_END        //!< align to 4 byte boundary post declaration
-//#define PACKED __packed   //!< pack data preamble
-//#define PACKED_END        //!< pack data post declaration
-
-//! TRICE_ENTER_CRITICAL_SECTION saves interrupt state and disables Interrupts.
-//! \details Workaround for ARM Cortex M0 and M0+:
-//! \li __get_PRIMASK() is 0 when interrupts are enabled globally.
-//! \li __get_PRIMASK() is 1 when interrupts are disabled globally.
-//! If trices are used only outside critical sections or interrupts,
-//! you can leave this macro empty for more speed. Use only '{' in that case.
-#define TRICE_ENTER_CRITICAL_SECTION { uint32_t primaskstate = __get_PRIMASK(); __disable_irq(); {
-
-//! TRICE_LEAVE_CRITICAL_SECTION restores interrupt state.
-//! \details Workaround for ARM Cortex M0 and M0+:
-//! \li __get_PRIMASK() is 0 when interrupts are enabled globally.
-//! \li __get_PRIMASK() is 1 when interrupts are disabled globally.
-//! If trices are used only outside critical sections or interrupts,
-//! you can leave this macro pair empty for more speed. Use only '}' in that case.
-#define TRICE_LEAVE_CRITICAL_SECTION } __set_PRIMASK(primaskstate); }
-
-#elif 1 // ####################################################################
-#error "add new compiler here"
-#else // ######################################################################
+#else
 #error unknown compliler
 #endif // compiler adaptions ##################################################
 

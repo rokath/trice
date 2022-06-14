@@ -15,9 +15,8 @@ This folder is an exampe using STM's
 
 ## Usage
 
-Run `make` to compile.
-Run `make flash` to program the board.
+Run `make direct_mode.elf` to compile with Trice mode 0.
+Run `make flash_direct_mode` to program the board.
 
 Run trice: `trice l -p /dev/ttyACM0`.
 
-For now only Trice mode 0 works (direct output to UART, not inside interrupts).
