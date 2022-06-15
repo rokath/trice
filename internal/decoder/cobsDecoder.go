@@ -406,6 +406,10 @@ func (p *cobsDec) sprintTrice(b []byte) (n int) {
 		p.sLen = int(p.readU32(p.b))
 		cobsFunctionPtrList[10].paramSpace = (p.sLen + 7) & ^3 // +4 for 4 bytes sLen, +3^3 is alignment to 4
 	}
+	if p.trice.Type == "TRICE_F" { // patch table paramSpace in that case
+		p.sLen = int(p.readU32(p.b))
+		cobsFunctionPtrList[11].paramSpace = (p.sLen + 7) & ^3 // +4 for 4 bytes sLen, +3^3 is alignment to 4
+	}
 
 	p.pFmt, p.u = uReplaceN(p.trice.Strg)
 
@@ -467,6 +471,7 @@ var cobsFunctionPtrList = [...]triceTypeFn{
 	{"TRICE16_F", (*cobsDec).trice16F, -1, 0, 0}, // do not remove from 4th position, see cobsFunctionPtrList[8].paramSpace = ...
 	{"TRICE32_F", (*cobsDec).trice32F, -1, 0, 0}, // do not remove from 4th position, see cobsFunctionPtrList[9].paramSpace = ...
 	{"TRICE64_F", (*cobsDec).trice64F, -1, 0, 0}, // do not remove from 4th position, see cobsFunctionPtrList[10].paramSpace = ...
+	{"TRICE_F", (*cobsDec).trice8F, -1, 0, 0},    // do not remove from 4th position, see cobsFunctionPtrList[11].paramSpace = ...
 
 	{"TRICE32_0", (*cobsDec).trice0, 0, 0, 0},
 	{"TRICE0", (*cobsDec).trice0, 0, 0, 0},

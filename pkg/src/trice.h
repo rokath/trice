@@ -325,23 +325,13 @@ static inline uint64_t aDouble( double x ){
 } while(0)
 #endif // #ifndef TRICE_64B
 
-#ifndef TRICE8_F
-//! TRICE8_F expects inside pFmt function name followed by an optional format specifier, which is used n times by using pFmt n times.
-#define TRICE8_F( id, pFmt, buf, n) do { \
-    TRICE_N( id, pFmt, buf, n); \
-} while(0)
-#endif // #ifndef TRICE8_F
-
+#define TRICE8_F  TRICE8_B 
 #define TRICE16_F TRICE16_B 
 #define TRICE32_F TRICE32_B 
 #define TRICE64_F TRICE64_B 
 
-#ifndef TRICE_B
-//! TRICE_B expects inside pFmt only one format specifier, which is used n times by using pFmt n times.
-#define TRICE_B( id, pFmt, buf, n) do { \
-    TRICE_N( id, pFmt, buf, n); \
-} while(0)
-#endif // #ifndef TRICE_B
+#define TRICE_B  TRICE8_B 
+#define TRICE_F  TRICE8_B
 
 #ifndef TRICE_N
 //! TRICE_N writes id and buffer of size len.

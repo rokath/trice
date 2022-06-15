@@ -76,6 +76,101 @@ void TCOBSCheck( void ){
 }
 */
 
+// typedef enum{
+    
+// good example (8 bytes)
+typedef struct{
+    float z;
+    uint32_t u : 14;
+     int32_t y :  4;
+    uint16_t s : 11;
+      int8_t x :  3;
+} A_t;
+
+
+// bad example (12 bytes)
+typedef struct{
+    float z;
+    uint32_t u : 14;
+    uint16_t s : 11;
+      int8_t x :  3;
+     int32_t y :  4;
+} B_t;
+
+// bad example (12 bytes)
+typedef struct{
+    float z;
+    uint32_t u : 14;
+      int8_t y :  4;
+    uint16_t s : 11;
+      int8_t x :  3;
+} C_t;
+
+
+// bad example (12 bytes)
+typedef struct{
+    float z;
+    uint32_t u : 14;
+    uint16_t s : 11;
+      int8_t y :  4;
+     uint8_t x :  3;
+} D_t;
+
+
+// bad example (12 bytes)
+typedef struct{
+    float z;
+    uint32_t u : 14;
+    uint16_t s : 11;
+     uint8_t x :  3;
+      int8_t y :  4;
+} E_t;
+
+// bad example (12 bytes)
+typedef struct{
+    float z;
+    uint32_t u : 14;
+    uint16_t s : 11;
+     uint8_t x :  3;
+     uint8_t y :  4;
+} F_t;
+
+// good example (8 bytes)
+typedef struct{
+    float z;
+    uint32_t u : 14;
+    uint32_t s : 11;
+    uint32_t x :  3;
+     int32_t y :  4;
+} G_t;
+
+// good example (8 bytes)
+typedef struct{
+    float z;
+    uint32_t u : 14;
+    uint32_t s : 11;
+    uint32_t x :  3;
+    uint32_t y :  4;
+} H_t;
+
+// good example (8 bytes)
+typedef struct{
+    float z;
+    uint32_t u : 14;
+     int32_t s : 11;
+    uint32_t x :  3;
+     int32_t y :  4;
+} I_t;
+
+// good example (8 bytes)
+typedef struct{
+    float z;
+     int32_t u : 14;
+     int32_t s : 11;
+    uint32_t x :  3;
+     int32_t y :  4;
+} J_t;
+
 //! TriceCheckSet writes out all types of trices with fixed values for testing
 //! \details One trice has one subtrace, if param size max 2 bytes. 
 //! Traces with more bytes as parameter consist of several subtraces.
@@ -88,8 +183,37 @@ void TriceCheckSet(int index) {
     uint32_t len, count;
     float  x = 1089.6082763671875;// 0x44883377
     double y = 518.0547492508867;// 0x4080307020601050
+    A_t A;
+    B_t B;
+    C_t C;
+    D_t D;
+    E_t E;
+    F_t F;
+    G_t G;
+    H_t H;
+    I_t I = { 2.781, 11111, -1000, 7, -7 };
+    J_t J;
+    
     switch (index) {
-        case 0:
+        case 0:          
+            TRICE( Id(52267), "info:sizeof(A) = %d, sizeof(B) = %d\n", sizeof(A), sizeof(B) );
+            TRICE( Id(48732), "info:sizeof(C) = %d, sizeof(D) = %d\n", sizeof(C), sizeof(D) );
+            TRICE( Id(61947), "info:sizeof(E) = %d, sizeof(F) = %d\n", sizeof(E), sizeof(F) );
+            TRICE( Id(50656), "info:sizeof(G) = %d, sizeof(H) = %d\n", sizeof(G), sizeof(H) );
+            TRICE( Id(57994), "info:sizeof(I) = %d, sizeof(J) = %d\n", sizeof(I), sizeof(J) );
+            TRICE_B( Id(58129), " %02x ", &I, sizeof(I) );
+            TRICE( Id(65448), "\n" );
+            TRICE8_F( Id(40415), "info:MyStructEvaluationFunction", &I, sizeof(I) );
+        
+        {
+            typedef  struct {
+            int Apple, Birn;
+            float Fish;
+            } Ex_t;
+        
+            Ex_t Ex = { -1, 2, 2.781 };
+            TRICE( Id(47156), "att:MyStructEvaluationFunction(json:ExA{Apple:%d, Birn:%u, Fisch:%f}\n", Ex.Apple, Ex.Birn, aFloat(Ex.Fish) );
+        }
             s = "abcde 12345";
 
             TRICE_S( Id(65209), "msg:With TRICE_S:%s\n", s );
