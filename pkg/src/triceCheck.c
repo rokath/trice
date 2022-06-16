@@ -171,6 +171,41 @@ typedef struct{
      int32_t y :  4;
 } J_t;
 
+// good example (8 bytes)
+typedef struct{
+    float z;
+     int32_t u;
+     int32_t s;
+    uint32_t x;
+     int32_t y;
+    char names[5][3];
+    double point[2];
+    uint64_t bitmask;
+} Tryout_t;
+
+
+#define COPY( element ) do{ int size = sizeof( ptrStruct->element ); memcpy( p, &(ptrStruct->element), size ); p += size; }while(0);
+
+static int serialize( char* dst, Tryout_t const * const ptrStruct ){
+    char * p = dst;
+
+    COPY( z )
+    COPY( u )
+    COPY( s )
+    COPY( x )
+    COPY( y )
+    
+    
+     do{ int size = sizeof( ptrStruct->names[5][3] ); memcpy( p, &(ptrStruct->names[5][3]), size ); p += size; }while(0);
+    
+    COPY( names[5][3] )
+    COPY( point[2] )
+    COPY( bitmask )  
+
+    
+    return p - dst;
+}
+
 //! TriceCheckSet writes out all types of trices with fixed values for testing
 //! \details One trice has one subtrace, if param size max 2 bytes. 
 //! Traces with more bytes as parameter consist of several subtraces.
