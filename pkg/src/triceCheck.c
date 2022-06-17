@@ -76,7 +76,14 @@ void TCOBSCheck( void ){
 }
 */
 
+///////////////////////////////////////////////////////////////////////////////////////
+// manual serialization example
+//
+
+//! SCOPY is a helper macro for struct serialization.
 #define SCOPY( element ) do{ char* n = #element; int size = sizeof( src->element ); memcpy( p, &(src->element), size ); p += size; TRICE_S( Id(51692), "rd:sizeof(%8s)", n ); TRICE( Id(47039), " = %d\n", size);}while(0);
+
+    //! DCOPY is a helper macro for struct deserialization.
 #define DCOPY( element ) do{ char* n = #element; int size = sizeof( dst->element ); memcpy( &(dst->element), p, size ); p += size; TRICE_S( Id(51692), "rd:sizeof(%8s)", n ); TRICE( Id(47039), " = %d\n", size);}while(0);
 
 
@@ -84,9 +91,9 @@ typedef struct{
     float x;
     uint8_t rgb[3];
     float y;
-} Point_t;
+} Point_t; //!< Point_t is small struct type.
 
-int serializePoint( char* dst, Point_t const * src ){
+static int serializePoint( char* dst, Point_t const * src ){
     char * p = dst;
 
     SCOPY( x )
@@ -96,7 +103,7 @@ int serializePoint( char* dst, Point_t const * src ){
     return p - dst;
 }
 
-int deserializePoint( Point_t * const dst, char const * src ){
+static int deserializePoint( Point_t * const dst, char const * src ){
     char const * p = src;
 
     DCOPY( x )
@@ -106,7 +113,6 @@ int deserializePoint( Point_t * const dst, char const * src ){
     return p - src;
 }
 
-// good example (8 bytes)
 typedef struct{
     float z;
     uint16_t u;
@@ -117,7 +123,7 @@ typedef struct{
     char names[3][5];
     Point_t point[2];
     uint64_t bitmask;
-} Tryout_t;
+} Tryout_t; //!<  Tryout_t is a struct example embedding an other struct.
 
 
 
@@ -153,6 +159,8 @@ int deserializeTryout( Tryout_t * const dst, char const * src ){
     return p - src;
 }
 
+//
+///////////////////////////////////////////////////////////////////////////////////////
 
 
 //! TriceCheckSet writes out all types of trices with fixed values for testing
@@ -171,7 +179,12 @@ void TriceCheckSet(int index) {
     switch (index) {
         case 0:
         {
-            Tryout_t tx, rx;
+            Tryout_t tx, rx; // declare
+            static char dst[100]; serialized data
+            char* src = dst; // "copy"
+            int len;
+            
+            // fill tx with data
             tx.z = 123.456;
             tx.u = 44444;
             tx.addr="Haus";
@@ -179,6 +192,10 @@ void TriceCheckSet(int index) {
             tx.x = 0xaa55bb77;
             tx.y = -1000000;
  
+            memcpy( tx.names[0], "aaa", strlen( "aaa" ) ); 
+            memcpy( tx.names[0], "aaa", strlen( "bbbb" ) ); 
+            memcpy( tx.names[0], "aaa", strlen( "ccccc" ) ); 
+
             tx.point[0].x = 2.22;
             tx.point[0].y = -3.33;
             tx.point[0].rgb[0] = 0x44;
@@ -193,14 +210,6 @@ void TriceCheckSet(int index) {
             
             tx.bitmask = 0xAAAA55550000FFFF;
         
-            memcpy( tx.names[0], "aaa", strlen( "aaa" ) ); 
-            memcpy( tx.names[0], "aaa", strlen( "bbbb" ) ); 
-            memcpy( tx.names[0], "aaa", strlen( "ccccc" ) ); 
-        
-        
-            static char dst[100];
-            char* src = dst; // "copy"
-            int len;
             len = serializeTryout( dst, &tx );
             TRICE ( Id(37182), "inf: Tryout tx struct:" );
             TRICE_B( Id(58129), " %02x ", &tx, sizeof(tx) );
@@ -218,9 +227,7 @@ void TriceCheckSet(int index) {
 
             TRICE( Id(48647), "inf:sizeOf(Trypout) = %d, buffer length = %d\n", sizeof(tx), len );
             TRICE8_F( Id(49850), "info:TryoutStructFunction", &tx, sizeof(tx) );
-            TRICE8_F( Id(53387), "info:TryoutBufferFunction", dst, len );
-            
-            
+            TRICE8_F( Id(53387), "info:TryoutBufferFunction", dst, len ); 
         }
         
         {
