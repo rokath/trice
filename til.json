@@ -791,6 +791,10 @@
 		"Type": "TRICE64_F",
 		"Strg": "FunctionNameZ"
 	},
+	"37182": {
+		"Type": "TRICE",
+		"Strg": "inf: Tryout tx struct:"
+	},
 	"37222": {
 		"Type": "TRICE",
 		"Strg": "time:TRICE32_1   message, SysTick is %6u\\n"
@@ -862,6 +866,10 @@
 	"37558": {
 		"Type": "TRICE",
 		"Strg": "transmit:black:black+h\\n"
+	},
+	"37601": {
+		"Type": "TRICE",
+		"Strg": "inf: Tryout rx struct:"
 	},
 	"37628": {
 		"Type": "TRICE_FILE",
@@ -1358,6 +1366,10 @@
 	"40569": {
 		"Type": "TRICE8",
 		"Strg": "rd:TRICE8 %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"40572": {
+		"Type": "TRICE",
+		"Strg": "inf: Tryout rx struct:"
 	},
 	"40577": {
 		"Type": "TRICE64",
@@ -1891,6 +1903,10 @@
 		"Type": "TRICE_FILE",
 		"Strg": "stm32g0xx_ll_exti.c"
 	},
+	"44185": {
+		"Type": "TRICE",
+		"Strg": "inf:sizeOf(Trypout) = %d, buffer length = %d\\n"
+	},
 	"44218": {
 		"Type": "TRICE",
 		"Strg": "sig:TRICE16 with variable param count 1 to 12\\n"
@@ -1954,6 +1970,10 @@
 	"44438": {
 		"Type": "TRICE",
 		"Strg": "a:c"
+	},
+	"44447": {
+		"Type": "TRICE",
+		"Strg": "inf: Tryout buffer:"
 	},
 	"44448": {
 		"Type": "TRICE",
@@ -2339,6 +2359,10 @@
 		"Type": "TRICE64_6",
 		"Strg": "rd:TRICE64_6 %d, %d, %d, %d, %d, %d\\n"
 	},
+	"47039": {
+		"Type": "TRICE",
+		"Strg": " = %d\\n"
+	},
 	"47073": {
 		"Type": "TRICE",
 		"Strg": "msg:positive float \u0026 double in variants\\n"
@@ -2578,6 +2602,10 @@
 	"48635": {
 		"Type": "TRICE64_1",
 		"Strg": "tst:TRICE64_1 %u\\n"
+	},
+	"48647": {
+		"Type": "TRICE",
+		"Strg": "inf:sizeOf(Trypout) = %d, buffer length = %d\\n"
 	},
 	"48655": {
 		"Type": "TRICE32_1",
@@ -2827,6 +2855,10 @@
 		"Type": "TRICE8_B",
 		"Strg": "  %02x"
 	},
+	"49850": {
+		"Type": "TRICE8_F",
+		"Strg": "info:TryoutStructFunction"
+	},
 	"49865": {
 		"Type": "TRICE16_12",
 		"Strg": "rd:TRICE16_12 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
@@ -2938,6 +2970,10 @@
 	"50492": {
 		"Type": "TRICE_S",
 		"Strg": "sig:TRICE_S=%s\\n"
+	},
+	"50502": {
+		"Type": "TRICE",
+		"Strg": "inf: Tryout tx struct:"
 	},
 	"50533": {
 		"Type": "TRICE16",
@@ -3118,6 +3154,10 @@
 	"51678": {
 		"Type": "TRICE64",
 		"Strg": "rd:TRICE64 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"51692": {
+		"Type": "TRICE_S",
+		"Strg": "rd:sizeof(%8s)"
 	},
 	"51702": {
 		"Type": "TRICE8_2",
@@ -3422,6 +3462,10 @@
 	"53319": {
 		"Type": "TRICE32_1",
 		"Strg": "rd:TRICE32_1 float %F (%%F)\\n"
+	},
+	"53387": {
+		"Type": "TRICE8_F",
+		"Strg": "info:TryoutBufferFunction"
 	},
 	"53443": {
 		"Type": "TRICE_FILE",
@@ -5058,6 +5102,10 @@
 	"62294": {
 		"Type": "TRICE32_8",
 		"Strg": "rd:TRICE32_8 %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"62320": {
+		"Type": "TRICE",
+		"Strg": "inf: Tryout struct:"
 	},
 	"62340": {
 		"Type": "TRICE",

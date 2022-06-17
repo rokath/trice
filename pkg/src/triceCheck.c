@@ -76,135 +76,84 @@ void TCOBSCheck( void ){
 }
 */
 
-// typedef enum{
+#define SCOPY( element ) do{ char* n = #element; int size = sizeof( src->element ); memcpy( p, &(src->element), size ); p += size; TRICE_S( Id(51692), "rd:sizeof(%8s)", n ); TRICE( Id(47039), " = %d\n", size);}while(0);
+#define DCOPY( element ) do{ char* n = #element; int size = sizeof( dst->element ); memcpy( &(dst->element), p, size ); p += size; TRICE_S( Id(51692), "rd:sizeof(%8s)", n ); TRICE( Id(47039), " = %d\n", size);}while(0);
+
+
+typedef struct{
+    float x;
+    uint8_t rgb[3];
+    float y;
+} Point_t;
+
+int serializePoint( char* dst, Point_t const * src ){
+    char * p = dst;
+
+    SCOPY( x )
+    SCOPY( rgb )
+    SCOPY( y )
+
+    return p - dst;
+}
+
+int deserializePoint( Point_t * const dst, char const * src ){
+    char const * p = src;
+
+    DCOPY( x )
+    DCOPY( rgb )
+    DCOPY( y )
     
-// good example (8 bytes)
-typedef struct{
-    float z;
-    uint32_t u : 14;
-     int32_t y :  4;
-    uint16_t s : 11;
-      int8_t x :  3;
-} A_t;
-
-
-// bad example (12 bytes)
-typedef struct{
-    float z;
-    uint32_t u : 14;
-    uint16_t s : 11;
-      int8_t x :  3;
-     int32_t y :  4;
-} B_t;
-
-// bad example (12 bytes)
-typedef struct{
-    float z;
-    uint32_t u : 14;
-      int8_t y :  4;
-    uint16_t s : 11;
-      int8_t x :  3;
-} C_t;
-
-
-// bad example (12 bytes)
-typedef struct{
-    float z;
-    uint32_t u : 14;
-    uint16_t s : 11;
-      int8_t y :  4;
-     uint8_t x :  3;
-} D_t;
-
-
-// bad example (12 bytes)
-typedef struct{
-    float z;
-    uint32_t u : 14;
-    uint16_t s : 11;
-     uint8_t x :  3;
-      int8_t y :  4;
-} E_t;
-
-// bad example (12 bytes)
-typedef struct{
-    float z;
-    uint32_t u : 14;
-    uint16_t s : 11;
-     uint8_t x :  3;
-     uint8_t y :  4;
-} F_t;
+    return p - src;
+}
 
 // good example (8 bytes)
 typedef struct{
     float z;
-    uint32_t u : 14;
-    uint32_t s : 11;
-    uint32_t x :  3;
-     int32_t y :  4;
-} G_t;
-
-// good example (8 bytes)
-typedef struct{
-    float z;
-    uint32_t u : 14;
-    uint32_t s : 11;
-    uint32_t x :  3;
-    uint32_t y :  4;
-} H_t;
-
-// good example (8 bytes)
-typedef struct{
-    float z;
-    uint32_t u : 14;
-     int32_t s : 11;
-    uint32_t x :  3;
-     int32_t y :  4;
-} I_t;
-
-// good example (8 bytes)
-typedef struct{
-    float z;
-     int32_t u : 14;
-     int32_t s : 11;
-    uint32_t x :  3;
-     int32_t y :  4;
-} J_t;
-
-// good example (8 bytes)
-typedef struct{
-    float z;
-     int32_t u;
-     int32_t s;
+    uint16_t u;
+      int8_t s;
+    char* addr;
     uint32_t x;
      int32_t y;
-    char names[5][3];
-    double point[2];
+    char names[3][5];
+    Point_t point[2];
     uint64_t bitmask;
 } Tryout_t;
 
 
-#define COPY( element ) do{ int size = sizeof( ptrStruct->element ); memcpy( p, &(ptrStruct->element), size ); p += size; }while(0);
 
-static int serialize( char* dst, Tryout_t const * const ptrStruct ){
+int serializeTryout( char* dst, Tryout_t const * src ){
     char * p = dst;
 
-    COPY( z )
-    COPY( u )
-    COPY( s )
-    COPY( x )
-    COPY( y )
-    
-    
-     do{ int size = sizeof( ptrStruct->names[5][3] ); memcpy( p, &(ptrStruct->names[5][3]), size ); p += size; }while(0);
-    
-    COPY( names[5][3] )
-    COPY( point[2] )
-    COPY( bitmask )  
+    SCOPY( z )
+    SCOPY( u )
+    SCOPY( s )
+    SCOPY( addr )
+    SCOPY( x )
+    SCOPY( y )
+    SCOPY( names )
+    p += serializePoint( p, src->point );
+    SCOPY( bitmask )  
 
-    
     return p - dst;
 }
+
+int deserializeTryout( Tryout_t * const dst, char const * src ){
+    char const * p = src;
+
+    DCOPY( z )
+    DCOPY( u )
+    DCOPY( s )
+    DCOPY( addr )
+    DCOPY( x )
+    DCOPY( y )
+    DCOPY( names )
+    p += deserializePoint( dst->point, p );
+    DCOPY( bitmask )  
+
+    return p - src;
+}
+
+
 
 //! TriceCheckSet writes out all types of trices with fixed values for testing
 //! \details One trice has one subtrace, if param size max 2 bytes. 
@@ -218,27 +167,61 @@ void TriceCheckSet(int index) {
     uint32_t len, count;
     float  x = 1089.6082763671875;// 0x44883377
     double y = 518.0547492508867;// 0x4080307020601050
-    A_t A;
-    B_t B;
-    C_t C;
-    D_t D;
-    E_t E;
-    F_t F;
-    G_t G;
-    H_t H;
-    I_t I = { 2.781, 11111, -1000, 7, -7 };
-    J_t J;
-    
+     
     switch (index) {
-        case 0:          
-            TRICE( Id(52267), "info:sizeof(A) = %d, sizeof(B) = %d\n", sizeof(A), sizeof(B) );
-            TRICE( Id(48732), "info:sizeof(C) = %d, sizeof(D) = %d\n", sizeof(C), sizeof(D) );
-            TRICE( Id(61947), "info:sizeof(E) = %d, sizeof(F) = %d\n", sizeof(E), sizeof(F) );
-            TRICE( Id(50656), "info:sizeof(G) = %d, sizeof(H) = %d\n", sizeof(G), sizeof(H) );
-            TRICE( Id(57994), "info:sizeof(I) = %d, sizeof(J) = %d\n", sizeof(I), sizeof(J) );
-            TRICE_B( Id(58129), " %02x ", &I, sizeof(I) );
+        case 0:
+        {
+            Tryout_t tx, rx;
+            tx.z = 123.456;
+            tx.u = 44444;
+            tx.addr="Haus";
+            tx.s = -2;
+            tx.x = 0xaa55bb77;
+            tx.y = -1000000;
+ 
+            tx.point[0].x = 2.22;
+            tx.point[0].y = -3.33;
+            tx.point[0].rgb[0] = 0x44;
+            tx.point[0].rgb[0] = 0x66;
+            tx.point[0].rgb[0] = 0x88;
+        
+            tx.point[1].x = -66.66;
+            tx.point[1].y = +5.5555;
+            tx.point[1].rgb[0] = 0xee;
+            tx.point[1].rgb[0] = 0xaa;
+            tx.point[1].rgb[0] = 0xbb;
+            
+            tx.bitmask = 0xAAAA55550000FFFF;
+        
+            memcpy( tx.names[0], "aaa", strlen( "aaa" ) ); 
+            memcpy( tx.names[0], "aaa", strlen( "bbbb" ) ); 
+            memcpy( tx.names[0], "aaa", strlen( "ccccc" ) ); 
+        
+        
+            static char dst[100];
+            char* src = dst; // "copy"
+            int len;
+            len = serializeTryout( dst, &tx );
+            TRICE ( Id(37182), "inf: Tryout tx struct:" );
+            TRICE_B( Id(58129), " %02x ", &tx, sizeof(tx) );
             TRICE( Id(65448), "\n" );
-            TRICE8_F( Id(40415), "info:MyStructEvaluationFunction", &I, sizeof(I) );
+            
+            TRICE ( Id(44447), "inf: Tryout buffer:" );
+            TRICE_B( Id(58129), " %02x ", dst, len );
+            TRICE( Id(65448), "\n" );
+
+            len = deserializeTryout( &rx, src );
+
+            TRICE ( Id(40572), "inf: Tryout rx struct:" );
+            TRICE_B( Id(58129), " %02x ", &rx, sizeof(rx) );
+            TRICE( Id(65448), "\n" );
+
+            TRICE( Id(48647), "inf:sizeOf(Trypout) = %d, buffer length = %d\n", sizeof(tx), len );
+            TRICE8_F( Id(49850), "info:TryoutStructFunction", &tx, sizeof(tx) );
+            TRICE8_F( Id(53387), "info:TryoutBufferFunction", dst, len );
+            
+            
+        }
         
         {
             typedef  struct {
