@@ -193,7 +193,7 @@ int main(void)
                 TRICE16( Id(50543),"MSG: 💚 START select = %d, TriceDepthMax =%4u\n", select, TriceDepthMax() );
                 TriceCheckSet(select);
                 TRICE16( Id(40126),"MSG: ✅ STOP  select = %d, TriceDepthMax =%4u\n", select, TriceDepthMax() );
-                index += 10;
+                index += 1;
                 index = index > 1000 ? 0 : index;
                 lastTricesTime = milliSecond;
                 {

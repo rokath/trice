@@ -390,21 +390,25 @@ func (p *cobsDec) sprintTrice(b []byte) (n int) {
 		p.sLen = int(p.readU32(p.b))
 		cobsFunctionPtrList[6].paramSpace = (p.sLen + 7) & ^3 // +4 for 4 bytes sLen, +3^3 is alignment to 4
 	}
-	if p.trice.Type == "TRICE8_F" { // patch table paramSpace in that case
+	if p.trice.Type == "TRICE_F" { // patch table paramSpace in that case
 		p.sLen = int(p.readU32(p.b))
 		cobsFunctionPtrList[7].paramSpace = (p.sLen + 7) & ^3 // +4 for 4 bytes sLen, +3^3 is alignment to 4
 	}
-	if p.trice.Type == "TRICE16_F" { // patch table paramSpace in that case
+	if p.trice.Type == "TRICE8_F" { // patch table paramSpace in that case
 		p.sLen = int(p.readU32(p.b))
 		cobsFunctionPtrList[8].paramSpace = (p.sLen + 7) & ^3 // +4 for 4 bytes sLen, +3^3 is alignment to 4
 	}
-	if p.trice.Type == "TRICE32_F" { // patch table paramSpace in that case
+	if p.trice.Type == "TRICE16_F" { // patch table paramSpace in that case
 		p.sLen = int(p.readU32(p.b))
 		cobsFunctionPtrList[9].paramSpace = (p.sLen + 7) & ^3 // +4 for 4 bytes sLen, +3^3 is alignment to 4
 	}
-	if p.trice.Type == "TRICE64_F" { // patch table paramSpace in that case
+	if p.trice.Type == "TRICE32_F" { // patch table paramSpace in that case
 		p.sLen = int(p.readU32(p.b))
 		cobsFunctionPtrList[10].paramSpace = (p.sLen + 7) & ^3 // +4 for 4 bytes sLen, +3^3 is alignment to 4
+	}
+	if p.trice.Type == "TRICE64_F" { // patch table paramSpace in that case
+		p.sLen = int(p.readU32(p.b))
+		cobsFunctionPtrList[11].paramSpace = (p.sLen + 7) & ^3 // +4 for 4 bytes sLen, +3^3 is alignment to 4
 	}
 
 	p.pFmt, p.u = uReplaceN(p.trice.Strg)
@@ -463,10 +467,12 @@ var cobsFunctionPtrList = [...]triceTypeFn{
 	{"TRICE16_B", (*cobsDec).trice16B, -1, 0, 0}, // do not remove from 4th position, see cobsFunctionPtrList[4].paramSpace = ...
 	{"TRICE32_B", (*cobsDec).trice32B, -1, 0, 0}, // do not remove from 4th position, see cobsFunctionPtrList[5].paramSpace = ...
 	{"TRICE64_B", (*cobsDec).trice64B, -1, 0, 0}, // do not remove from 4th position, see cobsFunctionPtrList[6].paramSpace = ...
-	{"TRICE8_F", (*cobsDec).trice8F, -1, 0, 0},   // do not remove from 4th position, see cobsFunctionPtrList[7].paramSpace = ...
-	{"TRICE16_F", (*cobsDec).trice16F, -1, 0, 0}, // do not remove from 4th position, see cobsFunctionPtrList[8].paramSpace = ...
-	{"TRICE32_F", (*cobsDec).trice32F, -1, 0, 0}, // do not remove from 4th position, see cobsFunctionPtrList[9].paramSpace = ...
-	{"TRICE64_F", (*cobsDec).trice64F, -1, 0, 0}, // do not remove from 4th position, see cobsFunctionPtrList[10].paramSpace = ...
+
+	{"TRICE_F", (*cobsDec).trice8F, -1, 0, 0},    // do not remove from 4th position, see cobsFunctionPtrList[7].paramSpace = ...
+	{"TRICE8_F", (*cobsDec).trice8F, -1, 0, 0},   // do not remove from 4th position, see cobsFunctionPtrList[8].paramSpace = ...
+	{"TRICE16_F", (*cobsDec).trice16F, -1, 0, 0}, // do not remove from 4th position, see cobsFunctionPtrList[9].paramSpace = ...
+	{"TRICE32_F", (*cobsDec).trice32F, -1, 0, 0}, // do not remove from 4th position, see cobsFunctionPtrList[10].paramSpace = ...
+	{"TRICE64_F", (*cobsDec).trice64F, -1, 0, 0}, // do not remove from 4th position, see cobsFunctionPtrList[11].paramSpace = ...
 
 	{"TRICE32_0", (*cobsDec).trice0, 0, 0, 0},
 	{"TRICE0", (*cobsDec).trice0, 0, 0, 0},

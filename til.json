@@ -67,6 +67,10 @@
 		"Type": "TRICE",
 		"Strg": "rd: 1.234560e+02\t\t%e \t%%e Scientific notation\\n"
 	},
+	"33266": {
+		"Type": "TRICE",
+		"Strg": "notice:TRICE64_B example:"
+	},
 	"33267": {
 		"Type": "TRICE_S",
 		"Strg": "sig:With TRICE_S:%s\\n"
@@ -231,6 +235,10 @@
 		"Type": "TRICE32_4",
 		"Strg": "rd:TRICE32_4 %d, %d, %d, %d\\n"
 	},
+	"34129": {
+		"Type": "TRICE64_F",
+		"Strg": "fatal:FunctionNameZ"
+	},
 	"34138": {
 		"Type": "TRICE",
 		"Strg": "ASSERT:yellow+i:blue\\n"
@@ -286,6 +294,10 @@
 	"34440": {
 		"Type": "TRICE8_5",
 		"Strg": "rd:TRICE8_5 %d, %d, %d, %d, %d\\n"
+	},
+	"34445": {
+		"Type": "TRICE_F",
+		"Strg": "info:FunctionNameW"
 	},
 	"34450": {
 		"Type": "TRICE32_F",
@@ -419,6 +431,10 @@
 		"Type": "TRICE16_1",
 		"Strg": "rd:TRICE16_1 line %b (%%b -1)\\n"
 	},
+	"35166": {
+		"Type": "TRICE",
+		"Strg": "notice:TRICE_F example:"
+	},
 	"35169": {
 		"Type": "TRICE16_1",
 		"Strg": "rd:TRICE16_1 line %u (%%u -1)\\n"
@@ -450,6 +466,10 @@
 	"35229": {
 		"Type": "TRICE",
 		"Strg": "rd: 17 \t%o \tBase 8\\n"
+	},
+	"35297": {
+		"Type": "TRICE",
+		"Strg": "notice:TRICE64_F example:"
 	},
 	"35300": {
 		"Type": "TRICE_FILE",
@@ -530,6 +550,10 @@
 	"35726": {
 		"Type": "TRICE_B",
 		"Strg": " %02x"
+	},
+	"35739": {
+		"Type": "TRICE_F",
+		"Strg": "cmd:MyStructEvaluationFunction(json:ExA{Apple:%d, Birn:%u, Cyan:%d, Delay:%u, Fisch:%f}"
 	},
 	"35756": {
 		"Type": "TRICE8",
@@ -787,6 +811,10 @@
 		"Type": "TRICE64_F",
 		"Strg": "FunctionNameZ"
 	},
+	"37182": {
+		"Type": "TRICE",
+		"Strg": "inf: Tryout tx struct:"
+	},
 	"37222": {
 		"Type": "TRICE",
 		"Strg": "time:TRICE32_1   message, SysTick is %6u\\n"
@@ -859,6 +887,10 @@
 		"Type": "TRICE",
 		"Strg": "transmit:black:black+h\\n"
 	},
+	"37601": {
+		"Type": "TRICE",
+		"Strg": "inf: Tryout rx struct:"
+	},
 	"37628": {
 		"Type": "TRICE_FILE",
 		"Strg": "stm32g0xx_ll_gpio.c"
@@ -926,6 +958,10 @@
 	"37916": {
 		"Type": "TRICE0",
 		"Strg": "time:i"
+	},
+	"37923": {
+		"Type": "TRICE",
+		"Strg": "notice:TRICE_F example:"
 	},
 	"37926": {
 		"Type": "TRICE_FILE",
@@ -1115,6 +1151,14 @@
 		"Type": "TRICE0",
 		"Strg": "wr:d"
 	},
+	"39058": {
+		"Type": "TRICE_B",
+		"Strg": "  %02x"
+	},
+	"39102": {
+		"Type": "TRICE_F",
+		"Strg": "info:MyStructEvaluationFunction"
+	},
 	"39124": {
 		"Type": "TRICE",
 		"Strg": "t:H"
@@ -1186,6 +1230,10 @@
 	"39702": {
 		"Type": "TRICE0",
 		"Strg": "--------------------------------------------------\\n"
+	},
+	"39711": {
+		"Type": "TRICE",
+		"Strg": "notice:TRICE32_B example:"
 	},
 	"39742": {
 		"Type": "TRICE",
@@ -1331,6 +1379,10 @@
 		"Type": "TRICE0",
 		"Strg": "wr:TRICE_UART Transmission Complete Flag is set\\n"
 	},
+	"40415": {
+		"Type": "TRICE8_F",
+		"Strg": "info:MyStructEvaluationFunction"
+	},
 	"40469": {
 		"Type": "TRICE_FILE",
 		"Strg": "stm32g0xx_ll_exti.c"
@@ -1346,6 +1398,10 @@
 	"40569": {
 		"Type": "TRICE8",
 		"Strg": "rd:TRICE8 %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"40572": {
+		"Type": "TRICE",
+		"Strg": "inf: Tryout rx struct:"
 	},
 	"40577": {
 		"Type": "TRICE64",
@@ -1574,6 +1630,10 @@
 	"42327": {
 		"Type": "TRICE",
 		"Strg": "sig:Pointer (hex)\\n"
+	},
+	"42348": {
+		"Type": "TRICE",
+		"Strg": "cmd:MyStructEvaluationFunction(json:ExA{Apple:%d, Birn:%u, Fisch:%f}"
 	},
 	"42353": {
 		"Type": "TRICE16_1",
@@ -1875,6 +1935,10 @@
 		"Type": "TRICE_FILE",
 		"Strg": "stm32g0xx_ll_exti.c"
 	},
+	"44185": {
+		"Type": "TRICE",
+		"Strg": "inf:sizeOf(Trypout) = %d, buffer length = %d\\n"
+	},
 	"44218": {
 		"Type": "TRICE",
 		"Strg": "sig:TRICE16 with variable param count 1 to 12\\n"
@@ -1927,6 +1991,10 @@
 		"Type": "TRICE_FILE",
 		"Strg": "stm32g0xx_ll_pwr.c"
 	},
+	"44398": {
+		"Type": "TRICE",
+		"Strg": "info:sizeof(I) = %d, sizeof(J) = %d\\n"
+	},
 	"44411": {
 		"Type": "TRICE32",
 		"Strg": "rd:TRICE32 float %g (%%g)\\n"
@@ -1934,6 +2002,10 @@
 	"44438": {
 		"Type": "TRICE",
 		"Strg": "a:c"
+	},
+	"44447": {
+		"Type": "TRICE",
+		"Strg": "inf: Tryout buffer:"
 	},
 	"44448": {
 		"Type": "TRICE",
@@ -2010,6 +2082,10 @@
 	"45005": {
 		"Type": "TRICE8",
 		"Strg": "rd:TRICE8 line %t (%%t ,2)\\n"
+	},
+	"45006": {
+		"Type": "TRICE_B",
+		"Strg": " %02x "
 	},
 	"45055": {
 		"Type": "TRICE",
@@ -2315,9 +2391,17 @@
 		"Type": "TRICE64_6",
 		"Strg": "rd:TRICE64_6 %d, %d, %d, %d, %d, %d\\n"
 	},
+	"47039": {
+		"Type": "TRICE",
+		"Strg": " = %d\\n"
+	},
 	"47073": {
 		"Type": "TRICE",
 		"Strg": "msg:positive float \u0026 double in variants\\n"
+	},
+	"47156": {
+		"Type": "TRICE",
+		"Strg": "att:MyStructEvaluationFunction(json:ExA{Apple:%d, Birn:%u, Fisch:%f}\\n"
 	},
 	"47183": {
 		"Type": "TRICE32_2",
@@ -2439,6 +2523,10 @@
 		"Type": "TRICE_S",
 		"Strg": "rd: \\\"café\\\" \t\t%q \t\tQuoted string\\n"
 	},
+	"48079": {
+		"Type": "TRICE_F",
+		"Strg": "info:MyStructEvaluationFunction"
+	},
 	"48093": {
 		"Type": "TRICE_FILE",
 		"Strg": "stm32g0xx_ll_pwr.c"
@@ -2547,6 +2635,10 @@
 		"Type": "TRICE64_1",
 		"Strg": "tst:TRICE64_1 %u\\n"
 	},
+	"48647": {
+		"Type": "TRICE",
+		"Strg": "inf:sizeOf(Trypout) = %d, buffer length = %d\\n"
+	},
 	"48655": {
 		"Type": "TRICE32_1",
 		"Strg": "rd:TRICE32_1 line %x (%%x -1)\\n"
@@ -2570,6 +2662,10 @@
 	"48727": {
 		"Type": "TRICE",
 		"Strg": "wrn:TRICE_UART Receive Wake Up from mute mode Flag is set\\n"
+	},
+	"48732": {
+		"Type": "TRICE",
+		"Strg": "info:sizeof(C) = %d, sizeof(D) = %d\\n"
 	},
 	"48741": {
 		"Type": "TRICE32_1",
@@ -2747,6 +2843,10 @@
 		"Type": "TRICE",
 		"Strg": "rd: ␣␣123.46 \t%8.2f   %%8.2f Width 8, precision 2\\n"
 	},
+	"49729": {
+		"Type": "TRICE",
+		"Strg": "info:MyStructEvaluationFunction"
+	},
 	"49735": {
 		"Type": "TRICE64_1",
 		"Strg": "rd:TRICE64_1 line %X (%%C)\\n"
@@ -2786,6 +2886,10 @@
 	"49843": {
 		"Type": "TRICE8_B",
 		"Strg": "  %02x"
+	},
+	"49850": {
+		"Type": "TRICE8_F",
+		"Strg": "info:TryoutStructFunction"
 	},
 	"49865": {
 		"Type": "TRICE16_12",
@@ -2879,6 +2983,10 @@
 		"Type": "TRICE_S",
 		"Strg": "rd: 63 61 66 c3 a9 \t% x \tHex dump with spaces\\n"
 	},
+	"50357": {
+		"Type": "TRICE",
+		"Strg": "notice:TRICE64_B example:"
+	},
 	"50398": {
 		"Type": "TRICE",
 		"Strg": "msg:formatted float \u0026 double\\n"
@@ -2898,6 +3006,10 @@
 	"50492": {
 		"Type": "TRICE_S",
 		"Strg": "sig:TRICE_S=%s\\n"
+	},
+	"50502": {
+		"Type": "TRICE",
+		"Strg": "inf: Tryout tx struct:"
 	},
 	"50533": {
 		"Type": "TRICE16",
@@ -2926,6 +3038,10 @@
 	"50633": {
 		"Type": "TRICE64",
 		"Strg": "rd: 123.456 \t%g \tExponent as needed, necessary digits only\\n"
+	},
+	"50656": {
+		"Type": "TRICE",
+		"Strg": "info:sizeof(G) = %d, sizeof(H) = %d\\n"
 	},
 	"50671": {
 		"Type": "TRICE32",
@@ -2990,6 +3106,10 @@
 	"51133": {
 		"Type": "TRICE64_1",
 		"Strg": "rd:TRICE64_1 %d\\n"
+	},
+	"51134": {
+		"Type": "TRICE",
+		"Strg": "notice:TRICE8_F example:"
 	},
 	"51143": {
 		"Type": "TRICE",
@@ -3074,6 +3194,10 @@
 	"51678": {
 		"Type": "TRICE64",
 		"Strg": "rd:TRICE64 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"51692": {
+		"Type": "TRICE_S",
+		"Strg": "rd:sizeof(%8s)"
 	},
 	"51702": {
 		"Type": "TRICE8_2",
@@ -3175,6 +3299,10 @@
 		"Type": "TRICE0",
 		"Strg": "message:J"
 	},
+	"52134": {
+		"Type": "TRICE",
+		"Strg": "notice:TRICE_B example:"
+	},
 	"52183": {
 		"Type": "TRICE64",
 		"Strg": "rd:TRICE64 %d, %d\\n"
@@ -3190,6 +3318,10 @@
 	"52236": {
 		"Type": "TRICE8_8",
 		"Strg": "tst:TRICE8_8 %u %u %u %u %u %u %u %u\\n"
+	},
+	"52267": {
+		"Type": "TRICE",
+		"Strg": "info:sizeof(A) = %d, sizeof(B) = %d\\n"
 	},
 	"52298": {
 		"Type": "TRICE",
@@ -3258,6 +3390,10 @@
 	"52625": {
 		"Type": "TRICE64",
 		"Strg": "rd: 123.456000 \t%f \tDecimal point, no exponent\\n"
+	},
+	"52719": {
+		"Type": "TRICE",
+		"Strg": "notice:TRICE16_B example:"
 	},
 	"52749": {
 		"Type": "TRICE_FILE",
@@ -3374,6 +3510,10 @@
 	"53319": {
 		"Type": "TRICE32_1",
 		"Strg": "rd:TRICE32_1 float %F (%%F)\\n"
+	},
+	"53387": {
+		"Type": "TRICE8_F",
+		"Strg": "info:TryoutBufferFunction"
 	},
 	"53443": {
 		"Type": "TRICE_FILE",
@@ -3599,6 +3739,10 @@
 		"Type": "TRICE64_1",
 		"Strg": "rd:TRICE64_1 line %f (%%f)\\n"
 	},
+	"54449": {
+		"Type": "TRICE",
+		"Strg": "notice:TRICE16_F example:"
+	},
 	"54452": {
 		"Type": "TRICE_S",
 		"Strg": "rd: caf�?? \t%-6s \tWidth 6, left justify\\n"
@@ -3618,6 +3762,10 @@
 	"54670": {
 		"Type": "TRICE32_12",
 		"Strg": "tst:TRICE32_12 %d %d %d %d %d %d %d %d %d %d %d %d\\n"
+	},
+	"54687": {
+		"Type": "TRICE",
+		"Strg": "notice:TRICE16_B example:"
 	},
 	"54688": {
 		"Type": "TRICE64",
@@ -3658,6 +3806,10 @@
 	"54892": {
 		"Type": "TRICE",
 		"Strg": "rd:TRICE line %x (%%x -1)\\n"
+	},
+	"54961": {
+		"Type": "TRICE",
+		"Strg": "notice:TRICE_B example: "
 	},
 	"54979": {
 		"Type": "TRICE",
@@ -3834,6 +3986,14 @@
 	"55647": {
 		"Type": "TRICE32_1",
 		"Strg": "ATT:trice16_1 attention message, SysTick is %6d\\n"
+	},
+	"55674": {
+		"Type": "TRICE_B",
+		"Strg": "[%02x]"
+	},
+	"55699": {
+		"Type": "TRICE",
+		"Strg": "notice:TRICE8_B example:"
 	},
 	"55725": {
 		"Type": "TRICE32_1",
@@ -4103,6 +4263,10 @@
 		"Type": "TRICE64",
 		"Strg": "rd:TRICE line %f (%%f)\\n"
 	},
+	"57233": {
+		"Type": "TRICE_B",
+		"Strg": "  %02x"
+	},
 	"57243": {
 		"Type": "TRICE16_F",
 		"Strg": "sig:FunctionNameX"
@@ -4251,6 +4415,10 @@
 		"Type": "TRICE32",
 		"Strg": "rd:TRICE32 %d, %d, %d, %d, %d, %d\\n"
 	},
+	"57961": {
+		"Type": "TRICE",
+		"Strg": "notice:TRICE32_F example:"
+	},
 	"57982": {
 		"Type": "TRICE64",
 		"Strg": "err: st64=%u \u003c st64_1=%u || st32=%u \u003c st32_1=%u\\n"
@@ -4258,6 +4426,10 @@
 	"57985": {
 		"Type": "TRICE_S",
 		"Strg": "rd: ??caf� \t%6s \tWidth 6, right justify\\n"
+	},
+	"57994": {
+		"Type": "TRICE",
+		"Strg": "info:sizeof(I) = %d, sizeof(J) = %d\\n"
 	},
 	"58004": {
 		"Type": "TRICE",
@@ -4282,6 +4454,10 @@
 	"58119": {
 		"Type": "TRICE_B",
 		"Strg": "%4d"
+	},
+	"58129": {
+		"Type": "TRICE_B",
+		"Strg": " %02x "
 	},
 	"58332": {
 		"Type": "TRICE32",
@@ -4535,6 +4711,10 @@
 		"Type": "TRICE_S",
 		"Strg": "sig:TRICE_S=%s\\n\", \"Hello String"
 	},
+	"59616": {
+		"Type": "TRICE",
+		"Strg": "notice:TRICE_B example:"
+	},
 	"59621": {
 		"Type": "TRICE",
 		"Strg": "nu"
@@ -4723,6 +4903,10 @@
 		"Type": "TRICE32_1",
 		"Strg": "rd:TRICE32_1 float %E (%%E)\\n"
 	},
+	"60586": {
+		"Type": "TRICE",
+		"Strg": "notice:TRICE_F example: "
+	},
 	"60589": {
 		"Type": "TRICE8_6",
 		"Strg": "rd:TRICE8_6 %d, %d, %d, %d, %d, %d\\n"
@@ -4750,6 +4934,10 @@
 	"60812": {
 		"Type": "TRICE64_1",
 		"Strg": "rd:TRICE32_1 float %f (%%f)\\n"
+	},
+	"60836": {
+		"Type": "TRICE",
+		"Strg": "notice:TRICE8_B example:"
 	},
 	"60853": {
 		"Type": "TRICE16_1",
@@ -4846,6 +5034,10 @@
 	"61322": {
 		"Type": "TRICE8",
 		"Strg": "tst:TRICE8 %d %d %d %d %d %d %d %d %d %d %d\\n"
+	},
+	"61345": {
+		"Type": "TRICE",
+		"Strg": "notice:TRICE8_F example:"
 	},
 	"61348": {
 		"Type": "TRICE",
@@ -4951,9 +5143,17 @@
 		"Type": "TRICE",
 		"Strg": "rd:TRICE %d\\n"
 	},
+	"61891": {
+		"Type": "TRICE",
+		"Strg": "notice:TRICE32_B example:"
+	},
 	"61927": {
 		"Type": "TRICE8",
 		"Strg": "rd:TRICE8 line %b (%%b ,-1)\\n"
+	},
+	"61947": {
+		"Type": "TRICE",
+		"Strg": "info:sizeof(E) = %d, sizeof(F) = %d\\n"
 	},
 	"62045": {
 		"Type": "TRICE8",
@@ -4994,6 +5194,10 @@
 	"62294": {
 		"Type": "TRICE32_8",
 		"Strg": "rd:TRICE32_8 %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"62320": {
+		"Type": "TRICE",
+		"Strg": "inf: Tryout struct:"
 	},
 	"62340": {
 		"Type": "TRICE",
@@ -5143,6 +5347,10 @@
 		"Type": "TRICE",
 		"Strg": "msg:TCOBS: %02x "
 	},
+	"63147": {
+		"Type": "TRICE",
+		"Strg": "notice:TRICE16_F example:"
+	},
 	"63250": {
 		"Type": "TRICE_S",
 		"Strg": "rd: 636166c3a9 \t%x\t\t\tHex dump of byte values\\n"
@@ -5235,9 +5443,17 @@
 		"Type": "TRICE32_1",
 		"Strg": "time:TRICE32_1   message, SysTick is %6u\\n"
 	},
+	"63650": {
+		"Type": "TRICE",
+		"Strg": "notice:TRICE32_F example:"
+	},
 	"63675": {
 		"Type": "TRICE64_2",
 		"Strg": "tst:TRICE64_2 %x %x\\n"
+	},
+	"63694": {
+		"Type": "TRICE",
+		"Strg": "notice:TRICE64_F example:"
 	},
 	"63697": {
 		"Type": "TRICE8",
@@ -5287,6 +5503,10 @@
 		"Type": "TRICE16",
 		"Strg": "rd:TRICE line %f (%%f)\\n"
 	},
+	"63966": {
+		"Type": "TRICE_F",
+		"Strg": "info:FunctionNameW"
+	},
 	"63974": {
 		"Type": "TRICE",
 		"Strg": "write:black+u:yellow+h\\n"
@@ -5294,6 +5514,10 @@
 	"64006": {
 		"Type": "TRICE8",
 		"Strg": "rd:TRICE8 line %t (%%t ,0)\\n"
+	},
+	"64012": {
+		"Type": "TRICE8_F",
+		"Strg": "info:MyStructEvaluationFunction"
 	},
 	"64050": {
 		"Type": "TRICE_S",
