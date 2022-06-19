@@ -57,6 +57,8 @@ The with name "COBS" branded [*Trice* v0.48.0 encoding](./TriceMessagesEncoding.
 
 Framing will be done with [TCOBS](./TCOBSSpecification.md) for data reduction. As a pre-v1.0 version normal COBS will be used. For robustness each *Trice* gets its own TCOBS package. User data are in separate TCOBS packages encoded. When *Trices* are accumulated in a double half buffer, their separation in TCOBS packages is possible until the first extended *Trice*. Because of the generally unknown extended *Trice* length from this point, all following *Trices* in this half buffer need to go in one TCOBS package (including optional padding bytes) what is ok. The only disadvantage with this is, that in case of a data disruption at this place, several *Trice* messages can get lost.
 
+Possible better implementation: See issue [#290](github.com/rokath/trice/issues/290).
+
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 ##  4. <a name='TriceIDlisttil.json'></a>*Trice* ID list `til.json`
@@ -223,6 +225,7 @@ If for special cases, the main stream encoding is not sufficient, the user can a
 | 2022-MAR-20 |  0.7.1. | Contributive *Trice* extension remark added. |
 | 2022-APR-12 |  0.8.0. | TREX mainstream format changed to timestamps immediate after ID. |
 | 2022-MAY-20 |  0.8.1. | Formatting, Spelling |
+| 2022-Jun-19 |  0.9.0  | Implementation hint added to chapter Framing. |
 
 - [*Trice*  Version 1.0 Specification (Draft)](#trice--version-10-specification-draft)
   - [1. <a name='Preface'></a>Preface](#1-preface)
