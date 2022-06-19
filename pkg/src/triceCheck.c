@@ -7,263 +7,29 @@
 #include "trice.h"
 #define TRICE_FILE Id(52023) 
 
-int32_t FloatToInt32( float f ){
-  if( f >= 0 ){
-          return (int32_t)f;
-    }
-    return -(int32_t)-f;
-}
-
-int64_t DoubleToInt64( double f ){
-  if( f >= 0 ){
-          return (int64_t)f;
-    }
-    return -(int64_t)-f;
-}
-/*
-#include "tcobs.h"
-
-typedef struct{
-    int ilen;
-    uint8_t in[80];
-    int olen;
-    uint8_t out[80];
-} TCOBSTestDataSet;
-
-TCOBSTestDataSet TCOBSTestData[] = {
-    { 1, { 0    }, 
-      1, { 0x20 } },
-    
-    { 1, { 0xFF       }, 
-      2, { 0xFF, 0xA1 } },
-
-    { 6, {    0,    0,    0,    0,    0, 0xFF, },
-      4, { 0x60, 0x40, 0xFF, 0xA1,             } },
-    
-    { 5, { 0xAA, 0x02, 0x02, 0x00, 0xFF,       },
-      6, { 0xAA, 0x02, 0x02, 0x23, 0xFF, 0xA1, } },
-    
-    { 5, { 0xFF, 0x02, 0x02, 0x00, 0xFF,       },
-      6, { 0xFF, 0x02, 0x02, 0x23, 0xFF, 0xA1, } },
-    
-};
-
-#define TCOBS_TESTDATASET_COUNT (sizeof(TCOBSTestData) / sizeof(TCOBSTestDataSet) )
-
-int equal( uint8_t* expBuf, int expLen, uint8_t* actBuf, int actLen ){
-    int result = 1;
-    if( expLen != actLen){
-        return 0;
-    }
-    for( int i = 0; i < expLen; i++ ){
-        TRICE( Id(45332), "msg:exp=%02x act=%02x\n", expBuf[i], actBuf[i] );
-        if( expBuf[i] != actBuf[i] ){
-            return 0;
-        }
-    }
-    return result;
-}
-
-void TCOBSCheck( void ){
-    uint8_t result[80];
-    for( int i = 0; i < TCOBS_TESTDATASET_COUNT; i++ ){
-        TRICE( Id(38991), "dbg: Set %d\n", i );
-        int rlen = TCOBSEncode( result, TCOBSTestData[i].in, TCOBSTestData[i].ilen );
-        if( !equal( TCOBSTestData[i].out, TCOBSTestData[i].olen, result, rlen ) ){
-            TRICE( Id(35091), "ERROR: TCOBS!\n" );
-        }
-    }
-}
-*/
-
-///////////////////////////////////////////////////////////////////////////////////////
-// manual serialization example
-//
-
-//! SCOPY is a helper macro for struct serialization.
-#define SCOPY( element ) do{ char* n = #element; int size = sizeof( src->element ); memcpy( p, &(src->element), size ); p += size; TRICE_S( Id(51692), "rd:sizeof(%8s)", n ); TRICE( Id(47039), " = %d\n", size);}while(0);
-
-    //! DCOPY is a helper macro for struct deserialization.
-#define DCOPY( element ) do{ char* n = #element; int size = sizeof( dst->element ); memcpy( &(dst->element), p, size ); p += size; TRICE_S( Id(51692), "rd:sizeof(%8s)", n ); TRICE( Id(47039), " = %d\n", size);}while(0);
-
-
-typedef struct{
-    float x;
-    uint8_t rgb[3];
-    float y;
-} Point_t; //!< Point_t is small struct type.
-
-static int serializePoint( char* dst, Point_t const * src ){
-    char * p = dst;
-
-    SCOPY( x )
-    SCOPY( rgb )
-    SCOPY( y )
-
-    return p - dst;
-}
-
-static int deserializePoint( Point_t * const dst, char const * src ){
-    char const * p = src;
-
-    DCOPY( x )
-    DCOPY( rgb )
-    DCOPY( y )
-    
-    return p - src;
-}
-
-typedef struct{
-    float z;
-    uint16_t u;
-      int8_t s;
-    char* addr;
-    uint32_t x;
-     int32_t y;
-    char names[3][5];
-    Point_t point[2];
-    uint64_t bitmask;
-} Tryout_t; //!<  Tryout_t is a struct example embedding an other struct.
-
-
-
-int serializeTryout( char* dst, Tryout_t const * src ){
-    char * p = dst;
-
-    SCOPY( z )
-    SCOPY( u )
-    SCOPY( s )
-    SCOPY( addr )
-    SCOPY( x )
-    SCOPY( y )
-    SCOPY( names )
-    p += serializePoint( p, src->point );
-    SCOPY( bitmask )  
-
-    return p - dst;
-}
-
-int deserializeTryout( Tryout_t * const dst, char const * src ){
-    char const * p = src;
-
-    DCOPY( z )
-    DCOPY( u )
-    DCOPY( s )
-    DCOPY( addr )
-    DCOPY( x )
-    DCOPY( y )
-    DCOPY( names )
-    p += deserializePoint( dst->point, p );
-    DCOPY( bitmask )  
-
-    return p - src;
-}
-
-//
-///////////////////////////////////////////////////////////////////////////////////////
-
+static int32_t FloatToInt32( float f );
+static int64_t DoubleToInt64( double f );
+static void exampleOfManualSerialization( void );
+static void exampleOfManualJSONencoding(void);
+static void exampleOfBuffersAndFunctions(void);
 
 //! TriceCheckSet writes out all types of trices with fixed values for testing
 //! \details One trice has one subtrace, if param size max 2 bytes. 
 //! Traces with more bytes as parameter consist of several subtraces.
 void TriceCheckSet(int index) {
-    static int8_t   b8[12] = { 0, -1, -2, 0x33, 4, 5, 6, 7, 8, 9, 10, 11 };
-    static int16_t b16[12] = { 0, -1, -2, 0x3344, 4, 5, 6, 7, 8, 9, 10, 11 };
-    static int32_t b32[12] = { 0, -1, -2, 0x33445555, 4, 5, 6, 7, 8, 9, 10, 11 };
-    static int64_t b64[12] = { 0, -1, -2, 0x3344555566666666, 4, 5, 6, 7, 8, 9, 0x7766554433221100, 0xffeeddccbbaa9988 };
-    char* s;
-    uint32_t len, count;
-    float  x = 1089.6082763671875;// 0x44883377
-    double y = 518.0547492508867;// 0x4080307020601050
+    char* s = "AAAAAAAAAAAA";
+    float  x = 1089.6082763671875; // 0x44883377
+    double y = 518.0547492508867;  // 0x4080307020601050
      
     switch (index) {
         case 0:
-        {
-            Tryout_t tx, rx; // declare
-            static char dst[100]; serialized data
-            char* src = dst; // "copy"
-            int len;
-            
-            // fill tx with data
-            tx.z = 123.456;
-            tx.u = 44444;
-            tx.addr="Haus";
-            tx.s = -2;
-            tx.x = 0xaa55bb77;
-            tx.y = -1000000;
- 
-            memcpy( tx.names[0], "aaa", strlen( "aaa" ) ); 
-            memcpy( tx.names[0], "aaa", strlen( "bbbb" ) ); 
-            memcpy( tx.names[0], "aaa", strlen( "ccccc" ) ); 
-
-            tx.point[0].x = 2.22;
-            tx.point[0].y = -3.33;
-            tx.point[0].rgb[0] = 0x44;
-            tx.point[0].rgb[0] = 0x66;
-            tx.point[0].rgb[0] = 0x88;
-        
-            tx.point[1].x = -66.66;
-            tx.point[1].y = +5.5555;
-            tx.point[1].rgb[0] = 0xee;
-            tx.point[1].rgb[0] = 0xaa;
-            tx.point[1].rgb[0] = 0xbb;
-            
-            tx.bitmask = 0xAAAA55550000FFFF;
-        
-            len = serializeTryout( dst, &tx );
-            TRICE ( Id(37182), "inf: Tryout tx struct:" );
-            TRICE_B( Id(58129), " %02x ", &tx, sizeof(tx) );
-            TRICE( Id(65448), "\n" );
-            
-            TRICE ( Id(44447), "inf: Tryout buffer:" );
-            TRICE_B( Id(58129), " %02x ", dst, len );
-            TRICE( Id(65448), "\n" );
-
-            len = deserializeTryout( &rx, src );
-
-            TRICE ( Id(40572), "inf: Tryout rx struct:" );
-            TRICE_B( Id(58129), " %02x ", &rx, sizeof(rx) );
-            TRICE( Id(65448), "\n" );
-
-            TRICE( Id(48647), "inf:sizeOf(Trypout) = %d, buffer length = %d\n", sizeof(tx), len );
-            TRICE8_F( Id(49850), "info:TryoutStructFunction", &tx, sizeof(tx) );
-            TRICE8_F( Id(53387), "info:TryoutBufferFunction", dst, len ); 
-        }
-        
-        {
-            typedef  struct {
-            int Apple, Birn;
-            float Fish;
-            } Ex_t;
-        
-            Ex_t Ex = { -1, 2, 2.781 };
-            TRICE( Id(47156), "att:MyStructEvaluationFunction(json:ExA{Apple:%d, Birn:%u, Fisch:%f}\n", Ex.Apple, Ex.Birn, aFloat(Ex.Fish) );
-        }
-            s = "abcde 12345";
-
-            TRICE_S( Id(65209), "msg:With TRICE_S:%s\n", s );
-            len = strlen(s);
-            TRICE_N( Id(55770), "sig:With TRICE_N:%s\n", s, len );
-            TRICE32( Id(33585), "att:len=%u:With TRICE_B:\n", len);
-            TRICE_B( Id(59113), "  %02x", s, len );
-            TRICE( Id(40249), "\n" );
-            TRICE_B( Id(58119), "%4d", s, len );
-            TRICE( Id(65448), "\n" );
-
-            count = 12;
-            TRICE8_B( Id(49843), "  %02x", b8, count );
-            TRICE( Id(65448), "\n" );
-            TRICE16_B( Id(55444), "  %04x", b16, count );
-            TRICE( Id(65448), "\n" );
-            TRICE32_B( Id(64557), "  %08x", b32, count );
-            TRICE( Id(65448), "\n" );
-            TRICE64_B( Id(50564), "  %016x", b64, count );
-            TRICE( Id(65448), "\n" );    
-
-            TRICE8_F(  Id(51520), "info:FunctionNameW",  b8, count );
-            TRICE16_F( Id(57243), "sig:FunctionNameX", b16, count );
-            TRICE32_F( Id(34450), "diag:FunctionNameY", b32, count );
-            TRICE64_F( Id(37668), "notice:FunctionNameZ", b64, count );
+        exampleOfManualSerialization();
+        break;
+        case 1:
+        exampleOfManualJSONencoding();
+        break;
+        case 2:
+        exampleOfBuffersAndFunctions();
         break;
         case 10:
             TRICE( Id(38164), "FATAL:magenta+b:red\n" );
@@ -333,9 +99,8 @@ void TriceCheckSet(int index) {
             TRICE( Id(58434), "dbg:\\aHi!\n" );
             //TCOBSCheck();
         break;
-        case 40:
-            s = "AAAAAAAAAAAA";
-            len = strlen(s);
+        case 40:{
+            int len = strlen(s);
             TRICE32( Id( 47643), "dbg:len=%u:", len );
             TRICE_S( Id(50492), "sig:TRICE_S=%s\n", s );
             TRICE32( Id( 47643), "dbg:len=%u:", len );
@@ -356,6 +121,7 @@ void TriceCheckSet(int index) {
             TRICE( Id(33703), "rd:TRICE line %E (%%E)\n", aFloat(-555555555.5555555555) );
             TRICE( Id(55209), "rd:TRICE line %F (%%F)\n", aFloat(-555555555.5555555555) );
             TRICE( Id(59991), "rd:TRICE line %G (%%G)\n", aFloat(-555555555.5555555555) );
+        }
         break;
         case 50:
             TRICE32_1( Id(62543), "rd:TRICE32_1 line %u (%%u)\n", -1 );
@@ -1241,3 +1007,269 @@ EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
         break;
     }
 }
+
+
+
+//! SCOPY is a helper macro for struct serialization.
+#define SCOPY( element ) do{ char* n = #element; int size = sizeof( src->element ); memcpy( p, &(src->element), size ); p += size; TRICE_S( Id(51692), "rd:sizeof(%8s)", n ); TRICE( Id(47039), " = %d\n", size);}while(0);
+
+    //! DCOPY is a helper macro for struct deserialization.
+#define DCOPY( element ) do{ char* n = #element; int size = sizeof( dst->element ); memcpy( &(dst->element), p, size ); p += size; TRICE_S( Id(51692), "rd:sizeof(%8s)", n ); TRICE( Id(47039), " = %d\n", size);}while(0);
+
+
+typedef struct{
+    float x;
+    uint8_t rgb[3];
+    float y;
+} Point_t; //!< Point_t is small struct type.
+
+static int serializePoint( char* dst, Point_t const * src ){
+    char * p = dst;
+
+    SCOPY( x )
+    SCOPY( rgb )
+    SCOPY( y )
+
+    return p - dst;
+}
+
+static int deserializePoint( Point_t * const dst, char const * src ){
+    char const * p = src;
+
+    DCOPY( x )
+    DCOPY( rgb )
+    DCOPY( y )
+    
+    return p - src;
+}
+
+typedef struct{
+    float z;
+    uint16_t u;
+      int8_t s;
+    char* addr;
+    uint32_t x;
+     int32_t y;
+    char names[3][5];
+    Point_t point[2];
+    uint64_t bitmask;
+} Tryout_t; //!<  Tryout_t is a struct example embedding an other struct.
+
+
+
+static int serializeTryout( char* dst, Tryout_t const * src ){
+    char * p = dst;
+
+    SCOPY( z )
+    SCOPY( u )
+    SCOPY( s )
+    SCOPY( addr )
+    SCOPY( x )
+    SCOPY( y )
+    SCOPY( names )
+    p += serializePoint( p, src->point );
+    SCOPY( bitmask )  
+
+    return p - dst;
+}
+
+static int deserializeTryout( Tryout_t * const dst, char const * src ){
+    char const * p = src;
+
+    DCOPY( z )
+    DCOPY( u )
+    DCOPY( s )
+    DCOPY( addr )
+    DCOPY( x )
+    DCOPY( y )
+    DCOPY( names )
+    p += deserializePoint( dst->point, p );
+    DCOPY( bitmask )  
+
+    return p - src;
+}
+
+static void exampleOfManualSerialization( void ){
+    Tryout_t tx; // struct to transfer 
+    Tryout_t rx; // "received" struct
+    static char dst[100]; // serialized data
+    char* src = dst; // "copy" - assume, data transferred now
+    int len; // serialized byte count
+    
+    /////////////////////////////////////////////////////////
+    // fill tx with data
+    tx.z = 123.456;
+    tx.u = 44444;
+    tx.addr="Haus";
+    tx.s = -2;
+    tx.x = 0xaa55bb77;
+    tx.y = -1000000;
+
+    memcpy( tx.names[0], "aaa", strlen( "aaa" ) ); 
+    memcpy( tx.names[1], "bbbb", strlen( "bbbb" ) ); 
+    memcpy( tx.names[2], "ccccc", strlen( "ccccc" ) ); 
+
+    tx.point[0].x = 2.22;
+    tx.point[0].y = -3.33;
+    tx.point[0].rgb[0] = 0x44;
+    tx.point[0].rgb[0] = 0x66;
+    tx.point[0].rgb[0] = 0x88;
+
+    tx.point[1].x = -66.66;
+    tx.point[1].y = +5.5555;
+    tx.point[1].rgb[0] = 0xee;
+    tx.point[1].rgb[0] = 0xaa;
+    tx.point[1].rgb[0] = 0xbb;
+    
+    tx.bitmask = 0xAAAA55550000FFFF;
+    //
+    ////////////////////////////////////////////////////////
+    
+    len = serializeTryout( dst, &tx );
+    TRICE ( Id(37182), "inf: Tryout tx struct:" );
+    TRICE_B( Id(58129), " %02x ", &tx, sizeof(tx) );
+    TRICE( Id(65448), "\n" );
+    
+    TRICE ( Id(44447), "inf: Tryout buffer:" );
+    TRICE_B( Id(58129), " %02x ", dst, len );
+    TRICE( Id(65448), "\n" );
+
+    src = dst; // "data transfer"
+    
+    len = deserializeTryout( &rx, src );
+    TRICE ( Id(40572), "inf: Tryout rx struct:" );
+    TRICE_B( Id(58129), " %02x ", &rx, sizeof(rx) );
+    TRICE( Id(65448), "\n" );
+
+    TRICE( Id(48647), "inf:sizeOf(Trypout) = %d, buffer length = %d\n", sizeof(tx), len );
+    TRICE8_F( Id(49850), "info:TryoutStructFunction", &tx, sizeof(tx) );
+    TRICE8_F( Id(53387), "info:TryoutBufferFunction", dst, len ); 
+}
+
+static void exampleOfManualJSONencoding(void){
+    typedef  struct {
+    int Apple, Birn;
+    float Fish;
+    } Ex_t;
+    Ex_t Ex = { -1, 2, 2.781 };
+    TRICE( Id(47156), "att:MyStructEvaluationFunction(json:ExA{Apple:%d, Birn:%u, Fisch:%f}\n", Ex.Apple, Ex.Birn, aFloat(Ex.Fish) );
+}
+
+void exampleOfBuffersAndFunctions(void){
+    static int8_t   b8[24] = { 0, -1, -2, 0x33, 4, 5, 6, 7, 8, 9, 10, 11, 0, -1, -2, 0x33, 4, 5, 6, 7, 8, 9, 10, 11 };
+    static int16_t b16[] = { 0, -1, -2, 0x3344 };
+    static int32_t b32[] = { 0, -1, -2, 0x33445555};
+    static int64_t b64[4] = { 0, -1, -2, 0x3344555566666666 };
+    char* s = "abcde 12345";
+    uint32_t len;
+
+    TRICE_S( Id(65209), "msg:With TRICE_S:%s\n", s );
+    len = strlen(s);
+    TRICE_N( Id(55770), "sig:With TRICE_N:%s\n", s, len );
+    TRICE32( Id(33585), "att:len=%u:With TRICE_B:\n", len);
+    TRICE_B( Id(59113), "  %02x", s, len );
+    TRICE( Id(40249), "\n" );
+    TRICE_B( Id(58119), "%4d", s, len );
+    TRICE( Id(65448), "\n" );
+
+    TRICE( Id(54961), "notice:TRICE_B example: " );
+    TRICE_B( Id(57233), "  %02x", b8, sizeof(b8)/sizeof(int8_t) );
+    TRICE( Id(65448), "\n" );
+    TRICE( Id(55699), "notice:TRICE8_B example:" );
+    TRICE8_B( Id(49843), "  %02x", b8, sizeof(b8)/sizeof(int8_t) );
+    TRICE( Id(65448), "\n" );
+    TRICE( Id(52719), "notice:TRICE16_B example:" );
+    TRICE16_B( Id(55444), "  %04x", b16, sizeof(b16)/sizeof(int16_t) );
+    TRICE( Id(65448), "\n" );
+    TRICE( Id(61891), "notice:TRICE32_B example:" );
+    TRICE32_B( Id(64557), "  %08x", b32, sizeof(b32)/sizeof(int32_t) );
+    TRICE( Id(65448), "\n" );
+    TRICE( Id(33266), "notice:TRICE64_B example:" );
+    TRICE64_B( Id(50564), "  %016x", b64, sizeof(b64)/sizeof(int64_t) );
+    TRICE( Id(65448), "\n" );    
+
+    TRICE( Id(60586), "notice:TRICE_F example: " );
+    TRICE_F( Id(34445), "info:FunctionNameW",   b8,  sizeof(b8) /sizeof(int8_t) );
+
+    TRICE( Id(51134), "notice:TRICE8_F example:" );
+    TRICE8_F(  Id(51520), "info:FunctionNameW",   b8,  sizeof(b8) /sizeof(int8_t) );
+
+    TRICE( Id(63147), "notice:TRICE16_F example:" );
+    TRICE16_F( Id(57243), "sig:FunctionNameX",    b16, sizeof(b16)/sizeof(int16_t) );
+
+    TRICE( Id(57961), "notice:TRICE32_F example:" );
+    TRICE32_F( Id(34450), "diag:FunctionNameY",   b32, sizeof(b32)/sizeof(int32_t) );
+
+    TRICE( Id(35297), "notice:TRICE64_F example:" );
+    TRICE64_F( Id(34129), "fatal:FunctionNameZ", b64, sizeof(b64)/sizeof(int64_t) );
+}
+
+static int32_t FloatToInt32( float f ){
+  if( f >= 0 ){
+          return (int32_t)f;
+    }
+    return -(int32_t)-f;
+}
+
+static int64_t DoubleToInt64( double f ){
+  if( f >= 0 ){
+          return (int64_t)f;
+    }
+    return -(int64_t)-f;
+}
+
+/*
+#include "tcobs.h"
+
+typedef struct{
+    int ilen;
+    uint8_t in[80];
+    int olen;
+    uint8_t out[80];
+} TCOBSTestDataSet;
+
+TCOBSTestDataSet TCOBSTestData[] = {
+    { 1, { 0    }, 
+      1, { 0x20 } },
+    
+    { 1, { 0xFF       }, 
+      2, { 0xFF, 0xA1 } },
+
+    { 6, {    0,    0,    0,    0,    0, 0xFF, },
+      4, { 0x60, 0x40, 0xFF, 0xA1,             } },
+    
+    { 5, { 0xAA, 0x02, 0x02, 0x00, 0xFF,       },
+      6, { 0xAA, 0x02, 0x02, 0x23, 0xFF, 0xA1, } },
+    
+    { 5, { 0xFF, 0x02, 0x02, 0x00, 0xFF,       },
+      6, { 0xFF, 0x02, 0x02, 0x23, 0xFF, 0xA1, } },
+    
+};
+
+#define TCOBS_TESTDATASET_COUNT (sizeof(TCOBSTestData) / sizeof(TCOBSTestDataSet) )
+
+int equal( uint8_t* expBuf, int expLen, uint8_t* actBuf, int actLen ){
+    int result = 1;
+    if( expLen != actLen){
+        return 0;
+    }
+    for( int i = 0; i < expLen; i++ ){
+        TRICE( Id(45332), "msg:exp=%02x act=%02x\n", expBuf[i], actBuf[i] );
+        if( expBuf[i] != actBuf[i] ){
+            return 0;
+        }
+    }
+    return result;
+}
+
+void TCOBSCheck( void ){
+    uint8_t result[80];
+    for( int i = 0; i < TCOBS_TESTDATASET_COUNT; i++ ){
+        TRICE( Id(38991), "dbg: Set %d\n", i );
+        int rlen = TCOBSEncode( result, TCOBSTestData[i].in, TCOBSTestData[i].ilen );
+        if( !equal( TCOBSTestData[i].out, TCOBSTestData[i].olen, result, rlen ) ){
+            TRICE( Id(35091), "ERROR: TCOBS!\n" );
+        }
+    }
+}
+*/
