@@ -217,11 +217,11 @@ func Translate(w io.Writer, sw *emitter.TriceLineComposer, lut id.TriceIDLookUp,
 	} else {
 		go handleSIGTERM(w, rwc)
 	}
-	return decodeAndComposeLoop(w, sw, dec, lut)
+	return decodeAndComposeLoop(w, sw, dec, lut, li)
 }
 
 // decodeAndComposeLoop does not return.
-func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec Decoder, lut id.TriceIDLookUp) error {
+func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec Decoder, lut id.TriceIDLookUp, li id.TriceIDLookUpLI) error {
 	b := make([]byte, defaultSize) // intermediate trice string buffer
 	bufferReadStartTime := time.Now()
 	sleepCounter := 0
@@ -264,6 +264,12 @@ func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec Decode
 				logLineStart = true
 			}
 
+			if logLineStart && id.LIFnJSON != "off" && id.LIFnJSON != "none" {
+				s := locationInformation(lastTriceID, li)
+				_, err := sw.Write([]byte(s))
+				msg.OnErr(err)
+			}
+
 			// If target location & enabled and line start, write target location.
 			if logLineStart && targetLocationExists && ShowTargetLocation != "" {
 				targetFileID := id.TriceID(targetLocation >> 16)
@@ -297,6 +303,22 @@ func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec Decode
 		}
 		//msg.InfoOnErr(err, fmt.Sprintln("sw.Write wrote", m, "bytes"))
 	}
+}
+
+// locationInformation returns optional location information for id.
+func locationInformation(tid id.TriceID, li id.TriceIDLookUpLI) string {
+	if li != nil {
+		if li, ok := li[tid]; ok {
+			return fmt.Sprintf("info:%20s:%4d", li.File, li.Line)
+		} else {
+			return fmt.Sprintf("info:%20s:    ", "")
+		}
+	} else {
+		if Verbose {
+			return fmt.Sprintf("wrn:no li ")
+		}
+	}
+	return ""
 }
 
 // readU16 returns the 2 b bytes as uint16 according the specified endianness

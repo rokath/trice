@@ -15,6 +15,7 @@ void msleep(uint32_t delay);
 uint32_t wallclock_ms(void);
 
 #include "trice.h"
+#define TRICE_FILE Id(43036)
 
 
 static void hardware_setup(void)
@@ -103,7 +104,7 @@ void exti15_10_isr(void)
 {
 	exti_reset_request(EXTI13);
 	#if TRICE_MODE == 200
-	TRICE("Button press at, %d\n", system_millis);
+	TRICE( Id(38498),"Button press at, %d\n", system_millis);
 	#endif
 }
 
@@ -129,17 +130,17 @@ int main(void)
 
 		// Depending on mode, either print this string to
 		// UART (mode 0), or the Trice write buffer (mode 200).
-		TRICE("Hello, TRICE, %d\n", 42);
+		TRICE( Id(33008),"Hello, TRICE, %d\n", 42);
 
 		// TRICE() with a string parameter only is problematic.
 		// See discussion on https://github.com/rokath/trice/issues/279
 		// TRICE0() works in either case
 		#ifdef __STRICT_ANSI__
 		// if compiled with e.g. --std=c99
-		TRICE0("Hello, TRICE\n");
+		TRICE0( Id(60901),"Hello, TRICE\n");
 		#else
-		TRICE("Hello, TRICE\n");
-		TRICE0("Hello, TRICE0()\n");
+		TRICE( Id(63042),"Hello, TRICE\n");
+		TRICE0( Id(65406),"Hello, TRICE0()\n");
 		#endif
 
 		#if TRICE_MODE == 200

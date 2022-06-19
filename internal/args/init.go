@@ -292,6 +292,9 @@ The specified JSON file is needed to display the location information for each I
 It is regenerated on each refresh, update or renew trice run. When trice log finds a location information file, it is used for 
 log output with location information. Otherwise no location information is displayed, what usually is wanted in the field.
 This way the newest til.json can be used also with legacy firmware, but the li.json must match the current firmware version.
+"off" or "none" suppress the display of the location information even a li.json file exists. 
+`) // flag
+	p.StringVar(&id.LIFnJSON, "liList", "li.json", `Short for '-locationInformation'.
 `) // flag
 	p.StringVar(&id.LIFnJSON, "li", "li.json", `Short for '-locationInformation'.
 `) // flag

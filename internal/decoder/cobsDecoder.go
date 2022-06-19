@@ -339,15 +339,6 @@ func (p *cobsDec) Read(b []byte) (n int, err error) {
 	}
 	p.b = p.b[headSize:] // drop used head info
 
-	// optional location information
-	if p.li != nil {
-		if li, ok := p.li[triceID]; ok {
-			n += copy(b[n:], fmt.Sprintf("info:%20s%4d", li.File, li.Line))
-		} else {
-			n += copy(b[n:], fmt.Sprintf("info:%20s    ", ""))
-		}
-	}
-
 	n += p.sprintTrice(b[n:]) // use param info
 	if len(p.b) < p.paramSpace {
 		n += copy(b[n:], fmt.Sprintln("ERROR:ignoring data garbage"))
