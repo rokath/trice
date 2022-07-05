@@ -81,7 +81,7 @@ git clone https://github.com/rokath/trice.git
 - [call stack logger function instrumentation](https://sii.pl/blog/call-stack-logger-function-instrumentation-as-a-way-to-trace-programs-flow-of-execution/) (a way to trace programs flow of execution)
 - [Debugging with Dynamic Printf Breakpoints](https://mcuoneclipse.com/2022/02/09/debugging-with-dynamic-printf-breakpoints/) (Eclipse IDE option)
 - [defmt](https://github.com/knurling-rs/defmt) (Rust)
-- [J-Link System View](https://www.codeinsideout.com/blog/stm32/j-link-sysview/) (SEGGER)
+- [J-Link System View](https://www.segger.com/products/development-tools/systemview/technology/what-is-systemview/) (SEGGER)
 - [Minimal Structured Logging for Autonomous Vehikles](https://youtu.be/FyJI4Z6jD4w) (C++, closed source talk)
 - [NanoLog](https://github.com/PlatformLab/NanoLog) (Linux C++)
 - [Percepio Tracealyzer](https://percepio.com/tracealyzer/) (Visual Trace Diagnostics)
