@@ -33,8 +33,8 @@ var (
 	// SearchMethod is the next ID search method.
 	SearchMethod = "random"
 
-	// SharedIDs true: TriceFmt's without TriceID get equal TriceID if an equal TriceFmt exists already.
-	// SharedIDs false: TriceFmt's without TriceID get a different TriceID if an equal TriceFmt exists already.
+	// SharedIDs true: TriceFmt's without TriceID get equal TriceID if an equal TriceFmt exists already. Use with care: The location information for only one location is displayed but it can be a wrong one.
+	// SharedIDs false: TriceFmt's without TriceID get a different TriceID if an equal TriceFmt exists already (default).
 	SharedIDs bool
 )
 
@@ -46,7 +46,7 @@ func (id *TriceID) String() string {
 	return fmt.Sprintf("%d", *id)
 }
 
-// Set implements part of flag.Value interface. It initializes id from the partial commandline string
+// Set implements part of flag.Value interface. It initializes id from the partial command line string
 func (id *TriceID) Set(value string) error {
 	n, err := strconv.Atoi(value)
 	msg.FatalOnErr(err)

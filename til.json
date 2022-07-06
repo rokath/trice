@@ -27,6 +27,10 @@
 		"Type": "TRICE32_1",
 		"Strg": "rd:TRICE32_1 float -%.9f (%%.9f)\\n"
 	},
+	"33008": {
+		"Type": "TRICE",
+		"Strg": "Hello, TRICE, %d\\n"
+	},
 	"33019": {
 		"Type": "TRICE",
 		"Strg": "Button press at, %d\\n"
@@ -1075,6 +1079,10 @@
 		"Type": "TRICE8",
 		"Strg": "s:  TRICE_MODE %3u                          \\n"
 	},
+	"38498": {
+		"Type": "TRICE",
+		"Strg": "Button press at, %d\\n"
+	},
 	"38506": {
 		"Type": "TRICE",
 		"Strg": "rd:TRICE_UART Receive Enable Acknowledge Flag is set\\n"
@@ -1726,6 +1734,10 @@
 	"43029": {
 		"Type": "TRICE_B",
 		"Strg": "  %02x"
+	},
+	"43036": {
+		"Type": "TRICE_FILE",
+		"Strg": "main.c"
 	},
 	"43058": {
 		"Type": "TRICE32_1",
@@ -4943,6 +4955,10 @@
 		"Type": "TRICE16_1",
 		"Strg": "TIM:timing      message, SysTick is %6u\\n"
 	},
+	"60901": {
+		"Type": "TRICE0",
+		"Strg": "Hello, TRICE\\n"
+	},
 	"60922": {
 		"Type": "TRICE_FILE",
 		"Strg": "stm32g0xx_ll_utils.c"
@@ -5334,6 +5350,10 @@
 	"63026": {
 		"Type": "TRICE",
 		"Strg": "interrupt:magenta+i:default+h\\n"
+	},
+	"63042": {
+		"Type": "TRICE",
+		"Strg": "Hello, TRICE\\n"
 	},
 	"63090": {
 		"Type": "TRICE64",
@@ -5746,6 +5766,10 @@
 	"65358": {
 		"Type": "TRICE32_1",
 		"Strg": "rd:TRICE32_1 float +%f (%%f)\\n"
+	},
+	"65406": {
+		"Type": "TRICE0",
+		"Strg": "Hello, TRICE0()\\n"
 	},
 	"65448": {
 		"Type": "TRICE",

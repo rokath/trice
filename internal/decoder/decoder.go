@@ -111,15 +111,15 @@ var (
 	matchNextFormatBoolSpecifier    = regexp.MustCompile(patNextFormatBoolSpecifier)
 	matchNextFormatPointerSpecifier = regexp.MustCompile(patNextFormatPointerSpecifier)
 
-	DebugOut              = false // DebugOut enables debug information.
-	DumpLineByteCount     int     // DumpLineByteCount is the bytes per line for the dumpDec decoder.
-	initialCycle          = true  // initialCycle is a helper for the cycle counter automatic.
-	targetTimestamp       uint32  // targetTimestamp contains target specific timestamp value.
-	targetLocation        uint32  // targetLocation contains 16 bit file id in high and 16 bit line number in low part.
-	ShowTargetTimestamp   string  // ShowTargetTimestamp is the format string for target timestamps.
-	ShowTargetLocation    string  // ShowTargetLocation is the format string for target location: line numer and file name.
-	targetTimestampExists bool    // targetTimestampExists is set in dependence of p.COBSModeDescriptor.
-	targetLocationExists  bool    // targetLocationExists is set in dependence of p.COBSModeDescriptor.
+	DebugOut                        = false // DebugOut enables debug information.
+	DumpLineByteCount               int     // DumpLineByteCount is the bytes per line for the dumpDec decoder.
+	initialCycle                    = true  // initialCycle is a helper for the cycle counter automatic.
+	targetTimestamp                 uint32  // targetTimestamp contains target specific timestamp value.
+	targetLocation                  uint32  // targetLocation contains 16 bit file id in high and 16 bit line number in low part.
+	ShowTargetTimestamp             string  // ShowTargetTimestamp is the format string for target timestamps.
+	LocationInformationFormatString string  // LocationInformationFormatString is the format string for target location: line number and file name.
+	targetTimestampExists           bool    // targetTimestampExists is set in dependence of p.COBSModeDescriptor.
+	targetLocationExists            bool    // targetLocationExists is set in dependence of p.COBSModeDescriptor.
 )
 
 // newDecoder abstracts the function type for a new decoder.
@@ -217,11 +217,11 @@ func Translate(w io.Writer, sw *emitter.TriceLineComposer, lut id.TriceIDLookUp,
 	} else {
 		go handleSIGTERM(w, rwc)
 	}
-	return decodeAndComposeLoop(w, sw, dec, lut)
+	return decodeAndComposeLoop(w, sw, dec, lut, li)
 }
 
 // decodeAndComposeLoop does not return.
-func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec Decoder, lut id.TriceIDLookUp) error {
+func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec Decoder, lut id.TriceIDLookUp, li id.TriceIDLookUpLI) error {
 	b := make([]byte, defaultSize) // intermediate trice string buffer
 	bufferReadStartTime := time.Now()
 	sleepCounter := 0
@@ -264,12 +264,18 @@ func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec Decode
 				logLineStart = true
 			}
 
+			if logLineStart && id.LIFnJSON != "off" && id.LIFnJSON != "none" {
+				s := locationInformation(lastTriceID, li)
+				_, err := sw.Write([]byte(s))
+				msg.OnErr(err)
+			}
+
 			// If target location & enabled and line start, write target location.
-			if logLineStart && targetLocationExists && ShowTargetLocation != "" {
+			if logLineStart && targetLocationExists && LocationInformationFormatString != "off" && LocationInformationFormatString != "none" {
 				targetFileID := id.TriceID(targetLocation >> 16)
 				t := lut[targetFileID]
 				targetFile := t.Strg
-				s := fmt.Sprintf(ShowTargetLocation, targetFile, 0xffff&targetLocation)
+				s := fmt.Sprintf(LocationInformationFormatString, targetFile, 0xffff&targetLocation)
 				_, err := sw.Write([]byte(s))
 				msg.OnErr(err)
 			}
@@ -297,6 +303,22 @@ func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec Decode
 		}
 		//msg.InfoOnErr(err, fmt.Sprintln("sw.Write wrote", m, "bytes"))
 	}
+}
+
+// locationInformation returns optional location information for id.
+func locationInformation(tid id.TriceID, li id.TriceIDLookUpLI) string {
+	if li != nil && LocationInformationFormatString != "off" && LocationInformationFormatString != "none" {
+		if li, ok := li[tid]; ok {
+			return fmt.Sprintf(LocationInformationFormatString, li.File, li.Line)
+		} else {
+			return fmt.Sprintf(LocationInformationFormatString, "", 0)
+		}
+	} else {
+		if Verbose {
+			return fmt.Sprintf("wrn:no li ")
+		}
+	}
+	return ""
 }
 
 // readU16 returns the 2 b bytes as uint16 according the specified endianness

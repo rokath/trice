@@ -48,7 +48,7 @@ extern "C" {
 
 
 extern uint32_t ReadTime( void );
-#define TRICE_LOCATION (TRICE_FILE| __LINE__) //!< Enable if you need target location. TRICE_FILE occcupies the upper 16 bit.
+//#define TRICE_LOCATION (TRICE_FILE| __LINE__) //!< Enable if you need target location. TRICE_FILE occupies the upper 16 bit. DEPRECIATED, WILL DISAPPEAR! Use li.json in the future. (-locationInformation)
 #define TRICE_TIMESTAMP ReadTime()            //!< Enable if you need target timestamps. You must provide ReadTime() returning a 32-bit value of your choice, like microSecond.
 
 // Enabling next 2 lines results in XTEA TriceEncryption  with the key.

@@ -24,7 +24,7 @@ extern "C" {
 //#define TRICE_RTT_CHANNEL 0
 
 
-#define TRICE_LOCATION (TRICE_FILE| __LINE__) //!< Enable if you need target location. TRICE_FILE occcupies the upper 16 bit.
+//#define TRICE_LOCATION (TRICE_FILE| __LINE__) //!< Enable if you need target location. TRICE_FILE occupies the upper 16 bit. DEPRECIATED, WILL DISAPPEAR! Use li.json in the future (-locationInformation).
 
 // Timestamping function to be provided by user. In this demo from time.h
 #define TRICE_TIMESTAMP wallclock_ms()

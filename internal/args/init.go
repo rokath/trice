@@ -103,7 +103,7 @@ When set to "off" no PC timestamps displayed.
 If you need target timestamps you need to get the time inside the target and send it as TRICE* parameter.
 `) // flag
 	fsScLog.StringVar(&decoder.ShowID, "showID", "", `Format string for displaying first trice ID at start of each line. Example: "debug:%7d ". Default is "". If several trices form a log line only the first trice ID ist displayed.`)
-	fsScLog.StringVar(&decoder.ShowTargetLocation, "tLocFmt", "%20s:%4d ", `Target location format string at start of each line, if target location existent (configured). Use "" to suppress existing target location. If several trices form a log line only the location of first trice ist displayed.`)
+	fsScLog.StringVar(&decoder.LocationInformationFormatString, "liFmt", "info:%20s:%4d ", `Target location format string at start of each line, if target location existent (configured). Use "off" or "none" to suppress existing target location. If several trices form a log line only the location of first trice ist displayed.`)
 	fsScLog.StringVar(&decoder.ShowTargetTimestamp, "ttsf", "time:%9d ", `Target timestamp format string at start of each line, if target timestamps existent (configured). Use "" to suppress existing target timestamps. If several trices form a log line only the timestamp of first trice ist displayed.`)
 	fsScLog.BoolVar(&decoder.DebugOut, "debug", false, "Show additional debug information")
 	fsScLog.StringVar(&decoder.TargetEndianness, "targetEndianess", "littleEndian", `Target endianness trice data stream. Option: "bigEndian".`)
@@ -187,9 +187,13 @@ func updateInit() {
 	fsScUpdate.StringVar(&id.SearchMethod, "IDMethod", "random", "Search method for new ID's in range- Options are 'upward', 'downward' & 'random'.")
 	fsScUpdate.BoolVar(&id.ExtendMacrosWithParamCount, "addParamCount", false, "Extend TRICE macro names with the parameter count _n to enable compile time checks.")
 	fsScUpdate.BoolVar(&id.SharedIDs, "sharedIDs", false, `ID policy:
-true: TriceFmt's without TriceID get equal TriceID if an equal TriceFmt exists already.
-false: TriceFmt's without TriceID get a different TriceID if an equal TriceFmt exists already.`)
+	false: TriceFmt's without TriceID get a different TriceID if an equal TriceFmt exists already (default).
+	true:  TriceFmt's without TriceID get equal TriceID if an equal TriceFmt exists already. Use with care: The location information for only one location is displayed but it can be a wrong one.
+	Hint: If you have equal TriceIDs with equal TriceFmt's after some copy and paste simply replace these TriceIDs with 0 to force new and different TriceIDs. ('trice h -z' shows how to automate)`)
 }
+
+// SharedIDs true: TriceFmt's without TriceID get equal TriceID if an equal TriceFmt exists already.
+// SharedIDs false: TriceFmt's without TriceID get a different TriceID if an equal TriceFmt exists already (default).
 
 func zeroInit() {
 	fsScZero = flag.NewFlagSet("zeroSourceTreeIds", flag.ContinueOnError)
@@ -292,6 +296,8 @@ The specified JSON file is needed to display the location information for each I
 It is regenerated on each refresh, update or renew trice run. When trice log finds a location information file, it is used for 
 log output with location information. Otherwise no location information is displayed, what usually is wanted in the field.
 This way the newest til.json can be used also with legacy firmware, but the li.json must match the current firmware version.
+"off" or "none" suppress the display of the location information even a li.json file exists. Avoid shared ID's for correct 
+location information. See information for the -SharedIDs switch for additionals hints. See -tLocFmt for formatting.
 `) // flag
 	p.StringVar(&id.LIFnJSON, "li", "li.json", `Short for '-locationInformation'.
 `) // flag
