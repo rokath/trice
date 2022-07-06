@@ -31,6 +31,7 @@
 		* 9.2.7. [Set all IDs in a directory tree to 0](#SetallIDsinadirectorytreeto0)
 		* 9.2.8. [Stimulate target with a user command over UART](#StimulatetargetwithausercommandoverUART)
 		* 9.2.9. [Explpore and modify channels and their colors](#Explporeandmodifychannelsandtheircolors)
+		* 9.2.10. [Location Information](#LocationInformation)
 * 10. [Additional hints](#Additionalhints)
 	* 10.1. [Pre-built executables are available](#Pre-builtexecutablesareavailable)
 	* 10.2. [Configuration file `triceConfig.h`](#ConfigurationfiletriceConfig.h)
@@ -408,6 +409,8 @@ sub-command 'ds|displayServer': Starts a display server.
         16 bit IP port number.
         You can specify this switch if you want to change the used port number for the remote display functionality.
          (default "61497")
+  -lf string
+        Short for logfile (default "off")
   -logfile string
         Append all output to logfile. Options are: 'off|none|filename|auto':
         "off": no logfile (same as "none")
@@ -430,6 +433,8 @@ sub-command 'h|help': For command line usage.
   -help
         Show h|help specific help.
   -l    Show l|log specific help.
+  -lf string
+        Short for logfile (default "off")
   -log
         Show l|log specific help.
   -logfile string
@@ -474,14 +479,18 @@ example 'trice h -log': Print log help.
 sub-command 'l|log': For displaying trice logs coming from port. With "trice log" the trice tool display mode is activated.
   -args string
         Use to pass port specific parameters. The "default" value depends on the used port:
+        port "BUFFER": default="0 0 0 0", Option for args is any space separated decimal number byte sequence.
+        port "DUMP": default="", Option for args is any space or comma separated byte sequence.
         port "COMn": default="", Unused option for a different driver. (For baud rate settings see -baud.)
+        port "FILE": default="trices.raw", Option for args is any file name. Trice retries on EOF.
+        port "FILEBUFFER": default="trices.raw", Option for args is any file name. Trice stops on EOF.
         port "J-LINK": default="-Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0 -RTTSearchRanges 0x20000000_0x1000",
                 The -RTTSearchRanges "..." need to be written without "" and with _ instead of space.
                 For args options see JLinkRTTLogger in SEGGER UM08001_JLink.pdf.
         port "ST-LINK": default="-Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0 -RTTSearchRanges 0x20000000_0x1000",
                 The -RTTSearchRanges "..." need to be written without "" and with _ instead of space.
                 For args options see JLinkRTTLogger in SEGGER UM08001_JLink.pdf.
-        port "BUFFER": default="0 0 0 0", Option for args is any byte sequence.
+        port "TCP4": default="localhost:17001", use any IP:port endpoint like "127.0.0.1:19021"
          (default "default")
   -ban value
         Channel(s) to ignore. This is a multi-flag switch. It can be used several times with a colon separated list of channel descriptors not to display.
@@ -490,6 +499,17 @@ sub-command 'l|log': For displaying trice logs coming from port. With "trice log
         Set the serial port baudrate.
         It is the only setup parameter. The other values default to 8N1 (8 data bits, no parity, one stopbit).
          (default 115200)
+  -binaryLogfile string
+        Append all output to logfile. Options are: 'off|none|filename|auto':
+        "off": no binary logfile (same as "none")
+        "none": no binary logfile (same as "off")
+        "auto": Use as binary logfile name "2006-01-02_1504-05_trice.bin" with actual time.
+        "filename": Any other string than "auto", "none" or "off" is treated as a filename. If the file exists, logs are appended.
+        All trice output of the appropriate subcommands is appended per default into the logfile trice additionally to the normal output.
+        Change the filename with "-binaryLogfile myName.bin" or switch logging off with "-binaryLogfile none".
+         (default "off")
+  -blf string
+        Short for binaryLogfile (default "off")
   -color string
         The format strings can start with a lower or upper case channel information.
         See https://github.com/rokath/trice/blob/master/pkg/src/triceCheck.c for examples. Color options:
@@ -497,12 +517,14 @@ sub-command 'l|log': For displaying trice logs coming from port. With "trice log
         "none": Disable ANSI color. The lower case channel information is removed: "w:x"-> "x"
         "default|color": Use ANSI color codes for known upper and lower case channel info are inserted and lower case channel information is removed.
          (default "default")
+  -databits int
+        Set the serial port databits, options: 7, 9 (default 8)
   -dc int
-        Dumped bytes per line when "-encoding DUMP" (default 32)
+        Dumped bytes per line when "-encoding dumpDec" (default 32)
   -debug
         Show additional debug information
   -defaultTRICEBitwidth string
-        The expected value bit width for TRICE macros. Must be in sync with setting is triceConfig.h (default "32")
+        The expected value bit width for TRICE macros. Must be in sync with setting inside triceConfig.h (default "32")
   -displayserver
         Send trice lines to displayserver @ ipa:ipp.
         Example: "trice l -port COM38 -ds -ipa 192.168.178.44" sends trice output to a previously started display server in the same network.
@@ -511,12 +533,10 @@ sub-command 'l|log': For displaying trice logs coming from port. With "trice log
   -e string
         Short for -encoding. (default "COBS")
   -encoding string
-        The trice transmit data format type, options: '(CHAR|COBS|DUMP|ESC|FLEX)'. Target device encoding must match.
+        The trice transmit data format type, options: '(CHAR|COBS|dumpDec|ESC|FLEX)'. Target device encoding must match.
                           CHAR prints the received bytes as characters.
                           COBS expects 0 delimited byte sequences.
-                          DUMP prints the received bytes as hex code (see switch -dc too).
-                          ESC is a legacy format and will be removed in the future.
-                          FLEX is a legacy format and will be removed in the future.
+                          dumpDec prints the received bytes as hex code (see switch -dc too).
          (default "COBS")
   -i string
         Short for '-idlist'.
@@ -536,6 +556,24 @@ sub-command 'l|log': For displaying trice logs coming from port. With "trice log
         16 bit IP port number.
         You can specify this switch if you want to change the used port number for the remote display functionality.
          (default "61497")
+  -lf string
+        Short for logfile (default "off")
+  -li string
+        Short for '-locationInformation'.
+         (default "li.json")
+  -liFmt string
+        Target location format string at start of each line, if target location existent (configured). Use "off" or "none" to suppress existing target location. If several trices form a log line only the location of first trice ist displayed. (default "info:%20s:%4d ")
+  -locationInformation string
+        The trice location list file.
+        The specified JSON file is needed to display the location information for each ID during runtime and needs no version control.
+        It is regenerated on each refresh, update or renew trice run. When trice log finds a location information file, it is used for
+        log output with location information. Otherwise no location information is displayed, what usually is wanted in the field.
+        This way the newest til.json can be used also with legacy firmware, but the li.json must match the current firmware version.
+        "off" or "none" suppress the display of the location information even a li.json file exists. Avoid shared ID's for correct
+        location information. See information for the -SharedIDs switch for additionals hints. See -tLocFmt for formatting.
+         (default "li.json")
+  -logLevel string
+        Level based log filtering. "off" suppresses everything. If equal to a channel specifier all with a bigger index inside emitter.ColorChannels is not shown. (default "all")
   -logfile string
         Append all output to logfile. Options are: 'off|none|filename|auto':
         "off": no logfile (same as "none")
@@ -547,6 +585,8 @@ sub-command 'l|log': For displaying trice logs coming from port. With "trice log
          (default "off")
   -p string
         short for -port (default "J-LINK")
+  -parity string
+        Serial port bit parity value, options: odd, even (default "none")
   -password string
         The decrypt passphrase. If you change this value you need to compile the target with the appropriate key (see -showKeys).
         Encryption is recommended if you deliver firmware to customers and want protect the trice log output. This does work right now only with flex and flexL format.
@@ -554,7 +594,7 @@ sub-command 'l|log': For displaying trice logs coming from port. With "trice log
         Channel(s) to display. This is a multi-flag switch. It can be used several times with a colon separated list of channel descriptors only to display.
         Example: "-pick err:wrn -pick default" results in suppressing all messages despite of as error, warning and default tagged messages. Not usable in conjunction with "-ban".
   -port string
-        receiver device: 'ST-LINK'|'J-LINK'|serial name.
+        receiver device: 'BUFFER|DUMP|FILE|FILEBUFFER|JLINK|STLINK|TCP4|serial name.
         The serial name is like 'COM12' for Windows or a Linux name like '/dev/tty/usb12'.
         Using a virtual serial COM port on the PC over a FTDI USB adapter is a most likely variant.
          (default "J-LINK")
@@ -572,13 +612,14 @@ sub-command 'l|log': For displaying trice logs coming from port. With "trice log
         Show encryption key. Use this switch for creating your own password keys. If applied together with "-password MySecret" it shows the encryption key.
         Simply copy this key than into the line "#define ENCRYPT XTEA_KEY( ea, bb, ec, 6f, 31, 80, 4e, b9, 68, e2, fa, ea, ae, f1, 50, 54 ); //!< -password MySecret" inside triceConfig.h.
         This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true.
+  -stopbits string
+        Serial port stopbit, options: 1.5, 2 (default "1")
   -suffix string
         Append suffix to all lines, options: any string.
-  -tLocFmt string
-        Target location format string at start of each line, if target location existent (configured). Use "" to suppress existing target location. If several trices form a log line only the location of f
-irst trice ist displayed. (default "%12s:%4d ")
   -targetEndianess string
         Target endianness trice data stream. Option: "bigEndian". (default "littleEndian")
+  -tcp string
+        TCP address for an external receiver like Putty: In "Terminal" enable "Implicit CR in every CR", In "Session" Connection type:"Other:Telnet", specify "hostname:port" here like "localhost:64000"
   -testTable
         Generate testTable output and ignore -prefix, -suffix, -ts, -color. This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true.
   -til string
@@ -593,8 +634,7 @@ irst trice ist displayed. (default "%12s:%4d ")
         If you need target timestamps you need to get the time inside the target and send it as TRICE* parameter.
          (default "LOCmicro")
   -ttsf string
-        Target timestamp format string at start of each line, if target timestamps existent (configured). Use "" to suppress existing target timestamps. If several trices form a log line only the timestam
-p of first trice ist displayed. (default "time:%9d ")
+        Target timestamp format string at start of each line, if target timestamps existent (configured). Use "" to suppress existing target timestamps. If several trices form a log line only the timestamp of first trice ist displayed. (default "time:%9d ")
   -u    Short for '-unsigned'. (default true)
   -unsigned
         Hex, Octal and Bin values are printed as unsigned values. (default true)
@@ -631,6 +671,18 @@ sub-command 'r|refresh': For updating ID list from source files but does not cha
         The trice ID list file.
         The specified JSON file is needed to display the ID coded trices during runtime and should be under version control.
          (default "til.json")
+  -li string
+        Short for '-locationInformation'.
+         (default "li.json")
+  -locationInformation string
+        The trice location list file.
+        The specified JSON file is needed to display the location information for each ID during runtime and needs no version control.
+        It is regenerated on each refresh, update or renew trice run. When trice log finds a location information file, it is used for
+        log output with location information. Otherwise no location information is displayed, what usually is wanted in the field.
+        This way the newest til.json can be used also with legacy firmware, but the li.json must match the current firmware version.
+        "off" or "none" suppress the display of the location information even a li.json file exists. Avoid shared ID's for correct
+        location information. See information for the -SharedIDs switch for additionals hints. See -tLocFmt for formatting.
+         (default "li.json")
   -s value
         Short for src.
   -src value
@@ -664,6 +716,18 @@ sub-command 'renew': It is like refresh, but til.json is cleared first, so all '
         The trice ID list file.
         The specified JSON file is needed to display the ID coded trices during runtime and should be under version control.
          (default "til.json")
+  -li string
+        Short for '-locationInformation'.
+         (default "li.json")
+  -locationInformation string
+        The trice location list file.
+        The specified JSON file is needed to display the location information for each ID during runtime and needs no version control.
+        It is regenerated on each refresh, update or renew trice run. When trice log finds a location information file, it is used for
+        log output with location information. Otherwise no location information is displayed, what usually is wanted in the field.
+        This way the newest til.json can be used also with legacy firmware, but the li.json must match the current firmware version.
+        "off" or "none" suppress the display of the location information even a li.json file exists. Avoid shared ID's for correct
+        location information. See information for the -SharedIDs switch for additionals hints. See -tLocFmt for formatting.
+         (default "li.json")
   -s value
         Short for src.
   -src value
@@ -696,6 +760,8 @@ sub-command 'sd|shutdown': Ends display server at IPA:IPP, works also on a remot
 example: 'trice sd': Shut down remote display server.
 sub-command 'ver|version': For displaying version information.
         "trice v" will print the version information. If trice is not versioned the build time will be displayed instead.
+  -lf string
+        Short for logfile (default "off")
   -logfile string
         Append all output to logfile. Options are: 'off|none|filename|auto':
         "off": no logfile (same as "none")
@@ -735,12 +801,25 @@ sub-command 'u|update': For updating ID list and source files.
         The trice ID list file.
         The specified JSON file is needed to display the ID coded trices during runtime and should be under version control.
          (default "til.json")
+  -li string
+        Short for '-locationInformation'.
+         (default "li.json")
+  -locationInformation string
+        The trice location list file.
+        The specified JSON file is needed to display the location information for each ID during runtime and needs no version control.
+        It is regenerated on each refresh, update or renew trice run. When trice log finds a location information file, it is used for
+        log output with location information. Otherwise no location information is displayed, what usually is wanted in the field.
+        This way the newest til.json can be used also with legacy firmware, but the li.json must match the current firmware version.
+        "off" or "none" suppress the display of the location information even a li.json file exists. Avoid shared ID's for correct
+        location information. See information for the -SharedIDs switch for additionals hints. See -tLocFmt for formatting.
+         (default "li.json")
   -s value
         Short for src.
   -sharedIDs
         ID policy:
-        true: TriceFmt's without TriceID get equal TriceID if an equal TriceFmt exists already.
-        false: TriceFmt's without TriceID get a different TriceID if an equal TriceFmt exists already.
+                false: TriceFmt's without TriceID get a different TriceID if an equal TriceFmt exists already (default).
+                true:  TriceFmt's without TriceID get equal TriceID if an equal TriceFmt exists already. Use with care: The location information for only one location is displayed but it can be a wrong one.
+                Hint: If you have equal TriceIDs with equal TriceFmt's after some copy and paste simply replace these TriceIDs with 0 to force new and different TriceIDs. ('trice h -z' shows how to automate)
   -src value
         Source dir or file, It has one parameter. Not usable in the form "-src *.c".
         This is a multi-flag switch. It can be used several times for directories and also for files.
@@ -767,7 +846,6 @@ sub-command 'zeroSourceTreeIds': Set all Id(n) inside source tree dir to Id(0).
   -src string
         Zero all Id(n) inside source tree dir, required.
 example: 'trice zeroSourceTreeIds -src ../A': Sets all TRICE IDs to 0 in ../A. Use with care!
-
 ```
 
 <p align="right">(<a href="#top">back to top</a>)</p>
@@ -903,6 +981,11 @@ Sometimes it is handy to stimulate the target during development. For that a 2nd
 ####  9.2.9. <a name='Explporeandmodifychannelsandtheircolors'></a>Explpore and modify channels and their colors
 
 See file [./TriceColor.md](./TriceColor.md)
+
+####  9.2.10. <a name='LocationInformation'></a>Location Information
+
+When running  `trice update`, a file `li.json` is created, what you can control with the `-locationInformation` switch. During logging, when `li.json` is found, automatically the filename and line number is displayed in front of each log line, controllable with the `-liFmt` switch. This information is correct only with the right version of the `li.json` file. That is usually the case on the PC during development. Out in the field only the `til.json` reference is of importance. It serves an an accumulator of all firmware versions and usually the latest version of this file is the best fit. The `li.json` file should stay with the software developer only and needs no version control in the usual case because it is rebuild with each compilation, when `trice u` is a prebuild step.
+
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 ##  10. <a name='Additionalhints'></a>Additional hints
