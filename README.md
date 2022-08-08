@@ -85,9 +85,10 @@ git clone https://github.com/rokath/trice.git
 - [Minimal Structured Logging for Autonomous Vehikles](https://youtu.be/FyJI4Z6jD4w) (C++, closed source talk)
 - [NanoLog](https://github.com/PlatformLab/NanoLog) (Linux C++)
 - [Percepio Tracealyzer](https://percepio.com/tracealyzer/) (Visual Trace Diagnostics)
+- [Pigweed Trace Tokenized](https://pigweed.dev/pw_trace_tokenized/)
 - [qpspy](https://www.state-machine.com/qtools/qpspy.html) (C/C++)
 - [Serial-Studio](https://github.com/Serial-Studio/Serial-Studio) (Data visualisation)
-- [https://pigweed.dev/pw_trace_tokenized/](https://pigweed.dev/pw_trace_tokenized/)
+
 <!--- B A C K U P
 
 ## `TRICE` macros for C & C++ code
