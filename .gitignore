@@ -24,3 +24,6 @@ test/PSoC-Creator-4.2-Workspace/Software_Transmit_UART.cydsn/Software_Transmit_U
 test/PSoC-Creator-4.2-Workspace/Software_Transmit_UART.cydsn/Software_Transmit_UART.rpt
 
 dist/**
+internal/args/li.json
+
+li.json
