@@ -17,8 +17,8 @@ extern "C" {
 
 #define TRICE_MODE 0 //! TRICE_MODE is a predefined trice transfer method.
 
-//#define TRICE_RTT_CHANNEL 0 //!< Enable and set channel number for SeggerRTT usage. Only channel 0 works right now for some reason.
-//#define TRICE_UART USART2   //!< Enable and set UART for serial output.
+//#define TRICE_RTT_CHANNEL 0 //!< Uncomment and set channel number for SeggerRTT usage.
+//#define TRICE_UART USART2   //!< Uncomment and set UART for serial output.
 #define TRICE_CGO_TEST
 
 
