@@ -5,7 +5,7 @@
 #include <float.h>
 //#define TRICE_OFF // enable this line to disable trice code generation in this file object
 #include "trice.h"
-#define TRICE_FILE Id(52023) 
+#define TRICE_FILE Id(42698)
 
 static int32_t FloatToInt32( float f );
 static int64_t DoubleToInt64( double f );
@@ -32,32 +32,32 @@ void TriceCheckSet(int index) {
         exampleOfBuffersAndFunctions();
         break;
         case 10:
-            TRICE( Id(38164), "FATAL:magenta+b:red\n" );
-            TRICE( Id(61645), "CRITICAL:red+i:default+h\n" );
-            TRICE( Id(36488), "EMERGENCY:red+i:blue\n" );
-            TRICE( Id(59308), "ERROR:11:red\n" );
-            TRICE( Id(53189), "WARNING:11+i:red\n" );
-            TRICE( Id(57472), "ATTENTION:11:green\n" );
-            TRICE( Id(59451), "INFO:cyan+b:default+h\n" );
-            TRICE( Id(48312), "DEBUG:130+i\n" );
-            TRICE( Id(58941), "TRACE:default+i:default+h\n" );
-            TRICE( Id(46468), "TIME:blue+i:blue+h\n" );
-            TRICE( Id(60081), "MESSAGE:green+h:black\n" );
-            TRICE( Id(46695), "READ:black+i:yellow+h\n" );
-            TRICE( Id(61756), "WRITE:black+u:yellow+h\n" );
-            TRICE( Id(49403), "RECEIVE:black+h:black\n" );
-            TRICE( Id(56309), "TRANSMIT:black:black+h\n" );
-            TRICE( Id(40181), "DIAG:yellow+i:default+h\n" );
-            TRICE( Id(39389), "INTERRUPT:magenta+i:default+h\n" );
-            TRICE( Id(40711), "SIGNAL:118+i\n" );
-            TRICE( Id(43892), "TEST:yellow+h:black\n" );
-            TRICE( Id(49029), "DEFAULT:off\n" );
-            TRICE( Id(41589), "NOTICE:blue:white+h\n" );
-            TRICE( Id(42586), "ALERT:magenta:magenta+h\n" );
-            TRICE( Id(34138), "ASSERT:yellow+i:blue\n" );
-            TRICE( Id(60122), "ALARM:red+i:white+h\n" );
-            TRICE( Id(48718), "CYCLE:blue+i:default+h\n" );
-            TRICE( Id(34727), "VERBOSE:blue:default\n" );
+            TRICE0( Id(0), "FATAL:magenta+b:red\n" );
+            TRICE0( Id(61645), "CRITICAL:red+i:default+h\n" );
+            TRICE0( Id(36488), "EMERGENCY:red+i:blue\n" );
+            TRICE0( Id(59308), "ERROR:11:red\n" );
+            TRICE0( Id(53189), "WARNING:11+i:red\n" );
+            TRICE0( Id(57472), "ATTENTION:11:green\n" );
+            TRICE0( Id(59451), "INFO:cyan+b:default+h\n" );
+            TRICE0( Id(48312), "DEBUG:130+i\n" );
+            TRICE0( Id(58941), "TRACE:default+i:default+h\n" );
+            TRICE0( Id(46468), "TIME:blue+i:blue+h\n" );
+            TRICE0( Id(60081), "MESSAGE:green+h:black\n" );
+            TRICE0( Id(46695), "READ:black+i:yellow+h\n" );
+            TRICE0( Id(61756), "WRITE:black+u:yellow+h\n" );
+            TRICE0( Id(49403), "RECEIVE:black+h:black\n" );
+            TRICE0( Id(56309), "TRANSMIT:black:black+h\n" );
+            TRICE0( Id(40181), "DIAG:yellow+i:default+h\n" );
+            TRICE0( Id(39389), "INTERRUPT:magenta+i:default+h\n" );
+            TRICE0( Id(40711), "SIGNAL:118+i\n" );
+            TRICE0( Id(43892), "TEST:yellow+h:black\n" );
+            TRICE0( Id(49029), "DEFAULT:off\n" );
+            TRICE0( Id(41589), "NOTICE:blue:white+h\n" );
+            TRICE0( Id(42586), "ALERT:magenta:magenta+h\n" );
+            TRICE0( Id(34138), "ASSERT:yellow+i:blue\n" );
+            TRICE0( Id(60122), "ALARM:red+i:white+h\n" );
+            TRICE0( Id(48718), "CYCLE:blue+i:default+h\n" );
+            TRICE0( Id(34727), "VERBOSE:blue:default\n" );
         break;
         case 20:
             TRICE( Id(45421), "fatal:magenta+b:red\n" );

@@ -3,8 +3,8 @@
 \author thomas.hoehenleitner [at] seerose.net
 *******************************************************************************/
 #include "trice.h"
+#define TRICE_FILE Id(50255)
 #include "trice_test.h"
-#define TRICE_FILE Id(52024) 
 
 
 // SetTriceBuffer sets the internal triceBuffer pointer to buf. 
@@ -18,7 +18,7 @@ void SetTriceBuffer( uint8_t* buf  ){
 int TriceCode( int n ){
     char* s;
     switch( n ){
-        case 0: TRICE32_1( Id(58755), "rd:TRICE32_1 line %d (%%d)\n", -1 ); return triceBufferDepth;
+        case 0: TRICE32_1( Id(0), "rd:TRICE32_1 line %d (%%d)\n", -1 ); return triceBufferDepth;
         case 1: TRICE64( Id( 52183), "rd:TRICE64 %d, %d\n", 1, 2 );         return triceBufferDepth; 
         case 2: s = "AAAAAAAAAAAA"; TRICE_S( Id( 43140), "sig:%s\n", s );   return triceBufferDepth; 
     }

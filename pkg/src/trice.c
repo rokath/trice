@@ -259,3 +259,31 @@ void TriceEncrypt( uint32_t* p, unsigned count ){
 }
 
 #endif // #ifdef TRICE_ENCRYPT
+
+uint32_t ReadTick32( void ){
+	return 0x11111111;
+}
+
+uint16_t ReadTick16( void ){
+	return 0x1111;
+}
+
+
+//! triceDataLen returns len or if possible a smaller value for len.
+// *da = 11iiiiiiI 11iiiiiiI TT TT NC ...
+// *da = 10iiiiiiI TT NC ...
+// *da = 01iiiiiiI 11iiiiiiI NC ...
+// *da = 00...
+size_t triceDataLen( size_t len, uint32_t* da ){
+    uint16_t x = *da >> 14; // get the 2 descriptor bits
+    if( x == 0 ){
+        return len; // unknown data structure, use len
+    }
+    uint16_t nc = da[x];
+    size_t n = nc>>8;
+    n = n < 128 ? n : 0x7f & nc;
+    n = n + 4 + 2 * (x-1); // add ID, NC and TT
+    //ASSERT( n <= len )
+    return n;
+}
+
