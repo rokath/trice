@@ -6,6 +6,7 @@ package id
 // source tree management
 
 import (
+	"flag"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -564,6 +565,27 @@ func updateIDsUniqOrShared(w io.Writer, sharedIDs bool, min, max TriceID, search
 		lu[id] = tf
 		tflu[tf] = id // no distinction for lower and upper case Type
 	}
+}
+
+// ScZero does replace all ID's in source tree with 0
+func ScZeroMulti(w io.Writer, cmd *flag.FlagSet) error {
+	if len(Srcs) == 0 {
+		Srcs = append(Srcs, "./") // default value
+	}
+	for i := range Srcs {
+		s := Srcs[i]
+		srcZ := ConditionalFilePath(s)
+		if _, err := os.Stat(srcZ); err == nil { // path exists
+			zeroSourceTreeIds(w, srcZ, !DryRun)
+		} else if os.IsNotExist(err) { // path does *not* exist
+			fmt.Fprintln(w, s, " -> ", srcZ, "does not exist!")
+		} else {
+			fmt.Fprintln(w, s, "Schrodinger: file may or may not exist. See err for details.")
+			// Therefore, do *NOT* use !os.IsNotExist(err) to test for file existence
+			// https://stackoverflow.com/questions/12518876/how-to-check-if-a-file-exists-in-go
+		}
+	}
+	return nil
 }
 
 // zeroSourceTreeIds is overwriting with 0 all id's from source code tree srcRoot. It does not touch idlist.

@@ -138,8 +138,7 @@ func versionInfo(w io.Writer) error {
 
 func zeroIDsInfo(w io.Writer) error {
 	fmt.Fprintln(w, `sub-command 'zeroSourceTreeIds': Set all Id(n) inside source tree dir to Id(0). 
-	Avoid using this sub-command normally. The switch "-src" is mandatory and no multi-flag here.
-	This sub-command is mainly for testing. For several source directories you need several runs.`)
+	The switch "-src" is mandatory and a multi-flag here. So you can use the "-src" flag several times.`)
 	fsScZero.SetOutput(w)
 	fsScZero.PrintDefaults()
 	_, e := fmt.Fprintln(w, "example: 'trice zeroSourceTreeIds -src ../A': Sets all TRICE IDs to 0 in ../A. Use with care!")

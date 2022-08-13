@@ -197,7 +197,8 @@ func updateInit() {
 
 func zeroInit() {
 	fsScZero = flag.NewFlagSet("zeroSourceTreeIds", flag.ContinueOnError)
-	pSrcZ = fsScZero.String("src", "", "Zero all Id(n) inside source tree dir, required.") // flag
+	flagSrcs(fsScZero)
+	//pSrcZ = fsScZero.String("src", "", "Zero all Id(n) inside source tree dir, required.") // flag
 	flagDryRun(fsScZero)
 	flagVerbosity(fsScZero)
 }

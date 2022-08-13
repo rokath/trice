@@ -53,7 +53,7 @@ var (
 	fsScZero *flag.FlagSet
 
 	// pSrcZ is a string pointer to the safety string for scZero.
-	pSrcZ *string
+	// pSrcZ *string
 
 	allHelp           bool // flag for partial help
 	displayServerHelp bool // flag for partial help

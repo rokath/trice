@@ -77,10 +77,11 @@ func Handler(args []string) error {
 		msg.OnErr(fsScUpdate.Parse(subArgs))
 		w := distributeArgs()
 		return id.SubCmdUpdate(w)
-	case "zeroSourceTreeIds":
+	case "z", "zeroSourceTreeIds":
 		msg.OnErr(fsScZero.Parse(subArgs))
 		w := distributeArgs()
-		return id.ScZero(w, *pSrcZ, fsScZero)
+		//  return id.ScZero(w, *pSrcZ, fsScZero)
+		return id.ScZeroMulti(w, fsScZero)
 	case "sd", "shutdown":
 		msg.OnErr(fsScSdSv.Parse(subArgs))
 		w := distributeArgs()

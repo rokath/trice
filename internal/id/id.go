@@ -25,10 +25,10 @@ var (
 	LIFnJSON string
 
 	// Min is the smallest allowed ID for normal trices.
-	Min = TriceID(32768)
+	Min = TriceID(10000)
 
 	// Max is the biggest allowed ID for normal trices.
-	Max = TriceID(65535)
+	Max = TriceID(16000)
 
 	// SearchMethod is the next ID search method.
 	SearchMethod = "random"
