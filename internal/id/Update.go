@@ -608,8 +608,8 @@ func visitZeroSourceTreeIds(w io.Writer, run bool) filepath.WalkFunc {
 
 		for {
 			var found bool
+			found, modified, subs, s = zeroNextID(w, modified, subs, s)
 			if !found {
-				found, modified, subs, s = zeroNextID(w, modified, subs, s)
 				break
 			}
 		}
@@ -621,29 +621,34 @@ func visitZeroSourceTreeIds(w io.Writer, run bool) filepath.WalkFunc {
 	}
 }
 
-// first retval flag is if an ID was zeroed, others are updated input values. if an ID wsa zeroed
+// found flag is true if an ID was zeroed, others are updated input values. if an ID wsa zeroed
 // - modified gets true
 // - subs gets shorter
 // - s is updated
-func zeroNextID(w io.Writer, modified bool, subs, s string) (bool, bool, string, string) {
-	loc := matchNbTRICE.FindStringIndex(subs)
+func zeroNextID(w io.Writer, modifiedIn bool, subsIn, in string) (found bool, modifiedOut bool, subsOut string, out string) {
+	modifiedOut = modifiedIn
+	subsOut = subsIn
+	out = in
+	loc := matchNbTRICE.FindStringIndex(subsIn)
 	if nil == loc {
-		return false, modified, subs, s
+		return
 	}
-	nbTRICE := subs[loc[0]:loc[1]]
+	nbTRICE := subsIn[loc[0]:loc[1]]
 	nbID := matchNbID.FindString(nbTRICE)
 	if nbID == "" {
 		msg.Info(fmt.Sprintln("No 'Id(n)' found inside " + nbTRICE))
-		return false, modified, subs, s
+		return
 	}
 
 	zeroID := "Id(0)"
 	fmt.Fprintln(w, nbID, " -> ", zeroID)
 
 	zeroTRICE := strings.Replace(nbTRICE, nbID, zeroID, 1)
-	s = strings.Replace(s, nbTRICE, zeroTRICE, 1)
+	out = strings.Replace(out, nbTRICE, zeroTRICE, 1)
 	// 2^32 has 9 ciphers and shortest trice has 14 chars: TRICE0(Id(1),"");
-	// The replacement of n with 0 makes s shorter, so the next search shoud start like 10 chars earlier.
-	subs = subs[loc[1]-10:]
-	return true, true, subs, s
+	// The replacement of n with 0 makes s shorter, so the next search should start like 10 chars earlier.
+	subsOut = subsIn[loc[1]-10:]
+	found = true
+	modifiedOut = true
+	return
 }
