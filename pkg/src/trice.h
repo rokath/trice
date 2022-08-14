@@ -352,7 +352,7 @@ static inline uint64_t aDouble( double x ){
     uint32_t limit = TRICE_SINGLE_MAX_SIZE-TRICE_PREFIX_SIZE-8; /* 8 = head + len size */ \
     uint32_t len_ = n; /* n could be a constant */ \
     if( len_ > limit ){ \
-        TRICE32( Id(0), "wrn:Transmit buffer truncated from %u to %u\n", len_, limit ); \
+        TRICE32( Id(11767), "wrn:Transmit buffer truncated from %u to %u\n", len_, limit ); \
         len_ = limit; \
     } \
     TRICE_INTO \
