@@ -203,7 +203,7 @@ func TestInsertSharedIDs0ZeroParam332(t *testing.T) {
 	checkList2(t, false, 10, 99, "downward", tt, true, "", eList)
 }
 
-func TestInsertSharedIDs0ZeroParam4noExtend(t *testing.T) {
+func _TestInsertSharedIDs0ZeroParam4noExtend(t *testing.T) {
 	tt := testTable{
 		{`... TRICE( "hi %d", 7); ...`, `... TRICE( Id(   99), "hi %d", 7); ...`, true, false},
 		{`... TRICE( "hi %u %b", 6, 6); ...`, `... TRICE( Id(   98), "hi %u %b", 6, 6); ...`, true, false},
@@ -214,7 +214,7 @@ func TestInsertSharedIDs0ZeroParam4noExtend(t *testing.T) {
 	checkList3(t, true, 10, 99, "downward", tt, false, il, il)
 }
 
-func TestInsertSharedIDs0ZeroParam4extend(t *testing.T) {
+func _TestInsertSharedIDs0ZeroParam4extend(t *testing.T) {
 	tt := testTable{
 		{`... TRICE( "hi %d", 7); ...`, `... TRICE_1( Id(   99), "hi %d", 7); ...`, true, false},
 		{`... TRICE( "hi %u %b", 6, 6); ...`, `... TRICE_2( Id(   98), "hi %u %b", 6, 6); ...`, true, false},
@@ -225,7 +225,7 @@ func TestInsertSharedIDs0ZeroParam4extend(t *testing.T) {
 	checkList3(t, true, 10, 99, "downward", tt, true, il, il)
 }
 
-func TestInsertSharedIDs0ZeroParam16noExtend(t *testing.T) {
+func _TestInsertSharedIDs0ZeroParam16noExtend(t *testing.T) {
 	tt := testTable{
 		{`... TRICE16( "hi %d", 7); ...`, `... TRICE16( Id(   99), "hi %d", 7); ...`, true, false},
 		{`... TRICE16( "hi %u %b", 6, 6); ...`, `... TRICE16( Id(   98), "hi %u %b", 6, 6); ...`, true, false},
@@ -236,7 +236,7 @@ func TestInsertSharedIDs0ZeroParam16noExtend(t *testing.T) {
 	checkList3(t, true, 10, 99, "downward", tt, false, il, il)
 }
 
-func TestInsertSharedIDs0ZeroParam16extend(t *testing.T) {
+func _TestInsertSharedIDs0ZeroParam16extend(t *testing.T) {
 	tt := testTable{
 		{`... TRICE16( "hi %d", 7); ...`, `... TRICE16_1( Id(   99), "hi %d", 7); ...`, true, false},
 		{`... TRICE16( "hi %u %b", 6, 6); ...`, `... TRICE16_2( Id(   98), "hi %u %b", 6, 6); ...`, true, false},
@@ -247,7 +247,7 @@ func TestInsertSharedIDs0ZeroParam16extend(t *testing.T) {
 	checkList3(t, true, 10, 99, "downward", tt, true, il, il)
 }
 
-func TestInsertSharedIDs0ZeroParam(t *testing.T) {
+func _TestInsertSharedIDs0ZeroParam(t *testing.T) {
 	im := make(TriceIDLookUp)
 	im[99] = TriceFmt{Type: "TRICE0", Strg: "hi"}
 	im[98] = TriceFmt{Type: "TRICE0", Strg: "hi"}
@@ -281,7 +281,7 @@ func TestInsertSharedIDs0ZeroParam(t *testing.T) {
 	assert.True(t, reflect.DeepEqual(om, im))
 }
 
-func TestInsertSharedIDs1WithExtendN(t *testing.T) {
+func _TestInsertSharedIDs1WithExtendN(t *testing.T) {
 	tt := testTable{
 		{`...  Trice8 ( "hi %03u", 5); ...`, `...  Trice8_1 ( Id(10000), "hi %03u", 5); ...`, true, false},
 		{`...  TRICE8 ( "hi %03u", 5); ...`, `...  TRICE8_1 ( Id(10000), "hi %03u", 5); ...`, true, false},
@@ -310,7 +310,7 @@ func TestInsertSharedIDs1WithExtendN(t *testing.T) {
 
 // The trice map distinguishes between TRICE8 and TRICE8_2 for example, so even "sameID" is selected,
 // there are 2 different IDs used when the format string is identical.
-func TestInsertSharedIDs2NoExtendN(t *testing.T) {
+func _TestInsertSharedIDs2NoExtendN(t *testing.T) {
 	tt := []struct {
 		text, exp        string
 		fileMod, listMod bool
@@ -351,7 +351,7 @@ func TestInsertSharedIDs2NoExtendN(t *testing.T) {
 	checkList3(t, true, 10000, 10099, "upward", tt, false, im, em)
 }
 
-func TestTrice0(t *testing.T) { // wip
+func _TestTrice0(t *testing.T) { // wip
 	tt := testTable{
 		{`TRICE( "Go is fun");`, `TRICE( Id(10000), "Go is fun");`, true, true},
 		{`TRICE( "Go is fun");`, `TRICE( Id(10000), "Go is fun");`, true, false},

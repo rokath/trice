@@ -53,12 +53,12 @@ func SubCmdRefreshList(w io.Writer) (err error) {
 	return lim.toFile(LIFnJSON)
 }
 
-func refreshListAdapter(w io.Writer, root string, lu TriceIDLookUp, tflu triceFmtLookUp, _ *bool, lim TriceIDLookUpLI) {
-	refreshList(w, root, lu, tflu, lim)
+func refreshListAdapter(w io.Writer, root string, lu TriceIDLookUp, tflus triceFmtLookUpS, _ *bool, lim TriceIDLookUpLI) {
+	refreshList(w, root, lu, tflus, lim)
 }
 
 func updateList(w io.Writer, lu TriceIDLookUp, lim TriceIDLookUpLI) error {
-	tflu := lu.reverse()
+	tflus := lu.reverseS()
 
 	// keep a copy
 	lu0 := make(TriceIDLookUp)
@@ -66,7 +66,7 @@ func updateList(w io.Writer, lu TriceIDLookUp, lim TriceIDLookUpLI) error {
 		lu0[k] = v
 	}
 	var listModified bool
-	walkSrcs(w, refreshListAdapter, lu, tflu, &listModified, lim)
+	walkSrcs(w, refreshListAdapter, lu, tflus, &listModified, lim)
 
 	// listModified does not help here, because it indicates that some sources are updated and therefore the list needs an update too.
 	// But here we are only scanning the source tree, so if there would be some changes they are not relevant because sources are not changed here.
@@ -86,10 +86,10 @@ func updateList(w io.Writer, lu TriceIDLookUp, lim TriceIDLookUpLI) error {
 func SubCmdUpdate(w io.Writer) error {
 	lim := make(TriceIDLookUpLI, 4000)
 	lu := NewLut(w, FnJSON)
-	tflu := lu.reverse()
+	tflus := lu.reverseS()
 	var listModified bool
 	o := len(lu)
-	walkSrcs(w, idsUpdate, lu, tflu, &listModified, lim)
+	walkSrcs(w, idsUpdate, lu, tflus, &listModified, lim)
 	if Verbose {
 		fmt.Fprintln(w, len(lu), "ID's in List", FnJSON, "listModified=", listModified)
 	}
@@ -100,7 +100,7 @@ func SubCmdUpdate(w io.Writer) error {
 	return lim.toFile(LIFnJSON)
 }
 
-func walkSrcs(w io.Writer, f func(w io.Writer, root string, lu TriceIDLookUp, tflu triceFmtLookUp, pListModified *bool, lim TriceIDLookUpLI), lu TriceIDLookUp, tflu triceFmtLookUp, pListModified *bool, lim TriceIDLookUpLI) {
+func walkSrcs(w io.Writer, f func(w io.Writer, root string, lu TriceIDLookUp, tflus triceFmtLookUpS, pListModified *bool, lim TriceIDLookUpLI), lu TriceIDLookUp, tflus triceFmtLookUpS, pListModified *bool, lim TriceIDLookUpLI) {
 	if len(Srcs) == 0 {
 		Srcs = append(Srcs, "./") // default value
 	}
@@ -108,7 +108,7 @@ func walkSrcs(w io.Writer, f func(w io.Writer, root string, lu TriceIDLookUp, tf
 		s := Srcs[i]
 		srcU := ConditionalFilePath(s)
 		if _, err := os.Stat(srcU); err == nil { // path exists
-			f(w, srcU, lu, tflu, pListModified, lim)
+			f(w, srcU, lu, tflus, pListModified, lim)
 		} else if os.IsNotExist(err) { // path does *not* exist
 			fmt.Fprintln(w, s, " -> ", srcU, "does not exist!")
 		} else {
