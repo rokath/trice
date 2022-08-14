@@ -17,7 +17,8 @@
 		* 6.2.2. [Framing (TCOBS or COBS encoding) and optional encryption](#FramingTCOBSorCOBSencodingandoptionalencryption)
 	* 6.3. [Extended *Trices* as future option](#ExtendedTricesasfutureoption)
 	* 6.4. [Unknown user data](#Unknownuserdata)
-* 7. [Changelog](#Changelog)
+* 7. [ID Management](#IDManagement)
+* 8. [Changelog](#Changelog)
 
 <!-- vscode-markdown-toc-config
 	numbering=true
@@ -208,9 +209,40 @@ If for special cases, the main stream encoding is not sufficient, the user can a
 * Unknown user data have an unknown length. Therefore they cannot share a COBS packet with *Trices*.
 * Unknown user data packets do not affect the cycle counter. The can have their own cycle counter.
 
-<p align="right">(<a href="#top">back to top</a>)</p>
+##  7. <a name='IDManagement'></a>ID Management
 
-##  7. <a name='Changelog'></a>Changelog
+* The IDs inside the source code are a "dealbreaker" as [bora](https://community.memfault.com/u/bora) mentioned in his [comment](https://interrupt.memfault.com/blog/trice). In fact it is not acceptable for library code used in several projects. An improved approach could look like this:
+
+```c
+TRICE( T0, "...", ...); // a trice without timestamp
+TRICE( T2, "...", ...); // a trice with a 16-bit timestamp
+TRICE( T4, "...", ...); // a trice with a 32-bit timestamp
+```
+
+* When editing, the user needs to write only `TRICE( "...", ...);` and the trice tool inserts a T0, T2 or T4 automatically according to the used `-timeStamp` switch parameter.
+* After repository check-out and before compiling, following substitutions are done using `trice -u`:
+  * `TRICE( T0, "...", ...);` → `TRICE( id(0), "...", ...);` → `TRICE( id(12345), "...", ...);`
+  * `TRICE( T2, "...", ...);` → `TRICE( Id(0), "...", ...);` → `TRICE( Id(12345), "...", ...);`
+  * `TRICE( T4, "...", ...);` → `TRICE( ID(0), "...", ...);` → `TRICE( ID(12345), "...", ...);`
+* After compiling and before repository check-in, following substitutions are done using `trice -z`:
+  * `TRICE( id(12345), "...", ...);` → `TRICE( id(0), "...", ...);` → `TRICE( T0, "...", ...);`
+  * `TRICE( Id(12345), "...", ...);` → `TRICE( Id(0), "...", ...);` → `TRICE( T2, "...", ...);`
+  * `TRICE( ID(12345), "...", ...);` → `TRICE( ID(0), "...", ...);` → `TRICE( T4, "...", ...);`
+* The project specific `til.json` contains all IDs and during `trice u` the same IDs are used again for the same **trice** statement. For new or modified **trices** new IDs a chosen and `til.json` is extended as usual.
+* Identical **trices** should have different IDs for the correctness of the location information. The switch `-sharedIDs` is obsolete and depreciated.
+* There is no guaranty each **trice** gets its old ID back, if for example 5 identical **trices** with different IDs exist, but the probability for an exact restore can made high using the previous `li.json` file. Proposed method:
+  * When `trice -u` is executed, the previous `li.json` is read into an internal `li_1.map` and `li.json` is reset to be an empty file and that is red into `li.map`.
+  * The `til.json` is read into a `lu` as already done, but the reversal `tflu` list format gets an ID slice assigned to each *trice*.
+  * **Trices** occurring only once, what are probably the most, contain an ID slice of length 1.
+  * If a trice occurs for example 5 times its ID slice has length 5 containing 5 different IDs.
+  * When the `trice -u` command finds a **trice** with ID slice length > 1, it looks into `li_1.map` for all possible IDs and compares the location information with the actual location:
+    * If no matching file name is found, a new ID is generated.
+    * If file name is identical, the ID with the minimum difference to the line number is chosen if not already used.
+    * Because all assigned IDs go into the `li.map` this is possible to check.
+    * If all IDs in the slice with identical file name are used, a new ID is generated.
+    * Of course there are cases possible, where some unwanted ID "shift" happens. But we have to consider, that first we are talking about rare identical **trices** and that such case, if, only happens once with the result, that the `til.json` file adds a bit data garbage. A `til.json` cleaning is always possible, but you loose history then.
+
+##  8. <a name='Changelog'></a>Changelog
 
 | Date        | Version | Comment |
 | -           | -       | - |
@@ -222,22 +254,8 @@ If for special cases, the main stream encoding is not sufficient, the user can a
 | 2022-MAR-15 |  0.5.0  | Minor corrections |
 | 2022-MAR-16 |  0.6.0  | TCOBS prime number comment added, simplified |
 | 2022-MAR-17 |  0.7.0  | TCOBS move into a separate [TCOBS Specification](./TCOBSSpecification.md), Framing more detailed. |
-| 2022-MAR-20 |  0.7.1. | Contributive *Trice* extension remark added. |
-| 2022-APR-12 |  0.8.0. | TREX mainstream format changed to timestamps immediate after ID. |
-| 2022-MAY-20 |  0.8.1. | Formatting, Spelling |
-| 2022-Jun-19 |  0.9.0  | Implementation hint added to chapter Framing. |
-
-- [*Trice*  Version 1.0 Specification (Draft)](#trice--version-10-specification-draft)
-  - [1. <a name='Preface'></a>Preface](#1-preface)
-  - [2. <a name='Compatibility'></a>Compatibility](#2-compatibility)
-  - [3. <a name='Framing'></a>Framing](#3-framing)
-  - [4. <a name='TriceIDlisttil.json'></a>*Trice* ID list `til.json`](#4-trice-id-list-tiljson)
-  - [5. <a name='Tricelocationinformationfileli.json'></a>*Trice* location information file `li.json`](#5-trice-location-information-file-lijson)
-  - [6. <a name='TREXTriceextendableencoding'></a>TREX (*Trice* extendable) encoding](#6-trex-trice-extendable-encoding)
-    - [6.1. <a name='Symbols'></a>Symbols](#61-symbols)
-    - [6.2. <a name='Mainstreamlogs'></a>Main stream logs](#62-main-stream-logs)
-      - [6.2.1. <a name='Triceformat'></a>*Trice* format](#621-trice-format)
-      - [6.2.2. <a name='FramingTCOBSorCOBSencodingandoptionalencryption'></a>Framing (TCOBS or COBS encoding) and optional encryption](#622-framing-tcobs-or-cobs-encoding-and-optional-encryption)
-    - [6.3. <a name='ExtendedTricesasfutureoption'></a>Extended *Trices* as future option](#63-extended-trices-as-future-option)
-    - [6.4. <a name='Unknownuserdata'></a>Unknown user data](#64-unknown-user-data)
-  - [7. <a name='Changelog'></a>Changelog](#7-changelog)
+| 2022-MAR-20 |  0.7.1  | Contributive *Trice* extension remark added. |
+| 2022-APR-12 |  0.8.0  | TREX mainstream format changed to timestamps immediate after ID. |
+| 2022-MAY-20 |  0.8.1  | Formatting, Spelling |
+| 2022-JUN-19 |  0.9.0  | Implementation hint added to chapter Framing. |
+| 2022-AUG-14 | 0.10.0  | Chapter ID Management added |

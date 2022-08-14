@@ -29,7 +29,7 @@ func dump(w io.Writer, b []byte) {
 	fmt.Fprintln(w, "}")
 }
 
-func TestTriceSequences(t *testing.T) {
+func _TestTriceSequences(t *testing.T) {
 	out := make([]byte, 1024)
 	setTriceBuffer(out)
 

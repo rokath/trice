@@ -6,6 +6,7 @@ package id
 // source tree management
 
 import (
+	"flag"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -497,9 +498,9 @@ func refreshIDs(w io.Writer, fileName, text string, lu TriceIDLookUp, tflu trice
 }
 
 // updateIDsUniqOrShared parses text for new or invalid *Trices* 'tf' and gives them the legacy id if 'tf' is already in lu & tflu.
-// An invalid trice is a trice without Id(n) or with Id(0) or which changed somehow. Exampes: 'TRICE0( Id(12) ,"foo");' was changed to 'TRICE0( Id(12) ,"bar");'
-// If 'TRICE0( Id(99) ,"bar");' is in lu & tflu the invalid trice changes to 'TRICE0( Id(99) ,"bar");'. Otherwise instead of 99 a so far unused id is taken.
-// Or: 'TRICE0( Id(12) ,"foo");' was changed to 'TRICE0( Id(13) ,"foo");'. Then lu & tflu are extended accordingly, or, if 13 is already used, it is replaced with a new id.
+// An invalid trice is a trice without Id(n) or with Id(0) or which changed somehow. Exampes: 'TRICE( Id(12) ,"foo");' was changed to 'TRICE0( Id(12) ,"bar");'
+// If 'TRICE( Id(99) ,"bar");' is in lu & tflu, the invalid trice changes to 'TRICE( Id(99) ,"bar");'. Otherwise instead of 99 a so far unused id is taken.
+// Or: 'TRICE( Id(12) ,"foo");' was changed to 'TRICE( Id(13) ,"foo");'. Then lu & tflu are extended accordingly, or, if 13 is already used, it is replaced with a new id.
 // Otherwise, a new id is generated, text patched and lu & tflu are extended.
 // To work correctly, lu & tflu need to be in a refreshed state, means have all id:tf pairs from Srcs tree already inside.
 // text is returned afterwards and true if text was changed and *pListModified set true if s.th. was changed.
@@ -564,6 +565,27 @@ func updateIDsUniqOrShared(w io.Writer, sharedIDs bool, min, max TriceID, search
 		lu[id] = tf
 		tflu[tf] = id // no distinction for lower and upper case Type
 	}
+}
+
+// ScZero does replace all ID's in source tree with 0
+func ScZeroMulti(w io.Writer, cmd *flag.FlagSet) error {
+	if len(Srcs) == 0 {
+		Srcs = append(Srcs, "./") // default value
+	}
+	for i := range Srcs {
+		s := Srcs[i]
+		srcZ := ConditionalFilePath(s)
+		if _, err := os.Stat(srcZ); err == nil { // path exists
+			zeroSourceTreeIds(w, srcZ, !DryRun)
+		} else if os.IsNotExist(err) { // path does *not* exist
+			fmt.Fprintln(w, s, " -> ", srcZ, "does not exist!")
+		} else {
+			fmt.Fprintln(w, s, "Schrodinger: file may or may not exist. See err for details.")
+			// Therefore, do *NOT* use !os.IsNotExist(err) to test for file existence
+			// https://stackoverflow.com/questions/12518876/how-to-check-if-a-file-exists-in-go
+		}
+	}
+	return nil
 }
 
 // zeroSourceTreeIds is overwriting with 0 all id's from source code tree srcRoot. It does not touch idlist.
