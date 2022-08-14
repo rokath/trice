@@ -118,8 +118,8 @@ var (
 	targetLocation                  uint32  // targetLocation contains 16 bit file id in high and 16 bit line number in low part.
 	ShowTargetTimestamp             string  // ShowTargetTimestamp is the format string for target timestamps.
 	LocationInformationFormatString string  // LocationInformationFormatString is the format string for target location: line number and file name.
-	targetTimestampExists           bool    // targetTimestampExists is set in dependence of p.COBSModeDescriptor.
-	targetLocationExists            bool    // targetLocationExists is set in dependence of p.COBSModeDescriptor.
+	//  targetTimestampExists           bool    // targetTimestampExists is set in dependence of p.COBSModeDescriptor.
+	//  targetLocationExists            bool    // targetLocationExists is set in dependence of p.COBSModeDescriptor.
 )
 
 // newDecoder abstracts the function type for a new decoder.

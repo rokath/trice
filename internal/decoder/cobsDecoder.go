@@ -179,19 +179,19 @@ func (p *cobsDec) nextCOBSPackage() {
 	}
 
 	p.b = make([]byte, defaultSize)
-	n, e := cobs.Decode(p.b, p.iBuf[:index])
+	n, e := cobs.Decode(p.b, p.iBuf[:index]) // if index is 0, an empty buffer is decoded
 	if e != nil {
-		fmt.Println("inconsistent COBS buffer:", p.iBuf[:index+1])
+		fmt.Println("inconsistent (T)COBS buffer:", p.iBuf[:index+1]) // show also terminating 0
 	}
 	p.iBuf = p.iBuf[index+1:] // step forward (next package data in p.iBuf now, if any)
-	p.b = p.b[:n]             // decoded trice COBS packages have a multiple of 4 len
-	if n&3 != 0 {
-		dump(p.w, p.b)
-		fmt.Fprintln(p.w, "ERROR:Decoded trice COBS package has not expected  multiple of 4 len. The len is", n) // exit
-		n = 0
-		p.b = p.b[:0]
-		return
-	}
+	p.b = p.b[:n]
+	//  if n&3 != 0 { // decoded trice COBS packages have a multiple of 4 len
+	//  	dump(p.w, p.b)
+	//  	fmt.Fprintln(p.w, "ERROR:Decoded trice COBS package has not expected  multiple of 4 len. The len is", n) // exit
+	//  	n = 0
+	//  	p.b = p.b[:0]
+	//  	return
+	//  }
 
 	if DebugOut { // Debug output
 		fmt.Fprint(p.w, "-> PKG:  ")
@@ -206,42 +206,42 @@ func (p *cobsDec) nextCOBSPackage() {
 		}
 	}
 
-	if n >= 4 {
-		p.COBSModeDescriptor = p.readU32(p.b)
-		p.b = p.b[4:] // drop COBS package descriptor
-	}
+	//  if n >= 4 {
+	//  	p.COBSModeDescriptor = p.readU32(p.b)
+	//  	p.b = p.b[4:] // drop COBS package descriptor
+	//  }
 }
 
-func (p *cobsDec) handleCOBSModeDescriptor() error {
-	switch p.COBSModeDescriptor {
-	case 0: // nothing to do
-		targetTimestampExists = false
-		targetLocationExists = false
-		return nil
-	case 1:
-		targetTimestamp = p.readU32(p.b)
-		targetTimestampExists = true
-		targetLocationExists = false
-		p.b = p.b[4:] // drop target timestamp
-		return nil
-	case 2:
-		targetLocation = p.readU32(p.b)
-		targetTimestampExists = false
-		targetLocationExists = true
-		p.b = p.b[4:] // drop target location
-		return nil
-	case 3:
-		targetLocation = p.readU32(p.b)
-		targetTimestamp = p.readU32(p.b[4:])
-		targetTimestampExists = true
-		targetLocationExists = true
-		p.b = p.b[8:] // drop target location & timestamp
-		return nil
-	}
-	err := fmt.Errorf("Info:Unknown COBS packet with descriptor 0x%08x and len %d \n(((as ASCII:\"%s\")))", p.COBSModeDescriptor, len(p.b), string(p.b))
-	p.b = p.b[:0] // clear buffer
-	return err
-}
+//  func (p *cobsDec) handleCOBSModeDescriptor() error {
+//  	switch p.COBSModeDescriptor {
+//  	case 0: // nothing to do
+//  		targetTimestampExists = false
+//  		targetLocationExists = false
+//  		return nil
+//  	case 1:
+//  		targetTimestamp = p.readU32(p.b)
+//  		targetTimestampExists = true
+//  		targetLocationExists = false
+//  		p.b = p.b[4:] // drop target timestamp
+//  		return nil
+//  	case 2:
+//  		targetLocation = p.readU32(p.b)
+//  		targetTimestampExists = false
+//  		targetLocationExists = true
+//  		p.b = p.b[4:] // drop target location
+//  		return nil
+//  	case 3:
+//  		targetLocation = p.readU32(p.b)
+//  		targetTimestamp = p.readU32(p.b[4:])
+//  		targetTimestampExists = true
+//  		targetLocationExists = true
+//  		p.b = p.b[8:] // drop target location & timestamp
+//  		return nil
+//  	}
+//  	err := fmt.Errorf("Info:Unknown COBS packet with descriptor 0x%08x and len %d \n(((as ASCII:\"%s\")))", p.COBSModeDescriptor, len(p.b), string(p.b))
+//  	p.b = p.b[:0] // clear buffer
+//  	return err
+//  }
 
 // Read is the provided read method for COBS decoding and provides next string as byte slice.
 //
@@ -258,32 +258,32 @@ func (p *cobsDec) handleCOBSModeDescriptor() error {
 // In case of a not matching cycle, a warning message in trice format is prefixed.
 // In case of invalid package data, error messages in trice format are returned and the package is dropped.
 func (p *cobsDec) Read(b []byte) (n int, err error) {
-	minPkgSize := headSize
-	if targetTimestampExists {
-		minPkgSize += 4
-	}
-	if targetLocationExists {
-		minPkgSize += 4
-	}
-	if len(p.b) < minPkgSize { // last decoded COBS package exhausted
+	//  minPkgSize := headSize
+	//  if targetTimestampExists {
+	//  	minPkgSize += 4
+	//  }
+	//  if targetLocationExists {
+	//  	minPkgSize += 4
+	//  }
+	if len(p.b) < headSize { // last decoded COBS package exhausted
 		p.nextCOBSPackage()
 	}
-	if len(p.b) < minPkgSize { // not enough data for a next package
+	if len(p.b) < headSize { // not enough data for a next package
 		return
 	}
 
-	// Inside p.pkg is here one or a partial package, what means one or more trice messages.
-	if len(p.b) < 4 {
-		n += copy(b[n:], fmt.Sprintln("ERROR:package len", len(p.b), "is too short - ignoring package", p.b))
-		n += copy(b[n:], fmt.Sprintln(hints))
-		return
-	}
-	err = p.handleCOBSModeDescriptor()
-	if err != nil {
-		n += copy(b[n:], fmt.Sprintln(err))
-		return // ignore package
-	}
-	head := p.readU32(p.b)
+	//  // Inside p.pkg is here one or a partial package, what means one or more trice messages.
+	//  if len(p.b) < 4 {
+	//  	n += copy(b[n:], fmt.Sprintln("ERROR:package len", len(p.b), "is too short - ignoring package", p.b))
+	//  	n += copy(b[n:], fmt.Sprintln(hints))
+	//  	return
+	//  }
+	//  err = p.handleCOBSModeDescriptor()
+	//  if err != nil {
+	//  	n += copy(b[n:], fmt.Sprintln(err))
+	//  	return // ignore package
+	//  }
+	head := p.readU16(p.b) // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<< hier weiter !!!!!!!!!!!!!!!!!!!!!!
 
 	// cycle counter automatic & check
 	cycle := uint8(head)
