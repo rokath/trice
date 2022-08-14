@@ -397,7 +397,7 @@ uint16_t ReadTick16( void );
 
 //! id writes 14-bit id with 01 as most significant bits, followed by a 32-bit timestamp.
 //! 01iiiiiiI (NC) | ...
-#define id(n) TRICE_PUT16(  0x4000|(n));                   
+#define id(n) TRICE_PUT16(  0x4000|(n));
 
 //! CNTC writes 7-bit byte count and 8-bit cycle counter.
 #define CNTC(count) TRICE_PUT16( ((count)<<8) | TRICE_CYCLE );
