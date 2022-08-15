@@ -21,7 +21,7 @@ import (
 	"github.com/rokath/trice/pkg/cobs"
 )
 
-var (
+const (
 	// headSize is 4; each trice message starts with a head of 4 bytes.
 	headSize = 4
 )
@@ -51,14 +51,6 @@ func New(w io.Writer, lut id.TriceIDLookUp, m *sync.RWMutex, li id.TriceIDLookUp
 	p.Li = li
 	p.Endian = endian
 	return p
-}
-
-// dump prints the byte slice as hex in one line
-func dump(w io.Writer, b []byte) {
-	for _, x := range b {
-		fmt.Fprintf(w, "%02x ", x)
-	}
-	fmt.Fprintln(w, "")
 }
 
 // nextCOBSPackage reads with an inner reader a COBS encoded byte stream.
@@ -93,7 +85,7 @@ func (p *cobsDec) nextCOBSPackage() {
 	// here a complete COBS package exists
 	if decoder.DebugOut { // Debug output
 		fmt.Fprint(p.W, "COBS: ")
-		dump(p.W, p.IBuf[:index+1])
+		decoder.Dump(p.W, p.IBuf[:index+1])
 	}
 
 	p.B = make([]byte, decoder.DefaultSize)
@@ -104,7 +96,7 @@ func (p *cobsDec) nextCOBSPackage() {
 	p.IBuf = p.IBuf[index+1:] // step forward (next package data in p.IBuf now, if any)
 	p.B = p.B[:n]             // decoded trice COBS packages have a multiple of 4 len
 	if n&3 != 0 {
-		dump(p.W, p.B)
+		decoder.Dump(p.W, p.B)
 		fmt.Fprintln(p.W, "ERROR:Decoded trice COBS package has not expected  multiple of 4 len. The len is", n) // exit
 		n = 0
 		p.B = p.B[:0]
@@ -113,14 +105,14 @@ func (p *cobsDec) nextCOBSPackage() {
 
 	if decoder.DebugOut { // Debug output
 		fmt.Fprint(p.W, "-> PKG:  ")
-		dump(p.W, p.B)
+		decoder.Dump(p.W, p.B)
 	}
 
 	if cipher.Password != "" { // encrypted
 		cipher.Decrypt(p.B, p.B)
 		if decoder.DebugOut { // Debug output
 			fmt.Fprint(p.W, "-> DEC:  ")
-			dump(p.W, p.B)
+			decoder.Dump(p.W, p.B)
 		}
 	}
 
@@ -243,7 +235,7 @@ func (p *cobsDec) Read(b []byte) (n int, err error) {
 	}
 	if decoder.DebugOut {
 		fmt.Fprint(p.W, "TRICE -> ")
-		dump(p.W, p.B[:p.TriceSize])
+		decoder.Dump(p.W, p.B[:p.TriceSize])
 	}
 	var ok bool
 	p.LutMutex.RLock()

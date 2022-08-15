@@ -6,6 +6,7 @@ package decoder
 
 import (
 	"encoding/binary"
+	"fmt"
 	"io"
 	"regexp"
 	"strings"
@@ -209,4 +210,12 @@ func UReplaceN(i string) (o string, u []int) {
 		}
 		u = append(u, 1) // keep sign in all other cases(also negative values)
 	}
+}
+
+// Dump prints the byte slice as hex in one line
+func Dump(w io.Writer, b []byte) {
+	for _, x := range b {
+		fmt.Fprintf(w, "%02x ", x)
+	}
+	fmt.Fprintln(w, "")
 }

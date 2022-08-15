@@ -19,6 +19,7 @@ import (
 	"github.com/rokath/trice/internal/id"
 	"github.com/rokath/trice/internal/keybcmd"
 	"github.com/rokath/trice/internal/receiver"
+	"github.com/rokath/trice/internal/trexDecoder"
 	"github.com/rokath/trice/pkg/msg"
 )
 
@@ -67,8 +68,8 @@ func Translate(w io.Writer, sw *emitter.TriceLineComposer, lut id.TriceIDLookUp,
 		//  case "COBSFF":
 		//  	dec = newCOBSDecoder(w, lut, m, rc, endian)
 		//  	cobsVariantDecode = cobsFFDecode
-	//case "TREX":
-	//	dec = newTREXDecoder(w, lut, m, rwc, endian)
+	case "TREX":
+		dec = trexDecoder.New(w, lut, m, rwc, endian)
 	case "CHAR":
 		dec = charDecoder.New(w, lut, m, li, rwc, endian)
 	case "DUMP":
