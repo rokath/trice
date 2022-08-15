@@ -6,33 +6,17 @@ package decoder
 
 import (
 	"encoding/binary"
-	"fmt"
 	"io"
-	"log"
-	"os"
-	"os/signal"
 	"regexp"
 	"strings"
 	"sync"
-	"syscall"
-	"time"
 
-	"github.com/rokath/trice/internal/emitter"
 	"github.com/rokath/trice/internal/id"
-	"github.com/rokath/trice/internal/keybcmd"
-	"github.com/rokath/trice/internal/receiver"
-	"github.com/rokath/trice/pkg/msg"
 )
 
 const (
 	// defaultSize is the beginning receive and sync buffer size.
-	defaultSize = 64 * 1014
-
-	// littleEndian is true for little endian trice data.
-	littleEndian = true
-
-	// bigEndian is the flag value for target endianness.
-	bigEndian = false
+	DefaultSize = 64 * 1014
 
 	// patNextFormatSpecifier is a regex to find next format specifier in a string (exclude %%*) and ignoring %s
 	//
@@ -70,11 +54,8 @@ const (
 	// It does also match %%t positions!
 	patNextFormatPointerSpecifier = `%p` // assumes no `%%` inside string!
 
-	// headSize is 4; each trice message starts with a head of 4 bytes.
-	headSize = 4
-
 	// hints is the help information in case of errors.
-	hints = "att:Hints:Baudrate? Encoding? Interrupt? Overflow? Parameter count? Password? til.json? Version?"
+	Hints = "att:Hints:Baudrate? Encoding? Interrupt? Overflow? Parameter count? Password? til.json? Version?"
 )
 
 var (
@@ -87,15 +68,15 @@ var (
 	//// ShowLoc is used as format string for displaying the first trice ID at the start of each line if not "".
 	//ShowLoc string
 
-	// lastTriceID is last decoded ID. It is used for switch -showID.
-	lastTriceID id.TriceID
+	// decoder.LastTriceID is last decoded ID. It is used for switch -showID.
+	LastTriceID id.TriceID
 
 	// Encoding describes the way the byte stream is coded.
-	Encoding string
+	// Encoding string
 
 	// TargetEndianness if bigEndian assumes a big endian encoded trice stream from the target.
 	// To keep target load small, the encoded trice stream from the target matches the target endianess, what us usually littleEndian.
-	TargetEndianness string
+	// TargetEndianness string
 
 	// TestTableMode is a special option for easy decoder test table generation.
 	TestTableMode bool
@@ -113,17 +94,17 @@ var (
 
 	DebugOut                        = false // DebugOut enables debug information.
 	DumpLineByteCount               int     // DumpLineByteCount is the bytes per line for the dumpDec decoder.
-	initialCycle                    = true  // initialCycle is a helper for the cycle counter automatic.
-	targetTimestamp                 uint32  // targetTimestamp contains target specific timestamp value.
-	targetLocation                  uint32  // targetLocation contains 16 bit file id in high and 16 bit line number in low part.
+	InitialCycle                    = true  // InitialCycle is a helper for the cycle counter automatic.
+	TargetTimestamp                 uint32  // targetTimestamp contains target specific timestamp value.
+	TargetLocation                  uint32  // targetLocation contains 16 bit file id in high and 16 bit line number in low part.
 	ShowTargetTimestamp             string  // ShowTargetTimestamp is the format string for target timestamps.
 	LocationInformationFormatString string  // LocationInformationFormatString is the format string for target location: line number and file name.
-	targetTimestampExists           bool    // targetTimestampExists is set in dependence of p.COBSModeDescriptor.
-	targetLocationExists            bool    // targetLocationExists is set in dependence of p.COBSModeDescriptor.
+	TargetTimestampExists           bool    // targetTimestampExists is set in dependence of p.COBSModeDescriptor.
+	TargetLocationExists            bool    // targetLocationExists is set in dependence of p.COBSModeDescriptor.
 )
 
 // newDecoder abstracts the function type for a new decoder.
-type newDecoder func(out io.Writer, lut id.TriceIDLookUp, m *sync.RWMutex, li id.TriceIDLookUpLI, in io.Reader, endian bool) Decoder
+// stype newDecoder func(out io.Writer, lut id.TriceIDLookUp, m *sync.RWMutex, li id.TriceIDLookUpLI, in io.Reader, endian bool) Decoder
 
 // Decoder is providing a byte reader returning decoded trice's.
 // setInput allows switching the input stream to a different source.
@@ -132,20 +113,20 @@ type Decoder interface {
 	setInput(io.Reader)
 }
 
-// decoderData is the common data struct for all decoders.
-type decoderData struct {
-	w          io.Writer          // io.Stdout or the like
-	in         io.Reader          // in is the inner reader, which is used to get raw bytes
-	iBuf       []byte             // iBuf holds unprocessed (raw) bytes for interpretation.
-	b          []byte             // read buffer holds a single decoded COBS package, which can contain several trices.
-	endian     bool               // endian is true for LittleEndian and false for BigEndian
-	triceSize  int                // trice head and payload size as number of bytes
-	paramSpace int                // trice payload size after head
-	sLen       int                // string length for TRICE_S
-	lut        id.TriceIDLookUp   // id look-up map for translation
-	lutMutex   *sync.RWMutex      // to avoid concurrent map read and map write during map refresh triggered by filewatcher
-	li         id.TriceIDLookUpLI // location information map
-	trice      id.TriceFmt        // id.TriceFmt // received trice
+// DecoderData is the common data struct for all decoders.
+type DecoderData struct {
+	W          io.Writer          // io.Stdout or the like
+	In         io.Reader          // in is the inner reader, which is used to get raw bytes
+	IBuf       []byte             // iBuf holds unprocessed (raw) bytes for interpretation.
+	B          []byte             // read buffer holds a single decoded COBS package, which can contain several trices.
+	Endian     bool               // endian is true for LittleEndian and false for BigEndian
+	TriceSize  int                // trice head and payload size as number of bytes
+	ParamSpace int                // trice payload size after head
+	SLen       int                // string length for TRICE_S
+	Lut        id.TriceIDLookUp   // id look-up map for translation
+	LutMutex   *sync.RWMutex      // to avoid concurrent map read and map write during map refresh triggered by filewatcher
+	Li         id.TriceIDLookUpLI // location information map
+	Trice      id.TriceFmt        // id.TriceFmt // received trice
 	//lastInnerRead     time.Time
 	//innerReadInterval time.Duration
 }
@@ -153,206 +134,42 @@ type decoderData struct {
 // setInput allows switching the input stream to a different source.
 //
 // This function is for easier testing with cycle counters.
-func (p *decoderData) setInput(r io.Reader) {
-	p.in = r
+func (p *DecoderData) setInput(r io.Reader) {
+	p.In = r
 }
 
-// handleSIGTERM is called on CTRL-C shutdown.
-func handleSIGTERM(w io.Writer, rc io.ReadCloser) {
-	// prepare CTRL-C shutdown reaction
-	sigs := make(chan os.Signal, 1)
-	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
-	ticker := time.NewTicker(50 * time.Millisecond)
-	for {
-		select {
-		case sig := <-sigs: // wait for a signal
-			if Verbose {
-				fmt.Fprintln(w, "####################################", sig, "####################################")
-			}
-			emitter.PrintColorChannelEvents(w)
-			msg.FatalOnErr(rc.Close())
-			os.Exit(0) // end
-		case <-ticker.C:
-		}
-	}
-}
-
-// Translate performs the trice log task.
-//
-// Bytes are read with rc. Then according decoder.Encoding they are translated into strings.
-// Each read returns the amount of bytes for one trice. rc is called on every
-// Translate returns true on io.EOF or false on hard read error or sigterm.
-func Translate(w io.Writer, sw *emitter.TriceLineComposer, lut id.TriceIDLookUp, m *sync.RWMutex, li id.TriceIDLookUpLI, rwc io.ReadWriteCloser) error {
-	var dec Decoder //io.Reader
-	if Verbose {
-		fmt.Fprintln(w, "Encoding is", Encoding)
-	}
-	var endian bool
-	switch TargetEndianness {
-	case "littleEndian":
-		endian = littleEndian
-	case "bigEndian":
-		endian = bigEndian
-	default:
-		log.Fatalf(fmt.Sprintln("unknown endianness ", TargetEndianness, "-accepting litteEndian or bigEndian."))
-	}
-	switch strings.ToUpper(Encoding) {
-	case "COBS":
-		dec = newCOBSDecoder(w, lut, m, li, rwc, endian)
-		//cobsVariantDecode = cobs.Decode
-		//  case "COBSFF":
-		//  	dec = newCOBSDecoder(w, lut, m, rc, endian)
-		//  	cobsVariantDecode = cobsFFDecode
-	//case "TREX":
-	//	dec = newTREXDecoder(w, lut, m, rwc, endian)
-	case "CHAR":
-		dec = newCHARDecoder(w, lut, m, li, rwc, endian)
-	case "DUMP":
-		dec = newDUMPDecoder(w, lut, m, li, rwc, endian)
-	default:
-		log.Fatalf(fmt.Sprintln("unknown encoding ", Encoding))
-	}
-	if emitter.DisplayRemote {
-		keybcmd.ReadInput(rwc)
-	} else {
-		go handleSIGTERM(w, rwc)
-	}
-	return decodeAndComposeLoop(w, sw, dec, lut, li)
-}
-
-// decodeAndComposeLoop does not return.
-func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec Decoder, lut id.TriceIDLookUp, li id.TriceIDLookUpLI) error {
-	b := make([]byte, defaultSize) // intermediate trice string buffer
-	bufferReadStartTime := time.Now()
-	sleepCounter := 0
-	for {
-		n, err := dec.Read(b) // Code to measure, dec.Read can return n=0 in some cases and then wait.
-
-		if err != io.EOF && err != nil {
-			log.Fatal(err)
-		}
-
-		if n == 0 {
-			if receiver.Port == "FILEBUFFER" /*&& err == io.EOF*/ && time.Since(bufferReadStartTime) > 100*time.Millisecond { // do not wait if a predefined buffer
-				if len(sw.Line) > 0 {
-					_, _ = sw.Write([]byte(`\n`)) // add newline as line end to display any started line
-				}
-				msg.OnErr(err)
-				return io.EOF
-			}
-			//  if Verbose {
-			//  	fmt.Fprintln(w, err, "-> WAITING...")
-			//  }
-			sleepCounter++
-			if sleepCounter > 100 {
-				time.Sleep(100 * time.Millisecond)
-				sleepCounter = 0
-			}
-			continue // read again
-		}
-
-		// b contains here none or several complete trice strings.
-		// If several, they end with a newline each, despite the last one which optionally ends with a newline.
-		start := time.Now()
-
-		// Filtering is done here to suppress the loc, timestamp and id display as well for the filtered items.
-		n = emitter.BanOrPickFilter(b[:n]) // todo: b can contain several trices - handle that!
-
-		if n > 0 { // s.th. to write out
-			var logLineStart bool // logLineStart is a helper flag for log line start detection
-			if len(sw.Line) == 0 {
-				logLineStart = true
-			}
-
-			if logLineStart && id.LIFnJSON != "off" && id.LIFnJSON != "none" {
-				s := locationInformation(lastTriceID, li)
-				_, err := sw.Write([]byte(s))
-				msg.OnErr(err)
-			}
-
-			// If target location & enabled and line start, write target location.
-			if logLineStart && targetLocationExists && LocationInformationFormatString != "off" && LocationInformationFormatString != "none" {
-				targetFileID := id.TriceID(targetLocation >> 16)
-				t := lut[targetFileID]
-				targetFile := t.Strg
-				s := fmt.Sprintf(LocationInformationFormatString, targetFile, 0xffff&targetLocation)
-				_, err := sw.Write([]byte(s))
-				msg.OnErr(err)
-			}
-
-			// If target timestamp & enabled and line start, write target timestamp.
-			if logLineStart && targetTimestampExists && ShowTargetTimestamp != "" {
-				s := fmt.Sprintf(ShowTargetTimestamp, targetTimestamp)
-				_, err := sw.Write([]byte(s))
-				msg.OnErr(err)
-			}
-
-			// write ID only if enabled and line start.
-			if logLineStart && ShowID != "" {
-				s := fmt.Sprintf(ShowID, lastTriceID)
-				_, err := sw.Write([]byte(s))
-				msg.OnErr(err)
-			}
-			_, err := sw.Write(b[:n])
-			msg.OnErr(err)
-		}
-
-		duration := time.Since(start).Milliseconds()
-		if duration > 100 {
-			fmt.Fprintln(w, "TriceLineComposer.Write duration =", duration, "ms.")
-		}
-		//msg.InfoOnErr(err, fmt.Sprintln("sw.Write wrote", m, "bytes"))
-	}
-}
-
-// locationInformation returns optional location information for id.
-func locationInformation(tid id.TriceID, li id.TriceIDLookUpLI) string {
-	if li != nil && LocationInformationFormatString != "off" && LocationInformationFormatString != "none" {
-		if li, ok := li[tid]; ok {
-			return fmt.Sprintf(LocationInformationFormatString, li.File, li.Line)
-		} else {
-			return fmt.Sprintf(LocationInformationFormatString, "", 0)
-		}
-	} else {
-		if Verbose {
-			return fmt.Sprintf("wrn:no li ")
-		}
-	}
-	return ""
-}
-
-// readU16 returns the 2 b bytes as uint16 according the specified endianness
-func (p *decoderData) readU16(b []byte) uint16 {
-	if p.endian {
+// ReadU16 returns the 2 b bytes as uint16 according the specified endianness
+func (p *DecoderData) ReadU16(b []byte) uint16 {
+	if p.Endian {
 		return binary.LittleEndian.Uint16(b)
 	}
 	return binary.BigEndian.Uint16(b)
 }
 
-// readU32 returns the 4 b bytes as uint32 according the specified endianness
-func (p *decoderData) readU32(b []byte) uint32 {
-	if p.endian {
+// ReadU32 returns the 4 b bytes as uint32 according the specified endianness
+func (p *DecoderData) ReadU32(b []byte) uint32 {
+	if p.Endian {
 		return binary.LittleEndian.Uint32(b)
 	}
 	return binary.BigEndian.Uint32(b)
 }
 
-// readU64 returns the 8 b bytes as uint64 according the specified endianness
-func (p *decoderData) readU64(b []byte) uint64 {
-	if p.endian {
+// ReadU64 returns the 8 b bytes as uint64 according the specified endianness
+func (p *DecoderData) ReadU64(b []byte) uint64 {
+	if p.Endian {
 		return binary.LittleEndian.Uint64(b)
 	}
 	return binary.BigEndian.Uint64(b)
 }
 
-// uReplaceN checks all format specifier in i and replaces %nu with %nd and returns that result as o.
+// UReplaceN checks all format specifier in i and replaces %nu with %nd and returns that result as o.
 //
 // If a replacement took place on position k u[k] is 1. Afterwards len(u) is amount of found format specifiers.
 // Additional, if UnsignedHex is true, for FormatX specifiers u[k] is also 1.
 // If a float format specifier was found at position k, u[k] is 2,
 // http://www.cplusplus.com/reference/cstdio/printf/
 // https://www.codingunit.com/printf-format-specifiers-format-conversions-and-formatted-output
-func uReplaceN(i string) (o string, u []int) {
+func UReplaceN(i string) (o string, u []int) {
 	o = i
 	i = strings.ReplaceAll(i, "%%", "__") // this makes regex easier and faster
 	var offset int

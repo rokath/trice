@@ -1,7 +1,7 @@
 // Copyright 2020 Thomas.Hoehenleitner [at] seerose.net
 // Use of this source code is governed by a license that can be found in the LICENSE file.
 
-package decoder
+package escDecoder
 
 import (
 	"encoding/binary"
@@ -10,22 +10,23 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/rokath/trice/internal/decoder"
 	"github.com/rokath/trice/internal/id"
 )
 
 // Esc is the Decoding instance for esc encoded trices.
 type Esc struct {
-	decoderData
+	decoder.DecoderData
 	bc int // trice specific bytes count
 }
 
 // NewEscDecoder provides an EscDecoder instance.
 // l is the trice id list in slice of struct format.
 // in is the usable reader for the input bytes.
-func NewEscDecoder(lut id.TriceIDLookUp, m *sync.RWMutex, in io.Reader, endian bool) Decoder {
+func NewEscDecoder(lut id.TriceIDLookUp, m *sync.RWMutex, in io.Reader, endian bool) decoder.Decoder {
 	p := &Esc{}
 	p.in = in
-	p.iBuf = make([]byte, 0, defaultSize)
+	p.iBuf = make([]byte, 0, decoder.DefaultSize)
 	p.lut = lut
 	p.lutMutex = m
 	p.endian = endian // esc format is only big endian
@@ -38,11 +39,11 @@ func NewEscDecoder(lut id.TriceIDLookUp, m *sync.RWMutex, in io.Reader, endian b
 // n is the count of read bytes inside b.
 // Read returns one trice string or nothing.
 func (p *Esc) Read(b []byte) (n int, err error) {
-	sizeMsg := fmt.Sprintln("e:buf too small, expecting", defaultSize, "bytes.")
+	sizeMsg := fmt.Sprintln("e:buf too small, expecting", decoder.DefaultSize, "bytes.")
 	if len(b) < len(sizeMsg) {
 		return
 	}
-	if len(b) < defaultSize {
+	if len(b) < decoder.DefaultSize {
 		n = copy(b, sizeMsg)
 		return
 	}
@@ -302,25 +303,25 @@ func (p *Esc) trice88() (n int, e error) {
 }
 
 func (p *Esc) trice161() (n int, e error) {
-	d0 := int16(p.readU16(p.iBuf[0:2])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
+	d0 := int16(p.ReadU16(p.iBuf[0:2])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
 	n = copy(p.b, fmt.Sprintf(p.trice.Strg, d0))
 	p.rub(p.bc)
 	return
 }
 
 func (p *Esc) trice162() (n int, e error) {
-	d0 := int16(p.readU16(p.iBuf[0:2])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	d1 := int16(p.readU16(p.iBuf[2:4])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
+	d0 := int16(p.ReadU16(p.iBuf[0:2])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
+	d1 := int16(p.ReadU16(p.iBuf[2:4])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
 	n = copy(p.b, fmt.Sprintf(p.trice.Strg, d0, d1))
 	p.rub(p.bc)
 	return
 }
 
 func (p *Esc) trice163() (n int, e error) {
-	d0 := int16(p.readU16(p.iBuf[0:2])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	d1 := int16(p.readU16(p.iBuf[2:4])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	d2 := int16(p.readU16(p.iBuf[4:6])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	d3 := int16(p.readU16(p.iBuf[6:8])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
+	d0 := int16(p.ReadU16(p.iBuf[0:2])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
+	d1 := int16(p.ReadU16(p.iBuf[2:4])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
+	d2 := int16(p.ReadU16(p.iBuf[4:6])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
+	d3 := int16(p.ReadU16(p.iBuf[6:8])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
 	if 0 != d3 {
 		return p.outOfSync("padding bytes not zero")
 	}
@@ -330,35 +331,35 @@ func (p *Esc) trice163() (n int, e error) {
 }
 
 func (p *Esc) trice164() (n int, e error) {
-	d0 := int16(p.readU16(p.iBuf[0:2])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	d1 := int16(p.readU16(p.iBuf[2:4])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	d2 := int16(p.readU16(p.iBuf[4:6])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	d3 := int16(p.readU16(p.iBuf[6:8])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
+	d0 := int16(p.ReadU16(p.iBuf[0:2])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
+	d1 := int16(p.ReadU16(p.iBuf[2:4])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
+	d2 := int16(p.ReadU16(p.iBuf[4:6])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
+	d3 := int16(p.ReadU16(p.iBuf[6:8])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
 	n = copy(p.b, fmt.Sprintf(p.trice.Strg, d0, d1, d2, d3))
 	p.rub(p.bc)
 	return
 }
 
 func (p *Esc) trice321() (n int, e error) {
-	d0 := int32(p.readU32(p.iBuf[0:4])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
+	d0 := int32(p.ReadU32(p.iBuf[0:4])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
 	n = copy(p.b, fmt.Sprintf(p.trice.Strg, d0))
 	p.rub(p.bc)
 	return
 }
 
 func (p *Esc) trice322() (n int, e error) {
-	d0 := int32(p.readU32(p.iBuf[0:4])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	d1 := int32(p.readU32(p.iBuf[4:8])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
+	d0 := int32(p.ReadU32(p.iBuf[0:4])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
+	d1 := int32(p.ReadU32(p.iBuf[4:8])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
 	n = copy(p.b, fmt.Sprintf(p.trice.Strg, d0, d1))
 	p.rub(p.bc)
 	return
 }
 
 func (p *Esc) trice323() (n int, e error) {
-	d0 := int32(p.readU32(p.iBuf[0:4]))   // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	d1 := int32(p.readU32(p.iBuf[4:8]))   // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	d2 := int32(p.readU32(p.iBuf[8:12]))  // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	d3 := int32(p.readU32(p.iBuf[12:16])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
+	d0 := int32(p.ReadU32(p.iBuf[0:4]))   // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
+	d1 := int32(p.ReadU32(p.iBuf[4:8]))   // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
+	d2 := int32(p.ReadU32(p.iBuf[8:12]))  // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
+	d3 := int32(p.ReadU32(p.iBuf[12:16])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
 	if 0 != d3 {
 		return p.outOfSync("padding bytes not zero")
 	}
@@ -368,25 +369,25 @@ func (p *Esc) trice323() (n int, e error) {
 }
 
 func (p *Esc) trice324() (n int, e error) {
-	d0 := int32(p.readU32(p.iBuf[0:4]))   // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	d1 := int32(p.readU32(p.iBuf[4:8]))   // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	d2 := int32(p.readU32(p.iBuf[8:12]))  // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	d3 := int32(p.readU32(p.iBuf[12:16])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
+	d0 := int32(p.ReadU32(p.iBuf[0:4]))   // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
+	d1 := int32(p.ReadU32(p.iBuf[4:8]))   // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
+	d2 := int32(p.ReadU32(p.iBuf[8:12]))  // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
+	d3 := int32(p.ReadU32(p.iBuf[12:16])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
 	n = copy(p.b, fmt.Sprintf(p.trice.Strg, d0, d1, d2, d3))
 	p.rub(p.bc)
 	return
 }
 
 func (p *Esc) trice641() (n int, e error) {
-	d0 := int64(p.readU64(p.iBuf[0:8])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
+	d0 := int64(p.ReadU64(p.iBuf[0:8])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
 	n = copy(p.b, fmt.Sprintf(p.trice.Strg, d0))
 	p.rub(p.bc)
 	return
 }
 
 func (p *Esc) trice642() (n int, e error) {
-	d0 := int64(p.readU64(p.iBuf[0:8]))  // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
-	d1 := int64(p.readU64(p.iBuf[8:16])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
+	d0 := int64(p.ReadU64(p.iBuf[0:8]))  // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
+	d1 := int64(p.ReadU64(p.iBuf[8:16])) // to do: parse for %nu, exchange with %nd and use than uint8 instead of int8
 	n = copy(p.b, fmt.Sprintf(p.trice.Strg, d0, d1))
 	p.rub(p.bc)
 	return

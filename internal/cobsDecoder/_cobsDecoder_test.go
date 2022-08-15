@@ -1,7 +1,7 @@
 // Copyright 2020 Thomas.Hoehenleitner [at] seerose.net
 // Use of this source code is governed by a license that can be found in the LICENSE file.
 
-package decoder
+package cobsDecoder
 
 import (
 	"bytes"
@@ -42,7 +42,7 @@ func doCOBSTableTest(t *testing.T, out io.Writer, f newDecoder, endianness bool,
 	luM := new(sync.RWMutex)
 	assert.Nil(t, lu.FromJSON([]byte(idl)))
 	lu.AddFmtCount(os.Stdout)
-	buf := make([]byte, defaultSize)
+	buf := make([]byte, decoder.DefaultSize)
 	dec := f(out, lu, luM, nil, nil, endianness) // a new decoder instance
 	for _, x := range teTa {
 		in := ioutil.NopCloser(bytes.NewBuffer(x.in))
@@ -57,7 +57,7 @@ func doCOBSTableTest(t *testing.T, out io.Writer, f newDecoder, endianness bool,
 				break
 			}
 			if ShowID != "" && lineStart {
-				act += fmt.Sprintf(ShowID, lastTriceID)
+				act += fmt.Sprintf(ShowID, decoder.LastTriceID)
 			}
 			act += fmt.Sprint(string(buf[:n]))
 			lineStart = false

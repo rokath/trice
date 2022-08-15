@@ -1,4 +1,4 @@
-package decoder
+package dumpDecoder
 
 import (
 	"bytes"
@@ -14,7 +14,7 @@ import (
 // doTableTest is the universal decoder test sequence.
 func doDUMPtableTest(t *testing.T, out io.Writer, f newDecoder, endianness bool, teTa testTable) {
 	for _, x := range teTa {
-		buf := make([]byte, defaultSize)
+		buf := make([]byte, decoder.DefaultSize)
 		dec := f(out, nil, nil, nil, nil, endianness) // a new decoder instance
 		in := ioutil.NopCloser(bytes.NewBuffer(x.in))
 		dec.setInput(in)

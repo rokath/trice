@@ -1,7 +1,7 @@
 // Copyright 2020 Thomas.Hoehenleitner [at] seerose.net
 // Use of this source code is governed by a license that can be found in the LICENSE file.
 
-package decoder
+package flexDecoder
 
 import (
 	"fmt"
@@ -10,6 +10,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/rokath/trice/internal/decoder"
 	"github.com/rokath/trice/internal/emitter"
 	"github.com/rokath/trice/internal/id"
 	"github.com/rokath/trice/pkg/cipher"
@@ -17,7 +18,7 @@ import (
 
 // Flex is the Decoding instance for bare encoded trices.
 type Flex struct {
-	decoderData
+	decoder.DecoderData
 	syncPacket     string
 	d0, d1, d2, d3 uint32 // read raw data
 	cycle          int
@@ -31,11 +32,11 @@ type Flex struct {
 // l is the trice id list in slice of struct format.
 // in is the usable reader for the input bytes.
 // littleEndian is false on normal network order.
-func NewFlexDecoder(lut id.TriceIDLookUp, m *sync.RWMutex, in io.Reader, endian bool) Decoder {
+func NewFlexDecoder(lut id.TriceIDLookUp, m *sync.RWMutex, in io.Reader, endian bool) decoder.Decoder {
 	p := &Flex{}
 	p.in = in
-	p.rBuf = make([]byte, 0, defaultSize) // read buffer
-	p.iBuf = make([]byte, 0, defaultSize) // interpret buffer
+	p.rBuf = make([]byte, 0, decoder.DefaultSize) // read buffer
+	p.iBuf = make([]byte, 0, decoder.DefaultSize) // interpret buffer
 	p.lut = lut
 	p.lutMutex = m
 	p.endian = endian
@@ -97,7 +98,7 @@ func (p *Flex) Read(b []byte) (n int, err error) {
 	if len(p.iBuf) < 4 {
 		return // wait
 	}
-	head := p.readU32(p.iBuf[0:4])
+	head := p.ReadU32(p.iBuf[0:4])
 	if 0x89abcdef == head {
 		return p.syncTrice()
 	}
@@ -149,7 +150,7 @@ func (p *Flex) mediumAndLongSubEncoding(head uint32) (n int, err error) {
 		if len(p.iBuf) < 8 {
 			return // wait
 		}
-		countTransfer := p.readU32(p.iBuf[4:8])
+		countTransfer := p.ReadU32(p.iBuf[4:8])
 		count16 := int16(countTransfer >> 16)
 		count16invers := int16(countTransfer)
 		if count16 != ^count16invers {
@@ -194,16 +195,16 @@ func (p *Flex) readDataAndCheckPaddingBytes(cnt int) (ok bool) {
 	case "TRICE0":
 		return true
 	case "TRICE32_4", "TRICE64_2":
-		p.d3 = p.readU32(b[16:20])
+		p.d3 = p.ReadU32(b[16:20])
 		fallthrough
 	case "TRICE32_3":
-		p.d2 = p.readU32(b[12:16])
+		p.d2 = p.ReadU32(b[12:16])
 		fallthrough
 	case "TRICE8_8", "TRICE16_4", "TRICE32_2", "TRICE64_1":
-		p.d1 = p.readU32(b[8:12])
+		p.d1 = p.ReadU32(b[8:12])
 		fallthrough
 	case "TRICE8_4", "TRICE16_2", "TRICE32_1":
-		p.d0 = p.readU32(b[4:8])
+		p.d0 = p.ReadU32(b[4:8])
 		return true // no padding bytes
 	case "TRICE_S":
 		x := 3 & cnt
@@ -218,7 +219,7 @@ func (p *Flex) readDataAndCheckPaddingBytes(cnt int) (ok bool) {
 			ok = 0 == b[4+cnt] && 0 == b[1+4+cnt] && 0 == b[2+4+cnt]
 		}
 	default:
-		p.d0 = p.readU32(b[4:8])
+		p.d0 = p.ReadU32(b[4:8])
 		switch tt {
 		case "TRICE8_1":
 			ok = p.d0 < (1 << 8)
@@ -227,7 +228,7 @@ func (p *Flex) readDataAndCheckPaddingBytes(cnt int) (ok bool) {
 		case "TRICE8_3":
 			ok = p.d0 < (1 << 24)
 		default:
-			p.d1 = p.readU32(b[8:12])
+			p.d1 = p.ReadU32(b[8:12])
 			switch tt {
 			case "TRICE8_5":
 				ok = p.d1 < (1 << 8)

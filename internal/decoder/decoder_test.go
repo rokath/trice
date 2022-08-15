@@ -16,7 +16,7 @@ func doTableTest(t *testing.T, f newDecoder, endianness bool, teTa testTable) {
 	luM := new(sync.RWMutex)
 	assert.Nil(t, lu.FromJSON([]byte(til)))
 	lu.AddFmtCount(os.Stdout)
-	buf := make([]byte, defaultSize)
+	buf := make([]byte, decoder.DefaultSize)
 	dec := f(lu, luM, nil, endianness) // p is a new decoder instance
 	for _, x := range teTa {
 		in := ioutil.NopCloser(bytes.NewBuffer(x.in))

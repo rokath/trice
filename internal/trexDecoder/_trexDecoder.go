@@ -14,6 +14,7 @@ import (
 	"sync"
 	"unsafe"
 
+	"github.com/rokath/trice/internal/decoder"
 	"github.com/rokath/trice/internal/emitter"
 	"github.com/rokath/trice/internal/id"
 	"github.com/rokath/trice/pkg/cipher"
@@ -22,23 +23,23 @@ import (
 
 // trexDec is the Decoding instance for trex encoded trices.
 type trexDec struct {
-	decoderData
+	decoder.DecoderData
 	cycle uint8  // cycle date: c0...bf
 	pFmt  string // modified trice format string: %u -> %d
 	u     []int  // 1: modified format string positions:  %u -> %d, 2: float (%f)
 }
 
-// newTREXDecoder provides a TREX decoder instance.
+// newDecoder provides a TREX decoder instance.
 //
 // l is the trice id list in slice of struct format.
 // in is the usable reader for the input bytes.
-func newTREXDecoder(w io.Writer, lut id.TriceIDLookUp, m *sync.RWMutex, in io.Reader, endian bool) Decoder {
+func newDecoder(w io.Writer, lut id.TriceIDLookUp, m *sync.RWMutex, in io.Reader, endian bool) Decoder {
 	p := &trexDec{}
 	p.cycle = 0xc0 // start value
 	p.w = w
 	p.in = in
-	p.iBuf = make([]byte, 0, defaultSize)
-	p.b = make([]byte, 0, defaultSize)
+	p.iBuf = make([]byte, 0, decoder.DefaultSize)
+	p.b = make([]byte, 0, decoder.DefaultSize)
 	p.lut = lut
 	p.lutMutex = m
 	p.endian = endian
@@ -80,7 +81,7 @@ func (p *trexDec) nextCOBSPackage() {
 		dump(p.w, p.iBuf[:index+1])
 	}
 
-	p.b = make([]byte, defaultSize)
+	p.b = make([]byte, decoder.DefaultSize)
 	n, e := cobs.Decode(p.b, p.iBuf[:index]) // if index is 0, an empty buffer is decoded
 	if e != nil {
 		fmt.Println("inconsistent (T)COBS buffer:", p.iBuf[:index+1]) // show also terminating 0
@@ -141,7 +142,7 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 	//  // Inside p.pkg is here one or a partial package, what means one or more trice messages.
 	//  if len(p.b) < 4 {
 	//  	n += copy(b[n:], fmt.Sprintln("ERROR:package len", len(p.b), "is too short - ignoring package", p.b))
-	//  	n += copy(b[n:], fmt.Sprintln(hints))
+	//  	n += copy(b[n:], fmt.Sprintln(decoder.Hints))
 	//  	return
 	//  }
 	//  err = p.handleCOBSModeDescriptor()
@@ -149,25 +150,25 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 	//  	n += copy(b[n:], fmt.Sprintln(err))
 	//  	return // ignore package
 	//  }
-	head := p.readU16(p.b) // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<< hier weiter !!!!!!!!!!!!!!!!!!!!!!
+	head := p.ReadU16(p.b) // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<< hier weiter !!!!!!!!!!!!!!!!!!!!!!
 
 	// cycle counter automatic & check
 	cycle := uint8(head)
-	if cycle == 0xc0 && p.cycle != 0xc0 && initialCycle { // with cycle counter and seems to be a target reset
+	if cycle == 0xc0 && p.cycle != 0xc0 && decoder.InitialCycle { // with cycle counter and seems to be a target reset
 		n += copy(b[n:], fmt.Sprintln("warning:   Target Reset?   "))
 		p.cycle = cycle + 1 // adjust cycle
-		initialCycle = false
+		decoder.InitialCycle = false
 	}
-	if cycle == 0xc0 && p.cycle != 0xc0 && !initialCycle { // with cycle counter and seems to be a target reset
+	if cycle == 0xc0 && p.cycle != 0xc0 && !decoder.InitialCycle { // with cycle counter and seems to be a target reset
 		//n += copy(b[n:], fmt.Sprintln("info:   Target Reset?   ")) // todo: This line is ok with cycle counter but not without cycle counter
 		p.cycle = cycle + 1 // adjust cycle
 	}
-	if cycle == 0xc0 && p.cycle == 0xc0 && initialCycle { // with or without cycle counter and seems to be a target reset
+	if cycle == 0xc0 && p.cycle == 0xc0 && decoder.InitialCycle { // with or without cycle counter and seems to be a target reset
 		//n += copy(b[n:], fmt.Sprintln("warning:   Restart?   "))
 		p.cycle = cycle + 1 // adjust cycle
-		initialCycle = false
+		decoder.InitialCycle = false
 	}
-	if cycle == 0xc0 && p.cycle == 0xc0 && !initialCycle { // with or without cycle counter and seems to be a normal case
+	if cycle == 0xc0 && p.cycle == 0xc0 && !decoder.InitialCycle { // with or without cycle counter and seems to be a normal case
 		p.cycle = cycle + 1 // adjust cycle
 	}
 	if cycle != 0xc0 { // with cycle counter and s.th. lost
@@ -175,43 +176,43 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 			n += copy(b[n:], fmt.Sprintln("CYCLE:", cycle, "not equal expected value", p.cycle, "- adjusting. Now", emitter.ColorChannelEvents("CYCLE")+1, "CycleEvents"))
 			p.cycle = cycle // adjust cycle
 		}
-		initialCycle = false
+		decoder.InitialCycle = false
 		p.cycle++
 	}
 
-	p.paramSpace = int((0x0000FF00 & head) >> 6)
-	p.triceSize = headSize + p.paramSpace
+	p.ParamSpace = int((0x0000FF00 & head) >> 6)
+	p.TriceSize = headSize + p.ParamSpace
 	triceID := id.TriceID(uint16(head >> 16))
-	lastTriceID = triceID // used for showID
-	if len(p.b) < p.triceSize {
-		n += copy(b[n:], fmt.Sprintln("ERROR:package len", len(p.b), "is <", p.triceSize, " - ignoring package", p.b))
-		n += copy(b[n:], fmt.Sprintln(hints))
+	decoder.LastTriceID = triceID // used for showID
+	if len(p.b) < p.TriceSize {
+		n += copy(b[n:], fmt.Sprintln("ERROR:package len", len(p.b), "is <", p.TriceSize, " - ignoring package", p.b))
+		n += copy(b[n:], fmt.Sprintln(decoder.Hints))
 		p.b = p.b[len(p.b):]
 		return
 	}
 	if DebugOut {
 		fmt.Fprint(p.w, "TRICE -> ")
-		dump(p.w, p.b[:p.triceSize])
+		dump(p.w, p.b[:p.TriceSize])
 	}
 	var ok bool
 	p.lutMutex.RLock()
 	p.trice, ok = p.lut[triceID]
 	p.lutMutex.RUnlock()
 	if !ok {
-		n += copy(b[n:], fmt.Sprintln("WARNING:unknown ID ", triceID, "- ignoring trice", p.b[:p.triceSize]))
-		n += copy(b[n:], fmt.Sprintln(hints))
-		p.b = p.b[p.triceSize:]
+		n += copy(b[n:], fmt.Sprintln("WARNING:unknown ID ", triceID, "- ignoring trice", p.b[:p.TriceSize]))
+		n += copy(b[n:], fmt.Sprintln(decoder.Hints))
+		p.b = p.b[p.TriceSize:]
 		return
 	}
 	p.b = p.b[headSize:] // drop used head info
 
 	n += p.sprintTrice(b[n:]) // use param info
-	if len(p.b) < p.paramSpace {
+	if len(p.b) < p.ParamSpace {
 		n += copy(b[n:], fmt.Sprintln("ERROR:ignoring data garbage"))
-		n += copy(b[n:], fmt.Sprintln(hints))
+		n += copy(b[n:], fmt.Sprintln(decoder.Hints))
 		p.b = p.b[:0]
 	} else {
-		p.b = p.b[p.paramSpace:] // drop param info
+		p.b = p.b[p.ParamSpace:] // drop param info
 	}
 	return
 }
@@ -219,56 +220,56 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 // sprintTrice writes a trice string or appropriate message into b and returns that len.
 func (p *trexDec) sprintTrice(b []byte) (n int) {
 
-	if p.trice.Type == "TRICE_S" { // patch table paramSpace in that case
-		p.sLen = int(p.readU32(p.b))
-		cobsFunctionPtrList[0].paramSpace = (p.sLen + 7) & ^3 // +4 for 4 bytes sLen, +3^3 is alignment to 4
+	if p.trice.Type == "TRICE_S" { // patch table ParamSpace in that case
+		p.sLen = int(p.ReadU32(p.b))
+		cobsFunctionPtrList[0].ParamSpace = (p.sLen + 7) & ^3 // +4 for 4 bytes sLen, +3^3 is alignment to 4
 	}
-	if p.trice.Type == "TRICE_N" { // patch table paramSpace in that case
-		p.sLen = int(p.readU32(p.b))
-		cobsFunctionPtrList[1].paramSpace = (p.sLen + 7) & ^3 // +4 for 4 bytes sLen, +3^3 is alignment to 4
+	if p.trice.Type == "TRICE_N" { // patch table ParamSpace in that case
+		p.sLen = int(p.ReadU32(p.b))
+		cobsFunctionPtrList[1].ParamSpace = (p.sLen + 7) & ^3 // +4 for 4 bytes sLen, +3^3 is alignment to 4
 	}
-	if p.trice.Type == "TRICE_B" { // patch table paramSpace in that case
-		p.sLen = int(p.readU32(p.b))
-		cobsFunctionPtrList[2].paramSpace = (p.sLen + 7) & ^3 // +4 for 4 bytes sLen, +3^3 is alignment to 4
+	if p.trice.Type == "TRICE_B" { // patch table ParamSpace in that case
+		p.sLen = int(p.ReadU32(p.b))
+		cobsFunctionPtrList[2].ParamSpace = (p.sLen + 7) & ^3 // +4 for 4 bytes sLen, +3^3 is alignment to 4
 	}
-	if p.trice.Type == "TRICE8_B" { // patch table paramSpace in that case
-		p.sLen = int(p.readU32(p.b))
-		cobsFunctionPtrList[3].paramSpace = (p.sLen + 7) & ^3 // +4 for 4 bytes sLen, +3^3 is alignment to 4
+	if p.trice.Type == "TRICE8_B" { // patch table ParamSpace in that case
+		p.sLen = int(p.ReadU32(p.b))
+		cobsFunctionPtrList[3].ParamSpace = (p.sLen + 7) & ^3 // +4 for 4 bytes sLen, +3^3 is alignment to 4
 	}
-	if p.trice.Type == "TRICE16_B" { // patch table paramSpace in that case
-		p.sLen = int(p.readU32(p.b))
-		cobsFunctionPtrList[4].paramSpace = (p.sLen + 7) & ^3 // +4 for 4 bytes sLen, +3^3 is alignment to 4
+	if p.trice.Type == "TRICE16_B" { // patch table ParamSpace in that case
+		p.sLen = int(p.ReadU32(p.b))
+		cobsFunctionPtrList[4].ParamSpace = (p.sLen + 7) & ^3 // +4 for 4 bytes sLen, +3^3 is alignment to 4
 	}
-	if p.trice.Type == "TRICE32_B" { // patch table paramSpace in that case
-		p.sLen = int(p.readU32(p.b))
-		cobsFunctionPtrList[5].paramSpace = (p.sLen + 7) & ^3 // +4 for 4 bytes sLen, +3^3 is alignment to 4
+	if p.trice.Type == "TRICE32_B" { // patch table ParamSpace in that case
+		p.sLen = int(p.ReadU32(p.b))
+		cobsFunctionPtrList[5].ParamSpace = (p.sLen + 7) & ^3 // +4 for 4 bytes sLen, +3^3 is alignment to 4
 	}
-	if p.trice.Type == "TRICE64_B" { // patch table paramSpace in that case
-		p.sLen = int(p.readU32(p.b))
-		cobsFunctionPtrList[6].paramSpace = (p.sLen + 7) & ^3 // +4 for 4 bytes sLen, +3^3 is alignment to 4
+	if p.trice.Type == "TRICE64_B" { // patch table ParamSpace in that case
+		p.sLen = int(p.ReadU32(p.b))
+		cobsFunctionPtrList[6].ParamSpace = (p.sLen + 7) & ^3 // +4 for 4 bytes sLen, +3^3 is alignment to 4
 	}
-	if p.trice.Type == "TRICE_F" { // patch table paramSpace in that case
-		p.sLen = int(p.readU32(p.b))
-		cobsFunctionPtrList[7].paramSpace = (p.sLen + 7) & ^3 // +4 for 4 bytes sLen, +3^3 is alignment to 4
+	if p.trice.Type == "TRICE_F" { // patch table ParamSpace in that case
+		p.sLen = int(p.ReadU32(p.b))
+		cobsFunctionPtrList[7].ParamSpace = (p.sLen + 7) & ^3 // +4 for 4 bytes sLen, +3^3 is alignment to 4
 	}
-	if p.trice.Type == "TRICE8_F" { // patch table paramSpace in that case
-		p.sLen = int(p.readU32(p.b))
-		cobsFunctionPtrList[8].paramSpace = (p.sLen + 7) & ^3 // +4 for 4 bytes sLen, +3^3 is alignment to 4
+	if p.trice.Type == "TRICE8_F" { // patch table ParamSpace in that case
+		p.sLen = int(p.ReadU32(p.b))
+		cobsFunctionPtrList[8].ParamSpace = (p.sLen + 7) & ^3 // +4 for 4 bytes sLen, +3^3 is alignment to 4
 	}
-	if p.trice.Type == "TRICE16_F" { // patch table paramSpace in that case
-		p.sLen = int(p.readU32(p.b))
-		cobsFunctionPtrList[9].paramSpace = (p.sLen + 7) & ^3 // +4 for 4 bytes sLen, +3^3 is alignment to 4
+	if p.trice.Type == "TRICE16_F" { // patch table ParamSpace in that case
+		p.sLen = int(p.ReadU32(p.b))
+		cobsFunctionPtrList[9].ParamSpace = (p.sLen + 7) & ^3 // +4 for 4 bytes sLen, +3^3 is alignment to 4
 	}
-	if p.trice.Type == "TRICE32_F" { // patch table paramSpace in that case
-		p.sLen = int(p.readU32(p.b))
-		cobsFunctionPtrList[10].paramSpace = (p.sLen + 7) & ^3 // +4 for 4 bytes sLen, +3^3 is alignment to 4
+	if p.trice.Type == "TRICE32_F" { // patch table ParamSpace in that case
+		p.sLen = int(p.ReadU32(p.b))
+		cobsFunctionPtrList[10].ParamSpace = (p.sLen + 7) & ^3 // +4 for 4 bytes sLen, +3^3 is alignment to 4
 	}
-	if p.trice.Type == "TRICE64_F" { // patch table paramSpace in that case
-		p.sLen = int(p.readU32(p.b))
-		cobsFunctionPtrList[11].paramSpace = (p.sLen + 7) & ^3 // +4 for 4 bytes sLen, +3^3 is alignment to 4
+	if p.trice.Type == "TRICE64_F" { // patch table ParamSpace in that case
+		p.sLen = int(p.ReadU32(p.b))
+		cobsFunctionPtrList[11].ParamSpace = (p.sLen + 7) & ^3 // +4 for 4 bytes sLen, +3^3 is alignment to 4
 	}
 
-	p.pFmt, p.u = uReplaceN(p.trice.Strg)
+	p.pFmt, p.u = decoder.UReplaceN(p.trice.Strg)
 
 	var triceType string                           // need to reconstruct full TRICE info, if not exist in type string
 	if strings.HasPrefix(p.trice.Type, "TRICE_") { // when no bitwidth, insert it
@@ -286,23 +287,23 @@ func (p *trexDec) sprintTrice(b []byte) (n int) {
 
 	for _, s := range cobsFunctionPtrList { // walk through the list and try to find a match for execution
 		if s.triceType == p.trice.Type || s.triceType == triceType { // match list entry "TRICE..."
-			if s.paramSpace == p.paramSpace { // size ok
-				if len(p.b) < p.paramSpace {
-					n += copy(b[n:], fmt.Sprintln("err:len(p.b) =", len(p.b), "< p.paramSpace = ", p.paramSpace, "- ignoring package", p.b[:len(p.b)]))
-					n += copy(b[n:], fmt.Sprintln(hints))
+			if s.ParamSpace == p.ParamSpace { // size ok
+				if len(p.b) < p.ParamSpace {
+					n += copy(b[n:], fmt.Sprintln("err:len(p.b) =", len(p.b), "< p.ParamSpace = ", p.ParamSpace, "- ignoring package", p.b[:len(p.b)]))
+					n += copy(b[n:], fmt.Sprintln(decoder.Hints))
 					return
 				}
 				n += s.triceFn(p, b, s.bitWidth, s.paramCount) // match found, call handler
 				return
 			} else { // size error
-				n += copy(b[n:], fmt.Sprintln("err:trice.Type", p.trice.Type, ": s.paramSpace", s.paramSpace, "!= p.paramSpace", p.paramSpace, "- ignoring data", p.b[:p.paramSpace]))
-				n += copy(b[n:], fmt.Sprintln(hints))
+				n += copy(b[n:], fmt.Sprintln("err:trice.Type", p.trice.Type, ": s.ParamSpace", s.ParamSpace, "!= p.ParamSpace", p.ParamSpace, "- ignoring data", p.b[:p.ParamSpace]))
+				n += copy(b[n:], fmt.Sprintln(decoder.Hints))
 				return
 			}
 		}
 	}
-	n += copy(b[n:], fmt.Sprintln("err:Unknown trice.Type:", p.trice.Type, "and", triceType, "not matching - ignoring trice data", p.b[:p.paramSpace]))
-	n += copy(b[n:], fmt.Sprintln(hints))
+	n += copy(b[n:], fmt.Sprintln("err:Unknown trice.Type:", p.trice.Type, "and", triceType, "not matching - ignoring trice data", p.b[:p.ParamSpace]))
+	n += copy(b[n:], fmt.Sprintln(decoder.Hintsdecoder.LastTriceIDdecoder.LastTriceID))
 	return
 }
 
@@ -310,26 +311,26 @@ func (p *trexDec) sprintTrice(b []byte) (n int) {
 type triceTypeFn struct {
 	triceType  string                                              // triceType describes if parameters, the parameter bit width or if the parameter is a string.
 	triceFn    func(p *trexDec, b []byte, bitwidth, count int) int // triceFn performs the conversion to the output string.
-	paramSpace int                                                 // paramSpace is the count of bytes allocated for the parameters.
+	ParamSpace int                                                 // ParamSpace is the count of bytes allocated for the parameters.
 	bitWidth   int                                                 // bitWidth is the individual parameter width.
 	paramCount int                                                 // paramCount is the amount pf parameters for the format string, which must match the count of format specifiers.
 }
 
 // cobsFunctionPtrList is a function pointer list.
 var cobsFunctionPtrList = [...]triceTypeFn{
-	{"TRICE_S", (*trexDec).triceS, -1, 0, 0},     // do not remove from first position, see cobsFunctionPtrList[0].paramSpace = ...
-	{"TRICE_N", (*trexDec).triceN, -1, 0, 0},     // do not remove from 2nd position, see cobsFunctionPtrList[1].paramSpace = ...
-	{"TRICE_B", (*trexDec).trice8B, -1, 0, 0},    // do not remove from 3rd position, see cobsFunctionPtrList[2].paramSpace = ...
-	{"TRICE8_B", (*trexDec).trice8B, -1, 0, 0},   // do not remove from 4th position, see cobsFunctionPtrList[3].paramSpace = ...
-	{"TRICE16_B", (*trexDec).trice16B, -1, 0, 0}, // do not remove from 4th position, see cobsFunctionPtrList[4].paramSpace = ...
-	{"TRICE32_B", (*trexDec).trice32B, -1, 0, 0}, // do not remove from 4th position, see cobsFunctionPtrList[5].paramSpace = ...
-	{"TRICE64_B", (*trexDec).trice64B, -1, 0, 0}, // do not remove from 4th position, see cobsFunctionPtrList[6].paramSpace = ...
+	{"TRICE_S", (*trexDec).triceS, -1, 0, 0},     // do not remove from first position, see cobsFunctionPtrList[0].ParamSpace = ...
+	{"TRICE_N", (*trexDec).triceN, -1, 0, 0},     // do not remove from 2nd position, see cobsFunctionPtrList[1].ParamSpace = ...
+	{"TRICE_B", (*trexDec).trice8B, -1, 0, 0},    // do not remove from 3rd position, see cobsFunctionPtrList[2].ParamSpace = ...
+	{"TRICE8_B", (*trexDec).trice8B, -1, 0, 0},   // do not remove from 4th position, see cobsFunctionPtrList[3].ParamSpace = ...
+	{"TRICE16_B", (*trexDec).trice16B, -1, 0, 0}, // do not remove from 4th position, see cobsFunctionPtrList[4].ParamSpace = ...
+	{"TRICE32_B", (*trexDec).trice32B, -1, 0, 0}, // do not remove from 4th position, see cobsFunctionPtrList[5].ParamSpace = ...
+	{"TRICE64_B", (*trexDec).trice64B, -1, 0, 0}, // do not remove from 4th position, see cobsFunctionPtrList[6].ParamSpace = ...
 
-	{"TRICE_F", (*trexDec).trice8F, -1, 0, 0},    // do not remove from 4th position, see cobsFunctionPtrList[7].paramSpace = ...
-	{"TRICE8_F", (*trexDec).trice8F, -1, 0, 0},   // do not remove from 4th position, see cobsFunctionPtrList[8].paramSpace = ...
-	{"TRICE16_F", (*trexDec).trice16F, -1, 0, 0}, // do not remove from 4th position, see cobsFunctionPtrList[9].paramSpace = ...
-	{"TRICE32_F", (*trexDec).trice32F, -1, 0, 0}, // do not remove from 4th position, see cobsFunctionPtrList[10].paramSpace = ...
-	{"TRICE64_F", (*trexDec).trice64F, -1, 0, 0}, // do not remove from 4th position, see cobsFunctionPtrList[11].paramSpace = ...
+	{"TRICE_F", (*trexDec).trice8F, -1, 0, 0},    // do not remove from 4th position, see cobsFunctionPtrList[7].ParamSpace = ...
+	{"TRICE8_F", (*trexDec).trice8F, -1, 0, 0},   // do not remove from 4th position, see cobsFunctionPtrList[8].ParamSpace = ...
+	{"TRICE16_F", (*trexDec).trice16F, -1, 0, 0}, // do not remove from 4th position, see cobsFunctionPtrList[9].ParamSpace = ...
+	{"TRICE32_F", (*trexDec).trice32F, -1, 0, 0}, // do not remove from 4th position, see cobsFunctionPtrList[10].ParamSpace = ...
+	{"TRICE64_F", (*trexDec).trice64F, -1, 0, 0}, // do not remove from 4th position, see cobsFunctionPtrList[11].ParamSpace = ...
 
 	{"TRICE32_0", (*trexDec).trice0, 0, 0, 0},
 	{"TRICE0", (*trexDec).trice0, 0, 0, 0},
@@ -535,7 +536,7 @@ func (p *trexDec) unSignedOrSignedOut(b []byte, bitwidth, count int) int {
 		}
 	case 16:
 		for i, f := range p.u {
-			n := p.readU16(p.b[2*i:])
+			n := p.ReadU16(p.b[2*i:])
 			switch f {
 			case 0:
 				v[i] = n
@@ -551,7 +552,7 @@ func (p *trexDec) unSignedOrSignedOut(b []byte, bitwidth, count int) int {
 		}
 	case 32:
 		for i, f := range p.u {
-			n := p.readU32(p.b[4*i:])
+			n := p.ReadU32(p.b[4*i:])
 			switch f {
 			case 0:
 				v[i] = n
@@ -569,7 +570,7 @@ func (p *trexDec) unSignedOrSignedOut(b []byte, bitwidth, count int) int {
 		}
 	case 64:
 		for i, f := range p.u {
-			n := p.readU64(p.b[8*i:])
+			n := p.ReadU64(p.b[8*i:])
 			switch f {
 			case 0:
 				v[i] = n

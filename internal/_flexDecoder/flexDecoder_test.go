@@ -1,7 +1,7 @@
 // Copyright 2020 Thomas.Hoehenleitner [at] seerose.net
 // Use of this source code is governed by a license that can be found in the LICENSE file.
 
-package decoder
+package flexDecoder
 
 import (
 	"bytes"
@@ -38,10 +38,10 @@ var uTable1 = []u1Table{
 
 func Test_trice81(t *testing.T) {
 	p := &Flex{}
-	p.b = make([]byte, defaultSize)
-	p.iBuf = make([]byte, defaultSize)
+	p.b = make([]byte, decoder.DefaultSize)
+	p.iBuf = make([]byte, decoder.DefaultSize)
 	for _, v := range uTable1 {
-		p.b = p.b[:defaultSize]
+		p.b = p.b[:decoder.DefaultSize]
 		p.trice.Strg = v.fmtStrg
 		p.d0 = v.value
 		exp := v.expStrg
@@ -69,10 +69,10 @@ var uTable2 = []u2Table{
 
 func Test_trice82(t *testing.T) {
 	p := &Flex{}
-	p.b = make([]byte, defaultSize)
-	p.iBuf = make([]byte, defaultSize)
+	p.b = make([]byte, decoder.DefaultSize)
+	p.iBuf = make([]byte, decoder.DefaultSize)
 	for _, v := range uTable2 {
-		p.b = p.b[:defaultSize]
+		p.b = p.b[:decoder.DefaultSize]
 		p.trice.Strg = v.fmtStrg
 		p.d0 = (v.v0 << 8) | v.v1
 		exp := v.expStrg
@@ -97,10 +97,10 @@ var uTable4 = []uNTable{
 
 func Test_trice84(t *testing.T) {
 	p := &Flex{}
-	p.b = make([]byte, defaultSize)
-	p.iBuf = make([]byte, defaultSize)
+	p.b = make([]byte, decoder.DefaultSize)
+	p.iBuf = make([]byte, decoder.DefaultSize)
 	for _, v := range uTable4 {
-		p.b = p.b[:defaultSize]
+		p.b = p.b[:decoder.DefaultSize]
 		p.trice.Strg = v.fmtStrg
 		p.d0 = (v.v[0] << 24) | (v.v[1] << 16) | (v.v[2] << 8) | v.v[3]
 		exp := v.expStrg
@@ -152,7 +152,7 @@ func Example_rub4() {
 	m := new(sync.RWMutex)
 	msg.OnErr(lut.FromJSON([]byte(til)))
 	lut.AddFmtCount()
-	buf := make([]byte, defaultSize)
+	buf := make([]byte, decoder.DefaultSize)
 	dec := NewFlexDecoder(lut, m, nil, LittleEndian) // p is a new decoder instance
 
 	table := testTable{
