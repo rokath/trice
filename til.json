@@ -351,6 +351,10 @@
 		"Type": "TRICE8_10",
 		"Strg": "rd:TRICE8_10 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
 	},
+	"10211": {
+		"Type": "TRICE0",
+		"Strg": "s:     \\n"
+	},
 	"10220": {
 		"Type": "TRICE",
 		"Strg": "INFO:cyan+b:default+h\\n"
@@ -406,6 +410,10 @@
 	"10263": {
 		"Type": "TRICE32",
 		"Strg": "att: Trice 2x half buffer size:%4u "
+	},
+	"10264": {
+		"Type": "TRICE0",
+		"Strg": "s:                                          \\n"
 	},
 	"10265": {
 		"Type": "TRICE",
@@ -1963,6 +1971,10 @@
 		"Type": "TRICE16",
 		"Strg": "rd:TRICE16 %p, %p, %p, %p\\n"
 	},
+	"11253": {
+		"Type": "TRICE32",
+		"Strg": "att: Trice 2x half buffer size:%4u "
+	},
 	"11258": {
 		"Type": "TRICE",
 		"Strg": "rd:TRICE float %+9f (%%9f)\\n"
@@ -2879,6 +2891,10 @@
 		"Type": "TRICE",
 		"Strg": "\\n"
 	},
+	"11855": {
+		"Type": "TRICE16",
+		"Strg": "MSG: 💚 START select = %d, TriceDepthMax =%4u\\n"
+	},
 	"11856": {
 		"Type": "TRICE8_4",
 		"Strg": "rd:TRICE8_4 %d, %d, %d, %d\\n"
@@ -3214,6 +3230,10 @@
 	"12107": {
 		"Type": "TRICE8_11",
 		"Strg": "tst:TRICE8_11 %d %d %d %d %d %d %d %d %d %d %d\\n"
+	},
+	"12109": {
+		"Type": "TRICE16",
+		"Strg": "MSG: ✅ STOP  select = %d, TriceDepthMax =%4u\\n"
 	},
 	"12111": {
 		"Type": "TRICE16",
@@ -4251,6 +4271,10 @@
 		"Type": "TRICE",
 		"Strg": "rd:TRICE %d, %d, %d, %d, %d, %d\\n"
 	},
+	"12707": {
+		"Type": "TRICE0",
+		"Strg": "s:                                          \\n"
+	},
 	"12710": {
 		"Type": "TRICE64_1",
 		"Strg": "rd:TRICE64_1 line %o (%%o)\\n"
@@ -4483,6 +4507,10 @@
 		"Type": "TRICE8_1",
 		"Strg": "tst:TRICE8_1 %d\\n"
 	},
+	"12849": {
+		"Type": "TRICE",
+		"Strg": "time: %d µs - ReadUs32() lasts %d ticks\\n"
+	},
 	"12852": {
 		"Type": "TRICE32_3",
 		"Strg": "tst:TRICE32_3 %u %u %u\\n"
@@ -4610,6 +4638,10 @@
 	"12921": {
 		"Type": "TRICE16",
 		"Strg": "tst:TRICE16 %d %d %d %d %d %d %d %d\\n"
+	},
+	"12922": {
+		"Type": "TRICE",
+		"Strg": "msg:x = %g = %d.%03d, %d.%03d\\n"
 	},
 	"12924": {
 		"Type": "TRICE16",
@@ -5911,6 +5943,10 @@
 		"Type": "TRICE",
 		"Strg": "sig:TRICE32 with 1 to 12 values\\n"
 	},
+	"13746": {
+		"Type": "TRICE",
+		"Strg": "att:...done\\n"
+	},
 	"13748": {
 		"Type": "TRICE0",
 		"Strg": "--------------------------------------------------\\n"
@@ -5962,6 +5998,10 @@
 	"13774": {
 		"Type": "TRICE",
 		"Strg": "sig:TRICE16 with 1 to 12 pointer\\n"
+	},
+	"13778": {
+		"Type": "TRICE32",
+		"Strg": "att:Single Trice Stack buf size:%4u"
 	},
 	"13779": {
 		"Type": "TRICE",
@@ -6238,6 +6278,10 @@
 	"13911": {
 		"Type": "TRICE8",
 		"Strg": "tst:TRICE8 %d %d %d %d %d %d %d %d %d %d %d %d\\n"
+	},
+	"13913": {
+		"Type": "TRICE",
+		"Strg": "WARNING:USARTq OverRun Error Flag is set!\\n"
 	},
 	"13914": {
 		"Type": "TRICE64_1",
@@ -7283,6 +7327,10 @@
 		"Type": "TRICE64_2",
 		"Strg": "tst:TRICE64_2 %u %u\\n"
 	},
+	"14506": {
+		"Type": "TRICE_S",
+		"Strg": "rx:received command:%s\\n"
+	},
 	"14515": {
 		"Type": "TRICE32",
 		"Strg": "rd:TRICE32 %d, %d, %d, %d, %d, %d, %d, %d\\n"
@@ -7338,6 +7386,10 @@
 	"14549": {
 		"Type": "TRICE64_7",
 		"Strg": "rd:TRICE64_7 %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"14555": {
+		"Type": "TRICE8",
+		"Strg": "s:     NUCLEO-G031K8     TRICE_MODE %3u     \\n"
 	},
 	"14557": {
 		"Type": "TRICE32",
@@ -7995,6 +8047,10 @@
 		"Type": "TRICE16",
 		"Strg": "rd:TRICE16 %X, %X, %X, %X\\n"
 	},
+	"14937": {
+		"Type": "TRICE_S",
+		"Strg": "att:Executing command %s ...\\n"
+	},
 	"14948": {
 		"Type": "TRICE64",
 		"Strg": "rd:TRICE64 double %e (%%e), aDouble(y)\\n"
@@ -8114,6 +8170,10 @@
 	"15015": {
 		"Type": "TRICE_N",
 		"Strg": "sig:TRICE_N=%s\\n\", \"Hello Buffer"
+	},
+	"15016": {
+		"Type": "TRICE0",
+		"Strg": "s:     "
 	},
 	"15017": {
 		"Type": "TRICE_S",
@@ -9103,6 +9163,10 @@
 		"Type": "TRICE16_6",
 		"Strg": "rd:TRICE16_6 %d, %d, %d, %d, %d, %d\\n"
 	},
+	"15592": {
+		"Type": "TRICE0",
+		"Strg": "s:                                          \\n"
+	},
 	"15593": {
 		"Type": "TRICE8_3",
 		"Strg": "tst:TRICE8_3  %d %d %d\\n"
@@ -9358,6 +9422,10 @@
 	"15746": {
 		"Type": "TRICE",
 		"Strg": "rd:TRICE float %+f (%%f)\\n"
+	},
+	"15753": {
+		"Type": "TRICE",
+		"Strg": "1/11 = %g\\n"
 	},
 	"15756": {
 		"Type": "TRICE16_3",
@@ -9758,5 +9826,73 @@
 	"16016": {
 		"Type": "TRICE0",
 		"Strg": "Hi16\\n"
+	},
+	"34499": {
+		"Type": "TRICE_S",
+		"Strg": "att:Executing command %s ...\\n"
+	},
+	"37395": {
+		"Type": "TRICE16",
+		"Strg": "MSG: ✅ STOP  select = %d, TriceDepthMax =%4u\\n"
+	},
+	"42314": {
+		"Type": "TRICE0",
+		"Strg": "s:                                          \\n"
+	},
+	"42954": {
+		"Type": "TRICE0",
+		"Strg": "s:                                          \\n"
+	},
+	"44635": {
+		"Type": "TRICE16",
+		"Strg": "MSG: 💚 START select = %d, TriceDepthMax =%4u\\n"
+	},
+	"45194": {
+		"Type": "TRICE",
+		"Strg": "WARNING:USARTq OverRun Error Flag is set!\\n"
+	},
+	"47328": {
+		"Type": "TRICE",
+		"Strg": "msg:x = %g = %d.%03d, %d.%03d\\n"
+	},
+	"47906": {
+		"Type": "TRICE_S",
+		"Strg": "rx:received command:%s\\n"
+	},
+	"48844": {
+		"Type": "TRICE0",
+		"Strg": "s:     "
+	},
+	"50403": {
+		"Type": "TRICE0",
+		"Strg": "s:                                          \\n"
+	},
+	"52925": {
+		"Type": "TRICE32",
+		"Strg": "att: Trice 2x half buffer size:%4u "
+	},
+	"53709": {
+		"Type": "TRICE0",
+		"Strg": "s:     \\n"
+	},
+	"54057": {
+		"Type": "TRICE",
+		"Strg": "time: %d µs - ReadUs32() lasts %d ticks\\n"
+	},
+	"54244": {
+		"Type": "TRICE8",
+		"Strg": "s:     NUCLEO-G031K8     TRICE_MODE %3u     \\n"
+	},
+	"63904": {
+		"Type": "TRICE",
+		"Strg": "att:...done\\n"
+	},
+	"64674": {
+		"Type": "TRICE",
+		"Strg": "1/11 = %g\\n"
+	},
+	"65405": {
+		"Type": "TRICE32",
+		"Strg": "att:Single Trice Stack buf size:%4u"
 	}
 }

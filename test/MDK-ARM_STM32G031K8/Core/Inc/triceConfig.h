@@ -91,20 +91,20 @@ extern uint32_t ReadTime( void );
 //
 
 #ifdef TRICE_HALF_BUFFER_SIZE
-#define TRICE_BUFFER_INFO do{ TRICE32( Id(0), "att: Trice 2x half buffer size:%4u ", TRICE_HALF_BUFFER_SIZE ); } while(0)
+#define TRICE_BUFFER_INFO do{ TRICE32( Id(11253), "att: Trice 2x half buffer size:%4u ", TRICE_HALF_BUFFER_SIZE ); } while(0)
 #else
-#define TRICE_BUFFER_INFO do{ TRICE32( Id(0), "att:Single Trice Stack buf size:%4u", TRICE_SINGLE_MAX_SIZE + TRICE_DATA_OFFSET ); } while(0)
+#define TRICE_BUFFER_INFO do{ TRICE32( Id(13778), "att:Single Trice Stack buf size:%4u", TRICE_SINGLE_MAX_SIZE + TRICE_DATA_OFFSET ); } while(0)
 #endif
 
 //! This is usable as the very first trice sequence after restart. Adapt and use it or ignore it.
 #define TRICE_HEADLINE \
-    TRICE0( Id(0), "s:                                          \n" ); \
-    TRICE8( Id(0), "s:     NUCLEO-G031K8     TRICE_MODE %3u     \n", TRICE_MODE ); \
-    TRICE0( Id(0), "s:                                          \n" ); \
-    TRICE0( Id(0), "s:     " ); \
+    TRICE0( Id(10264), "s:                                          \n" ); \
+    TRICE8( Id(14555), "s:     NUCLEO-G031K8     TRICE_MODE %3u     \n", TRICE_MODE ); \
+    TRICE0( Id(12707), "s:                                          \n" ); \
+    TRICE0( Id(15016), "s:     " ); \
     TRICE_BUFFER_INFO; \
-    TRICE0( Id(0), "s:     \n" ); \
-    TRICE0( Id(0), "s:                                          \n");
+    TRICE0( Id(10211), "s:     \n" ); \
+    TRICE0( Id(15592), "s:                                          \n");
 
 //
 ///////////////////////////////////////////////////////////////////////////////
