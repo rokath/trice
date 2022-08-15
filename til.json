@@ -9734,5 +9734,73 @@
 	"15998": {
 		"Type": "TRICE",
 		"Strg": "\\n"
+	},
+	"34640": {
+		"Type": "TRICE0",
+		"Strg": "s:                                          \\n"
+	},
+	"35376": {
+		"Type": "TRICE8",
+		"Strg": "s:     NUCLEO-G031K8     TRICE_MODE %3u     \\n"
+	},
+	"37130": {
+		"Type": "TRICE32",
+		"Strg": "att:Single Trice Stack buf size:%4u"
+	},
+	"38382": {
+		"Type": "TRICE",
+		"Strg": "msg:x = %g = %d.%03d, %d.%03d\\n"
+	},
+	"40126": {
+		"Type": "TRICE16",
+		"Strg": "MSG: ✅ STOP  select = %d, TriceDepthMax =%4u\\n"
+	},
+	"41052": {
+		"Type": "TRICE32",
+		"Strg": "att: Trice 2x half buffer size:%4u "
+	},
+	"46427": {
+		"Type": "TRICE0",
+		"Strg": "s:     \\n"
+	},
+	"47239": {
+		"Type": "TRICE",
+		"Strg": "time: %d µs - ReadUs32() lasts %d ticks\\n"
+	},
+	"48217": {
+		"Type": "TRICE_S",
+		"Strg": "att:Executing command %s ...\\n"
+	},
+	"50543": {
+		"Type": "TRICE16",
+		"Strg": "MSG: 💚 START select = %d, TriceDepthMax =%4u\\n"
+	},
+	"52064": {
+		"Type": "TRICE0",
+		"Strg": "s:     "
+	},
+	"56816": {
+		"Type": "TRICE0",
+		"Strg": "s:                                          \\n"
+	},
+	"57449": {
+		"Type": "TRICE0",
+		"Strg": "s:                                          \\n"
+	},
+	"58565": {
+		"Type": "TRICE_S",
+		"Strg": "rx:received command:%s\\n"
+	},
+	"59297": {
+		"Type": "TRICE",
+		"Strg": "WARNING:USARTq OverRun Error Flag is set!\\n"
+	},
+	"60363": {
+		"Type": "TRICE",
+		"Strg": "1/11 = %g\\n"
+	},
+	"64230": {
+		"Type": "TRICE",
+		"Strg": "att:...done\\n"
 	}
 }
