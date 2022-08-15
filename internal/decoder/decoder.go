@@ -65,18 +65,8 @@ var (
 	// ShowID is used as format string for displaying the first trice ID at the start of each line if not "".
 	ShowID string
 
-	//// ShowLoc is used as format string for displaying the first trice ID at the start of each line if not "".
-	//ShowLoc string
-
 	// decoder.LastTriceID is last decoded ID. It is used for switch -showID.
 	LastTriceID id.TriceID
-
-	// Encoding describes the way the byte stream is coded.
-	// Encoding string
-
-	// TargetEndianness if bigEndian assumes a big endian encoded trice stream from the target.
-	// To keep target load small, the encoded trice stream from the target matches the target endianess, what us usually littleEndian.
-	// TargetEndianness string
 
 	// TestTableMode is a special option for easy decoder test table generation.
 	TestTableMode bool

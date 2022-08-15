@@ -116,16 +116,16 @@ func (p *Flex) checkLookUpTable(triceID id.TriceID) (ok bool) {
 }
 
 func (p *Flex) smallSubEncoding(head uint32) (n int, err error) {
-	LastTriceID = id.TriceID(head >> 16) // bits 30...16 are the 15-bit ID
-	ok := p.checkLookUpTable(LastTriceID)
+	decoder.LastTriceID = id.TriceID(head >> 16) // bits 30...16 are the 15-bit ID
+	ok := p.checkLookUpTable(decoder.LastTriceID)
 	if !ok {
-		return p.outOfSync(fmt.Sprintf("unknown triceID %5d", LastTriceID))
+		return p.outOfSync(fmt.Sprintf("unknown triceID %5d", decoder.LastTriceID))
 	}
 	p.d0 = 0xffff & head
 	p.upperCaseTriceType = p.trice.Type // no conversion here, but a copy is needed
 	switch p.trice.Type {
 	case "TriceRRPC0", "TriceRRPC0i":
-		return p.triceRPC(LastTriceID, 0)
+		return p.triceRPC(decoder.LastTriceID, 0)
 	case "Trice0", "Trice0i":
 		return p.sprintTrice(0)
 	case "Trice8_1", "Trice8_1i":
@@ -135,9 +135,9 @@ func (p *Flex) smallSubEncoding(head uint32) (n int, err error) {
 }
 
 func (p *Flex) mediumAndLongSubEncoding(head uint32) (n int, err error) {
-	LastTriceID = id.TriceID(head >> (31 - 20)) // bits 30...11 are the 20-bit ID
-	count := int((0x00000700 & head) >> 8)      // this nibble is the 3-bit count
-	cycle := int(0x000000ff & head)             // least significant byte is the cycle
+	decoder.LastTriceID = id.TriceID(head >> (31 - 20)) // bits 30...11 are the 20-bit ID
+	count := int((0x00000700 & head) >> 8)              // this nibble is the 3-bit count
+	cycle := int(0x000000ff & head)                     // least significant byte is the cycle
 	var cycleWarning string
 	if cycle != 0xff&(p.cycle+1) { // lost trices or out of sync
 		if !p.cycleErrorFlag {
@@ -159,9 +159,9 @@ func (p *Flex) mediumAndLongSubEncoding(head uint32) (n int, err error) {
 		count = int(count16)
 	}
 
-	ok := p.checkLookUpTable(LastTriceID)
+	ok := p.checkLookUpTable(decoder.LastTriceID)
 	if !ok {
-		return p.outOfSync(fmt.Sprintf("unknown triceID %5d", LastTriceID))
+		return p.outOfSync(fmt.Sprintf("unknown triceID %5d", decoder.LastTriceID))
 	}
 	p.upperCaseTriceType = strings.ToUpper(p.trice.Type) // for trice* too
 	p.sCount = count                                     // keep for triceSCount
@@ -677,7 +677,7 @@ func (p *Flex) rub4(count int) {
 	if count > 4 {
 		n += 4 // add long count
 	}
-	if TestTableMode {
+	if decoder.TestTableMode {
 		p.printTestTableLine(n)
 	}
 	p.iBuf = p.iBuf[n:] // header and data

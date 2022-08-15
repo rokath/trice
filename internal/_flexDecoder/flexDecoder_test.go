@@ -11,6 +11,7 @@ import (
 	"sync"
 	"testing"
 
+	"github.com/rokath/trice/internal/decoder"
 	"github.com/rokath/trice/internal/emitter"
 	"github.com/rokath/trice/internal/id"
 	"github.com/rokath/trice/pkg/msg"
@@ -142,9 +143,9 @@ func TestFlex(t *testing.T) {
 
 func Example_rub4() {
 	glob.Lock()
-	TestTableMode = true
+	decoder.TestTableMode = true
 	defer func() {
-		TestTableMode = false // reset to default
+		decoder.TestTableMode = false // reset to default
 		glob.Unlock()
 	}()
 

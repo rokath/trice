@@ -31,7 +31,7 @@ func doTableTest(t *testing.T, f newDecoder, endianness bool, teTa testTable) {
 				break
 			}
 			if "" != ShowID && lineStart {
-				act += fmt.Sprintf(ShowID, LastTriceID)
+				act += fmt.Sprintf(ShowID, decoder.LastTriceID)
 			}
 			// a := fmt.Sprint(string(buf[:n]))
 			// if emitter.SyncPacketPattern != a { // todo: Handle ShowID in that case.

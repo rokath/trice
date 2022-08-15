@@ -222,6 +222,7 @@ func distributeArgs() io.Writer {
 	decoder.Verbose = verbose
 	emitter.Verbose = verbose
 	receiver.Verbose = verbose
+	translator.Verbose = verbose
 	emitter.TestTableMode = decoder.TestTableMode
 
 	w := triceOutput(os.Stdout, LogfileName)

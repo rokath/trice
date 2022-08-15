@@ -72,11 +72,11 @@ func (p *trexDec) nextCOBSPackage() {
 			return // no terminating 0, nothing to do
 		}
 	}
-	if TestTableMode {
+	if decoder.TestTableMode {
 		p.printTestTableLine(index + 1)
 	}
 	// here a complete COBS package exists
-	if DebugOut { // Debug output
+	if decoder.DebugOut { // Debug output
 		fmt.Fprint(p.w, "COBS: ")
 		dump(p.w, p.iBuf[:index+1])
 	}
@@ -96,14 +96,14 @@ func (p *trexDec) nextCOBSPackage() {
 	//  	return
 	//  }
 
-	if DebugOut { // Debug output
+	if decoder.DebugOut { // Debug output
 		fmt.Fprint(p.w, "-> PKG:  ")
 		dump(p.w, p.b)
 	}
 
 	if cipher.Password != "" { // encrypted
 		cipher.Decrypt(p.b, p.b)
-		if DebugOut { // Debug output
+		if decoder.DebugOut { // Debug output
 			fmt.Fprint(p.w, "-> DEC:  ")
 			dump(p.w, p.b)
 		}
@@ -190,7 +190,7 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 		p.b = p.b[len(p.b):]
 		return
 	}
-	if DebugOut {
+	if decoder.DebugOut {
 		fmt.Fprint(p.w, "TRICE -> ")
 		dump(p.w, p.b[:p.TriceSize])
 	}
@@ -303,7 +303,7 @@ func (p *trexDec) sprintTrice(b []byte) (n int) {
 		}
 	}
 	n += copy(b[n:], fmt.Sprintln("err:Unknown trice.Type:", p.trice.Type, "and", triceType, "not matching - ignoring trice data", p.b[:p.ParamSpace]))
-	n += copy(b[n:], fmt.Sprintln(decoder.Hintsdecoder.LastTriceIDdecoder.LastTriceID))
+	n += copy(b[n:], fmt.Sprintln(decoder.Hints))
 	return
 }
 
@@ -386,7 +386,7 @@ var cobsFunctionPtrList = [...]triceTypeFn{
 
 // triceS converts dynamic strings.
 func (p *trexDec) triceS(b []byte, _ int, _ int) int {
-	if DebugOut {
+	if decoder.DebugOut {
 		fmt.Fprintln(p.w, p.b)
 	}
 	s := p.b[4 : 4+p.sLen]
@@ -395,7 +395,7 @@ func (p *trexDec) triceS(b []byte, _ int, _ int) int {
 
 // triceB converts dynamic buffers.
 func (p *trexDec) trice8B(b []byte, _ int, _ int) (n int) {
-	if DebugOut {
+	if decoder.DebugOut {
 		fmt.Fprintln(p.w, p.b)
 	}
 	s := p.b[4 : 4+p.sLen]
@@ -407,7 +407,7 @@ func (p *trexDec) trice8B(b []byte, _ int, _ int) (n int) {
 
 // trice16B converts dynamic buffers.
 func (p *trexDec) trice16B(b []byte, _ int, _ int) (n int) {
-	if DebugOut {
+	if decoder.DebugOut {
 		fmt.Fprintln(p.w, p.b)
 	}
 	s := p.b[4 : 4+p.sLen]
@@ -419,7 +419,7 @@ func (p *trexDec) trice16B(b []byte, _ int, _ int) (n int) {
 
 // trice32B converts dynamic buffers.
 func (p *trexDec) trice32B(b []byte, _ int, _ int) (n int) {
-	if DebugOut {
+	if decoder.DebugOut {
 		fmt.Fprintln(p.w, p.b)
 	}
 	s := p.b[4 : 4+p.sLen]
@@ -431,7 +431,7 @@ func (p *trexDec) trice32B(b []byte, _ int, _ int) (n int) {
 
 // trice64B converts dynamic buffers.
 func (p *trexDec) trice64B(b []byte, _ int, _ int) (n int) {
-	if DebugOut {
+	if decoder.DebugOut {
 		fmt.Fprintln(p.w, p.b)
 	}
 	s := p.b[4 : 4+p.sLen]
@@ -443,7 +443,7 @@ func (p *trexDec) trice64B(b []byte, _ int, _ int) (n int) {
 
 // trice8F display function call with 8-bit parameters.
 func (p *trexDec) trice8F(b []byte, _ int, _ int) (n int) {
-	if DebugOut {
+	if decoder.DebugOut {
 		fmt.Fprintln(p.w, p.b)
 	}
 	s := p.b[4 : 4+p.sLen]
@@ -457,7 +457,7 @@ func (p *trexDec) trice8F(b []byte, _ int, _ int) (n int) {
 
 // trice16F display function call with 16-bit parameters.
 func (p *trexDec) trice16F(b []byte, _ int, _ int) (n int) {
-	if DebugOut {
+	if decoder.DebugOut {
 		fmt.Fprintln(p.w, p.b)
 	}
 	s := p.b[4 : 4+p.sLen]
@@ -471,7 +471,7 @@ func (p *trexDec) trice16F(b []byte, _ int, _ int) (n int) {
 
 // trice32F display function call with 32-bit parameters.
 func (p *trexDec) trice32F(b []byte, _ int, _ int) (n int) {
-	if DebugOut {
+	if decoder.DebugOut {
 		fmt.Fprintln(p.w, p.b)
 	}
 	s := p.b[4 : 4+p.sLen]
@@ -485,7 +485,7 @@ func (p *trexDec) trice32F(b []byte, _ int, _ int) (n int) {
 
 // trice64F display function call with 64-bit parameters.
 func (p *trexDec) trice64F(b []byte, _ int, _ int) (n int) {
-	if DebugOut {
+	if decoder.DebugOut {
 		fmt.Fprintln(p.w, p.b)
 	}
 	s := p.b[4 : 4+p.sLen]
@@ -499,7 +499,7 @@ func (p *trexDec) trice64F(b []byte, _ int, _ int) (n int) {
 
 // triceN converts dynamic strings.
 func (p *trexDec) triceN(b []byte, _ int, _ int) int {
-	if DebugOut {
+	if decoder.DebugOut {
 		fmt.Fprintln(p.w, p.b)
 	}
 	s := p.b[4 : 4+p.sLen]
