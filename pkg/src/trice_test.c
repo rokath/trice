@@ -4,7 +4,6 @@
 *******************************************************************************/
 #include "trice.h"
 #include "trice_test.h"
-#define TRICE_FILE Id(52024) 
 
 
 // SetTriceBuffer sets the internal triceBuffer pointer to buf. 

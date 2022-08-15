@@ -5,7 +5,6 @@
 #include <float.h>
 //#define TRICE_OFF // enable this line to disable trice code generation in this file object
 #include "trice.h"
-#define TRICE_FILE Id(14824)
 
 static int32_t FloatToInt32( float f );
 static int64_t DoubleToInt64( double f );

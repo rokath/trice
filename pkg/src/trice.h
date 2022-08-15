@@ -127,7 +127,7 @@ extern uint8_t TriceCycle;
 ///////////////////////////////////////////////////////////////////////////////
 
 #ifndef TRICE_PUT
-#define TRICE_PUT(x) do{ *TriceBufferWritePosition++ = x; }while(0) //! PUT copies a 32 bit x into the TRICE buffer.
+#define TRICE_PUT(x) do{ *TriceBufferWritePosition++ = (uint32_t)(x); }while(0) //! PUT copies a 32 bit x into the TRICE buffer.
 #endif
 
 #ifdef TRICE_BIG_ENDIANNESS
@@ -177,7 +177,6 @@ void triceServeTransmit(void);
 void triceTriggerTransmit(void);
 int TriceOutDepth( void );
 #endif
-
 
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -245,7 +244,6 @@ void TriceInitXteaTable(void);
 
 //
 ///////////////////////////////////////////////////////////////////////////////
-
 
 /* pre C99
 // aFloat returns passed float value x as bit pattern in a uint32_t type.
@@ -352,7 +350,7 @@ static inline uint64_t aDouble( double x ){
     uint32_t limit = TRICE_SINGLE_MAX_SIZE-TRICE_PREFIX_SIZE-8; /* 8 = head + len size */ \
     uint32_t len_ = n; /* n could be a constant */ \
     if( len_ > limit ){ \
-        TRICE32( Id(11767), "wrn:Transmit buffer truncated from %u to %u\n", len_, limit ); \
+        TRICE32( Id(14113), "wrn:Transmit buffer truncated from %u to %u\n", len_, limit ); \
         len_ = limit; \
     } \
     TRICE_INTO \
