@@ -17,8 +17,8 @@ extern "C" {
 
 #define TRICE_MODE 0 //! TRICE_MODE is a predefined trice transfer method.
 
-//#define TRICE_RTT_CHANNEL 0 //!< Uncomment and set channel number for SeggerRTT usage.
-//#define TRICE_UART USART2   //!< Uncomment and set UART for serial output.
+//#define TRICE_RTT_CHANNEL 0 //!< Enable and set channel number for SeggerRTT usage. Only channel 0 works right now for some reason.
+//#define TRICE_UART USART2   //!< Enable and set UART for serial output.
 #define TRICE_CGO_TEST
 
 
@@ -118,20 +118,20 @@ extern uint32_t ReadTime( void );
 //
 
 #ifdef TRICE_HALF_BUFFER_SIZE
-#define TRICE_BUFFER_INFO do{ TRICE32( Id(14780), "att: Trice 2x half buffer size:%4u ", TRICE_HALF_BUFFER_SIZE ); } while(0)
+#define TRICE_BUFFER_INFO do{ TRICE32( Id(11757), "att: Trice 2x half buffer size:%4u ", TRICE_HALF_BUFFER_SIZE ); } while(0)
 #else
-#define TRICE_BUFFER_INFO do{ TRICE32( Id(12672), "att:Single Trice Stack buf size:%4u", TRICE_SINGLE_MAX_SIZE + TRICE_DATA_OFFSET ); } while(0)
+#define TRICE_BUFFER_INFO do{ TRICE32( Id(15406), "att:Single Trice Stack buf size:%4u", TRICE_SINGLE_MAX_SIZE + TRICE_DATA_OFFSET ); } while(0)
 #endif
 
 //! This is usable as the very first trice sequence after restart. Adapt and use it or ignore it.
 #define TRICE_HEADLINE \
-    TRICE0( Id(13491), "s:                                          \n" ); \
-    TRICE8( Id(12727), "s:     CGO-TEST     TRICE_MODE %3u     \n", TRICE_MODE ); \
-    TRICE0( Id(11218), "s:                                          \n" ); \
-    TRICE0( Id(14666), "s:     " ); \
+    TRICE0( Id(10554), "s:                                          \n" ); \
+    TRICE8( Id(14579), "s:     CGO-TEST     TRICE_MODE %3u     \n", TRICE_MODE ); \
+    TRICE0( Id(15778), "s:                                          \n" ); \
+    TRICE0( Id(15636), "s:     " ); \
     TRICE_BUFFER_INFO; \
-    TRICE0( Id(13891), "s:     \n" ); \
-    TRICE0( Id(13041), "s:                                          \n");
+    TRICE0( Id(12160), "s:     \n" ); \
+    TRICE0( Id(12722), "s:                                          \n");
 
 //
 ///////////////////////////////////////////////////////////////////////////////

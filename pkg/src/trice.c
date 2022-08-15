@@ -2,7 +2,6 @@
 \author Thomas.Hoehenleitner [at] seerose.net
 *******************************************************************************/
 #include "trice.h"
-#define TRICE_FILE Id(56030)
 
 //! triceCommand is the command receive buffer.
 char triceCommand[TRICE_COMMAND_SIZE_MAX+1]; // with terminating 0
