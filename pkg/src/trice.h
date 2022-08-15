@@ -402,8 +402,13 @@ uint16_t ReadTick16( void );
 //! CNTC writes 7-bit byte count and 8-bit cycle counter.
 #define CNTC(count) TRICE_PUT16( ((count)<<8) | TRICE_CYCLE );
 
+#if TRICE_CYCLE_COUNTER == 1
 //! LCNT writes 1 as most significant bit and 15-bit byte count. It does not write the cycle counter but increments the cycle counter.
 #define LCNT(count) TRICE_PUT16( (0x8000 | (count)) ); TRICE_CYCLE  // increment TRICE_CYCLE but do not transmit it
+#else
+//! LCNT writes 1 as most significant bit and 15-bit byte count. It does not write the cycle counter but increments the cycle counter.
+#define LCNT(count) TRICE_PUT16( (0x8000 | (count)) );  // no TRICE_CYCLE
+#endif
 
 //! TRICE0 writes trice data as fast as possible in a buffer.
 //! \param id is a 16 bit Trice id in upper 2 bytes of a 32 bit value
