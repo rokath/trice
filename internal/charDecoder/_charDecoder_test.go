@@ -12,7 +12,7 @@ import (
 )
 
 // doTableTest is the universal decoder test sequence.
-func doCHARableTest(t *testing.T, out io.Writer, f newDecoder, endianness bool, teTa testTable) {
+func doCHARableTest(t *testing.T, out io.Writer, f decoder.New, endianness bool, teTa decoder.TestTable) {
 	//var (
 	//	// til is the trace id list content for test
 	//	idl = ``
@@ -25,7 +25,7 @@ func doCHARableTest(t *testing.T, out io.Writer, f newDecoder, endianness bool, 
 	dec := f(out, nil, nil, nil, nil, endianness) // a new decoder instance
 	for _, x := range teTa {
 		in := ioutil.NopCloser(bytes.NewBuffer(x.in))
-		dec.setInput(in)
+		dec.SetInput(in)
 		lineStart := true
 		var err error
 		var n int

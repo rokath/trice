@@ -162,7 +162,7 @@ func Example_rub4() {
 	}
 	for _, x := range table {
 		in := ioutil.NopCloser(bytes.NewBuffer(x.in))
-		dec.setInput(in)
+		dec.SetInput(in)
 		var err error
 		var n int
 		var act string
