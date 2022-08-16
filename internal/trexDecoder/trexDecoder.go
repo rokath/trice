@@ -39,6 +39,10 @@ type trexDec struct {
 // l is the trice id list in slice of struct format.
 // in is the usable reader for the input bytes.
 func New(w io.Writer, lut id.TriceIDLookUp, m *sync.RWMutex, in io.Reader, endian bool) decoder.Decoder {
+
+	// Todo: rewrite using the TCOBS Reader. The provided in io.Reader provides a raw data stream.
+	// https://github.com/rokath/tcobs/blob/master/TCOBSv1/read.go -> use NewDecoder ...
+
 	p := &trexDec{}
 	p.cycle = 0xc0 // start value
 	p.W = w
@@ -51,15 +55,15 @@ func New(w io.Writer, lut id.TriceIDLookUp, m *sync.RWMutex, in io.Reader, endia
 	return p
 }
 
-// nextCOBSPackage reads with an inner reader a COBS encoded byte stream.
+// nextPackage reads with an inner reader a TCOBSv1 encoded byte stream.
 //
-// When no terminating 0 is found in the incoming bytes nextCOBSPackage returns without action.
+// When no terminating 0 is found in the incoming bytes nextPackage returns without action.
 // That means the incoming data stream is exhausted and a next try should be started a bit later.
 // Some arrived bytes are kept internally and concatenated with the following bytes in a next Read.
 // When a terminating 0 is found in the incoming bytes ReadFromCOBS decodes the COBS package
 // and returns it in b and its len in n. If more data arrived after the first terminating 0,
 // these are kept internally and concatenated with the following bytes in a next Read.
-func (p *trexDec) nextCOBSPackage() {
+func (p *trexDec) nextPackage() {
 	// Here p.IBuf contains none or available bytes, what can be several trice messages.
 	// So first try to process p.IBuf.
 	index := bytes.IndexByte(p.IBuf, 0) // find terminating 0
@@ -80,9 +84,9 @@ func (p *trexDec) nextCOBSPackage() {
 	if decoder.TestTableMode {
 		p.printTestTableLine(index + 1)
 	}
-	// here a complete COBS package exists
+	// here a complete TCOBSv1 package exists
 	if decoder.DebugOut { // Debug output
-		fmt.Fprint(p.W, "COBS: ")
+		fmt.Fprint(p.W, "TCOBSv1: ")
 		decoder.Dump(p.W, p.IBuf[:index+1])
 	}
 
@@ -93,16 +97,9 @@ func (p *trexDec) nextCOBSPackage() {
 	}
 	p.IBuf = p.IBuf[index+1:] // step forward (next package data in p.IBuf now, if any)
 	p.B = p.B[:n]
-	//  if n&3 != 0 { // decoded trice COBS packages have a multiple of 4 len
-	//  	decoder.Dump(p.W, p.B)
-	//  	fmt.Fprintln(p.W, "ERROR:Decoded trice COBS package has not expected  multiple of 4 len. The len is", n) // exit
-	//  	n = 0
-	//  	p.B = p.B[:0]
-	//  	return
-	//  }
 
 	if decoder.DebugOut { // Debug output
-		fmt.Fprint(p.W, "-> PKG:  ")
+		fmt.Fprint(p.W, " -->  PKG:  ")
 		decoder.Dump(p.W, p.B)
 	}
 
@@ -115,7 +112,7 @@ func (p *trexDec) nextCOBSPackage() {
 	}
 }
 
-// Read is the provided read method for COBS decoding and provides next string as byte slice.
+// Read is the provided read method for TREX decoding and provides next string as byte slice.
 //
 // It uses inner reader p.In and internal id look-up table to fill b with a string.
 // b is a slice of bytes with a len for the max expected string size.
@@ -130,43 +127,57 @@ func (p *trexDec) nextCOBSPackage() {
 // In case of a not matching cycle, a warning message in trice format is prefixed.
 // In case of invalid package data, error messages in trice format are returned and the package is dropped.
 func (p *trexDec) Read(b []byte) (n int, err error) {
-	//  minPkgSize := headSize
-	//  if targetTimestampExists {
-	//  	minPkgSize += 4
-	//  }
-	//  if targetLocationExists {
-	//  	minPkgSize += 4
-	//  }
-	if len(p.B) < headSize { // last decoded COBS package exhausted
-		p.nextCOBSPackage()
+	packageSize := len(p.B)
+	if packageSize < headSize { // last decoded COBS package exhausted
+		p.nextPackage()
 	}
-	if len(p.B) < headSize { // not enough data for a next package
+	if packageSize < headSize { // not enough data for a next package
 		return
 	}
 
-	//  // Inside p.pkg is here one or a partial package, what means one or more trice messages.
-	//  if len(p.B) < 4 {
-	//  	n += copy(b[n:], fmt.Sprintln("ERROR:package len", len(p.B), "is too short - ignoring package", p.B))
-	//  	n += copy(b[n:], fmt.Sprintln(decoder.Hints))
-	//  	return
-	//  }
-	//  err = p.handleCOBSModeDescriptor()
-	//  if err != nil {
-	//  	n += copy(b[n:], fmt.Sprintln(err))
-	//  	return // ignore package
-	//  }
-	head := p.ReadU16(p.B) // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<< hier weiter !!!!!!!!!!!!!!!!!!!!!!
+	head := p.ReadU16(p.B)
 	p.B = p.B[2:]
-	nc := p.ReadU16(p.B)
+	triceType := head >> 14 // 2 most significant bit are the trice type: T4, T2, T0 or EX
+
+	switch triceType {
+	case 3: // 32-bit timestamp T4
+		decoder.TargetTimestampExists = true
+		decoder.TargetTimestampSize = 4
+		break
+	case 2: // 16-bit timestamp T2
+		decoder.TargetTimestampExists = true
+		decoder.TargetTimestampSize = 2
+		break
+	case 1: // no timestamp T0
+		decoder.TargetTimestampExists = false
+		decoder.TargetTimestampSize = 0
+		break
+	case 0: // extended trice EX
+		goto extendedTrice
+	extendedTrice:
+		// todo: implement special cases here
+		return
+	}
+
+	nc := p.ReadU16(p.B) // most significant bit is the count encoding
 	p.B = p.B[2:]
 	var cycle uint8
 	if 0x8000&nc == 0x8000 { // special case: more than data 127 bytes
-		cycle = p.cycle // cycle is not transmitted, so set expected value
-		p.ParamSpace = int(0x7FFF & nc)
+		cycle = p.cycle                 // cycle is not transmitted, so set expected value
+		p.ParamSpace = int(0x7FFF & nc) // 15 bit for data byte count excluding timestamp
 	} else {
 		cycle = uint8(nc)
-		p.ParamSpace = int(nc >> 8)
+		p.ParamSpace = int(nc >> 8) // 7 bit for data byte count excluding timestamp
 	}
+
+	p.TriceSize = headSize + decoder.TargetTimestampSize + p.ParamSpace
+	if p.TriceSize != packageSize {
+		n += copy(b[n:], fmt.Sprintln("ERROR:package size", packageSize, "is !=", p.TriceSize, " - ignoring package", p.B))
+		n += copy(b[n:], fmt.Sprintln(decoder.Hints))
+		p.B = p.B[len(p.B):]
+		return
+	}
+
 	// cycle counter automatic & check
 	if cycle == 0xc0 && p.cycle != 0xc0 && decoder.InitialCycle { // with cycle counter and seems to be a target reset
 		n += copy(b[n:], fmt.Sprintln("warning:   Target Reset?   "))
@@ -194,27 +205,16 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 		p.cycle++
 	}
 
-	p.TriceSize = headSize + p.ParamSpace
-	triceID := id.TriceID(0x3FFF & head)
-	switch head >> 14 {
+	triceID := id.TriceID(0x3FFF & head) // 14 least significant bits are the ID
+	decoder.LastTriceID = triceID        // used for showID
+
+	switch triceType {
 	case 3: // 32-bit timestamp
-		decoder.TargetTimestampExists = true
 		decoder.TargetTimestamp = p.ReadU32(p.B)
 		p.B = p.B[4:]
-		break
-	case 2: // 32-bit timestamp
-		decoder.TargetTimestampExists = true
+	case 2: // 16-bit timestamp
 		decoder.TargetTimestamp = uint32(p.ReadU16(p.B))
 		p.B = p.B[2:]
-		break
-	case 1: // no timestamp
-		decoder.TargetTimestampExists = false
-		decoder.TargetTimestamp = 0
-		break
-	case 0: // extended trice
-		decoder.TargetTimestampExists = false
-		// todo
-		break
 	}
 	decoder.LastTriceID = triceID // used for showID
 	if len(p.B) < p.TriceSize {
@@ -248,6 +248,7 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 		p.B = p.B[p.ParamSpace:] // drop param info
 	}
 	return
+
 }
 
 // sprintTrice writes a trice string or appropriate message into b and returns that len.

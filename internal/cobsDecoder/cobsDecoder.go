@@ -53,15 +53,15 @@ func New(w io.Writer, lut id.TriceIDLookUp, m *sync.RWMutex, li id.TriceIDLookUp
 	return p
 }
 
-// nextCOBSPackage reads with an inner reader a COBS encoded byte stream.
+// nextPackage reads with an inner reader a COBS encoded byte stream.
 //
-// When no terminating 0 is found in the incoming bytes nextCOBSPackage returns without action.
+// When no terminating 0 is found in the incoming bytes nextPackage returns without action.
 // That means the incoming data stream is exhausted and a next try should be started a bit later.
 // Some arrived bytes are kept internally and concatenated with the following bytes in a next Read.
 // When a terminating 0 is found in the incoming bytes ReadFromCOBS decodes the COBS package
 // and returns it in b and its len in n. If more data arrived after the first terminating 0,
 // these are kept internally and concatenated with the following bytes in a next Read.
-func (p *cobsDec) nextCOBSPackage() {
+func (p *cobsDec) nextPackage() {
 	// Here p.IBuf contains none or available bytes, what can be several trice messages.
 	// So first try to process p.IBuf.
 	index := bytes.IndexByte(p.IBuf, 0) // find terminating 0
@@ -176,7 +176,7 @@ func (p *cobsDec) Read(b []byte) (n int, err error) {
 		minPkgSize += 4
 	}
 	if len(p.B) < minPkgSize { // last decoded COBS package exhausted
-		p.nextCOBSPackage()
+		p.nextPackage()
 	}
 	if len(p.B) < minPkgSize { // not enough data for a next package
 		return

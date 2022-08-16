@@ -9,7 +9,8 @@
         "flto",
         "NUCLEO",
         "Strg",
-        "tcobs"
+        "tcobs",
+        "TREX"
     ],
     "C_Cpp.errorSquiggles": "Disabled"
 }
