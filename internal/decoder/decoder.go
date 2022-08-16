@@ -22,6 +22,15 @@ type TestTable []struct {
 }
 
 const (
+
+	// LittleEndian is true for little endian trice data.
+	LittleEndian = true
+
+	// BigEndian is the flag value for target endianness.
+	BigEndian = false
+)
+
+const (
 	// defaultSize is the beginning receive and sync buffer size.
 	DefaultSize = 64 * 1014
 
@@ -124,8 +133,6 @@ type DecoderData struct {
 	LutMutex   *sync.RWMutex      // to avoid concurrent map read and map write during map refresh triggered by filewatcher
 	Li         id.TriceIDLookUpLI // location information map
 	Trice      id.TriceFmt        // id.TriceFmt // received trice
-	//lastInnerRead     time.Time
-	//innerReadInterval time.Duration
 }
 
 // SetInput allows switching the input stream to a different source.

@@ -32,12 +32,6 @@ var (
 	// To keep target load small, the encoded trice stream from the target matches the target endian, what us usually littleEndian.
 	TargetEndianness string
 
-	// littleEndian is true for little endian trice data.
-	littleEndian = true
-
-	// bigEndian is the flag value for target endianness.
-	bigEndian = false
-
 	Verbose bool
 )
 
@@ -55,9 +49,9 @@ func Translate(w io.Writer, sw *emitter.TriceLineComposer, lut id.TriceIDLookUp,
 	var dec decoder.Decoder
 	switch TargetEndianness {
 	case "littleEndian":
-		endian = littleEndian
+		endian = decoder.LittleEndian
 	case "bigEndian":
-		endian = bigEndian
+		endian = decoder.BigEndian
 	default:
 		log.Fatalf(fmt.Sprintln("unknown endianness ", TargetEndianness, "-accepting litteEndian or bigEndian."))
 	}

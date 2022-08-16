@@ -18,7 +18,7 @@ type char struct {
 }
 
 // New provides a character terminal output option for the trice tool.
-func New(w io.Writer, lut id.TriceIDLookUp, m *sync.RWMutex, li id.TriceIDLookUpLI, in io.Reader, endian bool) *char {
+func New(w io.Writer, lut id.TriceIDLookUp, m *sync.RWMutex, li id.TriceIDLookUpLI, in io.Reader, endian bool) decoder.Decoder {
 	p := &char{}
 	p.W = w
 	p.In = in

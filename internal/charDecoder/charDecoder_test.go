@@ -8,6 +8,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/rokath/trice/internal/decoder"
 	"github.com/tj/assert"
 )
 
@@ -24,7 +25,7 @@ func doCHARableTest(t *testing.T, out io.Writer, f decoder.New, endianness bool,
 	buf := make([]byte, decoder.DefaultSize)
 	dec := f(out, nil, nil, nil, nil, endianness) // a new decoder instance
 	for _, x := range teTa {
-		in := ioutil.NopCloser(bytes.NewBuffer(x.in))
+		in := ioutil.NopCloser(bytes.NewBuffer(x.In))
 		dec.SetInput(in)
 		lineStart := true
 		var err error
@@ -35,23 +36,23 @@ func doCHARableTest(t *testing.T, out io.Writer, f decoder.New, endianness bool,
 			if n == 0 {
 				break
 			}
-			if ShowID != "" && lineStart {
-				act += fmt.Sprintf(ShowID, decoder.LastTriceID)
+			if decoder.ShowID != "" && lineStart {
+				act += fmt.Sprintf(decoder.ShowID, decoder.LastTriceID)
 			}
 			act += fmt.Sprint(string(buf[:n]))
 			lineStart = false
 		}
 		act = strings.TrimSuffix(act, "\\n")
 		act = strings.TrimSuffix(act, "\n")
-		assert.Equal(t, x.exp, act)
+		assert.Equal(t, x.Exp, act)
 	}
 }
 
 func TestCHAR(t *testing.T) {
-	tt := testTable{ // little endian
+	tt := decoder.TestTable{ // little endian
 		{[]byte{'A', 'B', 'C', '0', '1', '2'}, `ABC012`},
 		{[]byte{'a', 'b', '3', '4'}, `ab34`},
 	}
 	var out bytes.Buffer
-	doCHARableTest(t, &out, newCHARDecoder, littleEndian, tt)
+	doCHARableTest(t, &out, New, decoder.LittleEndian, tt)
 }

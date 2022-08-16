@@ -42,5 +42,5 @@ func TestDUMP(t *testing.T) {
 		{[]byte{0, 0, 0, 4, 0, 0, 0, 8, 0, 0, 0, 12, 0, 0, 0, 16, 0, 0, 0, 20, 0, 0, 0, 24, 0, 0, 0, 28, 0, 0, 0, 32, 33, 34}, "00 00 00 04 00 00 00 08 \\n00 00 00 0c 00 00 00 10 \\n00 00 00 14 00 00 00 18 \\n00 00 00 1c 00 00 00 20 \\n21 22 "},
 	}
 	var out bytes.Buffer
-	doDUMPtableTest(t, &out, newDUMPDecoder, littleEndian, tt)
+	doDUMPtableTest(t, &out, New, decoder.LittleEndian, tt)
 }

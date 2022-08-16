@@ -1,0 +1,1 @@
+obsolete encoding, some functions are missing: like split1Byte 

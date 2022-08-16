@@ -19,13 +19,20 @@ import (
 // Flex is the Decoding instance for bare encoded trices.
 type Flex struct {
 	decoder.DecoderData
-	syncPacket     string
-	d0, d1, d2, d3 uint32 // read raw data
-	cycle          int
-	cycleErrorFlag bool
-	sCount         int    // for TRICE_S adaption
-	rBuf           []byte // unprocessed (possibly encrypted) bytes for reading
-	offset         int    // points to the not yet decrypted bytes inside rBuf in case of encryption
+	syncPacket         string
+	d0, d1, d2, d3     uint32 // read raw data
+	cycle              int
+	cycleErrorFlag     bool
+	sCount             int    // for TRICE_S adaption
+	rBuf               []byte // unprocessed (possibly encrypted) bytes for reading
+	offset             int    // points to the not yet decrypted bytes inside rBuf in case of encryption
+	innerReadInterval  time.Duration
+	lastInnerRead      time.Time
+	inSync             bool // obsolete?
+	upperCaseTriceType string
+	rubbed             int
+	outOfSync          func(string) (int, error)
+	TriceRPC           func(id.TriceID, int) (int, error)
 }
 
 // NewFlexDecoder provides an decoder instance.
@@ -34,12 +41,12 @@ type Flex struct {
 // littleEndian is false on normal network order.
 func NewFlexDecoder(lut id.TriceIDLookUp, m *sync.RWMutex, in io.Reader, endian bool) decoder.Decoder {
 	p := &Flex{}
-	p.in = in
+	p.In = in
 	p.rBuf = make([]byte, 0, decoder.DefaultSize) // read buffer
-	p.iBuf = make([]byte, 0, decoder.DefaultSize) // interpret buffer
-	p.lut = lut
-	p.lutMutex = m
-	p.endian = endian
+	p.IBuf = make([]byte, 0, decoder.DefaultSize) // interpret buffer
+	p.Lut = lut
+	p.LutMutex = m
+	p.Endian = endian
 	p.syncPacket = emitter.SyncPacketPattern
 	p.innerReadInterval = 100 * time.Millisecond
 	p.cycleErrorFlag = true // avoid cycle error message @ start
@@ -54,21 +61,21 @@ func NewFlexDecoder(lut id.TriceIDLookUp, m *sync.RWMutex, in io.Reader, endian 
 // Read returns one trice string (optionally starting wth a channel specifier).
 // A line can contain several trice strings.
 func (p *Flex) Read(b []byte) (n int, err error) {
-	p.b = b
+	p.B = b
 	if time.Since(p.lastInnerRead) > p.innerReadInterval { // poll inner reader
 		var m int
-		if Verbose { // time measure
+		if decoder.Verbose { // time measure
 			p.lastInnerRead = time.Now()
-			m, err = p.in.Read(b) // use b as intermediate read buffer to avoid allocation
+			m, err = p.In.Read(b) // use b as intermediate read buffer to avoid allocation
 			duration := time.Since(p.lastInnerRead).Milliseconds()
 			if 0 < duration {
 				fmt.Println("Inner Read duration =", duration, "ms.")
 			}
 		} else { // no time measure
-			m, err = p.in.Read(b) // use b as intermediate read buffer to avoid allocation
+			m, err = p.In.Read(b) // use b as intermediate read buffer to avoid allocation
 		}
 		if "" == cipher.Password { // no encryption
-			p.iBuf = append(p.iBuf, b[:m]...) // merge with leftovers in interpret buffer
+			p.IBuf = append(p.IBuf, b[:m]...) // merge with leftovers in interpret buffer
 		} else { // encrypted
 			// p.rBuf has same state since last Read.
 			// p.rBuf[:offset] was already decrypted and transferred to r.iBuf
@@ -80,11 +87,11 @@ func (p *Flex) Read(b []byte) (n int, err error) {
 			} else {
 				p.offset = 0
 				p.inSync = true
-				p.iBuf = p.iBuf[:0] // discard complete interpret buffer
+				p.IBuf = p.IBuf[:0] // discard complete interpret buffer
 			}
 			p.rBuf = append(p.rBuf, b[:m]...)        // add read data bytes
 			m = cipher.Decrypt(b, p.rBuf[p.offset:]) // convert what is not converted and reuse b again
-			p.iBuf = append(p.iBuf, b[:m]...)        // copy to interpret buffer
+			p.IBuf = append(p.IBuf, b[:m]...)        // copy to interpret buffer
 			p.offset += m                            // adjust offset
 		}
 		p.rubbed = 0 // reset
@@ -95,10 +102,10 @@ func (p *Flex) Read(b []byte) (n int, err error) {
 
 	// Even err could be io.EOF some valid data possibly in p.syncBuffer.
 	// In case of file input (J-LINK usage) a plug off is not detectable here.
-	if len(p.iBuf) < 4 {
+	if len(p.IBuf) < 4 {
 		return // wait
 	}
-	head := p.ReadU32(p.iBuf[0:4])
+	head := p.ReadU32(p.IBuf[0:4])
 	if 0x89abcdef == head {
 		return p.syncTrice()
 	}
@@ -109,9 +116,9 @@ func (p *Flex) Read(b []byte) (n int, err error) {
 }
 
 func (p *Flex) checkLookUpTable(triceID id.TriceID) (ok bool) {
-	p.lutMutex.RLock()
-	p.trice, ok = p.lut[triceID] // check lookup table
-	p.lutMutex.RUnlock()
+	p.LutMutex.RLock()
+	p.Trice, ok = p.Lut[triceID] // check lookup table
+	p.LutMutex.RUnlock()
 	return
 }
 
@@ -122,10 +129,10 @@ func (p *Flex) smallSubEncoding(head uint32) (n int, err error) {
 		return p.outOfSync(fmt.Sprintf("unknown triceID %5d", decoder.LastTriceID))
 	}
 	p.d0 = 0xffff & head
-	p.upperCaseTriceType = p.trice.Type // no conversion here, but a copy is needed
-	switch p.trice.Type {
+	p.upperCaseTriceType = p.Trice.Type // no conversion here, but a copy is needed
+	switch p.Trice.Type {
 	case "TriceRRPC0", "TriceRRPC0i":
-		return p.triceRPC(decoder.LastTriceID, 0)
+		return p.TriceRPC(decoder.LastTriceID, 0)
 	case "Trice0", "Trice0i":
 		return p.sprintTrice(0)
 	case "Trice8_1", "Trice8_1i":
@@ -147,10 +154,10 @@ func (p *Flex) mediumAndLongSubEncoding(head uint32) (n int, err error) {
 	}
 
 	if count == 0x7 { // TRICE_LONGCOUNT(n), values 0-4 short counts, 0x7 is long count and 0x5 & 0x6 are reserved.
-		if len(p.iBuf) < 8 {
+		if len(p.IBuf) < 8 {
 			return // wait
 		}
-		countTransfer := p.ReadU32(p.iBuf[4:8])
+		countTransfer := p.ReadU32(p.IBuf[4:8])
 		count16 := int16(countTransfer >> 16)
 		count16invers := int16(countTransfer)
 		if count16 != ^count16invers {
@@ -163,7 +170,7 @@ func (p *Flex) mediumAndLongSubEncoding(head uint32) (n int, err error) {
 	if !ok {
 		return p.outOfSync(fmt.Sprintf("unknown triceID %5d", decoder.LastTriceID))
 	}
-	p.upperCaseTriceType = strings.ToUpper(p.trice.Type) // for trice* too
+	p.upperCaseTriceType = strings.ToUpper(p.Trice.Type) // for trice* too
 	p.sCount = count                                     // keep for triceSCount
 	if !p.bytesCountOk(count) {
 		return p.outOfSync(fmt.Sprintf("unexpected byteCount, it is not %d -> Hint: Check your target source code line for correct balance of format specifier and parameter count.", count))
@@ -178,7 +185,7 @@ func (p *Flex) mediumAndLongSubEncoding(head uint32) (n int, err error) {
 	// ID and count are ok
 	p.cycleErrorFlag = false
 	p.cycle = cycle // Set cycle for checking next trice here because all checks passed.
-	p.trice.Strg = cycleWarning + p.trice.Strg
+	p.Trice.Strg = cycleWarning + p.Trice.Strg
 	return p.sprintTrice(count)
 }
 
@@ -186,7 +193,7 @@ func (p *Flex) mediumAndLongSubEncoding(head uint32) (n int, err error) {
 // after reading data and storing them as 32 bit chunks in p.d0, ... p.d3.
 func (p *Flex) readDataAndCheckPaddingBytes(cnt int) (ok bool) {
 	b := make([]byte, cnt+3+8) // max 3 more plus head plus possible long count
-	copy(b, p.iBuf)
+	copy(b, p.IBuf)
 	if cnt > 4 {
 		b = append(b[0:4], b[8:]...) // remove long count in copy
 	}
@@ -253,9 +260,9 @@ func (p *Flex) isTriceComplete(cnt int) bool {
 	}
 	cnt += 3
 	cnt &= ^3
-	return len(p.iBuf) >= 4+longCountBytes+cnt
+	return len(p.IBuf) >= 4+longCountBytes+cnt
 	// above line is same as is same as:
-	// if len(p.iBuf) < 4+longCountBytes+cnt {
+	// if len(p.IBuf) < 4+longCountBytes+cnt {
 	// 	return false
 	// }
 	// return true
@@ -352,9 +359,9 @@ func (p *Flex) triceRPC(_ id.TriceID, cnt int) (n int, e error) {
 		}
 	}
 	if "TRICE_S" == p.upperCaseTriceType {
-		return p.triceS(cnt)
+		return p.TriceS(cnt)
 	}
-	return p.outOfSync(fmt.Sprintf("Unexpected trice.Type %s", p.trice.Type))
+	return p.outOfSync(fmt.Sprintf("Unexpected trice.Type %s", p.Trice.Type))
 }
 
 // sprintTrice generates the trice string.
@@ -368,13 +375,13 @@ func (p *Flex) sprintTrice(cnt int) (n int, e error) {
 		}
 	}
 	if "TRICE_S" == p.upperCaseTriceType {
-		return p.triceS(cnt)
+		return p.TriceS(cnt)
 	}
-	return p.outOfSync(fmt.Sprintf("Unexpected trice.Type %s", p.trice.Type))
+	return p.outOfSync(fmt.Sprintf("Unexpected trice.Type %s", p.Trice.Type))
 }
 
 func (p *Flex) triceSCount() (n int, e error) {
-	return p.triceS(p.sCount)
+	return p.TriceS(p.sCount)
 }
 
 func (p *Flex) triceS(cnt int) (n int, e error) {
@@ -382,13 +389,13 @@ func (p *Flex) triceS(cnt int) (n int, e error) {
 	if cnt > 4 {
 		o += 4
 	}
-	n = copy(p.b, fmt.Sprintf(p.trice.Strg, string(p.iBuf[o:o+cnt])))
+	n = copy(p.b, fmt.Sprintf(p.Trice.Strg, string(p.IBuf[o:o+cnt])))
 	p.rub4(cnt)
 	return
 }
 
 func (p *Flex) trice0() (n int, e error) {
-	n = copy(p.b, fmt.Sprintf(p.trice.Strg))
+	n = copy(p.B, fmt.Sprintf(p.Trice.Strg))
 	p.rub4(0)
 	return
 }
@@ -402,13 +409,13 @@ func (p *Flex) trice81x() (n int, e error) {
 }
 
 func (p *Flex) trice81s() (n int, e error) {
-	n, e = p.trice81x()
+	n, e = p.Trice81x()
 	p.rub4(0)
 	return
 }
 
 func (p *Flex) trice81() (n int, e error) {
-	n, e = p.trice81x()
+	n, e = p.Trice81x()
 	p.rub4(1)
 	return
 }
@@ -422,13 +429,13 @@ func (p *Flex) trice82x() (n int, e error) {
 }
 
 func (p *Flex) trice82s() (n int, e error) {
-	n, e = p.trice82x()
+	n, e = p.Trice82x()
 	p.rub4(0)
 	return
 }
 
 func (p *Flex) trice82() (n int, e error) {
-	n, e = p.trice82x()
+	n, e = p.Trice82x()
 	p.rub4(2)
 	return
 }
@@ -496,13 +503,13 @@ func (p *Flex) trice161x() (n int, e error) {
 }
 
 func (p *Flex) trice161s() (n int, e error) {
-	n, e = p.trice161x()
+	n, e = p.Trice161x()
 	p.rub4(0)
 	return
 }
 
 func (p *Flex) trice161() (n int, e error) {
-	n, e = p.trice161x()
+	n, e = p.Trice161x()
 	p.rub4(2)
 	return
 }
@@ -635,9 +642,9 @@ func (p *Flex) uReplace64(d []uint64) (s string, b []interface{}, e error) {
 // It also returns the modified formatstring with replacements %nu -> %nd.
 func (p *Flex) uReplace(bitWidth int, d []uint64) (s string, b []interface{}, e error) {
 	b = make([]interface{}, len(d))
-	s, u := uReplaceN(p.trice.Strg)
+	s, u := uReplaceN(p.Trice.Strg)
 	if len(u) != len(b) {
-		e = fmt.Errorf("found %d format specifiers in '%s', expecting %d", len(u), p.trice.Strg, len(b))
+		e = fmt.Errorf("found %d format specifiers in '%s', expecting %d", len(u), p.Trice.Strg, len(b))
 		return
 	}
 	for i := range u {
@@ -680,7 +687,7 @@ func (p *Flex) rub4(count int) {
 	if decoder.TestTableMode {
 		p.printTestTableLine(n)
 	}
-	p.iBuf = p.iBuf[n:] // header and data
+	p.IBuf = p.IBuf[n:] // header and data
 	p.rubbed += n
 }
 
@@ -693,7 +700,7 @@ func (p *Flex) printTestTableLine(n int) {
 		testTableVirgin = false
 		fmt.Printf("{ []byte{ ")
 	}
-	for _, b := range p.iBuf[0:n] { // just to see trice bytes per trice
+	for _, b := range p.IBuf[0:n] { // just to see trice bytes per trice
 		fmt.Printf("%3d,", b)
 	}
 }

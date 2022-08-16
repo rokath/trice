@@ -13,6 +13,7 @@ import (
 	"sync"
 	"testing"
 
+	"github.com/rokath/trice/internal/decoder"
 	"github.com/rokath/trice/internal/id"
 	"github.com/tj/assert"
 )
@@ -45,7 +46,7 @@ func doCOBSTableTest(t *testing.T, out io.Writer, f decoder.New, endianness bool
 	buf := make([]byte, decoder.DefaultSize)
 	dec := f(out, lu, luM, nil, nil, endianness) // a new decoder instance
 	for _, x := range teTa {
-		in := ioutil.NopCloser(bytes.NewBuffer(x.in))
+		in := ioutil.NopCloser(bytes.NewBuffer(x.In))
 		dec.SetInput(in)
 		lineStart := true
 		var err error
@@ -56,26 +57,26 @@ func doCOBSTableTest(t *testing.T, out io.Writer, f decoder.New, endianness bool
 			if n == 0 {
 				break
 			}
-			if ShowID != "" && lineStart {
-				act += fmt.Sprintf(ShowID, decoder.LastTriceID)
+			if decoder.ShowID != "" && lineStart {
+				act += fmt.Sprintf(decoder.ShowID, decoder.LastTriceID)
 			}
 			act += fmt.Sprint(string(buf[:n]))
 			lineStart = false
 		}
 		act = strings.TrimSuffix(act, "\\n")
 		act = strings.TrimSuffix(act, "\n")
-		assert.Equal(t, x.exp, act)
+		assert.Equal(t, x.Exp, act)
 	}
 }
 
 func TestCOBS(t *testing.T) {
-	tt := testTable{ // little endian
+	tt := decoder.TestTable{ // little endian
 		{[]byte{2, 1, 1, 1, 3, 208, 7, 1, 5, 192, 1, 196, 188, 1, 1, 1, 1, 0}, `MSG: START select = 0, TriceDepthMax =   0`},
 		{[]byte{2, 1, 1, 1, 3, 209, 7, 1, 5, 193, 1, 205, 209, 1, 2, 28, 1, 0}, `MSG: STOP  select = 0, TriceDepthMax =  28`},
 		{[]byte{0x02, 0x03, 0x01, 0x01, 0x02, 0x13, 0x0f, 0x38, 0xcb, 0x11, 0x11, 0x11, 0x11, 0xc0, 0x01, 0x83, 0xe5, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00}, `rd:TRICE32_1 line -1 (%d)`},
 	}
 	var out bytes.Buffer
-	doCOBSTableTest(t, &out, newCOBSDecoder, littleEndian, tt)
+	doCOBSTableTest(t, &out, New, decoder.LittleEndian, tt)
 	assert.Equal(t, "", out.String())
 }
 
