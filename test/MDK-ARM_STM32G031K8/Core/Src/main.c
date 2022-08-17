@@ -167,12 +167,12 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
     while (1){
-        if( triceCommandFlag ){
-            triceCommandFlag = 0;
-            TRICE_S( Id(14937), "att:Executing command %s ...\n", triceCommand );
-            // do
-            TRICE( Id(13746), "att:...done\n" );
-        }
+        //  if( triceCommandFlag ){
+        //      triceCommandFlag = 0;
+        //      TRICE_S( Id(14937), "att:Executing command %s ...\n", triceCommand );
+        //      // do
+        //      TRICE( Id(13746), "att:...done\n" );
+        //  }
 
         // serve every few ms
         #ifdef TRICE_HALF_BUFFER_SIZE
@@ -191,9 +191,11 @@ int main(void)
             if( milliSecond >= lastTricesTime + 1000 ){
                 static int index = 0;
                 int select = index;
-                TRICE16( Id(11855),"MSG: 💚 START select = %d, TriceDepthMax =%4u\n", select, TriceDepthMax() );
+                TRICE16( ID(10439),"MSG: 💚 START select = %d, TriceDepthMax =%4u\n", select, TriceDepthMax() );
+                TRICE16( Id(10439),"MSG: 💚 START select = %d, TriceDepthMax =%4u\n", select, TriceDepthMax() );
+                TRICE16( id(10439),"MSG: 💚 START select = %d, TriceDepthMax =%4u\n", select, TriceDepthMax() );
                 TriceCheckSet(select);
-                TRICE16( Id(12109),"MSG: ✅ STOP  select = %d, TriceDepthMax =%4u\n", select, TriceDepthMax() );
+                TRICE16( id(12109),"MSG: ✅ STOP  select = %d, TriceDepthMax =%4u\n", select, TriceDepthMax() );
                 index += 10;
                 index = index > 1000 ? 0 : index;
                 lastTricesTime = milliSecond;

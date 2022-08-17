@@ -57,27 +57,27 @@ void TriceCheckSet( int index ); //!< tests
 static inline int TriceOutDepth( void ){ return 0; }
 #endif // #ifdef TRICE_RTT_CHANNEL
 
-//! The TRICE_PUT_PREFIX macro adds optionally target timestamp and location in front of each trice
-#if !defined(TRICE_LOCATION) && !defined(TRICE_TIMESTAMP)
-#define TRICE_COBS_PACKAGE_MODE 0
-#define TRICE_PUT_PREFIX
+//  //! The TRICE_PUT_PREFIX macro adds optionally target timestamp and location in front of each trice
+//  #if !defined(TRICE_LOCATION) && !defined(TRICE_TIMESTAMP)
+//  #define TRICE_COBS_PACKAGE_MODE 0
+//  #define TRICE_PUT_PREFIX
 #define TRICE_PREFIX_SIZE 0
-#endif
-#if !defined(TRICE_LOCATION) &&  defined(TRICE_TIMESTAMP)
-#define TRICE_COBS_PACKAGE_MODE 1
-#define TRICE_PUT_PREFIX TRICE_PUT(TRICE_TIMESTAMP);
-#define TRICE_PREFIX_SIZE 4
-#endif
-#if  defined(TRICE_LOCATION) && !defined(TRICE_TIMESTAMP)
-#define TRICE_COBS_PACKAGE_MODE 2
-#define TRICE_PUT_PREFIX TRICE_PUT(TRICE_LOCATION); 
-#define TRICE_PREFIX_SIZE 4
-#endif
-#if  defined(TRICE_LOCATION) &&  defined(TRICE_TIMESTAMP)
-#define TRICE_COBS_PACKAGE_MODE 3
-#define TRICE_PUT_PREFIX TRICE_PUT(TRICE_LOCATION); TRICE_PUT(TRICE_TIMESTAMP); 
-#define TRICE_PREFIX_SIZE 8
-#endif
+//  #endif
+//  #if !defined(TRICE_LOCATION) &&  defined(TRICE_TIMESTAMP)
+//  #define TRICE_COBS_PACKAGE_MODE 1
+//  #define TRICE_PUT_PREFIX TRICE_PUT(TRICE_TIMESTAMP);
+//  #define TRICE_PREFIX_SIZE 4
+//  #endif
+//  #if  defined(TRICE_LOCATION) && !defined(TRICE_TIMESTAMP)
+//  #define TRICE_COBS_PACKAGE_MODE 2
+//  #define TRICE_PUT_PREFIX TRICE_PUT(TRICE_LOCATION); 
+//  #define TRICE_PREFIX_SIZE 4
+//  #endif
+//  #if  defined(TRICE_LOCATION) &&  defined(TRICE_TIMESTAMP)
+//  #define TRICE_COBS_PACKAGE_MODE 3
+//  #define TRICE_PUT_PREFIX TRICE_PUT(TRICE_LOCATION); TRICE_PUT(TRICE_TIMESTAMP); 
+//  #define TRICE_PREFIX_SIZE 8
+//  #endif
 
 #ifndef TRICE_CYCLE_COUNTER
 #define TRICE_CYCLE_COUNTER 1 //! TRICE_CYCLE_COUNTER adds a cycle counter to each trice message. The TRICE macros are a bit slower. Lost TRICEs are detectable by the trice tool.
@@ -369,7 +369,9 @@ static inline uint64_t aDouble( double x ){
 
 #ifndef TRICE_PUT16
 //! TRICE_PUT16 copies a 16 bit x into the TRICE buffer.
-#define TRICE_PUT16(x) *(uint16_t*)TriceBufferWritePosition++ = x; 
+//#define TRICE_PUT16(x) *(uint16_t*)TriceBufferWritePosition++ = x; 
+#define TRICE_PUT16(x) do{ uint16_t* p = (uint16_t*)TriceBufferWritePosition; *p++ = x; TriceBufferWritePosition = (uint32_t*)p; }while(0)
+
 #endif
 
 uint32_t ReadTick32( void );

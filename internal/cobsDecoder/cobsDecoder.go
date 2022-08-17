@@ -125,25 +125,25 @@ func (p *cobsDec) nextPackage() {
 func (p *cobsDec) handleCOBSModeDescriptor() error {
 	switch p.COBSModeDescriptor {
 	case 0: // nothing to do
-		decoder.TargetTimestampExists = false
+		decoder.TargetTimestampSize = 0
 		decoder.TargetLocationExists = false
 		return nil
 	case 1:
 		decoder.TargetTimestamp = p.ReadU32(p.B)
-		decoder.TargetTimestampExists = true
+		decoder.TargetTimestampSize = 4
 		decoder.TargetLocationExists = false
 		p.B = p.B[4:] // drop target timestamp
 		return nil
 	case 2:
 		decoder.TargetLocation = p.ReadU32(p.B)
-		decoder.TargetTimestampExists = false
+		decoder.TargetTimestampSize = 0
 		decoder.TargetLocationExists = true
 		p.B = p.B[4:] // drop target location
 		return nil
 	case 3:
 		decoder.TargetLocation = p.ReadU32(p.B)
 		decoder.TargetTimestamp = p.ReadU32(p.B[4:])
-		decoder.TargetTimestampExists = true
+		decoder.TargetTimestampSize = 4
 		decoder.TargetLocationExists = true
 		p.B = p.B[8:] // drop target location & timestamp
 		return nil
@@ -169,7 +169,7 @@ func (p *cobsDec) handleCOBSModeDescriptor() error {
 // In case of invalid package data, error messages in trice format are returned and the package is dropped.
 func (p *cobsDec) Read(b []byte) (n int, err error) {
 	minPkgSize := headSize
-	if decoder.TargetTimestampExists {
+	if decoder.TargetTimestampSize > 0 {
 		minPkgSize += 4
 	}
 	if decoder.TargetLocationExists {

@@ -3,6 +3,7 @@
 \author thomas.hoehenleitner [at] seerose.net
 *******************************************************************************/
 #include "trice.h"
+#define TRICE_FILE Id(10145)
 #include "trice_test.h"
 
 

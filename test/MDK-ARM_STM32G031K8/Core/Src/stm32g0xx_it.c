@@ -166,7 +166,7 @@ void USART2_IRQHandler(void)
         rxBuf[index] = v;
         index += index < TRICE_COMMAND_SIZE_MAX ? 1 : 0; 
         if( v == 0 ){ // command end
-            TRICE_S( Id(14506), "rx:received command:%s\n", rxBuf );
+            TRICE_S( Id(11958), "rx:received command:%s\n", rxBuf );
             strcpy(triceCommand, rxBuf );
             triceCommandFlag = 1;
             index = 0;

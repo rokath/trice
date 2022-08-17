@@ -22,13 +22,13 @@ import (
 )
 
 const (
-	idSize   = 2               // idSize is what each regular trice message starts with: 2-bit msb + 14-bit ID  16-bit nc
-	ncSize   = 2               // countSize is what each regular trice message contains at an idSize offset:
-	headSize = idSize + ncSize // headSize is what each regular trice message starts with: 2-bit msb + 14-bit ID + 16-bit nc
-	typeEX   = 0               // extended trice format or user data         : 00....... ...
-	typeT0   = 1               // regular trice format without timestamp     : 01iiiiiiI NC ...
-	typeT2   = 2               // regular trice format with 16-bit timestamp : 10iiiiiiI TT NC ...
-	typeT4   = 3               // regular trice format with 32-bit timestamp : 11iiiiiiI TT TT NC ...
+	tyIdSize = 2 // tySize is what each trice message starts with: 2-bit msb + 14-bit something
+	ncSize   = 2 // countSize is what each regular trice message contains after an optional target timestamp
+	//headSize = tyIdSize + ncSize // headSize is what each regular trice message starts with: 2-bit msb + 14-bit ID + 16-bit nc
+	typeEX = 0 // extended trice format or user data         : 00....... ...
+	typeT0 = 1 // regular trice format without timestamp     : 01iiiiiiI NC ...
+	typeT2 = 2 // regular trice format with 16-bit timestamp : 10iiiiiiI TT NC ...
+	typeT4 = 3 // regular trice format with 32-bit timestamp : 11iiiiiiI TT TT NC ...
 )
 
 // trexDec is the Decoding instance for trex encoded trices.
@@ -104,7 +104,7 @@ func (p *trexDec) nextPackage() {
 	p.B = p.B[:n]
 
 	if decoder.DebugOut { // Debug output
-		fmt.Fprint(p.W, " -->  PKG:  ")
+		fmt.Fprint(p.W, "->TRICE: ")
 		decoder.Dump(p.W, p.B)
 	}
 
@@ -132,26 +132,28 @@ func (p *trexDec) nextPackage() {
 // In case of a not matching cycle, a warning message in trice format is prefixed.
 // In case of invalid package data, error messages in trice format are returned and the package is dropped.
 func (p *trexDec) Read(b []byte) (n int, err error) {
-	packageSize := len(p.B)
-	if packageSize == 0 { // last decoded COBS package exhausted
+	if len(p.B) == 0 { // last decoded COBS package exhausted
 		p.nextPackage()
 	}
-	if packageSize == 0 { // not enough data for a next package
+	packageSize := len(p.B)
+	if packageSize < tyIdSize { // not enough data for a next package
 		return
 	}
+	tyId := p.ReadU16(p.B)
+	p.B = p.B[tyIdSize:]
 
-	triceType := p.B[0] >> 6 // 2 most significant bit are the trice type: T4, T2, T0 or EX
+	triceType := tyId >> 14              // 2 most significant bit are the trice type: T4, T2, T0 or EX
+	triceID := id.TriceID(0x3FFF & tyId) // 14 least significant bits are the ID
+	decoder.LastTriceID = triceID        // used for showID
+
 	switch triceType {
 	case typeT4: // 32-bit timestamp
-		decoder.TargetTimestampExists = true
 		decoder.TargetTimestampSize = 4
 		break
 	case typeT2: // 16-bit timestamp
-		decoder.TargetTimestampExists = true
 		decoder.TargetTimestampSize = 2
 		break
 	case typeT0: // no timestamp
-		decoder.TargetTimestampExists = false
 		decoder.TargetTimestampSize = 0
 		break
 	case typeEX: // extended trice EX
@@ -159,16 +161,21 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 		return
 	}
 
-	if packageSize < headSize {
+	if packageSize < tyIdSize+decoder.TargetTimestampSize+ncSize { // non typeEX trices
 		return
 	}
 
-	triceID := id.TriceID(0x3FFF & p.ReadU16(p.B)) // 14 least significant bits are the ID
-	decoder.LastTriceID = triceID                  // used for showID
+	if triceType == typeT4 { // 32-bit timestamp
+		decoder.TargetTimestamp = p.ReadU32(p.B)
+	} else if triceType == typeT2 { // 16-bit timestamp
+		decoder.TargetTimestamp = uint32(p.ReadU16(p.B))
+	}
+	p.B = p.B[decoder.TargetTimestampSize:]
 
-	nc := p.ReadU16(p.B[idSize:]) // n = number of data bytes without timestamp, most significant bit is the count encoding, c = cycle
+	nc := p.ReadU16(p.B) // n = number of data bytes (without timestamp), most significant bit is the count encoding, c = cycle
+	p.B = p.B[ncSize:]
 	var cycle uint8
-	if 0x8000&nc == 0x8000 { // special case: more than data 127 bytes
+	if nc>>15 == 1 { // special case: more than data 127 bytes
 		// C code: #define LCNT(count) TRICE_PUT16( (0x8000 | (count)) );
 		cycle = p.cycle                 // cycle is not transmitted, so set expected value
 		p.ParamSpace = int(0x7FFF & nc) // 15 bit for data byte count excluding timestamp
@@ -178,7 +185,7 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 		p.ParamSpace = int(nc >> 8) // high byte is 7 bit number of bytes for data count excluding timestamp
 	}
 
-	p.TriceSize = headSize + decoder.TargetTimestampSize + p.ParamSpace
+	p.TriceSize = tyIdSize + decoder.TargetTimestampSize + ncSize + p.ParamSpace
 	if p.TriceSize != packageSize {
 		n += copy(b[n:], fmt.Sprintln("ERROR:package size", packageSize, "is !=", p.TriceSize, " - ignoring package", p.B))
 		n += copy(b[n:], fmt.Sprintln(decoder.Hints))
@@ -217,14 +224,6 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 		fmt.Fprint(p.W, "TRICE -> ")
 		decoder.Dump(p.W, p.B)
 	}
-
-	p.B = p.B[headSize:]
-	if triceType == typeT4 { // 32-bit timestamp
-		decoder.TargetTimestamp = p.ReadU32(p.B)
-	} else if triceType == typeT2 { // 16-bit timestamp
-		decoder.TargetTimestamp = uint32(p.ReadU16(p.B))
-	}
-	p.B = p.B[decoder.TargetTimestampSize:]
 
 	var ok bool
 	p.LutMutex.RLock()

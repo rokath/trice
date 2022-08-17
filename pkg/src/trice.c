@@ -2,6 +2,7 @@
 \author Thomas.Hoehenleitner [at] seerose.net
 *******************************************************************************/
 #include "trice.h"
+#define TRICE_FILE Id(12151)
 
 //! triceCommand is the command receive buffer.
 char triceCommand[TRICE_COMMAND_SIZE_MAX+1]; // with terminating 0
@@ -70,28 +71,65 @@ size_t TriceDepthMax( void ){
 
 #endif // #else #ifdef TRICE_HALF_BUFFER_SIZE
 
+
+//! triceDataLen returns len or if possible a smaller value for len.
+//! \param p points to nc
+// *da = 11iiiiiiI 11iiiiiiI TT TT NC ...
+// *da = 10iiiiiiI TT NC ...
+// *da = 01iiiiiiI 11iiiiiiI NC ...
+// *da = 00...
+static size_t triceDataLen( uint8_t* p ){
+    uint16_t nc = *(uint16_t*)p;
+    size_t n = nc>>8;
+    if( n < 128 ){
+        return n;
+    }
+    return nc & 0x7fff;
+}
+
+unsigned triceErrorCount = 0;
+
 //! TriceOut converts trice data and transmits them to the output.
 //! \param tb is start of uint32_t* trice buffer. The space TRICE_DATA_OFFSET>>2
 //! at the tb start is for in-buffer COBS encoding and the
 //! TRICE_COBS_PACKAGE_MODE in front of the trice data.
 //! \param tLen is length of trice data. tlen is always a multiple of 4 and counts after TRICE_COBS_PACKAGE_MODE.
+//! tLen is needed only for triceType 0 (typeEX), if there is no length information coded.
 void TriceOut( uint32_t* tb, size_t tLen ){
-    size_t eLen, cLen;
+    size_t len, cLen;
     uint8_t* co = (uint8_t*)tb; // encoded COBS data starting address
-    uint32_t* da = tb + (TRICE_DATA_OFFSET>>2)-1; // start of unencoded COBS package data: descriptor and trice data
-    *da = TRICE_COBS_PACKAGE_MODE; // add a 32-bit COBS package mode descriptor in front of trice data. That allowes to inject third-party non-trice COBS packages.
-    eLen = tLen + 4; // add COBS package mode descriptor length 
+    uint8_t* da = co + TRICE_DATA_OFFSET; //-1; // start of unencoded COBS package data: descriptor and trice data
+    int triceType = *(uint16_t*)da >> 14;
+    switch( triceType ){
+        case 0: // EX
+            len = tLen; // todo: Change that when needed.
+            break;
+        case 1: // T0
+            len = 4 + triceDataLen(da + 2); // tyId
+            break;
+        case 2: // T2
+            da += 2; // see Id(n) macro definition
+            len = 6 + triceDataLen(da + 4); // tyId ts16
+            break;
+        case 3: // T4
+            len = 8 + triceDataLen(da + 6); // tyId ts32
+            break;
+    }
+    if( !(tLen - 3 <= len && len <= tLen )){ // corrupt data
+        triceErrorCount++;
+        return;
+    }
     #ifdef TRICE_ENCRYPT
-    eLen = (eLen + 4) & ~7; // only multiple of 8 encryptable
-    TriceEncrypt( da, eLen>>2 );
+    len = (len + 7) & ~7; // only multiple of 8 encryptable
+    TriceEncrypt( da, len>>2 );
     #endif
-    cLen = TriceCOBSEncode(co, (uint8_t*)da, eLen);
-    do{                 // Add 1 to 4 zeroes as COBS package delimiter.
-        co[cLen++] = 0; // One is ok, but padding to an uint32_t border could make TRICE_WRITE faster.
-    }while( cLen & 3 ); // Additional empty packages are ignored on th receiver side.
+    cLen = TriceCOBSEncode(co, da, len);
+    co[cLen++] = 0; // Add zero as package delimiter.
     TRICE_WRITE( co, cLen );
+    
+    // diagnostics
     tLen += TRICE_DATA_OFFSET; 
-    triceDepthMax = tLen < triceDepthMax ? triceDepthMax : tLen; // diagnostics
+    triceDepthMax = tLen < triceDepthMax ? triceDepthMax : tLen;
 }
 
 #if defined( TRICE_UART ) && !defined( TRICE_HALF_BUFFER_SIZE ) // direct out to UART
@@ -260,29 +298,12 @@ void TriceEncrypt( uint32_t* p, unsigned count ){
 #endif // #ifdef TRICE_ENCRYPT
 
 uint32_t ReadTick32( void ){
-	return 0x11111111;
+	return 0x32323232;
 }
 
 uint16_t ReadTick16( void ){
-	return 0x1111;
+	return 0x1616;
 }
 
 
-//! triceDataLen returns len or if possible a smaller value for len.
-// *da = 11iiiiiiI 11iiiiiiI TT TT NC ...
-// *da = 10iiiiiiI TT NC ...
-// *da = 01iiiiiiI 11iiiiiiI NC ...
-// *da = 00...
-size_t triceDataLen( size_t len, uint32_t* da ){
-    uint16_t x = *da >> 14; // get the 2 descriptor bits
-    if( x == 0 ){
-        return len; // unknown data structure, use len
-    }
-    uint16_t nc = da[x];
-    size_t n = nc>>8;
-    n = n < 128 ? n : 0x7f & nc;
-    n = n + 4 + 2 * (x-1); // add ID, NC and TT
-    //ASSERT( n <= len )
-    return n;
-}
 

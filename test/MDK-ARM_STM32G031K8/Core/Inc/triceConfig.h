@@ -15,14 +15,14 @@ extern "C" {
 // Select trice mode and general settings.
 //
 
-#define TRICE_MODE 200 //! TRICE_MODE is a predefined trice transfer method.
+#define TRICE_MODE 0 //! TRICE_MODE is a predefined trice transfer method.
 
 //#define TRICE_RTT_CHANNEL 0 //!< Enable and set channel number for SeggerRTT usage. Only channel 0 works right now for some reason.
 #define TRICE_UART USART2 //!< Enable and set UART for serial output.
 
-extern uint32_t ReadTime( void );
+//extern uint32_t ReadTime( void );
 //#define TRICE_LOCATION (TRICE_FILE| __LINE__) //!< Enable if you need target location. TRICE_FILE occupies the upper 16 bit. DEPRECIATED, WILL DISAPPEAR! Use li.json in the future. (-locationInformation)
-#define TRICE_TIMESTAMP ReadTime()            //!< Enable if you need target timestamps. You must provide ReadTime() returning a 32-bit value of your choice, like microSecond.
+//#define TRICE_TIMESTAMP ReadTime()            //!< Enable if you need target timestamps. You must provide ReadTime() returning a 32-bit value of your choice, like microSecond.
 
 // Enabling next 2 lines results in XTEA TriceEncryption  with the key.
 //#define TRICE_ENCRYPT XTEA_KEY( ea, bb, ec, 6f, 31, 80, 4e, b9, 68, e2, fa, ea, ae, f1, 50, 54 ); //!< -password MySecret
@@ -99,12 +99,12 @@ extern uint32_t ReadTime( void );
 //! This is usable as the very first trice sequence after restart. Adapt and use it or ignore it.
 #define TRICE_HEADLINE \
     TRICE0( Id(10264), "s:                                          \n" ); \
-    TRICE8( Id(14555), "s:     NUCLEO-G031K8     TRICE_MODE %3u     \n", TRICE_MODE ); \
+    TRICE8( Id(14555), "s:     NUCLEO-G031K8     TRICE_MODE %3u     \n", 0x77 + TRICE_MODE ); \
     TRICE0( Id(12707), "s:                                          \n" ); \
     TRICE0( Id(15016), "s:     " ); \
     TRICE_BUFFER_INFO; \
-    TRICE0( Id(10211), "s:     \n" ); \
-    TRICE0( Id(15592), "s:                                          \n");
+    TRICE0( Id(13072), "s:     \n" ); \
+    TRICE0( Id(10051), "s:                                          \n");
 
 //
 ///////////////////////////////////////////////////////////////////////////////

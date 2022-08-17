@@ -160,8 +160,13 @@ func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec decode
 			}
 
 			// If target timestamp & enabled and line start, write target timestamp.
-			if logLineStart && decoder.TargetTimestampExists && decoder.ShowTargetTimestamp != "" {
-				s := fmt.Sprintf(decoder.ShowTargetTimestamp, decoder.TargetTimestamp)
+			if logLineStart && decoder.ShowTargetTimestamp != "" {
+				var s string
+				if decoder.TargetTimestampSize > 0 {
+					s = fmt.Sprintf(decoder.ShowTargetTimestamp, decoder.TargetTimestamp)
+				} else {
+					s = fmt.Sprintf("time:          ") // todo: make configurable
+				}
 				_, err := sw.Write([]byte(s))
 				msg.OnErr(err)
 			}

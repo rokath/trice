@@ -105,7 +105,6 @@ var (
 	TargetLocation                  uint32  // targetLocation contains 16 bit file id in high and 16 bit line number in low part.
 	ShowTargetTimestamp             string  // ShowTargetTimestamp is the format string for target timestamps.
 	LocationInformationFormatString string  // LocationInformationFormatString is the format string for target location: line number and file name.
-	TargetTimestampExists           bool    // TargetTimestampExists is set in dependence trice type (remove and use TargetTimestampSize)
 	TargetTimestampSize             int     // TargetTimestampSize is set in dependence of trice type.
 	TargetLocationExists            bool    // TargetLocationExists is set in dependence of p.COBSModeDescriptor. (obsolete)
 )
