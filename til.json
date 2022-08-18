@@ -639,6 +639,10 @@
 		"Type": "TRICE16",
 		"Strg": "tst:TRICE16 %d %d %d %d %d\\n"
 	},
+	"10372": {
+		"Type": "TRICE16",
+		"Strg": "MSG: 💚 START select = %d, TriceDepthMax =%4u\\n"
+	},
 	"10374": {
 		"Type": "TRICE64",
 		"Strg": "rd:TRICE64 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
@@ -870,6 +874,10 @@
 	"10533": {
 		"Type": "TRICE64",
 		"Strg": "rd:TRICE64 %d, %d\\n"
+	},
+	"10534": {
+		"Type": "TRICE_S",
+		"Strg": "msg: A short string:%s\\n"
 	},
 	"10538": {
 		"Type": "TRICE",
@@ -2119,6 +2127,10 @@
 		"Type": "TRICE",
 		"Strg": "w:B"
 	},
+	"11321": {
+		"Type": "TRICE8",
+		"Strg": "s:     NUCLEO-G031K8     TRICE_MODE %3u     \\n"
+	},
 	"11324": {
 		"Type": "TRICE64",
 		"Strg": "rd:TRICE64 double %e (%%e), aDouble(y)\\n"
@@ -2370,6 +2382,10 @@
 	"11505": {
 		"Type": "TRICE32_1",
 		"Strg": "tst:TRICE32_1 %u\\n"
+	},
+	"11510": {
+		"Type": "TRICE_S",
+		"Strg": "msg: A long string:%s\\n"
 	},
 	"11511": {
 		"Type": "TRICE64_12",
@@ -4183,6 +4199,10 @@
 		"Type": "TRICE",
 		"Strg": "notice:TRICE_B example: "
 	},
+	"12644": {
+		"Type": "TRICE16",
+		"Strg": "MSG: 💚 START select = %d, TriceDepthMax =%4u\\n"
+	},
 	"12645": {
 		"Type": "TRICE",
 		"Strg": "debug:130+i\\n"
@@ -5910,6 +5930,10 @@
 	"13747": {
 		"Type": "TRICE",
 		"Strg": "dbg:\\\\aHi!\\n"
+	},
+	"13753": {
+		"Type": "TRICE16",
+		"Strg": "MSG: ✅ STOP  select = %d, TriceDepthMax =%4u\\n"
 	},
 	"13759": {
 		"Type": "TRICE0",
