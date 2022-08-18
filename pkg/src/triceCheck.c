@@ -1016,31 +1016,32 @@ EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
 #define DCOPY( element ) do{ char* n = #element; int size = sizeof( dst->element ); memcpy( &(dst->element), p, size ); p += size; TRICE_S( Id(13474), "rd:sizeof(%8s)", n ); TRICE( Id(13800), " = %d\n", size);}while(0);
 
 
-typedef struct{
-    float x;
-    uint8_t rgb[3];
-    float y;
-} Point_t; //!< Point_t is small struct type.
-
-static int serializePoint( char* dst, Point_t const * src ){
-    char * p = dst;
-
-    SCOPY( x )
-    SCOPY( rgb )
-    SCOPY( y )
-
-    return p - dst;
-}
-
-static int deserializePoint( Point_t * const dst, char const * src ){
-    char const * p = src;
-
-    DCOPY( x )
-    DCOPY( rgb )
-    DCOPY( y )
-    
-    return p - src;
-}
+//  typedef struct{
+//      float x;
+//      float y;
+//      uint8_t rgb[3];
+//      //float z; // it seems, that the compiler does not align this with -o3 & time !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//  } Point_t; //!< Point_t is small struct type.
+//  
+//  static int serializePoint( char* dst, Point_t const * src ){
+//      char * p = dst;
+//  
+//      SCOPY( x )
+//      SCOPY( y )
+//      SCOPY( rgb )
+//  
+//      return p - dst;
+//  }
+//  
+//  static int deserializePoint( Point_t * const dst, char const * src ){
+//      char const * p = src;
+//  
+//      DCOPY( x )
+//      DCOPY( y )
+//      DCOPY( rgb )
+//      
+//      return p - src;
+//  }
 
 typedef struct{
     float z;
@@ -1050,7 +1051,7 @@ typedef struct{
     uint32_t x;
      int32_t y;
     char names[3][5];
-    Point_t point[2];
+    //Point_t point[2];
     uint64_t bitmask;
 } Tryout_t; //!<  Tryout_t is a struct example embedding an other struct.
 
@@ -1066,7 +1067,7 @@ static int serializeTryout( char* dst, Tryout_t const * src ){
     SCOPY( x )
     SCOPY( y )
     SCOPY( names )
-    p += serializePoint( p, src->point );
+    //p += serializePoint( p, src->point );
     SCOPY( bitmask )  
 
     return p - dst;
@@ -1082,7 +1083,7 @@ static int deserializeTryout( Tryout_t * const dst, char const * src ){
     DCOPY( x )
     DCOPY( y )
     DCOPY( names )
-    p += deserializePoint( dst->point, p );
+    //p += deserializePoint( dst->point, p );
     DCOPY( bitmask )  
 
     return p - src;
@@ -1108,17 +1109,17 @@ static void exampleOfManualSerialization( void ){
     memcpy( tx.names[1], "bbbb", strlen( "bbbb" ) ); 
     memcpy( tx.names[2], "ccccc", strlen( "ccccc" ) ); 
 
-    tx.point[0].x = 2.22;
-    tx.point[0].y = -3.33;
-    tx.point[0].rgb[0] = 0x44;
-    tx.point[0].rgb[0] = 0x66;
-    tx.point[0].rgb[0] = 0x88;
-
-    tx.point[1].x = -66.66;
-    tx.point[1].y = +5.5555;
-    tx.point[1].rgb[0] = 0xee;
-    tx.point[1].rgb[0] = 0xaa;
-    tx.point[1].rgb[0] = 0xbb;
+    //  tx.point[0].x = 2.22;
+    //  tx.point[0].y = -3.33;
+    //  tx.point[0].rgb[0] = 0x44;
+    //  tx.point[0].rgb[0] = 0x66;
+    //  tx.point[0].rgb[0] = 0x88;
+    //  
+    //  tx.point[1].x = -66.66;
+    //  tx.point[1].y = +5.5555;
+    //  tx.point[1].rgb[0] = 0xee;
+    //  tx.point[1].rgb[0] = 0xaa;
+    //  tx.point[1].rgb[0] = 0xbb;
     
     tx.bitmask = 0xAAAA55550000FFFF;
     //
