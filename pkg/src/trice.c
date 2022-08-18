@@ -96,10 +96,12 @@ unsigned triceErrorCount = 0;
 //! \param tLen is length of trice data. tlen is always a multiple of 4 and counts after TRICE_COBS_PACKAGE_MODE.
 //! tLen is needed only for triceType 0 (typeEX), if there is no length information coded.
 void TriceOut( uint32_t* tb, size_t tLen ){
-    size_t len, cLen;
+    size_t len;
+    size_t cLen;
     uint8_t* co = (uint8_t*)tb; // encoded COBS data starting address
-    uint8_t* da = co + TRICE_DATA_OFFSET; //-1; // start of unencoded COBS package data: descriptor and trice data
+    uint8_t* da = co + TRICE_DATA_OFFSET; // start of unencoded COBS package data: descriptor and trice data
     int triceType = *(uint16_t*)da >> 14;
+    int tolerance = 0;
     switch( triceType ){
         case 0: // EX
             len = tLen; // todo: Change that when needed.
@@ -109,13 +111,14 @@ void TriceOut( uint32_t* tb, size_t tLen ){
             break;
         case 2: // T2
             da += 2; // see Id(n) macro definition
+            tolerance = 2;
             len = 6 + triceDataLen(da + 4); // tyId ts16
             break;
         case 3: // T4
             len = 8 + triceDataLen(da + 6); // tyId ts32
             break;
     }
-    if( !(tLen - 3 <= len && len <= tLen )){ // corrupt data
+    if( !(tLen - 3 - tolerance <= len && len <= tLen )){ // corrupt data
         triceErrorCount++;
         return;
     }
@@ -296,14 +299,3 @@ void TriceEncrypt( uint32_t* p, unsigned count ){
 }
 
 #endif // #ifdef TRICE_ENCRYPT
-
-uint32_t ReadTick32( void ){
-	return 0x32323232;
-}
-
-uint16_t ReadTick16( void ){
-	return 0x1616;
-}
-
-
-

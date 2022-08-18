@@ -188,6 +188,7 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 	p.TriceSize = tyIdSize + decoder.TargetTimestampSize + ncSize + p.ParamSpace
 	if p.TriceSize != packageSize {
 		n += copy(b[n:], fmt.Sprintln("ERROR:package size", packageSize, "is !=", p.TriceSize, " - ignoring package", p.B))
+		n += copy(b[n:], fmt.Sprintln(tyIdSize, decoder.TargetTimestampSize, ncSize, p.ParamSpace))
 		n += copy(b[n:], fmt.Sprintln(decoder.Hints))
 		p.B = p.B[len(p.B):]
 		return
@@ -220,11 +221,6 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 		p.cycle++
 	}
 
-	if decoder.DebugOut {
-		fmt.Fprint(p.W, "TRICE -> ")
-		decoder.Dump(p.W, p.B)
-	}
-
 	var ok bool
 	p.LutMutex.RLock()
 	p.Trice, ok = p.Lut[triceID]
@@ -250,56 +246,6 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 
 // sprintTrice writes a trice string or appropriate message into b and returns that len.
 func (p *trexDec) sprintTrice(b []byte) (n int) {
-
-	if p.Trice.Type == "TRICE_S" { // patch table ParamSpace in that case
-		p.SLen = int(p.ReadU32(p.B))
-		cobsFunctionPtrList[0].ParamSpace = (p.SLen + 7) & ^3 // +4 for 4 bytes sLen, +3^3 is alignment to 4
-	}
-	if p.Trice.Type == "TRICE_N" { // patch table ParamSpace in that case
-		p.SLen = int(p.ReadU32(p.B))
-		cobsFunctionPtrList[1].ParamSpace = (p.SLen + 7) & ^3 // +4 for 4 bytes sLen, +3^3 is alignment to 4
-	}
-	if p.Trice.Type == "TRICE_B" { // patch table ParamSpace in that case
-		p.SLen = int(p.ReadU32(p.B))
-		cobsFunctionPtrList[2].ParamSpace = (p.SLen + 7) & ^3 // +4 for 4 bytes sLen, +3^3 is alignment to 4
-	}
-	if p.Trice.Type == "TRICE8_B" { // patch table ParamSpace in that case
-		p.SLen = int(p.ReadU32(p.B))
-		cobsFunctionPtrList[3].ParamSpace = (p.SLen + 7) & ^3 // +4 for 4 bytes sLen, +3^3 is alignment to 4
-	}
-	if p.Trice.Type == "TRICE16_B" { // patch table ParamSpace in that case
-		p.SLen = int(p.ReadU32(p.B))
-		cobsFunctionPtrList[4].ParamSpace = (p.SLen + 7) & ^3 // +4 for 4 bytes sLen, +3^3 is alignment to 4
-	}
-	if p.Trice.Type == "TRICE32_B" { // patch table ParamSpace in that case
-		p.SLen = int(p.ReadU32(p.B))
-		cobsFunctionPtrList[5].ParamSpace = (p.SLen + 7) & ^3 // +4 for 4 bytes sLen, +3^3 is alignment to 4
-	}
-	if p.Trice.Type == "TRICE64_B" { // patch table ParamSpace in that case
-		p.SLen = int(p.ReadU32(p.B))
-		cobsFunctionPtrList[6].ParamSpace = (p.SLen + 7) & ^3 // +4 for 4 bytes sLen, +3^3 is alignment to 4
-	}
-	if p.Trice.Type == "TRICE_F" { // patch table ParamSpace in that case
-		p.SLen = int(p.ReadU32(p.B))
-		cobsFunctionPtrList[7].ParamSpace = (p.SLen + 7) & ^3 // +4 for 4 bytes sLen, +3^3 is alignment to 4
-	}
-	if p.Trice.Type == "TRICE8_F" { // patch table ParamSpace in that case
-		p.SLen = int(p.ReadU32(p.B))
-		cobsFunctionPtrList[8].ParamSpace = (p.SLen + 7) & ^3 // +4 for 4 bytes sLen, +3^3 is alignment to 4
-	}
-	if p.Trice.Type == "TRICE16_F" { // patch table ParamSpace in that case
-		p.SLen = int(p.ReadU32(p.B))
-		cobsFunctionPtrList[9].ParamSpace = (p.SLen + 7) & ^3 // +4 for 4 bytes sLen, +3^3 is alignment to 4
-	}
-	if p.Trice.Type == "TRICE32_F" { // patch table ParamSpace in that case
-		p.SLen = int(p.ReadU32(p.B))
-		cobsFunctionPtrList[10].ParamSpace = (p.SLen + 7) & ^3 // +4 for 4 bytes sLen, +3^3 is alignment to 4
-	}
-	if p.Trice.Type == "TRICE64_F" { // patch table ParamSpace in that case
-		p.SLen = int(p.ReadU32(p.B))
-		cobsFunctionPtrList[11].ParamSpace = (p.SLen + 7) & ^3 // +4 for 4 bytes sLen, +3^3 is alignment to 4
-	}
-
 	p.pFmt, p.u = decoder.UReplaceN(p.Trice.Strg)
 
 	var triceType string                           // need to reconstruct full TRICE info, if not exist in type string
@@ -318,19 +264,13 @@ func (p *trexDec) sprintTrice(b []byte) (n int) {
 
 	for _, s := range cobsFunctionPtrList { // walk through the list and try to find a match for execution
 		if s.triceType == p.Trice.Type || s.triceType == triceType { // match list entry "TRICE..."
-			if s.ParamSpace == p.ParamSpace { // size ok
-				if len(p.B) < p.ParamSpace {
-					n += copy(b[n:], fmt.Sprintln("err:len(p.B) =", len(p.B), "< p.ParamSpace = ", p.ParamSpace, "- ignoring package", p.B[:len(p.B)]))
-					n += copy(b[n:], fmt.Sprintln(decoder.Hints))
-					return
-				}
-				n += s.triceFn(p, b, s.bitWidth, s.paramCount) // match found, call handler
-				return
-			} else { // size error
-				n += copy(b[n:], fmt.Sprintln("err:trice.Type", p.Trice.Type, ": s.ParamSpace", s.ParamSpace, "!= p.ParamSpace", p.ParamSpace, "- ignoring data", p.B[:p.ParamSpace]))
+			if len(p.B) < p.ParamSpace {
+				n += copy(b[n:], fmt.Sprintln("err:len(p.B) =", len(p.B), "< p.ParamSpace = ", p.ParamSpace, "- ignoring package", p.B[:len(p.B)]))
 				n += copy(b[n:], fmt.Sprintln(decoder.Hints))
 				return
 			}
+			n += s.triceFn(p, b, s.bitWidth, s.paramCount) // match found, call handler
+			return
 		}
 	}
 	n += copy(b[n:], fmt.Sprintln("err:Unknown trice.Type:", p.Trice.Type, "and", triceType, "not matching - ignoring trice data", p.B[:p.ParamSpace]))
@@ -365,29 +305,29 @@ var cobsFunctionPtrList = [...]triceTypeFn{
 
 	{"TRICE32_0", (*trexDec).trice0, 0, 0, 0},
 	{"TRICE0", (*trexDec).trice0, 0, 0, 0},
-	{"TRICE8_1", (*trexDec).unSignedOrSignedOut, 4, 8, 1},
-	{"TRICE8_2", (*trexDec).unSignedOrSignedOut, 4, 8, 2},
-	{"TRICE8_3", (*trexDec).unSignedOrSignedOut, 4, 8, 3},
+	{"TRICE8_1", (*trexDec).unSignedOrSignedOut, 1, 8, 1},
+	{"TRICE8_2", (*trexDec).unSignedOrSignedOut, 2, 8, 2},
+	{"TRICE8_3", (*trexDec).unSignedOrSignedOut, 3, 8, 3},
 	{"TRICE8_4", (*trexDec).unSignedOrSignedOut, 4, 8, 4},
-	{"TRICE8_5", (*trexDec).unSignedOrSignedOut, 8, 8, 5},
-	{"TRICE8_6", (*trexDec).unSignedOrSignedOut, 8, 8, 6},
-	{"TRICE8_7", (*trexDec).unSignedOrSignedOut, 8, 8, 7},
+	{"TRICE8_5", (*trexDec).unSignedOrSignedOut, 5, 8, 5},
+	{"TRICE8_6", (*trexDec).unSignedOrSignedOut, 6, 8, 6},
+	{"TRICE8_7", (*trexDec).unSignedOrSignedOut, 7, 8, 7},
 	{"TRICE8_8", (*trexDec).unSignedOrSignedOut, 8, 8, 8},
-	{"TRICE8_9", (*trexDec).unSignedOrSignedOut, 12, 8, 9},
-	{"TRICE8_10", (*trexDec).unSignedOrSignedOut, 12, 8, 10},
-	{"TRICE8_11", (*trexDec).unSignedOrSignedOut, 12, 8, 11},
+	{"TRICE8_9", (*trexDec).unSignedOrSignedOut, 9, 8, 9},
+	{"TRICE8_10", (*trexDec).unSignedOrSignedOut, 10, 8, 10},
+	{"TRICE8_11", (*trexDec).unSignedOrSignedOut, 11, 8, 11},
 	{"TRICE8_12", (*trexDec).unSignedOrSignedOut, 12, 8, 12},
-	{"TRICE16_1", (*trexDec).unSignedOrSignedOut, 4, 16, 1},
+	{"TRICE16_1", (*trexDec).unSignedOrSignedOut, 2, 16, 1},
 	{"TRICE16_2", (*trexDec).unSignedOrSignedOut, 4, 16, 2},
-	{"TRICE16_3", (*trexDec).unSignedOrSignedOut, 8, 16, 3},
+	{"TRICE16_3", (*trexDec).unSignedOrSignedOut, 6, 16, 3},
 	{"TRICE16_4", (*trexDec).unSignedOrSignedOut, 8, 16, 4},
-	{"TRICE16_5", (*trexDec).unSignedOrSignedOut, 12, 16, 5},
+	{"TRICE16_5", (*trexDec).unSignedOrSignedOut, 10, 16, 5},
 	{"TRICE16_6", (*trexDec).unSignedOrSignedOut, 12, 16, 6},
-	{"TRICE16_7", (*trexDec).unSignedOrSignedOut, 16, 16, 7},
+	{"TRICE16_7", (*trexDec).unSignedOrSignedOut, 14, 16, 7},
 	{"TRICE16_8", (*trexDec).unSignedOrSignedOut, 16, 16, 8},
-	{"TRICE16_9", (*trexDec).unSignedOrSignedOut, 20, 16, 9},
+	{"TRICE16_9", (*trexDec).unSignedOrSignedOut, 18, 16, 9},
 	{"TRICE16_10", (*trexDec).unSignedOrSignedOut, 20, 16, 10},
-	{"TRICE16_11", (*trexDec).unSignedOrSignedOut, 24, 16, 11},
+	{"TRICE16_11", (*trexDec).unSignedOrSignedOut, 22, 16, 11},
 	{"TRICE16_12", (*trexDec).unSignedOrSignedOut, 24, 16, 12},
 	{"TRICE32_1", (*trexDec).unSignedOrSignedOut, 4, 32, 1},
 	{"TRICE32_2", (*trexDec).unSignedOrSignedOut, 8, 32, 2},
@@ -420,8 +360,7 @@ func (p *trexDec) triceS(b []byte, _ int, _ int) int {
 	if decoder.DebugOut {
 		fmt.Fprintln(p.W, p.B)
 	}
-	s := p.B[4 : 4+p.SLen]
-	return copy(b, fmt.Sprintf(p.Trice.Strg, string(s)))
+	return copy(b, fmt.Sprintf(p.Trice.Strg, string(p.B)))
 }
 
 // triceB converts dynamic buffers.
@@ -429,7 +368,7 @@ func (p *trexDec) trice8B(b []byte, _ int, _ int) (n int) {
 	if decoder.DebugOut {
 		fmt.Fprintln(p.W, p.B)
 	}
-	s := p.B[4 : 4+p.SLen]
+	s := p.B // [4 : 4+p.SLen]
 	for i := 0; i < len(s); i++ {
 		n += copy(b[n:], fmt.Sprintf(p.Trice.Strg, s[i]))
 	}
@@ -441,7 +380,7 @@ func (p *trexDec) trice16B(b []byte, _ int, _ int) (n int) {
 	if decoder.DebugOut {
 		fmt.Fprintln(p.W, p.B)
 	}
-	s := p.B[4 : 4+p.SLen]
+	s := p.B //[4 : 4+p.SLen]
 	for i := 0; i < len(s); i += 2 {
 		n += copy(b[n:], fmt.Sprintf(p.Trice.Strg, binary.LittleEndian.Uint16(s[i:])))
 	}
@@ -453,7 +392,7 @@ func (p *trexDec) trice32B(b []byte, _ int, _ int) (n int) {
 	if decoder.DebugOut {
 		fmt.Fprintln(p.W, p.B)
 	}
-	s := p.B[4 : 4+p.SLen]
+	s := p.B //[4 : 4+p.SLen]
 	for i := 0; i < len(s); i += 4 {
 		n += copy(b[n:], fmt.Sprintf(p.Trice.Strg, binary.LittleEndian.Uint32(s[i:])))
 	}
@@ -465,7 +404,7 @@ func (p *trexDec) trice64B(b []byte, _ int, _ int) (n int) {
 	if decoder.DebugOut {
 		fmt.Fprintln(p.W, p.B)
 	}
-	s := p.B[4 : 4+p.SLen]
+	s := p.B //[4 : 4+p.SLen]
 	for i := 0; i < len(s); i += 8 {
 		n += copy(b[n:], fmt.Sprintf(p.Trice.Strg, binary.LittleEndian.Uint64(s[i:])))
 	}
@@ -477,7 +416,7 @@ func (p *trexDec) trice8F(b []byte, _ int, _ int) (n int) {
 	if decoder.DebugOut {
 		fmt.Fprintln(p.W, p.B)
 	}
-	s := p.B[4 : 4+p.SLen]
+	s := p.B //[4 : 4+p.SLen]
 	n += copy(b[n:], fmt.Sprintf(p.Trice.Strg))
 	for i := 0; i < len(s); i++ {
 		n += copy(b[n:], fmt.Sprintf("(%02x)", s[i]))
@@ -491,7 +430,7 @@ func (p *trexDec) trice16F(b []byte, _ int, _ int) (n int) {
 	if decoder.DebugOut {
 		fmt.Fprintln(p.W, p.B)
 	}
-	s := p.B[4 : 4+p.SLen]
+	s := p.B //[4 : 4+p.SLen]
 	n += copy(b[n:], fmt.Sprintf(p.Trice.Strg))
 	for i := 0; i < len(s); i += 2 {
 		n += copy(b[n:], fmt.Sprintf("(%04x)", binary.LittleEndian.Uint16(s[i:])))
@@ -505,7 +444,7 @@ func (p *trexDec) trice32F(b []byte, _ int, _ int) (n int) {
 	if decoder.DebugOut {
 		fmt.Fprintln(p.W, p.B)
 	}
-	s := p.B[4 : 4+p.SLen]
+	s := p.B //[4 : 4+p.SLen]
 	n += copy(b[n:], fmt.Sprintf(p.Trice.Strg))
 	for i := 0; i < len(s); i += 4 {
 		n += copy(b[n:], fmt.Sprintf("(%08x)", binary.LittleEndian.Uint32(s[i:])))
@@ -519,7 +458,7 @@ func (p *trexDec) trice64F(b []byte, _ int, _ int) (n int) {
 	if decoder.DebugOut {
 		fmt.Fprintln(p.W, p.B)
 	}
-	s := p.B[4 : 4+p.SLen]
+	s := p.B //[4 : 4+p.SLen]
 	n += copy(b[n:], fmt.Sprintf(p.Trice.Strg))
 	for i := 0; i < len(s); i += 8 {
 		n += copy(b[n:], fmt.Sprintf("(%016x)", binary.LittleEndian.Uint64(s[i:])))
@@ -533,7 +472,7 @@ func (p *trexDec) triceN(b []byte, _ int, _ int) int {
 	if decoder.DebugOut {
 		fmt.Fprintln(p.W, p.B)
 	}
-	s := p.B[4 : 4+p.SLen]
+	s := p.B //[4 : 4+p.SLen]
 	// todo: evaluate p.Trice.Strg, use p.SLen and do whatever should be done
 	return copy(b, fmt.Sprintf(p.Trice.Strg, string(s)))
 }

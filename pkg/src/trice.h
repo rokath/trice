@@ -5,6 +5,11 @@
 #ifndef TRICE_H_
 #define TRICE_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
 #ifdef TRICE_OFF // do not generate trice code for files defining TRICE_OFF before including "trice.h"
 #define TRICE_CYCLE_COUNTER 0 // why needed here?
 #define TRICE_INTO
@@ -19,9 +24,8 @@
 #include <stdint.h>
 #include <string.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+uint16_t ReadUs16( void );
+uint32_t ReadUs32( void );
 
 ///////////////////////////////////////////////////////////////////////////////
 // Declarations and Defaults
@@ -343,14 +347,14 @@ static inline uint64_t aDouble( double x ){
 // todo: for some reason this macro is not working well wit name len instead of len_, probably when injected len as value.
 //
 #define TRICE_N( id, pFmt, buf, n) do { \
-    uint32_t limit = TRICE_SINGLE_MAX_SIZE-TRICE_PREFIX_SIZE-8; /* 8 = head + len size */ \
+    uint32_t limit = TRICE_SINGLE_MAX_SIZE-TRICE_PREFIX_SIZE-8; /* 8 = head + max timestamp size */ \
     uint32_t len_ = n; /* n could be a constant */ \
     if( len_ > limit ){ \
         TRICE32( Id(14113), "wrn:Transmit buffer truncated from %u to %u\n", len_, limit ); \
         len_ = limit; \
     } \
 		TRICE_ENTER id; \
-		if( n <= 127 ){ CNTC(len_); }else{ LCNT(len_); } \
+		if( len_ <= 127 ){ CNTC(len_); }else{ LCNT(len_); } \
     TRICE_PUTBUFFER( buf, len_ ); \
     TRICE_LEAVE \
 } while(0)
@@ -371,11 +375,7 @@ static inline uint64_t aDouble( double x ){
 //! TRICE_PUT16 copies a 16 bit x into the TRICE buffer.
 //#define TRICE_PUT16(x) *(uint16_t*)TriceBufferWritePosition++ = x; 
 #define TRICE_PUT16(x) do{ uint16_t* p = (uint16_t*)TriceBufferWritePosition; *p++ = x; TriceBufferWritePosition = (uint32_t*)p; }while(0)
-
 #endif
-
-uint32_t ReadTick32( void );
-uint16_t ReadTick16( void );
 
 #define TS4 ID(0) //!< Placeholder for ID(0) with a 4 byte timestamp.
 #define TS2 iD(0) //!< Placeholder for iD(0) with a 2 byte timestamp.
@@ -391,11 +391,12 @@ uint16_t ReadTick16( void );
 
 //! ID writes 14-bit id with 11 as most significant bits, followed by a 32-bit timestamp.
 //! 11iiiiiiI TT | TT (NC) | ...
-#define ID(n) { uint32_t ts = ReadTick32(); TRICE_PUT16(  0xC000|(n)); TRICE_PUT1616(ts); }
+#define ID(n) { uint32_t ts = TRICE_READ_TICK32; TRICE_PUT16(  0xC000|(n)); TRICE_PUT1616(ts); }
 
 //! Id writes 14-bit id with 10 as most significant bits two times, followed by a 32-bit timestamp.
 //! 10iiiiiiI 10iiiiiiI | TT (NC) | ...
-#define Id(n) { uint16_t ts = ReadTick16(); TRICE_PUT((0x80008000|((n)<<16)|(n))); TRICE_PUT16(ts); }
+#define Id(n) { uint16_t ts = ReadUs16();        TRICE_PUT((0x80008000|((n)<<16)|(n))); TRICE_PUT16(ts); }
+//#define Id(n) { uint16_t ts = TRICE_READ_TICK16; TRICE_PUT((0x80008000|((n)<<16)|(n))); TRICE_PUT16(ts); }
 
 //! id writes 14-bit id with 01 as most significant bits, followed by a 32-bit timestamp.
 //! 01iiiiiiI (NC) | ...
@@ -967,7 +968,7 @@ uint16_t ReadTick16( void );
 //! \param id is a 16 bit Trice id in upper 2 bytes of a 32 bit value
 //! \param v0 - v11 are 64 bit values
 #define TRICE64_12( id, pFmt,  v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 ) \
-    TRICE_ENTER id; CNTC(76); \
+    TRICE_ENTER id; CNTC(96); \
     TRICE_PUT64( v0 ); \
     TRICE_PUT64( v1 ); \
     TRICE_PUT64( v2 ); \
