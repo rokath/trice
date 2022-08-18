@@ -3,9 +3,7 @@
 \author thomas.hoehenleitner [at] seerose.net
 *******************************************************************************/
 #include "trice.h"
-#define TRICE_FILE Id(10145)
 #include "trice_test.h"
-
 
 // SetTriceBuffer sets the internal triceBuffer pointer to buf. 
 // This function is called from Go for test setup.
@@ -32,8 +30,12 @@ int TriceCode( int n ){
 int triceBufferDepth = 0;
 uint8_t* triceBuffer;
 
-uint32_t ReadTime( void ){
-    return 0x11111111;
+uint32_t ReadUs32( void ){ 
+    return 32323232; 
+}
+
+uint16_t ReadUs16( void ){
+    return 1616;
 }
 
 //#endif // #ifdef TRICE_CGO_TEST
