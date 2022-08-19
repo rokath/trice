@@ -72,7 +72,7 @@ size_t TriceDepthMax( void ){
 #endif // #else #ifdef TRICE_HALF_BUFFER_SIZE
 
 
-//! triceDataLen returns len or if possible a smaller value for len.
+//! triceDataLen returns encoded len.
 //! \param p points to nc
 // *da = 11iiiiiiI 11iiiiiiI TT TT NC ...
 // *da = 10iiiiiiI TT NC ...
