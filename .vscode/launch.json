@@ -255,7 +255,7 @@
                     "-til",
                     "${workspaceFolder}/til.json",
                      "-p",
-                     "com18",
+                     "com6",
                      "-e",
                      "trex",
                      "-debug"

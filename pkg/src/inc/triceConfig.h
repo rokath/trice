@@ -61,7 +61,7 @@ extern uint32_t ReadTime( void );
 ///////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////////
-// Predefined trice modes: Adapt or creeate your own trice mode.
+// Predefined trice modes: Adapt or create your own trice mode.
 //
 
 //! Direct output to UART or RTT with cycle counter. Trices inside interrupts forbidden. Direct TRICE macro execution.
@@ -81,7 +81,7 @@ extern uint32_t ReadTime( void );
 #ifndef TRICE_LEAVE
 #define TRICE_LEAVE { /*! End of TRICE macro */ \
     unsigned tLen = ((TriceBufferWritePosition - co)<<2) - TRICE_DATA_OFFSET; \
-    TriceOut( co, tLen ); } }
+    TriceOutSingle( co, tLen ); } }
 #endif
 #endif // #if TRICE_MODE == 0
 

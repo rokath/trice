@@ -23,7 +23,6 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "trice.h"
-#define TRICE_FILE Id(50869)
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -191,16 +190,10 @@ int main(void)
             if( milliSecond >= lastTricesTime + 1000 ){
                 static int index = 0;
                 int select = index;
-                TRICE16( ID(10439),"MSG: 💚 START select = %d, TriceDepthMax =%4u\n", select, TriceDepthMax() );
-                //char* ss = "hot pens";
-                //TRICE_S( ID(10534), "msg: A short string:%s\n", ss );
-                //char* ls = "lllloooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooonnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnggggggggggggggggggggggggggggg pens";
-                //TRICE_S( Id(11510), "msg: A long string:%s\n", ls );
-                //TRICE16( Id(10439),"MSG: 💚 START select = %d, TriceDepthMax =%4u\n", select, TriceDepthMax() );
-                //TRICE16( id(10439),"MSG: 💚 START select = %d, TriceDepthMax =%4u\n", select, TriceDepthMax() );
+                TRICE16( Id(13473),"MSG: 💚 START select = %d, TriceDepthMax =%4u\n", select, TriceDepthMax() );
                 TriceCheckSet(select);
-                TRICE16( id(12109),"MSG: ✅ STOP  select = %d, TriceDepthMax =%4u\n", select, TriceDepthMax() );
-                index += 10;
+                TRICE16( Id(12111),"MSG: ✅ STOP  select = %d, TriceDepthMax =%4u\n", select, TriceDepthMax() );
+                index += 1;
                 index = index > 1000 ? 0 : index;
                 lastTricesTime = milliSecond;
                 {

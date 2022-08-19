@@ -23,7 +23,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "trice.h"
-#define TRICE_FILE Id(46100)
+#define TRICE_FILE Id(11036)
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -93,8 +93,8 @@ uint32_t ReadUs32( void ){
     return us;
 }
 
-uint32_t ReadTime( void ){
-    return ReadUs32();
+uint16_t ReadUs16( void ){
+    return (uint16_t)(ReadUs32()%10000); // This implies division and is therefore slow!
 }
 
 //! serveUs should be called in intervals secure smaller than 1ms.
@@ -152,9 +152,6 @@ int main(void)
     #ifdef TRICE_UART
     LL_USART_EnableIT_RXNE(TRICE_UART); // enable UART2 interrupt
     #endif
-		TRICE0( ID(11843), "Hi32\n" );
-		TRICE0( Id(11184), "Hi16\n" );
-		TRICE0( id(14318), "Hi0\n" );
     TRICE_HEADLINE;
     {
         float a = 5.934;
@@ -162,8 +159,8 @@ int main(void)
         int c = b;
         int d = (int)(b * 1000) % 1000;
         int e = 1000 * (float)(a - c); 
-        TRICE( Id(11202), "msg:x = %g = %d.%03d, %d.%03d\n", aFloat(a), c, d, c, e );
-        TRICE( Id(10542), "1/11 = %g\n", aFloat( 1.0/11 ) );
+        TRICE( Id(12922), "msg:x = %g = %d.%03d, %d.%03d\n", aFloat(a), c, d, c, e );
+        TRICE( Id(15753), "1/11 = %g\n", aFloat( 1.0/11 ) );
     }
   /* USER CODE END 2 */
 
@@ -172,10 +169,11 @@ int main(void)
     while (1){
         if( triceCommandFlag ){
             triceCommandFlag = 0;
-            TRICE_S( Id(12882), "att:Executing command %s ...\n", triceCommand );
+            TRICE_S( Id(14937), "att:Executing command %s ...\n", triceCommand );
             // do
-            TRICE( Id(13644), "att:...done\n" );
+            TRICE( Id(13746), "att:...done\n" );
         }
+
         // serve every few ms
         #ifdef TRICE_HALF_BUFFER_SIZE
         static int lastMs = 0;
@@ -193,9 +191,9 @@ int main(void)
             if( milliSecond >= lastTricesTime + 1000 ){
                 static int index = 0;
                 int select = index;
-                TRICE16( Id(13473),"MSG: 💚 START select = %d, TriceDepthMax =%4u\n", select, TriceDepthMax() );
+                TRICE16( ID(10110),"MSG: 💚 START select = %d, TriceDepthMax =%4u\n", select, TriceDepthMax() );
                 TriceCheckSet(select);
-                TRICE16( Id(12111),"MSG: ✅ STOP  select = %d, TriceDepthMax =%4u\n", select, TriceDepthMax() );
+                TRICE16( Id(13314),"MSG: ✅ STOP  select = %d, TriceDepthMax =%4u\n", select, TriceDepthMax() );
                 index += 1;
                 index = index > 1000 ? 0 : index;
                 lastTricesTime = milliSecond;
@@ -203,7 +201,7 @@ int main(void)
                     volatile uint32_t st0 = SysTick->VAL;
                     volatile uint32_t us = ReadUs32();
                     volatile uint32_t st1 = SysTick->VAL;
-                    TRICE( Id(13006), "time: %d µs - ReadUs32() lasts %d ticks\n", us, st0 - st1);
+                    TRICE( Id(12849), "time: %d µs - ReadUs32() lasts %d ticks\n", us, st0 - st1);
                 }
             }
         }

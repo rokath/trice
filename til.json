@@ -191,6 +191,10 @@
 		"Type": "TRICE8",
 		"Strg": "rd:TRICE8 %d\\n"
 	},
+	"10102": {
+		"Type": "TRICE",
+		"Strg": "wrn:TRICE_UART CTS interrupt Flag is set\\n"
+	},
 	"10103": {
 		"Type": "TRICE",
 		"Strg": "sig:TRICE8 with 1 to 12 values\\n"
@@ -210,6 +214,10 @@
 	"10109": {
 		"Type": "TRICE",
 		"Strg": "isr:TRICE isr message, SysTick is %6d\\n"
+	},
+	"10110": {
+		"Type": "TRICE16",
+		"Strg": "MSG: 💚 START select = %d, TriceDepthMax =%4u\\n"
 	},
 	"10114": {
 		"Type": "TRICE_S",
@@ -774,6 +782,10 @@
 	"10456": {
 		"Type": "TRICE",
 		"Strg": "notice:TRICE64_B example:"
+	},
+	"10457": {
+		"Type": "TRICE",
+		"Strg": "wr:TRICE_UART Transmit Enable Acknowledge Flag is set\\n"
 	},
 	"10458": {
 		"Type": "TRICE32_7",
@@ -1415,6 +1427,10 @@
 		"Type": "TRICE",
 		"Strg": "sig:TRICE16 with 1 to 12 hex\\n"
 	},
+	"10873": {
+		"Type": "TRICE",
+		"Strg": "wrn:TRICE_UART Receive Wake Up from mute mode Flag is set\\n"
+	},
 	"10879": {
 		"Type": "TRICE64",
 		"Strg": "rd: 123.456000\t\t%f \t%%f Decimal point, no exponent\\n"
@@ -1458,6 +1474,10 @@
 	"10902": {
 		"Type": "TRICE8_2",
 		"Strg": "tst:TRICE8_2 %u %u\\n"
+	},
+	"10904": {
+		"Type": "TRICE",
+		"Strg": "rd:TRICE_UART Receive Enable Acknowledge Flag is set\\n"
 	},
 	"10907": {
 		"Type": "TRICE_FILE",
@@ -1670,6 +1690,10 @@
 	"11034": {
 		"Type": "TRICE32",
 		"Strg": "rd:TRICE32 %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"11036": {
+		"Type": "TRICE_FILE",
+		"Strg": "main.c"
 	},
 	"11041": {
 		"Type": "TRICE8_1",
@@ -2039,6 +2063,10 @@
 		"Type": "TRICE",
 		"Strg": "DIAG:yellow+i:default+h\\n"
 	},
+	"11276": {
+		"Type": "TRICE_S",
+		"Strg": "rx:received command:%s\\n"
+	},
 	"11278": {
 		"Type": "TRICE",
 		"Strg": "rd: U+0041 'A' \t%#U \tUnicode with character\\n"
@@ -2247,9 +2275,17 @@
 		"Type": "TRICE32_12",
 		"Strg": "tst:TRICE32_12 %t %b %x %X %d %u %o %O %p %e %f %g\\n"
 	},
+	"11401": {
+		"Type": "TRICE",
+		"Strg": "wrn:TRICE_UART IDLE line detected Flag is set\\n"
+	},
 	"11409": {
 		"Type": "TRICE32",
 		"Strg": "rd:Use %%p to format a pointer in base 16 notation with leading 0x. (%p)\\n"
+	},
+	"11411": {
+		"Type": "TRICE",
+		"Strg": "err:TRICE_UART Parity Error Flag is set\\n"
 	},
 	"11419": {
 		"Type": "TRICE",
@@ -2342,6 +2378,10 @@
 	"11458": {
 		"Type": "TRICE_N",
 		"Strg": "sig:TRICE_N=%s\\n"
+	},
+	"11466": {
+		"Type": "TRICE8",
+		"Strg": "s:     NUCLEO-F030R8     TRICE_MODE %3u     \\n"
 	},
 	"11475": {
 		"Type": "TRICE64_6",
@@ -2911,6 +2951,10 @@
 		"Type": "TRICE",
 		"Strg": "assert:yellow+i:blue\\n"
 	},
+	"11837": {
+		"Type": "TRICE",
+		"Strg": "wrn:TRICE_UART Character Match Flag is set\\n"
+	},
 	"11840": {
 		"Type": "TRICE",
 		"Strg": "rd:TRICE float %+9.6f (%%9.6f)\\n"
@@ -3103,6 +3147,10 @@
 		"Type": "TRICE8_8",
 		"Strg": "tst:TRICE8_8 %d %d %d %d %d %d %d %d\\n"
 	},
+	"11947": {
+		"Type": "TRICE",
+		"Strg": "WARNING:USARTq OverRun Error Flag is set!\\n"
+	},
 	"11949": {
 		"Type": "TRICE",
 		"Strg": "rd:TRICE float %+9.6f (%%9.6f)\\n"
@@ -3122,6 +3170,10 @@
 	"11959": {
 		"Type": "TRICE16_7",
 		"Strg": "tst:TRICE16_7  %d %d %d %d %d %d %d\\n"
+	},
+	"11961": {
+		"Type": "TRICE0",
+		"Strg": "err:TRICE_UART Auto-Baud Rate Error Flag is set\\n"
 	},
 	"11965": {
 		"Type": "TRICE",
@@ -3374,6 +3426,10 @@
 	"12124": {
 		"Type": "TRICE",
 		"Strg": "TEST:yellow+h:black\\n"
+	},
+	"12125": {
+		"Type": "TRICE0",
+		"Strg": "wr:TRICE_UART Transmission Complete Flag is set\\n"
 	},
 	"12129": {
 		"Type": "TRICE",
@@ -3651,6 +3707,10 @@
 		"Type": "TRICE16",
 		"Strg": "rd:TRICE16 %d, %d, %d, %d\\n"
 	},
+	"12282": {
+		"Type": "TRICE",
+		"Strg": "inf:TRICE_UART Busy Flag is set\\n"
+	},
 	"12283": {
 		"Type": "TRICE32",
 		"Strg": "dbg:len=%u:"
@@ -3702,6 +3762,10 @@
 	"12309": {
 		"Type": "TRICE64",
 		"Strg": "rd:TRICE64 double %12.6F (%%12.6F), aDouble(y)\\n"
+	},
+	"12312": {
+		"Type": "TRICE",
+		"Strg": "err:TRICE_UART Framing Error Flag is set\\n"
 	},
 	"12316": {
 		"Type": "TRICE",
@@ -5071,6 +5135,10 @@
 		"Type": "TRICE64",
 		"Strg": "rd:TRICE64 %d, %d\\n"
 	},
+	"13201": {
+		"Type": "TRICE",
+		"Strg": "err:TRICE_UART OverRun Error Flag is set\\n"
+	},
 	"13205": {
 		"Type": "TRICE64",
 		"Strg": "rd:TRICE64 %d, %d\\n"
@@ -5235,6 +5303,10 @@
 		"Type": "TRICE32_1",
 		"Strg": "rd:TRICE32_1 float %F (%%F)\\n"
 	},
+	"13314": {
+		"Type": "TRICE16",
+		"Strg": "MSG: ✅ STOP  select = %d, TriceDepthMax =%4u\\n"
+	},
 	"13315": {
 		"Type": "TRICE",
 		"Strg": "err:TRICE_UART Framing Error Flag is set\\n"
@@ -5362,6 +5434,10 @@
 	"13385": {
 		"Type": "TRICE16",
 		"Strg": "tst:TRICE16 %d %d\\n"
+	},
+	"13388": {
+		"Type": "TRICE_FILE",
+		"Strg": "triceCheck.c"
 	},
 	"13389": {
 		"Type": "TRICE",
@@ -5934,6 +6010,10 @@
 	"13753": {
 		"Type": "TRICE16",
 		"Strg": "MSG: ✅ STOP  select = %d, TriceDepthMax =%4u\\n"
+	},
+	"13755": {
+		"Type": "TRICE",
+		"Strg": "wrn:TRICE_UART Auto-Baud Rate Flag is set\\n"
 	},
 	"13759": {
 		"Type": "TRICE0",
@@ -7247,6 +7327,10 @@
 		"Type": "TRICE8",
 		"Strg": "tst:TRICE8 %d %d %d %d %d %d %d\\n"
 	},
+	"14502": {
+		"Type": "TRICE",
+		"Strg": "err:TRICE_UART Noise error detected Flag is set\\n"
+	},
 	"14503": {
 		"Type": "TRICE",
 		"Strg": "sig:TRICE64_n with 1 to 12 values\\n"
@@ -7399,6 +7483,10 @@
 		"Type": "TRICE32_1",
 		"Strg": "rd:TRICE32_1 float %F (%%F)\\n"
 	},
+	"14603": {
+		"Type": "TRICE",
+		"Strg": "err:TRICE_UART Receiver Time Out Flag is set\\n"
+	},
 	"14607": {
 		"Type": "TRICE",
 		"Strg": "sig:TRICE16 with 1 to 12 hex\\n"
@@ -7506,6 +7594,10 @@
 	"14668": {
 		"Type": "TRICE",
 		"Strg": "RD:read         message, SysTick is %6u\\n"
+	},
+	"14669": {
+		"Type": "TRICE",
+		"Strg": "wrn:TRICE_UART CTS Flag is set\\n"
 	},
 	"14673": {
 		"Type": "TRICE32",
@@ -8883,6 +8975,10 @@
 		"Type": "TRICE",
 		"Strg": "tim:TRICE START time message\\n"
 	},
+	"15445": {
+		"Type": "TRICE_FILE",
+		"Strg": "trice_test.c"
+	},
 	"15449": {
 		"Type": "TRICE",
 		"Strg": "rd:TRICE float %9f (%%9f)\\n"
@@ -9786,6 +9882,10 @@
 	"15953": {
 		"Type": "TRICE",
 		"Strg": "TIM:timing      message, SysTick is %6u\\n"
+	},
+	"15955": {
+		"Type": "TRICE",
+		"Strg": "wrn:TRICE_UART Send Break Flag is set\\n"
 	},
 	"15958": {
 		"Type": "TRICE",

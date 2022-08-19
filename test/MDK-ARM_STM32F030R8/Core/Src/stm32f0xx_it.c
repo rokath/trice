@@ -161,7 +161,7 @@ void USART2_IRQHandler(void)
         static int index = 0;
         uint8_t v;
         if( LL_USART_IsActiveFlag_ORE(USART2) ){
-            TRICE( Id(14357), "WARNING:USARTq OverRun Error Flag is set!\n" );
+            TRICE( Id(11947), "WARNING:USARTq OverRun Error Flag is set!\n" );
         }
         v = LL_USART_ReceiveData8(TRICE_UART); // implicit clears the flag
         rxBuf[index] = v;
@@ -194,15 +194,15 @@ void USART2_IRQHandler(void)
         LL_USART_ClearFlag_FE(TRICE_UART);
     }
     if( LL_USART_IsActiveFlag_NE(TRICE_UART) ){
-        TRICE( Id(11497), "err:TRICE_UART Noise error detected Flag is set\n" );
+        TRICE( Id(14502), "err:TRICE_UART Noise error detected Flag is set\n" );
         LL_USART_ClearFlag_NE(TRICE_UART);
     }
     if( LL_USART_IsActiveFlag_ORE(TRICE_UART) ){
-        //TRICE( Id(10314), "err:TRICE_UART OverRun Error Flag is set\n" );
+        //TRICE( Id(13201), "err:TRICE_UART OverRun Error Flag is set\n" );
         LL_USART_ClearFlag_ORE(TRICE_UART);
     }
     if( LL_USART_IsActiveFlag_IDLE(TRICE_UART) ){
-        TRICE( Id(15378), "wrn:TRICE_UART IDLE line detected Flag is set\n" );
+        TRICE( Id(11401), "wrn:TRICE_UART IDLE line detected Flag is set\n" );
         LL_USART_ClearFlag_IDLE(TRICE_UART);
     }
     if( LL_USART_IsActiveFlag_TC(TRICE_UART) ){
@@ -217,7 +217,7 @@ void USART2_IRQHandler(void)
         TRICE( Id(14669), "wrn:TRICE_UART CTS Flag is set\n" );
     }
     if( LL_USART_IsActiveFlag_RTO(TRICE_UART) ){
-        TRICE( Id(11770), "err:TRICE_UART Receiver Time Out Flag is set\n" );
+        TRICE( Id(14603), "err:TRICE_UART Receiver Time Out Flag is set\n" );
         LL_USART_ClearFlag_RTO(TRICE_UART);
     }
     if( LL_USART_IsActiveFlag_ABRE(TRICE_UART) ){
@@ -230,14 +230,14 @@ void USART2_IRQHandler(void)
         TRICE( Id(12282), "inf:TRICE_UART Busy Flag is set\n" );
     }
     if( LL_USART_IsActiveFlag_CM(TRICE_UART) ){
-        TRICE( Id(13628), "wrn:TRICE_UART Character Match Flag is set\n" );
+        TRICE( Id(11837), "wrn:TRICE_UART Character Match Flag is set\n" );
         LL_USART_ClearFlag_CM(TRICE_UART);
     }
     if( LL_USART_IsActiveFlag_SBK(TRICE_UART) ){
         TRICE( Id(15955), "wrn:TRICE_UART Send Break Flag is set\n" );
     }
     if( LL_USART_IsActiveFlag_RWU(TRICE_UART) ){
-        TRICE( Id(11877), "wrn:TRICE_UART Receive Wake Up from mute mode Flag is set\n" );
+        TRICE( Id(10873), "wrn:TRICE_UART Receive Wake Up from mute mode Flag is set\n" );
     }
     if( LL_USART_IsActiveFlag_TEACK(TRICE_UART) ){
         //TRICE( Id(10457), "wr:TRICE_UART Transmit Enable Acknowledge Flag is set\n" );

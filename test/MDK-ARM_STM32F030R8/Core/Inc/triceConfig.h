@@ -20,9 +20,11 @@ extern "C" {
 //#define TRICE_RTT_CHANNEL 0 //!< Enable and set channel number for SeggerRTT usage. Only channel 0 works right now for some reason.
 #define TRICE_UART USART2 //!< Enable and set UART for serial output.
 
-extern uint32_t ReadTime( void );
-//#define TRICE_LOCATION (TRICE_FILE| __LINE__) //!< Enable if you need target location. TRICE_FILE occupies the upper 16 bit. DEPRECIATED, WILL DISAPPEAR! Use li.json in the future. (-locationInformation)
-#define TRICE_TIMESTAMP ReadTime()            //!< Enable if you need target timestamps. You must provide ReadTime() returning a 32-bit value of your choice, like microSecond.
+uint16_t ReadUs16( void );
+uint32_t ReadUs32( void );
+
+#define TRICE_READ_TICK16 ReadUs16()
+#define TRICE_READ_TICK32 ReadUs32()
 
 // Enabling next 2 lines results in XTEA TriceEncryption  with the key.
 //#define TRICE_ENCRYPT XTEA_KEY( ea, bb, ec, 6f, 31, 80, 4e, b9, 68, e2, fa, ea, ae, f1, 50, 54 ); //!< -password MySecret
@@ -54,7 +56,7 @@ extern uint32_t ReadTime( void );
 #ifndef TRICE_LEAVE
 #define TRICE_LEAVE { /*! End of TRICE macro */ \
     unsigned tLen = ((TriceBufferWritePosition - co)<<2) - TRICE_DATA_OFFSET; \
-    TriceOut( co, tLen ); } }
+    TriceOutMultiSafeMode( co, tLen ); } }
 #endif
 #endif // #if TRICE_MODE == 0
 
@@ -69,7 +71,7 @@ extern uint32_t ReadTime( void );
 #define TRICE_LEAVE TRICE_LEAVE_CRITICAL_SECTION //! TRICE_LEAVE is the end of TRICE macro.
 #endif
 #define TRICE_HALF_BUFFER_SIZE 1000 //!< This is the size of each of both buffers. Must be able to hold the max TRICE burst count within TRICE_TRANSFER_INTERVAL_MS or even more, if the write out speed is small. Must not exceed SEGGER BUFFER_SIZE_UP
-#define TRICE_SINGLE_MAX_SIZE 100 //!< must not exeed TRICE_HALF_BUFFER_SIZE!
+#define TRICE_SINGLE_MAX_SIZE 800 //!< must not exeed TRICE_HALF_BUFFER_SIZE!
 #endif // #if TRICE_MODE == 200
 
 
@@ -91,20 +93,20 @@ extern uint32_t ReadTime( void );
 //
 
 #ifdef TRICE_HALF_BUFFER_SIZE
-#define TRICE_BUFFER_INFO do{ TRICE32( Id(10263), "att: Trice 2x half buffer size:%4u ", TRICE_HALF_BUFFER_SIZE ); } while(0)
+#define TRICE_BUFFER_INFO do{ TRICE32( Id(11253), "att: Trice 2x half buffer size:%4u ", TRICE_HALF_BUFFER_SIZE ); } while(0)
 #else
-#define TRICE_BUFFER_INFO do{ TRICE32( Id(11917), "att:Single Trice Stack buf size:%4u", TRICE_SINGLE_MAX_SIZE + TRICE_DATA_OFFSET ); } while(0)
+#define TRICE_BUFFER_INFO do{ TRICE32( Id(13778), "att:Single Trice Stack buf size:%4u", TRICE_SINGLE_MAX_SIZE + TRICE_DATA_OFFSET ); } while(0)
 #endif
 
 //! This is usable as the very first trice sequence after restart. Adapt and use it or ignore it.
 #define TRICE_HEADLINE \
-    TRICE0( Id(11187), "s:                                          \n" ); \
-    TRICE8( Id(15560), "s:     NUCLEO-F030R8     TRICE_MODE %3u     \n", TRICE_MODE ); \
-    TRICE0( Id(13768), "s:                                          \n" ); \
-    TRICE0( Id(11337), "s:     " ); \
+    TRICE0( Id(10264), "s:                                          \n" ); \
+    TRICE8( Id(11466), "s:     NUCLEO-F030R8     TRICE_MODE %3u     \n", TRICE_MODE ); \
+    TRICE0( Id(12707), "s:                                          \n" ); \
+    TRICE0( Id(15016), "s:     " ); \
     TRICE_BUFFER_INFO; \
-    TRICE0( Id(14418), "s:     \n" ); \
-    TRICE0( Id(13855), "s:                                          \n");
+    TRICE0( Id(13072), "s:     \n" ); \
+    TRICE0( Id(10051), "s:                                          \n");
 
 //
 ///////////////////////////////////////////////////////////////////////////////
