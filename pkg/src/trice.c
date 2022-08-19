@@ -90,7 +90,7 @@ static size_t triceDataLen( uint8_t* p ){
 unsigned triceErrorCount = 0;
 
 //! NextTrice expects at buf 32-bit aligned trice messages and returns the next one in pStart and pLen.
-//! \buf is filled with the advanced buf and len gets the reduced len.
+//! *buf is filled with the advanced buf and *len gets the reduced len.
 //! \retval is 0 on success or negative on error.
 int NextTrice( uint8_t** buf, size_t* len, uint8_t** pStart, size_t* pLen ){
     int triceType = *(uint16_t*)buf >> 14;
