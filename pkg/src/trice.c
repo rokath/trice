@@ -123,7 +123,7 @@ int NextTrice( uint8_t** buf, size_t* len, uint8_t** pStart, size_t* pLen ){
         return -__LINE__;
     }    
     *len -= (*pLen + offset + 3) & ~3;
-    *buf -= *len;
+    *buf += *len;
     return 0;
 }
 
