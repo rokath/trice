@@ -52,7 +52,7 @@ void TriceTransfer( void ){
         uint32_t* tb = triceBufferSwap(); 
         size_t tLen = triceDepth(tb); // tlen is always a multiple of 4
         if( tLen ){
-            TriceOut( tb, tLen );
+            TriceOutSingle( tb, tLen );
         }
     } // else: transmission not done yet
 }
@@ -89,13 +89,130 @@ static size_t triceDataLen( uint8_t* p ){
 
 unsigned triceErrorCount = 0;
 
-//! TriceOut converts trice data and transmits them to the output.
+//! NextTrice expects at buf 32-bit aligned trice messages and returns the next one in pStart and pLen.
+//! \buf is filled with the advanced buf and len gets the reduced len.
+//! \retval is 0 on success or negative on error.
+int NextTrice( uint8_t** buf, size_t* len, uint8_t** pStart, size_t* pLen ){
+    int triceType = *(uint16_t*)buf >> 14;
+    int offset = 0;
+    *pStart = *buf;
+    switch( triceType ){
+        case 0: // EX
+            *pLen = *len; // todo: Change that when needed.
+            break;
+        case 1: // T0
+            *pLen = 4 + triceDataLen(*pStart + 2); // tyId
+            break;
+        case 2: // T2
+            *pStart += 2; // see Id(n) macro definition
+            offset = 2;
+            *pLen = 6 + triceDataLen(*pStart + 4); // tyId ts16
+            break;
+        case 3: // T4
+            *pLen = 8 + triceDataLen(*pStart + 6); // tyId ts32
+            break;
+    }
+    // T2 case:                          len   pLen
+    // 80id 80id 1616 00cc                8     6
+    // 80id 80id 1616 01cc dd            12     7
+    // 80id 80id 1616 02cc dd dd         12     8
+    // 80id 80id 1616 03cc dd dd dd      12     9
+    // 80id 80id 1616 04cc dd dd dd dd   12    10
+    if( !(*len - 3 - offset <= *pLen && *pLen - offset <= *len )){ // corrupt data
+        triceErrorCount++;
+        return -__LINE__;
+    }    
+    *len -= (*pLen + offset + 3) & ~3;
+    *buf -= *len;
+    return 0;
+}
+
+//! TriceOutMultiSafeMode separately encodes multiple trice and writes them in one step to the output.
+//! \param tb is start of uint32_t* trice buffer. The space TRICE_DATA_OFFSET at
+//! the tb start is for in-buffer encoding of the trice data.
+//! \param tLen is length of trice data. tlen is always a multiple of 4 because
+//! of 32-bit alignment and padding bytes.
+void TriceOutMultiSafeMode( uint32_t* tb, size_t tLen ){
+    uint8_t* enc = (uint8_t*)tb; // encoded data starting address
+    size_t encLen = 0;
+    uint8_t* buf = enc + TRICE_DATA_OFFSET; // start of 32-bit aligned trices
+    size_t len = tLen; // (byte count)
+    uint8_t* triceStart;
+    size_t triceLen;
+    while(len){
+        int r = NextTrice( &buf, &len, &triceStart, &triceLen );
+        if( r < 0 ){
+            break; // ignore following data
+        }
+        #ifdef TRICE_ENCRYPT
+        triceLen = (triceLen + 7) & ~7; // only multiple of 8 encryptable
+        TriceEncrypt( triceStart, triceLen>>2 );
+        #endif
+        encLen = TriceCOBSEncode(enc, triceStart, triceLen);
+        enc[encLen++] = 0; // Add zero as package delimiter.
+        enc += encLen;
+    }
+    TRICE_WRITE( (uint8_t*)tb, enc - (uint8_t*)tb );
+    
+    // diagnostics
+    tLen += TRICE_DATA_OFFSET; 
+    triceDepthMax = tLen < triceDepthMax ? triceDepthMax : tLen;
+}
+
+//! TriceOutSingle converts trice data and transmits them to the output.
 //! \param tb is start of uint32_t* trice buffer. The space TRICE_DATA_OFFSET>>2
 //! at the tb start is for in-buffer COBS encoding and the
 //! TRICE_COBS_PACKAGE_MODE in front of the trice data.
 //! \param tLen is length of trice data. tlen is always a multiple of 4 and counts after TRICE_COBS_PACKAGE_MODE.
 //! tLen is needed only for triceType 0 (typeEX), if there is no length information coded.
-void TriceOut( uint32_t* tb, size_t tLen ){
+void TriceOutMultiFastMode( uint32_t* tb, size_t tLen ){
+    size_t len;
+    size_t cLen;
+    uint8_t* co = (uint8_t*)tb; // encoded COBS data starting address
+    uint8_t* da = co + TRICE_DATA_OFFSET; // start of unencoded COBS package data: descriptor and trice data
+    int triceType = *(uint16_t*)da >> 14;
+    int tolerance = 0;
+    switch( triceType ){
+        case 0: // EX
+            len = tLen; // todo: Change that when needed.
+            break;
+        case 1: // T0
+            len = 4 + triceDataLen(da + 2); // tyId
+            break;
+        case 2: // T2
+            da += 2; // see Id(n) macro definition
+            tolerance = 2;
+            len = 6 + triceDataLen(da + 4); // tyId ts16
+            break;
+        case 3: // T4
+            len = 8 + triceDataLen(da + 6); // tyId ts32
+            break;
+    }
+    if( !(tLen - 3 - tolerance <= len && len <= tLen )){ // corrupt data
+        triceErrorCount++;
+        return;
+    }
+    #ifdef TRICE_ENCRYPT
+    len = (len + 7) & ~7; // only multiple of 8 encryptable
+    TriceEncrypt( da, len>>2 );
+    #endif
+    cLen = TriceCOBSEncode(co, da, len);
+    co[cLen++] = 0; // Add zero as package delimiter.
+    TRICE_WRITE( co, cLen );
+    
+    // diagnostics
+    tLen += TRICE_DATA_OFFSET; 
+    triceDepthMax = tLen < triceDepthMax ? triceDepthMax : tLen;
+}
+
+
+//! TriceOutSingle converts trice data and transmits them to the output.
+//! \param tb is start of uint32_t* trice buffer. The space TRICE_DATA_OFFSET>>2
+//! at the tb start is for in-buffer COBS encoding and the
+//! TRICE_COBS_PACKAGE_MODE in front of the trice data.
+//! \param tLen is length of trice data. tlen is always a multiple of 4 and counts after TRICE_COBS_PACKAGE_MODE.
+//! tLen is needed only for triceType 0 (typeEX), if there is no length information coded.
+void TriceOutSingle( uint32_t* tb, size_t tLen ){
     size_t len;
     size_t cLen;
     uint8_t* co = (uint8_t*)tb; // encoded COBS data starting address

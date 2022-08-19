@@ -56,7 +56,7 @@ uint32_t ReadUs32( void );
 #ifndef TRICE_LEAVE
 #define TRICE_LEAVE { /*! End of TRICE macro */ \
     unsigned tLen = ((TriceBufferWritePosition - co)<<2) - TRICE_DATA_OFFSET; \
-    TriceOut( co, tLen ); } }
+    TriceOutSingle( co, tLen ); } }
 #endif
 #endif // #if TRICE_MODE == 0
 
