@@ -14,7 +14,7 @@
 	* 6.1. [Symbols](#Symbols)
 	* 6.2. [Main stream logs](#Mainstreamlogs)
 		* 6.2.1. [*Trice* format](#Triceformat)
-		* 6.2.2. [Framing (TCOBS or COBS encoding) and optional encryption](#FramingTCOBSorCOBSencodingandoptionalencryption)
+		* 6.2.2. [Framing with TCOBS encoding](#FramingwithTCOBSencoding)
 	* 6.3. [Extended *Trices* as future option](#ExtendedTricesasfutureoption)
 	* 6.4. [Unknown user data](#Unknownuserdata)
 * 7. [ID Management](#IDManagement)
@@ -94,7 +94,7 @@ With [TREX](#TREXTriceextendableencoding) encoding the location information need
 
 ###  6.2. <a name='Mainstreamlogs'></a>Main stream logs
 
-* [x] As a compromize between speed and space a 16-bit wide *Trice* storage access is implemented. This also fits good for 8, 16 and 32 bit MCUs.
+* [x] A 32-bit wide *Trice* storage access is implemented for speed. 
 * [x] All main stream logs share the same 14 bit ID space allowing 1-16383 IDs in 3 variants parallel usable:
 
 | 16-bit groups            | *Trice* code                 | Comment                                         |
@@ -105,33 +105,50 @@ With [TREX](#TREXTriceextendableencoding) encoding the location information need
 
 * Technically it is possible to have distinct ID spaces for each ID type but this would give no real advantage and complicate the handling only.
 * [x] For straight forward runtime code, the identifiers `id`, `Id` and `ID` are sub macros:
-  * [ ] **id(n)**
+  * [x] **id(n)**
   
   ```c
-  #define id(n) do{ TRICE_PUT16(0x4000 | n ); }while(0),
+  #define id(n) TRICE_PUT16(  0x4000|(n));
   ```
 
-  * [ ] **Id(n)**
+  * [x] **Id(n)**
 
   ```c
-  #define Id(n) do{ uint16_t ts = timestamp16;
-                  TRICE_PUT16(0x8000 | n ); 
-                  TRICE_PUT16( ts ); }while(0),
+  #define Id(n) { uint16_t ts = TRICE_READ_TICK16; TRICE_PUT((0x80008000|((n)<<16)|(n))); TRICE_PUT16(ts); }
   ```
 
-  * [ ] **ID(n)**
+  * The tyId value `10iiiiiiI` is stored in one step twice, to achieve also a 32-bit boundary after storing `NC` later: `10iiiiiiI 10iiiiiiI TT NC`. The first 2 bytes are not transmitted.
+
+  * [x] **ID(n)**
 
   ```c
-  #define ID(n) do{ uint32_t ts = timestamp32;
-                  TRICE_PUT16(0xC000 | n ); 
-                  TRICE_PUT32( ts ); }while(0),
+  #define ID(n) { uint32_t ts = TRICE_READ_TICK32; TRICE_PUT16(  0xC000|(n)); TRICE_PUT1616(ts); }
   ```
 
-* [ ] Usage:
+* [ ] Example:
+  * Code:
 
-```c
-#define T8(id, pFmt, v0) TRICE_ENTER; id; TRICE_PUT16(v0); TRICE_LEAVE;
-```
+  ```c
+  //! TRICE8_1 writes trice data as fast as possible in a buffer.
+  //! \param id is a 16 bit Trice id in upper 2 bytes of a 32 bit value
+  //! \param v0 a 8 bit bit value
+  #define TRICE8_1( id, pFmt, v0 ) \
+    TRICE_ENTER id; CNTC(1); \
+    TRICE_PUT( (uint8_t)(v) ); /* little endian*/ \
+    TRICE_LEAVE
+  ```
+
+  * Transfer package (decoded little endian)
+
+  ```b
+  e3 // lower byte of 14-bit ID byte
+  ae // 2 msb = 10 = typeT2 plus 6 bit upper ID byte
+  ec // lower byte 16-bit timestamp
+  02 // upper byte 16-bit timestamp
+  64 // cycle counter
+  01 // parameter count
+  ff // parameter value
+  ```
 
 * [x] New *Trice* macros are writable without the ID, so when `trice u` is executed a CLI switch controls the ID type selection:
   * The update switch `-timeStamp 32` defaults new ID´s to `ID`.
@@ -151,13 +168,17 @@ With [TREX](#TREXTriceextendableencoding) encoding the location information need
 * N is the parameter data bytes count. Padding bytes are not counted.
 * Usually N is < 127 but for buffer or string transfer N can get up to 32767 (15 bits).
 * When N > 127 (s==1) `NC` is replaced by `1nnnnnnn nnnnnnnn`. C is incremented with each *Trice* but not transmitted when:
-    * N > 127
-    * extended *Trice* without C
+  * N > 127
+  * extended *Trice* without C
 
-####  6.2.2. <a name='FramingTCOBSorCOBSencodingandoptionalencryption'></a>Framing (TCOBS or COBS encoding) and optional encryption
+####  6.2.2. <a name='FramingwithTCOBSencoding'></a>Framing with TCOBS encoding
 
-* Inside double buffer each *Trice* starts at a u16 boundary.
-* The encoding drops the padding bytes using N and encodes each *Trice* separately. This minimizes data loss in case of disruptions for example caused by reset. If size minimizing matters hard, several *Trices* are codable as group also, but this leads to more data losses in case of disruptions.
+* For maximum storage speed each **trice** message starts at a 32-bit boundary and has 1-3 padding bytes.
+* In direct mode only a single message needs handling.
+* In deferred mode after half buffer swap any count of trice messages is in the buffer.
+* There are different policies possible:
+  1. TRICE_FAST_MULTI_MODE: Compact buffer by removing all padding bytes, encode it as a single package, append one 0-delimiter and transmit. This allows to reduce the transmitted data amount by paying the price of possibly more data lost in case of an error. Also the data interpretation can perform less checks.
+  2. TRICE_SAFE_SINGLE_MODE: Encode each buffer separate, append a 0-delimiter for each and pack them all together before transmitting. This increases the transmit data slightly but minimizes the amount of lost data in case of a data disruption.
 
 ###  6.3. <a name='ExtendedTricesasfutureoption'></a>Extended *Trices* as future option
 
@@ -259,3 +280,4 @@ TRICE( T4, "...", ...); // a trice with a 32-bit timestamp
 | 2022-MAY-20 |  0.8.1  | Formatting, Spelling |
 | 2022-JUN-19 |  0.9.0  | Implementation hint added to chapter Framing. |
 | 2022-AUG-14 | 0.10.0  | Chapter ID Management added |
+| 2022-AUG-19 | 0.11.0  | Chapter Main Stream Logs changed/extended |
