@@ -92,7 +92,7 @@ static inline int TriceOutDepth( void ){ return 0; }
 
 //! TRICE_DATA_OFFSET is the space in front of trice data for in-buffer COBS encoding. It must be be a multiple of uint32_t.
 #if defined(TRICE_HALF_BUFFER_SIZE)
-#define TRICE_DATA_OFFSET ((9+(TRICE_HALF_BUFFER_SIZE/256))&~3) // 9: COBS_DESCRIPTOR size plus start byte plus up to 4 0-delimiters
+#define TRICE_DATA_OFFSET 160 // ((9+(TRICE_HALF_BUFFER_SIZE/256))&~3) // 9: COBS_DESCRIPTOR size plus start byte plus up to 4 0-delimiters
 #else
 #define TRICE_DATA_OFFSET 16 // usually 8 is enough: 4 for COBS_DESCRIPTOR and additional bytes for COBS encoding, but the buffer can get big.
 #endif
