@@ -54,6 +54,7 @@ func New(w io.Writer, lut id.TriceIDLookUp, m *sync.RWMutex, in io.Reader, endia
 	p.In = in
 	p.IBuf = make([]byte, 0, decoder.DefaultSize)
 	p.B = make([]byte, 0, decoder.DefaultSize)
+	p.InnerBuffer = make([]byte, decoder.DefaultSize)
 	p.Lut = lut
 	p.LutMutex = m
 	p.Endian = endian
@@ -73,10 +74,9 @@ func (p *trexDec) nextPackage() {
 	// So first try to process p.IBuf.
 	index := bytes.IndexByte(p.IBuf, 0) // find terminating 0
 	if index == -1 {                    // p.IBuf has no complete COBS data, so try to read more input
-		bb := make([]byte, 1024)           // intermediate buffer
-		m, err := p.In.Read(bb)            // use bb as bytes read buffer
-		p.IBuf = append(p.IBuf, bb[:m]...) // merge with leftovers
-		if err != nil && err != io.EOF {   // some serious error
+		m, err := p.In.Read(p.InnerBuffer)            // use p.InnerBuffer as bytes read buffer
+		p.IBuf = append(p.IBuf, p.InnerBuffer[:m]...) // merge with leftovers
+		if err != nil && err != io.EOF {              // some serious error
 			log.Fatal("ERROR:internal reader error", err) // exit
 		}
 		index = bytes.IndexByte(p.IBuf, 0) // find terminating 0
@@ -186,7 +186,7 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 	}
 
 	p.TriceSize = tyIdSize + decoder.TargetTimestampSize + ncSize + p.ParamSpace
-	if p.TriceSize != packageSize {
+	if p.TriceSize != packageSize { // todo: change to '>' for multiple trices in one package (TriceOutMultiPackMode instead of TriceOutMultiSafeMode)
 		n += copy(b[n:], fmt.Sprintln("ERROR:package size", packageSize, "is !=", p.TriceSize, " - ignoring package", p.B))
 		n += copy(b[n:], fmt.Sprintln(tyIdSize, decoder.TargetTimestampSize, ncSize, p.ParamSpace))
 		n += copy(b[n:], fmt.Sprintln(decoder.Hints))

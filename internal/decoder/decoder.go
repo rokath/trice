@@ -32,7 +32,7 @@ const (
 
 const (
 	// defaultSize is the beginning receive and sync buffer size.
-	DefaultSize = 64 * 1014
+	DefaultSize = 64 * 1024
 
 	// patNextFormatSpecifier is a regex to find next format specifier in a string (exclude %%*) and ignoring %s
 	//
@@ -121,18 +121,19 @@ type Decoder interface {
 
 // DecoderData is the common data struct for all decoders.
 type DecoderData struct {
-	W          io.Writer          // io.Stdout or the like
-	In         io.Reader          // in is the inner reader, which is used to get raw bytes
-	IBuf       []byte             // iBuf holds unprocessed (raw) bytes for interpretation.
-	B          []byte             // read buffer holds a single decoded COBS package, which can contain several trices.
-	Endian     bool               // endian is true for LittleEndian and false for BigEndian
-	TriceSize  int                // trice head and payload size as number of bytes
-	ParamSpace int                // trice payload size after head
-	SLen       int                // string length for TRICE_S
-	Lut        id.TriceIDLookUp   // id look-up map for translation
-	LutMutex   *sync.RWMutex      // to avoid concurrent map read and map write during map refresh triggered by filewatcher
-	Li         id.TriceIDLookUpLI // location information map
-	Trice      id.TriceFmt        // id.TriceFmt // received trice
+	W           io.Writer          // io.Stdout or the like
+	In          io.Reader          // in is the inner reader, which is used to get raw bytes
+	InnerBuffer []byte             // avoid repeated allocation (trex)
+	IBuf        []byte             // iBuf holds unprocessed (raw) bytes for interpretation.
+	B           []byte             // read buffer holds a single decoded COBS package, which can contain several trices.
+	Endian      bool               // endian is true for LittleEndian and false for BigEndian
+	TriceSize   int                // trice head and payload size as number of bytes
+	ParamSpace  int                // trice payload size after head
+	SLen        int                // string length for TRICE_S
+	Lut         id.TriceIDLookUp   // id look-up map for translation
+	LutMutex    *sync.RWMutex      // to avoid concurrent map read and map write during map refresh triggered by filewatcher
+	Li          id.TriceIDLookUpLI // location information map
+	Trice       id.TriceFmt        // id.TriceFmt // received trice
 }
 
 // SetInput allows switching the input stream to a different source.
