@@ -41,10 +41,6 @@ size_t TriceDepthMax( void );
 extern uint32_t* TriceBufferWritePosition;
 #endif
 unsigned TriceCOBSEncode( uint8_t* restrict output, const uint8_t * restrict input, unsigned length);
-void TriceOutSingle( uint32_t* tb, size_t tLen );
-void TriceOutMultiSafeMode( uint32_t* tb, size_t tLen );
-void TriceOutMultiPackMode( uint32_t* tb, size_t tLen );
-void TriceOutMultiPackMode0( uint32_t* tb, size_t tLen );
 void TriceOut( uint32_t* tb, size_t tLen );
 
 void TriceTransfer( void );

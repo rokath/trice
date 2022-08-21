@@ -22,15 +22,6 @@ void TriceCheckSet(int index) {
     double y = 518.0547492508867;  // 0x4080307020601050
      
     switch (index) {
-        case 0:
-        exampleOfManualSerialization();
-        break;
-        case 1:
-        exampleOfManualJSONencoding();
-        break;
-        case 2:
-        exampleOfBuffersAndFunctions();
-        break;
         case 10:
             TRICE( Id(14832), "FATAL:magenta+b:red\n" );
             TRICE( Id(12971), "CRITICAL:red+i:default+h\n" );
@@ -976,12 +967,24 @@ EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
             TRICE( Id(13782), "rd:TRICE line %d (%%d)\n", -5 );
         break;
         case 960:
+        {
+            char* s = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
+            for( int i = 0; i < 17; i++ ){ //strlen(s) ){
+                TRICE_N( Id(12664), "msg:%s\n", s, i );
+            }
+            for( int i = 125; i < 130; i++ ){ //strlen(s) ){
+                TRICE_N( Id(12664), "msg:%s\n", s, i );
+            }
+        }
         break;
         case 970:
+        exampleOfManualSerialization();
         break;
         case 980:
+        exampleOfManualJSONencoding();
         break;
         case 990:
+        exampleOfBuffersAndFunctions();
         break;
         case 1000:
 #ifdef TRICE_ENCRYPT

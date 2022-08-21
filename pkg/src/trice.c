@@ -52,7 +52,9 @@ void TriceTransfer( void ){
         uint32_t* tb = triceBufferSwap(); 
         size_t tLen = triceDepth(tb); // tlen is always a multiple of 4
         if( tLen ){
-            TriceOutMultiPackMode0( tb, tLen );
+            TriceOut( tb, tLen );
+            //TriceOutMultiPackMode0( tb, tLen );
+            //TriceOutMultiPackMode( tb, tLen );
         }
     } // else: transmission not done yet
 }
@@ -172,75 +174,6 @@ void TriceOutMultiSafeMode( uint32_t* tb, size_t tLen ){
     TRICE_WRITE( enc, encLen );
 }
 
-//! TriceOutMultiPackMode separately encodes multiple trice, all in one package, and writes them in one step to the output.
-//! \param tb is start of uint32_t* trice buffer. The space TRICE_DATA_OFFSET at
-//! the tb start is for in-buffer encoding of the trice data.
-//! \param tLen is length of trice data. tlen is always a multiple of 4 because
-//! of 32-bit alignment and padding bytes.
-void TriceOutMultiPackMode0( uint32_t* tb, size_t tLen );
-void TriceOutMultiPackMode0( uint32_t* tb, size_t tLen ){
-    uint8_t* enc = (uint8_t*)tb; // encoded data starting address
-    size_t encLen = 0;
-    uint8_t* buf = enc + TRICE_DATA_OFFSET; // start of 32-bit aligned trices
-    size_t len = tLen; // (byte count)
-    uint8_t* triceStart;
-    size_t triceLen;
-    size_t sumLen = 0;
-    uint8_t* next = buf;
-    while(len){
-        int r = nextTrice( &buf, &len, &triceStart, &triceLen );
-        if( r < 0 ){
-            break; // ignore following data
-        }
-        memmove(next, triceStart, triceLen );
-        next += triceLen;
-        sumLen += triceLen;
-    }
-    #ifdef TRICE_ENCRYPT
-    sumLen = (sumLen + 7) & ~7; // only multiple of 8 encryptable
-    TriceEncrypt( buf, sumLen>>2 );
-    #endif
-    encLen = TriceCOBSEncode(enc, enc + TRICE_DATA_OFFSET, sumLen);
-    enc[encLen++] = 0; // Add zero as package delimiter.
-    //enc += encLen;
-    TRICE_WRITE( (uint8_t*)tb, encLen );
-    
-    // diagnostics
-    tLen += TRICE_DATA_OFFSET; 
-    triceDepthMax = tLen < triceDepthMax ? triceDepthMax : tLen;
-}
-
-//! TriceOutMultiPackMode separately encodes multiple trice, all in one package, and writes them in one step to the output.
-//! \param tb is start of uint32_t* trice buffer. The space TRICE_DATA_OFFSET at
-//! the tb start is for in-buffer encoding of the trice data.
-//! \param tLen is length of trice data. tlen is always a multiple of 4 because
-//! of 32-bit alignment and padding bytes.
-void TriceOutMultiPackMode( uint32_t* tb, size_t tLen ){
-    uint8_t* enc = (uint8_t*)tb; // encoded data starting address
-    size_t encLen = 0;
-    uint8_t* buf = enc + TRICE_DATA_OFFSET; // start of 32-bit aligned trices
-    size_t len = tLen; // (byte count)
-    // diagnostics
-    tLen += TRICE_DATA_OFFSET; 
-    triceDepthMax = tLen < triceDepthMax ? triceDepthMax : tLen;
-    while(len){
-        uint8_t* triceStart;
-        size_t triceLen;
-        int r = nextTrice( &buf, &len, &triceStart, &triceLen );
-        if( r < 0 ){ // on data error
-            break;   // ignore following data
-        }
-        memmove(buf+encLen, triceStart, triceLen );
-        encLen += triceLen;
-    }
-    encLen = triceEncode( enc, enc + TRICE_DATA_OFFSET, encLen);
-    TRICE_WRITE( enc, encLen );
-}
-
-#define TRICE_SAFE_SINGLE_MODE 10
-#define TRICE_PACK_MULTI_MODE  20
-#define TRICE_TRANSFER_MODE TRICE_PACK_MULTI_MODE
-
 //! TriceOutMultiSafeMode separately encodes multiple trice, each in one package, and writes them in one step to the output.
 //! \param tb is start of uint32_t* trice buffer. The space TRICE_DATA_OFFSET at
 //! the tb start is for in-buffer encoding of the trice data.
@@ -265,61 +198,14 @@ void TriceOut( uint32_t* tb, size_t tLen ){
         encLen += triceEncode( enc+encLen, triceStart, triceLen );
         #endif
         #if  TRICE_TRANSFER_MODE == TRICE_PACK_MULTI_MODE
-        memmove(buf+encLen, triceStart, triceLen );
+        memmove(enc + TRICE_DATA_OFFSET + encLen, triceStart, triceLen );
         encLen += triceLen;
         #endif
     }
     #if  TRICE_TRANSFER_MODE == TRICE_PACK_MULTI_MODE
-    encLen = triceEncode( enc, buf, encLen);
+    encLen = triceEncode( enc, enc + TRICE_DATA_OFFSET, encLen);
     #endif
     TRICE_WRITE( enc, encLen );
-}
-
-
-//! TriceOutSingle converts trice data and transmits them to the output.
-//! \param tb is start of uint32_t* trice buffer. The space TRICE_DATA_OFFSET>>2
-//! at the tb start is for in-buffer COBS encoding and the
-//! TRICE_COBS_PACKAGE_MODE in front of the trice data.
-//! \param tLen is length of trice data. tlen is always a multiple of 4 and counts after TRICE_COBS_PACKAGE_MODE.
-//! tLen is needed only for triceType 0 (typeEX), if there is no length information coded.
-void TriceOutSingle( uint32_t* tb, size_t tLen ){
-    size_t len;
-    size_t cLen;
-    uint8_t* co = (uint8_t*)tb; // encoded COBS data starting address
-    uint8_t* da = co + TRICE_DATA_OFFSET; // start of unencoded COBS package data: descriptor and trice data
-    int triceType = *(uint16_t*)da >> 14;
-    int tolerance = 0;
-    switch( triceType ){
-        case 0: // EX
-            len = tLen; // todo: Change that when needed.
-            break;
-        case 1: // T0
-            len = 4 + triceDataLen(da + 2); // tyId
-            break;
-        case 2: // T2
-            da += 2; // see Id(n) macro definition
-            tolerance = 2;
-            len = 6 + triceDataLen(da + 4); // tyId ts16
-            break;
-        case 3: // T4
-            len = 8 + triceDataLen(da + 6); // tyId ts32
-            break;
-    }
-    if( !(tLen - 3 - tolerance <= len && len <= tLen )){ // corrupt data
-        triceErrorCount++;
-        return;
-    }
-    #ifdef TRICE_ENCRYPT
-    len = (len + 7) & ~7; // only multiple of 8 encryptable
-    TriceEncrypt( da, len>>2 );
-    #endif
-    cLen = TriceCOBSEncode(co, da, len);
-    co[cLen++] = 0; // Add zero as package delimiter.
-    TRICE_WRITE( co, cLen );
-    
-    // diagnostics
-    tLen += TRICE_DATA_OFFSET; 
-    triceDepthMax = tLen < triceDepthMax ? triceDepthMax : tLen;
 }
 
 #if defined( TRICE_UART ) && !defined( TRICE_HALF_BUFFER_SIZE ) // direct out to UART

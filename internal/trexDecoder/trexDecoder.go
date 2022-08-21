@@ -187,7 +187,7 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 
 	p.TriceSize = tyIdSize + decoder.TargetTimestampSize + ncSize + p.ParamSpace
 	if p.TriceSize > packageSize { // todo: change to '>' for multiple trices in one package (TriceOutMultiPackMode instead of TriceOutMultiSafeMode)
-		n += copy(b[n:], fmt.Sprintln("ERROR:package size", packageSize, "is !=", p.TriceSize, " - ignoring package", p.B))
+		n += copy(b[n:], fmt.Sprintln("ERROR:package size", packageSize, "is <", p.TriceSize, " - ignoring package", p.B))
 		n += copy(b[n:], fmt.Sprintln(tyIdSize, decoder.TargetTimestampSize, ncSize, p.ParamSpace))
 		n += copy(b[n:], fmt.Sprintln(decoder.Hints))
 		p.B = p.B[len(p.B):]
@@ -355,12 +355,17 @@ var cobsFunctionPtrList = [...]triceTypeFn{
 	{"TRICE64_12", (*trexDec).unSignedOrSignedOut, 96, 64, 12},
 }
 
+// triceN converts dynamic strings.
+func (p *trexDec) triceN(b []byte, _ int, _ int) int {
+	s := string(p.B[:p.ParamSpace])
+	// todo: evaluate p.Trice.Strg, use p.SLen and do whatever should be done
+	return copy(b, fmt.Sprintf(p.Trice.Strg, s))
+}
+
 // triceS converts dynamic strings.
 func (p *trexDec) triceS(b []byte, _ int, _ int) int {
-	if decoder.DebugOut {
-		fmt.Fprintln(p.W, p.B)
-	}
-	return copy(b, fmt.Sprintf(p.Trice.Strg, string(p.B)))
+	s := string(p.B[:p.ParamSpace])
+	return copy(b, fmt.Sprintf(p.Trice.Strg, s))
 }
 
 // triceB converts dynamic buffers.
@@ -368,7 +373,7 @@ func (p *trexDec) trice8B(b []byte, _ int, _ int) (n int) {
 	if decoder.DebugOut {
 		fmt.Fprintln(p.W, p.B)
 	}
-	s := p.B // [4 : 4+p.SLen]
+	s := p.B[:p.ParamSpace]
 	for i := 0; i < len(s); i++ {
 		n += copy(b[n:], fmt.Sprintf(p.Trice.Strg, s[i]))
 	}
@@ -380,7 +385,7 @@ func (p *trexDec) trice16B(b []byte, _ int, _ int) (n int) {
 	if decoder.DebugOut {
 		fmt.Fprintln(p.W, p.B)
 	}
-	s := p.B //[4 : 4+p.SLen]
+	s := p.B[:p.ParamSpace]
 	for i := 0; i < len(s); i += 2 {
 		n += copy(b[n:], fmt.Sprintf(p.Trice.Strg, binary.LittleEndian.Uint16(s[i:])))
 	}
@@ -392,7 +397,7 @@ func (p *trexDec) trice32B(b []byte, _ int, _ int) (n int) {
 	if decoder.DebugOut {
 		fmt.Fprintln(p.W, p.B)
 	}
-	s := p.B //[4 : 4+p.SLen]
+	s := p.B[:p.ParamSpace]
 	for i := 0; i < len(s); i += 4 {
 		n += copy(b[n:], fmt.Sprintf(p.Trice.Strg, binary.LittleEndian.Uint32(s[i:])))
 	}
@@ -404,7 +409,7 @@ func (p *trexDec) trice64B(b []byte, _ int, _ int) (n int) {
 	if decoder.DebugOut {
 		fmt.Fprintln(p.W, p.B)
 	}
-	s := p.B //[4 : 4+p.SLen]
+	s := p.B[:p.ParamSpace]
 	for i := 0; i < len(s); i += 8 {
 		n += copy(b[n:], fmt.Sprintf(p.Trice.Strg, binary.LittleEndian.Uint64(s[i:])))
 	}
@@ -416,7 +421,7 @@ func (p *trexDec) trice8F(b []byte, _ int, _ int) (n int) {
 	if decoder.DebugOut {
 		fmt.Fprintln(p.W, p.B)
 	}
-	s := p.B //[4 : 4+p.SLen]
+	s := p.B[:p.ParamSpace]
 	n += copy(b[n:], fmt.Sprintf(p.Trice.Strg))
 	for i := 0; i < len(s); i++ {
 		n += copy(b[n:], fmt.Sprintf("(%02x)", s[i]))
@@ -430,7 +435,7 @@ func (p *trexDec) trice16F(b []byte, _ int, _ int) (n int) {
 	if decoder.DebugOut {
 		fmt.Fprintln(p.W, p.B)
 	}
-	s := p.B //[4 : 4+p.SLen]
+	s := p.B[:p.ParamSpace]
 	n += copy(b[n:], fmt.Sprintf(p.Trice.Strg))
 	for i := 0; i < len(s); i += 2 {
 		n += copy(b[n:], fmt.Sprintf("(%04x)", binary.LittleEndian.Uint16(s[i:])))
@@ -444,7 +449,7 @@ func (p *trexDec) trice32F(b []byte, _ int, _ int) (n int) {
 	if decoder.DebugOut {
 		fmt.Fprintln(p.W, p.B)
 	}
-	s := p.B //[4 : 4+p.SLen]
+	s := p.B[:p.ParamSpace]
 	n += copy(b[n:], fmt.Sprintf(p.Trice.Strg))
 	for i := 0; i < len(s); i += 4 {
 		n += copy(b[n:], fmt.Sprintf("(%08x)", binary.LittleEndian.Uint32(s[i:])))
@@ -458,23 +463,13 @@ func (p *trexDec) trice64F(b []byte, _ int, _ int) (n int) {
 	if decoder.DebugOut {
 		fmt.Fprintln(p.W, p.B)
 	}
-	s := p.B //[4 : 4+p.SLen]
+	s := p.B[:p.ParamSpace]
 	n += copy(b[n:], fmt.Sprintf(p.Trice.Strg))
 	for i := 0; i < len(s); i += 8 {
 		n += copy(b[n:], fmt.Sprintf("(%016x)", binary.LittleEndian.Uint64(s[i:])))
 	}
 	n += copy(b[n:], fmt.Sprintf("\n"))
 	return
-}
-
-// triceN converts dynamic strings.
-func (p *trexDec) triceN(b []byte, _ int, _ int) int {
-	if decoder.DebugOut {
-		fmt.Fprintln(p.W, p.B)
-	}
-	s := p.B //[4 : 4+p.SLen]
-	// todo: evaluate p.Trice.Strg, use p.SLen and do whatever should be done
-	return copy(b, fmt.Sprintf(p.Trice.Strg, string(s)))
 }
 
 // trice0 prints the trice format string.

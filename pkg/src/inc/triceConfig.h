@@ -81,7 +81,7 @@ extern uint32_t ReadTime( void );
 #ifndef TRICE_LEAVE
 #define TRICE_LEAVE { /*! End of TRICE macro */ \
     unsigned tLen = ((TriceBufferWritePosition - co)<<2) - TRICE_DATA_OFFSET; \
-    TriceOutSingle( co, tLen ); } }
+    TriceOut( co, tLen ); } }
 #endif
 #endif // #if TRICE_MODE == 0
 

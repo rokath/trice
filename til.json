@@ -347,6 +347,10 @@
 		"Type": "TRICE",
 		"Strg": "err:TRICE_UART Noise error detected Flag is set\\n"
 	},
+	"10170": {
+		"Type": "TRICE16",
+		"Strg": "MSG: 💚 START select = %d, TriceDepthMax =%4u\\n"
+	},
 	"10172": {
 		"Type": "TRICE32",
 		"Strg": "rd:TRICE32 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
@@ -462,6 +466,10 @@
 	"10248": {
 		"Type": "TRICE32",
 		"Strg": "att:TRICE32 %40b\\n"
+	},
+	"10252": {
+		"Type": "TRICE16",
+		"Strg": "MSG: ✅ STOP  select = %d, TriceDepthMax =%4u\\n"
 	},
 	"10254": {
 		"Type": "TRICE64_2",
@@ -4299,6 +4307,10 @@
 		"Type": "TRICE",
 		"Strg": "sig:TRICE64 with 1 to 12 values\\n"
 	},
+	"12664": {
+		"Type": "TRICE_N",
+		"Strg": "msg:%s\\n"
+	},
 	"12667": {
 		"Type": "TRICE8",
 		"Strg": "rd:Use %%p to format a pointer in base 16 notation with leading 0x. (%p)\\n"
@@ -6474,6 +6486,10 @@
 	"14026": {
 		"Type": "TRICE32_3",
 		"Strg": "tst:TRICE32_3 %u %u %u\\n"
+	},
+	"14027": {
+		"Type": "TRICE",
+		"Strg": "time: %d µs - ReadUs32() lasts %d ticks\\n"
 	},
 	"14029": {
 		"Type": "TRICE16_6",
