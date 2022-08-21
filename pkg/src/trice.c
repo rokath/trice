@@ -61,6 +61,7 @@ size_t TriceDepthMax( void ){
     size_t currentDepth = 4*(TriceBufferWritePosition - &triceBuffer[triceSwap][0]); 
     return currentDepth > triceDepthMax ? currentDepth : triceDepthMax;
 }
+
 #else // #ifdef TRICE_HALF_BUFFER_SIZE
 
 //! TriceDepthMax returns the max trice buffer depth until now.
@@ -69,7 +70,6 @@ size_t TriceDepthMax( void ){
 }
 
 #endif // #else #ifdef TRICE_HALF_BUFFER_SIZE
-
 
 //! triceDataLen returns encoded len.
 //! \param p points to nc
