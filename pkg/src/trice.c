@@ -145,7 +145,7 @@ static size_t triceEncode( uint8_t* enc, uint8_t* buf, size_t len ){
     enc[encLen++] = 0; // Add zero as package delimiter.
     return encLen;
 }
-
+/*
 //! TriceOutMultiSafeMode separately encodes multiple trice, each in one package, and writes them in one step to the output.
 //! \param tb is start of uint32_t* trice buffer. The space TRICE_DATA_OFFSET at
 //! the tb start is for in-buffer encoding of the trice data.
@@ -170,7 +170,7 @@ void TriceOutMultiSafeMode( uint32_t* tb, size_t tLen ){
     }
     TRICE_WRITE( enc, encLen );
 }
-
+*/
 //! TriceOutMultiSafeMode separately encodes multiple trice, each in one package, and writes them in one step to the output.
 //! \param tb is start of uint32_t* trice buffer. The space TRICE_DATA_OFFSET at
 //! the tb start is for in-buffer encoding of the trice data.
