@@ -52,8 +52,6 @@ void TriceTransfer( void ){
         size_t tLen = triceDepth(tb); // tlen is always a multiple of 4
         if( tLen ){
             TriceOut( tb, tLen );
-            //TriceOutMultiPackMode0( tb, tLen );
-            //TriceOutMultiPackMode( tb, tLen );
         }
     } // else: transmission not done yet
 }
