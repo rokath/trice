@@ -51,7 +51,7 @@ const (
 	// patTriceNoLen finds next `TRICEn` without length specifier: https://regex101.com/r/vSvOEc/1
 	patTriceNoLen = `(?i)(\bTRICE(|8|16|32|64)\b)`
 
-	patID = `\s*\bId\b\s*` // `\s*\b(I|i)d\b\s*`
+	patID = `\s*\b(i|I)(d|D)\b\s*` // `\s*\b(I|i)d\b\s*`
 
 	patNumber = `\d+`
 
@@ -62,7 +62,7 @@ const (
 	patIDInsideTrice = `(?U)\(` + patID + `\((\s*\d+)\s*\)\s*,\s*"`
 
 	// patTriceFileId finds first occurrence, see https://regex101.com/r/hWMjhU/4
-	patTriceFileId = `#define\s*TRICE_FILE\s*Id\([0-9]*\)`
+	//patTriceFileId = `#define\s*TRICE_FILE\s*(?i)Id\([0-9]*\)`
 
 	patIncludeTriceHeader = `#include\s*"trice\.h"`
 )
@@ -78,9 +78,9 @@ var (
 	matchTriceNoLen          = regexp.MustCompile(patTriceNoLen)
 	matchIDInsideTrice       = regexp.MustCompile(patIDInsideTrice)
 	matchAnyTriceStart       = regexp.MustCompile(patAnyTriceStart)
-	matchTriceFileId         = regexp.MustCompile(patTriceFileId)
-	matchNumber              = regexp.MustCompile(patNumber)
-	matchIncludeTriceHeader  = regexp.MustCompile(patIncludeTriceHeader)
+	//matchTriceFileId         = regexp.MustCompile(patTriceFileId)
+	matchNumber             = regexp.MustCompile(patNumber)
+	matchIncludeTriceHeader = regexp.MustCompile(patIncludeTriceHeader)
 
 	ExtendMacrosWithParamCount bool
 
@@ -134,8 +134,8 @@ func updateParamCountAndID0(w io.Writer, text string, extendMacroName bool) (str
 		// triceC could have been modified here but text is unchanged so far.
 		idLoc := matchIDInsideTrice.FindStringIndex(triceC)
 		if nil == idLoc { // no Id(n) inside trice, so we add it
-			triceO := matchAnyTriceStart.FindString(triceC) // TRICE*( part (the trice start)
-			triceU := triceO + " Id(0),"
+			triceO := matchAnyTriceStart.FindString(triceC)     // TRICE*( part (the trice start)
+			triceU := triceO + " Id(0),"                        // todo: patID
 			triceC = strings.Replace(triceC, triceO, triceU, 1) // insert Id(0) into trice copy
 			modified = true
 			if Verbose {
@@ -281,6 +281,7 @@ func modifyTriceFileIdLine(w io.Writer, _ TriceIDLookUp, tflu triceFmtLookUp, in
 	return
 }
 
+/*
 // insertTriceFileIdLine inserts a TRICE_FILE pattern line immediately after a '#include "trice.h"' line
 //
 // If no '#include "trice.h"' is found, the file is not touched.
@@ -349,7 +350,7 @@ func updateTriceFileId(w io.Writer, lu TriceIDLookUp, tflu triceFmtLookUp, inTex
 	outText, fileModified = modifyTriceFileIdLine(w, lu, tflu, inText, fileName)
 	return
 }
-
+*/
 func visitUpdate(w io.Writer, lu TriceIDLookUp, tflu triceFmtLookUp, pListModified *bool, lim TriceIDLookUpLI) filepath.WalkFunc {
 	// WalkFunc is the type of the function called for each file or directory
 	// visited by Walk. The path argument contains the argument to Walk as a
@@ -372,17 +373,17 @@ func visitUpdate(w io.Writer, lu TriceIDLookUp, tflu triceFmtLookUp, pListModifi
 			return err
 		}
 		fileName := filepath.Base(path)
-		var fileModified2 bool
-		if isCFile(fileName) {
-			text, fileModified2 = updateTriceFileId(w, lu, tflu, text, fileName, SharedIDs, Min, Max, SearchMethod, pListModified)
-		}
+		//  var fileModified2 bool
+		//  if isCFile(fileName) {
+		//  	text, fileModified2 = updateTriceFileId(w, lu, tflu, text, fileName, SharedIDs, Min, Max, SearchMethod, pListModified)
+		//  }
 		refreshIDs(w, fileName, text, lu, tflu, lim) // update IDs: Id(0) -> Id(M)
 
 		textN, fileModified0 := updateParamCountAndID0(w, text, ExtendMacrosWithParamCount)                                 // update parameter count: TRICE* to TRICE*_n and insert missing Id(0)
 		textU, fileModified1 := updateIDsUniqOrShared(w, SharedIDs, Min, Max, SearchMethod, textN, lu, tflu, pListModified) // update IDs: Id(0) -> Id(M)
 
 		// write out
-		fileModified := fileModified0 || fileModified1 || fileModified2
+		fileModified := fileModified0 || fileModified1 /*|| fileModified2*/
 		if fileModified && !DryRun {
 			if Verbose {
 				fmt.Fprintln(w, "Changed: ", path)
@@ -401,17 +402,17 @@ func visitUpdate(w io.Writer, lu TriceIDLookUp, tflu triceFmtLookUp, pListModifi
 func triceIDParse(t string) (nbID string, id TriceID, found bool) {
 	nbID = matchNbID.FindString(t)
 	if nbID == "" {
-		msg.InfoOnTrue(Verbose, fmt.Sprintln("No 'Id(n)' or 'id(n)' found inside "+t))
+		msg.InfoOnTrue(Verbose, fmt.Sprintln("No 'Id(n)' or 'id(n)' found inside "+t)) // todo: patID
 		return
 	}
 	var n int
-	_, err := fmt.Sscanf(nbID, "Id(%d", &n) // closing bracket in format string omitted intentionally
+	_, err := fmt.Sscanf(nbID, "Id(%d", &n) // closing bracket in format string omitted intentionally // todo: patID
 	if nil == err {                         // because spaces after id otherwise are not tolerated
 		id = TriceID(n)
 		found = true
 		return
 	}
-	msg.Info(fmt.Sprintln("no 'Id(n' found inside " + nbID))
+	msg.Info(fmt.Sprintln("no 'Id(n' found inside " + nbID)) // todo: patID
 	return
 }
 
@@ -485,8 +486,8 @@ func refreshIDs(w io.Writer, fileName, text string, lu TriceIDLookUp, tflu trice
 			if tfL, ok := lu[id]; ok { // found
 				tfL.Type = strings.ToUpper(tfL.Type)
 				if !reflect.DeepEqual(tfS, tfL) { // Lower case and upper case Type are not distinguished.
-					fmt.Fprintln(w, "Id", id, "already used differently, ignoring it.")
-					id = -id // mark as invalid
+					fmt.Fprintln(w, "Id", id, "already used differently, ignoring it.") // todo: patID
+					id = -id                                                            // mark as invalid
 				}
 			}
 		}
@@ -550,7 +551,7 @@ func updateIDsUniqOrShared(w io.Writer, sharedIDs bool, min, max TriceID, search
 				*pListModified = true
 			}
 			// patch the id into text
-			nID := fmt.Sprintf("Id(%5d)", id)
+			nID := fmt.Sprintf("Id(%5d)", id) // todo: patID
 			if Verbose {
 				if nID != invalID {
 					fmt.Fprint(w, invalID, " -> ")
@@ -658,11 +659,11 @@ func zeroNextID(w io.Writer, modifiedIn bool, subsIn, in string) (found bool, mo
 	nbTRICE := subsIn[loc[0]:loc[1]]
 	nbID := matchNbID.FindString(nbTRICE)
 	if nbID == "" {
-		msg.Info(fmt.Sprintln("No 'Id(n)' found inside " + nbTRICE))
+		msg.Info(fmt.Sprintln("No 'Id(n)' found inside " + nbTRICE)) // todo: patID
 		return
 	}
 
-	zeroID := "Id(0)"
+	zeroID := "Id(0)" // todo: patID
 	fmt.Fprintln(w, nbID, " -> ", zeroID)
 
 	zeroTRICE := strings.Replace(nbTRICE, nbID, zeroID, 1)
