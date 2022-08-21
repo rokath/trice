@@ -52,7 +52,7 @@ void TriceTransfer( void ){
         uint32_t* tb = triceBufferSwap(); 
         size_t tLen = triceDepth(tb); // tlen is always a multiple of 4
         if( tLen ){
-            TriceOutMultiSafeMode( tb, tLen );
+            TriceOutMultiPackMode0( tb, tLen );
         }
     } // else: transmission not done yet
 }
@@ -136,6 +136,17 @@ static int nextTrice( uint8_t** buf, size_t* pSize, uint8_t** pStart, size_t* pL
     return 0;
 }
 
+static size_t triceEncode( uint8_t* enc, uint8_t* buf, size_t len ){
+    size_t encLen;
+    #ifdef TRICE_ENCRYPT
+    len = (len + 7) & ~7; // only multiple of 8 encryptable
+    TriceEncrypt( enc + TRICE_DATA_OFFSET, len>>2 );
+    #endif
+    encLen = TriceCOBSEncode(enc, buf, len);
+    enc[encLen++] = 0; // Add zero as package delimiter.
+    return encLen;
+}
+
 //! TriceOutMultiSafeMode separately encodes multiple trice, each in one package, and writes them in one step to the output.
 //! \param tb is start of uint32_t* trice buffer. The space TRICE_DATA_OFFSET at
 //! the tb start is for in-buffer encoding of the trice data.
@@ -146,26 +157,19 @@ void TriceOutMultiSafeMode( uint32_t* tb, size_t tLen ){
     size_t encLen = 0;
     uint8_t* buf = enc + TRICE_DATA_OFFSET; // start of 32-bit aligned trices
     size_t len = tLen; // (byte count)
-    uint8_t* triceStart;
-    size_t triceLen;
-    while(len){
-        int r = nextTrice( &buf, &len, &triceStart, &triceLen );
-        if( r < 0 ){
-            break; // ignore following data
-        }
-        #ifdef TRICE_ENCRYPT
-        triceLen = (triceLen + 7) & ~7; // only multiple of 8 encryptable
-        TriceEncrypt( triceStart, triceLen>>2 );
-        #endif
-        encLen = TriceCOBSEncode(enc, triceStart, triceLen);
-        enc[encLen++] = 0; // Add zero as package delimiter.
-        enc += encLen;
-    }
-    TRICE_WRITE( (uint8_t*)tb, enc - (uint8_t*)tb );
-    
     // diagnostics
     tLen += TRICE_DATA_OFFSET; 
     triceDepthMax = tLen < triceDepthMax ? triceDepthMax : tLen;
+    while(len){
+        uint8_t* triceStart;
+        size_t triceLen;
+        int r = nextTrice( &buf, &len, &triceStart, &triceLen );
+        if( r < 0 ){ // on data error
+            break;   // ignore following data
+        }
+        encLen += triceEncode( enc+encLen, triceStart, triceLen );
+    }
+    TRICE_WRITE( enc, encLen );
 }
 
 //! TriceOutMultiPackMode separately encodes multiple trice, all in one package, and writes them in one step to the output.
@@ -173,7 +177,8 @@ void TriceOutMultiSafeMode( uint32_t* tb, size_t tLen ){
 //! the tb start is for in-buffer encoding of the trice data.
 //! \param tLen is length of trice data. tlen is always a multiple of 4 because
 //! of 32-bit alignment and padding bytes.
-void TriceOutMultiPackMode( uint32_t* tb, size_t tLen ){
+void TriceOutMultiPackMode0( uint32_t* tb, size_t tLen );
+void TriceOutMultiPackMode0( uint32_t* tb, size_t tLen ){
     uint8_t* enc = (uint8_t*)tb; // encoded data starting address
     size_t encLen = 0;
     uint8_t* buf = enc + TRICE_DATA_OFFSET; // start of 32-bit aligned trices
@@ -204,6 +209,72 @@ void TriceOutMultiPackMode( uint32_t* tb, size_t tLen ){
     tLen += TRICE_DATA_OFFSET; 
     triceDepthMax = tLen < triceDepthMax ? triceDepthMax : tLen;
 }
+
+//! TriceOutMultiPackMode separately encodes multiple trice, all in one package, and writes them in one step to the output.
+//! \param tb is start of uint32_t* trice buffer. The space TRICE_DATA_OFFSET at
+//! the tb start is for in-buffer encoding of the trice data.
+//! \param tLen is length of trice data. tlen is always a multiple of 4 because
+//! of 32-bit alignment and padding bytes.
+void TriceOutMultiPackMode( uint32_t* tb, size_t tLen ){
+    uint8_t* enc = (uint8_t*)tb; // encoded data starting address
+    size_t encLen = 0;
+    uint8_t* buf = enc + TRICE_DATA_OFFSET; // start of 32-bit aligned trices
+    size_t len = tLen; // (byte count)
+    // diagnostics
+    tLen += TRICE_DATA_OFFSET; 
+    triceDepthMax = tLen < triceDepthMax ? triceDepthMax : tLen;
+    while(len){
+        uint8_t* triceStart;
+        size_t triceLen;
+        int r = nextTrice( &buf, &len, &triceStart, &triceLen );
+        if( r < 0 ){ // on data error
+            break;   // ignore following data
+        }
+        memmove(buf+encLen, triceStart, triceLen );
+        encLen += triceLen;
+    }
+    encLen = triceEncode( enc, enc + TRICE_DATA_OFFSET, encLen);
+    TRICE_WRITE( enc, encLen );
+}
+
+#define TRICE_SAFE_SINGLE_MODE 10
+#define TRICE_PACK_MULTI_MODE  20
+#define TRICE_TRANSFER_MODE TRICE_PACK_MULTI_MODE
+
+//! TriceOutMultiSafeMode separately encodes multiple trice, each in one package, and writes them in one step to the output.
+//! \param tb is start of uint32_t* trice buffer. The space TRICE_DATA_OFFSET at
+//! the tb start is for in-buffer encoding of the trice data.
+//! \param tLen is length of trice data. tlen is always a multiple of 4 because
+//! of 32-bit alignment and padding bytes.
+void TriceOut( uint32_t* tb, size_t tLen ){
+    uint8_t* enc = (uint8_t*)tb; // encoded data starting address
+    size_t encLen = 0;
+    uint8_t* buf = enc + TRICE_DATA_OFFSET; // start of 32-bit aligned trices
+    size_t len = tLen; // (byte count)
+    // diagnostics
+    tLen += TRICE_DATA_OFFSET; 
+    triceDepthMax = tLen < triceDepthMax ? triceDepthMax : tLen;
+    while(len){
+        uint8_t* triceStart;
+        size_t triceLen;
+        int r = nextTrice( &buf, &len, &triceStart, &triceLen );
+        if( r < 0 ){ // on data error
+            break;   // ignore following data
+        }
+        #if TRICE_TRANSFER_MODE == TRICE_SAFE_SINGLE_MODE
+        encLen += triceEncode( enc+encLen, triceStart, triceLen );
+        #endif
+        #if  TRICE_TRANSFER_MODE == TRICE_PACK_MULTI_MODE
+        memmove(buf+encLen, triceStart, triceLen );
+        encLen += triceLen;
+        #endif
+    }
+    #if  TRICE_TRANSFER_MODE == TRICE_PACK_MULTI_MODE
+    encLen = triceEncode( enc, buf, encLen);
+    #endif
+    TRICE_WRITE( enc, encLen );
+}
+
 
 //! TriceOutSingle converts trice data and transmits them to the output.
 //! \param tb is start of uint32_t* trice buffer. The space TRICE_DATA_OFFSET>>2

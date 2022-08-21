@@ -44,6 +44,8 @@ unsigned TriceCOBSEncode( uint8_t* restrict output, const uint8_t * restrict inp
 void TriceOutSingle( uint32_t* tb, size_t tLen );
 void TriceOutMultiSafeMode( uint32_t* tb, size_t tLen );
 void TriceOutMultiPackMode( uint32_t* tb, size_t tLen );
+void TriceOutMultiPackMode0( uint32_t* tb, size_t tLen );
+void TriceOut( uint32_t* tb, size_t tLen );
 
 void TriceTransfer( void );
 void TriceCheckSet( int index ); //!< tests
