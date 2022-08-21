@@ -15,7 +15,6 @@ void msleep(uint32_t delay);
 uint32_t wallclock_ms(void);
 
 #include "trice.h"
-#define TRICE_FILE Id(43036)
 
 
 static void hardware_setup(void)

@@ -70,7 +70,7 @@
             <nStopU2X>0</nStopU2X>
           </BeforeCompile>
           <BeforeMake>
-            <RunUserProg1>0</RunUserProg1>
+            <RunUserProg1>1</RunUserProg1>
             <RunUserProg2>0</RunUserProg2>
             <UserProg1Name>trice u -v -li ../../../li.json  -i ../../../til.json -src ./ -src ../Core -src ../../../pkg/src</UserProg1Name>
             <UserProg2Name></UserProg2Name>

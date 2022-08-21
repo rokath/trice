@@ -24,7 +24,6 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "trice.h"
-#define TRICE_FILE Id(35303)
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
