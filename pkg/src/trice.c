@@ -145,32 +145,7 @@ static size_t triceEncode( uint8_t* enc, uint8_t* buf, size_t len ){
     enc[encLen++] = 0; // Add zero as package delimiter.
     return encLen;
 }
-/*
-//! TriceOutMultiSafeMode separately encodes multiple trice, each in one package, and writes them in one step to the output.
-//! \param tb is start of uint32_t* trice buffer. The space TRICE_DATA_OFFSET at
-//! the tb start is for in-buffer encoding of the trice data.
-//! \param tLen is length of trice data. tlen is always a multiple of 4 because
-//! of 32-bit alignment and padding bytes.
-void TriceOutMultiSafeMode( uint32_t* tb, size_t tLen ){
-    uint8_t* enc = (uint8_t*)tb; // encoded data starting address
-    size_t encLen = 0;
-    uint8_t* buf = enc + TRICE_DATA_OFFSET; // start of 32-bit aligned trices
-    size_t len = tLen; // (byte count)
-    // diagnostics
-    tLen += TRICE_DATA_OFFSET; 
-    triceDepthMax = tLen < triceDepthMax ? triceDepthMax : tLen;
-    while(len){
-        uint8_t* triceStart;
-        size_t triceLen;
-        int r = nextTrice( &buf, &len, &triceStart, &triceLen );
-        if( r < 0 ){ // on data error
-            break;   // ignore following data
-        }
-        encLen += triceEncode( enc+encLen, triceStart, triceLen );
-    }
-    TRICE_WRITE( enc, encLen );
-}
-*/
+
 //! TriceOut encodes trices and writes them in one step to the output.
 //! \param tb is start of uint32_t* trice buffer. The space TRICE_DATA_OFFSET at
 //! the tb start is for in-buffer encoding of the trice data.
