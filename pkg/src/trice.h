@@ -21,6 +21,7 @@ extern "C" {
 #endif
 
 #include "triceConfig.h"
+#include "tcobs.h"
 #include <stdint.h>
 #include <string.h>
 
@@ -40,7 +41,7 @@ size_t TriceDepthMax( void );
 #ifdef TRICE_HALF_BUFFER_SIZE
 extern uint32_t* TriceBufferWritePosition;
 #endif
-unsigned TriceCOBSEncode( uint8_t* restrict output, const uint8_t * restrict input, unsigned length);
+//unsigned TriceCOBSEncode( uint8_t* restrict output, const uint8_t * restrict input, unsigned length);
 void TriceOut( uint32_t* tb, size_t tLen );
 
 void TriceTransfer( void );

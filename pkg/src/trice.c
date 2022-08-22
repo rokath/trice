@@ -141,7 +141,8 @@ static size_t triceEncode( uint8_t* enc, uint8_t* buf, size_t len ){
     len = (len + 7) & ~7; // only multiple of 8 encryptable
     TriceEncrypt( enc + TRICE_DATA_OFFSET, len>>2 );
     #endif
-    encLen = TriceCOBSEncode(enc, buf, len);
+    //  encLen = TriceCOBSEncode(enc, buf, len);
+    encLen = TCOBSEncode(enc, buf, len);
     enc[encLen++] = 0; // Add zero as package delimiter.
     return encLen;
 }
@@ -233,7 +234,7 @@ void triceTriggerTransmit(void){
     }
 }
 #endif // #if defined( TRICE_UART ) && defined( TRICE_HALF_BUFFER_SIZE )
-
+/*
 //! TriceCOBSEncode stuffs "length" bytes of data at the location pointed to by "input"
 //! and writes the output to the location pointed to by "output".
 //! Returns the number of bytes written to "output".
@@ -268,7 +269,7 @@ unsigned TriceCOBSEncode( uint8_t* restrict output, const uint8_t * restrict inp
     output[code_index] = code;
     return write_index;
 }
-
+*/
 #ifdef TRICE_ENCRYPT // needs a re-design
 //! golang XTEA works with 64 rounds
 static const unsigned int numRounds = 64;

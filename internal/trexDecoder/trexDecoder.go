@@ -18,7 +18,7 @@ import (
 	"github.com/rokath/trice/internal/emitter"
 	"github.com/rokath/trice/internal/id"
 	"github.com/rokath/trice/pkg/cipher"
-	"github.com/rokath/trice/pkg/cobs"
+	"github.com/rokath/trice/pkg/tcobsv1"
 )
 
 const (
@@ -95,8 +95,15 @@ func (p *trexDec) nextPackage() {
 		decoder.Dump(p.W, p.IBuf[:index+1])
 	}
 
-	p.B = make([]byte, decoder.DefaultSize)
-	n, e := cobs.Decode(p.B, p.IBuf[:index]) // if index is 0, an empty buffer is decoded
+	p.B = make([]byte, decoder.DefaultSize) // todo: avoid allocation
+
+	//////////////////////////////////////////////////////////////////////////////////////////
+	//n, e := cobs.Decode(p.B, p.IBuf[:index]) // if index is 0, an empty buffer is decoded
+	//////////////////////////////////////////////////////////////////////////////////////////
+	n, e := tcobsv1.Decode(p.B, p.IBuf[:index]) // if index is 0, an empty buffer is decoded
+	p.B = p.B[len(p.B)-n:]
+	//////////////////////////////////////////////////////////////////////////////////////////
+
 	if e != nil {
 		fmt.Println("inconsistent (T)COBS buffer:", p.IBuf[:index+1]) // show also terminating 0
 	}
