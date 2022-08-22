@@ -281,76 +281,6 @@ func modifyTriceFileIdLine(w io.Writer, _ TriceIDLookUp, tflu triceFmtLookUp, in
 	return
 }
 
-/*
-// insertTriceFileIdLine inserts a TRICE_FILE pattern line immediately after a '#include "trice.h"' line
-//
-// If no '#include "trice.h"' is found, the file is not touched.
-// If variable SharedIDs is true, lu&tflu are checked, if t.Type == "TRICE_FILE" && t.Strg == fileName exists and that id is used.
-// If variable SharedIDs is false, a new id is used.
-func insertTriceFileIdLine(w io.Writer, lu TriceIDLookUp, tflu triceFmtLookUp, inText, fileName string, sharedIDs bool, min, max TriceID, searchMethod string, pListModified *bool) (outText string, fileModified bool) {
-	loc := matchIncludeTriceHeader.FindStringIndex(inText)
-	if loc == nil {
-		if Verbose {
-			fmt.Fprintln(w, fileName)
-		}
-		outText = "" // a CFile not containing "#include "Trice.h" is expected to have no TRICE macros inside
-		return       // and therefore no need to parse it any further. Todo: refactoring
-	}
-	t := TriceFmt{"TRICE_FILE", fileName}
-	id, ok := tflu[t]
-	if !(sharedIDs && ok) {
-		id = lu.newID(w, min, max, searchMethod)
-		lu[id] = t
-		tflu[t] = id
-		*pListModified = true
-	}
-	outText = inText[:loc[1]] + fmt.Sprintf("\n#define TRICE_FILE Id(%d)", id) + inText[loc[1]:]
-	fileModified = true
-	fmt.Fprintf(w, "#define TRICE_FILE Id(%d) inserted into %s\n", id, fileName)
-	return
-}
-
-// updateTriceFileId parses inText for a TRICE_FILE pattern and generates or updates it, if needed.
-//
-// If no TRICE_FILE pattern exist, function insertTriceFileIdLine is called.
-// If a TRICE_FILE pattern exist the following happen:
-//	* Check if id inside TRICE_FILE pattern is not 0 and exists in til.json with t.Type == "TRICE_FILE" && t.Strg == fileName.
-//    * yes: That is the normal case and fn returns with outText = inText
-//    * no: function call modifyTriceFileIdLine
-func updateTriceFileId(w io.Writer, lu TriceIDLookUp, tflu triceFmtLookUp, inText, fileName string, sharedIDs bool, min, max TriceID, searchMethod string, pListModified *bool) (outText string, fileModified bool) {
-	// check if file contains a TRICE_FILE pattern
-	locFID := matchTriceFileId.FindStringIndex(inText)
-	if locFID == nil {
-		if Verbose {
-			fmt.Fprintln(w, "In", fileName, "no TRICE_FILE pattern found.")
-		}
-		outText, fileModified = insertTriceFileIdLine(w, lu, tflu, inText, fileName, sharedIDs, min, max, searchMethod, pListModified)
-		return
-	}
-
-	// get the file id value
-	sFID := inText[locFID[0]:locFID[1]]
-	locID := matchNumber.FindStringIndex(sFID)
-	sID := sFID[locID[0]:locID[1]] // This is just the file id as number string
-	var n int
-	_, err := fmt.Sscanf(sID, "%d", &n) // closing bracket in format string omitted intensionally
-	msg.OnErrF(w, err)                  // because spaces after id otherwise are not tolerated
-	if Verbose {
-		fmt.Fprintf(w, "Trice file id '%d' found inside %s in '%s'\n", n, fileName, sID)
-	}
-	// check the file id value
-	if n != 0 {
-		if t, ok := lu[TriceID(n)]; ok { // n found
-			if t.Type == "TRICE_FILE" && t.Strg == fileName { // in sync
-				outText = inText // nothing to do
-				return
-			}
-		}
-	}
-	outText, fileModified = modifyTriceFileIdLine(w, lu, tflu, inText, fileName)
-	return
-}
-*/
 func visitUpdate(w io.Writer, lu TriceIDLookUp, tflu triceFmtLookUp, pListModified *bool, lim TriceIDLookUpLI) filepath.WalkFunc {
 	// WalkFunc is the type of the function called for each file or directory
 	// visited by Walk. The path argument contains the argument to Walk as a
@@ -399,17 +329,29 @@ func visitUpdate(w io.Writer, lu TriceIDLookUp, tflu triceFmtLookUp, pListModifi
 
 // triceIDParse returns an extracted id and found as true if t starts with s.th. like 'TRICE*( Id(n)...'
 // nbID is the extracted string part containing 'Id(n)'.
-func triceIDParse(t string) (nbID string, id TriceID, found bool) {
+func triceIDParse(t string) (nbID string, id TriceID, found idType) {
 	nbID = matchNbID.FindString(t)
 	if nbID == "" {
 		msg.InfoOnTrue(Verbose, fmt.Sprintln("No 'Id(n)' or 'id(n)' found inside "+t)) // todo: patID
 		return
 	}
 	var n int
-	_, err := fmt.Sscanf(nbID, "Id(%d", &n) // closing bracket in format string omitted intentionally // todo: patID
+	_, err := fmt.Sscanf(nbID, "ID(%d", &n) // closing bracket in format string omitted intentionally // todo: patID
 	if nil == err {                         // because spaces after id otherwise are not tolerated
 		id = TriceID(n)
-		found = true
+		found = idTypeUpper
+		return
+	}
+	_, err = fmt.Sscanf(nbID, "Id(%d", &n) // closing bracket in format string omitted intentionally // todo: patID
+	if nil == err {                        // because spaces after id otherwise are not tolerated
+		id = TriceID(n)
+		found = idTypeCamel
+		return
+	}
+	_, err = fmt.Sscanf(nbID, "id(%d", &n) // closing bracket in format string omitted intentionally // todo: patID
+	if nil == err {                        // because spaces after id otherwise are not tolerated
+		id = TriceID(n)
+		found = idTypeLower
 		return
 	}
 	msg.Info(fmt.Sprintln("no 'Id(n' found inside " + nbID)) // todo: patID
@@ -442,12 +384,15 @@ func lineCount(text string) {
 // Returned id is the scanned n inside Id(n), only and only if n is a single decimal number.
 // Returned tf is the recognized trice.
 // Only on success found is true.
-func triceParse(t string) (nbID string, id TriceID, tf TriceFmt, found bool) {
+func triceParse(t string) (nbID string, id TriceID, tf TriceFmt, found idType) {
 	nbID, id, found = triceIDParse(t)
-	if !found {
+	if found == idTypeNone {
 		return
 	}
-	tf, found = triceFmtParse(t)
+	tf, ok := triceFmtParse(t)
+	if !ok {
+		msg.Info(fmt.Sprintln("triceFmtParse reported !ok inside " + t))
+	}
 	return
 }
 
@@ -469,7 +414,7 @@ func refreshIDs(w io.Writer, fileName, text string, lu TriceIDLookUp, tflu trice
 		// A case like 'TRICE*( Id(                             0                              ), "");' is not expected.
 
 		_, id, tf, found := triceParse(nbTRICE)
-		if !found {
+		if found == idTypeNone {
 			continue
 		}
 		tfS := tf
@@ -498,6 +443,15 @@ func refreshIDs(w io.Writer, fileName, text string, lu TriceIDLookUp, tflu trice
 	}
 }
 
+type idType int
+
+const (
+	idTypeNone  = 0
+	idTypeUpper = 3
+	idTypeCamel = 2
+	idTypeLower = 1
+)
+
 // updateIDsUniqOrShared parses text for new or invalid *Trices* 'tf' and gives them the legacy id if 'tf' is already in lu & tflu.
 // An invalid trice is a trice without Id(n) or with Id(0) or which changed somehow. Exampes: 'TRICE( Id(12) ,"foo");' was changed to 'TRICE0( Id(12) ,"bar");'
 // If 'TRICE( Id(99) ,"bar");' is in lu & tflu, the invalid trice changes to 'TRICE( Id(99) ,"bar");'. Otherwise instead of 99 a so far unused id is taken.
@@ -522,8 +476,8 @@ func updateIDsUniqOrShared(w io.Writer, sharedIDs bool, min, max TriceID, search
 		subs = subs[loc[1]:] // A possible Id(0) replacement makes subs not shorter, so next search can start at loc[1].
 		// A case like 'TRICE*( Id(                             0                              ), "");' is not expected.
 
-		nbID, id, tf, found := triceParse(nbTRICE)
-		if !found {
+		nbID, id, tf, idTypeResult := triceParse(nbTRICE)
+		if idTypeResult == idTypeNone {
 			continue
 		}
 		tf.Type = strings.ToUpper(tf.Type) // Lower case and upper case Type are not distinguished for normal trices in shared IDs mode.
@@ -544,14 +498,21 @@ func updateIDsUniqOrShared(w io.Writer, sharedIDs bool, min, max TriceID, search
 			invalID := nbID
 			invalTRICE := nbTRICE
 
-			if id, found = tflu[tf]; sharedIDs && found { // yes, we can use it in shared IDs mode
+			/*if id, found := tflu[tf]; sharedIDs && found { // yes, we can use it in shared IDs mode
 				msg.FatalInfoOnTrue(id == 0, "no id 0 allowed in map")
-			} else { // no, we need a new one
+			} else */{ // no, we need a new one
 				id = lu.newID(w, min, max, searchMethod) // a prerequisite is an in a previous step refreshed lu
 				*pListModified = true
 			}
-			// patch the id into text
-			nID := fmt.Sprintf("Id(%5d)", id) // todo: patID
+			var nID string // patch the id into text
+			switch idTypeResult {
+			case idTypeUpper:
+				nID = fmt.Sprintf("ID(%5d)", id) // todo: patID
+			case idTypeCamel:
+				nID = fmt.Sprintf("Id(%5d)", id) // todo: patID
+			case idTypeLower:
+				nID = fmt.Sprintf("id(%5d)", id) // todo: patID
+			}
 			if Verbose {
 				if nID != invalID {
 					fmt.Fprint(w, invalID, " -> ")
