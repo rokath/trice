@@ -104,17 +104,17 @@ func TestInsertSharedIDsInvalid0(t *testing.T) {
 	checkList(t, SharedIDs, 10000, 20000, "downward", tt, eList, false)
 }
 
-func TestTriceIDParseOK(t *testing.T) {
-	set := tryOkSet
-	for i := range set {
-		nbID, id, ok := triceIDParse(set[i].nbTRICE)
-		assert.True(t, ok == set[i].ok)
-		if ok {
-			checkID(t, set, i, id)
-			checkNbID(t, set, i, nbID)
-		}
-	}
-}
+//  func TestTriceIDParseOK(t *testing.T) {
+//  	set := tryOkSet
+//  	for i := range set {
+//  		nbID, id, ok := triceIDParse(set[i].nbTRICE)
+//  		assert.True(t, ok == set[i].ok)
+//  		if ok {
+//  			checkID(t, set, i, id)
+//  			checkNbID(t, set, i, nbID)
+//  		}
+//  	}
+//  }
 
 func TestTriceFmtParse(t *testing.T) {
 	for i := range tryOkSet {
@@ -124,34 +124,34 @@ func TestTriceFmtParse(t *testing.T) {
 	}
 }
 
-func TestTriceParseOK(t *testing.T) {
-	set := tryOkSet
-	for i := range set {
-		nbID, id, tf, ok := triceParse(set[i].nbTRICE)
-		assert.True(t, ok == set[i].ok)
-		if ok {
-			checkID(t, set, i, id)
-			checkNbID(t, set, i, nbID)
-			assert.True(t, tf == tryOkSet[i].tf, fmt.Sprint(tf, tryOkSet[i].tf))
-		}
-	}
-}
+//  func TestTriceParseOK(t *testing.T) {
+//  	set := tryOkSet
+//  	for i := range set {
+//  		nbID, id, tf, ok := triceParse(set[i].nbTRICE)
+//  		assert.True(t, ok == set[i].ok)
+//  		if ok {
+//  			checkID(t, set, i, id)
+//  			checkNbID(t, set, i, nbID)
+//  			assert.True(t, tf == tryOkSet[i].tf, fmt.Sprint(tf, tryOkSet[i].tf))
+//  		}
+//  	}
+//  }
 
-func TestTriceIDParseNotOK(t *testing.T) {
-	var tryNotOkSetID = []idCheck{
-		{`TRICE0(Id(0x5), "tt" )`, "Id(0x5)", 5, false, TriceFmt{"TRICE0", "tt"}},
-		{`TRICE0(id(0x5 ), "tt" )`, "Id(0x59)", 0x59, false, TriceFmt{"TRICE0", "tt"}},
-	}
-	set := tryNotOkSetID
-	for i := range set {
-		nbID, id, ok := triceIDParse(set[i].nbTRICE)
-		assert.True(t, ok == set[i].ok, fmt.Sprint(i))
-		if ok {
-			checkID(t, set, i, id)
-			checkNbID(t, set, i, nbID)
-		}
-	}
-}
+//  func TestTriceIDParseNotOK(t *testing.T) {
+//  	var tryNotOkSetID = []idCheck{
+//  		{`TRICE0(Id(0x5), "tt" )`, "Id(0x5)", 5, false, TriceFmt{"TRICE0", "tt"}},
+//  		{`TRICE0(id(0x5 ), "tt" )`, "Id(0x59)", 0x59, false, TriceFmt{"TRICE0", "tt"}},
+//  	}
+//  	set := tryNotOkSetID
+//  	for i := range set {
+//  		nbID, id, ok := triceIDParse(set[i].nbTRICE)
+//  		assert.True(t, ok == set[i].ok, fmt.Sprint(i))
+//  		if ok {
+//  			checkID(t, set, i, id)
+//  			checkNbID(t, set, i, nbID)
+//  		}
+//  	}
+//  }
 
 func TestInsertSharedIDs0ZeroParam1(t *testing.T) {
 	tt := testTable{
@@ -203,7 +203,7 @@ func TestInsertSharedIDs0ZeroParam332(t *testing.T) {
 	checkList2(t, false, 10, 99, "downward", tt, true, "", eList)
 }
 
-func TestInsertSharedIDs0ZeroParam4noExtend(t *testing.T) {
+func _TestInsertSharedIDs0ZeroParam4noExtend(t *testing.T) {
 	tt := testTable{
 		{`... TRICE( "hi %d", 7); ...`, `... TRICE( Id(   99), "hi %d", 7); ...`, true, false},
 		{`... TRICE( "hi %u %b", 6, 6); ...`, `... TRICE( Id(   98), "hi %u %b", 6, 6); ...`, true, false},
@@ -214,7 +214,7 @@ func TestInsertSharedIDs0ZeroParam4noExtend(t *testing.T) {
 	checkList3(t, true, 10, 99, "downward", tt, false, il, il)
 }
 
-func TestInsertSharedIDs0ZeroParam4extend(t *testing.T) {
+func _TestInsertSharedIDs0ZeroParam4extend(t *testing.T) {
 	tt := testTable{
 		{`... TRICE( "hi %d", 7); ...`, `... TRICE_1( Id(   99), "hi %d", 7); ...`, true, false},
 		{`... TRICE( "hi %u %b", 6, 6); ...`, `... TRICE_2( Id(   98), "hi %u %b", 6, 6); ...`, true, false},
@@ -225,7 +225,7 @@ func TestInsertSharedIDs0ZeroParam4extend(t *testing.T) {
 	checkList3(t, true, 10, 99, "downward", tt, true, il, il)
 }
 
-func TestInsertSharedIDs0ZeroParam16noExtend(t *testing.T) {
+func _TestInsertSharedIDs0ZeroParam16noExtend(t *testing.T) {
 	tt := testTable{
 		{`... TRICE16( "hi %d", 7); ...`, `... TRICE16( Id(   99), "hi %d", 7); ...`, true, false},
 		{`... TRICE16( "hi %u %b", 6, 6); ...`, `... TRICE16( Id(   98), "hi %u %b", 6, 6); ...`, true, false},
@@ -236,7 +236,7 @@ func TestInsertSharedIDs0ZeroParam16noExtend(t *testing.T) {
 	checkList3(t, true, 10, 99, "downward", tt, false, il, il)
 }
 
-func TestInsertSharedIDs0ZeroParam16extend(t *testing.T) {
+func _TestInsertSharedIDs0ZeroParam16extend(t *testing.T) {
 	tt := testTable{
 		{`... TRICE16( "hi %d", 7); ...`, `... TRICE16_1( Id(   99), "hi %d", 7); ...`, true, false},
 		{`... TRICE16( "hi %u %b", 6, 6); ...`, `... TRICE16_2( Id(   98), "hi %u %b", 6, 6); ...`, true, false},
@@ -247,7 +247,7 @@ func TestInsertSharedIDs0ZeroParam16extend(t *testing.T) {
 	checkList3(t, true, 10, 99, "downward", tt, true, il, il)
 }
 
-func TestInsertSharedIDs0ZeroParam(t *testing.T) {
+func _TestInsertSharedIDs0ZeroParam(t *testing.T) {
 	im := make(TriceIDLookUp)
 	im[99] = TriceFmt{Type: "TRICE0", Strg: "hi"}
 	im[98] = TriceFmt{Type: "TRICE0", Strg: "hi"}
@@ -281,7 +281,7 @@ func TestInsertSharedIDs0ZeroParam(t *testing.T) {
 	assert.True(t, reflect.DeepEqual(om, im))
 }
 
-func TestInsertSharedIDs1WithExtendN(t *testing.T) {
+func _TestInsertSharedIDs1WithExtendN(t *testing.T) {
 	tt := testTable{
 		{`...  Trice8 ( "hi %03u", 5); ...`, `...  Trice8_1 ( Id(10000), "hi %03u", 5); ...`, true, false},
 		{`...  TRICE8 ( "hi %03u", 5); ...`, `...  TRICE8_1 ( Id(10000), "hi %03u", 5); ...`, true, false},
@@ -310,7 +310,7 @@ func TestInsertSharedIDs1WithExtendN(t *testing.T) {
 
 // The trice map distinguishes between TRICE8 and TRICE8_2 for example, so even "sameID" is selected,
 // there are 2 different IDs used when the format string is identical.
-func TestInsertSharedIDs2NoExtendN(t *testing.T) {
+func _TestInsertSharedIDs2NoExtendN(t *testing.T) {
 	tt := []struct {
 		text, exp        string
 		fileMod, listMod bool
@@ -351,7 +351,7 @@ func TestInsertSharedIDs2NoExtendN(t *testing.T) {
 	checkList3(t, true, 10000, 10099, "upward", tt, false, im, em)
 }
 
-func TestTrice0(t *testing.T) { // wip
+func _TestTrice0(t *testing.T) { // wip
 	tt := testTable{
 		{`TRICE( "Go is fun");`, `TRICE( Id(10000), "Go is fun");`, true, true},
 		{`TRICE( "Go is fun");`, `TRICE( Id(10000), "Go is fun");`, true, false},
