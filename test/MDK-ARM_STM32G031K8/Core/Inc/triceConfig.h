@@ -14,9 +14,19 @@ extern "C" {
 ///////////////////////////////////////////////////////////////////////////////
 // Select trice mode and general settings.
 //
-#define	TRICE_DIRECT_OUT		0
-#define	TRICE_DOUBLE_BUFFERING_WITH_CYCLE_COUNT	200
-#define	TRICE_DOUBLE_BUFFERING_NO_CYCLE_COUNT	201
+
+#define TRICE_LEGACY_ENCODING 111 // depreciated, use switch -e COBS or synonym -e legacyTrice
+#define TRICE_TREX_ENCODING   222 // recommended, use switch -e trex 
+#define TRICE_ENCODING TRICE_LEGACY_ENCODING
+
+#define TRICE_COBS_FRAMING    100 //!< Select COBS_FRAMING for code minimizing without compression. Needs trice switch -framing=COBS.
+#define TRICE_TCOBSV1_FRAMING 110 //!< Select TCOBSV1_FRAMING for less compression with less code. Needs trice switch -framing=TCOBSv1.
+#define TRICE_TCOBS21_FRAMING 120 //!< Select TCOBS21_FRAMING for more compression with more code (default). Optionally use trice switch -framing=TCOBSv2.
+#define TRICE_PACKAGE_FRAMING TRICE_TCOBSV2_FRAMING
+
+#define	TRICE_DIRECT_OUT                              0
+#define	TRICE_DOUBLE_BUFFERING_WITH_CYCLE_COUNT     200
+#define	TRICE_DOUBLE_BUFFERING_NO_CYCLE_COUNT       201
 
 #define TRICE_MODE TRICE_DOUBLE_BUFFERING_WITH_CYCLE_COUNT //! TRICE_MODE is a predefined trice transfer method.
 
@@ -45,12 +55,6 @@ uint32_t ReadUs32( void );
 //#define TRICE_DECRYPT //!< TRICE_DECRYPT is usually not needed. Enable for checks.
 
 //#define TRICE_BIG_ENDIANNESS //!< TRICE_BIG_ENDIANNESS needs to be defined for TRICE64 macros on big endian devices. (Untested!)
-
-#define TRICE_COBS_FRAMING    100 //!< Select COBS_FRAMING for code minimizing without compression. Needs trice switch -framing=COBS.
-#define TRICE_TCOBSV1_FRAMING 110 //!< Select TCOBSV1_FRAMING for less compression with less code. Needs trice switch -framing=TCOBSv1.
-#define TRICE_TCOBS21_FRAMING 120 //!< Select TCOBS21_FRAMING for more compression with more code (default). Optionally use trice switch -framing=TCOBSv2.
-
-#define TRICE_PACKAGE_FRAMING TRICE_TCOBSV2_FRAMING
 
 //
 ///////////////////////////////////////////////////////////////////////////////

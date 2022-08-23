@@ -78,6 +78,9 @@ static inline int TriceOutDepth( void ){ return 0; }
 #define TRICE_PUT_PREFIX TRICE_PUT(TRICE_LOCATION); TRICE_PUT(TRICE_TIMESTAMP); 
 #define TRICE_PREFIX_SIZE 8
 #endif
+#ifndef TRICE_COBS_PACKAGE_MODE
+#error
+#endif
 
 #ifndef TRICE_CYCLE_COUNTER
 #define TRICE_CYCLE_COUNTER 1 //! TRICE_CYCLE_COUNTER adds a cycle counter to each trice message. The TRICE macros are a bit slower. Lost TRICEs are detectable by the trice tool.
