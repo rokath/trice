@@ -159,7 +159,7 @@
           <Type>0</Type>
           <LineNumber>92</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134219710</Address>
+          <Address>134219768</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -182,7 +182,7 @@
           <SizeOfObject>0</SizeOfObject>
           <BreakByAccess>0</BreakByAccess>
           <BreakIfRCount>0</BreakIfRCount>
-          <Filename>../Core/Src/stm32f0xx_it.c</Filename>
+          <Filename>startup_stm32f030x8.s</Filename>
           <ExecCommand></ExecCommand>
           <Expression></Expression>
         </Bp>

@@ -191,10 +191,10 @@ int main(void)
             if( milliSecond >= lastTricesTime + 200 ){
                 static int index = 0;
                 int select = index;
-                TRICE16( Id(15166),"MSG: 💚 START select = %d, TriceDepthMax =%4u\n", select, TriceDepthMax() );
+                TRICE16( Id(12605),"MSG: 💚 START select = %d\n", select );
                 TriceCheckSet(select);
-                TRICE16( Id(13325),"MSG: ✅ STOP  select = %d, TriceDepthMax =%4u\n", select, TriceDepthMax() );
-                index += 1;
+                TRICE16( Id(14013),"MSG: ✅ STOP  select = %d, TriceDepthMax =%4u of %d\n", select, TriceDepthMax(), TRICE_HALF_BUFFER_SIZE );
+                index += 10;
                 index = index > 1000 ? 0 : index;
                 lastTricesTime = milliSecond;
                 {

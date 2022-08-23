@@ -4107,6 +4107,10 @@
 		"Type": "TRICE16_11",
 		"Strg": "rd:TRICE16_11 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
 	},
+	"12605": {
+		"Type": "TRICE16",
+		"Strg": "MSG: 💚 START select = %d\\n"
+	},
 	"12607": {
 		"Type": "TRICE64_6",
 		"Strg": "tst:TRICE64_6  %d %d %d %d %d %d\\n"
@@ -4194,6 +4198,10 @@
 	"12663": {
 		"Type": "TRICE",
 		"Strg": "sig:TRICE64 with 1 to 12 values\\n"
+	},
+	"12664": {
+		"Type": "TRICE_N",
+		"Strg": "msg:%s\\n"
 	},
 	"12667": {
 		"Type": "TRICE8",
@@ -6295,6 +6303,10 @@
 		"Type": "TRICE",
 		"Strg": "att:positive and negative float in format variants\\n"
 	},
+	"14013": {
+		"Type": "TRICE16",
+		"Strg": "MSG: ✅ STOP  select = %d, TriceDepthMax =%4u of %d\\n"
+	},
 	"14017": {
 		"Type": "TRICE8_2",
 		"Strg": "tst:TRICE8_2 %d %d\\n"
@@ -6490,6 +6502,10 @@
 	"14108": {
 		"Type": "TRICE16",
 		"Strg": "rd:TRICE16 %p, %p, %p, %p, %p, %p, %p, %p, %p, %p, %p\\n"
+	},
+	"14113": {
+		"Type": "TRICE32",
+		"Strg": "wrn:Transmit buffer truncated from %u to %u\\n"
 	},
 	"14114": {
 		"Type": "TRICE_S",

@@ -11,12 +11,17 @@ extern "C" {
 
 #include <stdint.h>
 
+#define TRICE_LEGACY_ENCODING 111
+#define TRICE_TREX_ENCODING   222
+
+#define TRICE_ENCODING TRICE_LEGACY_ENCODING
+
 ///////////////////////////////////////////////////////////////////////////////
 // Select trice mode and general settings.
 //
-#define	TRICE_DIRECT_OUT		0
-#define	TRICE_DOUBLE_BUFFERING_WITH_CYCLE_COUNT	200
-#define	TRICE_DOUBLE_BUFFERING_NO_CYCLE_COUNT	201
+#define	TRICE_DIRECT_OUT		                    0
+#define	TRICE_DOUBLE_BUFFERING_WITH_CYCLE_COUNT	  200
+#define	TRICE_DOUBLE_BUFFERING_NO_CYCLE_COUNT	  201
 
 #define TRICE_MODE TRICE_DOUBLE_BUFFERING_WITH_CYCLE_COUNT //! TRICE_MODE is a predefined trice transfer method.
 
@@ -38,13 +43,19 @@ uint32_t ReadUs32( void );
 #define TRICE_PACK_MULTI_MODE  20
 
 //! TRICE_TRANSFER_MODE is the selected trice transfer method.
-#define TRICE_TRANSFER_MODE TRICE_SAFE_SINGLE_MODE
+#define TRICE_TRANSFER_MODE TRICE_PACK_MULTI_MODE
 
 // Enabling next 2 lines results in XTEA TriceEncryption  with the key.
 //#define TRICE_ENCRYPT XTEA_KEY( ea, bb, ec, 6f, 31, 80, 4e, b9, 68, e2, fa, ea, ae, f1, 50, 54 ); //!< -password MySecret
 //#define TRICE_DECRYPT //!< TRICE_DECRYPT is usually not needed. Enable for checks.
 
 //#define TRICE_BIG_ENDIANNESS //!< TRICE_BIG_ENDIANNESS needs to be defined for TRICE64 macros on big endian devices. (Untested!)
+
+#define TRICE_COBS_FRAMING    100 //!< Select COBS_FRAMING for code minimizing without compression. Needs trice switch -framing=COBS.
+#define TRICE_TCOBSV1_FRAMING 110 //!< Select TCOBSV1_FRAMING for less compression with less code. Needs trice switch -framing=TCOBSv1.
+#define TRICE_TCOBS21_FRAMING 120 //!< Select TCOBS21_FRAMING for more compression with more code (default). Optionally use trice switch -framing=TCOBSv2.
+
+#define TRICE_PACKAGE_FRAMING TRICE_TCOBSV2_FRAMING
 
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -84,8 +95,8 @@ uint32_t ReadUs32( void );
 #ifndef TRICE_LEAVE
 #define TRICE_LEAVE TRICE_LEAVE_CRITICAL_SECTION //! TRICE_LEAVE is the end of TRICE macro.
 #endif
-#define TRICE_HALF_BUFFER_SIZE 1200 //!< This is the size of each of both buffers. Must be able to hold the max TRICE burst count within TRICE_TRANSFER_INTERVAL_MS or even more, if the write out speed is small. Must not exceed SEGGER BUFFER_SIZE_UP
-#define TRICE_SINGLE_MAX_SIZE 800 //!< must not exeed TRICE_HALF_BUFFER_SIZE!
+#define TRICE_HALF_BUFFER_SIZE 1500 //!< This is the size of each of both buffers. Must be able to hold the max TRICE burst count within TRICE_TRANSFER_INTERVAL_MS or even more, if the write out speed is small. Must not exceed SEGGER BUFFER_SIZE_UP
+#define TRICE_SINGLE_MAX_SIZE  1000 //!< must not exeed TRICE_HALF_BUFFER_SIZE!
 #endif // #if TRICE_MODE == 200
 
 

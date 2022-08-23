@@ -71,6 +71,30 @@ size_t TriceDepthMax( void ){
 
 #endif // #else #ifdef TRICE_HALF_BUFFER_SIZE
 
+
+#if TRICE_ENCODING == TRICE_LEGACY_ENCODING
+
+void TriceOut( uint32_t* tb, size_t tLen ){
+    size_t eLen, cLen;
+    uint8_t* co = (uint8_t*)tb; // encoded COBS data starting address
+    uint32_t* da = tb + (TRICE_DATA_OFFSET>>2)-1; // start of unencoded COBS package data: descriptor and trice data
+    *da = TRICE_COBS_PACKAGE_MODE; // add a 32-bit COBS package mode descriptor in front of trice data. That allowes to inject third-party non-trice COBS packages.
+    eLen = tLen + 4; // add COBS package mode descriptor length 
+    #ifdef TRICE_ENCRYPT
+    eLen = (eLen + 4) & ~7; // only multiple of 8 encryptable
+    TriceEncrypt( da, eLen>>2 );
+    #endif
+    cLen = TriceCOBSEncode(co, (uint8_t*)da, eLen);
+    do{                 // Add 1 to 4 zeroes as COBS package delimiter.
+        co[cLen++] = 0; // One is ok, but padding to an uint32_t border could make TRICE_WRITE faster.
+    }while( cLen & 3 ); // Additional empty packages are ignored on th receiver side.
+    TRICE_WRITE( co, cLen );
+    tLen += TRICE_DATA_OFFSET; 
+    triceDepthMax = tLen < triceDepthMax ? triceDepthMax : tLen; // diagnostics
+}
+
+#else // #if TRICE_ENCODING == TRICE_LEGACY_ENCODING
+
 //! triceDataLen returns encoded len.
 //! \param p points to nc
 // *da = 11iiiiiiI 11iiiiiiI TT TT NC ...
@@ -189,6 +213,8 @@ void TriceOut( uint32_t* tb, size_t tLen ){
     #endif
     TRICE_WRITE( enc, encLen );
 }
+
+#endif // #else // #if TRICE_ENCODING == TRICE_LEGACY_ENCODING
 
 #if defined( TRICE_UART ) && !defined( TRICE_HALF_BUFFER_SIZE ) // direct out to UART
 //! triceBlockingPutChar returns after c was successfully written.
@@ -320,7 +346,7 @@ void TriceEncrypt( uint32_t* p, unsigned count ){
 
 #endif // #ifdef TRICE_ENCRYPT
 
-#if TRICE_PACKAGE_FRAMING == TRICE_COBS_FRAMING
+#if (TRICE_PACKAGE_FRAMING == TRICE_COBS_FRAMING) || (TRICE_ENCODING == TRICE_LEGACY_ENCODING)
 
 // todo: This code is not identical to https://github.com/rokath/cobs/blob/master/cobs.c
 
