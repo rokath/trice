@@ -447,6 +447,7 @@ void TriceCheckSet(int index) {
             TRICE8_8(Id(11099), "tst:TRICE8_8 %02x %02x %02x %02x %02x %02x %02x %02x\n", 0xA1, 0xA2, 0xA3, 0xA4, 0xA5, 0xA6, 0xA7, 0xA8);
         break;
         case 430:
+            TRICE( Id(13636), "dbg:\aHi!\n" );
             TRICE8_1(Id(15244), "tst:TRICE8_1 %d\n",                      -1);
             TRICE8_2(Id(12155), "tst:TRICE8_2 %d %d\n",                   -1, -2);
             TRICE8_3(Id(15840), "tst:TRICE8_3 %d %d %d\n",                -1, -2, -3);

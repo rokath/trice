@@ -18,7 +18,7 @@ import (
 	"github.com/rokath/trice/internal/emitter"
 	"github.com/rokath/trice/internal/id"
 	"github.com/rokath/trice/pkg/cipher"
-	"github.com/rokath/trice/pkg/tcobsv1"
+	"github.com/rokath/trice/pkg/tcobsv2"
 )
 
 const (
@@ -89,24 +89,37 @@ func (p *trexDec) nextPackage() {
 	if decoder.TestTableMode {
 		p.printTestTableLine(index + 1)
 	}
-	// here a complete TCOBSv1 package exists
+	// here a complete TCOBS package exists
 	if decoder.DebugOut { // Debug output
-		fmt.Fprint(p.W, "TCOBSv1: ")
+		fmt.Fprint(p.W, "TCOBSv2: ")
 		decoder.Dump(p.W, p.IBuf[:index+1])
 	}
 
 	p.B = make([]byte, decoder.DefaultSize) // todo: avoid allocation
 
 	//////////////////////////////////////////////////////////////////////////////////////////
-	//n, e := cobs.Decode(p.B, p.IBuf[:index]) // if index is 0, an empty buffer is decoded
+	//  n, e := cobs.Decode(p.B, p.IBuf[:index]) // if index is 0, an empty buffer is decoded
+	//  if e != nil {
+	//  	fmt.Println("inconsistent COBS buffer:", p.IBuf[:index+1]) // show also terminating 0
+	//  }
 	//////////////////////////////////////////////////////////////////////////////////////////
-	n, e := tcobsv1.Decode(p.B, p.IBuf[:index]) // if index is 0, an empty buffer is decoded
-	p.B = p.B[len(p.B)-n:]
+	//  n, e := tcobsv1.Decode(p.B, p.IBuf[:index]) // if index is 0, an empty buffer is decoded
+	//  if e != nil {
+	//  	fmt.Println("inconsistent TCOBSv1 buffer:", p.IBuf[:index+1]) // show also terminating 0
+	//  	p.B = p.B[:0]
+	//  } else {
+	//  	p.B = p.B[len(p.B)-n:]
+	//  }
+	//////////////////////////////////////////////////////////////////////////////////////////
+	n := tcobsv2.CDecode(p.B, p.IBuf[:index]) // if index is 0, an empty buffer is decoded
+	if n < 0 {
+		fmt.Println("inconsistent TCOBSv2 buffer:", p.IBuf[:index+1]) // show also terminating 0
+		p.B = p.B[:0]
+	} else {
+		p.B = p.B[len(p.B)-n:]
+	}
 	//////////////////////////////////////////////////////////////////////////////////////////
 
-	if e != nil {
-		fmt.Println("inconsistent (T)COBS buffer:", p.IBuf[:index+1]) // show also terminating 0
-	}
 	p.IBuf = p.IBuf[index+1:] // step forward (next package data in p.IBuf now, if any)
 	p.B = p.B[:n]
 

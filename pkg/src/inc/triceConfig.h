@@ -21,6 +21,11 @@ extern "C" {
 //#define TRICE_UART USART2   //!< Enable and set UART for serial output.
 #define TRICE_CGO_TEST
 
+#define TRICE_COBS_FRAMING    100 //!< Select COBS_FRAMING for code minimizing without compression. Needs trice switch -framing=COBS.
+#define TRICE_TCOBSV1_FRAMING 110 //!< Select TCOBSV1_FRAMING for less compression with less code. Needs trice switch -framing=TCOBSv1.
+#define TRICE_TCOBS21_FRAMING 120 //!< Select TCOBS21_FRAMING for more compression with more code (default). Optionally use trice switch -framing=TCOBSv2.
+
+#define TRICE_PACKAGE_FRAMING TRICE_TCOBSV2_FRAMING
 
 
 ///////////////////////////////////////////////////////////////////////////////

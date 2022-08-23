@@ -474,21 +474,6 @@
               <FileType>1</FileType>
               <FilePath>..\..\..\third_party\segger.com\SEGGER_RTT\RTT\SEGGER_RTT.c</FilePath>
             </File>
-            <File>
-              <FileName>cJSON.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\third_party\cJSON-1.7.15\cJSON.c</FilePath>
-            </File>
-            <File>
-              <FileName>cJSON_Utils.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\third_party\cJSON-1.7.15\cJSON_Utils.c</FilePath>
-            </File>
-            <File>
-              <FileName>tcobsEncode.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\third_party\TCOBSv1\tcobsEncode.c</FilePath>
-            </File>
           </Files>
         </Group>
         <Group>
