@@ -14,7 +14,7 @@ extern "C" {
 ///////////////////////////////////////////////////////////////////////////////
 // Select trice mode and general settings.
 //
-#define	TRICE_DIRECT_OUT	                      0
+#define	TRICE_DIRECT_OUT		0
 #define	TRICE_DOUBLE_BUFFERING_WITH_CYCLE_COUNT	200
 #define	TRICE_DOUBLE_BUFFERING_NO_CYCLE_COUNT	201
 

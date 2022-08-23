@@ -23,6 +23,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "trice.h"
+#define TRICE_FILE Id(13094)
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -158,8 +159,8 @@ int main(void)
         int c = b;
         int d = (int)(b * 1000) % 1000;
         int e = 1000 * (float)(a - c); 
-        TRICE( Id(12922), "msg:x = %g = %d.%03d, %d.%03d\n", aFloat(a), c, d, c, e );
-        TRICE( Id(15753), "1/11 = %g\n", aFloat( 1.0/11 ) );
+        TRICE( Id(10762), "msg:x = %g = %d.%03d, %d.%03d\n", aFloat(a), c, d, c, e );
+        TRICE( Id(12531), "1/11 = %g\n", aFloat( 1.0/11 ) );
     }
   /* USER CODE END 2 */
 
@@ -168,9 +169,9 @@ int main(void)
     while (1){
         if( triceCommandFlag ){
             triceCommandFlag = 0;
-            TRICE_S( Id(14937), "att:Executing command %s ...\n", triceCommand );
+            TRICE_S( Id(11673), "att:Executing command %s ...\n", triceCommand );
             // do
-            TRICE( Id(13746), "att:...done\n" );
+            TRICE( Id(12106), "att:...done\n" );
         }
 
         // serve every few ms
@@ -190,17 +191,17 @@ int main(void)
             if( milliSecond >= lastTricesTime + 200 ){
                 static int index = 0;
                 int select = index;
-                TRICE16( ID(10110),"MSG: 💚 START select = %d, TriceDepthMax =%4u\n", select, TriceDepthMax() );
+                TRICE16( Id(15166),"MSG: 💚 START select = %d, TriceDepthMax =%4u\n", select, TriceDepthMax() );
                 TriceCheckSet(select);
-                TRICE16( id(13314),"MSG: ✅ STOP  select = %d, TriceDepthMax =%4u\n", select, TriceDepthMax() );
-                index += 10;
+                TRICE16( Id(13325),"MSG: ✅ STOP  select = %d, TriceDepthMax =%4u\n", select, TriceDepthMax() );
+                index += 1;
                 index = index > 1000 ? 0 : index;
                 lastTricesTime = milliSecond;
                 {
                     volatile uint32_t st0 = SysTick->VAL;
                     volatile uint32_t us = ReadUs32();
                     volatile uint32_t st1 = SysTick->VAL;
-                    TRICE( ID(12849), "time: %d µs - ReadUs32() lasts %d ticks\n", us, st0 - st1);
+                    TRICE( Id(14860), "time: %d µs - ReadUs32() lasts %d ticks\n", us, st0 - st1);
                 }
             }
         }

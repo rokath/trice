@@ -14,10 +14,10 @@ extern "C" {
 ///////////////////////////////////////////////////////////////////////////////
 // Select trice mode and general settings.
 //
-#define	TRICE_DIRECT_OUT	                      0
+#define	TRICE_DIRECT_OUT		0
 #define	TRICE_DOUBLE_BUFFERING_WITH_CYCLE_COUNT	200
 #define	TRICE_DOUBLE_BUFFERING_NO_CYCLE_COUNT	201
-    
+
 #define TRICE_MODE TRICE_DOUBLE_BUFFERING_WITH_CYCLE_COUNT //! TRICE_MODE is a predefined trice transfer method.
 
 //#define TRICE_RTT_CHANNEL 0 //!< Enable and set channel number for SeggerRTT usage. Only channel 0 works right now for some reason.
