@@ -48,7 +48,7 @@ uint32_t ReadUs32( void );
 #define TRICE_PACK_MULTI_MODE  20
 
 //! TRICE_TRANSFER_MODE is the selected trice transfer method.
-#define TRICE_TRANSFER_MODE TRICE_PACK_MULTI_MODE
+#define TRICE_TRANSFER_MODE TRICE_SAFE_SINGLE_MODE
 
 // Enabling next 2 lines results in XTEA TriceEncryption  with the key.
 //#define TRICE_ENCRYPT XTEA_KEY( ea, bb, ec, 6f, 31, 80, 4e, b9, 68, e2, fa, ea, ae, f1, 50, 54 ); //!< -password MySecret
@@ -95,7 +95,7 @@ uint32_t ReadUs32( void );
 #define TRICE_LEAVE TRICE_LEAVE_CRITICAL_SECTION //! TRICE_LEAVE is the end of TRICE macro.
 #endif
 #define TRICE_HALF_BUFFER_SIZE 1200 //!< This is the size of each of both buffers. Must be able to hold the max TRICE burst count within TRICE_TRANSFER_INTERVAL_MS or even more, if the write out speed is small. Must not exceed SEGGER BUFFER_SIZE_UP
-#define TRICE_SINGLE_MAX_SIZE 800 //!< must not exeed TRICE_HALF_BUFFER_SIZE!
+#define TRICE_SINGLE_MAX_SIZE 100 //!< must not exeed TRICE_HALF_BUFFER_SIZE!
 #endif // #if TRICE_MODE == 200
 
 

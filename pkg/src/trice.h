@@ -22,7 +22,7 @@ extern "C" {
 
 #include "triceConfig.h"
 
-#ifdef TRICE_LEGACY_ENCODING
+#if  TRICE_ENCODING == TRICE_LEGACY_ENCODING
 
 #include "inc/legacyTriceEncoding.h"
 
@@ -69,27 +69,7 @@ void TriceCheckSet( int index ); //!< tests
 static inline int TriceOutDepth( void ){ return 0; }
 #endif // #ifdef TRICE_RTT_CHANNEL
 
-//  //! The TRICE_PUT_PREFIX macro adds optionally target timestamp and location in front of each trice
-//  #if !defined(TRICE_LOCATION) && !defined(TRICE_TIMESTAMP)
-//  #define TRICE_COBS_PACKAGE_MODE 0
-//  #define TRICE_PUT_PREFIX
 #define TRICE_PREFIX_SIZE 0
-//  #endif
-//  #if !defined(TRICE_LOCATION) &&  defined(TRICE_TIMESTAMP)
-//  #define TRICE_COBS_PACKAGE_MODE 1
-//  #define TRICE_PUT_PREFIX TRICE_PUT(TRICE_TIMESTAMP);
-//  #define TRICE_PREFIX_SIZE 4
-//  #endif
-//  #if  defined(TRICE_LOCATION) && !defined(TRICE_TIMESTAMP)
-//  #define TRICE_COBS_PACKAGE_MODE 2
-//  #define TRICE_PUT_PREFIX TRICE_PUT(TRICE_LOCATION); 
-//  #define TRICE_PREFIX_SIZE 4
-//  #endif
-//  #if  defined(TRICE_LOCATION) &&  defined(TRICE_TIMESTAMP)
-//  #define TRICE_COBS_PACKAGE_MODE 3
-//  #define TRICE_PUT_PREFIX TRICE_PUT(TRICE_LOCATION); TRICE_PUT(TRICE_TIMESTAMP); 
-//  #define TRICE_PREFIX_SIZE 8
-//  #endif
 
 #ifndef TRICE_CYCLE_COUNTER
 #define TRICE_CYCLE_COUNTER 1 //! TRICE_CYCLE_COUNTER adds a cycle counter to each trice message. The TRICE macros are a bit slower. Lost TRICEs are detectable by the trice tool.
@@ -97,9 +77,9 @@ static inline int TriceOutDepth( void ){ return 0; }
 
 //! TRICE_DATA_OFFSET is the space in front of trice data for in-buffer COBS encoding. It must be be a multiple of uint32_t.
 #if defined(TRICE_HALF_BUFFER_SIZE)
-#define TRICE_DATA_OFFSET 160 // ((9+(TRICE_HALF_BUFFER_SIZE/256))&~3) // 9: COBS_DESCRIPTOR size plus start byte plus up to 4 0-delimiters
+#define TRICE_DATA_OFFSET (((TRICE_HALF_BUFFER_SIZE/3)+4)&~3) // In worst case the buffer gets filled to the end only with 4-byte trices and each gets an additional sigil and a 0, so 33% are safe.
 #else
-#define TRICE_DATA_OFFSET 16 // usually 8 is enough: 4 for COBS_DESCRIPTOR and additional bytes for COBS encoding, but the buffer can get big.
+#define TRICE_DATA_OFFSET ((TRICE_STACK_BUFFER_MAX_SIZE/31+5)&~3) // For single trices the worst case is +1 for each 31 plus terminating 0 at the end
 #endif
 
 #if defined(TRICE_STACK_BUFFER_MAX_SIZE) && !defined(TRICE_SINGLE_MAX_SIZE)

@@ -19,7 +19,7 @@ extern "C" {
 #define TRICE_TREX_ENCODING   222 // recommended, use switch -e trex 
 #define TRICE_ENCODING TRICE_TREX_ENCODING
 
-#define	TRICE_DIRECT_OUT		0
+#define	TRICE_DIRECT_OUT	                      0
 #define	TRICE_DOUBLE_BUFFERING_WITH_CYCLE_COUNT	200
 #define	TRICE_DOUBLE_BUFFERING_NO_CYCLE_COUNT	201
     

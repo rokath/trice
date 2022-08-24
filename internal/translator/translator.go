@@ -56,7 +56,7 @@ func Translate(w io.Writer, sw *emitter.TriceLineComposer, lut id.TriceIDLookUp,
 		log.Fatalf(fmt.Sprintln("unknown endianness ", TargetEndianness, "-accepting litteEndian or bigEndian."))
 	}
 	switch strings.ToUpper(Encoding) {
-	case "COBS":
+	case "TLE", "COBS":
 		dec = cobsDecoder.New(w, lut, m, li, rwc, endian)
 		//cobsVariantDecode = cobs.Decode
 		//  case "COBSFF":
