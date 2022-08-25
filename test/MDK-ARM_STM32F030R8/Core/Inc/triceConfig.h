@@ -15,31 +15,16 @@ extern "C" {
 // Select trice mode and general settings.
 //
 
-#define TRICE_LEGACY_ENCODING 111 // depreciated, use switch -e COBS or synonym -e legacyTrice
+#define TRICE_LEGACY_ENCODING 111 // depreciated, use switch -e TLE
 #define TRICE_TREX_ENCODING   222 // recommended, use switch -e trex 
-#define TRICE_ENCODING TRICE_LEGACY_ENCODING
+#define TRICE_ENCODING TRICE_TREX_ENCODING
 
-#define	TRICE_DIRECT_OUT		                    0
-#define	TRICE_DOUBLE_BUFFERING_WITH_CYCLE_COUNT	  200
-#define	TRICE_DOUBLE_BUFFERING_NO_CYCLE_COUNT	  201
+#if TRICE_ENCODING == TRICE_TREX_ENCODING
 
-#define TRICE_MODE TRICE_DOUBLE_BUFFERING_WITH_CYCLE_COUNT //! TRICE_MODE is a predefined trice transfer method.
 #define TRICE_COBS_FRAMING    100 //!< Select COBS_FRAMING for code minimizing without compression. Needs trice switch -framing=COBS.
 #define TRICE_TCOBSV1_FRAMING 110 //!< Select TCOBSV1_FRAMING for less compression with less code. Needs trice switch -framing=TCOBSv1.
 #define TRICE_TCOBS21_FRAMING 120 //!< Select TCOBS21_FRAMING for more compression with more code (default). Optionally use trice switch -framing=TCOBSv2.
 #define TRICE_PACKAGE_FRAMING TRICE_TCOBSV2_FRAMING
-
-//! TRICE_SAFE_SINGLE_MODE is the recommended TRICE_TRANSFER_MODE. It packs each trice in a separate TCOBS package with a following 0-delimiter byte. 
-//! //! Single trices need a bit more transfer data. In case of a data disruption, only a single trice messages can get lost.
-#define TRICE_SAFE_SINGLE_MODE 10 
-
-//! TRICE_PACK_MULTI_MODE packs all trices of a half buffer in a single TCOBS package and a following 0-delimiter byte. 
-//! Grouped trices need a bit less transfer data. In case of a data disruption, multiple trice messages can get lost.
-#define TRICE_PACK_MULTI_MODE  20
-
-//! TRICE_TRANSFER_MODE is the selected trice transfer method.
-#define TRICE_TRANSFER_MODE TRICE_PACK_MULTI_MODE
-
 
 uint16_t ReadUs16( void );
 uint32_t ReadUs32( void );
@@ -47,15 +32,24 @@ uint32_t ReadUs32( void );
 #define TRICE_READ_TICK16 ReadUs16()
 #define TRICE_READ_TICK32 ReadUs32()
 
-///////////////////////////////////////////////////////////////////////////////
-// Select trice mode and general settings.
-//
+//! TRICE_SAFE_SINGLE_MODE is the recommended TRICE_TRANSFER_MODE. It packs each trice in a separate TCOBS package with a following 0-delimiter byte. 
+//! //! Single trices need a bit more transfer data. In case of a data disruption, only a single trice messages can get lost.
+#define TRICE_SAFE_SINGLE_MODE 10 
+//! TRICE_PACK_MULTI_MODE packs all trices of a half buffer in a single TCOBS package and a following 0-delimiter byte. 
+//! Grouped trices need a bit less transfer data. In case of a data disruption, multiple trice messages can get lost.
+#define TRICE_PACK_MULTI_MODE  20
+//! TRICE_TRANSFER_MODE is the selected trice transfer method.
+#define TRICE_TRANSFER_MODE TRICE_SAFE_SINGLE_MODE
+
+#endif // #if TRICE_ENCODING == TRICE_TREX_ENCODING
+
+#define	TRICE_DIRECT_OUT                              0
+#define	TRICE_DOUBLE_BUFFERING_WITH_CYCLE_COUNT     200
+#define	TRICE_DOUBLE_BUFFERING_NO_CYCLE_COUNT       201
+#define TRICE_MODE TRICE_DOUBLE_BUFFERING_WITH_CYCLE_COUNT //! TRICE_MODE is a predefined trice transfer method.
 
 //#define TRICE_RTT_CHANNEL 0 //!< Enable and set channel number for SeggerRTT usage. Only channel 0 works right now for some reason.
 #define TRICE_UART USART2 //!< Enable and set UART for serial output.
-
-
-
 
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -105,7 +99,7 @@ uint32_t ReadUs32( void );
 #define TRICE_LEAVE TRICE_LEAVE_CRITICAL_SECTION //! TRICE_LEAVE is the end of TRICE macro.
 #endif
 #define TRICE_HALF_BUFFER_SIZE 1500 //!< This is the size of each of both buffers. Must be able to hold the max TRICE burst count within TRICE_TRANSFER_INTERVAL_MS or even more, if the write out speed is small. Must not exceed SEGGER BUFFER_SIZE_UP
-#define TRICE_SINGLE_MAX_SIZE  1000 //!< must not exeed TRICE_HALF_BUFFER_SIZE!
+#define TRICE_SINGLE_MAX_SIZE   300 //!< must not exeed TRICE_HALF_BUFFER_SIZE!
 #endif // #if TRICE_MODE == TRICE_DOUBLE_BUFFERING_WITH_CYCLE_COUNT
 
 
@@ -127,20 +121,20 @@ uint32_t ReadUs32( void );
 //
 
 #ifdef TRICE_HALF_BUFFER_SIZE
-#define TRICE_BUFFER_INFO do{ TRICE32( Id(14106), "att: Trice 2x half buffer size:%4u ", TRICE_HALF_BUFFER_SIZE ); } while(0)
+#define TRICE_BUFFER_INFO do{ TRICE32( Id(11253), "att: Trice 2x half buffer size:%4u ", TRICE_HALF_BUFFER_SIZE ); } while(0)
 #else
-#define TRICE_BUFFER_INFO do{ TRICE32( Id(11844), "att:Single Trice Stack buf size:%4u", TRICE_SINGLE_MAX_SIZE + TRICE_DATA_OFFSET ); } while(0)
+#define TRICE_BUFFER_INFO do{ TRICE32( Id(13778), "att:Single Trice Stack buf size:%4u", TRICE_SINGLE_MAX_SIZE + TRICE_DATA_OFFSET ); } while(0)
 #endif
 
 //! This is usable as the very first trice sequence after restart. Adapt and use it or ignore it.
 #define TRICE_HEADLINE \
-    TRICE0( Id(12853), "s:                                          \n" ); \
+    TRICE0( Id(10264), "s:                                          \n" ); \
     TRICE8( Id(13076), "s:     NUCLEO-F030R8     TRICE_MODE %3u     \n", TRICE_MODE ); \
-    TRICE0( Id(14775), "s:                                          \n" ); \
-    TRICE0( Id(13326), "s:     " ); \
+    TRICE0( Id(12707), "s:                                          \n" ); \
+    TRICE0( Id(15016), "s:     " ); \
     TRICE_BUFFER_INFO; \
-    TRICE0( Id(12192), "s:     \n" ); \
-    TRICE0( Id(10726), "s:                                          \n");
+    TRICE0( Id(13072), "s:     \n" ); \
+    TRICE0( Id(10051), "s:                                          \n");
 
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -192,7 +186,7 @@ uint32_t ReadUs32( void );
 #define TRICE_LEAVE_CRITICAL_SECTION } __set_PRIMASK(primaskstate); }
 
 #elif 1 // ####################################################################
-#error "add new compiler here"
+#error add new compiler here
 #else // ######################################################################
 #error unknown compliler
 #endif // compiler adaptions ##################################################

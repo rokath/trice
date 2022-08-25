@@ -107,8 +107,6 @@
 >>>      * C & H files containing TRICE macros are only modified if needed (missing or obsolete Id(n))
 >>>    * Extend `til.json`
 >>>      * If no `til.json` is found nothing happens. At least an empty file is needed (Safety feature).
->>>    * Add a line `#define TRICE_FILE Id(54321)` after the `#include "trice.h"` line in your source.c files.
->>>      * Hint: Only source.c files with a `#include "trice.h"` line get patched.
 * When the program runs later it should output something similar to![./ref/1div11.PNG](./ref/1div11.PNG)
 
 <p align="right">(<a href="#top">back to top</a>)</p>

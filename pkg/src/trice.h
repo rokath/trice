@@ -69,8 +69,6 @@ void TriceCheckSet( int index ); //!< tests
 static inline int TriceOutDepth( void ){ return 0; }
 #endif // #ifdef TRICE_RTT_CHANNEL
 
-#define TRICE_PREFIX_SIZE 0
-
 #ifndef TRICE_CYCLE_COUNTER
 #define TRICE_CYCLE_COUNTER 1 //! TRICE_CYCLE_COUNTER adds a cycle counter to each trice message. The TRICE macros are a bit slower. Lost TRICEs are detectable by the trice tool.
 #endif
@@ -90,7 +88,7 @@ static inline int TriceOutDepth( void ){ return 0; }
 #define TRICE_SINGLE_MAX_SIZE 1008 //!< TRICE_SINGLE_MAX_SIZE ist the head size plus string length size plus max dynamic string size. Must be a multiple of 4. 1008 is the max allowed value.
 #endif
 
-#if TRICE_SINGLE_MAX_SIZE > 1008
+#if TRICE_SINGLE_MAX_SIZE > 1008 // todo: remove limit
 #error
 #endif
 
@@ -335,7 +333,7 @@ static inline uint64_t aDouble( double x ){
 // todo: for some reason this macro is not working well wit name len instead of len_, probably when injected len as value.
 //
 #define TRICE_N( id, pFmt, buf, n) do { \
-    uint32_t limit = TRICE_SINGLE_MAX_SIZE-TRICE_PREFIX_SIZE-8; /* 8 = head + max timestamp size */ \
+    uint32_t limit = TRICE_SINGLE_MAX_SIZE-8; /* 8 = head + max timestamp size */ \
     uint32_t len_ = n; /* n could be a constant */ \
     if( len_ > limit ){ \
         TRICE32( Id(14113), "wrn:Transmit buffer truncated from %u to %u\n", len_, limit ); \

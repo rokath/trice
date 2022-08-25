@@ -4,7 +4,8 @@
 - Add this (`trice\pkg\src`) folder to the target compiler include path.
 - Do `#include "trice.h"` to your project files where to use `TRICE` macros.
 - Add `trice.c` to the target project.
-- `triceCheck.c` contains test code and is not needed for production code.
+- `triceCheck.c` contains test code and is not needed for production code, but you can temporarily add it to your project for checking.
+- Ignore `trice_test.c` - this is used from Go when `go test ./...` is executed.
 - For SEGGER RTT usage the file `../../third_party/segger.com/SEGGER_RTT/RTT/SEGGER_RTT.c` needs to be included and `../../third_party/segger.com/SEGGER_RTT/RTT/` should be part of the target compiler include path.
 
 ## Files `src.go` and `src_test.go`

@@ -387,7 +387,7 @@ unsigned TriceCOBSEncode( uint8_t* restrict output, const uint8_t * restrict inp
 
 #endif // #if PACKAGE_FRAMING == COBS_FRAMING
 
-#if TRICE_PACKAGE_FRAMING == TRICE_TCOBSV1_FRAMING
+#if TRICE_PACKAGE_FRAMING == TRICE_TCOBSV1_FRAMING && (TRICE_ENCODING == TRICE_TREX_ENCODING)
 
 // This code is a copy of https://github.com/rokath/tcobs/blob/master/TCOBSv1/tcobsInternal.h.
 //
@@ -794,7 +794,7 @@ lastByte: // , -- xx.
 
 #endif // #if TRICE_PACKAGE_FRAMING == TRICE_TCOBSV1_FRAMING
 
-#if TRICE_PACKAGE_FRAMING == TRICE_TCOBSV2_FRAMING
+#if TRICE_PACKAGE_FRAMING == TRICE_TCOBSV2_FRAMING && (TRICE_ENCODING == TRICE_TREX_ENCODING)
 
 // This code is a copy of https://github.com/rokath/tcobs/blob/master/TCOBSv2/tcobsInternal.h
 

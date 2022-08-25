@@ -78,15 +78,16 @@ func helpInit() {
 }
 
 func logInit() {
+	const defaultEncoding = "TREX"
 	fsScLog = flag.NewFlagSet("log", flag.ExitOnError) // sub-command
-	fsScLog.StringVar(&translator.Encoding, "encoding", "TLE", `The trice transmit data format type, options: '(CHAR|DUMP|TLE|TREX)'. Target device encoding must match. 
-		  TLE=TriceLegacyEncoding expects 0 delimited COBS byte sequences. Needs '#define TRICE_ENCODING TRICE_LEGACY_ENCODING' inside triceConfig.h.
+	fsScLog.StringVar(&translator.Encoding, "encoding", defaultEncoding, `The trice transmit data format type, options: '(CHAR|DUMP|TLE|TREX)'. Target device encoding must match. 
+		  TLE=TriceLegacyEncoding expects 0-delimited COBS byte sequences. Needs '#define TRICE_ENCODING TRICE_LEGACY_ENCODING' inside triceConfig.h. Use not for new projects.
 		  TREX=TriceExtendableEncoding, see Trice1.0Specification. Needs '#define TRICE_ENCODING TRICE_TREX_ENCODING' inside triceConfig.h.
 		  CHAR prints the received bytes as characters.
 		  COBS = TLE (obsolete naming)
 		  DUMP prints the received bytes as hex code (see switch -dc too).
 `) // flag
-	fsScLog.StringVar(&translator.Encoding, "e", "TLE", "Short for -encoding.") // short flag
+	fsScLog.StringVar(&translator.Encoding, "e", defaultEncoding, "Short for -encoding.") // short flag
 	fsScLog.IntVar(&decoder.DumpLineByteCount, "dc", 32, `Dumped bytes per line when "-encoding DUMP"`)
 	fsScLog.StringVar(&cipher.Password, "password", "", `The decrypt passphrase. If you change this value you need to compile the target with the appropriate key (see -showKeys).
 Encryption is recommended if you deliver firmware to customers and want protect the trice log output. This does work right now only with flex and flexL format.`) // flag

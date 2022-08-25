@@ -159,13 +159,13 @@ void USART2_IRQHandler(void)
         static int index = 0;
         uint8_t v;
         if( LL_USART_IsActiveFlag_ORE(USART2) ){
-            TRICE( Id(0), "WARNING:USARTq OverRun Error Flag is set!\n" );
+            TRICE( Id(15628), "WARNING:USARTq OverRun Error Flag is set!\n" );
         }
         v = LL_USART_ReceiveData8(TRICE_UART); // implicit clears the flag
         rxBuf[index] = v;
         index += index < TRICE_COMMAND_SIZE_MAX ? 1 : 0; 
         if( v == 0 ){ // command end
-            TRICE_S( Id(0), "rx:received command:%s\n", rxBuf );
+            TRICE_S( Id(15173), "rx:received command:%s\n", rxBuf );
             strcpy(triceCommand, rxBuf );
             triceCommandFlag = 1;
             index = 0;

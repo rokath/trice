@@ -1455,10 +1455,6 @@
 		"Type": "TRICE8_2",
 		"Strg": "tst:TRICE8_2 %u %u\\n"
 	},
-	"10907": {
-		"Type": "TRICE_FILE",
-		"Strg": "trice.c"
-	},
 	"10913": {
 		"Type": "TRICE_B",
 		"Strg": " %02x "
@@ -3319,6 +3315,10 @@
 		"Type": "TRICE0",
 		"Strg": "s:                                          \\n"
 	},
+	"12095": {
+		"Type": "TRICE8",
+		"Strg": "s:     NUCLEO-G071RB     TRICE_MODE %3u     \\n"
+	},
 	"12096": {
 		"Type": "TRICE16_1",
 		"Strg": "rd:TRICE16_1 line %t (%%t ,2)\\n"
@@ -4866,10 +4866,6 @@
 	"13093": {
 		"Type": "TRICE",
 		"Strg": "message:green+h:black\\n"
-	},
-	"13094": {
-		"Type": "TRICE_FILE",
-		"Strg": "main.c"
 	},
 	"13096": {
 		"Type": "TRICE",
@@ -7735,10 +7731,6 @@
 		"Type": "TRICE_1",
 		"Strg": "rd:TRICE_1 %d\\n"
 	},
-	"14824": {
-		"Type": "TRICE_FILE",
-		"Strg": "triceCheck.c"
-	},
 	"14826": {
 		"Type": "TRICE",
 		"Strg": "rd:TRICE %d, %d, %d, %d, %d, %d\\n"
@@ -8335,6 +8327,10 @@
 		"Type": "TRICE",
 		"Strg": "sig:Legacy TRICE16-64\\n"
 	},
+	"15173": {
+		"Type": "TRICE_S",
+		"Strg": "rx:received command:%s\\n"
+	},
 	"15174": {
 		"Type": "TRICE32_3",
 		"Strg": "tst:TRICE32_3 %u %u %u\\n"
@@ -8915,10 +8911,6 @@
 		"Type": "TRICE32_F",
 		"Strg": "diag:FunctionNameY"
 	},
-	"15478": {
-		"Type": "TRICE_FILE",
-		"Strg": "stm32f0xx_it.c"
-	},
 	"15479": {
 		"Type": "TRICE32_8",
 		"Strg": "rd:TRICE32_8 %d, %d, %d, %d, %d, %d, %d, %d\\n"
@@ -9230,6 +9222,10 @@
 	"15627": {
 		"Type": "TRICE",
 		"Strg": "allert:magenta:magenta+h\\n"
+	},
+	"15628": {
+		"Type": "TRICE",
+		"Strg": "WARNING:USARTq OverRun Error Flag is set!\\n"
 	},
 	"15629": {
 		"Type": "TRICE16_6",

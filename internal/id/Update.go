@@ -61,9 +61,6 @@ const (
 	// patIdInsideTrice finds if an `( Id(n) ,"` sequence exists inside trice
 	patIDInsideTrice = `(?U)\(` + patID + `\((\s*\d+)\s*\)\s*,\s*"`
 
-	// patTriceFileId finds first occurrence, see https://regex101.com/r/hWMjhU/4
-	//patTriceFileId = `#define\s*TRICE_FILE\s*(?i)Id\([0-9]*\)`
-
 	patIncludeTriceHeader = `#include\s*"trice\.h"`
 )
 
@@ -78,9 +75,8 @@ var (
 	matchTriceNoLen          = regexp.MustCompile(patTriceNoLen)
 	matchIDInsideTrice       = regexp.MustCompile(patIDInsideTrice)
 	matchAnyTriceStart       = regexp.MustCompile(patAnyTriceStart)
-	//matchTriceFileId         = regexp.MustCompile(patTriceFileId)
-	matchNumber             = regexp.MustCompile(patNumber)
-	matchIncludeTriceHeader = regexp.MustCompile(patIncludeTriceHeader)
+	matchNumber              = regexp.MustCompile(patNumber)
+	matchIncludeTriceHeader  = regexp.MustCompile(patIncludeTriceHeader)
 
 	ExtendMacrosWithParamCount bool
 
@@ -260,25 +256,6 @@ func isCFile(path string) bool {
 		return true
 	}
 	return false
-}
-
-// modifyTriceFileIdLine inserts a new TRICE_FILE pattern id in the line.
-//
-// The id is 0 or already used in a different way
-// The id is 0: Check lu&tflu for t.Type == "TRICE_FILE" && t.Strg == fileName
-func modifyTriceFileIdLine(w io.Writer, _ TriceIDLookUp, tflu triceFmtLookUp, inText, fileName string) (outText string, fileModified bool) {
-	t := TriceFmt{"TRICE_FILE", fileName}
-	if SharedIDs {
-		if fid, ok := tflu[t]; ok {
-			fmt.Fprintf(w, "Trice fileName %s inside map known with fid %d.\n", fileName, fid)
-		}
-		// todo: insert fid in file
-	}
-	// todo: get new id
-	// todo: insert fid in file
-	// todo: tflu[t] = TriceID(n)
-	outText = inText
-	return
 }
 
 func visitUpdate(w io.Writer, lu TriceIDLookUp, tflu triceFmtLookUp, pListModified *bool, lim TriceIDLookUpLI) filepath.WalkFunc {

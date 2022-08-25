@@ -15,23 +15,16 @@ extern "C" {
 // Select trice mode and general settings.
 //
 
-#define TRICE_LEGACY_ENCODING 111 // depreciated, use switch -e COBS or synonym -e legacyTrice
+#define TRICE_LEGACY_ENCODING 111 // depreciated, use switch -e TLE
 #define TRICE_TREX_ENCODING   222 // recommended, use switch -e trex 
-#define TRICE_ENCODING TRICE_LEGACY_ENCODING
+#define TRICE_ENCODING TRICE_TREX_ENCODING
+
+#if TRICE_ENCODING == TRICE_TREX_ENCODING
 
 #define TRICE_COBS_FRAMING    100 //!< Select COBS_FRAMING for code minimizing without compression. Needs trice switch -framing=COBS.
 #define TRICE_TCOBSV1_FRAMING 110 //!< Select TCOBSV1_FRAMING for less compression with less code. Needs trice switch -framing=TCOBSv1.
 #define TRICE_TCOBS21_FRAMING 120 //!< Select TCOBS21_FRAMING for more compression with more code (default). Optionally use trice switch -framing=TCOBSv2.
 #define TRICE_PACKAGE_FRAMING TRICE_TCOBSV2_FRAMING
-
-#define	TRICE_DIRECT_OUT                              0
-#define	TRICE_DOUBLE_BUFFERING_WITH_CYCLE_COUNT     200
-#define	TRICE_DOUBLE_BUFFERING_NO_CYCLE_COUNT       201
-
-#define TRICE_MODE TRICE_DOUBLE_BUFFERING_WITH_CYCLE_COUNT //! TRICE_MODE is a predefined trice transfer method.
-
-//#define TRICE_RTT_CHANNEL 0 //!< Enable and set channel number for SeggerRTT usage. Only channel 0 works right now for some reason.
-#define TRICE_UART USART2 //!< Enable and set UART for serial output.
 
 uint16_t ReadUs16( void );
 uint32_t ReadUs32( void );
@@ -42,13 +35,24 @@ uint32_t ReadUs32( void );
 //! TRICE_SAFE_SINGLE_MODE is the recommended TRICE_TRANSFER_MODE. It packs each trice in a separate TCOBS package with a following 0-delimiter byte. 
 //! //! Single trices need a bit more transfer data. In case of a data disruption, only a single trice messages can get lost.
 #define TRICE_SAFE_SINGLE_MODE 10 
-
 //! TRICE_PACK_MULTI_MODE packs all trices of a half buffer in a single TCOBS package and a following 0-delimiter byte. 
 //! Grouped trices need a bit less transfer data. In case of a data disruption, multiple trice messages can get lost.
 #define TRICE_PACK_MULTI_MODE  20
-
 //! TRICE_TRANSFER_MODE is the selected trice transfer method.
 #define TRICE_TRANSFER_MODE TRICE_SAFE_SINGLE_MODE
+
+#endif // #if TRICE_ENCODING == TRICE_TREX_ENCODING
+
+#define	TRICE_DIRECT_OUT                              0
+#define	TRICE_DOUBLE_BUFFERING_WITH_CYCLE_COUNT     200
+#define	TRICE_DOUBLE_BUFFERING_NO_CYCLE_COUNT       201
+#define TRICE_MODE TRICE_DOUBLE_BUFFERING_WITH_CYCLE_COUNT //! TRICE_MODE is a predefined trice transfer method.
+
+//#define TRICE_RTT_CHANNEL 0 //!< Enable and set channel number for SeggerRTT usage. Only channel 0 works right now for some reason.
+#define TRICE_UART USART2 //!< Enable and set UART for serial output.
+
+//
+///////////////////////////////////////////////////////////////////////////////
 
 // Enabling next 2 lines results in XTEA TriceEncryption  with the key.
 //#define TRICE_ENCRYPT XTEA_KEY( ea, bb, ec, 6f, 31, 80, 4e, b9, 68, e2, fa, ea, ae, f1, 50, 54 ); //!< -password MySecret
@@ -60,7 +64,7 @@ uint32_t ReadUs32( void );
 ///////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////////
-// Predefined trice modes: Adapt or creeate your own trice mode.
+// Predefined trice modes: Adapt or create your own trice mode.
 //
 
 //! Direct output to UART or RTT with cycle counter. Trices inside interrupts forbidden. Direct TRICE macro execution.
@@ -82,7 +86,7 @@ uint32_t ReadUs32( void );
     unsigned tLen = ((TriceBufferWritePosition - co)<<2) - TRICE_DATA_OFFSET; \
     TriceOut( co, tLen ); } }
 #endif
-#endif // #if TRICE_MODE == 0
+#endif // #if TRICE_MODE == TRICE_DIRECT_OUT
 
 //! Double Buffering output to RTT or UART with cycle counter. Trices inside interrupts allowed. Fast TRICE macro execution.
 //! UART Command line similar to: `trice log -p COM1 -baud 115200`
@@ -94,9 +98,9 @@ uint32_t ReadUs32( void );
 #ifndef TRICE_LEAVE
 #define TRICE_LEAVE TRICE_LEAVE_CRITICAL_SECTION //! TRICE_LEAVE is the end of TRICE macro.
 #endif
-#define TRICE_HALF_BUFFER_SIZE 1200 //!< This is the size of each of both buffers. Must be able to hold the max TRICE burst count within TRICE_TRANSFER_INTERVAL_MS or even more, if the write out speed is small. Must not exceed SEGGER BUFFER_SIZE_UP
-#define TRICE_SINGLE_MAX_SIZE 100 //!< must not exeed TRICE_HALF_BUFFER_SIZE!
-#endif // #if TRICE_MODE == 200
+#define TRICE_HALF_BUFFER_SIZE 1500 //!< This is the size of each of both buffers. Must be able to hold the max TRICE burst count within TRICE_TRANSFER_INTERVAL_MS or even more, if the write out speed is small. Must not exceed SEGGER BUFFER_SIZE_UP
+#define TRICE_SINGLE_MAX_SIZE   300 //!< must not exeed TRICE_HALF_BUFFER_SIZE!
+#endif // #if TRICE_MODE == TRICE_DOUBLE_BUFFERING_WITH_CYCLE_COUNT
 
 
 //! Double Buffering output to UART without cycle counter. No trices inside interrupts allowed. Fastest TRICE macro execution.
@@ -107,7 +111,7 @@ uint32_t ReadUs32( void );
 #define TRICE_LEAVE //! TRICE_LEAVE is the end of TRICE macro.
 #define TRICE_HALF_BUFFER_SIZE 2000 //!< This is the size of each of both buffers. Must be able to hold the max TRICE burst count within TRICE_TRANSFER_INTERVAL_MS or even more, if the write out speed is small. Must not exceed SEGGER BUFFER_SIZE_UP
 #define TRICE_SINGLE_MAX_SIZE 800 //!< must not exeed TRICE_HALF_BUFFER_SIZE!
-#endif // #if TRICE_MODE == 201
+#endif // #if TRICE_MODE == TRICE_DOUBLE_BUFFERING_NO_CYCLE_COUNT
 
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -182,7 +186,7 @@ uint32_t ReadUs32( void );
 #define TRICE_LEAVE_CRITICAL_SECTION } __set_PRIMASK(primaskstate); }
 
 #elif 1 // ####################################################################
-#error "add new compiler here"
+#error add new compiler here
 #else // ######################################################################
 #error unknown compliler
 #endif // compiler adaptions ##################################################

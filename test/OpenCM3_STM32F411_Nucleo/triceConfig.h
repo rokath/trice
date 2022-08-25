@@ -23,11 +23,8 @@ extern "C" {
 // The alternative, TRICE_RTT_CHANNEL is not available with OpenCM3
 //#define TRICE_RTT_CHANNEL 0
 
-
-//#define TRICE_LOCATION (TRICE_FILE| __LINE__) //!< Enable if you need target location. TRICE_FILE occupies the upper 16 bit. DEPRECIATED, WILL DISAPPEAR! Use li.json in the future (-locationInformation).
-
 // Timestamping function to be provided by user. In this demo from time.h
-#define TRICE_TIMESTAMP wallclock_ms()
+#define TRICE_TIMESTAMP wallclock_ms() // todo: replace with TRICE_TREX_ENCODING stuff
 
 // Enabling next 2 lines results in XTEA TriceEncryption  with the key.
 //#define TRICE_ENCRYPT XTEA_KEY( ea, bb, ec, 6f, 31, 80, 4e, b9, 68, e2, fa, ea, ae, f1, 50, 54 ); //!< -password MySecret

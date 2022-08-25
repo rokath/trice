@@ -172,14 +172,9 @@ Enable target timestamps with a variable you want inside [triceConfig.h](../test
 
 Embedded devices often lack a real-time clock and some scenarios can last for weeks. Therefore the **trice** tool precedes each *Trice* line with a PC timestamp, if not disabled. This is the *Trice* reception time on the PC, what can be some milliseconds later than the target *Trice* event.
 
-###  5.10. <a name='Targetsourcecodelocation'></a>Target source code location 
+###  5.10. <a name='Targetsourcecodelocation'></a>Target source code location
 
-Some developers like to see the `filename.c` and `line` in front of each log line for quick source location. Enable that inside [triceConfig.h](../test/MDK-ARM_STM32G071RB/Core/Inc/triceConfig.h). This adds a 32-bit value to the *Trice* sequence containing a 16-bit file ID and a 16-bit line number. The file ID is generated automatically by inserting `#define TRICE_FILE Id(nnnnn)` in each source.c file containing a `#include "trice.h"` line. 
-
-```C
-#include "trice.h"
-#define TRICE_FILE Id(52023)
-```
+Some developers like to see the `filename.c` and `line` in front of each log line for quick source location. During `trice u` a file `li.json` is generated containing the location information. If `trice log` finds this file, filename and line number are displayed in front of each log line, otherwise not.
 
 Because software is a matter of change it could happen you get obsolete information this way. Therefore the **trice** tool log option `-showID` exists to display the *Trice* ID in front of each log line what gives a more reliable way for event localization in some cases. Also you can get it for free, because no target code is needed for that. 
 
