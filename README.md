@@ -88,6 +88,7 @@ git clone https://github.com/rokath/trice.git
 - [Pigweed Trace Tokenized](https://pigweed.dev/pw_trace_tokenized/)
 - [qpspy](https://www.state-machine.com/qtools/qpspy.html) (C/C++)
 - [Serial-Studio](https://github.com/Serial-Studio/Serial-Studio) (Data visualisation)
+- [Traces](https://github.com/yotamr/traces) (API tracing framework for Linux C/C++ applications
 
 <!--- B A C K U P
 
