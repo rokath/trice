@@ -18,7 +18,7 @@ import (
 	"github.com/rokath/trice/internal/emitter"
 	"github.com/rokath/trice/internal/id"
 	"github.com/rokath/trice/pkg/cipher"
-	"github.com/rokath/trice/pkg/tcobsv2"
+	"github.com/rokath/trice/pkg/tcobsv1"
 )
 
 const (
@@ -103,21 +103,21 @@ func (p *trexDec) nextPackage() {
 	//  	fmt.Println("inconsistent COBS buffer:", p.IBuf[:index+1]) // show also terminating 0
 	//  }
 	//////////////////////////////////////////////////////////////////////////////////////////
-	//  n, e := tcobsv1.Decode(p.B, p.IBuf[:index]) // if index is 0, an empty buffer is decoded
-	//  if e != nil {
-	//  	fmt.Println("inconsistent TCOBSv1 buffer:", p.IBuf[:index+1]) // show also terminating 0
-	//  	p.B = p.B[:0]
-	//  } else {
-	//  	p.B = p.B[len(p.B)-n:]
-	//  }
-	//////////////////////////////////////////////////////////////////////////////////////////
-	n := tcobsv2.CDecode(p.B, p.IBuf[:index]) // if index is 0, an empty buffer is decoded
-	if n < 0 {
-		fmt.Println("inconsistent TCOBSv2 buffer:", p.IBuf[:index+1]) // show also terminating 0
+	n, e := tcobsv1.Decode(p.B, p.IBuf[:index]) // if index is 0, an empty buffer is decoded
+	if e != nil {
+		fmt.Println("inconsistent TCOBSv1 buffer:", p.IBuf[:index+1]) // show also terminating 0
 		p.B = p.B[:0]
 	} else {
 		p.B = p.B[len(p.B)-n:]
 	}
+	//////////////////////////////////////////////////////////////////////////////////////////
+	//  n := tcobsv2.CDecode(p.B, p.IBuf[:index]) // if index is 0, an empty buffer is decoded
+	//  if n < 0 {
+	//  	fmt.Println("inconsistent TCOBSv2 buffer:", p.IBuf[:index+1]) // show also terminating 0
+	//  	p.B = p.B[:0]
+	//  } else {
+	//  	p.B = p.B[len(p.B)-n:]
+	//  }
 	//////////////////////////////////////////////////////////////////////////////////////////
 
 	p.IBuf = p.IBuf[index+1:] // step forward (next package data in p.IBuf now, if any)
