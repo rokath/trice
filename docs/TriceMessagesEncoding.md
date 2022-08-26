@@ -1,6 +1,7 @@
 # *Trice* message encoding
 
 >> Trice Legacy Encoding. For TREC see 1.0 Spec
+
 > _(Read only you are interested in)_
 
 <!-- vscode-markdown-toc -->
