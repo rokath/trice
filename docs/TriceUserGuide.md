@@ -96,7 +96,7 @@
   * `./pkg/src/trice.h`
   * `./pkg/src/trice.c`
   * `./test/.../triceConfig.h`
-* Optionally add `./pkg/src/trice_check.c` to your project if you wish to perform the checks.
+* Optionally add `./pkg/src/triceCheck.c` to your project if you wish to perform the checks.
 * Do **not** copy `trice_test.c` and ignore `trice_test.go` and ignore `./pkg/src/inc/*`. This is code for **Go** tests.
 * In your source.c files add line `#include "trice.h"`
 * In a function write: `TRICE( "1/11 = %g\n", aFloat( 1.0/11 ) );`
@@ -107,6 +107,7 @@
 >>>      * C & H files containing TRICE macros are only modified if needed (missing or obsolete Id(n))
 >>>    * Extend `til.json`
 >>>      * If no `til.json` is found nothing happens. At least an empty file is needed (Safety feature).
+* `Id` adds automatically a 16-bit timestamp. Change it to `ID` for 32-bit timestamp or `id` for no timestamp. 
 * When the program runs later it should output something similar to![./ref/1div11.PNG](./ref/1div11.PNG)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
