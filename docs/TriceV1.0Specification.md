@@ -184,6 +184,10 @@ With [TREX](#TREXTriceextendableencoding) encoding the location information need
 
 If for special cases, the main stream encoding is not sufficient, the user can add its own encoding.
 
+See issue #313 for an other option. The user can write `TRICE16( 7, "%d,%d,%d", x, y, z);` For example 
+the iD7 macro Packs the 3 16-bit values x, y, z as packed 12-bit, 12-bit, 8-bit into a 32-bit payload.
+Additionally only 2 IDs (1 bit) are needed without cycle and count:
+`00sssii dddddddd dddddddd dddddddd dddddddd`
 * `00...` sub-options `TRICEX0`, `TRICEX1`, `TRICEX2`, `TRICEX3`
   * `-ex0 pos -ex1 pos -ex2 pos -ex3 pos`  Select position in extendable table for TRICEXn, 4 coding's selectable in one shot.
   * The table is creatable and extendable on demand.
