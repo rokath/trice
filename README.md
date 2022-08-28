@@ -82,6 +82,7 @@ git clone https://github.com/rokath/trice.git
 - [Debugging with Dynamic Printf Breakpoints](https://mcuoneclipse.com/2022/02/09/debugging-with-dynamic-printf-breakpoints/) (Eclipse IDE option)
 - [defmt](https://github.com/knurling-rs/defmt) (Rust)
 - [J-Link System View](https://www.segger.com/products/development-tools/systemview/technology/what-is-systemview/) (SEGGER)
+- [Line Information Without Using Strings](https://embeddedartistry.com/blog/2020/06/29/metal-serial-capturing-file-line-information-without-using-strings/)
 - [Memfault Compact Log Library](https://docs.memfault.com/docs/mcu/compact-logs/#host-decoding)
 - [Minimal Structured Logging for Autonomous Vehikles](https://youtu.be/FyJI4Z6jD4w) (C++, closed source talk)
 - [NanoLog](https://github.com/PlatformLab/NanoLog) (Linux C++)
