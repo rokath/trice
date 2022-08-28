@@ -475,6 +475,13 @@ func updateIDsUniqOrShared(w io.Writer, sharedIDs bool, min, max TriceID, search
 			invalID := nbID
 			invalTRICE := nbTRICE
 
+<<<<<<<<< Temporary merge branch 1
+			// we need a new one
+			id = lu.newID(w, min, max, searchMethod) // a prerequisite is an in a previous step refreshed lu
+			*pListModified = true
+			// patch the id into text
+			nID := fmt.Sprintf("Id(%5d)", id)
+=========
 			/*if id, found := tflu[tf]; sharedIDs && found { // yes, we can use it in shared IDs mode
 				msg.FatalInfoOnTrue(id == 0, "no id 0 allowed in map")
 			} else */{ // no, we need a new one
@@ -490,6 +497,7 @@ func updateIDsUniqOrShared(w io.Writer, sharedIDs bool, min, max TriceID, search
 			case idTypeLower:
 				nID = fmt.Sprintf("id(%5d)", id) // todo: patID
 			}
+>>>>>>>>> Temporary merge branch 2
 			if Verbose {
 				if nID != invalID {
 					fmt.Fprint(w, invalID, " -> ")
