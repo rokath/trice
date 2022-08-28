@@ -280,10 +280,6 @@ func visitUpdate(w io.Writer, lu TriceIDLookUp, tflus triceFmtLookUpS, pListModi
 			return err
 		}
 		fileName := filepath.Base(path)
-		var fileModified2 bool
-		//  if isCFile(fileName) {
-		//  	text, fileModified2 = updateTriceFileId(w, lu, tflu, text, fileName, SharedIDs, Min, Max, SearchMethod, pListModified)
-		//  }
 		refreshIDs(w, fileName, text, lu, tflus, lim) // update IDs: Id(0) -> Id(M)
 
 		textN, fileModified0 := updateParamCountAndID0(w, text, ExtendMacrosWithParamCount)                                  // update parameter count: TRICE* to TRICE*_n and insert missing Id(0)
