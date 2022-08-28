@@ -203,24 +203,22 @@ func (lu TriceIDLookUp) toFile(fn string) (err error) {
 	return
 }
 
-// reverse returns a reversed map. If different triceID's assigned to several equal TriceFmt only one of the TriceID gets it into tflu.
-func (lu TriceIDLookUp) reverse() (tflu triceFmtLookUp) {
-	tflu = make(triceFmtLookUp)
+// reverseS returns a reversed map. If different triceID's assigned to several equal TriceFmt all of the TriceID gets it into tflus.
+func (lu TriceIDLookUp) reverseS() (tflus triceFmtLookUpS) {
+	tflus = make(triceFmtLookUpS)
 	for id, tF := range lu {
-		tF.Type = strings.ToUpper(tF.Type) // no distinction for lower and upper case Type
-		tflu[tF] = id
+		addID(tF, id, tflus)
 	}
 	return
 }
 
-//  // reverse returns a reversed map.  If different TriceFmt's assigned to several equal TriceFmt, this is an unexpected and unhandled error and only one of the TriceFmt's gets it into lu.
-//  func (tflu TriceFmtLookUp) reverse() (lu TriceIDLookUp) {
-//  	lu = make(TriceIDLookUp)
-//  	for fm, id := range tflu {
-//  		lu[id] = fm
-//  	}
-//  	return
-//  }
+// addID adds tF and id to tflus. If tF already exists inside tflus, its id slice is extended with id.
+func addID(tF TriceFmt, id TriceID, tflus triceFmtLookUpS) {
+	tF.Type = strings.ToUpper(tF.Type) // no distinction for lower and upper case Type
+	idSlice := tflus[tF]               // If the key doesn't exist, the first value will be the default zero value.
+	idSlice = append(idSlice, id)
+	tflus[tF] = idSlice
+}
 
 // toFile writes lut into file fn as indented JSON.
 func (lim TriceIDLookUpLI) toFile(fn string) (err error) {

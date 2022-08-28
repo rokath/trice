@@ -66,12 +66,12 @@ type testTable []struct {
 // ...
 func checkList(t *testing.T, sharedIDs bool, min, max TriceID, searchMethod string, tt testTable, eList string, extend bool) {
 	lu := make(TriceIDLookUp)
-	tflu := lu.reverse()
+	tflus := lu.reverseS()
 	Verbose = true
 	for _, x := range tt {
 		act0, _ := updateParamCountAndID0(os.Stdout, x.text, extend)
 		listModified := false
-		act, fileModified := updateIDsUniqOrShared(os.Stdout, sharedIDs, min, max, searchMethod, act0, lu, tflu, &listModified)
+		act, fileModified := updateIDsUniqOrShared(os.Stdout, sharedIDs, min, max, searchMethod, act0, lu, tflus, &listModified)
 		assert.Equal(t, x.fileMod, fileModified)
 		assert.Equal(t, x.listMod, listModified)
 		assert.Equal(t, x.exp, act)
@@ -90,12 +90,12 @@ func checkList2(t *testing.T, sharedIDs bool, min, max TriceID, searchMethod str
 	lu := make(TriceIDLookUp)
 	err := lu.FromJSON([]byte(inJSON))
 	assert.Nil(t, err)
-	tflu := lu.reverse()
+	tflus := lu.reverseS()
 	Verbose = true
 	for _, x := range tt {
 		act0, _ := updateParamCountAndID0(os.Stdout, x.text, extendMacroName)
 		listModified := false
-		act, fileModified := updateIDsUniqOrShared(os.Stdout, sharedIDs, min, max, searchMethod, act0, lu, tflu, &listModified)
+		act, fileModified := updateIDsUniqOrShared(os.Stdout, sharedIDs, min, max, searchMethod, act0, lu, tflus, &listModified)
 		assert.Equal(t, x.fileMod, fileModified)
 		assert.Equal(t, x.listMod, listModified)
 		assert.Equal(t, x.exp, act)
@@ -107,17 +107,17 @@ func checkList2(t *testing.T, sharedIDs bool, min, max TriceID, searchMethod str
 
 func checkTil(t *testing.T, text string, exp TriceIDLookUp) {
 	lu := make(TriceIDLookUp)
-	tflu := lu.reverse()
+	tflus := lu.reverseS()
 	lim := make(TriceIDLookUpLI)
-	refreshIDs(os.Stdout, "", text, lu, tflu, lim)
+	refreshIDs(os.Stdout, "", text, lu, tflus, lim)
 	assert.True(t, reflect.DeepEqual(lu, exp))
 }
 
 func check(t *testing.T, text, expJSON string) {
 	lu := make(TriceIDLookUp)
-	tflu := lu.reverse()
+	tflus := lu.reverseS()
 	lim := make(TriceIDLookUpLI)
-	refreshIDs(os.Stdout, "", text, lu, tflu, lim)
+	refreshIDs(os.Stdout, "", text, lu, tflus, lim)
 	b, err := lu.toJSON()
 	assert.Equal(t, nil, err)
 	assert.Equal(t, expJSON, string(b))
@@ -130,12 +130,12 @@ func check(t *testing.T, text, expJSON string) {
 // ...
 func checkList3(t *testing.T, sharedIDs bool, min, max TriceID, searchMethod string, tt testTable, extendMacroName bool, inMap, expMap TriceIDLookUp) {
 	lu := inMap
-	tflu := lu.reverse()
+	tflus := lu.reverseS()
 	Verbose = true
 	for _, x := range tt {
 		act0, _ := updateParamCountAndID0(os.Stdout, x.text, extendMacroName)
 		listModified := false
-		act, fileModified := updateIDsUniqOrShared(os.Stdout, sharedIDs, min, max, searchMethod, act0, lu, tflu, &listModified)
+		act, fileModified := updateIDsUniqOrShared(os.Stdout, sharedIDs, min, max, searchMethod, act0, lu, tflus, &listModified)
 		assert.Equal(t, x.fileMod, fileModified)
 		assert.Equal(t, x.listMod, listModified)
 		assert.Equal(t, x.exp, act)
@@ -152,12 +152,12 @@ func checkList3(t *testing.T, sharedIDs bool, min, max TriceID, searchMethod str
 // ...
 func checkList4(t *testing.T, sharedIDs bool, min, max TriceID, searchMethod string, tt testTable, extendMacroName bool, inMap TriceIDLookUp) TriceIDLookUp {
 	lu := inMap
-	tflu := lu.reverse()
+	tflus := lu.reverseS()
 	Verbose = true
 	for _, x := range tt {
 		act0, _ := updateParamCountAndID0(os.Stdout, x.text, extendMacroName)
 		listModified := false
-		_, fileModified := updateIDsUniqOrShared(os.Stdout, sharedIDs, min, max, searchMethod, act0, lu, tflu, &listModified)
+		_, fileModified := updateIDsUniqOrShared(os.Stdout, sharedIDs, min, max, searchMethod, act0, lu, tflus, &listModified)
 		assert.Equal(t, x.fileMod, fileModified)
 		assert.Equal(t, x.listMod, listModified)
 	}

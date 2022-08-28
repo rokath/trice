@@ -180,12 +180,12 @@ func isSourceFile(fi os.FileInfo) bool {
 	return matchSourceFile.MatchString(fi.Name())
 }
 
-func refreshList(w io.Writer, root string, lu TriceIDLookUp, tflu triceFmtLookUp, lim TriceIDLookUpLI) {
+func refreshList(w io.Writer, root string, lu TriceIDLookUp, tflus triceFmtLookUpS, lim TriceIDLookUpLI) {
 	if Verbose {
 		fmt.Fprintln(w, "dir=", root)
 		fmt.Fprintln(w, "List=", FnJSON)
 	}
-	msg.FatalInfoOnErr(filepath.Walk(root, visitRefresh(w, lu, tflu, lim)), "failed to walk tree")
+	msg.FatalInfoOnErr(filepath.Walk(root, visitRefresh(w, lu, tflus, lim)), "failed to walk tree")
 }
 
 // Additional actions needed: (Option -dry-run lets do a check in advance.)
@@ -206,12 +206,12 @@ func refreshList(w io.Writer, root string, lu TriceIDLookUp, tflu triceFmtLookUp
 // - replace.Type( Id(0), ...) with.Type( Id(n), ...)
 // - find duplicate.Type( Id(n), ...) and replace one of them if *Trices* are not identical
 // - extend file fnIDList
-func idsUpdate(w io.Writer, root string, lu TriceIDLookUp, tflu triceFmtLookUp, pListModified *bool, lim TriceIDLookUpLI) {
+func idsUpdate(w io.Writer, root string, lu TriceIDLookUp, tflus triceFmtLookUpS, pListModified *bool, lim TriceIDLookUpLI) {
 	if Verbose && FnJSON != "emptyFile" {
 		fmt.Fprintln(w, "dir=", root)
 		fmt.Fprintln(w, "List=", FnJSON)
 	}
-	msg.FatalInfoOnErr(filepath.Walk(root, visitUpdate(w, lu, tflu, pListModified, lim)), "failed to walk tree")
+	msg.FatalInfoOnErr(filepath.Walk(root, visitUpdate(w, lu, tflus, pListModified, lim)), "failed to walk tree")
 }
 
 func readFile(w io.Writer, path string, fi os.FileInfo, err error) (string, error) {
@@ -229,13 +229,13 @@ func readFile(w io.Writer, path string, fi os.FileInfo, err error) (string, erro
 	return text, nil
 }
 
-func visitRefresh(w io.Writer, lu TriceIDLookUp, tflu triceFmtLookUp, lim TriceIDLookUpLI) filepath.WalkFunc {
+func visitRefresh(w io.Writer, lu TriceIDLookUp, tflus triceFmtLookUpS, lim TriceIDLookUpLI) filepath.WalkFunc {
 	return func(path string, fi os.FileInfo, err error) error {
 		text, err := readFile(w, path, fi, err)
 		if nil != err {
 			return err
 		}
-		refreshIDs(w, path, text, lu, tflu, lim) // update IDs: Id(0) -> Id(M)
+		refreshIDs(w, path, text, lu, tflus, lim) // update IDs: Id(0) -> Id(M)
 		return nil
 	}
 }
@@ -258,7 +258,7 @@ func isCFile(path string) bool {
 	return false
 }
 
-func visitUpdate(w io.Writer, lu TriceIDLookUp, tflu triceFmtLookUp, pListModified *bool, lim TriceIDLookUpLI) filepath.WalkFunc {
+func visitUpdate(w io.Writer, lu TriceIDLookUp, tflus triceFmtLookUpS, pListModified *bool, lim TriceIDLookUpLI) filepath.WalkFunc {
 	// WalkFunc is the type of the function called for each file or directory
 	// visited by Walk. The path argument contains the argument to Walk as a
 	// prefix; that is, if Walk is called with "dir", which is a directory
@@ -280,14 +280,14 @@ func visitUpdate(w io.Writer, lu TriceIDLookUp, tflu triceFmtLookUp, pListModifi
 			return err
 		}
 		fileName := filepath.Base(path)
-		//  var fileModified2 bool
+		var fileModified2 bool
 		//  if isCFile(fileName) {
 		//  	text, fileModified2 = updateTriceFileId(w, lu, tflu, text, fileName, SharedIDs, Min, Max, SearchMethod, pListModified)
 		//  }
-		refreshIDs(w, fileName, text, lu, tflu, lim) // update IDs: Id(0) -> Id(M)
+		refreshIDs(w, fileName, text, lu, tflus, lim) // update IDs: Id(0) -> Id(M)
 
-		textN, fileModified0 := updateParamCountAndID0(w, text, ExtendMacrosWithParamCount)                                 // update parameter count: TRICE* to TRICE*_n and insert missing Id(0)
-		textU, fileModified1 := updateIDsUniqOrShared(w, SharedIDs, Min, Max, SearchMethod, textN, lu, tflu, pListModified) // update IDs: Id(0) -> Id(M)
+		textN, fileModified0 := updateParamCountAndID0(w, text, ExtendMacrosWithParamCount)                                  // update parameter count: TRICE* to TRICE*_n and insert missing Id(0)
+		textU, fileModified1 := updateIDsUniqOrShared(w, SharedIDs, Min, Max, SearchMethod, textN, lu, tflus, pListModified) // update IDs: Id(0) -> Id(M)
 
 		// write out
 		fileModified := fileModified0 || fileModified1 /*|| fileModified2*/
@@ -374,7 +374,7 @@ func triceParse(t string) (nbID string, id TriceID, tf TriceFmt, found idType) {
 }
 
 // refreshIDs parses text for valid trices tf and adds them to lu & tflu.
-func refreshIDs(w io.Writer, fileName, text string, lu TriceIDLookUp, tflu triceFmtLookUp, lim TriceIDLookUpLI) {
+func refreshIDs(w io.Writer, fileName, text string, lu TriceIDLookUp, tflus triceFmtLookUpS, lim TriceIDLookUpLI) {
 	subs := text[:] // create a copy of text and assign it to subs
 	line := 1       // source cole lines start with 1 for some reason
 	var li TriceLI
@@ -415,7 +415,7 @@ func refreshIDs(w io.Writer, fileName, text string, lu TriceIDLookUp, tflu trice
 		}
 		if id > 0 {
 			lu[id] = tf
-			tflu[tfS] = id // no distinction for lower and upper case Type
+			addID(tfS, id, tflus)
 		}
 	}
 }
@@ -440,7 +440,7 @@ const (
 // tflu holds the tf in upper case.
 // lu holds the tf in source code case. If in source code upper and lower case occur, than only one can be in lu.
 // sharedIDs, if true, reuses IDs for identical format strings.
-func updateIDsUniqOrShared(w io.Writer, sharedIDs bool, min, max TriceID, searchMethod string, text string, lu TriceIDLookUp, tflu triceFmtLookUp, pListModified *bool) (string, bool) {
+func updateIDsUniqOrShared(w io.Writer, sharedIDs bool, min, max TriceID, searchMethod string, text string, lu TriceIDLookUp, tflus triceFmtLookUpS, pListModified *bool) (string, bool) {
 	var fileModified bool
 	subs := text[:] // create a copy of text and assign it to subs
 	for {
@@ -475,21 +475,11 @@ func updateIDsUniqOrShared(w io.Writer, sharedIDs bool, min, max TriceID, search
 			invalID := nbID
 			invalTRICE := nbTRICE
 
-			/*if id, found := tflu[tf]; sharedIDs && found { // yes, we can use it in shared IDs mode
-				msg.FatalInfoOnTrue(id == 0, "no id 0 allowed in map")
-			} else */{ // no, we need a new one
-				id = lu.newID(w, min, max, searchMethod) // a prerequisite is an in a previous step refreshed lu
-				*pListModified = true
-			}
-			var nID string // patch the id into text
-			switch idTypeResult {
-			case idTypeUpper:
-				nID = fmt.Sprintf("ID(%5d)", id) // todo: patID
-			case idTypeCamel:
-				nID = fmt.Sprintf("Id(%5d)", id) // todo: patID
-			case idTypeLower:
-				nID = fmt.Sprintf("id(%5d)", id) // todo: patID
-			}
+			// we need a new one
+			id = lu.newID(w, min, max, searchMethod) // a prerequisite is an in a previous step refreshed lu
+			*pListModified = true
+			// patch the id into text
+			nID := fmt.Sprintf("Id(%5d)", id)
 			if Verbose {
 				if nID != invalID {
 					fmt.Fprint(w, invalID, " -> ")
@@ -502,7 +492,7 @@ func updateIDsUniqOrShared(w io.Writer, sharedIDs bool, min, max TriceID, search
 		}
 		// update map: That is needed after an invalid trice or if id:tf is valid but not inside lu & tflu yet, for example after manual code changes or forgotten refresh before update.
 		lu[id] = tf
-		tflu[tf] = id // no distinction for lower and upper case Type
+		addID(tf, id, tflus)
 	}
 }
 
