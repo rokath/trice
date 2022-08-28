@@ -78,18 +78,23 @@ git clone https://github.com/rokath/trice.git
 ## Similar projects
 
 - [baical.net](http://baical.net/up7.html) (C)
-- [call stack logger function instrumentation](https://sii.pl/blog/call-stack-logger-function-instrumentation-as-a-way-to-trace-programs-flow-of-execution/) (a way to trace programs flow of execution)
+- [call stack logger function instrumentation](https://dev.to/taugustyn/call-stack-logger-function-instrumentation-as-a-way-to-trace-programs-flow-of-execution-419a) (a way to trace programs flow of execution)
 - [Debugging with Dynamic Printf Breakpoints](https://mcuoneclipse.com/2022/02/09/debugging-with-dynamic-printf-breakpoints/) (Eclipse IDE option)
 - [defmt](https://github.com/knurling-rs/defmt) (Rust)
 - [J-Link System View](https://www.segger.com/products/development-tools/systemview/technology/what-is-systemview/) (SEGGER)
+- [Memfault Compact Log Library](https://docs.memfault.com/docs/mcu/compact-logs/#host-decoding)
+- [Metal Serial Library](https://github.com/metal-ci/test/tree/master/doc/metal.serial.md)
 - [Minimal Structured Logging for Autonomous Vehikles](https://youtu.be/FyJI4Z6jD4w) (C++, closed source talk)
 - [NanoLog](https://github.com/PlatformLab/NanoLog) (Linux C++)
 - [Percepio Tracealyzer](https://percepio.com/tracealyzer/) (Visual Trace Diagnostics)
 - [Pigweed Trace Tokenized](https://pigweed.dev/pw_trace_tokenized/)
 - [qpspy](https://www.state-machine.com/qtools/qpspy.html) (C/C++)
 - [Serial-Studio](https://github.com/Serial-Studio/Serial-Studio) (Data visualisation)
-
+- [Traces](https://github.com/yotamr/traces) (API tracing framework for Linux C/C++ applications
+- [Zepyr Dictionary Based Logging](https://docs.zephyrproject.org/3.1.0/services/logging/index.html#dictionary-based-logging)
 <!--- B A C K U P
+
+- [call stack logger function instrumentation](https://sii.pl/blog/call-stack-logger-function-instrumentation-as-a-way-to-trace-programs-flow-of-execution/) (a way to trace programs flow of execution)
 
 ## `TRICE` macros for C & C++ code
 

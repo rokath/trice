@@ -51,7 +51,7 @@ const (
 	// patTriceNoLen finds next `TRICEn` without length specifier: https://regex101.com/r/vSvOEc/1
 	patTriceNoLen = `(?i)(\bTRICE(|8|16|32|64)\b)`
 
-	patID = `\s*\bId\b\s*` // `\s*\b(I|i)d\b\s*`
+	patID = `\s*\b(i|I)(d|D)\b\s*` // `\s*\b(I|i)d\b\s*`
 
 	patNumber = `\d+`
 
@@ -60,9 +60,6 @@ const (
 
 	// patIdInsideTrice finds if an `( Id(n) ,"` sequence exists inside trice
 	patIDInsideTrice = `(?U)\(` + patID + `\((\s*\d+)\s*\)\s*,\s*"`
-
-	// patTriceFileId finds first occurrence, see https://regex101.com/r/hWMjhU/4
-	patTriceFileId = `#define\s*TRICE_FILE\s*Id\([0-9]*\)`
 
 	patIncludeTriceHeader = `#include\s*"trice\.h"`
 )
@@ -78,7 +75,6 @@ var (
 	matchTriceNoLen          = regexp.MustCompile(patTriceNoLen)
 	matchIDInsideTrice       = regexp.MustCompile(patIDInsideTrice)
 	matchAnyTriceStart       = regexp.MustCompile(patAnyTriceStart)
-	matchTriceFileId         = regexp.MustCompile(patTriceFileId)
 	matchNumber              = regexp.MustCompile(patNumber)
 	matchIncludeTriceHeader  = regexp.MustCompile(patIncludeTriceHeader)
 
@@ -134,8 +130,8 @@ func updateParamCountAndID0(w io.Writer, text string, extendMacroName bool) (str
 		// triceC could have been modified here but text is unchanged so far.
 		idLoc := matchIDInsideTrice.FindStringIndex(triceC)
 		if nil == idLoc { // no Id(n) inside trice, so we add it
-			triceO := matchAnyTriceStart.FindString(triceC) // TRICE*( part (the trice start)
-			triceU := triceO + " Id(0),"
+			triceO := matchAnyTriceStart.FindString(triceC)     // TRICE*( part (the trice start)
+			triceU := triceO + " Id(0),"                        // todo: patID
 			triceC = strings.Replace(triceC, triceO, triceU, 1) // insert Id(0) into trice copy
 			modified = true
 			if Verbose {
@@ -284,17 +280,17 @@ func visitUpdate(w io.Writer, lu TriceIDLookUp, tflus triceFmtLookUpS, pListModi
 			return err
 		}
 		fileName := filepath.Base(path)
-		var fileModified2 bool
 		//  if isCFile(fileName) {
 		//  	text, fileModified2 = updateTriceFileId(w, lu, tflu, text, fileName, SharedIDs, Min, Max, SearchMethod, pListModified)
 		//  }
 		refreshIDs(w, fileName, text, lu, tflus, lim) // update IDs: Id(0) -> Id(M)
+		//  var fileModified2 bool
 
 		textN, fileModified0 := updateParamCountAndID0(w, text, ExtendMacrosWithParamCount)                                  // update parameter count: TRICE* to TRICE*_n and insert missing Id(0)
 		textU, fileModified1 := updateIDsUniqOrShared(w, SharedIDs, Min, Max, SearchMethod, textN, lu, tflus, pListModified) // update IDs: Id(0) -> Id(M)
 
 		// write out
-		fileModified := fileModified0 || fileModified1 || fileModified2
+		fileModified := fileModified0 || fileModified1 /*|| fileModified2*/
 		if fileModified && !DryRun {
 			if Verbose {
 				fmt.Fprintln(w, "Changed: ", path)
@@ -310,20 +306,32 @@ func visitUpdate(w io.Writer, lu TriceIDLookUp, tflus triceFmtLookUpS, pListModi
 
 // triceIDParse returns an extracted id and found as true if t starts with s.th. like 'TRICE*( Id(n)...'
 // nbID is the extracted string part containing 'Id(n)'.
-func triceIDParse(t string) (nbID string, id TriceID, found bool) {
+func triceIDParse(t string) (nbID string, id TriceID, found idType) {
 	nbID = matchNbID.FindString(t)
 	if nbID == "" {
-		msg.InfoOnTrue(Verbose, fmt.Sprintln("No 'Id(n)' or 'id(n)' found inside "+t))
+		msg.InfoOnTrue(Verbose, fmt.Sprintln("No 'Id(n)' or 'id(n)' found inside "+t)) // todo: patID
 		return
 	}
 	var n int
-	_, err := fmt.Sscanf(nbID, "Id(%d", &n) // closing bracket in format string omitted intentionally
+	_, err := fmt.Sscanf(nbID, "ID(%d", &n) // closing bracket in format string omitted intentionally // todo: patID
 	if nil == err {                         // because spaces after id otherwise are not tolerated
 		id = TriceID(n)
-		found = true
+		found = idTypeUpper
 		return
 	}
-	msg.Info(fmt.Sprintln("no 'Id(n' found inside " + nbID))
+	_, err = fmt.Sscanf(nbID, "Id(%d", &n) // closing bracket in format string omitted intentionally // todo: patID
+	if nil == err {                        // because spaces after id otherwise are not tolerated
+		id = TriceID(n)
+		found = idTypeCamel
+		return
+	}
+	_, err = fmt.Sscanf(nbID, "id(%d", &n) // closing bracket in format string omitted intentionally // todo: patID
+	if nil == err {                        // because spaces after id otherwise are not tolerated
+		id = TriceID(n)
+		found = idTypeLower
+		return
+	}
+	msg.Info(fmt.Sprintln("no 'Id(n' found inside " + nbID)) // todo: patID
 	return
 }
 
@@ -353,12 +361,15 @@ func lineCount(text string) {
 // Returned id is the scanned n inside Id(n), only and only if n is a single decimal number.
 // Returned tf is the recognized trice.
 // Only on success found is true.
-func triceParse(t string) (nbID string, id TriceID, tf TriceFmt, found bool) {
+func triceParse(t string) (nbID string, id TriceID, tf TriceFmt, found idType) {
 	nbID, id, found = triceIDParse(t)
-	if !found {
+	if found == idTypeNone {
 		return
 	}
-	tf, found = triceFmtParse(t)
+	tf, ok := triceFmtParse(t)
+	if !ok {
+		msg.Info(fmt.Sprintln("triceFmtParse reported !ok inside " + t))
+	}
 	return
 }
 
@@ -380,7 +391,7 @@ func refreshIDs(w io.Writer, fileName, text string, lu TriceIDLookUp, tflus tric
 		// A case like 'TRICE*( Id(                             0                              ), "");' is not expected.
 
 		_, id, tf, found := triceParse(nbTRICE)
-		if !found {
+		if found == idTypeNone {
 			continue
 		}
 		tfS := tf
@@ -397,8 +408,8 @@ func refreshIDs(w io.Writer, fileName, text string, lu TriceIDLookUp, tflus tric
 			if tfL, ok := lu[id]; ok { // found
 				tfL.Type = strings.ToUpper(tfL.Type)
 				if !reflect.DeepEqual(tfS, tfL) { // Lower case and upper case Type are not distinguished.
-					fmt.Fprintln(w, "Id", id, "already used differently, ignoring it.")
-					id = -id // mark as invalid
+					fmt.Fprintln(w, "Id", id, "already used differently, ignoring it.") // todo: patID
+					id = -id                                                            // mark as invalid
 				}
 			}
 		}
@@ -408,6 +419,15 @@ func refreshIDs(w io.Writer, fileName, text string, lu TriceIDLookUp, tflus tric
 		}
 	}
 }
+
+type idType int
+
+const (
+	idTypeNone  = 0
+	idTypeUpper = 3
+	idTypeCamel = 2
+	idTypeLower = 1
+)
 
 // updateIDsUniqOrShared parses text for new or invalid *Trices* 'tf' and gives them the legacy id if 'tf' is already in lu & tflu.
 // An invalid trice is a trice without Id(n) or with Id(0) or which changed somehow. Exampes: 'TRICE( Id(12) ,"foo");' was changed to 'TRICE0( Id(12) ,"bar");'
@@ -433,8 +453,8 @@ func updateIDsUniqOrShared(w io.Writer, sharedIDs bool, min, max TriceID, search
 		subs = subs[loc[1]:] // A possible Id(0) replacement makes subs not shorter, so next search can start at loc[1].
 		// A case like 'TRICE*( Id(                             0                              ), "");' is not expected.
 
-		nbID, id, tf, found := triceParse(nbTRICE)
-		if !found {
+		nbID, id, tf, idTypeResult := triceParse(nbTRICE)
+		if idTypeResult == idTypeNone {
 			continue
 		}
 		tf.Type = strings.ToUpper(tf.Type) // Lower case and upper case Type are not distinguished for normal trices in shared IDs mode.
@@ -455,11 +475,21 @@ func updateIDsUniqOrShared(w io.Writer, sharedIDs bool, min, max TriceID, search
 			invalID := nbID
 			invalTRICE := nbTRICE
 
-			// we need a new one
-			id = lu.newID(w, min, max, searchMethod) // a prerequisite is an in a previous step refreshed lu
-			*pListModified = true
-			// patch the id into text
-			nID := fmt.Sprintf("Id(%5d)", id)
+			/*if id, found := tflu[tf]; sharedIDs && found { // yes, we can use it in shared IDs mode
+				msg.FatalInfoOnTrue(id == 0, "no id 0 allowed in map")
+			} else */{ // no, we need a new one
+				id = lu.newID(w, min, max, searchMethod) // a prerequisite is an in a previous step refreshed lu
+				*pListModified = true
+			}
+			var nID string // patch the id into text
+			switch idTypeResult {
+			case idTypeUpper:
+				nID = fmt.Sprintf("ID(%5d)", id) // todo: patID
+			case idTypeCamel:
+				nID = fmt.Sprintf("Id(%5d)", id) // todo: patID
+			case idTypeLower:
+				nID = fmt.Sprintf("id(%5d)", id) // todo: patID
+			}
 			if Verbose {
 				if nID != invalID {
 					fmt.Fprint(w, invalID, " -> ")
@@ -567,11 +597,11 @@ func zeroNextID(w io.Writer, modifiedIn bool, subsIn, in string) (found bool, mo
 	nbTRICE := subsIn[loc[0]:loc[1]]
 	nbID := matchNbID.FindString(nbTRICE)
 	if nbID == "" {
-		msg.Info(fmt.Sprintln("No 'Id(n)' found inside " + nbTRICE))
+		msg.Info(fmt.Sprintln("No 'Id(n)' found inside " + nbTRICE)) // todo: patID
 		return
 	}
 
-	zeroID := "Id(0)"
+	zeroID := "Id(0)" // todo: patID
 	fmt.Fprintln(w, nbID, " -> ", zeroID)
 
 	zeroTRICE := strings.Replace(nbTRICE, nbID, zeroID, 1)

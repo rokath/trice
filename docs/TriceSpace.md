@@ -20,7 +20,7 @@
 - With increased/decreased buffers also more/less [RAM](https://en.wikipedia.org/wiki/Random-access_memory) is needed.
 - With each additional `TRICE` macro a few additional [FLASH memory](https://en.wikipedia.org/wiki/Flash_memory) bytes, like 10 assembler instructions, are needed.
 - No printf-like library code is used anymore.
-- No format strings get into the target code anymore.
+- No format strings go into the target code anymore.
 - In general *Trice* instrumentation **reduces** the needed memory compared to a printf-like implementation.
 
 ##  2. <a name='MemoryneedsARMexampleproject'></a>Memory needs (Legacy ARM example project)

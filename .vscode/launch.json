@@ -245,7 +245,7 @@
             ]
         },        
         {
-            "name": "l -p COMx",
+            "name": "l -p COMx -e trex",
             "type": "go",
             "request": "launch",
             "mode": "auto",
@@ -255,7 +255,8 @@
                     "-til",
                     "${workspaceFolder}/til.json",
                      "-p",
-                     "COM6"
+                     "com6",
+                     "-debug"
             ]
         },        
         {

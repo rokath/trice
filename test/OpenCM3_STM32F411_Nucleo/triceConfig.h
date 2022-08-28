@@ -23,11 +23,8 @@ extern "C" {
 // The alternative, TRICE_RTT_CHANNEL is not available with OpenCM3
 //#define TRICE_RTT_CHANNEL 0
 
-
-//#define TRICE_LOCATION (TRICE_FILE| __LINE__) //!< Enable if you need target location. TRICE_FILE occupies the upper 16 bit. DEPRECIATED, WILL DISAPPEAR! Use li.json in the future (-locationInformation).
-
 // Timestamping function to be provided by user. In this demo from time.h
-#define TRICE_TIMESTAMP wallclock_ms()
+#define TRICE_TIMESTAMP wallclock_ms() // todo: replace with TRICE_TREX_ENCODING stuff
 
 // Enabling next 2 lines results in XTEA TriceEncryption  with the key.
 //#define TRICE_ENCRYPT XTEA_KEY( ea, bb, ec, 6f, 31, 80, 4e, b9, 68, e2, fa, ea, ae, f1, 50, 54 ); //!< -password MySecret
@@ -100,20 +97,20 @@ extern "C" {
 //
 
 #ifdef TRICE_HALF_BUFFER_SIZE
-#define TRICE_BUFFER_INFO do{ TRICE32( Id( 41052), "att: Trice 2x half buffer size:%4u ", TRICE_HALF_BUFFER_SIZE ); } while(0)
+#define TRICE_BUFFER_INFO do{ TRICE32( Id(0), "att: Trice 2x half buffer size:%4u ", TRICE_HALF_BUFFER_SIZE ); } while(0)
 #else
-#define TRICE_BUFFER_INFO do{ TRICE32( Id( 37130), "att:Single Trice Stack buf size:%4u", TRICE_SINGLE_MAX_SIZE + TRICE_DATA_OFFSET ); } while(0)
+#define TRICE_BUFFER_INFO do{ TRICE32( Id(0), "att:Single Trice Stack buf size:%4u", TRICE_SINGLE_MAX_SIZE + TRICE_DATA_OFFSET ); } while(0)
 #endif
 
 //! This is usable as the very first trice sequence after restart. Adapt and use it or ignore it.
 #define TRICE_HEADLINE \
-    TRICE0( Id(50473), "s:                                          \n" ); \
-    TRICE8( Id(49561), "s:     NUCLEO-F411RE     TRICE_MODE %3u     \n", TRICE_MODE ); \
-    TRICE0( Id(34640), "s:                                          \n" ); \
-    TRICE0( Id(52064), "s:     " ); \
+    TRICE0( Id(0), "s:                                          \n" ); \
+    TRICE8( Id(0), "s:     NUCLEO-F411RE     TRICE_MODE %3u     \n", TRICE_MODE ); \
+    TRICE0( Id(0), "s:                                          \n" ); \
+    TRICE0( Id(0), "s:     " ); \
     TRICE_BUFFER_INFO; \
-    TRICE0( Id(46427), "s:     \n" ); \
-    TRICE0( Id(56816), "s:                                          \n");
+    TRICE0( Id(0), "s:     \n" ); \
+    TRICE0( Id(0), "s:                                          \n");
 
 
 //

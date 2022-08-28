@@ -12,6 +12,7 @@ import (
 	"github.com/rokath/trice/internal/emitter"
 	"github.com/rokath/trice/internal/id"
 	"github.com/rokath/trice/internal/receiver"
+	"github.com/rokath/trice/internal/translator"
 	"github.com/rokath/trice/pkg/cipher"
 )
 
@@ -77,14 +78,17 @@ func helpInit() {
 }
 
 func logInit() {
+	const defaultEncoding = "TREX"
 	fsScLog = flag.NewFlagSet("log", flag.ExitOnError) // sub-command
-	fsScLog.StringVar(&decoder.Encoding, "encoding", "COBS", `The trice transmit data format type, options: '(CHAR|COBS|dumpDec|ESC|FLEX)'. Target device encoding must match. 
+	fsScLog.StringVar(&translator.Encoding, "encoding", defaultEncoding, `The trice transmit data format type, options: '(CHAR|DUMP|TLE|TREX)'. Target device encoding must match. 
+		  TLE=TriceLegacyEncoding expects 0-delimited COBS byte sequences. Needs '#define TRICE_ENCODING TRICE_LEGACY_ENCODING' inside triceConfig.h. Use not for new projects.
+		  TREX=TriceExtendableEncoding, see Trice1.0Specification. Needs '#define TRICE_ENCODING TRICE_TREX_ENCODING' inside triceConfig.h.
 		  CHAR prints the received bytes as characters.
-		  COBS expects 0 delimited byte sequences.
-		  dumpDec prints the received bytes as hex code (see switch -dc too).
+		  COBS = TLE (obsolete naming)
+		  DUMP prints the received bytes as hex code (see switch -dc too).
 `) // flag
-	fsScLog.StringVar(&decoder.Encoding, "e", "COBS", "Short for -encoding.") // short flag
-	fsScLog.IntVar(&decoder.DumpLineByteCount, "dc", 32, `Dumped bytes per line when "-encoding dumpDec"`)
+	fsScLog.StringVar(&translator.Encoding, "e", defaultEncoding, "Short for -encoding.") // short flag
+	fsScLog.IntVar(&decoder.DumpLineByteCount, "dc", 32, `Dumped bytes per line when "-encoding DUMP"`)
 	fsScLog.StringVar(&cipher.Password, "password", "", `The decrypt passphrase. If you change this value you need to compile the target with the appropriate key (see -showKeys).
 Encryption is recommended if you deliver firmware to customers and want protect the trice log output. This does work right now only with flex and flexL format.`) // flag
 	fsScLog.StringVar(&cipher.Password, "pw", "", "Short for -password.") // short flag
@@ -106,7 +110,7 @@ If you need target timestamps you need to get the time inside the target and sen
 	fsScLog.StringVar(&decoder.LocationInformationFormatString, "liFmt", "info:%20s:%4d ", `Target location format string at start of each line, if target location existent (configured). Use "off" or "none" to suppress existing target location. If several trices form a log line only the location of first trice ist displayed.`)
 	fsScLog.StringVar(&decoder.ShowTargetTimestamp, "ttsf", "time:%9d ", `Target timestamp format string at start of each line, if target timestamps existent (configured). Use "" to suppress existing target timestamps. If several trices form a log line only the timestamp of first trice ist displayed.`)
 	fsScLog.BoolVar(&decoder.DebugOut, "debug", false, "Show additional debug information")
-	fsScLog.StringVar(&decoder.TargetEndianness, "targetEndianess", "littleEndian", `Target endianness trice data stream. Option: "bigEndian".`)
+	fsScLog.StringVar(&translator.TargetEndianness, "targetEndianess", "littleEndian", `Target endianness trice data stream. Option: "bigEndian".`)
 	fsScLog.StringVar(&emitter.ColorPalette, "color", "default", colorInfo)                                                                                                                                        // flag
 	fsScLog.StringVar(&emitter.Prefix, "prefix", defaultPrefix, "Line prefix, options: any string or 'off|none' or 'source:' followed by 0-12 spaces, 'source:' will be replaced by source value e.g., 'COM17:'.") // flag
 	fsScLog.StringVar(&emitter.Suffix, "suffix", "", "Append suffix to all lines, options: any string.")                                                                                                           // flag

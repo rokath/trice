@@ -4,8 +4,8 @@
 package src
 
 // #include <stdint.h>
-// #include "trice_test.h"
 // #include "trice.h"
+// #include "trice_test.h"
 // #cgo CFLAGS: -g -Wall -Iinc
 import "C"
 import (

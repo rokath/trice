@@ -84,7 +84,7 @@ var (
 	colorizeALERT   = ansi.ColorFunc("magenta:magenta+h")
 	colorizeASSERT  = ansi.ColorFunc("yellow+i:blue")
 	colorizeALARM   = ansi.ColorFunc("red+i:white+h")
-	colorizeCYCLE   = ansi.ColorFunc("blue+i:default+h")
+	colorizeCYCLE   = ansi.ColorFunc("magenta+b:red")
 	colorizeVERBOSE = ansi.ColorFunc("blue:default")
 )
 

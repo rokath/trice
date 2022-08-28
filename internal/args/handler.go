@@ -21,6 +21,7 @@ import (
 	"github.com/rokath/trice/internal/id"
 	"github.com/rokath/trice/internal/link"
 	"github.com/rokath/trice/internal/receiver"
+	"github.com/rokath/trice/internal/translator"
 	"github.com/rokath/trice/pkg/cipher"
 	"github.com/rokath/trice/pkg/msg"
 )
@@ -180,7 +181,7 @@ func logLoop(w io.Writer) {
 		if receiver.BinaryLogfileName != "off" && receiver.BinaryLogfileName != "none" {
 			rc = receiver.NewBinaryLogger(w, rc)
 		}
-		e = decoder.Translate(w, sw, lu, m, li, rwc)
+		e = translator.Translate(w, sw, lu, m, li, rwc)
 		if io.EOF == e {
 			return // end of predefined buffer
 		}
@@ -221,6 +222,7 @@ func distributeArgs() io.Writer {
 	decoder.Verbose = verbose
 	emitter.Verbose = verbose
 	receiver.Verbose = verbose
+	translator.Verbose = verbose
 	emitter.TestTableMode = decoder.TestTableMode
 
 	w := triceOutput(os.Stdout, LogfileName)
