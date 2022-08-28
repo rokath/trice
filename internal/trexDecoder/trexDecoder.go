@@ -18,6 +18,7 @@ import (
 	"github.com/rokath/trice/internal/emitter"
 	"github.com/rokath/trice/internal/id"
 	"github.com/rokath/trice/pkg/cipher"
+	"github.com/rokath/trice/pkg/cobs"
 	"github.com/rokath/trice/pkg/tcobsv1"
 )
 
@@ -91,34 +92,41 @@ func (p *trexDec) nextPackage() {
 	}
 	// here a complete TCOBS package exists
 	if decoder.DebugOut { // Debug output
-		fmt.Fprint(p.W, "TCOBSv2: ")
+		fmt.Fprintf(p.W, "%s: ", decoder.PackageFraming)
 		decoder.Dump(p.W, p.IBuf[:index+1])
 	}
 
 	p.B = make([]byte, decoder.DefaultSize) // todo: avoid allocation
 
-	//////////////////////////////////////////////////////////////////////////////////////////
-	//  n, e := cobs.Decode(p.B, p.IBuf[:index]) // if index is 0, an empty buffer is decoded
-	//  if e != nil {
-	//  	fmt.Println("inconsistent COBS buffer:", p.IBuf[:index+1]) // show also terminating 0
-	//  }
-	//////////////////////////////////////////////////////////////////////////////////////////
-	n, e := tcobsv1.Decode(p.B, p.IBuf[:index]) // if index is 0, an empty buffer is decoded
-	if e != nil {
-		fmt.Println("inconsistent TCOBSv1 buffer:", p.IBuf[:index+1]) // show also terminating 0
+	var n int
+	var e error
+	switch decoder.PackageFraming {
+	case "COBS", "cobs":
+		n, e = cobs.Decode(p.B, p.IBuf[:index]) // if index is 0, an empty buffer is decoded
+		if e != nil {
+			fmt.Println("inconsistent COBS buffer:", p.IBuf[:index+1]) // show also terminating 0
+		}
+	case "TCOBSv1", "TCOBSV1", "tcobsv1":
+		n, e = tcobsv1.Decode(p.B, p.IBuf[:index]) // if index is 0, an empty buffer is decoded
+		if e != nil {
+			fmt.Println("inconsistent TCOBSv1 buffer:", p.IBuf[:index+1]) // show also terminating 0
+			p.B = p.B[:0]
+		} else {
+			p.B = p.B[len(p.B)-n:]
+		}
+	//  case "TCOBSv2", "TCOBSV2", "tcobsv2":
+	//  	n := tcobsv2.CDecode(p.B, p.IBuf[:index]) // if index is 0, an empty buffer is decoded
+	//  	if n < 0 {
+	//  		fmt.Println("inconsistent TCOBSv2 buffer:", p.IBuf[:index+1]) // show also terminating 0
+	//  		p.B = p.B[:0]
+	//  	} else {
+	//  		p.B = p.B[len(p.B)-n:]
+	//  	}
+	default:
+		fmt.Println("Invalid framing switch:", decoder.PackageFraming) // show also terminating 0
 		p.B = p.B[:0]
-	} else {
-		p.B = p.B[len(p.B)-n:]
+
 	}
-	//////////////////////////////////////////////////////////////////////////////////////////
-	//  n := tcobsv2.CDecode(p.B, p.IBuf[:index]) // if index is 0, an empty buffer is decoded
-	//  if n < 0 {
-	//  	fmt.Println("inconsistent TCOBSv2 buffer:", p.IBuf[:index+1]) // show also terminating 0
-	//  	p.B = p.B[:0]
-	//  } else {
-	//  	p.B = p.B[len(p.B)-n:]
-	//  }
-	//////////////////////////////////////////////////////////////////////////////////////////
 
 	p.IBuf = p.IBuf[index+1:] // step forward (next package data in p.IBuf now, if any)
 	p.B = p.B[:n]
