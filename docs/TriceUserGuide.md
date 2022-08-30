@@ -1088,7 +1088,7 @@ Parallel output as logfile, TCP or binary logfile is possible. See examples abov
 
 ###  10.10. <a name='Severaltargetsatthesametime'></a>Several targets at the same time
 
-You can connect each target over its transmit channel with a own **trice** instance and let integrate all transmissions line by line in an additional **trice** instance acting as display server. See [https://github.com/rokath/trice#display-server-option](https://github.com/rokath/trice#display-server-option).
+You can connect each target over its transmit channel with an own **trice** instance and integrate all transmissions line by line in an additional **trice** instance acting as display server. See [https://github.com/rokath/trice#display-server-option](https://github.com/rokath/trice#display-server-option).
 
 ###  10.11. <a name='Executinggotest-race-count100....'></a>Executing `go test -race -count 100 ./...`
 
