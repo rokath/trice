@@ -103,7 +103,7 @@
 * In project root:
   * Create empty file: `touch til.json`.
   * Run `trice u` should perform automatically these things (The numbers are just examples.):
->>>    * Patch source.c to `TRICE( Id(60363), "1/11 = %g\n", aFloat( 1.0/11 ) );`
+>>>    * Patch source.c to `TRICE( Id(12363), "1/11 = %g\n", aFloat( 1.0/11 ) );`
 >>>      * C & H files containing TRICE macros are only modified if needed (missing or obsolete Id(n))
 >>>    * Extend `til.json`
 >>>      * If no `til.json` is found nothing happens. At least an empty file is needed (Safety feature).
@@ -155,7 +155,7 @@ Afterwards you should find an executable `trice` inside $GOPATH/bin/ and you can
     * In some cases, when logging a huge amount of data without timing constraints the immediate mode is a better choice.
 * If speed **and** log volume is needed, care must be taken to avoid *Trice* buffer overflow for example by time triggering.
 * Set options inside [triceConfig.h](../test/MDK-ARM_STM32F030R8/Core/Inc/triceConfig.h):
-  * Target timestamps and their time base
+  * Target timestamps time base
   * A cycle counter is per default active.
     * `#define TRICE_CYCLE_COUNTER 0` to deactivate it for a bit more speed (and less code).
   * Allow `TRICE` usage inside interrupts for a bit less speed (and more code):
