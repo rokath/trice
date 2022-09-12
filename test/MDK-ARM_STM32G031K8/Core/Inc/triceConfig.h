@@ -143,7 +143,7 @@ uint32_t ReadUs32( void );
 // Compiler Adaption
 //
 
-#if defined( __GNUC__ ) /* gnu compiler ###################################### */ \
+#if (defined( __GNUC__ ) && !defined(__ARMCC_VERSION)) /* gnu compiler ####### */ \
  || defined(__IAR_SYSTEMS_ICC__) /* IAR compiler ############################# */ \
  || defined(__TASKING__) /* TASKING compiler (same bugs as GNU!)############## */
 
@@ -158,13 +158,21 @@ uint32_t ReadUs32( void );
 //! TRICE_LEAVE_CRITICAL_SECTION restores interrupt state.
 #define TRICE_LEAVE_CRITICAL_SECTION } // to do
 
-#elif defined(__arm__) // ARMkeil IDE #########################################
+#elif defined(__ARMCC_VERSION) /* Arm Compiler ############################### */
 
+#if defined ( __CC_ARM ) /* Arm Compiler 4/5 ################################# */
 #include <cmsis_armcc.h>
+#elif (__ARMCC_VERSION >= 6100100) /* Arm Compiler 6 ######################### */
+#include <cmsis_armclang.h>
+#endif
 
 #define TRICE_INLINE static inline //! used for trice code
 
+#if defined ( __CC_ARM ) /* Arm Compiler 4/5 ################################# */
 #define ALIGN4 __align(4) //!< align to 4 byte boundary preamble
+#elif (__ARMCC_VERSION >= 6100100) /* Arm Compiler 6 ######################### */
+#define ALIGN4 __attribute__((aligned(4))) //!< align to 4 byte boundary preamble
+#endif
 #define ALIGN4_END        //!< align to 4 byte boundary post declaration
 //#define PACKED __packed   //!< pack data preamble
 //#define PACKED_END        //!< pack data post declaration
@@ -186,7 +194,7 @@ uint32_t ReadUs32( void );
 #define TRICE_LEAVE_CRITICAL_SECTION } __set_PRIMASK(primaskstate); }
 
 #elif 1 // ####################################################################
-#error add new compiler here
+#error "add new compiler here"
 #else // ######################################################################
 #error unknown compliler
 #endif // compiler adaptions ##################################################
