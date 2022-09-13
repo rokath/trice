@@ -6,6 +6,8 @@
 //#define TRICE_OFF // enable this line to disable trice code generation in this file object
 #include "trice.h"
 
+//lint -e666 -e826 -e831 -e665
+
 static int32_t FloatToInt32( float f );
 static int64_t DoubleToInt64( double f );
 static void exampleOfManualSerialization( void );
@@ -17,8 +19,8 @@ static void exampleOfBuffersAndFunctions(void);
 //! Traces with more bytes as parameter consist of several subtraces.
 void TriceCheckSet(int index) {
     char* s = "AAAAAAAAAAAA";
-    float  x = 1089.6082763671875; // 0x44883377
-    double y = 518.0547492508867;  // 0x4080307020601050
+    float  x = (float)1089.6082763671875; // 0x44883377
+    double y = 518.0547492508867; // 0x4080307020601050
      
     switch (index) {
         case 10:
@@ -90,7 +92,7 @@ void TriceCheckSet(int index) {
             //TCOBSCheck();
         break;
         case 40:{
-            int len = strlen(s);
+            unsigned len = strlen(s);
             TRICE32( Id(12283), "dbg:len=%u:", len );
             TRICE_S( Id(12176), "sig:TRICE_S=%s\n", s );
             TRICE32( Id(14515), "dbg:len=%u:", len );
@@ -632,7 +634,7 @@ EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
             TRICE( Id(13286), "rd:Use %%p to format a pointer in base 16 notation with leading 0x. (%p)\n", 0xaabbccdd);
         break;
         case 590:{
-            float f = 123.456;
+            float f = (float)123.456; 
             TRICE( Id(15843), "sig:Float (indent, precision, scientific notation)\n" );
             TRICE( Id(11170), "rd: 1.234560e+02		%e 	%%e Scientific notation\n", aFloat(f) );
             TRICE( Id(14961), "rd: 123.456000		%f 	%%f Decimal point, no exponent\n", aFloat(f) );
@@ -652,7 +654,7 @@ EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
         }
         break;
         case 610:{
-            char* s = "café";
+            s = "café";
             TRICE( Id(14132), "sig:String or byte slice (quote, indent, hex)\n" );
             TRICE_S( Id(13589), "rd: café 			%s		Plain string\n", s );
             TRICE_S( Id(11145), "rd: ␣␣café 		%6s 		Width 6, right justify\n", s );
@@ -967,7 +969,7 @@ EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
         break;
         case 960:
         {
-            char* s = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
+            s = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
             for( int i = 0; i < 17; i++ ){ //strlen(s) ){
                 TRICE_N( Id(12664), "msg:%s\n", s, i );
             }
@@ -1096,12 +1098,12 @@ static void exampleOfManualSerialization( void ){
     Tryout_t tx; // struct to transfer 
     Tryout_t rx; // "received" struct
     static char dst[100]; // serialized data
-    char* src = dst; // "copy" - assume, data transferred now
+    char* src; // "copy" - assume, data transferred now
     int len; // serialized byte count
     
     /////////////////////////////////////////////////////////
     // fill tx with data
-    tx.z = 123.456;
+    tx.z = (float)123.456;
     tx.u = 44444;
     tx.addr="Haus";
     tx.s = -2;
@@ -1134,7 +1136,7 @@ static void exampleOfManualSerialization( void ){
     TRICE( Id(15779), "\n" );
     
     TRICE ( Id(14357), "inf: Tryout buffer:" );
-    TRICE_B( Id(13606), " %02x ", dst, len );
+    TRICE_B( Id(13606), " %02x ", dst, len ); //lint !e670
     TRICE( Id(15046), "\n" );
 
     src = dst; // "data transfer"
@@ -1146,7 +1148,7 @@ static void exampleOfManualSerialization( void ){
 
     TRICE( Id(14648), "inf:sizeOf(Trypout) = %d, buffer length = %d\n", sizeof(tx), len );
     TRICE8_F( Id(14705), "info:TryoutStructFunction", &tx, sizeof(tx) );
-    TRICE8_F( Id(14395), "info:TryoutBufferFunction", dst, len ); 
+    TRICE8_F( Id(14395), "info:TryoutBufferFunction", dst, len ); //lint !e670
 }
 
 static void exampleOfManualJSONencoding(void){
@@ -1154,11 +1156,11 @@ static void exampleOfManualJSONencoding(void){
     int Apple, Birn;
     float Fish;
     } Ex_t;
-    Ex_t Ex = { -1, 2, 2.781 };
+    Ex_t Ex = { -1, 2, (float)2.781 };
     TRICE( Id(13149), "att:MyStructEvaluationFunction(json:ExA{Apple:%d, Birn:%u, Fisch:%f}\n", Ex.Apple, Ex.Birn, aFloat(Ex.Fish) );
 }
 
-void exampleOfBuffersAndFunctions(void){
+static void exampleOfBuffersAndFunctions(void){
     static int8_t   b8[24] = { 0, -1, -2, 0x33, 4, 5, 6, 7, 8, 9, 10, 11, 0, -1, -2, 0x33, 4, 5, 6, 7, 8, 9, 10, 11 };
     static int16_t b16[] = { 0, -1, -2, 0x3344 };
     static int32_t b32[] = { 0, -1, -2, 0x33445555};
@@ -1208,15 +1210,15 @@ void exampleOfBuffersAndFunctions(void){
 }
 
 static int32_t FloatToInt32( float f ){
-  if( f >= 0 ){
-          return (int32_t)f;
+    if( f >= 0 ){
+        return (int32_t)f;
     }
     return -(int32_t)-f;
 }
 
 static int64_t DoubleToInt64( double f ){
-  if( f >= 0 ){
-          return (int64_t)f;
+    if( f >= 0 ){
+        return (int64_t)f;
     }
     return -(int64_t)-f;
 }

@@ -10,6 +10,41 @@ extern "C" {
 #endif
 
 
+
+//lint -emacro( 123, TRICE* )
+//lint -emacro( 571, TRICE* )
+//lint -emacro( 572, TRICE* )
+//lint -emacro( 578, TRICE* )
+//lint -emacro( 648, TRICE* )
+//lint -emacro( 665, TRICE* )
+//lint -emacro( 666, TRICE* )
+//lint -emacro( 670, TRICE* )
+//lint -emacro( 694, TRICE* )
+//lint -emacro( 717, TRICE* )
+//lint -emacro( 718, TRICE* )
+//lint -emacro( 732, TRICE* )
+//lint -emacro( 734, TRICE* )
+//lint -emacro( 736, TRICE* )
+//lint -emacro( 740, TRICE* )
+//lint -emacro( 746, TRICE* )
+//lint -emacro( 747, TRICE* )
+//lint -emacro( 774, TRICE* )
+//lint -emacro( 778, TRICE* )
+//lint -emacro( 826, TRICE* )
+//lint -emacro( 830, TRICE* )
+//lint -emacro( 831, TRICE* )
+//lint -emacro( 835, TRICE* )
+
+//lint -emacro( 545, SCOPY, DCOPY )
+//lint -emacro( 732, SCOPY )
+//lint -emacro( 717, DCOPY, SCOPY )
+//lint -emacro( 732, DCOPY )
+
+//lint -ecall( 666, aFloat, aDouble )
+//lint -efunc( 666, aFloat, aDouble )
+//lint -esym( 666, aFloat, aDouble )
+
+
 #ifdef TRICE_OFF // do not generate trice code for files defining TRICE_OFF before including "trice.h"
 #define TRICE_CYCLE_COUNTER 0 // why needed here?
 #define TRICE_INTO
@@ -28,7 +63,7 @@ extern "C" {
 
 #else // #ifdef TRICE_LEGACY_ENCODING
 
-#include <stdint.h>
+#include <stdint.h> //lint !e537
 #include <string.h>
 
 uint16_t ReadUs16( void );
@@ -127,7 +162,8 @@ extern uint8_t TriceCycle;
 #endif
 
 #ifndef TRICE_PUTBUFFER
-#define TRICE_PUTBUFFER( buf, len ) do{ memcpy( TriceBufferWritePosition, buf, len ); TriceBufferWritePosition += (len+3)>>2; }while(0) //! TRICE_PUTBUFFER copies a buffer into the TRICE buffer.
+//! TRICE_PUTBUFFER copies a buffer into the TRICE buffer.
+#define TRICE_PUTBUFFER( buf, len ) do{ memcpy( TriceBufferWritePosition, buf, len ); TriceBufferWritePosition += (len+3)>>2; }while(0)
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////

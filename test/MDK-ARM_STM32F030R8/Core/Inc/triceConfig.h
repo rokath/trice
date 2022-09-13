@@ -26,9 +26,6 @@ extern "C" {
 #define TRICE_TCOBS21_FRAMING 120 //!< Select TCOBS21_FRAMING for more compression with more code (default). Optionally use trice switch -framing=TCOBSv2.
 #define TRICE_PACKAGE_FRAMING TRICE_TCOBSV1_FRAMING
 
-uint16_t ReadUs16( void );
-uint32_t ReadUs32( void );
-
 #define TRICE_READ_TICK16 ReadUs16()
 #define TRICE_READ_TICK32 ReadUs32()
 

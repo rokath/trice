@@ -216,11 +216,11 @@
         <newCpu>0</newCpu>
         <uProt>0</uProt>
       </DebugFlag>
-      <LintExecutable></LintExecutable>
+      <LintExecutable>C:\Lint\lint-nt.exe</LintExecutable>
       <LintConfigFile></LintConfigFile>
       <bLintAuto>0</bLintAuto>
       <bAutoGenD>0</bAutoGenD>
-      <LntExFlags>0</LntExFlags>
+      <LntExFlags>59</LntExFlags>
       <pMisraName></pMisraName>
       <pszMrule></pszMrule>
       <pSingCmds></pSingCmds>
