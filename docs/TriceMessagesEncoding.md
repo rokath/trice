@@ -1,6 +1,14 @@
 # *Trice* message encoding
 
 >> Trice Legacy Encoding. For TREX see 1.0 Spec
+>>
+>> Trice Legacy Encoding. For TREX see 1.0 Spec
+>>
+>> Trice Legacy Encoding. For TREX see 1.0 Spec
+>>
+>> Trice Legacy Encoding. For TREX see 1.0 Spec
+>>
+>> Trice Legacy Encoding. For TREX see 1.0 Spec
 
 > _(Read only you are interested in)_
 

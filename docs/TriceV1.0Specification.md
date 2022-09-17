@@ -239,20 +239,23 @@ Additionally only 2 IDs (1 bit) are needed without cycle and count:
 * The IDs inside the source code are a "dealbreaker" as [bora](https://community.memfault.com/u/bora) mentioned in his [comment](https://interrupt.memfault.com/blog/trice). In fact it is not acceptable for library code used in several projects. An improved approach could look like this:
 
 ```c
-TRICE( T0, "...", ...); // a trice without timestamp
-TRICE( T2, "...", ...); // a trice with a 16-bit timestamp
-TRICE( T4, "...", ...); // a trice with a 32-bit timestamp
+TRICE( NOTS, "...", ...); // a trice without timestamp
+TRICE( TS16, "...", ...); // a trice with a 16-bit timestamp
+TRICE( TS32, "...", ...); // a trice with a 32-bit timestamp
+TRICE( MOD7, "...", ...); // a trice with a user mode 7 encoding
 ```
 
 * When editing, the user needs to write only `TRICE( "...", ...);` and the trice tool inserts a T0, T2 or T4 automatically according to the used `-timeStamp` switch parameter.
 * After repository check-out and before compiling, following substitutions are done using `trice -u`:
-  * `TRICE( T0, "...", ...);` → `TRICE( id(0), "...", ...);` → `TRICE( id(12345), "...", ...);`
-  * `TRICE( T2, "...", ...);` → `TRICE( Id(0), "...", ...);` → `TRICE( Id(12345), "...", ...);`
-  * `TRICE( T4, "...", ...);` → `TRICE( ID(0), "...", ...);` → `TRICE( ID(12345), "...", ...);`
+  * `TRICE( NOTS, "...", ...);` → `TRICE( id(0), "...", ...);` → `TRICE( id(12345), "...", ...);`
+  * `TRICE( TS16, "...", ...);` → `TRICE( Id(0), "...", ...);` → `TRICE( Id(12345), "...", ...);`
+  * `TRICE( TS32, "...", ...);` → `TRICE( ID(0), "...", ...);` → `TRICE( ID(12345), "...", ...);`
+  * `TRICE( MOD7, "...", ...);` → `TRICE( iD7(0), "...", ...);` → `TRICE( ID(12345), "...", ...);`
 * After compiling and before repository check-in, following substitutions are done using `trice -z`:
-  * `TRICE( id(12345), "...", ...);` → `TRICE( id(0), "...", ...);` → `TRICE( T0, "...", ...);`
-  * `TRICE( Id(12345), "...", ...);` → `TRICE( Id(0), "...", ...);` → `TRICE( T2, "...", ...);`
-  * `TRICE( ID(12345), "...", ...);` → `TRICE( ID(0), "...", ...);` → `TRICE( T4, "...", ...);`
+  * `TRICE( id(12345), "...", ...);` → `TRICE( id(0), "...", ...);` → `TRICE( NOTS, "...", ...);`
+  * `TRICE( Id(12345), "...", ...);` → `TRICE( Id(0), "...", ...);` → `TRICE( TS16, "...", ...);`
+  * `TRICE( ID(12345), "...", ...);` → `TRICE( ID(0), "...", ...);` → `TRICE( TS32, "...", ...);`
+  * `TRICE( id7(12345), "...", ...);` → `TRICE( iD7(0), "...", ...);` → `TRICE( MOD7, "...", ...);`
 * The project specific `til.json` contains all IDs and during `trice u` the same IDs are used again for the same **trice** statement. For new or modified **trices** new IDs a chosen and `til.json` is extended as usual.
 * Identical **trices** should have different IDs for the correctness of the location information. The switch `-sharedIDs` is obsolete and depreciated.
 * There is no guaranty each **trice** gets its old ID back, if for example 5 identical **trices** with different IDs exist, but the probability for an exact restore can made high using the previous `li.json` file. Proposed method:
@@ -285,3 +288,4 @@ TRICE( T4, "...", ...); // a trice with a 32-bit timestamp
 | 2022-JUN-19 |  0.9.0  | Implementation hint added to chapter Framing. |
 | 2022-AUG-14 | 0.10.0  | Chapter ID Management added |
 | 2022-AUG-19 | 0.11.0  | Chapter Main Stream Logs changed/extended |
+| 2022-SEP-15 | 0.11.1  | TS32, TS16, NOTS, MOD7 added |
