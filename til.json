@@ -139,6 +139,10 @@
 		"Type": "TRICE0",
 		"Strg": "s:                                          \\n"
 	},
+	"10285": {
+		"Type": "TRICE_FILE",
+		"Strg": "trice_test.c"
+	},
 	"10286": {
 		"Type": "TRICE",
 		"Strg": "rd:TRICE float %-9f (%%9f)\\n"
@@ -471,9 +475,17 @@
 		"Type": "TRICE32_1",
 		"Strg": "rd:TRICE32_1 float %E (%%E)\\n"
 	},
+	"11004": {
+		"Type": "TRICE_FILE",
+		"Strg": "triceCheck.c"
+	},
 	"11009": {
 		"Type": "TRICE64",
 		"Strg": "att:TRICE64 %70b\\n"
+	},
+	"11014": {
+		"Type": "TRICE_FILE",
+		"Strg": "trice.c"
 	},
 	"11019": {
 		"Type": "TRICE16_1",
@@ -591,6 +603,10 @@
 		"Type": "TRICE32",
 		"Strg": "att: Trice 2x half buffer size:%4u "
 	},
+	"11256": {
+		"Type": "TRICE_FILE",
+		"Strg": "main.c"
+	},
 	"11261": {
 		"Type": "TRICE32",
 		"Strg": "tst:TRICE32 %d %d %d %d %d %d\\n"
@@ -630,6 +646,10 @@
 	"11308": {
 		"Type": "TRICE64",
 		"Strg": "rd:TRICE64 int %d, double %f (%%f), %016x, %064b\\n"
+	},
+	"11311": {
+		"Type": "TRICE_FILE",
+		"Strg": "stm32f0xx_it.c"
 	},
 	"11316": {
 		"Type": "TRICE64",
@@ -1514,6 +1534,10 @@
 	"13064": {
 		"Type": "TRICE",
 		"Strg": "rd: 15   \t%-4d \tPad with spaces (width 4, left justified)\\n"
+	},
+	"13068": {
+		"Type": "TRICE16",
+		"Strg": "MSG: ✅ STOP  select = %d, TriceDepthMax =%4u of %d\\n"
 	},
 	"13072": {
 		"Type": "TRICE0",
@@ -3050,6 +3074,10 @@
 	"15706": {
 		"Type": "TRICE8_2",
 		"Strg": "tst:TRICE8_2  %d %d\\n"
+	},
+	"15715": {
+		"Type": "TRICE16",
+		"Strg": "MSG: 💚 START select = %d\\n"
 	},
 	"15723": {
 		"Type": "TRICE8",

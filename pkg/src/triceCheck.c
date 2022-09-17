@@ -5,6 +5,7 @@
 #include <float.h>
 //#define TRICE_OFF // enable this line to disable trice code generation in this file object
 #include "trice.h"
+//#define TRICE_FILE Id(11004)
 
 //lint -e666 -e826 -e831 -e665
 

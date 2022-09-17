@@ -6,12 +6,14 @@
 // Lint specific command path:
 -iC:\Keil_v5\UV4\Lint
 // Compiler Include path:
--iC:\Keil_v5\ARM\ARMCC\include
+-iC:\Keil_v5\ARM\ARM_Compiler_5.06u7\include
 
 // Project Include paths:
 -i.\RTE\_MDK-ARM_STM32F030R8
--iC:\Users\T.Hoehenleitner\AppData\Local\Arm\Packs\ARM\CMSIS\5.8.0\CMSIS\Core\Include
--iC:\Users\T.Hoehenleitner\AppData\Local\Arm\Packs\Keil\STM32F0xx_DFP\2.1.0\Drivers\CMSIS\Device\ST\STM32F0xx\Include
+
+// Software Pack Include paths:
+-iC:\Keil_v5\ARM\PACK\ARM\CMSIS\5.9.0\CMSIS\Core\Include
+-iC:\Keil_v5\ARM\PACK\Keil\STM32F0xx_DFP\2.1.1\Drivers\CMSIS\Device\ST\STM32F0xx\Include
 
 // Additional Include Folders:
 -i../Core/Inc
@@ -35,7 +37,11 @@ co-ARMCC-5.lnt
 //   Note: -wlib(4) is required before -wlib(1) !
 -wlib(4)
 -wlib(1)
-+libdir(C:\Keil_v5\ARM\ARMCC\include)
++libdir(C:\Keil_v5\ARM\ARM_Compiler_5.06u7\include)
+
+// Software Pack Include paths:
++libdir(C:\Keil_v5\ARM\PACK\ARM\CMSIS\5.9.0\CMSIS\Core\Include)
++libdir(C:\Keil_v5\ARM\PACK\Keil\STM32F0xx_DFP\2.1.1\Drivers\CMSIS\Device\ST\STM32F0xx\Include)
 
 // Format Output to uVision:
 -hsfb^3

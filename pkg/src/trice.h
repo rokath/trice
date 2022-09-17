@@ -101,7 +101,7 @@ void TriceCheckSet( int index ); //!< tests
 #error
 #endif
 //#define TRICE_WRITE( buf, len ) do{ SEGGER_RTT_Write(TRICE_RTT_CHANNEL, buf, len ); }while(0)
-static inline int TriceOutDepth( void ){ return 0; }
+static inline unsigned TriceOutDepth( void ){ return 0; }
 #endif // #ifdef TRICE_RTT_CHANNEL
 
 #ifndef TRICE_CYCLE_COUNTER
@@ -201,7 +201,7 @@ void TriceBlockingWrite( uint8_t const * buf, unsigned len );
 uint8_t TriceNextUint8( void );
 void triceServeTransmit(void);
 void triceTriggerTransmit(void);
-int TriceOutDepth( void );
+unsigned TriceOutDepth( void );
 #endif
 
 //
@@ -375,8 +375,8 @@ static inline uint64_t aDouble( double x ){
         TRICE32( Id(14113), "wrn:Transmit buffer truncated from %u to %u\n", len_, limit ); \
         len_ = limit; \
     } \
-		TRICE_ENTER id; \
-		if( len_ <= 127 ){ CNTC(len_); }else{ LCNT(len_); } \
+        TRICE_ENTER id; \
+        if( len_ <= 127 ){ CNTC(len_); }else{ LCNT(len_); } \
     TRICE_PUTBUFFER( buf, len_ ); \
     TRICE_LEAVE \
 } while(0)
@@ -396,24 +396,27 @@ static inline uint64_t aDouble( double x ){
 #ifndef TRICE_PUT16
 //! TRICE_PUT16 copies a 16 bit x into the TRICE buffer.
 //#define TRICE_PUT16(x) *(uint16_t*)TriceBufferWritePosition++ = x; 
-#define TRICE_PUT16(x) do{ uint16_t* p = (uint16_t*)TriceBufferWritePosition; *p++ = x; TriceBufferWritePosition = (uint32_t*)p; }while(0)
+#define TRICE_PUT16(x) do{ uint16_t* p = (uint16_t*)TriceBufferWritePosition; *p++ = (x); TriceBufferWritePosition = (uint32_t*)p; }while(0)
 #endif
 
 #define T4 ID(0) //!< Placeholder for ID(0) with a 4 byte timestamp.
 #define T2 iD(0) //!< Placeholder for iD(0) with a 2 byte timestamp.
 #define T0 id(0) //!< Placeholder for id(0) with no timestamp.
+#define TS32 ID(0) //!< Placeholder for ID(0) with a 4 byte timestamp.
+#define TS16 iD(0) //!< Placeholder for iD(0) with a 2 byte timestamp.
+#define NOTS id(0) //!< Placeholder for id(0) with no timestamp.
 
 #ifdef TRICE_BIG_ENDIANNESS
 //! TRICE_PUT1616 writes a 32-bit value in 2 16-bit steps to avoid memory alignment hard fault.
 #define TRICE_PUT1616( ts ) TRICE_PUT16( ts >> 16 ); TRICE_PUT16( ts ); 
 #else
 //! TRICE_PUT1616 writes a 32-bit value in 2 16-bit steps to avoid memory alignment hard fault.
-#define TRICE_PUT1616( ts ) TRICE_PUT16( ts ); TRICE_PUT16( ts >> 16 ); 
+#define TRICE_PUT1616( ts ); TRICE_PUT16( ts ); TRICE_PUT16( ((ts) >> 16) ); 
 #endif
 
 //! ID writes 14-bit id with 11 as most significant bits, followed by a 32-bit timestamp.
 //! 11iiiiiiI TT | TT (NC) | ...
-#define ID(n) { uint32_t ts = TRICE_READ_TICK32; TRICE_PUT16(  0xC000|(n)); TRICE_PUT1616(ts); }
+#define ID(n) { uint32_t ts = TRICE_READ_TICK32; TRICE_PUT16( (0xC000|(n))); TRICE_PUT1616(ts); }
 
 //! Id writes 14-bit id with 10 as most significant bits two times, followed by a 32-bit timestamp.
 //! 10iiiiiiI 10iiiiiiI | TT (NC) | ...
@@ -422,7 +425,7 @@ static inline uint64_t aDouble( double x ){
 
 //! id writes 14-bit id with 01 as most significant bits, followed by a 32-bit timestamp.
 //! 01iiiiiiI (NC) | ...
-#define id(n) TRICE_PUT16(  0x4000|(n));
+#define id(n) TRICE_PUT16( 0x4000|(n));
 
 //! CNTC writes 7-bit byte count and 8-bit cycle counter.
 #define CNTC(count) TRICE_PUT16( ((count)<<8) | TRICE_CYCLE );
