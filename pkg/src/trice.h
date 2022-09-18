@@ -10,6 +10,41 @@ extern "C" {
 #endif
 
 
+
+//lint -emacro( 123, TRICE* )
+//lint -emacro( 571, TRICE* )
+//lint -emacro( 572, TRICE* )
+//lint -emacro( 578, TRICE* )
+//lint -emacro( 648, TRICE* )
+//lint -emacro( 665, TRICE* )
+//lint -emacro( 666, TRICE* )
+//lint -emacro( 670, TRICE* )
+//lint -emacro( 694, TRICE* )
+//lint -emacro( 717, TRICE* )
+//lint -emacro( 718, TRICE* )
+//lint -emacro( 732, TRICE* )
+//lint -emacro( 734, TRICE* )
+//lint -emacro( 736, TRICE* )
+//lint -emacro( 740, TRICE* )
+//lint -emacro( 746, TRICE* )
+//lint -emacro( 747, TRICE* )
+//lint -emacro( 774, TRICE* )
+//lint -emacro( 778, TRICE* )
+//lint -emacro( 826, TRICE* )
+//lint -emacro( 830, TRICE* )
+//lint -emacro( 831, TRICE* )
+//lint -emacro( 835, TRICE* )
+
+//lint -emacro( 545, SCOPY, DCOPY )
+//lint -emacro( 732, SCOPY )
+//lint -emacro( 717, DCOPY, SCOPY )
+//lint -emacro( 732, DCOPY )
+
+//lint -ecall( 666, aFloat, aDouble )
+//lint -efunc( 666, aFloat, aDouble )
+//lint -esym( 666, aFloat, aDouble )
+
+
 #ifdef TRICE_OFF // do not generate trice code for files defining TRICE_OFF before including "trice.h"
 #define TRICE_CYCLE_COUNTER 0 // why needed here?
 #define TRICE_INTO
@@ -28,7 +63,7 @@ extern "C" {
 
 #else // #ifdef TRICE_LEGACY_ENCODING
 
-#include <stdint.h>
+#include <stdint.h> //lint !e537
 #include <string.h>
 
 uint16_t ReadUs16( void );
@@ -66,7 +101,7 @@ void TriceCheckSet( int index ); //!< tests
 #error
 #endif
 //#define TRICE_WRITE( buf, len ) do{ SEGGER_RTT_Write(TRICE_RTT_CHANNEL, buf, len ); }while(0)
-static inline int TriceOutDepth( void ){ return 0; }
+static inline unsigned TriceOutDepth( void ){ return 0; }
 #endif // #ifdef TRICE_RTT_CHANNEL
 
 #ifndef TRICE_CYCLE_COUNTER
@@ -127,7 +162,8 @@ extern uint8_t TriceCycle;
 #endif
 
 #ifndef TRICE_PUTBUFFER
-#define TRICE_PUTBUFFER( buf, len ) do{ memcpy( TriceBufferWritePosition, buf, len ); TriceBufferWritePosition += (len+3)>>2; }while(0) //! TRICE_PUTBUFFER copies a buffer into the TRICE buffer.
+//! TRICE_PUTBUFFER copies a buffer into the TRICE buffer.
+#define TRICE_PUTBUFFER( buf, len ) do{ memcpy( TriceBufferWritePosition, buf, len ); TriceBufferWritePosition += (len+3)>>2; }while(0)
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -165,7 +201,7 @@ void TriceBlockingWrite( uint8_t const * buf, unsigned len );
 uint8_t TriceNextUint8( void );
 void triceServeTransmit(void);
 void triceTriggerTransmit(void);
-int TriceOutDepth( void );
+unsigned TriceOutDepth( void );
 #endif
 
 //
@@ -339,8 +375,8 @@ static inline uint64_t aDouble( double x ){
         TRICE32( Id(14113), "wrn:Transmit buffer truncated from %u to %u\n", len_, limit ); \
         len_ = limit; \
     } \
-		TRICE_ENTER id; \
-		if( len_ <= 127 ){ CNTC(len_); }else{ LCNT(len_); } \
+        TRICE_ENTER id; \
+        if( len_ <= 127 ){ CNTC(len_); }else{ LCNT(len_); } \
     TRICE_PUTBUFFER( buf, len_ ); \
     TRICE_LEAVE \
 } while(0)
@@ -360,24 +396,27 @@ static inline uint64_t aDouble( double x ){
 #ifndef TRICE_PUT16
 //! TRICE_PUT16 copies a 16 bit x into the TRICE buffer.
 //#define TRICE_PUT16(x) *(uint16_t*)TriceBufferWritePosition++ = x; 
-#define TRICE_PUT16(x) do{ uint16_t* p = (uint16_t*)TriceBufferWritePosition; *p++ = x; TriceBufferWritePosition = (uint32_t*)p; }while(0)
+#define TRICE_PUT16(x) do{ uint16_t* p = (uint16_t*)TriceBufferWritePosition; *p++ = (x); TriceBufferWritePosition = (uint32_t*)p; }while(0)
 #endif
 
 #define T4 ID(0) //!< Placeholder for ID(0) with a 4 byte timestamp.
 #define T2 iD(0) //!< Placeholder for iD(0) with a 2 byte timestamp.
 #define T0 id(0) //!< Placeholder for id(0) with no timestamp.
+#define TS32 ID(0) //!< Placeholder for ID(0) with a 4 byte timestamp.
+#define TS16 iD(0) //!< Placeholder for iD(0) with a 2 byte timestamp.
+#define NOTS id(0) //!< Placeholder for id(0) with no timestamp.
 
 #ifdef TRICE_BIG_ENDIANNESS
 //! TRICE_PUT1616 writes a 32-bit value in 2 16-bit steps to avoid memory alignment hard fault.
 #define TRICE_PUT1616( ts ) TRICE_PUT16( ts >> 16 ); TRICE_PUT16( ts ); 
 #else
 //! TRICE_PUT1616 writes a 32-bit value in 2 16-bit steps to avoid memory alignment hard fault.
-#define TRICE_PUT1616( ts ) TRICE_PUT16( ts ); TRICE_PUT16( ts >> 16 ); 
+#define TRICE_PUT1616( ts ); TRICE_PUT16( ts ); TRICE_PUT16( ((ts) >> 16) ); 
 #endif
 
 //! ID writes 14-bit id with 11 as most significant bits, followed by a 32-bit timestamp.
 //! 11iiiiiiI TT | TT (NC) | ...
-#define ID(n) { uint32_t ts = TRICE_READ_TICK32; TRICE_PUT16(  0xC000|(n)); TRICE_PUT1616(ts); }
+#define ID(n) { uint32_t ts = TRICE_READ_TICK32; TRICE_PUT16( (0xC000|(n))); TRICE_PUT1616(ts); }
 
 //! Id writes 14-bit id with 10 as most significant bits two times, followed by a 32-bit timestamp.
 //! 10iiiiiiI 10iiiiiiI | TT (NC) | ...
@@ -386,7 +425,7 @@ static inline uint64_t aDouble( double x ){
 
 //! id writes 14-bit id with 01 as most significant bits, followed by a 32-bit timestamp.
 //! 01iiiiiiI (NC) | ...
-#define id(n) TRICE_PUT16(  0x4000|(n));
+#define id(n) TRICE_PUT16( 0x4000|(n));
 
 //! CNTC writes 7-bit byte count and 8-bit cycle counter.
 #define CNTC(count) TRICE_PUT16( ((count)<<8) | TRICE_CYCLE );

@@ -23,6 +23,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "trice.h"
+//#define TRICE_FILE Id(11256)
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -67,7 +68,7 @@ static void MX_USART2_UART_Init(void);
 //! \retval us count since last reset
 uint64_t ReadUs64( void ){
     static uint64_t us_1 = 0; // result of last call 
-    uint64_t us = microSecond + (((SysTick->LOAD - SysTick->VAL) * 87381) >> 22); // Divide 48MHz clock by 48,0001831 to get us part.
+    uint64_t us = microSecond + (((SysTick->LOAD - SysTick->VAL) * 87381LL) >> 22); // Divide 48MHz clock by 48,0001831 to get us part.
     if( us < us_1){ // Possible very close to systick ISR, when milliSecond was not incremented yet, but the systic wrapped already.
         us += 1000; // Time cannot go backwards, so correct the 1ms error in the assumption last call is not longer than 1ms back.
     }
@@ -84,7 +85,7 @@ uint64_t ReadUs64( void ){
 //! \retval us count since last reset modulo 2^32
 uint32_t ReadUs32( void ){
     static uint32_t us_1 = 0; // result of last call
-    uint32_t us = ((uint32_t)microSecond) + (((SysTick->LOAD - SysTick->VAL) * 87381) >> 22); // Divide clock by 48,0001831 to get us.
+    uint32_t us = ((uint32_t)microSecond) + (((SysTick->LOAD - SysTick->VAL) * 87381LL) >> 22); // Divide clock by 48,0001831 to get us.
     if( us < us_1){ // Possible very close to systick ISR, when milliSecond was not incremented yet, but the systic wrapped already.
         us += 1000; // Time cannot go backwards, so correct the 1ms error in the assumption last call is not longer than 1ms back.
     }
@@ -103,7 +104,7 @@ static void serveUs( void ){
     uint64_t st64 = ReadUs64();
     uint32_t st32 = ReadUs32();
     if( st64 < st64_1 || st32 < st32_1 ){
-        while(1); // stop, timing error
+        for(;;){} // stop, timing error
     }
     st64_1 = st64;
     st32_1 = st32;
@@ -118,7 +119,7 @@ static void serveUs( void ){
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-
+//lint -e835
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -131,7 +132,7 @@ int main(void)
   /* System interrupt init*/
 
   /* USER CODE BEGIN Init */
-
+//lint +e835
   /* USER CODE END Init */
 
   /* Configure the system clock */
@@ -153,19 +154,19 @@ int main(void)
     #endif
     TRICE_HEADLINE;
     {
-        float a = 5.934;
+        float a = (float)5.934;
         float b = a + ((a > 0) ? 0.0005f : -0.0005f);
-        int c = b;
+        int c = (int)b;
         int d = (int)(b * 1000) % 1000;
-        int e = 1000 * (float)(a - c); 
-        TRICE( Id(10762), "msg:x = %g = %d.%03d, %d.%03d\n", aFloat(a), c, d, c, e );
-        TRICE( Id(12531), "1/11 = %g\n", aFloat( 1.0/11 ) );
+        int e = (int)(1000 * (float)(a - c)); 
+        TRICE( Id(10762), "msg:x = %g = %d.%03d, %d.%03d\n", aFloat(a), c, d, c, e ); //lint !e666
+        TRICE( Id(12531), "1/11 = %g\n", aFloat( 1.0/11 ) ); //lint !e666
     }
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-    while (1){
+    while (1){ //lint !e716
         if( triceCommandFlag ){
             triceCommandFlag = 0;
             TRICE_S( Id(11673), "att:Executing command %s ...\n", triceCommand );
@@ -175,7 +176,7 @@ int main(void)
 
         // serve every few ms
         #ifdef TRICE_HALF_BUFFER_SIZE
-        static int lastMs = 0;
+        static unsigned lastMs = 0;
         if( milliSecond >= lastMs + TRICE_TRANSFER_INTERVAL_MS ){
             lastMs = milliSecond;
             TriceTransfer();
@@ -185,14 +186,14 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
         {
-            static int lastTricesTime = 0;
+            static unsigned lastTricesTime = 0;
             // send some trices every few ms
             if( milliSecond >= lastTricesTime + 200 ){
                 static int index = 0;
                 int select = index;
-                TRICE16( ID(12605),"MSG: 💚 START select = %d\n", select );
+                TRICE16( Id(12605),"MSG: 💚 START select = %d\n", select );
                 TriceCheckSet(select);
-                TRICE16( ID(14013),"MSG: ✅ STOP  select = %d, TriceDepthMax =%4u of %d\n", select, TriceDepthMax(), TRICE_HALF_BUFFER_SIZE );
+                TRICE16( Id(14013),"MSG: ✅ STOP  select = %d, TriceDepthMax =%4u of %d\n", select, TriceDepthMax(), TRICE_HALF_BUFFER_SIZE );
                 index += 10;
                 index = index > 1000 ? 0 : index;
                 lastTricesTime = milliSecond;
@@ -205,9 +206,10 @@ int main(void)
             }
         }
         serveUs();
-        __WFI(); // wait for interrupt (sleep)
+        __WFI(); //lint !e718 !e746 wait for interrupt (sleep)
         serveUs();
     }
+//lint -e835 -e534
   /* USER CODE END 3 */
 }
 
@@ -359,7 +361,7 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-
+//lint +e835 +e534
 /* USER CODE END 4 */
 
 /**
@@ -371,7 +373,7 @@ void Error_Handler(void)
   /* USER CODE BEGIN Error_Handler_Debug */
   /* User can add his own implementation to report the HAL error return state */
   __disable_irq();
-  while (1)
+  for(;;)
   {
   }
   /* USER CODE END Error_Handler_Debug */

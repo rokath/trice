@@ -23,11 +23,8 @@ extern "C" {
 
 #define TRICE_COBS_FRAMING    100 //!< Select COBS_FRAMING for code minimizing without compression. Needs trice switch -framing=COBS.
 #define TRICE_TCOBSV1_FRAMING 110 //!< Select TCOBSV1_FRAMING for less compression with less code. Needs trice switch -framing=TCOBSv1.
-#define TRICE_TCOBS21_FRAMING 120 //!< Select TCOBS21_FRAMING for more compression with more code (default). Optionally use trice switch -framing=TCOBSv2.
+#define TRICE_TCOBSV2_FRAMING 120 //!< Select TCOBS21_FRAMING for more compression with more code (default). Optionally use trice switch -framing=TCOBSv2.
 #define TRICE_PACKAGE_FRAMING TRICE_TCOBSV1_FRAMING
-
-uint16_t ReadUs16( void );
-uint32_t ReadUs32( void );
 
 #define TRICE_READ_TICK16 ReadUs16()
 #define TRICE_READ_TICK32 ReadUs32()

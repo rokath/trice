@@ -2,6 +2,11 @@
 \author Thomas.Hoehenleitner [at] seerose.net
 *******************************************************************************/
 #include "trice.h"
+//#define TRICE_FILE Id(11014)
+
+//lint -emacro(701,OUT_reptSigil)
+//lint -emacro(734,OUT_*)
+//lint -e801
 
 //! triceCommand is the command receive buffer.
 char triceCommand[TRICE_COMMAND_SIZE_MAX+1]; // with terminating 0
@@ -22,8 +27,8 @@ static int triceSwap = 0; //!< triceSwap is the index of the active write buffer
 static uint32_t* triceBufferWriteLimit = &triceBuffer[1][TRICE_DATA_OFFSET>>2]; //!< triceBufferWriteLimit is the triceBuffer written limit. 
 
 #if defined( TRICE_UART ) && defined( TRICE_HALF_BUFFER_SIZE ) // buffered out to UART
-static int triceNonBlockingWrite( void const * buf, int nByte );
-#define TRICE_WRITE( buf, len ) do{ triceNonBlockingWrite( buf, len ); }while(0)
+static size_t triceNonBlockingWrite( void const * buf, size_t nByte );
+#define TRICE_WRITE( buf, len ) do{ triceNonBlockingWrite( buf, len ); }while(0) //lint !e534
 #endif
 
 //! triceBufferSwap swaps the trice double buffer and returns the read buffer address.
@@ -33,14 +38,14 @@ static uint32_t* triceBufferSwap( void ){
     triceSwap = !triceSwap; // exchange the 2 buffers
     TriceBufferWritePosition = &triceBuffer[triceSwap][TRICE_DATA_OFFSET>>2]; // set write position for next TRICE
     TRICE_LEAVE_CRITICAL_SECTION
-    return &triceBuffer[!triceSwap][0];
+    return &triceBuffer[!triceSwap][0]; //lint !e514
 }
 
 //! triceDepth returns the total trice byte count ready for transfer.
 //! The trice data start at tb + TRICE_DATA_OFFSET.
 //! The returned depth is without the TRICE_DATA_OFFSET offset.
-static size_t triceDepth( uint32_t* tb ){
-    size_t depth = (triceBufferWriteLimit - tb)<<2; // 32-bit write width
+static size_t triceDepth( uint32_t const* tb ){
+    size_t depth = (triceBufferWriteLimit - tb)<<2; //lint !e701 // 32-bit write width 
     return depth - TRICE_DATA_OFFSET;
 }
 
@@ -58,7 +63,7 @@ void TriceTransfer( void ){
 
 //! TriceDepthMax returns the max trice buffer depth until now.
 size_t TriceDepthMax( void ){
-    size_t currentDepth = 4*(TriceBufferWritePosition - &triceBuffer[triceSwap][0]); 
+    size_t currentDepth = (size_t)(4*(TriceBufferWritePosition - &triceBuffer[triceSwap][0])); 
     return currentDepth > triceDepthMax ? currentDepth : triceDepthMax;
 }
 
@@ -101,8 +106,8 @@ void TriceOut( uint32_t* tb, size_t tLen ){
 // *da = 10iiiiiiI TT NC ...
 // *da = 01iiiiiiI 11iiiiiiI NC ...
 // *da = 00...
-static size_t triceDataLen( uint8_t* p ){
-    uint16_t nc = *(uint16_t*)p;
+static size_t triceDataLen( uint8_t const* p ){
+    uint16_t nc = *(uint16_t*)p; //lint !e826
     size_t n = nc>>8;
     if( n < 128 ){
         return n;
@@ -116,28 +121,29 @@ unsigned triceErrorCount = 0;
 //! *buf is filled with the advanced buf and *pSize gets the reduced value.
 //! \retval is 0 on success or negative on error.
 static int nextTrice( uint8_t** buf, size_t* pSize, uint8_t** pStart, size_t* pLen ){
-    uint16_t* pNC = (uint16_t*)*buf;
-    int triceType = *pNC >> 14;
-    int offset = 0;
+    uint16_t* pNC = (uint16_t*)*buf; //lint !e826 
+    int triceType = *pNC >> 14; // todo: this will not work with extended trices only 1 byte long
+    unsigned offset = 0;
     size_t size = *pSize;
     size_t triceSize;
     size_t len; 
     *pStart = *buf;
     switch( triceType ){
+        default:
         case 0: // EX
             len = size; // todo: Change that when needed.
             // Extended trices without length information cannot be separated here.
             // But it is possible to store them with length information and to remove it here.
             break;
-        case 1: // T0
+        case 1: // NOTS
             len = 4 + triceDataLen(*pStart + 2); // tyId
             break;
-        case 2: // T2
+        case 2: // TS16
             *pStart += 2; // see Id(n) macro definition
             offset = 2;
             len = 6 + triceDataLen(*pStart + 4); // tyId ts16
             break;
-        case 3: // T4
+        case 3: // TS32
             len = 8 + triceDataLen(*pStart + 6); // tyId ts32
             break;
     }
@@ -148,7 +154,7 @@ static int nextTrice( uint8_t** buf, size_t* pSize, uint8_t** pStart, size_t* pL
     // 80id 80id 1616 02cc dd dd         12     8      7     10
     // 80id 80id 1616 03cc dd dd dd      12     9      7     10
     // 80id 80id 1616 04cc dd dd dd dd   12    10      7     10
-    if( !( triceSize - offset - 3 <= len && len <= triceSize - offset )){ // corrupt data
+    if( !( triceSize - (offset + 3) <= len && len <= triceSize - offset )){ // corrupt data
         triceErrorCount++;
         return -__LINE__;
     }    
@@ -159,7 +165,7 @@ static int nextTrice( uint8_t** buf, size_t* pSize, uint8_t** pStart, size_t* pL
     return 0;
 }
 
-static size_t triceEncode( uint8_t* enc, uint8_t* buf, size_t len ){
+static size_t triceEncode( uint8_t* enc, uint8_t const* buf, size_t len ){
     size_t encLen;
     #ifdef TRICE_ENCRYPT
     len = (len + 7) & ~7; // only multiple of 8 encryptable
@@ -173,7 +179,7 @@ static size_t triceEncode( uint8_t* enc, uint8_t* buf, size_t len ){
     #else
     {
         int TCOBSEncode( void * restrict output, const void * restrict input, size_t length);
-        encLen = TCOBSEncode(enc, buf, len);
+        encLen = (size_t)TCOBSEncode(enc, buf, len);
     }
     #endif
     enc[encLen++] = 0; // Add zero as package delimiter.
@@ -211,7 +217,7 @@ void TriceOut( uint32_t* tb, size_t tLen ){
     #if  TRICE_TRANSFER_MODE == TRICE_PACK_MULTI_MODE
     encLen = triceEncode( enc, enc + TRICE_DATA_OFFSET, encLen);
     #endif
-    TRICE_WRITE( enc, encLen );
+    TRICE_WRITE( enc, encLen ); //lint !e534
 }
 
 #endif // #else // #if TRICE_ENCODING == TRICE_LEGACY_ENCODING
@@ -232,11 +238,11 @@ void TriceBlockingWrite( uint8_t const * buf, unsigned len ){
 
 #if defined( TRICE_UART ) && defined( TRICE_HALF_BUFFER_SIZE ) // buffered out to UART
 static uint8_t const * triceOutBuffer;
-static int triceOutCount = 0;
-static int triceOutIndex = 0;
+static size_t triceOutCount = 0;
+static unsigned triceOutIndex = 0;
 
 //! triceNonBlockingWrite
-static int triceNonBlockingWrite( void const * buf, int nByte ){
+static size_t triceNonBlockingWrite( void const * buf, size_t nByte ){
     triceOutBuffer = buf;
     triceOutIndex = 0;
     triceOutCount = nByte;
@@ -244,7 +250,7 @@ static int triceNonBlockingWrite( void const * buf, int nByte ){
 }
 
 //! TriceOutDepth returns the amount of bytes not written yet.
-int TriceOutDepth( void ){
+unsigned TriceOutDepth( void ){
     return triceOutCount - triceOutIndex;
 }
 
@@ -412,7 +418,7 @@ unsigned TriceCOBSEncode( uint8_t* restrict output, const uint8_t * restrict inp
 
 //! OUTB writes a non-sigil byte to output and increments offset. 
 //! If offset reaches 31, a NOP sigil byte is inserted and offset is then set to 0.
-#define OUTB( by ) do{ \
+#define OUTB( by ){ \
     *o++ = by; \
     offset++; \
     ASSERT( offset <= 31 ); \
@@ -420,11 +426,11 @@ unsigned TriceCOBSEncode( uint8_t* restrict output, const uint8_t * restrict inp
         *o++ = N | 31; \
         offset = 0; \
     } \
-    } while( 0 ); 
+    } 
 
 //! OUT_zeroSigil writes one of the sigil bytes Z1, Z3, Z3 
 //! according to zeroCount and sets zeroCount=0 and offset=0.
-#define OUT_zeroSigil do{ \
+#define OUT_zeroSigil { \
     ASSERT( b_1 == 0  ); \
     ASSERT( (fullCount|reptCount) == 0 ); \
     ASSERT( 1 <= zeroCount && zeroCount <= 3 ); \
@@ -432,11 +438,11 @@ unsigned TriceCOBSEncode( uint8_t* restrict output, const uint8_t * restrict inp
     *o++ = (zeroCount << 5) | offset; \
     offset = 0; \
     zeroCount = 0; \
-    }while(0);
+    }
 
 //! OUT_fullSigil writes one of the sigil bytes F2, F3, F4 
 //! according to fullCount and sets fullCount=0 and offset=0.
-#define OUT_fullSigil do{ \
+#define OUT_fullSigil { \
     ASSERT( b_1 == 0xFF ); \
     ASSERT( (zeroCount|reptCount) == 0 ); \
     ASSERT( 2 <= fullCount && fullCount <= 4 ); \
@@ -444,12 +450,12 @@ unsigned TriceCOBSEncode( uint8_t* restrict output, const uint8_t * restrict inp
     *o++ = 0x80 | (fullCount << 5) | offset; \
     offset = 0; \
     fullCount = 0; \
-    }while(0);
+    }
 
 //! OUT_reptSigil writes one of the sigil bytes R2, R3, R4 
 //! according to reptCount and sets reptCount=0 and offset=0.
 //! If offset is bigger than 7 a NOP sigil byte is inserted.
-#define OUT_reptSigil do{ \
+#define OUT_reptSigil { \
     ASSERT( (zeroCount|fullCount) == 0 ); \
     ASSERT( 2 <= reptCount && reptCount <= 4 ); \
     ASSERT( offset <= 31 ); \
@@ -460,7 +466,7 @@ unsigned TriceCOBSEncode( uint8_t* restrict output, const uint8_t * restrict inp
     *o++ = ((reptCount-1) << 3) | offset; \
     offset = 0; \
     reptCount = 0; \
-    }while(0);
+    }
 
 int TCOBSEncode( void * restrict output, const void * restrict input, size_t length){
     uint8_t* o = output; // write pointer
@@ -646,11 +652,13 @@ int TCOBSEncode( void * restrict output, const void * restrict input, size_t len
                         OUT_zeroSigil // Z2, -- !00.
                         goto lastByte;
                     }
+                    //lint -e774
                     if( b == 0 ){ // , z1 00 00.
                         *o++ = Z3 | offset; // Z3, -- --.
                         return o - out;
                     }
-                    ASSERT( 0 )
+                    ASSERT( 0 ) 
+                    //lint +e774
                 }
 
                 if( zeroCount == 2 ) { // , z2 00 !00.
@@ -699,8 +707,8 @@ int TCOBSEncode( void * restrict output, const void * restrict input, size_t len
                     if( b == 0xFF ){ // , f3 FF FF.
                         OUT_fullSigil  // F3, FF FF.
                         ASSERT( offset <= 31 );
-                        *o++ = F2 | offset; // F3 F2, -- --.
-                        return o - out; // option: F4 FF, -- --. is also right
+                        *o++ = F2 /*| offset*/; // F3 F2, -- --.
+                        return o - out; //lint !e438 option: F4 FF, -- --. is also right
                     }
                     // , f3 FF !FF.
                     fullCount = 4; // , f4 -- xx.
@@ -790,7 +798,7 @@ lastByte: // , -- xx.
         *o++ = N | offset; // aa Nn, -- --.
         return o - out;
     }
-}
+} //lint !e438
 
 #endif // #if TRICE_PACKAGE_FRAMING == TRICE_TCOBSV1_FRAMING
 

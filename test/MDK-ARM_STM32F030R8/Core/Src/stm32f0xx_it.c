@@ -24,6 +24,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "trice.h"
+//#define TRICE_FILE Id(11311)
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -74,7 +75,7 @@ void NMI_Handler(void)
 
   /* USER CODE END NonMaskableInt_IRQn 0 */
   /* USER CODE BEGIN NonMaskableInt_IRQn 1 */
-  while (1)
+  for(;;)
   {
   }
   /* USER CODE END NonMaskableInt_IRQn 1 */
@@ -88,7 +89,7 @@ void HardFault_Handler(void)
   /* USER CODE BEGIN HardFault_IRQn 0 */
 
   /* USER CODE END HardFault_IRQn 0 */
-  while (1)
+  for(;;)
   {
     /* USER CODE BEGIN W1_HardFault_IRQn 0 */
     /* USER CODE END W1_HardFault_IRQn 0 */
@@ -163,7 +164,7 @@ void USART2_IRQHandler(void)
             TRICE( Id(11614), "WARNING:USARTq OverRun Error Flag is set!\n" );
         }
         v = LL_USART_ReceiveData8(TRICE_UART); // implicit clears the flag
-        rxBuf[index] = v;
+        rxBuf[index] = (char)v;
         index += index < TRICE_COMMAND_SIZE_MAX ? 1 : 0; 
         if( v == 0 ){ // command end
             TRICE_S( Id(11045), "rx:received command:%s\n", rxBuf );
