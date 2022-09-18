@@ -831,6 +831,16 @@
               <FileType>1</FileType>
               <FilePath>..\..\..\pkg\src\triceCheck.c</FilePath>
             </File>
+            <File>
+              <FileName>tcobsv1Encode.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\pkg\src\tcobsv1Encode.c</FilePath>
+            </File>
+            <File>
+              <FileName>xtrea.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\pkg\src\xtrea.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

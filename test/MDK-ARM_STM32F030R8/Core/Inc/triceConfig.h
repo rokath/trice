@@ -15,17 +15,6 @@ extern "C" {
 // Select trice mode and general settings.
 //
 
-#define TRICE_LEGACY_ENCODING 111 // depreciated, use switch -e TLE
-#define TRICE_TREX_ENCODING   222 // recommended, use switch -e trex 
-#define TRICE_ENCODING TRICE_TREX_ENCODING
-
-#if TRICE_ENCODING == TRICE_TREX_ENCODING
-
-#define TRICE_COBS_FRAMING    100 //!< Select COBS_FRAMING for code minimizing without compression. Needs trice switch -framing=COBS.
-#define TRICE_TCOBSV1_FRAMING 110 //!< Select TCOBSV1_FRAMING for less compression with less code. Needs trice switch -framing=TCOBSv1.
-#define TRICE_TCOBSV2_FRAMING 120 //!< Select TCOBS21_FRAMING for more compression with more code (default). Optionally use trice switch -framing=TCOBSv2.
-#define TRICE_PACKAGE_FRAMING TRICE_TCOBSV1_FRAMING
-
 #define TRICE_READ_TICK16 ReadUs16()
 #define TRICE_READ_TICK32 ReadUs32()
 
@@ -37,8 +26,6 @@ extern "C" {
 #define TRICE_PACK_MULTI_MODE  20
 //! TRICE_TRANSFER_MODE is the selected trice transfer method.
 #define TRICE_TRANSFER_MODE TRICE_SAFE_SINGLE_MODE
-
-#endif // #if TRICE_ENCODING == TRICE_TREX_ENCODING
 
 #define	TRICE_DIRECT_OUT                              0
 #define	TRICE_DOUBLE_BUFFERING_WITH_CYCLE_COUNT     200
@@ -53,6 +40,7 @@ extern "C" {
 
 // Enabling next 2 lines results in XTEA TriceEncryption  with the key.
 //#define TRICE_ENCRYPT XTEA_KEY( ea, bb, ec, 6f, 31, 80, 4e, b9, 68, e2, fa, ea, ae, f1, 50, 54 ); //!< -password MySecret
+// #define XTEA_ENCRYPT_KEY TRICE_ENCRYPT
 //#define TRICE_DECRYPT //!< TRICE_DECRYPT is usually not needed. Enable for checks.
 
 //#define TRICE_BIG_ENDIANNESS //!< TRICE_BIG_ENDIANNESS needs to be defined for TRICE64 macros on big endian devices. (Untested!)

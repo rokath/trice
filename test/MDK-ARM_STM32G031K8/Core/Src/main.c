@@ -146,7 +146,7 @@ int main(void)
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
   #ifdef TRICE_ENCRYPT
-    TriceInitXteaTable();
+    XTEAInitTable();
   #endif
     #ifdef TRICE_UART
     LL_USART_EnableIT_RXNE(TRICE_UART); // enable UART2 interrupt

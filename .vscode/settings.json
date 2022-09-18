@@ -1,7 +1,8 @@
 {
     "files.associations": {
         "trice.h": "c",
-        "triceconfig.h": "c"
+        "triceconfig.h": "c",
+        "tcobs.h": "c"
     },
     "cSpell.words": [
         "CFLAGS",

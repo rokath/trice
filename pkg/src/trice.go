@@ -6,7 +6,7 @@ package src
 // #include <stdint.h>
 // #include "trice.h"
 // #include "trice_test.h"
-// #cgo CFLAGS: -g -Wall -Iinc
+// #cgo CFLAGS: -g -Wall -Icgo
 import "C"
 import (
 	"unsafe"

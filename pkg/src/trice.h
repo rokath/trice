@@ -9,8 +9,6 @@
 extern "C" {
 #endif
 
-
-
 //lint -emacro( 123, TRICE* )
 //lint -emacro( 571, TRICE* )
 //lint -emacro( 572, TRICE* )
@@ -56,15 +54,9 @@ extern "C" {
 #endif
 
 #include "triceConfig.h"
-
-#if  TRICE_ENCODING == TRICE_LEGACY_ENCODING
-
-#include "inc/legacyTriceEncoding.h"
-
-#else // #ifdef TRICE_LEGACY_ENCODING
-
 #include <stdint.h> //lint !e537
 #include <string.h>
+//#include "tcobs.h"
 
 uint16_t ReadUs16( void );
 uint32_t ReadUs32( void );
@@ -82,7 +74,7 @@ size_t TriceDepthMax( void );
 #ifdef TRICE_HALF_BUFFER_SIZE
 extern uint32_t* TriceBufferWritePosition;
 #endif
-//unsigned TriceCOBSEncode( uint8_t* restrict output, const uint8_t * restrict input, unsigned length);
+
 void TriceOut( uint32_t* tb, size_t tLen );
 
 void TriceTransfer( void );
@@ -215,17 +207,9 @@ unsigned TriceOutDepth( void );
 void TriceEncrypt( uint32_t* p, unsigned count );
 void TriceDecrypt( uint32_t* p, unsigned count );
 
-//! little endian! change byte order for big endian machines
-#define XTEA_KEY(b00, b01, b02, b03, \
-                  b10, b11, b12, b13, \
-                  b20, b21, b22, b23, \
-                  b30, b31, b32, b33) { \
-    0x##b00##b01##b02##b03, \
-    0x##b10##b11##b12##b13, \
-    0x##b20##b21##b22##b23, \
-    0x##b30##b31##b32##b33 }
 
-void TriceInitXteaTable(void);
+
+void XTEAInitTable(void);
     
 #endif // #ifdef TRICE_ENCRYPT
 //
@@ -1007,8 +991,6 @@ static inline uint64_t aDouble( double x ){
     TRICE_PUT64( v10 ); \
     TRICE_PUT64( v11 ); \
     TRICE_LEAVE
-
-#endif // #else // #ifdef TRICE_LEGACY_ENCODING
 
 #ifdef __cplusplus
 }
