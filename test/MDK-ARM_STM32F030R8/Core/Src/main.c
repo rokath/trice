@@ -191,7 +191,7 @@ int main(void)
             if( milliSecond >= lastTricesTime + 200 ){
                 static int index = 0;
                 int select = index;
-                TRICE16( Id(12605),"MSG: 💚 START select = %d\n", select );
+                TRICE16( ID(12605),"MSG: 💚 START select = %d\n", select );
                 TriceCheckSet(select);
                 TRICE16( Id(14013),"MSG: ✅ STOP  select = %d, TriceDepthMax =%4u of %d\n", select, TriceDepthMax(), TRICE_HALF_BUFFER_SIZE );
                 index += 10;
@@ -201,7 +201,7 @@ int main(void)
                     volatile uint32_t st0 = SysTick->VAL;
                     volatile uint32_t us = ReadUs32();
                     volatile uint32_t st1 = SysTick->VAL;
-                    TRICE( Id(14860), "time: %d µs - ReadUs32() lasts %d ticks\n", us, st0 - st1);
+                    TRICE( id(14860), "time: %d µs - ReadUs32() lasts %d ticks\n", us, st0 - st1);
                 }
             }
         }

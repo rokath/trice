@@ -280,7 +280,13 @@ func visitUpdate(w io.Writer, lu TriceIDLookUp, tflus triceFmtLookUpS, pListModi
 			return err
 		}
 		fileName := filepath.Base(path)
+
+		//  if isCFile(fileName) {
+		//  	text, fileModified2 = updateTriceFileId(w, lu, tflu, text, fileName, SharedIDs, Min, Max, SearchMethod, pListModified)
+		//  }
+
 		refreshIDs(w, fileName, text, lu, tflus, lim) // update IDs: Id(0) -> Id(M)
+		//  var fileModified2 bool
 
 		textN, fileModified0 := updateParamCountAndID0(w, text, ExtendMacrosWithParamCount)                                  // update parameter count: TRICE* to TRICE*_n and insert missing Id(0)
 		textU, fileModified1 := updateIDsUniqOrShared(w, SharedIDs, Min, Max, SearchMethod, textN, lu, tflus, pListModified) // update IDs: Id(0) -> Id(M)
@@ -471,11 +477,30 @@ func updateIDsUniqOrShared(w io.Writer, sharedIDs bool, min, max TriceID, search
 			invalID := nbID
 			invalTRICE := nbTRICE
 
-			// we need a new one
+			//<<<<<<<<< Temporary merge branch 1
+			//			// we need a new one
+			//			id = lu.newID(w, min, max, searchMethod) // a prerequisite is an in a previous step refreshed lu
+			//			*pListModified = true
+			//			// patch the id into text
+			//			nID := fmt.Sprintf("Id(%5d)", id)
+			//=========
+			//if id, found := tflu[tf]; sharedIDs && found { // yes, we can use it in shared IDs mode
+			//	msg.FatalInfoOnTrue(id == 0, "no id 0 allowed in map")
+			//} else
+			//{ // no, we need a new one
 			id = lu.newID(w, min, max, searchMethod) // a prerequisite is an in a previous step refreshed lu
 			*pListModified = true
-			// patch the id into text
-			nID := fmt.Sprintf("Id(%5d)", id)
+			//}
+			var nID string // patch the id into text
+			switch idTypeResult {
+			case idTypeUpper:
+				nID = fmt.Sprintf("ID(%5d)", id) // todo: patID
+			case idTypeCamel:
+				nID = fmt.Sprintf("Id(%5d)", id) // todo: patID
+			case idTypeLower:
+				nID = fmt.Sprintf("id(%5d)", id) // todo: patID
+			}
+			//>>>>>>>>> Temporary merge branch 2
 			if Verbose {
 				if nID != invalID {
 					fmt.Fprint(w, invalID, " -> ")

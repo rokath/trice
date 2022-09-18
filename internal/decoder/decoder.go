@@ -28,9 +28,7 @@ const (
 
 	// BigEndian is the flag value for target endianness.
 	BigEndian = false
-)
 
-const (
 	// defaultSize is the beginning receive and sync buffer size.
 	DefaultSize = 64 * 1024
 
@@ -107,6 +105,8 @@ var (
 	LocationInformationFormatString string  // LocationInformationFormatString is the format string for target location: line number and file name.
 	TargetTimestampSize             int     // TargetTimestampSize is set in dependence of trice type.
 	TargetLocationExists            bool    // TargetLocationExists is set in dependence of p.COBSModeDescriptor. (obsolete)
+
+	PackageFraming string // Framing is used for packing. Valid values COBS, TCOBSv1, TCOBSv2
 )
 
 // New abstracts the function type for a new decoder.
