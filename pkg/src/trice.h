@@ -71,8 +71,14 @@ extern char triceCommand[TRICE_COMMAND_SIZE_MAX+1];
 extern int triceCommandFlag;
 
 size_t TriceDepthMax( void );
-#ifdef TRICE_HALF_BUFFER_SIZE
+#if TRICE_OUT_MODE == TRICE_DEFERRED_OUT
 extern uint32_t* TriceBufferWritePosition;
+#endif
+
+#if TRICE_MODE == TRICE_STREAM_BUFFER
+void TriceAddressPush( uint32_t* ta );
+uint32_t* TriceAddressPop( void );
+uint32_t* TriceNextStreamBuffer( void );
 #endif
 
 void TriceOut( uint32_t* tb, size_t tLen );
@@ -103,8 +109,10 @@ static inline unsigned TriceOutDepth( void ){ return 0; }
 //! TRICE_DATA_OFFSET is the space in front of trice data for in-buffer COBS encoding. It must be be a multiple of uint32_t.
 #if defined(TRICE_HALF_BUFFER_SIZE)
 #define TRICE_DATA_OFFSET (((TRICE_HALF_BUFFER_SIZE/3)+4)&~3) // In worst case the buffer gets filled to the end only with 4-byte trices and each gets an additional sigil and a 0, so 33% are safe.
-#else
+#elif defined(TRICE_STACK_BUFFER_MAX_SIZE)
 #define TRICE_DATA_OFFSET ((TRICE_STACK_BUFFER_MAX_SIZE/31+5)&~3) // For single trices the worst case is +1 for each 31 plus terminating 0 at the end
+#else
+#define TRICE_DATA_OFFSET ((TRICE_SINGLE_MAX_SIZE/31+5)&~3) // For single trices the worst case is +1 for each 31 plus terminating 0 at the end
 #endif
 
 #if defined(TRICE_STACK_BUFFER_MAX_SIZE) && !defined(TRICE_SINGLE_MAX_SIZE)
@@ -185,11 +193,11 @@ extern uint8_t TriceCycle;
 // UART interface
 //
 
-#if defined( TRICE_UART ) && !defined( TRICE_HALF_BUFFER_SIZE ) // direct out to UART
+#if defined( TRICE_UART ) && (TRICE_OUT_MODE == TRICE_DIRECT_OUT) // direct out to UART
 void TriceBlockingWrite( uint8_t const * buf, unsigned len );
 #endif
 
-#if defined( TRICE_UART ) && defined( TRICE_HALF_BUFFER_SIZE ) // buffered out to UART
+#if defined( TRICE_UART ) && (TRICE_OUT_MODE == TRICE_DEFERRED_OUT) // buffered out to UART
 uint8_t TriceNextUint8( void );
 void triceServeTransmit(void);
 void triceTriggerTransmit(void);

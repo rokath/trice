@@ -98,6 +98,15 @@ uint32_t* TriceAddressPop( void ){
     return triceStreamBufferHeap;
 }
 
+//! triceDepth returns the total trice byte count ready for transfer.
+//! The trice data start at tb + TRICE_DATA_OFFSET.
+//! The returned depth is without the TRICE_DATA_OFFSET offset.
+static size_t triceDepth( uint32_t const* tb ){
+    size_t depth = (triceBufferWriteLimit - tb)<<2; //lint !e701 // 32-bit write width 
+    return depth - TRICE_DATA_OFFSET;
+}
+
+
 //! TriceTransfer, if possible, initiates a write.
 //! It is the resposibility of the app to call this function.
 void TriceTransfer( void ){
@@ -239,7 +248,7 @@ void TriceBlockingWrite( uint8_t const * buf, unsigned len ){
 }
 #endif // #if defined( TRICE_UART ) && !defined( TRICE_HALF_BUFFER_SIZE )
 
-#if defined( TRICE_UART ) && defined( TRICE_HALF_BUFFER_SIZE ) // buffered out to UART
+#if defined( TRICE_UART ) && (TRICE_OUT_MODE == TRICE_DEFERRED_OUT) // buffered out to UART
 static uint8_t const * triceOutBuffer;
 static size_t triceOutCount = 0;
 static unsigned triceOutIndex = 0;
