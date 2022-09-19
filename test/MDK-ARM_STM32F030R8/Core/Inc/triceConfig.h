@@ -30,7 +30,8 @@ extern "C" {
 #define	TRICE_DIRECT_OUT                              0
 #define	TRICE_DOUBLE_BUFFERING_WITH_CYCLE_COUNT     200
 #define	TRICE_DOUBLE_BUFFERING_NO_CYCLE_COUNT       201
-#define TRICE_MODE TRICE_DOUBLE_BUFFERING_WITH_CYCLE_COUNT //! TRICE_MODE is a predefined trice transfer method.
+#define TRICE_STREAM_BUFFER                         202
+#define TRICE_MODE TRICE_STREAM_BUFFER //! TRICE_MODE is a predefined trice transfer method.
 
 //#define TRICE_RTT_CHANNEL 0 //!< Enable and set channel number for SeggerRTT usage. Only channel 0 works right now for some reason.
 #define TRICE_UART USART2 //!< Enable and set UART for serial output.
@@ -98,6 +99,15 @@ extern "C" {
 #define TRICE_SINGLE_MAX_SIZE 800 //!< must not exeed TRICE_HALF_BUFFER_SIZE!
 #endif // #if TRICE_MODE == TRICE_DOUBLE_BUFFERING_NO_CYCLE_COUNT
 
+
+//! Stream Buffering output to UART. Allows avoiding priority inversion.
+//! Command line similar to: `trice log -p COM1 -baud 115200`
+#if TRICE_MODE == TRICE_STREAM_BUFFER
+#define TRICE_ENTER TRICE_ENTER_CRITICAL_SECTION { uint32* ta = TriceBufferWritePosition; //! TRICE_ENTER is the start of TRICE macro. The TRICE macros are a bit slower. Inside interrupts TRICE macros allowed.
+#define TRICE_LEAVE TriceAddressPush( ta ); TriceBufferWritePosition = TriceNextStreamBuffer(); //! TRICE_LEAVE is the end of TRICE macro.
+#define TRICE_STREAM_BUFFER_SIZE 2000 //!< This is the size of each of both buffers. Must be able to hold the max TRICE burst count within TRICE_TRANSFER_INTERVAL_MS or even more, if the write out speed is small. Must not exceed SEGGER BUFFER_SIZE_UP
+#define TRICE_SINGLE_MAX_SIZE     100 //!< must not exeed TRICE_HALF_BUFFER_SIZE!
+#endif // #if TRICE_MODE == TRICE_STREAM_BUFFER
 //
 ///////////////////////////////////////////////////////////////////////////////
 

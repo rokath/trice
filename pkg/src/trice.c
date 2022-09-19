@@ -73,6 +73,46 @@ size_t TriceDepthMax( void ){
 
 #endif // #else #ifdef TRICE_HALF_BUFFER_SIZE
 
+#if TRICE_MODE == TRICE_STREAM_BUFFER
+static uint32_t triceStreamBufferHeap[TRICE_STREAM_BUFFER_SIZE>>2] = {0}; //!< triceStreamBufferHeap is a kind of heap for trice messages.
+       uint32_t* TriceBufferWritePosition = triceStreamBufferHeap; //!< TriceBufferWritePosition is the active write position.
+static uint32_t* triceBufferWriteLimit  =  &triceStreamBufferHeap[TRICE_STREAM_BUFFER_SIZE>>2]; //!< triceBufferWriteLimit is the triceBuffer written limit. 
+
+
+//! TriceStreamBufferSpace returns the space until buffer end.
+uint32_t* TriceNextStreamBuffer( void ){
+    if( TriceBufferWritePosition > triceBufferWriteLimit ){
+        for(;;); // buffer overflow
+    }
+    if( triceBufferWriteLimit - TriceBufferWritePosition > TRICE_SINGLE_MAX_SIZE ){
+        return TriceBufferWritePosition;
+    }else{
+        return triceStreamBufferHeap;
+    }
+}
+
+void TriceAddressPush( uint32_t* ta ){
+}
+
+uint32_t* TriceAddressPop( void ){
+    return triceStreamBufferHeap;
+}
+
+//! TriceTransfer, if possible, initiates a write.
+//! It is the resposibility of the app to call this function.
+void TriceTransfer( void ){
+    if( 0 == TriceOutDepth() ){ // transmission done, so a new is possible
+        uint32_t* tb = TriceAddressPop(); 
+        size_t tLen = triceDepth(tb); // tlen is always a multiple of 4
+        if( tLen ){
+            TriceOut( tb, tLen );
+        }
+    } // else: transmission not done yet
+}
+
+
+#endif // #if TRICE_MODE == TRICE_STREAM_BUFFER
+
 //! triceDataLen returns encoded len.
 //! \param p points to nc
 // *da = 11iiiiiiI 11iiiiiiI TT TT NC ...
@@ -88,6 +128,8 @@ static size_t triceDataLen( uint8_t const* p ){
     return nc & 0x7fff;
 }
 
+//! triceErrorCount is incremented, when data inside the internal trice buffer are corrupted.
+//! That could happen, when the buffer wrapped before data are sent.
 unsigned triceErrorCount = 0;
 
 //! nextTrice expects at *buf 32-bit aligned trice messages and returns the next one in pStart and pLen.
