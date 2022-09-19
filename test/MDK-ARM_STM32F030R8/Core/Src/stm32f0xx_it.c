@@ -135,7 +135,7 @@ void SysTick_Handler(void)
   /* USER CODE END SysTick_IRQn 0 */
 
   /* USER CODE BEGIN SysTick_IRQn 1 */
-#if defined( TRICE_UART ) && defined( TRICE_HALF_BUFFER_SIZE ) // buffered out to UART
+#if defined( TRICE_UART ) && TRICE_DEFERRED_OUT// buffered out to UART
     triceTriggerTransmit();
 #endif
   /* USER CODE END SysTick_IRQn 1 */
@@ -177,7 +177,7 @@ void USART2_IRQHandler(void)
 #endif // #if defined( TRICE_UART )
     // If both flags active and only one was served, the IRQHandler gets activated again.
 
-#if defined( TRICE_UART ) && defined( TRICE_HALF_BUFFER_SIZE ) // buffered out to UART
+#if defined( TRICE_UART ) && TRICE_DEFERRED_OUT // buffered out to UART
     if( LL_USART_IsActiveFlag_TXE(TRICE_UART) ){ // Transmit Data Register Empty Flag
         triceServeTransmit();
         return;

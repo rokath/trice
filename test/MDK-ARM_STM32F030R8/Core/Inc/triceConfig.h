@@ -28,7 +28,6 @@ extern "C" {
 #define TRICE_TRANSFER_MODE TRICE_SAFE_SINGLE_MODE
 
 #define	TRICE_DIRECT_OUT                              0
-#define TRICE_DEFERRED_OUT                          111
 #define	TRICE_DOUBLE_BUFFERING_WITH_CYCLE_COUNT     200
 #define	TRICE_DOUBLE_BUFFERING_NO_CYCLE_COUNT       201
 #define TRICE_STREAM_BUFFER                         202
@@ -62,7 +61,6 @@ extern "C" {
 //! J-LINK Command line similar to: `trice log -args="-Device STM32G071RB -if SWD -Speed 4000 -RTTChannel 0 -RTTSearchRanges 0x20000000_0x1000"`
 //! ST-LINK Command line similar to: `trice log -p ST-LINK -args="-Device STM32G071RB -if SWD -Speed 4000 -RTTChannel 0 -RTTSearchRanges 0x20000000_0x1000"`
 #if TRICE_MODE == TRICE_DIRECT_OUT // must not use TRICE_ENCRYPT!
-#define TRICE_OUT_MODE TRICE_DIRECT_OUT
 #define TRICE_STACK_BUFFER_MAX_SIZE 128 //!< This  minus TRICE_DATA_OFFSET the max allowed single trice size. Usually ~40 is enough.
 #ifndef TRICE_ENTER
 #define TRICE_ENTER { /*! Start of TRICE macro */ \
@@ -80,7 +78,6 @@ extern "C" {
 //! UART Command line similar to: `trice log -p COM1 -baud 115200`
 //! RTT Command line similar to: `trice l -args="-Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0 -RTTSearchRanges 0x20000000_0x1000"`
 #if TRICE_MODE == TRICE_DOUBLE_BUFFERING_WITH_CYCLE_COUNT
-#define TRICE_OUT_MODE TRICE_DEFERRED_OUT
 #ifndef TRICE_ENTER
 #define TRICE_ENTER TRICE_ENTER_CRITICAL_SECTION //! TRICE_ENTER is the start of TRICE macro. The TRICE macros are a bit slower. Inside interrupts TRICE macros allowed.
 #endif
@@ -95,7 +92,6 @@ extern "C" {
 //! Double Buffering output to UART without cycle counter. No trices inside interrupts allowed. Fastest TRICE macro execution.
 //! Command line similar to: `trice log -p COM1 -baud 115200`
 #if TRICE_MODE == TRICE_DOUBLE_BUFFERING_NO_CYCLE_COUNT
-#define TRICE_OUT_MODE TRICE_DEFERRED_OUT
 #define TRICE_CYCLE_COUNTER 0 //! Do not add cycle counter, The TRICE macros are a bit faster. Lost TRICEs are not detectable by the trice tool.
 #define TRICE_ENTER //! TRICE_ENTER is the start of TRICE macro. The TRICE macros are a bit faster. Inside interrupts TRICE macros forbidden.
 #define TRICE_LEAVE //! TRICE_LEAVE is the end of TRICE macro.
@@ -107,23 +103,25 @@ extern "C" {
 //! Stream Buffering output to UART. Allows avoiding priority inversion.
 //! Command line similar to: `trice log -p COM1 -baud 115200`
 #if TRICE_MODE == TRICE_STREAM_BUFFER
-#define TRICE_OUT_MODE TRICE_DEFERRED_OUT
 #define TRICE_ENTER TRICE_ENTER_CRITICAL_SECTION { uint32_t* ta = TriceBufferWritePosition; //! TRICE_ENTER is the start of TRICE macro. The TRICE macros are a bit slower. Inside interrupts TRICE macros allowed.
 #define TRICE_LEAVE TriceAddressPush( ta ); TriceBufferWritePosition = TriceNextStreamBuffer(); } TRICE_LEAVE_CRITICAL_SECTION //! TRICE_LEAVE is the end of TRICE macro.
-#define TRICE_STREAM_BUFFER_SIZE 2000 //!< This is the size of each of both buffers. Must be able to hold the max TRICE burst count within TRICE_TRANSFER_INTERVAL_MS or even more, if the write out speed is small. Must not exceed SEGGER BUFFER_SIZE_UP
-#define TRICE_SINGLE_MAX_SIZE     100 //!< must not exeed TRICE_HALF_BUFFER_SIZE!
+#define TRICE_STREAM_BUFFER_SIZE  80 //!< This is the size of each of both buffers. Must be able to hold the max TRICE burst count within TRICE_TRANSFER_INTERVAL_MS or even more, if the write out speed is small. Must not exceed SEGGER BUFFER_SIZE_UP
+#define TRICE_SINGLE_MAX_SIZE     16 //!< must not exeed TRICE_HALF_BUFFER_SIZE!
 #endif // #if TRICE_MODE == TRICE_STREAM_BUFFER
 //
 ///////////////////////////////////////////////////////////////////////////////
+
+
+#define TRICE_DEFERRED_OUT ((TRICE_MODE == TRICE_DOUBLE_BUFFERING_WITH_CYCLE_COUNT) || (TRICE_MODE == TRICE_DOUBLE_BUFFERING_NO_CYCLE_COUNT) || (TRICE_MODE == TRICE_STREAM_BUFFER) )
 
 ///////////////////////////////////////////////////////////////////////////////
 // Headline info
 //
 
 #ifdef TRICE_HALF_BUFFER_SIZE
-#define TRICE_BUFFER_INFO do{ TRICE32( Id(11253), "att: Trice 2x half buffer size:%4u ", TRICE_HALF_BUFFER_SIZE ); } while(0)
+
 #else
-#define TRICE_BUFFER_INFO do{ TRICE32( Id(13778), "att:Single Trice Stack buf size:%4u", TRICE_SINGLE_MAX_SIZE + TRICE_DATA_OFFSET ); } while(0)
+
 #endif
 
 //! This is usable as the very first trice sequence after restart. Adapt and use it or ignore it.
@@ -132,7 +130,7 @@ extern "C" {
     TRICE8( Id(13076), "s:     NUCLEO-F030R8     TRICE_MODE %3u     \n", TRICE_MODE ); \
     TRICE0( Id(12707), "s:                                          \n" ); \
     TRICE0( Id(15016), "s:     " ); \
-    TRICE_BUFFER_INFO; \
+    TriceLogBufferInfo(); \
     TRICE0( Id(13072), "s:     \n" ); \
     TRICE0( Id(10051), "s:                                          \n");
 

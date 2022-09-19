@@ -175,7 +175,7 @@ int main(void)
         }
 
         // serve every few ms
-        #ifdef TRICE_HALF_BUFFER_SIZE
+        #if TRICE_DEFERRED_OUT
         static unsigned lastMs = 0;
         if( milliSecond >= lastMs + TRICE_TRANSFER_INTERVAL_MS ){
             lastMs = milliSecond;
@@ -193,7 +193,9 @@ int main(void)
                 int select = index;
                 TRICE16( ID(12605),"MSG: 💚 START select = %d\n", select );
                 TriceCheckSet(select);
+                #ifdef TRICE_HALF_BUFFER_SIZE
                 TRICE16( Id(14013),"MSG: ✅ STOP  select = %d, TriceDepthMax =%4u of %d\n", select, TriceDepthMax(), TRICE_HALF_BUFFER_SIZE );
+                #endif
                 index += 10;
                 index = index > 1000 ? 0 : index;
                 lastTricesTime = milliSecond;

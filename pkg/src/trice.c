@@ -11,116 +11,12 @@ char triceCommand[TRICE_COMMAND_SIZE_MAX+1]; // with terminating 0
 //! triceCommandFlag ist set, when a command was received completely.
 int triceCommandFlag = 0; // updated
 
-static unsigned triceDepthMax = 0; //!< triceDepthMax is a diagnostics value usable to optimize buffer size.
+void TriceWrite( uint8_t const * buf, unsigned len );
+
 
 #if TRICE_CYCLE_COUNTER == 1
 uint8_t  TriceCycle = 0xc0; //!< TriceCycle is increased and transmitted with each trice message, if enabled.
 #endif
-
-#ifdef TRICE_HALF_BUFFER_SIZE
-static uint32_t triceBuffer[2][TRICE_HALF_BUFFER_SIZE>>2] = {0}; //!< triceBuffer is a double buffer for better write speed.
-static int triceSwap = 0; //!< triceSwap is the index of the active write buffer. !triceSwap is the active read buffer index.
-    uint32_t* TriceBufferWritePosition = &triceBuffer[0][TRICE_DATA_OFFSET>>2]; //!< TriceBufferWritePosition is the active write position.
-static uint32_t* triceBufferWriteLimit = &triceBuffer[1][TRICE_DATA_OFFSET>>2]; //!< triceBufferWriteLimit is the triceBuffer written limit. 
-
-#if defined( TRICE_UART ) && defined( TRICE_HALF_BUFFER_SIZE ) // buffered out to UART
-static size_t triceNonBlockingWrite( void const * buf, size_t nByte );
-#define TRICE_WRITE( buf, len ) do{ triceNonBlockingWrite( buf, len ); }while(0) //lint !e534
-#endif
-
-//! triceBufferSwap swaps the trice double buffer and returns the read buffer address.
-static uint32_t* triceBufferSwap( void ){
-    TRICE_ENTER_CRITICAL_SECTION
-    triceBufferWriteLimit = TriceBufferWritePosition; // keep end position
-    triceSwap = !triceSwap; // exchange the 2 buffers
-    TriceBufferWritePosition = &triceBuffer[triceSwap][TRICE_DATA_OFFSET>>2]; // set write position for next TRICE
-    TRICE_LEAVE_CRITICAL_SECTION
-    return &triceBuffer[!triceSwap][0]; //lint !e514
-}
-
-//! triceDepth returns the total trice byte count ready for transfer.
-//! The trice data start at tb + TRICE_DATA_OFFSET.
-//! The returned depth is without the TRICE_DATA_OFFSET offset.
-static size_t triceDepth( uint32_t const* tb ){
-    size_t depth = (triceBufferWriteLimit - tb)<<2; //lint !e701 // 32-bit write width 
-    return depth - TRICE_DATA_OFFSET;
-}
-
-//! TriceTransfer, if possible, swaps the double buffer and initiates a write.
-//! It is the resposibility of the app to call this function once every 10-100 milliseconds.
-void TriceTransfer( void ){
-    if( 0 == TriceOutDepth() ){ // transmission done, so a swap is possible
-        uint32_t* tb = triceBufferSwap(); 
-        size_t tLen = triceDepth(tb); // tlen is always a multiple of 4
-        if( tLen ){
-            TriceOut( tb, tLen );
-        }
-    } // else: transmission not done yet
-}
-
-//! TriceDepthMax returns the max trice buffer depth until now.
-size_t TriceDepthMax( void ){
-    size_t currentDepth = (size_t)(4*(TriceBufferWritePosition - &triceBuffer[triceSwap][0])); 
-    return currentDepth > triceDepthMax ? currentDepth : triceDepthMax;
-}
-
-#else // #ifdef TRICE_HALF_BUFFER_SIZE
-
-//! TriceDepthMax returns the max trice buffer depth until now.
-size_t TriceDepthMax( void ){
-    return triceDepthMax;
-}
-
-#endif // #else #ifdef TRICE_HALF_BUFFER_SIZE
-
-#if TRICE_MODE == TRICE_STREAM_BUFFER
-static uint32_t triceStreamBufferHeap[TRICE_STREAM_BUFFER_SIZE>>2] = {0}; //!< triceStreamBufferHeap is a kind of heap for trice messages.
-       uint32_t* TriceBufferWritePosition = triceStreamBufferHeap; //!< TriceBufferWritePosition is the active write position.
-static uint32_t* triceBufferWriteLimit  =  &triceStreamBufferHeap[TRICE_STREAM_BUFFER_SIZE>>2]; //!< triceBufferWriteLimit is the triceBuffer written limit. 
-
-
-//! TriceStreamBufferSpace returns the space until buffer end.
-uint32_t* TriceNextStreamBuffer( void ){
-    if( TriceBufferWritePosition > triceBufferWriteLimit ){
-        for(;;); // buffer overflow
-    }
-    if( triceBufferWriteLimit - TriceBufferWritePosition > TRICE_SINGLE_MAX_SIZE ){
-        return TriceBufferWritePosition;
-    }else{
-        return triceStreamBufferHeap;
-    }
-}
-
-void TriceAddressPush( uint32_t* ta ){
-}
-
-uint32_t* TriceAddressPop( void ){
-    return triceStreamBufferHeap;
-}
-
-//! triceDepth returns the total trice byte count ready for transfer.
-//! The trice data start at tb + TRICE_DATA_OFFSET.
-//! The returned depth is without the TRICE_DATA_OFFSET offset.
-static size_t triceDepth( uint32_t const* tb ){
-    size_t depth = (triceBufferWriteLimit - tb)<<2; //lint !e701 // 32-bit write width 
-    return depth - TRICE_DATA_OFFSET;
-}
-
-
-//! TriceTransfer, if possible, initiates a write.
-//! It is the resposibility of the app to call this function.
-void TriceTransfer( void ){
-    if( 0 == TriceOutDepth() ){ // transmission done, so a new is possible
-        uint32_t* tb = TriceAddressPop(); 
-        size_t tLen = triceDepth(tb); // tlen is always a multiple of 4
-        if( tLen ){
-            TriceOut( tb, tLen );
-        }
-    } // else: transmission not done yet
-}
-
-
-#endif // #if TRICE_MODE == TRICE_STREAM_BUFFER
 
 //! triceDataLen returns encoded len.
 //! \param p points to nc
@@ -231,7 +127,7 @@ void TriceOut( uint32_t* tb, size_t tLen ){
     #if  TRICE_TRANSFER_MODE == TRICE_PACK_MULTI_MODE
     encLen = triceEncode( enc, enc + TRICE_DATA_OFFSET, encLen);
     #endif
-    TRICE_WRITE( enc, encLen ); //lint !e534
+    TriceWrite( enc, encLen ); //lint !e534
 }
 
 #if defined( TRICE_UART ) && !defined( TRICE_HALF_BUFFER_SIZE ) // direct out to UART
@@ -248,13 +144,13 @@ void TriceBlockingWrite( uint8_t const * buf, unsigned len ){
 }
 #endif // #if defined( TRICE_UART ) && !defined( TRICE_HALF_BUFFER_SIZE )
 
-#if defined( TRICE_UART ) && (TRICE_OUT_MODE == TRICE_DEFERRED_OUT) // buffered out to UART
+#if defined( TRICE_UART ) && TRICE_DEFERRED_OUT // buffered out to UART
 static uint8_t const * triceOutBuffer;
 static size_t triceOutCount = 0;
 static unsigned triceOutIndex = 0;
 
 //! triceNonBlockingWrite
-static size_t triceNonBlockingWrite( void const * buf, size_t nByte ){
+size_t triceNonBlockingWrite( void const * buf, size_t nByte ){
     triceOutBuffer = buf;
     triceOutIndex = 0;
     triceOutCount = nByte;

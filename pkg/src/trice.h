@@ -71,9 +71,11 @@ extern char triceCommand[TRICE_COMMAND_SIZE_MAX+1];
 extern int triceCommandFlag;
 
 size_t TriceDepthMax( void );
-#if TRICE_OUT_MODE == TRICE_DEFERRED_OUT
+#if TRICE_DEFERRED_OUT
 extern uint32_t* TriceBufferWritePosition;
 #endif
+
+size_t triceNonBlockingWrite( void const * buf, size_t nByte );
 
 #if TRICE_MODE == TRICE_STREAM_BUFFER
 void TriceAddressPush( uint32_t* ta );
@@ -81,7 +83,10 @@ uint32_t* TriceAddressPop( void );
 uint32_t* TriceNextStreamBuffer( void );
 #endif
 
+extern unsigned triceDepthMax;
+
 void TriceOut( uint32_t* tb, size_t tLen );
+void TriceLogBufferInfo( void );
 
 void TriceTransfer( void );
 void TriceCheckSet( int index ); //!< tests
@@ -185,25 +190,22 @@ extern uint8_t TriceCycle;
 //#error "unknown architecture"
 #define SYSTICKVAL 0
 #endif
-
 //
 ///////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////////
 // UART interface
 //
-
-#if defined( TRICE_UART ) && (TRICE_OUT_MODE == TRICE_DIRECT_OUT) // direct out to UART
+#if defined( TRICE_UART ) && (TRICE_MODE == TRICE_DIRECT_OUT) // direct out to UART
 void TriceBlockingWrite( uint8_t const * buf, unsigned len );
 #endif
 
-#if defined( TRICE_UART ) && (TRICE_OUT_MODE == TRICE_DEFERRED_OUT) // buffered out to UART
+#if defined( TRICE_UART ) && TRICE_DEFERRED_OUT // buffered out to UART
 uint8_t TriceNextUint8( void );
 void triceServeTransmit(void);
 void triceTriggerTransmit(void);
 unsigned TriceOutDepth( void );
 #endif
-
 //
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -211,14 +213,9 @@ unsigned TriceOutDepth( void );
 // Encryption
 //
 #ifdef TRICE_ENCRYPT
-
 void TriceEncrypt( uint32_t* p, unsigned count );
 void TriceDecrypt( uint32_t* p, unsigned count );
-
-
-
 void XTEAInitTable(void);
-    
 #endif // #ifdef TRICE_ENCRYPT
 //
 ///////////////////////////////////////////////////////////////////////////////
