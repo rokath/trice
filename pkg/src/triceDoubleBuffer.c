@@ -1,9 +1,6 @@
 
 #include "trice.h"
 
-unsigned triceDepthMax = 0; //!< triceDepthMax is a diagnostics value usable to optimize buffer size.
-
-
 static uint32_t triceBuffer[2][TRICE_HALF_BUFFER_SIZE>>2] = {0}; //!< triceBuffer is a double buffer for better write speed.
 static int triceSwap = 0; //!< triceSwap is the index of the active write buffer. !triceSwap is the active read buffer index.
     uint32_t* TriceBufferWritePosition = &triceBuffer[0][TRICE_DATA_OFFSET>>2]; //!< TriceBufferWritePosition is the active write position.
@@ -52,9 +49,7 @@ void TriceLogBufferInfo( void ){
 
 
 #if defined( TRICE_UART ) // buffered out to UART
-
 void TriceWrite( uint8_t const * buf, unsigned len ){
     triceNonBlockingWrite( buf, len ); 
-
 }
 #endif

@@ -52,7 +52,6 @@ void TriceCheckSet(int index) {
             TRICE( Id(11534), "CYCLE:blue+i:default+h\n" );
             TRICE( Id(14527), "VERBOSE:blue:default\n" );
         break;
-        /*
         case 20:
             TRICE( Id(14068), "fatal:magenta+b:red\n" );
             TRICE( Id(12622), "critical:red+i:default+h\n" );
@@ -989,7 +988,6 @@ EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
         case 990:
         exampleOfBuffersAndFunctions();
         break;
-        */
         case 1000:
 #ifdef TRICE_ENCRYPT
         TRICE0 (Id(11085), "--------------------------------------------------\n" );
@@ -1010,6 +1008,7 @@ EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
         TRICE0 (Id(14023), "--------------------------------------------------\n" );
 #endif
         break;
+        */
         default:
         break;
     }

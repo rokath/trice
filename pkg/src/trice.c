@@ -13,6 +13,8 @@ int triceCommandFlag = 0; // updated
 
 void TriceWrite( uint8_t const * buf, unsigned len );
 
+unsigned triceDepthMax = 0; //!< triceDepthMax is a diagnostics value usable to optimize buffer size.
+
 
 #if TRICE_CYCLE_COUNTER == 1
 uint8_t  TriceCycle = 0xc0; //!< TriceCycle is increased and transmitted with each trice message, if enabled.

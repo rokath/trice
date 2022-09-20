@@ -45,3 +45,13 @@ void TriceTransfer( void ){
         }
     } // else: transmission not done yet
 }
+
+void TriceLogBufferInfo( void ){
+}
+
+
+#if defined( TRICE_UART ) // direct out to UART
+void TriceWrite( uint8_t const * buf, unsigned len ){
+    triceNonBlockingWrite( buf, len ); 
+}
+#endif
