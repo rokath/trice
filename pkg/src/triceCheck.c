@@ -1008,7 +1008,6 @@ EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
         TRICE0 (Id(14023), "--------------------------------------------------\n" );
 #endif
         break;
-        */
         default:
         break;
     }
