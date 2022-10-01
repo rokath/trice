@@ -1196,18 +1196,23 @@ static void exampleOfBuffersAndFunctions(void){
 
     TRICE( Id(11916), "notice:TRICE_F example: " );
     TRICE_F( Id(14245), "info:FunctionNameW",   b8,  sizeof(b8) /sizeof(int8_t) );
-
+    //shown as: TRICE_F example: FunctionNameW(00)(ff)(fe)(33)(04)(05)(06)(07)(08)(09)(0a)(0b)(00)(ff)(fe)(33)(04)(05)(06)(07)(08)(09)(0a)(0b)
+    
     TRICE( Id(15171), "notice:TRICE8_F example:" );
     TRICE8_F(  Id(12053), "info:FunctionNameW",   b8,  sizeof(b8) /sizeof(int8_t) );
-
+    //shown as: TRICE8_F example:FunctionNameW(00)(ff)(fe)(33)(04)(05)(06)(07)(08)(09)(0a)(0b)(00)(ff)(fe)(33)(04)(05)(06)(07)(08)(09)(0a)(0b)
+    
     TRICE( Id(10625), "notice:TRICE16_F example:" );
     TRICE16_F( Id(12132), "sig:FunctionNameX",    b16, sizeof(b16)/sizeof(int16_t) );
+    //shown as: TRICE16_F example:FunctionNameX(0000)(ffff)(fffe)(3344) 
 
     TRICE( Id(12279), "notice:TRICE32_F example:" );
     TRICE32_F( Id(11436), "diag:FunctionNameY",   b32, sizeof(b32)/sizeof(int32_t) );
+    //shown as: TRICE32_F example:FunctionNameY(00000000)(ffffffff)(fffffffe)(33445555)
 
     TRICE( Id(14838), "notice:TRICE64_F example:" );
     TRICE64_F( Id(15889), "fatal:FunctionNameZ", b64, sizeof(b64)/sizeof(int64_t) );
+    //shown as: TRICE64_F example:FunctionNameZ(0000000000000000)(ffffffffffffffff)(fffffffffffffffe)(3344555566666666)
 }
 
 static int32_t FloatToInt32( float f ){
