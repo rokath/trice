@@ -25,59 +25,59 @@ void TriceCheckSet(int index) {
      
     switch (index) {
         case 10:
-            TRICE( Id(14832), "FATAL:magenta+b:red\n" );
-            TRICE( Id(12971), "CRITICAL:red+i:default+h\n" );
-            TRICE( Id(13503), "EMERGENCY:red+i:blue\n" );
-            TRICE( Id(15097), "ERROR:11:red\n" );
-            TRICE( Id(10921), "WARNING:11+i:red\n" );
-            TRICE( Id(14131), "ATTENTION:11:green\n" );
-            TRICE( Id(10492), "INFO:cyan+b:default+h\n" );
-            TRICE( Id(11578), "DEBUG:130+i\n" );
-            TRICE( Id(12702), "TRACE:default+i:default+h\n" );
-            TRICE( Id(14980), "TIME:blue+i:blue+h\n" );
-            TRICE( Id(10324), "MESSAGE:green+h:black\n" );
-            TRICE( Id(14972), "READ:black+i:yellow+h\n" );
-            TRICE( Id(14310), "WRITE:black+u:yellow+h\n" );
-            TRICE( Id(12104), "RECEIVE:black+h:black\n" );
-            TRICE( Id(13522), "TRANSMIT:black:black+h\n" );
-            TRICE( Id(11874), "DIAG:yellow+i:default+h\n" );
-            TRICE( Id(15902), "INTERRUPT:magenta+i:default+h\n" );
-            TRICE( Id(10810), "SIGNAL:118+i\n" );
-            TRICE( Id(10154), "TEST:yellow+h:black\n" );
-            TRICE( Id(15113), "DEFAULT:off\n" );
-            TRICE( Id(13170), "NOTICE:blue:white+h\n" );
-            TRICE( Id(11424), "ALERT:magenta:magenta+h\n" );
-            TRICE( Id(15617), "ASSERT:yellow+i:blue\n" );
-            TRICE( Id(15431), "ALARM:red+i:white+h\n" );
-            TRICE( Id(11534), "CYCLE:blue+i:default+h\n" );
+          //TRICE( Id(14832), "FATAL:magenta+b:red\n" );
+          //TRICE( Id(12971), "CRITICAL:red+i:default+h\n" );
+          //TRICE( Id(13503), "EMERGENCY:red+i:blue\n" );
+          //TRICE( Id(15097), "ERROR:11:red\n" );
+          //TRICE( Id(10921), "WARNING:11+i:red\n" );
+          //TRICE( Id(14131), "ATTENTION:11:green\n" );
+          //TRICE( Id(10492), "INFO:cyan+b:default+h\n" );
+          //TRICE( Id(11578), "DEBUG:130+i\n" );
+          //TRICE( Id(12702), "TRACE:default+i:default+h\n" );
+          //TRICE( Id(14980), "TIME:blue+i:blue+h\n" );
+          //TRICE( Id(10324), "MESSAGE:green+h:black\n" );
+          //TRICE( Id(14972), "READ:black+i:yellow+h\n" );
+          //TRICE( Id(14310), "WRITE:black+u:yellow+h\n" );
+          //TRICE( Id(12104), "RECEIVE:black+h:black\n" );
+          //TRICE( Id(13522), "TRANSMIT:black:black+h\n" );
+          //TRICE( Id(11874), "DIAG:yellow+i:default+h\n" );
+          //TRICE( Id(15902), "INTERRUPT:magenta+i:default+h\n" );
+          //TRICE( Id(10810), "SIGNAL:118+i\n" );
+          //TRICE( Id(10154), "TEST:yellow+h:black\n" );
+          //TRICE( Id(15113), "DEFAULT:off\n" );
+          //TRICE( Id(13170), "NOTICE:blue:white+h\n" );
+          //TRICE( Id(11424), "ALERT:magenta:magenta+h\n" );
+          //TRICE( Id(15617), "ASSERT:yellow+i:blue\n" );
+          //TRICE( Id(15431), "ALARM:red+i:white+h\n" );
+          //TRICE( Id(11534), "CYCLE:blue+i:default+h\n" );
             TRICE( Id(14527), "VERBOSE:blue:default\n" );
         break;
         case 20:
-            TRICE( Id(14068), "fatal:magenta+b:red\n" );
-            TRICE( Id(12622), "critical:red+i:default+h\n" );
-            TRICE( Id(10531), "emergency:red+i:blue\n" );
-            TRICE( Id(15640), "error:11:red\n" );
-            TRICE( Id(13209), "warning:11+i:red\n" );
-            TRICE( Id(11370), "attention:11:green\n" );
-            TRICE( Id(12222), "info:cyan+b:default+h\n" );
-            TRICE( Id(11134), "debug:130+i\n" );
-            TRICE( Id(13610), "trace:default+i:default+h\n" );
-            TRICE( Id(12139), "tme:blue+i:blue+h\n" );
-            TRICE( Id(14964), "message:green+h:black\n" );
-            TRICE( Id(14805), "read:black+i:yellow+h\n" );
-            TRICE( Id(11282), "write:black+u:yellow+h\n" );
-            TRICE( Id(12821), "receive:black+h:black\n" );
-            TRICE( Id(13598), "transmit:black:black+h\n" );
-            TRICE( Id(15837), "diag:yellow+i:default+h\n" );
-            TRICE( Id(12730), "interrupt:magenta+i:default+h\n" );
-            TRICE( Id(15329), "signal:118+i\n" );
-            TRICE( Id(12488), "test:yellow+h:black\n" );
-            TRICE( Id(13696), "default:off\n" );
-            TRICE( Id(13238), "notice:blue:white+h\n" );
-            TRICE( Id(13859), "allert:magenta:magenta+h\n" );
-            TRICE( Id(15540), "assert:yellow+i:blue\n" );
-            TRICE( Id(11674), "alarm:red+i:white+h\n" );
-            TRICE( Id(10086), "cycle:blue+i:default+h\n" );
+          //TRICE( Id(14068), "fatal:magenta+b:red\n" );
+          //TRICE( Id(12622), "critical:red+i:default+h\n" );
+          //TRICE( Id(10531), "emergency:red+i:blue\n" );
+          //TRICE( Id(15640), "error:11:red\n" );
+          //TRICE( Id(13209), "warning:11+i:red\n" );
+          //TRICE( Id(11370), "attention:11:green\n" );
+          //TRICE( Id(12222), "info:cyan+b:default+h\n" );
+          //TRICE( Id(11134), "debug:130+i\n" );
+          //TRICE( Id(13610), "trace:default+i:default+h\n" );
+          //TRICE( Id(12139), "tme:blue+i:blue+h\n" );
+          //TRICE( Id(14964), "message:green+h:black\n" );
+          //TRICE( Id(14805), "read:black+i:yellow+h\n" );
+          //TRICE( Id(11282), "write:black+u:yellow+h\n" );
+          //TRICE( Id(12821), "receive:black+h:black\n" );
+          //TRICE( Id(13598), "transmit:black:black+h\n" );
+          //TRICE( Id(15837), "diag:yellow+i:default+h\n" );
+          //TRICE( Id(12730), "interrupt:magenta+i:default+h\n" );
+          //TRICE( Id(15329), "signal:118+i\n" );
+          //TRICE( Id(12488), "test:yellow+h:black\n" );
+          //TRICE( Id(13696), "default:off\n" );
+          //TRICE( Id(13238), "notice:blue:white+h\n" );
+          //TRICE( Id(13859), "allert:magenta:magenta+h\n" );
+          //TRICE( Id(15540), "assert:yellow+i:blue\n" );
+          //TRICE( Id(11674), "alarm:red+i:white+h\n" );
+          //TRICE( Id(10086), "cycle:blue+i:default+h\n" );
             TRICE( Id(13529), "verbose:blue:default\n" );
         break;
         case 30:
@@ -94,20 +94,19 @@ void TriceCheckSet(int index) {
         break;
         case 40:{
             unsigned len = strlen(s);
-            TRICE32( Id(12283), "dbg:len=%u:", len );
-            TRICE_S( Id(12176), "sig:TRICE_S=%s\n", s );
-            TRICE32( Id(14515), "dbg:len=%u:", len );
-            TRICE_S( Id(14308), "sig:TRICE_S=%s\n", s );
+          //TRICE32( Id(12283), "dbg:len=%u:", len );
+          //TRICE_S( Id(12176), "sig:TRICE_S=%s\n", s );
+          //TRICE32( Id(14515), "dbg:len=%u:", len );
+          //TRICE_S( Id(14308), "sig:TRICE_S=%s\n", s );
             TRICE32( Id(15071), "dbg:len=%u:", len );
             TRICE_S( Id(15891), "sig:TRICE_S=%s\n", s );
-        
-            TRICE32( Id(15180), "dbg:len=%u:", len);
-            TRICE_N( Id(12058), "sig:TRICE_N=%s\n", s, len );
-            TRICE32( Id(11777), "dbg:len=%u:", len);
-            TRICE_N( Id(14082), "sig:TRICE_N=%s\n", s, len );
+          //TRICE32( Id(15180), "dbg:len=%u:", len);
+          //TRICE_N( Id(12058), "sig:TRICE_N=%s\n", s, len );
+          //TRICE32( Id(11777), "dbg:len=%u:", len);
+          //TRICE_N( Id(14082), "sig:TRICE_N=%s\n", s, len );
             TRICE32( Id(12888), "dbg:len=%u:", len);
             TRICE_N( Id(10783), "sig:TRICE_N=%s\n", s, len );
-        
+
           //TRICE_S( Id(13268), "sig:TRICE_S=%s\n", "Hello String" );     // not allowed
           //TRICE_N( Id(13084), "sig:TRICE_N=%s\n", "Hello Buffer", 13 ); // not allowed
 
@@ -157,28 +156,25 @@ void TriceCheckSet(int index) {
             TRICE( Id(11851), "tim:TRICE STOP time message\n");
         break;
         case 100:
-            TRICE( Id(15209), "tim:TRICE --------------------------------------------------\n");
-            TRICE( Id(12973), "tim:TRICE --------------------------------------------------\n");
-            TRICE( Id(12478), "tim:TRICE --------------------------------------------------\n");
-            TRICE( Id(13151), "tim:TRICE --------------------------------------------------\n");
+          //TRICE( Id(15209), "tim:TRICE --------------------------------------------------\n");
+          //TRICE( Id(12973), "tim:TRICE --------------------------------------------------\n");
+          //TRICE( Id(12478), "tim:TRICE --------------------------------------------------\n");
+          //TRICE( Id(13151), "tim:TRICE --------------------------------------------------\n");
             TRICE( Id(11612), "tim:TRICE --------------------------------------------------\n");
             TRICE( Id(11862), "tim:TRICE --------------------------------------------------\n");
             TRICE64( Id(15087), "rd:TRICE64 %d, %d\n", 1, 2 );
         break;
         case 110:
-            TRICE( Id(12625), "tim:TRICE --------------------------------------------------\n");
-            TRICE( Id(12324), "tim:TRICE --------------------------------------------------\n");
-            TRICE( Id(15054), "tim:TRICE --------------------------------------------------\n");
-            TRICE( Id(12188), "tim:TRICE --------------------------------------------------\n");
-            TRICE( Id(15472), "tim:TRICE --------------------------------------------------\n");
+          //TRICE( Id(12625), "tim:TRICE --------------------------------------------------\n");
+          //TRICE( Id(12324), "tim:TRICE --------------------------------------------------\n");
+          //TRICE( Id(15054), "tim:TRICE --------------------------------------------------\n");
+          //TRICE( Id(12188), "tim:TRICE --------------------------------------------------\n");
+          //TRICE( Id(15472), "tim:TRICE --------------------------------------------------\n");
             TRICE( Id(14806), "tim:TRICE --------------------------------------------------\n");
             TRICE( Id(10211), "tim:TRICE --------------------------------------------------\n");
             TRICE64( Id(13827), "rd:TRICE64 %d, %d\n", 1, 2 );
         break;
         case 120:
-            TRICE( Id(15743), "tim:TRICE --------------------------------------------------\n");
-            TRICE( Id(13768), "tim:TRICE --------------------------------------------------\n");
-            TRICE( Id(14053), "tim:TRICE --------------------------------------------------\n");
             TRICE( Id(10538),  "rd:TRICE32_1 line %d\n", __LINE__ );
             TRICE64_1( Id(10584),  "rd:TRICE64_1 %d\n", __LINE__ );
             TRICE32_2( Id(10696),  "rd:TRICE32_2 line %d,%d\n", __LINE__, 2 );
@@ -398,19 +394,19 @@ void TriceCheckSet(int index) {
             TRICE(Id(11371), "--------------------------------------------------\n");
         break;
         case 380:
-            TRICE(Id(15534), "ERR:error       message, SysTick is %6u\n", SYSTICKVAL);
-            TRICE(Id(13519), "WRN:warning     message, SysTick is %6u\n", SYSTICKVAL);
-            TRICE(Id(10654), "ATT:attention   message, SysTick is %6u\n", SYSTICKVAL);
-            TRICE(Id(15568), "DIA:diagnostics message, SysTick is %6u\n", SYSTICKVAL);
-            TRICE(Id(11956), "TIM:timing      message, SysTick is %6u\n", SYSTICKVAL);
-            TRICE(Id(10954), "DBG:debug       message, SysTick is %6u\n", SYSTICKVAL);
-            TRICE(Id(12461), "SIG:signal      message, SysTick is %6u\n", SYSTICKVAL);
-            TRICE(Id(14668), "RD:read         message, SysTick is %6u\n", SYSTICKVAL);
-            TRICE(Id(11026), "WR:write        message, SysTick is %6u\n", SYSTICKVAL);
-            TRICE(Id(12533), "ISR:interrupt   message, SysTick is %6u\n", SYSTICKVAL);
-            TRICE(Id(15276), "MSG:normal      message, SysTick is %6u\n", SYSTICKVAL);
-            TRICE(Id(10891), "INFO:informal   message, SysTick is %6u\n", SYSTICKVAL);
-            TRICE(Id(14923), "time:TRICE32_1   message, SysTick is %6u\n", SYSTICKVAL);
+          //TRICE(Id(15534), "ERR:error       message, SysTick is %6u\n", SYSTICKVAL);
+          //TRICE(Id(13519), "WRN:warning     message, SysTick is %6u\n", SYSTICKVAL);
+          //TRICE(Id(10654), "ATT:attention   message, SysTick is %6u\n", SYSTICKVAL);
+          //TRICE(Id(15568), "DIA:diagnostics message, SysTick is %6u\n", SYSTICKVAL);
+          //TRICE(Id(11956), "TIM:timing      message, SysTick is %6u\n", SYSTICKVAL);
+          //TRICE(Id(10954), "DBG:debug       message, SysTick is %6u\n", SYSTICKVAL);
+          //TRICE(Id(12461), "SIG:signal      message, SysTick is %6u\n", SYSTICKVAL);
+          //TRICE(Id(14668), "RD:read         message, SysTick is %6u\n", SYSTICKVAL);
+          //TRICE(Id(11026), "WR:write        message, SysTick is %6u\n", SYSTICKVAL);
+          //TRICE(Id(12533), "ISR:interrupt   message, SysTick is %6u\n", SYSTICKVAL);
+          //TRICE(Id(15276), "MSG:normal      message, SysTick is %6u\n", SYSTICKVAL);
+          //TRICE(Id(10891), "INFO:informal   message, SysTick is %6u\n", SYSTICKVAL);
+            TRICE(Id(12643), "time:TRICE32_1  message, SysTick is %6u\n", SYSTICKVAL);
         break;
         case 390:
             TRICE( Id(14785), "sig:Various ranges and formats\n" );
@@ -541,6 +537,7 @@ void TriceCheckSet(int index) {
             TRICE(Id(11752), "wr:d");TRICE(Id(10060), "rd:e\n");//TRICE(Id(10798), "diag:f");
         break;
         case 520:
+/*
             TRICE( Id(12594), "sig:Runtime generated strings\n" );
             s = "AAAAAAAAAAAA";
             TRICE32( Id(14450), "dbg:len=%u:", strlen(s) );
@@ -578,6 +575,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
             TRICE32( Id(15775), "dbg:len=%u: ", strlen(s) );
             TRICE_S( Id(13396), "sig:%s\n", s );
         break;
+*/
         case 550:
             TRICE( Id(14548), "sig:Runtime generated strings\n" );
             s = "\
@@ -665,8 +663,9 @@ EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
             TRICE_S( Id(13799), "rd: 63 61 66 c3 a9 	% x	Hex dump with spaces\n", s );
         }
         break;
+/*
         case 620:
-            TRICE( Id(15497), "sig:TRICE32 with variable param count 1 to 12\n" );
+            TRICE( Id(14783), "sig:TRICE8 with variable param count 1 to 12\n" );
             TRICE8(Id(14974), "tst:TRICE8 %d\n", -1 );
             TRICE8(Id(15343), "tst:TRICE8 %d %d\n", -1, -2 );
             TRICE8(Id(11305), "tst:TRICE8 %d %d %d\n", -1, -2, -3 );
@@ -807,6 +806,7 @@ EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
             TRICE64_12(Id(10190), "tst:TRICE64_12 %d %d %d %d %d %d %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );
             TRICE64_12(Id(10650), "tst:TRICE64_12 %t %b %x %X %d %u %o %O %p %e %f %g\n", 3, 3, 3, 3, 3, 3, 3, 3, 3, aDouble(3.14159), aDouble(3.14159), aDouble(3.14159));
         break;
+*/
         case 780:
             TRICE( Id(14012), "att:positive and negative float in format variants\n");
             TRICE( Id(10863), "rd:TRICE float %f (%%f)\n", aFloat(x) );
