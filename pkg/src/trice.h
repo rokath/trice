@@ -170,7 +170,7 @@ void TriceTransfer( void );
 void TriceCheckSet( int index ); //!< tests
 
 #if defined( TRICE_UART ) && !defined( TRICE_HALF_BUFFER_SIZE ) // direct out to UART
-#define TRICE_WRITE( buf, len ) do{ TriceBlockingWrite( buf, len ); }while(0)
+//#define TRICE_WRITE( buf, len ) do{ TriceBlockingWrite( buf, len ); }while(0)
 #endif
 
 #ifdef TRICE_RTT_CHANNEL

@@ -35,6 +35,10 @@ uint16_t TriceStamp16( void ){
     return 1616;
 }
 
+//! TriceWrite copies buf with len into triceBuffer.
 void TriceWrite( uint8_t const * buf, unsigned len ){
-    TriceBlockingWrite( buf, len );
+    extern uint8_t* triceBuffer;
+    extern int triceBufferDepth;
+    memcpy(triceBuffer, buf, len);
+    triceBufferDepth = len;
 }
