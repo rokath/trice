@@ -24,19 +24,17 @@ int TriceCode( int n ){
     return 0;
 }
 
-
-//#ifdef TRICE_CGO_TEST
-
-
 int triceBufferDepth = 0;
 uint8_t* triceBuffer;
 
-uint32_t ReadUs32( void ){ 
+uint32_t TriceStamp32( void ){ 
     return 32323232; 
 }
 
-uint16_t ReadUs16( void ){
+uint16_t TriceStamp16( void ){
     return 1616;
 }
 
-//#endif // #ifdef TRICE_CGO_TEST
+void TriceWrite( uint8_t const * buf, unsigned len ){
+    TriceBlockingWrite( buf, len );
+}

@@ -1,7 +1,11 @@
 
 #include "trice.h"
 
-#if TRICE_MODE == TRICE_DOUBLE_BUFFERING
+#if TRICE_MODE == TRICE_DOUBLE_BUFFER
+
+#if TRICE_HALF_BUFFER_SIZE < TRICE_SINGLE_MAX_SIZE + TRICE_DATA_OFFSET
+#error
+#endif
 
 static uint32_t triceBuffer[2][TRICE_HALF_BUFFER_SIZE>>2] = {0}; //!< triceBuffer is a double buffer for better write speed.
 static int triceSwap = 0; //!< triceSwap is the index of the active write buffer. !triceSwap is the active read buffer index.
@@ -56,4 +60,4 @@ void TriceWrite( uint8_t const * buf, unsigned len ){
 }
 #endif
 
-#endif // #if TRICE_MODE == TRICE_DOUBLE_BUFFERING
+#endif // #if TRICE_MODE == TRICE_DOUBLE_BUFFER

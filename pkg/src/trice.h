@@ -65,17 +65,17 @@ extern "C" {
 //! Grouped trices need a bit less transfer data. In case of a data disruption, multiple trice messages can get lost.
 #define TRICE_PACK_MULTI_MODE  22
 
-//! Set TRICE_MODE to TRICE_DIRECT_OUT if the stack is used for singe trices. 
+//! Set TRICE_MODE to TRICE_STACK_BUFFER if the stack is used for singe trices. 
 //! The TRICE macro not usable inside interrupts with this setting.
-#define	TRICE_DIRECT_OUT        111
+#define	TRICE_STACK_BUFFER    111
 
-//! Set TRICE_MODE to TRICE_DOUBLE_BUFFERING for fastest trices. 
+//! Set TRICE_MODE to TRICE_DOUBLE_BUFFER for fastest trices. 
 //! The TRICE macro is usable inside interrupts with this setting.
-#define	TRICE_DOUBLE_BUFFERING  222
+#define	TRICE_DOUBLE_BUFFER   222
 
 //! Set TRICE_MODE to TRICE_STREAM_BUFFER for fast trices and several output options
 //! The TRICE macro is usable inside interrupts with this setting.
-#define TRICE_STREAM_BUFFER     333
+#define TRICE_STREAM_BUFFER   333
 
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -83,10 +83,61 @@ extern "C" {
 #include "triceConfig.h"
 #include <stdint.h> //lint !e537
 #include <string.h>
-//#include "tcobs.h"
 
-uint16_t ReadUs16( void );
-uint32_t ReadUs32( void );
+//! TriceStamp16 returns a 16-bit value to stamp `Id` TRICE macros. Usually it is a timestamp, but could also be a destination address or a counter for example.
+//! This function is user provided.
+uint16_t TriceStamp16( void );
+
+//! TriceStamp32 returns a 32-bit value to stamp `ID` TRICE macros. Usually it is a timestamp, but could also be a destination address or a counter for example.
+//! This function is user provided.
+uint32_t TriceStamp32( void );
+
+#if TRICE_MODE == TRICE_STACK_BUFFER
+
+#define TRICE_STACK_BUFFER_MAX_SIZE TRICE_BUFFER_SIZE 
+
+//! Start of TRICE macro
+#define TRICE_ENTER { \
+    uint32_t co[TRICE_STACK_BUFFER_MAX_SIZE>>2]; /* Check TriceDepthMax at runtime. */ \
+    uint32_t* TriceBufferWritePosition = co + (TRICE_DATA_OFFSET>>2);
+
+//! End of TRICE macro
+#define TRICE_LEAVE { \
+    unsigned tLen = ((TriceBufferWritePosition - co)<<2) - TRICE_DATA_OFFSET; \
+    TriceOut( co, tLen ); } }
+
+#endif // #if TRICE_MODE == TRICE_STACK_BUFFER
+
+#if TRICE_MODE == TRICE_DOUBLE_BUFFER
+
+//! TRICE_HALF_BUFFER_SIZE is the size of each of both buffers. Must be able to hold the max TRICE burst count within TRICE_TRANSFER_INTERVAL_MS or even more,
+//! if the write out speed is small. Must not exceed SEGGER BUFFER_SIZE_UP
+#define TRICE_HALF_BUFFER_SIZE  (((TRICE_BUFFER_SIZE/2) + 3) & ~3)
+
+//! TRICE_ENTER is the start of TRICE macro. The TRICE macros are a bit slower. Inside interrupts TRICE macros allowed.
+#define TRICE_ENTER TRICE_ENTER_CRITICAL_SECTION 
+
+//! TRICE_LEAVE is the end of TRICE macro.
+#define TRICE_LEAVE TRICE_LEAVE_CRITICAL_SECTION
+
+#endif // #if TRICE_MODE == TRICE_DOUBLE_BUFFER
+
+#if TRICE_MODE == TRICE_STREAM_BUFFER
+
+//! TRICE_STREAM_BUFFER_SIZE is the total size of the stream buffer. Must be able to hold the max TRICE burst count or even more,
+//! if the write out speed is small.
+#define TRICE_STREAM_BUFFER_SIZE  ((TRICE_BUFFER_SIZE +3) &~3)
+
+//! TRICE_ENTER is the start of TRICE macro. The TRICE macros are a bit slower. Inside interrupts TRICE macros allowed.
+#define TRICE_ENTER TRICE_ENTER_CRITICAL_SECTION { uint32_t* ta = TriceBufferWritePosition;
+
+//! TRICE_LEAVE is the end of TRICE macro.
+#define TRICE_LEAVE TriceAddressPush( ta ); TriceBufferWritePosition = TriceNextStreamBuffer(); } TRICE_LEAVE_CRITICAL_SECTION
+
+#endif // #if TRICE_MODE == TRICE_STREAM_BUFFER
+
+//! TRICE_DEFERRED_OUT is a helper macro.
+#define TRICE_DEFERRED_OUT ((TRICE_MODE == TRICE_DOUBLE_BUFFER) || (TRICE_MODE == TRICE_STREAM_BUFFER) )
 
 ///////////////////////////////////////////////////////////////////////////////
 // Declarations and Defaults
@@ -143,25 +194,7 @@ static inline unsigned TriceOutDepth( void ){ return 0; }
 #define TRICE_DATA_OFFSET ((TRICE_SINGLE_MAX_SIZE/31+5)&~3) // For single trices the worst case is +1 for each 31 plus terminating 0 at the end
 #endif
 
-#if defined(TRICE_STACK_BUFFER_MAX_SIZE) && !defined(TRICE_SINGLE_MAX_SIZE)
-#define TRICE_SINGLE_MAX_SIZE (TRICE_STACK_BUFFER_MAX_SIZE - TRICE_DATA_OFFSET)
-#endif
 
-#ifndef TRICE_SINGLE_MAX_SIZE
-#define TRICE_SINGLE_MAX_SIZE 1008 //!< TRICE_SINGLE_MAX_SIZE ist the head size plus string length size plus max dynamic string size. Must be a multiple of 4. 1008 is the max allowed value.
-#endif
-
-#if TRICE_SINGLE_MAX_SIZE > 1008 // todo: remove limit
-#error
-#endif
-
-#if defined(TRICE_STACK_BUFFER_MAX_SIZE) && defined(TRICE_SINGLE_MAX_SIZE) && TRICE_SINGLE_MAX_SIZE + TRICE_DATA_OFFSET > TRICE_STACK_BUFFER_MAX_SIZE
-#error
-#endif
-
-#if defined(TRICE_HALF_BUFFER_SIZE) && TRICE_HALF_BUFFER_SIZE < TRICE_SINGLE_MAX_SIZE + TRICE_DATA_OFFSET
-#error
-#endif
 
 #ifndef TRICE_TRANSFER_INTERVAL_MS
 //! TRICE_TRANSFER_INTERVAL_MS is the milliseconds interval for TRICE buffer read out.
@@ -219,9 +252,7 @@ extern uint8_t TriceCycle;
 ///////////////////////////////////////////////////////////////////////////////
 // UART interface
 //
-//#if defined( TRICE_UART ) && (TRICE_MODE == TRICE_DIRECT_OUT) // direct out to UART
 void TriceBlockingWrite( uint8_t const * buf, unsigned len );
-//#endif
 
 #if defined( TRICE_UART ) && TRICE_DEFERRED_OUT // buffered out to UART
 uint8_t TriceNextUint8( void );
@@ -428,12 +459,11 @@ static inline uint64_t aDouble( double x ){
 
 //! ID writes 14-bit id with 11 as most significant bits, followed by a 32-bit timestamp.
 //! 11iiiiiiI TT | TT (NC) | ...
-#define ID(n) { uint32_t ts = TRICE_READ_TIMESTAMP32; TRICE_PUT16( (0xC000|(n))); TRICE_PUT1616(ts); }
+#define ID(n) { uint32_t ts = TriceStamp32(); TRICE_PUT16( (0xC000|(n))); TRICE_PUT1616(ts); }
 
 //! Id writes 14-bit id with 10 as most significant bits two times, followed by a 32-bit timestamp.
 //! 10iiiiiiI 10iiiiiiI | TT (NC) | ...
-#define Id(n) { uint16_t ts = ReadUs16();        TRICE_PUT((0x80008000|((n)<<16)|(n))); TRICE_PUT16(ts); }
-//#define Id(n) { uint16_t ts = TRICE_READ_TIMESTAMP16; TRICE_PUT((0x80008000|((n)<<16)|(n))); TRICE_PUT16(ts); }
+#define Id(n) { uint16_t ts = TriceStamp16(); TRICE_PUT((0x80008000|((n)<<16)|(n))); TRICE_PUT16(ts); }
 
 //! id writes 14-bit id with 01 as most significant bits, followed by a 32-bit timestamp.
 //! 01iiiiiiI (NC) | ...

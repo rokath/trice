@@ -90,7 +90,6 @@ void TriceCheckSet(int index) {
             TRICE( Id(15285), "dbg:\a\aHi!\n" );
             TRICE( Id(12774), "dbg:\a\a\aHi!\n" );
             TRICE( Id(13747), "dbg:\\aHi!\n" );
-            //TCOBSCheck();
         break;
         case 40:{
             unsigned len = strlen(s);
@@ -1228,59 +1227,3 @@ static int64_t DoubleToInt64( double f ){
     }
     return -(int64_t)-f;
 }
-
-/*
-#include "tcobs.h"
-
-typedef struct{
-    int ilen;
-    uint8_t in[80];
-    int olen;
-    uint8_t out[80];
-} TCOBSTestDataSet;
-
-TCOBSTestDataSet TCOBSTestData[] = {
-    { 1, { 0    }, 
-      1, { 0x20 } },
-    
-    { 1, { 0xFF       }, 
-      2, { 0xFF, 0xA1 } },
-
-    { 6, {    0,    0,    0,    0,    0, 0xFF, },
-      4, { 0x60, 0x40, 0xFF, 0xA1,             } },
-    
-    { 5, { 0xAA, 0x02, 0x02, 0x00, 0xFF,       },
-      6, { 0xAA, 0x02, 0x02, 0x23, 0xFF, 0xA1, } },
-    
-    { 5, { 0xFF, 0x02, 0x02, 0x00, 0xFF,       },
-      6, { 0xFF, 0x02, 0x02, 0x23, 0xFF, 0xA1, } },
-    
-};
-
-#define TCOBS_TESTDATASET_COUNT (sizeof(TCOBSTestData) / sizeof(TCOBSTestDataSet) )
-
-int equal( uint8_t* expBuf, int expLen, uint8_t* actBuf, int actLen ){
-    int result = 1;
-    if( expLen != actLen){
-        return 0;
-    }
-    for( int i = 0; i < expLen; i++ ){
-        TRICE( Id(15037), "msg:exp=%02x act=%02x\n", expBuf[i], actBuf[i] );
-        if( expBuf[i] != actBuf[i] ){
-            return 0;
-        }
-    }
-    return result;
-}
-
-void TCOBSCheck( void ){
-    uint8_t result[80];
-    for( int i = 0; i < TCOBS_TESTDATASET_COUNT; i++ ){
-        TRICE( Id(12501), "dbg: Set %d\n", i );
-        int rlen = TCOBSEncode( result, TCOBSTestData[i].in, TCOBSTestData[i].ilen );
-        if( !equal( TCOBSTestData[i].out, TCOBSTestData[i].olen, result, rlen ) ){
-            TRICE( Id(12319), "ERROR: TCOBS!\n" );
-        }
-    }
-}
-*/

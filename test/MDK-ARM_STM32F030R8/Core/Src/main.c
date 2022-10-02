@@ -66,7 +66,7 @@ static void MX_USART2_UART_Init(void);
 //! function in intervals smaller than 1 ms if not using hardware timers. To make it clear: You can use ReadUs64 to measure long
 //! intervals up to 584542 years, but the "OS" needs to call ReadUs64 internally regularely in <1ms intervals.
 //! \retval us count since last reset
-uint64_t ReadUs64( void ){
+static inline uint64_t ReadUs64( void ){
     static uint64_t us_1 = 0; // result of last call 
     uint64_t us = microSecond + (((SysTick->LOAD - SysTick->VAL) * 87381LL) >> 22); // Divide 48MHz clock by 48,0001831 to get us part.
     if( us < us_1){ // Possible very close to systick ISR, when milliSecond was not incremented yet, but the systic wrapped already.
@@ -83,7 +83,7 @@ uint64_t ReadUs64( void ){
 //! function in intervals smaller than 1 ms if not using hardware timers. To make it clear: You can use ReadUs32 to measure long
 //! intervals up to over 1 hour (4294 seconds), but the "OS" needs to call ReadUs32  internally regularely in <1ms intervals.
 //! \retval us count since last reset modulo 2^32
-uint32_t ReadUs32( void ){
+static inline uint32_t ReadUs32( void ){
     static uint32_t us_1 = 0; // result of last call
     uint32_t us = ((uint32_t)microSecond) + (((SysTick->LOAD - SysTick->VAL) * 87381LL) >> 22); // Divide clock by 48,0001831 to get us.
     if( us < us_1){ // Possible very close to systick ISR, when milliSecond was not incremented yet, but the systic wrapped already.
@@ -93,8 +93,12 @@ uint32_t ReadUs32( void ){
     return us;
 }
 
-uint16_t ReadUs16( void ){
+uint16_t TriceStamp16( void ){
     return (uint16_t)(ReadUs32()%10000); // This implies division and is therefore slow!
+}
+
+uint32_t TriceStamp32( void ){
+    return ReadUs32();
 }
 
 //! serveUs should be called in intervals secure smaller than 1ms.

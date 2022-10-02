@@ -3,6 +3,12 @@
 
 #if TRICE_MODE == TRICE_STREAM_BUFFER
 
+#if TRICE_STREAM_BUFFER_SIZE < 2*TRICE_SINGLE_MAX_SIZE
+#error
+#endif
+
+
+
 static uint32_t triceStreamBufferHeap[TRICE_STREAM_BUFFER_SIZE>>2] = {0}; //!< triceStreamBufferHeap is a kind of heap for trice messages.
        uint32_t* TriceBufferWritePosition = triceStreamBufferHeap; //!< TriceBufferWritePosition is the active write position.
 static uint32_t* triceBufferWriteLimit  =  &triceStreamBufferHeap[TRICE_STREAM_BUFFER_SIZE>>2]; //!< triceBufferWriteLimit is the triceBuffer written limit. 
