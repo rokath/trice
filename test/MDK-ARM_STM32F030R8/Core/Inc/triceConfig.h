@@ -15,26 +15,28 @@ extern "C" {
 // Select trice mode and general settings.
 //
 
-#define TRICE_READ_TICK16 ReadUs16()
-#define TRICE_READ_TICK32 ReadUs32()
+//! TRICE_READ_TIMESTAMP16 is the executed macro to provide a 16-bit timestamp. Put your function or 0 here.
+#define TRICE_READ_TIMESTAMP16 ReadUs16()
 
-//! TRICE_SAFE_SINGLE_MODE is the recommended TRICE_TRANSFER_MODE. It packs each trice in a separate TCOBS package with a following 0-delimiter byte. 
-//! //! Single trices need a bit more transfer data. In case of a data disruption, only a single trice messages can get lost.
-#define TRICE_SAFE_SINGLE_MODE 10 
-//! TRICE_PACK_MULTI_MODE packs all trices of a half buffer in a single TCOBS package and a following 0-delimiter byte. 
-//! Grouped trices need a bit less transfer data. In case of a data disruption, multiple trice messages can get lost.
-#define TRICE_PACK_MULTI_MODE  20
-//! TRICE_TRANSFER_MODE is the selected trice transfer method.
+//! TRICE_READ_TIMESTAMP32 is the executed macro to provide a 32-bit timestamp. Put your function or 0 here.
+#define TRICE_READ_TIMESTAMP32 ReadUs32()
+
+//! TRICE_TRANSFER_MODE is the selected trice transfer method. Options: TRICE_SAFE_SINGLE_MODE (recommended), TRICE_PACK_MULTI_MODE.
 #define TRICE_TRANSFER_MODE TRICE_SAFE_SINGLE_MODE
 
-#define	TRICE_DIRECT_OUT                              0
-#define	TRICE_DOUBLE_BUFFERING_WITH_CYCLE_COUNT     200
-#define	TRICE_DOUBLE_BUFFERING_NO_CYCLE_COUNT       201
-#define TRICE_STREAM_BUFFER                         202
-#define TRICE_MODE TRICE_STREAM_BUFFER //! TRICE_MODE is a predefined trice transfer method.
+//! TRICE_MODE is a predefined trice transfer method. Options: TRICE_DIRECT_OUT, TRICE_DOUBLE_BUFFERING, TRICE_STREAM_BUFFER
+#define TRICE_MODE TRICE_DIRECT_OUT 
 
-//#define TRICE_RTT_CHANNEL 0 //!< Enable and set channel number for SeggerRTT usage. Only channel 0 works right now for some reason.
-#define TRICE_UART USART2 //!< Enable and set UART for serial output.
+//! Enable and set channel number for SeggerRTT usage. Only channel 0 works right now for some reason.
+//#define TRICE_RTT_CHANNEL 0
+
+//! Enable and set UART for serial output.
+#define TRICE_UART USART2
+
+//! TRICE_CYCLE_COUNTER adds a cycle counter to each trice message.
+//! If TRICE_CYCLE_COUNTER is 0, do not add cycle counter. The TRICE macros are a bit faster. Lost TRICEs are not detectable by the trice tool.
+//! If TRICE_CYCLE_COUNTER is 1, add an 8-bit cycle counter. The TRICE macros are a bit slower. Lost TRICEs are detectable by the trice tool. (reccommended)
+#define TRICE_CYCLE_COUNTER 1 
 
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -61,58 +63,65 @@ extern "C" {
 //! J-LINK Command line similar to: `trice log -args="-Device STM32G071RB -if SWD -Speed 4000 -RTTChannel 0 -RTTSearchRanges 0x20000000_0x1000"`
 //! ST-LINK Command line similar to: `trice log -p ST-LINK -args="-Device STM32G071RB -if SWD -Speed 4000 -RTTChannel 0 -RTTSearchRanges 0x20000000_0x1000"`
 #if TRICE_MODE == TRICE_DIRECT_OUT // must not use TRICE_ENCRYPT!
-#define TRICE_STACK_BUFFER_MAX_SIZE 128 //!< This  minus TRICE_DATA_OFFSET the max allowed single trice size. Usually ~40 is enough.
-#ifndef TRICE_ENTER
-#define TRICE_ENTER { /*! Start of TRICE macro */ \
+
+//!< This  minus TRICE_DATA_OFFSET the max allowed single trice size. Usually ~40 is enough.
+#define TRICE_STACK_BUFFER_MAX_SIZE 128 
+
+//! Start of TRICE macro
+#define TRICE_ENTER { \
     uint32_t co[TRICE_STACK_BUFFER_MAX_SIZE>>2]; /* Check TriceDepthMax at runtime. */ \
     uint32_t* TriceBufferWritePosition = co + (TRICE_DATA_OFFSET>>2);
-#endif
-#ifndef TRICE_LEAVE
-#define TRICE_LEAVE { /*! End of TRICE macro */ \
+
+//! End of TRICE macro
+#define TRICE_LEAVE { \
     unsigned tLen = ((TriceBufferWritePosition - co)<<2) - TRICE_DATA_OFFSET; \
     TriceOut( co, tLen ); } }
-#endif
+
 #endif // #if TRICE_MODE == TRICE_DIRECT_OUT
 
 //! Double Buffering output to RTT or UART with cycle counter. Trices inside interrupts allowed. Fast TRICE macro execution.
 //! UART Command line similar to: `trice log -p COM1 -baud 115200`
 //! RTT Command line similar to: `trice l -args="-Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0 -RTTSearchRanges 0x20000000_0x1000"`
-#if TRICE_MODE == TRICE_DOUBLE_BUFFERING_WITH_CYCLE_COUNT
-#ifndef TRICE_ENTER
-#define TRICE_ENTER TRICE_ENTER_CRITICAL_SECTION //! TRICE_ENTER is the start of TRICE macro. The TRICE macros are a bit slower. Inside interrupts TRICE macros allowed.
-#endif
-#ifndef TRICE_LEAVE
-#define TRICE_LEAVE TRICE_LEAVE_CRITICAL_SECTION //! TRICE_LEAVE is the end of TRICE macro.
-#endif
-#define TRICE_HALF_BUFFER_SIZE 1500 //!< This is the size of each of both buffers. Must be able to hold the max TRICE burst count within TRICE_TRANSFER_INTERVAL_MS or even more, if the write out speed is small. Must not exceed SEGGER BUFFER_SIZE_UP
-#define TRICE_SINGLE_MAX_SIZE   300 //!< must not exeed TRICE_HALF_BUFFER_SIZE!
-#endif // #if TRICE_MODE == TRICE_DOUBLE_BUFFERING_WITH_CYCLE_COUNT
+#if TRICE_MODE == TRICE_DOUBLE_BUFFERING
 
+//! TRICE_ENTER is the start of TRICE macro. The TRICE macros are a bit slower. Inside interrupts TRICE macros allowed.
+#define TRICE_ENTER TRICE_ENTER_CRITICAL_SECTION 
 
-//! Double Buffering output to UART without cycle counter. No trices inside interrupts allowed. Fastest TRICE macro execution.
-//! Command line similar to: `trice log -p COM1 -baud 115200`
-#if TRICE_MODE == TRICE_DOUBLE_BUFFERING_NO_CYCLE_COUNT
-#define TRICE_CYCLE_COUNTER 0 //! Do not add cycle counter, The TRICE macros are a bit faster. Lost TRICEs are not detectable by the trice tool.
-#define TRICE_ENTER //! TRICE_ENTER is the start of TRICE macro. The TRICE macros are a bit faster. Inside interrupts TRICE macros forbidden.
-#define TRICE_LEAVE //! TRICE_LEAVE is the end of TRICE macro.
-#define TRICE_HALF_BUFFER_SIZE 2000 //!< This is the size of each of both buffers. Must be able to hold the max TRICE burst count within TRICE_TRANSFER_INTERVAL_MS or even more, if the write out speed is small. Must not exceed SEGGER BUFFER_SIZE_UP
-#define TRICE_SINGLE_MAX_SIZE 800 //!< must not exeed TRICE_HALF_BUFFER_SIZE!
-#endif // #if TRICE_MODE == TRICE_DOUBLE_BUFFERING_NO_CYCLE_COUNT
+//! TRICE_LEAVE is the end of TRICE macro.
+#define TRICE_LEAVE TRICE_LEAVE_CRITICAL_SECTION
 
+//! This is the size of each of both buffers. Must be able to hold the max TRICE burst count within TRICE_TRANSFER_INTERVAL_MS or even more,
+//! if the write out speed is small. Must not exceed SEGGER BUFFER_SIZE_UP
+#define TRICE_HALF_BUFFER_SIZE 1500
+
+ //!< must not exeed TRICE_HALF_BUFFER_SIZE!
+#define TRICE_SINGLE_MAX_SIZE   300
+
+#endif // #if TRICE_MODE == TRICE_DOUBLE_BUFFERING
 
 //! Stream Buffering output to UART. Allows avoiding priority inversion.
 //! Command line similar to: `trice log -p COM1 -baud 115200`
 #if TRICE_MODE == TRICE_STREAM_BUFFER
-#define TRICE_ENTER TRICE_ENTER_CRITICAL_SECTION { uint32_t* ta = TriceBufferWritePosition; //! TRICE_ENTER is the start of TRICE macro. The TRICE macros are a bit slower. Inside interrupts TRICE macros allowed.
-#define TRICE_LEAVE TriceAddressPush( ta ); TriceBufferWritePosition = TriceNextStreamBuffer(); } TRICE_LEAVE_CRITICAL_SECTION //! TRICE_LEAVE is the end of TRICE macro.
-#define TRICE_STREAM_BUFFER_SIZE  80 //!< This is the size of each of both buffers. Must be able to hold the max TRICE burst count within TRICE_TRANSFER_INTERVAL_MS or even more, if the write out speed is small. Must not exceed SEGGER BUFFER_SIZE_UP
-#define TRICE_SINGLE_MAX_SIZE     16 //!< must not exeed TRICE_HALF_BUFFER_SIZE!
+
+//! TRICE_ENTER is the start of TRICE macro. The TRICE macros are a bit slower. Inside interrupts TRICE macros allowed.
+#define TRICE_ENTER TRICE_ENTER_CRITICAL_SECTION { uint32_t* ta = TriceBufferWritePosition;
+
+//! TRICE_LEAVE is the end of TRICE macro.
+#define TRICE_LEAVE TriceAddressPush( ta ); TriceBufferWritePosition = TriceNextStreamBuffer(); } TRICE_LEAVE_CRITICAL_SECTION
+
+//! This is the size of each of both buffers. Must be able to hold the max TRICE burst count within TRICE_TRANSFER_INTERVAL_MS or even more,
+//! if the write out speed is small. Must not exceed SEGGER BUFFER_SIZE_UP
+#define TRICE_STREAM_BUFFER_SIZE  80
+
+//! must not exeed TRICE_HALF_BUFFER_SIZE!
+#define TRICE_SINGLE_MAX_SIZE     16
+
 #endif // #if TRICE_MODE == TRICE_STREAM_BUFFER
 //
 ///////////////////////////////////////////////////////////////////////////////
 
 
-#define TRICE_DEFERRED_OUT ((TRICE_MODE == TRICE_DOUBLE_BUFFERING_WITH_CYCLE_COUNT) || (TRICE_MODE == TRICE_DOUBLE_BUFFERING_NO_CYCLE_COUNT) || (TRICE_MODE == TRICE_STREAM_BUFFER) )
+#define TRICE_DEFERRED_OUT ((TRICE_MODE == TRICE_DOUBLE_BUFFERING) || (TRICE_MODE == TRICE_STREAM_BUFFER) )
 
 ///////////////////////////////////////////////////////////////////////////////
 // Headline info

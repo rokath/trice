@@ -1,6 +1,8 @@
 
 #include "trice.h"
 
+#if TRICE_MODE == TRICE_DIRECT_OUT
+
 //! TriceDepthMax returns the max trice buffer depth until now.
 size_t TriceDepthMax( void ){
     return triceDepthMax;
@@ -15,3 +17,5 @@ void TriceWrite( uint8_t const * buf, unsigned len ){
     TriceBlockingWrite( buf, len );
 }
 #endif
+
+#endif // #if TRICE_MODE == TRICE_DIRECT_OUT

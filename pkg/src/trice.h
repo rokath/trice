@@ -44,7 +44,7 @@ extern "C" {
 
 
 #ifdef TRICE_OFF // do not generate trice code for files defining TRICE_OFF before including "trice.h"
-#define TRICE_CYCLE_COUNTER 0 // why needed here?
+#define TRICE_CYCLE_COUNTER 0 // todo: why needed here?
 #define TRICE_INTO
 #define TRICE_PUT(n) do{ ((void)(n)); }while(0)
 #define PUT_BUFFER(b,l) do{ ((void)(b)); ((void)(l)); }while(0)
@@ -52,6 +52,33 @@ extern "C" {
 #define TRICE_S( id, p, s )  do{ ((void)(id)); ((void)(p)); ((void)(s)); }while(0)
 #define TRICE_N( id, p, s, n )  do{ ((void)(id)); ((void)(p)); ((void)(s)); ((void)(n)); }while(0)
 #endif
+
+///////////////////////////////////////////////////////////////////////////////
+// helper macros
+//
+
+//! TRICE_SAFE_SINGLE_MODE is the recommended TRICE_TRANSFER_MODE. It packs each trice in a separate TCOBS package with a following 0-delimiter byte. 
+//! Single trices need a bit more transfer data. In case of a data disruption, only a single trice messages can get lost.
+#define TRICE_SAFE_SINGLE_MODE 11
+
+//! TRICE_PACK_MULTI_MODE packs all trices of a buffer in a single TCOBS package and a following 0-delimiter byte. 
+//! Grouped trices need a bit less transfer data. In case of a data disruption, multiple trice messages can get lost.
+#define TRICE_PACK_MULTI_MODE  22
+
+//! Set TRICE_MODE to TRICE_DIRECT_OUT if the stack is used for singe trices. 
+//! The TRICE macro not usable inside interrupts with this setting.
+#define	TRICE_DIRECT_OUT        111
+
+//! Set TRICE_MODE to TRICE_DOUBLE_BUFFERING for fastest trices. 
+//! The TRICE macro is usable inside interrupts with this setting.
+#define	TRICE_DOUBLE_BUFFERING  222
+
+//! Set TRICE_MODE to TRICE_STREAM_BUFFER for fast trices and several output options
+//! The TRICE macro is usable inside interrupts with this setting.
+#define TRICE_STREAM_BUFFER     333
+
+//
+///////////////////////////////////////////////////////////////////////////////
 
 #include "triceConfig.h"
 #include <stdint.h> //lint !e537
@@ -106,10 +133,6 @@ void TriceCheckSet( int index ); //!< tests
 //#define TRICE_WRITE( buf, len ) do{ SEGGER_RTT_Write(TRICE_RTT_CHANNEL, buf, len ); }while(0)
 static inline unsigned TriceOutDepth( void ){ return 0; }
 #endif // #ifdef TRICE_RTT_CHANNEL
-
-#ifndef TRICE_CYCLE_COUNTER
-#define TRICE_CYCLE_COUNTER 1 //! TRICE_CYCLE_COUNTER adds a cycle counter to each trice message. The TRICE macros are a bit slower. Lost TRICEs are detectable by the trice tool.
-#endif
 
 //! TRICE_DATA_OFFSET is the space in front of trice data for in-buffer COBS encoding. It must be be a multiple of uint32_t.
 #if defined(TRICE_HALF_BUFFER_SIZE)
@@ -196,9 +219,9 @@ extern uint8_t TriceCycle;
 ///////////////////////////////////////////////////////////////////////////////
 // UART interface
 //
-#if defined( TRICE_UART ) && (TRICE_MODE == TRICE_DIRECT_OUT) // direct out to UART
+//#if defined( TRICE_UART ) && (TRICE_MODE == TRICE_DIRECT_OUT) // direct out to UART
 void TriceBlockingWrite( uint8_t const * buf, unsigned len );
-#endif
+//#endif
 
 #if defined( TRICE_UART ) && TRICE_DEFERRED_OUT // buffered out to UART
 uint8_t TriceNextUint8( void );
@@ -405,12 +428,12 @@ static inline uint64_t aDouble( double x ){
 
 //! ID writes 14-bit id with 11 as most significant bits, followed by a 32-bit timestamp.
 //! 11iiiiiiI TT | TT (NC) | ...
-#define ID(n) { uint32_t ts = TRICE_READ_TICK32; TRICE_PUT16( (0xC000|(n))); TRICE_PUT1616(ts); }
+#define ID(n) { uint32_t ts = TRICE_READ_TIMESTAMP32; TRICE_PUT16( (0xC000|(n))); TRICE_PUT1616(ts); }
 
 //! Id writes 14-bit id with 10 as most significant bits two times, followed by a 32-bit timestamp.
 //! 10iiiiiiI 10iiiiiiI | TT (NC) | ...
 #define Id(n) { uint16_t ts = ReadUs16();        TRICE_PUT((0x80008000|((n)<<16)|(n))); TRICE_PUT16(ts); }
-//#define Id(n) { uint16_t ts = TRICE_READ_TICK16; TRICE_PUT((0x80008000|((n)<<16)|(n))); TRICE_PUT16(ts); }
+//#define Id(n) { uint16_t ts = TRICE_READ_TIMESTAMP16; TRICE_PUT((0x80008000|((n)<<16)|(n))); TRICE_PUT16(ts); }
 
 //! id writes 14-bit id with 01 as most significant bits, followed by a 32-bit timestamp.
 //! 01iiiiiiI (NC) | ...

@@ -846,6 +846,16 @@
               <FileType>1</FileType>
               <FilePath>..\..\..\pkg\src\triceStreamBuffer.c</FilePath>
             </File>
+            <File>
+              <FileName>triceDoubleBuffer.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\pkg\src\triceDoubleBuffer.c</FilePath>
+            </File>
+            <File>
+              <FileName>triceStackBuffer.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\pkg\src\triceStackBuffer.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
