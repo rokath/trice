@@ -65,9 +65,9 @@ static void MX_USART2_UART_Init(void);
 //! function in intervals smaller than 1 ms if not using hardware timers. To make it clear: You can use ReadUs64 to measure long
 //! intervals up to 584542 years, but the "OS" needs to call ReadUs64 internally regularely in <1ms intervals.
 //! \retval us count since last reset
-uint64_t ReadUs64( void ){
-    static uint64_t us_1 = 0; // result of last call
-    uint64_t us = microSecond + ((SysTick->LOAD - SysTick->VAL) >> 6); // Divide 64MHz clock by 32 to get us part.
+static inline uint64_t ReadUs64( void ){
+    static uint64_t us_1 = 0; // result of last call 
+    uint64_t us = microSecond + ((SysTick->LOAD - SysTick->VAL) >> 6); // Divide 64MHz clock by 64 to get us part.
     if( us < us_1){ // Possible very close to systick ISR, when milliSecond was not incremented yet, but the systic wrapped already.
         us += 1000; // Time cannot go backwards, so correct the 1ms error in the assumption last call is not longer than 1ms back.
     }
@@ -82,19 +82,20 @@ uint64_t ReadUs64( void ){
 //! function in intervals smaller than 1 ms if not using hardware timers. To make it clear: You can use ReadUs32 to measure long
 //! intervals up to over 1 hour (4294 seconds), but the "OS" needs to call ReadUs32  internally regularely in <1ms intervals.
 //! \retval us count since last reset modulo 2^32
-uint32_t ReadUs32( void ){
-    static uint32_t us_1 = 0; // result of last call
-    uint32_t us = ((uint32_t)microSecond) + ((SysTick->LOAD - SysTick->VAL) >> 6); // Divide 64MHz clock by 64 to get us part.
-    if( us < us_1){ // Possible very close to systick ISR, when milliSecond was not incremented yet, but the systic wrapped already.
-        us += 1000; // Time cannot go backwards, so correct the 1ms error in the assumption last call is not longer than 1ms back.
-    }
-    us_1 = us; // keep result for next call
-    return us;
+static inline uint32_t ReadUs32( void ){
+    return (uint32_t)ReadUs64();
 }
 
-uint16_t ReadUs16( void ){
+uint16_t TriceStamp16( void ){
     return (uint16_t)(ReadUs32()%10000); // This implies division and is therefore slow!
 }
+
+uint32_t TriceStamp32( void ){
+    return ReadUs32();
+}
+
+static unsigned timingError64Count = 0;
+static unsigned timingError32Count = 0;
 
 //! serveUs should be called in intervals secure smaller than 1ms.
 static void serveUs( void ){
@@ -102,8 +103,22 @@ static void serveUs( void ){
     static uint32_t st32_1 = 0;
     uint64_t st64 = ReadUs64();
     uint32_t st32 = ReadUs32();
-    if( st64 < st64_1 || st32 < st32_1 ){
-        while(1); // stop, timing error
+    static int virgin64 = 1;
+    static int virgin32 = 1;
+    if( st64 < st64_1 ){
+        timingError64Count++;
+        if( virgin64 ){
+            virgin64 = 0;
+            TRICE64( Id(14938), "err:st64=%d < st64_1=%d\n", st64, st64_1 );
+        
+        }
+    }
+    if( st32 < st32_1 ){
+        timingError32Count++;
+        if( virgin32 ){
+            virgin32 = 0;
+            TRICE32( Id(11239), "err:st32=%d < st32_1=%d\n", st32, st32_1 );        
+        }
     }
     st64_1 = st64;
     st32_1 = st32;
@@ -118,7 +133,7 @@ static void serveUs( void ){
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-
+//lint -e835
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -131,7 +146,7 @@ int main(void)
   /* System interrupt init*/
 
   /* USER CODE BEGIN Init */
-
+//lint +e835
   /* USER CODE END Init */
 
   /* Configure the system clock */
@@ -153,29 +168,29 @@ int main(void)
     #endif
     TRICE_HEADLINE;
     {
-        float a = 5.934;
+        float a = (float)5.934;
         float b = a + ((a > 0) ? 0.0005f : -0.0005f);
-        int c = b;
+        int c = (int)b;
         int d = (int)(b * 1000) % 1000;
-        int e = 1000 * (float)(a - c); 
-        TRICE( Id(12922), "msg:x = %g = %d.%03d, %d.%03d\n", aFloat(a), c, d, c, e );
-        TRICE( Id(15753), "1/11 = %g\n", aFloat( 1.0/11 ) );
+        int e = (int)(1000 * (float)(a - c)); 
+        TRICE( Id(10762), "msg:x = %g = %d.%03d, %d.%03d\n", aFloat(a), c, d, c, e ); //lint !e666
+        TRICE( Id(12531), "1/11 = %g\n", aFloat( 1.0/11 ) ); //lint !e666
     }
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-    while (1){
+    for(;;){ 
         if( triceCommandFlag ){
             triceCommandFlag = 0;
-            TRICE_S( Id(14937), "att:Executing command %s ...\n", triceCommand );
+            TRICE_S( Id(11673), "att:Executing command %s ...\n", triceCommand );
             // do
-            TRICE( Id(13746), "att:...done\n" );
+            TRICE( Id(12106), "att:...done\n" );
         }
 
         // serve every few ms
-        #ifdef TRICE_HALF_BUFFER_SIZE
-        static int lastMs = 0;
+        #if TRICE_DEFERRED_OUT
+        static unsigned lastMs = 0;
         if( milliSecond >= lastMs + TRICE_TRANSFER_INTERVAL_MS ){
             lastMs = milliSecond;
             TriceTransfer();
@@ -185,29 +200,38 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
         {
-            static int lastTricesTime = 0;
+            static unsigned lastTricesTime = 0;
             // send some trices every few ms
             if( milliSecond >= lastTricesTime + 200 ){
                 static int index = 0;
                 int select = index;
-                TRICE16( Id(10110),"MSG: 💚 START select = %d, TriceDepthMax =%4u\n", select, TriceDepthMax() );
+                TRICE16( ID(12605),"MSG: 💚 START select = %d\n", select );
                 TriceCheckSet(select);
-                TRICE16( Id(13314),"MSG: ✅ STOP  select = %d, TriceDepthMax =%4u\n", select, TriceDepthMax() );
+                #ifdef TRICE_HALF_BUFFER_SIZE
+                TRICE16( Id(14013),"MSG: ✅ STOP  select = %d, TriceDepthMax =%4u of %d\n", select, TriceDepthMax(), TRICE_HALF_BUFFER_SIZE );
+                #endif
+                if( timingError64Count ){
+                    TRICE( Id(15160), "err:%d timing errors 64-bit\n", timingError64Count );
+                }
+                if( timingError32Count ){
+                    TRICE( Id(15771), "err:%d timing errors 32-bit\n", timingError32Count );
+                }
                 index += 10;
                 index = index > 1000 ? 0 : index;
-                lastTricesTime = milliSecond;
                 {
                     volatile uint32_t st0 = SysTick->VAL;
                     volatile uint32_t us = ReadUs32();
                     volatile uint32_t st1 = SysTick->VAL;
-                    TRICE( Id(12849), "time: %d µs - ReadUs32() lasts %d ticks\n", us, st0 - st1);
+                    TRICE( id(14860), "time: %d µs - ReadUs32() lasts %d ticks\n", us, st0 - st1);
                 }
+                lastTricesTime = milliSecond;
             }
         }
         serveUs();
-        __WFI(); // wait for interrupt (sleep)
+        __WFI(); //lint !e718 !e746 wait for interrupt (sleep)
         serveUs();
     }
+//lint -e835 -e534
   /* USER CODE END 3 */
 }
 
@@ -373,7 +397,7 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-
+//lint +e835 +e534
 /* USER CODE END 4 */
 
 /**
@@ -385,7 +409,7 @@ void Error_Handler(void)
   /* USER CODE BEGIN Error_Handler_Debug */
   /* User can add his own implementation to report the HAL error return state */
   __disable_irq();
-  while (1)
+  for(;;)
   {
   }
   /* USER CODE END Error_Handler_Debug */

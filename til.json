@@ -291,6 +291,10 @@
 		"Type": "TRICE",
 		"Strg": "notice:TRICE16_F example:"
 	},
+	"10646": {
+		"Type": "TRICE",
+		"Strg": "err:%d timing errors 32-bit\\n"
+	},
 	"10649": {
 		"Type": "TRICE16",
 		"Strg": "rd:TRICE16 %p, %p\\n"
@@ -438,6 +442,10 @@
 	"10902": {
 		"Type": "TRICE8_2",
 		"Strg": "tst:TRICE8_2 %u %u\\n"
+	},
+	"10909": {
+		"Type": "TRICE32",
+		"Strg": "att: Trice stream buffer size:%4u "
 	},
 	"10921": {
 		"Type": "TRICE",
@@ -591,6 +599,10 @@
 		"Type": "TRICE32_1",
 		"Strg": "rd:TRICE32_1 line %b (%%b)\\n"
 	},
+	"11239": {
+		"Type": "TRICE32",
+		"Strg": "err:st32=%d \u003c st32_1=%d\\n"
+	},
 	"11243": {
 		"Type": "TRICE64",
 		"Strg": "rd:TRICE64 double %12.6G (%%12.6G), aDouble(y)\\n"
@@ -654,6 +666,10 @@
 	"11316": {
 		"Type": "TRICE64",
 		"Strg": "rd:TRICE64 double %g (%%g), aDouble(y)\\n"
+	},
+	"11321": {
+		"Type": "TRICE8",
+		"Strg": "s:     NUCLEO-G031K8     TRICE_MODE %3u     \\n"
 	},
 	"11324": {
 		"Type": "TRICE64",
@@ -931,6 +947,10 @@
 		"Type": "TRICE",
 		"Strg": "TIM:timing      message, SysTick is %6u\\n"
 	},
+	"11958": {
+		"Type": "TRICE_S",
+		"Strg": "rx:received command:%s\\n"
+	},
 	"11959": {
 		"Type": "TRICE16_7",
 		"Strg": "tst:TRICE16_7  %d %d %d %d %d %d %d\\n"
@@ -1151,6 +1171,10 @@
 		"Type": "TRICE64_1",
 		"Strg": "rd:TRICE64_1 line %b (%%b)\\n"
 	},
+	"12329": {
+		"Type": "TRICE32",
+		"Strg": "att: Trice stream buffer size:%4u "
+	},
 	"12330": {
 		"Type": "TRICE16",
 		"Strg": "rd:TRICE16 %p, %p, %p, %p, %p, %p, %p, %p, %p, %p\\n"
@@ -1158,6 +1182,10 @@
 	"12332": {
 		"Type": "TRICE16",
 		"Strg": "rd:TRICE16 %p, %p, %p, %p, %p, %p, %p, %p\\n"
+	},
+	"12336": {
+		"Type": "TRICE",
+		"Strg": "err:%d timing errors 32-bit\\n"
 	},
 	"12373": {
 		"Type": "TRICE8_10",
@@ -1423,6 +1451,10 @@
 		"Type": "TRICE32",
 		"Strg": "rd:TRICE32 float %12.6F (%%12.6F)\\n"
 	},
+	"12836": {
+		"Type": "TRICE32",
+		"Strg": "att: Trice stream buffer size:%4u "
+	},
 	"12842": {
 		"Type": "TRICE",
 		"Strg": "sig:TRICE16 with 1 to 12 values\\n"
@@ -1518,6 +1550,10 @@
 	"12994": {
 		"Type": "TRICE_2",
 		"Strg": "rd:TRICE_2 %d, %d\\n"
+	},
+	"12998": {
+		"Type": "TRICE",
+		"Strg": "err:%d timing errors\\n"
 	},
 	"13006": {
 		"Type": "TRICE_B",
@@ -1995,6 +2031,10 @@
 		"Type": "TRICE32",
 		"Strg": "tst:TRICE32 %d %d %d %d %d %d %d %d %d %d %d\\n"
 	},
+	"13913": {
+		"Type": "TRICE",
+		"Strg": "WARNING:USARTq OverRun Error Flag is set!\\n"
+	},
 	"13922": {
 		"Type": "TRICE64",
 		"Strg": "rd: 123.456\t\t%g\t\t%%g Exponent as needed, necessary digits only\\n"
@@ -2227,9 +2267,17 @@
 		"Type": "TRICE",
 		"Strg": "isr:TRICE isr message, SysTick is %6d\\n"
 	},
+	"14273": {
+		"Type": "TRICE",
+		"Strg": "err:%d timing errors 64-bit\\n"
+	},
 	"14289": {
 		"Type": "TRICE",
 		"Strg": " = %d\\n"
+	},
+	"14297": {
+		"Type": "TRICE",
+		"Strg": "err:%d timing errors 64-bit\\n"
 	},
 	"14308": {
 		"Type": "TRICE_S",
@@ -2599,6 +2647,10 @@
 		"Type": "TRICE32_4",
 		"Strg": "tst:TRICE32_4  %d %d %d %d\\n"
 	},
+	"14938": {
+		"Type": "TRICE64",
+		"Strg": "err:st64=%d \u003c st64_1=%d\\n"
+	},
 	"14943": {
 		"Type": "TRICE8_6",
 		"Strg": "tst:TRICE8_6 %d %d %d %d %d %d\\n"
@@ -2726,6 +2778,10 @@
 	"15157": {
 		"Type": "TRICE32",
 		"Strg": "rd:TRICE32 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"15160": {
+		"Type": "TRICE",
+		"Strg": "err:%d timing errors 64-bit\\n"
 	},
 	"15171": {
 		"Type": "TRICE",
@@ -3126,6 +3182,10 @@
 	"15763": {
 		"Type": "TRICE8_6",
 		"Strg": "tst:TRICE8_6  %d %d %d %d %d %d\\n"
+	},
+	"15771": {
+		"Type": "TRICE",
+		"Strg": "err:%d timing errors 32-bit\\n"
 	},
 	"15775": {
 		"Type": "TRICE32",

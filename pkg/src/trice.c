@@ -52,25 +52,26 @@ static int nextTrice( uint8_t** buf, size_t* pSize, uint8_t** pStart, size_t* pL
     *pStart = *buf;
     switch( triceType ){
         default:
-        case 0: // EX
-            len = size; // todo: Change that when needed.
-            // Extended trices without length information cannot be separated here.
-            // But it is possible to store them with length information and to remove it here.
-            break;
-        case 1: // NOTS
+        case 1: // NOS
             len = 4 + triceDataLen(*pStart + 2); // tyId
             break;
-        case 2: // TS16
+        case 2: // S16
             *pStart += 2; // see Id(n) macro definition
             offset = 2;
             len = 6 + triceDataLen(*pStart + 4); // tyId ts16
             break;
-        case 3: // TS32
+        case 3: // S32
             len = 8 + triceDataLen(*pStart + 6); // tyId ts32
+            break;
+        case 0: // S64
+            len = 12 + triceDataLen(*pStart + 10); // tyId ts64
+            //len = size; // todo: Change that when needed.
+            //// Extended trices without length information cannot be separated here.
+            //// But it is possible to store them with length information and to remove it here.
             break;
     }
     triceSize = (len + offset + 3) & ~3;
-    // T2 case example:             triceSize  len   t-0-3   t-o
+    // S16 case example:            triceSize  len   t-0-3   t-o
     // 80id 80id 1616 00cc                8     6      3      6
     // 80id 80id 1616 01cc dd            12     7      7     10
     // 80id 80id 1616 02cc dd dd         12     8      7     10

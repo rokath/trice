@@ -7,12 +7,45 @@
 #error
 #endif
 
-
-
 static uint32_t triceStreamBufferHeap[TRICE_STREAM_BUFFER_SIZE>>2] = {0}; //!< triceStreamBufferHeap is a kind of heap for trice messages.
        uint32_t* TriceBufferWritePosition = triceStreamBufferHeap; //!< TriceBufferWritePosition is the active write position.
 static uint32_t* triceBufferWriteLimit  =  &triceStreamBufferHeap[TRICE_STREAM_BUFFER_SIZE>>2]; //!< triceBufferWriteLimit is the triceBuffer written limit. 
 
+//! TRICE_FIFO_ELEMENTS is the amout of positions the triceFifo has.
+//! Must be a power of 2.
+#define TRICE_FIFO_ELEMENTS 512
+
+// TRICE_FIFO_MAX_DEPTH is the max possible count of values the triceFifo can hold.
+#define TRICE_FIFO_MAX_DEPTH (TRICE_FIFO_ELEMENTS-1)
+
+//! triceFifo holds up to TRICE_FIFO_MAX_DEPTH uint32_t* values.
+static uint32_t* triceFifo[TRICE_FIFO_ELEMENTS];
+
+//! triceFifoWriteIndex indexes the next write position.
+static unsigned triceFifoWriteIndex = 0;
+
+//! triceFifoReadIndex indexes the next read position.
+static unsigned triceFifoReadIndex = 0;
+
+//! triceFifoDepth returns the count of elements stored inside triceFifo.
+static int triceFifoDepth( void ){
+    return triceFifoWriteIndex - triceFifoReadIndex;
+}
+
+//! triceFifoPush stores v in triceFifo.
+//! There is no depth check.
+void TriceFifoPush( uint32_t* v ){
+    triceFifo[triceFifoWriteIndex++] = v;
+    triceFifoWriteIndex &= TRICE_FIFO_MAX_DEPTH;
+}
+
+//! triceFifoPop reads next value from triceFifo.
+//! There is no depth check.
+static uint32_t* triceFifoPop( void ){
+    uint32_t* v = triceFifo[triceFifoReadIndex++];
+    triceFifoReadIndex &= TRICE_FIFO_MAX_DEPTH;
+    return v;
+}
 
 //! TriceStreamBufferSpace returns the space until buffer end.
 uint32_t* TriceNextStreamBuffer( void ){
@@ -26,37 +59,32 @@ uint32_t* TriceNextStreamBuffer( void ){
     }
 }
 
-void TriceAddressPush( uint32_t* ta ){
-}
-
-uint32_t* TriceAddressPop( void ){
-    return triceStreamBufferHeap;
-}
-
-//! triceDepth returns the total trice byte count ready for transfer.
+//! triceLen returns the trice byte count ready for transfer including padding bytes.
 //! The trice data start at tb + TRICE_DATA_OFFSET.
 //! The returned depth is without the TRICE_DATA_OFFSET offset.
-static size_t triceDepth( uint32_t const* tb ){
-    size_t depth = (triceBufferWriteLimit - tb)<<2; //lint !e701 // 32-bit write width 
+static size_t triceDepth( uint32_t const* tBuf ){
+    uint32_t* limit = triceFifoPop(); 
+    size_t depth = (limit - tBuf)<<2;
     return depth - TRICE_DATA_OFFSET;
 }
-
 
 //! TriceTransfer, if possible, initiates a write.
 //! It is the resposibility of the app to call this function.
 void TriceTransfer( void ){
     if( 0 == TriceOutDepth() ){ // transmission done, so a new is possible
-        uint32_t* tb = TriceAddressPop(); 
-        size_t tLen = triceDepth(tb); // tlen is always a multiple of 4
-        if( tLen ){
-            TriceOut( tb, tLen );
+        if( triceFifoDepth() >= 2 ){ // data in triceFifo
+            uint32_t* tBuf = triceFifoPop(); 
+            size_t tLen = triceDepth(tBuf); // tlen is always a multiple of 4
+            if( tLen ){
+                TriceOut( tBuf, tLen );
+            }
         }
     } // else: transmission not done yet
 }
 
 void TriceLogBufferInfo( void ){
+    TRICE32( Id(10909), "att: Trice stream buffer size:%4u ", TRICE_STREAM_BUFFER_SIZE );
 }
-
 
 #if defined( TRICE_UART ) // direct out to UART
 void TriceWrite( uint8_t const * buf, unsigned len ){

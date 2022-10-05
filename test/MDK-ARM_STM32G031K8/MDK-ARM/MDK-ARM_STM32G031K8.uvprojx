@@ -315,7 +315,7 @@
           <Cads>
             <interw>1</interw>
             <Optim>4</Optim>
-            <oTime>1</oTime>
+            <oTime>0</oTime>
             <SplitLS>0</SplitLS>
             <OneElfS>1</OneElfS>
             <Strict>0</Strict>
@@ -473,6 +473,26 @@
               <FileName>SEGGER_RTT.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\third_party\segger.com\SEGGER_RTT\RTT\SEGGER_RTT.c</FilePath>
+            </File>
+            <File>
+              <FileName>triceDoubleBuffer.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\pkg\src\triceDoubleBuffer.c</FilePath>
+            </File>
+            <File>
+              <FileName>triceStackBuffer.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\pkg\src\triceStackBuffer.c</FilePath>
+            </File>
+            <File>
+              <FileName>triceStreamBuffer.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\pkg\src\triceStreamBuffer.c</FilePath>
+            </File>
+            <File>
+              <FileName>tcobsv1Encode.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\pkg\src\tcobsv1Encode.c</FilePath>
             </File>
           </Files>
         </Group>

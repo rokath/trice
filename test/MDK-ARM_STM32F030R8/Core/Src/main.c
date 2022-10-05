@@ -23,7 +23,6 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "trice.h"
-//#define TRICE_FILE Id(11256)
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -170,7 +169,7 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-    while (1){ //lint !e716
+    for(;;){
         if( triceCommandFlag ){
             triceCommandFlag = 0;
             TRICE_S( Id(11673), "att:Executing command %s ...\n", triceCommand );

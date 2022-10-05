@@ -126,13 +126,21 @@ uint32_t TriceStamp32( void );
 
 //! TRICE_STREAM_BUFFER_SIZE is the total size of the stream buffer. Must be able to hold the max TRICE burst count or even more,
 //! if the write out speed is small.
-#define TRICE_STREAM_BUFFER_SIZE  ((TRICE_BUFFER_SIZE +3) &~3)
+#define TRICE_STREAM_BUFFER_SIZE  (TRICE_BUFFER_SIZE)
 
 //! TRICE_ENTER is the start of TRICE macro. The TRICE macros are a bit slower. Inside interrupts TRICE macros allowed.
-#define TRICE_ENTER TRICE_ENTER_CRITICAL_SECTION { uint32_t* ta = TriceBufferWritePosition;
+#define TRICE_ENTER TRICE_ENTER_CRITICAL_SECTION { \
+    uint32_t* ta = TriceBufferWritePosition; /* The last position points to free space.*/ \
+    TriceBufferWritePosition += (TRICE_DATA_OFFSET>>2); /* add offset */ 
 
 //! TRICE_LEAVE is the end of TRICE macro.
-#define TRICE_LEAVE TriceAddressPush( ta ); TriceBufferWritePosition = TriceNextStreamBuffer(); } TRICE_LEAVE_CRITICAL_SECTION
+//! The triceFifo stores the write position before and after the TRICE macro execution.
+//! This is needed to know the trice size later in a general way. In the future several trice fifos possible. 
+#define TRICE_LEAVE \
+    TriceFifoPush( ta ); /* Store start of tricr including TRICE_DATA_OFFSET. */ \
+    TriceFifoPush( TriceBufferWritePosition ); /* Store current limit for size detection. */ \
+    TriceBufferWritePosition = TriceNextStreamBuffer(); /* Wrap straem buffer if needed. */ \
+    } TRICE_LEAVE_CRITICAL_SECTION
 
 #endif // #if TRICE_MODE == TRICE_STREAM_BUFFER
 
@@ -156,8 +164,7 @@ extern uint32_t* TriceBufferWritePosition;
 size_t triceNonBlockingWrite( void const * buf, size_t nByte );
 
 #if TRICE_MODE == TRICE_STREAM_BUFFER
-void TriceAddressPush( uint32_t* ta );
-uint32_t* TriceAddressPop( void );
+void TriceFifoPush( uint32_t* ta );
 uint32_t* TriceNextStreamBuffer( void );
 #endif
 
