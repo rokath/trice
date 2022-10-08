@@ -97,12 +97,18 @@ With [TREX](#TREXTriceextendableencoding) encoding the location information need
 * [x] A 32-bit wide *Trice* storage access is implemented for speed. 
 * [x] All main stream logs share the same 14 bit ID space allowing 1-16383 IDs in 3 variants parallel usable:
 
-| 16-bit groups            | *Trice* code                 | Comment                                         |
-| :-                       | -                            | -                                               |
-| `01iiiiiiI NC  ...`      | `TRICE( id(n), "...", ...);` | *Trice* format without     timestamp |
-| `10iiiiiiI TT NC ...`    | `TRICE( Id(n), "...", ...);` | *Trice* format with 16-bit timestamp |
-| `11iiiiiiI TT TT NC ...` | `TRICE( ID(n), "...", ...);` | *Trice* format with 32-bit timestamp |
+| 16-bit groups                  | *Trice* code                 | Comment                                         |
+| :-                             | -                            | -                                               |
+| `011iiiiiI NC  ...`            | `TRICE( id(n), "...", ...);` | *Trice* format without     stamp |
+| `101iiiiiI TT NC ...`          | `TRICE( Id(n), "...", ...);` | *Trice* format with 16-bit stamp |
+| `111iiiiiI TT TT NC ...`       | `TRICE( ID(n), "...", ...);` | *Trice* format with 32-bit stamp |
+| `001iiiiiI TT TT TT TT NC ...` | `TRICE( iD(n), "...", ...);` | *Trice* format with 64-bit stamp |
+| `010xxxxX ...`                 | `TRICE( iI(n), "...", ...);` | *Trice* extended type 1 format |
+| `100xxxxX ...`                 | `TRICE( Ii(n), "...", ...);` | *Trice* extended type 2 format |
+| `110xxxxX ...`                 | `TRICE( II(n), "...", ...);` | *Trice* extended type 3 format |
+| `000xxxxX ...`                 | `TRICE( ii(n), "...", ...);` | *Trice* extended type 0 format |
 
+* This leaves 13 ID bits allowing numbers 1-8191.
 * Technically it is possible to have distinct ID spaces for each ID type but this would give no real advantage and complicate the handling only.
 * [x] For straight forward runtime code, the identifiers `id`, `Id` and `ID` are sub macros:
   * [x] **id(n)**
