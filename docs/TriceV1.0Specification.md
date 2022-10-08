@@ -245,6 +245,20 @@ TRICE( TS32, "...", ...); // a trice with a 32-bit timestamp
 TRICE( MOD7, "...", ...); // a trice with a user mode 7 encoding
 ```
 
+```c
+TRICE( S0, "...", ...); // a trice without stamp
+TRICE( S2, "...", ...); // a trice with a 16-bit stamp
+TRICE( S4, "...", ...); // a trice with a 32-bit stamp
+TRICE( S8, "...", ...); // a trice with a 64-bit stamp
+```
+
+```c
+TRICE( X0, "...", ...); // an extended type 0 trice 
+TRICE( X1, "...", ...); // an extended type 1 trice 
+TRICE( X2, "...", ...); // an extended type 2 trice 
+TRICE( X3, "...", ...); // an extended type 3 trice 
+```
+
 * When editing, the user needs to write only `TRICE( "...", ...);` and the trice tool inserts a T0, T2 or T4 automatically according to the used `-timeStamp` switch parameter.
 * After repository check-out and before compiling, following substitutions are done using `trice -u`:
   * `TRICE( NOTS, "...", ...);` → `TRICE( id(0), "...", ...);` → `TRICE( id(12345), "...", ...);`
@@ -289,3 +303,4 @@ TRICE( MOD7, "...", ...); // a trice with a user mode 7 encoding
 | 2022-AUG-14 | 0.10.0  | Chapter ID Management added |
 | 2022-AUG-19 | 0.11.0  | Chapter Main Stream Logs changed/extended |
 | 2022-SEP-15 | 0.11.1  | TS32, TS16, NOTS, MOD7 added |
+| 2022-OCT-08 | 0.11.2  | S0...X3 added |
