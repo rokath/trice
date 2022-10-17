@@ -103,11 +103,12 @@ With [TREX](#TREXTriceextendableencoding) encoding the location information need
 | `101iiiiiI TT NC ...`          | `TRICE( Id(n), "...", ...);` | *Trice* format with 16-bit stamp |
 | `111iiiiiI TT TT NC ...`       | `TRICE( ID(n), "...", ...);` | *Trice* format with 32-bit stamp |
 | `001iiiiiI TT TT TT TT NC ...` | `TRICE( iD(n), "...", ...);` | *Trice* format with 64-bit stamp |
-| `000xxxxxX ...`                | `TRICE( ii(n), "...", ...);` | extended *Trice* format |
-| `010xxxxxX ...`                | `TRICE( iI(n), "...", ...);` | extended *Trice* format |
-| `100xxxxxX ...`                | `TRICE( Ii(n), "...", ...);` | extended *Trice* format |
-| `110xxxxxX ...`                | `TRICE( II(n), "...", ...);` | extended *Trice* format |
+| `000xxxxX ...`                 | `TRICE( ii(n), "...", ...);` | *Trice* extended type 0 format |
+| `010xxxxX ...`                 | `TRICE( iI(n), "...", ...);` | *Trice* extended type 1 format |
+| `100xxxxX ...`                 | `TRICE( Ii(n), "...", ...);` | *Trice* extended type 2 format |
+| `110xxxxX ...`                 | `TRICE( II(n), "...", ...);` | *Trice* extended type 3 format |
 
+* This leaves 13 ID bits allowing numbers 1-8191.
 * Technically it is possible to have distinct ID spaces for each ID type but this would give no real advantage and complicate the handling only.
 * [x] For straight forward runtime code, the identifiers `id`, `Id` and `ID` are sub macros:
   * [x] **id(n)**
@@ -250,6 +251,20 @@ TRICE( TS32, "...", ...); // a trice with a 32-bit timestamp
 TRICE( MOD7, "...", ...); // a trice with a user mode 7 encoding
 ```
 
+```c
+TRICE( S0, "...", ...); // a trice without stamp
+TRICE( S2, "...", ...); // a trice with a 16-bit stamp
+TRICE( S4, "...", ...); // a trice with a 32-bit stamp
+TRICE( S8, "...", ...); // a trice with a 64-bit stamp
+```
+
+```c
+TRICE( X0, "...", ...); // an extended type 0 trice 
+TRICE( X1, "...", ...); // an extended type 1 trice 
+TRICE( X2, "...", ...); // an extended type 2 trice 
+TRICE( X3, "...", ...); // an extended type 3 trice 
+```
+
 * When editing, the user needs to write only `TRICE( "...", ...);` and the trice tool inserts a T0, T2 or T4 automatically according to the used `-timeStamp` switch parameter.
 * After repository check-out and before compiling, following substitutions are done using `trice -u`:
   * `TRICE( NOTS, "...", ...);` → `TRICE( id(0), "...", ...);` → `TRICE( id(12345), "...", ...);`
@@ -294,3 +309,4 @@ TRICE( MOD7, "...", ...); // a trice with a user mode 7 encoding
 | 2022-AUG-14 | 0.10.0  | Chapter ID Management added |
 | 2022-AUG-19 | 0.11.0  | Chapter Main Stream Logs changed/extended |
 | 2022-SEP-15 | 0.11.1  | TS32, TS16, NOTS, MOD7 added |
+| 2022-OCT-08 | 0.11.2  | S0...X3 added |
