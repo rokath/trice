@@ -228,5 +228,3 @@ The **trice** tool can also perform further tasks like JSON encoding with additi
 ![GitHub search hit counter](https://img.shields.io/github/search/rokath/trice/C)
 
 -->
-
-[![Anurag's GitHub stats](https://github-readme-stats.vercel.app/api?username=rokath)](https://github.com/anuraghazra/github-readme-stats)
