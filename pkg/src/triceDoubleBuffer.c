@@ -1,4 +1,6 @@
-
+//! \file triceDoubleBuffer.c
+//! \author Thomas.Hoehenleitner [at] seerose.net
+//! //////////////////////////////////////////////////////////////////////////
 #include "trice.h"
 
 #if TRICE_MODE == TRICE_DOUBLE_BUFFER

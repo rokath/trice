@@ -1,6 +1,6 @@
-/*! \file trice.c
-\author Thomas.Hoehenleitner [at] seerose.net
-*******************************************************************************/
+//! \file trice.c
+//! \author Thomas.Hoehenleitner [at] seerose.net
+//! ///////////////////////////////////////////////////////////////////////////
 #include "trice.h"
 #include "tcobs.h"
 #include "xtea.h"

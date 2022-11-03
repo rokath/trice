@@ -1,4 +1,6 @@
-
+//! \file triceStackBuffer.c
+//! \author Thomas.Hoehenleitner [at] seerose.net
+//! //////////////////////////////////////////////////////////////////////////
 #include "trice.h"
 
 #if TRICE_MODE == TRICE_STACK_BUFFER
