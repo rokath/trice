@@ -15,7 +15,7 @@
   | `triceStreamBuffer.c`                              | trice runtime lib extension needed for recommended indirect mode |
   | `tcobs.h`, `tcobsv1Internal.h` & `tcobsv1Encode.c` | message compression and packaging, the `*.h` files need **no** `#include ...` |
   | `xtea.h` & `xtea.c`                                | UNTESTED with TREX, needed for XTEA message encryption, if enabled |
-  | `triceCheck.c` | contains test code and is not needed for production code, but you can temporarily add it to your project for checking |
+  | `triceCheck.c` | contains example code and is not needed for production code, but you can temporarily add it to your project for checking |
   | `trice_test.c` | ignore, this file is used from Go when `go test ./...` is executed. |
 
 * The TCOBS files are copied from [https://github.com/rokath/tcobs/tree/master/TCOBSv1](https://github.com/rokath/tcobs/tree/master/TCOBSv1). They are maintained there and extensively tested and probably not a matter of significant change.
