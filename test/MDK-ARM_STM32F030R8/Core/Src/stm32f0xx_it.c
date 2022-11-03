@@ -151,7 +151,6 @@ void SysTick_Handler(void)
 /**
   * @brief This function handles USART2 global interrupt.
   */
-
 void USART2_IRQHandler(void)
 {
   /* USER CODE BEGIN USART2_IRQn 0 */
