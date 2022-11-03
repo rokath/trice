@@ -21,7 +21,7 @@
 * The TCOBS files are copied from [https://github.com/rokath/tcobs/tree/master/TCOBSv1](https://github.com/rokath/tcobs/tree/master/TCOBSv1). They are maintained there and extensively tested and probably not a matter of significant change.
 * For SEGGER RTT usage, the file `../../third_party/segger.com/SEGGER_RTT/RTT/SEGGER_RTT.c` needs to be included and `../../third_party/segger.com/SEGGER_RTT/RTT/` should be part of the target compiler include path. You could check for a newer version at [https://www.segger.com/downloads/jlink/](https://www.segger.com/downloads/jlink/).
 
-## Files `src.go` and `src_test.go`
+## Files `trice.go` and `trice_test.go`
 
 * The package src is not needed for the `trice` tool.
 * File src_test.go contains test functions to execute the C code during `go test ./...`
