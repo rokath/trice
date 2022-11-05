@@ -133,13 +133,13 @@ uint32_t TriceStamp32( void );
     uint32_t* ta = TriceBufferWritePosition; /* The last position points to free space.*/ \
     TriceBufferWritePosition += (TRICE_DATA_OFFSET>>2); /* add offset */ 
 
-//! TRICE_LEAVE is the end of TRICE macro.
+//! TRICE_LEAVE is the end of the TRICE macro.
 //! The triceFifo stores the write position before and after the TRICE macro execution.
 //! This is needed to know the trice size later in a general way. In the future several trice fifos possible. 
 #define TRICE_LEAVE \
-    TriceFifoPush( ta ); /* Store start of tricr including TRICE_DATA_OFFSET. */ \
-    TriceFifoPush( TriceBufferWritePosition ); /* Store current limit for size detection. */ \
-    TriceBufferWritePosition = TriceNextStreamBuffer(); /* Wrap straem buffer if needed. */ \
+    TriceFifoPush( ta ); /* Store start of trice including TRICE_DATA_OFFSET. */ \
+    TriceFifoPush( TriceBufferWritePosition ); /* Store current limit for size detection in case of extended trices. */ \
+    TriceBufferWritePosition = TriceNextStreamBuffer(); /* Wrap stream buffer if needed. */ \
     } TRICE_LEAVE_CRITICAL_SECTION
 
 #endif // #if TRICE_MODE == TRICE_STREAM_BUFFER
@@ -425,8 +425,8 @@ static inline uint64_t aDouble( double x ){
         TRICE32( Id(14113), "wrn:Transmit buffer truncated from %u to %u\n", len_, limit ); \
         len_ = limit; \
     } \
-        TRICE_ENTER id; \
-        if( len_ <= 127 ){ CNTC(len_); }else{ LCNT(len_); } \
+    TRICE_ENTER id; \
+    if( len_ <= 127 ){ CNTC(len_); }else{ LCNT(len_); } \
     TRICE_PUTBUFFER( buf, len_ ); \
     TRICE_LEAVE \
 } while(0)
@@ -464,17 +464,25 @@ static inline uint64_t aDouble( double x ){
 #define TRICE_PUT1616( ts ); TRICE_PUT16( ts ); TRICE_PUT16( ((ts) >> 16) ); 
 #endif
 
-//! ID writes 14-bit id with 11 as most significant bits, followed by a 32-bit timestamp.
-//! 11iiiiiiI TT | TT (NC) | ...
-#define ID(n) { uint32_t ts = TriceStamp32(); TRICE_PUT16( (0xC000|(n))); TRICE_PUT1616(ts); }
+//! ID writes 13-bit id with 001 as 3 most significant bits, followed by a 64-bit stamp.
+//! 001iiiiiI TT | TT TT | TT (NC) | ...
+//! 2000 = 0010 0000 0000 0000
+#define iD(n) { uint64_t ts = TriceStamp64(); TRICE_PUT16( (0x2000|(n))); TRICE_PUT1616(ts); TRICE_PUT1616(ts>>16); }
 
-//! Id writes 14-bit id with 10 as most significant bits two times, followed by a 32-bit timestamp.
-//! 10iiiiiiI 10iiiiiiI | TT (NC) | ...
-#define Id(n) { uint16_t ts = TriceStamp16(); TRICE_PUT((0x80008000|((n)<<16)|(n))); TRICE_PUT16(ts); }
+//! ID writes 13-bit id with 111 as 3 most significant bits, followed by a 32-bit stamp.
+//! 111iiiiiI TT | TT (NC) | ...
+//! E000 = 1110 0000 0000 0000
+#define ID(n) { uint32_t ts = TriceStamp32(); TRICE_PUT16( (0xE000|(n))); TRICE_PUT1616(ts); }
 
-//! id writes 14-bit id with 01 as most significant bits, followed by a 32-bit timestamp.
+//! Id writes 13-bit id with 101 as 3 most significant bits two times, followed by a 16-bit stamp.
+//! 101iiiiiI 101iiiiiI | TT (NC) | ...
+//! A000 = 1010 0000 0000 0000
+#define Id(n) { uint16_t ts = TriceStamp16(); TRICE_PUT((0xA000A000|((n)<<16)|(n))); TRICE_PUT16(ts); }
+
+//! id writes 13-bit id with 011 as 3 most significant bits, followed by no stamp.
 //! 01iiiiiiI (NC) | ...
-#define id(n) TRICE_PUT16( 0x4000|(n));
+//! 6000 = 0110 0000 0000 0000
+#define id(n) TRICE_PUT16( 0x6000|(n));
 
 //! CNTC writes 7-bit byte count and 8-bit cycle counter.
 #define CNTC(count) TRICE_PUT16( ((count)<<8) | TRICE_CYCLE );

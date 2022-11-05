@@ -22,10 +22,16 @@ uint8_t  TriceCycle = 0xc0; //!< TriceCycle is increased and transmitted with ea
 
 //! triceDataLen returns encoded len.
 //! \param p points to nc
-// *da = 11iiiiiiI 11iiiiiiI TT TT NC ...
-// *da = 10iiiiiiI TT NC ...
-// *da = 01iiiiiiI 11iiiiiiI NC ...
-// *da = 00...
+//! To avoid alignment issues, the optional payload (...) needs to start at a 32-bit boundary.
+//! The provided buffer starts also at a 32-bit boundary.
+//! To ensure, the first 16-bit value is ssiiiiiiI we do the following:
+//! \li ______v___________________v__________v__ (32-bit alignment positions)
+//! \li *da = 111iiiiiI TT        TT      NC ... | ID(n): After writing 11iiiiiiI write the 32-bit TTTT value in 2 16-bit write operations.
+//! \li *da = 101iiiiiI 10iiiiiiI TT      NC ... | Id(n): Write 10iiiiiiI as doubled value in one 32-bit operation into the trice buffer. The first 16-bit will be removed just before sending to the out channel. 
+//! \li *da = 011iiiiiI                   NC ... | id(n): Just write 01iiiiiiI as 16-nit operation.
+//! \li *da = 001iiiiiI TT        TTTT TT NC ... | iD(n): like ID but with 64-bit stamp instead of 32-bit stamp
+//! \li *da = ss0......extended trices are not used yet
+//! \li This way, after writing the 16-bit NC value the payload starts always at a 32-bit boundary.
 static size_t triceDataLen( uint8_t const* p ){
     uint16_t nc = *(uint16_t*)p; //lint !e826
     size_t n = nc>>8;
@@ -44,7 +50,7 @@ unsigned triceErrorCount = 0;
 //! \retval is 0 on success or negative on error.
 static int nextTrice( uint8_t** buf, size_t* pSize, uint8_t** pStart, size_t* pLen ){
     uint16_t* pNC = (uint16_t*)*buf; //lint !e826 
-    int triceType = *pNC >> 14; // todo: this will not work with extended trices only 1 byte long
+    int triceType = *pNC >> 13; // todo: this will not work with extended trices only 1 byte long
     unsigned offset = 0;
     size_t size = *pSize;
     size_t triceSize;
@@ -52,22 +58,27 @@ static int nextTrice( uint8_t** buf, size_t* pSize, uint8_t** pStart, size_t* pL
     *pStart = *buf;
     switch( triceType ){
         default:
-        case 1: // NOS
+        case 3: // NOS = no stamp
             len = 4 + triceDataLen(*pStart + 2); // tyId
             break;
-        case 2: // S16
+        case 5: // S16 = 16-bit stamp
             *pStart += 2; // see Id(n) macro definition
             offset = 2;
             len = 6 + triceDataLen(*pStart + 4); // tyId ts16
             break;
-        case 3: // S32
+        case 7: // S32 = 32-bit stamp
             len = 8 + triceDataLen(*pStart + 6); // tyId ts32
             break;
-        case 0: // S64
+        case 1: // S64 = 64-bit stamp
             len = 12 + triceDataLen(*pStart + 10); // tyId ts64
             //len = size; // todo: Change that when needed.
             //// Extended trices without length information cannot be separated here.
             //// But it is possible to store them with length information and to remove it here.
+            break;
+        case 0:
+        case 2:
+        case 4:
+        case 6:
             break;
     }
     triceSize = (len + offset + 3) & ~3;
@@ -112,6 +123,7 @@ void TriceOut( uint32_t* tb, size_t tLen ){
     // diagnostics
     tLen += TRICE_DATA_OFFSET; 
     triceDepthMax = tLen < triceDepthMax ? triceDepthMax : tLen;
+    // do it
     while(len){
         uint8_t* triceStart;
         size_t triceLen;

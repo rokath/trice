@@ -11,7 +11,7 @@ static uint32_t triceStreamBufferHeap[TRICE_STREAM_BUFFER_SIZE>>2] = {0}; //!< t
        uint32_t* TriceBufferWritePosition = triceStreamBufferHeap; //!< TriceBufferWritePosition is the active write position.
 static uint32_t* triceBufferWriteLimit  =  &triceStreamBufferHeap[TRICE_STREAM_BUFFER_SIZE>>2]; //!< triceBufferWriteLimit is the triceBuffer written limit. 
 
-//! TRICE_FIFO_ELEMENTS is the amout of positions the triceFifo has.
+//! TRICE_FIFO_ELEMENTS is the amount of positions the triceFifo has.
 //! Must be a power of 2.
 #define TRICE_FIFO_ELEMENTS 512
 
@@ -53,9 +53,9 @@ uint32_t* TriceNextStreamBuffer( void ){
         for(;;); // buffer overflow
     }
     if( triceBufferWriteLimit - TriceBufferWritePosition > TRICE_SINGLE_MAX_SIZE ){
-        return TriceBufferWritePosition;
+        return TriceBufferWritePosition; // enough space at buffer end
     }else{
-        return triceStreamBufferHeap;
+        return triceStreamBufferHeap; // buffer wrap
     }
 }
 
@@ -69,16 +69,16 @@ static size_t triceDepth( uint32_t const* tBuf ){
 }
 
 //! TriceTransfer, if possible, initiates a write.
-//! It is the resposibility of the app to call this function.
+//! It is the responsibility of the app to call this function.
 void TriceTransfer( void ){
     if( 0 == TriceOutDepth() ){ // transmission done, so a new is possible
         if( triceFifoDepth() >= 2 ){ // data in triceFifo
             uint32_t* tBuf = triceFifoPop(); 
             size_t tLen = triceDepth(tBuf); // tlen is always a multiple of 4
-            if( tLen ){
+            //if( tLen ){ tLen is always > 0 here
                 TriceOut( tBuf, tLen );
-            }
-        }
+            //}
+        } // else: nothing to transfer
     } // else: transmission not done yet
 }
 
