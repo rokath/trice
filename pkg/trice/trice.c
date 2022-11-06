@@ -79,7 +79,7 @@ static int nextTrice( uint8_t** buf, size_t* pSize, uint8_t** pStart, size_t* pL
         case 2:
         case 4:
         case 6:
-            break;
+            for(;;); // extended trices not supported (yet)
     }
     triceSize = (len + offset + 3) & ~3;
     // S16 case example:            triceSize  len   t-0-3   t-o

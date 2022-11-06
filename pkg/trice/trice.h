@@ -169,6 +169,8 @@ uint32_t* TriceNextStreamBuffer( void );
 #endif
 
 extern unsigned triceDepthMax;
+extern size_t triceFifoDepthMax;
+extern size_t triceStreamBufferDepthMax;
 
 void TriceOut( uint32_t* tb, size_t tLen );
 void TriceLogBufferInfo( void );
@@ -199,14 +201,6 @@ static inline unsigned TriceOutDepth( void ){ return 0; }
 #define TRICE_DATA_OFFSET ((TRICE_STACK_BUFFER_MAX_SIZE/31+5)&~3) // For single trices the worst case is +1 for each 31 plus terminating 0 at the end
 #else
 #define TRICE_DATA_OFFSET ((TRICE_SINGLE_MAX_SIZE/31+5)&~3) // For single trices the worst case is +1 for each 31 plus terminating 0 at the end
-#endif
-
-
-
-#ifndef TRICE_TRANSFER_INTERVAL_MS
-//! TRICE_TRANSFER_INTERVAL_MS is the milliseconds interval for TRICE buffer read out.
-//! This time should be shorter than visible delays. The TRICE_HALF_BUFFER_SIZE must be able to hold all trice messages possibly occouring in this time.
-#define TRICE_TRANSFER_INTERVAL_MS 100
 #endif
 
 #if TRICE_CYCLE_COUNTER == 1
@@ -419,7 +413,7 @@ static inline uint64_t aDouble( double x ){
 // todo: for some reason this macro is not working well wit name len instead of len_, probably when injected len as value.
 //
 #define TRICE_N( id, pFmt, buf, n) do { \
-    uint32_t limit = TRICE_SINGLE_MAX_SIZE-8; /* 8 = head + max timestamp size */ \
+    uint32_t limit = TRICE_SINGLE_MAX_SIZE-8; /* 8 = head + max timestamp size --> todo: consider 64-bit stamp! */ \
     uint32_t len_ = n; /* n could be a constant */ \
     if( len_ > limit ){ \
         TRICE32( Id(14113), "wrn:Transmit buffer truncated from %u to %u\n", len_, limit ); \

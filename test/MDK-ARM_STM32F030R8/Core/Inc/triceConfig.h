@@ -18,7 +18,7 @@ extern "C" {
 //! TRICE_MODE is a predefined trice transfer method. Options: TRICE_STACK_BUFFER, TRICE_DOUBLE_BUFFER, TRICE_STREAM_BUFFER
 //!
 //! TRICE_STACK_BUFFER:
-//! \li Direct output to UART or RTT with cycle counter. Trices inside interrupts forbidden. Direct TRICE macro execution.
+//! \li Direct output to UART or RTT with cycle counter. For UART transfer trices inside interrupts forbidden. Direct TRICE macro execution.
 //! \li This mode is mainly for a quick tryout start or if no timing constrains for the TRICE macros exist.
 //! \li Only a putchar() function is required - look for triceBlockingPutChar().
 //! \li UART Command line similar to: `trice log -p COM1 -baud 115200`
@@ -27,23 +27,30 @@ extern "C" {
 //! \li ST-LINK Command line similar to: `trice log -p ST-LINK -args="-Device STM32G071RB -if SWD -Speed 4000 -RTTChannel 0 -RTTSearchRanges 0x20000000_0x1000"`
 //!
 //! TRICE_DOUBLE_BUFFER:
-//! \li Double Buffering output to RTT or UART with cycle counter. Trices inside interrupts allowed. Fast TRICE macro execution.
+//! \li Double Buffering output to UART with cycle counter. Trices inside interrupts allowed. Fast TRICE macro execution.
+//! \li Works also with RTT but makes usually no sense because then TRICE_MODE == TRICE_STACK_BUFFER is more effective and needs less memory.
 //! \li UART Command line similar to: `trice log -p COM1 -baud 115200`
 //! \li RTT Command line similar to: `trice l -args="-Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0 -RTTSearchRanges 0x20000000_0x1000"`
 //!
 //! TRICE_STREAM_BUFFER:
-//! \li Stream Buffering output to UART. Allows avoiding priority inversion.
+//! \li Stream Buffering output to UART. Needs less buffer memory for the price of being a bit slower.
 //! \li Command line similar to: `trice log -p COM1 -baud 115200`
-#define TRICE_MODE TRICE_STACK_BUFFER 
-
-//! TRICE_BUFFER_SIZE must be carefully choosen.
-//! \li TRICE_MODE == TRICE_STACK_BUFFER: TRICE_BUFFER_SIZE is the used additional max stack size for a single TRICE macro. Recommended value: TRICE_SINGLE_MAX_SIZE plus 32.
-//! \li TRICE_MODE == TRICE_DOUBLE_BUFFER: TRICE_BUFFER_SIZE is the double half buffer size usable for a TRICE macro burst. Recommended value: 2000.
-//! \li TRICE_MODE == TRICE_STREAM_BUFFER: TRICE_BUFFER_SIZE is the used max buffer size for a TRICE macro burst. Recommended value: 1000.
-#define TRICE_BUFFER_SIZE 128
+#define TRICE_MODE TRICE_STREAM_BUFFER 
 
 //! TRICE_SINGLE_MAX_SIZE is used to truncate long dynamically generated strings and to detect the need of a stream buffer wrap.
-#define TRICE_SINGLE_MAX_SIZE 80
+//! Be careful with this value: When using 12 64-bit values with a 64-bit stamp the trice size is 2 + 8 + 2 + 12*8 = 108 bytes 
+#define TRICE_SINGLE_MAX_SIZE 120 // no need for a power of 2 here
+
+#if TRICE_MODE == TRICE_STACK_BUFFER
+#define TRICE_BUFFER_SIZE (TRICE_SINGLE_MAX_SIZE + 8) //!< TRICE_BUFFER_SIZE is the used additional max stack size for a single TRICE macro. Recommended value: TRICE_SINGLE_MAX_SIZE plus 8.
+#elif TRICE_MODE == TRICE_STREAM_BUFFER 
+#define TRICE_TRANSFER_INTERVAL_MS 10 //!< TRICE_TRANSFER_INTERVAL_MS is the milliseconds interval for a single TRICE read out. Each trigger transfers up to one trice, so make this value not too big to get all trices out in the average. This time should be shorter than visible delays. 
+#define TRICE_FIFO_ELEMENTS 128 //!< Must be a power of 2. The half number is the amount of bufferable trices before they go out.
+#define TRICE_BUFFER_SIZE 0x800 //!< TRICE_BUFFER_SIZE is the used max buffer size for a TRICE macro burst. Recommended value: 2000.
+#elif TRICE_MODE == TRICE_DOUBLE_BUFFER 
+#define TRICE_TRANSFER_INTERVAL_MS 100 //!< TRICE_TRANSFER_INTERVAL_MS is the milliseconds interval for TRICE buffer read out. Each trigger transfers all in a half buffer stored trices. The TRICE_HALF_BUFFER_SIZE must be able to hold all trice messages possibly occouring in this time. This time should be shorter than visible delays. 
+#define TRICE_BUFFER_SIZE 0x800 //!< TRICE_BUFFER_SIZE is the double half buffer size usable for a TRICE macro burst. Recommended value: 2000.
+#endif
 
 //! Enable and set channel number for SeggerRTT usage. Only channel 0 works right now for some reason.
 //#define TRICE_RTT_CHANNEL 0

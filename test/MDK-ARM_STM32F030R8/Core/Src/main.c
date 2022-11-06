@@ -196,18 +196,21 @@ int main(void)
                 int select = index;
                 TRICE16( ID(12605),"MSG: 💚 START select = %d\n", select );
                 TriceCheckSet(select);
-                #ifdef TRICE_HALF_BUFFER_SIZE
+                #if TRICE_MODE == TRICE_HALF_BUFFER_SIZE
                 TRICE16( Id(14013),"MSG: ✅ STOP  select = %d, TriceDepthMax =%4u of %d\n", select, TriceDepthMax(), TRICE_HALF_BUFFER_SIZE );
+                #endif
+                #if TRICE_MODE == TRICE_STREAM_BUFFER
+                TRICE( Id(11125), "MSG:triceFifoDepthMax = %d of max %d, triceStreamBufferDepthMax = %d of max %d\n", triceFifoDepthMax, TRICE_FIFO_ELEMENTS, triceStreamBufferDepthMax, TRICE_BUFFER_SIZE );
                 #endif
                 index += 10;
                 index = index > 1000 ? 0 : index;
                 lastTricesTime = milliSecond;
-                {
-                    volatile uint32_t st0 = SysTick->VAL;
-                    volatile uint32_t us = ReadUs32();
-                    volatile uint32_t st1 = SysTick->VAL;
-                    TRICE( id(14860), "time: %d µs - ReadUs32() lasts %d ticks\n", us, st0 - st1);
-                }
+                //{
+                //    volatile uint32_t st0 = SysTick->VAL;
+                //    volatile uint32_t us = ReadUs32();
+                //    volatile uint32_t st1 = SysTick->VAL;
+                //    TRICE( id(14860), "time: %d µs - ReadUs32() lasts %d ticks\n", us, st0 - st1);
+                //}
             }
         }
         serveUs();

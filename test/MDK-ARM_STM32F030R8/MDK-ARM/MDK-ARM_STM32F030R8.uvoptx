@@ -120,7 +120,7 @@
         <SetRegEntry>
           <Number>0</Number>
           <Key>DLGUARM</Key>
-          <Name>d</Name>
+          <Name></Name>
         </SetRegEntry>
         <SetRegEntry>
           <Number>0</Number>
@@ -175,7 +175,7 @@
         <Mm>
           <WinNumber>1</WinNumber>
           <SubType>0</SubType>
-          <ItemText>0x200000c0</ItemText>
+          <ItemText>0x20000088</ItemText>
           <AccSizeX>0</AccSizeX>
         </Mm>
       </MemoryWindow1>
@@ -425,10 +425,10 @@
       <GroupNumber>5</GroupNumber>
       <FileNumber>13</FileNumber>
       <FileType>1</FileType>
-      <tvExp>1</tvExp>
+      <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\..\pkg\src\trice.c</PathWithFileName>
+      <PathWithFileName>..\..\..\pkg\trice\trice.c</PathWithFileName>
       <FilenameWithoutPath>trice.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
@@ -440,7 +440,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\..\pkg\src\triceCheck.c</PathWithFileName>
+      <PathWithFileName>..\..\..\pkg\trice\triceCheck.c</PathWithFileName>
       <FilenameWithoutPath>triceCheck.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
@@ -452,7 +452,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\..\pkg\src\tcobsv1Encode.c</PathWithFileName>
+      <PathWithFileName>..\..\..\pkg\trice\tcobsv1Encode.c</PathWithFileName>
       <FilenameWithoutPath>tcobsv1Encode.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
@@ -464,7 +464,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\..\pkg\src\xtrea.c</PathWithFileName>
+      <PathWithFileName>..\..\..\pkg\trice\xtrea.c</PathWithFileName>
       <FilenameWithoutPath>xtrea.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
@@ -473,10 +473,10 @@
       <GroupNumber>5</GroupNumber>
       <FileNumber>17</FileNumber>
       <FileType>1</FileType>
-      <tvExp>0</tvExp>
+      <tvExp>1</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\..\pkg\src\triceStreamBuffer.c</PathWithFileName>
+      <PathWithFileName>..\..\..\pkg\trice\triceStreamBuffer.c</PathWithFileName>
       <FilenameWithoutPath>triceStreamBuffer.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
@@ -488,7 +488,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\..\pkg\src\triceDoubleBuffer.c</PathWithFileName>
+      <PathWithFileName>..\..\..\pkg\trice\triceDoubleBuffer.c</PathWithFileName>
       <FilenameWithoutPath>triceDoubleBuffer.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
@@ -500,7 +500,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\..\pkg\src\triceStackBuffer.c</PathWithFileName>
+      <PathWithFileName>..\..\..\pkg\trice\triceStackBuffer.c</PathWithFileName>
       <FilenameWithoutPath>triceStackBuffer.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>

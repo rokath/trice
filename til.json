@@ -151,6 +151,10 @@
 		"Type": "TRICE",
 		"Strg": "sig:TRICE16 with 1 to 12 pointer\\n"
 	},
+	"10296": {
+		"Type": "TRICE",
+		"Strg": "err:trice stream buffer overflow!\\n"
+	},
 	"10314": {
 		"Type": "TRICE",
 		"Strg": "rd: 0xf \t%#x \tBase 16, with leading 0x\\n"
@@ -551,6 +555,10 @@
 		"Type": "TRICE32_1",
 		"Strg": "rd:TRICE32_1 line %x (%%x)\\n"
 	},
+	"11125": {
+		"Type": "TRICE",
+		"Strg": "MSG:triceFifoDepthMax = %d of max %d, triceStreamBufferDepthMax = %d of max %d\\n"
+	},
 	"11134": {
 		"Type": "TRICE",
 		"Strg": "debug:130+i\\n"
@@ -746,6 +754,10 @@
 	"11527": {
 		"Type": "TRICE8",
 		"Strg": "rd:TRICE8 line %t (%%t ,0)\\n"
+	},
+	"11533": {
+		"Type": "TRICE",
+		"Strg": "err:trice stream buffer overflow!\\n"
 	},
 	"11534": {
 		"Type": "TRICE",
@@ -1130,6 +1142,10 @@
 	"12257": {
 		"Type": "TRICE8_7",
 		"Strg": "tst:TRICE8_7 %d %d %d %d %d %d %d\\n"
+	},
+	"12272": {
+		"Type": "TRICE",
+		"Strg": "MSG:triceFifoDepthMax = %d of max %d\\n"
 	},
 	"12275": {
 		"Type": "TRICE32",
@@ -1742,6 +1758,10 @@
 	"13434": {
 		"Type": "TRICE64",
 		"Strg": "rd:TRICE64 %d, %d\\n"
+	},
+	"13444": {
+		"Type": "TRICE32",
+		"Strg": "att: Trice stream buffer size:%5u "
 	},
 	"13452": {
 		"Type": "TRICE16",
@@ -3066,6 +3086,10 @@
 	"15576": {
 		"Type": "TRICE64_1",
 		"Strg": "tst:TRICE64_1 %d\\n"
+	},
+	"15578": {
+		"Type": "TRICE32",
+		"Strg": "att: Trice stream buffer size:%5u "
 	},
 	"15587": {
 		"Type": "TRICE32",
