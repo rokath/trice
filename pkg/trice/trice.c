@@ -115,17 +115,29 @@ static size_t triceEncode( uint8_t* enc, uint8_t const* buf, size_t len ){
 //! TriceWriteDevice sends data to enumerated output device.
 static void TriceWriteDevice( TriceWriteDevice_t device, uint8_t *buf, size_t len ){
     switch( device ){
+#ifdef TRICE_UARTA
         case UartA:
-        case UartB:
             #if TRICE_MODE == TRICE_STACK_BUFFER
-                TriceBlockingWrite( buf, len ); // direct out to UART
+                TriceBlockingWriteUartA( buf, len ); // direct out to UART
             #else
-                triceNonBlockingWrite( buf, len ); // // buffered out to UART
+                triceNonBlockingWriteUartA( buf, len ); // // buffered out to UARTA
             #endif // #if TRICE_MODE == TRICE_STACK_BUFFER
             break;
-        case Rtt0:
-            SEGGER_RTT_Write(TRICE_RTT_CHANNEL, buf, len );
+#endif
+#ifdef TRICE_UARTB
+        case UartB:
+            #if TRICE_MODE == TRICE_STACK_BUFFER
+                TriceBlockingWriteUartB( buf, len ); // direct out to UART
+            #else
+                triceNonBlockingWriteUartB( buf, len ); // // buffered out to UARTB
+            #endif // #if TRICE_MODE == TRICE_STACK_BUFFER
             break;
+#endif
+#ifdef TRICE_RTT0
+        case Rtt0:
+            SEGGER_RTT_Write(0, buf, len );
+            break;
+#endif
         default:
             break;
     }
@@ -164,71 +176,144 @@ void TriceOut( uint32_t* tb, size_t tLen ){
     #if  TRICE_TRANSFER_MODE == TRICE_PACK_MULTI_MODE
     encLen = triceEncode( enc, enc + TRICE_DATA_OFFSET, encLen);
     #endif
-    if( (0 < triceID) && (triceID < (1<<13)) ){
+    if( (TRICE_UARTA_MIN_ID < triceID) && (triceID < TRICE_UARTA_MAX_ID) ){
         TriceWriteDevice( UartA, enc, encLen ); //lint !e534
     }
-    //if( (0 < triceID) && (triceID < (1<<13)) ){
-    //    TriceWriteDevice( UartB, enc, encLen ); //lint !e534
-    //}
-    if( (0 < triceID) && (triceID < (1<<13)) ){
+    if( (TRICE_UARTB_MIN_ID < triceID) && (triceID < TRICE_UARTB_MAX_ID) ){
+        TriceWriteDevice( UartB, enc, encLen ); //lint !e534
+    }
+    if( (TRICE_RTT0_MIN_ID < triceID) && (triceID < TRICE_RTT0_MAX_ID) ){
         TriceWriteDevice( Rtt0, enc, encLen ); //lint !e534
     }
 }
 
-#if defined( TRICE_UART ) && !defined( TRICE_HALF_BUFFER_SIZE ) // direct out to UART
+#if defined( TRICE_UARTA ) && !defined( TRICE_HALF_BUFFER_SIZE ) // direct out to UART
 //! triceBlockingPutChar returns after c was successfully written.
-static void triceBlockingPutChar( uint8_t c ){
-    while( !triceTxDataRegisterEmpty() );
-    triceTransmitData8( c );
+static void triceBlockingPutCharUartA( uint8_t c ){
+    while( !triceTxDataRegisterEmptyUartA() );
+    triceTransmitData8UartA( c );
 } 
 
-//! TriceBlockingWrite returns after buf was completely written.
-void TriceBlockingWrite( uint8_t const * buf, unsigned len ){
+//! TriceBlockingWriteUartA returns after buf was completely written.
+void TriceBlockingWriteUartA( uint8_t const * buf, unsigned len ){
     for( unsigned i = 0; i < len; i++ ){ 
-        triceBlockingPutChar( buf[i] ); }
+        triceBlockingPutCharUartA( buf[i] ); }
 }
-#endif // #if defined( TRICE_UART ) && !defined( TRICE_HALF_BUFFER_SIZE )
+#endif // #if defined( TRICE_UARTA ) && !defined( TRICE_HALF_BUFFER_SIZE )
 
-#if defined( TRICE_UART ) && TRICE_DEFERRED_OUT // buffered out to UART
-static uint8_t const * triceOutBuffer;
-static size_t triceOutCount = 0;
-static unsigned triceOutIndex = 0;
+#if defined( TRICE_UARTA ) && TRICE_DEFERRED_OUT // buffered out to UART
+static uint8_t const * triceOutBufferUartA;
+static size_t triceOutCountUartA = 0;
+static unsigned triceOutIndexUartA = 0;
 
-//! triceNonBlockingWrite
-size_t triceNonBlockingWrite( void const * buf, size_t nByte ){
-    triceOutBuffer = buf;
-    triceOutIndex = 0;
-    triceOutCount = nByte;
+//! triceNonBlockingWriteUartA
+size_t triceNonBlockingWriteUartA( void const * buf, size_t nByte ){
+    triceOutBufferUartA = buf;
+    triceOutIndexUartA = 0;
+    triceOutCountUartA = nByte;
     return nByte;
 }
 
 //! TriceOutDepth returns the amount of bytes not written yet from the slowes device.
-unsigned TriceOutDepth( void ){
+unsigned TriceOutDepthUartA( void ){
     // unsigned depthRtt0 = 0; -> assuming RTT is fast enough
-    unsigned depthUartA = triceOutCount - triceOutIndex;
-    unsigned depthUartB = triceOutCount - triceOutIndex;
-    unsigned depth = depthUartA > depthUartB ? depthUartA : depthUartB;
+    unsigned depth = triceOutCountUartA - triceOutIndexUartA;
     return depth;
 }
 
-//! TriceNextUint8 returns the next trice byte for transmission.
-uint8_t TriceNextUint8( void ){
-    return triceOutBuffer[triceOutIndex++];
+//! TriceNextUint8UartA returns the next trice byte for transmission to TRICE_UARTA.
+uint8_t TriceNextUint8UartA( void ){
+    return triceOutBufferUartA[triceOutIndexUartA++];
 }
 
-//! triceServeTransmit must be called cyclically to proceed ongoing write out.
-//! A good place is UART ISR.
-void triceServeTransmit(void) {
-    triceTransmitData8(TriceNextUint8());
-    if (0 == TriceOutDepth()) { // no more bytes
-        triceDisableTxEmptyInterrupt();
+//! triceServeTransmitUartA must be called cyclically to proceed ongoing write out.
+//! A good place is UARTA ISR.
+void triceServeTransmitUartA(void) {
+    triceTransmitData8UartA(TriceNextUint8UartA());
+    if (0 == TriceOutDepthUartA()) { // no more bytes
+        triceDisableTxEmptyInterruptUartA();
     }
 }
 
-// triceTriggerTransmit must be called cyclically to initialize write out.
-void triceTriggerTransmit(void){
-    if( TriceOutDepth() && triceTxDataRegisterEmpty() ){
-        triceEnableTxEmptyInterrupt(); // next bytes
+// triceTriggerTransmitUartA must be called cyclically to initialize write out.
+void triceTriggerTransmitUartA(void){
+    if( TriceOutDepthUartA() && triceTxDataRegisterEmptyUartA() ){
+        triceEnableTxEmptyInterruptUartA(); // next bytes
     }
 }
-#endif // #if defined( TRICE_UART ) && defined( TRICE_HALF_BUFFER_SIZE )
+#endif // #if defined( TRICE_UARTA ) && defined( TRICE_HALF_BUFFER_SIZE )
+
+
+#if defined( TRICE_UARTB ) && !defined( TRICE_HALF_BUFFER_SIZE ) // direct out to UART
+//! triceBlockingPutChar returns after c was successfully written.
+static void triceBlockingPutCharUartB( uint8_t c ){
+    while( !triceTxDataRegisterEmptyUartB() );
+    triceTransmitData8UartB( c );
+} 
+
+//! TriceBlockingWriteUartB returns after buf was completely written.
+void TriceBlockingWriteUartB( uint8_t const * buf, unsigned len ){
+    for( unsigned i = 0; i < len; i++ ){ 
+        triceBlockingPutCharUartB( buf[i] ); }
+}
+#endif // #if defined( TRICE_UARTA ) && !defined( TRICE_HALF_BUFFER_SIZE )
+
+#if defined( TRICE_UARTB ) && TRICE_DEFERRED_OUT // buffered out to UART
+static uint8_t const * triceOutBufferUartB;
+static size_t triceOutCountUartB = 0;
+static unsigned triceOutIndexUartB = 0;
+
+//! triceNonBlockingWriteUartB
+size_t triceNonBlockingWriteUartB( void const * buf, size_t nByte ){
+    triceOutBufferUartB = buf;
+    triceOutIndexUartB = 0;
+    triceOutCountUartB = nByte;
+    return nByte;
+}
+
+//! TriceOutDepth returns the amount of bytes not written yet from the slowes device.
+unsigned TriceOutDepthUartB( void ){
+    // unsigned depthRtt0 = 0; -> assuming RTT is fast enough
+    unsigned depth = triceOutCountUartB - triceOutIndexUartB;
+    return depth;
+}
+
+//! TriceNextUint8UartB returns the next trice byte for transmission to TRICE_UARTA.
+uint8_t TriceNextUint8UartB( void ){
+    return triceOutBufferUartB[triceOutIndexUartB++];
+}
+
+//! triceServeTransmitUartB must be called cyclically to proceed ongoing write out.
+//! A good place is UARTA ISR.
+void triceServeTransmitUartB(void) {
+    triceTransmitData8UartB(TriceNextUint8UartB());
+    if (0 == TriceOutDepthUartB()) { // no more bytes
+        triceDisableTxEmptyInterruptUartB();
+    }
+}
+
+// triceTriggerTransmitUartB must be called cyclically to initialize write out.
+void triceTriggerTransmitUartB(void){
+    if( TriceOutDepthUartB() && triceTxDataRegisterEmptyUartB() ){
+        triceEnableTxEmptyInterruptUartB(); // next bytes
+    }
+}
+#endif // #if defined( TRICE_UARTA ) && defined( TRICE_HALF_BUFFER_SIZE )
+
+
+//! TriceOutDepth returns the amount of bytes not written yet from the slowest device.
+unsigned TriceOutDepth( void ){
+    // unsigned depthRtt0 = 0; -> assuming RTT is fast enough
+    #ifdef TRICE_UARTA
+    unsigned depthUartA = TriceOutDepthUartA();
+    #else
+    unsigned depthUartA = 0;
+    #endif
+    #ifdef TRICE_UARTB
+    unsigned depthUartB = TriceOutDepthUartB();
+    #else
+    unsigned depthUartB = 0;
+    #endif
+    unsigned depth = depthUartA > depthUartB ? depthUartA : depthUartB;
+    return depth;
+}

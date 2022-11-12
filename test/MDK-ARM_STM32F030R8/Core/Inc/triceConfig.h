@@ -53,11 +53,27 @@ extern "C" {
 #define TRICE_BUFFER_SIZE 0x800 //!< TRICE_BUFFER_SIZE is the double half buffer size usable for a TRICE macro burst. Recommended value: 2000.
 #endif
 
+///////////////////////////////////////////////////////////////////////////////
+// Multi selecet physical out channels, the ID ranges are allowed to overlap.
+// 
+
 //! Enable and set channel number for SeggerRTT usage. Only channel 0 works right now for some reason.
-#define TRICE_RTT_CHANNEL 0
+#define TRICE_RTT0 0 // comment out, if you do not use RTT
+#define TRICE_RTT0_MIN_ID 1
+#define TRICE_RTT0_MAX_ID (1<<13)
+
+//! Enable and set UART2 for serial output.
+#define TRICE_UARTA USART2 // comment out, if you do not use TRICE_UARTA
+#define TRICE_UARTA_MIN_ID 1
+#define TRICE_UARTA_MAX_ID (1<<13)
 
 //! Enable and set UART for serial output.
-#define TRICE_UART USART2
+//#define TRICE_UARTB USART1 // comment out, if you do not use TRICE_UARTB
+#define TRICE_UARTB_MIN_ID 1
+#define TRICE_UARTB_MAX_ID (1<<13)
+
+//
+///////////////////////////////////////////////////////////////////////////////
 
 //! TRICE_TRANSFER_MODE is the selected trice transfer method. Options: TRICE_SAFE_SINGLE_MODE (recommended), TRICE_PACK_MULTI_MODE.
 #define TRICE_TRANSFER_MODE TRICE_SAFE_SINGLE_MODE
@@ -178,37 +194,68 @@ static inline void ToggleOpticalFeedbackLED( void ){
 // UART interface: Adapt to your device.
 //
 
-#ifdef TRICE_UART
+#ifdef TRICE_UARTA
 #include "main.h" // hardware specific stuff
 
 //! Check if a new byte can be written into trice transmit register.
 //! \retval 0 == not empty
 //! \retval !0 == empty
 //! User must provide this function.
-TRICE_INLINE uint32_t triceTxDataRegisterEmpty(void) {
-    return LL_USART_IsActiveFlag_TXE(TRICE_UART);
+TRICE_INLINE uint32_t triceTxDataRegisterEmptyUartA(void) {
+    return LL_USART_IsActiveFlag_TXE(TRICE_UARTA);
 }
 
 //! Write value v into trice transmit register.
 //! \param v byte to transmit
 //! User must provide this function.
-TRICE_INLINE void triceTransmitData8(uint8_t v) {
-    LL_USART_TransmitData8(TRICE_UART, v);
+TRICE_INLINE void triceTransmitData8UartA(uint8_t v) {
+    LL_USART_TransmitData8(TRICE_UARTA, v);
     ToggleOpticalFeedbackLED();
 }
 
 //! Allow interrupt for empty trice data transmit register.
 //! User must provide this function.
-TRICE_INLINE void triceEnableTxEmptyInterrupt(void) {
-    LL_USART_EnableIT_TXE(TRICE_UART);
+TRICE_INLINE void triceEnableTxEmptyInterruptUartA(void) {
+    LL_USART_EnableIT_TXE(TRICE_UARTA);
 }
 
 //! Disallow interrupt for empty trice data transmit register.
 //! User must provide this function.
-TRICE_INLINE void triceDisableTxEmptyInterrupt(void) {
-    LL_USART_DisableIT_TXE(TRICE_UART);
+TRICE_INLINE void triceDisableTxEmptyInterruptUartA(void) {
+    LL_USART_DisableIT_TXE(TRICE_UARTA);
+}
+#endif // #ifdef TRICE_STM32
+
+#ifdef TRICE_UARTB
+#include "main.h" // hardware specific stuff
+
+//! Check if a new byte can be written into trice transmit register.
+//! \retval 0 == not empty
+//! \retval !0 == empty
+//! User must provide this function.
+TRICE_INLINE uint32_t triceTxDataRegisterEmptyUartB(void) {
+    return LL_USART_IsActiveFlag_TXE(TRICE_UARTB);
 }
 
+//! Write value v into trice transmit register.
+//! \param v byte to transmit
+//! User must provide this function.
+TRICE_INLINE void triceTransmitData8UartB(uint8_t v) {
+    LL_USART_TransmitData8(TRICE_UARTB, v);
+    ToggleOpticalFeedbackLED();
+}
+
+//! Allow interrupt for empty trice data transmit register.
+//! User must provide this function.
+TRICE_INLINE void triceEnableTxEmptyInterruptUartB(void) {
+    LL_USART_EnableIT_TXE(TRICE_UARTB);
+}
+
+//! Disallow interrupt for empty trice data transmit register.
+//! User must provide this function.
+TRICE_INLINE void triceDisableTxEmptyInterruptUartB(void) {
+    LL_USART_DisableIT_TXE(TRICE_UARTB);
+}
 #endif // #ifdef TRICE_STM32
 
 //
@@ -219,14 +266,14 @@ TRICE_INLINE void triceDisableTxEmptyInterrupt(void) {
 // RTT interface: Adapt to your device.
 //
 
-#ifdef TRICE_RTT_CHANNEL
+#ifdef TRICE_RTT0
 #include "SEGGER_RTT.h"
 
 #define TRICE_WRITE( buf, len ) do{ \
-    SEGGER_RTT_Write(TRICE_RTT_CHANNEL, buf, len ); \
+    SEGGER_RTT_Write(0, buf, len ); \
     ToggleOpticalFeedbackLED(); \
 }while(0)
-#endif // #ifdef TRICE_RTT_CHANNEL
+#endif // #ifdef TRICE_RTT0
 
 //
 ///////////////////////////////////////////////////////////////////////////////

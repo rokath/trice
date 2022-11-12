@@ -168,7 +168,8 @@ size_t TriceDepthMax( void );
 extern uint32_t* TriceBufferWritePosition;
 #endif
 
-size_t triceNonBlockingWrite( void const * buf, size_t nByte );
+size_t triceNonBlockingWriteUartA( void const * buf, size_t nByte );
+size_t triceNonBlockingWriteUartB( void const * buf, size_t nByte );
 
 #if TRICE_MODE == TRICE_STREAM_BUFFER
 void TriceFifoPush( uint32_t* ta );
@@ -185,11 +186,7 @@ void TriceLogBufferInfo( void );
 void TriceTransfer( void );
 void TriceCheckSet( int index ); //!< tests
 
-#if defined( TRICE_UART ) && !defined( TRICE_HALF_BUFFER_SIZE ) // direct out to UART
-//#define TRICE_WRITE( buf, len ) do{ TriceBlockingWrite( buf, len ); }while(0)
-#endif
-
-#ifdef TRICE_RTT_CHANNEL
+#ifdef TRICE_RTT0
 #include "SEGGER_RTT.h"
 #if defined(TRICE_HALF_BUFFER_SIZE) && TRICE_HALF_BUFFER_SIZE > BUFFER_SIZE_UP
 #error
@@ -197,9 +194,7 @@ void TriceCheckSet( int index ); //!< tests
 #if defined(TRICE_STACK_BUFFER_SIZE) && TRICE_STACK_BUFFER_SIZE > BUFFER_SIZE_UP
 #error
 #endif
-//#define TRICE_WRITE( buf, len ) do{ SEGGER_RTT_Write(TRICE_RTT_CHANNEL, buf, len ); }while(0)
-// static inline unsigned TriceOutDepth( void ){ return 0; }
-#endif // #ifdef TRICE_RTT_CHANNEL
+#endif // #ifdef TRICE_RTT0
 
 //! TRICE_DATA_OFFSET is the space in front of trice data for in-buffer COBS encoding. It must be be a multiple of uint32_t.
 #if defined(TRICE_HALF_BUFFER_SIZE)
@@ -260,14 +255,24 @@ extern uint8_t TriceCycle;
 ///////////////////////////////////////////////////////////////////////////////
 // UART interface
 //
-void TriceBlockingWrite( uint8_t const * buf, unsigned len );
 
-#if defined( TRICE_UART ) && TRICE_DEFERRED_OUT // buffered out to UART
-uint8_t TriceNextUint8( void );
-void triceServeTransmit(void);
-void triceTriggerTransmit(void);
-unsigned TriceOutDepth( void );
+#if defined( TRICE_UARTA ) && TRICE_DEFERRED_OUT // buffered out to UARTA
+void TriceBlockingWriteUartA( uint8_t const * buf, unsigned len );
+uint8_t TriceNextUint8UartA( void );
+void triceServeTransmitUartA(void);
+void triceTriggerTransmitUartA(void);
+unsigned TriceOutDepthUartA( void );
 #endif
+
+#if defined( TRICE_UARTB ) && TRICE_DEFERRED_OUT // buffered out to UARTB
+void TriceBlockingWriteUartB( uint8_t const * buf, unsigned len );
+uint8_t TriceNextUint8UartB( void );
+void triceServeTransmitUartB(void);
+void triceTriggerTransmitUartB(void);
+unsigned TriceOutDepthUartB( void );
+#endif
+
+unsigned TriceOutDepth( void );
 //
 ///////////////////////////////////////////////////////////////////////////////
 
