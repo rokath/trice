@@ -140,17 +140,29 @@ With [TREX](#TREXTriceextendableencoding) encoding the location information need
   //! \param v0 a 8 bit bit value
   #define TRICE8_1( id, pFmt, v0 ) \
     TRICE_ENTER id; CNTC(1); \
-    TRICE_PUT( (uint8_t)(v) ); /* little endian*/ \
+    TRICE_PUT( (uint8_t)(v0) ); /* little endian*/ \
     TRICE_LEAVE
   ```
 
   * Transfer package (decoded little endian)
+ 
+With 16-bit stamp:
 
   ```b
   e3 // lower byte of 14-bit ID byte
-  ae // 2 msb = 10 = typeT2 plus 6 bit upper ID byte
-  ec // lower byte 16-bit timestamp
-  02 // upper byte 16-bit timestamp
+  ae // 3 msb = 101 = type S2, plus 5 bit upper ID byte
+  ec // lower byte 16-bit stamp
+  02 // upper byte 16-bit stamp
+  64 // cycle counter
+  01 // parameter count
+  ff // parameter value
+  ```
+
+Without stamp:
+
+  ```b
+  e3 // lower byte of 14-bit ID byte
+  6e // 3 msb = 011 = type S0, plus 5 bit upper ID byte
   64 // cycle counter
   01 // parameter count
   ff // parameter value
