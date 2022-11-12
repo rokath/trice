@@ -99,10 +99,4 @@ void TriceLogBufferInfo( void ){
     TRICE32( Id(15578), "att: Trice stream buffer size:%5u ", TRICE_STREAM_BUFFER_SIZE );
 }
 
-#if defined( TRICE_UART ) // direct out to UART
-void TriceWrite( uint8_t const * buf, unsigned len ){
-    triceNonBlockingWrite( buf, len ); 
-}
-#endif
-
 #endif // #if TRICE_MODE == TRICE_STREAM_BUFFER

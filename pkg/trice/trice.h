@@ -80,6 +80,13 @@ extern "C" {
 //
 ///////////////////////////////////////////////////////////////////////////////
 
+//! TriceWriteDevice is a symbolic address to a trice data output device.
+typedef enum{
+    UartA,
+    UartB,
+    Rtt0
+} TriceWriteDevice_t;
+
 #include "triceConfig.h"
 #include <stdint.h> //lint !e537
 #include <string.h>
@@ -191,7 +198,7 @@ void TriceCheckSet( int index ); //!< tests
 #error
 #endif
 //#define TRICE_WRITE( buf, len ) do{ SEGGER_RTT_Write(TRICE_RTT_CHANNEL, buf, len ); }while(0)
-static inline unsigned TriceOutDepth( void ){ return 0; }
+// static inline unsigned TriceOutDepth( void ){ return 0; }
 #endif // #ifdef TRICE_RTT_CHANNEL
 
 //! TRICE_DATA_OFFSET is the space in front of trice data for in-buffer COBS encoding. It must be be a multiple of uint32_t.

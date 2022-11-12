@@ -47,39 +47,41 @@ unsigned triceErrorCount = 0;
 
 //! nextTrice expects at *buf 32-bit aligned trice messages and returns the next one in pStart and pLen.
 //! *buf is filled with the advanced buf and *pSize gets the reduced value.
-//! \retval is 0 on success or negative on error.
+//! \retval is the trice ID on success or negative on error.
 static int nextTrice( uint8_t** buf, size_t* pSize, uint8_t** pStart, size_t* pLen ){
-    uint16_t* pNC = (uint16_t*)*buf; //lint !e826 
-    int triceType = *pNC >> 13; // todo: this will not work with extended trices only 1 byte long
+    uint16_t* pNC = (uint16_t*)*buf; //lint !e826, get NC address
+    int NC = *pNC; // get NC
+    int triceID = 0x1FFF & NC;
+    int triceType = NC >> 13; // todo: this will not work with extended trices only 1 byte long
     unsigned offset = 0;
     size_t size = *pSize;
     size_t triceSize;
-    size_t len; 
+    size_t len;
     *pStart = *buf;
     switch( triceType ){
         default:
-        case 3: // NOS = no stamp
+        case 3: // S0 = no stamp
             len = 4 + triceDataLen(*pStart + 2); // tyId
             break;
-        case 5: // S16 = 16-bit stamp
+        case 5: // S2 = 16-bit stamp
             *pStart += 2; // see Id(n) macro definition
             offset = 2;
             len = 6 + triceDataLen(*pStart + 4); // tyId ts16
             break;
-        case 7: // S32 = 32-bit stamp
+        case 7: // S4 = 32-bit stamp
             len = 8 + triceDataLen(*pStart + 6); // tyId ts32
             break;
-        case 1: // S64 = 64-bit stamp
+        case 1: // S8 = 64-bit stamp
             len = 12 + triceDataLen(*pStart + 10); // tyId ts64
             //len = size; // todo: Change that when needed.
             //// Extended trices without length information cannot be separated here.
             //// But it is possible to store them with length information and to remove it here.
             break;
-        case 0:
-        case 2:
-        case 4:
-        case 6:
-            for(;;); // extended trices not supported (yet)
+        case 0: // X0
+        case 2: // X1
+        case 4: // X2
+        case 6: // X3
+            return -__LINE__; // extended trices not supported (yet)
     }
     triceSize = (len + offset + 3) & ~3;
     // S16 case example:            triceSize  len   t-0-3   t-o
@@ -96,7 +98,7 @@ static int nextTrice( uint8_t** buf, size_t* pSize, uint8_t** pStart, size_t* pL
     *buf += triceSize;
     *pSize = size;
     *pLen = len;
-    return 0;
+    return triceID;
 }
 
 static size_t triceEncode( uint8_t* enc, uint8_t const* buf, size_t len ){
@@ -110,6 +112,25 @@ static size_t triceEncode( uint8_t* enc, uint8_t const* buf, size_t len ){
     return encLen;
 }
 
+//! TriceWriteDevice sends data to enumerated output device.
+static void TriceWriteDevice( TriceWriteDevice_t device, uint8_t *buf, size_t len ){
+    switch( device ){
+        case UartA:
+        case UartB:
+            #if TRICE_MODE == TRICE_STACK_BUFFER
+                TriceBlockingWrite( buf, len ); // direct out to UART
+            #else
+                triceNonBlockingWrite( buf, len ); // // buffered out to UART
+            #endif // #if TRICE_MODE == TRICE_STACK_BUFFER
+            break;
+        case Rtt0:
+            SEGGER_RTT_Write(TRICE_RTT_CHANNEL, buf, len );
+            break;
+        default:
+            break;
+    }
+}
+
 //! TriceOut encodes trices and writes them in one step to the output.
 //! \param tb is start of uint32_t* trice buffer. The space TRICE_DATA_OFFSET at
 //! the tb start is for in-buffer encoding of the trice data.
@@ -120,6 +141,7 @@ void TriceOut( uint32_t* tb, size_t tLen ){
     size_t encLen = 0;
     uint8_t* buf = enc + TRICE_DATA_OFFSET; // start of 32-bit aligned trices
     size_t len = tLen; // (byte count)
+    int triceID;
     // diagnostics
     tLen += TRICE_DATA_OFFSET; 
     triceDepthMax = tLen < triceDepthMax ? triceDepthMax : tLen;
@@ -127,8 +149,8 @@ void TriceOut( uint32_t* tb, size_t tLen ){
     while(len){
         uint8_t* triceStart;
         size_t triceLen;
-        int r = nextTrice( &buf, &len, &triceStart, &triceLen );
-        if( r < 0 ){ // on data error
+        triceID = nextTrice( &buf, &len, &triceStart, &triceLen );
+        if( triceID <= 0 ){ // on data error
             break;   // ignore following data
         }
         #if TRICE_TRANSFER_MODE == TRICE_SAFE_SINGLE_MODE
@@ -142,7 +164,15 @@ void TriceOut( uint32_t* tb, size_t tLen ){
     #if  TRICE_TRANSFER_MODE == TRICE_PACK_MULTI_MODE
     encLen = triceEncode( enc, enc + TRICE_DATA_OFFSET, encLen);
     #endif
-    TriceWrite( enc, encLen ); //lint !e534
+    if( (0 < triceID) && (triceID < (1<<13)) ){
+        TriceWriteDevice( UartA, enc, encLen ); //lint !e534
+    }
+    //if( (0 < triceID) && (triceID < (1<<13)) ){
+    //    TriceWriteDevice( UartB, enc, encLen ); //lint !e534
+    //}
+    if( (0 < triceID) && (triceID < (1<<13)) ){
+        TriceWriteDevice( Rtt0, enc, encLen ); //lint !e534
+    }
 }
 
 #if defined( TRICE_UART ) && !defined( TRICE_HALF_BUFFER_SIZE ) // direct out to UART
@@ -172,9 +202,13 @@ size_t triceNonBlockingWrite( void const * buf, size_t nByte ){
     return nByte;
 }
 
-//! TriceOutDepth returns the amount of bytes not written yet.
+//! TriceOutDepth returns the amount of bytes not written yet from the slowes device.
 unsigned TriceOutDepth( void ){
-    return triceOutCount - triceOutIndex;
+    // unsigned depthRtt0 = 0; -> assuming RTT is fast enough
+    unsigned depthUartA = triceOutCount - triceOutIndex;
+    unsigned depthUartB = triceOutCount - triceOutIndex;
+    unsigned depth = depthUartA > depthUartB ? depthUartA : depthUartB;
+    return depth;
 }
 
 //! TriceNextUint8 returns the next trice byte for transmission.

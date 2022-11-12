@@ -55,11 +55,4 @@ void TriceLogBufferInfo( void ){
     TRICE32( Id(11253), "att: Trice 2x half buffer size:%4u ", TRICE_HALF_BUFFER_SIZE );
 }
 
-
-#if defined( TRICE_UART ) // buffered out to UART
-void TriceWrite( uint8_t const * buf, unsigned len ){
-    triceNonBlockingWrite( buf, len ); 
-}
-#endif
-
 #endif // #if TRICE_MODE == TRICE_DOUBLE_BUFFER

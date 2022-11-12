@@ -16,6 +16,7 @@ extern "C" {
 //
 
 //! TRICE_MODE is a predefined trice transfer method. Options: TRICE_STACK_BUFFER, TRICE_DOUBLE_BUFFER, TRICE_STREAM_BUFFER
+//! The TRICE_MODE decision is a general one concering the inner data handling and is (nearly) independent from the out channel(s).
 //!
 //! TRICE_STACK_BUFFER:
 //! \li Direct output to UART or RTT with cycle counter. For UART transfer trices inside interrupts forbidden. Direct TRICE macro execution.
@@ -53,7 +54,7 @@ extern "C" {
 #endif
 
 //! Enable and set channel number for SeggerRTT usage. Only channel 0 works right now for some reason.
-//#define TRICE_RTT_CHANNEL 0
+#define TRICE_RTT_CHANNEL 0
 
 //! Enable and set UART for serial output.
 #define TRICE_UART USART2
