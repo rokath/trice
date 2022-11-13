@@ -129,7 +129,7 @@ func (p *cobsDec) handleCOBSModeDescriptor() error {
 		decoder.TargetLocationExists = false
 		return nil
 	case 1:
-		decoder.TargetTimestamp = p.ReadU32(p.B)
+		decoder.TargetTimestamp = uint64(p.ReadU32(p.B))
 		decoder.TargetTimestampSize = 4
 		decoder.TargetLocationExists = false
 		p.B = p.B[4:] // drop target timestamp
@@ -142,7 +142,7 @@ func (p *cobsDec) handleCOBSModeDescriptor() error {
 		return nil
 	case 3:
 		decoder.TargetLocation = p.ReadU32(p.B)
-		decoder.TargetTimestamp = p.ReadU32(p.B[4:])
+		decoder.TargetTimestamp = uint64(p.ReadU32(p.B[4:]))
 		decoder.TargetTimestampSize = 4
 		decoder.TargetLocationExists = true
 		p.B = p.B[8:] // drop target location & timestamp

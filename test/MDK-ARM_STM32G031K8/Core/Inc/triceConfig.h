@@ -77,13 +77,13 @@ extern "C" {
 
 //! This is usable as the very first trice sequence after restart. Adapt and use it or ignore it.
 #define TRICE_HEADLINE \
-    TRICE0( Id(10264), "s:                                          \n" ); \
-    TRICE8( Id(11321), "s:     NUCLEO-G031K8     TRICE_MODE %3u     \n", TRICE_MODE ); \
-    TRICE0( Id(12707), "s:                                          \n" ); \
-    TRICE0( Id(15016), "s:     " ); \
+    TRICE0( Id(0), "s:                                          \n" ); \
+    TRICE8( Id(0), "s:     NUCLEO-G031K8     TRICE_MODE %3u     \n", TRICE_MODE ); \
+    TRICE0( Id(0), "s:                                          \n" ); \
+    TRICE0( Id(0), "s:     " ); \
     TriceLogBufferInfo(); \
-    TRICE0( Id(13072), "s:     \n" ); \
-    TRICE0( Id(10051), "s:                                          \n");
+    TRICE0( Id(0), "s:     \n" ); \
+    TRICE0( Id(0), "s:                                          \n");
 
 //
 ///////////////////////////////////////////////////////////////////////////////

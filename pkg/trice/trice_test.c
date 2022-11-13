@@ -16,9 +16,9 @@ void SetTriceBuffer( uint8_t* buf  ){
 int TriceCode( int n ){
     char* s;
     switch( n ){
-        case 0: TRICE32_1( Id(13245), "rd:TRICE32_1 line %d (%%d)\n", -1 ); return triceBufferDepth;
-        case 1: TRICE64( Id(14227), "rd:TRICE64 %d, %d\n", 1, 2 );         return triceBufferDepth; 
-        case 2: s = "AAAAAAAAAAAA"; TRICE_S( Id(13947), "sig:%s\n", s );   return triceBufferDepth; 
+        case 0: TRICE32_1( Id( 4147), "rd:TRICE32_1 line %d (%%d)\n", -1 ); return triceBufferDepth;
+        case 1: TRICE64( Id( 7955), "rd:TRICE64 %d, %d\n", 1, 2 );          return triceBufferDepth; 
+        case 2: s = "AAAAAAAAAAAA"; TRICE_S( Id( 2604), "sig:%s\n", s );    return triceBufferDepth; 
     }
     return 0;
 }
@@ -34,10 +34,10 @@ uint16_t TriceStamp16( void ){
     return 1616;
 }
 
-//! TriceWrite copies buf with len into triceBuffer.
-void TriceWrite( uint8_t const * buf, unsigned len ){
-    extern uint8_t* triceBuffer;
-    extern int triceBufferDepth;
+//! triceNonBlockingWriteCgoBuffer copies buf with len into triceBuffer.
+void triceNonBlockingWriteCgoBuffer( uint8_t const * buf, unsigned len ){
+    //extern uint8_t* triceBuffer;
+    //extern int triceBufferDepth;
     memcpy(triceBuffer, buf, len);
     triceBufferDepth = len;
 }

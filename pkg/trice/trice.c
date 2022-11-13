@@ -11,8 +11,6 @@ char triceCommand[TRICE_COMMAND_SIZE_MAX+1]; // with terminating 0
 //! triceCommandFlag ist set, when a command was received completely.
 int triceCommandFlag = 0; // updated
 
-void TriceWrite( uint8_t const * buf, unsigned len );
-
 unsigned triceDepthMax = 0; //!< triceDepthMax is a diagnostics value usable to optimize buffer size.
 
 
@@ -138,6 +136,14 @@ static void TriceWriteDevice( TriceWriteDevice_t device, uint8_t *buf, size_t le
             SEGGER_RTT_Write(0, buf, len );
             break;
 #endif
+#ifdef TRICE_CGO
+        case Cgo:
+        {
+            void triceNonBlockingWriteCgoBuffer( uint8_t const * buf, unsigned len );
+            triceNonBlockingWriteCgoBuffer( buf, len ); 
+        }
+            break;
+#endif
         default:
             break;
     }
@@ -173,18 +179,26 @@ void TriceOut( uint32_t* tb, size_t tLen ){
         encLen += triceLen;
         #endif
     }
-    #if  TRICE_TRANSFER_MODE == TRICE_PACK_MULTI_MODE
+    #if TRICE_TRANSFER_MODE == TRICE_PACK_MULTI_MODE
     encLen = triceEncode( enc, enc + TRICE_DATA_OFFSET, encLen);
     #endif
+    ToggleOpticalFeedbackLED();
+    #ifdef TRICE_UARTA
     if( (TRICE_UARTA_MIN_ID < triceID) && (triceID < TRICE_UARTA_MAX_ID) ){
         TriceWriteDevice( UartA, enc, encLen ); //lint !e534
     }
+    #endif
+    #ifdef TRICE_UARTB
     if( (TRICE_UARTB_MIN_ID < triceID) && (triceID < TRICE_UARTB_MAX_ID) ){
         TriceWriteDevice( UartB, enc, encLen ); //lint !e534
     }
-    if( (TRICE_RTT0_MIN_ID < triceID) && (triceID < TRICE_RTT0_MAX_ID) ){
+    #endif
+    #ifdef TRICE_RTT0
         TriceWriteDevice( Rtt0, enc, encLen ); //lint !e534
-    }
+    #endif
+    #ifdef TRICE_CGO
+        TriceWriteDevice( Cgo, enc, encLen );
+    #endif
 }
 
 #if defined( TRICE_UARTA ) && !defined( TRICE_HALF_BUFFER_SIZE ) // direct out to UART

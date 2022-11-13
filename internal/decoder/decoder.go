@@ -99,7 +99,7 @@ var (
 	DebugOut                        = false // DebugOut enables debug information.
 	DumpLineByteCount               int     // DumpLineByteCount is the bytes per line for the dumpDec decoder.
 	InitialCycle                    = true  // InitialCycle is a helper for the cycle counter automatic.
-	TargetTimestamp                 uint32  // targetTimestamp contains target specific timestamp value.
+	TargetTimestamp                 uint64  // targetTimestamp contains target specific timestamp value.
 	TargetLocation                  uint32  // targetLocation contains 16 bit file id in high and 16 bit line number in low part.
 	ShowTargetTimestamp             string  // ShowTargetTimestamp is the format string for target timestamps.
 	LocationInformationFormatString string  // LocationInformationFormatString is the format string for target location: line number and file name.
@@ -125,7 +125,7 @@ type DecoderData struct {
 	In          io.Reader          // in is the inner reader, which is used to get raw bytes
 	InnerBuffer []byte             // avoid repeated allocation (trex)
 	IBuf        []byte             // iBuf holds unprocessed (raw) bytes for interpretation.
-	B           []byte             // read buffer holds a single decoded COBS package, which can contain several trices.
+	B           []byte             // read buffer holds a single decoded TCOBS package, which can contain several trices.
 	Endian      bool               // endian is true for LittleEndian and false for BigEndian
 	TriceSize   int                // trice head and payload size as number of bytes
 	ParamSpace  int                // trice payload size after head

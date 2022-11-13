@@ -39,15 +39,15 @@ A *Trice* **ID** is needed as shown in the table:
 ##  2. <a name='TriceIDNumbers'></a>*Trice* ID Numbers
 ###  2.1. <a name='IDnumberselection'></a>ID number selection
 
-* The default encoding supports 16-bit IDs, so over 65000 IDs possible. Other encodings can work with other ID sizes.
-* The **Id** `123435` is a number assigned to `TRICE( "Hi!\n");` in the above example.
+* The default encoding TREX supports 13-bit IDs, so over 8000 IDs possible. Other encodings can work with other ID sizes.
+* The **Id** `1234` is a number assigned to `TRICE( "Hi!\n");` in the above example.
   * It is a so far unused number, according to rules you can control:
     * The `-IDMethod` switch allows a selection method for new IDs.
       * Per default new IDs determined randomly to keep the chance low, that several developers grab the same ID.
       * Example: `trice update -IDMin 1000 -IDMethod upward` will choose the smallest free ID >= 1000.
         * This allows to use the ID space without wholes.
     * The `-IDMin` and `-IDMax` switches are usable to control the ID range, a new ID is selected from, making it possible to divide the ID space. Each developer can gets it region.
-      * Example: `trice update -IDMin 61000 -IDMax 62000` will choose new randomly IDs only between 61000 and 62000.
+      * Example: `trice update -IDMin 6000 -IDMax 6999` will choose new randomly IDs only between 6000 and 6999.
 * In a future **trice** tool it can be possible to give each *trice* channel an **ID** range making it possible to implement *Trice* channel specific runtime on/off on the target side if that is needed.
 
 ###  2.2. <a name='IDnumberusage'></a>ID number usage
@@ -69,7 +69,8 @@ A *Trice* **ID** is needed as shown in the table:
 ###  2.4. <a name='TriceID0'></a>*Trice* ID 0
 
 * The trice ID 0 is a placeholder for "no ID", which is replaced automatically during the next `trice update` according to the used trice switches `-IDMethod`, `-IDMin` and `IDMax`.
-  * It is sufficient to write the TRICE macros just without the `Id(0),`. It will be inserted automatically.
+  * It is sufficient to write the TRICE macros just without the `id(0),` `Id(0),` `ID(0),` `iD(0),`. It will be inserted automatically according the `-stamp` switch.
+  * Alternatively `S0`, `S2`, `S4`, `S8` are usable in the future.
 * With `trice zeroSourceTreeIds` all IDs in the given source tree are set to 0. This gives the option afterwards to set-up a new `til.json` according to a different `-IDMethod`, `-IDMin` and `IDMax`.
 
 ##  3. <a name='Tricesinsidesourcecode'></a>*Trices* inside source code

@@ -109,7 +109,7 @@ static void serveUs( void ){
         timingError64Count++;
         if( virgin64 ){
             virgin64 = 0;
-            TRICE64( Id(14938), "err:st64=%d < st64_1=%d\n", st64, st64_1 );
+            TRICE64( Id(0), "err:st64=%d < st64_1=%d\n", st64, st64_1 );
         
         }
     }
@@ -117,7 +117,7 @@ static void serveUs( void ){
         timingError32Count++;
         if( virgin32 ){
             virgin32 = 0;
-            TRICE32( Id(11239), "err:st32=%d < st32_1=%d\n", st32, st32_1 );        
+            TRICE32( Id(0), "err:st32=%d < st32_1=%d\n", st32, st32_1 );        
         }
     }
     st64_1 = st64;
@@ -173,8 +173,8 @@ int main(void)
         int c = (int)b;
         int d = (int)(b * 1000) % 1000;
         int e = (int)(1000 * (float)(a - c)); 
-        TRICE( Id(10762), "msg:x = %g = %d.%03d, %d.%03d\n", aFloat(a), c, d, c, e ); //lint !e666
-        TRICE( Id(12531), "1/11 = %g\n", aFloat( 1.0/11 ) ); //lint !e666
+        TRICE( Id(0), "msg:x = %g = %d.%03d, %d.%03d\n", aFloat(a), c, d, c, e ); //lint !e666
+        TRICE( Id(0), "1/11 = %g\n", aFloat( 1.0/11 ) ); //lint !e666
     }
   /* USER CODE END 2 */
 
@@ -183,9 +183,9 @@ int main(void)
     for(;;){ 
         if( triceCommandFlag ){
             triceCommandFlag = 0;
-            TRICE_S( Id(11673), "att:Executing command %s ...\n", triceCommand );
+            TRICE_S( Id(0), "att:Executing command %s ...\n", triceCommand );
             // do
-            TRICE( Id(12106), "att:...done\n" );
+            TRICE( Id(0), "att:...done\n" );
         }
 
         // serve every few ms
@@ -205,16 +205,16 @@ int main(void)
             if( milliSecond >= lastTricesTime + 200 ){
                 static int index = 0;
                 int select = index;
-                TRICE16( ID(12605),"MSG: 💚 START select = %d\n", select );
+                TRICE16( Id(0),"MSG: 💚 START select = %d\n", select );
                 TriceCheckSet(select);
                 #ifdef TRICE_HALF_BUFFER_SIZE
-                TRICE16( Id(14013),"MSG: ✅ STOP  select = %d, TriceDepthMax =%4u of %d\n", select, TriceDepthMax(), TRICE_HALF_BUFFER_SIZE );
+                TRICE16( Id(0),"MSG: ✅ STOP  select = %d, TriceDepthMax =%4u of %d\n", select, TriceDepthMax(), TRICE_HALF_BUFFER_SIZE );
                 #endif
                 if( timingError64Count ){
-                    TRICE( Id(15160), "err:%d timing errors 64-bit\n", timingError64Count );
+                    TRICE( Id(0), "err:%d timing errors 64-bit\n", timingError64Count );
                 }
                 if( timingError32Count ){
-                    TRICE( Id(15771), "err:%d timing errors 32-bit\n", timingError32Count );
+                    TRICE( Id(0), "err:%d timing errors 32-bit\n", timingError32Count );
                 }
                 index += 10;
                 index = index > 1000 ? 0 : index;
@@ -222,7 +222,7 @@ int main(void)
                     volatile uint32_t st0 = SysTick->VAL;
                     volatile uint32_t us = ReadUs32();
                     volatile uint32_t st1 = SysTick->VAL;
-                    TRICE( id(14860), "time: %d µs - ReadUs32() lasts %d ticks\n", us, st0 - st1);
+                    TRICE( Id(0), "time: %d µs - ReadUs32() lasts %d ticks\n", us, st0 - st1);
                 }
                 lastTricesTime = milliSecond;
             }

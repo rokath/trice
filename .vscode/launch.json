@@ -245,7 +245,7 @@
             ]
         },        
         {
-            "name": "l -p COMx -e trex",
+            "name": "l -p COM6",
             "type": "go",
             "request": "launch",
             "mode": "auto",

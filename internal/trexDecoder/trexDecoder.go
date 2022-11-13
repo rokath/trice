@@ -26,10 +26,14 @@ const (
 	tyIdSize = 2 // tySize is what each trice message starts with: 2-bit msb + 14-bit something
 	ncSize   = 2 // countSize is what each regular trice message contains after an optional target timestamp
 	//headSize = tyIdSize + ncSize // headSize is what each regular trice message starts with: 2-bit msb + 14-bit ID + 16-bit nc
-	typeEX = 0 // extended trice format or user data         : 00....... ...
-	typeT0 = 1 // regular trice format without timestamp     : 01iiiiiiI NC ...
-	typeT2 = 2 // regular trice format with 16-bit timestamp : 10iiiiiiI TT NC ...
-	typeT4 = 3 // regular trice format with 32-bit timestamp : 11iiiiiiI TT TT NC ...
+	typeS0 = 3 // regular trice format without stamp     : 011iiiiiI NC ...
+	typeS2 = 5 // regular trice format with 16-bit stamp : 101iiiiiI TT NC ...
+	typeS4 = 7 // regular trice format with 32-bit stamp : 111iiiiiI TT TT NC ...
+	typeS8 = 1 // regular trice format with 32-bit stamp : 001iiiiiI TT TT TT TT NC ...
+	typeX0 = 0 // extended trice format or user data     : 000...... ...
+	typeX1 = 2 // extended trice format or user data     : 010...... ...
+	typeX2 = 4 // extended trice format or user data     : 100...... ...
+	typeX3 = 6 // extended trice format or user data     : 110...... ...
 )
 
 // trexDec is the Decoding instance for trex encoded trices.
@@ -170,22 +174,27 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 	tyId := p.ReadU16(p.B)
 	p.B = p.B[tyIdSize:]
 
-	triceType := tyId >> 14              // 2 most significant bit are the trice type: T4, T2, T0 or EX
-	triceID := id.TriceID(0x3FFF & tyId) // 14 least significant bits are the ID
+	triceType := tyId >> 13              // 3 most significant bit are the trice type: T4, T2, T0 or EX
+	triceID := id.TriceID(0x1FFF & tyId) // 14 least significant bits are the ID
 	decoder.LastTriceID = triceID        // used for showID
 
 	switch triceType {
-	case typeT4: // 32-bit timestamp
-		decoder.TargetTimestampSize = 4
-		break
-	case typeT2: // 16-bit timestamp
-		decoder.TargetTimestampSize = 2
-		break
-	case typeT0: // no timestamp
+	case typeS0: // no timestamp
 		decoder.TargetTimestampSize = 0
-		break
-	case typeEX: // extended trice EX
-		// todo: implement special cases here
+	case typeS2: // 16-bit stamp
+		decoder.TargetTimestampSize = 2
+	case typeS4: // 32-bit stamp
+		decoder.TargetTimestampSize = 4
+	case typeS8: // 32-bit stamp
+		decoder.TargetTimestampSize = 8
+	case typeX0: // extended trice type X0
+	// todo: implement special case here
+	case typeX1: // extended trice type X0
+	// todo: implement special case here
+	case typeX2: // extended trice type X0
+	// todo: implement special case here
+	case typeX3: // extended trice type X0
+		// todo: implement special case here
 		return
 	}
 
@@ -193,10 +202,12 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 		return
 	}
 
-	if triceType == typeT4 { // 32-bit timestamp
-		decoder.TargetTimestamp = p.ReadU32(p.B)
-	} else if triceType == typeT2 { // 16-bit timestamp
-		decoder.TargetTimestamp = uint32(p.ReadU16(p.B))
+	if triceType == typeS4 { // 32-bit stamp
+		decoder.TargetTimestamp = uint64(p.ReadU32(p.B))
+	} else if triceType == typeS2 { // 16-bit stamp
+		decoder.TargetTimestamp = uint64(p.ReadU16(p.B))
+	} else if triceType == typeS8 { // 64-bit stamp
+		decoder.TargetTimestamp = uint64(p.ReadU64(p.B))
 	}
 	p.B = p.B[decoder.TargetTimestampSize:]
 
@@ -254,9 +265,9 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 	p.Trice, ok = p.Lut[triceID]
 	p.LutMutex.RUnlock()
 	if !ok {
-		n += copy(b[n:], fmt.Sprintln("WARNING:unknown ID ", triceID, "- ignoring trice", p.B[:p.TriceSize]))
+		n += copy(b[n:], fmt.Sprintln("WARNING:unknown ID ", triceID, "- ignoring trice ending with", p.B))
 		n += copy(b[n:], fmt.Sprintln(decoder.Hints))
-		p.B = p.B[p.TriceSize:]
+		p.B = p.B[:0]
 		return
 	}
 
