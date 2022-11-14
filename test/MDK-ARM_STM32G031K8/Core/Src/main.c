@@ -50,6 +50,7 @@ uint64_t microSecond = 0;
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_USART2_UART_Init(void);
+static void MX_USART1_UART_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -65,7 +66,7 @@ static void MX_USART2_UART_Init(void);
 //! function in intervals smaller than 1 ms if not using hardware timers. To make it clear: You can use ReadUs64 to measure long
 //! intervals up to 584542 years, but the "OS" needs to call ReadUs64 internally regularely in <1ms intervals.
 //! \retval us count since last reset
-static inline uint64_t ReadUs64( void ){
+uint64_t ReadUs64( void ){
     static uint64_t us_1 = 0; // result of last call 
     uint64_t us = microSecond + ((SysTick->LOAD - SysTick->VAL) >> 6); // Divide 64MHz clock by 64 to get us part.
     if( us < us_1){ // Possible very close to systick ISR, when milliSecond was not incremented yet, but the systic wrapped already.
@@ -75,54 +76,32 @@ static inline uint64_t ReadUs64( void ){
     return us;
 }
 
-//! ReadUs32 reads the 1us tick in the assumption of an 64MHz systick clock using the microSecond variable and current systick value.
-//! ATTENTION: This is a quick and dirty implementation working well only if this function is called in intervals smaller than 1 ms.
-//! :-( Because the STM32G031 has no 32-bit sysclock counter we need to compute this value or concatenate two 16-bit timers. )
-//! I see no way to find out if the systick ISR was already active shortly after a systick counter wrap, despite calling this
-//! function in intervals smaller than 1 ms if not using hardware timers. To make it clear: You can use ReadUs32 to measure long
-//! intervals up to over 1 hour (4294 seconds), but the "OS" needs to call ReadUs32  internally regularely in <1ms intervals.
-//! \retval us count since last reset modulo 2^32
-static inline uint32_t ReadUs32( void ){
-    return (uint32_t)ReadUs64();
-}
-
-uint16_t TriceStamp16( void ){
-    return (uint16_t)(ReadUs32()%10000); // This implies division and is therefore slow!
-}
-
-uint32_t TriceStamp32( void ){
-    return ReadUs32();
-}
-
 static unsigned timingError64Count = 0;
-static unsigned timingError32Count = 0;
 
 //! serveUs should be called in intervals secure smaller than 1ms.
-static void serveUs( void ){
+void serveUs( void ){
     static uint64_t st64_1 = 0;
-    static uint32_t st32_1 = 0;
     uint64_t st64 = ReadUs64();
-    uint32_t st32 = ReadUs32();
     static int virgin64 = 1;
-    static int virgin32 = 1;
     if( st64 < st64_1 ){
         timingError64Count++;
         if( virgin64 ){
             virgin64 = 0;
-            TRICE64( Id(0), "err:st64=%d < st64_1=%d\n", st64, st64_1 );
+            TRICE64( Id( 3183), "err:st64=%d < st64_1=%d\n", st64, st64_1 );
         
         }
     }
-    if( st32 < st32_1 ){
-        timingError32Count++;
-        if( virgin32 ){
-            virgin32 = 0;
-            TRICE32( Id(0), "err:st32=%d < st32_1=%d\n", st32, st32_1 );        
-        }
-    }
     st64_1 = st64;
-    st32_1 = st32;
 }
+
+uint16_t TriceStamp16( void ){
+    return (uint16_t)(ReadUs64()%10000); // This implies division and is therefore slow!
+}
+
+uint32_t TriceStamp32( void ){
+    return (uint32_t)ReadUs64();
+}
+
 
 /* USER CODE END 0 */
 
@@ -139,11 +118,8 @@ int main(void)
   /* MCU Configuration--------------------------------------------------------*/
 
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
-
   LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_SYSCFG);
   LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_PWR);
-
-  /* System interrupt init*/
 
   /* USER CODE BEGIN Init */
 //lint +e835
@@ -159,12 +135,16 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_USART2_UART_Init();
+  MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
-  #ifdef TRICE_ENCRYPT
-    XTEAInitTable();
-  #endif
-    #ifdef TRICE_UART
-    LL_USART_EnableIT_RXNE(TRICE_UART); // enable UART2 interrupt
+    #ifdef TRICE_ENCRYPT
+        XTEAInitTable();
+    #endif
+    #ifdef TRICE_UARTA
+    LL_USART_EnableIT_RXNE(TRICE_UARTA); 
+    #endif
+    #ifdef TRICE_UARTB
+    LL_USART_EnableIT_RXNE(TRICE_UARTB); 
     #endif
     TRICE_HEADLINE;
     {
@@ -173,8 +153,8 @@ int main(void)
         int c = (int)b;
         int d = (int)(b * 1000) % 1000;
         int e = (int)(1000 * (float)(a - c)); 
-        TRICE( Id(0), "msg:x = %g = %d.%03d, %d.%03d\n", aFloat(a), c, d, c, e ); //lint !e666
-        TRICE( Id(0), "1/11 = %g\n", aFloat( 1.0/11 ) ); //lint !e666
+        TRICE( Id( 2392), "msg:x = %g = %d.%03d, %d.%03d\n", aFloat(a), c, d, c, e ); //lint !e666
+        TRICE( Id( 2623), "1/11 = %g\n", aFloat( 1.0/11 ) ); //lint !e666
     }
   /* USER CODE END 2 */
 
@@ -183,9 +163,9 @@ int main(void)
     for(;;){ 
         if( triceCommandFlag ){
             triceCommandFlag = 0;
-            TRICE_S( Id(0), "att:Executing command %s ...\n", triceCommand );
+            TRICE( Id( 4202), "att:Executing reveived command ...\n" );
             // do
-            TRICE( Id(0), "att:...done\n" );
+            TRICE( Id( 7778), "att:...done\n" );
         }
 
         // serve every few ms
@@ -205,31 +185,27 @@ int main(void)
             if( milliSecond >= lastTricesTime + 200 ){
                 static int index = 0;
                 int select = index;
-                TRICE16( Id(0),"MSG: 💚 START select = %d\n", select );
+                TRICE16( Id( 7809),"MSG: 💚 START select = %d\n", select );
                 TriceCheckSet(select);
-                #ifdef TRICE_HALF_BUFFER_SIZE
-                TRICE16( Id(0),"MSG: ✅ STOP  select = %d, TriceDepthMax =%4u of %d\n", select, TriceDepthMax(), TRICE_HALF_BUFFER_SIZE );
+                #if TRICE_MODE == TRICE_DOUBLE_BUFFER
+                TRICE16( Id( 3260),"MSG: ✅ STOP  select = %d, TriceDepthMax =%4u of %d\n", select, TriceDepthMax(), TRICE_HALF_BUFFER_SIZE );
                 #endif
+                #if TRICE_MODE == TRICE_STREAM_BUFFER
+                TRICE( Id( 5031), "MSG:triceFifoDepthMax = %d of max %d, triceStreamBufferDepthMax = %d of max %d\n", triceFifoDepthMax, TRICE_FIFO_ELEMENTS, triceStreamBufferDepthMax, TRICE_BUFFER_SIZE );
+                #endif
+
                 if( timingError64Count ){
-                    TRICE( Id(0), "err:%d timing errors 64-bit\n", timingError64Count );
-                }
-                if( timingError32Count ){
-                    TRICE( Id(0), "err:%d timing errors 32-bit\n", timingError32Count );
+                    TRICE( Id( 4065), "err:%d timing errors 64-bit\n", timingError64Count );
                 }
                 index += 10;
                 index = index > 1000 ? 0 : index;
-                {
-                    volatile uint32_t st0 = SysTick->VAL;
-                    volatile uint32_t us = ReadUs32();
-                    volatile uint32_t st1 = SysTick->VAL;
-                    TRICE( Id(0), "time: %d µs - ReadUs32() lasts %d ticks\n", us, st0 - st1);
-                }
                 lastTricesTime = milliSecond;
             }
         }
-        serveUs();
+        // The execution time could be longer than 1 ms, so the interrupts should do serveUs() too.
+        //serveUs();
         __WFI(); //lint !e718 !e746 wait for interrupt (sleep)
-        serveUs();
+        //serveUs(); // probably not needed
     }
 //lint -e835 -e534
   /* USER CODE END 3 */
@@ -276,6 +252,98 @@ void SystemClock_Config(void)
 
   /* Update CMSIS variable (which can be updated also through SystemCoreClockUpdate function) */
   LL_SetSystemCoreClock(64000000);
+}
+
+/**
+  * @brief USART1 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_USART1_UART_Init(void)
+{
+
+  /* USER CODE BEGIN USART1_Init 0 */
+
+  /* USER CODE END USART1_Init 0 */
+
+  LL_USART_InitTypeDef USART_InitStruct = {0};
+
+  LL_GPIO_InitTypeDef GPIO_InitStruct = {0};
+
+  LL_RCC_SetUSARTClockSource(LL_RCC_USART1_CLKSOURCE_PCLK1);
+
+  /* Peripheral clock enable */
+  LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_USART1);
+
+  LL_IOP_GRP1_EnableClock(LL_IOP_GRP1_PERIPH_GPIOA);
+  /**USART1 GPIO Configuration
+  PA9   ------> USART1_TX
+  PA10   ------> USART1_RX
+  PA12 [PA10]   ------> USART1_DE
+  */
+  GPIO_InitStruct.Pin = LL_GPIO_PIN_9;
+  GPIO_InitStruct.Mode = LL_GPIO_MODE_ALTERNATE;
+  GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_LOW;
+  GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
+  GPIO_InitStruct.Pull = LL_GPIO_PULL_NO;
+  GPIO_InitStruct.Alternate = LL_GPIO_AF_1;
+  LL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+  GPIO_InitStruct.Pin = LL_GPIO_PIN_10;
+  GPIO_InitStruct.Mode = LL_GPIO_MODE_ALTERNATE;
+  GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_LOW;
+  GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
+  GPIO_InitStruct.Pull = LL_GPIO_PULL_NO;
+  GPIO_InitStruct.Alternate = LL_GPIO_AF_1;
+  LL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+  GPIO_InitStruct.Pin = LL_GPIO_PIN_12;
+  GPIO_InitStruct.Mode = LL_GPIO_MODE_ALTERNATE;
+  GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_LOW;
+  GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
+  GPIO_InitStruct.Pull = LL_GPIO_PULL_NO;
+  GPIO_InitStruct.Alternate = LL_GPIO_AF_1;
+  LL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+  /* USART1 interrupt Init */
+  NVIC_SetPriority(USART1_IRQn, 0);
+  NVIC_EnableIRQ(USART1_IRQn);
+
+  /* USER CODE BEGIN USART1_Init 1 */
+
+  /* USER CODE END USART1_Init 1 */
+  USART_InitStruct.PrescalerValue = LL_USART_PRESCALER_DIV1;
+  USART_InitStruct.BaudRate = 115200;
+  USART_InitStruct.DataWidth = LL_USART_DATAWIDTH_8B;
+  USART_InitStruct.StopBits = LL_USART_STOPBITS_1;
+  USART_InitStruct.Parity = LL_USART_PARITY_NONE;
+  USART_InitStruct.TransferDirection = LL_USART_DIRECTION_TX_RX;
+  USART_InitStruct.HardwareFlowControl = LL_USART_HWCONTROL_NONE;
+  USART_InitStruct.OverSampling = LL_USART_OVERSAMPLING_16;
+  LL_USART_Init(USART1, &USART_InitStruct);
+  LL_USART_SetTXFIFOThreshold(USART1, LL_USART_FIFOTHRESHOLD_1_8);
+  LL_USART_SetRXFIFOThreshold(USART1, LL_USART_FIFOTHRESHOLD_1_8);
+  LL_USART_EnableDEMode(USART1);
+  LL_USART_SetDESignalPolarity(USART1, LL_USART_DE_POLARITY_HIGH);
+  LL_USART_SetDEAssertionTime(USART1, 0);
+  LL_USART_SetDEDeassertionTime(USART1, 0);
+  LL_USART_DisableFIFO(USART1);
+  LL_USART_ConfigAsyncMode(USART1);
+
+  /* USER CODE BEGIN WKUPType USART1 */
+
+  /* USER CODE END WKUPType USART1 */
+
+  LL_USART_Enable(USART1);
+
+  /* Polling USART1 initialisation */
+  while((!(LL_USART_IsActiveFlag_TEACK(USART1))) || (!(LL_USART_IsActiveFlag_REACK(USART1))))
+  {
+  }
+  /* USER CODE BEGIN USART1_Init 2 */
+
+  /* USER CODE END USART1_Init 2 */
+
 }
 
 /**
@@ -431,5 +499,3 @@ void assert_failed(uint8_t *file, uint32_t line)
   /* USER CODE END 6 */
 }
 #endif /* USE_FULL_ASSERT */
-
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

@@ -159,9 +159,9 @@ uint32_t TriceStamp32( void );
 // Declarations and Defaults
 
 #ifndef TRICE_COMMAND_SIZE_MAX
-#define TRICE_COMMAND_SIZE_MAX 4 //!< trice tool could transmit command strings to target
+#define TRICE_COMMAND_SIZE_MAX 120 //!< trice tool could transmit command strings to target
 #endif
-extern char triceCommand[TRICE_COMMAND_SIZE_MAX+1];
+extern char triceCommand[TRICE_COMMAND_SIZE_MAX];
 extern int triceCommandFlag;
 
 size_t TriceDepthMax( void );
@@ -429,7 +429,7 @@ static inline uint64_t aDouble( double x ){
     uint32_t limit = TRICE_SINGLE_MAX_SIZE-8; /* 8 = head + max timestamp size --> todo: consider 64-bit stamp! */ \
     uint32_t len_ = n; /* n could be a constant */ \
     if( len_ > limit ){ \
-        TRICE32( Id( 2404), "wrn:Transmit buffer truncated from %u to %u\n", len_, limit ); \
+        TRICE32( Id( 2240), "wrn:Transmit buffer truncated from %u to %u\n", len_, limit ); \
         len_ = limit; \
     } \
     TRICE_ENTER id; \

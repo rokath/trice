@@ -84,13 +84,7 @@ static inline uint64_t ReadUs64( void ){
 //! intervals up to over 1 hour (4294 seconds), but the "OS" needs to call ReadUs32  internally regularely in <1ms intervals.
 //! \retval us count since last reset modulo 2^32
 static inline uint32_t ReadUs32( void ){
-    static uint32_t us_1 = 0; // result of last call
-    uint32_t us = ((uint32_t)microSecond) + (((SysTick->LOAD - SysTick->VAL) * 87381LL) >> 22); // Divide clock by 48,0001831 to get us.
-    if( us < us_1){ // Possible very close to systick ISR, when milliSecond was not incremented yet, but the systic wrapped already.
-        us += 1000; // Time cannot go backwards, so correct the 1ms error in the assumption last call is not longer than 1ms back.
-    }
-    us_1 = us; // keep result for next call
-    return us;
+    return (uint32_t)ReadUs64();
 }
 
 uint16_t TriceStamp16( void ){
@@ -101,14 +95,31 @@ uint32_t TriceStamp32( void ){
     return ReadUs32();
 }
 
+static unsigned timingError64Count = 0;
+static unsigned timingError32Count = 0;
+
 //! serveUs should be called in intervals secure smaller than 1ms.
 static void serveUs( void ){
     static uint64_t st64_1 = 0;
     static uint32_t st32_1 = 0;
     uint64_t st64 = ReadUs64();
     uint32_t st32 = ReadUs32();
-    if( st64 < st64_1 || st32 < st32_1 ){
-        for(;;){} // stop, timing error
+    static int virgin64 = 1;
+    static int virgin32 = 1;
+    if( st64 < st64_1 ){
+        timingError64Count++;
+        if( virgin64 ){
+            virgin64 = 0;
+            TRICE64( Id( 7408), "err:st64=%d < st64_1=%d\n", st64, st64_1 );
+        
+        }
+    }
+    if( st32 < st32_1 ){
+        timingError32Count++;
+        if( virgin32 ){
+            virgin32 = 0;
+            TRICE32( Id( 2140), "err:st32=%d < st32_1=%d\n", st32, st32_1 );        
+        }
     }
     st64_1 = st64;
     st32_1 = st32;
@@ -167,8 +178,8 @@ int main(void)
         int c = (int)b;
         int d = (int)(b * 1000) % 1000;
         int e = (int)(1000 * (float)(a - c)); 
-        TRICE( Id( 2856), "msg:x = %g = %d.%03d, %d.%03d\n", aFloat(a), c, d, c, e ); //lint !e666
-        TRICE( Id( 1584), "1/11 = %g\n", aFloat( 1.0/11 ) ); //lint !e666
+        TRICE( Id( 4716), "msg:x = %g = %d.%03d, %d.%03d\n", aFloat(a), c, d, c, e ); //lint !e666
+        TRICE( Id( 1570), "1/11 = %g\n", aFloat( 1.0/11 ) ); //lint !e666
     }
   /* USER CODE END 2 */
 
@@ -177,9 +188,9 @@ int main(void)
     for(;;){
         if( triceCommandFlag ){
             triceCommandFlag = 0;
-            TRICE_S( Id( 1543), "att:Executing command %s ...\n", triceCommand );
+            TRICE_S( Id( 5044), "att:Executing command %s ...\n", triceCommand );
             // do
-            TRICE( Id( 5132), "att:...done\n" );
+            TRICE( Id( 2743), "att:...done\n" );
         }
 
         // serve every few ms
@@ -199,23 +210,30 @@ int main(void)
             if( milliSecond >= lastTricesTime + 500 ){
                 static int index = 0;
                 int select = index;
-                TRICE16( Id( 5000),"MSG: 💚 START select = %d\n", select );
+                TRICE16( Id( 5350),"MSG: 💚 START select = %d\n", select );
                 TriceCheckSet(select);
-                #if TRICE_MODE == TRICE_HALF_BUFFER_SIZE
-                TRICE16( Id( 1649),"MSG: ✅ STOP  select = %d, TriceDepthMax =%4u of %d\n", select, TriceDepthMax(), TRICE_HALF_BUFFER_SIZE );
+                #if TRICE_MODE == TRICE_DOUBLE_BUFFER
+                TRICE16( Id( 4576),"MSG: ✅ STOP  select = %d, TriceDepthMax =%4u of %d\n", select, TriceDepthMax(), TRICE_HALF_BUFFER_SIZE );
                 #endif
                 #if TRICE_MODE == TRICE_STREAM_BUFFER
-                TRICE( Id( 6539), "MSG:triceFifoDepthMax = %d of max %d, triceStreamBufferDepthMax = %d of max %d\n", triceFifoDepthMax, TRICE_FIFO_ELEMENTS, triceStreamBufferDepthMax, TRICE_BUFFER_SIZE );
+                TRICE( Id( 4833), "MSG:triceFifoDepthMax = %d of max %d, triceStreamBufferDepthMax = %d of max %d\n", triceFifoDepthMax, TRICE_FIFO_ELEMENTS, triceStreamBufferDepthMax, TRICE_BUFFER_SIZE );
                 #endif
+
+                if( timingError64Count ){
+                    TRICE( Id( 1352), "err:%d timing errors 64-bit\n", timingError64Count );
+                }
+                if( timingError32Count ){
+                    TRICE( Id( 6479), "err:%d timing errors 32-bit\n", timingError32Count );
+                }
                 index += 10;
                 index = index > 1000 ? 0 : index;
+                {
+                    volatile uint32_t st0 = SysTick->VAL;
+                    volatile uint32_t us = ReadUs32();
+                    volatile uint32_t st1 = SysTick->VAL;
+                    TRICE( Id( 5422), "time: %d µs - ReadUs32() lasts %d ticks\n", us, st0 - st1);
+                }
                 lastTricesTime = milliSecond;
-                //{
-                //    volatile uint32_t st0 = SysTick->VAL;
-                //    volatile uint32_t us = ReadUs32();
-                //    volatile uint32_t st1 = SysTick->VAL;
-                //    TRICE( Id( 2157), "time: %d µs - ReadUs32() lasts %d ticks\n", us, st0 - st1);
-                //}
             }
         }
         serveUs();

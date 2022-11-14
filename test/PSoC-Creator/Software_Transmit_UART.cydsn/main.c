@@ -74,12 +74,12 @@ int main()
         uint16 cnt = 0;
         char *dataArray = "DataArray[13]"; // The array with characters to send
         /* Transmit different data types through the UART */   
-        TRICE0( Id(0),"\natt:Software Transmit UART Component demo\n");
-        TRICE8( Id(0),"wrn:Sending 254 as single byte hex: %02x\n", 254);
-        TRICE16( Id(0),"d:Sending uint16 counter as two byte hex: %x\n", cnt);
-        TRICE_S( Id(0),"msg:Sending array: %s\n", dataArray);
-        TRICE32( Id(0), "tim:SysTick=%d\n", SYSTICKVAL32 );
-        TRICE32( Id(0), "tim:SysTick=%d\n", SYSTICKVAL32 );
+        TRICE0( Id( 7447),"\natt:Software Transmit UART Component demo\n");
+        TRICE8( Id( 3127),"wrn:Sending 254 as single byte hex: %02x\n", 254);
+        TRICE16( Id( 1645),"d:Sending uint16 counter as two byte hex: %x\n", cnt);
+        TRICE_S( Id( 5983),"msg:Sending array: %s\n", dataArray);
+        TRICE32( Id( 3742), "tim:SysTick=%d\n", SYSTICKVAL32 );
+        TRICE32( Id( 7060), "tim:SysTick=%d\n", SYSTICKVAL32 );
         cnt++; 
         CyDelay(SEND_INTERVAL);
     }

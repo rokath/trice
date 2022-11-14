@@ -16,9 +16,10 @@ extern "C" {
 //
 
 //! TRICE_MODE is a predefined trice transfer method. Options: TRICE_STACK_BUFFER, TRICE_DOUBLE_BUFFER, TRICE_STREAM_BUFFER
+//! The TRICE_MODE decision is a general one concering the inner data handling and is (nearly) independent from the out channel(s).
 //!
 //! TRICE_STACK_BUFFER:
-//! \li Direct output to UART or RTT with cycle counter. Trices inside interrupts forbidden. Direct TRICE macro execution.
+//! \li Direct output to UART or RTT with cycle counter. For UART transfer trices inside interrupts forbidden. Direct TRICE macro execution.
 //! \li This mode is mainly for a quick tryout start or if no timing constrains for the TRICE macros exist.
 //! \li Only a putchar() function is required - look for triceBlockingPutChar().
 //! \li UART Command line similar to: `trice log -p COM1 -baud 115200`
@@ -27,29 +28,53 @@ extern "C" {
 //! \li ST-LINK Command line similar to: `trice log -p ST-LINK -args="-Device STM32G071RB -if SWD -Speed 4000 -RTTChannel 0 -RTTSearchRanges 0x20000000_0x1000"`
 //!
 //! TRICE_DOUBLE_BUFFER:
-//! \li Double Buffering output to RTT or UART with cycle counter. Trices inside interrupts allowed. Fast TRICE macro execution.
+//! \li Double Buffering output to UART with cycle counter. Trices inside interrupts allowed. Fast TRICE macro execution.
+//! \li Works also with RTT but makes usually no sense because then TRICE_MODE == TRICE_STACK_BUFFER is more effective and needs less memory.
 //! \li UART Command line similar to: `trice log -p COM1 -baud 115200`
 //! \li RTT Command line similar to: `trice l -args="-Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0 -RTTSearchRanges 0x20000000_0x1000"`
 //!
 //! TRICE_STREAM_BUFFER:
-//! \li Stream Buffering output to UART. Allows avoiding priority inversion.
+//! \li Stream Buffering output to UART. Needs less buffer memory for the price of being a bit slower.
 //! \li Command line similar to: `trice log -p COM1 -baud 115200`
-#define TRICE_MODE TRICE_DOUBLE_BUFFER 
-
-//! TRICE_BUFFER_SIZE must be carefully choosen.
-//! \li TRICE_MODE == TRICE_STACK_BUFFER: TRICE_BUFFER_SIZE is the used additional max stack size for a single TRICE macro. Recommended value: TRICE_SINGLE_MAX_SIZE plus 32.
-//! \li TRICE_MODE == TRICE_DOUBLE_BUFFER: TRICE_BUFFER_SIZE is the double half buffer size usable for a TRICE macro burst. Recommended value: 2000.
-//! \li TRICE_MODE == TRICE_STREAM_BUFFER: TRICE_BUFFER_SIZE is the used max buffer size for a TRICE macro burst. Recommended value: 1000.
-#define TRICE_BUFFER_SIZE 2000
+#define TRICE_MODE TRICE_STREAM_BUFFER 
 
 //! TRICE_SINGLE_MAX_SIZE is used to truncate long dynamically generated strings and to detect the need of a stream buffer wrap.
-#define TRICE_SINGLE_MAX_SIZE 80
+//! Be careful with this value: When using 12 64-bit values with a 64-bit stamp the trice size is 2 + 8 + 2 + 12*8 = 108 bytes 
+#define TRICE_SINGLE_MAX_SIZE 120 // no need for a power of 2 here
+
+#if TRICE_MODE == TRICE_STACK_BUFFER
+#define TRICE_BUFFER_SIZE (TRICE_SINGLE_MAX_SIZE + 8) //!< TRICE_BUFFER_SIZE is the used additional max stack size for a single TRICE macro. Recommended value: TRICE_SINGLE_MAX_SIZE plus 8.
+#elif TRICE_MODE == TRICE_STREAM_BUFFER 
+#define TRICE_TRANSFER_INTERVAL_MS 10 //!< TRICE_TRANSFER_INTERVAL_MS is the milliseconds interval for a single TRICE read out. Each trigger transfers up to one trice, so make this value not too big to get all trices out in the average. This time should be shorter than visible delays. 
+#define TRICE_FIFO_ELEMENTS 128 //!< Must be a power of 2. The half number is the amount of bufferable trices before they go out.
+#define TRICE_BUFFER_SIZE 0x800 //!< TRICE_BUFFER_SIZE is the used max buffer size for a TRICE macro burst. Recommended value: 2000.
+#elif TRICE_MODE == TRICE_DOUBLE_BUFFER 
+#define TRICE_TRANSFER_INTERVAL_MS 100 //!< TRICE_TRANSFER_INTERVAL_MS is the milliseconds interval for TRICE buffer read out. Each trigger transfers all in a half buffer stored trices. The TRICE_HALF_BUFFER_SIZE must be able to hold all trice messages possibly occouring in this time. This time should be shorter than visible delays. 
+#define TRICE_BUFFER_SIZE 0x800 //!< TRICE_BUFFER_SIZE is the double half buffer size usable for a TRICE macro burst. Recommended value: 2000.
+#endif
+
+///////////////////////////////////////////////////////////////////////////////
+// Multi selecet physical out channels, the ID ranges are allowed to overlap.
+// 
 
 //! Enable and set channel number for SeggerRTT usage. Only channel 0 works right now for some reason.
-//#define TRICE_RTT_CHANNEL 0
+//#define TRICE_RTT0 0 // comment out, if you do not use RTT
+
+//! Enable and set UART2 for serial output.
+#define TRICE_UARTA USART2 // comment out, if you do not use TRICE_UARTA
+#define TRICE_UARTA_MIN_ID 1       //! TRICE_UARTA_MIN_ID is the smallest ID transferred to UARTA.
+#define TRICE_UARTA_MAX_ID (1<<13) //! TRICE_UARTA_MAX_ID is the biggest ID transferred to UARTA.
 
 //! Enable and set UART for serial output.
-#define TRICE_UART USART2
+#define TRICE_UARTB USART1 // comment out, if you do not use TRICE_UARTB
+#define TRICE_UARTB_MIN_ID 1       //! TRICE_UARTB_MIN_ID is the smallest ID transferred to UARTB.
+#define TRICE_UARTB_MAX_ID (1<<13) //! TRICE_UARTB_MAX_ID is the biggest ID transferred to UARTB.
+
+//! CGO interface (for testing)
+//#define TRICE_CGO 
+
+//
+///////////////////////////////////////////////////////////////////////////////
 
 //! TRICE_TRANSFER_MODE is the selected trice transfer method. Options: TRICE_SAFE_SINGLE_MODE (recommended), TRICE_PACK_MULTI_MODE.
 #define TRICE_TRANSFER_MODE TRICE_SAFE_SINGLE_MODE
@@ -77,13 +102,13 @@ extern "C" {
 
 //! This is usable as the very first trice sequence after restart. Adapt and use it or ignore it.
 #define TRICE_HEADLINE \
-    TRICE0( Id(0), "s:                                          \n" ); \
-    TRICE8( Id(0), "s:     NUCLEO-G031K8     TRICE_MODE %3u     \n", TRICE_MODE ); \
-    TRICE0( Id(0), "s:                                          \n" ); \
-    TRICE0( Id(0), "s:     " ); \
+    TRICE0( Id( 3685), "s:                                          \n" ); \
+    TRICE8( Id( 7374), "s:     NUCLEO-G031K8     TRICE_MODE %3u     \n", TRICE_MODE ); \
+    TRICE0( Id( 5910), "s:                                          \n" ); \
+    TRICE0( Id( 7563), "s:     " ); \
     TriceLogBufferInfo(); \
-    TRICE0( Id(0), "s:     \n" ); \
-    TRICE0( Id(0), "s:                                          \n");
+    TRICE0( Id( 3625), "s:     \n" ); \
+    TRICE0( Id( 6366), "s:                                          \n");
 
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -154,10 +179,10 @@ extern "C" {
 
 
 ///////////////////////////////////////////////////////////////////////////////
-// Optical feedback: Adapt to your device.
+// Optical feedback: Adapt to your device or comment header and body out
 //
 
-#include "main.h" // LED_GREEN_GPIO_Port, LED_GREEN_Pin
+#include "main.h" // LD3_GPIO_Port, LD3_Pin
 static inline void ToggleOpticalFeedbackLED( void ){
     LL_GPIO_TogglePin(LD3_GPIO_Port, LD3_Pin);
 }
@@ -170,55 +195,69 @@ static inline void ToggleOpticalFeedbackLED( void ){
 // UART interface: Adapt to your device.
 //
 
-#ifdef TRICE_UART
+#ifdef TRICE_UARTA
 #include "main.h" // hardware specific stuff
 
 //! Check if a new byte can be written into trice transmit register.
 //! \retval 0 == not empty
 //! \retval !0 == empty
 //! User must provide this function.
-TRICE_INLINE uint32_t triceTxDataRegisterEmpty(void) {
-    return LL_USART_IsActiveFlag_TXE(TRICE_UART);
+TRICE_INLINE uint32_t triceTxDataRegisterEmptyUartA(void) {
+    return LL_USART_IsActiveFlag_TXE(TRICE_UARTA);
 }
 
 //! Write value v into trice transmit register.
 //! \param v byte to transmit
 //! User must provide this function.
-TRICE_INLINE void triceTransmitData8(uint8_t v) {
-    LL_USART_TransmitData8(TRICE_UART, v);
+TRICE_INLINE void triceTransmitData8UartA(uint8_t v) {
+    LL_USART_TransmitData8(TRICE_UARTA, v);
     ToggleOpticalFeedbackLED();
 }
 
 //! Allow interrupt for empty trice data transmit register.
 //! User must provide this function.
-TRICE_INLINE void triceEnableTxEmptyInterrupt(void) {
-    LL_USART_EnableIT_TXE(TRICE_UART);
+TRICE_INLINE void triceEnableTxEmptyInterruptUartA(void) {
+    LL_USART_EnableIT_TXE(TRICE_UARTA);
 }
 
 //! Disallow interrupt for empty trice data transmit register.
 //! User must provide this function.
-TRICE_INLINE void triceDisableTxEmptyInterrupt(void) {
-    LL_USART_DisableIT_TXE(TRICE_UART);
+TRICE_INLINE void triceDisableTxEmptyInterruptUartA(void) {
+    LL_USART_DisableIT_TXE(TRICE_UARTA);
 }
-
 #endif // #ifdef TRICE_STM32
 
-//
-///////////////////////////////////////////////////////////////////////////////
+#ifdef TRICE_UARTB
+#include "main.h" // hardware specific stuff
 
+//! Check if a new byte can be written into trice transmit register.
+//! \retval 0 == not empty
+//! \retval !0 == empty
+//! User must provide this function.
+TRICE_INLINE uint32_t triceTxDataRegisterEmptyUartB(void) {
+    return LL_USART_IsActiveFlag_TXE(TRICE_UARTB);
+}
 
-///////////////////////////////////////////////////////////////////////////////
-// RTT interface: Adapt to your device.
-//
+//! Write value v into trice transmit register.
+//! \param v byte to transmit
+//! User must provide this function.
+TRICE_INLINE void triceTransmitData8UartB(uint8_t v) {
+    LL_USART_TransmitData8(TRICE_UARTB, v);
+    ToggleOpticalFeedbackLED();
+}
 
-#ifdef TRICE_RTT_CHANNEL
-#include "SEGGER_RTT.h"
+//! Allow interrupt for empty trice data transmit register.
+//! User must provide this function.
+TRICE_INLINE void triceEnableTxEmptyInterruptUartB(void) {
+    LL_USART_EnableIT_TXE(TRICE_UARTB);
+}
 
-#define TRICE_WRITE( buf, len ) do{ \
-    SEGGER_RTT_Write(TRICE_RTT_CHANNEL, buf, len ); \
-    ToggleOpticalFeedbackLED(); \
-}while(0)
-#endif // #ifdef TRICE_RTT_CHANNEL
+//! Disallow interrupt for empty trice data transmit register.
+//! User must provide this function.
+TRICE_INLINE void triceDisableTxEmptyInterruptUartB(void) {
+    LL_USART_DisableIT_TXE(TRICE_UARTB);
+}
+#endif // #ifdef TRICE_STM32
 
 //
 ///////////////////////////////////////////////////////////////////////////////

@@ -6,7 +6,7 @@
 #include "xtea.h"
 
 //! triceCommand is the command receive buffer.
-char triceCommand[TRICE_COMMAND_SIZE_MAX+1]; // with terminating 0
+char triceCommand[TRICE_COMMAND_SIZE_MAX]; // with terminating 0
 
 //! triceCommandFlag ist set, when a command was received completely.
 int triceCommandFlag = 0; // updated

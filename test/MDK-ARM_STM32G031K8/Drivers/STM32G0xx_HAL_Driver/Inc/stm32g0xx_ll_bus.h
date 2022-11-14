@@ -23,14 +23,12 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; Copyright (c) 2018 STMicroelectronics.
-  * All rights reserved.</center></h2>
+  * Copyright (c) 2018 STMicroelectronics.
+  * All rights reserved.
   *
-  * This software component is licensed by ST under BSD 3-Clause license,
-  * the "License"; You may not use this file except in compliance with the
-  * License. You may obtain a copy of the License at:
-  *                        opensource.org/licenses/BSD-3-Clause
-  *
+  * This software is licensed under terms that can be found in the LICENSE file in
+  * the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
   ******************************************************************************
   */
 
@@ -621,7 +619,6 @@ __STATIC_INLINE void LL_APB1_GRP1_DisableClock(uint32_t Periphs)
   *         APBRSTR1     TIM6RST       LL_APB1_GRP1_ForceReset\n
   *         APBRSTR1     TIM7RST       LL_APB1_GRP1_ForceReset\n
   *         APBRSTR1     RTCRST        LL_APB1_GRP1_ForceReset\n
-  *         APBRSTR1     WWDGRST       LL_APB1_GRP1_ForceReset\n
   *         APBRSTR1     SPI2RST       LL_APB1_GRP1_ForceReset\n
   *         APBRSTR1     SPI3RST       LL_APB1_GRP1_ForceReset\n
   *         APBRSTR1     USART2RST     LL_APB1_GRP1_ForceReset\n
@@ -651,7 +648,6 @@ __STATIC_INLINE void LL_APB1_GRP1_DisableClock(uint32_t Periphs)
   *         @arg @ref LL_APB1_GRP1_PERIPH_TIM6    (1)
   *         @arg @ref LL_APB1_GRP1_PERIPH_TIM7    (1)
   *         @arg @ref LL_APB1_GRP1_PERIPH_RTC
-  *         @arg @ref LL_APB1_GRP1_PERIPH_WWDG
   *         @arg @ref LL_APB1_GRP1_PERIPH_SPI2
   *         @arg @ref LL_APB1_GRP1_PERIPH_SPI3    (1)
   *         @arg @ref LL_APB1_GRP1_PERIPH_USART2
@@ -689,7 +685,6 @@ __STATIC_INLINE void LL_APB1_GRP1_ForceReset(uint32_t Periphs)
   *         APBRSTR1     TIM6RST       LL_APB1_GRP1_ReleaseReset\n
   *         APBRSTR1     TIM7RST       LL_APB1_GRP1_ReleaseReset\n
   *         APBRSTR1     RTCRST        LL_APB1_GRP1_ReleaseReset\n
-  *         APBRSTR1     WWDGRST       LL_APB1_GRP1_ReleaseReset\n
   *         APBRSTR1     SPI2RST       LL_APB1_GRP1_ReleaseReset\n
   *         APBRSTR1     SPI3RST       LL_APB1_GRP1_ReleaseReset\n
   *         APBRSTR1     USART2RST     LL_APB1_GRP1_ReleaseReset\n
@@ -719,7 +714,6 @@ __STATIC_INLINE void LL_APB1_GRP1_ForceReset(uint32_t Periphs)
   *         @arg @ref LL_APB1_GRP1_PERIPH_TIM6    (1)
   *         @arg @ref LL_APB1_GRP1_PERIPH_TIM7    (1)
   *         @arg @ref LL_APB1_GRP1_PERIPH_RTC
-  *         @arg @ref LL_APB1_GRP1_PERIPH_WWDG
   *         @arg @ref LL_APB1_GRP1_PERIPH_SPI2
   *         @arg @ref LL_APB1_GRP1_PERIPH_SPI3    (1)
   *         @arg @ref LL_APB1_GRP1_PERIPH_USART2
@@ -1310,4 +1304,3 @@ __STATIC_INLINE void LL_IOP_GRP1_DisableClockStopSleep(uint32_t Periphs)
 
 #endif /* STM32G0xx_LL_BUS_H */
 
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

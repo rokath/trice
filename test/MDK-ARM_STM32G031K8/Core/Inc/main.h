@@ -67,7 +67,8 @@ extern "C" {
 void Error_Handler(void);
 
 /* USER CODE BEGIN EFP */
-
+uint64_t ReadUs64( void );
+void serveUs( void );
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
@@ -92,5 +93,3 @@ void Error_Handler(void);
 #endif
 
 #endif /* __MAIN_H */
-
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

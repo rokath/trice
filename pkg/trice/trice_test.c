@@ -16,9 +16,9 @@ void SetTriceBuffer( uint8_t* buf  ){
 int TriceCode( int n ){
     char* s;
     switch( n ){
-        case 0: TRICE32_1( Id( 4147), "rd:TRICE32_1 line %d (%%d)\n", -1 ); return triceBufferDepth;
-        case 1: TRICE64( Id( 7955), "rd:TRICE64 %d, %d\n", 1, 2 );          return triceBufferDepth; 
-        case 2: s = "AAAAAAAAAAAA"; TRICE_S( Id( 2604), "sig:%s\n", s );    return triceBufferDepth; 
+        case 0: TRICE32_1( Id( 5595), "rd:TRICE32_1 line %d (%%d)\n", -1 ); return triceBufferDepth;
+        case 1: TRICE64( Id( 5866), "rd:TRICE64 %d, %d\n", 1, 2 );          return triceBufferDepth; 
+        case 2: s = "AAAAAAAAAAAA"; TRICE_S( Id( 5928), "sig:%s\n", s );    return triceBufferDepth; 
     }
     return 0;
 }

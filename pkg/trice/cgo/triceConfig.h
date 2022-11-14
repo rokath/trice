@@ -102,13 +102,13 @@ extern "C" {
 
 //! This is usable as the very first trice sequence after restart. Adapt and use it or ignore it.
 #define TRICE_HEADLINE \
-    TRICE0( Id( 6897), "s:                                          \n" ); \
-    TRICE8( Id( 3611), "s:     CGO-TEST     TRICE_MODE %3u     \n", TRICE_MODE ); \
-    TRICE0( Id( 5840), "s:                                          \n" ); \
-    TRICE0( Id( 5309), "s:     " ); \
+    TRICE0( Id( 2936), "s:                                          \n" ); \
+    TRICE8( Id( 4305), "s:     CGO-TEST     TRICE_MODE %3u     \n", TRICE_MODE ); \
+    TRICE0( Id( 2029), "s:                                          \n" ); \
+    TRICE0( Id( 1595), "s:     " ); \
     TriceLogBufferInfo(); \
-    TRICE0( Id( 2938), "s:     \n" ); \
-    TRICE0( Id( 4600), "s:                                          \n");
+    TRICE0( Id( 3003), "s:     \n" ); \
+    TRICE0( Id( 5493), "s:                                          \n");
 
 //
 ///////////////////////////////////////////////////////////////////////////////
