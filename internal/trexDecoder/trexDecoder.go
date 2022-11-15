@@ -23,18 +23,44 @@ import (
 )
 
 const (
-	tyIdSize = 2 // tySize is what each trice message starts with: 2-bit msb + 14-bit something
+	tyIdSize = 2 // tySize is what each trice message starts with: 2 bytes
 	ncSize   = 2 // countSize is what each regular trice message contains after an optional target timestamp
 	//headSize = tyIdSize + ncSize // headSize is what each regular trice message starts with: 2-bit msb + 14-bit ID + 16-bit nc
-	typeS0 = 3 // regular trice format without stamp     : 011iiiiiI NC ...
-	typeS2 = 5 // regular trice format with 16-bit stamp : 101iiiiiI TT NC ...
-	typeS4 = 7 // regular trice format with 32-bit stamp : 111iiiiiI TT TT NC ...
-	typeS8 = 1 // regular trice format with 32-bit stamp : 001iiiiiI TT TT TT TT NC ...
-	typeX0 = 0 // extended trice format or user data     : 000...... ...
-	typeX1 = 2 // extended trice format or user data     : 010...... ...
-	typeX2 = 4 // extended trice format or user data     : 100...... ...
-	typeX3 = 6 // extended trice format or user data     : 110...... ...
 )
+
+var (
+	IDMask int
+	typeS0 int
+	typeS2 int
+	typeS4 int
+	typeS8 int
+	typeX0 int
+	typeX1 int
+	typeX2 int
+	typeX3 int
+)
+
+func init() {
+	if decoder.IDBits == 13 {
+		typeS0 = 3 // regular trice format without stamp     : 011iiiiiI NC ...
+		typeS2 = 5 // regular trice format with 16-bit stamp : 101iiiiiI TT NC ...
+		typeS4 = 7 // regular trice format with 32-bit stamp : 111iiiiiI TT TT NC ...
+		typeS8 = 1 // regular trice format with 64-bit stamp : 001iiiiiI TT TT TT TT NC ...
+		typeX0 = 0 // extended trice format or user data     : 000...... ...
+		typeX1 = 2 // extended trice format or user data     : 010...... ...
+		typeX2 = 4 // extended trice format or user data     : 100...... ...
+		typeX3 = 6 // extended trice format or user data     : 110...... ...
+		IDMask = 0x01FFF
+	} else if decoder.IDBits == 14 {
+		typeS0 = 1 // regular trice format without stamp     : 011iiiiiI NC ...
+		typeS2 = 2 // regular trice format with 16-bit stamp : 101iiiiiI TT NC ...
+		typeS4 = 3 // regular trice format with 32-bit stamp : 111iiiiiI TT TT NC ...
+		typeX0 = 0 // regular trice format with 32-bit stamp : 001iiiiiI TT TT TT TT NC ...
+		IDMask = 0x03FFF
+	} else {
+		log.Fatal("TREX works with 14 (legacy) or 13 (actual) bits for ID encoding.")
+	}
+}
 
 // trexDec is the Decoding instance for trex encoded trices.
 type trexDec struct {
@@ -174,9 +200,9 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 	tyId := p.ReadU16(p.B)
 	p.B = p.B[tyIdSize:]
 
-	triceType := tyId >> 13              // 3 most significant bit are the trice type: T4, T2, T0 or EX
-	triceID := id.TriceID(0x1FFF & tyId) // 14 least significant bits are the ID
-	decoder.LastTriceID = triceID        // used for showID
+	triceType := int(tyId >> decoder.IDBits) // most significant bit are the triceType
+	triceID := id.TriceID(0x1FFF & tyId)     // least significant bits are the ID
+	decoder.LastTriceID = triceID            // used for showID
 
 	switch triceType {
 	case typeS0: // no timestamp
@@ -185,7 +211,7 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 		decoder.TargetTimestampSize = 2
 	case typeS4: // 32-bit stamp
 		decoder.TargetTimestampSize = 4
-	case typeS8: // 32-bit stamp
+	case typeS8: // 64-bit stamp
 		decoder.TargetTimestampSize = 8
 	case typeX0: // extended trice type X0
 	// todo: implement special case here
@@ -202,12 +228,16 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 		return
 	}
 
-	if triceType == typeS4 { // 32-bit stamp
-		decoder.TargetTimestamp = uint64(p.ReadU32(p.B))
+	if triceType == typeS0 {
+		decoder.TargetTimestamp = 0
 	} else if triceType == typeS2 { // 16-bit stamp
 		decoder.TargetTimestamp = uint64(p.ReadU16(p.B))
+	} else if triceType == typeS4 { // 32-bit stamp
+		decoder.TargetTimestamp = uint64(p.ReadU32(p.B))
 	} else if triceType == typeS8 { // 64-bit stamp
 		decoder.TargetTimestamp = uint64(p.ReadU64(p.B))
+	} else {
+		log.Fatal("triceType ", triceType, " not implemented (hint: IDBits value?)")
 	}
 	p.B = p.B[decoder.TargetTimestampSize:]
 

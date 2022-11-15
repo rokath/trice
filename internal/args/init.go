@@ -80,6 +80,7 @@ func helpInit() {
 func logInit() {
 	const defaultEncoding = "TREX"
 	fsScLog = flag.NewFlagSet("log", flag.ExitOnError) // sub-command
+	fsScLog.IntVar(&decoder.IDBits, "IDBits", 13, `Bits used for ID encoding. Legacy TREX projects need this value to be set to 14.`)
 	fsScLog.StringVar(&translator.Encoding, "encoding", defaultEncoding, `The trice transmit data format type, options: '(CHAR|DUMP|TLE|TREX)'. Target device encoding must match. 
 		  TLE=TriceLegacyEncoding expects 0-delimited COBS byte sequences. Needs '#define TRICE_ENCODING TRICE_LEGACY_ENCODING' inside triceConfig.h. Use not for new projects.
 		  TREX=TriceExtendableEncoding, see Trice1.0Specification. Needs '#define TRICE_ENCODING TRICE_TREX_ENCODING' inside triceConfig.h.
@@ -170,7 +171,7 @@ Example: "trice l -port COM38 -ds -ipa 192.168.178.44" sends trice output to a p
 Example: "-ban dbg:wrn -ban diag" results in suppressing all as debug, diag and warning tagged messages. Not usable in conjunction with "-pick".`) // multi flag
 	fsScLog.Var(&emitter.Pick, "pick", `Channel(s) to display. This is a multi-flag switch. It can be used several times with a colon separated list of channel descriptors only to display.
 Example: "-pick err:wrn -pick default" results in suppressing all messages despite of as error, warning and default tagged messages. Not usable in conjunction with "-ban".`) // multi flag
-	fsScLog.StringVar(&decoder.PackageFraming, "packageFraming", "TCOBSv1", `Use "COBS" as alternative. Needs "#define TRICE_PACKAGE_FRAMING TRICE_COBS_FRAMING" inside "triceConfig.h". "TCOBSv2" will be supported in the future too.`)
+	fsScLog.StringVar(&decoder.PackageFraming, "packageFraming", "TCOBSv1", `Use "COBS" as alternative. Needs "#define TRICE_PACKAGE_FRAMING TRICE_COBS_FRAMING" inside "triceConfig.h".`)
 	fsScLog.StringVar(&decoder.PackageFraming, "pf", "TCOBSv1", "Short for '-packageFraming'.")
 }
 

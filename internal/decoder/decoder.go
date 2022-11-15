@@ -106,7 +106,8 @@ var (
 	TargetTimestampSize             int     // TargetTimestampSize is set in dependence of trice type.
 	TargetLocationExists            bool    // TargetLocationExists is set in dependence of p.COBSModeDescriptor. (obsolete)
 
-	PackageFraming string // Framing is used for packing. Valid values COBS, TCOBSv1, TCOBSv2
+	PackageFraming string // Framing is used for packing. Valid values COBS, TCOBSv1
+	IDBits         = 13   // IDBits holds count of bits used for ID (used at least in trexDecoder)
 )
 
 // New abstracts the function type for a new decoder.
