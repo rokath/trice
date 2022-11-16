@@ -33,7 +33,7 @@ void TriceCheckSet(int index) {
           //TRICE( Id( 2831), "WARNING:11+i:red\n" );
           //TRICE( Id( 3150), "ATTENTION:11:green\n" );
           //TRICE( Id( 1327), "INFO:cyan+b:default+h\n" );
-          //TRICE( Id( 5678), "DEBUG:130+i\n" );
+          //TRICE( Id( 3111), "DEBUG:130+i\n" );
           //TRICE( Id( 3159), "TRACE:default+i:default+h\n" );
           //TRICE( Id( 2039), "TIME:blue+i:blue+h\n" );
           //TRICE( Id( 5589), "MESSAGE:green+h:black\n" );
@@ -442,7 +442,7 @@ void TriceCheckSet(int index) {
             TRICE8_2(Id( 2787), "tst:TRICE8_2 %d %d\n",                   -1, -2);
             TRICE8_3(Id( 3021), "tst:TRICE8_3 %d %d %d\n",                -1, -2, -3);
             TRICE8_4(Id( 3142), "tst:TRICE8_4 %d %d %d %d\n",             -1, -2, -3, -4);
-            TRICE8_5(Id( 2457), "tst:TRICE8_5 %d %d %d %d %d\n",          -1, -2, -3, -4, -5);
+            TRICE8_5(Id( 1509), "tst:TRICE8_5 %d %d %d %d %d\n",          -1, -2, -3, -4, -5);
             TRICE8_6(Id( 4666), "tst:TRICE8_6 %d %d %d %d %d %d\n",       -1, -2, -3, -4, -5, -6);
             TRICE8_7(Id( 2524), "tst:TRICE8_7 %d %d %d %d %d %d %d\n",    -1, -2, -3, -4, -5, -6, -7);
             TRICE8_8(Id( 3933), "tst:TRICE8_8 %d %d %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6, -7, -8);
@@ -802,7 +802,7 @@ EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
             TRICE( Id( 7782), "rd:TRICE float %.9f (%%.9f)\n", aFloat(x) );
             TRICE( Id( 6833), "rd:TRICE float %9.f (%%9.f)\n", aFloat(x) );
             TRICE( Id( 6213), "rd:TRICE float %9.6f (%%9.6f)\n", aFloat(x) );
-            TRICE( Id( 5112), "rd:TRICE float %f (%%f)\n", aFloat(-x) );
+            TRICE( Id( 4432), "rd:TRICE float %f (%%f)\n", aFloat(-x) );
         break;
         case 790:
             TRICE( Id( 2812), "rd:TRICE float %9f (%%9f)\n", aFloat(-x) );

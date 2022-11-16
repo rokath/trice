@@ -63,7 +63,7 @@ func Translate(w io.Writer, sw *emitter.TriceLineComposer, lut id.TriceIDLookUp,
 		//  	dec = newCOBSDecoder(w, lut, m, rc, endian)
 		//  	cobsVariantDecode = cobsFFDecode
 	case "TREX":
-		dec = trexDecoder.New(w, lut, m, rwc, endian)
+		dec = trexDecoder.New(w, lut, m, li, rwc, endian)
 	case "CHAR":
 		dec = charDecoder.New(w, lut, m, li, rwc, endian)
 	case "DUMP":

@@ -182,7 +182,7 @@ int main(void)
         {
             static unsigned lastTricesTime = 0;
             // send some trices every few ms
-            if( milliSecond >= lastTricesTime + 200 ){
+            if( milliSecond >= lastTricesTime + 2000 ){
                 static int index = 0;
                 int select = index;
                 TRICE16( Id( 7809),"MSG: 💚 START select = %d\n", select );

@@ -74,8 +74,7 @@ type trexDec struct {
 //
 // l is the trice id list in slice of struct format.
 // in is the usable reader for the input bytes.
-func New(w io.Writer, lut id.TriceIDLookUp, m *sync.RWMutex, in io.Reader, endian bool) decoder.Decoder {
-
+func New(w io.Writer, lut id.TriceIDLookUp, m *sync.RWMutex, li id.TriceIDLookUpLI, in io.Reader, endian bool) decoder.Decoder {
 	// Todo: rewrite using the TCOBS Reader. The provided in io.Reader provides a raw data stream.
 	// https://github.com/rokath/tcobs/blob/master/TCOBSv1/read.go -> use NewDecoder ...
 
@@ -89,6 +88,7 @@ func New(w io.Writer, lut id.TriceIDLookUp, m *sync.RWMutex, in io.Reader, endia
 	p.Lut = lut
 	p.LutMutex = m
 	p.Endian = endian
+	p.Li = li
 	return p
 }
 
@@ -136,7 +136,7 @@ func (p *trexDec) nextPackage() {
 		if e != nil {
 			fmt.Println("inconsistent COBS buffer:", p.IBuf[:index+1]) // show also terminating 0
 		}
-	case "TCOBSv1", "TCOBSV1", "tcobsv1":
+	case "TCOBS", "tcobs", "TCOBSv1", "TCOBSV1", "tcobsv1":
 		n, e = tcobsv1.Decode(p.B, p.IBuf[:index]) // if index is 0, an empty buffer is decoded
 		if e != nil {
 			fmt.Println("inconsistent TCOBSv1 buffer:", p.IBuf[:index+1]) // show also terminating 0
@@ -190,7 +190,7 @@ func (p *trexDec) nextPackage() {
 // In case of a not matching cycle, a warning message in trice format is prefixed.
 // In case of invalid package data, error messages in trice format are returned and the package is dropped.
 func (p *trexDec) Read(b []byte) (n int, err error) {
-	if len(p.B) == 0 { // last decoded COBS package exhausted
+	if len(p.B) == 0 { // last decoded package exhausted
 		p.nextPackage()
 	}
 	packageSize := len(p.B)
