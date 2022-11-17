@@ -23,7 +23,7 @@ func execHelper(t *testing.T, input []string, expect string) {
 	defer x.Unlock()
 	var out bytes.Buffer
 	FlagsInit() // maybe needed for clearance of previous tests (global vars)
-	err := Handler(input)
+	err := Handler(&out, input)
 	if err != nil {
 		fmt.Fprint(&out, err)
 	}
@@ -71,7 +71,7 @@ func _TestHelpRenew(t *testing.T) {
 	execHelper(t, args, expect)
 }
 
-func _TestHelpShutdown(t *testing.T) {
+func TestHelpShutdown(t *testing.T) {
 	args := []string{"trice", "help", "-sd"}
 	expect := `syntax: 'trice sub-command' [params]
       sub-command 'sd|shutdown': Ends display server at IPA:IPP, works also on a remote machine.
@@ -142,11 +142,13 @@ func _TestHelpUpdate(t *testing.T) {
 	execHelper(t, args, expect)
 }
 
-func _TestHelpVersion(t *testing.T) {
+func TestHelpVersion(t *testing.T) {
 	args := []string{"trice", "help", "-version"}
 	expect := `syntax: 'trice sub-command' [params]
       sub-command 'ver|version': For displaying version information.
               "trice v" will print the version information. If trice is not versioned the build time will be displayed instead.
+        -lf string
+              Short for logfile (default "off")
         -logfile string
               Append all output to logfile. Options are: 'off|none|filename|auto':
               "off": no logfile (same as "none")
@@ -165,43 +167,45 @@ func _TestHelpVersion(t *testing.T) {
 	execHelper(t, args, expect)
 }
 
-func _TestHelpDisplayServer(t *testing.T) {
+func TestHelpDisplayServer(t *testing.T) {
 	args := []string{"trice", "help", "-ds"}
 	expect := `syntax: 'trice sub-command' [params]
-      sub-command 'ds|displayServer': Starts a display server.
-                  Use in a separate console. On Windows use wt (https://github.com/microsoft/terminal) or a linux shell like git-bash to avoid ANSI color issues.
-                  Running "trice ds" inside a console opens a display server to be used for displaying the TRICE logs remotely.
-                  Several instances of 'trice l -ds -port ...' (for different ports) will send output there in parallel.
+      sub-command 'ds|displayServer': Starts a display server. 
+              Use in a separate console. On Windows use wt (https://github.com/microsoft/terminal) or a linux shell like git-bash to avoid ANSI color issues.
+              Running "trice ds" inside a console opens a display server to be used for displaying the TRICE logs remotely.
+              Several instances of 'trice l -ds -port ...' (for different ports) will send output there in parallel.
         -color string
-                  The format strings can start with a lower or upper case channel information.
-                  See https://github.com/rokath/trice/blob/master/pkg/src/triceCheck.c for examples. Color options:
-                  "off": Disable ANSI color. The lower case channel information is kept: "w:x"-> "w:x"
-                  "none": Disable ANSI color. The lower case channel information is removed: "w:x"-> "x"
-                  "default|color": Use ANSI color codes for known upper and lower case channel info are inserted and lower case channel information is removed.
-                   (default "default")
+              The format strings can start with a lower or upper case channel information.
+              See https://github.com/rokath/trice/blob/master/pkg/src/triceCheck.c for examples. Color options:
+              "off": Disable ANSI color. The lower case channel information is kept: "w:x"-> "w:x"
+              "none": Disable ANSI color. The lower case channel information is removed: "w:x"-> "x"
+              "default|color": Use ANSI color codes for known upper and lower case channel info are inserted and lower case channel information is removed.
+               (default "default")
         -ipa string
-                  IP address like '127.0.0.1'.
-                  You can specify this switch if you intend to use the remote display option to show the output on a different PC in the network.
-                   (default "localhost")
+              IP address like '127.0.0.1'.
+              You can specify this switch if you intend to use the remote display option to show the output on a different PC in the network.
+               (default "localhost")
         -ipp string
-                  16 bit IP port number.
-                  You can specify this switch if you want to change the used port number for the remote display functionality.
-                   (default "61497")
+              16 bit IP port number.
+              You can specify this switch if you want to change the used port number for the remote display functionality.
+               (default "61497")
+        -lf string
+              Short for logfile (default "off")
         -logfile string
-                  Append all output to logfile. Options are: 'off|none|filename|auto':
-                  "off": no logfile (same as "none")
-                  "none": no logfile (same as "off")
-                  "auto": Use as logfile name "2006-01-02_1504-05_trice.log" with actual time.
-                  "filename": Any other string than "auto", "none" or "off" is treated as a filename. If the file exists, logs are appended.
-                  All trice output of the appropriate subcommands is appended per default into the logfile trice additionally to the normal output.
-                  Change the filename with "-logfile myName.txt" or switch logging off with "-logfile none".
-                   (default "off")
+              Append all output to logfile. Options are: 'off|none|filename|auto':
+              "off": no logfile (same as "none")
+              "none": no logfile (same as "off")
+              "auto": Use as logfile name "2006-01-02_1504-05_trice.log" with actual time.
+              "filename": Any other string than "auto", "none" or "off" is treated as a filename. If the file exists, logs are appended.
+              All trice output of the appropriate subcommands is appended per default into the logfile trice additionally to the normal output.
+              Change the filename with "-logfile myName.txt" or switch logging off with "-logfile none".
+               (default "off")
       example: 'trice ds': Start display server.
       `
 	execHelper(t, args, expect)
 }
 
-func _TestHelpScan(t *testing.T) {
+func TestHelpScan(t *testing.T) {
 	args := []string{"trice", "help", "-scan"}
 	expect := `syntax: 'trice sub-command' [params]
       sub-command 's|scan': Shows available serial ports)
@@ -210,101 +214,113 @@ func _TestHelpScan(t *testing.T) {
 	execHelper(t, args, expect)
 }
 
-func _TestHelpZero(t *testing.T) {
+func TestHelpZero(t *testing.T) {
 	args := []string{"trice", "help", "-z"}
 	expect := `syntax: 'trice sub-command' [params]
-      sub-command 'zeroSourceTreeIds': Set all Id(n) inside source tree dir to Id(0).
-                  Avoid using this sub-command normally. The switch "-src" is mandatory and no multi-flag here.
-                  This sub-command is mainly for testing. For several source directories you need several runs.
+      sub-command 'zeroSourceTreeIds': Set all Id(n) inside source tree dir to Id(0). 
+              The switch "-src" is mandatory and a multi-flag here. So you can use the "-src" flag several times.
         -dry-run
-                  No changes applied but output shows what would happen.
-                  "trice zeroSourceTreeIds -dry-run" will change nothing but show changes it would perform without the "-dry-run" switch.
-                  This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true.
-        -src string
-                  Zero all Id(n) inside source tree dir, required.
+              No changes applied but output shows what would happen.
+              "trice zeroSourceTreeIds -dry-run" will change nothing but show changes it would perform without the "-dry-run" switch.
+              This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true.
+        -s value
+              Short for src.
+        -src value
+              Source dir or file, It has one parameter. Not usable in the form "-src *.c".
+              This is a multi-flag switch. It can be used several times for directories and also for files.
+              Example: "trice zeroSourceTreeIds -dry-run -v -src ./test/ -src pkg/src/trice.h" will scan all C|C++ header and
+              source code files inside directory ./test and scan also file trice.h inside pkg/src directory.
+              Without the "-dry-run" switch it would create|extend a list file til.json in the current directory.
+               (default "./")
+        -v    short for verbose
+        -verbose
+              Gives more informal output if used. Can be helpful during setup.
+              For example "trice u -dry-run -v" is the same as "trice u -dry-run" but with more descriptive output.
+              This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true.
       example: 'trice zeroSourceTreeIds -src ../A': Sets all TRICE IDs to 0 in ../A. Use with care!
       `
 	execHelper(t, args, expect)
 }
 
-func _TestHelpHelp(t *testing.T) {
+func TestHelpHelp(t *testing.T) {
 	args := []string{"trice", "help", "-help"}
 	expect := `syntax: 'trice sub-command' [params]
       sub-command 'h|help': For command line usage.
-                  "trice h" will print this help text as a whole.
+              "trice h" will print this help text as a whole.
         -all
-                  Show all help.
+              Show all help.
         -displayserver
-                  Show ds|displayserver specific help.
+              Show ds|displayserver specific help.
         -ds
-                  Show ds|displayserver specific help.
+              Show ds|displayserver specific help.
         -h    Show h|help specific help.
         -help
-                  Show h|help specific help.
+              Show h|help specific help.
         -l    Show l|log specific help.
+        -lf string
+              Short for logfile (default "off")
         -log
-                  Show l|log specific help.
+              Show l|log specific help.
         -logfile string
-                  Append all output to logfile. Options are: 'off|none|filename|auto':
-                  "off": no logfile (same as "none")
-                  "none": no logfile (same as "off")
-                  "auto": Use as logfile name "2006-01-02_1504-05_trice.log" with actual time.
-                  "filename": Any other string than "auto", "none" or "off" is treated as a filename. If the file exists, logs are appended.
-                  All trice output of the appropriate subcommands is appended per default into the logfile trice additionally to the normal output.
-                  Change the filename with "-logfile myName.txt" or switch logging off with "-logfile none".
-                   (default "off")
+              Append all output to logfile. Options are: 'off|none|filename|auto':
+              "off": no logfile (same as "none")
+              "none": no logfile (same as "off")
+              "auto": Use as logfile name "2006-01-02_1504-05_trice.log" with actual time.
+              "filename": Any other string than "auto", "none" or "off" is treated as a filename. If the file exists, logs are appended.
+              All trice output of the appropriate subcommands is appended per default into the logfile trice additionally to the normal output.
+              Change the filename with "-logfile myName.txt" or switch logging off with "-logfile none".
+               (default "off")
         -r    Show r|refresh specific help.
         -refresh
-                  Show r|refresh specific help.
+              Show r|refresh specific help.
         -renew
-                  Show renew specific help.
+              Show renew specific help.
         -s    Show s|scan specific help.
         -scan
-                  Show s|scan specific help.
+              Show s|scan specific help.
         -sd
-                  Show sd|shutdown specific help.
+              Show sd|shutdown specific help.
         -shutdown
-                  Show sd|shutdown specific help.
+              Show sd|shutdown specific help.
         -u    Show u|update specific help.
         -update
-                  Show u|update specific help.
+              Show u|update specific help.
         -v    short for verbose
         -ver
-                  Show ver|version specific help.
+              Show ver|version specific help.
         -verbose
-                  Gives more informal output if used. Can be helpful during setup.
-                  For example "trice u -dry-run -v" is the same as "trice u -dry-run" but with more descriptive output.
-                  This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true.
+              Gives more informal output if used. Can be helpful during setup.
+              For example "trice u -dry-run -v" is the same as "trice u -dry-run" but with more descriptive output.
+              This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true.
         -version
-                  Show ver|version specific help.
+              Show ver|version specific help.
         -z    Show zeroSourceTreeIds specific help.
         -zeroSourceTreeIds
-                  Show zeroSourceTreeIds specific help.
+              Show zeroSourceTreeIds specific help.
       example 'trice h': Print short help.
       example 'trice h -all': Print all help.
       example 'trice h -log': Print log help.
       `
 	execHelper(t, args, expect)
 }
-func _TestHelpSdV(t *testing.T) {
+
+func TestHelpSdV(t *testing.T) {
 	args := []string{"trice", "help", "-sd", "-v"}
 	expect := `
       *** https://github.com/rokath/trice ***
 
       If a non-multi parameter is used more than one times the last value wins.
-      No logfile writing...
       syntax: 'trice sub-command' [params]
       sub-command 'sd|shutdown': Ends display server at IPA:IPP, works also on a remote machine.
-        -ipa string
-                IP address like '127.0.0.1'.
-                You can specify this switch if you intend to use the remote display option to show the output on a different PC in the network.
-                 (default "localhost")
-        -ipp string
-                16 bit IP port number.
-                You can specify this switch if you want to change the used port number for the remote display functionality.
-                 (default "61497")
+      -ipa string
+            IP address like '127.0.0.1'.
+            You can specify this switch if you intend to use the remote display option to show the output on a different PC in the network.
+            (default "localhost")
+      -ipp string
+            16 bit IP port number.
+            You can specify this switch if you want to change the used port number for the remote display functionality.
+            (default "61497")
       example: 'trice sd': Shut down remote display server.
-      No logfile writing...done
       `
 	execHelper(t, args, expect)
 }
@@ -327,6 +343,18 @@ func _TestRenew(t *testing.T) {
               The trice ID list file.
               The specified JSON file is needed to display the ID coded trices during runtime and should be under version control.
                (default "til.json")
+        -li string
+              Short for '-locationInformation'.
+               (default "li.json")
+        -locationInformation string
+              The trice location list file.
+              The specified JSON file is needed to display the location information for each ID during runtime and needs no version control.
+              It is regenerated on each refresh, update or renew trice run. When trice log finds a location information file, it is used for
+              log output with location information. Otherwise no location information is displayed, what usually is wanted in the field.
+              This way the newest til.json can be used also with legacy firmware, but the li.json must match the current firmware version.
+              "off" or "none" suppress the display of the location information even a li.json file exists. Avoid shared ID's for correct
+              location information. See information for the -SharedIDs switch for additionals hints. See -tLocFmt for formatting.
+               (default "li.json")
         -s value
               Short for src.
         -src value
@@ -345,55 +373,6 @@ func _TestRenew(t *testing.T) {
               For example "trice u -dry-run -v" is the same as "trice u -dry-run" but with more descriptive output.
               This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true.
       example: 'trice renew': Rebuild ID list from source tree, discard old IDs.
-      `
-	execHelper(t, args, expect)
-}
-func _TestHelpRefresh(t *testing.T) {
-	args := []string{"trice", "help", "-refresh"}
-	expect := `syntax: 'trice sub-command' [params]
-      sub-command 'r|refresh': For updating ID list from source files but does not change the source files.
-              "trice refresh" will parse source tree(s) for TRICE macros, and refresh/generate the JSON list.
-              This command should be run on adding source files to the project before the first time "trice update" is called.
-              If the new source files contain TRICE macros with IDs these are added to til.json if not already used.
-              Already used IDs are reported, so you have the chance to remove them from til.son and then do "trice u" again.
-              This way you can make sure to get the new sources unchanged in your list.
-              Already used IDs are replaced by new IDs during the next "trice update", so the old IDs in the list will survive.
-              If you do not refresh the list after adding source files and perform an "trice update" new generated IDs could be equal to
-              IDs used in the added sources with the result that IDs in the added sources could get changed what you may not want.
-              Using "trice u -IDMethod random" (default) makes the chance for such conflicts very low.
-              The "refresh" sub-command has no mandatory switches. Omitted optional switches are used with their default parameters.
-        -dry-run
-              No changes applied but output shows what would happen.
-              "trice refresh -dry-run" will change nothing but show changes it would perform without the "-dry-run" switch.
-              This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true.
-        -i string
-              Short for '-idlist'.
-               (default "til.json")
-        -idList string
-              Alternate for '-idlist'.
-               (default "til.json")
-        -idlist string
-              The trice ID list file.
-              The specified JSON file is needed to display the ID coded trices during runtime and should be under version control.
-               (default "til.json")
-        -s value
-              Short for src.
-        -src value
-              Source dir or file, It has one parameter. Not usable in the form "-src *.c".
-              This is a multi-flag switch. It can be used several times for directories and also for files.
-              Example: "trice refresh -dry-run -v -src ./test/ -src pkg/src/trice.h" will scan all C|C++ header and
-              source code files inside directory ./test and scan also file trice.h inside pkg/src directory.
-              Without the "-dry-run" switch it would create|extend a list file til.json in the current directory.
-               (default "./")
-        -til string
-              Short for '-idlist'.
-               (default "til.json")
-        -v    short for verbose
-        -verbose
-              Gives more informal output if used. Can be helpful during setup.
-              For example "trice u -dry-run -v" is the same as "trice u -dry-run" but with more descriptive output.
-              This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true.
-      example: 'trice refresh': Update ID list from source tree.
       `
 	execHelper(t, args, expect)
 }
@@ -543,5 +522,4 @@ func _TestHelpLog(t *testing.T) {
       `
 	execHelper(t, args, expect)
 }
-
 */

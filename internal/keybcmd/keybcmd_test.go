@@ -4,43 +4,52 @@
 // white-box test
 package keybcmd
 
-import "testing"
+import (
+	"bufio"
+	"bytes"
+	"fmt"
+	"strings"
+	"testing"
+
+	"github.com/tj/assert"
+)
 
 func TestDummy(t *testing.T) {
 }
 
-//  // stimulate injects keys to the loop action and returns the captured output as byte slice.
-//  func stimulate(keys, ipa, ipp string) []byte {
-//
-//  	// simulate input
-//  	ioReader := strings.NewReader(keys)
-//  	bufioReader := bufio.NewReader(ioReader)
-//
-//  	// capture output
-//  	rescueStdout := os.Stdout
-//  	r, w, _ := os.Pipe()
-//  	os.Stdout = w
-//
-//  	loopAction(bufioReader, ipa, ipp)
-//
-//  	// restore
-//  	msg.OnErr(w.Close())
-//  	captured, _ := ioutil.ReadAll(r)
-//  	os.Stdout = rescueStdout
-//
-//  	return captured
-//  }
+// stimulate injects keys to the loop action and returns the captured output as byte slice.
+func stimulate(keys, ipa, ipp string) []byte {
+
+	// simulate input
+	ioReader := strings.NewReader(keys)
+	bufioReader := bufio.NewReader(ioReader)
+
+	//  // capture output
+	//  rescueStdout := os.Stdout
+	//  r, w, _ := os.Pipe()
+	//  os.Stdout = w
+
+	var buf bytes.Buffer
+	loopAction(bufioReader, &buf, ipa, ipp)
+
+	// restore
+	// msg.OnErr(w.Close())
+	//captured, _ := ioutil.ReadAll(r)
+	//os.Stdout = rescueStdout
+
+	return buf.Bytes()
+}
 
 // todo: Linux
 
-//  func _TestHelp(t *testing.T) {
-//  	exp := "-> h|help                   - this text\nexitServer|serverExit    - kill server\nq|quit                   - end program\n"
-//  	b := stimulate("help\r\n", "", "")
-//  	act := string(b)
-//  	fmt.Println("*****************************************\n*****************************act=", act, "##############")
-//  	fmt.Println("exp=", exp, "##############")
-//  	assert.Equal(t, exp, act)
-//  }
+func _TestHelp(t *testing.T) {
+	exp := "-> h|help                   - this text\nexitServer|serverExit    - kill server\nq|quit                   - end program\n"
+	b := stimulate("help\r\n", "", "")
+	act := string(b)
+	fmt.Println("*****************************************\n*****************************act=", act, "##############")
+	fmt.Println("exp=", exp, "##############")
+	assert.Equal(t, exp, act)
+}
 
 //  // baseName returns basic filename of program without extension
 //  func baseName() string {

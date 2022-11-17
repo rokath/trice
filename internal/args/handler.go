@@ -28,7 +28,7 @@ import (
 
 // Handler is called in main, evaluates args and calls the appropriate functions.
 // It returns for program exit.
-func Handler(args []string) error {
+func Handler(w io.Writer, args []string) error {
 
 	id.FnJSON = id.ConditionalFilePath(id.FnJSON)
 
@@ -55,45 +55,45 @@ func Handler(args []string) error {
 		return fmt.Errorf("unknown sub-command '%s'. try: 'trice help|h'", subCmd)
 	case "h", "help":
 		msg.OnErr(fsScHelp.Parse(subArgs))
-		w := distributeArgs()
+		distributeArgs(w)
 		return scHelp(w)
 	case "s", "scan":
 		msg.OnErr(fsScScan.Parse(subArgs))
-		w := distributeArgs()
+		distributeArgs(w)
 		_, err := com.GetSerialPorts(w)
 		return err
 	case "ver", "version":
 		msg.OnErr(fsScVersion.Parse(subArgs))
-		w := distributeArgs()
+		distributeArgs(w)
 		return scVersion(w)
 	case "renew":
 		msg.OnErr(fsScRenew.Parse(subArgs))
-		w := distributeArgs()
+		distributeArgs(w)
 		return id.SubCmdReNewList(w)
 	case "r", "refresh":
 		msg.OnErr(fsScRefresh.Parse(subArgs))
-		w := distributeArgs()
+		distributeArgs(w)
 		return id.SubCmdRefreshList(w)
 	case "u", "update":
 		msg.OnErr(fsScUpdate.Parse(subArgs))
-		w := distributeArgs()
+		distributeArgs(w)
 		return id.SubCmdUpdate(w)
 	case "z", "zeroSourceTreeIds":
 		msg.OnErr(fsScZero.Parse(subArgs))
-		w := distributeArgs()
+		distributeArgs(w)
 		//  return id.ScZero(w, *pSrcZ, fsScZero)
 		return id.ScZeroMulti(w, fsScZero)
 	case "sd", "shutdown":
 		msg.OnErr(fsScSdSv.Parse(subArgs))
-		w := distributeArgs()
+		distributeArgs(w)
 		return emitter.ScShutdownRemoteDisplayServer(w, 0) // 0|1: 0=no 1=with shutdown timestamp in display server
 	case "ds", "displayServer":
 		msg.OnErr(fsScSv.Parse(subArgs))
-		w := distributeArgs()
+		distributeArgs(w)
 		return emitter.ScDisplayServer(w) // endless loop
 	case "l", "log":
 		msg.OnErr(fsScLog.Parse(subArgs))
-		w := distributeArgs()
+		distributeArgs(w)
 		logLoop(w) // endless loop
 		return nil
 	}
@@ -192,7 +192,7 @@ func logLoop(w io.Writer) {
 func scVersion(w io.Writer) error {
 	if verbose {
 		fmt.Fprintln(w, "https://github.com/rokath/trice")
-		emitter.ShowAllColors()
+		//emitter.ShowAllColors()
 	}
 	if Version != "" {
 		fmt.Fprintf(w, "version=%v, commit=%v, built at %v\n", Version, Commit, Date)
@@ -215,7 +215,7 @@ func evaluateColorPalette(w io.Writer) {
 
 // distributeArgs is distributing values used in several packages.
 // It must not be called before the appropriate arg parsing.
-func distributeArgs() io.Writer {
+func distributeArgs(w io.Writer) {
 
 	id.Verbose = verbose
 	link.Verbose = verbose
@@ -225,9 +225,7 @@ func distributeArgs() io.Writer {
 	translator.Verbose = verbose
 	emitter.TestTableMode = decoder.TestTableMode
 
-	w := triceOutput(os.Stdout, LogfileName)
 	evaluateColorPalette(w)
-	return w
 }
 
 // triceOutput returns w as a a optional combined io.Writer. If fileName is given the returned io.Writer write a copy into the given file.
@@ -255,7 +253,7 @@ func triceOutput(w io.Writer, fileName string) io.Writer {
 	lfHandle, err := os.OpenFile(fileName, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	msg.FatalOnErr(err)
 	if verbose {
-		fmt.Printf("Writing to logfile %s...\n", fn)
+		fmt.Printf("Writing to logfile %s...\n", fileName)
 	}
 
 	return io.MultiWriter(w, tcpWriter, lfHandle)

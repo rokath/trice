@@ -19,7 +19,7 @@ var (
 	DryRun bool
 
 	// FnJSON is the filename for the JSON formatted ID list.
-	FnJSON string
+	FnJSON = "til.json"
 
 	// LIFnJSON is the filename for the JSON formatted location information list.
 	LIFnJSON string

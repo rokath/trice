@@ -38,7 +38,7 @@ func doit(w io.Writer) {
 	args.Date = date
 
 	rand.Seed(time.Now().UnixNano())
-	e := args.Handler(os.Args)
+	e := args.Handler(w, os.Args)
 	if nil != e {
 		fmt.Fprintln(w, error.Error(e))
 	}

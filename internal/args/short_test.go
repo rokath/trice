@@ -4,17 +4,18 @@
 package args
 
 import (
+	"bytes"
 	"io/ioutil"
+	"log"
 	"os"
 	"testing"
 
 	"github.com/rokath/trice/internal/id"
 	"github.com/rokath/trice/pkg/msg"
-	"github.com/rokath/trice/pkg/tst"
 	"github.com/tj/assert"
 )
 
-func _TestMain(m *testing.M) {
+func TestMain(m *testing.M) {
 	id.FnJSON = getTemporaryFileName("til-*.JSON")
 	code := m.Run()
 	msg.OnErr(os.Remove(id.FnJSON))
@@ -29,7 +30,7 @@ func getTemporaryFileName(pattern string) string {
 	return tempFileName
 }
 
-func _TestHelp(t *testing.T) {
+func TestHelp(t *testing.T) {
 	args := []string{"trice", "help"}
 	expect := `syntax: 'trice sub-command' [params]
       example 'trice h -help': Print help for help.
@@ -55,41 +56,38 @@ func TestUpdate(t *testing.T) {
 	execHelper(t, args, expect)
 }
 
-func _TestUpdateV(t *testing.T) {
+func TestUpdateV(t *testing.T) {
 	args := []string{"trice", "update", "-idList", "emptyFile", "-verbose"}
 	expect := `0 ID's in List emptyFile listModified= false
 	`
 	execHelper(t, args, expect)
 }
 
-//  func _TestComX(t *testing.T) {
-//  	args := []string{"trice", "log", "-p", "COMX", "-idList", "emptyFile"}
-//  	expect := `can not open COMX`
-//  	execHelper(t, args, expect)
-//  }
+func _TestComX(t *testing.T) {
+	args := []string{"trice", "log", "-p", "COMX", "-idList", "emptyFile"}
+	expect := `can not open COMX`
+	execHelper(t, args, expect)
+}
 
-func _TestVersion(t *testing.T) {
+func TestScan(t *testing.T) {
+	var act bytes.Buffer
+	err := Handler(&act, []string{"trice", "scan"})
+	assert.Nil(t, err)
+	s := "Found port:"
+	buf := act.Bytes()
+	assert.Equal(t, s, string(buf[:len(s)]))
+}
+
+func TestVersion(t *testing.T) {
 	verbose = false
 	v := []string{"", ""}
 	testVersion(t, v)
-	//m.Lock()
+
 	verbose = true
-	v[0] = "No logfile writing...\nhttps://github.com/rokath/trice\n"
-	v[1] = "No logfile writing...done\n"
+	v[0] = "https://github.com/rokath/trice\n"
+	v[1] = ""
 	testVersion(t, v)
 	verbose = false
-	//m.Unlock()
-}
-
-func _TestScan(t *testing.T) {
-	fn := func() {
-		err := Handler([]string{"trice", "scan"})
-		assert.Nil(t, err)
-	}
-	fn()
-	act := tst.CaptureStdOut(fn)
-	s := "Found port:"
-	assert.Equal(t, s, act[:len(s)])
 }
 
 func testVersion(t *testing.T, v []string) {
@@ -98,34 +96,25 @@ func testVersion(t *testing.T, v []string) {
 	buildTime := fi.ModTime().String()
 	exp := v[0] + "version=devel, built " + buildTime + "\n" + v[1]
 
-	fn := func() {
-		msg.OnErr(Handler([]string{"trice", "ver"}))
-	}
-	act := tst.CaptureStdOut(fn)
-	assert.Equal(t, exp, act)
+	var buf0 bytes.Buffer
+	msg.OnErr(Handler(&buf0, []string{"trice", "ver"}))
+	act0 := string(buf0.Bytes())
+	assert.Equal(t, exp, act0)
 
-	fn = func() {
-		msg.OnErr(Handler([]string{"trice", "version"}))
-	}
-	act = tst.CaptureStdOut(fn)
-	assert.Equal(t, exp, act)
+	var buf1 bytes.Buffer
+	msg.OnErr(Handler(&buf1, []string{"trice", "version"}))
+	act1 := string(buf1.Bytes())
+	assert.Equal(t, exp, act1)
 }
 
-/*
 func _TestShutdown(t *testing.T) { // crashes
-
-	//defer func() {
-	//	msg.OsExitAllow(o)
-	//}()
+	var buf bytes.Buffer
 	log.SetFlags(0)
-	fn := func() {
-		o := msg.OsExitDisallow()
-		err := Handler([]string{"trice", "sd"})
-		assert.Nil(t,err)
-		msg.OsExitAllow(o)
-	}
-	act := tst.CaptureStdOut(fn)
+	o := msg.OsExitDisallow()
+	err := Handler(&buf, []string{"trice", "sd"})
+	msg.OsExitAllow(o)
+	assert.Nil(t, err)
 	s := "Found port:"
+	act := buf.String()
 	assert.Equal(t, s, act[:len(s)])
 }
-*/
