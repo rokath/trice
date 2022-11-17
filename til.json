@@ -247,6 +247,10 @@
 		"Type": "TRICE64",
 		"Strg": "rd:Use %%p to format a pointer in base 16 notation with leading 0x. (%p)\\n"
 	},
+	"1509": {
+		"Type": "TRICE8_5",
+		"Strg": "tst:TRICE8_5 %d %d %d %d %d\\n"
+	},
 	"1516": {
 		"Type": "TRICE",
 		"Strg": "ERR:error       message, SysTick is %6u\\n"
@@ -1043,6 +1047,10 @@
 		"Type": "TRICE",
 		"Strg": "err:TRICE_UARTA Noise error detected Flag is set\\n"
 	},
+	"3111": {
+		"Type": "TRICE",
+		"Strg": "DEBUG:130+i\\n"
+	},
 	"3125": {
 		"Type": "TRICE16",
 		"Strg": "rd:TRICE16 %p, %p, %p, %p, %p, %p, %p, %p\\n"
@@ -1762,6 +1770,10 @@
 	"4416": {
 		"Type": "TRICE16",
 		"Strg": "MSG: ✅ STOP  select = %d, TriceDepthMax =%4u\\n"
+	},
+	"4432": {
+		"Type": "TRICE",
+		"Strg": "rd:TRICE float %f (%%f)\\n"
 	},
 	"4436": {
 		"Type": "TRICE_B",

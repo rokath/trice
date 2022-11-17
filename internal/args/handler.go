@@ -230,12 +230,12 @@ func distributeArgs() io.Writer {
 	return w
 }
 
-// triceOutput returns w as a a optional combined io.Writer. If fn is given the returned io.Writer write a copy into the given file.
-func triceOutput(w io.Writer, fn string) io.Writer {
+// triceOutput returns w as a a optional combined io.Writer. If fileName is given the returned io.Writer write a copy into the given file.
+func triceOutput(w io.Writer, fileName string) io.Writer {
 	tcpWriter := TCPWriter()
 
 	// start logging only if fn not "none" or "off"
-	if fn == "none" || fn == "off" {
+	if fileName == "none" || fileName == "off" {
 		if verbose {
 			fmt.Println("No logfile writing...")
 		}
@@ -244,15 +244,15 @@ func triceOutput(w io.Writer, fn string) io.Writer {
 
 	// defaultLogfileName is the pattern for default logfile name. The timestamp is replaced with the actual time.
 	defaultLogfileName := "2006-01-02_1504-05_trice.log"
-	if fn == "auto" {
-		fn = defaultLogfileName
+	if fileName == "auto" {
+		fileName = defaultLogfileName
 	}
 	// open logfile
-	if fn == defaultLogfileName {
-		fn = time.Now().Format(fn) // Replace timestamp in default log filename.
+	if fileName == defaultLogfileName {
+		fileName = time.Now().Format(fileName) // Replace timestamp in default log filename.
 	} // Otherwise, use cli defined log filename.
 
-	lfHandle, err := os.OpenFile(fn, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	lfHandle, err := os.OpenFile(fileName, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	msg.FatalOnErr(err)
 	if verbose {
 		fmt.Printf("Writing to logfile %s...\n", fn)

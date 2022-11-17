@@ -95,6 +95,10 @@ uint32_t TriceStamp32( void ){
     return ReadUs32();
 }
 
+uint64_t TriceStamp64( void ){ 
+    return 0x6464646464646464; 
+}
+
 static unsigned timingError64Count = 0;
 static unsigned timingError32Count = 0;
 
