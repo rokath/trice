@@ -2,7 +2,7 @@
 //                basti@blackoutcloud.de
 // Use of this source code is governed by a license that can be found in the LICENSE file.
 
-// Package com_test is a blackbox test.
+// Package com_test is a black-box test.
 package com_test
 
 import (
@@ -22,6 +22,7 @@ import (
 //	No serial ports found!
 //
 // A normal case:
+//
 //	PS C:\repos\trice> trice s
 //	Found port:  COM4
 func TestSerial(t *testing.T) {
@@ -30,9 +31,9 @@ func TestSerial(t *testing.T) {
 		return
 	}
 	//assert.Nil(t, err)
-	com.Databits = 8
+	com.DataBits = 8
 	com.Parity = "none"
-	com.Stopbits = "1"
+	com.StopBits = "1"
 	var verbose bool
 
 	pS := com.NewCOMPortGoBugSt(os.Stdout, verbose, "noCOM")

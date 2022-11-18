@@ -18,14 +18,14 @@ var (
 	// Baud is the configured baudrate of the serial port. It is set as command line parameter.
 	Baud int
 
-	// Databits is the serial port bit count fpr one "byte".
-	Databits int
+	// DataBits is the serial port bit count fpr one "byte".
+	DataBits int
 
 	// Parity is the transmitted bit parity: even, odd, none
 	Parity string
 
 	// stopbits is the number of stop bits: "1", "1.5", "2"
-	Stopbits string
+	StopBits string
 
 	// Verbose shows additional information if set true.
 	// Verbose bool
@@ -59,10 +59,10 @@ func NewCOMPortGoBugSt(w io.Writer, verbose bool, comPortName string) *PortGoBug
 			StopBits: serialgobugst.OneStopBit,
 		},
 	}
-	if 5 <= Databits && Databits <= 9 {
-		r.serialMode.DataBits = Databits
+	if 5 <= DataBits && DataBits <= 9 {
+		r.serialMode.DataBits = DataBits
 	} else {
-		log.Fatalf("Invalid databits value %d. Valid are 5-9\n", Databits)
+		log.Fatalf("Invalid databits value %d. Valid are 5-9\n", DataBits)
 	}
 	switch strings.ToLower(Parity) {
 	case "o", "odd":
@@ -74,7 +74,7 @@ func NewCOMPortGoBugSt(w io.Writer, verbose bool, comPortName string) *PortGoBug
 	default:
 		log.Fatalf(" Unknown parity value \"%s\". Valid are \"odd\", \"even\". \"none\"\n", Parity)
 	}
-	switch strings.ToLower(Stopbits) {
+	switch strings.ToLower(StopBits) {
 	case "1", "one":
 		r.serialMode.StopBits = serialgobugst.OneStopBit
 	case "1.5":

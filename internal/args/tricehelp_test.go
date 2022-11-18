@@ -22,7 +22,7 @@ func execHelper(t *testing.T, input []string, expect string) {
 	x.Lock()
 	defer x.Unlock()
 	var out bytes.Buffer
-	FlagsInit() // maybe needed for clearance of previous tests (global vars)
+	FlagsInit() // maybe needed for clearance of previous tests (global vars) // todo: is already in init() called
 	err := Handler(&out, input)
 	if err != nil {
 		fmt.Fprint(&out, err)

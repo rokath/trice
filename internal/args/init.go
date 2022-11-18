@@ -31,7 +31,7 @@ See https://github.com/rokath/trice/blob/master/pkg/src/triceCheck.c for example
 "none": Disable ANSI color. The lower case channel information is removed: "w:x"-> "x"
 "default|color": Use ANSI color codes for known upper and lower case channel info are inserted and lower case channel information is removed.
 `
-	boolInfo = "This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true."
+	boolInfo = "This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true."
 )
 
 func init() {
@@ -125,9 +125,9 @@ Using a virtual serial COM port on the PC over a FTDI USB adapter is a most like
 	fsScLog.IntVar(&com.Baud, "baud", 115200, `Set the serial port baudrate.
 It is the only setup parameter. The other values default to 8N1 (8 data bits, no parity, one stopbit).
 `)
-	fsScLog.IntVar(&com.Databits, "databits", 8, `Set the serial port databits, options: 7, 9`)
+	fsScLog.IntVar(&com.DataBits, "databits", 8, `Set the serial port databits, options: 7, 9`)
 	fsScLog.StringVar(&com.Parity, "parity", "none", `Serial port bit parity value, options: odd, even`) // flag
-	fsScLog.StringVar(&com.Stopbits, "stopbits", "1", `Serial port stopbit, options: 1.5, 2`)            // flag
+	fsScLog.StringVar(&com.StopBits, "stopbits", "1", `Serial port stopbit, options: 1.5, 2`)            // flag
 	linkArgsInfo := `
 	The -RTTSearchRanges "..." need to be written without "" and with _ instead of space.
 	For args options see JLinkRTTLogger in SEGGER UM08001_JLink.pdf.`
