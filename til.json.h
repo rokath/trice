@@ -8,7 +8,7 @@
 	typedef struct{
 		char* formatString;
 		uint16_t id;
-		uint16_t dataLength;
+		int16_t dataLength;
 		uint8_t bitWidth;
 	} triceFormatStringList_t;
 	
