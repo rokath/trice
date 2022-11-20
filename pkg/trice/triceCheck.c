@@ -98,8 +98,6 @@ void TriceCheckSet(int index) {
             TRICE_S( Id( 5129), "sig:TRICE_S=%s\n", s );
             TRICE32( Id( 1439), "dbg:len=%u:", len);
             TRICE_N( Id( 5182), "sig:TRICE_N=%s\n", s, len );
-            //TRICE_S( Id( 6352), "sig:TRICE_S=%s\n", "Hello String" );     // not allowed
-            //TRICE_N( Id( 4185), "sig:TRICE_N=%s\n", "Hello Buffer", 13 ); // not allowed
 
             TRICE( Id( 7260), "rd:TRICE line %E (%%E)\n", aFloat(-555555555.5555555555) );
             TRICE( Id( 3291), "rd:TRICE line %F (%%F)\n", aFloat(-555555555.5555555555) );
@@ -1136,7 +1134,7 @@ static void exampleOfManualSerialization( void ){
     TRICE_B( Id( 6577), " %02x ", &rx, sizeof(rx) );
     TRICE( Id( 5383), "\n" );
 
-    TRICE( Id( 6337), "inf:sizeOf(Trypout) = %d, buffer length = %d\n", sizeof(tx), len );
+    TRICE( Id( 6337), "inf:sizeOf(Tryout) = %d, buffer length = %d\n", sizeof(tx), len );
     TRICE8_F( Id( 6773), "info:TryoutStructFunction", &tx, sizeof(tx) );
     TRICE8_F( Id( 3543), "info:TryoutBufferFunction", dst, len ); //lint !e670
 }

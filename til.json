@@ -667,10 +667,6 @@
 		"Type": "TRICE16",
 		"Strg": "rd:TRICE16 %X, %X, %X, %X, %X, %X\\n"
 	},
-	"2326": {
-		"Type": "TRICE",
-		"Strg": "att:Executing reveived command ...\\n"
-	},
 	"2330": {
 		"Type": "TRICE",
 		"Strg": "sig:TRICE_n with 1 to 12 values\\n"
@@ -710,10 +706,6 @@
 	"2454": {
 		"Type": "TRICE",
 		"Strg": "\\n"
-	},
-	"2457": {
-		"Type": "TRICE8_5",
-		"Strg": "tst:TRICE8_5 %d %d %d %d %d\\n"
 	},
 	"2459": {
 		"Type": "TRICE",
@@ -839,10 +831,6 @@
 		"Type": "TRICE32_F",
 		"Strg": "diag:FunctionNameY"
 	},
-	"2735": {
-		"Type": "TRICE32",
-		"Strg": "err:st32=%d \u003c st32_1=%d\\n"
-	},
 	"2743": {
 		"Type": "TRICE",
 		"Strg": "att:...done\\n"
@@ -922,10 +910,6 @@
 	"2869": {
 		"Type": "TRICE",
 		"Strg": "tim:TRICE --------------------------------------------------\\n"
-	},
-	"2885": {
-		"Type": "TRICE_S",
-		"Strg": "rx:received command:%s\\n"
 	},
 	"2902": {
 		"Type": "TRICE16_1",
@@ -1535,10 +1519,6 @@
 		"Type": "TRICE32",
 		"Strg": "att: Trice 2x half buffer size:%4u "
 	},
-	"3971": {
-		"Type": "TRICE",
-		"Strg": "att:Executing reveived command ...\\n"
-	},
 	"3987": {
 		"Type": "TRICE64",
 		"Strg": "rd:TRICE64 int %d, double %f (%%f), %016x, %064b\\n"
@@ -1627,10 +1607,6 @@
 		"Type": "TRICE",
 		"Strg": "wrn:TRICE_UARTB Character Match Flag is set\\n"
 	},
-	"4185": {
-		"Type": "TRICE_N",
-		"Strg": "sig:TRICE_N=%s\\n\", \"Hello Buffer"
-	},
 	"4186": {
 		"Type": "TRICE",
 		"Strg": "rd:TRICE float %g (%%g)\\n"
@@ -1714,10 +1690,6 @@
 	"4315": {
 		"Type": "TRICE",
 		"Strg": "notice:TRICE16_B example:"
-	},
-	"4318": {
-		"Type": "TRICE_B",
-		"Strg": " %02x "
 	},
 	"4325": {
 		"Type": "TRICE0",
@@ -1975,10 +1947,6 @@
 		"Type": "TRICE8",
 		"Strg": "rd:TRICE8 %d\\n"
 	},
-	"4783": {
-		"Type": "TRICE",
-		"Strg": "err:%d timing errors 32-bit\\n"
-	},
 	"4792": {
 		"Type": "TRICE16",
 		"Strg": "tst:TRICE16 %d %d %d %d %d %d\\n"
@@ -2158,10 +2126,6 @@
 	"5101": {
 		"Type": "TRICE8_6",
 		"Strg": "rd:TRICE8_6 %d, %d, %d, %d, %d, %d\\n"
-	},
-	"5112": {
-		"Type": "TRICE",
-		"Strg": "rd:TRICE float %f (%%f)\\n"
 	},
 	"5114": {
 		"Type": "TRICE",
@@ -2427,10 +2391,6 @@
 		"Type": "TRICE16_12",
 		"Strg": "rd:TRICE16_12 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
 	},
-	"5624": {
-		"Type": "TRICE_S",
-		"Strg": "rx:received command:%s\\n"
-	},
 	"5651": {
 		"Type": "TRICE",
 		"Strg": "CYCLE:blue+i:default+h\\n"
@@ -2450,10 +2410,6 @@
 	"5677": {
 		"Type": "TRICE16",
 		"Strg": "rd:TRICE16 %p, %p\\n"
-	},
-	"5678": {
-		"Type": "TRICE",
-		"Strg": "DEBUG:130+i\\n"
 	},
 	"5683": {
 		"Type": "TRICE",
@@ -2542,10 +2498,6 @@
 	"5830": {
 		"Type": "TRICE32_6",
 		"Strg": "tst:TRICE32_6  %d %d %d %d %d %d\\n"
-	},
-	"5838": {
-		"Type": "TRICE",
-		"Strg": "time: %d µs - ReadUs32() lasts %d ticks\\n"
 	},
 	"5851": {
 		"Type": "TRICE",
@@ -2727,10 +2679,6 @@
 		"Type": "TRICE",
 		"Strg": "dbg:Hi!\\n"
 	},
-	"6185": {
-		"Type": "TRICE_B",
-		"Strg": " %02x"
-	},
 	"6192": {
 		"Type": "TRICE",
 		"Strg": "rd:TRICE_UARTA Receive Enable Acknowledge Flag is set\\n"
@@ -2805,7 +2753,7 @@
 	},
 	"6337": {
 		"Type": "TRICE",
-		"Strg": "inf:sizeOf(Trypout) = %d, buffer length = %d\\n"
+		"Strg": "inf:sizeOf(Tryout) = %d, buffer length = %d\\n"
 	},
 	"6340": {
 		"Type": "TRICE32_5",
@@ -2818,10 +2766,6 @@
 	"6349": {
 		"Type": "TRICE",
 		"Strg": "inf:TRICE_UARTB Busy Flag is set\\n"
-	},
-	"6352": {
-		"Type": "TRICE_S",
-		"Strg": "sig:TRICE_S=%s\\n\", \"Hello String"
 	},
 	"6366": {
 		"Type": "TRICE0",
@@ -3466,10 +3410,6 @@
 	"7582": {
 		"Type": "TRICE",
 		"Strg": "att:MyStructEvaluationFunction(json:ExA{Apple:%d, Birn:%u, Fisch:%f}\\n"
-	},
-	"7594": {
-		"Type": "TRICE_S",
-		"Strg": "att:Executing command %s ...\\n"
 	},
 	"7598": {
 		"Type": "TRICE64",

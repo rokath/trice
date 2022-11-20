@@ -855,6 +855,11 @@
               <FileType>1</FileType>
               <FilePath>..\..\..\pkg\trice\triceStackBuffer.c</FilePath>
             </File>
+            <File>
+              <FileName>til.json.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\til.json.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

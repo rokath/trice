@@ -13,6 +13,7 @@ import (
 	"io/ioutil"
 	"math/rand"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/rokath/trice/pkg/msg"
@@ -190,16 +191,53 @@ func (lu TriceIDLookUp) toJSON() ([]byte, error) {
 
 // toFile writes lut into file fn as indented JSON.
 func (lu TriceIDLookUp) toFile(fn string) (err error) {
+	var f0, f1, f2 *os.File
+	f0, err = os.Create(fn)
+	msg.FatalOnErr(err)
+	fn1 := fn + ".c"
+	f1, err = os.Create(fn1)
+	msg.FatalOnErr(err)
+	fn2 := fn + ".h"
+	f2, err = os.Create(fn2)
+	msg.FatalOnErr(err)
+	defer func() {
+		err = f0.Close()
+		msg.FatalOnErr(err)
+		err = f1.Close()
+		msg.FatalOnErr(err)
+		err = f2.Close()
+		msg.FatalOnErr(err)
+	}()
+
 	var b []byte
 	b, err = lu.toJSON()
 	msg.FatalOnErr(err)
-	var f *os.File
-	f, err = os.Create(fn)
+	_, err = f0.Write(b)
 	msg.FatalOnErr(err)
-	defer func() {
-		err = f.Close()
-	}()
-	_, err = f.Write(b)
+
+	c, err := lu.toCFmtList(fn1)
+	_, err = f1.Write(c)
+	msg.FatalOnErr(err)
+
+	h := []byte(`//! \file ` + fn2 + `
+	//! ///////////////////////////////////////////////////////////////////////////
+	
+	//! generated code - do not edit!
+	
+	#include <stdint.h>
+	
+	typedef struct{
+		char* formatString;
+		uint16_t id;
+		uint16_t dataLength;
+		uint8_t bitWidth;
+	} triceFormatStringList_t;
+	
+	extern const triceFormatStringList_t triceFormatStringList[];
+	extern const unsigned triceFormatStringListElements;
+`)
+	_, err = f2.Write(h)
+	msg.FatalOnErr(err)
 	return
 }
 
@@ -222,22 +260,251 @@ func addID(tF TriceFmt, id TriceID, tflus triceFmtLookUpS) {
 
 // toFile writes lut into file fn as indented JSON.
 func (lim TriceIDLookUpLI) toFile(fn string) (err error) {
-	f, err := os.Create(fn)
+	f0, err := os.Create(fn)
 	msg.FatalOnErr(err)
 	defer func() {
-		err = f.Close()
+		err = f0.Close()
 		msg.FatalOnErr(err)
 	}()
 
 	b, err := lim.toJSON()
 	msg.FatalOnErr(err)
 
-	_, err = f.Write(b)
+	_, err = f0.Write(b)
 	msg.FatalOnErr(err)
+
 	return
 }
 
 // toJSON converts lim into JSON byte slice in human-readable form.
 func (lim TriceIDLookUpLI) toJSON() ([]byte, error) {
 	return json.MarshalIndent(lim, "", "\t")
+}
+
+// toCFmtList converts lim into C-source byte slice in human-readable form.
+func (lu TriceIDLookUp) toCFmtList(fileName string) ([]byte, error) {
+	fileNameBody := fileNameWithoutSuffix(filepath.Base(fileName))
+	c := []byte(`//! \file ` + fileNameBody + `.c
+//! ///////////////////////////////////////////////////////////////////////////
+
+//! generated code - do not edit!
+
+#include "` + fileNameBody + `.h"
+
+//! triceFormatStringList contains all trice format strings together with id and parameter information.
+const triceFormatStringList_t triceFormatStringList[] = {
+	// format-string,                                                                     id, dataLength, bitWidth,
+`)
+	var s string
+	var paramCount int
+	var bitWidth int
+	var dataLength int
+
+	for id, k := range lu {
+		s = k.Strg
+		switch k.Type {
+
+		case "TRICE", "TRICE32", "TRICE32_1", "TRICE32_2", "TRICE32_3", "TRICE32_4", "TRICE32_5", "TRICE32_6", "TRICE32_7", "TRICE32_8", "TRICE32_9", "TRICE32_10", "TRICE32_11", "TRICE32_12":
+			bitWidth = 32
+			paramCount = formatSpecifierCount(s)
+			dataLength = paramCount * 4
+		case "TRICE16", "TRICE16_1", "TRICE16_2", "TRICE16_3", "TRICE16_4", "TRICE16_5", "TRICE16_6", "TRICE16_7", "TRICE16_8", "TRICE16_9", "TRICE16_10", "TRICE16_11", "TRICE16_12":
+			bitWidth = 16
+			paramCount = formatSpecifierCount(s)
+			dataLength = paramCount * 2
+		case "TRICE8", "TRICE8_1", "TRICE8_2", "TRICE8_3", "TRICE8_4", "TRICE8_5", "TRICE8_6", "TRICE8_7", "TRICE8_8", "TRICE8_9", "TRICE8_10", "TRICE8_11", "TRICE8_12":
+			bitWidth = 8
+			paramCount = formatSpecifierCount(s)
+			dataLength = paramCount * 1
+		case "TRICE64", "TRICE64_1", "TRICE64_2", "TRICE64_3", "TRICE64_4", "TRICE64_5", "TRICE64_6", "TRICE64_7", "TRICE64_8", "TRICE64_9", "TRICE64_10", "TRICE64_11", "TRICE64_12":
+			bitWidth = 64
+			paramCount = formatSpecifierCount(s)
+			dataLength = paramCount * 2
+		case "TRICE_S", "TRICE_B", "TRICE_N", "TRICE_F":
+			bitWidth = 64
+			paramCount = 1
+			dataLength = len(s)
+		}
+		c = append(c, []byte(fmt.Sprintf(`    { "%s",%s%5d, %3d, %2d },`+"\n", s, distance(s), id, dataLength, bitWidth))...)
+	}
+
+	tail := []byte(`};
+
+//! triceFormatStringListElements holds the compile time computed count of list elements.
+const unsigned triceFormatStringListElements = sizeof(triceFormatStringList) / sizeof(triceFormatStringList_t);
+`)
+	c = append(c, tail...)
+	return c, nil
+}
+
+func fileNameWithoutSuffix(fileName string) string {
+	return fileName[:len(fileName)-len(filepath.Ext(fileName))]
+}
+
+// distance returns 80 - len(s) spaces as string
+func distance(s string) string {
+	switch 80 - len(s) {
+	default:
+		return ""
+	case 0:
+		return ""
+	case 1:
+		return " "
+	case 2:
+		return "  "
+	case 3:
+		return "   "
+	case 4:
+		return "    "
+	case 5:
+		return "     "
+	case 6:
+		return "      "
+	case 7:
+		return "       "
+	case 8:
+		return "        "
+	case 9:
+		return "         "
+	case 10:
+		return "          "
+	case 11:
+		return "           "
+	case 12:
+		return "            "
+	case 13:
+		return "             "
+	case 14:
+		return "              "
+	case 15:
+		return "               "
+	case 16:
+		return "                "
+	case 17:
+		return "                 "
+	case 18:
+		return "                  "
+	case 19:
+		return "                   "
+	case 20:
+		return "                    "
+	case 21:
+		return "                     "
+	case 22:
+		return "                      "
+	case 23:
+		return "                       "
+	case 24:
+		return "                        "
+	case 25:
+		return "                         "
+	case 26:
+		return "                          "
+	case 27:
+		return "                           "
+	case 28:
+		return "                            "
+	case 29:
+		return "                             "
+	case 30:
+		return "                              "
+	case 31:
+		return "                               "
+	case 32:
+		return "                                "
+	case 33:
+		return "                                 "
+	case 34:
+		return "                                  "
+	case 35:
+		return "                                   "
+	case 36:
+		return "                                    "
+	case 37:
+		return "                                     "
+	case 38:
+		return "                                      "
+	case 39:
+		return "                                       "
+	case 40:
+		return "                                        "
+	case 41:
+		return "                                         "
+	case 42:
+		return "                                          "
+	case 43:
+		return "                                           "
+	case 44:
+		return "                                            "
+	case 45:
+		return "                                             "
+	case 46:
+		return "                                              "
+	case 47:
+		return "                                               "
+	case 48:
+		return "                                                "
+	case 49:
+		return "                                                 "
+	case 50:
+		return "                                                  "
+	case 51:
+		return "                                                   "
+	case 52:
+		return "                                                    "
+	case 53:
+		return "                                                     "
+	case 54:
+		return "                                                      "
+	case 55:
+		return "                                                       "
+	case 56:
+		return "                                                        "
+	case 57:
+		return "                                                         "
+	case 58:
+		return "                                                          "
+	case 59:
+		return "                                                           "
+	case 60:
+		return "                                                            "
+	case 61:
+		return "                                                             "
+	case 62:
+		return "                                                              "
+	case 63:
+		return "                                                               "
+	case 64:
+		return "                                                                "
+	case 65:
+		return "                                                                 "
+	case 66:
+		return "                                                                  "
+	case 67:
+		return "                                                                   "
+	case 68:
+		return "                                                                    "
+	case 69:
+		return "                                                                     "
+	case 70:
+		return "                                                                      "
+	case 71:
+		return "                                                                       "
+	case 72:
+		return "                                                                        "
+	case 73:
+		return "                                                                         "
+	case 74:
+		return "                                                                          "
+	case 75:
+		return "                                                                           "
+	case 76:
+		return "                                                                            "
+	case 77:
+		return "                                                                             "
+	case 78:
+		return "                                                                              "
+	case 79:
+		return "                                                                               "
+	}
 }
