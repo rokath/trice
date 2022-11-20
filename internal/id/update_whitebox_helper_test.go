@@ -43,13 +43,13 @@ var tryOkSet = []idCheck{
 	{`trice64_2(Id(59), "%d,%x", -3, -4 )`, "Id(59)", 59, true, TriceFmt{"trice64_2", "%d,%x"}},
 }
 
-func checkID(t *testing.T, set []idCheck, i int, id TriceID) {
-	assert.True(t, id == set[i].id, fmt.Sprint(i, id))
-}
-
-func checkNbID(t *testing.T, set []idCheck, i int, nbID string) {
-	assert.True(t, nbID == set[i].nbID, fmt.Sprint(i, nbID))
-}
+//  func checkID(t *testing.T, set []idCheck, i int, id TriceID) {
+//  	assert.True(t, id == set[i].id, fmt.Sprint(i, id))
+//  }
+//
+//  func checkNbID(t *testing.T, set []idCheck, i int, nbID string) {
+//  	assert.True(t, nbID == set[i].nbID, fmt.Sprint(i, nbID))
+//  }
 
 type testTable []struct {
 	text    string // file content as input

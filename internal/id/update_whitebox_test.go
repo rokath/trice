@@ -87,22 +87,22 @@ func TestRefreshIDListSingle2(t *testing.T) {
 	check(t, text, expJSON)
 }
 
-func TestInsertSharedIDsInvalid0(t *testing.T) {
-	var listModified bool
-	var fileModified bool
-	tt := testTable{
-		{
-			`trice8_1( Id(0x0), "Hi %d", 5); // this gets not changed because no decimal number`,
-			`trice8_1( Id(0x0), "Hi %d", 5); // this gets not changed because no decimal number`, fileModified, listModified},
-		{
-			`trice8_1( Id(-0), "hi %d", 5); // minus id's are not touched`,
-			`trice8_1( Id(-0), "hi %d", 5); // minus id's are not touched`, fileModified, listModified},
-	}
-	eList := `map[]
-`
-	checkList(t, SharedIDs, 10000, 20000, "downward", tt, eList, true)
-	checkList(t, SharedIDs, 10000, 20000, "downward", tt, eList, false)
-}
+//  func TestInsertSharedIDsInvalid0(t *testing.T) {
+//  	var listModified bool
+//  	var fileModified bool
+//  	tt := testTable{
+//  		{
+//  			`trice8_1( Id(0x0), "Hi %d", 5); // this gets not changed because no decimal number`,
+//  			`trice8_1( Id(0x0), "Hi %d", 5); // this gets not changed because no decimal number`, fileModified, listModified},
+//  		{
+//  			`trice8_1( Id(-0), "hi %d", 5); // minus id's are not touched`,
+//  			`trice8_1( Id(-0), "hi %d", 5); // minus id's are not touched`, fileModified, listModified},
+//  	}
+//  	eList := `map[]
+//  `
+//  	checkList(t, SharedIDs, 10000, 20000, "downward", tt, eList, true)
+//  	checkList(t, SharedIDs, 10000, 20000, "downward", tt, eList, false)
+//  }
 
 //  func TestTriceIDParseOK(t *testing.T) {
 //  	set := tryOkSet

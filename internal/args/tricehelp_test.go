@@ -38,7 +38,7 @@ func _TestHelpRenew(t *testing.T) {
         -dry-run
               No changes applied but output shows what would happen.
               "trice renew -dry-run" will change nothing but show changes it would perform without the "-dry-run" switch.
-              This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true.
+              This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true.
         -i string
               Short for '-idlist'.
                (default "til.json")
@@ -65,7 +65,7 @@ func _TestHelpRenew(t *testing.T) {
         -verbose
               Gives more informal output if used. Can be helpful during setup.
               For example "trice u -dry-run -v" is the same as "trice u -dry-run" but with more descriptive output.
-              This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true.
+              This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true.
       example: 'trice renew': Rebuild ID list from source tree, discard old IDs.
       `
 	execHelper(t, args, expect)
@@ -105,7 +105,7 @@ func _TestHelpUpdate(t *testing.T) {
         -dry-run
               No changes applied but output shows what would happen.
               "trice update -dry-run" will change nothing but show changes it would perform without the "-dry-run" switch.
-              This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true.
+              This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true.
         -i string
               Short for '-idlist'.
                (default "til.json")
@@ -136,7 +136,7 @@ func _TestHelpUpdate(t *testing.T) {
         -verbose
               Gives more informal output if used. Can be helpful during setup.
               For example "trice u -dry-run -v" is the same as "trice u -dry-run" but with more descriptive output.
-              This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true.
+              This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true.
       example: 'trice update -src ../A -src ../../B': Parse ../A and ../../B with all subdirectories for TRICE IDs to update and adjusts til.json
       `
 	execHelper(t, args, expect)
@@ -162,7 +162,7 @@ func TestHelpVersion(t *testing.T) {
         -verbose
               Gives more informal output if used. Can be helpful during setup.
               For example "trice u -dry-run -v" is the same as "trice u -dry-run" but with more descriptive output.
-              This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true.
+              This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true.
       `
 	execHelper(t, args, expect)
 }
@@ -222,7 +222,7 @@ func TestHelpZero(t *testing.T) {
         -dry-run
               No changes applied but output shows what would happen.
               "trice zeroSourceTreeIds -dry-run" will change nothing but show changes it would perform without the "-dry-run" switch.
-              This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true.
+              This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true.
         -s value
               Short for src.
         -src value
@@ -236,7 +236,7 @@ func TestHelpZero(t *testing.T) {
         -verbose
               Gives more informal output if used. Can be helpful during setup.
               For example "trice u -dry-run -v" is the same as "trice u -dry-run" but with more descriptive output.
-              This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true.
+              This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true.
       example: 'trice zeroSourceTreeIds -src ../A': Sets all TRICE IDs to 0 in ../A. Use with care!
       `
 	execHelper(t, args, expect)
@@ -291,7 +291,7 @@ func TestHelpHelp(t *testing.T) {
         -verbose
               Gives more informal output if used. Can be helpful during setup.
               For example "trice u -dry-run -v" is the same as "trice u -dry-run" but with more descriptive output.
-              This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true.
+              This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true.
         -version
               Show ver|version specific help.
         -z    Show zeroSourceTreeIds specific help.
@@ -332,7 +332,7 @@ func _TestRenew(t *testing.T) {
         -dry-run
               No changes applied but output shows what would happen.
               "trice renew -dry-run" will change nothing but show changes it would perform without the "-dry-run" switch.
-              This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true.
+              This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true.
         -i string
               Short for '-idlist'.
                (default "til.json")
@@ -371,7 +371,7 @@ func _TestRenew(t *testing.T) {
         -verbose
               Gives more informal output if used. Can be helpful during setup.
               For example "trice u -dry-run -v" is the same as "trice u -dry-run" but with more descriptive output.
-              This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true.
+              This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true.
       example: 'trice renew': Rebuild ID list from source tree, discard old IDs.
       `
 	execHelper(t, args, expect)
@@ -482,11 +482,11 @@ func _TestHelpLog(t *testing.T) {
               Format string for displaying first trice ID at start of each line. Example: "debug:%7d ". Default is "". If several trices form a log line only the first trice ID ist displayed.
         -showInputBytes
               Show incoming bytes, what can be helpful during setup.
-              This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true.
+              This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true.
         -showKey
               Show encryption key. Use this switch for creating your own password keys. If applied together with "-password MySecret" it shows the encryption key.
               Simply copy this key than into the line "#define ENCRYPT XTEA_KEY( ea, bb, ec, 6f, 31, 80, 4e, b9, 68, e2, fa, ea, ae, f1, 50, 54 ); //!< -password MySecret" inside triceConfig.h.
-              This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true.
+              This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true.
         -suffix string
               Append suffix to all lines, options: any string.
         -tLocFmt string
@@ -515,7 +515,7 @@ func _TestHelpLog(t *testing.T) {
         -verbose
               Gives more informal output if used. Can be helpful during setup.
               For example "trice u -dry-run -v" is the same as "trice u -dry-run" but with more descriptive output.
-              This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true.
+              This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true.
       example: 'trice l -p COM15 -baud 38400': Display trice log messages from serial port COM15
       example: 'trice l': Display flexL data format trice log messages from default source J-LINK over Segger RTT protocol.
       example: 'trice l -port ST-LINK -v -s': Shows verbose version information and also the received raw bytes.

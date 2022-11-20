@@ -75,8 +75,8 @@ var (
 	matchTriceNoLen          = regexp.MustCompile(patTriceNoLen)
 	matchIDInsideTrice       = regexp.MustCompile(patIDInsideTrice)
 	matchAnyTriceStart       = regexp.MustCompile(patAnyTriceStart)
-	matchNumber              = regexp.MustCompile(patNumber)
-	matchIncludeTriceHeader  = regexp.MustCompile(patIncludeTriceHeader)
+	//matchNumber              = regexp.MustCompile(patNumber)
+	//matchIncludeTriceHeader  = regexp.MustCompile(patIncludeTriceHeader)
 
 	ExtendMacrosWithParamCount bool
 
@@ -315,22 +315,28 @@ func triceIDParse(t string) (nbID string, id TriceID, found idType) {
 		return
 	}
 	var n int
-	_, err := fmt.Sscanf(nbID, "ID(%d", &n) // closing bracket in format string omitted intentionally // todo: patID
+	_, err := fmt.Sscanf(nbID, "iD(%d", &n) // closing bracket in format string omitted intentionally // todo: patID
 	if nil == err {                         // because spaces after id otherwise are not tolerated
 		id = TriceID(n)
-		found = idTypeUpper
+		found = idTypeS8
+		return
+	}
+	_, err = fmt.Sscanf(nbID, "ID(%d", &n) // closing bracket in format string omitted intentionally // todo: patID
+	if nil == err {                        // because spaces after id otherwise are not tolerated
+		id = TriceID(n)
+		found = idTypeS4
 		return
 	}
 	_, err = fmt.Sscanf(nbID, "Id(%d", &n) // closing bracket in format string omitted intentionally // todo: patID
 	if nil == err {                        // because spaces after id otherwise are not tolerated
 		id = TriceID(n)
-		found = idTypeCamel
+		found = idTypeS2
 		return
 	}
 	_, err = fmt.Sscanf(nbID, "id(%d", &n) // closing bracket in format string omitted intentionally // todo: patID
 	if nil == err {                        // because spaces after id otherwise are not tolerated
 		id = TriceID(n)
-		found = idTypeLower
+		found = idTypeS0
 		return
 	}
 	msg.Info(fmt.Sprintln("no 'Id(n' found inside " + nbID)) // todo: patID
@@ -365,9 +371,9 @@ func lineCount(text string) {
 // Only on success found is true.
 func triceParse(t string) (nbID string, id TriceID, tf TriceFmt, found idType) {
 	nbID, id, found = triceIDParse(t)
-	if found == idTypeNone {
-		return
-	}
+	//if found == idTypeS8 {
+	//	return
+	//}
 	tf, ok := triceFmtParse(t)
 	if !ok {
 		msg.Info(fmt.Sprintln("triceFmtParse reported !ok inside " + t))
@@ -392,10 +398,10 @@ func refreshIDs(w io.Writer, fileName, text string, lu TriceIDLookUp, tflus tric
 		subs = subs[loc[1]:] // A possible Id(0) replacement makes subs not shorter, so next search can start at loc[1].
 		// A case like 'TRICE*( Id(                             0                              ), "");' is not expected.
 
-		_, id, tf, found := triceParse(nbTRICE)
-		if found == idTypeNone {
-			continue
-		}
+		_, id, tf, _ /*found*/ := triceParse(nbTRICE)
+		//  if found == idTypeS8 {
+		//  	continue
+		//  }
 		tfS := tf
 		tfS.Type = strings.ToUpper(tfS.Type) // Lower case and upper case Type are not distinguished.
 
@@ -425,14 +431,14 @@ func refreshIDs(w io.Writer, fileName, text string, lu TriceIDLookUp, tflus tric
 type idType int
 
 const (
-	idTypeNone  = 0
-	idTypeUpper = 3
-	idTypeCamel = 2
-	idTypeLower = 1
+	idTypeS8 = 0
+	idTypeS4 = 3
+	idTypeS2 = 2
+	idTypeS0 = 1
 )
 
 // updateIDsUniqOrShared parses text for new or invalid *Trices* 'tf' and gives them the legacy id if 'tf' is already in lu & tflu.
-// An invalid trice is a trice without Id(n) or with Id(0) or which changed somehow. Exampes: 'TRICE( Id(12) ,"foo");' was changed to 'TRICE0( Id(12) ,"bar");'
+// An invalid trice is a trice without Id(n) or with Id(0) or which changed somehow. Examples: 'TRICE( Id(12) ,"foo");' was changed to 'TRICE0( Id(12) ,"bar");'
 // If 'TRICE( Id(99) ,"bar");' is in lu & tflu, the invalid trice changes to 'TRICE( Id(99) ,"bar");'. Otherwise instead of 99 a so far unused id is taken.
 // Or: 'TRICE( Id(12) ,"foo");' was changed to 'TRICE( Id(13) ,"foo");'. Then lu & tflu are extended accordingly, or, if 13 is already used, it is replaced with a new id.
 // Otherwise, a new id is generated, text patched and lu & tflu are extended.
@@ -456,9 +462,9 @@ func updateIDsUniqOrShared(w io.Writer, sharedIDs bool, min, max TriceID, search
 		// A case like 'TRICE*( Id(                             0                              ), "");' is not expected.
 
 		nbID, id, tf, idTypeResult := triceParse(nbTRICE)
-		if idTypeResult == idTypeNone {
-			continue
-		}
+		//if idTypeResult == idTypeS8 {
+		//	continue
+		//}
 		tf.Type = strings.ToUpper(tf.Type) // Lower case and upper case Type are not distinguished for normal trices in shared IDs mode.
 
 		// In lu id could point to a different tf. So we need to check that and invalidate id in that case.
@@ -493,11 +499,13 @@ func updateIDsUniqOrShared(w io.Writer, sharedIDs bool, min, max TriceID, search
 			//}
 			var nID string // patch the id into text
 			switch idTypeResult {
-			case idTypeUpper:
+			case idTypeS8:
+				nID = fmt.Sprintf("iD(%5d)", id) // todo: patID
+			case idTypeS4:
 				nID = fmt.Sprintf("ID(%5d)", id) // todo: patID
-			case idTypeCamel:
+			case idTypeS2:
 				nID = fmt.Sprintf("Id(%5d)", id) // todo: patID
-			case idTypeLower:
+			case idTypeS0:
 				nID = fmt.Sprintf("id(%5d)", id) // todo: patID
 			}
 			//>>>>>>>>> Temporary merge branch 2
