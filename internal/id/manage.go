@@ -220,21 +220,22 @@ func (lu TriceIDLookUp) toFile(fn string) (err error) {
 	msg.FatalOnErr(err)
 
 	h := []byte(`//! \file ` + fn2 + `
-	//! ///////////////////////////////////////////////////////////////////////////
-	
-	//! generated code - do not edit!
-	
-	#include <stdint.h>
-	
-	typedef struct{
-		char* formatString;
-		uint16_t id;
-		int16_t dataLength;
-		uint8_t bitWidth;
-	} triceFormatStringList_t;
-	
-	extern const triceFormatStringList_t triceFormatStringList[];
-	extern const unsigned triceFormatStringListElements;
+//! ///////////////////////////////////////////////////////////////////////////
+
+//! generated code - do not edit!
+
+#include <stdint.h>
+
+typedef struct{
+	char* formatString;
+	uint16_t id;
+	int16_t dataLength;
+	uint8_t bitWidth;
+} triceFormatStringList_t;
+
+extern const triceFormatStringList_t triceFormatStringList[];
+extern const unsigned triceFormatStringListElements;
+
 `)
 	_, err = f2.Write(h)
 	msg.FatalOnErr(err)
