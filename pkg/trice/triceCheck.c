@@ -1134,7 +1134,7 @@ static void exampleOfManualSerialization( void ){
     TRICE_B( Id( 6577), " %02x ", &rx, sizeof(rx) );
     TRICE( Id( 5383), "\n" );
 
-    TRICE( Id( 6337), "inf:sizeOf(Tryout) = %d, buffer length = %d\n", sizeof(tx), len );
+    TRICE( Id( 5237), "inf:sizeOf(Tryout) = %d, buffer length = %d\n", sizeof(tx), len );
     TRICE8_F( Id( 6773), "info:TryoutStructFunction", &tx, sizeof(tx) );
     TRICE8_F( Id( 3543), "info:TryoutBufferFunction", dst, len ); //lint !e670
 }

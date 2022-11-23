@@ -5,8 +5,14 @@
 #include "tcobs.h"
 #include "xtea.h"
 
+// triceCommands is to make 32-bit alignment sure
+static uint32_t triceCommands[(TRICE_COMMAND_SIZE_MAX+3)>>2]; // with terminating 0
+
 //! triceCommand is the command receive buffer.
-char triceCommand[TRICE_COMMAND_SIZE_MAX]; // with terminating 0
+uint8_t* const triceCommandBuffer = (uint8_t*)&triceCommands; // with terminating 0
+
+//! triceCommandLength contains the count of valid bytes inside triceCommand including the terminating 0.
+int triceCommandLength = 0;
 
 //! triceCommandFlag ist set, when a command was received completely.
 int triceCommandFlag = 0; // updated
@@ -39,6 +45,15 @@ static size_t triceDataLen( uint8_t const* p ){
     return nc & 0x7fff;
 }
 
+const int TriceTypeS0 = 3; //!< TriceTypeS0 ist a trice without stamp.
+const int TriceTypeS2 = 5; //!< TriceTypeS2 ist a trice with 16-bit stamp.
+const int TriceTypeS4 = 7; //!< TriceTypeS4 ist a trice with 32-bit stamp.
+const int TriceTypeS8 = 1; //!< TriceTypeS8 ist a trice with 64-bit stamp.
+const int TriceTypeX0 = 0; //!< TriceTypeX0 ist a unspecified trice extension.
+const int TriceTypeX1 = 2; //!< TriceTypeX0 ist a unspecified trice extension.
+const int TriceTypeX2 = 4; //!< TriceTypeX0 ist a unspecified trice extension.
+const int TriceTypeX3 = 6; //!< TriceTypeX0 ist a unspecified trice extension.
+
 //! triceErrorCount is incremented, when data inside the internal trice buffer are corrupted.
 //! That could happen, when the buffer wrapped before data are sent.
 unsigned triceErrorCount = 0;
@@ -58,27 +73,27 @@ static int nextTrice( uint8_t** buf, size_t* pSize, uint8_t** pStart, size_t* pL
     *pStart = *buf;
     switch( triceType ){
         default:
-        case 3: // S0 = no stamp
+        case TriceTypeS0: // S0 = no stamp
             len = 4 + triceDataLen(*pStart + 2); // tyId
             break;
-        case 5: // S2 = 16-bit stamp
+        case TriceTypeS2: // S2 = 16-bit stamp
             *pStart += 2; // see Id(n) macro definition
             offset = 2;
             len = 6 + triceDataLen(*pStart + 4); // tyId ts16
             break;
-        case 7: // S4 = 32-bit stamp
+        case TriceTypeS4: // S4 = 32-bit stamp
             len = 8 + triceDataLen(*pStart + 6); // tyId ts32
             break;
-        case 1: // S8 = 64-bit stamp
+        case TriceTypeS8: // S8 = 64-bit stamp
             len = 12 + triceDataLen(*pStart + 10); // tyId ts64
             //len = size; // todo: Change that when needed.
             //// Extended trices without length information cannot be separated here.
             //// But it is possible to store them with length information and to remove it here.
             break;
-        case 0: // X0
-        case 2: // X1
-        case 4: // X2
-        case 6: // X3
+        case TriceTypeX0:
+        case TriceTypeX1:
+        case TriceTypeX2:
+        case TriceTypeX3:
             return -__LINE__; // extended trices not supported (yet)
     }
     triceSize = (len + offset + 3) & ~3;
@@ -111,7 +126,7 @@ static size_t triceEncode( uint8_t* enc, uint8_t const* buf, size_t len ){
 }
 
 //! TriceWriteDevice sends data to enumerated output device.
-static void TriceWriteDevice( TriceWriteDevice_t device, uint8_t *buf, size_t len ){
+void TriceWriteDevice( TriceWriteDevice_t device, uint8_t *buf, size_t len ){
     switch( device ){
 #ifdef TRICE_UARTA
         case UartA:

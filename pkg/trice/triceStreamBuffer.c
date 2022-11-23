@@ -30,7 +30,7 @@ static int triceFifoDepth( void ){
 
 //! triceFifoPush stores v in triceFifo.
 //! There is no depth check.
-void TriceFifoPush( uint32_t* v ){
+void TriceFifoPush( void* v ){
     triceFifo[triceFifoWriteIndex++] = v;
     triceFifoWriteIndex &= TRICE_FIFO_MAX_DEPTH;
 }
@@ -87,7 +87,7 @@ void TriceTransfer( void ){
         triceFifoDepthMax = depth < triceFifoDepthMax ? triceFifoDepthMax : depth;
         if( depth >= 2 ){ // data in triceFifo
             uint32_t* tBuf = triceFifoPop(); 
-            size_t tLen = triceDepth(tBuf); // tlen is always a multiple of 4
+            size_t tLen = triceDepth(tBuf); // calls internally triceFifoPop(), tlen is always a multiple of 4
             size_t triceStreamBufferDepth = streamBufferDepth(tBuf);
             TriceOut( tBuf, tLen );
             triceStreamBufferDepthMax = triceStreamBufferDepth < triceStreamBufferDepthMax ? triceStreamBufferDepthMax : triceStreamBufferDepth; // diagnostics

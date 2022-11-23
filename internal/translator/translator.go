@@ -165,7 +165,9 @@ func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec decode
 				if decoder.TargetTimestampSize > 0 {
 					s = fmt.Sprintf(decoder.ShowTargetTimestamp, decoder.TargetTimestamp)
 				} else {
-					s = fmt.Sprintf("time:          ") // todo: make configurable
+					s = fmt.Sprintf(decoder.ShowTargetTimestamp, 0)
+					s = strings.Replace(s, "0", " ", -1)
+
 				}
 				_, err := sw.Write([]byte(s))
 				msg.OnErr(err)

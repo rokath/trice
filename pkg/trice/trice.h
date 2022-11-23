@@ -92,6 +92,8 @@ typedef enum{
 #include <stdint.h> //lint !e537
 #include <string.h>
 
+void TriceWriteDevice( TriceWriteDevice_t device, uint8_t *buf, size_t len );
+
 //! TriceStamp16 returns a 16-bit value to stamp `Id` TRICE macros. Usually it is a timestamp, but could also be a destination address or a counter for example.
 //! This function is user provided.
 uint16_t TriceStamp16( void );
@@ -165,8 +167,9 @@ uint64_t TriceStamp64( void );
 #ifndef TRICE_COMMAND_SIZE_MAX
 #define TRICE_COMMAND_SIZE_MAX 120 //!< trice tool could transmit command strings to target
 #endif
-extern char triceCommand[TRICE_COMMAND_SIZE_MAX];
+extern uint8_t* const triceCommandBuffer;
 extern int triceCommandFlag;
+extern int triceCommandLength;
 
 size_t TriceDepthMax( void );
 #if TRICE_DEFERRED_OUT
@@ -177,7 +180,7 @@ size_t triceNonBlockingWriteUartA( void const * buf, size_t nByte );
 size_t triceNonBlockingWriteUartB( void const * buf, size_t nByte );
 
 #if TRICE_MODE == TRICE_STREAM_BUFFER
-void TriceFifoPush( uint32_t* ta );
+void TriceFifoPush( void* ta );
 uint32_t* TriceNextStreamBuffer( void );
 #endif
 
@@ -207,7 +210,7 @@ void TriceCheckSet( int index ); //!< tests
 #elif defined(TRICE_STACK_BUFFER_MAX_SIZE)
 #define TRICE_DATA_OFFSET ((TRICE_STACK_BUFFER_MAX_SIZE/31+5)&~3) // For single trices the worst case is +1 for each 31 plus terminating 0 at the end
 #else
-#define TRICE_DATA_OFFSET ((TRICE_SINGLE_MAX_SIZE/31+5)&~3) // For single trices the worst case is +1 for each 31 plus terminating 0 at the end
+#define TRICE_DATA_OFFSET ((TRICE_SINGLE_MAX_SIZE/31+5)&~3) // For single trices the worst case is +1 for each 31 plus terminating 0 at the end. Must be a multiple of 4.
 #endif
 
 #if TRICE_CYCLE_COUNTER == 1
@@ -460,12 +463,21 @@ static inline uint64_t aDouble( double x ){
 #define TRICE_PUT16(x) do{ uint16_t* p = (uint16_t*)TriceBufferWritePosition; *p++ = (x); TriceBufferWritePosition = (uint32_t*)p; }while(0)
 #endif
 
-#define T4 ID(0) //!< Placeholder for ID(0) with a 4 byte timestamp.
-#define T2 iD(0) //!< Placeholder for iD(0) with a 2 byte timestamp.
-#define T0 id(0) //!< Placeholder for id(0) with no timestamp.
-#define TS32 ID(0) //!< Placeholder for ID(0) with a 4 byte timestamp.
-#define TS16 iD(0) //!< Placeholder for iD(0) with a 2 byte timestamp.
-#define NOTS id(0) //!< Placeholder for id(0) with no timestamp.
+// #define T4 ID(0) //!< Placeholder for ID(0) with a 4 byte timestamp.
+// #define T2 iD(0) //!< Placeholder for iD(0) with a 2 byte timestamp.
+// #define T0 id(0) //!< Placeholder for id(0) with no timestamp.
+// #define TS32 ID(0) //!< Placeholder for ID(0) with a 4 byte timestamp.
+// #define TS16 iD(0) //!< Placeholder for iD(0) with a 2 byte timestamp.
+// #define NOTS id(0) //!< Placeholder for id(0) with no timestamp.
+
+extern const int TriceTypeS0;
+extern const int TriceTypeS2;
+extern const int TriceTypeS4;
+extern const int TriceTypeS8;
+extern const int TriceTypeX0;
+extern const int TriceTypeX1;
+extern const int TriceTypeX2;
+extern const int TriceTypeX3;
 
 #ifdef TRICE_BIG_ENDIANNESS
 //! TRICE_PUT1616 writes a 32-bit value in 2 16-bit steps to avoid memory alignment hard fault.
