@@ -1,5 +1,2 @@
-
-# Binaries for programs and plugins
-
 bin/
-dist/
+obj/

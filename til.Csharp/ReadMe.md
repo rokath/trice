@@ -29,14 +29,16 @@
 
 ##  2. <a name='FilesandFolders'></a>Files and Folders
 
-| name           | content                              |
-| -              | -                                    |
-| `bin\`         | built binaries                       |
-| `obj\`         | built artifacts                      |
-| `Program.cs`   | example code, replace with your code |
-| `ReadMe.md`    | doc (this file)                      |
-| `til.json.cs`  | generated **C#** trice ID list       |
-| `Trice.csproj` | **C#** project file                  |
+| name           | content                                                       |
+| -              | -                                                             |
+| `.vscode`      | vscode debug settings                                         |
+| `gitignore`    | files and folders not to include in git version control       |
+| `bin\`         | built binaries                                                |
+| `obj\`         | built artifacts                                               |
+| `Program.cs`   | example code, replace with your code                          |
+| `ReadMe.md`    | doc (this file)                                               |
+| `til.json.cs`  | generated **C#** trice ID list                                |
+| `Trice.csproj` | **C#** project file                                           |
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
