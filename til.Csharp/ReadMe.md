@@ -31,8 +31,8 @@
 
 | name           | content                                                       |
 | -              | -                                                             |
-| `.vscode`      | vscode debug settings                                         |
-| `gitignore`    | files and folders not to include in git version control       |
+| `.vscode`      | VScode debug settings                                         |
+| `.gitignore`   | files and folders not to include in git version control       |
 | `bin\`         | built binaries                                                |
 | `obj\`         | built artifacts                                               |
 | `Program.cs`   | example code, replace with your code                          |
