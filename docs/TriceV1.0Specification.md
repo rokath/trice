@@ -51,7 +51,7 @@ The with name "COBS" branded [*Trice* v0.48.0 encoding](./TriceMessagesEncoding.
 * Legacy projects which used the option `-sharedIDs` will still work even with a `li.json` file. A several times used ID will get an assignment of one of the locations.
 * The issue [#242 Add target context option](https://github.com/rokath/trice/issues/242) could get the label "wontfix". When a task ID is needed, it could be also a data value in such cases.
 * The same user source files usable with the legacy *Trice* COBS encoding and the proposed additional [TREX](#TREXTriceextendableencoding) encoding.
-* 
+
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 ##  3. <a name='Framing'></a>Framing
