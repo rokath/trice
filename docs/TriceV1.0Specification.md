@@ -60,7 +60,8 @@ Framing will be done with [TCOBS](./TCOBSSpecification.md) for data reduction. F
 
 Possible better implementation: See issue [#290](https://github.com/rokath/trice/issues/290)
 
-COBS: See #337
+COBS: See [#337](https://github.com/rokath/trice/issues/337)
+
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -324,4 +325,5 @@ TRICE( X3, "...", ...); // an extended type 3 trice
 | 2022-AUG-19 | 0.11.0  | Chapter Main Stream Logs changed/extended |
 | 2022-SEP-15 | 0.11.1  | TS32, TS16, NOTS, MOD7 added |
 | 2022-OCT-08 | 0.11.2  | S0...X3 added |
-| 2022-NOV-28 | 0.11.3  | +#337 |
+| 2022-NOV-28 | 0.11.3  | +[#337](https://github.com/rokath/trice/issues/337) in [Framing](#Framing)|
+
