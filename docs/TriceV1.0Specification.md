@@ -98,7 +98,9 @@ With [TREX](#TREXTriceextendableencoding) encoding the location information need
 ###  6.2. <a name='Mainstreamlogs'></a>Main stream logs
 
 * [x] A 32-bit wide *Trice* storage access is implemented for speed. 
-* [x] All main stream logs share the same 14 bit ID space allowing 1-16383 IDs in 3 variants parallel usable:
+* [x] All main stream logs share the same 13 bit ID space[^1] allowing 1-8191 IDs in 8 variants parallel usable:
+
+[^1]: Legacy projects can use the `-IDbits` switch.
 
 | 16-bit groups                  | *Trice* code                 | Comment                                         |
 | :-                             | -                            | -                                               |
