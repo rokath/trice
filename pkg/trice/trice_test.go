@@ -2,25 +2,15 @@ package trice
 
 import (
 	"fmt"
-	"io"
 	"os"
 	"testing"
 
 	"github.com/tj/assert"
 )
 
-// dump prints the byte slice as hex in one line
-func dump(w io.Writer, b []byte) {
-	fmt.Fprint(w, "exp := []byte{ ")
-	for _, x := range b {
-		fmt.Fprintf(w, "0x%02x, ", x)
-	}
-	fmt.Fprintln(w, "}")
-}
-
 func TestTriceSequences(t *testing.T) {
 	out := make([]byte, 1024)
-	setTriceBuffer(out)
+	cgoSetTriceBuffer(out)
 
 	for i, exp := range triceBytes {
 		len := triceCode(i)

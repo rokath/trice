@@ -8,15 +8,6 @@ package trice
 // #include "trice_test.h"
 // #cgo CFLAGS: -g -Wall -Icgo
 import "C"
-import (
-	"unsafe"
-)
-
-// setTriceBuffer tells the underlying C code where to output the trice byte stream.
-func setTriceBuffer(o []byte) {
-	Cout := (*C.uint8_t)(unsafe.Pointer(&o[0]))
-	C.SetTriceBuffer(Cout)
-}
 
 // triceCode performs trice code sequence n. It returns the actual byte stream length.
 // It is simply a Go wrapper.

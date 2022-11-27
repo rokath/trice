@@ -5,7 +5,6 @@
 
 #include <stdint.h>
 
-void SetTriceBuffer( uint8_t* buf );
 int TriceCode( int n );
 
 extern int triceBufferDepth;
