@@ -116,7 +116,7 @@ With [TREX](#TREXTriceextendableencoding) encoding the location information need
 
 * This leaves 13 ID bits allowing numbers 1-8191.
 * Technically it is possible to have distinct ID spaces for each ID type but this would give no real advantage and complicate the handling only.
-* [x] For straight forward runtime code, the identifiers `id`, `Id` and `ID` are sub macros:
+* [x] For straight forward runtime code, the identifiers `id`, `Id`, `ID` and `iD` are sub macros:
   * [x] **id(n)**
   
   ```c
@@ -135,6 +135,12 @@ With [TREX](#TREXTriceextendableencoding) encoding the location information need
 
   ```c
   #define ID(n) { uint32_t ts = TRICE_READ_TICK32; TRICE_PUT16(  0xC000|(n)); TRICE_PUT1616(ts); }
+  ```
+
+  * [x] **iD(n)**
+
+  ```c
+  #define iD(n) { uint64_t ts = TRICE_READ_TICK64; TRICE_PUT16(  0xC000|(n)); TRICE_PUT1616(ts); TRICE_PUT1616(ts>>32); }
   ```
 
 * [ ] Example:
