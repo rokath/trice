@@ -37,9 +37,9 @@
 The with name "COBS" branded [*Trice* v0.48.0 encoding](./TriceMessagesEncoding.md) is not optimal concerning the generated data amount:
 * See discussion [#253 Save trice COBS encoded data on target and view it later on PC](https://github.com/rokath/trice/discussions/253).
 * The "COBS' location information is transmitted as 16 bit file ID plus 16 bit line number. A better way (done in TREX) is to generate during `trice update` an additional file `li.json` containing the location information for each *Trice* ID avoiding the additional 4 bytes this way. But this could cause assignment issues, when the same *Trice* ID is used at different locations (see [https://github.com/rokath/trice/discussions/264](https://github.com/rokath/trice/discussions/264)). But it is possible to drop the option `trice u -sharedIDs`.
-* The 32-bit COBS package descriptor is overkill for allowing user data.
-* The additional padding bytes to achieve 32 bit sizes are not needed. The user could add them by himself if really needed.
-* The 4 timestamp bytes in front of each *Trice* demand the COBS package descriptor. The timestamp should go inside the *Trice* message and be optionally smaller.
+* The 32-bit "COBS" package descriptor is overkill for allowing user data and dropped in TREX.
+* The additional padding bytes to achieve 32 bit sizes are not needed and dropped in TREX. The user could add them by himself if really needed.
+* The 4 timestamp bytes in front of each *Trice* demand the "COBS" package descriptor. The timestamp should go inside the *Trice* message and be optionally smaller. That is done in TREX.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
