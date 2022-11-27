@@ -268,12 +268,14 @@ Additionally only 2 IDs (1 bit) are needed without cycle and count:
 
 * The IDs inside the source code are a "dealbreaker" as [bora](https://community.memfault.com/u/bora) mentioned in his [comment](https://interrupt.memfault.com/blog/trice). In fact it is not acceptable for library code used in several projects. An improved approach could look like this:
 
+<!--
 ```c
 TRICE( NOTS, "...", ...); // a trice without timestamp
 TRICE( TS16, "...", ...); // a trice with a 16-bit timestamp
 TRICE( TS32, "...", ...); // a trice with a 32-bit timestamp
 TRICE( MOD7, "...", ...); // a trice with a user mode 7 encoding
 ```
+-->
 
 ```c
 TRICE( S0, "...", ...); // a trice without stamp
@@ -289,17 +291,17 @@ TRICE( X2, "...", ...); // an extended type 2 trice
 TRICE( X3, "...", ...); // an extended type 3 trice 
 ```
 
-* When editing, the user needs to write only `TRICE( "...", ...);` and the trice tool inserts a T0, T2 or T4 automatically according to the used `-timeStamp` switch parameter.
+* When editing, the user needs to write only `TRICE( "...", ...);` and the trice tool inserts a S0, S2, S4 or S8 automatically according to the used `-stamp` switch parameter.
 * After repository check-out and before compiling, following substitutions are done using `trice -u`:
-  * `TRICE( NOTS, "...", ...);` → `TRICE( id(0), "...", ...);` → `TRICE( id(12345), "...", ...);`
-  * `TRICE( TS16, "...", ...);` → `TRICE( Id(0), "...", ...);` → `TRICE( Id(12345), "...", ...);`
-  * `TRICE( TS32, "...", ...);` → `TRICE( ID(0), "...", ...);` → `TRICE( ID(12345), "...", ...);`
-  * `TRICE( MOD7, "...", ...);` → `TRICE( iD7(0), "...", ...);` → `TRICE( ID(12345), "...", ...);`
+  * `TRICE( S0, "...", ...);` → `TRICE( id(0), "...", ...);` → `TRICE( id(12345), "...", ...);`
+  * `TRICE( S2, "...", ...);` → `TRICE( Id(0), "...", ...);` → `TRICE( Id(12345), "...", ...);`
+  * `TRICE( S4, "...", ...);` → `TRICE( ID(0), "...", ...);` → `TRICE( ID(12345), "...", ...);`
+  * `TRICE( S8, "...", ...);` → `TRICE( iD(0), "...", ...);` → `TRICE( ID(12345), "...", ...);`
 * After compiling and before repository check-in, following substitutions are done using `trice -z`:
-  * `TRICE( id(12345), "...", ...);` → `TRICE( id(0), "...", ...);` → `TRICE( NOTS, "...", ...);`
-  * `TRICE( Id(12345), "...", ...);` → `TRICE( Id(0), "...", ...);` → `TRICE( TS16, "...", ...);`
-  * `TRICE( ID(12345), "...", ...);` → `TRICE( ID(0), "...", ...);` → `TRICE( TS32, "...", ...);`
-  * `TRICE( id7(12345), "...", ...);` → `TRICE( iD7(0), "...", ...);` → `TRICE( MOD7, "...", ...);`
+  * `TRICE( id(12345), "...", ...);` → `TRICE( id(0), "...", ...);` → `TRICE( S0, "...", ...);`
+  * `TRICE( Id(12345), "...", ...);` → `TRICE( Id(0), "...", ...);` → `TRICE( S2, "...", ...);`
+  * `TRICE( ID(12345), "...", ...);` → `TRICE( ID(0), "...", ...);` → `TRICE( S4, "...", ...);`
+  * `TRICE( iD(12345), "...", ...);` → `TRICE( iD(0), "...", ...);` → `TRICE( S8, "...", ...);`
 * The project specific `til.json` contains all IDs and during `trice u` the same IDs are used again for the same **trice** statement. For new or modified **trices** new IDs a chosen and `til.json` is extended as usual.
 * Identical **trices** should have different IDs for the correctness of the location information. The switch `-sharedIDs` is obsolete and depreciated.
 * There is no guaranty each **trice** gets its old ID back, if for example 5 identical **trices** with different IDs exist, but the probability for an exact restore can made high using the previous `li.json` file. Proposed method:
