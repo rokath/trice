@@ -50,13 +50,14 @@ The with name "COBS" branded [*Trice* v0.48.0 encoding](./TriceMessagesEncoding.
 * The option `-sharedIDs` will be further available but depreciated to avoid location assignment issues.
 * Legacy projects which used the option `-sharedIDs` will still work even with a `li.json` file. A several times used ID will get an assignment of one of the locations.
 * The issue [#242 Add target context option](https://github.com/rokath/trice/issues/242) could get the label "wontfix". When a task ID is needed, it could be also a data value in such cases.
-* The same user source files usable with the legacy *Trice* COBS encoding and the proposed additional [TREX](#TREXTriceextendableencoding) encoding.
-
+* The same user source files usable with the legacy *Trice* "COBS" encoding and the proposed additional [TREX](#TREXTriceextendableencoding) encoding. They will have 16 bit stamps instead of 32-bits if you keep the sub macros`Id(n)`.
+* Exchange to `ID(n)` to get 32-bit timestamps back.
+* Also you probably need to re-assign new ID numbers because of the limited TREX ID ranges.
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  3. <a name='Framing'></a>Framing
+##  3. <a name='Framing'></a>TREX Framing
 
-Framing will be done with [TCOBS](./TCOBSSpecification.md) for data reduction. For robustness each *Trice* gets its own TCOBS package. User data are in separate TCOBS packages encoded. When *Trices* are accumulated in a double half buffer, their separation in TCOBS packages is possible until the first extended *Trice*. Because of the generally unknown extended *Trice* length from this point, all following *Trices* in this half buffer need to go in one TCOBS package (including optional padding bytes) what is ok. The only disadvantage with this is, that in case of a data disruption at this place, several *Trice* messages can get lost.
+Framing will be done with [TCOBS](./TCOBSSpecification.md) for data reduction per default but the user can force to use COBS, what makes it easier to write an own decoder. For robustness each *Trice* gets its own TCOBS package. User data are in separate TCOBS packages encoded. When *Trices* are accumulated in a double half buffer, their separation in TCOBS packages is possible until the first extended *Trice*. Because of the generally unknown extended *Trice* length from this point, all following *Trices* in this half buffer need to go in one TCOBS package (including optional padding bytes) what is ok. The only disadvantage with this is, that in case of a data disruption at this place, several *Trice* messages can get lost.
 
 Possible better implementation: See issue [#290](https://github.com/rokath/trice/issues/290)
 
