@@ -9,7 +9,7 @@
 static uint32_t triceCommands[(TRICE_COMMAND_SIZE_MAX+3)>>2]; // with terminating 0
 
 //! triceCommand is the command receive buffer.
-uint8_t* const triceCommandBuffer = (uint8_t*)&triceCommands; // with terminating 0
+char* const triceCommandBuffer = (char*)&triceCommands; // with terminating 0
 
 //! triceCommandLength contains the count of valid bytes inside triceCommand including the terminating 0.
 int triceCommandLength = 0;

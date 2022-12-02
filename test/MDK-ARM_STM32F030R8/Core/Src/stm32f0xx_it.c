@@ -169,7 +169,7 @@ void USART1_IRQHandler(void)
         index += index < TRICE_COMMAND_SIZE_MAX ? 1 : 0; 
         if( v == 0 ){ // command end
             TRICE_S( Id( 6504), "rx:received command:%s\n", rxBuf );
-            strcpy(triceCommand, rxBuf );
+            strcpy(triceCommandBuffer, rxBuf );
             triceCommandFlag = 1;
             index = 0;
         }
@@ -272,7 +272,7 @@ void USART2_IRQHandler(void)
         index += index < TRICE_COMMAND_SIZE_MAX ? 1 : 0; 
         if( v == 0 ){ // command end
             TRICE_S( Id( 1202), "rx:received command:%s\n", rxBuf );
-            strcpy(triceCommand, rxBuf );
+            strcpy(triceCommandBuffer, rxBuf );
             triceCommandFlag = 1;
             index = 0;
         }

@@ -192,7 +192,7 @@ int main(void)
     for(;;){
         if( triceCommandFlag ){
             triceCommandFlag = 0;
-            TRICE_S( Id( 5044), "att:Executing command %s ...\n", triceCommand );
+            TRICE_S( Id( 5044), "att:Executing command %s ...\n", triceCommandBuffer );
             // do
             TRICE( Id( 2743), "att:...done\n" );
         }

@@ -3,6 +3,10 @@
 		"Type": "TRICE",
 		"Strg": "sig:Runtime generated strings\\n"
 	},
+	"10286": {
+		"Type": "TRICE8_1",
+		"Strg": "msg:Example %d\\n"
+	},
 	"1030": {
 		"Type": "TRICE8_8",
 		"Strg": "tst:TRICE8_8 %d %d %d %d %d %d %d %d\\n"
@@ -219,6 +223,10 @@
 		"Type": "TRICE32",
 		"Strg": "dbg:len=%u:"
 	},
+	"14553": {
+		"Type": "TRICE8_1",
+		"Strg": "msg:Example %d\\n"
+	},
 	"1460": {
 		"Type": "TRICE16",
 		"Strg": "rd:TRICE16 %p, %p, %p, %p, %p, %p, %p\\n"
@@ -226,6 +234,10 @@
 	"1470": {
 		"Type": "TRICE",
 		"Strg": "rd: F \t%X \tBase 16, uppercase\\n"
+	},
+	"14702": {
+		"Type": "TRICE8_1",
+		"Strg": "msg:Example %d\\n"
 	},
 	"1486": {
 		"Type": "TRICE8",
@@ -1947,6 +1959,10 @@
 		"Type": "TRICE8",
 		"Strg": "rd:TRICE8 %d\\n"
 	},
+	"4790": {
+		"Type": "TRICE8_1",
+		"Strg": "msg:Example %d\\n"
+	},
 	"4792": {
 		"Type": "TRICE16",
 		"Strg": "tst:TRICE16 %d %d %d %d %d %d\\n"
@@ -2198,6 +2214,10 @@
 	"5225": {
 		"Type": "TRICE",
 		"Strg": "wrn:TRICE_UARTA Receive Wake Up from mute mode Flag is set\\n"
+	},
+	"5237": {
+		"Type": "TRICE",
+		"Strg": "inf:sizeOf(Tryout) = %d, buffer length = %d\\n"
 	},
 	"5248": {
 		"Type": "TRICE16",
