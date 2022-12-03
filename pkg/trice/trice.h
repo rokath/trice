@@ -77,6 +77,9 @@ extern "C" {
 //! The TRICE macro is usable inside interrupts with this setting.
 #define TRICE_STREAM_BUFFER   333
 
+#define TRICE_FRAMING_TCOBS  9999
+#define TRICE_FRAMING_COBS   8888
+
 //
 ///////////////////////////////////////////////////////////////////////////////
 

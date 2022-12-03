@@ -17,8 +17,8 @@ extern "C" {
 //! location pointed to by "output". Returns the number of bytes written to "output" or a negative value in error case.
 //! A 0-delimiter is NOT added as last byte allowing concatenating TCOBS encoded buffers to one bigger buffer before the 
 //! 00-byte delimiting. Buffer overlapping is allowed, when input lays inside output with a sufficient offset. The offset 
-//! should be >= next larger whole number of length/31. because in the worst case for each 31 bytes an additional sigil byte 
-//! is inserted. The provided output buffer size should be >= length + next larger whole number of length/31. This is a 
+//! should be >= next large whole number of length/31. because in the worst case for each 31 bytes an additional sigil byte 
+//! is inserted. The provided output buffer size should be >= length + next large whole number of length/31. This is a 
 //! responsibility of the caller and not checked for efficiency. Remove the "restrict" qualifiers if compiling with a pre-C99 C dialect.
 int TCOBSEncode( void * restrict output, const void * restrict input, size_t length);
 

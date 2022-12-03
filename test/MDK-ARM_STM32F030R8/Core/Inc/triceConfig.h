@@ -53,6 +53,14 @@ extern "C" {
 #define TRICE_BUFFER_SIZE 0x800 //!< TRICE_BUFFER_SIZE is the double half buffer size usable for a TRICE macro burst. Recommended value: 2000.
 #endif
 
+//! TRICE_FRAMING defines the framing method of the binary trice data stream. Default is TRICE_FRAMING_TCOBS.
+//! When changing to TRICE_FRAMING_COBS, the trice tool needs an additional le switch `-framing COBS`.
+//! TRICE_FRAMING_COBS is useful if you intend to decode the binary trice date with Python or an other language.
+//! When using encryption TRICE_FRAMING_TCOBS has no advantage over TRICE_FRAMING_COBS.
+//! options: TRICE_FRAMING_TCOBS, TRICE_FRAMING_COBS
+#define TRICE_FRAMING TRICE_FRAMING_TCOBS
+
+
 ///////////////////////////////////////////////////////////////////////////////
 // Multi selecet physical out channels, the ID ranges are allowed to overlap.
 // 

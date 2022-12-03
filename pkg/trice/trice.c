@@ -2,8 +2,15 @@
 //! \author Thomas.Hoehenleitner [at] seerose.net
 //! ///////////////////////////////////////////////////////////////////////////
 #include "trice.h"
+#if TRICE_FRAMING == TRICE_FRAMING_TCOBS
 #include "tcobs.h"
+#endif
+#if TRICE_FRAMING == TRICE_FRAMING_COBS
+#include "cobs.h"
+#endif
+#ifdef TRICE_ENCRYPT
 #include "xtea.h"
+#endif
 
 // triceCommands is to make 32-bit alignment sure
 static uint32_t triceCommands[(TRICE_COMMAND_SIZE_MAX+3)>>2]; // with terminating 0
@@ -118,10 +125,17 @@ static size_t triceEncode( uint8_t* enc, uint8_t const* buf, size_t len ){
     size_t encLen;
     #ifdef TRICE_ENCRYPT
     len = (len + 7) & ~7; // only multiple of 8 encryptable
-    TriceEncrypt( enc + TRICE_DATA_OFFSET, len>>2 );
+    TriceEncrypt( (uint32_t*)(enc + TRICE_DATA_OFFSET), len>>2 );
     #endif
+    #if TRICE_FRAMING == TRICE_FRAMING_TCOBS
     encLen = (size_t)TCOBSEncode(enc, buf, len);
     enc[encLen++] = 0; // Add zero as package delimiter.
+    #elif TRICE_FRAMING == TRICE_FRAMING_COBS
+    encLen = (size_t)COBSEncode(enc, buf, len);
+    enc[encLen++] = 0; // Add zero as package delimiter.
+    #else
+    #error unknown TRICE_FRAMING
+    #endif
     return encLen;
 }
 
