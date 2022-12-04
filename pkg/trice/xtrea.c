@@ -3,6 +3,7 @@
 *******************************************************************************/
 
 #include "xtea.h"
+#include "triceConfig.h"
 
 //! golang XTEA works with 64 rounds
 static const unsigned int numRounds = 64;
@@ -65,6 +66,7 @@ static void decipher( uint32_t v[2] ) {
 
 //! XTEADecrypt re-converts from xtea cipher.
 //! \param p pointer to 8 byte buffer
+//! count is expected to be an even number.
 void XTEADecrypt( uint32_t* p, unsigned count ){
     for( int i = 0; i < count; i +=2 ){
         decipher( &p[i]); // byte swapping is done inside receiver according to endianness.
@@ -73,7 +75,8 @@ void XTEADecrypt( uint32_t* p, unsigned count ){
 #endif // #ifdef XTEA_DECRYPT
 
 //! XTEAEncrypt converts to xtea cipher.
-//! \param p pointer to 8 byte buffer
+//! \param p pointer to 8 byte buffer.
+//! count is expected to be an even number.
 void XTEAEncrypt( uint32_t* p, unsigned count ){
     for( int i = 0; i < count; i +=2 ){
         encipher( &p[i] ); // byte swap is done inside receiver

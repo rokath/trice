@@ -290,11 +290,11 @@ unsigned TriceOutDepth( void );
 ///////////////////////////////////////////////////////////////////////////////
 // Encryption
 //
-#ifdef TRICE_ENCRYPT
-void TriceEncrypt( uint32_t* p, unsigned count );
-void TriceDecrypt( uint32_t* p, unsigned count );
+#ifdef XTEA_ENCRYPT_KEY
+void XTEAEncrypt( uint32_t* p, unsigned count );
+void XTEADecrypt( uint32_t* p, unsigned count );
 void XTEAInitTable(void);
-#endif // #ifdef TRICE_ENCRYPT
+#endif // #ifdef XTEA_ENCRYPT_KEY
 //
 ///////////////////////////////////////////////////////////////////////////////
 

@@ -976,18 +976,19 @@ EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
         exampleOfBuffersAndFunctions();
         break;
         case 1000:
-#ifdef TRICE_ENCRYPT
+#ifdef XTEA_ENCRYPT_KEY
         TRICE0 (Id( 6463), "--------------------------------------------------\n" );
         {
             uint32_t by[8] = {1,2,3,4,5,6};
+            int count = (sizeof(by) + 7) & ~7; // only multiple of 8 encryptable
             TRICE32(  Id( 7881), "msg: message = %08x %08x %08x %08x %08x %08x\n", by[0], by[1], by[2], by[3], by[4], by[5] );
             TRICE32( Id( 6649), "tim: pre TriceEncryption SysTick=%d\n", SYSTICKVAL );
-            TriceEncrypt(by, 6);
+            XTEAEncrypt(by, count>>2);
             TRICE32( Id( 6901), "tim: post TriceEncryption SysTick=%d\n", SYSTICKVAL );
             TRICE32(  Id( 7140), "att: TriceEncrypted =  %08x %08x %08x %08x %08x %08x\n", by[0], by[1], by[2], by[3], by[4], by[5] );
-            #ifdef TRICE_DECRYPT
+            #ifdef XTEA_DECRYPT
             TRICE16_1( Id( 4887), "tim: pre TriceDecryption SysTick=%d\n", SYSTICKVAL );
-            TriceDecrypt(by, 6);
+            XTEADecrypt(by, count>>2);
             TRICE16_1( Id( 6241), "tim: post TriceDecryption SysTick=%d\n", SYSTICKVAL );
             #endif
             TRICE32(  Id( 2186), "msg: messge = %08x %08x %08x %08x %08x %08x\n", by[0], by[1], by[2], by[3], by[4], by[5] );

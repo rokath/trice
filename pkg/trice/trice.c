@@ -8,7 +8,7 @@
 #if TRICE_FRAMING == TRICE_FRAMING_COBS
 #include "cobs.h"
 #endif
-#ifdef TRICE_ENCRYPT
+#ifdef XTEA_ENCRYPT_KEY
 #include "xtea.h"
 #endif
 
@@ -123,9 +123,9 @@ static int nextTrice( uint8_t** buf, size_t* pSize, uint8_t** pStart, size_t* pL
 
 static size_t triceEncode( uint8_t* enc, uint8_t const* buf, size_t len ){
     size_t encLen;
-    #ifdef TRICE_ENCRYPT
+    #ifdef XTEA_ENCRYPT_KEY
     len = (len + 7) & ~7; // only multiple of 8 encryptable
-    TriceEncrypt( (uint32_t*)(enc + TRICE_DATA_OFFSET), len>>2 );
+    XTEAEncrypt( (uint32_t*)(enc + TRICE_DATA_OFFSET), len>>2 );
     #endif
     #if TRICE_FRAMING == TRICE_FRAMING_TCOBS
     encLen = (size_t)TCOBSEncode(enc, buf, len);
