@@ -130,13 +130,13 @@ func (p *trexDec) nextPackage() {
 
 	var n int
 	var e error
-	switch decoder.PackageFraming {
-	case "COBS", "cobs":
+	switch strings.ToLower(decoder.PackageFraming) {
+	case "cobs":
 		n, e = cobs.Decode(p.B, p.IBuf[:index]) // if index is 0, an empty buffer is decoded
 		if e != nil {
 			fmt.Println("inconsistent COBS buffer:", p.IBuf[:index+1]) // show also terminating 0
 		}
-	case "TCOBS", "tcobs", "TCOBSv1", "TCOBSV1", "tcobsv1":
+	case "tcobs", "tcobsv1":
 		n, e = tcobsv1.Decode(p.B, p.IBuf[:index]) // if index is 0, an empty buffer is decoded
 		if e != nil {
 			fmt.Println("inconsistent TCOBSv1 buffer:", p.IBuf[:index+1]) // show also terminating 0
@@ -144,6 +144,9 @@ func (p *trexDec) nextPackage() {
 		} else {
 			p.B = p.B[len(p.B)-n:]
 		}
+	case "none":
+		p.B = p.IBuf[:index]
+		n, e = index, nil
 	//  case "TCOBSv2", "TCOBSV2", "tcobsv2":
 	//  	n := tcobsv2.CDecode(p.B, p.IBuf[:index]) // if index is 0, an empty buffer is decoded
 	//  	if n < 0 {

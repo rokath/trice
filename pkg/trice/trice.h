@@ -79,6 +79,7 @@ extern "C" {
 
 #define TRICE_FRAMING_TCOBS  9999
 #define TRICE_FRAMING_COBS   8888
+#define TRICE_FRAMING_NONE   7777
 
 //
 ///////////////////////////////////////////////////////////////////////////////

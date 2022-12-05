@@ -53,6 +53,14 @@ extern "C" {
 #define TRICE_BUFFER_SIZE 0x800 //!< TRICE_BUFFER_SIZE is the double half buffer size usable for a TRICE macro burst. Recommended value: 2000.
 #endif
 
+//! TRICE_FRAMING defines the framing method of the binary trice data stream. Default is TRICE_FRAMING_TCOBS.
+//! When changing to TRICE_FRAMING_COBS, the trice tool needs an additional le switch `-framing COBS`.
+//! TRICE_FRAMING_COBS is useful if you intend to decode the binary trice date with Python or an other language.
+//! When using encryption TRICE_FRAMING_TCOBS has no advantage over TRICE_FRAMING_COBS.
+//! options: TRICE_FRAMING_TCOBS, TRICE_FRAMING_COBS, TRICE_FRAMING_NONE
+#define TRICE_FRAMING TRICE_FRAMING_TCOBS
+
+
 ///////////////////////////////////////////////////////////////////////////////
 // Multi selecet physical out channels, the ID ranges are allowed to overlap.
 // 
@@ -88,8 +96,8 @@ extern "C" {
 //#define TRICE_BIG_ENDIANNESS 
 
 // Enabling next 2 lines results in XTEA TriceEncryption  with the key.
-//#define TRICE_ENCRYPT XTEA_KEY( ea, bb, ec, 6f, 31, 80, 4e, b9, 68, e2, fa, ea, ae, f1, 50, 54 ); //!< -password MySecret
-//#define XTEA_ENCRYPT_KEY TRICE_ENCRYPT
+//#define XTEA_ENCRYPT_KEY XTEA_KEY( ea, bb, ec, 6f, 31, 80, 4e, b9, 68, e2, fa, ea, ae, f1, 50, 54 ); //!< -password MySecret
+//#define XTEA_DECRYPT //!< XTEA_DECRYPT is usually not needed. Enable for checks.
 //#define TRICE_DECRYPT //!< TRICE_DECRYPT is usually not needed. Enable for checks.
 
 //

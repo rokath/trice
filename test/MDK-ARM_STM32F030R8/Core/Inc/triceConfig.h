@@ -57,7 +57,7 @@ extern "C" {
 //! When changing to TRICE_FRAMING_COBS, the trice tool needs an additional le switch `-framing COBS`.
 //! TRICE_FRAMING_COBS is useful if you intend to decode the binary trice date with Python or an other language.
 //! When using encryption TRICE_FRAMING_TCOBS has no advantage over TRICE_FRAMING_COBS.
-//! options: TRICE_FRAMING_TCOBS, TRICE_FRAMING_COBS
+//! options: TRICE_FRAMING_TCOBS, TRICE_FRAMING_COBS, TRICE_FRAMING_NONE
 #define TRICE_FRAMING TRICE_FRAMING_TCOBS
 
 

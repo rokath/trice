@@ -52,14 +52,14 @@ static size_t triceDataLen( uint8_t const* p ){
     return nc & 0x7fff;
 }
 
-const int TriceTypeS0 = 3; //!< TriceTypeS0 ist a trice without stamp.
-const int TriceTypeS2 = 5; //!< TriceTypeS2 ist a trice with 16-bit stamp.
-const int TriceTypeS4 = 7; //!< TriceTypeS4 ist a trice with 32-bit stamp.
-const int TriceTypeS8 = 1; //!< TriceTypeS8 ist a trice with 64-bit stamp.
-const int TriceTypeX0 = 0; //!< TriceTypeX0 ist a unspecified trice extension.
-const int TriceTypeX1 = 2; //!< TriceTypeX0 ist a unspecified trice extension.
-const int TriceTypeX2 = 4; //!< TriceTypeX0 ist a unspecified trice extension.
-const int TriceTypeX3 = 6; //!< TriceTypeX0 ist a unspecified trice extension.
+#define TRICE_TYPE_S0 3 //!< TRICE_TYPE_S0 ist a trice without stamp.
+#define TRICE_TYPE_S2 5 //!< TRICE_TYPE_S2 ist a trice with 16-bit stamp.
+#define TRICE_TYPE_S4 7 //!< TRICE_TYPE_S4 ist a trice with 32-bit stamp.
+#define TRICE_TYPE_S8 1 //!< TRICE_TYPE_S8 ist a trice with 64-bit stamp.
+#define TRICE_TYPE_X0 0 //!< TRICE_TYPE_X0 ist a unspecified trice extension.
+#define TRICE_TYPE_X1 2 //!< TRICE_TYPE_X0 ist a unspecified trice extension.
+#define TRICE_TYPE_X2 4 //!< TRICE_TYPE_X0 ist a unspecified trice extension.
+#define TRICE_TYPE_X3 6 //!< TRICE_TYPE_X0 ist a unspecified trice extension.
 
 //! triceErrorCount is incremented, when data inside the internal trice buffer are corrupted.
 //! That could happen, when the buffer wrapped before data are sent.
@@ -80,27 +80,27 @@ static int nextTrice( uint8_t** buf, size_t* pSize, uint8_t** pStart, size_t* pL
     *pStart = *buf;
     switch( triceType ){
         default:
-        case TriceTypeS0: // S0 = no stamp
+        case TRICE_TYPE_S0: // S0 = no stamp
             len = 4 + triceDataLen(*pStart + 2); // tyId
             break;
-        case TriceTypeS2: // S2 = 16-bit stamp
+        case TRICE_TYPE_S2: // S2 = 16-bit stamp
             *pStart += 2; // see Id(n) macro definition
             offset = 2;
             len = 6 + triceDataLen(*pStart + 4); // tyId ts16
             break;
-        case TriceTypeS4: // S4 = 32-bit stamp
+        case TRICE_TYPE_S4: // S4 = 32-bit stamp
             len = 8 + triceDataLen(*pStart + 6); // tyId ts32
             break;
-        case TriceTypeS8: // S8 = 64-bit stamp
+        case TRICE_TYPE_S8: // S8 = 64-bit stamp
             len = 12 + triceDataLen(*pStart + 10); // tyId ts64
             //len = size; // todo: Change that when needed.
             //// Extended trices without length information cannot be separated here.
             //// But it is possible to store them with length information and to remove it here.
             break;
-        case TriceTypeX0:
-        case TriceTypeX1:
-        case TriceTypeX2:
-        case TriceTypeX3:
+        case TRICE_TYPE_X0:
+        case TRICE_TYPE_X1:
+        case TRICE_TYPE_X2:
+        case TRICE_TYPE_X3:
             return -__LINE__; // extended trices not supported (yet)
     }
     triceSize = (len + offset + 3) & ~3;
@@ -133,6 +133,9 @@ static size_t triceEncode( uint8_t* enc, uint8_t const* buf, size_t len ){
     #elif TRICE_FRAMING == TRICE_FRAMING_COBS
     encLen = (size_t)COBSEncode(enc, buf, len);
     enc[encLen++] = 0; // Add zero as package delimiter.
+    #elif TRICE_FRAMING == TRICE_FRAMING_NONE
+    memmove( enc, buf, len );
+    encLen = len;
     #else
     #error unknown TRICE_FRAMING
     #endif
