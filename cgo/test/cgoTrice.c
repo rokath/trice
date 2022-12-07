@@ -2,7 +2,8 @@
 \brief wrapper for tests
 \author thomas.hoehenleitner [at] seerose.net
 *******************************************************************************/
-#include "trice.h"
+//#include "trice.h"
+#include <string.h>
 #include "cgoTrice.h"
 
 // cgoTriceBuffer is set to the (from Go) provided buffer address for the raw trice data.

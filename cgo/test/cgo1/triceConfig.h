@@ -36,7 +36,7 @@ extern "C" {
 //! TRICE_STREAM_BUFFER:
 //! \li Stream Buffering output to UART. Needs less buffer memory for the price of being a bit slower.
 //! \li Command line similar to: `trice log -p COM1 -baud 115200`
-#define TRICE_MODE TRICE_STREAM_BUFFER 
+#define TRICE_MODE TRICE_STACK_BUFFER 
 
 //! TRICE_SINGLE_MAX_SIZE is used to truncate long dynamically generated strings and to detect the need of a stream buffer wrap.
 //! Be careful with this value: When using 12 64-bit values with a 64-bit stamp the trice size is 2 + 8 + 2 + 12*8 = 108 bytes 
@@ -58,7 +58,7 @@ extern "C" {
 //! TRICE_FRAMING_COBS is useful if you intend to decode the binary trice date with Python or an other language.
 //! When using encryption TRICE_FRAMING_TCOBS has no advantage over TRICE_FRAMING_COBS.
 //! options: TRICE_FRAMING_TCOBS, TRICE_FRAMING_COBS, TRICE_FRAMING_NONE
-#define TRICE_FRAMING TRICE_FRAMING_TCOBS
+#define TRICE_FRAMING TRICE_FRAMING_COBS
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -66,20 +66,20 @@ extern "C" {
 // 
 
 //! Enable and set channel number for SeggerRTT usage. Only channel 0 works right now for some reason.
-#define TRICE_RTT0 0 // comment out, if you do not use RTT
+//#define TRICE_RTT0 0 // comment out, if you do not use RTT
 
 //! Enable and set UART2 for serial output.
-#define TRICE_UARTA USART2 // comment out, if you do not use TRICE_UARTA
+//#define TRICE_UARTA USART2 // comment out, if you do not use TRICE_UARTA
 #define TRICE_UARTA_MIN_ID 1       //! TRICE_UARTA_MIN_ID is the smallest ID transferred to UARTA.
 #define TRICE_UARTA_MAX_ID (1<<13) //! TRICE_UARTA_MAX_ID is the biggest ID transferred to UARTA.
 
 //! Enable and set UART for serial output.
-#define TRICE_UARTB USART1 // comment out, if you do not use TRICE_UARTB
+//#define TRICE_UARTB USART1 // comment out, if you do not use TRICE_UARTB
 #define TRICE_UARTB_MIN_ID 1       //! TRICE_UARTB_MIN_ID is the smallest ID transferred to UARTB.
 #define TRICE_UARTB_MAX_ID (1<<13) //! TRICE_UARTB_MAX_ID is the biggest ID transferred to UARTB.
 
 //! CGO interface (for testing)
-//#define TRICE_CGO 
+#define TRICE_CGO 
 
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -90,14 +90,15 @@ extern "C" {
 //! TRICE_CYCLE_COUNTER adds a cycle counter to each trice message.
 //! If 0, do not add cycle counter. The TRICE macros are a bit faster. Lost TRICEs are not detectable by the trice tool.
 //! If 1, add an 8-bit cycle counter. The TRICE macros are a bit slower. Lost TRICEs are detectable by the trice tool. (reccommended)
-#define TRICE_CYCLE_COUNTER 1 
+#define TRICE_CYCLE_COUNTER 0 
 
 //!< TRICE_BIG_ENDIANNESS needs to be defined for TRICE64 macros on big endian devices.
 //#define TRICE_BIG_ENDIANNESS 
 
-// Enabling next line results in XTEA TriceEncryption  with the key.
+// Enabling next 2 lines results in XTEA TriceEncryption  with the key.
 //#define XTEA_ENCRYPT_KEY XTEA_KEY( ea, bb, ec, 6f, 31, 80, 4e, b9, 68, e2, fa, ea, ae, f1, 50, 54 ); //!< -password MySecret
 //#define XTEA_DECRYPT //!< XTEA_DECRYPT is usually not needed. Enable for checks.
+//#define TRICE_DECRYPT //!< TRICE_DECRYPT is usually not needed. Enable for checks.
 
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -109,13 +110,13 @@ extern "C" {
 
 //! This is usable as the very first trice sequence after restart. Adapt and use it or ignore it.
 #define TRICE_HEADLINE \
-    TRICE0( Id( 1089), "s:                                          \n" ); \
-    TRICE8( Id( 2473), "s:     NUCLEO-F030R8     TRICE_MODE %3u     \n", TRICE_MODE ); \
-    TRICE0( Id( 5096), "s:                                          \n" ); \
-    TRICE0( Id( 2966), "s:     " ); \
+    TRICE0( Id( 2936), "s:                                          \n" ); \
+    TRICE8( Id( 4305), "s:     CGO-TEST     TRICE_MODE %3u     \n", TRICE_MODE ); \
+    TRICE0( Id( 2029), "s:                                          \n" ); \
+    TRICE0( Id( 1595), "s:     " ); \
     TriceLogBufferInfo(); \
-    TRICE0( Id( 1631), "s:     \n" ); \
-    TRICE0( Id( 1493), "s:                                          \n");
+    TRICE0( Id( 3003), "s:     \n" ); \
+    TRICE0( Id( 5493), "s:                                          \n");
 
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -189,9 +190,9 @@ extern "C" {
 // Optical feedback: Adapt to your device or comment header and body out
 //
 
-#include "main.h" // LD2_GPIO_Port, LD2_Pin
+//  #include "main.h" // LD2_GPIO_Port, LD2_Pin
 static inline void ToggleOpticalFeedbackLED( void ){
-    LL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
+//      LL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
 }
 
 //

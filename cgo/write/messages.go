@@ -1,38 +1,18 @@
 // Copyright 2020 Thomas.Hoehenleitner [at] seerose.net
 // Use of this source code is governed by a license that can be found in the LICENSE file.
 
-package trice
+package write
 
 // #include <stdint.h>
 // #include "trice.h"
 // #include "cgoTrice.h"
 // #include "messages.h"
-// #cgo CFLAGS: -g -Wall -Icgo
+// #cgo CFLAGS: -g -Wall -I.. -I../../src
 import "C"
 
 import (
-	"fmt"
-	"io"
 	"unsafe"
 )
-
-// cgoSetTriceBuffer tells the underlying C code where to output the trice byte stream.
-func cgoSetTriceBuffer(o []byte) {
-	Cout := (*C.uchar)(unsafe.Pointer(&o[0]))
-	C.CgoSetTriceBuffer(Cout)
-}
-
-// dump prints the byte slice as hex in one line
-func dump(w io.Writer, b []byte) {
-	fmt.Fprint(w, "exp := []byte{ ")
-	for _, x := range b {
-		fmt.Fprintf(w, "0x%02x, ", x)
-	}
-	fmt.Fprintln(w, "}")
-}
-
-func init() {
-}
 
 // Message0 is a Go wrapper.
 func Message0(b0 byte) []byte {

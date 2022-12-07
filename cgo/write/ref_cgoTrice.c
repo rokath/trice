@@ -1,0 +1,2 @@
+
+#include "../../cgo/cgoTrice.c"

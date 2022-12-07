@@ -1,4 +1,4 @@
-package trice
+package cgo0
 
 import (
 	"fmt"
@@ -10,7 +10,7 @@ import (
 
 func TestTriceSequences(t *testing.T) {
 	out := make([]byte, 1024)
-	cgoSetTriceBuffer(out)
+	setTriceBuffer(out)
 
 	for i, exp := range triceBytes {
 		len := triceCode(i)

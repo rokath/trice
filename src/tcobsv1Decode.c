@@ -1,4 +1,4 @@
-/*! \file tcobsDecode.c
+/*! \file tcobsv1Decode.c
 \author Thomas.Hoehenleitner [at] seerose.net
 \details See ./TCOBSv1Specification.md.
 *******************************************************************************/

@@ -3,7 +3,7 @@
 * Do not add files inside `./cgo`, they used by CGO for trice testing internally.
   * As a starting point for your project specific `triceConfig.h` grab into the trice/test folder and copy `triceConfig.h` from a test project to your project and adapt it then.
 
-* Add this (`trice\pkg\src`) folder to the target compiler include path OR, if you prefer, copy the files you need.
+* Add this (`trice\pkg\trice`) folder to the target compiler include path OR, if you prefer, copy the files you need.
 * Include the used *.c` files to your project.
 * Files overview:
   
@@ -23,6 +23,6 @@
 
 ## Files `trice.go` and `trice_test.go`
 
-* The package src is not needed for the `trice` tool.
-* File src_test.go contains test functions to execute the C code during `go test ./...`
-* File `src.go` does the cgo connection. cgo is not supported inside test files.
+* The package trice is not needed for the `trice` tool.
+* File trice_test.go contains test functions to execute the C code during `go test ./...`
+* File `trice.go` does the cgo connection. cgo is not supported inside test files.
