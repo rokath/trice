@@ -1,9 +1,9 @@
 # Target Setup
 
-* Do not add files inside `./cgo`, they used by CGO for trice testing internally.
-  * As a starting point for your project specific `triceConfig.h` grab into the trice/test folder and copy `triceConfig.h` from a test project to your project and adapt it then.
+* As a starting point for your project specific `triceConfig.h` grab into the trice/test folder and copy `triceConfig.h` from a test project to your project and adapt it then.
+*  Inside `cgo/test` also `triceConfig.h` files to select.
 
-* Add this (`trice\pkg\trice`) folder to the target compiler include path OR, if you prefer, copy the files you need.
+* Add this (`trice\src`) folder to the target compiler include path OR, if you prefer, copy the files you need.
 * Include the used *.c` files to your project.
 * Files overview:
   
@@ -14,6 +14,7 @@
   | `triceDoubleBuffer.c`                              | trice runtime lib extension needed for fastest indirect mode |
   | `triceStreamBuffer.c`                              | trice runtime lib extension needed for recommended indirect mode |
   | `tcobs.h`, `tcobsv1Internal.h` & `tcobsv1Encode.c` | message compression and packaging, the `*.h` files need **no** `#include ...` |
+  | `cobs.*`                                           | alternatively for tcobs |
   | `xtea.h` & `xtea.c`                                | UNTESTED with TREX, needed for XTEA message encryption, if enabled |
   | `triceCheck.c` | contains example code and is not needed for production code, but you can temporarily add it to your project for checking |
   | `trice_test.c` | ignore, this file is used from Go when `go test ./...` is executed. |
