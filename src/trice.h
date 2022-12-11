@@ -554,7 +554,7 @@ extern const int TriceTypeX0;
 //! \param id is a 16 bit Trice id in upper 2 bytes of a 32 bit value
 //! \param v0 a 8 bit bit value
 #define TRICE8_1( id, pFmt, v0 ) \
-	TRICE_ENTER id; CNTC(1); \
+    TRICE_ENTER id; CNTC(1); \
     TRICE_PUT(                                                   TRICE_BYTE0(v0)); /* little endian*/ \
     TRICE_LEAVE
 
@@ -562,7 +562,7 @@ extern const int TriceTypeX0;
 //! \param id is a 16 bit Trice id in upper 2 bytes of a 32 bit value
 //! \param v0 - v1 are 8 bit bit values
 #define TRICE8_2( id, pFmt, v0, v1 ) \
-	TRICE_ENTER id; CNTC(2); \
+    TRICE_ENTER id; CNTC(2); \
     TRICE_PUT(                                  TRICE_BYTE1(v1) |TRICE_BYTE0(v0)); \
     TRICE_LEAVE
 
@@ -570,7 +570,7 @@ extern const int TriceTypeX0;
 //! \param id is a 16 bit Trice id in upper 2 bytes of a 32 bit value
 //! \param v0 - v2 are 8 bit bit values
 #define TRICE8_3( id, pFmt, v0, v1, v2 ) \
-	TRICE_ENTER id; CNTC(3); \
+    TRICE_ENTER id; CNTC(3); \
     TRICE_PUT(                  TRICE_BYTE2(v2) |TRICE_BYTE1(v1) |TRICE_BYTE0(v0)); \
     TRICE_LEAVE
 
@@ -578,7 +578,7 @@ extern const int TriceTypeX0;
 //! \param id is a 16 bit Trice id in upper 2 bytes of a 32 bit value
 //! \param v0 - v3 are 8 bit bit values
 #define TRICE8_4( id, pFmt, v0, v1, v2, v3 ) \
-	TRICE_ENTER id; CNTC(4); \
+    TRICE_ENTER id; CNTC(4); \
     TRICE_PUT( TRICE_BYTE3(v3) |TRICE_BYTE2(v2) |TRICE_BYTE1(v1) |TRICE_BYTE0(v0)); \
     TRICE_LEAVE
 
