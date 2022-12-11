@@ -113,7 +113,7 @@ extern "C" {
     TRICE0( Id( 1740), "s:                                          \n" ); \
     TRICE8( Id( 2366), "s:     CGO-TEST     TRICE_MODE %3u     \n", TRICE_MODE ); \
     TRICE0( Id( 4807), "s:                                          \n" ); \
-    TRICE0( Id( 1655), "s:     " ); \
+    TRICE0( Id( 5886), "s:     " ); \
     TriceLogBufferInfo(); \
     TRICE0( Id( 7614), "s:     \n" ); \
     TRICE0( Id( 2130), "s:                                          \n");

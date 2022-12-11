@@ -95,9 +95,9 @@ uint32_t TriceStamp32( void ){
     return ReadUs32();
 }
 
-uint64_t TriceStamp64( void ){ 
-    return 0x6464646464646464; 
-}
+//uint64_t TriceStamp64( void ){ 
+//    return 0x6464646464646464; 
+//}
 
 static unsigned timingError64Count = 0;
 static unsigned timingError32Count = 0;
@@ -211,8 +211,8 @@ int main(void)
         {
             static unsigned lastTricesTime = 0;
             // send some trices every few ms
-            if( milliSecond >= lastTricesTime + 500 ){
-                static int index = 0;
+            if( milliSecond >= lastTricesTime + 2000 ){
+                static int index = 900;
                 int select = index;
                 TRICE16( Id( 5350),"MSG: 💚 START select = %d\n", select );
                 TriceCheckSet(select);

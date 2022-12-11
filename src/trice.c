@@ -44,7 +44,7 @@ uint8_t  TriceCycle = 0xc0; //!< TriceCycle is increased and transmitted with ea
 //! \li *da = ss0......extended trices are not used yet
 //! \li This way, after writing the 16-bit NC value the payload starts always at a 32-bit boundary.
 static size_t triceDataLen( uint8_t const* p ){
-    uint16_t nc = *(uint16_t*)p; //lint !e826
+    uint16_t nc = TRICE_TTOHS(*(uint16_t*)p); //lint !e826
     size_t n = nc>>8;
     if( n < 128 ){
         return n;
@@ -61,40 +61,27 @@ static size_t triceDataLen( uint8_t const* p ){
 //! That could happen, when the buffer wrapped before data are sent.
 unsigned triceErrorCount = 0;
 
-#ifdef TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN 
-    //! TRICE_HTOTS reorders short values from host order into trice transfer order. 
-    #define TRICE_HTOTS(x) (((uint8_t)(x)<<16) | (uint16_t)(x)>>16)
-
-    //! TRICE_HTOT reorders values from host order x into trice transfer order. 
-    #define TRICE_HTOT(x) ((uint8_t)(x)<<24) | ((uint16_t)(x)>>8)<<16) | ((0xFF&((uint32_t)(x)>>16))<<8) | (uint32_t)(x)>>24
-
-    //! TRICE_TTOHS reorders short values from trice transfer order into host order. 
-    #define TRICE_TTOHS(x) (((uint8_t)(x)<<16) | (uint16_t)(x)>>16)
-#else // #ifdef TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN 
-    //! TRICE_HTOTS reorders short values from host order into trice transfer order.
-    #define TRICE_HTOTS(x) (x)
-
-    //! TRICE_HTOT reorders values from host order x into trice transfer order. 
-    #define TRICE_HTOT(x) (x)
-
-    //! TRICE_TTOHS reorders short values from trice transfer order into host order.  
-    #define TRICE_TTOHS(x) (x)
-#endif // #else // #ifdef TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN 
-
+    uint16_t* pTID;
+    int TID; // type and id
+    int triceID;
+    int triceType;
+    size_t size;
+    size_t triceSize;
+    size_t len;
 
 
 //! nextTrice expects at *buf 32-bit aligned trice messages and returns the next one in pStart and pLen.
 //! *buf is filled with the advanced buf and *pSize gets the reduced value.
 //! \retval is the trice ID on success or negative on error.
 static int nextTrice( uint8_t** buf, size_t* pSize, uint8_t** pStart, size_t* pLen ){
-    uint16_t* pNC = (uint16_t*)*buf; //lint !e826, get NC address
-    int NC = TRICE_TTOHS( *pNC );
-    int triceID = 0x1FFF & NC;
-    int triceType = NC >> 14;
+    pTID = (uint16_t*)*buf; //lint !e826, get TID address
+    TID = TRICE_TTOHS( *pTID ); // type and id
+    triceID = 0x3FFF & TID;
+    triceType = TID >> 14;
     unsigned offset = 0;
-    size_t size = *pSize;
-    size_t triceSize;
-    size_t len;
+    /*size_t*/ size = *pSize;
+    //*size_t*/ triceSize;
+    //*size_t*/ len;
     *pStart = *buf;
     switch( triceType ){
         default:

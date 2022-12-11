@@ -96,6 +96,38 @@ typedef enum{
 #include <stdint.h> //lint !e537
 #include <string.h>
 
+#ifdef TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN
+// Swap a 16-bit integer (https://www.oryx-embedded.com/doc/cpu__endian_8h_source.html)
+#define SWAPINT16(x) ( \
+    (((uint16_t)(x) & 0x00FFU) << 8) | \
+    (((uint16_t)(x) & 0xFF00U) >> 8))
+  
+//Swap a 32-bit integer (https://www.oryx-embedded.com/doc/cpu__endian_8h_source.html)
+#define SWAPINT32(x) ( \
+    (((uint32_t)(x) & 0x000000FFUL) << 24) | \
+    (((uint32_t)(x) & 0x0000FF00UL) << 8) | \
+    (((uint32_t)(x) & 0x00FF0000UL) >> 8) | \
+    (((uint32_t)(x) & 0xFF000000UL) >> 24))
+
+    //! TRICE_HTOTS reorders short values from host order into trice transfer order. 
+    #define TRICE_HTOTS(x) SWAPINT16(x)
+
+    //! TRICE_HTOTL reorders long values from host order x into trice transfer order. 
+    #define TRICE_HTOTL(x) SWAPINT32(x)
+
+    //! TRICE_TTOHS reorders short values from trice transfer order into host order. 
+    #define TRICE_TTOHS(x) SWAPINT16(x)
+#else // #ifdef TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN 
+    //! TRICE_HTOTS reorders short values from hos // t order into trice transfer order.
+    #define TRICE_HTOTS(x) (x)
+
+    //! TRICE_HTOTL reorders long values from host order x into trice transfer order. 
+    #define TRICE_HTOTL(x) (x)
+
+    //! TRICE_TTOHS reorders short values from trice transfer order into host order.  
+    #define TRICE_TTOHS(x) (x)
+#endif // #else // #ifdef TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN
+
 void TriceWriteDevice( TriceWriteDevice_t device, uint8_t *buf, size_t len );
 
 //! TriceStamp16 returns a 16-bit value to stamp `Id` TRICE macros. Usually it is a timestamp, but could also be a destination address or a counter for example.
@@ -108,7 +140,7 @@ uint32_t TriceStamp32( void );
 
 //! TriceStamp64 returns a 32-bit value to stamp `iD` TRICE macros. Usually it is a timestamp, but could also be a destination address map or a counter for example.
 //! This function is user provided.
-uint64_t TriceStamp64( void );
+//uint64_t TriceStamp64( void );
 
 #if TRICE_MODE == TRICE_STACK_BUFFER
 
@@ -228,7 +260,7 @@ extern uint8_t TriceCycle;
 ///////////////////////////////////////////////////////////////////////////////
 
 #ifndef TRICE_PUT
-#define TRICE_PUT(x) do{ *TriceBufferWritePosition++ = (uint32_t)(x); }while(0) //! PUT copies a 32 bit x into the TRICE buffer.
+#define TRICE_PUT(x) do{ *TriceBufferWritePosition++ = TRICE_HTOTL(x); }while(0) //! PUT copies a 32 bit x into the TRICE buffer.
 #endif
 
 #ifdef TRICE_MCU_IS_BIG_ENDIAN
@@ -465,56 +497,39 @@ static inline uint64_t aDouble( double x ){
 
 #ifndef TRICE_PUT16
 //! TRICE_PUT16 copies a 16 bit x into the TRICE buffer.
-//#define TRICE_PUT16(x) *(uint16_t*)TriceBufferWritePosition++ = x; 
-#define TRICE_PUT16(x) do{ uint16_t* p = (uint16_t*)TriceBufferWritePosition; *p++ = (x); TriceBufferWritePosition = (uint32_t*)p; }while(0)
+#define TRICE_PUT16(x) do{ uint16_t* p = (uint16_t*)TriceBufferWritePosition; *p++ = TRICE_HTOTS(x); TriceBufferWritePosition = (uint32_t*)p; }while(0)
 #endif
-
-// #define T4 ID(0) //!< Placeholder for ID(0) with a 4 byte timestamp.
-// #define T2 iD(0) //!< Placeholder for iD(0) with a 2 byte timestamp.
-// #define T0 id(0) //!< Placeholder for id(0) with no timestamp.
-// #define TS32 ID(0) //!< Placeholder for ID(0) with a 4 byte timestamp.
-// #define TS16 iD(0) //!< Placeholder for iD(0) with a 2 byte timestamp.
-// #define NOTS id(0) //!< Placeholder for id(0) with no timestamp.
 
 extern const int TriceTypeS0;
 extern const int TriceTypeS2;
 extern const int TriceTypeS4;
-extern const int TriceTypeS8;
 extern const int TriceTypeX0;
-extern const int TriceTypeX1;
-extern const int TriceTypeX2;
-extern const int TriceTypeX3;
 
 #ifdef TRICE_MCU_IS_BIG_ENDIAN
 //! TRICE_PUT1616 writes a 32-bit value in 2 16-bit steps to avoid memory alignment hard fault.
 #define TRICE_PUT1616( ts ) TRICE_PUT16( ts >> 16 ); TRICE_PUT16( ts ); 
 #else
 //! TRICE_PUT1616 writes a 32-bit value in 2 16-bit steps to avoid memory alignment hard fault.
-#define TRICE_PUT1616( ts ); TRICE_PUT16( ts ); TRICE_PUT16( ((ts) >> 16) ); 
+#define TRICE_PUT1616( ts ) TRICE_PUT16( ts );       TRICE_PUT16( ((ts) >> 16) ); 
 #endif
 
-//! ID writes 13-bit id with 001 as 3 most significant bits, followed by a 64-bit stamp.
-//! 001iiiiiI TT | TT TT | TT (NC) | ...
-//! 2000 = 0010 0000 0000 0000
-#define iD(n) { uint64_t ts = TriceStamp64(); TRICE_PUT16( (0x2000|(n))); TRICE_PUT1616(ts); TRICE_PUT1616(ts>>16); }
+//! ID writes 14-bit id with 11 as 2 most significant bits, followed by a 32-bit stamp.
+//! 11iiiiiiI TT | TT (NC) | ...
+//! C000 = 1100 0000 0000 0000
+#define ID(n) { uint32_t ts = TriceStamp32(); TRICE_PUT16( (0xC000|(n))); TRICE_PUT1616(ts); }
 
-//! ID writes 13-bit id with 111 as 3 most significant bits, followed by a 32-bit stamp.
-//! 111iiiiiI TT | TT (NC) | ...
-//! E000 = 1110 0000 0000 0000
-#define ID(n) { uint32_t ts = TriceStamp32(); TRICE_PUT16( (0xE000|(n))); TRICE_PUT1616(ts); }
+//! Id writes 14-bit id with 10 as 2 most significant bits two times, followed by a 16-bit stamp.
+//! 10iiiiiiI 10iiiiiiI | TT (NC) | ...
+//! 8000 = 1000 0000 0000 0000
+#define Id(n) { uint16_t ts = TriceStamp16(); TRICE_PUT((0x80008000|((n)<<16)|(n))); TRICE_PUT16(ts); }
 
-//! Id writes 13-bit id with 101 as 3 most significant bits two times, followed by a 16-bit stamp.
-//! 101iiiiiI 101iiiiiI | TT (NC) | ...
-//! A000 = 1010 0000 0000 0000
-#define Id(n) { uint16_t ts = TriceStamp16(); TRICE_PUT((0xA000A000|((n)<<16)|(n))); TRICE_PUT16(ts); }
-
-//! id writes 13-bit id with 011 as 3 most significant bits, followed by no stamp.
+//! id writes 14-bit id with 01 as 2 most significant bits, followed by no stamp.
 //! 01iiiiiiI (NC) | ...
-//! 6000 = 0110 0000 0000 0000
-#define id(n) TRICE_PUT16( 0x6000|(n));
+//! 4000 = 0100 0000 0000 0000
+#define id(n) TRICE_PUT16( 0x4000|(n));
 
 //! CNTC writes 7-bit byte count and 8-bit cycle counter.
-#define CNTC(count) TRICE_PUT16( ((count)<<8) | TRICE_CYCLE );
+#define CNTC(count) do{ uint16_t v = ((count)<<8) | TRICE_CYCLE; TRICE_PUT16( v ); }while(0)
 
 #if TRICE_CYCLE_COUNTER == 1
 //! LCNT writes 1 as most significant bit and 15-bit byte count. It does not write the cycle counter but increments the cycle counter.
