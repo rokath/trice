@@ -231,7 +231,7 @@ extern uint8_t TriceCycle;
 #define TRICE_PUT(x) do{ *TriceBufferWritePosition++ = (uint32_t)(x); }while(0) //! PUT copies a 32 bit x into the TRICE buffer.
 #endif
 
-#ifdef TRICE_BIG_ENDIANNESS
+#ifdef TRICE_MCU_IS_BIG_ENDIAN
 #define TRICE_PUT64(x) TRICE_PUT( (uint32_t)((uint64_t)(x)>>32) ); TRICE_PUT( (uint32_t)(x) ); 
 #else
 #define TRICE_PUT64(x) TRICE_PUT( (uint32_t)(x) ); TRICE_PUT( (uint32_t)((uint64_t)(x)>>32) );
@@ -485,7 +485,7 @@ extern const int TriceTypeX1;
 extern const int TriceTypeX2;
 extern const int TriceTypeX3;
 
-#ifdef TRICE_BIG_ENDIANNESS
+#ifdef TRICE_MCU_IS_BIG_ENDIAN
 //! TRICE_PUT1616 writes a 32-bit value in 2 16-bit steps to avoid memory alignment hard fault.
 #define TRICE_PUT1616( ts ) TRICE_PUT16( ts >> 16 ); TRICE_PUT16( ts ); 
 #else

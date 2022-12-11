@@ -73,7 +73,7 @@
           <BeforeMake>
             <RunUserProg1>1</RunUserProg1>
             <RunUserProg2>0</RunUserProg2>
-            <UserProg1Name>trice u -li ../../../li.json -i ../../../til.json -src ../Core -src ../../../pkg/trice</UserProg1Name>
+            <UserProg1Name>trice u -li ../../../li.json -i ../../../til.json -src ../Core -src ../../../src</UserProg1Name>
             <UserProg2Name></UserProg2Name>
             <UserProg1Dos16Mode>0</UserProg1Dos16Mode>
             <UserProg2Dos16Mode>0</UserProg2Dos16Mode>
@@ -83,7 +83,7 @@
           <AfterMake>
             <RunUserProg1>0</RunUserProg1>
             <RunUserProg2>0</RunUserProg2>
-            <UserProg1Name>trice z -src ../Core -src ../../../pkg/trice</UserProg1Name>
+            <UserProg1Name>trice z -src ../Core -src ../../../src</UserProg1Name>
             <UserProg2Name></UserProg2Name>
             <UserProg1Dos16Mode>0</UserProg1Dos16Mode>
             <UserProg2Dos16Mode>0</UserProg2Dos16Mode>
@@ -341,7 +341,7 @@
               <MiscControls></MiscControls>
               <Define>USE_FULL_LL_DRIVER,HSE_VALUE=8000000,HSE_STARTUP_TIMEOUT=100,LSE_STARTUP_TIMEOUT=5000,LSE_VALUE=32768,HSI_VALUE=8000000,LSI_VALUE=40000,VDD_VALUE=3300,PREFETCH_ENABLE=1,INSTRUCTION_CACHE_ENABLE=0,DATA_CACHE_ENABLE=0,STM32F030x8</Define>
               <Undefine></Undefine>
-              <IncludePath>../Core/Inc;  C:/Users/ms/STM32Cube/Repository/STM32Cube_FW_F0_V1.11.2/Drivers/STM32F0xx_HAL_Driver/Inc;  C:/Users/ms/STM32Cube/Repository/STM32Cube_FW_F0_V1.11.2/Drivers/CMSIS/Device/ST/STM32F0xx/Include;  C:/Users/ms/STM32Cube/Repository/STM32Cube_FW_F0_V1.11.2/Drivers/CMSIS/Include;  ..\..\..\third_party\segger.com\SEGGER_RTT\RTT;  ../Drivers/STM32F0xx_HAL_Driver/Inc;  ../Drivers/CMSIS/Device/ST/STM32F0xx/Include;  ../Drivers/CMSIS/Include;  ..\..\..\pkg\trice</IncludePath>
+              <IncludePath>../Core/Inc;..\..\..\src;..\..\..\third_party\segger.com\SEGGER_RTT\RTT;C:/Users/ms/STM32Cube/Repository/STM32Cube_FW_F0_V1.11.2/Drivers/STM32F0xx_HAL_Driver/Inc;C:/Users/ms/STM32Cube/Repository/STM32Cube_FW_F0_V1.11.2/Drivers/CMSIS/Device/ST/STM32F0xx/Include;C:/Users/ms/STM32Cube/Repository/STM32Cube_FW_F0_V1.11.2/Drivers/CMSIS/Include;../Drivers/STM32F0xx_HAL_Driver/Inc;../Drivers/CMSIS/Device/ST/STM32F0xx/Include;../Drivers/CMSIS/Include</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -825,42 +825,42 @@
             <File>
               <FileName>trice.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\pkg\trice\trice.c</FilePath>
+              <FilePath>..\..\..\src\trice.c</FilePath>
             </File>
             <File>
               <FileName>triceCheck.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\pkg\trice\triceCheck.c</FilePath>
+              <FilePath>..\..\..\src\triceCheck.c</FilePath>
             </File>
             <File>
               <FileName>tcobsv1Encode.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\pkg\trice\tcobsv1Encode.c</FilePath>
+              <FilePath>..\..\..\src\tcobsv1Encode.c</FilePath>
             </File>
             <File>
-              <FileName>xtrea.c</FileName>
+              <FileName>xtea.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\pkg\trice\xtrea.c</FilePath>
+              <FilePath>..\..\..\src\xtea.c</FilePath>
             </File>
             <File>
               <FileName>triceStreamBuffer.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\pkg\trice\triceStreamBuffer.c</FilePath>
+              <FilePath>..\..\..\src\triceStreamBuffer.c</FilePath>
             </File>
             <File>
               <FileName>triceDoubleBuffer.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\pkg\trice\triceDoubleBuffer.c</FilePath>
+              <FilePath>..\..\..\src\triceDoubleBuffer.c</FilePath>
             </File>
             <File>
               <FileName>triceStackBuffer.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\pkg\trice\triceStackBuffer.c</FilePath>
+              <FilePath>..\..\..\src\triceStackBuffer.c</FilePath>
             </File>
             <File>
               <FileName>cobs.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\pkg\trice\cobs.c</FilePath>
+              <FilePath>..\..\..\src\cobs.c</FilePath>
             </File>
           </Files>
         </Group>

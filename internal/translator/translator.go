@@ -28,9 +28,9 @@ var (
 	// Encoding describes the way the byte stream is coded.
 	Encoding string
 
-	// TargetEndianness if bigEndian assumes a big endian encoded trice stream from the target.
+	// TriceEndianness if bigEndian assumes a big endian encoded trice stream from the target.
 	// To keep target load small, the encoded trice stream from the target matches the target endian, what us usually littleEndian.
-	TargetEndianness string
+	TriceEndianness string
 
 	Verbose bool
 )
@@ -47,13 +47,13 @@ func Translate(w io.Writer, sw *emitter.TriceLineComposer, lut id.TriceIDLookUp,
 	}
 	var endian bool
 	var dec decoder.Decoder
-	switch TargetEndianness {
+	switch TriceEndianness {
 	case "littleEndian":
 		endian = decoder.LittleEndian
 	case "bigEndian":
 		endian = decoder.BigEndian
 	default:
-		log.Fatalf(fmt.Sprintln("unknown endianness ", TargetEndianness, "-accepting litteEndian or bigEndian."))
+		log.Fatalf(fmt.Sprintln("unknown endianness ", TriceEndianness, "-accepting litteEndian or bigEndian."))
 	}
 	switch strings.ToUpper(Encoding) {
 	case "TLE", "COBS":

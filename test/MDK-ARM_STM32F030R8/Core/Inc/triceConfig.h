@@ -92,8 +92,13 @@ extern "C" {
 //! If 1, add an 8-bit cycle counter. The TRICE macros are a bit slower. Lost TRICEs are detectable by the trice tool. (reccommended)
 #define TRICE_CYCLE_COUNTER 1 
 
-//!< TRICE_BIG_ENDIANNESS needs to be defined for TRICE64 macros on big endian devices.
-//#define TRICE_BIG_ENDIANNESS 
+//! TRICE_MCU_IS_BIG_ENDIAN needs to be defined for TRICE64 macros on big endian MCUs.
+//#define TRICE_MCU_IS_BIG_ENDIAN 
+
+//! TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN can be defined on little endian MCUs if the trice data are needed in network order,
+//! or on big endian MCUs if the trice data are needed in little endian order. You should avoid using this macro because
+//! it increases the trice storage time and the needed code amount. 
+#define TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN
 
 // Enabling next line results in XTEA TriceEncryption  with the key.
 //#define XTEA_ENCRYPT_KEY XTEA_KEY( ea, bb, ec, 6f, 31, 80, 4e, b9, 68, e2, fa, ea, ae, f1, 50, 54 ); //!< -password MySecret
