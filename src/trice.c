@@ -36,11 +36,11 @@ uint8_t  TriceCycle = 0xc0; //!< TriceCycle is increased and transmitted with ea
 //! To avoid alignment issues, the optional payload (...) needs to start at a 32-bit boundary.
 //! The provided buffer starts also at a 32-bit boundary.
 //! To ensure, the first 16-bit value is ssiiiiiiI we do the following:
-//! \li ______v___________________v__________v__ (32-bit alignment positions)
-//! \li *da = 111iiiiiI TT        TT      NC ... | ID(n): After writing 11iiiiiiI write the 32-bit TTTT value in 2 16-bit write operations.
-//! \li *da = 101iiiiiI 10iiiiiiI TT      NC ... | Id(n): Write 10iiiiiiI as doubled value in one 32-bit operation into the trice buffer. The first 16-bit will be removed just before sending to the out channel. 
-//! \li *da = 011iiiiiI                   NC ... | id(n): Just write 01iiiiiiI as 16-nit operation.
-//! \li *da = 001iiiiiI TT        TTTT TT NC ... | iD(n): like ID but with 64-bit stamp instead of 32-bit stamp
+//! \li       v__________________ v___________ v__ (32-bit alignment positions)
+//! \li *da = 11iiiiiiI TT        TT        NC ... | ID(n): After writing 11iiiiiiI write the 32-bit TTTT value in 2 16-bit write operations.
+//! \li *da = 10iiiiiiI 10iiiiiiI TT        NC ... | Id(n): Write 10iiiiiiI as doubled value in one 32-bit operation into the trice buffer. The first 16-bit will be removed just before sending to the out channel. 
+//! \li *da =                     01iiiiiiI NC ... | id(n): Just write 01iiiiiiI as 16-bit operation.
+//! \li *da = 00iiiiiiI TT        TTTT TT   NC ... | iD(n): like ID but with 64-bit stamp instead of 32-bit stamp
 //! \li *da = ss0......extended trices are not used yet
 //! \li This way, after writing the 16-bit NC value the payload starts always at a 32-bit boundary.
 static size_t triceDataLen( uint8_t const* p ){
@@ -52,14 +52,10 @@ static size_t triceDataLen( uint8_t const* p ){
     return nc & 0x7fff;
 }
 
-#define TRICE_TYPE_S0 3 //!< TRICE_TYPE_S0 ist a trice without stamp.
-#define TRICE_TYPE_S2 5 //!< TRICE_TYPE_S2 ist a trice with 16-bit stamp.
-#define TRICE_TYPE_S4 7 //!< TRICE_TYPE_S4 ist a trice with 32-bit stamp.
-#define TRICE_TYPE_S8 1 //!< TRICE_TYPE_S8 ist a trice with 64-bit stamp.
-#define TRICE_TYPE_X0 0 //!< TRICE_TYPE_X0 ist a unspecified trice extension.
-#define TRICE_TYPE_X1 2 //!< TRICE_TYPE_X0 ist a unspecified trice extension.
-#define TRICE_TYPE_X2 4 //!< TRICE_TYPE_X0 ist a unspecified trice extension.
-#define TRICE_TYPE_X3 6 //!< TRICE_TYPE_X0 ist a unspecified trice extension.
+#define TRICE_TYPE_X0 0 //!< TRICE_TYPE_X0 ist a unspecified trice (reserved)
+#define TRICE_TYPE_S0 1 //!< TRICE_TYPE_S0 ist a trice without stamp.
+#define TRICE_TYPE_S2 2 //!< TRICE_TYPE_S2 ist a trice with 16-bit stamp.
+#define TRICE_TYPE_S4 3 //!< TRICE_TYPE_S4 ist a trice with 32-bit stamp.
 
 //! triceErrorCount is incremented, when data inside the internal trice buffer are corrupted.
 //! That could happen, when the buffer wrapped before data are sent.
@@ -92,9 +88,9 @@ unsigned triceErrorCount = 0;
 //! \retval is the trice ID on success or negative on error.
 static int nextTrice( uint8_t** buf, size_t* pSize, uint8_t** pStart, size_t* pLen ){
     uint16_t* pNC = (uint16_t*)*buf; //lint !e826, get NC address
-    int NC = TRICE_TTOHS( *pNC ); // *pNC; // get NC
+    int NC = TRICE_TTOHS( *pNC );
     int triceID = 0x1FFF & NC;
-    int triceType = NC >> 13; // todo: this will not work with extended trices only 1 byte long
+    int triceType = NC >> 14;
     unsigned offset = 0;
     size_t size = *pSize;
     size_t triceSize;
@@ -113,16 +109,7 @@ static int nextTrice( uint8_t** buf, size_t* pSize, uint8_t** pStart, size_t* pL
         case TRICE_TYPE_S4: // S4 = 32-bit stamp
             len = 8 + triceDataLen(*pStart + 6); // tyId ts32
             break;
-        case TRICE_TYPE_S8: // S8 = 64-bit stamp
-            len = 12 + triceDataLen(*pStart + 10); // tyId ts64
-            //len = size; // todo: Change that when needed.
-            //// Extended trices without length information cannot be separated here.
-            //// But it is possible to store them with length information and to remove it here.
-            break;
         case TRICE_TYPE_X0:
-        case TRICE_TYPE_X1:
-        case TRICE_TYPE_X2:
-        case TRICE_TYPE_X3:
             return -__LINE__; // extended trices not supported (yet)
     }
     triceSize = (len + offset + 3) & ~3;

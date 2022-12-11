@@ -70,13 +70,13 @@ extern "C" {
 
 //! Enable and set UART2 for serial output.
 #define TRICE_UARTA USART2 // comment out, if you do not use TRICE_UARTA
-#define TRICE_UARTA_MIN_ID 1       //! TRICE_UARTA_MIN_ID is the smallest ID transferred to UARTA.
-#define TRICE_UARTA_MAX_ID (1<<13) //! TRICE_UARTA_MAX_ID is the biggest ID transferred to UARTA.
+#define TRICE_UARTA_MIN_ID 1           //! TRICE_UARTA_MIN_ID is the smallest ID transferred to UARTA.
+#define TRICE_UARTA_MAX_ID ((1<<14)-1) //! TRICE_UARTA_MAX_ID is the biggest ID transferred to UARTA.
 
 //! Enable and set UART for serial output.
 #define TRICE_UARTB USART1 // comment out, if you do not use TRICE_UARTB
-#define TRICE_UARTB_MIN_ID 1       //! TRICE_UARTB_MIN_ID is the smallest ID transferred to UARTB.
-#define TRICE_UARTB_MAX_ID (1<<13) //! TRICE_UARTB_MAX_ID is the biggest ID transferred to UARTB.
+#define TRICE_UARTB_MIN_ID 1           //! TRICE_UARTB_MIN_ID is the smallest ID transferred to UARTB.
+#define TRICE_UARTB_MAX_ID ((1<<14)-1) //! TRICE_UARTB_MAX_ID is the biggest ID transferred to UARTB.
 
 //! CGO interface (for testing)
 //#define TRICE_CGO 

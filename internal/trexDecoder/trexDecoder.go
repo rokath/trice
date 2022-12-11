@@ -26,8 +26,16 @@ const (
 	tyIdSize = 2 // tySize is what each trice message starts with: 2 bytes
 	ncSize   = 2 // countSize is what each regular trice message contains after an optional target timestamp
 	//headSize = tyIdSize + ncSize // headSize is what each regular trice message starts with: 2-bit msb + 14-bit ID + 16-bit nc
+
+	typeS0 = 1 // regular trice format without stamp     : 011iiiiiI NC ...
+	typeS2 = 2 // regular trice format with 16-bit stamp : 101iiiiiI TT NC ...
+	typeS4 = 3 // regular trice format with 32-bit stamp : 111iiiiiI TT TT NC ...
+	typeX0 = 0 // regular trice format with 32-bit stamp : 001iiiiiI TT TT TT TT NC ...
+	//IDMask = 0x03FFF
+
 )
 
+/*
 var (
 	IDMask int
 	typeS0 int
@@ -61,7 +69,7 @@ func init() {
 		log.Fatal("TREX works with 14 (legacy) or 13 (actual) bits for ID encoding.")
 	}
 }
-
+*/
 // trexDec is the Decoding instance for trex encoded trices.
 type trexDec struct {
 	decoder.DecoderData
@@ -214,15 +222,15 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 		decoder.TargetTimestampSize = 2
 	case typeS4: // 32-bit stamp
 		decoder.TargetTimestampSize = 4
-	case typeS8: // 64-bit stamp
-		decoder.TargetTimestampSize = 8
+	//case typeS8: // 64-bit stamp
+	//	decoder.TargetTimestampSize = 8
 	case typeX0: // extended trice type X0
-	// todo: implement special case here
-	case typeX1: // extended trice type X0
-	// todo: implement special case here
-	case typeX2: // extended trice type X0
-	// todo: implement special case here
-	case typeX3: // extended trice type X0
+		// todo: implement special case here
+		//case typeX1: // extended trice type X0
+		// todo: implement special case here
+		//case typeX2: // extended trice type X0
+		// todo: implement special case here
+		//case typeX3: // extended trice type X0
 		// todo: implement special case here
 		return
 	}
@@ -237,8 +245,8 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 		decoder.TargetTimestamp = uint64(p.ReadU16(p.B))
 	} else if triceType == typeS4 { // 32-bit stamp
 		decoder.TargetTimestamp = uint64(p.ReadU32(p.B))
-	} else if triceType == typeS8 { // 64-bit stamp
-		decoder.TargetTimestamp = uint64(p.ReadU64(p.B))
+		//} else if triceType == typeS8 { // 64-bit stamp
+		//	decoder.TargetTimestamp = uint64(p.ReadU64(p.B))
 	} else {
 		log.Fatal("triceType ", triceType, " not implemented (hint: IDBits value?)")
 	}
