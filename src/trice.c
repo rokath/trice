@@ -242,7 +242,7 @@ void TriceBlockingWriteUartA( uint8_t const * buf, unsigned len ){
 }
 #endif // #if defined( TRICE_UARTA ) && !defined( TRICE_HALF_BUFFER_SIZE )
 
-#if defined( TRICE_UARTA ) && TRICE_DEFERRED_OUT // buffered out to UART
+#if defined( TRICE_UARTA ) // && TRICE_DEFERRED_OUT // buffered out to UART
 static uint8_t const * triceOutBufferUartA;
 static size_t triceOutCountUartA = 0;
 static unsigned triceOutIndexUartA = 0;
@@ -299,7 +299,7 @@ void TriceBlockingWriteUartB( uint8_t const * buf, unsigned len ){
 }
 #endif // #if defined( TRICE_UARTA ) && !defined( TRICE_HALF_BUFFER_SIZE )
 
-#if defined( TRICE_UARTB ) && TRICE_DEFERRED_OUT // buffered out to UART
+#if defined( TRICE_UARTB ) // && TRICE_DEFERRED_OUT // buffered out to UART
 static uint8_t const * triceOutBufferUartB;
 static size_t triceOutCountUartB = 0;
 static unsigned triceOutIndexUartB = 0;

@@ -259,10 +259,11 @@ extern uint8_t TriceCycle;
 #define TRICE_PUT(x) do{ *TriceBufferWritePosition++ = TRICE_HTOTL(x); }while(0) //! PUT copies a 32 bit x into the TRICE buffer.
 #endif
 
-#ifdef TRICE_MCU_IS_BIG_ENDIAN
-#define TRICE_PUT64(x) TRICE_PUT( (uint32_t)((uint64_t)(x)>>32) ); TRICE_PUT( (uint32_t)(x) ); 
+#if ( defined( TRICE_MCU_IS_BIG_ENDIAN ) &&  defined( TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN ) ) \
+  ||(!defined( TRICE_MCU_IS_BIG_ENDIAN ) && !defined( TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN ) )
+    #define TRICE_PUT64(x) TRICE_PUT( (uint32_t)(x) ); TRICE_PUT( (uint32_t)((uint64_t)(x)>>32) ); // little endian
 #else
-#define TRICE_PUT64(x) TRICE_PUT( (uint32_t)(x) ); TRICE_PUT( (uint32_t)((uint64_t)(x)>>32) );
+    #define TRICE_PUT64(x) TRICE_PUT( (uint32_t)((uint64_t)(x)>>32) ); TRICE_PUT( (uint32_t)(x) ); // big endian
 #endif
 
 #ifndef TRICE_PUTBUFFER
@@ -296,7 +297,7 @@ extern uint8_t TriceCycle;
 // UART interface
 //
 
-#if defined( TRICE_UARTA ) && TRICE_DEFERRED_OUT // buffered out to UARTA
+#if defined( TRICE_UARTA ) // && TRICE_DEFERRED_OUT // buffered out to UARTA
 void TriceBlockingWriteUartA( uint8_t const * buf, unsigned len );
 uint8_t TriceNextUint8UartA( void );
 void triceServeTransmitUartA(void);
@@ -304,7 +305,7 @@ void triceTriggerTransmitUartA(void);
 unsigned TriceOutDepthUartA( void );
 #endif
 
-#if defined( TRICE_UARTB ) && TRICE_DEFERRED_OUT // buffered out to UARTB
+#if defined( TRICE_UARTB ) // && TRICE_DEFERRED_OUT // buffered out to UARTB
 void TriceBlockingWriteUartB( uint8_t const * buf, unsigned len );
 uint8_t TriceNextUint8UartB( void );
 void triceServeTransmitUartB(void);
@@ -541,10 +542,28 @@ extern const int TriceTypeX0;
 	TRICE_ENTER id; CNTC(0); \
     TRICE_LEAVE
 
+#ifdef TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN
+
+#define TRICE_BYTE3(v)((uint8_t)(v))
+#define TRICE_BYTE2(v)(0x0000FF00 &  ((uint32_t)(v)<< 8))
+#define TRICE_BYTE1(v)(0x00FF0000 &  ((uint32_t)(v)<<16))
+#define TRICE_BYTE0(v)((uint32_t)(v)<<24)
+
+#define TRICE_SHORT1( v ) (uint16_t)(v)
+#define TRICE_SHORT0( v ) ((uint32_t)(v)<<16) 
+
+#else // #ifdef TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN
+
 #define TRICE_BYTE0(v)((uint8_t)(v))
 #define TRICE_BYTE1(v)(0x0000FF00 &  ((uint32_t)(v)<< 8))
 #define TRICE_BYTE2(v)(0x00FF0000 &  ((uint32_t)(v)<<16))
-#define TRICE_BYTE3(v)((uint32_t)(v)<<24) 
+#define TRICE_BYTE3(v)((uint32_t)(v)<<24)
+
+#define TRICE_SHORT0( v ) (uint16_t)(v)
+#define TRICE_SHORT1( v ) ((uint32_t)(v)<<16) 
+
+
+#endif // #else // #ifdef TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN
 
 //! TRICE8_1 writes trice data as fast as possible in a buffer.
 //! \param id is a 16 bit Trice id in upper 2 bytes of a 32 bit value
@@ -659,7 +678,7 @@ extern const int TriceTypeX0;
 //! \param v0 a 16 bit value
 #define TRICE16_1( id, pFmt, v0 ) \
     TRICE_ENTER id; CNTC(2); \
-    TRICE_PUT( (uint16_t)(v0) ); \
+    TRICE_PUT(  TRICE_SHORT0( v0 ) ); \
     TRICE_LEAVE
 
 //! TRICE16_2 writes trice data as fast as possible in a buffer.
@@ -667,7 +686,7 @@ extern const int TriceTypeX0;
 //! \param v0 - v1 are 16 bit values
 #define TRICE16_2( id, pFmt, v0, v1 ) \
     TRICE_ENTER id; CNTC(4); \
-    TRICE_PUT((uint16_t)(v0) | ((uint32_t)(v1)<<16) ); \
+    TRICE_PUT(TRICE_SHORT0(v0) | TRICE_SHORT1(v1) ); \
     TRICE_LEAVE
 
 //! TRICE16_3 writes trice data as fast as possible in a buffer.
@@ -675,8 +694,8 @@ extern const int TriceTypeX0;
 //! \param v0 - v2 are 16 bit values
 #define TRICE16_3( id, pFmt, v0, v1, v2 ) \
     TRICE_ENTER id; CNTC(6); \
-    TRICE_PUT((uint16_t)(v0) | ((uint32_t)(v1)<<16) ); \
-    TRICE_PUT( (uint16_t)(v2) ); \
+    TRICE_PUT(TRICE_SHORT0(v0) | TRICE_SHORT1(v1) ); \
+    TRICE_PUT(TRICE_SHORT0(v2) ); \
     TRICE_LEAVE
 
 //! TRICE16_4 writes trice data as fast as possible in a buffer.
@@ -684,8 +703,8 @@ extern const int TriceTypeX0;
 //! \param v0 - v3 are 16 bit values
 #define TRICE16_4( id, pFmt, v0, v1, v2, v3 ) \
     TRICE_ENTER id; CNTC(8); \
-    TRICE_PUT((uint16_t)(v0) | ((uint32_t)(v1)<<16) ); \
-    TRICE_PUT((uint16_t)(v2) | ((uint32_t)(v3)<<16) ); \
+    TRICE_PUT(TRICE_SHORT0(v0) | TRICE_SHORT1(v1) ); \
+    TRICE_PUT(TRICE_SHORT0(v2) | TRICE_SHORT1(v3) ); \
     TRICE_LEAVE
 
 //! TRICE16_5 writes trice data as fast as possible in a buffer.
@@ -693,9 +712,9 @@ extern const int TriceTypeX0;
 //! \param v0 - v4 are 16 bit values
 #define TRICE16_5( id, pFmt, v0, v1, v2, v3, v4 ) \
     TRICE_ENTER id; CNTC(10); \
-    TRICE_PUT((uint16_t)(v0) | ((uint32_t)(v1)<<16) ); \
-    TRICE_PUT((uint16_t)(v2) | ((uint32_t)(v3)<<16) ); \
-    TRICE_PUT((uint16_t)(v4) ); \
+    TRICE_PUT(TRICE_SHORT0(v0) | TRICE_SHORT1(v1) ); \
+    TRICE_PUT(TRICE_SHORT0(v2) | TRICE_SHORT1(v3) ); \
+    TRICE_PUT(TRICE_SHORT0(v4) ); \
     TRICE_LEAVE
 
 //! TRICE16_6 writes trice data as fast as possible in a buffer.
@@ -703,9 +722,9 @@ extern const int TriceTypeX0;
 //! \param v0 - v5 are 16 bit values
 #define TRICE16_6( id, pFmt, v0, v1, v2, v3, v4, v5 ) \
     TRICE_ENTER id; CNTC(12); \
-    TRICE_PUT((uint16_t)(v0) | ((uint32_t)(v1)<<16) ); \
-    TRICE_PUT((uint16_t)(v2) | ((uint32_t)(v3)<<16) ); \
-    TRICE_PUT((uint16_t)(v4) | ((uint32_t)(v5)<<16) ); \
+    TRICE_PUT(TRICE_SHORT0(v0) | TRICE_SHORT1(v1) ); \
+    TRICE_PUT(TRICE_SHORT0(v2) | TRICE_SHORT1(v3) ); \
+    TRICE_PUT(TRICE_SHORT0(v4) | TRICE_SHORT1(v5) ); \
     TRICE_LEAVE
 
 //! TRICE16_7 writes trice data as fast as possible in a buffer.
@@ -713,10 +732,10 @@ extern const int TriceTypeX0;
 //! \param v0 - v6 are 16 bit values
 #define TRICE16_7( id, pFmt, v0, v1, v2, v3, v4, v5, v6 ) \
     TRICE_ENTER id; CNTC(14); \
-    TRICE_PUT((uint16_t)(v0) | ((uint32_t)(v1)<<16) ); \
-    TRICE_PUT((uint16_t)(v2) | ((uint32_t)(v3)<<16) ); \
-    TRICE_PUT((uint16_t)(v4) | ((uint32_t)(v5)<<16) ); \
-    TRICE_PUT((uint16_t)(v6) ); \
+    TRICE_PUT(TRICE_SHORT0(v0) | TRICE_SHORT1(v1) ); \
+    TRICE_PUT(TRICE_SHORT0(v2) | TRICE_SHORT1(v3) ); \
+    TRICE_PUT(TRICE_SHORT0(v4) | TRICE_SHORT1(v5) ); \
+    TRICE_PUT(TRICE_SHORT0(v6) ); \
     TRICE_LEAVE
 
 //! TRICE16_8 writes trice data as fast as possible in a buffer.
@@ -724,10 +743,10 @@ extern const int TriceTypeX0;
 //! \param v0 - v7 are 16 bit values
 #define TRICE16_8( id, pFmt, v0, v1, v2, v3, v4, v5, v6, v7 ) \
     TRICE_ENTER id; CNTC(16); \
-    TRICE_PUT((uint16_t)(v0) | ((uint32_t)(v1)<<16) ); \
-    TRICE_PUT((uint16_t)(v2) | ((uint32_t)(v3)<<16) ); \
-    TRICE_PUT((uint16_t)(v4) | ((uint32_t)(v5)<<16) ); \
-    TRICE_PUT((uint16_t)(v6) | ((uint32_t)(v7)<<16) ); \
+    TRICE_PUT(TRICE_SHORT0(v0) | TRICE_SHORT1(v1) ); \
+    TRICE_PUT(TRICE_SHORT0(v2) | TRICE_SHORT1(v3) ); \
+    TRICE_PUT(TRICE_SHORT0(v4) | TRICE_SHORT1(v5) ); \
+    TRICE_PUT(TRICE_SHORT0(v6) | TRICE_SHORT1(v7) ); \
     TRICE_LEAVE
     
 //! TRICE16_9 writes trice data as fast as possible in a buffer.
@@ -735,11 +754,11 @@ extern const int TriceTypeX0;
 //! \param v0 - v8 are 16 bit values
 #define TRICE16_9( id, pFmt, v0, v1, v2, v3, v4, v5, v6, v7, v8 ) \
     TRICE_ENTER id; CNTC(18); \
-    TRICE_PUT((uint16_t)(v0) | ((uint32_t)(v1)<<16) ); \
-    TRICE_PUT((uint16_t)(v2) | ((uint32_t)(v3)<<16) ); \
-    TRICE_PUT((uint16_t)(v4) | ((uint32_t)(v5)<<16) ); \
-    TRICE_PUT((uint16_t)(v6) | ((uint32_t)(v7)<<16) ); \
-    TRICE_PUT((uint16_t)(v8) ); \
+    TRICE_PUT(TRICE_SHORT0(v0) | TRICE_SHORT1(v1) ); \
+    TRICE_PUT(TRICE_SHORT0(v2) | TRICE_SHORT1(v3) ); \
+    TRICE_PUT(TRICE_SHORT0(v4) | TRICE_SHORT1(v5) ); \
+    TRICE_PUT(TRICE_SHORT0(v6) | TRICE_SHORT1(v7) ); \
+    TRICE_PUT(TRICE_SHORT0(v8) ); \
     TRICE_LEAVE
 
 //! TRICE16_10 writes trice data as fast as possible in a buffer.
@@ -747,11 +766,11 @@ extern const int TriceTypeX0;
 //! \param v0 - v9 are 16 bit values
 #define TRICE16_10( id, pFmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9 ) \
     TRICE_ENTER id; CNTC(20); \
-    TRICE_PUT((uint16_t)(v0) | ((uint32_t)(v1)<<16) ); \
-    TRICE_PUT((uint16_t)(v2) | ((uint32_t)(v3)<<16) ); \
-    TRICE_PUT((uint16_t)(v4) | ((uint32_t)(v5)<<16) ); \
-    TRICE_PUT((uint16_t)(v6) | ((uint32_t)(v7)<<16) ); \
-    TRICE_PUT((uint16_t)(v8) | ((uint32_t)(v9)<<16) ); \
+    TRICE_PUT(TRICE_SHORT0(v0) | TRICE_SHORT1(v1) ); \
+    TRICE_PUT(TRICE_SHORT0(v2) | TRICE_SHORT1(v3) ); \
+    TRICE_PUT(TRICE_SHORT0(v4) | TRICE_SHORT1(v5) ); \
+    TRICE_PUT(TRICE_SHORT0(v6) | TRICE_SHORT1(v7) ); \
+    TRICE_PUT(TRICE_SHORT0(v8) | TRICE_SHORT1(v9) ); \
     TRICE_LEAVE
     
 //! TRICE16_11 writes trice data as fast as possible in a buffer.
@@ -759,12 +778,12 @@ extern const int TriceTypeX0;
 //! \param v0 - v10 are 16 bit values
 #define TRICE16_11( id, pFmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10 ) \
     TRICE_ENTER id; CNTC(22); \
-    TRICE_PUT((uint16_t)(v0) | ((uint32_t)(v1)<<16) ); \
-    TRICE_PUT((uint16_t)(v2) | ((uint32_t)(v3)<<16) ); \
-    TRICE_PUT((uint16_t)(v4) | ((uint32_t)(v5)<<16) ); \
-    TRICE_PUT((uint16_t)(v6) | ((uint32_t)(v7)<<16) ); \
-    TRICE_PUT((uint16_t)(v8) | ((uint32_t)(v9)<<16) ); \
-    TRICE_PUT((uint16_t)(v10) ); \
+    TRICE_PUT(TRICE_SHORT0(v0) | TRICE_SHORT1(v1) ); \
+    TRICE_PUT(TRICE_SHORT0(v2) | TRICE_SHORT1(v3) ); \
+    TRICE_PUT(TRICE_SHORT0(v4) | TRICE_SHORT1(v5) ); \
+    TRICE_PUT(TRICE_SHORT0(v6) | TRICE_SHORT1(v7) ); \
+    TRICE_PUT(TRICE_SHORT0(v8) | TRICE_SHORT1(v9) ); \
+    TRICE_PUT(TRICE_SHORT0(v10)); \
     TRICE_LEAVE
     
 //! TRICE16_12 writes trice data as fast as possible in a buffer.
@@ -772,12 +791,12 @@ extern const int TriceTypeX0;
 //! \param v0 - v11 are 16 bit values
 #define TRICE16_12( id, pFmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 ) \
     TRICE_ENTER id; CNTC(24); \
-    TRICE_PUT((uint16_t)(v0) | ((uint32_t)(v1)<<16) ); \
-    TRICE_PUT((uint16_t)(v2) | ((uint32_t)(v3)<<16) ); \
-    TRICE_PUT((uint16_t)(v4) | ((uint32_t)(v5)<<16) ); \
-    TRICE_PUT((uint16_t)(v6) | ((uint32_t)(v7)<<16) ); \
-    TRICE_PUT((uint16_t)(v8) | ((uint32_t)(v9)<<16) ); \
-    TRICE_PUT((uint16_t)(v10)| ((uint32_t)(v11)<<16) ); \
+    TRICE_PUT(TRICE_SHORT0(v0) | TRICE_SHORT1(v1) ); \
+    TRICE_PUT(TRICE_SHORT0(v2) | TRICE_SHORT1(v3) ); \
+    TRICE_PUT(TRICE_SHORT0(v4) | TRICE_SHORT1(v5) ); \
+    TRICE_PUT(TRICE_SHORT0(v6) | TRICE_SHORT1(v7) ); \
+    TRICE_PUT(TRICE_SHORT0(v8) | TRICE_SHORT1(v9) ); \
+    TRICE_PUT(TRICE_SHORT0(v10)| TRICE_SHORT1(v11)); \
     TRICE_LEAVE
 
 //! TRICE32_1 writes trice data as fast as possible in a buffer.

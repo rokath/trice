@@ -1795,6 +1795,10 @@
 		"Type": "TRICE_B",
 		"Strg": " %02x"
 	},
+	"4551": {
+		"Type": "TRICE64_2",
+		"Strg": "rd:TRICE64_2 %x, %x\\n"
+	},
 	"4552": {
 		"Type": "TRICE16_2",
 		"Strg": "rd:TRICE16_2 %d, %d\\n"

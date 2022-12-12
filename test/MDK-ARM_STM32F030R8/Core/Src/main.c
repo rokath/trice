@@ -212,7 +212,9 @@ int main(void)
             static unsigned lastTricesTime = 0;
             // send some trices every few ms
             if( milliSecond >= lastTricesTime + 2000 ){
-                static int index = 900;
+                const int begin = 0;
+                const int end = 1100;
+                static int index = begin;
                 int select = index;
                 TRICE16( Id( 5350),"MSG: 💚 START select = %d\n", select );
                 TriceCheckSet(select);
@@ -230,7 +232,7 @@ int main(void)
                     TRICE( Id( 6479), "err:%d timing errors 32-bit\n", timingError32Count );
                 }
                 index += 10;
-                index = index > 1000 ? 0 : index;
+                index = index > end ? begin : index;
                 {
                     volatile uint32_t st0 = SysTick->VAL;
                     volatile uint32_t us = ReadUs32();
