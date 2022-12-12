@@ -31,9 +31,6 @@ uint16_t cgoTriceStamp16 = 0x1616;
 //! cgoTriceStamp32 must be set before TRICE( ID(...), "...", ...) is called.
 uint32_t cgoTriceStamp32 = 0x32323232;
 
-//! cgoTriceStamp64 must be set before TRICE( iD(...), "...", ...) is called.
-uint64_t cgoTriceStamp64 = 0x6464646464646464;
-
 // TriceStamp16 is used internally be the macro "Id"
 uint16_t TriceStamp16( void ){
     return cgoTriceStamp16;
@@ -42,9 +39,4 @@ uint16_t TriceStamp16( void ){
 // TriceStamp16 is used internally be the macro "ID"
 uint32_t TriceStamp32( void ){ 
     return cgoTriceStamp32; 
-}
-
-// TriceStamp64 is used internally be the macro "iD"
-uint64_t TriceStamp64( void ){ 
-    return cgoTriceStamp64; 
 }

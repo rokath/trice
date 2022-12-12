@@ -12,4 +12,3 @@ extern uint8_t* cgoTriceBuffer;
 
 extern uint16_t cgoTriceStamp16;
 extern uint32_t cgoTriceStamp32;
-extern uint64_t cgoTriceStamp64;

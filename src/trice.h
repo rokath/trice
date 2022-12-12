@@ -138,10 +138,6 @@ uint16_t TriceStamp16( void );
 //! This function is user provided.
 uint32_t TriceStamp32( void );
 
-//! TriceStamp64 returns a 32-bit value to stamp `iD` TRICE macros. Usually it is a timestamp, but could also be a destination address map or a counter for example.
-//! This function is user provided.
-//uint64_t TriceStamp64( void );
-
 #if TRICE_MODE == TRICE_STACK_BUFFER
 
 #define TRICE_STACK_BUFFER_MAX_SIZE TRICE_BUFFER_SIZE 

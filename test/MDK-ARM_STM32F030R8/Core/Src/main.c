@@ -170,7 +170,7 @@ int main(void)
         XTEAInitTable();
     #endif
     #ifdef TRICE_UARTA
-    LL_USART_EnableIT_RXNE(TRICE_UARTA); 
+    LL_USART_EnableIT_RXNE(TRICE_UARTA); // enable UART2 interrupt
     #endif
     #ifdef TRICE_UARTB
     LL_USART_EnableIT_RXNE(TRICE_UARTB); 

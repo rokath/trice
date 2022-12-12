@@ -9,7 +9,7 @@ package cgo1
 // #include <stdint.h>
 // #include "trice_test.h"
 // #include "cgoTrice.h"
-// #cgo CFLAGS: -g -Wall -I.. -I../../../src
+// #cgo CFLAGS: -g -Wall -I.. -I../.. -I../../../src
 import "C"
 
 import (

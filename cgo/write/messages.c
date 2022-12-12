@@ -21,9 +21,3 @@ int Message2( uint32_t stamp, uint8_t b0 ){
     TRICE8_1( Id( 3820), "msg:Example %d\n", b0 );
     return cgoTriceBufferDepth;
 }
-
-int Message3( uint64_t stamp, uint8_t b0 ){
-    cgoTriceStamp64 = stamp;
-    TRICE8_1( Id( 7565), "msg:Example %d\n", b0 );
-    return cgoTriceBufferDepth;
-}

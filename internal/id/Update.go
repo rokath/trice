@@ -315,14 +315,14 @@ func triceIDParse(t string) (nbID string, id TriceID, found idType) {
 		return
 	}
 	var n int
-	_, err := fmt.Sscanf(nbID, "iD(%d", &n) // closing bracket in format string omitted intentionally // todo: patID
+	//  _, err := fmt.Sscanf(nbID, "iD(%d", &n) // closing bracket in format string omitted intentionally // todo: patID
+	//  if nil == err {                         // because spaces after id otherwise are not tolerated
+	//  	id = TriceID(n)
+	//  	found = idTypeS8
+	//  	return
+	//  }
+	_, err := fmt.Sscanf(nbID, "ID(%d", &n) // closing bracket in format string omitted intentionally // todo: patID
 	if nil == err {                         // because spaces after id otherwise are not tolerated
-		id = TriceID(n)
-		found = idTypeS8
-		return
-	}
-	_, err = fmt.Sscanf(nbID, "ID(%d", &n) // closing bracket in format string omitted intentionally // todo: patID
-	if nil == err {                        // because spaces after id otherwise are not tolerated
 		id = TriceID(n)
 		found = idTypeS4
 		return
@@ -499,8 +499,6 @@ func updateIDsUniqOrShared(w io.Writer, sharedIDs bool, min, max TriceID, search
 			//}
 			var nID string // patch the id into text
 			switch idTypeResult {
-			case idTypeS8:
-				nID = fmt.Sprintf("iD(%5d)", id) // todo: patID
 			case idTypeS4:
 				nID = fmt.Sprintf("ID(%5d)", id) // todo: patID
 			case idTypeS2:

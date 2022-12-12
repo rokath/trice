@@ -43,7 +43,5 @@ func scWrite(w io.Writer) error {
 	time.Sleep(delay)
 	_, _ = p.Write(write.Message2(0xe2e2e2e2, 2))
 	time.Sleep(delay)
-	_, _ = p.Write(write.Message3(0x9494949494949494, 3))
-	time.Sleep(delay)
 	return e
 }

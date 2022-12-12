@@ -1,4 +1,4 @@
-/*! \file trice_test.c
+/*! \file trice_test.h
 \brief wrapper for tests
 \author thomas.hoehenleitner [at] seerose.net
 *******************************************************************************/

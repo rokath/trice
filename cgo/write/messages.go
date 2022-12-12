@@ -43,13 +43,3 @@ func Message2(addr uint32, b0 uint8) []byte {
 	len := int(CLen)
 	return o[:len]
 }
-
-// Message3 is a Go wrapper.
-func Message3(addr uint64, b0 uint8) []byte {
-	o := make([]byte, 1024)
-	Cout := (*C.uint8_t)(unsafe.Pointer(&o[0]))
-	C.CgoSetTriceBuffer(Cout)
-	CLen := C.Message3(C.ulonglong(addr), C.uchar(b0))
-	len := int(CLen)
-	return o[:len]
-}

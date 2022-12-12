@@ -40,7 +40,6 @@ uint8_t  TriceCycle = 0xc0; //!< TriceCycle is increased and transmitted with ea
 //! \li *da = 11iiiiiiI TT        TT        NC ... | ID(n): After writing 11iiiiiiI write the 32-bit TTTT value in 2 16-bit write operations.
 //! \li *da = 10iiiiiiI 10iiiiiiI TT        NC ... | Id(n): Write 10iiiiiiI as doubled value in one 32-bit operation into the trice buffer. The first 16-bit will be removed just before sending to the out channel. 
 //! \li *da =                     01iiiiiiI NC ... | id(n): Just write 01iiiiiiI as 16-bit operation.
-//! \li *da = 00iiiiiiI TT        TTTT TT   NC ... | iD(n): like ID but with 64-bit stamp instead of 32-bit stamp
 //! \li *da = ss0......extended trices are not used yet
 //! \li This way, after writing the 16-bit NC value the payload starts always at a 32-bit boundary.
 static size_t triceDataLen( uint8_t const* p ){

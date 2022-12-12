@@ -69,8 +69,7 @@ A *Trice* **ID** is needed as shown in the table:
 ###  2.4. <a name='TriceID0'></a>*Trice* ID 0
 
 * The trice ID 0 is a placeholder for "no ID", which is replaced automatically during the next `trice update` according to the used trice switches `-IDMethod`, `-IDMin` and `IDMax`.
-  * It is sufficient to write the TRICE macros just without the `id(0),` `Id(0),` `ID(0),` `iD(0),`. It will be inserted automatically according the `-stamp` switch.
-  * Alternatively `S0`, `S2`, `S4`, `S8` are usable in the future.
+  * It is sufficient to write the TRICE macros just without the `id(0),` `Id(0),` `ID(0),`. It will be inserted automatically according the `-stamp` switch.
 * With `trice zeroSourceTreeIds` all IDs in the given source tree are set to 0. This gives the option afterwards to set-up a new `til.json` according to a different `-IDMethod`, `-IDMin` and `IDMax`.
 
 ##  3. <a name='Tricesinsidesourcecode'></a>*Trices* inside source code
