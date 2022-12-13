@@ -5,7 +5,7 @@
   <ol>
 
 <!-- vscode-markdown-toc -->
-* 1. [Binary Data Format](#BinaryDataFormat)
+* 1. [Trice Binary Data Format](#TriceBinaryDataFormat)
 	* 1.1. [Framing](#Framing)
 	* 1.2. [Optional XTEA Encryption](#OptionalXTEAEncryption)
 	* 1.3. [Endianness](#Endianness)
@@ -16,10 +16,8 @@
 * 2. [Trice Decoding](#TriceDecoding)
 	* 2.1. [*Trice* ID list `til.json`](#TriceIDlisttil.json)
 	* 2.2. [*Trice* location information file `li.json`](#Tricelocationinformationfileli.json)
-* 3. [TREX (*TR*ice *EX*tendable) encoding](#TREXTRiceEXtendableencoding)
-* 4. [ID Management](#IDManagement)
-* 5. [Changelog](#Changelog)
-		* 5.1. [*Trice* format](#Triceformat)
+* 3. [Changelog](#Changelog)
+		* 3.1. [*Trice* format](#Triceformat)
 
 <!-- vscode-markdown-toc-config
 	numbering=true
@@ -33,18 +31,18 @@
 
 # *Trice*  Version 1.0 Specification (Draft)
 
-##  1. <a name='BinaryDataFormat'></a>Trice Binary Data Format
+##  1. <a name='TriceBinaryDataFormat'></a>Trice Binary Data Format
 
 ###  1.1. <a name='Framing'></a>Framing
 
 * *Trice* messages are framed binary data.
 * Framing is important for data disruption cases and is done with [TCOBS](./TCOBSSpecification.md) (has included data reduction) but the user can force to use [COBS](https://github.com/rokath/COBS), what makes it easier to write an own decoder in some cases. 
   * Change the setting `TRICE_FRAMING` inside `triceConfig.h` and use the **trice** tools `-framing` switch for that.
-* For robustness each *Trice* gets its own (T)COBS package per default. That is changeable.
+* For robustness each *Trice* gets its own (T)COBS package per default. That is changeable for transfer data reduction. Use `#define TRICE_TRANSFER_MODE TRICE_PACK_MULTI_MODE.` inside `triceConfig.h`.
 
 ###  1.2. <a name='OptionalXTEAEncryption'></a>Optional XTEA Encryption
 
-* If XTEA is used, the encrypted packages have a multiple-of-8 byte length.
+* If XTEA is used, the encrypted packages have a multiple-of-8 byte length containing 1-7 padding bytes.
 * The optional decryption is the next step after unpacking a data frame.
 
 
@@ -74,20 +72,23 @@ It is up to the user to provide the functions `TriceStamp16()` and/or `TriceStam
 
 ####  1.5.1. <a name='Symbols'></a>Symbols
 
-* The (time)stamp
-* `i` = ID bit
-* `I` = `iiiiiiii` = ID byte
-* `n` = number bit
-* `s` = selector bit
-* `N` = `snnnnnnnn` = number byte
-* `c` = cycle counter bit
-* `C` = s==0 ? `cccccccc` : `nnnnnnnn` = cycle counter byte or number byte extension
-* `t` = (time)stamp bit
-* `T` = `tttttttt` = (time)stamp byte
-* `d` = data bit
-* `D` = `dddddddd` = data byte
-* `...` = 0 to 32767 data bytes
-* `"..."` = format string
+| Symbol  | Meaning |
+| :-:     | - | 
+| `i`     | ID bit |
+| `I`     | `iiiiiiii` = ID byte |
+| `n`     | number bit |
+| `s`     | selector bit
+| `N`     | `snnnnnnnn` = 7-bit number byte |
+| `c`     | cycle counter bit |
+| `C`     | s==0 ? `cccccccc` : `nnnnnnnn` = cycle counter byte or number byte extension |
+| `t`     | (time)stamp bit |
+| `T`     | `tttttttt` = (time)stamp byte |
+| `d`     | data bit |
+| `D`     | `dddddddd` = data byte |
+| `...`   | 0 to 32767 data bytes |
+| `"..."` | format string |
+| `x`     | unspecified bit |
+| `X`     | =`xxxxxxxx` unspecified byte |
 
 ####  1.5.2. <a name='PackageFormat'></a>Package Format
 
@@ -112,6 +113,7 @@ The 14-bit IDs are used to display the log strings. These IDs are pointing in tw
 ###  2.1. <a name='TriceIDlisttil.json'></a>*Trice* ID list `til.json`
 
 * This file integrates all firmware variants and versions and is the key to display the message strings. With the latest version of this file all previous deployed firmware images are usable without the need to know the actual firmware version.
+* The files `til.json.h` and `til.json.c` are generated to help writing an own trice decoder tool.
 
 
 ###  2.2. <a name='Tricelocationinformationfileli.json'></a>*Trice* location information file `li.json`
@@ -123,25 +125,7 @@ The 14-bit IDs are used to display the log strings. These IDs are pointing in tw
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  3. <a name='TREXTRiceEXtendableencoding'></a>TREX (*TR*ice *EX*tendable) encoding
-
-* The extendable encoding leaves options for user specific data mixable with trice data. This allows filtering of the framed data by just checking a bit pattern.
-
-<p align="right">(<a href="#top">back to top</a>)</p>
-
-##  4. <a name='IDManagement'></a>ID Management
-
-* The IDs inside the source code are a "dealbreaker" as [bora](https://community.memfault.com/u/bora) mentioned in his [comment](https://interrupt.memfault.com/blog/trice). In fact it is not acceptable for library code used in several projects. An improved approach could look like this:
-
-
-```c
-TRICE( id(0), "...", ...); // a trice without stamp
-TRICE( Id(0), "...", ...); // a trice with a 16-bit stamp
-TRICE( ID(0), "...", ...); // a trice with a 32-bit stamp
-```
-
-
-##  5. <a name='Changelog'></a>Changelog
+##  3. <a name='Changelog'></a>Changelog
 
 | Date        | Version | Comment |
 | -           | -       | - |
@@ -163,9 +147,28 @@ TRICE( ID(0), "...", ...); // a trice with a 32-bit stamp
 | 2022-OCT-08 | 0.11.2  | S0...X3 added |
 | 2022-NOV-28 | 0.11.3  | +[#337](https://github.com/rokath/trice/issues/337) in [Framing](#Framing)|
 | 2022-DEC-11 | 0.12.0  | restructured |
+| 2022-DEC-13 | 0.13.0  | unneded text removed, some clarifications |
 
 
- <!-- For the implementation of the optional *Trice* extensions (see below), a `til.json` format extension is needed because several files are unhandy. Both `til.json` formats will be accepted in the future. -->
+ <!-- 
+ 
+-##  3. <a name='TREXTRiceEXtendableencoding'></a>TREX (*TR*ice *EX*tendable) encoding
+
+* The extendable encoding leaves options for user specific data mixable with trice data. This allows filtering of the framed data by just checking a bit pattern.
+
+<p align="right">(<a href="#top">back to top</a>)</p>
+
+-##  4. <a name='IDManagement'></a>ID Management
+
+* The IDs inside the source code are a "dealbreaker" as [bora](https://community.memfault.com/u/bora) mentioned in his [comment](https://interrupt.memfault.com/blog/trice). In fact it is not acceptable for library code used in several projects. An improved approach could look like this:
+
+
+```c
+TRICE( id(0), "...", ...); // a trice without stamp
+TRICE( Id(0), "...", ...); // a trice with a 16-bit stamp
+TRICE( ID(0), "...", ...); // a trice with a 32-bit stamp
+```
+ For the implementation of the optional *Trice* extensions (see below), a `til.json` format extension is needed because several files are unhandy. Both `til.json` formats will be accepted in the future. -->
 <!-- With [TREX](#TREXTriceextendableencoding) encoding the location information needs no transmission anymore but goes not into the `til.json` file. In the field the location information is normally useless and probably outdated. The software developer is the one, mostly interested in the location information.  When the firmware left the developer table, only the file `til.json` is of interest.--> 
  <!-- Also the planned `-binaryLogfile` option is possible. See [issue #267 Add `-binaryLogfile` option](https://github.com/rokath/trice/issues/267). It allows a replay of the logs and the developer can provide the right version of the `li.json` file.-->
 <!--
@@ -257,7 +260,7 @@ TRICE( X3, "...", ...); // an extended type 3 trice
     * If all IDs in the slice with identical file name are used, a new ID is generated.
     * Of course there are cases possible, where some unwanted ID "shift" happens. But we have to consider, that first we are talking about rare identical **trices** and that such case, if, only happens once with the result, that the `til.json` file adds a bit data garbage. A `til.json` cleaning is always possible, but you loose history then.
 
-####  5.1. <a name='Triceformat'></a>*Trice* format
+####  3.1. <a name='Triceformat'></a>*Trice* format
 
 * Parameter data bytes start after the optional timestamp.
 * N is the parameter data bytes count. Padding bytes are not counted.

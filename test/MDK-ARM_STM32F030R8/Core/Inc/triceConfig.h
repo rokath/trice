@@ -85,6 +85,7 @@ extern "C" {
 ///////////////////////////////////////////////////////////////////////////////
 
 //! TRICE_TRANSFER_MODE is the selected trice transfer method. Options: TRICE_SAFE_SINGLE_MODE (recommended), TRICE_PACK_MULTI_MODE.
+//! TRICE_PACK_MULTI_MODE is usable only in TRICE_MODE TRICE_DOUBLE_BUFFER.
 #define TRICE_TRANSFER_MODE TRICE_SAFE_SINGLE_MODE
 
 //! TRICE_CYCLE_COUNTER adds a cycle counter to each trice message.
