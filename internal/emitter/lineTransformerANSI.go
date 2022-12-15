@@ -117,7 +117,7 @@ var colorChannels = []colorChannel{
 
 	// user modes
 	{0, []string{"Timestamp", "tim", "time", "TIM", "TIME", "TIMESTAMP", "timestamp"}, colorizeTIME},
-	{0, []string{"m", "msg", "message", "M", "MSG", "MESSAGE"}, colorizeMESSAGE},
+	{0, []string{"m", "msg", "message", "M", "MSG", "MESSAGE", "OK"}, colorizeMESSAGE},
 	{0, []string{"r", "rx", "rd", "read", "rd_", "RD", "RD_", "READ"}, colorizeREAD},
 	{0, []string{"w", "tx", "wr", "write", "wr_", "WR", "WR_", "WRITE"}, colorizeWRITE},
 	{0, []string{"receive", "rx", "RECEIVE", "Receive", "RX"}, colorizeRECEIVE},
