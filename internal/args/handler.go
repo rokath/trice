@@ -171,15 +171,13 @@ func logLoop(w io.Writer) {
 			counter++
 			continue
 		}
-		var rc io.ReadCloser
-		rc = rwc
-		defer func() { msg.OnErr(rc.Close()) }()
+		defer func() { msg.OnErr(rwc.Close()) }()
 		interrupted = true
 		if receiver.ShowInputBytes {
-			rc = receiver.NewBytesViewer(w, rc)
+			rwc = receiver.NewBytesViewer(w, rwc)
 		}
 		if receiver.BinaryLogfileName != "off" && receiver.BinaryLogfileName != "none" {
-			rc = receiver.NewBinaryLogger(w, rc)
+			rwc = receiver.NewBinaryLogger(w, rwc)
 		}
 		e = translator.Translate(w, sw, lu, m, li, rwc)
 		if io.EOF == e {

@@ -297,10 +297,10 @@ type binaryLogger struct {
 	r io.ReadCloser
 }
 
-// NewBinaryLogger returns a ReadCloser `in` which is internally using reader `from`.
+// NewBinaryLogger returns a ReadWriteCloser `in` which is internally using reader `from`.
 // Calling the `in` Read method leads to internally calling the `from` Read method
 // but lets to do some additional logging
-func NewBinaryLogger(w io.Writer, from io.ReadCloser) (in io.ReadCloser) {
+func NewBinaryLogger(w io.Writer, from io.ReadWriteCloser) (in io.ReadWriteCloser) {
 	fn := BinaryLogfileName
 	if fn == "none" || fn == "off" || fn == "nul" || fn == "" {
 		return from
@@ -333,6 +333,8 @@ func (p *binaryLogger) Read(buf []byte) (count int, err error) {
 // Close is needed to satisfy the ReadCloser interface.
 func (p *binaryLogger) Close() error { return nil }
 
+func (p *binaryLogger) Write(buf []byte) (count int, err error) { return 0, nil }
+
 //                                                                                               //
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -342,13 +344,13 @@ func (p *binaryLogger) Close() error { return nil }
 //	//
 type bytesViewer struct {
 	w io.Writer
-	r io.ReadCloser
+	r io.ReadWriteCloser
 }
 
 // NewBytesViewer returns a ReadCloser `in` which is internally using reader `from`.
 // Calling the `in` Read method leads to internally calling the `from` Read method
 // but lets to do some additional action like logging
-func NewBytesViewer(w io.Writer, from io.ReadCloser) (in io.ReadCloser) {
+func NewBytesViewer(w io.Writer, from io.ReadWriteCloser) (in io.ReadWriteCloser) {
 	p := &bytesViewer{w, from}
 	return p
 }
@@ -371,6 +373,9 @@ func (p *bytesViewer) Read(buf []byte) (count int, err error) {
 
 // Close is needed to satisfy the ReadCloser interface.
 func (p *bytesViewer) Close() error { return nil }
+
+// Close is needed to satisfy the ReadCloser interface.
+func (p *bytesViewer) Write(_ []byte) (int, error) { return 0, nil }
 
 //                                                                                               //
 ///////////////////////////////////////////////////////////////////////////////////////////////////
