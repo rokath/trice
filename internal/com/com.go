@@ -140,7 +140,13 @@ func GetSerialPorts(w io.Writer) ([]string, error) {
 		return ports, err
 	}
 	for _, port := range ports {
-		fmt.Fprintln(w, "Found port: ", port)
+		pS := NewCOMPortGoBugSt(w, false, port)
+		if pS.Open() {
+			pS.Close()
+			fmt.Fprintln(w, "Found port: ", port)
+		} else {
+			fmt.Fprintln(w, "Found port: ", port, "(used)")
+		}
 	}
 	return ports, err
 }
