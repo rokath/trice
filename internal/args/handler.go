@@ -55,45 +55,45 @@ func Handler(w io.Writer, args []string) error {
 		return fmt.Errorf("unknown sub-command '%s'. try: 'trice help|h'", subCmd)
 	case "h", "help":
 		msg.OnErr(fsScHelp.Parse(subArgs))
-		distributeArgs(w)
+		w = distributeArgs(w)
 		return scHelp(w)
 	case "s", "scan":
 		msg.OnErr(fsScScan.Parse(subArgs))
-		distributeArgs(w)
+		w = distributeArgs(w)
 		_, err := com.GetSerialPorts(w)
 		return err
 	case "ver", "version":
 		msg.OnErr(fsScVersion.Parse(subArgs))
-		distributeArgs(w)
+		w = distributeArgs(w)
 		return scVersion(w)
 	case "renew":
 		msg.OnErr(fsScRenew.Parse(subArgs))
-		distributeArgs(w)
+		w = distributeArgs(w)
 		return id.SubCmdReNewList(w)
 	case "r", "refresh":
 		msg.OnErr(fsScRefresh.Parse(subArgs))
-		distributeArgs(w)
+		w = distributeArgs(w)
 		return id.SubCmdRefreshList(w)
 	case "u", "update":
 		msg.OnErr(fsScUpdate.Parse(subArgs))
-		distributeArgs(w)
+		w = distributeArgs(w)
 		return id.SubCmdUpdate(w)
 	case "z", "zeroSourceTreeIds":
 		msg.OnErr(fsScZero.Parse(subArgs))
-		distributeArgs(w)
+		w = distributeArgs(w)
 		//  return id.ScZero(w, *pSrcZ, fsScZero)
 		return id.ScZeroMulti(w, fsScZero)
 	case "sd", "shutdown":
 		msg.OnErr(fsScSdSv.Parse(subArgs))
-		distributeArgs(w)
+		w = distributeArgs(w)
 		return emitter.ScShutdownRemoteDisplayServer(w, 0) // 0|1: 0=no 1=with shutdown timestamp in display server
 	case "ds", "displayServer":
 		msg.OnErr(fsScSv.Parse(subArgs))
-		distributeArgs(w)
+		w = distributeArgs(w)
 		return emitter.ScDisplayServer(w) // endless loop
 	case "l", "log":
 		msg.OnErr(fsScLog.Parse(subArgs))
-		distributeArgs(w)
+		w = distributeArgs(w)
 		logLoop(w) // endless loop
 		return nil
 	}
@@ -213,7 +213,7 @@ func evaluateColorPalette(w io.Writer) {
 
 // distributeArgs is distributing values used in several packages.
 // It must not be called before the appropriate arg parsing.
-func distributeArgs(w io.Writer) {
+func distributeArgs(w io.Writer) io.Writer {
 
 	id.Verbose = verbose
 	link.Verbose = verbose
@@ -223,7 +223,9 @@ func distributeArgs(w io.Writer) {
 	translator.Verbose = verbose
 	emitter.TestTableMode = decoder.TestTableMode
 
+	w = triceOutput(w, LogfileName)
 	evaluateColorPalette(w)
+	return w
 }
 
 // triceOutput returns w as a a optional combined io.Writer. If fileName is given the returned io.Writer write a copy into the given file.
