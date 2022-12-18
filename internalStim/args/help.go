@@ -56,10 +56,10 @@ func helpInfo(w io.Writer) error {
 
 func scanInfo(w io.Writer) error {
 	fmt.Fprintln(w, "")
-	_, e := fmt.Fprintln(w, `sub-command 's|scan': Shows available serial ports)`)
+	_, e := fmt.Fprintln(w, `sub-command 's|scan': Shows available serial ports)
+example: 'stim s': Show COM ports.`)
 	fsScScan.SetOutput(w)
 	fsScScan.PrintDefaults()
-	fmt.Fprintln(w, "example: 'stim s': Show COM ports.")
 	return e
 }
 

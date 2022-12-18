@@ -26,8 +26,8 @@ func NewLut(w io.Writer, fn string) TriceIDLookUp {
 		return lu
 	}
 	msg.FatalOnErr(lu.fromFile(fn))
-	fmt.Fprintln(w, "Read ID List file", fn, "with", len(lu), "items.")
 	if Verbose {
+		fmt.Fprintln(w, "Read ID List file", fn, "with", len(lu), "items.")
 	}
 	return lu
 }
@@ -39,8 +39,8 @@ func NewLutLI(w io.Writer, fn string) TriceIDLookUpLI {
 		return li
 	}
 	msg.FatalOnErr(li.fromFile(fn))
-	fmt.Fprintln(w, "Read ID location information file", fn, "with", len(li), "items.")
 	if Verbose {
+		fmt.Fprintln(w, "Read ID location information file", fn, "with", len(li), "items.")
 	}
 	return li
 }

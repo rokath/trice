@@ -81,10 +81,10 @@ func EqualLines(tb testing.TB, exp, act string) {
 	//fmt.Println("lines:", len(expS), len(actS))
 	//assert.True(tb, len(expS) == len(actS))
 
-	if len(expS) != len(actS) {
-		tb.Fail()
-		return
-	}
+	//if len(expS) != len(actS) {
+	//	tb.Fail()
+	//	return
+	//}
 	for i := range actS {
 		e := standardizeSpaces(expS[i])
 		a := standardizeSpaces(actS[i])

@@ -26,15 +26,15 @@ import (
 //	PS C:\repos\trice> trice s
 //	Found port:  COM4
 func TestSerial(t *testing.T) {
-	ss, _ := com.GetSerialPorts(os.Stdout)
-	if len(ss) == 0 {
-		return
-	}
-	//assert.Nil(t, err)
 	com.DataBits = 8
 	com.Parity = "none"
 	com.StopBits = "1"
 	var verbose bool
+
+	ss, _ := com.GetSerialPorts(os.Stdout)
+	if len(ss) == 0 {
+		return
+	}
 
 	pS := com.NewCOMPortGoBugSt(os.Stdout, verbose, "noCOM")
 	assert.False(t, pS.Open())
