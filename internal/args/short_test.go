@@ -6,7 +6,6 @@ package args
 import (
 	"bytes"
 	"io/ioutil"
-	"log"
 	"os"
 	"testing"
 
@@ -99,23 +98,11 @@ func testVersion(t *testing.T, v []string) {
 
 	var buf0 bytes.Buffer
 	msg.OnErr(Handler(&buf0, []string{"trice", "ver"}))
-	act0 := string(buf0.Bytes())
+	act0 := buf0.String()
 	assert.Equal(t, exp, act0)
 
 	var buf1 bytes.Buffer
 	msg.OnErr(Handler(&buf1, []string{"trice", "version"}))
-	act1 := string(buf1.Bytes())
+	act1 := buf1.String()
 	assert.Equal(t, exp, act1)
-}
-
-func _TestShutdown(t *testing.T) { // crashes
-	var buf bytes.Buffer
-	log.SetFlags(0)
-	o := msg.OsExitDisallow()
-	err := Handler(&buf, []string{"trice", "sd"})
-	msg.OsExitAllow(o)
-	assert.Nil(t, err)
-	s := "Found port:"
-	act := buf.String()
-	assert.Equal(t, s, act[:len(s)])
 }

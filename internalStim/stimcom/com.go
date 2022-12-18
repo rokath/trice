@@ -2,7 +2,7 @@
 // Use of this source code is governed by a license that can be found in the LICENSE file.
 
 // Package com reads from and writes to COM port.
-package com
+package stimcom
 
 import (
 	"fmt"

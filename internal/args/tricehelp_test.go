@@ -4,33 +4,10 @@
 package args
 
 import (
-	"bytes"
-	"fmt"
-	"sync"
 	"testing"
 
 	"github.com/rokath/trice/internal/id"
-	"github.com/rokath/trice/pkg/tst"
 )
-
-var x *sync.RWMutex
-
-func init() {
-	x = new(sync.RWMutex)
-}
-
-func execHelper(t *testing.T, input []string, expect string) {
-	x.Lock()
-	defer x.Unlock()
-	var out bytes.Buffer
-	FlagsInit() // maybe needed for clearance of previous tests (global vars) // todo: is already in init() called
-	err := Handler(&out, input)
-	if err != nil {
-		fmt.Fprint(&out, err)
-	}
-	act := out.String()
-	tst.EqualLines(t, expect, act)
-}
 
 func TestHelpRenew(t *testing.T) {
 	args := []string{"trice", "help", "-renew"}
@@ -403,13 +380,6 @@ example: 'trice renew': Rebuild ID list from source tree, discard old IDs.
             This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true.
 `
 	id.FnJSON = "til.json"
-	execHelper(t, args, expect)
-}
-
-// needs to work in Linux and Windows!
-func _TestCOBSLog(t *testing.T) {
-	args := []string{"trice", "log", "-idList", "til.json", "-port", "FILEBUFFER", "-args", "C:/Users/T.Hoehenleitner/AppData/Local/Temp/trice-317444282.bin", "-ts", "off"}
-	expect := ""
 	execHelper(t, args, expect)
 }
 

@@ -192,10 +192,10 @@ func scVersion(w io.Writer) error {
 		fmt.Fprintln(w, "https://github.com/rokath/trice")
 		//emitter.ShowAllColors()
 	}
-	if Version != "" {
-		fmt.Fprintf(w, "version=%v, commit=%v, built at %v\n", Version, Commit, Date)
-	} else {
+	if Version == "" {
 		fmt.Fprintf(w, "version=devel, built %s\n", Date)
+	} else {
+		fmt.Fprintf(w, "version=%v, commit=%v, built at %v\n", Version, Commit, Date)
 	}
 	return nil
 }

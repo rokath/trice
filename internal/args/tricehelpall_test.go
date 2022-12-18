@@ -11,7 +11,7 @@ import (
 
 func TestHelpAll(t *testing.T) {
 	input := []string{"trice", "help", "-all"}
-	expected := `syntax: 'trice sub-command' [params]
+	expect := `syntax: 'trice sub-command' [params]
       sub-command 'ds|displayServer': Starts a display server.
       Use in a separate console. On Windows use wt (https://github.com/microsoft/terminal) or a linux shell like git-bash to avoid ANSI color issues.
       Running "trice ds" inside a console opens a display server to be used for displaying the TRICE logs remotely.
@@ -487,5 +487,5 @@ func TestHelpAll(t *testing.T) {
               This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true.
       `
 	id.FnJSON = "til.json"
-	execHelper(t, input, expected)
+	execHelper(t, input, expect)
 }

@@ -1,13 +1,13 @@
 // Copyright 2020 Thomas.Hoehenleitner [at] seerose.net
 
-package args
+package stimargs
 
 import (
 	"flag"
 	"io"
 
-	"github.com/rokath/trice/internalStim/com"
 	"github.com/rokath/trice/internalStim/stim"
+	"github.com/rokath/trice/internalStim/stimcom"
 )
 
 var (
@@ -58,9 +58,9 @@ var (
 // distributeArgs is distributing values used in several packages.
 // It must not be called before the appropriate arg parsing.
 func distributeArgs(w io.Writer) {
-	com.Verbose = verbose
-	com.SerialPort = serialPort
-	com.BaudRate = baudRate
-	com.Parity = parity
+	stimcom.Verbose = verbose
+	stimcom.SerialPort = serialPort
+	stimcom.BaudRate = baudRate
+	stimcom.Parity = parity
 	stim.Verbose = verbose
 }

@@ -2,7 +2,7 @@
 // Use of this source code is governed by a license that can be found in the LICENSE file.
 
 // Package com_test is a black-box test.
-package com_test
+package stimcom_test
 
 import (
 	"os"

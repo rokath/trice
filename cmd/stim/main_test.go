@@ -9,7 +9,7 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/rokath/trice/internalStim/args"
+	"github.com/rokath/trice/internalStim/stimargs"
 	"github.com/rokath/trice/pkg/tst"
 )
 
@@ -25,7 +25,7 @@ func TestWrongSwitch(t *testing.T) {
 	os.Args = []string{"stim", "wrong"}
 	expect := `unknown sub-command 'wrong'. try: 'stim help|h'
 	`
-	execHelper(t, expect)
+	execHelper1(t, expect)
 }
 
 func TestVersion(t *testing.T) {
@@ -35,16 +35,16 @@ func TestVersion(t *testing.T) {
 	os.Args = []string{"stim", "version"}
 	expect := `version=1.2.3, commit=myCommit, built at 2006-01-02_1504-05
 	`
-	execHelper(t, expect)
+	execHelper1(t, expect)
 	version = ""
 	commit = ""
 	date = ""
 }
 
-func execHelper(t *testing.T, expect string) {
+func execHelper1(t *testing.T, expect string) {
 	m.Lock()
 	defer m.Unlock()
-	args.FlagsInit() // maybe needed for clearance of previous tests (global vars)
+	stimargs.FlagsInit() // maybe needed for clearance of previous tests (global vars)
 	var out bytes.Buffer
 	doit(&out)
 	act := out.String()

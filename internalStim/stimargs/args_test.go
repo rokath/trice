@@ -1,16 +1,13 @@
 // Copyright 2020 Thomas.Hoehenleitner [at] seerose.net
 
-package args
+package stimargs
 
 import (
 	"bytes"
-	"fmt"
 	"os"
-	"sync"
 	"testing"
 
 	"github.com/rokath/trice/pkg/msg"
-	"github.com/rokath/trice/pkg/tst"
 	"github.com/tj/assert"
 )
 
@@ -51,25 +48,6 @@ func TestVersion(t *testing.T) {
 	verbose = false
 }
 
-var m *sync.RWMutex
-
-func init() {
-	m = new(sync.RWMutex)
-}
-
-func execHelper(t *testing.T, input []string, expect string) {
-	m.Lock()
-	defer m.Unlock()
-	var out bytes.Buffer
-	FlagsInit() // maybe needed for clearance of previous tests (global vars) // todo: is already in init() called
-	err := Handler(&out, input)
-	if err != nil {
-		fmt.Fprint(&out, err)
-	}
-	act := out.String()
-	tst.EqualLines(t, expect, act)
-}
-
 func testVersion(t *testing.T, v []string) {
 	fi, err := os.Stat(os.Args[0])
 	assert.Nil(t, err)
@@ -78,11 +56,11 @@ func testVersion(t *testing.T, v []string) {
 
 	var buf0 bytes.Buffer
 	msg.OnErr(Handler(&buf0, []string{"stim", "ver"}))
-	act0 := string(buf0.Bytes())
+	act0 := buf0.String()
 	assert.Equal(t, exp, act0)
 
 	var buf1 bytes.Buffer
 	msg.OnErr(Handler(&buf1, []string{"stim", "version"}))
-	act1 := string(buf1.Bytes())
+	act1 := buf1.String()
 	assert.Equal(t, exp, act1)
 }

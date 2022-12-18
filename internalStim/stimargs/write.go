@@ -1,6 +1,6 @@
 // Copyright 2020 Thomas.Hoehenleitner [at] seerose.net
 
-package args
+package stimargs
 
 import (
 	"io"
