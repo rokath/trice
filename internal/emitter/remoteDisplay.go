@@ -8,7 +8,6 @@ import (
 	"io"
 	"log"
 	"net/rpc"
-	"os"
 	"path/filepath"
 	"runtime"
 	"strings"
@@ -109,8 +108,8 @@ func (p *remoteDisplay) connect() {
 // args[0] (ipa) is the IP address to be used to connect to the remote display.
 // args[1] (ipp) is the IP port to be used to connect to the remote display.
 func ScShutdownRemoteDisplayServer(w io.Writer, timeStamp int64, args ...string) error {
-	args = append(args, "", "")       // make sure to have at least 2 elements in args.
-	p := newRemoteDisplay(w, os.Args) //"", "", args[0], args[1])
+	args = append(args, "", "")    // make sure to have at least 2 elements in args.
+	p := newRemoteDisplay(w, args) //"", "", args[0], args[1])
 	if nil == p.PtrRPC {
 		p.connect()
 	}
@@ -121,9 +120,9 @@ func ScShutdownRemoteDisplayServer(w io.Writer, timeStamp int64, args ...string)
 // StopServer sends signal to display server to quit.
 // `ts` is used as flag. If 1 shutdown message is with timestamp (default usage), if 0 shutdown message is without timestamp (for testing).
 func (p *remoteDisplay) stopServer(ts int64) {
-	if Verbose {
-		fmt.Fprintln(p.w, "sending DisplayServer.Shutdown...")
-	}
+	//  if Verbose {
+	//  	fmt.Fprintln(p.w, "sending DisplayServer.Shutdown...")
+	//  }
 	p.Err = p.PtrRPC.Call("DisplayServer.Shutdown", []int64{ts}, nil) // if 1st param nil -> gob: cannot encode nil value
-	msg.FatalOnErr(p.Err)
+	//msg.OnErr(p.Err)
 }
