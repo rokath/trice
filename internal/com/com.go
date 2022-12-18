@@ -9,26 +9,30 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"os"
 	"strings"
 
-	serialgobugst "go.bug.st/serial"
+	"go.bug.st/serial"
 )
 
 var (
-	// Baud is the configured baudrate of the serial port. It is set as command line parameter.
-	Baud int
+	// SerialPortName is the OS specific serial port name used
+	SerialPortName string
 
-	// DataBits is the serial port bit count fpr one "byte".
+	// BaudRate is the configured baud rate of the serial port. It is set as command line parameter.
+	BaudRate int
+
+	// DataBits is the serial port bit count for one "byte".
 	DataBits int
 
-	// Parity is the transmitted bit parity: even, odd, none
+	// Parity is the transmitted bit parity: "even", "odd", "none"
 	Parity string
 
-	// stopbits is the number of stop bits: "1", "1.5", "2"
+	// StopBits is the number of stop bits: "1", "1.5", "2"
 	StopBits string
 
 	// Verbose shows additional information if set true.
-	// Verbose bool
+	Verbose = false
 )
 
 // COMport is the comport interface type to use different COMports.
@@ -39,55 +43,59 @@ type COMport interface {
 	Close() error
 }
 
-// PortGoBugSt is a serial device trice receiver
-type PortGoBugSt struct {
+// port is a serial device trice receiver
+type port struct {
 	verbose      bool
 	port         string
-	serialHandle serialgobugst.Port
-	serialMode   serialgobugst.Mode
+	serialHandle serial.Port
+	serialMode   serial.Mode
 	w            io.Writer
 }
 
-// NewCOMPortGoBugSt creates an instance of a serial device type trice receiver
-func NewCOMPortGoBugSt(w io.Writer, verbose bool, comPortName string) *PortGoBugSt {
-	r := &PortGoBugSt{
-		port: comPortName,
-		serialMode: serialgobugst.Mode{
-			BaudRate: Baud,
-			DataBits: 8,
-			Parity:   serialgobugst.NoParity,
-			StopBits: serialgobugst.OneStopBit,
-		},
-	}
-	if 5 <= DataBits && DataBits <= 9 {
-		r.serialMode.DataBits = DataBits
-	} else {
-		log.Fatalf("Invalid databits value %d. Valid are 5-9\n", DataBits)
-	}
+// NewPort creates an instance of a serial device type trice receiver
+func NewPort(w io.Writer, comPortName string, verbose bool) *port {
+	var parity serial.Parity
 	switch strings.ToLower(Parity) {
+	case "n", "no", "none":
+		parity = serial.NoParity
+	case "e", "ev", "even":
+		parity = serial.EvenParity
 	case "o", "odd":
-		r.serialMode.Parity = serialgobugst.OddParity
-	case "e", "even":
-		r.serialMode.Parity = serialgobugst.EvenParity
-	case "n", "none":
-		r.serialMode.Parity = serialgobugst.NoParity
+		parity = serial.OddParity
 	default:
-		log.Fatalf(" Unknown parity value \"%s\". Valid are \"odd\", \"even\". \"none\"\n", Parity)
+		log.Fatal("invalid parity value: ", Parity, " Accepting case insensitive: n|no|none|e|even||o|odd.")
 	}
+
+	var stopBits serial.StopBits
 	switch strings.ToLower(StopBits) {
 	case "1", "one":
-		r.serialMode.StopBits = serialgobugst.OneStopBit
+		stopBits = serial.OneStopBit
 	case "1.5":
-		r.serialMode.StopBits = serialgobugst.OnePointFiveStopBits
+		stopBits = serial.OnePointFiveStopBits
 	case "2", "two":
-		r.serialMode.StopBits = serialgobugst.TwoStopBits
+		stopBits = serial.TwoStopBits
 	default:
-		log.Fatalf(" Unknown stop bits value \"%s\". Valid are \"1\", \"1.5\". \"2\"\n", Parity)
+		log.Fatalf(" Unknown stop bits value \"%s\". Valid are \"1\", \"1.5\". \"2\"\n", StopBits)
 	}
+
+	if !(5 <= DataBits && DataBits <= 9) {
+		log.Fatalf("Invalid dataBits value %d. Valid are 5-9\n", DataBits)
+	}
+
+	r := &port{
+		port: comPortName,
+		serialMode: serial.Mode{
+			BaudRate: BaudRate,
+			DataBits: DataBits,
+			Parity:   parity,
+			StopBits: stopBits,
+		},
+	}
+
 	r.w = w
 	r.verbose = verbose
 	if verbose {
-		fmt.Fprintln(w, "NewCOMPortGoBugSt:", r)
+		fmt.Fprintln(w, "New COM port:", r)
 	}
 	return r
 }
@@ -96,18 +104,18 @@ func NewCOMPortGoBugSt(w io.Writer, verbose bool, comPortName string) *PortGoBug
 // the serial port or an error occurs.
 // It stores data received from the serial port into the provided byte array
 // buffer. The function returns the number of bytes read.
-func (p *PortGoBugSt) Read(buf []byte) (int, error) {
+func (p *port) Read(buf []byte) (int, error) {
 	return p.serialHandle.Read(buf)
 }
 
-func (p *PortGoBugSt) Write(buf []byte) (int, error) {
+func (p *port) Write(buf []byte) (int, error) {
 	return p.serialHandle.Write(buf)
 }
 
 // Close releases port.
-func (p *PortGoBugSt) Close() error {
+func (p *port) Close() error {
 	if p.verbose {
-		fmt.Fprintln(p.w, "Closing GoBugSt COM port")
+		fmt.Fprintln(p.w, "Closing COM port")
 	}
 	return p.serialHandle.Close()
 }
@@ -115,12 +123,12 @@ func (p *PortGoBugSt) Close() error {
 // Open initializes the serial receiver.
 //
 // It opens a serial port.
-func (p *PortGoBugSt) Open() bool {
+func (p *port) Open() bool {
 	var err error
-	p.serialHandle, err = serialgobugst.Open(p.port, &p.serialMode)
+	p.serialHandle, err = serial.Open(p.port, &p.serialMode)
 	if err != nil {
 		if p.verbose {
-			fmt.Fprintln(p.w, err, "try 'trice s' to check for serial ports")
+			fmt.Fprintln(p.w, err, "try '", os.Args[0], "s' to check for serial ports")
 		}
 		return false
 	}
@@ -129,18 +137,20 @@ func (p *PortGoBugSt) Open() bool {
 
 // GetSerialPorts scans for serial ports.
 func GetSerialPorts(w io.Writer) ([]string, error) {
-	ports, err := serialgobugst.GetPortsList()
+	ports, err := serial.GetPortsList()
 
 	if err != nil {
 		fmt.Fprintln(w, err)
 		return ports, err
 	}
 	if len(ports) == 0 {
-		fmt.Fprintln(w, "No serial ports found!")
+		if Verbose {
+			fmt.Fprintln(w, "No serial ports found!")
+		}
 		return ports, err
 	}
 	for _, port := range ports {
-		pS := NewCOMPortGoBugSt(w, false, port)
+		pS := NewPort(w, port, false)
 		if pS.Open() {
 			pS.Close()
 			fmt.Fprintln(w, "Found port: ", port)

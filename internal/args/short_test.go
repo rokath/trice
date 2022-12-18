@@ -43,6 +43,12 @@ func TestXyz(t *testing.T) {
 	execHelper(t, args, expect)
 }
 
+func TestXyzStim(t *testing.T) {
+	args := []string{"stim", "xyz"}
+	expect := `unknown sub-command 'xyz'. try: 'stim help|h'`
+	execHelper(t, args, expect)
+}
+
 func TestNoArgs(t *testing.T) {
 	args := []string{"trice"}
 	expect := `no args, try: 'trice help'`
@@ -93,9 +99,8 @@ func TestVersion(t *testing.T) {
 func testVersion(t *testing.T, v []string) {
 	fi, err := os.Stat(os.Args[0])
 	assert.Nil(t, err)
-	buildTime := fi.ModTime().String()
-	exp := v[0] + "version=devel, built " + buildTime + "\n" + v[1]
-
+	Date = fi.ModTime().String()
+	exp := v[0] + "version=devel, built " + Date + "\n" + v[1]
 	var buf0 bytes.Buffer
 	msg.OnErr(Handler(&buf0, []string{"trice", "ver"}))
 	act0 := buf0.String()

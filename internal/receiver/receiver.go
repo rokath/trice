@@ -266,7 +266,7 @@ func NewReadWriteCloser(w io.Writer, verbose bool, port, args string) (r io.Read
 		//if args == "TARM" { // for comparing dynamic behavior
 		//	c = com.NewCOMPortTarm(w, verbose, port)
 		//} else {
-		c = com.NewCOMPortGoBugSt(w, verbose, port)
+		c = com.NewPort(w, port, verbose)
 		//}
 		if !c.Open() {
 			err = fmt.Errorf("can not open %s", port)

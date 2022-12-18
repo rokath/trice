@@ -9,7 +9,7 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/rokath/trice/internalStim/stimargs"
+	"github.com/rokath/trice/internal/args"
 	"github.com/rokath/trice/pkg/tst"
 )
 
@@ -44,7 +44,7 @@ func TestVersion(t *testing.T) {
 func mainExecHelper(t *testing.T, expect string) {
 	m.Lock()
 	defer m.Unlock()
-	stimargs.FlagsInit() // maybe needed for clearance of previous tests (global vars)
+	args.FlagsInit() // maybe needed for clearance of previous tests (global vars)
 	var out bytes.Buffer
 	doit(&out)
 	act := out.String()

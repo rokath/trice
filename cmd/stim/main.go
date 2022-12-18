@@ -10,7 +10,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/rokath/trice/internalStim/stimargs"
+	"github.com/rokath/trice/internal/args"
 )
 
 var (
@@ -33,13 +33,13 @@ func main() {
 func doit(w io.Writer) {
 
 	// inject values
-	stimargs.Version = version
-	stimargs.Commit = commit
-	stimargs.Date = date
+	args.Version = version
+	args.Commit = commit
+	args.Date = date
 
 	rand.Seed(time.Now().UnixNano())
 
-	e := stimargs.Handler(w, os.Args)
+	e := args.Handler(w, os.Args)
 	if nil != e {
 		fmt.Fprintln(w, error.Error(e))
 	}

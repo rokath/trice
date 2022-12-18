@@ -36,24 +36,24 @@ func TestSerial(t *testing.T) {
 		return
 	}
 
-	pS := com.NewCOMPortGoBugSt(os.Stdout, verbose, "noCOM")
+	pS := com.NewPort(os.Stdout, "noCOM", verbose)
 	assert.False(t, pS.Open())
 
 	verbose = true
-	pS = com.NewCOMPortGoBugSt(os.Stdout, verbose, "noCOM")
+	pS = com.NewPort(os.Stdout, "noCOM", verbose)
 	assert.False(t, pS.Open())
 
 	for i := range ss {
 		port := ss[i]
 		verbose = false
-		pS = com.NewCOMPortGoBugSt(os.Stdout, verbose, port)
+		pS = com.NewPort(os.Stdout, port, verbose)
 		if pS.Open() {
 			//b := make([]byte, 1)
 			//_, _ = p.Read(b)
 			assert.Nil(t, pS.Close())
 		}
 		verbose = true
-		pS = com.NewCOMPortGoBugSt(os.Stdout, verbose, port)
+		pS = com.NewPort(os.Stdout, port, verbose)
 		if pS.Open() {
 			//b := make([]byte, 1)
 			//_, _ = p.Read(b)

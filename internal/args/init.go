@@ -122,7 +122,7 @@ Using a virtual serial COM port on the PC over a FTDI USB adapter is a most like
 `
 	fsScLog.StringVar(&receiver.Port, "port", "J-LINK", info)           // flag
 	fsScLog.StringVar(&receiver.Port, "p", "J-LINK", "short for -port") // short flag
-	fsScLog.IntVar(&com.Baud, "baud", 115200, `Set the serial port baudrate.
+	fsScLog.IntVar(&com.BaudRate, "baud", 115200, `Set the serial port baudrate.
 It is the only setup parameter. The other values default to 8N1 (8 data bits, no parity, one stopbit).
 `)
 	fsScLog.IntVar(&com.DataBits, "databits", 8, `Set the serial port databits, options: 7, 9`)

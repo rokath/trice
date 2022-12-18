@@ -33,7 +33,7 @@ func Handler(w io.Writer, args []string) error {
 	id.FnJSON = id.ConditionalFilePath(id.FnJSON)
 
 	if Date == "" { // goreleaser will set Date, otherwise use file info.
-		fi, err := os.Stat(os.Args[0])
+		fi, err := os.Stat(args[0])
 		if nil == err { // On running main tests file-info is invalid, so do not use in that case.
 			Date = fi.ModTime().String()
 		}
@@ -41,7 +41,7 @@ func Handler(w io.Writer, args []string) error {
 
 	// Verify that a sub-command has been provided: os.Arg[0] is the main command (trice), os.Arg[1] will be the sub-command.
 	if len(args) < 2 {
-		m := "no args, try: 'trice help'"
+		m := "no args, try: '" + args[0] + " help'"
 		return errors.New(m)
 	}
 
@@ -52,7 +52,7 @@ func Handler(w io.Writer, args []string) error {
 	subArgs := args[2:]
 	switch subCmd { // Check which sub-command is invoked.
 	default:
-		return fmt.Errorf("unknown sub-command '%s'. try: 'trice help|h'", subCmd)
+		return fmt.Errorf("unknown sub-command '%s'. try: '%s help|h'", subCmd, args[0])
 	case "h", "help":
 		msg.OnErr(fsScHelp.Parse(subArgs))
 		w = distributeArgs(w)
