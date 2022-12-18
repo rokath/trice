@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"github.com/rokath/trice/cgo/write"
-	"github.com/rokath/trice/internalStim/com"
+	"github.com/rokath/trice/internalStim/stimcom"
 )
 
 // scWrite is an example for sending out trice messages with the trice tool.
@@ -18,11 +18,11 @@ func scWrite(w io.Writer) error {
 	var e error
 	distributeArgs(w)
 
-	p := com.NewPort(w, com.SerialPort, verbose)
+	p := stimcom.NewPort(w, stimcom.SerialPort, verbose)
 	if p.Open() {
 		defer p.Close()
 	} else {
-		log.Fatal("cannot open ", com.SerialPort)
+		log.Fatal("cannot open ", stimcom.SerialPort)
 	}
 
 	hexBytesStrings := strings.Fields(hexBytes)

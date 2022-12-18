@@ -8,12 +8,12 @@ import (
 	"os"
 	"testing"
 
-	"github.com/rokath/trice/internalStim/com"
+	"github.com/rokath/trice/internalStim/stimcom"
 	"github.com/tj/assert"
 )
 
 func init() {
-	com.Parity = "e"
+	stimcom.Parity = "e"
 }
 
 // todo: handle special cases: (may be with a kind of COM-port simulator)
@@ -30,7 +30,7 @@ func init() {
 //	Found port:  COM4
 //	Found port:  COM7
 func TestSerial(t *testing.T) {
-	ss, _ := com.GetSerialPorts(os.Stdout)
+	ss, _ := stimcom.GetSerialPorts(os.Stdout)
 	if len(ss) == 0 {
 		return
 	}
@@ -38,21 +38,21 @@ func TestSerial(t *testing.T) {
 	var verbose bool
 
 	verbose = false
-	pS := com.NewPort(os.Stdout, "noCOM", verbose)
+	pS := stimcom.NewPort(os.Stdout, "noCOM", verbose)
 	assert.False(t, pS.Open())
 
 	verbose = true
-	pS = com.NewPort(os.Stdout, "noCOM", verbose)
+	pS = stimcom.NewPort(os.Stdout, "noCOM", verbose)
 	assert.False(t, pS.Open())
 
 	for i := range ss {
 		verbose = false
-		pS = com.NewPort(os.Stdout, ss[i], verbose)
+		pS = stimcom.NewPort(os.Stdout, ss[i], verbose)
 		if pS.Open() {
 			assert.Nil(t, pS.Close())
 		}
 		verbose = true
-		pS = com.NewPort(os.Stdout, ss[i], verbose)
+		pS = stimcom.NewPort(os.Stdout, ss[i], verbose)
 		if pS.Open() {
 			assert.Nil(t, pS.Close())
 		}

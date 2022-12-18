@@ -25,7 +25,7 @@ func TestWrongSwitch(t *testing.T) {
 	os.Args = []string{"stim", "wrong"}
 	expect := `unknown sub-command 'wrong'. try: 'stim help|h'
 	`
-	execHelper1(t, expect)
+	mainExecHelper(t, expect)
 }
 
 func TestVersion(t *testing.T) {
@@ -35,13 +35,13 @@ func TestVersion(t *testing.T) {
 	os.Args = []string{"stim", "version"}
 	expect := `version=1.2.3, commit=myCommit, built at 2006-01-02_1504-05
 	`
-	execHelper1(t, expect)
+	mainExecHelper(t, expect)
 	version = ""
 	commit = ""
 	date = ""
 }
 
-func execHelper1(t *testing.T, expect string) {
+func mainExecHelper(t *testing.T, expect string) {
 	m.Lock()
 	defer m.Unlock()
 	stimargs.FlagsInit() // maybe needed for clearance of previous tests (global vars)
