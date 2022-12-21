@@ -163,11 +163,11 @@ func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec decode
 			if logLineStart && decoder.ShowTargetTimestamp != "" {
 				var s string
 				if decoder.TargetTimestampSize > 0 {
-					if decoder.ShowTargetTimestamp == "tim:%4d_%03d_%03d" {
+					if decoder.ShowTargetTimestamp == "tim:%4d_%03d_%03d " {
 						us := decoder.TargetTimestamp % 1000
 						ms := (decoder.TargetTimestamp - us) / 1000 % 1000
 						sd := (decoder.TargetTimestamp - 1000*ms) / 1000000
-						s = fmt.Sprintf("tim:%4d_%03d_%03d", sd, ms, us)
+						s = fmt.Sprintf("tim:%4d_%03d_%03d ", sd, ms, us)
 					} else {
 						s = fmt.Sprintf(decoder.ShowTargetTimestamp, decoder.TargetTimestamp)
 					}
