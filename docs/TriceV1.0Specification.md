@@ -37,7 +37,7 @@
 
 * *Trice* messages are framed binary data.
 * Framing is important for data disruption cases and is done with [TCOBS](./TCOBSSpecification.md) (has included data reduction) but the user can force to use [COBS](https://github.com/rokath/COBS), what makes it easier to write an own decoder in some cases. 
-  * Change the setting `TRICE_FRAMING` inside `triceConfig.h` and use the **trice** tools `-framing` switch for that.
+  * Change the setting `TRICE_FRAMING` inside `triceConfig.h` and use the **trice** tool `-framing` switch for that.
 * For robustness each *Trice* gets its own (T)COBS package per default. That is changeable for transfer data reduction. Use `#define TRICE_TRANSFER_MODE TRICE_PACK_MULTI_MODE.` inside `triceConfig.h`.
 
 ###  1.2. <a name='OptionalXTEAEncryption'></a>Optional XTEA Encryption
