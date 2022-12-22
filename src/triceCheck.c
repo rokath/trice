@@ -100,7 +100,7 @@ void TriceCheckSet(int index) {
 
             TRICE( Id( 7260), "rd:TRICE line %E (%%E)\n", aFloat(-555555555.5555555555) );
             TRICE( Id( 3291), "rd:TRICE line %F (%%F)\n", aFloat(-555555555.5555555555) );
-            TRICE( Id( 5712), "rd:TRICE line %G (%%G)\n", aFloat(-555555555.5555555555) );
+            TRICE( Id( 4343), "rd:TRICE line %G (%%G)\n", aFloat(-555555555.5555555555) );
         }
         break;
         case 50:
@@ -170,7 +170,7 @@ void TriceCheckSet(int index) {
         break;
         case 130:
             TRICE( Id( 6182), "sig:TRICE with 1 to 12 values\n" );
-            TRICE( Id( 4346),"rd:TRICE %d\n", -1 );
+            TRICE( Id( 4045),"rd:TRICE %d\n", -1 );
             TRICE( Id( 5585),"rd:TRICE %d, %d\n", -1, -2 );
             TRICE( Id( 5114),"rd:TRICE %d, %d, %d\n", -1, -2, -3 );
             TRICE( Id( 6099),"rd:TRICE %d, %d, %d, %d\n", -1, -2, -3, -4 );
@@ -186,7 +186,7 @@ void TriceCheckSet(int index) {
             TRICE( Id( 5495),"rd:TRICE %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );
         break;
         case 150:
-            TRICE( Id( 2330), "sig:TRICE_n with 1 to 12 values\n" );
+            TRICE( Id( 4369), "sig:TRICE_n with 1 to 12 values\n" );
             TRICE_1( Id( 6881),   "rd:TRICE_1 %d\n", 1 );
             TRICE_2( Id( 6054),   "rd:TRICE_2 %d, %d\n", 1, 2 );
             TRICE_3( Id( 7515),   "rd:TRICE_3 %d, %d, %d\n", 1, 2, 3 );
@@ -232,7 +232,7 @@ void TriceCheckSet(int index) {
         case 200:
             TRICE8_8( Id( 6625),   "rd:TRICE8_8 %d, %d, %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6, 7, 8 );
             TRICE8_9( Id( 4028),   "rd:TRICE8_9 %d, %d, %d, %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6, 7, 8, 9 );
-            TRICE8_10( Id( 4608),  "rd:TRICE8_10 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
+            TRICE8_10( Id( 5214),  "rd:TRICE8_10 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
             TRICE8_11( Id( 3273),  "rd:TRICE8_11 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 );
             TRICE8_12( Id( 4859),  "rd:TRICE8_12 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 );
         break;
@@ -384,7 +384,7 @@ void TriceCheckSet(int index) {
         break;
         case 380:
             TRICE(Id( 1516), "ERR:error       message, SysTick is %6u\n", SYSTICKVAL);
-            TRICE(Id( 6838), "WRN:warning     message, SysTick is %6u\n", SYSTICKVAL);
+            TRICE(Id( 4591), "WRN:warning     message, SysTick is %6u\n", SYSTICKVAL);
             TRICE(Id( 3908), "ATT:attention   message, SysTick is %6u\n", SYSTICKVAL);
             TRICE(Id( 7346), "DIA:diagnostics message, SysTick is %6u\n", SYSTICKVAL);
             TRICE(Id( 1316), "TIM:timing      message, SysTick is %6u\n", SYSTICKVAL);
@@ -501,7 +501,7 @@ void TriceCheckSet(int index) {
             TRICE64_2(Id( 4034), "tst:TRICE64_2 %u %u\n", -1, -2);
         break;
         case 500:
-            TRICE( Id( 4630), "sig:colored single letters and several TRICE macros in one line\n" );
+            TRICE( Id( 6005), "sig:colored single letters and several TRICE macros in one line\n" );
             TRICE(Id( 4159), "e:A");
             TRICE(Id( 5090), "w:B");
             TRICE(Id( 4048), "a:c");
@@ -518,7 +518,7 @@ void TriceCheckSet(int index) {
             TRICE(Id( 6472), "1");
             TRICE(Id( 5605), "2");
             TRICE(Id( 5268), "3");
-            TRICE(Id( 3837), "4");
+            TRICE(Id( 4445), "4");
             TRICE(Id( 4132), "e:7");
             TRICE(Id( 3029), "m:12");
             TRICE(Id( 1893), "m:123\n");
@@ -609,7 +609,7 @@ EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
             TRICE( Id( 1964), "rd: U+0041 'A' 	%#U 	Unicode with character\n", a );// todo
             TRICE( Id( 2567), "sig:Boolean (true/false)\n" );
             TRICE( Id( 7736), "rd:Use %%t to format a boolean as true (%t) or false (%t).\n", 1, 0 );
-            TRICE( Id( 7599), "sig:Pointer (hex)\n" );
+            TRICE( Id( 4795), "sig:Pointer (hex)\n" );
         }
         break;
         case 580:
@@ -709,7 +709,7 @@ EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
             TRICE16_2 (Id( 4296), "tst:TRICE16_2  %d %d\n", -1, -2 );
             TRICE16_3 (Id( 6391), "tst:TRICE16_3  %d %d %d\n", -1, -2, -3 );
             TRICE16_4 (Id( 1661), "tst:TRICE16_4  %d %d %d %d\n", -1, -2, -3, -4 );
-            TRICE16_5 (Id( 1035), "tst:TRICE16_5  %d %d %d %d %d\n", -1, -2, -3, -4, -5 );
+            TRICE16_5 (Id( 3800), "tst:TRICE16_5  %d %d %d %d %d\n", -1, -2, -3, -4, -5 );
             TRICE16_6 (Id( 1517), "tst:TRICE16_6  %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6 );
             TRICE16_7 (Id( 1963), "tst:TRICE16_7  %d %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6, -7 );
             TRICE16_8 (Id( 7621), "tst:TRICE16_8  %d %d %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );
@@ -803,9 +803,9 @@ EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
         break;
         case 790:
             TRICE( Id( 2812), "rd:TRICE float %9f (%%9f)\n", aFloat(-x) );
-            TRICE( Id( 4295), "rd:TRICE float %.9f (%%.9f)\n", aFloat(-x) );
+            TRICE( Id( 4013), "rd:TRICE float %.9f (%%.9f)\n", aFloat(-x) );
             TRICE( Id( 1538), "rd:TRICE float %9.f (%%9.f)\n", aFloat(-x) );
-            TRICE( Id( 2220), "rd:TRICE float %9.6f (%%9.6f)\n", aFloat(-x) );
+            TRICE( Id( 1983), "rd:TRICE float %9.6f (%%9.6f)\n", aFloat(-x) );
             TRICE( Id( 7886), "rd:TRICE float %+f (%%f)\n", aFloat(x) );
             TRICE( Id( 3683), "rd:TRICE float %+9f (%%9f)\n", aFloat(x) );
             TRICE( Id( 4633), "rd:TRICE float %+.9f (%%.9f)\n", aFloat(x) );
@@ -844,7 +844,7 @@ EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
             TRICE32( Id( 2398), "rd:TRICE32 float %e (%%e)\n", aFloat(x) );
             TRICE32( Id( 5737), "rd:TRICE32 float %f (%%f)\n", aFloat(x) );
             TRICE32( Id( 7337), "rd:TRICE32 float %g (%%g)\n", aFloat(x) );
-            TRICE32( Id( 1129), "rd:TRICE32 float %E (%%E)\n", aFloat(x) );
+            TRICE32( Id( 7454), "rd:TRICE32 float %E (%%E)\n", aFloat(x) );
             TRICE32( Id( 6132), "rd:TRICE32 float %F (%%F)\n", aFloat(x) );
             TRICE32( Id( 3584), "rd:TRICE32 float %G (%%G)\n", aFloat(x) );
         break;
@@ -950,7 +950,7 @@ EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
             TRICE( Id( 6159), "rd:TRICE line %u (%%u)\n", -1 );
             TRICE( Id( 4896), "rd:TRICE line %b (%%b)\n", -2 );
             TRICE( Id( 2606), "rd:TRICE line %o (%%o)\n", -3 );
-            TRICE( Id( 7458), "rd:TRICE line %x (%%x)\n", -4 );
+            TRICE( Id( 7421), "rd:TRICE line %x (%%x)\n", -4 );
             TRICE( Id( 3963), "rd:TRICE line %d (%%d)\n", -5 );
         break;
         case 960:
@@ -1167,7 +1167,7 @@ static void exampleOfBuffersAndFunctions(void){
     TRICE( Id( 7214), "notice:TRICE_B example: " );
     TRICE_B( Id( 1238), "  %02x", b8, sizeof(b8)/sizeof(int8_t) );
     TRICE( Id( 6623), "\n" );
-    TRICE( Id( 3695), "notice:TRICE8_B example:" );
+    TRICE( Id( 4383), "notice:TRICE8_B example:" );
     TRICE8_B( Id( 5469), "  %02x", b8, sizeof(b8)/sizeof(int8_t) );
     TRICE( Id( 2454), "\n" );
     TRICE( Id( 4315), "notice:TRICE16_B example:" );
@@ -1197,7 +1197,7 @@ static void exampleOfBuffersAndFunctions(void){
     //shown as: TRICE32_F example:FunctionNameY(00000000)(ffffffff)(fffffffe)(33445555)
 
     TRICE( Id( 7286), "notice:TRICE64_F example:" );
-    TRICE64_F( Id( 4647), "fatal:FunctionNameZ", b64, sizeof(b64)/sizeof(int64_t) );
+    TRICE64_F( Id( 1484), "fatal:FunctionNameZ", b64, sizeof(b64)/sizeof(int64_t) );
     //shown as: TRICE64_F example:FunctionNameZ(0000000000000000)(ffffffffffffffff)(fffffffffffffffe)(3344555566666666)
 }
 

@@ -326,7 +326,7 @@ void USART2_IRQHandler(void)
         LL_USART_ClearFlag_TC(TRICE_UARTA);
     }
     if( LL_USART_IsActiveFlag_nCTS(TRICE_UARTA) ){
-        TRICE( Id( 2797), "wrn:TRICE_UARTA CTS interrupt Flag is set\n" );
+        TRICE( Id( 2479), "wrn:TRICE_UARTA CTS interrupt Flag is set\n" );
         LL_USART_ClearFlag_nCTS(TRICE_UARTA);
     }
     if( LL_USART_IsActiveFlag_CTS(TRICE_UARTA) ){

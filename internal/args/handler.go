@@ -145,7 +145,9 @@ func logLoop(w io.Writer) {
 		li = make(id.TriceIDLookUpLI) // li is not nil, but empty
 	} else {
 		if _, err := os.Stat(id.LIFnJSON); errors.Is(err, os.ErrNotExist) {
-			fmt.Fprintf(w, "path/to/ %s does not exist: li is nil\n", id.LIFnJSON)
+			if id.LIFnJSON != "off" && id.LIFnJSON != "none" && id.LIFnJSON != "no" {
+				fmt.Fprintf(w, "path/to/ %s does not exist: li is nil\n", id.LIFnJSON)
+			}
 		} else {
 			li = id.NewLutLI(w, id.LIFnJSON) // lut is a map, that means a pointer
 

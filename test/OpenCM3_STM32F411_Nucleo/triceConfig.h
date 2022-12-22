@@ -97,7 +97,7 @@ extern "C" {
 //
 
 #ifdef TRICE_HALF_BUFFER_SIZE
-#define TRICE_BUFFER_INFO do{ TRICE32( Id( 3965), "att: Trice 2x half buffer size:%4u ", TRICE_HALF_BUFFER_SIZE ); } while(0)
+#define TRICE_BUFFER_INFO do{ TRICE32( Id( 1701), "att: Trice 2x half buffer size:%4u ", TRICE_HALF_BUFFER_SIZE ); } while(0)
 #else
 #define TRICE_BUFFER_INFO do{ TRICE32( Id( 2944), "att:Single Trice Stack buf size:%4u", TRICE_SINGLE_MAX_SIZE + TRICE_DATA_OFFSET ); } while(0)
 #endif

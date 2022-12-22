@@ -325,7 +325,7 @@ void USART2_IRQHandler(void)
         LL_USART_ClearFlag_RTO(TRICE_UARTA);
     }
     if( LL_USART_IsActiveFlag_ABRE(TRICE_UARTA) ){
-        TRICE0( Id( 3872), "err:TRICE_UARTA Auto-Baud Rate Error Flag is set\n" );
+        TRICE0( Id( 5980), "err:TRICE_UARTA Auto-Baud Rate Error Flag is set\n" );
     }
     if( LL_USART_IsActiveFlag_ABR(TRICE_UARTA) ){
         TRICE( Id( 4611), "wrn:TRICE_UARTA Auto-Baud Rate Flag is set\n" );
