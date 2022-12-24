@@ -105,9 +105,17 @@ archives:
     files:
       - README.md
       - CHANGELOG.md
+      - cgo
+      - cmd
       - docs/**/*
+      - internal
+      - pkg
+      - src
       - test/**/*
       - third_party/**/*
+      - til.Csharp
+      - *.*
+
       
 
 checksum:
