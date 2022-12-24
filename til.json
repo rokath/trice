@@ -227,6 +227,10 @@
 		"Type": "TRICE",
 		"Strg": "rd: F \t%X \tBase 16, uppercase\\n"
 	},
+	"1484": {
+		"Type": "TRICE64_F",
+		"Strg": "fatal:FunctionNameZ"
+	},
 	"1486": {
 		"Type": "TRICE8",
 		"Strg": "tst:TRICE8   %%4x -\u003e %4x %4x %4x %4x\\n"
@@ -498,6 +502,10 @@
 	"1977": {
 		"Type": "TRICE",
 		"Strg": "EMERGENCY:red+i:blue\\n"
+	},
+	"1983": {
+		"Type": "TRICE",
+		"Strg": "rd:TRICE float %9.6f (%%9.6f)\\n"
 	},
 	"2004": {
 		"Type": "TRICE64",
@@ -1399,6 +1407,10 @@
 		"Type": "TRICE64",
 		"Strg": "rd:TRICE64 double %E (%%E), aDouble(y)\\n"
 	},
+	"3800": {
+		"Type": "TRICE16_5",
+		"Strg": "tst:TRICE16_5  %d %d %d %d %d\\n"
+	},
 	"3801": {
 		"Type": "TRICE",
 		"Strg": "rd:TRICE float %e (%%e)\\n"
@@ -1515,6 +1527,10 @@
 		"Type": "TRICE64_6",
 		"Strg": "tst:TRICE64_6  %d %d %d %d %d %d\\n"
 	},
+	"4013": {
+		"Type": "TRICE",
+		"Strg": "rd:TRICE float %.9f (%%.9f)\\n"
+	},
 	"4022": {
 		"Type": "TRICE0",
 		"Strg": "wr:TRICE_UARTB Transmission Complete Flag is set\\n"
@@ -1534,6 +1550,10 @@
 	"4034": {
 		"Type": "TRICE64_2",
 		"Strg": "tst:TRICE64_2 %u %u\\n"
+	},
+	"4045": {
+		"Type": "TRICE",
+		"Strg": "rd:TRICE %d\\n"
 	},
 	"4048": {
 		"Type": "TRICE",
@@ -1691,6 +1711,10 @@
 		"Type": "TRICE8_11",
 		"Strg": "tst:TRICE8_11 %d %d %d %d %d %d %d %d %d %d %d\\n"
 	},
+	"4343": {
+		"Type": "TRICE",
+		"Strg": "rd:TRICE line %G (%%G)\\n"
+	},
 	"4346": {
 		"Type": "TRICE",
 		"Strg": "rd:TRICE %d\\n"
@@ -1711,9 +1735,17 @@
 		"Type": "TRICE",
 		"Strg": "att:formatted float \u0026 double\\n"
 	},
+	"4369": {
+		"Type": "TRICE",
+		"Strg": "sig:TRICE_n with 1 to 12 values\\n"
+	},
 	"4378": {
 		"Type": "TRICE32",
 		"Strg": "tst:TRICE32 %d %d %d %d %d %d %d %d %d\\n"
+	},
+	"4383": {
+		"Type": "TRICE",
+		"Strg": "notice:TRICE8_B example:"
 	},
 	"4396": {
 		"Type": "TRICE16_9",
@@ -1742,6 +1774,10 @@
 	"4444": {
 		"Type": "TRICE",
 		"Strg": "time:TRICE32_1  message, SysTick is %6u\\n"
+	},
+	"4445": {
+		"Type": "TRICE",
+		"Strg": "4"
 	},
 	"4454": {
 		"Type": "TRICE8",
@@ -1830,6 +1866,10 @@
 	"4587": {
 		"Type": "TRICE32_5",
 		"Strg": "tst:TRICE32_5  %d %d %d %d %d\\n"
+	},
+	"4591": {
+		"Type": "TRICE",
+		"Strg": "WRN:warning     message, SysTick is %6u\\n"
 	},
 	"4596": {
 		"Type": "TRICE32_2",
@@ -1942,6 +1982,10 @@
 	"4793": {
 		"Type": "TRICE8_1",
 		"Strg": "rd:TRICE8_1 %d\\n"
+	},
+	"4795": {
+		"Type": "TRICE",
+		"Strg": "sig:Pointer (hex)\\n"
 	},
 	"4798": {
 		"Type": "TRICE",
@@ -2174,6 +2218,10 @@
 	"5212": {
 		"Type": "TRICE32_1",
 		"Strg": "rd:TRICE32_1 float %g (%%g)\\n"
+	},
+	"5214": {
+		"Type": "TRICE8_10",
+		"Strg": "rd:TRICE8_10 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
 	},
 	"5218": {
 		"Type": "TRICE_S",
@@ -2567,6 +2615,10 @@
 		"Type": "TRICE",
 		"Strg": "tim:TRICE --------------------------------------------------\\n"
 	},
+	"5980": {
+		"Type": "TRICE0",
+		"Strg": "err:TRICE_UARTA Auto-Baud Rate Error Flag is set\\n"
+	},
 	"5983": {
 		"Type": "TRICE_S",
 		"Strg": "msg:Sending array: %s\\n"
@@ -2574,6 +2626,10 @@
 	"6003": {
 		"Type": "TRICE8",
 		"Strg": "tst:TRICE8 %d %d\\n"
+	},
+	"6005": {
+		"Type": "TRICE",
+		"Strg": "sig:colored single letters and several TRICE macros in one line\\n"
 	},
 	"6014": {
 		"Type": "TRICE",
@@ -3299,6 +3355,10 @@
 		"Type": "TRICE",
 		"Strg": "FATAL:magenta+b:red\\n"
 	},
+	"7421": {
+		"Type": "TRICE",
+		"Strg": "rd:TRICE line %x (%%x)\\n"
+	},
 	"7422": {
 		"Type": "TRICE",
 		"Strg": "sig:TRICE32 with variable param count 1 to 12\\n"
@@ -3330,6 +3390,10 @@
 	"7453": {
 		"Type": "TRICE",
 		"Strg": "rd:TRICE_UARTB Receive Enable Acknowledge Flag is set\\n"
+	},
+	"7454": {
+		"Type": "TRICE32",
+		"Strg": "rd:TRICE32 float %E (%%E)\\n"
 	},
 	"7458": {
 		"Type": "TRICE",

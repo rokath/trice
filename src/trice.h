@@ -467,14 +467,14 @@ static inline uint64_t aDouble( double x ){
 //
 // todo: for some reason this macro is not working well wit name len instead of len_, probably when injected len as value.
 //
-#define TRICE_N( id, pFmt, buf, n) do { \
+#define TRICE_N( tid, pFmt, buf, n) do { \
     uint32_t limit = TRICE_SINGLE_MAX_SIZE-8; /* 8 = head + max timestamp size --> todo: consider 64-bit stamp! */ \
     uint32_t len_ = n; /* n could be a constant */ \
     if( len_ > limit ){ \
-        TRICE32( Id( 2240), "wrn:Transmit buffer truncated from %u to %u\n", len_, limit ); \
+        TRICE32( id( 2240), "wrn:Transmit buffer truncated from %u to %u\n", len_, limit ); \
         len_ = limit; \
     } \
-    TRICE_ENTER id; \
+    TRICE_ENTER tid; \
     if( len_ <= 127 ){ CNTC(len_); }else{ LCNT(len_); } \
     TRICE_PUTBUFFER( buf, len_ ); \
     TRICE_LEAVE \
@@ -565,13 +565,19 @@ extern const int TriceTypeX0;
 
 #endif // #else // #ifdef TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN
 
+
 //! TRICE8_1 writes trice data as fast as possible in a buffer.
 //! \param id is a 16 bit Trice id in upper 2 bytes of a 32 bit value
 //! \param v0 a 8 bit bit value
-#define TRICE8_1( id, pFmt, v0 ) \
-    TRICE_ENTER id; CNTC(1); \
+#define TRICE8_1( tid, pFmt, v0 ) \
+    TRICE_ENTER tid; CNTC(1); \
     TRICE_PUT(                                                   TRICE_BYTE0(v0)); /* little endian*/ \
     TRICE_LEAVE
+
+// void trice8_1( uint16_t tid, char* pFmt, uint8_t v0 ){ do{ TRICE8_1_( tid, pFmt, v0 ); }while(0); }
+// 
+// #define TRICE8_1( tid, pFmt, v0 ) trice8_1( tid, pFmt, (uint8_t)(v0) )
+
 
 //! TRICE8_2 writes trice data as fast as possible in a buffer.
 //! \param id is a 16 bit Trice id in upper 2 bytes of a 32 bit value

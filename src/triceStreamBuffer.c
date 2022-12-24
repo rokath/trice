@@ -98,7 +98,7 @@ void TriceTransfer( void ){
 }
 
 void TriceLogBufferInfo( void ){
-    TRICE32( Id( 1135), "att: Trice stream buffer size:%5u ", TRICE_STREAM_BUFFER_SIZE );
+    TRICE32( id( 1135), "att: Trice stream buffer size:%5u ", TRICE_STREAM_BUFFER_SIZE );
 }
 
 #endif // #if TRICE_MODE == TRICE_STREAM_BUFFER
