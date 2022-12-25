@@ -574,8 +574,8 @@ extern const int TriceTypeX0;
     TRICE_PUT(                                                   TRICE_BYTE0(v0)); /* little endian*/ \
     TRICE_LEAVE
 
-// void trice8_1( uint16_t tid, char* pFmt, uint8_t v0 ){ do{ TRICE8_1_( tid, pFmt, v0 ); }while(0); }
-// 
+void trice8_1( uint16_t tid, char* pFmt, uint8_t v0 );
+
 // #define TRICE8_1( tid, pFmt, v0 ) trice8_1( tid, pFmt, (uint8_t)(v0) )
 
 
