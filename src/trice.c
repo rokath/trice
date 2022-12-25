@@ -12,6 +12,9 @@
 #include "xtea.h"
 #endif
 
+void trice8_1( uint16_t tid, char* pFmt, uint8_t v0 ){ TRICE8_1_( tid, pFmt, v0 ); }
+
+
 // triceCommands is to make 32-bit alignment sure
 static uint32_t triceCommands[(TRICE_COMMAND_SIZE_MAX+3)>>2]; // with terminating 0
 
