@@ -3,7 +3,7 @@
 *******************************************************************************/
 
 #include "xtea.h"
-#include "triceConfig.h"
+#include "trice.h"
 
 //! golang XTEA works with 64 rounds
 static const unsigned int numRounds = 64;

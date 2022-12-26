@@ -45,9 +45,15 @@ void TriceTransfer( void ){
     } // else: transmission not done yet
 }
 
+//! TriceDepth returns current trice buffer depth.
+size_t TriceDepth( void ){
+    size_t currentDepth = (size_t)(4*(TriceBufferWritePosition - &triceBuffer[triceSwap][0]));
+    return currentDepth;
+}
+
 //! TriceDepthMax returns the max trice buffer depth until now.
 size_t TriceDepthMax( void ){
-    size_t currentDepth = (size_t)(4*(TriceBufferWritePosition - &triceBuffer[triceSwap][0])); 
+    size_t currentDepth = TriceDepth(); 
     return currentDepth > triceDepthMax ? currentDepth : triceDepthMax;
 }
 

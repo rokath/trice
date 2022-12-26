@@ -50,7 +50,6 @@ uint64_t microSecond = 0;
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_USART2_UART_Init(void);
-static void MX_USART1_UART_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -87,7 +86,7 @@ static inline uint32_t ReadUs32( void ){
     return (uint32_t)ReadUs64();
 }
 
-uint16_t TriceStamp16( void ){
+uint16_t TriceStamp16( void ){ // wraps after 10ms
     return (uint16_t)(ReadUs32()%10000); // This implies division and is therefore slow!
 }
 
@@ -144,11 +143,8 @@ int main(void)
   /* MCU Configuration--------------------------------------------------------*/
 
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
-
   LL_APB1_GRP2_EnableClock(LL_APB1_GRP2_PERIPH_SYSCFG);
   LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_PWR);
-
-  /* System interrupt init*/
 
   /* USER CODE BEGIN Init */
 //lint +e835
@@ -164,7 +160,6 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_USART2_UART_Init();
-  MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
     #ifdef XTEA_ENCRYPT_KEY
         XTEAInitTable();
@@ -175,27 +170,61 @@ int main(void)
     #ifdef TRICE_UARTB
     LL_USART_EnableIT_RXNE(TRICE_UARTB); 
     #endif
-    TRICE_HEADLINE;
-    {
-        float a = (float)5.934;
-        float b = a + ((a > 0) ? 0.0005f : -0.0005f);
-        int c = (int)b;
-        int d = (int)(b * 1000) % 1000;
-        int e = (int)(1000 * (float)(a - c)); 
-        TRICE( ID( 4716), "msg:x = %g = %d.%03d, %d.%03d\n", aFloat(a), c, d, c, e ); //lint !e666
-        TRICE( ID( 1570), "1/11 = %g\n", aFloat( 1.0/11 ) ); //lint !e666
-    }
+    
+/*
+    TRICE8_1( ID( 2953), "s:     NUCLEO-F030R8     TRICE_MODE %3u     \n", 99 );
+
+    { // That is an expanded macro TRICE8_1( ID(2953), "s:     NUCLEO-F030R8     TRICE_MODE %3u     \n", 99 ); 
+        uint32_t primaskstate = __get_PRIMASK(); 
+        __disable_irq(); 
+        { 
+            { 
+                // ID
+                uint32_t ts = TriceStamp32(); 
+                do{ // id value
+                    uint16_t* p = (uint16_t*)TriceBufferWritePosition; 
+                    *p++ = ((0xC000|(2953))); 
+                    TriceBufferWritePosition = (uint32_t*)p; // not aligned
+                }while(0); 
+                do{ // tsLo
+                    uint16_t* p = (uint16_t*)TriceBufferWritePosition;
+                    *p++ = (ts); 
+                    TriceBufferWritePosition = (uint32_t*)p; // aligned
+                }while(0); 
+                do{ // tsHi
+                    uint16_t* p = (uint16_t*)TriceBufferWritePosition;
+                    *p++ = (((ts) >> 16));
+                    TriceBufferWritePosition = (uint32_t*)p; // not aligned
+                }while(0);; 
+            }; 
+            do{ // count
+                uint16_t v = ((1)<<8) | TriceCycle++;
+                do{
+                    uint16_t* p = (uint16_t*)TriceBufferWritePosition;
+                    *p++ = (v); 
+                    TriceBufferWritePosition = (uint32_t*)p; // aligned
+                }while(0);
+            }while(0);
+            do{ 
+                *TriceBufferWritePosition++ = (((uint8_t)(99)));
+            }while(0); 
+        }
+        __set_PRIMASK(primaskstate); 
+    };
+*/
+   TRICE_HEADLINE;
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
     for(;;){
-        if( triceCommandFlag ){
-            triceCommandFlag = 0;
-            TRICE_S( ID( 5044), "att:Executing command %s ...\n", triceCommandBuffer );
-            // do
-            TRICE( ID( 2743), "att:...done\n" );
-        }
+       // if( triceCommandFlag ){
+       //     triceCommandFlag = 0;
+       //     TRICE_S( ID( 5044), "att:Executing command %s ...\n", triceCommandBuffer );
+       //     // do
+       //     TRICE( ID( 2743), "att:...done\n" );
+       // }
 
         // serve every few ms
         #if TRICE_DEFERRED_OUT
@@ -211,18 +240,32 @@ int main(void)
         {
             static unsigned lastTricesTime = 0;
             // send some trices every few ms
-            if( milliSecond >= lastTricesTime + 2000 ){
+            if( milliSecond >= lastTricesTime + 21 ){
                 const int begin = 0;
-                const int end = 1100;
+                const int end = 1000;
                 static int index = begin;
-                int select = index;
-                TRICE16( ID( 5350),"MSG: 💚 START select = %d\n", select );
-                TriceCheckSet(select);
+                //int select = index;
+                //TRICE16( ID( 5350),"MSG: 💚 START select = %d\n", select );
+                TriceCheckSet(index);
                 #if TRICE_MODE == TRICE_DOUBLE_BUFFER
-                TRICE16( ID( 4576),"MSG: ✅ STOP  select = %d, TriceDepthMax =%4u of %d\n", select, TriceDepthMax(), TRICE_HALF_BUFFER_SIZE );
+                {
+                    static uint16_t triceDepthMax_1 = 0;
+                    uint16_t triceDepthMax = TriceDepthMax();
+                    if( triceDepthMax_1 != triceDepthMax ){
+                        triceDepthMax_1 = triceDepthMax;
+                        TRICE16( ID( 1192),"MSG: ✅ STOP  index = %d, TriceDepthMax =%4u of %d\n", index, triceDepthMax, TRICE_HALF_BUFFER_SIZE );
+                    }
+                }
                 #endif
                 #if TRICE_MODE == TRICE_STREAM_BUFFER
-                TRICE( ID( 4833), "MSG:triceFifoDepthMax = %d of max %d, triceStreamBufferDepthMax = %d of max %d\n", triceFifoDepthMax, TRICE_FIFO_ELEMENTS, triceStreamBufferDepthMax, TRICE_BUFFER_SIZE );
+                {
+                    static uint16 triceFifoDepthMax_1, triceStreamBufferDepthMax_1;
+                    if( triceFifoDepthMax_1 != triceFifoDepthMax || triceStreamBufferDepthMax_1 != triceStreamBufferDepthMax ){
+                        triceFifoDepthMax_1 = triceFifoDepthMax;
+                        triceStreamBufferDepthMax_1 = triceStreamBufferDepthMax;
+                        TRICE16( ID( 4519), "MSG:triceFifoDepthMax = %d of max %d, triceStreamBufferDepthMax = %d of max %d\n", triceFifoDepthMax, TRICE_FIFO_ELEMENTS, triceStreamBufferDepthMax, TRICE_BUFFER_SIZE );
+                    }
+                }
                 #endif
 
                 if( timingError64Count ){
@@ -231,14 +274,14 @@ int main(void)
                 if( timingError32Count ){
                     TRICE( ID( 6479), "err:%d timing errors 32-bit\n", timingError32Count );
                 }
-                index += 10;
+                index++;
                 index = index > end ? begin : index;
-                {
-                    volatile uint32_t st0 = SysTick->VAL;
-                    volatile uint32_t us = ReadUs32();
-                    volatile uint32_t st1 = SysTick->VAL;
-                    TRICE( ID( 5422), "time: %d µs - ReadUs32() lasts %d ticks\n", us, st0 - st1);
-                }
+                //  {
+                //      volatile uint32_t st0 = SysTick->VAL;
+                //      volatile uint32_t us = ReadUs32();
+                //      volatile uint32_t st1 = SysTick->VAL;
+                //      TRICE( ID( 5422), "time: %d µs - ReadUs32() lasts %d ticks\n", us, st0 - st1);
+                //  }
                 lastTricesTime = milliSecond;
             }
         }
@@ -287,83 +330,6 @@ void SystemClock_Config(void)
   }
   LL_Init1msTick(48000000);
   LL_SetSystemCoreClock(48000000);
-  LL_RCC_SetUSARTClockSource(LL_RCC_USART1_CLKSOURCE_PCLK1);
-}
-
-/**
-  * @brief USART1 Initialization Function
-  * @param None
-  * @retval None
-  */
-static void MX_USART1_UART_Init(void)
-{
-
-  /* USER CODE BEGIN USART1_Init 0 */
-
-  /* USER CODE END USART1_Init 0 */
-
-  LL_USART_InitTypeDef USART_InitStruct = {0};
-
-  LL_GPIO_InitTypeDef GPIO_InitStruct = {0};
-
-  /* Peripheral clock enable */
-  LL_APB1_GRP2_EnableClock(LL_APB1_GRP2_PERIPH_USART1);
-
-  LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOA);
-  /**USART1 GPIO Configuration
-  PA9   ------> USART1_TX
-  PA10   ------> USART1_RX
-  PA12   ------> USART1_DE
-  */
-  GPIO_InitStruct.Pin = LL_GPIO_PIN_9;
-  GPIO_InitStruct.Mode = LL_GPIO_MODE_ALTERNATE;
-  GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_HIGH;
-  GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
-  GPIO_InitStruct.Pull = LL_GPIO_PULL_NO;
-  GPIO_InitStruct.Alternate = LL_GPIO_AF_1;
-  LL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-
-  GPIO_InitStruct.Pin = LL_GPIO_PIN_10;
-  GPIO_InitStruct.Mode = LL_GPIO_MODE_ALTERNATE;
-  GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_HIGH;
-  GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
-  GPIO_InitStruct.Pull = LL_GPIO_PULL_NO;
-  GPIO_InitStruct.Alternate = LL_GPIO_AF_1;
-  LL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-
-  GPIO_InitStruct.Pin = LL_GPIO_PIN_12;
-  GPIO_InitStruct.Mode = LL_GPIO_MODE_ALTERNATE;
-  GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_HIGH;
-  GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
-  GPIO_InitStruct.Pull = LL_GPIO_PULL_NO;
-  GPIO_InitStruct.Alternate = LL_GPIO_AF_1;
-  LL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-
-  /* USART1 interrupt Init */
-  NVIC_SetPriority(USART1_IRQn, 0);
-  NVIC_EnableIRQ(USART1_IRQn);
-
-  /* USER CODE BEGIN USART1_Init 1 */
-
-  /* USER CODE END USART1_Init 1 */
-  USART_InitStruct.BaudRate = 2400;
-  USART_InitStruct.DataWidth = LL_USART_DATAWIDTH_9B;
-  USART_InitStruct.StopBits = LL_USART_STOPBITS_1;
-  USART_InitStruct.Parity = LL_USART_PARITY_EVEN;
-  USART_InitStruct.TransferDirection = LL_USART_DIRECTION_TX_RX;
-  USART_InitStruct.HardwareFlowControl = LL_USART_HWCONTROL_NONE;
-  USART_InitStruct.OverSampling = LL_USART_OVERSAMPLING_16;
-  LL_USART_Init(USART1, &USART_InitStruct);
-  LL_USART_EnableDEMode(USART1);
-  LL_USART_SetDESignalPolarity(USART1, LL_USART_DE_POLARITY_HIGH);
-  LL_USART_SetDEAssertionTime(USART1, 0);
-  LL_USART_SetDEDeassertionTime(USART1, 0);
-  LL_USART_ConfigAsyncMode(USART1);
-  LL_USART_Enable(USART1);
-  /* USER CODE BEGIN USART1_Init 2 */
-
-  /* USER CODE END USART1_Init 2 */
-
 }
 
 /**
@@ -413,7 +379,7 @@ static void MX_USART2_UART_Init(void)
   /* USER CODE BEGIN USART2_Init 1 */
 
   /* USER CODE END USART2_Init 1 */
-  USART_InitStruct.BaudRate = 115200;
+  USART_InitStruct.BaudRate = 921600;
   USART_InitStruct.DataWidth = LL_USART_DATAWIDTH_8B;
   USART_InitStruct.StopBits = LL_USART_STOPBITS_1;
   USART_InitStruct.Parity = LL_USART_PARITY_NONE;
@@ -509,5 +475,3 @@ void assert_failed(uint8_t *file, uint32_t line)
   /* USER CODE END 6 */
 }
 #endif /* USE_FULL_ASSERT */
-
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

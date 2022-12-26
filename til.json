@@ -91,6 +91,10 @@
 		"Type": "TRICE_8",
 		"Strg": "rd:TRICE_8 %d, %d, %d, %d, %d, %d, %d, %d\\n"
 	},
+	"1192": {
+		"Type": "TRICE16",
+		"Strg": "MSG: ✅ STOP  index = %d, TriceDepthMax =%4u of %d\\n"
+	},
 	"1196": {
 		"Type": "TRICE16_11",
 		"Strg": "rd:TRICE16_11 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
@@ -202,6 +206,10 @@
 	"1375": {
 		"Type": "TRICE",
 		"Strg": "e:A"
+	},
+	"1394": {
+		"Type": "TRICE8_1",
+		"Strg": "s:     NUCLEO-F030R8     TRICE_MODE %3u     \\n"
 	},
 	"1417": {
 		"Type": "TRICE64_10",
@@ -478,6 +486,10 @@
 	"1951": {
 		"Type": "TRICE64_B",
 		"Strg": "  %016x"
+	},
+	"1955": {
+		"Type": "TRICE8_1",
+		"Strg": "s:     NUCLEO-F030R8     TRICE_MODE %3u     \\n"
 	},
 	"1962": {
 		"Type": "TRICE",
@@ -943,6 +955,10 @@
 		"Type": "TRICE32",
 		"Strg": "att:Single Trice Stack buf size:%4u"
 	},
+	"2953": {
+		"Type": "TRICE8_1",
+		"Strg": "s:     NUCLEO-F030R8     TRICE_MODE %3u     \\n"
+	},
 	"2955": {
 		"Type": "TRICE8",
 		"Strg": "rd:TRICE8 %d, %d, %d, %d\\n"
@@ -998,6 +1014,10 @@
 	"3029": {
 		"Type": "TRICE",
 		"Strg": "m:12"
+	},
+	"3037": {
+		"Type": "TRICE16",
+		"Strg": "MSG: ✅… STOP  TriceDepth = %d, TriceDepthMax = %d + %4u of %d\\n"
 	},
 	"3043": {
 		"Type": "TRICE",
@@ -1815,6 +1835,10 @@
 		"Type": "TRICE16_1",
 		"Strg": "rd:TRICE16_1 line %b (%%b -1)\\n"
 	},
+	"4519": {
+		"Type": "TRICE16",
+		"Strg": "MSG:triceFifoDepthMax = %d of max %d, triceStreamBufferDepthMax = %d of max %d\\n"
+	},
 	"4532": {
 		"Type": "TRICE16",
 		"Strg": "rd:Use %%p to format a pointer in base 16 notation with leading 0x. (%p)\\n"
@@ -2286,6 +2310,10 @@
 	"5312": {
 		"Type": "TRICE32_3",
 		"Strg": "tst:TRICE32_3 %d %d %d\\n"
+	},
+	"5313": {
+		"Type": "TRICE16",
+		"Strg": "MSG: âœ… STOP  TriceDepth = %d, TriceDepthMax = %d + %4u of %d\\n"
 	},
 	"5316": {
 		"Type": "TRICE8",
@@ -2838,6 +2866,10 @@
 	"6409": {
 		"Type": "TRICE32_2",
 		"Strg": "rd:TRICE32_2 %d, %d\\n"
+	},
+	"6417": {
+		"Type": "TRICE16",
+		"Strg": "MSG: âœ… STOP  index = %d, TriceDepthMax =%4u of %d\\n"
 	},
 	"6447": {
 		"Type": "TRICE",

@@ -203,6 +203,7 @@ extern char* const triceCommandBuffer;
 extern int triceCommandFlag;
 extern int triceCommandLength;
 
+size_t TriceDepth( void );
 size_t TriceDepthMax( void );
 #if TRICE_DEFERRED_OUT
 extern uint32_t* TriceBufferWritePosition;
@@ -236,7 +237,8 @@ void TriceCheckSet( int index ); //!< tests
 #endif
 #endif // #ifdef TRICE_RTT0
 
-//! TRICE_DATA_OFFSET is the space in front of trice data for in-buffer COBS encoding. It must be be a multiple of uint32_t.
+//! TRICE_DATA_OFFSET is the space in front of trice data for in-buffer (T)COBS encoding. It must be be a multiple of uint32_t.
+#ifndef TRICE_DATA_OFFSET
 #if defined(TRICE_HALF_BUFFER_SIZE)
 #define TRICE_DATA_OFFSET (((TRICE_HALF_BUFFER_SIZE/3)+4)&~3) // In worst case the buffer gets filled to the end only with 4-byte trices and each gets an additional sigil and a 0, so 33% are safe.
 #elif defined(TRICE_STACK_BUFFER_MAX_SIZE)
@@ -244,6 +246,7 @@ void TriceCheckSet( int index ); //!< tests
 #else
 #define TRICE_DATA_OFFSET ((TRICE_SINGLE_MAX_SIZE/31+5)&~3) // For single trices the worst case is +1 for each 31 plus terminating 0 at the end. Must be a multiple of 4.
 #endif
+#endif // #ifndef TRICE_DATA_OFFSET
 
 #if TRICE_CYCLE_COUNTER == 1
 extern uint8_t TriceCycle;
@@ -573,11 +576,6 @@ extern const int TriceTypeX0;
     TRICE_ENTER tid; CNTC(1); \
     TRICE_PUT(                                                   TRICE_BYTE0(v0)); /* little endian*/ \
     TRICE_LEAVE
-
-void trice8_1( uint16_t tid, char* pFmt, uint8_t v0 );
-
-// #define TRICE8_1( tid, pFmt, v0 ) trice8_1( tid, pFmt, (uint8_t)(v0) )
-
 
 //! TRICE8_2 writes trice data as fast as possible in a buffer.
 //! \param id is a 16 bit Trice id in upper 2 bytes of a 32 bit value

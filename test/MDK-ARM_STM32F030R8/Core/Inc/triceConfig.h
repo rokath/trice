@@ -49,8 +49,8 @@ extern "C" {
 #define TRICE_FIFO_ELEMENTS 128 //!< Must be a power of 2. The half number is the amount of bufferable trices before they go out.
 #define TRICE_BUFFER_SIZE 0x800 //!< TRICE_BUFFER_SIZE is the used max buffer size for a TRICE macro burst. Recommended value: 2000.
 #elif TRICE_MODE == TRICE_DOUBLE_BUFFER 
-#define TRICE_TRANSFER_INTERVAL_MS 100 //!< TRICE_TRANSFER_INTERVAL_MS is the milliseconds interval for TRICE buffer read out. Each trigger transfers all in a half buffer stored trices. The TRICE_HALF_BUFFER_SIZE must be able to hold all trice messages possibly occouring in this time. This time should be shorter than visible delays. 
-#define TRICE_BUFFER_SIZE 0x800 //!< TRICE_BUFFER_SIZE is the double half buffer size usable for a TRICE macro burst. Recommended value: 2000.
+#define TRICE_TRANSFER_INTERVAL_MS 10 //!< TRICE_TRANSFER_INTERVAL_MS is the milliseconds interval for TRICE buffer read out. Each trigger transfers all in a half buffer stored trices. The TRICE_HALF_BUFFER_SIZE must be able to hold all trice messages possibly occouring in this time. This time should be shorter than visible delays. 
+#define TRICE_BUFFER_SIZE 0x1000 //!< TRICE_BUFFER_SIZE is the double half buffer size usable for a TRICE macro burst. Recommended value: 2000.
 #endif
 
 //! TRICE_FRAMING defines the framing method of the binary trice data stream. Default is TRICE_FRAMING_TCOBS.
@@ -61,12 +61,16 @@ extern "C" {
 #define TRICE_FRAMING TRICE_FRAMING_TCOBS
 
 
+//! TRICE_DATA_OFFSET is the space in front of trice data for in-buffer (T)COBS encoding. It must be be a multiple of uint32_t.
+#define TRICE_DATA_OFFSET 100
+
+
 ///////////////////////////////////////////////////////////////////////////////
 // Multi selecet physical out channels, the ID ranges are allowed to overlap.
 // 
 
 //! Enable and set channel number for SeggerRTT usage. Only channel 0 works right now for some reason.
-#define TRICE_RTT0 0 // comment out, if you do not use RTT
+// #define TRICE_RTT0 0 // comment out, if you do not use RTT
 
 //! Enable and set UART2 for serial output.
 #define TRICE_UARTA USART2 // comment out, if you do not use TRICE_UARTA
@@ -74,9 +78,9 @@ extern "C" {
 #define TRICE_UARTA_MAX_ID ((1<<14)-1) //! TRICE_UARTA_MAX_ID is the biggest ID transferred to UARTA.
 
 //! Enable and set UART for serial output.
-#define TRICE_UARTB USART1 // comment out, if you do not use TRICE_UARTB
-#define TRICE_UARTB_MIN_ID 1           //! TRICE_UARTB_MIN_ID is the smallest ID transferred to UARTB.
-#define TRICE_UARTB_MAX_ID ((1<<14)-1) //! TRICE_UARTB_MAX_ID is the biggest ID transferred to UARTB.
+// #define TRICE_UARTB USART1 // comment out, if you do not use TRICE_UARTB
+// #define TRICE_UARTB_MIN_ID 1           //! TRICE_UARTB_MIN_ID is the smallest ID transferred to UARTB.
+// #define TRICE_UARTB_MAX_ID ((1<<14)-1) //! TRICE_UARTB_MAX_ID is the biggest ID transferred to UARTB.
 
 //! CGO interface (for testing)
 //#define TRICE_CGO 
