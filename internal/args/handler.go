@@ -122,7 +122,7 @@ func logLoop(w io.Writer) {
 		if emitter.ColorPalette == "default" {
 			emitter.ColorPalette = "off"
 		}
-		decoder.ShowTargetTimestamp = "" // todo: justify this line
+		decoder.ShowTargetStamp32 = "" // todo: justify this line
 	}
 
 	var lu id.TriceIDLookUp

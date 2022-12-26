@@ -159,27 +159,45 @@ func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec decode
 				msg.OnErr(err)
 			}
 
-			// If target timestamp & enabled and line start, write target timestamp.
-			if logLineStart && decoder.ShowTargetTimestamp != "" {
-				var s string
-				if decoder.TargetTimestampSize > 0 {
-					if decoder.ShowTargetTimestamp == "tim:%4d_%03d_%03d " {
-						us := decoder.TargetTimestamp % 1000
-						ms := (decoder.TargetTimestamp - us) / 1000 % 1000
-						sd := (decoder.TargetTimestamp - 1000*ms) / 1000000
-						s = fmt.Sprintf("tim:%4d_%03d_%03d ", sd, ms, us)
-					} else {
-						s = fmt.Sprintf(decoder.ShowTargetTimestamp, decoder.TargetTimestamp)
-					}
-				} else {
-					s = fmt.Sprintf(decoder.ShowTargetTimestamp, 0)
-					s = strings.Replace(s, "0", " ", -1)
+			var s string
+			if logLineStart {
+				switch decoder.TargetTimestampSize {
+				case 4:
+					// If target timestamp & enabled and line start, write target timestamp.
+					if decoder.ShowTargetStamp32 != "" {
+						if decoder.TargetTimestampSize > 0 {
+							if decoder.ShowTargetStamp32 == decoder.DefaultStamp32 {
+								us := decoder.TargetTimestamp % 1000
+								ms := (decoder.TargetTimestamp - us) / 1000 % 1000
+								sd := (decoder.TargetTimestamp - 1000*ms) / 1000000
+								s = fmt.Sprintf(decoder.DefaultStamp32, sd, ms, us)
+							} else {
+								s = fmt.Sprintf(decoder.ShowTargetStamp32, decoder.TargetTimestamp)
+							}
+						} else {
+							s = fmt.Sprintf(decoder.ShowTargetStamp32, 0)
+							s = strings.Replace(s, "0", " ", -1)
 
+						}
+					}
+				case 2:
+					if decoder.ShowTargetStamp16 != "" {
+						if decoder.ShowTargetStamp16 == decoder.DefaultStamp16 {
+							us := decoder.TargetTimestamp % 1000
+							ms := (decoder.TargetTimestamp - us) / 1000 % 1000
+							s = fmt.Sprintf(decoder.DefaultStamp16, ms, us)
+						} else {
+							s = fmt.Sprintf(decoder.ShowTargetStamp16, decoder.TargetTimestamp)
+						}
+					}
+				case 0:
+					if decoder.ShowTargetStamp0 != "" {
+						s = fmt.Sprintf(decoder.ShowTargetStamp0)
+					}
 				}
 				_, err := sw.Write([]byte(s))
 				msg.OnErr(err)
 			}
-
 			// write ID only if enabled and line start.
 			if logLineStart && decoder.ShowID != "" {
 				s := fmt.Sprintf(decoder.ShowID, decoder.LastTriceID)

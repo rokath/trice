@@ -70,6 +70,10 @@ const (
 
 	// hints is the help information in case of errors.
 	Hints = "att:Hints:Baudrate? Encoding? Interrupt? Overflow? Parameter count? Password? til.json? Version?"
+
+	DefaultStamp32 = "tim:%4d_%03d_%03d "
+
+	DefaultStamp16 = "tim:      %2d_%03d "
 )
 
 var (
@@ -101,7 +105,9 @@ var (
 	InitialCycle                    = true  // InitialCycle is a helper for the cycle counter automatic.
 	TargetTimestamp                 uint64  // targetTimestamp contains target specific timestamp value.
 	TargetLocation                  uint32  // targetLocation contains 16 bit file id in high and 16 bit line number in low part.
-	ShowTargetTimestamp             string  // ShowTargetTimestamp is the format string for target timestamps.
+	ShowTargetStamp32               string  // ShowTargetStamp32 is the format string for target timestamps.
+	ShowTargetStamp16               string  // ShowTargetStamp16 is the format string for target timestamps.
+	ShowTargetStamp0                string  // ShowTargetStamp0 is the format string for target timestamps.
 	LocationInformationFormatString string  // LocationInformationFormatString is the format string for target location: line number and file name.
 	TargetTimestampSize             int     // TargetTimestampSize is set in dependence of trice type.
 	TargetLocationExists            bool    // TargetLocationExists is set in dependence of p.COBSModeDescriptor. (obsolete)
