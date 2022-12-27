@@ -36,9 +36,74 @@ void TriceCheckSet(int index) {
     char* s = "AAAAAAAAAAAA";
     float  x = (float)1089.6082763671875; // 0x44883377
     double y = 518.0547492508867; // 0x4080307020601050
-     
     switch (index) {
-           case __LINE__: {
+           case __LINE__:
+
+    break; case __LINE__: trice8_1 ( "msg:value=%d\n", -1 );// user written code
+    break; case __LINE__: trice8_2 ( "msg:value=%d, %d\n", -1, -2 );// user written code
+    break; case __LINE__: trice8_3 ( "msg:value=%d, %d, %d\n", -1, -2, -3 );// user written code
+    break; case __LINE__: trice8_4 ( "msg:value=%d, %d, %d, %d\n", -1, -2, -3, -4 );// user written code
+    break; case __LINE__: trice8_5 ( "msg:value=%d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );// user written code
+    break; case __LINE__: trice8_6 ( "msg:value=%d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );// user written code
+    break; case __LINE__: trice8_7 ( "msg:value=%d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7 );// user written code
+    break; case __LINE__: trice8_8 ( "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );// user written code
+    break; case __LINE__: trice8_9 ( "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );// user written code
+    break; case __LINE__: trice8_10( "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10 );// user written code
+    break; case __LINE__: trice8_11( "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );// user written code
+    break; case __LINE__: trice8_12( "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );// user written code
+
+    break; case __LINE__: trice8   ( "msg:value=%d\n", -1 );// user written code
+    break; case __LINE__: trice8   ( "msg:value=%d, %d\n", -1, -2 );// user written code
+    break; case __LINE__: trice8   ( "msg:value=%d, %d, %d\n", -1, -2, -3 );// user written code
+    break; case __LINE__: trice8   ( "msg:value=%d, %d, %d, %d\n", -1, -2, -3, -4 );// user written code
+    break; case __LINE__: trice8   ( "msg:value=%d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );// user written code
+    break; case __LINE__: trice8   ( "msg:value=%d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );// user written code
+    break; case __LINE__: trice8   ( "msg:value=%d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7 );// user written code
+    break; case __LINE__: trice8   ( "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );// user written code
+    break; case __LINE__: trice8   ( "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );// user written code
+    break; case __LINE__: trice8   ( "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10 );// user written code
+    break; case __LINE__: trice8   ( "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );// user written code
+    break; case __LINE__: trice8   ( "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );// user written code
+
+    break; case __LINE__: trice8_1_M ( 7009, "msg:value=%d\n", -1 );// trice tool modified code for compilation
+    break; case __LINE__: trice8_2_M ( 5664, "msg:value=%d, %d\n", -1, -2 );// trice tool modified code for compilation
+    break; case __LINE__: trice8_3_M ( 2103, "msg:value=%d, %d, %d\n", -1, -2, -3 );// trice tool modified code for compilation
+    break; case __LINE__: trice8_4_M ( 7087, "msg:value=%d, %d, %d, %d\n", -1, -2, -3, -4 );// trice tool modified code for compilation
+    break; case __LINE__: trice8_5_M ( 4931, "msg:value=%d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );// trice tool modified code for compilation
+    break; case __LINE__: trice8_6_M ( 2621, "msg:value=%d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );// trice tool modified code for compilation
+    break; case __LINE__: trice8_7_M ( 3488, "msg:value=%d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7 );// trice tool modified code for compilation
+    break; case __LINE__: trice8_8_M ( 4329, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );// trice tool modified code for compilation
+    break; case __LINE__: trice8_9_M ( 6469, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );// trice tool modified code for compilation
+    break; case __LINE__: trice8_10_M( 6335, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10 );// trice tool modified code for compilation
+    break; case __LINE__: trice8_11_M( 2410, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );// trice tool modified code for compilation
+    break; case __LINE__: trice8_12_M( 2070, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );// trice tool modified code for compilation
+                                       
+    break; case __LINE__: trice8_M   ( 2625, "msg:value=%d\n", -1 );// trice tool modified code for compilation
+    break; case __LINE__: trice8_M   ( 1762, "msg:value=%d, %d\n", -1, -2 );// trice tool modified code for compilation
+    break; case __LINE__: trice8_M   ( 7960, "msg:value=%d, %d, %d\n", -1, -2, -3 );// trice tool modified code for compilation
+    break; case __LINE__: trice8_M   ( 1184, "msg:value=%d, %d, %d, %d\n", -1, -2, -3, -4 );// trice tool modified code for compilation
+    break; case __LINE__: trice8_M   ( 2873, "msg:value=%d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );// trice tool modified code for compilation
+    break; case __LINE__: trice8_M   ( 5861, "msg:value=%d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );// trice tool modified code for compilation
+    break; case __LINE__: trice8_M   ( 5563, "msg:value=%d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7 );// trice tool modified code for compilation
+    break; case __LINE__: trice8_M   ( 5122, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );// trice tool modified code for compilation
+    break; case __LINE__: trice8_M   ( 6832, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );// trice tool modified code for compilation
+    break; case __LINE__: trice8_M   ( 2527, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10 );// trice tool modified code for compilation
+    break; case __LINE__: trice8_M   ( 3931, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );// trice tool modified code for compilation
+    break; case __LINE__: trice8_M   ( 2412, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );// trice tool modified code for compilation
+/*
+           
+           
+  //break; case __LINE__: Trice8_1( Id( 4875), "msg:value=%d\n", 200 ); // user written code
+  //break; case __LINE__: Trice8_1_M( 11111, "msg:value=%d\n", 200 ); // trice tool modified code for compilation
+  //break; case __LINE__: Trice8( Id( 3707), "msg:value=%d\n", 200 ); // user written code
+  //break; case __LINE__: Trice8_M( 11112, "msg:value=%d\n", 200 );  // trice tool modified code for compilation
+  //break; case __LINE__: TRice8_1( Id( 2076), "msg:value=%d\n", 200 ); // user written code
+  //break; case __LINE__: TRice8_1_M( 11111, "msg:value=%d\n", 200 ); // trice tool modified code for compilation
+  //break; case __LINE__: TRice8( Id( 1558), "msg:value=%d\n", 200 ); // user written code
+  //break; case __LINE__: TRice8_M( 11112, "msg:value=%d\n", 200 );  // trice tool modified code for compilation
+
+    break; case __LINE__:
+    break; case __LINE__: { 
                            float a = (float)5.934;
                            float b = a + ((a > 0) ? 0.0005f : -0.0005f);
                            int c = (int)b;
@@ -416,6 +481,7 @@ void TriceCheckSet(int index) {
     break; case __LINE__: TRICE64_2(Id( 4882), "tst:TRICE64_2 %x %x\n", -1, -2);
     break; case __LINE__: TRICE64_1(Id( 3959), "tst:TRICE64_1 %u\n", -1);
     break; case __LINE__: TRICE64_2(Id( 4034), "tst:TRICE64_2 %u %u\n", -1, -2);
+*/
     break; case __LINE__: TRICE( id( 6005), "sig:colored single letters and several TRICE macros in one line\n" );
     break; case __LINE__: TRICE(Id( 4159), "e:A");
     break; case __LINE__: TRICE(Id( 5090), "w:B");
@@ -448,7 +514,6 @@ void TriceCheckSet(int index) {
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABBBBBBBBCCCCCCCC\
 ";
                           }
-/*
     break; case __LINE__: TRICE32( id( 7063), "dbg:len=%u:", strlen(s) );
     break; case __LINE__: TRICE_S( id( 7637), "sig:%s\n", s );
     break; case __LINE__: TRICE( id( 3056), "sig:Runtime generated strings\n" );
@@ -498,7 +563,7 @@ DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD
 EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE\
 ";
                           }
-*/
+
     break; case __LINE__: TRICE32( id( 3619), "dbg:len=%u: ", strlen(s) );
     break; case __LINE__: TRICE_S( id( 1235), "sig:%s\n", s );
     break; case __LINE__: { // https://yourbasic.org/golang/fmt-printf-reference-cheat-sheet/

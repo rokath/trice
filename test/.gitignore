@@ -27,3 +27,4 @@ JLinkLog.txt
 TASKING.workspace/*
 STM32CubeIDE.workspace/*
 atollicTrueSTUDIO.workspace/*
+*/MDK-ARM/*.i
