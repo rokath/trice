@@ -170,10 +170,9 @@ int main(void)
     #ifdef TRICE_UARTB
     LL_USART_EnableIT_RXNE(TRICE_UARTB); 
     #endif
-    
-/*
-    TRICE8_1( ID( 2953), "s:     NUCLEO-F030R8     TRICE_MODE %3u     \n", 99 );
 
+  //  TRICE8_1( ID( 2953), "s:     NUCLEO-F030R8     TRICE_MODE %3u     \n", 99 );
+/*
     { // That is an expanded macro TRICE8_1( ID(2953), "s:     NUCLEO-F030R8     TRICE_MODE %3u     \n", 99 ); 
         uint32_t primaskstate = __get_PRIMASK(); 
         __disable_irq(); 

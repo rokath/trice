@@ -259,7 +259,7 @@ extern uint8_t TriceCycle;
 ///////////////////////////////////////////////////////////////////////////////
 
 #ifndef TRICE_PUT
-#define TRICE_PUT(x) do{ *TriceBufferWritePosition++ = TRICE_HTOTL(x); }while(0) //! PUT copies a 32 bit x into the TRICE buffer.
+#define TRICE_PUT(x) do{ *TriceBufferWritePosition++ = TRICE_HTOTL(x); }while(0); //! PUT copies a 32 bit x into the TRICE buffer.
 #endif
 
 #if ( defined( TRICE_MCU_IS_BIG_ENDIAN ) &&  defined( TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN ) ) \
@@ -568,113 +568,21 @@ extern const int TriceTypeX0;
 #endif // #else // #ifdef TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN
 
 
-//! TRICE8_1 writes trice data as fast as possible in a buffer.
-//! \param id is a 16 bit Trice id in upper 2 bytes of a 32 bit value
-//! \param v0 a 8 bit bit value
-#define TRICE8_1( tid, pFmt, v0 ) \
-    TRICE_ENTER tid; CNTC(1); \
-    TRICE_PUT(                                                   TRICE_BYTE0(v0)); /* little endian*/ \
-    TRICE_LEAVE
 
-//! TRICE8_2 writes trice data as fast as possible in a buffer.
-//! \param id is a 16 bit Trice id in upper 2 bytes of a 32 bit value
-//! \param v0 - v1 are 8 bit bit values
-#define TRICE8_2( id, pFmt, v0, v1 ) \
-    TRICE_ENTER id; CNTC(2); \
-    TRICE_PUT(                                  TRICE_BYTE1(v1) |TRICE_BYTE0(v0)); \
-    TRICE_LEAVE
 
-//! TRICE8_3 writes trice data as fast as possible in a buffer.
-//! \param id is a 16 bit Trice id in upper 2 bytes of a 32 bit value
-//! \param v0 - v2 are 8 bit bit values
-#define TRICE8_3( id, pFmt, v0, v1, v2 ) \
-    TRICE_ENTER id; CNTC(3); \
-    TRICE_PUT(                  TRICE_BYTE2(v2) |TRICE_BYTE1(v1) |TRICE_BYTE0(v0)); \
-    TRICE_LEAVE
+#include "internalTrice8.h"
 
-//! TRICE8_4 writes trice data as fast as possible in a buffer.
-//! \param id is a 16 bit Trice id in upper 2 bytes of a 32 bit value
-//! \param v0 - v3 are 8 bit bit values
-#define TRICE8_4( id, pFmt, v0, v1, v2, v3 ) \
-    TRICE_ENTER id; CNTC(4); \
-    TRICE_PUT( TRICE_BYTE3(v3) |TRICE_BYTE2(v2) |TRICE_BYTE1(v1) |TRICE_BYTE0(v0)); \
-    TRICE_LEAVE
 
-//! TRICE8_5 writes trice data as fast as possible in a buffer.
-//! \param id is a 16 bit Trice id in upper 2 bytes of a 32 bit value
-//! \param v0 - v4 are 8 bit bit values
-#define TRICE8_5( id, pFmt, v0, v1, v2, v3, v4 ) \
-    TRICE_ENTER id; CNTC(5); \
-    TRICE_PUT( TRICE_BYTE3(v3) |TRICE_BYTE2(v2) |TRICE_BYTE1(v1) |TRICE_BYTE0(v0)); \
-    TRICE_PUT(                                                    TRICE_BYTE0(v4)); \
-    TRICE_LEAVE
 
-//! TRICE8_6 writes trice data as fast as possible in a buffer.
-//! \param id is a 16 bit Trice id in upper 2 bytes of a 32 bit value
-//! \param v0 - v5 are 8 bit bit values
-#define TRICE8_6( id, pFmt, v0, v1, v2, v3, v4, v5 ) \
-    TRICE_ENTER id; CNTC(6); \
-    TRICE_PUT( TRICE_BYTE3(v3) |TRICE_BYTE2(v2) |TRICE_BYTE1(v1) |TRICE_BYTE0(v0)); \
-    TRICE_PUT(                                   TRICE_BYTE1(v5) |TRICE_BYTE0(v4)); \
-    TRICE_LEAVE
 
-//! TRICE8_8 writes trice data as fast as possible in a buffer.
-//! \param id is a 16 bit Trice id in upper 2 bytes of a 32 bit value
-//! \param v0 - v6 are 8 bit bit values
-#define TRICE8_7( id, pFmt, v0, v1, v2, v3, v4, v5, v6 ) \
-    TRICE_ENTER id; CNTC(7); \
-    TRICE_PUT( TRICE_BYTE3(v3) |TRICE_BYTE2(v2) |TRICE_BYTE1(v1) |TRICE_BYTE0(v0)); \
-    TRICE_PUT(                  TRICE_BYTE2(v6) |TRICE_BYTE1(v5) |TRICE_BYTE0(v4)); \
-    TRICE_LEAVE
 
-//! TRICE8_8 writes trice data as fast as possible in a buffer.
-//! \param id is a 16 bit Trice id in upper 2 bytes of a 32 bit value
-//! \param v0 - v7 are 8 bit bit values
-#define TRICE8_8( id, pFmt, v0, v1, v2, v3, v4, v5, v6, v7 ) \
-    TRICE_ENTER id; CNTC(8); \
-    TRICE_PUT( TRICE_BYTE3(v3) |TRICE_BYTE2(v2) |TRICE_BYTE1(v1) |TRICE_BYTE0(v0)); \
-    TRICE_PUT( TRICE_BYTE3(v7) |TRICE_BYTE2(v6) |TRICE_BYTE1(v5) |TRICE_BYTE0(v4)); \
-    TRICE_LEAVE
 
-//! TRICE8_8 writes trice data as fast as possible in a buffer.
-//! \param id is a 16 bit Trice id in upper 2 bytes of a 32 bit value
-//! \param v0 - v7 are 8 bit bit values
-#define TRICE8_9( id, pFmt, v0, v1, v2, v3, v4, v5, v6, v7, v8 ) \
-    TRICE_ENTER id; CNTC(9); \
-    TRICE_PUT( TRICE_BYTE3(v3) |TRICE_BYTE2(v2) |TRICE_BYTE1(v1) |TRICE_BYTE0(v0)); \
-    TRICE_PUT( TRICE_BYTE3(v7) |TRICE_BYTE2(v6) |TRICE_BYTE1(v5) |TRICE_BYTE0(v4)); \
-    TRICE_PUT(                                                    TRICE_BYTE0(v8)); \
-    TRICE_LEAVE
 
-//! TRICE8_8 writes trice data as fast as possible in a buffer.
-//! \param id is a 16 bit Trice id in upper 2 bytes of a 32 bit value
-//! \param v0 - v7 are 8 bit bit values
-#define TRICE8_10( id, pFmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9 ) \
-    TRICE_ENTER id; CNTC(10); \
-    TRICE_PUT( TRICE_BYTE3(v3) |TRICE_BYTE2(v2) |TRICE_BYTE1(v1) |TRICE_BYTE0(v0)); \
-    TRICE_PUT( TRICE_BYTE3(v7) |TRICE_BYTE2(v6) |TRICE_BYTE1(v5) |TRICE_BYTE0(v4)); \
-    TRICE_PUT(                                   TRICE_BYTE1(v9) |TRICE_BYTE0(v8)); \
-    TRICE_LEAVE
 
-//! TRICE8_8 writes trice data as fast as possible in a buffer.
-//! \param id is a 16 bit Trice id in upper 2 bytes of a 32 bit value
-//! \param v0 - v7 are 8 bit bit values
-#define TRICE8_11( id, pFmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10 ) \
-    TRICE_ENTER id; CNTC(11); \
-    TRICE_PUT( TRICE_BYTE3(v3) |TRICE_BYTE2(v2) |TRICE_BYTE1(v1) |TRICE_BYTE0(v0)); \
-    TRICE_PUT( TRICE_BYTE3(v7) |TRICE_BYTE2(v6) |TRICE_BYTE1(v5) |TRICE_BYTE0(v4)); \
-    TRICE_PUT(                  TRICE_BYTE2(v10)|TRICE_BYTE1(v9) |TRICE_BYTE0(v8)); \
-    TRICE_LEAVE
 
-//! TRICE8_12 writes trice data as fast as possible in a buffer.
-//! \param id is a 16 bit Trice id in upper 2 bytes of a 32 bit value
-//! \param v0 - v11 are 8 bit bit values
-#define TRICE8_12( id, pFmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 ) \
-    TRICE_ENTER id; CNTC(12); \
-    TRICE_PUT( TRICE_BYTE3(v3) |TRICE_BYTE2(v2) |TRICE_BYTE1(v1) |TRICE_BYTE0(v0)); \
-    TRICE_PUT( TRICE_BYTE3(v7) |TRICE_BYTE2(v6) |TRICE_BYTE1(v5) |TRICE_BYTE0(v4)); \
-    TRICE_PUT( TRICE_BYTE3(v11)|TRICE_BYTE2(v10)|TRICE_BYTE1(v9) |TRICE_BYTE0(v8)); \
-    TRICE_LEAVE
+
+
+
 
 //! TRICE16_1 writes trice data as fast as possible in a buffer.
 //! \param id is a 16 bit Trice id in upper 2 bytes of a 32 bit value
@@ -1171,139 +1079,7 @@ extern const int TriceTypeX0;
 #define TRice64(id,frmt, ...) TRice64_COUNT(__VA_ARGS__,TRice64_12,TRice64_11,TRice64_10,TRice64_9,TRice64_8,TRice64_7,TRice64_6,TRice64_5,TRice64_4,TRice64_3,TRice64_2,TRice64_1)(id,frmt, __VA_ARGS__)
 */
 
-#define trice8_1( fmt, v0 ) //!< trice8_1 is an empty macro
-#define trice8_2( fmt, v0, v1 ) //!< trice8_2 is an empty macro
-#define trice8_3( fmt, v0, v1, v2 ) //!< trice8_3 is an empty macro
-#define trice8_4( fmt, v0, v1, v2, v3 ) //!< trice8_4 is an empty macro
-#define trice8_5( fmt, v0, v1, v2, v3, v4 ) //!< trice8_5 is an empty macro
-#define trice8_6( fmt, v0, v1, v2, v3, v4, v5 ) //!< trice8_6 is an empty macro
-#define trice8_7( fmt, v0, v1, v2, v3, v4, v5, v6 ) //!< trice8_7 is an empty macro
-#define trice8_8( fmt, v0, v1, v2, v3, v4, v5, v6, v7 ) //!< trice8_8 is an empty macro
-#define trice8_9( fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8 ) //!< trice8_9 is an empty macro
-#define trice8_10( fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9 ) //!< trice8_10 is an empty macro
-#define trice8_11( fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10 ) //!< trice8_11 is an empty macro
-#define trice8_12( fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 ) //!< trice8_12 is an empty macro
 
-#define trice8_COUNT(_1,_2,_3,_4,_5,_6,_7,_8,_9,_10,_11,_12, NAME,...) NAME
-#define trice8(fmt, ...) trice8_COUNT(__VA_ARGS__,trice8_12,trice8_11,trice8_10,trice8_9,trice8_8,trice8_7,trice8_6,trice8_5,trice8_4,trice8_3,trice8_2,trice8_1)(fmt, __VA_ARGS__)
-
-#define trice8_COUNT(_1,_2,_3,_4,_5,_6,_7,_8,_9,_10,_11,_12, NAME,...) NAME
-#define trice8_M(tid,fmt, ...) trice8_COUNT(__VA_ARGS__,trice8_12_M,trice8_11_M,trice8_10_M,trice8_9_M,trice8_8_M,trice8_7_M,trice8_6_M,trice8_5_M,trice8_4_M,trice8_3_M,trice8_2_M,trice8_1_M)(tid,fmt, __VA_ARGS__)
-
-//! trice8_1_m writes trice data as fast as possible in a buffer.
-//! \param id is a 16 bit Trice id in upper 2 bytes of a 32 bit value
-//! \param v0 a 8 bit bit value
-#define trice8_1_m( tid, v0 ) \
-    TRICE_ENTER \
-    TRICE_PUT( (1<<24) | ((TRICE_CYCLE)<<16) | (0x4000|(tid)) ); \
-    /* TRICE_PUT16( 0x4000|(tid)); */ \
-    /* TRICE_PUT16( ((1)<<8) | TRICE_CYCLE ); */ \
-    TRICE_PUT(                                                   TRICE_BYTE0(v0)); /* little endian*/ \
-    TRICE_LEAVE
-
-#define trice8_2_m( tid, v0, v1 ) \
-    TRICE_ENTER \
-    TRICE_PUT( (2<<24) | ((TRICE_CYCLE)<<16) | (0x4000|(tid)) ); \
-    TRICE_PUT(                                  TRICE_BYTE1(v1) |TRICE_BYTE0(v0)); \
-    TRICE_LEAVE
-
-#define trice8_3_m( tid, v0, v1, v2 ) \
-    TRICE_ENTER \
-    TRICE_PUT( (3<<24) | ((TRICE_CYCLE)<<16) | (0x4000|(tid)) ); \
-    TRICE_PUT(                  TRICE_BYTE2(v2) |TRICE_BYTE1(v1) |TRICE_BYTE0(v0)); \
-    TRICE_LEAVE
-
-#define trice8_4_m( tid, v0, v1, v2, v3 ) \
-    TRICE_ENTER \
-    TRICE_PUT( (4<<24) | ((TRICE_CYCLE)<<16) | (0x4000|(tid)) ); \
-    TRICE_PUT( TRICE_BYTE3(v3) |TRICE_BYTE2(v2) |TRICE_BYTE1(v1) |TRICE_BYTE0(v0)); \
-    TRICE_LEAVE
-
-#define trice8_5_m( tid, v0, v1, v2, v3, v4 ) \
-    TRICE_ENTER \
-    TRICE_PUT( (5<<24) | ((TRICE_CYCLE)<<16) | (0x4000|(tid)) ); \
-    TRICE_PUT( TRICE_BYTE3(v3) |TRICE_BYTE2(v2) |TRICE_BYTE1(v1) |TRICE_BYTE0(v0)); \
-    TRICE_PUT(                                                    TRICE_BYTE0(v4)); \
-    TRICE_LEAVE
-
-#define trice8_6_m( tid, v0, v1, v2, v3, v4, v5 ) \
-    TRICE_ENTER \
-    TRICE_PUT( (6<<24) | ((TRICE_CYCLE)<<16) | (0x4000|(tid)) ); \
-    TRICE_PUT( TRICE_BYTE3(v3) |TRICE_BYTE2(v2) |TRICE_BYTE1(v1) |TRICE_BYTE0(v0)); \
-    TRICE_PUT(                                   TRICE_BYTE1(v5) |TRICE_BYTE0(v4)); \
-    TRICE_LEAVE
-
-#define trice8_7_m( tid, v0, v1, v2, v3, v4, v5, v6 ) \
-    TRICE_ENTER \
-    TRICE_PUT( (7<<24) | ((TRICE_CYCLE)<<16) | (0x4000|(tid)) ); \
-    TRICE_PUT( TRICE_BYTE3(v3) |TRICE_BYTE2(v2) |TRICE_BYTE1(v1) |TRICE_BYTE0(v0)); \
-    TRICE_PUT(                  TRICE_BYTE2(v6) |TRICE_BYTE1(v5) |TRICE_BYTE0(v4)); \
-    TRICE_LEAVE
-
-#define trice8_8_m( tid, v0, v1, v2, v3, v4, v5, v6, v7 ) \
-    TRICE_ENTER \
-    TRICE_PUT( (8<<24) | ((TRICE_CYCLE)<<16) | (0x4000|(tid)) ); \
-    TRICE_PUT( TRICE_BYTE3(v3) |TRICE_BYTE2(v2) |TRICE_BYTE1(v1) |TRICE_BYTE0(v0)); \
-    TRICE_PUT( TRICE_BYTE3(v7) |TRICE_BYTE2(v6) |TRICE_BYTE1(v5) |TRICE_BYTE0(v4)); \
-    TRICE_LEAVE
-
-#define trice8_9_m( tid, v0, v1, v2, v3, v4, v5, v6, v7, v8 ) \
-    TRICE_ENTER \
-    TRICE_PUT( (9<<24) | ((TRICE_CYCLE)<<16) | (0x4000|(tid)) ); \
-    TRICE_PUT( TRICE_BYTE3(v3) |TRICE_BYTE2(v2) |TRICE_BYTE1(v1) |TRICE_BYTE0(v0)); \
-    TRICE_PUT( TRICE_BYTE3(v7) |TRICE_BYTE2(v6) |TRICE_BYTE1(v5) |TRICE_BYTE0(v4)); \
-    TRICE_PUT(                                                    TRICE_BYTE0(v8)); \
-    TRICE_LEAVE
-
-#define trice8_10_m( tid, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9 ) \
-    TRICE_ENTER \
-    TRICE_PUT( (10<<24) | ((TRICE_CYCLE)<<16) | (0x4000|(tid)) ); \
-    TRICE_PUT( TRICE_BYTE3(v3) |TRICE_BYTE2(v2) |TRICE_BYTE1(v1) |TRICE_BYTE0(v0)); \
-    TRICE_PUT( TRICE_BYTE3(v7) |TRICE_BYTE2(v6) |TRICE_BYTE1(v5) |TRICE_BYTE0(v4)); \
-    TRICE_PUT(                                   TRICE_BYTE1(v9) |TRICE_BYTE0(v8)); \
-    TRICE_LEAVE
-
-#define trice8_11_m( tid, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10 ) \
-    TRICE_ENTER \
-    TRICE_PUT( (11<<24) | ((TRICE_CYCLE)<<16) | (0x4000|(tid)) ); \
-    TRICE_PUT( TRICE_BYTE3(v3) |TRICE_BYTE2(v2) |TRICE_BYTE1(v1) |TRICE_BYTE0(v0)); \
-    TRICE_PUT( TRICE_BYTE3(v7) |TRICE_BYTE2(v6) |TRICE_BYTE1(v5) |TRICE_BYTE0(v4)); \
-    TRICE_PUT(                  TRICE_BYTE2(v10)|TRICE_BYTE1(v9) |TRICE_BYTE0(v8)); \
-    TRICE_LEAVE
-
-#define trice8_12_m( tid, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 ) \
-    TRICE_ENTER \
-    TRICE_PUT( (12<<24) | ((TRICE_CYCLE)<<16) | (0x4000|(tid)) ); \
-    TRICE_PUT( TRICE_BYTE3(v3) |TRICE_BYTE2(v2) |TRICE_BYTE1(v1) |TRICE_BYTE0(v0)); \
-    TRICE_PUT( TRICE_BYTE3(v7) |TRICE_BYTE2(v6) |TRICE_BYTE1(v5) |TRICE_BYTE0(v4)); \
-    TRICE_PUT( TRICE_BYTE3(v11)|TRICE_BYTE2(v10)|TRICE_BYTE1(v9) |TRICE_BYTE0(v8)); \
-    TRICE_LEAVE
-
-#define trice8_1_M( tid,  fmt, v0 ) trice8_1_fn( tid,  (uint8_t)(v0) ) //!< trice8_1_M is a macro calling a function to reduce code size.
-#define trice8_2_M( tid,  fmt, v0, v1 ) trice8_2_fn( tid,  (uint8_t)(v0), (uint8_t)(v1) ) //!< trice8_2_M is a macro calling a function to reduce code size.
-#define trice8_3_M( tid,  fmt, v0, v1, v2 ) trice8_3_fn( tid,  (uint8_t)(v0), (uint8_t)(v1), (uint8_t)(v2) ) //!< trice8_3_M is a macro calling a function to reduce code size.
-#define trice8_4_M( tid,  fmt, v0, v1, v2, v3 ) trice8_4_fn( tid,  (uint8_t)(v0), (uint8_t)(v1), (uint8_t)(v2), (uint8_t)(v3) ) //!< trice8_4_M is a macro calling a function to reduce code size.
-#define trice8_5_M( tid,  fmt, v0, v1, v2, v3, v4 ) trice8_5_fn( tid,  (uint8_t)v0, (uint8_t)(v1), (uint8_t)(v2), (uint8_t)(v3), (uint8_t)(v4) ) //!< trice8_5_M is a macro calling a function to reduce code size.
-#define trice8_6_M( tid,  fmt, v0, v1, v2, v3, v4, v5 ) trice8_6_fn( tid,  (uint8_t)(v0), (uint8_t)(v1), (uint8_t)(v2), (uint8_t)(v3), (uint8_t)(v4), (uint8_t)(v5) ) //!< trice8_6_M is a macro calling a function to reduce code size.
-#define trice8_7_M( tid,  fmt, v0, v1, v2, v3, v4, v5, v6 ) trice8_7_fn( tid,  (uint8_t)(v0), (uint8_t)(v1), (uint8_t)(v2), (uint8_t)(v3), (uint8_t)(v4), (uint8_t)(v5), (uint8_t)(v6) ) //!< trice8_7_M is a macro calling a function to reduce code size.
-#define trice8_8_M( tid,  fmt, v0, v1, v2, v3, v4, v5, v6, v7 ) trice8_8_fn( tid,  (uint8_t)(v0), (uint8_t)(v1), (uint8_t)(v2), (uint8_t)(v3), (uint8_t)(v4), (uint8_t)(v5), (uint8_t)(v6), (uint8_t)(v7) ) //!< trice8_8_M is a macro calling a function to reduce code size.
-#define trice8_9_M( tid,  fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8 ) trice8_9_fn( tid, (uint8_t)(v0), (uint8_t)(v1), (uint8_t)(v2), (uint8_t)(v3), (uint8_t)(v4), (uint8_t)(v5), (uint8_t)(v6), (uint8_t)(v7), (uint8_t)(v8) ) //!< trice8_9_M is a macro calling a function to reduce code size.
-#define trice8_10_M( tid, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9 ) trice8_10_fn( tid, (uint8_t)(v0), (uint8_t)(v1), (uint8_t)(v2), (uint8_t)(v3), (uint8_t)(v4), (uint8_t)(v5), (uint8_t)(v6), (uint8_t)(v7), (uint8_t)(v8), (uint8_t)(v9) ) //!< trice8_10_M is a macro calling a function to reduce code size.
-#define trice8_11_M( tid, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10 ) trice8_11_fn( tid, (uint8_t)(v0), (uint8_t)(v1), (uint8_t)(v2), (uint8_t)(v3), (uint8_t)(v4), (uint8_t)(v5), (uint8_t)(v6), (uint8_t)(v7), (uint8_t)(v8), (uint8_t)(v9), (uint8_t)(v10) ) //!< trice8_11_M is a macro calling a function to reduce code size.
-#define trice8_12_M( tid, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 ) trice8_12_fn( tid, (uint8_t)(v0), (uint8_t)(v1), (uint8_t)(v2), (uint8_t)(v3), (uint8_t)(v4), (uint8_t)(v5), (uint8_t)(v6), (uint8_t)(v7), (uint8_t)(v8), (uint8_t)(v9), (uint8_t)(v10), (uint8_t)(v11) ) //!< trice8_12_M is a macro calling a function to reduce code size.
-
-void trice8_1_fn( uint16_t tid,  uint8_t v0 );
-void trice8_2_fn( uint16_t tid,  uint8_t v0, uint8_t v1 );
-void trice8_3_fn( uint16_t tid,  uint8_t v0, uint8_t v1, uint8_t v2 );
-void trice8_4_fn( uint16_t tid,  uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3 );
-void trice8_5_fn( uint16_t tid,  uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4 );
-void trice8_6_fn( uint16_t tid,  uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4, uint8_t v5 );
-void trice8_7_fn( uint16_t tid,  uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4, uint8_t v5, uint8_t v6 );
-void trice8_8_fn( uint16_t tid,  uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4, uint8_t v5, uint8_t v6, uint8_t v7 );
-void trice8_9_fn( uint16_t tid,  uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4, uint8_t v5, uint8_t v6, uint8_t v7, uint8_t v8 );
-void trice8_10_fn( uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4, uint8_t v5, uint8_t v6, uint8_t v7, uint8_t v8, uint8_t v9 );
-void trice8_11_fn( uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4, uint8_t v5, uint8_t v6, uint8_t v7, uint8_t v8, uint8_t v9, uint8_t v10 );
-void trice8_12_fn( uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4, uint8_t v5, uint8_t v6, uint8_t v7, uint8_t v8, uint8_t v9, uint8_t v10, uint8_t v11 );
 
 
 #ifdef __cplusplus
