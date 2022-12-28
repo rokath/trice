@@ -171,61 +171,22 @@ int main(void)
     LL_USART_EnableIT_RXNE(TRICE_UARTB); 
     #endif
 
-  //  TRICE8_1( ID( 2953), "s:     NUCLEO-F030R8     TRICE_MODE %3u     \n", 99 );
-/*
-    { // That is an expanded macro TRICE8_1( ID(2953), "s:     NUCLEO-F030R8     TRICE_MODE %3u     \n", 99 ); 
-        uint32_t primaskstate = __get_PRIMASK(); 
-        __disable_irq(); 
-        { 
-            { 
-                // ID
-                uint32_t ts = TriceStamp32(); 
-                do{ // id value
-                    uint16_t* p = (uint16_t*)TriceBufferWritePosition; 
-                    *p++ = ((0xC000|(2953))); 
-                    TriceBufferWritePosition = (uint32_t*)p; // not aligned
-                }while(0); 
-                do{ // tsLo
-                    uint16_t* p = (uint16_t*)TriceBufferWritePosition;
-                    *p++ = (ts); 
-                    TriceBufferWritePosition = (uint32_t*)p; // aligned
-                }while(0); 
-                do{ // tsHi
-                    uint16_t* p = (uint16_t*)TriceBufferWritePosition;
-                    *p++ = (((ts) >> 16));
-                    TriceBufferWritePosition = (uint32_t*)p; // not aligned
-                }while(0);; 
-            }; 
-            do{ // count
-                uint16_t v = ((1)<<8) | TriceCycle++;
-                do{
-                    uint16_t* p = (uint16_t*)TriceBufferWritePosition;
-                    *p++ = (v); 
-                    TriceBufferWritePosition = (uint32_t*)p; // aligned
-                }while(0);
-            }while(0);
-            do{ 
-                *TriceBufferWritePosition++ = (((uint8_t)(99)));
-            }while(0); 
-        }
-        __set_PRIMASK(primaskstate); 
-    };
-*/
-   TRICE_HEADLINE;
-
+    TRICE_HEADLINE;
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
     for(;;){
-       // if( triceCommandFlag ){
-       //     triceCommandFlag = 0;
-       //     TRICE_S( ID( 5044), "att:Executing command %s ...\n", triceCommandBuffer );
-       //     // do
-       //     TRICE( ID( 2743), "att:...done\n" );
-       // }
 
-        // serve every few ms
+        // check for external commands
+        if( triceCommandFlag ){
+            triceCommandFlag = 0;
+            TRICE_S( ID( 5044), "att:Executing command %s ...\n", triceCommandBuffer );
+            // do
+            TRICE( ID( 2743), "att:...done\n" );
+        }
+
+        // serve trice transfer every few ms
         #if TRICE_DEFERRED_OUT
         static unsigned lastMs = 0;
         if( milliSecond >= lastMs + TRICE_TRANSFER_INTERVAL_MS ){
@@ -233,62 +194,67 @@ int main(void)
             TriceTransfer();
         }
         #endif
-    /* USER CODE END WHILE */
 
-    /* USER CODE BEGIN 3 */
-        {
-            static unsigned lastTricesTime = 0;
-            // send some trices every few ms
-            if( milliSecond >= lastTricesTime + 21 ){
-                const int begin = 0;
-                const int end = 1000;
-                static int index = begin;
-                //int select = index;
-                //TRICE16( ID( 5350),"MSG: 💚 START select = %d\n", select );
-                TriceCheckSet(index);
-                #if TRICE_MODE == TRICE_DOUBLE_BUFFER
-                {
-                    static uint16_t triceDepthMax_1 = 0;
-                    uint16_t triceDepthMax = TriceDepthMax();
-                    if( triceDepthMax_1 != triceDepthMax ){
-                        triceDepthMax_1 = triceDepthMax;
-                        TRICE16( ID( 1192),"MSG: ✅ STOP  index = %d, TriceDepthMax =%4u of %d\n", index, triceDepthMax, TRICE_HALF_BUFFER_SIZE );
-                    }
-                }
-                #endif
-                #if TRICE_MODE == TRICE_STREAM_BUFFER
-                {
-                    static uint16 triceFifoDepthMax_1, triceStreamBufferDepthMax_1;
-                    if( triceFifoDepthMax_1 != triceFifoDepthMax || triceStreamBufferDepthMax_1 != triceStreamBufferDepthMax ){
-                        triceFifoDepthMax_1 = triceFifoDepthMax;
-                        triceStreamBufferDepthMax_1 = triceStreamBufferDepthMax;
-                        TRICE16( ID( 4519), "MSG:triceFifoDepthMax = %d of max %d, triceStreamBufferDepthMax = %d of max %d\n", triceFifoDepthMax, TRICE_FIFO_ELEMENTS, triceStreamBufferDepthMax, TRICE_BUFFER_SIZE );
-                    }
-                }
-                #endif
-
-                if( timingError64Count ){
-                    TRICE( ID( 1352), "err:%d timing errors 64-bit\n", timingError64Count );
-                }
-                if( timingError32Count ){
-                    TRICE( ID( 6479), "err:%d timing errors 32-bit\n", timingError32Count );
-                }
-                index++;
-                index = index > end ? begin : index;
-                //  {
-                //      volatile uint32_t st0 = SysTick->VAL;
-                //      volatile uint32_t us = ReadUs32();
-                //      volatile uint32_t st1 = SysTick->VAL;
-                //      TRICE( ID( 5422), "time: %d µs - ReadUs32() lasts %d ticks\n", us, st0 - st1);
-                //  }
-                lastTricesTime = milliSecond;
+        // send some trices every few ms
+        static unsigned lastTricesTime = 0;
+        const unsigned msInterval = 1; // increase this value to slow down trice generation
+        if( milliSecond >= lastTricesTime + msInterval ){
+            lastTricesTime = milliSecond;
+            const int begin = 0;
+            const int end = 1000;
+            static int index = begin;
+            
+            // diagnostics
+            if( index == begin ){
+                TRICE16( ID( 1192),"MSG: ✅ STOP  index = %d, TriceDepthMax =%4u of %d\n", index, TriceDepthMax(), TRICE_HALF_BUFFER_SIZE );
+                volatile uint32_t st0 = SysTick->VAL;
+                volatile uint32_t us = ReadUs32();
+                volatile uint32_t st1 = SysTick->VAL;
+                TRICE( ID( 5422), "time: %d µs - ReadUs32() lasts %d ticks\n", us, st0 - st1);
             }
+
+            // trice messsage
+            TriceCheckSet(index);
+
+            // diagnostics
+            #if TRICE_MODE == TRICE_DOUBLE_BUFFER
+            {
+                static uint16_t triceDepthMax_1 = 0;
+                uint16_t triceDepthMax = TriceDepthMax();
+                if( triceDepthMax_1 != triceDepthMax ){
+                    triceDepthMax_1 = triceDepthMax;
+                    TRICE16( ID( 1192),"MSG: ✅ STOP  index = %d, TriceDepthMax =%4u of %d\n", index, triceDepthMax, TRICE_HALF_BUFFER_SIZE );
+                }
+            }
+            #endif
+            #if TRICE_MODE == TRICE_STREAM_BUFFER
+            {
+                static uint16 triceFifoDepthMax_1, triceStreamBufferDepthMax_1;
+                if( triceFifoDepthMax_1 != triceFifoDepthMax || triceStreamBufferDepthMax_1 != triceStreamBufferDepthMax ){
+                    triceFifoDepthMax_1 = triceFifoDepthMax;
+                    triceStreamBufferDepthMax_1 = triceStreamBufferDepthMax;
+                    TRICE16( ID( 4519), "MSG:triceFifoDepthMax = %d of max %d, triceStreamBufferDepthMax = %d of max %d\n", triceFifoDepthMax, TRICE_FIFO_ELEMENTS, triceStreamBufferDepthMax, TRICE_BUFFER_SIZE );
+                }
+            }
+            #endif
+            if( timingError64Count ){
+                TRICE( ID( 1352), "err:%d timing errors 64-bit\n", timingError64Count );
+            }
+            if( timingError32Count ){
+                TRICE( ID( 6479), "err:%d timing errors 32-bit\n", timingError32Count );
+            }
+
+            // loop handling
+            index = index++ > end ? begin : index;
         }
-        serveUs();
-        __WFI(); //lint !e718 !e746 wait for interrupt (sleep)
-        serveUs();
+        serveUs(); // needs to be called at least every 999 us!
+        __WFI(); //lint !e718 !e746 wait for interrupt (sleep) - systick triggers every 1 ms
+        serveUs(); // needs to be called at least every 999 us!
+        //lint -e835 -e534
     }
-//lint -e835 -e534
+  /* USER CODE END WHILE */
+  /* USER CODE BEGIN 3 */
+
   /* USER CODE END 3 */
 }
 
