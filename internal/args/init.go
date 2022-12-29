@@ -102,11 +102,7 @@ Simply copy this key than into the line "#define ENCRYPT XTEA_KEY( ea, bb, ec, 6
 	fsScLog.StringVar(&emitter.TimestampFormat, "ts", "LOCmicro",
 		`PC timestamp for logs and logfile name, options: 'off|none|UTCmicro|zero'
 This timestamp switch generates the timestamps on the PC only (reception time), what is good enough for many cases. 
-"LOCmicro" means local time with microseconds.
-"UTCmicro" shows timestamps in universal time.
-When set to "off" no PC timestamps displayed.
-If you need target timestamps you need to get the time inside the target and send it as TRICE* parameter.
-`) // flag
+"LOCmicro" means local time with microseconds. "UTCmicro" shows timestamps in universal time. When set to "off" no PC timestamps displayed.`) // flag
 	fsScLog.StringVar(&decoder.ShowID, "showID", "", `Format string for displaying first trice ID at start of each line. Example: "debug:%7d ". Default is "". If several trices form a log line only the first trice ID ist displayed.`)
 	fsScLog.StringVar(&decoder.LocationInformationFormatString, "liFmt", "info:%20s:%4d ", `Target location format string at start of each line, if target location existent (configured). Use "off" or "none" to suppress existing target location. If several trices form a log line only the location of first trice ist displayed.`)
 	//fsScLog.StringVar(&decoder.ShowTargetTimestamp, "ttsf", "tim:%4d_%03d_%03d ", `Target timestamp format string at start of each line, if target timestamps existent (configured). Use "" to suppress existing target timestamps. If several trices form a log line only the timestamp of first trice ist displayed. The default is us format with underscore.`)

@@ -547,13 +547,13 @@ example: 'trice l -port ST-LINK -v -s': Shows verbose version information and al
       -ts string
             PC timestamp for logs and logfile name, options: 'off|none|UTCmicro|zero'
             This timestamp switch generates the timestamps on the PC only (reception time), what is good enough for many cases.
-            "LOCmicro" means local time with microseconds.
-            "UTCmicro" shows timestamps in universal time.
-            When set to "off" no PC timestamps displayed.
-            If you need target timestamps you need to get the time inside the target and send it as TRICE* parameter.
-            (default "LOCmicro")
-      -ttsf string
-            Target timestamp format string at start of each line, if target timestamps existent (configured). Use "" to suppress existing target timestamps. If several trices form a log line only the timestamp of first trice ist displayed. The default is us format with underscore. (default "tim:%4d_%03d_%03d ")
+            "LOCmicro" means local time with microseconds. "UTCmicro" shows timestamps in universal time. When set to "off" no PC timestamps displayed. (default "LOCmicro")
+      -tsf0 string
+            Target stamp format string at start of each line, if no target stamps existent (configured). Use "" to suppress existing target timestamps. If several trices form a log line only the timestamp of first trice ist displayed. (default "tim:             ")
+      -tsf16 string
+            Target stamp format string at start of each line, if 16-bit target stamps existent (configured). Use "" to suppress existing target timestamps. If several trices form a log line only the timestamp of first trice ist displayed. The default is us format with underscore. (default "tim:      %2d_%03d ")
+      -tsf32 string
+            Target stamp format string at start of each line, if 32-bit target stamps existent (configured). Use "" to suppress existing target timestamps. If several trices form a log line only the timestamp of first trice ist displayed. The default is 3 fields with underscore. (default "tim:%4d_%03d_%03d ")
       -u    Short for '-unsigned'. (default true)
       -unsigned
             Hex, Octal and Bin values are printed as unsigned values. (default true)

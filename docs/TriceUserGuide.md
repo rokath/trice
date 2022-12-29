@@ -615,25 +615,18 @@ sub-command 'l|log': For displaying trice logs coming from port. With "trice log
         Serial port stopbit, options: 1.5, 2 (default "1")
   -suffix string
         Append suffix to all lines, options: any string.
-  -targetEndianess string
+  -triceEndianness string
         Target endianness trice data stream. Option: "bigEndian". (default "littleEndian")
-  -tcp string
-        TCP address for an external receiver like Putty: In "Terminal" enable "Implicit CR in every CR", In "Session" Connection type:"Other:Telnet", specify "hostname:port" here like "localhost:64000"
-  -testTable
-        Generate testTable output and ignore -prefix, -suffix, -ts, -color. This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true.
-  -til string
-        Short for '-idlist'.
-         (default "til.json")
   -ts string
         PC timestamp for logs and logfile name, options: 'off|none|UTCmicro|zero'
         This timestamp switch generates the timestamps on the PC only (reception time), what is good enough for many cases.
-        "LOCmicro" means local time with microseconds.
-        "UTCmicro" shows timestamps in universal time.
-        When set to "off" no PC timestamps displayed.
-        If you need target timestamps you need to get the time inside the target and send it as TRICE* parameter.
-         (default "LOCmicro")
-  -ttsf string
-        Target timestamp format string at start of each line, if target timestamps existent (configured). Use "" to suppress existing target timestamps. If several trices form a log line only the timestamp of first trice ist displayed. (default "time:%9d ")
+        "LOCmicro" means local time with microseconds. "UTCmicro" shows timestamps in universal time. When set to "off" no PC timestamps displayed. (default "LOCmicro")
+  -tsf0 string
+        Target stamp format string at start of each line, if no target stamps existent (configured). Use "" to suppress existing target timestamps. If several trices form a log line only the timestamp of first trice ist displayed. (default "tim:             ")
+  -tsf16 string
+        Target stamp format string at start of each line, if 16-bit target stamps existent (configured). Use "" to suppress existing target timestamps. If several trices form a log line only the timestamp of first trice ist displayed. The default is us format with underscore. (default "tim:      %2d_%03d ")
+  -tsf32 string
+        Target stamp format string at start of each line, if 32-bit target stamps existent (configured). Use "" to suppress existing target timestamps. If several trices form a log line only the timestamp of first trice ist displayed. The default is 3 fields with underscore. (default "tim:%4d_%03d_%03d ")
   -u    Short for '-unsigned'. (default true)
   -unsigned
         Hex, Octal and Bin values are printed as unsigned values. (default true)
