@@ -11,6 +11,10 @@
 		"Type": "TRICE",
 		"Strg": "sig:Runtime generated strings\\n"
 	},
+	"1025": {
+		"Type": "TRICE64_8",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
 	"1030": {
 		"Type": "TRICE8_8",
 		"Strg": "tst:TRICE8_8 %d %d %d %d %d %d %d %d\\n"
@@ -95,6 +99,10 @@
 		"Type": "TRICE",
 		"Strg": "rd:TRICE float %F (%%F)\\n"
 	},
+	"1153": {
+		"Type": "TRICE32",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
 	"1164": {
 		"Type": "TRICE32",
 		"Strg": "rd:TRICE32 float %12.6F (%%12.6F)\\n"
@@ -171,6 +179,10 @@
 		"Type": "TRICE",
 		"Strg": "wrn:TRICE_UARTA Character Match Flag is set\\n"
 	},
+	"1225": {
+		"Type": "TRICE32",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
 	"1235": {
 		"Type": "TRICE_S",
 		"Strg": "sig:%s\\n"
@@ -199,6 +211,14 @@
 		"Type": "TRICE8",
 		"Strg": "rd:TRICE8 %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
 	},
+	"1279": {
+		"Type": "TRICE64_3",
+		"Strg": "msg:value=%d, %d, %d\\n"
+	},
+	"1281": {
+		"Type": "TRICE64_8",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
 	"1287": {
 		"Type": "TRICE8_1",
 		"Strg": "tst:TRICE8_1  %d\\n"
@@ -219,6 +239,10 @@
 		"Type": "TRICE64",
 		"Strg": "rd:TRICE64 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
 	},
+	"1307": {
+		"Type": "TRICE64_7",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d\\n"
+	},
 	"1308": {
 		"Type": "TRICE8",
 		"Strg": "tst:TRICE8 %d %d %d %d %d %d %d\\n"
@@ -234,6 +258,10 @@
 	"1322": {
 		"Type": "TRICE",
 		"Strg": "fatal:magenta+b:red\\n"
+	},
+	"1323": {
+		"Type": "TRICE32_2",
+		"Strg": "msg:value=%d, %d\\n"
 	},
 	"1327": {
 		"Type": "TRICE",
@@ -266,6 +294,10 @@
 	"1375": {
 		"Type": "TRICE",
 		"Strg": "e:A"
+	},
+	"1383": {
+		"Type": "TRICE64",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
 	},
 	"1385": {
 		"Type": "TRICE8",
@@ -367,6 +399,10 @@
 		"Type": "TRICE16_3",
 		"Strg": "msg:value=%d, %d, %d\\n"
 	},
+	"1530": {
+		"Type": "TRICE32_7",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d\\n"
+	},
 	"1536": {
 		"Type": "TRICE32",
 		"Strg": "rd:Use %%p to format a pointer in base 16 notation with leading 0x. (%p)\\n"
@@ -374,6 +410,10 @@
 	"1538": {
 		"Type": "TRICE",
 		"Strg": "rd:TRICE float %9.f (%%9.f)\\n"
+	},
+	"1545": {
+		"Type": "TRICE32_6",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d\\n"
 	},
 	"1553": {
 		"Type": "TRICE16_11",
@@ -390,6 +430,10 @@
 	"1558": {
 		"Type": "TRICE8",
 		"Strg": "msg:value=%d\\n"
+	},
+	"1559": {
+		"Type": "TRICE32_10",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
 	},
 	"1562": {
 		"Type": "TRICE16",
@@ -431,6 +475,10 @@
 		"Type": "TRICE0",
 		"Strg": "s:     "
 	},
+	"1596": {
+		"Type": "TRICE64_12",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
 	"1602": {
 		"Type": "TRICE8_6",
 		"Strg": "tst:TRICE8_6 %u %u %u %u %u %u\\n"
@@ -442,6 +490,10 @@
 	"1606": {
 		"Type": "TRICE",
 		"Strg": "write:black+u:yellow+h\\n"
+	},
+	"1609": {
+		"Type": "TRICE64_11",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
 	},
 	"1611": {
 		"Type": "TRICE8_11",
@@ -462,6 +514,10 @@
 	"1632": {
 		"Type": "TRICE64",
 		"Strg": "rd:TRICE64 %d, %d, %d\\n"
+	},
+	"1633": {
+		"Type": "TRICE64_11",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
 	},
 	"1638": {
 		"Type": "TRICE16_11",
@@ -486,6 +542,10 @@
 	"1680": {
 		"Type": "TRICE16_6",
 		"Strg": "msg:value=%d, %d, %d, %d, %d, %d\\n"
+	},
+	"1682": {
+		"Type": "TRICE32_10",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
 	},
 	"1685": {
 		"Type": "TRICE16_4",
@@ -539,6 +599,10 @@
 		"Type": "TRICE",
 		"Strg": "rd:TRICE float %E (%%E)\\n"
 	},
+	"1771": {
+		"Type": "TRICE64",
+		"Strg": "msg:value=%d, %d, %d\\n"
+	},
 	"1773": {
 		"Type": "TRICE",
 		"Strg": "err:TRICE_UARTB OverRun Error Flag is set\\n"
@@ -579,6 +643,10 @@
 		"Type": "TRICE16_12",
 		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
 	},
+	"1811": {
+		"Type": "TRICE32_8",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
 	"1814": {
 		"Type": "TRICE16_12",
 		"Strg": "tst:TRICE16_12 %d %d %d %d %d %d %d %d %d %d %d %d\\n"
@@ -587,9 +655,17 @@
 		"Type": "TRICE16",
 		"Strg": "rd:TRICE16 %p, %p, %p, %p\\n"
 	},
+	"1829": {
+		"Type": "TRICE64_3",
+		"Strg": "msg:value=%d, %d, %d\\n"
+	},
 	"1835": {
 		"Type": "TRICE16_4",
 		"Strg": "msg:value=%d, %d, %d, %d\\n"
+	},
+	"1840": {
+		"Type": "TRICE64_11",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
 	},
 	"1841": {
 		"Type": "TRICE32",
@@ -598,6 +674,10 @@
 	"1843": {
 		"Type": "TRICE",
 		"Strg": "wr:TRICE_UARTB Transmit Enable Acknowledge Flag is set\\n"
+	},
+	"1846": {
+		"Type": "TRICE32_3",
+		"Strg": "msg:value=%d, %d, %d\\n"
 	},
 	"1853": {
 		"Type": "TRICE64",
@@ -671,6 +751,10 @@
 		"Type": "TRICE8_1",
 		"Strg": "s:     NUCLEO-F030R8     TRICE_MODE %3u     \\n"
 	},
+	"1960": {
+		"Type": "TRICE32_8",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
 	"1962": {
 		"Type": "TRICE",
 		"Strg": "time: %d µs - ReadUs32() lasts %d ticks\\n"
@@ -682,6 +766,10 @@
 	"1964": {
 		"Type": "TRICE",
 		"Strg": "rd: U+0041 'A' \t%#U \tUnicode with character\\n"
+	},
+	"1966": {
+		"Type": "TRICE64",
+		"Strg": "msg:value=%d, %d, %d\\n"
 	},
 	"1969": {
 		"Type": "TRICE64",
@@ -711,6 +799,10 @@
 		"Type": "TRICE8",
 		"Strg": "msg:value=%d, %d, %d\\n"
 	},
+	"1999": {
+		"Type": "TRICE32",
+		"Strg": "msg:value=%d, %d, %d\\n"
+	},
 	"2004": {
 		"Type": "TRICE64",
 		"Strg": "tst:TRICE64 %d %d %d %d %d %d %d %d %d\\n"
@@ -738,6 +830,10 @@
 	"2024": {
 		"Type": "TRICE",
 		"Strg": "wr:TRICE_UARTA Transmit Enable Acknowledge Flag is set\\n"
+	},
+	"2025": {
+		"Type": "TRICE32_9",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
 	},
 	"2029": {
 		"Type": "TRICE0",
@@ -843,6 +939,10 @@
 		"Type": "TRICE16",
 		"Strg": "tst:TRICE16 %d %d %d %d %d %d %d %d %d %d %d\\n"
 	},
+	"2161": {
+		"Type": "TRICE32_1",
+		"Strg": "msg:value=%d\\n"
+	},
 	"2171": {
 		"Type": "TRICE16_10",
 		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
@@ -939,6 +1039,10 @@
 		"Type": "TRICE16",
 		"Strg": "rd:TRICE16 %X, %X, %X, %X, %X, %X\\n"
 	},
+	"2324": {
+		"Type": "TRICE64",
+		"Strg": "msg:value=%d, %d\\n"
+	},
 	"2330": {
 		"Type": "TRICE",
 		"Strg": "sig:TRICE_n with 1 to 12 values\\n"
@@ -962,6 +1066,10 @@
 	"2366": {
 		"Type": "TRICE8",
 		"Strg": "s:     CGO-TEST     TRICE_MODE %3u     \\n"
+	},
+	"2367": {
+		"Type": "TRICE16",
+		"Strg": "msg:value=%d\\n"
 	},
 	"2370": {
 		"Type": "TRICE",
@@ -1035,6 +1143,10 @@
 		"Type": "TRICE16",
 		"Strg": "msg:value=%d, %d, %d\\n"
 	},
+	"2480": {
+		"Type": "TRICE32",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d\\n"
+	},
 	"2490": {
 		"Type": "TRICE16",
 		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
@@ -1050,6 +1162,10 @@
 	"2498": {
 		"Type": "TRICE8_5",
 		"Strg": "tst:TRICE8_5 %d %d %d %d %d\\n"
+	},
+	"2500": {
+		"Type": "TRICE32",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
 	},
 	"2521": {
 		"Type": "TRICE",
@@ -1075,6 +1191,10 @@
 		"Type": "TRICE",
 		"Strg": "rd: 123.456000\t\t%f \t%%f Decimal point, no exponent\\n"
 	},
+	"2563": {
+		"Type": "TRICE64_1",
+		"Strg": "msg:value=%d\\n"
+	},
 	"2565": {
 		"Type": "TRICE64",
 		"Strg": "rd:TRICE64 %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
@@ -1091,9 +1211,17 @@
 		"Type": "TRICE32",
 		"Strg": "att: Trice 2x half buffer size:%4u "
 	},
+	"2581": {
+		"Type": "TRICE32",
+		"Strg": "msg:value=%d, %d, %d, %d\\n"
+	},
 	"2590": {
 		"Type": "TRICE64_1",
 		"Strg": "rd:TRICE64_1 line %o (%%o)\\n"
+	},
+	"2593": {
+		"Type": "TRICE64_10",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
 	},
 	"2595": {
 		"Type": "TRICE",
@@ -1183,9 +1311,25 @@
 		"Type": "TRICE16",
 		"Strg": "rd:TRICE16 %X, %X, %X, %X, %X, %X, %X, %X, %X, %X, %X, %X\\n"
 	},
+	"2701": {
+		"Type": "TRICE32",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"2705": {
+		"Type": "TRICE32_5",
+		"Strg": "msg:value=%d, %d, %d, %d, %d\\n"
+	},
 	"2706": {
 		"Type": "TRICE",
 		"Strg": "inf: Tryout buffer:"
+	},
+	"2707": {
+		"Type": "TRICE32_8",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"2710": {
+		"Type": "TRICE32_9",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
 	},
 	"2711": {
 		"Type": "TRICE32_F",
@@ -1194,6 +1338,10 @@
 	"2713": {
 		"Type": "TRICE16",
 		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"2718": {
+		"Type": "TRICE64",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
 	},
 	"2721": {
 		"Type": "TRICE16",
@@ -1207,6 +1355,10 @@
 		"Type": "TRICE64",
 		"Strg": "rd:TRICE64 %d, %d\\n"
 	},
+	"2754": {
+		"Type": "TRICE32",
+		"Strg": "msg:value=%d, %d\\n"
+	},
 	"2765": {
 		"Type": "TRICE16",
 		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
@@ -1219,6 +1371,14 @@
 		"Type": "TRICE64_1",
 		"Strg": "rd:TRICE64_1 line %x (%%x)\\n"
 	},
+	"2781": {
+		"Type": "TRICE32",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"2783": {
+		"Type": "TRICE64_4",
+		"Strg": "msg:value=%d, %d, %d, %d\\n"
+	},
 	"2784": {
 		"Type": "TRICE32_1",
 		"Strg": "rd:TRICE32_1 float %f (%%f)\\n"
@@ -1226,6 +1386,10 @@
 	"2787": {
 		"Type": "TRICE8_2",
 		"Strg": "tst:TRICE8_2 %d %d\\n"
+	},
+	"2793": {
+		"Type": "TRICE32",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\\n"
 	},
 	"2797": {
 		"Type": "TRICE",
@@ -1238,6 +1402,10 @@
 	"2805": {
 		"Type": "TRICE8_2",
 		"Strg": "tst:TRICE8_2 %02x %02x\\n"
+	},
+	"2806": {
+		"Type": "TRICE32_2",
+		"Strg": "msg:value=%d, %d\\n"
 	},
 	"2807": {
 		"Type": "TRICE",
@@ -1275,6 +1443,10 @@
 		"Type": "TRICE32",
 		"Strg": "tst:TRICE32 %%09x -\u003e      %09x      %09x       %09x     %09x\\n"
 	},
+	"2841": {
+		"Type": "TRICE64",
+		"Strg": "msg:value=%d\\n"
+	},
 	"2844": {
 		"Type": "TRICE_F",
 		"Strg": "info:FunctionNameW"
@@ -1295,6 +1467,10 @@
 		"Type": "TRICE8",
 		"Strg": "msg:value=%d, %d, %d, %d, %d\\n"
 	},
+	"2900": {
+		"Type": "TRICE64_6",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d\\n"
+	},
 	"2902": {
 		"Type": "TRICE16_1",
 		"Strg": "tst:TRICE16_1 %d\\n"
@@ -1306,6 +1482,10 @@
 	"2917": {
 		"Type": "TRICE",
 		"Strg": "w:B"
+	},
+	"2919": {
+		"Type": "TRICE32",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d\\n"
 	},
 	"2926": {
 		"Type": "TRICE",
@@ -1322,6 +1502,10 @@
 	"2944": {
 		"Type": "TRICE32",
 		"Strg": "att:Single Trice Stack buf size:%4u"
+	},
+	"2952": {
+		"Type": "TRICE64",
+		"Strg": "msg:value=%d, %d, %d\\n"
 	},
 	"2953": {
 		"Type": "TRICE8_1",
@@ -1347,9 +1531,17 @@
 		"Type": "TRICE",
 		"Strg": "rd: 'A' \t%q \tQuoted character\\n"
 	},
+	"2974": {
+		"Type": "TRICE32",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d\\n"
+	},
 	"2982": {
 		"Type": "TRICE16_1",
 		"Strg": "tst:TRICE16_1 %u\\n"
+	},
+	"2984": {
+		"Type": "TRICE64_7",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d\\n"
 	},
 	"2990": {
 		"Type": "TRICE",
@@ -1358,6 +1550,10 @@
 	"2992": {
 		"Type": "TRICE64_12",
 		"Strg": "tst:TRICE64_12 %d %d %d %d %d %d %d %d %d %d %d %d\\n"
+	},
+	"2994": {
+		"Type": "TRICE32_3",
+		"Strg": "msg:value=%d, %d, %d\\n"
 	},
 	"2996": {
 		"Type": "TRICE",
@@ -1370,6 +1566,14 @@
 	"3009": {
 		"Type": "TRICE32",
 		"Strg": "dbg:len=%u: "
+	},
+	"3013": {
+		"Type": "TRICE32",
+		"Strg": "msg:value=%d\\n"
+	},
+	"3020": {
+		"Type": "TRICE32_6",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d\\n"
 	},
 	"3021": {
 		"Type": "TRICE8_3",
@@ -1395,6 +1599,10 @@
 		"Type": "TRICE16",
 		"Strg": "MSG: ✅… STOP  TriceDepth = %d, TriceDepthMax = %d + %4u of %d\\n"
 	},
+	"3042": {
+		"Type": "TRICE64",
+		"Strg": "msg:value=%d\\n"
+	},
 	"3043": {
 		"Type": "TRICE",
 		"Strg": "rd: 0015 \t%04d \tPad with zeroes (width 4)\\n"
@@ -1414,6 +1622,10 @@
 	"3067": {
 		"Type": "TRICE",
 		"Strg": "sig:TRICE32 with 1 to 12 values\\n"
+	},
+	"3071": {
+		"Type": "TRICE64_12",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
 	},
 	"3091": {
 		"Type": "TRICE16_2",
@@ -1462,6 +1674,10 @@
 	"3148": {
 		"Type": "TRICE",
 		"Strg": "debug:130+i\\n"
+	},
+	"3149": {
+		"Type": "TRICE32",
+		"Strg": "msg:value=%d, %d, %d\\n"
 	},
 	"3150": {
 		"Type": "TRICE",
@@ -1523,6 +1739,10 @@
 		"Type": "TRICE8_4",
 		"Strg": "msg:value=%d, %d, %d, %d\\n"
 	},
+	"3232": {
+		"Type": "TRICE32_3",
+		"Strg": "msg:value=%d, %d, %d\\n"
+	},
 	"3236": {
 		"Type": "TRICE",
 		"Strg": "inf:TRICE_UARTA Busy Flag is set\\n"
@@ -1554,6 +1774,10 @@
 	"3291": {
 		"Type": "TRICE",
 		"Strg": "rd:TRICE line %F (%%F)\\n"
+	},
+	"3294": {
+		"Type": "TRICE32",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\\n"
 	},
 	"3301": {
 		"Type": "TRICE64",
@@ -1599,6 +1823,10 @@
 		"Type": "TRICE",
 		"Strg": "rd: 123.456\t\t%g\t\t%%g Exponent as needed, necessary digits only\\n"
 	},
+	"3345": {
+		"Type": "TRICE64",
+		"Strg": "msg:value=%d, %d\\n"
+	},
 	"3353": {
 		"Type": "TRICE8_9",
 		"Strg": "tst:TRICE8_9 %t %b %x %X %d %u %o %O %p\\n"
@@ -1627,9 +1855,17 @@
 		"Type": "TRICE16",
 		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
 	},
+	"3365": {
+		"Type": "TRICE64",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
 	"3372": {
 		"Type": "TRICE16_7",
 		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"3375": {
+		"Type": "TRICE64",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
 	},
 	"3377": {
 		"Type": "TRICE8",
@@ -1654,6 +1890,10 @@
 	"3404": {
 		"Type": "TRICE16",
 		"Strg": "rd:TRICE16 %d\\n"
+	},
+	"3408": {
+		"Type": "TRICE64",
+		"Strg": "msg:value=%d, %d, %d, %d\\n"
 	},
 	"3413": {
 		"Type": "TRICE16",
@@ -1699,9 +1939,17 @@
 		"Type": "TRICE32_3",
 		"Strg": "tst:TRICE32_3 %x %x %x\\n"
 	},
+	"3457": {
+		"Type": "TRICE32_11",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
 	"3465": {
 		"Type": "TRICE8_4",
 		"Strg": "rd:TRICE8_4 %d, %d, %d, %d\\n"
+	},
+	"3475": {
+		"Type": "TRICE64_9",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
 	},
 	"3487": {
 		"Type": "TRICE",
@@ -1738,6 +1986,10 @@
 	"3554": {
 		"Type": "TRICE",
 		"Strg": "rd: 1.234560e+02\t\t%e \t%%e Scientific notation\\n"
+	},
+	"3555": {
+		"Type": "TRICE64",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d\\n"
 	},
 	"3556": {
 		"Type": "TRICE8_5",
@@ -1855,6 +2107,10 @@
 		"Type": "TRICE64",
 		"Strg": "rd:TRICE64 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
 	},
+	"3698": {
+		"Type": "TRICE32",
+		"Strg": "msg:value=%d, %d, %d, %d, %d\\n"
+	},
 	"3701": {
 		"Type": "TRICE",
 		"Strg": "rd:TRICE float %+f (%%f)\\n"
@@ -1865,6 +2121,10 @@
 	},
 	"3707": {
 		"Type": "TRICE8",
+		"Strg": "msg:value=%d\\n"
+	},
+	"3712": {
+		"Type": "TRICE32_1",
 		"Strg": "msg:value=%d\\n"
 	},
 	"3713": {
@@ -1897,6 +2157,10 @@
 	},
 	"3758": {
 		"Type": "TRICE16",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"3760": {
+		"Type": "TRICE32_7",
 		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d\\n"
 	},
 	"3768": {
@@ -2063,6 +2327,10 @@
 		"Type": "TRICE64_1",
 		"Strg": "tst:TRICE64_1 %u\\n"
 	},
+	"3961": {
+		"Type": "TRICE64",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
 	"3963": {
 		"Type": "TRICE",
 		"Strg": "rd:TRICE line %d (%%d)\\n"
@@ -2087,6 +2355,10 @@
 		"Type": "TRICE64",
 		"Strg": "rd:TRICE64 int %d, double %f (%%f), %016x, %064b\\n"
 	},
+	"3995": {
+		"Type": "TRICE32",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
 	"3996": {
 		"Type": "TRICE64_6",
 		"Strg": "tst:TRICE64_6  %d %d %d %d %d %d\\n"
@@ -2098,6 +2370,10 @@
 	"4013": {
 		"Type": "TRICE",
 		"Strg": "rd:TRICE float %.9f (%%.9f)\\n"
+	},
+	"4017": {
+		"Type": "TRICE32_12",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
 	},
 	"4022": {
 		"Type": "TRICE0",
@@ -2143,6 +2419,10 @@
 		"Type": "TRICE8_3",
 		"Strg": "tst:TRICE8_3 %d %d %d\\n"
 	},
+	"4086": {
+		"Type": "TRICE64_9",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
 	"4091": {
 		"Type": "TRICE",
 		"Strg": "err:TRICE_UARTA OverRun Error Flag is set\\n"
@@ -2150,6 +2430,10 @@
 	"4096": {
 		"Type": "TRICE64",
 		"Strg": "rd:TRICE64 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"4100": {
+		"Type": "TRICE64_12",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
 	},
 	"4105": {
 		"Type": "TRICE16_8",
@@ -2239,6 +2523,10 @@
 		"Type": "TRICE8",
 		"Strg": "rd:TRICE8 line %b (%%b ,-1)\\n"
 	},
+	"4236": {
+		"Type": "TRICE64",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
 	"4243": {
 		"Type": "TRICE16",
 		"Strg": "rd:TRICE16 %d, %d, %d, %d\\n"
@@ -2274,6 +2562,10 @@
 	"4272": {
 		"Type": "TRICE",
 		"Strg": "WARNING:USART1 OverRun Error Flag is set!\\n"
+	},
+	"4275": {
+		"Type": "TRICE32_2",
+		"Strg": "msg:value=%d, %d\\n"
 	},
 	"4277": {
 		"Type": "TRICE16_1",
@@ -2359,6 +2651,10 @@
 		"Type": "TRICE8_8",
 		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\\n"
 	},
+	"4338": {
+		"Type": "TRICE64",
+		"Strg": "msg:value=%d, %d, %d, %d\\n"
+	},
 	"4343": {
 		"Type": "TRICE",
 		"Strg": "rd:TRICE line %G (%%G)\\n"
@@ -2378,6 +2674,10 @@
 	"4356": {
 		"Type": "TRICE8",
 		"Strg": "rd:TRICE8 %d, %d, %d, %d, %d, %d\\n"
+	},
+	"4361": {
+		"Type": "TRICE64_2",
+		"Strg": "msg:value=%d, %d\\n"
 	},
 	"4362": {
 		"Type": "TRICE32",
@@ -2414,6 +2714,10 @@
 	"4383": {
 		"Type": "TRICE",
 		"Strg": "notice:TRICE8_B example:"
+	},
+	"4392": {
+		"Type": "TRICE64",
+		"Strg": "msg:value=%d, %d, %d, %d, %d\\n"
 	},
 	"4396": {
 		"Type": "TRICE16_9",
@@ -2483,6 +2787,10 @@
 		"Type": "TRICE16_5",
 		"Strg": "msg:value=%d, %d, %d, %d, %d\\n"
 	},
+	"4476": {
+		"Type": "TRICE64_10",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
 	"4484": {
 		"Type": "TRICE16",
 		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
@@ -2503,6 +2811,10 @@
 		"Type": "TRICE8_12",
 		"Strg": "msg:value=%d\\n"
 	},
+	"4495": {
+		"Type": "TRICE64_5",
+		"Strg": "msg:value=%d, %d, %d, %d, %d\\n"
+	},
 	"4497": {
 		"Type": "TRICE8_7",
 		"Strg": "tst:TRICE8_7 %d %d %d %d %d %d %d\\n"
@@ -2518,6 +2830,14 @@
 	"4519": {
 		"Type": "TRICE16",
 		"Strg": "MSG:triceFifoDepthMax = %d of max %d, triceStreamBufferDepthMax = %d of max %d\\n"
+	},
+	"4523": {
+		"Type": "TRICE64_7",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"4526": {
+		"Type": "TRICE32",
+		"Strg": "msg:value=%d, %d\\n"
 	},
 	"4532": {
 		"Type": "TRICE16",
@@ -2582,6 +2902,10 @@
 	"4587": {
 		"Type": "TRICE32_5",
 		"Strg": "tst:TRICE32_5  %d %d %d %d %d\\n"
+	},
+	"4590": {
+		"Type": "TRICE64_2",
+		"Strg": "msg:value=%d, %d\\n"
 	},
 	"4591": {
 		"Type": "TRICE",
@@ -2659,6 +2983,10 @@
 		"Type": "TRICE16_5",
 		"Strg": "rd:TRICE16_5 %d, %d, %d, %d, %d\\n"
 	},
+	"4653": {
+		"Type": "TRICE64_2",
+		"Strg": "msg:value=%d, %d\\n"
+	},
 	"4654": {
 		"Type": "TRICE16_1",
 		"Strg": "msg:value=%d\\n"
@@ -2695,6 +3023,14 @@
 		"Type": "TRICE32_1",
 		"Strg": "rd:TRICE32_1 float %E (%%E)\\n"
 	},
+	"4697": {
+		"Type": "TRICE64",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"4710": {
+		"Type": "TRICE64",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d\\n"
+	},
 	"4716": {
 		"Type": "TRICE",
 		"Strg": "msg:x = %g = %d.%03d, %d.%03d\\n"
@@ -2707,9 +3043,17 @@
 		"Type": "TRICE8",
 		"Strg": "msg:value=%d\\n"
 	},
+	"4741": {
+		"Type": "TRICE64",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
 	"4744": {
 		"Type": "TRICE8",
 		"Strg": "tst:TRICE8   %t %b %x %X %d %u %o %O %p\\n"
+	},
+	"4758": {
+		"Type": "TRICE64_10",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
 	},
 	"4769": {
 		"Type": "TRICE16_4",
@@ -2767,6 +3111,10 @@
 		"Type": "TRICE8_6",
 		"Strg": "msg:value=%d, %d, %d, %d, %d, %d\\n"
 	},
+	"4815": {
+		"Type": "TRICE64",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
 	"4817": {
 		"Type": "TRICE16",
 		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
@@ -2803,6 +3151,10 @@
 		"Type": "TRICE16",
 		"Strg": "msg:value=%d, %d, %d, %d\\n"
 	},
+	"4842": {
+		"Type": "TRICE32",
+		"Strg": "msg:value=%d, %d, %d, %d, %d\\n"
+	},
 	"4843": {
 		"Type": "TRICE",
 		"Strg": "sig:TRICE64 with 1 to 12 values\\n"
@@ -2826,6 +3178,10 @@
 	"4863": {
 		"Type": "TRICE",
 		"Strg": "Button press at, %d\\n"
+	},
+	"4864": {
+		"Type": "TRICE64_4",
+		"Strg": "msg:value=%d, %d, %d, %d\\n"
 	},
 	"4865": {
 		"Type": "TRICE32",
@@ -2954,6 +3310,10 @@
 	"5063": {
 		"Type": "TRICE",
 		"Strg": "wrn:TRICE_UARTA Send Break Flag is set\\n"
+	},
+	"5065": {
+		"Type": "TRICE64",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d\\n"
 	},
 	"5074": {
 		"Type": "TRICE",
@@ -3103,9 +3463,17 @@
 		"Type": "TRICE",
 		"Strg": "\\n"
 	},
+	"5260": {
+		"Type": "TRICE32_5",
+		"Strg": "msg:value=%d, %d, %d, %d, %d\\n"
+	},
 	"5261": {
 		"Type": "TRICE",
 		"Strg": "rd:TRICE float %-9.6f (%%9.6f)\\n"
+	},
+	"5262": {
+		"Type": "TRICE64_1",
+		"Strg": "msg:value=%d\\n"
 	},
 	"5268": {
 		"Type": "TRICE",
@@ -3114,6 +3482,10 @@
 	"5277": {
 		"Type": "TRICE8_1",
 		"Strg": "msg:Example %d\\n"
+	},
+	"5285": {
+		"Type": "TRICE64",
+		"Strg": "msg:value=%d, %d, %d, %d, %d\\n"
 	},
 	"5288": {
 		"Type": "TRICE16_1",
@@ -3138,6 +3510,10 @@
 	"5308": {
 		"Type": "TRICE64_2",
 		"Strg": "tst:TRICE64_2 %d %d\\n"
+	},
+	"5310": {
+		"Type": "TRICE32",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
 	},
 	"5312": {
 		"Type": "TRICE32_3",
@@ -3171,9 +3547,17 @@
 		"Type": "TRICE32",
 		"Strg": "att:Single Trice Stack buf size:%4u"
 	},
+	"5347": {
+		"Type": "TRICE32_12",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
 	"5350": {
 		"Type": "TRICE16",
 		"Strg": "MSG: 💚 START select = %d\\n"
+	},
+	"5353": {
+		"Type": "TRICE64",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
 	},
 	"5366": {
 		"Type": "TRICE64_3",
@@ -3198,6 +3582,10 @@
 	"5405": {
 		"Type": "TRICE8_9",
 		"Strg": "tst:TRICE8_9  %d %d %d %d %d %d %d %d %d\\n"
+	},
+	"5408": {
+		"Type": "TRICE64",
+		"Strg": "msg:value=%d, %d, %d, %d\\n"
 	},
 	"5410": {
 		"Type": "TRICE",
@@ -3258,6 +3646,10 @@
 	"5482": {
 		"Type": "TRICE16",
 		"Strg": "msg:value=%d, %d, %d, %d, %d, %d\\n"
+	},
+	"5483": {
+		"Type": "TRICE64",
+		"Strg": "msg:value=%d\\n"
 	},
 	"5489": {
 		"Type": "TRICE32",
@@ -3399,6 +3791,18 @@
 		"Type": "TRICE16_12",
 		"Strg": "rd:TRICE16_12 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
 	},
+	"5624": {
+		"Type": "TRICE32",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"5625": {
+		"Type": "TRICE32",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"5627": {
+		"Type": "TRICE64_3",
+		"Strg": "msg:value=%d, %d, %d\\n"
+	},
 	"5637": {
 		"Type": "TRICE8",
 		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
@@ -3451,6 +3855,10 @@
 		"Type": "TRICE16_6",
 		"Strg": "msg:value=%d, %d, %d, %d, %d, %d\\n"
 	},
+	"5694": {
+		"Type": "TRICE32",
+		"Strg": "msg:value=%d, %d, %d, %d, %d\\n"
+	},
 	"5696": {
 		"Type": "TRICE",
 		"Strg": "rd:   15 \t%4d \tPad with spaces (width 4, right justified)\\n"
@@ -3474,6 +3882,10 @@
 	"5712": {
 		"Type": "TRICE",
 		"Strg": "rd:TRICE line %G (%%G)\\n"
+	},
+	"5716": {
+		"Type": "TRICE32",
+		"Strg": "msg:value=%d, %d, %d\\n"
 	},
 	"5722": {
 		"Type": "TRICE",
@@ -3535,9 +3947,17 @@
 		"Type": "TRICE",
 		"Strg": "ISR:interrupt   message, SysTick is %6u\\n"
 	},
+	"5778": {
+		"Type": "TRICE64",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d\\n"
+	},
 	"5782": {
 		"Type": "TRICE",
 		"Strg": "notice:TRICE64_B example:"
+	},
+	"5801": {
+		"Type": "TRICE32_12",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
 	},
 	"5802": {
 		"Type": "TRICE16_1",
@@ -3546,6 +3966,10 @@
 	"5830": {
 		"Type": "TRICE32_6",
 		"Strg": "tst:TRICE32_6  %d %d %d %d %d %d\\n"
+	},
+	"5834": {
+		"Type": "TRICE64_6",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d\\n"
 	},
 	"5837": {
 		"Type": "TRICE16",
@@ -3643,6 +4067,10 @@
 		"Type": "TRICE_S",
 		"Strg": "sig:%s\\n"
 	},
+	"5942": {
+		"Type": "TRICE64",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
 	"5952": {
 		"Type": "TRICE8",
 		"Strg": "s:     NUCLEO-F411RE     TRICE_MODE %3u     \\n"
@@ -3671,6 +4099,10 @@
 		"Type": "TRICE_S",
 		"Strg": "msg:Sending array: %s\\n"
 	},
+	"5999": {
+		"Type": "TRICE64_9",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
 	"6000": {
 		"Type": "TRICE16",
 		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
@@ -3682,6 +4114,10 @@
 	"6005": {
 		"Type": "TRICE",
 		"Strg": "sig:colored single letters and several TRICE macros in one line\\n"
+	},
+	"6011": {
+		"Type": "TRICE32",
+		"Strg": "msg:value=%d, %d\\n"
 	},
 	"6014": {
 		"Type": "TRICE",
@@ -3718,6 +4154,10 @@
 	"6060": {
 		"Type": "TRICE16_8",
 		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"6065": {
+		"Type": "TRICE32",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
 	},
 	"6066": {
 		"Type": "TRICE16_9",
@@ -3791,6 +4231,10 @@
 		"Type": "TRICE_B",
 		"Strg": "%4d"
 	},
+	"6148": {
+		"Type": "TRICE32",
+		"Strg": "msg:value=%d, %d, %d, %d\\n"
+	},
 	"6159": {
 		"Type": "TRICE",
 		"Strg": "rd:TRICE line %u (%%u)\\n"
@@ -3798,6 +4242,10 @@
 	"6162": {
 		"Type": "TRICE16_9",
 		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"6166": {
+		"Type": "TRICE32_1",
+		"Strg": "msg:value=%d\\n"
 	},
 	"6172": {
 		"Type": "TRICE",
@@ -3837,6 +4285,10 @@
 	},
 	"6193": {
 		"Type": "TRICE16_5",
+		"Strg": "msg:value=%d, %d, %d, %d, %d\\n"
+	},
+	"6196": {
+		"Type": "TRICE64",
 		"Strg": "msg:value=%d, %d, %d, %d, %d\\n"
 	},
 	"6202": {
@@ -3907,6 +4359,10 @@
 		"Type": "TRICE16",
 		"Strg": "rd:TRICE16 %d, %d, %d, %d, %d\\n"
 	},
+	"6268": {
+		"Type": "TRICE32_4",
+		"Strg": "msg:value=%d, %d, %d, %d\\n"
+	},
 	"6283": {
 		"Type": "TRICE",
 		"Strg": "tim:TRICE --------------------------------------------------\\n"
@@ -3918,6 +4374,10 @@
 	"6289": {
 		"Type": "TRICE",
 		"Strg": "sig:TRICE64 with variable param count 1 to 12\\n"
+	},
+	"6303": {
+		"Type": "TRICE64",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\\n"
 	},
 	"6310": {
 		"Type": "TRICE64",
@@ -3959,6 +4419,10 @@
 		"Type": "TRICE",
 		"Strg": "notice:TRICE_F example: "
 	},
+	"6383": {
+		"Type": "TRICE64",
+		"Strg": "msg:value=%d, %d\\n"
+	},
 	"6391": {
 		"Type": "TRICE16_3",
 		"Strg": "tst:TRICE16_3  %d %d %d\\n"
@@ -3978,6 +4442,14 @@
 	"6417": {
 		"Type": "TRICE16",
 		"Strg": "MSG: âœ… STOP  index = %d, TriceDepthMax =%4u of %d\\n"
+	},
+	"6420": {
+		"Type": "TRICE64_5",
+		"Strg": "msg:value=%d, %d, %d, %d, %d\\n"
+	},
+	"6428": {
+		"Type": "TRICE32",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d\\n"
 	},
 	"6447": {
 		"Type": "TRICE",
@@ -4018,6 +4490,10 @@
 	"6479": {
 		"Type": "TRICE",
 		"Strg": "err:%d timing errors 32-bit\\n"
+	},
+	"6495": {
+		"Type": "TRICE32",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
 	},
 	"6504": {
 		"Type": "TRICE_S",
@@ -4083,6 +4559,10 @@
 		"Type": "TRICE16_10",
 		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
 	},
+	"6612": {
+		"Type": "TRICE32_10",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
 	"6614": {
 		"Type": "TRICE8",
 		"Strg": "msg:value=%d, %d\\n"
@@ -4131,9 +4611,25 @@
 		"Type": "TRICE16_2",
 		"Strg": "msg:value=%d, %d\\n"
 	},
+	"6664": {
+		"Type": "TRICE64_1",
+		"Strg": "msg:value=%d\\n"
+	},
 	"6668": {
 		"Type": "TRICE0",
 		"Strg": "s:                                          \\n"
+	},
+	"6671": {
+		"Type": "TRICE32_9",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"6678": {
+		"Type": "TRICE32_4",
+		"Strg": "msg:value=%d, %d, %d, %d\\n"
+	},
+	"6679": {
+		"Type": "TRICE32_11",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
 	},
 	"6706": {
 		"Type": "TRICE16",
@@ -4175,6 +4671,10 @@
 		"Type": "TRICE",
 		"Strg": "rd:TRICE float %f (%%f)\\n"
 	},
+	"6772": {
+		"Type": "TRICE32_6",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d\\n"
+	},
 	"6773": {
 		"Type": "TRICE8_F",
 		"Strg": "info:TryoutStructFunction"
@@ -4190,6 +4690,10 @@
 	"6800": {
 		"Type": "TRICE",
 		"Strg": "sig:TRICE16_n with 1 to 12 values\\n"
+	},
+	"6818": {
+		"Type": "TRICE64",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
 	},
 	"6821": {
 		"Type": "TRICE8",
@@ -4226,6 +4730,14 @@
 	"6838": {
 		"Type": "TRICE",
 		"Strg": "WRN:warning     message, SysTick is %6u\\n"
+	},
+	"6840": {
+		"Type": "TRICE64_8",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"6843": {
+		"Type": "TRICE32",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d\\n"
 	},
 	"6850": {
 		"Type": "TRICE",
@@ -4299,6 +4811,10 @@
 		"Type": "TRICE32_1",
 		"Strg": "rd:TRICE32_1 %d\\n"
 	},
+	"6931": {
+		"Type": "TRICE64_6",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d\\n"
+	},
 	"6936": {
 		"Type": "TRICE16",
 		"Strg": "tst:TRICE16 %d %d %d %d %d\\n"
@@ -4339,6 +4855,10 @@
 		"Type": "TRICE",
 		"Strg": "dbg:\\\\aHi!\\n"
 	},
+	"6998": {
+		"Type": "TRICE32",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
 	"6999": {
 		"Type": "TRICE",
 		"Strg": "notice:TRICE32_F example:"
@@ -4366,6 +4886,10 @@
 	"7026": {
 		"Type": "TRICE32",
 		"Strg": "rd:TRICE32 int %d, float %f (%%f), %08x, %032b\\n"
+	},
+	"7030": {
+		"Type": "TRICE64_4",
+		"Strg": "msg:value=%d, %d, %d, %d\\n"
 	},
 	"7036": {
 		"Type": "TRICE16_1",
@@ -4411,6 +4935,10 @@
 		"Type": "TRICE32",
 		"Strg": "dbg:len=%u:"
 	},
+	"7069": {
+		"Type": "TRICE64",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
 	"7074": {
 		"Type": "TRICE8",
 		"Strg": "rd:Use %%p to format a pointer in base 16 notation with leading 0x. (%p)\\n"
@@ -4455,6 +4983,10 @@
 		"Type": "TRICE",
 		"Strg": "dbg:\\aHi!\\n"
 	},
+	"7155": {
+		"Type": "TRICE32_4",
+		"Strg": "msg:value=%d, %d, %d, %d\\n"
+	},
 	"7158": {
 		"Type": "TRICE0",
 		"Strg": "--------------------------------------------------\\n"
@@ -4483,6 +5015,14 @@
 		"Type": "TRICE8",
 		"Strg": "rd:TRICE8 line %O (%%O ,-1)\\n"
 	},
+	"7190": {
+		"Type": "TRICE64_5",
+		"Strg": "msg:value=%d, %d, %d, %d, %d\\n"
+	},
+	"7200": {
+		"Type": "TRICE64",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d\\n"
+	},
 	"7205": {
 		"Type": "TRICE8_3",
 		"Strg": "msg:value=%d, %d, %d\\n"
@@ -4502,6 +5042,10 @@
 	"7214": {
 		"Type": "TRICE",
 		"Strg": "notice:TRICE_B example: "
+	},
+	"7215": {
+		"Type": "TRICE32_11",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
 	},
 	"7218": {
 		"Type": "TRICE16",
@@ -4795,6 +5339,10 @@
 		"Type": "TRICE8_1",
 		"Strg": "msg:Example %d\\n"
 	},
+	"7566": {
+		"Type": "TRICE32",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d\\n"
+	},
 	"7576": {
 		"Type": "TRICE16",
 		"Strg": "rd:TRICE16 %p, %p, %p, %p, %p\\n"
@@ -4967,6 +5515,10 @@
 		"Type": "TRICE16",
 		"Strg": "msg:value=%d, %d, %d, %d\\n"
 	},
+	"7768": {
+		"Type": "TRICE64",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
 	"7773": {
 		"Type": "TRICE",
 		"Strg": "rd: 123.46\t \t\t%.2f\t\t%%.2f Default width, precision 2\\n"
@@ -5010,6 +5562,10 @@
 	"7832": {
 		"Type": "TRICE",
 		"Strg": "tim:TRICE --------------------------------------------------\\n"
+	},
+	"7835": {
+		"Type": "TRICE32",
+		"Strg": "msg:value=%d, %d, %d, %d\\n"
 	},
 	"7842": {
 		"Type": "TRICE",
@@ -5095,6 +5651,10 @@
 		"Type": "TRICE",
 		"Strg": "wrn:TRICE_UARTA Send Break Flag is set\\n"
 	},
+	"7933": {
+		"Type": "TRICE32",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
+	},
 	"7934": {
 		"Type": "TRICE16",
 		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d\\n"
@@ -5103,9 +5663,17 @@
 		"Type": "TRICE16",
 		"Strg": "msg:value=%d, %d, %d\\n"
 	},
+	"7937": {
+		"Type": "TRICE32_5",
+		"Strg": "msg:value=%d, %d, %d, %d, %d\\n"
+	},
 	"7949": {
 		"Type": "TRICE8_8",
 		"Strg": "tst:TRICE8_8  %d %d %d %d %d %d %d %d\\n"
+	},
+	"7953": {
+		"Type": "TRICE32",
+		"Strg": "msg:value=%d\\n"
 	},
 	"7956": {
 		"Type": "TRICE16",
@@ -5127,8 +5695,16 @@
 		"Type": "TRICE8_10",
 		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
 	},
+	"7979": {
+		"Type": "TRICE64",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d\\n"
+	},
 	"7990": {
 		"Type": "TRICE",
 		"Strg": "rd:TRICE %d, %d, %d, %d, %d, %d, %d\\n"
+	},
+	"7998": {
+		"Type": "TRICE32_7",
+		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d\\n"
 	}
 }

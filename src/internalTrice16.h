@@ -50,14 +50,14 @@
                                                                             TRICE_PUT(TRICE_SHORT0(v4) | TRICE_SHORT1(v5) ); \
                                                                             TRICE_PUT(TRICE_SHORT0(v6) | TRICE_SHORT1(v7) ); \
                                                                             TRICE_PUT(TRICE_SHORT0(v8) | TRICE_SHORT1(v9) ); \
-                                                                            TRICE_PUT(TRICE_SHORT0(v10)); \
+                                                                            TRICE_PUT(TRICE_SHORT0(v10));
                                                                             
 #define TRICE_PUT16_12(v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 )   TRICE_PUT(TRICE_SHORT0(v0) | TRICE_SHORT1(v1) ); \
                                                                             TRICE_PUT(TRICE_SHORT0(v2) | TRICE_SHORT1(v3) ); \
                                                                             TRICE_PUT(TRICE_SHORT0(v4) | TRICE_SHORT1(v5) ); \
                                                                             TRICE_PUT(TRICE_SHORT0(v6) | TRICE_SHORT1(v7) ); \
                                                                             TRICE_PUT(TRICE_SHORT0(v8) | TRICE_SHORT1(v9) ); \
-                                                                            TRICE_PUT(TRICE_SHORT0(v10)| TRICE_SHORT1(v11)); \
+                                                                            TRICE_PUT(TRICE_SHORT0(v10)| TRICE_SHORT1(v11));
 
 //! TRICE16_1 writes trice data as fast as possible in a buffer.
 //! \param id is a 16 bit Trice id in upper 2 bytes of a 32 bit value

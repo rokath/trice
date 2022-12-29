@@ -183,6 +183,7 @@ int main(void)
             triceCommandFlag = 0;
             TRICE_S( ID( 5044), "att:Executing command %s ...\n", triceCommandBuffer );
             // do
+            TRICE( id( 7147), "dbg:\aHi!\n" ); // sound!
             TRICE( ID( 2743), "att:...done\n" );
         }
 
@@ -201,16 +202,23 @@ int main(void)
         if( milliSecond >= lastTricesTime + msInterval ){
             lastTricesTime = milliSecond;
             const int begin = 0;
-            const int end = 1000;
+            const int end = 1500;
             static int index = begin;
             
             // diagnostics
             if( index == begin ){
                 TRICE16( ID( 1192),"MSG: ✅ STOP  index = %d, TriceDepthMax =%4u of %d\n", index, TriceDepthMax(), TRICE_HALF_BUFFER_SIZE );
+                //TRICE( id( 7147), "dbg:\aHi!\n" ); // sound!
                 volatile uint32_t st0 = SysTick->VAL;
                 volatile uint32_t us = ReadUs32();
                 volatile uint32_t st1 = SysTick->VAL;
                 TRICE( ID( 5422), "time: %d µs - ReadUs32() lasts %d ticks\n", us, st0 - st1);
+                if( timingError64Count ){
+                    TRICE( ID( 1352), "err:%d timing errors 64-bit\n", timingError64Count );
+                }
+                if( timingError32Count ){
+                    TRICE( ID( 6479), "err:%d timing errors 32-bit\n", timingError32Count );
+                }
             }
 
             // trice messsage
@@ -237,12 +245,6 @@ int main(void)
                 }
             }
             #endif
-            if( timingError64Count ){
-                TRICE( ID( 1352), "err:%d timing errors 64-bit\n", timingError64Count );
-            }
-            if( timingError32Count ){
-                TRICE( ID( 6479), "err:%d timing errors 32-bit\n", timingError32Count );
-            }
 
             // loop handling
             index = index++ > end ? begin : index;

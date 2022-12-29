@@ -5,13 +5,13 @@
 #include <stdint.h>
 
 
-#define TRICE_PUT8_1(  v0 )                                                 TRICE_PUT(                                                   TRICE_BYTE0(v0)); 
+#define TRICE_PUT8_1(  v0 )                                                 TRICE_PUT(                                                   TRICE_BYTE0(v0));
 
-#define TRICE_PUT8_2(  v0, v1                                           )   TRICE_PUT(                                   TRICE_BYTE1(v1) |TRICE_BYTE0(v0)); 
+#define TRICE_PUT8_2(  v0, v1                                           )   TRICE_PUT(                                   TRICE_BYTE1(v1) |TRICE_BYTE0(v0));
                                                                             
-#define TRICE_PUT8_3(  v0, v1, v2                                       )   TRICE_PUT(                  TRICE_BYTE2(v2) |TRICE_BYTE1(v1) |TRICE_BYTE0(v0)); 
+#define TRICE_PUT8_3(  v0, v1, v2                                       )   TRICE_PUT(                  TRICE_BYTE2(v2) |TRICE_BYTE1(v1) |TRICE_BYTE0(v0));
                                                                             
-#define TRICE_PUT8_4(  v0, v1, v2, v3                                   )   TRICE_PUT( TRICE_BYTE3(v3) |TRICE_BYTE2(v2) |TRICE_BYTE1(v1) |TRICE_BYTE0(v0)); 
+#define TRICE_PUT8_4(  v0, v1, v2, v3                                   )   TRICE_PUT( TRICE_BYTE3(v3) |TRICE_BYTE2(v2) |TRICE_BYTE1(v1) |TRICE_BYTE0(v0));
                                                                             
 #define TRICE_PUT8_5(  v0, v1, v2, v3, v4                               )   TRICE_PUT( TRICE_BYTE3(v3) |TRICE_BYTE2(v2) |TRICE_BYTE1(v1) |TRICE_BYTE0(v0)); \
                                                                             TRICE_PUT(                                                    TRICE_BYTE0(v4)); 
@@ -20,10 +20,10 @@
                                                                             TRICE_PUT(                                   TRICE_BYTE1(v5) |TRICE_BYTE0(v4)); 
                                                                             
 #define TRICE_PUT8_7(  v0, v1, v2, v3, v4, v5, v6                       )   TRICE_PUT( TRICE_BYTE3(v3) |TRICE_BYTE2(v2) |TRICE_BYTE1(v1) |TRICE_BYTE0(v0)); \
-                                                                            TRICE_PUT(                  TRICE_BYTE2(v6) |TRICE_BYTE1(v5) |TRICE_BYTE0(v4)); 
+                                                                            TRICE_PUT(                  TRICE_BYTE2(v6) |TRICE_BYTE1(v5) |TRICE_BYTE0(v4));
                                                                             
 #define TRICE_PUT8_8(  v0, v1, v2, v3, v4, v5, v6, v7                   )   TRICE_PUT( TRICE_BYTE3(v3) |TRICE_BYTE2(v2) |TRICE_BYTE1(v1) |TRICE_BYTE0(v0)); \
-                                                                            TRICE_PUT( TRICE_BYTE3(v7) |TRICE_BYTE2(v6) |TRICE_BYTE1(v5) |TRICE_BYTE0(v4)); 
+                                                                            TRICE_PUT( TRICE_BYTE3(v7) |TRICE_BYTE2(v6) |TRICE_BYTE1(v5) |TRICE_BYTE0(v4));
                                                                             
 #define TRICE_PUT8_9(  v0, v1, v2, v3, v4, v5, v6, v7, v8               )   TRICE_PUT( TRICE_BYTE3(v3) |TRICE_BYTE2(v2) |TRICE_BYTE1(v1) |TRICE_BYTE0(v0)); \
                                                                             TRICE_PUT( TRICE_BYTE3(v7) |TRICE_BYTE2(v6) |TRICE_BYTE1(v5) |TRICE_BYTE0(v4)); \

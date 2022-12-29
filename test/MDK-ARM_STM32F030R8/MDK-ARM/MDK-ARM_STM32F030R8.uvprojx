@@ -870,6 +870,16 @@
               <FileType>1</FileType>
               <FilePath>..\..\..\src\trice16.c</FilePath>
             </File>
+            <File>
+              <FileName>trice32.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\src\trice32.c</FilePath>
+            </File>
+            <File>
+              <FileName>trice64.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\src\trice64.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
