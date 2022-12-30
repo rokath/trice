@@ -536,7 +536,7 @@ example: 'trice l -port ST-LINK -v -s': Shows verbose version information and al
       -suffix string
             Append suffix to all lines, options: any string.
       -tcp string
-            TCP address for an external receiver like Putty: In "Terminal" enable "Implicit CR in every CR", In "Session" Connection type:"Other:Telnet", specify "hostname:port" here like "localhost:64000"
+            TCP address for an external log receiver like Putty. Example: 1st: "trice log -p COM1 -tcp localhost:64000", 2nd "putty". In "Terminal" enable "Implicit CR in every LF", In "Session" Connection type:"Other:Telnet", specify "hostname:port" here like "localhost:64000".
       -testTable
             Generate testTable output and ignore -prefix, -suffix, -ts, -color. This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true.
       -til string
