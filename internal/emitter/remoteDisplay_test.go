@@ -41,7 +41,7 @@ package emitter
 //  }
 //
 //  func readLines(filename string) (lines []string, err error) {
-//  	content, err := ioutil.ReadFile(filename)
+//  	content, err := os.ReadFile(filename)
 //  	stringContent := string(content)
 //  	if runtime.GOOS == "windows" {
 //  		stringContent = strings.ReplaceAll(stringContent, "\r\n", "\n")

@@ -10,7 +10,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"math/rand"
 	"os"
 	"path/filepath"
@@ -151,7 +150,7 @@ func (li TriceIDLookUpLI) FromJSON(b []byte) (err error) {
 
 // fromFile reads file fn into lut. Existing keys are overwritten, lut is extended with new keys.
 func (lu TriceIDLookUp) fromFile(fn string) error {
-	b, err := ioutil.ReadFile(fn)
+	b, err := os.ReadFile(fn)
 	s := fmt.Sprintf("fn=%s, maybe need to create an empty file first? (Safety feature)", fn)
 	msg.FatalInfoOnErr(err, s)
 	return lu.FromJSON(b)
@@ -159,7 +158,7 @@ func (lu TriceIDLookUp) fromFile(fn string) error {
 
 // fromFile reads file fn into lut.
 func (li TriceIDLookUpLI) fromFile(fn string) error {
-	b, err := ioutil.ReadFile(fn)
+	b, err := os.ReadFile(fn)
 	if err == nil { // file found
 		return li.FromJSON(b)
 	}

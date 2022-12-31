@@ -105,9 +105,9 @@ func EqualTextFiles(t *testing.T, fn0, fn1 string) {
 
 	// Read entire file content, giving us little control but
 	// making it very simple. No need to close the file.
-	b0, e0 := ioutil.ReadFile(fn0)
+	b0, e0 := os.ReadFile(fn0)
 	assert.Nil(t, e0)
-	b1, e1 := ioutil.ReadFile(fn1)
+	b1, e1 := os.ReadFile(fn1)
 	assert.Nil(t, e1)
 
 	// Convert []byte to string and print to screen

@@ -9,7 +9,6 @@ import (
 	"flag"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -221,7 +220,7 @@ func readFile(w io.Writer, path string, fi os.FileInfo, err error) (string, erro
 	if Verbose {
 		fmt.Fprintln(w, path)
 	}
-	read, err := ioutil.ReadFile(path)
+	read, err := os.ReadFile(path)
 	if nil != err {
 		return "", err
 	}
@@ -297,7 +296,7 @@ func visitUpdate(w io.Writer, lu TriceIDLookUp, tflus triceFmtLookUpS, pListModi
 			if Verbose {
 				fmt.Fprintln(w, "Changed: ", path)
 			}
-			err = ioutil.WriteFile(path, []byte(textU), fi.Mode())
+			err = os.WriteFile(path, []byte(textU), fi.Mode())
 			if nil != err {
 				return fmt.Errorf("failed to change %s: %v", path, err)
 			}
@@ -575,7 +574,7 @@ func visitZeroSourceTreeIds(w io.Writer, run bool) filepath.WalkFunc {
 		if Verbose {
 			fmt.Fprintln(w, path)
 		}
-		read, err := ioutil.ReadFile(path)
+		read, err := os.ReadFile(path)
 		if err != nil {
 			return err
 		}
@@ -593,7 +592,7 @@ func visitZeroSourceTreeIds(w io.Writer, run bool) filepath.WalkFunc {
 		}
 
 		if modified && run {
-			err = ioutil.WriteFile(path, []byte(s), 0)
+			err = os.WriteFile(path, []byte(s), 0)
 		}
 		return err
 	}
