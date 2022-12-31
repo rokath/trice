@@ -71,9 +71,9 @@ const (
 	// hints is the help information in case of errors.
 	Hints = "att:Hints:Baudrate? Encoding? Interrupt? Overflow? Parameter count? Password? til.json? Version?"
 
-	DefaultStamp32 = "tim:%4d_%03d_%03d "
+	DefaultStamp32 = "ssss_ms_µs" // "tim:%4d_%03d_%03d "
 
-	DefaultStamp16 = "tim:      %2d_%03d "
+	DefaultStamp16 = "ms_µs" // "tim:      %2d_%03d "
 )
 
 var (

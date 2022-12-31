@@ -87,11 +87,11 @@ static inline uint32_t ReadUs32( void ){
 }
 
 uint16_t TriceStamp16( void ){ // wraps after 10ms
-    return (uint16_t)(ReadUs32()%10000); // This implies division and is therefore slow!
+    return (uint16_t)(ReadUs32()/1000%10000); // This implies division and is therefore slow!
 }
 
 uint32_t TriceStamp32( void ){
-    return ReadUs32();
+    return ReadUs32() / 1000;
 }
 
 //uint64_t TriceStamp64( void ){ 
@@ -198,7 +198,7 @@ int main(void)
 
         // send some trices every few ms
         static unsigned lastTricesTime = 0;
-        const unsigned msInterval = 1; // increase this value to slow down trice generation
+        const unsigned msInterval = 10; // increase this value to slow down trice generation
         if( milliSecond >= lastTricesTime + msInterval ){
             lastTricesTime = milliSecond;
             const int begin = 0;

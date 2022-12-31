@@ -549,11 +549,11 @@ example: 'trice l -port ST-LINK -v -s': Shows verbose version information and al
             This timestamp switch generates the timestamps on the PC only (reception time), what is good enough for many cases.
             "LOCmicro" means local time with microseconds. "UTCmicro" shows timestamps in universal time. When set to "off" no PC timestamps displayed. (default "LOCmicro")
       -tsf0 string
-            Target stamp format string at start of each line, if no target stamps existent (configured). Use "" to suppress existing target timestamps. If several trices form a log line only the timestamp of first trice ist displayed. (default "tim:             ")
+            Target stamp format string at start of each line, if no target stamps existent (configured). Use "" to suppress existing target timestamps. If several trices form a log line only the timestamp of first trice ist displayed. (default "             ")
       -tsf16 string
-            Target stamp format string at start of each line, if 16-bit target stamps existent (configured). Use "" to suppress existing target timestamps. If several trices form a log line only the timestamp of first trice ist displayed. The default is us format with underscore. (default "tim:      %2d_%03d ")
+            Target stamp format string at start of each line, if 16-bit target stamps existent (configured). Options: "s_ms" or s.th. like "...%d...". Use "" to suppress existing target timestamps. If several trices form a log line only the timestamp of first trice ist displayed. The default is us format with underscore. (default "ms_µs")
       -tsf32 string
-            Target stamp format string at start of each line, if 32-bit target stamps existent (configured). Use "" to suppress existing target timestamps. If several trices form a log line only the timestamp of first trice ist displayed. The default is 3 fields with underscore. (default "tim:%4d_%03d_%03d ")
+            Target stamp format string at start of each line, if 32-bit target stamps existent (configured). Options: "hh:mm:ss_ms" or s.th. like "...%d...".  Use "" to suppress existing target timestamps. If several trices form a log line only the timestamp of first trice ist displayed. (default "ssss_ms_µs")
       -u    Short for '-unsigned'. (default true)
       -unsigned
             Hex, Octal and Bin values are printed as unsigned values. (default true)
