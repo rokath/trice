@@ -104,6 +104,10 @@ func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec decode
 	b := make([]byte, decoder.DefaultSize) // intermediate trice string buffer
 	bufferReadStartTime := time.Now()
 	sleepCounter := 0
+	if decoder.TargetTimeStampUnit == "ms" {
+		decoder.ShowTargetStamp16 = "ms"
+		decoder.ShowTargetStamp32 = "ms"
+	}
 	for {
 		n, err := dec.Read(b) // Code to measure, dec.Read can return n=0 in some cases and then wait.
 
@@ -168,13 +172,13 @@ func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec decode
 							us := decoder.TargetTimestamp % 1000
 							ms := (decoder.TargetTimestamp - us) / 1000 % 1000
 							sd := (decoder.TargetTimestamp - 1000*ms) / 1000000
-							s = fmt.Sprintf("tim:%4d_%03d_%03d ", sd, ms, us)
-						} else if decoder.ShowTargetStamp32 == "hh:mm:ss_ms" {
+							s = fmt.Sprintf("tim:%4d,%03d_%03d ", sd, ms, us)
+						} else if decoder.ShowTargetStamp32 == "ms" || decoder.ShowTargetStamp32 == "hh:mm:ss,ms" {
 							ms := decoder.TargetTimestamp % 1000
 							sec := (decoder.TargetTimestamp - ms) / 1000 % 60
 							min := (decoder.TargetTimestamp - ms - 1000*sec) / 60000 % 60
 							hour := (decoder.TargetTimestamp - ms - 1000*sec - 60000*min) / 3600000
-							s = fmt.Sprintf("tim:%2d:%02d:%02d_%03d ", hour, min, sec, ms)
+							s = fmt.Sprintf("tim:%2d:%02d:%02d,%03d ", hour, min, sec, ms)
 						} else { //
 							s = fmt.Sprintf(decoder.ShowTargetStamp32, decoder.TargetTimestamp)
 						}
@@ -184,11 +188,11 @@ func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec decode
 						if decoder.ShowTargetStamp16 == decoder.DefaultStamp16 {
 							us := decoder.TargetTimestamp % 1000
 							ms := (decoder.TargetTimestamp - us) / 1000 % 1000
-							s = fmt.Sprintf("tim:      %2d_%03d ", ms, us)
-						} else if decoder.ShowTargetStamp16 == "s_ms" {
+							s = fmt.Sprintf("tim:      %2d,%03d ", ms, us)
+						} else if decoder.ShowTargetStamp16 == "ms" || decoder.ShowTargetStamp16 == "s,ms" {
 							ms := decoder.TargetTimestamp % 1000
 							sec := (decoder.TargetTimestamp - ms) / 1000
-							s = fmt.Sprintf("tim:      %2d_%03d ", sec, ms)
+							s = fmt.Sprintf("tim:      %2d,%03d ", sec, ms)
 						} else {
 							s = fmt.Sprintf(decoder.ShowTargetStamp16, decoder.TargetTimestamp)
 						}

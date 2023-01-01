@@ -10,6 +10,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"io/fs"
 	"math/rand"
 	"os"
 	"path/filepath"
@@ -151,6 +152,8 @@ func (li TriceIDLookUpLI) FromJSON(b []byte) (err error) {
 // fromFile reads file fn into lut. Existing keys are overwritten, lut is extended with new keys.
 func (lu TriceIDLookUp) fromFile(fn string) error {
 	b, err := os.ReadFile(fn)
+	//fSys := os.DirFS("")
+	//b, err := fs.ReadFile(fSys, fn)
 	s := fmt.Sprintf("fn=%s, maybe need to create an empty file first? (Safety feature)", fn)
 	msg.FatalInfoOnErr(err, s)
 	return lu.FromJSON(b)
@@ -158,7 +161,9 @@ func (lu TriceIDLookUp) fromFile(fn string) error {
 
 // fromFile reads file fn into lut.
 func (li TriceIDLookUpLI) fromFile(fn string) error {
-	b, err := os.ReadFile(fn)
+	//b, err := os.ReadFile(fn)
+	fSys := os.DirFS("")
+	b, err := fs.ReadFile(fSys, fn)
 	if err == nil { // file found
 		return li.FromJSON(b)
 	}
@@ -189,9 +194,11 @@ func (lu TriceIDLookUp) toJSON() ([]byte, error) {
 }
 
 // toFile writes lut into file fn as indented JSON.
-func (lu TriceIDLookUp) toFile(fn string) (err error) {
+func (lu TriceIDLookUp) toFile(osFs fs.FS, fn string) (err error) {
 	var fJSON, fC, fH, fCS *os.File
 	fJSON, err = os.Create(fn)
+	//fJSON, err = osFs.Create(fn)
+	//fJSON, err = fs.Create(fn)
 	msg.FatalOnErr(err)
 	fnC := fn + ".c"
 	fC, err = os.Create(fnC)
@@ -268,7 +275,7 @@ func addID(tF TriceFmt, id TriceID, tflus triceFmtLookUpS) {
 }
 
 // toFile writes lut into file fn as indented JSON.
-func (lim TriceIDLookUpLI) toFile(fn string) (err error) {
+func (lim TriceIDLookUpLI) toFile(osFs fs.FS, fn string) (err error) {
 	f0, err := os.Create(fn)
 	msg.FatalOnErr(err)
 	defer func() {

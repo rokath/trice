@@ -46,7 +46,8 @@ func mainExecHelper(t *testing.T, expect string) {
 	defer m.Unlock()
 	args.FlagsInit() // maybe needed for clearance of previous tests (global vars)
 	var out bytes.Buffer
-	doit(&out)
+	osFs := os.DirFS("")
+	doit(&out, osFs)
 	act := out.String()
 	tst.EqualLines(t, expect, act)
 }

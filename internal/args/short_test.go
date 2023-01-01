@@ -77,7 +77,8 @@ func TestComX(t *testing.T) {
 
 func TestScan(t *testing.T) {
 	var act bytes.Buffer
-	err := Handler(&act, []string{"trice", "scan"})
+	osFs := os.DirFS("")
+	err := Handler(&act, osFs, []string{"trice", "scan"})
 	assert.Nil(t, err)
 	s := "Found port:"
 	buf := act.Bytes()
@@ -102,12 +103,13 @@ func testVersion(t *testing.T, v []string) {
 	Date = fi.ModTime().String()
 	exp := v[0] + "version=devel, built " + Date + "\n" + v[1]
 	var buf0 bytes.Buffer
-	msg.OnErr(Handler(&buf0, []string{"trice", "ver"}))
+	osFs := os.DirFS("")
+	msg.OnErr(Handler(&buf0, osFs, []string{"trice", "ver"}))
 	act0 := buf0.String()
 	assert.Equal(t, exp, act0)
 
 	var buf1 bytes.Buffer
-	msg.OnErr(Handler(&buf1, []string{"trice", "version"}))
+	msg.OnErr(Handler(&buf1, osFs, []string{"trice", "version"}))
 	act1 := buf1.String()
 	assert.Equal(t, exp, act1)
 }

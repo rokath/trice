@@ -71,7 +71,7 @@ const (
 	// hints is the help information in case of errors.
 	Hints = "att:Hints:Baudrate? Encoding? Interrupt? Overflow? Parameter count? Password? til.json? Version?"
 
-	DefaultStamp32 = "ssss_ms_µs" // "tim:%4d_%03d_%03d "
+	DefaultStamp32 = "ssss,ms_µs" // "tim:%4d,%03d_%03d "
 
 	DefaultStamp16 = "ms_µs" // "tim:      %2d_%03d "
 )
@@ -105,6 +105,7 @@ var (
 	InitialCycle                    = true  // InitialCycle is a helper for the cycle counter automatic.
 	TargetTimestamp                 uint64  // targetTimestamp contains target specific timestamp value.
 	TargetLocation                  uint32  // targetLocation contains 16 bit file id in high and 16 bit line number in low part.
+	TargetTimeStampUnit             string  // TargetTimeStampUnit is the target timestamps time base for default formatting.
 	ShowTargetStamp32               string  // ShowTargetStamp32 is the format string for target timestamps.
 	ShowTargetStamp16               string  // ShowTargetStamp16 is the format string for target timestamps.
 	ShowTargetStamp0                string  // ShowTargetStamp0 is the format string for target timestamps.

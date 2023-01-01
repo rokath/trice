@@ -6,6 +6,7 @@ package args
 import (
 	"bytes"
 	"fmt"
+	"os"
 	"sync"
 	"testing"
 
@@ -23,7 +24,8 @@ func execHelper(t *testing.T, input []string, expect string) {
 	defer m.Unlock()
 	var out bytes.Buffer
 	FlagsInit() // maybe needed for clearance of previous tests (global vars) // todo: is already in init() called
-	err := Handler(&out, input)
+	osFs := os.DirFS("")
+	err := Handler(&out, osFs, input)
 	if err != nil {
 		fmt.Fprint(&out, err)
 	}

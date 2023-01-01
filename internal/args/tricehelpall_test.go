@@ -263,9 +263,11 @@ func TestHelpAll(t *testing.T) {
         -tsf0 string
               Target stamp format string at start of each line, if no target stamps existent (configured). Use "" to suppress existing target timestamps. If several trices form a log line only the timestamp of first trice ist displayed. (default "             ")
         -tsf16 string
-              Target stamp format string at start of each line, if 16-bit target stamps existent (configured). Options: "s_ms" or s.th. like "...%d...". Use "" to suppress existing target timestamps. If several trices form a log line only the timestamp of first trice ist displayed. The default is us format with underscore. (default "ms_µs")
+              Target stamp format string at start of each line, if 16-bit target stamps existent (configured). Options: "s,ms" (short "ms") or s.th. like "...%d...". Use "" to suppress existing target timestamps. If several trices form a log line only the timestamp of first trice ist displayed. The default is us format with underscore. (default "ms_µs")
         -tsf32 string
-              Target stamp format string at start of each line, if 32-bit target stamps existent (configured). Options: "hh:mm:ss_ms" or s.th. like "...%d...".  Use "" to suppress existing target timestamps. If several trices form a log line only the timestamp of first trice ist displayed. (default "ssss_ms_µs")
+              Target stamp format string at start of each line, if 32-bit target stamps existent (configured). Options: "hh:mm:ss,ms" (short "ms") or s.th. like "...%d...".  Use "" to suppress existing target timestamps. If several trices form a log line only the timestamp of first trice ist displayed. (default "ssss,ms_µs")
+        -tsu string
+              Target timestamp format string unit at start of each line, if target timestamps existent (configured). Use "" to suppress existing target timestamps. If several trices form a log line only the timestamp of first trice ist displayed. The default is us format with underscore. (default "µs")     
         -u    Short for '-unsigned'. (default true)
         -unsigned
               Hex, Octal and Bin values are printed as unsigned values. (default true)

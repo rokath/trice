@@ -11,6 +11,7 @@ import (
 	"flag"
 	"fmt"
 	"io"
+	"io/fs"
 	"os"
 	"reflect"
 
@@ -33,11 +34,11 @@ func ScZero(w io.Writer, SrcZ string, cmd *flag.FlagSet) error {
 // If the same id is found with different tf only one is added. The others are reported as warning.
 // If any TRICE* is found without Id(n) or with Id(0), it is ignored.
 // SubCmdUpdate needs to know which IDs are used in the source tree, to reliably add new IDs.
-func SubCmdReNewList(w io.Writer) (err error) {
+func SubCmdReNewList(w io.Writer, osFs fs.FS) (err error) {
 	lu := make(TriceIDLookUp)
 	lim := make(TriceIDLookUpLI, 4000)
-	msg.OnErr(updateList(w, lu, lim))
-	return lim.toFile(LIFnJSON)
+	msg.OnErr(updateList(w, osFs, lu, lim))
+	return lim.toFile(osFs, LIFnJSON)
 }
 
 // SubCmdRefreshList refreshes the trice id list parsing the source tree without changing any source file.
@@ -46,18 +47,18 @@ func SubCmdReNewList(w io.Writer) (err error) {
 // If the same id is found with different tf only one is added. The others are reported as warning.
 // If any TRICE* is found without Id(n) or with Id(0), it is ignored.
 // SubCmdUpdate needs to know which IDs are used in the source tree, to reliably add new IDs.
-func SubCmdRefreshList(w io.Writer) (err error) {
+func SubCmdRefreshList(w io.Writer, osFs fs.FS) (err error) {
 	lu := NewLut(w, FnJSON)
 	lim := make(TriceIDLookUpLI, 4000)
-	msg.OnErr(updateList(w, lu, lim))
-	return lim.toFile(LIFnJSON)
+	msg.OnErr(updateList(w, osFs, lu, lim))
+	return lim.toFile(osFs, LIFnJSON)
 }
 
 func refreshListAdapter(w io.Writer, root string, lu TriceIDLookUp, tflus triceFmtLookUpS, _ *bool, lim TriceIDLookUpLI) {
 	refreshList(w, root, lu, tflus, lim)
 }
 
-func updateList(w io.Writer, lu TriceIDLookUp, lim TriceIDLookUpLI) error {
+func updateList(w io.Writer, osFs fs.FS, lu TriceIDLookUp, lim TriceIDLookUpLI) error {
 	tflus := lu.reverseS()
 
 	// keep a copy
@@ -76,14 +77,14 @@ func updateList(w io.Writer, lu TriceIDLookUp, lim TriceIDLookUpLI) error {
 		fmt.Fprintln(w, len(lu0), " -> ", len(lu), "ID's in List", FnJSON)
 	}
 	if !eq && !DryRun {
-		msg.FatalOnErr(lu.toFile(FnJSON))
+		msg.FatalOnErr(lu.toFile(osFs, FnJSON))
 	}
 
 	return nil // SubCmdUpdate() // todo?
 }
 
 // SubCmdUpdate is sub-command update
-func SubCmdUpdate(w io.Writer) error {
+func SubCmdUpdate(w io.Writer, osFs fs.FS) error {
 	lim := make(TriceIDLookUpLI, 4000)
 	lu := NewLut(w, FnJSON)
 	tflus := lu.reverseS()
@@ -95,9 +96,9 @@ func SubCmdUpdate(w io.Writer) error {
 	}
 
 	if (len(lu) != o || listModified) && !DryRun {
-		msg.FatalOnErr(lu.toFile(FnJSON))
+		msg.FatalOnErr(lu.toFile(osFs, FnJSON))
 	}
-	return lim.toFile(LIFnJSON)
+	return lim.toFile(osFs, LIFnJSON)
 }
 
 func walkSrcs(w io.Writer, f func(w io.Writer, root string, lu TriceIDLookUp, tflus triceFmtLookUpS, pListModified *bool, lim TriceIDLookUpLI), lu TriceIDLookUp, tflus triceFmtLookUpS, pListModified *bool, lim TriceIDLookUpLI) {

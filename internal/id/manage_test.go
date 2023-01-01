@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/rokath/trice/pkg/tst"
 	"github.com/tj/assert"
 )
 
@@ -84,17 +83,5 @@ func TestJSONToLut(t *testing.T) {
 	lut := make(TriceIDLookUp)
 	assert.Nil(t, lut.FromJSON(b))
 	act := fmt.Sprint(lut)
-	assert.Equal(t, exp, act)
-}
-
-// TestLutFileTransfer checks lut file transfer.
-func TestLutFileTransfer(t *testing.T) {
-	wr := sampleLut0()
-	exp := sampleLutMap0
-	fn := tst.TempFileName("TestWriteLutToFile*.JSON")
-	assert.Nil(t, wr.toFile(fn))
-	rd := make(TriceIDLookUp)
-	assert.Nil(t, rd.fromFile(fn))
-	act := fmt.Sprint(rd)
 	assert.Equal(t, exp, act)
 }

@@ -3,8 +3,17 @@ module github.com/rokath/trice
 go 1.13
 
 require (
+	bazil.org/fuse v0.0.0-20221210232012-5a1c75a4f691 // indirect
+	github.com/AndrusGerman/vfs v1.0.1 // indirect
+	github.com/absfs/absfs v0.0.0-20200602175035-e49edc9fef15 // indirect
+	github.com/absfs/inode v0.0.0-20190804195220-b7cd14cdd0dc // indirect
+	github.com/absfs/memfs v0.0.0-20190429000831-6a320d582782 // indirect
 	github.com/awesome-gocui/gocui v1.0.1
+	github.com/bbengfort/memfs v0.0.0-20170126211245-25e7469e2bca // indirect
+	github.com/bbengfort/sequence v0.0.0-20171024122002-f10862223f7d // indirect
+	github.com/blang/vfs v1.0.0 // indirect
 	github.com/fsnotify/fsnotify v1.4.9
+	github.com/hack-pad/hackpadfs v0.1.12 // indirect
 	github.com/mattn/go-colorable v0.1.6 // indirect
 	github.com/mgutz/ansi v0.0.0-20170206155736-9520e82c474b
 	github.com/pkg/errors v0.9.1

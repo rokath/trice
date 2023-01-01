@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"io/fs"
 	"io/ioutil"
 	"log"
 	"net"
@@ -28,7 +29,7 @@ import (
 
 // Handler is called in main, evaluates args and calls the appropriate functions.
 // It returns for program exit.
-func Handler(w io.Writer, args []string) error {
+func Handler(w io.Writer, osFs fs.FS, args []string) error {
 
 	id.FnJSON = id.ConditionalFilePath(id.FnJSON)
 
@@ -69,15 +70,15 @@ func Handler(w io.Writer, args []string) error {
 	case "renew":
 		msg.OnErr(fsScRenew.Parse(subArgs))
 		w = distributeArgs(w)
-		return id.SubCmdReNewList(w)
+		return id.SubCmdReNewList(w, osFs)
 	case "r", "refresh":
 		msg.OnErr(fsScRefresh.Parse(subArgs))
 		w = distributeArgs(w)
-		return id.SubCmdRefreshList(w)
+		return id.SubCmdRefreshList(w, osFs)
 	case "u", "update":
 		msg.OnErr(fsScUpdate.Parse(subArgs))
 		w = distributeArgs(w)
-		return id.SubCmdUpdate(w)
+		return id.SubCmdUpdate(w, osFs)
 	case "z", "zeroSourceTreeIds":
 		msg.OnErr(fsScZero.Parse(subArgs))
 		w = distributeArgs(w)
