@@ -23,8 +23,8 @@ func execHelper(t *testing.T, input []string, expect string) {
 	m.Lock()
 	defer m.Unlock()
 	var out bytes.Buffer
-	FlagsInit()             // maybe needed for clearance of previous tests (global vars) // todo: is already in init() called
-	fSys := afero.NewOsFs() // osFs := os.DirFS("")
+	FlagsInit()                               // maybe needed for clearance of previous tests (global vars) // todo: is already in init() called
+	fSys := &afero.Afero{Fs: afero.NewOsFs()} // osFs := os.DirFS("")
 	err := Handler(&out, fSys, input)
 	if err != nil {
 		fmt.Fprint(&out, err)

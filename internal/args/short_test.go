@@ -78,7 +78,7 @@ func TestComX(t *testing.T) {
 
 func TestScan(t *testing.T) {
 	var act bytes.Buffer
-	fSys := afero.NewOsFs() // osFs := os.DirFS("")
+	fSys := &afero.Afero{Fs: afero.NewOsFs()} // osFs := os.DirFS("")
 	err := Handler(&act, fSys, []string{"trice", "scan"})
 	assert.Nil(t, err)
 	s := "Found port:"
@@ -104,7 +104,7 @@ func testVersion(t *testing.T, v []string) {
 	Date = fi.ModTime().String()
 	exp := v[0] + "version=devel, built " + Date + "\n" + v[1]
 	var buf0 bytes.Buffer
-	fSys := afero.NewOsFs() // osFs := os.DirFS("")
+	fSys := &afero.Afero{Fs: afero.NewOsFs()} // osFs := os.DirFS("")
 	msg.OnErr(Handler(&buf0, fSys, []string{"trice", "ver"}))
 	act0 := buf0.String()
 	assert.Equal(t, exp, act0)

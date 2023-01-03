@@ -18,7 +18,7 @@ func TestTriceVersion1(t *testing.T) {
 	args.Commit = "myCommit"
 	args.Date = "2006-01-02_1504-05"
 	var b bytes.Buffer
-	fSys := afero.NewOsFs() // osFs := os.DirFS("")
+	fSys := &afero.Afero{Fs: afero.NewOsFs()} // osFs := os.DirFS("")
 	e := args.Handler(&b, fSys, []string{"trice", "version"})
 	assert.Nil(t, e)
 	assert.Equal(t, "version=1.2.3, commit=myCommit, built at 2006-01-02_1504-05\n", b.String())
@@ -26,7 +26,7 @@ func TestTriceVersion1(t *testing.T) {
 
 func TestTriceWrong1(t *testing.T) {
 	var b bytes.Buffer
-	fSys := afero.NewOsFs() // osFs := os.DirFS("")
+	fSys := &afero.Afero{Fs: afero.NewOsFs()} // osFs := os.DirFS("")
 	e := args.Handler(&b, fSys, []string{"trice", "wrong"})
 	assert.Equal(t, "", b.String())
 	assert.Equal(t, "unknown sub-command 'wrong'. try: 'trice help|h'\n", fmt.Sprintln(e))
@@ -34,7 +34,7 @@ func TestTriceWrong1(t *testing.T) {
 
 func TestDisplayServerStartAndShutdown(t *testing.T) {
 	var ds, sd bytes.Buffer
-	fSys := afero.NewOsFs() // osFs := os.DirFS("")
+	fSys := &afero.Afero{Fs: afero.NewOsFs()} // osFs := os.DirFS("")
 	go args.Handler(&ds, fSys, []string{"trice", "ds", "-color", "none", "-ipp", "61496"})
 	for ds.String() != "displayServer @ localhost:61496\n" {
 	}

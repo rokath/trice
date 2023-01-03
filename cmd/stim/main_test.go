@@ -48,7 +48,7 @@ func mainExecHelper(t *testing.T, expect string) {
 	args.FlagsInit() // maybe needed for clearance of previous tests (global vars)
 	var out bytes.Buffer
 	//osFs := os.DirFS("")
-	fSys := afero.NewOsFs()
+	fSys := &afero.Afero{Fs: afero.NewOsFs()}
 	doit(&out, fSys)
 	act := out.String()
 	tst.EqualLines(t, expect, act)

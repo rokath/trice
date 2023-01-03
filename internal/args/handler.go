@@ -29,7 +29,7 @@ import (
 
 // Handler is called in main, evaluates args and calls the appropriate functions.
 // It returns for program exit.
-func Handler(w io.Writer, fSys afero.Fs, args []string) error {
+func Handler(w io.Writer, fSys *afero.Afero, args []string) error {
 
 	id.FnJSON = id.ConditionalFilePath(id.FnJSON)
 
@@ -106,7 +106,7 @@ type selector struct {
 }
 
 // logLoop prepares writing and lut and provides a retry mechanism for unplugged UART.
-func logLoop(w io.Writer, fSys afero.Fs) {
+func logLoop(w io.Writer, fSys *afero.Afero) {
 	msg.FatalOnErr(cipher.SetUp(w)) // does nothing when -password is ""
 	if decoder.TestTableMode {
 		// set switches if they not set already

@@ -27,12 +27,12 @@ var (
 
 // main is the entry point.
 func main() {
-	fSys := afero.NewOsFs() //os.DirFS("")
+	fSys := &afero.Afero{Fs: afero.NewOsFs()} //os.DirFS("")
 	doit(os.Stdout, fSys)
 }
 
 // doit is the action.
-func doit(w io.Writer, fSys afero.Fs) {
+func doit(w io.Writer, fSys *afero.Afero) {
 
 	// inject values
 	args.Version = version
