@@ -47,7 +47,7 @@ func SubCmdReNewList(w io.Writer, fSys afero.Fs) (err error) {
 // If the same id is found with different tf only one is added. The others are reported as warning.
 // If any TRICE* is found without Id(n) or with Id(0), it is ignored.
 // SubCmdUpdate needs to know which IDs are used in the source tree, to reliably add new IDs.
-func SubCmdRefreshList(w io.Writer, fSys afero.Fs) (err error) {
+func SubCmdRefreshList(w io.Writer, fSys *afero.Afero) (err error) {
 	lu := NewLut(w, fSys, FnJSON)
 	lim := make(TriceIDLookUpLI, 4000)
 	msg.OnErr(updateList(w, fSys, lu, lim))
@@ -84,7 +84,7 @@ func updateList(w io.Writer, fSys afero.Fs, lu TriceIDLookUp, lim TriceIDLookUpL
 }
 
 // SubCmdUpdate is sub-command update
-func SubCmdUpdate(w io.Writer, fSys afero.Fs) error {
+func SubCmdUpdate(w io.Writer, fSys *afero.Afero) error {
 	lim := make(TriceIDLookUpLI, 4000)
 	lu := NewLut(w, fSys, FnJSON)
 	tflus := lu.reverseS()

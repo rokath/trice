@@ -16,7 +16,7 @@ import (
 
 // FileWatcher checks the id list file for changes.
 // taken from https://medium.com/@skdomino/watch-this-file-watching-in-go-5b5a247cf71f
-func (lu TriceIDLookUp) FileWatcher(w io.Writer, fSys afero.Fs, m *sync.RWMutex) {
+func (lu TriceIDLookUp) FileWatcher(w io.Writer, fSys *afero.Afero, m *sync.RWMutex) {
 
 	// creates a new file watcher
 	watcher, err := fsnotify.NewWatcher()

@@ -21,7 +21,7 @@ import (
 )
 
 // NewLut returns a look-up map generated from JSON map file named fn.
-func NewLut(w io.Writer, fSys afero.Fs, fn string) TriceIDLookUp {
+func NewLut(w io.Writer, fSys *afero.Afero, fn string) TriceIDLookUp {
 	lu := make(TriceIDLookUp)
 	if fn == "emptyFile" { // reserved name for tests only
 		return lu
@@ -151,9 +151,10 @@ func (li TriceIDLookUpLI) FromJSON(b []byte) (err error) {
 }
 
 // fromFile reads file fn into lut. Existing keys are overwritten, lut is extended with new keys.
-func (lu TriceIDLookUp) fromFile(fSys afero.Fs, fn string) error {
-	// b, err := fSys.ReadFile(fn)
-	b, err := os.ReadFile(fn)
+func (lu TriceIDLookUp) fromFile(fSys *afero.Afero, fn string) error {
+	b, e := fSys.ReadFile(fn)
+	s := fmt.Sprintf("fn=%s, maybe need to create an empty file first? (Safety feature)", fn)
+	msg.FatalInfoOnErr(e, s)
 
 	/*
 		fh, e := fSys.Open(fn)
@@ -165,10 +166,6 @@ func (lu TriceIDLookUp) fromFile(fSys afero.Fs, fn string) error {
 		b = b[:n]
 	*/
 
-	//fSys := os.DirFS("")
-	//b, err := fs.ReadFile(fSys, fn)
-	s := fmt.Sprintf("fn=%s, maybe need to create an empty file first? (Safety feature)", fn)
-	msg.FatalInfoOnErr(err, s)
 	return lu.FromJSON(b)
 }
 

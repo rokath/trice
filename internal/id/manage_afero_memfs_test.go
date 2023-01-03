@@ -13,17 +13,13 @@ import (
 )
 
 // TestLutFileTransfer checks lut file transfer.
-func _TestLutFileTransfer(t *testing.T) {
+func TestLutFileTransfer(t *testing.T) {
 	t.Parallel()
 	wr := sampleLut0()
 	exp := sampleLutMap0
 
-	//fSys := afero.NewMemMapFs()
-	//fSys := &afero.Afero{Fs: ifSys}
-	//fSys := afero.NewOsFs()
-
-	fSys := &afero.MemMapFs{}
-	//fSys.MkdirAll("src/a", 0755)
+	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
+	//fSys := &afero.Afero{Fs: afero.NewOsFs()}
 
 	fn := "TestWriteLutToFile.JSON"
 	assert.Nil(t, wr.toFile(fSys, fn))
@@ -31,10 +27,9 @@ func _TestLutFileTransfer(t *testing.T) {
 	assert.Nil(t, rd.fromFile(fSys, fn))
 	act := fmt.Sprint(rd)
 	assert.Equal(t, exp, act)
-	fmt.Println(fSys, wr, exp, fn, rd)
 }
 
-func _TestBasePath(t *testing.T) {
+func TestBasePath(t *testing.T) {
 	baseFs := &afero.MemMapFs{}
 	baseFs.MkdirAll("/base/path/tmp", 0777)
 	bp := afero.NewBasePathFs(baseFs, "/base/path")
