@@ -17,15 +17,16 @@ import (
 	"strings"
 
 	"github.com/rokath/trice/pkg/msg"
+	"github.com/spf13/afero"
 )
 
 // NewLut returns a look-up map generated from JSON map file named fn.
-func NewLut(w io.Writer, fn string) TriceIDLookUp {
+func NewLut(w io.Writer, fSys afero.Fs, fn string) TriceIDLookUp {
 	lu := make(TriceIDLookUp)
 	if fn == "emptyFile" { // reserved name for tests only
 		return lu
 	}
-	msg.FatalOnErr(lu.fromFile(fn))
+	msg.FatalOnErr(lu.fromFile(fSys, fn))
 	if Verbose {
 		fmt.Fprintln(w, "Read ID List file", fn, "with", len(lu), "items.")
 	}
@@ -150,8 +151,20 @@ func (li TriceIDLookUpLI) FromJSON(b []byte) (err error) {
 }
 
 // fromFile reads file fn into lut. Existing keys are overwritten, lut is extended with new keys.
-func (lu TriceIDLookUp) fromFile(fn string) error {
+func (lu TriceIDLookUp) fromFile(fSys afero.Fs, fn string) error {
+	// b, err := fSys.ReadFile(fn)
 	b, err := os.ReadFile(fn)
+
+	/*
+		fh, e := fSys.Open(fn)
+		s := fmt.Sprintf("fn=%s, maybe need to create an empty file first? (Safety feature)", fn)
+		msg.FatalInfoOnErr(e, s)
+		b := make([]byte, 100000)
+		n, _ := fh.Read(b)
+		msg.FatalInfoOnTrue(n == 100000, "Internal file buffer too small")
+		b = b[:n]
+	*/
+
 	//fSys := os.DirFS("")
 	//b, err := fs.ReadFile(fSys, fn)
 	s := fmt.Sprintf("fn=%s, maybe need to create an empty file first? (Safety feature)", fn)
@@ -194,20 +207,18 @@ func (lu TriceIDLookUp) toJSON() ([]byte, error) {
 }
 
 // toFile writes lut into file fn as indented JSON.
-func (lu TriceIDLookUp) toFile(osFs fs.FS, fn string) (err error) {
-	var fJSON, fC, fH, fCS *os.File
-	fJSON, err = os.Create(fn)
-	//fJSON, err = osFs.Create(fn)
-	//fJSON, err = fs.Create(fn)
+func (lu TriceIDLookUp) toFile(fSys afero.Fs, fn string) (err error) {
+	var fJSON, fC, fH, fCS afero.File
+	fJSON, err = fSys.Create(fn)
 	msg.FatalOnErr(err)
 	fnC := fn + ".c"
-	fC, err = os.Create(fnC)
+	fC, err = fSys.Create(fnC)
 	msg.FatalOnErr(err)
 	fnH := fn + ".h"
-	fH, err = os.Create(fnH)
+	fH, err = fSys.Create(fnH)
 	msg.FatalOnErr(err)
 	fnCS := fn + ".cs"
-	fCS, err = os.Create(fnCS)
+	fCS, err = fSys.Create(fnCS)
 	msg.FatalOnErr(err)
 	defer func() {
 		err = fJSON.Close()
@@ -275,8 +286,8 @@ func addID(tF TriceFmt, id TriceID, tflus triceFmtLookUpS) {
 }
 
 // toFile writes lut into file fn as indented JSON.
-func (lim TriceIDLookUpLI) toFile(osFs fs.FS, fn string) (err error) {
-	f0, err := os.Create(fn)
+func (lim TriceIDLookUpLI) toFile(fSys afero.Fs, fn string) (err error) {
+	f0, err := fSys.Create(fn)
 	msg.FatalOnErr(err)
 	defer func() {
 		err = f0.Close()

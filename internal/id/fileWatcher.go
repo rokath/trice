@@ -11,11 +11,12 @@ import (
 
 	"github.com/fsnotify/fsnotify"
 	"github.com/rokath/trice/pkg/msg"
+	"github.com/spf13/afero"
 )
 
 // FileWatcher checks the id list file for changes.
 // taken from https://medium.com/@skdomino/watch-this-file-watching-in-go-5b5a247cf71f
-func (lu TriceIDLookUp) FileWatcher(w io.Writer, m *sync.RWMutex) {
+func (lu TriceIDLookUp) FileWatcher(w io.Writer, fSys afero.Fs, m *sync.RWMutex) {
 
 	// creates a new file watcher
 	watcher, err := fsnotify.NewWatcher()
@@ -36,7 +37,7 @@ func (lu TriceIDLookUp) FileWatcher(w io.Writer, m *sync.RWMutex) {
 				if diff > 5000*time.Millisecond {
 					fmt.Fprintln(w, "refreshing id.List")
 					m.Lock()
-					msg.FatalOnErr(lu.fromFile(FnJSON))
+					msg.FatalOnErr(lu.fromFile(fSys, FnJSON))
 					lu.AddFmtCount(w)
 					m.Unlock()
 					last = time.Now()

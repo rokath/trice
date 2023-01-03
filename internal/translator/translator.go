@@ -188,7 +188,7 @@ func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec decode
 						if decoder.ShowTargetStamp16 == decoder.DefaultStamp16 {
 							us := decoder.TargetTimestamp % 1000
 							ms := (decoder.TargetTimestamp - us) / 1000 % 1000
-							s = fmt.Sprintf("tim:      %2d,%03d ", ms, us)
+							s = fmt.Sprintf("tim:      %2d_%03d ", ms, us)
 						} else if decoder.ShowTargetStamp16 == "ms" || decoder.ShowTargetStamp16 == "s,ms" {
 							ms := decoder.TargetTimestamp % 1000
 							sec := (decoder.TargetTimestamp - ms) / 1000

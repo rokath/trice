@@ -18,9 +18,10 @@ require (
 	github.com/mgutz/ansi v0.0.0-20170206155736-9520e82c474b
 	github.com/pkg/errors v0.9.1
 	github.com/psanford/memfs v0.0.0-20210214183328-a001468d78ef // indirect
+	github.com/spf13/afero v1.9.3 // indirect
 	github.com/stretchr/testify v1.7.0
 	github.com/tj/assert v0.0.3
 	github.com/udhos/equalfile v0.3.0
 	go.bug.st/serial v1.3.5
-	golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9
+	golang.org/x/crypto v0.0.0-20211108221036-ceb1ce70b4fa
 )

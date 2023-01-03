@@ -8,7 +8,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/fs"
 	"io/ioutil"
 	"log"
 	"net"
@@ -25,11 +24,12 @@ import (
 	"github.com/rokath/trice/internal/translator"
 	"github.com/rokath/trice/pkg/cipher"
 	"github.com/rokath/trice/pkg/msg"
+	"github.com/spf13/afero"
 )
 
 // Handler is called in main, evaluates args and calls the appropriate functions.
 // It returns for program exit.
-func Handler(w io.Writer, osFs fs.FS, args []string) error {
+func Handler(w io.Writer, fSys afero.Fs, args []string) error {
 
 	id.FnJSON = id.ConditionalFilePath(id.FnJSON)
 
@@ -70,15 +70,15 @@ func Handler(w io.Writer, osFs fs.FS, args []string) error {
 	case "renew":
 		msg.OnErr(fsScRenew.Parse(subArgs))
 		w = distributeArgs(w)
-		return id.SubCmdReNewList(w, osFs)
+		return id.SubCmdReNewList(w, fSys)
 	case "r", "refresh":
 		msg.OnErr(fsScRefresh.Parse(subArgs))
 		w = distributeArgs(w)
-		return id.SubCmdRefreshList(w, osFs)
+		return id.SubCmdRefreshList(w, fSys)
 	case "u", "update":
 		msg.OnErr(fsScUpdate.Parse(subArgs))
 		w = distributeArgs(w)
-		return id.SubCmdUpdate(w, osFs)
+		return id.SubCmdUpdate(w, fSys)
 	case "z", "zeroSourceTreeIds":
 		msg.OnErr(fsScZero.Parse(subArgs))
 		w = distributeArgs(w)
@@ -95,7 +95,7 @@ func Handler(w io.Writer, osFs fs.FS, args []string) error {
 	case "l", "log":
 		msg.OnErr(fsScLog.Parse(subArgs))
 		w = distributeArgs(w)
-		logLoop(w) // endless loop
+		logLoop(w, fSys) // endless loop
 		return nil
 	}
 }
@@ -106,7 +106,7 @@ type selector struct {
 }
 
 // logLoop prepares writing and lut and provides a retry mechanism for unplugged UART.
-func logLoop(w io.Writer) {
+func logLoop(w io.Writer, fSys afero.Fs) {
 	msg.FatalOnErr(cipher.SetUp(w)) // does nothing when -password is ""
 	if decoder.TestTableMode {
 		// set switches if they not set already
@@ -130,7 +130,7 @@ func logLoop(w io.Writer) {
 	if id.FnJSON == "emptyFile" { // reserved name for tests only
 		lu = make(id.TriceIDLookUp)
 	} else {
-		lu = id.NewLut(w, id.FnJSON) // lut is a map, that means a pointer
+		lu = id.NewLut(w, fSys, id.FnJSON) // lut is a map, that means a pointer
 	}
 	m := new(sync.RWMutex) // m is a pointer to a read write mutex for lu
 	m.Lock()
@@ -138,7 +138,7 @@ func logLoop(w io.Writer) {
 	m.Unlock()
 	// Just in case the id list file FnJSON gets updated, the file watcher updates lut.
 	// This way trice needs NOT to be restarted during development process.
-	go lu.FileWatcher(w, m)
+	go lu.FileWatcher(w, fSys, m)
 
 	var li id.TriceIDLookUpLI // nil
 

@@ -11,6 +11,7 @@ import (
 
 	"github.com/rokath/trice/internal/args"
 	"github.com/rokath/trice/pkg/tst"
+	"github.com/spf13/afero"
 )
 
 var (
@@ -46,8 +47,9 @@ func mainExecHelper(t *testing.T, expect string) {
 	defer m.Unlock()
 	args.FlagsInit() // maybe needed for clearance of previous tests (global vars)
 	var out bytes.Buffer
-	osFs := os.DirFS("")
-	doit(&out, osFs)
+	//osFs := os.DirFS("")
+	fSys := afero.NewOsFs()
+	doit(&out, fSys)
 	act := out.String()
 	tst.EqualLines(t, expect, act)
 }
