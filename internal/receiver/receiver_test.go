@@ -10,12 +10,14 @@ import (
 	"os"
 	"testing"
 
+	"github.com/spf13/afero"
 	"github.com/tj/assert"
 )
 
 func TestBUFFERReceiver(t *testing.T) {
 	var verbose bool
-	rc, err := NewReadWriteCloser(os.Stdout, verbose, "BUFFER", "7 123 44")
+	fSys := &afero.Afero{Fs: afero.NewOsFs()} // os.DirFS("")
+	rc, err := NewReadWriteCloser(os.Stdout, fSys, verbose, "BUFFER", "7 123 44")
 	assert.Nil(t, err)
 	b := make([]byte, 100)
 	n, err := rc.Read(b)
@@ -31,7 +33,8 @@ func TestBUFFERReceiver(t *testing.T) {
 
 func TestDUMPReceiver(t *testing.T) {
 	var verbose bool
-	rc, err := NewReadWriteCloser(os.Stdout, verbose, "DUMP", "7B 1A ee,88, 5a")
+	fSys := &afero.Afero{Fs: afero.NewOsFs()} // os.DirFS("")
+	rc, err := NewReadWriteCloser(os.Stdout, fSys, verbose, "DUMP", "7B 1A ee,88, 5a")
 	assert.Nil(t, err)
 	b := make([]byte, 100)
 	n, err := rc.Read(b)
@@ -46,9 +49,10 @@ func TestDUMPReceiver(t *testing.T) {
 }
 
 func TestFILEReceiver(t *testing.T) {
-	dir := "." //t.TempDir() // todo
+	fSys := &afero.Afero{Fs: afero.NewOsFs()} // os.DirFS("")
+	dir := "."                                //t.TempDir() // todo
 	fn := dir + "/trices.raw"
-	f, err := os.Create(fn)
+	f, err := fSys.Create(fn)
 	assert.Nil(t, err)
 	d := []byte{115, 111, 109, 101, 10}
 	n, err := f.Write(d)
@@ -56,7 +60,7 @@ func TestFILEReceiver(t *testing.T) {
 	assert.True(t, n == len(d))
 
 	var verbose bool
-	rc, err := NewReadWriteCloser(os.Stdout, verbose, "FILE", fn)
+	rc, err := NewReadWriteCloser(os.Stdout, fSys, verbose, "FILE", fn)
 	assert.Nil(t, err)
 	b := make([]byte, 100)
 	n, err = rc.Read(b)
@@ -96,7 +100,8 @@ func TestTCP4Receiver(t *testing.T) {
 	for addr == nil { // wait until server is up
 	}
 	s := fmt.Sprint(addr)
-	rc, err := NewReadWriteCloser(os.Stdout, verbose, "TCP4", s)
+	fSys := &afero.Afero{Fs: afero.NewOsFs()} // os.DirFS("")
+	rc, err := NewReadWriteCloser(os.Stdout, fSys, verbose, "TCP4", s)
 	assert.Nil(t, err)
 	b := make([]byte, 100)
 	n, err := rc.Read(b)

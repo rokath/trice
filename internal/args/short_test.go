@@ -99,12 +99,12 @@ func TestVersion(t *testing.T) {
 }
 
 func testVersion(t *testing.T, v []string) {
-	fi, err := os.Stat(os.Args[0])
+	fSys := &afero.Afero{Fs: afero.NewOsFs()} // osFs := os.DirFS("")
+	fi, err := fSys.Stat(os.Args[0])
 	assert.Nil(t, err)
 	Date = fi.ModTime().String()
 	exp := v[0] + "version=devel, built " + Date + "\n" + v[1]
 	var buf0 bytes.Buffer
-	fSys := &afero.Afero{Fs: afero.NewOsFs()} // osFs := os.DirFS("")
 	msg.OnErr(Handler(&buf0, fSys, []string{"trice", "ver"}))
 	act0 := buf0.String()
 	assert.Equal(t, exp, act0)

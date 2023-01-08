@@ -139,9 +139,11 @@
     TRICE_PUT8_12( v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 ) \
     TRICE_LEAVE
 
+//! trice8_1 is an empty macro. It is used as a place holder, which is replaced for compilation in this way:
+//! - user written code: `trice8_1(         "msg:value=%d\n", -1 );`
+//! - modified code:     `trice8_1_M( 7009, "msg:value=%d\n", -1 );`
+#define trice8_1( fmt, v0 )
 
-
-#define trice8_1( fmt, v0 ) //!< trice8_1 is an empty macro
 #define trice8_2( fmt, v0, v1 ) //!< trice8_2 is an empty macro
 #define trice8_3( fmt, v0, v1, v2 ) //!< trice8_3 is an empty macro
 #define trice8_4( fmt, v0, v1, v2, v3 ) //!< trice8_4 is an empty macro
@@ -154,10 +156,20 @@
 #define trice8_11( fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10 ) //!< trice8_11 is an empty macro
 #define trice8_12( fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 ) //!< trice8_12 is an empty macro
 
+//! trice8_COUNT is a helper macro
 #define trice8_COUNT(_1,_2,_3,_4,_5,_6,_7,_8,_9,_10,_11,_12, NAME,...) NAME
+
+//! trice8 is a macro expanded to trice8_n acording to the parameter count. 
+//! It is used to write code like ``trice8( "msg:value=%d, %d, ...\n", -1, -2, ... );`
 #define trice8(fmt, ...) trice8_COUNT(__VA_ARGS__,trice8_12,trice8_11,trice8_10,trice8_9,trice8_8,trice8_7,trice8_6,trice8_5,trice8_4,trice8_3,trice8_2,trice8_1)(fmt, __VA_ARGS__)
 
-#define trice8_COUNT(_1,_2,_3,_4,_5,_6,_7,_8,_9,_10,_11,_12, NAME,...) NAME
+//! trice8_M is a macro expanded to trice8_n_M acording to the parameter count, calling a function to reduce code size, this way avoiding code inlining.
+//! trice8_M is inserted by the trice tool for compilation in the folloeing manner (spaces not important):
+//! - user written code: `trice8(         "msg:value=%d\n", -1 );`
+//! - modified code:     `trice8_M( 7009, "msg:value=%d\n", -1 );`
+//! - user written code: `trice8(         "msg:value=%d, %d\n", -1, -2 );`
+//! - modified code:     `trice8_M( 7009, "msg:value=%d, %d\n", -1, -2 );`
+//! - ...
 #define trice8_M(tid,fmt, ...) trice8_COUNT(__VA_ARGS__,trice8_12_M,trice8_11_M,trice8_10_M,trice8_9_M,trice8_8_M,trice8_7_M,trice8_6_M,trice8_5_M,trice8_4_M,trice8_3_M,trice8_2_M,trice8_1_M)(tid,fmt, __VA_ARGS__)
 
 //! trice8_1_m writes trice data as fast as possible in a buffer.
@@ -235,7 +247,12 @@
     TRICE_PUT8_12( v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 ) \
     TRICE_LEAVE
 
-#define trice8_1_M( tid,  fmt, v0 ) trice8_1_fn( tid,  (uint8_t)(v0) ) //!< trice8_1_M is a macro calling a function to reduce code size.
+//! trice8_1_M is a macro calling a function to reduce code size, this way avoiding code inlining.
+//! trice8_1_M is inserted by the trice tool for compilation in the folloeing manner (spaces not important):
+//! - user written code: `trice8_1(         "msg:value=%d\n", -1 );`
+//! - modified code:     `trice8_1_M( 7009, "msg:value=%d\n", -1 );`
+#define trice8_1_M( tid,  fmt, v0 ) trice8_1_fn( tid,  (uint8_t)(v0) )
+
 #define trice8_2_M( tid,  fmt, v0, v1 ) trice8_2_fn( tid,  (uint8_t)(v0), (uint8_t)(v1) ) //!< trice8_2_M is a macro calling a function to reduce code size.
 #define trice8_3_M( tid,  fmt, v0, v1, v2 ) trice8_3_fn( tid,  (uint8_t)(v0), (uint8_t)(v1), (uint8_t)(v2) ) //!< trice8_3_M is a macro calling a function to reduce code size.
 #define trice8_4_M( tid,  fmt, v0, v1, v2, v3 ) trice8_4_fn( tid,  (uint8_t)(v0), (uint8_t)(v1), (uint8_t)(v2), (uint8_t)(v3) ) //!< trice8_4_M is a macro calling a function to reduce code size.

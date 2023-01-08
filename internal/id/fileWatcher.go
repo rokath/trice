@@ -60,7 +60,7 @@ func (lu TriceIDLookUp) FileWatcher(w io.Writer, fSys *afero.Afero, m *sync.RWMu
 
 // FileWatcher checks the id location information file for changes.
 // taken from https://medium.com/@skdomino/watch-this-file-watching-in-go-5b5a247cf71f
-func (li TriceIDLookUpLI) FileWatcher(w io.Writer) {
+func (li TriceIDLookUpLI) FileWatcher(w io.Writer, fSys *afero.Afero) {
 
 	// creates a new file watcher
 	watcher, err := fsnotify.NewWatcher()
@@ -80,7 +80,7 @@ func (li TriceIDLookUpLI) FileWatcher(w io.Writer) {
 				diff := now.Sub(last)
 				if diff > 5000*time.Millisecond {
 					fmt.Fprintln(w, "refreshing li list")
-					msg.FatalOnErr(li.fromFile(LIFnJSON))
+					msg.FatalOnErr(li.fromFile(fSys, LIFnJSON))
 					last = time.Now()
 				}
 

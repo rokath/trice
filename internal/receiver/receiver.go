@@ -47,6 +47,7 @@ import (
 	"github.com/rokath/trice/internal/com"
 	"github.com/rokath/trice/internal/link"
 	"github.com/rokath/trice/pkg/msg"
+	"github.com/spf13/afero"
 )
 
 var (
@@ -174,13 +175,13 @@ func (p *tcp4) Close() error {
 type file struct {
 	w  io.Writer // os.Stdout
 	fn string
-	fh *os.File
+	fh afero.File
 }
 
 // newFileReader returns a readCloser capable file instance.
-func newFileReader(_ io.Writer, fn string) *file {
+func newFileReader(_ io.Writer, fSys *afero.Afero, fn string) *file {
 	r := &file{}
-	fh, err := os.Open(fn)
+	fh, err := fSys.Open(fn)
 	if err != nil {
 		log.Fatal(fn, err)
 	}
@@ -213,14 +214,14 @@ func (p *file) Close() error {
 // When port is "BUFFER", args is expected to be a decimal byte sequence in the same format as for example coming from one of the other ports.
 // When port is "JLINK" args contains JLinkRTTLogger.exe specific parameters described inside UM08001_JLink.pdf.
 // When port is "STLINK" args has the same format as for "JLINK"
-func NewReadWriteCloser(w io.Writer, verbose bool, port, args string) (r io.ReadWriteCloser, err error) {
+func NewReadWriteCloser(w io.Writer, fSys *afero.Afero, verbose bool, port, args string) (r io.ReadWriteCloser, err error) {
 	switch strings.ToUpper(port) {
 
 	case "JLINK", "STLINK", "J-LINK", "ST-LINK":
 		if PortArguments == "" { // nothing assigned in args
 			PortArguments = DefaultLinkArgs
 		}
-		l := link.NewDevice(w, port, args)
+		l := link.NewDevice(w, fSys, port, args)
 		if nil != l.Open() {
 			err = fmt.Errorf("can not open link device %s with args %s", port, args)
 		}
@@ -235,7 +236,7 @@ func NewReadWriteCloser(w io.Writer, verbose bool, port, args string) (r io.Read
 		if PortArguments == "" { // nothing assigned in args
 			PortArguments = DefaultFileArgs
 		}
-		r = newFileReader(w, args)
+		r = newFileReader(w, fSys, args)
 	case "DUMP":
 		if PortArguments == "" { // nothing assigned in args
 			PortArguments = DefaultDumpArgs
@@ -300,7 +301,7 @@ type binaryLogger struct {
 // NewBinaryLogger returns a ReadWriteCloser `in` which is internally using reader `from`.
 // Calling the `in` Read method leads to internally calling the `from` Read method
 // but lets to do some additional logging
-func NewBinaryLogger(w io.Writer, from io.ReadWriteCloser) (in io.ReadWriteCloser) {
+func NewBinaryLogger(w io.Writer, fSys *afero.Afero, from io.ReadWriteCloser) (in io.ReadWriteCloser) {
 	fn := BinaryLogfileName
 	if fn == "none" || fn == "off" || fn == "nul" || fn == "" {
 		return from
@@ -309,7 +310,7 @@ func NewBinaryLogger(w io.Writer, from io.ReadWriteCloser) (in io.ReadWriteClose
 		fn = time.Now().Format("2006-01-02_1504-05_trice.bin") // Replace timestamp in default log filename.
 	} // Otherwise, use cli defined log filename.
 
-	lfHandle, err := os.OpenFile(fn, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	lfHandle, err := fSys.OpenFile(fn, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	msg.FatalOnErr(err)
 	if Verbose {
 		fmt.Fprintf(w, "Writing to trice input to binary logfile %s...\n", fn)

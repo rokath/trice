@@ -31,10 +31,10 @@ import (
 // It returns for program exit.
 func Handler(w io.Writer, fSys *afero.Afero, args []string) error {
 
-	id.FnJSON = id.ConditionalFilePath(id.FnJSON)
+	//id.FnJSON = id.FullFilePath(fSys, id.FnJSON)
 
 	if Date == "" { // goreleaser will set Date, otherwise use file info.
-		fi, err := os.Stat(args[0])
+		fi, err := fSys.Stat(args[0])
 		if nil == err { // On running main tests file-info is invalid, so do not use in that case.
 			Date = fi.ModTime().String()
 		}
@@ -56,45 +56,45 @@ func Handler(w io.Writer, fSys *afero.Afero, args []string) error {
 		return fmt.Errorf("unknown sub-command '%s'. try: '%s help|h'", subCmd, args[0])
 	case "h", "help":
 		msg.OnErr(fsScHelp.Parse(subArgs))
-		w = distributeArgs(w)
+		w = distributeArgs(w, fSys)
 		return scHelp(w)
 	case "s", "scan":
 		msg.OnErr(fsScScan.Parse(subArgs))
-		w = distributeArgs(w)
+		w = distributeArgs(w, fSys)
 		_, err := com.GetSerialPorts(w)
 		return err
 	case "ver", "version":
 		msg.OnErr(fsScVersion.Parse(subArgs))
-		w = distributeArgs(w)
+		w = distributeArgs(w, fSys)
 		return scVersion(w)
 	case "renew":
 		msg.OnErr(fsScRenew.Parse(subArgs))
-		w = distributeArgs(w)
+		w = distributeArgs(w, fSys)
 		return id.SubCmdReNewList(w, fSys)
 	case "r", "refresh":
 		msg.OnErr(fsScRefresh.Parse(subArgs))
-		w = distributeArgs(w)
+		w = distributeArgs(w, fSys)
 		return id.SubCmdRefreshList(w, fSys)
 	case "u", "update":
 		msg.OnErr(fsScUpdate.Parse(subArgs))
-		w = distributeArgs(w)
+		w = distributeArgs(w, fSys)
 		return id.SubCmdUpdate(w, fSys)
 	case "z", "zeroSourceTreeIds":
 		msg.OnErr(fsScZero.Parse(subArgs))
-		w = distributeArgs(w)
+		w = distributeArgs(w, fSys)
 		//  return id.ScZero(w, *pSrcZ, fsScZero)
-		return id.ScZeroMulti(w, fsScZero)
+		return id.ScZeroMulti(w, fSys, fsScZero)
 	case "sd", "shutdown":
 		msg.OnErr(fsScSdSv.Parse(subArgs))
-		w = distributeArgs(w)
+		w = distributeArgs(w, fSys)
 		return emitter.ScShutdownRemoteDisplayServer(w, 0) // 0|1: 0=no 1=with shutdown timestamp in display server
 	case "ds", "displayServer":
 		msg.OnErr(fsScSv.Parse(subArgs))
-		w = distributeArgs(w)
+		w = distributeArgs(w, fSys)
 		return emitter.ScDisplayServer(w) // endless loop
 	case "l", "log":
 		msg.OnErr(fsScLog.Parse(subArgs))
-		w = distributeArgs(w)
+		w = distributeArgs(w, fSys)
 		logLoop(w, fSys) // endless loop
 		return nil
 	}
@@ -145,16 +145,16 @@ func logLoop(w io.Writer, fSys *afero.Afero) {
 	if id.LIFnJSON == "emptyFile" { // reserved name for tests only
 		li = make(id.TriceIDLookUpLI) // li is not nil, but empty
 	} else {
-		if _, err := os.Stat(id.LIFnJSON); errors.Is(err, os.ErrNotExist) {
+		if _, err := fSys.Stat(id.LIFnJSON); errors.Is(err, os.ErrNotExist) {
 			if id.LIFnJSON != "off" && id.LIFnJSON != "none" && id.LIFnJSON != "no" {
 				fmt.Fprintf(w, "path/to/ %s does not exist: li is nil\n", id.LIFnJSON)
 			}
 		} else {
-			li = id.NewLutLI(w, id.LIFnJSON) // lut is a map, that means a pointer
+			li = id.NewLutLI(w, fSys, id.LIFnJSON) // lut is a map, that means a pointer
 
 			// Just in case the id location information file LIFnJSON gets updated, the file watcher updates li.
 			// This way trice needs NOT to be restarted during development process.
-			go li.FileWatcher(w)
+			go li.FileWatcher(w, fSys)
 		}
 	}
 
@@ -163,7 +163,7 @@ func logLoop(w io.Writer, fSys *afero.Afero) {
 	var counter int
 
 	for {
-		rwc, e := receiver.NewReadWriteCloser(w, verbose, receiver.Port, receiver.PortArguments)
+		rwc, e := receiver.NewReadWriteCloser(w, fSys, verbose, receiver.Port, receiver.PortArguments)
 		if e != nil {
 			fmt.Fprintln(w, e)
 			if !interrupted {
@@ -180,7 +180,7 @@ func logLoop(w io.Writer, fSys *afero.Afero) {
 			rwc = receiver.NewBytesViewer(w, rwc)
 		}
 		if receiver.BinaryLogfileName != "off" && receiver.BinaryLogfileName != "none" {
-			rwc = receiver.NewBinaryLogger(w, rwc)
+			rwc = receiver.NewBinaryLogger(w, fSys, rwc)
 		}
 		e = translator.Translate(w, sw, lu, m, li, rwc)
 		if io.EOF == e {
@@ -216,7 +216,7 @@ func evaluateColorPalette(w io.Writer) {
 
 // distributeArgs is distributing values used in several packages.
 // It must not be called before the appropriate arg parsing.
-func distributeArgs(w io.Writer) io.Writer {
+func distributeArgs(w io.Writer, fSys *afero.Afero) io.Writer {
 
 	id.Verbose = verbose
 	link.Verbose = verbose
@@ -226,13 +226,13 @@ func distributeArgs(w io.Writer) io.Writer {
 	translator.Verbose = verbose
 	emitter.TestTableMode = decoder.TestTableMode
 
-	w = triceOutput(w, LogfileName)
+	w = triceOutput(w, fSys, LogfileName)
 	evaluateColorPalette(w)
 	return w
 }
 
 // triceOutput returns w as a a optional combined io.Writer. If fileName is given the returned io.Writer write a copy into the given file.
-func triceOutput(w io.Writer, fileName string) io.Writer {
+func triceOutput(w io.Writer, fSys *afero.Afero, fileName string) io.Writer {
 	tcpWriter := TCPWriter()
 
 	// start logging only if fn not "none" or "off"
@@ -253,7 +253,7 @@ func triceOutput(w io.Writer, fileName string) io.Writer {
 		fileName = time.Now().Format(fileName) // Replace timestamp in default log filename.
 	} // Otherwise, use cli defined log filename.
 
-	lfHandle, err := os.OpenFile(fileName, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	lfHandle, err := fSys.OpenFile(fileName, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	msg.FatalOnErr(err)
 	if verbose {
 		fmt.Printf("Writing to logfile %s...\n", fileName)

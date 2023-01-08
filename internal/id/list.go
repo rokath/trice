@@ -18,13 +18,13 @@ import (
 	"github.com/spf13/afero"
 )
 
-// ScZero does replace all ID's in source tree with 0
-func ScZero(w io.Writer, SrcZ string, cmd *flag.FlagSet) error {
+// _ScZero does replace all ID's in source tree with 0
+func _ScZero(w io.Writer, fSys *afero.Afero, SrcZ string, cmd *flag.FlagSet) error {
 	if SrcZ == "" {
 		cmd.PrintDefaults()
 		return errors.New("no source tree root specified")
 	}
-	zeroSourceTreeIds(w, SrcZ, !DryRun)
+	zeroSourceTreeIds(w, fSys, SrcZ, !DryRun)
 	return nil
 }
 
@@ -34,7 +34,7 @@ func ScZero(w io.Writer, SrcZ string, cmd *flag.FlagSet) error {
 // If the same id is found with different tf only one is added. The others are reported as warning.
 // If any TRICE* is found without Id(n) or with Id(0), it is ignored.
 // SubCmdUpdate needs to know which IDs are used in the source tree, to reliably add new IDs.
-func SubCmdReNewList(w io.Writer, fSys afero.Fs) (err error) {
+func SubCmdReNewList(w io.Writer, fSys *afero.Afero) (err error) {
 	lu := make(TriceIDLookUp)
 	lim := make(TriceIDLookUpLI, 4000)
 	msg.OnErr(updateList(w, fSys, lu, lim))
@@ -54,11 +54,11 @@ func SubCmdRefreshList(w io.Writer, fSys *afero.Afero) (err error) {
 	return lim.toFile(fSys, LIFnJSON)
 }
 
-func refreshListAdapter(w io.Writer, root string, lu TriceIDLookUp, tflus triceFmtLookUpS, _ *bool, lim TriceIDLookUpLI) {
-	refreshList(w, root, lu, tflus, lim)
+func refreshListAdapter(w io.Writer, fSys *afero.Afero, root string, lu TriceIDLookUp, tflus triceFmtLookUpS, _ *bool, lim TriceIDLookUpLI) {
+	refreshList(w, fSys, root, lu, tflus, lim)
 }
 
-func updateList(w io.Writer, fSys afero.Fs, lu TriceIDLookUp, lim TriceIDLookUpLI) error {
+func updateList(w io.Writer, fSys *afero.Afero, lu TriceIDLookUp, lim TriceIDLookUpLI) error {
 	tflus := lu.reverseS()
 
 	// keep a copy
@@ -67,7 +67,7 @@ func updateList(w io.Writer, fSys afero.Fs, lu TriceIDLookUp, lim TriceIDLookUpL
 		lu0[k] = v
 	}
 	var listModified bool
-	walkSrcs(w, refreshListAdapter, lu, tflus, &listModified, lim)
+	walkSrcs(w, fSys, lu, tflus, &listModified, lim, refreshListAdapter)
 
 	// listModified does not help here, because it indicates that some sources are updated and therefore the list needs an update too.
 	// But here we are only scanning the source tree, so if there would be some changes they are not relevant because sources are not changed here.
@@ -90,7 +90,7 @@ func SubCmdUpdate(w io.Writer, fSys *afero.Afero) error {
 	tflus := lu.reverseS()
 	var listModified bool
 	o := len(lu)
-	walkSrcs(w, idsUpdate, lu, tflus, &listModified, lim)
+	walkSrcs(w, fSys, lu, tflus, &listModified, lim, idsUpdate)
 	if Verbose {
 		fmt.Fprintln(w, len(lu), "ID's in List", FnJSON, "listModified=", listModified)
 	}
@@ -101,15 +101,15 @@ func SubCmdUpdate(w io.Writer, fSys *afero.Afero) error {
 	return lim.toFile(fSys, LIFnJSON)
 }
 
-func walkSrcs(w io.Writer, f func(w io.Writer, root string, lu TriceIDLookUp, tflus triceFmtLookUpS, pListModified *bool, lim TriceIDLookUpLI), lu TriceIDLookUp, tflus triceFmtLookUpS, pListModified *bool, lim TriceIDLookUpLI) {
+func walkSrcs(w io.Writer, fSys *afero.Afero, lu TriceIDLookUp, tflus triceFmtLookUpS, pListModified *bool, lim TriceIDLookUpLI, f func(w io.Writer, fSys *afero.Afero, root string, lu TriceIDLookUp, tflus triceFmtLookUpS, pListModified *bool, lim TriceIDLookUpLI)) {
 	if len(Srcs) == 0 {
 		Srcs = append(Srcs, "./") // default value
 	}
 	for i := range Srcs {
 		s := Srcs[i]
-		srcU := ConditionalFilePath(s)
-		if _, err := os.Stat(srcU); err == nil { // path exists
-			f(w, srcU, lu, tflus, pListModified, lim)
+		srcU := s                                  // FullFilePath2(fSys, s)
+		if _, err := fSys.Stat(srcU); err == nil { // path exists
+			f(w, fSys, srcU, lu, tflus, pListModified, lim)
 		} else if os.IsNotExist(err) { // path does *not* exist
 			fmt.Fprintln(w, s, " -> ", srcU, "does not exist!")
 		} else {

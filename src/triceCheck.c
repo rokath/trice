@@ -39,6 +39,40 @@ void TriceCheckSet(int index) {
     switch (index) {
            case __LINE__: 
 
+    // no stamp:
+    break; case __LINE__: trice8     (           "msg:value=%d\n", -1  ); // user written code, empty macro for patching
+    break; case __LINE__: trice8_M   ( 7009,     "msg:value=%d\n", -11 ); // trice tool modified code for compilation, calls internally fuction trice8_1_fn
+    break; case __LINE__: trice8_1   (           "msg:value=%d\n", -1  ); // user written code, empty macro for patching
+    break; case __LINE__: trice8_1_M ( 7009,     "msg:value=%d\n", -12 ); // trice tool modified code for compilation, calls internally fuction trice8_1_fn
+    break; case __LINE__: trice8_1_fn( 7009,                       -13 ); // This is a direct function call, which works, but not inteded for user code.
+
+  //break; case __LINE__: TRICE8_1   (           "msg:value=%d\n", -1  ); // legacy default with times stamp
+  //break; case __LINE__: TRICE8_1   ( id(0),    "msg:value=%d\n", -1  ); // user written code
+    break; case __LINE__: TRICE8_1   ( id(7009), "msg:value=%d\n", -14 ); // trice tool modified code for compilation, inlines code
+     
+    // 16-bit stamp:
+    break; case __LINE__: Trice8     (           "msg:value=%d\n", -1  ); // user written code, empty macro for patching
+    break; case __LINE__: Trice8_M   ( 7009,     "msg:value=%d\n", -11 ); // trice tool modified code for compilation, calls internally fuction trice8_1_fn
+    break; case __LINE__: Trice8_1   (           "msg:value=%d\n", -1  ); // user written code, empty macro for patching
+    break; case __LINE__: Trice8_1_M ( 7009,     "msg:value=%d\n", -12 ); // trice tool modified code for compilation, calls internally fuction trice8_1_fn
+    break; case __LINE__: Trice8_1_fn( 7009,                       -13 ); // This is a direct function call, which works, but not inteded for user code.
+
+  //break; case __LINE__: TRICE8_1   (           "msg:value=%d\n", -1  ); // legacy default with times stamp
+  //break; case __LINE__: TRICE8_1   ( Id(0),    "msg:value=%d\n", -1  ); // user written code
+    break; case __LINE__: TRICE8_1   ( Id(7009), "msg:value=%d\n", -14 ); // trice tool modified code for compilation, inlines code
+     
+    // 32-bit stamp:
+    break; case __LINE__: TRice8     (           "msg:value=%d\n", -1  ); // user written code, empty macro for patching
+    break; case __LINE__: TRice8_M   ( 7009,     "msg:value=%d\n", -11 ); // trice tool modified code for compilation, calls internally fuction trice8_1_fn
+    break; case __LINE__: TRice8_1   (           "msg:value=%d\n", -1  ); // user written code, empty macro for patching
+    break; case __LINE__: TRice8_1_M ( 7009,     "msg:value=%d\n", -12 ); // trice tool modified code for compilation, calls internally fuction trice8_1_fn
+    break; case __LINE__: TRice8_1_fn( 7009,                       -13 ); // This is a direct function call, which works, but not inteded for user code.
+
+  //break; case __LINE__: TRICE8_1   (           "msg:value=%d\n", -1  ); // legacy default with times stamp
+  //break; case __LINE__: TRICE8_1   ( ID(0),    "msg:value=%d\n", -1  ); // user written code
+    break; case __LINE__: TRICE8_1   ( ID(7009), "msg:value=%d\n", -14 ); // trice tool modified code for compilation, inlines code
+     
+           
     break; case __LINE__: trice8_1 ( "msg:value=%d\n", -1 );// user written code
     break; case __LINE__: trice8_2 ( "msg:value=%d, %d\n", -1, -2 );// user written code
     break; case __LINE__: trice8_3 ( "msg:value=%d, %d, %d\n", -1, -2, -3 );// user written code

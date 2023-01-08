@@ -27,8 +27,7 @@ var (
 
 // main is the entry point.
 func main() {
-	//osFs := os.DirFS("")
-	fSys := &afero.Afero{Fs: afero.NewOsFs()}
+	fSys := &afero.Afero{Fs: afero.NewOsFs()} // os.DirFS("")
 	doit(os.Stdout, fSys)
 }
 

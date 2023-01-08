@@ -10,9 +10,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/fs"
 	"math/rand"
-	"os"
 	"path/filepath"
 	"strings"
 
@@ -34,12 +32,12 @@ func NewLut(w io.Writer, fSys *afero.Afero, fn string) TriceIDLookUp {
 }
 
 // NewLutLI returns a look-up map generated from JSON map file named fn.
-func NewLutLI(w io.Writer, fn string) TriceIDLookUpLI {
+func NewLutLI(w io.Writer, fSys *afero.Afero, fn string) TriceIDLookUpLI {
 	li := make(TriceIDLookUpLI)
 	if fn == "emptyFile" { // reserved name for tests only
 		return li
 	}
-	msg.FatalOnErr(li.fromFile(fn))
+	msg.FatalOnErr(li.fromFile(fSys, fn))
 	if Verbose {
 		fmt.Fprintln(w, "Read ID location information file", fn, "with", len(li), "items.")
 	}
@@ -169,11 +167,11 @@ func (lu TriceIDLookUp) fromFile(fSys *afero.Afero, fn string) error {
 	return lu.FromJSON(b)
 }
 
-// fromFile reads file fn into lut.
-func (li TriceIDLookUpLI) fromFile(fn string) error {
+// fromFile reads fSys file fn into lut.
+func (li TriceIDLookUpLI) fromFile(fSys *afero.Afero, fn string) error {
 	//b, err := os.ReadFile(fn)
-	fSys := os.DirFS("")
-	b, err := fs.ReadFile(fSys, fn)
+	//fSys := os.DirFS("")
+	b, err := fSys.ReadFile(fn)
 	if err == nil { // file found
 		return li.FromJSON(b)
 	}

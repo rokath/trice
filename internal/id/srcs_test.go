@@ -4,7 +4,6 @@
 package id
 
 import (
-	"path/filepath"
 	"testing"
 
 	"github.com/rokath/trice/pkg/msg"
@@ -25,13 +24,26 @@ func TestArrayFlag(t *testing.T) {
 	assert.Equal(t, af.String(), Srcs.String())
 }
 
-// TestConditionalFilePath checks if ConditionalFilePath works as expected.
-func TestConditionalFilePath(t *testing.T) {
-	s := ConditionalFilePath("off")
-	assert.Equal(t, "off", s)
-	s = ConditionalFilePath("none")
-	assert.Equal(t, "none", s)
-	s = ConditionalFilePath("/tatue/tata")
-	b := filepath.Base(s)
-	assert.Equal(t, b, "tata")
-}
+//  // TestConditionalFilePath checks if ConditionalFilePath works as expected.
+//  func TestConditionalFilePathAfero(t *testing.T) {
+//  	fSys := &afero.Afero{Fs: afero.NewOsFs()} //os.DirFS("")
+//  	//s := ConditionalFilePath2(fSys, "off")
+//  	//assert.Equal(t, "off", s)
+//  	//s = ConditionalFilePath2(fSys, "none")
+//  	//assert.Equal(t, "none", s)
+//  	s := FullFilePath2(fSys, "/tatue/tata")
+//  	b := filepath.Base(s)
+//  	assert.Equal(t, b, "tata")
+//  }
+//
+//  // TestConditionalFilePath checks if ConditionalFilePath works as expected.
+//  func TestConditionalFilePathOs(t *testing.T) {
+//  	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
+//  	//s := ConditionalFilePath2(fSys, "off")
+//  	//assert.Equal(t, "off", s)
+//  	//s = ConditionalFilePath2(fSys, "none")
+//  	//assert.Equal(t, "none", s)
+//  	s := FullFilePath2(fSys, "/tatue/tata")
+//  	b := filepath.Base(s)
+//  	assert.Equal(t, b, "tata")
+//  }

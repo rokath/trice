@@ -16,6 +16,7 @@ import (
 	"strings"
 
 	"github.com/rokath/trice/pkg/msg"
+	"github.com/spf13/afero"
 )
 
 const (
@@ -179,12 +180,12 @@ func isSourceFile(fi os.FileInfo) bool {
 	return matchSourceFile.MatchString(fi.Name())
 }
 
-func refreshList(w io.Writer, root string, lu TriceIDLookUp, tflus triceFmtLookUpS, lim TriceIDLookUpLI) {
+func refreshList(w io.Writer, fSys *afero.Afero, root string, lu TriceIDLookUp, tflus triceFmtLookUpS, lim TriceIDLookUpLI) {
 	if Verbose {
 		fmt.Fprintln(w, "dir=", root)
 		fmt.Fprintln(w, "List=", FnJSON)
 	}
-	msg.FatalInfoOnErr(filepath.Walk(root, visitRefresh(w, lu, tflus, lim)), "failed to walk tree")
+	msg.FatalInfoOnErr(filepath.Walk(root, visitRefresh(w, fSys, lu, tflus, lim)), "failed to walk tree")
 }
 
 // Additional actions needed: (Option -dry-run lets do a check in advance.)
@@ -205,22 +206,22 @@ func refreshList(w io.Writer, root string, lu TriceIDLookUp, tflus triceFmtLookU
 // - replace.Type( Id(0), ...) with.Type( Id(n), ...)
 // - find duplicate.Type( Id(n), ...) and replace one of them if *Trices* are not identical
 // - extend file fnIDList
-func idsUpdate(w io.Writer, root string, lu TriceIDLookUp, tflus triceFmtLookUpS, pListModified *bool, lim TriceIDLookUpLI) {
+func idsUpdate(w io.Writer, fSys *afero.Afero, root string, lu TriceIDLookUp, tflus triceFmtLookUpS, pListModified *bool, lim TriceIDLookUpLI) {
 	if Verbose && FnJSON != "emptyFile" {
 		fmt.Fprintln(w, "dir=", root)
 		fmt.Fprintln(w, "List=", FnJSON)
 	}
-	msg.FatalInfoOnErr(filepath.Walk(root, visitUpdate(w, lu, tflus, pListModified, lim)), "failed to walk tree")
+	msg.FatalInfoOnErr(fSys.Walk(root, visitUpdate(w, fSys, lu, tflus, pListModified, lim)), "failed to walk tree")
 }
 
-func readFile(w io.Writer, path string, fi os.FileInfo, err error) (string, error) {
+func readFile(w io.Writer, fSys *afero.Afero, path string, fi os.FileInfo, err error) (string, error) {
 	if err != nil || fi.IsDir() || !isSourceFile(fi) {
 		return "", err // forward any error and do nothing
 	}
 	if Verbose {
 		fmt.Fprintln(w, path)
 	}
-	read, err := os.ReadFile(path)
+	read, err := fSys.ReadFile(path)
 	if nil != err {
 		return "", err
 	}
@@ -228,9 +229,9 @@ func readFile(w io.Writer, path string, fi os.FileInfo, err error) (string, erro
 	return text, nil
 }
 
-func visitRefresh(w io.Writer, lu TriceIDLookUp, tflus triceFmtLookUpS, lim TriceIDLookUpLI) filepath.WalkFunc {
+func visitRefresh(w io.Writer, fSys *afero.Afero, lu TriceIDLookUp, tflus triceFmtLookUpS, lim TriceIDLookUpLI) filepath.WalkFunc {
 	return func(path string, fi os.FileInfo, err error) error {
-		text, err := readFile(w, path, fi, err)
+		text, err := readFile(w, fSys, path, fi, err)
 		if nil != err {
 			return err
 		}
@@ -257,7 +258,7 @@ func isCFile(path string) bool {
 	return false
 }
 
-func visitUpdate(w io.Writer, lu TriceIDLookUp, tflus triceFmtLookUpS, pListModified *bool, lim TriceIDLookUpLI) filepath.WalkFunc {
+func visitUpdate(w io.Writer, fSys *afero.Afero, lu TriceIDLookUp, tflus triceFmtLookUpS, pListModified *bool, lim TriceIDLookUpLI) filepath.WalkFunc {
 	// WalkFunc is the type of the function called for each file or directory
 	// visited by Walk. The path argument contains the argument to Walk as a
 	// prefix; that is, if Walk is called with "dir", which is a directory
@@ -274,7 +275,7 @@ func visitUpdate(w io.Writer, lu TriceIDLookUp, tflus triceFmtLookUpS, pListModi
 	// when invoked on a non-directory file, Walk skips the remaining files in the
 	// containing directory.
 	return func(path string, fi os.FileInfo, err error) error {
-		text, err := readFile(w, path, fi, err)
+		text, err := readFile(w, fSys, path, fi, err)
 		if nil != err {
 			return err
 		}
@@ -296,7 +297,7 @@ func visitUpdate(w io.Writer, lu TriceIDLookUp, tflus triceFmtLookUpS, pListModi
 			if Verbose {
 				fmt.Fprintln(w, "Changed: ", path)
 			}
-			err = os.WriteFile(path, []byte(textU), fi.Mode())
+			err = fSys.WriteFile(path, []byte(textU), fi.Mode())
 			if nil != err {
 				return fmt.Errorf("failed to change %s: %v", path, err)
 			}
@@ -523,15 +524,15 @@ func updateIDsUniqOrShared(w io.Writer, sharedIDs bool, min, max TriceID, search
 }
 
 // ScZero does replace all ID's in source tree with 0
-func ScZeroMulti(w io.Writer, cmd *flag.FlagSet) error {
+func ScZeroMulti(w io.Writer, fSys *afero.Afero, cmd *flag.FlagSet) error {
 	if len(Srcs) == 0 {
 		Srcs = append(Srcs, "./") // default value
 	}
 	for i := range Srcs {
 		s := Srcs[i]
-		srcZ := ConditionalFilePath(s)
-		if _, err := os.Stat(srcZ); err == nil { // path exists
-			zeroSourceTreeIds(w, srcZ, !DryRun)
+		srcZ := s                                  // FullFilePath2(fSys, s)
+		if _, err := fSys.Stat(srcZ); err == nil { // path exists
+			zeroSourceTreeIds(w, fSys, srcZ, !DryRun)
 		} else if os.IsNotExist(err) { // path does *not* exist
 			fmt.Fprintln(w, s, " -> ", srcZ, "does not exist!")
 		} else {
@@ -544,14 +545,15 @@ func ScZeroMulti(w io.Writer, cmd *flag.FlagSet) error {
 }
 
 // zeroSourceTreeIds is overwriting with 0 all id's from source code tree srcRoot. It does not touch idlist.
-func zeroSourceTreeIds(w io.Writer, srcRoot string, run bool) {
-	err := filepath.Walk(srcRoot, visitZeroSourceTreeIds(w, run))
+func zeroSourceTreeIds(w io.Writer, fSys *afero.Afero, srcRoot string, run bool) {
+	//err := filepath.Walk(srcRoot, visitZeroSourceTreeIds(w, fSys, run))
+	err := fSys.Walk(srcRoot, visitZeroSourceTreeIds(w, fSys, run))
 	if err != nil {
 		panic(err)
 	}
 }
 
-func visitZeroSourceTreeIds(w io.Writer, run bool) filepath.WalkFunc {
+func visitZeroSourceTreeIds(w io.Writer, fSys *afero.Afero, run bool) filepath.WalkFunc {
 	// WalkFunc is the type of the function called for each file or directory
 	// visited by Walk. The path argument contains the argument to Walk as a
 	// prefix; that is, if Walk is called with "dir", which is a directory
@@ -574,7 +576,7 @@ func visitZeroSourceTreeIds(w io.Writer, run bool) filepath.WalkFunc {
 		if Verbose {
 			fmt.Fprintln(w, path)
 		}
-		read, err := os.ReadFile(path)
+		read, err := fSys.ReadFile(path)
 		if err != nil {
 			return err
 		}
@@ -592,7 +594,7 @@ func visitZeroSourceTreeIds(w io.Writer, run bool) filepath.WalkFunc {
 		}
 
 		if modified && run {
-			err = os.WriteFile(path, []byte(s), 0)
+			err = fSys.WriteFile(path, []byte(s), 0)
 		}
 		return err
 	}

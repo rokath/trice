@@ -18,6 +18,7 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/rokath/trice/pkg/msg"
+	"github.com/spf13/afero"
 )
 
 var (
@@ -28,22 +29,24 @@ var (
 // Device is the RTT logger reader interface.
 type Device struct {
 	w         io.Writer // os.Stdout
-	Exec      string    // linkBinary is the RTT logger executable .
-	Lib       string    // linkDynLib is the RTT used dynamic library name.
-	args      []string  //  contains the command line parameters for JLinkRTTLogger
-	arguments string    // needed only for error message
+	fSys      *afero.Afero
+	Exec      string   // linkBinary is the RTT logger executable .
+	Lib       string   // linkDynLib is the RTT used dynamic library name.
+	args      []string //  contains the command line parameters for JLinkRTTLogger
+	arguments string   // needed only for error message
 
 	cmd               *exec.Cmd // link command handle
 	tempLogFileName   string
-	tempLogFileHandle *os.File
+	tempLogFileHandle afero.File
 	Err               error
 	Done              chan bool
 }
 
 // NewDevice creates an instance of RTT ReadCloser of type Port.
 // The Args string is used as parameter string. See SEGGER UM08001_JLink.pdf for details.
-func NewDevice(w io.Writer, port, arguments string) *Device {
+func NewDevice(w io.Writer, fSys *afero.Afero, port, arguments string) *Device {
 	p := &Device{} // create link instance
+	p.fSys = fSys
 	p.w = w
 	switch port {
 	case "JLINK", "J-LINK":
@@ -102,7 +105,7 @@ func (p *Device) Close() error {
 	// Todo: If trice is terminated not with CTRL-C kill automatically.
 	// p.Err = errors.Wrap(p.Err, p.cmd.Process.Kill().Error())
 	// p.Err = errors.Wrap(p.Err, p.tempLogFileHandle.Close().Error())
-	p.Err = errors.Wrap(p.Err, os.Remove(p.tempLogFileName).Error())
+	p.Err = errors.Wrap(p.Err, p.fSys.Remove(p.tempLogFileName).Error())
 	return p.Err
 }
 
@@ -125,7 +128,7 @@ func (p *Device) Open() error {
 	p.Err = p.cmd.Start()
 	p.errorFatal()
 
-	p.tempLogFileHandle, p.Err = os.Open(p.tempLogFileName) // Open() opens a file with read only flag.
+	p.tempLogFileHandle, p.Err = p.fSys.OpenFile(p.tempLogFileName, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666) // Open() opens a file with read only flag.
 	p.errorFatal()
 
 	// p.watchLogfile() // todo: make it working well

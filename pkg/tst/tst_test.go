@@ -5,12 +5,12 @@
 package tst_test
 
 import (
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
 
+	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/rokath/trice/pkg/tst"
@@ -35,25 +35,26 @@ func TestEqualLines(t *testing.T) {
 }
 
 func TestEqualTextFiles(t *testing.T) {
-	fd0, e0 := ioutil.TempFile("", "*.txt")
+	fSys := &afero.Afero{Fs: afero.NewOsFs()} // os.DirFS("")
+	fd0, e0 := afero.TempFile(fSys, "", "*.txt")
 	assert.Nil(t, e0)
 	defer func() {
 		assert.Nil(t, fd0.Close())
-		assert.Nil(t, os.Remove(fd0.Name()))
+		assert.Nil(t, fSys.Remove(fd0.Name()))
 	}()
 
-	fd1, e1 := ioutil.TempFile("", "*.txt")
+	fd1, e1 := afero.TempFile(fSys, "", "*.txt")
 	assert.Nil(t, e1)
 	defer func() {
 		assert.Nil(t, fd1.Close())
-		assert.Nil(t, os.Remove(fd1.Name()))
+		assert.Nil(t, fSys.Remove(fd1.Name()))
 	}()
 
 	_, e2 := fd0.WriteString("Hello\r\nWorld\r\n")
 	assert.Nil(t, e2)
 	_, e3 := fd1.WriteString("Hello\nWorld\n")
 	assert.Nil(t, e3)
-	tst.EqualTextFiles(t, fd0.Name(), fd1.Name())
+	tst.EqualTextFiles(t, fSys, fd0.Name(), fd1.Name())
 }
 
 func TestEqualFiles(t *testing.T) {
