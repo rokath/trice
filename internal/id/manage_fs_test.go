@@ -4,14 +4,6 @@
 // white-box test
 package id
 
-import (
-	"os"
-	"testing"
-
-	"github.com/spf13/afero"
-	"github.com/tj/assert"
-)
-
 /*
 // TestLutFileTransfer checks lut file transfer.
 func _TestLutFileTransfer(t *testing.T) { // Anti-Virus issue
@@ -55,78 +47,6 @@ func _TestRefresh(t *testing.T) { // Anti-Virus issue
 	assert.Equal(t, exp, string(act))
 }
 */
-
-func _TestUpdate(t *testing.T) { // Anti-Virus issue
-	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
-
-	// create src file
-	sFn := "file.c"
-	src := `
-	break; case __LINE__: TRICE8_1( id(0), "msg:value=%d\n", -1  ); // legacy default with times stamp
-	break; case __LINE__: TRICE8_1( id(0), "msg:value=%d\n", -1  ); // legacy default with times stamp
-	break; case __LINE__: TRICE8_1( Id(0), "msg:value=%d\n", -1  ); // legacy default with times stamp
-	break; case __LINE__: TRICE8_1( Id(0), "msg:value=%d\n", -1  ); // legacy default with times stamp
-	break; case __LINE__: TRICE8_1( ID(0), "msg:value=%d\n", -1  ); // legacy default with times stamp
-	break; case __LINE__: TRICE8_1( ID(0), "msg:value=%d\n", -1  ); // legacy default with times stamp
-`
-	assert.Nil(t, fSys.WriteFile(sFn, []byte(src), 0777))
-
-	// create empty til.json
-	jFn := "til.json"
-	JSONFile := ``
-	assert.Nil(t, fSys.WriteFile(jFn, []byte(JSONFile), 0777))
-
-	expSrc := `
-	break; case __LINE__: TRICE8_1( id( 6081), "msg:value=%d\n", -1  ); // legacy default with times stamp
-	break; case __LINE__: TRICE8_1( id( 4887), "msg:value=%d\n", -1  ); // legacy default with times stamp
-	break; case __LINE__: TRICE8_1( Id( 7847), "msg:value=%d\n", -1  ); // legacy default with times stamp
-	break; case __LINE__: TRICE8_1( Id( 4059), "msg:value=%d\n", -1  ); // legacy default with times stamp
-	break; case __LINE__: TRICE8_1( ID( 7318), "msg:value=%d\n", -1  ); // legacy default with times stamp
-	break; case __LINE__: TRICE8_1( ID( 3425), "msg:value=%d\n", -1  ); // legacy default with times stamp
-`
-
-	expJSON := `{
-	"3425": {
-		"Type": "TRICE8_1",
-		"Strg": "msg:value=%d\\n"
-	},
-	"4059": {
-		"Type": "TRICE8_1",
-		"Strg": "msg:value=%d\\n"
-	},
-	"4887": {
-		"Type": "TRICE8_1",
-		"Strg": "msg:value=%d\\n"
-	},
-	"6081": {
-		"Type": "TRICE8_1",
-		"Strg": "msg:value=%d\\n"
-	},
-	"7318": {
-		"Type": "TRICE8_1",
-		"Strg": "msg:value=%d\\n"
-	},
-	"7847": {
-		"Type": "TRICE8_1",
-		"Strg": "msg:value=%d\\n"
-	}
-}`
-
-	SubCmdUpdate(os.Stdout, fSys)
-
-	// args := []string{"update", "-src", "./"}
-	// e := args.Handler(os.Stdout, fSys, args)
-
-	// check modified src file
-	actSrc, e := fSys.ReadFile(sFn)
-	assert.Nil(t, e)
-	assert.Equal(t, expSrc, string(actSrc))
-
-	// check modified til.json file
-	actJSON, e := fSys.ReadFile(jFn)
-	assert.Nil(t, e)
-	assert.Equal(t, expJSON, string(actJSON))
-}
 
 /*
 const (

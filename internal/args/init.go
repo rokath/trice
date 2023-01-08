@@ -9,6 +9,7 @@ import (
 
 	"github.com/rokath/trice/internal/com"
 	"github.com/rokath/trice/internal/decoder"
+	"github.com/rokath/trice/internal/do"
 	"github.com/rokath/trice/internal/emitter"
 	"github.com/rokath/trice/internal/id"
 	"github.com/rokath/trice/internal/receiver"
@@ -22,8 +23,8 @@ const (
 
 var (
 
-	// LogfileName is the filename of the logfile. "off" inhibits logfile writing.
-	LogfileName = "off"
+	// logfileName is the filename of the logfile. "off" inhibits logfile writing.
+	logfileName = "off"
 
 	colorInfo = `The format strings can start with a lower or upper case channel information.
 See https://github.com/rokath/trice/blob/master/pkg/src/triceCheck.c for examples. Color options: 
@@ -143,7 +144,7 @@ port "TCP4": default="`, receiver.DefaultTCP4Args, `", use any IP:port endpoint 
 `)
 
 	fsScLog.StringVar(&receiver.PortArguments, "args", "default", argsInfo)
-	fsScLog.StringVar(&TCPOutAddr, "tcp", "", `TCP address for an external log receiver like Putty. Example: 1st: "trice log -p COM1 -tcp localhost:64000", 2nd "putty". In "Terminal" enable "Implicit CR in every LF", In "Session" Connection type:"Other:Telnet", specify "hostname:port" here like "localhost:64000".`)
+	fsScLog.StringVar(&do.TCPOutAddr, "tcp", "", `TCP address for an external log receiver like Putty. Example: 1st: "trice log -p COM1 -tcp localhost:64000", 2nd "putty". In "Terminal" enable "Implicit CR in every LF", In "Session" Connection type:"Other:Telnet", specify "hostname:port" here like "localhost:64000".`)
 	fsScLog.BoolVar(&emitter.DisplayRemote, "displayserver", false, `Send trice lines to displayserver @ ipa:ipp.
 Example: "trice l -port COM38 -ds -ipa 192.168.178.44" sends trice output to a previously started display server in the same network.`)
 	fsScLog.BoolVar(&emitter.DisplayRemote, "ds", false, "Short for '-displayserver'.")
@@ -251,7 +252,7 @@ Change the filename with "-binaryLogfile myName.bin" or switch logging off with 
 }
 
 func flagLogfile(p *flag.FlagSet) {
-	p.StringVar(&LogfileName, "logfile", "off", `Append all output to logfile. Options are: 'off|none|filename|auto':
+	p.StringVar(&logfileName, "logfile", "off", `Append all output to logfile. Options are: 'off|none|filename|auto':
 "off": no logfile (same as "none")
 "none": no logfile (same as "off")
 "auto": Use as logfile name "2006-01-02_1504-05_trice.log" with actual time.
@@ -259,7 +260,7 @@ func flagLogfile(p *flag.FlagSet) {
 All trice output of the appropriate subcommands is appended per default into the logfile trice additionally to the normal output.
 Change the filename with "-logfile myName.txt" or switch logging off with "-logfile none".
 `)
-	p.StringVar(&LogfileName, "lf", "off", "Short for logfile")
+	p.StringVar(&logfileName, "lf", "off", "Short for logfile")
 }
 
 func flagSrcs(p *flag.FlagSet) {

@@ -8,18 +8,15 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
-	"log"
-	"net"
 	"os"
 	"sync"
 	"time"
 
 	"github.com/rokath/trice/internal/com"
 	"github.com/rokath/trice/internal/decoder"
+	"github.com/rokath/trice/internal/do"
 	"github.com/rokath/trice/internal/emitter"
 	"github.com/rokath/trice/internal/id"
-	"github.com/rokath/trice/internal/link"
 	"github.com/rokath/trice/internal/receiver"
 	"github.com/rokath/trice/internal/translator"
 	"github.com/rokath/trice/pkg/cipher"
@@ -56,45 +53,45 @@ func Handler(w io.Writer, fSys *afero.Afero, args []string) error {
 		return fmt.Errorf("unknown sub-command '%s'. try: '%s help|h'", subCmd, args[0])
 	case "h", "help":
 		msg.OnErr(fsScHelp.Parse(subArgs))
-		w = distributeArgs(w, fSys)
+		w = do.DistributeArgs(w, fSys, logfileName, verbose)
 		return scHelp(w)
 	case "s", "scan":
 		msg.OnErr(fsScScan.Parse(subArgs))
-		w = distributeArgs(w, fSys)
+		w = do.DistributeArgs(w, fSys, logfileName, verbose)
 		_, err := com.GetSerialPorts(w)
 		return err
 	case "ver", "version":
 		msg.OnErr(fsScVersion.Parse(subArgs))
-		w = distributeArgs(w, fSys)
+		w = do.DistributeArgs(w, fSys, logfileName, verbose)
 		return scVersion(w)
 	case "renew":
 		msg.OnErr(fsScRenew.Parse(subArgs))
-		w = distributeArgs(w, fSys)
+		w = do.DistributeArgs(w, fSys, logfileName, verbose)
 		return id.SubCmdReNewList(w, fSys)
 	case "r", "refresh":
 		msg.OnErr(fsScRefresh.Parse(subArgs))
-		w = distributeArgs(w, fSys)
+		w = do.DistributeArgs(w, fSys, logfileName, verbose)
 		return id.SubCmdRefreshList(w, fSys)
 	case "u", "update":
 		msg.OnErr(fsScUpdate.Parse(subArgs))
-		w = distributeArgs(w, fSys)
+		w = do.DistributeArgs(w, fSys, logfileName, verbose)
 		return id.SubCmdUpdate(w, fSys)
 	case "z", "zeroSourceTreeIds":
 		msg.OnErr(fsScZero.Parse(subArgs))
-		w = distributeArgs(w, fSys)
+		w = do.DistributeArgs(w, fSys, logfileName, verbose)
 		//  return id.ScZero(w, *pSrcZ, fsScZero)
 		return id.ScZeroMulti(w, fSys, fsScZero)
 	case "sd", "shutdown":
 		msg.OnErr(fsScSdSv.Parse(subArgs))
-		w = distributeArgs(w, fSys)
+		w = do.DistributeArgs(w, fSys, logfileName, verbose)
 		return emitter.ScShutdownRemoteDisplayServer(w, 0) // 0|1: 0=no 1=with shutdown timestamp in display server
 	case "ds", "displayServer":
 		msg.OnErr(fsScSv.Parse(subArgs))
-		w = distributeArgs(w, fSys)
+		w = do.DistributeArgs(w, fSys, logfileName, verbose)
 		return emitter.ScDisplayServer(w) // endless loop
 	case "l", "log":
 		msg.OnErr(fsScLog.Parse(subArgs))
-		w = distributeArgs(w, fSys)
+		w = do.DistributeArgs(w, fSys, logfileName, verbose)
 		logLoop(w, fSys) // endless loop
 		return nil
 	}
@@ -201,97 +198,4 @@ func scVersion(w io.Writer) error {
 		fmt.Fprintf(w, "version=%v, commit=%v, built at %v\n", Version, Commit, Date)
 	}
 	return nil
-}
-
-// evaluateColorPalette
-func evaluateColorPalette(w io.Writer) {
-	switch emitter.ColorPalette {
-	case "off", "none", "default", "color":
-		return
-	default:
-		fmt.Fprintln(w, "Ignoring unknown -color", emitter.ColorPalette, "using default.")
-		emitter.ColorPalette = "default"
-	}
-}
-
-// distributeArgs is distributing values used in several packages.
-// It must not be called before the appropriate arg parsing.
-func distributeArgs(w io.Writer, fSys *afero.Afero) io.Writer {
-
-	id.Verbose = verbose
-	link.Verbose = verbose
-	decoder.Verbose = verbose
-	emitter.Verbose = verbose
-	receiver.Verbose = verbose
-	translator.Verbose = verbose
-	emitter.TestTableMode = decoder.TestTableMode
-
-	w = triceOutput(w, fSys, LogfileName)
-	evaluateColorPalette(w)
-	return w
-}
-
-// triceOutput returns w as a a optional combined io.Writer. If fileName is given the returned io.Writer write a copy into the given file.
-func triceOutput(w io.Writer, fSys *afero.Afero, fileName string) io.Writer {
-	tcpWriter := TCPWriter()
-
-	// start logging only if fn not "none" or "off"
-	if fileName == "none" || fileName == "off" {
-		if verbose {
-			fmt.Println("No logfile writing...")
-		}
-		return io.MultiWriter(w, tcpWriter)
-	}
-
-	// defaultLogfileName is the pattern for default logfile name. The timestamp is replaced with the actual time.
-	defaultLogfileName := "2006-01-02_1504-05_trice.log"
-	if fileName == "auto" {
-		fileName = defaultLogfileName
-	}
-	// open logfile
-	if fileName == defaultLogfileName {
-		fileName = time.Now().Format(fileName) // Replace timestamp in default log filename.
-	} // Otherwise, use cli defined log filename.
-
-	lfHandle, err := fSys.OpenFile(fileName, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
-	msg.FatalOnErr(err)
-	if verbose {
-		fmt.Printf("Writing to logfile %s...\n", fileName)
-	}
-
-	return io.MultiWriter(w, tcpWriter, lfHandle)
-}
-
-var TCPOutAddr = ""
-
-func TCPWriter() io.Writer {
-	if TCPOutAddr == "" {
-		return ioutil.Discard
-	}
-	// The net.Listen() function makes the program a TCP server. This functions returns a Listener variable, which is a generic network listener for stream-oriented protocols.
-	fmt.Println("Listening on " + TCPOutAddr + "...")
-	listen, err := net.Listen("tcp", TCPOutAddr)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer listen.Close()
-
-	// t is only after a successful call to Accept() that the TCP server can begin to interact with TCP clients.
-	TCPConn, err := listen.Accept()
-	fmt.Println("Accepting connection:", TCPConn)
-	if err != nil {
-		log.Fatal(err)
-	}
-	// Make a buffer to hold incoming data.
-	buf := make([]byte, 1024)
-	reqLen, err := TCPConn.Read(buf)
-	if err != nil {
-		fmt.Println("Error reading:", err.Error())
-	}
-	fmt.Println(string(buf[:reqLen]))
-	TCPConn.Write([]byte("Trice connected...\r\n"))
-
-	//defer TCPConn.Close()
-	return TCPConn
-
 }
