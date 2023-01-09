@@ -235,7 +235,7 @@ func visitRefresh(w io.Writer, fSys *afero.Afero, lu TriceIDLookUp, tflus triceF
 		if nil != err {
 			return err
 		}
-		refreshIDs(w, path, text, lu, tflus, lim) // update IDs: Id(0) -> Id(M)
+		refreshIDs(w, path, text, lu, tflus, lim) // update lu & lim
 		return nil
 	}
 }
@@ -285,11 +285,10 @@ func visitUpdate(w io.Writer, fSys *afero.Afero, lu TriceIDLookUp, tflus triceFm
 		//  	text, fileModified2 = updateTriceFileId(w, lu, tflu, text, fileName, SharedIDs, Min, Max, SearchMethod, pListModified)
 		//  }
 
-		refreshIDs(w, fileName, text, lu, tflus, lim) // update IDs: Id(0) -> Id(M)
-		//  var fileModified2 bool
-
-		textN, fileModified0 := updateParamCountAndID0(w, text, ExtendMacrosWithParamCount)                                  // update parameter count: TRICE* to TRICE*_n and insert missing Id(0)
+		//refreshIDs(w, fileName, text, lu, tflus, lim) // insert missing Id(0)
+		textN, fileModified0 := updateParamCountAndID0(w, text, ExtendMacrosWithParamCount)                                  // update parameter count: TRICE* to TRICE*_n
 		textU, fileModified1 := updateIDsUniqOrShared(w, SharedIDs, Min, Max, SearchMethod, textN, lu, tflus, pListModified) // update IDs: Id(0) -> Id(M)
+		refreshIDs(w, fileName, textU, lu, tflus, lim)                                                                       // workaround: do it again to update li.json.
 
 		// write out
 		fileModified := fileModified0 || fileModified1 /*|| fileModified2*/
@@ -381,7 +380,7 @@ func triceParse(t string) (nbID string, id TriceID, tf TriceFmt, found idType) {
 	return
 }
 
-// refreshIDs parses text for valid trices tf and adds them to lu & tflu.
+// refreshIDs parses text for valid trices tf and adds them to lu & tflus and updates location information map lim.
 func refreshIDs(w io.Writer, fileName, text string, lu TriceIDLookUp, tflus triceFmtLookUpS, lim TriceIDLookUpLI) {
 	subs := text[:] // create a copy of text and assign it to subs
 	line := 1       // source cole lines start with 1 for some reason
@@ -405,9 +404,6 @@ func refreshIDs(w io.Writer, fileName, text string, lu TriceIDLookUp, tflus tric
 		tfS := tf
 		tfS.Type = strings.ToUpper(tfS.Type) // Lower case and upper case Type are not distinguished.
 
-		li.Line = line
-		lim[id] = li
-
 		// In lu id could point to a different tf. So we need to check that and invalidate id in that case.
 		// - That typically happens after tf was changed in source but the id not.
 		// - Also the source file with id:tf could be added from a different project and refresh could not add it to lu because id is used differently.
@@ -422,6 +418,8 @@ func refreshIDs(w io.Writer, fileName, text string, lu TriceIDLookUp, tflus tric
 			}
 		}
 		if id > 0 {
+			li.Line = line
+			lim[id] = li
 			lu[id] = tf
 			addID(tfS, id, tflus)
 		}

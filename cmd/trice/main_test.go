@@ -49,7 +49,7 @@ func TestUpdate(t *testing.T) { // Anti-Virus issue
 
 	// create src file
 	sFn := "file.c"
-	src := `
+	src := ` // this is line 1
 	break; case __LINE__: TRICE8_1( id(0), "msg:value=%d\n", -1  ); // legacy default with times stamp
 	break; case __LINE__: TRICE8_1( id(0), "msg:value=%d\n", -1  ); // legacy default with times stamp
 	break; case __LINE__: TRICE8_1( Id(0), "msg:value=%d\n", -1  ); // legacy default with times stamp
@@ -69,7 +69,7 @@ func TestUpdate(t *testing.T) { // Anti-Virus issue
 	assert.Nil(t, args.Handler(io.Writer(&b), fSys, []string{"trice", "u", "-src", ".", "-v", "-IDMin", "1000", "-IDMax", "2000", "-IDMethod", "upward"}))
 
 	// check modified src file
-	expSrc := `
+	expSrc := ` // this is line 1
 	break; case __LINE__: TRICE8_1( id( 1000), "msg:value=%d\n", -1  ); // legacy default with times stamp
 	break; case __LINE__: TRICE8_1( id( 1001), "msg:value=%d\n", -1  ); // legacy default with times stamp
 	break; case __LINE__: TRICE8_1( Id( 1002), "msg:value=%d\n", -1  ); // legacy default with times stamp
@@ -134,4 +134,36 @@ Changed:  file.c
 `
 	actOut := b.String()
 	assert.Equal(t, expOut, actOut)
+
+	// check generated li.json file
+	expLI := `{
+	"1000": {
+		"file": "file.c",
+		"Line": 2
+	},
+	"1001": {
+		"file": "file.c",
+		"Line": 3
+	},
+	"1002": {
+		"file": "file.c",
+		"Line": 4
+	},
+	"1003": {
+		"file": "file.c",
+		"Line": 5
+	},
+	"1004": {
+		"file": "file.c",
+		"Line": 6
+	},
+	"1005": {
+		"file": "file.c",
+		"Line": 7
+	}
+}`
+	actLI, e := fSys.ReadFile("li.json")
+	assert.Nil(t, e)
+	assert.Equal(t, expLI, string(actLI))
+
 }
