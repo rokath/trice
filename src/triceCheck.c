@@ -50,8 +50,8 @@ void TriceCheckSet(int index) {
   //break; case __LINE__: TRICE      ( Id(0),    "msg:value=%d\n", -1  ); // user written code, empty macro for patching, inlined code behind, 16-bit stamp
   //break; case __LINE__: TRICE      ( ID(0),    "msg:value=%d\n", -1  ); // user written code, empty macro for patching, inlined code behind, 32-bit stamp
     break; case __LINE__: TRICE      ( id(7009), "msg:value=%d\n", -1  ); // trice tool modified code for compilation, empty macro for patching, inlined code behind, no stamp
-    break; case __LINE__: TRICE      ( Id(7009), "msg:value=%d\n", -1  ); // trice tool modified code for compilation, empty macro for patching, inlined code behind, 16-bit stamp
-    break; case __LINE__: TRICE      ( ID(7009), "msg:value=%d\n", -1  ); // trice tool modified code for compilation, empty macro for patching, inlined code behind, 32-bit stamp
+    break; case __LINE__: TRICE      ( Id(7009), "msg:value=%d\n", -2  ); // trice tool modified code for compilation, empty macro for patching, inlined code behind, 16-bit stamp
+    break; case __LINE__: TRICE      ( ID(7009), "msg:value=%d\n", -3  ); // trice tool modified code for compilation, empty macro for patching, inlined code behind, 32-bit stamp
 
     // no stamp:
     break; case __LINE__: trice8     (           "msg:value=%d\n", -1  ); // user written code, empty macro for patching, no stamp
