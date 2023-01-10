@@ -2,8 +2,6 @@
 \author thomas.hoehenleitner [at] seerose.net
 *******************************************************************************/
 
-#include <stdint.h>
-
 #define TRICE32(  tid,fmt, ...) TRICE_COUNT(__VA_ARGS__,TRICE32_12,  TRICE32_11,  TRICE32_10,  TRICE32_9,  TRICE32_8,  TRICE32_7,  TRICE32_6,  TRICE32_5,  TRICE32_4,  TRICE32_3,  TRICE32_2,  TRICE32_1)(  tid,fmt, __VA_ARGS__)
 #define trice32(      fmt, ...) TRICE_COUNT(__VA_ARGS__,trice32_12,  trice32_11,  trice32_10,  trice32_9,  trice32_8,  trice32_7,  trice32_6,  trice32_5,  trice32_4,  trice32_3,  trice32_2,  trice32_1)(      fmt, __VA_ARGS__)
 #define trice32_M(tid,fmt, ...) TRICE_COUNT(__VA_ARGS__,trice32_12_M,trice32_11_M,trice32_10_M,trice32_9_M,trice32_8_M,trice32_7_M,trice32_6_M,trice32_5_M,trice32_4_M,trice32_3_M,trice32_2_M,trice32_1_M)(tid,fmt, __VA_ARGS__)
