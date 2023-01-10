@@ -105,7 +105,6 @@ typedef enum{
 #include "internalTrice64.h"
 #include "triceConfig.h"
 
-
 #ifdef TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN
 // Swap a 16-bit integer (https://www.oryx-embedded.com/doc/cpu__endian_8h_source.html)
 #define SWAPINT16(x) ( \
