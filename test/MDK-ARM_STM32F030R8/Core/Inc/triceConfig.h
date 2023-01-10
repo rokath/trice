@@ -25,8 +25,9 @@ extern "C" {
 //! The TRICE_MODE decision is a general one concering the inner data handling and is (nearly) independent from the out channel(s).
 //!
 //! TRICE_STACK_BUFFER:
+//! \li Recommended for RTT-only trice output. Segger code needed.
 //! \li Direct output to UART or RTT with cycle counter. For UART transfer trices inside interrupts forbidden. Direct TRICE macro execution.
-//! \li This mode is mainly for a quick tryout start or if no timing constrains for the TRICE macros exist.
+//! \li This mode is mainly for a quick UART tryout start or if no timing constrains for the TRICE macros exist.
 //! \li Only a putchar() function is required - look for triceBlockingPutChar().
 //! \li UART Command line similar to: `trice log -p COM1 -baud 115200`
 //! \li RTT needs additional tools installed - see RTT documentation.
