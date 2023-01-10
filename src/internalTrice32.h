@@ -4,6 +4,24 @@
 
 #include <stdint.h>
 
+#define TRICE32(  tid,fmt, ...) TRICE_COUNT(__VA_ARGS__,TRICE32_12,  TRICE32_11,  TRICE32_10,  TRICE32_9,  TRICE32_8,  TRICE32_7,  TRICE32_6,  TRICE32_5,  TRICE32_4,  TRICE32_3,  TRICE32_2,  TRICE32_1)(  tid,fmt, __VA_ARGS__)
+#define trice32(      fmt, ...) TRICE_COUNT(__VA_ARGS__,trice32_12,  trice32_11,  trice32_10,  trice32_9,  trice32_8,  trice32_7,  trice32_6,  trice32_5,  trice32_4,  trice32_3,  trice32_2,  trice32_1)(      fmt, __VA_ARGS__)
+#define trice32_M(tid,fmt, ...) TRICE_COUNT(__VA_ARGS__,trice32_12_M,trice32_11_M,trice32_10_M,trice32_9_M,trice32_8_M,trice32_7_M,trice32_6_M,trice32_5_M,trice32_4_M,trice32_3_M,trice32_2_M,trice32_1_M)(tid,fmt, __VA_ARGS__)
+#define Trice32(      fmt, ...) TRICE_COUNT(__VA_ARGS__,Trice32_12,  Trice32_11,  Trice32_10,  Trice32_9,  Trice32_8,  Trice32_7,  Trice32_6,  Trice32_5,  Trice32_4,  Trice32_3,  Trice32_2,  Trice32_1)(      fmt, __VA_ARGS__)
+#define Trice32_M(tid,fmt, ...) TRICE_COUNT(__VA_ARGS__,Trice32_12_M,Trice32_11_M,Trice32_10_M,Trice32_9_M,Trice32_8_M,Trice32_7_M,Trice32_6_M,Trice32_5_M,Trice32_4_M,Trice32_3_M,Trice32_2_M,Trice32_1_M)(tid,fmt, __VA_ARGS__)
+#define TRice32(      fmt, ...) TRICE_COUNT(__VA_ARGS__,TRice32_12,  TRice32_11,  TRice32_10,  TRice32_9,  TRice32_8,  TRice32_7,  TRice32_6,  TRice32_5,  TRice32_4,  TRice32_3,  TRice32_2,  TRice32_1)(      fmt, __VA_ARGS__)
+#define TRice32_M(tid,fmt, ...) TRICE_COUNT(__VA_ARGS__,TRice32_12_M,TRice32_11_M,TRice32_10_M,TRice32_9_M,TRice32_8_M,TRice32_7_M,TRice32_6_M,TRice32_5_M,TRice32_4_M,TRice32_3_M,TRice32_2_M,TRice32_1_M)(tid,fmt, __VA_ARGS__)
+
+//!TRICE32_B expects inside pFmt only one format specifier, which is used n times by using pFmt n times.
+//! It is usable for showing n 32-bit values.
+#define TRICE32_B( id, pFmt, buf, n) do { TRICE_N( id, pFmt, buf, 4*n); } while(0)
+
+//!TRICE32_F expects inside pFmt just a string which is assumed to be a remote function name.
+//! The trice tool displays the pFmt string followed by n times (32-bit value i).
+//! The idea behind is to generate an id - function pointer referece list from the generated til.json file to
+//! compile it into a remote device and execute the inside pFmt named function remotely.
+//! Look for "TRICE32_F example" inside triceCheck.c.
+#define TRICE32_F  TRICE32_B
 
 #define TRICE_PUT32_1( v0 )                                                 TRICE_PUT( (uint32_t)(v0) ); 
 
@@ -191,8 +209,6 @@
     TRICE_PUT32_12( v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 ) \
     TRICE_LEAVE
 
-
-
 #define trice32_1( fmt, v0 ) //!< trice32_1 is an empty macro
 #define trice32_2( fmt, v0, v1 ) //!< trice32_2 is an empty macro
 #define trice32_3( fmt, v0, v1, v2 ) //!< trice32_3 is an empty macro
@@ -205,12 +221,6 @@
 #define trice32_10( fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9 ) //!< trice32_10 is an empty macro
 #define trice32_11( fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10 ) //!< trice32_11 is an empty macro
 #define trice32_12( fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 ) //!< trice32_12 is an empty macro
-
-#define trice32_COUNT(_1,_2,_3,_4,_5,_6,_7,_8,_9,_10,_11,_12, NAME,...) NAME
-#define trice32(fmt, ...) trice32_COUNT(__VA_ARGS__,trice32_12,trice32_11,trice32_10,trice32_9,trice32_8,trice32_7,trice32_6,trice32_5,trice32_4,trice32_3,trice32_2,trice32_1)(fmt, __VA_ARGS__)
-
-#define trice32_COUNT(_1,_2,_3,_4,_5,_6,_7,_8,_9,_10,_11,_12, NAME,...) NAME
-#define trice32_M(tid,fmt, ...) trice32_COUNT(__VA_ARGS__,trice32_12_M,trice32_11_M,trice32_10_M,trice32_9_M,trice32_8_M,trice32_7_M,trice32_6_M,trice32_5_M,trice32_4_M,trice32_3_M,trice32_2_M,trice32_1_M)(tid,fmt, __VA_ARGS__)
 
 //! trice32_1_m writes trice data as fast as possible in a buffer.
 //! \param id is a 16 bit Trice id in upper 2 bytes of a 32 bit value
@@ -325,12 +335,6 @@ void trice32_12_fn( uint32_t tid, uint32_t v0, uint32_t v1, uint32_t v2, uint32_
 #define Trice32_10( fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9 ) //!< Trice32_10 is an empty macro
 #define Trice32_11( fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10 ) //!< Trice32_11 is an empty macro
 #define Trice32_12( fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 ) //!< Trice32_12 is an empty macro
-
-#define Trice32_COUNT(_1,_2,_3,_4,_5,_6,_7,_8,_9,_10,_11,_12, NAME,...) NAME
-#define Trice32(fmt, ...) Trice32_COUNT(__VA_ARGS__,Trice32_12,Trice32_11,Trice32_10,Trice32_9,Trice32_8,Trice32_7,Trice32_6,Trice32_5,Trice32_4,Trice32_3,Trice32_2,Trice32_1)(fmt, __VA_ARGS__)
-
-#define Trice32_COUNT(_1,_2,_3,_4,_5,_6,_7,_8,_9,_10,_11,_12, NAME,...) NAME
-#define Trice32_M(tid,fmt, ...) Trice32_COUNT(__VA_ARGS__,Trice32_12_M,Trice32_11_M,Trice32_10_M,Trice32_9_M,Trice32_8_M,Trice32_7_M,Trice32_6_M,Trice32_5_M,Trice32_4_M,Trice32_3_M,Trice32_2_M,Trice32_1_M)(tid,fmt, __VA_ARGS__)
 
 //! Trice32_1_m writes trice data as fast as possible in a buffer.
 //! \param id is a 16 bit Trice id in upper 2 bytes of a 32 bit value
@@ -457,10 +461,6 @@ void Trice32_10_fn( uint32_t tid, uint32_t v0, uint32_t v1, uint32_t v2, uint32_
 void Trice32_11_fn( uint32_t tid, uint32_t v0, uint32_t v1, uint32_t v2, uint32_t v3, uint32_t v4, uint32_t v5, uint32_t v6, uint32_t v7, uint32_t v8, uint32_t v9, uint32_t v10 );
 void Trice32_12_fn( uint32_t tid, uint32_t v0, uint32_t v1, uint32_t v2, uint32_t v3, uint32_t v4, uint32_t v5, uint32_t v6, uint32_t v7, uint32_t v8, uint32_t v9, uint32_t v10, uint32_t v11 );
 
-
-
-
-
 #define TRice32_1( fmt, v0 ) //!< TRice32_1 is an empty macro
 #define TRice32_2( fmt, v0, v1 ) //!< TRice32_2 is an empty macro
 #define TRice32_3( fmt, v0, v1, v2 ) //!< TRice32_3 is an empty macro
@@ -473,12 +473,6 @@ void Trice32_12_fn( uint32_t tid, uint32_t v0, uint32_t v1, uint32_t v2, uint32_
 #define TRice32_10( fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9 ) //!< TRice32_10 is an empty macro
 #define TRice32_11( fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10 ) //!< TRice32_11 is an empty macro
 #define TRice32_12( fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 ) //!< TRice32_12 is an empty macro
-
-#define TRice32_COUNT(_1,_2,_3,_4,_5,_6,_7,_8,_9,_10,_11,_12, NAME,...) NAME
-#define TRice32(fmt, ...) TRice32_COUNT(__VA_ARGS__,TRice32_12,TRice32_11,TRice32_10,TRice32_9,TRice32_8,TRice32_7,TRice32_6,TRice32_5,TRice32_4,TRice32_3,TRice32_2,TRice32_1)(fmt, __VA_ARGS__)
-
-#define TRice32_COUNT(_1,_2,_3,_4,_5,_6,_7,_8,_9,_10,_11,_12, NAME,...) NAME
-#define TRice32_M(tid,fmt, ...) TRice32_COUNT(__VA_ARGS__,TRice32_12_M,TRice32_11_M,TRice32_10_M,TRice32_9_M,TRice32_8_M,TRice32_7_M,TRice32_6_M,TRice32_5_M,TRice32_4_M,TRice32_3_M,TRice32_2_M,TRice32_1_M)(tid,fmt, __VA_ARGS__)
 
 //! TRice32_1_m writes trice data as fast as possible in a buffer.
 //! \param id is a 14 bit Trice id in upper 2 bytes of a 32 bit value
@@ -604,7 +598,3 @@ void TRice32_9_fn( uint32_t tid,  uint32_t v0, uint32_t v1, uint32_t v2, uint32_
 void TRice32_10_fn( uint32_t tid, uint32_t v0, uint32_t v1, uint32_t v2, uint32_t v3, uint32_t v4, uint32_t v5, uint32_t v6, uint32_t v7, uint32_t v8, uint32_t v9 );
 void TRice32_11_fn( uint32_t tid, uint32_t v0, uint32_t v1, uint32_t v2, uint32_t v3, uint32_t v4, uint32_t v5, uint32_t v6, uint32_t v7, uint32_t v8, uint32_t v9, uint32_t v10 );
 void TRice32_12_fn( uint32_t tid, uint32_t v0, uint32_t v1, uint32_t v2, uint32_t v3, uint32_t v4, uint32_t v5, uint32_t v6, uint32_t v7, uint32_t v8, uint32_t v9, uint32_t v10, uint32_t v11 );
-
-
-
-

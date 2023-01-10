@@ -285,7 +285,7 @@ func visitUpdate(w io.Writer, fSys *afero.Afero, lu TriceIDLookUp, tflus triceFm
 		//  	text, fileModified2 = updateTriceFileId(w, lu, tflu, text, fileName, SharedIDs, Min, Max, SearchMethod, pListModified)
 		//  }
 
-		//refreshIDs(w, fileName, text, lu, tflus, lim) // insert missing Id(0)
+		// todo: each file is parsed 3 times -> put this in one function
 		textN, fileModified0 := updateParamCountAndID0(w, text, ExtendMacrosWithParamCount)                                  // update parameter count: TRICE* to TRICE*_n
 		textU, fileModified1 := updateIDsUniqOrShared(w, SharedIDs, Min, Max, SearchMethod, textN, lu, tflus, pListModified) // update IDs: Id(0) -> Id(M)
 		refreshIDs(w, fileName, textU, lu, tflus, lim)                                                                       // workaround: do it again to update li.json.

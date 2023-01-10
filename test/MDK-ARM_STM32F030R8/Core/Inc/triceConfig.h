@@ -11,6 +11,12 @@ extern "C" {
 
 #include <stdint.h>
 
+//! TRICE_B is a shortcut for TRICE8_B, TRICE16_B, TRICE32_B or TRICE64_B usable in your project.
+#define TRICE_B  TRICE8_B
+
+//! TRICE_F is a shortcut for TRICE8_F, TRICE16_F, TRICE32_F or TRICE64_F usable in your project.
+#define TRICE_F  TRICE8_F
+
 ///////////////////////////////////////////////////////////////////////////////
 // Select trice mode and general settings.
 //
