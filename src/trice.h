@@ -92,9 +92,19 @@ typedef enum{
     Cgo
 } TriceWriteDevice_t;
 
-#include "triceConfig.h"
+//! Variadic macros (https://github.com/pfultz2/Cloak/wiki/C-Preprocessor-tricks,-tips,-and-idioms)
+//! See for more explanation https://renenyffenegger.ch/notes/development/languages/C-C-plus-plus/preprocessor/macros/__VA_ARGS__/count-arguments
+//! This is extendable until a 32767 bytes payload.
+#define TRICE_COUNT(_1,_2,_3,_4,_5,_6,_7,_8,_9,_10,_11,_12, NAME,...) NAME
+
 #include <stdint.h> //lint !e537
 #include <string.h>
+#include "internalTrice8.h"
+#include "internalTrice16.h"
+#include "internalTrice32.h"
+#include "internalTrice64.h"
+#include "triceConfig.h"
+
 
 #ifdef TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN
 // Swap a 16-bit integer (https://www.oryx-embedded.com/doc/cpu__endian_8h_source.html)
@@ -331,22 +341,6 @@ void XTEAInitTable(void);
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-///////////////////////////////////////////////////////////////////////////////
-// Variadic macros (https://github.com/pfultz2/Cloak/wiki/C-Preprocessor-tricks,-tips,-and-idioms)
-// See for more explanation https://renenyffenegger.ch/notes/development/languages/C-C-plus-plus/preprocessor/macros/__VA_ARGS__/count-arguments
-// This is extendable until a 32767 bytes payload.
-#define TRICE8_COUNT(_1,_2,_3,_4,_5,_6,_7,_8,_9,_10,_11,_12, NAME,...) NAME
-#define TRICE8(id,frmt, ...) TRICE8_COUNT(__VA_ARGS__,TRICE8_12,TRICE8_11,TRICE8_10,TRICE8_9,TRICE8_8,TRICE8_7,TRICE8_6,TRICE8_5,TRICE8_4,TRICE8_3,TRICE8_2,TRICE8_1)(id,frmt, __VA_ARGS__)
-
-#define TRICE16_COUNT(_1,_2,_3,_4,_5,_6,_7,_8,_9,_10,_11,_12, NAME,...) NAME
-#define TRICE16(id,frmt, ...) TRICE16_COUNT(__VA_ARGS__,TRICE16_12,TRICE16_11,TRICE16_10,TRICE16_9,TRICE16_8,TRICE16_7,TRICE16_6,TRICE16_5,TRICE16_4,TRICE16_3,TRICE16_2,TRICE16_1)(id,frmt, __VA_ARGS__)
-
-#define TRICE32_COUNT(_1,_2,_3,_4,_5,_6,_7,_8,_9,_10,_11,_12, NAME,...) NAME
-#define TRICE32(id,frmt, ...) TRICE32_COUNT(__VA_ARGS__,TRICE32_12,TRICE32_11,TRICE32_10,TRICE32_9,TRICE32_8,TRICE32_7,TRICE32_6,TRICE32_5,TRICE32_4,TRICE32_3,TRICE32_2,TRICE32_1)(id,frmt, __VA_ARGS__)
-
-#define TRICE64_COUNT(_1,_2,_3,_4,_5,_6,_7,_8,_9,_10,_11,_12, NAME,...) NAME
-#define TRICE64(id,frmt, ...) TRICE64_COUNT(__VA_ARGS__,TRICE64_12,TRICE64_11,TRICE64_10,TRICE64_9,TRICE64_8,TRICE64_7,TRICE64_6,TRICE64_5,TRICE64_4,TRICE64_3,TRICE64_2,TRICE64_1)(id,frmt, __VA_ARGS__)
-
 //! NTH_ARGUMENT just evaluates to the 14th argument. It is extendable.
 #define NTH_ARGUMENT(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, ...) a14 
 
@@ -366,7 +360,7 @@ void XTEAInitTable(void);
 //! CONCAT2 concatenates the 2 arguments a and b (helper macro).
 #define CONCAT2(a, b) CONCAT(a, b)
 
-//! TRICE_VARIABLE_ARGUMENTS concatenates DEBUG_ with the result of COUNT_ARGUMENTS to produce something like DEBUG_2 which takes a printf-format and two arguments.
+//! TRICE_VARIABLE_ARGUMENTS concatenates TRICE_ with the result of COUNT_ARGUMENTS to produce something like TRICE_2 which takes a printf-format and two arguments.
 #define TRICE(id, fmt, ...) CONCAT2(TRICE_, COUNT_ARGUMENTS(__VA_ARGS__))(id, fmt, ##__VA_ARGS__)
 
 //
@@ -417,42 +411,6 @@ static inline uint64_t aDouble( double x ){
 //
 
 #define TRICE_0  TRICE0  //!< Only the format string without parameter values.
-
-#ifndef TRICE8_B
-//!TRICE_B expects inside pFmt only one format specifier, which is used n times by using pFmt n times.
-#define TRICE8_B( id, pFmt, buf, n) do { \
-    TRICE_N( id, pFmt, buf, n); \
-} while(0)
-#endif // #ifndef TRICE_8B
-
-#ifndef TRICE16_B
-//! TRICE16_B expects inside pFmt only one format specifier, which is used n times by using pFmt n times.
-#define TRICE16_B( id, pFmt, buf, n) do { \
-    TRICE_N( id, pFmt, buf, 2*n); \
-} while(0)
-#endif // #ifndef TRICE_16B
-
-#ifndef TRICE32_B
-//! TRICE32_B expects inside pFmt only one format specifier, which is used n times by using pFmt n times.
-#define TRICE32_B( id, pFmt, buf, n) do { \
-    TRICE_N( id, pFmt, buf, 4*n); \
-} while(0)
-#endif // #ifndef TRICE_32B
-
-#ifndef TRICE64_B
-//! TRICE64_B expects inside pFmt only one format specifier, which is used n times by using pFmt n times.
-#define TRICE64_B( id, pFmt, buf, n) do { \
-    TRICE_N( id, pFmt, buf, 8*n); \
-} while(0)
-#endif // #ifndef TRICE_64B
-
-#define TRICE8_F  TRICE8_B 
-#define TRICE16_F TRICE16_B 
-#define TRICE32_F TRICE32_B 
-#define TRICE64_F TRICE64_B 
-
-#define TRICE_B  TRICE8_B 
-#define TRICE_F  TRICE8_B
 
 #ifndef TRICE_N
 //! TRICE_N writes id and buffer of size len.
@@ -567,10 +525,6 @@ extern const int TriceTypeX0;
 
 #endif // #else // #ifdef TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN
 
-#include "internalTrice8.h"
-#include "internalTrice16.h"
-#include "internalTrice32.h"
-#include "internalTrice64.h"
 
 #ifdef __cplusplus
 }

@@ -4,6 +4,27 @@
 
 #include <stdint.h>
 
+#define TRICE64(  tid,fmt, ...) TRICE_COUNT(__VA_ARGS__,TRICE64_12,  TRICE64_11,  TRICE64_10,  TRICE64_9,  TRICE64_8,  TRICE64_7,  TRICE64_6,  TRICE64_5,  TRICE64_4,  TRICE64_3,  TRICE64_2,  TRICE64_1)(  tid,fmt, __VA_ARGS__)
+#define trice64(      fmt, ...) TRICE_COUNT(__VA_ARGS__,trice64_12,  trice64_11,  trice64_10,  trice64_9,  trice64_8,  trice64_7,  trice64_6,  trice64_5,  trice64_4,  trice64_3,  trice64_2,  trice64_1)(      fmt, __VA_ARGS__)
+#define trice64_M(tid,fmt, ...) TRICE_COUNT(__VA_ARGS__,trice64_12_M,trice64_11_M,trice64_10_M,trice64_9_M,trice64_8_M,trice64_7_M,trice64_6_M,trice64_5_M,trice64_4_M,trice64_3_M,trice64_2_M,trice64_1_M)(tid,fmt, __VA_ARGS__)
+#define Trice64(      fmt, ...) TRICE_COUNT(__VA_ARGS__,Trice64_12,  Trice64_11,  Trice64_10,  Trice64_9,  Trice64_8,  Trice64_7,  Trice64_6,  Trice64_5,  Trice64_4,  Trice64_3,  Trice64_2,  Trice64_1)(      fmt, __VA_ARGS__)
+#define Trice64_M(tid,fmt, ...) TRICE_COUNT(__VA_ARGS__,Trice64_12_M,Trice64_11_M,Trice64_10_M,Trice64_9_M,Trice64_8_M,Trice64_7_M,Trice64_6_M,Trice64_5_M,Trice64_4_M,Trice64_3_M,Trice64_2_M,Trice64_1_M)(tid,fmt, __VA_ARGS__)
+#define TRice64(      fmt, ...) TRICE_COUNT(__VA_ARGS__,TRice64_12,  TRice64_11,  TRice64_10,  TRice64_9,  TRice64_8,  TRice64_7,  TRice64_6,  TRice64_5,  TRice64_4,  TRice64_3,  TRice64_2,  TRice64_1)(      fmt, __VA_ARGS__)
+#define TRice64_M(tid,fmt, ...) TRICE_COUNT(__VA_ARGS__,TRice64_12_M,TRice64_11_M,TRice64_10_M,TRice64_9_M,TRice64_8_M,TRice64_7_M,TRice64_6_M,TRice64_5_M,TRice64_4_M,TRice64_3_M,TRice64_2_M,TRice64_1_M)(tid,fmt, __VA_ARGS__)
+
+
+//!TRICE64_B expects inside pFmt only one format specifier, which is used n times by using pFmt n times.
+//! It is usable for showing n 64-bit values.
+#define TRICE64_B( id, pFmt, buf, n) do { TRICE_N( id, pFmt, buf, 8*n); } while(0)
+
+//!TRICE64_F expects inside pFmt just a string which is assumed to be a remote function name.
+//! The trice tool displays the pFmt string followed by n times (64-bit value i).
+//! The idea behind is to generate an id - function pointer referece list from the generated til.json file to
+//! compile it into a remote device and execute the inside pFmt named function remotely.
+//! Look for "TRICE64_F example" inside triceCheck.c.
+#define TRICE64_F  TRICE64_B
+
+#define TRICE64_F TRICE64_B 
 
 #define TRICE_PUT64_1( v0 )                                                 TRICE_PUT64( v0 ); 
 
@@ -94,7 +115,6 @@
                                                                             TRICE_PUT64( v9 ); \
                                                                             TRICE_PUT64( v10 ); \
                                                                             TRICE_PUT64( v11 );
-
 
 //! TRICE64_1 writes trice data as fast as possible in a buffer.
 //! \param id is a 16 bit Trice id in upper 2 bytes of a 32 bit value
@@ -192,8 +212,6 @@
     TRICE_PUT64_12( v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 ) \
     TRICE_LEAVE
 
-
-
 #define trice64_1( fmt, v0 ) //!< trice64_1 is an empty macro
 #define trice64_2( fmt, v0, v1 ) //!< trice64_2 is an empty macro
 #define trice64_3( fmt, v0, v1, v2 ) //!< trice64_3 is an empty macro
@@ -206,12 +224,6 @@
 #define trice64_10( fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9 ) //!< trice64_10 is an empty macro
 #define trice64_11( fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10 ) //!< trice64_11 is an empty macro
 #define trice64_12( fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 ) //!< trice64_12 is an empty macro
-
-#define trice64_COUNT(_1,_2,_3,_4,_5,_6,_7,_8,_9,_10,_11,_12, NAME,...) NAME
-#define trice64(fmt, ...) trice64_COUNT(__VA_ARGS__,trice64_12,trice64_11,trice64_10,trice64_9,trice64_8,trice64_7,trice64_6,trice64_5,trice64_4,trice64_3,trice64_2,trice64_1)(fmt, __VA_ARGS__)
-
-#define trice64_COUNT(_1,_2,_3,_4,_5,_6,_7,_8,_9,_10,_11,_12, NAME,...) NAME
-#define trice64_M(tid,fmt, ...) trice64_COUNT(__VA_ARGS__,trice64_12_M,trice64_11_M,trice64_10_M,trice64_9_M,trice64_8_M,trice64_7_M,trice64_6_M,trice64_5_M,trice64_4_M,trice64_3_M,trice64_2_M,trice64_1_M)(tid,fmt, __VA_ARGS__)
 
 //! trice64_1_m writes trice data as fast as possible in a buffer.
 //! \param id is a 16 bit Trice id in upper 2 bytes of a 32 bit value
@@ -326,12 +338,6 @@ void trice64_12_fn( uint64_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_
 #define Trice64_10( fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9 ) //!< Trice64_10 is an empty macro
 #define Trice64_11( fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10 ) //!< Trice64_11 is an empty macro
 #define Trice64_12( fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 ) //!< Trice64_12 is an empty macro
-
-#define Trice64_COUNT(_1,_2,_3,_4,_5,_6,_7,_8,_9,_10,_11,_12, NAME,...) NAME
-#define Trice64(fmt, ...) Trice64_COUNT(__VA_ARGS__,Trice64_12,Trice64_11,Trice64_10,Trice64_9,Trice64_8,Trice64_7,Trice64_6,Trice64_5,Trice64_4,Trice64_3,Trice64_2,Trice64_1)(fmt, __VA_ARGS__)
-
-#define Trice64_COUNT(_1,_2,_3,_4,_5,_6,_7,_8,_9,_10,_11,_12, NAME,...) NAME
-#define Trice64_M(tid,fmt, ...) Trice64_COUNT(__VA_ARGS__,Trice64_12_M,Trice64_11_M,Trice64_10_M,Trice64_9_M,Trice64_8_M,Trice64_7_M,Trice64_6_M,Trice64_5_M,Trice64_4_M,Trice64_3_M,Trice64_2_M,Trice64_1_M)(tid,fmt, __VA_ARGS__)
 
 //! Trice64_1_m writes trice data as fast as possible in a buffer.
 //! \param id is a 16 bit Trice id in upper 2 bytes of a 32 bit value
@@ -458,10 +464,6 @@ void Trice64_10_fn( uint64_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_
 void Trice64_11_fn( uint64_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t v3, uint64_t v4, uint64_t v5, uint64_t v6, uint64_t v7, uint64_t v8, uint64_t v9, uint64_t v10 );
 void Trice64_12_fn( uint64_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t v3, uint64_t v4, uint64_t v5, uint64_t v6, uint64_t v7, uint64_t v8, uint64_t v9, uint64_t v10, uint64_t v11 );
 
-
-
-
-
 #define TRice64_1( fmt, v0 ) //!< TRice64_1 is an empty macro
 #define TRice64_2( fmt, v0, v1 ) //!< TRice64_2 is an empty macro
 #define TRice64_3( fmt, v0, v1, v2 ) //!< TRice64_3 is an empty macro
@@ -474,12 +476,6 @@ void Trice64_12_fn( uint64_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_
 #define TRice64_10( fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9 ) //!< TRice64_10 is an empty macro
 #define TRice64_11( fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10 ) //!< TRice64_11 is an empty macro
 #define TRice64_12( fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 ) //!< TRice64_12 is an empty macro
-
-#define TRice64_COUNT(_1,_2,_3,_4,_5,_6,_7,_8,_9,_10,_11,_12, NAME,...) NAME
-#define TRice64(fmt, ...) TRice64_COUNT(__VA_ARGS__,TRice64_12,TRice64_11,TRice64_10,TRice64_9,TRice64_8,TRice64_7,TRice64_6,TRice64_5,TRice64_4,TRice64_3,TRice64_2,TRice64_1)(fmt, __VA_ARGS__)
-
-#define TRice64_COUNT(_1,_2,_3,_4,_5,_6,_7,_8,_9,_10,_11,_12, NAME,...) NAME
-#define TRice64_M(tid,fmt, ...) TRice64_COUNT(__VA_ARGS__,TRice64_12_M,TRice64_11_M,TRice64_10_M,TRice64_9_M,TRice64_8_M,TRice64_7_M,TRice64_6_M,TRice64_5_M,TRice64_4_M,TRice64_3_M,TRice64_2_M,TRice64_1_M)(tid,fmt, __VA_ARGS__)
 
 //! TRice64_1_m writes trice data as fast as possible in a buffer.
 //! \param id is a 14 bit Trice id in upper 2 bytes of a 32 bit value
@@ -605,7 +601,3 @@ void TRice64_9_fn( uint64_t tid,  uint64_t v0, uint64_t v1, uint64_t v2, uint64_
 void TRice64_10_fn( uint64_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t v3, uint64_t v4, uint64_t v5, uint64_t v6, uint64_t v7, uint64_t v8, uint64_t v9 );
 void TRice64_11_fn( uint64_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t v3, uint64_t v4, uint64_t v5, uint64_t v6, uint64_t v7, uint64_t v8, uint64_t v9, uint64_t v10 );
 void TRice64_12_fn( uint64_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t v3, uint64_t v4, uint64_t v5, uint64_t v6, uint64_t v7, uint64_t v8, uint64_t v9, uint64_t v10, uint64_t v11 );
-
-
-
-

@@ -4,6 +4,32 @@
 
 #include <stdint.h>
 
+#define TRICE8(  tid,fmt, ...) TRICE_COUNT(__VA_ARGS__,TRICE8_12,  TRICE8_11,  TRICE8_10,  TRICE8_9,  TRICE8_8,  TRICE8_7,  TRICE8_6,  TRICE8_5,  TRICE8_4,  TRICE8_3,  TRICE8_2,  TRICE8_1)(  tid,fmt, __VA_ARGS__)
+#define trice8(      fmt, ...) TRICE_COUNT(__VA_ARGS__,trice8_12,  trice8_11,  trice8_10,  trice8_9,  trice8_8,  trice8_7,  trice8_6,  trice8_5,  trice8_4,  trice8_3,  trice8_2,  trice8_1)(      fmt, __VA_ARGS__)
+
+//! trice8_M is a macro expanded to trice8_n_M acording to the parameter count, calling a function to reduce code size, this way avoiding code inlining.
+//! trice8_M is inserted by the trice tool for compilation in the folloeing manner (spaces not important):
+//! - user written code: `trice8(         "msg:value=%d\n", -1 );`
+//! - modified code:     `trice8_M( 7009, "msg:value=%d\n", -1 );`
+//! - user written code: `trice8(         "msg:value=%d, %d\n", -1, -2 );`
+//! - modified code:     `trice8_M( 7009, "msg:value=%d, %d\n", -1, -2 );`
+//! - ...
+#define trice8_M(tid,fmt, ...) TRICE_COUNT(__VA_ARGS__,trice8_12_M,trice8_11_M,trice8_10_M,trice8_9_M,trice8_8_M,trice8_7_M,trice8_6_M,trice8_5_M,trice8_4_M,trice8_3_M,trice8_2_M,trice8_1_M)(tid,fmt, __VA_ARGS__)
+#define Trice8(      fmt, ...) TRICE_COUNT(__VA_ARGS__,Trice8_12,  Trice8_11,  Trice8_10,  Trice8_9,  Trice8_8,  Trice8_7,  Trice8_6,  Trice8_5,  Trice8_4,  Trice8_3,  Trice8_2,  Trice8_1)(      fmt, __VA_ARGS__)
+#define Trice8_M(tid,fmt, ...) TRICE_COUNT(__VA_ARGS__,Trice8_12_M,Trice8_11_M,Trice8_10_M,Trice8_9_M,Trice8_8_M,Trice8_7_M,Trice8_6_M,Trice8_5_M,Trice8_4_M,Trice8_3_M,Trice8_2_M,Trice8_1_M)(tid,fmt, __VA_ARGS__)
+#define TRice8(      fmt, ...) TRICE_COUNT(__VA_ARGS__,TRice8_12,  TRice8_11,  TRice8_10,  TRice8_9,  TRice8_8,  TRice8_7,  TRice8_6,  TRice8_5,  TRice8_4,  TRice8_3,  TRice8_2,  TRice8_1)(      fmt, __VA_ARGS__)
+#define TRice8_M(tid,fmt, ...) TRICE_COUNT(__VA_ARGS__,TRice8_12_M,TRice8_11_M,TRice8_10_M,TRice8_9_M,TRice8_8_M,TRice8_7_M,TRice8_6_M,TRice8_5_M,TRice8_4_M,TRice8_3_M,TRice8_2_M,TRice8_1_M)(tid,fmt, __VA_ARGS__)
+
+//!TRICE8_B expects inside pFmt only one format specifier, which is used n times by using pFmt n times.
+//! It is usable for showing n 8-bit values.
+#define TRICE8_B( id, pFmt, buf, n) do { TRICE_N( id, pFmt, buf, n); } while(0)
+
+//!TRICE8_F expects inside pFmt just a string which is assumed to be a remote function name.
+//! The trice tool displays the pFmt string followed by n times (value i).
+//! The idea behind is to generate an id - function pointer referece list from the generated til.json file to
+//! compile it into a remote device and execute the inside pFmt named function remotely.
+//! Look for "TRICE8_F example" inside triceCheck.c.
+#define TRICE8_F  TRICE8_B
 
 #define TRICE_PUT8_1(  v0 )                                                 TRICE_PUT(                                                   TRICE_BYTE0(v0));
 
@@ -40,8 +66,6 @@
 #define TRICE_PUT8_12( v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 )   TRICE_PUT( TRICE_BYTE3(v3) |TRICE_BYTE2(v2) |TRICE_BYTE1(v1) |TRICE_BYTE0(v0)); \
                                                                             TRICE_PUT( TRICE_BYTE3(v7) |TRICE_BYTE2(v6) |TRICE_BYTE1(v5) |TRICE_BYTE0(v4)); \
                                                                             TRICE_PUT( TRICE_BYTE3(v11)|TRICE_BYTE2(v10)|TRICE_BYTE1(v9) |TRICE_BYTE0(v8));
-
-
 
 //! TRICE8_1 writes trice data as fast as possible in a buffer.
 //! \param id is a 16 bit Trice id in upper 2 bytes of a 32 bit value
@@ -155,22 +179,6 @@
 #define trice8_10( fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9 ) //!< trice8_10 is an empty macro
 #define trice8_11( fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10 ) //!< trice8_11 is an empty macro
 #define trice8_12( fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 ) //!< trice8_12 is an empty macro
-
-//! trice8_COUNT is a helper macro
-#define trice8_COUNT(_1,_2,_3,_4,_5,_6,_7,_8,_9,_10,_11,_12, NAME,...) NAME
-
-//! trice8 is a macro expanded to trice8_n acording to the parameter count. 
-//! It is used to write code like ``trice8( "msg:value=%d, %d, ...\n", -1, -2, ... );`
-#define trice8(fmt, ...) trice8_COUNT(__VA_ARGS__,trice8_12,trice8_11,trice8_10,trice8_9,trice8_8,trice8_7,trice8_6,trice8_5,trice8_4,trice8_3,trice8_2,trice8_1)(fmt, __VA_ARGS__)
-
-//! trice8_M is a macro expanded to trice8_n_M acording to the parameter count, calling a function to reduce code size, this way avoiding code inlining.
-//! trice8_M is inserted by the trice tool for compilation in the folloeing manner (spaces not important):
-//! - user written code: `trice8(         "msg:value=%d\n", -1 );`
-//! - modified code:     `trice8_M( 7009, "msg:value=%d\n", -1 );`
-//! - user written code: `trice8(         "msg:value=%d, %d\n", -1, -2 );`
-//! - modified code:     `trice8_M( 7009, "msg:value=%d, %d\n", -1, -2 );`
-//! - ...
-#define trice8_M(tid,fmt, ...) trice8_COUNT(__VA_ARGS__,trice8_12_M,trice8_11_M,trice8_10_M,trice8_9_M,trice8_8_M,trice8_7_M,trice8_6_M,trice8_5_M,trice8_4_M,trice8_3_M,trice8_2_M,trice8_1_M)(tid,fmt, __VA_ARGS__)
 
 //! trice8_1_m writes trice data as fast as possible in a buffer.
 //! \param id is a 16 bit Trice id in upper 2 bytes of a 32 bit value
@@ -290,12 +298,6 @@ void trice8_12_fn( uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3,
 #define Trice8_10( fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9 ) //!< Trice8_10 is an empty macro
 #define Trice8_11( fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10 ) //!< Trice8_11 is an empty macro
 #define Trice8_12( fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 ) //!< Trice8_12 is an empty macro
-
-#define Trice8_COUNT(_1,_2,_3,_4,_5,_6,_7,_8,_9,_10,_11,_12, NAME,...) NAME
-#define Trice8(fmt, ...) Trice8_COUNT(__VA_ARGS__,Trice8_12,Trice8_11,Trice8_10,Trice8_9,Trice8_8,Trice8_7,Trice8_6,Trice8_5,Trice8_4,Trice8_3,Trice8_2,Trice8_1)(fmt, __VA_ARGS__)
-
-#define Trice8_COUNT(_1,_2,_3,_4,_5,_6,_7,_8,_9,_10,_11,_12, NAME,...) NAME
-#define Trice8_M(tid,fmt, ...) Trice8_COUNT(__VA_ARGS__,Trice8_12_M,Trice8_11_M,Trice8_10_M,Trice8_9_M,Trice8_8_M,Trice8_7_M,Trice8_6_M,Trice8_5_M,Trice8_4_M,Trice8_3_M,Trice8_2_M,Trice8_1_M)(tid,fmt, __VA_ARGS__)
 
 //! Trice8_1_m writes trice data as fast as possible in a buffer.
 //! \param id is a 16 bit Trice id in upper 2 bytes of a 32 bit value
@@ -438,12 +440,6 @@ void Trice8_12_fn( uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3,
 #define TRice8_10( fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9 ) //!< TRice8_10 is an empty macro
 #define TRice8_11( fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10 ) //!< TRice8_11 is an empty macro
 #define TRice8_12( fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 ) //!< TRice8_12 is an empty macro
-
-#define TRice8_COUNT(_1,_2,_3,_4,_5,_6,_7,_8,_9,_10,_11,_12, NAME,...) NAME
-#define TRice8(fmt, ...) TRice8_COUNT(__VA_ARGS__,TRice8_12,TRice8_11,TRice8_10,TRice8_9,TRice8_8,TRice8_7,TRice8_6,TRice8_5,TRice8_4,TRice8_3,TRice8_2,TRice8_1)(fmt, __VA_ARGS__)
-
-#define TRice8_COUNT(_1,_2,_3,_4,_5,_6,_7,_8,_9,_10,_11,_12, NAME,...) NAME
-#define TRice8_M(tid,fmt, ...) TRice8_COUNT(__VA_ARGS__,TRice8_12_M,TRice8_11_M,TRice8_10_M,TRice8_9_M,TRice8_8_M,TRice8_7_M,TRice8_6_M,TRice8_5_M,TRice8_4_M,TRice8_3_M,TRice8_2_M,TRice8_1_M)(tid,fmt, __VA_ARGS__)
 
 //! TRice8_1_m writes trice data as fast as possible in a buffer.
 //! \param id is a 14 bit Trice id in upper 2 bytes of a 32 bit value
