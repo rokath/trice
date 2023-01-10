@@ -2,8 +2,6 @@
 \author thomas.hoehenleitner [at] seerose.net
 *******************************************************************************/
 
-#include <stdint.h>
-
 #define TRICE8(  tid,fmt, ...) TRICE_COUNT(__VA_ARGS__,TRICE8_12,  TRICE8_11,  TRICE8_10,  TRICE8_9,  TRICE8_8,  TRICE8_7,  TRICE8_6,  TRICE8_5,  TRICE8_4,  TRICE8_3,  TRICE8_2,  TRICE8_1)(  tid,fmt, __VA_ARGS__)
 #define trice8(      fmt, ...) TRICE_COUNT(__VA_ARGS__,trice8_12,  trice8_11,  trice8_10,  trice8_9,  trice8_8,  trice8_7,  trice8_6,  trice8_5,  trice8_4,  trice8_3,  trice8_2,  trice8_1)(      fmt, __VA_ARGS__)
 
