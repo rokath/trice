@@ -28,7 +28,8 @@ const (
 	patCFile = "(\\.c|\\.cc|\\.cpp)$"
 
 	// patTrice matches any TRICE name variant  The (?i) says case-insensitive. (?U)=un-greedy -> only first match.
-	patTypNameTRICE = `(?iU)(\b((TRICE((0|_0)|((8|16|32|64)*(_[0-9|S|N|B|F]*)*))))\b)` // https://regex101.com/r/vJn59K/1
+	patTypNameTRICE = `(?U)(\b((TRICE((0|_0)|((8|16|32|64)*(_[0-9|S|N|B|F]*)*))))\b)` // https://regex101.com/r/vJn59K/1
+	//               `(?iU)(\b((TRICE((0|_0)|((8|16|32|64)*(_[0-9|S|N|B|F]*)*))))\b)` // https://regex101.com/r/vJn59K/1
 	//                `(?iU)(\b((TRICE((_(S|N|B|F)|0)|((8|16|32|64)*(_[0-9]*)*))))\b)` // https://regex101.com/r/IkIhV3/1
 	//                `     (\b((TRICE(_S|0|(8|16|32|64)*)))(_[1-9]*)*|\b)\s*\(\s*\bID\b\s*\(\s*.*[0-9]\s*\)\s*,\s*".*"\s*.*\)\s*;` // https://regex101.com/r/pPRsjf/1
 
@@ -84,6 +85,8 @@ var (
 	//
 	// One target can use only one bith width for bare TRICE macros and the setting inside the target code must match DefaultTriceBitWidth.
 	DefaultTriceBitWidth = "32" // todo: create compiler switch for other options "8", "16", "32", "64"
+	DefaultStampSize     = 32
+	StampSizeId          string
 )
 
 // updateParamCountAndID0 stays in text as long as trice statements are found.
@@ -130,8 +133,8 @@ func updateParamCountAndID0(w io.Writer, text string, extendMacroName bool) (str
 		// triceC could have been modified here but text is unchanged so far.
 		idLoc := matchIDInsideTrice.FindStringIndex(triceC)
 		if nil == idLoc { // no Id(n) inside trice, so we add it
-			triceO := matchAnyTriceStart.FindString(triceC)     // TRICE*( part (the trice start)
-			triceU := triceO + " Id(0),"                        // todo: patID
+			triceO := matchAnyTriceStart.FindString(triceC) // TRICE*( part (the trice start)
+			triceU := triceO + StampSizeId
 			triceC = strings.Replace(triceC, triceO, triceU, 1) // insert Id(0) into trice copy
 			modified = true
 			if Verbose {

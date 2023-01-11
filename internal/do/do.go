@@ -38,6 +38,14 @@ func DistributeArgs(w io.Writer, fSys *afero.Afero, logfileName string, verbose 
 	translator.Verbose = verbose
 	emitter.TestTableMode = decoder.TestTableMode
 
+	if id.DefaultStampSize == 32 {
+		id.StampSizeId = " ID(0),"
+	} else if id.DefaultStampSize == 16 {
+		id.StampSizeId = " Id(0),"
+	} else {
+		id.StampSizeId = " id(0),"
+	}
+
 	w = triceOutput(w, fSys, logfileName, verbose)
 	evaluateColorPalette(w)
 	return w

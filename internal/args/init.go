@@ -190,6 +190,7 @@ func updateInit() {
 	flagsRefreshAndUpdate(fsScUpdate)
 	fsScUpdate.Var(&id.Min, "IDMin", "Lower end of ID range for normal trices.")
 	fsScUpdate.Var(&id.Max, "IDMax", "Upper end of ID range for normal trices.")
+	fsScUpdate.IntVar(&id.DefaultStampSize, "defaultStampSize", 32, "Default stamp size for written TRICE macros without id(0), Id(0 or ID(0). Valid values are 0, 16 or 32.")
 	fsScUpdate.StringVar(&id.SearchMethod, "IDMethod", "random", "Search method for new ID's in range- Options are 'upward', 'downward' & 'random'.")
 	fsScUpdate.BoolVar(&id.ExtendMacrosWithParamCount, "addParamCount", false, "Extend TRICE macro names with the parameter count _n to enable compile time checks.")
 	fsScUpdate.BoolVar(&id.SharedIDs, "sharedIDs", false, `ID policy:
