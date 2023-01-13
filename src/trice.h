@@ -351,7 +351,7 @@ void XTEAInitTable(void);
 //! the more the »counting arguments« (12, 11, 10, 9, 8, 7…) are pushed to the right. 
 //! Thus the macro evaluates to the number of arguments that are passed to the macro.
 //! If you set the C language to strict C (C90, C99, C11 or C17) the `##` operator doesn't remove the comma before it when `__VA_ARGS__` expands to nothing.
-//! In this case, the TRICE macro doesn't work with no parameters. You must explicitly use TRICE0 instead of TRICE for a no parameter value TRICE in this case.
+//! In this case, the TRICE macro doesn't work with no parameters. You must then explicitly use TRICE0 instead of TRICE for a no parameter value TRICE.
 //! For more details see closed Issue #279. Special thanks @escherstair.
 //! If for example using CLANG 6.18 set C-language to gnu11, gnu99 or std to avoid the comma issue when no parameters are in a TRICE  macro.
 //! In case you have to set the C-Language to c11 or c99 you can use the TRICE0 macro directly instead of TRICE when no value parameters.
@@ -364,7 +364,15 @@ void XTEAInitTable(void);
 #define CONCAT2(a, b) CONCAT(a, b)
 
 //! TRICE_VARIABLE_ARGUMENTS concatenates TRICE_ with the result of COUNT_ARGUMENTS to produce something like TRICE_2 which takes a printf-format and two arguments.
-#define TRICE(id, fmt, ...) CONCAT2(TRICE_, COUNT_ARGUMENTS(__VA_ARGS__))(id, fmt, ##__VA_ARGS__)
+#define TRICE(  tid, fmt, ...) CONCAT2(TRICE_,  COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
+#define trice(       fmt, ...) CONCAT2(trice_,  COUNT_ARGUMENTS(__VA_ARGS__))(     fmt, ##__VA_ARGS__)
+#define Trice(       fmt, ...) CONCAT2(Trice_,  COUNT_ARGUMENTS(__VA_ARGS__))(     fmt, ##__VA_ARGS__)
+#define TRice(       fmt, ...) CONCAT2(TRice_,  COUNT_ARGUMENTS(__VA_ARGS__))(     fmt, ##__VA_ARGS__)
+#define triceM( tid, fmt, ...) CONCAT2(triceM_, COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
+#define TriceM( tid, fmt, ...) CONCAT2(triceM_, COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
+#define TRiceM( tid, fmt, ...) CONCAT2(triceM_, COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
+
+
 
 //
 ///////////////////////////////////////////////////////////////////////////////

@@ -40,60 +40,130 @@ void TriceCheckSet(int index) {
            case __LINE__: 
 
     // normal use cases (3 macros)
-  //break; case __LINE__: trice      (           "msg:value=%d\n", -1  ); // user written code, empty macro for patching, function call behind, no stamp
-  //break; case __LINE__: Trice      (           "msg:value=%d\n", -1  ); // user written code, empty macro for patching, function call behind, 16-bit stamp
-  //break; case __LINE__: TRice      (           "msg:value=%d\n", -1  ); // user written code, empty macro for patching, function call behind, 32-bit stamp
+    break; case __LINE__: trice      (           "msg:value=%d\n", -__LINE__  ); // user written code, empty macro for patching, function call, no stamp
+    break; case __LINE__: Trice      (           "msg:value=%d\n", -__LINE__  ); // user written code, empty macro for patching, function call, 16-bit stamp
+    break; case __LINE__: TRice      (           "msg:value=%d\n", -__LINE__  ); // user written code, empty macro for patching, function call, 32-bit stamp
+    break; case __LINE__: triceM     ( 7009,     "msg:value=%d\n", -__LINE__  ); // trice tool modified code for compilation, no stamp
+    break; case __LINE__: TriceM     ( 7009,     "msg:value=%d\n", -__LINE__  ); // trice tool modified code for compilation, 16-bit stamp
+    break; case __LINE__: TRiceM     ( 7009,     "msg:value=%d\n", -__LINE__  ); // trice tool modified code for compilation, 32-bit stamp
+
+    break; case __LINE__: trice_1    (           "msg:value=%d\n", -__LINE__  ); // user written code, empty macro for patching, function call, no stamp
+    break; case __LINE__: Trice_1    (           "msg:value=%d\n", -__LINE__  ); // user written code, empty macro for patching, function call, 16-bit stamp
+    break; case __LINE__: TRice_1    (           "msg:value=%d\n", -__LINE__  ); // user written code, empty macro for patching, function call, 32-bit stamp
+    break; case __LINE__: triceM_1   ( 7009,     "msg:value=%d\n", -__LINE__  ); // trice tool modified code for compilation, no stamp
+    break; case __LINE__: TriceM_1   ( 7009,     "msg:value=%d\n", -__LINE__  ); // trice tool modified code for compilation, 16-bit stamp
+    break; case __LINE__: TRiceM_1   ( 7009,     "msg:value=%d\n", -__LINE__  ); // trice tool modified code for compilation, 32-bit stamp
+
+    // use cases for 8-bit data
+    break; case __LINE__: trice8     (           "msg:value=%d\n", -__LINE__  ); // user written code, empty macro for patching, function call, no stamp
+    break; case __LINE__: Trice8     (           "msg:value=%d\n", -__LINE__  ); // user written code, empty macro for patching, function call, 16-bit stamp
+    break; case __LINE__: TRice8     (           "msg:value=%d\n", -__LINE__  ); // user written code, empty macro for patching, function call, 32-bit stamp
+    break; case __LINE__: trice8M    ( 7009,     "msg:value=%d\n", -__LINE__  ); // trice tool modified code for compilation, no stamp
+    break; case __LINE__: Trice8M    ( 7009,     "msg:value=%d\n", -__LINE__  ); // trice tool modified code for compilation, 16-bit stamp
+    break; case __LINE__: TRice8M    ( 7009,     "msg:value=%d\n", -__LINE__  ); // trice tool modified code for compilation, 32-bit stamp
+
+    break; case __LINE__: trice8_1   (           "msg:value=%d\n", -__LINE__  ); // user written code, empty macro for patching, function call, no stamp
+    break; case __LINE__: Trice8_1   (           "msg:value=%d\n", -__LINE__  ); // user written code, empty macro for patching, function call, 16-bit stamp
+    break; case __LINE__: TRice8_1   (           "msg:value=%d\n", -__LINE__  ); // user written code, empty macro for patching, function call, 32-bit stamp
+    break; case __LINE__: trice8M_1  ( 7009,     "msg:value=%d\n", -__LINE__  ); // trice tool modified code for compilation, no stamp
+    break; case __LINE__: Trice8M_1  ( 7009,     "msg:value=%d\n", -__LINE__  ); // trice tool modified code for compilation, 16-bit stamp
+    break; case __LINE__: TRice8M_1  ( 7009,     "msg:value=%d\n", -__LINE__  ); // trice tool modified code for compilation, 32-bit stamp
+
+    // use cases for 16-bit data
+    break; case __LINE__: trice16    (           "msg:value=%d\n", -__LINE__  ); // user written code, empty macro for patching, function call, no stamp
+    break; case __LINE__: Trice16    (           "msg:value=%d\n", -__LINE__  ); // user written code, empty macro for patching, function call, 16-bit stamp
+    break; case __LINE__: TRice16    (           "msg:value=%d\n", -__LINE__  ); // user written code, empty macro for patching, function call, 32-bit stamp
+    break; case __LINE__: trice16M   ( 7009,     "msg:value=%d\n", -__LINE__  ); // trice tool modified code for compilation, no stamp
+    break; case __LINE__: Trice16M   ( 7009,     "msg:value=%d\n", -__LINE__  ); // trice tool modified code for compilation, 16-bit stamp
+    break; case __LINE__: TRice16M   ( 7009,     "msg:value=%d\n", -__LINE__  ); // trice tool modified code for compilation, 32-bit stamp
+
+    break; case __LINE__: trice16_1  (           "msg:value=%d\n", -__LINE__  ); // user written code, empty macro for patching, function call, no stamp
+    break; case __LINE__: Trice16_1  (           "msg:value=%d\n", -__LINE__  ); // user written code, empty macro for patching, function call, 16-bit stamp
+    break; case __LINE__: TRice16_1  (           "msg:value=%d\n", -__LINE__  ); // user written code, empty macro for patching, function call, 32-bit stamp
+    break; case __LINE__: trice16M_1 ( 7009,     "msg:value=%d\n", -__LINE__  ); // trice tool modified code for compilation, no stamp
+    break; case __LINE__: Trice16M_1 ( 7009,     "msg:value=%d\n", -__LINE__  ); // trice tool modified code for compilation, 16-bit stamp
+    break; case __LINE__: TRice16M_1 ( 7009,     "msg:value=%d\n", -__LINE__  ); // trice tool modified code for compilation, 32-bit stamp
+
+    // use cases for 32-bit data
+    break; case __LINE__: trice32    (           "msg:value=%d\n", -__LINE__  ); // user written code, empty macro for patching, function call, no stamp
+    break; case __LINE__: Trice32    (           "msg:value=%d\n", -__LINE__  ); // user written code, empty macro for patching, function call, 16-bit stamp
+    break; case __LINE__: TRice32    (           "msg:value=%d\n", -__LINE__  ); // user written code, empty macro for patching, function call, 32-bit stamp
+    break; case __LINE__: trice32M   ( 7009,     "msg:value=%d\n", -__LINE__  ); // trice tool modified code for compilation, no stamp
+    break; case __LINE__: Trice32M   ( 7009,     "msg:value=%d\n", -__LINE__  ); // trice tool modified code for compilation, 16-bit stamp
+    break; case __LINE__: TRice32M   ( 7009,     "msg:value=%d\n", -__LINE__  ); // trice tool modified code for compilation, 32-bit stamp
+
+    break; case __LINE__: trice32_1  (           "msg:value=%d\n", -__LINE__  ); // user written code, empty macro for patching, function call, no stamp
+    break; case __LINE__: Trice32_1  (           "msg:value=%d\n", -__LINE__  ); // user written code, empty macro for patching, function call, 16-bit stamp
+    break; case __LINE__: TRice32_1  (           "msg:value=%d\n", -__LINE__  ); // user written code, empty macro for patching, function call, 32-bit stamp
+    break; case __LINE__: trice32M_1 ( 7009,     "msg:value=%d\n", -__LINE__  ); // trice tool modified code for compilation, no stamp
+    break; case __LINE__: Trice32M_1 ( 7009,     "msg:value=%d\n", -__LINE__  ); // trice tool modified code for compilation, 16-bit stamp
+    break; case __LINE__: TRice32M_1 ( 7009,     "msg:value=%d\n", -__LINE__  ); // trice tool modified code for compilation, 32-bit stamp
+
+    // use cases for 64-bit data
+    break; case __LINE__: trice64    (           "msg:value=%d\n", -__LINE__  ); // user written code, empty macro for patching, function call, no stamp
+    break; case __LINE__: Trice64    (           "msg:value=%d\n", -__LINE__  ); // user written code, empty macro for patching, function call, 16-bit stamp
+    break; case __LINE__: TRice64    (           "msg:value=%d\n", -__LINE__  ); // user written code, empty macro for patching, function call, 32-bit stamp
+    break; case __LINE__: trice64M   ( 7009,     "msg:value=%d\n", -__LINE__  ); // trice tool modified code for compilation, no stamp
+    break; case __LINE__: Trice64M   ( 7009,     "msg:value=%d\n", -__LINE__  ); // trice tool modified code for compilation, 16-bit stamp
+    break; case __LINE__: TRice64M   ( 7009,     "msg:value=%d\n", -__LINE__  ); // trice tool modified code for compilation, 32-bit stamp
+
+    break; case __LINE__: trice64_1  (           "msg:value=%d\n", -__LINE__  ); // user written code, empty macro for patching, function call, no stamp
+    break; case __LINE__: Trice64_1  (           "msg:value=%d\n", -__LINE__  ); // user written code, empty macro for patching, function call, 16-bit stamp
+    break; case __LINE__: TRice64_1  (           "msg:value=%d\n", -__LINE__  ); // user written code, empty macro for patching, function call, 32-bit stamp
+    break; case __LINE__: trice64M_1 ( 7009,     "msg:value=%d\n", -__LINE__  ); // trice tool modified code for compilation, no stamp
+    break; case __LINE__: Trice64M_1 ( 7009,     "msg:value=%d\n", -__LINE__  ); // trice tool modified code for compilation, 16-bit stamp
+    break; case __LINE__: TRice64M_1 ( 7009,     "msg:value=%d\n", -__LINE__  ); // trice tool modified code for compilation, 32-bit stamp
 
     // legacy use cases
-  //break; case __LINE__: TRICE      (           "msg:value=%d\n", -1  ); // user written code, empty macro for patching, inlined code behind, default stamp
-  //break; case __LINE__: TRICE      ( id(0),    "msg:value=%d\n", -1  ); // user written code, empty macro for patching, inlined code behind, no stamp
-  //break; case __LINE__: TRICE      ( Id(0),    "msg:value=%d\n", -1  ); // user written code, empty macro for patching, inlined code behind, 16-bit stamp
-  //break; case __LINE__: TRICE      ( ID(0),    "msg:value=%d\n", -1  ); // user written code, empty macro for patching, inlined code behind, 32-bit stamp
-    break; case __LINE__: TRICE      ( id(7009), "msg:value=%d\n", -1  ); // trice tool modified code for compilation, empty macro for patching, inlined code behind, no stamp
-    break; case __LINE__: TRICE      ( Id(7009), "msg:value=%d\n", -2  ); // trice tool modified code for compilation, empty macro for patching, inlined code behind, 16-bit stamp
-    break; case __LINE__: TRICE      ( ID(7009), "msg:value=%d\n", -3  ); // trice tool modified code for compilation, empty macro for patching, inlined code behind, 32-bit stamp
+  //break; case __LINE__: TRICE      (           "msg:value=%d\n", -__LINE__  ); // user written code, empty macro for patching, inlined code behind, default stamp
+  //break; case __LINE__: TRICE      ( id(0),    "msg:value=%d\n", -__LINE__  ); // user written code, empty macro for patching, inlined code behind, no stamp
+  //break; case __LINE__: TRICE      ( Id(0),    "msg:value=%d\n", -__LINE__  ); // user written code, empty macro for patching, inlined code behind, 16-bit stamp
+  //break; case __LINE__: TRICE      ( ID(0),    "msg:value=%d\n", -__LINE__  ); // user written code, empty macro for patching, inlined code behind, 32-bit stamp
+    break; case __LINE__: TRICE      ( id(7009), "msg:value=%d\n", -__LINE__  ); // trice tool modified code for compilation, empty macro for patching, inlined code behind, no stamp
+    break; case __LINE__: TRICE      ( Id(7009), "msg:value=%d\n", -__LINE__  ); // trice tool modified code for compilation, empty macro for patching, inlined code behind, 16-bit stamp
+    break; case __LINE__: TRICE      ( ID(7009), "msg:value=%d\n", -__LINE__  ); // trice tool modified code for compilation, empty macro for patching, inlined code behind, 32-bit stamp
 
     // no stamp:
-    break; case __LINE__: trice8     (           "msg:value=%d\n", -1  ); // user written code, empty macro for patching, no stamp
-    break; case __LINE__: trice8_M   ( 7009,     "msg:value=%d\n", -11 ); // trice tool modified code for compilation, calls internally fuction trice8_1_fn, no stamp
-    break; case __LINE__: trice8_1   (           "msg:value=%d\n", -1  ); // user written code, empty macro for patching
-    break; case __LINE__: trice8_1_M ( 7009,     "msg:value=%d\n", -12 ); // trice tool modified code for compilation, calls internally fuction trice8_1_fn
-    break; case __LINE__: trice8_1_fn( 7009,                       -13 ); // This is a direct function call, which works, but is not inteded for user code.
+    break; case __LINE__: trice8     (           "msg:value=%d\n", -__LINE__ ); // user written code, empty macro for patching, no stamp
+    break; case __LINE__: trice8M    ( 7009,     "msg:value=%d\n", -__LINE__ ); // trice tool modified code for compilation, calls internally fuction trice8fn_1, no stamp
+    break; case __LINE__: trice8_1   (           "msg:value=%d\n", -__LINE__ ); // user written code, empty macro for patching
+    break; case __LINE__: trice8M_1  ( 7009,     "msg:value=%d\n", -__LINE__ ); // trice tool modified code for compilation, calls internally fuction trice8fn_1
+    break; case __LINE__: trice8fn_1 ( 7009,              (uint8_t)-__LINE__ ); // This is a direct function call, which works, but is not inteded for user code.
 
-  //break; case __LINE__: TRICE8     (           "msg:value=%d\n", -1  ); // legacy with default stamp
-  //break; case __LINE__: TRICE8_1   (           "msg:value=%d\n", -1  ); // legacy with default stamp
-  //break; case __LINE__: TRICE8     ( id(0),    "msg:value=%d\n", -1  ); // user written code without stamp
-  //break; case __LINE__: TRICE8_1   ( id(0),    "msg:value=%d\n", -1  ); // user written code without stamp
-    break; case __LINE__: TRICE8     ( id(7009), "msg:value=%d\n", -14 ); // trice tool modified code for compilation, inlines code, no stamp
-    break; case __LINE__: TRICE8_1   ( id(7009), "msg:value=%d\n", -15 ); // trice tool modified code for compilation, inlines code, no stamp
+  //break; case __LINE__: TRICE8     (           "msg:value=%d\n", -__LINE__ ); // legacy with default stamp
+  //break; case __LINE__: TRICE8_1   (           "msg:value=%d\n", -__LINE__ ); // legacy with default stamp
+  //break; case __LINE__: TRICE8     ( id(0),    "msg:value=%d\n", -__LINE__ ); // user written code without stamp
+  //break; case __LINE__: TRICE8_1   ( id(0),    "msg:value=%d\n", -__LINE__ ); // user written code without stamp
+    break; case __LINE__: TRICE8     ( id(7009), "msg:value=%d\n", -__LINE__ ); // trice tool modified code for compilation, inlines code, no stamp
+    break; case __LINE__: TRICE8_1   ( id(7009), "msg:value=%d\n", -__LINE__ ); // trice tool modified code for compilation, inlines code, no stamp
      
     // 16-bit stamp:
-    break; case __LINE__: Trice8     (           "msg:value=%d\n", -1  ); // user written code, empty macro for patching, 16-bit stamp
-    break; case __LINE__: Trice8_M   ( 7009,     "msg:value=%d\n", -11 ); // trice tool modified code for compilation, calls internally fuction Trice8_1_fn, 16-bit stamp
-    break; case __LINE__: Trice8_1   (           "msg:value=%d\n", -1  ); // user written code, empty macro for patching
-    break; case __LINE__: Trice8_1_M ( 7009,     "msg:value=%d\n", -12 ); // trice tool modified code for compilation, calls internally fuction Trice8_1_fn
-    break; case __LINE__: Trice8_1_fn( 7009,                       -13 ); // This is a direct function call, which works, but is not inteded for user code.
+    break; case __LINE__: Trice8     (           "msg:value=%d\n", -__LINE__ ); // user written code, empty macro for patching, 16-bit stamp
+    break; case __LINE__: Trice8M    ( 7009,     "msg:value=%d\n", -__LINE__ ); // trice tool modified code for compilation, calls internally fuction Trice8fn_1, 16-bit stamp
+    break; case __LINE__: Trice8_1   (           "msg:value=%d\n", -__LINE__ ); // user written code, empty macro for patching
+    break; case __LINE__: Trice8M_1  ( 7009,     "msg:value=%d\n", -__LINE__ ); // trice tool modified code for compilation, calls internally fuction Trice8fn_1
+    break; case __LINE__: Trice8fn_1 ( 7009,              (uint8_t)-__LINE__ ); // This is a direct function call, which works, but is not inteded for user code.
 
-  //break; case __LINE__: TRICE8     (           "msg:value=%d\n", -1  ); // legacy with default stamp
-  //break; case __LINE__: TRICE8_1   (           "msg:value=%d\n", -1  ); // legacy with default stamp
-  //break; case __LINE__: TRICE8     ( Id(0),    "msg:value=%d\n", -1  ); // user written code with 16-bit stamp
-  //break; case __LINE__: TRICE8_1   ( Id(0),    "msg:value=%d\n", -1  ); // user written code with 16-bit stamp
-    break; case __LINE__: TRICE8     ( Id(7009), "msg:value=%d\n", -14 ); // trice tool modified code for compilation, inlines code, with 16-bit stamp
-    break; case __LINE__: TRICE8_1   ( Id(7009), "msg:value=%d\n", -15 ); // trice tool modified code for compilation, inlines code, with 16-bit stamp
+  //break; case __LINE__: TRICE8     (           "msg:value=%d\n", -__LINE__ ); // legacy with default stamp
+  //break; case __LINE__: TRICE8_1   (           "msg:value=%d\n", -__LINE__ ); // legacy with default stamp
+  //break; case __LINE__: TRICE8     ( Id(0),    "msg:value=%d\n", -__LINE__ ); // user written code with 16-bit stamp
+  //break; case __LINE__: TRICE8_1   ( Id(0),    "msg:value=%d\n", -__LINE__ ); // user written code with 16-bit stamp
+    break; case __LINE__: TRICE8     ( Id(7009), "msg:value=%d\n", -__LINE__ ); // trice tool modified code for compilation, inlines code, with 16-bit stamp
+    break; case __LINE__: TRICE8_1   ( Id(7009), "msg:value=%d\n", -__LINE__ ); // trice tool modified code for compilation, inlines code, with 16-bit stamp
      
     // 32-bit stamp:
-    break; case __LINE__: TRice8     (           "msg:value=%d\n", -1  ); // user written code, empty macro for patching, 32-bit stamp
-    break; case __LINE__: TRice8_M   ( 7009,     "msg:value=%d\n", -11 ); // trice tool modified code for compilation, calls internally fuction TRice8_1_fn, 32-bit stamp
-    break; case __LINE__: TRice8_1   (           "msg:value=%d\n", -1  ); // user written code, empty macro for patching
-    break; case __LINE__: TRice8_1_M ( 7009,     "msg:value=%d\n", -12 ); // trice tool modified code for compilation, calls internally fuction TRice8_1_fn
-    break; case __LINE__: TRice8_1_fn( 7009,                       -13 ); // This is a direct function call, which works, but not inteded for user code.
+    break; case __LINE__: TRice8     (           "msg:value=%d\n", -__LINE__ ); // user written code, empty macro for patching, 32-bit stamp
+    break; case __LINE__: TRice8M    ( 7009,     "msg:value=%d\n", -__LINE__ ); // trice tool modified code for compilation, calls internally fuction TRice8fn_1, 32-bit stamp
+    break; case __LINE__: TRice8_1   (           "msg:value=%d\n", -__LINE__ ); // user written code, empty macro for patching
+    break; case __LINE__: TRice8M_1  ( 7009,     "msg:value=%d\n", -__LINE__ ); // trice tool modified code for compilation, calls internally fuction TRice8fn_1
+    break; case __LINE__: TRice8fn_1 ( 7009,              (uint8_t)-__LINE__ ); // This is a direct function call, which works, but not inteded for user code.
 
-  //break; case __LINE__: TRICE8     (           "msg:value=%d\n", -1  ); // legacy default with default stamp
-  //break; case __LINE__: TRICE8_1   (           "msg:value=%d\n", -1  ); // legacy default with default stamp
-  //break; case __LINE__: TRICE8     ( ID(0),    "msg:value=%d\n", -1  ); // user written code with 32-bit stamp
-  //break; case __LINE__: TRICE8_1   ( ID(0),    "msg:value=%d\n", -1  ); // user written code with 32-bit stamp
-    break; case __LINE__: TRICE8     ( ID(7009), "msg:value=%d\n", -14 ); // trice tool modified code for compilation, inlines code, with 32-bit stamp
-    break; case __LINE__: TRICE8_1   ( ID(7009), "msg:value=%d\n", -15 ); // trice tool modified code for compilation, inlines code, with 32-bit stamp
+  //break; case __LINE__: TRICE8     (           "msg:value=%d\n", -__LINE__ ); // legacy default with default stamp
+  //break; case __LINE__: TRICE8_1   (           "msg:value=%d\n", -__LINE__ ); // legacy default with default stamp
+  //break; case __LINE__: TRICE8     ( ID(0),    "msg:value=%d\n", -__LINE__ ); // user written code with 32-bit stamp
+  //break; case __LINE__: TRICE8_1   ( ID(0),    "msg:value=%d\n", -__LINE__ ); // user written code with 32-bit stamp
+    break; case __LINE__: TRICE8     ( ID(7009), "msg:value=%d\n", -__LINE__ ); // trice tool modified code for compilation, inlines code, with 32-bit stamp
+    break; case __LINE__: TRICE8_1   ( ID(7009), "msg:value=%d\n", -__LINE__ ); // trice tool modified code for compilation, inlines code, with 32-bit stamp
      
            
     break; case __LINE__: trice8_1 ( "msg:value=%d\n", -1 );// user written code
@@ -122,31 +192,31 @@ void TriceCheckSet(int index) {
     break; case __LINE__: trice8   ( "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );// user written code
     break; case __LINE__: trice8   ( "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );// user written code
     
-    break; case __LINE__: trice8_1_M ( 7009, "msg:value=%d\n", -1 );// trice tool modified code for compilation
-    break; case __LINE__: trice8_2_M ( 5664, "msg:value=%d, %d\n", -1, -2 );// trice tool modified code for compilation
-    break; case __LINE__: trice8_3_M ( 2103, "msg:value=%d, %d, %d\n", -1, -2, -3 );// trice tool modified code for compilation
-    break; case __LINE__: trice8_4_M ( 7087, "msg:value=%d, %d, %d, %d\n", -1, -2, -3, -4 );// trice tool modified code for compilation
-    break; case __LINE__: trice8_5_M ( 4931, "msg:value=%d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );// trice tool modified code for compilation
-    break; case __LINE__: trice8_6_M ( 2621, "msg:value=%d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );// trice tool modified code for compilation
-    break; case __LINE__: trice8_7_M ( 3488, "msg:value=%d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7 );// trice tool modified code for compilation
-    break; case __LINE__: trice8_8_M ( 4329, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );// trice tool modified code for compilation
-    break; case __LINE__: trice8_9_M ( 6469, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );// trice tool modified code for compilation
-    break; case __LINE__: trice8_10_M( 6335, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10 );// trice tool modified code for compilation
-    break; case __LINE__: trice8_11_M( 2410, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );// trice tool modified code for compilation
-    break; case __LINE__: trice8_12_M( 2070, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );// trice tool modified code for compilation
+    break; case __LINE__: trice8M_1 ( 7009, "msg:value=%d\n", -1 );// trice tool modified code for compilation
+    break; case __LINE__: trice8M_2 ( 5664, "msg:value=%d, %d\n", -1, -2 );// trice tool modified code for compilation
+    break; case __LINE__: trice8M_3 ( 2103, "msg:value=%d, %d, %d\n", -1, -2, -3 );// trice tool modified code for compilation
+    break; case __LINE__: trice8M_4 ( 7087, "msg:value=%d, %d, %d, %d\n", -1, -2, -3, -4 );// trice tool modified code for compilation
+    break; case __LINE__: trice8M_5 ( 4931, "msg:value=%d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );// trice tool modified code for compilation
+    break; case __LINE__: trice8M_6 ( 2621, "msg:value=%d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );// trice tool modified code for compilation
+    break; case __LINE__: trice8M_7 ( 3488, "msg:value=%d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7 );// trice tool modified code for compilation
+    break; case __LINE__: trice8M_8 ( 4329, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );// trice tool modified code for compilation
+    break; case __LINE__: trice8M_9 ( 6469, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );// trice tool modified code for compilation
+    break; case __LINE__: trice8M_10( 6335, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10 );// trice tool modified code for compilation
+    break; case __LINE__: trice8M_11( 2410, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );// trice tool modified code for compilation
+    break; case __LINE__: trice8M_12( 2070, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );// trice tool modified code for compilation
                                        
-    break; case __LINE__: trice8_M   ( 2625, "msg:value=%d\n", -1 );// trice tool modified code for compilation
-    break; case __LINE__: trice8_M   ( 1762, "msg:value=%d, %d\n", -1, -2 );// trice tool modified code for compilation
-    break; case __LINE__: trice8_M   ( 7960, "msg:value=%d, %d, %d\n", -1, -2, -3 );// trice tool modified code for compilation
-    break; case __LINE__: trice8_M   ( 1184, "msg:value=%d, %d, %d, %d\n", -1, -2, -3, -4 );// trice tool modified code for compilation
-    break; case __LINE__: trice8_M   ( 2873, "msg:value=%d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );// trice tool modified code for compilation
-    break; case __LINE__: trice8_M   ( 5861, "msg:value=%d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );// trice tool modified code for compilation
-    break; case __LINE__: trice8_M   ( 5563, "msg:value=%d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7 );// trice tool modified code for compilation
-    break; case __LINE__: trice8_M   ( 5122, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );// trice tool modified code for compilation
-    break; case __LINE__: trice8_M   ( 6832, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );// trice tool modified code for compilation
-    break; case __LINE__: trice8_M   ( 2527, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10 );// trice tool modified code for compilation
-    break; case __LINE__: trice8_M   ( 3931, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );// trice tool modified code for compilation
-    break; case __LINE__: trice8_M   ( 2412, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );// trice tool modified code for compilation
+    break; case __LINE__: trice8M   ( 2625, "msg:value=%d\n", -1 );// trice tool modified code for compilation
+    break; case __LINE__: trice8M   ( 1762, "msg:value=%d, %d\n", -1, -2 );// trice tool modified code for compilation
+    break; case __LINE__: trice8M   ( 7960, "msg:value=%d, %d, %d\n", -1, -2, -3 );// trice tool modified code for compilation
+    break; case __LINE__: trice8M   ( 1184, "msg:value=%d, %d, %d, %d\n", -1, -2, -3, -4 );// trice tool modified code for compilation
+    break; case __LINE__: trice8M   ( 2873, "msg:value=%d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );// trice tool modified code for compilation
+    break; case __LINE__: trice8M   ( 5861, "msg:value=%d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );// trice tool modified code for compilation
+    break; case __LINE__: trice8M   ( 5563, "msg:value=%d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7 );// trice tool modified code for compilation
+    break; case __LINE__: trice8M   ( 5122, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );// trice tool modified code for compilation
+    break; case __LINE__: trice8M   ( 6832, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );// trice tool modified code for compilation
+    break; case __LINE__: trice8M   ( 2527, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10 );// trice tool modified code for compilation
+    break; case __LINE__: trice8M   ( 3931, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );// trice tool modified code for compilation
+    break; case __LINE__: trice8M   ( 2412, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );// trice tool modified code for compilation
     
     break; case __LINE__: Trice8_1 ( "msg:value=%d\n", -1 );// user written code
     break; case __LINE__: Trice8_2 ( "msg:value=%d, %d\n", -1, -2 );// user written code
@@ -174,31 +244,31 @@ void TriceCheckSet(int index) {
     break; case __LINE__: Trice8   ( "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );// user written code
     break; case __LINE__: Trice8   ( "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );// user written code
     
-    break; case __LINE__: Trice8_1_M ( 7009, "msg:value=%d\n", -1 );// trice tool modified code for compilation
-    break; case __LINE__: Trice8_2_M ( 5664, "msg:value=%d, %d\n", -1, -2 );// trice tool modified code for compilation
-    break; case __LINE__: Trice8_3_M ( 2103, "msg:value=%d, %d, %d\n", -1, -2, -3 );// trice tool modified code for compilation
-    break; case __LINE__: Trice8_4_M ( 7087, "msg:value=%d, %d, %d, %d\n", -1, -2, -3, -4 );// trice tool modified code for compilation
-    break; case __LINE__: Trice8_5_M ( 4931, "msg:value=%d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );// trice tool modified code for compilation
-    break; case __LINE__: Trice8_6_M ( 2621, "msg:value=%d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );// trice tool modified code for compilation
-    break; case __LINE__: Trice8_7_M ( 3488, "msg:value=%d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7 );// trice tool modified code for compilation
-    break; case __LINE__: Trice8_8_M ( 4329, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );// trice tool modified code for compilation
-    break; case __LINE__: Trice8_9_M ( 6469, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );// trice tool modified code for compilation
-    break; case __LINE__: Trice8_10_M( 6335, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10 );// trice tool modified code for compilation
-    break; case __LINE__: Trice8_11_M( 2410, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );// trice tool modified code for compilation
-    break; case __LINE__: Trice8_12_M( 2070, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );// trice tool modified code for compilation
+    break; case __LINE__: Trice8M_1 ( 7009, "msg:value=%d\n", -1 );// trice tool modified code for compilation
+    break; case __LINE__: Trice8M_2 ( 5664, "msg:value=%d, %d\n", -1, -2 );// trice tool modified code for compilation
+    break; case __LINE__: Trice8M_3 ( 2103, "msg:value=%d, %d, %d\n", -1, -2, -3 );// trice tool modified code for compilation
+    break; case __LINE__: Trice8M_4 ( 7087, "msg:value=%d, %d, %d, %d\n", -1, -2, -3, -4 );// trice tool modified code for compilation
+    break; case __LINE__: Trice8M_5 ( 4931, "msg:value=%d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );// trice tool modified code for compilation
+    break; case __LINE__: Trice8M_6 ( 2621, "msg:value=%d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );// trice tool modified code for compilation
+    break; case __LINE__: Trice8M_7 ( 3488, "msg:value=%d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7 );// trice tool modified code for compilation
+    break; case __LINE__: Trice8M_8 ( 4329, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );// trice tool modified code for compilation
+    break; case __LINE__: Trice8M_9 ( 6469, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );// trice tool modified code for compilation
+    break; case __LINE__: Trice8M_10( 6335, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10 );// trice tool modified code for compilation
+    break; case __LINE__: Trice8M_11( 2410, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );// trice tool modified code for compilation
+    break; case __LINE__: Trice8M_12( 2070, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );// trice tool modified code for compilation
     
-    break; case __LINE__: Trice8_M   ( 2625, "msg:value=%d\n", -1 );// trice tool modified code for compilation
-    break; case __LINE__: Trice8_M   ( 1762, "msg:value=%d, %d\n", -1, -2 );// trice tool modified code for compilation
-    break; case __LINE__: Trice8_M   ( 7960, "msg:value=%d, %d, %d\n", -1, -2, -3 );// trice tool modified code for compilation
-    break; case __LINE__: Trice8_M   ( 1184, "msg:value=%d, %d, %d, %d\n", -1, -2, -3, -4 );// trice tool modified code for compilation
-    break; case __LINE__: Trice8_M   ( 2873, "msg:value=%d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );// trice tool modified code for compilation
-    break; case __LINE__: Trice8_M   ( 5861, "msg:value=%d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );// trice tool modified code for compilation
-    break; case __LINE__: Trice8_M   ( 5563, "msg:value=%d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7 );// trice tool modified code for compilation
-    break; case __LINE__: Trice8_M   ( 5122, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );// trice tool modified code for compilation
-    break; case __LINE__: Trice8_M   ( 6832, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );// trice tool modified code for compilation
-    break; case __LINE__: Trice8_M   ( 2527, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10 );// trice tool modified code for compilation
-    break; case __LINE__: Trice8_M   ( 3931, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );// trice tool modified code for compilation
-    break; case __LINE__: Trice8_M   ( 2412, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );// trice tool modified code for compilation
+    break; case __LINE__: Trice8M   ( 2625, "msg:value=%d\n", -1 );// trice tool modified code for compilation
+    break; case __LINE__: Trice8M   ( 1762, "msg:value=%d, %d\n", -1, -2 );// trice tool modified code for compilation
+    break; case __LINE__: Trice8M   ( 7960, "msg:value=%d, %d, %d\n", -1, -2, -3 );// trice tool modified code for compilation
+    break; case __LINE__: Trice8M   ( 1184, "msg:value=%d, %d, %d, %d\n", -1, -2, -3, -4 );// trice tool modified code for compilation
+    break; case __LINE__: Trice8M   ( 2873, "msg:value=%d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );// trice tool modified code for compilation
+    break; case __LINE__: Trice8M   ( 5861, "msg:value=%d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );// trice tool modified code for compilation
+    break; case __LINE__: Trice8M   ( 5563, "msg:value=%d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7 );// trice tool modified code for compilation
+    break; case __LINE__: Trice8M   ( 5122, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );// trice tool modified code for compilation
+    break; case __LINE__: Trice8M   ( 6832, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );// trice tool modified code for compilation
+    break; case __LINE__: Trice8M   ( 2527, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10 );// trice tool modified code for compilation
+    break; case __LINE__: Trice8M   ( 3931, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );// trice tool modified code for compilation
+    break; case __LINE__: Trice8M   ( 2412, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );// trice tool modified code for compilation
     
     break; case __LINE__: TRice8_1 ( "msg:value=%d\n", -1 );// user written code
     break; case __LINE__: TRice8_2 ( "msg:value=%d, %d\n", -1, -2 );// user written code
@@ -226,31 +296,31 @@ void TriceCheckSet(int index) {
     break; case __LINE__: TRice8   ( "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );// user written code
     break; case __LINE__: TRice8   ( "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );// user written code
     
-    break; case __LINE__: TRice8_1_M ( 7009, "msg:value=%d\n", -1 );// trice tool modified code for compilation
-    break; case __LINE__: TRice8_2_M ( 5664, "msg:value=%d, %d\n", -1, -2 );// trice tool modified code for compilation
-    break; case __LINE__: TRice8_3_M ( 2103, "msg:value=%d, %d, %d\n", -1, -2, -3 );// trice tool modified code for compilation
-    break; case __LINE__: TRice8_4_M ( 7087, "msg:value=%d, %d, %d, %d\n", -1, -2, -3, -4 );// trice tool modified code for compilation
-    break; case __LINE__: TRice8_5_M ( 4931, "msg:value=%d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );// trice tool modified code for compilation
-    break; case __LINE__: TRice8_6_M ( 2621, "msg:value=%d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );// trice tool modified code for compilation
-    break; case __LINE__: TRice8_7_M ( 3488, "msg:value=%d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7 );// trice tool modified code for compilation
-    break; case __LINE__: TRice8_8_M ( 4329, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );// trice tool modified code for compilation
-    break; case __LINE__: TRice8_9_M ( 6469, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );// trice tool modified code for compilation
-    break; case __LINE__: TRice8_10_M( 6335, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10 );// trice tool modified code for compilation
-    break; case __LINE__: TRice8_11_M( 2410, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );// trice tool modified code for compilation
-    break; case __LINE__: TRice8_12_M( 2070, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );// trice tool modified code for compilation
+    break; case __LINE__: TRice8M_1 ( 7009, "msg:value=%d\n", -1 );// trice tool modified code for compilation
+    break; case __LINE__: TRice8M_2 ( 5664, "msg:value=%d, %d\n", -1, -2 );// trice tool modified code for compilation
+    break; case __LINE__: TRice8M_3 ( 2103, "msg:value=%d, %d, %d\n", -1, -2, -3 );// trice tool modified code for compilation
+    break; case __LINE__: TRice8M_4 ( 7087, "msg:value=%d, %d, %d, %d\n", -1, -2, -3, -4 );// trice tool modified code for compilation
+    break; case __LINE__: TRice8M_5 ( 4931, "msg:value=%d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );// trice tool modified code for compilation
+    break; case __LINE__: TRice8M_6 ( 2621, "msg:value=%d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );// trice tool modified code for compilation
+    break; case __LINE__: TRice8M_7 ( 3488, "msg:value=%d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7 );// trice tool modified code for compilation
+    break; case __LINE__: TRice8M_8 ( 4329, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );// trice tool modified code for compilation
+    break; case __LINE__: TRice8M_9 ( 6469, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );// trice tool modified code for compilation
+    break; case __LINE__: TRice8M_10( 6335, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10 );// trice tool modified code for compilation
+    break; case __LINE__: TRice8M_11( 2410, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );// trice tool modified code for compilation
+    break; case __LINE__: TRice8M_12( 2070, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );// trice tool modified code for compilation
     
-    break; case __LINE__: TRice8_M   ( 2625, "msg:value=%d\n", -1 );// trice tool modified code for compilation
-    break; case __LINE__: TRice8_M   ( 1762, "msg:value=%d, %d\n", -1, -2 );// trice tool modified code for compilation
-    break; case __LINE__: TRice8_M   ( 7960, "msg:value=%d, %d, %d\n", -1, -2, -3 );// trice tool modified code for compilation
-    break; case __LINE__: TRice8_M   ( 1184, "msg:value=%d, %d, %d, %d\n", -1, -2, -3, -4 );// trice tool modified code for compilation
-    break; case __LINE__: TRice8_M   ( 2873, "msg:value=%d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );// trice tool modified code for compilation
-    break; case __LINE__: TRice8_M   ( 5861, "msg:value=%d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );// trice tool modified code for compilation
-    break; case __LINE__: TRice8_M   ( 5563, "msg:value=%d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7 );// trice tool modified code for compilation
-    break; case __LINE__: TRice8_M   ( 5122, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );// trice tool modified code for compilation
-    break; case __LINE__: TRice8_M   ( 6832, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );// trice tool modified code for compilation
-    break; case __LINE__: TRice8_M   ( 2527, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10 );// trice tool modified code for compilation
-    break; case __LINE__: TRice8_M   ( 3931, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );// trice tool modified code for compilation
-    break; case __LINE__: TRice8_M   ( 2412, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );// trice tool modified code for compilation
+    break; case __LINE__: TRice8M   ( 2625, "msg:value=%d\n", -1 );// trice tool modified code for compilation
+    break; case __LINE__: TRice8M   ( 1762, "msg:value=%d, %d\n", -1, -2 );// trice tool modified code for compilation
+    break; case __LINE__: TRice8M   ( 7960, "msg:value=%d, %d, %d\n", -1, -2, -3 );// trice tool modified code for compilation
+    break; case __LINE__: TRice8M   ( 1184, "msg:value=%d, %d, %d, %d\n", -1, -2, -3, -4 );// trice tool modified code for compilation
+    break; case __LINE__: TRice8M   ( 2873, "msg:value=%d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );// trice tool modified code for compilation
+    break; case __LINE__: TRice8M   ( 5861, "msg:value=%d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );// trice tool modified code for compilation
+    break; case __LINE__: TRice8M   ( 5563, "msg:value=%d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7 );// trice tool modified code for compilation
+    break; case __LINE__: TRice8M   ( 5122, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );// trice tool modified code for compilation
+    break; case __LINE__: TRice8M   ( 6832, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );// trice tool modified code for compilation
+    break; case __LINE__: TRice8M   ( 2527, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10 );// trice tool modified code for compilation
+    break; case __LINE__: TRice8M   ( 3931, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );// trice tool modified code for compilation
+    break; case __LINE__: TRice8M   ( 2412, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );// trice tool modified code for compilation
 
     break; case __LINE__: trice16_1 ( "msg:value=%d\n", -1 );// user written code
     break; case __LINE__: trice16_2 ( "msg:value=%d, %d\n", -1, -2 );// user written code
@@ -278,31 +348,31 @@ void TriceCheckSet(int index) {
     break; case __LINE__: trice16( "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );// user written code
     break; case __LINE__: trice16( "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );// user written code
 
-    break; case __LINE__: trice16_1_M ( 3421, "msg:value=%d\n", -1 );// trice tool modified code for compilation
-    break; case __LINE__: trice16_2_M ( 7538, "msg:value=%d, %d\n", -1, -2 );// trice tool modified code for compilation
-    break; case __LINE__: trice16_3_M ( 6976, "msg:value=%d, %d, %d\n", -1, -2, -3 );// trice tool modified code for compilation
-    break; case __LINE__: trice16_4_M ( 1249, "msg:value=%d, %d, %d, %d\n", -1, -2, -3, -4 );// trice tool modified code for compilation
-    break; case __LINE__: trice16_5_M ( 6240, "msg:value=%d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );// trice tool modified code for compilation
-    break; case __LINE__: trice16_6_M ( 3738, "msg:value=%d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );// trice tool modified code for compilation
-    break; case __LINE__: trice16_7_M ( 3372, "msg:value=%d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7 );// trice tool modified code for compilation
-    break; case __LINE__: trice16_8_M ( 6060, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );// trice tool modified code for compilation
-    break; case __LINE__: trice16_9_M ( 4052, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );// trice tool modified code for compilation
-    break; case __LINE__: trice16_10_M( 5619, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10 );// trice tool modified code for compilation
-    break; case __LINE__: trice16_11_M( 5053, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );// trice tool modified code for compilation
-    break; case __LINE__: trice16_12_M( 3971, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );// trice tool modified code for compilation
+    break; case __LINE__: trice16M_1 ( 3421, "msg:value=%d\n", -1 );// trice tool modified code for compilation
+    break; case __LINE__: trice16M_2 ( 7538, "msg:value=%d, %d\n", -1, -2 );// trice tool modified code for compilation
+    break; case __LINE__: trice16M_3 ( 6976, "msg:value=%d, %d, %d\n", -1, -2, -3 );// trice tool modified code for compilation
+    break; case __LINE__: trice16M_4 ( 1249, "msg:value=%d, %d, %d, %d\n", -1, -2, -3, -4 );// trice tool modified code for compilation
+    break; case __LINE__: trice16M_5 ( 6240, "msg:value=%d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );// trice tool modified code for compilation
+    break; case __LINE__: trice16M_6 ( 3738, "msg:value=%d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );// trice tool modified code for compilation
+    break; case __LINE__: trice16M_7 ( 3372, "msg:value=%d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7 );// trice tool modified code for compilation
+    break; case __LINE__: trice16M_8 ( 6060, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );// trice tool modified code for compilation
+    break; case __LINE__: trice16M_9 ( 4052, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );// trice tool modified code for compilation
+    break; case __LINE__: trice16M_10( 5619, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10 );// trice tool modified code for compilation
+    break; case __LINE__: trice16M_11( 5053, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );// trice tool modified code for compilation
+    break; case __LINE__: trice16M_12( 3971, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );// trice tool modified code for compilation
 
-    break; case __LINE__: trice16_M   ( 3421, "msg:value=%d\n", -1 );// trice tool modified code for compilation
-    break; case __LINE__: trice16_M   ( 7538, "msg:value=%d, %d\n", -1, -2 );// trice tool modified code for compilation
-    break; case __LINE__: trice16_M   ( 6976, "msg:value=%d, %d, %d\n", -1, -2, -3 );// trice tool modified code for compilation
-    break; case __LINE__: trice16_M   ( 1249, "msg:value=%d, %d, %d, %d\n", -1, -2, -3, -4 );// trice tool modified code for compilation
-    break; case __LINE__: trice16_M   ( 6240, "msg:value=%d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );// trice tool modified code for compilation
-    break; case __LINE__: trice16_M   ( 3738, "msg:value=%d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );// trice tool modified code for compilation
-    break; case __LINE__: trice16_M   ( 3372, "msg:value=%d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7 );// trice tool modified code for compilation
-    break; case __LINE__: trice16_M   ( 6060, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );// trice tool modified code for compilation
-    break; case __LINE__: trice16_M   ( 4052, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );// trice tool modified code for compilation
-    break; case __LINE__: trice16_M   ( 5619, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10 );// trice tool modified code for compilation
-    break; case __LINE__: trice16_M   ( 5053, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );// trice tool modified code for compilation
-    break; case __LINE__: trice16_M   ( 3971, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );// trice tool modified code for compilation
+    break; case __LINE__: trice16M   ( 3421, "msg:value=%d\n", -1 );// trice tool modified code for compilation
+    break; case __LINE__: trice16M   ( 7538, "msg:value=%d, %d\n", -1, -2 );// trice tool modified code for compilation
+    break; case __LINE__: trice16M   ( 6976, "msg:value=%d, %d, %d\n", -1, -2, -3 );// trice tool modified code for compilation
+    break; case __LINE__: trice16M   ( 1249, "msg:value=%d, %d, %d, %d\n", -1, -2, -3, -4 );// trice tool modified code for compilation
+    break; case __LINE__: trice16M   ( 6240, "msg:value=%d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );// trice tool modified code for compilation
+    break; case __LINE__: trice16M   ( 3738, "msg:value=%d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );// trice tool modified code for compilation
+    break; case __LINE__: trice16M   ( 3372, "msg:value=%d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7 );// trice tool modified code for compilation
+    break; case __LINE__: trice16M   ( 6060, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );// trice tool modified code for compilation
+    break; case __LINE__: trice16M   ( 4052, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );// trice tool modified code for compilation
+    break; case __LINE__: trice16M   ( 5619, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10 );// trice tool modified code for compilation
+    break; case __LINE__: trice16M   ( 5053, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );// trice tool modified code for compilation
+    break; case __LINE__: trice16M   ( 3971, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );// trice tool modified code for compilation
 
     break; case __LINE__: Trice16_1 ( "msg:value=%d\n", -1 );// user written code
     break; case __LINE__: Trice16_2 ( "msg:value=%d, %d\n", -1, -2 );// user written code
@@ -330,31 +400,31 @@ void TriceCheckSet(int index) {
     break; case __LINE__: Trice16( "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );// user written code
     break; case __LINE__: Trice16( "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );// user written code
     
-    break; case __LINE__: Trice16_1_M ( 3421, "msg:value=%d\n", -1 );// trice tool modified code for compilation
-    break; case __LINE__: Trice16_2_M ( 7538, "msg:value=%d, %d\n", -1, -2 );// trice tool modified code for compilation
-    break; case __LINE__: Trice16_3_M ( 6976, "msg:value=%d, %d, %d\n", -1, -2, -3 );// trice tool modified code for compilation
-    break; case __LINE__: Trice16_4_M ( 1249, "msg:value=%d, %d, %d, %d\n", -1, -2, -3, -4 );// trice tool modified code for compilation
-    break; case __LINE__: Trice16_5_M ( 6240, "msg:value=%d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );// trice tool modified code for compilation
-    break; case __LINE__: Trice16_6_M ( 3738, "msg:value=%d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );// trice tool modified code for compilation
-    break; case __LINE__: Trice16_7_M ( 3372, "msg:value=%d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7 );// trice tool modified code for compilation
-    break; case __LINE__: Trice16_8_M ( 6060, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );// trice tool modified code for compilation
-    break; case __LINE__: Trice16_9_M ( 4052, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );// trice tool modified code for compilation
-    break; case __LINE__: Trice16_10_M( 5619, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10 );// trice tool modified code for compilation
-    break; case __LINE__: Trice16_11_M( 5053, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );// trice tool modified code for compilation
-    break; case __LINE__: Trice16_12_M( 3971, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );// trice tool modified code for compilation
+    break; case __LINE__: Trice16M_1 ( 3421, "msg:value=%d\n", -1 );// trice tool modified code for compilation
+    break; case __LINE__: Trice16M_2 ( 7538, "msg:value=%d, %d\n", -1, -2 );// trice tool modified code for compilation
+    break; case __LINE__: Trice16M_3 ( 6976, "msg:value=%d, %d, %d\n", -1, -2, -3 );// trice tool modified code for compilation
+    break; case __LINE__: Trice16M_4 ( 1249, "msg:value=%d, %d, %d, %d\n", -1, -2, -3, -4 );// trice tool modified code for compilation
+    break; case __LINE__: Trice16M_5 ( 6240, "msg:value=%d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );// trice tool modified code for compilation
+    break; case __LINE__: Trice16M_6 ( 3738, "msg:value=%d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );// trice tool modified code for compilation
+    break; case __LINE__: Trice16M_7 ( 3372, "msg:value=%d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7 );// trice tool modified code for compilation
+    break; case __LINE__: Trice16M_8 ( 6060, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );// trice tool modified code for compilation
+    break; case __LINE__: Trice16M_9 ( 4052, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );// trice tool modified code for compilation
+    break; case __LINE__: Trice16M_10( 5619, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10 );// trice tool modified code for compilation
+    break; case __LINE__: Trice16M_11( 5053, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );// trice tool modified code for compilation
+    break; case __LINE__: Trice16M_12( 3971, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );// trice tool modified code for compilation
 
-    break; case __LINE__: Trice16_M   ( 3421, "msg:value=%d\n", -1 );// trice tool modified code for compilation
-    break; case __LINE__: Trice16_M   ( 7538, "msg:value=%d, %d\n", -1, -2 );// trice tool modified code for compilation
-    break; case __LINE__: Trice16_M   ( 6976, "msg:value=%d, %d, %d\n", -1, -2, -3 );// trice tool modified code for compilation
-    break; case __LINE__: Trice16_M   ( 1249, "msg:value=%d, %d, %d, %d\n", -1, -2, -3, -4 );// trice tool modified code for compilation
-    break; case __LINE__: Trice16_M   ( 6240, "msg:value=%d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );// trice tool modified code for compilation
-    break; case __LINE__: Trice16_M   ( 3738, "msg:value=%d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );// trice tool modified code for compilation
-    break; case __LINE__: Trice16_M   ( 3372, "msg:value=%d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7 );// trice tool modified code for compilation
-    break; case __LINE__: Trice16_M   ( 6060, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );// trice tool modified code for compilation
-    break; case __LINE__: Trice16_M   ( 4052, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );// trice tool modified code for compilation
-    break; case __LINE__: Trice16_M   ( 5619, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10 );// trice tool modified code for compilation
-    break; case __LINE__: Trice16_M   ( 5053, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );// trice tool modified code for compilation
-    break; case __LINE__: Trice16_M   ( 3971, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );// trice tool modified code for compilation
+    break; case __LINE__: Trice16M   ( 3421, "msg:value=%d\n", -1 );// trice tool modified code for compilation
+    break; case __LINE__: Trice16M   ( 7538, "msg:value=%d, %d\n", -1, -2 );// trice tool modified code for compilation
+    break; case __LINE__: Trice16M   ( 6976, "msg:value=%d, %d, %d\n", -1, -2, -3 );// trice tool modified code for compilation
+    break; case __LINE__: Trice16M   ( 1249, "msg:value=%d, %d, %d, %d\n", -1, -2, -3, -4 );// trice tool modified code for compilation
+    break; case __LINE__: Trice16M   ( 6240, "msg:value=%d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );// trice tool modified code for compilation
+    break; case __LINE__: Trice16M   ( 3738, "msg:value=%d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );// trice tool modified code for compilation
+    break; case __LINE__: Trice16M   ( 3372, "msg:value=%d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7 );// trice tool modified code for compilation
+    break; case __LINE__: Trice16M   ( 6060, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );// trice tool modified code for compilation
+    break; case __LINE__: Trice16M   ( 4052, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );// trice tool modified code for compilation
+    break; case __LINE__: Trice16M   ( 5619, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10 );// trice tool modified code for compilation
+    break; case __LINE__: Trice16M   ( 5053, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );// trice tool modified code for compilation
+    break; case __LINE__: Trice16M   ( 3971, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );// trice tool modified code for compilation
 
     break; case __LINE__: TRice16_1 ( "msg:value=%d\n", -1 );// user written code
     break; case __LINE__: TRice16_2 ( "msg:value=%d, %d\n", -1, -2 );// user written code
@@ -382,31 +452,31 @@ void TriceCheckSet(int index) {
     break; case __LINE__: TRice16( "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );// user written code
     break; case __LINE__: TRice16( "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );// user written code
 
-    break; case __LINE__: TRice16_1_M ( 3421, "msg:value=%d\n", -1 );// trice tool modified code for compilation
-    break; case __LINE__: TRice16_2_M ( 7538, "msg:value=%d, %d\n", -1, -2 );// trice tool modified code for compilation
-    break; case __LINE__: TRice16_3_M ( 6976, "msg:value=%d, %d, %d\n", -1, -2, -3 );// trice tool modified code for compilation
-    break; case __LINE__: TRice16_4_M ( 1249, "msg:value=%d, %d, %d, %d\n", -1, -2, -3, -4 );// trice tool modified code for compilation
-    break; case __LINE__: TRice16_5_M ( 6240, "msg:value=%d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );// trice tool modified code for compilation
-    break; case __LINE__: TRice16_6_M ( 3738, "msg:value=%d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );// trice tool modified code for compilation
-    break; case __LINE__: TRice16_7_M ( 3372, "msg:value=%d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7 );// trice tool modified code for compilation
-    break; case __LINE__: TRice16_8_M ( 6060, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );// trice tool modified code for compilation
-    break; case __LINE__: TRice16_9_M ( 4052, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );// trice tool modified code for compilation
-    break; case __LINE__: TRice16_10_M( 5619, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10 );// trice tool modified code for compilation
-    break; case __LINE__: TRice16_11_M( 5053, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );// trice tool modified code for compilation
-    break; case __LINE__: TRice16_12_M( 3971, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );// trice tool modified code for compilation
+    break; case __LINE__: TRice16M_1 ( 3421, "msg:value=%d\n", -1 );// trice tool modified code for compilation
+    break; case __LINE__: TRice16M_2 ( 7538, "msg:value=%d, %d\n", -1, -2 );// trice tool modified code for compilation
+    break; case __LINE__: TRice16M_3 ( 6976, "msg:value=%d, %d, %d\n", -1, -2, -3 );// trice tool modified code for compilation
+    break; case __LINE__: TRice16M_4 ( 1249, "msg:value=%d, %d, %d, %d\n", -1, -2, -3, -4 );// trice tool modified code for compilation
+    break; case __LINE__: TRice16M_5 ( 6240, "msg:value=%d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );// trice tool modified code for compilation
+    break; case __LINE__: TRice16M_6 ( 3738, "msg:value=%d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );// trice tool modified code for compilation
+    break; case __LINE__: TRice16M_7 ( 3372, "msg:value=%d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7 );// trice tool modified code for compilation
+    break; case __LINE__: TRice16M_8 ( 6060, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );// trice tool modified code for compilation
+    break; case __LINE__: TRice16M_9 ( 4052, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );// trice tool modified code for compilation
+    break; case __LINE__: TRice16M_10( 5619, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10 );// trice tool modified code for compilation
+    break; case __LINE__: TRice16M_11( 5053, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );// trice tool modified code for compilation
+    break; case __LINE__: TRice16M_12( 3971, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );// trice tool modified code for compilation
 
-    break; case __LINE__: TRice16_M   ( 3421, "msg:value=%d\n", -1 );// trice tool modified code for compilation
-    break; case __LINE__: TRice16_M   ( 7538, "msg:value=%d, %d\n", -1, -2 );// trice tool modified code for compilation
-    break; case __LINE__: TRice16_M   ( 6976, "msg:value=%d, %d, %d\n", -1, -2, -3 );// trice tool modified code for compilation
-    break; case __LINE__: TRice16_M   ( 1249, "msg:value=%d, %d, %d, %d\n", -1, -2, -3, -4 );// trice tool modified code for compilation
-    break; case __LINE__: TRice16_M   ( 6240, "msg:value=%d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );// trice tool modified code for compilation
-    break; case __LINE__: TRice16_M   ( 3738, "msg:value=%d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );// trice tool modified code for compilation
-    break; case __LINE__: TRice16_M   ( 3372, "msg:value=%d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7 );// trice tool modified code for compilation
-    break; case __LINE__: TRice16_M   ( 6060, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );// trice tool modified code for compilation
-    break; case __LINE__: TRice16_M   ( 4052, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );// trice tool modified code for compilation
-    break; case __LINE__: TRice16_M   ( 5619, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10 );// trice tool modified code for compilation
-    break; case __LINE__: TRice16_M   ( 5053, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );// trice tool modified code for compilation
-    break; case __LINE__: TRice16_M   ( 3971, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );// trice tool modified code for compilation
+    break; case __LINE__: TRice16M   ( 3421, "msg:value=%d\n", -1 );// trice tool modified code for compilation
+    break; case __LINE__: TRice16M   ( 7538, "msg:value=%d, %d\n", -1, -2 );// trice tool modified code for compilation
+    break; case __LINE__: TRice16M   ( 6976, "msg:value=%d, %d, %d\n", -1, -2, -3 );// trice tool modified code for compilation
+    break; case __LINE__: TRice16M   ( 1249, "msg:value=%d, %d, %d, %d\n", -1, -2, -3, -4 );// trice tool modified code for compilation
+    break; case __LINE__: TRice16M   ( 6240, "msg:value=%d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );// trice tool modified code for compilation
+    break; case __LINE__: TRice16M   ( 3738, "msg:value=%d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );// trice tool modified code for compilation
+    break; case __LINE__: TRice16M   ( 3372, "msg:value=%d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7 );// trice tool modified code for compilation
+    break; case __LINE__: TRice16M   ( 6060, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );// trice tool modified code for compilation
+    break; case __LINE__: TRice16M   ( 4052, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );// trice tool modified code for compilation
+    break; case __LINE__: TRice16M   ( 5619, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10 );// trice tool modified code for compilation
+    break; case __LINE__: TRice16M   ( 5053, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );// trice tool modified code for compilation
+    break; case __LINE__: TRice16M   ( 3971, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );// trice tool modified code for compilation
 
     break; case __LINE__: trice32_1 ( "msg:value=%d\n", -1 );// user written code
     break; case __LINE__: trice32_2 ( "msg:value=%d, %d\n", -1, -2 );// user written code
@@ -434,31 +504,31 @@ void TriceCheckSet(int index) {
     break; case __LINE__: trice32( "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );// user written code
     break; case __LINE__: trice32( "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );// user written code
 
-    break; case __LINE__: trice32_1_M ( 3712, "msg:value=%d\n", -1 );// trice tool modified code for compilation
-    break; case __LINE__: trice32_2_M ( 4275, "msg:value=%d, %d\n", -1, -2 );// trice tool modified code for compilation
-    break; case __LINE__: trice32_3_M ( 1846, "msg:value=%d, %d, %d\n", -1, -2, -3 );// trice tool modified code for compilation
-    break; case __LINE__: trice32_4_M ( 7155, "msg:value=%d, %d, %d, %d\n", -1, -2, -3, -4 );// trice tool modified code for compilation
-    break; case __LINE__: trice32_5_M ( 2705, "msg:value=%d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );// trice tool modified code for compilation
-    break; case __LINE__: trice32_6_M ( 3020, "msg:value=%d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );// trice tool modified code for compilation
-    break; case __LINE__: trice32_7_M ( 3760, "msg:value=%d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7 );// trice tool modified code for compilation
-    break; case __LINE__: trice32_8_M ( 1960, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );// trice tool modified code for compilation
-    break; case __LINE__: trice32_9_M ( 2025, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );// trice tool modified code for compilation
-    break; case __LINE__: trice32_10_M( 1559, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10 );// trice tool modified code for compilation
-    break; case __LINE__: trice32_11_M( 3457, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );// trice tool modified code for compilation
-    break; case __LINE__: trice32_12_M( 5347, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );// trice tool modified code for compilation
+    break; case __LINE__: trice32M_1 ( 3712, "msg:value=%d\n", -1 );// trice tool modified code for compilation
+    break; case __LINE__: trice32M_2 ( 4275, "msg:value=%d, %d\n", -1, -2 );// trice tool modified code for compilation
+    break; case __LINE__: trice32M_3 ( 1846, "msg:value=%d, %d, %d\n", -1, -2, -3 );// trice tool modified code for compilation
+    break; case __LINE__: trice32M_4 ( 7155, "msg:value=%d, %d, %d, %d\n", -1, -2, -3, -4 );// trice tool modified code for compilation
+    break; case __LINE__: trice32M_5 ( 2705, "msg:value=%d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );// trice tool modified code for compilation
+    break; case __LINE__: trice32M_6 ( 3020, "msg:value=%d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );// trice tool modified code for compilation
+    break; case __LINE__: trice32M_7 ( 3760, "msg:value=%d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7 );// trice tool modified code for compilation
+    break; case __LINE__: trice32M_8 ( 1960, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );// trice tool modified code for compilation
+    break; case __LINE__: trice32M_9 ( 2025, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );// trice tool modified code for compilation
+    break; case __LINE__: trice32M_10( 1559, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10 );// trice tool modified code for compilation
+    break; case __LINE__: trice32M_11( 3457, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );// trice tool modified code for compilation
+    break; case __LINE__: trice32M_12( 5347, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );// trice tool modified code for compilation
 
-    break; case __LINE__: trice32_M   ( 3712, "msg:value=%d\n", -1 );// trice tool modified code for compilation
-    break; case __LINE__: trice32_M   ( 4275, "msg:value=%d, %d\n", -1, -2 );// trice tool modified code for compilation
-    break; case __LINE__: trice32_M   ( 1846, "msg:value=%d, %d, %d\n", -1, -2, -3 );// trice tool modified code for compilation
-    break; case __LINE__: trice32_M   ( 7155, "msg:value=%d, %d, %d, %d\n", -1, -2, -3, -4 );// trice tool modified code for compilation
-    break; case __LINE__: trice32_M   ( 2705, "msg:value=%d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );// trice tool modified code for compilation
-    break; case __LINE__: trice32_M   ( 3020, "msg:value=%d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );// trice tool modified code for compilation
-    break; case __LINE__: trice32_M   ( 3760, "msg:value=%d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7 );// trice tool modified code for compilation
-    break; case __LINE__: trice32_M   ( 1960, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );// trice tool modified code for compilation
-    break; case __LINE__: trice32_M   ( 2025, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );// trice tool modified code for compilation
-    break; case __LINE__: trice32_M   ( 1559, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10 );// trice tool modified code for compilation
-    break; case __LINE__: trice32_M   ( 3457, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );// trice tool modified code for compilation
-    break; case __LINE__: trice32_M   ( 5347, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );// trice tool modified code for compilation
+    break; case __LINE__: trice32M   ( 3712, "msg:value=%d\n", -1 );// trice tool modified code for compilation
+    break; case __LINE__: trice32M   ( 4275, "msg:value=%d, %d\n", -1, -2 );// trice tool modified code for compilation
+    break; case __LINE__: trice32M   ( 1846, "msg:value=%d, %d, %d\n", -1, -2, -3 );// trice tool modified code for compilation
+    break; case __LINE__: trice32M   ( 7155, "msg:value=%d, %d, %d, %d\n", -1, -2, -3, -4 );// trice tool modified code for compilation
+    break; case __LINE__: trice32M   ( 2705, "msg:value=%d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );// trice tool modified code for compilation
+    break; case __LINE__: trice32M   ( 3020, "msg:value=%d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );// trice tool modified code for compilation
+    break; case __LINE__: trice32M   ( 3760, "msg:value=%d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7 );// trice tool modified code for compilation
+    break; case __LINE__: trice32M   ( 1960, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );// trice tool modified code for compilation
+    break; case __LINE__: trice32M   ( 2025, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );// trice tool modified code for compilation
+    break; case __LINE__: trice32M   ( 1559, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10 );// trice tool modified code for compilation
+    break; case __LINE__: trice32M   ( 3457, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );// trice tool modified code for compilation
+    break; case __LINE__: trice32M   ( 5347, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );// trice tool modified code for compilation
 
     break; case __LINE__: Trice32_1 ( "msg:value=%d\n", -1 );// user written code
     break; case __LINE__: Trice32_2 ( "msg:value=%d, %d\n", -1, -2 );// user written code
@@ -486,31 +556,31 @@ void TriceCheckSet(int index) {
     break; case __LINE__: Trice32( "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );// user written code
     break; case __LINE__: Trice32( "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );// user written code
 
-    break; case __LINE__: Trice32_1_M ( 3712, "msg:value=%d\n", -1 );// trice tool modified code for compilation
-    break; case __LINE__: Trice32_2_M ( 4275, "msg:value=%d, %d\n", -1, -2 );// trice tool modified code for compilation
-    break; case __LINE__: Trice32_3_M ( 1846, "msg:value=%d, %d, %d\n", -1, -2, -3 );// trice tool modified code for compilation
-    break; case __LINE__: Trice32_4_M ( 7155, "msg:value=%d, %d, %d, %d\n", -1, -2, -3, -4 );// trice tool modified code for compilation
-    break; case __LINE__: Trice32_5_M ( 2705, "msg:value=%d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );// trice tool modified code for compilation
-    break; case __LINE__: Trice32_6_M ( 3020, "msg:value=%d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );// trice tool modified code for compilation
-    break; case __LINE__: Trice32_7_M ( 3760, "msg:value=%d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7 );// trice tool modified code for compilation
-    break; case __LINE__: Trice32_8_M ( 1960, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );// trice tool modified code for compilation
-    break; case __LINE__: Trice32_9_M ( 2025, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );// trice tool modified code for compilation
-    break; case __LINE__: Trice32_10_M( 1559, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10 );// trice tool modified code for compilation
-    break; case __LINE__: Trice32_11_M( 3457, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );// trice tool modified code for compilation
-    break; case __LINE__: Trice32_12_M( 5347, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );// trice tool modified code for compilation
+    break; case __LINE__: Trice32M_1 ( 3712, "msg:value=%d\n", -1 );// trice tool modified code for compilation
+    break; case __LINE__: Trice32M_2 ( 4275, "msg:value=%d, %d\n", -1, -2 );// trice tool modified code for compilation
+    break; case __LINE__: Trice32M_3 ( 1846, "msg:value=%d, %d, %d\n", -1, -2, -3 );// trice tool modified code for compilation
+    break; case __LINE__: Trice32M_4 ( 7155, "msg:value=%d, %d, %d, %d\n", -1, -2, -3, -4 );// trice tool modified code for compilation
+    break; case __LINE__: Trice32M_5 ( 2705, "msg:value=%d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );// trice tool modified code for compilation
+    break; case __LINE__: Trice32M_6 ( 3020, "msg:value=%d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );// trice tool modified code for compilation
+    break; case __LINE__: Trice32M_7 ( 3760, "msg:value=%d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7 );// trice tool modified code for compilation
+    break; case __LINE__: Trice32M_8 ( 1960, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );// trice tool modified code for compilation
+    break; case __LINE__: Trice32M_9 ( 2025, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );// trice tool modified code for compilation
+    break; case __LINE__: Trice32M_10( 1559, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10 );// trice tool modified code for compilation
+    break; case __LINE__: Trice32M_11( 3457, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );// trice tool modified code for compilation
+    break; case __LINE__: Trice32M_12( 5347, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );// trice tool modified code for compilation
 
-    break; case __LINE__: Trice32_M   ( 3712, "msg:value=%d\n", -1 );// trice tool modified code for compilation
-    break; case __LINE__: Trice32_M   ( 4275, "msg:value=%d, %d\n", -1, -2 );// trice tool modified code for compilation
-    break; case __LINE__: Trice32_M   ( 1846, "msg:value=%d, %d, %d\n", -1, -2, -3 );// trice tool modified code for compilation
-    break; case __LINE__: Trice32_M   ( 7155, "msg:value=%d, %d, %d, %d\n", -1, -2, -3, -4 );// trice tool modified code for compilation
-    break; case __LINE__: Trice32_M   ( 2705, "msg:value=%d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );// trice tool modified code for compilation
-    break; case __LINE__: Trice32_M   ( 3020, "msg:value=%d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );// trice tool modified code for compilation
-    break; case __LINE__: Trice32_M   ( 3760, "msg:value=%d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7 );// trice tool modified code for compilation
-    break; case __LINE__: Trice32_M   ( 1960, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );// trice tool modified code for compilation
-    break; case __LINE__: Trice32_M   ( 2025, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );// trice tool modified code for compilation
-    break; case __LINE__: Trice32_M   ( 1559, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10 );// trice tool modified code for compilation
-    break; case __LINE__: Trice32_M   ( 3457, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );// trice tool modified code for compilation
-    break; case __LINE__: Trice32_M   ( 5347, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );// trice tool modified code for compilation
+    break; case __LINE__: Trice32M   ( 3712, "msg:value=%d\n", -1 );// trice tool modified code for compilation
+    break; case __LINE__: Trice32M   ( 4275, "msg:value=%d, %d\n", -1, -2 );// trice tool modified code for compilation
+    break; case __LINE__: Trice32M   ( 1846, "msg:value=%d, %d, %d\n", -1, -2, -3 );// trice tool modified code for compilation
+    break; case __LINE__: Trice32M   ( 7155, "msg:value=%d, %d, %d, %d\n", -1, -2, -3, -4 );// trice tool modified code for compilation
+    break; case __LINE__: Trice32M   ( 2705, "msg:value=%d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );// trice tool modified code for compilation
+    break; case __LINE__: Trice32M   ( 3020, "msg:value=%d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );// trice tool modified code for compilation
+    break; case __LINE__: Trice32M   ( 3760, "msg:value=%d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7 );// trice tool modified code for compilation
+    break; case __LINE__: Trice32M   ( 1960, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );// trice tool modified code for compilation
+    break; case __LINE__: Trice32M   ( 2025, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );// trice tool modified code for compilation
+    break; case __LINE__: Trice32M   ( 1559, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10 );// trice tool modified code for compilation
+    break; case __LINE__: Trice32M   ( 3457, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );// trice tool modified code for compilation
+    break; case __LINE__: Trice32M   ( 5347, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );// trice tool modified code for compilation
 
     break; case __LINE__: TRice32_1 ( "msg:value=%d\n", -1 );// user written code
     break; case __LINE__: TRice32_2 ( "msg:value=%d, %d\n", -1, -2 );// user written code
@@ -538,31 +608,31 @@ void TriceCheckSet(int index) {
     break; case __LINE__: TRice32( "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );// user written code
     break; case __LINE__: TRice32( "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );// user written code
 
-    break; case __LINE__: TRice32_1_M ( 3712, "msg:value=%d\n", -1 );// trice tool modified code for compilation
-    break; case __LINE__: TRice32_2_M ( 4275, "msg:value=%d, %d\n", -1, -2 );// trice tool modified code for compilation
-    break; case __LINE__: TRice32_3_M ( 1846, "msg:value=%d, %d, %d\n", -1, -2, -3 );// trice tool modified code for compilation
-    break; case __LINE__: TRice32_4_M ( 7155, "msg:value=%d, %d, %d, %d\n", -1, -2, -3, -4 );// trice tool modified code for compilation
-    break; case __LINE__: TRice32_5_M ( 2705, "msg:value=%d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );// trice tool modified code for compilation
-    break; case __LINE__: TRice32_6_M ( 3020, "msg:value=%d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );// trice tool modified code for compilation
-    break; case __LINE__: TRice32_7_M ( 3760, "msg:value=%d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7 );// trice tool modified code for compilation
-    break; case __LINE__: TRice32_8_M ( 1960, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );// trice tool modified code for compilation
-    break; case __LINE__: TRice32_9_M ( 2025, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );// trice tool modified code for compilation
-    break; case __LINE__: TRice32_10_M( 1559, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10 );// trice tool modified code for compilation
-    break; case __LINE__: TRice32_11_M( 3457, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );// trice tool modified code for compilation
-    break; case __LINE__: TRice32_12_M( 5347, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );// trice tool modified code for compilation
+    break; case __LINE__: TRice32M_1 ( 3712, "msg:value=%d\n", -1 );// trice tool modified code for compilation
+    break; case __LINE__: TRice32M_2 ( 4275, "msg:value=%d, %d\n", -1, -2 );// trice tool modified code for compilation
+    break; case __LINE__: TRice32M_3 ( 1846, "msg:value=%d, %d, %d\n", -1, -2, -3 );// trice tool modified code for compilation
+    break; case __LINE__: TRice32M_4 ( 7155, "msg:value=%d, %d, %d, %d\n", -1, -2, -3, -4 );// trice tool modified code for compilation
+    break; case __LINE__: TRice32M_5 ( 2705, "msg:value=%d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );// trice tool modified code for compilation
+    break; case __LINE__: TRice32M_6 ( 3020, "msg:value=%d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );// trice tool modified code for compilation
+    break; case __LINE__: TRice32M_7 ( 3760, "msg:value=%d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7 );// trice tool modified code for compilation
+    break; case __LINE__: TRice32M_8 ( 1960, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );// trice tool modified code for compilation
+    break; case __LINE__: TRice32M_9 ( 2025, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );// trice tool modified code for compilation
+    break; case __LINE__: TRice32M_10( 1559, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10 );// trice tool modified code for compilation
+    break; case __LINE__: TRice32M_11( 3457, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );// trice tool modified code for compilation
+    break; case __LINE__: TRice32M_12( 5347, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );// trice tool modified code for compilation
 
-    break; case __LINE__: TRice32_M   ( 3712, "msg:value=%d\n", -1 );// trice tool modified code for compilation
-    break; case __LINE__: TRice32_M   ( 4275, "msg:value=%d, %d\n", -1, -2 );// trice tool modified code for compilation
-    break; case __LINE__: TRice32_M   ( 1846, "msg:value=%d, %d, %d\n", -1, -2, -3 );// trice tool modified code for compilation
-    break; case __LINE__: TRice32_M   ( 7155, "msg:value=%d, %d, %d, %d\n", -1, -2, -3, -4 );// trice tool modified code for compilation
-    break; case __LINE__: TRice32_M   ( 2705, "msg:value=%d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );// trice tool modified code for compilation
-    break; case __LINE__: TRice32_M   ( 3020, "msg:value=%d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );// trice tool modified code for compilation
-    break; case __LINE__: TRice32_M   ( 3760, "msg:value=%d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7 );// trice tool modified code for compilation
-    break; case __LINE__: TRice32_M   ( 1960, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );// trice tool modified code for compilation
-    break; case __LINE__: TRice32_M   ( 2025, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );// trice tool modified code for compilation
-    break; case __LINE__: TRice32_M   ( 1559, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10 );// trice tool modified code for compilation
-    break; case __LINE__: TRice32_M   ( 3457, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );// trice tool modified code for compilation
-    break; case __LINE__: TRice32_M   ( 5347, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );// trice tool modified code for compilation
+    break; case __LINE__: TRice32M   ( 3712, "msg:value=%d\n", -1 );// trice tool modified code for compilation
+    break; case __LINE__: TRice32M   ( 4275, "msg:value=%d, %d\n", -1, -2 );// trice tool modified code for compilation
+    break; case __LINE__: TRice32M   ( 1846, "msg:value=%d, %d, %d\n", -1, -2, -3 );// trice tool modified code for compilation
+    break; case __LINE__: TRice32M   ( 7155, "msg:value=%d, %d, %d, %d\n", -1, -2, -3, -4 );// trice tool modified code for compilation
+    break; case __LINE__: TRice32M   ( 2705, "msg:value=%d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );// trice tool modified code for compilation
+    break; case __LINE__: TRice32M   ( 3020, "msg:value=%d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );// trice tool modified code for compilation
+    break; case __LINE__: TRice32M   ( 3760, "msg:value=%d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7 );// trice tool modified code for compilation
+    break; case __LINE__: TRice32M   ( 1960, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );// trice tool modified code for compilation
+    break; case __LINE__: TRice32M   ( 2025, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );// trice tool modified code for compilation
+    break; case __LINE__: TRice32M   ( 1559, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10 );// trice tool modified code for compilation
+    break; case __LINE__: TRice32M   ( 3457, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );// trice tool modified code for compilation
+    break; case __LINE__: TRice32M   ( 5347, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );// trice tool modified code for compilation
 
     break; case __LINE__: trice64_1 ( "msg:value=%d\n", -1 );// user written code
     break; case __LINE__: trice64_2 ( "msg:value=%d, %d\n", -1, -2 );// user written code
@@ -590,31 +660,31 @@ void TriceCheckSet(int index) {
     break; case __LINE__: trice64( "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );// user written code
     break; case __LINE__: trice64( "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );// user written code
 
-    break; case __LINE__: trice64_1_M ( 2563, "msg:value=%d\n", -1 );// trice tool modified code for compilation
-    break; case __LINE__: trice64_2_M ( 4590, "msg:value=%d, %d\n", -1, -2 );// trice tool modified code for compilation
-    break; case __LINE__: trice64_3_M ( 1279, "msg:value=%d, %d, %d\n", -1, -2, -3 );// trice tool modified code for compilation
-    break; case __LINE__: trice64_4_M ( 7030, "msg:value=%d, %d, %d, %d\n", -1, -2, -3, -4 );// trice tool modified code for compilation
-    break; case __LINE__: trice64_5_M ( 6420, "msg:value=%d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );// trice tool modified code for compilation
-    break; case __LINE__: trice64_6_M ( 5834, "msg:value=%d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );// trice tool modified code for compilation
-    break; case __LINE__: trice64_7_M ( 1307, "msg:value=%d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7 );// trice tool modified code for compilation
-    break; case __LINE__: trice64_8_M ( 1025, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );// trice tool modified code for compilation
-    break; case __LINE__: trice64_9_M ( 4086, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );// trice tool modified code for compilation
-    break; case __LINE__: trice64_10_M( 4476, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10 );// trice tool modified code for compilation
-    break; case __LINE__: trice64_11_M( 1609, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );// trice tool modified code for compilation
-    break; case __LINE__: trice64_12_M( 3071, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );// trice tool modified code for compilation
+    break; case __LINE__: trice64M_1 ( 2563, "msg:value=%d\n", -1 );// trice tool modified code for compilation
+    break; case __LINE__: trice64M_2 ( 4590, "msg:value=%d, %d\n", -1, -2 );// trice tool modified code for compilation
+    break; case __LINE__: trice64M_3 ( 1279, "msg:value=%d, %d, %d\n", -1, -2, -3 );// trice tool modified code for compilation
+    break; case __LINE__: trice64M_4 ( 7030, "msg:value=%d, %d, %d, %d\n", -1, -2, -3, -4 );// trice tool modified code for compilation
+    break; case __LINE__: trice64M_5 ( 6420, "msg:value=%d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );// trice tool modified code for compilation
+    break; case __LINE__: trice64M_6 ( 5834, "msg:value=%d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );// trice tool modified code for compilation
+    break; case __LINE__: trice64M_7 ( 1307, "msg:value=%d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7 );// trice tool modified code for compilation
+    break; case __LINE__: trice64M_8 ( 1025, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );// trice tool modified code for compilation
+    break; case __LINE__: trice64M_9 ( 4086, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );// trice tool modified code for compilation
+    break; case __LINE__: trice64M_10( 4476, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10 );// trice tool modified code for compilation
+    break; case __LINE__: trice64M_11( 1609, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );// trice tool modified code for compilation
+    break; case __LINE__: trice64M_12( 3071, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );// trice tool modified code for compilation
 
-    break; case __LINE__: trice64_M   ( 2563, "msg:value=%d\n", -1 );// trice tool modified code for compilation
-    break; case __LINE__: trice64_M   ( 4590, "msg:value=%d, %d\n", -1, -2 );// trice tool modified code for compilation
-    break; case __LINE__: trice64_M   ( 1279, "msg:value=%d, %d, %d\n", -1, -2, -3 );// trice tool modified code for compilation
-    break; case __LINE__: trice64_M   ( 7030, "msg:value=%d, %d, %d, %d\n", -1, -2, -3, -4 );// trice tool modified code for compilation
-    break; case __LINE__: trice64_M   ( 6420, "msg:value=%d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );// trice tool modified code for compilation
-    break; case __LINE__: trice64_M   ( 5834, "msg:value=%d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );// trice tool modified code for compilation
-    break; case __LINE__: trice64_M   ( 1307, "msg:value=%d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7 );// trice tool modified code for compilation
-    break; case __LINE__: trice64_M   ( 1025, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );// trice tool modified code for compilation
-    break; case __LINE__: trice64_M   ( 4086, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );// trice tool modified code for compilation
-    break; case __LINE__: trice64_M   ( 4476, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10 );// trice tool modified code for compilation
-    break; case __LINE__: trice64_M   ( 1609, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );// trice tool modified code for compilation
-    break; case __LINE__: trice64_M   ( 3071, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );// trice tool modified code for compilation
+    break; case __LINE__: trice64M   ( 2563, "msg:value=%d\n", -1 );// trice tool modified code for compilation
+    break; case __LINE__: trice64M   ( 4590, "msg:value=%d, %d\n", -1, -2 );// trice tool modified code for compilation
+    break; case __LINE__: trice64M   ( 1279, "msg:value=%d, %d, %d\n", -1, -2, -3 );// trice tool modified code for compilation
+    break; case __LINE__: trice64M   ( 7030, "msg:value=%d, %d, %d, %d\n", -1, -2, -3, -4 );// trice tool modified code for compilation
+    break; case __LINE__: trice64M   ( 6420, "msg:value=%d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );// trice tool modified code for compilation
+    break; case __LINE__: trice64M   ( 5834, "msg:value=%d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );// trice tool modified code for compilation
+    break; case __LINE__: trice64M   ( 1307, "msg:value=%d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7 );// trice tool modified code for compilation
+    break; case __LINE__: trice64M   ( 1025, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );// trice tool modified code for compilation
+    break; case __LINE__: trice64M   ( 4086, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );// trice tool modified code for compilation
+    break; case __LINE__: trice64M   ( 4476, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10 );// trice tool modified code for compilation
+    break; case __LINE__: trice64M   ( 1609, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );// trice tool modified code for compilation
+    break; case __LINE__: trice64M   ( 3071, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );// trice tool modified code for compilation
 
     break; case __LINE__: Trice64_1 ( "msg:value=%d\n", -1 );// user written code
     break; case __LINE__: Trice64_2 ( "msg:value=%d, %d\n", -1, -2 );// user written code
@@ -642,31 +712,31 @@ void TriceCheckSet(int index) {
     break; case __LINE__: Trice64( "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );// user written code
     break; case __LINE__: Trice64( "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );// user written code
 
-    break; case __LINE__: Trice64_1_M ( 2563, "msg:value=%d\n", -1 );// trice tool modified code for compilation
-    break; case __LINE__: Trice64_2_M ( 4590, "msg:value=%d, %d\n", -1, -2 );// trice tool modified code for compilation
-    break; case __LINE__: Trice64_3_M ( 1279, "msg:value=%d, %d, %d\n", -1, -2, -3 );// trice tool modified code for compilation
-    break; case __LINE__: Trice64_4_M ( 7030, "msg:value=%d, %d, %d, %d\n", -1, -2, -3, -4 );// trice tool modified code for compilation
-    break; case __LINE__: Trice64_5_M ( 6420, "msg:value=%d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );// trice tool modified code for compilation
-    break; case __LINE__: Trice64_6_M ( 5834, "msg:value=%d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );// trice tool modified code for compilation
-    break; case __LINE__: Trice64_7_M ( 1307, "msg:value=%d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7 );// trice tool modified code for compilation
-    break; case __LINE__: Trice64_8_M ( 1025, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );// trice tool modified code for compilation
-    break; case __LINE__: Trice64_9_M ( 4086, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );// trice tool modified code for compilation
-    break; case __LINE__: Trice64_10_M( 4476, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10 );// trice tool modified code for compilation
-    break; case __LINE__: Trice64_11_M( 1609, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );// trice tool modified code for compilation
-    break; case __LINE__: Trice64_12_M( 3071, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );// trice tool modified code for compilation
+    break; case __LINE__: Trice64M_1 ( 2563, "msg:value=%d\n", -1 );// trice tool modified code for compilation
+    break; case __LINE__: Trice64M_2 ( 4590, "msg:value=%d, %d\n", -1, -2 );// trice tool modified code for compilation
+    break; case __LINE__: Trice64M_3 ( 1279, "msg:value=%d, %d, %d\n", -1, -2, -3 );// trice tool modified code for compilation
+    break; case __LINE__: Trice64M_4 ( 7030, "msg:value=%d, %d, %d, %d\n", -1, -2, -3, -4 );// trice tool modified code for compilation
+    break; case __LINE__: Trice64M_5 ( 6420, "msg:value=%d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );// trice tool modified code for compilation
+    break; case __LINE__: Trice64M_6 ( 5834, "msg:value=%d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );// trice tool modified code for compilation
+    break; case __LINE__: Trice64M_7 ( 1307, "msg:value=%d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7 );// trice tool modified code for compilation
+    break; case __LINE__: Trice64M_8 ( 1025, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );// trice tool modified code for compilation
+    break; case __LINE__: Trice64M_9 ( 4086, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );// trice tool modified code for compilation
+    break; case __LINE__: Trice64M_10( 4476, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10 );// trice tool modified code for compilation
+    break; case __LINE__: Trice64M_11( 1609, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );// trice tool modified code for compilation
+    break; case __LINE__: Trice64M_12( 3071, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );// trice tool modified code for compilation
 
-    break; case __LINE__: Trice64_M   ( 2563, "msg:value=%d\n", -1 );// trice tool modified code for compilation
-    break; case __LINE__: Trice64_M   ( 4590, "msg:value=%d, %d\n", -1, -2 );// trice tool modified code for compilation
-    break; case __LINE__: Trice64_M   ( 1279, "msg:value=%d, %d, %d\n", -1, -2, -3 );// trice tool modified code for compilation
-    break; case __LINE__: Trice64_M   ( 7030, "msg:value=%d, %d, %d, %d\n", -1, -2, -3, -4 );// trice tool modified code for compilation
-    break; case __LINE__: Trice64_M   ( 6420, "msg:value=%d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );// trice tool modified code for compilation
-    break; case __LINE__: Trice64_M   ( 5834, "msg:value=%d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );// trice tool modified code for compilation
-    break; case __LINE__: Trice64_M   ( 1307, "msg:value=%d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7 );// trice tool modified code for compilation
-    break; case __LINE__: Trice64_M   ( 1025, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );// trice tool modified code for compilation
-    break; case __LINE__: Trice64_M   ( 4086, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );// trice tool modified code for compilation
-    break; case __LINE__: Trice64_M   ( 4476, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10 );// trice tool modified code for compilation
-    break; case __LINE__: Trice64_M   ( 1609, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );// trice tool modified code for compilation
-    break; case __LINE__: Trice64_M   ( 3071, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );// trice tool modified code for compilation
+    break; case __LINE__: Trice64M   ( 2563, "msg:value=%d\n", -1 );// trice tool modified code for compilation
+    break; case __LINE__: Trice64M   ( 4590, "msg:value=%d, %d\n", -1, -2 );// trice tool modified code for compilation
+    break; case __LINE__: Trice64M   ( 1279, "msg:value=%d, %d, %d\n", -1, -2, -3 );// trice tool modified code for compilation
+    break; case __LINE__: Trice64M   ( 7030, "msg:value=%d, %d, %d, %d\n", -1, -2, -3, -4 );// trice tool modified code for compilation
+    break; case __LINE__: Trice64M   ( 6420, "msg:value=%d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );// trice tool modified code for compilation
+    break; case __LINE__: Trice64M   ( 5834, "msg:value=%d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );// trice tool modified code for compilation
+    break; case __LINE__: Trice64M   ( 1307, "msg:value=%d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7 );// trice tool modified code for compilation
+    break; case __LINE__: Trice64M   ( 1025, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );// trice tool modified code for compilation
+    break; case __LINE__: Trice64M   ( 4086, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );// trice tool modified code for compilation
+    break; case __LINE__: Trice64M   ( 4476, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10 );// trice tool modified code for compilation
+    break; case __LINE__: Trice64M   ( 1609, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );// trice tool modified code for compilation
+    break; case __LINE__: Trice64M   ( 3071, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );// trice tool modified code for compilation
 
     break; case __LINE__: TRice64_1 ( "msg:value=%d\n", -1 );// user written code
     break; case __LINE__: TRice64_2 ( "msg:value=%d, %d\n", -1, -2 );// user written code
@@ -694,31 +764,31 @@ void TriceCheckSet(int index) {
     break; case __LINE__: TRice64( "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );// user written code
     break; case __LINE__: TRice64( "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );// user written code
 
-    break; case __LINE__: TRice64_1_M ( 2563, "msg:value=%d\n", -1 );// trice tool modified code for compilation
-    break; case __LINE__: TRice64_2_M ( 4590, "msg:value=%d, %d\n", -1, -2 );// trice tool modified code for compilation
-    break; case __LINE__: TRice64_3_M ( 1279, "msg:value=%d, %d, %d\n", -1, -2, -3 );// trice tool modified code for compilation
-    break; case __LINE__: TRice64_4_M ( 7030, "msg:value=%d, %d, %d, %d\n", -1, -2, -3, -4 );// trice tool modified code for compilation
-    break; case __LINE__: TRice64_5_M ( 6420, "msg:value=%d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );// trice tool modified code for compilation
-    break; case __LINE__: TRice64_6_M ( 5834, "msg:value=%d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );// trice tool modified code for compilation
-    break; case __LINE__: TRice64_7_M ( 1307, "msg:value=%d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7 );// trice tool modified code for compilation
-    break; case __LINE__: TRice64_8_M ( 1025, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );// trice tool modified code for compilation
-    break; case __LINE__: TRice64_9_M ( 4086, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );// trice tool modified code for compilation
-    break; case __LINE__: TRice64_10_M( 4476, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10 );// trice tool modified code for compilation
-    break; case __LINE__: TRice64_11_M( 1609, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );// trice tool modified code for compilation
-    break; case __LINE__: TRice64_12_M( 3071, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );// trice tool modified code for compilation
+    break; case __LINE__: TRice64M_1 ( 2563, "msg:value=%d\n", -1 );// trice tool modified code for compilation
+    break; case __LINE__: TRice64M_2 ( 4590, "msg:value=%d, %d\n", -1, -2 );// trice tool modified code for compilation
+    break; case __LINE__: TRice64M_3 ( 1279, "msg:value=%d, %d, %d\n", -1, -2, -3 );// trice tool modified code for compilation
+    break; case __LINE__: TRice64M_4 ( 7030, "msg:value=%d, %d, %d, %d\n", -1, -2, -3, -4 );// trice tool modified code for compilation
+    break; case __LINE__: TRice64M_5 ( 6420, "msg:value=%d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );// trice tool modified code for compilation
+    break; case __LINE__: TRice64M_6 ( 5834, "msg:value=%d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );// trice tool modified code for compilation
+    break; case __LINE__: TRice64M_7 ( 1307, "msg:value=%d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7 );// trice tool modified code for compilation
+    break; case __LINE__: TRice64M_8 ( 1025, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );// trice tool modified code for compilation
+    break; case __LINE__: TRice64M_9 ( 4086, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );// trice tool modified code for compilation
+    break; case __LINE__: TRice64M_10( 4476, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10 );// trice tool modified code for compilation
+    break; case __LINE__: TRice64M_11( 1609, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );// trice tool modified code for compilation
+    break; case __LINE__: TRice64M_12( 3071, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );// trice tool modified code for compilation
 
-    break; case __LINE__: TRice64_M   ( 2563, "msg:value=%d\n", -1 );// trice tool modified code for compilation
-    break; case __LINE__: TRice64_M   ( 4590, "msg:value=%d, %d\n", -1, -2 );// trice tool modified code for compilation
-    break; case __LINE__: TRice64_M   ( 1279, "msg:value=%d, %d, %d\n", -1, -2, -3 );// trice tool modified code for compilation
-    break; case __LINE__: TRice64_M   ( 7030, "msg:value=%d, %d, %d, %d\n", -1, -2, -3, -4 );// trice tool modified code for compilation
-    break; case __LINE__: TRice64_M   ( 6420, "msg:value=%d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );// trice tool modified code for compilation
-    break; case __LINE__: TRice64_M   ( 5834, "msg:value=%d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );// trice tool modified code for compilation
-    break; case __LINE__: TRice64_M   ( 1307, "msg:value=%d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7 );// trice tool modified code for compilation
-    break; case __LINE__: TRice64_M   ( 1025, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );// trice tool modified code for compilation
-    break; case __LINE__: TRice64_M   ( 4086, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );// trice tool modified code for compilation
-    break; case __LINE__: TRice64_M   ( 4476, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10 );// trice tool modified code for compilation
-    break; case __LINE__: TRice64_M   ( 1609, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );// trice tool modified code for compilation
-    break; case __LINE__: TRice64_M   ( 3071, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );// trice tool modified code for compilation
+    break; case __LINE__: TRice64M   ( 2563, "msg:value=%d\n", -1 );// trice tool modified code for compilation
+    break; case __LINE__: TRice64M   ( 4590, "msg:value=%d, %d\n", -1, -2 );// trice tool modified code for compilation
+    break; case __LINE__: TRice64M   ( 1279, "msg:value=%d, %d, %d\n", -1, -2, -3 );// trice tool modified code for compilation
+    break; case __LINE__: TRice64M   ( 7030, "msg:value=%d, %d, %d, %d\n", -1, -2, -3, -4 );// trice tool modified code for compilation
+    break; case __LINE__: TRice64M   ( 6420, "msg:value=%d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );// trice tool modified code for compilation
+    break; case __LINE__: TRice64M   ( 5834, "msg:value=%d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );// trice tool modified code for compilation
+    break; case __LINE__: TRice64M   ( 1307, "msg:value=%d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7 );// trice tool modified code for compilation
+    break; case __LINE__: TRice64M   ( 1025, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );// trice tool modified code for compilation
+    break; case __LINE__: TRice64M   ( 4086, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );// trice tool modified code for compilation
+    break; case __LINE__: TRice64M   ( 4476, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10 );// trice tool modified code for compilation
+    break; case __LINE__: TRice64M   ( 1609, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );// trice tool modified code for compilation
+    break; case __LINE__: TRice64M   ( 3071, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );// trice tool modified code for compilation
 
     break; case __LINE__:
     break; case __LINE__: { 

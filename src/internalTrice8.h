@@ -2,21 +2,13 @@
 \author thomas.hoehenleitner [at] seerose.net
 *******************************************************************************/
 
-#define TRICE8(  tid,fmt, ...) TRICE_COUNT(__VA_ARGS__,TRICE8_12,  TRICE8_11,  TRICE8_10,  TRICE8_9,  TRICE8_8,  TRICE8_7,  TRICE8_6,  TRICE8_5,  TRICE8_4,  TRICE8_3,  TRICE8_2,  TRICE8_1)(  tid,fmt, __VA_ARGS__)
-#define trice8(      fmt, ...) TRICE_COUNT(__VA_ARGS__,trice8_12,  trice8_11,  trice8_10,  trice8_9,  trice8_8,  trice8_7,  trice8_6,  trice8_5,  trice8_4,  trice8_3,  trice8_2,  trice8_1)(      fmt, __VA_ARGS__)
-
-//! trice8_M is a macro expanded to trice8_n_M acording to the parameter count, calling a function to reduce code size, this way avoiding code inlining.
-//! trice8_M is inserted by the trice tool for compilation in the folloeing manner (spaces not important):
-//! - user written code: `trice8(         "msg:value=%d\n", -1 );`
-//! - modified code:     `trice8_M( 7009, "msg:value=%d\n", -1 );`
-//! - user written code: `trice8(         "msg:value=%d, %d\n", -1, -2 );`
-//! - modified code:     `trice8_M( 7009, "msg:value=%d, %d\n", -1, -2 );`
-//! - ...
-#define trice8_M(tid,fmt, ...) TRICE_COUNT(__VA_ARGS__,trice8_12_M,trice8_11_M,trice8_10_M,trice8_9_M,trice8_8_M,trice8_7_M,trice8_6_M,trice8_5_M,trice8_4_M,trice8_3_M,trice8_2_M,trice8_1_M)(tid,fmt, __VA_ARGS__)
-#define Trice8(      fmt, ...) TRICE_COUNT(__VA_ARGS__,Trice8_12,  Trice8_11,  Trice8_10,  Trice8_9,  Trice8_8,  Trice8_7,  Trice8_6,  Trice8_5,  Trice8_4,  Trice8_3,  Trice8_2,  Trice8_1)(      fmt, __VA_ARGS__)
-#define Trice8_M(tid,fmt, ...) TRICE_COUNT(__VA_ARGS__,Trice8_12_M,Trice8_11_M,Trice8_10_M,Trice8_9_M,Trice8_8_M,Trice8_7_M,Trice8_6_M,Trice8_5_M,Trice8_4_M,Trice8_3_M,Trice8_2_M,Trice8_1_M)(tid,fmt, __VA_ARGS__)
-#define TRice8(      fmt, ...) TRICE_COUNT(__VA_ARGS__,TRice8_12,  TRice8_11,  TRice8_10,  TRice8_9,  TRice8_8,  TRice8_7,  TRice8_6,  TRice8_5,  TRice8_4,  TRice8_3,  TRice8_2,  TRice8_1)(      fmt, __VA_ARGS__)
-#define TRice8_M(tid,fmt, ...) TRICE_COUNT(__VA_ARGS__,TRice8_12_M,TRice8_11_M,TRice8_10_M,TRice8_9_M,TRice8_8_M,TRice8_7_M,TRice8_6_M,TRice8_5_M,TRice8_4_M,TRice8_3_M,TRice8_2_M,TRice8_1_M)(tid,fmt, __VA_ARGS__)
+#define TRICE8(  tid, fmt, ...) CONCAT2(TRICE8_,  COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
+#define trice8(       fmt, ...) CONCAT2(trice8_,  COUNT_ARGUMENTS(__VA_ARGS__))(     fmt, ##__VA_ARGS__)
+#define Trice8(       fmt, ...) CONCAT2(Trice8_,  COUNT_ARGUMENTS(__VA_ARGS__))(     fmt, ##__VA_ARGS__)
+#define TRice8(       fmt, ...) CONCAT2(TRice8_,  COUNT_ARGUMENTS(__VA_ARGS__))(     fmt, ##__VA_ARGS__)
+#define trice8M( tid, fmt, ...) CONCAT2(trice8M_, COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
+#define Trice8M( tid, fmt, ...) CONCAT2(trice8M_, COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
+#define TRice8M( tid, fmt, ...) CONCAT2(trice8M_, COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
 
 //!TRICE8_B expects inside pFmt only one format specifier, which is used n times by using pFmt n times.
 //! It is usable for showing n 8-bit values.
@@ -163,7 +155,7 @@
 
 //! trice8_1 is an empty macro. It is used as a place holder, which is replaced for compilation in this way:
 //! - user written code: `trice8_1(         "msg:value=%d\n", -1 );`
-//! - modified code:     `trice8_1_M( 7009, "msg:value=%d\n", -1 );`
+//! - modified code:     `trice8M_1( 7009, "msg:value=%d\n", -1 );`
 #define trice8_1( fmt, v0 )
 
 #define trice8_2( fmt, v0, v1 ) //!< trice8_2 is an empty macro
@@ -178,111 +170,106 @@
 #define trice8_11( fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10 ) //!< trice8_11 is an empty macro
 #define trice8_12( fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 ) //!< trice8_12 is an empty macro
 
-//! trice8_1_m writes trice data as fast as possible in a buffer.
+//! trice8m_1 writes trice data as fast as possible in a buffer.
 //! \param id is a 16 bit Trice id in upper 2 bytes of a 32 bit value
 //! \param v0 a 8 bit bit value
-#define trice8_1_m( tid, v0 ) \
+#define trice8m_1( tid, v0 ) \
     TRICE_ENTER \
     TRICE_PUT( (1<<24) | ((TRICE_CYCLE)<<16) | (0x4000|(tid)) ); \
     TRICE_PUT8_1( v0 ) \
     TRICE_LEAVE
 
-#define trice8_2_m( tid, v0, v1 ) \
+#define trice8m_2( tid, v0, v1 ) \
     TRICE_ENTER \
     TRICE_PUT( (2<<24) | ((TRICE_CYCLE)<<16) | (0x4000|(tid)) ); \
     TRICE_PUT8_2( v0, v1); \
     TRICE_LEAVE
 
-#define trice8_3_m( tid, v0, v1, v2 ) \
+#define trice8m_3( tid, v0, v1, v2 ) \
     TRICE_ENTER \
     TRICE_PUT( (3<<24) | ((TRICE_CYCLE)<<16) | (0x4000|(tid)) ); \
     TRICE_PUT8_3 ( v0, v1, v2 ); \
     TRICE_LEAVE
 
-#define trice8_4_m( tid, v0, v1, v2, v3 ) \
+#define trice8m_4( tid, v0, v1, v2, v3 ) \
     TRICE_ENTER \
     TRICE_PUT( (4<<24) | ((TRICE_CYCLE)<<16) | (0x4000|(tid)) ); \
     TRICE_PUT8_4( v0, v1, v2, v3 ); \
     TRICE_LEAVE
 
-#define trice8_5_m( tid, v0, v1, v2, v3, v4 ) \
+#define trice8m_5( tid, v0, v1, v2, v3, v4 ) \
     TRICE_ENTER \
     TRICE_PUT( (5<<24) | ((TRICE_CYCLE)<<16) | (0x4000|(tid)) ); \
     TRICE_PUT8_5( v0, v1, v2, v3, v4 ); \
     TRICE_LEAVE
 
-#define trice8_6_m( tid, v0, v1, v2, v3, v4, v5 ) \
+#define trice8m_6( tid, v0, v1, v2, v3, v4, v5 ) \
     TRICE_ENTER \
     TRICE_PUT( (6<<24) | ((TRICE_CYCLE)<<16) | (0x4000|(tid)) ); \
     TRICE_PUT8_6( v0, v1, v2, v3, v4, v5 ); \
     TRICE_LEAVE
 
-#define trice8_7_m( tid, v0, v1, v2, v3, v4, v5, v6 ) \
+#define trice8m_7( tid, v0, v1, v2, v3, v4, v5, v6 ) \
     TRICE_ENTER \
     TRICE_PUT( (7<<24) | ((TRICE_CYCLE)<<16) | (0x4000|(tid)) ); \
     TRICE_PUT8_7( v0, v1, v2, v3, v4, v5, v6 ); \
     TRICE_LEAVE
 
-#define trice8_8_m( tid, v0, v1, v2, v3, v4, v5, v6, v7 ) \
+#define trice8m_8( tid, v0, v1, v2, v3, v4, v5, v6, v7 ) \
     TRICE_ENTER \
     TRICE_PUT( (8<<24) | ((TRICE_CYCLE)<<16) | (0x4000|(tid)) ); \
     TRICE_PUT8_8( v0, v1, v2, v3, v4, v5, v6, v7 ); \
     TRICE_LEAVE
 
-#define trice8_9_m( tid, v0, v1, v2, v3, v4, v5, v6, v7, v8 ) \
+#define trice8m_9( tid, v0, v1, v2, v3, v4, v5, v6, v7, v8 ) \
     TRICE_ENTER \
     TRICE_PUT( (9<<24) | ((TRICE_CYCLE)<<16) | (0x4000|(tid)) ); \
     TRICE_PUT8_9( v0, v1, v2, v3, v4, v5, v6, v7, v8 ); \
     TRICE_LEAVE
 
-#define trice8_10_m( tid, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9 ) \
+#define trice8m_10( tid, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9 ) \
     TRICE_ENTER \
     TRICE_PUT( (10<<24) | ((TRICE_CYCLE)<<16) | (0x4000|(tid)) ); \
     TRICE_PUT8_10( v0, v1, v2, v3, v4, v5, v6, v7, v8, v9 ); \
     TRICE_LEAVE
 
-#define trice8_11_m( tid, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10 ) \
+#define trice8m_11( tid, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10 ) \
     TRICE_ENTER \
     TRICE_PUT( (11<<24) | ((TRICE_CYCLE)<<16) | (0x4000|(tid)) ); \
     TRICE_PUT8_11( v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10 ); \
     TRICE_LEAVE
 
-#define trice8_12_m( tid, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 ) \
+#define trice8m_12( tid, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 ) \
     TRICE_ENTER \
     TRICE_PUT( (12<<24) | ((TRICE_CYCLE)<<16) | (0x4000|(tid)) ); \
     TRICE_PUT8_12( v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 ) \
     TRICE_LEAVE
 
-//! trice8_1_M is a macro calling a function to reduce code size, this way avoiding code inlining.
-//! trice8_1_M is inserted by the trice tool for compilation in the folloeing manner (spaces not important):
-//! - user written code: `trice8_1(         "msg:value=%d\n", -1 );`
-//! - modified code:     `trice8_1_M( 7009, "msg:value=%d\n", -1 );`
-#define trice8_1_M( tid,  fmt, v0 ) trice8_1_fn( tid,  (uint8_t)(v0) )
+#define trice8M_1( tid,  fmt, v0 ) trice8fn_1( tid,  (uint8_t)(v0) ) //!< trice8M_1 is a macro calling a function to reduce code size, this way avoiding code inlining.
+#define trice8M_2( tid,  fmt, v0, v1 ) trice8fn_2( tid,  (uint8_t)(v0), (uint8_t)(v1) ) //!< trice8M_2 ia macro calling a function to reduce code size, this way avoiding code inlining.
+#define trice8M_3( tid,  fmt, v0, v1, v2 ) trice8fn_3( tid,  (uint8_t)(v0), (uint8_t)(v1), (uint8_t)(v2) ) //!< trice8M_3 ia macro calling a function to reduce code size, this way avoiding code inlining.
+#define trice8M_4( tid,  fmt, v0, v1, v2, v3 ) trice8fn_4( tid,  (uint8_t)(v0), (uint8_t)(v1), (uint8_t)(v2), (uint8_t)(v3) ) //!< trice8M_4 ia macro calling a function to reduce code size, this way avoiding code inlining.
+#define trice8M_5( tid,  fmt, v0, v1, v2, v3, v4 ) trice8fn_5( tid,  (uint8_t)v0, (uint8_t)(v1), (uint8_t)(v2), (uint8_t)(v3), (uint8_t)(v4) ) //!< trice8M_5 ia macro calling a function to reduce code size, this way avoiding code inlining.
+#define trice8M_6( tid,  fmt, v0, v1, v2, v3, v4, v5 ) trice8fn_6( tid,  (uint8_t)(v0), (uint8_t)(v1), (uint8_t)(v2), (uint8_t)(v3), (uint8_t)(v4), (uint8_t)(v5) ) //!< trice8M_6 ia macro calling a function to reduce code size, this way avoiding code inlining.
+#define trice8M_7( tid,  fmt, v0, v1, v2, v3, v4, v5, v6 ) trice8fn_7( tid,  (uint8_t)(v0), (uint8_t)(v1), (uint8_t)(v2), (uint8_t)(v3), (uint8_t)(v4), (uint8_t)(v5), (uint8_t)(v6) ) //!< trice8M_7 ia macro calling a function to reduce code size, this way avoiding code inlining.
+#define trice8M_8( tid,  fmt, v0, v1, v2, v3, v4, v5, v6, v7 ) trice8fn_8( tid,  (uint8_t)(v0), (uint8_t)(v1), (uint8_t)(v2), (uint8_t)(v3), (uint8_t)(v4), (uint8_t)(v5), (uint8_t)(v6), (uint8_t)(v7) ) //!< trice8M_8 ia macro calling a function to reduce code size, this way avoiding code inlining.
+#define trice8M_9( tid,  fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8 ) trice8fn_9( tid, (uint8_t)(v0), (uint8_t)(v1), (uint8_t)(v2), (uint8_t)(v3), (uint8_t)(v4), (uint8_t)(v5), (uint8_t)(v6), (uint8_t)(v7), (uint8_t)(v8) ) //!< trice8M_9 ia macro calling a function to reduce code size, this way avoiding code inlining.
+#define trice8M_10( tid, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9 ) trice8fn_10( tid, (uint8_t)(v0), (uint8_t)(v1), (uint8_t)(v2), (uint8_t)(v3), (uint8_t)(v4), (uint8_t)(v5), (uint8_t)(v6), (uint8_t)(v7), (uint8_t)(v8), (uint8_t)(v9) ) //!< trice8M_10 ia macro calling a function to reduce code size, this way avoiding code inlining.
+#define trice8M_11( tid, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10 ) trice8fn_11( tid, (uint8_t)(v0), (uint8_t)(v1), (uint8_t)(v2), (uint8_t)(v3), (uint8_t)(v4), (uint8_t)(v5), (uint8_t)(v6), (uint8_t)(v7), (uint8_t)(v8), (uint8_t)(v9), (uint8_t)(v10) ) //!< trice8M_1M ia macro calling a function to reduce code size, this way avoiding code inlining.
+#define trice8M_12( tid, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 ) trice8fn_12( tid, (uint8_t)(v0), (uint8_t)(v1), (uint8_t)(v2), (uint8_t)(v3), (uint8_t)(v4), (uint8_t)(v5), (uint8_t)(v6), (uint8_t)(v7), (uint8_t)(v8), (uint8_t)(v9), (uint8_t)(v10), (uint8_t)(v11) ) //!< trice8M_12 ia macro calling a function to reduce code size, this way avoiding code inlining.
 
-#define trice8_2_M( tid,  fmt, v0, v1 ) trice8_2_fn( tid,  (uint8_t)(v0), (uint8_t)(v1) ) //!< trice8_2_M is a macro calling a function to reduce code size.
-#define trice8_3_M( tid,  fmt, v0, v1, v2 ) trice8_3_fn( tid,  (uint8_t)(v0), (uint8_t)(v1), (uint8_t)(v2) ) //!< trice8_3_M is a macro calling a function to reduce code size.
-#define trice8_4_M( tid,  fmt, v0, v1, v2, v3 ) trice8_4_fn( tid,  (uint8_t)(v0), (uint8_t)(v1), (uint8_t)(v2), (uint8_t)(v3) ) //!< trice8_4_M is a macro calling a function to reduce code size.
-#define trice8_5_M( tid,  fmt, v0, v1, v2, v3, v4 ) trice8_5_fn( tid,  (uint8_t)v0, (uint8_t)(v1), (uint8_t)(v2), (uint8_t)(v3), (uint8_t)(v4) ) //!< trice8_5_M is a macro calling a function to reduce code size.
-#define trice8_6_M( tid,  fmt, v0, v1, v2, v3, v4, v5 ) trice8_6_fn( tid,  (uint8_t)(v0), (uint8_t)(v1), (uint8_t)(v2), (uint8_t)(v3), (uint8_t)(v4), (uint8_t)(v5) ) //!< trice8_6_M is a macro calling a function to reduce code size.
-#define trice8_7_M( tid,  fmt, v0, v1, v2, v3, v4, v5, v6 ) trice8_7_fn( tid,  (uint8_t)(v0), (uint8_t)(v1), (uint8_t)(v2), (uint8_t)(v3), (uint8_t)(v4), (uint8_t)(v5), (uint8_t)(v6) ) //!< trice8_7_M is a macro calling a function to reduce code size.
-#define trice8_8_M( tid,  fmt, v0, v1, v2, v3, v4, v5, v6, v7 ) trice8_8_fn( tid,  (uint8_t)(v0), (uint8_t)(v1), (uint8_t)(v2), (uint8_t)(v3), (uint8_t)(v4), (uint8_t)(v5), (uint8_t)(v6), (uint8_t)(v7) ) //!< trice8_8_M is a macro calling a function to reduce code size.
-#define trice8_9_M( tid,  fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8 ) trice8_9_fn( tid, (uint8_t)(v0), (uint8_t)(v1), (uint8_t)(v2), (uint8_t)(v3), (uint8_t)(v4), (uint8_t)(v5), (uint8_t)(v6), (uint8_t)(v7), (uint8_t)(v8) ) //!< trice8_9_M is a macro calling a function to reduce code size.
-#define trice8_10_M( tid, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9 ) trice8_10_fn( tid, (uint8_t)(v0), (uint8_t)(v1), (uint8_t)(v2), (uint8_t)(v3), (uint8_t)(v4), (uint8_t)(v5), (uint8_t)(v6), (uint8_t)(v7), (uint8_t)(v8), (uint8_t)(v9) ) //!< trice8_10_M is a macro calling a function to reduce code size.
-#define trice8_11_M( tid, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10 ) trice8_11_fn( tid, (uint8_t)(v0), (uint8_t)(v1), (uint8_t)(v2), (uint8_t)(v3), (uint8_t)(v4), (uint8_t)(v5), (uint8_t)(v6), (uint8_t)(v7), (uint8_t)(v8), (uint8_t)(v9), (uint8_t)(v10) ) //!< trice8_11_M is a macro calling a function to reduce code size.
-#define trice8_12_M( tid, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 ) trice8_12_fn( tid, (uint8_t)(v0), (uint8_t)(v1), (uint8_t)(v2), (uint8_t)(v3), (uint8_t)(v4), (uint8_t)(v5), (uint8_t)(v6), (uint8_t)(v7), (uint8_t)(v8), (uint8_t)(v9), (uint8_t)(v10), (uint8_t)(v11) ) //!< trice8_12_M is a macro calling a function to reduce code size.
-
-void trice8_1_fn( uint16_t tid,  uint8_t v0 );
-void trice8_2_fn( uint16_t tid,  uint8_t v0, uint8_t v1 );
-void trice8_3_fn( uint16_t tid,  uint8_t v0, uint8_t v1, uint8_t v2 );
-void trice8_4_fn( uint16_t tid,  uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3 );
-void trice8_5_fn( uint16_t tid,  uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4 );
-void trice8_6_fn( uint16_t tid,  uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4, uint8_t v5 );
-void trice8_7_fn( uint16_t tid,  uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4, uint8_t v5, uint8_t v6 );
-void trice8_8_fn( uint16_t tid,  uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4, uint8_t v5, uint8_t v6, uint8_t v7 );
-void trice8_9_fn( uint16_t tid,  uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4, uint8_t v5, uint8_t v6, uint8_t v7, uint8_t v8 );
-void trice8_10_fn( uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4, uint8_t v5, uint8_t v6, uint8_t v7, uint8_t v8, uint8_t v9 );
-void trice8_11_fn( uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4, uint8_t v5, uint8_t v6, uint8_t v7, uint8_t v8, uint8_t v9, uint8_t v10 );
-void trice8_12_fn( uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4, uint8_t v5, uint8_t v6, uint8_t v7, uint8_t v8, uint8_t v9, uint8_t v10, uint8_t v11 );
+void trice8fn_1( uint16_t tid,  uint8_t v0 );
+void trice8fn_2( uint16_t tid,  uint8_t v0, uint8_t v1 );
+void trice8fn_3( uint16_t tid,  uint8_t v0, uint8_t v1, uint8_t v2 );
+void trice8fn_4( uint16_t tid,  uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3 );
+void trice8fn_5( uint16_t tid,  uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4 );
+void trice8fn_6( uint16_t tid,  uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4, uint8_t v5 );
+void trice8fn_7( uint16_t tid,  uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4, uint8_t v5, uint8_t v6 );
+void trice8fn_8( uint16_t tid,  uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4, uint8_t v5, uint8_t v6, uint8_t v7 );
+void trice8fn_9( uint16_t tid,  uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4, uint8_t v5, uint8_t v6, uint8_t v7, uint8_t v8 );
+void trice8fn_10( uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4, uint8_t v5, uint8_t v6, uint8_t v7, uint8_t v8, uint8_t v9 );
+void trice8fn_11( uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4, uint8_t v5, uint8_t v6, uint8_t v7, uint8_t v8, uint8_t v9, uint8_t v10 );
+void trice8fn_12( uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4, uint8_t v5, uint8_t v6, uint8_t v7, uint8_t v8, uint8_t v9, uint8_t v10, uint8_t v11 );
 
 #define Trice8_1( fmt, v0 ) //!< Trice8_1 is an empty macro
 #define Trice8_2( fmt, v0, v1 ) //!< Trice8_2 is an empty macro
@@ -297,10 +284,10 @@ void trice8_12_fn( uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3,
 #define Trice8_11( fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10 ) //!< Trice8_11 is an empty macro
 #define Trice8_12( fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 ) //!< Trice8_12 is an empty macro
 
-//! Trice8_1_m writes trice data as fast as possible in a buffer.
+//! Trice8m_1 writes trice data as fast as possible in a buffer.
 //! \param id is a 16 bit Trice id in upper 2 bytes of a 32 bit value
 //! \param v0 a 8 bit bit value
-#define Trice8_1_m( tid, v0 ) \
+#define Trice8m_1( tid, v0 ) \
     TRICE_ENTER \
     uint16_t ts = TriceStamp16(); \
     TRICE_PUT(0x80008000|(tid<<16)|tid); \
@@ -308,7 +295,7 @@ void trice8_12_fn( uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3,
     TRICE_PUT8_1( v0 ) \
     TRICE_LEAVE
 
-#define Trice8_2_m( tid, v0, v1 ) \
+#define Trice8m_2( tid, v0, v1 ) \
     TRICE_ENTER \
     uint16_t ts = TriceStamp16(); \
     TRICE_PUT(0x80008000|(tid<<16)|tid); \
@@ -316,7 +303,7 @@ void trice8_12_fn( uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3,
     TRICE_PUT8_2( v0, v1); \
     TRICE_LEAVE
 
-#define Trice8_3_m( tid, v0, v1, v2 ) \
+#define Trice8m_3( tid, v0, v1, v2 ) \
     TRICE_ENTER \
     uint16_t ts = TriceStamp16(); \
     TRICE_PUT(0x80008000|(tid<<16)|tid); \
@@ -324,7 +311,7 @@ void trice8_12_fn( uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3,
     TRICE_PUT8_3 ( v0, v1, v2 ); \
     TRICE_LEAVE
 
-#define Trice8_4_m( tid, v0, v1, v2, v3 ) \
+#define Trice8m_4( tid, v0, v1, v2, v3 ) \
     TRICE_ENTER \
     uint16_t ts = TriceStamp16(); \
     TRICE_PUT(0x80008000|(tid<<16)|tid); \
@@ -332,7 +319,7 @@ void trice8_12_fn( uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3,
     TRICE_PUT8_4( v0, v1, v2, v3 ); \
     TRICE_LEAVE
 
-#define Trice8_5_m( tid, v0, v1, v2, v3, v4 ) \
+#define Trice8m_5( tid, v0, v1, v2, v3, v4 ) \
     TRICE_ENTER \
     uint16_t ts = TriceStamp16(); \
     TRICE_PUT(0x80008000|(tid<<16)|tid); \
@@ -340,7 +327,7 @@ void trice8_12_fn( uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3,
     TRICE_PUT8_5( v0, v1, v2, v3, v4 ); \
     TRICE_LEAVE
 
-#define Trice8_6_m( tid, v0, v1, v2, v3, v4, v5 ) \
+#define Trice8m_6( tid, v0, v1, v2, v3, v4, v5 ) \
     TRICE_ENTER \
     uint16_t ts = TriceStamp16(); \
     TRICE_PUT(0x80008000|(tid<<16)|tid); \
@@ -348,7 +335,7 @@ void trice8_12_fn( uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3,
     TRICE_PUT8_6( v0, v1, v2, v3, v4, v5 ); \
     TRICE_LEAVE
 
-#define Trice8_7_m( tid, v0, v1, v2, v3, v4, v5, v6 ) \
+#define Trice8m_7( tid, v0, v1, v2, v3, v4, v5, v6 ) \
     TRICE_ENTER \
     uint16_t ts = TriceStamp16(); \
     TRICE_PUT(0x80008000|(tid<<16)|tid); \
@@ -356,7 +343,7 @@ void trice8_12_fn( uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3,
     TRICE_PUT8_7( v0, v1, v2, v3, v4, v5, v6 ); \
     TRICE_LEAVE
 
-#define Trice8_8_m( tid, v0, v1, v2, v3, v4, v5, v6, v7 ) \
+#define Trice8m_8( tid, v0, v1, v2, v3, v4, v5, v6, v7 ) \
     TRICE_ENTER \
     uint16_t ts = TriceStamp16(); \
     TRICE_PUT(0x80008000|(tid<<16)|tid); \
@@ -364,7 +351,7 @@ void trice8_12_fn( uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3,
     TRICE_PUT8_8( v0, v1, v2, v3, v4, v5, v6, v7 ); \
     TRICE_LEAVE
 
-#define Trice8_9_m( tid, v0, v1, v2, v3, v4, v5, v6, v7, v8 ) \
+#define Trice8m_9( tid, v0, v1, v2, v3, v4, v5, v6, v7, v8 ) \
     TRICE_ENTER \
     uint16_t ts = TriceStamp16(); \
     TRICE_PUT(0x80008000|(tid<<16)|tid); \
@@ -372,7 +359,7 @@ void trice8_12_fn( uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3,
     TRICE_PUT8_9( v0, v1, v2, v3, v4, v5, v6, v7, v8 ); \
     TRICE_LEAVE
 
-#define Trice8_10_m( tid, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9 ) \
+#define Trice8m_10( tid, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9 ) \
     TRICE_ENTER \
     uint16_t ts = TriceStamp16(); \
     TRICE_PUT(0x80008000|(tid<<16)|tid); \
@@ -380,7 +367,7 @@ void trice8_12_fn( uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3,
     TRICE_PUT8_10( v0, v1, v2, v3, v4, v5, v6, v7, v8, v9 ); \
     TRICE_LEAVE
 
-#define Trice8_11_m( tid, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10 ) \
+#define Trice8m_11( tid, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10 ) \
     TRICE_ENTER \
     uint16_t ts = TriceStamp16(); \
     TRICE_PUT(0x80008000|(tid<<16)|tid); \
@@ -388,7 +375,7 @@ void trice8_12_fn( uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3,
     TRICE_PUT8_11( v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10 ); \
     TRICE_LEAVE
 
-#define Trice8_12_m( tid, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 ) \
+#define Trice8m_12( tid, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 ) \
     TRICE_ENTER \
     uint16_t ts = TriceStamp16(); \
     TRICE_PUT(0x80008000|(tid<<16)|tid); \
@@ -396,35 +383,31 @@ void trice8_12_fn( uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3,
     TRICE_PUT8_12( v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 ) \
     TRICE_LEAVE
 
-#define Trice8_1_M( tid,  fmt, v0 ) Trice8_1_fn( tid,  (uint8_t)(v0) ) //!< Trice8_1_M is a macro calling a function to reduce code size.
-#define Trice8_2_M( tid,  fmt, v0, v1 ) Trice8_2_fn( tid,  (uint8_t)(v0), (uint8_t)(v1) ) //!< Trice8_2_M is a macro calling a function to reduce code size.
-#define Trice8_3_M( tid,  fmt, v0, v1, v2 ) Trice8_3_fn( tid,  (uint8_t)(v0), (uint8_t)(v1), (uint8_t)(v2) ) //!< Trice8_3_M is a macro calling a function to reduce code size.
-#define Trice8_4_M( tid,  fmt, v0, v1, v2, v3 ) Trice8_4_fn( tid,  (uint8_t)(v0), (uint8_t)(v1), (uint8_t)(v2), (uint8_t)(v3) ) //!< Trice8_4_M is a macro calling a function to reduce code size.
-#define Trice8_5_M( tid,  fmt, v0, v1, v2, v3, v4 ) Trice8_5_fn( tid,  (uint8_t)v0, (uint8_t)(v1), (uint8_t)(v2), (uint8_t)(v3), (uint8_t)(v4) ) //!< Trice8_5_M is a macro calling a function to reduce code size.
-#define Trice8_6_M( tid,  fmt, v0, v1, v2, v3, v4, v5 ) Trice8_6_fn( tid,  (uint8_t)(v0), (uint8_t)(v1), (uint8_t)(v2), (uint8_t)(v3), (uint8_t)(v4), (uint8_t)(v5) ) //!< Trice8_6_M is a macro calling a function to reduce code size.
-#define Trice8_7_M( tid,  fmt, v0, v1, v2, v3, v4, v5, v6 ) Trice8_7_fn( tid,  (uint8_t)(v0), (uint8_t)(v1), (uint8_t)(v2), (uint8_t)(v3), (uint8_t)(v4), (uint8_t)(v5), (uint8_t)(v6) ) //!< Trice8_7_M is a macro calling a function to reduce code size.
-#define Trice8_8_M( tid,  fmt, v0, v1, v2, v3, v4, v5, v6, v7 ) Trice8_8_fn( tid,  (uint8_t)(v0), (uint8_t)(v1), (uint8_t)(v2), (uint8_t)(v3), (uint8_t)(v4), (uint8_t)(v5), (uint8_t)(v6), (uint8_t)(v7) ) //!< Trice8_8_M is a macro calling a function to reduce code size.
-#define Trice8_9_M( tid,  fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8 ) Trice8_9_fn( tid, (uint8_t)(v0), (uint8_t)(v1), (uint8_t)(v2), (uint8_t)(v3), (uint8_t)(v4), (uint8_t)(v5), (uint8_t)(v6), (uint8_t)(v7), (uint8_t)(v8) ) //!< Trice8_9_M is a macro calling a function to reduce code size.
-#define Trice8_10_M( tid, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9 ) Trice8_10_fn( tid, (uint8_t)(v0), (uint8_t)(v1), (uint8_t)(v2), (uint8_t)(v3), (uint8_t)(v4), (uint8_t)(v5), (uint8_t)(v6), (uint8_t)(v7), (uint8_t)(v8), (uint8_t)(v9) ) //!< Trice8_10_M is a macro calling a function to reduce code size.
-#define Trice8_11_M( tid, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10 ) Trice8_11_fn( tid, (uint8_t)(v0), (uint8_t)(v1), (uint8_t)(v2), (uint8_t)(v3), (uint8_t)(v4), (uint8_t)(v5), (uint8_t)(v6), (uint8_t)(v7), (uint8_t)(v8), (uint8_t)(v9), (uint8_t)(v10) ) //!< Trice8_11_M is a macro calling a function to reduce code size.
-#define Trice8_12_M( tid, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 ) Trice8_12_fn( tid, (uint8_t)(v0), (uint8_t)(v1), (uint8_t)(v2), (uint8_t)(v3), (uint8_t)(v4), (uint8_t)(v5), (uint8_t)(v6), (uint8_t)(v7), (uint8_t)(v8), (uint8_t)(v9), (uint8_t)(v10), (uint8_t)(v11) ) //!< Trice8_12_M is a macro calling a function to reduce code size.
+#define Trice8M_1( tid,  fmt, v0 ) Trice8fn_1( tid,  (uint8_t)(v0) ) //!< Trice8M_1 ia macro calling a function to reduce code size, this way avoiding code inlining.
+#define Trice8M_2( tid,  fmt, v0, v1 ) Trice8fn_2( tid,  (uint8_t)(v0), (uint8_t)(v1) ) //!< Trice8M_2 ia macro calling a function to reduce code size, this way avoiding code inlining.
+#define Trice8M_3( tid,  fmt, v0, v1, v2 ) Trice8fn_3( tid,  (uint8_t)(v0), (uint8_t)(v1), (uint8_t)(v2) ) //!< Trice8M_3 ia macro calling a function to reduce code size, this way avoiding code inlining.
+#define Trice8M_4( tid,  fmt, v0, v1, v2, v3 ) Trice8fn_4( tid,  (uint8_t)(v0), (uint8_t)(v1), (uint8_t)(v2), (uint8_t)(v3) ) //!< Trice8M_4 ia macro calling a function to reduce code size, this way avoiding code inlining.
+#define Trice8M_5( tid,  fmt, v0, v1, v2, v3, v4 ) Trice8fn_5( tid,  (uint8_t)v0, (uint8_t)(v1), (uint8_t)(v2), (uint8_t)(v3), (uint8_t)(v4) ) //!< Trice8M_5 ia macro calling a function to reduce code size, this way avoiding code inlining.
+#define Trice8M_6( tid,  fmt, v0, v1, v2, v3, v4, v5 ) Trice8fn_6( tid,  (uint8_t)(v0), (uint8_t)(v1), (uint8_t)(v2), (uint8_t)(v3), (uint8_t)(v4), (uint8_t)(v5) ) //!< Trice8M_6 ia macro calling a function to reduce code size, this way avoiding code inlining.
+#define Trice8M_7( tid,  fmt, v0, v1, v2, v3, v4, v5, v6 ) Trice8fn_7( tid,  (uint8_t)(v0), (uint8_t)(v1), (uint8_t)(v2), (uint8_t)(v3), (uint8_t)(v4), (uint8_t)(v5), (uint8_t)(v6) ) //!< Trice8M_7 ia macro calling a function to reduce code size, this way avoiding code inlining.
+#define Trice8M_8( tid,  fmt, v0, v1, v2, v3, v4, v5, v6, v7 ) Trice8fn_8( tid,  (uint8_t)(v0), (uint8_t)(v1), (uint8_t)(v2), (uint8_t)(v3), (uint8_t)(v4), (uint8_t)(v5), (uint8_t)(v6), (uint8_t)(v7) ) //!< Trice8M_8 ia macro calling a function to reduce code size, this way avoiding code inlining.
+#define Trice8M_9( tid,  fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8 ) Trice8fn_9( tid, (uint8_t)(v0), (uint8_t)(v1), (uint8_t)(v2), (uint8_t)(v3), (uint8_t)(v4), (uint8_t)(v5), (uint8_t)(v6), (uint8_t)(v7), (uint8_t)(v8) ) //!< Trice8M_9 ia macro calling a function to reduce code size, this way avoiding code inlining.
+#define Trice8M_10( tid, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9 ) Trice8fn_10( tid, (uint8_t)(v0), (uint8_t)(v1), (uint8_t)(v2), (uint8_t)(v3), (uint8_t)(v4), (uint8_t)(v5), (uint8_t)(v6), (uint8_t)(v7), (uint8_t)(v8), (uint8_t)(v9) ) //!< Trice8M_10 ia macro calling a function to reduce code size, this way avoiding code inlining.
+#define Trice8M_11( tid, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10 ) Trice8fn_11( tid, (uint8_t)(v0), (uint8_t)(v1), (uint8_t)(v2), (uint8_t)(v3), (uint8_t)(v4), (uint8_t)(v5), (uint8_t)(v6), (uint8_t)(v7), (uint8_t)(v8), (uint8_t)(v9), (uint8_t)(v10) ) //!< Trice8M_11 ia macro calling a function to reduce code size, this way avoiding code inlining.
+#define Trice8M_12( tid, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 ) Trice8fn_12( tid, (uint8_t)(v0), (uint8_t)(v1), (uint8_t)(v2), (uint8_t)(v3), (uint8_t)(v4), (uint8_t)(v5), (uint8_t)(v6), (uint8_t)(v7), (uint8_t)(v8), (uint8_t)(v9), (uint8_t)(v10), (uint8_t)(v11) ) //!< Trice8M_12 ia macro calling a function to reduce code size, this way avoiding code inlining.
 
-void Trice8_1_fn( uint16_t tid,  uint8_t v0 );
-void Trice8_2_fn( uint16_t tid,  uint8_t v0, uint8_t v1 );
-void Trice8_3_fn( uint16_t tid,  uint8_t v0, uint8_t v1, uint8_t v2 );
-void Trice8_4_fn( uint16_t tid,  uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3 );
-void Trice8_5_fn( uint16_t tid,  uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4 );
-void Trice8_6_fn( uint16_t tid,  uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4, uint8_t v5 );
-void Trice8_7_fn( uint16_t tid,  uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4, uint8_t v5, uint8_t v6 );
-void Trice8_8_fn( uint16_t tid,  uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4, uint8_t v5, uint8_t v6, uint8_t v7 );
-void Trice8_9_fn( uint16_t tid,  uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4, uint8_t v5, uint8_t v6, uint8_t v7, uint8_t v8 );
-void Trice8_10_fn( uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4, uint8_t v5, uint8_t v6, uint8_t v7, uint8_t v8, uint8_t v9 );
-void Trice8_11_fn( uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4, uint8_t v5, uint8_t v6, uint8_t v7, uint8_t v8, uint8_t v9, uint8_t v10 );
-void Trice8_12_fn( uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4, uint8_t v5, uint8_t v6, uint8_t v7, uint8_t v8, uint8_t v9, uint8_t v10, uint8_t v11 );
-
-
-
-
+void Trice8fn_1( uint16_t tid,  uint8_t v0 );
+void Trice8fn_2( uint16_t tid,  uint8_t v0, uint8_t v1 );
+void Trice8fn_3( uint16_t tid,  uint8_t v0, uint8_t v1, uint8_t v2 );
+void Trice8fn_4( uint16_t tid,  uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3 );
+void Trice8fn_5( uint16_t tid,  uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4 );
+void Trice8fn_6( uint16_t tid,  uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4, uint8_t v5 );
+void Trice8fn_7( uint16_t tid,  uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4, uint8_t v5, uint8_t v6 );
+void Trice8fn_8( uint16_t tid,  uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4, uint8_t v5, uint8_t v6, uint8_t v7 );
+void Trice8fn_9( uint16_t tid,  uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4, uint8_t v5, uint8_t v6, uint8_t v7, uint8_t v8 );
+void Trice8fn_10( uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4, uint8_t v5, uint8_t v6, uint8_t v7, uint8_t v8, uint8_t v9 );
+void Trice8fn_11( uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4, uint8_t v5, uint8_t v6, uint8_t v7, uint8_t v8, uint8_t v9, uint8_t v10 );
+void Trice8fn_12( uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4, uint8_t v5, uint8_t v6, uint8_t v7, uint8_t v8, uint8_t v9, uint8_t v10, uint8_t v11 );
 
 #define TRice8_1( fmt, v0 ) //!< TRice8_1 is an empty macro
 #define TRice8_2( fmt, v0, v1 ) //!< TRice8_2 is an empty macro
@@ -439,10 +422,10 @@ void Trice8_12_fn( uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3,
 #define TRice8_11( fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10 ) //!< TRice8_11 is an empty macro
 #define TRice8_12( fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 ) //!< TRice8_12 is an empty macro
 
-//! TRice8_1_m writes trice data as fast as possible in a buffer.
+//! TRice8m_1 writes trice data as fast as possible in a buffer.
 //! \param id is a 14 bit Trice id in upper 2 bytes of a 32 bit value
 //! \param v0 a 8 bit bit value
-#define TRice8_1_m( tid, v0 ) \
+#define TRice8m_1( tid, v0 ) \
     TRICE_ENTER \
     uint32_t ts = TRICE_HTOTL(TriceStamp32()); \
     TRICE_PUT((ts<<16) | 0xc000 | tid); \
@@ -450,7 +433,7 @@ void Trice8_12_fn( uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3,
     TRICE_PUT8_1( v0 ) \
     TRICE_LEAVE
 
-#define TRice8_2_m( tid, v0, v1 ) \
+#define TRice8m_2( tid, v0, v1 ) \
     TRICE_ENTER \
     uint32_t ts = TRICE_HTOTL(TriceStamp32()); \
     TRICE_PUT((ts<<16) | 0xc000 | tid); \
@@ -458,7 +441,7 @@ void Trice8_12_fn( uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3,
     TRICE_PUT8_2( v0, v1); \
     TRICE_LEAVE
 
-#define TRice8_3_m( tid, v0, v1, v2 ) \
+#define TRice8m_3( tid, v0, v1, v2 ) \
     TRICE_ENTER \
     uint32_t ts = TRICE_HTOTL(TriceStamp32()); \
     TRICE_PUT((ts<<16) | 0xc000 | tid); \
@@ -466,7 +449,7 @@ void Trice8_12_fn( uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3,
     TRICE_PUT8_3 ( v0, v1, v2 ); \
     TRICE_LEAVE
 
-#define TRice8_4_m( tid, v0, v1, v2, v3 ) \
+#define TRice8m_4( tid, v0, v1, v2, v3 ) \
     TRICE_ENTER \
     uint32_t ts = TRICE_HTOTL(TriceStamp32()); \
     TRICE_PUT((ts<<16) | 0xc000 | tid); \
@@ -474,7 +457,7 @@ void Trice8_12_fn( uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3,
     TRICE_PUT8_4( v0, v1, v2, v3 ); \
     TRICE_LEAVE
 
-#define TRice8_5_m( tid, v0, v1, v2, v3, v4 ) \
+#define TRice8m_5( tid, v0, v1, v2, v3, v4 ) \
     TRICE_ENTER \
     uint32_t ts = TRICE_HTOTL(TriceStamp32()); \
     TRICE_PUT((ts<<16) | 0xc000 | tid); \
@@ -482,7 +465,7 @@ void Trice8_12_fn( uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3,
     TRICE_PUT8_5( v0, v1, v2, v3, v4 ); \
     TRICE_LEAVE
 
-#define TRice8_6_m( tid, v0, v1, v2, v3, v4, v5 ) \
+#define TRice8m_6( tid, v0, v1, v2, v3, v4, v5 ) \
     TRICE_ENTER \
     uint32_t ts = TRICE_HTOTL(TriceStamp32()); \
     TRICE_PUT((ts<<16) | 0xc000 | tid); \
@@ -490,7 +473,7 @@ void Trice8_12_fn( uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3,
     TRICE_PUT8_6( v0, v1, v2, v3, v4, v5 ); \
     TRICE_LEAVE
 
-#define TRice8_7_m( tid, v0, v1, v2, v3, v4, v5, v6 ) \
+#define TRice8m_7( tid, v0, v1, v2, v3, v4, v5, v6 ) \
     TRICE_ENTER \
     uint32_t ts = TRICE_HTOTL(TriceStamp32()); \
     TRICE_PUT((ts<<16) | 0xc000 | tid); \
@@ -498,7 +481,7 @@ void Trice8_12_fn( uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3,
     TRICE_PUT8_7( v0, v1, v2, v3, v4, v5, v6 ); \
     TRICE_LEAVE
 
-#define TRice8_8_m( tid, v0, v1, v2, v3, v4, v5, v6, v7 ) \
+#define TRice8m_8( tid, v0, v1, v2, v3, v4, v5, v6, v7 ) \
     TRICE_ENTER \
     uint32_t ts = TRICE_HTOTL(TriceStamp32()); \
     TRICE_PUT((ts<<16) | 0xc000 | tid); \
@@ -506,7 +489,7 @@ void Trice8_12_fn( uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3,
     TRICE_PUT8_8( v0, v1, v2, v3, v4, v5, v6, v7 ); \
     TRICE_LEAVE
 
-#define TRice8_9_m( tid, v0, v1, v2, v3, v4, v5, v6, v7, v8 ) \
+#define TRice8m_9( tid, v0, v1, v2, v3, v4, v5, v6, v7, v8 ) \
     TRICE_ENTER \
     uint32_t ts = TRICE_HTOTL(TriceStamp32()); \
     TRICE_PUT((ts<<16) | 0xc000 | tid); \
@@ -514,7 +497,7 @@ void Trice8_12_fn( uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3,
     TRICE_PUT8_9( v0, v1, v2, v3, v4, v5, v6, v7, v8 ); \
     TRICE_LEAVE
 
-#define TRice8_10_m( tid, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9 ) \
+#define TRice8m_10( tid, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9 ) \
     TRICE_ENTER \
     uint32_t ts = TRICE_HTOTL(TriceStamp32()); \
     TRICE_PUT((ts<<16) | 0xc000 | tid); \
@@ -522,7 +505,7 @@ void Trice8_12_fn( uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3,
     TRICE_PUT8_10( v0, v1, v2, v3, v4, v5, v6, v7, v8, v9 ); \
     TRICE_LEAVE
 
-#define TRice8_11_m( tid, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10 ) \
+#define TRice8m_11( tid, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10 ) \
     TRICE_ENTER \
     uint32_t ts = TRICE_HTOTL(TriceStamp32()); \
     TRICE_PUT((ts<<16) | 0xc000 | tid); \
@@ -530,7 +513,7 @@ void Trice8_12_fn( uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3,
     TRICE_PUT8_11( v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10 ); \
     TRICE_LEAVE
 
-#define TRice8_12_m( tid, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 ) \
+#define TRice8m_12( tid, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 ) \
     TRICE_ENTER \
     uint32_t ts = TRICE_HTOTL(TriceStamp32()); \
     TRICE_PUT((ts<<16) | 0xc000 | tid); \
@@ -538,31 +521,31 @@ void Trice8_12_fn( uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3,
     TRICE_PUT8_12( v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 ) \
     TRICE_LEAVE
 
-#define TRice8_1_M( tid,  fmt, v0 ) TRice8_1_fn( tid,  (uint8_t)(v0) ) //!< TRice8_1_M is a macro calling a function to reduce code size.
-#define TRice8_2_M( tid,  fmt, v0, v1 ) TRice8_2_fn( tid,  (uint8_t)(v0), (uint8_t)(v1) ) //!< TRice8_2_M is a macro calling a function to reduce code size.
-#define TRice8_3_M( tid,  fmt, v0, v1, v2 ) TRice8_3_fn( tid,  (uint8_t)(v0), (uint8_t)(v1), (uint8_t)(v2) ) //!< TRice8_3_M is a macro calling a function to reduce code size.
-#define TRice8_4_M( tid,  fmt, v0, v1, v2, v3 ) TRice8_4_fn( tid,  (uint8_t)(v0), (uint8_t)(v1), (uint8_t)(v2), (uint8_t)(v3) ) //!< TRice8_4_M is a macro calling a function to reduce code size.
-#define TRice8_5_M( tid,  fmt, v0, v1, v2, v3, v4 ) TRice8_5_fn( tid,  (uint8_t)v0, (uint8_t)(v1), (uint8_t)(v2), (uint8_t)(v3), (uint8_t)(v4) ) //!< TRice8_5_M is a macro calling a function to reduce code size.
-#define TRice8_6_M( tid,  fmt, v0, v1, v2, v3, v4, v5 ) TRice8_6_fn( tid,  (uint8_t)(v0), (uint8_t)(v1), (uint8_t)(v2), (uint8_t)(v3), (uint8_t)(v4), (uint8_t)(v5) ) //!< TRice8_6_M is a macro calling a function to reduce code size.
-#define TRice8_7_M( tid,  fmt, v0, v1, v2, v3, v4, v5, v6 ) TRice8_7_fn( tid,  (uint8_t)(v0), (uint8_t)(v1), (uint8_t)(v2), (uint8_t)(v3), (uint8_t)(v4), (uint8_t)(v5), (uint8_t)(v6) ) //!< TRice8_7_M is a macro calling a function to reduce code size.
-#define TRice8_8_M( tid,  fmt, v0, v1, v2, v3, v4, v5, v6, v7 ) TRice8_8_fn( tid,  (uint8_t)(v0), (uint8_t)(v1), (uint8_t)(v2), (uint8_t)(v3), (uint8_t)(v4), (uint8_t)(v5), (uint8_t)(v6), (uint8_t)(v7) ) //!< TRice8_8_M is a macro calling a function to reduce code size.
-#define TRice8_9_M( tid,  fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8 ) TRice8_9_fn( tid, (uint8_t)(v0), (uint8_t)(v1), (uint8_t)(v2), (uint8_t)(v3), (uint8_t)(v4), (uint8_t)(v5), (uint8_t)(v6), (uint8_t)(v7), (uint8_t)(v8) ) //!< TRice8_9_M is a macro calling a function to reduce code size.
-#define TRice8_10_M( tid, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9 ) TRice8_10_fn( tid, (uint8_t)(v0), (uint8_t)(v1), (uint8_t)(v2), (uint8_t)(v3), (uint8_t)(v4), (uint8_t)(v5), (uint8_t)(v6), (uint8_t)(v7), (uint8_t)(v8), (uint8_t)(v9) ) //!< TRice8_10_M is a macro calling a function to reduce code size.
-#define TRice8_11_M( tid, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10 ) TRice8_11_fn( tid, (uint8_t)(v0), (uint8_t)(v1), (uint8_t)(v2), (uint8_t)(v3), (uint8_t)(v4), (uint8_t)(v5), (uint8_t)(v6), (uint8_t)(v7), (uint8_t)(v8), (uint8_t)(v9), (uint8_t)(v10) ) //!< TRice8_11_M is a macro calling a function to reduce code size.
-#define TRice8_12_M( tid, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 ) TRice8_12_fn( tid, (uint8_t)(v0), (uint8_t)(v1), (uint8_t)(v2), (uint8_t)(v3), (uint8_t)(v4), (uint8_t)(v5), (uint8_t)(v6), (uint8_t)(v7), (uint8_t)(v8), (uint8_t)(v9), (uint8_t)(v10), (uint8_t)(v11) ) //!< TRice8_12_M is a macro calling a function to reduce code size.
+#define TRice8M_1( tid,  fmt, v0 ) TRice8fn_1( tid,  (uint8_t)(v0) ) //!< TRice8M_1 ia macro calling a function to reduce code size, this way avoiding code inlining.
+#define TRice8M_2( tid,  fmt, v0, v1 ) TRice8fn_2( tid,  (uint8_t)(v0), (uint8_t)(v1) ) //!< TRice8M_2 ia macro calling a function to reduce code size, this way avoiding code inlining.
+#define TRice8M_3( tid,  fmt, v0, v1, v2 ) TRice8fn_3( tid,  (uint8_t)(v0), (uint8_t)(v1), (uint8_t)(v2) ) //!< TRice8M_3 ia macro calling a function to reduce code size, this way avoiding code inlining.
+#define TRice8M_4( tid,  fmt, v0, v1, v2, v3 ) TRice8fn_4( tid,  (uint8_t)(v0), (uint8_t)(v1), (uint8_t)(v2), (uint8_t)(v3) ) //!< TRice8M_4 ia macro calling a function to reduce code size, this way avoiding code inlining.
+#define TRice8M_5( tid,  fmt, v0, v1, v2, v3, v4 ) TRice8fn_5( tid,  (uint8_t)v0, (uint8_t)(v1), (uint8_t)(v2), (uint8_t)(v3), (uint8_t)(v4) ) //!< TRice8M_5 ia macro calling a function to reduce code size, this way avoiding code inlining.
+#define TRice8M_6( tid,  fmt, v0, v1, v2, v3, v4, v5 ) TRice8fn_6( tid,  (uint8_t)(v0), (uint8_t)(v1), (uint8_t)(v2), (uint8_t)(v3), (uint8_t)(v4), (uint8_t)(v5) ) //!< TRice8M_6 ia macro calling a function to reduce code size, this way avoiding code inlining.
+#define TRice8M_7( tid,  fmt, v0, v1, v2, v3, v4, v5, v6 ) TRice8fn_7( tid,  (uint8_t)(v0), (uint8_t)(v1), (uint8_t)(v2), (uint8_t)(v3), (uint8_t)(v4), (uint8_t)(v5), (uint8_t)(v6) ) //!< TRice8M_7 ia macro calling a function to reduce code size, this way avoiding code inlining.
+#define TRice8M_8( tid,  fmt, v0, v1, v2, v3, v4, v5, v6, v7 ) TRice8fn_8( tid,  (uint8_t)(v0), (uint8_t)(v1), (uint8_t)(v2), (uint8_t)(v3), (uint8_t)(v4), (uint8_t)(v5), (uint8_t)(v6), (uint8_t)(v7) ) //!< TRice8M_8 ia macro calling a function to reduce code size, this way avoiding code inlining.
+#define TRice8M_9( tid,  fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8 ) TRice8fn_9( tid, (uint8_t)(v0), (uint8_t)(v1), (uint8_t)(v2), (uint8_t)(v3), (uint8_t)(v4), (uint8_t)(v5), (uint8_t)(v6), (uint8_t)(v7), (uint8_t)(v8) ) //!< TRice8M_9 ia macro calling a function to reduce code size, this way avoiding code inlining.
+#define TRice8M_10( tid, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9 ) TRice8fn_10( tid, (uint8_t)(v0), (uint8_t)(v1), (uint8_t)(v2), (uint8_t)(v3), (uint8_t)(v4), (uint8_t)(v5), (uint8_t)(v6), (uint8_t)(v7), (uint8_t)(v8), (uint8_t)(v9) ) //!< TRice8M_10 ia macro calling a function to reduce code size, this way avoiding code inlining.
+#define TRice8M_11( tid, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10 ) TRice8fn_11( tid, (uint8_t)(v0), (uint8_t)(v1), (uint8_t)(v2), (uint8_t)(v3), (uint8_t)(v4), (uint8_t)(v5), (uint8_t)(v6), (uint8_t)(v7), (uint8_t)(v8), (uint8_t)(v9), (uint8_t)(v10) ) //!< TRice8M_11 ia macro calling a function to reduce code size, this way avoiding code inlining.
+#define TRice8M_12( tid, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 ) TRice8fn_12( tid, (uint8_t)(v0), (uint8_t)(v1), (uint8_t)(v2), (uint8_t)(v3), (uint8_t)(v4), (uint8_t)(v5), (uint8_t)(v6), (uint8_t)(v7), (uint8_t)(v8), (uint8_t)(v9), (uint8_t)(v10), (uint8_t)(v11) ) //!< TRice8M_12 ia macro calling a function to reduce code size, this way avoiding code inlining.
 
-void TRice8_1_fn( uint16_t tid,  uint8_t v0 );
-void TRice8_2_fn( uint16_t tid,  uint8_t v0, uint8_t v1 );
-void TRice8_3_fn( uint16_t tid,  uint8_t v0, uint8_t v1, uint8_t v2 );
-void TRice8_4_fn( uint16_t tid,  uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3 );
-void TRice8_5_fn( uint16_t tid,  uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4 );
-void TRice8_6_fn( uint16_t tid,  uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4, uint8_t v5 );
-void TRice8_7_fn( uint16_t tid,  uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4, uint8_t v5, uint8_t v6 );
-void TRice8_8_fn( uint16_t tid,  uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4, uint8_t v5, uint8_t v6, uint8_t v7 );
-void TRice8_9_fn( uint16_t tid,  uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4, uint8_t v5, uint8_t v6, uint8_t v7, uint8_t v8 );
-void TRice8_10_fn( uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4, uint8_t v5, uint8_t v6, uint8_t v7, uint8_t v8, uint8_t v9 );
-void TRice8_11_fn( uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4, uint8_t v5, uint8_t v6, uint8_t v7, uint8_t v8, uint8_t v9, uint8_t v10 );
-void TRice8_12_fn( uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4, uint8_t v5, uint8_t v6, uint8_t v7, uint8_t v8, uint8_t v9, uint8_t v10, uint8_t v11 );
+void TRice8fn_1( uint16_t tid,  uint8_t v0 );
+void TRice8fn_2( uint16_t tid,  uint8_t v0, uint8_t v1 );
+void TRice8fn_3( uint16_t tid,  uint8_t v0, uint8_t v1, uint8_t v2 );
+void TRice8fn_4( uint16_t tid,  uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3 );
+void TRice8fn_5( uint16_t tid,  uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4 );
+void TRice8fn_6( uint16_t tid,  uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4, uint8_t v5 );
+void TRice8fn_7( uint16_t tid,  uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4, uint8_t v5, uint8_t v6 );
+void TRice8fn_8( uint16_t tid,  uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4, uint8_t v5, uint8_t v6, uint8_t v7 );
+void TRice8fn_9( uint16_t tid,  uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4, uint8_t v5, uint8_t v6, uint8_t v7, uint8_t v8 );
+void TRice8fn_10( uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4, uint8_t v5, uint8_t v6, uint8_t v7, uint8_t v8, uint8_t v9 );
+void TRice8fn_11( uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4, uint8_t v5, uint8_t v6, uint8_t v7, uint8_t v8, uint8_t v9, uint8_t v10 );
+void TRice8fn_12( uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4, uint8_t v5, uint8_t v6, uint8_t v7, uint8_t v8, uint8_t v9, uint8_t v10, uint8_t v11 );
 
 
 
