@@ -27,6 +27,27 @@
 * 5. [Changelog](#Changelog)
 		* 5.1. [*Trice* format](#Triceformat)
 
+- [*Trice*  Version 1.0 Specification (Draft)](#trice--version-10-specification-draft)
+  - [1.  Trice User Interface - Quick Start](#1--trice-user-interface---quick-start)
+    - [1.1. User Code Adaption](#11-user-code-adaption)
+    - [1.2. Limitations](#12-limitations)
+    - [1.3. Trice (Time) Stamps](#13-trice-time-stamps)
+    - [1.4. Trice Parameter Bit Widths](#14-trice-parameter-bit-widths)
+  - [2. Trice Binary Data Format](#2-trice-binary-data-format)
+    - [2.1. Framing](#21-framing)
+    - [2.2. Optional XTEA Encryption](#22-optional-xtea-encryption)
+    - [2.3. Endianness](#23-endianness)
+    - [2.4. `TRICE` (Time)Stamps](#24-trice-timestamps)
+    - [2.5. Binary Encoding](#25-binary-encoding)
+      - [2.5.1. Symbols](#251-symbols)
+      - [2.5.2. Package Format](#252-package-format)
+  - [3. Trice Decoding](#3-trice-decoding)
+    - [3.1. *Trice* ID list `til.json`](#31-trice-id-list-tiljson)
+    - [3.2. *Trice* location information file `li.json`](#32-trice-location-information-file-lijson)
+  - [4. Trice ID management](#4-trice-id-management)
+  - [5. Changelog](#5-changelog)
+
+
 <!-- vscode-markdown-toc-config
 	numbering=true
 	autoSave=true
