@@ -1,23 +1,31 @@
 
 <!-- TABLE OF CONTENTS -->
-<details>
-  <summary>Table of Contents</summary>
-  <ol>
+<details><summary>Table of Contents</summary><ol>
 
+<!-- 2 steps: 
+- Generate TOC for Markdown -> This makes correct numbering for the headlines.
+- Clear TOC, Set cursor and Markdown All In Once: Create TOC -> This makes correct links.
+-->
 <!-- vscode-markdown-toc -->
-* 1. [Trice Binary Data Format](#TriceBinaryDataFormat)
-	* 1.1. [Framing](#Framing)
-	* 1.2. [Optional XTEA Encryption](#OptionalXTEAEncryption)
-	* 1.3. [Endianness](#Endianness)
-	* 1.4. [`TRICE` (Time)Stamps](#TRICETimeStamps)
-	* 1.5. [Binary Encoding](#BinaryEncoding)
-		* 1.5.1. [Symbols](#Symbols)
-		* 1.5.2. [Package Format](#PackageFormat)
-* 2. [Trice Decoding](#TriceDecoding)
-	* 2.1. [*Trice* ID list `til.json`](#TriceIDlisttil.json)
-	* 2.2. [*Trice* location information file `li.json`](#Tricelocationinformationfileli.json)
-* 3. [Changelog](#Changelog)
-		* 3.1. [*Trice* format](#Triceformat)
+* 1. [ Trice User Interface - Quick Start](#TriceUserInterface-QuickStart)
+	* 1.1. [User Code Adaption](#UserCodeAdaption)
+	* 1.2. [Limitations](#Limitations)
+	* 1.3. [Trice (Time) Stamps](#TriceTimeStamps)
+	* 1.4. [Trice Parameter Bit Widths](#TriceParameterBitWidths)
+* 2. [Trice Binary Data Format](#TriceBinaryDataFormat)
+	* 2.1. [Framing](#Framing)
+	* 2.2. [Optional XTEA Encryption](#OptionalXTEAEncryption)
+	* 2.3. [Endianness](#Endianness)
+	* 2.4. [`TRICE` (Time)Stamps](#TRICETimeStamps)
+	* 2.5. [Binary Encoding](#BinaryEncoding)
+		* 2.5.1. [Symbols](#Symbols)
+		* 2.5.2. [Package Format](#PackageFormat)
+* 3. [Trice Decoding](#TriceDecoding)
+	* 3.1. [*Trice* ID list `til.json`](#TriceIDlisttil.json)
+	* 3.2. [*Trice* location information file `li.json`](#Tricelocationinformationfileli.json)
+* 4. [Trice ID management](#TriceIDmanagement)
+* 5. [Changelog](#Changelog)
+		* 5.1. [*Trice* format](#Triceformat)
 
 <!-- vscode-markdown-toc-config
 	numbering=true
@@ -26,51 +34,206 @@
 <!-- /vscode-markdown-toc -->
 <div id="top"></div>
 
-  </ol>
-</details>
+</ol></details>
 
 # *Trice*  Version 1.0 Specification (Draft)
 
-##  1. <a name='TriceBinaryDataFormat'></a>Trice Binary Data Format
+<!-- 🟢✅🟡⛔🔴🔵💧❓↩෴⚓🛑❗🌡⏱∑✳‼♦♣🚫⚠🎥📷🌊🆘🧷🐢➡☕ -->
 
-###  1.1. <a name='Framing'></a>Framing
+##  1. <a name='TriceUserInterface-QuickStart'></a> Trice User Interface - Quick Start
 
-* *Trice* messages are framed binary data.
-* Framing is important for data disruption cases and is done with [TCOBS](./TCOBSSpecification.md) (has included data reduction) but the user can force to use [COBS](https://github.com/rokath/COBS), what makes it easier to write an own decoder in some cases. 
-  * Change the setting `TRICE_FRAMING` inside `triceConfig.h` and use the **trice** tool `-framing` switch for that.
-* For robustness each *Trice* gets its own (T)COBS package per default. That is changeable for transfer data reduction. Use `#define TRICE_TRANSFER_MODE TRICE_PACK_MULTI_MODE.` inside `triceConfig.h`.
+<details><summary>Details</summary><ol>
 
-###  1.2. <a name='OptionalXTEAEncryption'></a>Optional XTEA Encryption
+###  1.1. <a name='UserCodeAdaption'></a>User Code Adaption
 
-* If XTEA is used, the encrypted packages have a multiple-of-8 byte length containing 1-7 padding bytes.
-* The optional decryption is the next step after unpacking a data frame.
+- Replace all strings `puts` with the string `trice`.
+- Replace all strings `printf` with the string `trice`.
+- Check for float and double format specifiers in the format strings. The appropriate parameters need to be covered with `aFloat()` or `a double()`. Example:
 
+    ```c
+    printf( "%d, %3.2f EUR, %g rate\n", i, price, change );
+    ```
 
-###  1.3. <a name='Endianness'></a>Endianness
+    ```c
+    trice64( "%d, %3.2f EUR, %g rate\n", i, aFloat(price), aDouble(change) ); 
+    ```
 
-* To interpret a decoded package its endianness needs to be known.
-* For efficiency binary trice data are stored and transmitted in MCU endianness and the **trice** tool expects binary data in little endian format as most MCUs are little endian.
-* On big endian MCUs the compiler switch `TRICE_MCU_IS_BIG_ENDIAN` needs to be defined and the **trice** tool has a CLI switch "triceEndianness" which needs to be set to "bigEndian" then.
-* If trice transmit data are needed to be not in MCU order for some reason, the macro `TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN` is needed. This increases the critical trice storage time and target code amount.
+  (see [1.4. Trice Parameter Bit Widths](#14-trice-parameter-bit-widths))
 
+- Check for string format specifiers in the format strings. Put each in a separate trice message. Example:
 
-###  1.4. <a name='TRICETimeStamps'></a>`TRICE` (Time)Stamps
+    ```c
+    printf( "name: %16s, surname: %32s, birthday: %4u-%02u-%02u\n", n, s, y, m, d);
+    ```
 
-* Each `TRICE` message can carry stamp bits, which are free usable like for time, addressing or filtering.
-* By selecting the ID letter case `id(0)`, `Id(0)` or `ID(0)` the user can decide for each single `TRICE` macro about the stamp size.
+    ```c
+    trice( "name: %16s, ", n); trice( "surname: %32s, ", s ); trice( "birthday: %4u-%02u-%02u\n" y, m, d);
+    ```
 
-| notation                    | stamp size | remark |
-| -                           | -          | -      |
-| `TRICE( id(0), "...", ...)` | 0-bit      | no stamp at all, shortest footprint |
-| `TRICE( Id(0), "...", ...)` | 16-bit     | calls internally `uint16_t TriceStamp16( void )` for trice message stamping |
-| `TRICE( ID(0), "...", ...)` | 32-bit     | calls internally `uint32_t TriceStamp32( void )` for trice message stamping |
+- Optionally add channel specifiers to get color. Example:
+
+    ```c
+    puts( "A message");
+    ```
+
+    ```c
+   trice( "msg:A message");
+    ```
+
+- Add `#include trice.h` to all user files using trice.
+
+###  1.2. <a name='Limitations'></a>Limitations
+
+- The maximum parameter count per trice is 12.
+- Each trice must fit into a single line.
+  - Not ok:
+
+    ```c
+    trice( "hello %u\n", 
+            year);
+    ```
+
+- But several trices ca be in one line.
+  - Ok:
+
+    ```c
+    trice( "hello %u\n", year); trice( "good time");
+    ```
+
+- Strings directly as parameter are forbidden.
+  - Not ok:
+
+    ```c
+    trice( "hello %s\n", "world" );
+    ```
+
+  - Ok:
+
+    ```c
+    s = "world"; trice( "hello %s\n", s );
+    #define WORLD "world"
+    trice( "hello %s\n", WORLD );
+    ```
+
+- Excluded trices are seen by the trice update process.
+  - Example: The following code will be patched and get an id as well:
+
+    ```c
+    // trice( "Hi!" );
+    ```
+
+###  1.3. <a name='TriceTimeStamps'></a>Trice (Time) Stamps
+
+- Trice messages can have no or 16-bit or 32-bit (time) stamps.
+  - recommended:
+
+      ```c
+      trice( "hello %u\n", year); // no (time) stamp
+      Trice( "hello %u\n", year); // 16-bit (time) stamp
+      TRice( "hello %u\n", year); // 32-bit (time) stamp
+      ```
+
+  - legacy (inlining) syntax:
+
+      ```c
+      TRICE( id(0), "hello %u\n", year); // no (time) stamp
+      TRICE( Id(0), "hello %u\n", year); // 16-bit (time) stamp
+      TRICE( ID(0), "hello %u\n", year); // 32-bit (time) stamp
+      ```
+
+- The user is asked to provide the appropriate 2 functions.
+  - Example for µs time stamps
+
+    ```c
+    uint16_t TriceStamp16( void ){ // wraps after 10ms
+        return (uint16_t)(ReadUs32() % 10000); // This implies division and is therefore slow!
+    }
+
+    uint32_t TriceStamp32( void ){
+        return ReadUs32();
+    }
+    ```
+
+  - Example for ms time stamps
+
+    ```c
+    uint16_t TriceStamp16( void ){ // wraps after 10s 
+        return (uint16_t)(milliSecond % 10000); // This implies division and is therefore slow!
+    }
+
+    uint32_t TriceStamp32( void ){
+        return milliSecond;
+    }
+    ```
+
+- Using different timestamp bit width parallel allows to reduce the transmitted data size.
+- Example showing one trice without, 6 with 16-bit and 2 with 32-bit (time)stamps:
+
+  ![x](./ref/0-16-32BitTimeStamps.jpg)
+
+- Check the trice tool `tsu` CLI switch to make life easy.
+- It is also possible to use the (time) stamp option not for timestamps but for any values, like addresses or a voltage.
+
+###  1.4. <a name='TriceParameterBitWidths'></a>Trice Parameter Bit Widths
+
+- The macros `trice`, `Trice`, `TRice` and `TRICE` use 32-bit parameter values per default. See `TRICE_DEFAULT_PARAMETER_BIT_WIDTH` inside `triceConfig.h` to change that.
+- If for example the bit width of all trice parameters is 8-bit, it is writable as trice8 macro, reducing the transmitted byte count per parameter from 4 to 1:
+
+  ```C
+  char b[8] = {1,2,3,4,5,6,7,8};
+
+  // 36 bytes: 4 bytes plus 32 (8 times 4) bytes payload 
+  trice( "%02x %02x %02x %02x %02x %02x %02x %02x\n", b[0], b[1], b[2], b[3], b[4], b[5], b[6], b[7]);`
+
+  // 12 bytes: 4 bytes plus 8 (8 times 1) bytes payload 
+  trice8( " %02x %02x %02x %02x %02x %02x %02x %02x\n", b[0], b[1], b[2], b[3], b[4], b[5], b[6], b[7]);`
+
+  // 16 bytes: 4 bytes plus 8 (8 times 1) bytes payload in short notation plus 4 bytes
+  TRICE8_B( id( 6468), " %02x ", &b, sizeof(b) ); TRICE( id( 2822), "\n" );
+  ```
+
+<p align="right">(<a href="#top">back to top</a>)</p></ol></details>
+
+##  2. <a name='TriceBinaryDataFormat'></a>Trice Binary Data Format
+
+<details><summary>Details</summary><ol>
+
+###  2.1. <a name='Framing'></a>Framing
+
+- *Trice* messages are framed binary data, if framing is not disabled.
+- Framing is important for data disruption cases and is done with [TCOBS](./TCOBSSpecification.md) (has included data reduction) but the user can force to use [COBS](https://github.com/rokath/COBS), what makes it easier to write an own decoder in some cases od disable framing at all. 
+  - Change the setting `TRICE_FRAMING` inside `triceConfig.h` and use the **trice** tool `-packageFraming` switch accordingly.
+- For robustness each *Trice* gets its own (T)COBS package per default. That is changeable for transfer data reduction. Use `#define TRICE_TRANSFER_MODE TRICE_PACK_MULTI_MODE.` inside `triceConfig.h`. This allows to reduce the data size a bit by avoiding many 0-delimiter bytes but results in some more data loss in case of data disruptions.
+
+###  2.2. <a name='OptionalXTEAEncryption'></a>Optional XTEA Encryption
+
+- If XTEA is used, the encrypted packages have a multiple-of-8 byte length containing 1-7 padding bytes.
+- The optional decryption is the next step after unpacking a data frame.
+- Enabling XTEA automatically switches to COBS framing. There is no need to use the **trice** tool `-packageFraming` switch in that case.
+
+###  2.3. <a name='Endianness'></a>Endianness
+
+- To interpret a decoded package, it´s endianness needs to be known.
+- For efficiency binary trice data are stored and transmitted in MCU endianness and the **trice** tool expects binary data in little endian format as most MCUs are little endian.
+- On big endian MCUs the compiler switch `TRICE_MCU_IS_BIG_ENDIAN` needs to be defined and the **trice** tool has a CLI switch "triceEndianness" which needs to be set to "bigEndian" then.
+- If trice transmit data are needed to be not in MCU order for some reason, the macro `TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN` is needed. This increases the critical trice storage time and target code amount.
+
+###  2.4. <a name='TRICETimeStamps'></a>`TRICE` (Time)Stamps
+
+- Each `TRICE` message can carry stamp bits, which are free usable like for time, addressing or filtering.
+- By selecting the ID letter case `id(0)`, `Id(0)` or `ID(0)` the user can decide for each single `TRICE` macro about the stamp size.
+
+  | notation                    | stamp size | remark |
+  | -                           | -          | -      |
+  | `TRICE( id(0), "...", ...)` | 0-bit      | no stamp at all, shortest footprint |
+  | `TRICE( Id(0), "...", ...)` | 16-bit     | calls internally `uint16_t TriceStamp16( void )` for trice message stamping |
+  | `TRICE( ID(0), "...", ...)` | 32-bit     | calls internally `uint32_t TriceStamp32( void )` for trice message stamping |
 
 It is up to the user to provide the functions `TriceStamp16()` and/or `TriceStamp32()`. Normally they return a tick count.
 
+###  2.5. <a name='BinaryEncoding'></a>Binary Encoding
 
-###  1.5. <a name='BinaryEncoding'></a>Binary Encoding
-
-####  1.5.1. <a name='Symbols'></a>Symbols
+####  2.5.1. <a name='Symbols'></a>Symbols
 
 | Symbol  | Meaning |
 | :-:     | - | 
@@ -90,42 +253,49 @@ It is up to the user to provide the functions `TriceStamp16()` and/or `TriceStam
 | `x`     | unspecified bit |
 | `X`     | =`xxxxxxxx` unspecified byte |
 
-####  1.5.2. <a name='PackageFormat'></a>Package Format
+####  2.5.2. <a name='PackageFormat'></a>Package Format
 
-* All decoded frames of 0-, 1-, 2- and 3-byte size are considered as user data and ignored by the **trice** tool.
-* In decoded frames >= 4-byte the first 2 bytes are the 14-bit ID with 2 selector bits at the most significant position.
-* The `0` selector is usable for any user encoding. The **trice** tool ignores such packages.
+- All decoded frames of 0-, 1-, 2- and 3-byte size are considered as user data and ignored by the **trice** tool.
+- In decoded frames >= 4-byte the first 2 bytes are the 14-bit ID with 2 selector bits at the most significant position.
+- The `0` selector is usable for any user encoding. The **trice** tool ignores such packages.
 
-| 16-bit groups            | Selector (2 msb)| *Trice* code                 | Comment                              |
-| :-                       | :-:             | -                            | -                                    |
-| `00xxxxxxX ...`          | 0               |                              | reserved for extensions or user data |
-| `01iiiiiiI NC  ...`      | 1               | `TRICE( id(n), "...", ...);` | *Trice* format without     stamp     |
-| `10iiiiiiI TT NC ...`    | 2               | `TRICE( Id(n), "...", ...);` | *Trice* format with 16-bit stamp     |
-| `11iiiiiiI TT TT NC ...` | 3               | `TRICE( ID(n), "...", ...);` | *Trice* format with 32-bit stamp     |
+  | 16-bit groups            | Selector (2 msb)| *Trice* code                 | Comment                              |
+  | :-                       | :-:             | -                            | -                                    |
+  | `00xxxxxxX ...`          | 0               |                              | reserved for extensions or user data |
+  | `01iiiiiiI NC  ...`      | 1               | `TRICE( id(n), "...", ...);` | *Trice* format without     stamp     |
+  | `10iiiiiiI TT NC ...`    | 2               | `TRICE( Id(n), "...", ...);` | *Trice* format with 16-bit stamp     |
+  | `11iiiiiiI TT TT NC ...` | 3               | `TRICE( ID(n), "...", ...);` | *Trice* format with 32-bit stamp     |
 
+<p align="right">(<a href="#top">back to top</a>)</p></ol></details>
 
-<p align="right">(<a href="#top">back to top</a>)</p>
+##  3. <a name='TriceDecoding'></a>Trice Decoding
 
-##  2. <a name='TriceDecoding'></a>Trice Decoding
+<details><summary>Details</summary><ol>
 
 The 14-bit IDs are used to display the log strings. These IDs are pointing in two reference files.
 
-###  2.1. <a name='TriceIDlisttil.json'></a>*Trice* ID list `til.json`
+###  3.1. <a name='TriceIDlisttil.json'></a>*Trice* ID list `til.json`
 
-* This file integrates all firmware variants and versions and is the key to display the message strings. With the latest version of this file all previous deployed firmware images are usable without the need to know the actual firmware version.
-* The files `til.json.h` and `til.json.c` are generated to help writing an own trice decoder tool.
+- This file integrates all firmware variants and versions and is the key to display the message strings. With the latest version of this file all previous deployed firmware images are usable without the need to know the actual firmware version.
+- The files `til.json.h` and `til.json.c` are generated to help writing an own trice decoder tool.
 
+###  3.2. <a name='Tricelocationinformationfileli.json'></a>*Trice* location information file `li.json`
 
-###  2.2. <a name='Tricelocationinformationfileli.json'></a>*Trice* location information file `li.json`
+- If the generated `li.json` is available, the **trice** tool automatically displays file name and line number. But that is accurate only with the exact matching firmware version. That usually is the case right after compiling and of most interest at the developers table.
+- The **trice** tool will silently not display location information, if the `li.json` file is not found. For in-field logging, the option `-showID string` could be used. This allows later an easy location of the relevant source code.
+- An other option is to record the binary trice messages and to play them later with the **trice** tool using the correct `li.json`.
 
-* If the generated `li.json` is available, the **trice** tool automatically displays file name and line number. But that is accurate only with the exact matching firmware version. That usually is the case right after compiling and of most interest at the developers table.
-* The **trice** tool will silently not display location information, if the `li.json` file is not found. For in-field logging, the option `-showID string` could be used. This allows later an easy location of the relevant source code.
-* An other option is to record the binary trice messages and to play them later with the **trice** tool using the correct `li.json`.
+<p align="right">(<a href="#top">back to top</a>)</p></ol></details>
 
+##  4. <a name='TriceIDmanagement'></a>Trice ID management
 
-<p align="right">(<a href="#top">back to top</a>)</p>
+<details><summary>Details</summary><ol>
 
-##  3. <a name='Changelog'></a>Changelog
+<p align="right">(<a href="#top">back to top</a>)</p></ol></details>
+
+##  5. <a name='Changelog'></a>Changelog
+
+<details><summary>Details</summary><ol>
 
 | Date        | Version | Comment |
 | -           | -       | - |
@@ -147,8 +317,11 @@ The 14-bit IDs are used to display the log strings. These IDs are pointing in tw
 | 2022-OCT-08 | 0.11.2  | S0...X3 added |
 | 2022-NOV-28 | 0.11.3  | +[#337](https://github.com/rokath/trice/issues/337) in [Framing](#Framing)|
 | 2022-DEC-11 | 0.12.0  | restructured |
-| 2022-DEC-13 | 0.13.0  | unneded text removed, some clarifications |
+| 2022-DEC-13 | 0.13.0  | unneeded text removed, some clarifications |
+| 2023-JAN-14 | 0.14.0  | Formatting improved, [1.  Trice User Interface - Quick Start](#1--trice-user-interface---quick-start) added. |
+|             |         | |
 
+<p align="right">(<a href="#top">back to top</a>)</p></ol></details>
 
  <!-- 
  
@@ -260,7 +433,7 @@ TRICE( X3, "...", ...); // an extended type 3 trice
     * If all IDs in the slice with identical file name are used, a new ID is generated.
     * Of course there are cases possible, where some unwanted ID "shift" happens. But we have to consider, that first we are talking about rare identical **trices** and that such case, if, only happens once with the result, that the `til.json` file adds a bit data garbage. A `til.json` cleaning is always possible, but you loose history then.
 
-####  3.1. <a name='Triceformat'></a>*Trice* format
+####  5.1. <a name='Triceformat'></a>*Trice* format
 
 * Parameter data bytes start after the optional timestamp.
 * N is the parameter data bytes count. Padding bytes are not counted.

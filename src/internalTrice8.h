@@ -547,6 +547,103 @@ void TRice8fn_10( uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, 
 void TRice8fn_11( uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4, uint8_t v5, uint8_t v6, uint8_t v7, uint8_t v8, uint8_t v9, uint8_t v10 );
 void TRice8fn_12( uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4, uint8_t v5, uint8_t v6, uint8_t v7, uint8_t v8, uint8_t v9, uint8_t v10, uint8_t v11 );
 
+///////////////////////////////////////////////////////////////////////////////
+//
 
+#if TRICE_DEFAULT_PARAMETER_BIT_WIDTH == 8
 
+#define TRICE_1  TRICE8_1  //!< Default parameter bit width for 1  parameter count TRICE is 8.
+#define TRICE_2  TRICE8_2  //!< Default parameter bit width for 2  parameter count TRICE is 8.
+#define TRICE_3  TRICE8_3  //!< Default parameter bit width for 3  parameter count TRICE is 8.
+#define TRICE_4  TRICE8_4  //!< Default parameter bit width for 4  parameter count TRICE is 8.
+#define TRICE_5  TRICE8_5  //!< Default parameter bit width for 5  parameter count TRICE is 8.
+#define TRICE_6  TRICE8_6  //!< Default parameter bit width for 6  parameter count TRICE is 8.
+#define TRICE_7  TRICE8_7  //!< Default parameter bit width for 7  parameter count TRICE is 8.
+#define TRICE_8  TRICE8_8  //!< Default parameter bit width for 8  parameter count TRICE is 8.
+#define TRICE_9  TRICE8_9  //!< Default parameter bit width for 9  parameter count TRICE is 8.
+#define TRICE_10 TRICE8_10 //!< Default parameter bit width for 10 parameter count TRICE is 8.
+#define TRICE_11 TRICE8_11 //!< Default parameter bit width for 11 parameter count TRICE is 8.
+#define TRICE_12 TRICE8_12 //!< Default parameter bit width for 12 parameter count TRICE is 8.
 
+#define trice_1  trice8_1  //!< Default parameter bit width for 1  parameter count trice is 8.
+#define trice_2  trice8_2  //!< Default parameter bit width for 2  parameter count trice is 8.
+#define trice_3  trice8_3  //!< Default parameter bit width for 3  parameter count trice is 8.
+#define trice_4  trice8_4  //!< Default parameter bit width for 4  parameter count trice is 8.
+#define trice_5  trice8_5  //!< Default parameter bit width for 5  parameter count trice is 8.
+#define trice_6  trice8_6  //!< Default parameter bit width for 6  parameter count trice is 8.
+#define trice_7  trice8_7  //!< Default parameter bit width for 7  parameter count trice is 8.
+#define trice_8  trice8_8  //!< Default parameter bit width for 8  parameter count trice is 8.
+#define trice_9  trice8_9  //!< Default parameter bit width for 9  parameter count trice is 8.
+#define trice_10 trice8_10 //!< Default parameter bit width for 10 parameter count trice is 8.
+#define trice_11 trice8_11 //!< Default parameter bit width for 11 parameter count trice is 8.
+#define trice_12 trice8_12 //!< Default parameter bit width for 12 parameter count trice is 8.
+
+#define Trice_1  Trice8_1  //!< Default parameter bit width for 1  parameter count Trice is 8.
+#define Trice_2  Trice8_2  //!< Default parameter bit width for 2  parameter count Trice is 8.
+#define Trice_3  Trice8_3  //!< Default parameter bit width for 3  parameter count Trice is 8.
+#define Trice_4  Trice8_4  //!< Default parameter bit width for 4  parameter count Trice is 8.
+#define Trice_5  Trice8_5  //!< Default parameter bit width for 5  parameter count Trice is 8.
+#define Trice_6  Trice8_6  //!< Default parameter bit width for 6  parameter count Trice is 8.
+#define Trice_7  Trice8_7  //!< Default parameter bit width for 7  parameter count Trice is 8.
+#define Trice_8  Trice8_8  //!< Default parameter bit width for 8  parameter count Trice is 8.
+#define Trice_9  Trice8_9  //!< Default parameter bit width for 9  parameter count Trice is 8.
+#define Trice_10 Trice8_10 //!< Default parameter bit width for 10 parameter count Trice is 8.
+#define Trice_11 Trice8_11 //!< Default parameter bit width for 11 parameter count Trice is 8.
+#define Trice_12 Trice8_12 //!< Default parameter bit width for 12 parameter count Trice is 8.
+
+#define TRice_1  TRice8_1  //!< Default parameter bit width for 1  parameter count TRice is 8.
+#define TRice_2  TRice8_2  //!< Default parameter bit width for 2  parameter count TRice is 8.
+#define TRice_3  TRice8_3  //!< Default parameter bit width for 3  parameter count TRice is 8.
+#define TRice_4  TRice8_4  //!< Default parameter bit width for 4  parameter count TRice is 8.
+#define TRice_5  TRice8_5  //!< Default parameter bit width for 5  parameter count TRice is 8.
+#define TRice_6  TRice8_6  //!< Default parameter bit width for 6  parameter count TRice is 8.
+#define TRice_7  TRice8_7  //!< Default parameter bit width for 7  parameter count TRice is 8.
+#define TRice_8  TRice8_8  //!< Default parameter bit width for 8  parameter count TRice is 8.
+#define TRice_9  TRice8_9  //!< Default parameter bit width for 9  parameter count TRice is 8.
+#define TRice_10 TRice8_10 //!< Default parameter bit width for 10 parameter count TRice is 8.
+#define TRice_11 TRice8_11 //!< Default parameter bit width for 11 parameter count TRice is 8.
+#define TRice_12 TRice8_12 //!< Default parameter bit width for 12 parameter count TRice is 8.
+
+#define triceM_1  trice8M_1  //!< Default parameter bit width for 1  parameter count triceM is 8.
+#define triceM_2  trice8M_2  //!< Default parameter bit width for 2  parameter count triceM is 8.
+#define triceM_3  trice8M_3  //!< Default parameter bit width for 3  parameter count triceM is 8.
+#define triceM_4  trice8M_4  //!< Default parameter bit width for 4  parameter count triceM is 8.
+#define triceM_5  trice8M_5  //!< Default parameter bit width for 5  parameter count triceM is 8.
+#define triceM_6  trice8M_6  //!< Default parameter bit width for 6  parameter count triceM is 8.
+#define triceM_7  trice8M_7  //!< Default parameter bit width for 7  parameter count triceM is 8.
+#define triceM_8  trice8M_8  //!< Default parameter bit width for 8  parameter count triceM is 8.
+#define triceM_9  trice8M_9  //!< Default parameter bit width for 9  parameter count triceM is 8.
+#define triceM_10 trice8M_10 //!< Default parameter bit width for 10 parameter count triceM is 8.
+#define triceM_11 trice8M_11 //!< Default parameter bit width for 11 parameter count triceM is 8.
+#define triceM_12 trice8M_12 //!< Default parameter bit width for 12 parameter count triceM is 8.
+
+#define TriceM_1  Trice8M_1  //!< Default parameter bit width for 1  parameter count TriceM is 8.
+#define TriceM_2  Trice8M_2  //!< Default parameter bit width for 2  parameter count TriceM is 8.
+#define TriceM_3  Trice8M_3  //!< Default parameter bit width for 3  parameter count TriceM is 8.
+#define TriceM_4  Trice8M_4  //!< Default parameter bit width for 4  parameter count TriceM is 8.
+#define TriceM_5  Trice8M_5  //!< Default parameter bit width for 5  parameter count TriceM is 8.
+#define TriceM_6  Trice8M_6  //!< Default parameter bit width for 6  parameter count TriceM is 8.
+#define TriceM_7  Trice8M_7  //!< Default parameter bit width for 7  parameter count TriceM is 8.
+#define TriceM_8  Trice8M_8  //!< Default parameter bit width for 8  parameter count TriceM is 8.
+#define TriceM_9  Trice8M_9  //!< Default parameter bit width for 9  parameter count TriceM is 8.
+#define TriceM_10 Trice8M_10 //!< Default parameter bit width for 10 parameter count TriceM is 8.
+#define TriceM_11 Trice8M_11 //!< Default parameter bit width for 11 parameter count TriceM is 8.
+#define TriceM_12 Trice8M_12 //!< Default parameter bit width for 12 parameter count TriceM is 8.
+
+#define TRiceM_1  TRice8M_1  //!< Default parameter bit width for 1  parameter count TRiceM is 8.
+#define TRiceM_2  TRice8M_2  //!< Default parameter bit width for 2  parameter count TRiceM is 8.
+#define TRiceM_3  TRice8M_3  //!< Default parameter bit width for 3  parameter count TRiceM is 8.
+#define TRiceM_4  TRice8M_4  //!< Default parameter bit width for 4  parameter count TRiceM is 8.
+#define TRiceM_5  TRice8M_5  //!< Default parameter bit width for 5  parameter count TRiceM is 8.
+#define TRiceM_6  TRice8M_6  //!< Default parameter bit width for 6  parameter count TRiceM is 8.
+#define TRiceM_7  TRice8M_7  //!< Default parameter bit width for 7  parameter count TRiceM is 8.
+#define TRiceM_8  TRice8M_8  //!< Default parameter bit width for 8  parameter count TRiceM is 8.
+#define TRiceM_9  TRice8M_9  //!< Default parameter bit width for 9  parameter count TRiceM is 8.
+#define TRiceM_10 TRice8M_10 //!< Default parameter bit width for 10 parameter count TRiceM is 8.
+#define TRiceM_11 TRice8M_11 //!< Default parameter bit width for 11 parameter count TRiceM is 8.
+#define TRiceM_12 TRice8M_12 //!< Default parameter bit width for 12 parameter count TRiceM is 8.
+
+#endif // #if TRICE_DEFAULT_PARAMETER_BIT_WIDTH == 8
+
+//
+///////////////////////////////////////////////////////////////////////////////

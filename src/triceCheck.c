@@ -1144,7 +1144,7 @@ void TriceCheckSet(int index) {
   //break; case __LINE__: TRICE8_8(Id( 5745), "tst:TRICE8_8 %u %u %u %u %u %u %u %u\n", 201, 202, 203, 204, 205, 206, 207, 208);
   //break; case __LINE__: TRICE8_8(Id( 5500), "tst:TRICE8_1 %%d=%d, %%u=%u, 0x%%x=0x%x, 0x%%2x=0x%2x, 0x%%02x=0x%02x, 0x%%3x=0x%3x, 0x%%03x=0x%03x, %%b=%b\n", 0x81, 0x81, 0x81, 0x81, 0x81, 0x81, 0x81, 0x81);
     break; case __LINE__: TRICE( id( 7394), "sig:Legacy TRICE16-64\n" );
-    break; case __LINE__: TRICE16_1(Id( 2902), "tst:TRICE16_1 %d\n", -111);
+    break; case __LINE__: TRICE16_1(ID( 2902), "tst:TRICE16_1 %d\n", -111);
     break; case __LINE__: TRICE16_2(Id( 3091), "tst:TRICE16_2 %d %d\n", -111, -222);
     break; case __LINE__: TRICE16_3(Id( 7510), "tst:TRICE16_3 %d %d %d\n", -111, -222, -333);
     break; case __LINE__: TRICE16_4(Id( 4728), "tst:TRICE16_4 %d %d %d %d\n", -111, -222, -333, -444);
@@ -1166,7 +1166,7 @@ void TriceCheckSet(int index) {
     break; case __LINE__: TRICE32_2(Id( 5082), "tst:TRICE32_2 %u %u\n", 4000000001, 4000000002);
     break; case __LINE__: TRICE32_3(Id( 3841), "tst:TRICE32_3 %u %u %u\n", 4000000001, 4000000002, 4000000003);
     break; case __LINE__: TRICE32_4(Id( 7625), "tst:TRICE32_4 %u %u %u %u\n", 4000000001, 4000000002, 4000000003, 4000000004);
-    break; case __LINE__: TRICE64_1(Id( 3903), "tst:TRICE64_1 %x\n", -1);
+    break; case __LINE__: TRICE64_1(ID( 3903), "tst:TRICE64_1 %x\n", -1);
     break; case __LINE__: TRICE64_2(Id( 4882), "tst:TRICE64_2 %x %x\n", -1, -2);
     break; case __LINE__: TRICE64_1(Id( 3959), "tst:TRICE64_1 %u\n", -1);
     break; case __LINE__: TRICE64_2(Id( 4034), "tst:TRICE64_2 %u %u\n", -1, -2);
@@ -1371,7 +1371,7 @@ EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
   //break; case __LINE__: TRICE16_12(Id( 1814), "tst:TRICE16_12 %d %d %d %d %d %d %d %d %d %d %d %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );
   //break; case __LINE__: TRICE16_9(Id( 1374), "tst:TRICE16 %t %b %x %X %d %u %o %O %p\n", 3, 3, 3, 3, 3, 3, 3, 3, 3 );
     break; case __LINE__: TRICE( id( 7422), "sig:TRICE32 with variable param count 1 to 12\n" );
-    break; case __LINE__: TRICE32(Id( 2468), "tst:TRICE32 %d\n", -1 );
+    break; case __LINE__: TRICE32(ID( 2468), "tst:TRICE32 %d\n", -1 );
     break; case __LINE__: TRICE32(Id( 3673), "tst:TRICE32 %d %d\n", -1, -2 );
     break; case __LINE__: TRICE32(Id( 6899), "tst:TRICE32 %d %d %d\n", -1, -2, -3 );
     break; case __LINE__: TRICE32(Id( 7262), "tst:TRICE32 %d %d %d %d\n", -1, -2, -3, -4 );

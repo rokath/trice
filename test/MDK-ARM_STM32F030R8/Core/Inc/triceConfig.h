@@ -11,11 +11,193 @@ extern "C" {
 
 #include <stdint.h>
 
+//! TRICE_DEFAULT_PARAMETER_BIT_WIDTH is the default parameter bit width for TRICE macros not specifying the parameter bit width: 8, 16, 32 or 64.
+//! If for example the majority of your values is 16 bit, it makes sense to set this value to 16 to use TRICE for them and to use TRICE32 explicitely for 32-bit values.
+//! The trice tool CLI switch "-defaultTRICEBitwidth" needs to be set to the same bit width,
+#define TRICE_DEFAULT_PARAMETER_BIT_WIDTH 32
+
 //! TRICE_B is a shortcut for TRICE8_B, TRICE16_B, TRICE32_B or TRICE64_B usable in your project.
 #define TRICE_B  TRICE8_B
 
 //! TRICE_F is a shortcut for TRICE8_F, TRICE16_F, TRICE32_F or TRICE64_F usable in your project.
 #define TRICE_F  TRICE8_F
+
+///////////////////////////////////////////////////////////////////////////////
+// Reduce trice code size by selectively setting 0 to unused functions.
+// When using only TRICE macros, all these functions are unused.
+// When using only TRice macros with max 4 values only ENABLE_TRice32fn_1, ENABLE_TRice32fn_2, ENABLE_TRice32fn_3, ENABLE_TRice32fn_4 are used.
+//
+
+// without stamp 8-bit values functions
+#define ENABLE_trice8fn_1  1
+#define ENABLE_trice8fn_2  1
+#define ENABLE_trice8fn_3  1
+#define ENABLE_trice8fn_4  1
+#define ENABLE_trice8fn_5  1
+#define ENABLE_trice8fn_6  1
+#define ENABLE_trice8fn_7  1
+#define ENABLE_trice8fn_8  1
+#define ENABLE_trice8fn_9  1
+#define ENABLE_trice8fn_10 1
+#define ENABLE_trice8fn_11 1
+#define ENABLE_trice8fn_12 1
+
+// with 16-bit stamp 8-bit values functions
+#define ENABLE_Trice8fn_1  1
+#define ENABLE_Trice8fn_2  1
+#define ENABLE_Trice8fn_3  1
+#define ENABLE_Trice8fn_4  1
+#define ENABLE_Trice8fn_5  1
+#define ENABLE_Trice8fn_6  1
+#define ENABLE_Trice8fn_7  1
+#define ENABLE_Trice8fn_8  1
+#define ENABLE_Trice8fn_9  1
+#define ENABLE_Trice8fn_10 1
+#define ENABLE_Trice8fn_11 1
+#define ENABLE_Trice8fn_12 1
+
+// with 32-bit stamp 8-bit values functions
+#define ENABLE_TRice8fn_1  1
+#define ENABLE_TRice8fn_2  1
+#define ENABLE_TRice8fn_3  1
+#define ENABLE_TRice8fn_4  1
+#define ENABLE_TRice8fn_5  1
+#define ENABLE_TRice8fn_6  1
+#define ENABLE_TRice8fn_7  1
+#define ENABLE_TRice8fn_8  1
+#define ENABLE_TRice8fn_9  1
+#define ENABLE_TRice8fn_10 1
+#define ENABLE_TRice8fn_11 1
+#define ENABLE_TRice8fn_12 1
+
+// without stamp 16-bit values functions
+#define ENABLE_trice16fn_1  1
+#define ENABLE_trice16fn_2  1
+#define ENABLE_trice16fn_3  1
+#define ENABLE_trice16fn_4  1
+#define ENABLE_trice16fn_5  1
+#define ENABLE_trice16fn_6  1
+#define ENABLE_trice16fn_7  1
+#define ENABLE_trice16fn_8  1
+#define ENABLE_trice16fn_9  1
+#define ENABLE_trice16fn_10 1
+#define ENABLE_trice16fn_11 1
+#define ENABLE_trice16fn_12 1
+
+// with 16-bit stamp 16-bit values functions
+#define ENABLE_Trice16fn_1  1
+#define ENABLE_Trice16fn_2  1
+#define ENABLE_Trice16fn_3  1
+#define ENABLE_Trice16fn_4  1
+#define ENABLE_Trice16fn_5  1
+#define ENABLE_Trice16fn_6  1
+#define ENABLE_Trice16fn_7  1
+#define ENABLE_Trice16fn_8  1
+#define ENABLE_Trice16fn_9  1
+#define ENABLE_Trice16fn_10 1
+#define ENABLE_Trice16fn_11 1
+#define ENABLE_Trice16fn_12 1
+
+// with 32-bit stamp 16-bit values functions
+#define ENABLE_TRice16fn_1  1
+#define ENABLE_TRice16fn_2  1
+#define ENABLE_TRice16fn_3  1
+#define ENABLE_TRice16fn_4  1
+#define ENABLE_TRice16fn_5  1
+#define ENABLE_TRice16fn_6  1
+#define ENABLE_TRice16fn_7  1
+#define ENABLE_TRice16fn_8  1
+#define ENABLE_TRice16fn_9  1
+#define ENABLE_TRice16fn_10 1
+#define ENABLE_TRice16fn_11 1
+#define ENABLE_TRice16fn_12 1
+
+// without stamp 32-bit values functions
+#define ENABLE_trice32fn_1  1
+#define ENABLE_trice32fn_2  1
+#define ENABLE_trice32fn_3  1
+#define ENABLE_trice32fn_4  1
+#define ENABLE_trice32fn_5  1
+#define ENABLE_trice32fn_6  1
+#define ENABLE_trice32fn_7  1
+#define ENABLE_trice32fn_8  1
+#define ENABLE_trice32fn_9  1
+#define ENABLE_trice32fn_10 1
+#define ENABLE_trice32fn_11 1
+#define ENABLE_trice32fn_12 1
+
+// with 16-bit stamp 32-bit values functions
+#define ENABLE_Trice32fn_1  1
+#define ENABLE_Trice32fn_2  1
+#define ENABLE_Trice32fn_3  1
+#define ENABLE_Trice32fn_4  1
+#define ENABLE_Trice32fn_5  1
+#define ENABLE_Trice32fn_6  1
+#define ENABLE_Trice32fn_7  1
+#define ENABLE_Trice32fn_8  1
+#define ENABLE_Trice32fn_9  1
+#define ENABLE_Trice32fn_10 1
+#define ENABLE_Trice32fn_11 1
+#define ENABLE_Trice32fn_12 1
+
+// with 32-bit stamp 32-bit values functions
+#define ENABLE_TRice32fn_1  1
+#define ENABLE_TRice32fn_2  1
+#define ENABLE_TRice32fn_3  1
+#define ENABLE_TRice32fn_4  1
+#define ENABLE_TRice32fn_5  1
+#define ENABLE_TRice32fn_6  1
+#define ENABLE_TRice32fn_7  1
+#define ENABLE_TRice32fn_8  1
+#define ENABLE_TRice32fn_9  1
+#define ENABLE_TRice32fn_10 1
+#define ENABLE_TRice32fn_11 1
+#define ENABLE_TRice32fn_12 1
+
+// without stamp 64-bit values functions
+#define ENABLE_trice64fn_1  1
+#define ENABLE_trice64fn_2  1
+#define ENABLE_trice64fn_3  1
+#define ENABLE_trice64fn_4  1
+#define ENABLE_trice64fn_5  1
+#define ENABLE_trice64fn_6  1
+#define ENABLE_trice64fn_7  1
+#define ENABLE_trice64fn_8  1
+#define ENABLE_trice64fn_9  1
+#define ENABLE_trice64fn_10 1
+#define ENABLE_trice64fn_11 1
+#define ENABLE_trice64fn_12 1
+
+// with 16-bit stamp 64-bit values functions
+#define ENABLE_Trice64fn_1  1
+#define ENABLE_Trice64fn_2  1
+#define ENABLE_Trice64fn_3  1
+#define ENABLE_Trice64fn_4  1
+#define ENABLE_Trice64fn_5  1
+#define ENABLE_Trice64fn_6  1
+#define ENABLE_Trice64fn_7  1
+#define ENABLE_Trice64fn_8  1
+#define ENABLE_Trice64fn_9  1
+#define ENABLE_Trice64fn_10 1
+#define ENABLE_Trice64fn_11 1
+#define ENABLE_Trice64fn_12 1
+
+// with 32-bit stamp 64-bit values functions
+#define ENABLE_TRice64fn_1  1
+#define ENABLE_TRice64fn_2  1
+#define ENABLE_TRice64fn_3  1
+#define ENABLE_TRice64fn_4  1
+#define ENABLE_TRice64fn_5  1
+#define ENABLE_TRice64fn_6  1
+#define ENABLE_TRice64fn_7  1
+#define ENABLE_TRice64fn_8  1
+#define ENABLE_TRice64fn_9  1
+#define ENABLE_TRice64fn_10 1
+#define ENABLE_TRice64fn_11 1
+#define ENABLE_TRice64fn_12 1
+
+//
+///////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////////
 // Select trice mode and general settings.
@@ -60,13 +242,24 @@ extern "C" {
 #define TRICE_BUFFER_SIZE 0x1000 //!< TRICE_BUFFER_SIZE is the double half buffer size usable for a TRICE macro burst. Recommended value: 2000.
 #endif
 
-//! TRICE_FRAMING defines the framing method of the binary trice data stream. Default is TRICE_FRAMING_TCOBS.
-//! When changing to TRICE_FRAMING_COBS, the trice tool needs an additional le switch `-framing COBS`.
-//! TRICE_FRAMING_COBS is useful if you intend to decode the binary trice date with Python or an other language.
-//! When using encryption TRICE_FRAMING_TCOBS has no advantage over TRICE_FRAMING_COBS.
-//! options: TRICE_FRAMING_TCOBS, TRICE_FRAMING_COBS, TRICE_FRAMING_NONE
-#define TRICE_FRAMING TRICE_FRAMING_TCOBS
+// Enabling next line results in XTEA TriceEncryption  with the key.
+//#define XTEA_ENCRYPT_KEY XTEA_KEY( ea, bb, ec, 6f, 31, 80, 4e, b9, 68, e2, fa, ea, ae, f1, 50, 54 ); //!< -password MySecret
+//#define XTEA_DECRYPT //!< XTEA_DECRYPT is usually not needed. Enable for checks.
 
+#ifdef XTEA_ENCRYPT_KEY
+//! TRICE_FRAMING is recommended to be TRICE_FRAMING_COBS when XTEA is used. The trice tool takes it as default then.
+#define TRICE_FRAMING TRICE_FRAMING_COBS
+#else // #ifdef XTEA_ENCRYPT_KEY
+//! TRICE_FRAMING defines the framing method of the binary trice data stream. Default is TRICE_FRAMING_TCOBS if XTEA is off.
+//! - options: TRICE_FRAMING_TCOBS, TRICE_FRAMING_COBS, TRICE_FRAMING_NONE
+//! - When changing to TRICE_FRAMING_COBS, the trice tool needs an additional switch `-packageFraming COBS`.
+//!   - TRICE_FRAMING_COBS is useful if you intend to decode the binary trice date with Python or an other language.
+//!   - When using encryption TRICE_FRAMING_TCOBS has no advantage over TRICE_FRAMING_COBS, so TRICE_FRAMING_COBS is better then.
+//! - When changing to TRICE_FRAMING_NONE, the trice tool needs an additional switch `-packageFraming none`.
+//!   - This mode may be helpful if you write your own trice viewer without a decoder.
+//!   - In environments, where no data can get lost, TRICE_FRAMING_NONE may make sense too.
+#define TRICE_FRAMING TRICE_FRAMING_TCOBS
+#endif // #else // #ifdef XTEA_ENCRYPT_KEY
 
 //! TRICE_DATA_OFFSET is the space in front of trice data for in-buffer (T)COBS encoding. It must be be a multiple of uint32_t.
 #define TRICE_DATA_OFFSET 100
@@ -111,10 +304,6 @@ extern "C" {
 //! or on big endian MCUs if the trice data are needed in little endian order. You should avoid using this macro because
 //! it increases the trice storage time and the needed code amount. 
 //#define TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN
-
-// Enabling next line results in XTEA TriceEncryption  with the key.
-//#define XTEA_ENCRYPT_KEY XTEA_KEY( ea, bb, ec, 6f, 31, 80, 4e, b9, 68, e2, fa, ea, ae, f1, 50, 54 ); //!< -password MySecret
-//#define XTEA_DECRYPT //!< XTEA_DECRYPT is usually not needed. Enable for checks.
 
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -282,105 +471,6 @@ TRICE_INLINE void triceDisableTxEmptyInterruptUartB(void) {
     LL_USART_DisableIT_TXE(TRICE_UARTB);
 }
 #endif // #ifdef TRICE_STM32
-
-//
-///////////////////////////////////////////////////////////////////////////////
-
-
-///////////////////////////////////////////////////////////////////////////////
-// Default TRICE macro bitwidth: 32 (optionally adapt to MCU bit width)
-//
-
-#define TRICE_1  TRICE32_1  //!< Default parameter bit width for 1  parameter count TRICE is 32, change for a different value.
-#define TRICE_2  TRICE32_2  //!< Default parameter bit width for 2  parameter count TRICE is 32, change for a different value.
-#define TRICE_3  TRICE32_3  //!< Default parameter bit width for 3  parameter count TRICE is 32, change for a different value.
-#define TRICE_4  TRICE32_4  //!< Default parameter bit width for 4  parameter count TRICE is 32, change for a different value.
-#define TRICE_5  TRICE32_5  //!< Default parameter bit width for 5  parameter count TRICE is 32, change for a different value.
-#define TRICE_6  TRICE32_6  //!< Default parameter bit width for 6  parameter count TRICE is 32, change for a different value.
-#define TRICE_7  TRICE32_7  //!< Default parameter bit width for 7  parameter count TRICE is 32, change for a different value.
-#define TRICE_8  TRICE32_8  //!< Default parameter bit width for 8  parameter count TRICE is 32, change for a different value.
-#define TRICE_9  TRICE32_9  //!< Default parameter bit width for 9  parameter count TRICE is 32, change for a different value.
-#define TRICE_10 TRICE32_10 //!< Default parameter bit width for 10 parameter count TRICE is 32, change for a different value.
-#define TRICE_11 TRICE32_11 //!< Default parameter bit width for 11 parameter count TRICE is 32, change for a different value.
-#define TRICE_12 TRICE32_12 //!< Default parameter bit width for 12 parameter count TRICE is 32, change for a different value.
-
-#define trice_1  trice32_1  //!< Default parameter bit width for 1  parameter count trice is 32, change for a different value.
-#define trice_2  trice32_2  //!< Default parameter bit width for 2  parameter count trice is 32, change for a different value.
-#define trice_3  trice32_3  //!< Default parameter bit width for 3  parameter count trice is 32, change for a different value.
-#define trice_4  trice32_4  //!< Default parameter bit width for 4  parameter count trice is 32, change for a different value.
-#define trice_5  trice32_5  //!< Default parameter bit width for 5  parameter count trice is 32, change for a different value.
-#define trice_6  trice32_6  //!< Default parameter bit width for 6  parameter count trice is 32, change for a different value.
-#define trice_7  trice32_7  //!< Default parameter bit width for 7  parameter count trice is 32, change for a different value.
-#define trice_8  trice32_8  //!< Default parameter bit width for 8  parameter count trice is 32, change for a different value.
-#define trice_9  trice32_9  //!< Default parameter bit width for 9  parameter count trice is 32, change for a different value.
-#define trice_10 trice32_10 //!< Default parameter bit width for 10 parameter count trice is 32, change for a different value.
-#define trice_11 trice32_11 //!< Default parameter bit width for 11 parameter count trice is 32, change for a different value.
-#define trice_12 trice32_12 //!< Default parameter bit width for 12 parameter count trice is 32, change for a different value.
-
-#define Trice_1  Trice32_1  //!< Default parameter bit width for 1  parameter count Trice is 32, change for a different value.
-#define Trice_2  Trice32_2  //!< Default parameter bit width for 2  parameter count Trice is 32, change for a different value.
-#define Trice_3  Trice32_3  //!< Default parameter bit width for 3  parameter count Trice is 32, change for a different value.
-#define Trice_4  Trice32_4  //!< Default parameter bit width for 4  parameter count Trice is 32, change for a different value.
-#define Trice_5  Trice32_5  //!< Default parameter bit width for 5  parameter count Trice is 32, change for a different value.
-#define Trice_6  Trice32_6  //!< Default parameter bit width for 6  parameter count Trice is 32, change for a different value.
-#define Trice_7  Trice32_7  //!< Default parameter bit width for 7  parameter count Trice is 32, change for a different value.
-#define Trice_8  Trice32_8  //!< Default parameter bit width for 8  parameter count Trice is 32, change for a different value.
-#define Trice_9  Trice32_9  //!< Default parameter bit width for 9  parameter count Trice is 32, change for a different value.
-#define Trice_10 Trice32_10 //!< Default parameter bit width for 10 parameter count Trice is 32, change for a different value.
-#define Trice_11 Trice32_11 //!< Default parameter bit width for 11 parameter count Trice is 32, change for a different value.
-#define Trice_12 Trice32_12 //!< Default parameter bit width for 12 parameter count Trice is 32, change for a different value.
-
-#define TRice_1  TRice32_1  //!< Default parameter bit width for 1  parameter count TRice is 32, change for a different value.
-#define TRice_2  TRice32_2  //!< Default parameter bit width for 2  parameter count TRice is 32, change for a different value.
-#define TRice_3  TRice32_3  //!< Default parameter bit width for 3  parameter count TRice is 32, change for a different value.
-#define TRice_4  TRice32_4  //!< Default parameter bit width for 4  parameter count TRice is 32, change for a different value.
-#define TRice_5  TRice32_5  //!< Default parameter bit width for 5  parameter count TRice is 32, change for a different value.
-#define TRice_6  TRice32_6  //!< Default parameter bit width for 6  parameter count TRice is 32, change for a different value.
-#define TRice_7  TRice32_7  //!< Default parameter bit width for 7  parameter count TRice is 32, change for a different value.
-#define TRice_8  TRice32_8  //!< Default parameter bit width for 8  parameter count TRice is 32, change for a different value.
-#define TRice_9  TRice32_9  //!< Default parameter bit width for 9  parameter count TRice is 32, change for a different value.
-#define TRice_10 TRice32_10 //!< Default parameter bit width for 10 parameter count TRice is 32, change for a different value.
-#define TRice_11 TRice32_11 //!< Default parameter bit width for 11 parameter count TRice is 32, change for a different value.
-#define TRice_12 TRice32_12 //!< Default parameter bit width for 12 parameter count TRice is 32, change for a different value.
-
-#define triceM_1  trice32M_1  //!< Default parameter bit width for 1  parameter count triceM is 32, change for a different value.
-#define triceM_2  trice32M_2  //!< Default parameter bit width for 2  parameter count triceM is 32, change for a different value.
-#define triceM_3  trice32M_3  //!< Default parameter bit width for 3  parameter count triceM is 32, change for a different value.
-#define triceM_4  trice32M_4  //!< Default parameter bit width for 4  parameter count triceM is 32, change for a different value.
-#define triceM_5  trice32M_5  //!< Default parameter bit width for 5  parameter count triceM is 32, change for a different value.
-#define triceM_6  trice32M_6  //!< Default parameter bit width for 6  parameter count triceM is 32, change for a different value.
-#define triceM_7  trice32M_7  //!< Default parameter bit width for 7  parameter count triceM is 32, change for a different value.
-#define triceM_8  trice32M_8  //!< Default parameter bit width for 8  parameter count triceM is 32, change for a different value.
-#define triceM_9  trice32M_9  //!< Default parameter bit width for 9  parameter count triceM is 32, change for a different value.
-#define triceM_10 trice32M_10 //!< Default parameter bit width for 10 parameter count triceM is 32, change for a different value.
-#define triceM_11 trice32M_11 //!< Default parameter bit width for 11 parameter count triceM is 32, change for a different value.
-#define triceM_12 trice32M_12 //!< Default parameter bit width for 12 parameter count triceM is 32, change for a different value.
-
-#define TriceM_1  Trice32M_1  //!< Default parameter bit width for 1  parameter count TriceM is 32, change for a different value.
-#define TriceM_2  Trice32M_2  //!< Default parameter bit width for 2  parameter count TriceM is 32, change for a different value.
-#define TriceM_3  Trice32M_3  //!< Default parameter bit width for 3  parameter count TriceM is 32, change for a different value.
-#define TriceM_4  Trice32M_4  //!< Default parameter bit width for 4  parameter count TriceM is 32, change for a different value.
-#define TriceM_5  Trice32M_5  //!< Default parameter bit width for 5  parameter count TriceM is 32, change for a different value.
-#define TriceM_6  Trice32M_6  //!< Default parameter bit width for 6  parameter count TriceM is 32, change for a different value.
-#define TriceM_7  Trice32M_7  //!< Default parameter bit width for 7  parameter count TriceM is 32, change for a different value.
-#define TriceM_8  Trice32M_8  //!< Default parameter bit width for 8  parameter count TriceM is 32, change for a different value.
-#define TriceM_9  Trice32M_9  //!< Default parameter bit width for 9  parameter count TriceM is 32, change for a different value.
-#define TriceM_10 Trice32M_10 //!< Default parameter bit width for 10 parameter count TriceM is 32, change for a different value.
-#define TriceM_11 Trice32M_11 //!< Default parameter bit width for 11 parameter count TriceM is 32, change for a different value.
-#define TriceM_12 Trice32M_12 //!< Default parameter bit width for 12 parameter count TriceM is 32, change for a different value.
-
-#define TRiceM_1  TRice32M_1  //!< Default parameter bit width for 1  parameter count TRiceM is 32, change for a different value.
-#define TRiceM_2  TRice32M_2  //!< Default parameter bit width for 2  parameter count TRiceM is 32, change for a different value.
-#define TRiceM_3  TRice32M_3  //!< Default parameter bit width for 3  parameter count TRiceM is 32, change for a different value.
-#define TRiceM_4  TRice32M_4  //!< Default parameter bit width for 4  parameter count TRiceM is 32, change for a different value.
-#define TRiceM_5  TRice32M_5  //!< Default parameter bit width for 5  parameter count TRiceM is 32, change for a different value.
-#define TRiceM_6  TRice32M_6  //!< Default parameter bit width for 6  parameter count TRiceM is 32, change for a different value.
-#define TRiceM_7  TRice32M_7  //!< Default parameter bit width for 7  parameter count TRiceM is 32, change for a different value.
-#define TRiceM_8  TRice32M_8  //!< Default parameter bit width for 8  parameter count TRiceM is 32, change for a different value.
-#define TRiceM_9  TRice32M_9  //!< Default parameter bit width for 9  parameter count TRiceM is 32, change for a different value.
-#define TRiceM_10 TRice32M_10 //!< Default parameter bit width for 10 parameter count TRiceM is 32, change for a different value.
-#define TRiceM_11 TRice32M_11 //!< Default parameter bit width for 11 parameter count TRiceM is 32, change for a different value.
-#define TRiceM_12 TRice32M_12 //!< Default parameter bit width for 12 parameter count TRiceM is 32, change for a different value.
 
 //
 ///////////////////////////////////////////////////////////////////////////////

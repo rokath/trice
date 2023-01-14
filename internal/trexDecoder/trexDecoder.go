@@ -138,6 +138,7 @@ func (p *trexDec) nextPackage() {
 
 	var n int
 	var e error
+	// todo: automatically set default decoder.PackageFraming value to COBS if XTEA is active.
 	switch strings.ToLower(decoder.PackageFraming) {
 	case "cobs":
 		n, e = cobs.Decode(p.B, p.IBuf[:index]) // if index is 0, an empty buffer is decoded

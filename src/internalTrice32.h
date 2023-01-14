@@ -308,18 +308,18 @@
 #define trice32M_11( tid, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10 ) trice32fn_11( tid, (uint32_t)(v0), (uint32_t)(v1), (uint32_t)(v2), (uint32_t)(v3), (uint32_t)(v4), (uint32_t)(v5), (uint32_t)(v6), (uint32_t)(v7), (uint32_t)(v8), (uint32_t)(v9), (uint32_t)(v10) ) //!< trice32M_11 is a macro calling a function to reduce code size.
 #define trice32M_12( tid, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 ) trice32fn_12( tid, (uint32_t)(v0), (uint32_t)(v1), (uint32_t)(v2), (uint32_t)(v3), (uint32_t)(v4), (uint32_t)(v5), (uint32_t)(v6), (uint32_t)(v7), (uint32_t)(v8), (uint32_t)(v9), (uint32_t)(v10), (uint32_t)(v11) ) //!< trice32M_12 is a macro calling a function to reduce code size.
 
-void trice32fn_1( uint32_t tid,  uint32_t v0 );
-void trice32fn_2( uint32_t tid,  uint32_t v0, uint32_t v1 );
-void trice32fn_3( uint32_t tid,  uint32_t v0, uint32_t v1, uint32_t v2 );
-void trice32fn_4( uint32_t tid,  uint32_t v0, uint32_t v1, uint32_t v2, uint32_t v3 );
-void trice32fn_5( uint32_t tid,  uint32_t v0, uint32_t v1, uint32_t v2, uint32_t v3, uint32_t v4 );
-void trice32fn_6( uint32_t tid,  uint32_t v0, uint32_t v1, uint32_t v2, uint32_t v3, uint32_t v4, uint32_t v5 );
-void trice32fn_7( uint32_t tid,  uint32_t v0, uint32_t v1, uint32_t v2, uint32_t v3, uint32_t v4, uint32_t v5, uint32_t v6 );
-void trice32fn_8( uint32_t tid,  uint32_t v0, uint32_t v1, uint32_t v2, uint32_t v3, uint32_t v4, uint32_t v5, uint32_t v6, uint32_t v7 );
-void trice32fn_9( uint32_t tid,  uint32_t v0, uint32_t v1, uint32_t v2, uint32_t v3, uint32_t v4, uint32_t v5, uint32_t v6, uint32_t v7, uint32_t v8 );
-void trice32fn_10( uint32_t tid, uint32_t v0, uint32_t v1, uint32_t v2, uint32_t v3, uint32_t v4, uint32_t v5, uint32_t v6, uint32_t v7, uint32_t v8, uint32_t v9 );
-void trice32fn_11( uint32_t tid, uint32_t v0, uint32_t v1, uint32_t v2, uint32_t v3, uint32_t v4, uint32_t v5, uint32_t v6, uint32_t v7, uint32_t v8, uint32_t v9, uint32_t v10 );
-void trice32fn_12( uint32_t tid, uint32_t v0, uint32_t v1, uint32_t v2, uint32_t v3, uint32_t v4, uint32_t v5, uint32_t v6, uint32_t v7, uint32_t v8, uint32_t v9, uint32_t v10, uint32_t v11 );
+void trice32fn_1( uint16_t tid,  uint32_t v0 );
+void trice32fn_2( uint16_t tid,  uint32_t v0, uint32_t v1 );
+void trice32fn_3( uint16_t tid,  uint32_t v0, uint32_t v1, uint32_t v2 );
+void trice32fn_4( uint16_t tid,  uint32_t v0, uint32_t v1, uint32_t v2, uint32_t v3 );
+void trice32fn_5( uint16_t tid,  uint32_t v0, uint32_t v1, uint32_t v2, uint32_t v3, uint32_t v4 );
+void trice32fn_6( uint16_t tid,  uint32_t v0, uint32_t v1, uint32_t v2, uint32_t v3, uint32_t v4, uint32_t v5 );
+void trice32fn_7( uint16_t tid,  uint32_t v0, uint32_t v1, uint32_t v2, uint32_t v3, uint32_t v4, uint32_t v5, uint32_t v6 );
+void trice32fn_8( uint16_t tid,  uint32_t v0, uint32_t v1, uint32_t v2, uint32_t v3, uint32_t v4, uint32_t v5, uint32_t v6, uint32_t v7 );
+void trice32fn_9( uint16_t tid,  uint32_t v0, uint32_t v1, uint32_t v2, uint32_t v3, uint32_t v4, uint32_t v5, uint32_t v6, uint32_t v7, uint32_t v8 );
+void trice32fn_10( uint16_t tid, uint32_t v0, uint32_t v1, uint32_t v2, uint32_t v3, uint32_t v4, uint32_t v5, uint32_t v6, uint32_t v7, uint32_t v8, uint32_t v9 );
+void trice32fn_11( uint16_t tid, uint32_t v0, uint32_t v1, uint32_t v2, uint32_t v3, uint32_t v4, uint32_t v5, uint32_t v6, uint32_t v7, uint32_t v8, uint32_t v9, uint32_t v10 );
+void trice32fn_12( uint16_t tid, uint32_t v0, uint32_t v1, uint32_t v2, uint32_t v3, uint32_t v4, uint32_t v5, uint32_t v6, uint32_t v7, uint32_t v8, uint32_t v9, uint32_t v10, uint32_t v11 );
 
 #define Trice32_1( fmt, v0 ) //!< Trice32_1 is an empty macro
 #define Trice32_2( fmt, v0, v1 ) //!< Trice32_2 is an empty macro
@@ -446,18 +446,18 @@ void trice32fn_12( uint32_t tid, uint32_t v0, uint32_t v1, uint32_t v2, uint32_t
 #define Trice32M_11( tid, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10 ) Trice32fn_11( tid, (uint32_t)(v0), (uint32_t)(v1), (uint32_t)(v2), (uint32_t)(v3), (uint32_t)(v4), (uint32_t)(v5), (uint32_t)(v6), (uint32_t)(v7), (uint32_t)(v8), (uint32_t)(v9), (uint32_t)(v10) ) //!< Trice32M_11 is a macro calling a function to reduce code size.
 #define Trice32M_12( tid, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 ) Trice32fn_12( tid, (uint32_t)(v0), (uint32_t)(v1), (uint32_t)(v2), (uint32_t)(v3), (uint32_t)(v4), (uint32_t)(v5), (uint32_t)(v6), (uint32_t)(v7), (uint32_t)(v8), (uint32_t)(v9), (uint32_t)(v10), (uint32_t)(v11) ) //!< Trice32M_12 is a macro calling a function to reduce code size.
 
-void Trice32fn_1( uint32_t tid,  uint32_t v0 );
-void Trice32fn_2( uint32_t tid,  uint32_t v0, uint32_t v1 );
-void Trice32fn_3( uint32_t tid,  uint32_t v0, uint32_t v1, uint32_t v2 );
-void Trice32fn_4( uint32_t tid,  uint32_t v0, uint32_t v1, uint32_t v2, uint32_t v3 );
-void Trice32fn_5( uint32_t tid,  uint32_t v0, uint32_t v1, uint32_t v2, uint32_t v3, uint32_t v4 );
-void Trice32fn_6( uint32_t tid,  uint32_t v0, uint32_t v1, uint32_t v2, uint32_t v3, uint32_t v4, uint32_t v5 );
-void Trice32fn_7( uint32_t tid,  uint32_t v0, uint32_t v1, uint32_t v2, uint32_t v3, uint32_t v4, uint32_t v5, uint32_t v6 );
-void Trice32fn_8( uint32_t tid,  uint32_t v0, uint32_t v1, uint32_t v2, uint32_t v3, uint32_t v4, uint32_t v5, uint32_t v6, uint32_t v7 );
-void Trice32fn_9( uint32_t tid,  uint32_t v0, uint32_t v1, uint32_t v2, uint32_t v3, uint32_t v4, uint32_t v5, uint32_t v6, uint32_t v7, uint32_t v8 );
-void Trice32fn_10( uint32_t tid, uint32_t v0, uint32_t v1, uint32_t v2, uint32_t v3, uint32_t v4, uint32_t v5, uint32_t v6, uint32_t v7, uint32_t v8, uint32_t v9 );
-void Trice32fn_11( uint32_t tid, uint32_t v0, uint32_t v1, uint32_t v2, uint32_t v3, uint32_t v4, uint32_t v5, uint32_t v6, uint32_t v7, uint32_t v8, uint32_t v9, uint32_t v10 );
-void Trice32fn_12( uint32_t tid, uint32_t v0, uint32_t v1, uint32_t v2, uint32_t v3, uint32_t v4, uint32_t v5, uint32_t v6, uint32_t v7, uint32_t v8, uint32_t v9, uint32_t v10, uint32_t v11 );
+void Trice32fn_1( uint16_t tid,  uint32_t v0 );
+void Trice32fn_2( uint16_t tid,  uint32_t v0, uint32_t v1 );
+void Trice32fn_3( uint16_t tid,  uint32_t v0, uint32_t v1, uint32_t v2 );
+void Trice32fn_4( uint16_t tid,  uint32_t v0, uint32_t v1, uint32_t v2, uint32_t v3 );
+void Trice32fn_5( uint16_t tid,  uint32_t v0, uint32_t v1, uint32_t v2, uint32_t v3, uint32_t v4 );
+void Trice32fn_6( uint16_t tid,  uint32_t v0, uint32_t v1, uint32_t v2, uint32_t v3, uint32_t v4, uint32_t v5 );
+void Trice32fn_7( uint16_t tid,  uint32_t v0, uint32_t v1, uint32_t v2, uint32_t v3, uint32_t v4, uint32_t v5, uint32_t v6 );
+void Trice32fn_8( uint16_t tid,  uint32_t v0, uint32_t v1, uint32_t v2, uint32_t v3, uint32_t v4, uint32_t v5, uint32_t v6, uint32_t v7 );
+void Trice32fn_9( uint16_t tid,  uint32_t v0, uint32_t v1, uint32_t v2, uint32_t v3, uint32_t v4, uint32_t v5, uint32_t v6, uint32_t v7, uint32_t v8 );
+void Trice32fn_10( uint16_t tid, uint32_t v0, uint32_t v1, uint32_t v2, uint32_t v3, uint32_t v4, uint32_t v5, uint32_t v6, uint32_t v7, uint32_t v8, uint32_t v9 );
+void Trice32fn_11( uint16_t tid, uint32_t v0, uint32_t v1, uint32_t v2, uint32_t v3, uint32_t v4, uint32_t v5, uint32_t v6, uint32_t v7, uint32_t v8, uint32_t v9, uint32_t v10 );
+void Trice32fn_12( uint16_t tid, uint32_t v0, uint32_t v1, uint32_t v2, uint32_t v3, uint32_t v4, uint32_t v5, uint32_t v6, uint32_t v7, uint32_t v8, uint32_t v9, uint32_t v10, uint32_t v11 );
 
 #define TRice32_1( fmt, v0 ) //!< TRice32_1 is an empty macro
 #define TRice32_2( fmt, v0, v1 ) //!< TRice32_2 is an empty macro
@@ -584,15 +584,118 @@ void Trice32fn_12( uint32_t tid, uint32_t v0, uint32_t v1, uint32_t v2, uint32_t
 #define TRice32M_11( tid, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10 ) TRice32fn_11( tid, (uint32_t)(v0), (uint32_t)(v1), (uint32_t)(v2), (uint32_t)(v3), (uint32_t)(v4), (uint32_t)(v5), (uint32_t)(v6), (uint32_t)(v7), (uint32_t)(v8), (uint32_t)(v9), (uint32_t)(v10) ) //!< TRice32M_11 is a macro calling a function to reduce code size.
 #define TRice32M_12( tid, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 ) TRice32fn_12( tid, (uint32_t)(v0), (uint32_t)(v1), (uint32_t)(v2), (uint32_t)(v3), (uint32_t)(v4), (uint32_t)(v5), (uint32_t)(v6), (uint32_t)(v7), (uint32_t)(v8), (uint32_t)(v9), (uint32_t)(v10), (uint32_t)(v11) ) //!< TRice32M_12 is a macro calling a function to reduce code size.
 
-void TRice32fn_1( uint32_t tid,  uint32_t v0 );
-void TRice32fn_2( uint32_t tid,  uint32_t v0, uint32_t v1 );
-void TRice32fn_3( uint32_t tid,  uint32_t v0, uint32_t v1, uint32_t v2 );
-void TRice32fn_4( uint32_t tid,  uint32_t v0, uint32_t v1, uint32_t v2, uint32_t v3 );
-void TRice32fn_5( uint32_t tid,  uint32_t v0, uint32_t v1, uint32_t v2, uint32_t v3, uint32_t v4 );
-void TRice32fn_6( uint32_t tid,  uint32_t v0, uint32_t v1, uint32_t v2, uint32_t v3, uint32_t v4, uint32_t v5 );
-void TRice32fn_7( uint32_t tid,  uint32_t v0, uint32_t v1, uint32_t v2, uint32_t v3, uint32_t v4, uint32_t v5, uint32_t v6 );
-void TRice32fn_8( uint32_t tid,  uint32_t v0, uint32_t v1, uint32_t v2, uint32_t v3, uint32_t v4, uint32_t v5, uint32_t v6, uint32_t v7 );
-void TRice32fn_9( uint32_t tid,  uint32_t v0, uint32_t v1, uint32_t v2, uint32_t v3, uint32_t v4, uint32_t v5, uint32_t v6, uint32_t v7, uint32_t v8 );
-void TRice32fn_10( uint32_t tid, uint32_t v0, uint32_t v1, uint32_t v2, uint32_t v3, uint32_t v4, uint32_t v5, uint32_t v6, uint32_t v7, uint32_t v8, uint32_t v9 );
-void TRice32fn_11( uint32_t tid, uint32_t v0, uint32_t v1, uint32_t v2, uint32_t v3, uint32_t v4, uint32_t v5, uint32_t v6, uint32_t v7, uint32_t v8, uint32_t v9, uint32_t v10 );
-void TRice32fn_12( uint32_t tid, uint32_t v0, uint32_t v1, uint32_t v2, uint32_t v3, uint32_t v4, uint32_t v5, uint32_t v6, uint32_t v7, uint32_t v8, uint32_t v9, uint32_t v10, uint32_t v11 );
+void TRice32fn_1( uint16_t tid,  uint32_t v0 );
+void TRice32fn_2( uint16_t tid,  uint32_t v0, uint32_t v1 );
+void TRice32fn_3( uint16_t tid,  uint32_t v0, uint32_t v1, uint32_t v2 );
+void TRice32fn_4( uint16_t tid,  uint32_t v0, uint32_t v1, uint32_t v2, uint32_t v3 );
+void TRice32fn_5( uint16_t tid,  uint32_t v0, uint32_t v1, uint32_t v2, uint32_t v3, uint32_t v4 );
+void TRice32fn_6( uint16_t tid,  uint32_t v0, uint32_t v1, uint32_t v2, uint32_t v3, uint32_t v4, uint32_t v5 );
+void TRice32fn_7( uint16_t tid,  uint32_t v0, uint32_t v1, uint32_t v2, uint32_t v3, uint32_t v4, uint32_t v5, uint32_t v6 );
+void TRice32fn_8( uint16_t tid,  uint32_t v0, uint32_t v1, uint32_t v2, uint32_t v3, uint32_t v4, uint32_t v5, uint32_t v6, uint32_t v7 );
+void TRice32fn_9( uint16_t tid,  uint32_t v0, uint32_t v1, uint32_t v2, uint32_t v3, uint32_t v4, uint32_t v5, uint32_t v6, uint32_t v7, uint32_t v8 );
+void TRice32fn_10( uint16_t tid, uint32_t v0, uint32_t v1, uint32_t v2, uint32_t v3, uint32_t v4, uint32_t v5, uint32_t v6, uint32_t v7, uint32_t v8, uint32_t v9 );
+void TRice32fn_11( uint16_t tid, uint32_t v0, uint32_t v1, uint32_t v2, uint32_t v3, uint32_t v4, uint32_t v5, uint32_t v6, uint32_t v7, uint32_t v8, uint32_t v9, uint32_t v10 );
+void TRice32fn_12( uint16_t tid, uint32_t v0, uint32_t v1, uint32_t v2, uint32_t v3, uint32_t v4, uint32_t v5, uint32_t v6, uint32_t v7, uint32_t v8, uint32_t v9, uint32_t v10, uint32_t v11 );
+
+
+///////////////////////////////////////////////////////////////////////////////
+//
+
+#if TRICE_DEFAULT_PARAMETER_BIT_WIDTH == 32
+
+#define TRICE_1  TRICE32_1  //!< Default parameter bit width for 1  parameter count TRICE is 32, change for a different value.
+#define TRICE_2  TRICE32_2  //!< Default parameter bit width for 2  parameter count TRICE is 32, change for a different value.
+#define TRICE_3  TRICE32_3  //!< Default parameter bit width for 3  parameter count TRICE is 32, change for a different value.
+#define TRICE_4  TRICE32_4  //!< Default parameter bit width for 4  parameter count TRICE is 32, change for a different value.
+#define TRICE_5  TRICE32_5  //!< Default parameter bit width for 5  parameter count TRICE is 32, change for a different value.
+#define TRICE_6  TRICE32_6  //!< Default parameter bit width for 6  parameter count TRICE is 32, change for a different value.
+#define TRICE_7  TRICE32_7  //!< Default parameter bit width for 7  parameter count TRICE is 32, change for a different value.
+#define TRICE_8  TRICE32_8  //!< Default parameter bit width for 8  parameter count TRICE is 32, change for a different value.
+#define TRICE_9  TRICE32_9  //!< Default parameter bit width for 9  parameter count TRICE is 32, change for a different value.
+#define TRICE_10 TRICE32_10 //!< Default parameter bit width for 10 parameter count TRICE is 32, change for a different value.
+#define TRICE_11 TRICE32_11 //!< Default parameter bit width for 11 parameter count TRICE is 32, change for a different value.
+#define TRICE_12 TRICE32_12 //!< Default parameter bit width for 12 parameter count TRICE is 32, change for a different value.
+
+#define trice_1  trice32_1  //!< Default parameter bit width for 1  parameter count trice is 32, change for a different value.
+#define trice_2  trice32_2  //!< Default parameter bit width for 2  parameter count trice is 32, change for a different value.
+#define trice_3  trice32_3  //!< Default parameter bit width for 3  parameter count trice is 32, change for a different value.
+#define trice_4  trice32_4  //!< Default parameter bit width for 4  parameter count trice is 32, change for a different value.
+#define trice_5  trice32_5  //!< Default parameter bit width for 5  parameter count trice is 32, change for a different value.
+#define trice_6  trice32_6  //!< Default parameter bit width for 6  parameter count trice is 32, change for a different value.
+#define trice_7  trice32_7  //!< Default parameter bit width for 7  parameter count trice is 32, change for a different value.
+#define trice_8  trice32_8  //!< Default parameter bit width for 8  parameter count trice is 32, change for a different value.
+#define trice_9  trice32_9  //!< Default parameter bit width for 9  parameter count trice is 32, change for a different value.
+#define trice_10 trice32_10 //!< Default parameter bit width for 10 parameter count trice is 32, change for a different value.
+#define trice_11 trice32_11 //!< Default parameter bit width for 11 parameter count trice is 32, change for a different value.
+#define trice_12 trice32_12 //!< Default parameter bit width for 12 parameter count trice is 32, change for a different value.
+
+#define Trice_1  Trice32_1  //!< Default parameter bit width for 1  parameter count Trice is 32, change for a different value.
+#define Trice_2  Trice32_2  //!< Default parameter bit width for 2  parameter count Trice is 32, change for a different value.
+#define Trice_3  Trice32_3  //!< Default parameter bit width for 3  parameter count Trice is 32, change for a different value.
+#define Trice_4  Trice32_4  //!< Default parameter bit width for 4  parameter count Trice is 32, change for a different value.
+#define Trice_5  Trice32_5  //!< Default parameter bit width for 5  parameter count Trice is 32, change for a different value.
+#define Trice_6  Trice32_6  //!< Default parameter bit width for 6  parameter count Trice is 32, change for a different value.
+#define Trice_7  Trice32_7  //!< Default parameter bit width for 7  parameter count Trice is 32, change for a different value.
+#define Trice_8  Trice32_8  //!< Default parameter bit width for 8  parameter count Trice is 32, change for a different value.
+#define Trice_9  Trice32_9  //!< Default parameter bit width for 9  parameter count Trice is 32, change for a different value.
+#define Trice_10 Trice32_10 //!< Default parameter bit width for 10 parameter count Trice is 32, change for a different value.
+#define Trice_11 Trice32_11 //!< Default parameter bit width for 11 parameter count Trice is 32, change for a different value.
+#define Trice_12 Trice32_12 //!< Default parameter bit width for 12 parameter count Trice is 32, change for a different value.
+
+#define TRice_1  TRice32_1  //!< Default parameter bit width for 1  parameter count TRice is 32, change for a different value.
+#define TRice_2  TRice32_2  //!< Default parameter bit width for 2  parameter count TRice is 32, change for a different value.
+#define TRice_3  TRice32_3  //!< Default parameter bit width for 3  parameter count TRice is 32, change for a different value.
+#define TRice_4  TRice32_4  //!< Default parameter bit width for 4  parameter count TRice is 32, change for a different value.
+#define TRice_5  TRice32_5  //!< Default parameter bit width for 5  parameter count TRice is 32, change for a different value.
+#define TRice_6  TRice32_6  //!< Default parameter bit width for 6  parameter count TRice is 32, change for a different value.
+#define TRice_7  TRice32_7  //!< Default parameter bit width for 7  parameter count TRice is 32, change for a different value.
+#define TRice_8  TRice32_8  //!< Default parameter bit width for 8  parameter count TRice is 32, change for a different value.
+#define TRice_9  TRice32_9  //!< Default parameter bit width for 9  parameter count TRice is 32, change for a different value.
+#define TRice_10 TRice32_10 //!< Default parameter bit width for 10 parameter count TRice is 32, change for a different value.
+#define TRice_11 TRice32_11 //!< Default parameter bit width for 11 parameter count TRice is 32, change for a different value.
+#define TRice_12 TRice32_12 //!< Default parameter bit width for 12 parameter count TRice is 32, change for a different value.
+
+#define triceM_1  trice32M_1  //!< Default parameter bit width for 1  parameter count triceM is 32, change for a different value.
+#define triceM_2  trice32M_2  //!< Default parameter bit width for 2  parameter count triceM is 32, change for a different value.
+#define triceM_3  trice32M_3  //!< Default parameter bit width for 3  parameter count triceM is 32, change for a different value.
+#define triceM_4  trice32M_4  //!< Default parameter bit width for 4  parameter count triceM is 32, change for a different value.
+#define triceM_5  trice32M_5  //!< Default parameter bit width for 5  parameter count triceM is 32, change for a different value.
+#define triceM_6  trice32M_6  //!< Default parameter bit width for 6  parameter count triceM is 32, change for a different value.
+#define triceM_7  trice32M_7  //!< Default parameter bit width for 7  parameter count triceM is 32, change for a different value.
+#define triceM_8  trice32M_8  //!< Default parameter bit width for 8  parameter count triceM is 32, change for a different value.
+#define triceM_9  trice32M_9  //!< Default parameter bit width for 9  parameter count triceM is 32, change for a different value.
+#define triceM_10 trice32M_10 //!< Default parameter bit width for 10 parameter count triceM is 32, change for a different value.
+#define triceM_11 trice32M_11 //!< Default parameter bit width for 11 parameter count triceM is 32, change for a different value.
+#define triceM_12 trice32M_12 //!< Default parameter bit width for 12 parameter count triceM is 32, change for a different value.
+
+#define TriceM_1  Trice32M_1  //!< Default parameter bit width for 1  parameter count TriceM is 32, change for a different value.
+#define TriceM_2  Trice32M_2  //!< Default parameter bit width for 2  parameter count TriceM is 32, change for a different value.
+#define TriceM_3  Trice32M_3  //!< Default parameter bit width for 3  parameter count TriceM is 32, change for a different value.
+#define TriceM_4  Trice32M_4  //!< Default parameter bit width for 4  parameter count TriceM is 32, change for a different value.
+#define TriceM_5  Trice32M_5  //!< Default parameter bit width for 5  parameter count TriceM is 32, change for a different value.
+#define TriceM_6  Trice32M_6  //!< Default parameter bit width for 6  parameter count TriceM is 32, change for a different value.
+#define TriceM_7  Trice32M_7  //!< Default parameter bit width for 7  parameter count TriceM is 32, change for a different value.
+#define TriceM_8  Trice32M_8  //!< Default parameter bit width for 8  parameter count TriceM is 32, change for a different value.
+#define TriceM_9  Trice32M_9  //!< Default parameter bit width for 9  parameter count TriceM is 32, change for a different value.
+#define TriceM_10 Trice32M_10 //!< Default parameter bit width for 10 parameter count TriceM is 32, change for a different value.
+#define TriceM_11 Trice32M_11 //!< Default parameter bit width for 11 parameter count TriceM is 32, change for a different value.
+#define TriceM_12 Trice32M_12 //!< Default parameter bit width for 12 parameter count TriceM is 32, change for a different value.
+
+#define TRiceM_1  TRice32M_1  //!< Default parameter bit width for 1  parameter count TRiceM is 32, change for a different value.
+#define TRiceM_2  TRice32M_2  //!< Default parameter bit width for 2  parameter count TRiceM is 32, change for a different value.
+#define TRiceM_3  TRice32M_3  //!< Default parameter bit width for 3  parameter count TRiceM is 32, change for a different value.
+#define TRiceM_4  TRice32M_4  //!< Default parameter bit width for 4  parameter count TRiceM is 32, change for a different value.
+#define TRiceM_5  TRice32M_5  //!< Default parameter bit width for 5  parameter count TRiceM is 32, change for a different value.
+#define TRiceM_6  TRice32M_6  //!< Default parameter bit width for 6  parameter count TRiceM is 32, change for a different value.
+#define TRiceM_7  TRice32M_7  //!< Default parameter bit width for 7  parameter count TRiceM is 32, change for a different value.
+#define TRiceM_8  TRice32M_8  //!< Default parameter bit width for 8  parameter count TRiceM is 32, change for a different value.
+#define TRiceM_9  TRice32M_9  //!< Default parameter bit width for 9  parameter count TRiceM is 32, change for a different value.
+#define TRiceM_10 TRice32M_10 //!< Default parameter bit width for 10 parameter count TRiceM is 32, change for a different value.
+#define TRiceM_11 TRice32M_11 //!< Default parameter bit width for 11 parameter count TRiceM is 32, change for a different value.
+#define TRiceM_12 TRice32M_12 //!< Default parameter bit width for 12 parameter count TRiceM is 32, change for a different value.
+
+#endif // #if TRICE_DEFAULT_PARAMETER_BIT_WIDTH == 32
+
+//
+///////////////////////////////////////////////////////////////////////////////
+

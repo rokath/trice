@@ -85,14 +85,20 @@ static inline uint64_t ReadUs64( void ){
 static inline uint32_t ReadUs32( void ){
     return (uint32_t)ReadUs64();
 }
-
+/*
 uint16_t TriceStamp16( void ){ // wraps after 10ms
-    //return (uint16_t)(ReadUs32() % 10000); // This implies division and is therefore slow!
-    return (uint16_t)(milliSecond % 10000);
+    return (uint16_t)(ReadUs32() % 10000); // This implies division and is therefore slow!
 }
 
 uint32_t TriceStamp32( void ){
-    //return ReadUs32();
+    return ReadUs32();
+}
+*/
+uint16_t TriceStamp16( void ){ // wraps after 10s 
+    return (uint16_t)(milliSecond % 10000); // This implies division and is therefore slow!
+}
+
+uint32_t TriceStamp32( void ){
     return milliSecond;
 }
 

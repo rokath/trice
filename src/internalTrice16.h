@@ -562,5 +562,103 @@ void TRice16fn_11( uint16_t tid, uint16_t v0, uint16_t v1, uint16_t v2, uint16_t
 void TRice16fn_12( uint16_t tid, uint16_t v0, uint16_t v1, uint16_t v2, uint16_t v3, uint16_t v4, uint16_t v5, uint16_t v6, uint16_t v7, uint16_t v8, uint16_t v9, uint16_t v10, uint16_t v11 );
 
 
+///////////////////////////////////////////////////////////////////////////////
+//
 
+#if TRICE_DEFAULT_PARAMETER_BIT_WIDTH == 16
 
+#define TRICE_1  TRICE16_1  //!< Default parameter bit width for 1  parameter count TRICE is 16.
+#define TRICE_2  TRICE16_2  //!< Default parameter bit width for 2  parameter count TRICE is 16.
+#define TRICE_3  TRICE16_3  //!< Default parameter bit width for 3  parameter count TRICE is 16.
+#define TRICE_4  TRICE16_4  //!< Default parameter bit width for 4  parameter count TRICE is 16.
+#define TRICE_5  TRICE16_5  //!< Default parameter bit width for 5  parameter count TRICE is 16.
+#define TRICE_6  TRICE16_6  //!< Default parameter bit width for 6  parameter count TRICE is 16.
+#define TRICE_7  TRICE16_7  //!< Default parameter bit width for 7  parameter count TRICE is 16.
+#define TRICE_8  TRICE16_8  //!< Default parameter bit width for 8  parameter count TRICE is 16.
+#define TRICE_9  TRICE16_9  //!< Default parameter bit width for 9  parameter count TRICE is 16.
+#define TRICE_10 TRICE16_10 //!< Default parameter bit width for 10 parameter count TRICE is 16.
+#define TRICE_11 TRICE16_11 //!< Default parameter bit width for 11 parameter count TRICE is 16.
+#define TRICE_12 TRICE16_12 //!< Default parameter bit width for 12 parameter count TRICE is 16.
+
+#define trice_1  trice16_1  //!< Default parameter bit width for 1  parameter count trice is 16.
+#define trice_2  trice16_2  //!< Default parameter bit width for 2  parameter count trice is 16.
+#define trice_3  trice16_3  //!< Default parameter bit width for 3  parameter count trice is 16.
+#define trice_4  trice16_4  //!< Default parameter bit width for 4  parameter count trice is 16.
+#define trice_5  trice16_5  //!< Default parameter bit width for 5  parameter count trice is 16.
+#define trice_6  trice16_6  //!< Default parameter bit width for 6  parameter count trice is 16.
+#define trice_7  trice16_7  //!< Default parameter bit width for 7  parameter count trice is 16.
+#define trice_8  trice16_8  //!< Default parameter bit width for 8  parameter count trice is 16.
+#define trice_9  trice16_9  //!< Default parameter bit width for 9  parameter count trice is 16.
+#define trice_10 trice16_10 //!< Default parameter bit width for 10 parameter count trice is 16.
+#define trice_11 trice16_11 //!< Default parameter bit width for 11 parameter count trice is 16.
+#define trice_12 trice16_12 //!< Default parameter bit width for 12 parameter count trice is 16.
+
+#define Trice_1  Trice16_1  //!< Default parameter bit width for 1  parameter count Trice is 16.
+#define Trice_2  Trice16_2  //!< Default parameter bit width for 2  parameter count Trice is 16.
+#define Trice_3  Trice16_3  //!< Default parameter bit width for 3  parameter count Trice is 16.
+#define Trice_4  Trice16_4  //!< Default parameter bit width for 4  parameter count Trice is 16.
+#define Trice_5  Trice16_5  //!< Default parameter bit width for 5  parameter count Trice is 16.
+#define Trice_6  Trice16_6  //!< Default parameter bit width for 6  parameter count Trice is 16.
+#define Trice_7  Trice16_7  //!< Default parameter bit width for 7  parameter count Trice is 16.
+#define Trice_8  Trice16_8  //!< Default parameter bit width for 8  parameter count Trice is 16.
+#define Trice_9  Trice16_9  //!< Default parameter bit width for 9  parameter count Trice is 16.
+#define Trice_10 Trice16_10 //!< Default parameter bit width for 10 parameter count Trice is 16.
+#define Trice_11 Trice16_11 //!< Default parameter bit width for 11 parameter count Trice is 16.
+#define Trice_12 Trice16_12 //!< Default parameter bit width for 12 parameter count Trice is 16.
+
+#define TRice_1  TRice16_1  //!< Default parameter bit width for 1  parameter count TRice is 16.
+#define TRice_2  TRice16_2  //!< Default parameter bit width for 2  parameter count TRice is 16.
+#define TRice_3  TRice16_3  //!< Default parameter bit width for 3  parameter count TRice is 16.
+#define TRice_4  TRice16_4  //!< Default parameter bit width for 4  parameter count TRice is 16.
+#define TRice_5  TRice16_5  //!< Default parameter bit width for 5  parameter count TRice is 16.
+#define TRice_6  TRice16_6  //!< Default parameter bit width for 6  parameter count TRice is 16.
+#define TRice_7  TRice16_7  //!< Default parameter bit width for 7  parameter count TRice is 16.
+#define TRice_8  TRice16_8  //!< Default parameter bit width for 8  parameter count TRice is 16.
+#define TRice_9  TRice16_9  //!< Default parameter bit width for 9  parameter count TRice is 16.
+#define TRice_10 TRice16_10 //!< Default parameter bit width for 10 parameter count TRice is 16.
+#define TRice_11 TRice16_11 //!< Default parameter bit width for 11 parameter count TRice is 16.
+#define TRice_12 TRice16_12 //!< Default parameter bit width for 12 parameter count TRice is 16.
+
+#define triceM_1  trice16M_1  //!< Default parameter bit width for 1  parameter count triceM is 16.
+#define triceM_2  trice16M_2  //!< Default parameter bit width for 2  parameter count triceM is 16.
+#define triceM_3  trice16M_3  //!< Default parameter bit width for 3  parameter count triceM is 16.
+#define triceM_4  trice16M_4  //!< Default parameter bit width for 4  parameter count triceM is 16.
+#define triceM_5  trice16M_5  //!< Default parameter bit width for 5  parameter count triceM is 16.
+#define triceM_6  trice16M_6  //!< Default parameter bit width for 6  parameter count triceM is 16.
+#define triceM_7  trice16M_7  //!< Default parameter bit width for 7  parameter count triceM is 16.
+#define triceM_8  trice16M_8  //!< Default parameter bit width for 8  parameter count triceM is 16.
+#define triceM_9  trice16M_9  //!< Default parameter bit width for 9  parameter count triceM is 16.
+#define triceM_10 trice16M_10 //!< Default parameter bit width for 10 parameter count triceM is 16.
+#define triceM_11 trice16M_11 //!< Default parameter bit width for 11 parameter count triceM is 16.
+#define triceM_12 trice16M_12 //!< Default parameter bit width for 12 parameter count triceM is 16.
+
+#define TriceM_1  Trice16M_1  //!< Default parameter bit width for 1  parameter count TriceM is 16.
+#define TriceM_2  Trice16M_2  //!< Default parameter bit width for 2  parameter count TriceM is 16.
+#define TriceM_3  Trice16M_3  //!< Default parameter bit width for 3  parameter count TriceM is 16.
+#define TriceM_4  Trice16M_4  //!< Default parameter bit width for 4  parameter count TriceM is 16.
+#define TriceM_5  Trice16M_5  //!< Default parameter bit width for 5  parameter count TriceM is 16.
+#define TriceM_6  Trice16M_6  //!< Default parameter bit width for 6  parameter count TriceM is 16.
+#define TriceM_7  Trice16M_7  //!< Default parameter bit width for 7  parameter count TriceM is 16.
+#define TriceM_8  Trice16M_8  //!< Default parameter bit width for 8  parameter count TriceM is 16.
+#define TriceM_9  Trice16M_9  //!< Default parameter bit width for 9  parameter count TriceM is 16.
+#define TriceM_10 Trice16M_10 //!< Default parameter bit width for 10 parameter count TriceM is 16.
+#define TriceM_11 Trice16M_11 //!< Default parameter bit width for 11 parameter count TriceM is 16.
+#define TriceM_12 Trice16M_12 //!< Default parameter bit width for 12 parameter count TriceM is 16.
+
+#define TRiceM_1  TRice16M_1  //!< Default parameter bit width for 1  parameter count TRiceM is 16.
+#define TRiceM_2  TRice16M_2  //!< Default parameter bit width for 2  parameter count TRiceM is 16.
+#define TRiceM_3  TRice16M_3  //!< Default parameter bit width for 3  parameter count TRiceM is 16.
+#define TRiceM_4  TRice16M_4  //!< Default parameter bit width for 4  parameter count TRiceM is 16.
+#define TRiceM_5  TRice16M_5  //!< Default parameter bit width for 5  parameter count TRiceM is 16.
+#define TRiceM_6  TRice16M_6  //!< Default parameter bit width for 6  parameter count TRiceM is 16.
+#define TRiceM_7  TRice16M_7  //!< Default parameter bit width for 7  parameter count TRiceM is 16.
+#define TRiceM_8  TRice16M_8  //!< Default parameter bit width for 8  parameter count TRiceM is 16.
+#define TRiceM_9  TRice16M_9  //!< Default parameter bit width for 9  parameter count TRiceM is 16.
+#define TRiceM_10 TRice16M_10 //!< Default parameter bit width for 10 parameter count TRiceM is 16.
+#define TRiceM_11 TRice16M_11 //!< Default parameter bit width for 11 parameter count TRiceM is 16.
+#define TRiceM_12 TRice16M_12 //!< Default parameter bit width for 12 parameter count TRiceM is 16.
+
+#endif // #if TRICE_DEFAULT_PARAMETER_BIT_WIDTH == 16
+
+//
+///////////////////////////////////////////////////////////////////////////////

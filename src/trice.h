@@ -99,11 +99,12 @@ typedef enum{
 
 #include <stdint.h> //lint !e537
 #include <string.h>
+#include "triceConfig.h"
 #include "internalTrice8.h"
 #include "internalTrice16.h"
 #include "internalTrice32.h"
 #include "internalTrice64.h"
-#include "triceConfig.h"
+
 
 #ifdef TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN
 
