@@ -2,31 +2,12 @@
 <!-- TABLE OF CONTENTS -->
 <details><summary>Table of Contents</summary><ol>
 
-<!-- 2 steps: 
+<!-- steps: 
 - Generate TOC for Markdown -> This makes correct numbering for the headlines.
 - Clear TOC, Set cursor and Markdown All In Once: Create TOC -> This makes correct links.
+- The links only work inside the browser and with up-folded sections
 -->
 <!-- vscode-markdown-toc -->
-* 1. [ Trice User Interface - Quick Start](#TriceUserInterface-QuickStart)
-	* 1.1. [User Code Adaption](#UserCodeAdaption)
-	* 1.2. [Limitations](#Limitations)
-	* 1.3. [Trice (Time) Stamps](#TriceTimeStamps)
-	* 1.4. [Trice Parameter Bit Widths](#TriceParameterBitWidths)
-* 2. [Trice Binary Data Format](#TriceBinaryDataFormat)
-	* 2.1. [Framing](#Framing)
-	* 2.2. [Optional XTEA Encryption](#OptionalXTEAEncryption)
-	* 2.3. [Endianness](#Endianness)
-	* 2.4. [`TRICE` (Time)Stamps](#TRICETimeStamps)
-	* 2.5. [Binary Encoding](#BinaryEncoding)
-		* 2.5.1. [Symbols](#Symbols)
-		* 2.5.2. [Package Format](#PackageFormat)
-* 3. [Trice Decoding](#TriceDecoding)
-	* 3.1. [*Trice* ID list `til.json`](#TriceIDlisttil.json)
-	* 3.2. [*Trice* location information file `li.json`](#Tricelocationinformationfileli.json)
-* 4. [Trice ID management](#TriceIDmanagement)
-* 5. [Changelog](#Changelog)
-		* 5.1. [*Trice* format](#Triceformat)
-
 - [*Trice*  Version 1.0 Specification (Draft)](#trice--version-10-specification-draft)
   - [1.  Trice User Interface - Quick Start](#1--trice-user-interface---quick-start)
     - [1.1. User Code Adaption](#11-user-code-adaption)
@@ -46,24 +27,18 @@
     - [3.2. *Trice* location information file `li.json`](#32-trice-location-information-file-lijson)
   - [4. Trice ID management](#4-trice-id-management)
   - [5. Changelog](#5-changelog)
-
-
 <!-- vscode-markdown-toc-config
 	numbering=true
 	autoSave=true
 	/vscode-markdown-toc-config -->
 <!-- /vscode-markdown-toc -->
-<div id="top"></div>
-
-</ol></details>
+<div id="top"></div></ol></details>
 
 # *Trice*  Version 1.0 Specification (Draft)
 
 <!-- 🟢✅🟡⛔🔴🔵💧❓↩෴⚓🛑❗🌡⏱∑✳‼♦♣🚫⚠🎥📷🌊🆘🧷🐢➡☕ -->
 
 ##  1. <a name='TriceUserInterface-QuickStart'></a> Trice User Interface - Quick Start
-
-<details><summary>Details</summary><ol>
 
 ###  1.1. <a name='UserCodeAdaption'></a>User Code Adaption
 
@@ -213,11 +188,9 @@
   TRICE8_B( id( 6468), " %02x ", &b, sizeof(b) ); TRICE( id( 2822), "\n" );
   ```
 
-<p align="right">(<a href="#top">back to top</a>)</p></ol></details>
+<p align="right">(<a href="#top">back to top</a>)</p>
 
 ##  2. <a name='TriceBinaryDataFormat'></a>Trice Binary Data Format
-
-<details><summary>Details</summary><ol>
 
 ###  2.1. <a name='Framing'></a>Framing
 
@@ -287,11 +260,10 @@ It is up to the user to provide the functions `TriceStamp16()` and/or `TriceStam
   | `10iiiiiiI TT NC ...`    | 2               | `TRICE( Id(n), "...", ...);` | *Trice* format with 16-bit stamp     |
   | `11iiiiiiI TT TT NC ...` | 3               | `TRICE( ID(n), "...", ...);` | *Trice* format with 32-bit stamp     |
 
-<p align="right">(<a href="#top">back to top</a>)</p></ol></details>
+<p align="right">(<a href="#top">back to top</a>)</p>
 
 ##  3. <a name='TriceDecoding'></a>Trice Decoding
 
-<details><summary>Details</summary><ol>
 
 The 14-bit IDs are used to display the log strings. These IDs are pointing in two reference files.
 
@@ -306,13 +278,11 @@ The 14-bit IDs are used to display the log strings. These IDs are pointing in tw
 - The **trice** tool will silently not display location information, if the `li.json` file is not found. For in-field logging, the option `-showID string` could be used. This allows later an easy location of the relevant source code.
 - An other option is to record the binary trice messages and to play them later with the **trice** tool using the correct `li.json`.
 
-<p align="right">(<a href="#top">back to top</a>)</p></ol></details>
+<p align="right">(<a href="#top">back to top</a>)</p>
 
 ##  4. <a name='TriceIDmanagement'></a>Trice ID management
 
-<details><summary>Details</summary><ol>
-
-<p align="right">(<a href="#top">back to top</a>)</p></ol></details>
+<p align="right">(<a href="#top">back to top</a>)</p>
 
 ##  5. <a name='Changelog'></a>Changelog
 
