@@ -289,9 +289,9 @@ func visitUpdate(w io.Writer, fSys *afero.Afero, lu TriceIDLookUp, tflus triceFm
 		//  }
 
 		// todo: each file is parsed 3 times -> put this in one function
-		textN, fileModified0 := updateParamCountAndID0(w, text, ExtendMacrosWithParamCount)                                  // update parameter count: TRICE* to TRICE*_n
-		textU, fileModified1 := updateIDsUniqOrShared(w, SharedIDs, Min, Max, SearchMethod, textN, lu, tflus, pListModified) // update IDs: Id(0) -> Id(M)
-		refreshIDs(w, fileName, textU, lu, tflus, lim)                                                                       // workaround: do it again to update li.json.
+		textN, fileModified0 := updateParamCountAndID0(w, text, ExtendMacrosWithParamCount)                                            // update parameter count: TRICE* to TRICE*_n
+		textU, fileModified1 := updateIDsUniqOrShared(w, false /*SharedIDs*/, Min, Max, SearchMethod, textN, lu, tflus, pListModified) // update IDs: Id(0) -> Id(M)
+		refreshIDs(w, fileName, textU, lu, tflus, lim)                                                                                 // workaround: do it again to update li.json.
 
 		// write out
 		fileModified := fileModified0 || fileModified1 /*|| fileModified2*/
@@ -449,7 +449,7 @@ const (
 // tflu holds the tf in upper case.
 // lu holds the tf in source code case. If in source code upper and lower case occur, than only one can be in lu.
 // sharedIDs, if true, reuses IDs for identical format strings.
-func updateIDsUniqOrShared(w io.Writer, sharedIDs bool, min, max TriceID, searchMethod string, text string, lu TriceIDLookUp, tflus triceFmtLookUpS, pListModified *bool) (string, bool) {
+func updateIDsUniqOrShared(w io.Writer, _ /*sharedIDs*/ bool, min, max TriceID, searchMethod string, text string, lu TriceIDLookUp, tflus triceFmtLookUpS, pListModified *bool) (string, bool) {
 	var fileModified bool
 	subs := text[:] // create a copy of text and assign it to subs
 	for {

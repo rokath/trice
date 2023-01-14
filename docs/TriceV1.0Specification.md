@@ -25,8 +25,21 @@
   - [3. Trice Decoding](#3-trice-decoding)
     - [3.1. *Trice* ID list `til.json`](#31-trice-id-list-tiljson)
     - [3.2. *Trice* location information file `li.json`](#32-trice-location-information-file-lijson)
-  - [4. Trice ID management](#4-trice-id-management)
-  - [5. Changelog](#5-changelog)
+  - [4. *Trice* ID Numbers](#4-trice-id-numbers)
+    - [4.1. ID number selection](#41-id-number-selection)
+    - [4.2. ID number usage](#42-id-number-usage)
+    - [4.3. ID number stability](#43-id-number-stability)
+    - [4.4. *Trice* ID 0](#44-trice-id-0)
+  - [5. Trice ID management](#5-trice-id-management)
+    - [5.1. User Code Patching (`trice update`)](#51-user-code-patching-trice-update)
+      - [5.1.1. User Code Patching Examples](#511-user-code-patching-examples)
+    - [5.2. User Code Un-Patching](#52-user-code-un-patching)
+    - [5.3. ID Usage Options](#53-id-usage-options)
+    - [5.4. General ID Management Information](#54-general-id-management-information)
+    - [5.5. Option 1: Patching the User Code once and let the inserted Irice ID b a part of the User Code](#55-option-1-patching-the-user-code-once-and-let-the-inserted-irice-id-b-a-part-of-the-user-code)
+    - [5.6. Option 2: Patching the User Code in a pre-build process and Un-patching in a post-build process](#56-option-2-patching-the-user-code-in-a-pre-build-process-and-un-patching-in-a-post-build-process)
+    - [5.7. Option 3: Patching the User Code on Repository Check-Out and un-patching on Check-In](#57-option-3-patching-the-user-code-on-repository-check-out-and-un-patching-on-check-in)
+  - [6. Changelog](#6-changelog)
 <!-- vscode-markdown-toc-config
 	numbering=true
 	autoSave=true
@@ -117,6 +130,16 @@
     ```c
     // trice( "Hi!" );
     ```
+
+- All parameters inside one trice have the same bit width. If for example there are a single double and 10 bytes values, the needed trice macro is `trice64` providing 8 bytes space for all parameter values, therefore increasing the transmit overhead, but this can be handled by splitting into 2 trices:
+
+  ```C
+  // 92 bytes: 4 bytes header plus 11 times 8 bytes
+  trice64( "%g: %c%c%c%c%c%c%c%c%c%c", aDouble(3.14159), 61, 62, 63, 64, 65, 66, 67, 68, 69, 10 );
+  
+  // 24 bytes: 4 bytes header plus 1 times 8 bytes plus 4 bytes header plus 8 times 1 byte
+  trice64( "%g: ", aDouble(3.14159)); trice8( "%c%c%c%c%c%c%c%c%c%c", 61, 62, 63, 64, 65, 66, 67, 68, 69, 10 );
+  ```
 
 ###  1.3. <a name='TriceTimeStamps'></a>Trice (Time) Stamps
 
@@ -280,11 +303,145 @@ The 14-bit IDs are used to display the log strings. These IDs are pointing in tw
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  4. <a name='TriceIDmanagement'></a>Trice ID management
+##  4. <a name='TriceIDNumbers'></a>*Trice* ID Numbers
+###  4.1. <a name='IDnumberselection'></a>ID number selection
+
+- The default encoding TREX supports 14-bit IDs, so over 16000 IDs possible. Other encodings can work with other ID sizes.
+- `trice( "Hi!\n");` ➡ `trice update` ➡ `trice( 12345, "Hi!\n");` 
+- The **ID** `12345` is a number assigned to `TRICE( "Hi!\n");` in the above example.
+  - It is a so far unused number, according to rules you can control:
+    - The `-IDMethod` switch allows a selection method for new IDs.
+      - Per default new IDs determined randomly to keep the chance low, that several developers grab the same ID.
+      - Example: `trice update -IDMin 1000 -IDMethod upward` will choose the smallest free ID >= 1000.
+        - This allows to use the ID space without wholes.
+    - The `-IDMin` and `-IDMax` switches are usable to control the ID range, a new ID is selected from, making it possible to divide the ID space. Each developer can gets it region.
+      - Example: `trice update -IDMin 6000 -IDMax 6999` will choose new randomly IDs only between 6000 and 6999.
+- In a future **trice** tool it can be possible to give each *trice* channel an **ID** range making it possible to implement *Trice* channel specific runtime on/off on the target side if that is needed. This could be interesting for routing purposes also.
+  - To stay compatible with previous **trice** tool versions such implementation would use the `-args` switch, which then contains the relevant channels like `trice u -args "err:20:99,wrn:200:300"`. This needs to be specified in more detail, especially the error handling.
+
+###  4.2. <a name='IDnumberusage'></a>ID number usage
+
+- If you write `TRICE( "Hi!\n");` again on a 2nd location, it gets a different **ID**.
+- `TRICE8( "msg:%d", 1);` and `TRICE16( "msg:%d", 1);` are different *Trices* even the format strings identical.
+
+###  4.3. <a name='IDnumberstability'></a>ID number stability
+
+- IDs stay constant and get only changed to solve conflicts.
+- To make sure, a single ID will not be changed, you could change it manually to a hexadecimal syntax.
+  - This lets the `trice update` command ignore such `TRICE` macros and therefore a full [til.json](../til.json) rebuild will not add them anymore. Generally this should not be done, because this could cause future bugs.
+  - It is possible to assign an ID manually as decimal number. It will be added to the ID list automatically during the next `trice u`.
+- If a *Trice* was deleted inside the source tree (or file removal) the appropriate ID stays inside the ID list.
+- If the same ID appears again this ID is active again.
+
+###  4.4. <a name='TriceID0'></a>*Trice* ID 0
+
+- The trice ID 0 is a placeholder for "no ID", which is replaced automatically during the next `trice update` according to the used trice switches `-IDMethod`, `-IDMin` and `IDMax`.
+  - It is sufficient to write the TRICE macros just without the `id(0),` `Id(0),` `ID(0),`. It will be inserted automatically according the `-stamp` switch.
+- With `trice zeroSourceTreeIds` all IDs in the given source tree are set to 0. This gives the option afterwards to set-up a new `til.json` according to a different `-IDMethod`, `-IDMin` and `IDMax`.
+
+##  5. <a name='TriceIDmanagement'></a>Trice ID management
+
+
+
+###  5.1. <a name='UserCodePatchingtriceupdate'></a>User Code Patching (`trice update`)
+
+- A *Trice* **ID** is inserted by `trice update` as shown in the table:
+
+  | Unpatched User Code       | After `trice update`          | Remark                                               |
+  |---------------------------|-------------------------------|------------------------------------------------------|
+  | `trice( "Hi!\n");`        | `trice( 12345, "Hi!\n");`     | no stamps                                            |
+  | `Trice( "Hi!\n");`        | `Trice( 12345, "Hi!\n");`     | 16-bit stamps                                        |
+  | `TRice( "Hi!\n");`        | `TRice( 12345, "Hi!\n");`     | 32-bit stamps                                        |
+
+- Legacy code is handled this way:
+
+  | Unpatched User Code       | After `trice update`          | Remark                                               |
+  |---------------------------|-------------------------------|------------------------------------------------------|
+  | `TRICE( "Hi!\n");`        | `TRICE( id(12345), "Hi!\n");` | no stamps after `trice u -defaultStampSize 0`        |
+  | `TRICE( "Hi!\n");`        | `TRICE( Id(12345), "Hi!\n");` | 16-bit stamps after `trice u -defaultStampSize 16`   |
+  | `TRICE( "Hi!\n");`        | `TRICE( ID(12345), "Hi!\n");` | 32-bit stamps after `trice u -defaultStampSize 32`   |
+  | `TRICE( id(0), "Hi!\n");` | `TRICE( id(12345), "Hi!\n");` | no stamps                                            |
+  | `TRICE( Id(0), "Hi!\n");` | `TRICE( ID(12345), "Hi!\n");` | 16-bit stamps                                        |
+  | `TRICE( ID(0), "Hi!\n");` | `TRICE( ID(12345), "Hi!\n");` | 32-bit stamps                                        |
+
+- A pre-build step `trice update` generates the `Id(12345)` part. Examples:
+  - `trice u` in your project root expects a til.json file there and checks sources and **til.json** for changes to update.
+  - `trice u -v -i ../../../til.json -src ../src -src ../lib/src -src ./` is a typical case as automated pre-build step in your project settings telling **trice** to scan the project dir and two external directories. Even `trice u` is fast, it is generally quicker to search only relevant places.
+
+####  5.1.1. <a name='UserCodePatchingExamples'></a>User Code Patching Examples
+
+- A *Trice* **ID** is modified as shown in these cases:
+  - Previously updated (patched) user code copied to a different location:
+
+    ```C
+    trice(12345, "Hi!\n"); // copied
+    trice(12345, "Hi!\n"); // original
+    trice(12345, "Hi!\n"); // copied
+    ```
+
+  - After updating (patching) again:
+
+    ```C
+    trice(12345, "Hi!\n");
+    trice( 1233, "Hi!\n"); // re-patched
+    trice( 1234, "Hi!\n"); // re-patched
+    ```
+  
+    - If the code is copied inside the same file, the first occurrence after the copy stays unchanged and the following are modified.
+    - If the code is copied to other files only, one first occurrence stays unchanged. In which file is not defined.
+  - Previously updated (patched) user code copied and modified:
+
+    ```C
+    trice(12345, "Ha!\n"); // copied and modified
+    trice(12345, "Hi!\n"); // original
+    trice(12345, "Ha!\n"); // copied and modified
+    ```
+
+  - After updating (patching) again:
+
+    ```C
+    trice( 2333, "Ha!\n"); // re-patched
+    trice(12345, "Hi!\n"); // unchanged
+    trice( 1234, "Ha!\n"); // re-patched
+    ```
+
+  - If the code is copied to other files, it is re-patched.
+- A *Trice* **ID** is stays the same if the stamp size is changed. Example:
+
+  ```C
+  trice( 12345, "Hi!" ); // original
+  ```
+
+  ```C
+  TRice( 12345, "Hi!" ); // manually changed stamp size and then "trice u" performed.
+  ```
+
+###  5.2. <a name='UserCodeUn-Patching'></a>User Code Un-Patching
+
+###  5.3. <a name='IDUsageOptions'></a>ID Usage Options
+
+- Per default the `trice update` command chooses randomly a so far unused ID for new format strings.
+- 
+  
+###  5.4. <a name='GeneralIDManagementInformation'></a>General ID Management Information
+
+- The trice ID-instead-of-String idea lives from pre-compile patching of the user code.
+- The user has full control how to deal with that.
+- There are 3 options and the user has to decide which fits best for him.
+- Each format string gets its unique trice ID. If the same format string is used on different source code locations it gets different trice IDs this way allowing a reliable location information.
+
+
+###  5.5. <a name='Option1:PatchingtheUserCodeonceandlettheinsertedIriceIDbapartoftheUserCode'></a>Option 1: Patching the User Code once and let the inserted Irice ID b a part of the User Code
+
+
+
+###  5.6. <a name='Option2:PatchingtheUserCodeinapre-buildprocessandUn-patchinginapost-buildprocess'></a>Option 2: Patching the User Code in a pre-build process and Un-patching in a post-build process
+
+###  5.7. <a name='Option3:PatchingtheUserCodeonRepositoryCheck-Outandun-patchingonCheck-In'></a>Option 3: Patching the User Code on Repository Check-Out and un-patching on Check-In
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  5. <a name='Changelog'></a>Changelog
+##  6. <a name='Changelog'></a>Changelog
 
 <details><summary>Details</summary><ol>
 
@@ -424,7 +581,7 @@ TRICE( X3, "...", ...); // an extended type 3 trice
     * If all IDs in the slice with identical file name are used, a new ID is generated.
     * Of course there are cases possible, where some unwanted ID "shift" happens. But we have to consider, that first we are talking about rare identical **trices** and that such case, if, only happens once with the result, that the `til.json` file adds a bit data garbage. A `til.json` cleaning is always possible, but you loose history then.
 
-####  5.1. <a name='Triceformat'></a>*Trice* format
+####  6.1. <a name='Triceformat'></a>*Trice* format
 
 * Parameter data bytes start after the optional timestamp.
 * N is the parameter data bytes count. Padding bytes are not counted.

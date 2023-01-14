@@ -26,51 +26,7 @@
 
 ##  1. <a name='Buildprocess'></a>Build process
 
-A *Trice* **ID** is needed as shown in the table:
 
-| Write              | After `trice update`          | Remark                                               |
-|--------------------|-------------------------------|------------------------------------------------------|
-| `TRICE( "Hi!\n");` | `TRICE( Id(12345), "Hi!\n"),` | Run `trice update` automatically in a prebuilt step. |
-
-* A pre-build step `trice update` generates the `Id(12345)` part. Examples:
-  * `trice u` in your projects root expects a til.json file there and checks sources and **til.json** for changes to update.
-  * `trice u -v -i ../../../til.json -src ../src -src ../lib/src -src ./` is a typical case as automated pre-build step in your project settings telling **trice** to scan the project dir and two external directories. Even `trice u` is fast, it is generally quicker to search only relevant places.
-
-##  2. <a name='TriceIDNumbers'></a>*Trice* ID Numbers
-###  2.1. <a name='IDnumberselection'></a>ID number selection
-
-* The default encoding TREX supports 13-bit IDs, so over 8000 IDs possible. Other encodings can work with other ID sizes.
-* The **Id** `1234` is a number assigned to `TRICE( "Hi!\n");` in the above example.
-  * It is a so far unused number, according to rules you can control:
-    * The `-IDMethod` switch allows a selection method for new IDs.
-      * Per default new IDs determined randomly to keep the chance low, that several developers grab the same ID.
-      * Example: `trice update -IDMin 1000 -IDMethod upward` will choose the smallest free ID >= 1000.
-        * This allows to use the ID space without wholes.
-    * The `-IDMin` and `-IDMax` switches are usable to control the ID range, a new ID is selected from, making it possible to divide the ID space. Each developer can gets it region.
-      * Example: `trice update -IDMin 6000 -IDMax 6999` will choose new randomly IDs only between 6000 and 6999.
-* In a future **trice** tool it can be possible to give each *trice* channel an **ID** range making it possible to implement *Trice* channel specific runtime on/off on the target side if that is needed.
-
-###  2.2. <a name='IDnumberusage'></a>ID number usage
-
-* If you write `TRICE( "Hi!\n");` again on a 2nd location, it gets the same or a different **ID** - as you decide.
-  * Default is different: `trice u` assigns a new ID to the same *Trice*.
-  * Use  `trice u -sharedIDs` to force ID re-use for added identical *Trices*.
-  * `TRICE8( "msg:%d", 1);` and `TRICE16( "msg:%d", 1);` are different *Trices* even the format strings identical.
-
-###  2.3. <a name='IDnumberstability'></a>ID number stability
-
-* IDs stay constant and get only changed to solve conflicts.
-* To make sure, a single ID will not be changed, you could change it manually to a hexadecimal syntax.
-  * This lets the `trice update` command ignore such `TRICE` macros and therefore a full [til.json](../til.json) rebuild will not add them anymore. Generally this should not be done, because this could cause future bugs.
-  * It is possible to assign an ID manually as decimal number. It will be added to the ID list automatically during the next `trice u`.
-* If a *Trice* was deleted inside the source tree (or file removal) the appropriate ID stays inside the ID list.
-* If the same ID appears again this ID is active again.
-
-###  2.4. <a name='TriceID0'></a>*Trice* ID 0
-
-* The trice ID 0 is a placeholder for "no ID", which is replaced automatically during the next `trice update` according to the used trice switches `-IDMethod`, `-IDMin` and `IDMax`.
-  * It is sufficient to write the TRICE macros just without the `id(0),` `Id(0),` `ID(0),`. It will be inserted automatically according the `-stamp` switch.
-* With `trice zeroSourceTreeIds` all IDs in the given source tree are set to 0. This gives the option afterwards to set-up a new `til.json` according to a different `-IDMethod`, `-IDMin` and `IDMax`.
 
 ##  3. <a name='Tricesinsidesourcecode'></a>*Trices* inside source code
 

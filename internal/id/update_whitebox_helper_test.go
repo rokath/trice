@@ -64,14 +64,14 @@ type testTable []struct {
 // mins, maxs is the ID pool for short trices (macros "Tr") - unused
 // min, max is the ID pool for finding new IDs
 // ...
-func checkList(t *testing.T, sharedIDs bool, min, max TriceID, searchMethod string, tt testTable, eList string, extend bool) {
+func checkList(t *testing.T, _ /*sharedIDs*/ bool, min, max TriceID, searchMethod string, tt testTable, eList string, extend bool) {
 	lu := make(TriceIDLookUp)
 	tflus := lu.reverseS()
 	Verbose = true
 	for _, x := range tt {
 		act0, _ := updateParamCountAndID0(os.Stdout, x.text, extend)
 		listModified := false
-		act, fileModified := updateIDsUniqOrShared(os.Stdout, sharedIDs, min, max, searchMethod, act0, lu, tflus, &listModified)
+		act, fileModified := updateIDsUniqOrShared(os.Stdout, false /*sharedIDs*/, min, max, searchMethod, act0, lu, tflus, &listModified)
 		assert.Equal(t, x.fileMod, fileModified)
 		assert.Equal(t, x.listMod, listModified)
 		assert.Equal(t, x.exp, act)
@@ -86,7 +86,7 @@ func checkList(t *testing.T, sharedIDs bool, min, max TriceID, searchMethod stri
 // sharedIDs, if true, reuses IDs for identical format strings.
 // min, max is the ID pool for finding new IDs
 // ...
-func checkList2(t *testing.T, sharedIDs bool, min, max TriceID, searchMethod string, tt testTable, extendMacroName bool, inJSON, expJSON string) {
+func checkList2(t *testing.T, _ /*sharedIDs*/ bool, min, max TriceID, searchMethod string, tt testTable, extendMacroName bool, inJSON, expJSON string) {
 	lu := make(TriceIDLookUp)
 	err := lu.FromJSON([]byte(inJSON))
 	assert.Nil(t, err)
@@ -95,7 +95,7 @@ func checkList2(t *testing.T, sharedIDs bool, min, max TriceID, searchMethod str
 	for _, x := range tt {
 		act0, _ := updateParamCountAndID0(os.Stdout, x.text, extendMacroName)
 		listModified := false
-		act, fileModified := updateIDsUniqOrShared(os.Stdout, sharedIDs, min, max, searchMethod, act0, lu, tflus, &listModified)
+		act, fileModified := updateIDsUniqOrShared(os.Stdout, false /*sharedIDs*/, min, max, searchMethod, act0, lu, tflus, &listModified)
 		assert.Equal(t, x.fileMod, fileModified)
 		assert.Equal(t, x.listMod, listModified)
 		assert.Equal(t, x.exp, act)
@@ -128,14 +128,14 @@ func check(t *testing.T, text, expJSON string) {
 // sharedIDs, if true, reuses IDs for identical format strings.
 // min, max is the ID pool for finding new IDs
 // ...
-func checkList3(t *testing.T, sharedIDs bool, min, max TriceID, searchMethod string, tt testTable, extendMacroName bool, inMap, expMap TriceIDLookUp) {
+func checkList3(t *testing.T, _ /*sharedIDs*/ bool, min, max TriceID, searchMethod string, tt testTable, extendMacroName bool, inMap, expMap TriceIDLookUp) {
 	lu := inMap
 	tflus := lu.reverseS()
 	Verbose = true
 	for _, x := range tt {
 		act0, _ := updateParamCountAndID0(os.Stdout, x.text, extendMacroName)
 		listModified := false
-		act, fileModified := updateIDsUniqOrShared(os.Stdout, sharedIDs, min, max, searchMethod, act0, lu, tflus, &listModified)
+		act, fileModified := updateIDsUniqOrShared(os.Stdout, false /*sharedIDs*/, min, max, searchMethod, act0, lu, tflus, &listModified)
 		assert.Equal(t, x.fileMod, fileModified)
 		assert.Equal(t, x.listMod, listModified)
 		assert.Equal(t, x.exp, act)
@@ -150,14 +150,14 @@ func checkList3(t *testing.T, sharedIDs bool, min, max TriceID, searchMethod str
 // sharedIDs, if true, reuses IDs for identical format strings.
 // min, max is the ID pool for finding new IDs
 // ...
-func checkList4(t *testing.T, sharedIDs bool, min, max TriceID, searchMethod string, tt testTable, extendMacroName bool, inMap TriceIDLookUp) TriceIDLookUp {
+func checkList4(t *testing.T, _ /*sharedIDs*/ bool, min, max TriceID, searchMethod string, tt testTable, extendMacroName bool, inMap TriceIDLookUp) TriceIDLookUp {
 	lu := inMap
 	tflus := lu.reverseS()
 	Verbose = true
 	for _, x := range tt {
 		act0, _ := updateParamCountAndID0(os.Stdout, x.text, extendMacroName)
 		listModified := false
-		_, fileModified := updateIDsUniqOrShared(os.Stdout, sharedIDs, min, max, searchMethod, act0, lu, tflus, &listModified)
+		_, fileModified := updateIDsUniqOrShared(os.Stdout, false /*sharedIDs*/, min, max, searchMethod, act0, lu, tflus, &listModified)
 		assert.Equal(t, x.fileMod, fileModified)
 		assert.Equal(t, x.listMod, listModified)
 	}

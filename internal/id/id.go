@@ -35,7 +35,7 @@ var (
 
 	// SharedIDs true: TriceFmt's without TriceID get equal TriceID if an equal TriceFmt exists already. Use with care: The location information for only one location is displayed but it can be a wrong one.
 	// SharedIDs false: TriceFmt's without TriceID get a different TriceID if an equal TriceFmt exists already (default).
-	SharedIDs bool
+	// SharedIDs bool
 )
 
 // TriceID is the trice ID referencing to Fmt.
