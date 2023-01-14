@@ -162,7 +162,13 @@
 
 - The user is asked to provide the appropriate 2 functions.
   - Example for µs time stamps
-
+  
+    ```C
+    uint16_t modulo10000( x uint16_t ) {
+        while( x - 10000 >= 0{
+	    x -= 10000;
+	}
+	
     ```c
     uint16_t TriceStamp16( void ){ // wraps after 10ms
         return (uint16_t)(ReadUs32() % 10000); // This implies division and is therefore slow!
