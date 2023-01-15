@@ -316,7 +316,7 @@ The 14-bit IDs are used to display the log strings. These IDs are pointing in tw
 
 - The default encoding TREX supports 14-bit IDs, so over 16000 IDs possible. Other encodings can work with other ID sizes.
 - `trice( "Hi!\n");` ➡ `trice update` ➡ `trice( 12345, "Hi!\n");` 
-- The **ID** `12345` is a number assigned to `TRICE( "Hi!\n");` in the above example.
+- The **ID** `12345` is a number assigned to `trice( "Hi!\n");` in the above example.
   - It is a so far unused number, according to rules you can control:
     - The `-IDMethod` switch allows a selection method for new IDs.
       - Per default new IDs determined randomly to keep the chance low, that several developers grab the same ID.
