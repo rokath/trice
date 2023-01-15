@@ -381,26 +381,44 @@ How could that work?
       - This is `ilu TriceIDLookUp` a `map[TriceID]TriceFmt`
         - each TID as key points to one and only one tf
       - The ilu is reverted then into `flu triceFmtLookUp` a map[TriceFmt]TriceIDs.
-        - `TriceIDs` is a triceID slice for historical reasons (shared IDs) - that will be changed back.
+        - `TriceIDs` is a triceID slice because the identical f can have several ids.
   - A `li.json` may exist or not.
     - The `li.json` is a serialized key-value map where
       - the keys are the TIDs and
       - the values are the location information (filename, line and position) structs.
-      - This is `riceIDLookUpLI` a `map[TriceID]TriceLI`
+      - This is `TriceIDLookUpLI` a `map[TriceID]TriceLI`
         - Each TID as key points to one and only one li.
 
 - The `til.json` TIDs may occur in the source tree not at all, once or several times. Also it is not guarantied, that the source tree *Trice*s match the `til.json` value.
 - The `li.json` TIDs may occur in the source tree not at all, once or several times. Also it is not guarantied, that the source tree *Trice*s match the `li.json` value.
 - The `trice u` main aim is to have a consistent state between `til.json`, `li.json` and the source tree with no **ID** used twice.
 - Also the changes should be minimal.
-
+- As a general rule lu (ilu and flu) is only extendable.
+- li is cleared and used for duplicate detection
 - Create a source tree map STM with
   - key=`Trice+LI` and
   - value=**ID**.
-- During STM creation check ilu, flu and li and use these rules:
-  - found id->ilu->f
+- During STM creation use these rules:
+  - srcID = 0: found f->flu->[]ids, for range ids:
+    - if yes check li
+      - if yes (duplicate) create new id and extend lu and li
+      - if not, extend li
+    - if not create new id and extend lu and li
+    - patch id into source
+  - srcID != 0: found id->ilu->f identical to src f?
+    - if yes check li
+      - if yes (duplicate) create new id and extend lu and li and overwrite srcID
+      - if not, extend li
+    - if srcID not in lu, extend lu & li
+    
+The same *Trice* several times in unpatched src:    
+    
+    
+      
+      
+      
   - found id->ilu->li
-  - found f->flu->id
+  - 
  
 
 
