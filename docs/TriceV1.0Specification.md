@@ -296,7 +296,6 @@ It is up to the user to provide the functions `TriceStamp16()` and/or `TriceStam
 
 ##  3. <a name='TriceDecoding'></a>Trice Decoding
 
-
 The 14-bit IDs are used to display the log strings. These IDs are pointing in two reference files.
 
 ###  3.1. <a name='TriceIDlisttil.json'></a>*Trice* ID list `til.json`
@@ -340,7 +339,8 @@ The 14-bit IDs are used to display the log strings. These IDs are pointing in tw
   - This lets the `trice update` command ignore such `TRICE` macros and therefore a full [til.json](../til.json) rebuild will not add them anymore. Generally this should not be done, because this could cause future bugs.
   - It is possible to assign an ID manually as decimal number. It will be added to the ID list automatically during the next `trice u`.
 - If a *Trice* was deleted inside the source tree (or file removal) the appropriate ID stays inside the ID list.
-- If the same ID appears again this ID is active again.
+- If the same string appears again this ID is active again.
+- If a trice occurs more than one time, each occurance gets a different ID. If then 2 of them disappear, their ID numbers stay in `til.json`. In then one of them comes back, it gets a new ID, or not?
 
 ###  4.4. <a name='TriceID0'></a>*Trice* ID 0
 
@@ -349,8 +349,6 @@ The 14-bit IDs are used to display the log strings. These IDs are pointing in tw
 - With `trice zeroSourceTreeIds` all IDs in the given source tree are set to 0. This gives the option afterwards to set-up a new `til.json` according to a different `-IDMethod`, `-IDMin` and `IDMax`.
 
 ##  5. <a name='TriceIDmanagement'></a>Trice ID management
-
-
 
 ###  5.1. <a name='UserCodePatchingtriceupdate'></a>User Code Patching (`trice update`)
 
