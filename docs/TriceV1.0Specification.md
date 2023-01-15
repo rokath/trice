@@ -164,14 +164,17 @@
   - Example for µs time stamps
   
     ```C
-    uint16_t modulo10000( x uint16_t ) {
+    TRICE_INLINE uint16_t modulo10000( x uint16_t ) {
         while( x - 10000 >= 0{
 	    x -= 10000;
 	}
 	
+    }
+    ```
+    
     ```c
     uint16_t TriceStamp16( void ){ // wraps after 10ms
-        return (uint16_t)(ReadUs32() % 10000); // This implies division and is therefore slow!
+        return modulo10000(ReadUs32());
     }
 
     uint32_t TriceStamp32( void ){
@@ -183,7 +186,7 @@
 
     ```c
     uint16_t TriceStamp16( void ){ // wraps after 10s 
-        return (uint16_t)(milliSecond % 10000); // This implies division and is therefore slow!
+        return modulo10000(milliSecond);
     }
 
     uint32_t TriceStamp32( void ){
