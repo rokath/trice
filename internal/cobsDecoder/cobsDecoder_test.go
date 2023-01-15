@@ -38,13 +38,13 @@ func doCOBSTableTest(t *testing.T, out io.Writer, f decoder.New, endianness bool
 		}
 	`
 	)
-	lu := make(id.TriceIDLookUp) // empty
+	ilu := make(id.TriceIDLookUp) // empty
 	//li := make(id.TriceIDLookUpLI) // empty
 	luM := new(sync.RWMutex)
-	assert.Nil(t, lu.FromJSON([]byte(idl)))
-	lu.AddFmtCount(os.Stdout)
+	assert.Nil(t, ilu.FromJSON([]byte(idl)))
+	ilu.AddFmtCount(os.Stdout)
 	buf := make([]byte, decoder.DefaultSize)
-	dec := f(out, lu, luM, nil, nil, endianness) // a new decoder instance
+	dec := f(out, ilu, luM, nil, nil, endianness) // a new decoder instance
 	for _, x := range teTa {
 		in := ioutil.NopCloser(bytes.NewBuffer(x.In))
 		dec.SetInput(in)

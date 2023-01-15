@@ -8,7 +8,7 @@ package decoder
 func doTableTest(t *testing.T, f newDecoder, endianness bool, teTa testTable) {
 	lu := make(id.TriceIDLookUp)
 	luM := new(sync.RWMutex)
-	assert.Nil(t, lu.FromJSON([]byte(til)))
+	assert.Nil(t, ilu.FromJSON([]byte(til)))
 	lu.AddFmtCount(os.Stdout)
 	buf := make([]byte, decoder.DefaultSize)
 	dec := f(lu, luM, nil, endianness) // p is a new decoder instance
@@ -2997,7 +2997,7 @@ func _TestTranslate(t *testing.T) {
 	defer glob.Unlock()
 	sw := emitter.New(os.Stdout)
 	lu := make(id.TriceIDLookUp) // empty
-	assert.Nil(t, lu.FromJSON([]byte(til)))
+	assert.Nil(t, ilu.FromJSON([]byte(til)))
 	m := new(sync.RWMutex) // m is a pointer to a read write mutex for lu
 	Encoding = "FLEX"
 	TargetEndianness = "littleEndian"

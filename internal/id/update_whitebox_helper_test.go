@@ -65,19 +65,19 @@ type testTable []struct {
 // min, max is the ID pool for finding new IDs
 // ...
 func checkList(t *testing.T, _ /*sharedIDs*/ bool, min, max TriceID, searchMethod string, tt testTable, eList string, extend bool) {
-	lu := make(TriceIDLookUp)
-	tflus := lu.reverseS()
+	ilu := make(TriceIDLookUp)
+	flu := ilu.reverseS()
 	Verbose = true
 	for _, x := range tt {
 		act0, _ := updateParamCountAndID0(os.Stdout, x.text, extend)
 		listModified := false
-		act, fileModified := updateIDsUniqOrShared(os.Stdout, false /*sharedIDs*/, min, max, searchMethod, act0, lu, tflus, &listModified)
+		act, fileModified := updateIDsUniqOrShared(os.Stdout, false /*sharedIDs*/, min, max, searchMethod, act0, ilu, flu, &listModified)
 		assert.Equal(t, x.fileMod, fileModified)
 		assert.Equal(t, x.listMod, listModified)
 		assert.Equal(t, x.exp, act)
 	}
-	lu.AddFmtCount(os.Stdout)
-	aListN := fmt.Sprintln(lu)
+	ilu.AddFmtCount(os.Stdout)
+	aListN := fmt.Sprintln(ilu)
 	assert.Equal(t, eList, aListN)
 }
 
@@ -87,38 +87,38 @@ func checkList(t *testing.T, _ /*sharedIDs*/ bool, min, max TriceID, searchMetho
 // min, max is the ID pool for finding new IDs
 // ...
 func checkList2(t *testing.T, _ /*sharedIDs*/ bool, min, max TriceID, searchMethod string, tt testTable, extendMacroName bool, inJSON, expJSON string) {
-	lu := make(TriceIDLookUp)
-	err := lu.FromJSON([]byte(inJSON))
+	ilu := make(TriceIDLookUp)
+	err := ilu.FromJSON([]byte(inJSON))
 	assert.Nil(t, err)
-	tflus := lu.reverseS()
+	flu := ilu.reverseS()
 	Verbose = true
 	for _, x := range tt {
 		act0, _ := updateParamCountAndID0(os.Stdout, x.text, extendMacroName)
 		listModified := false
-		act, fileModified := updateIDsUniqOrShared(os.Stdout, false /*sharedIDs*/, min, max, searchMethod, act0, lu, tflus, &listModified)
+		act, fileModified := updateIDsUniqOrShared(os.Stdout, false /*sharedIDs*/, min, max, searchMethod, act0, ilu, flu, &listModified)
 		assert.Equal(t, x.fileMod, fileModified)
 		assert.Equal(t, x.listMod, listModified)
 		assert.Equal(t, x.exp, act)
 	}
-	lu.AddFmtCount(os.Stdout)
-	aListN := fmt.Sprintln(lu)
+	ilu.AddFmtCount(os.Stdout)
+	aListN := fmt.Sprintln(ilu)
 	assert.Equal(t, expJSON, aListN)
 }
 
 func checkTil(t *testing.T, text string, exp TriceIDLookUp) {
-	lu := make(TriceIDLookUp)
-	tflus := lu.reverseS()
+	ilu := make(TriceIDLookUp)
+	flu := ilu.reverseS()
 	lim := make(TriceIDLookUpLI)
-	refreshIDs(os.Stdout, "", text, lu, tflus, lim)
-	assert.True(t, reflect.DeepEqual(lu, exp))
+	refreshIDs(os.Stdout, "", text, ilu, flu, lim)
+	assert.True(t, reflect.DeepEqual(ilu, exp))
 }
 
 func check(t *testing.T, text, expJSON string) {
-	lu := make(TriceIDLookUp)
-	tflus := lu.reverseS()
+	ilu := make(TriceIDLookUp)
+	flu := ilu.reverseS()
 	lim := make(TriceIDLookUpLI)
-	refreshIDs(os.Stdout, "", text, lu, tflus, lim)
-	b, err := lu.toJSON()
+	refreshIDs(os.Stdout, "", text, ilu, flu, lim)
+	b, err := ilu.toJSON()
 	assert.Equal(t, nil, err)
 	assert.Equal(t, expJSON, string(b))
 }
@@ -129,19 +129,19 @@ func check(t *testing.T, text, expJSON string) {
 // min, max is the ID pool for finding new IDs
 // ...
 func checkList3(t *testing.T, _ /*sharedIDs*/ bool, min, max TriceID, searchMethod string, tt testTable, extendMacroName bool, inMap, expMap TriceIDLookUp) {
-	lu := inMap
-	tflus := lu.reverseS()
+	ilu := inMap
+	flu := ilu.reverseS()
 	Verbose = true
 	for _, x := range tt {
 		act0, _ := updateParamCountAndID0(os.Stdout, x.text, extendMacroName)
 		listModified := false
-		act, fileModified := updateIDsUniqOrShared(os.Stdout, false /*sharedIDs*/, min, max, searchMethod, act0, lu, tflus, &listModified)
+		act, fileModified := updateIDsUniqOrShared(os.Stdout, false /*sharedIDs*/, min, max, searchMethod, act0, ilu, flu, &listModified)
 		assert.Equal(t, x.fileMod, fileModified)
 		assert.Equal(t, x.listMod, listModified)
 		assert.Equal(t, x.exp, act)
 	}
-	lu.AddFmtCount(os.Stdout)
-	eq := reflect.DeepEqual(lu, expMap)
+	ilu.AddFmtCount(os.Stdout)
+	eq := reflect.DeepEqual(ilu, expMap)
 	assert.True(t, eq)
 }
 
@@ -151,16 +151,16 @@ func checkList3(t *testing.T, _ /*sharedIDs*/ bool, min, max TriceID, searchMeth
 // min, max is the ID pool for finding new IDs
 // ...
 func checkList4(t *testing.T, _ /*sharedIDs*/ bool, min, max TriceID, searchMethod string, tt testTable, extendMacroName bool, inMap TriceIDLookUp) TriceIDLookUp {
-	lu := inMap
-	tflus := lu.reverseS()
+	ilu := inMap
+	flu := ilu.reverseS()
 	Verbose = true
 	for _, x := range tt {
 		act0, _ := updateParamCountAndID0(os.Stdout, x.text, extendMacroName)
 		listModified := false
-		_, fileModified := updateIDsUniqOrShared(os.Stdout, false /*sharedIDs*/, min, max, searchMethod, act0, lu, tflus, &listModified)
+		_, fileModified := updateIDsUniqOrShared(os.Stdout, false /*sharedIDs*/, min, max, searchMethod, act0, ilu, flu, &listModified)
 		assert.Equal(t, x.fileMod, fileModified)
 		assert.Equal(t, x.listMod, listModified)
 	}
-	lu.AddFmtCount(os.Stdout)
-	return lu
+	ilu.AddFmtCount(os.Stdout)
+	return ilu
 }

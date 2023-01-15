@@ -69,20 +69,10 @@ type TriceFmt struct {
 // An ID can point to one and only format string.
 type TriceIDLookUp map[TriceID]TriceFmt
 
-//  // triceFmtLookUp is the TriceFmt-to-ID info translation map. Equal TriceFmt cannot have different IDs in this translation map.
-//  //
-//  // It is derived from IDLookUp reversing it and can be used during SharedUpdate of src tree.
-//  // Example: A:1, !C:5, C:7 (C.7 will overwrite C:5)
-//  // If in source code equal TriceFmt's have different IDs they are not touched.
-//  // If an additional equal TriceFmt occurs without ID it gets one of the IDs already used for this format string.
-//  // (-sharedIDs=true) or a new one (-sharedIDs=false)(default).
-//  type triceFmtLookUp map[TriceFmt]TriceID
-
-// triceFmtLookUpS is the TriceFmt-to-ID slice info translation map. Equal TriceFmt can have different IDs in this translation map.
+// triceFmtLookUp is the TriceFmt-to-ID info translation map. Equal TriceFmt cannot have different IDs in this translation map.
 //
-// It is derived from IDLookUp reversing it and can be used during SharedUpdate of src tree.
-// Example: A:1, C:[]{5,7} (C has 5 and 7 ad ID)
-type triceFmtLookUpS map[TriceFmt]TriceIDs
+// It is derived from IDLookUp reversing it.
+type triceFmtLookUp map[TriceFmt]TriceIDs
 
 // TriceLI is the trice location information assigned to a trice ID.
 type TriceLI struct {

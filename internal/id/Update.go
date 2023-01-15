@@ -183,12 +183,12 @@ func isSourceFile(fi os.FileInfo) bool {
 	return matchSourceFile.MatchString(fi.Name())
 }
 
-func refreshList(w io.Writer, fSys *afero.Afero, root string, lu TriceIDLookUp, tflus triceFmtLookUpS, lim TriceIDLookUpLI) {
+func refreshList(w io.Writer, fSys *afero.Afero, root string, ilu TriceIDLookUp, flu triceFmtLookUp, lim TriceIDLookUpLI) {
 	if Verbose {
 		fmt.Fprintln(w, "dir=", root)
 		fmt.Fprintln(w, "List=", FnJSON)
 	}
-	msg.FatalInfoOnErr(filepath.Walk(root, visitRefresh(w, fSys, lu, tflus, lim)), "failed to walk tree")
+	msg.FatalInfoOnErr(filepath.Walk(root, visitRefresh(w, fSys, ilu, flu, lim)), "failed to walk tree")
 }
 
 // Additional actions needed: (Option -dry-run lets do a check in advance.)
@@ -209,12 +209,12 @@ func refreshList(w io.Writer, fSys *afero.Afero, root string, lu TriceIDLookUp, 
 // - replace.Type( Id(0), ...) with.Type( Id(n), ...)
 // - find duplicate.Type( Id(n), ...) and replace one of them if *Trices* are not identical
 // - extend file fnIDList
-func idsUpdate(w io.Writer, fSys *afero.Afero, root string, lu TriceIDLookUp, tflus triceFmtLookUpS, pListModified *bool, lim TriceIDLookUpLI) {
+func idsUpdate(w io.Writer, fSys *afero.Afero, root string, ilu TriceIDLookUp, flu triceFmtLookUp, pListModified *bool, lim TriceIDLookUpLI) {
 	if Verbose && FnJSON != "emptyFile" {
 		fmt.Fprintln(w, "dir=", root)
 		fmt.Fprintln(w, "List=", FnJSON)
 	}
-	msg.FatalInfoOnErr(fSys.Walk(root, visitUpdate(w, fSys, lu, tflus, pListModified, lim)), "failed to walk tree")
+	msg.FatalInfoOnErr(fSys.Walk(root, visitUpdate(w, fSys, ilu, flu, pListModified, lim)), "failed to walk tree")
 }
 
 func readFile(w io.Writer, fSys *afero.Afero, path string, fi os.FileInfo, err error) (string, error) {
@@ -232,13 +232,13 @@ func readFile(w io.Writer, fSys *afero.Afero, path string, fi os.FileInfo, err e
 	return text, nil
 }
 
-func visitRefresh(w io.Writer, fSys *afero.Afero, lu TriceIDLookUp, tflus triceFmtLookUpS, lim TriceIDLookUpLI) filepath.WalkFunc {
+func visitRefresh(w io.Writer, fSys *afero.Afero, ilu TriceIDLookUp, flu triceFmtLookUp, lim TriceIDLookUpLI) filepath.WalkFunc {
 	return func(path string, fi os.FileInfo, err error) error {
 		text, err := readFile(w, fSys, path, fi, err)
 		if nil != err {
 			return err
 		}
-		refreshIDs(w, path, text, lu, tflus, lim) // update lu & lim
+		refreshIDs(w, path, text, ilu, flu, lim) // update ilu & lim
 		return nil
 	}
 }
@@ -261,7 +261,7 @@ func isCFile(path string) bool {
 	return false
 }
 
-func visitUpdate(w io.Writer, fSys *afero.Afero, lu TriceIDLookUp, tflus triceFmtLookUpS, pListModified *bool, lim TriceIDLookUpLI) filepath.WalkFunc {
+func visitUpdate(w io.Writer, fSys *afero.Afero, ilu TriceIDLookUp, flu triceFmtLookUp, pListModified *bool, lim TriceIDLookUpLI) filepath.WalkFunc {
 	// WalkFunc is the type of the function called for each file or directory
 	// visited by Walk. The path argument contains the argument to Walk as a
 	// prefix; that is, if Walk is called with "dir", which is a directory
@@ -285,13 +285,13 @@ func visitUpdate(w io.Writer, fSys *afero.Afero, lu TriceIDLookUp, tflus triceFm
 		fileName := filepath.Base(path)
 
 		//  if isCFile(fileName) {
-		//  	text, fileModified2 = updateTriceFileId(w, lu, tflu, text, fileName, SharedIDs, Min, Max, SearchMethod, pListModified)
+		//  	text, fileModified2 = updateTriceFileId(w, lu, flu, text, fileName, SharedIDs, Min, Max, SearchMethod, pListModified)
 		//  }
 
 		// todo: each file is parsed 3 times -> put this in one function
-		textN, fileModified0 := updateParamCountAndID0(w, text, ExtendMacrosWithParamCount)                                            // update parameter count: TRICE* to TRICE*_n
-		textU, fileModified1 := updateIDsUniqOrShared(w, false /*SharedIDs*/, Min, Max, SearchMethod, textN, lu, tflus, pListModified) // update IDs: Id(0) -> Id(M)
-		refreshIDs(w, fileName, textU, lu, tflus, lim)                                                                                 // workaround: do it again to update li.json.
+		textN, fileModified0 := updateParamCountAndID0(w, text, ExtendMacrosWithParamCount)                                           // update parameter count: TRICE* to TRICE*_n
+		textU, fileModified1 := updateIDsUniqOrShared(w, false /*SharedIDs*/, Min, Max, SearchMethod, textN, ilu, flu, pListModified) // update IDs: Id(0) -> Id(M)
+		refreshIDs(w, fileName, textU, ilu, flu, lim)                                                                                 // workaround: do it again to update li.json.
 
 		// write out
 		fileModified := fileModified0 || fileModified1 /*|| fileModified2*/
@@ -383,8 +383,8 @@ func triceParse(t string) (nbID string, id TriceID, tf TriceFmt, found idType) {
 	return
 }
 
-// refreshIDs parses text for valid trices tf and adds them to lu & tflus and updates location information map lim.
-func refreshIDs(w io.Writer, fileName, text string, lu TriceIDLookUp, tflus triceFmtLookUpS, lim TriceIDLookUpLI) {
+// refreshIDs parses text for valid trices tf and adds them to ilu & flu and updates location information map lim.
+func refreshIDs(w io.Writer, fileName, text string, ilu TriceIDLookUp, flu triceFmtLookUp, lim TriceIDLookUpLI) {
 	subs := text[:] // create a copy of text and assign it to subs
 	line := 1       // source cole lines start with 1 for some reason
 	var li TriceLI
@@ -407,12 +407,12 @@ func refreshIDs(w io.Writer, fileName, text string, lu TriceIDLookUp, tflus tric
 		tfS := tf
 		tfS.Type = strings.ToUpper(tfS.Type) // Lower case and upper case Type are not distinguished.
 
-		// In lu id could point to a different tf. So we need to check that and invalidate id in that case.
+		// In ilu id could point to a different tf. So we need to check that and invalidate id in that case.
 		// - That typically happens after tf was changed in source but the id not.
-		// - Also the source file with id:tf could be added from a different project and refresh could not add it to lu because id is used differently.
+		// - Also the source file with id:tf could be added from a different project and refresh could not add it to ilu because id is used differently.
 		// Without this check double used IDs are silently loose one of their usages, what is ok, but this way we get a warning.
 		if id != 0 {
-			if tfL, ok := lu[id]; ok { // found
+			if tfL, ok := ilu[id]; ok { // found
 				tfL.Type = strings.ToUpper(tfL.Type)
 				if !reflect.DeepEqual(tfS, tfL) { // Lower case and upper case Type are not distinguished.
 					fmt.Fprintln(w, "Id", id, "already used differently, ignoring it.") // todo: patID
@@ -423,8 +423,8 @@ func refreshIDs(w io.Writer, fileName, text string, lu TriceIDLookUp, tflus tric
 		if id > 0 {
 			li.Line = line
 			lim[id] = li
-			lu[id] = tf
-			addID(tfS, id, tflus)
+			ilu[id] = tf
+			addID(tfS, id, flu)
 		}
 	}
 }
@@ -438,18 +438,18 @@ const (
 	idTypeS0 = 1
 )
 
-// updateIDsUniqOrShared parses text for new or invalid *Trices* 'tf' and gives them the legacy id if 'tf' is already in lu & tflu.
+// updateIDsUniqOrShared parses text for new or invalid *Trices* 'tf' and gives them the legacy id if 'tf' is already in ilu & flu.
 // An invalid trice is a trice without Id(n) or with Id(0) or which changed somehow. Examples: 'TRICE( Id(12) ,"foo");' was changed to 'TRICE0( Id(12) ,"bar");'
-// If 'TRICE( Id(99) ,"bar");' is in lu & tflu, the invalid trice changes to 'TRICE( Id(99) ,"bar");'. Otherwise instead of 99 a so far unused id is taken.
-// Or: 'TRICE( Id(12) ,"foo");' was changed to 'TRICE( Id(13) ,"foo");'. Then lu & tflu are extended accordingly, or, if 13 is already used, it is replaced with a new id.
-// Otherwise, a new id is generated, text patched and lu & tflu are extended.
-// To work correctly, lu & tflu need to be in a refreshed state, means have all id:tf pairs from Srcs tree already inside.
+// If 'TRICE( Id(99) ,"bar");' is in ilu & flu, the invalid trice changes to 'TRICE( Id(99) ,"bar");'. Otherwise instead of 99 a so far unused id is taken.
+// Or: 'TRICE( Id(12) ,"foo");' was changed to 'TRICE( Id(13) ,"foo");'. Then ilu & flu are extended accordingly, or, if 13 is already used, it is replaced with a new id.
+// Otherwise, a new id is generated, text patched and ilu & flu are extended.
+// To work correctly, ilu & flu need to be in a refreshed state, means have all id:tf pairs from Srcs tree already inside.
 // text is returned afterwards and true if text was changed and *pListModified set true if s.th. was changed.
 // *pListModified in result is true if any file was changed.
-// tflu holds the tf in upper case.
-// lu holds the tf in source code case. If in source code upper and lower case occur, than only one can be in lu.
+// flu holds the tf in upper case.
+// ilu holds the tf in source code case. If in source code upper and lower case occur, than only one can be in ilu.
 // sharedIDs, if true, reuses IDs for identical format strings.
-func updateIDsUniqOrShared(w io.Writer, _ /*sharedIDs*/ bool, min, max TriceID, searchMethod string, text string, lu TriceIDLookUp, tflus triceFmtLookUpS, pListModified *bool) (string, bool) {
+func updateIDsUniqOrShared(w io.Writer, _ /*sharedIDs*/ bool, min, max TriceID, searchMethod string, text string, ilu TriceIDLookUp, flu triceFmtLookUp, pListModified *bool) (string, bool) {
 	var fileModified bool
 	subs := text[:] // create a copy of text and assign it to subs
 	for {
@@ -468,34 +468,34 @@ func updateIDsUniqOrShared(w io.Writer, _ /*sharedIDs*/ bool, min, max TriceID, 
 		//}
 		tf.Type = strings.ToUpper(tf.Type) // Lower case and upper case Type are not distinguished for normal trices in shared IDs mode.
 
-		// In lu id could point to a different tf. So we need to check that and invalidate id in that case.
+		// In ilu id could point to a different tf. So we need to check that and invalidate id in that case.
 		// - That typically happens after tf was changed in source but the id not.
-		// - Also the source file with id:tf could be added from a different project and refresh could not add it to lu because id is used differently.
+		// - Also the source file with id:tf could be added from a different project and refresh could not add it to ilu because id is used differently.
 		if id != 0 {
-			if tfL, ok := lu[id]; ok { // found
+			if tfL, ok := ilu[id]; ok { // found
 				tfL.Type = strings.ToUpper(tfL.Type) // Lower case and upper case Type are not distinguished for normal trices in shared IDs mode.
 				if !reflect.DeepEqual(tf, tfL) {
 					id = -id // mark as invalid
 				}
 			}
 		}
-		if id <= 0 { // marked as invalid: id is 0 or inside lu used differently
+		if id <= 0 { // marked as invalid: id is 0 or inside ilu used differently
 
 			invalID := nbID
 			invalTRICE := nbTRICE
 
 			//<<<<<<<<< Temporary merge branch 1
 			//			// we need a new one
-			//			id = lu.newID(w, min, max, searchMethod) // a prerequisite is an in a previous step refreshed lu
+			//			id = ilu.newID(w, min, max, searchMethod) // a prerequisite is an in a previous step refreshed lu
 			//			*pListModified = true
 			//			// patch the id into text
 			//			nID := fmt.Sprintf("Id(%5d)", id)
 			//=========
-			//if id, found := tflu[tf]; sharedIDs && found { // yes, we can use it in shared IDs mode
+			//if id, found := flu[tf]; sharedIDs && found { // yes, we can use it in shared IDs mode
 			//	msg.FatalInfoOnTrue(id == 0, "no id 0 allowed in map")
 			//} else
 			//{ // no, we need a new one
-			id = lu.newID(w, min, max, searchMethod) // a prerequisite is an in a previous step refreshed lu
+			id = ilu.newID(w, min, max, searchMethod) // a prerequisite is an in a previous step refreshed lu
 			*pListModified = true
 			//}
 			var nID string // patch the id into text
@@ -518,9 +518,9 @@ func updateIDsUniqOrShared(w io.Writer, _ /*sharedIDs*/ bool, min, max TriceID, 
 			text = strings.Replace(text, invalTRICE, nbTRICE, 1)
 			fileModified = true
 		}
-		// update map: That is needed after an invalid trice or if id:tf is valid but not inside lu & tflu yet, for example after manual code changes or forgotten refresh before update.
-		lu[id] = tf
-		addID(tf, id, tflus)
+		// update map: That is needed after an invalid trice or if id:tf is valid but not inside ilu & flu yet, for example after manual code changes or forgotten refresh before update.
+		ilu[id] = tf
+		addID(tf, id, flu)
 	}
 }
 

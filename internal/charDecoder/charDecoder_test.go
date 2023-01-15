@@ -20,7 +20,7 @@ func doCHARableTest(t *testing.T, out io.Writer, f decoder.New, endianness bool,
 	//)
 	//lu := make(id.TriceIDLookUp) // empty
 	//luM := new(sync.RWMutex)
-	//assert.Nil(t, lu.FromJSON([]byte(idl)))
+	//assert.Nil(t, ilu.FromJSON([]byte(idl)))
 	//lu.AddFmtCount(os.Stdout)
 	buf := make([]byte, decoder.DefaultSize)
 	dec := f(out, nil, nil, nil, nil, endianness) // a new decoder instance

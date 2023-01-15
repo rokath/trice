@@ -123,19 +123,19 @@ func logLoop(w io.Writer, fSys *afero.Afero) {
 		decoder.ShowTargetStamp32 = "" // todo: justify this line
 	}
 
-	var lu id.TriceIDLookUp
+	var ilu id.TriceIDLookUp
 	if id.FnJSON == "emptyFile" { // reserved name for tests only
-		lu = make(id.TriceIDLookUp)
+		ilu = make(id.TriceIDLookUp)
 	} else {
-		lu = id.NewLut(w, fSys, id.FnJSON) // lut is a map, that means a pointer
+		ilu = id.NewLut(w, fSys, id.FnJSON) // lut is a map, that means a pointer
 	}
 	m := new(sync.RWMutex) // m is a pointer to a read write mutex for lu
 	m.Lock()
-	lu.AddFmtCount(w)
+	ilu.AddFmtCount(w)
 	m.Unlock()
 	// Just in case the id list file FnJSON gets updated, the file watcher updates lut.
 	// This way trice needs NOT to be restarted during development process.
-	go lu.FileWatcher(w, fSys, m)
+	go ilu.FileWatcher(w, fSys, m)
 
 	var li id.TriceIDLookUpLI // nil
 
@@ -179,7 +179,7 @@ func logLoop(w io.Writer, fSys *afero.Afero) {
 		if receiver.BinaryLogfileName != "off" && receiver.BinaryLogfileName != "none" {
 			rwc = receiver.NewBinaryLogger(w, fSys, rwc)
 		}
-		e = translator.Translate(w, sw, lu, m, li, rwc)
+		e = translator.Translate(w, sw, ilu, m, li, rwc)
 		if io.EOF == e {
 			return // end of predefined buffer
 		}

@@ -45,39 +45,39 @@ func NewLutLI(w io.Writer, fSys *afero.Afero, fn string) TriceIDLookUpLI {
 }
 
 // newID() gets a new ID not used so far.
-// The delivered id is usable as key for lu, but not added. So calling fn twice without adding to lu could give the same value back.
-// It is important that lu was refreshed before with all sources to avoid finding as a new ID an ID which is already used in the source tree.
-func (lu TriceIDLookUp) newID(w io.Writer, min, max TriceID, searchMethod string) TriceID {
+// The delivered id is usable as key for lu, but not added. So calling fn twice without adding to ilu could give the same value back.
+// It is important that ilu was refreshed before with all sources to avoid finding as a new ID an ID which is already used in the source tree.
+func (ilu TriceIDLookUp) newID(w io.Writer, min, max TriceID, searchMethod string) TriceID {
 	if Verbose {
 		fmt.Fprintln(w, "IDMin=", min, "IDMax=", max, "IDMethod=", searchMethod)
 	}
 	switch searchMethod {
 	case "random":
-		return lu.newRandomID(w, min, max)
+		return ilu.newRandomID(w, min, max)
 	case "upward":
-		return lu.newUpwardID(min, max)
+		return ilu.newUpwardID(min, max)
 	case "downward":
-		return lu.newDownwardID(min, max)
+		return ilu.newDownwardID(min, max)
 	}
 	msg.Info(fmt.Sprint("ERROR:", searchMethod, "is unknown ID search method."))
 	return 0
 }
 
 // newRandomID provides a random free ID inside interval [min,max].
-// The delivered id is usable as key for lu, but not added. So calling fn twice without adding to lu could give the same value back.
-func (lu TriceIDLookUp) newRandomID(w io.Writer, min, max TriceID) (id TriceID) {
+// The delivered id is usable as key for lu, but not added. So calling fn twice without adding to ilu could give the same value back.
+func (ilu TriceIDLookUp) newRandomID(w io.Writer, min, max TriceID) (id TriceID) {
 	interval := int(max - min + 1)
-	freeIDs := interval - len(lu)
-	msg.FatalInfoOnFalse(freeIDs > 0, "no new ID possible, "+fmt.Sprint(min, max, len(lu)))
+	freeIDs := interval - len(ilu)
+	msg.FatalInfoOnFalse(freeIDs > 0, "no new ID possible, "+fmt.Sprint(min, max, len(ilu)))
 	wrnLimit := interval >> 2 // 25%
 	msg.InfoOnTrue(freeIDs < wrnLimit, "WARNING: Less than 25% IDs free!")
 	id = min + TriceID(rand.Intn(interval))
-	if len(lu) == 0 {
+	if len(ilu) == 0 {
 		return
 	}
 	for {
 	nextTry:
-		for k := range lu {
+		for k := range ilu {
 			if id == k { // id used
 				fmt.Fprintln(w, "ID", id, "used, next try...")
 				id = min + TriceID(rand.Intn(interval))
@@ -89,18 +89,18 @@ func (lu TriceIDLookUp) newRandomID(w io.Writer, min, max TriceID) (id TriceID) 
 }
 
 // newUpwardID provides the smallest free ID inside interval [min,max].
-// The delivered id is usable as key for lut, but not added. So calling fn twice without adding to lu gives the same value back.
-func (lu TriceIDLookUp) newUpwardID(min, max TriceID) (id TriceID) {
+// The delivered id is usable as key for lut, but not added. So calling fn twice without adding to ilu gives the same value back.
+func (ilu TriceIDLookUp) newUpwardID(min, max TriceID) (id TriceID) {
 	interval := int(max - min + 1)
-	freeIDs := interval - len(lu)
-	msg.FatalInfoOnFalse(freeIDs > 0, "no new ID possible: "+fmt.Sprint("min=", min, ", max=", max, ", used=", len(lu)))
+	freeIDs := interval - len(ilu)
+	msg.FatalInfoOnFalse(freeIDs > 0, "no new ID possible: "+fmt.Sprint("min=", min, ", max=", max, ", used=", len(ilu)))
 	id = min
-	if len(lu) == 0 {
+	if len(ilu) == 0 {
 		return
 	}
 	for {
 	nextTry:
-		for k := range lu {
+		for k := range ilu {
 			if id == k { // id used
 				id++
 				goto nextTry
@@ -111,18 +111,18 @@ func (lu TriceIDLookUp) newUpwardID(min, max TriceID) (id TriceID) {
 }
 
 // newDownwardID provides the biggest free ID inside interval [min,max].
-// The delivered id is usable as key for lut, but not added. So calling fn twice without adding to lu gives the same value back.
-func (lu TriceIDLookUp) newDownwardID(min, max TriceID) (id TriceID) {
+// The delivered id is usable as key for lut, but not added. So calling fn twice without adding to ilu gives the same value back.
+func (ilu TriceIDLookUp) newDownwardID(min, max TriceID) (id TriceID) {
 	interval := int(max - min + 1)
-	freeIDs := interval - len(lu)
-	msg.FatalInfoOnFalse(freeIDs > 0, "no new ID possible: "+fmt.Sprint("min=", min, ", max=", max, ", used=", len(lu)))
+	freeIDs := interval - len(ilu)
+	msg.FatalInfoOnFalse(freeIDs > 0, "no new ID possible: "+fmt.Sprint("min=", min, ", max=", max, ", used=", len(ilu)))
 	id = max
-	if len(lu) == 0 {
+	if len(ilu) == 0 {
 		return
 	}
 	for {
 	nextTry:
-		for k := range lu {
+		for k := range ilu {
 			if id == k { // id used
 				id--
 				goto nextTry
@@ -132,10 +132,10 @@ func (lu TriceIDLookUp) newDownwardID(min, max TriceID) (id TriceID) {
 	}
 }
 
-// FromJSON converts JSON byte slice to lu.
-func (lu TriceIDLookUp) FromJSON(b []byte) (err error) {
+// FromJSON converts JSON byte slice to ilu.
+func (ilu TriceIDLookUp) FromJSON(b []byte) (err error) {
 	if 0 < len(b) {
-		err = json.Unmarshal(b, &lu)
+		err = json.Unmarshal(b, &ilu)
 	}
 	return
 }
@@ -149,7 +149,7 @@ func (li TriceIDLookUpLI) FromJSON(b []byte) (err error) {
 }
 
 // fromFile reads file fn into lut. Existing keys are overwritten, lut is extended with new keys.
-func (lu TriceIDLookUp) fromFile(fSys *afero.Afero, fn string) error {
+func (ilu TriceIDLookUp) fromFile(fSys *afero.Afero, fn string) error {
 	b, e := fSys.ReadFile(fn)
 	s := fmt.Sprintf("fn=%s, maybe need to create an empty file first? (Safety feature)", fn)
 	msg.FatalInfoOnErr(e, s)
@@ -164,7 +164,7 @@ func (lu TriceIDLookUp) fromFile(fSys *afero.Afero, fn string) error {
 		b = b[:n]
 	*/
 
-	return lu.FromJSON(b)
+	return ilu.FromJSON(b)
 }
 
 // fromFile reads fSys file fn into lut.
@@ -181,18 +181,18 @@ func (li TriceIDLookUpLI) fromFile(fSys *afero.Afero, fn string) error {
 	return nil // silently ignore non existing file
 }
 
-// AddFmtCount adds inside lu to all trice type names without format specifier count the appropriate count.
+// AddFmtCount adds inside ilu to all trice type names without format specifier count the appropriate count.
 // example change:
 // `map[10000:{Trice8_2 hi %03u, %5x} 10001:{TRICE16 hi %03u, %5x}]
 // `map[10000:{Trice8_2 hi %03u, %5x} 10001:{TRICE16_2 hi %03u, %5x}]
-func (lu TriceIDLookUp) AddFmtCount(w io.Writer) {
-	for i, x := range lu {
+func (ilu TriceIDLookUp) AddFmtCount(w io.Writer) {
+	for i, x := range ilu {
 		if strings.ContainsAny(x.Type, "0_") {
 			continue
 		}
 		n := formatSpecifierCount(x.Strg)
 		x.Type = addFormatSpecifierCount(w, x.Type, n)
-		lu[i] = x
+		ilu[i] = x
 	}
 }
 
@@ -202,7 +202,7 @@ func (lu TriceIDLookUp) toJSON() ([]byte, error) {
 }
 
 // toFile writes lut into file fn as indented JSON.
-func (lu TriceIDLookUp) toFile(fSys afero.Fs, fn string) (err error) {
+func (ilu TriceIDLookUp) toFile(fSys afero.Fs, fn string) (err error) {
 	var fJSON, fC, fH, fCS afero.File
 	fJSON, err = fSys.Create(fn)
 	msg.FatalOnErr(err)
@@ -227,16 +227,16 @@ func (lu TriceIDLookUp) toFile(fSys afero.Fs, fn string) (err error) {
 	}()
 
 	var b []byte
-	b, err = lu.toJSON()
+	b, err = ilu.toJSON()
 	msg.FatalOnErr(err)
 	_, err = fJSON.Write(b)
 	msg.FatalOnErr(err)
 
-	cs, err := lu.toCSFmtList(fnC)
+	cs, err := ilu.toCSFmtList(fnC)
 	_, err = fCS.Write(cs)
 	msg.FatalOnErr(err)
 
-	c, err := lu.toCFmtList(fnC)
+	c, err := ilu.toCFmtList(fnC)
 	_, err = fC.Write(c)
 	msg.FatalOnErr(err)
 
@@ -263,21 +263,21 @@ extern const unsigned triceFormatStringListElements;
 	return
 }
 
-// reverseS returns a reversed map. If different triceID's assigned to several equal TriceFmt all of the TriceID gets it into tflus.
-func (lu TriceIDLookUp) reverseS() (tflus triceFmtLookUpS) {
-	tflus = make(triceFmtLookUpS)
-	for id, tF := range lu {
-		addID(tF, id, tflus)
+// reverseS returns a reversed map. If different triceID's assigned to several equal TriceFmt all of the TriceID gets it into flu.
+func (ilu TriceIDLookUp) reverseS() (flu triceFmtLookUp) {
+	flu = make(triceFmtLookUp)
+	for id, tF := range ilu {
+		addID(tF, id, flu)
 	}
 	return
 }
 
-// addID adds tF and id to tflus. If tF already exists inside tflus, its id slice is extended with id.
-func addID(tF TriceFmt, id TriceID, tflus triceFmtLookUpS) {
+// addID adds tF and id to flu. If tF already exists inside flu, its id slice is extended with id.
+func addID(tF TriceFmt, id TriceID, flu triceFmtLookUp) {
 	tF.Type = strings.ToUpper(tF.Type) // no distinction for lower and upper case Type
-	idSlice := tflus[tF]               // If the key doesn't exist, the first value will be the default zero value.
+	idSlice := flu[tF]                 // If the key doesn't exist, the first value will be the default zero value.
 	idSlice = append(idSlice, id)
-	tflus[tF] = idSlice
+	flu[tF] = idSlice
 }
 
 // toFile writes lut into file fn as indented JSON.
@@ -304,7 +304,7 @@ func (lim TriceIDLookUpLI) toJSON() ([]byte, error) {
 }
 
 // toCFmtList converts lim into C-source byte slice in human-readable form.
-func (lu TriceIDLookUp) toCFmtList(fileName string) ([]byte, error) {
+func (ilu TriceIDLookUp) toCFmtList(fileName string) ([]byte, error) {
 	fileNameBody := fileNameWithoutSuffix(filepath.Base(fileName))
 	c := []byte(`//! \file ` + fileNameBody + `.c
 //! ///////////////////////////////////////////////////////////////////////////
@@ -323,7 +323,7 @@ const triceFormatStringList_t triceFormatStringList[] = {
 	var dataLength int
 	var add bool
 
-	for id, k := range lu {
+	for id, k := range ilu {
 		s = k.Strg
 		switch k.Type {
 
@@ -414,8 +414,8 @@ const unsigned triceFormatStringListElements = sizeof(triceFormatStringList) / s
 	return c, nil
 }
 
-// toCSFmtList converts lu into CS-source byte slice in human-readable form.
-func (lu TriceIDLookUp) toCSFmtList(fileName string) ([]byte, error) {
+// toCSFmtList converts ilu into CS-source byte slice in human-readable form.
+func (ilu TriceIDLookUp) toCSFmtList(fileName string) ([]byte, error) {
 	c := []byte(`// generated code - do not edit!
 
 // There is still a need to exchange the format specifier from C to C#.
@@ -449,7 +449,7 @@ namespace TriceIDList;
 	var dataLength int
 	var add bool
 
-	for id, k := range lu {
+	for id, k := range ilu {
 		s = k.Strg
 		switch k.Type {
 

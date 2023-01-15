@@ -375,14 +375,44 @@ How could that work?
 
 - When `trice u` is executed on a source tree, the starting conditions are undefined:
   - A `til.json` file must exist, but it is allowed to be empty.
-    - The `til.json` is a serialized key-value map where the keys are the **ID**s and the *Trice*s (bit width plus format string) are the value structs.
-    - The `til.json` **ID**s may occur in the source tree not at all, once or several times. Also it is not guarantied, that the source tree *Trice*s match the `til.json` value.
+    - The `til.json` is a serialized key-value map, where
+      - the keys are the TIDs and
+      - the values *Trice* (bit width plus format string) structs.
+      - This is `ilu TriceIDLookUp` a `map[TriceID]TriceFmt`
+        - each TID as key points to one and only one tf
+      - The ilu is reverted then into `flu triceFmtLookUp` a map[TriceFmt]TriceIDs.
+        - `TriceIDs` is a triceID slice for historical reasons (shared IDs) - that will be changed back.
   - A `li.json` may exist or not.
-    - The `li.json` is a serialized key-value map where the keys are the **ID**s and the values are the location information struct LI (filename, line and position).
-    - The `li.json` **ID**s may occur in the source tree not at all, once or several times. Also it is not guarantied, that the source tree *Trice*s match the `li.json` value.
+    - The `li.json` is a serialized key-value map where
+      - the keys are the TIDs and
+      - the values are the location information (filename, line and position) structs.
+      - This is `riceIDLookUpLI` a `map[TriceID]TriceLI`
+        - Each TID as key points to one and only one li.
+
+- The `til.json` TIDs may occur in the source tree not at all, once or several times. Also it is not guarantied, that the source tree *Trice*s match the `til.json` value.
+- The `li.json` TIDs may occur in the source tree not at all, once or several times. Also it is not guarantied, that the source tree *Trice*s match the `li.json` value.
 - The `trice u` main aim is to have a consistent state between `til.json`, `li.json` and the source tree with no **ID** used twice.
 - Also the changes should be minimal.
-- Create a source tree map STM with key=`Trice+LI` and value=**ID**.
+
+- Create a source tree map STM with
+  - key=`Trice+LI` and
+  - value=**ID**.
+- During STM creation check ilu, flu and li and use these rules:
+  - found id->ilu->f
+  - found id->ilu->li
+  - found f->flu->id
+ 
+
+
+
+- If all sources are unpatched all values in STM are 0.
+- Otherwise some or all values are != 0.
+- Use `til.json` and `li.json`
+
+
+- Parse the source tree and insert TIDs from the `til.json`
+  - if found there and the *Trice* information is identical insert
+
 
 > - For future improvement:
 >   - Remove TID duplicates inside the STM by setting the appropriate values to 0.
@@ -624,7 +654,7 @@ TRICE( X3, "...", ...); // an extended type 3 trice
 * Identical **trices** should have different IDs for the correctness of the location information. The switch `-sharedIDs` is obsolete and depreciated.
 * There is no guaranty each **trice** gets its old ID back, if for example 5 identical **trices** with different IDs exist, but the probability for an exact restore can made high using the previous `li.json` file. Proposed method:
   * When `trice -u` is executed, the previous `li.json` is read into an internal `li_1.map` and `li.json` is reset to be an empty file and that is red into `li.map`.
-  * The `til.json` is read into a `lu` as already done, but the reversal `tflu` list format gets an ID slice assigned to each *trice*.
+  * The `til.json` is read into a `lu` as already done, but the reversal `flu` list format gets an ID slice assigned to each *trice*.
   * **Trices** occurring only once, what are probably the most, contain an ID slice of length 1.
   * If a trice occurs for example 5 times its ID slice has length 5 containing 5 different IDs.
   * When the `trice -u` command finds a **trice** with ID slice length > 1, it looks into `li_1.map` for all possible IDs and compares the location information with the actual location:
