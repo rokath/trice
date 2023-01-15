@@ -167,8 +167,8 @@
     TRICE_INLINE uint16_t modulo10000( x uint32_t ) {
         while( x - 10000 >= 0{
 	    x -= 10000;
-	}
-	
+        }
+        return x;
     }
     ```
     
