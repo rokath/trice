@@ -340,7 +340,10 @@ The 14-bit IDs are used to display the log strings. These IDs are pointing in tw
   - It is possible to assign an ID manually as decimal number. It will be added to the ID list automatically during the next `trice u`.
 - If a *Trice* was deleted inside the source tree (or file removal) the appropriate ID stays inside the ID list.
 - If the same string appears again this ID is active again.
-- If a trice occurs more than one time, each occurance gets a different ID. If then 2 of them disappear, their ID numbers stay in `til.json`. In then one of them comes back, it gets a new ID, or not?
+- If a trice occurs more than one time, each occurance gets a different ID. If then 2 of them disappear, their ID numbers stay in `til.json`. If then one of them comes back, it gets a new ID, or not?
+
+How could that work?
+- First read all source files and map
 
 ###  4.4. <a name='TriceID0'></a>*Trice* ID 0
 
