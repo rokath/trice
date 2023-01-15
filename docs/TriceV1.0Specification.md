@@ -165,7 +165,7 @@
   
     ```C
     TRICE_INLINE uint16_t modulo10000( x uint32_t ) {
-        while( x - 10000 >= 0{
+        while( x - 10000 >= 0 ){
             x -= 10000;
         }
         return x;
@@ -195,7 +195,7 @@
     ```
 
 - Using different timestamp bit width parallel allows to reduce the transmitted data size.
-- Example showing one trice without, 6 with 16-bit and 2 with 32-bit (time)stamps:
+- Example showing one trice without, six with 16-bit and two with 32-bit (time)stamps:
 
   ![x](./ref/0-16-32BitTimeStamps.jpg)
 
