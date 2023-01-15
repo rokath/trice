@@ -164,7 +164,7 @@
   - Example for µs time stamps
   
     ```C
-    TRICE_INLINE uint16_t modulo10000( x uint16_t ) {
+    TRICE_INLINE uint16_t modulo10000( x uint32_t ) {
         while( x - 10000 >= 0{
 	    x -= 10000;
 	}
