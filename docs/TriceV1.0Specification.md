@@ -27,16 +27,16 @@
     - [3.2. *Trice* location information file `li.json`](#32-trice-location-information-file-lijson)
   - [4. *Trice* ID Numbers](#4-trice-id-numbers)
     - [4.1. ID number selection](#41-id-number-selection)
-    - [4.2. ID number usage](#42-id-number-usage)
-    - [4.3. ID number stability](#43-id-number-stability)
+    - [4.2. ID number usage and stability](#42-id-number-usage-and-stability)
     - [4.4. *Trice* ID 0](#44-trice-id-0)
   - [5. Trice ID management](#5-trice-id-management)
+    - [The `trice update` algorithm](#the-trice-update-algorithm)
     - [5.1. User Code Patching (`trice update`)](#51-user-code-patching-trice-update)
       - [5.1.1. User Code Patching Examples](#511-user-code-patching-examples)
     - [5.2. User Code Un-Patching](#52-user-code-un-patching)
     - [5.3. ID Usage Options](#53-id-usage-options)
     - [5.4. General ID Management Information](#54-general-id-management-information)
-    - [5.5. Option 1: Patching the User Code once and let the inserted Irice ID b a part of the User Code](#55-option-1-patching-the-user-code-once-and-let-the-inserted-irice-id-b-a-part-of-the-user-code)
+    - [5.5. Option 1: Patching the User Code once and let the inserted Trice ID b a part of the User Code](#55-option-1-patching-the-user-code-once-and-let-the-inserted-trice-id-b-a-part-of-the-user-code)
     - [5.6. Option 2: Patching the User Code in a pre-build process and Un-patching in a post-build process](#56-option-2-patching-the-user-code-in-a-pre-build-process-and-un-patching-in-a-post-build-process)
     - [5.7. Option 3: Patching the User Code on Repository Check-Out and un-patching on Check-In](#57-option-3-patching-the-user-code-on-repository-check-out-and-un-patching-on-check-in)
   - [6. Changelog](#6-changelog)
@@ -235,7 +235,7 @@
 
 - If XTEA is used, the encrypted packages have a multiple-of-8 byte length containing 1-7 padding bytes.
 - The optional decryption is the next step after unpacking a data frame.
-- Enabling XTEA automatically switches to COBS framing. There is no need to use the **trice** tool `-packageFraming` switch in that case.
+- Enabling XTEA, automatically switches to COBS framing. There is no need to use the **trice** tool `-packageFraming` switch in that case because the **trice** tool, when getting the CLI switch `-password "phrase"` automatically assumes COBS encoded data, overwriting the default value for `-packageFraming`.
 
 ###  2.3. <a name='Endianness'></a>Endianness
 
@@ -246,8 +246,17 @@
 
 ###  2.4. <a name='TRICETimeStamps'></a>`TRICE` (Time)Stamps
 
-- Each `TRICE` message can carry stamp bits, which are free usable like for time, addressing or filtering.
+- Each *Trice* message can carry stamp bits, which are free usable like for time, addressing or filtering.
 - By selecting the ID letter case `id(0)`, `Id(0)` or `ID(0)` the user can decide for each single `TRICE` macro about the stamp size.
+- Default notation (function call):
+
+  | notation              | stamp size | remark |
+  | -                     | -          | -      |
+  | `trice( "...", ...);` | 0-bit      | no stamp at all, shortest footprint |
+  | `Trice( "...", ...);` | 16-bit     | calls internally `uint16_t TriceStamp16( void )` for trice message stamping |
+  | `TRice( "...", ...);` | 32-bit     | calls internally `uint32_t TriceStamp32( void )` for trice message stamping |
+
+- Legacy notation (code inlining):
 
   | notation                    | stamp size | remark |
   | -                           | -          | -      |
@@ -255,7 +264,7 @@
   | `TRICE( Id(0), "...", ...)` | 16-bit     | calls internally `uint16_t TriceStamp16( void )` for trice message stamping |
   | `TRICE( ID(0), "...", ...)` | 32-bit     | calls internally `uint32_t TriceStamp32( void )` for trice message stamping |
 
-It is up to the user to provide the functions `TriceStamp16()` and/or `TriceStamp32()`. Normally they return a tick count.
+It is up to the user to provide the functions `TriceStamp16()` and/or `TriceStamp32()`. Normally they return a µs or ms tick count but any values are allowed.
 
 ###  2.5. <a name='BinaryEncoding'></a>Binary Encoding
 
@@ -282,15 +291,23 @@ It is up to the user to provide the functions `TriceStamp16()` and/or `TriceStam
 ####  2.5.2. <a name='PackageFormat'></a>Package Format
 
 - All decoded frames of 0-, 1-, 2- and 3-byte size are considered as user data and ignored by the **trice** tool.
+
+  | bytes                    | Comment                                                                                                       |
+  | :-                       | -                                                                                                             |
+  | ``                       | This is an empty package, which can have also a meaning. It is detectable by 2 consecutive 0-delimiter bytes. |
+  | `X`                      | 1-byte message, reserved for extensions or user data                                                          |
+  | `X` `X`                  | 2-byte message, reserved for extensions or user data                                                          |
+  | `X` `X` `X`              | 3-byte message, reserved for extensions or user data                                                          |
+
 - In decoded frames >= 4-byte the first 2 bytes are the 14-bit ID with 2 selector bits at the most significant position.
 - The `0` selector is usable for any user encoding. The **trice** tool ignores such packages.
 
-  | 16-bit groups            | Selector (2 msb)| *Trice* code                 | Comment                              |
-  | :-                       | :-:             | -                            | -                                    |
-  | `00xxxxxxX ...`          | 0               |                              | reserved for extensions or user data |
-  | `01iiiiiiI NC  ...`      | 1               | `TRICE( id(n), "...", ...);` | *Trice* format without     stamp     |
-  | `10iiiiiiI TT NC ...`    | 2               | `TRICE( Id(n), "...", ...);` | *Trice* format with 16-bit stamp     |
-  | `11iiiiiiI TT TT NC ...` | 3               | `TRICE( ID(n), "...", ...);` | *Trice* format with 32-bit stamp     |
+  | 16-bit groups            | Selector (2 msb)| Comment                                                 |
+  | :-                       | :-:             | -                                                       |
+  | `00xxxxxxX ...`          | 0               | >= 4-byte message, reserved for extensions or user data |
+  | `01iiiiiiI NC  ...`      | 1               | >= 4-byte message, *Trice* format without     stamp     |
+  | `10iiiiiiI TT NC ...`    | 2               | >= 4-byte message, *Trice* format with 16-bit stamp     |
+  | `11iiiiiiI TT TT NC ...` | 3               | >= 4-byte message, *Trice* format with 32-bit stamp     |
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -301,7 +318,7 @@ The 14-bit IDs are used to display the log strings. These IDs are pointing in tw
 ###  3.1. <a name='TriceIDlisttil.json'></a>*Trice* ID list `til.json`
 
 - This file integrates all firmware variants and versions and is the key to display the message strings. With the latest version of this file all previous deployed firmware images are usable without the need to know the actual firmware version.
-- The files `til.json.h` and `til.json.c` are generated to help writing an own trice decoder tool.
+- The files `til.json.h`, `til.json.c` and the like are generated to help writing an own trice decoder tool in your preferred language. That can be interesting in environments, where Go compiled binaries not executable, like [PCs running QNX OS](https://github.com/rokath/trice/discussions/263#discussioncomment-4180692).
 
 ###  3.2. <a name='Tricelocationinformationfileli.json'></a>*Trice* location information file `li.json`
 
@@ -327,20 +344,18 @@ The 14-bit IDs are used to display the log strings. These IDs are pointing in tw
 - In a future **trice** tool it can be possible to give each *trice* channel an **ID** range making it possible to implement *Trice* channel specific runtime on/off on the target side if that is needed. This could be interesting for routing purposes also.
   - To stay compatible with previous **trice** tool versions such implementation would use the `-args` switch, which then contains the relevant channels like `trice u -args "err:20:99,wrn:200:300"`. This needs to be specified in more detail, especially the error handling.
 
-###  4.2. <a name='IDnumberusage'></a>ID number usage
+###  4.2. <a name='IDnumberusage'></a>ID number usage and stability
 
-- If you write `TRICE( "Hi!\n");` again on a 2nd location, it gets a different **ID**.
-- `TRICE8( "msg:%d", 1);` and `TRICE16( "msg:%d", 1);` are different *Trices* even the format strings identical.
-
-###  4.3. <a name='IDnumberstability'></a>ID number stability
-
+- If you write `trice( "msg:%d", 1);` again on a 2nd location, the copy gets a different **ID**, because each *Trice* gets its own **ID**.
+- If you change `trice( "msg:%d", 1);` to `trice8( "msg:%d", 1);`, to reduce the needed parameter space, a new **ID** is assigned. That is because the parameter bit width is implicit a part of the now changed *Trice*. If you change that back, the previous **ID** is assigned again.
+- If you change `trice( "msg:%d", 1);` to `TRice8( "msg:%d", 1);`, to get a 32-bit stamp, the associated **ID** remains unchanged. That is because the optional stamp is not a part of the *Trice* itself.
 - IDs stay constant and get only changed to solve conflicts.
 - To make sure, a single ID will not be changed, you could change it manually to a hexadecimal syntax.
   - This lets the `trice update` command ignore such `TRICE` macros and therefore a full [til.json](../til.json) rebuild will not add them anymore. Generally this should not be done, because this could cause future bugs.
-  - It is possible to assign an ID manually as decimal number. It will be added to the ID list automatically during the next `trice u`.
+  - It is possible to assign an ID manually as decimal number. It will be added to the ID list automatically during the next `trice u` if no conflicts occur.
 - If a *Trice* was deleted inside the source tree (or file removal) the appropriate ID stays inside the ID list.
 - If the same string appears again this ID is active again.
-- If a trice occurs more than one time, each occurance gets a different ID. If then 2 of them disappear, their ID numbers stay in `til.json`. If then one of them comes back, it gets a new ID, or not?
+- If a trice occurs more than one time, each occurrence gets a different ID. If then 2 of them disappear, their ID numbers stay in `til.json`. If then one of them comes back, it gets a new ID, or not?
 
 How could that work?
 - First read all source files and map
@@ -351,7 +366,35 @@ How could that work?
   - It is sufficient to write the TRICE macros just without the `id(0),` `Id(0),` `ID(0),`. It will be inserted automatically according the `-stamp` switch.
 - With `trice zeroSourceTreeIds` all IDs in the given source tree are set to 0. This gives the option afterwards to set-up a new `til.json` according to a different `-IDMethod`, `-IDMin` and `IDMax`.
 
+
+
+
 ##  5. <a name='TriceIDmanagement'></a>Trice ID management
+
+### The `trice update` algorithm
+
+- When `trice u` is executed on a source tree, the starting conditions are undefined:
+  - A `til.json` file must exist, but it is allowed to be empty.
+    - The `til.json` is a serialized key-value map where the keys are the **ID**s and the *Trice*s (bit width plus format string) are the value structs.
+    - The `til.json` **ID**s may occur in the source tree not at all, once or several times. Also it is not guarantied, that the source tree *Trice*s match the `til.json` value.
+  - A `li.json` may exist or not.
+    - The `li.json` is a serialized key-value map where the keys are the **ID**s and the values are the location information struct LI (filename, line and position).
+    - The `li.json` **ID**s may occur in the source tree not at all, once or several times. Also it is not guarantied, that the source tree *Trice*s match the `li.json` value.
+- The `trice u` main aim is to have a consistent state between `til.json`, `li.json` and the source tree with no **ID** used twice.
+- Also the changes should be minimal.
+- Create a source tree map STM with key=`Trice+LI` and value=**ID**.
+
+> - For future improvement:
+>   - Remove TID duplicates inside the STM by setting the appropriate values to 0.
+>     - Compare the TID with the `til.json` map and remove not matching TIDs.
+>     - If some TIDs survive, check th `li.json` map and let survive the "closest" TID.
+>       - If filename matches -> thats it, remove the others, even there are more in the same file.
+>       - If no filename matches -> let survive just ine TID or remove all.
+
+
+- 
+
+
 
 ###  5.1. <a name='UserCodePatchingtriceupdate'></a>User Code Patching (`trice update`)
 
@@ -441,7 +484,7 @@ How could that work?
 - Each format string gets its unique trice ID. If the same format string is used on different source code locations it gets different trice IDs this way allowing a reliable location information.
 
 
-###  5.5. <a name='Option1:PatchingtheUserCodeonceandlettheinsertedIriceIDbapartoftheUserCode'></a>Option 1: Patching the User Code once and let the inserted Irice ID b a part of the User Code
+###  5.5. <a name='Option1:PatchingtheUserCodeonceandlettheinsertedIriceIDbapartoftheUserCode'></a>Option 1: Patching the User Code once and let the inserted Trice ID b a part of the User Code
 
 
 
