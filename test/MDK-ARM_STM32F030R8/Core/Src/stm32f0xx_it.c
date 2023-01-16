@@ -80,20 +80,21 @@ static inline uint64_t Us64( void ){
     if( us < us_1){ // Possible very close to systick ISR, when milliSecond was not incremented yet, but the systic wrapped already.
         us += 1000; // Time cannot go backwards, so correct the 1ms error in the assumption last call is not longer than 1ms back.
     }
-    us_1 = us; // keep result for next call
+    us_1 = us; // keep for next call
     return us;
 }
 
 //! ReadUs16 needs Us64 be called in < 1ms intervals.
 static inline uint16_t Us16( void ){
-    static uint16_t us_1 = 0; // result of last call
+    static uint64_t us_1 = 0; // result of last call
     uint16_t usOffset = (((SysTick->LOAD - SysTick->VAL) * 87381LL) >> 22); // Divide 48MHz clock by 48,0001831 to get us part.
-    uint16_t us = us16 + usOffset; // max 9000 + max 999
-    if( us < us_1){ // Possible very close to systick ISR, when milliSecond was not incremented yet, but the systic wrapped already.
-        us += 1000; // Time cannot go backwards, so correct the 1ms error in the assumption last call is not longer than 1ms back.
+    uint64_t us = us64 + usOffset;
+    uint16_t usResult = us16 + usOffset; // max 9000 + max 999 = max 9999 us
+    if( us < us_1){ // Possible very close to systick ISR, when us16 was not incremented yet, but the systic wrapped already.
+        usResult += 1000; // Time cannot go backwards, so correct the 1ms error in the assumption last call is not longer than 1ms back.
     }
-    us_1 = us; // keep result for next call
-    return us;
+    us_1 = us; // keep for next call
+    return usResult;
 }
 
 #if 1 // us timestamps
