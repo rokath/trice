@@ -71,9 +71,9 @@ const (
 	// hints is the help information in case of errors.
 	Hints = "att:Hints:Baudrate? Encoding? Interrupt? Overflow? Parameter count? Password? til.json? Version?"
 
-	DefaultStamp32 = "ssss,ms_µs" // "tim:%4d,%03d_%03d "
-
-	DefaultStamp16 = "ms_µs" // "tim:      %2d_%03d "
+// DefaultStamp32 = "ssss,ms_µs" // "tim:%4d,%03d_%03d "
+//
+// DefaultStamp16 = "ms_µs" // "tim:      %2d_%03d "
 )
 
 var (
@@ -109,6 +109,10 @@ var (
 	ShowTargetStamp32               string  // ShowTargetStamp32 is the format string for target timestamps.
 	ShowTargetStamp16               string  // ShowTargetStamp16 is the format string for target timestamps.
 	ShowTargetStamp0                string  // ShowTargetStamp0 is the format string for target timestamps.
+	TargetTimeStampUnitPassed       bool    // TargetTimeStampUnitPassed is true when flag was TargetTimeStampUnit passed.
+	ShowTargetStamp32Passed         bool    // ShowTargetStamp32Passed is true when flag was TargetTimeStamp32 passed.
+	ShowTargetStamp16Passed         bool    // ShowTargetStamp16Passed is true when flag was TargetTimeStamp16 passed.
+	ShowTargetStamp0Passed          bool    // ShowTargetStamp0Passed is true when flag was TargetTimeStamp0 passed.
 	LocationInformationFormatString string  // LocationInformationFormatString is the format string for target location: line number and file name.
 	TargetTimestampSize             int     // TargetTimestampSize is set in dependence of trice type.
 	TargetLocationExists            bool    // TargetLocationExists is set in dependence of p.COBSModeDescriptor. (obsolete)

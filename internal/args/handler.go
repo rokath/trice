@@ -6,6 +6,7 @@ package args
 
 import (
 	"errors"
+	"flag"
 	"fmt"
 	"io"
 	"os"
@@ -91,10 +92,25 @@ func Handler(w io.Writer, fSys *afero.Afero, args []string) error {
 		return emitter.ScDisplayServer(w) // endless loop
 	case "l", "log":
 		msg.OnErr(fsScLog.Parse(subArgs))
+		decoder.TargetTimeStampUnitPassed = isLogFlagPassed("tsf")
+		decoder.ShowTargetStamp32Passed = isLogFlagPassed("tsf32")
+		decoder.ShowTargetStamp16Passed = isLogFlagPassed("tsf16")
+		decoder.ShowTargetStamp0Passed = isLogFlagPassed("tsf0")
 		w = do.DistributeArgs(w, fSys, logfileName, verbose)
 		logLoop(w, fSys) // endless loop
 		return nil
 	}
+}
+
+// https://stackoverflow.com/questions/35809252/check-if-flag-was-provided-in-go
+func isLogFlagPassed(name string) bool {
+	found := false
+	fsScLog.Visit(func(f *flag.Flag) {
+		if f.Name == name {
+			found = true
+		}
+	})
+	return found
 }
 
 type selector struct {

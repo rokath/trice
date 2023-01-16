@@ -256,7 +256,8 @@
                     "${workspaceFolder}/til.json",
                      "-p",
                      "com6",
-                     "-debug"
+                     "-baud",
+                     "921600"
             ]
         },        
         {

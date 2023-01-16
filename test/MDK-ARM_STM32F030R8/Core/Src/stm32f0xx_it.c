@@ -97,26 +97,26 @@ static inline uint16_t Us16( void ){
     return usResult;
 }
 
-#if 1 // us timestamps
+#if 0 // us timestamps
 
-// 16-bit us stamp
-uint16_t TriceStamp16( void ){ // wraps after 10ms
+// 16-bit us stamp, wraps after 10 milliseconds
+uint16_t TriceStamp16( void ){
     return Us16();
 }
 
-// 32-bit ms stamp
+// 32-bit us stamp, wraps after 71,58 seconds
 uint32_t TriceStamp32( void ){
     return Us64();
 }
 
 #else // ms timestamps
 
-// 16-bit ms stamp
-uint16_t TriceStamp16( void ){ // wraps after 10s 
+// 16-bit ms stamp, wraps after 10 seconds 
+uint16_t TriceStamp16( void ){ 
     return ms16;
 }
 
-// 32-bit ms stamp
+// 32-bit ms stamp, wraps after 49,71 days
 uint32_t TriceStamp32( void ){
     return ms32;
 }
