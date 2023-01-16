@@ -42,8 +42,9 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-uint32_t milliSecond = 0;
-uint64_t microSecond = 0;
+
+extern unsigned timingError64Count;
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -52,89 +53,14 @@ static void MX_GPIO_Init(void);
 static void MX_USART2_UART_Init(void);
 /* USER CODE BEGIN PFP */
 
+//! serveUs should be called in intervals secure smaller than 1ms.
+void serveUs( void );
+uint32_t milliSecond( void );
+
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
-
-//! ReadUs64 reads the 1us tick in the assumption of an 48MHz systick clock using the microSecond variable and current systick value.
-//! ATTENTION: This is a quick and dirty implementation working well only if this function is called in intervals smaller than 1 ms.
-//! :-( Because the STM32F030 has no 32-bit sysclock counter we need to compute this value or concatenate two 16-bit timers. )
-//! I see no way to find out if the systick ISR was already active shortly after a systick counter wrap, despite calling this
-//! function in intervals smaller than 1 ms if not using hardware timers. To make it clear: You can use ReadUs64 to measure long
-//! intervals up to 584542 years, but the "OS" needs to call ReadUs64 internally regularely in <1ms intervals.
-//! \retval us count since last reset
-static inline uint64_t ReadUs64( void ){
-    static uint64_t us_1 = 0; // result of last call 
-    uint64_t us = microSecond + (((SysTick->LOAD - SysTick->VAL) * 87381LL) >> 22); // Divide 48MHz clock by 48,0001831 to get us part.
-    if( us < us_1){ // Possible very close to systick ISR, when milliSecond was not incremented yet, but the systic wrapped already.
-        us += 1000; // Time cannot go backwards, so correct the 1ms error in the assumption last call is not longer than 1ms back.
-    }
-    us_1 = us; // keep result for next call
-    return us;
-}
-
-//! ReadUs32 reads the 1us tick in the assumption of an 48MHz systick clock using the microSecond variable and current systick value.
-//! ATTENTION: This is a quick and dirty implementation working well only if this function is called in intervals smaller than 1 ms.
-//! :-( Because the STM32F030 has no 32-bit sysclock counter we need to compute this value or concatenate two 16-bit timers. )
-//! I see no way to find out if the systick ISR was already active shortly after a systick counter wrap, despite calling this
-//! function in intervals smaller than 1 ms if not using hardware timers. To make it clear: You can use ReadUs32 to measure long
-//! intervals up to over 1 hour (4294 seconds), but the "OS" needs to call ReadUs32  internally regularely in <1ms intervals.
-//! \retval us count since last reset modulo 2^32
-static inline uint32_t ReadUs32( void ){
-    return (uint32_t)ReadUs64();
-}
-/*
-uint16_t TriceStamp16( void ){ // wraps after 10ms
-    return (uint16_t)(ReadUs32() % 10000); // This implies division and is therefore slow!
-}
-
-uint32_t TriceStamp32( void ){
-    return ReadUs32();
-}
-*/
-uint16_t TriceStamp16( void ){ // wraps after 10s 
-    return (uint16_t)(milliSecond % 10000); // This implies division and is therefore slow!
-}
-
-uint32_t TriceStamp32( void ){
-    return milliSecond;
-}
-
-//uint64_t TriceStamp64( void ){ 
-//    return 0x6464646464646464; 
-//}
-
-static unsigned timingError64Count = 0;
-static unsigned timingError32Count = 0;
-
-//! serveUs should be called in intervals secure smaller than 1ms.
-static void serveUs( void ){
-    static uint64_t st64_1 = 0;
-    static uint32_t st32_1 = 0;
-    uint64_t st64 = ReadUs64();
-    uint32_t st32 = ReadUs32();
-    static int virgin64 = 1;
-    static int virgin32 = 1;
-    if( st64 < st64_1 ){
-        timingError64Count++;
-        if( virgin64 ){
-            virgin64 = 0;
-            TRICE64( ID( 7408), "err:st64=%d < st64_1=%d\n", st64, st64_1 );
-        
-        }
-    }
-    if( st32 < st32_1 ){
-        timingError32Count++;
-        if( virgin32 ){
-            virgin32 = 0;
-            TRICE32( ID( 2140), "err:st32=%d < st32_1=%d\n", st32, st32_1 );        
-        }
-    }
-    st64_1 = st64;
-    st32_1 = st32;
-}
 
 /* USER CODE END 0 */
 
@@ -185,6 +111,7 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
     for(;;){
+        uint32_t ms = milliSecond();
 
         // check for external commands
         if( triceCommandFlag ){
@@ -198,17 +125,17 @@ int main(void)
         // serve trice transfer every few ms
         #if TRICE_DEFERRED_OUT
         static unsigned lastMs = 0;
-        if( milliSecond >= lastMs + TRICE_TRANSFER_INTERVAL_MS ){
-            lastMs = milliSecond;
+        if( ms >= lastMs + TRICE_TRANSFER_INTERVAL_MS ){
+            lastMs = ms;
             TriceTransfer();
         }
         #endif
 
         // send some trices every few ms
         static unsigned lastTricesTime = 0;
-        const unsigned msInterval = 10; // increase this value to slow down trice generation
-        if( milliSecond >= lastTricesTime + msInterval ){
-            lastTricesTime = milliSecond;
+        const unsigned msInterval = 100; // increase this value to slow down trice generation
+        if( ms >= lastTricesTime + msInterval ){
+            lastTricesTime = ms;
             const int begin = 0;
             const int end = 1500;
             static int index = begin;
@@ -216,16 +143,8 @@ int main(void)
             // diagnostics
             if( index == begin ){
                 TRICE16( ID( 1192),"MSG: ✅ STOP  index = %d, TriceDepthMax =%4u of %d\n", index, TriceDepthMax(), TRICE_HALF_BUFFER_SIZE );
-                //TRICE( id( 7147), "dbg:\aHi!\n" ); // sound!
-                volatile uint32_t st0 = SysTick->VAL;
-                volatile uint32_t us = ReadUs32();
-                volatile uint32_t st1 = SysTick->VAL;
-                TRICE( ID( 5422), "time: %d µs - ReadUs32() lasts %d ticks\n", us, st0 - st1);
                 if( timingError64Count ){
-                    TRICE( ID( 1352), "err:%d timing errors 64-bit\n", timingError64Count );
-                }
-                if( timingError32Count ){
-                    TRICE( ID( 6479), "err:%d timing errors 32-bit\n", timingError32Count );
+                    TRICE( ID( 1352), "err:%d timing errors\n", timingError64Count );
                 }
             }
 

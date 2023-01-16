@@ -44,6 +44,18 @@
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN PV */
 
+// us64 is a 64-bit microsecond counter, counting circular in steps of 1000 every ms.
+static uint64_t us64 = 0;
+
+// us16 is a 16-bit microsecond counter, running parallel to us64, but is reset every 10ms, so gets these values: 0, 1000, ... 9000.
+static uint32_t us16 = 0;
+
+// ms32 is a 32-bit millisecond counter, counting circular in steps of 1 every ms.
+static uint32_t ms32 = 0;
+
+// ms16 is a 16-bit millisecond counter, running parallel to ms32, but is reset every 10s
+static uint16_t ms16 = 0;
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -53,6 +65,84 @@
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+
+//! Us64 reads the 1us tick in the assumption of an 48MHz systick clock using the microSecond variable and current systick value.
+//! ATTENTION: This is a quick and dirty implementation working well only if this function is called in intervals smaller than 1 ms.
+//! :-( Because the STM32F030 has no 32-bit sysclock counter we need to compute this value or concatenate two 16-bit timers. )
+//! I see no way to find out if the systick ISR was already active shortly after a systick counter wrap, despite calling this
+//! function in intervals smaller than 1 ms if not using hardware timers. To make it clear: You can use ReadUs64 to measure long
+//! intervals up to 584542 years, but the "OS" needs to call ReadUs64 internally regularely in <1ms intervals.
+//! \retval us count since last reset
+static inline uint64_t Us64( void ){
+    static uint64_t us_1 = 0; // result of last call
+    uint32_t usOffset = (((SysTick->LOAD - SysTick->VAL) * 87381LL) >> 22); // Divide 48MHz clock by 48,0001831 to get us part.
+    uint64_t us = us64 + usOffset;
+    if( us < us_1){ // Possible very close to systick ISR, when milliSecond was not incremented yet, but the systic wrapped already.
+        us += 1000; // Time cannot go backwards, so correct the 1ms error in the assumption last call is not longer than 1ms back.
+    }
+    us_1 = us; // keep result for next call
+    return us;
+}
+
+//! ReadUs16 needs Us64 be called in < 1ms intervals.
+static inline uint16_t Us16( void ){
+    static uint16_t us_1 = 0; // result of last call
+    uint16_t usOffset = (((SysTick->LOAD - SysTick->VAL) * 87381LL) >> 22); // Divide 48MHz clock by 48,0001831 to get us part.
+    uint16_t us = us16 + usOffset; // max 9000 + max 999
+    if( us < us_1){ // Possible very close to systick ISR, when milliSecond was not incremented yet, but the systic wrapped already.
+        us += 1000; // Time cannot go backwards, so correct the 1ms error in the assumption last call is not longer than 1ms back.
+    }
+    us_1 = us; // keep result for next call
+    return us;
+}
+
+#if 1 // us timestamps
+
+// 16-bit us stamp
+uint16_t TriceStamp16( void ){ // wraps after 10ms
+    return Us16();
+}
+
+// 32-bit ms stamp
+uint32_t TriceStamp32( void ){
+    return Us64();
+}
+
+#else // ms timestamps
+
+// 16-bit ms stamp
+uint16_t TriceStamp16( void ){ // wraps after 10s 
+    return ms16;
+}
+
+// 32-bit ms stamp
+uint32_t TriceStamp32( void ){
+    return ms32;
+}
+#endif
+
+uint32_t milliSecond( void ){
+    return ms32;
+}
+
+unsigned timingError64Count = 0;
+
+//! serveUs should be called in intervals secure smaller than 1ms.
+void serveUs( void ){
+    static uint64_t st64_1 = 0;
+    uint64_t st64 = Us64();
+    static int virgin64 = 1;
+    if( st64 < st64_1 ){
+        timingError64Count++;
+        if( virgin64 ){ // show details only of first event
+            virgin64 = 0;
+            TRICE64( ID( 7408), "err:st64=%d < st64_1=%d\n", st64, st64_1 );
+        
+        }
+    }
+    st64_1 = st64;
+}
+
 
 /* USER CODE END 0 */
 
@@ -127,10 +217,12 @@ void PendSV_Handler(void)
 void SysTick_Handler(void)
 {
   /* USER CODE BEGIN SysTick_IRQn 0 */
-    extern uint64_t microSecond;
-    extern uint32_t milliSecond;
-    microSecond += 1000;
-    milliSecond++;
+    us64 += 1000;
+    us16 += 1000;
+    us16 = us16 < 10000 ? us16 : 0;
+    ms32++;
+    ms16++;
+    ms16 = ms16 < 10000 ? ms16 : 0; 
   /* USER CODE END SysTick_IRQn 0 */
 
   /* USER CODE BEGIN SysTick_IRQn 1 */
