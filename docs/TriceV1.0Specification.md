@@ -106,7 +106,7 @@
             year);
     ```
 
-- But several trices ca be in one line.
+- But several trices can be in one line.
   - Ok:
 
     ```c
@@ -203,7 +203,7 @@
 
   ![x](./ref/0-16-32BitTimeStamps.jpg)
 
-- Check the trice tool `tsu` CLI switch to make life easy.
+- Check the trice tool `tsf` CLI switch to make life easy.
 - It is also possible to use the (time) stamp option not for timestamps but for any values, like addresses or a voltage.
 
 ###  1.4. <a name='TriceParameterBitWidths'></a>Trice Parameter Bit Widths
@@ -251,7 +251,7 @@
 ###  2.4. <a name='TRICETimeStamps'></a>`TRICE` (Time)Stamps
 
 - Each *Trice* message can carry stamp bits, which are free usable like for time, addressing or filtering.
-- By selecting the ID letter case `id(0)`, `Id(0)` or `ID(0)` the user can decide for each single `TRICE` macro about the stamp size.
+- By selecting the letter case you decide for each single *Trice* macro about the stamp size.
 - Default notation (function call):
 
   | notation              | stamp size | remark |
@@ -322,7 +322,7 @@ The 14-bit IDs are used to display the log strings. These IDs are pointing in tw
 ###  3.1. <a name='TriceIDlisttil.json'></a>*Trice* ID list `til.json`
 
 - This file integrates all firmware variants and versions and is the key to display the message strings. With the latest version of this file all previous deployed firmware images are usable without the need to know the actual firmware version.
-- The files `til.json.h`, `til.json.c` and the like are generated to help writing an own trice decoder tool in your preferred language. That can be interesting in environments, where Go compiled binaries not executable, like [PCs running QNX OS](https://github.com/rokath/trice/discussions/263#discussioncomment-4180692).
+- The files `til.json.h`, `til.json.c` and the like are generated to help writing an own trice decoder tool in your preferred language. Use `trice u -v` for it. That can be interesting in environments, where Go compiled binaries not executable, like [PCs running QNX OS](https://github.com/rokath/trice/discussions/263#discussioncomment-4180692).
 
 ###  3.2. <a name='Tricelocationinformationfileli.json'></a>*Trice* location information file `li.json`
 
