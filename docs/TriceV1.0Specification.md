@@ -336,7 +336,7 @@ The 14-bit IDs are used to display the log strings. These IDs are pointing in tw
 ###  4.1. <a name='IDnumberselection'></a>ID number selection
 
 - The default encoding TREX supports 14-bit IDs, so over 16000 IDs possible. Other encodings can work with other ID sizes.
-- `trice( "Hi!\n");` ➡ `trice update` ➡ `trice( 12345, "Hi!\n");` 
+- `trice("Hi!\n");` ➡ `trice u` ➡ `trice( 12345, "Hi!\n");` ➡ `trice z` ➡ `trice("Hi!\n");`
 - The **ID** `12345` is a number assigned to `trice( "Hi!\n");` in the above example.
   - It is a so far unused number, according to rules you can control:
     - The `-IDMethod` switch allows a selection method for new IDs.
@@ -359,10 +359,7 @@ The 14-bit IDs are used to display the log strings. These IDs are pointing in tw
   - It is possible to assign an ID manually as decimal number. It will be added to the ID list automatically during the next `trice u` if no conflicts occur.
 - If a *Trice* was deleted inside the source tree (or file removal) the appropriate ID stays inside the ID list.
 - If the same string appears again this ID is active again.
-- If a trice occurs more than one time, each occurrence gets a different ID. If then 2 of them disappear, their ID numbers stay in `til.json`. If then one of them comes back, it gets a new ID, or not?
-
-How could that work?
-- First read all source files and map
+- If a trice occurs more than one time, each occurrence gets a different ID. If then 2 of them disappear, their ID numbers stay in `til.json`. If then one of them comes back, it gets its ID back.0
 
 ###  4.3. <a name='TriceID0'></a>*Trice* ID 0
 
@@ -380,7 +377,7 @@ How could that work?
   - A `til.json` file must exist, but it is allowed to be empty.
     - The `til.json` is a serialized key-value map, where
       - the keys are the TIDs i and
-      - the values are *Trice* format string (bit width plus format string) structs f.
+      - the values are *Trice* format string structs (bit width plus format string) named f.
       - This is key-value map `ilu TriceIDLookUp` a `map[TriceID]TriceFmt`
         - each TID i as key, points to one and only one f.
       - The ilu is reverted then into `flu triceFmtLookUp` a map[TriceFmt]TriceIDs.
@@ -406,7 +403,7 @@ How could that work?
 ####  5.1.3. <a name='Method'></a>Method
 
 - li is renamed into oli, which stays untouched and is used only in cases when identical f are found.
-- A new empty li is created and used for duplicate detection.
+- A new empty li is created and used for duplicate detection too.
 - Walk the src and create a source tree map STM with
   - key=`Trice+LI` and
   - value=**ID**.
