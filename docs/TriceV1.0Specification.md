@@ -8,42 +8,41 @@
 - The links only work inside the browser and with up-folded sections
 -->
 <!-- vscode-markdown-toc -->
-- [*Trice*  Version 1.0 Specification (Draft)](#trice--version-10-specification-draft)
-  - [1.  Trice User Interface - Quick Start](#1--trice-user-interface---quick-start)
-    - [1.1. User Code Adaption](#11-user-code-adaption)
-    - [1.2. Limitations](#12-limitations)
-    - [1.3. Trice (Time) Stamps](#13-trice-time-stamps)
-    - [1.4. Trice Parameter Bit Widths](#14-trice-parameter-bit-widths)
-  - [2. Trice Binary Data Format](#2-trice-binary-data-format)
-    - [2.1. Framing](#21-framing)
-    - [2.2. Optional XTEA Encryption](#22-optional-xtea-encryption)
-    - [2.3. Endianness](#23-endianness)
-    - [2.4. `TRICE` (Time)Stamps](#24-trice-timestamps)
-    - [2.5. Binary Encoding](#25-binary-encoding)
-      - [2.5.1. Symbols](#251-symbols)
-      - [2.5.2. Package Format](#252-package-format)
-  - [3. Trice Decoding](#3-trice-decoding)
-    - [3.1. *Trice* ID list `til.json`](#31-trice-id-list-tiljson)
-    - [3.2. *Trice* location information file `li.json`](#32-trice-location-information-file-lijson)
-  - [4. *Trice* ID Numbers](#4-trice-id-numbers)
-    - [4.1. ID number selection](#41-id-number-selection)
-    - [4.2. ID number usage and stability](#42-id-number-usage-and-stability)
-    - [4.3. *Trice* ID 0](#43-trice-id-0)
-  - [5. Trice ID management](#5-trice-id-management)
-    - [5.1. The `trice update` algorithm](#51-the-trice-update-algorithm)
-      - [5.1.1. Starting Conditions](#511-starting-conditions)
-      - [5.1.2. Aims](#512-aims)
-      - [5.1.3. Method](#513-method)
-    - [5.2. User Code Patching (`trice update`)](#52-user-code-patching-trice-update)
-      - [5.2.1. User Code Patching Examples](#521-user-code-patching-examples)
-    - [5.3. User Code Un-Patching](#53-user-code-un-patching)
-    - [5.4. ID Usage Options](#54-id-usage-options)
-    - [5.5. General ID Management Information](#55-general-id-management-information)
-    - [5.6. Option 1: Patching the User Code once and let the inserted Trice ID b a part of the User Code](#56-option-1-patching-the-user-code-once-and-let-the-inserted-trice-id-b-a-part-of-the-user-code)
-    - [5.7. Option 2: Patching the User Code in a pre-build process and Un-patching in a post-build process](#57-option-2-patching-the-user-code-in-a-pre-build-process-and-un-patching-in-a-post-build-process)
-    - [5.8. Option 3: Patching the User Code on Repository Check-Out and un-patching on Check-In](#58-option-3-patching-the-user-code-on-repository-check-out-and-un-patching-on-check-in)
-  - [6. Changelog](#6-changelog)
-
+* 1. [ Trice User Interface - Quick Start](#TriceUserInterface-QuickStart)
+	* 1.1. [User Code Adaption](#UserCodeAdaption)
+	* 1.2. [Limitations](#Limitations)
+	* 1.3. [Trice (Time) Stamps](#TriceTimeStamps)
+	* 1.4. [Trice Parameter Bit Widths](#TriceParameterBitWidths)
+* 2. [Trice Binary Data Format](#TriceBinaryDataFormat)
+	* 2.1. [Framing](#Framing)
+	* 2.2. [Optional XTEA Encryption](#OptionalXTEAEncryption)
+	* 2.3. [Endianness](#Endianness)
+	* 2.4. [`TRICE` (Time)Stamps](#TRICETimeStamps)
+	* 2.5. [Binary Encoding](#BinaryEncoding)
+		* 2.5.1. [Symbols](#Symbols)
+		* 2.5.2. [Package Format](#PackageFormat)
+* 3. [Trice Decoding](#TriceDecoding)
+	* 3.1. [*Trice* ID list `til.json`](#TriceIDlisttil.json)
+	* 3.2. [*Trice* location information file `li.json`](#Tricelocationinformationfileli.json)
+* 4. [*Trice* ID Numbers](#TriceIDNumbers)
+	* 4.1. [ID number selection](#IDnumberselection)
+	* 4.2. [ID number usage and stability](#IDnumberusageandstability)
+	* 4.3. [*Trice* ID 0](#TriceID0)
+* 5. [Trice ID management](#TriceIDmanagement)
+	* 5.1. [The `trice update` algorithm](#Thetriceupdatealgorithm)
+		* 5.1.1. [Starting Conditions](#StartingConditions)
+		* 5.1.2. [Aims](#Aims)
+		* 5.1.3. [Method](#Method)
+	* 5.2. [User Code Patching (`trice update`)](#UserCodePatchingtriceupdate)
+		* 5.2.1. [User Code Patching Examples](#UserCodePatchingExamples)
+	* 5.3. [User Code Un-Patching](#UserCodeUn-Patching)
+	* 5.4. [ID Usage Options](#IDUsageOptions)
+	* 5.5. [General ID Management Information](#GeneralIDManagementInformation)
+	* 5.6. [Option 1: Patching the User Code once and let the inserted Trice ID be a part of the User Code](#Option1:PatchingtheUserCodeonceandlettheinsertedTriceIDbeapartoftheUserCode)
+	* 5.7. [Option 2: Patching the User Code in a pre-build process and Un-patching in a post-build process](#Option2:PatchingtheUserCodeinapre-buildprocessandUn-patchinginapost-buildprocess)
+	* 5.8. [Option 3: Patching the User Code on Repository Check-Out and un-patching on Check-In](#Option3:PatchingtheUserCodeonRepositoryCheck-Outandun-patchingonCheck-In)
+* 6. [Changelog](#Changelog)
+		* 6.1. [*Trice* format](#Triceformat)
 <!-- vscode-markdown-toc-config
 	numbering=true
 	autoSave=true
@@ -373,25 +372,27 @@ The 14-bit IDs are used to display the log strings. These IDs are pointing in tw
 
 ####  5.1.1. <a name='StartingConditions'></a>Starting Conditions
 
-- Before `trice u` is executed on a source tree, the starting conditions are undefined:
-  - A `til.json` file must exist, but it is allowed to be empty.
+- Before `trice u` is executed on a source tree, the starting conditions are partially undefined:
+  - A trice ID list file `til.json` file must exist, but it is allowed to be empty.
     - The `til.json` is a serialized key-value map, where
-      - the keys are the TIDs i and
+      - the keys are the IDs i and
       - the values are *Trice* format string structs (bit width plus format string) named f.
-      - This is key-value map `ilu TriceIDLookUp` a `map[TriceID]TriceFmt`
-        - each TID i as key, points to one and only one f.
+      - This ID look-up is the key-value map `ilu TriceIDLookUp` a `map[TriceID]TriceFmt`
+        - each ID i as key, points to one and only one f.
+        - The TriceFmt structs contain the parameter width and the format string.
       - The ilu is reverted then into `flu triceFmtLookUp` a map[TriceFmt]TriceIDs.
-        - `TriceIDs` is a triceID slice because the identical f can have several ids (no shared TIDs).
+        - `TriceIDs` is a triceID slice because the identical f can have several ids (no shared IDs).
+        - The format struct f look-up map flu is used internally for faster access and always in sync with ilu.
     - ilu and flu together are named lu.
-  - A `li.json` may exist or not.
-    - The `li.json` is a serialized key-value map where
-      - the keys are the TIDs i and
+  - A  location information file `li.json` may exist or not.
+    - The `li.json` is a serialized key-value map `li TriceIDLookUpLI` a `map[TriceID]TriceLI` where
+      - the keys are the IDs i and
       - the values are the location information (filename, line and position) structs.
-      - This is `li TriceIDLookUpLI` a `map[TriceID]TriceLI`
-        - Each TID as key points to one and only one li.
+    - Each ID as key points to one and only one li.
 
-- The `til.json` TIDs may occur in the source tree not at all, once or several times. Also it is not guarantied, that the source tree *Trice*s match the `til.json` value.
-- The `li.json` TIDs may occur in the source tree not at all, once or several times. Also it is not guarantied, that the source tree *Trice*s match the `li.json` value.
+- The `til.json` IDs may occur in the source tree not at all, once or several times. Also it is not guarantied, that the source tree *Trice*s match the `til.json` value.
+- The `li.json` IDs may occur in the source tree not at all, once or several times. Also it is not guarantied, that the source tree *Trice*s match the `li.json` value.
+- The src tree can contain IDs not present inside `til.json`. This state is seldom, for example after adding sources containing IDs. To keep `trice u` short in execution. `trice refresh` could be run in such cases.
 
 ####  5.1.2. <a name='Aims'></a>Aims
 
@@ -415,17 +416,20 @@ The 14-bit IDs are used to display the log strings. These IDs are pointing in tw
         - If it is accidentally somewhere in the so far unparsed src, we do not know that and therefore do not care about.
         - patch id into source and extend lu and li
       - if there, it points to an id slice, because f could be n times in src
-      - for each i in id slice check oli for the closest match and that this i is not yet inside li 
-        - (if only only i unused with different file names, assume them to be used in this moment)
+      - In most cases the slice contains only one ID. Only if the same f is used several time there are several IDs in the appropriate slice. For each i in id slice check oli for a fitting file and the closest match and that this i is not yet inside li.
         - if success patch id into source and extend lu and li
-        - if no success, that means, that all i inside id slice are used, so create new id and patch id into source and extend lu and li
-  - if the next found f srcID != 0: found id->ilu->f identical to src f?
+        - if no success, that means, that all i of that file inside id slice are used, so create new id and patch id into source and extend lu and li
+        - If only i unused with different file names, assume them to be used in this moment and create a new ID.
+          - This way IDs in not parsed src get the chance to get their old ID back.
+        - For example after adding sources with IDs from a different project and not executing `trice refresh` before
+        
+  - If the found f src ID != 0, check if found id->ilu->f is identical to src f.
     - if yes check li
       - if yes (duplicate) create new id and extend lu and li and overwrite srcID
       - if not, extend li
-    - if srcID not in lu, it cannot be in li, extend lu & li
+    - if src ID not in lu, it cannot be in li, extend lu & li
 - STM is not needed but maybe helpful during debugging.
-- If after `trice u` a `trice z` and a `trice u` again is executed, all TIDs are expected to be at the same place again. If in between `trice u`, an optional `trice z`and a `trice u` src was edited, most TIDs are expected to be at the same plaxe again.
+- If after `trice u` a `trice z` and a `trice u` again is executed, all IDs are expected to be at the same place again. If in between `trice u`, an optional `trice z`and a `trice u` src was edited, most IDs are expected to be at the same place again.
 
 ###  5.2. <a name='UserCodePatchingtriceupdate'></a>User Code Patching (`trice update`)
 
@@ -504,8 +508,8 @@ The 14-bit IDs are used to display the log strings. These IDs are pointing in tw
 
 ###  5.4. <a name='IDUsageOptions'></a>ID Usage Options
 
-- Per default the `trice update` command chooses randomly a so far unused ID for new format strings.
-- 
+- Per default the `trice update` command chooses randomly a so far unused ID for new format strings and extends `til.json`.
+- After `trice z` all src IDs are removed or 0. In this state the src should go into the version management system.
   
 ###  5.5. <a name='GeneralIDManagementInformation'></a>General ID Management Information
 
@@ -515,13 +519,18 @@ The 14-bit IDs are used to display the log strings. These IDs are pointing in tw
 - Each format string gets its unique trice ID. If the same format string is used on different source code locations it gets different trice IDs this way allowing a reliable location information.
 
 
-###  5.6. <a name='Option1:PatchingtheUserCodeonceandlettheinsertedTriceIDbapartoftheUserCode'></a>Option 1: Patching the User Code once and let the inserted Trice ID b a part of the User Code
+###  5.6. <a name='Option1:PatchingtheUserCodeonceandlettheinsertedTriceIDbeapartoftheUserCode'></a>Option 1: Patching the User Code once and let the inserted Trice ID be a part of the User Code
 
-
+- This is the legacy method. It allows unchanged src translation into code without using the trice tool.
+- It is very robust and maybe needed in nasty debugging situations.
 
 ###  5.7. <a name='Option2:PatchingtheUserCodeinapre-buildprocessandUn-patchinginapost-buildprocess'></a>Option 2: Patching the User Code in a pre-build process and Un-patching in a post-build process
 
+- The code is visually free of IDs.
+
 ###  5.8. <a name='Option3:PatchingtheUserCodeonRepositoryCheck-Outandun-patchingonCheck-In'></a>Option 3: Patching the User Code on Repository Check-Out and un-patching on Check-In
+
+- The code is visually free of IDs.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
