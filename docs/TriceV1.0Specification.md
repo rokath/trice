@@ -8,41 +8,41 @@
 - The links only work inside the browser and with up-folded sections
 -->
 <!-- vscode-markdown-toc -->
-* 1. [ Trice User Interface - Quick Start](#TriceUserInterface-QuickStart)
-	* 1.1. [User Code Adaption](#UserCodeAdaption)
-	* 1.2. [Limitations](#Limitations)
-	* 1.3. [Trice (Time) Stamps](#TriceTimeStamps)
-	* 1.4. [Trice Parameter Bit Widths](#TriceParameterBitWidths)
-* 2. [Trice Binary Data Format](#TriceBinaryDataFormat)
-	* 2.1. [Framing](#Framing)
-	* 2.2. [Optional XTEA Encryption](#OptionalXTEAEncryption)
-	* 2.3. [Endianness](#Endianness)
-	* 2.4. [`TRICE` (Time)Stamps](#TRICETimeStamps)
-	* 2.5. [Binary Encoding](#BinaryEncoding)
-		* 2.5.1. [Symbols](#Symbols)
-		* 2.5.2. [Package Format](#PackageFormat)
-* 3. [Trice Decoding](#TriceDecoding)
-	* 3.1. [*Trice* ID list `til.json`](#TriceIDlisttil.json)
-	* 3.2. [*Trice* location information file `li.json`](#Tricelocationinformationfileli.json)
-* 4. [*Trice* ID Numbers](#TriceIDNumbers)
-	* 4.1. [ID number selection](#IDnumberselection)
-	* 4.2. [ID number usage and stability](#IDnumberusageandstability)
-	* 4.3. [*Trice* ID 0](#TriceID0)
-* 5. [Trice ID management](#TriceIDmanagement)
-	* 5.1. [The `trice update` algorithm](#Thetriceupdatealgorithm)
-		* 5.1.1. [Starting Conditions](#StartingConditions)
-		* 5.1.2. [Aims](#Aims)
-		* 5.1.3. [Method](#Method)
-	* 5.2. [User Code Patching (`trice update`)](#UserCodePatchingtriceupdate)
-		* 5.2.1. [User Code Patching Examples](#UserCodePatchingExamples)
-	* 5.3. [User Code Un-Patching](#UserCodeUn-Patching)
-	* 5.4. [ID Usage Options](#IDUsageOptions)
-	* 5.5. [General ID Management Information](#GeneralIDManagementInformation)
-	* 5.6. [Option 1: Patching the User Code once and let the inserted Trice ID be a part of the User Code](#Option1:PatchingtheUserCodeonceandlettheinsertedTriceIDbeapartoftheUserCode)
-	* 5.7. [Option 2: Patching the User Code in a pre-build process and Un-patching in a post-build process](#Option2:PatchingtheUserCodeinapre-buildprocessandUn-patchinginapost-buildprocess)
-	* 5.8. [Option 3: Patching the User Code on Repository Check-Out and un-patching on Check-In](#Option3:PatchingtheUserCodeonRepositoryCheck-Outandun-patchingonCheck-In)
-* 6. [Changelog](#Changelog)
-		* 6.1. [*Trice* format](#Triceformat)
+- [*Trice*  Version 1.0 Specification (Draft)](#trice--version-10-specification-draft)
+  - [1.  Trice User Interface - Quick Start](#1--trice-user-interface---quick-start)
+    - [1.1. User Code Adaption](#11-user-code-adaption)
+    - [1.2. Limitations](#12-limitations)
+    - [1.3. Trice (Time) Stamps](#13-trice-time-stamps)
+    - [1.4. Trice Parameter Bit Widths](#14-trice-parameter-bit-widths)
+  - [2. Trice Binary Data Format](#2-trice-binary-data-format)
+    - [2.1. Framing](#21-framing)
+    - [2.2. Optional XTEA Encryption](#22-optional-xtea-encryption)
+    - [2.3. Endianness](#23-endianness)
+    - [2.4. `TRICE` (Time)Stamps](#24-trice-timestamps)
+    - [2.5. Binary Encoding](#25-binary-encoding)
+      - [2.5.1. Symbols](#251-symbols)
+      - [2.5.2. Package Format](#252-package-format)
+  - [3. Trice Decoding](#3-trice-decoding)
+    - [3.1. *Trice* ID list `til.json`](#31-trice-id-list-tiljson)
+    - [3.2. *Trice* location information file `li.json`](#32-trice-location-information-file-lijson)
+  - [4. *Trice* ID Numbers](#4-trice-id-numbers)
+    - [4.1. ID number selection](#41-id-number-selection)
+    - [4.2. ID number usage and stability](#42-id-number-usage-and-stability)
+    - [4.3. *Trice* ID 0](#43-trice-id-0)
+  - [5. Trice ID management](#5-trice-id-management)
+    - [5.1. The `trice update` algorithm](#51-the-trice-update-algorithm)
+      - [5.1.1. Starting Conditions](#511-starting-conditions)
+      - [5.1.2. Aims](#512-aims)
+      - [5.1.3. Method](#513-method)
+    - [5.2. User Code Patching (`trice update`)](#52-user-code-patching-trice-update)
+      - [5.2.1. User Code Patching Examples](#521-user-code-patching-examples)
+    - [5.3. User Code Un-Patching](#53-user-code-un-patching)
+    - [5.4. ID Usage Options](#54-id-usage-options)
+    - [5.5. General ID Management Information](#55-general-id-management-information)
+    - [5.6. Option 1: Patching the User Code once and let the inserted Trice ID be a part of the User Code](#56-option-1-patching-the-user-code-once-and-let-the-inserted-trice-id-be-a-part-of-the-user-code)
+    - [5.7. Option 2: Patching the User Code in a pre-build process and Un-patching in a post-build process](#57-option-2-patching-the-user-code-in-a-pre-build-process-and-un-patching-in-a-post-build-process)
+    - [5.8. Option 3: Patching the User Code on Repository Check-Out and un-patching on Check-In](#58-option-3-patching-the-user-code-on-repository-check-out-and-un-patching-on-check-in)
+  - [6. Changelog](#6-changelog)
 <!-- vscode-markdown-toc-config
 	numbering=true
 	autoSave=true
@@ -147,7 +147,7 @@
 ###  1.3. <a name='TriceTimeStamps'></a>Trice (Time) Stamps
 
 - Trice messages can have no or 16-bit or 32-bit (time) stamps.
-  - recommended:
+  - recommended (function calling) syntax:
 
       ```c
       trice( "hello %u\n", year); // no (time) stamp
@@ -163,40 +163,37 @@
       TRICE( ID(0), "hello %u\n", year); // 32-bit (time) stamp
       ```
 
-- The user is asked to provide the appropriate 2 functions.
-  - Example for µs time stamps
-  
-    ```C
-    TRICE_INLINE uint16_t modulo10000( x uint32_t ) {
-        while( x - 10000 >= 0 ){
-            x -= 10000;
-        }
-        return x;
-    }
-    ```
+- The user is asked to implement these 2 functions
 
-    ```c
-    uint16_t TriceStamp16( void ){ // wraps after 10ms
-        return modulo10000(ReadUs32());
-    }
+  ```c
+  #if 1 // us timestamps
 
-    uint32_t TriceStamp32( void ){
-        return ReadUs32();
-    }
-    ```
+  // 16-bit us stamp, wraps after 10 milliseconds
+  uint16_t TriceStamp16( void ){
+      return Us16();
+  }
 
-  - Example for ms time stamps
+  // 32-bit us stamp, wraps after 71,58 seconds
+  uint32_t TriceStamp32( void ){
+      return Us64();
+  }
 
-    ```c
-    uint16_t TriceStamp16( void ){ // wraps after 10s 
-        return modulo10000(milliSecond);
-    }
+  #else // ms timestamps
 
-    uint32_t TriceStamp32( void ){
-        return milliSecond;
-    }
-    ```
+  // 16-bit ms stamp, wraps after 10 seconds 
+  uint16_t TriceStamp16( void ){ 
+      return ms16;
+  }
 
+  // 32-bit ms stamp, wraps after 49,71 days
+  uint32_t TriceStamp32( void ){
+      return ms32;
+  }
+  #endif
+  ```
+
+- Check the example Implementation on a 48 MHz clocked MCU in `C:\repos\trice\test\MDK-ARM_STM32F030R8` for details.
+  - Counting the 16-bit part separately allows to avoid the `%` operator usage, which would imply a costly division.
 - Using different timestamp bit width parallel allows to reduce the transmitted data size.
 - Example showing one trice without, six with 16-bit and two with 32-bit (time)stamps:
 

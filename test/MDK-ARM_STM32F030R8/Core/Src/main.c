@@ -54,7 +54,7 @@ static void MX_USART2_UART_Init(void);
 /* USER CODE BEGIN PFP */
 
 //! serveUs should be called in intervals secure smaller than 1ms.
-void serveUs( void );
+void UsDuty( void );
 uint32_t milliSecond( void );
 
 /* USER CODE END PFP */
@@ -143,9 +143,6 @@ int main(void)
             // diagnostics
             if( index == begin ){
                 TRICE16( ID( 1192),"MSG: ✅ STOP  index = %d, TriceDepthMax =%4u of %d\n", index, TriceDepthMax(), TRICE_HALF_BUFFER_SIZE );
-                if( timingError64Count ){
-                    TRICE( ID( 1352), "err:%d timing errors\n", timingError64Count );
-                }
             }
 
             // trice messsage
@@ -176,10 +173,7 @@ int main(void)
             // loop handling
             index = index++ > end ? begin : index;
         }
-        serveUs(); // needs to be called at least every 999 us!
-        __WFI(); //lint !e718 !e746 wait for interrupt (sleep) - systick triggers every 1 ms
-        serveUs(); // needs to be called at least every 999 us!
-        //lint -e835 -e534
+        UsDuty();
     }
   /* USER CODE END WHILE */
   /* USER CODE BEGIN 3 */

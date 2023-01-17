@@ -66,6 +66,17 @@ static uint16_t ms16 = 0;
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
+static uint64_t us_1 = 0; // result of last Us16() or Us64() call
+
+#define US_DUTY \
+    uint32_t usOffset = (((SysTick->LOAD - SysTick->VAL) * 87381LL) >> 22); /* Divide 48MHz clock by 48,0001831 to get us part. */ \
+    uint64_t us = us64 + usOffset; \
+    int correction = 0; \
+    if( us < us_1){ /* Possible very close to systick ISR, when milliSecond was not incremented yet, but the systic wrapped already. */ \
+        correction = 1000; /* Time cannot go backwards, so correct the 1ms error in the assumption last call is not longer than 1ms back. */ \
+    } \
+    us_1 = us + correction; /* keep for next call */
+
 //! Us64 reads the 1us tick in the assumption of an 48MHz systick clock using the microSecond variable and current systick value.
 //! ATTENTION: This is a quick and dirty implementation working well only if this function is called in intervals smaller than 1 ms.
 //! :-( Because the STM32F030 has no 32-bit sysclock counter we need to compute this value or concatenate two 16-bit timers. )
@@ -74,30 +85,23 @@ static uint16_t ms16 = 0;
 //! intervals up to 584542 years, but the "OS" needs to call ReadUs64 internally regularely in <1ms intervals.
 //! \retval us count since last reset
 static inline uint64_t Us64( void ){
-    static uint64_t us_1 = 0; // result of last call
-    uint32_t usOffset = (((SysTick->LOAD - SysTick->VAL) * 87381LL) >> 22); // Divide 48MHz clock by 48,0001831 to get us part.
-    uint64_t us = us64 + usOffset;
-    if( us < us_1){ // Possible very close to systick ISR, when milliSecond was not incremented yet, but the systic wrapped already.
-        us += 1000; // Time cannot go backwards, so correct the 1ms error in the assumption last call is not longer than 1ms back.
-    }
-    us_1 = us; // keep for next call
-    return us;
+    US_DUTY
+    return us_1;
 }
 
-//! ReadUs16 needs Us64 be called in < 1ms intervals.
+//! Us16 or Us64 needs be called in < 1ms intervals.
 static inline uint16_t Us16( void ){
-    static uint64_t us_1 = 0; // result of last call
-    uint16_t usOffset = (((SysTick->LOAD - SysTick->VAL) * 87381LL) >> 22); // Divide 48MHz clock by 48,0001831 to get us part.
-    uint64_t us = us64 + usOffset;
-    uint16_t usResult = us16 + usOffset; // max 9000 + max 999 = max 9999 us
-    if( us < us_1){ // Possible very close to systick ISR, when us16 was not incremented yet, but the systic wrapped already.
-        usResult += 1000; // Time cannot go backwards, so correct the 1ms error in the assumption last call is not longer than 1ms back.
-    }
-    us_1 = us; // keep for next call
-    return usResult;
+    US_DUTY
+    return us16 + usOffset + correction; // max 9000 + max 999 + max 1000 = max 10999 us;
 }
 
-#if 0 // us timestamps
+void UsDuty( void ){
+    { US_DUTY }
+    __WFE(); // wait for event (sleep)
+    { US_DUTY } 
+}
+
+#if 1 // us timestamps
 
 // 16-bit us stamp, wraps after 10 milliseconds
 uint16_t TriceStamp16( void ){
@@ -125,25 +129,6 @@ uint32_t TriceStamp32( void ){
 uint32_t milliSecond( void ){
     return ms32;
 }
-
-unsigned timingError64Count = 0;
-
-//! serveUs should be called in intervals secure smaller than 1ms.
-void serveUs( void ){
-    static uint64_t st64_1 = 0;
-    uint64_t st64 = Us64();
-    static int virgin64 = 1;
-    if( st64 < st64_1 ){
-        timingError64Count++;
-        if( virgin64 ){ // show details only of first event
-            virgin64 = 0;
-            TRICE64( ID( 7408), "err:st64=%d < st64_1=%d\n", st64, st64_1 );
-        
-        }
-    }
-    st64_1 = st64;
-}
-
 
 /* USER CODE END 0 */
 
