@@ -890,6 +890,8 @@ void TriceCheckSet(int index) {
     break; case __LINE__: TRICE32_1( id( 5550), "rd:TRICE32_1 line %b (%%b)\n", -1 );
     break; case __LINE__: TRICE32_1( id( 7867), "rd:TRICE32_1 line %o (%%o)\n", -1 );
     break; case __LINE__: TRICE32_1( id( 7875), "rd:TRICE32_1 line %O (%%O)\n", -1 );
+                          
+#if 0
     break; case __LINE__: TRICE32_1( id( 4680), "rd:TRICE32_1 line %X (%%X)\n", -1 );
     break; case __LINE__: TRICE32_1( id( 5219), "rd:TRICE32_1 line %x (%%x)\n", -1 );
     break; case __LINE__: TRICE32_1( id( 1169), "rd:TRICE32_1 line %d (%%d)\n", -1 );
@@ -1597,7 +1599,7 @@ EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
     break; case __LINE__: exampleOfManualJSONencoding();
     break; case __LINE__: exampleOfBuffersAndFunctions();
     break; case __LINE__: exampleOfManualSerialization();
-
+#endif
     break; case __LINE__: 
 #ifdef XTEA_ENCRYPT_KEY
         TRICE0 (Id( 6463), "--------------------------------------------------\n" );

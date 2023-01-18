@@ -68,9 +68,10 @@ static uint16_t ms16 = 0;
 
 static uint64_t us_1 = 0; // result of last Us16() or Us64() call
 
+//! US_DUTY is a helper macro to avoid code duplication.
 #define US_DUTY \
-    uint32_t usOffset = (((SysTick->LOAD - SysTick->VAL) * 87381LL) >> 22); /* Divide 48MHz clock by 48,0001831 to get us part. */ \
-    uint64_t us = us64 + usOffset; \
+    uint32_t usOffset = (((SysTick->LOAD - SysTick->VAL) * 87381) >> 22); /* Divide 48MHz clock by 48,0001831 to get us part. */ \
+    uint64_t us = us64 + usOffset;                                        /* 47999*87381 < 2^32 */ \
     int correction = 0; \
     if( us < us_1){ /* Possible very close to systick ISR, when milliSecond was not incremented yet, but the systic wrapped already. */ \
         correction = 1000; /* Time cannot go backwards, so correct the 1ms error in the assumption last call is not longer than 1ms back. */ \
