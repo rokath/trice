@@ -422,7 +422,7 @@ The 14-bit IDs are used to display the log strings. These IDs are pointing in tw
         
   - If the found f src ID != 0, check if found id->ilu->f is identical to src f.
     - if yes check li
-      - if yes (duplicate) create new id and extend lu and li and overwrite srcID
+      - if yes (duplicate) create new id and extend lu and li and overwrite src ID
       - if not, extend li
     - if src ID not in lu, it cannot be in li, extend lu & li
 - STM is not needed but maybe helpful during debugging.
