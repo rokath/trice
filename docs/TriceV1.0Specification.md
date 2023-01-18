@@ -355,7 +355,7 @@ The 14-bit IDs are used to display the log strings. These IDs are pointing in tw
   - It is possible to assign an ID manually as decimal number. It will be added to the ID list automatically during the next `trice u` if no conflicts occur.
 - If a *Trice* was deleted inside the source tree (or file removal) the appropriate ID stays inside the ID list.
 - If the same string appears again this ID is active again.
-- If a trice occurs more than one time, each occurrence gets a different ID. If then 2 of them disappear, their ID numbers stay in `til.json`. If then one of them comes back, it gets its ID back.0
+- If a trice occurs more than one time, each occurrence gets a different ID. If then 2 of them disappear, their ID numbers stay in `til.json`. If then one of them comes back, it gets its ID back.
 
 ###  4.3. <a name='TriceID0'></a>*Trice* ID 0
 
@@ -406,7 +406,7 @@ The 14-bit IDs are used to display the log strings. These IDs are pointing in tw
   - key=`Trice+LI` and
   - value=**ID**.
 - During STM creation use these rules:
-  - if the next found f srcID == 0:
+  - if the next found f src ID == 0:
     - Look in flu
       - if not there, create new id
         - The new ID is "new", so forbidden to be inside ilu.
