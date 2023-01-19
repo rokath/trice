@@ -54,6 +54,8 @@ void TriceCheckSet(int index) {
     TRice8M_11( 2410, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );// trice tool modified code for compilation
     Trice8M_12( 2070, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );// trice tool modified code for compilation
 
+#if 1
+
     // normal use cases (3 macros)
     break; case __LINE__: trice      (           "msg:value=%d\n", -__LINE__  ); // user written code, empty macro for patching, function call, no stamp
     break; case __LINE__: Trice      (           "msg:value=%d\n", -__LINE__  ); // user written code, empty macro for patching, function call, 16-bit stamp
@@ -890,8 +892,6 @@ void TriceCheckSet(int index) {
     break; case __LINE__: TRICE32_1( id( 5550), "rd:TRICE32_1 line %b (%%b)\n", -1 );
     break; case __LINE__: TRICE32_1( id( 7867), "rd:TRICE32_1 line %o (%%o)\n", -1 );
     break; case __LINE__: TRICE32_1( id( 7875), "rd:TRICE32_1 line %O (%%O)\n", -1 );
-                          
-#if 0
     break; case __LINE__: TRICE32_1( id( 4680), "rd:TRICE32_1 line %X (%%X)\n", -1 );
     break; case __LINE__: TRICE32_1( id( 5219), "rd:TRICE32_1 line %x (%%x)\n", -1 );
     break; case __LINE__: TRICE32_1( id( 1169), "rd:TRICE32_1 line %d (%%d)\n", -1 );

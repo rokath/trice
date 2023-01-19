@@ -134,11 +134,11 @@
             <RunIndependent>0</RunIndependent>
             <UpdateFlashBeforeDebugging>1</UpdateFlashBeforeDebugging>
             <Capability>1</Capability>
-            <DriverSelection>4101</DriverSelection>
+            <DriverSelection>4096</DriverSelection>
           </Flash1>
           <bUseTDR>1</bUseTDR>
           <Flash2>BIN\UL2CM3.DLL</Flash2>
-          <Flash3></Flash3>
+          <Flash3>"" ()</Flash3>
           <Flash4></Flash4>
           <pFcarmOut></pFcarmOut>
           <pFcarmGrp></pFcarmGrp>
@@ -189,14 +189,14 @@
             <hadIRAM2>0</hadIRAM2>
             <hadIROM2>0</hadIROM2>
             <StupSel>8</StupSel>
-            <useUlib>0</useUlib>
+            <useUlib>1</useUlib>
             <EndSel>0</EndSel>
             <uLtcg>0</uLtcg>
             <nSecure>0</nSecure>
             <RoSelD>3</RoSelD>
             <RwSelD>4</RwSelD>
             <CodeSel>0</CodeSel>
-            <OptFeed>0</OptFeed>
+            <OptFeed>1</OptFeed>
             <NoZi1>0</NoZi1>
             <NoZi2>0</NoZi2>
             <NoZi3>0</NoZi3>
@@ -313,10 +313,10 @@
           </ArmAdsMisc>
           <Cads>
             <interw>1</interw>
-            <Optim>5</Optim>
+            <Optim>7</Optim>
             <oTime>0</oTime>
             <SplitLS>0</SplitLS>
-            <OneElfS>1</OneElfS>
+            <OneElfS>0</OneElfS>
             <Strict>0</Strict>
             <EnumInt>0</EnumInt>
             <PlainCh>0</PlainCh>
@@ -328,8 +328,8 @@
             <uC99>1</uC99>
             <uGnu>0</uGnu>
             <useXO>0</useXO>
-            <v6Lang>0</v6Lang>
-            <v6LangP>9</v6LangP>
+            <v6Lang>4</v6Lang>
+            <v6LangP>3</v6LangP>
             <vShortEn>1</vShortEn>
             <vShortWch>1</vShortWch>
             <v6Lto>1</v6Lto>
@@ -339,7 +339,7 @@
               <MiscControls></MiscControls>
               <Define>USE_FULL_LL_DRIVER,HSE_VALUE=8000000,HSE_STARTUP_TIMEOUT=100,LSE_STARTUP_TIMEOUT=5000,LSE_VALUE=32768,HSI_VALUE=8000000,LSI_VALUE=40000,VDD_VALUE=3300,PREFETCH_ENABLE=1,INSTRUCTION_CACHE_ENABLE=0,DATA_CACHE_ENABLE=0,STM32F030x8</Define>
               <Undefine></Undefine>
-              <IncludePath>../Core/Inc;..\..\..\src;..\..\..\third_party\segger.com\SEGGER_RTT\RTT;C:/Users/ms/STM32Cube/Repository/STM32Cube_FW_F0_V1.11.2/Drivers/STM32F0xx_HAL_Driver/Inc;C:/Users/ms/STM32Cube/Repository/STM32Cube_FW_F0_V1.11.2/Drivers/CMSIS/Device/ST/STM32F0xx/Include;C:/Users/ms/STM32Cube/Repository/STM32Cube_FW_F0_V1.11.2/Drivers/CMSIS/Include;../Drivers/STM32F0xx_HAL_Driver/Inc;../Drivers/CMSIS/Device/ST/STM32F0xx/Include;../Drivers/CMSIS/Include</IncludePath>
+              <IncludePath>../Core/Inc;../../../src;../../../third_party/segger.com/SEGGER_RTT/RTT;C:/Users/ms/STM32Cube/Repository/STM32Cube_FW_F0_V1.11.2/Drivers/STM32F0xx_HAL_Driver/Inc;C:/Users/ms/STM32Cube/Repository/STM32Cube_FW_F0_V1.11.2/Drivers/CMSIS/Device/ST/STM32F0xx/Include;C:/Users/ms/STM32Cube/Repository/STM32Cube_FW_F0_V1.11.2/Drivers/CMSIS/Include;../Drivers/STM32F0xx_HAL_Driver/Inc;../Drivers/CMSIS/Device/ST/STM32F0xx/Include;../Drivers/CMSIS/Include</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -406,7 +406,149 @@
           </Files>
         </Group>
         <Group>
+          <GroupName>Trice</GroupName>
+          <Files>
+            <File>
+              <FileName>SEGGER_RTT.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\third_party\segger.com\SEGGER_RTT\RTT\SEGGER_RTT.c</FilePath>
+            </File>
+            <File>
+              <FileName>trice.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\src\trice.c</FilePath>
+            </File>
+            <File>
+              <FileName>tcobsv1Encode.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\src\tcobsv1Encode.c</FilePath>
+            </File>
+            <File>
+              <FileName>xtea.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\src\xtea.c</FilePath>
+            </File>
+            <File>
+              <FileName>triceStreamBuffer.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\src\triceStreamBuffer.c</FilePath>
+            </File>
+            <File>
+              <FileName>triceDoubleBuffer.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\src\triceDoubleBuffer.c</FilePath>
+            </File>
+            <File>
+              <FileName>triceStackBuffer.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\src\triceStackBuffer.c</FilePath>
+            </File>
+            <File>
+              <FileName>cobs.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\src\cobs.c</FilePath>
+            </File>
+            <File>
+              <FileName>trice8.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\src\trice8.c</FilePath>
+            </File>
+            <File>
+              <FileName>trice16.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\src\trice16.c</FilePath>
+            </File>
+            <File>
+              <FileName>trice32.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\src\trice32.c</FilePath>
+            </File>
+            <File>
+              <FileName>trice64.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\src\trice64.c</FilePath>
+            </File>
+            <File>
+              <FileName>triceCheck.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\src\triceCheck.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>::CMSIS</GroupName>
+        </Group>
+        <Group>
           <GroupName>Drivers/STM32F0xx_HAL_Driver</GroupName>
+          <GroupOption>
+            <CommonProperty>
+              <UseCPPCompiler>0</UseCPPCompiler>
+              <RVCTCodeConst>0</RVCTCodeConst>
+              <RVCTZI>0</RVCTZI>
+              <RVCTOtherData>0</RVCTOtherData>
+              <ModuleSelection>0</ModuleSelection>
+              <IncludeInBuild>2</IncludeInBuild>
+              <AlwaysBuild>2</AlwaysBuild>
+              <GenerateAssemblyFile>2</GenerateAssemblyFile>
+              <AssembleAssemblyFile>2</AssembleAssemblyFile>
+              <PublicsOnly>2</PublicsOnly>
+              <StopOnExitCode>11</StopOnExitCode>
+              <CustomArgument></CustomArgument>
+              <IncludeLibraryModules></IncludeLibraryModules>
+              <ComprImg>1</ComprImg>
+            </CommonProperty>
+            <GroupArmAds>
+              <Cads>
+                <interw>2</interw>
+                <Optim>0</Optim>
+                <oTime>2</oTime>
+                <SplitLS>2</SplitLS>
+                <OneElfS>2</OneElfS>
+                <Strict>2</Strict>
+                <EnumInt>2</EnumInt>
+                <PlainCh>2</PlainCh>
+                <Ropi>2</Ropi>
+                <Rwpi>2</Rwpi>
+                <wLevel>4</wLevel>
+                <uThumb>2</uThumb>
+                <uSurpInc>2</uSurpInc>
+                <uC99>2</uC99>
+                <uGnu>2</uGnu>
+                <useXO>2</useXO>
+                <v6Lang>0</v6Lang>
+                <v6LangP>0</v6LangP>
+                <vShortEn>2</vShortEn>
+                <vShortWch>2</vShortWch>
+                <v6Lto>2</v6Lto>
+                <v6WtE>2</v6WtE>
+                <v6Rtti>2</v6Rtti>
+                <VariousControls>
+                  <MiscControls></MiscControls>
+                  <Define></Define>
+                  <Undefine></Undefine>
+                  <IncludePath></IncludePath>
+                </VariousControls>
+              </Cads>
+              <Aads>
+                <interw>2</interw>
+                <Ropi>2</Ropi>
+                <Rwpi>2</Rwpi>
+                <thumb>2</thumb>
+                <SplitLS>2</SplitLS>
+                <SwStkChk>2</SwStkChk>
+                <NoWarn>2</NoWarn>
+                <uSurpInc>2</uSurpInc>
+                <useXO>2</useXO>
+                <ClangAsOpt>0</ClangAsOpt>
+                <VariousControls>
+                  <MiscControls></MiscControls>
+                  <Define></Define>
+                  <Undefine></Undefine>
+                  <IncludePath></IncludePath>
+                </VariousControls>
+              </Aads>
+            </GroupArmAds>
+          </GroupOption>
           <Files>
             <File>
               <FileName>stm32f0xx_ll_gpio.c</FileName>
@@ -804,86 +946,133 @@
         </Group>
         <Group>
           <GroupName>Drivers/CMSIS</GroupName>
+          <GroupOption>
+            <CommonProperty>
+              <UseCPPCompiler>0</UseCPPCompiler>
+              <RVCTCodeConst>0</RVCTCodeConst>
+              <RVCTZI>0</RVCTZI>
+              <RVCTOtherData>0</RVCTOtherData>
+              <ModuleSelection>0</ModuleSelection>
+              <IncludeInBuild>2</IncludeInBuild>
+              <AlwaysBuild>2</AlwaysBuild>
+              <GenerateAssemblyFile>2</GenerateAssemblyFile>
+              <AssembleAssemblyFile>2</AssembleAssemblyFile>
+              <PublicsOnly>2</PublicsOnly>
+              <StopOnExitCode>11</StopOnExitCode>
+              <CustomArgument></CustomArgument>
+              <IncludeLibraryModules></IncludeLibraryModules>
+              <ComprImg>1</ComprImg>
+            </CommonProperty>
+            <GroupArmAds>
+              <Cads>
+                <interw>2</interw>
+                <Optim>0</Optim>
+                <oTime>2</oTime>
+                <SplitLS>2</SplitLS>
+                <OneElfS>2</OneElfS>
+                <Strict>2</Strict>
+                <EnumInt>2</EnumInt>
+                <PlainCh>2</PlainCh>
+                <Ropi>2</Ropi>
+                <Rwpi>2</Rwpi>
+                <wLevel>4</wLevel>
+                <uThumb>2</uThumb>
+                <uSurpInc>2</uSurpInc>
+                <uC99>2</uC99>
+                <uGnu>2</uGnu>
+                <useXO>2</useXO>
+                <v6Lang>0</v6Lang>
+                <v6LangP>0</v6LangP>
+                <vShortEn>2</vShortEn>
+                <vShortWch>2</vShortWch>
+                <v6Lto>2</v6Lto>
+                <v6WtE>2</v6WtE>
+                <v6Rtti>2</v6Rtti>
+                <VariousControls>
+                  <MiscControls></MiscControls>
+                  <Define></Define>
+                  <Undefine></Undefine>
+                  <IncludePath></IncludePath>
+                </VariousControls>
+              </Cads>
+              <Aads>
+                <interw>2</interw>
+                <Ropi>2</Ropi>
+                <Rwpi>2</Rwpi>
+                <thumb>2</thumb>
+                <SplitLS>2</SplitLS>
+                <SwStkChk>2</SwStkChk>
+                <NoWarn>2</NoWarn>
+                <uSurpInc>2</uSurpInc>
+                <useXO>2</useXO>
+                <ClangAsOpt>0</ClangAsOpt>
+                <VariousControls>
+                  <MiscControls></MiscControls>
+                  <Define></Define>
+                  <Undefine></Undefine>
+                  <IncludePath></IncludePath>
+                </VariousControls>
+              </Aads>
+            </GroupArmAds>
+          </GroupOption>
           <Files>
             <File>
               <FileName>system_stm32f0xx.c</FileName>
               <FileType>1</FileType>
               <FilePath>../Core/Src/system_stm32f0xx.c</FilePath>
+              <FileOption>
+                <CommonProperty>
+                  <UseCPPCompiler>2</UseCPPCompiler>
+                  <RVCTCodeConst>0</RVCTCodeConst>
+                  <RVCTZI>0</RVCTZI>
+                  <RVCTOtherData>0</RVCTOtherData>
+                  <ModuleSelection>0</ModuleSelection>
+                  <IncludeInBuild>1</IncludeInBuild>
+                  <AlwaysBuild>2</AlwaysBuild>
+                  <GenerateAssemblyFile>2</GenerateAssemblyFile>
+                  <AssembleAssemblyFile>2</AssembleAssemblyFile>
+                  <PublicsOnly>2</PublicsOnly>
+                  <StopOnExitCode>11</StopOnExitCode>
+                  <CustomArgument></CustomArgument>
+                  <IncludeLibraryModules></IncludeLibraryModules>
+                  <ComprImg>1</ComprImg>
+                </CommonProperty>
+                <FileArmAds>
+                  <Cads>
+                    <interw>2</interw>
+                    <Optim>0</Optim>
+                    <oTime>2</oTime>
+                    <SplitLS>2</SplitLS>
+                    <OneElfS>2</OneElfS>
+                    <Strict>2</Strict>
+                    <EnumInt>2</EnumInt>
+                    <PlainCh>2</PlainCh>
+                    <Ropi>2</Ropi>
+                    <Rwpi>2</Rwpi>
+                    <wLevel>0</wLevel>
+                    <uThumb>2</uThumb>
+                    <uSurpInc>2</uSurpInc>
+                    <uC99>2</uC99>
+                    <uGnu>2</uGnu>
+                    <useXO>2</useXO>
+                    <v6Lang>0</v6Lang>
+                    <v6LangP>0</v6LangP>
+                    <vShortEn>2</vShortEn>
+                    <vShortWch>2</vShortWch>
+                    <v6Lto>2</v6Lto>
+                    <v6WtE>2</v6WtE>
+                    <v6Rtti>2</v6Rtti>
+                    <VariousControls>
+                      <MiscControls></MiscControls>
+                      <Define></Define>
+                      <Undefine></Undefine>
+                      <IncludePath></IncludePath>
+                    </VariousControls>
+                  </Cads>
+                </FileArmAds>
+              </FileOption>
             </File>
           </Files>
-        </Group>
-        <Group>
-          <GroupName>Trice</GroupName>
-          <Files>
-            <File>
-              <FileName>SEGGER_RTT.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\third_party\segger.com\SEGGER_RTT\RTT\SEGGER_RTT.c</FilePath>
-            </File>
-            <File>
-              <FileName>trice.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\src\trice.c</FilePath>
-            </File>
-            <File>
-              <FileName>triceCheck.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\src\triceCheck.c</FilePath>
-            </File>
-            <File>
-              <FileName>tcobsv1Encode.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\src\tcobsv1Encode.c</FilePath>
-            </File>
-            <File>
-              <FileName>xtea.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\src\xtea.c</FilePath>
-            </File>
-            <File>
-              <FileName>triceStreamBuffer.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\src\triceStreamBuffer.c</FilePath>
-            </File>
-            <File>
-              <FileName>triceDoubleBuffer.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\src\triceDoubleBuffer.c</FilePath>
-            </File>
-            <File>
-              <FileName>triceStackBuffer.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\src\triceStackBuffer.c</FilePath>
-            </File>
-            <File>
-              <FileName>cobs.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\src\cobs.c</FilePath>
-            </File>
-            <File>
-              <FileName>trice8.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\src\trice8.c</FilePath>
-            </File>
-            <File>
-              <FileName>trice16.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\src\trice16.c</FilePath>
-            </File>
-            <File>
-              <FileName>trice32.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\src\trice32.c</FilePath>
-            </File>
-            <File>
-              <FileName>trice64.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\src\trice64.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>::CMSIS</GroupName>
         </Group>
       </Groups>
     </Target>

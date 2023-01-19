@@ -100,6 +100,7 @@ typedef enum{
 #include <stdint.h> //lint !e537
 #include <string.h>
 #include "triceConfig.h"
+#include "triceCodeSizeOptimization.h"
 #include "internalTrice8.h"
 #include "internalTrice16.h"
 #include "internalTrice32.h"
