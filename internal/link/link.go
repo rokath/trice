@@ -10,14 +10,13 @@ package link
 import (
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"os"
 	"os/exec"
 	"strings"
+	"time"
 
 	"github.com/pkg/errors"
-	"github.com/rokath/trice/pkg/msg"
 	"github.com/spf13/afero"
 )
 
@@ -62,20 +61,15 @@ func NewDevice(w io.Writer, fSys *afero.Afero, port, arguments string) *Device {
 		fmt.Fprintln(w, "port:", port, "arguments:", arguments)
 		fmt.Fprintln(w, "LINK executable", p.Exec, "and dynamic lib", p.Lib, "expected to be in path for usage.")
 	}
-	// get a temporary file name
-	var e error
-	p.tempLogFileHandle, e = ioutil.TempFile(os.TempDir(), "trice-*.bin") // opens for read and write
-	msg.OnErr(e)
-	p.tempLogFileName = p.tempLogFileHandle.Name()
-	msg.OnErr(p.tempLogFileHandle.Close())
-
 	p.arguments = arguments
 	p.args = strings.Split(arguments, " ")
 	// The -RTTSearchRanges "..." need to be written without "" and with _ instead of space.
 	for i := range p.args { // 0x20000000_0x1800 -> 0x20000000 0x1800
 		p.args[i] = strings.ReplaceAll(p.args[i], "_0x", " 0x")
 	}
+	p.tempLogFileName = "RTTLogger_0_Trice.bin"
 	p.args = append(p.args, p.tempLogFileName) // to do: check if slice could be passed directly.
+	//p.args = append(p.args, "RTTLogger_0_Trice.bin") // to do: check if slice could be passed directly.
 	return p
 }
 
@@ -84,7 +78,7 @@ func (p *Device) errorFatal() {
 	if nil == p.Err {
 		return
 	}
-	log.Panic(p.Err, ": linkCmd =", p.Exec, "linkLib =", p.Lib, " <--- PATH ok? error:")
+	log.Panic(p.Err, ": linkCmd=", p.Exec, " linkLib =", p.Lib, " <--- PATH ok? error:")
 }
 
 // Read is part of the exported interface io.ReadCloser. It reads a slice of bytes.
@@ -128,7 +122,9 @@ func (p *Device) Open() error {
 	p.Err = p.cmd.Start()
 	p.errorFatal()
 
-	p.tempLogFileHandle, p.Err = p.fSys.OpenFile(p.tempLogFileName, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666) // Open() opens a file with read only flag.
+	// todo: check if file exists in a loop for more speed
+	time.Sleep(1000 * time.Millisecond)                         // to be sure, log fie is created
+	p.tempLogFileHandle, p.Err = p.fSys.Open(p.tempLogFileName) // Open() opens a file with read only flag.
 	p.errorFatal()
 
 	// p.watchLogfile() // todo: make it working well

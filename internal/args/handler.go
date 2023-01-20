@@ -160,7 +160,9 @@ func logLoop(w io.Writer, fSys *afero.Afero) {
 	} else {
 		if _, err := fSys.Stat(id.LIFnJSON); errors.Is(err, os.ErrNotExist) {
 			if id.LIFnJSON != "off" && id.LIFnJSON != "none" && id.LIFnJSON != "no" {
-				fmt.Fprintf(w, "path/to/ %s does not exist: li is nil\n", id.LIFnJSON)
+				if verbose {
+					fmt.Fprintf(w, "path/to/ %s does not exist: li is nil\n", id.LIFnJSON)
+				}
 			}
 		} else {
 			li = id.NewLutLI(w, fSys, id.LIFnJSON) // lut is a map, that means a pointer
