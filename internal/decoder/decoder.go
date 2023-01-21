@@ -71,9 +71,16 @@ const (
 	// hints is the help information in case of errors.
 	Hints = "att:Hints:Baudrate? Encoding? Interrupt? Overflow? Parameter count? Password? til.json? Version?"
 
-// DefaultStamp32 = "ssss,ms_µs" // "tim:%4d,%03d_%03d "
-//
-// DefaultStamp16 = "ms_µs" // "tim:      %2d_%03d "
+	// DefaultStamp32 = "ssss,ms_µs" // "tim:%4d,%03d_%03d "
+	//
+	// DefaultStamp16 = "ms_µs" // "tim:      %2d_%03d "
+
+	UnsignedFormatSpecifier = 0 // %u -> %d
+	SignedFormatSpecifier   = 1 //
+	FloatFormatSpecifier    = 2 // %f and relatives
+	BooleanFormatSpecifier  = 3 // a %t (bool) found
+	PointerFormatSpecifier  = 4 // a %p (pointer) found
+
 )
 
 var (
@@ -200,29 +207,29 @@ func UReplaceN(i string) (o string, u []int) {
 		fm := s[loc[0]:loc[1]]
 		locPointer := matchNextFormatPointerSpecifier.FindStringIndex(fm)
 		if nil != locPointer { // a %p found
-			u = append(u, 4) // pointer value
+			u = append(u, PointerFormatSpecifier) // pointer value
 			continue
 		}
 		locBool := matchNextFormatBoolSpecifier.FindStringIndex(fm)
 		if nil != locBool { // a %t found
-			u = append(u, 3) // bool value
+			u = append(u, BooleanFormatSpecifier) // bool value
 			continue
 		}
 		locF := matchNextFormatFSpecifier.FindStringIndex(fm)
 		if nil != locF { // a %nf found
-			u = append(u, 2) // float value
+			u = append(u, FloatFormatSpecifier) // float value
 			continue
 		}
 		locU := matchNextFormatUSpecifier.FindStringIndex(fm)
 		if nil != locU { // a %nu found
-			o = o[:offset-1] + "d" + o[offset:] // replace %nu -> %nd
-			u = append(u, 0)                    // no negative values
+			o = o[:offset-1] + "d" + o[offset:]    // replace %nu -> %nd
+			u = append(u, UnsignedFormatSpecifier) // no negative values
 			continue
 		}
 		locI := matchNextFormatISpecifier.FindStringIndex(fm)
 		if nil != locI { // a %ni found
-			o = o[:offset-1] + "d" + o[offset:] // replace %ni -> %nd
-			u = append(u, 1)                    // also negative values
+			o = o[:offset-1] + "d" + o[offset:]  // replace %ni -> %nd
+			u = append(u, SignedFormatSpecifier) // also negative values
 			continue
 		}
 		locX := matchNextFormatXSpecifier.FindStringIndex(fm)

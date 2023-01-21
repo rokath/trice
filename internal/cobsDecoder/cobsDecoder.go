@@ -12,7 +12,6 @@ import (
 	"math"
 	"strings"
 	"sync"
-	"unsafe"
 
 	"github.com/rokath/trice/internal/decoder"
 	"github.com/rokath/trice/internal/emitter"
@@ -565,14 +564,14 @@ func (p *cobsDec) unSignedOrSignedOut(b []byte, bitwidth, count int) int {
 	case 8:
 		for i, f := range p.u {
 			switch f {
-			case 0:
+			case decoder.UnsignedFormatSpecifier:
 				v[i] = p.B[i]
-			case 1:
+			case decoder.SignedFormatSpecifier:
 				v[i] = int8(p.B[i])
-			case 3:
+			case decoder.BooleanFormatSpecifier:
 				v[i] = p.B[i] != 0
-			case 4:
-				v[i] = unsafe.Pointer(uintptr(p.B[i]))
+			case decoder.PointerFormatSpecifier:
+				v[i] = uintptr(p.B[i]) // was unsafe.Pointer(uintptr(p.B[i]))
 			default:
 				return copy(b, fmt.Sprintln("ERROR: Invalid format specifier (float?) inside", p.Trice.Type, p.Trice.Strg))
 			}
@@ -581,14 +580,14 @@ func (p *cobsDec) unSignedOrSignedOut(b []byte, bitwidth, count int) int {
 		for i, f := range p.u {
 			n := p.ReadU16(p.B[2*i:])
 			switch f {
-			case 0:
+			case decoder.UnsignedFormatSpecifier:
 				v[i] = n
-			case 1:
+			case decoder.SignedFormatSpecifier:
 				v[i] = int16(n)
-			case 3:
+			case decoder.BooleanFormatSpecifier:
 				v[i] = n != 0
-			case 4:
-				v[i] = unsafe.Pointer(uintptr(n))
+			case decoder.PointerFormatSpecifier:
+				v[i] = uintptr(n) // was unsafe.Pointer(uintptr(n))
 			default:
 				return copy(b, fmt.Sprintln("ERROR: Invalid format specifier (float?) inside", p.Trice.Type, p.Trice.Strg))
 			}
@@ -597,16 +596,16 @@ func (p *cobsDec) unSignedOrSignedOut(b []byte, bitwidth, count int) int {
 		for i, f := range p.u {
 			n := p.ReadU32(p.B[4*i:])
 			switch f {
-			case 0:
+			case decoder.UnsignedFormatSpecifier:
 				v[i] = n
-			case 1:
+			case decoder.SignedFormatSpecifier:
 				v[i] = int32(n)
-			case 2:
+			case decoder.FloatFormatSpecifier:
 				v[i] = math.Float32frombits(n)
-			case 3:
+			case decoder.BooleanFormatSpecifier:
 				v[i] = n != 0
-			case 4:
-				v[i] = unsafe.Pointer(uintptr(n))
+			case decoder.PointerFormatSpecifier:
+				v[i] = uintptr(n) // was unsafe.Pointer(uintptr(n))
 			default:
 				return copy(b, fmt.Sprintln("ERROR: Invalid format specifier inside", p.Trice.Type, p.Trice.Strg))
 			}
@@ -615,16 +614,16 @@ func (p *cobsDec) unSignedOrSignedOut(b []byte, bitwidth, count int) int {
 		for i, f := range p.u {
 			n := p.ReadU64(p.B[8*i:])
 			switch f {
-			case 0:
+			case decoder.UnsignedFormatSpecifier:
 				v[i] = n
-			case 1:
+			case decoder.SignedFormatSpecifier:
 				v[i] = int64(n)
-			case 2:
+			case decoder.FloatFormatSpecifier:
 				v[i] = math.Float64frombits(n)
-			case 3:
+			case decoder.BooleanFormatSpecifier:
 				v[i] = n != 0
-			case 4:
-				v[i] = unsafe.Pointer(uintptr(n))
+			case decoder.PointerFormatSpecifier:
+				v[i] = uintptr(n) // was unsafe.Pointer(uintptr(n))
 			default:
 				return copy(b, fmt.Sprintln("ERROR: Invalid format specifier inside", p.Trice.Type, p.Trice.Strg))
 			}
