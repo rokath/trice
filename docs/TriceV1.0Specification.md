@@ -517,18 +517,20 @@ The 14-bit IDs are used to display the log strings. These IDs are pointing in tw
 - Each format string gets its unique trice ID. If the same format string is used on different source code locations it gets different trice IDs this way allowing a reliable location information.
 
 
-###  5.6. <a name='Option1:PatchingtheUserCodeonceandlettheinsertedTriceIDbeapartoftheUserCode'></a>Option 1: Patching the User Code once and let the inserted Trice ID be a part of the User Code
+###  5.6. <a name='Option1:PatchingtheUserCodeonceandlettheinsertedTriceIDbeapartoftheUserCode'></a>Option 1: Let the inserted Trice ID be a Part of the User Code
 
 - This is the legacy method. It allows unchanged src translation into code without using the trice tool.
 - It is very robust and maybe needed in nasty debugging situations.
+- It allows to reconstruct lost til.json information.
+- Recommendet for small projects.
 
-###  5.7. <a name='Option2:PatchingtheUserCodeinapre-buildprocessandUn-patchinginapost-buildprocess'></a>Option 2: Patching the User Code in a pre-build process and Un-patching in a post-build process
+###  5.7. <a name='Option2:PatchingtheUserCodeinapre-buildprocessandUn-patchinginapost-buildprocess'></a>Option 2: Un-patching in a Post-build process
 
-- The code is visually free of IDs.
+- The code is visually free of IDs all the time.
 
-###  5.8. <a name='Option3:PatchingtheUserCodeonRepositoryCheck-Outandun-patchingonCheck-In'></a>Option 3: Patching the User Code on Repository Check-Out and un-patching on Check-In
+###  5.8. <a name='Option3:PatchingtheUserCodeonRepositoryCheck-Outandun-patchingonCheck-In'></a>Option 3: Un-patching on Repository Check-In
 
-- The code is visually free of IDs.
+- The code is visually free of IDs only inside the repository.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -559,7 +561,7 @@ The 14-bit IDs are used to display the log strings. These IDs are pointing in tw
 | 2022-DEC-13 | 0.13.0  | unneeded text removed, some clarifications |
 | 2023-JAN-14 | 0.14.0  | Formatting improved, [1.  Trice User Interface - Quick Start](#1--trice-user-interface---quick-start) added. |
 | 2023-JAN-14 | 0.15.0  | [5.1. The `trice update` algorithm](#51-the-trice-update-algorithm) added |
-|             |         | |
+| 2023-JAN-21 | 0.15.1  | Corrections |
 |             |         | |
 |             |         | |
 
