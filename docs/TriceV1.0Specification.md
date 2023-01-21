@@ -474,7 +474,7 @@ The 14-bit IDs are used to display the log strings. These IDs are pointing in tw
     ```
   
     - If the code is copied inside the same file, the first occurrence after the copy stays unchanged and the following are modified.
-    - If the code is copied to other files only, one first occurrence stays unchanged. In which file is not defined.
+    - If the code is copied to other files only, the copies get new IDs.
   - Previously updated (patched) user code copied and modified:
 
     ```C
