@@ -406,7 +406,7 @@ The 14-bit IDs are used to display the log strings. These IDs are pointing in tw
   - key=`Trice+LI` and
   - value=**ID**.
 - During STM creation use these rules:
-  - if the next found f src ID == 0:
+  - If the next found f src ID == 0:
     - Look in flu
       - If not there, create new id.
         - The new ID is "new", so forbidden to be inside ilu.
