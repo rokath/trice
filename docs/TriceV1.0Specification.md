@@ -408,23 +408,24 @@ The 14-bit IDs are used to display the log strings. These IDs are pointing in tw
 - During STM creation use these rules:
   - if the next found f src ID == 0:
     - Look in flu
-      - if not there, create new id
+      - If not there, create new id.
         - The new ID is "new", so forbidden to be inside ilu.
         - If it is accidentally somewhere in the so far unparsed src, we do not know that and therefore do not care about.
-        - patch id into source and extend lu and li
-      - if there, it points to an id slice, because f could be n times in src
+        - patch id into source and extend lu and li.
+      - If there, it points to an id slice, because f could be n times in src.
       - In most cases the slice contains only one ID. Only if the same f is used several time there are several IDs in the appropriate slice. For each i in id slice check oli for a fitting file and the closest match and that this i is not yet inside li.
-        - if success patch id into source and extend lu and li
-        - if no success, that means, that all i of that file inside id slice are used, so create new id and patch id into source and extend lu and li
+        - If success patch id into source and extend li.
+        - If no success, that means, that all i of that file inside id slice are used, so create new id and patch id into source and extend lu and li.
         - If only i unused with different file names, assume them to be used in this moment and create a new ID.
           - This way IDs in not parsed src get the chance to get their old ID back.
-        - For example after adding sources with IDs from a different project and not executing `trice refresh` before
+          - After file renaming all f get new i, but this happens not often. 
+        - For example after adding sources with IDs from a different project and not executing `trice refresh` before.
         
   - If the found f src ID != 0, check if found id->ilu->f is identical to src f.
-    - if yes check li
-      - if yes (duplicate) create new id and extend lu and li and overwrite src ID
-      - if not, extend li
-    - if src ID not in lu, it cannot be in li, extend lu & li
+    - If yes check li.
+      - If yes (duplicate) create new id and extend lu and li and overwrite src ID.
+      - If not, extend li.
+    - If src ID not in lu, it cannot be in li, extend lu & li.
 - STM is not needed but maybe helpful during debugging.
 - If after `trice u` a `trice z` and a `trice u` again is executed, all IDs are expected to be at the same place again. If in between `trice u`, an optional `trice z`and a `trice u` src was edited, most IDs are expected to be at the same place again.
 
