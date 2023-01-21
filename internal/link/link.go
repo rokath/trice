@@ -13,10 +13,13 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 	"time"
 
 	"github.com/pkg/errors"
+	"github.com/rokath/trice/internal/id"
+	"github.com/rokath/trice/pkg/msg"
 	"github.com/spf13/afero"
 )
 
@@ -67,9 +70,23 @@ func NewDevice(w io.Writer, fSys *afero.Afero, port, arguments string) *Device {
 	for i := range p.args { // 0x20000000_0x1800 -> 0x20000000 0x1800
 		p.args[i] = strings.ReplaceAll(p.args[i], "_0x", " 0x")
 	}
-	p.tempLogFileName = "RTTLogger_0_Trice.bin"
-	p.args = append(p.args, p.tempLogFileName) // to do: check if slice could be passed directly.
-	//p.args = append(p.args, "RTTLogger_0_Trice.bin") // to do: check if slice could be passed directly.
+
+	// get a temporary file name in a writable folder temp
+	dir, e := filepath.Abs(id.FnJSON) // the id list folder is assumed to be writable and readable
+	msg.OnErr(e)
+
+	// create temp folder if not exists
+	tempDir := filepath.Join(dir, "temp")
+	e = os.MkdirAll(tempDir, os.ModePerm)
+	msg.OnErr(e)
+
+	// create a new file
+	fh, e := os.CreateTemp(tempDir, "trice-*.bin") // opens for read and write
+	msg.OnErr(e)
+	p.tempLogFileName = fh.Name() // p.tempLogFileName is trice needed to know where to read from
+	msg.OnErr(fh.Close())
+
+	p.args = append(p.args, p.tempLogFileName) // p.tempLogFileName is passed here for JLinkRTTLogger
 	return p
 }
 
