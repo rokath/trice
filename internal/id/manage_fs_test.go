@@ -4,9 +4,17 @@
 // white-box test
 package id
 
-/*
+import (
+	"fmt"
+	"os"
+	"testing"
+
+	"github.com/spf13/afero"
+	"github.com/tj/assert"
+)
+
 // TestLutFileTransfer checks lut file transfer.
-func _TestLutFileTransfer(t *testing.T) { // Anti-Virus issue
+func TestLutFileTransfer(t *testing.T) { // Anti-Virus issue
 	wr := sampleLut0()
 	exp := sampleLutMap0
 	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
@@ -18,7 +26,7 @@ func _TestLutFileTransfer(t *testing.T) { // Anti-Virus issue
 	assert.Equal(t, exp, act)
 }
 
-func _TestBasePath(t *testing.T) { // Anti-Virus issue
+func TestBasePath(t *testing.T) { // Anti-Virus issue
 	baseFs := &afero.MemMapFs{}
 	baseFs.MkdirAll("/base/path/tmp", 0777)
 	bp := afero.NewBasePathFs(baseFs, "/base/path")
@@ -32,7 +40,7 @@ func _TestBasePath(t *testing.T) { // Anti-Virus issue
 	}
 }
 
-func _TestRefresh(t *testing.T) { // Anti-Virus issue
+func TestRefresh(t *testing.T) { // Anti-Virus issue
 	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
 	fn := "file.c"
 	assert.Nil(t, fSys.WriteFile(fn, []byte(CFile0), 0777))
@@ -46,9 +54,7 @@ func _TestRefresh(t *testing.T) { // Anti-Virus issue
 	exp := ``
 	assert.Equal(t, exp, string(act))
 }
-*/
 
-/*
 const (
 	CFile0 = `
     // no stamp:
@@ -85,4 +91,3 @@ const (
     break; case __LINE__: TRICE8_1   ( ID(7009), "msg:value=%d\n", -14 ); // trice tool modified code for compilation, inlines code
 `
 )
-*/

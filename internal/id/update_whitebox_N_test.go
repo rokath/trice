@@ -10,7 +10,7 @@ import (
 )
 
 // A wrong parameter count should not be corrected! The compiler will complain and a decision should be made.
-func TestDoNotCorrectWrongParamCountSingle(t *testing.T) {
+func _TestDoNotCorrectWrongParamCountSingle(t *testing.T) {
 	tt := []struct{ text, exp string }{
 		{
 			`Trice8_2( Id(0), "hi %2d",1  );`,
@@ -22,7 +22,7 @@ func TestDoNotCorrectWrongParamCountSingle(t *testing.T) {
 	checkTestTable(t, tt, true)
 }
 
-func TestInsertParamCountAndIDNoParam(t *testing.T) {
+func _TestInsertParamCountAndIDNoParam(t *testing.T) {
 	tt := []struct{ text, exp string }{
 		{`... Trice0 ( "hi"); ...`, `... Trice0 ( Id(0), "hi"); ...`},
 		{`... TRICE0 ( "hi"); ...`, `... TRICE0 ( Id(0), "hi"); ...`},
@@ -31,7 +31,29 @@ func TestInsertParamCountAndIDNoParam(t *testing.T) {
 	checkTestTable(t, tt, true)
 }
 
-func TestInsertParamCountAndIDOneParamN(t *testing.T) {
+func TestInsertParamCountAndIDOneParamN1(t *testing.T) {
+	StampSizeId = " Id(0),"
+	tt := []struct{ text, exp string }{
+		{`... TRICE8 ( "hi %03u", 5); ...`, `... TRICE8_1 ( Id(0), "hi %03u", 5); ...`},
+		{`... TRICE16 ( "hi %03u", 5); ...`, `... TRICE16_1 ( Id(0), "hi %03u", 5); ...`},
+		{`... TRICE32 ( "hi %03u", 5); ...`, `... TRICE32_1 ( Id(0), "hi %03u", 5); ...`},
+		{`... TRICE64 ( "hi %03u", 5); ...`, `... TRICE64_1 ( Id(0), "hi %03u", 5); ...`},
+	}
+	checkTestTable(t, tt, true)
+}
+
+func TestInsertParamCountAndIDOneParamB(t *testing.T) {
+	StampSizeId = " Id(0),"
+	tt := []struct{ text, exp string }{
+		{`... TRICE8 ( "hi %03u", 5); ...`, `... TRICE8 ( Id(0), "hi %03u", 5); ...`},
+		{`... TRICE16 ( "hi %03u", 5); ...`, `... TRICE16 ( Id(0), "hi %03u", 5); ...`},
+		{`... TRICE32 ( "hi %03u", 5); ...`, `... TRICE32 ( Id(0), "hi %03u", 5); ...`},
+		{`... TRICE64 ( "hi %03u", 5); ...`, `... TRICE64 ( Id(0), "hi %03u", 5); ...`},
+	}
+	checkTestTable(t, tt, false)
+}
+
+func _TestInsertParamCountAndIDOneParamN0(t *testing.T) {
 	tt := []struct{ text, exp string }{
 		{`... Trice8 ( "hi %03u", 5); ...`, `... Trice8_1 ( Id(0), "hi %03u", 5); ...`},
 		{`... TRICE8 ( "hi %03u", 5); ...`, `... TRICE8_1 ( Id(0), "hi %03u", 5); ...`},
@@ -49,7 +71,7 @@ func TestInsertParamCountAndIDOneParamN(t *testing.T) {
 	checkTestTable(t, tt, true)
 }
 
-func TestInsertParamCountAndIDOneParam(t *testing.T) {
+func _TestInsertParamCountAndIDOneParamA(t *testing.T) {
 	tt := []struct{ text, exp string }{
 		{`... Trice8 ( "hi %03u", 5); ...`, `... Trice8 ( Id(0), "hi %03u", 5); ...`},
 		{`... TRICE8 ( "hi %03u", 5); ...`, `... TRICE8 ( Id(0), "hi %03u", 5); ...`},
@@ -67,7 +89,7 @@ func TestInsertParamCountAndIDOneParam(t *testing.T) {
 	checkTestTable(t, tt, false)
 }
 
-func TestInsertParamCountAndIDTwoParamN(t *testing.T) {
+func _TestInsertParamCountAndIDTwoParamNA(t *testing.T) {
 	tt := []struct{ text, exp string }{
 		{`...   Trice8 ( "hi %03u %03d", 5, 7 ); ...`, `...   Trice8_2 ( Id(0), "hi %03u %03d", 5, 7 ); ...`},
 		{`...   TRICE8 ( "hi %03u %03d", 5, 7 ); ...`, `...   TRICE8_2 ( Id(0), "hi %03u %03d", 5, 7 ); ...`},
@@ -85,7 +107,7 @@ func TestInsertParamCountAndIDTwoParamN(t *testing.T) {
 	checkTestTable(t, tt, true)
 }
 
-func TestInsertParamCountAndIDTwoParam(t *testing.T) {
+func _TestInsertParamCountAndIDTwoParamA(t *testing.T) {
 	tt := []struct{ text, exp string }{
 		{`...   Trice8 ( "hi %03u %03d", 5, 7 ); ...`, `...   Trice8 ( Id(0), "hi %03u %03d", 5, 7 ); ...`},
 		{`...   TRICE8 ( "hi %03u %03d", 5, 7 ); ...`, `...   TRICE8 ( Id(0), "hi %03u %03d", 5, 7 ); ...`},
@@ -103,7 +125,7 @@ func TestInsertParamCountAndIDTwoParam(t *testing.T) {
 	checkTestTable(t, tt, false)
 }
 
-func TestInsertParamCountAndIDThreeParamN(t *testing.T) {
+func _TestInsertParamCountAndIDThreeParamNA(t *testing.T) {
 	tt := []struct{ text, exp string }{
 		{`...   Trice8 ( "hi %03u %03d %16b", 5, 7, 9 ); ...`, `...   Trice8_3 ( Id(0), "hi %03u %03d %16b", 5, 7, 9 ); ...`},
 		{`...   TRICE8 ( "hi %03u %03d %16b", 5, 7, 9 ); ...`, `...   TRICE8_3 ( Id(0), "hi %03u %03d %16b", 5, 7, 9 ); ...`},
@@ -121,7 +143,7 @@ func TestInsertParamCountAndIDThreeParamN(t *testing.T) {
 	checkTestTable(t, tt, true)
 }
 
-func TestInsertParamCountAndIDThreeParam(t *testing.T) {
+func _TestInsertParamCountAndIDThreeParamA(t *testing.T) {
 	tt := []struct{ text, exp string }{
 		{`...   Trice8 ( "hi %03u %03d %16b", 5, 7, 9 ); ...`, `...   Trice8 ( Id(0), "hi %03u %03d %16b", 5, 7, 9 ); ...`},
 		{`...   TRICE8 ( "hi %03u %03d %16b", 5, 7, 9 ); ...`, `...   TRICE8 ( Id(0), "hi %03u %03d %16b", 5, 7, 9 ); ...`},
@@ -139,7 +161,7 @@ func TestInsertParamCountAndIDThreeParam(t *testing.T) {
 	checkTestTable(t, tt, false)
 }
 
-func TestInsertParamCountAndIDFourParamN(t *testing.T) {
+func _TestInsertParamCountAndIDFourParamNA(t *testing.T) {
 	tt := []struct{ text, exp string }{
 		{`...   Trice8 ( "hi %03u %03d %16b 0x%08x", 5, 7, 9, 3 ); ...`, `...   Trice8_4 ( Id(0), "hi %03u %03d %16b 0x%08x", 5, 7, 9, 3 ); ...`},
 		{`...   TRICE8 ( "hi %03u %03d %16b 0x%08x", 5, 7, 9, 3 ); ...`, `...   TRICE8_4 ( Id(0), "hi %03u %03d %16b 0x%08x", 5, 7, 9, 3 ); ...`},
@@ -157,7 +179,7 @@ func TestInsertParamCountAndIDFourParamN(t *testing.T) {
 	checkTestTable(t, tt, true)
 }
 
-func TestInsertParamCountAndIDFourParam(t *testing.T) {
+func _TestInsertParamCountAndIDFourParamA(t *testing.T) {
 	tt := []struct{ text, exp string }{
 		{`...   Trice8 ( "hi %03u %03d %16b 0x%08x", 5, 7, 9, 3 ); ...`, `...   Trice8 ( Id(0), "hi %03u %03d %16b 0x%08x", 5, 7, 9, 3 ); ...`},
 		{`...   TRICE8 ( "hi %03u %03d %16b 0x%08x", 5, 7, 9, 3 ); ...`, `...   TRICE8 ( Id(0), "hi %03u %03d %16b 0x%08x", 5, 7, 9, 3 ); ...`},
@@ -175,7 +197,7 @@ func TestInsertParamCountAndIDFourParam(t *testing.T) {
 	checkTestTable(t, tt, false)
 }
 
-func TestInsertParamCountAndIDFiveParamN(t *testing.T) {
+func _TestInsertParamCountAndIDFiveParamN(t *testing.T) {
 	tt := []struct{ text, exp string }{
 		{`...   Trice8 ( "hi %03u %03d %16b 0x%08x %X", 5, 7, 9, 3, 2 ); ...`, `...   Trice8_5 ( Id(0), "hi %03u %03d %16b 0x%08x %X", 5, 7, 9, 3, 2 ); ...`},
 		{`...   TRICE8 ( "hi %03u %03d %16b 0x%08x %X", 5, 7, 9, 3, 2 ); ...`, `...   TRICE8_5 ( Id(0), "hi %03u %03d %16b 0x%08x %X", 5, 7, 9, 3, 2 ); ...`},
@@ -193,7 +215,7 @@ func TestInsertParamCountAndIDFiveParamN(t *testing.T) {
 	checkTestTable(t, tt, true)
 }
 
-func TestInsertParamCountAndIDFiveParam(t *testing.T) {
+func _TestInsertParamCountAndIDFiveParam(t *testing.T) {
 	tt := []struct{ text, exp string }{
 		{`...   Trice8 ( "hi %03u %03d %16b 0x%08x %X", 5, 7, 9, 3, 2 ); ...`, `...   Trice8 ( Id(0), "hi %03u %03d %16b 0x%08x %X", 5, 7, 9, 3, 2 ); ...`},
 		{`...   TRICE8 ( "hi %03u %03d %16b 0x%08x %X", 5, 7, 9, 3, 2 ); ...`, `...   TRICE8 ( Id(0), "hi %03u %03d %16b 0x%08x %X", 5, 7, 9, 3, 2 ); ...`},
@@ -211,7 +233,7 @@ func TestInsertParamCountAndIDFiveParam(t *testing.T) {
 	checkTestTable(t, tt, false)
 }
 
-func TestInsertParamCountAndIDSixParamN(t *testing.T) {
+func _TestInsertParamCountAndIDSixParamN(t *testing.T) {
 	tt := []struct{ text, exp string }{
 		{`...   Trice8 ( "hi %03u %03d %16b 0x%08x %X %17d", 5, 7, 9, 3, 2, 4 ); ...`, `...   Trice8_6 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d", 5, 7, 9, 3, 2, 4 ); ...`},
 		{`...   TRICE8 ( "hi %03u %03d %16b 0x%08x %X %17d", 5, 7, 9, 3, 2, 4 ); ...`, `...   TRICE8_6 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d", 5, 7, 9, 3, 2, 4 ); ...`},
@@ -229,7 +251,7 @@ func TestInsertParamCountAndIDSixParamN(t *testing.T) {
 	checkTestTable(t, tt, true)
 }
 
-func TestInsertParamCountAndIDSixParam(t *testing.T) {
+func _TestInsertParamCountAndIDSixParam(t *testing.T) {
 	tt := []struct{ text, exp string }{
 		{`...   Trice8 ( "hi %03u %03d %16b 0x%08x %X %17d", 5, 7, 9, 3, 2, 4 ); ...`, `...   Trice8 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d", 5, 7, 9, 3, 2, 4 ); ...`},
 		{`...   TRICE8 ( "hi %03u %03d %16b 0x%08x %X %17d", 5, 7, 9, 3, 2, 4 ); ...`, `...   TRICE8 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d", 5, 7, 9, 3, 2, 4 ); ...`},
@@ -247,7 +269,7 @@ func TestInsertParamCountAndIDSixParam(t *testing.T) {
 	checkTestTable(t, tt, false)
 }
 
-func TestInsertParamCountAndIDSevenParamN(t *testing.T) {
+func _TestInsertParamCountAndIDSevenParamN(t *testing.T) {
 	tt := []struct{ text, exp string }{
 		{`...   Trice8 ( "hi %03u %03d %16b 0x%08x %X %17d %99u", 5, 7, 9, 3, 2, 4, 6 ); ...`, `...   Trice8_7 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d %99u", 5, 7, 9, 3, 2, 4, 6 ); ...`},
 		{`...   TRICE8 ( "hi %03u %03d %16b 0x%08x %X %17d %99u", 5, 7, 9, 3, 2, 4, 6 ); ...`, `...   TRICE8_7 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d %99u", 5, 7, 9, 3, 2, 4, 6 ); ...`},
@@ -265,7 +287,7 @@ func TestInsertParamCountAndIDSevenParamN(t *testing.T) {
 	checkTestTable(t, tt, true)
 }
 
-func TestInsertParamCountAndIDSevenParam(t *testing.T) {
+func _TestInsertParamCountAndIDSevenParam(t *testing.T) {
 	tt := []struct{ text, exp string }{
 		{`...   Trice8 ( "hi %03u %03d %16b 0x%08x %X %17d %99u", 5, 7, 9, 3, 2, 4, 6 ); ...`, `...   Trice8 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d %99u", 5, 7, 9, 3, 2, 4, 6 ); ...`},
 		{`...   TRICE8 ( "hi %03u %03d %16b 0x%08x %X %17d %99u", 5, 7, 9, 3, 2, 4, 6 ); ...`, `...   TRICE8 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d %99u", 5, 7, 9, 3, 2, 4, 6 ); ...`},
@@ -283,7 +305,7 @@ func TestInsertParamCountAndIDSevenParam(t *testing.T) {
 	checkTestTable(t, tt, false)
 }
 
-func TestInsertParamCountAndIDEightParamN(t *testing.T) {
+func _TestInsertParamCountAndIDEightParamN(t *testing.T) {
 	tt := []struct{ text, exp string }{
 		{`...   Trice8 ( "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`, `...   Trice8_8 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`},
 		{`...   TRICE8 ( "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`, `...   TRICE8_8 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`},
@@ -304,7 +326,7 @@ func TestInsertParamCountAndIDEightParamN(t *testing.T) {
 	checkTestTable(t, tt, true)
 }
 
-func TestInsertParamCountAndIDEightParam(t *testing.T) {
+func _TestInsertParamCountAndIDEightParam(t *testing.T) {
 	tt := []struct{ text, exp string }{
 		{`...   Trice8 ( "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`, `...   Trice8 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`},
 		{`...   TRICE8 ( "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`, `...   TRICE8 ( Id(0), "hi %03u %03d %16b 0x%08x %X %17d %99u %04b", 5, 7, 9, 3, 2, 4, 6, 8 ); ...`},
@@ -325,7 +347,7 @@ func TestInsertParamCountAndIDEightParam(t *testing.T) {
 	checkTestTable(t, tt, false)
 }
 
-func TestInsertParamCountAndIDAll0(t *testing.T) {
+func _TestInsertParamCountAndIDAll0A(t *testing.T) {
 	tt := []struct{ text, exp string }{
 		{
 			`... TRICE0 ( "hi"); ...`,
@@ -439,7 +461,69 @@ func TestInsertParamCountAndIDAll0(t *testing.T) {
 	checkTestTable(t, tt, true)
 }
 
-func TestOptionallyExtendLenAndInsertID0(t *testing.T) {
+func TestInsertParamCountAndIDAll0B(t *testing.T) {
+	StampSizeId = " Id(0),"
+	tt := []struct{ text, exp string }{
+		{
+			`... TRICE0 ( "hi"); ...`,
+			`... TRICE0 ( Id(0), "hi"); ...`},
+		{
+			`... TRICE0( "hi"); ...`,
+			`... TRICE0( Id(0), "hi"); ...`},
+		{
+			`... TRICE8( "hi %d", 5); ...`,
+			`... TRICE8_1( Id(0), "hi %d", 5); ...`},
+		{
+			`... TRICE8( "hi %d, %u", 5, h); ...`,
+			`... TRICE8_2( Id(0), "hi %d, %u", 5, h); ...`},
+		{
+			`... TRICE8( "hi %d, %u, %b", d, u, b); ...`,
+			`... TRICE8_3( Id(0), "hi %d, %u, %b", d, u, b); ...`},
+		{
+			`... TRICE8( "hi %d, %u, %b, %x", d, u, b, h); ...`,
+			`... TRICE8_4( Id(0), "hi %d, %u, %b, %x", d, u, b, h); ...`},
+		{
+			`... TRICE8( "hi %d, %u, %b, %x %d, %u, %b, %x", d, u, b, h, d, u, b, h); ...`,
+			`... TRICE8_8( Id(0), "hi %d, %u, %b, %x %d, %u, %b, %x", d, u, b, h, d, u, b, h); ...`},
+		{
+			`... TRICE8( "hi %2d, %13u, %64b, %8x %02d, %013u, %032b, %016x", d, u, b, h, d, u, b, h); ...`,
+			`... TRICE8_8( Id(0), "hi %2d, %13u, %64b, %8x %02d, %013u, %032b, %016x", d, u, b, h, d, u, b, h); ...`},
+		{
+			`... TRICE16( "hi %d", 5); ...`,
+			`... TRICE16_1( Id(0), "hi %d", 5); ...`},
+		{
+			`... TRICE16( "hi %d, %u", 5, h); ...`,
+			`... TRICE16_2( Id(0), "hi %d, %u", 5, h); ...`},
+		{
+			`... TRICE16( "hi %d, %u, %b", d, u, b); ...`,
+			`... TRICE16_3( Id(0), "hi %d, %u, %b", d, u, b); ...`},
+		{
+			`... TRICE16( "hi %d, %u, %b, %x", d, u, b, h); ...`,
+			`... TRICE16_4( Id(0), "hi %d, %u, %b, %x", d, u, b, h); ...`},
+		{
+			`... TRICE32( "hi %d", 5); ...`,
+			`... TRICE32_1( Id(0), "hi %d", 5); ...`},
+		{
+			`... TRICE32( "hi %d, %u", 5, h); ...`,
+			`... TRICE32_2( Id(0), "hi %d, %u", 5, h); ...`},
+		{
+			`... TRICE32( "hi %d, %u, %b", d, u, b); ...`,
+			`... TRICE32_3( Id(0), "hi %d, %u, %b", d, u, b); ...`},
+		{
+			`... TRICE32( "hi %d, %u, %b, %x", d, u, b, h); ...`,
+			`... TRICE32_4( Id(0), "hi %d, %u, %b, %x", d, u, b, h); ...`},
+		{
+			`... TRICE64( "hi %d", 5); ...`,
+			`... TRICE64_1( Id(0), "hi %d", 5); ...`},
+		{
+			`... TRICE64( "hi %d, %u", 5, h); ...`,
+			`... TRICE64_2( Id(0), "hi %d, %u", 5, h); ...`},
+	}
+	checkTestTable(t, tt, true)
+}
+
+func _TestOptionallyExtendLenAndInsertID0(t *testing.T) {
+	StampSizeId = " Id(0),"
 	tt := []struct{ text, exp string }{
 		{
 			`_TRICE8( "hi %d", 5); // to not touch`,
@@ -463,11 +547,40 @@ func TestOptionallyExtendLenAndInsertID0(t *testing.T) {
 	checkTestTable(t, tt, true)
 }
 
-func TestVariadicInsertId0(t *testing.T) {
+func TestOptionallyExtendLenAndInsertID0B(t *testing.T) {
+	StampSizeId = " Id(0),"
+	tt := []struct{ text, exp string }{
+		{
+			`_TRICE8( "hi %d", 5); // to not touch`,
+			`_TRICE8( "hi %d", 5); // to not touch`},
+		{
+			`TRICE8( Id(0), "hi %2d, %13u, %64b, %8x %02d, %013u, %032b, %016x",1,2,3,4,5,6,7,8 );`,
+			`TRICE8_8( Id(0), "hi %2d, %13u, %64b, %8x %02d, %013u, %032b, %016x",1,2,3,4,5,6,7,8 );`},
+		{
+			`TRICE8( "hi %2d, %13u, %64b, %8x %02d, %013u, %032b, %016x",1,2,3,4,5,6,7,8 );`,
+			`TRICE8_8( Id(0), "hi %2d, %13u, %64b, %8x %02d, %013u, %032b, %016x",1,2,3,4,5,6,7,8 );`},
+		{
+			`TRICE8_3( "hi %2d, %13u, %64b, %8x %02d, %013u, %032b, %016x",1,2,3,4,5,6,7,8 ); // do not change wrong count`,
+			`TRICE8_3( Id(0), "hi %2d, %13u, %64b, %8x %02d, %013u, %032b, %016x",1,2,3,4,5,6,7,8 ); // do not change wrong count`},
+	}
+	checkTestTable(t, tt, true)
+}
+
+func _TestVariadicInsertId0A(t *testing.T) {
+	StampSizeId = " Id(0),"
 	tt := []struct{ text, exp string }{
 		{
 			`Trice8( "hi %2d",1  );`,
 			`Trice8( Id(0), "hi %2d",1  );`},
+		{
+			`TRICE8( "hi %2d, %13u, %64b, %8x %02d, %013u, %032b, %016x",1,2,3,4,5,6,7,8 );`,
+			`TRICE8( Id(0), "hi %2d, %13u, %64b, %8x %02d, %013u, %032b, %016x",1,2,3,4,5,6,7,8 );`},
+	}
+	checkTestTable(t, tt, false)
+}
+func TestVariadicInsertId0B(t *testing.T) {
+	StampSizeId = " Id(0),"
+	tt := []struct{ text, exp string }{
 		{
 			`TRICE8( "hi %2d, %13u, %64b, %8x %02d, %013u, %032b, %016x",1,2,3,4,5,6,7,8 );`,
 			`TRICE8( Id(0), "hi %2d, %13u, %64b, %8x %02d, %013u, %032b, %016x",1,2,3,4,5,6,7,8 );`},

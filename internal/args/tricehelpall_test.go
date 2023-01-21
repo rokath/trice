@@ -149,7 +149,7 @@ func TestHelpAll(t *testing.T) {
         -debug
               Show additional debug information
         -defaultTRICEBitwidth string
-              The expected value bit width for TRICE macros. Must be in sync with setting inside triceConfig.h (default "32")
+              The expected value bit width for TRICE macros. Options: 8, 16, 32, 64. Must be in sync with the 'TRICE_DEFAULT_PARAMETER_BIT_WIDTH' setting inside triceConfig.h (default "32")
         -displayserver
               Send trice lines to displayserver @ ipa:ipp.
               Example: "trice l -port COM38 -ds -ipa 192.168.178.44" sends trice output to a previously started display server in the same network.
@@ -213,7 +213,7 @@ func TestHelpAll(t *testing.T) {
         -p string
               short for -port (default "J-LINK")
         -packageFraming string
-              Use "COBS" as alternative. "COBS" needs "#define TRICE_FRAMING TRICE_FRAMING_COBS" inside "triceConfig.h". (default "TCOBSv1")
+              Use "none" or "COBS" as alternative. "COBS" needs "#define TRICE_FRAMING TRICE_FRAMING_COBS" inside "triceConfig.h". (default "TCOBSv1")
         -parity string
               Serial port bit parity value, options: odd, even (default "none")
         -password string
@@ -255,19 +255,19 @@ func TestHelpAll(t *testing.T) {
               Short for '-idlist'.
                (default "til.json")
         -triceEndianness string
-               Target endianness trice data stream. Option: "bigEndian". (default "littleEndian")
+              Target endianness trice data stream. Option: "bigEndian". (default "littleEndian")
         -ts string
               PC timestamp for logs and logfile name, options: 'off|none|UTCmicro|zero'
               This timestamp switch generates the timestamps on the PC only (reception time), what is good enough for many cases.
               "LOCmicro" means local time with microseconds. "UTCmicro" shows timestamps in universal time. When set to "off" no PC timestamps displayed. (default "LOCmicro")
+        -tsf string
+              Target timestamp general format string at start of each line, if target timestamps existent (configured). Choose between "µs" or "us" and "ms", use "" to suppress existing target timestamps. Sets tsf0, tsf16, tsf32 if these not passed. If several trices form a log line only the timestamp of first trice ist displayed. (default "ms")
         -tsf0 string
               Target stamp format string at start of each line, if no target stamps existent (configured). Use "" to suppress existing target timestamps. If several trices form a log line only the timestamp of first trice ist displayed. (default "             ")
         -tsf16 string
-              Target stamp format string at start of each line, if 16-bit target stamps existent (configured). Options: "s,ms" (short "ms") or s.th. like "...%d...". Use "" to suppress existing target timestamps. If several trices form a log line only the timestamp of first trice ist displayed. The default is us format with underscore. (default "ms_µs")
+              16-bit Target stamp format string at start of each line, if 16-bit target stamps existent (configured). Choose between "µs" or "us" and "ms", use "" to suppress or use s.th. like "...%d...". If several trices form a log line only the timestamp of first trice ist displayed. (default "ms")
         -tsf32 string
-              Target stamp format string at start of each line, if 32-bit target stamps existent (configured). Options: "hh:mm:ss,ms" (short "ms") or s.th. like "...%d...".  Use "" to suppress existing target timestamps. If several trices form a log line only the timestamp of first trice ist displayed. (default "ssss,ms_µs")
-        -tsu string
-              Target timestamp format string unit at start of each line, if target timestamps existent (configured). Use "" to suppress existing target timestamps. If several trices form a log line only the timestamp of first trice ist displayed. The default is us format with underscore. (default "µs")     
+              32-bit Target stamp format string at start of each line, if 32-bit target stamps existent (configured). Choose between "µs" or "us" and "ms", use "" to suppress or use s.th. like "...%d...". If several trices form a log line only the timestamp of first trice ist displayed. (default "ms")
         -u    Short for '-unsigned'. (default true)
         -unsigned
               Hex, Octal and Bin values are printed as unsigned values. (default true)
@@ -418,6 +418,8 @@ func TestHelpAll(t *testing.T) {
               Lower end of ID range for normal trices. (default 1000)
         -addParamCount
               Extend TRICE macro names with the parameter count _n to enable compile time checks.
+        -defaultStampSize int
+              Default stamp size for written TRICE macros without id(0), Id(0 or ID(0). Valid values are 0, 16 or 32. (default 32)
         -dry-run
               No changes applied but output shows what would happen.
               "trice update -dry-run" will change nothing but show changes it would perform without the "-dry-run" switch.
@@ -446,11 +448,6 @@ func TestHelpAll(t *testing.T) {
                (default "li.json")
         -s value
               Short for src.
-        -sharedIDs
-              ID policy:
-                      false: TriceFmt's without TriceID get a different TriceID if an equal TriceFmt exists already (default).
-                      true:  TriceFmt's without TriceID get equal TriceID if an equal TriceFmt exists already. Use with care: The location information for only one location is displayed but it can be a wrong one.
-                      Hint: If you have equal TriceIDs with equal TriceFmt's after some copy and paste simply replace these TriceIDs with 0 to force new and different TriceIDs. ('trice h -z' shows how to automate)
         -src value
               Source dir or file, It has one parameter. Not usable in the form "-src *.c".
               This is a multi-flag switch. It can be used several times for directories and also for files.
