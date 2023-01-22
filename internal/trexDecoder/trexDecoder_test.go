@@ -7,7 +7,6 @@ import (
 	"bytes"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"strings"
 	"sync"
@@ -42,7 +41,7 @@ func doTableTest(t *testing.T, out io.Writer, f decoder.New, endianness bool, te
 	buf := make([]byte, decoder.DefaultSize)
 	dec := f(out, ilu, luM, li, nil, endianness) // a new decoder instance
 	for _, x := range teTa {
-		in := ioutil.NopCloser(bytes.NewBuffer(x.In))
+		in := io.NopCloser(bytes.NewBuffer(x.In))
 		dec.SetInput(in)
 		lineStart := true
 		var err error

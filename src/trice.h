@@ -106,6 +106,7 @@ typedef enum{
 #include "internalTrice32.h"
 #include "internalTrice64.h"
 
+unsigned TriceOutDepthCGO( void ); // only needed for testing C-sources from Go
 
 #ifdef TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN
 

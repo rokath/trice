@@ -344,18 +344,20 @@ void triceTriggerTransmitUartB(void){
 
 //! TriceOutDepth returns the amount of bytes not written yet from the slowest device.
 unsigned TriceOutDepth( void ){
+    unsigned d, depth = 0;
     // unsigned depthRtt0 = 0; -> assuming RTT is fast enough
     #ifdef TRICE_UARTA
-    unsigned depthUartA = TriceOutDepthUartA();
-    #else
-    unsigned depthUartA = 0;
+        d = TriceOutDepthUartA();
+        depth = d > depth ? d : depth;
     #endif
-    #ifdef TRICE_UARTB
-    unsigned depthUartB = TriceOutDepthUartB();
-    #else
-    unsigned depthUartB = 0;
+    #ifdef TRICE_UARTA
+        d = TriceOutDepthUartB();
+        depth = d > depth ? d : depth;
     #endif
-    unsigned depth = depthUartA > depthUartB ? depthUartA : depthUartB;
+    #ifdef TRICE_CGO
+        d = TriceOutDepthCGO();
+         depth = d > depth ? d : depth;
+    #endif
     return depth;
 }
 
