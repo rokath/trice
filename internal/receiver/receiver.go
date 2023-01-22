@@ -126,9 +126,10 @@ func scanBytes(s string) (buf []byte) {
 	buf = make([]byte, 0)
 	for _, a := range as {
 		var b byte
-		n, e := fmt.Sscan(a, &b)
-		msg.FatalOnFalse(1 == n)
-		msg.FatalOnErr(e)
+		fmt.Sscan(a, &b)
+		// n, e := fmt.Sscan(a, &b)
+		// msg.FatalOnFalse(1 == n)
+		// msg.FatalOnErr(e)
 		buf = append(buf, b)
 	}
 	return

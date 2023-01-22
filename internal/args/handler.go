@@ -151,7 +151,7 @@ func logLoop(w io.Writer, fSys *afero.Afero) {
 	m.Unlock()
 	// Just in case the id list file FnJSON gets updated, the file watcher updates lut.
 	// This way trice needs NOT to be restarted during development process.
-	go ilu.FileWatcher(w, fSys, m)
+	////////////////////////////////////////// go ilu.FileWatcher(w, fSys, m)
 
 	var li id.TriceIDLookUpLI // nil
 
@@ -169,7 +169,7 @@ func logLoop(w io.Writer, fSys *afero.Afero) {
 
 			// Just in case the id location information file LIFnJSON gets updated, the file watcher updates li.
 			// This way trice needs NOT to be restarted during development process.
-			go li.FileWatcher(w, fSys)
+			/////////////////////////////////////////////////go li.FileWatcher(w, fSys)
 		}
 	}
 
