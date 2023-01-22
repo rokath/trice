@@ -28,3 +28,6 @@ TASKING.workspace/*
 STM32CubeIDE.workspace/*
 atollicTrueSTUDIO.workspace/*
 */MDK-ARM/*.i
+*._2i
+*.fed
+*.l2p
