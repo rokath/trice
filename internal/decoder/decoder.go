@@ -207,6 +207,14 @@ func UReplaceN(i string) (o string, u []int) {
 		fm := s[loc[0]:loc[1]]
 		locPointer := matchNextFormatPointerSpecifier.FindStringIndex(fm)
 		if nil != locPointer { // a %p found
+			// This would require `unsafe.Pointer(uintptr(n))` inside unSignedOrSignedOut.
+			// There are false positive windows vet warnings:
+			// https://stackoverflow.com/questions/43767898/casting-a-int-to-a-pointer
+			// https://github.com/golang/go/issues/41205
+			// As workaround replace %p with %x in the format strings.
+			// Then trice64( "%p", -1 ) could be a problem when using `trice log -unsigned false`
+			// But that we simply ignore right now.
+			o = o[:offset-1] + "x" + o[offset:]   // replace %np -> %nx
 			u = append(u, PointerFormatSpecifier) // pointer value
 			continue
 		}
