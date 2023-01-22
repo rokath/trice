@@ -74,6 +74,9 @@ func TestTriceCheck(t *testing.T) {
 
 	out := make([]byte, 32768)
 	setTriceBuffer(out)
+
+	// readLines() & strings.LastIndex(x, "//exp:")
+
 	expVector := []string{"value=-1\n"} // This is the result of the parsed triceCheck.c file
 
 	fh, e := fSys.Create("til.json")

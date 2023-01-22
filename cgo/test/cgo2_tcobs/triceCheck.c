@@ -9,6 +9,6 @@
 // Each trice line needs to have a commented // "string" with its expected output.
 void TriceCheck( int n ){
     switch( n ){
-        case  0: TRICE8_1( id(    2), "value=%d\n", -1 ); // "value=-1\n"
+        case  0: TRICE8_1( id(    2), "value=%d\n", -1 ); //exp: "value=-1\n"
     }
 }
