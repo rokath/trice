@@ -115,7 +115,8 @@
 ##  3. <a name='BuildtricetoolfromGosourcesyoucanskipthat'></a>Build `trice` tool from Go sources (you can skip that)
 
 * Install [Go](https://golang.org/).
-* On Windows you need to install [TDM-GCC](https://jmeubank.github.io/tdm-gcc/download/) 
+* On Windows you need to install [TDM-GCC](https://jmeubank.github.io/tdm-gcc/download/).
+  * Take the 64-bit variant when Go is 64-bit or take the 32-bit variant when Go is 32-bit. If mixed installations work I doubt.
   * Recommendation: Minimal online installer.
   * GCC is only needed for [./pkg/src/src.go](https://github.com/rokath/trice/blob/master/pkg/src/src.go), what gives the option to test the C-code on the host.
   * Make sure TDM-GCC is found first in the path.
