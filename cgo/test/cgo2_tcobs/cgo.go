@@ -28,7 +28,7 @@ func setTriceBuffer(o []byte) {
 	C.CgoSetTriceBuffer(Cout)
 }
 
-// triceCheck performs triceCheck C-code sequence n. It returns the actual byte stream length.
+// triceCheck performs triceCheck C-code sequence n. 
 // It is simply a Go wrapper.
 func triceCheck(n int) {
 	C.TriceCheck(C.int(n))
