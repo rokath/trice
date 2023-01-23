@@ -148,7 +148,30 @@
                      "-password",
                      ""
             ]
-        },       
+        },
+        {
+            "name": "trice l -p JLINK",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}/cmd/trice",
+            "env": {},
+            "args": ["log",
+                     "-idlist",
+                     "${workspaceFolder}/til.json",
+                     "-port",
+                     "JLINK",
+                     "-args",
+                     "-device STM32G0B1KE -if SWD -speed 4000 -RTTChannel 0",
+                     "-encoding",
+                     "tle",
+                     "-prefix",
+                     "off",
+                     "-li",
+                     "off",
+                     "-v"
+            ]
+        },
         {
             "name": "displayServer",
             "type": "go",
