@@ -1,4 +1,4 @@
-package cgo2
+package cgo
 
 import (
 	"bytes"
