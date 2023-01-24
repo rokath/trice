@@ -1,10 +1,13 @@
 package cgo
 
 import (
+	"bufio"
 	"bytes"
+	"fmt"
 	"io"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/rokath/trice/internal/args"
@@ -66,6 +69,21 @@ func copyFileIntoFSys(t *testing.T, fSys *afero.Afero, fileName string) {
 	assert.Nil(t, w.Close())
 }
 
+// LinesInFile does get the lines in a file and store them in a string slice. Use the bufio and os imports.
+func LinesInFile(fh afero.File) []string { // https://www.dotnetperls.com/lines-file-go
+	//f, _ := os.Open(fileName)
+	// Create new Scanner.
+	scanner := bufio.NewScanner(fh)
+	result := []string{}
+	// Use Scan.
+	for scanner.Scan() {
+		line := scanner.Text()
+		// Append line to result.
+		result = append(result, line)
+	}
+	return result
+}
+
 func TestTriceCheck(t *testing.T) {
 
 	// prepare
@@ -75,9 +93,22 @@ func TestTriceCheck(t *testing.T) {
 	out := make([]byte, 32768)
 	setTriceBuffer(out)
 
-	// readLines() & strings.LastIndex(x, "//exp:")
+	f, e := fSys.Open("triceCheck.c")
+	assert.Nil(t, e)
+	lines := LinesInFile(f)
 
-	expVector := []string{"value=-1\n"} // This is the result of the parsed triceCheck.c file
+	subStr := "//exp: "
+	var expVector []string
+
+	for _, line := range lines {
+		fmt.Println("line:" + line)
+		index := strings.LastIndex(line, subStr)
+		if index > 0 {
+			expOut := line[index+len(subStr)+1 : len(line)-1]
+			expVector = append(expVector, expOut)
+			fmt.Println("rest:" + expOut)
+		}
+	}
 
 	fh, e := fSys.Create("til.json")
 	assert.Nil(t, e)
@@ -87,12 +118,26 @@ func TestTriceCheck(t *testing.T) {
 	var b bytes.Buffer
 	assert.Nil(t, args.Handler(io.Writer(&b), fSys, []string{"trice", "u", "-src", "."}))
 
+	// show generated til.json for debugging
+	tBytes, e := fSys.ReadFile("til.json")
+	assert.Nil(t, e)
+	fmt.Println(string(tBytes))
+
+	// show modified "triceCheck.c" for debugging
+	cBytes, e := fSys.ReadFile("triceCheck.c")
+	assert.Nil(t, e)
+	fmt.Println(string(cBytes))
+
 	for i, exp := range expVector {
+
+		fmt.Println(i, "exp:"+exp)
 
 		// target activity
 		triceCheck(i)
-		len := triceOutDepth()
-		bin := out[:len] // bin contains the binary trice data of trice message i
+		length := triceOutDepth()
+		bin := out[:length] // bin contains the binary trice data of trice message i
+
+		fmt.Println(i, bin)
 
 		assert.Nil(t, fSys.WriteFile("fileBuffer.bin", bin, 0777))
 
@@ -101,6 +146,6 @@ func TestTriceCheck(t *testing.T) {
 		assert.Nil(t, args.Handler(io.Writer(&o), fSys, []string{"trice", "log", "-p", "FILEBUFFER", "-args", "fileBuffer.bin", "-packageFraming", "COBS", "-ts", "off", "-prefix", "off", "-tsf", "", "-li", "off", "-color", "off"}))
 
 		act := o.String()
-		assert.Equal(t, exp, act)
+		assert.Equal(t, exp, strings.TrimSuffix(act, "\n"))
 	}
 }
