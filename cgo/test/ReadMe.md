@@ -14,8 +14,16 @@
 
 ##  1. <a name='Folderinformation'></a>Folder information
 
-- The packages are helper for testing the target C-code.
-- In each package a different triceConfig.h is used.
+- The packages here are helper for testing the target C-code.
+- The packages can have all the same name, only the folder names cannot be equal.
+- In each package a different triceConfig.h is used, this way allowing to check all modes automatically, including encryption.
+- The file `./testdata/triceCheck.txt` is the master test pattern for all CGO tests and edited manually.
+- After editing and before executing the tests, it needs to be copied into `triceCheck.c`, and a `trice u -src triceCheck.c` is needed.
+- Than copy the modified `triceCheck.c` into the `./cgo_*` folders.
+- THe `til.json` is not needed, it is regenerated from the modified sources inside the RAM filesystem. 
+- This somehow unhandy procedere could get a part of a test script. It is is this way because the `trice u` needs to be executed as a precompile script.
+- In a postcompile step a `trice z` should restore the `triceCheck.c` unmodified state to be identical to `triceCheck.txt`.
+- Unfortunately this has to be done on the os filesystem.
 
 ##  2. <a name='Packagespecificinformation'></a>Package specific information
 
