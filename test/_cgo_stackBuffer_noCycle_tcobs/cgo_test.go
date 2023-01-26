@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/rokath/trice/internal/args"
+	cgo "github.com/rokath/trice/test/cgo_stackBuffer_noCycle_tcobs"
 	"github.com/spf13/afero"
 	"github.com/tj/assert"
 )
@@ -16,14 +17,14 @@ func TestTriceCheck(t *testing.T) {
 
 	// prepare
 	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
-	CopyFileIntoFSys(t, fSys, "triceCheck.c")
+	cgo.CopyFileIntoFSys(t, fSys, "../testdata/triceCheck.c")
 
 	out := make([]byte, 32768)
-	SetTriceBuffer(out)
+	cgo.SetTriceBuffer(out)
 
 	f, e := fSys.Open("triceCheck.c")
 	assert.Nil(t, e)
-	lines := LinesInFile(f)
+	lines := cgo.LinesInFile(f)
 
 	subStr := "//exp: "
 	var expVector []string
@@ -61,8 +62,8 @@ func TestTriceCheck(t *testing.T) {
 		fmt.Println(i, "exp:"+exp)
 
 		// target activity
-		TriceCheck(i)
-		length := TriceOutDepth()
+		cgo.TriceCheck(i)
+		length := cgo.TriceOutDepth()
 		bin := out[:length] // bin contains the binary trice data of trice message i
 
 		fmt.Println(i, bin)
@@ -71,7 +72,7 @@ func TestTriceCheck(t *testing.T) {
 
 		// trice log
 		var o bytes.Buffer
-		assert.Nil(t, args.Handler(io.Writer(&o), fSys, []string{"trice", "log", "-p", "FILEBUFFER", "-args", "fileBuffer.bin", "-packageFraming", "COBS", "-ts", "off", "-prefix", "off", "-tsf", "", "-li", "off", "-color", "off"}))
+		assert.Nil(t, args.Handler(io.Writer(&o), fSys, []string{"trice", "log", "-p", "FILEBUFFER", "-args", "fileBuffer.bin", "-ts", "off", "-prefix", "off", "-tsf", "", "-li", "off", "-color", "off"}))
 
 		act := o.String()
 		assert.Equal(t, exp, strings.TrimSuffix(act, "\n"))

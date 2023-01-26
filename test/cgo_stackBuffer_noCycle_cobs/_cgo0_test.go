@@ -6,17 +6,18 @@ import (
 	"testing"
 
 	"github.com/rokath/trice/internal/args"
+	cgo "github.com/rokath/trice/test/cgo_stackBuffer_noCycle_cobs"
 	"github.com/spf13/afero"
 	"github.com/tj/assert"
 )
 
 func _TestTriceSequences(t *testing.T) {
 	out := make([]byte, 1024)
-	SetTriceBuffer(out)
+	cgo.SetTriceBuffer(out)
 
 	for i, exp := range triceBytes {
-		TriceCheck(i)
-		len := TriceOutDepth()
+		cgo.TriceCheck(i)
+		len := cgo.TriceOutDepth()
 		act := out[:len]
 		assert.Equal(t, exp, act)
 	}
