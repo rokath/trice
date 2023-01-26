@@ -212,7 +212,7 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 	p.B = p.B[tyIdSize:]
 
 	triceType := int(tyId >> decoder.IDBits) // most significant bit are the triceType
-	triceID := id.TriceID(0x1FFF & tyId)     // least significant bits are the ID
+	triceID := id.TriceID(0x3FFF & tyId)     // 14 least significant bits are the ID
 	decoder.LastTriceID = triceID            // used for showID
 
 	switch triceType {
