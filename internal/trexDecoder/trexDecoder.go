@@ -253,7 +253,11 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 	p.B = p.B[decoder.TargetTimestampSize:]
 
 	nc := p.ReadU16(p.B) // n = number of data bytes (without timestamp), most significant bit is the count encoding, c = cycle
-	p.B = p.B[ncSize:]
+	if len(p.B) == 2 {
+		p.B = p.B[:0]
+	} else {
+		p.B = p.B[ncSize:]
+	}
 	var cycle uint8
 	if nc>>15 == 1 { // special case: more than data 127 bytes
 		// C code: #define LCNT(count) TRICE_PUT16( (0x8000 | (count)) );

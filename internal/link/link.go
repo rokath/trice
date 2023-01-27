@@ -30,12 +30,12 @@ var (
 
 // Device is the RTT logger reader interface.
 type Device struct {
-	w         io.Writer // os.Stdout
-	fSys      *afero.Afero
-	Exec      string   // linkBinary is the RTT logger executable .
-	Lib       string   // linkDynLib is the RTT used dynamic library name.
-	args      []string //  contains the command line parameters for JLinkRTTLogger
-	arguments string   // needed only for error message
+	w    io.Writer // os.Stdout
+	fSys *afero.Afero
+	Exec string   // linkBinary is the RTT logger executable .
+	Lib  string   // linkDynLib is the RTT used dynamic library name.
+	args []string //  contains the command line parameters for JLinkRTTLogger
+	//arguments string   // needed only for error message
 
 	cmd               *exec.Cmd // link command handle
 	tempLogFileName   string
@@ -64,28 +64,38 @@ func NewDevice(w io.Writer, fSys *afero.Afero, port, arguments string) *Device {
 		fmt.Fprintln(w, "port:", port, "arguments:", arguments)
 		fmt.Fprintln(w, "LINK executable", p.Exec, "and dynamic lib", p.Lib, "expected to be in path for usage.")
 	}
-	p.arguments = arguments
+	//p.arguments = arguments
 	p.args = strings.Split(arguments, " ")
 	// The -RTTSearchRanges "..." need to be written without "" and with _ instead of space.
 	for i := range p.args { // 0x20000000_0x1800 -> 0x20000000 0x1800
 		p.args[i] = strings.ReplaceAll(p.args[i], "_0x", " 0x")
 	}
 
-	// get a temporary file name in a writable folder temp
-	dir := filepath.Dir(id.FnJSON) // the id list folder is assumed to be writable and readable
+	lastArg := p.args[len(p.args)-1]
+	lastArgExt := filepath.Ext(lastArg)
 
-	// create temp folder if not exists
-	tempDir := filepath.Join(dir, "temp")
-	e := os.MkdirAll(tempDir, os.ModePerm)
-	msg.OnErr(e)
+	if lastArgExt == ".bin" {
+		if Verbose {
+			fmt.Printf("An intermediate log file name \"%s\" is specified inside p.args, so use that.\n", lastArg)
+			p.tempLogFileName = lastArg
+		}
+	} else {
+		// get a temporary file name in a writable folder temp
+		dir := filepath.Dir(id.FnJSON) // the id list folder is assumed to be writable and readable
 
-	// create a new file
-	fh, e := os.CreateTemp(tempDir, "trice-*.bin") // opens for read and write
-	msg.OnErr(e)
-	p.tempLogFileName = fh.Name() // p.tempLogFileName is trice needed to know where to read from
-	msg.OnErr(fh.Close())
+		// create temp folder if not exists
+		tempDir := filepath.Join(dir, "temp")
+		e := os.MkdirAll(tempDir, os.ModePerm)
+		msg.OnErr(e)
 
-	p.args = append(p.args, p.tempLogFileName) // p.tempLogFileName is passed here for JLinkRTTLogger
+		// create a new file
+		fh, e := os.CreateTemp(tempDir, "trice-*.bin") // opens for read and write
+		msg.OnErr(e)
+		p.tempLogFileName = fh.Name() // p.tempLogFileName is trice needed to know where to read from
+		msg.OnErr(fh.Close())
+
+		p.args = append(p.args, p.tempLogFileName) // p.tempLogFileName is passed here for JLinkRTTLogger
+	}
 	return p
 }
 
@@ -94,7 +104,12 @@ func (p *Device) errorFatal() {
 	if nil == p.Err {
 		return
 	}
-	log.Panic(p.Err, ": linkCmd=", p.Exec, " linkLib =", p.Lib, " <--- PATH ok? error:")
+	fmt.Printf("p.err=%v\n", p.Err)
+	fmt.Printf("p.Exec=%s\n", p.Exec)
+	fmt.Printf("p.Lib=%s\n", p.Lib)
+	fmt.Printf("p.args=%s\n", p.args)
+	fmt.Printf("p.tempLogFileName=%s\n", p.tempLogFileName)
+	os.Exit(1)
 }
 
 // Read is part of the exported interface io.ReadCloser. It reads a slice of bytes.
@@ -137,6 +152,13 @@ func (p *Device) Open() error {
 	}
 	p.Err = p.cmd.Start()
 	p.errorFatal()
+
+	go func() {
+		e := p.cmd.Wait()
+		if e != nil {
+			fmt.Println(e)
+		}
+	}()
 
 	// todo: check if file exists in a loop for more speed
 	time.Sleep(1000 * time.Millisecond)                         // to be sure, log fie is created
