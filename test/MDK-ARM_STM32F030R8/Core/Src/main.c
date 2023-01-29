@@ -62,15 +62,6 @@ uint32_t milliSecond( void );
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
-void TriceDepthMaxDiagMessage( void ){
-    size_t tdm = TriceDepthMax();
-    if( tdm <= TRICE_HALF_BUFFER_SIZE ){
-        TRICE16( Id( 1420),"diag:TriceDepthMax =%4u of %d\n", tdm, TRICE_HALF_BUFFER_SIZE );
-    }else{
-        TRICE16( Id( 2535),"err:TriceDepthMax =%4u of %d (overflow!)\n", tdm, TRICE_HALF_BUFFER_SIZE );
-    }
-}
-
 /* USER CODE END 0 */
 
 /**

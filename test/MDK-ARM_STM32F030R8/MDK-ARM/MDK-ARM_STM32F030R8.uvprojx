@@ -539,6 +539,11 @@
               <FileType>5</FileType>
               <FilePath>..\..\..\src\xtea.h</FilePath>
             </File>
+            <File>
+              <FileName>triceModbusBuffer.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\src\triceModbusBuffer.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

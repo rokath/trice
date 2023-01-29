@@ -45,7 +45,7 @@ static uint32_t* triceFifoPop( void ){
     return v;
 }
 
-//! TriceNextStreamBuffer returns a uasable address with at least TRICE_SINGLE_MAX_SIZE space.
+//! TriceNextStreamBuffer returns a usable address with at least TRICE_SINGLE_MAX_SIZE space.
 uint32_t* TriceNextStreamBuffer( void ){
     if( TriceBufferWritePosition > triceBufferWriteLimit ){
         for(;;); // trice stream buffer overflow
@@ -97,14 +97,14 @@ void TriceTransfer( void ){
     } // else: transmission not done yet
 }
 
-#ifdef TRICE_LOG_OVER_MODBUS_FUNC24
+#ifdef TRICE_LOG_OVER_MODBUS_FUNC24_ONLY
 
 #if TRICE_CYCLE_COUNTER == 0
 #error TRICE_CYCLE_COUNTER is needed for TRICE_LOG_OVER_MODBUS_FUNC24
 #endif
 
 #if defined(TRICE_UARTA) || defined(TRICE_UARTB) || defined(TRICE_RTT0) || defined(TRICE_CGO)
-#error TRICE_LOG_OVER_MODBUS_FUNC24 does not allow other output (yet).
+#error TRICE_LOG_OVER_MODBUS_FUNC24_ONLY does not allow other output (yet).
 #endif
 
 
@@ -121,7 +121,7 @@ uint32_t* triceFifoFetch( unsigned n ){
     return v;
 }
 
-//! TriceFetch returns size of indexed trice message inside TriceFifo and copies its values to tBuf.
+//! TriceModbusOnlyFetch returns size of indexed trice message inside TriceFifo and copies its values to tBuf.
 //! When a modbus FC24 read request at index arrives, TriceFetch is needs to be called by the user.
 //! The host uses the modbus fifo address offset to TRICE_LOG_FIFO_MODBUS_START_ADDRESS to select the index.
 //! When TriceFetch returned 0, the host needs to read the previous index >=0 to
@@ -130,7 +130,7 @@ uint32_t* triceFifoFetch( unsigned n ){
 //! to check if more data arrived. This way the host has to poll the last 2 index fifos cyclically.
 //! The modbus interface is not part of the trice kernel and let to the users reponsibility.
 //! Anyway, the trice tool will be able (hopefully soon) to read trice messages from modbus.
-size_t TriceFetch( int index, uint8_t* tBuf ){
+size_t TriceModbusOnlyFetch( int index, uint8_t* tBuf ){
     int tCnt = triceCountInsideStreamBuffer();
     if( index >= tCnt ){
         return 0;

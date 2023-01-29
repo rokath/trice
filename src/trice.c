@@ -171,6 +171,13 @@ void TriceWriteDevice( TriceWriteDevice_t device, uint8_t *buf, size_t len ){
         }
             break;
 #endif
+#ifdef TRICE_LOG_OVER_MODBUS_FUNC24_ALSO
+        case ModbusBuffer:
+        {
+            TriceNonBlockingWriteModbusBuffer( buf, len ); 
+        }
+            break;
+#endif
         default:
             break;
     }
@@ -225,6 +232,9 @@ void TriceOut( uint32_t* tb, size_t tLen ){
     #endif
     #ifdef TRICE_CGO
         TriceWriteDevice( Cgo, enc, encLen );
+    #endif
+    #ifdef TRICE_LOG_OVER_MODBUS_FUNC24_ALSO
+        TriceWriteDevice( ModbusBuffer, enc, encLen );
     #endif
 }
 

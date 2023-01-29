@@ -99,16 +99,43 @@ extern "C" {
 
 //! Enable and set UART2 for serial output.
 #define TRICE_UARTA USART2 // comment out, if you do not use TRICE_UARTA
-#define TRICE_UARTA_MIN_ID 1           //! TRICE_UARTA_MIN_ID is the smallest ID transferred to UARTA.
-#define TRICE_UARTA_MAX_ID ((1<<14)-1) //! TRICE_UARTA_MAX_ID is the biggest ID transferred to UARTA.
+#define TRICE_UARTA_MIN_ID 1           //!< TRICE_UARTA_MIN_ID is the smallest ID transferred to UARTA.
+#define TRICE_UARTA_MAX_ID ((1<<14)-1) //!< TRICE_UARTA_MAX_ID is the biggest ID transferred to UARTA.
 
 //! Enable and set UART for serial output.
 // #define TRICE_UARTB USART1 // comment out, if you do not use TRICE_UARTB
-// #define TRICE_UARTB_MIN_ID 1           //! TRICE_UARTB_MIN_ID is the smallest ID transferred to UARTB.
-// #define TRICE_UARTB_MAX_ID ((1<<14)-1) //! TRICE_UARTB_MAX_ID is the biggest ID transferred to UARTB.
+// #define TRICE_UARTB_MIN_ID 1           //!< TRICE_UARTB_MIN_ID is the smallest ID transferred to UARTB.
+// #define TRICE_UARTB_MAX_ID ((1<<14)-1) //!< TRICE_UARTB_MAX_ID is the biggest ID transferred to UARTB.
 
 //! CGO interface (for testing)
 //#define TRICE_CGO 
+
+
+//! TRICE_LOG_OVER_MODBUS_FUNC24_ALSO allows to access the trice messages over modbus.
+//! TRICE_LOG_OVER_MODBUS_FUNC24_ONLY works with all TRICE_MODE settings.
+//! Other trice output channels are supported in this mode.
+//! See comment on TriceModbusAlsoFetch() for more details.
+#define TRICE_LOG_OVER_MODBUS_FUNC24_ALSO
+
+//! TRICE_LOG_OVER_MODBUS_FUNC24_ONLY allows to access the trice messages over modbus.
+//! TRICE_LOG_OVER_MODBUS_FUNC24_ONLY works only with TRICE_MODE == TRICE_STREAM_BUFFER.
+//! Other trice output channels are not supported in this mode.
+//! See comment on TriceModbusOnlyFetch() for more details.
+//#define TRICE_LOG_OVER_MODBUS_FUNC24_ONLY
+
+//! TRICE_LOG_FIFO_MODBUS_START_ADDRESS is the used virtual modbus address for modbus trice fifo read out.
+//! The trice tool assumes 47400 as default value. The limit is 47400+(TRICE_FIFO_ELEMENTS>>1).
+//! If you change this here you need to use the appropriate trice tool CLI switch.
+#define TRICE_LOG_FIFO_MODBUS_START_ADDRESS 47400
+
+
+#ifdef TRICE_LOG_OVER_MODBUS_FUNC24_ALSO
+#define TRICE_MODBUS_BUFFER_MIN_ID 1           //!< TRICE_MODBUS_BUFFER_MIN_ID is the smallest ID transferred to MODBUS_BUFFER.
+#define TRICE_MODBUS_BUFFER_MAX_ID ((1<<14)-1) //!< TRICE_MODBUS_BUFFER_MAX_ID is the biggest ID transferred to MODBUS_BUFFER.
+
+#define TRICE_MODBUS_BUFFER_SIZE 240
+#define TRICE_MODBUS_FIFO_ELEMENTS 32 //!< Must be a power of 2. The half number is the amount of bufferable trices before they go out.
+#endif // #ifdef TRICE_LOG_OVER_MODBUS_FUNC24_ALSO
 
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -299,18 +326,6 @@ TRICE_INLINE void triceDisableTxEmptyInterruptUartB(void) {
 
 //
 ///////////////////////////////////////////////////////////////////////////////
-
-//! TRICE_LOG_OVER_MODBUS_FUNC24 allows to access the trice messages over modbus.
-//! TRICE_LOG_OVER_MODBUS_FUNC24 works only with TRICE_MODE == TRICE_STREAM_BUFFER.
-//! Other trice output channels are not supported in this mode.
-//! See comment on TriceFetch() for more details.
-//#define TRICE_LOG_OVER_MODBUS_FUNC24
-
-//! TRICE_LOG_FIFO_MODBUS_START_ADDRESS is the used virtual modbus address for modbus trice fifo read out.
-//! The trice tool assumes 47400 as default value. The limit is 47400+(TRICE_FIFO_ELEMENTS>>1).
-//! If you change this here you need to use the appropriate trice tool CLI switch.
-//#define TRICE_LOG_FIFO_MODBUS_START_ADDRESS 47400
-
 
 #ifdef __cplusplus
 }

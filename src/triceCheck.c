@@ -1844,3 +1844,22 @@ static int64_t DoubleToInt64( double f ){
     }
     return -(int64_t)-f;
 }
+
+
+#ifdef TRICE_LOG_OVER_MODBUS_FUNC24_ALSO
+
+//! TriceLogModbusBufferInfo todo: into -> triceCheck.c
+void TriceLogModbusBufferInfo( void ){
+    TRICE32( id( 1135), "att: Trice modbus buffer size:%5u ", TRICE_MODBUS_BUFFER_SIZE );
+}
+
+#endif
+
+void TriceDepthMaxDiagMessage( void ){
+    size_t tdm = TriceDepthMax();
+    if( tdm <= TRICE_HALF_BUFFER_SIZE ){
+        TRICE16( Id( 1420),"diag:TriceDepthMax =%4u of %d\n", tdm, TRICE_HALF_BUFFER_SIZE );
+    }else{
+        TRICE16( Id( 2535),"err:TriceDepthMax =%4u of %d (overflow!)\n", tdm, TRICE_HALF_BUFFER_SIZE );
+    }
+}

@@ -89,7 +89,8 @@ typedef enum{
     UartA,
     UartB,
     Rtt0,
-    Cgo
+    Cgo,
+    ModbusBuffer
 } TriceWriteDevice_t;
 
 //! Variadic macros (https://github.com/pfultz2/Cloak/wiki/C-Preprocessor-tricks,-tips,-and-idioms)
@@ -542,6 +543,11 @@ extern const int TriceTypeX0;
 #if defined(TRICE_LOG_OVER_MODBUS_FUNC24) && (TRICE_MODE != TRICE_STREAM_BUFFER)
 #error TRICE_LOG_OVER_MODBUS_FUNC24 works only with TRICE_MODE == TRICE_STREAM_BUFFER.
 #endif
+
+void TriceDepthMaxDiagMessage( void );
+void TriceNonBlockingWriteModbusBuffer( uint8_t const * buf, unsigned len );
+size_t TriceModbusAlsoFetch( int index, uint8_t* tBuf );
+size_t TriceModbusOnlyFetch( int index, uint8_t* tBuf );
 
 #ifdef __cplusplus
 }
