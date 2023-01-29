@@ -10,14 +10,14 @@
       <TargetName>MDK-ARM_STM32F030R8</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
-      <pCCUsed>6160000::V6.16::ARMCLANG</pCCUsed>
-      <uAC6>1</uAC6>
+      <pCCUsed>5060960::V5.06 update 7 (build 960)::.\ARM_Compiler_5.06u7</pCCUsed>
+      <uAC6>0</uAC6>
       <TargetOption>
         <TargetCommonOption>
           <Device>STM32F030R8Tx</Device>
           <Vendor>STMicroelectronics</Vendor>
-          <PackID>Keil.STM32F0xx_DFP.2.1.0</PackID>
-          <PackURL>http://www.keil.com/pack/</PackURL>
+          <PackID>Keil.STM32F0xx_DFP.2.1.1</PackID>
+          <PackURL>https://www.keil.com/pack/</PackURL>
           <Cpu>IRAM(0x20000000-0x20001FFF) IROM(0x8000000-0x800FFFF) CLOCK(8000000) CPUTYPE("Cortex-M0") TZ</Cpu>
           <FlashUtilSpec></FlashUtilSpec>
           <StartupFile></StartupFile>
@@ -48,7 +48,7 @@
             <NotGenerated>0</NotGenerated>
             <InvalidFlash>1</InvalidFlash>
           </TargetStatus>
-          <OutputDirectory>MDK-ARM_STM32F030R8\</OutputDirectory>
+          <OutputDirectory>.\</OutputDirectory>
           <OutputName>MDK-ARM_STM32F030R8</OutputName>
           <CreateExecutable>1</CreateExecutable>
           <CreateLib>0</CreateLib>
@@ -186,6 +186,7 @@
             <RvdsVP>0</RvdsVP>
             <RvdsMve>0</RvdsMve>
             <RvdsCdeCp>0</RvdsCdeCp>
+            <nBranchProt>0</nBranchProt>
             <hadIRAM2>0</hadIRAM2>
             <hadIROM2>0</hadIROM2>
             <StupSel>8</StupSel>
@@ -313,7 +314,7 @@
           </ArmAdsMisc>
           <Cads>
             <interw>1</interw>
-            <Optim>7</Optim>
+            <Optim>4</Optim>
             <oTime>0</oTime>
             <SplitLS>0</SplitLS>
             <OneElfS>0</OneElfS>
@@ -322,14 +323,14 @@
             <PlainCh>0</PlainCh>
             <Ropi>0</Ropi>
             <Rwpi>0</Rwpi>
-            <wLevel>3</wLevel>
+            <wLevel>2</wLevel>
             <uThumb>0</uThumb>
             <uSurpInc>0</uSurpInc>
             <uC99>1</uC99>
-            <uGnu>0</uGnu>
+            <uGnu>1</uGnu>
             <useXO>0</useXO>
             <v6Lang>4</v6Lang>
-            <v6LangP>3</v6LangP>
+            <v6LangP>5</v6LangP>
             <vShortEn>1</vShortEn>
             <vShortWch>1</vShortWch>
             <v6Lto>1</v6Lto>
@@ -424,29 +425,69 @@
               <FilePath>..\..\..\src\tcobsv1Encode.c</FilePath>
             </File>
             <File>
-              <FileName>xtea.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\src\xtea.c</FilePath>
-            </File>
-            <File>
-              <FileName>triceStreamBuffer.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\src\triceStreamBuffer.c</FilePath>
-            </File>
-            <File>
               <FileName>triceDoubleBuffer.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\src\triceDoubleBuffer.c</FilePath>
             </File>
             <File>
-              <FileName>triceStackBuffer.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\src\triceStackBuffer.c</FilePath>
-            </File>
-            <File>
               <FileName>cobs.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\src\cobs.c</FilePath>
+            </File>
+            <File>
+              <FileName>cobs.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\..\..\src\cobs.h</FilePath>
+            </File>
+            <File>
+              <FileName>internalTrice8.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\..\..\src\internalTrice8.h</FilePath>
+            </File>
+            <File>
+              <FileName>internalTrice16.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\..\..\src\internalTrice16.h</FilePath>
+            </File>
+            <File>
+              <FileName>internalTrice32.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\..\..\src\internalTrice32.h</FilePath>
+            </File>
+            <File>
+              <FileName>internalTrice64.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\..\..\src\internalTrice64.h</FilePath>
+            </File>
+            <File>
+              <FileName>ReadMe.md</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\..\..\src\ReadMe.md</FilePath>
+            </File>
+            <File>
+              <FileName>tcobs.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\..\..\src\tcobs.h</FilePath>
+            </File>
+            <File>
+              <FileName>tcobsv1Decode.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\src\tcobsv1Decode.c</FilePath>
+            </File>
+            <File>
+              <FileName>tcobsv1Internal.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\..\..\src\tcobsv1Internal.h</FilePath>
+            </File>
+            <File>
+              <FileName>trice.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\..\..\src\trice.h</FilePath>
+            </File>
+            <File>
+              <FileName>trice_test.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\..\..\src\trice_test.h</FilePath>
             </File>
             <File>
               <FileName>trice8.c</FileName>
@@ -473,10 +514,32 @@
               <FileType>1</FileType>
               <FilePath>..\..\..\src\triceCheck.c</FilePath>
             </File>
+            <File>
+              <FileName>triceCodeSizeOptimization.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\..\..\src\triceCodeSizeOptimization.h</FilePath>
+            </File>
+            <File>
+              <FileName>triceStackBuffer.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\src\triceStackBuffer.c</FilePath>
+            </File>
+            <File>
+              <FileName>triceStreamBuffer.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\src\triceStreamBuffer.c</FilePath>
+            </File>
+            <File>
+              <FileName>xtea.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\src\xtea.c</FilePath>
+            </File>
+            <File>
+              <FileName>xtea.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\..\..\src\xtea.h</FilePath>
+            </File>
           </Files>
-        </Group>
-        <Group>
-          <GroupName>::CMSIS</GroupName>
         </Group>
         <Group>
           <GroupName>Drivers/STM32F0xx_HAL_Driver</GroupName>
@@ -1074,6 +1137,9 @@
             </File>
           </Files>
         </Group>
+        <Group>
+          <GroupName>::CMSIS</GroupName>
+        </Group>
       </Groups>
     </Target>
   </Targets>
@@ -1081,8 +1147,8 @@
   <RTE>
     <apis/>
     <components>
-      <component Cclass="CMSIS" Cgroup="CORE" Cvendor="ARM" Cversion="5.5.0" condition="ARMv6_7_8-M Device">
-        <package name="CMSIS" schemaVersion="1.3" url="http://www.keil.com/pack/" vendor="ARM" version="5.8.0"/>
+      <component Cclass="CMSIS" Cgroup="CORE" Cvendor="ARM" Cversion="5.6.0" condition="ARMv6_7_8-M Device">
+        <package name="CMSIS" schemaVersion="1.7.7" url="http://www.keil.com/pack/" vendor="ARM" version="5.9.0"/>
         <targetInfos>
           <targetInfo name="MDK-ARM_STM32F030R8"/>
         </targetInfos>

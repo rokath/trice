@@ -539,6 +539,9 @@ extern const int TriceTypeX0;
 
 #endif // #else // #ifdef TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN
 
+#if defined(TRICE_LOG_OVER_MODBUS_FUNC24) && (TRICE_MODE != TRICE_STREAM_BUFFER)
+#error TRICE_LOG_OVER_MODBUS_FUNC24 works only with TRICE_MODE == TRICE_STREAM_BUFFER.
+#endif
 
 #ifdef __cplusplus
 }

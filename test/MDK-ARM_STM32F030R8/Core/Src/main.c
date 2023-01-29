@@ -62,6 +62,15 @@ uint32_t milliSecond( void );
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
+void TriceDepthMaxDiagMessage( void ){
+    size_t tdm = TriceDepthMax();
+    if( tdm <= TRICE_HALF_BUFFER_SIZE ){
+        TRICE16( Id( 1420),"diag:TriceDepthMax =%4u of %d\n", tdm, TRICE_HALF_BUFFER_SIZE );
+    }else{
+        TRICE16( Id( 2535),"err:TriceDepthMax =%4u of %d (overflow!)\n", tdm, TRICE_HALF_BUFFER_SIZE );
+    }
+}
+
 /* USER CODE END 0 */
 
 /**
@@ -133,35 +142,35 @@ int main(void)
 
         // send some trices every few ms
         static unsigned lastTricesTime = 0;
-        const unsigned msInterval = 100; // increase this value to slow down trice generation
+        const unsigned msInterval = 2; // change this value to change trice generation speed
         if( ms >= lastTricesTime + msInterval ){
             lastTricesTime = ms;
             const int begin = 0;
-            const int end = 1500;
-            static int index = begin;
+            const int end = 1700;
+            static int index = 0; // begin: warning:  #3170-D: use of a const variable in a constant expression is nonstandard in C
             
-            // diagnostics
-            if( index == begin ){
-                TRICE16( ID( 1192),"MSG: ✅ STOP  index = %d, TriceDepthMax =%4u of %d\n", index, TriceDepthMax(), TRICE_HALF_BUFFER_SIZE );
-            }
-
-            // trice messsage
-            TriceCheckSet(index);
-
-            // diagnostics
             #if TRICE_MODE == TRICE_DOUBLE_BUFFER
-            {
+            if( index == begin ){ // diagnostics
+                TriceDepthMaxDiagMessage();
+            }
+            #endif
+            
+            TriceCheckSet(index); // trice messsage
+
+            
+            #if TRICE_MODE == TRICE_DOUBLE_BUFFER
+            {   // diagnostics
                 static uint16_t triceDepthMax_1 = 0;
                 uint16_t triceDepthMax = TriceDepthMax();
                 if( triceDepthMax_1 != triceDepthMax ){
                     triceDepthMax_1 = triceDepthMax;
-                    TRICE16( ID( 1192),"MSG: ✅ STOP  index = %d, TriceDepthMax =%4u of %d\n", index, triceDepthMax, TRICE_HALF_BUFFER_SIZE );
+                    TriceDepthMaxDiagMessage();
                 }
             }
             #endif
             #if TRICE_MODE == TRICE_STREAM_BUFFER
             {
-                static uint16 triceFifoDepthMax_1, triceStreamBufferDepthMax_1;
+                static uint16_t triceFifoDepthMax_1, triceStreamBufferDepthMax_1;
                 if( triceFifoDepthMax_1 != triceFifoDepthMax || triceStreamBufferDepthMax_1 != triceStreamBufferDepthMax ){
                     triceFifoDepthMax_1 = triceFifoDepthMax;
                     triceStreamBufferDepthMax_1 = triceStreamBufferDepthMax;
@@ -175,8 +184,9 @@ int main(void)
         }
         UsDuty();
     }
-  /* USER CODE END WHILE */
-  /* USER CODE BEGIN 3 */
+    /* USER CODE END WHILE */
+
+    /* USER CODE BEGIN 3 */
 
   /* USER CODE END 3 */
 }

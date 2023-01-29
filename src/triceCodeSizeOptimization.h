@@ -3,23 +3,26 @@
 *******************************************************************************/
 
 // Reduce trice code size by selectively setting 0 to unused functions.
-// This maybe needs to be done only on older compilers. 
-
+// This maybe needs not to be done with specific linker optimization: 
+//
 // Some compiler support so called "linker feedback"
 // by compiling twice to get rid of unused functions.
 // Check your compiler for the "linker feedback" option.
-// In ARM µVision, when using ARM compiler v5, there is a 
+//
+// In ARM uVision, when using ARMCC compiler v5, there is a 
 // check box Project -> Options -> Target -> "Cross Module Optimization".
 // This increases the build time but reduces the image size significantly.
 // When using the "linker feedback" option or program memory is not full
 // there is no need for changes here and simply let all values be 1.
-
-// I guess modern linkers can strip out right away unused functions.
-// In ARM µVision, when using ARM compiler v6, 
+// In ARMCC this works also with the lite version.
+//
+// In ARM uVision, when using ARMCLANG compiler v6, 
 // the "Cross Module Optimization" is not visible.
 // Instead check box Project -> Options -> C/C++(AC6) -> "Link-Time Optimization"
-// is usable to set the CLI -flto switch. Or set image size optimization.
-
+// is usable to set the CLI -flto switch. LTO is not possible with ARMCLANG6 lite:
+// https://developer.arm.com/documentation/ka004054/latest.
+//
+// With GCC probably simply the -flto CLI switch is needed.
 
 #ifndef TRICE_CODE_SIZE_OPTIMIZATION_H_
 #define TRICE_CODE_SIZE_OPTIMIZATION_H_

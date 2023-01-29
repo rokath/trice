@@ -27,3 +27,7 @@ dist/**
 li.json
 
 *.uvoptx
+
+*.__i
+
+*._ia

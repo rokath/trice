@@ -41,18 +41,18 @@ void TriceCheckSet(int index) {
            case __LINE__: 
 
     // mixed 16-bit and 32-bit timestamps
-    TRice8M_1 ( 7009, "msg:value=%d\n", -1 );// trice tool modified code for compilation
-    Trice8M_2 ( 5664, "msg:value=%d, %d\n", -1, -2 );// trice tool modified code for compilation
-    TRice8M_3 ( 2103, "msg:value=%d, %d, %d\n", -1, -2, -3 );// trice tool modified code for compilation
-    Trice8M_4 ( 7087, "msg:value=%d, %d, %d, %d\n", -1, -2, -3, -4 );// trice tool modified code for compilation
-    TRice8M_5 ( 4931, "msg:value=%d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );// trice tool modified code for compilation
-    Trice8M_6 ( 2621, "msg:value=%d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );// trice tool modified code for compilation
-    TRice8M_7 ( 3488, "msg:value=%d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7 );// trice tool modified code for compilation
-    Trice8M_8 ( 4329, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );// trice tool modified code for compilation
-    TRice8M_9 ( 6469, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );// trice tool modified code for compilation
-    Trice8M_10( 6335, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10 );// trice tool modified code for compilation
-    TRice8M_11( 2410, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );// trice tool modified code for compilation
-    Trice8M_12( 2070, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );// trice tool modified code for compilation
+   TRice8M_1 ( 7009, "msg:value=%d\n", -1 );// trice tool modified code for compilation
+   Trice8M_2 ( 5664, "msg:value=%d, %d\n", -1, -2 );// trice tool modified code for compilation
+   TRice8M_3 ( 2103, "msg:value=%d, %d, %d\n", -1, -2, -3 );// trice tool modified code for compilation
+   Trice8M_4 ( 7087, "msg:value=%d, %d, %d, %d\n", -1, -2, -3, -4 );// trice tool modified code for compilation
+   TRice8M_5 ( 4931, "msg:value=%d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5 );// trice tool modified code for compilation
+   Trice8M_6 ( 2621, "msg:value=%d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6 );// trice tool modified code for compilation
+   TRice8M_7 ( 3488, "msg:value=%d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7 );// trice tool modified code for compilation
+   Trice8M_8 ( 4329, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8 );// trice tool modified code for compilation
+   break; case __LINE__: TRice8M_9 ( 6469, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9 );// trice tool modified code for compilation
+   break; case __LINE__: Trice8M_10( 6335, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10 );// trice tool modified code for compilation
+   break; case __LINE__: TRice8M_11( 2410, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11 );// trice tool modified code for compilation
+   break; case __LINE__: Trice8M_12( 2070, "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12 );// trice tool modified code for compilation
 
 #if 1
 

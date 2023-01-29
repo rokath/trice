@@ -45,7 +45,7 @@ static uint32_t* triceFifoPop( void ){
     return v;
 }
 
-//! TriceStreamBufferSpace returns the space until buffer end.
+//! TriceNextStreamBuffer returns a uasable address with at least TRICE_SINGLE_MAX_SIZE space.
 uint32_t* TriceNextStreamBuffer( void ){
     if( TriceBufferWritePosition > triceBufferWriteLimit ){
         for(;;); // trice stream buffer overflow
@@ -84,9 +84,9 @@ static size_t streamBufferDepth( uint32_t* tBuf ){
 //! TriceTransfer, if possible, initiates a write.
 //! It is the responsibility of the app to call this function.
 void TriceTransfer( void ){
-    if( 0 == TriceOutDepth() ){ // transmission done, so a new is possible
+    if( TriceOutDepth() == 0 ){ // transmission done, so a new is possible
         size_t depth = triceFifoDepth();
-        triceFifoDepthMax = depth < triceFifoDepthMax ? triceFifoDepthMax : depth;
+        triceFifoDepthMax = depth < triceFifoDepthMax ? triceFifoDepthMax : depth; // diagnostics
         if( depth >= 2 ){ // data in triceFifo
             uint32_t* tBuf = triceFifoPop(); 
             size_t tLen = triceDepth(tBuf); // calls internally triceFifoPop(), tlen is always a multiple of 4
@@ -96,6 +96,54 @@ void TriceTransfer( void ){
         } // else: nothing to transfer
     } // else: transmission not done yet
 }
+
+#ifdef TRICE_LOG_OVER_MODBUS_FUNC24
+
+#if TRICE_CYCLE_COUNTER == 0
+#error TRICE_CYCLE_COUNTER is needed for TRICE_LOG_OVER_MODBUS_FUNC24
+#endif
+
+#if defined(TRICE_UARTA) || defined(TRICE_UARTB) || defined(TRICE_RTT0) || defined(TRICE_CGO)
+#error TRICE_LOG_OVER_MODBUS_FUNC24 does not allow other output (yet).
+#endif
+
+
+//! triceCountInsideStreamBuffer delivers the cout of trices despite of their length inside stream buffer.
+static int triceCountInsideStreamBuffer( void ){
+    return triceFifoDepth() >> 1;
+}
+
+//! triceFifoFetch returns the nth value from trice fifo. There is no check concerning triceFifo depth.
+//! The fifo is not changed.
+uint32_t* triceFifoFetch( unsigned n ){
+    unsigned fi = (triceFifoReadIndex + n) & TRICE_FIFO_MAX_DEPTH;
+    uint32_t* v = triceFifo[fi];
+    return v;
+}
+
+//! TriceFetch returns size of indexed trice message inside TriceFifo and copies its values to tBuf.
+//! When a modbus FC24 read request at index arrives, TriceFetch is needs to be called by the user.
+//! The host uses the modbus fifo address offset to TRICE_LOG_FIFO_MODBUS_START_ADDRESS to select the index.
+//! When TriceFetch returned 0, the host needs to read the previous index >=0 to
+//! check if the data are unchanged there. For that the TRICE_CYCLE_COUNTER value is used.
+//! When TriceFetch returned >0, the host needs to read the next index < (TRICE_FIFO_MAX_DEPTH>>1).
+//! to check if more data arrived. This way the host has to poll the last 2 index fifos cyclically.
+//! The modbus interface is not part of the trice kernel and let to the users reponsibility.
+//! Anyway, the trice tool will be able (hopefully soon) to read trice messages from modbus.
+size_t TriceFetch( int index, uint8_t* tBuf ){
+    int tCnt = triceCountInsideStreamBuffer();
+    if( index >= tCnt ){
+        return 0;
+    }
+    unsigned n = index << 1;
+    uint32_t* triceBufferStart = triceFifoFetch( n );
+    uint32_t* triceBufferLimit = triceFifoFetch( n + 1 );
+    size_t len = (triceBufferLimit - triceBufferStart) << 2;
+    memcpy(tBuf, triceBufferStart, len);
+    return len;
+}
+
+#endif
 
 void TriceLogBufferInfo( void ){
     TRICE32( id( 1135), "att: Trice stream buffer size:%5u ", TRICE_STREAM_BUFFER_SIZE );

@@ -54,7 +54,7 @@ extern "C" {
 
 //! TRICE_SINGLE_MAX_SIZE is used to truncate long dynamically generated strings and to detect the need of a stream buffer wrap.
 //! Be careful with this value: When using 12 64-bit values with a 64-bit stamp the trice size is 2 + 8 + 2 + 12*8 = 108 bytes 
-#define TRICE_SINGLE_MAX_SIZE 120 // no need for a power of 2 here
+#define TRICE_SINGLE_MAX_SIZE 40 // no need for a power of 2 here
 
 #if TRICE_MODE == TRICE_STACK_BUFFER
 #define TRICE_BUFFER_SIZE (TRICE_SINGLE_MAX_SIZE + 8) //!< TRICE_BUFFER_SIZE is the used additional max stack size for a single TRICE macro. Recommended value: TRICE_SINGLE_MAX_SIZE plus 8.
@@ -63,8 +63,8 @@ extern "C" {
 #define TRICE_FIFO_ELEMENTS 128 //!< Must be a power of 2. The half number is the amount of bufferable trices before they go out.
 #define TRICE_BUFFER_SIZE 0x800 //!< TRICE_BUFFER_SIZE is the used max buffer size for a TRICE macro burst. Recommended value: 2000.
 #elif TRICE_MODE == TRICE_DOUBLE_BUFFER 
-#define TRICE_TRANSFER_INTERVAL_MS 100 //!< TRICE_TRANSFER_INTERVAL_MS is the milliseconds interval for TRICE buffer read out. Each trigger transfers all in a half buffer stored trices. The TRICE_HALF_BUFFER_SIZE must be able to hold all trice messages possibly occouring in this time. This time should be shorter than visible delays. 
-#define TRICE_BUFFER_SIZE 0x1000 //!< TRICE_BUFFER_SIZE is the double half buffer size usable for a TRICE macro burst. Recommended value: 2000.
+#define TRICE_TRANSFER_INTERVAL_MS 10 //!< TRICE_TRANSFER_INTERVAL_MS is the milliseconds interval for TRICE buffer read out. Each trigger transfers all in a half buffer stored trices. The TRICE_HALF_BUFFER_SIZE must be able to hold all trice messages possibly occouring in this time. This time should be shorter than visible delays. 
+#define TRICE_BUFFER_SIZE 2400 //!< TRICE_BUFFER_SIZE is the double half buffer size usable for a TRICE macro burst. Recommended value: 2000.
 #endif
 
 // Enabling next line results in XTEA TriceEncryption  with the key.
@@ -87,7 +87,7 @@ extern "C" {
 #endif // #else // #ifdef XTEA_ENCRYPT_KEY
 
 //! TRICE_DATA_OFFSET is the space in front of trice data for in-buffer (T)COBS encoding. It must be be a multiple of uint32_t.
-#define TRICE_DATA_OFFSET 100
+#define TRICE_DATA_OFFSET 32
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -95,7 +95,7 @@ extern "C" {
 // 
 
 //! Enable and set channel number for SeggerRTT usage. Only channel 0 works right now for some reason.
-// #define TRICE_RTT0 0 // comment out, if you do not use RTT
+#define TRICE_RTT0 0 // comment out, if you do not use RTT
 
 //! Enable and set UART2 for serial output.
 #define TRICE_UARTA USART2 // comment out, if you do not use TRICE_UARTA
@@ -299,6 +299,18 @@ TRICE_INLINE void triceDisableTxEmptyInterruptUartB(void) {
 
 //
 ///////////////////////////////////////////////////////////////////////////////
+
+//! TRICE_LOG_OVER_MODBUS_FUNC24 allows to access the trice messages over modbus.
+//! TRICE_LOG_OVER_MODBUS_FUNC24 works only with TRICE_MODE == TRICE_STREAM_BUFFER.
+//! Other trice output channels are not supported in this mode.
+//! See comment on TriceFetch() for more details.
+//#define TRICE_LOG_OVER_MODBUS_FUNC24
+
+//! TRICE_LOG_FIFO_MODBUS_START_ADDRESS is the used virtual modbus address for modbus trice fifo read out.
+//! The trice tool assumes 47400 as default value. The limit is 47400+(TRICE_FIFO_ELEMENTS>>1).
+//! If you change this here you need to use the appropriate trice tool CLI switch.
+//#define TRICE_LOG_FIFO_MODBUS_START_ADDRESS 47400
+
 
 #ifdef __cplusplus
 }

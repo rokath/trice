@@ -315,6 +315,10 @@
 		"Type": "TRICE64_10",
 		"Strg": "rd:TRICE64_10 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
 	},
+	"1420": {
+		"Type": "TRICE16",
+		"Strg": "diag:TriceDepthMax =%4u of %d\\n"
+	},
 	"1424": {
 		"Type": "TRICE8",
 		"Strg": "tst:TRICE8 %d %d %d %d %d %d %d %d %d %d %d\\n"
@@ -1186,6 +1190,10 @@
 	"2529": {
 		"Type": "TRICE16",
 		"Strg": "rd:TRICE16 %X, %X, %X, %X\\n"
+	},
+	"2535": {
+		"Type": "TRICE16",
+		"Strg": "err:TriceDepthMax =%4u of %d (overflow!)\\n"
 	},
 	"2554": {
 		"Type": "TRICE",
