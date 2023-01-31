@@ -201,46 +201,49 @@ func (lu TriceIDLookUp) toJSON() ([]byte, error) {
 	return json.MarshalIndent(lu, "", "\t")
 }
 
-// toFile writes lut into file fn as indented JSON.
+// toFile writes lut into file fn as indented JSON and in verbose mode helpers for third party.
 func (ilu TriceIDLookUp) toFile(fSys afero.Fs, fn string) (err error) {
 	var fJSON, fC, fH, fCS afero.File
 	fJSON, err = fSys.Create(fn)
 	msg.FatalOnErr(err)
-	fnC := fn + ".c"
-	fC, err = fSys.Create(fnC)
-	msg.FatalOnErr(err)
-	fnH := fn + ".h"
-	fH, err = fSys.Create(fnH)
-	msg.FatalOnErr(err)
-	fnCS := fn + ".cs"
-	fCS, err = fSys.Create(fnCS)
-	msg.FatalOnErr(err)
 	defer func() {
 		err = fJSON.Close()
 		msg.FatalOnErr(err)
-		err = fC.Close()
-		msg.FatalOnErr(err)
-		err = fH.Close()
-		msg.FatalOnErr(err)
-		err = fCS.Close()
-		msg.FatalOnErr(err)
 	}()
-
 	var b []byte
 	b, err = ilu.toJSON()
 	msg.FatalOnErr(err)
 	_, err = fJSON.Write(b)
 	msg.FatalOnErr(err)
 
-	cs, err := ilu.toCSFmtList(fnC)
-	_, err = fCS.Write(cs)
-	msg.FatalOnErr(err)
+	if Verbose { // generate helpers for third party
+		fnC := fn + ".c"
+		fC, err = fSys.Create(fnC)
+		msg.FatalOnErr(err)
+		fnH := fn + ".h"
+		fH, err = fSys.Create(fnH)
+		msg.FatalOnErr(err)
+		fnCS := fn + ".cs"
+		fCS, err = fSys.Create(fnCS)
+		msg.FatalOnErr(err)
+		defer func() {
+			err = fC.Close()
+			msg.FatalOnErr(err)
+			err = fH.Close()
+			msg.FatalOnErr(err)
+			err = fCS.Close()
+			msg.FatalOnErr(err)
+		}()
 
-	c, err := ilu.toCFmtList(fnC)
-	_, err = fC.Write(c)
-	msg.FatalOnErr(err)
+		cs, e := ilu.toCSFmtList(fnC)
+		_, err = fCS.Write(cs)
+		msg.FatalOnErr(e)
 
-	h := []byte(`//! \file ` + fnH + `
+		c, e := ilu.toCFmtList(fnC)
+		_, err = fC.Write(c)
+		msg.FatalOnErr(e)
+
+		h := []byte(`//! \file ` + fnH + `
 //! ///////////////////////////////////////////////////////////////////////////
 
 //! generated code - do not edit!
@@ -258,8 +261,9 @@ extern const triceFormatStringList_t triceFormatStringList[];
 extern const unsigned triceFormatStringListElements;
 
 `)
-	_, err = fH.Write(h)
-	msg.FatalOnErr(err)
+		_, e = fH.Write(h)
+		msg.FatalOnErr(e)
+	}
 	return
 }
 
