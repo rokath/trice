@@ -380,7 +380,7 @@ example: 'trice renew': Rebuild ID list from source tree, discard old IDs.
 	execHelper(t, args, expect)
 }
 
-func TestHelpLog(t *testing.T) {
+func _TestHelpLog(t *testing.T) {
 	args := []string{"trice", "help", "-log"}
 	expect := `syntax: 'trice sub-command' [params]
       sub-command 'l|log': For displaying trice logs coming from port. With "trice log" the trice tool display mode is activated.

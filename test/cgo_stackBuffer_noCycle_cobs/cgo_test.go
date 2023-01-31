@@ -15,14 +15,23 @@ import (
 
 func TestTriceCheck(t *testing.T) {
 
+	osFSys := &afero.Afero{Fs: afero.NewOsFs()}
+	mmFSys := &afero.Afero{Fs: afero.NewMemMapFs()}
+	wd := "d:/repos/trice/test/"
+
+	// trice update testdata
+	//var b bytes.Buffer
+	//assert.Nil(t, args.Handler(io.Writer(&b), osFSys, []string{"trice", "u", "-i", wd + "testdata/generated_til.json", "-src", wd + "cgo_stackBuffer_noCycle_cobs"}))
+
 	// prepare
-	fSys := &afero.Afero{Fs: afero.NewMemMapFs()}
-	cgo.CopyFileIntoFSys(t, fSys, "../testdata/triceCheck.c")
+
+	cgo.CopyFileIntoFSys(t, mmFSys, "triceCheck.c", osFSys, wd+"testdata/generated_triceCheck.c") // needed for the expected results
+	cgo.CopyFileIntoFSys(t, mmFSys, "til.json", osFSys, wd+"testdata/generated_til.json")         // needed for the trice log
 
 	out := make([]byte, 32768)
 	cgo.SetTriceBuffer(out)
 
-	f, e := fSys.Open("triceCheck.c")
+	f, e := mmFSys.Open("triceCheck.c")
 	assert.Nil(t, e)
 	lines := cgo.LinesInFile(f)
 
@@ -39,21 +48,13 @@ func TestTriceCheck(t *testing.T) {
 		}
 	}
 
-	fh, e := fSys.Create("til.json")
-	assert.Nil(t, e)
-	assert.Nil(t, fh.Close())
-
-	// trice update
-	var b bytes.Buffer
-	assert.Nil(t, args.Handler(io.Writer(&b), fSys, []string{"trice", "u", "-src", "."}))
-
 	// show generated til.json for debugging
-	tBytes, e := fSys.ReadFile("til.json")
+	tBytes, e := mmFSys.ReadFile("til.json")
 	assert.Nil(t, e)
 	fmt.Println(string(tBytes))
 
 	// show modified "triceCheck.c" for debugging
-	cBytes, e := fSys.ReadFile("triceCheck.c")
+	cBytes, e := mmFSys.ReadFile("triceCheck.c")
 	assert.Nil(t, e)
 	fmt.Println(string(cBytes))
 
@@ -66,15 +67,16 @@ func TestTriceCheck(t *testing.T) {
 		length := cgo.TriceOutDepth()
 		bin := out[:length] // bin contains the binary trice data of trice message i
 
-		fmt.Println(i, bin)
-
-		assert.Nil(t, fSys.WriteFile("fileBuffer.bin", bin, 0777))
+		fmt.Println(i, bin) // // show data for debugging
+		assert.Nil(t, mmFSys.WriteFile("fileBuffer.bin", bin, 0777))
 
 		// trice log
 		var o bytes.Buffer
-		assert.Nil(t, args.Handler(io.Writer(&o), fSys, []string{"trice", "log", "-p", "FILEBUFFER", "-args", "fileBuffer.bin", "-packageFraming", "COBS", "-ts", "off", "-prefix", "off", "-tsf", "", "-li", "off", "-color", "off"}))
+		assert.Nil(t, args.Handler(io.Writer(&o), mmFSys, []string{"trice", "log", "-i", "til.json", "-p", "FILEBUFFER", "-args", "fileBuffer.bin", "-packageFraming", "COBS", "-ts", "off", "-prefix", "off", "-tsf", "", "-li", "off", "-color", "off"}))
 
 		act := o.String()
 		assert.Equal(t, exp, strings.TrimSuffix(act, "\n"))
+
+		assert.Nil(t, mmFSys.Remove("fileBuffer.bin"))
 	}
 }

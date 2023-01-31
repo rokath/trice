@@ -21,8 +21,8 @@ package cgo
 // #include "../../src/triceDoubleBuffer.c"
 // #include "../../src/tcobsv1Encode.c"
 // #include "../../src/tcobsv1Decode.c"
-// #include "../testdata/triceCheck.c"
-// #include "../testdata/cgoTrice_EditThisFile.c"
+// #include "../testdata/generated_triceCheck.c"
+// #include "../testdata/EditThisFile_cgoTrice.c"
 import "C"
 
 // #include "../../src/cobs.c"
@@ -31,7 +31,6 @@ import (
 	"bufio"
 	"fmt"
 	"io"
-	"os"
 	"path/filepath"
 	"testing"
 	"unsafe"
@@ -80,13 +79,14 @@ func LinesInFile(fh afero.File) []string { // https://www.dotnetperls.com/lines-
 	return result
 }
 
-// CopyFileIntoFSys copies fileName with its basename into fSys.
-func CopyFileIntoFSys(t *testing.T, fSys *afero.Afero, fileName string) {
-	r, e := os.Open(fileName)
+// CopyFileIntoFSys copies srcFn with its basename into destFSys as destFn.
+func CopyFileIntoFSys(t *testing.T, destFSys *afero.Afero, destFn string, srcFSys *afero.Afero, srcFn string) {
+	r, e := srcFSys.Open(srcFn)
 	assert.Nil(t, e)
 
-	w, e := fSys.Create(filepath.Base(fileName))
+	w, e := destFSys.Create(filepath.Base(destFn))
 	assert.Nil(t, e)
+
 	_, e = io.Copy(w, r)
 	assert.Nil(t, e)
 	assert.Nil(t, r.Close())
