@@ -1,0 +1,10 @@
+{
+	"7": {
+		"Type": "TRICE8",
+		"Strg": "value=%d"
+	},
+	"9": {
+		"Type": "TRICE8",
+		"Strg": "value=%d"
+	}
+}

@@ -1,4 +1,4 @@
-package cgo_test
+package cgot
 
 import (
 	"bytes"
@@ -8,7 +8,6 @@ import (
 	"testing"
 
 	"github.com/rokath/trice/internal/args"
-	cgo "github.com/rokath/trice/test/cgo_stackBuffer_noCycle_cobs"
 	"github.com/spf13/afero"
 	"github.com/tj/assert"
 )
@@ -25,46 +24,31 @@ func TestTriceCheck(t *testing.T) {
 
 	// prepare
 
-	cgo.CopyFileIntoFSys(t, mmFSys, "triceCheck.c", osFSys, wd+"testdata/generated_triceCheck.c") // needed for the expected results
-	cgo.CopyFileIntoFSys(t, mmFSys, "til.json", osFSys, wd+"testdata/generated_til.json")         // needed for the trice log
+	//cgot.CopyFileIntoFSys(t, mmFSys, "triceCheck.c", osFSys, wd+"testdata/generated_triceCheck.c") // needed for the expected results
+	CopyFileIntoFSys(t, mmFSys, "til.json", osFSys, wd+"testdata/til.json") // needed for the trice log
 
 	out := make([]byte, 32768)
-	cgo.SetTriceBuffer(out)
+	SetTriceBuffer(out)
 
-	f, e := mmFSys.Open("triceCheck.c")
-	assert.Nil(t, e)
-	lines := cgo.LinesInFile(f)
-
-	subStr := "//exp: "
-	var expVector []string
-
-	for _, line := range lines {
-		fmt.Println("line:" + line)
-		index := strings.LastIndex(line, subStr)
-		if index > 0 {
-			expOut := line[index+len(subStr)+1 : len(line)-1]
-			expVector = append(expVector, expOut)
-			fmt.Println("rest:" + expOut)
-		}
-	}
+	result := GetExpectedResults(osFSys, wd+"testdata/generated_triceCheck.c")
 
 	// show generated til.json for debugging
-	tBytes, e := mmFSys.ReadFile("til.json")
-	assert.Nil(t, e)
-	fmt.Println(string(tBytes))
+	//tBytes, e := osFSys.ReadFile(wd + "testdata/til.json")
+	//assert.Nil(t, e)
+	//fmt.Println(string(tBytes))
 
 	// show modified "triceCheck.c" for debugging
-	cBytes, e := mmFSys.ReadFile("triceCheck.c")
-	assert.Nil(t, e)
-	fmt.Println(string(cBytes))
+	//cBytes, e := osFSys.ReadFile(wd + "testdata/generated_triceCheck.c")
+	//assert.Nil(t, e)
+	//fmt.Println(string(cBytes))
 
-	for i, exp := range expVector {
+	for i, r := range result {
 
-		fmt.Println(i, "exp:"+exp)
+		fmt.Println(i, r)
 
 		// target activity
-		cgo.TriceCheck(i)
-		length := cgo.TriceOutDepth()
+		TriceCheck(r.Line)
+		length := TriceOutDepth()
 		bin := out[:length] // bin contains the binary trice data of trice message i
 
 		fmt.Println(i, bin) // // show data for debugging
@@ -75,8 +59,6 @@ func TestTriceCheck(t *testing.T) {
 		assert.Nil(t, args.Handler(io.Writer(&o), mmFSys, []string{"trice", "log", "-i", "til.json", "-p", "FILEBUFFER", "-args", "fileBuffer.bin", "-packageFraming", "COBS", "-ts", "off", "-prefix", "off", "-tsf", "", "-li", "off", "-color", "off"}))
 
 		act := o.String()
-		assert.Equal(t, exp, strings.TrimSuffix(act, "\n"))
-
-		assert.Nil(t, mmFSys.Remove("fileBuffer.bin"))
+		assert.Equal(t, r.Exp, strings.TrimSuffix(act, "\n"))
 	}
 }

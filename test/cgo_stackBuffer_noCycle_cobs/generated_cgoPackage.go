@@ -1,13 +1,13 @@
 // Copyright 2020 Thomas.Hoehenleitner [at] seerose.net
 // Use of this source code is governed by a license that can be found in the LICENSE file.
 
-// Package cgo is a helper for testing the target C-code.
+// Package cgot is a helper for testing the target C-code.
 // Each C function gets a Go wrapper which is tested in appropriate test functions.
 // For some reason inside the trice_test.go an 'import "C"' is not possible.
 // All C-files in this folder referring to the trice sources this way avoiding code duplication.
 // The Go functions defined here are not exported. They are called by the Go test functions in this package.
 // This way the test functions are executing the trice C-code compiled with the triceConfig.h here.
-package cgo
+package cgot
 
 // #include <stdint.h>
 // void TriceCheck( int n );
@@ -22,7 +22,7 @@ package cgo
 // #include "../../src/tcobsv1Encode.c"
 // #include "../../src/tcobsv1Decode.c"
 // #include "../testdata/generated_triceCheck.c"
-// #include "../testdata/EditThisFile_cgoTrice.c"
+// #include "../testdata/cgoTrice.c"
 import "C"
 
 // #include "../../src/cobs.c"
@@ -32,9 +32,11 @@ import (
 	"fmt"
 	"io"
 	"path/filepath"
+	"strings"
 	"testing"
 	"unsafe"
 
+	"github.com/rokath/trice/pkg/msg"
 	"github.com/spf13/afero"
 	"github.com/tj/assert"
 )
@@ -91,4 +93,29 @@ func CopyFileIntoFSys(t *testing.T, destFSys *afero.Afero, destFn string, srcFSy
 	assert.Nil(t, e)
 	assert.Nil(t, r.Close())
 	assert.Nil(t, w.Close())
+}
+
+type Result struct {
+	Line int
+	Exp  string
+}
+
+func GetExpectedResults(fSys *afero.Afero, filename string) (result []Result) {
+	// get all file lines into a []string
+	f, e := fSys.Open(filename)
+	msg.OnErr(e)
+	lines := LinesInFile(f)
+
+	for i, line := range lines {
+		subStr := "//exp: "
+		fmt.Printf("line%4d: %s", i, line)
+		index := strings.LastIndex(line, subStr)
+		if index > 0 {
+			var r Result
+			r.Line = i + 1 // 1st line number is 1 and not 0
+			r.Exp = line[index+len(subStr)+1 : len(line)-1]
+			result = append(result, r)
+		}
+	}
+	return
 }
