@@ -1,9 +1,17 @@
 {
-	"3082": {
+	"1420": {
+		"Type": "TRICE16",
+		"Strg": "diag:TriceDepthMax =%4u of %d\\n"
+	},
+	"2535": {
+		"Type": "TRICE16",
+		"Strg": "err:TriceDepthMax =%4u of %d (overflow!)\\n"
+	},
+	"4277": {
 		"Type": "TRICE8",
 		"Strg": "value=%d"
 	},
-	"5830": {
+	"4529": {
 		"Type": "TRICE8",
 		"Strg": "value=%d"
 	}

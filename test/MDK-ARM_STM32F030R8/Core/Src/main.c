@@ -133,8 +133,9 @@ int main(void)
 
         // send some trices every few ms
         static unsigned lastTricesTime = 0;
-        const unsigned msInterval = 2; // change this value to change trice generation speed
+        const unsigned msInterval = 3; // change this value to change trice generation speed (not below 2!)
         if( ms >= lastTricesTime + msInterval ){
+            void TriceLogDepthMax( void );
             lastTricesTime = ms;
             const int begin = 0;
             const int end = 1700;
@@ -142,11 +143,11 @@ int main(void)
             
             #if TRICE_MODE == TRICE_DOUBLE_BUFFER
             if( index == begin ){ // diagnostics
-                TriceDepthMaxDiagMessage();
+                TriceLogDepthMax();
             }
             #endif
             
-            TriceCheckSet(index); // trice messsage
+            TriceCheck(index); // trice messsage
 
             
             #if TRICE_MODE == TRICE_DOUBLE_BUFFER
@@ -155,7 +156,7 @@ int main(void)
                 uint16_t triceDepthMax = TriceDepthMax();
                 if( triceDepthMax_1 != triceDepthMax ){
                     triceDepthMax_1 = triceDepthMax;
-                    TriceDepthMaxDiagMessage();
+                    TriceLogDepthMax();
                 }
             }
             #endif

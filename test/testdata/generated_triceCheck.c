@@ -11,8 +11,17 @@
 void TriceCheck( int n ){
     switch( n ){
         default:
-        break; case __LINE__: TRICE8( id( 3082), "value=%d", 0x7F ); //exp: `value=127`
-        break; case __LINE__: TRICE8( id( 5830), "value=%d", 0x80 ); //exp: `value=-128`
+        break; case __LINE__: TRICE8( id( 4277), "value=%d", 0x7F ); //exp: `value=127`
+        break; case __LINE__: TRICE8( id( 4529), "value=%d", 0x80 ); //exp: `value=-128`
         break;
     }
 }
+
+//  void TriceLogDepthMax( void ){
+//      size_t tdm = TriceDepthMax();
+//      if( tdm <= TRICE_HALF_BUFFER_SIZE ){
+//          TRICE16( Id( 1420),"diag:TriceDepthMax =%4u of %d\n", tdm, TRICE_HALF_BUFFER_SIZE );
+//      }else{
+//          TRICE16( Id( 2535),"err:TriceDepthMax =%4u of %d (overflow!)\n", tdm, TRICE_HALF_BUFFER_SIZE );
+//      }
+//  }

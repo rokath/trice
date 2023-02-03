@@ -10,14 +10,14 @@
       <TargetName>MDK-ARM_STM32F030R8</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
-      <pCCUsed>5060960::V5.06 update 7 (build 960)::.\ARM_Compiler_5.06u7</pCCUsed>
+      <pCCUsed>5060960::V5.06 update 7 (build 960)::.\ARMCC</pCCUsed>
       <uAC6>0</uAC6>
       <TargetOption>
         <TargetCommonOption>
           <Device>STM32F030R8Tx</Device>
           <Vendor>STMicroelectronics</Vendor>
-          <PackID>Keil.STM32F0xx_DFP.2.1.1</PackID>
-          <PackURL>https://www.keil.com/pack/</PackURL>
+          <PackID>Keil.STM32F0xx_DFP.2.1.0</PackID>
+          <PackURL>http://www.keil.com/pack/</PackURL>
           <Cpu>IRAM(0x20000000-0x20001FFF) IROM(0x8000000-0x800FFFF) CLOCK(8000000) CPUTYPE("Cortex-M0") TZ</Cpu>
           <FlashUtilSpec></FlashUtilSpec>
           <StartupFile></StartupFile>
@@ -186,7 +186,6 @@
             <RvdsVP>0</RvdsVP>
             <RvdsMve>0</RvdsMve>
             <RvdsCdeCp>0</RvdsCdeCp>
-            <nBranchProt>0</nBranchProt>
             <hadIRAM2>0</hadIRAM2>
             <hadIROM2>0</hadIROM2>
             <StupSel>8</StupSel>
@@ -404,6 +403,11 @@
               <FileType>1</FileType>
               <FilePath>../Core/Src/stm32f0xx_it.c</FilePath>
             </File>
+            <File>
+              <FileName>triceCheck.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Core\Src\triceCheck.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -418,131 +422,6 @@
               <FileName>trice.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\src\trice.c</FilePath>
-            </File>
-            <File>
-              <FileName>tcobsv1Encode.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\src\tcobsv1Encode.c</FilePath>
-            </File>
-            <File>
-              <FileName>triceDoubleBuffer.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\src\triceDoubleBuffer.c</FilePath>
-            </File>
-            <File>
-              <FileName>cobs.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\src\cobs.c</FilePath>
-            </File>
-            <File>
-              <FileName>cobs.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\..\..\src\cobs.h</FilePath>
-            </File>
-            <File>
-              <FileName>internalTrice8.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\..\..\src\internalTrice8.h</FilePath>
-            </File>
-            <File>
-              <FileName>internalTrice16.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\..\..\src\internalTrice16.h</FilePath>
-            </File>
-            <File>
-              <FileName>internalTrice32.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\..\..\src\internalTrice32.h</FilePath>
-            </File>
-            <File>
-              <FileName>internalTrice64.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\..\..\src\internalTrice64.h</FilePath>
-            </File>
-            <File>
-              <FileName>ReadMe.md</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\..\..\src\ReadMe.md</FilePath>
-            </File>
-            <File>
-              <FileName>tcobs.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\..\..\src\tcobs.h</FilePath>
-            </File>
-            <File>
-              <FileName>tcobsv1Decode.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\src\tcobsv1Decode.c</FilePath>
-            </File>
-            <File>
-              <FileName>tcobsv1Internal.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\..\..\src\tcobsv1Internal.h</FilePath>
-            </File>
-            <File>
-              <FileName>trice.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\..\..\src\trice.h</FilePath>
-            </File>
-            <File>
-              <FileName>trice_test.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\..\..\src\trice_test.h</FilePath>
-            </File>
-            <File>
-              <FileName>trice8.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\src\trice8.c</FilePath>
-            </File>
-            <File>
-              <FileName>trice16.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\src\trice16.c</FilePath>
-            </File>
-            <File>
-              <FileName>trice32.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\src\trice32.c</FilePath>
-            </File>
-            <File>
-              <FileName>trice64.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\src\trice64.c</FilePath>
-            </File>
-            <File>
-              <FileName>triceCheck.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\src\triceCheck.c</FilePath>
-            </File>
-            <File>
-              <FileName>triceCodeSizeOptimization.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\..\..\src\triceCodeSizeOptimization.h</FilePath>
-            </File>
-            <File>
-              <FileName>triceStackBuffer.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\src\triceStackBuffer.c</FilePath>
-            </File>
-            <File>
-              <FileName>triceStreamBuffer.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\src\triceStreamBuffer.c</FilePath>
-            </File>
-            <File>
-              <FileName>xtea.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\src\xtea.c</FilePath>
-            </File>
-            <File>
-              <FileName>xtea.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\..\..\src\xtea.h</FilePath>
-            </File>
-            <File>
-              <FileName>triceModbusBuffer.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\src\triceModbusBuffer.c</FilePath>
             </File>
           </Files>
         </Group>

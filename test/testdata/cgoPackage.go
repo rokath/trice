@@ -18,12 +18,6 @@ package cgot
 // void CgoSetTriceBuffer( uint8_t* buf );
 // #cgo CFLAGS: -g -Wall -I../../src
 // #include "../../src/trice.c"
-// #include "../../src/xtea.c"
-// #include "../../src/triceStreamBuffer.c"
-// #include "../../src/triceStackBuffer.c"
-// #include "../../src/triceDoubleBuffer.c"
-// #include "../../src/tcobsv1Encode.c"
-// #include "../../src/tcobsv1Decode.c"
 // #include "../testdata/generated_triceCheck.c"
 // #include "../testdata/cgoTrice.c"
 import "C"

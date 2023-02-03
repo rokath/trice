@@ -101,11 +101,11 @@ typedef enum{
 #include <stdint.h> //lint !e537
 #include <string.h>
 #include "triceConfig.h"
-#include "triceCodeSizeOptimization.h"
-#include "internalTrice8.h"
-#include "internalTrice16.h"
-#include "internalTrice32.h"
-#include "internalTrice64.h"
+#include "./box/triceCodeSizeOptimization.h"
+#include "./box/trice8.h"
+#include "./box/trice16.h"
+#include "./box/trice32.h"
+#include "./box/trice64.h"
 
 unsigned TriceOutDepthCGO( void ); // only needed for testing C-sources from Go
 
@@ -242,7 +242,7 @@ void TriceOut( uint32_t* tb, size_t tLen );
 void TriceLogBufferInfo( void );
 
 void TriceTransfer( void );
-void TriceCheckSet( int index ); //!< tests
+void TriceCheck( int index ); //!< tests
 
 #ifdef TRICE_RTT0
 #include "SEGGER_RTT.h"
@@ -544,7 +544,7 @@ extern const int TriceTypeX0;
 #error TRICE_LOG_OVER_MODBUS_FUNC24 works only with TRICE_MODE == TRICE_STREAM_BUFFER.
 #endif
 
-void TriceDepthMaxDiagMessage( void );
+void TriceLogDepthMax( void );
 void TriceNonBlockingWriteModbusBuffer( uint8_t const * buf, unsigned len );
 size_t TriceModbusAlsoFetch( int index, uint8_t* tBuf );
 size_t TriceModbusOnlyFetch( int index, uint8_t* tBuf );
