@@ -12,7 +12,7 @@ import (
 
 func TestLogs(t *testing.T) {
 
-	// triceLog is the log function type for executing the trice logging on binary log data in buffer as space separated numbers.
+	// triceLog is the log function for executing the trice logging on binary log data in buffer as space separated numbers.
 	// It uses the inside fSys specified til.json and returns the log output.
 	triceLog := func(t *testing.T, fSys *afero.Afero, buffer string) string {
 		var o bytes.Buffer
