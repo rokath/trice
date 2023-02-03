@@ -64,9 +64,8 @@ func triceOutDepth() int {
 	return int(C.TriceOutDepth())
 }
 
-// linesInFile does get the lines in a file and store them in a string slice. Use the bufio and os imports.
+// linesInFile does get the lines in a file and store them in a string slice.
 func linesInFile(fh afero.File) []string { // https://www.dotnetperls.com/lines-file-go
-	//f, _ := os.Open(fileName)
 	// Create new Scanner.
 	scanner := bufio.NewScanner(fh)
 	result := []string{}
