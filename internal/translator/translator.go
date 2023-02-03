@@ -145,7 +145,7 @@ func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec decode
 		}
 
 		if n == 0 {
-			if receiver.Port == "FILEBUFFER" /*&& err == io.EOF*/ && time.Since(bufferReadStartTime) > 100*time.Millisecond { // do not wait if a predefined buffer
+			if (receiver.Port == "FILEBUFFER" || receiver.Port == "BUFFER") /*&& err == io.EOF*/ && time.Since(bufferReadStartTime) > 100*time.Millisecond { // do not wait if a predefined buffer
 				if len(sw.Line) > 0 {
 					_, _ = sw.Write([]byte(`\n`)) // add newline as line end to display any started line
 				}
