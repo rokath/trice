@@ -114,14 +114,14 @@ func triceLogTest(t *testing.T, triceLog logF) {
 	//mmFSys := &afero.Afero{Fs: afero.NewMemMapFs()}
 
 	// https://stackoverflow.com/questions/23847003/golang-tests-and-working-directory
-	_, filename, _, _ := runtime.Caller(0)
-	td := path.Join(path.Dir(filename), "../testdata")
+	// _, filename, _, _ := runtime.Caller(0)
+	// td := path.Join(path.Dir(filename), "../testdata")
 
 	// CopyFileIntoFSys(t, mmFSys, "til.json", osFSys, td+"./til.json") // needed for the trice log
 	out := make([]byte, 32768)
 	setTriceBuffer(out)
 
-	result := getExpectedResults(osFSys, td+"./generated_triceCheck.c")
+	result := getExpectedResults(osFSys, testdata+"./triceCheck.c")
 
 	for i, r := range result {
 
