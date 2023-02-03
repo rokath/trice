@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 
-cp ./testdata/triceCheck.c.txt ./testdata/generated_triceCheck.c
+cp ./testdata/triceCheck.c.txt ./testdata/triceCheck.c
 rm -f ./testdata/til.json
 touch ./testdata/til.json
-trice u -src ./testdata/generated_triceCheck.c -i ./testdata/til.json
+trice u -src ./testdata/triceCheck.c -i ./testdata/til.json
 rm -f ./li.json
 
 
