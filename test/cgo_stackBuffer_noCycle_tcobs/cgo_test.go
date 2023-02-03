@@ -19,5 +19,6 @@ func TestLogs(t *testing.T) {
 		assert.Nil(t, args.Handler(io.Writer(&o), fSys, []string{"trice", "log", "-i", testDataDir + "/til.json", "-p", "BUFFER", "-args", buffer, "-ts", "off", "-prefix", "off", "-tsf", "", "-li", "off", "-color", "off"}))
 		return o.String()
 	}
+
 	triceLogTest(t, triceLog)
 }
