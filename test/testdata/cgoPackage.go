@@ -92,7 +92,6 @@ func getExpectedResults(fSys *afero.Afero, filename string) (result []results) {
 
 	for i, line := range lines {
 		subStr := "//exp: "
-		fmt.Printf("line%4d: %s", i, line)
 		index := strings.LastIndex(line, subStr)
 		if index > 0 {
 			var r results
