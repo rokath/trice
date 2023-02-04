@@ -1,3 +1,3 @@
 # `stim` executable
 
-- [x] This is the target stimulation tool.
+- [x] This is a target stimulation tool (unfinished).
