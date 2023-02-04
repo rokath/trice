@@ -4,7 +4,7 @@
 
 #include "trice.h"
 
-#if TRICE_FRAMING==TRICE_FRAMING_COBS
+#if TRICE_FRAMING==TRICE_FRAMING_COBS && !defined(TRICE_CGO)
 #include "./box/cobsEncode.c"
 #endif
 
