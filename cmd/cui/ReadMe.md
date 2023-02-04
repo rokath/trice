@@ -1,3 +1,3 @@
 # `cui` executable
 
-- [x] This is console user-interface tool experiment (unfinished)
+- [x] This is a console user-interface tool experiment (unfinished)
