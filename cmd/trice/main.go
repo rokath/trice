@@ -42,7 +42,7 @@ func doit(w io.Writer, fSys *afero.Afero) {
 	rand.Seed(time.Now().UnixNano())
 
 	e := args.Handler(w, fSys, os.Args)
-	if nil != e {
+	if e != nil {
 		fmt.Fprintln(w, error.Error(e))
 	}
 }
