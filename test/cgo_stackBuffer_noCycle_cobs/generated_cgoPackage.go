@@ -18,11 +18,9 @@ package cgot
 // void CgoSetTriceBuffer( uint8_t* buf );
 // #cgo CFLAGS: -g -Wall -I../../src
 // #include "../../src/trice.c"
-// #include "../testdata/generated_triceCheck.c"
+// #include "../testdata/triceCheck.c"
 // #include "../testdata/cgoTrice.c"
 import "C"
-
-// #include "../../src/cobs.c"
 
 import (
 	"bufio"
@@ -64,9 +62,8 @@ func triceOutDepth() int {
 	return int(C.TriceOutDepth())
 }
 
-// linesInFile does get the lines in a file and store them in a string slice. Use the bufio and os imports.
+// linesInFile does get the lines in a file and store them in a string slice.
 func linesInFile(fh afero.File) []string { // https://www.dotnetperls.com/lines-file-go
-	//f, _ := os.Open(fileName)
 	// Create new Scanner.
 	scanner := bufio.NewScanner(fh)
 	result := []string{}
@@ -93,7 +90,6 @@ func getExpectedResults(fSys *afero.Afero, filename string) (result []results) {
 
 	for i, line := range lines {
 		subStr := "//exp: "
-		fmt.Printf("line%4d: %s", i, line)
 		index := strings.LastIndex(line, subStr)
 		if index > 0 {
 			var r results
@@ -116,14 +112,14 @@ func triceLogTest(t *testing.T, triceLog logF) {
 	//mmFSys := &afero.Afero{Fs: afero.NewMemMapFs()}
 
 	// https://stackoverflow.com/questions/23847003/golang-tests-and-working-directory
-	_, filename, _, _ := runtime.Caller(0)
-	td := path.Join(path.Dir(filename), "../testdata")
+	// _, filename, _, _ := runtime.Caller(0)
+	// td := path.Join(path.Dir(filename), "../testdata")
 
 	// CopyFileIntoFSys(t, mmFSys, "til.json", osFSys, td+"./til.json") // needed for the trice log
 	out := make([]byte, 32768)
 	setTriceBuffer(out)
 
-	result := getExpectedResults(osFSys, td+"./generated_triceCheck.c")
+	result := getExpectedResults(osFSys, testDataDir+"./triceCheck.c")
 
 	for i, r := range result {
 

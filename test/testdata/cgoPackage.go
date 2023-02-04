@@ -18,11 +18,9 @@ package cgot
 // void CgoSetTriceBuffer( uint8_t* buf );
 // #cgo CFLAGS: -g -Wall -I../../src
 // #include "../../src/trice.c"
-// #include "../testdata/generated_triceCheck.c"
+// #include "../testdata/triceCheck.c"
 // #include "../testdata/cgoTrice.c"
 import "C"
-
-// #include "../../src/cobs.c"
 
 import (
 	"bufio"
@@ -121,7 +119,7 @@ func triceLogTest(t *testing.T, triceLog logF) {
 	out := make([]byte, 32768)
 	setTriceBuffer(out)
 
-	result := getExpectedResults(osFSys, testdata+"./triceCheck.c")
+	result := getExpectedResults(osFSys, testDataDir+"./triceCheck.c")
 
 	for i, r := range result {
 

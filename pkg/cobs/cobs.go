@@ -1,13 +1,13 @@
 // Package cobs implenments COBS (https://en.wikipedia.org/wiki/Consistent_Overhead_Byte_Stuffing).
 package cobs
 
-//#include "cobs.h"
-import "C"
-
 import (
 	"errors"
-	"unsafe"
 )
+
+/*
+//#include "cobs.h"
+import "C"
 
 // CEncode encodes `i` into `o` and returns number of bytes in `o`.
 // For details see https://en.wikipedia.org/wiki/Consistent_Overhead_Byte_Stuffing.
@@ -36,7 +36,7 @@ func CDecode(o, i []byte) (n int, _ error) {
 	n = int(C.COBSDecode(out, in, C.size_t(len(i))))
 	return
 }
-
+*/
 // Decode a COBS frame to a slice of bytes.
 //
 // decoded := dec[:n]
