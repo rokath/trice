@@ -7,7 +7,7 @@ require (
 	github.com/fsnotify/fsnotify v1.6.0
 	github.com/mgutz/ansi v0.0.0-20200706080929-d51e80ef957d
 	github.com/pkg/errors v0.9.1
-	github.com/rokath/cobs v0.0.0-20230205111549-ddc68583b0bd
+	github.com/rokath/cobs v0.0.0-20230205164222-7ee168b7864d
 	github.com/rokath/tcobs v0.0.0-20230205132339-8d91e904310e
 	github.com/spf13/afero v1.9.3
 	github.com/stretchr/testify v1.8.1
