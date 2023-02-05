@@ -1,13 +1,13 @@
 {
+	"14": {
+		"Type": "TRICE8",
+		"Strg": "value=%d"
+	},
 	"1420": {
 		"Type": "TRICE16",
 		"Strg": "diag:TriceDepthMax =%4u of %d\\n"
 	},
-	"15": {
-		"Type": "TRICE8",
-		"Strg": "value=%d"
-	},
-	"16": {
+	"24": {
 		"Type": "TRICE8",
 		"Strg": "value=%d"
 	},

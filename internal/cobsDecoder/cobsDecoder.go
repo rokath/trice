@@ -13,11 +13,11 @@ import (
 	"strings"
 	"sync"
 
+	cobs "github.com/rokath/cobs/go"
 	"github.com/rokath/trice/internal/decoder"
 	"github.com/rokath/trice/internal/emitter"
 	"github.com/rokath/trice/internal/id"
 	"github.com/rokath/trice/pkg/cipher"
-	"github.com/rokath/trice/pkg/cobs"
 )
 
 const (

@@ -1,27 +1,35 @@
 module github.com/rokath/trice
 
-go 1.13
+go 1.19
 
 require (
-	bazil.org/fuse v0.0.0-20221210232012-5a1c75a4f691 // indirect
-	github.com/AndrusGerman/vfs v1.0.1 // indirect
-	github.com/absfs/absfs v0.0.0-20200602175035-e49edc9fef15 // indirect
-	github.com/absfs/inode v0.0.0-20190804195220-b7cd14cdd0dc // indirect
-	github.com/absfs/memfs v0.0.0-20190429000831-6a320d582782 // indirect
-	github.com/awesome-gocui/gocui v1.0.1
-	github.com/bbengfort/memfs v0.0.0-20170126211245-25e7469e2bca // indirect
-	github.com/bbengfort/sequence v0.0.0-20171024122002-f10862223f7d // indirect
-	github.com/blang/vfs v1.0.0 // indirect
-	github.com/fsnotify/fsnotify v1.4.9
-	github.com/hack-pad/hackpadfs v0.1.12 // indirect
-	github.com/mattn/go-colorable v0.1.6 // indirect
-	github.com/mgutz/ansi v0.0.0-20170206155736-9520e82c474b
+	github.com/awesome-gocui/gocui v1.1.0
+	github.com/fsnotify/fsnotify v1.6.0
+	github.com/mgutz/ansi v0.0.0-20200706080929-d51e80ef957d
 	github.com/pkg/errors v0.9.1
-	github.com/psanford/memfs v0.0.0-20210214183328-a001468d78ef // indirect
-	github.com/spf13/afero v1.9.3 // indirect
-	github.com/stretchr/testify v1.7.0
+	github.com/rokath/cobs v0.0.0-20230205111549-ddc68583b0bd
+	github.com/rokath/tcobs v0.0.0-20230205132339-8d91e904310e
+	github.com/spf13/afero v1.9.3
+	github.com/stretchr/testify v1.8.1
 	github.com/tj/assert v0.0.3
 	github.com/udhos/equalfile v0.3.0
-	go.bug.st/serial v1.3.5
-	golang.org/x/crypto v0.0.0-20211108221036-ceb1ce70b4fa
+	go.bug.st/serial v1.5.0
+	golang.org/x/crypto v0.5.0
+)
+
+require (
+	github.com/creack/goselect v0.1.2 // indirect
+	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/gdamore/encoding v1.0.0 // indirect
+	github.com/gdamore/tcell/v2 v2.4.0 // indirect
+	github.com/lucasb-eyer/go-colorful v1.0.3 // indirect
+	github.com/mattn/go-colorable v0.1.13 // indirect
+	github.com/mattn/go-isatty v0.0.16 // indirect
+	github.com/mattn/go-runewidth v0.0.10 // indirect
+	github.com/pmezard/go-difflib v1.0.0 // indirect
+	github.com/rivo/uniseg v0.1.0 // indirect
+	golang.org/x/sys v0.4.0 // indirect
+	golang.org/x/term v0.4.0 // indirect
+	golang.org/x/text v0.6.0 // indirect
+	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
