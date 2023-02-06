@@ -116,10 +116,10 @@ int main(void)
         // check for external commands
         if( triceCommandFlag ){
             triceCommandFlag = 0;
-            TRICE_S( ID( 5044), "att:Executing command %s ...\n", triceCommandBuffer );
+            TRICE_S( Id(0), "att:Executing command %s ...\n", triceCommandBuffer );
             // do
-            TRICE( id( 7147), "dbg:\aHi!\n" ); // sound!
-            TRICE( ID( 2743), "att:...done\n" );
+            TRICE( Id(0), "dbg:\aHi!\n" ); // sound!
+            TRICE( Id(0), "att:...done\n" );
         }
 
         // serve trice transfer every few ms
@@ -166,7 +166,7 @@ int main(void)
                 if( triceFifoDepthMax_1 != triceFifoDepthMax || triceStreamBufferDepthMax_1 != triceStreamBufferDepthMax ){
                     triceFifoDepthMax_1 = triceFifoDepthMax;
                     triceStreamBufferDepthMax_1 = triceStreamBufferDepthMax;
-                    TRICE16( ID( 4519), "MSG:triceFifoDepthMax = %d of max %d, triceStreamBufferDepthMax = %d of max %d\n", triceFifoDepthMax, TRICE_FIFO_ELEMENTS, triceStreamBufferDepthMax, TRICE_BUFFER_SIZE );
+                    TRICE16( Id(0), "MSG:triceFifoDepthMax = %d of max %d, triceStreamBufferDepthMax = %d of max %d\n", triceFifoDepthMax, TRICE_FIFO_ELEMENTS, triceStreamBufferDepthMax, TRICE_BUFFER_SIZE );
                 }
             }
             #endif

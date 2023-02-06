@@ -500,6 +500,9 @@ extern const int TriceTypeX0;
 //! 4000 = 0100 0000 0000 0000
 #define id(n) TRICE_PUT16( 0x4000|(n));
 
+//! iD is just a code parsing helper.
+#define iD(n) (n)
+
 //! CNTC writes 7-bit byte count and 8-bit cycle counter.
 #define CNTC(count) do{ uint16_t v = ((count)<<8) | TRICE_CYCLE; TRICE_PUT16( v ); }while(0)
 

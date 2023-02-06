@@ -3,7 +3,7 @@
 cp ./testdata/triceCheck.c.txt ./testdata/triceCheck.c
 rm -f ./testdata/til.json
 touch ./testdata/til.json
-trice u -src ./testdata/triceCheck.c -i ./testdata/til.json -IDMin 8 -IDMax 31
+trice u -src ./testdata/triceCheck.c -i ./testdata/til.json -IDMin 1000 -IDMax 7999 -v
 rm -f ./li.json
 
 

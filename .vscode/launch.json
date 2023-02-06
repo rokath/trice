@@ -293,12 +293,17 @@
                     "-v",
                     "-IDMethod",
                     "random",
+                    "-IDMin",
+                    "1000",
+                    "-IDMax",
+                    "7999",
                     "-idlist",
-                    "${workspaceFolder}/til.json",
+                    "${workspaceFolder}/test/testdata/til.json",
                     "-locationInformation",
-                    "${workspaceFolder}/li.json",
+                    "${workspaceFolder}/test/testdata/li.json",
                     "-src",
-                    "${workspaceFolder}/pkg/"
+                    "${workspaceFolder}/test/testdata/triceCheck.c",
+                    "-v"
             ]
         }
     ]

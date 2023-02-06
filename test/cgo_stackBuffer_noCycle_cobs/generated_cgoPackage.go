@@ -105,15 +105,16 @@ func getExpectedResults(fSys *afero.Afero, filename string) (result []results) {
 // It uses the inside fSys specified til.json and returns the log output.
 type logF func(t *testing.T, fSys *afero.Afero, buffer string) string
 
-// triceLogTest
+// triceLogTest creates a list of expected results from testDataDir+"./triceCheck.c".
+// It loops over the result list and executes for each result the compiled C-code.
+// It passes the received binary data as buffer to the triceLog function of type logF.
+// This function is test package specific defined. The file cgoPackage.go is
+// copied into all specific test packages and compiled there together with the
+// triceConfig.h, which holds the test package specific target code configuration.
 func triceLogTest(t *testing.T, triceLog logF) {
 
 	osFSys := &afero.Afero{Fs: afero.NewOsFs()}
 	//mmFSys := &afero.Afero{Fs: afero.NewMemMapFs()}
-
-	// https://stackoverflow.com/questions/23847003/golang-tests-and-working-directory
-	// _, filename, _, _ := runtime.Caller(0)
-	// td := path.Join(path.Dir(filename), "../testdata")
 
 	// CopyFileIntoFSys(t, mmFSys, "til.json", osFSys, td+"./til.json") // needed for the trice log
 	out := make([]byte, 32768)

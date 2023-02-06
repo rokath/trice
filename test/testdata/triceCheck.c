@@ -11,8 +11,10 @@
 void TriceCheck( int n ){
     switch( n ){
         default:
-        break; case __LINE__: TRICE8( id(   14), "value=%d", 0x7F ); //exp: `value=127`
-        break; case __LINE__: TRICE8( id(   24), "value=%d", 0x80 ); //exp: `value=-128`
+        break; case __LINE__: TRICE8( ID( 3115), "value=%u", 0x7e );          //exp: `value=126`
+        break; case __LINE__: TRICE8( ID( 3516), "value=%u", 2 );             //exp: `value=2`
+        break; case __LINE__: trice8( iD( 7805), "value=%x", 0x55 );                 //exp: `value=55`
+        break; case __LINE__: TRICE8( id( 4666), "value=%d", 0x80 );          //exp: `value=-128`
         break;
     }
 }

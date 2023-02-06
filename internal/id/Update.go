@@ -28,7 +28,7 @@ const (
 	patCFile = "(\\.c|\\.cc|\\.cpp)$"
 
 	// patTrice matches any TRICE name variant  The (?i) says case-insensitive. (?U)=un-greedy -> only first match.
-	patTypNameTRICE = `(?U)(\b((TRICE((0|_0)|((8|16|32|64)*(_[0-9|S|N|B|F]*)*))))\b)` // https://regex101.com/r/vJn59K/1
+	patTypNameTRICE = `(?iU)(\b((TRICE((0|_0)|((8|16|32|64)*(_[0-9|S|N|B|F]*)*))))\b)` // https://regex101.com/r/vJn59K/1
 	//               `(?iU)(\b((TRICE((0|_0)|((8|16|32|64)*(_[0-9|S|N|B|F]*)*))))\b)` // https://regex101.com/r/vJn59K/1
 	//                `(?iU)(\b((TRICE((_(S|N|B|F)|0)|((8|16|32|64)*(_[0-9]*)*))))\b)` // https://regex101.com/r/IkIhV3/1
 	//                `     (\b((TRICE(_S|0|(8|16|32|64)*)))(_[1-9]*)*|\b)\s*\(\s*\bID\b\s*\(\s*.*[0-9]\s*\)\s*,\s*".*"\s*.*\)\s*;` // https://regex101.com/r/pPRsjf/1
@@ -134,7 +134,12 @@ func updateParamCountAndID0(w io.Writer, text string, extendMacroName bool) (str
 		idLoc := matchIDInsideTrice.FindStringIndex(triceC)
 		if nil == idLoc { // no Id(n) inside trice, so we add it
 			triceO := matchAnyTriceStart.FindString(triceC) // TRICE*( part (the trice start)
-			triceU := triceO + StampSizeId
+			var triceU string
+			if strings.Contains(triceO, "ice") {
+				triceU = triceO + " iD(0),"
+			} else {
+				triceU = triceO + StampSizeId
+			}
 			triceC = strings.Replace(triceC, triceO, triceU, 1) // insert Id(0) into trice copy
 			modified = true
 			if Verbose {
@@ -317,14 +322,14 @@ func triceIDParse(t string) (nbID string, id TriceID, found idType) {
 		return
 	}
 	var n int
-	//  _, err := fmt.Sscanf(nbID, "iD(%d", &n) // closing bracket in format string omitted intentionally // todo: patID
-	//  if nil == err {                         // because spaces after id otherwise are not tolerated
-	//  	id = TriceID(n)
-	//  	found = idTypeS8
-	//  	return
-	//  }
-	_, err := fmt.Sscanf(nbID, "ID(%d", &n) // closing bracket in format string omitted intentionally // todo: patID
+	_, err := fmt.Sscanf(nbID, "iD(%d", &n) // closing bracket in format string omitted intentionally // todo: patID
 	if nil == err {                         // because spaces after id otherwise are not tolerated
+		id = TriceID(n)
+		found = idTypeS8
+		return
+	}
+	_, err = fmt.Sscanf(nbID, "ID(%d", &n) // closing bracket in format string omitted intentionally // todo: patID
+	if nil == err {                        // because spaces after id otherwise are not tolerated
 		id = TriceID(n)
 		found = idTypeS4
 		return
@@ -500,6 +505,8 @@ func updateIDsUniqOrShared(w io.Writer, _ /*sharedIDs*/ bool, min, max TriceID, 
 			//}
 			var nID string // patch the id into text
 			switch idTypeResult {
+			case idTypeS8:
+				nID = fmt.Sprintf("iD(%5d)", id) // todo: patID
 			case idTypeS4:
 				nID = fmt.Sprintf("ID(%5d)", id) // todo: patID
 			case idTypeS2:
