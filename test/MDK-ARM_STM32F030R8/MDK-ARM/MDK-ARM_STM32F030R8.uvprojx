@@ -70,7 +70,7 @@
             <nStopU2X>0</nStopU2X>
           </BeforeCompile>
           <BeforeMake>
-            <RunUserProg1>0</RunUserProg1>
+            <RunUserProg1>1</RunUserProg1>
             <RunUserProg2>0</RunUserProg2>
             <UserProg1Name>trice u -li ../../../li.json -i ../../../til.json -src ../Core -src ../../../src</UserProg1Name>
             <UserProg2Name></UserProg2Name>
@@ -197,7 +197,7 @@
             <RoSelD>3</RoSelD>
             <RwSelD>4</RwSelD>
             <CodeSel>0</CodeSel>
-            <OptFeed>1</OptFeed>
+            <OptFeed>0</OptFeed>
             <NoZi1>0</NoZi1>
             <NoZi2>0</NoZi2>
             <NoZi3>0</NoZi3>
@@ -314,7 +314,7 @@
           </ArmAdsMisc>
           <Cads>
             <interw>1</interw>
-            <Optim>4</Optim>
+            <Optim>2</Optim>
             <oTime>0</oTime>
             <SplitLS>0</SplitLS>
             <OneElfS>0</OneElfS>
@@ -407,7 +407,7 @@
             <File>
               <FileName>triceCheck.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Core\Src\triceCheck.c</FilePath>
+              <FilePath>..\..\testdata\triceCheck.c</FilePath>
             </File>
           </Files>
         </Group>

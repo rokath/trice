@@ -369,12 +369,12 @@ void XTEAInitTable(void);
 
 //! TRICE_VARIABLE_ARGUMENTS concatenates TRICE_ with the result of COUNT_ARGUMENTS to produce something like TRICE_2 which takes a printf-format and two arguments.
 #define TRICE(  tid, fmt, ...) CONCAT2(TRICE_,  COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
-#define trice(       fmt, ...) CONCAT2(trice_,  COUNT_ARGUMENTS(__VA_ARGS__))(     fmt, ##__VA_ARGS__)
-#define Trice(       fmt, ...) CONCAT2(Trice_,  COUNT_ARGUMENTS(__VA_ARGS__))(     fmt, ##__VA_ARGS__)
-#define TRice(       fmt, ...) CONCAT2(TRice_,  COUNT_ARGUMENTS(__VA_ARGS__))(     fmt, ##__VA_ARGS__)
-#define triceM( tid, fmt, ...) CONCAT2(triceM_, COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
-#define TriceM( tid, fmt, ...) CONCAT2(triceM_, COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
-#define TRiceM( tid, fmt, ...) CONCAT2(triceM_, COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
+#define trice(  tid, fmt, ...) CONCAT2(trice_,  COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
+#define Trice(  tid, fmt, ...) CONCAT2(Trice_,  COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
+#define TRice(  tid, fmt, ...) CONCAT2(TRice_,  COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
+//#define triceM( tid, fmt, ...) CONCAT2(triceM_, COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
+//#define TriceM( tid, fmt, ...) CONCAT2(TriceM_, COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
+//#define TRiceM( tid, fmt, ...) CONCAT2(TRiceM_, COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
 
 
 

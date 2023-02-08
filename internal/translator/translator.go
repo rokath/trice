@@ -12,13 +12,13 @@ import (
 	"time"
 
 	"github.com/rokath/trice/internal/charDecoder"
-	"github.com/rokath/trice/internal/cobsDecoder"
 	"github.com/rokath/trice/internal/decoder"
 	"github.com/rokath/trice/internal/dumpDecoder"
 	"github.com/rokath/trice/internal/emitter"
 	"github.com/rokath/trice/internal/id"
 	"github.com/rokath/trice/internal/keybcmd"
 	"github.com/rokath/trice/internal/receiver"
+	"github.com/rokath/trice/internal/tleDecoder"
 	"github.com/rokath/trice/internal/trexDecoder"
 	"github.com/rokath/trice/pkg/msg"
 )
@@ -57,7 +57,7 @@ func Translate(w io.Writer, sw *emitter.TriceLineComposer, lut id.TriceIDLookUp,
 	}
 	switch strings.ToUpper(Encoding) {
 	case "TLE", "COBS":
-		dec = cobsDecoder.New(w, lut, m, li, rwc, endian)
+		dec = tleDecoder.New(w, lut, m, li, rwc, endian)
 		//cobsVariantDecode = cobs.Decode
 		//  case "COBSFF":
 		//  	dec = newCOBSDecoder(w, lut, m, rc, endian)

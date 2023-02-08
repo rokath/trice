@@ -1,26 +1,410 @@
 {
-	"1420": {
+	"1186": {
+		"Type": "trice16",
+		"Strg": "value=%d\\n"
+	},
+	"1283": {
+		"Type": "Trice8",
+		"Strg": "msg:value=%u\\n"
+	},
+	"1304": {
+		"Type": "TRice8_1",
+		"Strg": "msg:value=%u\\n"
+	},
+	"1344": {
+		"Type": "TRICE8_1",
+		"Strg": "msg:value=%u\\n"
+	},
+	"1364": {
+		"Type": "trice8",
+		"Strg": "value=%d\\n"
+	},
+	"1396": {
+		"Type": "trice8_1",
+		"Strg": "value=%d\\n"
+	},
+	"1408": {
+		"Type": "Trice_1",
+		"Strg": "value=%d\\n"
+	},
+	"1444": {
+		"Type": "TRICE8_1",
+		"Strg": "value=%d\\n"
+	},
+	"1472": {
+		"Type": "Trice16",
+		"Strg": "msg:value=%u\\n"
+	},
+	"1645": {
+		"Type": "Trice8_1",
+		"Strg": "value=%d\\n"
+	},
+	"1673": {
+		"Type": "trice16_1",
+		"Strg": "msg:value=%u\\n"
+	},
+	"1792": {
+		"Type": "TRICE8",
+		"Strg": "msg:value=%u\\n"
+	},
+	"1889": {
+		"Type": "TRICE64_1",
+		"Strg": "msg:value=%u\\n"
+	},
+	"1985": {
+		"Type": "TRice64",
+		"Strg": "msg:value=%u\\n"
+	},
+	"2078": {
+		"Type": "TRICE32",
+		"Strg": "msg:value=%u\\n"
+	},
+	"2094": {
+		"Type": "Trice8",
+		"Strg": "value=%d\\n"
+	},
+	"2139": {
+		"Type": "TRice16",
+		"Strg": "msg:value=%u\\n"
+	},
+	"2181": {
+		"Type": "TRICE64",
+		"Strg": "msg:value=%u\\n"
+	},
+	"2183": {
+		"Type": "TRICE",
+		"Strg": "value=%d\\n"
+	},
+	"2262": {
+		"Type": "Trice32",
+		"Strg": "msg:value=%u\\n"
+	},
+	"2339": {
+		"Type": "TRice32_1",
+		"Strg": "msg:value=%u\\n"
+	},
+	"2353": {
+		"Type": "TRICE8_1",
+		"Strg": "value=%d\\n"
+	},
+	"2495": {
+		"Type": "trice8_1",
+		"Strg": "msg:value=%u\\n"
+	},
+	"2516": {
+		"Type": "Trice16_1",
+		"Strg": "msg:value=%u\\n"
+	},
+	"2610": {
+		"Type": "Trice8_1",
+		"Strg": "msg:value=%u\\n"
+	},
+	"2704": {
+		"Type": "trice",
+		"Strg": "value=%d\\n"
+	},
+	"2718": {
+		"Type": "trice8",
+		"Strg": "msg:value=%u\\n"
+	},
+	"2731": {
+		"Type": "TRICE32_1",
+		"Strg": "msg:value=%u\\n"
+	},
+	"2756": {
+		"Type": "TRICE8_1",
+		"Strg": "msg:value=%u\\n"
+	},
+	"2840": {
 		"Type": "TRICE16",
-		"Strg": "diag:TriceDepthMax =%4u of %d\\n"
+		"Strg": "msg:value=%u\\n"
 	},
-	"2535": {
-		"Type": "TRICE16",
-		"Strg": "err:TriceDepthMax =%4u of %d (overflow!)\\n"
-	},
-	"3115": {
+	"2880": {
 		"Type": "TRICE8",
-		"Strg": "value=%u"
+		"Strg": "value=%d\\n"
 	},
-	"3516": {
-		"Type": "TRICE8",
-		"Strg": "value=%u"
+	"2978": {
+		"Type": "trice32_1",
+		"Strg": "msg:value=%u\\n"
 	},
-	"4666": {
-		"Type": "TRICE8",
-		"Strg": "value=%d"
+	"3065": {
+		"Type": "TRice8",
+		"Strg": "value=%d\\n"
 	},
-	"7805": {
+	"3155": {
+		"Type": "Trice32_1",
+		"Strg": "msg:value=%u\\n"
+	},
+	"3165": {
+		"Type": "Trice64_1",
+		"Strg": "value=%d\\n"
+	},
+	"3209": {
 		"Type": "trice8",
 		"Strg": "value=%x"
+	},
+	"3277": {
+		"Type": "TRICE8",
+		"Strg": "value=%d\\n"
+	},
+	"3309": {
+		"Type": "TRice32",
+		"Strg": "msg:value=%u\\n"
+	},
+	"3318": {
+		"Type": "TRice16",
+		"Strg": "err:TriceDepthMax =%4u of %d (overflow!)\\n"
+	},
+	"3348": {
+		"Type": "TRice8_1",
+		"Strg": "value=%d\\n"
+	},
+	"3366": {
+		"Type": "TRice16",
+		"Strg": "value=%d\\n"
+	},
+	"3451": {
+		"Type": "TRICE",
+		"Strg": "value=%d\\n"
+	},
+	"3508": {
+		"Type": "TRICE16_1",
+		"Strg": "msg:value=%u\\n"
+	},
+	"3600": {
+		"Type": "Trice16",
+		"Strg": "value=%d\\n"
+	},
+	"3647": {
+		"Type": "TRICE8",
+		"Strg": "msg:value=%u\\n"
+	},
+	"3690": {
+		"Type": "Trice16_1",
+		"Strg": "value=%d\\n"
+	},
+	"3782": {
+		"Type": "trice8_1",
+		"Strg": "value=%d\\n"
+	},
+	"3850": {
+		"Type": "Trice",
+		"Strg": "value=%d\\n"
+	},
+	"3861": {
+		"Type": "TRICE",
+		"Strg": "value=%d\\n"
+	},
+	"3908": {
+		"Type": "trice64",
+		"Strg": "value=%d\\n"
+	},
+	"4350": {
+		"Type": "trice64",
+		"Strg": "msg:value=%u\\n"
+	},
+	"4473": {
+		"Type": "TRICE8_1",
+		"Strg": "value=%d\\n"
+	},
+	"4497": {
+		"Type": "TRice16",
+		"Strg": "MSG: ?� STOP  TriceDepth = %d, TriceDepthMax = %d + %4u of %d\\n"
+	},
+	"4525": {
+		"Type": "TRice",
+		"Strg": "value=%d\\n"
+	},
+	"4537": {
+		"Type": "TRICE8",
+		"Strg": "value=%d\\n"
+	},
+	"4652": {
+		"Type": "TRICE8",
+		"Strg": "msg:value=%u\\n"
+	},
+	"4667": {
+		"Type": "TRICE8_1",
+		"Strg": "msg:value=%u\\n"
+	},
+	"4839": {
+		"Type": "TRICE16_1",
+		"Strg": "msg:value=%u\\n"
+	},
+	"5008": {
+		"Type": "trice64_1",
+		"Strg": "value=%d\\n"
+	},
+	"5102": {
+		"Type": "trice16_1",
+		"Strg": "value=%d\\n"
+	},
+	"5295": {
+		"Type": "trice64_1",
+		"Strg": "msg:value=%u\\n"
+	},
+	"5320": {
+		"Type": "Trice64",
+		"Strg": "value=%d\\n"
+	},
+	"5401": {
+		"Type": "trice32",
+		"Strg": "value=%d\\n"
+	},
+	"5425": {
+		"Type": "TRice16_1",
+		"Strg": "msg:value=%u\\n"
+	},
+	"5473": {
+		"Type": "trice16",
+		"Strg": "msg:value=%u\\n"
+	},
+	"5634": {
+		"Type": "trice8",
+		"Strg": "value=%x"
+	},
+	"5668": {
+		"Type": "Trice8_1",
+		"Strg": "value=%d\\n"
+	},
+	"5902": {
+		"Type": "TRICE16",
+		"Strg": "msg:value=%u\\n"
+	},
+	"5935": {
+		"Type": "TRICE8",
+		"Strg": "value=%d\\n"
+	},
+	"5986": {
+		"Type": "TRICE32_1",
+		"Strg": "msg:value=%u\\n"
+	},
+	"6132": {
+		"Type": "Trice8",
+		"Strg": "value=%d\\n"
+	},
+	"6161": {
+		"Type": "TRice32_1",
+		"Strg": "value=%d\\n"
+	},
+	"6245": {
+		"Type": "TRice16_1",
+		"Strg": "value=%d\\n"
+	},
+	"6246": {
+		"Type": "TRICE64",
+		"Strg": "msg:value=%u\\n"
+	},
+	"6289": {
+		"Type": "TRice_1",
+		"Strg": "value=%d\\n"
+	},
+	"6345": {
+		"Type": "Trice64_1",
+		"Strg": "msg:value=%u\\n"
+	},
+	"6366": {
+		"Type": "TRICE32_1",
+		"Strg": "msg:value=%u\\n"
+	},
+	"6386": {
+		"Type": "TRice64",
+		"Strg": "value=%d\\n"
+	},
+	"6417": {
+		"Type": "TRICE16_1",
+		"Strg": "msg:value=%u\\n"
+	},
+	"6459": {
+		"Type": "TRICE64_1",
+		"Strg": "msg:value=%u\\n"
+	},
+	"6639": {
+		"Type": "trice8",
+		"Strg": "value=%d\\n"
+	},
+	"6661": {
+		"Type": "Trice32",
+		"Strg": "value=%d\\n"
+	},
+	"6707": {
+		"Type": "trice_1",
+		"Strg": "value=%d\\n"
+	},
+	"6745": {
+		"Type": "TRICE32",
+		"Strg": "msg:value=%u\\n"
+	},
+	"6837": {
+		"Type": "TRICE64_1",
+		"Strg": "msg:value=%u\\n"
+	},
+	"6854": {
+		"Type": "TRice16",
+		"Strg": "diag:TriceDepthMax =%4u of %d\\n"
+	},
+	"6986": {
+		"Type": "TRice8_1",
+		"Strg": "value=%d\\n"
+	},
+	"7015": {
+		"Type": "TRICE64",
+		"Strg": "msg:value=%u\\n"
+	},
+	"7181": {
+		"Type": "TRice",
+		"Strg": "MSG:triceFifoDepthMax = %d of max %d, triceStreamBufferDepthMax = %d of max %d\\n"
+	},
+	"7215": {
+		"Type": "TRICE16",
+		"Strg": "msg:value=%u\\n"
+	},
+	"7256": {
+		"Type": "trice32_1",
+		"Strg": "value=%d\\n"
+	},
+	"7393": {
+		"Type": "TRice8",
+		"Strg": "msg:value=%u\\n"
+	},
+	"7435": {
+		"Type": "trice32",
+		"Strg": "msg:value=%u\\n"
+	},
+	"7482": {
+		"Type": "TRice8",
+		"Strg": "value=%d\\n"
+	},
+	"7546": {
+		"Type": "TRICE8_1",
+		"Strg": "value=%d\\n"
+	},
+	"7725": {
+		"Type": "TRice32",
+		"Strg": "value=%d\\n"
+	},
+	"7745": {
+		"Type": "TRICE",
+		"Strg": "value=%d\\n"
+	},
+	"7798": {
+		"Type": "Trice64",
+		"Strg": "msg:value=%u\\n"
+	},
+	"7805": {
+		"Type": "TRice64_1",
+		"Strg": "value=%d\\n"
+	},
+	"7814": {
+		"Type": "TRice64_1",
+		"Strg": "msg:value=%u\\n"
+	},
+	"7816": {
+		"Type": "Trice32_1",
+		"Strg": "value=%d\\n"
+	},
+	"7901": {
+		"Type": "TRICE32",
+		"Strg": "msg:value=%u\\n"
 	}
 }

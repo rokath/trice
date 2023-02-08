@@ -10,13 +10,13 @@ import (
 	"github.com/tj/assert"
 )
 
-func _TestLogs(t *testing.T) {
+func TestLogs(t *testing.T) {
 
 	// triceLog is the log function for executing the trice logging on binary log data in buffer as space separated numbers.
 	// It uses the inside fSys specified til.json and returns the log output.
 	triceLog := func(t *testing.T, fSys *afero.Afero, buffer string) string {
 		var o bytes.Buffer
-		assert.Nil(t, args.Handler(io.Writer(&o), fSys, []string{"trice", "log", "-i", testDataDir + "/til.json", "-p", "BUFFER", "-args", buffer, "-ts", "off", "-prefix", "off", "-tsf", "", "-li", "off", "-color", "off"}))
+		assert.Nil(t, args.Handler(io.Writer(&o), fSys, []string{"trice", "log", "-i", testDataDir + "/til.json", "-p", "BUFFER", "-args", buffer, "-ts", "off", "-prefix", "off", "-tsf0", "time:        ", "-tsf16", "time:%8x", "-tsf32", "time:%8x", "-li", "off", "-color", "off"}))
 		return o.String()
 	}
 

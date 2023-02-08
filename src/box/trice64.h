@@ -3,12 +3,12 @@
 *******************************************************************************/
 
 #define TRICE64(  tid, fmt, ...) CONCAT2(TRICE64_,  COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
-#define trice64(       fmt, ...) CONCAT2(trice64_,  COUNT_ARGUMENTS(__VA_ARGS__))(     fmt, ##__VA_ARGS__)
-#define Trice64(       fmt, ...) CONCAT2(Trice64_,  COUNT_ARGUMENTS(__VA_ARGS__))(     fmt, ##__VA_ARGS__)
-#define TRice64(       fmt, ...) CONCAT2(TRice64_,  COUNT_ARGUMENTS(__VA_ARGS__))(     fmt, ##__VA_ARGS__)
-#define trice64M( tid, fmt, ...) CONCAT2(trice64M_, COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
-#define Trice64M( tid, fmt, ...) CONCAT2(trice64M_, COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
-#define TRice64M( tid, fmt, ...) CONCAT2(trice64M_, COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
+#define trice64(  tid, fmt, ...) CONCAT2(trice64_,  COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
+#define Trice64(  tid, fmt, ...) CONCAT2(Trice64_,  COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
+#define TRice64(  tid, fmt, ...) CONCAT2(TRice64_,  COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
+//#define trice64M( tid, fmt, ...) CONCAT2(trice64M_, COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
+//#define Trice64M( tid, fmt, ...) CONCAT2(trice64M_, COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
+//#define TRice64M( tid, fmt, ...) CONCAT2(trice64M_, COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
 
 //!TRICE64_B expects inside pFmt only one format specifier, which is used n times by using pFmt n times.
 //! It is usable for showing n 64-bit values.
@@ -209,18 +209,18 @@
     TRICE_PUT64_12( v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 ) \
     TRICE_LEAVE
 
-#define trice64_1( fmt, v0 ) //!< trice64_1 is an empty macro
-#define trice64_2( fmt, v0, v1 ) //!< trice64_2 is an empty macro
-#define trice64_3( fmt, v0, v1, v2 ) //!< trice64_3 is an empty macro
-#define trice64_4( fmt, v0, v1, v2, v3 ) //!< trice64_4 is an empty macro
-#define trice64_5( fmt, v0, v1, v2, v3, v4 ) //!< trice64_5 is an empty macro
-#define trice64_6( fmt, v0, v1, v2, v3, v4, v5 ) //!< trice64_6 is an empty macro
-#define trice64_7( fmt, v0, v1, v2, v3, v4, v5, v6 ) //!< trice64_7 is an empty macro
-#define trice64_8( fmt, v0, v1, v2, v3, v4, v5, v6, v7 ) //!< trice64_8 is an empty macro
-#define trice64_9( fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8 ) //!< trice64_9 is an empty macro
-#define trice64_10( fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9 ) //!< trice64_10 is an empty macro
-#define trice64_11( fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10 ) //!< trice64_11 is an empty macro
-#define trice64_12( fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 ) //!< trice64_12 is an empty macro
+//  #define trice64_1( fmt, v0 ) //!< trice64_1 is an empty macro
+//  #define trice64_2( fmt, v0, v1 ) //!< trice64_2 is an empty macro
+//  #define trice64_3( fmt, v0, v1, v2 ) //!< trice64_3 is an empty macro
+//  #define trice64_4( fmt, v0, v1, v2, v3 ) //!< trice64_4 is an empty macro
+//  #define trice64_5( fmt, v0, v1, v2, v3, v4 ) //!< trice64_5 is an empty macro
+//  #define trice64_6( fmt, v0, v1, v2, v3, v4, v5 ) //!< trice64_6 is an empty macro
+//  #define trice64_7( fmt, v0, v1, v2, v3, v4, v5, v6 ) //!< trice64_7 is an empty macro
+//  #define trice64_8( fmt, v0, v1, v2, v3, v4, v5, v6, v7 ) //!< trice64_8 is an empty macro
+//  #define trice64_9( fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8 ) //!< trice64_9 is an empty macro
+//  #define trice64_10( fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9 ) //!< trice64_10 is an empty macro
+//  #define trice64_11( fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10 ) //!< trice64_11 is an empty macro
+//  #define trice64_12( fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 ) //!< trice64_12 is an empty macro
 
 //! trice64m_1 writes trice data as fast as possible in a buffer.
 //! \param id is a 16 bit Trice id in upper 2 bytes of a 32 bit value
@@ -297,18 +297,18 @@
     TRICE_PUT64_12( v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 ) \
     TRICE_LEAVE
 
-#define trice64M_1( tid,  fmt, v0 ) trice64fn_1( tid,  (uint64_t)(v0) ) //!< trice64M_1 is a macro calling a function to reduce code size.
-#define trice64M_2( tid,  fmt, v0, v1 ) trice64fn_2( tid,  (uint64_t)(v0), (uint64_t)(v1) ) //!< trice64M_2 is a macro calling a function to reduce code size.
-#define trice64M_3( tid,  fmt, v0, v1, v2 ) trice64fn_3( tid,  (uint64_t)(v0), (uint64_t)(v1), (uint64_t)(v2) ) //!< trice64M_3 is a macro calling a function to reduce code size.
-#define trice64M_4( tid,  fmt, v0, v1, v2, v3 ) trice64fn_4( tid,  (uint64_t)(v0), (uint64_t)(v1), (uint64_t)(v2), (uint64_t)(v3) ) //!< trice64M_4 is a macro calling a function to reduce code size.
-#define trice64M_5( tid,  fmt, v0, v1, v2, v3, v4 ) trice64fn_5( tid,  (uint64_t)v0, (uint64_t)(v1), (uint64_t)(v2), (uint64_t)(v3), (uint64_t)(v4) ) //!< trice64M_5 is a macro calling a function to reduce code size.
-#define trice64M_6( tid,  fmt, v0, v1, v2, v3, v4, v5 ) trice64fn_6( tid,  (uint64_t)(v0), (uint64_t)(v1), (uint64_t)(v2), (uint64_t)(v3), (uint64_t)(v4), (uint64_t)(v5) ) //!< trice64M_6 is a macro calling a function to reduce code size.
-#define trice64M_7( tid,  fmt, v0, v1, v2, v3, v4, v5, v6 ) trice64fn_7( tid,  (uint64_t)(v0), (uint64_t)(v1), (uint64_t)(v2), (uint64_t)(v3), (uint64_t)(v4), (uint64_t)(v5), (uint64_t)(v6) ) //!< trice64M_7 is a macro calling a function to reduce code size.
-#define trice64M_8( tid,  fmt, v0, v1, v2, v3, v4, v5, v6, v7 ) trice64fn_8( tid,  (uint64_t)(v0), (uint64_t)(v1), (uint64_t)(v2), (uint64_t)(v3), (uint64_t)(v4), (uint64_t)(v5), (uint64_t)(v6), (uint64_t)(v7) ) //!< trice64M_8 is a macro calling a function to reduce code size.
-#define trice64M_9( tid,  fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8 ) trice64fn_9( tid, (uint64_t)(v0), (uint64_t)(v1), (uint64_t)(v2), (uint64_t)(v3), (uint64_t)(v4), (uint64_t)(v5), (uint64_t)(v6), (uint64_t)(v7), (uint64_t)(v8) ) //!< trice64M_9 is a macro calling a function to reduce code size.
-#define trice64M_10( tid, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9 ) trice64fn_10( tid, (uint64_t)(v0), (uint64_t)(v1), (uint64_t)(v2), (uint64_t)(v3), (uint64_t)(v4), (uint64_t)(v5), (uint64_t)(v6), (uint64_t)(v7), (uint64_t)(v8), (uint64_t)(v9) ) //!< trice64M_10 is a macro calling a function to reduce code size.
-#define trice64M_11( tid, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10 ) trice64fn_11( tid, (uint64_t)(v0), (uint64_t)(v1), (uint64_t)(v2), (uint64_t)(v3), (uint64_t)(v4), (uint64_t)(v5), (uint64_t)(v6), (uint64_t)(v7), (uint64_t)(v8), (uint64_t)(v9), (uint64_t)(v10) ) //!< trice64M_11 is a macro calling a function to reduce code size.
-#define trice64M_12( tid, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 ) trice64fn_12( tid, (uint64_t)(v0), (uint64_t)(v1), (uint64_t)(v2), (uint64_t)(v3), (uint64_t)(v4), (uint64_t)(v5), (uint64_t)(v6), (uint64_t)(v7), (uint64_t)(v8), (uint64_t)(v9), (uint64_t)(v10), (uint64_t)(v11) ) //!< trice64M_12 is a macro calling a function to reduce code size.
+#define trice64_1( tid,  fmt, v0 ) trice64fn_1( tid,  (uint64_t)(v0) ) //!< trice64M_1 is a macro calling a function to reduce code size.
+#define trice64_2( tid,  fmt, v0, v1 ) trice64fn_2( tid,  (uint64_t)(v0), (uint64_t)(v1) ) //!< trice64M_2 is a macro calling a function to reduce code size.
+#define trice64_3( tid,  fmt, v0, v1, v2 ) trice64fn_3( tid,  (uint64_t)(v0), (uint64_t)(v1), (uint64_t)(v2) ) //!< trice64M_3 is a macro calling a function to reduce code size.
+#define trice64_4( tid,  fmt, v0, v1, v2, v3 ) trice64fn_4( tid,  (uint64_t)(v0), (uint64_t)(v1), (uint64_t)(v2), (uint64_t)(v3) ) //!< trice64M_4 is a macro calling a function to reduce code size.
+#define trice64_5( tid,  fmt, v0, v1, v2, v3, v4 ) trice64fn_5( tid,  (uint64_t)v0, (uint64_t)(v1), (uint64_t)(v2), (uint64_t)(v3), (uint64_t)(v4) ) //!< trice64M_5 is a macro calling a function to reduce code size.
+#define trice64_6( tid,  fmt, v0, v1, v2, v3, v4, v5 ) trice64fn_6( tid,  (uint64_t)(v0), (uint64_t)(v1), (uint64_t)(v2), (uint64_t)(v3), (uint64_t)(v4), (uint64_t)(v5) ) //!< trice64M_6 is a macro calling a function to reduce code size.
+#define trice64_7( tid,  fmt, v0, v1, v2, v3, v4, v5, v6 ) trice64fn_7( tid,  (uint64_t)(v0), (uint64_t)(v1), (uint64_t)(v2), (uint64_t)(v3), (uint64_t)(v4), (uint64_t)(v5), (uint64_t)(v6) ) //!< trice64M_7 is a macro calling a function to reduce code size.
+#define trice64_8( tid,  fmt, v0, v1, v2, v3, v4, v5, v6, v7 ) trice64fn_8( tid,  (uint64_t)(v0), (uint64_t)(v1), (uint64_t)(v2), (uint64_t)(v3), (uint64_t)(v4), (uint64_t)(v5), (uint64_t)(v6), (uint64_t)(v7) ) //!< trice64M_8 is a macro calling a function to reduce code size.
+#define trice64_9( tid,  fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8 ) trice64fn_9( tid, (uint64_t)(v0), (uint64_t)(v1), (uint64_t)(v2), (uint64_t)(v3), (uint64_t)(v4), (uint64_t)(v5), (uint64_t)(v6), (uint64_t)(v7), (uint64_t)(v8) ) //!< trice64M_9 is a macro calling a function to reduce code size.
+#define trice64_10( tid, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9 ) trice64fn_10( tid, (uint64_t)(v0), (uint64_t)(v1), (uint64_t)(v2), (uint64_t)(v3), (uint64_t)(v4), (uint64_t)(v5), (uint64_t)(v6), (uint64_t)(v7), (uint64_t)(v8), (uint64_t)(v9) ) //!< trice64M_10 is a macro calling a function to reduce code size.
+#define trice64_11( tid, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10 ) trice64fn_11( tid, (uint64_t)(v0), (uint64_t)(v1), (uint64_t)(v2), (uint64_t)(v3), (uint64_t)(v4), (uint64_t)(v5), (uint64_t)(v6), (uint64_t)(v7), (uint64_t)(v8), (uint64_t)(v9), (uint64_t)(v10) ) //!< trice64M_11 is a macro calling a function to reduce code size.
+#define trice64_12( tid, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 ) trice64fn_12( tid, (uint64_t)(v0), (uint64_t)(v1), (uint64_t)(v2), (uint64_t)(v3), (uint64_t)(v4), (uint64_t)(v5), (uint64_t)(v6), (uint64_t)(v7), (uint64_t)(v8), (uint64_t)(v9), (uint64_t)(v10), (uint64_t)(v11) ) //!< trice64M_12 is a macro calling a function to reduce code size.
 
 void trice64fn_1( uint16_t tid,  uint64_t v0 );
 void trice64fn_2( uint16_t tid,  uint64_t v0, uint64_t v1 );
@@ -323,18 +323,18 @@ void trice64fn_10( uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t
 void trice64fn_11( uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t v3, uint64_t v4, uint64_t v5, uint64_t v6, uint64_t v7, uint64_t v8, uint64_t v9, uint64_t v10 );
 void trice64fn_12( uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t v3, uint64_t v4, uint64_t v5, uint64_t v6, uint64_t v7, uint64_t v8, uint64_t v9, uint64_t v10, uint64_t v11 );
 
-#define Trice64_1( fmt, v0 ) //!< Trice64_1 is an empty macro
-#define Trice64_2( fmt, v0, v1 ) //!< Trice64_2 is an empty macro
-#define Trice64_3( fmt, v0, v1, v2 ) //!< Trice64_3 is an empty macro
-#define Trice64_4( fmt, v0, v1, v2, v3 ) //!< Trice64_4 is an empty macro
-#define Trice64_5( fmt, v0, v1, v2, v3, v4 ) //!< Trice64_5 is an empty macro
-#define Trice64_6( fmt, v0, v1, v2, v3, v4, v5 ) //!< Trice64_6 is an empty macro
-#define Trice64_7( fmt, v0, v1, v2, v3, v4, v5, v6 ) //!< Trice64_7 is an empty macro
-#define Trice64_8( fmt, v0, v1, v2, v3, v4, v5, v6, v7 ) //!< Trice64_8 is an empty macro
-#define Trice64_9( fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8 ) //!< Trice64_9 is an empty macro
-#define Trice64_10( fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9 ) //!< Trice64_10 is an empty macro
-#define Trice64_11( fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10 ) //!< Trice64_11 is an empty macro
-#define Trice64_12( fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 ) //!< Trice64_12 is an empty macro
+//  #define Trice64_1( fmt, v0 ) //!< Trice64_1 is an empty macro
+//  #define Trice64_2( fmt, v0, v1 ) //!< Trice64_2 is an empty macro
+//  #define Trice64_3( fmt, v0, v1, v2 ) //!< Trice64_3 is an empty macro
+//  #define Trice64_4( fmt, v0, v1, v2, v3 ) //!< Trice64_4 is an empty macro
+//  #define Trice64_5( fmt, v0, v1, v2, v3, v4 ) //!< Trice64_5 is an empty macro
+//  #define Trice64_6( fmt, v0, v1, v2, v3, v4, v5 ) //!< Trice64_6 is an empty macro
+//  #define Trice64_7( fmt, v0, v1, v2, v3, v4, v5, v6 ) //!< Trice64_7 is an empty macro
+//  #define Trice64_8( fmt, v0, v1, v2, v3, v4, v5, v6, v7 ) //!< Trice64_8 is an empty macro
+//  #define Trice64_9( fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8 ) //!< Trice64_9 is an empty macro
+//  #define Trice64_10( fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9 ) //!< Trice64_10 is an empty macro
+//  #define Trice64_11( fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10 ) //!< Trice64_11 is an empty macro
+//  #define Trice64_12( fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 ) //!< Trice64_12 is an empty macro
 
 //! Trice64m_1 writes trice data as fast as possible in a buffer.
 //! \param id is a 16 bit Trice id in upper 2 bytes of a 32 bit value
@@ -435,18 +435,18 @@ void trice64fn_12( uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t
     TRICE_PUT64_12( v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 ) \
     TRICE_LEAVE
 
-#define Trice64M_1( tid,  fmt, v0 ) Trice64fn_1( tid,  (uint64_t)(v0) ) //!< Trice64M_1 is a macro calling a function to reduce code size.
-#define Trice64M_2( tid,  fmt, v0, v1 ) Trice64fn_2( tid,  (uint64_t)(v0), (uint64_t)(v1) ) //!< Trice64M_2 is a macro calling a function to reduce code size.
-#define Trice64M_3( tid,  fmt, v0, v1, v2 ) Trice64fn_3( tid,  (uint64_t)(v0), (uint64_t)(v1), (uint64_t)(v2) ) //!< Trice64M_3 is a macro calling a function to reduce code size.
-#define Trice64M_4( tid,  fmt, v0, v1, v2, v3 ) Trice64fn_4( tid,  (uint64_t)(v0), (uint64_t)(v1), (uint64_t)(v2), (uint64_t)(v3) ) //!< Trice64M_4 is a macro calling a function to reduce code size.
-#define Trice64M_5( tid,  fmt, v0, v1, v2, v3, v4 ) Trice64fn_5( tid,  (uint64_t)v0, (uint64_t)(v1), (uint64_t)(v2), (uint64_t)(v3), (uint64_t)(v4) ) //!< Trice64M_5 is a macro calling a function to reduce code size.
-#define Trice64M_6( tid,  fmt, v0, v1, v2, v3, v4, v5 ) Trice64fn_6( tid,  (uint64_t)(v0), (uint64_t)(v1), (uint64_t)(v2), (uint64_t)(v3), (uint64_t)(v4), (uint64_t)(v5) ) //!< Trice64M_6 is a macro calling a function to reduce code size.
-#define Trice64M_7( tid,  fmt, v0, v1, v2, v3, v4, v5, v6 ) Trice64fn_7( tid,  (uint64_t)(v0), (uint64_t)(v1), (uint64_t)(v2), (uint64_t)(v3), (uint64_t)(v4), (uint64_t)(v5), (uint64_t)(v6) ) //!< Trice64M_7 is a macro calling a function to reduce code size.
-#define Trice64M_8( tid,  fmt, v0, v1, v2, v3, v4, v5, v6, v7 ) Trice64fn_8( tid,  (uint64_t)(v0), (uint64_t)(v1), (uint64_t)(v2), (uint64_t)(v3), (uint64_t)(v4), (uint64_t)(v5), (uint64_t)(v6), (uint64_t)(v7) ) //!< Trice64M_8 is a macro calling a function to reduce code size.
-#define Trice64M_9( tid,  fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8 ) Trice64fn_9( tid, (uint64_t)(v0), (uint64_t)(v1), (uint64_t)(v2), (uint64_t)(v3), (uint64_t)(v4), (uint64_t)(v5), (uint64_t)(v6), (uint64_t)(v7), (uint64_t)(v8) ) //!< Trice64M_9 is a macro calling a function to reduce code size.
-#define Trice64M_10( tid, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9 ) Trice64fn_10( tid, (uint64_t)(v0), (uint64_t)(v1), (uint64_t)(v2), (uint64_t)(v3), (uint64_t)(v4), (uint64_t)(v5), (uint64_t)(v6), (uint64_t)(v7), (uint64_t)(v8), (uint64_t)(v9) ) //!< Trice64M_10 is a macro calling a function to reduce code size.
-#define Trice64M_11( tid, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10 ) Trice64fn_11( tid, (uint64_t)(v0), (uint64_t)(v1), (uint64_t)(v2), (uint64_t)(v3), (uint64_t)(v4), (uint64_t)(v5), (uint64_t)(v6), (uint64_t)(v7), (uint64_t)(v8), (uint64_t)(v9), (uint64_t)(v10) ) //!< Trice64M_11 is a macro calling a function to reduce code size.
-#define Trice64M_12( tid, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 ) Trice64fn_12( tid, (uint64_t)(v0), (uint64_t)(v1), (uint64_t)(v2), (uint64_t)(v3), (uint64_t)(v4), (uint64_t)(v5), (uint64_t)(v6), (uint64_t)(v7), (uint64_t)(v8), (uint64_t)(v9), (uint64_t)(v10), (uint64_t)(v11) ) //!< Trice64M_12 is a macro calling a function to reduce code size.
+#define Trice64_1( tid,  fmt, v0 ) Trice64fn_1( tid,  (uint64_t)(v0) ) //!< Trice64M_1 is a macro calling a function to reduce code size.
+#define Trice64_2( tid,  fmt, v0, v1 ) Trice64fn_2( tid,  (uint64_t)(v0), (uint64_t)(v1) ) //!< Trice64M_2 is a macro calling a function to reduce code size.
+#define Trice64_3( tid,  fmt, v0, v1, v2 ) Trice64fn_3( tid,  (uint64_t)(v0), (uint64_t)(v1), (uint64_t)(v2) ) //!< Trice64M_3 is a macro calling a function to reduce code size.
+#define Trice64_4( tid,  fmt, v0, v1, v2, v3 ) Trice64fn_4( tid,  (uint64_t)(v0), (uint64_t)(v1), (uint64_t)(v2), (uint64_t)(v3) ) //!< Trice64M_4 is a macro calling a function to reduce code size.
+#define Trice64_5( tid,  fmt, v0, v1, v2, v3, v4 ) Trice64fn_5( tid,  (uint64_t)v0, (uint64_t)(v1), (uint64_t)(v2), (uint64_t)(v3), (uint64_t)(v4) ) //!< Trice64M_5 is a macro calling a function to reduce code size.
+#define Trice64_6( tid,  fmt, v0, v1, v2, v3, v4, v5 ) Trice64fn_6( tid,  (uint64_t)(v0), (uint64_t)(v1), (uint64_t)(v2), (uint64_t)(v3), (uint64_t)(v4), (uint64_t)(v5) ) //!< Trice64M_6 is a macro calling a function to reduce code size.
+#define Trice64_7( tid,  fmt, v0, v1, v2, v3, v4, v5, v6 ) Trice64fn_7( tid,  (uint64_t)(v0), (uint64_t)(v1), (uint64_t)(v2), (uint64_t)(v3), (uint64_t)(v4), (uint64_t)(v5), (uint64_t)(v6) ) //!< Trice64M_7 is a macro calling a function to reduce code size.
+#define Trice64_8( tid,  fmt, v0, v1, v2, v3, v4, v5, v6, v7 ) Trice64fn_8( tid,  (uint64_t)(v0), (uint64_t)(v1), (uint64_t)(v2), (uint64_t)(v3), (uint64_t)(v4), (uint64_t)(v5), (uint64_t)(v6), (uint64_t)(v7) ) //!< Trice64M_8 is a macro calling a function to reduce code size.
+#define Trice64_9( tid,  fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8 ) Trice64fn_9( tid, (uint64_t)(v0), (uint64_t)(v1), (uint64_t)(v2), (uint64_t)(v3), (uint64_t)(v4), (uint64_t)(v5), (uint64_t)(v6), (uint64_t)(v7), (uint64_t)(v8) ) //!< Trice64M_9 is a macro calling a function to reduce code size.
+#define Trice64_10( tid, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9 ) Trice64fn_10( tid, (uint64_t)(v0), (uint64_t)(v1), (uint64_t)(v2), (uint64_t)(v3), (uint64_t)(v4), (uint64_t)(v5), (uint64_t)(v6), (uint64_t)(v7), (uint64_t)(v8), (uint64_t)(v9) ) //!< Trice64M_10 is a macro calling a function to reduce code size.
+#define Trice64_11( tid, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10 ) Trice64fn_11( tid, (uint64_t)(v0), (uint64_t)(v1), (uint64_t)(v2), (uint64_t)(v3), (uint64_t)(v4), (uint64_t)(v5), (uint64_t)(v6), (uint64_t)(v7), (uint64_t)(v8), (uint64_t)(v9), (uint64_t)(v10) ) //!< Trice64M_11 is a macro calling a function to reduce code size.
+#define Trice64_12( tid, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 ) Trice64fn_12( tid, (uint64_t)(v0), (uint64_t)(v1), (uint64_t)(v2), (uint64_t)(v3), (uint64_t)(v4), (uint64_t)(v5), (uint64_t)(v6), (uint64_t)(v7), (uint64_t)(v8), (uint64_t)(v9), (uint64_t)(v10), (uint64_t)(v11) ) //!< Trice64M_12 is a macro calling a function to reduce code size.
 
 void Trice64fn_1( uint16_t tid,  uint64_t v0 );
 void Trice64fn_2( uint16_t tid,  uint64_t v0, uint64_t v1 );
@@ -461,18 +461,18 @@ void Trice64fn_10( uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t
 void Trice64fn_11( uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t v3, uint64_t v4, uint64_t v5, uint64_t v6, uint64_t v7, uint64_t v8, uint64_t v9, uint64_t v10 );
 void Trice64fn_12( uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t v3, uint64_t v4, uint64_t v5, uint64_t v6, uint64_t v7, uint64_t v8, uint64_t v9, uint64_t v10, uint64_t v11 );
 
-#define TRice64_1( fmt, v0 ) //!< TRice64_1 is an empty macro
-#define TRice64_2( fmt, v0, v1 ) //!< TRice64_2 is an empty macro
-#define TRice64_3( fmt, v0, v1, v2 ) //!< TRice64_3 is an empty macro
-#define TRice64_4( fmt, v0, v1, v2, v3 ) //!< TRice64_4 is an empty macro
-#define TRice64_5( fmt, v0, v1, v2, v3, v4 ) //!< TRice64_5 is an empty macro
-#define TRice64_6( fmt, v0, v1, v2, v3, v4, v5 ) //!< TRice64_6 is an empty macro
-#define TRice64_7( fmt, v0, v1, v2, v3, v4, v5, v6 ) //!< TRice64_7 is an empty macro
-#define TRice64_8( fmt, v0, v1, v2, v3, v4, v5, v6, v7 ) //!< TRice64_8 is an empty macro
-#define TRice64_9( fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8 ) //!< TRice64_9 is an empty macro
-#define TRice64_10( fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9 ) //!< TRice64_10 is an empty macro
-#define TRice64_11( fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10 ) //!< TRice64_11 is an empty macro
-#define TRice64_12( fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 ) //!< TRice64_12 is an empty macro
+//  #define TRice64_1( fmt, v0 ) //!< TRice64_1 is an empty macro
+//  #define TRice64_2( fmt, v0, v1 ) //!< TRice64_2 is an empty macro
+//  #define TRice64_3( fmt, v0, v1, v2 ) //!< TRice64_3 is an empty macro
+//  #define TRice64_4( fmt, v0, v1, v2, v3 ) //!< TRice64_4 is an empty macro
+//  #define TRice64_5( fmt, v0, v1, v2, v3, v4 ) //!< TRice64_5 is an empty macro
+//  #define TRice64_6( fmt, v0, v1, v2, v3, v4, v5 ) //!< TRice64_6 is an empty macro
+//  #define TRice64_7( fmt, v0, v1, v2, v3, v4, v5, v6 ) //!< TRice64_7 is an empty macro
+//  #define TRice64_8( fmt, v0, v1, v2, v3, v4, v5, v6, v7 ) //!< TRice64_8 is an empty macro
+//  #define TRice64_9( fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8 ) //!< TRice64_9 is an empty macro
+//  #define TRice64_10( fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9 ) //!< TRice64_10 is an empty macro
+//  #define TRice64_11( fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10 ) //!< TRice64_11 is an empty macro
+//  #define TRice64_12( fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 ) //!< TRice64_12 is an empty macro
 
 //! TRice64m_1 writes trice data as fast as possible in a buffer.
 //! \param id is a 14 bit Trice id in upper 2 bytes of a 32 bit value
@@ -573,18 +573,18 @@ void Trice64fn_12( uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t
     TRICE_PUT64_12( v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 ) \
     TRICE_LEAVE
 
-#define TRice64M_1( tid,  fmt, v0 ) TRice64fn_1( tid,  (uint64_t)(v0) ) //!< TRice64M_1 is a macro calling a function to reduce code size.
-#define TRice64M_2( tid,  fmt, v0, v1 ) TRice64fn_2( tid,  (uint64_t)(v0), (uint64_t)(v1) ) //!< TRice64M_2 is a macro calling a function to reduce code size.
-#define TRice64M_3( tid,  fmt, v0, v1, v2 ) TRice64fn_3( tid,  (uint64_t)(v0), (uint64_t)(v1), (uint64_t)(v2) ) //!< TRice64M_3 is a macro calling a function to reduce code size.
-#define TRice64M_4( tid,  fmt, v0, v1, v2, v3 ) TRice64fn_4( tid,  (uint64_t)(v0), (uint64_t)(v1), (uint64_t)(v2), (uint64_t)(v3) ) //!< TRice64M_4 is a macro calling a function to reduce code size.
-#define TRice64M_5( tid,  fmt, v0, v1, v2, v3, v4 ) TRice64fn_5( tid,  (uint64_t)v0, (uint64_t)(v1), (uint64_t)(v2), (uint64_t)(v3), (uint64_t)(v4) ) //!< TRice64M_5 is a macro calling a function to reduce code size.
-#define TRice64M_6( tid,  fmt, v0, v1, v2, v3, v4, v5 ) TRice64fn_6( tid,  (uint64_t)(v0), (uint64_t)(v1), (uint64_t)(v2), (uint64_t)(v3), (uint64_t)(v4), (uint64_t)(v5) ) //!< TRice64M_6 is a macro calling a function to reduce code size.
-#define TRice64M_7( tid,  fmt, v0, v1, v2, v3, v4, v5, v6 ) TRice64fn_7( tid,  (uint64_t)(v0), (uint64_t)(v1), (uint64_t)(v2), (uint64_t)(v3), (uint64_t)(v4), (uint64_t)(v5), (uint64_t)(v6) ) //!< TRice64M_7 is a macro calling a function to reduce code size.
-#define TRice64M_8( tid,  fmt, v0, v1, v2, v3, v4, v5, v6, v7 ) TRice64fn_8( tid,  (uint64_t)(v0), (uint64_t)(v1), (uint64_t)(v2), (uint64_t)(v3), (uint64_t)(v4), (uint64_t)(v5), (uint64_t)(v6), (uint64_t)(v7) ) //!< TRice64_64_M is a macro calling a function to reduce code size.
-#define TRice64M_9( tid,  fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8 ) TRice64fn_9( tid, (uint64_t)(v0), (uint64_t)(v1), (uint64_t)(v2), (uint64_t)(v3), (uint64_t)(v4), (uint64_t)(v5), (uint64_t)(v6), (uint64_t)(v7), (uint64_t)(v8) ) //!< TRice64M_9 is a macro calling a function to reduce code size.
-#define TRice64M_10( tid, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9 ) TRice64fn_10( tid, (uint64_t)(v0), (uint64_t)(v1), (uint64_t)(v2), (uint64_t)(v3), (uint64_t)(v4), (uint64_t)(v5), (uint64_t)(v6), (uint64_t)(v7), (uint64_t)(v8), (uint64_t)(v9) ) //!< TRice64M_10 is a macro calling a function to reduce code size.
-#define TRice64M_11( tid, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10 ) TRice64fn_11( tid, (uint64_t)(v0), (uint64_t)(v1), (uint64_t)(v2), (uint64_t)(v3), (uint64_t)(v4), (uint64_t)(v5), (uint64_t)(v6), (uint64_t)(v7), (uint64_t)(v8), (uint64_t)(v9), (uint64_t)(v10) ) //!< TRice64M_11 is a macro calling a function to reduce code size.
-#define TRice64M_12( tid, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 ) TRice64fn_12( tid, (uint64_t)(v0), (uint64_t)(v1), (uint64_t)(v2), (uint64_t)(v3), (uint64_t)(v4), (uint64_t)(v5), (uint64_t)(v6), (uint64_t)(v7), (uint64_t)(v8), (uint64_t)(v9), (uint64_t)(v10), (uint64_t)(v11) ) //!< TRice64M_12 is a macro calling a function to reduce code size.
+#define TRice64_1( tid,  fmt, v0 ) TRice64fn_1( tid,  (uint64_t)(v0) ) //!< TRice64M_1 is a macro calling a function to reduce code size.
+#define TRice64_2( tid,  fmt, v0, v1 ) TRice64fn_2( tid,  (uint64_t)(v0), (uint64_t)(v1) ) //!< TRice64M_2 is a macro calling a function to reduce code size.
+#define TRice64_3( tid,  fmt, v0, v1, v2 ) TRice64fn_3( tid,  (uint64_t)(v0), (uint64_t)(v1), (uint64_t)(v2) ) //!< TRice64M_3 is a macro calling a function to reduce code size.
+#define TRice64_4( tid,  fmt, v0, v1, v2, v3 ) TRice64fn_4( tid,  (uint64_t)(v0), (uint64_t)(v1), (uint64_t)(v2), (uint64_t)(v3) ) //!< TRice64M_4 is a macro calling a function to reduce code size.
+#define TRice64_5( tid,  fmt, v0, v1, v2, v3, v4 ) TRice64fn_5( tid,  (uint64_t)v0, (uint64_t)(v1), (uint64_t)(v2), (uint64_t)(v3), (uint64_t)(v4) ) //!< TRice64M_5 is a macro calling a function to reduce code size.
+#define TRice64_6( tid,  fmt, v0, v1, v2, v3, v4, v5 ) TRice64fn_6( tid,  (uint64_t)(v0), (uint64_t)(v1), (uint64_t)(v2), (uint64_t)(v3), (uint64_t)(v4), (uint64_t)(v5) ) //!< TRice64M_6 is a macro calling a function to reduce code size.
+#define TRice64_7( tid,  fmt, v0, v1, v2, v3, v4, v5, v6 ) TRice64fn_7( tid,  (uint64_t)(v0), (uint64_t)(v1), (uint64_t)(v2), (uint64_t)(v3), (uint64_t)(v4), (uint64_t)(v5), (uint64_t)(v6) ) //!< TRice64M_7 is a macro calling a function to reduce code size.
+#define TRice64_8( tid,  fmt, v0, v1, v2, v3, v4, v5, v6, v7 ) TRice64fn_8( tid,  (uint64_t)(v0), (uint64_t)(v1), (uint64_t)(v2), (uint64_t)(v3), (uint64_t)(v4), (uint64_t)(v5), (uint64_t)(v6), (uint64_t)(v7) ) //!< TRice64_64_M is a macro calling a function to reduce code size.
+#define TRice64_9( tid,  fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8 ) TRice64fn_9( tid, (uint64_t)(v0), (uint64_t)(v1), (uint64_t)(v2), (uint64_t)(v3), (uint64_t)(v4), (uint64_t)(v5), (uint64_t)(v6), (uint64_t)(v7), (uint64_t)(v8) ) //!< TRice64M_9 is a macro calling a function to reduce code size.
+#define TRice64_10( tid, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9 ) TRice64fn_10( tid, (uint64_t)(v0), (uint64_t)(v1), (uint64_t)(v2), (uint64_t)(v3), (uint64_t)(v4), (uint64_t)(v5), (uint64_t)(v6), (uint64_t)(v7), (uint64_t)(v8), (uint64_t)(v9) ) //!< TRice64M_10 is a macro calling a function to reduce code size.
+#define TRice64_11( tid, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10 ) TRice64fn_11( tid, (uint64_t)(v0), (uint64_t)(v1), (uint64_t)(v2), (uint64_t)(v3), (uint64_t)(v4), (uint64_t)(v5), (uint64_t)(v6), (uint64_t)(v7), (uint64_t)(v8), (uint64_t)(v9), (uint64_t)(v10) ) //!< TRice64M_11 is a macro calling a function to reduce code size.
+#define TRice64_12( tid, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 ) TRice64fn_12( tid, (uint64_t)(v0), (uint64_t)(v1), (uint64_t)(v2), (uint64_t)(v3), (uint64_t)(v4), (uint64_t)(v5), (uint64_t)(v6), (uint64_t)(v7), (uint64_t)(v8), (uint64_t)(v9), (uint64_t)(v10), (uint64_t)(v11) ) //!< TRice64M_12 is a macro calling a function to reduce code size.
 
 void TRice64fn_1( uint16_t tid,  uint64_t v0 );
 void TRice64fn_2( uint16_t tid,  uint64_t v0, uint64_t v1 );

@@ -89,13 +89,17 @@ func getExpectedResults(fSys *afero.Afero, filename string) (result []results) {
 	lines := linesInFile(f)
 
 	for i, line := range lines {
-		subStr := "//exp: "
-		index := strings.LastIndex(line, subStr)
-		if index > 0 {
-			var r results
-			r.line = i + 1 // 1st line number is 1 and not 0
-			r.exps = line[index+len(subStr)+1 : len(line)-1]
-			result = append(result, r)
+		s := strings.Split(line, "//")
+		if len(s) == 2 { // just one "//"
+			lineEnd := s[1]
+			subStr := "exp:"
+			index := strings.LastIndex(lineEnd, subStr)
+			if index >= 0 {
+				var r results
+				r.line = i + 1 // 1st line number is 1 and not 0
+				r.exps = strings.TrimSpace(lineEnd[index+len(subStr) : len(lineEnd)])
+				result = append(result, r)
+			}
 		}
 	}
 	return

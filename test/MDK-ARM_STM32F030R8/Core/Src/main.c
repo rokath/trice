@@ -116,10 +116,10 @@ int main(void)
         // check for external commands
         if( triceCommandFlag ){
             triceCommandFlag = 0;
-            TRICE_S( Id(0), "att:Executing command %s ...\n", triceCommandBuffer );
+            TRICE_S( Id( 5795), "att:Executing command %s ...\n", triceCommandBuffer );
             // do
-            TRICE( Id(0), "dbg:\aHi!\n" ); // sound!
-            TRICE( Id(0), "att:...done\n" );
+            TRICE( Id( 7073), "dbg:\aHi!\n" ); // sound!
+            TRICE( Id( 4138), "att:...done\n" );
         }
 
         // serve trice transfer every few ms
@@ -133,7 +133,7 @@ int main(void)
 
         // send some trices every few ms
         static unsigned lastTricesTime = 0;
-        const unsigned msInterval = 3; // change this value to change trice generation speed (not below 2!)
+        const unsigned msInterval = 300; // change this value to change trice generation speed (not below 2!)
         if( ms >= lastTricesTime + msInterval ){
             void TriceLogDepthMax( void );
             lastTricesTime = ms;
@@ -141,17 +141,14 @@ int main(void)
             const int end = 1700;
             static int index = 0; // begin: warning:  #3170-D: use of a const variable in a constant expression is nonstandard in C
             
-            #if TRICE_MODE == TRICE_DOUBLE_BUFFER
-            if( index == begin ){ // diagnostics
+            if( index == begin ){ // cyclic diagnostics
                 TriceLogDepthMax();
             }
-            #endif
-            
-            TriceCheck(index); // trice messsage
 
-            
+            TriceCheck(index); // trice messsage
+  
             #if TRICE_MODE == TRICE_DOUBLE_BUFFER
-            {   // diagnostics
+            { // max diagnostics
                 static uint16_t triceDepthMax_1 = 0;
                 uint16_t triceDepthMax = TriceDepthMax();
                 if( triceDepthMax_1 != triceDepthMax ){
@@ -166,7 +163,7 @@ int main(void)
                 if( triceFifoDepthMax_1 != triceFifoDepthMax || triceStreamBufferDepthMax_1 != triceStreamBufferDepthMax ){
                     triceFifoDepthMax_1 = triceFifoDepthMax;
                     triceStreamBufferDepthMax_1 = triceStreamBufferDepthMax;
-                    TRICE16( Id(0), "MSG:triceFifoDepthMax = %d of max %d, triceStreamBufferDepthMax = %d of max %d\n", triceFifoDepthMax, TRICE_FIFO_ELEMENTS, triceStreamBufferDepthMax, TRICE_BUFFER_SIZE );
+                    TRICE16( Id( 5907), "MSG:triceFifoDepthMax = %d of max %d, triceStreamBufferDepthMax = %d of max %d\n", triceFifoDepthMax, TRICE_FIFO_ELEMENTS, triceStreamBufferDepthMax, TRICE_BUFFER_SIZE );
                 }
             }
             #endif
