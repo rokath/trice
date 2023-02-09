@@ -12,7 +12,8 @@
 
 //!TRICE8_B expects inside pFmt only one format specifier, which is used n times by using pFmt n times.
 //! It is usable for showing n 8-bit values.
-#define TRICE8_B( id, pFmt, buf, n) do { TRICE_N( id, pFmt, buf, n); } while(0)
+//#define TRICE8_B( tid, pFmt, buf, n) do { TRICE_N( tid, pFmt, buf, n); } while(0)
+#define TRICE8_B TRICE_N
 
 //!TRICE8_F expects inside pFmt just a string which is assumed to be a remote function name.
 //! The trice tool displays the pFmt string followed by n times (value i).
