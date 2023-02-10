@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 cp ./testdata/triceCheck.c.txt ./testdata/triceCheck.c
-trice u -src ./testdata/triceCheck.c -i ../til.json -IDMin 1000 -IDMax 7999
+trice u -src ./testdata/triceCheck.c -i ./testdata/til.json -li ./testdata/li.json -IDMin 1000 -IDMax 7999
 
 # The file cgoPackage.go is the same in all cgo test packages, but must be inside the folders.
 # os agnostic links would be better.

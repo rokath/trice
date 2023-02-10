@@ -38,6 +38,9 @@ func SubCmdReNewList(w io.Writer, fSys *afero.Afero) (err error) {
 	lu := make(TriceIDLookUp)
 	lim := make(TriceIDLookUpLI, 4000)
 	msg.OnErr(updateList(w, fSys, lu, lim))
+	if LIFnJSON == "off" || LIFnJSON == "none" {
+		return nil
+	}
 	return lim.toFile(fSys, LIFnJSON)
 }
 
@@ -51,6 +54,9 @@ func SubCmdRefreshList(w io.Writer, fSys *afero.Afero) (err error) {
 	lu := NewLut(w, fSys, FnJSON)
 	lim := make(TriceIDLookUpLI, 4000)
 	msg.OnErr(updateList(w, fSys, lu, lim))
+	if LIFnJSON == "off" || LIFnJSON == "none" {
+		return nil
+	}
 	return lim.toFile(fSys, LIFnJSON)
 }
 
@@ -97,6 +103,9 @@ func SubCmdUpdate(w io.Writer, fSys *afero.Afero) error {
 
 	if (len(ilu) != o || listModified) && !DryRun {
 		msg.FatalOnErr(ilu.toFile(fSys, FnJSON))
+	}
+	if LIFnJSON == "off" || LIFnJSON == "none" {
+		return nil
 	}
 	return lim.toFile(fSys, LIFnJSON)
 }
