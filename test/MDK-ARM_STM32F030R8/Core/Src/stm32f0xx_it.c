@@ -282,7 +282,7 @@ void USART2_IRQHandler(void)
         LL_USART_ClearFlag_ORE(TRICE_UARTA);
     }
     if( LL_USART_IsActiveFlag_IDLE(TRICE_UARTA) ){
-        TRICE( Id( 2934), "wrn:TRICE_UARTA IDLE line detected Flag is set\n" );
+        TRICE( Id( 5067), "wrn:TRICE_UARTA IDLE line detected Flag is set\n" );
         LL_USART_ClearFlag_IDLE(TRICE_UARTA);
     }
     if( LL_USART_IsActiveFlag_TC(TRICE_UARTA) ){
@@ -290,7 +290,7 @@ void USART2_IRQHandler(void)
         LL_USART_ClearFlag_TC(TRICE_UARTA);
     }
     if( LL_USART_IsActiveFlag_nCTS(TRICE_UARTA) ){
-        TRICE( Id( 7584), "wrn:TRICE_UARTA CTS interrupt Flag is set\n" );
+        TRICE( Id( 7630), "wrn:TRICE_UARTA CTS interrupt Flag is set\n" );
         LL_USART_ClearFlag_nCTS(TRICE_UARTA);
     }
     if( LL_USART_IsActiveFlag_CTS(TRICE_UARTA) ){
@@ -301,13 +301,13 @@ void USART2_IRQHandler(void)
         LL_USART_ClearFlag_RTO(TRICE_UARTA);
     }
     if( LL_USART_IsActiveFlag_ABRE(TRICE_UARTA) ){
-        TRICE0( Id( 5241), "err:TRICE_UARTA Auto-Baud Rate Error Flag is set\n" );
+        TRICE0( Id( 6784), "err:TRICE_UARTA Auto-Baud Rate Error Flag is set\n" );
     }
     if( LL_USART_IsActiveFlag_ABR(TRICE_UARTA) ){
         TRICE( Id( 3358), "wrn:TRICE_UARTA Auto-Baud Rate Flag is set\n" );
     }
     if( LL_USART_IsActiveFlag_BUSY(TRICE_UARTA) ){
-        TRICE( Id( 3954), "inf:TRICE_UARTA Busy Flag is set\n" );
+        TRICE( Id( 7410), "inf:TRICE_UARTA Busy Flag is set\n" );
     }
     if( LL_USART_IsActiveFlag_CM(TRICE_UARTA) ){
         TRICE( Id( 4240), "wrn:TRICE_UARTA Character Match Flag is set\n" );

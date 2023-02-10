@@ -163,7 +163,7 @@ int main(void)
                 if( triceFifoDepthMax_1 != triceFifoDepthMax || triceStreamBufferDepthMax_1 != triceStreamBufferDepthMax ){
                     triceFifoDepthMax_1 = triceFifoDepthMax;
                     triceStreamBufferDepthMax_1 = triceStreamBufferDepthMax;
-                    TRICE16( Id( 5907), "MSG:triceFifoDepthMax = %d of max %d, triceStreamBufferDepthMax = %d of max %d\n", triceFifoDepthMax, TRICE_FIFO_ELEMENTS, triceStreamBufferDepthMax, TRICE_BUFFER_SIZE );
+                    TRICE16( Id( 6993), "MSG:triceFifoDepthMax = %d of max %d, triceStreamBufferDepthMax = %d of max %d\n", triceFifoDepthMax, TRICE_FIFO_ELEMENTS, triceStreamBufferDepthMax, TRICE_BUFFER_SIZE );
                 }
             }
             #endif

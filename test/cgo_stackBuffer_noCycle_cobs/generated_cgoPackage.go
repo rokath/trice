@@ -37,13 +37,16 @@ import (
 )
 
 var (
+	triceDir    string // holds the trice directory path
 	testDataDir string // holds the testdata directory path
 )
 
 // https://stackoverflow.com/questions/23847003/golang-tests-and-working-directory
 func init() {
-	_, filename, _, _ := runtime.Caller(0)
-	testDataDir = path.Join(path.Dir(filename), "../testdata")
+	_, filename, _, _ := runtime.Caller(0) // filename is the test executable inside the package dir like cgo_stackBuffer_noCycle_tcobs
+	testDir := path.Dir(filename)
+	triceDir = path.Join(testDir, "../../")
+	testDataDir = path.Join(testDir, "../testdata")
 }
 
 // setTriceBuffer tells the underlying C code where to output the trice byte stream.
