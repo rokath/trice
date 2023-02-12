@@ -444,7 +444,7 @@ static inline uint64_t aDouble( double x ){
     uint32_t limit = TRICE_SINGLE_MAX_SIZE-8; /* 8 = head + max timestamp size --> todo: consider 64-bit stamp! */ \
     uint32_t len_ = n; /* n could be a constant */ \
     if( len_ > limit ){ \
-        TRICE32( id( 6171), "wrn:Transmit buffer truncated from %u to %u\n", len_, limit ); \
+        TRICE32( id( 4325), "wrn:Transmit buffer truncated from %u to %u\n", len_, limit ); \
         len_ = limit; \
     } \
     TRICE_ENTER tid; \

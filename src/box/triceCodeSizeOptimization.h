@@ -178,7 +178,7 @@
 #define ENABLE_trice64fn_12 1
 
 // with 16-bit stamp 64-bit values functions
-#define ENABLE_Trice64fn_0  0
+#define ENABLE_Trice64fn_0  1
 #define ENABLE_Trice64fn_1  1
 #define ENABLE_Trice64fn_2  1
 #define ENABLE_Trice64fn_3  1

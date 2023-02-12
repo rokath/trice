@@ -116,9 +116,9 @@ int main(void)
         // check for external commands
         if( triceCommandFlag ){
             triceCommandFlag = 0;
-            TRICE_S( Id( 5795), "att:Executing command %s ...\n", triceCommandBuffer );
+            TRICE_S( Id( 6663), "att:Executing command %s ...\n", triceCommandBuffer );
             // do
-            TRICE( Id( 7073), "dbg:\aHi!\n" ); // sound!
+            TRICE( Id( 6583), "dbg:\aHi!\n" ); // sound!
             TRICE( Id( 4138), "att:...done\n" );
         }
 
@@ -137,8 +137,8 @@ int main(void)
         if( ms >= lastTricesTime + msInterval ){
             void TriceLogDepthMax( void );
             lastTricesTime = ms;
-            const int begin = 200;
-            const int end   = 500;
+            const int begin = 20;
+            const int end   = 400;
             static int index = 0; // begin: warning:  #3170-D: use of a const variable in a constant expression is nonstandard in C
             
             if( index == begin ){ // cyclic diagnostics
