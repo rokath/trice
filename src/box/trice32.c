@@ -3,6 +3,12 @@
 //! ///////////////////////////////////////////////////////////////////////////
 #include "trice.h"
 
+#if ENABLE_trice32fn_0 
+void trice32fn_0( uint16_t tid ){
+    trice32m_0( tid );
+}
+#endif
+
 #if ENABLE_trice32fn_1 
 void trice32fn_1( uint16_t tid, uint32_t v0 ){
     trice32m_1( tid, v0 );
@@ -75,6 +81,12 @@ void trice32fn_12( uint16_t tid, uint32_t v0, uint32_t v1, uint32_t v2, uint32_t
 }
 #endif
 
+#if ENABLE_Trice32fn_0
+void Trice32fn_0( uint16_t tid ){
+    Trice32m_0( tid );
+}
+#endif
+
 #if ENABLE_Trice32fn_1
 void Trice32fn_1( uint16_t tid, uint32_t v0 ){
     Trice32m_1( tid, v0 );
@@ -144,6 +156,12 @@ void Trice32fn_11( uint16_t tid, uint32_t v0, uint32_t v1, uint32_t v2, uint32_t
 #if ENABLE_Trice32fn_12
 void Trice32fn_12( uint16_t tid, uint32_t v0, uint32_t v1, uint32_t v2, uint32_t v3, uint32_t v4, uint32_t v5, uint32_t v6, uint32_t v7, uint32_t v8, uint32_t v9, uint32_t v10, uint32_t v11 ){
     Trice32m_12( tid, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 );
+}
+#endif
+
+#if ENABLE_TRice32fn_0
+void TRice32fn_0( uint16_t tid ){
+    TRice32m_0( tid );
 }
 #endif
 

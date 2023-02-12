@@ -133,7 +133,7 @@ int main(void)
 
         // send some trices every few ms
         static unsigned lastTricesTime = 0;
-        const unsigned msInterval = 3; // change this value to change trice generation speed (not below 2!)
+        const unsigned msInterval = 30; // change this value to change trice generation speed (not below 2!)
         if( ms >= lastTricesTime + msInterval ){
             void TriceLogDepthMax( void );
             lastTricesTime = ms;

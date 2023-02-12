@@ -28,6 +28,7 @@
 #define TRICE_CODE_SIZE_OPTIMIZATION_H_
 
 // without stamp 8-bit values functions
+#define ENABLE_trice8fn_0  1
 #define ENABLE_trice8fn_1  1
 #define ENABLE_trice8fn_2  1
 #define ENABLE_trice8fn_3  1
@@ -42,6 +43,7 @@
 #define ENABLE_trice8fn_12 1
 
 // with 16-bit stamp 8-bit values functions
+#define ENABLE_Trice8fn_0  1
 #define ENABLE_Trice8fn_1  1
 #define ENABLE_Trice8fn_2  1
 #define ENABLE_Trice8fn_3  1
@@ -56,6 +58,7 @@
 #define ENABLE_Trice8fn_12 1
 
 // with 32-bit stamp 8-bit values functions
+#define ENABLE_TRice8fn_0  1
 #define ENABLE_TRice8fn_1  1
 #define ENABLE_TRice8fn_2  1
 #define ENABLE_TRice8fn_3  1
@@ -70,6 +73,7 @@
 #define ENABLE_TRice8fn_12 1
 
 // without stamp 16-bit values functions
+#define ENABLE_trice16fn_0  1
 #define ENABLE_trice16fn_1  1
 #define ENABLE_trice16fn_2  1
 #define ENABLE_trice16fn_3  1
@@ -84,6 +88,7 @@
 #define ENABLE_trice16fn_12 1
 
 // with 16-bit stamp 16-bit values functions
+#define ENABLE_Trice16fn_0  1
 #define ENABLE_Trice16fn_1  1
 #define ENABLE_Trice16fn_2  1
 #define ENABLE_Trice16fn_3  1
@@ -98,6 +103,7 @@
 #define ENABLE_Trice16fn_12 1
 
 // with 32-bit stamp 16-bit values functions
+#define ENABLE_TRice16fn_0  1
 #define ENABLE_TRice16fn_1  1
 #define ENABLE_TRice16fn_2  1
 #define ENABLE_TRice16fn_3  1
@@ -112,6 +118,7 @@
 #define ENABLE_TRice16fn_12 1
 
 // without stamp 32-bit values functions
+#define ENABLE_trice32fn_0  1
 #define ENABLE_trice32fn_1  1
 #define ENABLE_trice32fn_2  1
 #define ENABLE_trice32fn_3  1
@@ -126,6 +133,7 @@
 #define ENABLE_trice32fn_12 1
 
 // with 16-bit stamp 32-bit values functions
+#define ENABLE_Trice32fn_0  1
 #define ENABLE_Trice32fn_1  1
 #define ENABLE_Trice32fn_2  1
 #define ENABLE_Trice32fn_3  1
@@ -140,6 +148,7 @@
 #define ENABLE_Trice32fn_12 1
 
 // with 32-bit stamp 32-bit values functions
+#define ENABLE_TRice32fn_0  1
 #define ENABLE_TRice32fn_1  1
 #define ENABLE_TRice32fn_2  1
 #define ENABLE_TRice32fn_3  1
@@ -154,6 +163,7 @@
 #define ENABLE_TRice32fn_12 1
 
 // without stamp 64-bit values functions
+#define ENABLE_trice64fn_0  1
 #define ENABLE_trice64fn_1  1
 #define ENABLE_trice64fn_2  1
 #define ENABLE_trice64fn_3  1
@@ -168,6 +178,7 @@
 #define ENABLE_trice64fn_12 1
 
 // with 16-bit stamp 64-bit values functions
+#define ENABLE_Trice64fn_0  0
 #define ENABLE_Trice64fn_1  1
 #define ENABLE_Trice64fn_2  1
 #define ENABLE_Trice64fn_3  1
@@ -182,6 +193,7 @@
 #define ENABLE_Trice64fn_12 1
 
 // with 32-bit stamp 64-bit values functions
+#define ENABLE_TRice64fn_0  1
 #define ENABLE_TRice64fn_1  1
 #define ENABLE_TRice64fn_2  1
 #define ENABLE_TRice64fn_3  1

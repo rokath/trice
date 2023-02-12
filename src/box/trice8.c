@@ -3,6 +3,12 @@
 //! ///////////////////////////////////////////////////////////////////////////
 #include "trice.h"
 
+#if ENABLE_trice8fn_0 
+void trice8fn_0( uint16_t tid ){
+    trice8m_0( tid );
+}
+#endif
+
 #if ENABLE_trice8fn_1 
 void trice8fn_1( uint16_t tid, uint8_t v0 ){
     trice8m_1( tid, v0 );
@@ -75,6 +81,12 @@ void trice8fn_12( uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, 
 }
 #endif
 
+#if ENABLE_Trice8fn_0
+void Trice8fn_0( uint16_t tid ){
+    Trice8m_0( tid );
+}
+#endif
+
 #if ENABLE_Trice8fn_1
 void Trice8fn_1( uint16_t tid, uint8_t v0 ){
     Trice8m_1( tid, v0 );
@@ -144,6 +156,12 @@ void Trice8fn_11( uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, 
 #if ENABLE_Trice8fn_12
 void Trice8fn_12( uint16_t tid, uint8_t v0, uint8_t v1, uint8_t v2, uint8_t v3, uint8_t v4, uint8_t v5, uint8_t v6, uint8_t v7, uint8_t v8, uint8_t v9, uint8_t v10, uint8_t v11 ){
     Trice8m_12( tid, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 );
+}
+#endif
+
+#if ENABLE_TRice8fn_0
+void TRice8fn_0( uint16_t tid ){
+    TRice8m_0( tid );
 }
 #endif
 

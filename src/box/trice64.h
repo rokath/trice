@@ -113,9 +113,15 @@
                                                                             TRICE_PUT64( v10 ); \
                                                                             TRICE_PUT64( v11 );
 
+//! TRICE64_0 writes trice data as fast as possible in a buffer.
+//! \param id is a 16 bit Trice id in upper 2 bytes of a 32 bit value
+#define TRICE64_0( tid, pFmt ) \
+    TRICE_ENTER tid; CNTC(0); \
+    TRICE_LEAVE
+
 //! TRICE64_1 writes trice data as fast as possible in a buffer.
 //! \param id is a 16 bit Trice id in upper 2 bytes of a 32 bit value
-//! \param v0 a 8 bit bit value
+//! \param v0 a 64 bit value
 #define TRICE64_1( tid, pFmt, v0 ) \
     TRICE_ENTER tid; CNTC(8); \
     TRICE_PUT64_1( v0 )  \
@@ -123,7 +129,7 @@
 
 //! TRICE64_2 writes trice data as fast as possible in a buffer.
 //! \param id is a 16 bit Trice id in upper 2 bytes of a 32 bit value
-//! \param v0 - v1 are 8 bit bit values
+//! \param v0 - v1 are 64 bit values
 #define TRICE64_2( id, pFmt, v0, v1 ) \
     TRICE_ENTER id; CNTC(16); \
     TRICE_PUT64_2 ( v0, v1 ); \
@@ -131,7 +137,7 @@
 
 //! TRICE64_3 writes trice data as fast as possible in a buffer.
 //! \param id is a 16 bit Trice id in upper 2 bytes of a 32 bit value
-//! \param v0 - v2 are 8 bit bit values
+//! \param v0 - v2 are 64 bit values
 #define TRICE64_3( id, pFmt, v0, v1, v2 ) \
     TRICE_ENTER id; CNTC(24); \
     TRICE_PUT64_3( v0, v1, v2 ); \
@@ -139,7 +145,7 @@
 
 //! TRICE64_4 writes trice data as fast as possible in a buffer.
 //! \param id is a 16 bit Trice id in upper 2 bytes of a 32 bit value
-//! \param v0 - v3 are 8 bit bit values
+//! \param v0 - v3 are 64 bit values
 #define TRICE64_4( id, pFmt, v0, v1, v2, v3 ) \
     TRICE_ENTER id; CNTC(32); \
     TRICE_PUT64_4( v0, v1, v2, v3  ); \
@@ -147,7 +153,7 @@
 
 //! TRICE64_5 writes trice data as fast as possible in a buffer.
 //! \param id is a 16 bit Trice id in upper 2 bytes of a 32 bit value
-//! \param v0 - v4 are 8 bit bit values
+//! \param v0 - v4 are 64 bit values
 #define TRICE64_5( id, pFmt, v0, v1, v2, v3, v4 ) \
     TRICE_ENTER id; CNTC(40); \
     TRICE_PUT64_5( v0, v1, v2, v3, v4  ); \
@@ -155,7 +161,7 @@
 
 //! TRICE64_6 writes trice data as fast as possible in a buffer.
 //! \param id is a 16 bit Trice id in upper 2 bytes of a 32 bit value
-//! \param v0 - v5 are 8 bit bit values
+//! \param v0 - v5 are 64 bit values
 #define TRICE64_6( id, pFmt, v0, v1, v2, v3, v4, v5 ) \
     TRICE_ENTER id; CNTC(48); \
     TRICE_PUT64_6( v0, v1, v2, v3, v4, v5 ); \
@@ -163,7 +169,7 @@
 
 //! TRICE64_8 writes trice data as fast as possible in a buffer.
 //! \param id is a 16 bit Trice id in upper 2 bytes of a 32 bit value
-//! \param v0 - v6 are 8 bit bit values
+//! \param v0 - v6 are 64 bit values
 #define TRICE64_7( id, pFmt, v0, v1, v2, v3, v4, v5, v6 ) \
     TRICE_ENTER id; CNTC(56); \
     TRICE_PUT64_7( v0, v1, v2, v3, v4, v5, v6 ); \
@@ -171,7 +177,7 @@
 
 //! TRICE64_8 writes trice data as fast as possible in a buffer.
 //! \param id is a 16 bit Trice id in upper 2 bytes of a 32 bit value
-//! \param v0 - v7 are 8 bit bit values
+//! \param v0 - v7 are 64 bit values
 #define TRICE64_8( id, pFmt, v0, v1, v2, v3, v4, v5, v6, v7 ) \
     TRICE_ENTER id; CNTC(64); \
     TRICE_PUT64_8( v0, v1, v2, v3, v4, v5, v6, v7 ); \
@@ -179,7 +185,7 @@
 
 //! TRICE64_8 writes trice data as fast as possible in a buffer.
 //! \param id is a 16 bit Trice id in upper 2 bytes of a 32 bit value
-//! \param v0 - v7 are 8 bit bit values
+//! \param v0 - v7 are 64 bit values
 #define TRICE64_9( id, pFmt, v0, v1, v2, v3, v4, v5, v6, v7, v8 ) \
     TRICE_ENTER id; CNTC(72); \
     TRICE_PUT64_9( v0, v1, v2, v3, v4, v5, v6, v7, v8 ); \
@@ -187,7 +193,7 @@
 
 //! TRICE64_8 writes trice data as fast as possible in a buffer.
 //! \param id is a 16 bit Trice id in upper 2 bytes of a 32 bit value
-//! \param v0 - v7 are 8 bit bit values
+//! \param v0 - v7 are 64 bit values
 #define TRICE64_10( id, pFmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9 ) \
     TRICE_ENTER id; CNTC(80); \
     TRICE_PUT64_10( v0, v1, v2, v3, v4, v5, v6, v7, v8, v9 ); \
@@ -195,7 +201,7 @@
 
 //! TRICE64_8 writes trice data as fast as possible in a buffer.
 //! \param id is a 16 bit Trice id in upper 2 bytes of a 32 bit value
-//! \param v0 - v7 are 8 bit bit values
+//! \param v0 - v7 are 64 bit values
 #define TRICE64_11( id, pFmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10 ) \
     TRICE_ENTER id; CNTC(88); \
     TRICE_PUT64_11( v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10 ); \
@@ -203,28 +209,22 @@
 
 //! TRICE64_12 writes trice data as fast as possible in a buffer.
 //! \param id is a 16 bit Trice id in upper 2 bytes of a 32 bit value
-//! \param v0 - v11 are 8 bit bit values
+//! \param v0 - v11 are 64 bit values
 #define TRICE64_12( id, pFmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 ) \
     TRICE_ENTER id; CNTC(96); \
     TRICE_PUT64_12( v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 ) \
     TRICE_LEAVE
 
-//  #define trice64_1( fmt, v0 ) //!< trice64_1 is an empty macro
-//  #define trice64_2( fmt, v0, v1 ) //!< trice64_2 is an empty macro
-//  #define trice64_3( fmt, v0, v1, v2 ) //!< trice64_3 is an empty macro
-//  #define trice64_4( fmt, v0, v1, v2, v3 ) //!< trice64_4 is an empty macro
-//  #define trice64_5( fmt, v0, v1, v2, v3, v4 ) //!< trice64_5 is an empty macro
-//  #define trice64_6( fmt, v0, v1, v2, v3, v4, v5 ) //!< trice64_6 is an empty macro
-//  #define trice64_7( fmt, v0, v1, v2, v3, v4, v5, v6 ) //!< trice64_7 is an empty macro
-//  #define trice64_8( fmt, v0, v1, v2, v3, v4, v5, v6, v7 ) //!< trice64_8 is an empty macro
-//  #define trice64_9( fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8 ) //!< trice64_9 is an empty macro
-//  #define trice64_10( fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9 ) //!< trice64_10 is an empty macro
-//  #define trice64_11( fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10 ) //!< trice64_11 is an empty macro
-//  #define trice64_12( fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 ) //!< trice64_12 is an empty macro
+//! trice64m_0 writes trice data as fast as possible in a buffer.
+//! \param id is a 16 bit Trice id in upper 2 bytes of a 32 bit value
+#define trice64m_0( tid ) \
+    TRICE_ENTER \
+    TRICE_PUT( (0<<24) | ((TRICE_CYCLE)<<16) | (0x4000|(tid)) ); \
+    TRICE_LEAVE
 
 //! trice64m_1 writes trice data as fast as possible in a buffer.
 //! \param id is a 16 bit Trice id in upper 2 bytes of a 32 bit value
-//! \param v0 a 8 bit bit value
+//! \param v0 a 64 bit value
 #define trice64m_1( tid, v0 ) \
     TRICE_ENTER \
     TRICE_PUT( (8<<24) | ((TRICE_CYCLE)<<16) | (0x4000|(tid)) ); \
@@ -297,6 +297,7 @@
     TRICE_PUT64_12( v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 ) \
     TRICE_LEAVE
 
+#define trice64_0( tid,  fmt ) trice64fn_0( tid ) //!< trice64M_1 is a macro calling a function to reduce code size.
 #define trice64_1( tid,  fmt, v0 ) trice64fn_1( tid,  (uint64_t)(v0) ) //!< trice64M_1 is a macro calling a function to reduce code size.
 #define trice64_2( tid,  fmt, v0, v1 ) trice64fn_2( tid,  (uint64_t)(v0), (uint64_t)(v1) ) //!< trice64M_2 is a macro calling a function to reduce code size.
 #define trice64_3( tid,  fmt, v0, v1, v2 ) trice64fn_3( tid,  (uint64_t)(v0), (uint64_t)(v1), (uint64_t)(v2) ) //!< trice64M_3 is a macro calling a function to reduce code size.
@@ -310,6 +311,7 @@
 #define trice64_11( tid, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10 ) trice64fn_11( tid, (uint64_t)(v0), (uint64_t)(v1), (uint64_t)(v2), (uint64_t)(v3), (uint64_t)(v4), (uint64_t)(v5), (uint64_t)(v6), (uint64_t)(v7), (uint64_t)(v8), (uint64_t)(v9), (uint64_t)(v10) ) //!< trice64M_11 is a macro calling a function to reduce code size.
 #define trice64_12( tid, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 ) trice64fn_12( tid, (uint64_t)(v0), (uint64_t)(v1), (uint64_t)(v2), (uint64_t)(v3), (uint64_t)(v4), (uint64_t)(v5), (uint64_t)(v6), (uint64_t)(v7), (uint64_t)(v8), (uint64_t)(v9), (uint64_t)(v10), (uint64_t)(v11) ) //!< trice64M_12 is a macro calling a function to reduce code size.
 
+void trice64fn_0( uint16_t tid );
 void trice64fn_1( uint16_t tid,  uint64_t v0 );
 void trice64fn_2( uint16_t tid,  uint64_t v0, uint64_t v1 );
 void trice64fn_3( uint16_t tid,  uint64_t v0, uint64_t v1, uint64_t v2 );
@@ -323,22 +325,14 @@ void trice64fn_10( uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t
 void trice64fn_11( uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t v3, uint64_t v4, uint64_t v5, uint64_t v6, uint64_t v7, uint64_t v8, uint64_t v9, uint64_t v10 );
 void trice64fn_12( uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t v3, uint64_t v4, uint64_t v5, uint64_t v6, uint64_t v7, uint64_t v8, uint64_t v9, uint64_t v10, uint64_t v11 );
 
-//  #define Trice64_1( fmt, v0 ) //!< Trice64_1 is an empty macro
-//  #define Trice64_2( fmt, v0, v1 ) //!< Trice64_2 is an empty macro
-//  #define Trice64_3( fmt, v0, v1, v2 ) //!< Trice64_3 is an empty macro
-//  #define Trice64_4( fmt, v0, v1, v2, v3 ) //!< Trice64_4 is an empty macro
-//  #define Trice64_5( fmt, v0, v1, v2, v3, v4 ) //!< Trice64_5 is an empty macro
-//  #define Trice64_6( fmt, v0, v1, v2, v3, v4, v5 ) //!< Trice64_6 is an empty macro
-//  #define Trice64_7( fmt, v0, v1, v2, v3, v4, v5, v6 ) //!< Trice64_7 is an empty macro
-//  #define Trice64_8( fmt, v0, v1, v2, v3, v4, v5, v6, v7 ) //!< Trice64_8 is an empty macro
-//  #define Trice64_9( fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8 ) //!< Trice64_9 is an empty macro
-//  #define Trice64_10( fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9 ) //!< Trice64_10 is an empty macro
-//  #define Trice64_11( fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10 ) //!< Trice64_11 is an empty macro
-//  #define Trice64_12( fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 ) //!< Trice64_12 is an empty macro
+#define Trice64m_0( tid ) \
+    TRICE_ENTER \
+    TRICE_PUT( (0<<24) | ((TRICE_CYCLE)<<16) | (0x4000|(tid)) ); \
+    TRICE_LEAVE
 
 //! Trice64m_1 writes trice data as fast as possible in a buffer.
 //! \param id is a 16 bit Trice id in upper 2 bytes of a 32 bit value
-//! \param v0 a 8 bit bit value
+//! \param v0 a 64 bit value
 #define Trice64m_1( tid, v0 ) \
     TRICE_ENTER \
     uint64_t ts = TriceStamp16(); \
@@ -435,6 +429,7 @@ void trice64fn_12( uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t
     TRICE_PUT64_12( v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 ) \
     TRICE_LEAVE
 
+#define Trice64_0( tid,  fmt ) Trice64fn_0( tid ) //!< Trice64M_1 is a macro calling a function to reduce code size.
 #define Trice64_1( tid,  fmt, v0 ) Trice64fn_1( tid,  (uint64_t)(v0) ) //!< Trice64M_1 is a macro calling a function to reduce code size.
 #define Trice64_2( tid,  fmt, v0, v1 ) Trice64fn_2( tid,  (uint64_t)(v0), (uint64_t)(v1) ) //!< Trice64M_2 is a macro calling a function to reduce code size.
 #define Trice64_3( tid,  fmt, v0, v1, v2 ) Trice64fn_3( tid,  (uint64_t)(v0), (uint64_t)(v1), (uint64_t)(v2) ) //!< Trice64M_3 is a macro calling a function to reduce code size.
@@ -448,6 +443,7 @@ void trice64fn_12( uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t
 #define Trice64_11( tid, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10 ) Trice64fn_11( tid, (uint64_t)(v0), (uint64_t)(v1), (uint64_t)(v2), (uint64_t)(v3), (uint64_t)(v4), (uint64_t)(v5), (uint64_t)(v6), (uint64_t)(v7), (uint64_t)(v8), (uint64_t)(v9), (uint64_t)(v10) ) //!< Trice64M_11 is a macro calling a function to reduce code size.
 #define Trice64_12( tid, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 ) Trice64fn_12( tid, (uint64_t)(v0), (uint64_t)(v1), (uint64_t)(v2), (uint64_t)(v3), (uint64_t)(v4), (uint64_t)(v5), (uint64_t)(v6), (uint64_t)(v7), (uint64_t)(v8), (uint64_t)(v9), (uint64_t)(v10), (uint64_t)(v11) ) //!< Trice64M_12 is a macro calling a function to reduce code size.
 
+void Trice64fn_0( uint16_t tid );
 void Trice64fn_1( uint16_t tid,  uint64_t v0 );
 void Trice64fn_2( uint16_t tid,  uint64_t v0, uint64_t v1 );
 void Trice64fn_3( uint16_t tid,  uint64_t v0, uint64_t v1, uint64_t v2 );
@@ -461,22 +457,19 @@ void Trice64fn_10( uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t
 void Trice64fn_11( uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t v3, uint64_t v4, uint64_t v5, uint64_t v6, uint64_t v7, uint64_t v8, uint64_t v9, uint64_t v10 );
 void Trice64fn_12( uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t v3, uint64_t v4, uint64_t v5, uint64_t v6, uint64_t v7, uint64_t v8, uint64_t v9, uint64_t v10, uint64_t v11 );
 
-//  #define TRice64_1( fmt, v0 ) //!< TRice64_1 is an empty macro
-//  #define TRice64_2( fmt, v0, v1 ) //!< TRice64_2 is an empty macro
-//  #define TRice64_3( fmt, v0, v1, v2 ) //!< TRice64_3 is an empty macro
-//  #define TRice64_4( fmt, v0, v1, v2, v3 ) //!< TRice64_4 is an empty macro
-//  #define TRice64_5( fmt, v0, v1, v2, v3, v4 ) //!< TRice64_5 is an empty macro
-//  #define TRice64_6( fmt, v0, v1, v2, v3, v4, v5 ) //!< TRice64_6 is an empty macro
-//  #define TRice64_7( fmt, v0, v1, v2, v3, v4, v5, v6 ) //!< TRice64_7 is an empty macro
-//  #define TRice64_8( fmt, v0, v1, v2, v3, v4, v5, v6, v7 ) //!< TRice64_8 is an empty macro
-//  #define TRice64_9( fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8 ) //!< TRice64_9 is an empty macro
-//  #define TRice64_10( fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9 ) //!< TRice64_10 is an empty macro
-//  #define TRice64_11( fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10 ) //!< TRice64_11 is an empty macro
-//  #define TRice64_12( fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 ) //!< TRice64_12 is an empty macro
+//! TRice64m_0 writes trice data as fast as possible in a buffer.
+//! \param id is a 14 bit Trice id in upper 2 bytes of a 32 bit value
+#define TRice64m_0( tid ) \
+    TRICE_ENTER \
+    uint32_t ts = TRICE_HTOTL(TriceStamp32()); \
+    TRICE_PUT((ts<<16) | 0xc000 | tid); \
+    TRICE_PUT( 0<<24 | (TRICE_CYCLE<<16) | (ts>>16) ); \
+    TRICE_LEAVE
+
 
 //! TRice64m_1 writes trice data as fast as possible in a buffer.
 //! \param id is a 14 bit Trice id in upper 2 bytes of a 32 bit value
-//! \param v0 a 8 bit bit value
+//! \param v0 a 64 bit value
 #define TRice64m_1( tid, v0 ) \
     TRICE_ENTER \
     uint32_t ts = TRICE_HTOTL(TriceStamp32()); \
@@ -573,6 +566,7 @@ void Trice64fn_12( uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t
     TRICE_PUT64_12( v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 ) \
     TRICE_LEAVE
 
+#define TRice64_0( tid,  fmt ) TRice64fn_0( tid ) //!< TRice64M_1 is a macro calling a function to reduce code size.
 #define TRice64_1( tid,  fmt, v0 ) TRice64fn_1( tid,  (uint64_t)(v0) ) //!< TRice64M_1 is a macro calling a function to reduce code size.
 #define TRice64_2( tid,  fmt, v0, v1 ) TRice64fn_2( tid,  (uint64_t)(v0), (uint64_t)(v1) ) //!< TRice64M_2 is a macro calling a function to reduce code size.
 #define TRice64_3( tid,  fmt, v0, v1, v2 ) TRice64fn_3( tid,  (uint64_t)(v0), (uint64_t)(v1), (uint64_t)(v2) ) //!< TRice64M_3 is a macro calling a function to reduce code size.
@@ -586,6 +580,7 @@ void Trice64fn_12( uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t
 #define TRice64_11( tid, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10 ) TRice64fn_11( tid, (uint64_t)(v0), (uint64_t)(v1), (uint64_t)(v2), (uint64_t)(v3), (uint64_t)(v4), (uint64_t)(v5), (uint64_t)(v6), (uint64_t)(v7), (uint64_t)(v8), (uint64_t)(v9), (uint64_t)(v10) ) //!< TRice64M_11 is a macro calling a function to reduce code size.
 #define TRice64_12( tid, fmt, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 ) TRice64fn_12( tid, (uint64_t)(v0), (uint64_t)(v1), (uint64_t)(v2), (uint64_t)(v3), (uint64_t)(v4), (uint64_t)(v5), (uint64_t)(v6), (uint64_t)(v7), (uint64_t)(v8), (uint64_t)(v9), (uint64_t)(v10), (uint64_t)(v11) ) //!< TRice64M_12 is a macro calling a function to reduce code size.
 
+void TRice64fn_0( uint16_t tid );
 void TRice64fn_1( uint16_t tid,  uint64_t v0 );
 void TRice64fn_2( uint16_t tid,  uint64_t v0, uint64_t v1 );
 void TRice64fn_3( uint16_t tid,  uint64_t v0, uint64_t v1, uint64_t v2 );
@@ -605,6 +600,7 @@ void TRice64fn_12( uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t
 
 #if TRICE_DEFAULT_PARAMETER_BIT_WIDTH == 64
 
+#define TRICE_0  TRICE64_0  //!< Default parameter bit width for 0  parameter count TRICE is 64.
 #define TRICE_1  TRICE64_1  //!< Default parameter bit width for 1  parameter count TRICE is 64.
 #define TRICE_2  TRICE64_2  //!< Default parameter bit width for 2  parameter count TRICE is 64.
 #define TRICE_3  TRICE64_3  //!< Default parameter bit width for 3  parameter count TRICE is 64.
@@ -618,6 +614,7 @@ void TRice64fn_12( uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t
 #define TRICE_11 TRICE64_11 //!< Default parameter bit width for 11 parameter count TRICE is 64.
 #define TRICE_12 TRICE64_12 //!< Default parameter bit width for 12 parameter count TRICE is 64.
 
+#define trice_0  trice64_0  //!< Default parameter bit width for 1  parameter count trice is 64.
 #define trice_1  trice64_1  //!< Default parameter bit width for 1  parameter count trice is 64.
 #define trice_2  trice64_2  //!< Default parameter bit width for 2  parameter count trice is 64.
 #define trice_3  trice64_3  //!< Default parameter bit width for 3  parameter count trice is 64.
@@ -631,6 +628,7 @@ void TRice64fn_12( uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t
 #define trice_11 trice64_11 //!< Default parameter bit width for 11 parameter count trice is 64.
 #define trice_12 trice64_12 //!< Default parameter bit width for 12 parameter count trice is 64.
 
+#define Trice_0  Trice64_0  //!< Default parameter bit width for 0  parameter count Trice is 64.
 #define Trice_1  Trice64_1  //!< Default parameter bit width for 1  parameter count Trice is 64.
 #define Trice_2  Trice64_2  //!< Default parameter bit width for 2  parameter count Trice is 64.
 #define Trice_3  Trice64_3  //!< Default parameter bit width for 3  parameter count Trice is 64.
@@ -644,6 +642,7 @@ void TRice64fn_12( uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t
 #define Trice_11 Trice64_11 //!< Default parameter bit width for 11 parameter count Trice is 64.
 #define Trice_12 Trice64_12 //!< Default parameter bit width for 12 parameter count Trice is 64.
 
+#define TRice_0  TRice64_0  //!< Default parameter bit width for 0  parameter count TRice is 64.
 #define TRice_1  TRice64_1  //!< Default parameter bit width for 1  parameter count TRice is 64.
 #define TRice_2  TRice64_2  //!< Default parameter bit width for 2  parameter count TRice is 64.
 #define TRice_3  TRice64_3  //!< Default parameter bit width for 3  parameter count TRice is 64.
@@ -657,44 +656,44 @@ void TRice64fn_12( uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t
 #define TRice_11 TRice64_11 //!< Default parameter bit width for 11 parameter count TRice is 64.
 #define TRice_12 TRice64_12 //!< Default parameter bit width for 12 parameter count TRice is 64.
 
-#define triceM_1  trice64M_1  //!< Default parameter bit width for 1  parameter count triceM is 64.
-#define triceM_2  trice64M_2  //!< Default parameter bit width for 2  parameter count triceM is 64.
-#define triceM_3  trice64M_3  //!< Default parameter bit width for 3  parameter count triceM is 64.
-#define triceM_4  trice64M_4  //!< Default parameter bit width for 4  parameter count triceM is 64.
-#define triceM_5  trice64M_5  //!< Default parameter bit width for 5  parameter count triceM is 64.
-#define triceM_6  trice64M_6  //!< Default parameter bit width for 6  parameter count triceM is 64.
-#define triceM_7  trice64M_7  //!< Default parameter bit width for 7  parameter count triceM is 64.
-#define triceM_8  trice64M_8  //!< Default parameter bit width for 8  parameter count triceM is 64.
-#define triceM_9  trice64M_9  //!< Default parameter bit width for 9  parameter count triceM is 64.
-#define triceM_10 trice64M_10 //!< Default parameter bit width for 10 parameter count triceM is 64.
-#define triceM_11 trice64M_11 //!< Default parameter bit width for 11 parameter count triceM is 64.
-#define triceM_12 trice64M_12 //!< Default parameter bit width for 12 parameter count triceM is 64.
-
-#define TriceM_1  Trice64M_1  //!< Default parameter bit width for 1  parameter count TriceM is 64.
-#define TriceM_2  Trice64M_2  //!< Default parameter bit width for 2  parameter count TriceM is 64.
-#define TriceM_3  Trice64M_3  //!< Default parameter bit width for 3  parameter count TriceM is 64.
-#define TriceM_4  Trice64M_4  //!< Default parameter bit width for 4  parameter count TriceM is 64.
-#define TriceM_5  Trice64M_5  //!< Default parameter bit width for 5  parameter count TriceM is 64.
-#define TriceM_6  Trice64M_6  //!< Default parameter bit width for 6  parameter count TriceM is 64.
-#define TriceM_7  Trice64M_7  //!< Default parameter bit width for 7  parameter count TriceM is 64.
-#define TriceM_8  Trice64M_8  //!< Default parameter bit width for 8  parameter count TriceM is 64.
-#define TriceM_9  Trice64M_9  //!< Default parameter bit width for 9  parameter count TriceM is 64.
-#define TriceM_10 Trice64M_10 //!< Default parameter bit width for 10 parameter count TriceM is 64.
-#define TriceM_11 Trice64M_11 //!< Default parameter bit width for 11 parameter count TriceM is 64.
-#define TriceM_12 Trice64M_12 //!< Default parameter bit width for 12 parameter count TriceM is 64.
-
-#define TRiceM_1  TRice64M_1  //!< Default parameter bit width for 1  parameter count TRiceM is 64.
-#define TRiceM_2  TRice64M_2  //!< Default parameter bit width for 2  parameter count TRiceM is 64.
-#define TRiceM_3  TRice64M_3  //!< Default parameter bit width for 3  parameter count TRiceM is 64.
-#define TRiceM_4  TRice64M_4  //!< Default parameter bit width for 4  parameter count TRiceM is 64.
-#define TRiceM_5  TRice64M_5  //!< Default parameter bit width for 5  parameter count TRiceM is 64.
-#define TRiceM_6  TRice64M_6  //!< Default parameter bit width for 6  parameter count TRiceM is 64.
-#define TRiceM_7  TRice64M_7  //!< Default parameter bit width for 7  parameter count TRiceM is 64.
-#define TRiceM_8  TRice64M_8  //!< Default parameter bit width for 8  parameter count TRiceM is 64.
-#define TRiceM_9  TRice64M_9  //!< Default parameter bit width for 9  parameter count TRiceM is 64.
-#define TRiceM_10 TRice64M_10 //!< Default parameter bit width for 10 parameter count TRiceM is 64.
-#define TRiceM_11 TRice64M_11 //!< Default parameter bit width for 11 parameter count TRiceM is 64.
-#define TRiceM_12 TRice64M_12 //!< Default parameter bit width for 12 parameter count TRiceM is 64.
+//  #define triceM_1  trice64M_1  //!< Default parameter bit width for 1  parameter count triceM is 64.
+//  #define triceM_2  trice64M_2  //!< Default parameter bit width for 2  parameter count triceM is 64.
+//  #define triceM_3  trice64M_3  //!< Default parameter bit width for 3  parameter count triceM is 64.
+//  #define triceM_4  trice64M_4  //!< Default parameter bit width for 4  parameter count triceM is 64.
+//  #define triceM_5  trice64M_5  //!< Default parameter bit width for 5  parameter count triceM is 64.
+//  #define triceM_6  trice64M_6  //!< Default parameter bit width for 6  parameter count triceM is 64.
+//  #define triceM_7  trice64M_7  //!< Default parameter bit width for 7  parameter count triceM is 64.
+//  #define triceM_8  trice64M_8  //!< Default parameter bit width for 8  parameter count triceM is 64.
+//  #define triceM_9  trice64M_9  //!< Default parameter bit width for 9  parameter count triceM is 64.
+//  #define triceM_10 trice64M_10 //!< Default parameter bit width for 10 parameter count triceM is 64.
+//  #define triceM_11 trice64M_11 //!< Default parameter bit width for 11 parameter count triceM is 64.
+//  #define triceM_12 trice64M_12 //!< Default parameter bit width for 12 parameter count triceM is 64.
+//  
+//  #define TriceM_1  Trice64M_1  //!< Default parameter bit width for 1  parameter count TriceM is 64.
+//  #define TriceM_2  Trice64M_2  //!< Default parameter bit width for 2  parameter count TriceM is 64.
+//  #define TriceM_3  Trice64M_3  //!< Default parameter bit width for 3  parameter count TriceM is 64.
+//  #define TriceM_4  Trice64M_4  //!< Default parameter bit width for 4  parameter count TriceM is 64.
+//  #define TriceM_5  Trice64M_5  //!< Default parameter bit width for 5  parameter count TriceM is 64.
+//  #define TriceM_6  Trice64M_6  //!< Default parameter bit width for 6  parameter count TriceM is 64.
+//  #define TriceM_7  Trice64M_7  //!< Default parameter bit width for 7  parameter count TriceM is 64.
+//  #define TriceM_8  Trice64M_8  //!< Default parameter bit width for 8  parameter count TriceM is 64.
+//  #define TriceM_9  Trice64M_9  //!< Default parameter bit width for 9  parameter count TriceM is 64.
+//  #define TriceM_10 Trice64M_10 //!< Default parameter bit width for 10 parameter count TriceM is 64.
+//  #define TriceM_11 Trice64M_11 //!< Default parameter bit width for 11 parameter count TriceM is 64.
+//  #define TriceM_12 Trice64M_12 //!< Default parameter bit width for 12 parameter count TriceM is 64.
+//  
+//  #define TRiceM_1  TRice64M_1  //!< Default parameter bit width for 1  parameter count TRiceM is 64.
+//  #define TRiceM_2  TRice64M_2  //!< Default parameter bit width for 2  parameter count TRiceM is 64.
+//  #define TRiceM_3  TRice64M_3  //!< Default parameter bit width for 3  parameter count TRiceM is 64.
+//  #define TRiceM_4  TRice64M_4  //!< Default parameter bit width for 4  parameter count TRiceM is 64.
+//  #define TRiceM_5  TRice64M_5  //!< Default parameter bit width for 5  parameter count TRiceM is 64.
+//  #define TRiceM_6  TRice64M_6  //!< Default parameter bit width for 6  parameter count TRiceM is 64.
+//  #define TRiceM_7  TRice64M_7  //!< Default parameter bit width for 7  parameter count TRiceM is 64.
+//  #define TRiceM_8  TRice64M_8  //!< Default parameter bit width for 8  parameter count TRiceM is 64.
+//  #define TRiceM_9  TRice64M_9  //!< Default parameter bit width for 9  parameter count TRiceM is 64.
+//  #define TRiceM_10 TRice64M_10 //!< Default parameter bit width for 10 parameter count TRiceM is 64.
+//  #define TRiceM_11 TRice64M_11 //!< Default parameter bit width for 11 parameter count TRiceM is 64.
+//  #define TRiceM_12 TRice64M_12 //!< Default parameter bit width for 12 parameter count TRiceM is 64.
 
 #endif // #if TRICE_DEFAULT_PARAMETER_BIT_WIDTH == 64
 

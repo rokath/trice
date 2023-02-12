@@ -27,10 +27,10 @@ static int64_t DoubleToInt64( double f ){
 
 
 //! SCOPY is a helper macro for struct serialization.
-#define SCOPY( element ) do{ char* n = #element; int size = sizeof( src->element ); memcpy( p, &(src->element), size ); p += size; TRICE_S( Id(10433), "rd:sizeof(%8s)", n ); TRICE( Id(14289), " = %d\n", size);}while(0);
+#define SCOPY( element ) do{ char* n = #element; int size = sizeof( src->element ); memcpy( p, &(src->element), size ); p += size; TRICE_S( "rd:sizeof(%8s)", n ); TRICE( " = %d\n", size);}while(0);
 
     //! DCOPY is a helper macro for struct deserialization.
-#define DCOPY( element ) do{ char* n = #element; int size = sizeof( dst->element ); memcpy( &(dst->element), p, size ); p += size; TRICE_S( Id(13474), "rd:sizeof(%8s)", n ); TRICE( Id(13800), " = %d\n", size);}while(0);
+#define DCOPY( element ) do{ char* n = #element; int size = sizeof( dst->element ); memcpy( &(dst->element), p, size ); p += size; TRICE_S( "rd:sizeof(%8s)", n ); TRICE( " = %d\n", size);}while(0);
 
 
 typedef struct{
@@ -219,13 +219,29 @@ void TriceCheck(int n) {
     switch( n ){
         default:
 
-        // normal use cases (3 macros)
-      //break; case __LINE__: trice      ( "value=%d\n", -2  ); //exp: time:        value=-2
-      //break; case __LINE__: Trice      ( "value=%d\n", -2  ); //exp: time:    1616value=-2
-      //break; case __LINE__: TRice      ( "value=%d\n", -2  ); //exp: time:32323232value=-2
-      //break; case __LINE__: trice_1    ( "value=%d\n", -2  ); //exp: time:        value=-2
-      //break; case __LINE__: Trice_1    ( "value=%d\n", -2  ); //exp: time:    1616value=-2
-      //break; case __LINE__: TRice_1    ( "value=%d\n", -2  ); //exp: time:32323232value=-2
+        // normal use cases (3 macro types)
+        break; case __LINE__: TRice( "info:This is a message without values and a 32-bit stamp.\n" );        //exp: time:32323232info:This is a message without values and a 32-bit stamp.
+        break; case __LINE__: Trice( "info:This is a message without values and a 16-bit stamp.\n" );        //exp: time:    1616info:This is a message without values and a 16-bit stamp.
+        break; case __LINE__: trice( "info:This is a message without values and without stamp.\n"  );        //exp: time:        info:This is a message without values and without stamp.
+
+        break; case __LINE__: TRice("info:This is a message with one value %d and a 32-bit stamp.\n", -2  ); //exp: time:32323232info:This is a message with one value -2 and a 32-bit stamp.
+        break; case __LINE__: Trice("info:This is a message with one value %d and a 16-bit stamp.\n", -2  ); //exp: time:    1616info:This is a message with one value -2 and a 16-bit stamp.
+        break; case __LINE__: trice("info:This is a message with one value %d and without stamp.\n" , -2  ); //exp: time:        info:This is a message with one value -2 and without stamp.
+
+        break; case __LINE__: TRice("info:12 values %d, %u, %x, %X, &t, %e, %f, %g, %E, %F, %G, 0xb%08b and a 32-bit stamp.\n", -3, -4, -5, -6, 1, aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), -8 );                //exp: time:32323232info:
+        break; case __LINE__: Trice("info:12 values %d, %u, %x, %X, &t, %e, %f, %g, %E, %F, %G, 0xb%08b and a 16-bit stamp.\n", -3, -4, -5, -6, 1, aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), -8 );                //exp: time:    1616info:
+        break; case __LINE__: trice("info:12 values %d, %u, %x, %X, &t, %e, %f, %g, %E, %F, %G, 0xb%08b and without stamp.\n" , -3, -4, -5, -6, 1, aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), -8 );                //exp: time:        info:
+
+        break; case __LINE__: TRice64("info:12 64-bit values %d, %u, %x, %X, &t, %e, %f, %g, %E, %F, %G, 0xb%08b and a 32-bit stamp.\n", -3, -4, -5, -6, 1, aDouble(-7.123456789), aDouble(-7.123456789), aDouble(-7.123456789), aDouble(-7.123456789), aDouble(-7.123456789), aDouble(-7.123456789), -8 ); //exp: time:32323232info
+        break; case __LINE__: Trice64("info:12 64-bit values %d, %u, %x, %X, &t, %e, %f, %g, %E, %F, %G, 0xb%08b and a 16-bit stamp.\n", -3, -4, -5, -6, 1, aDouble(-7.123456789), aDouble(-7.123456789), aDouble(-7.123456789), aDouble(-7.123456789), aDouble(-7.123456789), aDouble(-7.123456789), -8 ); //exp: time:    1616info
+        break; case __LINE__: trice64("info:12 64-bit values %d, %u, %x, %X, &t, %e, %f, %g, %E, %F, %G, 0xb%08b and without stamp.\n" , -3, -4, -5, -6, 1, aDouble(-7.123456789), aDouble(-7.123456789), aDouble(-7.123456789), aDouble(-7.123456789), aDouble(-7.123456789), aDouble(-7.123456789), -8 ); //exp: time:        info
+
+        break; case __LINE__: TRice      ( "value=%d\n", -2  ); //exp: time:32323232value=-2
+        break; case __LINE__: Trice      ( "value=%d\n", -2  ); //exp: time:    1616value=-2
+        break; case __LINE__: trice      ( "value=%d\n", -2  ); //exp: time:        value=-2
+        break; case __LINE__: trice_1    ( "value=%d\n", -2  ); //exp: time:        value=-2
+        break; case __LINE__: Trice_1    ( "value=%d\n", -2  ); //exp: time:    1616value=-2
+        break; case __LINE__: TRice_1    ( "value=%d\n", -2  ); //exp: time:32323232value=-2
 
         break; case __LINE__: exampleOfManualSerialization();
 

@@ -3,6 +3,12 @@
 //! ///////////////////////////////////////////////////////////////////////////
 #include "trice.h"
 
+#if ENABLE_trice64fn_0 
+void trice64fn_0( uint16_t tid ){
+    trice64m_0( tid );
+}
+#endif
+
 #if ENABLE_trice64fn_1 
 void trice64fn_1( uint16_t tid, uint64_t v0 ){
     trice64m_1( tid, v0 );
@@ -75,6 +81,12 @@ void trice64fn_12( uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t
 }
 #endif
 
+#if ENABLE_Trice64fn_0
+void Trice64fn_0( uint16_t tid ){
+    Trice64m_0( tid );
+}
+#endif
+
 #if ENABLE_Trice64fn_1
 void Trice64fn_1( uint16_t tid, uint64_t v0 ){
     Trice64m_1( tid, v0 );
@@ -144,6 +156,12 @@ void Trice64fn_11( uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t
 #if ENABLE_Trice64fn_12
 void Trice64fn_12( uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t v3, uint64_t v4, uint64_t v5, uint64_t v6, uint64_t v7, uint64_t v8, uint64_t v9, uint64_t v10, uint64_t v11 ){
     Trice64m_12( tid, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 );
+}
+#endif
+
+#if ENABLE_TRice64fn_0
+void TRice64fn_0( uint16_t tid ){
+    TRice64m_0( tid );
 }
 #endif
 

@@ -348,7 +348,7 @@ void XTEAInitTable(void);
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-//! NTH_ARGUMENT just evaluates to the 14th argument. It is extendable.
+//! NTH_ARGUMENT just evaluates to the 15th argument. It is extendable.
 #define NTH_ARGUMENT(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, ...) a14 
 
 //! COUNT_ARGUMENTS builds upon NTH_ARGUMENT. The more arguments that are passed to COUNT_ARGUMENTS, 
@@ -368,15 +368,10 @@ void XTEAInitTable(void);
 #define CONCAT2(a, b) CONCAT(a, b)
 
 //! TRICE_VARIABLE_ARGUMENTS concatenates TRICE_ with the result of COUNT_ARGUMENTS to produce something like TRICE_2 which takes a printf-format and two arguments.
-#define TRICE(  tid, fmt, ...) CONCAT2(TRICE_,  COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
-#define trice(  tid, fmt, ...) CONCAT2(trice_,  COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
-#define Trice(  tid, fmt, ...) CONCAT2(Trice_,  COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
-#define TRice(  tid, fmt, ...) CONCAT2(TRice_,  COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
-//#define triceM( tid, fmt, ...) CONCAT2(triceM_, COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
-//#define TriceM( tid, fmt, ...) CONCAT2(TriceM_, COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
-//#define TRiceM( tid, fmt, ...) CONCAT2(TRiceM_, COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
-
-
+#define TRICE( tid, fmt, ...) CONCAT2(TRICE_, COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
+#define TRice( tid, fmt, ...) CONCAT2(TRice_, COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
+#define Trice( tid, fmt, ...) CONCAT2(Trice_, COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
+#define trice( tid, fmt, ...) CONCAT2(trice_, COUNT_ARGUMENTS(__VA_ARGS__))(tid, fmt, ##__VA_ARGS__)
 
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -425,7 +420,10 @@ static inline uint64_t aDouble( double x ){
 // TRICE macros
 //
 
-#define TRICE_0  TRICE0  //!< Only the format string without parameter values.
+//  #define TRICE_0  TRICE0  //!< Only the format string without parameter values.
+//  #define TRice_0  TRice0  //!< Only the format string without parameter values.
+//  #define Trice_0  Trice0  //!< Only the format string without parameter values.
+//  #define trice_0  trice0  //!< Only the format string without parameter values.
 
 #ifndef TRICE_N
 //! TRICE_N writes id and buffer of size len.

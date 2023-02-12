@@ -332,6 +332,8 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 func (p *trexDec) sprintTrice(b []byte) (n int) {
 	p.pFmt, p.u = decoder.UReplaceN(p.Trice.Strg)
 
+	p.Trice.Type = strings.ToUpper(p.Trice.Type) // do not distinguish upper and lower case
+
 	var triceType string                           // need to reconstruct full TRICE info, if not exist in type string
 	if strings.HasPrefix(p.Trice.Type, "TRICE_") { // when no bitwidth, insert it
 		triceType = "TRICE" + id.DefaultTriceBitWidth + "_" + p.Trice.Type[6:]
@@ -345,8 +347,6 @@ func (p *trexDec) sprintTrice(b []byte) (n int) {
 	if p.Trice.Type == "TRICE8" || p.Trice.Type == "TRICE16" || p.Trice.Type == "TRICE32" || p.Trice.Type == "TRICE64" { // when no count
 		triceType = fmt.Sprintf(p.Trice.Type+"_%d", len(p.u)) // append count
 	}
-
-	p.Trice.Type = strings.ToUpper(p.Trice.Type) // do not distinguish upper and lower case
 
 	for _, s := range cobsFunctionPtrList { // walk through the list and try to find a match for execution
 		if s.triceType == p.Trice.Type || s.triceType == triceType { // match list entry "TRICE..."
