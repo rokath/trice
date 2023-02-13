@@ -600,7 +600,7 @@ void TRice64fn_12( uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t
 
 #if TRICE_DEFAULT_PARAMETER_BIT_WIDTH == 64
 
-#define TRICE_0  TRICE64_0  //!< Default parameter bit width for 0  parameter count TRICE is 64.
+//#define TRICE_0  TRICE64_0  //!< Default parameter bit width for 0  parameter count TRICE is 64.
 #define TRICE_1  TRICE64_1  //!< Default parameter bit width for 1  parameter count TRICE is 64.
 #define TRICE_2  TRICE64_2  //!< Default parameter bit width for 2  parameter count TRICE is 64.
 #define TRICE_3  TRICE64_3  //!< Default parameter bit width for 3  parameter count TRICE is 64.
@@ -614,7 +614,7 @@ void TRice64fn_12( uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t
 #define TRICE_11 TRICE64_11 //!< Default parameter bit width for 11 parameter count TRICE is 64.
 #define TRICE_12 TRICE64_12 //!< Default parameter bit width for 12 parameter count TRICE is 64.
 
-#define trice_0  trice64_0  //!< Default parameter bit width for 1  parameter count trice is 64.
+//#define trice_0  trice64_0  //!< Default parameter bit width for 1  parameter count trice is 64.
 #define trice_1  trice64_1  //!< Default parameter bit width for 1  parameter count trice is 64.
 #define trice_2  trice64_2  //!< Default parameter bit width for 2  parameter count trice is 64.
 #define trice_3  trice64_3  //!< Default parameter bit width for 3  parameter count trice is 64.
@@ -628,7 +628,7 @@ void TRice64fn_12( uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t
 #define trice_11 trice64_11 //!< Default parameter bit width for 11 parameter count trice is 64.
 #define trice_12 trice64_12 //!< Default parameter bit width for 12 parameter count trice is 64.
 
-#define Trice_0  Trice64_0  //!< Default parameter bit width for 0  parameter count Trice is 64.
+//#define Trice_0  Trice64_0  //!< Default parameter bit width for 0  parameter count Trice is 64.
 #define Trice_1  Trice64_1  //!< Default parameter bit width for 1  parameter count Trice is 64.
 #define Trice_2  Trice64_2  //!< Default parameter bit width for 2  parameter count Trice is 64.
 #define Trice_3  Trice64_3  //!< Default parameter bit width for 3  parameter count Trice is 64.
@@ -642,7 +642,7 @@ void TRice64fn_12( uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t
 #define Trice_11 Trice64_11 //!< Default parameter bit width for 11 parameter count Trice is 64.
 #define Trice_12 Trice64_12 //!< Default parameter bit width for 12 parameter count Trice is 64.
 
-#define TRice_0  TRice64_0  //!< Default parameter bit width for 0  parameter count TRice is 64.
+//#define TRice_0  TRice64_0  //!< Default parameter bit width for 0  parameter count TRice is 64.
 #define TRice_1  TRice64_1  //!< Default parameter bit width for 1  parameter count TRice is 64.
 #define TRice_2  TRice64_2  //!< Default parameter bit width for 2  parameter count TRice is 64.
 #define TRice_3  TRice64_3  //!< Default parameter bit width for 3  parameter count TRice is 64.
@@ -655,45 +655,6 @@ void TRice64fn_12( uint16_t tid, uint64_t v0, uint64_t v1, uint64_t v2, uint64_t
 #define TRice_10 TRice64_10 //!< Default parameter bit width for 10 parameter count TRice is 64.
 #define TRice_11 TRice64_11 //!< Default parameter bit width for 11 parameter count TRice is 64.
 #define TRice_12 TRice64_12 //!< Default parameter bit width for 12 parameter count TRice is 64.
-
-//  #define triceM_1  trice64M_1  //!< Default parameter bit width for 1  parameter count triceM is 64.
-//  #define triceM_2  trice64M_2  //!< Default parameter bit width for 2  parameter count triceM is 64.
-//  #define triceM_3  trice64M_3  //!< Default parameter bit width for 3  parameter count triceM is 64.
-//  #define triceM_4  trice64M_4  //!< Default parameter bit width for 4  parameter count triceM is 64.
-//  #define triceM_5  trice64M_5  //!< Default parameter bit width for 5  parameter count triceM is 64.
-//  #define triceM_6  trice64M_6  //!< Default parameter bit width for 6  parameter count triceM is 64.
-//  #define triceM_7  trice64M_7  //!< Default parameter bit width for 7  parameter count triceM is 64.
-//  #define triceM_8  trice64M_8  //!< Default parameter bit width for 8  parameter count triceM is 64.
-//  #define triceM_9  trice64M_9  //!< Default parameter bit width for 9  parameter count triceM is 64.
-//  #define triceM_10 trice64M_10 //!< Default parameter bit width for 10 parameter count triceM is 64.
-//  #define triceM_11 trice64M_11 //!< Default parameter bit width for 11 parameter count triceM is 64.
-//  #define triceM_12 trice64M_12 //!< Default parameter bit width for 12 parameter count triceM is 64.
-//  
-//  #define TriceM_1  Trice64M_1  //!< Default parameter bit width for 1  parameter count TriceM is 64.
-//  #define TriceM_2  Trice64M_2  //!< Default parameter bit width for 2  parameter count TriceM is 64.
-//  #define TriceM_3  Trice64M_3  //!< Default parameter bit width for 3  parameter count TriceM is 64.
-//  #define TriceM_4  Trice64M_4  //!< Default parameter bit width for 4  parameter count TriceM is 64.
-//  #define TriceM_5  Trice64M_5  //!< Default parameter bit width for 5  parameter count TriceM is 64.
-//  #define TriceM_6  Trice64M_6  //!< Default parameter bit width for 6  parameter count TriceM is 64.
-//  #define TriceM_7  Trice64M_7  //!< Default parameter bit width for 7  parameter count TriceM is 64.
-//  #define TriceM_8  Trice64M_8  //!< Default parameter bit width for 8  parameter count TriceM is 64.
-//  #define TriceM_9  Trice64M_9  //!< Default parameter bit width for 9  parameter count TriceM is 64.
-//  #define TriceM_10 Trice64M_10 //!< Default parameter bit width for 10 parameter count TriceM is 64.
-//  #define TriceM_11 Trice64M_11 //!< Default parameter bit width for 11 parameter count TriceM is 64.
-//  #define TriceM_12 Trice64M_12 //!< Default parameter bit width for 12 parameter count TriceM is 64.
-//  
-//  #define TRiceM_1  TRice64M_1  //!< Default parameter bit width for 1  parameter count TRiceM is 64.
-//  #define TRiceM_2  TRice64M_2  //!< Default parameter bit width for 2  parameter count TRiceM is 64.
-//  #define TRiceM_3  TRice64M_3  //!< Default parameter bit width for 3  parameter count TRiceM is 64.
-//  #define TRiceM_4  TRice64M_4  //!< Default parameter bit width for 4  parameter count TRiceM is 64.
-//  #define TRiceM_5  TRice64M_5  //!< Default parameter bit width for 5  parameter count TRiceM is 64.
-//  #define TRiceM_6  TRice64M_6  //!< Default parameter bit width for 6  parameter count TRiceM is 64.
-//  #define TRiceM_7  TRice64M_7  //!< Default parameter bit width for 7  parameter count TRiceM is 64.
-//  #define TRiceM_8  TRice64M_8  //!< Default parameter bit width for 8  parameter count TRiceM is 64.
-//  #define TRiceM_9  TRice64M_9  //!< Default parameter bit width for 9  parameter count TRiceM is 64.
-//  #define TRiceM_10 TRice64M_10 //!< Default parameter bit width for 10 parameter count TRiceM is 64.
-//  #define TRiceM_11 TRice64M_11 //!< Default parameter bit width for 11 parameter count TRiceM is 64.
-//  #define TRiceM_12 TRice64M_12 //!< Default parameter bit width for 12 parameter count TRiceM is 64.
 
 #endif // #if TRICE_DEFAULT_PARAMETER_BIT_WIDTH == 64
 
