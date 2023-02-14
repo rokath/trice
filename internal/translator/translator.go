@@ -182,15 +182,18 @@ func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec decode
 				msg.OnErr(err)
 			}
 
-			// If target location & enabled and line start, write target location.
-			if logLineStart && decoder.TargetLocationExists && decoder.LocationInformationFormatString != "off" && decoder.LocationInformationFormatString != "none" {
-				targetFileID := id.TriceID(decoder.TargetLocation >> 16)
-				t := lut[targetFileID]
-				targetFile := t.Strg
-				s := fmt.Sprintf(decoder.LocationInformationFormatString, targetFile, 0xffff&decoder.TargetLocation)
-				_, err := sw.Write([]byte(s))
-				msg.OnErr(err)
-			}
+			/////////////
+			// obsolete
+			//
+			// // If target location & enabled and line start, write target location.
+			// if logLineStart && decoder.TargetLocationExists && decoder.LocationInformationFormatString != "off" && decoder.LocationInformationFormatString != "none" {
+			// 	targetFileID := id.TriceID(decoder.TargetLocation >> 16)
+			// 	t := lut[targetFileID]
+			// 	targetFile := t.Strg
+			// 	s := fmt.Sprintf(decoder.LocationInformationFormatString, targetFile, 0xffff&decoder.TargetLocation)
+			// 	_, err := sw.Write([]byte(s))
+			// 	msg.OnErr(err)
+			// }
 
 			var s string
 			if logLineStart {
