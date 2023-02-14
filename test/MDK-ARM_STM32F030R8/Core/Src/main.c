@@ -118,8 +118,8 @@ int main(void)
             triceCommandFlag = 0;
             TRICE_S( Id( 6663), "att:Executing command %s ...\n", triceCommandBuffer );
             // do
-            TRICE( Id( 6583), "dbg:\aHi!\n" ); // sound!
-            TRICE( Id( 4138), "att:...done\n" );
+            TRICE( Id( 1772), "dbg:\aHi!\n" ); // sound!
+            TRICE( Id( 6539), "att:...done\n" );
         }
 
         // serve trice transfer every few ms

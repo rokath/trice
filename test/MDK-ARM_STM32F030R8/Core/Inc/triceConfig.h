@@ -172,7 +172,7 @@ extern "C" {
     TRICE0( Id( 2708), "s:                                          \n" ); \
     TRICE0( Id( 7579), "s:     " ); \
     TriceLogBufferInfo(); \
-    TRICE0( Id( 7249), "s:     \n" ); \
+    TRICE0( Id( 3660), "s:     \n" ); \
     TRICE0( Id( 2985), "s:                                          \n");
 
 //

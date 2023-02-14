@@ -420,10 +420,10 @@ static inline uint64_t aDouble( double x ){
 // TRICE macros
 //
 
-//  #define TRICE_0  TRICE0  //!< Only the format string without parameter values.
-//  #define TRice_0  TRice0  //!< Only the format string without parameter values.
-//  #define Trice_0  Trice0  //!< Only the format string without parameter values.
-//  #define trice_0  trice0  //!< Only the format string without parameter values.
+#define TRICE_0  TRICE0  //!< Only the format string without parameter values.
+#define TRice_0  TRice0  //!< Only the format string without parameter values.
+#define Trice_0  Trice0  //!< Only the format string without parameter values.
+#define trice_0  trice0  //!< Only the format string without parameter values.
 
 #ifndef TRICE_N
 //! TRICE_N writes id and buffer of size len.
@@ -517,6 +517,18 @@ extern const int TriceTypeX0;
 #define TRICE0( id, pFmt ) \
 	TRICE_ENTER id; CNTC(0); \
     TRICE_LEAVE
+
+TRICE_INLINE void TRice0( uint16_t tid, char* pFmt ){
+    TRice32m_0( tid ); \
+}
+
+TRICE_INLINE void Trice0( uint16_t tid, char* pFmt ){
+    Trice32m_0( tid ); \
+}
+
+TRICE_INLINE void trice0( uint16_t tid, char* pFmt ){
+    trice32m_0( tid ); \
+}
 
 #ifdef TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN
 
