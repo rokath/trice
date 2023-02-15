@@ -328,36 +328,8 @@ TRICE_INLINE void triceDisableTxEmptyInterruptUartB(void) {
 ///////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////////
+// See trice/doc/TriceProjectImageSizeOptimization.md
 //
-// Reduce trice code size by selectively setting 0 to unused functions.
-// This maybe needs not to be done with specific linker optimization: 
-// Generally, setting many 0´s here speeds up the build process.
-//
-// Some compiler support so called "linker feedback"
-// by compiling twice to get rid of unused functions.
-// Check your compiler for the "linker feedback" option.
-//
-// In ARM uVision, when using ARMCC compiler v5, there is a 
-// check box Project -> Options -> Target -> "Cross Module Optimization".
-// This increases the build time but reduces the image size significantly.
-// When using the "linker feedback" option or program memory is not full,
-// there is no need for changes here and simply let all values be 1.
-// In ARMCC this works also with the lite version.
-//
-// In ARM uVision, when using ARMCLANG compiler v6, 
-// the "Cross Module Optimization" is not visible.
-// Instead check box Project -> Options -> C/C++(AC6) -> "Link-Time Optimization"
-// is usable to set the CLI -flto switch. LTO is not possible with ARMCLANG6 lite:
-// https://developer.arm.com/documentation/ka004054/latest.
-//
-// With GCC probably simply the -flto CLI switch is needed.
-//
-// The linker option --split-sections, 
-// in uVision Project -> Options -> C/C++ -> "One EFL section for each function",
-// allows good optimization and getting rid of unused code without "linker feedeback".
-// This leds to a faster build process and is fine for most cases. But to get
-// the smallest possible image, do _not_ use option --split sections and use 
-// the "linker feedback" option alone.
 
 // without stamp 8-bit values functions
 #define ENABLE_trice8fn_0  1
