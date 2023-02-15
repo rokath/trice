@@ -36,9 +36,9 @@
 
 Maybe it´s a bit unhandy but it decreases the code amount, build time and the image size.
 
-* For X=8|16|32|64 and N=0...12 selectively set `#define ENABLE_triceXfn_N` to `0` for unused functions in project specific file `triceConfig.h`.
-* For X=8|16|32|64 and N=0...12 selectively set `#define ENABLE_TriceXfn_N` to `0` for unused functions in project specific file `triceConfig.h`.
-* For X=8|16|32|64 and N=0...12 selectively set `#define ENABLE_TRiceXfn_N` to `0` for unused functions in project specific file `triceConfig.h`.
+* For **X=8|16|32|64** and **N=0...12** selectively set `#define ENABLE_trice`**X**`fn_`**N**` 1` to ` 0` for unused functions in project specific file `triceConfig.h`.
+* For **X=8|16|32|64** and **N=0...12** selectively set `#define ENABLE_Trice`**X**`fn_`**N**` 1` to ` 0` for unused functions in project specific file `triceConfig.h`.
+* For **X=8|16|32|64** and **N=0...12** selectively set `#define ENABLE_TRice`**X**`fn_`**N**` 1` to ` 0` for unused functions in project specific file `triceConfig.h`.
 
 When having lots of program memory or using specific linker optimization you can simply let all values be `1`.
 
