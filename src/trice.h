@@ -101,7 +101,6 @@ typedef enum{
 #include <stdint.h> //lint !e537
 #include <string.h>
 #include "triceConfig.h"
-#include "./box/triceCodeSizeOptimization.h"
 #include "./box/trice8.h"
 #include "./box/trice16.h"
 #include "./box/trice32.h"
@@ -561,6 +560,9 @@ void TriceLogDepthMax( void );
 void TriceNonBlockingWriteModbusBuffer( uint8_t const * buf, unsigned len );
 size_t TriceModbusAlsoFetch( int index, uint8_t* tBuf );
 size_t TriceModbusOnlyFetch( int index, uint8_t* tBuf );
+
+extern unsigned RTT0_writeSpaceMin; //! RTT0_writeSpaceMin is usable for diagnostics.
+extern unsigned RTT0_bytesInBufferMax; //! RTT0_bytesInBufferMax is usable for diagnostics.
 
 #ifdef __cplusplus
 }

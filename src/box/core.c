@@ -137,6 +137,11 @@ static size_t triceEncode( uint8_t* enc, uint8_t const* buf, size_t len ){
     return encLen;
 }
 
+#ifdef TRICE_RTT0
+unsigned RTT0_writeSpaceMin = BUFFER_SIZE_UP; //! RTT0_writeSpaceMin is usable for diagnostics.
+unsigned RTT0_bytesInBufferMax = 0;        //! RTT0_bytesInBufferMax is usable for diagnostics.
+#endif
+
 //! TriceWriteDevice sends data to enumerated output device.
 void TriceWriteDevice( TriceWriteDevice_t device, uint8_t *buf, size_t len ){
     switch( device ){
@@ -159,8 +164,16 @@ void TriceWriteDevice( TriceWriteDevice_t device, uint8_t *buf, size_t len ){
             break;
 #endif
 #ifdef TRICE_RTT0
-        case Rtt0:
+        case Rtt0: {
+            // diagnostics
+            unsigned writeSpace = SEGGER_RTT_GetAvailWriteSpace (0);
+            unsigned bytesInBuffer = SEGGER_RTT_GetBytesInBuffer(0);
+            RTT0_writeSpaceMin    = RTT0_writeSpaceMin    < writeSpace    ? RTT0_writeSpaceMin    : writeSpace;
+            RTT0_bytesInBufferMax = RTT0_bytesInBufferMax > bytesInBuffer ? RTT0_bytesInBufferMax : bytesInBuffer;
+        
+            // action
             SEGGER_RTT_Write(0, buf, len );
+        }
             break;
 #endif
 #ifdef TRICE_CGO
