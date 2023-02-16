@@ -5,6 +5,7 @@
 
 <details><summary>Table of Contents</summary><ol>
 <!-- vscode-markdown-toc -->
+
 - [`triceConfig.h` Project Image Size Optimization](#triceconfigh-project-image-size-optimization)
   - [1. Table of Contence](#1-table-of-contence)
   - [2. Code Optimization `-o3` or `-oz` (if supported)](#2-code-optimization--o3-or--oz-if-supported)
