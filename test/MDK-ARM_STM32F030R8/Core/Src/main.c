@@ -135,28 +135,28 @@ int main(void)
         static unsigned lastTricesTime = 0;
         const unsigned msInterval = 30; // change this value to change trice generation speed (not below 2!)
         if( ms >= lastTricesTime + msInterval ){
-            void TriceLogDepthMax( void );
             lastTricesTime = ms;
             const int begin = 20;
             const int end   = 400;
             static int index = 0; // begin: warning:  #3170-D: use of a const variable in a constant expression is nonstandard in C
             
-            if( index == begin ){ // cyclic diagnostics
-                TriceLogDepthMax();
-            }
-
-            TriceCheck(index); // trice messsage
-  
-            #if TRICE_MODE == TRICE_DOUBLE_BUFFER
-            { // max diagnostics
-                static uint16_t triceDepthMax_1 = 0;
-                uint16_t triceDepthMax = TriceDepthMax();
-                if( triceDepthMax_1 != triceDepthMax ){
-                    triceDepthMax_1 = triceDepthMax;
+            #if 0 // with or without triceCheck.c
+                void TriceLogDepthMax( void );
+                if( index == begin ){ // cyclic diagnostics
                     TriceLogDepthMax();
                 }
-            }
-            #endif
+                TriceCheck(index); // trice messsage
+                #if TRICE_MODE == TRICE_DOUBLE_BUFFER
+                { // max diagnostics
+                    static uint16_t triceDepthMax_1 = 0;
+                    uint16_t triceDepthMax = TriceDepthMax();
+                    if( triceDepthMax_1 != triceDepthMax ){
+                        triceDepthMax_1 = triceDepthMax;
+                        TriceLogDepthMax();
+                    }
+                }
+                #endif
+            #endif // #if 0 // with or without triceCheck.c
             #if TRICE_MODE == TRICE_STREAM_BUFFER
             {
                 static uint16_t triceFifoDepthMax_1, triceStreamBufferDepthMax_1;

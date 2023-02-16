@@ -5,7 +5,6 @@
 
 <details><summary>Table of Contents</summary><ol>
 <!-- vscode-markdown-toc -->
-
 - [`triceConfig.h` Project Image Size Optimization](#triceconfigh-project-image-size-optimization)
   - [1. Table of Contence](#1-table-of-contence)
   - [2. Code Optimization `-o3` or `-oz` (if supported)](#2-code-optimization--o3-or--oz-if-supported)
@@ -16,6 +15,7 @@
     - [5.2. ARMCLANG compiler v6 "Link-Time Optimization"](#52-armclang-compiler-v6-link-time-optimization)
     - [5.3. GCC](#53-gcc)
     - [5.4. Other IDE´s and compilers](#54-other-ides-and-compilers)
+  - [6. STM32F030 Example Project - Different Builds](#6-stm32f030-example-project---different-builds)
 
 <!-- vscode-markdown-toc-config
 	numbering=true
@@ -69,3 +69,17 @@ With GCC use the `-flto` CLI switch directly.
 ###  5.4. <a name='OtherIDEsandcompilers'></a>Other IDE´s and compilers
 
 Please check the manuals and create a pull request or simply let me know.
+
+##  6. <a name='STM32F030ExampleProject-DifferentBuilds'></a>STM32F030 Example Project - Different Builds
+
+| Compiler | Linker         | Result                                          | Comment       |
+| -        | -              | -                                               | -             |
+|  o0      |                | Code=46942 RO-data=266 RW-data=176 ZI-data=4896 | very big      |
+|  o1      |                | Code=22582 RO-data=258 RW-data=168 ZI-data=4896 |               |
+|  o3      |                | Code=21646 RO-data=258 RW-data=168 ZI-data=4896 |               |
+|  o0      | split sections | Code= 7880 RO-data=268 RW-data=156 ZI-data=4892 | for debugging |
+|  o1      | split sections | Code= 5404 RO-data=260 RW-data=148 ZI-data=4892 | **for debugging** |
+|  o3      | split sections | Code= 4996 RO-data=260 RW-data=148 ZI-data=4892 | **good balance**  |
+|  o0      | flto           | Code= 8150 RO-data=266 RW-data=176 ZI-data=4896 | builds slower |
+|  o1      | flto           | Code= 5210 RO-data=258 RW-data=148 ZI-data=4892 | builds slower |
+|  o3      | flto           | Code= 4818 RO-data=258 RW-data=148 ZI-data=4892 | builds slower, **smallest image** |
