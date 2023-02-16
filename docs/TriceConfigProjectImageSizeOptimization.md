@@ -44,7 +44,7 @@ When having lots of program memory or using specific linker optimization you can
 
 ##  4. <a name='LinkerOption--split-sectionsifsupported'></a>Linker Option `--split-sections` (if supported)
 
-* In uVision `Project -> Options -> C/C++ -> "One EFL section for each function"`, allows good optimization and getting rid of unused code without additional linker optimization. This leeds to a faster build process and is fine for most cases. It allows excluding unused functions.
+* In ARM-MDK uVision `Project -> Options -> C/C++ -> "One EFL section for each function"` allows good optimization and getting rid of unused code without additional linker optimization. This leeds to a faster build process and is fine for most cases. It allows excluding unused functions.
 
 ##  5. <a name='LinkerOptimization-fltoifsupported'></a>Linker Optimization `-flto` (if supported)
 
@@ -54,12 +54,12 @@ When having lots of program memory or using specific linker optimization you can
 
 ###  5.1. <a name='ARMCCcompilerv5LinkerFeedback'></a>ARMCC compiler v5 "Linker Feedback"
 
-* In ARM uVision, when using ARMCC compiler v5, there is a check box `Project -> Options -> Target -> "Cross Module Optimization"`.
+* In ARM-MDK uVision, when using ARMCC compiler v5, there is a check box `Project -> Options -> Target -> "Cross Module Optimization"`.
 * In ARMCC this works also with the lite version.
 
 ###  5.2. <a name='ARMCLANGcompilerv6Link-TimeOptimization'></a>ARMCLANG compiler v6 "Link-Time Optimization"
 
-* In ARM uVision, when using ARMCLANG compiler v6, the check box `Project -> Options -> C/C++(AC6) -> "Link-Time Optimization"` is usable to set the CLI `-flto` switch. 
+* In ARM-MDK uVision, when using ARMCLANG compiler v6, the check box `Project -> Options -> C/C++(AC6) -> "Link-Time Optimization"` is usable to set the CLI `-flto` switch. 
 * LTO is not possible with ARMCLANG6 lite: https://developer.arm.com/documentation/ka004054/latest.
 
 ###  5.3. <a name='GCC'></a>GCC
