@@ -16,6 +16,7 @@
     - [5.3. GCC](#53-gcc)
     - [5.4. Other IDE´s and compilers](#54-other-ides-and-compilers)
   - [6. STM32F030 Example Project - Different Builds](#6-stm32f030-example-project---different-builds)
+    - [6.1. ARMCC compiler v5](#61-armcc-compiler-v5)
 
 <!-- vscode-markdown-toc-config
 	numbering=true
@@ -71,6 +72,8 @@ With GCC use the `-flto` CLI switch directly.
 Please check the manuals and create a pull request or simply let me know.
 
 ##  6. <a name='STM32F030ExampleProject-DifferentBuilds'></a>STM32F030 Example Project - Different Builds
+
+###  6.1. <a name='ARMCCcompilerv5'></a>ARMCC compiler v5
 
 | Compiler | Linker         | Result                                          | Comment       |
 | -        | -              | -                                               | -             |
