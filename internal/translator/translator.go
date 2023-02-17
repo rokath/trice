@@ -104,37 +104,37 @@ func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec decode
 	b := make([]byte, decoder.DefaultSize) // intermediate trice string buffer
 	bufferReadStartTime := time.Now()
 	sleepCounter := 0
-	if decoder.TargetTimeStampUnit == "" {
+	if decoder.TargetStamp == "" || decoder.TargetStamp == "off" || decoder.TargetStamp == "none" {
 		if !decoder.ShowTargetStamp0Passed {
-			decoder.ShowTargetStamp0 = ""
+			decoder.TargetStamp0 = ""
 		}
 		if !decoder.ShowTargetStamp16Passed {
-			decoder.ShowTargetStamp16 = ""
+			decoder.TargetStamp16 = ""
 		}
 		if !decoder.ShowTargetStamp32Passed {
-			decoder.ShowTargetStamp32 = ""
+			decoder.TargetStamp32 = ""
 		}
 	}
-	if decoder.TargetTimeStampUnit == "ms" {
+	if decoder.TargetStamp == "ms" {
 		if !decoder.ShowTargetStamp0Passed {
-			decoder.ShowTargetStamp0 = "             "
+			decoder.TargetStamp0 = "             "
 		}
 		if !decoder.ShowTargetStamp16Passed {
-			decoder.ShowTargetStamp16 = "ms"
+			decoder.TargetStamp16 = "ms"
 		}
 		if !decoder.ShowTargetStamp32Passed {
-			decoder.ShowTargetStamp32 = "ms"
+			decoder.TargetStamp32 = "ms"
 		}
 	}
-	if decoder.TargetTimeStampUnit == "us" || decoder.TargetTimeStampUnit == "µs" {
+	if decoder.TargetStamp == "us" || decoder.TargetStamp == "µs" {
 		if !decoder.ShowTargetStamp0Passed {
-			decoder.ShowTargetStamp0 = "             "
+			decoder.TargetStamp0 = "             "
 		}
 		if !decoder.ShowTargetStamp16Passed {
-			decoder.ShowTargetStamp16 = "us"
+			decoder.TargetStamp16 = "us"
 		}
 		if !decoder.ShowTargetStamp32Passed {
-			decoder.ShowTargetStamp32 = "us"
+			decoder.TargetStamp32 = "us"
 		}
 	}
 	for {
@@ -199,7 +199,7 @@ func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec decode
 			if logLineStart {
 				switch decoder.TargetTimestampSize {
 				case 4:
-					switch decoder.ShowTargetStamp32 {
+					switch decoder.TargetStamp32 {
 					case "ms", "hh:mm:ss,ms":
 						ms := decoder.TargetTimestamp % 1000
 						sec := (decoder.TargetTimestamp - ms) / 1000 % 60
@@ -213,11 +213,11 @@ func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec decode
 						s = fmt.Sprintf("tim:%4d,%03d_%03d ", sd, ms, us)
 					case "":
 					default:
-						s = fmt.Sprintf(decoder.ShowTargetStamp32, decoder.TargetTimestamp)
+						s = fmt.Sprintf(decoder.TargetStamp32, decoder.TargetTimestamp)
 					}
 
 				case 2:
-					switch decoder.ShowTargetStamp16 {
+					switch decoder.TargetStamp16 {
 					case "ms", "s,ms":
 						ms := decoder.TargetTimestamp % 1000
 						sec := (decoder.TargetTimestamp - ms) / 1000
@@ -228,12 +228,12 @@ func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec decode
 						s = fmt.Sprintf("tim:      %2d_%03d ", ms, us)
 					case "":
 					default:
-						s = fmt.Sprintf(decoder.ShowTargetStamp16, decoder.TargetTimestamp)
+						s = fmt.Sprintf(decoder.TargetStamp16, decoder.TargetTimestamp)
 					}
 
 				case 0:
-					if decoder.ShowTargetStamp0 != "" {
-						s = fmt.Sprintf(decoder.ShowTargetStamp0)
+					if decoder.TargetStamp0 != "" {
+						s = fmt.Sprintf(decoder.TargetStamp0)
 					}
 				}
 				_, err := sw.Write([]byte(s))

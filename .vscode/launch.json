@@ -96,6 +96,30 @@
             ]
         },
         {
+            "name": "-p ARK",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}/cmd/trice",
+            "env": {},
+            "args": ["log",
+                    "-port",
+                    "FILEBUFFER",
+                     "-args",
+                     "${workspaceFolder}/ARK_log.bin",
+                     "-i",
+                     "${workspaceFolder}/ARK_til.json",
+                     "-li",
+                     "${workspaceFolder}/ARK_li.json",
+                     "-prefix",
+                     "off",
+                     "-hs",
+                     "off",
+                     "-ts",
+                     "off"
+            ]
+        },
+        {
             "name": "-s wrapTriceMsgs.bin",
             "type": "go",
             "request": "launch",

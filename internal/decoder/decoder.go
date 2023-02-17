@@ -112,10 +112,10 @@ var (
 	InitialCycle                    = true  // InitialCycle is a helper for the cycle counter automatic.
 	TargetTimestamp                 uint64  // targetTimestamp contains target specific timestamp value.
 	TargetLocation                  uint32  // targetLocation contains 16 bit file id in high and 16 bit line number in low part.
-	TargetTimeStampUnit             string  // TargetTimeStampUnit is the target timestamps time base for default formatting.
-	ShowTargetStamp32               string  // ShowTargetStamp32 is the format string for target timestamps.
-	ShowTargetStamp16               string  // ShowTargetStamp16 is the format string for target timestamps.
-	ShowTargetStamp0                string  // ShowTargetStamp0 is the format string for target timestamps.
+	TargetStamp                     string  // TargetTimeStampUnit is the target timestamps time base for default formatting.
+	TargetStamp32                   string  // ShowTargetStamp32 is the format string for target timestamps.
+	TargetStamp16                   string  // ShowTargetStamp16 is the format string for target timestamps.
+	TargetStamp0                    string  // ShowTargetStamp0 is the format string for target timestamps.
 	TargetTimeStampUnitPassed       bool    // TargetTimeStampUnitPassed is true when flag was TargetTimeStampUnit passed.
 	ShowTargetStamp32Passed         bool    // ShowTargetStamp32Passed is true when flag was TargetTimeStamp32 passed.
 	ShowTargetStamp16Passed         bool    // ShowTargetStamp16Passed is true when flag was TargetTimeStamp16 passed.

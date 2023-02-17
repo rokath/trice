@@ -18,13 +18,13 @@ var (
 	// Verbose gives more information on output if set. The value is injected from main packages.
 	Verbose bool
 
-	// TimestampFormat is used tor line timestamps.
+	// HostStamp is used tor line timestamps.
 	// off = no timestamp
 	// none = no timestamp
 	// LOCmicro = local time with microseconds
 	// UTCmicro = universal time with microseconds
 	// zero = fixed "2006-01-02_1504-05" timestamp (for tests)
-	TimestampFormat string
+	HostStamp string
 
 	// Prefix starts lines. It follows line timestamp, if any.
 	Prefix string

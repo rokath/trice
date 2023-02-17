@@ -355,6 +355,11 @@ func (p *trexDec) sprintTrice(b []byte) (n int) {
 				n += copy(b[n:], fmt.Sprintln(decoder.Hints))
 				return
 			}
+			if p.ParamSpace != (s.bitWidth>>3)*s.paramCount {
+				n += copy(b[n:], fmt.Sprintln("err:ParamSpace =", p.ParamSpace, "not matching with bitWidth ", s.bitWidth, "and paramCount", s.paramCount, "- ignoring package", p.B[:len(p.B)]))
+				n += copy(b[n:], fmt.Sprintln(decoder.Hints))
+				return
+			}
 			n += s.triceFn(p, b, s.bitWidth, s.paramCount) // match found, call handler
 			return
 		}

@@ -16,7 +16,7 @@ import (
 func Test2LineComposer(t *testing.T) {
 	// prepare
 	lw := newCheckDisplay()
-	TimestampFormat = "off"
+	HostStamp = "off"
 	Prefix = "["
 	Suffix = "]"
 	p := newLineComposer(lw)
@@ -44,7 +44,7 @@ func Test2LineComposer(t *testing.T) {
 func TestLineComposer(t *testing.T) {
 	// prepare
 	lw := newCheckDisplay()
-	TimestampFormat = "zero"
+	HostStamp = "zero"
 	Prefix = "<<<"
 	Suffix = ">>>"
 	p := newLineComposer(lw)

@@ -124,8 +124,8 @@ func logLoop(w io.Writer, fSys *afero.Afero) {
 	if decoder.TestTableMode {
 		// set switches if they not set already
 		// trice l -ts off -prefix " }, ``" -suffix "\n``}," -color off
-		if emitter.TimestampFormat == "LOCmicro" {
-			emitter.TimestampFormat = "off"
+		if emitter.HostStamp == "LOCmicro" {
+			emitter.HostStamp = "off"
 		}
 		if defaultPrefix == emitter.Prefix {
 			emitter.Prefix = " }, `"
@@ -136,7 +136,7 @@ func logLoop(w io.Writer, fSys *afero.Afero) {
 		if emitter.ColorPalette == "default" {
 			emitter.ColorPalette = "off"
 		}
-		decoder.ShowTargetStamp32 = "" // todo: justify this line
+		decoder.TargetStamp32 = "" // todo: justify this line
 	}
 
 	var ilu id.TriceIDLookUp
