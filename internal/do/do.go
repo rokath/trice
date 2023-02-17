@@ -10,6 +10,7 @@ import (
 	"log"
 	"net"
 	"os"
+	"path/filepath"
 	"time"
 
 	"github.com/rokath/trice/internal/decoder"
@@ -63,15 +64,13 @@ func triceOutput(w io.Writer, fSys *afero.Afero, fileName string, verbose bool) 
 		return io.MultiWriter(w, ioWriter)
 	}
 
-	// defaultLogfileName is the pattern for default logfile name. The timestamp is replaced with the actual time.
-	defaultLogfileName := "2006-01-02_1504-05_trice.log"
-	if fileName == "auto" {
-		fileName = defaultLogfileName
+	if filepath.Base(fileName) == "auto" { // "2006-01-02_1504-05_trice.log" is the pattern for default logfile name. The timestamp is replaced with the actual time.
+		fileName = filepath.Join(filepath.Dir(fileName), time.Now().Format("2006-01-02_1504-05_trice.log")) // Replace timestamp in default log filename.
 	}
-	// open logfile
-	if fileName == defaultLogfileName {
-		fileName = time.Now().Format(fileName) // Replace timestamp in default log filename.
-	} // Otherwise, use cli defined log filename.
+
+	if verbose {
+		fmt.Println("Logfile is:", fileName)
+	}
 
 	lfHandle, err := fSys.OpenFile(fileName, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	msg.FatalOnErr(err)

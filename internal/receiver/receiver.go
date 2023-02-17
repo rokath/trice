@@ -40,6 +40,7 @@ import (
 	"log"
 	"net"
 	"os"
+	"path/filepath"
 	"strings"
 	"time"
 	"unicode"
@@ -307,21 +308,21 @@ func NewBinaryLogger(w io.Writer, fSys *afero.Afero, from io.ReadWriteCloser) (i
 	if fn == "none" || fn == "off" || fn == "nul" || fn == "" {
 		return from
 	}
-	if fn == "auto" {
-		fn = time.Now().Format("2006-01-02_1504-05_trice.bin") // Replace timestamp in default log filename.
+
+	if filepath.Base(fn) == "auto" { // "2006-01-02_1504-05_trice.bin" is the pattern for default binary logfile name. The timestamp is replaced with the actual time.
+		fn = filepath.Join(filepath.Dir(fn), time.Now().Format("2006-01-02_1504-05_trice.bin")) // Replace timestamp in default log filename.
 	} // Otherwise, use cli defined log filename.
 
+	if Verbose {
+		fmt.Fprintf(w, "Writing trice input to binary logfile %s...\n", fn)
+	}
 	lfHandle, err := fSys.OpenFile(fn, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	msg.FatalOnErr(err)
-	if Verbose {
-		fmt.Fprintf(w, "Writing to trice input to binary logfile %s...\n", fn)
-	}
 
 	p := new(binaryLogger)
 	p.r = from
 	p.w = lfHandle
 	return p
-
 }
 
 func (p *binaryLogger) Read(buf []byte) (count int, err error) {
