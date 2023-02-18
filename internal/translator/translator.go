@@ -117,7 +117,7 @@ func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec decode
 	}
 	if decoder.TargetStamp == "ms" {
 		if !decoder.ShowTargetStamp0Passed {
-			decoder.TargetStamp0 = "             "
+			decoder.TargetStamp0 = "time:            "
 		}
 		if !decoder.ShowTargetStamp16Passed {
 			decoder.TargetStamp16 = "ms"
@@ -128,7 +128,7 @@ func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec decode
 	}
 	if decoder.TargetStamp == "us" || decoder.TargetStamp == "µs" {
 		if !decoder.ShowTargetStamp0Passed {
-			decoder.TargetStamp0 = "             "
+			decoder.TargetStamp0 = "time:            "
 		}
 		if !decoder.ShowTargetStamp16Passed {
 			decoder.TargetStamp16 = "us"
@@ -205,12 +205,12 @@ func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec decode
 						sec := (decoder.TargetTimestamp - ms) / 1000 % 60
 						min := (decoder.TargetTimestamp - ms - 1000*sec) / 60000 % 60
 						hour := (decoder.TargetTimestamp - ms - 1000*sec - 60000*min) / 3600000
-						s = fmt.Sprintf("tim:%2d:%02d:%02d,%03d ", hour, min, sec, ms)
+						s = fmt.Sprintf("tim:%2d:%02d:%02d,%03d", hour, min, sec, ms)
 					case "us", "µs", "ssss,ms_µs":
 						us := decoder.TargetTimestamp % 1000
 						ms := (decoder.TargetTimestamp - us) / 1000 % 1000
 						sd := (decoder.TargetTimestamp - 1000*ms) / 1000000
-						s = fmt.Sprintf("tim:%4d,%03d_%03d ", sd, ms, us)
+						s = fmt.Sprintf("tim:%4d,%03d_%03d", sd, ms, us)
 					case "":
 					default:
 						s = fmt.Sprintf(decoder.TargetStamp32, decoder.TargetTimestamp)
@@ -221,11 +221,11 @@ func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec decode
 					case "ms", "s,ms":
 						ms := decoder.TargetTimestamp % 1000
 						sec := (decoder.TargetTimestamp - ms) / 1000
-						s = fmt.Sprintf("tim:      %2d,%03d ", sec, ms)
+						s = fmt.Sprintf("tim:      %2d,%03d", sec, ms)
 					case "us", "µs", "ms_µs":
 						us := decoder.TargetTimestamp % 1000
 						ms := (decoder.TargetTimestamp - us) / 1000 % 1000
-						s = fmt.Sprintf("tim:      %2d_%03d ", ms, us)
+						s = fmt.Sprintf("tim:      %2d_%03d", ms, us)
 					case "":
 					default:
 						s = fmt.Sprintf(decoder.TargetStamp16, decoder.TargetTimestamp)
@@ -237,6 +237,8 @@ func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec decode
 					}
 				}
 				_, err := sw.Write([]byte(s))
+				msg.OnErr(err)
+				_, err = sw.Write([]byte("default: "))
 				msg.OnErr(err)
 			}
 			// write ID only if enabled and line start.

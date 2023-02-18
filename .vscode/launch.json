@@ -174,6 +174,24 @@
             ]
         },
         {
+            "name": "trice l -p COM6",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}/cmd/trice",
+            "env": {},
+            "args": ["log",
+                    "-idlist",
+                    "${workspaceFolder}/test/MDK-ARM_STM32F030R8/til.json",
+                    "-li",
+                    "${workspaceFolder}/test/MDK-ARM_STM32F030R8/li.json",
+                    "-port",
+                     "COM6",
+                     "-baud",
+                     "921600"
+            ]
+        },        
+        {
             "name": "trice l -p JLINK",
             "type": "go",
             "request": "launch",
@@ -181,18 +199,14 @@
             "program": "${workspaceFolder}/cmd/trice",
             "env": {},
             "args": ["log",
-                     "-idlist",
-                     "${workspaceFolder}/tiln.json",
-                     "-port",
+                    "-idlist",
+                    "${workspaceFolder}/test/MDK-ARM_STM32F030R8/til.json",
+                    "-li",
+                    "${workspaceFolder}/test/MDK-ARM_STM32F030R8/li.json",
+                    "-port",
                      "JLINK",
                      "-args",
-                     "-device STM32G0B1KE -if SWD -speed 4000 -RTTChannel 0",
-                     "-tsf",
-                     "us",
-                     "-prefix",
-                     "off",
-                     "-li",
-                     "off"
+                     "-device STM32F030R8 -if SWD -speed 4000 -RTTChannel 0"
             ]
         },
         {

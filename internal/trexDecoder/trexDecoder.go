@@ -360,6 +360,26 @@ func (p *trexDec) sprintTrice(b []byte) (n int) {
 				n += copy(b[n:], fmt.Sprintln(decoder.Hints))
 				return
 			}
+			ss := strings.Split(p.Trice.Strg, `\n`)
+			if len(ss) >= 3 { // at least one "\n" before "\n" line end
+				spaces := 12 + 1 // todo: strings.SplitN & len(decoder.TargetStamp0) // 12
+				if !(id.LIFnJSON == "off" || id.LIFnJSON == "none") {
+					spaces += 28 /* todo: length(decoder.LocationInformationFormatString), see https://stackoverflow.com/questions/32987215/find-numbers-in-string-using-golang-regexp*/
+					// todo: split channel info with format specifiers too, example: ["msg:%d\nsignal:%x %u\n", p0, p1, p2] -> ["msg:%d\n", p0] && ["signal:%x %u\n", p1, p2]
+				}
+				if decoder.ShowID != "" {
+					spaces += 5
+				}
+
+				skip := `\n`
+				for spaces > 0 {
+					skip += " "
+					spaces--
+				}
+				p.Trice.Strg = strings.Join(ss[:], skip)
+				p.Trice.Strg = strings.TrimRight(p.Trice.Strg, " ")
+			}
+
 			n += s.triceFn(p, b, s.bitWidth, s.paramCount) // match found, call handler
 			return
 		}
@@ -394,7 +414,10 @@ var cobsFunctionPtrList = [...]triceTypeFn{
 	{"TRICE32_F", (*trexDec).trice32F, -1, 0, 0}, // do not remove from 4th position, see cobsFunctionPtrList[10].ParamSpace = ...
 	{"TRICE64_F", (*trexDec).trice64F, -1, 0, 0}, // do not remove from 4th position, see cobsFunctionPtrList[11].ParamSpace = ...
 
+	{"TRICE8_0", (*trexDec).trice0, 0, 0, 0},
+	{"TRICE16_0", (*trexDec).trice0, 0, 0, 0},
 	{"TRICE32_0", (*trexDec).trice0, 0, 0, 0},
+	{"TRICE64_0", (*trexDec).trice0, 0, 0, 0},
 	{"TRICE0", (*trexDec).trice0, 0, 0, 0},
 	{"TRICE8_1", (*trexDec).unSignedOrSignedOut, 1, 8, 1},
 	{"TRICE8_2", (*trexDec).unSignedOrSignedOut, 2, 8, 2},
