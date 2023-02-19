@@ -106,7 +106,22 @@ int main(void)
     #endif
     
     TRICE_HEADLINE;
-    
+
+    TRice( iD( 3164), "A TRice message containing a newline\nbefore the line end\n" );
+    TRice( iD( 6554), "\nA TRice message starting with a a newline\n" );
+    TRice( iD( 3112), "line0:A TRice message with several lines\nline1\nline2\nline3:last line\n" );
+
+
+    // normal use cases
+    TRice( iD( 3771), "info:This is a message without values and a 32-bit stamp.\n" );        //exp: time: 842,150_450default: info:This is a message without values and a 32-bit stamp.
+    Trice( iD( 5930), "info:This is a message without values and a 16-bit stamp.\n" );        //exp: time:       5_654default: info:This is a message without values and a 16-bit stamp.
+    trice( iD( 5370), "info:This is a message without values and without stamp.\n"  );        //exp: time:            default: info:This is a message without values and without stamp.
+
+    // normal use cases but CGO compiler issue, but works with ARM6 and 6
+    TRice( iD( 7729),"info:12 default bit width values %d, %u, %x, %X, %t, %e, %f, %g, %E, %F, %G, 0xb%08b and a 32-bit stamp.\n", -3, -4, -5, -6, 1, aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), -8 ); //_exp: time: 842,150_450default: info:12 default bit width values -3, 4294967292, fffffffb, FFFFFFFA, truet, 1.401298e-45, -7.123457, -7.123457, -7.123457E+00, -7.123457, -7.123457, 0xb11000000111000111111001101011100 and a 32-bit stamp.
+    Trice( iD( 4488),"info:12 default bit width values %d, %u, %x, %X, %t, %e, %f, %g, %E, %F, %G, 0xb%08b and a 16-bit stamp.\n", -3, -4, -5, -6, 1, aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), -8 ); //_exp: time:       5_654default: info:12 default bit width values -3, 4294967292, fffffffb, FFFFFFFA, truet, 1.401298e-45, -7.123457, -7.123457, -7.123457E+00, -7.123457, -7.123457, 0xb11000000111000111111001101011100 and a 16-bit stamp.
+    trice( iD( 7929),"info:12 default bit width values %d, %u, %x, %X, %t, %e, %f, %g, %E, %F, %G, 0xb%08b and without stamp.\n" , -3, -4, -5, -6, 1, aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), -8 ); //_exp: time:            default: info:12 default bit width values -3, 4294967292, fffffffb, FFFFFFFA, truet, 1.401298e-45, -7.123457, -7.123457, -7.123457E+00, -7.123457, -7.123457, 0xb11000000111000111111001101011100 and without stamp.
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -141,7 +156,7 @@ int main(void)
             const int end   = 400;
             static int index = 0; // begin: warning:  #3170-D: use of a const variable in a constant expression is nonstandard in C
 
-            #if 1 // with or without triceCheck.c
+            #if 0 // with or without triceCheck.c
                 void TriceLogDepthMax( void );
                 if( index == begin ){ // cyclic diagnostics
                     TriceLogDepthMax();

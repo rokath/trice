@@ -167,13 +167,12 @@ extern "C" {
 
 //! This is usable as the very first trice sequence after restart. Adapt and use it or ignore it.
 #define TRICE_HEADLINE \
-    TRICE0( Id( 1962), "s:                                          \n" ); \
-    TRICE8( Id( 1928), "s:     NUCLEO-F030R8     TRICE_MODE %3u     \n", TRICE_MODE ); \
-    TRICE0( Id( 2708), "s:                                          \n" ); \
-    TRICE0( Id( 1738), "s:     " ); \
+    TRice( iD( 1697), "s:     NUCLEO-F030R8     TRICE_MODE %3u     \n", TRICE_MODE ); \
+    trice( iD( 7862), "s:     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~     \n" ); \
+    trice( iD( 1859), "s:     " ); \
     TriceLogBufferInfo(); \
-    TRICE0( Id( 1143), "s:     \n" ); \
-    TRICE0( Id( 3577), "s:                                          \n");
+    trice( iD( 4650), "s:     \n" ); \
+    Trice( iD( 3248), "s:     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~     \n");
 
 //
 ///////////////////////////////////////////////////////////////////////////////
