@@ -119,7 +119,7 @@ int main(void)
             triceCommandFlag = 0;
             TRICE_S( Id( 6663), "att:Executing command %s ...\n", triceCommandBuffer );
             // do
-            TRICE( Id( 1772), "dbg:\aHi!\n" ); // sound!
+            TRICE( Id( 4406), "dbg:\aHi!\n" ); // sound!
             TRICE( Id( 6539), "att:...done\n" );
         }
 
@@ -134,34 +134,14 @@ int main(void)
 
         // send some trices every few ms
         static unsigned lastTricesTime = 0;
-        const unsigned msInterval = 1000; // change this value to change trice generation speed (not below 2!)
+        const unsigned msInterval = 3; // change this value to change trice generation speed (not below 2!)
         if( ms >= lastTricesTime + msInterval ){
             lastTricesTime = ms;
             const int begin = 20;
             const int end   = 400;
             static int index = 0; // begin: warning:  #3170-D: use of a const variable in a constant expression is nonstandard in C
 
-            TRice( iD( 6890), "att:TRice aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n" );
-            TRice( iD( 4480), "msg:TRice bbbb\n" );
-            Trice( iD( 7175), "msg:Trice bbbb\n" );
-            trice( iD( 5965), "msg:trice bbbb\n" );
-
-            TRice( iD( 2014), "msg:TRice c\nd\n" );
-            TRice( iD( 4878), "msg:TRice e\ninf:f\nmsg:g\n" );
-            TRice( iD( 1727), "msg:TRice h\ninf:i\nmsg:j\natt:k\n" );
-            TRice( iD( 3911), "msg:TRice \n0\n1\n2\n3\n" );
-                                                         
-            trice( iD( 2578), "msg:trice c\nd\n" );
-            trice( iD( 6259), "msg:trice e\ninf:f\nmsg:g\n" );
-            trice( iD( 3921), "msg:trice h\ninf:i\nmsg:j\natt:k\n" );
-            trice( iD( 1463), "msg:trice \n0\n1\n2\n3\n" );
-
-            Trice( iD( 7353), "msg:Trice c\nd\n" );
-            Trice( iD( 1621), "msg:Trice e\ninf:f\nmsg:g\n" );
-            Trice( iD( 1417), "msg:Trice h\ninf:i\nmsg:j\natt:k\n" );
-            Trice( iD( 7275), "msg:Trice \n0\n1\n2\n3\n" );
-
-            #if 0 // with or without triceCheck.c
+            #if 1 // with or without triceCheck.c
                 void TriceLogDepthMax( void );
                 if( index == begin ){ // cyclic diagnostics
                     TriceLogDepthMax();
@@ -184,7 +164,7 @@ int main(void)
                 if( triceFifoDepthMax_1 != triceFifoDepthMax || triceStreamBufferDepthMax_1 != triceStreamBufferDepthMax ){
                     triceFifoDepthMax_1 = triceFifoDepthMax;
                     triceStreamBufferDepthMax_1 = triceStreamBufferDepthMax;
-                    TRICE16( Id( 6993), "MSG:triceFifoDepthMax = %d of max %d, triceStreamBufferDepthMax = %d of max %d\n", triceFifoDepthMax, TRICE_FIFO_ELEMENTS, triceStreamBufferDepthMax, TRICE_BUFFER_SIZE );
+                    TRICE16( Id( 2517), "MSG:triceFifoDepthMax = %d of max %d, triceStreamBufferDepthMax = %d of max %d\n", triceFifoDepthMax, TRICE_FIFO_ELEMENTS, triceStreamBufferDepthMax, TRICE_BUFFER_SIZE );
                 }
             }
             #endif
