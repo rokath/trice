@@ -154,12 +154,8 @@ github.com/prometheus/client_model v0.0.0-20190812154241-14fe0d1b01d4/go.mod h1:
 github.com/rivo/uniseg v0.1.0 h1:+2KBaVoUmb9XzDsrx/Ct0W/EYOSFf/nWTauy++DprtY=
 github.com/rivo/uniseg v0.1.0/go.mod h1:J6wj4VEh+S6ZtnVlnTBMWIodfgj8LQOQFoIToxlJtxc=
 github.com/rogpeppe/go-internal v1.3.0/go.mod h1:M8bDsm7K2OlrFYOpmOWEs/qY81heoFRclV5y23lUDJ4=
-github.com/rokath/cobs v0.0.0-20230205111549-ddc68583b0bd h1:geZZr2/CvEdLk10GrRh0bUhjhZ2IsAOnht16epxJ6cg=
-github.com/rokath/cobs v0.0.0-20230205111549-ddc68583b0bd/go.mod h1:5g1BgE3hXZKLjCGkbljRYJRwEzmaC4rq4gVF3BNvncE=
 github.com/rokath/cobs v0.0.0-20230205164222-7ee168b7864d h1:7JI7L3OYpfTB4lXEl9fHWOQSXMmGvIR3ndslamNIyp0=
 github.com/rokath/cobs v0.0.0-20230205164222-7ee168b7864d/go.mod h1:5g1BgE3hXZKLjCGkbljRYJRwEzmaC4rq4gVF3BNvncE=
-github.com/rokath/tcobs v0.0.0-20230205095505-651a15f17c27 h1:Nb6WHsUYJhoRN516jb2w2rIuyPpLkxkDYXYv+/PP9H0=
-github.com/rokath/tcobs v0.0.0-20230205095505-651a15f17c27/go.mod h1:w/78VZSCCzriX+vq1qCpEm5RHuxU1pbY3gYQeFH6liU=
 github.com/rokath/tcobs v0.0.0-20230205132339-8d91e904310e h1:GfOfgcanlwuc5kBAxXbp6POgqTq6h3SjwqOMlekp8po=
 github.com/rokath/tcobs v0.0.0-20230205132339-8d91e904310e/go.mod h1:w/78VZSCCzriX+vq1qCpEm5RHuxU1pbY3gYQeFH6liU=
 github.com/spf13/afero v1.9.3 h1:41FoI0fD7OR7mGcKE/aOiLkGreyf8ifIOQmJANWogMk=
