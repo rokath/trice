@@ -248,6 +248,8 @@ func decodeAndComposeLoop(w io.Writer, sw *emitter.TriceLineComposer, dec decode
 				s := fmt.Sprintf(decoder.ShowID, decoder.LastTriceID)
 				_, err := sw.Write([]byte(s))
 				msg.OnErr(err)
+				_, err = sw.Write([]byte("default: ")) // add space as separator
+				msg.OnErr(err)
 			}
 			_, err := sw.Write(b[:n])
 			msg.OnErr(err)
