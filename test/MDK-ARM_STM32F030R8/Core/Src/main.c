@@ -117,7 +117,7 @@ int main(void)
         // check for external commands
         if( triceCommandFlag ){
             triceCommandFlag = 0;
-            TRICE_S( Id( 6663), "att:Executing command %s ...\n", triceCommandBuffer );
+            TRICE_S( Id( 5687), "att:Executing command %s ...\n", triceCommandBuffer );
             // do
             TRICE( Id( 4406), "dbg:\aHi!\n" ); // sound!
             TRICE( Id( 6539), "att:...done\n" );

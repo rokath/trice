@@ -146,7 +146,7 @@ size_t TriceModbusOnlyFetch( int index, uint8_t* tBuf ){
 #endif
 
 void TriceLogBufferInfo( void ){
-    TRICE32( id( 6049), "att: Trice stream buffer size:%5u ", TRICE_STREAM_BUFFER_SIZE );
+    TRICE32( id( 5391), "att: Trice stream buffer size:%5u ", TRICE_STREAM_BUFFER_SIZE );
 }
 
 #endif // #if TRICE_MODE == TRICE_STREAM_BUFFER
