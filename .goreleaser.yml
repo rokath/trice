@@ -103,9 +103,16 @@ archives:
     # Defaults are any files matching `LICENCE*`, `LICENSE*`,
     # `README*` and `CHANGELOG*` (case-insensitive).
     files:
-      - README.md
+      - AUTHORS.md
       - CHANGELOG.md
-      - cgo
+      - CODE_OF_CONDUCT.md
+      - CONTRIBUTING.md
+      - LICENSE.md
+      - README.md
+      - go.mod
+      - go.sum
+      - GoInfos.txt
+      - .vscode/*
       - cmd
       - docs/**/*
       - internal
@@ -114,9 +121,6 @@ archives:
       - test/**/*
       - third_party/**/*
       - til.Csharp
-      - *.*
-
-      
 
 checksum:
   # You can change the name of the checksums file.
