@@ -18,9 +18,10 @@ func TestLogs(t *testing.T) {
 	triceLog := func(t *testing.T, fSys *afero.Afero, buffer string) string {
 		var o bytes.Buffer
 		fmt.Println("-i", triceDir+"/test/testdata/til.json")
-		assert.Nil(t, args.Handler(io.Writer(&o), fSys, []string{"trice", "log", "-i", triceDir + "/test/testdata/til.json", "-p", "BUFFER", "-args", buffer, "-ts", "off", "-prefix", "off", "-tsf0", "time:        ", "-tsf16", "time:%8x", "-tsf32", "time:%8x", "-li", "off", "-color", "off"}))
+		assert.Nil(t, args.Handler(io.Writer(&o), fSys, []string{"trice", "log", "-i", triceDir + "/test/testdata/til.json", "-p", "BUFFER", "-args", buffer, "-hs", "off", "-prefix", "off", "-li", "off", "-color", "off"}))
 		return o.String()
 	}
 
 	triceLogTest(t, triceLog)
+	//t.Fail()
 }

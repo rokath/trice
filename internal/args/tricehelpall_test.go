@@ -9,7 +9,7 @@ import (
 	"github.com/rokath/trice/internal/id"
 )
 
-func _TestHelpAll(t *testing.T) {
+func TestHelpAll(t *testing.T) {
 	input := []string{"trice", "help", "-all"}
 	expect := `syntax: 'trice sub-command' [params]
       sub-command 'ds|displayServer': Starts a display server.
@@ -38,7 +38,7 @@ func _TestHelpAll(t *testing.T) {
               Append all output to logfile. Options are: 'off|none|filename|auto':
               "off": no logfile (same as "none")
               "none": no logfile (same as "off")
-              "auto": Use as logfile name "2006-01-02_1504-05_trice.log" with actual time.
+              "my/path/auto": Use as logfile name "my/path/2006-01-02_1504-05_trice.log" with actual time. "my/path/" must exist.
               "filename": Any other string than "auto", "none" or "off" is treated as a filename. If the file exists, logs are appended.
               All trice output of the appropriate subcommands is appended per default into the logfile trice additionally to the normal output.
               Change the filename with "-logfile myName.txt" or switch logging off with "-logfile none".
@@ -66,7 +66,7 @@ func _TestHelpAll(t *testing.T) {
               Append all output to logfile. Options are: 'off|none|filename|auto':
               "off": no logfile (same as "none")
               "none": no logfile (same as "off")
-              "auto": Use as logfile name "2006-01-02_1504-05_trice.log" with actual time.
+              "my/path/auto": Use as logfile name "my/path/2006-01-02_1504-05_trice.log" with actual time. "my/path/" must exist.
               "filename": Any other string than "auto", "none" or "off" is treated as a filename. If the file exists, logs are appended.
               All trice output of the appropriate subcommands is appended per default into the logfile trice additionally to the normal output.
               Change the filename with "-logfile myName.txt" or switch logging off with "-logfile none".
@@ -105,7 +105,7 @@ func _TestHelpAll(t *testing.T) {
         -args string
               Use to pass port specific parameters. The "default" value depends on the used port:
               port "BUFFER": default="0 0 0 0", Option for args is any space separated decimal number byte sequence.
-              port "DUMP": default="", Option for args is any space or comma separated byte sequence.
+              port "DUMP": default="", Option for args is any space or comma separated byte sequence in hex like "7B 1A ee,88, 5a".
               port "COMn": default="", Unused option for a different driver. (For baud rate settings see -baud.)
               port "FILE": default="trices.raw", Option for args is any file name. Trice retries on EOF.
               port "FILEBUFFER": default="trices.raw", Option for args is any file name. Trice stops on EOF.
@@ -128,7 +128,7 @@ func _TestHelpAll(t *testing.T) {
               Append all output to logfile. Options are: 'off|none|filename|auto':
               "off": no binary logfile (same as "none")
               "none": no binary logfile (same as "off")
-              "auto": Use as binary logfile name "2006-01-02_1504-05_trice.bin" with actual time.
+              "my/path/auto": Use as binary logfile name "my/path/2006-01-02_1504-05_trice.bin" with actual time. "my/path/" must exist.
               "filename": Any other string than "auto", "none" or "off" is treated as a filename. If the file exists, logs are appended.
               All trice output of the appropriate subcommands is appended per default into the logfile trice additionally to the normal output.
               Change the filename with "-binaryLogfile myName.bin" or switch logging off with "-binaryLogfile none".
@@ -165,6 +165,10 @@ func _TestHelpAll(t *testing.T) {
                                 COBS = TLE (obsolete naming)
                                 DUMP prints the received bytes as hex code (see switch -dc too).
                (default "TREX")
+        -hs string
+              PC timestamp for logs and logfile name, options: 'off|none|UTCmicro|zero'
+              This timestamp switch generates the timestamps on the PC only (reception time), what is good enough for many cases.
+              "LOCmicro" means local time with microseconds. "UTCmicro" shows timestamps in universal time. When set to "off" no PC timestamps displayed. (default "LOCmicro")
         -i string
               Short for '-idlist'.
                (default "til.json")
@@ -189,14 +193,14 @@ func _TestHelpAll(t *testing.T) {
               Short for '-locationInformation'.
                (default "li.json")
         -liFmt string
-              Target location format string at start of each line, if target location existent (configured). Use "off" or "none" to suppress existing target location. If several trices form a log line only the location of first trice ist displayed. (default "info:%20s:%4d ")
+              Target location format string at start of each line, if target location existent (configured). Use "off" or "none" to suppress existing target location. If several trices form a log line only the location of first trice ist displayed. (default "info:%21s %5d ")
         -locationInformation string
               The trice location list file.
               The specified JSON file is needed to display the location information for each ID during runtime and needs no version control.
               It is regenerated on each refresh, update or renew trice run. When trice log finds a location information file, it is used for
               log output with location information. Otherwise no location information is displayed, what usually is wanted in the field.
               This way the newest til.json can be used also with legacy firmware, but the li.json must match the current firmware version.
-              "off" or "none" suppress the display of the location information even a li.json file exists. Avoid shared ID's for correct
+              With "off" or "none" suppress the display or generation of the location information. Avoid shared ID's for correct
               location information. See information for the -SharedIDs switch for additionals hints. See -tLocFmt for formatting.
                (default "li.json")
         -logLevel string
@@ -205,11 +209,13 @@ func _TestHelpAll(t *testing.T) {
               Append all output to logfile. Options are: 'off|none|filename|auto':
               "off": no logfile (same as "none")
               "none": no logfile (same as "off")
-              "auto": Use as logfile name "2006-01-02_1504-05_trice.log" with actual time.
+              "my/path/auto": Use as logfile name "my/path/2006-01-02_1504-05_trice.log" with actual time. "my/path/" must exist.
               "filename": Any other string than "auto", "none" or "off" is treated as a filename. If the file exists, logs are appended.
               All trice output of the appropriate subcommands is appended per default into the logfile trice additionally to the normal output.
               Change the filename with "-logfile myName.txt" or switch logging off with "-logfile none".
                (default "off")
+        -newLineIndent int
+              Force newline offset for trice format strings with line breaks before end. -1=auto sense (default -1)
         -p string
               short for -port (default "J-LINK")
         -packageFraming string
@@ -257,17 +263,13 @@ func _TestHelpAll(t *testing.T) {
         -triceEndianness string
               Target endianness trice data stream. Option: "bigEndian". (default "littleEndian")
         -ts string
-              PC timestamp for logs and logfile name, options: 'off|none|UTCmicro|zero'
-              This timestamp switch generates the timestamps on the PC only (reception time), what is good enough for many cases.
-              "LOCmicro" means local time with microseconds. "UTCmicro" shows timestamps in universal time. When set to "off" no PC timestamps displayed. (default "LOCmicro")
-        -tsf string
-              Target timestamp general format string at start of each line, if target timestamps existent (configured). Choose between "µs" or "us" and "ms", use "" to suppress existing target timestamps. Sets tsf0, tsf16, tsf32 if these not passed. If several trices form a log line only the timestamp of first trice ist displayed. (default "ms")
-        -tsf0 string
-              Target stamp format string at start of each line, if no target stamps existent (configured). Use "" to suppress existing target timestamps. If several trices form a log line only the timestamp of first trice ist displayed. (default "             ")
-        -tsf16 string
-              16-bit Target stamp format string at start of each line, if 16-bit target stamps existent (configured). Choose between "µs" or "us" and "ms", use "" to suppress or use s.th. like "...%d...". If several trices form a log line only the timestamp of first trice ist displayed. (default "ms")
-        -tsf32 string
-              32-bit Target stamp format string at start of each line, if 32-bit target stamps existent (configured). Choose between "µs" or "us" and "ms", use "" to suppress or use s.th. like "...%d...". If several trices form a log line only the timestamp of first trice ist displayed. (default "ms")
+              Target timestamp general format string at start of each line, if target timestamps existent (configured). Choose between "µs" (or "us") and "ms", use "" to suppress existing target timestamps. Sets tsf0, tsf16, tsf32 if these not passed. If several trices form a log line only the timestamp of first trice ist displayed. (default "µs")
+        -ts0 string
+              Target stamp format string at start of each line, if no target stamps existent (configured). Use "" to suppress existing target timestamps. If several trices form a log line only the timestamp of first trice ist displayed. (default "time:            ")
+        -ts16 string
+              16-bit Target stamp format string at start of each line, if 16-bit target stamps existent (configured). Choose between "µs" (or "us") and "ms", use "" to suppress or use s.th. like "...%d...". If several trices form a log line only the timestamp of first trice ist displayed. (default "ms")
+        -ts32 string
+              32-bit Target stamp format string at start of each line, if 32-bit target stamps existent (configured). Choose between "µs" (or "us") and "ms", use "" to suppress or use s.th. like "...%d...". If several trices form a log line only the timestamp of first trice ist displayed. (default "ms")
         -u    Short for '-unsigned'. (default true)
         -unsigned
               Hex, Octal and Bin values are printed as unsigned values. (default true)
@@ -311,7 +313,7 @@ func _TestHelpAll(t *testing.T) {
               It is regenerated on each refresh, update or renew trice run. When trice log finds a location information file, it is used for
               log output with location information. Otherwise no location information is displayed, what usually is wanted in the field.
               This way the newest til.json can be used also with legacy firmware, but the li.json must match the current firmware version.
-              "off" or "none" suppress the display of the location information even a li.json file exists. Avoid shared ID's for correct
+              With "off" or "none" suppress the display or generation of the location information. Avoid shared ID's for correct
               location information. See information for the -SharedIDs switch for additionals hints. See -tLocFmt for formatting.
                (default "li.json")
         -s value
@@ -356,7 +358,7 @@ func _TestHelpAll(t *testing.T) {
               It is regenerated on each refresh, update or renew trice run. When trice log finds a location information file, it is used for
               log output with location information. Otherwise no location information is displayed, what usually is wanted in the field.
               This way the newest til.json can be used also with legacy firmware, but the li.json must match the current firmware version.
-              "off" or "none" suppress the display of the location information even a li.json file exists. Avoid shared ID's for correct
+              With "off" or "none" suppress the display or generation of the location information. Avoid shared ID's for correct
               location information. See information for the -SharedIDs switch for additionals hints. See -tLocFmt for formatting.
                (default "li.json")
         -s value
@@ -396,7 +398,7 @@ func _TestHelpAll(t *testing.T) {
               Append all output to logfile. Options are: 'off|none|filename|auto':
               "off": no logfile (same as "none")
               "none": no logfile (same as "off")
-              "auto": Use as logfile name "2006-01-02_1504-05_trice.log" with actual time.
+              "my/path/auto": Use as logfile name "my/path/2006-01-02_1504-05_trice.log" with actual time. "my/path/" must exist.
               "filename": Any other string than "auto", "none" or "off" is treated as a filename. If the file exists, logs are appended.
               All trice output of the appropriate subcommands is appended per default into the logfile trice additionally to the normal output.
               Change the filename with "-logfile myName.txt" or switch logging off with "-logfile none".
@@ -443,7 +445,7 @@ func _TestHelpAll(t *testing.T) {
               It is regenerated on each refresh, update or renew trice run. When trice log finds a location information file, it is used for
               log output with location information. Otherwise no location information is displayed, what usually is wanted in the field.
               This way the newest til.json can be used also with legacy firmware, but the li.json must match the current firmware version.
-              "off" or "none" suppress the display of the location information even a li.json file exists. Avoid shared ID's for correct
+              With "off" or "none" suppress the display or generation of the location information. Avoid shared ID's for correct
               location information. See information for the -SharedIDs switch for additionals hints. See -tLocFmt for formatting.
                (default "li.json")
         -s value

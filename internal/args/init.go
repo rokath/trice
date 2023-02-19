@@ -91,13 +91,13 @@ func logInit() {
 `) // flag
 	fsScLog.StringVar(&translator.Encoding, "e", defaultEncoding, "Short for -encoding.") // short flag
 	fsScLog.IntVar(&decoder.DumpLineByteCount, "dc", 32, `Dumped bytes per line when "-encoding DUMP"`)
+	fsScLog.IntVar(&decoder.NewlineIndent, "newLineIndent", -1, `Force newline offset for trice format strings with line breaks before end. -1=auto sense`)
 	fsScLog.StringVar(&cipher.Password, "password", "", `The decrypt passphrase. If you change this value you need to compile the target with the appropriate key (see -showKeys).
 Encryption is recommended if you deliver firmware to customers and want protect the trice log output. This does work right now only with flex and flexL format.`) // flag
 	fsScLog.StringVar(&cipher.Password, "pw", "", "Short for -password.") // short flag
 	fsScLog.BoolVar(&cipher.ShowKey, "showKey", false, `Show encryption key. Use this switch for creating your own password keys. If applied together with "-password MySecret" it shows the encryption key.
 Simply copy this key than into the line "#define ENCRYPT XTEA_KEY( ea, bb, ec, 6f, 31, 80, 4e, b9, 68, e2, fa, ea, ae, f1, 50, 54 ); //!< -password MySecret" inside triceConfig.h.
 `+boolInfo)
-
 	fsScLog.StringVar(&emitter.LogLevel, "logLevel", "all", `Level based log filtering. "off" suppresses everything. If equal to a channel specifier all with a bigger index inside emitter.ColorChannels is not shown.`)
 	fsScLog.StringVar(&id.DefaultTriceBitWidth, "defaultTRICEBitwidth", "32", `The expected value bit width for TRICE macros. Options: 8, 16, 32, 64. Must be in sync with the 'TRICE_DEFAULT_PARAMETER_BIT_WIDTH' setting inside triceConfig.h`)
 	fsScLog.StringVar(&emitter.HostStamp, "hs", "LOCmicro",
@@ -109,7 +109,7 @@ This timestamp switch generates the timestamps on the PC only (reception time), 
 	fsScLog.StringVar(&decoder.TargetStamp, "ts", "µs", `Target timestamp general format string at start of each line, if target timestamps existent (configured). Choose between "µs" (or "us") and "ms", use "" to suppress existing target timestamps. Sets tsf0, tsf16, tsf32 if these not passed. If several trices form a log line only the timestamp of first trice ist displayed.`)
 	fsScLog.StringVar(&decoder.TargetStamp32, "ts32", "ms", `32-bit Target stamp format string at start of each line, if 32-bit target stamps existent (configured). Choose between "µs" (or "us") and "ms", use "" to suppress or use s.th. like "...%d...". If several trices form a log line only the timestamp of first trice ist displayed.`)
 	fsScLog.StringVar(&decoder.TargetStamp16, "ts16", "ms", `16-bit Target stamp format string at start of each line, if 16-bit target stamps existent (configured). Choose between "µs" (or "us") and "ms", use "" to suppress or use s.th. like "...%d...". If several trices form a log line only the timestamp of first trice ist displayed.`)
-	fsScLog.StringVar(&decoder.TargetStamp0, "ts0", "time:000000000000", `Target stamp format string at start of each line, if no target stamps existent (configured). Use "" to suppress existing target timestamps. If several trices form a log line only the timestamp of first trice ist displayed.`)
+	fsScLog.StringVar(&decoder.TargetStamp0, "ts0", translator.DefaultTargetStamp0, `Target stamp format string at start of each line, if no target stamps existent (configured). Use "" to suppress existing target timestamps. If several trices form a log line only the timestamp of first trice ist displayed.`)
 	fsScLog.BoolVar(&decoder.DebugOut, "debug", false, "Show additional debug information")
 	fsScLog.StringVar(&translator.TriceEndianness, "triceEndianness", "littleEndian", `Target endianness trice data stream. Option: "bigEndian".`)
 	fsScLog.StringVar(&emitter.ColorPalette, "color", "default", colorInfo)                                                                                                                                        // flag
@@ -134,7 +134,7 @@ It is the only setup parameter. The other values default to 8N1 (8 data bits, no
 
 	argsInfo := fmt.Sprint(`Use to pass port specific parameters. The "default" value depends on the used port:
 port "BUFFER": default="`, receiver.DefaultBUFFERArgs, `", Option for args is any space separated decimal number byte sequence.
-port "DUMP": default="`, receiver.DefaultDumpArgs, `", Option for args is any space or comma separated byte sequence.
+port "DUMP": default="`, receiver.DefaultDumpArgs, `", Option for args is any space or comma separated byte sequence in hex like "7B 1A ee,88, 5a".
 port "COMn": default="`, receiver.DefaultCOMArgs, `", Unused option for a different driver. (For baud rate settings see -baud.)
 port "FILE": default="`, receiver.DefaultFileArgs, `", Option for args is any file name. Trice retries on EOF.
 port "FILEBUFFER": default="`, receiver.DefaultFileArgs, `", Option for args is any file name. Trice stops on EOF.

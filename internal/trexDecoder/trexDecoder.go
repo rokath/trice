@@ -356,22 +356,31 @@ func (p *trexDec) sprintTrice(b []byte) (n int) {
 				return
 			}
 			if p.ParamSpace != (s.bitWidth>>3)*s.paramCount {
-				n += copy(b[n:], fmt.Sprintln("err:ParamSpace =", p.ParamSpace, "not matching with bitWidth ", s.bitWidth, "and paramCount", s.paramCount, "- ignoring package", p.B[:len(p.B)]))
+				specialCases := []string{"TRICE_S", "TRICE_N", "TRICE_B", "TRICE8_B", "TRICE16_B", "TRICE32_B", "TRICE64_B", "TRICE8_F", "TRICE16_F", "TRICE32_F", "TRICE64_F"}
+				for _, casus := range specialCases {
+					if s.triceType == casus {
+						goto ignoreSpecialCase
+					}
+				}
+				n += copy(b[n:], fmt.Sprintln("err:s.triceType =", s.triceType, "ParamSpace =", p.ParamSpace, "not matching with bitWidth ", s.bitWidth, "and paramCount", s.paramCount, "- ignoring package", p.B[:len(p.B)]))
 				n += copy(b[n:], fmt.Sprintln(decoder.Hints))
 				return
+			ignoreSpecialCase:
 			}
 			ss := strings.Split(p.Trice.Strg, `\n`)
 			if len(ss) >= 3 { // at least one "\n" before "\n" line end
-				spaces := 12 + 1 // todo: strings.SplitN & len(decoder.TargetStamp0) // 12
-				if !(id.LIFnJSON == "off" || id.LIFnJSON == "none") {
-					spaces += 28 /* todo: length(decoder.LocationInformationFormatString), see https://stackoverflow.com/questions/32987215/find-numbers-in-string-using-golang-regexp*/
-					// todo: split channel info with format specifiers too, example: ["msg:%d\nsignal:%x %u\n", p0, p1, p2] -> ["msg:%d\n", p0] && ["signal:%x %u\n", p1, p2]
+				if decoder.NewlineIndent == -1 { // auto sense
+					decoder.NewlineIndent = 12 + 1 // todo: strings.SplitN & len(decoder.TargetStamp0) // 12
+					if !(id.LIFnJSON == "off" || id.LIFnJSON == "none") {
+						decoder.NewlineIndent += 28 /* todo: length(decoder.LocationInformationFormatString), see https://stackoverflow.com/questions/32987215/find-numbers-in-string-using-golang-regexp*/
+						// todo: split channel info with format specifiers too, example: ["msg:%d\nsignal:%x %u\n", p0, p1, p2] -> ["msg:%d\n", p0] && ["signal:%x %u\n", p1, p2]
+					}
+					if decoder.ShowID != "" {
+						decoder.NewlineIndent += 5 // todo: automatic
+					}
 				}
-				if decoder.ShowID != "" {
-					spaces += 5
-				}
-
 				skip := `\n`
+				spaces := decoder.NewlineIndent
 				for spaces > 0 {
 					skip += " "
 					spaces--

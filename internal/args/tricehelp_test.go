@@ -12,52 +12,52 @@ import (
 func TestHelpRenew(t *testing.T) {
 	args := []string{"trice", "help", "-renew"}
 	expect := `syntax: 'trice sub-command' [params]
-sub-command 'renew': It is like refresh, but til.json is cleared first, so all 'old' trices are removed. Use with care.
-example: 'trice renew': Rebuild ID list from source tree, discard old IDs.
-      -dry-run
-            No changes applied but output shows what would happen.
-            "trice renew -dry-run" will change nothing but show changes it would perform without the "-dry-run" switch.
-            This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true.
-      -i string
-            Short for '-idlist'.
-            (default "til.json")
-      -idList string
-            Alternate for '-idlist'.
-            (default "til.json")
-      -idlist string
-            The trice ID list file.
-            The specified JSON file is needed to display the ID coded trices during runtime and should be under version control.
-            (default "til.json")
-      -li string
-            Short for '-locationInformation'.
-            (default "li.json")
-      -locationInformation string
-            The trice location list file.
-            The specified JSON file is needed to display the location information for each ID during runtime and needs no version control.
-            It is regenerated on each refresh, update or renew trice run. When trice log finds a location information file, it is used for
-            log output with location information. Otherwise no location information is displayed, what usually is wanted in the field.
-            This way the newest til.json can be used also with legacy firmware, but the li.json must match the current firmware version.
-            "off" or "none" suppress the display of the location information even a li.json file exists. Avoid shared ID's for correct
-            location information. See information for the -SharedIDs switch for additionals hints. See -tLocFmt for formatting.
-            (default "li.json")
-      -s value
-            Short for src.
-      -src value
-            Source dir or file, It has one parameter. Not usable in the form "-src *.c".
-            This is a multi-flag switch. It can be used several times for directories and also for files.
-            Example: "trice renew -dry-run -v -src ./test/ -src pkg/src/trice.h" will scan all C|C++ header and
-            source code files inside directory ./test and scan also file trice.h inside pkg/src directory.
-            Without the "-dry-run" switch it would create|extend a list file til.json in the current directory.
-            (default "./")
-      -til string
-            Short for '-idlist'.
-            (default "til.json")
-      -v    short for verbose
-      -verbose
-            Gives more informal output if used. Can be helpful during setup.
-            For example "trice u -dry-run -v" is the same as "trice u -dry-run" but with more descriptive output.
-            This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true.
-`
+      sub-command 'renew': It is like refresh, but til.json is cleared first, so all 'old' trices are removed. Use with care.
+      example: 'trice renew': Rebuild ID list from source tree, discard old IDs.
+        -dry-run
+              No changes applied but output shows what would happen.
+              "trice renew -dry-run" will change nothing but show changes it would perform without the "-dry-run" switch.
+              This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true.
+        -i string
+              Short for '-idlist'.
+               (default "til.json")
+        -idList string
+              Alternate for '-idlist'.
+               (default "til.json")
+        -idlist string
+              The trice ID list file.
+              The specified JSON file is needed to display the ID coded trices during runtime and should be under version control.
+               (default "til.json")
+        -li string
+              Short for '-locationInformation'.
+               (default "li.json")
+        -locationInformation string
+              The trice location list file.
+              The specified JSON file is needed to display the location information for each ID during runtime and needs no version control.
+              It is regenerated on each refresh, update or renew trice run. When trice log finds a location information file, it is used for
+              log output with location information. Otherwise no location information is displayed, what usually is wanted in the field.
+              This way the newest til.json can be used also with legacy firmware, but the li.json must match the current firmware version.
+              With "off" or "none" suppress the display or generation of the location information. Avoid shared ID's for correct
+              location information. See information for the -SharedIDs switch for additionals hints. See -tLocFmt for formatting.
+               (default "li.json")
+        -s value
+              Short for src.
+        -src value
+              Source dir or file, It has one parameter. Not usable in the form "-src *.c".
+              This is a multi-flag switch. It can be used several times for directories and also for files.
+              Example: "trice renew -dry-run -v -src ./test/ -src pkg/src/trice.h" will scan all C|C++ header and
+              source code files inside directory ./test and scan also file trice.h inside pkg/src directory.
+              Without the "-dry-run" switch it would create|extend a list file til.json in the current directory.
+               (default "./")
+        -til string
+              Short for '-idlist'.
+               (default "til.json")
+        -v    short for verbose
+        -verbose
+              Gives more informal output if used. Can be helpful during setup.
+              For example "trice u -dry-run -v" is the same as "trice u -dry-run" but with more descriptive output.
+              This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true.      
+      `
 	id.FnJSON = "til.json"
 	execHelper(t, args, expect)
 }
@@ -119,7 +119,7 @@ func TestHelpUpdate(t *testing.T) {
               It is regenerated on each refresh, update or renew trice run. When trice log finds a location information file, it is used for
               log output with location information. Otherwise no location information is displayed, what usually is wanted in the field.
               This way the newest til.json can be used also with legacy firmware, but the li.json must match the current firmware version.
-              "off" or "none" suppress the display of the location information even a li.json file exists. Avoid shared ID's for correct
+              With "off" or "none" suppress the display or generation of the location information. Avoid shared ID's for correct
               location information. See information for the -SharedIDs switch for additionals hints. See -tLocFmt for formatting.
                (default "li.json")
         -s value
@@ -138,7 +138,7 @@ func TestHelpUpdate(t *testing.T) {
         -verbose
               Gives more informal output if used. Can be helpful during setup.
               For example "trice u -dry-run -v" is the same as "trice u -dry-run" but with more descriptive output.
-              This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true.
+              This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true.      
       `
 	id.FnJSON = "til.json"
 	execHelper(t, args, expect)
@@ -147,63 +147,63 @@ func TestHelpUpdate(t *testing.T) {
 func TestHelpVersion(t *testing.T) {
 	args := []string{"trice", "help", "-version"}
 	expect := `syntax: 'trice sub-command' [params]
-sub-command 'ver|version': For displaying version information.
-"trice v" will print the version information. If trice is not versioned the build time will be displayed instead.
-      -lf string
-            Short for logfile (default "off")
-      -logfile string
-            Append all output to logfile. Options are: 'off|none|filename|auto':
-            "off": no logfile (same as "none")
-            "none": no logfile (same as "off")
-            "auto": Use as logfile name "2006-01-02_1504-05_trice.log" with actual time.
-            "filename": Any other string than "auto", "none" or "off" is treated as a filename. If the file exists, logs are appended.
-            All trice output of the appropriate subcommands is appended per default into the logfile trice additionally to the normal output.
-            Change the filename with "-logfile myName.txt" or switch logging off with "-logfile none".
-            (default "off")
-      -v    short for verbose
-      -verbose
-            Gives more informal output if used. Can be helpful during setup.
-            For example "trice u -dry-run -v" is the same as "trice u -dry-run" but with more descriptive output.
-            This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true.
-`
+      sub-command 'ver|version': For displaying version information.
+      "trice v" will print the version information. If trice is not versioned the build time will be displayed instead.
+        -lf string
+              Short for logfile (default "off")
+        -logfile string
+              Append all output to logfile. Options are: 'off|none|filename|auto':
+              "off": no logfile (same as "none")
+              "none": no logfile (same as "off")
+              "my/path/auto": Use as logfile name "my/path/2006-01-02_1504-05_trice.log" with actual time. "my/path/" must exist.
+              "filename": Any other string than "auto", "none" or "off" is treated as a filename. If the file exists, logs are appended.
+              All trice output of the appropriate subcommands is appended per default into the logfile trice additionally to the normal output.
+              Change the filename with "-logfile myName.txt" or switch logging off with "-logfile none".
+               (default "off")
+        -v    short for verbose
+        -verbose
+              Gives more informal output if used. Can be helpful during setup.
+              For example "trice u -dry-run -v" is the same as "trice u -dry-run" but with more descriptive output.
+              This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true.      
+      `
 	execHelper(t, args, expect)
 }
 
 func TestHelpDisplayServer(t *testing.T) {
 	args := []string{"trice", "help", "-ds"}
 	expect := `syntax: 'trice sub-command' [params]
-sub-command 'ds|displayServer': Starts a display server.
-Use in a separate console. On Windows use wt (https://github.com/microsoft/terminal) or a linux shell like git-bash to avoid ANSI color issues.
-Running "trice ds" inside a console opens a display server to be used for displaying the TRICE logs remotely.
-Several instances of 'trice l -ds -port ...' (for different ports) will send output there in parallel.
-example: 'trice ds': Start display server.
-      -color string
-            The format strings can start with a lower or upper case channel information.
-            See https://github.com/rokath/trice/blob/master/pkg/src/triceCheck.c for examples. Color options:
-            "off": Disable ANSI color. The lower case channel information is kept: "w:x"-> "w:x"
-            "none": Disable ANSI color. The lower case channel information is removed: "w:x"-> "x"
-            "default|color": Use ANSI color codes for known upper and lower case channel info are inserted and lower case channel information is removed.
-            (default "default")
-      -ipa string
-            IP address like '127.0.0.1'.
-            You can specify this switch if you intend to use the remote display option to show the output on a different PC in the network.
-            (default "localhost")
-      -ipp string
-            16 bit IP port number.
-            You can specify this switch if you want to change the used port number for the remote display functionality.
-            (default "61497")
-      -lf string
-            Short for logfile (default "off")
-      -logfile string
-            Append all output to logfile. Options are: 'off|none|filename|auto':
-            "off": no logfile (same as "none")
-            "none": no logfile (same as "off")
-            "auto": Use as logfile name "2006-01-02_1504-05_trice.log" with actual time.
-            "filename": Any other string than "auto", "none" or "off" is treated as a filename. If the file exists, logs are appended.
-            All trice output of the appropriate subcommands is appended per default into the logfile trice additionally to the normal output.
-            Change the filename with "-logfile myName.txt" or switch logging off with "-logfile none".
-            (default "off")
-`
+      sub-command 'ds|displayServer': Starts a display server.
+      Use in a separate console. On Windows use wt (https://github.com/microsoft/terminal) or a linux shell like git-bash to avoid ANSI color issues.
+      Running "trice ds" inside a console opens a display server to be used for displaying the TRICE logs remotely.
+      Several instances of 'trice l -ds -port ...' (for different ports) will send output there in parallel.
+      example: 'trice ds': Start display server.
+        -color string
+              The format strings can start with a lower or upper case channel information.
+              See https://github.com/rokath/trice/blob/master/pkg/src/triceCheck.c for examples. Color options:
+              "off": Disable ANSI color. The lower case channel information is kept: "w:x"-> "w:x"
+              "none": Disable ANSI color. The lower case channel information is removed: "w:x"-> "x"
+              "default|color": Use ANSI color codes for known upper and lower case channel info are inserted and lower case channel information is removed.
+               (default "default")
+        -ipa string
+              IP address like '127.0.0.1'.
+              You can specify this switch if you intend to use the remote display option to show the output on a different PC in the network.
+               (default "localhost")
+        -ipp string
+              16 bit IP port number.
+              You can specify this switch if you want to change the used port number for the remote display functionality.
+               (default "61497")
+        -lf string
+              Short for logfile (default "off")
+        -logfile string
+              Append all output to logfile. Options are: 'off|none|filename|auto':
+              "off": no logfile (same as "none")
+              "none": no logfile (same as "off")
+              "my/path/auto": Use as logfile name "my/path/2006-01-02_1504-05_trice.log" with actual time. "my/path/" must exist.
+              "filename": Any other string than "auto", "none" or "off" is treated as a filename. If the file exists, logs are appended.
+              All trice output of the appropriate subcommands is appended per default into the logfile trice additionally to the normal output.
+              Change the filename with "-logfile myName.txt" or switch logging off with "-logfile none".
+               (default "off")      
+      `
 	execHelper(t, args, expect)
 }
 
@@ -247,62 +247,62 @@ example: 'trice zeroSourceTreeIds -src ../A': Sets all TRICE IDs to 0 in ../A. U
 func TestHelpHelp(t *testing.T) {
 	args := []string{"trice", "help", "-help"}
 	expect := `syntax: 'trice sub-command' [params]
-sub-command 'h|help': For command line usage.
-"trice h" will print this help text as a whole.
-example 'trice h': Print short help.
-example 'trice h -all': Print all help.
-example 'trice h -log': Print log help.
-      -all
-            Show all help.
-      -displayserver
-            Show ds|displayserver specific help.
-      -ds
-            Show ds|displayserver specific help.
-      -h    Show h|help specific help.
-      -help
-            Show h|help specific help.
-      -l    Show l|log specific help.
-      -lf string
-            Short for logfile (default "off")
-      -log
-            Show l|log specific help.
-      -logfile string
-            Append all output to logfile. Options are: 'off|none|filename|auto':
-            "off": no logfile (same as "none")
-            "none": no logfile (same as "off")
-            "auto": Use as logfile name "2006-01-02_1504-05_trice.log" with actual time.
-            "filename": Any other string than "auto", "none" or "off" is treated as a filename. If the file exists, logs are appended.
-            All trice output of the appropriate subcommands is appended per default into the logfile trice additionally to the normal output.
-            Change the filename with "-logfile myName.txt" or switch logging off with "-logfile none".
-            (default "off")
-      -r    Show r|refresh specific help.
-      -refresh
-            Show r|refresh specific help.
-      -renew
-            Show renew specific help.
-      -s    Show s|scan specific help.
-      -scan
-            Show s|scan specific help.
-      -sd
-            Show sd|shutdown specific help.
-      -shutdown
-            Show sd|shutdown specific help.
-      -u    Show u|update specific help.
-      -update
-            Show u|update specific help.
-      -v    short for verbose
-      -ver
-            Show ver|version specific help.
-      -verbose
-            Gives more informal output if used. Can be helpful during setup.
-            For example "trice u -dry-run -v" is the same as "trice u -dry-run" but with more descriptive output.
-            This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true.
-      -version
-            Show ver|version specific help.
-      -z    Show zeroSourceTreeIds specific help.
-      -zeroSourceTreeIds
-            Show zeroSourceTreeIds specific help.
-`
+      sub-command 'h|help': For command line usage.
+      "trice h" will print this help text as a whole.
+      example 'trice h': Print short help.
+      example 'trice h -all': Print all help.
+      example 'trice h -log': Print log help.
+        -all
+              Show all help.
+        -displayserver
+              Show ds|displayserver specific help.
+        -ds
+              Show ds|displayserver specific help.
+        -h    Show h|help specific help.
+        -help
+              Show h|help specific help.
+        -l    Show l|log specific help.
+        -lf string
+              Short for logfile (default "off")
+        -log
+              Show l|log specific help.
+        -logfile string
+              Append all output to logfile. Options are: 'off|none|filename|auto':
+              "off": no logfile (same as "none")
+              "none": no logfile (same as "off")
+              "my/path/auto": Use as logfile name "my/path/2006-01-02_1504-05_trice.log" with actual time. "my/path/" must exist.
+              "filename": Any other string than "auto", "none" or "off" is treated as a filename. If the file exists, logs are appended.
+              All trice output of the appropriate subcommands is appended per default into the logfile trice additionally to the normal output.
+              Change the filename with "-logfile myName.txt" or switch logging off with "-logfile none".
+               (default "off")
+        -r    Show r|refresh specific help.
+        -refresh
+              Show r|refresh specific help.
+        -renew
+              Show renew specific help.
+        -s    Show s|scan specific help.
+        -scan
+              Show s|scan specific help.
+        -sd
+              Show sd|shutdown specific help.
+        -shutdown
+              Show sd|shutdown specific help.
+        -u    Show u|update specific help.
+        -update
+              Show u|update specific help.
+        -v    short for verbose
+        -ver
+              Show ver|version specific help.
+        -verbose
+              Gives more informal output if used. Can be helpful during setup.
+              For example "trice u -dry-run -v" is the same as "trice u -dry-run" but with more descriptive output.
+              This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true.
+        -version
+              Show ver|version specific help.
+        -z    Show zeroSourceTreeIds specific help.
+        -zeroSourceTreeIds
+              Show zeroSourceTreeIds specific help.      
+      `
 	execHelper(t, args, expect)
 }
 
@@ -330,57 +330,57 @@ example: 'trice sd': Shut down remote display server.
 func TestRenew(t *testing.T) {
 	args := []string{"trice", "help", "-renew"}
 	expect := `syntax: 'trice sub-command' [params]
-sub-command 'renew': It is like refresh, but til.json is cleared first, so all 'old' trices are removed. Use with care.
-example: 'trice renew': Rebuild ID list from source tree, discard old IDs.
-      -dry-run
-            No changes applied but output shows what would happen.
-            "trice renew -dry-run" will change nothing but show changes it would perform without the "-dry-run" switch.
-            This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true.
-      -i string
-            Short for '-idlist'.
-            (default "til.json")
-      -idList string
-            Alternate for '-idlist'.
-            (default "til.json")
-      -idlist string
-            The trice ID list file.
-            The specified JSON file is needed to display the ID coded trices during runtime and should be under version control.
-            (default "til.json")
-      -li string
-            Short for '-locationInformation'.
-            (default "li.json")
-      -locationInformation string
-            The trice location list file.
-            The specified JSON file is needed to display the location information for each ID during runtime and needs no version control.
-            It is regenerated on each refresh, update or renew trice run. When trice log finds a location information file, it is used for
-            log output with location information. Otherwise no location information is displayed, what usually is wanted in the field.
-            This way the newest til.json can be used also with legacy firmware, but the li.json must match the current firmware version.
-            "off" or "none" suppress the display of the location information even a li.json file exists. Avoid shared ID's for correct
-            location information. See information for the -SharedIDs switch for additionals hints. See -tLocFmt for formatting.
-            (default "li.json")
-      -s value
-            Short for src.
-      -src value
-            Source dir or file, It has one parameter. Not usable in the form "-src *.c".
-            This is a multi-flag switch. It can be used several times for directories and also for files.
-            Example: "trice renew -dry-run -v -src ./test/ -src pkg/src/trice.h" will scan all C|C++ header and
-            source code files inside directory ./test and scan also file trice.h inside pkg/src directory.
-            Without the "-dry-run" switch it would create|extend a list file til.json in the current directory.
-            (default "./")
-      -til string
-            Short for '-idlist'.
-            (default "til.json")
-      -v    short for verbose
-      -verbose
-            Gives more informal output if used. Can be helpful during setup.
-            For example "trice u -dry-run -v" is the same as "trice u -dry-run" but with more descriptive output.
-            This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true.
-`
+      sub-command 'renew': It is like refresh, but til.json is cleared first, so all 'old' trices are removed. Use with care.
+      example: 'trice renew': Rebuild ID list from source tree, discard old IDs.
+        -dry-run
+              No changes applied but output shows what would happen.
+              "trice renew -dry-run" will change nothing but show changes it would perform without the "-dry-run" switch.
+              This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true.
+        -i string
+              Short for '-idlist'.
+               (default "til.json")
+        -idList string
+              Alternate for '-idlist'.
+               (default "til.json")
+        -idlist string
+              The trice ID list file.
+              The specified JSON file is needed to display the ID coded trices during runtime and should be under version control.
+               (default "til.json")
+        -li string
+              Short for '-locationInformation'.
+               (default "li.json")
+        -locationInformation string
+              The trice location list file.
+              The specified JSON file is needed to display the location information for each ID during runtime and needs no version control.
+              It is regenerated on each refresh, update or renew trice run. When trice log finds a location information file, it is used for
+              log output with location information. Otherwise no location information is displayed, what usually is wanted in the field.
+              This way the newest til.json can be used also with legacy firmware, but the li.json must match the current firmware version.
+              With "off" or "none" suppress the display or generation of the location information. Avoid shared ID's for correct
+              location information. See information for the -SharedIDs switch for additionals hints. See -tLocFmt for formatting.
+               (default "li.json")
+        -s value
+              Short for src.
+        -src value
+              Source dir or file, It has one parameter. Not usable in the form "-src *.c".
+              This is a multi-flag switch. It can be used several times for directories and also for files.
+              Example: "trice renew -dry-run -v -src ./test/ -src pkg/src/trice.h" will scan all C|C++ header and
+              source code files inside directory ./test and scan also file trice.h inside pkg/src directory.
+              Without the "-dry-run" switch it would create|extend a list file til.json in the current directory.
+               (default "./")
+        -til string
+              Short for '-idlist'.
+               (default "til.json")
+        -v    short for verbose
+        -verbose
+              Gives more informal output if used. Can be helpful during setup.
+              For example "trice u -dry-run -v" is the same as "trice u -dry-run" but with more descriptive output.
+              This is a bool switch. It has no parameters. Its default value is false. If the switch is applied its value is true. You can also set it explicit: =false or =true.
+      `
 	id.FnJSON = "til.json"
 	execHelper(t, args, expect)
 }
 
-func _TestHelpLog(t *testing.T) {
+func TestHelpLog(t *testing.T) {
 	args := []string{"trice", "help", "-log"}
 	expect := `syntax: 'trice sub-command' [params]
       sub-command 'l|log': For displaying trice logs coming from port. With "trice log" the trice tool display mode is activated.
@@ -390,7 +390,7 @@ func _TestHelpLog(t *testing.T) {
         -args string
               Use to pass port specific parameters. The "default" value depends on the used port:
               port "BUFFER": default="0 0 0 0", Option for args is any space separated decimal number byte sequence.
-              port "DUMP": default="", Option for args is any space or comma separated byte sequence.
+              port "DUMP": default="", Option for args is any space or comma separated byte sequence in hex like "7B 1A ee,88, 5a".
               port "COMn": default="", Unused option for a different driver. (For baud rate settings see -baud.)
               port "FILE": default="trices.raw", Option for args is any file name. Trice retries on EOF.
               port "FILEBUFFER": default="trices.raw", Option for args is any file name. Trice stops on EOF.
@@ -413,7 +413,7 @@ func _TestHelpLog(t *testing.T) {
               Append all output to logfile. Options are: 'off|none|filename|auto':
               "off": no binary logfile (same as "none")
               "none": no binary logfile (same as "off")
-              "auto": Use as binary logfile name "2006-01-02_1504-05_trice.bin" with actual time.
+              "my/path/auto": Use as binary logfile name "my/path/2006-01-02_1504-05_trice.bin" with actual time. "my/path/" must exist.
               "filename": Any other string than "auto", "none" or "off" is treated as a filename. If the file exists, logs are appended.
               All trice output of the appropriate subcommands is appended per default into the logfile trice additionally to the normal output.
               Change the filename with "-binaryLogfile myName.bin" or switch logging off with "-binaryLogfile none".
@@ -450,6 +450,10 @@ func _TestHelpLog(t *testing.T) {
                                 COBS = TLE (obsolete naming)
                                 DUMP prints the received bytes as hex code (see switch -dc too).
                (default "TREX")
+        -hs string
+              PC timestamp for logs and logfile name, options: 'off|none|UTCmicro|zero'
+              This timestamp switch generates the timestamps on the PC only (reception time), what is good enough for many cases.
+              "LOCmicro" means local time with microseconds. "UTCmicro" shows timestamps in universal time. When set to "off" no PC timestamps displayed. (default "LOCmicro")
         -i string
               Short for '-idlist'.
                (default "til.json")
@@ -474,14 +478,14 @@ func _TestHelpLog(t *testing.T) {
               Short for '-locationInformation'.
                (default "li.json")
         -liFmt string
-              Target location format string at start of each line, if target location existent (configured). Use "off" or "none" to suppress existing target location. If several trices form a log line only the location of first trice ist displayed. (default "info:%20s:%4d ")
+              Target location format string at start of each line, if target location existent (configured). Use "off" or "none" to suppress existing target location. If several trices form a log line only the location of first trice ist displayed. (default "info:%21s %5d ")
         -locationInformation string
               The trice location list file.
               The specified JSON file is needed to display the location information for each ID during runtime and needs no version control.
               It is regenerated on each refresh, update or renew trice run. When trice log finds a location information file, it is used for
               log output with location information. Otherwise no location information is displayed, what usually is wanted in the field.
               This way the newest til.json can be used also with legacy firmware, but the li.json must match the current firmware version.
-              "off" or "none" suppress the display of the location information even a li.json file exists. Avoid shared ID's for correct
+              With "off" or "none" suppress the display or generation of the location information. Avoid shared ID's for correct
               location information. See information for the -SharedIDs switch for additionals hints. See -tLocFmt for formatting.
                (default "li.json")
         -logLevel string
@@ -490,11 +494,13 @@ func _TestHelpLog(t *testing.T) {
               Append all output to logfile. Options are: 'off|none|filename|auto':
               "off": no logfile (same as "none")
               "none": no logfile (same as "off")
-              "auto": Use as logfile name "2006-01-02_1504-05_trice.log" with actual time.
+              "my/path/auto": Use as logfile name "my/path/2006-01-02_1504-05_trice.log" with actual time. "my/path/" must exist.
               "filename": Any other string than "auto", "none" or "off" is treated as a filename. If the file exists, logs are appended.
               All trice output of the appropriate subcommands is appended per default into the logfile trice additionally to the normal output.
               Change the filename with "-logfile myName.txt" or switch logging off with "-logfile none".
                (default "off")
+        -newLineIndent int
+              Force newline offset for trice format strings with line breaks before end. -1=auto sense (default -1)
         -p string
               short for -port (default "J-LINK")
         -packageFraming string
@@ -542,17 +548,13 @@ func _TestHelpLog(t *testing.T) {
         -triceEndianness string
               Target endianness trice data stream. Option: "bigEndian". (default "littleEndian")
         -ts string
-              PC timestamp for logs and logfile name, options: 'off|none|UTCmicro|zero'
-              This timestamp switch generates the timestamps on the PC only (reception time), what is good enough for many cases.
-              "LOCmicro" means local time with microseconds. "UTCmicro" shows timestamps in universal time. When set to "off" no PC timestamps displayed. (default "LOCmicro")
-        -tsf string
-              Target timestamp general format string at start of each line, if target timestamps existent (configured). Choose between "µs" or "us" and "ms", use "" to suppress existing target timestamps. Sets tsf0, tsf16, tsf32 if these not passed. If several trices form a log line only the timestamp of first trice ist displayed. (default "ms")
-        -tsf0 string
-              Target stamp format string at start of each line, if no target stamps existent (configured). Use "" to suppress existing target timestamps. If several trices form a log line only the timestamp of first trice ist displayed. (default "             ")
-        -tsf16 string
-              16-bit Target stamp format string at start of each line, if 16-bit target stamps existent (configured). Choose between "µs" or "us" and "ms", use "" to suppress or use s.th. like "...%d...". If several trices form a log line only the timestamp of first trice ist displayed. (default "ms")
-        -tsf32 string
-              32-bit Target stamp format string at start of each line, if 32-bit target stamps existent (configured). Choose between "µs" or "us" and "ms", use "" to suppress or use s.th. like "...%d...". If several trices form a log line only the timestamp of first trice ist displayed. (default "ms")
+              Target timestamp general format string at start of each line, if target timestamps existent (configured). Choose between "µs" (or "us") and "ms", use "" to suppress existing target timestamps. Sets tsf0, tsf16, tsf32 if these not passed. If several trices form a log line only the timestamp of first trice ist displayed. (default "µs")
+        -ts0 string
+              Target stamp format string at start of each line, if no target stamps existent (configured). Use "" to suppress existing target timestamps. If several trices form a log line only the timestamp of first trice ist displayed. (default "time:            ")
+        -ts16 string
+              16-bit Target stamp format string at start of each line, if 16-bit target stamps existent (configured). Choose between "µs" (or "us") and "ms", use "" to suppress or use s.th. like "...%d...". If several trices form a log line only the timestamp of first trice ist displayed. (default "ms")
+        -ts32 string
+              32-bit Target stamp format string at start of each line, if 32-bit target stamps existent (configured). Choose between "µs" (or "us") and "ms", use "" to suppress or use s.th. like "...%d...". If several trices form a log line only the timestamp of first trice ist displayed. (default "ms")
         -u    Short for '-unsigned'. (default true)
         -unsigned
               Hex, Octal and Bin values are printed as unsigned values. (default true)

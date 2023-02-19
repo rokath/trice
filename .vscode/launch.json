@@ -153,6 +153,40 @@
             ]
         },
         {
+            /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+            // commenst inside json generally not possible, but VScode tolerates this here
+            //
+            //  expected: "time:       5_654default: att: 0x8888 == 8888h"
+            //  actual  : "TCOBSv1: 55 9b 16 16 c0 02 88 88 a8 00 \n->TRICE: 55 9b 16 16 c0 02 88 88 \ntime:       5_654default: att: 0x8888 == 8888h"
+            //
+            //  Diff:
+            //  --- Expected
+            //  +++ Actual
+            //  @@ -1 +1,3 @@
+            //  +TCOBSv1: 55 9b 16 16 c0 02 88 88 a8 00
+            //  +->TRICE: 55 9b 16 16 c0 02 88 88
+            //   time:       5_654default: att: 0x8888 == 8888h
+            //       "name": "trice l -p DUMP",
+            /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+            "name": "trice l -p DUMP",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}/cmd/trice",
+            "env": {},
+            "args": ["log",
+                     "-v",
+                     "-port",
+                     "DUMP",
+                     "-args",
+                     "cb de 32 13 c0 0b 61 62 63 64 65 20 31 32 33 34 35 ad 00",
+                     "-idlist",
+                     "${workspaceFolder}/test/testdata/til.json",
+                     "-li",
+                     "${workspaceFolder}/test/testdata/li.json"
+            ]
+        },
+        {
             "name": "trice l -p BUFFER",
             "type": "go",
             "request": "launch",

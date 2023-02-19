@@ -126,6 +126,7 @@ var (
 
 	PackageFraming string // Framing is used for packing. Valid values COBS, TCOBS, TCOBSv1 (same as TCOBS)
 	IDBits         = 14   // IDBits holds count of bits used for ID (used at least in trexDecoder)
+	NewlineIndent  = -1   // Used for trice messages containing several newlines in format string for formatting.
 )
 
 // New abstracts the function type for a new decoder.
