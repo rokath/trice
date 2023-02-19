@@ -214,7 +214,7 @@ func TestHelpAll(t *testing.T) {
               All trice output of the appropriate subcommands is appended per default into the logfile trice additionally to the normal output.
               Change the filename with "-logfile myName.txt" or switch logging off with "-logfile none".
                (default "off")
-        -newLineIndent int
+        -newlineIndent int
               Force newline offset for trice format strings with line breaks before end. -1=auto sense (default -1)
         -p string
               short for -port (default "J-LINK")

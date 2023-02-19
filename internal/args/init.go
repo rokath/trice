@@ -91,7 +91,7 @@ func logInit() {
 `) // flag
 	fsScLog.StringVar(&translator.Encoding, "e", defaultEncoding, "Short for -encoding.") // short flag
 	fsScLog.IntVar(&decoder.DumpLineByteCount, "dc", 32, `Dumped bytes per line when "-encoding DUMP"`)
-	fsScLog.IntVar(&decoder.NewlineIndent, "newLineIndent", -1, `Force newline offset for trice format strings with line breaks before end. -1=auto sense`)
+	fsScLog.IntVar(&decoder.NewlineIndent, "newlineIndent", -1, `Force newline offset for trice format strings with line breaks before end. -1=auto sense`)
 	fsScLog.StringVar(&cipher.Password, "password", "", `The decrypt passphrase. If you change this value you need to compile the target with the appropriate key (see -showKeys).
 Encryption is recommended if you deliver firmware to customers and want protect the trice log output. This does work right now only with flex and flexL format.`) // flag
 	fsScLog.StringVar(&cipher.Password, "pw", "", "Short for -password.") // short flag
