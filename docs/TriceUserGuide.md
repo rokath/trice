@@ -91,25 +91,26 @@
 
 * In a console type `trice help -all`. You should see the complete **trice** tool [CLI](https://en.wikipedia.org/wiki/Command-line_interface) documentation.
   * Don´t worry, most of it you will never need.
-  * There are only 2 important commands: `trice u[pdate]` and `trice l[og]`.
+  * There are only 2 important commands: `trice u[pdate]` and `trice l[og]`. Call them with the right CLI switches.
     * `trice h -u[pdate]` and `trice h -l[og]` show partial help.
-* Copy 3 files to your embedded project:
-  * `./pkg/src/trice.h`
-  * `./pkg/src/trice.c`
-  * `./test/.../triceConfig.h`
-* Optionally add `./pkg/src/triceCheck.c` to your project if you wish to perform the checks.
-* Do **not** copy `trice_test.c` and ignore `trice_test.go` and ignore `./pkg/src/inc/*`. This is code for **Go** tests.
+* Add `./src/trice.c` to your project.
+* Add `./src/` to your library include path.
+* Copy file `./test/MDK-ARM_STM32F030R8/Core/Inc/triceConfig.h` to your embedded project and adapt it to your needs.
+  * Other `triceConfig.h` files are usable as well, but the above is usually the most actual one.
+* Optionally copy `./test/testdata/triceCheck.c` to your project if you wish to perform some checks.
+  * Copy it, because it gets overwritten when `updateTestData.sh` is executed inside the `./test` folder.
 * In your source.c files add line `#include "trice.h"`
-* In a function write: `TRICE( "1/11 = %g\n", aFloat( 1.0/11 ) );`
-* In project root:
+* In a function write: `TRice( "1/11 = %g\n", aFloat( 1.0/11 ) );` or s.th. similar.
+* In **project root**:
   * Create empty file: `touch til.json`.
-  * Run `trice u` should perform automatically these things (The numbers are just examples.):
->>>    * Patch source.c to `TRICE( Id(12363), "1/11 = %g\n", aFloat( 1.0/11 ) );`
->>>      * C & H files containing TRICE macros are only modified if needed (missing or obsolete Id(n))
+  * Run `trice u` should perform **automatically** these things (The numbers are just examples.):
+>>>    * Patch source.c to `TRice( iD(12363), "1/11 = %g\n", aFloat( 1.0/11 ) );`
+>>>      * C & H files containing TRICE macros, are only modified if needed (missing or obsolete ID)
 >>>    * Extend `til.json`
 >>>      * If no `til.json` is found nothing happens. At least an empty file is needed (Safety feature).
-* `Id` adds automatically a 16-bit timestamp. Change it to `ID` for 32-bit timestamp or `id` for no timestamp. 
 * When the program runs later it should output something similar to![./ref/1div11.PNG](./ref/1div11.PNG)
+* It is up to the user to provide the 2 functions `void Stamp16(void)` and `void Stamp32(void)`.
+* For RTT add SEGGER source, for UART add UART write function. 
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -126,9 +127,43 @@
 * Check and install:
 
 ```b
-go vet ./...
-go test ./...
-go install ./...
+ms@DESKTOP-7POEGPB MINGW64 /c/repos/trice (master)
+$ go clean -cache
+
+ms@DESKTOP-7POEGPB MINGW64 /c/repos/trice (master)
+$ go vet ./...
+
+ms@DESKTOP-7POEGPB MINGW64 /c/repos/trice (master)
+$ go test ./...
+?       github.com/rokath/trice/cmd/cui [no test files]
+ok      github.com/rokath/trice/cmd/stim        0.227s
+ok      github.com/rokath/trice/cmd/trice       0.577s
+ok      github.com/rokath/trice/internal/args   0.232s
+ok      github.com/rokath/trice/internal/charDecoder    0.407s
+ok      github.com/rokath/trice/internal/com    1.148s
+ok      github.com/rokath/trice/internal/decoder        0.412s [no tests to run]
+?       github.com/rokath/trice/internal/do     [no test files]
+ok      github.com/rokath/trice/internal/dumpDecoder    0.388s
+ok      github.com/rokath/trice/internal/emitter        0.431s
+ok      github.com/rokath/trice/internal/id     0.421s
+ok      github.com/rokath/trice/internal/keybcmd        0.431s
+ok      github.com/rokath/trice/internal/link   0.404s
+ok      github.com/rokath/trice/internal/receiver       0.409s
+ok      github.com/rokath/trice/internal/tleDecoder     0.398s
+?       github.com/rokath/trice/internal/translator     [no test files]
+ok      github.com/rokath/trice/internal/trexDecoder    0.391s
+ok      github.com/rokath/trice/pkg/cipher      0.377s
+ok      github.com/rokath/trice/pkg/endian      0.302s
+ok      github.com/rokath/trice/pkg/msg 0.299s
+ok      github.com/rokath/trice/pkg/tst 0.406s
+ok      github.com/rokath/trice/test/cgo_stackBuffer_noCycle_cobs       40.910s
+ok      github.com/rokath/trice/test/cgo_stackBuffer_noCycle_tcobs      40.926s
+
+ms@DESKTOP-7POEGPB MINGW64 /c/repos/trice (master)
+$ go install ./...
+
+ms@DESKTOP-7POEGPB MINGW64 /c/repos/trice (master)
+$
 ```
 
 Afterwards you should find an executable `trice` inside $GOPATH/bin/ and you can modify its source code.
