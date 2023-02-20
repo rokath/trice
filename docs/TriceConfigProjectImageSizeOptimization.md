@@ -32,7 +32,7 @@
 
 ##  2. <a name='CodeOptimization-o3or-ozifsupported'></a>Code Optimization `-o3` or `-oz` (if supported)
 
-* For debugging it could be helpful to switch off temporary code optimization what increases the code size.
+* For debugging it could be helpful to switch off code optimization what increases the code size.
 
 ##  3. <a name='CompilerIndependentSetting'></a>Compiler Independent Setting
 
@@ -42,7 +42,7 @@ Maybe it´s a bit unhandy but it decreases the code amount, build time and the i
 * For **X=8|16|32|64** and **N=0...12** selectively set `#define ENABLE_Trice`**X**`fn_`**N**` 1` to ` 0` for unused functions in project specific file `triceConfig.h`.
 * For **X=8|16|32|64** and **N=0...12** selectively set `#define ENABLE_TRice`**X**`fn_`**N**` 1` to ` 0` for unused functions in project specific file `triceConfig.h`.
 
-When having lots of program memory or using specific linker optimization you can simply let all values be `1`.
+When having lots of program memory simply let all values be `1`. With specific linker optimization unused functions get stripped out automatically. 
 
 ##  4. <a name='LinkerOption--split-sectionsifsupported'></a>Linker Option `--split-sections` (if supported)
 

@@ -1,6 +1,8 @@
 # *Trice* user guide
 
 > _(Read this)
+>
+> SORRY: This document is currently a mess and partially outdated.
 
 <!-- TABLE OF CONTENTS -->
 <details>
@@ -14,64 +16,63 @@
     - [2.1. Get it](#21-get-it)
     - [2.2. Install It](#22-install-it)
     - [2.3. Use It](#23-use-it)
+    - [2.4. Port it](#24-port-it)
+      - [2.4.1. Target Code Overview](#241-target-code-overview)
   - [3. Build `trice` tool from Go sources (you can skip that)](#3-build-trice-tool-from-go-sources-you-can-skip-that)
-  - [Files `trice.go` and `trice_test.go`](#files-tricego-and-trice_testgo)
-  - [4. Embedded system code setup](#4-embedded-system-code-setup)
-  - [5. Adapt your legacy source code](#5-adapt-your-legacy-source-code)
-  - [6. `trice` tool in logging action](#6-trice-tool-in-logging-action)
-  - [7. Encryption](#7-encryption)
-  - [8. CLI Options for `trice` tool](#8-cli-options-for-trice-tool)
-  - [9. *Trice* command line examples](#9-trice-command-line-examples)
-    - [9.1. Common information](#91-common-information)
-    - [9.2. Further examples](#92-further-examples)
-      - [9.2.1. Automated pre-build update command example](#921-automated-pre-build-update-command-example)
-      - [9.2.2. Some Log examples](#922-some-log-examples)
-      - [9.2.3. Logging over a display server](#923-logging-over-a-display-server)
-      - [9.2.4. Logfile output](#924-logfile-output)
-      - [9.2.5. Binary Logfile](#925-binary-logfile)
-      - [9.2.6. TCP output](#926-tcp-output)
-      - [9.2.7. Set all IDs in a directory tree to 0](#927-set-all-ids-in-a-directory-tree-to-0)
-      - [9.2.8. Stimulate target with a user command over UART](#928-stimulate-target-with-a-user-command-over-uart)
-      - [9.2.9. Explpore and modify channels and their colors](#929-explpore-and-modify-channels-and-their-colors)
-      - [9.2.10. Location Information](#9210-location-information)
-  - [10. Additional hints](#10-additional-hints)
-    - [10.1. Pre-built executables are available](#101-pre-built-executables-are-available)
-    - [10.2. Configuration file `triceConfig.h`](#102-configuration-file-triceconfigh)
-    - [10.3. Setting up the very first connection](#103-setting-up-the-very-first-connection)
-    - [10.4. Avoid buffer overruns](#104-avoid-buffer-overruns)
-    - [10.5. Limitation "trice u" requires TRICE macros on a single line](#105-limitation-trice-u-requires-trice-macros-on-a-single-line)
-    - [10.6. Limitation TRICE in TRICE not possible](#106-limitation-trice-in-trice-not-possible)
-    - [10.7. Dynamic strings/buffers only as variable inside `TRICE` macros](#107-dynamic-stringsbuffers-only-as-variable-inside-trice-macros)
-    - [10.8. Logfile viewing](#108-logfile-viewing)
-    - [10.9. Using the `trice` tool with 3rd party tools](#109-using-the-trice-tool-with-3rd-party-tools)
-    - [10.10. Several targets at the same time](#1010-several-targets-at-the-same-time)
-    - [10.11. Executing `go test -race -count 100 ./...`](#1011-executing-go-test--race--count-100-)
-    - [10.12. Direct TRICE Out (TRICE\_MODE 0) could cause stack overflow with -o0 optimization](#1012-direct-trice-out-trice_mode-0-could-cause-stack-overflow-with--o0-optimization)
-  - [11. Target side *Trice* On-Off](#11-target-side-trice-on-off)
-  - [12. Host side *Trice* On-Off](#12-host-side-trice-on-off)
-  - [13. Using a different encoding](#13-using-a-different-encoding)
-  - [Testing](#testing)
-    - [1. Folder information](#1-folder-information)
-    - [2. Package specific information](#2-package-specific-information)
-    - [3. todo](#3-todo)
-  - [Trice demo \& test project info](#trice-demo--test-project-info)
-    - [4. Backup folder](#4-backup-folder)
-    - [5. Terminal info](#5-terminal-info)
-    - [6. RTT info](#6-rtt-info)
-    - [7. UART](#7-uart)
-    - [8. MDK-ARM projects](#8-mdk-arm-projects)
-    - [9. Details](#9-details)
-  - [10. Further info](#10-further-info)
-  - [Third party Software](#third-party-software)
-  - [alacritty](#alacritty)
-    - [goST](#gost)
-    - [keil.com](#keilcom)
-    - [segger.com](#seggercom)
-      - [SEGGER downloaded Software](#segger-downloaded-software)
-      - [JLink](#jlink)
-      - [SEGGER\_RTT](#segger_rtt)
-      - [STLinkReflash\_190812.zip](#stlinkreflash_190812zip)
-  - [st.com](#stcom)
+  - [4.  Embedded system code configuratio](#4--embedded-system-code-configuratio)
+  - [5. `trice` tool in logging action](#5-trice-tool-in-logging-action)
+  - [6. Encryption](#6-encryption)
+  - [7. CLI Options for `trice` tool](#7-cli-options-for-trice-tool)
+  - [8. *Trice* command line examples](#8-trice-command-line-examples)
+    - [8.1. Common information](#81-common-information)
+    - [8.2. Further examples](#82-further-examples)
+      - [8.2.1. Automated pre-build update command example](#821-automated-pre-build-update-command-example)
+      - [8.2.2. Some Log examples](#822-some-log-examples)
+      - [8.2.3. Logging over a display server](#823-logging-over-a-display-server)
+      - [8.2.4. Logfile output](#824-logfile-output)
+      - [8.2.5. Binary Logfile](#825-binary-logfile)
+      - [8.2.6. TCP output](#826-tcp-output)
+      - [8.2.7. Set all IDs in a directory tree to 0](#827-set-all-ids-in-a-directory-tree-to-0)
+      - [8.2.8. Stimulate target with a user command over UART](#828-stimulate-target-with-a-user-command-over-uart)
+      - [8.2.9. Explpore and modify channels and their colors](#829-explpore-and-modify-channels-and-their-colors)
+      - [8.2.10. Location Information](#8210-location-information)
+  - [9. Additional hints](#9-additional-hints)
+    - [9.1. Pre-built executables are available](#91-pre-built-executables-are-available)
+    - [9.2. Configuration file `triceConfig.h`](#92-configuration-file-triceconfigh)
+    - [9.3. Setting up the very first connection](#93-setting-up-the-very-first-connection)
+    - [9.4. Avoid buffer overruns](#94-avoid-buffer-overruns)
+    - [9.5. Limitation "trice u" requires TRICE macros on a single line](#95-limitation-trice-u-requires-trice-macros-on-a-single-line)
+    - [9.6. Limitation TRICE in TRICE not possible](#96-limitation-trice-in-trice-not-possible)
+    - [9.7. Dynamic strings/buffers only as variable inside `TRICE` macros](#97-dynamic-stringsbuffers-only-as-variable-inside-trice-macros)
+    - [9.8. Logfile viewing](#98-logfile-viewing)
+    - [9.9. Using the `trice` tool with 3rd party tools](#99-using-the-trice-tool-with-3rd-party-tools)
+    - [9.10. Several targets at the same time](#910-several-targets-at-the-same-time)
+    - [9.11. Executing `go test -race -count 100 ./...`](#911-executing-go-test--race--count-100-)
+    - [9.12. Direct TRICE Out (TRICE\_MODE 0) could cause stack overflow with -o0 optimization](#912-direct-trice-out-trice_mode-0-could-cause-stack-overflow-with--o0-optimization)
+  - [10. Target side *Trice* On-Off](#10-target-side-trice-on-off)
+  - [11. Host side *Trice* On-Off](#11-host-side-trice-on-off)
+  - [12. Using a different encoding](#12-using-a-different-encoding)
+  - [13. Testing](#13-testing)
+    - [13.1. Folder information](#131-folder-information)
+    - [13.2. Package specific information](#132-package-specific-information)
+    - [13.3. todo](#133-todo)
+  - [14. Trice demo \& test project info](#14-trice-demo--test-project-info)
+    - [14.1. Backup folder](#141-backup-folder)
+    - [14.2. Terminal info](#142-terminal-info)
+    - [14.3. RTT info](#143-rtt-info)
+    - [14.4. UART](#144-uart)
+    - [14.5. MDK-ARM projects](#145-mdk-arm-projects)
+  - [15. Further info](#15-further-info)
+  - [16. Third party Software](#16-third-party-software)
+  - [17. alacritty](#17-alacritty)
+    - [17.1. goST](#171-gost)
+    - [17.2. keil.com](#172-keilcom)
+    - [17.3. segger.com](#173-seggercom)
+      - [17.3.1. SEGGER downloaded Software](#1731-segger-downloaded-software)
+      - [17.3.2. JLink](#1732-jlink)
+      - [17.3.3. SEGGER\_RTT](#1733-segger_rtt)
+      - [17.3.4. STLinkReflash\_190812.zip](#1734-stlinkreflash_190812zip)
+  - [18. st.com](#18-stcom)
 
 <!-- vscode-markdown-toc-config
 	numbering=true
@@ -88,11 +89,12 @@
 |--------------|-------------------------------------------------|
 | cmd/trice    | `trice` tool command Go sources                 |
 | cmd/cui      | (do not use) command user interface tryout code |
+| cmd/stim     | (do not use) target stimulation tool tryout code|
 | docs/        | documentation                                   |
 | internal/    | `trice` tool internal Go packages               |
 | pkg/         | `trice` tool common Go packages                 |
-| pkg/src/     | C sources for trice instrumentation             |
-| test/        | example target projects                         |
+| src/         | C sources for trice instrumentation             |
+| test/        | example target projects and tests               |
 | third_party/ | external components                             |
 
 <p align="right">(<a href="#top">back to top</a>)</p>
@@ -116,24 +118,69 @@
   * Don´t worry, most of it you will never need.
   * There are only 2 important commands: `trice u[pdate]` and `trice l[og]`. Call them with the right CLI switches.
     * `trice h -u[pdate]` and `trice h -l[og]` show partial help.
-* Add `./src/trice.c` to your project.
+* `trice` does not make any assumptions about the target processor - 8-bit to 64-bit and any endianness are supported.
+* The ARM µVision MDK is free downloadable and free usable for STM M0/M0+ MCUs, like the `./test/MDK-ARM_STM32F030R8` project.
+  * Even if you do not have such hardware, you can download ARM µVision MDK and compile the `./test/MDK-ARM_STM32F030R8` project just to get started.
+  * When adding or modifying `trice` macros inside `.test/MDK-ARM_STM32F030R8/Core/Src/main.c` and recompiling you should see automatically changed ID numbers inside the code.
+  
+###  2.4. <a name='Portit'></a>Port it 
+
+Compair folder `./test/MDK-ARM_STM32F030R8_generated` with `./test/MDK-ARM_STM32F030R8` to see in a quick way any needed adaptions for your target project to port trice to it.
+
+Main steps are:
+
+* Add `./src/trice.c` to your project. It includes the files in ./src/box automatically.
 * Add `./src/` to your library include path.
 * Copy file `./test/MDK-ARM_STM32F030R8/Core/Inc/triceConfig.h` to your embedded project and adapt it to your needs.
   * Other `triceConfig.h` files are usable as well, but the above is usually the most actual one.
-* Optionally copy `./test/testdata/triceCheck.c` to your project if you wish to perform some checks.
-  * Copy it, because it gets overwritten when `updateTestData.sh` is executed inside the `./test` folder.
+* Copy file `./test/MDK-ARM_STM32F030R8/Core/Inc/SEGGER_RTT_Conf.h` to your embedded project and adapt it to your needs, when using RTT.
+* Optionally copy all or parts parts of `./test/testdata/triceCheck.c` to your project if you wish to perform some checks.
+  * Do not inlucde it directly, because it gets overwritten when `updateTestData.sh` is executed inside the `./test` folder.
 * In your source.c files add line `#include "trice.h"`
-* In a function write: `TRice( "1/11 = %g\n", aFloat( 1.0/11 ) );` or s.th. similar.
+* In a function write a trice message like: `TRice( "1/11 = %g\n", aFloat( 1.0/11 ) );`.
 * In **project root**:
   * Create empty file: `touch til.json`.
-  * Run `trice u` should perform **automatically** these things (The numbers are just examples.):
+  * Witch correct CLI switches `trice u` should perform **automatically** these things (The numbers are just examples.):
 >>>    * Patch source.c to `TRice( iD(12363), "1/11 = %g\n", aFloat( 1.0/11 ) );`
 >>>      * C & H files containing TRICE macros, are only modified if needed (missing or obsolete ID)
 >>>    * Extend `til.json`
 >>>      * If no `til.json` is found nothing happens. At least an empty file is needed (Safety feature).
-* When the program runs later it should output something similar to![./ref/1div11.PNG](./ref/1div11.PNG)
-* It is up to the user to provide the 2 functions `void Stamp16(void)` and `void Stamp32(void)`.
-* For RTT add SEGGER source, for UART add UART write function. 
+* When the program runs later, it should output something similar to ![./ref/1div11.PNG](./ref/1div11.PNG)
+* It is up to the user to provide the 2 functions `void TriceStamp16(void)` and `void TriceStamp32(void)`.
+  * They are usually provide time stamps but could be used in any manner.
+  * They are defined as `__WEAK` functions, so that you can skip their coding in the beginning.
+* For RTT the SEGGER source is already included.
+* For UART transfer add UART write functionality.
+
+####  2.4.1. <a name='TargetCodeOverview'></a>Target Code Overview
+
+* `./src`:
+
+| File                                  | description |
+| -                                     | -           |
+| `trice.h` & `trice.c`                 | trice runtime lib user interface, `#include trice.h` in project files, where to use `TRICE` macros. |
+
+* `./src/box`:
+
+| File                                  | description |
+| -                                     | -           |
+| `cobs*.*`                             | message packaging, alternatively for tcobs |
+| `trice.h` & `trice.c`                 | trice runtime lib user interface, `#include trice.h` in project files, where to use `TRICE` macros. |
+| `core.c`                              | trice core lib |
+| `SEGGER_RTT.*`                        | Segger RTT code |
+| `tcobs*.*`                            | message compression and packaging |
+| `trice8.*`                            | 8-bit trice code |
+| `trice16.*`                           | 16-bit trice code |
+| `trice32.*`                           | 32-bit trice code |
+| `trice64.*`                           | 64-bit trice code |
+| `triceDoubleBuffer.c`                 | trice runtime lib extension needed for fastest indirect mode |
+| `triceModbusBuffer.c`                 | trice runtime lib extension needed for Modbus mode (not usable yet) |
+| `triceStackBuffer.c`                  | trice runtime lib extension needed for direct mode |
+| `triceStreamBuffer.c`                 | trice runtime lib extension needed for recommended indirect mode |
+| `xtea.*`                              | UNTESTED with TREX, needed for XTEA message encryption, if enabled |
+  
+* The TCOBS files are copied from [https://github.com/rokath/tcobs/tree/master/TCOBSv1](https://github.com/rokath/tcobs/tree/master/TCOBSv1). They are maintained there and extensively tested and probably not a matter of significant change.
+* The SEGGER files are copied from and you could check for a newer version at [https://www.segger.com/downloads/jlink/](https://www.segger.com/downloads/jlink/).
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -143,10 +190,10 @@
 * On Windows you need to install [TDM-GCC](https://jmeubank.github.io/tdm-gcc/download/).
   * Take the 64-bit variant when Go is 64-bit or take the 32-bit variant when Go is 32-bit. If mixed installations work I doubt.
   * Recommendation: Minimal online installer.
-  * GCC is only needed for [./pkg/src/src.go](https://github.com/rokath/trice/blob/master/pkg/src/src.go), what gives the option to test the C-code on the host.
-  * Make sure TDM-GCC is found first in the path.
+  * GCC is only needed to test the target C-code on the host.
+  * Make sure TDM-GCC is found first in the path, if you have several compilers installed.
   * Other gcc variants could work also but not tested.
-* Open a console inside the `trice` directory.
+* Open a console inside the `trice` directory, recommended is the git-bash, when using Windows.
 * Check and install:
 
 ```b
@@ -189,49 +236,16 @@ ms@DESKTOP-7POEGPB MINGW64 /c/repos/trice (master)
 $
 ```
 
+The last tests can last quite a while, depending on your machine.
 Afterwards you should find an executable `trice` inside $GOPATH/bin/ and you can modify its source code.
-
-<!--
-* The used serial Go driver package is Linux & Windows tested but should work on MacOS soon too.
-* For historical reasons there are 2 serial drivers inside the **trice** tool. This will be changed.
--->
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-<!---
+##  4. <a name='Embeddedsystemcodeconfiguratio'></a> Embedded system code configuratio
 
- Target Setup
+Check comments inside `triceConfig.h`.
 
-* As a starting point for your project specific `triceConfig.h` grab into the trice/test folder and copy `triceConfig.h` from a test project to your project and adapt it then.
-*  Inside `cgo/test` also `triceConfig.h` files to select.
-
-* Add this (`trice\src`) folder to the target compiler include path OR, if you prefer, copy the files you need.
-* Include the used *.c` files to your project.
-* Files overview:
-  
-  | File                                               | description |
-  | -                                                  | -           |
-  | `trice.h` & `trice.c`                              | trice runtime lib core, `#include trice.h` in project files, where to use `TRICE` macros. |
-  | `triceStackBuffer.c`                               | trice runtime lib extension needed for direct mode |
-  | `triceDoubleBuffer.c`                              | trice runtime lib extension needed for fastest indirect mode |
-  | `triceStreamBuffer.c`                              | trice runtime lib extension needed for recommended indirect mode |
-  | `tcobs.h`, `tcobsv1Internal.h` & `tcobsv1Encode.c` | message compression and packaging, the `*.h` files need **no** `#include ...` |
-  | `cobs.*`                                           | alternatively for tcobs |
-  | `xtea.h` & `xtea.c`                                | UNTESTED with TREX, needed for XTEA message encryption, if enabled |
-  | `triceCheck.c` | contains example code and is not needed for production code, but you can temporarily add it to your project for checking |
-  | `trice_test.c` | ignore, this file is used from Go when `go test ./...` is executed. |
-
-* The TCOBS files are copied from [https://github.com/rokath/tcobs/tree/master/TCOBSv1](https://github.com/rokath/tcobs/tree/master/TCOBSv1). They are maintained there and extensively tested and probably not a matter of significant change.
-* For SEGGER RTT usage, the file `../../third_party/segger.com/SEGGER_RTT/RTT/SEGGER_RTT.c` needs to be included and `../../third_party/segger.com/SEGGER_RTT/RTT/` should be part of the target compiler include path. You could check for a newer version at [https://www.segger.com/downloads/jlink/](https://www.segger.com/downloads/jlink/).
--->
-## Files `trice.go` and `trice_test.go`
-
-* The package trice is not needed for the `trice` tool.
-* File trice_test.go contains test functions to execute the C code during `go test ./...`
-* File `trice.go` does the cgo connection. cgo is not supported inside test files.
-
-##  4. <a name='Embeddedsystemcodesetup'></a>Embedded system code setup
-
+<!--
 * Each project gets its own [triceConfig.h](../test/MDK-ARM_STM32F030R8/Core/Inc/triceConfig.h) file.
 * Modify [triceConfig.h](../test/MDK-ARM_STM32F030R8/Core/Inc/triceConfig.h) according your needs. Choose the *Trice* mode here:
   * Immediate mode: Straight output inside `TRICE` macro at the cost of the time it takes.
@@ -272,7 +286,7 @@ Afterwards you should find an executable `trice` inside $GOPATH/bin/ and you can
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  5. <a name='Adaptyourlegacysourcecode'></a>Adapt your legacy source code
+-##  5. <a name='Adaptyourlegacysourcecode'></a>Adapt your legacy source code
 
 For example change the legacy source code line
 
@@ -306,11 +320,9 @@ Care must be taken in the following cases:
 
 <!--
 and adds for example the *ID 12345* together with *"%d Kelvin\n"* into a **t**rice **I**D **l**ist, a [JSON](https://www.json.org/json-en.html) reference file named [til.json](../til.json). The *12345* is a random or policy generated ID not used so far. During compilation the `TRICE` macro is translated to only a *12345* reference and the variable *k*. The format string never sees the target.
--->
 
 When you compare the needed FLASH size before and after you probably will see more free space afterwards, because the *Trice* code is less than 1 KB, no format strings anymore inside the target and you do not need a printf library anymore. Be aware that `TRICE` is a macro adding each time it is used some code.
 
-<!--
 
 A `TRICE` macro is avoiding all the `printf()` internal overhead (space and time) but is nearly as easy to use. For example instead of writing
 
@@ -373,7 +385,7 @@ The function call overhead is reasonable and the advantage is significant less c
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  6. <a name='tricetoolinloggingaction'></a>`trice` tool in logging action
+##  5. <a name='tricetoolinloggingaction'></a>`trice` tool in logging action
 
 <!--
 Executing `trice update` at the root of your project source updates in case of changes, the *Trice* statements inside the source code and the ID list. The `-src` switch can be used multiple times to keep the amount of parsed data small for better speed.
@@ -455,7 +467,7 @@ Quick workaround:
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  7. <a name='Encryption'></a>Encryption
+##  6. <a name='Encryption'></a>Encryption
 
 * You can deliver your device with encrypted trices. This way only the service is able to read the *Trices*.
 * Implemented is XTEA but this is easy exchangeable.
@@ -465,7 +477,7 @@ Quick workaround:
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  8. <a name='CLIOptionsfortricetool'></a>CLI Options for `trice` tool
+##  7. <a name='CLIOptionsfortricetool'></a>CLI Options for `trice` tool
 
 The trice tool is very easy to use even it has a plenty of options. Most of them normally not needed.
 The trice tool can be started in several modes (sub-commands), each with several mandatory or optional switches. Switches can have parameters or not.
@@ -480,12 +492,12 @@ Info for a special sub-command is shown with `trice h -l`, `trice h -u`, ... .
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  9. <a name='Tricecommandlineexamples'></a>*Trice* command line examples
+##  8. <a name='Tricecommandlineexamples'></a>*Trice* command line examples
 
 * The **trice** tool has many command line options, but is easy to use with default values.
 * No [config file](./TriceConfigFile.md) implemented yet. But the command history is usable for example inside the bash, simply enter CTRL-R and start typing `trice...` and you can select from the history.
 
-###  9.1. <a name='Commoninformation'></a>Common information
+###  8.1. <a name='Commoninformation'></a>Common information
 
 * `trice h -all` shows all options of the current version.
 * `trice ver` prints version information.
@@ -501,9 +513,9 @@ Info for a special sub-command is shown with `trice h -l`, `trice h -u`, ... .
 * `trice l -p COM18 -ds` sends the log strings to a display server with default ip address *127.0.0.1:61487* or any specified value, if for example `-ipa 192.168.1.200` the trice logs go to the remote device. You can start several trice log instances, all transmitting to the same display server.
 -->
 
-###  9.2. <a name='Furtherexamples'></a>Further examples
+###  8.2. <a name='Furtherexamples'></a>Further examples
 
-####  9.2.1. <a name='Automatedpre-buildupdatecommandexample'></a>Automated pre-build update command example
+####  8.2.1. <a name='Automatedpre-buildupdatecommandexample'></a>Automated pre-build update command example
 
 * Scan directories `../src`, `../lib/src` and `./` to update the IDs there and extend list file `../../../til.json`
 
@@ -513,7 +525,7 @@ trice u -v -i ../../../til.json -src ../src -src ../lib/src -src ./
 
 This is a typical line you can add to your project as an automatic pre-compile step.
 
-####  9.2.2. <a name='SomeLogexamples'></a>Some Log examples
+####  8.2.2. <a name='SomeLogexamples'></a>Some Log examples
 
 * Log trice messages on COM3 8N1 115200 baud
 
@@ -527,7 +539,7 @@ trice log -i ./myProject/til.json -p=COM3
 trice l -s COM3 -baud=9600
 ```
 
-####  9.2.3. <a name='Loggingoveradisplayserver'></a>Logging over a display server
+####  8.2.3. <a name='Loggingoveradisplayserver'></a>Logging over a display server
 
 * Start displayserver on ip 127.0.0.1 (localhost) and port 61497
 
@@ -547,7 +559,7 @@ trice l -ds -p COM3
 trice sd -r 192.168.1.23:45678
 ```
 
-####  9.2.4. <a name='Logfileoutput'></a>Logfile output
+####  8.2.4. <a name='Logfileoutput'></a>Logfile output
 
 ```bash
 trice l -p COM3 -logfile auto
@@ -563,7 +575,7 @@ This creates a new logfile `trice.log` on first start and appends to it on each 
 
 Logfiles are text files one can see with 3rd party tools. Example: `cat trice.log`. They contain also the PC reception timestamps if where enabled.
 
-####  9.2.5. <a name='BinaryLogfile'></a>Binary Logfile
+####  8.2.5. <a name='BinaryLogfile'></a>Binary Logfile
 
 ```bash
 trice l -p COM3 -binaryLogfile auto
@@ -580,7 +592,7 @@ This creates a new binary logfile `trice.bin` on first start and appends to it o
 Binary logfiles store the **trice** messages as they come out of the target in binary form. They are much smaller than normal logfiles, but the **trice** tool with the *til.sjon* is needed for displaying them and the PC timestamps are the displaying time: `trice -p FILEBUFFER -args trice.log`.
 
 Binary logfiles are handy in the field for long data recordings.
-####  9.2.6. <a name='TCPoutput'></a>TCP output
+####  8.2.6. <a name='TCPoutput'></a>TCP output
 
 ```bash
 trice l -p COM3 -tcp 127.0.0.1:23
@@ -591,7 +603,7 @@ This additionally sends **trice** output to a 3rd party TCP listener, for exampl
 ![./ref/PuttyConfig1.PNG](./ref/PuttyConfig1.PNG) ![./ref/PuttyConfig2.PNG](./ref/PuttyConfig2.PNG)
 ![./ref/Putty.PNG](./ref/Putty.PNG)
 
-####  9.2.7. <a name='SetallIDsinadirectorytreeto0'></a>Set all IDs in a directory tree to 0
+####  8.2.7. <a name='SetallIDsinadirectorytreeto0'></a>Set all IDs in a directory tree to 0
 
 ```bash
 trice zeroSourceTreeIds -src ./ 
@@ -602,39 +614,39 @@ trice zeroSourceTreeIds -src ./
 * Normally nobody uses that. But if you intend to integrate some existing sources into a project using [ID management](./TriceIDManagement.md) options, this could be a need.
 * Calling `trice u` afterwards will assign new IDs, but calling `trice u -shared IDs` will assign the same IDs again.
 
-####  9.2.8. <a name='StimulatetargetwithausercommandoverUART'></a>Stimulate target with a user command over UART
+####  8.2.8. <a name='StimulatetargetwithausercommandoverUART'></a>Stimulate target with a user command over UART
 
 Sometimes it is handy to stimulate the target during development. For that a 2nd screen is helpful what is possible using the display server option:
 
 ![./ref/UARTCommandAnimation.gif](./ref/UARTCommandAnimation.gif)
 
-####  9.2.9. <a name='Explporeandmodifychannelsandtheircolors'></a>Explpore and modify channels and their colors
+####  8.2.9. <a name='Explporeandmodifychannelsandtheircolors'></a>Explpore and modify channels and their colors
 
 See file [./TriceColor.md](./TriceColor.md)
 
-####  9.2.10. <a name='LocationInformation'></a>Location Information
+####  8.2.10. <a name='LocationInformation'></a>Location Information
 
 When running  `trice update`, a file `li.json` is created, what you can control with the `-locationInformation` switch. During logging, when `li.json` is found, automatically the filename and line number is displayed in front of each log line, controllable with the `-liFmt` switch. This information is correct only with the right version of the `li.json` file. That is usually the case on the PC during development. Out in the field only the `til.json` reference is of importance. It serves an an accumulator of all firmware versions and usually the latest version of this file is the best fit. The `li.json` file should stay with the software developer only and needs no version control in the usual case because it is rebuild with each compilation, when `trice u` is a prebuild step.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  10. <a name='Additionalhints'></a>Additional hints
+##  9. <a name='Additionalhints'></a>Additional hints
 
-###  10.1. <a name='Pre-builtexecutablesareavailable'></a>Pre-built executables are available
+###  9.1. <a name='Pre-builtexecutablesareavailable'></a>Pre-built executables are available
 
 See [https://github.com/rokath/trice/releases](https://github.com/rokath/trice/releases).
-###  10.2. <a name='ConfigurationfiletriceConfig.h'></a>Configuration file `triceConfig.h`
+###  9.2. <a name='ConfigurationfiletriceConfig.h'></a>Configuration file `triceConfig.h`
 
 * When setting up your first project you need a `triceConfig.h` file.
 * You should **not** use the `./pkg/src/inc/triceConfig.h` because it is customized for internal tests with CGO.
 * Please choose one of the `./test/.../triceConfig.h` files as starting point.
 * Comparing them and understandig the differences helps quick starting.
 
-###  10.3. <a name='Settinguptheveryfirstconnection'></a>Setting up the very first connection
+###  9.3. <a name='Settinguptheveryfirstconnection'></a>Setting up the very first connection
 
 If you see nothing in the beginning, what is normally ;-), add the `-s` (`-showInputBytes`) switch to see if any data arrive. There is also a switch `-debug` showing you the received packages, if you are interested in.
 
-###  10.4. <a name='Avoidbufferoverruns'></a>Avoid buffer overruns
+###  9.4. <a name='Avoidbufferoverruns'></a>Avoid buffer overruns
 
 It is your responsibility to produce less data than transmittable. If this is not guarantied a data loss is not avoidable or you have to slow down the program. The double buffer as fastest solution has no overflow check. My recommendation: Make the buffer big and emit the maxDepth cyclically, every 10 or 1000 seconds. Then you know the needed size. It is influenced by the max trice burst and the buffer switch interval.
 
@@ -644,12 +656,12 @@ It is planned to make the code secure against buffer overruns in the future. But
 That is detectable with the cycle counter. The internal 8-bit cycle counter is usually enabled. If *Trice* data are lost, the receiver side will detect that because the cycle counter is not as expected. There is a chance of 1/256 that the detection does not work. You can check the detection by unplugging the trice UART cable for a time. Also resetting the target during transmission should display a cycle error.
 
 
-###  10.5. <a name='LimitationtriceurequiresTRICEmacrosonasingleline'></a>Limitation "trice u" requires TRICE macros on a single line
+###  9.5. <a name='LimitationtriceurequiresTRICEmacrosonasingleline'></a>Limitation "trice u" requires TRICE macros on a single line
 
 * The implemented parser (currently) does not support `TRICE` macros over several source code lines. Each `TRICE` macro needs to be completely on one line.
 * It is possible to have several (complete) `TRICE` macros on one source code line.
 
-###  10.6. <a name='LimitationTRICEinTRICEnotpossible'></a>Limitation TRICE in TRICE not possible
+###  9.6. <a name='LimitationTRICEinTRICEnotpossible'></a>Limitation TRICE in TRICE not possible
 
 * No-Good Example:
 
@@ -669,7 +681,7 @@ int f0( void ){ TRICE( "msg:f0\n"); return 0; }
 void f1( void ){ int x = f0(); TRICE( "Yes: %d", x ); }
 ```
 
-###  10.7. <a name='DynamicstringsbuffersonlyasvariableinsideTRICEmacros'></a>Dynamic strings/buffers only as variable inside `TRICE` macros
+###  9.7. <a name='DynamicstringsbuffersonlyasvariableinsideTRICEmacros'></a>Dynamic strings/buffers only as variable inside `TRICE` macros
 
 * No-Good Example:
 
@@ -705,7 +717,7 @@ TRICE_S( "msg:This part of the string is known at compile time. This part is dyn
 All the string literals (i.e. compile-time known strings) should be put inside the format string.
 Only the dynamic strings should be used as variables in TRICE_S macro.
 
-###  10.8. <a name='Logfileviewing'></a>Logfile viewing
+###  9.8. <a name='Logfileviewing'></a>Logfile viewing
 
 Logfiles, **trice** tool generated with sub-command switch `-color off`, are normal ASCII files. If they are with color codes, these are ANSI escape sequences.
 
@@ -713,25 +725,25 @@ Logfiles, **trice** tool generated with sub-command switch `-color off`, are nor
 * Under Windows one could also download and use [ansifilter](https://sourceforge.net/projects/ansifilter/) for logfile viewing. A monospaced font is recommended.
 * See also [Color issues under Windows](./TriceColor.md#color-issues-under-windows)
 
-###  10.9. <a name='Usingthetricetoolwith3rdpartytools'></a>Using the `trice` tool with 3rd party tools
+###  9.9. <a name='Usingthetricetoolwith3rdpartytools'></a>Using the `trice` tool with 3rd party tools
 
 Parallel output as logfile, TCP or binary logfile is possible. See examples above.
 
-###  10.10. <a name='Severaltargetsatthesametime'></a>Several targets at the same time
+###  9.10. <a name='Severaltargetsatthesametime'></a>Several targets at the same time
 
 You can connect each target over its transmit channel with an own **trice** instance and integrate all transmissions line by line in an additional **trice** instance acting as display server. See [https://github.com/rokath/trice#display-server-option](https://github.com/rokath/trice#display-server-option).
 
-###  10.11. <a name='Executinggotest-race-count100....'></a>Executing `go test -race -count 100 ./...`
+###  9.11. <a name='Executinggotest-race-count100....'></a>Executing `go test -race -count 100 ./...`
 
 The C-code is executed during some tests. Prerequisite is a installed GCC.
 
-###  10.12. <a name='DirectTRICEOutTRICE_MODE0couldcausestackoverflowwith-o0optimization'></a>Direct TRICE Out (TRICE_MODE 0) could cause stack overflow with -o0 optimization
+###  9.12. <a name='DirectTRICEOutTRICE_MODE0couldcausestackoverflowwith-o0optimization'></a>Direct TRICE Out (TRICE_MODE 0) could cause stack overflow with -o0 optimization
 
 As discussed in [issue #294](https://github.com/rokath/trice/issues/294) it can happen, that several TRICE macros within one function call increase the stack usage more than expected, when compiler optimization is totally switched off.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  11. <a name='TargetsideTriceOn-Off'></a>Target side *Trice* On-Off
+##  10. <a name='TargetsideTriceOn-Off'></a>Target side *Trice* On-Off
 
 * If your code works well after checking, you can add `#define TRICE_OFF` just before the `#include "trice.h"` line and no *trice* code is generated anymore for that file, so no need to delete or comment out `TRICE` macros: : ![./ref/TRICE_OFF.PNG](./ref/TRICE_OFF.PNG)
 * No runtime On-Off switch is implemented for  several reasons:
@@ -746,14 +758,14 @@ As discussed in [issue #294](https://github.com/rokath/trice/issues/294) it can 
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  12. <a name='HostsideTriceOn-Off'></a>Host side *Trice* On-Off
+##  11. <a name='HostsideTriceOn-Off'></a>Host side *Trice* On-Off
 
 * The PC **trice** tool offers command line switches to `-pick` or `-ban` for *trice* channels and will be extended with display switches.
 * A **trice** tool logLevel switch is usable too (Issue [#236](https://github.com/rokath/trice/issues/236)).
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  13. <a name='Usingadifferentencoding'></a>Using a different encoding
+##  12. <a name='Usingadifferentencoding'></a>Using a different encoding
 
 It is possible to exchange the code behind the `TRICE` macros with a different encoding and to add an appropriate decoder to the **trice** tool.
 The ID assignment is adjustable with `-IDMin` and `-IDMax`.
@@ -773,10 +785,10 @@ The ID assignment is adjustable with `-IDMin` and `-IDMax`.
 * Running `trice check` should show your message, indicating everything is fine so far.
 -->
 
-## Testing
+##  13. <a name='Testing'></a>Testing
 
 
-###  1. <a name='Folderinformation'></a>Folder information
+###  13.1. <a name='Folderinformation'></a>Folder information
 
 - The folders here, despite `testdata`, are helper "projects" for testing the target C-code located in `trice/src/`.
 - Some folders are hardware specific implementations and some are Go packages. The Go packages can have all the same name, only the folder names are not equal.
@@ -791,7 +803,7 @@ The ID assignment is adjustable with `-IDMin` and `-IDMax`.
 - In a post-compile step a `trice z` should restore the `triceCheck.c` unmodified state to be identical to `./testdata/triceCheck_EditThisFile_NotTheTriceCheckDotC.txt`.
 - Unfortunately this has to be done on the os filesystem.
 
-###  2. <a name='Packagespecificinformation'></a>Package specific information
+###  13.2. <a name='Packagespecificinformation'></a>Package specific information
 
 - Each C function gets a Go wrapper which ist tested in appropriate test functions.
 - For some reason inside the trice_test.go an 'import "C"' is not possible.
@@ -799,31 +811,33 @@ The ID assignment is adjustable with `-IDMin` and `-IDMax`.
 - The Go functions defined in the packages are not exported. They are called by the Go test functions in this package.
 - This way the package test functions are executing the trice C-code compiled with the triceConfig.h there.
 
-###  3. <a name='todo'></a>todo
+###  13.3. <a name='todo'></a>todo
 
 - repair cgo0_tcobs
 - repair cgo1_tcobs
 - cgo2_tcobs: ref_cobs.c_?
 - Parse "C:\repos\trice\cgo\test\cgo2_tcobs\triceCheck.c" and complete TestTriceCheck
 
-## Trice demo & test project info
+<p align="right">(<a href="#top">back to top</a>)</p>
+
+##  14. <a name='Tricedemotestprojectinfo'></a>Trice demo & test project info
 
 Many demo projects are ARMKeil IDE STM32 here but the TRICE tool is easy adaptable to 8 - 64-bit architectures.
 
-###  4. <a name='Backupfolder'></a>Backup folder
+###  14.1. <a name='Backupfolder'></a>Backup folder
 
 - This folder contains unmaintained legacy test projects.
 - They are only for reference and need some corrections to work with the current release.
 - See also [../docs/TestExamples.md](../docs/TestExamples.md)
 
-###  5. <a name='Terminalinfo'></a>Terminal info
+###  14.2. <a name='Terminalinfo'></a>Terminal info
 
 - Open an escape sequence capable terminal in trice root `C:\repos\trice\`opr where you put it.
   - Any directory will do as well but the `til.json` file needs to be found.
   - git-bash will do or also windows-terminal from Microsoft store.
     - Under Windows the DOS or powershell could have display issues with the escaped ASCII codes. Search the internet for answers.
 
-###  6. <a name='RTTinfo'></a>RTT info
+###  14.3. <a name='RTTinfo'></a>RTT info
 
 - The example projects support both, RTT and UART just for demonstration.
 - RTT = Real Time Transfer is a technique developed by SEGGER for background memory access during processor runtime. This is possible for ARM cores over the JTAG or SWD interface if a debug probe is connected.
@@ -833,11 +847,11 @@ Many demo projects are ARMKeil IDE STM32 here but the TRICE tool is easy adaptab
 - You can also flash the on-board debug probe with J-LINK firmware. To use RTT use the `-p JLINK` switch.
   - `JLinkRTTLogger.exe` and `JLinkARM.dll` must be in the PATH.
 
-###  7. <a name='UART'></a>UART
+###  14.4. <a name='UART'></a>UART
 
 - The default baud rate is 115200 for all test projects and the trice tool assumes that baud rate automatically. Use the trice tool `-baud` switch for other settings.
 
-###  8. <a name='MDK-ARMprojects'></a>MDK-ARM projects
+###  14.5. <a name='MDK-ARMprojects'></a>MDK-ARM projects
 
 The projects are generated with necessary library files *as reference* to keep them smaller. Therefore, the direct compilation will fail, probably. Projects should compile if you follow these steps:
 
@@ -849,7 +863,8 @@ The projects are generated with necessary library files *as reference* to keep t
 - Open the project ioc file with STM32CubeMX and re-generate.
 - Open the project with ARMKeil IDE and build.
 
-### 9. <a name='Details'></a>Details
+<!-- ###  16.6. <a name='Details'></a>Details
+
 
 - [MDK-ARM_LL_generatedDemo_STM32F030R8-NUCLEO-64\ReadMe.md](MDK-ARM_LL_generatedDemo_STM32F030R8-NUCLEO-64\ReadMe.md)
 - [MDK-ARM_LL_UART_RTT0_BARE_STM32F030R8-NUCLEO-64/ReadMe.md](MDK-ARM_LL_UART_RTT0_BARE_STM32F030R8-NUCLEO-64/ReadMe.md)
@@ -863,21 +878,90 @@ The projects are generated with necessary library files *as reference* to keep t
 - [MDK-ARM_RTT0_BARE_STM32F03051R8Tx-DISCOVERY/ReadMe.md](MDK-ARM_RTT0_BARE_STM32F03051R8Tx-DISCOVERY/ReadMe.md)
 - [MDK-ARM_LL_UART_WRAP_RTT0_BARE_STM32F030R8-NUCLEO-64/ReadMe.md](MDK-ARM_LL_UART_WRAP_RTT0_BARE_STM32F030R8-NUCLEO-64/ReadMe.md)
 
+-->- [*Trice* user guide](#trice-user-guide)
+- [*Trice* user guide](#trice-user-guide)
+  - [1. Project structure](#1-project-structure)
+  - [2. Get started](#2-get-started)
+    - [2.1. Get it](#21-get-it)
+    - [2.2. Install It](#22-install-it)
+    - [2.3. Use It](#23-use-it)
+    - [2.4. Port it](#24-port-it)
+      - [2.4.1. Target Code Overview](#241-target-code-overview)
+  - [3. Build `trice` tool from Go sources (you can skip that)](#3-build-trice-tool-from-go-sources-you-can-skip-that)
+  - [4.  Embedded system code configuratio](#4--embedded-system-code-configuratio)
+  - [5. `trice` tool in logging action](#5-trice-tool-in-logging-action)
+  - [6. Encryption](#6-encryption)
+  - [7. CLI Options for `trice` tool](#7-cli-options-for-trice-tool)
+  - [8. *Trice* command line examples](#8-trice-command-line-examples)
+    - [8.1. Common information](#81-common-information)
+    - [8.2. Further examples](#82-further-examples)
+      - [8.2.1. Automated pre-build update command example](#821-automated-pre-build-update-command-example)
+      - [8.2.2. Some Log examples](#822-some-log-examples)
+      - [8.2.3. Logging over a display server](#823-logging-over-a-display-server)
+      - [8.2.4. Logfile output](#824-logfile-output)
+      - [8.2.5. Binary Logfile](#825-binary-logfile)
+      - [8.2.6. TCP output](#826-tcp-output)
+      - [8.2.7. Set all IDs in a directory tree to 0](#827-set-all-ids-in-a-directory-tree-to-0)
+      - [8.2.8. Stimulate target with a user command over UART](#828-stimulate-target-with-a-user-command-over-uart)
+      - [8.2.9. Explpore and modify channels and their colors](#829-explpore-and-modify-channels-and-their-colors)
+      - [8.2.10. Location Information](#8210-location-information)
+  - [9. Additional hints](#9-additional-hints)
+    - [9.1. Pre-built executables are available](#91-pre-built-executables-are-available)
+    - [9.2. Configuration file `triceConfig.h`](#92-configuration-file-triceconfigh)
+    - [9.3. Setting up the very first connection](#93-setting-up-the-very-first-connection)
+    - [9.4. Avoid buffer overruns](#94-avoid-buffer-overruns)
+    - [9.5. Limitation "trice u" requires TRICE macros on a single line](#95-limitation-trice-u-requires-trice-macros-on-a-single-line)
+    - [9.6. Limitation TRICE in TRICE not possible](#96-limitation-trice-in-trice-not-possible)
+    - [9.7. Dynamic strings/buffers only as variable inside `TRICE` macros](#97-dynamic-stringsbuffers-only-as-variable-inside-trice-macros)
+    - [9.8. Logfile viewing](#98-logfile-viewing)
+    - [9.9. Using the `trice` tool with 3rd party tools](#99-using-the-trice-tool-with-3rd-party-tools)
+    - [9.10. Several targets at the same time](#910-several-targets-at-the-same-time)
+    - [9.11. Executing `go test -race -count 100 ./...`](#911-executing-go-test--race--count-100-)
+    - [9.12. Direct TRICE Out (TRICE\_MODE 0) could cause stack overflow with -o0 optimization](#912-direct-trice-out-trice_mode-0-could-cause-stack-overflow-with--o0-optimization)
+  - [10. Target side *Trice* On-Off](#10-target-side-trice-on-off)
+  - [11. Host side *Trice* On-Off](#11-host-side-trice-on-off)
+  - [12. Using a different encoding](#12-using-a-different-encoding)
+  - [13. Testing](#13-testing)
+    - [13.1. Folder information](#131-folder-information)
+    - [13.2. Package specific information](#132-package-specific-information)
+    - [13.3. todo](#133-todo)
+  - [14. Trice demo \& test project info](#14-trice-demo--test-project-info)
+    - [14.1. Backup folder](#141-backup-folder)
+    - [14.2. Terminal info](#142-terminal-info)
+    - [14.3. RTT info](#143-rtt-info)
+    - [14.4. UART](#144-uart)
+    - [14.5. MDK-ARM projects](#145-mdk-arm-projects)
+  - [15. Further info](#15-further-info)
+  - [16. Third party Software](#16-third-party-software)
+  - [17. alacritty](#17-alacritty)
+    - [17.1. goST](#171-gost)
+    - [17.2. keil.com](#172-keilcom)
+    - [17.3. segger.com](#173-seggercom)
+      - [17.3.1. SEGGER downloaded Software](#1731-segger-downloaded-software)
+      - [17.3.2. JLink](#1732-jlink)
+      - [17.3.3. SEGGER\_RTT](#1733-segger_rtt)
+      - [17.3.4. STLinkReflash\_190812.zip](#1734-stlinkreflash_190812zip)
+  - [18. st.com](#18-stcom)
 
-##  10. <a name='Furtherinfo'></a>Further info
+<p align="right">(<a href="#top">back to top</a>)</p>
 
+##  15. <a name='Furtherinfo'></a>Further info
 
-## Third party Software
+<p align="right">(<a href="#top">back to top</a>)</p>
 
-## alacritty
+##  16. <a name='ThirdpartySoftware'></a>Third party Software
+
+<p align="right">(<a href="#top">back to top</a>)</p>
+
+##  17. <a name='alacritty'></a>alacritty
 
 - A fast, cross-platform, OpenGL terminal emulator
 
-### goST
+###  17.1. <a name='goST'></a>goST
 
 - see Segger RTT over STLINK
 
-### keil.com
+###  17.2. <a name='keil.com'></a>keil.com
 
 - Tooling info
 
@@ -893,30 +977,33 @@ The projects are generated with necessary library files *as reference* to keep t
 
 -->
 
-### segger.com
+###  17.3. <a name='segger.com'></a>segger.com
 
 - Tooling around Segger RTT, Download latest version from SEGGER web site.
 
-#### SEGGER downloaded Software
+####  17.3.1. <a name='SEGGERdownloadedSoftware'></a>SEGGER downloaded Software
 
 - Check in the Internet for newer versions.
 
-#### JLink
+####  17.3.2. <a name='JLink'></a>JLink
 
 - Download and install [J-LinkSoftwareAndDocumentationPack](https://www.segger.com/downloads/jlink/#J-LinkSoftwareAndDocumentationPack) or simply use `JLinkRTTLogger.exe` and accompanying `JLinkARM.dll` copied from default install location `C:\Program Files (x86)\SEGGER\JLink`. Both files are inside `JLinkRTTLogger.zip` You need to put to a location in \$PATH or extend \$PATH.
 
-#### SEGGER_RTT
+####  17.3.3. <a name='SEGGER_RTT'></a>SEGGER_RTT
 
 - Target code is expected inside SEGGER_RTT. This is the extracted SEGGER_RTT_V....zip.
 - Optionally check for a newer version.
 
-#### STLinkReflash_190812.zip
+####  17.3.4. <a name='STLinkReflash_190812.zip'></a>STLinkReflash_190812.zip
 
 - Tool for exchanging ST-LINK and J-LINK software on STM32 evaluation boards.
   - Works not for v3 Hardware but well for v2 Hardware.
   - In case of not accepting the ST-Link firmware use [../st.com/en.stsw-link007_V2-37-26.zip](../st.com/en.stsw-link007_V2-37-26.zip) for updating the ST-Link firmware first. It could be you need to exchange the ST-Link firmware variant into the variant with mass storage.
 
-## st.com
+<p align="right">(<a href="#top">back to top</a>)</p>
+
+##  18. <a name='st.com'></a>st.com
 
 - STMicroelectronics
 
+<p align="right">(<a href="#top">back to top</a>)</p>
