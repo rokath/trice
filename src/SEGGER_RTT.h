@@ -58,7 +58,7 @@ Revision: $Rev: 24346 $
 #ifndef SEGGER_RTT_H
 #define SEGGER_RTT_H
 
-#include "../Config/SEGGER_RTT_Conf.h"
+#include "SEGGER_RTT_Conf.h"
 
 /*********************************************************************
 *
