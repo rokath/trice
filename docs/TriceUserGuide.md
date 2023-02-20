@@ -134,6 +134,27 @@ Main steps are:
 * Copy file `./test/MDK-ARM_STM32F030R8/Core/Inc/triceConfig.h` to your embedded project and adapt it to your needs.
   * Other `triceConfig.h` files are usable as well, but the above is usually the most actual one.
 * Copy file `./test/MDK-ARM_STM32F030R8/Core/Inc/SEGGER_RTT_Conf.h` to your embedded project and adapt it to your needs, when using RTT.
+* Add 2 functions to your project:
+  
+    ```c
+    ///////////////////////////////////////////////////////////////////////////////
+    // (time) stamp funktions, rewrite these hardware specific functions in your project.
+    // 
+    
+    // 16-bit us stamp, wraps after 10 milliseconds
+    uint16_t TriceStamp16( void ){
+        return 0x1616;
+    }
+    
+    // 32-bit us stamp, wraps after 71,58 seconds
+    uint32_t TriceStamp32( void ){
+        return 0x32323232;
+    }
+    
+    //
+    ///////////////////////////////////////////////////////////////////////////////
+    ```
+
 * Optionally copy all or parts parts of `./test/testdata/triceCheck.c` to your project if you wish to perform some checks.
   * Do not inlucde it directly, because it gets overwritten when `updateTestData.sh` is executed inside the `./test` folder.
 * In your source.c files add line `#include "trice.h"`

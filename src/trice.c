@@ -4,23 +4,6 @@
 
 #include "trice.h"
 
-///////////////////////////////////////////////////////////////////////////////
-// (time) stamp funktions, rewrite these hardware specific functions in your project.
-// 
-
-// 16-bit us stamp, wraps after 10 milliseconds
-__WEAK uint16_t TriceStamp16( void ){
-    return 0x1616;
-}
-
-// 32-bit us stamp, wraps after 71,58 seconds
-__WEAK uint32_t TriceStamp32( void ){
-    return 0x32323232;
-}
-
-//
-///////////////////////////////////////////////////////////////////////////////
-
 #ifdef TRICE_RTT0
 #include "./box/SEGGER_RTT.c"
 #endif
