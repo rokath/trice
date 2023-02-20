@@ -28,7 +28,7 @@
   2. Tool **trice** for managing and visualization.
       - Written in [Go](https://golang.org/) and therefore usable on all platforms Go supports.
       - You can also use your own environment to receive the *Trice* packages, exchange the carried IDs with the format string and print out.
-- [Trice Usage guide](./docs/TriceUserGuide.md)
+- [Trice User guide](./docs/TriceUserGuide.md)
 
 ## Possible Use Cases
 
