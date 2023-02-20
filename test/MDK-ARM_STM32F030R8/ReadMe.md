@@ -12,4 +12,4 @@ Delivers TRICE logs over UART and RTT channel 0. See `TRICE_MODE` in "Core/Inc/t
 
 ## Info
 
-- The transfer goes over RTT channel 0 or UART.
+- The transfer goes over RTT channel 0 and UART.

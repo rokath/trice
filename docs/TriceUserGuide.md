@@ -15,6 +15,7 @@
     - [2.2. Install It](#22-install-it)
     - [2.3. Use It](#23-use-it)
   - [3. Build `trice` tool from Go sources (you can skip that)](#3-build-trice-tool-from-go-sources-you-can-skip-that)
+  - [Files `trice.go` and `trice_test.go`](#files-tricego-and-trice_testgo)
   - [4. Embedded system code setup](#4-embedded-system-code-setup)
   - [5. Adapt your legacy source code](#5-adapt-your-legacy-source-code)
   - [6. `trice` tool in logging action](#6-trice-tool-in-logging-action)
@@ -49,6 +50,24 @@
   - [11. Target side *Trice* On-Off](#11-target-side-trice-on-off)
   - [12. Host side *Trice* On-Off](#12-host-side-trice-on-off)
   - [13. Using a different encoding](#13-using-a-different-encoding)
+  - [Testing](#testing)
+    - [1. Folder information](#1-folder-information)
+    - [2. Package specific information](#2-package-specific-information)
+    - [3. todo](#3-todo)
+  - [Trice demo \& test project info](#trice-demo--test-project-info)
+    - [4. Backup folder](#4-backup-folder)
+    - [5. Terminal info](#5-terminal-info)
+    - [6. RTT info](#6-rtt-info)
+    - [7. UART](#7-uart)
+    - [8. MDK-ARM projects](#8-mdk-arm-projects)
+    - [9. Details](#9-details)
+  - [10. Further info](#10-further-info)
+  - [Third party Software](#third-party-software)
+  - [alacritty](#alacritty)
+    - [goST](#gost)
+    - [keil.com](#keilcom)
+    - [segger.com](#seggercom)
+  - [st.com](#stcom)
 
 <!-- vscode-markdown-toc-config
 	numbering=true
@@ -174,6 +193,38 @@ Afterwards you should find an executable `trice` inside $GOPATH/bin/ and you can
 -->
 
 <p align="right">(<a href="#top">back to top</a>)</p>
+
+<!---
+
+ Target Setup
+
+* As a starting point for your project specific `triceConfig.h` grab into the trice/test folder and copy `triceConfig.h` from a test project to your project and adapt it then.
+*  Inside `cgo/test` also `triceConfig.h` files to select.
+
+* Add this (`trice\src`) folder to the target compiler include path OR, if you prefer, copy the files you need.
+* Include the used *.c` files to your project.
+* Files overview:
+  
+  | File                                               | description |
+  | -                                                  | -           |
+  | `trice.h` & `trice.c`                              | trice runtime lib core, `#include trice.h` in project files, where to use `TRICE` macros. |
+  | `triceStackBuffer.c`                               | trice runtime lib extension needed for direct mode |
+  | `triceDoubleBuffer.c`                              | trice runtime lib extension needed for fastest indirect mode |
+  | `triceStreamBuffer.c`                              | trice runtime lib extension needed for recommended indirect mode |
+  | `tcobs.h`, `tcobsv1Internal.h` & `tcobsv1Encode.c` | message compression and packaging, the `*.h` files need **no** `#include ...` |
+  | `cobs.*`                                           | alternatively for tcobs |
+  | `xtea.h` & `xtea.c`                                | UNTESTED with TREX, needed for XTEA message encryption, if enabled |
+  | `triceCheck.c` | contains example code and is not needed for production code, but you can temporarily add it to your project for checking |
+  | `trice_test.c` | ignore, this file is used from Go when `go test ./...` is executed. |
+
+* The TCOBS files are copied from [https://github.com/rokath/tcobs/tree/master/TCOBSv1](https://github.com/rokath/tcobs/tree/master/TCOBSv1). They are maintained there and extensively tested and probably not a matter of significant change.
+* For SEGGER RTT usage, the file `../../third_party/segger.com/SEGGER_RTT/RTT/SEGGER_RTT.c` needs to be included and `../../third_party/segger.com/SEGGER_RTT/RTT/` should be part of the target compiler include path. You could check for a newer version at [https://www.segger.com/downloads/jlink/](https://www.segger.com/downloads/jlink/).
+-->
+## Files `trice.go` and `trice_test.go`
+
+* The package trice is not needed for the `trice` tool.
+* File trice_test.go contains test functions to execute the C code during `go test ./...`
+* File `trice.go` does the cgo connection. cgo is not supported inside test files.
 
 ##  4. <a name='Embeddedsystemcodesetup'></a>Embedded system code setup
 
@@ -717,3 +768,132 @@ The ID assignment is adjustable with `-IDMin` and `-IDMax`.
 * The `negative` value is uses a dataset with negative values for testing.
 * Running `trice check` should show your message, indicating everything is fine so far.
 -->
+
+## Testing
+
+
+###  1. <a name='Folderinformation'></a>Folder information
+
+- The folders here, despite `testdata`, are helper "projects" for testing the target C-code located in `trice/src/`.
+- Some folders are hardware specific implementations and some are Go packages. The Go packages can have all the same name, only the folder names are not equal.
+- In each Go package a different triceConfig.h is used, this way allowing to check all modes automatically, including encryption.
+- The file `./testdata/triceCheck.c.txt` is the master test pattern for all CGO tests and edited manually. It has the extension `.txt` to avoid accidentally modification by the `trice u` command.
+- After editing and before executing the tests, `./updateTestData.sh` needs to be executed. It copies into `./testdate/generated_triceCheck.c`, and a `trice u -src triceCheck.c` is needed. Than the modified `./testdata/generated_triceCheck.c` is compiled into the test executables in the `./cgo_*` folders.
+- The file `./testdata/generated_triceCheck.c` is copied into the memory filesystem and used there to extract the expected results (//exp: comments).
+- The fresh `./testdata/til.json` is used inside the memory filesystem during the tests.
+- They execute `cgo.TriceCheck(i)` this way activating the target code which writes into a buffer. The buffer is copied into a FILEBUFFER inside the memory file system and the trice tool is reading it.
+
+
+- In a post-compile step a `trice z` should restore the `triceCheck.c` unmodified state to be identical to `./testdata/triceCheck_EditThisFile_NotTheTriceCheckDotC.txt`.
+- Unfortunately this has to be done on the os filesystem.
+
+###  2. <a name='Packagespecificinformation'></a>Package specific information
+
+- Each C function gets a Go wrapper which ist tested in appropriate test functions.
+- For some reason inside the trice_test.go an 'import "C"' is not possible.
+- All C-files in the packages folder referring to the trice sources this way avoiding code duplication.
+- The Go functions defined in the packages are not exported. They are called by the Go test functions in this package.
+- This way the package test functions are executing the trice C-code compiled with the triceConfig.h there.
+
+###  3. <a name='todo'></a>todo
+
+- repair cgo0_tcobs
+- repair cgo1_tcobs
+- cgo2_tcobs: ref_cobs.c_?
+- Parse "C:\repos\trice\cgo\test\cgo2_tcobs\triceCheck.c" and complete TestTriceCheck
+
+## Trice demo & test project info
+
+Many demo projects are ARMKeil IDE STM32 here but the TRICE tool is easy adaptable to 8 - 64-bit architectures.
+
+###  4. <a name='Backupfolder'></a>Backup folder
+
+- This folder contains unmaintained legacy test projects.
+- They are only for reference and need some corrections to work with the current release.
+- See also [../docs/TestExamples.md](../docs/TestExamples.md)
+
+###  5. <a name='Terminalinfo'></a>Terminal info
+
+- Open an escape sequence capable terminal in trice root `C:\repos\trice\`opr where you put it.
+  - Any directory will do as well but the `til.json` file needs to be found.
+  - git-bash will do or also windows-terminal from Microsoft store.
+    - Under Windows the DOS or powershell could have display issues with the escaped ASCII codes. Search the internet for answers.
+
+###  6. <a name='RTTinfo'></a>RTT info
+
+- The example projects support both, RTT and UART just for demonstration.
+- RTT = Real Time Transfer is a technique developed by SEGGER for background memory access during processor runtime. This is possible for ARM cores over the JTAG or SWD interface if a debug probe is connected.
+- Some STM development boards contain a debug probe you can use for the board itself or for another board.
+- These are so called on-board ST-LINK debug probes. To use RTT use the `-p STLINK` switch.
+  - `stRttLogger.exe` and `libusb-1.0.dll` must be in the PATH.
+- You can also flash the on-board debug probe with J-LINK firmware. To use RTT use the `-p JLINK` switch.
+  - `JLinkRTTLogger.exe` and `JLinkARM.dll` must be in the PATH.
+
+###  7. <a name='UART'></a>UART
+
+- The default baud rate is 115200 for all test projects and the trice tool assumes that baud rate automatically. Use the trice tool `-baud` switch for other settings.
+
+###  8. <a name='MDK-ARMprojects'></a>MDK-ARM projects
+
+The projects are generated with necessary library files *as reference* to keep them smaller. Therefore, the direct compilation will fail, probably. Projects should compile if you follow these steps:
+
+- Install latest ARMKeil IDE.
+  - STM32 M0 cores with up to 32 KB FLASH memory are usable directly.
+  - You can get a free ST Microelectronics license with a 256 KB FLASH limitation.
+- Install latest STM32CubeMX with the latest target firmware library.
+  - It is free of charge.
+- Open the project ioc file with STM32CubeMX and re-generate.
+- Open the project with ARMKeil IDE and build.
+
+### 9. <a name='Details'></a>Details
+
+- [MDK-ARM_LL_generatedDemo_STM32F030R8-NUCLEO-64\ReadMe.md](MDK-ARM_LL_generatedDemo_STM32F030R8-NUCLEO-64\ReadMe.md)
+- [MDK-ARM_LL_UART_RTT0_BARE_STM32F030R8-NUCLEO-64/ReadMe.md](MDK-ARM_LL_UART_RTT0_BARE_STM32F030R8-NUCLEO-64/ReadMe.md)
+- [MDK-ARM_LL_UART_RTT0_BARE_STM32F070RB_NUCLEO-64/ReadMe.md](MDK-ARM_LL_UART_RTT0_BARE_STM32F070RB_NUCLEO-64/ReadMe.md)
+- [MDK-ARM_LL_UART_RTT0_BARE_STM32F091_NUCLEO-64/ReadMe.md](MDK-ARM_LL_UART_RTT0_BARE_STM32F091_NUCLEO-64/ReadMe.md)
+- [MDK-ARM_LL_UART_RTT0_ESC_STM32F030R8_NUCLEO-64/ReadMe.md](MDK-ARM_LL_UART_RTT0_ESC_STM32F030R8_NUCLEO-64/ReadMe.md)
+- [MDK-ARM_LL_UART_RTT0_ESC_STM32F070RB_NUCLEO-64/ReadMe.md](MDK-ARM_LL_UART_RTT0_ESC_STM32F070RB_NUCLEO-64/ReadMe.md)
+- [MDK-ARM_LL_UART_RTT0_WRAP_STM32F030R8-NUCLEO-64/ReadMe.md](MDK-ARM_LL_UART_RTT0_WRAP_STM32F030R8-NUCLEO-64/ReadMe.md)
+- [MDK-ARM_RTT0_BARE_STM32F0308-DISCO/ReadMe.md](MDK-ARM_RTT0_BARE_STM32F0308-DISCO/ReadMe.md)
+- [MDK-ARM_RTT0_BARE_STM32F03051R8Tx-DISCOVERY/ReadMe.md](MDK-ARM_RTT0_BARE_STM32F03051R8Tx-DISCOVERY/ReadMe.md)
+- [MDK-ARM_RTT0_BARE_STM32F03051R8Tx-DISCOVERY/ReadMe.md](MDK-ARM_RTT0_BARE_STM32F03051R8Tx-DISCOVERY/ReadMe.md)
+- [MDK-ARM_LL_UART_WRAP_RTT0_BARE_STM32F030R8-NUCLEO-64/ReadMe.md](MDK-ARM_LL_UART_WRAP_RTT0_BARE_STM32F030R8-NUCLEO-64/ReadMe.md)
+
+
+##  10. <a name='Furtherinfo'></a>Further info
+
+
+## Third party Software
+
+## alacritty
+
+- A fast, cross-platform, OpenGL terminal emulator
+
+### goST
+
+- see Segger RTT over STLINK
+
+### keil.com
+
+- Tooling info
+
+<!--- ## microchip.com
+
+- Planned 8 bit example
+
+-->
+
+<!--- ### nxp.com
+
+- Planned NXP example
+
+-->
+
+### segger.com
+
+- Tooling around Segger RTT, Download latest version from SEGGER web site.
+
+## st.com
+
+- STMicroelectronics
+

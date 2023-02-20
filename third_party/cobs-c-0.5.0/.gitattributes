@@ -1,7 +1,0 @@
-
-*		text=auto
-*.c		text
-*.h		text
-*.py		text
-*.txt		text
-*.bat		text eol=crlf
