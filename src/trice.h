@@ -244,7 +244,7 @@ void TriceTransfer( void );
 void TriceCheck( int index ); //!< tests
 
 #ifdef TRICE_RTT0
-#include "SEGGER_RTT.h"
+#include "./box/SEGGER_RTT.h"
 #if defined(TRICE_HALF_BUFFER_SIZE) && TRICE_HALF_BUFFER_SIZE > BUFFER_SIZE_UP
 #error
 #endif
