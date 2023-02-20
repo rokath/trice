@@ -114,7 +114,7 @@ archives:
       - GoInfos.txt
       - .vscode/*
       - cmd
-      - docs/**/*
+      - docs/*
       - internal
       - pkg
       - src
