@@ -203,9 +203,6 @@ Main steps are:
 >>>    * Extend `til.json`
 >>>      * If no `til.json` is found nothing happens. At least an empty file is needed (Safety feature).
 * When the program runs later, it should output something similar to ![./ref/1div11.PNG](./ref/1div11.PNG)
-* It is up to the user to provide the 2 functions `void TriceStamp16(void)` and `void TriceStamp32(void)`.
-  * They are usually provide time stamps but could be used in any manner.
-  * They are defined as `__WEAK` functions, so that you can skip their coding in the beginning.
 * For RTT the SEGGER source is already included.
 * For UART transfer add UART write functionality.
 
