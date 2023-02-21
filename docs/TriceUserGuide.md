@@ -129,7 +129,7 @@
 | docs/        | documentation                                   |
 | internal/    | `trice` tool internal Go packages               |
 | pkg/         | `trice` tool common Go packages                 |
-| src/         | C sources for trice instrumentation             |
+| [src/](../src/)         | C sources for trice instrumentation             |
 | test/        | example target projects and tests               |
 | third_party/ | external components                             |
 
