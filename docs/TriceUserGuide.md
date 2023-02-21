@@ -19,7 +19,7 @@
     - [2.4. Port it](#24-port-it)
       - [2.4.1. Target Code Overview](#241-target-code-overview)
   - [3. Build `trice` tool from Go sources (you can skip that)](#3-build-trice-tool-from-go-sources-you-can-skip-that)
-  - [4.  Embedded system code configuratio](#4--embedded-system-code-configuratio)
+  - [4.  Embedded system code configuration](#4--embedded-system-code-configuration)
   - [5. `trice` tool in logging action](#5-trice-tool-in-logging-action)
   - [6. Encryption](#6-encryption)
   - [7. CLI Options for `trice` tool](#7-cli-options-for-trice-tool)
@@ -294,7 +294,7 @@ Afterwards you should find an executable `trice` inside $GOPATH/bin/ and you can
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  4. <a name='Embeddedsystemcodeconfiguratio'></a> Embedded system code configuratio
+##  4. <a name='Embeddedsystemcodeconfiguration'></a> Embedded system code configuration
 
 Check comments inside `triceConfig.h`.
 
