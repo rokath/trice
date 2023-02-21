@@ -123,7 +123,7 @@
 
 | name         | info                                            |
 |--------------|-------------------------------------------------|
-| cmd/trice    | `trice` tool command Go sources                 |
+| [cmd/trice](../cmd/trice)    | `trice` tool command Go sources                 |
 | cmd/cui      | (do not use) command user interface tryout code |
 | cmd/stim     | (do not use) target stimulation tool tryout code|
 | docs/        | documentation                                   |
