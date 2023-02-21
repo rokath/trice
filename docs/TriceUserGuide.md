@@ -203,7 +203,7 @@ Main steps are:
 >>>    * Extend `til.json`
 >>>      * If no `til.json` is found nothing happens. At least an empty file is needed (Safety feature).
 * When the program runs later, it should output something similar to ![./ref/1div11.PNG](./ref/1div11.PNG)
-* For RTT the SEGGER source is already included.
+* For RTT the [SEGGER](https://www.segger.com/downloads/jlink/) source is already included.
 * For UART transfer add UART write functionality.
 
 ####  2.4.1. <a name='TargetCodeOverview'></a>Target Code Overview
