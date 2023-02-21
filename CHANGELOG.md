@@ -28,6 +28,8 @@
 | 2022-JUL-07 |  0.54.1 | Test data adapted |
 | 2022-AUG-25 |  0.55.1 | Switching to TREX (see ./doc/TriceV1.0Specification.md) as default encoding. Legacy projects need "trice log -enc TLE" now. In project specific `triceConfig.h` file switch between `TRICE_TREX_ENCODING` and `TRICE_LEGACY_ENCODING`. For TREX framing TCOBSv1 is active. As default the `Id(n)  sub-macro uses a 16-bit timestamp, so be careful changing legacy projects. See issue #317. |
 | 2023-FEB-19 |  0.56.0 | Many changes - see below |
+| 2023-FEB-21 |  0.56.2 | TriceUserManual.md changed |
+| 2023-FEB-21 |  0.56.3 | Target Modbus Code deactivated (anyway not usable yet) |
 
 ## v0.56.0 Changes
 

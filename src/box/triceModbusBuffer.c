@@ -55,9 +55,12 @@ static void triceModbusFifoDiscard2( void ){
 
 //! triceNextModbsuBuffer returns a usable address with at least len space.
 static uint32_t* triceNextModbusBuffer( size_t len ){
-    if( TriceBufferWritePosition > triceModbusBufferWriteLimit ){
-        for(;;); // trice modbus buffer overflow
-    }
+    
+    // todo: This check here is wrong! Need to be checked when Modbus support is implemented.
+    //if( TriceBufferWritePosition > triceModbusBufferWriteLimit ){
+    //    for(;;); // trice modbus buffer overflow
+    //}
+    
     if( (int)triceModbusBufferWriteLimit - (int)TriceBufferWritePosition > len ){
         return triceModbusBufferWritePosition; // enough space at buffer end
     }else{
