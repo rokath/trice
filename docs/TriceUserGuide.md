@@ -139,7 +139,7 @@
 
 ###  2.1. <a name='Getit'></a>Get it
 
-* OR [Download](https://github.com/rokath/trice/releases) latest release assets for your system: Source code and compressed binaries.
+* OR [Download](https://github.com/rokath/trice/releases) latest release assets for your system: Compressed source code and binaries.
 * OR Clone the repo: `git clone https://github.com/rokath/trice.git`
   * Later inside folder `trice`: `git pull` to get the latest changes.
 * OR use the ![./ref/Fork.PNG](./ref/Fork.PNG) button
