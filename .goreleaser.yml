@@ -59,24 +59,40 @@ builds:
 
 archives:
   -
+    # DEPRECATED: `archives.rlcp` will be the default soon, check https://goreleaser.com/deprecations#archivesrlcp for more info
+    # NEW:
+    rlcp: true
+
     # ID of this archive.
     # Defaults to `default`.
-    #id: my-archive
+    id: trice-archive
 
     # Builds reference which build instances should be archived in this archive.
     #builds:
     #- default
 
+    # DEPRECATED: `archives.replacements` should not be used anymore, check https://goreleaser.com/deprecations#archivesreplacements for more info
     # Replacements for GOOS and GOARCH in the archive name.
     # Keys should be valid GOOSs or GOARCHs.
     # Values are the respective replacements.
     # Default is empty.
-    replacements:
-      darwin: Darwin
-      linux: Linux
-      windows: Windows
-      386: i386
-      amd64: x86_64
+    #replacements:
+    #  darwin: Darwin
+    #  linux: Linux
+    #  windows: Windows
+    #  386: i386
+    #  amd64: x86_64
+    #NEW:
+    name_template: >-
+      {{ .ProjectName }}_
+      {{- title .Os }}_
+      {{- if eq .Arch "amd64" }}x86_64
+      {{- else if eq .Arch "386" }}i386
+      {{- else }}{{ .Arch }}{{ end }}
+
+
+
+
 
     # Set to true, if you want all files in the archive to be in a single directory.
     # If set to true, and you extract the archive 'goreleaser_Linux_arm64.tar.gz',
