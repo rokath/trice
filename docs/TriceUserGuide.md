@@ -179,12 +179,12 @@ Main steps are:
     
     // 16-bit us stamp, wraps after 10 milliseconds
     uint16_t TriceStamp16( void ){
-        return 0x1616;
+        return 0x1616; // put your code here
     }
     
     // 32-bit us stamp, wraps after 71,58 seconds
     uint32_t TriceStamp32( void ){
-        return 0x32323232;
+        return 0x32323232; // put your code here
     }
     
     //
@@ -197,7 +197,7 @@ Main steps are:
 * In a function write a trice message like: `TRice( "1/11 = %g\n", aFloat( 1.0/11 ) );`.
 * In **project root**:
   * Create empty file: `touch til.json`.
-  * Witch correct CLI switches `trice u` should perform **automatically** these things (The numbers are just examples.):
+  * With correct CLI switches `trice u` should perform **automatically** these things (The numbers are just examples.):
 >>>    * Patch source.c to `TRice( iD(12363), "1/11 = %g\n", aFloat( 1.0/11 ) );`
 >>>      * C & H files containing TRICE macros, are only modified if needed (missing or obsolete ID)
 >>>    * Extend `til.json`
