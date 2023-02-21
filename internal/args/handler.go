@@ -92,10 +92,10 @@ func Handler(w io.Writer, fSys *afero.Afero, args []string) error {
 		return emitter.ScDisplayServer(w) // endless loop
 	case "l", "log":
 		msg.OnErr(fsScLog.Parse(subArgs))
-		decoder.TargetTimeStampUnitPassed = isLogFlagPassed("tsf")
-		decoder.ShowTargetStamp32Passed = isLogFlagPassed("tsf32")
-		decoder.ShowTargetStamp16Passed = isLogFlagPassed("tsf16")
-		decoder.ShowTargetStamp0Passed = isLogFlagPassed("tsf0")
+		decoder.TargetTimeStampUnitPassed = isLogFlagPassed("ts")
+		decoder.ShowTargetStamp32Passed = isLogFlagPassed("ts32")
+		decoder.ShowTargetStamp16Passed = isLogFlagPassed("ts16")
+		decoder.ShowTargetStamp0Passed = isLogFlagPassed("ts0")
 		w = do.DistributeArgs(w, fSys, logfileName, verbose)
 		logLoop(w, fSys) // endless loop
 		return nil
