@@ -159,8 +159,8 @@
       | `touch ./til.json`             | Create an empty `til.json file`. This is needed only the very first time. |
       | `trice u -src . -src ../myLib` | Update the current and your `../myLib` folder. This will use `./til.json` and create a new `./li.json` file. |
       | ...                            | Compile your project |
-      | `trice l -p com1 -baud 921600` | Start Logging over UART |
-      | `trice l -p JLINK -args ...`   | Start Logging over RTT. |
+      | `trice l -p com1 -baud 921600 -lf auto` | Start Logging over UART and create automatically a new log file, |
+      | `trice l -p JLINK -args "..."`   | Start Logging over RTT. Binary log files are collected in `./temp`. |
     * It is recommended to add `trice u ...` as pre-compile step into the tool chain.
     * Hint: It is planned to add `trice z ...` as a post-compile step in the future, so that you can check in your project sources without IDs. That is **NOT** recommended right now.
 * `trice` does not make any assumptions about the target processor - 8-bit to 64-bit and any endianness are supported.
