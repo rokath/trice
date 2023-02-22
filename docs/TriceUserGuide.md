@@ -523,9 +523,9 @@ Quick workaround:
 ##  6. <a name='Encryption'></a>Encryption
 
 * You can deliver your device with encrypted trices. This way only the service is able to read the *Trices*.
-* Implemented is XTEA but this is easy exchangeable.
-* The to 8 byte padded blocks can get encrypted by enabling `#define ENCRYPT...` inside *triceConfig.h*. You need to add `-key test` as **log** switch and you're done.
-* Any password is usable instead of `test`. Simply add once the `-show` switch and copy the displayed passphrase into the *config.h* file.
+* Implemented is XTEA but this is exchangeable.
+* The to 8 byte padded blocks can get encrypted by enabling `#define ENCRYPT...` inside [triceConfig.h](../test/MDK-ARM_STM32F030R8/Core/Inc/triceConfig.h). You need to add `-key test` as **log** switch and you're done.
+* Any password is usable instead of `test`. Simply add once the `-show` switch and copy the displayed passphrase into the [triceConfig.h](../test/MDK-ARM_STM32F030R8/Core/Inc/triceConfig.h) file.
 * The encryption takes part **before** the [COBS](https://en.wikipedia.org/wiki/Consistent_Overhead_Byte_Stuffing) encoding.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
