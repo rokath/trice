@@ -157,7 +157,7 @@
       | CLI command                    | Description |
       | -                              | - |
       | `touch ./til.json`             | Create an empty `til.json file`. This is needed only the very first time. |
-      | `trice u -src . -src ../myLib` | Update the current and your `../myLib` folder. This will use `./til.json` and create a new `li.json` file. |
+      | `trice u -src . -src ../myLib` | Update the current and your `../myLib` folder. This will use `./til.json` and create a new `./li.json` file. |
       | ...                            | Compile your project |
       | `trice l -p com1 -baud 921600` | Start Logging over UART |
       | `trice l -p JLINK -args ...`   | Start Logging over RTT. |
@@ -461,7 +461,7 @@ The following capture output comes from an (old) example project inside`../test`
 
 ![life.gif](./ref/life.gif)
 
-See [triceCheck.c](../test/testdata/triceCheck.c) for reference. The *Trices* can come mixed from inside interrupts (light blue `ISR:...`) or from normal code. For usage with a RTOS *Trices* are protected against breaks (`TRICE_ENTER_CRITICAL_SECTION`, `TRICE_LEAVE_CRITICAL_SECTION`). Regard the differences in the read SysTick values inside the GIF above These differences are the MCU clocks needed for one trice (~0,25µs@48MHz).
+See [triceCheck.c](../test/testdata/triceCheck.c) for reference. The *Trices* can come mixed from inside interrupts (light blue `ISR:...`) or from normal code. For usage with a RTOS, *Trices* are protected against breaks (`TRICE_ENTER_CRITICAL_SECTION`, `TRICE_LEAVE_CRITICAL_SECTION`). Regard the differences in the read SysTick values inside the GIF above These differences are the MCU clocks needed for one trice (~0,25µs@48MHz).
 
 Use the `-color off` switch for piping output in a file.
 
