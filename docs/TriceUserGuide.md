@@ -121,17 +121,17 @@
 
 ##  1. <a name='Projectstructure'></a>Project structure
 
-| name         | info                                            |
-|--------------|-------------------------------------------------|
-| [cmd/trice](../cmd/trice)    | `trice` tool command Go sources                 |
-| cmd/cui      | (do not use) command user interface tryout code |
-| cmd/stim     | (do not use) target stimulation tool tryout code|
-| docs/        | documentation                                   |
-| internal/    | `trice` tool internal Go packages               |
-| pkg/         | `trice` tool common Go packages                 |
-| [src/](../src/)         | C sources for trice instrumentation             |
-| test/        | example target projects and tests               |
-| third_party/ | external components                             |
+| name                          | info                                            |
+|-------------------------------|-------------------------------------------------|
+| [cmd/trice](../cmd/trice)     | `trice` tool command Go sources                 |
+| [cmd/cui](../cmd/cui)         | (do not use) command user interface tryout code |
+| [cmd/stim](../cmd/stim)       | (do not use) target stimulation tool tryout code|
+| [docs](./docs)                | documentation                                   |
+| [internal](../internal)       | `trice` tool internal Go packages               |
+| [pkg](../pkg)                 | `trice` tool common Go packages                 |
+| [src/](../src/)               | C sources for trice instrumentation             |
+| [test](../test)               | example target projects and tests               |
+| [third_party](../third_party) | external components                             |
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -139,9 +139,8 @@
 
 ###  2.1. <a name='Getit'></a>Get it
 
-* OR [Download](https://github.com/rokath/trice/releases) latest release assets for your system: Compressed source code and binaries.
-* OR Clone the repo: `git clone https://github.com/rokath/trice.git`
-  * Later inside folder `trice`: `git pull` to get the latest changes.
+* Download [latest release assets](https://github.com/rokath/trice/releases) for your system: Compressed source code and binaries.
+* OR Get the repo: ![x](./ref/Get-Button.png)
 * OR use the ![./ref/Fork.PNG](./ref/Fork.PNG) button
 
 ###  2.2. <a name='InstallIt'></a>Install It
@@ -150,10 +149,20 @@
 
 ###  2.3. <a name='UseIt'></a>Use It
 
-* In a console type `trice help -all`. You should see the complete **trice** tool [CLI](https://en.wikipedia.org/wiki/Command-line_interface) documentation.
+* In a console, like [git bash](https://gitforwindows.org/), type `trice help -all`. You should see the complete **trice** tool [CLI](https://en.wikipedia.org/wiki/Command-line_interface) documentation.
   * Don´t worry, most of it you will never need.
   * There are only 2 important commands: `trice u[pdate]` and `trice l[og]`. Call them with the right CLI switches.
     * `trice h -u[pdate]` and `trice h -l[og]` show partial help.
+    * Examples:
+      | CLI command                    | Description |
+      | -                              | - |
+      | `touch ./til.json`             | Create an empty `til.json file`. This is needed only the very first time. |
+      | `trice u -src . -src ../myLib` | Update the current and your `../myLib` folder. This will use `./til.json` and create a new `li.json` file. |
+      | ...                            | Compile your project |
+      | `trice l -p com1 -baud 921600` | Start Logging over UART |
+      | `trice l -p JLINK -args ...`   | Start Logging over RTT. |
+    * It is recommended to add `trice u ...` as pre-compile step into the tool chain.
+    * Hint: It is planned to add `trice z ...` as a post-compile step in the future, so that you can check in your project sources without IDs. That is **NOT** recommended right now.
 * `trice` does not make any assumptions about the target processor - 8-bit to 64-bit and any endianness are supported.
 * The ARM µVision MDK is free downloadable and free usable for STM M0/M0+ MCUs, like the `./test/MDK-ARM_STM32F030R8` project.
   * Even if you do not have such hardware, you can download ARM µVision MDK and compile the `./test/MDK-ARM_STM32F030R8` project just to get started.
@@ -161,16 +170,17 @@
   
 ###  2.4. <a name='Portit'></a>Port it 
 
-Compair folder `./test/MDK-ARM_STM32F030R8_generated` with `./test/MDK-ARM_STM32F030R8` to see in a quick way any needed adaptions for your target project to port trice to it.
+Compare folder `./test/MDK-ARM_STM32F030R8_generated` with `./test/MDK-ARM_STM32F030R8` to see in a quick way any needed adaptions for your target project to port trice to it.
 
 Main steps are:
 
-* Add `./src/trice.c` to your project. It includes the files in ./src/box automatically.
-* Add `./src/` to your library include path.
+* Add `./src/trice.c` to your project. It includes the files in `./src/box` automatically.
+* Add `./src/` to your compiler library include path.
 * Copy file `./test/MDK-ARM_STM32F030R8/Core/Inc/triceConfig.h` to your embedded project and adapt it to your needs.
   * Other `triceConfig.h` files are usable as well, but the above is usually the most actual one.
 * Copy file `./test/MDK-ARM_STM32F030R8/Core/Inc/SEGGER_RTT_Conf.h` to your embedded project and adapt it to your needs, when using RTT.
-* Add 2 functions to your project:
+  * You can exchange `SEGGER_RTT_Conf.h` and `.src/box/SEGGER_RTT.*` with more actual ones from the [SEGGER J-Link Support Site](https://www.segger.com/downloads/jlink/).
+* Add the 2 hardware specific functions to your project:
   
     ```c
     ///////////////////////////////////////////////////////////////////////////////
@@ -208,13 +218,13 @@ Main steps are:
 
 ####  2.4.1. <a name='TargetCodeOverview'></a>Target Code Overview
 
-* `./src`:
+* `./src`: **User Interface**
 
 | File                                  | description |
 | -                                     | -           |
 | `trice.h` & `trice.c`                 | trice runtime lib user interface, `#include trice.h` in project files, where to use `TRICE` macros. Add `trice.c` to your embedded device project. Add `./src` to your compiler include path. |
 
-* `./src/box`:
+* `./src/box`: **Internal Components**
 
 | File                                  | description |
 | -                                     | -           |
@@ -438,15 +448,16 @@ The function call overhead is reasonable and the advantage is significant less c
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
+---
 ##  5. <a name='tricetoolinloggingaction'></a>`trice` tool in logging action
 
 <!--
 Executing `trice update` at the root of your project source updates in case of changes, the *Trice* statements inside the source code and the ID list. The `-src` switch can be used multiple times to keep the amount of parsed data small for better speed.
 -->
 
-With `trice log -port COM12 -baud 921600` you can visualize the trices on the PC, if for example `COM12` is receiving the data from the embedded device at this baudrate.
+With `trice log -port COM12` you can visualize the trices on the PC, if for example `COM12` is receiving the data from the embedded device at the 115200 default baudrate.
 
-The following capture output comes from an example project inside`../test`
+The following capture output comes from an (old) example project inside`../test`
 
 ![life.gif](./ref/life.gif)
 
@@ -941,7 +952,7 @@ The projects are generated with necessary library files *as reference* to keep t
     - [2.4. Port it](#24-port-it)
       - [2.4.1. Target Code Overview](#241-target-code-overview)
   - [3. Build `trice` tool from Go sources (you can skip that)](#3-build-trice-tool-from-go-sources-you-can-skip-that)
-  - [4.  Embedded system code configuratio](#4--embedded-system-code-configuratio)
+  - [4.  Embedded system code configuration](#4--embedded-system-code-configuration)
   - [5. `trice` tool in logging action](#5-trice-tool-in-logging-action)
   - [6. Encryption](#6-encryption)
   - [7. CLI Options for `trice` tool](#7-cli-options-for-trice-tool)
