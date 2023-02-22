@@ -10,10 +10,7 @@
 #endif
 
 #if TRICE_SINGLE_MAX_SIZE + TRICE_DATA_OFFSET > TRICE_STACK_BUFFER_MAX_SIZE
-//                                      #define TRICE_STACK_BUFFER_MAX_SIZE TRICE_BUFFER_SIZE 
-//                                                                  #define TRICE_BUFFER_SIZE (TRICE_SINGLE_MAX_SIZE + 8)
-//      40                     32
-#error  
+#error // buffer overflow possible
 #endif
 
 

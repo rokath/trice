@@ -43,14 +43,14 @@ extern "C" {
 #define TRICE_SINGLE_MAX_SIZE 120 // no need for a power of 2 here
 
 #if TRICE_MODE == TRICE_STACK_BUFFER
-#define TRICE_BUFFER_SIZE (TRICE_SINGLE_MAX_SIZE + 8) //!< TRICE_BUFFER_SIZE is the used additional max stack size for a single TRICE macro. Recommended value: TRICE_SINGLE_MAX_SIZE plus 8.
+#define TRICE_BUFFER_SIZE (TRICE_SINGLE_MAX_SIZE + TRICE_DATA_OFFSET) //!< TRICE_BUFFER_SIZE is the used additional max stack size for a single TRICE macro. Recommended value: TRICE_SINGLE_MAX_SIZE plus 8.
 #elif TRICE_MODE == TRICE_STREAM_BUFFER 
 #define TRICE_TRANSFER_INTERVAL_MS 10 //!< TRICE_TRANSFER_INTERVAL_MS is the milliseconds interval for a single TRICE read out. Each trigger transfers up to one trice, so make this value not too big to get all trices out in the average. This time should be shorter than visible delays. 
 #define TRICE_FIFO_ELEMENTS 128 //!< Must be a power of 2. The half number is the amount of bufferable trices before they go out.
 #define TRICE_BUFFER_SIZE 0x800 //!< TRICE_BUFFER_SIZE is the used max buffer size for a TRICE macro burst. Recommended value: 2000.
 #elif TRICE_MODE == TRICE_DOUBLE_BUFFER 
-#define TRICE_TRANSFER_INTERVAL_MS 100 //!< TRICE_TRANSFER_INTERVAL_MS is the milliseconds interval for TRICE buffer read out. Each trigger transfers all in a half buffer stored trices. The TRICE_HALF_BUFFER_SIZE must be able to hold all trice messages possibly occouring in this time. This time should be shorter than visible delays. 
-#define TRICE_BUFFER_SIZE 0x800 //!< TRICE_BUFFER_SIZE is the double half buffer size usable for a TRICE macro burst. Recommended value: 2000.
+#define TRICE_TRANSFER_INTERVAL_MS 10 //!< TRICE_TRANSFER_INTERVAL_MS is the milliseconds interval for TRICE buffer read out. Each trigger transfers all in a half buffer stored trices. The TRICE_HALF_BUFFER_SIZE must be able to hold all trice messages possibly occouring in this time. This time should be shorter than visible delays. 
+#define TRICE_BUFFER_SIZE 2048 //!< TRICE_BUFFER_SIZE is the double half buffer size usable for a TRICE macro burst. Recommended value: 2000.
 #endif
 
 //! TRICE_FRAMING defines the framing method of the binary trice data stream. Default is TRICE_FRAMING_TCOBS.
