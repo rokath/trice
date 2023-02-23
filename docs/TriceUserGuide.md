@@ -129,7 +129,7 @@
 | [docs](./docs)                | documentation                                   |
 | [internal](../internal)       | `trice` tool internal Go packages               |
 | [pkg](../pkg)                 | `trice` tool common Go packages                 |
-| [src/](../src/)               | C sources for trice instrumentation             |
+| [src/](../src)                | C sources for trice instrumentation             |
 | [test](../test)               | example target projects and tests               |
 | [third_party](../third_party) | external components                             |
 
@@ -178,10 +178,10 @@ Main steps are:
 
 * Add `./src/trice.c` to your project. It includes the files in `./src/box` automatically.
 * Add `./src/` to your compiler library include path.
-* Copy file `./test/MDK-ARM_STM32F030R8/Core/Inc/triceConfig.h` to your embedded project and adapt it to your needs.
+* Copy file [./test/MDK-ARM_STM32F030R8/Core/Inc/triceConfig.h](../test/MDK-ARM_STM32F030R8/Core/Inc/triceConfig.h) to your embedded project and adapt it to your needs.
   * Other `triceConfig.h` files are usable as well, but the above is usually the most actual one.
-* Copy file `./test/MDK-ARM_STM32F030R8/Core/Inc/SEGGER_RTT_Conf.h` to your embedded project and adapt it to your needs, when using RTT.
-  * You can exchange `SEGGER_RTT_Conf.h` and `.src/box/SEGGER_RTT.*` with more actual ones from the [SEGGER J-Link Support Site](https://www.segger.com/downloads/jlink/).
+* Copy file [./test/MDK-ARM_STM32F030R8/Core/Inc/SEGGER_RTT_Conf.h](../test/MDK-ARM_STM32F030R8/Core/Inc/SEGGER_RTT_Conf.) to your embedded project and adapt it to your needs, when using RTT.
+  * You can exchange `SEGGER_RTT_Conf.h` and `./src/box/SEGGER_RTT.*` with more actual ones from the [SEGGER J-Link Support Site](https://www.segger.com/downloads/jlink/).
 * Add the 2 hardware specific functions to your project:
   
     ```c
@@ -308,7 +308,7 @@ Afterwards you should find an executable `trice` inside $GOPATH/bin/ and you can
 
 ##  4. <a name='Embeddedsystemcodeconfiguration'></a> Embedded system code configuration
 
-Check comments inside `triceConfig.h`.
+Check comments inside [triceConfig.h](../test/MDK-ARM_STM32F030R8/Core/Inc/triceConfig.h).
 
 <!--
 * Each project gets its own [triceConfig.h](../test/MDK-ARM_STM32F030R8/Core/Inc/triceConfig.h) file.
@@ -704,8 +704,8 @@ See [https://github.com/rokath/trice/releases](https://github.com/rokath/trice/r
 ###  9.2. <a name='ConfigurationfiletriceConfig.h'></a>Configuration file `triceConfig.h`
 
 * When setting up your first project you need a `triceConfig.h` file.
-* You should **not** use the `./pkg/src/inc/triceConfig.h` because it is customized for internal tests with CGO.
-* Please choose one of the `./test/.../triceConfig.h` files as starting point.
+* You should **not** use the `./test/cgo.../triceConfig.h` because it is customized for internal tests with CGO.
+* Please choose one of the `./test/MDK.../triceConfig.h` files as starting point.
 * Comparing them and understandig the differences helps quick starting.
 
 ###  9.3. <a name='Settinguptheveryfirstconnection'></a>Setting up the very first connection
@@ -803,7 +803,7 @@ You can connect each target over its transmit channel with an own **trice** inst
 
 The C-code is executed during some tests. Prerequisite is a installed GCC.
 
-###  9.12. <a name='DirectTRICEOutTRICE_MODE0couldcausestackoverflowwith-o0optimization'></a>Direct TRICE Out (TRICE_MODE 0) could cause stack overflow with -o0 optimization
+###  9.12. <a name='DirectTRICEOutTRICE_MODE0couldcausestackoverflowwith-o0optimization'></a>Direct TRICE Out (TRICE_MODE TRICE_STACK_BUFFER) could cause stack overflow with -o0 optimization
 
 As discussed in [issue #294](https://github.com/rokath/trice/issues/294) it can happen, that several TRICE macros within one function call increase the stack usage more than expected, when compiler optimization is totally switched off.
 
@@ -827,7 +827,7 @@ As discussed in [issue #294](https://github.com/rokath/trice/issues/294) it can 
 ##  11. <a name='HostsideTriceOn-Off'></a>Host side *Trice* On-Off
 
 * The PC **trice** tool offers command line switches to `-pick` or `-ban` for *trice* channels and will be extended with display switches.
-* A **trice** tool logLevel switch is usable too (Issue [#236](https://github.com/rokath/trice/issues/236)).
+* A **trice** tool `-logLevel` switch is usable too (Issue [#236](https://github.com/rokath/trice/issues/236)).
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -856,12 +856,12 @@ The ID assignment is adjustable with `-IDMin` and `-IDMax`.
 
 ###  13.1. <a name='Folderinformation'></a>Folder information
 
-- The folders here, despite `testdata`, are helper "projects" for testing the target C-code located in `trice/src/`.
+- The folders here, despite `testdata`, are helper "projects" for testing the target C-code located in `./src/`.
 - Some folders are hardware specific implementations and some are Go packages. The Go packages can have all the same name, only the folder names are not equal.
 - In each Go package a different triceConfig.h is used, this way allowing to check all modes automatically, including encryption.
 - The file `./testdata/triceCheck.c.txt` is the master test pattern for all CGO tests and edited manually. It has the extension `.txt` to avoid accidentally modification by the `trice u` command.
-- After editing and before executing the tests, `./updateTestData.sh` needs to be executed. It copies into `./testdate/generated_triceCheck.c`, and a `trice u -src triceCheck.c` is needed. Than the modified `./testdata/generated_triceCheck.c` is compiled into the test executables in the `./cgo_*` folders.
-- The file `./testdata/generated_triceCheck.c` is copied into the memory filesystem and used there to extract the expected results (//exp: comments).
+- After editing and before executing the tests, `./updateTestData.sh` needs to be executed. It copies into `./testdate/triceCheck.c`, and a `trice u -src triceCheck.c` is executed. Than the modified `./testdata/triceCheck.c` is compiled into the test executables in the `./cgo_*` folders.
+- The file `./testdata/triceCheck.c` is copied into the memory filesystem and used there to extract the expected results (//exp: comments).
 - The fresh `./testdata/til.json` is used inside the memory filesystem during the tests.
 - They execute `cgo.TriceCheck(i)` this way activating the target code which writes into a buffer. The buffer is copied into a FILEBUFFER inside the memory file system and the trice tool is reading it.
 
