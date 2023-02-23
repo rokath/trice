@@ -181,7 +181,7 @@ Main steps are:
 * Copy file [./test/MDK-ARM_STM32F030R8/Core/Inc/triceConfig.h](../test/MDK-ARM_STM32F030R8/Core/Inc/triceConfig.h) to your embedded project and adapt it to your needs.
   * Other `triceConfig.h` files are usable as well, but the above is usually the most actual one.
 * Copy file [./test/MDK-ARM_STM32F030R8/Core/Inc/SEGGER_RTT_Conf.h](../test/MDK-ARM_STM32F030R8/Core/Inc/SEGGER_RTT_Conf.) to your embedded project and adapt it to your needs, when using RTT.
-  * You can exchange `SEGGER_RTT_Conf.h` and `.src/box/SEGGER_RTT.*` with more actual ones from the [SEGGER J-Link Support Site](https://www.segger.com/downloads/jlink/).
+  * You can exchange `SEGGER_RTT_Conf.h` and `./src/box/SEGGER_RTT.*` with more actual ones from the [SEGGER J-Link Support Site](https://www.segger.com/downloads/jlink/).
 * Add the 2 hardware specific functions to your project:
   
     ```c
@@ -308,7 +308,7 @@ Afterwards you should find an executable `trice` inside $GOPATH/bin/ and you can
 
 ##  4. <a name='Embeddedsystemcodeconfiguration'></a> Embedded system code configuration
 
-Check comments inside `triceConfig.h`.
+Check comments inside [triceConfig.h](../test/MDK-ARM_STM32F030R8/Core/Inc/triceConfig.h).
 
 <!--
 * Each project gets its own [triceConfig.h](../test/MDK-ARM_STM32F030R8/Core/Inc/triceConfig.h) file.
