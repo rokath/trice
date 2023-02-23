@@ -856,7 +856,7 @@ The ID assignment is adjustable with `-IDMin` and `-IDMax`.
 
 ###  13.1. <a name='Folderinformation'></a>Folder information
 
-- The folders here, despite `testdata`, are helper "projects" for testing the target C-code located in `trice/src/`.
+- The folders here, despite `testdata`, are helper "projects" for testing the target C-code located in `./src/`.
 - Some folders are hardware specific implementations and some are Go packages. The Go packages can have all the same name, only the folder names are not equal.
 - In each Go package a different triceConfig.h is used, this way allowing to check all modes automatically, including encryption.
 - The file `./testdata/triceCheck.c.txt` is the master test pattern for all CGO tests and edited manually. It has the extension `.txt` to avoid accidentally modification by the `trice u` command.
