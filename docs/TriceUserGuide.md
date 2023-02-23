@@ -827,7 +827,7 @@ As discussed in [issue #294](https://github.com/rokath/trice/issues/294) it can 
 ##  11. <a name='HostsideTriceOn-Off'></a>Host side *Trice* On-Off
 
 * The PC **trice** tool offers command line switches to `-pick` or `-ban` for *trice* channels and will be extended with display switches.
-* A **trice** tool logLevel switch is usable too (Issue [#236](https://github.com/rokath/trice/issues/236)).
+* A **trice** tool `-logLevel` switch is usable too (Issue [#236](https://github.com/rokath/trice/issues/236)).
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
