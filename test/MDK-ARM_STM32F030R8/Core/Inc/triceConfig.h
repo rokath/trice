@@ -14,7 +14,7 @@ extern "C" {
 
 //! TRICE_DEFAULT_PARAMETER_BIT_WIDTH is the default parameter bit width for TRICE macros not specifying the parameter bit width: 8, 16, 32 or 64.
 //! If for example the majority of your values is 16 bit, it makes sense to set this value to 16 to use TRICE for them and to use TRICE32 explicitely for 32-bit values.
-//! The trice tool CLI switch "-defaultTRICEBitwidth" needs to be set to the same bit width,
+//! The trice tool CLI switch "-defaultTRICEBitwidth" needs to be set to the same bit width, default is 32.
 #define TRICE_DEFAULT_PARAMETER_BIT_WIDTH 32
 
 //! TRICE_B is a shortcut for TRICE8_B, TRICE16_B, TRICE32_B or TRICE64_B usable in your project.
@@ -96,15 +96,19 @@ extern "C" {
 //! Enable and set channel number for SeggerRTT usage. Only channel 0 works right now for some reason.
 #define TRICE_RTT0 0 // comment out, if you do not use RTT
 
-//! Enable and set UART for serial output.
+//! Enable and set UARTA for serial output.
 #define TRICE_UARTA USART2 // comment out, if you do not use TRICE_UARTA
+#ifdef TRICE_UARTA
 #define TRICE_UARTA_MIN_ID 1           //!< TRICE_UARTA_MIN_ID is the smallest ID transferred to UARTA.
 #define TRICE_UARTA_MAX_ID ((1<<14)-1) //!< TRICE_UARTA_MAX_ID is the biggest ID transferred to UARTA.
+#endif
 
-//! Enable and set UART for serial output.
+//! Enable and set UARTB for serial output.
 // #define TRICE_UARTB USART1 // comment out, if you do not use TRICE_UARTB
-// #define TRICE_UARTB_MIN_ID 1           //!< TRICE_UARTB_MIN_ID is the smallest ID transferred to UARTB.
-// #define TRICE_UARTB_MAX_ID ((1<<14)-1) //!< TRICE_UARTB_MAX_ID is the biggest ID transferred to UARTB.
+#ifdef TRICE_UARTB
+#define TRICE_UARTB_MIN_ID 1           //!< TRICE_UARTB_MIN_ID is the smallest ID transferred to UARTB.
+#define TRICE_UARTB_MAX_ID ((1<<14)-1) //!< TRICE_UARTB_MAX_ID is the biggest ID transferred to UARTB.
+#endif
 
 //! CGO interface (for testing)
 //#define TRICE_CGO 
