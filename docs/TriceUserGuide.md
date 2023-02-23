@@ -860,8 +860,8 @@ The ID assignment is adjustable with `-IDMin` and `-IDMax`.
 - Some folders are hardware specific implementations and some are Go packages. The Go packages can have all the same name, only the folder names are not equal.
 - In each Go package a different triceConfig.h is used, this way allowing to check all modes automatically, including encryption.
 - The file `./testdata/triceCheck.c.txt` is the master test pattern for all CGO tests and edited manually. It has the extension `.txt` to avoid accidentally modification by the `trice u` command.
-- After editing and before executing the tests, `./updateTestData.sh` needs to be executed. It copies into `./testdate/generated_triceCheck.c`, and a `trice u -src triceCheck.c` is needed. Than the modified `./testdata/generated_triceCheck.c` is compiled into the test executables in the `./cgo_*` folders.
-- The file `./testdata/generated_triceCheck.c` is copied into the memory filesystem and used there to extract the expected results (//exp: comments).
+- After editing and before executing the tests, `./updateTestData.sh` needs to be executed. It copies into `./testdate/triceCheck.c`, and a `trice u -src triceCheck.c` is executed. Than the modified `./testdata/triceCheck.c` is compiled into the test executables in the `./cgo_*` folders.
+- The file `./testdata/triceCheck.c` is copied into the memory filesystem and used there to extract the expected results (//exp: comments).
 - The fresh `./testdata/til.json` is used inside the memory filesystem during the tests.
 - They execute `cgo.TriceCheck(i)` this way activating the target code which writes into a buffer. The buffer is copied into a FILEBUFFER inside the memory file system and the trice tool is reading it.
 
