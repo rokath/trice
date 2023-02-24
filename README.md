@@ -2,7 +2,7 @@
 
 [github.io/trice/](https://rokath.github.io/trice/)
 
-![GitHub Workflow Status](https://img.shields.io/github/workflow/status/rokath/trice/goreleaser)
+<!-- ![GitHub Workflow Status](https://img.shields.io/github/workflow/status/rokath/trice/goreleaser) -->
 ![GitHub issues](https://img.shields.io/github/issues/rokath/trice)
 ![GitHub All Releases](https://img.shields.io/github/downloads/rokath/trice/total)
 ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/rokath/trice)
