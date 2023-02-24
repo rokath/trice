@@ -8,7 +8,7 @@
 
 // Do **NOT** edit triceCheck.c!!!
 //
-// Edit file triceCheck.txt instead and call updateTestData.sh then.
+// Edit file triceCheck.c.txt instead and call updateTestData.sh then.
 // The strings behind "//exp:" are the expected result for each line (-color=none)
 
 static int32_t FloatToInt32( float f );
