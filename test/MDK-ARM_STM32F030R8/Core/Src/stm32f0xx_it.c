@@ -48,7 +48,7 @@
 static uint64_t us64 = 0;
 
 // us16 is a 16-bit microsecond counter, running parallel to us64, but is reset every 10ms, so gets these values: 0, 1000, ... 9000.
-static uint32_t us16 = 0;
+static uint16_t us16 = 0;
 
 // ms32 is a 32-bit millisecond counter, counting circular in steps of 1 every ms.
 static uint32_t ms32 = 0;
