@@ -70,6 +70,12 @@ static uint64_t us_1 = 0;
 /* USER CODE BEGIN 0 */
 
 //! US_DUTY is a helper macro to avoid code duplication.
+//! US_DUTY updates the us_1 tick in the assumption of an 48MHz systick clock using the current systick value.
+//! ATTENTION: This is a quick and dirty implementation working well only if this function is called in intervals smaller than 1 ms.
+//! :-( Because the STM32F030 has no 32-bit sysclock counter we need to compute this value or concatenate two 16-bit timers. )
+//! I see no way to find out if the systick ISR was already active shortly after a systick counter wrap, despite calling this
+//! functionality in intervals smaller than 1 ms if not using hardware timers. To make it clear: You can use Us64() to measure long
+//! intervals up to 584542 years, but the "OS" needs to call Us64 internally regularely in <1ms intervals.
 #define US_DUTY \
     uint32_t usOffset = (((SysTick->LOAD - SysTick->VAL) * 87381) >> 22); /* Divide 48MHz clock by 48,0001831 to get us part. */ \
     uint64_t us = us64 + usOffset;                                        /* 47999*87381 < 2^32 */ \
@@ -79,12 +85,7 @@ static uint64_t us_1 = 0;
     } \
     us_1 = us + correction; /* keep for next call */
 
-//! Us64 reads the 1us tick in the assumption of an 48MHz systick clock using the microSecond variable and current systick value.
-//! ATTENTION: This is a quick and dirty implementation working well only if this function is called in intervals smaller than 1 ms.
-//! :-( Because the STM32F030 has no 32-bit sysclock counter we need to compute this value or concatenate two 16-bit timers. )
-//! I see no way to find out if the systick ISR was already active shortly after a systick counter wrap, despite calling this
-//! function in intervals smaller than 1 ms if not using hardware timers. To make it clear: You can use ReadUs64 to measure long
-//! intervals up to 584542 years, but the "OS" needs to call ReadUs64 internally regularely in <1ms intervals.
+//! Us64 reads the 1us tick.
 //! \retval us count since last reset
 static inline uint64_t Us64( void ){
     US_DUTY
