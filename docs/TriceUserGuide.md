@@ -176,7 +176,7 @@ Compare folder `./test/MDK-ARM_STM32F030R8_generated` with `./test/MDK-ARM_STM32
 
 Main steps are:
 
-* Add [./src/trice.c](../src/trice.c) to your project. It includes the files in [./src/box[(../src/box) automatically.
+* Add [./src/trice.c](../src/trice.c) to your project. It includes the files in [./src/box](../src/box) automatically.
 * Add [./src](../src) to your compiler library include path.
 * Copy file [./test/MDK-ARM_STM32F030R8/Core/Inc/triceConfig.h](../test/MDK-ARM_STM32F030R8/Core/Inc/triceConfig.h) to your embedded project and adapt it to your needs.
   * Other `triceConfig.h` files are usable as well, but the above is usually the most actual one.
@@ -203,7 +203,7 @@ Main steps are:
     ///////////////////////////////////////////////////////////////////////////////
     ```
 
-* Optionally copy all or parts parts of `./test/testdata/triceCheck.c` to your project if you wish to perform some checks.
+* Optionally copy all or parts parts of [./test/testdata/triceCheck.c](../test/testdata/triceCheck.c) to your project if you wish to perform some checks.
   * Do not inlucde it directly, because it gets overwritten when `updateTestData.sh` is executed inside the `./test` folder.
 * In your source.c files add line `#include "trice.h"`
 * In a function write a trice message like: `TRice( "1/11 = %g\n", aFloat( 1.0/11 ) );`.
