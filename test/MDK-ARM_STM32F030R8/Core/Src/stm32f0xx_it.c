@@ -53,8 +53,11 @@ static uint16_t us16 = 0;
 // ms32 is a 32-bit millisecond counter, counting circular in steps of 1 every ms.
 static uint32_t ms32 = 0;
 
-// ms16 is a 16-bit millisecond counter, running parallel to ms32, but is reset every 10s
+// ms16 is a 16-bit millisecond counter, running parallel to ms32, but is reset every 10s.
 static uint16_t ms16 = 0;
+
+// us64_1 holds the result of last Us16() or Us64() call.
+static uint64_t us_1 = 0;
 
 /* USER CODE END PV */
 
@@ -65,8 +68,6 @@ static uint16_t ms16 = 0;
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
-static uint64_t us_1 = 0; // result of last Us16() or Us64() call
 
 //! US_DUTY is a helper macro to avoid code duplication.
 #define US_DUTY \
