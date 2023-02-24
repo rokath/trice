@@ -180,7 +180,7 @@ Main steps are:
 * Add `./src/` to your compiler library include path.
 * Copy file [./test/MDK-ARM_STM32F030R8/Core/Inc/triceConfig.h](../test/MDK-ARM_STM32F030R8/Core/Inc/triceConfig.h) to your embedded project and adapt it to your needs.
   * Other `triceConfig.h` files are usable as well, but the above is usually the most actual one.
-* Copy file [./test/MDK-ARM_STM32F030R8/Core/Inc/SEGGER_RTT_Conf.h](../test/MDK-ARM_STM32F030R8/Core/Inc/SEGGER_RTT_Conf.) to your embedded project and adapt it to your needs, when using RTT.
+* Copy file [./test/MDK-ARM_STM32F030R8/Core/Inc/SEGGER_RTT_Conf.h](../test/MDK-ARM_STM32F030R8/Core/Inc/SEGGER_RTT_Conf) to your embedded project and adapt it to your needs, when using RTT.
   * You can exchange `SEGGER_RTT_Conf.h` and `./src/box/SEGGER_RTT.*` with more actual ones from the [SEGGER J-Link Support Site](https://www.segger.com/downloads/jlink/).
 * Add the 2 hardware specific functions to your project (example in [./test/MDK-ARM_STM32F030R8/Core/Src/stm32f0xx_it.c](../test/MDK-ARM_STM32F030R8/Core/Src/stm32f0xx_it.c) ):
   
