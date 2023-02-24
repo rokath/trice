@@ -73,7 +73,7 @@ static uint64_t us_1 = 0; // result of last Us16() or Us64() call
     uint32_t usOffset = (((SysTick->LOAD - SysTick->VAL) * 87381) >> 22); /* Divide 48MHz clock by 48,0001831 to get us part. */ \
     uint64_t us = us64 + usOffset;                                        /* 47999*87381 < 2^32 */ \
     int correction = 0; \
-    if( us < us_1){ /* Possible very close to systick ISR, when milliSecond was not incremented yet, but the systic wrapped already. */ \
+    if( us < us_1){ /* Possible very close to systick ISR, when us64 was not incremented yet, but the systic wrapped already. */ \
         correction = 1000; /* Time cannot go backwards, so correct the 1ms error in the assumption last call is not longer than 1ms back. */ \
     } \
     us_1 = us + correction; /* keep for next call */
@@ -96,10 +96,16 @@ static inline uint16_t Us16( void ){
     return us16 + usOffset + correction; // max 9000 + max 999 + max 1000 = max 10999 us;
 }
 
+// UsDuty is usable in short wait loops, waiting for a hardware flag for example.
 void UsDuty( void ){
     { US_DUTY }
     __WFE(); // wait for event (sleep)
     { US_DUTY } 
+}
+
+// usDuty is usable in short wait loops, waiting for a hardware flag for example.
+void usDuty( void ){
+    US_DUTY
 }
 
 #if 1 // us timestamps
