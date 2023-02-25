@@ -379,9 +379,9 @@ Main steps are:
       TRICE( ID(0), "hello %u\n", year); // 32-bit (time) stamp
       ```
 
-####  2.4.8. <a name='TriceParameterBitWidths'></a>Trice Parameter Bit Widths
-
 <div id="Trice Parameter Bit Widths"></div>
+
+####  2.4.8. <a name='TriceParameterBitWidths'></a>Trice Parameter Bit Widths
 
 - The macros `trice`, `Trice`, `TRice` and `TRICE` use 32-bit parameter values per default. See `TRICE_DEFAULT_PARAMETER_BIT_WIDTH` inside `triceConfig.h` to change that.
 - If for example the bit width of all trice parameters is 8-bit, it is writable as trice8 macro, reducing the transmitted byte count per parameter from 4 to 1:
