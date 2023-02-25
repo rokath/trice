@@ -59,43 +59,43 @@
   - [10. Switching *Trice* ON and OFF](#10-switching-trice-on-and-off)
     - [10.1. Target side *Trice* On-Off](#101-target-side-trice-on-off)
     - [10.2. Host side *Trice* On-Off](#102-host-side-trice-on-off)
-  - [11. Trice Binary Data Format](#11-trice-binary-data-format)
-    - [11.1. Framing](#111-framing)
-    - [11.2. Optional XTEA Encryption](#112-optional-xtea-encryption)
-    - [11.3. Endianness](#113-endianness)
-    - [11.4. `TRICE` (Time)Stamps](#114-trice-timestamps)
-    - [11.5. Binary Encoding](#115-binary-encoding)
-      - [11.5.1. Symbols](#1151-symbols)
-      - [11.5.2. Package Format](#1152-package-format)
-    - [11.6. Trice Decoding](#116-trice-decoding)
-      - [11.6.1. *Trice* ID list `til.json`](#1161-trice-id-list-tiljson)
-      - [11.6.2. *Trice* location information file `li.json`](#1162-trice-location-information-file-lijson)
-    - [11.7. *Trice* ID Numbers](#117-trice-id-numbers)
-      - [11.7.1. ID number selection](#1171-id-number-selection)
-      - [11.7.2. ID number usage and stability](#1172-id-number-usage-and-stability)
-      - [11.7.3. *Trice* ID 0](#1173-trice-id-0)
-    - [11.8. Trice ID management](#118-trice-id-management)
-    - [11.9. *Trices* inside source code](#119-trices-inside-source-code)
-      - [11.9.1. *Trices* in source code comments](#1191-trices-in-source-code-comments)
-      - [11.9.2. Different IDs for same *Trices*](#1192-different-ids-for-same-trices)
-      - [11.9.3. Same IDs for different *Trices*](#1193-same-ids-for-different-trices)
-      - [11.9.4. Adding legacy sources with `trice refresh`](#1194-adding-legacy-sources-with-trice-refresh)
-    - [11.10. ID reference list **til.json**](#1110-id-reference-list-tiljson)
-      - [11.10.1. **til.json** Version control](#11101-tiljson-version-control)
-      - [11.10.2. Long Time availability](#11102-long-time-availability)
-      - [11.10.3. The `trice update` algorithm](#11103-the-trice-update-algorithm)
-        - [5.1.1. Starting Conditions](#511-starting-conditions)
-        - [5.1.2. Aims](#512-aims)
-        - [5.1.3. Method](#513-method)
-      - [11.10.4. User Code Patching (`trice update`)](#11104-user-code-patching-trice-update)
-        - [5.2.1. User Code Patching Examples](#521-user-code-patching-examples)
-      - [11.10.5. User Code Un-Patching](#11105-user-code-un-patching)
-      - [11.10.6. ID Usage Options](#11106-id-usage-options)
-      - [11.10.7. General ID Management Information](#11107-general-id-management-information)
-      - [11.10.8. Option 1: Let the inserted Trice ID be a Part of the User Code](#11108-option-1-let-the-inserted-trice-id-be-a-part-of-the-user-code)
-      - [11.10.9. Option 2: Un-patching in a Post-build process](#11109-option-2-un-patching-in-a-post-build-process)
-      - [11.10.10. Option 3: Un-patching on Repository Check-In](#111010-option-3-un-patching-on-repository-check-in)
-    - [11.11. Changelog](#1111-changelog)
+  - [11. Framing](#11-framing)
+  - [12. Optional XTEA Encryption](#12-optional-xtea-encryption)
+  - [13. Endianness](#13-endianness)
+  - [14. `TRICE` (Time)Stamps](#14-trice-timestamps)
+  - [15. Binary Encoding](#15-binary-encoding)
+    - [15.1. Symbols](#151-symbols)
+    - [15.2. Package Format](#152-package-format)
+  - [16. Trice Decoding](#16-trice-decoding)
+    - [16.1. *Trice* ID list `til.json`](#161-trice-id-list-tiljson)
+    - [16.2. *Trice* location information file `li.json`](#162-trice-location-information-file-lijson)
+  - [17. *Trice* ID Numbers](#17-trice-id-numbers)
+    - [17.1. ID number selection](#171-id-number-selection)
+    - [17.2. ID number usage and stability](#172-id-number-usage-and-stability)
+    - [17.3. *Trice* ID 0](#173-trice-id-0)
+  - [18. Trice ID management](#18-trice-id-management)
+    - [18.1. *Trices* inside source code](#181-trices-inside-source-code)
+      - [18.1.1. *Trices* in source code comments](#1811-trices-in-source-code-comments)
+      - [18.1.2. Different IDs for same *Trices*](#1812-different-ids-for-same-trices)
+      - [18.1.3. Same IDs for different *Trices*](#1813-same-ids-for-different-trices)
+      - [18.1.4. Adding legacy sources with `trice refresh`](#1814-adding-legacy-sources-with-trice-refresh)
+  - [19. ID reference list **til.json**](#19-id-reference-list-tiljson)
+    - [19.1. **til.json** Version control](#191-tiljson-version-control)
+    - [19.2. Long Time availability](#192-long-time-availability)
+  - [20. The `trice update` algorithm](#20-the-trice-update-algorithm)
+    - [20.1. Starting Conditions](#201-starting-conditions)
+    - [20.2. Aims](#202-aims)
+    - [20.3. Method](#203-method)
+    - [20.4. User Code Patching (`trice update`)](#204-user-code-patching-trice-update)
+    - [20.5. User Code Patching Examples](#205-user-code-patching-examples)
+    - [20.6. User Code Un-Patching](#206-user-code-un-patching)
+    - [20.7. ID Usage Options](#207-id-usage-options)
+    - [20.8. General ID Management Information](#208-general-id-management-information)
+    - [20.9. Option 1: Let the inserted Trice ID be a Part of the User Code](#209-option-1-let-the-inserted-trice-id-be-a-part-of-the-user-code)
+    - [20.10. Option 2: Un-patching in a Post-build process](#2010-option-2-un-patching-in-a-post-build-process)
+    - [20.11. Option 3: Un-patching on Repository Check-In](#2011-option-3-un-patching-on-repository-check-in)
+  - [21. Changelog](#21-changelog)
+
 
 <!-- vscode-markdown-toc-config
 	numbering=true
@@ -1173,29 +1173,27 @@ _##  12. <a name='TriceUserInterface-QuickStart'></a> Trice User Interface - Qui
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  11. <a name='TriceBinaryDataFormat'></a>Trice Binary Data Format
-
-###  11.1. <a name='Framing'></a>Framing
+##  11. <a name='Framing'></a>Framing
 
 - *Trice* messages are framed binary data, if framing is not disabled.
 - Framing is important for data disruption cases and is done with [TCOBS](./TCOBSSpecification.md) (has included data reduction) but the user can force to use [COBS](https://github.com/rokath/COBS), what makes it easier to write an own decoder in some cases or disable framing at all. 
   - Change the setting `TRICE_FRAMING` inside `triceConfig.h` and use the **trice** tool `-packageFraming` switch accordingly.
 - For robustness each *Trice* gets its own (T)COBS package per default. That is changeable for transfer data reduction. Use `#define TRICE_TRANSFER_MODE TRICE_PACK_MULTI_MODE.` inside `triceConfig.h`. This allows to reduce the data size a bit by avoiding many 0-delimiter bytes but results in some more data loss in case of data disruptions.
 
-###  11.2. <a name='OptionalXTEAEncryption'></a>Optional XTEA Encryption
+##  12. <a name='OptionalXTEAEncryption'></a>Optional XTEA Encryption
 
 - If XTEA is used, the encrypted packages have a multiple-of-8 byte length containing 1-7 padding bytes.
 - The optional decryption is the next step after unpacking a data frame.
 - Enabling XTEA, automatically switches to COBS framing. There is no need to use the **trice** tool `-packageFraming` switch in that case because the **trice** tool, when getting the CLI switch `-password "phrase"` automatically assumes COBS encoded data, overwriting the default value for `-packageFraming`.
 
-###  11.3. <a name='Endianness'></a>Endianness
+##  13. <a name='Endianness'></a>Endianness
 
 - To interpret a decoded package, it´s endianness needs to be known.
 - For efficiency binary trice data are stored and transmitted in MCU endianness and the **trice** tool expects binary data in little endian format as most MCUs are little endian.
 - On big endian MCUs the compiler switch `TRICE_MCU_IS_BIG_ENDIAN` needs to be defined and the **trice** tool has a CLI switch "triceEndianness" which needs to be set to "bigEndian" then.
 - If trice transmit data are needed to be not in MCU order for some reason, the macro `TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN` is needed. This increases the critical trice storage time and target code amount.
 
-###  11.4. <a name='TRICETimeStamps'></a>`TRICE` (Time)Stamps
+##  14. <a name='TRICETimeStamps'></a>`TRICE` (Time)Stamps
 
 - Each *Trice* message can carry stamp bits, which are free usable like for time, addressing or filtering.
 - By selecting the letter case you decide for each single *Trice* macro about the stamp size.
@@ -1217,9 +1215,9 @@ _##  12. <a name='TriceUserInterface-QuickStart'></a> Trice User Interface - Qui
 
 It is up to the user to provide the functions `TriceStamp16()` and/or `TriceStamp32()`. Normally they return a µs or ms tick count but any values are allowed.
 
-###  11.5. <a name='BinaryEncoding'></a>Binary Encoding
+##  15. <a name='BinaryEncoding'></a>Binary Encoding
 
-####  11.5.1. <a name='Symbols'></a>Symbols
+###  15.1. <a name='Symbols'></a>Symbols
 
 | Symbol  | Meaning |
 | :-:     | - | 
@@ -1239,7 +1237,7 @@ It is up to the user to provide the functions `TriceStamp16()` and/or `TriceStam
 | `x`     | unspecified bit |
 | `X`     | =`xxxxxxxx` unspecified byte |
 
-####  11.5.2. <a name='PackageFormat'></a>Package Format
+###  15.2. <a name='PackageFormat'></a>Package Format
 
 - All decoded frames of 0-, 1-, 2- and 3-byte size are considered as user data and ignored by the **trice** tool.
 
@@ -1262,16 +1260,16 @@ It is up to the user to provide the functions `TriceStamp16()` and/or `TriceStam
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-###  11.6. <a name='TriceDecoding'></a>Trice Decoding
+##  16. <a name='TriceDecoding'></a>Trice Decoding
 
 The 14-bit IDs are used to display the log strings. These IDs are pointing in two reference files.
 
-####  11.6.1. <a name='TriceIDlisttil.json'></a>*Trice* ID list `til.json`
+###  16.1. <a name='TriceIDlisttil.json'></a>*Trice* ID list `til.json`
 
 - This file integrates all firmware variants and versions and is the key to display the message strings. With the latest version of this file all previous deployed firmware images are usable without the need to know the actual firmware version.
 - The files `til.json.h`, `til.json.c` and the like are generated to help writing an own trice decoder tool in your preferred language. Use `trice u -v` for it. That can be interesting in environments, where Go compiled binaries not executable, like [PCs running QNX OS](https://github.com/rokath/trice/discussions/263#discussioncomment-4180692).
 
-####  11.6.2. <a name='Tricelocationinformationfileli.json'></a>*Trice* location information file `li.json`
+###  16.2. <a name='Tricelocationinformationfileli.json'></a>*Trice* location information file `li.json`
 
 - If the generated `li.json` is available, the **trice** tool automatically displays file name and line number. But that is accurate only with the exact matching firmware version. That usually is the case right after compiling and of most interest at the developers table.
 - The **trice** tool will silently not display location information, if the `li.json` file is not found. For in-field logging, the option `-showID string` could be used. This allows later an easy location of the relevant source code.
@@ -1279,9 +1277,9 @@ The 14-bit IDs are used to display the log strings. These IDs are pointing in tw
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-###  11.7. <a name='TriceIDNumbers'></a>*Trice* ID Numbers
+##  17. <a name='TriceIDNumbers'></a>*Trice* ID Numbers
 
-####  11.7.1. <a name='IDnumberselection'></a>ID number selection
+###  17.1. <a name='IDnumberselection'></a>ID number selection
 
 - The default encoding TREX supports 14-bit IDs, so over 16000 IDs possible. Other encodings can work with other ID sizes.
 - `trice("Hi!\n");` ➡ `trice u` ➡ `trice( 12345, "Hi!\n");` ➡ `trice z` ➡ `trice("Hi!\n");`
@@ -1296,7 +1294,7 @@ The 14-bit IDs are used to display the log strings. These IDs are pointing in tw
 - In a future **trice** tool it can be possible to give each *trice* channel an **ID** range making it possible to implement *Trice* channel specific runtime on/off on the target side if that is needed. This could be interesting for routing purposes also.
   - To stay compatible with previous **trice** tool versions such implementation would use the `-args` switch, which then contains the relevant channels like `trice u -args "err:20:99,wrn:200:300"`. This needs to be specified in more detail, especially the error handling.
 
-####  11.7.2. <a name='IDnumberusageandstability'></a>ID number usage and stability
+###  17.2. <a name='IDnumberusageandstability'></a>ID number usage and stability
 
 - If you write `trice( "msg:%d", 1);` again on a 2nd location, the copy gets a different **ID**, because each *Trice* gets its own **ID**.
 - If you change `trice( "msg:%d", 1);` to `trice8( "msg:%d", 1);`, to reduce the needed parameter space, a new **ID** is assigned. That is because the parameter bit width is implicit a part of the now changed *Trice*. If you change that back, the previous **ID** is assigned again.
@@ -1309,36 +1307,36 @@ The 14-bit IDs are used to display the log strings. These IDs are pointing in tw
 - If the same string appears again this ID is active again.
 - If a trice occurs more than one time, each occurrence gets a different ID. If then 2 of them disappear, their ID numbers stay in `til.json`. If then one of them comes back, it gets its ID back.
 
-####  11.7.3. <a name='TriceID0'></a>*Trice* ID 0
+###  17.3. <a name='TriceID0'></a>*Trice* ID 0
 
 - The trice ID 0 is a placeholder for "no ID", which is replaced automatically during the next `trice update` according to the used trice switches `-IDMethod`, `-IDMin` and `IDMax`.
   - It is sufficient to write the TRICE macros just without the `id(0),` `Id(0),` `ID(0),`. It will be inserted automatically according the `-stamp` switch.
 - With `trice zeroSourceTreeIds` all IDs in the given source tree are set to 0. This gives the option afterwards to set-up a new `til.json` according to a different `-IDMethod`, `-IDMin` and `IDMax`.
 
-###  11.8. <a name='TriceIDmanagement'></a>Trice ID management
+##  18. <a name='TriceIDmanagement'></a>Trice ID management
 
 
-###  11.9. <a name='Tricesinsidesourcecode'></a>*Trices* inside source code
+###  18.1. <a name='Tricesinsidesourcecode'></a>*Trices* inside source code
 
-####  11.9.1. <a name='Tricesinsourcecodecomments'></a>*Trices* in source code comments
+####  18.1.1. <a name='Tricesinsourcecodecomments'></a>*Trices* in source code comments
 
 * `TRICE` macros commented out, are visible for the `trice update` command and therefore regarded.
   * Example: `// TRICE( Id(12345), "Hi!\n" );` is still regarded by the `trice u`.
 * During `trice update` TRICE macros, commented out, are treated in the same way as active TRICE macros. Even after deletion their content stays inside til.json. This is intensionally to get best stability across several firmware versions or variants.
 * The trice tool does treat trice statements inside comments or excluded by compiler switches also.
 
-####  11.9.2. <a name='DifferentIDsforsameTrices'></a>Different IDs for same *Trices*
+####  18.1.2. <a name='DifferentIDsforsameTrices'></a>Different IDs for same *Trices*
 
 * When the same *Trice* is used several times with different IDs and `trice update -IDreuse force` is called, only the one ID is used for all identical TRICEs in the source code. The other IDs stay inside **til.json** until they are removed (`trice renew`).
 
-####  11.9.3. <a name='SameIDsfordifferentTrices'></a>Same IDs for different *Trices*
+####  18.1.3. <a name='SameIDsfordifferentTrices'></a>Same IDs for different *Trices*
 
 * If duplicate ID's with different format strings found inside the source tree (case several developers or source code merging) one ID is replaced by a new ID. The probability for such case is low, because of the default random ID generation.
 * Also you can simply copy a *Trice* statement and modify it without dealing with the ID.
 * The **trice** tool will detect the 2nd (or 3rd) usage of this ID and assign a new one also extending the ID list.
 * That is done silently for you during the next `trice update`.
 
-####  11.9.4. <a name='Addinglegacysourceswithtricerefresh'></a>Adding legacy sources with `trice refresh`
+####  18.1.4. <a name='Addinglegacysourceswithtricerefresh'></a>Adding legacy sources with `trice refresh`
 
 When including legacy library code in several different projects, each with its own **til.json** ID reference list you probably do not want the IDs inside the library code be changed. If you missed the option to use prober ID ranges starting your project  `trice refresh` could help:
 
@@ -1356,7 +1354,7 @@ sub-command 'r|refresh': For updating ID list from source files but does not cha
         The "refresh" sub-command has no mandatory switches. Omitted optional switches are used with their default parameters.
 ```
 
-###  11.10. <a name='IDreferencelisttil.json'></a>ID reference list **til.json**
+##  19. <a name='IDreferencelisttil.json'></a>ID reference list **til.json**
 
 * The `trice update` command demands a **til.json** file - it will not work without it. That is a safety feature to avoid unwanted file generations. If you sure to create a new **til.json** file create an empty one: `touch til.json`.
 * The name **til.json** is a default one. With the command line parameter `-i` you can use any filename.
@@ -1365,7 +1363,7 @@ sub-command 'r|refresh': For updating ID list from source files but does not cha
 * One can delete the ID reference list. It will be reconstructed automatically from the source tree with the next `trice update` command, but history is lost then.
 * Keeping obsolete IDs makes it more comfortable during development to deal with different firmware variants at the same time.
 
-####  11.10.1. <a name='til.jsonVersioncontrol'></a>**til.json** Version control
+###  19.1. <a name='til.jsonVersioncontrol'></a>**til.json** Version control
 
 * The ID list should go into the version control repository of your project.
 * To keep it clean from the daily development garbage one could delete the **til.json**, then check-out again and re-build just before check-in. A small script could do that.
@@ -1373,16 +1371,15 @@ sub-command 'r|refresh': For updating ID list from source files but does not cha
   * This could be done by running `trice renew`. That is the same as deleting the **til.json** contents and running `trice u`.
 * An other option is to delete **til.json** just before a release build and then check-in the new generated **til.json**.
 
-####  11.10.2. <a name='LongTimeavailability'></a>Long Time availability
+###  19.2. <a name='LongTimeavailability'></a>Long Time availability
 
 * You could place a download link for the **trice** tool and the used **til.json** list.
 * Link a compressed/encrypted **til.json** file into the target binary and optionally get it back long years later in a safe way.
 * Optionally add the (compressed/encrypted) ID reference list as resource into the target FLASH memory to be sure not to loose it in the next 20 years.
 
+##  20. <a name='Thetriceupdatealgorithm'></a>The `trice update` algorithm
 
-####  11.10.3. <a name='Thetriceupdatealgorithm'></a>The `trice update` algorithm
-
-#####  5.1.1. <a name='StartingConditions'></a>Starting Conditions
+###  20.1. <a name='StartingConditions'></a>Starting Conditions
 
 - Before `trice u` is executed on a source tree, the starting conditions are partially undefined:
   - A trice ID list file `til.json` file must exist, but it is allowed to be empty.
@@ -1406,14 +1403,14 @@ sub-command 'r|refresh': For updating ID list from source files but does not cha
 - The `li.json` IDs may occur in the source tree not at all, once or several times. Also it is not guarantied, that the source tree *Trice*s match the `li.json` value.
 - The src tree can contain IDs not present inside `til.json`. This state is seldom, for example after adding sources containing IDs. To keep `trice u` short in execution. `trice refresh` could be run in such cases.
 
-#####  5.1.2. <a name='Aims'></a>Aims
+###  20.2. <a name='Aims'></a>Aims
 
 - The `trice u` main aim is to have a consistent state between `til.json`, `li.json` and the source tree with no **ID** used twice.
 - Also the changes should be minimal.
 - As a general rule lu (ilu and flu) is only extendable.
 - li is rebuild from scratch
 
-#####  5.1.3. <a name='Method'></a>Method
+###  20.3. <a name='Method'></a>Method
 
 - li is renamed into oli, which stays untouched and is used only in cases when identical f are found.
 - A new empty li is created and used for duplicate detection too.
@@ -1435,7 +1432,6 @@ sub-command 'r|refresh': For updating ID list from source files but does not cha
           - This way IDs in not parsed src get the chance to get their old ID back.
           - After file renaming all f get new i, but this happens not often. 
         - For example after adding sources with IDs from a different project and not executing `trice refresh` before.
-        
   - If the found f src ID != 0, check if found id->ilu->f is identical to src f.
     - If yes check li.
       - If yes (duplicate) create new id and extend lu and li and overwrite src ID.
@@ -1444,7 +1440,7 @@ sub-command 'r|refresh': For updating ID list from source files but does not cha
 - STM is not needed but maybe helpful during debugging.
 - If after `trice u` a `trice z` and a `trice u` again is executed, all IDs are expected to be at the same place again. If in between `trice u`, an optional `trice z`and a `trice u` src was edited, most IDs are expected to be at the same place again.
 
-####  11.10.4. <a name='UserCodePatchingtriceupdate'></a>User Code Patching (`trice update`)
+###  20.4. <a name='UserCodePatchingtriceupdate'></a>User Code Patching (`trice update`)
 
 - A *Trice* **ID** is inserted by `trice update` as shown in the table:
 
@@ -1469,7 +1465,7 @@ sub-command 'r|refresh': For updating ID list from source files but does not cha
   - `trice u` in your project root expects a til.json file there and checks sources and **til.json** for changes to update.
   - `trice u -v -i ../../../til.json -src ../src -src ../lib/src -src ./` is a typical case as automated pre-build step in your project settings telling **trice** to scan the project dir and two external directories. Even `trice u` is fast, it is generally quicker to search only relevant places.
 
-#####  5.2.1. <a name='UserCodePatchingExamples'></a>User Code Patching Examples
+###  20.5. <a name='UserCodePatchingExamples'></a>User Code Patching Examples
 
 - A *Trice* **ID** is modified as shown in these cases:
   - Previously updated (patched) user code copied to a different location:
@@ -1517,39 +1513,38 @@ sub-command 'r|refresh': For updating ID list from source files but does not cha
   TRice( 12345, "Hi!" ); // manually changed stamp size and then "trice u" performed.
   ```
 
-####  11.10.5. <a name='UserCodeUn-Patching'></a>User Code Un-Patching
+###  20.6. <a name='UserCodeUn-Patching'></a>User Code Un-Patching
 
-####  11.10.6. <a name='IDUsageOptions'></a>ID Usage Options
+###  20.7. <a name='IDUsageOptions'></a>ID Usage Options
 
 - Per default the `trice update` command chooses randomly a so far unused ID for new format strings and extends `til.json`.
 - After `trice z` all src IDs are removed or 0. In this state the src should go into the version management system.
   
-####  11.10.7. <a name='GeneralIDManagementInformation'></a>General ID Management Information
+###  20.8. <a name='GeneralIDManagementInformation'></a>General ID Management Information
 
 - The trice ID-instead-of-String idea lives from pre-compile patching of the user code.
 - The user has full control how to deal with that.
 - There are 3 options and the user has to decide which fits best for him.
 - Each format string gets its unique trice ID. If the same format string is used on different source code locations it gets different trice IDs this way allowing a reliable location information.
 
-
-####  11.10.8. <a name='Option1:LettheinsertedTriceIDbeaPartoftheUserCode'></a>Option 1: Let the inserted Trice ID be a Part of the User Code
+###  20.9. <a name='Option1:LettheinsertedTriceIDbeaPartoftheUserCode'></a>Option 1: Let the inserted Trice ID be a Part of the User Code
 
 - This is the legacy method. It allows unchanged src translation into code without using the trice tool.
 - It is very robust and maybe needed in nasty debugging situations.
 - It allows to reconstruct lost til.json information.
 - Recommendet for small projects.
 
-####  11.10.9. <a name='Option2:Un-patchinginaPost-buildprocess'></a>Option 2: Un-patching in a Post-build process
+###  20.10. <a name='Option2:Un-patchinginaPost-buildprocess'></a>Option 2: Un-patching in a Post-build process
 
 - The code is visually free of IDs all the time.
 
-####  11.10.10. <a name='Option3:Un-patchingonRepositoryCheck-In'></a>Option 3: Un-patching on Repository Check-In
+###  20.11. <a name='Option3:Un-patchingonRepositoryCheck-In'></a>Option 3: Un-patching on Repository Check-In
 
 - The code is visually free of IDs only inside the repository.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-###  11.11. <a name='Changelog'></a>Changelog
+##  21. <a name='Changelog'></a>Changelog
 
 <details><summary>Details</summary><ol>
 
