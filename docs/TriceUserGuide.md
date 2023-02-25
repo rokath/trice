@@ -239,7 +239,7 @@ Main steps are:
 | [./src/box/cobs.h](../src/box/cobs.h)                             | message packaging, alternatively for tcobs |
 | [./src/box/cobsEncode.c](../src/box/cobsEncode.c)                 | message encoding, alternatively for tcobs |
 | [./src/box/cobsDecode.c](../src/box/cobsDecode.c)                 | message decoding, normally not needed |
-| [./src/box/core.c](.src/box/core.c)                               | trice core lib |
+| [./src/box/core.c](../src/box/core.c)                             | trice core lib |
 | [./src/box/SEGGER_RTT.h](../src/box/SEGGER_RTT.h)                 | Segger RTT code interface |
 | [./src/box/SEGGER_RTT.c](../src/box/SEGGER_RTT.c)                 | Segger RTT code |
 | [./src/box/tcobs.h](../src/box/tcobs.h)                           | message compression and packaging interface|
