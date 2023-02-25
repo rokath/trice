@@ -192,7 +192,7 @@ Main steps are:
 
 - Counting the 16-bit part separately allows to avoid the `%` operator usage, which would imply a costly division.
 - Using different timestamp bit width parallel allows to reduce the transmitted data size.
-- Example showing host and target (time) stamps: one trice without, six with 16-bit and two with 32-bit:
+- Example showing host and target (time) stamps: one trice without, six with 16-bit and two with 32-bit in **hh:mm:ss,milliseconds**:
 
   ![x](./ref/0-16-32BitTimeStamps.jpg)
 
@@ -203,22 +203,24 @@ Main steps are:
 
 * Optionally copy all or parts parts of [./test/testdata/triceCheck.c](../test/testdata/triceCheck.c) to your project if you wish to perform some checks.
   * Do not inlucde it directly, because it gets overwritten when `updateTestData.sh` is executed inside the `./test` folder.
-* In your source.c files add line `#include "trice.h"`
+* In your source.c files add line `#include "trice.h"` at the top.
 * In a function write a trice message like: `TRice( "1/11 = %g\n", aFloat( 1.0/11 ) );`.
 * In **project root**:
   * Create empty file: `touch til.json`.
   * With correct CLI switches `trice u` should perform **automatically** these things (The numbers are just examples.):
->>>    * Patch source.c to `TRice( iD(12363), "1/11 = %g\n", aFloat( 1.0/11 ) );`
->>>      * C & H files containing TRICE macros, are only modified if needed (missing or obsolete ID)
->>>    * Extend `til.json`
->>>      * If no `til.json` is found nothing happens. At least an empty file is needed (Safety feature).
+    * Patch source.c to `TRice( iD(12363), "1/11 = %g\n", aFloat( 1.0/11 ) );`
+      * C & H files containing TRICE macros, are only modified if needed (missing or obsolete ID)
+    * Extend `til.json`
+      * If no `til.json` is found nothing happens. At least an empty file is needed (Safety feature).
 * When the program runs later, it should output something similar to ![./ref/1div11.PNG](./ref/1div11.PNG)
 * Look into [./TriceVsPrintfSimilaritiesAndDifferences.md](./TriceVsPrintfSimilaritiesAndDifferences.md) for options.
-* [./TriceConfigProjectImageSizeOptimization.md](./TriceConfigProjectImageSizeOptimization.md)
+* Read [./TriceConfigProjectImageSizeOptimization.md](./TriceConfigProjectImageSizeOptimization.md) if needed.
 
 #### Communication Ports
 
 * For RTT the [SEGGER](https://www.segger.com/downloads/jlink/) source is already included. See [./TriceOverRTT.m](./TriceOverRTT.m) for more info.
+  * If RTT is supported no hardware specific adaptions needed and it is the fastest possible data transfer. 
+  * The direct trice mode (`TRICE_STACK_BUFFER`) is usable also inside interrupts. 
 * For UART transfer add UART write functionality.
 * See also [./TriceOverOneWire.md](./TriceOverOneWire.md).
 
@@ -226,27 +228,38 @@ Main steps are:
 
 * `./src`: **User Interface**
 
-| File                                  | description |
-| -                                     | -           |
-| `trice.h` & `trice.c`                 | trice runtime lib user interface, `#include trice.h` in project files, where to use `TRICE` macros. Add `trice.c` to your embedded device project. Add `./src` to your compiler include path. |
+| File                                                            | description |
+| -                                                               | -           |
+| [./src/trice.h](./src/trice.h) & [./src/trice.c](./src/trice.c) | trice runtime lib user interface, `#include trice.h` in project files, where to use `TRICE` macros. Add `trice.c` to your embedded device project. Add `./src` to your compiler include path. |
 
-* `./src/box`: **Internal Components**
+* `./src/box`: **Internal Components** (only partially needed according to configuration)
 
-| File                                  | description |
-| -                                     | -           |
-| `cobs*.*`                             | message packaging, alternatively for tcobs |
-| `core.c`                              | trice core lib |
-| `SEGGER_RTT.*`                        | Segger RTT code |
-| `tcobs*.*`                            | message compression and packaging |
-| `trice8.*`                            | 8-bit trice code |
-| `trice16.*`                           | 16-bit trice code |
-| `trice32.*`                           | 32-bit trice code |
-| `trice64.*`                           | 64-bit trice code |
-| `triceDoubleBuffer.c`                 | trice runtime lib extension needed for fastest indirect mode |
-| `triceModbusBuffer.c`                 | trice runtime lib extension needed for Modbus mode (not usable yet) |
-| `triceStackBuffer.c`                  | trice runtime lib extension needed for direct mode |
-| `triceStreamBuffer.c`                 | trice runtime lib extension needed for recommended indirect mode |
-| `xtea.*`                              | UNTESTED with TREX, needed for XTEA message encryption, if enabled |
+| File                                                              | description |
+| -                                                                 | -           |
+| [./src/box/cobs.h](../src/box/cobs.h)                             | message packaging, alternatively for tcobs |
+| [./src/box/cobsEncode.c](../src/box/cobsEncode.c)                 | message encoding, alternatively for tcobs |
+| [./src/box/cobsDecode.c](../src/box/cobsDecode.c)                 | message decoding, normally not needed |
+| [./src/box/core.c](.src/box/core.c)                               | trice core lib |
+| [./src/box/SEGGER_RTT.h](../src/box/SEGGER_RTT.h)                 | Segger RTT code interface |
+| [./src/box/SEGGER_RTT.c](../src/box/SEGGER_RTT.c)                 | Segger RTT code |
+| [./src/box/tcobs.h](../src/box/tcobs.h)                           | message compression and packaging interface|
+| [./src/box/tcobsv1Encode.c](../src/box/tcobsv1Encode.c)           | message encoding and packaging |
+| [./src/box/tcobsv1Decode.c](../src/box/tcobsv1Decode.c)           | message decoding and packaging, normally not needed |
+| [./src/box/tcobsv1Internal.h](../src/box/tcobsv1Internal.h)       | message decoding and packaging internal interface |
+| [./src/box/trice8.h](../src/box/trice8.h)                         | 8-bit trice code interface |
+| [./src/box/trice8.c](../src/box/trice8.c)                         | 8-bit trice code |
+| [./src/box/trice16.h](../src/box/trice16.h)                       | 16-bit trice code interface |
+| [./src/box/trice16.c](../src/box/trice16.c)                       | 16-bit trice code |
+| [./src/box/trice32.h](../src/box/trice32.h)                       | 32-bit trice code interface |
+| [./src/box/trice32.c](../src/box/trice32.c)                       | 32-bit trice code |
+| [./src/box/trice64.h](../src/box/trice64.h)                       | 64-bit trice code interface |
+| [./src/box/trice64.c](../src/box/trice64.c)                       | 64-bit trice code |
+| [./src/box/triceDoubleBuffer.c](../src/box/triceDoubleBuffer.c)   | trice runtime lib extension needed for fastest indirect mode |
+| [./src/box/triceModbusBuffer.c](../src/box/triceModbusBuffer.c)   | trice runtime lib extension needed for Modbus mode (not usable yet) |
+| [./src/box/triceStackBuffer.c](../src/box/triceStackBuffer.c)     | trice runtime lib extension needed for direct mode |
+| [./src/box/triceStreamBuffer.c](../src/box/triceStreamBuffer.c)   | trice runtime lib extension needed for recommended indirect mode |
+| [./src/box/xtea.c](../src/box/xtea.h)                             | XTEA message encryption/decryption interface |
+| [./src/box/xtea.c](../src/box/xtea.c)                             | XTEA message encryption/decryption code |
   
 * The TCOBS files are copied from [https://github.com/rokath/tcobs/tree/master/Cv1](https://github.com/rokath/tcobs/tree/master/Cv1). They are maintained there and extensively tested and probably not a matter of significant change.
 * The SEGGER files are copied from and you could check for a newer version at [https://www.segger.com/downloads/jlink/](https://www.segger.com/downloads/jlink/).
