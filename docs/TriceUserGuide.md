@@ -2,7 +2,7 @@
 
 > _(Read this)
 >
-> SORRY: This document is currently a mess and partially outdated.
+> SORRY: This document long and not 100% consistent. Hints or pull requests are welcome.- [*Trice* user guide](#trice-user-guide)
 
 <!-- TABLE OF CONTENTS -->
 <details>
@@ -399,16 +399,6 @@ Main steps are:
   TRICE8_B( " %02x", &b, sizeof(b) ); trice( "\n" );
   ```
 
-
-
-
-
-
-
-
-
-
-
 ##  3. <a name='BuildtricetoolfromGosourcesyoucanskipthat'></a>Build `trice` tool from Go sources (you can skip that)
 
 * Install [Go](https://golang.org/).
@@ -619,13 +609,13 @@ Executing `trice update` at the root of your project source updates in case of c
 
 With `trice log -port COM12` you can visualize the trices on the PC, if for example `COM12` is receiving the data from the embedded device at the 115200 default baudrate.
 
-The following capture output comes from an (old) example project inside`../test`
+The following capture output comes from an (old) example project inside [../test](../test).
 
 ![life.gif](./ref/life.gif)
 
-See [triceCheck.c](../test/testdata/triceCheck.c) for reference. The *Trices* can come mixed from inside interrupts (light blue `ISR:...`) or from normal code. For usage with a RTOS, *Trices* are protected against breaks (`TRICE_ENTER_CRITICAL_SECTION`, `TRICE_LEAVE_CRITICAL_SECTION`). Regard the differences in the read SysTick values inside the GIF above These differences are the MCU clocks needed for one trice (~0,25µs@48MHz).
+See [../test/testdata/triceCheck.c](../test/testdata/triceCheck.c) for reference. The *Trices* can come mixed from inside interrupts (light blue `ISR:...`) or from normal code. For usage with a RTOS, *Trices* are protected against breaks (`TRICE_ENTER_CRITICAL_SECTION`, `TRICE_LEAVE_CRITICAL_SECTION`). Regard the differences in the read SysTick values inside the GIF above These differences are the MCU clocks needed for one trice (~0,25µs@48MHz).
 
-Use the `-color off` switch for piping output in a file.
+Use the `-color off` switch for piping output in a file. More convenient is the `-lf auto` switch. 
 
 <!---
 _###  6.2. <a name='Checkthetricebinary'></a>Check the `trice` binary
@@ -695,7 +685,7 @@ Quick workaround:
 
 ##  6. <a name='Encryption'></a>Encryption
 
-* You can deliver your device with encrypted trices. This way only the service is able to read the *Trices*.
+* You can deliver your device with encrypted trices. This way only the service [wo]men is able to read the *Trices*.
 * Implemented is XTEA but this is exchangeable.
 * The to 8 byte padded blocks can get encrypted by enabling `#define ENCRYPT...` inside [triceConfig.h](../test/MDK-ARM_STM32F030R8/Core/Inc/triceConfig.h). You need to add `-password MySecret` as `trice log` switch and you're done.
 * Any password is usable instead of `MySecret`. Simply add once the `-show` switch and copy the displayed passphrase into the [triceConfig.h](../test/MDK-ARM_STM32F030R8/Core/Inc/triceConfig.h) file.
@@ -728,9 +718,9 @@ Info for a special sub-command is shown with `trice h -l`, `trice h -u`, ... .
 * `trice h -all` shows all options of the current version.
 * `trice ver` prints version information.
 * `trice s` shows you all found serial ports for your convenience.
-* `trice l -p COM17` could fail if s.th. is wrong. Additional switches are for help tracking the issue:
+* `trice l -p COM17` could fail if something is wrong. Additional switches are for help tracking the issue:
   * Use log witch `-s[howInputBytes]` to check if any bytes are received at all. ![./ref/ShowInputBytesExample.PNG](./ref/ShowInputBytesExample.PNG)
-  * With `-debug` you can see the COBS and decoded and single *Trice* packages. ![./ref/DebugSwitchExample.PNG](./ref/DebugSwitchExample.PNG)
+  * With `-debug` you can see the [T]COBS packages and decoded *Trice* packages. ![./ref/DebugSwitchExample.PNG](./ref/DebugSwitchExample.PNG)
 
 <!--
 * `trice u` in the root of your project parses all source files for `TRICE` macros, adds automatically ID´s if needed and updates a file named **til.json** containing all ID´s with their format string information. To start simply generate an empty file named **til.json** in your project root. You can add `trice u` to your build process and need no further manual execution.
@@ -815,9 +805,12 @@ trice l -p COM3 -binaryLogfile trice.bin
 
 This creates a new binary logfile `trice.bin` on first start and appends to it on each next **trice** start.
 
-Binary logfiles store the **trice** messages as they come out of the target in binary form. They are much smaller than normal logfiles, but the **trice** tool with the *til.sjon* is needed for displaying them and the PC timestamps are the displaying time: `trice -p FILEBUFFER -args trice.log`.
+Binary logfiles store the **trice** messages as they come out of the target in binary form. They are much smaller than normal logfiles, but the **trice** tool with the *til.json* is needed for displaying them and the PC timestamps are the displaying time: `trice -p FILEBUFFER -args trice.log`.
 
 Binary logfiles are handy in the field for long data recordings.
+
+When using RTT, the data are exchanged over a file interface. These binary logfiles are stored in the project [./temp] folder and accessable for later view: `trice -p FILEBUFFER -args ./temp/logfileName.bin`. Of course the host timestamps are the playing time then.
+
 ####  8.2.6. <a name='TCPoutput'></a>TCP output
 
 ```bash
@@ -837,7 +830,8 @@ trice zeroSourceTreeIds -src ./
 
 ![./ref/ZeroIDsExample.PNG](./ref/ZeroIDsExample.PNG)
 
-* Normally nobody uses that. But if you intend to integrate some existing sources into a project using [ID management](./TriceIDManagement.md) options, this could be a need.
+* Normally nobody uses that (now). But if you intend to integrate some existing sources into a project using [ID management](./TriceIDManagement.md) options, this could be a need.
+  * HINT: It is planned to extend the *trice* tool to restore the IDs after a `trice z` during the next `trice u` exacltly even there are seveal identical tice messages in a file. That will allow to have the IDs inside the source code only during compiliation if you configure `trice z` as a post compilation step. 
 * Calling `trice u` afterwards will assign new IDs, but calling `trice u -shared IDs` will assign the same IDs again.
 
 ####  8.2.8. <a name='StimulatetargetwithausercommandoverUART'></a>Stimulate target with a user command over UART
@@ -874,7 +868,7 @@ If you see nothing in the beginning, what is normally ;-), add the `-s` (`-showI
 
 ###  9.4. <a name='Avoidbufferoverruns'></a>Avoid buffer overruns
 
-It is your responsibility to produce less data than transmittable. If this is not guarantied a data loss is not avoidable or you have to slow down the program. The double buffer as fastest solution has no overflow check. My recommendation: Make the buffer big and emit the maxDepth cyclically, every 10 or 1000 seconds. Then you know the needed size. It is influenced by the max trice burst and the buffer switch interval.
+It is your responsibility to produce less data than transmittable. If this is not guarantied a data loss is not avoidable or you have to slow down the user application. The double buffer as fastest solution has no overflow check. My recommendation: Make the buffer big and emit the maxDepth cyclically, every 10 or 1000 seconds. Then you know the needed size. It is influenced by the max trice burst and the buffer switch interval.
 
 If the target application produces more *Trice* data than transmittable, a buffer overrun can let the target crash, because for performance reasons no overflow check is implemented in the double buffer. Also if such a check is added, the *Trice* code can only throw data away in such case.
 
@@ -1583,7 +1577,7 @@ sub-command 'r|refresh': For updating ID list from source files but does not cha
 | 2023-JAN-14 | 0.14.0  | Formatting improved, [1.  Trice User Interface - Quick Start](#1--trice-user-interface---quick-start) added. |
 | 2023-JAN-14 | 0.15.0  | [5.1. The `trice update` algorithm](#51-the-trice-update-algorithm) added |
 | 2023-JAN-21 | 0.15.1  | Corrections |
-|             |         | |
+| 2023-FEB-25 | 0.16.0  | Many parts reworked and restructured |
 |             |         | |
 
 <p align="right">(<a href="#top">back to top</a>)</p></ol></details>

@@ -198,10 +198,10 @@ extern "C" {
 #define ALIGN4_END __attribute__ ((aligned(4))) //!< align to 4 byte boundary post declaration
 
 //! TRICE_ENTER_CRITICAL_SECTION saves interrupt state and disables Interrupts.
-#define TRICE_ENTER_CRITICAL_SECTION { // to do
+#define TRICE_ENTER_CRITICAL_SECTION { uint32_t old_mask = cm_mask_interrupts(1); { // copied from test/OpenCM3_STM32F411_Nucleo/triceConfig.h
 
 //! TRICE_LEAVE_CRITICAL_SECTION restores interrupt state.
-#define TRICE_LEAVE_CRITICAL_SECTION } // to do
+#define TRICE_LEAVE_CRITICAL_SECTION  } cm_mask_interrupts(old_mask); } // copied from test/OpenCM3_STM32F411_Nucleo/triceConfig.h
 
 #elif defined(__ARMCC_VERSION) /* Arm Compiler ############################### */
 
