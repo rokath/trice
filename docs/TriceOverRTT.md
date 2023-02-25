@@ -1,4 +1,4 @@
-# *Trice* over RTT
+7# *Trice* over RTT
 
 > _(Read only you are interested in)_
 >
@@ -328,9 +328,6 @@ Info: [https://www.st.com/en/evaluation-tools/nucleo-f030r8.html](https://www.st
 ##  10. <a name='Possibleissues'></a>Possible issues
 
 * These boards seem not to work reliable with RTT over J-Link on-board firmware.
-  * NUCLEO-G071RB
-  * NUCLEO_G031K8
-* These boards seem not to work reliable with RTT over ST-Link on-board firmware.
   * NUCLEO-G071RB
   * NUCLEO_G031K8
 * After flashing back the ST-LINK OB firmware with the SEGGER tool, it is recommended to use the ST tool to update the ST-LINK OB firmware. Otherwise issues could occur.
