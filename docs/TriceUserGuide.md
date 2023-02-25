@@ -2,7 +2,7 @@
 
 > _(Read this)
 >
-> SORRY: This document long and not 100% consistent. Hints or pull requests are welcome.- [*Trice* user guide](#trice-user-guide)
+> SORRY: This document long and not 100% consistent. Hints or pull requests are welcome.
 
 <!-- TABLE OF CONTENTS -->
 <details>
