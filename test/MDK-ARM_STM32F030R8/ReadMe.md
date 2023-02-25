@@ -15,15 +15,15 @@ Delivers parallel TRICE logs over UART and RTT channel 0. See [./Core/Inc/triceC
 
 ## RTT Logging
 
-See ../doc
+See [TriceOverRTT](../../docs/TriceOverRTT.md).
 
 ### ST-LINK 
 
-- Install
+- Install ST-LINK software. 
 - Enter command `trice l -p ST-LINK -args "-Device STM32F030R8 -If SWD -Speed 4000 -RTTChannel 0"`
 
 ### J-LINK
 
-- Install 
+- Install J-LINK software. 
 - Enter command `trice l -p J-LINK -args "-Device STM32F030R8 -If SWD -Speed 4000 -RTTChannel 0"`
 
