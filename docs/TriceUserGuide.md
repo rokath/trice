@@ -230,7 +230,7 @@ Main steps are:
 
 | File                                                            | description |
 | -                                                               | -           |
-| [./src/trice.h](./src/trice.h) & [./src/trice.c](./src/trice.c) | trice runtime lib user interface, `#include trice.h` in project files, where to use `TRICE` macros. Add `trice.c` to your embedded device project. Add `./src` to your compiler include path. |
+| [./src/trice.h](../src/trice.h) & [./src/trice.c](../src/trice.c) | trice runtime lib user interface, `#include trice.h` in project files, where to use `TRICE` macros. Add `trice.c` to your embedded device project. Add `./src` to your compiler include path. |
 
 * `./src/box`: **Internal Components** (only partially needed according to configuration)
 
