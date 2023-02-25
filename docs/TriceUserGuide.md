@@ -48,10 +48,9 @@
     - [9.9. Using the `trice` tool with 3rd party tools](#99-using-the-trice-tool-with-3rd-party-tools)
     - [9.10. Several targets at the same time](#910-several-targets-at-the-same-time)
     - [9.11. Executing `go test -race -count 100 ./...`](#911-executing-go-test--race--count-100-)
-    - [9.12. Direct TRICE Out (TRICE\_MODE 0) could cause stack overflow with -o0 optimization](#912-direct-trice-out-trice_mode-0-could-cause-stack-overflow-with--o0-optimization)
+    - [9.12. Direct TRICE Out (TRICE\_MODE TRICE\_STACK\_BUFFER) could cause stack overflow with -o0 optimization](#912-direct-trice-out-trice_mode-trice_stack_buffer-could-cause-stack-overflow-with--o0-optimization)
   - [10. Target side *Trice* On-Off](#10-target-side-trice-on-off)
   - [11. Host side *Trice* On-Off](#11-host-side-trice-on-off)
-  - [12. Using a different encoding](#12-using-a-different-encoding)
   - [13. Testing](#13-testing)
     - [13.1. Folder information](#131-folder-information)
     - [13.2. Package specific information](#132-package-specific-information)
@@ -833,12 +832,11 @@ As discussed in [issue #294](https://github.com/rokath/trice/issues/294) it can 
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  12. <a name='Usingadifferentencoding'></a>Using a different encoding
+<!--##  12. <a name='Usingadifferentencoding'></a>Using a different encoding
 
 It is possible to exchange the code behind the `TRICE` macros with a different encoding and to add an appropriate decoder to the **trice** tool.
 The ID assignment is adjustable with `-IDMin` and `-IDMax`.
 
-<!--
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -858,7 +856,8 @@ The ID assignment is adjustable with `-IDMin` and `-IDMax`.
 
 ###  13.1. <a name='Folderinformation'></a>Folder information
 
-- The folders here, despite `testdata`, are helper "projects" for testing the target C-code located in `./src/`.
+- The folders in [./test/](../test), despite `testdata`, are helper "projects" serving as examples and for testing the target C-code located in `./src/`.
+
 - Some folders are hardware specific implementations and some are Go packages. The Go packages can have all the same name, only the folder names are not equal.
 - In each Go package a different triceConfig.h is used, this way allowing to check all modes automatically, including encryption.
 - The file `./testdata/triceCheck.c.txt` is the master test pattern for all CGO tests and edited manually. It has the extension `.txt` to avoid accidentally modification by the `trice u` command.
@@ -985,10 +984,9 @@ The projects are generated with necessary library files *as reference* to keep t
     - [9.9. Using the `trice` tool with 3rd party tools](#99-using-the-trice-tool-with-3rd-party-tools)
     - [9.10. Several targets at the same time](#910-several-targets-at-the-same-time)
     - [9.11. Executing `go test -race -count 100 ./...`](#911-executing-go-test--race--count-100-)
-    - [9.12. Direct TRICE Out (TRICE\_MODE 0) could cause stack overflow with -o0 optimization](#912-direct-trice-out-trice_mode-0-could-cause-stack-overflow-with--o0-optimization)
+    - [9.12. Direct TRICE Out (TRICE\_MODE TRICE\_STACK\_BUFFER) could cause stack overflow with -o0 optimization](#912-direct-trice-out-trice_mode-trice_stack_buffer-could-cause-stack-overflow-with--o0-optimization)
   - [10. Target side *Trice* On-Off](#10-target-side-trice-on-off)
   - [11. Host side *Trice* On-Off](#11-host-side-trice-on-off)
-  - [12. Using a different encoding](#12-using-a-different-encoding)
   - [13. Testing](#13-testing)
     - [13.1. Folder information](#131-folder-information)
     - [13.2. Package specific information](#132-package-specific-information)
