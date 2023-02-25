@@ -812,6 +812,7 @@ As discussed in [issue #294](https://github.com/rokath/trice/issues/294) it can 
 ##  10. <a name='TargetsideTriceOn-Off'></a>Target side *Trice* On-Off
 
 * If your code works well after checking, you can add `#define TRICE_OFF` just before the `#include "trice.h"` line and no *trice* code is generated anymore for that file, so no need to delete or comment out `TRICE` macros: : ![./ref/TRICE_OFF.PNG](./ref/TRICE_OFF.PNG)
+* Hint from @escherstair: With `-D TRICE_OFF` as compiler option, the trice code diappears completely from the binary.
 * No runtime On-Off switch is implemented for  several reasons:
   * Would need a control channel to the target.
   * Would add little performance and code overhead.
