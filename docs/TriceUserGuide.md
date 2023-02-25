@@ -17,7 +17,14 @@
     - [2.2. Install It](#22-install-it)
     - [2.3. Use It](#23-use-it)
     - [2.4. Port it](#24-port-it)
-      - [2.4.1. Target Code Overview](#241-target-code-overview)
+      - [2.4.1. Target Trice Stamps](#241-target-trice-stamps)
+      - [2.4.2. Trice Checks](#242-trice-checks)
+      - [Communication Ports](#communication-ports)
+      - [2.4.3. Target Code Overview](#243-target-code-overview)
+      - [2.4.4. User Code Adaption](#244-user-code-adaption)
+      - [2.4.5. Limitations](#245-limitations)
+      - [2.4.6. Trice (Time) Stamps](#246-trice-time-stamps)
+      - [2.4.7. Trice Parameter Bit Widths](#247-trice-parameter-bit-widths)
   - [3. Build `trice` tool from Go sources (you can skip that)](#3-build-trice-tool-from-go-sources-you-can-skip-that)
   - [4.  Embedded system code configuration](#4--embedded-system-code-configuration)
   - [5. `trice` tool in logging action](#5-trice-tool-in-logging-action)
@@ -49,71 +56,54 @@
     - [9.10. Several targets at the same time](#910-several-targets-at-the-same-time)
     - [9.11. Executing `go test -race -count 100 ./...`](#911-executing-go-test--race--count-100-)
     - [9.12. Direct TRICE Out (TRICE\_MODE TRICE\_STACK\_BUFFER) could cause stack overflow with -o0 optimization](#912-direct-trice-out-trice_mode-trice_stack_buffer-could-cause-stack-overflow-with--o0-optimization)
-  - [10. Target side *Trice* On-Off](#10-target-side-trice-on-off)
-  - [11. Host side *Trice* On-Off](#11-host-side-trice-on-off)
-  - [13. Testing](#13-testing)
-    - [13.1. Folder information](#131-folder-information)
-    - [13.2. Package specific information](#132-package-specific-information)
-    - [13.3. todo](#133-todo)
-  - [14. Trice demo \& test project info](#14-trice-demo--test-project-info)
-    - [14.1. Backup folder](#141-backup-folder)
-    - [14.2. Terminal info](#142-terminal-info)
-    - [14.3. RTT info](#143-rtt-info)
-    - [14.4. UART](#144-uart)
-    - [14.5. MDK-ARM projects](#145-mdk-arm-projects)
-  - [15. Further info](#15-further-info)
-  - [16. Third party Software](#16-third-party-software)
-  - [17. alacritty](#17-alacritty)
-    - [17.1. goST](#171-gost)
-    - [17.2. keil.com](#172-keilcom)
-    - [17.3. segger.com](#173-seggercom)
-      - [17.3.1. SEGGER downloaded Software](#1731-segger-downloaded-software)
-      - [17.3.2. JLink](#1732-jlink)
-      - [17.3.3. SEGGER\_RTT](#1733-segger_rtt)
-      - [17.3.4. STLinkReflash\_190812.zip](#1734-stlinkreflash_190812zip)
-  - [18. st.com](#18-stcom)
-  - [19. *Trice*  Version 1.0 Specification (Draft)](#19-trice--version-10-specification-draft)
-  - [20.  Trice User Interface - Quick Start](#20--trice-user-interface---quick-start)
-      - [20.1. User Code Adaption](#201-user-code-adaption)
-      - [20.2. Limitations](#202-limitations)
-      - [20.3. Trice (Time) Stamps](#203-trice-time-stamps)
-      - [20.4. Trice Parameter Bit Widths](#204-trice-parameter-bit-widths)
-    - [20.1. Trice Binary Data Format](#201-trice-binary-data-format)
-      - [20.1.1. Framing](#2011-framing)
-      - [20.1.2. Optional XTEA Encryption](#2012-optional-xtea-encryption)
-      - [20.1.3. Endianness](#2013-endianness)
-      - [20.1.4. `TRICE` (Time)Stamps](#2014-trice-timestamps)
-      - [20.1.5. Binary Encoding](#2015-binary-encoding)
-        - [2.5.1. Symbols](#251-symbols)
-        - [2.5.2. Package Format](#252-package-format)
-    - [20.2. Trice Decoding](#202-trice-decoding)
-      - [20.2.1. *Trice* ID list `til.json`](#2021-trice-id-list-tiljson)
-      - [20.2.2. *Trice* location information file `li.json`](#2022-trice-location-information-file-lijson)
-    - [20.3. *Trice* ID Numbers](#203-trice-id-numbers)
-      - [20.3.1. ID number selection](#2031-id-number-selection)
-      - [20.3.2. ID number usage and stability](#2032-id-number-usage-and-stability)
-      - [20.3.3. *Trice* ID 0](#2033-trice-id-0)
-    - [20.4. Trice ID management](#204-trice-id-management)
-      - [20.4.1. The `trice update` algorithm](#2041-the-trice-update-algorithm)
+  - [10. Switching *Trice* ON and OFF](#10-switching-trice-on-and-off)
+    - [10.1. Target side *Trice* On-Off](#101-target-side-trice-on-off)
+    - [10.2. Host side *Trice* On-Off](#102-host-side-trice-on-off)
+  - [11. Trice Binary Data Format](#11-trice-binary-data-format)
+    - [11.1. Framing](#111-framing)
+    - [11.2. Optional XTEA Encryption](#112-optional-xtea-encryption)
+    - [11.3. Endianness](#113-endianness)
+    - [11.4. `TRICE` (Time)Stamps](#114-trice-timestamps)
+    - [11.5. Binary Encoding](#115-binary-encoding)
+      - [11.5.1. Symbols](#1151-symbols)
+      - [11.5.2. Package Format](#1152-package-format)
+    - [11.6. Trice Decoding](#116-trice-decoding)
+      - [11.6.1. *Trice* ID list `til.json`](#1161-trice-id-list-tiljson)
+      - [11.6.2. *Trice* location information file `li.json`](#1162-trice-location-information-file-lijson)
+    - [11.7. *Trice* ID Numbers](#117-trice-id-numbers)
+      - [11.7.1. ID number selection](#1171-id-number-selection)
+      - [11.7.2. ID number usage and stability](#1172-id-number-usage-and-stability)
+      - [11.7.3. *Trice* ID 0](#1173-trice-id-0)
+    - [11.8. Trice ID management](#118-trice-id-management)
+    - [11.9. *Trices* inside source code](#119-trices-inside-source-code)
+      - [11.9.1. *Trices* in source code comments](#1191-trices-in-source-code-comments)
+      - [11.9.2. Different IDs for same *Trices*](#1192-different-ids-for-same-trices)
+      - [11.9.3. Same IDs for different *Trices*](#1193-same-ids-for-different-trices)
+      - [11.9.4. Adding legacy sources with `trice refresh`](#1194-adding-legacy-sources-with-trice-refresh)
+    - [11.10. ID reference list **til.json**](#1110-id-reference-list-tiljson)
+      - [11.10.1. **til.json** Version control](#11101-tiljson-version-control)
+      - [11.10.2. Long Time availability](#11102-long-time-availability)
+      - [11.10.3. The `trice update` algorithm](#11103-the-trice-update-algorithm)
         - [5.1.1. Starting Conditions](#511-starting-conditions)
         - [5.1.2. Aims](#512-aims)
         - [5.1.3. Method](#513-method)
-      - [20.4.2. User Code Patching (`trice update`)](#2042-user-code-patching-trice-update)
+      - [11.10.4. User Code Patching (`trice update`)](#11104-user-code-patching-trice-update)
         - [5.2.1. User Code Patching Examples](#521-user-code-patching-examples)
-      - [20.4.3. User Code Un-Patching](#2043-user-code-un-patching)
-      - [20.4.4. ID Usage Options](#2044-id-usage-options)
-      - [20.4.5. General ID Management Information](#2045-general-id-management-information)
-      - [20.4.6. Option 1: Let the inserted Trice ID be a Part of the User Code](#2046-option-1-let-the-inserted-trice-id-be-a-part-of-the-user-code)
-      - [20.4.7. Option 2: Un-patching in a Post-build process](#2047-option-2-un-patching-in-a-post-build-process)
-      - [20.4.8. Option 3: Un-patching on Repository Check-In](#2048-option-3-un-patching-on-repository-check-in)
-    - [20.5. Changelog](#205-changelog)
-
+      - [11.10.5. User Code Un-Patching](#11105-user-code-un-patching)
+      - [11.10.6. ID Usage Options](#11106-id-usage-options)
+      - [11.10.7. General ID Management Information](#11107-general-id-management-information)
+      - [11.10.8. Option 1: Let the inserted Trice ID be a Part of the User Code](#11108-option-1-let-the-inserted-trice-id-be-a-part-of-the-user-code)
+      - [11.10.9. Option 2: Un-patching in a Post-build process](#11109-option-2-un-patching-in-a-post-build-process)
+      - [11.10.10. Option 3: Un-patching on Repository Check-In](#111010-option-3-un-patching-on-repository-check-in)
+    - [11.11. Changelog](#1111-changelog)
 
 <!-- vscode-markdown-toc-config
 	numbering=true
 	autoSave=true
 	/vscode-markdown-toc-config -->
 <!-- /vscode-markdown-toc --><div id="top"></div>
+
+<!-- 🟢✅🟡⛔🔴🔵💧❓↩෴⚓🛑❗🌡⏱∑✳‼♦♣🚫⚠🎥📷🌊🆘🧷🐢➡☕ -->
 
   </ol>
 </details>
@@ -182,6 +172,9 @@ Main steps are:
   * Other `triceConfig.h` files are usable as well, but the above is usually the most actual one.
 * Copy file [./test/MDK-ARM_STM32F030R8/Core/Inc/SEGGER_RTT_Conf.h](../test/MDK-ARM_STM32F030R8/Core/Inc/SEGGER_RTT_Conf.h) to your embedded project and adapt it to your needs, when using RTT.
   * You can exchange `SEGGER_RTT_Conf.h` and `./src/box/SEGGER_RTT.*` with more actual ones from the [SEGGER J-Link Support Site](https://www.segger.com/downloads/jlink/).
+
+####  2.4.1. <a name='TargetTriceStamps'></a>Target Trice Stamps
+
 * Add the 2 hardware specific functions to your project (example in [./test/MDK-ARM_STM32F030R8/Core/Src/stm32f0xx_it.c](../test/MDK-ARM_STM32F030R8/Core/Src/stm32f0xx_it.c) ):
   
     ```c
@@ -203,6 +196,17 @@ Main steps are:
     ///////////////////////////////////////////////////////////////////////////////
     ```
 
+- Counting the 16-bit part separately allows to avoid the `%` operator usage, which would imply a costly division.
+- Using different timestamp bit width parallel allows to reduce the transmitted data size.
+- Example showing host and target (time) stamps: one trice without, six with 16-bit and two with 32-bit:
+
+  ![x](./ref/0-16-32BitTimeStamps.jpg)
+
+- The trice tool `ts*` CLI switches allow customization. With `-hs off` host time stamps are suppressed.
+- It is also possible to use the (time) stamp option not for timestamps but for any values, like addresses or a voltage.
+
+####  2.4.2. <a name='TriceChecks'></a>Trice Checks
+
 * Optionally copy all or parts parts of [./test/testdata/triceCheck.c](../test/testdata/triceCheck.c) to your project if you wish to perform some checks.
   * Do not inlucde it directly, because it gets overwritten when `updateTestData.sh` is executed inside the `./test` folder.
 * In your source.c files add line `#include "trice.h"`
@@ -215,10 +219,16 @@ Main steps are:
 >>>    * Extend `til.json`
 >>>      * If no `til.json` is found nothing happens. At least an empty file is needed (Safety feature).
 * When the program runs later, it should output something similar to ![./ref/1div11.PNG](./ref/1div11.PNG)
-* For RTT the [SEGGER](https://www.segger.com/downloads/jlink/) source is already included.
-* For UART transfer add UART write functionality.
+* Look into [./TriceVsPrintfSimilaritiesAndDifferences.md](./TriceVsPrintfSimilaritiesAndDifferences.md) for options.
+* [./TriceConfigProjectImageSizeOptimization.md](./TriceConfigProjectImageSizeOptimization.md)
 
-####  2.4.1. <a name='TargetCodeOverview'></a>Target Code Overview
+#### Communication Ports
+
+* For RTT the [SEGGER](https://www.segger.com/downloads/jlink/) source is already included. See [./TriceOverRTT.m](./TriceOverRTT.m) for more info.
+* For UART transfer add UART write functionality.
+* See also [./TriceOverOneWire.md](./TriceOverOneWire.md).
+
+####  2.4.3. <a name='TargetCodeOverview'></a>Target Code Overview
 
 * `./src`: **User Interface**
 
@@ -248,6 +258,142 @@ Main steps are:
 * The SEGGER files are copied from and you could check for a newer version at [https://www.segger.com/downloads/jlink/](https://www.segger.com/downloads/jlink/).
 
 <p align="right">(<a href="#top">back to top</a>)</p>
+
+####  2.4.4. <a name='UserCodeAdaption'></a>User Code Adaption
+
+- Replace all strings `puts` with the string `trice`.
+- Replace all strings `printf` with the string `trice`.
+- Check for float and double format specifiers in the format strings. The appropriate parameters need to be covered with `aFloat()` or `a double()`. Example:
+
+    ```c
+    printf( "%d, %3.2f EUR, %g rate\n", i, price, change );
+    ```
+
+    ```c
+    trice64( "%d, %3.2f EUR, %g rate\n", i, aFloat(price), aDouble(change) ); 
+    ```
+
+  - Because double needs 8 bytes the trice macro in this case needs to be trice64 (see [1.4. Trice Parameter Bit Widths](#14-trice-parameter-bit-widths)).
+
+- Check for string format specifiers in the format strings. Put each in a separate trice message. Example:
+
+    ```c
+    printf( "name: %16s, surname: %32s, birthday: %4u-%02u-%02u\n", n, s, y, m, d);
+    ```
+
+    ```c
+    trice( "name: %16s, ", n); trice( "surname: %32s, ", s ); trice( "birthday: %4u-%02u-%02u\n" y, m, d);
+    ```
+
+- Optionally add channel specifiers to get color. Example:
+
+    ```c
+    puts( "A message");
+    ```
+
+    ```c
+   trice( "msg:A message");
+    ```
+
+- Add `#include trice.h` to all user files using trice.
+
+####  2.4.5. <a name='Limitations'></a>Limitations
+
+- The maximum parameter count per trice is 12.
+- Each trice must fit into a single line.
+  - Not ok:
+
+    ```c
+    trice( "hello %u\n", 
+            year);
+    ```
+
+- But several trices can be in one line.
+  - Ok:
+
+    ```c
+    trice( "hello %u\n", year); trice( "good time");
+    ```
+
+- Strings directly as parameter are forbidden.
+  - Not ok:
+
+    ```c
+    trice( "hello %s\n", "world" );
+    ```
+
+  - Ok:
+
+    ```c
+    s = "world"; trice( "hello %s\n", s );
+    #define WORLD "world"
+    trice( "hello %s\n", WORLD );
+    ```
+
+- Excluded trices are seen by the trice update process.
+  - Example: The following code will be patched and get an id as well:
+
+    ```c
+    // trice( "Hi!" );
+    ```
+
+- All parameters inside one trice have the same bit width. If for example there are a single double and 10 bytes values, the needed trice macro is `trice64` providing 8 bytes space for all parameter values, therefore increasing the transmit overhead, but this can be handled by splitting into 2 trices:
+
+  ```C
+  // 92 bytes: 4 bytes header plus 11 times 8 bytes
+  trice64( "%g: %c%c%c%c%c%c%c%c%c%c", aDouble(3.14159), 61, 62, 63, 64, 65, 66, 67, 68, 69, 10 );
+  
+  // 24 bytes: 4 bytes header plus 1 times 8 bytes plus 4 bytes header plus 8 times 1 byte
+  trice64( "%g: ", aDouble(3.14159)); trice8( "%c%c%c%c%c%c%c%c%c%c", 61, 62, 63, 64, 65, 66, 67, 68, 69, 10 );
+  ```
+
+####  2.4.6. <a name='TriceTimeStamps'></a>Trice (Time) Stamps
+
+- Trice messages can have no or 16-bit or 32-bit (time) stamps.
+  - recommended (function calling) syntax:
+
+      ```c
+      trice( "hello %u\n", year); // no (time) stamp
+      Trice( "hello %u\n", year); // 16-bit (time) stamp
+      TRice( "hello %u\n", year); // 32-bit (time) stamp
+      ```
+
+  - legacy (inlining) syntax:
+
+      ```c
+      TRICE( id(0), "hello %u\n", year); // no (time) stamp
+      TRICE( Id(0), "hello %u\n", year); // 16-bit (time) stamp
+      TRICE( ID(0), "hello %u\n", year); // 32-bit (time) stamp
+      ```
+
+
+####  2.4.7. <a name='TriceParameterBitWidths'></a>Trice Parameter Bit Widths
+
+- The macros `trice`, `Trice`, `TRice` and `TRICE` use 32-bit parameter values per default. See `TRICE_DEFAULT_PARAMETER_BIT_WIDTH` inside `triceConfig.h` to change that.
+- If for example the bit width of all trice parameters is 8-bit, it is writable as trice8 macro, reducing the transmitted byte count per parameter from 4 to 1:
+
+  ```C
+  char b[8] = {1,2,3,4,5,6,7,8};
+
+  // 36 bytes: 4 bytes plus 32 (8 times 4) bytes payload 
+  trice( "%02x %02x %02x %02x %02x %02x %02x %02x\n", b[0], b[1], b[2], b[3], b[4], b[5], b[6], b[7]);`
+
+  // 12 bytes: 4 bytes plus 8 (8 times 1) bytes payload 
+  trice8( " %02x %02x %02x %02x %02x %02x %02x %02x\n", b[0], b[1], b[2], b[3], b[4], b[5], b[6], b[7]);`
+
+  // 16 bytes: 4 bytes plus 8 (8 times 1) bytes payload in short notation plus 4 bytes
+  TRICE8_B( id( 6468), " %02x ", &b, sizeof(b) ); TRICE( id( 2822), "\n" );
+  ```
+
+
+
+
+
+
+
+
+
+
 
 ##  3. <a name='BuildtricetoolfromGosourcesyoucanskipthat'></a>Build `trice` tool from Go sources (you can skip that)
 
@@ -351,7 +497,7 @@ Check comments inside [triceConfig.h](../test/MDK-ARM_STM32F030R8/Core/Inc/trice
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
--##  5. <a name='Adaptyourlegacysourcecode'></a>Adapt your legacy source code
+_##  5. <a name='Adaptyourlegacysourcecode'></a>Adapt your legacy source code
 
 For example change the legacy source code line
 
@@ -468,12 +614,12 @@ See [triceCheck.c](../test/testdata/triceCheck.c) for reference. The *Trices* ca
 Use the `-color off` switch for piping output in a file.
 
 <!---
-//###  6.2. <a name='Checkthetricebinary'></a>Check the `trice` binary
+_###  6.2. <a name='Checkthetricebinary'></a>Check the `trice` binary
 * Copy command trice into a path directory.
 * Run inside a shell `trice check -list path/to/trice/examples/triceDemoF030R8/MDK-ARM/`[til.json](../examples/triceDemoF030R8/MDK-ARM/til.json). You should see output like this:
 ![](./ref/Check.PNG)
 
-//###  6.2. <a name='InstrumentatargetsourcecodeprojectHowtousetriceinyourproject'></a>Instrument a target source code project (How to use trice in your project)
+_###  6.2. <a name='InstrumentatargetsourcecodeprojectHowtousetriceinyourproject'></a>Instrument a target source code project (How to use trice in your project)
 
 Look at one of the appropriate test projects as example. In general:
 
@@ -803,13 +949,14 @@ You can connect each target over its transmit channel with an own **trice** inst
 
 The C-code is executed during some tests. Prerequisite is a installed GCC.
 
-###  9.12. <a name='DirectTRICEOutTRICE_MODE0couldcausestackoverflowwith-o0optimization'></a>Direct TRICE Out (TRICE_MODE TRICE_STACK_BUFFER) could cause stack overflow with -o0 optimization
+###  9.12. <a name='DirectTRICEOutTRICE_MODETRICE_STACK_BUFFERcouldcausestackoverflowwith-o0optimization'></a>Direct TRICE Out (TRICE_MODE TRICE_STACK_BUFFER) could cause stack overflow with -o0 optimization
 
 As discussed in [issue #294](https://github.com/rokath/trice/issues/294) it can happen, that several TRICE macros within one function call increase the stack usage more than expected, when compiler optimization is totally switched off.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  10. <a name='TargetsideTriceOn-Off'></a>Target side *Trice* On-Off
+##  10. <a name='SwitchingTriceONandOFF'></a>Switching *Trice* ON and OFF
+###  10.1. <a name='TargetsideTriceOn-Off'></a>Target side *Trice* On-Off
 
 * If your code works well after checking, you can add `#define TRICE_OFF` just before the `#include "trice.h"` line and no *trice* code is generated anymore for that file, so no need to delete or comment out `TRICE` macros: : ![./ref/TRICE_OFF.PNG](./ref/TRICE_OFF.PNG)
 * Hint from @escherstair: With `-D TRICE_OFF` as compiler option, the trice code diappears completely from the binary.
@@ -825,14 +972,15 @@ As discussed in [issue #294](https://github.com/rokath/trice/issues/294) it can 
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  11. <a name='HostsideTriceOn-Off'></a>Host side *Trice* On-Off
+###  10.2. <a name='HostsideTriceOn-Off'></a>Host side *Trice* On-Off
 
 * The PC **trice** tool offers command line switches to `-pick` or `-ban` for *trice* channels and will be extended with display switches.
 * A **trice** tool `-logLevel` switch is usable too (Issue [#236](https://github.com/rokath/trice/issues/236)).
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-<!--##  12. <a name='Usingadifferentencoding'></a>Using a different encoding
+<!--
+_##  12. <a name='Usingadifferentencoding'></a>Using a different encoding
 
 It is possible to exchange the code behind the `TRICE` macros with a different encoding and to add an appropriate decoder to the **trice** tool.
 The ID assignment is adjustable with `-IDMin` and `-IDMax`.
@@ -840,21 +988,20 @@ The ID assignment is adjustable with `-IDMin` and `-IDMax`.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-//##  14. <a name='Sub-commandcheckNotimplemented'></a>Sub-command `check` (Not implemented!)
+_##  14. <a name='Sub-commandcheckNotimplemented'></a>Sub-command `check` (Not implemented!)
 
 * `trice check` will check the JSON list and emit all TRICE statements inside the list once with a dataset.
 
-//###  14.1. <a name='checkswitch-datasetNotimplemented'></a>`check` switch '-dataset' (Not implemented!)
+_###  14.1. <a name='checkswitch-datasetNotimplemented'></a>`check` switch '-dataset' (Not implemented!)
 
 * This is a `string` switch. It has one parameter. Its default value is `position`. That means each parameter has a different value. This is useful for testing.
 * The `negative` value is uses a dataset with negative values for testing.
 * Running `trice check` should show your message, indicating everything is fine so far.
--->
 
-##  13. <a name='Testing'></a>Testing
+_##  13. <a name='Testing'></a>Testing
 
 
-###  13.1. <a name='Folderinformation'></a>Folder information
+_###  13.1. <a name='Folderinformation'></a>Folder information
 
 - The folders in [./test/](../test), despite `testdata`, are helper "projects" serving as examples and for testing the target C-code located in `./src/`.
 
@@ -870,7 +1017,7 @@ The ID assignment is adjustable with `-IDMin` and `-IDMax`.
 - In a post-compile step a `trice z` should restore the `triceCheck.c` unmodified state to be identical to `./testdata/triceCheck_EditThisFile_NotTheTriceCheckDotC.txt`.
 - Unfortunately this has to be done on the os filesystem.
 
-###  13.2. <a name='Packagespecificinformation'></a>Package specific information
+_###  13.2. <a name='Packagespecificinformation'></a>Package specific information
 
 - Each C function gets a Go wrapper which ist tested in appropriate test functions.
 - For some reason inside the trice_test.go an 'import "C"' is not possible.
@@ -878,7 +1025,7 @@ The ID assignment is adjustable with `-IDMin` and `-IDMax`.
 - The Go functions defined in the packages are not exported. They are called by the Go test functions in this package.
 - This way the package test functions are executing the trice C-code compiled with the triceConfig.h there.
 
-###  13.3. <a name='todo'></a>todo
+_###  13.3. <a name='todo'></a>todo
 
 - repair cgo0_tcobs
 - repair cgo1_tcobs
@@ -887,24 +1034,24 @@ The ID assignment is adjustable with `-IDMin` and `-IDMax`.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  14. <a name='Tricedemotestprojectinfo'></a>Trice demo & test project info
+_##  11. <a name='Tricedemotestprojectinfo'></a>Trice demo & test project info
 
 Many demo projects are ARMKeil IDE STM32 here but the TRICE tool is easy adaptable to 8 - 64-bit architectures.
 
-###  14.1. <a name='Backupfolder'></a>Backup folder
+_###  11.1. <a name='Backupfolder'></a>Backup folder
 
 - This folder contains unmaintained legacy test projects.
 - They are only for reference and need some corrections to work with the current release.
 - See also [../docs/TestExamples.md](../docs/TestExamples.md)
 
-###  14.2. <a name='Terminalinfo'></a>Terminal info
+_###  11.2. <a name='Terminalinfo'></a>Terminal info
 
 - Open an escape sequence capable terminal in trice root `C:\repos\trice\`opr where you put it.
   - Any directory will do as well but the `til.json` file needs to be found.
   - git-bash will do or also windows-terminal from Microsoft store.
     - Under Windows the DOS or powershell could have display issues with the escaped ASCII codes. Search the internet for answers.
 
-###  14.3. <a name='RTTinfo'></a>RTT info
+_###  11.3. <a name='RTTinfo'></a>RTT info
 
 - The example projects support both, RTT and UART just for demonstration.
 - RTT = Real Time Transfer is a technique developed by SEGGER for background memory access during processor runtime. This is possible for ARM cores over the JTAG or SWD interface if a debug probe is connected.
@@ -914,11 +1061,11 @@ Many demo projects are ARMKeil IDE STM32 here but the TRICE tool is easy adaptab
 - You can also flash the on-board debug probe with J-LINK firmware. To use RTT use the `-p JLINK` switch.
   - `JLinkRTTLogger.exe` and `JLinkARM.dll` must be in the PATH.
 
-###  14.4. <a name='UART'></a>UART
+_###  11.4. <a name='UART'></a>UART
 
 - The default baud rate is 115200 for all test projects and the trice tool assumes that baud rate automatically. Use the trice tool `-baud` switch for other settings.
 
-###  14.5. <a name='MDK-ARMprojects'></a>MDK-ARM projects
+_###  11.5. <a name='MDK-ARMprojects'></a>MDK-ARM projects
 
 The projects are generated with necessary library files *as reference* to keep them smaller. Therefore, the direct compilation will fail, probably. Projects should compile if you follow these steps:
 
@@ -930,7 +1077,7 @@ The projects are generated with necessary library files *as reference* to keep t
 - Open the project ioc file with STM32CubeMX and re-generate.
 - Open the project with ARMKeil IDE and build.
 
-<!-- ###  16.6. <a name='Details'></a>Details
+_###  11.6. <a name='Details'></a>Details
 
 
 - [MDK-ARM_LL_generatedDemo_STM32F030R8-NUCLEO-64\ReadMe.md](MDK-ARM_LL_generatedDemo_STM32F030R8-NUCLEO-64\ReadMe.md)
@@ -945,128 +1092,30 @@ The projects are generated with necessary library files *as reference* to keep t
 - [MDK-ARM_RTT0_BARE_STM32F03051R8Tx-DISCOVERY/ReadMe.md](MDK-ARM_RTT0_BARE_STM32F03051R8Tx-DISCOVERY/ReadMe.md)
 - [MDK-ARM_LL_UART_WRAP_RTT0_BARE_STM32F030R8-NUCLEO-64/ReadMe.md](MDK-ARM_LL_UART_WRAP_RTT0_BARE_STM32F030R8-NUCLEO-64/ReadMe.md)
 
--->- [*Trice* user guide](#trice-user-guide)
-- [*Trice* user guide](#trice-user-guide)
-  - [1. Project structure](#1-project-structure)
-  - [2. Get started](#2-get-started)
-    - [2.1. Get it](#21-get-it)
-    - [2.2. Install It](#22-install-it)
-    - [2.3. Use It](#23-use-it)
-    - [2.4. Port it](#24-port-it)
-      - [2.4.1. Target Code Overview](#241-target-code-overview)
-  - [3. Build `trice` tool from Go sources (you can skip that)](#3-build-trice-tool-from-go-sources-you-can-skip-that)
-  - [4.  Embedded system code configuration](#4--embedded-system-code-configuration)
-  - [5. `trice` tool in logging action](#5-trice-tool-in-logging-action)
-  - [6. Encryption](#6-encryption)
-  - [7. CLI Options for `trice` tool](#7-cli-options-for-trice-tool)
-  - [8. *Trice* command line examples](#8-trice-command-line-examples)
-    - [8.1. Common information](#81-common-information)
-    - [8.2. Further examples](#82-further-examples)
-      - [8.2.1. Automated pre-build update command example](#821-automated-pre-build-update-command-example)
-      - [8.2.2. Some Log examples](#822-some-log-examples)
-      - [8.2.3. Logging over a display server](#823-logging-over-a-display-server)
-      - [8.2.4. Logfile output](#824-logfile-output)
-      - [8.2.5. Binary Logfile](#825-binary-logfile)
-      - [8.2.6. TCP output](#826-tcp-output)
-      - [8.2.7. Set all IDs in a directory tree to 0](#827-set-all-ids-in-a-directory-tree-to-0)
-      - [8.2.8. Stimulate target with a user command over UART](#828-stimulate-target-with-a-user-command-over-uart)
-      - [8.2.9. Explpore and modify channels and their colors](#829-explpore-and-modify-channels-and-their-colors)
-      - [8.2.10. Location Information](#8210-location-information)
-  - [9. Additional hints](#9-additional-hints)
-    - [9.1. Pre-built executables are available](#91-pre-built-executables-are-available)
-    - [9.2. Configuration file `triceConfig.h`](#92-configuration-file-triceconfigh)
-    - [9.3. Setting up the very first connection](#93-setting-up-the-very-first-connection)
-    - [9.4. Avoid buffer overruns](#94-avoid-buffer-overruns)
-    - [9.5. Limitation "trice u" requires TRICE macros on a single line](#95-limitation-trice-u-requires-trice-macros-on-a-single-line)
-    - [9.6. Limitation TRICE in TRICE not possible](#96-limitation-trice-in-trice-not-possible)
-    - [9.7. Dynamic strings/buffers only as variable inside `TRICE` macros](#97-dynamic-stringsbuffers-only-as-variable-inside-trice-macros)
-    - [9.8. Logfile viewing](#98-logfile-viewing)
-    - [9.9. Using the `trice` tool with 3rd party tools](#99-using-the-trice-tool-with-3rd-party-tools)
-    - [9.10. Several targets at the same time](#910-several-targets-at-the-same-time)
-    - [9.11. Executing `go test -race -count 100 ./...`](#911-executing-go-test--race--count-100-)
-    - [9.12. Direct TRICE Out (TRICE\_MODE TRICE\_STACK\_BUFFER) could cause stack overflow with -o0 optimization](#912-direct-trice-out-trice_mode-trice_stack_buffer-could-cause-stack-overflow-with--o0-optimization)
-  - [10. Target side *Trice* On-Off](#10-target-side-trice-on-off)
-  - [11. Host side *Trice* On-Off](#11-host-side-trice-on-off)
-  - [13. Testing](#13-testing)
-    - [13.1. Folder information](#131-folder-information)
-    - [13.2. Package specific information](#132-package-specific-information)
-    - [13.3. todo](#133-todo)
-  - [14. Trice demo \& test project info](#14-trice-demo--test-project-info)
-    - [14.1. Backup folder](#141-backup-folder)
-    - [14.2. Terminal info](#142-terminal-info)
-    - [14.3. RTT info](#143-rtt-info)
-    - [14.4. UART](#144-uart)
-    - [14.5. MDK-ARM projects](#145-mdk-arm-projects)
-  - [15. Further info](#15-further-info)
-  - [16. Third party Software](#16-third-party-software)
-  - [17. alacritty](#17-alacritty)
-    - [17.1. goST](#171-gost)
-    - [17.2. keil.com](#172-keilcom)
-    - [17.3. segger.com](#173-seggercom)
-      - [17.3.1. SEGGER downloaded Software](#1731-segger-downloaded-software)
-      - [17.3.2. JLink](#1732-jlink)
-      - [17.3.3. SEGGER\_RTT](#1733-segger_rtt)
-      - [17.3.4. STLinkReflash\_190812.zip](#1734-stlinkreflash_190812zip)
-  - [18. st.com](#18-stcom)
-  - [19. *Trice*  Version 1.0 Specification (Draft)](#19-trice--version-10-specification-draft)
-  - [20.  Trice User Interface - Quick Start](#20--trice-user-interface---quick-start)
-      - [20.1. User Code Adaption](#201-user-code-adaption)
-      - [20.2. Limitations](#202-limitations)
-      - [20.3. Trice (Time) Stamps](#203-trice-time-stamps)
-      - [20.4. Trice Parameter Bit Widths](#204-trice-parameter-bit-widths)
-    - [20.1. Trice Binary Data Format](#201-trice-binary-data-format)
-      - [20.1.1. Framing](#2011-framing)
-      - [20.1.2. Optional XTEA Encryption](#2012-optional-xtea-encryption)
-      - [20.1.3. Endianness](#2013-endianness)
-      - [20.1.4. `TRICE` (Time)Stamps](#2014-trice-timestamps)
-      - [20.1.5. Binary Encoding](#2015-binary-encoding)
-        - [2.5.1. Symbols](#251-symbols)
-        - [2.5.2. Package Format](#252-package-format)
-    - [20.2. Trice Decoding](#202-trice-decoding)
-      - [20.2.1. *Trice* ID list `til.json`](#2021-trice-id-list-tiljson)
-      - [20.2.2. *Trice* location information file `li.json`](#2022-trice-location-information-file-lijson)
-    - [20.3. *Trice* ID Numbers](#203-trice-id-numbers)
-      - [20.3.1. ID number selection](#2031-id-number-selection)
-      - [20.3.2. ID number usage and stability](#2032-id-number-usage-and-stability)
-      - [20.3.3. *Trice* ID 0](#2033-trice-id-0)
-    - [20.4. Trice ID management](#204-trice-id-management)
-      - [20.4.1. The `trice update` algorithm](#2041-the-trice-update-algorithm)
-        - [5.1.1. Starting Conditions](#511-starting-conditions)
-        - [5.1.2. Aims](#512-aims)
-        - [5.1.3. Method](#513-method)
-      - [20.4.2. User Code Patching (`trice update`)](#2042-user-code-patching-trice-update)
-        - [5.2.1. User Code Patching Examples](#521-user-code-patching-examples)
-      - [20.4.3. User Code Un-Patching](#2043-user-code-un-patching)
-      - [20.4.4. ID Usage Options](#2044-id-usage-options)
-      - [20.4.5. General ID Management Information](#2045-general-id-management-information)
-      - [20.4.6. Option 1: Let the inserted Trice ID be a Part of the User Code](#2046-option-1-let-the-inserted-trice-id-be-a-part-of-the-user-code)
-      - [20.4.7. Option 2: Un-patching in a Post-build process](#2047-option-2-un-patching-in-a-post-build-process)
-      - [20.4.8. Option 3: Un-patching on Repository Check-In](#2048-option-3-un-patching-on-repository-check-in)
-    - [20.5. Changelog](#205-changelog)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  15. <a name='Furtherinfo'></a>Further info
+_##  15. <a name='Furtherinfo'></a>Further info
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  16. <a name='ThirdpartySoftware'></a>Third party Software
+_##  16. <a name='ThirdpartySoftware'></a>Third party Software
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  17. <a name='alacritty'></a>alacritty
+_##  17. <a name='alacritty'></a>alacritty
 
 - A fast, cross-platform, OpenGL terminal emulator
 
-###  17.1. <a name='goST'></a>goST
+_###  17.1. <a name='goST'></a>goST
 
 - see Segger RTT over STLINK
 
-###  17.2. <a name='keil.com'></a>keil.com
+_###  17.2. <a name='keil.com'></a>keil.com
 
 - Tooling info
 
-<!--- ## microchip.com
+_## microchip.com
 
 - Planned 8 bit example
 
@@ -1076,26 +1125,25 @@ The projects are generated with necessary library files *as reference* to keep t
 
 - Planned NXP example
 
--->
 
-###  17.3. <a name='segger.com'></a>segger.com
+_###  17.3. <a name='segger.com'></a>segger.com
 
 - Tooling around Segger RTT, Download latest version from SEGGER web site.
 
-####  17.3.1. <a name='SEGGERdownloadedSoftware'></a>SEGGER downloaded Software
+_####  17.3.1. <a name='SEGGERdownloadedSoftware'></a>SEGGER downloaded Software
 
 - Check in the Internet for newer versions.
 
-####  17.3.2. <a name='JLink'></a>JLink
+_####  17.3.2. <a name='JLink'></a>JLink
 
 - Download and install [J-LinkSoftwareAndDocumentationPack](https://www.segger.com/downloads/jlink/#J-LinkSoftwareAndDocumentationPack) or simply use `JLinkRTTLogger.exe` and accompanying `JLinkARM.dll` copied from default install location `C:\Program Files (x86)\SEGGER\JLink`. Both files are inside `JLinkRTTLogger.zip` You need to put to a location in \$PATH or extend \$PATH.
 
-####  17.3.3. <a name='SEGGER_RTT'></a>SEGGER_RTT
+_####  17.3.3. <a name='SEGGER_RTT'></a>SEGGER_RTT
 
 - Target code is expected inside SEGGER_RTT. This is the extracted SEGGER_RTT_V....zip.
 - Optionally check for a newer version.
 
-####  17.3.4. <a name='STLinkReflash_190812.zip'></a>STLinkReflash_190812.zip
+_####  17.3.4. <a name='STLinkReflash_190812.zip'></a>STLinkReflash_190812.zip
 
 - Tool for exchanging ST-LINK and J-LINK software on STM32 evaluation boards.
   - Works not for v3 Hardware but well for v2 Hardware.
@@ -1103,209 +1151,43 @@ The projects are generated with necessary library files *as reference* to keep t
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-##  18. <a name='st.com'></a>st.com
+_##  18. <a name='st.com'></a>st.com
 
 - STMicroelectronics
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
+_##  11. <a name='TriceVersion1.0SpecificationDraft'></a>*Trice*  Version 1.0 Specification (Draft)
 
+_##  12. <a name='TriceUserInterface-QuickStart'></a> Trice User Interface - Quick Start
 
-##  19. <a name='TriceVersion1.0SpecificationDraft'></a>*Trice*  Version 1.0 Specification (Draft)
-
-<!-- 🟢✅🟡⛔🔴🔵💧❓↩෴⚓🛑❗🌡⏱∑✳‼♦♣🚫⚠🎥📷🌊🆘🧷🐢➡☕ -->
-
-##  20. <a name='TriceUserInterface-QuickStart'></a> Trice User Interface - Quick Start
-
-####  20.1. <a name='UserCodeAdaption'></a>User Code Adaption
-
-- Replace all strings `puts` with the string `trice`.
-- Replace all strings `printf` with the string `trice`.
-- Check for float and double format specifiers in the format strings. The appropriate parameters need to be covered with `aFloat()` or `a double()`. Example:
-
-    ```c
-    printf( "%d, %3.2f EUR, %g rate\n", i, price, change );
-    ```
-
-    ```c
-    trice64( "%d, %3.2f EUR, %g rate\n", i, aFloat(price), aDouble(change) ); 
-    ```
-
-  - Because double needs 8 bytes the trice macro in this case needs to be trice64 (see [1.4. Trice Parameter Bit Widths](#14-trice-parameter-bit-widths)).
-
-- Check for string format specifiers in the format strings. Put each in a separate trice message. Example:
-
-    ```c
-    printf( "name: %16s, surname: %32s, birthday: %4u-%02u-%02u\n", n, s, y, m, d);
-    ```
-
-    ```c
-    trice( "name: %16s, ", n); trice( "surname: %32s, ", s ); trice( "birthday: %4u-%02u-%02u\n" y, m, d);
-    ```
-
-- Optionally add channel specifiers to get color. Example:
-
-    ```c
-    puts( "A message");
-    ```
-
-    ```c
-   trice( "msg:A message");
-    ```
-
-- Add `#include trice.h` to all user files using trice.
-
-####  20.2. <a name='Limitations'></a>Limitations
-
-- The maximum parameter count per trice is 12.
-- Each trice must fit into a single line.
-  - Not ok:
-
-    ```c
-    trice( "hello %u\n", 
-            year);
-    ```
-
-- But several trices can be in one line.
-  - Ok:
-
-    ```c
-    trice( "hello %u\n", year); trice( "good time");
-    ```
-
-- Strings directly as parameter are forbidden.
-  - Not ok:
-
-    ```c
-    trice( "hello %s\n", "world" );
-    ```
-
-  - Ok:
-
-    ```c
-    s = "world"; trice( "hello %s\n", s );
-    #define WORLD "world"
-    trice( "hello %s\n", WORLD );
-    ```
-
-- Excluded trices are seen by the trice update process.
-  - Example: The following code will be patched and get an id as well:
-
-    ```c
-    // trice( "Hi!" );
-    ```
-
-- All parameters inside one trice have the same bit width. If for example there are a single double and 10 bytes values, the needed trice macro is `trice64` providing 8 bytes space for all parameter values, therefore increasing the transmit overhead, but this can be handled by splitting into 2 trices:
-
-  ```C
-  // 92 bytes: 4 bytes header plus 11 times 8 bytes
-  trice64( "%g: %c%c%c%c%c%c%c%c%c%c", aDouble(3.14159), 61, 62, 63, 64, 65, 66, 67, 68, 69, 10 );
-  
-  // 24 bytes: 4 bytes header plus 1 times 8 bytes plus 4 bytes header plus 8 times 1 byte
-  trice64( "%g: ", aDouble(3.14159)); trice8( "%c%c%c%c%c%c%c%c%c%c", 61, 62, 63, 64, 65, 66, 67, 68, 69, 10 );
-  ```
-
-####  20.3. <a name='TriceTimeStamps'></a>Trice (Time) Stamps
-
-- Trice messages can have no or 16-bit or 32-bit (time) stamps.
-  - recommended (function calling) syntax:
-
-      ```c
-      trice( "hello %u\n", year); // no (time) stamp
-      Trice( "hello %u\n", year); // 16-bit (time) stamp
-      TRice( "hello %u\n", year); // 32-bit (time) stamp
-      ```
-
-  - legacy (inlining) syntax:
-
-      ```c
-      TRICE( id(0), "hello %u\n", year); // no (time) stamp
-      TRICE( Id(0), "hello %u\n", year); // 16-bit (time) stamp
-      TRICE( ID(0), "hello %u\n", year); // 32-bit (time) stamp
-      ```
-
-- The user is asked to implement these 2 functions
-
-  ```c
-  #if 1 // us timestamps
-
-  // 16-bit us stamp, wraps after 10 milliseconds
-  uint16_t TriceStamp16( void ){
-      return Us16();
-  }
-
-  // 32-bit us stamp, wraps after 71,58 seconds
-  uint32_t TriceStamp32( void ){
-      return Us64();
-  }
-
-  #else // ms timestamps
-
-  // 16-bit ms stamp, wraps after 10 seconds 
-  uint16_t TriceStamp16( void ){ 
-      return ms16;
-  }
-
-  // 32-bit ms stamp, wraps after 49,71 days
-  uint32_t TriceStamp32( void ){
-      return ms32;
-  }
-  #endif
-  ```
-
-- Check the example Implementation on a 48 MHz clocked MCU in `C:\repos\trice\test\MDK-ARM_STM32F030R8` for details.
-  - Counting the 16-bit part separately allows to avoid the `%` operator usage, which would imply a costly division.
-- Using different timestamp bit width parallel allows to reduce the transmitted data size.
-- Example showing one trice without, six with 16-bit and two with 32-bit (time)stamps:
-
-  ![x](./ref/0-16-32BitTimeStamps.jpg)
-
-- Check the trice tool `ts` CLI switch to make life easy.
-- It is also possible to use the (time) stamp option not for timestamps but for any values, like addresses or a voltage.
-
-####  20.4. <a name='TriceParameterBitWidths'></a>Trice Parameter Bit Widths
-
-- The macros `trice`, `Trice`, `TRice` and `TRICE` use 32-bit parameter values per default. See `TRICE_DEFAULT_PARAMETER_BIT_WIDTH` inside `triceConfig.h` to change that.
-- If for example the bit width of all trice parameters is 8-bit, it is writable as trice8 macro, reducing the transmitted byte count per parameter from 4 to 1:
-
-  ```C
-  char b[8] = {1,2,3,4,5,6,7,8};
-
-  // 36 bytes: 4 bytes plus 32 (8 times 4) bytes payload 
-  trice( "%02x %02x %02x %02x %02x %02x %02x %02x\n", b[0], b[1], b[2], b[3], b[4], b[5], b[6], b[7]);`
-
-  // 12 bytes: 4 bytes plus 8 (8 times 1) bytes payload 
-  trice8( " %02x %02x %02x %02x %02x %02x %02x %02x\n", b[0], b[1], b[2], b[3], b[4], b[5], b[6], b[7]);`
-
-  // 16 bytes: 4 bytes plus 8 (8 times 1) bytes payload in short notation plus 4 bytes
-  TRICE8_B( id( 6468), " %02x ", &b, sizeof(b) ); TRICE( id( 2822), "\n" );
-  ```
+-->
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-###  20.1. <a name='TriceBinaryDataFormat'></a>Trice Binary Data Format
+##  11. <a name='TriceBinaryDataFormat'></a>Trice Binary Data Format
 
-####  20.1.1. <a name='Framing'></a>Framing
+###  11.1. <a name='Framing'></a>Framing
 
 - *Trice* messages are framed binary data, if framing is not disabled.
 - Framing is important for data disruption cases and is done with [TCOBS](./TCOBSSpecification.md) (has included data reduction) but the user can force to use [COBS](https://github.com/rokath/COBS), what makes it easier to write an own decoder in some cases or disable framing at all. 
   - Change the setting `TRICE_FRAMING` inside `triceConfig.h` and use the **trice** tool `-packageFraming` switch accordingly.
 - For robustness each *Trice* gets its own (T)COBS package per default. That is changeable for transfer data reduction. Use `#define TRICE_TRANSFER_MODE TRICE_PACK_MULTI_MODE.` inside `triceConfig.h`. This allows to reduce the data size a bit by avoiding many 0-delimiter bytes but results in some more data loss in case of data disruptions.
 
-####  20.1.2. <a name='OptionalXTEAEncryption'></a>Optional XTEA Encryption
+###  11.2. <a name='OptionalXTEAEncryption'></a>Optional XTEA Encryption
 
 - If XTEA is used, the encrypted packages have a multiple-of-8 byte length containing 1-7 padding bytes.
 - The optional decryption is the next step after unpacking a data frame.
 - Enabling XTEA, automatically switches to COBS framing. There is no need to use the **trice** tool `-packageFraming` switch in that case because the **trice** tool, when getting the CLI switch `-password "phrase"` automatically assumes COBS encoded data, overwriting the default value for `-packageFraming`.
 
-####  20.1.3. <a name='Endianness'></a>Endianness
+###  11.3. <a name='Endianness'></a>Endianness
 
 - To interpret a decoded package, it´s endianness needs to be known.
 - For efficiency binary trice data are stored and transmitted in MCU endianness and the **trice** tool expects binary data in little endian format as most MCUs are little endian.
 - On big endian MCUs the compiler switch `TRICE_MCU_IS_BIG_ENDIAN` needs to be defined and the **trice** tool has a CLI switch "triceEndianness" which needs to be set to "bigEndian" then.
 - If trice transmit data are needed to be not in MCU order for some reason, the macro `TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN` is needed. This increases the critical trice storage time and target code amount.
 
-####  20.1.4. <a name='TRICETimeStamps'></a>`TRICE` (Time)Stamps
+###  11.4. <a name='TRICETimeStamps'></a>`TRICE` (Time)Stamps
 
 - Each *Trice* message can carry stamp bits, which are free usable like for time, addressing or filtering.
 - By selecting the letter case you decide for each single *Trice* macro about the stamp size.
@@ -1327,9 +1209,9 @@ The projects are generated with necessary library files *as reference* to keep t
 
 It is up to the user to provide the functions `TriceStamp16()` and/or `TriceStamp32()`. Normally they return a µs or ms tick count but any values are allowed.
 
-####  20.1.5. <a name='BinaryEncoding'></a>Binary Encoding
+###  11.5. <a name='BinaryEncoding'></a>Binary Encoding
 
-#####  2.5.1. <a name='Symbols'></a>Symbols
+####  11.5.1. <a name='Symbols'></a>Symbols
 
 | Symbol  | Meaning |
 | :-:     | - | 
@@ -1349,7 +1231,7 @@ It is up to the user to provide the functions `TriceStamp16()` and/or `TriceStam
 | `x`     | unspecified bit |
 | `X`     | =`xxxxxxxx` unspecified byte |
 
-#####  2.5.2. <a name='PackageFormat'></a>Package Format
+####  11.5.2. <a name='PackageFormat'></a>Package Format
 
 - All decoded frames of 0-, 1-, 2- and 3-byte size are considered as user data and ignored by the **trice** tool.
 
@@ -1372,16 +1254,16 @@ It is up to the user to provide the functions `TriceStamp16()` and/or `TriceStam
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-###  20.2. <a name='TriceDecoding'></a>Trice Decoding
+###  11.6. <a name='TriceDecoding'></a>Trice Decoding
 
 The 14-bit IDs are used to display the log strings. These IDs are pointing in two reference files.
 
-####  20.2.1. <a name='TriceIDlisttil.json'></a>*Trice* ID list `til.json`
+####  11.6.1. <a name='TriceIDlisttil.json'></a>*Trice* ID list `til.json`
 
 - This file integrates all firmware variants and versions and is the key to display the message strings. With the latest version of this file all previous deployed firmware images are usable without the need to know the actual firmware version.
 - The files `til.json.h`, `til.json.c` and the like are generated to help writing an own trice decoder tool in your preferred language. Use `trice u -v` for it. That can be interesting in environments, where Go compiled binaries not executable, like [PCs running QNX OS](https://github.com/rokath/trice/discussions/263#discussioncomment-4180692).
 
-####  20.2.2. <a name='Tricelocationinformationfileli.json'></a>*Trice* location information file `li.json`
+####  11.6.2. <a name='Tricelocationinformationfileli.json'></a>*Trice* location information file `li.json`
 
 - If the generated `li.json` is available, the **trice** tool automatically displays file name and line number. But that is accurate only with the exact matching firmware version. That usually is the case right after compiling and of most interest at the developers table.
 - The **trice** tool will silently not display location information, if the `li.json` file is not found. For in-field logging, the option `-showID string` could be used. This allows later an easy location of the relevant source code.
@@ -1389,8 +1271,9 @@ The 14-bit IDs are used to display the log strings. These IDs are pointing in tw
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-###  20.3. <a name='TriceIDNumbers'></a>*Trice* ID Numbers
-####  20.3.1. <a name='IDnumberselection'></a>ID number selection
+###  11.7. <a name='TriceIDNumbers'></a>*Trice* ID Numbers
+
+####  11.7.1. <a name='IDnumberselection'></a>ID number selection
 
 - The default encoding TREX supports 14-bit IDs, so over 16000 IDs possible. Other encodings can work with other ID sizes.
 - `trice("Hi!\n");` ➡ `trice u` ➡ `trice( 12345, "Hi!\n");` ➡ `trice z` ➡ `trice("Hi!\n");`
@@ -1405,7 +1288,7 @@ The 14-bit IDs are used to display the log strings. These IDs are pointing in tw
 - In a future **trice** tool it can be possible to give each *trice* channel an **ID** range making it possible to implement *Trice* channel specific runtime on/off on the target side if that is needed. This could be interesting for routing purposes also.
   - To stay compatible with previous **trice** tool versions such implementation would use the `-args` switch, which then contains the relevant channels like `trice u -args "err:20:99,wrn:200:300"`. This needs to be specified in more detail, especially the error handling.
 
-####  20.3.2. <a name='IDnumberusageandstability'></a>ID number usage and stability
+####  11.7.2. <a name='IDnumberusageandstability'></a>ID number usage and stability
 
 - If you write `trice( "msg:%d", 1);` again on a 2nd location, the copy gets a different **ID**, because each *Trice* gets its own **ID**.
 - If you change `trice( "msg:%d", 1);` to `trice8( "msg:%d", 1);`, to reduce the needed parameter space, a new **ID** is assigned. That is because the parameter bit width is implicit a part of the now changed *Trice*. If you change that back, the previous **ID** is assigned again.
@@ -1418,15 +1301,78 @@ The 14-bit IDs are used to display the log strings. These IDs are pointing in tw
 - If the same string appears again this ID is active again.
 - If a trice occurs more than one time, each occurrence gets a different ID. If then 2 of them disappear, their ID numbers stay in `til.json`. If then one of them comes back, it gets its ID back.
 
-####  20.3.3. <a name='TriceID0'></a>*Trice* ID 0
+####  11.7.3. <a name='TriceID0'></a>*Trice* ID 0
 
 - The trice ID 0 is a placeholder for "no ID", which is replaced automatically during the next `trice update` according to the used trice switches `-IDMethod`, `-IDMin` and `IDMax`.
   - It is sufficient to write the TRICE macros just without the `id(0),` `Id(0),` `ID(0),`. It will be inserted automatically according the `-stamp` switch.
 - With `trice zeroSourceTreeIds` all IDs in the given source tree are set to 0. This gives the option afterwards to set-up a new `til.json` according to a different `-IDMethod`, `-IDMin` and `IDMax`.
 
-###  20.4. <a name='TriceIDmanagement'></a>Trice ID management
+###  11.8. <a name='TriceIDmanagement'></a>Trice ID management
 
-####  20.4.1. <a name='Thetriceupdatealgorithm'></a>The `trice update` algorithm
+
+###  11.9. <a name='Tricesinsidesourcecode'></a>*Trices* inside source code
+
+####  11.9.1. <a name='Tricesinsourcecodecomments'></a>*Trices* in source code comments
+
+* `TRICE` macros commented out, are visible for the `trice update` command and therefore regarded.
+  * Example: `// TRICE( Id(12345), "Hi!\n" );` is still regarded by the `trice u`.
+* During `trice update` TRICE macros, commented out, are treated in the same way as active TRICE macros. Even after deletion their content stays inside til.json. This is intensionally to get best stability across several firmware versions or variants.
+* The trice tool does treat trice statements inside comments or excluded by compiler switches also.
+
+####  11.9.2. <a name='DifferentIDsforsameTrices'></a>Different IDs for same *Trices*
+
+* When the same *Trice* is used several times with different IDs and `trice update -IDreuse force` is called, only the one ID is used for all identical TRICEs in the source code. The other IDs stay inside **til.json** until they are removed (`trice renew`).
+
+####  11.9.3. <a name='SameIDsfordifferentTrices'></a>Same IDs for different *Trices*
+
+* If duplicate ID's with different format strings found inside the source tree (case several developers or source code merging) one ID is replaced by a new ID. The probability for such case is low, because of the default random ID generation.
+* Also you can simply copy a *Trice* statement and modify it without dealing with the ID.
+* The **trice** tool will detect the 2nd (or 3rd) usage of this ID and assign a new one also extending the ID list.
+* That is done silently for you during the next `trice update`.
+
+####  11.9.4. <a name='Addinglegacysourceswithtricerefresh'></a>Adding legacy sources with `trice refresh`
+
+When including legacy library code in several different projects, each with its own **til.json** ID reference list you probably do not want the IDs inside the library code be changed. If you missed the option to use prober ID ranges starting your project  `trice refresh` could help:
+
+```bash
+sub-command 'r|refresh': For updating ID list from source files but does not change the source files.
+        "trice refresh" will parse source tree(s) for TRICE macros, and refresh/generate the JSON list.
+        This command should be run on adding source files to the project before the first time "trice update" is called.
+        If the new source files contain TRICE macros with IDs these are added to til.json if not already used.
+        Already used IDs are reported, so you have the chance to remove them from til.son and then do "trice u" again.
+        This way you can make sure to get the new sources unchanged in your list.
+        Already used IDs are replaced by new IDs during the next "trice update", so the old IDs in the list will survive.
+        If you do not refresh the list after adding source files and perform an "trice update" new generated IDs could be equal to
+        IDs used in the added sources with the result that IDs in the added sources could get changed what you may not want.
+        Using "trice u -IDMethod random" (default) makes the chance for such conflicts very low.
+        The "refresh" sub-command has no mandatory switches. Omitted optional switches are used with their default parameters.
+```
+
+###  11.10. <a name='IDreferencelisttil.json'></a>ID reference list **til.json**
+
+* The `trice update` command demands a **til.json** file - it will not work without it. That is a safety feature to avoid unwanted file generations. If you sure to create a new **til.json** file create an empty one: `touch til.json`.
+* The name **til.json** is a default one. With the command line parameter `-i` you can use any filename.
+* It is possible to use several **til.json** files - for example one for each target project but it is easier to maintain only one **til.json** file for all projects.
+* The ID reference list keeps all obsolete IDs with their format strings allowing compatibility to former firmware versions.
+* One can delete the ID reference list. It will be reconstructed automatically from the source tree with the next `trice update` command, but history is lost then.
+* Keeping obsolete IDs makes it more comfortable during development to deal with different firmware variants at the same time.
+
+####  11.10.1. <a name='til.jsonVersioncontrol'></a>**til.json** Version control
+
+* The ID list should go into the version control repository of your project.
+* To keep it clean from the daily development garbage one could delete the **til.json**, then check-out again and re-build just before check-in. A small script could do that.
+* For a firmware release it makes sense to remove all unused IDs from til.json.
+  * This could be done by running `trice renew`. That is the same as deleting the **til.json** contents and running `trice u`.
+* An other option is to delete **til.json** just before a release build and then check-in the new generated **til.json**.
+
+####  11.10.2. <a name='LongTimeavailability'></a>Long Time availability
+
+* You could place a download link for the **trice** tool and the used **til.json** list.
+* Link a compressed/encrypted **til.json** file into the target binary and optionally get it back long years later in a safe way.
+* Optionally add the (compressed/encrypted) ID reference list as resource into the target FLASH memory to be sure not to loose it in the next 20 years.
+
+
+####  11.10.3. <a name='Thetriceupdatealgorithm'></a>The `trice update` algorithm
 
 #####  5.1.1. <a name='StartingConditions'></a>Starting Conditions
 
@@ -1490,7 +1436,7 @@ The 14-bit IDs are used to display the log strings. These IDs are pointing in tw
 - STM is not needed but maybe helpful during debugging.
 - If after `trice u` a `trice z` and a `trice u` again is executed, all IDs are expected to be at the same place again. If in between `trice u`, an optional `trice z`and a `trice u` src was edited, most IDs are expected to be at the same place again.
 
-####  20.4.2. <a name='UserCodePatchingtriceupdate'></a>User Code Patching (`trice update`)
+####  11.10.4. <a name='UserCodePatchingtriceupdate'></a>User Code Patching (`trice update`)
 
 - A *Trice* **ID** is inserted by `trice update` as shown in the table:
 
@@ -1563,14 +1509,14 @@ The 14-bit IDs are used to display the log strings. These IDs are pointing in tw
   TRice( 12345, "Hi!" ); // manually changed stamp size and then "trice u" performed.
   ```
 
-####  20.4.3. <a name='UserCodeUn-Patching'></a>User Code Un-Patching
+####  11.10.5. <a name='UserCodeUn-Patching'></a>User Code Un-Patching
 
-####  20.4.4. <a name='IDUsageOptions'></a>ID Usage Options
+####  11.10.6. <a name='IDUsageOptions'></a>ID Usage Options
 
 - Per default the `trice update` command chooses randomly a so far unused ID for new format strings and extends `til.json`.
 - After `trice z` all src IDs are removed or 0. In this state the src should go into the version management system.
   
-####  20.4.5. <a name='GeneralIDManagementInformation'></a>General ID Management Information
+####  11.10.7. <a name='GeneralIDManagementInformation'></a>General ID Management Information
 
 - The trice ID-instead-of-String idea lives from pre-compile patching of the user code.
 - The user has full control how to deal with that.
@@ -1578,24 +1524,24 @@ The 14-bit IDs are used to display the log strings. These IDs are pointing in tw
 - Each format string gets its unique trice ID. If the same format string is used on different source code locations it gets different trice IDs this way allowing a reliable location information.
 
 
-####  20.4.6. <a name='Option1:LettheinsertedTriceIDbeaPartoftheUserCode'></a>Option 1: Let the inserted Trice ID be a Part of the User Code
+####  11.10.8. <a name='Option1:LettheinsertedTriceIDbeaPartoftheUserCode'></a>Option 1: Let the inserted Trice ID be a Part of the User Code
 
 - This is the legacy method. It allows unchanged src translation into code without using the trice tool.
 - It is very robust and maybe needed in nasty debugging situations.
 - It allows to reconstruct lost til.json information.
 - Recommendet for small projects.
 
-####  20.4.7. <a name='Option2:Un-patchinginaPost-buildprocess'></a>Option 2: Un-patching in a Post-build process
+####  11.10.9. <a name='Option2:Un-patchinginaPost-buildprocess'></a>Option 2: Un-patching in a Post-build process
 
 - The code is visually free of IDs all the time.
 
-####  20.4.8. <a name='Option3:Un-patchingonRepositoryCheck-In'></a>Option 3: Un-patching on Repository Check-In
+####  11.10.10. <a name='Option3:Un-patchingonRepositoryCheck-In'></a>Option 3: Un-patching on Repository Check-In
 
 - The code is visually free of IDs only inside the repository.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-###  20.5. <a name='Changelog'></a>Changelog
+###  11.11. <a name='Changelog'></a>Changelog
 
 <details><summary>Details</summary><ol>
 
@@ -1630,13 +1576,13 @@ The 14-bit IDs are used to display the log strings. These IDs are pointing in tw
 
  <!-- 
  
--###  3. <a name='TREXTRiceEXtendableencoding'></a>TREX (*TR*ice *EX*tendable) encoding
+_###  3. <a name='TREXTRiceEXtendableencoding'></a>TREX (*TR*ice *EX*tendable) encoding
 
 * The extendable encoding leaves options for user specific data mixable with trice data. This allows filtering of the framed data by just checking a bit pattern.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
--###  4. <a name='IDManagement'></a>ID Management
+_###  4. <a name='IDManagement'></a>ID Management
 
 * The IDs inside the source code are a "dealbreaker" as [bora](https://community.memfault.com/u/bora) mentioned in his [comment](https://interrupt.memfault.com/blog/trice). In fact it is not acceptable for library code used in several projects. An improved approach could look like this:
 
@@ -1678,7 +1624,7 @@ The with name "COBS" branded [*Trice* v0.48.0 encoding](./TriceMessagesEncoding.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
--###  2. <a name='Compatibility'></a>Compatibility
+_###  2. <a name='Compatibility'></a>Compatibility
 
 * There is no guaranty for compatibility with legacy target trice versions but the aim is to provide it.
 
@@ -1747,7 +1693,7 @@ TRICE( X3, "...", ...); // an extended type 3 trice
   * N > 127
   * extended *Trice* without C
 
--#####  3.2. <a name='FramingwithTCOBSencoding'></a>Framing with TCOBS encoding
+_#####  3.2. <a name='FramingwithTCOBSencoding'></a>Framing with TCOBS encoding
 
 * For maximum storage speed each **trice** message starts at a 32-bit boundary and has 1-3 padding bytes.
 * In direct mode only a single message needs handling.
