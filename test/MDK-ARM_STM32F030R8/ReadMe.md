@@ -5,7 +5,7 @@ Delivers parallel TRICE logs over UART and RTT channel 0. See [./Core/Inc/triceC
 ## Compile
 
 - Download and install ARM-MDK uVision. It is free for ARM M0/M0+ cores.
-- Connect board over USB.
+- Connect [NUCLEO-STM32F030R8]() board over USB.
 - Open `/MDK-ARM/MDK-ARM_STM32F030R8.uvprojx` compile and download.
 
 ## UART Logging
