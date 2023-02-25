@@ -286,7 +286,7 @@ Main steps are:
     trice64( "%d, %3.2f EUR, %g rate\n", i, aFloat(price), aDouble(change) ); 
     ```
 
-  - Because double needs 8 bytes the trice macro in this case needs to be trice64 (see <a href="Trice Parameter Bit Widths">Trice Parameter Bit Widths</a>).
+  - Because double needs 8 bytes the trice macro in this case needs to be trice64 (see <a href="#Trice Parameter Bit Widths">Trice Parameter Bit Widths</a>).
 
 - Check for string format specifiers in the format strings. Put each in a separate trice message. Example:
 
