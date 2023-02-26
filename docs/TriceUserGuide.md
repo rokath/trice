@@ -964,6 +964,9 @@ As discussed in [issue #294](https://github.com/rokath/trice/issues/294) it can 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 ##  10. <a name='SwitchingTriceONandOFF'></a>Switching *Trice* ON and OFF
+
+<div id="Target side *Trice* On-Off"></div>
+
 ###  10.1. <a name='TargetsideTriceOn-Off'></a>Target side *Trice* On-Off
 
 * If your code works well after checking, you can add `#define TRICE_OFF` just before the `#include "trice.h"` line and no *trice* code is generated anymore for that file, so no need to delete or comment out `TRICE` macros: : ![./ref/TRICE_OFF.PNG](./ref/TRICE_OFF.PNG)
