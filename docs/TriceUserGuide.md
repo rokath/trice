@@ -160,6 +160,8 @@
   * Even if you do not have such hardware, you can download ARM µVision MDK and compile the `./test/MDK-ARM_STM32F030R8` project just to get started.
   * When adding or modifying `trice` macros inside `.test/MDK-ARM_STM32F030R8/Core/Src/main.c` and recompiling you should see automatically changed ID numbers inside the code.
   
+<p align="right">(<a href="#top">back to top</a>)</p>
+
 ###  2.4. <a name='Portit'></a>Port it 
 
 Compare folder `./test/MDK-ARM_STM32F030R8_generated` with `./test/MDK-ARM_STM32F030R8` to see in a quick way any needed adaptions for your target project to port trice to it.
@@ -398,6 +400,8 @@ Main steps are:
   // 16 bytes: 4 bytes plus 8 (8 times 1) bytes payload in short notation plus 4 bytes for the 2nd trice to break the line
   TRICE8_B( " %02x", &b, sizeof(b) ); trice( "\n" );
   ```
+
+<p align="right">(<a href="#top">back to top</a>)</p>
 
 ##  3. <a name='BuildtricetoolfromGosourcesyoucanskipthat'></a>Build `trice` tool from Go sources (you can skip that)
 
@@ -1181,11 +1185,15 @@ _##  12. <a name='TriceUserInterface-QuickStart'></a> Trice User Interface - Qui
   - Change the setting `TRICE_FRAMING` inside `triceConfig.h` and use the **trice** tool `-packageFraming` switch accordingly.
 - For robustness each *Trice* gets its own (T)COBS package per default. That is changeable for transfer data reduction. Use `#define TRICE_TRANSFER_MODE TRICE_PACK_MULTI_MODE.` inside `triceConfig.h`. This allows to reduce the data size a bit by avoiding many 0-delimiter bytes but results in some more data loss in case of data disruptions.
 
+<p align="right">(<a href="#top">back to top</a>)</p>
+
 ##  12. <a name='OptionalXTEAEncryption'></a>Optional XTEA Encryption
 
 - If XTEA is used, the encrypted packages have a multiple-of-8 byte length containing 1-7 padding bytes.
 - The optional decryption is the next step after unpacking a data frame.
 - Enabling XTEA, automatically switches to COBS framing. There is no need to use the **trice** tool `-packageFraming` switch in that case because the **trice** tool, when getting the CLI switch `-password "phrase"` automatically assumes COBS encoded data, overwriting the default value for `-packageFraming`.
+
+<p align="right">(<a href="#top">back to top</a>)</p>
 
 ##  13. <a name='Endianness'></a>Endianness
 
@@ -1193,6 +1201,8 @@ _##  12. <a name='TriceUserInterface-QuickStart'></a> Trice User Interface - Qui
 - For efficiency binary trice data are stored and transmitted in MCU endianness and the **trice** tool expects binary data in little endian format as most MCUs are little endian.
 - On big endian MCUs the compiler switch `TRICE_MCU_IS_BIG_ENDIAN` needs to be defined and the **trice** tool has a CLI switch "triceEndianness" which needs to be set to "bigEndian" then.
 - If trice transmit data are needed to be not in MCU order for some reason, the macro `TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN` is needed. This increases the critical trice storage time and target code amount.
+
+<p align="right">(<a href="#top">back to top</a>)</p>
 
 ##  14. <a name='TRICETimeStamps'></a>`TRICE` (Time)Stamps
 
@@ -1215,6 +1225,8 @@ _##  12. <a name='TriceUserInterface-QuickStart'></a> Trice User Interface - Qui
   | `TRICE( ID(0), "...", ...)` | 32-bit     | calls internally `uint32_t TriceStamp32( void )` for trice message stamping |
 
 It is up to the user to provide the functions `TriceStamp16()` and/or `TriceStamp32()`. Normally they return a µs or ms tick count but any values are allowed.
+
+<p align="right">(<a href="#top">back to top</a>)</p>
 
 ##  15. <a name='BinaryEncoding'></a>Binary Encoding
 
