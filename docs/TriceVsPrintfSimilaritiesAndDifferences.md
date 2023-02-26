@@ -52,7 +52,7 @@ The *trice* calls are usable inside interrupts.
 * No need to explicit express the values count.
 * Up to 12 values are supported directly. Example:
   * `TRICE( "%p | %04x %04x %04x %04x %04x %04x %04x %04x %04x | %f\n", p, p[0], p[1], p[2], p[3], p[4], p[5], p[6], p[7], p[8], p[9], aFloat(x));`
-  * To support more than 12 values for each `TRICE` macro, the *Trice* code on target and host is straightforward extendable up to a total payload of 1008 bytes.
+  * To support more than 12 values for each `TRICE` macro, the *Trice* code on target and host is straightforward extendable up to a total payload of 32767 bytes.
 * Each macro can be prolonged with the used parameter count, for example `TRICE8_3` or `TRICE_2` to improve compile time checks.
   * This length code extension can be done automatically using `trice u -addParamCount`.
 * There is no variadic values scanning during runtime. The C preprocessor does the work.
