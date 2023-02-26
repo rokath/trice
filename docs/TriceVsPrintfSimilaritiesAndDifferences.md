@@ -33,9 +33,9 @@ The *trice* calls are usable inside interrupts.
 
 ##  2. <a name='TriceIDs'></a>*Trice* IDs
 
-* Each *Trice* caries an [ID](./TriceIDManagement.md) as runtime replacement for the format string.
+* Each *Trice* caries an [ID](./TriceUserManual.md) as runtime replacement for the format string.
 * This ID is automatically generated (controllable) and the source code takes it as first parameter inside the `TRICE` macro after the optional target timestamp and context.
-* The format specifier string is **not** compiled into the target code. It goes together with the ID into a reference list file [til.json](../til.json)
+* The format specifier string is **not** compiled into the target code. It goes together with the ID into a reference list file [til.json](../test/testdata/til.json)
 
 ##  3. <a name='Tricevaluesbitwidth'></a>*Trice* values bit width
 
