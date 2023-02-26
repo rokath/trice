@@ -98,7 +98,7 @@ static inline uint16_t Us16( void ){
     return us16 + usOffset + correction; // max 9000 + max 999 + max 1000 = max 10999 us;
 }
 
-// UsDuty is usable in short wait loops, waiting for a hardware flag for example.
+// UsDuty is usable in wait loops, waiting for a hardware flag for example.
 void UsDuty( void ){
     { US_DUTY }
     __WFE(); // wait for event (sleep)
