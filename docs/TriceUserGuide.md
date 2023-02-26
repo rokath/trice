@@ -1326,8 +1326,9 @@ The 14-bit IDs are used to display the log strings. These IDs are pointing in tw
   - It is sufficient to write the TRICE macros just without the `id(0),` `Id(0),` `ID(0),`. It will be inserted automatically according the `-stamp` switch.
 - With `trice zeroSourceTreeIds` all IDs in the given source tree are set to 0. This gives the option afterwards to set-up a new `til.json` according to a different `-IDMethod`, `-IDMin` and `IDMax`.
 
-##  18. <a name='TriceIDmanagement'></a>Trice ID management
+<p align="right">(<a href="#top">back to top</a>)</p>
 
+##  18. <a name='TriceIDmanagement'></a>Trice ID management
 
 ###  18.1. <a name='Tricesinsidesourcecode'></a>*Trices* inside source code
 
@@ -1367,6 +1368,8 @@ sub-command 'r|refresh': For updating ID list from source files but does not cha
         The "refresh" sub-command has no mandatory switches. Omitted optional switches are used with their default parameters.
 ```
 
+<p align="right">(<a href="#top">back to top</a>)</p>
+
 ##  19. <a name='IDreferencelisttil.json'></a>ID reference list **til.json**
 
 * The `trice update` command demands a **til.json** file - it will not work without it. That is a safety feature to avoid unwanted file generations. If you sure to create a new **til.json** file create an empty one: `touch til.json`.
@@ -1389,6 +1392,8 @@ sub-command 'r|refresh': For updating ID list from source files but does not cha
 * You could place a download link for the **trice** tool and the used **til.json** list.
 * Link a compressed/encrypted **til.json** file into the target binary and optionally get it back long years later in a safe way.
 * Optionally add the (compressed/encrypted) ID reference list as resource into the target FLASH memory to be sure not to loose it in the next 20 years.
+
+<p align="right">(<a href="#top">back to top</a>)</p>
 
 ##  20. <a name='Thetriceupdatealgorithm'></a>The `trice update` algorithm
 
