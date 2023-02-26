@@ -988,8 +988,6 @@ As discussed in [issue #294](https://github.com/rokath/trice/issues/294) it can 
 * The PC **trice** tool offers command line switches to `-pick` or `-ban` for *trice* channels and will be extended with display switches.
 * A **trice** tool `-logLevel` switch is usable too (Issue [#236](https://github.com/rokath/trice/issues/236)).
 
-<p align="right">(<a href="#top">back to top</a>)</p>
-
 <!--
 _##  12. <a name='Usingadifferentencoding'></a>Using a different encoding
 
