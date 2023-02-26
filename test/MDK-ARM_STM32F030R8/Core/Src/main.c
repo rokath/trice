@@ -23,6 +23,9 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "trice.h"
+
+int TriceShortCheckStartLine( void );
+int TriceShortCheckLimitLine( void );
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -32,6 +35,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
+#define TRICE_CHECK_CODE 1
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -42,8 +46,6 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-
-extern unsigned timingError64Count;
 
 /* USER CODE END PV */
 
@@ -61,6 +63,8 @@ uint32_t milliSecond( void );
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+    int beginTriceCheck = 88; // 20
+    int limitTriceCheck = 88; // 400;
 
 /* USER CODE END 0 */
 
@@ -71,7 +75,12 @@ uint32_t milliSecond( void );
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-//lint -e835
+    #if TRICE_CHECK_CODE
+    beginTriceCheck = TriceShortCheckStartLine(); // 20
+    limitTriceCheck = TriceShortCheckLimitLine(); // 400;
+    int triceCheckIndex = 0; 
+    trice( iD( 6041), "msg:Trice check range is [%u...%u)\n", beginTriceCheck, limitTriceCheck );
+    #endif // #if TRICE_CHECK_CODE
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -111,16 +120,10 @@ int main(void)
     TRice( iD( 6554), "\nA TRice message starting with a a newline\n" );
     TRice( iD( 3112), "line0:A TRice message with several lines\nline1\nline2\nline3:last line\n" );
 
-
-    // normal use cases
-    TRice( iD( 3771), "info:This is a message without values and a 32-bit stamp.\n" );        //exp: time: 842,150_450default: info:This is a message without values and a 32-bit stamp.
-    Trice( iD( 5930), "info:This is a message without values and a 16-bit stamp.\n" );        //exp: time:       5_654default: info:This is a message without values and a 16-bit stamp.
-    trice( iD( 5370), "info:This is a message without values and without stamp.\n"  );        //exp: time:            default: info:This is a message without values and without stamp.
-
-    // normal use cases but CGO compiler issue, but works with ARM6 and 6
-    TRice( iD( 7729),"info:12 default bit width values %d, %u, %x, %X, %t, %e, %f, %g, %E, %F, %G, 0xb%08b and a 32-bit stamp.\n", -3, -4, -5, -6, 1, aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), -8 ); //_exp: time: 842,150_450default: info:12 default bit width values -3, 4294967292, fffffffb, FFFFFFFA, truet, 1.401298e-45, -7.123457, -7.123457, -7.123457E+00, -7.123457, -7.123457, 0xb11000000111000111111001101011100 and a 32-bit stamp.
+    // These normal use cases working with ARM5 and CLANG6 but have a CGO compiler issue. 
+    TRice( iD( 5072),"info:12 default bit width values %d, %u, %x, %X, %t, %e, %f, %g, %E, %F, %G, 0xb%08b and a 32-bit stamp.\n", -3, -4, -5, -6, 1, aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), -8 ); //_exp: time: 842,150_450default: info:12 default bit width values -3, 4294967292, fffffffb, FFFFFFFA, truet, 1.401298e-45, -7.123457, -7.123457, -7.123457E+00, -7.123457, -7.123457, 0xb11000000111000111111001101011100 and a 32-bit stamp.
     Trice( iD( 4488),"info:12 default bit width values %d, %u, %x, %X, %t, %e, %f, %g, %E, %F, %G, 0xb%08b and a 16-bit stamp.\n", -3, -4, -5, -6, 1, aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), -8 ); //_exp: time:       5_654default: info:12 default bit width values -3, 4294967292, fffffffb, FFFFFFFA, truet, 1.401298e-45, -7.123457, -7.123457, -7.123457E+00, -7.123457, -7.123457, 0xb11000000111000111111001101011100 and a 16-bit stamp.
-    trice( iD( 7929),"info:12 default bit width values %d, %u, %x, %X, %t, %e, %f, %g, %E, %F, %G, 0xb%08b and without stamp.\n" , -3, -4, -5, -6, 1, aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), -8 ); //_exp: time:            default: info:12 default bit width values -3, 4294967292, fffffffb, FFFFFFFA, truet, 1.401298e-45, -7.123457, -7.123457, -7.123457E+00, -7.123457, -7.123457, 0xb11000000111000111111001101011100 and without stamp.
+    trice( iD( 1847),"info:12 default bit width values %d, %u, %x, %X, %t, %e, %f, %g, %E, %F, %G, 0xb%08b and without stamp.\n" , -3, -4, -5, -6, 1, aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), -8 ); //_exp: time:            default: info:12 default bit width values -3, 4294967292, fffffffb, FFFFFFFA, truet, 1.401298e-45, -7.123457, -7.123457, -7.123457E+00, -7.123457, -7.123457, 0xb11000000111000111111001101011100 and without stamp.
 
   /* USER CODE END 2 */
 
@@ -138,8 +141,8 @@ int main(void)
             TRICE( Id( 6539), "att:...done\n" );
         }
 
-        // serve trice transfer every few ms
         #if TRICE_DEFERRED_OUT
+        // serve trice transfer every few ms, with an RTOS put this in a separate task.
         static unsigned lastMs = 0;
         if( ms >= lastMs + TRICE_TRANSFER_INTERVAL_MS ){
             lastMs = ms;
@@ -147,45 +150,19 @@ int main(void)
         }
         #endif
 
-        // send some trices every few ms
+        // generate some trices every few ms
         static unsigned lastTricesTime = 0;
-        const unsigned msInterval = 3; // change this value to change trice generation speed (not below 2!)
+        const unsigned msInterval = 500; // change this value to change trice generation speed (not below 2!)
         if( ms >= lastTricesTime + msInterval ){
             lastTricesTime = ms;
-            const int begin = 20;
-            const int end   = 400;
-            static int index = 0; // begin: warning:  #3170-D: use of a const variable in a constant expression is nonstandard in C
-
-            #if 0 // with or without triceCheck.c
-                void TriceLogDepthMax( void );
-                if( index == begin ){ // cyclic diagnostics
-                    TriceLogDepthMax();
+            #if TRICE_CHECK_CODE // with or without triceCheck.c
+                TriceCheck(triceCheckIndex + beginTriceCheck); // generate trice messsage
+                triceCheckIndex++;
+                if( triceCheckIndex >= limitTriceCheck - beginTriceCheck ){
+                    triceCheckIndex = 0; // triceCheck() loop handling
                 }
-                TriceCheck(index); // trice messsage
-                #if TRICE_MODE == TRICE_DOUBLE_BUFFER
-                { // max diagnostics
-                    static uint16_t triceDepthMax_1 = 0;
-                    uint16_t triceDepthMax = TriceDepthMax();
-                    if( triceDepthMax_1 != triceDepthMax ){
-                        triceDepthMax_1 = triceDepthMax;
-                        TriceLogDepthMax();
-                    }
-                }
-                #endif
-            #endif // #if 0 // with or without triceCheck.c
-            #if TRICE_MODE == TRICE_STREAM_BUFFER
-            {
-                static uint16_t triceFifoDepthMax_1, triceStreamBufferDepthMax_1;
-                if( triceFifoDepthMax_1 != triceFifoDepthMax || triceStreamBufferDepthMax_1 != triceStreamBufferDepthMax ){
-                    triceFifoDepthMax_1 = triceFifoDepthMax;
-                    triceStreamBufferDepthMax_1 = triceStreamBufferDepthMax;
-                    TRICE16( Id( 2517), "MSG:triceFifoDepthMax = %d of max %d, triceStreamBufferDepthMax = %d of max %d\n", triceFifoDepthMax, TRICE_FIFO_ELEMENTS, triceStreamBufferDepthMax, TRICE_BUFFER_SIZE );
-                }
-            }
-            #endif
-
-            // loop handling
-            index = index++ > end ? begin : index;
+                TriceDiagnostics( triceCheckIndex );
+            #endif // #if TRICE_CHECK_CODE 
         }
         UsDuty();
     }

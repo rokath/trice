@@ -16,7 +16,7 @@ func TestLogs(t *testing.T) {
 	// It uses the inside fSys specified til.json and returns the log output.
 	triceLog := func(t *testing.T, fSys *afero.Afero, buffer string) string {
 		var o bytes.Buffer
-		assert.Nil(t, args.Handler(io.Writer(&o), fSys, []string{"trice", "log", "-i", testDataDir + "/til.json", "-p", "BUFFER", "-args", buffer, "-packageFraming", "COBS", "-hs", "off", "-prefix", "off", "-ts0", "time:        ", "-ts16", "time:%8x", "-ts32", "time:%8x", "-li", "off", "-color", "off"}))
+		assert.Nil(t, args.Handler(io.Writer(&o), fSys, []string{"trice", "log", "-i", testDataDir + "/til.json", "-p", "BUFFER", "-args", buffer, "-packageFraming", "COBS", "-hs", "off", "-prefix", "off", "-li", "off", "-color", "off"}))
 		return o.String()
 	}
 

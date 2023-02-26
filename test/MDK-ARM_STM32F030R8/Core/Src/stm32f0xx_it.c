@@ -255,7 +255,7 @@ void USART2_IRQHandler(void)
         rxBuf[index] = (char)v;
         index += index < TRICE_COMMAND_SIZE_MAX ? 1 : 0; 
         if( v == 0 ){ // command end
-            TRICE_S( Id( 7842), "rx:received command:%s\n", rxBuf );
+            TRICE_S( Id( 5682), "rx:received command:%s\n", rxBuf );
             strcpy(triceCommandBuffer, rxBuf );
             triceCommandFlag = 1;
             index = 0;
@@ -278,7 +278,7 @@ void USART2_IRQHandler(void)
         LL_USART_ClearFlag_PE(TRICE_UARTA);
     }
     if( LL_USART_IsActiveFlag_FE(TRICE_UARTA) ){
-        TRICE( Id( 1297), "err:TRICE_UARTA Framing Error Flag is set\n" );
+        TRICE( Id( 4098), "err:TRICE_UARTA Framing Error Flag is set\n" );
         LL_USART_ClearFlag_FE(TRICE_UARTA);
     }
     if( LL_USART_IsActiveFlag_NE(TRICE_UARTA) ){
@@ -290,7 +290,7 @@ void USART2_IRQHandler(void)
         LL_USART_ClearFlag_ORE(TRICE_UARTA);
     }
     if( LL_USART_IsActiveFlag_IDLE(TRICE_UARTA) ){
-        TRICE( Id( 5450), "wrn:TRICE_UARTA IDLE line detected Flag is set\n" );
+        TRICE( Id( 7136), "wrn:TRICE_UARTA IDLE line detected Flag is set\n" );
         LL_USART_ClearFlag_IDLE(TRICE_UARTA);
     }
     if( LL_USART_IsActiveFlag_TC(TRICE_UARTA) ){
@@ -302,7 +302,7 @@ void USART2_IRQHandler(void)
         LL_USART_ClearFlag_nCTS(TRICE_UARTA);
     }
     if( LL_USART_IsActiveFlag_CTS(TRICE_UARTA) ){
-        TRICE( Id( 4649), "wrn:TRICE_UARTA CTS Flag is set\n" );
+        TRICE( Id( 7064), "wrn:TRICE_UARTA CTS Flag is set\n" );
     }
     if( LL_USART_IsActiveFlag_RTO(TRICE_UARTA) ){
         TRICE( Id( 4823), "err:TRICE_UARTA Receiver Time Out Flag is set\n" );
@@ -325,7 +325,7 @@ void USART2_IRQHandler(void)
         TRICE( Id( 1627), "wrn:TRICE_UARTA Send Break Flag is set\n" );
     }
     if( LL_USART_IsActiveFlag_RWU(TRICE_UARTA) ){
-        TRICE( Id( 5105), "wrn:TRICE_UARTA Receive Wake Up from mute mode Flag is set\n" );
+        TRICE( Id( 7009), "wrn:TRICE_UARTA Receive Wake Up from mute mode Flag is set\n" );
     }
     if( LL_USART_IsActiveFlag_TEACK(TRICE_UARTA) ){
         //TRICE( Id( 4690), "wr:TRICE_UARTA Transmit Enable Acknowledge Flag is set\n" );
