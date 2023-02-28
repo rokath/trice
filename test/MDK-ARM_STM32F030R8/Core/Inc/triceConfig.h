@@ -42,7 +42,7 @@ extern "C" {
 //! \li ST-LINK Command line similar to: `trice log -p ST-LINK -args="-Device STM32G071RB -if SWD -Speed 4000 -RTTChannel 0 -RTTSearchRanges 0x20000000_0x1000"`
 //!
 //! TRICE_DOUBLE_BUFFER:
-//! \li Double Buffering output to UART with cycle counter. Trices inside interrupts allowed. Fast TRICE macro execution.
+//! \li Double Buffering output to UART. Trices inside interrupts allowed. Fast TRICE macro execution.
 //! \li Works also with RTT but makes usually no sense because then TRICE_MODE == TRICE_STACK_BUFFER is more effective and needs less memory.
 //! \li UART Command line similar to: `trice log -p COM1 -baud 115200`
 //! \li RTT Command line similar to: `trice l -args="-Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0 -RTTSearchRanges 0x20000000_0x1000"`
