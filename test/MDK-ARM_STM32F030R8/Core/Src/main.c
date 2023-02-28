@@ -24,8 +24,6 @@
 /* USER CODE BEGIN Includes */
 #include "trice.h"
 
-int TriceShortCheckStartLine( void );
-int TriceShortCheckLimitLine( void );
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -76,8 +74,6 @@ int main(void)
 {
   /* USER CODE BEGIN 1 */
     #if TRICE_CHECK_CODE
-    beginTriceCheck = TriceShortCheckStartLine(); // 20
-    limitTriceCheck = TriceShortCheckLimitLine(); // 400;
     int triceCheckIndex = 0; 
     trice( iD( 6041), "msg:Trice check range is [%u...%u)\n", beginTriceCheck, limitTriceCheck );
     #endif // #if TRICE_CHECK_CODE
