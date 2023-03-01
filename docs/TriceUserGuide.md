@@ -1404,17 +1404,17 @@ sub-command 'r|refresh': For updating ID list from source files but does not cha
     - The `til.json` is a serialized key-value map, where
       - the keys are the IDs i and
       - the values are *Trice* format string structs (bit width plus format string) named f.
-      - This ID look-up is the key-value map `ilu TriceIDLookUp` a `map[TriceID]TriceFmt`
-        - each ID i as key, points to one and only one f.
+      - This ID look-up is the key-value map `ilu TriceIDLookUp` as `map[TriceID]TriceFmt`.
+        - Each ID i as key, points to one and only one f.
         - The TriceFmt structs contain the parameter width and the format string.
-      - The ilu is reverted then into `flu triceFmtLookUp` a map[TriceFmt]TriceIDs.
+      - The ilu is reverted then into `flu triceFmtLookUp` as map[TriceFmt]TriceIDs.
         - `TriceIDs` is a triceID slice because the identical f can have several ids (no shared IDs).
         - The format struct f look-up map flu is used internally for faster access and always in sync with ilu.
     - ilu and flu together are named lu.
-  - A  location information file `li.json` may exist or not.
-    - The `li.json` is a serialized key-value map `li TriceIDLookUpLI` a `map[TriceID]TriceLI` where
+  - A location information file `li.json` may exist or not.
+    - The `li.json` is a serialized key-value map `li TriceIDLookUpLI`, a `map[TriceID]TriceLI`, where
       - the keys are the IDs i and
-      - the values are the location information (filename, line and position) structs.
+      - the values are the location information (filename, line and position in line) structs.
     - Each ID as key points to one and only one li.
 
 - The `til.json` IDs may occur in the source tree not at all, once or several times. Also it is not guarantied, that the source tree *Trice*s match the `til.json` value.
