@@ -240,7 +240,8 @@ void TriceOut( uint32_t* tb, size_t tLen ){
         TriceWriteDevice( UartB, enc, encLen ); //lint !e534
     }
     #endif
-    #ifdef TRICE_RTT0
+    #if defined(TRICE_RTT0) && !defined(TRICE_DOUBLE_BUFFER) && !defined(TRICE_STREAM_BUFFER)
+        // only when RTT0 is alone
         TriceWriteDevice( Rtt0, enc, encLen ); //lint !e534
     #endif
     #ifdef TRICE_CGO
@@ -250,6 +251,52 @@ void TriceOut( uint32_t* tb, size_t tLen ){
         TriceWriteDevice( ModbusBuffer, enc, encLen );
     #endif
 }
+
+
+//! TriceOut encodes trices and writes them in one step to the output.
+//! \param tb is start of uint32_t* trice buffer. The space TRICE_DATA_OFFSET at
+//! the tb start is for in-buffer encoding of the trice data.
+//! \param tLen is length of trice data. tlen is always a multiple of 4 because
+//! of 32-bit alignment and padding bytes.
+void TriceOutRtt0( uint32_t* tb, size_t tLen ){
+    uint8_t* enc = (uint8_t*)tb; // encoded data starting address
+    size_t encLen = 0;
+    uint8_t* buf = enc + TRICE_DATA_OFFSET; // start of 32-bit aligned trices
+    size_t len = tLen; // (byte count)
+    int triceID;
+    // diagnostics
+    tLen += TRICE_DATA_OFFSET; 
+    triceDepthMax = tLen < triceDepthMax ? triceDepthMax : tLen;
+    // do it
+    while(len){
+        uint8_t* triceStart;
+        size_t triceLen;
+        triceID = nextTrice( &buf, &len, &triceStart, &triceLen );
+        if( triceID <= 0 ){ // on data error
+            break;   // ignore following data
+        }
+        #if TRICE_TRANSFER_MODE == TRICE_SAFE_SINGLE_MODE
+        encLen += triceEncode( enc+encLen, triceStart, triceLen );
+        #endif
+        #if  TRICE_TRANSFER_MODE == TRICE_PACK_MULTI_MODE
+        #error
+        //memmove(enc + TRICE_DATA_OFFSET + encLen, triceStart, triceLen );
+        //encLen += triceLen;
+        #endif
+    }
+    #if TRICE_TRANSFER_MODE == TRICE_PACK_MULTI_MODE
+    #error 
+    //encLen = triceEncode( enc, enc + TRICE_DATA_OFFSET, encLen);
+    #endif
+    #ifndef TRICE_RTT0
+        #error
+    #endif
+    TriceWriteDevice( Rtt0, enc, encLen ); //lint !e534
+}
+
+
+
+
 
 #if defined( TRICE_UARTA ) && !defined( TRICE_HALF_BUFFER_SIZE ) // direct out to UART
 //! triceBlockingPutChar returns after c was successfully written.

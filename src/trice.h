@@ -155,36 +155,59 @@ uint16_t TriceStamp16( void );
 uint32_t TriceStamp32( void );
 
 #if TRICE_MODE == TRICE_STACK_BUFFER
-
 #define TRICE_STACK_BUFFER_MAX_SIZE TRICE_BUFFER_SIZE 
 
 //! Start of TRICE macro
-#define TRICE_ENTER { \
+#define TRICE_ENTER { /*TRICE_MODE == TRICE_STACK_BUFFER*/ \
     uint32_t co[TRICE_STACK_BUFFER_MAX_SIZE>>2]; /* Check TriceDepthMax at runtime. */ \
     uint32_t* TriceBufferWritePosition = co + (TRICE_DATA_OFFSET>>2);
 
 //! End of TRICE macro
-#define TRICE_LEAVE { \
+#define TRICE_LEAVE { /* TRICE_MODE == TRICE_STACK_BUFFER*/ \
     unsigned tLen = ((TriceBufferWritePosition - co)<<2) - TRICE_DATA_OFFSET; \
     TriceOut( co, tLen ); } }
 
 #endif // #if TRICE_MODE == TRICE_STACK_BUFFER
 
 #if TRICE_MODE == TRICE_DOUBLE_BUFFER
-
 //! TRICE_HALF_BUFFER_SIZE is the size of each of both buffers. Must be able to hold the max TRICE burst count within TRICE_TRANSFER_INTERVAL_MS or even more,
 //! if the write out speed is small. Must not exceed SEGGER BUFFER_SIZE_UP
 #define TRICE_HALF_BUFFER_SIZE  (((TRICE_BUFFER_SIZE/2) + 3) & ~3)
 
+#ifdef TRICE_RTT0 // special case
+// When RTT is configured, we want to get out the trice directly and not deferred.
+
+#define TRICE_STACK_BUFFER_MAX_SIZE 80 // todo
+void TriceOutRtt0( uint32_t* tb, size_t tLen ); // todo
+
 //! TRICE_ENTER is the start of TRICE macro. The TRICE macros are a bit slower. Inside interrupts TRICE macros allowed.
-#define TRICE_ENTER TRICE_ENTER_CRITICAL_SECTION 
+#define TRICE_ENTER \
+    TRICE_ENTER_CRITICAL_SECTION { \
+    uint32_t* TriceBufferWritePositionRtt0 = TriceBufferWritePosition;
+
+//! TRICE_LEAVE is the end of TRICE macro.
+#define TRICE_LEAVE \
+    { \
+        unsigned tLenRtt0 = ((TriceBufferWritePosition - TriceBufferWritePositionRtt0)<<2); \
+        uint32_t co[TRICE_STACK_BUFFER_MAX_SIZE>>2]; /* Check TriceDepthMax at runtime. */ \
+        memcpy( co + (TRICE_DATA_OFFSET>>2), TriceBufferWritePositionRtt0, tLenRtt0 ); \
+        TriceOutRtt0( co, tLenRtt0 ); \
+    } \
+    } TRICE_LEAVE_CRITICAL_SECTION
+
+#else // #ifdef TRICE_RTT0
+
+//! TRICE_ENTER is the start of TRICE macro. The TRICE macros are a bit slower. Inside interrupts TRICE macros allowed.
+#define TRICE_ENTER TRICE_ENTER_CRITICAL_SECTION \
 
 //! TRICE_LEAVE is the end of TRICE macro.
 #define TRICE_LEAVE TRICE_LEAVE_CRITICAL_SECTION
 
+#endif // #else // #ifdef TRICE_RTT0
+
 #endif // #if TRICE_MODE == TRICE_DOUBLE_BUFFER
 
-#if TRICE_MODE == TRICE_STREAM_BUFFER
+    #if TRICE_MODE == TRICE_STREAM_BUFFER // todo: add RTT0 handling here too
 
 //! TRICE_STREAM_BUFFER_SIZE is the total size of the stream buffer. Must be able to hold the max TRICE burst count or even more,
 //! if the write out speed is small.
