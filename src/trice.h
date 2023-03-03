@@ -108,6 +108,9 @@ typedef enum{
 
 unsigned TriceOutDepthCGO( void ); // only needed for testing C-sources from Go
 
+//! TRICE_DEFERRED_OUT is a helper macro.
+#define TRICE_DEFERRED_OUT ((TRICE_MODE == TRICE_DOUBLE_BUFFER) || (TRICE_MODE == TRICE_STREAM_BUFFER) )
+
 #ifdef TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN
 
 // Swap a 16-bit integer (https://www.oryx-embedded.com/doc/cpu__endian_8h_source.html)
@@ -154,8 +157,9 @@ uint16_t TriceStamp16( void );
 //! This function is user provided.
 uint32_t TriceStamp32( void );
 
-#if TRICE_MODE == TRICE_STACK_BUFFER
-#define TRICE_STACK_BUFFER_MAX_SIZE TRICE_BUFFER_SIZE 
+#if TRICE_MODE == TRICE_STACK_BUFFER 
+
+#define TRICE_STACK_BUFFER_MAX_SIZE TRICE_BUFFER_SIZE
 
 //! Start of TRICE macro
 #define TRICE_ENTER { /*TRICE_MODE == TRICE_STACK_BUFFER*/ \
@@ -177,8 +181,11 @@ uint32_t TriceStamp32( void );
 #ifdef TRICE_RTT0 // special case
 // When RTT is configured, we want to get out the trice directly and not deferred.
 
-#define TRICE_STACK_BUFFER_MAX_SIZE 80 // todo
 void TriceOutRtt0( uint32_t* tb, size_t tLen ); // todo
+
+// When TRICE_MODE != TRICE_STACK_BUFFER (deferred mode for UART as example) and TRICE_RTT0 is defined
+// we need this value because TRICE_RTT0 is always in direct mode to support post mortem analysis.
+#define TRICE_STACK_BUFFER_MAX_SIZE TRICE_BUFFER_SIZE 
 
 //! TRICE_ENTER is the start of TRICE macro. The TRICE macros are a bit slower. Inside interrupts TRICE macros allowed.
 #define TRICE_ENTER \
@@ -211,7 +218,7 @@ void TriceOutRtt0( uint32_t* tb, size_t tLen ); // todo
 
 #endif // #if TRICE_MODE == TRICE_DOUBLE_BUFFER
 
-    #if TRICE_MODE == TRICE_STREAM_BUFFER // todo: add RTT0 handling here too
+#if TRICE_MODE == TRICE_STREAM_BUFFER // todo: add RTT0 handling here too
 
 //! TRICE_STREAM_BUFFER_SIZE is the total size of the stream buffer. Must be able to hold the max TRICE burst count or even more,
 //! if the write out speed is small.
@@ -233,9 +240,6 @@ void TriceOutRtt0( uint32_t* tb, size_t tLen ); // todo
 
 #endif // #if TRICE_MODE == TRICE_STREAM_BUFFER
 
-//! TRICE_DEFERRED_OUT is a helper macro.
-#define TRICE_DEFERRED_OUT ((TRICE_MODE == TRICE_DOUBLE_BUFFER) || (TRICE_MODE == TRICE_STREAM_BUFFER) )
-
 ///////////////////////////////////////////////////////////////////////////////
 // Declarations and Defaults
 
@@ -249,9 +253,8 @@ extern int triceCommandLength;
 size_t TriceDepth( void );
 size_t TriceDepthMax( void );
 void TriceDiagnostics( int index );
-#if TRICE_DEFERRED_OUT
+
 extern uint32_t* TriceBufferWritePosition;
-#endif
 
 size_t triceNonBlockingWriteUartA( void const * buf, size_t nByte );
 size_t triceNonBlockingWriteUartB( void const * buf, size_t nByte );

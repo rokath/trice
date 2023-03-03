@@ -252,6 +252,7 @@ void TriceOut( uint32_t* tb, size_t tLen ){
     #endif
 }
 
+#ifdef TRICE_RTT0
 
 //! TriceOut encodes trices and writes them in one step to the output.
 //! \param tb is start of uint32_t* trice buffer. The space TRICE_DATA_OFFSET at
@@ -278,22 +279,11 @@ void TriceOutRtt0( uint32_t* tb, size_t tLen ){
         #if TRICE_TRANSFER_MODE == TRICE_SAFE_SINGLE_MODE
         encLen += triceEncode( enc+encLen, triceStart, triceLen );
         #endif
-        #if  TRICE_TRANSFER_MODE == TRICE_PACK_MULTI_MODE
-        #error
-        //memmove(enc + TRICE_DATA_OFFSET + encLen, triceStart, triceLen );
-        //encLen += triceLen;
-        #endif
     }
-    #if TRICE_TRANSFER_MODE == TRICE_PACK_MULTI_MODE
-    #error 
-    //encLen = triceEncode( enc, enc + TRICE_DATA_OFFSET, encLen);
-    #endif
-    #ifndef TRICE_RTT0
-        #error
-    #endif
     TriceWriteDevice( Rtt0, enc, encLen ); //lint !e534
 }
 
+#endif
 
 
 

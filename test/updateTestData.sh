@@ -15,6 +15,8 @@ CGOTESTDIRS="
 cgo_stackBuffer_noCycle_cobs
 cgo_stackBuffer_noCycle_tcobs
 cgo_stackBuffer_noCycle_tcobs_short
+cgo_doubleBuffer_noCycle_tcobs_short
+cgo_streamBuffer_noCycle_tcobs_short
 "
 for d in $CGOTESTDIRS
 do

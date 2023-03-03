@@ -249,7 +249,7 @@ void USART2_IRQHandler(void)
         static int index = 0;
         uint8_t v;
         if( LL_USART_IsActiveFlag_ORE(TRICE_UARTA) ){
-            TRICE( Id( 5364), "WARNING:USARTq OverRun Error Flag is set!\n" );
+            TRICE( Id( 6526), "WARNING:USARTq OverRun Error Flag is set!\n" );
         }
         v = LL_USART_ReceiveData8(TRICE_UARTA); // implicit clears the flag
         rxBuf[index] = (char)v;
@@ -282,15 +282,15 @@ void USART2_IRQHandler(void)
         LL_USART_ClearFlag_FE(TRICE_UARTA);
     }
     if( LL_USART_IsActiveFlag_NE(TRICE_UARTA) ){
-        TRICE( Id( 6772), "err:TRICE_UARTA Noise error detected Flag is set\n" );
+        TRICE( Id( 4957), "err:TRICE_UARTA Noise error detected Flag is set\n" );
         LL_USART_ClearFlag_NE(TRICE_UARTA);
     }
     if( LL_USART_IsActiveFlag_ORE(TRICE_UARTA) ){
-        //TRICE( Id( 3677), "err:TRICE_UARTA OverRun Error Flag is set\n" );
+        //TRICE( Id( 6934), "err:TRICE_UARTA OverRun Error Flag is set\n" );
         LL_USART_ClearFlag_ORE(TRICE_UARTA);
     }
     if( LL_USART_IsActiveFlag_IDLE(TRICE_UARTA) ){
-        TRICE( Id( 7136), "wrn:TRICE_UARTA IDLE line detected Flag is set\n" );
+        TRICE( Id( 4174), "wrn:TRICE_UARTA IDLE line detected Flag is set\n" );
         LL_USART_ClearFlag_IDLE(TRICE_UARTA);
     }
     if( LL_USART_IsActiveFlag_TC(TRICE_UARTA) ){
@@ -322,7 +322,7 @@ void USART2_IRQHandler(void)
         LL_USART_ClearFlag_CM(TRICE_UARTA);
     }
     if( LL_USART_IsActiveFlag_SBK(TRICE_UARTA) ){
-        TRICE( Id( 1627), "wrn:TRICE_UARTA Send Break Flag is set\n" );
+        TRICE( Id( 2116), "wrn:TRICE_UARTA Send Break Flag is set\n" );
     }
     if( LL_USART_IsActiveFlag_RWU(TRICE_UARTA) ){
         TRICE( Id( 7009), "wrn:TRICE_UARTA Receive Wake Up from mute mode Flag is set\n" );

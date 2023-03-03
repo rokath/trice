@@ -134,7 +134,7 @@ int main(void)
             TRICE_S( Id( 5687), "att:Executing command %s ...\n", triceCommandBuffer );
             // do
             TRICE( Id( 4406), "dbg:\aHi!\n" ); // sound!
-            TRICE( Id( 6539), "att:...done\n" );
+            TRICE( Id( 7932), "att:...done\n" );
         }
 
         #if TRICE_DEFERRED_OUT

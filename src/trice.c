@@ -61,9 +61,9 @@ void TriceLogDepthMax( void ){
     #if TRICE_MODE == TRICE_DOUBLE_BUFFER
         size_t tdm = TriceDepthMax();
         if( tdm <= TRICE_HALF_BUFFER_SIZE ){
-            TRice16( iD( 2314), "diag:TriceDepthMax =%4u of %d\n", tdm, TRICE_HALF_BUFFER_SIZE );
+            TRice16( iD( 6149), "diag:TriceDepthMax =%4u of %d\n", tdm, TRICE_HALF_BUFFER_SIZE );
         }else{
-            TRice16( iD( 3656), "err:TriceDepthMax =%4u of %d (overflow!)\n", tdm, TRICE_HALF_BUFFER_SIZE );
+            TRice16( iD( 6885), "err:TriceDepthMax =%4u of %d (overflow!)\n", tdm, TRICE_HALF_BUFFER_SIZE );
         }
     #endif
 }
@@ -88,7 +88,7 @@ void TriceDiagnostics( int index ){
         if( triceFifoDepthMax_1 != triceFifoDepthMax || triceStreamBufferDepthMax_1 != triceStreamBufferDepthMax ){
             triceFifoDepthMax_1 = triceFifoDepthMax;
             triceStreamBufferDepthMax_1 = triceStreamBufferDepthMax;
-            TRICE16( Id( 2517), "MSG:triceFifoDepthMax = %d of max %d, triceStreamBufferDepthMax = %d of max %d\n", triceFifoDepthMax, TRICE_FIFO_ELEMENTS, triceStreamBufferDepthMax, TRICE_BUFFER_SIZE );
+            TRICE16( Id( 2192), "MSG:triceFifoDepthMax = %d of max %d, triceStreamBufferDepthMax = %d of max %d\n", triceFifoDepthMax, TRICE_FIFO_ELEMENTS, triceStreamBufferDepthMax, TRICE_BUFFER_SIZE );
         }
     #endif
 }
