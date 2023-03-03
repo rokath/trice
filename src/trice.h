@@ -186,10 +186,14 @@ void TriceOutRtt0( uint32_t* tb, size_t tLen ); // todo
     uint32_t* TriceBufferWritePositionRtt0 = TriceBufferWritePosition;
 
 //! TRICE_LEAVE is the end of TRICE macro.
+//! Here we use a combination of direct buffer out for RTT and deferred buffer out for UART.
+//! The TRICE_PUT macros use the pointer TriceBufferWritePosition and the trice data are one after
+//! the other inside of the double buffer which has a TRICE_DATA_OFFSET space at the beginning.
+//! For direct out we need this space in front of each trice, therefore we must copy it.
 #define TRICE_LEAVE \
     { \
         unsigned tLenRtt0 = ((TriceBufferWritePosition - TriceBufferWritePositionRtt0)<<2); \
-        uint32_t co[TRICE_STACK_BUFFER_MAX_SIZE>>2]; /* Check TriceDepthMax at runtime. */ \
+        uint32_t co[TRICE_STACK_BUFFER_MAX_SIZE>>2]; \
         memcpy( co + (TRICE_DATA_OFFSET>>2), TriceBufferWritePositionRtt0, tLenRtt0 ); \
         TriceOutRtt0( co, tLenRtt0 ); \
     } \
