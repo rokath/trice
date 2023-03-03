@@ -248,6 +248,7 @@ extern int triceCommandLength;
 
 size_t TriceDepth( void );
 size_t TriceDepthMax( void );
+void TriceDiagnostics( int index );
 #if TRICE_DEFERRED_OUT
 extern uint32_t* TriceBufferWritePosition;
 #endif

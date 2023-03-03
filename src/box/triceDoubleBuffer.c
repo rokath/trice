@@ -58,7 +58,7 @@ size_t TriceDepthMax( void ){
 }
 
 void TriceLogBufferInfo( void ){
-    trice16( iD( 3962), "att: Trice 2x half buffer size:%4u ", TRICE_HALF_BUFFER_SIZE );
+    trice16( iD( 7936), "att: Trice 2x half buffer size:%4u ", TRICE_HALF_BUFFER_SIZE );
 }
 
 #endif // #if TRICE_MODE == TRICE_DOUBLE_BUFFER

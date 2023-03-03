@@ -14,6 +14,7 @@ trice u -src ./testdata/triceCheck.c -i ./testdata/til.json -li ./testdata/li.js
 CGOTESTDIRS="
 cgo_stackBuffer_noCycle_cobs
 cgo_stackBuffer_noCycle_tcobs
+cgo_stackBuffer_noCycle_tcobs_short
 "
 for d in $CGOTESTDIRS
 do

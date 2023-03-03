@@ -42,7 +42,7 @@ extern "C" {
 //! \li ST-LINK Command line similar to: `trice log -p ST-LINK -args="-Device STM32G071RB -if SWD -Speed 4000 -RTTChannel 0 -RTTSearchRanges 0x20000000_0x1000"`
 //!
 //! TRICE_DOUBLE_BUFFER:
-//! \li Double Buffering output to UART with cycle counter. Trices inside interrupts allowed. Fast TRICE macro execution.
+//! \li Double Buffering output to UART. Trices inside interrupts allowed. Fast TRICE macro execution.
 //! \li Works also with RTT but makes usually no sense because then TRICE_MODE == TRICE_STACK_BUFFER is more effective and needs less memory.
 //! \li UART Command line similar to: `trice log -p COM1 -baud 115200`
 //! \li RTT Command line similar to: `trice l -args="-Device STM32F030R8 -if SWD -Speed 4000 -RTTChannel 0 -RTTSearchRanges 0x20000000_0x1000"`
@@ -175,8 +175,8 @@ extern "C" {
 //! This is usable as the very first trice sequence after restart. Adapt and use it or ignore it.
 #define TRICE_HEADLINE \
     TRice( iD( 1697), "s:     NUCLEO-F030R8     TRICE_MODE %3u     \n", TRICE_MODE ); \
-    trice( iD( 7862), "s:     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~     \n" ); \
-    trice( iD( 1859), "s:     " ); \
+    trice( iD( 3810), "s:     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~     \n" ); \
+    trice( iD( 7169), "s:     " ); \
     TriceLogBufferInfo(); \
     trice( iD( 4650), "s:     \n" ); \
     Trice( iD( 3248), "s:     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~     \n");
@@ -198,10 +198,10 @@ extern "C" {
 #define ALIGN4_END __attribute__ ((aligned(4))) //!< align to 4 byte boundary post declaration
 
 //! TRICE_ENTER_CRITICAL_SECTION saves interrupt state and disables Interrupts.
-#define TRICE_ENTER_CRITICAL_SECTION { // to do
+#define TRICE_ENTER_CRITICAL_SECTION { uint32_t old_mask = cm_mask_interrupts(1); { // copied from test/OpenCM3_STM32F411_Nucleo/triceConfig.h
 
 //! TRICE_LEAVE_CRITICAL_SECTION restores interrupt state.
-#define TRICE_LEAVE_CRITICAL_SECTION } // to do
+#define TRICE_LEAVE_CRITICAL_SECTION  } cm_mask_interrupts(old_mask); } // copied from test/OpenCM3_STM32F411_Nucleo/triceConfig.h
 
 #elif defined(__ARMCC_VERSION) /* Arm Compiler ############################### */
 

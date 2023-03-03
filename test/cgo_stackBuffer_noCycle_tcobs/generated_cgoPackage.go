@@ -118,7 +118,8 @@ type logF func(t *testing.T, fSys *afero.Afero, buffer string) string
 // This function is test package specific defined. The file cgoPackage.go is
 // copied into all specific test packages and compiled there together with the
 // triceConfig.h, which holds the test package specific target code configuration.
-func triceLogTest(t *testing.T, triceLog logF) {
+// limit is the count of executed test lines starting from the beginning. -1 ist for all.
+func triceLogTest(t *testing.T, triceLog logF, limit int) {
 
 	osFSys := &afero.Afero{Fs: afero.NewOsFs()}
 	//mmFSys := &afero.Afero{Fs: afero.NewMemMapFs()}
@@ -129,8 +130,13 @@ func triceLogTest(t *testing.T, triceLog logF) {
 
 	result := getExpectedResults(osFSys, testDataDir+"./triceCheck.c")
 
+	var count int
 	for i, r := range result {
 
+		count++
+		if limit >= 0 && count >= limit {
+			return
+		}
 		fmt.Println(i, r)
 
 		// target activity

@@ -4,7 +4,8 @@
 
 <!-- vscode-markdown-toc -->
 * 1. [*Trice* Space example](#TriceSpaceexample)
-* 2. [Memory needs (ARM example project)](#MemoryneedsARMexampleproject)
+* 2. [Memory needs (Legacy ARM example project)](#MemoryneedsLegacyARMexampleproject)
+* 3. [Memory needs (example projects)](#Memoryneedsexampleprojects)
 
 <!-- vscode-markdown-toc-config
 	numbering=true
@@ -23,7 +24,7 @@
 - No format strings go into the target code anymore.
 - In general *Trice* instrumentation **reduces** the needed memory compared to a printf-like implementation.
 
-##  2. <a name='MemoryneedsARMexampleproject'></a>Memory needs (Legacy ARM example project)
+##  2. <a name='MemoryneedsLegacyARMexampleproject'></a>Memory needs (Legacy ARM example project)
 
 The following numbers are measured with a legacy encoding, showing that the instrumentation code can be even smaller.
 
@@ -38,3 +39,11 @@ The following numbers are measured with a legacy encoding, showing that the inst
 * The about 50 trices in TriceCheckSet() allocate roughly 2100 (fast mode) or 1500 (small mode) bytes.
 * trices are removable without code changes by defining `TRICE_OFF` on file or project level.
 
+##  3. <a name='Memoryneedsexampleprojects'></a>Memory needs (example projects)
+
+| Project                       | Compiler    | Optimization | Link-Time-Optimization | Result                                        | Remark  |
+| -                             | -           | -            | -                      | -                                             | -       |
+| MDK-ARM_STM32F030R8_generated | CLANG v6.19 | -Oz          | yes                    |Code=1020 RO-data=196 RW-data=0 ZI-data=1024   | This is the plain generated project without trice instrumentation.|
+| MDK-ARM_STM32F030R8           | CLANG v6.19 | -Oz          | yes                    |Code=4726 RO-data=238 RW-data=16 ZI-data=4608  | This is with full trice instrumentation with example messages.|
+
+* The trice size needs is less than 4 KB. See also [./TriceConfigProjectImageSizeOptimization.md](./TriceConfigProjectImageSizeOptimization.md).
