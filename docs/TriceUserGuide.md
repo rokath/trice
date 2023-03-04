@@ -2,7 +2,7 @@
 
 > _(Read this)
 >
-> SORRY: This document long and not 100% consistent. Hints or pull requests are welcome.
+> SORRY: This document is long and not 100% consistent. Hints or pull requests are welcome.
 
 <!-- TABLE OF CONTENTS -->
 <details>
