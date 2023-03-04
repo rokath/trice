@@ -204,7 +204,7 @@ Main steps are:
 
   ![x](./ref/0-16-32BitTimeStamps.jpg)
 
-- The trice tool `ts*` CLI switches allow customization. With `-hs off` host time stamps are suppressed.
+- The trice tool `-ts*` CLI switches allow customization. With `-hs off` host time stamps are suppressed.
 - It is also possible to use the (time) stamp option not for timestamps but for any values, like addresses or a voltage.
 
 ####  2.4.2. <a name='TriceChecks'></a>Trice Checks
