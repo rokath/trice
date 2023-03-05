@@ -227,9 +227,10 @@ Main steps are:
 ####  2.4.3. <a name='CommunicationPorts'></a>Communication Ports
 
 * For RTT the [SEGGER](https://www.segger.com/downloads/jlink/) source is already included. See [./TriceOverRTT.md](./TriceOverRTT.md) for more info.
-  * If RTT is supported no hardware specific adaptions needed and it is the fastest possible data transfer. 
-  * The direct trice mode (`TRICE_STACK_BUFFER`) is usable also inside interrupts and recommended for RTT.
+  * If RTT is used, no hardware specific adaptions needed and it is the fastest possible data transfer. 
+  * The direct trice mode (`TRICE_STACK_BUFFER`) is usable also inside interrupts and recommended for RTT. The single trice execution is a bit longer then, but the log is completely done in one shot. 
 * For UART transfer add UART write functionality. The deferred mode is recommended for UART transfer.
+* It is possible to log over several channels parallel and to select an ID range for each channel.
 * An additional device, like local file, GPIO pin or SPI, is possible by providing an appropriate write functionality. 
 * See also [./TriceOverOneWire.md](./TriceOverOneWire.md).
 
