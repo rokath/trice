@@ -30,6 +30,8 @@
 | 2023-FEB-19 |  0.56.0 | Many changes - see below |
 | 2023-FEB-21 |  0.56.2 | TriceUserManual.md changed |
 | 2023-FEB-21 |  0.56.3 | Target Modbus Code deactivated (anyway not usable yet) |
+| 2023-MAR-05 |  0.56.4 | Maintenance release: all 3 modes work parallel over RTT0 and UARTA in MDK-ARM_STM32F030R8. |
+
 
 ## v0.56.0 Changes
 
