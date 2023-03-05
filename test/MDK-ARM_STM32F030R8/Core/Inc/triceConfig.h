@@ -50,7 +50,7 @@ extern "C" {
 //! TRICE_STREAM_BUFFER:
 //! \li Stream Buffering output to UART. Needs less buffer memory for the price of being a bit slower.
 //! \li Command line similar to: `trice log -p COM1 -baud 115200`
-#define TRICE_MODE TRICE_STREAM_BUFFER 
+#define TRICE_MODE TRICE_STACK_BUFFER 
 
 //! TRICE_SINGLE_MAX_SIZE is used to truncate long dynamically generated strings and to detect the need of a stream buffer wrap.
 //! Be careful with this value: When using 12 64-bit values with a 64-bit stamp the trice size is 2 + 8 + 2 + 12*8 = 108 bytes

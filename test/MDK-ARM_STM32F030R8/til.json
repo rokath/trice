@@ -279,6 +279,10 @@
 		"Type": "TRICE16_B",
 		"Strg": "  %04x"
 	},
+	"1398": {
+		"Type": "trice",
+		"Strg": "warning:Hello! 👋🙂 \\n\\n"
+	},
 	"1401": {
 		"Type": "TRICE32_8",
 		"Strg": "rd:TRICE32_8 %d, %d, %d, %d, %d, %d, %d, %d\\n"
@@ -1223,6 +1227,10 @@
 		"Type": "TRICE32",
 		"Strg": "rd:TRICE32 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
 	},
+	"2967": {
+		"Type": "trice",
+		"Strg": "wr: Hello! :-)\\n\\n"
+	},
 	"2970": {
 		"Type": "TRICE",
 		"Strg": "sig:TRICE16_n with 1 to 12 values\\n"
@@ -1278,6 +1286,10 @@
 	"3093": {
 		"Type": "TRICE64_1",
 		"Strg": "rd:TRICE64_1 double %g (%%g), aDouble(y)\\n"
+	},
+	"3094": {
+		"Type": "TRice",
+		"Strg": "msg:%12b loops\\n"
 	},
 	"3102": {
 		"Type": "TRICE32",
@@ -1463,6 +1475,10 @@
 		"Type": "TRICE8",
 		"Strg": "value=%d\\n"
 	},
+	"3345": {
+		"Type": "trice",
+		"Strg": "wr:Hello! 👋🙂 \\n\\n"
+	},
 	"3346": {
 		"Type": "TRICE",
 		"Strg": "msg:x = %g = %d.%03d, %d.%03d\\n"
@@ -1622,6 +1638,10 @@
 	"3577": {
 		"Type": "TRICE_N",
 		"Strg": "msg:%s\\n"
+	},
+	"3584": {
+		"Type": "trice",
+		"Strg": "wr:Hello! 🤓 \\n\\n"
 	},
 	"3592": {
 		"Type": "TRICE",
@@ -2070,6 +2090,10 @@
 	"4294": {
 		"Type": "TRICE64",
 		"Strg": "rd:TRICE64 %d, %d, %d\\n"
+	},
+	"4299": {
+		"Type": "trice",
+		"Strg": "test:Hello! 👋🙂 \\n\\n"
 	},
 	"4301": {
 		"Type": "TRICE32",
@@ -2818,6 +2842,10 @@
 	"5554": {
 		"Type": "TRICE8",
 		"Strg": "tst:TRICE8   %%4d -\u003e %4d %4d %4d %4d\\n"
+	},
+	"5561": {
+		"Type": "TRice",
+		"Strg": "msg:%u loops\\n"
 	},
 	"5565": {
 		"Type": "TRICE",
@@ -3587,6 +3615,10 @@
 		"Type": "TRICE",
 		"Strg": "rd:TRICE %d, %d, %d, %d, %d, %d, %d\\n"
 	},
+	"6788": {
+		"Type": "trice",
+		"Strg": "wr:( Hello! :-)\\n\\n"
+	},
 	"6789": {
 		"Type": "TRICE",
 		"Strg": "rd:%E (%%E)\\n"
@@ -3842,6 +3874,10 @@
 	"7111": {
 		"Type": "TRICE",
 		"Strg": "isr:TRICE isr message, SysTick is %6d\\n"
+	},
+	"7118": {
+		"Type": "TRice",
+		"Strg": "msg: Hi %u times! :-)\\n"
 	},
 	"7121": {
 		"Type": "TRICE",

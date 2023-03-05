@@ -33,7 +33,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define TRICE_CHECK_CODE 1
+#define TRICE_CHECK_CODE 0
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -74,9 +74,11 @@ int main(void)
 {
   /* USER CODE BEGIN 1 */
     #if TRICE_CHECK_CODE
-    int triceCheckIndex = 0; 
-    trice( iD( 6041), "msg:Trice check range is [%u...%u)\n", beginTriceCheck, limitTriceCheck );
-    #endif // #if TRICE_CHECK_CODE
+        int triceCheckIndex = 0; 
+        trice( iD( 6041), "msg:Trice check range is [%u...%u)\n", beginTriceCheck, limitTriceCheck );
+    #else // // #if TRICE_CHECK_CODE
+        uint32_t loop = 0;
+    #endif // #else // // #if TRICE_CHECK_CODE
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -109,7 +111,10 @@ int main(void)
     #ifdef TRICE_UARTB
     LL_USART_EnableIT_RXNE(TRICE_UARTB); 
     #endif
-    
+
+    trice( iD( 1398), "warning:Hello! 👋🙂 \n\n" );
+    loop++;
+
     TRICE_HEADLINE;
 
     TRice( iD( 3164), "A TRice message containing a newline\nbefore the line end\n" );
@@ -158,6 +163,10 @@ int main(void)
                     triceCheckIndex = 0; // triceCheck() loop handling
                 }
                 TriceDiagnostics( triceCheckIndex );
+            #else
+            
+            TRice( iD( 3094), "msg:%12b loops\n", loop );
+            loop++;
             #endif // #if TRICE_CHECK_CODE 
         }
         UsDuty();

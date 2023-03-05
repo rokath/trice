@@ -170,7 +170,7 @@ void TriceWriteDevice( TriceWriteDevice_t device, uint8_t *buf, size_t len ){
             unsigned bytesInBuffer = SEGGER_RTT_GetBytesInBuffer(0);
             RTT0_writeSpaceMin    = RTT0_writeSpaceMin    < writeSpace    ? RTT0_writeSpaceMin    : writeSpace;
             RTT0_bytesInBufferMax = RTT0_bytesInBufferMax > bytesInBuffer ? RTT0_bytesInBufferMax : bytesInBuffer;
-        
+
             // action
             SEGGER_RTT_Write(0, buf, len );
         }
@@ -240,7 +240,7 @@ void TriceOut( uint32_t* tb, size_t tLen ){
         TriceWriteDevice( UartB, enc, encLen ); //lint !e534
     }
     #endif
-    #if defined(TRICE_RTT0) && !defined(TRICE_DOUBLE_BUFFER) && !defined(TRICE_STREAM_BUFFER)
+    #if defined(TRICE_RTT0) // && !defined(TRICE_DOUBLE_BUFFER) && !defined(TRICE_STREAM_BUFFER)
         // only when RTT0 is alone
         TriceWriteDevice( Rtt0, enc, encLen ); //lint !e534
     #endif
