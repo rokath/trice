@@ -54,7 +54,7 @@ extern "C" {
 
 //! TRICE_SINGLE_MAX_SIZE is used to truncate long dynamically generated strings and to detect the need of a stream buffer wrap.
 //! Be careful with this value: When using 12 64-bit values with a 64-bit stamp the trice size is 2 + 8 + 2 + 12*8 = 108 bytes 
-#define TRICE_SINGLE_MAX_SIZE 64 // no need for a power of 2 here
+#define TRICE_SINGLE_MAX_SIZE 120 // no need for a power of 2 here
 
 //! TRICE_DATA_OFFSET is the space in front of trice data for in-buffer (T)COBS encoding. It must be be a sizeof(uint32_t) multiple.
 #define TRICE_DATA_OFFSET 16

@@ -61,8 +61,8 @@ uint32_t milliSecond( void );
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-    int beginTriceCheck = 88; // 20
-    int limitTriceCheck = 88; // 400;
+    int beginTriceCheck = 20;
+    int limitTriceCheck = 400;
 
 /* USER CODE END 0 */
 
@@ -134,7 +134,7 @@ int main(void)
             TRICE_S( Id( 5687), "att:Executing command %s ...\n", triceCommandBuffer );
             // do
             TRICE( Id( 4406), "dbg:\aHi!\n" ); // sound!
-            TRICE( Id( 6539), "att:...done\n" );
+            TRICE( Id( 6993), "att:...done\n" );
         }
 
         #if TRICE_DEFERRED_OUT
@@ -148,7 +148,7 @@ int main(void)
 
         // generate some trices every few ms
         static unsigned lastTricesTime = 0;
-        const unsigned msInterval = 500; // change this value to change trice generation speed (not below 2!)
+        const unsigned msInterval = 50; // change this value to change trice generation speed (not below 2!)
         if( ms >= lastTricesTime + msInterval ){
             lastTricesTime = ms;
             #if TRICE_CHECK_CODE // with or without triceCheck.c
