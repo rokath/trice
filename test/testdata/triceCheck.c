@@ -1241,7 +1241,7 @@ EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
         break; case __LINE__: TRICE_N( ID( 2239), "msg:%s\n", A, 7 );
         break; case __LINE__: TRICE_N( ID( 1909), "msg:%s\n", A, 8 );
         break; case __LINE__: TRICE_N( ID( 2675), "msg:%s\n", A, 9 );
-        break; case __LINE__: TRICE_N( ID( 2967), "msg:%s\n", A, 10 );
+        break; case __LINE__: TRICE_N( ID( 2359), "msg:%s\n", A, 10 );
         break; case __LINE__: TRICE_N( ID( 4758), "msg:%s\n", A, 11 );
         break; case __LINE__: TRICE_N( ID( 6991), "msg:%s\n", A, 12 );
         break; case __LINE__: TRICE_N( ID( 3558), "msg:%s\n", A, 13 );

@@ -50,7 +50,7 @@ extern "C" {
 //! TRICE_STREAM_BUFFER:
 //! \li Stream Buffering output to UART. Needs less buffer memory for the price of being a bit slower.
 //! \li Command line similar to: `trice log -p COM1 -baud 115200`
-#define TRICE_MODE TRICE_STACK_BUFFER 
+#define TRICE_MODE TRICE_STREAM_BUFFER 
 
 //! TRICE_SINGLE_MAX_SIZE is used to truncate long dynamically generated strings and to detect the need of a stream buffer wrap.
 //! Be careful with this value: When using 12 64-bit values with a 64-bit stamp the trice size is 2 + 8 + 2 + 12*8 = 108 bytes
@@ -96,12 +96,12 @@ extern "C" {
 // 
 
 //! Enable and set channel number for SeggerRTT usage. Only channel 0 works right now for some reason.
-#define TRICE_RTT0 0 // comment out, if you do not use RTT
+//#define TRICE_RTT0 0 // comment out, if you do not use RTT
 //#define TRICE_RTT0_MIN_ID 1           //!< TRICE_RTT0_MIN_ID is the smallest ID transferred to RTT0.
 //#define TRICE_RTT0_MAX_ID ((1<<14)-1) //!< TRICE_RTT0_MAX_ID is the biggest  ID transferred to RTT0.
 
 //! Enable and set UARTA for serial output.
-//#define TRICE_UARTA USART2 // comment out, if you do not use TRICE_UARTA
+#define TRICE_UARTA USART2 // comment out, if you do not use TRICE_UARTA
 #ifdef TRICE_UARTA
 //#define TRICE_UARTA_MIN_ID 1           //!< TRICE_UARTA_MIN_ID is the smallest ID transferred to UARTA.
 //#define TRICE_UARTA_MAX_ID ((1<<14)-1) //!< TRICE_UARTA_MAX_ID is the biggest  ID transferred to UARTA.
@@ -179,10 +179,19 @@ extern "C" {
 ///////////////////////////////////////////////////////////////////////////////
 // Headline info
 //
+#if TRICE_MODE == TRICE_STACK_BUFFER
+#define LOG_TRICE_MODE TRice( iD( 2545), "s:     NUCLEO-F030R8  STACK_BUFFER MODE     \n" );
+#elif TRICE_MODE == TRICE_STREAM_BUFFER
+#define LOG_TRICE_MODE TRice( iD( 2171), "s:     NUCLEO-F030R8 STREAM_BUFFER MODE     \n" );
+#elif TRICE_MODE == TRICE_DOUBLE_BUFFER
+#define LOG_TRICE_MODE TRice( iD( 3758), "s:     NUCLEO-F030R8 DOUBLE_BUFFER MODE     \n" );
+#else
+#error
+#endif
 
 //! This is usable as the very first trice sequence after restart. Adapt and use it or ignore it.
 #define TRICE_HEADLINE \
-    TRice( iD( 7037), "s:     NUCLEO-F030R8     TRICE_MODE %3u     \n", TRICE_MODE ); \
+    LOG_TRICE_MODE \
     trice( iD( 7746), "s:     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~     \n" ); \
     trice( iD( 2661), "s:     " ); \
     TriceLogBufferInfo(); \

@@ -112,7 +112,7 @@ int main(void)
     LL_USART_EnableIT_RXNE(TRICE_UARTB); 
     #endif
 
-    trice( iD( 1398), "warning:Hello! 👋🙂 \n\n" );
+    trice( iD( 1728), "w: Hello! 👋🙂 \n\n" );
     loop++;
 
     TRICE_HEADLINE;

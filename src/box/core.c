@@ -239,7 +239,7 @@ void TriceOut( uint32_t* tb, size_t tLen ){
 			  #endif
 			  TriceWriteDeviceUartB( enc, encLen );
     #endif
-    #if defined(TRICE_RTT0) && !defined(TRICE_DOUBLE_BUFFER) && !defined(TRICE_STREAM_BUFFER) // only when RTT0 is alone
+    #if defined(TRICE_RTT0) // && !defined(TRICE_DOUBLE_BUFFER) && !defined(TRICE_STREAM_BUFFER) // only when RTT0 is alone
 			  #if defined(TRICE_RTT0_MIN_ID) && defined(TRICE_RTT0_MAX_ID)
 				if( (TRICE_RTT0_MIN_ID < triceID) && (triceID < TRICE_RTT0_MAX_ID) )
 			  #endif
