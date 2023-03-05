@@ -50,7 +50,7 @@ uint32_t* TriceNextStreamBuffer( void ){
     if( TriceBufferWritePosition > triceBufferWriteLimit ){
         for(;;); // trice stream buffer overflow
     }
-    if( (int)triceBufferWriteLimit - (int)TriceBufferWritePosition > TRICE_SINGLE_MAX_SIZE ){
+    if( triceBufferWriteLimit - TriceBufferWritePosition > (TRICE_SINGLE_MAX_SIZE>>2) ){
         return TriceBufferWritePosition; // enough space at buffer end
     }else{
         return triceStreamBufferHeap; // buffer wrap
@@ -72,13 +72,13 @@ size_t triceStreamBufferDepthMax = 0; //!< triceStreamBufferDepth is used for di
 static size_t streamBufferDepth( uint32_t* tBuf ){
     int depth;
     if( tBuf < TriceBufferWritePosition ){
-        depth = (int)TriceBufferWritePosition - (int)tBuf;
+        depth = TriceBufferWritePosition - tBuf;
     }else{
-        int top  = (int)TriceBufferWritePosition - (int)triceStreamBufferHeap;
-        int bottom = (int)triceBufferWriteLimit - (int)tBuf;
+        int top  = TriceBufferWritePosition - triceStreamBufferHeap;
+        int bottom = triceBufferWriteLimit - tBuf;
         depth = top + bottom;
     }
-    return (size_t)depth;
+    return (size_t)(depth<<2);
 }
 
 //! TriceTransfer, if possible, initiates a write.

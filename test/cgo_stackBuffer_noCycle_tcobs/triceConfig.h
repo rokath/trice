@@ -10,7 +10,11 @@ extern "C" {
 #endif
 
 #include <stdint.h>
+#include <stdlib.h>
 
+#define TRICE_DEFAULT_PARAMETER_BIT_WIDTH 32
+#define TRICE_B  TRICE8_B
+#define TRICE_F  TRICE8_F
 ///////////////////////////////////////////////////////////////////////////////
 // Select trice mode and general settings.
 //
@@ -42,24 +46,28 @@ extern "C" {
 //! Be careful with this value: When using 12 64-bit values with a 64-bit stamp the trice size is 2 + 8 + 2 + 12*8 = 108 bytes 
 #define TRICE_SINGLE_MAX_SIZE 120 // no need for a power of 2 here
 
+#define TRICE_DATA_OFFSET 16
 #if TRICE_MODE == TRICE_STACK_BUFFER
-#define TRICE_BUFFER_SIZE (TRICE_SINGLE_MAX_SIZE + 8) //!< TRICE_BUFFER_SIZE is the used additional max stack size for a single TRICE macro. Recommended value: TRICE_SINGLE_MAX_SIZE plus 8.
+#define TRICE_BUFFER_SIZE (TRICE_SINGLE_MAX_SIZE + TRICE_DATA_OFFSET) //!< TRICE_BUFFER_SIZE is the used additional max stack size for a single TRICE macro. Recommended value: TRICE_SINGLE_MAX_SIZE plus 8.
 #elif TRICE_MODE == TRICE_STREAM_BUFFER 
 #define TRICE_TRANSFER_INTERVAL_MS 10 //!< TRICE_TRANSFER_INTERVAL_MS is the milliseconds interval for a single TRICE read out. Each trigger transfers up to one trice, so make this value not too big to get all trices out in the average. This time should be shorter than visible delays. 
 #define TRICE_FIFO_ELEMENTS 128 //!< Must be a power of 2. The half number is the amount of bufferable trices before they go out.
-#define TRICE_BUFFER_SIZE 0x800 //!< TRICE_BUFFER_SIZE is the used max buffer size for a TRICE macro burst. Recommended value: 2000.
+#define TRICE_BUFFER_SIZE 2048 //!< TRICE_BUFFER_SIZE is the used max buffer size for a TRICE macro burst. Recommended value: 2000.
 #elif TRICE_MODE == TRICE_DOUBLE_BUFFER 
-#define TRICE_TRANSFER_INTERVAL_MS 100 //!< TRICE_TRANSFER_INTERVAL_MS is the milliseconds interval for TRICE buffer read out. Each trigger transfers all in a half buffer stored trices. The TRICE_HALF_BUFFER_SIZE must be able to hold all trice messages possibly occouring in this time. This time should be shorter than visible delays. 
-#define TRICE_BUFFER_SIZE 0x800 //!< TRICE_BUFFER_SIZE is the double half buffer size usable for a TRICE macro burst. Recommended value: 2000.
+#define TRICE_TRANSFER_INTERVAL_MS 10 //!< TRICE_TRANSFER_INTERVAL_MS is the milliseconds interval for TRICE buffer read out. Each trigger transfers all in a half buffer stored trices. The TRICE_HALF_BUFFER_SIZE must be able to hold all trice messages possibly occouring in this time. This time should be shorter than visible delays. 
+#define TRICE_BUFFER_SIZE 2048 //!< TRICE_BUFFER_SIZE is the double half buffer size usable for a TRICE macro burst. Recommended value: 2000.
 #endif
 
+#ifdef XTEA_ENCRYPT_KEY
+#define TRICE_FRAMING TRICE_FRAMING_COBS
+#else // #ifdef XTEA_ENCRYPT_KEY
 //! TRICE_FRAMING defines the framing method of the binary trice data stream. Default is TRICE_FRAMING_TCOBS.
 //! When changing to TRICE_FRAMING_COBS, the trice tool needs an additional le switch `-framing COBS`.
 //! TRICE_FRAMING_COBS is useful if you intend to decode the binary trice date with Python or an other language.
 //! When using encryption TRICE_FRAMING_TCOBS has no advantage over TRICE_FRAMING_COBS.
 //! options: TRICE_FRAMING_TCOBS, TRICE_FRAMING_COBS, TRICE_FRAMING_NONE
 #define TRICE_FRAMING TRICE_FRAMING_TCOBS
-
+#endif // #else // #ifdef XTEA_ENCRYPT_KEY
 
 ///////////////////////////////////////////////////////////////////////////////
 // Multi selecet physical out channels, the ID ranges are allowed to overlap.
@@ -70,13 +78,17 @@ extern "C" {
 
 //! Enable and set UART2 for serial output.
 //#define TRICE_UARTA USART2 // comment out, if you do not use TRICE_UARTA
+#ifdef TRICE_UARTA
 #define TRICE_UARTA_MIN_ID 1       //! TRICE_UARTA_MIN_ID is the smallest ID transferred to UARTA.
-#define TRICE_UARTA_MAX_ID (1<<13) //! TRICE_UARTA_MAX_ID is the biggest ID transferred to UARTA.
+#define TRICE_UARTA_MAX_ID ((1<<14)-1) //!< TRICE_UARTA_MAX_ID is the biggest ID transferred to UARTA.
+#endif
 
 //! Enable and set UART for serial output.
 //#define TRICE_UARTB USART1 // comment out, if you do not use TRICE_UARTB
+#ifdef TRICE_UARTB
 #define TRICE_UARTB_MIN_ID 1       //! TRICE_UARTB_MIN_ID is the smallest ID transferred to UARTB.
-#define TRICE_UARTB_MAX_ID (1<<13) //! TRICE_UARTB_MAX_ID is the biggest ID transferred to UARTB.
+#define TRICE_UARTB_MAX_ID ((1<<14)-1) //!< TRICE_UARTB_MAX_ID is the biggest ID transferred to UARTB.
+#endif
 
 //! CGO interface (for testing)
 #define TRICE_CGO 
@@ -136,10 +148,10 @@ extern "C" {
 #define ALIGN4_END __attribute__ ((aligned(4))) //!< align to 4 byte boundary post declaration
 
 //! TRICE_ENTER_CRITICAL_SECTION saves interrupt state and disables Interrupts.
-#define TRICE_ENTER_CRITICAL_SECTION { // to do
+#define TRICE_ENTER_CRITICAL_SECTION { // uint32_t old_mask = cm_mask_interrupts(1); { // copied from test/OpenCM3_STM32F411_Nucleo/triceConfig.h
 
 //! TRICE_LEAVE_CRITICAL_SECTION restores interrupt state.
-#define TRICE_LEAVE_CRITICAL_SECTION } // to do
+#define TRICE_LEAVE_CRITICAL_SECTION  } // cm_mask_interrupts(old_mask); } // copied from test/OpenCM3_STM32F411_Nucleo/triceConfig.h
 
 #elif defined(__ARMCC_VERSION) /* Arm Compiler ############################### */
 
@@ -270,26 +282,6 @@ TRICE_INLINE void triceDisableTxEmptyInterruptUartB(void) {
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-
-///////////////////////////////////////////////////////////////////////////////
-// Default TRICE macro bitwidth: 32 (optionally adapt to MCU bit width)
-//
-
-#define TRICE_1  TRICE32_1  //!< Default parameter bit width for 1  parameter count TRICE is 32, change for a different value.
-#define TRICE_2  TRICE32_2  //!< Default parameter bit width for 2  parameter count TRICE is 32, change for a different value.
-#define TRICE_3  TRICE32_3  //!< Default parameter bit width for 3  parameter count TRICE is 32, change for a different value.
-#define TRICE_4  TRICE32_4  //!< Default parameter bit width for 4  parameter count TRICE is 32, change for a different value.
-#define TRICE_5  TRICE32_5  //!< Default parameter bit width for 5  parameter count TRICE is 32, change for a different value.
-#define TRICE_6  TRICE32_6  //!< Default parameter bit width for 6  parameter count TRICE is 32, change for a different value.
-#define TRICE_7  TRICE32_7  //!< Default parameter bit width for 7  parameter count TRICE is 32, change for a different value.
-#define TRICE_8  TRICE32_8  //!< Default parameter bit width for 8  parameter count TRICE is 32, change for a different value.
-#define TRICE_9  TRICE32_9  //!< Default parameter bit width for 9  parameter count TRICE is 32, change for a different value.
-#define TRICE_10 TRICE32_10 //!< Default parameter bit width for 10 parameter count TRICE is 32, change for a different value.
-#define TRICE_11 TRICE32_11 //!< Default parameter bit width for 11 parameter count TRICE is 32, change for a different value.
-#define TRICE_12 TRICE32_12 //!< Default parameter bit width for 12 parameter count TRICE is 32, change for a different value.
-
-//
-///////////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////////
 // See trice/doc/TriceProjectImageSizeOptimization.md

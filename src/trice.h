@@ -84,15 +84,6 @@ extern "C" {
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-//! TriceWriteDevice is a symbolic address to a trice data output device.
-typedef enum{
-    UartA,
-    UartB,
-    Rtt0,
-    Cgo,
-    ModbusBuffer
-} TriceWriteDevice_t;
-
 //! Variadic macros (https://github.com/pfultz2/Cloak/wiki/C-Preprocessor-tricks,-tips,-and-idioms)
 //! See for more explanation https://renenyffenegger.ch/notes/development/languages/C-C-plus-plus/preprocessor/macros/__VA_ARGS__/count-arguments
 //! This is extendable until a 32767 bytes payload.
@@ -146,8 +137,6 @@ unsigned TriceOutDepthCGO( void ); // only needed for testing C-sources from Go
     #define TRICE_TTOHS(x) (x)
 
 #endif // #else // #ifdef TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN
-
-void TriceWriteDevice( TriceWriteDevice_t device, uint8_t *buf, size_t len );
 
 //! TriceStamp16 returns a 16-bit value to stamp `Id` TRICE macros. Usually it is a timestamp, but could also be a destination address or a counter for example.
 //! This function is user provided.

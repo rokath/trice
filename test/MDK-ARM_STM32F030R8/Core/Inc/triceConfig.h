@@ -55,7 +55,7 @@ extern "C" {
 //! TRICE_SINGLE_MAX_SIZE is used to truncate long dynamically generated strings and to detect the need of a stream buffer wrap.
 //! Be careful with this value: When using 12 64-bit values with a 64-bit stamp the trice size is 2 + 8 + 2 + 12*8 = 108 bytes
 //! In direct mode, and also when you enabled TRICE_RTT0, this plus TRICE_DATA_OFFSET is the max allocation size on the target stack.
-#define TRICE_SINGLE_MAX_SIZE 64 // no need for a power of 2 here
+#define TRICE_SINGLE_MAX_SIZE 120 // no need for a power of 2 here
 
 //! TRICE_DATA_OFFSET is the space in front of trice data for in-buffer (T)COBS encoding. It must be be a sizeof(uint32_t) multiple.
 //! When using real big buffers, 16 may be not enough.
@@ -66,7 +66,7 @@ extern "C" {
 #elif TRICE_MODE == TRICE_STREAM_BUFFER 
 #define TRICE_TRANSFER_INTERVAL_MS 10 //!< TRICE_TRANSFER_INTERVAL_MS is the milliseconds interval for a single TRICE read out. Each trigger transfers up to one trice, so make this value not too big to get all trices out in the average. This time should be shorter than visible delays. 
 #define TRICE_FIFO_ELEMENTS 128 //!< Must be a power of 2. The half number is the amount of bufferable trices before they go out.
-#define TRICE_BUFFER_SIZE 0x800 //!< TRICE_BUFFER_SIZE is the used max buffer size for a TRICE macro burst. Recommended value: 2000.
+#define TRICE_BUFFER_SIZE 2048 //!< TRICE_BUFFER_SIZE is the used max buffer size for a TRICE macro burst. Recommended value: 2000.
 #elif TRICE_MODE == TRICE_DOUBLE_BUFFER 
 #define TRICE_TRANSFER_INTERVAL_MS 10 //!< TRICE_TRANSFER_INTERVAL_MS is the milliseconds interval for TRICE buffer read out. Each trigger transfers all in a half buffer stored trices. The TRICE_HALF_BUFFER_SIZE must be able to hold all trice messages possibly occouring in this time. This time should be shorter than visible delays. 
 #define TRICE_BUFFER_SIZE 2048 //!< TRICE_BUFFER_SIZE is the double half buffer size usable for a TRICE macro burst. Recommended value: 2000.
@@ -97,24 +97,30 @@ extern "C" {
 
 //! Enable and set channel number for SeggerRTT usage. Only channel 0 works right now for some reason.
 #define TRICE_RTT0 0 // comment out, if you do not use RTT
+//#define TRICE_RTT0_MIN_ID 1           //!< TRICE_RTT0_MIN_ID is the smallest ID transferred to RTT0.
+//#define TRICE_RTT0_MAX_ID ((1<<14)-1) //!< TRICE_RTT0_MAX_ID is the biggest  ID transferred to RTT0.
 
 //! Enable and set UARTA for serial output.
-#define TRICE_UARTA USART2 // comment out, if you do not use TRICE_UARTA
+//#define TRICE_UARTA USART2 // comment out, if you do not use TRICE_UARTA
 #ifdef TRICE_UARTA
-#define TRICE_UARTA_MIN_ID 1           //!< TRICE_UARTA_MIN_ID is the smallest ID transferred to UARTA.
-#define TRICE_UARTA_MAX_ID ((1<<14)-1) //!< TRICE_UARTA_MAX_ID is the biggest ID transferred to UARTA.
+//#define TRICE_UARTA_MIN_ID 1           //!< TRICE_UARTA_MIN_ID is the smallest ID transferred to UARTA.
+//#define TRICE_UARTA_MAX_ID ((1<<14)-1) //!< TRICE_UARTA_MAX_ID is the biggest  ID transferred to UARTA.
 #endif
 
 //! Enable and set UARTB for serial output.
 // #define TRICE_UARTB USART1 // comment out, if you do not use TRICE_UARTB
 #ifdef TRICE_UARTB
-#define TRICE_UARTB_MIN_ID 1           //!< TRICE_UARTB_MIN_ID is the smallest ID transferred to UARTB.
-#define TRICE_UARTB_MAX_ID ((1<<14)-1) //!< TRICE_UARTB_MAX_ID is the biggest ID transferred to UARTB.
+//#define TRICE_UARTB_MIN_ID 1           //!< TRICE_UARTB_MIN_ID is the smallest ID transferred to UARTB.
+//#define TRICE_UARTB_MAX_ID ((1<<14)-1) //!< TRICE_UARTB_MAX_ID is the biggest  ID transferred to UARTB.
 #endif
 
 //! CGO interface (for testing)
 //#define TRICE_CGO 
 
+//! Enable option for an dditional interface, you can define by your own.
+//#define TRICE_AUXILIARY
+//#define TRICE_AUXILIARY_MIN_ID 1           //!< TRICE_AUXILIARY_MIN_ID is the smallest ID transferred to AUXILIARY.
+//#define TRICE_AUXILIARY_MAX_ID ((1<<14)-1) //!< TRICE_AUXILIARY_MAX_ID is the biggest  ID transferred to AUXILIARY.
 
 ///////////////////////////////////////////////////////////////////////////////
 // Modbus support s not working yet.
@@ -139,8 +145,8 @@ extern "C" {
 //  
 //  
 //  #ifdef TRICE_LOG_OVER_MODBUS_FUNC24_ALSO
-//  #define TRICE_MODBUS_BUFFER_MIN_ID 1           //!< TRICE_MODBUS_BUFFER_MIN_ID is the smallest ID transferred to MODBUS_BUFFER.
-//  #define TRICE_MODBUS_BUFFER_MAX_ID ((1<<14)-1) //!< TRICE_MODBUS_BUFFER_MAX_ID is the biggest ID transferred to MODBUS_BUFFER.
+//  #define TRICE_MODBUS_MIN_ID 1           //!< TRICE_MODBUS_BUFFER_MIN_ID is the smallest ID transferred to MODBUS_BUFFER.
+//  #define TRICE_MODBUS_MAX_ID ((1<<14)-1) //!< TRICE_MODBUS_BUFFER_MAX_ID is the biggest  ID transferred to MODBUS_BUFFER.
 //  
 //  #define TRICE_MODBUS_BUFFER_SIZE 240
 //  #define TRICE_MODBUS_FIFO_ELEMENTS 32 //!< Must be a power of 2. The half number is the amount of bufferable trices before they go out.
@@ -176,9 +182,9 @@ extern "C" {
 
 //! This is usable as the very first trice sequence after restart. Adapt and use it or ignore it.
 #define TRICE_HEADLINE \
-    TRice( iD( 1697), "s:     NUCLEO-F030R8     TRICE_MODE %3u     \n", TRICE_MODE ); \
-    trice( iD( 3810), "s:     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~     \n" ); \
-    trice( iD( 7169), "s:     " ); \
+    TRice( iD( 7037), "s:     NUCLEO-F030R8     TRICE_MODE %3u     \n", TRICE_MODE ); \
+    trice( iD( 7746), "s:     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~     \n" ); \
+    trice( iD( 2661), "s:     " ); \
     TriceLogBufferInfo(); \
     trice( iD( 6427), "s:     \n" ); \
     Trice( iD( 3248), "s:     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~     \n");
@@ -297,7 +303,7 @@ TRICE_INLINE void triceEnableTxEmptyInterruptUartA(void) {
 TRICE_INLINE void triceDisableTxEmptyInterruptUartA(void) {
     LL_USART_DisableIT_TXE(TRICE_UARTA);
 }
-#endif // #ifdef TRICE_STM32
+#endif // #ifdef TRICE_UARTA
 
 #ifdef TRICE_UARTB
 #include "main.h" // hardware specific stuff
@@ -329,7 +335,7 @@ TRICE_INLINE void triceEnableTxEmptyInterruptUartB(void) {
 TRICE_INLINE void triceDisableTxEmptyInterruptUartB(void) {
     LL_USART_DisableIT_TXE(TRICE_UARTB);
 }
-#endif // #ifdef TRICE_STM32
+#endif // #ifdef TRICE_UARTB
 
 //
 ///////////////////////////////////////////////////////////////////////////////

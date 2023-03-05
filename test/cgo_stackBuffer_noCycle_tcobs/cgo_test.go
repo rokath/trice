@@ -2,7 +2,6 @@ package cgot
 
 import (
 	"bytes"
-	"fmt"
 	"io"
 	"testing"
 
@@ -17,11 +16,9 @@ func TestLogs(t *testing.T) {
 	// It uses the inside fSys specified til.json and returns the log output.
 	triceLog := func(t *testing.T, fSys *afero.Afero, buffer string) string {
 		var o bytes.Buffer
-		fmt.Println("-i", triceDir+"/test/testdata/til.json")
 		assert.Nil(t, args.Handler(io.Writer(&o), fSys, []string{"trice", "log", "-i", triceDir + "/test/testdata/til.json", "-p", "BUFFER", "-args", buffer, "-hs", "off", "-prefix", "off", "-li", "off", "-color", "off"}))
 		return o.String()
 	}
 
 	triceLogTest(t, triceLog, -1)
-	//t.Fail()
 }

@@ -37,8 +37,7 @@ import (
 )
 
 var (
-	triceDir    string // holds the trice directory path
-	testDataDir string // holds the testdata directory path
+	triceDir string // holds the trice directory path
 )
 
 // https://stackoverflow.com/questions/23847003/golang-tests-and-working-directory
@@ -46,7 +45,6 @@ func init() {
 	_, filename, _, _ := runtime.Caller(0) // filename is the test executable inside the package dir like cgo_stackBuffer_noCycle_tcobs
 	testDir := path.Dir(filename)
 	triceDir = path.Join(testDir, "../../")
-	testDataDir = path.Join(testDir, "../testdata")
 }
 
 // setTriceBuffer tells the underlying C code where to output the trice byte stream.
@@ -112,7 +110,7 @@ func getExpectedResults(fSys *afero.Afero, filename string) (result []results) {
 // It uses the inside fSys specified til.json and returns the log output.
 type logF func(t *testing.T, fSys *afero.Afero, buffer string) string
 
-// triceLogTest creates a list of expected results from testDataDir+"./triceCheck.c".
+// triceLogTest creates a list of expected results from triceDir+"./test/testdata/triceCheck.c".
 // It loops over the result list and executes for each result the compiled C-code.
 // It passes the received binary data as buffer to the triceLog function of type logF.
 // This function is test package specific defined. The file cgoPackage.go is
@@ -128,7 +126,7 @@ func triceLogTest(t *testing.T, triceLog logF, limit int) {
 	out := make([]byte, 32768)
 	setTriceBuffer(out)
 
-	result := getExpectedResults(osFSys, testDataDir+"./triceCheck.c")
+	result := getExpectedResults(osFSys, triceDir+"./test/testdata/triceCheck.c")
 
 	var count int
 	for i, r := range result {
@@ -151,26 +149,3 @@ func triceLogTest(t *testing.T, triceLog logF, limit int) {
 		assert.Equal(t, r.exps, strings.TrimSuffix(act, "\n"))
 	}
 }
-
-//  // CopyFileIntoFSys copies srcFn with its basename into destFSys as destFn.
-//  func CopyFileIntoFSys(t *testing.T, destFSys *afero.Afero, destFn string, srcFSys *afero.Afero, srcFn string) {
-//  	r, e := srcFSys.Open(srcFn)
-//  	assert.Nil(t, e)
-//
-//  	w, e := destFSys.Create(filepath.Base(destFn))
-//  	assert.Nil(t, e)
-//
-//  	_, e = io.Copy(w, r)
-//  	assert.Nil(t, e)
-//  	assert.Nil(t, r.Close())
-//  	assert.Nil(t, w.Close())
-//  }
-
-//  // Dump prints the byte slice as hex in one line.
-//  func Dump(w io.Writer, b []byte) {
-//  	fmt.Fprint(w, "exp := []byte{ ")
-//  	for _, x := range b {
-//  		fmt.Fprintf(w, "0x%02x, ", x)
-//  	}
-//  	fmt.Fprintln(w, "}")
-//  }
