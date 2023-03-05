@@ -148,7 +148,7 @@ uint32_t TriceStamp32( void );
 
 #if TRICE_MODE == TRICE_STACK_BUFFER 
 
-#define TRICE_STACK_BUFFER_MAX_SIZE TRICE_BUFFER_SIZE
+#define TRICE_STACK_BUFFER_MAX_SIZE (TRICE_SINGLE_MAX_SIZE + TRICE_DATA_OFFSET)
 
 //! Start of TRICE macro
 #define TRICE_ENTER { /*TRICE_MODE == TRICE_STACK_BUFFER*/ \
@@ -174,7 +174,7 @@ void TriceOutRtt0( uint32_t* tb, size_t tLen ); // todo
 
 // When TRICE_MODE != TRICE_STACK_BUFFER (deferred mode for UART as example) and TRICE_RTT0 is defined
 // we need this value because TRICE_RTT0 is always in direct mode to support post mortem analysis.
-#define TRICE_STACK_BUFFER_MAX_SIZE TRICE_BUFFER_SIZE 
+#define TRICE_STACK_BUFFER_MAX_SIZE (TRICE_SINGLE_MAX_SIZE + TRICE_DATA_OFFSET) // TRICE_BUFFER_SIZE 
 
 //! TRICE_ENTER is the start of TRICE macro. The TRICE macros are a bit slower. Inside interrupts TRICE macros allowed.
 #define TRICE_ENTER \

@@ -75,6 +75,10 @@
 		"Type": "TRICE8",
 		"Strg": "value=%d\\n"
 	},
+	"1130": {
+		"Type": "trice",
+		"Strg": "Twelf default (32) bit width\\nvalues\\n%d, %u, %x, %X,\\n%t, %e, %f, %g,\\n%E, %F, %G,\\n0xb%08b\\nand without stamp.\\n"
+	},
 	"1139": {
 		"Type": "TRICE",
 		"Strg": "rd: 1111 \t%b \tBase 2\\n"
@@ -102,6 +106,10 @@
 	"1167": {
 		"Type": "TRICE",
 		"Strg": "rd:TRICE float %+9.6f (%%9.6f)\\n"
+	},
+	"1168": {
+		"Type": "TRice",
+		"Strg": "Twelf default (32) bit width\\nvalues\\n%d, %u, %x, %X,\\n%t, %e, %f, %g,\\n%E, %F, %G,\\n0xb%08b\\nand a 32-bit stamp.\\n"
 	},
 	"1172": {
 		"Type": "TRICE",
@@ -423,6 +431,10 @@
 		"Type": "TRICE16_1",
 		"Strg": "rd:TRICE16_1 line %u (%%u -1)\\n"
 	},
+	"1583": {
+		"Type": "Trice",
+		"Strg": "info:12 default bit width values\\n%d, %u, %x, %X,\\n%t, %e, %f, %g,\\n%E, %F, %G,\\n0xb%08b\\nand a 16-bit stamp.\\n"
+	},
 	"1591": {
 		"Type": "trice8",
 		"Strg": "value=%x\\n"
@@ -519,6 +531,10 @@
 		"Type": "trice",
 		"Strg": "w: Hello! 👋🙂 \\n\\n"
 	},
+	"1733": {
+		"Type": "TRice",
+		"Strg": "info:12 default bit width values\\n%d, %u, %x, %X,\\n%t, %e, %f, %g,\\n%E, %F, %G,\\n0xb%08b\\nand a 32-bit stamp.\\n"
+	},
 	"1735": {
 		"Type": "TRICE",
 		"Strg": "info:This is a message with one value %d and without stamp.\\n"
@@ -559,6 +575,10 @@
 		"Type": "TRICE32_4",
 		"Strg": "tst:TRICE32_4 %x %x %x %x\\n"
 	},
+	"1809": {
+		"Type": "trice",
+		"Strg": "FATAL:HardFault\\n"
+	},
 	"1813": {
 		"Type": "trice16",
 		"Strg": "msg:value=%d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
@@ -578,6 +598,10 @@
 	"1834": {
 		"Type": "TRICE",
 		"Strg": "\\n"
+	},
+	"1835": {
+		"Type": "trice",
+		"Strg": "info:12 default bit width values %d, %u, %x, %X,\\n%t, %e, %f, %g,\\n%E, %F, %G, 0xb%08b and without stamp.\\n"
 	},
 	"1838": {
 		"Type": "TRICE",
@@ -911,6 +935,10 @@
 		"Type": "TRice32_1",
 		"Strg": "value=%d\\n"
 	},
+	"2375": {
+		"Type": "Trice",
+		"Strg": "Twelf default (32) bit width\\nvalues\\n%d, %u, %x, %X,\\n%t, %e, %f, %g,\\n%E, %F, %G,\\n0xb%08b\\nand a 16-bit stamp.\\n"
+	},
 	"2384": {
 		"Type": "TRICE32",
 		"Strg": "msg:value=%u\\n"
@@ -1063,6 +1091,10 @@
 		"Type": "TRICE",
 		"Strg": "rd:TRICE float %E (%%E)\\n"
 	},
+	"2636": {
+		"Type": "TRice",
+		"Strg": "line0:A TRice message with several lines\\nline1\\nline2\\nline3:last line\\n"
+	},
 	"2638": {
 		"Type": "TRICE_8",
 		"Strg": "rd:TRICE_8 %d, %d, %d, %d, %d, %d, %d, %d\\n"
@@ -1078,6 +1110,10 @@
 	"2665": {
 		"Type": "TRICE64",
 		"Strg": "tst:TRICE64 %%09x -\u003e      %09x      %09x       %09x     %09x\\n"
+	},
+	"2674": {
+		"Type": "Trice",
+		"Strg": "info:12 default (32) bit width\\nvalues\\n%d, %u, %x, %X,\\n%t, %e, %f, %g,\\n%E, %F, %G,\\n0xb%08b\\nand a 16-bit stamp.\\n"
 	},
 	"2675": {
 		"Type": "TRICE_N",
@@ -1162,6 +1198,10 @@
 	"2754": {
 		"Type": "trice16",
 		"Strg": "att: line %u\\n"
+	},
+	"2767": {
+		"Type": "trice",
+		"Strg": "FATAL:HardFault!\\n"
 	},
 	"2769": {
 		"Type": "TRICE",
@@ -1903,6 +1943,10 @@
 		"Type": "trice64_1",
 		"Strg": "msg:value=%u\\n"
 	},
+	"3801": {
+		"Type": "TRice",
+		"Strg": "Twelf default (32) bit width values\\n%d, %u, %x, %X, %t,\\n%e, %f, %g,\\n%E, %F, %G,\\n0xb%08b\\nand a 32-bit stamp.\\n"
+	},
 	"3805": {
 		"Type": "TRICE16_9",
 		"Strg": "tst:TRICE16_9  %d %d %d %d %d %d %d %d %d\\n"
@@ -2371,6 +2415,10 @@
 		"Type": "TRICE",
 		"Strg": "dbg:\\tHi!\\n"
 	},
+	"4476": {
+		"Type": "Trice",
+		"Strg": "Twelf default (32) bit width values\\n%d, %u, %x, %X, %t,\\n%e, %f, %g,\\n%E, %F, %G,\\n0xb%08b\\nand a 16-bit stamp.\\n"
+	},
 	"4481": {
 		"Type": "TRICE",
 		"Strg": "dbg:\\a\\aHi!\\n"
@@ -2382,6 +2430,10 @@
 	"4488": {
 		"Type": "Trice",
 		"Strg": "info:12 default bit width values %d, %u, %x, %X, %t, %e, %f, %g, %E, %F, %G, 0xb%08b and a 16-bit stamp.\\n"
+	},
+	"4502": {
+		"Type": "Trice",
+		"Strg": "info:12 default bit width values %d, %u, %x, %X,\\n%t, %e, %f, %g,\\n%E, %F, %G, 0xb%08b and a 16-bit stamp.\\n"
 	},
 	"4522": {
 		"Type": "TRICE",
@@ -2650,6 +2702,10 @@
 	"4959": {
 		"Type": "TRICE64_1",
 		"Strg": "rd:TRICE64_1 double %g (%%g), aDouble(y)\\n"
+	},
+	"4960": {
+		"Type": "TRice",
+		"Strg": "info:12 default bit width values %d, %u, %x, %X,\\n%t, %e, %f, %g,\\n%E, %F, %G, 0xb%08b and a 32-bit stamp.\\n"
 	},
 	"4965": {
 		"Type": "TRICE16",
@@ -3343,6 +3399,10 @@
 		"Type": "TRICE32_3",
 		"Strg": "tst:TRICE32_3  %d %d %d\\n"
 	},
+	"6032": {
+		"Type": "TRice",
+		"Strg": "A TRice message containing a newline\\nbefore the line end\\n"
+	},
 	"6034": {
 		"Type": "TRICE16",
 		"Strg": "rd:TRICE16 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
@@ -3523,6 +3583,10 @@
 		"Type": "TRICE64",
 		"Strg": "tst:TRICE64 %d %d %d %d %d %d %d\\n"
 	},
+	"6375": {
+		"Type": "TRice",
+		"Strg": "\\nA TRice message starting with a a newline\\n"
+	},
 	"6380": {
 		"Type": "TRICE_N",
 		"Strg": "msg:%s\\n"
@@ -3574,6 +3638,10 @@
 	"6440": {
 		"Type": "TRICE8",
 		"Strg": "tst:TRICE8 %d %d %d %d %d %d\\n"
+	},
+	"6442": {
+		"Type": "trice",
+		"Strg": "Twelf default (32) bit width values\\n%d, %u, %x, %X, %t,\\n%e, %f, %g,\\n%E, %F, %G,\\n0xb%08b\\nand without stamp.\\n"
 	},
 	"6447": {
 		"Type": "TRICE32",
@@ -3662,6 +3730,10 @@
 	"6573": {
 		"Type": "TRICE64",
 		"Strg": "rd:TRICE64 int %d, double %f (%%f), %016x, %064b\\n"
+	},
+	"6576": {
+		"Type": "trice",
+		"Strg": "CRITICAL:NMI!\\n"
 	},
 	"6581": {
 		"Type": "TRICE",
@@ -3843,6 +3915,10 @@
 		"Type": "TRICE32",
 		"Strg": "rd:TRICE32 %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
 	},
+	"6866": {
+		"Type": "TRice",
+		"Strg": "info:12 default (32) bit width\\nvalues\\n%d, %u, %x, %X,\\n%t, %e, %f, %g,\\n%E, %F, %G,\\n0xb%08b\\nand a 32-bit stamp.\\n"
+	},
 	"6885": {
 		"Type": "TRice16",
 		"Strg": "err:TriceDepthMax =%4u of %d (overflow!)\\n"
@@ -3935,6 +4011,10 @@
 		"Type": "TRICE64_11",
 		"Strg": "tst:TRICE64_11 %d %d %d %d %d %d %d %d %d %d %d\\n"
 	},
+	"7010": {
+		"Type": "trice",
+		"Strg": "info:12 default bit width values\\n%d, %u, %x, %X,\\n%t, %e, %f, %g,\\n%E, %F, %G,\\n0xb%08b\\nand without stamp.\\n"
+	},
 	"7014": {
 		"Type": "Trice32",
 		"Strg": "value=%d\\n"
@@ -3994,6 +4074,10 @@
 	"7100": {
 		"Type": "TRICE64",
 		"Strg": "rd:%g (%%g)\\n"
+	},
+	"7108": {
+		"Type": "trice",
+		"Strg": "info:12 default (32) bit width\\nvalues\\n%d, %u, %x, %X,\\n%t, %e, %f, %g,\\n%E, %F, %G,\\n0xb%08b\\nand without stamp.\\n"
 	},
 	"7109": {
 		"Type": "TRICE",

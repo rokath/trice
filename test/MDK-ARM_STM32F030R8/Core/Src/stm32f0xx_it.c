@@ -156,7 +156,7 @@ uint32_t milliSecond( void ){
 void NMI_Handler(void)
 {
   /* USER CODE BEGIN NonMaskableInt_IRQn 0 */
-
+    trice( iD( 6576), "CRITICAL:NMI!\n" );
   /* USER CODE END NonMaskableInt_IRQn 0 */
   /* USER CODE BEGIN NonMaskableInt_IRQn 1 */
   while (1)
@@ -171,7 +171,7 @@ void NMI_Handler(void)
 void HardFault_Handler(void)
 {
   /* USER CODE BEGIN HardFault_IRQn 0 */
-
+    trice( iD( 2767), "FATAL:HardFault!\n" );
   /* USER CODE END HardFault_IRQn 0 */
   while (1)
   {

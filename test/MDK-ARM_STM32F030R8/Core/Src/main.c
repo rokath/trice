@@ -113,18 +113,17 @@ int main(void)
     #endif
 
     trice( iD( 1728), "w: Hello! 👋🙂 \n\n" );
-    loop++;
 
     TRICE_HEADLINE;
 
-    TRice( iD( 3164), "A TRice message containing a newline\nbefore the line end\n" );
-    TRice( iD( 6554), "\nA TRice message starting with a a newline\n" );
-    TRice( iD( 3112), "line0:A TRice message with several lines\nline1\nline2\nline3:last line\n" );
+    TRice( iD( 6032), "A TRice message containing a newline\nbefore the line end\n" );
+    TRice( iD( 6375), "\nA TRice message starting with a a newline\n" );
+    TRice( iD( 2636), "line0:A TRice message with several lines\nline1\nline2\nline3:last line\n" );
 
     // These normal use cases working with ARM5 and CLANG6 but have a CGO compiler issue. 
-    TRice( iD( 7767),"info:12 default bit width values %d, %u, %x, %X, %t, %e, %f, %g, %E, %F, %G, 0xb%08b and a 32-bit stamp.\n", -3, -4, -5, -6, 1, aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), -8 ); //_exp: time: 842,150_450default: info:12 default bit width values -3, 4294967292, fffffffb, FFFFFFFA, truet, 1.401298e-45, -7.123457, -7.123457, -7.123457E+00, -7.123457, -7.123457, 0xb11000000111000111111001101011100 and a 32-bit stamp.
-    Trice( iD( 4488),"info:12 default bit width values %d, %u, %x, %X, %t, %e, %f, %g, %E, %F, %G, 0xb%08b and a 16-bit stamp.\n", -3, -4, -5, -6, 1, aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), -8 ); //_exp: time:       5_654default: info:12 default bit width values -3, 4294967292, fffffffb, FFFFFFFA, truet, 1.401298e-45, -7.123457, -7.123457, -7.123457E+00, -7.123457, -7.123457, 0xb11000000111000111111001101011100 and a 16-bit stamp.
-    trice( iD( 3163),"info:12 default bit width values %d, %u, %x, %X, %t, %e, %f, %g, %E, %F, %G, 0xb%08b and without stamp.\n" , -3, -4, -5, -6, 1, aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), -8 ); //_exp: time:            default: info:12 default bit width values -3, 4294967292, fffffffb, FFFFFFFA, truet, 1.401298e-45, -7.123457, -7.123457, -7.123457E+00, -7.123457, -7.123457, 0xb11000000111000111111001101011100 and without stamp.
+    TRice( iD( 3801),"Twelf default (32) bit width values\n%d, %u, %x, %X, %t,\n%e, %f, %g,\n%E, %F, %G,\n0xb%08b\nand a 32-bit stamp.\n", -3, -4, -5, -6, 1, aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), -8 ); //_exp: time: 842,150_450default: info:12 default bit width values -3, 4294967292, fffffffb, FFFFFFFA, truet, 1.401298e-45, -7.123457, -7.123457, -7.123457E+00, -7.123457, -7.123457, 0xb11000000111000111111001101011100 and a 32-bit stamp.
+    Trice( iD( 4476),"Twelf default (32) bit width values\n%d, %u, %x, %X, %t,\n%e, %f, %g,\n%E, %F, %G,\n0xb%08b\nand a 16-bit stamp.\n", -3, -4, -5, -6, 1, aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), -8 ); //_exp: time:       5_654default: info:12 default bit width values -3, 4294967292, fffffffb, FFFFFFFA, truet, 1.401298e-45, -7.123457, -7.123457, -7.123457E+00, -7.123457, -7.123457, 0xb11000000111000111111001101011100 and a 16-bit stamp.
+    trice( iD( 6442),"Twelf default (32) bit width values\n%d, %u, %x, %X, %t,\n%e, %f, %g,\n%E, %F, %G,\n0xb%08b\nand without stamp.\n" , -3, -4, -5, -6, 1, aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), -8 ); //_exp: time:            default: info:12 default bit width values -3, 4294967292, fffffffb, FFFFFFFA, truet, 1.401298e-45, -7.123457, -7.123457, -7.123457E+00, -7.123457, -7.123457, 0xb11000000111000111111001101011100 and without stamp.
 
   /* USER CODE END 2 */
 

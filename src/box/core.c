@@ -141,52 +141,52 @@ static size_t triceEncode( uint8_t* enc, uint8_t const* buf, size_t len ){
 unsigned RTT0_writeSpaceMin = BUFFER_SIZE_UP; //! RTT0_writeSpaceMin is usable for diagnostics.
 unsigned RTT0_bytesInBufferMax = 0;        //! RTT0_bytesInBufferMax is usable for diagnostics.
 void TriceWriteDeviceRtt0( uint8_t *buf, size_t len ){
-		// diagnostics
-		unsigned writeSpace = SEGGER_RTT_GetAvailWriteSpace (0);
-		unsigned bytesInBuffer = SEGGER_RTT_GetBytesInBuffer(0);
-		RTT0_writeSpaceMin    = RTT0_writeSpaceMin    < writeSpace    ? RTT0_writeSpaceMin    : writeSpace;
-		RTT0_bytesInBufferMax = RTT0_bytesInBufferMax > bytesInBuffer ? RTT0_bytesInBufferMax : bytesInBuffer;
-		// action
-		SEGGER_RTT_Write(0, buf, len );
+    // diagnostics
+    unsigned writeSpace = SEGGER_RTT_GetAvailWriteSpace (0);
+    unsigned bytesInBuffer = SEGGER_RTT_GetBytesInBuffer(0);
+    RTT0_writeSpaceMin    = RTT0_writeSpaceMin    < writeSpace    ? RTT0_writeSpaceMin    : writeSpace;
+    RTT0_bytesInBufferMax = RTT0_bytesInBufferMax > bytesInBuffer ? RTT0_bytesInBufferMax : bytesInBuffer;
+    // action
+    SEGGER_RTT_Write(0, buf, len );
 }
 #endif // #ifdef TRICE_RTT0
 
 #ifdef TRICE_UARTA
 void TriceWriteDeviceUartA( uint8_t *buf, size_t len ){
-		#if TRICE_MODE == TRICE_STACK_BUFFER
-				TriceBlockingWriteUartA( buf, len ); // direct out to UART
-		#else
-				triceNonBlockingWriteUartA( buf, len ); // // buffered out to UARTA
-		#endif // #if TRICE_MODE == TRICE_STACK_BUFFER
+    #if TRICE_MODE == TRICE_STACK_BUFFER
+        TriceBlockingWriteUartA( buf, len ); // direct out to UART
+    #else
+        triceNonBlockingWriteUartA( buf, len ); // // buffered out to UARTA
+    #endif // #if TRICE_MODE == TRICE_STACK_BUFFER
 }
 #endif
 
 #ifdef TRICE_UARTB
 void TriceWriteDeviceUartB( uint8_t *buf, size_t len ){
-		#if TRICE_MODE == TRICE_STACK_BUFFER
-				TriceBlockingWriteUartB( buf, len ); // direct out to UART
-		#else
-				triceNonBlockingWriteUartB( buf, len ); // // buffered out to UARTB
-		#endif // #if TRICE_MODE == TRICE_STACK_BUFFER
+    #if TRICE_MODE == TRICE_STACK_BUFFER
+        TriceBlockingWriteUartB( buf, len ); // direct out to UART
+    #else
+        triceNonBlockingWriteUartB( buf, len ); // // buffered out to UARTB
+    #endif // #if TRICE_MODE == TRICE_STACK_BUFFER
 }
 #endif
 
 #ifdef TRICE_CGO
 void TriceWriteDeviceCgo( uint8_t *buf, size_t len ){
-		void triceNonBlockingWriteCgoBuffer( uint8_t const * buf, unsigned len );
-		triceNonBlockingWriteCgoBuffer( buf, len ); 
+    void triceNonBlockingWriteCgoBuffer( uint8_t const * buf, unsigned len );
+    triceNonBlockingWriteCgoBuffer( buf, len ); 
 }
 #endif
 
 #ifdef TRICE_AUXILIARY
 void TriceWriteDeviceAuxiliary( uint8_t *buf, size_t len ){
-	  // user code here
+    // user code here
 }
 #endif
 
 #ifdef TRICE_LOG_OVER_MODBUS_FUNC24_ALSO
 void TriceWriteDeviceModbus( uint8_t *buf, size_t len ){
-		TriceNonBlockingWriteModbusBuffer( buf, len ); 
+    TriceNonBlockingWriteModbusBuffer( buf, len ); 
 }
 #endif
 
@@ -224,40 +224,40 @@ void TriceOut( uint32_t* tb, size_t tLen ){
     encLen = triceEncode( enc, enc + TRICE_DATA_OFFSET, encLen);
     #endif
     ToggleOpticalFeedbackLED();
-		
-		// output
-		
+    
+    // output
+    
     #ifdef TRICE_UARTA
-			  #if defined(TRICE_UARTA_MIN_ID) && defined(TRICE_UARTA_MAX_ID)
-				if( (TRICE_UARTA_MIN_ID < triceID) && (triceID < TRICE_UARTA_MAX_ID) )
-			  #endif
-			  TriceWriteDeviceUartA( enc, encLen );
+        #if defined(TRICE_UARTA_MIN_ID) && defined(TRICE_UARTA_MAX_ID)
+        if( (TRICE_UARTA_MIN_ID < triceID) && (triceID < TRICE_UARTA_MAX_ID) )
+        #endif
+        TriceWriteDeviceUartA( enc, encLen );
     #endif
     #ifdef TRICE_UARTB
-			  #if defined(TRICE_UARTB_MIN_ID) && defined(TRICE_UARTB_MAX_ID)
-				if( (TRICE_UARTB_MIN_ID < triceID) && (triceID < TRICE_UARTB_MAX_ID) )
-			  #endif
-			  TriceWriteDeviceUartB( enc, encLen );
+        #if defined(TRICE_UARTB_MIN_ID) && defined(TRICE_UARTB_MAX_ID)
+        if( (TRICE_UARTB_MIN_ID < triceID) && (triceID < TRICE_UARTB_MAX_ID) )
+        #endif
+        TriceWriteDeviceUartB( enc, encLen );
     #endif
-    #if defined(TRICE_RTT0) // && !defined(TRICE_DOUBLE_BUFFER) && !defined(TRICE_STREAM_BUFFER) // only when RTT0 is alone
-			  #if defined(TRICE_RTT0_MIN_ID) && defined(TRICE_RTT0_MAX_ID)
-				if( (TRICE_RTT0_MIN_ID < triceID) && (triceID < TRICE_RTT0_MAX_ID) )
-			  #endif
-        TriceWriteDeviceRtt0( enc, encLen ); //lint !e534
-    #endif
+    //  #if defined(TRICE_RTT0) // && !defined(TRICE_DOUBLE_BUFFER) && !defined(TRICE_STREAM_BUFFER) // only when RTT0 is alone
+    //      #if defined(TRICE_RTT0_MIN_ID) && defined(TRICE_RTT0_MAX_ID)
+    //      if( (TRICE_RTT0_MIN_ID < triceID) && (triceID < TRICE_RTT0_MAX_ID) )
+    //      #endif
+    //      TriceWriteDeviceRtt0( enc, encLen ); //lint !e534
+    //  #endif
     #ifdef TRICE_CGO
         TriceWriteDeviceCgo( enc, encLen );
     #endif
     #ifdef TRICE_LOG_OVER_MODBUS_FUNC24_ALSO
-			  #if defined(TRICE_MODBUS_MIN_ID) && defined(TRICE_MODBUS_MAX_ID)
-				if( (TRICE_MODBUS_MIN_ID < triceID) && (triceID < TRICE_MODBUS_MAX_ID) )
-			  #endif
+        #if defined(TRICE_MODBUS_MIN_ID) && defined(TRICE_MODBUS_MAX_ID)
+        if( (TRICE_MODBUS_MIN_ID < triceID) && (triceID < TRICE_MODBUS_MAX_ID) )
+        #endif
         TriceWriteDeviceModbus( enc, encLen );
     #endif
     #ifdef TRICE_AUXILIARY
-			  #if defined(TRICE_AUXILIARY_MIN_ID) && defined(TRICE_AUXILIARY_MAX_ID)
-				if( (TRICE_AUXILIARY_MIN_ID < triceID) && (triceID < TRICE_AUXILIARY_MAX_ID) )
-			  #endif
+        #if defined(TRICE_AUXILIARY_MIN_ID) && defined(TRICE_AUXILIARY_MAX_ID)
+        if( (TRICE_AUXILIARY_MIN_ID < triceID) && (triceID < TRICE_AUXILIARY_MAX_ID) )
+        #endif
         TriceWriteDeviceAuxiliary( enc, encLen );
     #endif
 }
