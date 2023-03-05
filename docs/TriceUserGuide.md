@@ -228,8 +228,9 @@ Main steps are:
 
 * For RTT the [SEGGER](https://www.segger.com/downloads/jlink/) source is already included. See [./TriceOverRTT.md](./TriceOverRTT.md) for more info.
   * If RTT is supported no hardware specific adaptions needed and it is the fastest possible data transfer. 
-  * The direct trice mode (`TRICE_STACK_BUFFER`) is usable also inside interrupts. 
-* For UART transfer add UART write functionality.
+  * The direct trice mode (`TRICE_STACK_BUFFER`) is usable also inside interrupts and recommended for RTT.
+* For UART transfer add UART write functionality. The deferred mode is recommended for UART transfer.
+* An additional device, like local file, GPIO pin or SPI, is possible by providing an appropriate write functionality. 
 * See also [./TriceOverOneWire.md](./TriceOverOneWire.md).
 
 ####  2.4.4. <a name='TargetCodeOverview'></a>Target Code Overview
