@@ -20,6 +20,5 @@ func TestLogs(t *testing.T) {
 		return o.String()
 	}
 
-	triceLogTest(t, triceLog, 15)
+	triceLogTest(t, triceLog, 15, directTransfer)
 }
-

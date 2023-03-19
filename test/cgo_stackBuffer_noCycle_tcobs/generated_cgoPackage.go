@@ -14,9 +14,10 @@ package cgot
 
 // #include <stdint.h>
 // void TriceCheck( int n );
+// void TriceTransfer( void );
 // unsigned TriceOutDepth( void );
 // void CgoSetTriceBuffer( uint8_t* buf );
-// #cgo CFLAGS: -g -Wall -I../../src
+// #cgo CFLAGS: -g -I../../src
 // #include "../../src/trice.c"
 // #include "../testdata/triceCheck.c"
 // #include "../testdata/cgoTrice.c"
@@ -40,6 +41,13 @@ var (
 	triceDir string // holds the trice directory path
 )
 
+type triceMode int
+
+const (
+	directTransfer triceMode = iota
+	deferredTransfer
+)
+
 // https://stackoverflow.com/questions/23847003/golang-tests-and-working-directory
 func init() {
 	_, filename, _, _ := runtime.Caller(0) // filename is the test executable inside the package dir like cgo_stackBuffer_noCycle_tcobs
@@ -56,6 +64,11 @@ func setTriceBuffer(o []byte) {
 // triceCheck performs triceCheck C-code sequence n.
 func triceCheck(n int) {
 	C.TriceCheck(C.int(n))
+}
+
+// triceTransfer performs the deferred trice output.
+func triceTransfer() {
+	C.TriceTransfer()
 }
 
 // triceOutDepth returns the actual out buffer depth.
@@ -117,7 +130,7 @@ type logF func(t *testing.T, fSys *afero.Afero, buffer string) string
 // copied into all specific test packages and compiled there together with the
 // triceConfig.h, which holds the test package specific target code configuration.
 // limit is the count of executed test lines starting from the beginning. -1 ist for all.
-func triceLogTest(t *testing.T, triceLog logF, limit int) {
+func triceLogTest(t *testing.T, triceLog logF, limit int, mode triceMode) {
 
 	osFSys := &afero.Afero{Fs: afero.NewOsFs()}
 	//mmFSys := &afero.Afero{Fs: afero.NewMemMapFs()}
@@ -139,6 +152,11 @@ func triceLogTest(t *testing.T, triceLog logF, limit int) {
 
 		// target activity
 		triceCheck(r.line)
+		if mode == deferredTransfer {
+			triceTransfer()
+			triceTransfer()
+			triceTransfer()
+		}
 		length := triceOutDepth()
 		bin := out[:length] // bin contains the binary trice data of trice message i
 

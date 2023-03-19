@@ -23,4 +23,8 @@ void TriceLogBufferInfo( void ){
     TRICE32( id( 4916), "att:Single Trice Stack buf size:%4u", TRICE_SINGLE_MAX_SIZE + TRICE_DATA_OFFSET );
 }
 
+#ifdef TRICE_CGO
+void TriceTransfer( void ){}
+#endif
+
 #endif // #if TRICE_MODE == TRICE_STACK_BUFFER

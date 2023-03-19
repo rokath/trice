@@ -34,7 +34,7 @@ uint16_t TriceStamp16( void ){
     return 0x1616;
 }
 
-// TriceStamp16 is used internally be the macro "ID"
+// TriceStamp32 is used internally be the macro "ID"
 uint32_t TriceStamp32( void ){ 
     return 0x32323232; 
 }
