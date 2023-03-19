@@ -174,7 +174,7 @@ void TriceWriteDeviceUartB( uint8_t *buf, size_t len ){
 #ifdef TRICE_CGO
 void TriceWriteDeviceCgo( uint8_t *buf, size_t len ){
     void triceNonBlockingWriteCgoBuffer( uint8_t const * buf, unsigned len );
-    triceNonBlockingWriteCgoBuffer( buf, len ); 
+    triceNonBlockingWriteCgoBuffer( buf, len ); // defined in cgoTrice.c
 }
 #endif
 

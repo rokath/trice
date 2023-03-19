@@ -17,6 +17,7 @@ package cgot
 // void TriceTransfer( void );
 // unsigned TriceOutDepth( void );
 // void CgoSetTriceBuffer( uint8_t* buf );
+// void CgoClearTriceBuffer( void );
 // #cgo CFLAGS: -g -I../../src
 // #include "../../src/trice.c"
 // #include "../testdata/triceCheck.c"
@@ -74,6 +75,11 @@ func triceTransfer() {
 // triceOutDepth returns the actual out buffer depth.
 func triceOutDepth() int {
 	return int(C.TriceOutDepth())
+}
+
+// triceClearOutBuffer tells the trice kernel, that the data has been red.
+func triceClearOutBuffer() {
+	C.CgoClearTriceBuffer()
 }
 
 // linesInFile does get the lines in a file and store them in a string slice.
@@ -154,8 +160,6 @@ func triceLogTest(t *testing.T, triceLog logF, limit int, mode triceMode) {
 		triceCheck(r.line)
 		if mode == deferredTransfer {
 			triceTransfer()
-			triceTransfer()
-			triceTransfer()
 		}
 		length := triceOutDepth()
 		bin := out[:length] // bin contains the binary trice data of trice message i
@@ -164,6 +168,8 @@ func triceLogTest(t *testing.T, triceLog logF, limit int, mode triceMode) {
 		buffer := buf[1 : len(buf)-1]
 
 		act := triceLog(t, osFSys, buffer)
+		triceClearOutBuffer()
+
 		assert.Equal(t, r.exps, strings.TrimSuffix(act, "\n"))
 	}
 }

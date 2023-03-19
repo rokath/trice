@@ -13,10 +13,13 @@ trice u -src ./testdata/triceCheck.c -i ./testdata/til.json -li ./testdata/li.js
 # os agnostic links would be better.
 CGOTESTDIRS="
 cgo_stackBuffer_noCycle_cobs_short
-cgo_stackBuffer_noCycle_tcobs
+cgo_stackBuffer_noCycle_cobs
 cgo_stackBuffer_noCycle_tcobs_short
+cgo_stackBuffer_noCycle_tcobs
 cgo_doubleBuffer_noCycle_tcobs_short
+cgo_doubleBuffer_noCycle_tcobs
 cgo_streamBuffer_noCycle_tcobs_short
+cgo_streamBuffer_noCycle_tcobs
 "
 for d in $CGOTESTDIRS
 do
