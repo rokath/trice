@@ -50,8 +50,8 @@ This is a major release hopefully not breaking too much!
 * `TRice*` macros insert a 32-bit stamp.
 * `Trice*` macros insert a 16-bit stamp.
 * `trice*` macros insert no stamp.
-* ATTENTION: For some reason these macros cause with CGO issues when used with parameters, but the work fine with ARM6 and ARM CLANG6 (Select the g11 option). If your compiler has issues, use the bit width extension: Write `trice32( "%u", 1)` instead of `trice( "%u", 1)` for example or stay with `TRICE*`.
-* These macros are function call macros. They call internally a trice function incrementing the code amount like a usual unction call.
+* ATTENTION: For some reason these macros cause with CGO issues when used with parameters, but they work fine with ARM6 and ARM CLANG6 (Select the g11 option). If your compiler has issues, use the bit width extension: Write `trice32( "%u", 1)` instead of `trice( "%u", 1)` for example or stay with `TRICE*`.
+* These macros are function call macros. They call internally a trice function incrementing the code amount like a usual function call.
 * You can write them down like the `TRICE*` macros, but do not insert `ID(0)`, `Id(0)` or `id(0)`! After executing `trice u` they get an `iD(n)` inserted automatically.
 * To save space and bandwidth you can use the `*8` and `*16`, macro extensions like with the `TRICE*` macros.
 * The default bitwidth is 32-bit but that is changeable in the configuration.
