@@ -33,3 +33,5 @@ li.json
 *._ia
 
 test/MDK-ARM_STM32F030R8/temp/
+
+test/testdata/temp/
