@@ -50,7 +50,7 @@ func NewDevice(w io.Writer, fSys *afero.Afero, port, arguments string) *Device {
 	p := &Device{} // create link instance
 	p.fSys = fSys
 	p.w = w
-	switch port {
+	switch strings.ToUpper(port) {
 	case "JLINK", "J-LINK":
 		p.Exec = "JLinkRTTLogger"
 		p.Lib = "JLinkARM"
