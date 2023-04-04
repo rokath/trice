@@ -1,8 +1,13 @@
-JLinkGDBServerCL \
+JLinkGDBServer \
 -device STM32F030R8 \
 -if SWD \
 -speed 4000 \
 -notimeout \
+-noir \
+-nohalt \
+-noreset \
+-RTTTelnetPort 19021 \
+
 
 
 # JLinkGDBServer \
