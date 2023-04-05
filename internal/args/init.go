@@ -143,11 +143,15 @@ port "ST-LINK": default="`, receiver.DefaultLinkArgs, `", `, linkArgsInfo, `
 port "TCP4": default="`, receiver.DefaultTCP4Args, `", use any IP:port endpoint like "127.0.0.1:19021"
 `)
 
+	execInfo := fmt.Sprint(`Use to pass an additional command line for port TCP4 (like gdbserver start).`)
+
 	fsScLog.StringVar(&receiver.PortArguments, "args", "default", argsInfo)
 	fsScLog.StringVar(&do.TCPOutAddr, "tcp", "", `TCP address for an external log receiver like Putty. Example: 1st: "trice log -p COM1 -tcp localhost:64000", 2nd "putty". In "Terminal" enable "Implicit CR in every LF", In "Session" Connection type:"Other:Telnet", specify "hostname:port" here like "localhost:64000".`)
 	fsScLog.BoolVar(&emitter.DisplayRemote, "displayserver", false, `Send trice lines to displayserver @ ipa:ipp.
 Example: "trice l -port COM38 -ds -ipa 192.168.178.44" sends trice output to a previously started display server in the same network.`)
 	fsScLog.BoolVar(&emitter.DisplayRemote, "ds", false, "Short for '-displayserver'.")
+
+	fsScLog.StringVar(&receiver.ExecCommand, "exec", "", execInfo)
 
 	//  	fsScLog.BoolVar(&emitter.Autostart, "autostart", false, `Autostart displayserver @ ipa:ipp.
 	//  Works not perfect with windows, because of cmd and powershell color issues and missing cli params in wt and gitbash.
