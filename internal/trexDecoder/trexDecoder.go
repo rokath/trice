@@ -145,34 +145,45 @@ func (p *trexDec) nextPackage() {
 			fmt.Println("inconsistent COBS buffer:", p.IBuf[:index+1]) // show also terminating 0
 		}
 	case "tcobs", "tcobsv1":
-		//repeat:
+	repeat:
 		n, e = tcobs.Decode(p.B, p.IBuf[:index]) // if index is 0, an empty buffer is decoded
 		if e != nil {
+			//fmt.Println("inconsistent TCOBSv1 buffer:", p.IBuf[:index+1])                 // show also terminating 0
 			//  inconsistent TCOBSv1 buffer: [
 			//    83 69 71 71 69 82 32 74 45 76 105 110 107 32 86 55 46 56 54 101 32 45 32 82 101 97 108 32 116 105 109 101 32 116 101 114 109 105 110 97 108 32 111 117 116 112 117 116 13 10
 			//    74 45 76 105 110 107 32 83 84 76 105 110 107 32 86 50 49 32 99 111 109 112 105 108 101 100 32 65 117 103 32 49 50 32 50 48 49 57 32 49 48 58 50 57 58 50 48 32 86 49 46 48 44 32 83 78 61 55 55 53 51 53 49 49 50 57 13 10
 			//    80 114 111 99 101 115 115 58 32 74 76 105 110 107 71 68 66 83 101 114 118 101 114 46 101 120 101 13 10
 			//    48 199 169 24 203 18 60 39 0]
+
+			//fmt.Println("inconsistent TCOBSv1 buffer as string:", string(p.IBuf[:index])) // show not terminating 0
 			//  inconsistent TCOBSv1 buffer as string: SEGGER J-Link V7.86e - Real time terminal output
 			//  J-Link STLink V21 compiled Aug 12 2019 10:29:20 V1.0, SN=775351129
 			//  Process: JLinkGDBServer.exe
 			//  0ǩ↑�↕<'
-			//fmt.Println("inconsistent TCOBSv1 buffer:", p.IBuf[:index+1])                 // show also terminating 0
-			//fmt.Println("inconsistent TCOBSv1 buffer as string:", string(p.IBuf[:index])) // show not terminating 0
-			/*
-				// remove 3 lines if they exist
-				s := strings.SplitN(strings.ReplaceAll(string(p.IBuf[:index]), "\r\n", "\n"), "\n", 4)
-				if len(s) >= 3 {
-					fmt.Println(s[0])
-					fmt.Println(s[1])
-					fmt.Println(s[2])
-					j := strings.Join(s[3:], "")
-					p.IBuf = p.IBuf[len(j)+2]
-					index = copy(p.IBuf, []byte(j))
-					//p.IBuf = p.IBuf[:index]
-					goto repeat
+
+			// remove 3 lines if they exist
+			s := strings.SplitN(strings.ReplaceAll(string(p.IBuf[:index]), "\r\n", "\n"), "\n", 4)
+			var bytesCount int
+			if len(s) >= 3 {
+				var newLines int
+				fmt.Println(s[0])
+				fmt.Println(s[1])
+				fmt.Println(s[2])
+				for _, b := range p.IBuf[:index] {
+					p.IBuf = p.IBuf[1:]
+					bytesCount++
+					if b == 10 {
+						newLines++
+						if newLines == 3 {
+							break
+						}
+					}
+					continue
 				}
-			*/
+				index -= bytesCount
+				goto repeat
+			}
+			fmt.Println("inconsistent TCOBSv1 buffer:", p.IBuf[:index+1]) // show also terminating 0
 			p.B = p.B[:0]
 		} else {
 			p.B = p.B[len(p.B)-n:]
