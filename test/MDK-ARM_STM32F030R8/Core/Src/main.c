@@ -112,6 +112,9 @@ int main(void)
     
     TRICE_HEADLINE;
 
+    trice8(  iD( 3749), "FF 00 FF 11 FF: %02x %02x %02x %02x   %02x %02x %02x %02x   %02x %02x %02x %02x\n", 0xFF, 0, 0xFF, 1, 0xFF, 2, 0xFF, 3, 0xFF, 4, 0xFF, 5 );
+    trice16( iD( 6872), "FF 00 FF 11 FF: %04x %04x %04x %04x   %04x %04x %04x %04x   %04x %04x %04x %04x\n", 0xFF00, 0xFF01, 0xFF02, 0xFF03, 0xFF04, 0xFF05, 0xFF06, 0xFF07, 0xFF08, 0xFF09, 0xFF0A, 0xFF0B );
+    trice32( iD( 5395), "FF 00 FF 11 FF: %08x %08x %08x %08x   %08x %08x %08x %08x\n", 0xFF00FF01, 0xFF02F03, 0xFF04FF05, 0xFF06FF07, 0xFF08FF09, 0xFF0AFF0B, 0xFF0CFF0D, 0xFF0EFF0F );
     TRice( iD( 3164), "A TRice message containing a newline\nbefore the line end\n" );
     TRice( iD( 6554), "\nA TRice message starting with a a newline\n" );
     TRice( iD( 3112), "line0:A TRice message with several lines\nline1\nline2\nline3:last line\n" );
