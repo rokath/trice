@@ -190,6 +190,12 @@ void TriceWriteDeviceModbus( uint8_t *buf, size_t len ){
 }
 #endif
 
+#if TRICE_MODE == TRICE_STATIC_BUFFER
+uint32_t triceSingleBuffer[128];
+uint32_t* TriceBufferWritePosition;
+int singleTricesDeferredCount = 0;
+#endif
+
 //! TriceOut encodes trices and writes them in one step to the output.
 //! \param tb is start of uint32_t* trice buffer. The space TRICE_DATA_OFFSET at
 //! the tb start is for in-buffer encoding of the trice data.

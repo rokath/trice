@@ -22,6 +22,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+//#define TRICE_OFF // enable this line to disable trice code generation in this file object
 #include "trice.h"
 
 /* USER CODE END Includes */
@@ -138,8 +139,14 @@ int main(void)
             triceCommandFlag = 0;
             TRICE_S( Id( 5687), "att:Executing command %s ...\n", triceCommandBuffer );
             // do
+            TRice( iD( 4406), "dbg:\aHi!\n" ); // sound!
+            Trice( iD( 4406), "dbg:\aHi!\n" ); // sound!
+            trice( iD( 4406), "dbg:\aHi!\n" ); // sound!
+            TRICE( ID( 4406), "dbg:\aHi!\n" ); // sound!
             TRICE( Id( 4406), "dbg:\aHi!\n" ); // sound!
-            TRICE( Id( 6967), "att:...done\n" );
+            TRICE( id( 4406), "dbg:\aHi!\n" ); // sound!
+            TRICE( ID( 6967), "att:...done\n" );
+
         }
 
         #if TRICE_DEFERRED_OUT

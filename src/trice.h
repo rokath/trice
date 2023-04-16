@@ -44,13 +44,13 @@ extern "C" {
 
 
 #ifdef TRICE_OFF // do not generate trice code for files defining TRICE_OFF before including "trice.h"
-#define TRICE_CYCLE_COUNTER 0 // todo: why needed here?
-#define TRICE_INTO
-#define TRICE_PUT(n) do{ ((void)(n)); }while(0)
-#define PUT_BUFFER(b,l) do{ ((void)(b)); ((void)(l)); }while(0)
+#define TRICE_ENTER
 #define TRICE_LEAVE
-#define TRICE_S( id, p, s )  do{ ((void)(id)); ((void)(p)); ((void)(s)); }while(0)
-#define TRICE_N( id, p, s, n )  do{ ((void)(id)); ((void)(p)); ((void)(s)); ((void)(n)); }while(0)
+#define TRICE_PUT(n)           // do{ ((void)(n)); }while(0)
+#define TRICE_PUT16(n)         // do{ ((void)(n)); }while(0)
+#define PUT_BUFFER(b,l)        // do{ ((void)(b)); ((void)(l)); }while(0)
+#define TRICE_S( id, p, s )    // do{ ((void)(id)); ((void)(p)); ((void)(s)); }while(0)
+#define TRICE_N( id, p, s, n ) // do{ ((void)(id)); ((void)(p)); ((void)(s)); ((void)(n)); }while(0)
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -96,6 +96,16 @@ extern "C" {
 #include "./box/trice16.h"
 #include "./box/trice32.h"
 #include "./box/trice64.h"
+
+#if TRICE_MODE == TRICE_DOUBLE_BUFFER
+extern uint32_t* TriceBufferWritePosition;
+#endif
+
+#if TRICE_MODE == TRICE_STREAM_BUFFER
+void TriceFifoPush( void* ta );
+uint32_t* TriceNextStreamBuffer( void );
+extern uint32_t* TriceBufferWritePosition; // todo: why?
+#endif
 
 unsigned TriceOutDepthCGO( void ); // only needed for testing C-sources from Go
 
@@ -229,6 +239,44 @@ void TriceOutRtt0( uint32_t* tb, size_t tLen ); // todo
 
 #endif // #if TRICE_MODE == TRICE_STREAM_BUFFER
 
+#if TRICE_MODE == TRICE_STATIC_BUFFER
+
+//! TRICE_STREAM_BUFFER_SIZE is the total size of the stream buffer. Must be able to hold the max TRICE burst count or even more,
+//! if the write out speed is small.
+#define TRICE_STREAM_BUFFER_SIZE  (TRICE_BUFFER_SIZE)
+
+extern uint32_t* TriceBufferWritePosition;
+uint32_t* TriceNextStreamBuffer( void );
+extern int singleTricesDeferredCount; //!< singleTricesDeferredCount >0 signals background to transfer trices.
+extern uint32_t triceSingleBuffer[128]; //!< triceSingleBuffer is an intermediate buffer for sigle trice messages.
+
+// | TRICE_DATA_OFFSET | data | ...
+//! triceSingleWrite copies a single trice from triceSingleBuffer to output.
+static inline void triceSingleWrite( uint32_t const* src ){
+    size_t count = src - triceSingleBuffer;
+    uint32_t* next = TriceNextStreamBuffer(); // in only direct mode case it returns always the same buffer
+    uint32_t* dest = next + (TRICE_DATA_OFFSET>>2);
+    while (count--){
+        *dest++ = *src++;
+    }
+#ifdef TRICE_DIRECT_OUT
+    size_t len = (dest - next )<<2;
+    TriceOutRtt0( next, len );
+#endif
+#ifdef TRICE_DEFERRED_OUT
+    singleTricesDeferredCount++; // The background task can now parse the stram buffer area for the next trice.
+#endif
+}
+
+#define TRICE_ENTER TRICE_ENTER_CRITICAL_SECTION { \
+    TriceBufferWritePosition = triceSingleBuffer;
+
+#define TRICE_LEAVE \
+    triceSingleWrite( TriceBufferWritePosition ); \
+    } TRICE_LEAVE_CRITICAL_SECTION
+
+#endif // #if TRICE_MODE == TRICE_STATIC_BUFFER
+
 ///////////////////////////////////////////////////////////////////////////////
 // Declarations and Defaults
 
@@ -242,16 +290,8 @@ extern int triceCommandLength;
 size_t TriceDepth( void );
 size_t TriceDepthMax( void );
 void TriceDiagnostics( int index );
-
-extern uint32_t* TriceBufferWritePosition;
-
 size_t triceNonBlockingWriteUartA( void const * buf, size_t nByte );
 size_t triceNonBlockingWriteUartB( void const * buf, size_t nByte );
-
-#if TRICE_MODE == TRICE_STREAM_BUFFER
-void TriceFifoPush( void* ta );
-uint32_t* TriceNextStreamBuffer( void );
-#endif
 
 extern unsigned triceDepthMax;
 extern size_t triceFifoDepthMax;
@@ -534,7 +574,7 @@ extern const int TriceTypeX0;
 //! TRICE0 writes trice data as fast as possible in a buffer.
 //! \param id is a 16 bit Trice id in upper 2 bytes of a 32 bit value
 #define TRICE0( id, pFmt ) \
-	TRICE_ENTER id; CNTC(0); \
+    TRICE_ENTER id; CNTC(0); \
     TRICE_LEAVE
 
 TRICE_INLINE void TRice0( uint16_t tid, char* pFmt ){

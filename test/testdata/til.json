@@ -447,6 +447,10 @@
 		"Type": "TRICE16",
 		"Strg": "rd:TRICE16 %p, %p\\n"
 	},
+	"1611": {
+		"Type": "TRICE0",
+		"Strg": "dbg:\\aHi!\\n"
+	},
 	"1612": {
 		"Type": "TRICE32_3",
 		"Strg": "tst:TRICE32_3 %u %u %u\\n"
@@ -639,6 +643,10 @@
 		"Type": "trice32",
 		"Strg": "msg:value=%d, %d, %d, %d, %d, %d\\n"
 	},
+	"1935": {
+		"Type": "TRICE0",
+		"Strg": "dbg:\\aHi!\\n"
+	},
 	"1937": {
 		"Type": "trice8_0",
 		"Strg": "no value"
@@ -738,6 +746,10 @@
 	"2094": {
 		"Type": "TRICE64_1",
 		"Strg": "rd:TRICE64_1 double %E (%%E), aDouble(y)\\n"
+	},
+	"2108": {
+		"Type": "TRICE_0",
+		"Strg": "dbg:\\aHi!\\n"
 	},
 	"2120": {
 		"Type": "TRICE",
@@ -1286,6 +1298,10 @@
 	"2943": {
 		"Type": "Trice64",
 		"Strg": "info:12 64-bit values %d, %u, %x, %X, %t, %e, %f, %g, %E, %F, %G, 0xb%08b and a 16-bit stamp.\\n"
+	},
+	"2957": {
+		"Type": "TRICE_0",
+		"Strg": "dbg:\\aHi!\\n"
 	},
 	"2967": {
 		"Type": "TRICE_N",
@@ -3279,6 +3295,10 @@
 		"Type": "TRICE16_1",
 		"Strg": "tst:TRICE16_1  %d\\n"
 	},
+	"5980": {
+		"Type": "TRICE_0",
+		"Strg": "dbg:\\aHi!\\n"
+	},
 	"5986": {
 		"Type": "TRICE64_5",
 		"Strg": "rd:TRICE64_5 %d, %d, %d, %d, %d\\n"
@@ -3531,6 +3551,10 @@
 		"Type": "trice",
 		"Strg": "s:     \\n"
 	},
+	"6429": {
+		"Type": "TRICE32",
+		"Strg": "att: Trice static buffer size:%5u "
+	},
 	"6436": {
 		"Type": "TRICE16",
 		"Strg": "tst:TRICE16 %d %d %d %d %d %d\\n"
@@ -3558,6 +3582,10 @@
 	"6457": {
 		"Type": "TRICE",
 		"Strg": "rd:TRICE %d, %d, %d\\n"
+	},
+	"6458": {
+		"Type": "TRICE0",
+		"Strg": "dbg:\\aHi!\\n"
 	},
 	"6464": {
 		"Type": "TRICE16",
@@ -3895,6 +3923,10 @@
 		"Type": "TRICE_N",
 		"Strg": "msg:%s\\n"
 	},
+	"6995": {
+		"Type": "TRICE32",
+		"Strg": "att: Trice static buffer size:%5u "
+	},
 	"6996": {
 		"Type": "TRICE",
 		"Strg": "info:This is a message without values and without stamp.\\n"
@@ -4026,6 +4058,10 @@
 	"7244": {
 		"Type": "TRice16_4",
 		"Strg": "msg:value=%d, %d, %d, %d\\n"
+	},
+	"7249": {
+		"Type": "TRICE0",
+		"Strg": "dbg:\\aHi!\\n"
 	},
 	"7250": {
 		"Type": "TRICE",

@@ -29,23 +29,27 @@ extern "C" {
 // 
 
 #define TRICE_NO_BUFFER     1111
-#define TRICE_STACK_BUFFER  2222
-#define TRICE_STATIC_BUFFER 3333
-#define TRICE_DOUBLE_BUFFER 4444
-#define TRICE_STREAM_BUFFER 5555
+//#define TRICE_STACK_BUFFER  2222 //!<With TRICE_STACK_BUFFER the internal macro TRICE_PUT writes to the stack. This is direct logging. This reduces memory needs if one stack is used.
+#define TRICE_STATIC_BUFFER 3333 //!<With TRICE_STATIC_BUFFER the internal macro TRICE_PUT writes to a static buffer. This reduces memory needs if many stacks are used.
+//#define TRICE_DOUBLE_BUFFER 4444 //!<With TRICE_DOUBLE_BUFFER the internal macro TRICE_PUT writes to a double buffer half. This is deferred logging using more space but the TRICE macros are executed faster. 
+//#define TRICE_STREAM_BUFFER 5555 //!<With TRICE_STREAM_BUFFER the internal macro TRICE_PUT writes to a fifo buffer. This is deferred logging using less space but the TRICE macros are executed a bit slower. 
+#define TRICE_UART_BUFFER   6666 //!<With TRICE_UART_BUFFER the internal macro TRICE_PUT writes to a UART buffer. This is fast deferred logging using less space. 
 
-//! Enable and set channel number for SeggerRTT usage. Only channel 0 works right now for some reason.
-#define TRICE_RTT0 0 // comment out, if you do not use RTT
+#define TRICE_DIRECT_MODE   7777
+#define TRICE_DEFERRED_MODE 8888
+
+//! Enable and set channel number for SeggerRTT usage. Only channel 0 is supported right now.
+#define TRICE_RTT 0 // comment out, if you do not use RTT
 
 //! Select trice mode for RTT0. Recommended is TRICE_DIRECT_MODE, when RTT0 is the only output device.
 //! When using an other output device too, and this in TRICE_DEFERRED_MODE, selecting TRICE_DEFERRED_MODE
 //! here reduces the overgead a bit, but TRICE_DIRECT_MODE is still recommeded here.
-#define TRICE_RTT0_MODE TRICE_DIRECT_MODE // TRICE_DIRECT_MODE or TRICE_DEFERRED_MODE, set to TRICE_NO_MODE if device not used
+//#define TRICE_RTT_MODE TRICE_DIRECT_MODE // TRICE_DIRECT_MODE or TRICE_DEFERRED_MODE, set to TRICE_NO_MODE if device not used
 
-#define TRICE_RTT0_BUFFER TRICE_STATIC_BUFFER // TRICE_NO_BUFFER, TRICE_STACK_BUFFER, TRICE_STATIC_BUFFER, TRICE_DOUBLE_BUFFER, TRICE_STREAM_BUFFER
+#define TRICE_RTT_BUFFER TRICE_STATIC_BUFFER // TRICE_NO_BUFFER, TRICE_STACK_BUFFER, TRICE_STATIC_BUFFER, TRICE_DOUBLE_BUFFER, TRICE_STREAM_BUFFER
 
-//#define TRICE_RTT0_MIN_ID 1           //!< TRICE_RTT0_MIN_ID is the smallest ID transferred to RTT0. Define with TRICE_RTT0_MAX_ID if you want select trice output here.
-//#define TRICE_RTT0_MAX_ID ((1<<14)-1) //!< TRICE_RTT0_MAX_ID is the biggest  ID transferred to RTT0. Define with TRICE_RTT0_MIN_ID if you want select trice output here.
+//#define TRICE_RTT_MIN_ID 1           //!< TRICE_RTT0_MIN_ID is the smallest ID transferred to RTT0. Define with TRICE_RTT0_MAX_ID if you want select trice output here.
+//#define TRICE_RTT_MAX_ID ((1<<14)-1) //!< TRICE_RTT0_MAX_ID is the biggest  ID transferred to RTT0. Define with TRICE_RTT0_MIN_ID if you want select trice output here.
 
 
 //! Enable and set UARTA for serial output.
@@ -53,7 +57,7 @@ extern "C" {
 
 //! Select trice mode for UARTA. Recommended is TRICE_DEFERRED_MODE.
 //! The TRICE_DIRECT_MODE could be a choice here for no time constraints like trice inside interrupts.
-#define TRICE_UARTA_MODE TRICE_DEFERRED_MODE // TRICE_DIRECT_MODE or TRICE_DEFERRED_MODE, set to TRICE_NO_MODE if device not used
+//#define TRICE_UARTA_MODE TRICE_DEFERRED_MODE // TRICE_DIRECT_MODE or TRICE_DEFERRED_MODE, set to TRICE_NO_MODE if device not used
 
 #define TRICE_UARTA_BUFFER TRICE_DOUBLE_BUFFER // TRICE_NO_BUFFER, TRICE_STACK_BUFFER, TRICE_STATIC_BUFFER, TRICE_DOUBLE_BUFFER, TRICE_STREAM_BUFFER
 
@@ -67,7 +71,7 @@ extern "C" {
 
 //! Select trice mode for UARTB. Recommended is TRICE_DEFERRED_MODE.
 //! The TRICE_DIRECT_MODE could be a choice here for no time constraints like trice inside interrupts.
-#define TRICE_UARTB_MODE TRICE_NO_MODE // TRICE_DIRECT_MODE or TRICE_DEFERRED_MODE, set to TRICE_NO_MODE if device not used
+//#define TRICE_UARTB_MODE TRICE_NO_MODE // TRICE_DIRECT_MODE or TRICE_DEFERRED_MODE, set to TRICE_NO_MODE if device not used
 
 #define TRICE_UARTB_BUFFER TRICE_NO_BUFFER // TRICE_NO_BUFFER, TRICE_STACK_BUFFER, TRICE_STATIC_BUFFER, TRICE_DOUBLE_BUFFER, TRICE_STREAM_BUFFER
 
@@ -85,7 +89,7 @@ extern "C" {
 //! Select trice mode for AUXILIARY. 
 //! The TRICE_DIRECT_MODE is recommended if the AUXILIARY write function is non blocking, means so fast, to be executed inside an interrupt as well.
 //! The TRICE_DERFERRED_MODE is recommended if the AUXILIARY write function is blocking, means so slow, to be not executable inside an interrupt.
-#define TRICE_AUXILIARY_MODE TRICE_NO_MODE // TRICE_DIRECT_MODE or TRICE_DEFERRED_MODE, set to TRICE_NO_MODE if device not used.
+//#define TRICE_AUXILIARY_MODE TRICE_NO_MODE // TRICE_DIRECT_MODE or TRICE_DEFERRED_MODE, set to TRICE_NO_MODE if device not used.
 
 #define TRICE_AUXIOLARY_BUFFER TRICE_NO_BUFFER // TRICE_NO_BUFFER, TRICE_STACK_BUFFER, TRICE_STATIC_BUFFER, TRICE_DOUBLE_BUFFER, TRICE_STREAM_BUFFER
 
@@ -153,7 +157,11 @@ extern "C" {
 //! TRICE_STREAM_BUFFER:
 //! \li Stream Buffering output to UART. Needs less buffer memory for the price of being a bit slower.
 //! \li Command line similar to: `trice log -p COM1 -baud 115200`
+//!
+//! TRICE_STATIC_BUFFER: (experimental)
+#ifndef TRICE_OFF 
 #define TRICE_MODE TRICE_DOUBLE_BUFFER 
+#endif
 
 //! TRICE_SINGLE_MAX_SIZE is used to truncate long dynamically generated strings and to detect the need of a stream buffer wrap.
 //! Be careful with this value: When using 12 64-bit values with a 64-bit stamp the trice size is 2 + 8 + 2 + 12*8 = 108 bytes
@@ -168,6 +176,10 @@ extern "C" {
 #define TRICE_BUFFER_SIZE (TRICE_SINGLE_MAX_SIZE + TRICE_DATA_OFFSET) //!< TRICE_BUFFER_SIZE is the used additional max stack size for a single TRICE macro. Recommended value: TRICE_SINGLE_MAX_SIZE plus 8.
 #elif TRICE_MODE == TRICE_STREAM_BUFFER 
 #define TRICE_TRANSFER_INTERVAL_MS 10 //!< TRICE_TRANSFER_INTERVAL_MS is the milliseconds interval for a single TRICE read out. Each trigger transfers up to one trice, so make this value not too big to get all trices out in the average. This time should be shorter than visible delays. 
+#define TRICE_FIFO_ELEMENTS 128 //!< Must be a power of 2. The half number is the amount of bufferable trices before they go out.
+#define TRICE_BUFFER_SIZE 2048 //!< TRICE_BUFFER_SIZE is the used max buffer size for a TRICE macro burst. Recommended value: 2000.
+#elif TRICE_MODE == TRICE_STATIC_BUFFER 
+//#define TRICE_TRANSFER_INTERVAL_MS 10 //!< TRICE_TRANSFER_INTERVAL_MS is the milliseconds interval for a single TRICE read out. Each trigger transfers up to one trice, so make this value not too big to get all trices out in the average. This time should be shorter than visible delays. 
 #define TRICE_FIFO_ELEMENTS 128 //!< Must be a power of 2. The half number is the amount of bufferable trices before they go out.
 #define TRICE_BUFFER_SIZE 2048 //!< TRICE_BUFFER_SIZE is the used max buffer size for a TRICE macro burst. Recommended value: 2000.
 #elif TRICE_MODE == TRICE_DOUBLE_BUFFER 
@@ -289,7 +301,7 @@ extern "C" {
 #elif TRICE_MODE == TRICE_DOUBLE_BUFFER
 #define LOG_TRICE_MODE TRice( iD( 3758), "s:     NUCLEO-F030R8 DOUBLE_BUFFER MODE     \n" );
 #else
-#error
+#define LOG_TRICE_MODE // #error or TRICE_OFF
 #endif
 
 //! This is usable as the very first trice sequence after restart. Adapt and use it or ignore it.

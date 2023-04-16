@@ -32,6 +32,11 @@
 #include "./box/triceStreamBuffer.c"
 #endif
 
+#if TRICE_MODE==TRICE_STATIC_BUFFER
+#include "./box/triceStaticBuffer.c"
+#endif
+
+
 #ifdef XTEA_ENCRYPT_KEY
 #include "./box/xtea.c"
 #endif
