@@ -367,7 +367,7 @@ func (p *trexDec) sprintTrice(b []byte) (n int) {
 				return
 			ignoreSpecialCase:
 			}
-			ss := strings.Split(p.Trice.Strg, `\n`)
+			ss := strings.Split(p.pFmt, `\n`)
 			if len(ss) >= 3 { // at least one "\n" before "\n" line end
 				if decoder.NewlineIndent == -1 { // auto sense
 					decoder.NewlineIndent = 12 + 1 // todo: strings.SplitN & len(decoder.TargetStamp0) // 12
@@ -385,8 +385,8 @@ func (p *trexDec) sprintTrice(b []byte) (n int) {
 					skip += " "
 					spaces--
 				}
-				p.Trice.Strg = strings.Join(ss[:], skip)
-				p.Trice.Strg = strings.TrimRight(p.Trice.Strg, " ")
+				p.pFmt = strings.Join(ss[:], skip)
+				p.pFmt = strings.TrimRight(p.pFmt, " ")
 			}
 
 			n += s.triceFn(p, b, s.bitWidth, s.paramCount) // match found, call handler
@@ -597,7 +597,7 @@ func (p *trexDec) trice64F(b []byte, _ int, _ int) (n int) {
 
 // trice0 prints the trice format string.
 func (p *trexDec) trice0(b []byte, _ int, _ int) int {
-	return copy(b, fmt.Sprintf(p.Trice.Strg))
+	return copy(b, fmt.Sprintf(p.pFmt))
 }
 
 // unSignedOrSignedOut prints p.B according to the format string.

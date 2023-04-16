@@ -117,6 +117,7 @@ int main(void)
     TRICE_HEADLINE;
 
     TRice( iD( 6032), "A TRice message containing a newline\nbefore the line end\n" );
+    TRice( iD( 3900), "A TRice message containing a newline\nbefore the line end with a value %d\n", 1 );
     TRice( iD( 6375), "\nA TRice message starting with a a newline\n" );
     TRice( iD( 2636), "line0:A TRice message with several lines\nline1\nline2\nline3:last line\n" );
 
@@ -152,7 +153,7 @@ int main(void)
 
         // generate some trices every few ms
         static unsigned lastTricesTime = 0;
-        const unsigned msInterval = 50; // change this value to change trice generation speed (not below 2!)
+        const unsigned msInterval = 2000; // change this value to change trice generation speed (not below 2!)
         if( ms >= lastTricesTime + msInterval ){
             lastTricesTime = ms;
             #if TRICE_CHECK_CODE // with or without triceCheck.c

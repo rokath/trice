@@ -208,7 +208,7 @@
             ]
         },
         {
-            "name": "trice l -p COM6",
+            "name": "trice l -p COM6 -baud 921600",
             "type": "go",
             "request": "launch",
             "mode": "auto",
@@ -216,9 +216,9 @@
             "env": {},
             "args": ["log",
                     "-idlist",
-                    "${workspaceFolder}/test/MDK-ARM_STM32F030R8/til.json",
+                    "${workspaceFolder}/test/testdata/til.json",
                     "-li",
-                    "${workspaceFolder}/test/MDK-ARM_STM32F030R8/li.json",
+                    "${workspaceFolder}/test/testdata/li.json",
                     "-port",
                      "COM6",
                      "-baud",
