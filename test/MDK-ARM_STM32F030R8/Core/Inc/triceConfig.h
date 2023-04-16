@@ -23,6 +23,109 @@ extern "C" {
 //! TRICE_F is a shortcut for TRICE8_F, TRICE16_F, TRICE32_F or TRICE64_F usable in your project.
 #define TRICE_F  TRICE8_F
 
+/*
+///////////////////////////////////////////////////////////////////////////////
+// Multi selecet physical out channels, the ID ranges are allowed to overlap.
+// 
+
+#define TRICE_NO_BUFFER     1111
+#define TRICE_STACK_BUFFER  2222
+#define TRICE_STATIC_BUFFER 3333
+#define TRICE_DOUBLE_BUFFER 4444
+#define TRICE_STREAM_BUFFER 5555
+
+//! Enable and set channel number for SeggerRTT usage. Only channel 0 works right now for some reason.
+#define TRICE_RTT0 0 // comment out, if you do not use RTT
+
+//! Select trice mode for RTT0. Recommended is TRICE_DIRECT_MODE, when RTT0 is the only output device.
+//! When using an other output device too, and this in TRICE_DEFERRED_MODE, selecting TRICE_DEFERRED_MODE
+//! here reduces the overgead a bit, but TRICE_DIRECT_MODE is still recommeded here.
+#define TRICE_RTT0_MODE TRICE_DIRECT_MODE // TRICE_DIRECT_MODE or TRICE_DEFERRED_MODE, set to TRICE_NO_MODE if device not used
+
+#define TRICE_RTT0_BUFFER TRICE_STATIC_BUFFER // TRICE_NO_BUFFER, TRICE_STACK_BUFFER, TRICE_STATIC_BUFFER, TRICE_DOUBLE_BUFFER, TRICE_STREAM_BUFFER
+
+//#define TRICE_RTT0_MIN_ID 1           //!< TRICE_RTT0_MIN_ID is the smallest ID transferred to RTT0. Define with TRICE_RTT0_MAX_ID if you want select trice output here.
+//#define TRICE_RTT0_MAX_ID ((1<<14)-1) //!< TRICE_RTT0_MAX_ID is the biggest  ID transferred to RTT0. Define with TRICE_RTT0_MIN_ID if you want select trice output here.
+
+
+//! Enable and set UARTA for serial output.
+#define TRICE_UARTA USART2 // comment out, if you do not use TRICE_UARTA
+
+//! Select trice mode for UARTA. Recommended is TRICE_DEFERRED_MODE.
+//! The TRICE_DIRECT_MODE could be a choice here for no time constraints like trice inside interrupts.
+#define TRICE_UARTA_MODE TRICE_DEFERRED_MODE // TRICE_DIRECT_MODE or TRICE_DEFERRED_MODE, set to TRICE_NO_MODE if device not used
+
+#define TRICE_UARTA_BUFFER TRICE_DOUBLE_BUFFER // TRICE_NO_BUFFER, TRICE_STACK_BUFFER, TRICE_STATIC_BUFFER, TRICE_DOUBLE_BUFFER, TRICE_STREAM_BUFFER
+
+
+//#define TRICE_UARTA_MIN_ID 1           //!< TRICE_UARTA_MIN_ID is the smallest ID transferred to UARTA. Define with TRICE_UARTA_MAX_ID if you want select trice output here.
+//#define TRICE_UARTA_MAX_ID ((1<<14)-1) //!< TRICE_UARTA_MAX_ID is the biggest  ID transferred to UARTA. Define with TRICE_UARTA_MIN_ID if you want select trice output here.
+
+
+//! Enable and set UARTB for serial output.
+//#define TRICE_UARTB USART1 // comment out, if you do not use TRICE_UARTB
+
+//! Select trice mode for UARTB. Recommended is TRICE_DEFERRED_MODE.
+//! The TRICE_DIRECT_MODE could be a choice here for no time constraints like trice inside interrupts.
+#define TRICE_UARTB_MODE TRICE_NO_MODE // TRICE_DIRECT_MODE or TRICE_DEFERRED_MODE, set to TRICE_NO_MODE if device not used
+
+#define TRICE_UARTB_BUFFER TRICE_NO_BUFFER // TRICE_NO_BUFFER, TRICE_STACK_BUFFER, TRICE_STATIC_BUFFER, TRICE_DOUBLE_BUFFER, TRICE_STREAM_BUFFER
+
+
+//#define TRICE_UARTB_MIN_ID 1           //!< TRICE_UARTB_MIN_ID is the smallest ID transferred to UARTB. Define with TRICE_UARTB_MAX_ID if you want select trice output here.
+//#define TRICE_UARTB_MAX_ID ((1<<14)-1) //!< TRICE_UARTB_MAX_ID is the biggest  ID transferred to UARTB. Define with TRICE_UARTB_MIN_ID if you want select trice output here.
+
+
+//! CGO interface (for testing the target code with Go only, do not enable)
+//#define TRICE_CGO 
+
+//! Enable option for an additional interface, you can define by your own.
+#define TRICE_AUXILIARY
+
+//! Select trice mode for AUXILIARY. 
+//! The TRICE_DIRECT_MODE is recommended if the AUXILIARY write function is non blocking, means so fast, to be executed inside an interrupt as well.
+//! The TRICE_DERFERRED_MODE is recommended if the AUXILIARY write function is blocking, means so slow, to be not executable inside an interrupt.
+#define TRICE_AUXILIARY_MODE TRICE_NO_MODE // TRICE_DIRECT_MODE or TRICE_DEFERRED_MODE, set to TRICE_NO_MODE if device not used.
+
+#define TRICE_AUXIOLARY_BUFFER TRICE_NO_BUFFER // TRICE_NO_BUFFER, TRICE_STACK_BUFFER, TRICE_STATIC_BUFFER, TRICE_DOUBLE_BUFFER, TRICE_STREAM_BUFFER
+
+//#define TRICE_AUXILIARY_MIN_ID 1           //!< TRICE_AUXILIARY_MIN_ID is the smallest ID transferred to AUXILIARY. Define with TRICE_AUXILIARY_MAX_ID if you want select trice output here.
+//#define TRICE_AUXILIARY_MAX_ID ((1<<14)-1) //!< TRICE_AUXILIARY_MAX_ID is the biggest  ID transferred to AUXILIARY. Define with TRICE_AUXILIARY_MIN_ID if you want select trice output here.
+
+
+// Modbus support s not working yet. //////////////////////////////////////////
+//
+
+//  //! TRICE_LOG_OVER_MODBUS_FUNC24_ALSO allows to access the trice messages over modbus.
+//  //! TRICE_LOG_OVER_MODBUS_FUNC24_ONLY works with all TRICE_MODE settings.
+//  //! Other trice output channels are supported in this mode.
+//  //! See comment on TriceModbusAlsoFetch() for more details.
+//  #define TRICE_LOG_OVER_MODBUS_FUNC24_ALSO
+//  
+//  //! TRICE_LOG_OVER_MODBUS_FUNC24_ONLY allows to access the trice messages over modbus.
+//  //! TRICE_LOG_OVER_MODBUS_FUNC24_ONLY works only with TRICE_MODE == TRICE_STREAM_BUFFER.
+//  //! Other trice output channels are not supported in this mode.
+//  //! See comment on TriceModbusOnlyFetch() for more details.
+//  //#define TRICE_LOG_OVER_MODBUS_FUNC24_ONLY
+//  
+//  //! TRICE_LOG_FIFO_MODBUS_START_ADDRESS is the used virtual modbus address for modbus trice fifo read out.
+//  //! The trice tool assumes 47400 as default value. The limit is 47400+(TRICE_FIFO_ELEMENTS>>1).
+//  //! If you change this here you need to use the appropriate trice tool CLI switch.
+//  #define TRICE_LOG_FIFO_MODBUS_START_ADDRESS 47400
+//  
+//  
+//  #ifdef TRICE_LOG_OVER_MODBUS_FUNC24_ALSO
+//  #define TRICE_MODBUS_MIN_ID 1           //!< TRICE_MODBUS_BUFFER_MIN_ID is the smallest ID transferred to MODBUS_BUFFER.
+//  #define TRICE_MODBUS_MAX_ID ((1<<14)-1) //!< TRICE_MODBUS_BUFFER_MAX_ID is the biggest  ID transferred to MODBUS_BUFFER.
+//  
+//  #define TRICE_MODBUS_BUFFER_SIZE 240
+//  #define TRICE_MODBUS_FIFO_ELEMENTS 32 //!< Must be a power of 2. The half number is the amount of bufferable trices before they go out.
+//  #endif // #ifdef TRICE_LOG_OVER_MODBUS_FUNC24_ALSO
+
+//
+///////////////////////////////////////////////////////////////////////////////
+*/
+
 
 ///////////////////////////////////////////////////////////////////////////////
 // Select trice mode and general settings.
