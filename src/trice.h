@@ -245,34 +245,37 @@ void TriceOutRtt0( uint32_t* tb, size_t tLen ); // todo
 //! if the write out speed is small.
 #define TRICE_STREAM_BUFFER_SIZE  (TRICE_BUFFER_SIZE)
 
+extern uint32_t triceSingleBuffer[]; //!< triceSingleBuffer is an intermediate buffer for sigle trice messages.
+extern uint32_t* const triceSingleBufferStartWritePosition; // = &triceSingleBuffer[TRICE_DATA_OFFSET>>2]
 extern uint32_t* TriceBufferWritePosition;
-uint32_t* TriceNextStreamBuffer( void );
-extern int singleTricesDeferredCount; //!< singleTricesDeferredCount >0 signals background to transfer trices.
-extern uint32_t triceSingleBuffer[128]; //!< triceSingleBuffer is an intermediate buffer for sigle trice messages.
+//uint32_t* TriceNextStreamBuffer( void );
+//extern int singleTricesDeferredCount; //!< singleTricesDeferredCount >0 signals background to transfer trices.
+void singleTriceOutRtt( uint32_t* tb, size_t tLen );
 
 // | TRICE_DATA_OFFSET | data | ...
 //! triceSingleWrite copies a single trice from triceSingleBuffer to output.
-static inline void triceSingleWrite( uint32_t const* src ){
-    size_t count = src - triceSingleBuffer;
-    uint32_t* next = TriceNextStreamBuffer(); // in only direct mode case it returns always the same buffer
-    uint32_t* dest = next + (TRICE_DATA_OFFSET>>2);
-    while (count--){
-        *dest++ = *src++;
-    }
-#ifdef TRICE_DIRECT_OUT
-    size_t len = (dest - next )<<2;
-    TriceOutRtt0( next, len );
-#endif
-#ifdef TRICE_DEFERRED_OUT
-    singleTricesDeferredCount++; // The background task can now parse the stram buffer area for the next trice.
-#endif
+static inline void triceSingleWrite( void ){
+//    size_t count = src - triceSingleBuffer;
+//    uint32_t* next = TriceNextStreamBuffer(); // in only direct mode case it returns always the same buffer
+//    uint32_t* dest = next + (TRICE_DATA_OFFSET>>2);
+//    while (count--){
+//        *dest++ = *src++;
+//    }
+//#ifdef TRICE_DIRECT_OUT
+    size_t len = (TriceBufferWritePosition - triceSingleBufferStartWritePosition )<<2; // len is the trice len without TRICE_OFFSET but with padding bytes.
+    // todo: get TID here for routing
+    singleTriceOutRtt( triceSingleBuffer, len );
+//#endif
+//#ifdef TRICE_DEFERRED_OUT
+//    singleTricesDeferredCount++; // The background task can now parse the stram buffer area for the next trice.
+//#endif
 }
 
 #define TRICE_ENTER TRICE_ENTER_CRITICAL_SECTION { \
-    TriceBufferWritePosition = triceSingleBuffer;
+    TriceBufferWritePosition = triceSingleBufferStartWritePosition;
 
 #define TRICE_LEAVE \
-    triceSingleWrite( TriceBufferWritePosition ); \
+    triceSingleWrite(); \
     } TRICE_LEAVE_CRITICAL_SECTION
 
 #endif // #if TRICE_MODE == TRICE_STATIC_BUFFER

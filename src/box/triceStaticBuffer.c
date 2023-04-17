@@ -50,4 +50,4 @@ void TriceLogBufferInfo( void ){
     TRICE32( id( 6429), "att: Trice static buffer size:%5u ", 0 );
 }
 
-#endif // #if TRICE_MODE == TRICE_STREAM_BUFFER
+#endif // #if TRICE_MODE == TRICE_STATIC_BUFFER

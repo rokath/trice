@@ -113,19 +113,8 @@ int main(void)
     LL_USART_EnableIT_RXNE(TRICE_UARTB); 
     #endif
 
-    trice( iD( 1728), "w: Hello! 👋🙂 \n\n" );
-
+    TRice( iD( 7257), "w: Hello! 👋🙂 \a\n\n" ); // with sound!
     TRICE_HEADLINE;
-
-    TRice( iD( 6032), "A TRice message containing a newline\nbefore the line end\n" );
-    TRice( iD( 3900), "A TRice message containing a newline\nbefore the line end with a value %d\n", 1 );
-    TRice( iD( 6375), "\nA TRice message starting with a a newline\n" );
-    TRice( iD( 2636), "line0:A TRice message with several lines\nline1\nline2\nline3:last line\n" );
-
-    // These normal use cases working with ARM5 and CLANG6 but have a CGO compiler issue. 
-    TRice( iD( 3801),"Twelf default (32) bit width values\n%d, %u, %x, %X, %t,\n%e, %f, %g,\n%E, %F, %G,\n0xb%08b\nand a 32-bit stamp.\n", -3, -4, -5, -6, 1, aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), -8 ); //_exp: time: 842,150_450default: info:12 default bit width values -3, 4294967292, fffffffb, FFFFFFFA, truet, 1.401298e-45, -7.123457, -7.123457, -7.123457E+00, -7.123457, -7.123457, 0xb11000000111000111111001101011100 and a 32-bit stamp.
-    Trice( iD( 4476),"Twelf default (32) bit width values\n%d, %u, %x, %X, %t,\n%e, %f, %g,\n%E, %F, %G,\n0xb%08b\nand a 16-bit stamp.\n", -3, -4, -5, -6, 1, aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), -8 ); //_exp: time:       5_654default: info:12 default bit width values -3, 4294967292, fffffffb, FFFFFFFA, truet, 1.401298e-45, -7.123457, -7.123457, -7.123457E+00, -7.123457, -7.123457, 0xb11000000111000111111001101011100 and a 16-bit stamp.
-    trice( iD( 6442),"Twelf default (32) bit width values\n%d, %u, %x, %X, %t,\n%e, %f, %g,\n%E, %F, %G,\n0xb%08b\nand without stamp.\n" , -3, -4, -5, -6, 1, aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), aFloat(-7.123456789), -8 ); //_exp: time:            default: info:12 default bit width values -3, 4294967292, fffffffb, FFFFFFFA, truet, 1.401298e-45, -7.123457, -7.123457, -7.123457E+00, -7.123457, -7.123457, 0xb11000000111000111111001101011100 and without stamp.
 
   /* USER CODE END 2 */
 
@@ -137,14 +126,8 @@ int main(void)
         // check for external commands
         if( triceCommandFlag ){
             triceCommandFlag = 0;
-            TRICE_S( Id( 5687), "att:Executing command %s ...\n", triceCommandBuffer );
+            TRICE_S( Id( 5865), "att:Executing command %s ...\a\n", triceCommandBuffer ); // with sound!
             // do
-            TRice( iD( 4406), "dbg:\aHi!\n" ); // sound!
-            Trice( iD( 4406), "dbg:\aHi!\n" ); // sound!
-            trice( iD( 4406), "dbg:\aHi!\n" ); // sound!
-            TRICE( ID( 4406), "dbg:\aHi!\n" ); // sound!
-            TRICE( Id( 4406), "dbg:\aHi!\n" ); // sound!
-            TRICE( id( 4406), "dbg:\aHi!\n" ); // sound!
             TRICE( ID( 6967), "att:...done\n" );
 
         }

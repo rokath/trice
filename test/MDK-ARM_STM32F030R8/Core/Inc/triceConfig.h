@@ -160,7 +160,7 @@ extern "C" {
 //!
 //! TRICE_STATIC_BUFFER: (experimental)
 #ifndef TRICE_OFF 
-#define TRICE_MODE TRICE_DOUBLE_BUFFER 
+#define TRICE_MODE TRICE_STATIC_BUFFER 
 #endif
 
 //! TRICE_SINGLE_MAX_SIZE is used to truncate long dynamically generated strings and to detect the need of a stream buffer wrap.
@@ -180,7 +180,7 @@ extern "C" {
 #define TRICE_BUFFER_SIZE 2048 //!< TRICE_BUFFER_SIZE is the used max buffer size for a TRICE macro burst. Recommended value: 2000.
 #elif TRICE_MODE == TRICE_STATIC_BUFFER 
 //#define TRICE_TRANSFER_INTERVAL_MS 10 //!< TRICE_TRANSFER_INTERVAL_MS is the milliseconds interval for a single TRICE read out. Each trigger transfers up to one trice, so make this value not too big to get all trices out in the average. This time should be shorter than visible delays. 
-#define TRICE_FIFO_ELEMENTS 128 //!< Must be a power of 2. The half number is the amount of bufferable trices before they go out.
+//#define TRICE_FIFO_ELEMENTS 128 //!< Must be a power of 2. The half number is the amount of bufferable trices before they go out.
 #define TRICE_BUFFER_SIZE 2048 //!< TRICE_BUFFER_SIZE is the used max buffer size for a TRICE macro burst. Recommended value: 2000.
 #elif TRICE_MODE == TRICE_DOUBLE_BUFFER 
 #define TRICE_TRANSFER_INTERVAL_MS 10 //!< TRICE_TRANSFER_INTERVAL_MS is the milliseconds interval for TRICE buffer read out. Each trigger transfers all in a half buffer stored trices. The TRICE_HALF_BUFFER_SIZE must be able to hold all trice messages possibly occouring in this time. This time should be shorter than visible delays. 

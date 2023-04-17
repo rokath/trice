@@ -191,7 +191,8 @@ void TriceWriteDeviceModbus( uint8_t *buf, size_t len ){
 #endif
 
 #if TRICE_MODE == TRICE_STATIC_BUFFER
-uint32_t triceSingleBuffer[128];
+uint32_t triceSingleBuffer[(TRICE_DATA_OFFSET + TRICE_SINGLE_MAX_SIZE)>>2];
+uint32_t* const triceSingleBufferStartWritePosition = &triceSingleBuffer[TRICE_DATA_OFFSET>>2];
 uint32_t* TriceBufferWritePosition;
 int singleTricesDeferredCount = 0;
 #endif
@@ -269,6 +270,38 @@ void TriceOut( uint32_t* tb, size_t tLen ){
 }
 
 #ifdef TRICE_RTT0
+
+// TODO: rewrite this working function for more efficiency
+
+//! singleTriceOutRtt encodes a single trice and writes it to the output.
+//! \param tb is start of uint32_t* trice buffer. The space TRICE_DATA_OFFSET at
+//! the tb start is for in-buffer encoding of the trice data.
+//! \param tLen is length of trice data. tlen is always a multiple of 4 because
+//! of 32-bit alignment and padding bytes.
+void singleTriceOutRtt( uint32_t* tb, size_t tLen ){
+    uint8_t* enc = (uint8_t*)tb; // encoded data starting address
+    size_t encLen = 0;
+    uint8_t* buf = enc + TRICE_DATA_OFFSET; // start of 32-bit aligned trices
+    size_t len = tLen; // (byte count)
+    int triceID;
+    // diagnostics
+    tLen += TRICE_DATA_OFFSET; 
+    triceDepthMax = tLen < triceDepthMax ? triceDepthMax : tLen;
+
+    // do it
+    while(len){
+        uint8_t* triceStart;
+        size_t triceLen;
+        triceID = nextTrice( &buf, &len, &triceStart, &triceLen );
+        if( triceID <= 0 ){ // on data error
+            break;   // ignore following data
+        }
+        #if TRICE_TRANSFER_MODE == TRICE_SAFE_SINGLE_MODE
+        encLen += triceEncode( enc+encLen, triceStart, triceLen );
+        #endif
+    }
+    TriceWriteDeviceRtt0( enc, encLen ); //lint !e534
+}
 
 //! TriceOut encodes trices and writes them in one step to the output.
 //! \param tb is start of uint32_t* trice buffer. The space TRICE_DATA_OFFSET at

@@ -3215,6 +3215,10 @@
 		"Type": "Trice16",
 		"Strg": "msg:value=%u\\n"
 	},
+	"5865": {
+		"Type": "TRICE_S",
+		"Strg": "att:Executing command %s ...\\a\\n"
+	},
 	"5867": {
 		"Type": "TRICE_N",
 		"Strg": "msg:%s\\n"
@@ -4066,6 +4070,10 @@
 	"7250": {
 		"Type": "TRICE",
 		"Strg": "dbg:\\a\\a\\aHi!\\n"
+	},
+	"7257": {
+		"Type": "TRice",
+		"Strg": "w: Hello! 👋🙂 \\a\\n\\n"
 	},
 	"7262": {
 		"Type": "TRICE",
