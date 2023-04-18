@@ -138,20 +138,28 @@ static size_t triceEncode( uint8_t* enc, uint8_t const* buf, size_t len ){
 }
 
 #ifdef TRICE_RTT0
+
+#ifdef TRICE_SEGGER_RTT_DIAGNOSTICS
 unsigned RTT0_writeSpaceMin = BUFFER_SIZE_UP; //! RTT0_writeSpaceMin is usable for diagnostics.
 unsigned RTT0_bytesInBufferMax = 0;        //! RTT0_bytesInBufferMax is usable for diagnostics.
+#endif
+
 void TriceWriteDeviceRtt0( uint8_t *buf, size_t len ){
+    
     // diagnostics
+    #ifdef TRICE_SEGGER_RTT_DIAGNOSTICS
     unsigned writeSpace = SEGGER_RTT_GetAvailWriteSpace (0);
     unsigned bytesInBuffer = SEGGER_RTT_GetBytesInBuffer(0);
     RTT0_writeSpaceMin    = RTT0_writeSpaceMin    < writeSpace    ? RTT0_writeSpaceMin    : writeSpace;
     RTT0_bytesInBufferMax = RTT0_bytesInBufferMax > bytesInBuffer ? RTT0_bytesInBufferMax : bytesInBuffer;
+    #endif
+    
     // action
-    SEGGER_RTT_Write(0, buf, len );
+    SEGGER_RTT_WriteNoLock(0, buf, len );
 }
 #endif // #ifdef TRICE_RTT0
 
-#ifdef TRICE_UARTA
+#if defined( TRICE_UARTA ) && ((TRICE_MODE == TRICE_DOUBLE_BUFFER) || (TRICE_MODE == TRICE_STREAM_BUFFER) )
 void TriceWriteDeviceUartA( uint8_t *buf, size_t len ){
     #if TRICE_MODE == TRICE_STACK_BUFFER
         TriceBlockingWriteUartA( buf, len ); // direct out to UART
@@ -161,7 +169,7 @@ void TriceWriteDeviceUartA( uint8_t *buf, size_t len ){
 }
 #endif
 
-#ifdef TRICE_UARTB
+#if defined( TRICE_UARTB ) && ((TRICE_MODE == TRICE_DOUBLE_BUFFER) || (TRICE_MODE == TRICE_STREAM_BUFFER) )
 void TriceWriteDeviceUartB( uint8_t *buf, size_t len ){
     #if TRICE_MODE == TRICE_STACK_BUFFER
         TriceBlockingWriteUartB( buf, len ); // direct out to UART
@@ -194,7 +202,6 @@ void TriceWriteDeviceModbus( uint8_t *buf, size_t len ){
 uint32_t triceSingleBuffer[(TRICE_DATA_OFFSET + TRICE_SINGLE_MAX_SIZE)>>2];
 uint32_t* const triceSingleBufferStartWritePosition = &triceSingleBuffer[TRICE_DATA_OFFSET>>2];
 uint32_t* TriceBufferWritePosition;
-int singleTricesDeferredCount = 0;
 #endif
 
 //! TriceOut encodes trices and writes them in one step to the output.
@@ -234,13 +241,13 @@ void TriceOut( uint32_t* tb, size_t tLen ){
     
     // output
     
-    #ifdef TRICE_UARTA
+    #if defined( TRICE_UARTA ) && ((TRICE_MODE == TRICE_DOUBLE_BUFFER) || (TRICE_MODE == TRICE_STREAM_BUFFER) )
         #if defined(TRICE_UARTA_MIN_ID) && defined(TRICE_UARTA_MAX_ID)
         if( (TRICE_UARTA_MIN_ID < triceID) && (triceID < TRICE_UARTA_MAX_ID) )
         #endif
         TriceWriteDeviceUartA( enc, encLen );
     #endif
-    #ifdef TRICE_UARTB
+    #if defined( TRICE_UARTB ) && ((TRICE_MODE == TRICE_DOUBLE_BUFFER) || (TRICE_MODE == TRICE_STREAM_BUFFER) )
         #if defined(TRICE_UARTB_MIN_ID) && defined(TRICE_UARTB_MAX_ID)
         if( (TRICE_UARTB_MIN_ID < triceID) && (triceID < TRICE_UARTB_MAX_ID) )
         #endif
@@ -269,8 +276,14 @@ void TriceOut( uint32_t* tb, size_t tLen ){
     #endif
 }
 
-#ifdef TRICE_RTT0
 
+
+
+//! singleTriceDirectOut encodes a single trice and writes it to the output.
+//! \param tb is start of uint32_t* trice buffer. The space TRICE_DATA_OFFSET at
+//! the tb start is for in-buffer encoding of the trice data.
+//! \param tLen is length of trice data. tlen is always a multiple of 4 because
+//! of 32-bit alignment and padding bytes.
 // TODO: rewrite this working function for more efficiency
 /*
 - The fastest would be to direct call SEGGER Write without (COBS) encoding.
@@ -287,13 +300,7 @@ void TriceOut( uint32_t* tb, size_t tLen ){
   - start with void _Write32NoCheck(SEGGER_RTT_BUFFER_UP* pRing, const uint32_t* pData, unsigned NumWords)
     - At init ensure Dst is aligned, otherwise write padding zeroes what is ok for COBS
 */
-
-//! singleTriceOutRtt encodes a single trice and writes it to the output.
-//! \param tb is start of uint32_t* trice buffer. The space TRICE_DATA_OFFSET at
-//! the tb start is for in-buffer encoding of the trice data.
-//! \param tLen is length of trice data. tlen is always a multiple of 4 because
-//! of 32-bit alignment and padding bytes.
-void singleTriceOutRtt( uint32_t* tb, size_t tLen ){
+void singleTriceDirectOut( uint32_t* tb, size_t tLen ){
     uint8_t* enc = (uint8_t*)tb; // encoded data starting address
     size_t encLen = 0;
     uint8_t* buf = enc + TRICE_DATA_OFFSET; // start of 32-bit aligned trices
@@ -315,9 +322,12 @@ void singleTriceOutRtt( uint32_t* tb, size_t tLen ){
         encLen += triceEncode( enc+encLen, triceStart, triceLen );
         #endif
     }
+    #ifdef TRICE_RTT0
     TriceWriteDeviceRtt0( enc, encLen ); //lint !e534
+    #endif
 }
 
+#ifdef TRICE_RTT0
 //! TriceOut encodes trices and writes them in one step to the output.
 //! \param tb is start of uint32_t* trice buffer. The space TRICE_DATA_OFFSET at
 //! the tb start is for in-buffer encoding of the trice data.
@@ -363,7 +373,7 @@ void TriceBlockingWriteUartA( uint8_t const * buf, unsigned len ){
 }
 #endif // #if defined( TRICE_UARTA ) && !defined( TRICE_HALF_BUFFER_SIZE )
 
-#if defined( TRICE_UARTA ) // && TRICE_DEFERRED_OUT // buffered out to UART
+#if defined( TRICE_UARTA ) && ((TRICE_MODE == TRICE_DOUBLE_BUFFER) || (TRICE_MODE == TRICE_STREAM_BUFFER) ) // buffered out to UART
 static uint8_t const * triceOutBufferUartA;
 static size_t triceOutCountUartA = 0;
 static unsigned triceOutIndexUartA = 0;
@@ -420,7 +430,7 @@ void TriceBlockingWriteUartB( uint8_t const * buf, unsigned len ){
 }
 #endif // #if defined( TRICE_UARTA ) && !defined( TRICE_HALF_BUFFER_SIZE )
 
-#if defined( TRICE_UARTB ) // && TRICE_DEFERRED_OUT // buffered out to UART
+#if defined( TRICE_UARTB ) && ((TRICE_MODE == TRICE_DOUBLE_BUFFER) || (TRICE_MODE == TRICE_STREAM_BUFFER) ) // buffered out to UART
 static uint8_t const * triceOutBufferUartB;
 static size_t triceOutCountUartB = 0;
 static unsigned triceOutIndexUartB = 0;
@@ -472,11 +482,11 @@ unsigned TriceOutDepth( void ){
         // d = BUFFER_SIZE_UP - SEGGER_RTT_GetAvailWriteSpace(TRICE_RTT0);
         // depth = d > depth ? d : depth;
     #endif
-    #ifdef TRICE_UARTA
+    #if defined( TRICE_UARTA ) && ((TRICE_MODE == TRICE_DOUBLE_BUFFER) || (TRICE_MODE == TRICE_STREAM_BUFFER) )
         d = TriceOutDepthUartA();
         depth = d > depth ? d : depth;
     #endif
-    #ifdef TRICE_UARTB
+    #if defined( TRICE_UARTB ) && ((TRICE_MODE == TRICE_DOUBLE_BUFFER) || (TRICE_MODE == TRICE_STREAM_BUFFER) )
         d = TriceOutDepthUartB();
         depth = d > depth ? d : depth;
     #endif

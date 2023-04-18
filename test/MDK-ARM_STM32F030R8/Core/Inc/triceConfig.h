@@ -163,6 +163,14 @@ extern "C" {
 #define TRICE_MODE TRICE_STATIC_BUFFER 
 #endif
 
+// TRICE_DIRECT_OUT needs to be enabled if at least one out channel is used in direct mode (usually RTT).
+#define TRICE_DIRECT_OUT
+
+// TRICE_DEFERRED_OUT needs to be enabled if at least one out channel is used in deferred mode (usually UART).
+#define TRICE_DEFERRED_OUT
+// obsolete: #define TRICE_DEFERRED_OUT ((TRICE_MODE == TRICE_DOUBLE_BUFFER) || (TRICE_MODE == TRICE_STREAM_BUFFER) ) //!< //! TRICE_DEFERRED_OUT is a helper macro.
+
+
 //! TRICE_SINGLE_MAX_SIZE is used to truncate long dynamically generated strings and to detect the need of a stream buffer wrap.
 //! Be careful with this value: When using 12 64-bit values with a 64-bit stamp the trice size is 2 + 8 + 2 + 12*8 = 108 bytes
 //! In direct mode, and also when you enabled TRICE_RTT0, this plus TRICE_DATA_OFFSET is the max allocation size on the target stack.
@@ -316,9 +324,34 @@ extern "C" {
 //
 ///////////////////////////////////////////////////////////////////////////////
 
+//! TRICE_SEGGER_RTT_DIAGNOSTICS allows to track SEGGER RTT buffer usage, if enabled here.
+//   #define TRICE_SEGGER_RTT_DIAGNOSTICS
+
+//! TRICE_ENTER_CRITICAL_SECTION saves interrupt state and disables Interrupts.
+#define TRICE_ENTER_CRITICAL_SECTION SEGGER_RTT_LOCK() 
+
+//! TRICE_LEAVE_CRITICAL_SECTION restores interrupt state.
+#define TRICE_LEAVE_CRITICAL_SECTION SEGGER_RTT_UNLOCK() 
+
 ///////////////////////////////////////////////////////////////////////////////
 // Compiler Adaption
 //
+
+//! TRICE_ENTER_CRITICAL_SECTION saves interrupt state and disables Interrupts.
+//! \details Workaround for ARM Cortex M0 and M0+:
+//! \li __get_PRIMASK() is 0 when interrupts are enabled globally.
+//! \li __get_PRIMASK() is 1 when interrupts are disabled globally.
+//! If trices are used only outside critical sections or interrupts,
+//! you can leave this macro empty for more speed. Use only '{' in that case.
+//  #define TRICE_ENTER_CRITICAL_SECTION { uint32_t primaskstate = __get_PRIMASK(); __disable_irq(); {
+
+//! TRICE_LEAVE_CRITICAL_SECTION restores interrupt state.
+//! \details Workaround for ARM Cortex M0 and M0+:
+//! \li __get_PRIMASK() is 0 when interrupts are enabled globally.
+//! \li __get_PRIMASK() is 1 when interrupts are disabled globally.
+//! If trices are used only outside critical sections or interrupts,
+//! you can leave this macro pair empty for more speed. Use only '}' in that case.
+//  #define TRICE_LEAVE_CRITICAL_SECTION } __set_PRIMASK(primaskstate); }
 
 #if (defined( __GNUC__ ) && !defined(__ARMCC_VERSION)) /* gnu compiler ####### */ \
  || defined(__IAR_SYSTEMS_ICC__) /* IAR compiler ############################# */ \
@@ -330,10 +363,10 @@ extern "C" {
 #define ALIGN4_END __attribute__ ((aligned(4))) //!< align to 4 byte boundary post declaration
 
 //! TRICE_ENTER_CRITICAL_SECTION saves interrupt state and disables Interrupts.
-#define TRICE_ENTER_CRITICAL_SECTION { uint32_t old_mask = cm_mask_interrupts(1); { // copied from test/OpenCM3_STM32F411_Nucleo/triceConfig.h
+//#define TRICE_ENTER_CRITICAL_SECTION { uint32_t old_mask = cm_mask_interrupts(1); { // copied from test/OpenCM3_STM32F411_Nucleo/triceConfig.h
 
 //! TRICE_LEAVE_CRITICAL_SECTION restores interrupt state.
-#define TRICE_LEAVE_CRITICAL_SECTION  } cm_mask_interrupts(old_mask); } // copied from test/OpenCM3_STM32F411_Nucleo/triceConfig.h
+//#define TRICE_LEAVE_CRITICAL_SECTION  } cm_mask_interrupts(old_mask); } // copied from test/OpenCM3_STM32F411_Nucleo/triceConfig.h
 
 #elif defined(__ARMCC_VERSION) /* Arm Compiler ############################### */
 
@@ -360,7 +393,7 @@ extern "C" {
 //! \li __get_PRIMASK() is 1 when interrupts are disabled globally.
 //! If trices are used only outside critical sections or interrupts,
 //! you can leave this macro empty for more speed. Use only '{' in that case.
-#define TRICE_ENTER_CRITICAL_SECTION { uint32_t primaskstate = __get_PRIMASK(); __disable_irq(); {
+//#define TRICE_ENTER_CRITICAL_SECTION { uint32_t primaskstate = __get_PRIMASK(); __disable_irq(); {
 
 //! TRICE_LEAVE_CRITICAL_SECTION restores interrupt state.
 //! \details Workaround for ARM Cortex M0 and M0+:
@@ -368,7 +401,7 @@ extern "C" {
 //! \li __get_PRIMASK() is 1 when interrupts are disabled globally.
 //! If trices are used only outside critical sections or interrupts,
 //! you can leave this macro pair empty for more speed. Use only '}' in that case.
-#define TRICE_LEAVE_CRITICAL_SECTION } __set_PRIMASK(primaskstate); }
+//#define TRICE_LEAVE_CRITICAL_SECTION } __set_PRIMASK(primaskstate); }
 
 #elif 1 // ####################################################################
 #error "add new compiler here"

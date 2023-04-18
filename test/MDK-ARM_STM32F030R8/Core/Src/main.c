@@ -34,7 +34,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define TRICE_CHECK_CODE 0
+#define TRICE_CHECK_CODE 1
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -74,6 +74,9 @@ uint32_t milliSecond( void );
 int main(void)
 {
   /* USER CODE BEGIN 1 */
+    #ifdef TRICE_RTT0
+    SEGGER_RTT_Write(0, 0, 0 ); // This is just to force the INIT() call inside SEGGER_RTT.c
+    #endif
     #if TRICE_CHECK_CODE
         int triceCheckIndex = 0; 
         trice( iD( 6041), "msg:Trice check range is [%u...%u)\n", beginTriceCheck, limitTriceCheck );
@@ -132,7 +135,7 @@ int main(void)
 
         }
 
-        #if TRICE_DEFERRED_OUT
+        #if ((TRICE_MODE == TRICE_DOUBLE_BUFFER) || (TRICE_MODE == TRICE_STREAM_BUFFER) ) // TRICE_DEFERRED_OUT
         // serve trice transfer every few ms, with an RTOS put this in a separate task.
         static unsigned lastMs = 0;
         if( ms >= lastMs + TRICE_TRANSFER_INTERVAL_MS ){
@@ -143,7 +146,7 @@ int main(void)
 
         // generate some trices every few ms
         static unsigned lastTricesTime = 0;
-        const unsigned msInterval = 2000; // change this value to change trice generation speed (not below 2!)
+        const unsigned msInterval = 2; // change this value to change trice generation speed (not below 2!)
         if( ms >= lastTricesTime + msInterval ){
             lastTricesTime = ms;
             #if TRICE_CHECK_CODE // with or without triceCheck.c

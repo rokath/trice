@@ -109,9 +109,6 @@ extern uint32_t* TriceBufferWritePosition; // todo: why?
 
 unsigned TriceOutDepthCGO( void ); // only needed for testing C-sources from Go
 
-//! TRICE_DEFERRED_OUT is a helper macro.
-#define TRICE_DEFERRED_OUT ((TRICE_MODE == TRICE_DOUBLE_BUFFER) || (TRICE_MODE == TRICE_STREAM_BUFFER) )
-
 #ifdef TRICE_TRANSFER_ORDER_IS_NOT_MCU_ENDIAN
 
 // Swap a 16-bit integer (https://www.oryx-embedded.com/doc/cpu__endian_8h_source.html)
@@ -241,34 +238,35 @@ void TriceOutRtt0( uint32_t* tb, size_t tLen ); // todo
 
 #if TRICE_MODE == TRICE_STATIC_BUFFER
 
-//! TRICE_STREAM_BUFFER_SIZE is the total size of the stream buffer. Must be able to hold the max TRICE burst count or even more,
+//! TRICE_DEFERRED_BUFFER_SIZE is the total size of the deferred buffer. Must be able to hold the max TRICE burst count or even more,
 //! if the write out speed is small.
-#define TRICE_STREAM_BUFFER_SIZE  (TRICE_BUFFER_SIZE)
+#define TRICE_DEFERRED_BUFFER_SIZE  (TRICE_BUFFER_SIZE)
 
 extern uint32_t triceSingleBuffer[]; //!< triceSingleBuffer is an intermediate buffer for sigle trice messages.
 extern uint32_t* const triceSingleBufferStartWritePosition; // = &triceSingleBuffer[TRICE_DATA_OFFSET>>2]
 extern uint32_t* TriceBufferWritePosition;
-//uint32_t* TriceNextStreamBuffer( void );
-//extern int singleTricesDeferredCount; //!< singleTricesDeferredCount >0 signals background to transfer trices.
-void singleTriceOutRtt( uint32_t* tb, size_t tLen );
+uint32_t* TriceNextDeferredBuffer( uint32_t wordCount );
+extern int singleTricesDeferredCount; //!< singleTricesDeferredCount >0 signals background to transfer trices.
+void singleTriceDirectOut( uint32_t* tb, size_t tLen );
 
 // | TRICE_DATA_OFFSET | data | ...
 //! triceSingleWrite copies a single trice from triceSingleBuffer to output.
 static inline void triceSingleWrite( void ){
-//    size_t count = src - triceSingleBuffer;
-//    uint32_t* next = TriceNextStreamBuffer(); // in only direct mode case it returns always the same buffer
-//    uint32_t* dest = next + (TRICE_DATA_OFFSET>>2);
-//    while (count--){
-//        *dest++ = *src++;
-//    }
-//#ifdef TRICE_DIRECT_OUT
-    size_t len = (TriceBufferWritePosition - triceSingleBufferStartWritePosition )<<2; // len is the trice len without TRICE_OFFSET but with padding bytes.
-    // optional todo: get TID here for routing
-    singleTriceOutRtt( triceSingleBuffer, len );
-//#endif
-//#ifdef TRICE_DEFERRED_OUT
-//    singleTricesDeferredCount++; // The background task can now parse the stram buffer area for the next trice.
-//#endif
+    size_t wordCount = TriceBufferWritePosition - triceSingleBufferStartWritePosition;
+#ifdef TRICE_DIRECT_OUT
+    size_t len = wordCount<<2; // len is the trice len without TRICE_OFFSET but with padding bytes.
+    singleTriceDirectOut( triceSingleBuffer, len );
+#endif
+#ifdef TRICE_DEFERRED_OUT
+    uint32_t* next = TriceNextDeferredBuffer(wordCount);
+    uint32_t* dest = next + (TRICE_DATA_OFFSET>>2);
+    uint32_t* src = triceSingleBufferStartWritePosition;
+    *dest++ = wordCount;
+    while (wordCount--){
+        *dest++ = *src++;
+    }
+    singleTricesDeferredCount++; // The background task can now parse the deferred buffer area for the next trice.
+#endif
 }
 
 #define TRICE_ENTER TRICE_ENTER_CRITICAL_SECTION { \
@@ -379,7 +377,7 @@ extern uint8_t TriceCycle;
 // UART interface
 //
 
-#if defined( TRICE_UARTA ) // && TRICE_DEFERRED_OUT // buffered out to UARTA
+#if defined( TRICE_UARTA ) && ((TRICE_MODE == TRICE_DOUBLE_BUFFER) || (TRICE_MODE == TRICE_STREAM_BUFFER) ) // buffered out to UARTA
 void TriceBlockingWriteUartA( uint8_t const * buf, unsigned len );
 uint8_t TriceNextUint8UartA( void );
 void triceServeTransmitUartA(void);
@@ -387,7 +385,7 @@ void triceTriggerTransmitUartA(void);
 unsigned TriceOutDepthUartA( void );
 #endif
 
-#if defined( TRICE_UARTB ) // && TRICE_DEFERRED_OUT // buffered out to UARTB
+#if defined( TRICE_UARTB ) && ((TRICE_MODE == TRICE_DOUBLE_BUFFER) || (TRICE_MODE == TRICE_STREAM_BUFFER) ) // buffered out to UARTB
 void TriceBlockingWriteUartB( uint8_t const * buf, unsigned len );
 uint8_t TriceNextUint8UartB( void );
 void triceServeTransmitUartB(void);
@@ -624,8 +622,10 @@ void TriceNonBlockingWriteModbusBuffer( uint8_t const * buf, unsigned len );
 size_t TriceModbusAlsoFetch( int index, uint8_t* tBuf );
 size_t TriceModbusOnlyFetch( int index, uint8_t* tBuf );
 
+#ifdef TRICE_SEGGER_RTT_DIAGNOSTICS
 extern unsigned RTT0_writeSpaceMin; //! RTT0_writeSpaceMin is usable for diagnostics.
 extern unsigned RTT0_bytesInBufferMax; //! RTT0_bytesInBufferMax is usable for diagnostics.
+#endif
 
 #ifdef __cplusplus
 }
