@@ -263,7 +263,7 @@ static inline void triceSingleWrite( void ){
 //    }
 //#ifdef TRICE_DIRECT_OUT
     size_t len = (TriceBufferWritePosition - triceSingleBufferStartWritePosition )<<2; // len is the trice len without TRICE_OFFSET but with padding bytes.
-    // todo: get TID here for routing
+    // optional todo: get TID here for routing
     singleTriceOutRtt( triceSingleBuffer, len );
 //#endif
 //#ifdef TRICE_DEFERRED_OUT

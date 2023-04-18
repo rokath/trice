@@ -272,6 +272,21 @@ void TriceOut( uint32_t* tb, size_t tLen ){
 #ifdef TRICE_RTT0
 
 // TODO: rewrite this working function for more efficiency
+/*
+- The fastest would be to direct call SEGGER Write without (COBS) encoding.
+  - For that the exact length is needed (without padding bytes)
+  - In case of SEGGER buffer wrap then the re-sync may have issues.
+- Simple COBS encoding is also fast and gives reliability.
+- TCOBS is not recommended here.
+- Encryption is possible but could cause timing issues especially when trices occur inside interrupts.
+- The user should be able to configure that.
+- Also:
+  - Use SEGGER_RTT_LOCK() for TRICE_ENTER_CRITICAL_SECTION 
+  - Use SEGGER_RTT_UNLOCK() for TRICE_LEAVE_CRITICAL_SECTION 
+  - Write special void SEGGER_RTT0_Write32_No_Lock( const uint32_t* pBuffer, unsigned NumWords) in a file SEGGER_RTText.c
+  - start with void _Write32NoCheck(SEGGER_RTT_BUFFER_UP* pRing, const uint32_t* pData, unsigned NumWords)
+    - At init ensure Dst is aligned, otherwise write padding zeroes what is ok for COBS
+*/
 
 //! singleTriceOutRtt encodes a single trice and writes it to the output.
 //! \param tb is start of uint32_t* trice buffer. The space TRICE_DATA_OFFSET at
