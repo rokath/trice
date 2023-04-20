@@ -249,13 +249,19 @@ uint32_t* TriceNextDeferredBuffer( uint32_t wordCount );
 extern int singleTricesDeferredCount; //!< singleTricesDeferredCount >0 signals background to transfer trices.
 void singleTriceDirectOut( uint32_t* tb, size_t tLen );
 
+#include "box/SEGGER_RTT.h"
+
 // | TRICE_DATA_OFFSET | data | ...
 //! triceSingleWrite copies a single trice from triceSingleBuffer to output.
+//! This is the time critical partexecuted inside TRICE_LEAVE.
 static inline void triceSingleWrite( void ){
+    // wordCount is the amount of steps, the TriceBufferWritePosition went forward for the actual trice.
+    // The last written uint32_t trice value can contain 1 to 3 padding bytes and these are always 0.
     size_t wordCount = TriceBufferWritePosition - triceSingleBufferStartWritePosition;
 #ifdef TRICE_DIRECT_OUT
     size_t len = wordCount<<2; // len is the trice len without TRICE_OFFSET but with padding bytes.
-    singleTriceDirectOut( triceSingleBuffer, len );
+    //SEGGER_RTT_WriteNoLock(0, triceSingleBufferStartWritePosition, len ); // no encoding!!!!!!!!!!!
+    singleTriceDirectOut( triceSingleBuffer, len ); // with encoding
 #endif
 #ifdef TRICE_DEFERRED_OUT
     uint32_t* next = TriceNextDeferredBuffer(wordCount);

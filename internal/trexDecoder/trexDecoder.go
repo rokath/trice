@@ -32,6 +32,11 @@ const (
 	typeX0 = 0 // regular trice format with 32-bit stamp : 001iiiiiI TT TT TT TT NC ...
 	//IDMask = 0x03FFF
 
+	packageFramingNone = iota
+	packageFramingCOBS
+	packageFramingTCOBS   //v1
+	packageFramingTCOBSv2 //v2
+
 )
 
 /*
@@ -69,12 +74,14 @@ func init() {
 	}
 }
 */
+
 // trexDec is the Decoding instance for trex encoded trices.
 type trexDec struct {
 	decoder.DecoderData
-	cycle uint8  // cycle date: c0...bf
-	pFmt  string // modified trice format string: %u -> %d
-	u     []int  // 1: modified format string positions:  %u -> %d, 2: float (%f)
+	cycle          uint8  // cycle date: c0...bf
+	pFmt           string // modified trice format string: %u -> %d
+	u              []int  // 1: modified format string positions:  %u -> %d, 2: float (%f)
+	packageFraming int
 }
 
 // New provides a TREX decoder instance.
@@ -96,7 +103,24 @@ func New(w io.Writer, lut id.TriceIDLookUp, m *sync.RWMutex, li id.TriceIDLookUp
 	p.LutMutex = m
 	p.Endian = endian
 	p.Li = li
+
+	switch strings.ToLower(decoder.PackageFraming) {
+	case "cobs":
+		p.packageFraming = packageFramingCOBS
+	case "tcobs", "tcobsv1":
+		p.packageFraming = packageFramingTCOBS
+	case "TCOBSv2", "TCOBSV2", "tcobsv2":
+		p.packageFraming = packageFramingTCOBSv2
+	case "none":
+		p.packageFraming = packageFramingNone
+	default:
+		log.Fatal("Invalid framing switch:", decoder.PackageFraming)
+	}
 	return p
+}
+
+func (p *trexDec) nextData() {
+	// todo
 }
 
 // nextPackage reads with an inner reader a TCOBSv1 encoded byte stream.
@@ -138,13 +162,15 @@ func (p *trexDec) nextPackage() {
 	var n int
 	var e error
 	// todo: automatically set default decoder.PackageFraming value to COBS if XTEA is active.
-	switch strings.ToLower(decoder.PackageFraming) {
-	case "cobs":
+	switch p.packageFraming {
+
+	case packageFramingCOBS:
 		n, e = cobs.Decode(p.B, p.IBuf[:index]) // if index is 0, an empty buffer is decoded
 		if e != nil {
 			fmt.Println("inconsistent COBS buffer:", p.IBuf[:index+1]) // show also terminating 0
 		}
-	case "tcobs", "tcobsv1":
+
+	case packageFramingTCOBS:
 		n, e = tcobs.Decode(p.B, p.IBuf[:index]) // if index is 0, an empty buffer is decoded
 		if e != nil {
 			fmt.Println("inconsistent TCOBSv1 buffer:", p.IBuf[:index+1]) // show also terminating 0
@@ -152,10 +178,8 @@ func (p *trexDec) nextPackage() {
 		} else {
 			p.B = p.B[len(p.B)-n:]
 		}
-	case "none":
-		p.B = p.IBuf[:index]
-		n, e = index, nil
-	//  case "TCOBSv2", "TCOBSV2", "tcobsv2":
+
+	//  case packageFramingTCOBSv2:
 	//  	n := tcobs.CDecode(p.B, p.IBuf[:index]) // if index is 0, an empty buffer is decoded
 	//  	if n < 0 {
 	//  		fmt.Println("inconsistent TCOBSv2 buffer:", p.IBuf[:index+1]) // show also terminating 0
@@ -163,10 +187,9 @@ func (p *trexDec) nextPackage() {
 	//  	} else {
 	//  		p.B = p.B[len(p.B)-n:]
 	//  	}
-	default:
-		fmt.Println("Invalid framing switch:", decoder.PackageFraming) // show also terminating 0
-		p.B = p.B[:0]
 
+	default:
+		log.Fatalln("unexpected execution path", p.packageFraming)
 	}
 
 	p.IBuf = p.IBuf[index+1:] // step forward (next package data in p.IBuf now, if any)
@@ -201,8 +224,12 @@ func (p *trexDec) nextPackage() {
 // In case of a not matching cycle, a warning message in trice format is prefixed.
 // In case of invalid package data, error messages in trice format are returned and the package is dropped.
 func (p *trexDec) Read(b []byte) (n int, err error) {
-	if len(p.B) == 0 { // last decoded package exhausted
-		p.nextPackage()
+	if p.packageFraming == packageFramingNone {
+		p.nextData()
+	} else {
+		if len(p.B) == 0 { // last decoded package exhausted
+			p.nextPackage()
+		}
 	}
 	packageSize := len(p.B)
 	if packageSize < tyIdSize { // not enough data for a next package
@@ -235,10 +262,11 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 		return
 	}
 
-	if packageSize < tyIdSize+decoder.TargetTimestampSize+ncSize { // non typeEX trices
-		return
+	if packageSize < tyIdSize+decoder.TargetTimestampSize+ncSize { // for non typeEX trices
+		return // not enough data
 	}
 
+	// try to interpret
 	if triceType == typeS0 {
 		decoder.TargetTimestamp = 0
 	} else if triceType == typeS2 { // 16-bit stamp
@@ -274,7 +302,11 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 		n += copy(b[n:], fmt.Sprintln("ERROR:package size", packageSize, "is <", p.TriceSize, " - ignoring package", p.B))
 		n += copy(b[n:], fmt.Sprintln(tyIdSize, decoder.TargetTimestampSize, ncSize, p.ParamSpace))
 		n += copy(b[n:], fmt.Sprintln(decoder.Hints))
-		p.B = p.B[len(p.B):]
+		if p.packageFraming == packageFramingNone {
+			p.B = p.B[1:] // discard first byte and try again
+		} else {
+			p.B = p.B[len(p.B):] // discard buffer
+		}
 		return
 	}
 
@@ -312,7 +344,11 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 	if !ok {
 		n += copy(b[n:], fmt.Sprintln("WARNING:unknown ID ", triceID, "- ignoring trice ending with", p.B))
 		n += copy(b[n:], fmt.Sprintln(decoder.Hints))
-		p.B = p.B[:0]
+		if p.packageFraming == packageFramingNone {
+			p.B = p.B[1:] // discard first byte and try again
+		} else {
+			p.B = p.B[:0] // discard all
+		}
 		return
 	}
 
@@ -320,7 +356,11 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 	if len(p.B) < p.ParamSpace {
 		n += copy(b[n:], fmt.Sprintln("ERROR:ignoring data garbage"))
 		n += copy(b[n:], fmt.Sprintln(decoder.Hints))
-		p.B = p.B[:0]
+		if p.packageFraming == packageFramingNone {
+			p.B = p.B[1:] // discard first byte and try again
+		} else {
+			p.B = p.B[:0] // discard all
+		}
 	} else {
 		p.B = p.B[p.ParamSpace:] // drop param info
 	}
