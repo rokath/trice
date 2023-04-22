@@ -431,7 +431,7 @@ static unsigned _WriteBlocking(SEGGER_RTT_BUFFER_UP* pRing, const char* pBuffer,
 *  Notes
 *    (1) If there might not be enough space in the "Up"-buffer, call _WriteBlocking
 */
-static void _WriteNoCheck(SEGGER_RTT_BUFFER_UP* pRing, const char* pData, unsigned NumBytes) {
+void _WriteNoCheck(SEGGER_RTT_BUFFER_UP* pRing, const char* pData, unsigned NumBytes) {
   unsigned NumBytesAtOnce;
   unsigned WrOff;
   unsigned Rem;
@@ -485,6 +485,56 @@ static void _WriteNoCheck(SEGGER_RTT_BUFFER_UP* pRing, const char* pData, unsign
 #endif
   }
 }
+
+
+void _WriteNoCheck32(SEGGER_RTT_BUFFER_UP* pRing, const uint32_t* pData, unsigned NumW) {
+  unsigned NumWordsAtOnce;
+  unsigned WrOff;
+  unsigned RemW;
+  char* pDst;
+  volatile uint32_t* pDstW;
+
+  WrOff = pRing->WrOff;
+  RemW = (pRing->SizeOfBuffer - WrOff)>>2;
+  if (RemW > NumW) {
+    //
+    // All data fits before wrap around
+    //
+    pDst = (pRing->pBuffer + WrOff) + SEGGER_RTT_UNCACHED_OFF;
+    pDstW = (uint32_t*)pDst;
+//#if SEGGER_RTT_MEMCPY_USE_BYTELOOP
+    WrOff += NumW<<2;
+    while (NumW--) {
+      *pDstW++ = *pData++;
+    };
+    RTT__DMB();                     // Force data write to be complete before writing the <WrOff>, in case CPU is allowed to change the order of memory accesses
+    pRing->WrOff = WrOff;
+//#endif
+  } else {
+    //
+    // We reach the end of the buffer, so need to wrap around
+    //
+//#if SEGGER_RTT_MEMCPY_USE_BYTELOOP
+    pDst = (pRing->pBuffer + WrOff) + SEGGER_RTT_UNCACHED_OFF;
+    pDstW = (uint32_t*)pDst;
+    NumWordsAtOnce = RemW;
+    while (NumWordsAtOnce--) {
+      *pDstW++ = *pData++;
+    };
+    pDst = pRing->pBuffer + SEGGER_RTT_UNCACHED_OFF;
+    pDstW = (uint32_t*)pDst;
+    NumWordsAtOnce = NumW - RemW;
+    while (NumWordsAtOnce--) {
+      *pDstW++ = *pData++;
+    };
+    RTT__DMB();                     // Force data write to be complete before writing the <WrOff>, in case CPU is allowed to change the order of memory accesses
+    pRing->WrOff = (NumW - RemW)<<2;
+//#endif
+  }
+}
+
+
+
 
 /*********************************************************************
 *

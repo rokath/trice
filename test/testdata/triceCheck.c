@@ -1293,10 +1293,10 @@ static int64_t DoubleToInt64( double f ){
 
 
 //! SCOPY is a helper macro for struct serialization.
-#define SCOPY( element ) do{ char* n = #element; int size = sizeof( src->element ); memcpy( p, &(src->element), size ); p += size; TRICE_S( ID( 2562), "rd:sizeof(%8s)", n ); TRICE( ID( 2684), " = %d\n", size);}while(0);
+#define SCOPY( element ) do{ char* n = #element; int size = sizeof( src->element ); memcpy( p, &(src->element), size ); p += size; TRICE_S( ID( 2562), "rd:sizeof(%8s)", n ); trice( iD( 2684), " = %d\n", size);}while(0);
 
     //! DCOPY is a helper macro for struct deserialization.
-#define DCOPY( element ) do{ char* n = #element; int size = sizeof( dst->element ); memcpy( &(dst->element), p, size ); p += size; TRICE_S( ID( 7414), "rd:sizeof(%8s)", n ); TRICE( ID( 4778), " = %d\n", size);}while(0);
+#define DCOPY( element ) do{ char* n = #element; int size = sizeof( dst->element ); memcpy( &(dst->element), p, size ); p += size; TRICE_S( ID( 7414), "rd:sizeof(%8s)", n ); trice( iD( 4778), " = %d\n", size);}while(0);
 
 
 typedef struct{

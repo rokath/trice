@@ -58,6 +58,10 @@ static void MX_USART2_UART_Init(void);
 void UsDuty( void );
 uint32_t milliSecond( void );
 
+// Get "to-host" ring buffer.
+SEGGER_RTT_BUFFER_UP* pRing = (SEGGER_RTT_BUFFER_UP*)((char*)&_SEGGER_RTT.aUp[0] + SEGGER_RTT_UNCACHED_OFF);  // Access uncached to make sure we see changes made by the J-Link side and all of our changes go into HW directly
+
+
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -75,11 +79,16 @@ int main(void)
 {
   /* USER CODE BEGIN 1 */
     #ifdef TRICE_RTT0
-    SEGGER_RTT_Write(0, 0, 0 ); // This is just to force the INIT() call inside SEGGER_RTT.c
+    SEGGER_RTT_Write(0, 0, 0 ); // This is just to force the INIT() call inside SEGGER_RTT.c what allows to use SEGGER_RTT_WriteNoLock instead of SEGGER_RTT_Write
+    
+    SEGGER_RTT_BUFFER_UP* pRing = (SEGGER_RTT_BUFFER_UP*)((char*)&_SEGGER_RTT.aUp[0] + SEGGER_RTT_UNCACHED_OFF);  // Access uncached to make sure we see changes made by the J-Link side and all of our changes go into HW directly
+
     #endif
+    TRICE_HEADLINE;
+
     #if TRICE_CHECK_CODE
         int triceCheckIndex = 0; 
-        trice( iD( 6041), "msg:Trice check range is [%u...%u)\n", beginTriceCheck, limitTriceCheck );
+        Trice( iD( 6041), "msg:Trice check range is [%u...%u)\n", beginTriceCheck, limitTriceCheck );
     #else // // #if TRICE_CHECK_CODE
         uint32_t loop = 0;
     #endif // #else // // #if TRICE_CHECK_CODE
@@ -99,6 +108,9 @@ int main(void)
   SystemClock_Config();
 
   /* USER CODE BEGIN SysInit */
+    TRice( iD( 7257), "w: Hello! 👋🙂 \a\n\n" ); // with sound!
+    TRice( iD( 5451), "w: Hello! 👋🙂 \a\n\n" ); // with sound!
+    TRice( iD( 4882), "w: Hello! 👋🙂 \a\n\n" ); // with sound!
     SysTick->CTRL |= SysTick_CTRL_TICKINT_Msk; // enable SysTick interrupt
   /* USER CODE END SysInit */
 
@@ -106,6 +118,7 @@ int main(void)
   MX_GPIO_Init();
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
+
     #ifdef XTEA_ENCRYPT_KEY
         XTEAInitTable();
     #endif
@@ -115,9 +128,6 @@ int main(void)
     #ifdef TRICE_UARTB
     LL_USART_EnableIT_RXNE(TRICE_UARTB); 
     #endif
-
-    TRice( iD( 7257), "w: Hello! 👋🙂 \a\n\n" ); // with sound!
-    TRICE_HEADLINE;
 
   /* USER CODE END 2 */
 
@@ -146,7 +156,7 @@ int main(void)
 
         // generate some trices every few ms
         static unsigned lastTricesTime = 0;
-        const unsigned msInterval = 20; // change this value to change trice generation speed (not below 2!)
+        const unsigned msInterval = 1; // change this value to change trice generation speed (not below 2!)
         if( ms >= lastTricesTime + msInterval ){
             lastTricesTime = ms;
             #if TRICE_CHECK_CODE // with or without triceCheck.c

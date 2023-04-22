@@ -96,9 +96,10 @@ func New(w io.Writer, lut id.TriceIDLookUp, m *sync.RWMutex, li id.TriceIDLookUp
 	p.cycle = 0xc0 // start value
 	p.W = w
 	p.In = in
-	p.IBuf = make([]byte, 0, decoder.DefaultSize)
-	p.B = make([]byte, 0, decoder.DefaultSize)
-	p.InnerBuffer = make([]byte, decoder.DefaultSize)
+	p.IBuf = make([]byte, 0, decoder.DefaultSize)     // len 0
+	p.B = make([]byte, 0, decoder.DefaultSize)        // len 0
+	p.B0 = make([]byte, decoder.DefaultSize)          // len max
+	p.InnerBuffer = make([]byte, decoder.DefaultSize) // len max
 	p.Lut = lut
 	p.LutMutex = m
 	p.Endian = endian
@@ -119,8 +120,18 @@ func New(w io.Writer, lut id.TriceIDLookUp, m *sync.RWMutex, li id.TriceIDLookUp
 	return p
 }
 
+// nextData reads with an inner reader a raw byte stream.
+//
+// When less 4 bytes found in the incoming bytes nextPackage nextData without action.
+// That means the incoming data stream is exhausted and a next try should be started a bit later.
+// Some arrived bytes are kept internally and concatenated with the following bytes in a next Read.
+// Afterwards 0 or at least 4 bytes are inside p.B
 func (p *trexDec) nextData() {
-	// todo
+	m, err := p.In.Read(p.InnerBuffer)      // use p.InnerBuffer as destination read buffer
+	p.B = append(p.B, p.InnerBuffer[:m]...) // merge with leftovers
+	if err != nil && err != io.EOF {        // some serious error
+		log.Fatal("ERROR:internal reader error", err) // exit
+	}
 }
 
 // nextPackage reads with an inner reader a TCOBSv1 encoded byte stream.
@@ -157,30 +168,32 @@ func (p *trexDec) nextPackage() {
 		decoder.Dump(p.W, p.IBuf[:index+1])
 	}
 
-	p.B = make([]byte, decoder.DefaultSize) // todo: avoid allocation
-
-	var n int
-	var e error
 	// todo: automatically set default decoder.PackageFraming value to COBS if XTEA is active.
 	switch p.packageFraming {
 
 	case packageFramingCOBS:
-		n, e = cobs.Decode(p.B, p.IBuf[:index]) // if index is 0, an empty buffer is decoded
+		p.B = p.B0                               // make([]byte, decoder.DefaultSize) // todo: avoid allocation
+		n, e := cobs.Decode(p.B, p.IBuf[:index]) // if index is 0, an empty buffer is decoded
+		p.IBuf = p.IBuf[index+1:]                // step forward (next package data in p.IBuf now, if any)
 		if e != nil {
 			fmt.Println("inconsistent COBS buffer:", p.IBuf[:index+1]) // show also terminating 0
 		}
+		p.B = p.B[:n]
 
 	case packageFramingTCOBS:
-		n, e = tcobs.Decode(p.B, p.IBuf[:index]) // if index is 0, an empty buffer is decoded
+		p.B = p.B0                                // make([]byte, decoder.DefaultSize) // todo: avoid allocation
+		n, e := tcobs.Decode(p.B, p.IBuf[:index]) // if index is 0, an empty buffer is decoded
+		p.IBuf = p.IBuf[index+1:]                 // step forward (next package data in p.IBuf now, if any)
 		if e != nil {
 			fmt.Println("inconsistent TCOBSv1 buffer:", p.IBuf[:index+1]) // show also terminating 0
 			p.B = p.B[:0]
 		} else {
-			p.B = p.B[len(p.B)-n:]
+			p.B = p.B[len(p.B)-n:] // buffer is filled from the end
 		}
 
 	//  case packageFramingTCOBSv2:
 	//  	n := tcobs.CDecode(p.B, p.IBuf[:index]) // if index is 0, an empty buffer is decoded
+	//      p.IBuf = p.IBuf[index+1:] // step forward (next package data in p.IBuf now, if any)
 	//  	if n < 0 {
 	//  		fmt.Println("inconsistent TCOBSv2 buffer:", p.IBuf[:index+1]) // show also terminating 0
 	//  		p.B = p.B[:0]
@@ -191,9 +204,6 @@ func (p *trexDec) nextPackage() {
 	default:
 		log.Fatalln("unexpected execution path", p.packageFraming)
 	}
-
-	p.IBuf = p.IBuf[index+1:] // step forward (next package data in p.IBuf now, if any)
-	p.B = p.B[:n]
 
 	if decoder.DebugOut { // Debug output
 		fmt.Fprint(p.W, "->TRICE: ")
@@ -225,10 +235,10 @@ func (p *trexDec) nextPackage() {
 // In case of invalid package data, error messages in trice format are returned and the package is dropped.
 func (p *trexDec) Read(b []byte) (n int, err error) {
 	if p.packageFraming == packageFramingNone {
-		p.nextData()
+		p.nextData() // returns all unprocessed data inside p.B
 	} else {
 		if len(p.B) == 0 { // last decoded package exhausted
-			p.nextPackage()
+			p.nextPackage() // returns one decoded package inside p.B
 		}
 	}
 	packageSize := len(p.B)
@@ -247,6 +257,9 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 		decoder.TargetTimestampSize = 0
 	case typeS2: // 16-bit stamp
 		decoder.TargetTimestampSize = 2
+		if p.packageFraming == packageFramingNone {
+			p.B = p.B[tyIdSize:] // When target encoding is done it removes the double 16-bit ID at the 16-bit timestamp trices. Without encoding it needs to be done here.
+		}
 	case typeS4: // 32-bit stamp
 		decoder.TargetTimestampSize = 4
 	//case typeS8: // 64-bit stamp
@@ -259,6 +272,12 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 		// todo: implement special case here
 		//case typeX3: // extended trice type X0
 		// todo: implement special case here
+		if p.packageFraming == packageFramingNone && len(p.B) > 0 { // typeX0 is not supported (yet)
+			if decoder.Verbose {
+				fmt.Fprintln(p.W, "discarding byte", p.B[0])
+			}
+			p.B = p.B[1:] // remove first byte to try to resync
+		}
 		return
 	}
 
@@ -281,11 +300,8 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 	p.B = p.B[decoder.TargetTimestampSize:]
 
 	nc := p.ReadU16(p.B) // n = number of data bytes (without timestamp), most significant bit is the count encoding, c = cycle
-	if len(p.B) == 2 {
-		p.B = p.B[:0]
-	} else {
-		p.B = p.B[ncSize:]
-	}
+	p.B = p.B[ncSize:]
+
 	var cycle uint8
 	if nc>>15 == 1 { // special case: more than data 127 bytes
 		// C code: #define LCNT(count) TRICE_PUT16( (0x8000 | (count)) );
@@ -299,13 +315,18 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 
 	p.TriceSize = tyIdSize + decoder.TargetTimestampSize + ncSize + p.ParamSpace
 	if p.TriceSize > packageSize { // todo: change to '>' for multiple trices in one package (TriceOutMultiPackMode instead of TriceOutMultiSafeMode)
-		n += copy(b[n:], fmt.Sprintln("ERROR:package size", packageSize, "is <", p.TriceSize, " - ignoring package", p.B))
-		n += copy(b[n:], fmt.Sprintln(tyIdSize, decoder.TargetTimestampSize, ncSize, p.ParamSpace))
-		n += copy(b[n:], fmt.Sprintln(decoder.Hints))
 		if p.packageFraming == packageFramingNone {
-			p.B = p.B[1:] // discard first byte and try again
-		} else {
-			p.B = p.B[len(p.B):] // discard buffer
+			if p.packageFraming == packageFramingNone {
+				if decoder.Verbose {
+					n += copy(b[n:], fmt.Sprintln("wrn:discarding byte", p.B[0]))
+				}
+				p.B = p.B[1:] // discard first byte and try again
+			} else {
+				n += copy(b[n:], fmt.Sprintln("ERROR:package size", packageSize, "is <", p.TriceSize, " - ignoring package", p.B))
+				n += copy(b[n:], fmt.Sprintln(tyIdSize, decoder.TargetTimestampSize, ncSize, p.ParamSpace))
+				n += copy(b[n:], fmt.Sprintln(decoder.Hints))
+				p.B = p.B[len(p.B):] // discard buffer
+			}
 		}
 		return
 	}
@@ -345,6 +366,9 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 		n += copy(b[n:], fmt.Sprintln("WARNING:unknown ID ", triceID, "- ignoring trice ending with", p.B))
 		n += copy(b[n:], fmt.Sprintln(decoder.Hints))
 		if p.packageFraming == packageFramingNone {
+			if decoder.Verbose {
+				n += copy(b[n:], fmt.Sprintln("wrn:discarding byte", p.B[0]))
+			}
 			p.B = p.B[1:] // discard first byte and try again
 		} else {
 			p.B = p.B[:0] // discard all
@@ -357,15 +381,28 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 		n += copy(b[n:], fmt.Sprintln("ERROR:ignoring data garbage"))
 		n += copy(b[n:], fmt.Sprintln(decoder.Hints))
 		if p.packageFraming == packageFramingNone {
+			if decoder.Verbose {
+				n += copy(b[n:], fmt.Sprintln("wrn:discarding byte", p.B[0]))
+			}
 			p.B = p.B[1:] // discard first byte and try again
 		} else {
 			p.B = p.B[:0] // discard all
 		}
 	} else {
-		p.B = p.B[p.ParamSpace:] // drop param info
+		if p.packageFraming != packageFramingNone { // COBS | TCOBS are exact
+			p.B = p.B[p.ParamSpace:] // drop param info
+		} else { // no package framing
+			padding := (int(p.ParamSpace) + 3) & ^3
+			if padding <= len(p.B) {
+				p.B = p.B[padding:]
+			} else {
+				if decoder.Verbose {
+					n += copy(b[n:], fmt.Sprintln("wrn: cannot discard padding bytes"))
+				}
+			}
+		}
 	}
 	return
-
 }
 
 // sprintTrice writes a trice string or appropriate message into b and returns that len.

@@ -768,7 +768,7 @@
 		"Strg": "rd:TRICE64 double %12.6f (%%12.6f), aDouble(y)\\n"
 	},
 	"2171": {
-		"Type": "TRice",
+		"Type": "trice",
 		"Strg": "s:     NUCLEO-F030R8 STREAM_BUFFER MODE     \\n"
 	},
 	"2173": {
@@ -887,6 +887,10 @@
 		"Type": "TRICE8_7",
 		"Strg": "tst:TRICE8_7 %d %d %d %d %d %d %d\\n"
 	},
+	"2346": {
+		"Type": "TRice",
+		"Strg": "w: Hello! 👋🙂 \\a\\n\\n"
+	},
 	"2349": {
 		"Type": "TRICE",
 		"Strg": "rd:TRICE float %f (%%f)\\n"
@@ -1004,7 +1008,7 @@
 		"Strg": "tst:TRICE32 %d %d %d %d %d %d %d\\n"
 	},
 	"2545": {
-		"Type": "TRice",
+		"Type": "trice",
 		"Strg": "s:     NUCLEO-F030R8  STACK_BUFFER MODE     \\n"
 	},
 	"2562": {
@@ -1108,7 +1112,7 @@
 		"Strg": "msg:%s\\n"
 	},
 	"2684": {
-		"Type": "TRICE",
+		"Type": "trice",
 		"Strg": " = %d\\n"
 	},
 	"2701": {
@@ -1270,6 +1274,10 @@
 	"2886": {
 		"Type": "TRICE32",
 		"Strg": "rd:TRICE32 float %E (%%E)\\n"
+	},
+	"2887": {
+		"Type": "trice",
+		"Strg": "att: Trice static buffer size:%5u "
 	},
 	"2892": {
 		"Type": "TRICE64",
@@ -1467,6 +1475,10 @@
 		"Type": "TRICE8",
 		"Strg": "rd:TRICE8 line %t (%%t ,0)\\n"
 	},
+	"3215": {
+		"Type": "TRice",
+		"Strg": "w: Hello! 👋🙂 \\a\\n\\n"
+	},
 	"3229": {
 		"Type": "TRICE",
 		"Strg": "4"
@@ -1484,7 +1496,7 @@
 		"Strg": "msg:%s\\n"
 	},
 	"3248": {
-		"Type": "Trice",
+		"Type": "trice",
 		"Strg": "s:     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~     \\n"
 	},
 	"3252": {
@@ -1860,7 +1872,7 @@
 		"Strg": "msg:value=%u\\n"
 	},
 	"3758": {
-		"Type": "TRice",
+		"Type": "trice",
 		"Strg": "s:     NUCLEO-F030R8 DOUBLE_BUFFER MODE     \\n"
 	},
 	"3763": {
@@ -2367,6 +2379,10 @@
 		"Type": "TRICE",
 		"Strg": "tim:TRICE --------------------------------------------------\\n"
 	},
+	"4502": {
+		"Type": "TRice",
+		"Strg": "w: Hello! 👋🙂 \\a\\n\\n"
+	},
 	"4522": {
 		"Type": "TRICE",
 		"Strg": "tim:TRICE --------------------------------------------------\\n"
@@ -2528,7 +2544,7 @@
 		"Strg": "assert:yellow+i:blue\\n"
 	},
 	"4778": {
-		"Type": "TRICE",
+		"Type": "trice",
 		"Strg": " = %d\\n"
 	},
 	"4779": {
@@ -2583,6 +2599,10 @@
 		"Type": "TRICE32",
 		"Strg": "rd:TRICE32 int %d, float %f (%%f), %08x, %032b\\n"
 	},
+	"4882": {
+		"Type": "TRice",
+		"Strg": "w: Hello! 👋🙂 \\a\\n\\n"
+	},
 	"4884": {
 		"Type": "TRICE",
 		"Strg": "rd:TRICE float %.9f (%%.9f)\\n"
@@ -2614,6 +2634,10 @@
 	"4916": {
 		"Type": "TRICE32",
 		"Strg": "att:Single Trice Stack buf size:%4u"
+	},
+	"4925": {
+		"Type": "TRice",
+		"Strg": "w: Hello! 👋🙂 \\a\\n\\n"
 	},
 	"4948": {
 		"Type": "TRICE64_2",
@@ -2742,6 +2766,10 @@
 	"5114": {
 		"Type": "Trice32",
 		"Strg": "no value"
+	},
+	"5116": {
+		"Type": "TRice",
+		"Strg": "w: Hello! 👋🙂 \\a\\n\\n"
 	},
 	"5118": {
 		"Type": "TRICE16",
@@ -2879,6 +2907,10 @@
 		"Type": "TRICE32",
 		"Strg": "att: Trice stream buffer size:%5u "
 	},
+	"5300": {
+		"Type": "TRice",
+		"Strg": "w: Hello! 👋🙂 \\a\\n\\n"
+	},
 	"5306": {
 		"Type": "TRICE16_2",
 		"Strg": "tst:TRICE16_2 %d %d\\n"
@@ -2962,6 +2994,10 @@
 	"5443": {
 		"Type": "TRICE64_9",
 		"Strg": "tst:TRICE64_9  %d %d %d %d %d %d %d %d %d\\n"
+	},
+	"5451": {
+		"Type": "TRice",
+		"Strg": "w: Hello! 👋🙂 \\a\\n\\n"
 	},
 	"5455": {
 		"Type": "TRICE64",
@@ -3340,7 +3376,7 @@
 		"Strg": "rd:TRICE16 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
 	},
 	"6041": {
-		"Type": "trice",
+		"Type": "Trice",
 		"Strg": "msg:Trice check range is [%u...%u)\\n"
 	},
 	"6044": {

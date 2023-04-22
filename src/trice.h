@@ -260,10 +260,18 @@ static inline void triceSingleWrite( void ){
     size_t wordCount = TriceBufferWritePosition - triceSingleBufferStartWritePosition;
 #ifdef TRICE_DIRECT_OUT
     size_t len = wordCount<<2; // len is the trice len without TRICE_OFFSET but with padding bytes.
+    //SEGGER_RTT_Write(0, triceSingleBufferStartWritePosition, len ); // no encoding!!!!!!!!!!!
     //SEGGER_RTT_WriteNoLock(0, triceSingleBufferStartWritePosition, len ); // no encoding!!!!!!!!!!!
-    singleTriceDirectOut( triceSingleBuffer, len ); // with encoding
+    extern SEGGER_RTT_BUFFER_UP* pRing;
+    //void _WriteNoCheck(SEGGER_RTT_BUFFER_UP* pRing, const char* pData, unsigned NumBytes);
+    //_WriteNoCheck(pRing, (char const *)triceSingleBufferStartWritePosition, len );
+    
+    void _WriteNoCheck32(SEGGER_RTT_BUFFER_UP* pRing, const uint32_t* pData, unsigned NumW);
+    _WriteNoCheck32( pRing, triceSingleBufferStartWritePosition, wordCount);
+//TriceBufferWritePosition = triceSingleBufferStartWritePosition;
+    //singleTriceDirectOut( triceSingleBuffer, len ); // with encoding
 #endif
-#ifdef TRICE_DEFERRED_OUT
+#if 0 // def TRICE_DEFERRED_OUT
     uint32_t* next = TriceNextDeferredBuffer(wordCount);
     uint32_t* dest = next + (TRICE_DATA_OFFSET>>2);
     uint32_t* src = triceSingleBufferStartWritePosition;

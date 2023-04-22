@@ -74,7 +74,7 @@ static size_t deferredBufferDepth( uint32_t* tBuf ){
 }
 
 void TriceLogBufferInfo( void ){
-    TRICE32( id( 6429), "att: Trice static buffer size:%5u ", TRICE_DATA_OFFSET + TRICE_SINGLE_MAX_SIZE );
+    trice( iD( 2887), "att: Trice static buffer size:%5u ", TRICE_DATA_OFFSET + TRICE_SINGLE_MAX_SIZE );
 }
 
 #endif // #if TRICE_MODE == TRICE_STATIC_BUFFER

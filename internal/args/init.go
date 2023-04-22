@@ -133,11 +133,11 @@ It is the only setup parameter. The other values default to 8N1 (8 data bits, no
 	For args options see JLinkRTTLogger in SEGGER UM08001_JLink.pdf.`
 
 	argsInfo := fmt.Sprint(`Use to pass port specific parameters. The "default" value depends on the used port:
-port "BUFFER": default="`, receiver.DefaultBUFFERArgs, `", Option for args is any space separated decimal number byte sequence.
-port "DUMP": default="`, receiver.DefaultDumpArgs, `", Option for args is any space or comma separated byte sequence in hex like "7B 1A ee,88, 5a".
+port "BUFFER": default="`, receiver.DefaultBUFFERArgs, `", Option for args is any space separated decimal number byte sequence. Example -p BUFFER -args "7 123 44".
+port "DUMP": default="`, receiver.DefaultDumpArgs, `", Option for args is any space or comma separated byte sequence in hex. Example: -p DUMP -args "7B 1A ee,88, 5a".
 port "COMn": default="`, receiver.DefaultCOMArgs, `", Unused option for a different driver. (For baud rate settings see -baud.)
-port "FILE": default="`, receiver.DefaultFileArgs, `", Option for args is any file name. Trice retries on EOF.
-port "FILEBUFFER": default="`, receiver.DefaultFileArgs, `", Option for args is any file name. Trice stops on EOF.
+port "FILE": default="`, receiver.DefaultFileArgs, `", Option for args is any file name for binary log data like written []byte{115, 111, 109, 101, 10}. Trice retries on EOF.
+port "FILEBUFFER": default="`, receiver.DefaultFileArgs, `", Option for args is any file name for binary log data like written []byte{115, 111, 109, 101, 10}. Trice stops on EOF.
 port "J-LINK": default="`, receiver.DefaultLinkArgs, `", `, linkArgsInfo, `
 port "ST-LINK": default="`, receiver.DefaultLinkArgs, `", `, linkArgsInfo, `
 port "TCP4": default="`, receiver.DefaultTCP4Args, `", use any IP:port endpoint like "127.0.0.1:19021"

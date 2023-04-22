@@ -303,11 +303,11 @@ extern "C" {
 // Headline info
 //
 #if TRICE_MODE == TRICE_STACK_BUFFER
-#define LOG_TRICE_MODE TRice( iD( 2545), "s:     NUCLEO-F030R8  STACK_BUFFER MODE     \n" );
+#define LOG_TRICE_MODE trice( iD( 2545), "s:     NUCLEO-F030R8  STACK_BUFFER MODE     \n" );
 #elif TRICE_MODE == TRICE_STREAM_BUFFER
-#define LOG_TRICE_MODE TRice( iD( 2171), "s:     NUCLEO-F030R8 STREAM_BUFFER MODE     \n" );
+#define LOG_TRICE_MODE trice( iD( 2171), "s:     NUCLEO-F030R8 STREAM_BUFFER MODE     \n" );
 #elif TRICE_MODE == TRICE_DOUBLE_BUFFER
-#define LOG_TRICE_MODE TRice( iD( 3758), "s:     NUCLEO-F030R8 DOUBLE_BUFFER MODE     \n" );
+#define LOG_TRICE_MODE trice( iD( 3758), "s:     NUCLEO-F030R8 DOUBLE_BUFFER MODE     \n" );
 #else
 #define LOG_TRICE_MODE // #error or TRICE_OFF
 #endif
@@ -319,7 +319,7 @@ extern "C" {
     trice( iD( 2661), "s:     " ); \
     TriceLogBufferInfo(); \
     trice( iD( 6427), "s:     \n" ); \
-    Trice( iD( 3248), "s:     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~     \n");
+    trice( iD( 3248), "s:     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~     \n");
 
 //
 ///////////////////////////////////////////////////////////////////////////////
