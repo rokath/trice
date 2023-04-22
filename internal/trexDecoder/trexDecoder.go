@@ -236,6 +236,7 @@ func (p *trexDec) nextPackage() {
 func (p *trexDec) Read(b []byte) (n int, err error) {
 	if p.packageFraming == packageFramingNone {
 		p.nextData() // returns all unprocessed data inside p.B
+		p.B0 = p.B   // keep data for re-sync
 	} else {
 		if len(p.B) == 0 { // last decoded package exhausted
 			p.nextPackage() // returns one decoded package inside p.B
@@ -273,10 +274,9 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 		//case typeX3: // extended trice type X0
 		// todo: implement special case here
 		if p.packageFraming == packageFramingNone && len(p.B) > 0 { // typeX0 is not supported (yet)
-			if decoder.Verbose {
-				fmt.Fprintln(p.W, "discarding byte", p.B[0])
-			}
-			p.B = p.B[1:] // remove first byte to try to resync
+			n += copy(b[n:], fmt.Sprintln("wrn:discarding byte", p.B0[0]))
+			p.B0 = p.B0[1:] // remove first byte to try to resync
+			p.B = p.B0
 		}
 		return
 	}
@@ -317,10 +317,9 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 	if p.TriceSize > packageSize { // todo: change to '>' for multiple trices in one package (TriceOutMultiPackMode instead of TriceOutMultiSafeMode)
 		if p.packageFraming == packageFramingNone {
 			if p.packageFraming == packageFramingNone {
-				if decoder.Verbose {
-					n += copy(b[n:], fmt.Sprintln("wrn:discarding byte", p.B[0]))
-				}
-				p.B = p.B[1:] // discard first byte and try again
+				n += copy(b[n:], fmt.Sprintln("wrn:discarding byte", p.B0[0]))
+				p.B0 = p.B0[1:] // discard first byte and try again
+				p.B = p.B0
 			} else {
 				n += copy(b[n:], fmt.Sprintln("ERROR:package size", packageSize, "is <", p.TriceSize, " - ignoring package", p.B))
 				n += copy(b[n:], fmt.Sprintln(tyIdSize, decoder.TargetTimestampSize, ncSize, p.ParamSpace))
@@ -363,14 +362,13 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 	p.Trice, ok = p.Lut[triceID]
 	p.LutMutex.RUnlock()
 	if !ok {
-		n += copy(b[n:], fmt.Sprintln("WARNING:unknown ID ", triceID, "- ignoring trice ending with", p.B))
-		n += copy(b[n:], fmt.Sprintln(decoder.Hints))
 		if p.packageFraming == packageFramingNone {
-			if decoder.Verbose {
-				n += copy(b[n:], fmt.Sprintln("wrn:discarding byte", p.B[0]))
-			}
-			p.B = p.B[1:] // discard first byte and try again
+			n += copy(b[n:], fmt.Sprintln("wrn:discarding byte", p.B0[0]))
+			p.B0 = p.B0[1:] // discard first byte and try again
+			p.B = p.B0
 		} else {
+			n += copy(b[n:], fmt.Sprintln("WARNING:unknown ID ", triceID, "- ignoring trice ending with", p.B))
+			n += copy(b[n:], fmt.Sprintln(decoder.Hints))
 			p.B = p.B[:0] // discard all
 		}
 		return
@@ -378,14 +376,13 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 
 	n += p.sprintTrice(b[n:]) // use param info
 	if len(p.B) < p.ParamSpace {
-		n += copy(b[n:], fmt.Sprintln("ERROR:ignoring data garbage"))
-		n += copy(b[n:], fmt.Sprintln(decoder.Hints))
 		if p.packageFraming == packageFramingNone {
-			if decoder.Verbose {
-				n += copy(b[n:], fmt.Sprintln("wrn:discarding byte", p.B[0]))
-			}
-			p.B = p.B[1:] // discard first byte and try again
+			n += copy(b[n:], fmt.Sprintln("wrn:discarding byte", p.B0[0]))
+			p.B0 = p.B0[1:] // discard first byte and try again
+			p.B = p.B0
 		} else {
+			n += copy(b[n:], fmt.Sprintln("ERROR:ignoring data garbage"))
+			n += copy(b[n:], fmt.Sprintln(decoder.Hints))
 			p.B = p.B[:0] // discard all
 		}
 	} else {
@@ -396,9 +393,7 @@ func (p *trexDec) Read(b []byte) (n int, err error) {
 			if padding <= len(p.B) {
 				p.B = p.B[padding:]
 			} else {
-				if decoder.Verbose {
-					n += copy(b[n:], fmt.Sprintln("wrn: cannot discard padding bytes"))
-				}
+				n += copy(b[n:], fmt.Sprintln("wrn: cannot discard padding bytes"))
 			}
 		}
 	}
