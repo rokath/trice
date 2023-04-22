@@ -259,7 +259,7 @@ static inline void triceSingleWrite( void ){
     // The last written uint32_t trice value can contain 1 to 3 padding bytes and these are always 0.
     size_t wordCount = TriceBufferWritePosition - triceSingleBufferStartWritePosition;
 #ifdef TRICE_DIRECT_OUT
-    size_t len = wordCount<<2; // len is the trice len without TRICE_OFFSET but with padding bytes.
+    //size_t len = wordCount<<2; // len is the trice len without TRICE_OFFSET but with padding bytes.
     //SEGGER_RTT_Write(0, triceSingleBufferStartWritePosition, len ); // no encoding!!!!!!!!!!!
     //SEGGER_RTT_WriteNoLock(0, triceSingleBufferStartWritePosition, len ); // no encoding!!!!!!!!!!!
     extern SEGGER_RTT_BUFFER_UP* pRing;

@@ -1615,6 +1615,10 @@
 		"Type": "TRICE",
 		"Strg": "INFO:informal   message, SysTick is %6u\\n"
 	},
+	"3394": {
+		"Type": "Trice",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
 	"3395": {
 		"Type": "TRICE8_1",
 		"Strg": "tst:TRICE8_1 %u\\n"
@@ -2150,6 +2154,10 @@
 	"4108": {
 		"Type": "trice64",
 		"Strg": "msg:value=%d, %d, %d\\n"
+	},
+	"4114": {
+		"Type": "TRice",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
 	},
 	"4115": {
 		"Type": "TRICE_S",
@@ -2971,6 +2979,10 @@
 		"Type": "TRICE",
 		"Strg": "interrupt:magenta+i:default+h\\n"
 	},
+	"5397": {
+		"Type": "Trice",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
+	},
 	"5417": {
 		"Type": "TRICE8",
 		"Strg": "rd:TRICE8 line %o (%%o ,-1)\\n"
@@ -3376,7 +3388,7 @@
 		"Strg": "rd:TRICE16 %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\\n"
 	},
 	"6041": {
-		"Type": "Trice",
+		"Type": "trice",
 		"Strg": "msg:Trice check range is [%u...%u)\\n"
 	},
 	"6044": {
@@ -3550,6 +3562,10 @@
 	"6361": {
 		"Type": "TRICE64",
 		"Strg": "tst:TRICE64 %d %d %d %d %d %d %d\\n"
+	},
+	"6363": {
+		"Type": "TRICE",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
 	},
 	"6375": {
 		"Type": "TRice",
@@ -4270,6 +4286,10 @@
 	"7519": {
 		"Type": "TRICE",
 		"Strg": "sig:TRICE64_n with 1 to 12 values\\n"
+	},
+	"7529": {
+		"Type": "TRICE",
+		"Strg": "w: Hello! 👋🙂 \\a\\n"
 	},
 	"7531": {
 		"Type": "TRICE8_4",

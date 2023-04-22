@@ -114,7 +114,8 @@ void usDuty( void ){
 
 // 16-bit us stamp, wraps after 10 milliseconds
 uint16_t TriceStamp16( void ){
-    return Us16();
+    return SysTick->VAL;
+    // return Us16();
 }
 
 // 32-bit us stamp, wraps after 71,58 seconds
