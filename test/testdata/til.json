@@ -1115,6 +1115,10 @@
 		"Type": "trice",
 		"Strg": " = %d\\n"
 	},
+	"2693": {
+		"Type": "TRice",
+		"Strg": "msg:%32b loops\\n"
+	},
 	"2701": {
 		"Type": "TRICE32",
 		"Strg": "rd:Use %%p to format a pointer in base 16 notation with leading 0x. (%p)\\n"

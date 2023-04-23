@@ -3,7 +3,7 @@
 //! //////////////////////////////////////////////////////////////////////////
 #include "trice.h"
 
-#if TRICE_MODE == TRICE_STATIC_BUFFER
+#if TRICE_INTERMEDIATE_BUFFER == TRICE_STATIC_BUFFER
 
 #if TRICE_DEFERRED_BUFFER_SIZE < 2*(TRICE_SINGLE_MAX_SIZE+TRICE_DATA_OFFSET)
 #error
@@ -29,7 +29,6 @@ uint32_t* TriceNextDeferredBuffer( uint32_t wordCount ){
     return TriceDeferredBufferWritePosition; 
 }
 
-
 void TriceServeDeferredBuffer( void ){
     if( singleTricesDeferredCount == 0 ){
         return;
@@ -48,9 +47,6 @@ void TriceServeDeferredBuffer( void ){
     }
     // ...
 }
-
-
-
 
 //! triceLen returns the trice byte count ready for transfer including padding bytes.
 //! The trice data start at tb + TRICE_DATA_OFFSET.
@@ -77,4 +73,4 @@ void TriceLogBufferInfo( void ){
     trice( iD( 2887), "att: Trice static buffer size:%5u ", TRICE_DATA_OFFSET + TRICE_SINGLE_MAX_SIZE );
 }
 
-#endif // #if TRICE_MODE == TRICE_STATIC_BUFFER
+#endif // #if TRICE_INTERMEDIATE_BUFFER == TRICE_STATIC_BUFFER

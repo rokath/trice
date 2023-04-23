@@ -8,6 +8,14 @@
 #include "./box/SEGGER_RTT.c"
 #endif
 
+#if TRICE_INTERMEDIATE_BUFFER == TRICE_STACK_BUFFER
+#include "./box/triceStackBuffer.c"
+#endif
+
+#if TRICE_INTERMEDIATE_BUFFER == TRICE_STATIC_BUFFER
+#include "./box/triceStaticBuffer.c"
+#endif
+
 #if TRICE_FRAMING==TRICE_FRAMING_COBS
 #include "./box/cobsEncode.c"
 #endif
@@ -24,17 +32,11 @@
 #include "./box/triceModbusBuffer.c"
 #endif
 
-#if TRICE_MODE==TRICE_STACK_BUFFER
-#include "./box/triceStackBuffer.c"
-#endif
 
 #if TRICE_MODE==TRICE_STREAM_BUFFER
 #include "./box/triceStreamBuffer.c"
 #endif
 
-#if TRICE_MODE==TRICE_STATIC_BUFFER
-#include "./box/triceStaticBuffer.c"
-#endif
 
 
 #ifdef XTEA_ENCRYPT_KEY

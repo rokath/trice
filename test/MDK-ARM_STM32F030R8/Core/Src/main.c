@@ -34,7 +34,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define TRICE_CHECK_CODE 1
+#define TRICE_CHECK_CODE 0
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -58,10 +58,6 @@ static void MX_USART2_UART_Init(void);
 void UsDuty( void );
 uint32_t milliSecond( void );
 
-// Get "to-host" ring buffer.
-SEGGER_RTT_BUFFER_UP* pRing = (SEGGER_RTT_BUFFER_UP*)((char*)&_SEGGER_RTT.aUp[0] + SEGGER_RTT_UNCACHED_OFF);  // Access uncached to make sure we see changes made by the J-Link side and all of our changes go into HW directly
-
-
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -80,9 +76,6 @@ int main(void)
   /* USER CODE BEGIN 1 */
     #ifdef TRICE_RTT0
     SEGGER_RTT_Write(0, 0, 0 ); // This is just to force the INIT() call inside SEGGER_RTT.c what allows to use SEGGER_RTT_WriteNoLock instead of SEGGER_RTT_Write
-    
-    SEGGER_RTT_BUFFER_UP* pRing = (SEGGER_RTT_BUFFER_UP*)((char*)&_SEGGER_RTT.aUp[0] + SEGGER_RTT_UNCACHED_OFF);  // Access uncached to make sure we see changes made by the J-Link side and all of our changes go into HW directly
-
     #endif
     TRICE_HEADLINE;
 
@@ -144,13 +137,13 @@ int main(void)
             TRICE_S( Id( 5865), "att:Executing command %s ...\a\n", triceCommandBuffer ); // with sound!
             // do
             TRICE( ID( 6967), "att:...done\n" );
-
         }
 
-        #if ((TRICE_MODE == TRICE_DOUBLE_BUFFER) || (TRICE_MODE == TRICE_STREAM_BUFFER) ) // TRICE_DEFERRED_OUT
-        // serve trice transfer every few ms, with an RTOS put this in a separate task.
+        #if 0 //def TRICE_DEFERRED_OUT
+        // Serve trice transfer every few ms.
+        // With an RTOS put this in a separate task.
         static unsigned lastMs = 0;
-        if( ms >= lastMs + TRICE_TRANSFER_INTERVAL_MS ){
+        if( ms >= lastMs + 10 ){ // TRICE_TRANSFER_INTERVAL_MS
             lastMs = ms;
             TriceTransfer();
         }
@@ -158,7 +151,7 @@ int main(void)
 
         // generate some trices every few ms
         static unsigned lastTricesTime = 0;
-        const unsigned msInterval = 1; // change this value to change trice generation speed (not below 2!)
+        const unsigned msInterval = 100; // change this value to change trice generation speed 
         if( ms >= lastTricesTime + msInterval ){
             lastTricesTime = ms;
             #if TRICE_CHECK_CODE // with or without triceCheck.c
@@ -170,7 +163,7 @@ int main(void)
                 TriceDiagnostics( triceCheckIndex );
             #else
             
-            TRice( iD( 3094), "msg:%12b loops\n", loop );
+            TRice( iD( 2693), "msg:%32b loops\n", loop );
             loop++;
             #endif // #if TRICE_CHECK_CODE 
         }

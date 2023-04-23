@@ -139,6 +139,38 @@ static size_t triceEncode( uint8_t* enc, uint8_t const* buf, size_t len ){
 
 #ifdef TRICE_RTT0
 
+//! SEGGER_Write_RTT0_NoCheck32 was derived from SEGGER_RTT.c version 7.60g function _WriteNoCheck for speed reasons. If using a different version please review the code first.
+void SEGGER_Write_RTT0_NoCheck32( const uint32_t* pData, unsigned NumW ) {
+    unsigned NumWordsAtOnce;
+    unsigned WrOff;
+    unsigned RemW;
+    // Get "to-host" ring buffer.
+    static SEGGER_RTT_BUFFER_UP * const pRingUp0 = (SEGGER_RTT_BUFFER_UP*)((char*)&_SEGGER_RTT.aUp[0] + SEGGER_RTT_UNCACHED_OFF);  // Access uncached to make sure we see changes made by the J-Link side and all of our changes go into HW directly
+    WrOff = pRingUp0->WrOff;
+    RemW = (pRingUp0->SizeOfBuffer - WrOff)>>2;
+    volatile uint32_t* pDstW = (uint32_t*)((pRingUp0->pBuffer + WrOff) + SEGGER_RTT_UNCACHED_OFF);
+    if (RemW > NumW) { // All data fits before wrap around
+        WrOff += NumW<<2;
+        while (NumW--) {
+            *pDstW++ = *pData++;
+        };
+        RTT__DMB();                     // Force data write to be complete before writing the <WrOff>, in case CPU is allowed to change the order of memory accesses
+        pRingUp0->WrOff = WrOff;
+    } else { // We reach the end of the buffer, so need to wrap around
+        NumWordsAtOnce = RemW;
+        while (NumWordsAtOnce--) {
+            *pDstW++ = *pData++;
+        };
+        pDstW = (uint32_t*)(pRingUp0->pBuffer + SEGGER_RTT_UNCACHED_OFF);
+        NumWordsAtOnce = NumW - RemW;
+        while (NumWordsAtOnce--) {
+            *pDstW++ = *pData++;
+        };
+        RTT__DMB();                     // Force data write to be complete before writing the <WrOff>, in case CPU is allowed to change the order of memory accesses
+        pRingUp0->WrOff = (NumW - RemW)<<2;
+    }
+}
+
 #ifdef TRICE_SEGGER_RTT_DIAGNOSTICS
 unsigned RTT0_writeSpaceMin = BUFFER_SIZE_UP; //! RTT0_writeSpaceMin is usable for diagnostics.
 unsigned RTT0_bytesInBufferMax = 0;        //! RTT0_bytesInBufferMax is usable for diagnostics.
@@ -198,7 +230,7 @@ void TriceWriteDeviceModbus( uint8_t *buf, size_t len ){
 }
 #endif
 
-#if TRICE_MODE == TRICE_STATIC_BUFFER
+#if TRICE_INTERMEDIATE_BUFFER == TRICE_STATIC_BUFFER
 uint32_t triceSingleBuffer[(TRICE_DATA_OFFSET + TRICE_SINGLE_MAX_SIZE)>>2];
 uint32_t* const triceSingleBufferStartWritePosition = &triceSingleBuffer[TRICE_DATA_OFFSET>>2];
 uint32_t* TriceBufferWritePosition;
