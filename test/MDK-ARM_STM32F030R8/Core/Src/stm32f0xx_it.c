@@ -245,6 +245,8 @@ void USART2_IRQHandler(void)
   /* USER CODE BEGIN USART2_IRQn 0 */
 #if defined( TRICE_UARTA )
     if (LL_USART_IsActiveFlag_RXNE(TRICE_UARTA) ) { // Read Data Register Not Empty Flag 
+     // todo: Do it better:
+     // https://github.com/Apress/Beg-STM32-Devel-FreeRTOS-libopencm3-GCC/rtos/libwwg/src/getline.c
         static char rxBuf[TRICE_COMMAND_SIZE_MAX+1]; // with terminating 0
         static int index = 0;
         uint8_t v;
